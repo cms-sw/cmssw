@@ -20,9 +20,8 @@ using namespace std;
 
 //----------------------------------------------------------------------------------------------------
 
-TDirectory* mkdir(TDirectory *parent, const char *child)
-{
-  TDirectory *dir = (TDirectory *) parent->Get(child);
+TDirectory *mkdir(TDirectory *parent, const char *child) {
+  TDirectory *dir = (TDirectory *)parent->Get(child);
   if (!dir)
     dir = parent->mkdir(child);
   return dir;
@@ -30,52 +29,45 @@ TDirectory* mkdir(TDirectory *parent, const char *child)
 
 //----------------------------------------------------------------------------------------------------
 
-struct Stat
-{
+struct Stat {
   double s1, sx, sxx, sxxx, sxxxx;
 
-  Stat() : s1(0.), sx(0.), sxx(0.), sxxx(0.), sxxxx(0.)
-  {}
+  Stat() : s1(0.), sx(0.), sxx(0.), sxxx(0.), sxxxx(0.) {}
 
   void fill(double x) {
     s1 += 1;
     sx += x;
-    sxx += x*x;
-    sxxx += x*x*x;
-    sxxxx += x*x*x*x;
+    sxx += x * x;
+    sxxx += x * x * x;
+    sxxxx += x * x * x * x;
   }
 
-  double n() const
-    { return s1; }
+  double n() const { return s1; }
 
-  double mean() const
-    { return sx / s1; }
+  double mean() const { return sx / s1; }
 
-  double meanError() const
-  {
+  double meanError() const {
     double v = rms() / sqrt(s1);
     return v;
   }
 
-  double rms() const
-  {
-    double sig_sq = (sxx - sx*sx/s1) / (s1 - 1.);
+  double rms() const {
+    double sig_sq = (sxx - sx * sx / s1) / (s1 - 1.);
     if (sig_sq < 0)
       sig_sq = 0;
 
     return sqrt(sig_sq);
   }
 
-  double rmsError() const
-  {
+  double rmsError() const {
     // see R.J.Barlow: Statistics, page 78
     double mu = mean();
     double E2 = rms();
     E2 *= E2;
     //if (print) printf("\t\t%E, %E, %E, %E, %E\n", sxxxx, -4.*sxxx*mu, 6.*sxx*mu*mu, -4.*sx*mu*mu*mu, s1*mu*mu*mu*mu);
-    double E4 = (sxxxx - 4.*sxxx*mu + 6.*sxx*mu*mu - 4.*sx*mu*mu*mu + s1*mu*mu*mu*mu) / s1;
+    double E4 = (sxxxx - 4. * sxxx * mu + 6. * sxx * mu * mu - 4. * sx * mu * mu * mu + s1 * mu * mu * mu * mu) / s1;
     //if (print) printf("\t\tmu = %E, E2 = %E, E4 = %E\n", mu, E2, E4);
-    double v_sig_sq = (s1 - 1) * ((s1 - 1)*E4 - (s1 - 3)*E2*E2) / s1/s1/s1;
+    double v_sig_sq = (s1 - 1) * ((s1 - 1) * E4 - (s1 - 3) * E2 * E2) / s1 / s1 / s1;
     double v_sig = v_sig_sq / 4. / E2;
     //if (print) printf("\t\tv_sig_sq = %E\n", v_sig_sq);
     if (v_sig < 0 || std::isnan(v_sig) || std::isinf(v_sig)) {
@@ -89,8 +81,7 @@ struct Stat
 
 //----------------------------------------------------------------------------------------------------
 
-struct DetStat
-{
+struct DetStat {
   // _v ... value given by Jan algorithm
   // _u ... uncertainty estimated by Jan algorithm
   // _e ... difference (Jan - Ideal) algorithm
@@ -102,8 +93,7 @@ struct DetStat
 
 //----------------------------------------------------------------------------------------------------
 
-struct RPStat
-{
+struct RPStat {
   Stat sh_x_v, sh_x_u, sh_x_e;
   Stat sh_y_v, sh_y_u, sh_y_e;
   Stat rot_z_v, rot_z_u, rot_z_e;
@@ -112,23 +102,27 @@ struct RPStat
 
 //----------------------------------------------------------------------------------------------------
 
-struct Desc
-{
-  unsigned int N; // number of events
-  unsigned int i; // iteration
-  unsigned int d; // detector
+struct Desc {
+  unsigned int N;  // number of events
+  unsigned int i;  // iteration
+  unsigned int d;  // detector
   Desc(unsigned int _N, unsigned int _i, unsigned int _d) : N(_N), i(_i), d(_d) {}
-  bool operator< (const Desc &c) const;
+  bool operator<(const Desc &c) const;
 };
 
-bool Desc::operator< (const Desc &c) const
-{
-  if (this->N < c.N) return true;
-  if (this->N > c.N) return false;
-  if (this->i < c.i) return true;
-  if (this->i > c.i) return false;
-  if (this->d < c.d) return true;
-  if (this->d > c.d) return false;
+bool Desc::operator<(const Desc &c) const {
+  if (this->N < c.N)
+    return true;
+  if (this->N > c.N)
+    return false;
+  if (this->i < c.i)
+    return true;
+  if (this->i > c.i)
+    return false;
+  if (this->d < c.d)
+    return true;
+  if (this->d > c.d)
+    return false;
   return false;
 }
 
@@ -139,20 +133,20 @@ map<Desc, RPStat> rp_stat;
 
 //----------------------------------------------------------------------------------------------------
 
-void resetStatistics()
-{
+void resetStatistics() {
   det_stat.clear();
   rp_stat.clear();
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void updateSensorStatistics(unsigned int n_events, unsigned iteration, const CTPPSRPAlignmentCorrectionsData &r_actual,
-  const CTPPSRPAlignmentCorrectionsData &r_ideal)
-{
+void updateSensorStatistics(unsigned int n_events,
+                            unsigned iteration,
+                            const CTPPSRPAlignmentCorrectionsData &r_actual,
+                            const CTPPSRPAlignmentCorrectionsData &r_ideal) {
   for (CTPPSRPAlignmentCorrectionsData::mapType::const_iterator it = r_actual.getSensorMap().begin();
-      it != r_actual.getSensorMap().end(); ++it) {
-
+       it != r_actual.getSensorMap().end();
+       ++it) {
     unsigned int id = it->first;
     const auto &c_actual = r_actual.getFullSensorCorrection(id, false);
     const auto &c_ideal = r_ideal.getFullSensorCorrection(id, false);
@@ -166,7 +160,7 @@ void updateSensorStatistics(unsigned int n_events, unsigned iteration, const CTP
     s.sh_y_v.fill(c_actual.getShY());
     s.sh_y_u.fill(c_actual.getShYUnc());
     s.sh_y_e.fill(c_actual.getShY() - c_ideal.getShY());
-    
+
     s.sh_z_v.fill(c_actual.getShZ());
     s.sh_z_u.fill(c_actual.getShZUnc());
     s.sh_z_e.fill(c_actual.getShZ() - c_ideal.getShZ());
@@ -179,12 +173,13 @@ void updateSensorStatistics(unsigned int n_events, unsigned iteration, const CTP
 
 //----------------------------------------------------------------------------------------------------
 
-void updateRPStatistics(unsigned int n_events, unsigned iteration, const CTPPSRPAlignmentCorrectionsData &r_actual,
-  const CTPPSRPAlignmentCorrectionsData &r_ideal)
-{
+void updateRPStatistics(unsigned int n_events,
+                        unsigned iteration,
+                        const CTPPSRPAlignmentCorrectionsData &r_actual,
+                        const CTPPSRPAlignmentCorrectionsData &r_ideal) {
   for (CTPPSRPAlignmentCorrectionsData::mapType::const_iterator it = r_actual.getRPMap().begin();
-      it != r_actual.getRPMap().end(); ++it) {
-
+       it != r_actual.getRPMap().end();
+       ++it) {
     unsigned int id = it->first;
     const auto &c_actual = r_actual.getRPCorrection(id);
     const auto &c_ideal = r_ideal.getRPCorrection(id);
@@ -194,11 +189,11 @@ void updateRPStatistics(unsigned int n_events, unsigned iteration, const CTPPSRP
     s.sh_x_v.fill(c_actual.getShX());
     s.sh_x_u.fill(c_actual.getShXUnc());
     s.sh_x_e.fill(c_actual.getShX() - c_ideal.getShX());
-    
+
     s.sh_y_v.fill(c_actual.getShY());
     s.sh_y_u.fill(c_actual.getShYUnc());
     s.sh_y_e.fill(c_actual.getShY() - c_ideal.getShY());
-    
+
     s.sh_z_v.fill(c_actual.getShZ());
     s.sh_z_u.fill(c_actual.getShZUnc());
     s.sh_z_e.fill(c_actual.getShZ() - c_ideal.getShZ());
@@ -211,44 +206,45 @@ void updateRPStatistics(unsigned int n_events, unsigned iteration, const CTPPSRP
 
 //----------------------------------------------------------------------------------------------------
 
-struct StatGraphs
-{
+struct StatGraphs {
   TGraph *n;
   TGraphErrors *v_m, *v_v, *u_m, *u_v, *e_m, *e_v, *eR;
-  StatGraphs() : n(new TGraph()),
-    v_m(new TGraphErrors()), v_v(new TGraphErrors()),
-    u_m(new TGraphErrors()), u_v(new TGraphErrors()),
-    e_m(new TGraphErrors()), e_v(new TGraphErrors()),
-    eR(new TGraphErrors())
-  {}
+  StatGraphs()
+      : n(new TGraph()),
+        v_m(new TGraphErrors()),
+        v_v(new TGraphErrors()),
+        u_m(new TGraphErrors()),
+        u_v(new TGraphErrors()),
+        e_m(new TGraphErrors()),
+        e_v(new TGraphErrors()),
+        eR(new TGraphErrors()) {}
 
   void write(const char *xLabel);
 };
 
 //----------------------------------------------------------------------------------------------------
 
-#define ENTRY(tag, label) \
-  tag->SetName(#tag); sprintf(buf, ";%s;" label, xLabel);\
-  tag->SetTitle(buf);\
+#define ENTRY(tag, label)             \
+  tag->SetName(#tag);                 \
+  sprintf(buf, ";%s;" label, xLabel); \
+  tag->SetTitle(buf);                 \
   tag->Write();
 
-void StatGraphs::write(const char *xLabel)
-{
+void StatGraphs::write(const char *xLabel) {
   char buf[50];
-  ENTRY(n,"number of repetitions");
-  ENTRY(v_m,"value mean");
-  ENTRY(v_v,"value variation");
-  ENTRY(u_m,"estim. uncertainty mean");
-  ENTRY(u_v,"estim. uncertainty variation");
-  ENTRY(e_m,"error mean");
-  ENTRY(e_v,"error variation");
-  ENTRY(eR,"error variation / estim. uncertainty");
+  ENTRY(n, "number of repetitions");
+  ENTRY(v_m, "value mean");
+  ENTRY(v_v, "value variation");
+  ENTRY(u_m, "estim. uncertainty mean");
+  ENTRY(u_v, "estim. uncertainty variation");
+  ENTRY(e_m, "error mean");
+  ENTRY(e_v, "error variation");
+  ENTRY(eR, "error variation / estim. uncertainty");
 }
 
 //----------------------------------------------------------------------------------------------------
 
-struct DetGraphs
-{
+struct DetGraphs {
   StatGraphs sh_x, sh_y, rot_z, sh_z;
   void fill(double x, const DetStat &);
   void write(const char *xLabel);
@@ -256,18 +252,16 @@ struct DetGraphs
 
 //----------------------------------------------------------------------------------------------------
 
-double eR_error(const Stat &e, const Stat &u)
-{
+double eR_error(const Stat &e, const Stat &u) {
   double a = e.rms(), ae = e.rmsError();
   double b = u.mean(), be = u.meanError();
 
-  return (b <= 0) ? 0. : a/b * sqrt(ae*ae/a/a + be*be/b/b);
+  return (b <= 0) ? 0. : a / b * sqrt(ae * ae / a / a + be * be / b / b);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void DetGraphs::fill(double x, const DetStat &s)
-{
+void DetGraphs::fill(double x, const DetStat &s) {
   int idx = sh_x.n->GetN();
 
   sh_x.n->SetPoint(idx, x, s.sh_x_u.n());
@@ -341,17 +335,23 @@ void DetGraphs::fill(double x, const DetStat &s)
 
 //----------------------------------------------------------------------------------------------------
 
-void DetGraphs::write(const char *xLabel)
-{
-  gDirectory = mkdir(gDirectory, "sh_x"); sh_x.write(xLabel); gDirectory->cd(".."); 
-  gDirectory = mkdir(gDirectory, "sh_y"); sh_y.write(xLabel); gDirectory->cd(".."); 
-  gDirectory = mkdir(gDirectory, "rot_z"); rot_z.write(xLabel); gDirectory->cd(".."); 
-  gDirectory = mkdir(gDirectory, "sh_z"); sh_z.write(xLabel); gDirectory->cd(".."); 
+void DetGraphs::write(const char *xLabel) {
+  gDirectory = mkdir(gDirectory, "sh_x");
+  sh_x.write(xLabel);
+  gDirectory->cd("..");
+  gDirectory = mkdir(gDirectory, "sh_y");
+  sh_y.write(xLabel);
+  gDirectory->cd("..");
+  gDirectory = mkdir(gDirectory, "rot_z");
+  rot_z.write(xLabel);
+  gDirectory->cd("..");
+  gDirectory = mkdir(gDirectory, "sh_z");
+  sh_z.write(xLabel);
+  gDirectory->cd("..");
 }
 //----------------------------------------------------------------------------------------------------
 
-struct RPGraphs
-{
+struct RPGraphs {
   StatGraphs sh_x, sh_y, rot_z, sh_z;
   void fill(double x, const RPStat &);
   void write(const char *xLabel);
@@ -359,8 +359,7 @@ struct RPGraphs
 
 //----------------------------------------------------------------------------------------------------
 
-void RPGraphs::fill(double x, const RPStat &s)
-{
+void RPGraphs::fill(double x, const RPStat &s) {
   int idx = sh_x.n->GetN();
 
   sh_x.n->SetPoint(idx, x, s.sh_x_u.n());
@@ -434,32 +433,36 @@ void RPGraphs::fill(double x, const RPStat &s)
 
 //----------------------------------------------------------------------------------------------------
 
-void RPGraphs::write(const char *xLabel)
-{
-  gDirectory = mkdir(gDirectory, "sh_x"); sh_x.write(xLabel); gDirectory->cd(".."); 
-  gDirectory = mkdir(gDirectory, "sh_y"); sh_y.write(xLabel); gDirectory->cd(".."); 
-  gDirectory = mkdir(gDirectory, "rot_z"); rot_z.write(xLabel); gDirectory->cd(".."); 
-  gDirectory = mkdir(gDirectory, "sh_z"); sh_z.write(xLabel); gDirectory->cd(".."); 
+void RPGraphs::write(const char *xLabel) {
+  gDirectory = mkdir(gDirectory, "sh_x");
+  sh_x.write(xLabel);
+  gDirectory->cd("..");
+  gDirectory = mkdir(gDirectory, "sh_y");
+  sh_y.write(xLabel);
+  gDirectory->cd("..");
+  gDirectory = mkdir(gDirectory, "rot_z");
+  rot_z.write(xLabel);
+  gDirectory->cd("..");
+  gDirectory = mkdir(gDirectory, "sh_z");
+  sh_z.write(xLabel);
+  gDirectory->cd("..");
 }
 
 //----------------------------------------------------------------------------------------------------
 
 TFile *sf;  // output file
 
-void writeGraphs(string r, string o, string d)
-{
-  map<Desc, DetGraphs> dFcnN; // here Desc::N is 0 by definition
-  map<Desc, DetGraphs> dFcnIt; // here Desc::i is 0 by definition
-  for (map<Desc, DetStat>::iterator it = det_stat.begin(); it != det_stat.end(); ++it)
-  {
+void writeGraphs(string r, string o, string d) {
+  map<Desc, DetGraphs> dFcnN;   // here Desc::N is 0 by definition
+  map<Desc, DetGraphs> dFcnIt;  // here Desc::i is 0 by definition
+  for (map<Desc, DetStat>::iterator it = det_stat.begin(); it != det_stat.end(); ++it) {
     dFcnN[Desc(0, it->first.i, it->first.d)].fill(it->first.N, it->second);
     dFcnIt[Desc(it->first.N, 0, it->first.d)].fill(it->first.i, it->second);
   }
 
-  map<Desc, RPGraphs> rFcnN; // here Desc::N is 0 by definition
-  map<Desc, RPGraphs> rFcnIt; // here Desc::i is 0 by definition
-  for (map<Desc, RPStat>::iterator it = rp_stat.begin(); it != rp_stat.end(); ++it)
-  {
+  map<Desc, RPGraphs> rFcnN;   // here Desc::N is 0 by definition
+  map<Desc, RPGraphs> rFcnIt;  // here Desc::i is 0 by definition
+  for (map<Desc, RPStat>::iterator it = rp_stat.begin(); it != rp_stat.end(); ++it) {
     rFcnN[Desc(0, it->first.i, it->first.d)].fill(it->first.N, it->second);
     rFcnIt[Desc(it->first.N, 0, it->first.d)].fill(it->first.i, it->second);
   }
@@ -475,8 +478,7 @@ void writeGraphs(string r, string o, string d)
 
   char buf[100];
   gDirectory = mkdir(gDirectory, "fcn_of_N");
-  for (map<Desc, DetGraphs>::iterator it = dFcnN.begin(); it != dFcnN.end(); ++it)
-  {
+  for (map<Desc, DetGraphs>::iterator it = dFcnN.begin(); it != dFcnN.end(); ++it) {
     sprintf(buf, "iteration>%u", it->first.i);
     gDirectory = mkdir(gDirectory, buf);
     sprintf(buf, "%u", it->first.d);
@@ -485,8 +487,7 @@ void writeGraphs(string r, string o, string d)
     gDirectory->cd("../..");
   }
 
-  for (map<Desc, RPGraphs>::iterator it = rFcnN.begin(); it != rFcnN.end(); ++it)
-  {
+  for (map<Desc, RPGraphs>::iterator it = rFcnN.begin(); it != rFcnN.end(); ++it) {
     sprintf(buf, "iteration>%u", it->first.i);
     gDirectory = mkdir(gDirectory, buf);
     sprintf(buf, "RP %u", it->first.d);
@@ -497,8 +498,7 @@ void writeGraphs(string r, string o, string d)
   gDirectory->cd("..");
 
   gDirectory = mkdir(gDirectory, "fcn_of_iteration");
-  for (map<Desc, DetGraphs>::iterator it = dFcnIt.begin(); it != dFcnIt.end(); ++it)
-  {
+  for (map<Desc, DetGraphs>::iterator it = dFcnIt.begin(); it != dFcnIt.end(); ++it) {
     sprintf(buf, "N>%u", it->first.N);
     gDirectory = mkdir(gDirectory, buf);
     sprintf(buf, "%u", it->first.d);
@@ -507,8 +507,7 @@ void writeGraphs(string r, string o, string d)
     gDirectory->cd("../..");
   }
 
-  for (map<Desc, RPGraphs>::iterator it = rFcnIt.begin(); it != rFcnIt.end(); ++it)
-  {
+  for (map<Desc, RPGraphs>::iterator it = rFcnIt.begin(); it != rFcnIt.end(); ++it) {
     sprintf(buf, "N>%u", it->first.N);
     gDirectory = mkdir(gDirectory, buf);
     sprintf(buf, "RP %u", it->first.d);
@@ -521,8 +520,7 @@ void writeGraphs(string r, string o, string d)
 
 //----------------------------------------------------------------------------------------------------
 
-bool isRegDir(const dirent *de)
-{
+bool isRegDir(const dirent *de) {
   if (de->d_type != DT_DIR)
     return false;
 
@@ -559,11 +557,9 @@ string r_ideal_file("./cumulative_factored_results_Ideal.xml");
 string s_actual_file("./cumulative_expanded_results_Jan.xml");
 string s_ideal_file("./cumulative_expanded_results_Ideal.xml");
 
-
 //----------------------------------------------------------------------------------------------------
 
-CTPPSRPAlignmentCorrectionsData LoadAlignment(const string &fn)
-{
+CTPPSRPAlignmentCorrectionsData LoadAlignment(const string &fn) {
   const auto &seq = CTPPSRPAlignmentCorrectionsMethods::loadFromXML(fn);
   if (seq.empty())
     throw cms::Exception("PPS") << "LoadAlignment: alignment sequence empty, file: " << fn;
@@ -573,8 +569,7 @@ CTPPSRPAlignmentCorrectionsData LoadAlignment(const string &fn)
 
 //----------------------------------------------------------------------------------------------------
 
-void PrintHelp(const char *name)
-{
+void PrintHelp(const char *name) {
   printf("USAGE: %s r_actual_file r_ideal_file s_actual_file s_ideal_file\n", name);
   printf("       %s --help (to print this help)\n", name);
   printf("PARAMETERS:\n");
@@ -586,8 +581,7 @@ void PrintHelp(const char *name)
 
 //----------------------------------------------------------------------------------------------------
 
-int main(int argc, const char* argv[])
-{
+int main(int argc, const char *argv[]) {
   if (argc > 1) {
     if (!strcmp(argv[1], "-h") || !strcmp(argv[1], "--help")) {
       PrintHelp(argv[0]);
@@ -617,52 +611,49 @@ int main(int argc, const char* argv[])
     DIR *dp_r = opendir(".");
     dirent *de_r;
     // traverse RPs directories
-    while ( (de_r = readdir(dp_r)) ) {
-      if (!isRegDir(de_r)) continue;
+    while ((de_r = readdir(dp_r))) {
+      if (!isRegDir(de_r))
+        continue;
 
       chdir(de_r->d_name);
       DIR *dp_o = opendir(".");
       // traverse optimized directories
       dirent *de_o;
-      while ( (de_o = readdir(dp_o)) ) {
-        if (!isRegDir(de_o)) continue;
+      while ((de_o = readdir(dp_o))) {
+        if (!isRegDir(de_o))
+          continue;
 
         chdir(de_o->d_name);
         DIR *dp_d = opendir(".");
         dirent *de_d;
         // traverse tr_dist directories
-        while ( (de_d = readdir(dp_d)) )
-        {
+        while ((de_d = readdir(dp_d))) {
           if (!isRegDir(de_d))
             continue;
-    
+
           // sort the tr_N directories by N
           chdir(de_d->d_name);
           DIR *dp_N = opendir(".");
           dirent *de_N;
           map<unsigned int, string> nMap;
-          while ( (de_N = readdir(dp_N)) )
-          {
-            if (isRegDir(de_N))
-            {
+          while ((de_N = readdir(dp_N))) {
+            if (isRegDir(de_N)) {
               string sN = de_N->d_name;
               sN = sN.substr(sN.find(':') + 1);
               unsigned int N = atof(sN.c_str());
               nMap[N] = de_N->d_name;
             }
           }
-          
+
           resetStatistics();
 
           // traverse tr_N directories
-          for (map<unsigned int, string>::iterator nit = nMap.begin(); nit != nMap.end(); ++nit)
-          {
+          for (map<unsigned int, string>::iterator nit = nMap.begin(); nit != nMap.end(); ++nit) {
             chdir(nit->second.c_str());
             DIR *dp_i = opendir(".");
             dirent *de_i;
             // traverse repetitions directories
-            while ( (de_i = readdir(dp_i)) )
-            {
+            while ((de_i = readdir(dp_i))) {
               if (!isRegDir(de_i))
                 continue;
 
@@ -672,10 +663,8 @@ int main(int argc, const char* argv[])
               DIR *dp_it = opendir(".");
               dirent *de_it;
               map<unsigned int, string> itMap;
-              while ( (de_it = readdir(dp_it)) )
-              {
-                if (isRegDir(de_it))
-                {
+              while ((de_it = readdir(dp_it))) {
+                if (isRegDir(de_it)) {
                   unsigned idx = 9;
                   if (de_it->d_name[9] == ':')
                     idx = 10;
@@ -688,12 +677,16 @@ int main(int argc, const char* argv[])
               for (map<unsigned int, string>::iterator iit = itMap.begin(); iit != itMap.end(); ++iit) {
                 chdir(iit->second.c_str());
 
-                printf("%s|%s|%s|%s|%s|%s\n", de_r->d_name, de_o->d_name, de_d->d_name, 
-                    nit->second.c_str(), de_i->d_name, iit->second.c_str());
-              
+                printf("%s|%s|%s|%s|%s|%s\n",
+                       de_r->d_name,
+                       de_o->d_name,
+                       de_d->d_name,
+                       nit->second.c_str(),
+                       de_i->d_name,
+                       iit->second.c_str());
+
                 // load and process alignments
-                try
-                { 
+                try {
                   const auto &r_actual = LoadAlignment(r_actual_file);
                   const auto &r_ideal = LoadAlignment(r_ideal_file);
                   updateRPStatistics(nit->first, iit->first, r_actual, r_ideal);
@@ -701,8 +694,7 @@ int main(int argc, const char* argv[])
                   const auto &s_actual = LoadAlignment(s_actual_file);
                   const auto &s_ideal = LoadAlignment(s_ideal_file);
                   updateSensorStatistics(nit->first, iit->first, s_actual, s_ideal);
-                }
-                catch (cms::Exception &e) {
+                } catch (cms::Exception &e) {
                   printf("ERROR: A CMS exception has been caught:\n%s\nSkipping this directory.\n", e.what());
                 }
 
@@ -712,7 +704,7 @@ int main(int argc, const char* argv[])
               closedir(dp_it);
               chdir("..");
             }
-            
+
             closedir(dp_i);
             chdir("..");
           }
@@ -740,7 +732,7 @@ int main(int argc, const char* argv[])
   catch (cms::Exception &e) {
     printf("ERROR: A CMS exception has been caught:\n%s\nStopping.\n", e.what());
   }
-  
+
   catch (std::exception &e) {
     printf("ERROR: A std::exception has been caught:\n%s\nStopping.\n", e.what());
   }

@@ -28,52 +28,51 @@ namespace edm {
 /**
  *\brief Abstract parent for all (track-based) alignment algorithms
  **/
-class AlignmentAlgorithm
-{
-  protected:
-    unsigned int verbosity;
+class AlignmentAlgorithm {
+protected:
+  unsigned int verbosity;
 
-    /// the tasked to be completed
-    AlignmentTask *task;
+  /// the tasked to be completed
+  AlignmentTask *task;
 
-    /// eigenvalues in (-singularLimit, singularLimit) are treated as singular
-    double singularLimit;
+  /// eigenvalues in (-singularLimit, singularLimit) are treated as singular
+  double singularLimit;
 
-  public:
-    /// dummy constructor (not to be used)
-    AlignmentAlgorithm() {}
-    
-    /// normal constructor
-    AlignmentAlgorithm(const edm::ParameterSet& ps, AlignmentTask *_t);
+public:
+  /// dummy constructor (not to be used)
+  AlignmentAlgorithm() {}
 
-    virtual ~AlignmentAlgorithm() {}
+  /// normal constructor
+  AlignmentAlgorithm(const edm::ParameterSet &ps, AlignmentTask *_t);
 
-    virtual std::string getName()
-      { return "Base"; }
+  virtual ~AlignmentAlgorithm() {}
 
-    /// returns whether this algorithm is capable of estimating result uncertainties
-    virtual bool hasErrorEstimate() = 0;
+  virtual std::string getName() { return "Base"; }
 
-    /// prepare for processing
-    virtual void begin(const edm::EventSetup&) = 0;
+  /// returns whether this algorithm is capable of estimating result uncertainties
+  virtual bool hasErrorEstimate() = 0;
 
-    /// process one track
-    virtual void feed(const HitCollection&, const LocalTrackFit&) = 0;
+  /// prepare for processing
+  virtual void begin(const edm::EventSetup &) = 0;
 
-    /// saves diagnostic histograms/plots
-    virtual void saveDiagnostics(TDirectory *) = 0;
-    
-    /// analyzes the data collected, returns a list of singular modes
-    virtual std::vector<SingularMode> analyze() = 0;
+  /// process one track
+  virtual void feed(const HitCollection &, const LocalTrackFit &) = 0;
 
-    /// solves the alignment problem with the given constraints
-    /// \param dir a directory (in StraightTrackAlignment::taskDataFileName) where
-    /// intermediate results can be stored
-    virtual unsigned int solve(const std::vector<AlignmentConstraint>&,
-      std::map<unsigned int, AlignmentResult> &results, TDirectory *dir = NULL) = 0;
+  /// saves diagnostic histograms/plots
+  virtual void saveDiagnostics(TDirectory *) = 0;
 
-    /// cleans up after processing
-    virtual void end() = 0;
+  /// analyzes the data collected, returns a list of singular modes
+  virtual std::vector<SingularMode> analyze() = 0;
+
+  /// solves the alignment problem with the given constraints
+  /// \param dir a directory (in StraightTrackAlignment::taskDataFileName) where
+  /// intermediate results can be stored
+  virtual unsigned int solve(const std::vector<AlignmentConstraint> &,
+                             std::map<unsigned int, AlignmentResult> &results,
+                             TDirectory *dir = nullptr) = 0;
+
+  /// cleans up after processing
+  virtual void end() = 0;
 };
 
 #endif

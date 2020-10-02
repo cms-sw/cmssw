@@ -21,35 +21,29 @@ using namespace std;
 
 //----------------------------------------------------------------------------------------------------
 
-LocalTrackFitter::LocalTrackFitter(const edm::ParameterSet &ps) :
-  verbosity(ps.getUntrackedParameter<unsigned int>("verbosity", 0)),
-  minimumHitsPerProjectionPerRP(ps.getParameter<unsigned int>("minimumHitsPerProjectionPerRP")),
-  maxResidualToSigma(ps.getParameter<double>("maxResidualToSigma"))
-{
-}
+LocalTrackFitter::LocalTrackFitter(const edm::ParameterSet &ps)
+    : verbosity(ps.getUntrackedParameter<unsigned int>("verbosity", 0)),
+      minimumHitsPerProjectionPerRP(ps.getParameter<unsigned int>("minimumHitsPerProjectionPerRP")),
+      maxResidualToSigma(ps.getParameter<double>("maxResidualToSigma")) {}
 
 //----------------------------------------------------------------------------------------------------
 
-bool LocalTrackFitter::fit(HitCollection &selection, const AlignmentGeometry &geometry, LocalTrackFit &trackFit) const
-{
+bool LocalTrackFitter::fit(HitCollection &selection, const AlignmentGeometry &geometry, LocalTrackFit &trackFit) const {
   if (verbosity > 5)
     printf(">> LocalTrackFitter::Fit\n");
 
   bool selectionChanged = true;
   unsigned int loopCounter = 0;
-  while (selectionChanged)
-  {
+  while (selectionChanged) {
     // fit/outlier-removal loop
-    while (selectionChanged)
-    {
+    while (selectionChanged) {
       if (verbosity > 5)
         printf("* fit loop %u\n", loopCounter++);
 
       bool fitFailed = false;
       fitAndRemoveOutliers(selection, geometry, trackFit, fitFailed, selectionChanged);
 
-      if (fitFailed)
-      {
+      if (fitFailed) {
         if (verbosity > 5)
           printf("\tFIT FAILED\n");
         return false;
@@ -65,26 +59,26 @@ bool LocalTrackFitter::fit(HitCollection &selection, const AlignmentGeometry &ge
 
 //----------------------------------------------------------------------------------------------------
 
-void LocalTrackFitter::fitAndRemoveOutliers(HitCollection &selection, const AlignmentGeometry &geometry, 
-  LocalTrackFit &trackFit, bool &failed, bool &selectionChanged) const
-{
+void LocalTrackFitter::fitAndRemoveOutliers(HitCollection &selection,
+                                            const AlignmentGeometry &geometry,
+                                            LocalTrackFit &trackFit,
+                                            bool &failed,
+                                            bool &selectionChanged) const {
   if (verbosity > 5)
     printf(" - LocalTrackFitter::FitAndRemoveOutliers\n");
 
-  if (selection.empty())
-  {
+  if (selection.empty()) {
     failed = true;
     return;
   }
-  
+
   // build matrices and vectors
   TMatrixD A(selection.size(), 4);
   TMatrixD Vi(selection.size(), selection.size());
   TVectorD measVec(selection.size());
   unsigned int j = 0;
-  for (auto it = selection.begin(); it != selection.end(); ++it, ++j)
-  {
-	const unsigned int &detId = it->id;
+  for (auto it = selection.begin(); it != selection.end(); ++it, ++j) {
+    const unsigned int &detId = it->id;
 
     const DetGeometry &d = geometry.get(detId);
     const auto &dirData = d.getDirectionData(it->dirIdx);
@@ -105,12 +99,9 @@ void LocalTrackFitter::fitAndRemoveOutliers(HitCollection &selection, const Alig
   TMatrixD ATViA(4, 4);
   ATViA = AT * Vi * A;
   TMatrixD ATViAI(ATViA);
-  try
-  {
+  try {
     ATViAI = ATViA.Invert();
-  }
-  catch (...)
-  {
+  } catch (...) {
     failed = true;
     return;
   }
@@ -130,12 +121,15 @@ void LocalTrackFitter::fitAndRemoveOutliers(HitCollection &selection, const Alig
   trackFit.ndf = selection.size() - 4;
   trackFit.chi_sq = 0;
   for (int i = 0; i < R.GetNrows(); i++)
-    trackFit.chi_sq += R(i)*R(i)*Vi(i, i);
-  
-  if (verbosity > 5)
-  {
+    trackFit.chi_sq += R(i) * R(i) * Vi(i, i);
+
+  if (verbosity > 5) {
     printf("    ax = %.3f mrad, bx = %.4f mm, ay = %.3f mrad, by = %.4f mm, z0 = %.3f mm\n",
-      trackFit.ax*1E3, trackFit.bx, trackFit.ay*1E3, trackFit.by, trackFit.z0);
+           trackFit.ax * 1E3,
+           trackFit.bx,
+           trackFit.ay * 1E3,
+           trackFit.by,
+           trackFit.z0);
     printf("    ndof = %i, chi^2/ndof/si^2 = %.3f\n", trackFit.ndf, trackFit.chi_sq / trackFit.ndf);
   }
 
@@ -143,46 +137,43 @@ void LocalTrackFitter::fitAndRemoveOutliers(HitCollection &selection, const Alig
   selectionChanged = false;
   TVectorD interpolation(A * theta);
   j = 0;
-  for (auto it = selection.begin(); it != selection.end(); ++j)
-  {
-    if (verbosity > 5)
-    {
+  for (auto it = selection.begin(); it != selection.end(); ++j) {
+    if (verbosity > 5) {
       printf("        %2u, ", j);
       printId(it->id);
       printf(", dirIdx=%u: interpol = %+8.1f um, residual = %+6.1f um, residual / sigma = %+6.2f\n",
-        it->dirIdx, interpolation[j]*1E3, R[j]*1E3, R[j]/it->sigma);
+             it->dirIdx,
+             interpolation[j] * 1E3,
+             R[j] * 1E3,
+             R[j] / it->sigma);
     }
 
     double resToSigma = R[j] / it->sigma;
-    if (fabs(resToSigma) > maxResidualToSigma)
-    {
+    if (fabs(resToSigma) > maxResidualToSigma) {
       selection.erase(it);
       selectionChanged = true;
       if (verbosity > 5)
         printf("            Removed\n");
     } else
       ++it;
-  } 
+  }
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void LocalTrackFitter::removeInsufficientPots(HitCollection &selection, bool &selectionChanged) const
-{
+void LocalTrackFitter::removeInsufficientPots(HitCollection &selection, bool &selectionChanged) const {
   if (verbosity > 5)
     printf(" - RemoveInsufficientPots\n");
 
   selectionChanged = false;
 
   // map: RP id -> (active planes in projection 1, active planes in projection 2)
-  map<unsigned int, pair< set<unsigned int>, set<unsigned int> > > planeMap;
-  for (auto it = selection.begin(); it != selection.end(); ++it)
-  {
+  map<unsigned int, pair<set<unsigned int>, set<unsigned int> > > planeMap;
+  for (auto it = selection.begin(); it != selection.end(); ++it) {
     CTPPSDetId senId(it->id);
     const unsigned int rpId = senId.rpId();
 
-    if (senId.subdetId() == CTPPSDetId::sdTrackingStrip)
-    {
+    if (senId.subdetId() == CTPPSDetId::sdTrackingStrip) {
       const unsigned int plane = TotemRPDetId(it->id).plane();
       if ((plane % 2) == 0)
         planeMap[rpId].first.insert(senId);
@@ -190,8 +181,7 @@ void LocalTrackFitter::removeInsufficientPots(HitCollection &selection, bool &se
         planeMap[rpId].second.insert(senId);
     }
 
-    if (senId.subdetId() == CTPPSDetId::sdTrackingPixel)
-    {
+    if (senId.subdetId() == CTPPSDetId::sdTrackingPixel) {
       planeMap[rpId].first.insert(senId);
       planeMap[rpId].second.insert(senId);
     }
@@ -200,18 +190,18 @@ void LocalTrackFitter::removeInsufficientPots(HitCollection &selection, bool &se
   // remove RPs with insufficient information
   selectionChanged = false;
 
-  for (auto it = planeMap.begin(); it != planeMap.end(); ++it)
-  {
-    if (it->second.first.size() < minimumHitsPerProjectionPerRP || it->second.second.size() < minimumHitsPerProjectionPerRP)
-    {
+  for (auto it = planeMap.begin(); it != planeMap.end(); ++it) {
+    if (it->second.first.size() < minimumHitsPerProjectionPerRP ||
+        it->second.second.size() < minimumHitsPerProjectionPerRP) {
       if (verbosity > 5)
-        printf("\tRP %u: projection1 = %lu, projection 2 = %lu\n", it->first, it->second.first.size(), it->second.second.size());
-      
+        printf("\tRP %u: projection1 = %lu, projection 2 = %lu\n",
+               it->first,
+               it->second.first.size(),
+               it->second.second.size());
+
       // remove all hits from that RP
-      for (auto dit = selection.begin(); dit != selection.end();)
-      {
-        if (it->first == CTPPSDetId(dit->id).rpId())
-        {
+      for (auto dit = selection.begin(); dit != selection.end();) {
+        if (it->first == CTPPSDetId(dit->id).rpId()) {
           if (verbosity > 5)
             printf("\t\tremoving %u\n", dit->id);
           selection.erase(dit);

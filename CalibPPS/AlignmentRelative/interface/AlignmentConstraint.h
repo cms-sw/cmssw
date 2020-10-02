@@ -16,8 +16,7 @@
 /**
  *\brief An alignment constraint.
  **/
-struct AlignmentConstraint
-{
+struct AlignmentConstraint {
   /// constraint value
   double val;
 

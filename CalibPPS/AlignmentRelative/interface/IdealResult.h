@@ -32,23 +32,23 @@ public:
   /// normal constructor
   IdealResult(const edm::ParameterSet &ps, AlignmentTask *_t);
 
-  virtual ~IdealResult() {}
+  ~IdealResult() override {}
 
-  virtual std::string getName() override { return "Ideal"; }
+  std::string getName() override { return "Ideal"; }
 
-  virtual bool hasErrorEstimate() override { return false; }
+  bool hasErrorEstimate() override { return false; }
 
-  virtual void begin(const edm::EventSetup &) override;
+  void begin(const edm::EventSetup &) override;
 
-  virtual void feed(const HitCollection &, const LocalTrackFit &) override {}
+  void feed(const HitCollection &, const LocalTrackFit &) override {}
 
-  virtual void saveDiagnostics(TDirectory *) override {}
+  void saveDiagnostics(TDirectory *) override {}
 
-  virtual std::vector<SingularMode> analyze() override;
+  std::vector<SingularMode> analyze() override;
 
-  virtual unsigned int solve(const std::vector<AlignmentConstraint> &,
-                             std::map<unsigned int, AlignmentResult> &result,
-                             TDirectory *dir) override;
+  unsigned int solve(const std::vector<AlignmentConstraint> &,
+                     std::map<unsigned int, AlignmentResult> &result,
+                     TDirectory *dir) override;
 
-  virtual void end() override {}
+  void end() override {}
 };

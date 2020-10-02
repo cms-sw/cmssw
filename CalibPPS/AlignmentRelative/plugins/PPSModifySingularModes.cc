@@ -24,19 +24,16 @@
 /**
  *\brief Modifies the alignment modes unconstrained by the track-based alignment.
  **/
-class PPSModifySingularModes : public edm::EDAnalyzer
-{
-  public:
-    PPSModifySingularModes(const edm::ParameterSet &ps); 
+class PPSModifySingularModes : public edm::EDAnalyzer {
+public:
+  PPSModifySingularModes(const edm::ParameterSet &ps);
 
-  private:
-    edm::ParameterSet ps_;
+private:
+  edm::ParameterSet ps_;
 
-    virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void beginRun(edm::Run const &, edm::EventSetup const &) override;
 
-    virtual void analyze(const edm::Event &e, const edm::EventSetup &es) override
-    {
-    }
+  void analyze(const edm::Event &e, const edm::EventSetup &es) override {}
 };
 
 using namespace std;
@@ -44,14 +41,11 @@ using namespace edm;
 
 //----------------------------------------------------------------------------------------------------
 
-PPSModifySingularModes::PPSModifySingularModes(const ParameterSet &ps) : ps_(ps)
-{
-}
+PPSModifySingularModes::PPSModifySingularModes(const ParameterSet &ps) : ps_(ps) {}
 
 //----------------------------------------------------------------------------------------------------
 
-void PPSModifySingularModes::beginRun(edm::Run const&, edm::EventSetup const& es)
-{
+void PPSModifySingularModes::beginRun(edm::Run const &, edm::EventSetup const &es) {
   // get config parameters
   const double z1 = ps_.getUntrackedParameter<double>("z1");
   const double z2 = ps_.getUntrackedParameter<double>("z2");
@@ -86,8 +80,7 @@ void PPSModifySingularModes::beginRun(edm::Run const&, edm::EventSetup const& es
   // modify the singular modes
   CTPPSRPAlignmentCorrectionsData output = input;
 
-  for (auto &it : input.getSensorMap())
-  {
+  for (auto &it : input.getSensorMap()) {
     const auto &sensorId = it.first;
 
     const auto &c = geometry->sensorTranslation(sensorId);
@@ -95,13 +88,13 @@ void PPSModifySingularModes::beginRun(edm::Run const&, edm::EventSetup const& es
     // pixels cannot be described by one single value of z, but no better approxiamtion can be made
     const double z = c.z();
 
-    double de_ShX = a_x*z + b_x;
-    double de_ShY = a_y*z + b_y;
-    const double de_RotZ = a_rho*z + b_rho;
+    double de_ShX = a_x * z + b_x;
+    double de_ShY = a_y * z + b_y;
+    const double de_RotZ = a_rho * z + b_rho;
 
     // add the effect of global rotation (about origin, not sensor centre)
-    de_ShX -= + de_RotZ * (c.y() + de_ShY);
-    de_ShY -= - de_RotZ * (c.x() + de_ShX);
+    de_ShX -= +de_RotZ * (c.y() + de_ShY);
+    de_ShY -= -de_RotZ * (c.x() + de_ShX);
 
     CTPPSRPAlignmentCorrectionData d = it.second;
     d.setShX(d.getShX() + de_ShX);
@@ -114,16 +107,14 @@ void PPSModifySingularModes::beginRun(edm::Run const&, edm::EventSetup const& es
   // build list of RPs
   vector<unsigned int> rps;
   unsigned int last_rp = 123456;
-  for (auto &it : input.getSensorMap())
-  {
-      CTPPSDetId senId(it.first);
-      unsigned int rpDecId = senId.arm()*100 + senId.station()*10 + senId.rp();
+  for (auto &it : input.getSensorMap()) {
+    CTPPSDetId senId(it.first);
+    unsigned int rpDecId = senId.arm() * 100 + senId.station() * 10 + senId.rp();
 
-      if (last_rp != rpDecId)
-      {
-        rps.push_back(rpDecId);
-        last_rp = rpDecId;
-      }
+    if (last_rp != rpDecId) {
+      rps.push_back(rpDecId);
+      last_rp = rpDecId;
+    }
   }
 
   // build alignment geometry (needed for the factorisation below)

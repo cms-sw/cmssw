@@ -15,7 +15,7 @@ class AlignmentGeometry;
 
 extern void printId(unsigned int id);
 
-extern void print(TMatrixD& m, const char *label = NULL, bool mathematicaFormat = false);
+extern void print(TMatrixD &m, const char *label = nullptr, bool mathematicaFormat = false);
 
 /**
  * NOTE ON ERROR PROPAGATION
@@ -28,8 +28,10 @@ extern void print(TMatrixD& m, const char *label = NULL, bool mathematicaFormat 
  * In consequence: RP and sensor errors SHOULD NEVER BE SUMMED!
  **/
 extern void factorRPFromSensorCorrections(const CTPPSRPAlignmentCorrectionsData &input,
-  CTPPSRPAlignmentCorrectionsData &expanded,
-  CTPPSRPAlignmentCorrectionsData &factored,
-  const AlignmentGeometry &, bool equalWeights=false, unsigned int verbosity = 0);
+                                          CTPPSRPAlignmentCorrectionsData &expanded,
+                                          CTPPSRPAlignmentCorrectionsData &factored,
+                                          const AlignmentGeometry &,
+                                          bool equalWeights = false,
+                                          unsigned int verbosity = 0);
 
 #endif

@@ -40,78 +40,77 @@
  *\brief Fast (no G4) proton simulation in within one station.
  * Uses misaligned geometry.
  */
-class PPSFastLocalSimulation : public edm::EDProducer
-{
-  public:
-	PPSFastLocalSimulation(const edm::ParameterSet &);
-	virtual ~PPSFastLocalSimulation();
+class PPSFastLocalSimulation : public edm::EDProducer {
+public:
+  PPSFastLocalSimulation(const edm::ParameterSet &);
+  ~PPSFastLocalSimulation() override;
 
-  protected:
-    /// verbosity level
-	unsigned int verbosity_;
+protected:
+  /// verbosity level
+  unsigned int verbosity_;
 
-    /// whether a HepMC description of the proton shall be saved in the event
-    bool makeHepMC_;
+  /// whether a HepMC description of the proton shall be saved in the event
+  bool makeHepMC_;
 
-    /// whether the hits of the proton shall be calculated and saved
-    bool makeHits_;
+  /// whether the hits of the proton shall be calculated and saved
+  bool makeHits_;
 
-    /// the list of RPs to simulate
-    std::vector<unsigned int> RPs_;
+  /// the list of RPs to simulate
+  std::vector<unsigned int> RPs_;
 
-    /// number of particles to generate per event
-    unsigned int particlesPerEvent_;
+  /// number of particles to generate per event
+  unsigned int particlesPerEvent_;
 
-    /// particle energy and momentum
-    double particle_E_, particle_p_;
+  /// particle energy and momentum
+  double particle_E_, particle_p_;
 
-    /// the "origin" of tracks, in mm
-    double z0_;
+  /// the "origin" of tracks, in mm
+  double z0_;
 
-    /// whether measurement values shall be rounded to the nearest strip
-    bool roundToPitch_;
+  /// whether measurement values shall be rounded to the nearest strip
+  bool roundToPitch_;
 
-    /// in mm
-    double pitchStrips_, pitchDiamonds_, pitchPixels_;
+  /// in mm
+  double pitchStrips_, pitchDiamonds_, pitchPixels_;
 
-    /// size of insensitive margin at sensor's edge facing the beam, in mm
-    double insensitiveMarginStrips_;
+  /// size of insensitive margin at sensor's edge facing the beam, in mm
+  double insensitiveMarginStrips_;
 
-    struct Distribution
-    {
-      enum Type { dtBox, dtGauss, dtGaussLimit } type_;
-      double x_mean_, x_width_, x_min_, x_max_;
-      double y_mean_, y_width_, y_min_, y_max_;
+  struct Distribution {
+    enum Type { dtBox, dtGauss, dtGaussLimit } type_;
+    double x_mean_, x_width_, x_min_, x_max_;
+    double y_mean_, y_width_, y_min_, y_max_;
 
-      Distribution(const edm::ParameterSet &);
+    Distribution(const edm::ParameterSet &);
 
-      void Generate(CLHEP::HepRandomEngine &rndEng, double &x, double &y);
-    };
+    void Generate(CLHEP::HepRandomEngine &rndEng, double &x, double &y);
+  };
 
-    /// position parameters in mm
-    Distribution position_dist_;
+  /// position parameters in mm
+  Distribution position_dist_;
 
-    /// angular parameters in rad
-    Distribution angular_dist_;
+  /// angular parameters in rad
+  Distribution angular_dist_;
 
-    //---------- internal parameters ----------
+  //---------- internal parameters ----------
 
-    /// v position of strip 0, in mm
-    double stripZeroPosition_;
+  /// v position of strip 0, in mm
+  double stripZeroPosition_;
 
-    edm::ESHandle<CTPPSGeometry> geometry;
+  edm::ESHandle<CTPPSGeometry> geometry;
 
-    void GenerateTrack(unsigned int pi, CLHEP::HepRandomEngine &rndEng,
-        HepMC::GenEvent* gEv, std::unique_ptr<edm::DetSetVector<TotemRPRecHit>> &stripHitColl,
-        std::unique_ptr<edm::DetSetVector<CTPPSDiamondRecHit>> &diamondHitColl,
-        std::unique_ptr<edm::DetSetVector<CTPPSPixelRecHit>> &pixelHitColl
-      );
+  void GenerateTrack(unsigned int pi,
+                     CLHEP::HepRandomEngine &rndEng,
+                     HepMC::GenEvent *gEv,
+                     std::unique_ptr<edm::DetSetVector<TotemRPRecHit>> &stripHitColl,
+                     std::unique_ptr<edm::DetSetVector<CTPPSDiamondRecHit>> &diamondHitColl,
+                     std::unique_ptr<edm::DetSetVector<CTPPSPixelRecHit>> &pixelHitColl);
 
-    //---------- framework methods ----------
+  //---------- framework methods ----------
 
-    virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void beginRun(edm::Run const &, edm::EventSetup const &) override;
 
-	virtual void produce(edm::Event &, const edm::EventSetup&) override;
+  void produce(edm::Event &, const edm::EventSetup &) override;
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -123,18 +122,17 @@ using namespace HepMC;
 
 //----------------------------------------------------------------------------------------------------
 
-PPSFastLocalSimulation::Distribution::Distribution(const edm::ParameterSet &ps)
-{
+PPSFastLocalSimulation::Distribution::Distribution(const edm::ParameterSet &ps) {
   // get type
   string typeName = ps.getParameter<string>("type");
   if (!typeName.compare("box"))
     type_ = dtBox;
   else if (!typeName.compare("gauss"))
-      type_ = dtGauss;
-    else if (!typeName.compare("gauss-limit"))
-        type_ = dtGaussLimit;
-      else
-        throw cms::Exception("PPS") << "Unknown distribution type `" << typeName << "'.";
+    type_ = dtGauss;
+  else if (!typeName.compare("gauss-limit"))
+    type_ = dtGaussLimit;
+  else
+    throw cms::Exception("PPS") << "Unknown distribution type `" << typeName << "'.";
 
   x_mean_ = ps.getParameter<double>("x_mean");
   x_width_ = ps.getParameter<double>("x_width");
@@ -149,10 +147,8 @@ PPSFastLocalSimulation::Distribution::Distribution(const edm::ParameterSet &ps)
 
 //----------------------------------------------------------------------------------------------------
 
-void PPSFastLocalSimulation::Distribution::Generate(CLHEP::HepRandomEngine &rndEng, double &x, double &y)
-{
-  switch (type_)
-  {
+void PPSFastLocalSimulation::Distribution::Generate(CLHEP::HepRandomEngine &rndEng, double &x, double &y) {
+  switch (type_) {
     case dtBox:
       x = x_mean_ + x_width_ * (rndEng.flat() - 0.5);
       y = y_mean_ + y_width_ * (rndEng.flat() - 0.5);
@@ -163,23 +159,22 @@ void PPSFastLocalSimulation::Distribution::Generate(CLHEP::HepRandomEngine &rndE
       y = y_mean_ + RandGauss::shoot(&rndEng) * y_width_;
       break;
 
-    case dtGaussLimit:
-      {
-        const double u_x = rndEng.flat(), u_y = rndEng.flat();
+    case dtGaussLimit: {
+      const double u_x = rndEng.flat(), u_y = rndEng.flat();
 
-        const double cdf_x_min = (1. + TMath::Erf((x_min_ - x_mean_) / x_width_ / sqrt(2.))) / 2.;
-        const double cdf_x_max = (1. + TMath::Erf((x_max_ - x_mean_) / x_width_ / sqrt(2.))) / 2.;
-        const double a_x = cdf_x_max - cdf_x_min, b_x = cdf_x_min;
+      const double cdf_x_min = (1. + TMath::Erf((x_min_ - x_mean_) / x_width_ / sqrt(2.))) / 2.;
+      const double cdf_x_max = (1. + TMath::Erf((x_max_ - x_mean_) / x_width_ / sqrt(2.))) / 2.;
+      const double a_x = cdf_x_max - cdf_x_min, b_x = cdf_x_min;
 
-        const double cdf_y_min = (1. + TMath::Erf((y_min_ - y_mean_) / y_width_ / sqrt(2.))) / 2.;
-        const double cdf_y_max = (1. + TMath::Erf((y_max_ - y_mean_) / y_width_ / sqrt(2.))) / 2.;
-        const double a_y = cdf_y_max - cdf_y_min, b_y = cdf_y_min;
+      const double cdf_y_min = (1. + TMath::Erf((y_min_ - y_mean_) / y_width_ / sqrt(2.))) / 2.;
+      const double cdf_y_max = (1. + TMath::Erf((y_max_ - y_mean_) / y_width_ / sqrt(2.))) / 2.;
+      const double a_y = cdf_y_max - cdf_y_min, b_y = cdf_y_min;
 
-        x = x_mean_ + x_width_ * sqrt(2.) * TMath::ErfInverse(2.*(a_x * u_x + b_x) - 1.);
-        y = y_mean_ + y_width_ * sqrt(2.) * TMath::ErfInverse(2.*(a_y * u_y + b_y) - 1.);
-      }
+      x = x_mean_ + x_width_ * sqrt(2.) * TMath::ErfInverse(2. * (a_x * u_x + b_x) - 1.);
+      y = y_mean_ + y_width_ * sqrt(2.) * TMath::ErfInverse(2. * (a_y * u_y + b_y) - 1.);
+    }
 
-      break;
+    break;
 
     default:
       x = y = 0.;
@@ -188,39 +183,37 @@ void PPSFastLocalSimulation::Distribution::Generate(CLHEP::HepRandomEngine &rndE
 
 //----------------------------------------------------------------------------------------------------
 
-PPSFastLocalSimulation::PPSFastLocalSimulation(const edm::ParameterSet &ps) :
-  verbosity_(ps.getUntrackedParameter<unsigned int>("verbosity", 0)),
+PPSFastLocalSimulation::PPSFastLocalSimulation(const edm::ParameterSet &ps)
+    : verbosity_(ps.getUntrackedParameter<unsigned int>("verbosity", 0)),
 
-  makeHepMC_(ps.getParameter<bool>("makeHepMC")),
-  makeHits_(ps.getParameter<bool>("makeHits")),
+      makeHepMC_(ps.getParameter<bool>("makeHepMC")),
+      makeHits_(ps.getParameter<bool>("makeHits")),
 
-  RPs_(ps.getParameter< vector<unsigned int> >("RPs")),
+      RPs_(ps.getParameter<vector<unsigned int>>("RPs")),
 
-  particlesPerEvent_(ps.getParameter<unsigned int>("particlesPerEvent")),
-  particle_E_(ps.getParameter<double>("particle_E")),
-  particle_p_(ps.getParameter<double>("particle_p")),
-  z0_(ps.getParameter<double>("z0")),
+      particlesPerEvent_(ps.getParameter<unsigned int>("particlesPerEvent")),
+      particle_E_(ps.getParameter<double>("particle_E")),
+      particle_p_(ps.getParameter<double>("particle_p")),
+      z0_(ps.getParameter<double>("z0")),
 
-  roundToPitch_(ps.getParameter<bool>("roundToPitch")),
-  pitchStrips_(ps.getParameter<double>("pitchStrips")),
-  pitchDiamonds_(ps.getParameter<double>("pitchDiamonds")),
-  pitchPixels_(ps.getParameter<double>("pitchPixels")),
+      roundToPitch_(ps.getParameter<bool>("roundToPitch")),
+      pitchStrips_(ps.getParameter<double>("pitchStrips")),
+      pitchDiamonds_(ps.getParameter<double>("pitchDiamonds")),
+      pitchPixels_(ps.getParameter<double>("pitchPixels")),
 
-  insensitiveMarginStrips_(ps.getParameter<double>("insensitiveMarginStrips")),
+      insensitiveMarginStrips_(ps.getParameter<double>("insensitiveMarginStrips")),
 
-  position_dist_(ps.getParameterSet("position_distribution")),
-  angular_dist_(ps.getParameterSet("angular_distribution"))
-{
+      position_dist_(ps.getParameterSet("position_distribution")),
+      angular_dist_(ps.getParameterSet("angular_distribution")) {
   // v position of strip 0
-  stripZeroPosition_ = RPTopology::last_strip_to_border_dist_ + (RPTopology::no_of_strips_-1)*RPTopology::pitch_
-    - RPTopology::y_width_/2.;
+  stripZeroPosition_ = RPTopology::last_strip_to_border_dist_ + (RPTopology::no_of_strips_ - 1) * RPTopology::pitch_ -
+                       RPTopology::y_width_ / 2.;
 
   // register the output
   if (makeHepMC_)
     produces<HepMCProduct>();
 
-  if (makeHits_)
-  {
+  if (makeHits_) {
     produces<DetSetVector<TotemRPRecHit>>();
     produces<DetSetVector<CTPPSDiamondRecHit>>();
     produces<DetSetVector<CTPPSPixelRecHit>>();
@@ -229,69 +222,69 @@ PPSFastLocalSimulation::PPSFastLocalSimulation(const edm::ParameterSet &ps) :
 
 //----------------------------------------------------------------------------------------------------
 
-PPSFastLocalSimulation::~PPSFastLocalSimulation()
-{
-}
+PPSFastLocalSimulation::~PPSFastLocalSimulation() {}
 
 //----------------------------------------------------------------------------------------------------
 
-void PPSFastLocalSimulation::beginRun(edm::Run const&, edm::EventSetup const& es)
-{
+void PPSFastLocalSimulation::beginRun(edm::Run const &, edm::EventSetup const &es) {
   // get geometry
   es.get<VeryForwardMisalignedGeometryRecord>().get(geometry);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void PPSFastLocalSimulation::GenerateTrack(unsigned int idx, CLHEP::HepRandomEngine &rndEng,
-  HepMC::GenEvent* gEv, unique_ptr<edm::DetSetVector<TotemRPRecHit>> &stripHitColl,
-  unique_ptr<edm::DetSetVector<CTPPSDiamondRecHit>> &diamondHitColl,
-  unique_ptr<edm::DetSetVector<CTPPSPixelRecHit>> &pixelHitColl)
-{
+void PPSFastLocalSimulation::GenerateTrack(unsigned int idx,
+                                           CLHEP::HepRandomEngine &rndEng,
+                                           HepMC::GenEvent *gEv,
+                                           unique_ptr<edm::DetSetVector<TotemRPRecHit>> &stripHitColl,
+                                           unique_ptr<edm::DetSetVector<CTPPSDiamondRecHit>> &diamondHitColl,
+                                           unique_ptr<edm::DetSetVector<CTPPSPixelRecHit>> &pixelHitColl) {
   // generate track
   double bx = 0., by = 0., ax = 0., ay = 0.;
   position_dist_.Generate(rndEng, bx, by);
   angular_dist_.Generate(rndEng, ax, ay);
 
   if (verbosity_ > 5)
-    printf("\tax = %.3f mrad, bx = %.3f mm, ay = %.3f mrad, by = %.3f mm, z0 = %.3f m\n", ax*1E3, bx, ay*1E3, by, z0_*1E-3);
+    printf("\tax = %.3f mrad, bx = %.3f mm, ay = %.3f mrad, by = %.3f mm, z0 = %.3f m\n",
+           ax * 1E3,
+           bx,
+           ay * 1E3,
+           by,
+           z0_ * 1E-3);
 
   // add HepMC track description
-  if (makeHepMC_)
-  { 
-    GenVertex* gVx = new GenVertex(HepMC::FourVector(bx, by, z0_, 0.));
+  if (makeHepMC_) {
+    GenVertex *gVx = new GenVertex(HepMC::FourVector(bx, by, z0_, 0.));
     gEv->add_vertex(gVx);
 
-    GenParticle* gPe; 
-    double az = sqrt(1. - ax*ax - ay*ay);
-    gPe = new GenParticle(HepMC::FourVector(particle_p_*ax, particle_p_*ay, particle_p_*az, particle_E_), 2212, 1); // add a proton in final state
+    GenParticle *gPe;
+    double az = sqrt(1. - ax * ax - ay * ay);
+    gPe = new GenParticle(HepMC::FourVector(particle_p_ * ax, particle_p_ * ay, particle_p_ * az, particle_E_),
+                          2212,
+                          1);  // add a proton in final state
     gPe->suggest_barcode(idx + 1);
     gVx->add_particle_out(gPe);
   }
 
-  if (makeHits_)
-  {
+  if (makeHits_) {
     // check all sensors known to geometry
-    for (CTPPSGeometry::mapType::const_iterator it = geometry->beginSensor(); it != geometry->endSensor(); ++it)
-    {
+    for (CTPPSGeometry::mapType::const_iterator it = geometry->beginSensor(); it != geometry->endSensor(); ++it) {
       // get RP decimal id
       CTPPSDetId detId(it->first);
-      unsigned int decRPId = detId.arm()*100 + detId.station()*10 + detId.rp();
+      unsigned int decRPId = detId.arm() * 100 + detId.station() * 10 + detId.rp();
 
       // stop if the RP is not selected
       if (find(RPs_.begin(), RPs_.end(), decRPId) == RPs_.end())
         continue;
 
       // keep only 1 diamond channel to represent 1 plane
-      if (detId.subdetId() == CTPPSDetId::sdTimingDiamond)
-      {
+      if (detId.subdetId() == CTPPSDetId::sdTimingDiamond) {
         CTPPSDiamondDetId channelId(it->first);
         if (channelId.channel() != 0)
           continue;
       }
 
-      if (verbosity_ > 5)
-      {
+      if (verbosity_ > 5) {
         printf("        ");
         printId(it->first);
         printf(": ");
@@ -305,9 +298,18 @@ void PPSFastLocalSimulation::GenerateTrack(unsigned int idx, CLHEP::HepRandomEng
 
       TMatrixD A(3, 3);
       TVectorD B(3);
-      A(0, 0) = ax; A(0, 1) = -gl_a1.x(); A(0, 2) = -gl_a2.x(); B(0) = gl_o.x() - bx;
-      A(1, 0) = ay; A(1, 1) = -gl_a1.y(); A(1, 2) = -gl_a2.y(); B(1) = gl_o.y() - by;
-      A(2, 0) = 1.; A(2, 1) = -gl_a1.z(); A(2, 2) = -gl_a2.z(); B(2) = gl_o.z() - z0_;
+      A(0, 0) = ax;
+      A(0, 1) = -gl_a1.x();
+      A(0, 2) = -gl_a2.x();
+      B(0) = gl_o.x() - bx;
+      A(1, 0) = ay;
+      A(1, 1) = -gl_a1.y();
+      A(1, 2) = -gl_a2.y();
+      B(1) = gl_o.y() - by;
+      A(2, 0) = 1.;
+      A(2, 1) = -gl_a1.z();
+      A(2, 2) = -gl_a2.z();
+      B(2) = gl_o.z() - z0_;
       TMatrixD Ai(3, 3);
       Ai = A.Invert();
       TVectorD P(3);
@@ -320,8 +322,7 @@ void PPSFastLocalSimulation::GenerateTrack(unsigned int idx, CLHEP::HepRandomEng
       CTPPSGeometry::Vector h_loc = geometry->globalToLocal(detId, h_glo);
 
       // strips
-      if (detId.subdetId() == CTPPSDetId::sdTrackingStrip)
-      {
+      if (detId.subdetId() == CTPPSDetId::sdTrackingStrip) {
         double u = h_loc.x();
         double v = h_loc.y();
 
@@ -329,18 +330,16 @@ void PPSFastLocalSimulation::GenerateTrack(unsigned int idx, CLHEP::HepRandomEng
           printf("            u=%+8.4f, v=%+8.4f", u, v);
 
         // is it within detector?
-        if (!RPTopology::IsHit(u, v, insensitiveMarginStrips_))
-        {
+        if (!RPTopology::IsHit(u, v, insensitiveMarginStrips_)) {
           if (verbosity_ > 5)
             printf(" | no hit\n");
           continue;
-        } 
+        }
 
         // round the measurement
-        if (roundToPitch_)
-        {
+        if (roundToPitch_) {
           double m = stripZeroPosition_ - v;
-          signed int strip = (int) floor(m / pitchStrips_ + 0.5);
+          signed int strip = (int)floor(m / pitchStrips_ + 0.5);
 
           v = stripZeroPosition_ - pitchStrips_ * strip;
 
@@ -358,11 +357,9 @@ void PPSFastLocalSimulation::GenerateTrack(unsigned int idx, CLHEP::HepRandomEng
       }
 
       // diamonds
-      if (detId.subdetId() == CTPPSDetId::sdTimingDiamond)
-      {
-        if (roundToPitch_)
-        {
-          h_loc.SetX( pitchDiamonds_ * floor(h_loc.x()/pitchDiamonds_ + 0.5) );
+      if (detId.subdetId() == CTPPSDetId::sdTimingDiamond) {
+        if (roundToPitch_) {
+          h_loc.SetX(pitchDiamonds_ * floor(h_loc.x() / pitchDiamonds_ + 0.5));
         }
 
         if (verbosity_ > 5)
@@ -376,12 +373,10 @@ void PPSFastLocalSimulation::GenerateTrack(unsigned int idx, CLHEP::HepRandomEng
       }
 
       // pixels
-      if (detId.subdetId() == CTPPSDetId::sdTrackingPixel)
-      {
-        if (roundToPitch_)
-        {
-          h_loc.SetX( pitchPixels_ * floor(h_loc.x()/pitchPixels_ + 0.5) );
-          h_loc.SetY( pitchPixels_ * floor(h_loc.y()/pitchPixels_ + 0.5) );
+      if (detId.subdetId() == CTPPSDetId::sdTrackingPixel) {
+        if (roundToPitch_) {
+          h_loc.SetX(pitchPixels_ * floor(h_loc.x() / pitchPixels_ + 0.5));
+          h_loc.SetY(pitchPixels_ * floor(h_loc.y() / pitchPixels_ + 0.5));
         }
 
         if (verbosity_ > 5)
@@ -396,13 +391,12 @@ void PPSFastLocalSimulation::GenerateTrack(unsigned int idx, CLHEP::HepRandomEng
         hits.push_back(CTPPSPixelRecHit(lp, le));
       }
     }
-  } 
+  }
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void PPSFastLocalSimulation::produce(edm::Event &event, const edm::EventSetup &es)
-{
+void PPSFastLocalSimulation::produce(edm::Event &event, const edm::EventSetup &es) {
   if (verbosity_ > 2)
     printf(">> PPSFastLocalSimulation::produce > event %llu\n", event.id().event());
 
@@ -413,7 +407,7 @@ void PPSFastLocalSimulation::produce(edm::Event &event, const edm::EventSetup &e
     printf("\tseed = %li\n", rndEng.getSeed());
 
   // initialize products
-  GenEvent* gEv = new GenEvent();
+  GenEvent *gEv = new GenEvent();
   gEv->set_event_number(event.id().event());
 
   unique_ptr<DetSetVector<TotemRPRecHit>> stripHitColl(new DetSetVector<TotemRPRecHit>());
@@ -421,8 +415,7 @@ void PPSFastLocalSimulation::produce(edm::Event &event, const edm::EventSetup &e
   unique_ptr<DetSetVector<CTPPSPixelRecHit>> pixelHitColl(new DetSetVector<CTPPSPixelRecHit>());
 
   // run particle loop
-  for (unsigned int pi = 0; pi < particlesPerEvent_; pi++)
-  {
+  for (unsigned int pi = 0; pi < particlesPerEvent_; pi++) {
     if (verbosity_ > 5)
       printf("    generating track %u\n", pi);
 
@@ -430,15 +423,13 @@ void PPSFastLocalSimulation::produce(edm::Event &event, const edm::EventSetup &e
   }
 
   // save products
-  if (makeHepMC_)
-  { 
+  if (makeHepMC_) {
     unique_ptr<HepMCProduct> hepMCoutput(new HepMCProduct());
     hepMCoutput->addHepMCData(gEv);
     event.put(move(hepMCoutput));
   }
 
-  if (makeHits_)
-  {
+  if (makeHits_) {
     event.put(move(stripHitColl));
     event.put(move(diamondHitColl));
     event.put(move(pixelHitColl));
