@@ -5,7 +5,7 @@
 
 #include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
 #include "Geometry/MTDCommonData/interface/MTDTopologyMode.h"
-#include<iostream>
+#include <iostream>
 
 class MTDRecHitAlgo : public MTDRecHitAlgoBase {
 public:
@@ -50,8 +50,9 @@ FTLRecHit MTDRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32
   float time = 0.;
 
   // MTD topology
-  unsigned int index_topology = 0; //1Disks geometry
-  if ( topology->getMTDTopologyMode() > topologycode1Disk ) index_topology = 1; //2Disk geometry
+  unsigned int index_topology = 0;  //1Disks geometry
+  if (topology->getMTDTopologyMode() > topologycode1Disk)
+    index_topology = 1;  //2Disk geometry
 
   /// position and positionError in unit cm
   float position = -1.f;
@@ -85,7 +86,7 @@ FTLRecHit MTDRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32
   }
 
   // --- Energy calibration: for the time being this is just a conversion pC --> MeV
-     energy *= calibration_;
+  energy *= calibration_;
 
   // --- Time calibration: for the time being just removes a time offset in BTL
   time += time_calib_->getTimeCalib(uRecHit.id());
@@ -94,13 +95,13 @@ FTLRecHit MTDRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32
 
   // Now fill flags
   // all rechits from the digitizer are "good" at present
-     if (energy > thresholdToKeep_[index_topology]) {
-       flags = FTLRecHit::kGood;
-       rh.setFlag(flags);
-     } else {
-       flags = FTLRecHit::kKilled;
-       rh.setFlag(flags);
-     }
+  if (energy > thresholdToKeep_[index_topology]) {
+    flags = FTLRecHit::kGood;
+    rh.setFlag(flags);
+  } else {
+    flags = FTLRecHit::kKilled;
+    rh.setFlag(flags);
+  }
 
   return rh;
 }
