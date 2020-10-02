@@ -69,6 +69,20 @@ protected:
   double rot_x_unc, rot_y_unc, rot_z_unc;
 
 public:
+  CTPPSRPAlignmentCorrectionData()
+      : sh_x(0.),
+        sh_y(0.),
+        sh_z(0.),
+        sh_x_unc(0.),
+        sh_y_unc(0.),
+        sh_z_unc(0.),
+        rot_x(0.),
+        rot_y(0.),
+        rot_z(0.),
+        rot_x_unc(0.),
+        rot_y_unc(0.),
+        rot_z_unc(0.) {}
+
   /// full constructor, shifts in mm, rotations in rad
   CTPPSRPAlignmentCorrectionData(double _sh_x,
                                  double _sh_x_u,
@@ -84,12 +98,7 @@ public:
                                  double _rot_z_u);
 
   /// no uncertainty constructor, shifts in mm, rotation in rad
-  CTPPSRPAlignmentCorrectionData(double _sh_x = 0.,
-                                 double _sh_y = 0.,
-                                 double _sh_z = 0.,
-                                 double _rot_x = 0.,
-                                 double _rot_y = 0.,
-                                 double rot_z = 0.);
+  CTPPSRPAlignmentCorrectionData(double _sh_x, double _sh_y, double _sh_z, double _rot_x, double _rot_y, double rot_z);
 
   inline double getShX() const { return sh_x; }
   inline void setShX(const double &v) { sh_x = v; }
@@ -136,9 +145,7 @@ public:
   }
 
   /// merges (cumulates) alignements
-  /// match between x, y and read-out shifts is not checked
-  /// \param sumErrors if it is true, old and new alignment uncertainties are summed (in quadrature)
-  /// if it is false, the uncertainties of the parameter (i.e. not the object) will be used
+  /// \param sumErrors if true, uncertainties are summed in quadrature, otherwise the uncertainties of this are not changed
   /// With the add... switches one can control which corrections are added.
   void add(const CTPPSRPAlignmentCorrectionData &, bool sumErrors = true, bool addSh = true, bool addRot = true);
 
