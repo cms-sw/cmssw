@@ -1,0 +1,36 @@
+<lcgdict>
+	<class name="LocalTrackFit"/>
+
+	<class name="AlignmentTask">
+		<field name="fixedDetectorsConstraints" transient="true"/>
+		<field name="finalConstraints" transient="true"/>
+	</class>
+
+	<class name="AlignmentConstraint"/>
+	<class name="std::map<unsigned int, TVectorD>"/>
+
+	<class name="std::vector<AlignmentConstraint>"/>
+	
+	<class name="DetGeometry"/>
+	<class name="AlignmentGeometry"/>
+	<class name="std::map<unsigned int, DetGeometry>"/>
+	<class name="std::set<unsigned int>"/>
+
+	<class name="SingularMode"/>
+	<class name="std::vector<SingularMode>"/>
+
+	<class name="JanAlignmentAlgorithm">
+		<field name="Sc" transient="true"/>
+		<field name="Mc" transient="true"/>
+		<field name="statistics" transient="true"/>
+	</class>
+	<class name="JanAlignmentAlgorithm::ScatterPlot"/>
+	<class name="JanAlignmentAlgorithm::DetStat"/>
+	<class name="std::map<unsigned int, JanAlignmentAlgorithm::DetStat>"/>
+	<class name="std::vector<TH1D*>"/>
+    <class name="std::vector<TGraph*>"/>
+    <class name="std::map< std::set<unsigned int>, JanAlignmentAlgorithm::ScatterPlot>"/>
+
+    <class name="AlignmentResult" />
+    <class name="std::map<unsigned int, AlignmentResult>" />
+</lcgdict>

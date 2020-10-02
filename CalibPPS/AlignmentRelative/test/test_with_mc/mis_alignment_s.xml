@@ -1,0 +1,27 @@
+<!--
+Shifts in um, rotations in mrad.
+
+For more details see RPAlignmentCorrections::LoadXMLFile in
+TotemAlignment/RPDataFormats/src/RPAlignmentCorrectionsSequence.cc
+-->
+
+<xml DocumentType="AlignmentDescription">
+	<!-- strip, RP 103 -->
+	<rp id="2031616000" sh_x="-75" sh_y="+25" />
+
+	<!-- strip, RP 104 -->
+	<rp id="1998585856" sh_x="-100" sh_y="+125" />
+
+	<!-- strip, RP 105 -->
+	<rp id="1999110144" sh_x="+175" sh_y="-150" />
+
+
+	<!-- pixel, RP 123 -->
+	<rp id="2040004608" sh_x="+50" sh_y="+50" />
+
+	<!-- pixel, RP 124 -->
+	<rp id="2006974464" sh_x="-100" sh_y="+100" />
+
+	<!-- pixel, RP 125 -->
+	<rp id="2007498752" sh_x="+50" sh_y="-150" />
+</xml>

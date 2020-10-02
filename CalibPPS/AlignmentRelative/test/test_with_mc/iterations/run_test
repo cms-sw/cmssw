@@ -1,0 +1,28 @@
+#!/bin/bash
+
+iterations="4"
+
+mkdir -p "data"
+
+cd "data"
+
+for iter in `seq $iterations`
+do
+	echo "* iteration $iter"
+
+	if [ "$iter" == "1" ]
+	then
+		input_alignment=""
+	else
+		let pred=$iter-1
+		input_alignment="\"CalibPPS/AlignmentRelative/test/test_with_mc/iterations/data/iteration_${pred}_cumulative_Jan.xml\""
+	fi
+
+	cat "../template_cfg.py" | sed "\
+			s|\$input_alignment|$input_alignment|;\
+			s|\$output_iteration|iteration_${iter}_|;\
+			s|\$output_cumulative|iteration_${iter}_cumulative_|;\
+		" > "iteration_${iter}_cfg.py"
+
+	cmsRun "iteration_${iter}_cfg.py" &> "iteration_${iter}.log"
+done
