@@ -92,7 +92,7 @@ void SiPixelRecHitSoAFromLegacy::produce(edm::StreamID streamID, edm::Event& iEv
 
   const reco::BeamSpot& bs = iEvent.get(bsGetToken_);
 
-  BeamSpotCUDA::Data bsHost;
+  BeamSpotPOD bsHost;
   bsHost.x = bs.x0();
   bsHost.y = bs.y0();
   bsHost.z = bs.z0();

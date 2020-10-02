@@ -16,9 +16,11 @@ process = cms.Process("L1TEmuDQMlive")
 #
 # for live online DQM in P5
 process.load("DQM.Integration.config.inputsource_cfi")
+from DQM.Integration.config.inputsource_cfi import options
 #
 # for testing in lxplus
 #process.load("DQM.Integration.config.fileinputsource_cfi")
+#from DQM.Integration.config.fileinputsource_cfi import options
 
 #----------------------------
 # DQM Environment
@@ -30,6 +32,9 @@ process.load("DQM.Integration.config.environment_cfi")
 # for local test
 process.dqmEnv.subSystemFolder = 'L1TEMU'
 process.dqmSaver.tag = 'L1TEMU'
+process.dqmSaver.runNumber = options.runNumber
+process.dqmSaverPB.tag = 'L1TEMU'
+process.dqmSaverPB.runNumber = options.runNumber
 #
 # no references needed
 
@@ -88,7 +93,7 @@ else:
 process.l1EmulatorMonitorClientPath = cms.Path(process.l1EmulatorMonitorClient)
 
 #
-process.l1EmulatorMonitorEndPath = cms.EndPath(process.dqmEnv*process.dqmSaver)
+process.l1EmulatorMonitorEndPath = cms.EndPath(process.dqmEnv*process.dqmSaver*process.dqmSaverPB)
 
 #
 process.valCscTriggerPrimitiveDigis.gangedME1a = cms.untracked.bool(False)
