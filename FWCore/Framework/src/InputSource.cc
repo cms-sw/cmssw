@@ -57,7 +57,7 @@ namespace edm {
         processHistoryRegistry_(new ProcessHistoryRegistry),
         branchIDListHelper_(desc.branchIDListHelper_),
         thinnedAssociationsHelper_(desc.thinnedAssociationsHelper_),
-        processGUID_(createGlobalIdentifier()),
+        processGUID_(createGlobalIdentifier(true)),
         time_(),
         newRun_(true),
         newLumi_(true),
