@@ -6,9 +6,6 @@
 <use name="PhysicsTools/UtilAlgos"/>
 <use name="DataFormats/Candidate"/>
 <use name="DataFormats/HcalRecHit"/>
-<use name="DataFormats/WrappedStdDictionaries"/>
-<use name="Geometry/Records"/>
-<use name="DataFormats/HepMCCandidate"/>
 <use name="DataFormats/TrackReco"/>
 <use name="DataFormats/VertexReco"/>
 <use name="DataFormats/Common"/>

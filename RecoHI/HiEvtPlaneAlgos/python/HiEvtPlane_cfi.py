@@ -40,14 +40,14 @@ from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
 
 (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(hiEvtPlane,
-    vertexTag = cms.InputTag("offlinePrimaryVertices"),
-    trackTag = cms.InputTag("generalTracks"),
-    minet = cms.double(0.01),
-    minpt = cms.double(0.5),
-    minvtx = cms.double(-15.),
-    maxvtx = cms.double(15.),
-    dzdzerror_pix = cms.double(40.),
-    caloCentRef = cms.double(-1),
-    caloCentRefWidth = cms.double(-1),
-    cutEra = cms.int32(0)
+    vertexTag = "offlinePrimaryVertices",
+    trackTag = "generalTracks",
+    minet = 0.01,
+    minpt = 0.5,
+    minvtx = -15.,
+    maxvtx = 15.,
+    dzdzerror_pix = 40.,
+    caloCentRef = -1,
+    caloCentRefWidth = -1,
+    cutEra = 0
 )

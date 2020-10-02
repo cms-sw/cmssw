@@ -20,17 +20,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "SimDataFormats/Track/interface/SimTrack.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/Track/interface/CoreSimTrack.h"
-#include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
-#include "SimDataFormats/Vertex/interface/SimVertex.h"
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "SimDataFormats/TrackingHit/interface/UpdatablePSimHit.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
@@ -72,19 +61,19 @@ private:
   std::string centralityMC_;
 
   edm::InputTag centralityBinTag_;
-  edm::EDGetTokenT<int> centralityBinToken;
+  edm::EDGetTokenT<int> centralityBinToken_;
 
   edm::InputTag centralityTag_;
-  edm::EDGetTokenT<reco::Centrality> centralityToken;
+  edm::EDGetTokenT<reco::Centrality> centralityToken_;
 
   edm::InputTag vertexTag_;
-  edm::EDGetTokenT<std::vector<reco::Vertex>> vertexToken;
+  edm::EDGetTokenT<std::vector<reco::Vertex>> vertexToken_;
 
   edm::InputTag inputPlanesTag_;
-  edm::EDGetTokenT<reco::EvtPlaneCollection> inputPlanesToken;
+  edm::EDGetTokenT<reco::EvtPlaneCollection> inputPlanesToken_;
 
   edm::InputTag trackTag_;
-  edm::EDGetTokenT<reco::TrackCollection> trackToken;
+  edm::EDGetTokenT<reco::TrackCollection> trackToken_;
   edm::Handle<reco::TrackCollection> trackCollection_;
 
   edm::ESWatcher<HeavyIonRcd> hiWatcher;
@@ -104,17 +93,6 @@ private:
   bool useOffsetPsi_;
   double nCentBins_;
 };
-//
-// constants, enums and typedefs
-//
-
-typedef std::vector<TrackingParticle> TrackingParticleCollection;
-typedef TrackingParticleRefVector::iterator tp_iterator;
-
-//
-// static data member definitions
-//
-
 //
 // constructors and destructor
 //
@@ -136,7 +114,6 @@ HiEvtPlaneFlatProducer::HiEvtPlaneFlatProducer(const edm::ParameterSet& iConfig)
       caloCentRefWidth_(iConfig.getParameter<double>("caloCentRefWidth")),
       CentBinCompression_(iConfig.getParameter<int>("CentBinCompression")),
       useOffsetPsi_(iConfig.getParameter<bool>("useOffsetPsi")) {
-  //  UseEtHF = kFALSE;
   nCentBins_ = 200.;
 
   if (iConfig.exists("nonDefaultGlauberModel")) {
@@ -144,15 +121,15 @@ HiEvtPlaneFlatProducer::HiEvtPlaneFlatProducer(const edm::ParameterSet& iConfig)
   }
   centralityLabel_ = centralityVariable_ + centralityMC_;
 
-  centralityBinToken = consumes<int>(centralityBinTag_);
+  centralityBinToken_ = consumes<int>(centralityBinTag_);
 
-  centralityToken = consumes<reco::Centrality>(centralityTag_);
+  centralityToken_ = consumes<reco::Centrality>(centralityTag_);
 
-  vertexToken = consumes<std::vector<reco::Vertex>>(vertexTag_);
+  vertexToken_ = consumes<std::vector<reco::Vertex>>(vertexTag_);
 
-  trackToken = consumes<reco::TrackCollection>(trackTag_);
+  trackToken_ = consumes<reco::TrackCollection>(trackTag_);
 
-  inputPlanesToken = consumes<reco::EvtPlaneCollection>(inputPlanesTag_);
+  inputPlanesToken_ = consumes<reco::EvtPlaneCollection>(inputPlanesTag_);
 
   //register your products
   produces<reco::EvtPlaneCollection>();
@@ -215,37 +192,26 @@ void HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   //
   int bin = 0;
   int cbin = 0;
-  edm::Handle<int> cbin_;
-  iEvent.getByToken(centralityBinToken, cbin_);
-  cbin = *cbin_;
+  cbin = iEvent.get(centralityBinToken_);
   bin = cbin / CentBinCompression_;
-  //double centval = cbin*100./(double) nCentBins_;
   //
   //Get Vertex
   //
-  edm::Handle<reco::VertexCollection> vertices;
-  iEvent.getByToken(vertexToken, vertices);
 
   //best vertex
-  double bestvz = -999.9, bestvx = -999.9, bestvy = -999.9;
-  const reco::Vertex& vtx = (*vertices)[0];
+  double bestvz = -999.9;
+  const reco::Vertex& vtx = iEvent.get(vertexToken_)[0];
   bestvz = vtx.z();
-  bestvx = vtx.x();
-  bestvy = vtx.y();
-  math::XYZPoint bestvtx(bestvx, bestvy, bestvz);
-  if (bestvz < minvtx_ || bestvz > maxvtx_)
-    return;
+  //  Produce the EP regardless of vz position
+  //  if (bestvz < minvtx_ || bestvz > maxvtx_)
+  //    return;
 
   //
   //Get Event Planes
   //
 
   edm::Handle<reco::EvtPlaneCollection> evtPlanes_;
-  iEvent.getByToken(inputPlanesToken, evtPlanes_);
-
-  if (!evtPlanes_.isValid()) {
-    return;
-  }
+  iEvent.getByToken(inputPlanesToken_, evtPlanes_);
 
   auto evtplaneOutput = std::make_unique<EvtPlaneCollection>();
   EvtPlane* ep[NumEPNames];
@@ -253,26 +219,25 @@ void HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
     ep[i] = nullptr;
   }
   int indx = 0;
-  for (EvtPlaneCollection::const_iterator rp = evtPlanes_->begin(); rp != evtPlanes_->end(); rp++) {
-    double s = rp->sumSin(0);
-    double c = rp->sumCos(0);
-    uint m = rp->mult();
+  for (auto&& rp : (*evtPlanes_)) {
+    double s = rp.sumSin(0);
+    double c = rp.sumCos(0);
+    uint m = rp.mult();
     double soff = s;
     double coff = c;
     double psiOffset = -10;
     double psiFlat = -10;
-    if (rp->angle(0) > -5) {
+    if (rp.angle(0) > -5) {
       if (useOffsetPsi_) {
-        soff = flat[indx]->getSoffset(s, bestvz, bin);
-        coff = flat[indx]->getCoffset(c, bestvz, bin);
-        psiOffset = flat[indx]->getOffsetPsi(soff, coff);
+        soff = flat[indx]->soffset(s, bestvz, bin);
+        coff = flat[indx]->coffset(c, bestvz, bin);
+        psiOffset = flat[indx]->offsetPsi(soff, coff);
       }
       psiFlat = flat[indx]->getFlatPsi(psiOffset, bestvz, bin);
     }
-    ep[indx] =
-        new EvtPlane(indx, 2, psiFlat, soff, coff, rp->sumw(), rp->sumw2(), rp->sumPtOrEt(), rp->sumPtOrEt2(), m);
-    ep[indx]->addLevel(0, rp->angle(0), s, c);
-    ep[indx]->addLevel(3, 0., rp->sumSin(3), rp->sumCos(3));
+    ep[indx] = new EvtPlane(indx, 2, psiFlat, soff, coff, rp.sumw(), rp.sumw2(), rp.sumPtOrEt(), rp.sumPtOrEt2(), m);
+    ep[indx]->addLevel(0, rp.angle(0), s, c);
+    ep[indx]->addLevel(3, 0., rp.sumSin(3), rp.sumCos(3));
     if (useOffsetPsi_)
       ep[indx]->addLevel(1, psiOffset, soff, coff);
     ++indx;
