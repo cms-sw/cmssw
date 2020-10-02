@@ -399,7 +399,8 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
       edm::LogVerbatim("HGCalGeom") << "Top levels " << php.levelT_[0] << ":" << php.levelT_[1] << " first layers "
                                     << php.firstLayer_ << ":" << php.firstMixedLayer_ << " Det Type "
                                     << php.detectorType_ << "  thickenss " << php.waferThick_ << " min tile size "
-                                    << php.minTileSize_ << " Tile Mask Mode " << php.waferMaskMode_ << " ZSide " << php.waferZSide_;
+                                    << php.minTileSize_ << " Tile Mask Mode " << php.waferMaskMode_ << " ZSide "
+                                    << php.waferZSide_;
 #endif
       // Load the SpecPars
       geom->loadSpecParsTrapezoid(fv, vmap, php, name);
