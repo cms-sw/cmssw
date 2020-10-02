@@ -24,6 +24,7 @@
 #include <DD4hep/SpecParRegistry.h>
 #include <DD4hep/Volumes.h>
 #include <memory>
+#include <tuple>
 #include <vector>
 
 namespace cms {
@@ -190,7 +191,11 @@ namespace cms {
 
     //! extract attribute value
     template <typename T>
-    T get(const std::string&) const;
+    T get(const std::string&);
+
+    //! extract another value from the same SpecPar
+    //  call get<double> first to find a relevant one
+    double getNextValue(const std::string&) const;
 
     //! extract attribute value in SpecPar
     template <typename T>
@@ -226,6 +231,12 @@ namespace cms {
     //! set the current node to the first sibling
     bool firstSibling();
 
+    //! find a SpecPar in the registry by key
+    //  doesn't really belong here, but allows
+    //  speeding up avoiding the same search over
+    //  the registry
+    const DDSpecPar* find(const std::string&) const;
+
     ExpandedNodes nodes_;
     std::vector<Iterator> it_;
     std::vector<std::unique_ptr<Filter>> filters_;
@@ -233,6 +244,7 @@ namespace cms {
     Node* node_ = nullptr;
     const DDSpecParRegistry* registry_;
     DDSpecParRefs refs_;
+    const DDSpecPar* currentSpecPar_ = nullptr;
     int startLevel_;
   };
 }  // namespace cms
