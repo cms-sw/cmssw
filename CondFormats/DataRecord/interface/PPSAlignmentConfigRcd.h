@@ -13,4 +13,4 @@
 
 class PPSAlignmentConfigRcd : public edm::eventsetup::EventSetupRecordImplementation<PPSAlignmentConfigRcd> {};
 
-#endif 
+#endif

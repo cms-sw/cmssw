@@ -9,4 +9,4 @@
 #include "CondFormats/DataRecord/interface/PPSAlignmentConfigRcd.h"
 #include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"
 
-EVENTSETUP_RECORD_REG(PPSAlignmentConfigRcd); 
+EVENTSETUP_RECORD_REG(PPSAlignmentConfigRcd);
