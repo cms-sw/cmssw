@@ -27,9 +27,7 @@ namespace edm {
     }
   }
 
-  std::string const Guid::toBinary() const {
-    return std::string(reinterpret_cast<const char*>(data_), sizeof(data_));
-  }
+  std::string const Guid::toBinary() const { return std::string(reinterpret_cast<const char*>(data_), sizeof(data_)); }
 
   Guid const& Guid::fromBinary(std::string const& source) {
     assert(source.size() == sizeof(data_));
