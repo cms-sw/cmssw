@@ -133,7 +133,7 @@ def get_DDX_vars():
     return DDXVars
 
 
-def add_BTV(process, runOnMC=False, onlyAK4=False, onlyAK8=False):
+def addBTV(process, runOnMC=False, onlyAK4=False, onlyAK8=False):
     addAK4 = not onlyAK8
     addAK8 = not onlyAK4
 

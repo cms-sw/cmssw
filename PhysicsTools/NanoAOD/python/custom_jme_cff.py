@@ -16,6 +16,9 @@ from PhysicsTools.PatAlgos.tools.jetCollectionTools import GenJetAdder, RecoJetA
 from PhysicsTools.PatAlgos.tools.jetTools import supportedJetAlgos
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
 
+from PhysicsTools.NanoAOD.addPFCands_cff import addPFCands
+from PhysicsTools.NanoAOD.addBTV_cff import addBTV
+
 import copy
 
 bTagCSVV2    = ['pfDeepCSVJetTags:probb','pfDeepCSVJetTags:probbb','pfDeepCSVJetTags:probc']
@@ -892,24 +895,24 @@ def PrepJMECustomNanoAOD_Data(process):
 def PrepJMECustomAK8PFNanoAOD_MC(process):
   PrepJMECustomNanoAOD(process, runOnMC=True)
   addPFCands(process, runOnMC = True, onlyAK8 = True)
-  add_BTV(process, runOnMC = True, onlyAK8 = True)
+  addBTV(process, runOnMC = True, onlyAK8 = True)
   return process
 
 def PrepJMECustomAK8PFNanoAOD_Data(process):
   PrepJMECustomNanoAOD(process, runOnMC=False)
   addPFCands(process, runOnMC = False, onlyAK8 = True)
-  add_BTV(process, runOnMC = False, onlyAK8 = True)
+  addBTV(process, runOnMC = False, onlyAK8 = True)
   return process
 
 #### All PFCands and BTV info                                                                                                                                                                               
 def PrepJMECustomPFNanoAOD_MC(process):
   PrepJMECustomNanoAOD(process, runOnMC=True)
   addPFCands(process, runOnMC = True, allPF = True)
-  add_BTV(process, runOnMC = True)
+  addBTV(process, runOnMC = True)
   return process
 
 def PrepJMECustomPFNanoAOD_Data(process):
   PrepJMECustomNanoAOD(process, runOnMC=False)
   addPFCands(process, runOnMC = False, allPF = True)
-  add_BTV(process, runOnMC = False)
+  addBTV(process, runOnMC = False)
   return process

@@ -8,6 +8,8 @@
 <use name="CommonTools/Egamma"/>
 <use name="PhysicsTools/PatAlgos"/>
 <use name="DataFormats/NanoAOD"/>
+<use name="DataFormats/VertexReco"/>
+<use name="RecoBTag/FeatureTools"/>
 <use name="roothistmatrix"/>
 <use name="RecoVertex/VertexTools"/>
 <use name="RecoVertex/VertexPrimitives"/>
