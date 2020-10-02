@@ -25,7 +25,9 @@ private:
 };
 
 SiPixelGainCalibrationForHLTGPUESProducer::SiPixelGainCalibrationForHLTGPUESProducer(const edm::ParameterSet& iConfig) {
-  setWhatProduced(this).setConsumes(gainsToken_).setConsumes(geometryToken_);
+  auto cc = setWhatProduced(this);
+  gainsToken_ = cc.consumes();
+  geometryToken_ = cc.consumes();
 }
 
 void SiPixelGainCalibrationForHLTGPUESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
