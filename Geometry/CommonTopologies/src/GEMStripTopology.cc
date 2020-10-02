@@ -40,8 +40,8 @@ LocalPoint GEMStripTopology::localPosition(const MeasurementPoint& mp) const {
 
 LocalError GEMStripTopology::localError(float strip, float stripErr2) const {
   const double phi(stripAngle(strip)), t1(std::tan(phi)), t2(t1 * t1),
-      tt(stripErr2 * std::pow(centreToIntersection() * angularWidth(), 2.f)),  // tangential sigma^2   *c2
-      rr(std::pow(detHeight(), 2.f) * (1.f / 12.f)),  // radial sigma^2( uniform prob density along strip)  *c2
+      tt(stripErr2 * std::pow(centreToIntersection() * angularWidth(), 2)),  // tangential sigma^2   *c2
+      rr(std::pow(detHeight(), 2) * (1.f / 12.f)),  // radial sigma^2( uniform prob density along strip)  *c2
 
       xx(tt + t2 * rr), yy(t2 * tt + rr), xy(t1 * (rr - tt));
 
@@ -87,9 +87,9 @@ MeasurementError GEMStripTopology::measurementError(const LocalPoint& p, const L
       t(yAxisOrientation() * p.x() / yHitToInter),  // tan(strip angle)
       cs(t / (1 + t * t)), s2(t * cs), c2(1 - s2),  // rotation matrix
 
-      T2(1. / (std::pow(angularWidth(), 2.f) *
-               (std::pow(p.x(), 2.f) + std::pow(yHitToInter, 2)))),  // 1./tangential measurement unit (local pitch) ^2
-      R2(c2 / std::pow(detHeight(), 2.f)),                           // 1./ radial measurement unit (strip length) ^2
+      T2(1. / (std::pow(angularWidth(), 2) *
+               (std::pow(p.x(), 2) + std::pow(yHitToInter, 2)))),  // 1./tangential measurement unit (local pitch) ^2
+      R2(c2 / std::pow(detHeight(), 2)),                           // 1./ radial measurement unit (strip length) ^2
 
       uu((c2 * e.xx() - 2 * cs * e.xy() + s2 * e.yy()) * T2), vv((s2 * e.xx() + 2 * cs * e.xy() + c2 * e.yy()) * R2),
       uv((cs * (e.xx() - e.yy()) + e.xy() * (c2 - s2)) * std::sqrt(T2 * R2));
@@ -105,7 +105,7 @@ float GEMStripTopology::localPitch(const LocalPoint& lp) const {
   const int istrip = std::min(nstrips(), static_cast<int>(strip(lp)) + 1);  // which strip number
   const float fangle = stripAngle(static_cast<float>(istrip) - 0.5);        // angle of strip centre
   return yDistanceToIntersection(lp.y()) * std::sin(angularWidth()) /
-         std::pow(std::cos(fangle - 0.5f * angularWidth()), 2.f);
+         std::pow(std::cos(fangle - 0.5f * angularWidth()), 2);
 }
 
 float GEMStripTopology::stripAngle(float strip) const {
@@ -113,7 +113,7 @@ float GEMStripTopology::stripAngle(float strip) const {
 }
 
 float GEMStripTopology::localStripLength(const LocalPoint& lp) const {
-  return detHeight() * std::sqrt(1.f + std::pow(lp.x() / yDistanceToIntersection(lp.y()), 2.f));
+  return detHeight() * std::sqrt(1.f + std::pow(lp.x() / yDistanceToIntersection(lp.y()), 2));
 }
 
 float GEMStripTopology::yDistanceToIntersection(float y) const {
