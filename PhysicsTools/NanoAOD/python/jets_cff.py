@@ -681,6 +681,7 @@ subjetMCTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     variables = cms.PSet(
         nBHadrons = Var("jetFlavourInfo().getbHadrons().size()", "uint8", doc="number of b-hadrons"),
         nCHadrons = Var("jetFlavourInfo().getcHadrons().size()", "uint8", doc="number of c-hadrons"),
+        hadronFlavour = Var("hadronFlavour()", int, doc="flavour from hadron ghost clustering"),
     )
 )
 
