@@ -79,7 +79,7 @@ process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 #-----------------------
 # Real data raw to digi
 process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
-process.siPixelDigis.IncludeErrors = True
+process.siPixelDigis.cpu.IncludeErrors = True
 
 # Local Reconstruction
 process.load("RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi")
@@ -92,13 +92,13 @@ process.load("RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi")
 #        SelectEvents = cms.vstring('HLT_600Tower*','HLT_L1*','HLT_Jet*','HLT_*Cosmic*','HLT_HT*','HLT_MinBias_*','HLT_Physics*', 'HLT_ZeroBias*','HLT_HcalNZS*'))
 
 
-process.siPixelDigis.InputLabel   = cms.InputTag("rawDataCollector")
+process.siPixelDigis.cpu.InputLabel = cms.InputTag("rawDataCollector")
 #--------------------------------
 # Heavy Ion Configuration Changes
 #--------------------------------
 if (process.runType.getRunType() == process.runType.hi_run):
     process.load('Configuration.StandardSequences.RawToDigi_Repacked_cff')
-    process.siPixelDigis.InputLabel   = cms.InputTag("rawDataRepacker")
+    process.siPixelDigis.cpu.InputLabel = cms.InputTag("rawDataRepacker")
 
     if not unitTest:
         process.source.SelectEvents = cms.untracked.vstring('HLT_HIL1MinimumBiasHF2AND*')
