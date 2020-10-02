@@ -174,47 +174,45 @@ public:
 
 private:
   GenPlane *rp[NumEPNames];
-  EPCuts *cuts;
 
   void produce(edm::Event &, const edm::EventSetup &) override;
 
   // ----------member data ---------------------------
+  EPCuts *cuts;
 
   std::string centralityVariable_;
   std::string centralityLabel_;
   std::string centralityMC_;
 
   edm::InputTag centralityBinTag_;
-  edm::EDGetTokenT<int> centralityBinToken;
+  edm::EDGetTokenT<int> centralityBinToken_;
 
   edm::InputTag vertexTag_;
-  edm::EDGetTokenT<std::vector<reco::Vertex>> vertexToken;
+  edm::EDGetTokenT<std::vector<reco::Vertex>> vertexToken_;
   edm::Handle<std::vector<reco::Vertex>> vertex_;
 
   edm::InputTag caloTag_;
-  edm::EDGetTokenT<CaloTowerCollection> caloToken;
+  edm::EDGetTokenT<CaloTowerCollection> caloToken_;
   edm::Handle<CaloTowerCollection> caloCollection_;
-  edm::EDGetTokenT<reco::PFCandidateCollection> caloTokenPF;
+  edm::EDGetTokenT<reco::PFCandidateCollection> caloTokenPF_;
 
   edm::InputTag castorTag_;
-  edm::EDGetTokenT<std::vector<reco::CastorTower>> castorToken;
+  edm::EDGetTokenT<std::vector<reco::CastorTower>> castorToken_;
   edm::Handle<std::vector<reco::CastorTower>> castorCollection_;
 
   edm::InputTag trackTag_;
-  edm::EDGetTokenT<reco::TrackCollection> trackToken;
+  edm::EDGetTokenT<reco::TrackCollection> trackToken_;
   edm::InputTag losttrackTag_;
-  edm::EDGetTokenT<reco::TrackCollection> losttrackToken;
   edm::Handle<reco::TrackCollection> trackCollection_;
-  string strack;
-  string scalo;
-  edm::EDGetTokenT<edm::View<pat::PackedCandidate>> packedToken;
-  edm::EDGetTokenT<edm::View<pat::PackedCandidate>> lostToken;
+  bool bStrack_packedPFCandidates_;
+  bool bScalo_particleFlow_;
+  edm::EDGetTokenT<edm::View<pat::PackedCandidate>> packedToken_;
+  edm::EDGetTokenT<edm::View<pat::PackedCandidate>> lostToken_;
 
   edm::InputTag chi2MapTag_;
-  edm::EDGetTokenT<edm::ValueMap<float>> chi2MapToken;
+  edm::EDGetTokenT<edm::ValueMap<float>> chi2MapToken_;
   edm::InputTag chi2MapLostTag_;
-  edm::EDGetTokenT<edm::ValueMap<float>> chi2MapLostToken;
-  std::vector<float> trkNormChi2;
+  edm::EDGetTokenT<edm::ValueMap<float>> chi2MapLostToken_;
 
   bool loadDB_;
   double minet_;
@@ -242,14 +240,12 @@ private:
   int CentBinCompression_;
   int cutEra_;
   HiEvtPlaneFlatten *flat[NumEPNames];
-  int evtCount;
   TrackStructure track;
-  int pcnt = 0;
 
   edm::ESWatcher<HeavyIonRcd> hiWatcher;
   edm::ESWatcher<HeavyIonRPRcd> hirpWatcher;
 
-  void FillHF(TrackStructure track, double vz, int bin) {
+  void fillHF(TrackStructure track, double vz, int bin) {
     double minet = minet_;
     double maxet = maxet_;
     for (int i = 0; i < NumEPNames; i++) {
@@ -278,12 +274,11 @@ private:
       }
       double w = track.et;
       if (loadDB_)
-        w = track.et * flat[i]->getEtScale(vz, bin);
+        w = track.et * flat[i]->etScale(vz, bin);
       if (EPOrder[i] == 1) {
         if (MomConsWeight[i][0] == 'y' && loadDB_) {
           w = flat[i]->getW(track.et, vz, bin);
         }
-        //if(track.eta<0 ) w=-w;
       }
       rp[i]->addParticle(w, track.et, sin(EPOrder[i] * track.phi), cos(EPOrder[i] * track.phi), track.eta);
     }
@@ -320,7 +315,6 @@ private:
           if (MomConsWeight[i][0] == 'y' && loadDB_) {
             w = flat[i]->getW(track.et, vz, bin);
           }
-          //if(track.eta<0 ) w=-w;
         }
         rp[i]->addParticle(w, track.et, sin(EPOrder[i] * track.phi), cos(EPOrder[i] * track.phi), track.eta);
       }
@@ -360,7 +354,6 @@ private:
           if (MomConsWeight[i][0] == 'y' && loadDB_) {
             w = flat[i]->getW(track.pt, vz, bin);
           }
-          //if(track.eta<0) w=-w;
         }
         rp[i]->addParticle(w, track.pt, sin(EPOrder[i] * track.phi), cos(EPOrder[i] * track.phi), track.eta);
       }
@@ -430,26 +423,26 @@ EvtPlaneProducer::EvtPlaneProducer(const edm::ParameterSet &iConfig)
   }
   centralityLabel_ = centralityVariable_ + centralityMC_;
 
-  centralityBinToken = consumes<int>(centralityBinTag_);
+  centralityBinToken_ = consumes<int>(centralityBinTag_);
 
-  vertexToken = consumes<std::vector<reco::Vertex>>(vertexTag_);
+  vertexToken_ = consumes<std::vector<reco::Vertex>>(vertexTag_);
 
-  strack = trackTag_.label();
-  scalo = caloTag_.label();
-  if (strack.find("packedPFCandidates") != std::string::npos) {
-    packedToken = consumes<edm::View<pat::PackedCandidate>>(trackTag_);
-    lostToken = consumes<edm::View<pat::PackedCandidate>>(losttrackTag_);
-    chi2MapToken = consumes<edm::ValueMap<float>>(chi2MapTag_);
-    chi2MapLostToken = consumes<edm::ValueMap<float>>(chi2MapLostTag_);
+  bStrack_packedPFCandidates_ = (trackTag_.label().find("packedPFCandidates") != std::string::npos);
+  bScalo_particleFlow_ = (caloTag_.label().find("particleFlow") != std::string::npos);
+  if (bStrack_packedPFCandidates_) {
+    packedToken_ = consumes<edm::View<pat::PackedCandidate>>(trackTag_);
+    lostToken_ = consumes<edm::View<pat::PackedCandidate>>(losttrackTag_);
+    chi2MapToken_ = consumes<edm::ValueMap<float>>(chi2MapTag_);
+    chi2MapLostToken_ = consumes<edm::ValueMap<float>>(chi2MapLostTag_);
 
   } else {
-    if (scalo.find("particleFlow") != std::string::npos) {
-      caloTokenPF = consumes<reco::PFCandidateCollection>(caloTag_);
+    if (bScalo_particleFlow_) {
+      caloTokenPF_ = consumes<reco::PFCandidateCollection>(caloTag_);
     } else {
-      caloToken = consumes<CaloTowerCollection>(caloTag_);
+      caloToken_ = consumes<CaloTowerCollection>(caloTag_);
     }
-    castorToken = consumes<std::vector<reco::CastorTower>>(castorTag_);
-    trackToken = consumes<reco::TrackCollection>(trackTag_);
+    castorToken_ = consumes<std::vector<reco::CastorTower>>(castorTag_);
+    trackToken_ = consumes<reco::TrackCollection>(trackTag_);
   }
 
   produces<reco::EvtPlaneCollection>();
@@ -516,19 +509,14 @@ void EvtPlaneProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
   int bin = 0;
   int cbin = 0;
   if (loadDB_) {
-    edm::Handle<int> cbin_;
-    iEvent.getByToken(centralityBinToken, cbin_);
-    cbin = *cbin_;
+    cbin = iEvent.get(centralityBinToken_);
     bin = cbin / CentBinCompression_;
   }
   //
   //Get Vertex
   //
-  edm::Handle<reco::VertexCollection> vertices;
-  iEvent.getByToken(vertexToken, vertices);
-
   //best vertex
-  const reco::Vertex &vtx = (*vertices)[0];
+  const reco::Vertex &vtx = iEvent.get(vertexToken_)[0];
   double bestvz = vtx.z();
   double bestvx = vtx.x();
   double bestvy = vtx.y();
@@ -536,17 +524,19 @@ void EvtPlaneProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
   double bestvxError = vtx.xError();
   double bestvyError = vtx.yError();
   math::XYZPoint bestvtx(bestvx, bestvy, bestvz);
-  if (bestvz < minvtx_ || bestvz > maxvtx_)
-    return;
+  math::Error<3>::type vtx_cov = vtx.covariance();
+  //  Produce the EP regardless of vz position
+  //  if (bestvz < minvtx_ || bestvz > maxvtx_)
+  //    return;
 
   for (int i = 0; i < NumEPNames; i++)
     rp[i]->reset();
   edm::Handle<edm::ValueMap<float>> chi2Map;
   edm::Handle<edm::View<pat::PackedCandidate>> cands;
   edm::Handle<reco::PFCandidateCollection> calocands;
-  if (strack.find("packedPFCandidates") != std::string::npos) {
-    iEvent.getByToken(packedToken, cands);
-    iEvent.getByToken(chi2MapToken, chi2Map);
+  if (bStrack_packedPFCandidates_) {
+    iEvent.getByToken(packedToken_, cands);
+    iEvent.getByToken(chi2MapToken_, chi2Map);
     for (unsigned int i = 0, n = cands->size(); i < n; ++i) {
       track = {};
       track.centbin = cbin;
@@ -556,7 +546,7 @@ void EvtPlaneProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
       track.phi = pf.phi();
       track.pdgid = pf.pdgId();
       if (cuts->isGoodHF(track)) {
-        FillHF(track, bestvz, bin);
+        fillHF(track, bestvz, bin);
       }
       if (!pf.hasTrackDetails())
         continue;
@@ -572,10 +562,10 @@ void EvtPlaneProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
       track.ptError = trk.ptError();
       track.numberOfValidHits = trk.numberOfValidHits();
       track.algos = trk.algo();
-      track.dz = trk.dz(bestvtx);
-      track.dxy = -1. * trk.dxy(bestvtx);
-      track.dzError = sqrt(pow(trk.dzError(), 2) + pow(bestvzError, 2));
-      track.dxyError = sqrt(pow(trk.dxyError(), 2) + bestvxError * bestvyError);
+      track.dz = std::abs(trk.dz(bestvtx));
+      track.dxy = std::abs(trk.dxy(bestvtx));
+      track.dzError = std::hypot(trk.dzError(), bestvzError);
+      track.dxyError = trk.dxyError(bestvtx, vtx_cov);
       track.dzSig = track.dz / track.dzError;
       track.dxySig = track.dxy / track.dxyError;
       const reco::HitPattern &hit_pattern = trk.hitPattern();
@@ -586,13 +576,13 @@ void EvtPlaneProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
       }
     }
 
-    iEvent.getByToken(lostToken, cands);
-    iEvent.getByToken(chi2MapLostToken, chi2Map);
+    iEvent.getByToken(lostToken_, cands);
+    iEvent.getByToken(chi2MapLostToken_, chi2Map);
     for (unsigned int i = 0, n = cands->size(); i < n; ++i) {
       track = {};
       track.centbin = cbin;
       if (cuts->isGoodHF(track)) {
-        FillHF(track, bestvz, bin);
+        fillHF(track, bestvz, bin);
       }
       const pat::PackedCandidate &pf = (*cands)[i];
       if (!pf.hasTrackDetails())
@@ -627,8 +617,8 @@ void EvtPlaneProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
 
   } else {
     //calorimetry part
-    if (scalo.find("particleFlow") != std::string::npos) {
-      iEvent.getByToken(caloTokenPF, calocands);
+    if (bScalo_particleFlow_) {
+      iEvent.getByToken(caloTokenPF_, calocands);
       if (cands.isValid()) {
         for (unsigned int i = 0, n = calocands->size(); i < n; ++i) {
           track = {};
@@ -639,12 +629,12 @@ void EvtPlaneProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
           track.phi = pf.phi();
           track.pdgid = pf.pdgId();
           if (cuts->isGoodHF(track)) {
-            FillHF(track, bestvz, bin);
+            fillHF(track, bestvz, bin);
           }
         }
       }
     } else {
-      iEvent.getByToken(caloToken, caloCollection_);
+      iEvent.getByToken(caloToken_, caloCollection_);
       if (caloCollection_.isValid()) {
         for (CaloTowerCollection::const_iterator j = caloCollection_->begin(); j != caloCollection_->end(); j++) {
           track.eta = j->eta();
@@ -652,13 +642,13 @@ void EvtPlaneProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
           track.et = j->emEt() + j->hadEt();
           track.pdgid = 1;
           if (cuts->isGoodHF(track))
-            FillHF(track, bestvz, bin);
+            fillHF(track, bestvz, bin);
         }
       }
     }
 
     //Castor part
-    iEvent.getByToken(castorToken, castorCollection_);
+    iEvent.getByToken(castorToken_, castorCollection_);
     if (castorCollection_.isValid()) {
       for (std::vector<reco::CastorTower>::const_iterator j = castorCollection_->begin(); j != castorCollection_->end();
            j++) {
@@ -671,7 +661,7 @@ void EvtPlaneProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
       }
     }
     //Tracking part
-    iEvent.getByToken(trackToken, trackCollection_);
+    iEvent.getByToken(trackToken_, trackCollection_);
     if (trackCollection_.isValid()) {
       for (reco::TrackCollection::const_iterator j = trackCollection_->begin(); j != trackCollection_->end(); j++) {
         track.highPurity = j->quality(reco::TrackBase::highPurity);
@@ -722,7 +712,6 @@ void EvtPlaneProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
   }
 
   iEvent.put(std::move(evtplaneOutput));
-  ++pcnt;
 }
 
 //define this as a plug-in
