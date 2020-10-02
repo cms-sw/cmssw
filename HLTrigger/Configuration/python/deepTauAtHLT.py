@@ -8,6 +8,20 @@ from RecoTauTag.RecoTau.PFTauPrimaryVertexProducer_cfi      import *
 from RecoTauTag.RecoTau.PFTauSecondaryVertexProducer_cfi    import *
 from RecoTauTag.RecoTau.PFTauTransverseImpactParameters_cfi import *
 
+def processDeepProducer(self, producer_name, tauIDSources, workingPoints_):
+    for target,points in six.iteritems(workingPoints_):
+        setattr(tauIDSources, 'by{}VS{}raw'.format(producer_name[0].upper()+producer_name[1:], target),
+                    cms.PSet(inputTag = cms.InputTag(producer_name, 'VS{}'.format(target)), workingPointIndex = cms.int32(-1)))
+        
+        cut_expressions = []
+        for index, (point,cut) in enumerate(six.iteritems(points)):
+            cut_expressions.append(str(cut))
+
+            setattr(tauIDSources, 'by{}{}VS{}'.format(point, producer_name[0].upper()+producer_name[1:], target),
+                    cms.PSet(inputTag = cms.InputTag(producer_name, 'VS{}'.format(target)), workingPointIndex = cms.int32(index)))
+
+        setattr(getattr(self.process, producer_name), 'VS{}WP'.format(target), cms.vstring(*cut_expressions))
+
 def update(process):
     process.options.wantSummary = cms.untracked.bool(True)
 
@@ -32,7 +46,6 @@ def update(process):
     process.hpsPFTauBasicDiscriminators = pfRecoTauDiscriminationByIsolation.clone(
         PFTauProducer = cms.InputTag('hltHpsPFTauProducerReg'),
         Prediscriminants = requireDecayMode.clone(),
-        # Prediscriminants = cms.PSet(  BooleanOperator = cms.string( "and" ) ),
         particleFlowSrc = cms.InputTag("hltParticleFlowReg"),
         vertexSrc = PFTauQualityCuts.primaryVertexSrc,
         customOuterCone = 0.5,
@@ -73,7 +86,7 @@ def update(process):
 
     ## Cut based isolations dR=0.3
     process.hpsPFTauBasicDiscriminatorsdR03 = process.hpsPFTauBasicDiscriminators.clone(
-        customOuterCone = cms.double(0.3)
+        customOuterCone = 0.3
     )
 
     process.hpsPFTauPrimaryVertexProducer = PFTauPrimaryVertexProducer.clone(
@@ -158,7 +171,7 @@ def update(process):
     				'outer:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e6_outer.pb',
     			]
 
-    wp_names = ["0.", "0."]
+    working_points = ["0.", "0.92"]
 
     process.deepTauProducer = cms.EDProducer("DeepTauId",
     taus                                = cms.InputTag("hltHpsPFTauProducerReg"),
@@ -176,9 +189,9 @@ def update(process):
     basicTauDiscriminatorsdR03          = cms.untracked.InputTag('hpsPFTauBasicDiscriminatorsdR03'),
     Prediscriminants                    = requireDecayMode.clone(),
 
-    VSeWP = cms.vstring(wp_names),
-    VSmuWP = cms.vstring(wp_names),
-    VSjetWP = cms.vstring(wp_names)
+    VSeWP = cms.vstring(working_points),
+    VSmuWP = cms.vstring(working_points),
+    VSjetWP = cms.vstring(working_points)
     )		
 
     #Add DeepTauProducer

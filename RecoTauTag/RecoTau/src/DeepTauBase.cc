@@ -7,6 +7,9 @@
  * \author Maria Rosaria Di Domenico, University of Siena & INFN Pisa
  */
 
+ //TODO: port to offline RECO/AOD inputs to allow usage with offline AOD
+ //TODO: Take into account that PFTaus can also be build with pat::PackedCandidates
+
 #include "RecoTauTag/RecoTau/interface/DeepTauBase.h"
 
 namespace deep_tau {
