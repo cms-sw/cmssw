@@ -13,12 +13,15 @@ if 'unitTest=True' in sys.argv:
 
 if unitTest:
     process.load("DQM.Integration.config.unittestinputsource_cfi")
+    from DQM.Integration.config.unittestinputsource_cfi import options
 else:
     # for live online DQM in P5
     process.load("DQM.Integration.config.inputsource_cfi")
+    from DQM.Integration.config.inputsource_cfi import options
 
 # for testing in lxplus
 #process.load("DQM.Integration.config.fileinputsource_cfi")
+#from DQM.Integration.config.fileinputsource_cfi import options
 
 #----------------------------
 #### DQM Environment
@@ -26,6 +29,9 @@ else:
 process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'Scal'
 process.dqmSaver.tag = 'Scal'
+process.dqmSaver.runNumber = options.runNumber
+process.dqmSaverPB.tag = 'Scal'
+process.dqmSaverPB.runNumber = options.runNumber
 #-----------------------------
 process.load("DQMServices.Components.DQMScalInfo_cfi")
 
@@ -68,7 +74,7 @@ process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 process.dump = cms.EDAnalyzer('EventContentAnalyzer')
 
 # DQM Modules
-process.dqmmodules = cms.Sequence(process.dqmEnv + process.dqmSaver)
+process.dqmmodules = cms.Sequence(process.dqmEnv + process.dqmSaver + process.dqmSaverPB)
 process.evfDQMmodulesPath = cms.Path(
                               process.l1GtUnpack*
 			      process.gtDigis*

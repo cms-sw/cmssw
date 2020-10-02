@@ -21,12 +21,15 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 if unitTest:
     process.load("DQM.Integration.config.unittestinputsource_cfi")
+    from DQM.Integration.config.unittestinputsource_cfi import options
 else:
     # for live online DQM in P5
     process.load("DQM.Integration.config.inputsource_cfi")
+    from DQM.Integration.config.inputsource_cfi import options
 
 # for testing in lxplus
 #process.load("DQM.Integration.config.fileinputsource_cfi")
+#from DQM.Integration.config.fileinputsource_cfi import options
 
 ##
 #----------------------------
@@ -40,6 +43,9 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = "PixelLumi"
 process.dqmSaver.tag = "PixelLumi"
+process.dqmSaver.runNumber = options.runNumber
+process.dqmSaverPB.tag = "PixelLumi"
+process.dqmSaverPB.runNumber = options.runNumber
 
 if not unitTest:
     process.source.SelectEvents = cms.untracked.vstring("HLT_ZeroBias*","HLT_L1AlwaysTrue*", "HLT_PAZeroBias*", "HLT_PAL1AlwaysTrue*")
@@ -128,7 +134,8 @@ process.AdaptorConfig = cms.Service("AdaptorConfig")
 process.Reco = cms.Sequence(process.siPixelDigis*process.siPixelClusters)
 process.DQMmodules = cms.Sequence(process.dqmEnv*
   process.pixel_lumi_dqm*
-  process.dqmSaver)
+  process.dqmSaver*
+  process.dqmSaverPB)
 
 process.p = cms.Path(process.Reco*process.DQMmodules)
 

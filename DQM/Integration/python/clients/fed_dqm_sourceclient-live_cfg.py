@@ -25,11 +25,16 @@ process.load('DQM.Integration.config.FrontierCondition_GT_cfi')
 # Input:
 if unitTest:
     process.load("DQM.Integration.config.unittestinputsource_cfi")
+    from DQM.Integration.config.unittestinputsource_cfi import options
 else:
     process.load('DQM.Integration.config.inputsource_cfi')
+    from DQM.Integration.config.inputsource_cfi import options
 # Output:
 process.dqmEnv.subSystemFolder = 'FED'
 process.dqmSaver.tag = 'FED'
+process.dqmSaver.runNumber = options.runNumber
+process.dqmSaverPB.tag = 'FED'
+process.dqmSaverPB.runNumber = options.runNumber
 
 # Subsystem sequences
 
@@ -142,6 +147,7 @@ process.FEDModulesPath = cms.Path(
 process.DQMmodulesPath = cms.Path(
                                     process.dqmEnv
                                   + process.dqmSaver
+                                  + process.dqmSaverPB
                                  )
 
 process.schedule = cms.Schedule(
