@@ -109,8 +109,8 @@ SiPixelChargeReweightingAlgorithm::SiPixelChargeReweightingAlgorithm(const edm::
       UseReweighting(conf.getParameter<bool>("UseReweighting")),
       PrintClusters(conf.getParameter<bool>("PrintClusters")),
       PrintTemplates(conf.getParameter<bool>("PrintTemplates")) {
-         edm::LogVerbatim("PixelDigitizer ") << "SiPixelChargeReweightingAlgorithm constructed"
-                             << " with UseReweighting = " << UseReweighting;
+  edm::LogVerbatim("PixelDigitizer ") << "SiPixelChargeReweightingAlgorithm constructed"
+                                      << " with UseReweighting = " << UseReweighting;
 }
 
 //=========================================================================
