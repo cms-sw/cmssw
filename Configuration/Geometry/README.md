@@ -55,6 +55,7 @@ Muon system:
 * M6: same as M5 but with adjustment of ME0 in view of updated boundaries
 * M7: same as M6 with further ajustment of ME0 for boundaries
 * M8: same as M7 with changed number of strips for GE21
+* M9: same as M8 with GE0 replacing ME0
 
 Fast Timing system:
 * I10: Fast Timing detector (LYSO barrel (bars along phi flat), silicon endcap), w/ passive materials, ETL in position defined in O4, material adjustments
@@ -89,5 +90,6 @@ Several detector combinations have been generated:
 * D64 = T22+C11+M4+I11+O5+F4
 * D65 = T23+C11+M4+I11+O5+F4
 * D66 = T21+C11+M8+I11+O5+F4
+* D67 = T21+C11+M9+I11+O5+F4
 
 D49 is the HLT TDR baseline.
