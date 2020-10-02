@@ -24,13 +24,13 @@ public:
 
   /// make the rec hit
   FTLRecHit makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32_t& flags) const final;
-  static constexpr int topologycode1Disk = 4;
 
 private:
   std::vector<double> thresholdToKeep_;
   double calibration_;
   const MTDTimeCalib* time_calib_;
-  const MTDTopology* topology;
+  const MTDTopology* topology_;
+  static constexpr int topologycode1Disk_ = 4;
 };
 
 void MTDRecHitAlgo::getEventSetup(const edm::EventSetup& es) {
@@ -39,7 +39,7 @@ void MTDRecHitAlgo::getEventSetup(const edm::EventSetup& es) {
   time_calib_ = pTC.product();
   edm::ESHandle<MTDTopology> topologyHandle;
   es.get<MTDTopologyRcd>().get(topologyHandle);
-  topology = topologyHandle.product();
+  topology_ = topologyHandle.product();
 }
 
 FTLRecHit MTDRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32_t& flags) const {
@@ -51,7 +51,7 @@ FTLRecHit MTDRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32
 
   // MTD topology
   unsigned int index_topology = 0;  //1Disks geometry
-  if (topology->getMTDTopologyMode() > topologycode1Disk)
+  if (topology_->getMTDTopologyMode() > topologycode1Disk_)
     index_topology = 1;  //2Disk geometry
 
   /// position and positionError in unit cm
