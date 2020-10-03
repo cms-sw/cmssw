@@ -63,23 +63,15 @@ void HiHFFilterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     if (et < 0.0)
       continue;
     if (eta_plus) {
-      if (energy >= 2.0)
-        nTowersTh2HFplus += 1;
-      if (energy >= 3.0)
-        nTowersTh3HFplus += 1;
-      if (energy >= 4.0)
-        nTowersTh4HFplus += 1;
-      if (energy >= 5.0)
-        nTowersTh5HFplus += 1;
+      nTowersTh2HFplus += energy >= 2.0 ? 1 : 0;
+      nTowersTh3HFplus += energy >= 3.0 ? 1 : 0;
+      nTowersTh4HFplus += energy >= 4.0 ? 1 : 0;
+      nTowersTh5HFplus += energy >= 5.0 ? 1 : 0;
     } else if (eta_minus) {
-      if (energy >= 2.0)
-        nTowersTh2HFminus += 1;
-      if (energy >= 3.0)
-        nTowersTh3HFminus += 1;
-      if (energy >= 4.0)
-        nTowersTh4HFminus += 1;
-      if (energy >= 5.0)
-        nTowersTh5HFminus += 1;
+      nTowersTh2HFminus += energy >= 2.0 ? 1 : 0;
+      nTowersTh3HFminus += energy >= 3.0 ? 1 : 0;
+      nTowersTh4HFminus += energy >= 4.0 ? 1 : 0;
+      nTowersTh5HFminus += energy >= 5.0 ? 1 : 0;
     }
   }
 
