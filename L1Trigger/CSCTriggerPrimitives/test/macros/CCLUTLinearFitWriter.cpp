@@ -130,7 +130,8 @@ void writeHeaderPosOffsetLUT(ofstream& file);
 void writeHeaderSlopeLUT(ofstream& file);
 unsigned firmwareWord(const unsigned quality, const unsigned slope, const unsigned offset);
 void setDataWord(unsigned& word, const unsigned newWord, const unsigned shift, const unsigned mask);
-unsigned assign(const float fvalue, const float fmin, const float fmax, const unsigned nbits);
+unsigned assignPosition(const float fvalue, const float fmin, const float fmax, const unsigned nbits);
+unsigned assignBending(const float fvalue, const float fmin, const float fmax, const unsigned nbits);
 
 int CCLUTLinearFitWriter(unsigned N_LAYER_REQUIREMENT = 3) {
   //all the patterns we will fit
@@ -340,10 +341,16 @@ int CCLUTLinearFitWriter(unsigned N_LAYER_REQUIREMENT = 3) {
       const float fmaxOffset = 2;
       const float fminOffset = -1.75;
       const float fmaxSlope = 2.5;
-      const float fminSlope = -2.5;
+      const float fminSlope = 0;
 
-      const unsigned offset_bin = assign(offset, fminOffset, fmaxOffset, 4);
-      const unsigned slope_bin = assign(slope, fminSlope, fmaxSlope, 5);
+      // negative bending -> 0
+      // positive bending -> 1
+      const bool slope_sign(slope >= 0);
+
+      const unsigned offset_bin = assignPosition(offset, fminOffset, fmaxOffset, 4);
+      unsigned slope_bin = assignBending(std::abs(slope), fminSlope, fmaxSlope, 4);
+      if (slope_sign)
+        slope_bin += 16;
       const unsigned fwword = firmwareWord(0, slope_bin, offset_bin);
 
       // write to output files
@@ -496,7 +503,7 @@ void writeHeaderSlopeLUT(ofstream& file) {
        << "#<header> v1.0 12 32 </header>\n";
 }
 
-unsigned assign(const float fvalue, const float fmin, const float fmax, const unsigned nbits) {
+unsigned assignPosition(const float fvalue, const float fmin, const float fmax, const unsigned nbits) {
   bool debug;
   unsigned value = 0;
   const unsigned range = pow(2, nbits);
@@ -509,7 +516,28 @@ unsigned assign(const float fvalue, const float fmin, const float fmax, const un
   } else if (fvalue <= fmin) {
     value = minValue;
   } else {
-    value = int(std::floor((fvalue - fmin) / fdelta));
+    value = std::min(unsigned(std::ceil((fvalue - fmin) / fdelta)), maxValue);
+  }
+  if (debug)
+    std::cout << "fvalue " << fvalue << " " << fmin << " " << fmax << " " << nbits << " " << value << std::endl;
+
+  return value;
+}
+
+unsigned assignBending(const float fvalue, const float fmin, const float fmax, const unsigned nbits) {
+  bool debug;
+  unsigned value = 0;
+  const unsigned range = pow(2, nbits);
+  const unsigned minValue = 0;
+  const unsigned maxValue = range - 1;
+  const double fdelta = (fmax - fmin) / range;
+
+  if (fvalue >= fmax) {
+    value = maxValue;
+  } else if (fvalue <= fmin) {
+    value = minValue;
+  } else {
+    value = std::min(unsigned(std::floor((fvalue - fmin) / fdelta)), maxValue);
   }
   if (debug)
     std::cout << "fvalue " << fvalue << " " << fmin << " " << fmax << " " << nbits << " " << value << std::endl;
@@ -520,11 +548,12 @@ unsigned assign(const float fvalue, const float fmin, const float fmax, const un
 unsigned firmwareWord(const unsigned quality, const unsigned slope, const unsigned offset) {
   /* construct fw dataword:
      [8:0] is quality (set all to 0 for now)
-     [13, 9] is slope
+     [12:9] is slope value
+     [13] is slope sign
      [17:14] is offset
   */
   enum Masks { OffsetMask = 0xf, SlopeMask = 0x1f, QualityMask = 0x1ff };
-  enum Shifts { OffsetShift = 13, SlopeShift = 9, QualityShift = 0 };
+  enum Shifts { OffsetShift = 14, SlopeShift = 9, QualityShift = 0 };
 
   unsigned fwword = 0;
   setDataWord(fwword, quality, QualityShift, QualityMask);
