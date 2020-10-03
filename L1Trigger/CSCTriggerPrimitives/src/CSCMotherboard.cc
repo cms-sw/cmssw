@@ -489,9 +489,6 @@ CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
                                                    int trknmb) const {
   // CLCT pattern number
   unsigned int pattern = encodePattern(cLCT.getPattern());
-  if (use_run3_patterns_ and use_comparator_codes_) {
-    pattern = cLCT.getSlope();
-  }
 
   // LCT quality number
   unsigned int quality;
