@@ -49,3 +49,6 @@ run3_common.toModify(packedPFCandidates,
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 phase2_timing.toModify(packedPFCandidates, storeTiming = cms.bool(True))
 
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
+(pp_on_AA_2018 | pp_on_PbPb_run3).toModify(packedPFCandidates, PuppiSrc = "", PuppiNoLepSrc = "")
