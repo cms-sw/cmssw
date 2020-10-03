@@ -13,7 +13,7 @@ GEMDigiMatcher::GEMDigiMatcher(const edm::ParameterSet& pset, edm::ConsumesColle
   maxBXDigi_ = gemDigi.getParameter<int>("maxBX");
   matchDeltaStrip_ = gemDigi.getParameter<int>("matchDeltaStrip");
   verboseDigi_ = gemDigi.getParameter<int>("verbose");
-  matchToSimLink_ = gemDigi.getParameter<int>("matchToSimLink");
+  matchToSimLink_ = gemDigi.getParameter<bool>("matchToSimLink");
 
   const auto& gemPad = pset.getParameterSet("gemPadDigi");
   minBXPad_ = gemPad.getParameter<int>("minBX");
