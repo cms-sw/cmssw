@@ -17,6 +17,17 @@ makePatJetsTask = cms.Task(
     patJetFlavourIdTask,
     patJets
     )
+
+from PhysicsTools.PatAlgos.producersHeavyIons.heavyIonJets_cff import *
+_makePatJetsTaskHI = cms.Task(
+    recoJetsHIpostAODTask,
+    makePatJetsTask.copy()
+)
+
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
+(pp_on_AA_2018 | pp_on_PbPb_run3).toReplaceWith(makePatJetsTask, _makePatJetsTaskHI)
+
 makePatJets = cms.Sequence(makePatJetsTask)
 
 from RecoBTag.ImpactParameter.pfImpactParameterTagInfos_cfi import * #pfImpactParameterTagInfos
