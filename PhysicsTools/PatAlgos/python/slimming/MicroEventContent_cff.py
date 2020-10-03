@@ -141,6 +141,7 @@ run3_common.toModify(MicroEventContent, outputCommands = MicroEventContent.outpu
 _pp_on_AA_extraCommands = [
     'keep patPackedCandidates_hiPixelTracks_*_*',
     'keep *_packedCandidateMuonID_*_*',
+    'keep *_slimmedJets_pfCandidates_*',
     'keep floatedmValueMap_packedPFCandidateTrackChi2_*_*',
     'keep floatedmValueMap_lostTrackChi2_*_*',
     'keep recoCentrality_hiCentrality_*_*',
