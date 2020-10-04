@@ -37,7 +37,7 @@ int main() {
   edm::Guid otherGuid;
   assert(otherGuid != guid);
 
-  edm::Guid otherBinaryGuid{ otherGuid.toBinary(), true };
+  edm::Guid otherBinaryGuid{otherGuid.toBinary(), true};
   assert(otherBinaryGuid == otherGuid);
   assert(otherBinaryGuid != guid4);
 }
