@@ -1,7 +1,5 @@
-<use name="FWCore/PluginManager"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/Utilities"/>
-<use name="Geometry/MuonNumbering"/>
 <use name="dd4hep"/>
 <use name="rootmath"/>
 <use name="rootgeom"/>
