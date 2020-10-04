@@ -228,12 +228,12 @@ namespace cms {
     void findSpecPar(T const& first, Ts const&... rest) {
       currentSpecPar_ = find(first);
       if constexpr (sizeof...(rest) > 0) {
-	  // this line will only be instantiated if there are further
-	  // arguments. if rest... is empty, there will be no call to
-	  // findSpecPar(next).
-	  if (currentSpecPar_ == nullptr)
-	    findSpecPar(rest...);
-    	}
+        // this line will only be instantiated if there are further
+        // arguments. if rest... is empty, there will be no call to
+        // findSpecPar(next).
+        if (currentSpecPar_ == nullptr)
+          findSpecPar(rest...);
+      }
     }
 
   private:
@@ -252,7 +252,7 @@ namespace cms {
     const DDSpecPar* find(const std::string&) const;
     void filter(DDSpecParRefs&, const std::string&) const;
     const std::string_view front(const std::string_view) const;
-				 
+
     ExpandedNodes nodes_;
     std::vector<Iterator> it_;
     std::vector<std::unique_ptr<Filter>> filters_;

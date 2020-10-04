@@ -66,7 +66,7 @@ void testDDFilteredViewFind::checkFilteredView() {
   fview.goTo(activeVol);
   printMe(fview);
   fview.findSpecPar("TrackerRadLength", "TrackerXi");
-  
+
   double radLength = fview.getNextValue("TrackerRadLength");
   double xi = fview.getNextValue("TrackerXi");
   CPPUNIT_ASSERT(radLength == refRadLength_);
@@ -157,10 +157,10 @@ void testDDFilteredViewFind::checkFilteredView() {
   std::cout << "CopyNoOffset = " << fview.getNextValue("CopyNoOffset") << "\n";
   CPPUNIT_ASSERT(refCopyNoTag_ == tag);
   CPPUNIT_ASSERT(refCopyNoOffset_ == offset);
-  
+
   const auto& nodes = fview.history();
   int ctr(0);
-  for(const auto& t : nodes.tags) {
+  for (const auto& t : nodes.tags) {
     std::cout << t << ": " << nodes.offsets[ctr] << ", " << nodes.copyNos[ctr] << "\n";
     CPPUNIT_ASSERT(refCopyNoTag_ == t);
     CPPUNIT_ASSERT(refCopyNoOffset_ == nodes.offsets[ctr]);
