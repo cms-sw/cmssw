@@ -176,7 +176,7 @@ void DDFilteredView::mergedSpecifics(DDSpecParRefs const& specs) {
       });
       if (filter == end(filters_)) {
         filters_.emplace_back(unique_ptr<Filter>(
-	     new Filter{{front(j)},
+            new Filter{{front(j)},
                        {std::regex(std::string("^").append({front(j).data(), front(j).size()}).append("$"))},
                        nullptr,
                        nullptr,
@@ -422,7 +422,7 @@ bool DDFilteredView::parent() {
 
 bool DDFilteredView::next(int type) {
   currentSpecPar_ = nullptr;
-  
+
   if (it_.empty())
     return false;
   it_.back().SetType(type);
@@ -436,7 +436,7 @@ bool DDFilteredView::next(int type) {
 
 void DDFilteredView::down() {
   currentSpecPar_ = nullptr;
-  
+
   if (it_.empty() or currentFilter_ == nullptr)
     return;
   it_.emplace_back(Iterator(it_.back()));
@@ -447,7 +447,7 @@ void DDFilteredView::down() {
 
 void DDFilteredView::up() {
   currentSpecPar_ = nullptr;
-  
+
   if (it_.size() > 1 and currentFilter_ != nullptr) {
     it_.pop_back();
     it_.back().SetType(0);
@@ -506,12 +506,12 @@ std::string_view DDFilteredView::get<string_view>(const string& key) {
 template <>
 double DDFilteredView::get<double>(const string& key) {
   double result(0.0);
-  
+
   currentSpecPar_ = find(key);
   if (currentSpecPar_ != nullptr) {
-    result = getNextValue(key); 
+    result = getNextValue(key);
   }
-  
+
   return result;
 }
 
@@ -577,7 +577,7 @@ const int DDFilteredView::level() const {
 bool DDFilteredView::goTo(const nav_type& newpos) {
   bool result(false);
   currentSpecPar_ = nullptr;
- 
+
   // save the current position
   it_.emplace_back(Iterator(it_.back().GetTopVolume()));
   Node* node = nullptr;
@@ -623,9 +623,9 @@ const ExpandedNodes& DDFilteredView::history() {
   for (int nit = level; nit > 0; --nit) {
     for (auto const& i : registry_->specpars) {
       auto k = find_if(begin(i.second.paths), end(i.second.paths), [&](auto const& j) {
-	  return (isMatch(noNamespace(it_.back().GetNode(nit)->GetVolume()->GetName()), front(j))) and
-	  (i.second.hasValue("CopyNoTag") or i.second.hasValue("CopyNoOffset"));
-	});
+        return (isMatch(noNamespace(it_.back().GetNode(nit)->GetVolume()->GetName()), front(j))) and
+               (i.second.hasValue("CopyNoTag") or i.second.hasValue("CopyNoOffset"));
+      });
       if (k != end(i.second.paths)) {
         nodes_.tags.emplace_back(i.second.dblValue("CopyNoTag"));
         nodes_.offsets.emplace_back(i.second.dblValue("CopyNoOffset"));
@@ -638,7 +638,6 @@ const ExpandedNodes& DDFilteredView::history() {
 }
 
 const DDSpecPar* DDFilteredView::find(const std::string& key) const {
-  
   DDSpecParRefs refs;
   filter(refs, key);
 
@@ -701,7 +700,6 @@ const DDSpecPar* DDFilteredView::find(const std::string& key) const {
   return nullptr;
 }
 
-
 void DDFilteredView::filter(DDSpecParRefs& refs, const std::string& key) const {
   for (auto const& it : registry_->specpars) {
     if (it.second.hasValue(key) || (it.second.spars.find(key) != end(it.second.spars))) {
@@ -719,11 +717,11 @@ const std::string_view DDFilteredView::front(const std::string_view path) const 
     }
     return path.substr(lpos, rpos);
   }
-  
+
   // throw cms::Exception("Filtered View") << "Path must start with '//'  " << path;
   return path;
 }
-  
+
 double DDFilteredView::getNextValue(const std::string& key) const {
   double result(0.0);
 
@@ -734,7 +732,7 @@ double DDFilteredView::getNextValue(const std::string& key) const {
     } else if (currentSpecPar_->hasValue(key)) {
       auto const& nitem = currentSpecPar_->numpars.find(key);
       if (nitem != end(currentSpecPar_->numpars)) {
-	result = nitem->second[0];
+        result = nitem->second[0];
       }
     }
   }
