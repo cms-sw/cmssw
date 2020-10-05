@@ -19,12 +19,17 @@ CMSFieldManager::CMSFieldManager()
       m_dChord(0.001),
       m_dOneStep(0.001),
       m_dIntersection(0.0001),
+      m_dInterTracker(1e-6),
+      m_Rmax2(1.e+6),
+      m_Zmax(3.e+3),
       m_stepMax(1000000.),
+      m_energyThTracker(1.e+7),
       m_energyThreshold(0.0),
       m_dChordSimple(0.1),
       m_dOneStepSimple(0.1),
       m_dIntersectionSimple(0.01),
       m_stepMaxSimple(1000.),
+      m_cfTracker(false),
       m_cfVacuum(false) {}
 
 CMSFieldManager::~CMSFieldManager() {
@@ -54,11 +59,16 @@ void CMSFieldManager::InitialiseForVolume(const edm::ParameterSet &p,
   m_dChord = p.getParameter<double>("DeltaChord") * CLHEP::mm;
   m_dOneStep = p.getParameter<double>("DeltaOneStep") * CLHEP::mm;
   m_dIntersection = p.getParameter<double>("DeltaIntersection") * CLHEP::mm;
+  m_dInterTracker = p.getParameter<double>("DeltaIntersectionTracker") * CLHEP::mm;
   m_stepMax = p.getParameter<double>("MaxStep") * CLHEP::cm;
 
   m_energyThreshold = p.getParameter<double>("EnergyThSimple") * CLHEP::GeV;
+  m_energyThTracker = p.getParameter<double>("EnergyThTracker") * CLHEP::GeV;
 
-  // double
+  double rmax = p.getParameter<double>("RmaxTracker") * CLHEP::mm;
+  m_Rmax2 = rmax*rmax;
+  m_Zmax  = p.getParameter<double>("ZmaxTracker") * CLHEP::mm;
+
   m_dChordSimple = p.getParameter<double>("DeltaChordSimple") * CLHEP::mm;
   m_dOneStepSimple = p.getParameter<double>("DeltaOneStepSimple") * CLHEP::mm;
   m_dIntersectionSimple = p.getParameter<double>("DeltaIntersectionSimple") * CLHEP::mm;
@@ -77,7 +87,9 @@ void CMSFieldManager::InitialiseForVolume(const edm::ParameterSet &p,
       << "               DeltaChord                  " << m_dChord << " mm\n"
       << "               DeltaOneStep                " << m_dOneStep << " mm\n"
       << "               DeltaIntersection           " << m_dIntersection << " mm\n"
-      << "               EnergyThreshold             " << m_energyThreshold << " MeV\n"
+      << "               DeltaInterTracker           " << m_dInterTracker << " mm\n"
+      << "               EnergyThresholdSimple       " << m_energyThreshold / CLHEP::MeV << " MeV\n"
+      << "               EnergyThresholdTracker      " << m_energyThTracker / CLHEP::MeV << " MeV\n"
       << "               DeltaChordSimple            " << m_dChordSimple << " mm\n"
       << "               DeltaOneStepSimple          " << m_dOneStepSimple << " mm\n"
       << "               DeltaIntersectionSimple     " << m_dIntersectionSimple << " mm\n"
@@ -124,12 +136,17 @@ void CMSFieldManager::InitialiseForVolume(const edm::ParameterSet &p,
 
 void CMSFieldManager::ConfigureForTrack(const G4Track *track) {
   // run time parameters per track
-  if ((track->GetKineticEnergy() <= m_energyThreshold && track->GetParentID() > 0) || isInsideVacuum(track)) {
+  if ((track->GetKineticEnergy() > m_energyThTracker) && isInsideTracker(track)) {
+    if (!m_cfTracker) {
+      setChordFinderForTracker();
+    }
+
+  } else if ((track->GetKineticEnergy() <= m_energyThreshold) || isInsideVacuum(track)) {
     if (!m_cfVacuum) {
       setChordFinderForVacuum();
     }
 
-  } else if (m_cfVacuum) {
+  } else if (m_cfTracker || m_cfVacuum) {
     // restore defaults
     setDefaultChordFinder();
   }
@@ -163,6 +180,13 @@ bool CMSFieldManager::isInsideVacuum(const G4Track *track) {
   return false;
 }
 
+bool CMSFieldManager::isInsideTracker(const G4Track *track) {
+  const G4ThreeVector& pos = track->GetPosition();
+  const double x = pos.x();
+  const double y = pos.y();
+  return (x*x + y*y < m_Rmax2 && std::abs(pos.z()) < m_Zmax);
+}
+
 void CMSFieldManager::setDefaultChordFinder() {
   m_currChordFinder = m_chordFinder;
   m_currChordFinder->SetDeltaChord(m_dChord);
@@ -170,7 +194,18 @@ void CMSFieldManager::setDefaultChordFinder() {
   SetDeltaOneStep(m_dOneStep);
   SetDeltaIntersection(m_dIntersection);
   m_propagator->SetLargestAcceptableStep(m_stepMax);
+  m_cfVacuum = m_cfTracker = false;
+}
+
+void CMSFieldManager::setChordFinderForTracker() {
+  m_currChordFinder = m_chordFinder;
+  m_currChordFinder->SetDeltaChord(m_dChord);
+  SetChordFinder(m_currChordFinder);
+  SetDeltaOneStep(m_dOneStep);
+  SetDeltaIntersection(m_dInterTracker);
+  m_propagator->SetLargestAcceptableStep(m_stepMax);
   m_cfVacuum = false;
+  m_cfTracker = true;
 }
 
 void CMSFieldManager::setChordFinderForVacuum() {
@@ -179,4 +214,5 @@ void CMSFieldManager::setChordFinderForVacuum() {
   SetDeltaIntersection(m_dIntersectionSimple);
   m_propagator->SetLargestAcceptableStep(m_stepMaxSimple);
   m_cfVacuum = true;
+  m_cfTracker = false;
 }

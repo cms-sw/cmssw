@@ -41,13 +41,15 @@ public:
 
   void SetMonopoleTracking(G4bool);
 
-private:
-  bool isInsideVacuum(const G4Track *);
-  void setDefaultChordFinder();
-  void setChordFinderForVacuum();
-
   CMSFieldManager(const CMSFieldManager &) = delete;
   CMSFieldManager &operator=(const CMSFieldManager &) = delete;
+
+private:
+  bool isInsideVacuum(const G4Track *);
+  bool isInsideTracker(const G4Track *);
+  void setDefaultChordFinder();
+  void setChordFinderForTracker();
+  void setChordFinderForVacuum();
 
   std::unique_ptr<sim::Field> theField;
 
@@ -62,13 +64,18 @@ private:
   double m_dChord;
   double m_dOneStep;
   double m_dIntersection;
+  double m_dInterTracker;
+  double m_Rmax2;
+  double m_Zmax;
   double m_stepMax;
+  double m_energyThTracker;
   double m_energyThreshold;
   double m_dChordSimple;
   double m_dOneStepSimple;
   double m_dIntersectionSimple;
   double m_stepMaxSimple;
 
+  bool m_cfTracker;
   bool m_cfVacuum;
 };
 #endif
