@@ -21,7 +21,6 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-
 // DQM Histograming
 class TrackerTopology;
 class TrackerGeometry;
@@ -32,13 +31,14 @@ public:
   ~Phase2ITMonitorRecHit() override;
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
-  
- private:
-  void fillITHistos(const edm::Event& iEvent, 
-		    const TrackerTopology* tTopo, 
-		    const TrackerGeometry* tkGeom);
 
-  void bookLayerHistos(DQMStore::IBooker& ibooker, unsigned int det_id, const TrackerTopology* tTopo, std::string& subdir);
+private:
+  void fillITHistos(const edm::Event& iEvent, const TrackerTopology* tTopo, const TrackerGeometry* tkGeom);
+
+  void bookLayerHistos(DQMStore::IBooker& ibooker,
+                       unsigned int det_id,
+                       const TrackerTopology* tTopo,
+                       std::string& subdir);
 
   edm::ParameterSet config_;
   std::string geomType_;
@@ -61,8 +61,7 @@ public:
     MonitorElement* poserrY = nullptr;
     MonitorElement* clusterSizeX = nullptr;
     MonitorElement* clusterSizeY = nullptr;
-
   };
-  std::map<std::string, RecHitME>  layerMEs_;
+  std::map<std::string, RecHitME> layerMEs_;
 };
 #endif
