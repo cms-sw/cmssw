@@ -28,7 +28,7 @@
 #include <vector>
 #include <unordered_map>
 #include <utility>
-#include <tbb/concurrent_vector.h>
+//#include <tbb/concurrent_vector.h>
 
 using namespace std;
 using namespace dd4hep;
@@ -1676,7 +1676,7 @@ void Converter<DDLVector>::operator()(xml_h element) const {
   try {
     std::vector<double> results = splitNumeric(val);
     registry->insert(
-        {name, tbb::concurrent_vector<double, tbb::cache_aligned_allocator<double>>(results.begin(), results.end())});
+		     {name, results});//tbb::concurrent_vector<double, tbb::cache_aligned_allocator<double>>(results.begin(), results.end())});
   } catch (const exception& e) {
     printout(INFO,
              "DD4CMS",
@@ -1844,8 +1844,8 @@ static long load_dddefinition(Detector& det, xml_h element) {
               result.emplace_back(dd4hep::_toDouble(i));
             }
             registry->insert(
-                {it->first,
-                 tbb::concurrent_vector<double, tbb::cache_aligned_allocator<double>>(begin(result), end(result))});
+			     {it->first, result });
+	    //                 tbb::concurrent_vector<double, tbb::cache_aligned_allocator<double>>(begin(result), end(result))});
             // All components are resolved
             it = context.unresolvedVectors.erase(it);
           }

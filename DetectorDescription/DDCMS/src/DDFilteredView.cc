@@ -723,6 +723,15 @@ const std::string_view DDFilteredView::front(const std::string_view path) const 
   return path;
 }
 
+const std::string_view DDFilteredView::back(const std::string_view path) const {
+  if (auto const& lpos = path.rfind('/') != path.npos) {
+    return path.substr(lpos, path.size());
+  }
+
+  // throw cms::Exception("Filtered View") << "Path must start with '//'  " << path;
+  return path;
+}
+
 double DDFilteredView::getNextValue(const std::string& key) const {
   double result(0.0);
 
