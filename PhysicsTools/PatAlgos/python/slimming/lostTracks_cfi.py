@@ -22,3 +22,5 @@ lostTracks = cms.EDProducer("PATLostTracks",
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 phase1Pixel.toModify(lostTracks, covarianceVersion =1 )
 
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+pp_on_AA_2018.toModify(lostTracks,inputCandidates = "filteredParticleFlow")
