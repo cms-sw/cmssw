@@ -29,7 +29,7 @@ def main(opts):
     if opts.collection=="hgcalLayerClusters":
 	hgclayclus = [hgcalPlots.hgcalLayerClustersPlotter]
 	val.doPlots(hgclayclus, plotterDrawArgs=drawArgs)
-    elif opts.collection in ["ticlMultiClustersFromTrackstersMerge","ticlMultiClustersFromTrackstersTrk","ticlMultiClustersFromTrackstersEM","ticlMultiClustersFromTrackstersHAD"]:
+    elif opts.collection in ["hgcalMultiClusters","ticlMultiClustersFromTrackstersMerge","ticlMultiClustersFromTrackstersTrk","ticlMultiClustersFromTrackstersEM","ticlMultiClustersFromTrackstersHAD"]:
         hgcmulticlus = [hgcalPlots.create_hgcalMultiClustersPlotter(opts.collection)]
         val.doPlots(hgcmulticlus, plotterDrawArgs=drawArgs)
     elif opts.collection=="hitValidation":
@@ -97,8 +97,8 @@ if __name__ == "__main__":
                         help="Validation name for HTML page generation (enters to <title> element) (default '')")
     parser.add_argument("--verbose", action="store_true", default = False,
                         help="Be verbose")
-    parser.add_argument("--collection", choices=["hgcalLayerClusters", "ticlMultiClustersFromTrackstersMerge","ticlMultiClustersFromTrackstersTrk","ticlMultiClustersFromTrackstersEM","ticlMultiClustersFromTrackstersHAD", "hitValidation", "hitCalibration", "all"], default="hgcalLayerClusters",
-                        help="Choose output plots collections: hgcalLayerCluster, ticlMultiClustersFromTrackstersMerge, ticlMultiClustersFromTrackstersTrk, ticlMultiClustersFromTrackstersEM, ticlMultiClustersFromTrackstersHAD, hitValidation, hitCalibration, all")    
+    parser.add_argument("--collection", choices=["hgcalLayerClusters", "hgcalMultiClusters", "ticlMultiClustersFromTrackstersMerge", "ticlMultiClustersFromTrackstersTrk", "ticlMultiClustersFromTrackstersEM", "ticlMultiClustersFromTrackstersHAD", "hitValidation", "hitCalibration", "all"], default="hgcalLayerClusters",
+                        help="Choose output plots collections: hgcalLayerCluster, hgcalMultiClusters, ticlMultiClustersFromTrackstersMerge, ticlMultiClustersFromTrackstersTrk, ticlMultiClustersFromTrackstersEM, ticlMultiClustersFromTrackstersHAD, hitValidation, hitCalibration, all")    
 
     opts = parser.parse_args()
 
