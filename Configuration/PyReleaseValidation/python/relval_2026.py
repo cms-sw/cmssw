@@ -20,7 +20,6 @@ numWFIB.extend([23434.99,23434.999]) #2026D49 premixing combined stage1+stage2 (
 numWFIB.extend([23234.21,23434.21]) #2026D49 prodlike, prodlike PU
 numWFIB.extend([23234.103]) #2026D49 aging
 numWFIB.extend([28234.0]) #2026D60
-numWFIB.extend([29434.0]) #2026D63
 numWFIB.extend([29834.0]) #2026D64
 numWFIB.extend([30234.0]) #2026D65
 numWFIB.extend([30634.0]) #2026D66

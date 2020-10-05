@@ -780,52 +780,6 @@ muonDict = {
         ],
         "era" : "phase2_muon, phase2_GEM",
     },
-    "M5" : {
-        1 : [
-            'Geometry/MuonCommonData/data/mbCommon/2021/v1/mbCommon.xml',
-            'Geometry/MuonCommonData/data/mb1/2015/v2/mb1.xml',
-            'Geometry/MuonCommonData/data/mb2/2015/v2/mb2.xml',
-            'Geometry/MuonCommonData/data/mb3/2015/v2/mb3.xml',
-            'Geometry/MuonCommonData/data/mb4/2015/v2/mb4.xml',
-            'Geometry/MuonCommonData/data/mb4Shield/2021/v1/mb4Shield.xml',
-            'Geometry/MuonCommonData/data/muonYoke/2021/v3/muonYoke.xml',
-            'Geometry/MuonCommonData/data/mf/2026/v3/mf.xml',
-            'Geometry/MuonCommonData/data/csc/2021/v2/csc.xml',
-            'Geometry/MuonCommonData/data/rpcf/2026/v3/rpcf.xml',
-            'Geometry/MuonCommonData/data/gemf/TDR_BaseLine/gemf.xml',
-            'Geometry/MuonCommonData/data/gem11/TDR_BaseLine/gem11.xml',
-            'Geometry/MuonCommonData/data/gem21/TDR_Dev/gem21.xml',
-            'Geometry/MuonCommonData/data/mfshield/2026/v1/mfshield.xml',
-            'Geometry/MuonCommonData/data/me0/TDR_Dev/v2/me0.xml',
-        ],
-        2 : [
-            'Geometry/MuonCommonData/data/muonNumbering/TDR_DeV/v1/muonNumbering.xml',
-        ],
-        3 : [
-            'Geometry/MuonSimData/data/PhaseII/ME0EtaPart/muonSens.xml',
-            'Geometry/DTGeometryBuilder/data/dtSpecsFilter.xml',
-            'Geometry/CSCGeometryBuilder/data/cscSpecsFilter.xml',
-            'Geometry/CSCGeometryBuilder/data/cscSpecs.xml',
-            'Geometry/RPCGeometryBuilder/data/2026/v1/RPCSpecs.xml',
-            'Geometry/GEMGeometryBuilder/data/v7/GEMSpecsFilter.xml',
-            'Geometry/GEMGeometryBuilder/data/v7/GEMSpecs.xml',
-        ],
-        4 : [
-            'Geometry/MuonSimData/data/PhaseII/muonProdCuts.xml',
-        ],
-        "sim" : [
-            'from Geometry.MuonNumbering.muonGeometryConstants_cff import *',
-        ],
-        "reco" : [
-            'from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *',
-            'from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *',
-            'from Geometry.GEMGeometryBuilder.gemGeometry_cfi import *',
-            'from Geometry.GEMGeometryBuilder.me0Geometry_cfi import *',
-            'from Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff import *',
-            'from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *',
-        ],
-        "era" : "phase2_muon, run3_GEM",
-    },
     "M6" : {
         1 : [
             'Geometry/MuonCommonData/data/mbCommon/2021/v1/mbCommon.xml',
@@ -1243,12 +1197,11 @@ detectorVersionDict = {
     ("O4","T15","C9","M4","F2","I11") : "D50",
     ("O4","T15","C9","M4","F2","I12") : "D53",
     ("O4","T15","C10","M4","F3","I10") : "D60",
-    ("O5","T21","C11","M4","F4","I11") : "D63",
     ("O5","T22","C11","M4","F4","I11") : "D64",
     ("O5","T23","C11","M4","F4","I11") : "D65",
     ("O5","T21","C11","M8","F4","I11") : "D66",
     ("O5","T21","C11","M9","F4","I11") : "D67",
  }
 
-deprecatedDets = set([ "D1", "D2", "D3", "D5", "D6" , "D7", "D4", "D8" , "D9", "D12", "D13", "D15", "D10", "D11", "D14", "D16", "D17", "D18", "D19", "D20", "D21", "D22", "D23", "D24", "D25", "D26", "D27", "D28", "D29", "D30", "D31", "D32", "D33", "D34", "D36", "D37", "D38", "D39", "D40", "D42", "D35", "D41", "D43", "D44", "D45", "D46", "D48", "D47", "D51", "D52", "D54", "D55", "D56", "D57", "D58", "D59", "D61", "D62" ])
-deprecatedSubdets = set([ "T1", "T2" ,"T3", "T4", "T5", "T6", "T7", "T8", "T9", "T10", "T11", "T12", "T13", "T14", "T16", "T17", "T18", "T19", "T20", "C1", "C2", "C3", "C5", "C7", "M1", "I1", "I2", "I3", "I4", "I6", "I8", "O1", "F1", "C4", "C6", "C8", "M2", "M3", "I5", "I7", "I9", "O2", "O3" ])
+deprecatedDets = set([ "D1", "D2", "D3", "D5", "D6" , "D7", "D4", "D8" , "D9", "D12", "D13", "D15", "D10", "D11", "D14", "D16", "D17", "D18", "D19", "D20", "D21", "D22", "D23", "D24", "D25", "D26", "D27", "D28", "D29", "D30", "D31", "D32", "D33", "D34", "D36", "D37", "D38", "D39", "D40", "D42", "D35", "D41", "D43", "D44", "D45", "D46", "D48", "D47", "D51", "D52", "D54", "D55", "D56", "D57", "D58", "D59", "D61", "D62", "D63" ])
+deprecatedSubdets = set([ "T1", "T2" ,"T3", "T4", "T5", "T6", "T7", "T8", "T9", "T10", "T11", "T12", "T13", "T14", "T16", "T17", "T18", "T19", "T20", "C1", "C2", "C3", "C5", "C7", "M1", "I1", "I2", "I3", "I4", "I6", "I8", "O1", "F1", "C4", "C6", "C8", "M2", "M3", "I5", "I7", "I9", "O2", "O3", "M5" ])

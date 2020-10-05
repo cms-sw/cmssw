@@ -49,8 +49,7 @@ Calorimeters:
 
 Muon system:
 * M4: Phase2 muon system for TDR w/ GE2/1, ME0, RE3/1, RE4/1 (incl. granularity in ME0, staggered GE2/1), 96 iRPC strips, no overlaps, MB4Shields
-* M5: same as M4 but with: the right value for YE3 size, no "hidden" overlaps inside the Muon System and iRPC updated.
-* M6: same as M5 but with adjustment of ME0 in view of updated boundaries
+* M6: same as M4 with right value for YE3 size, no "hidden" overlaps, iRPC updated, adjustment of ME0 in view of updated boundaries
 * M7: same as M6 with further ajustment of ME0 for boundaries
 * M8: same as M7 with changed number of strips for GE21
 * M9: same as M8 with GE0 replacing ME0
@@ -76,7 +75,6 @@ Several detector combinations have been generated:
 * D50 = T15+C9+M4+I11+O4+F2
 * D53 = T15+C9+M4+I12+O4+F2
 * D60 = T15+C10+M4+I10+O4+F3
-* D63 = T21+C11+M4+I11+O5+F4
 * D64 = T22+C11+M4+I11+O5+F4
 * D65 = T23+C11+M4+I11+O5+F4
 * D66 = T21+C11+M8+I11+O5+F4
