@@ -10,3 +10,14 @@ packedPFCandidatesTask = cms.Task(
     pfPileUpPFBRECO,
     pfNoPileUpPFBRECO
 )
+
+from RecoHI.HiJetAlgos.HiBadParticleFilter_cfi import filteredParticleFlow
+
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+packedPFCandidatesCleaned = packedPFCandidates.clone(
+    inputCollection = "filteredParticleFlow:cleaned",
+    vertexAssociator = "primaryVertexAssociationCleaned:original"
+)
+
+_pp_on_AA_2018_packedPFCandidatesTask = cms.Task(filteredParticleFlow,packedPFCandidatesCleaned,packedPFCandidatesTask.copy())
+pp_on_AA_2018.toReplaceWith(packedPFCandidatesTask,_pp_on_AA_2018_packedPFCandidatesTask)

@@ -121,4 +121,5 @@ hiRecoPFJetsTask = cms.Task(
 hiRecoPFJets = cms.Sequence(hiRecoPFJetsTask)
 
 
-
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+pp_on_AA_2018.toModify(akCs4PFJets,src = 'filteredParticleFlow')
