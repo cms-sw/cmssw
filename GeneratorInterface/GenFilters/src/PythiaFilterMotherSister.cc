@@ -23,7 +23,8 @@ maxrapcut(iConfig.getUntrackedParameter("MaxRapidity", 20.)),
 minphicut(iConfig.getUntrackedParameter("MinPhi", -3.5)),
 maxphicut(iConfig.getUntrackedParameter("MaxPhi", 3.5)),
 //status(iConfig.getUntrackedParameter("Status", 0)),
-motherID(iConfig.getUntrackedParameter("MotherID", 0)),
+//motherID(iConfig.getUntrackedParameter("MotherID", 0)),
+motherIDs(iConfig.getUntrackedParameter("MotherIDs", std::vector<int>{0})),
 sisterID(iConfig.getUntrackedParameter("SisterID", 0)),
 //processID(iConfig.getUntrackedParameter("ProcessID", 0)),
 betaBoost(iConfig.getUntrackedParameter("BetaBoost",0.))
@@ -81,32 +82,36 @@ bool PythiaFilterMotherSister::filter(edm::StreamID, edm::Event& iEvent, const e
        //std::cout << "found muon with right pt/eta cuts,  pt=" << mom.rho() << " status=" << (*p)->status() << std::endl; 
        
        HepMC::GenParticle* mother = (*((*p)->production_vertex()->particles_in_const_begin()));
-       
-       if(abs(mother->pdg_id()) == abs(motherID)){
+      
+       // check various possible mothers
+       for(auto motherID : motherIDs){
 
-         //HepMC::FourVector mom_mum = MCFilterZboostHelper::zboost(mother->momentum(),betaBoost);
-         //std::cout << "  found good mother (B meson)! pt=" <<  mom_mum.rho() << std::endl;
-
-         // loop over its daughters
-         for ( HepMC::GenVertex::particle_iterator dau = mother->end_vertex()->particles_begin(HepMC::children); 
-                                                   dau != mother->end_vertex()->particles_end(HepMC::children);
-                                                   ++dau ) {
-           //==> slows down instead of speeding up... if(accepted) break;
-           //HepMC::FourVector mom_dau = MCFilterZboostHelper::zboost((*dau)->momentum(),betaBoost);
-           //std::cout << "    daughter of B meson " << (*dau)->pdg_id() << " pt=" << mom_dau.rho() << " status=" << (*dau)->status() << std::endl;
-           // find the daugther you're interested in
-           if(abs((*dau)->pdg_id()) == abs(sisterID)) {
-             //std::cout << "      found good sister!" << std::endl;
-             /*for(HepMC::GenVertex::particle_iterator dau_hnl = (*dau)->end_vertex()->particles_begin(HepMC::children);
-                 dau_hnl != (*dau)->end_vertex()->particles_end(HepMC::children);
-                 ++dau_hnl) {
-                 HepMC::FourVector mom_dau_hnl = MCFilterZboostHelper::zboost((*dau_hnl)->momentum(),betaBoost);
-                 std::cout << "        daughter of HNL " << (*dau_hnl)->pdg_id() << " pt=" << mom_dau_hnl.rho() << " status=" << (*dau_hnl)->status() << std::endl;    
-             }*/
-             accepted = true;
-           } // if sister was found
-         } // loop over daughters
-       } // if mother was found 
+         if(abs(mother->pdg_id()) == abs(motherID)){
+  
+           //HepMC::FourVector mom_mum = MCFilterZboostHelper::zboost(mother->momentum(),betaBoost);
+           //std::cout << "  found good mother (B meson)! pt=" <<  mom_mum.rho() << std::endl;
+  
+           // loop over its daughters
+           for ( HepMC::GenVertex::particle_iterator dau = mother->end_vertex()->particles_begin(HepMC::children); 
+                                                     dau != mother->end_vertex()->particles_end(HepMC::children);
+                                                     ++dau ) {
+             //==> slows down instead of speeding up... if(accepted) break;
+             //HepMC::FourVector mom_dau = MCFilterZboostHelper::zboost((*dau)->momentum(),betaBoost);
+             //std::cout << "    daughter of B meson " << (*dau)->pdg_id() << " pt=" << mom_dau.rho() << " status=" << (*dau)->status() << std::endl;
+             // find the daugther you're interested in
+             if(abs((*dau)->pdg_id()) == abs(sisterID)) {
+               //std::cout << "      found good sister!" << std::endl;
+               /*for(HepMC::GenVertex::particle_iterator dau_hnl = (*dau)->end_vertex()->particles_begin(HepMC::children);
+                   dau_hnl != (*dau)->end_vertex()->particles_end(HepMC::children);
+                   ++dau_hnl) {
+                   HepMC::FourVector mom_dau_hnl = MCFilterZboostHelper::zboost((*dau_hnl)->momentum(),betaBoost);
+                   std::cout << "        daughter of HNL " << (*dau_hnl)->pdg_id() << " pt=" << mom_dau_hnl.rho() << " status=" << (*dau_hnl)->status() << std::endl;    
+               }*/
+               accepted = true;
+             } // if sister was found
+           } // loop over daughters
+         } // if mother was found 
+       } // loop over possible mother ids
      } // if gen particle is as requested 
    } // loop over gen particles
    

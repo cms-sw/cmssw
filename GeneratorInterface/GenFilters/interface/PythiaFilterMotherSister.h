@@ -62,7 +62,7 @@ class PythiaFilterMotherSister : public edm::global::EDFilter<> {
        const double maxphicut;
 
        //const int status; 
-       const int motherID;   
+       std::vector<int> motherIDs;
        const int sisterID;   
        //const int processID;    
 
