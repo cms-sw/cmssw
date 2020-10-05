@@ -41,56 +41,41 @@
 
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/NanoAOD/interface/MergeableCounterTable.h"
 
 #include "FWCore/Utilities/interface/transform.h"
 
-// LHC Info
 #include "CondFormats/RunInfo/interface/LHCInfo.h"
 #include "CondFormats/DataRecord/interface/LHCInfoRcd.h"
-#include "CondTools/RunInfo/interface/LHCInfoPopConSourceHandler.h"
 
-class LHCInfoProducer : public edm::global::EDProducer<> {
+class LHCInfoProducer : public edm::global::EDProducer<edm::BeginLuminosityBlockProducer> {
 public:
-  LHCInfoProducer(edm::ParameterSet const& ps) : precision_(ps.getParameter<int>("precision")) {
-    produces<nanoaod::FlatTable>("lhcInfoTab");
+  LHCInfoProducer(edm::ParameterSet const&) {
+    produces<nanoaod::MergeableCounterTable, edm::Transition::BeginLuminosityBlock>();
   }
   ~LHCInfoProducer() override {}
 
   // ------------ method called to produce the data  ------------
-  void produce(edm::StreamID id, edm::Event& iEvent, const edm::EventSetup& iSetup) const override {
-    // Get LHCInfo handle
+  void produce(edm::StreamID id, edm::Event& iEvent, const edm::EventSetup& iSetup) const override {}
+
+  void globalBeginLuminosityBlockProduce(edm::LuminosityBlock& iLumi, edm::EventSetup const& iSetup) const override {
     edm::ESHandle<LHCInfo> lhcInfo;
     iSetup.get<LHCInfoRcd>().get(lhcInfo);
-
-    std::unique_ptr<nanoaod::FlatTable> out = fillTable(iEvent, lhcInfo);
-    out->setDoc("LHC Info");
-
-    iEvent.put(std::move(out), "lhcInfoTab");
-  }
-
-  std::unique_ptr<nanoaod::FlatTable> fillTable(const edm::Event& iEvent, const edm::ESHandle<LHCInfo>& prod) const {
-    const LHCInfo* info = prod.product();
-    float crossingAngle = info->crossingAngle();
-    float betaStar = info->betaStar();
-    float energy = info->energy();
-
-    auto out = std::make_unique<nanoaod::FlatTable>(1, "LHCInfo", true);
-    out->addColumnValue<float>("crossingAngle", crossingAngle, "LHC crossing angle", precision_);
-    out->addColumnValue<float>("betaStar", betaStar, "LHC beta star", precision_);
-    out->addColumnValue<float>("energy", energy, "LHC beam energy", precision_);
-    return out;
+    const LHCInfo* info = lhcInfo.product();
+    auto out = std::make_unique<nanoaod::MergeableCounterTable>();
+    out->addFloat("crossingAngle", "LHC crossing angle", info->crossingAngle());
+    out->addFloat("betaStar", "LHC beta star", info->betaStar());
+    out->addFloat("energy", "LHC beam energy", info->energy());
+    iLumi.put(std::move(out));
   }
 
   // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
     desc.setUnknown();
     descriptions.addDefault(desc);
   }
 
-protected:
-  const unsigned int precision_;
 };
 
 DEFINE_FWK_MODULE(LHCInfoProducer);
