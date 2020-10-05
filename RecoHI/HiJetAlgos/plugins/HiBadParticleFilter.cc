@@ -99,7 +99,7 @@ bool HiBadParticleFilter::filter(edm::StreamID iID, edm::Event& iEvent, const ed
   for (unsigned j = 0; j < pfCandidates->size(); ++j) {
     const reco::PFCandidate& pfCandidate = (*pfCandidates)[j];
 
-    if (abs(pfCandidate.particleId()) == 3)  // muon cleaning
+    if (pfCandidate.particleId() == 3)  // muon cleaning
     {
       if (pfCandidate.pt() > minMuonPt_) {
         if (!pfCandidate.muonRef()->isGlobalMuon() || !pfCandidate.muonRef()->isTrackerMuon() ||
@@ -174,7 +174,7 @@ bool HiBadParticleFilter::filter(edm::StreamID iID, edm::Event& iEvent, const ed
           }
         }
       }
-    } else if (abs(pfCandidate.particleId()) == 1)  //charged hadron cleaning
+    } else if (pfCandidate.particleId() == 1)  //charged hadron cleaning
     {
       if (pfCandidate.pt() > minChargedHadronPt_) {
         reco::TrackRef track = pfCandidate.trackRef();
