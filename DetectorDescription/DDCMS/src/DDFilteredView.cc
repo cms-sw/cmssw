@@ -638,7 +638,7 @@ const DDSpecPar* DDFilteredView::find(const std::string& key) const {
           }
         } // dont understand this
 
-	// compare copy number
+	// Compare copy number.
         auto cpos = refname.rfind('[');
         if (cpos != refname.npos) {
           if (std::stoi(std::string(refname.substr(cpos + 1, refname.rfind(']')))) == copyNum()) {
@@ -648,22 +648,20 @@ const DDSpecPar* DDFilteredView::find(const std::string& key) const {
             break;
           }
         }
-        if (!dd4hep::dd::isRegex(refname)) {
-          if (!dd4hep::dd::compareEqual(name, refname)) {
-            flag = false;
-            break;
-          } else {
-            flag = true;
-          }
-        } else {
-          if (!regex_match(std::string(name.data(), name.size()), regex(std::string(refname)))) {
-            flag = false;
-            break;
-          } else {
-            flag = true;
-          }
-        }
+
+	// Now that copy numbers are compared, compare the rest: the volume names.
+	const bool isRegex = dd4hep::dd::isRegex(refname);
+	const bool areVolumeNamesEqual = (!isRegex ? 
+					  dd4hep::dd::compareEqual(name, refname)
+					  : regex_match(std::string(name.data(), name.size()), regex(std::string(refname))));
+	if (!areVolumeNamesEqual) {
+	  flag = false;
+	  break;
+	} else {
+	  flag = true;
+	}
       }
+
       return flag;
     });
     if (k != end(i->paths)) {
