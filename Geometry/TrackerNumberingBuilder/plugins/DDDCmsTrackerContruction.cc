@@ -13,7 +13,7 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerBuilder.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerDetIdBuilder.h"
 
-#define DEBUG false
+#define DEBUG true
 
 std::unique_ptr<GeometricDet> DDDCmsTrackerContruction::construct(const DDCompactView& cpv,
                                                                   std::vector<int> const& detidShifts) {
@@ -39,13 +39,13 @@ std::unique_ptr<GeometricDet> DDDCmsTrackerContruction::construct(const DDCompac
   CmsTrackerBuilder<DDFilteredView> theCmsTrackerBuilder;
   theCmsTrackerBuilder.build(fv, tracker.get(), attribute);
 
-  if (DEBUG) {
-    printAllTrackerGeometricDetsBeforeDetIDBuilding(tracker.get());
-  }
-
   edm::LogVerbatim("DDDCmsTrackerContruction") << "Assign DetIds";
   CmsTrackerDetIdBuilder theCmsTrackerDetIdBuilder(detidShifts);
   theCmsTrackerDetIdBuilder.buildId(*tracker);
+
+  if (DEBUG) {
+    printAllTrackerGeometricDetsBeforeDetIDBuilding(tracker.get());
+  }
 
   fv.parent();
   //
@@ -82,13 +82,13 @@ std::unique_ptr<GeometricDet> DDDCmsTrackerContruction::construct(const cms::DDC
   CmsTrackerBuilder<cms::DDFilteredView> theCmsTrackerBuilder;
   theCmsTrackerBuilder.build(fv, tracker.get(), attribute);
 
-  if (DEBUG) {
-    printAllTrackerGeometricDetsBeforeDetIDBuilding(tracker.get());
-  }
-
   edm::LogVerbatim("DDDCmsTrackerContruction") << "Assign DetIds";
   CmsTrackerDetIdBuilder theCmsTrackerDetIdBuilder(detidShifts);
   theCmsTrackerDetIdBuilder.buildId(*tracker);
+
+  if (DEBUG) {
+    printAllTrackerGeometricDetsBeforeDetIDBuilding(tracker.get());
+  }
 
   return tracker;
 }
@@ -120,6 +120,15 @@ void DDDCmsTrackerContruction::printAllTrackerGeometricDetsBeforeDetIDBuilding(c
     outputFile << "............................." << std::endl;
     outputFile << "myDet->geographicalID() = " << myDet->geographicalId() << std::endl;
     outputFile << "myDet->name() = " << myDet->name() << std::endl;
+
+    /*
+    outputFile << "myDet->navpos() = " << myDet->navpos() << std::endl;
+    outputFile << "myDet->navType() = ";
+    for (const auto& pos : myDet->navType()) {
+      outputFile << pos << "  ";
+    }
+    outputFile << " " << std::endl;*/
+
     outputFile << "myDet->module->type() = " << std::fixed << std::setprecision(7) << myDet->type() << std::endl;
     outputFile << "myDet->module->translation() = " << std::fixed << std::setprecision(7) << myDet->translation()
                << std::endl;
