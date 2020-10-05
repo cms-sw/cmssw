@@ -479,23 +479,26 @@ std::string_view DDFilteredView::get<string_view>(const string& key) const {
   int level = it_.back().GetLevel();
   for (auto const& i : refs) {
     auto k = find_if(begin(i->paths), end(i->paths), [&](auto const& j) {
-      auto const& names = split(j, "/");
-      int count = names.size();
+      auto topos = j.size();
+      auto frompos = j.rfind('/');
       bool flag = false;
-      for (int nit = level; count > 0 and nit > 0; --nit) {
+      for (int nit = level; frompos - 1 <= topos and nit > 0; --nit) {
         std::string_view name = it_.back().GetNode(nit)->GetVolume()->GetName();
-        auto refname = names[--count];
-        auto rpos = refname.find(":");
+        std::string_view refname{&j[frompos + 1], topos - frompos - 1};
+        topos = frompos;
+        frompos = j.substr(0, topos).rfind('/');
+
+        auto rpos = refname.find(':');
         if (rpos == refname.npos) {
           name = noNamespace(name);
         } else {
-          if (name.find(":") == name.npos) {
+          if (name.find(':') == name.npos) {
             refname.remove_prefix(rpos + 1);
           }
         }
-        auto cpos = refname.find("[");
+        auto cpos = refname.rfind('[');
         if (cpos != refname.npos) {
-          if (std::stoi(std::string(refname.substr(cpos + 1, refname.find("]")))) == copyNum()) {
+          if (std::stoi(std::string(refname.substr(cpos + 1, refname.rfind(']')))) == copyNum()) {
             refname.remove_suffix(refname.size() - cpos);
             flag = true;
             continue;
