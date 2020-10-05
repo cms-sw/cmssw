@@ -30,7 +30,6 @@ private:
   double calibration_;
   const MTDTimeCalib* time_calib_;
   const MTDTopology* topology_;
-  static constexpr int topologycode1Disk_ = 4;
 };
 
 void MTDRecHitAlgo::getEventSetup(const edm::EventSetup& es) {
@@ -51,7 +50,7 @@ FTLRecHit MTDRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32
 
   // MTD topology
   unsigned int index_topology = 0;  //1Disks geometry
-  if (topology_->getMTDTopologyMode() > topologycode1Disk_)
+  if (topology_->getMTDTopologyMode() > static_cast<int>(MTDTopologyMode::Mode::barphiflat))
     index_topology = 1;  //2Disk geometry
 
   /// position and positionError in unit cm
