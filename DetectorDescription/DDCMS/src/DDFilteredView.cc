@@ -613,21 +613,42 @@ const ExpandedNodes& DDFilteredView::history() {
 
   return nodes_;
 }
-//mySpecParSection->value<std::vector<T>>(parameterName);
+
 const DDSpecPar* DDFilteredView::find(const std::string& key) const {
   DDSpecParRefs refs;
   registry_->filter(refs, key, "");
   int level = it_.back().GetLevel();
+  const std::vector<int>& allCopyNumbers = copyNos();
+
+  // Loop on all XML SpecPar sections
   for (auto const& i : refs) {
+
+    // Loop on all paths of a given XML SpecPar section
     auto k = find_if(begin(i->paths), end(i->paths), [&](auto const& j) {
       auto topos = j.size();
       auto frompos = j.rfind('/');
       bool flag = false;
+
+      //bool isPrint = false;
+
+      // Loop on all the volumes names from the XML path, until any discrepancy is found.
       for (int nit = level; frompos - 1 <= topos and nit > 0; --nit) {
         std::string_view name = it_.back().GetNode(nit)->GetVolume()->GetName();
+	//const int nodeCopyNumber = it_.back().GetNode(nit)->GetVolume()->GetNumber();
+	//const int nodeCopyNumber = PlacedVolume(it_.back().GetNode(nit)).copyNumber();  // WORKSSSSS
+	const int nodeCopyNumber = allCopyNumbers.at(level - nit);
+
         std::string_view refname{&j[frompos + 1], topos - frompos - 1};
         topos = frompos;
         frompos = j.substr(0, topos).rfind('/');
+
+	//if (noNamespace(name) == "TOBActiveRphi2" && noNamespace(refname) == "TOBActiveRphi2") { isPrint = true; }
+
+	/*
+	if (isPrint) {
+	std::cout << "BEFORE NAMESPACE CUT, name = " << name << std::endl;
+	std::cout << "BEFORE NAMESPACE CUT, refname = " << refname << std::endl;
+	}*/
 
         auto rpos = refname.find(':');
         if (rpos == refname.npos) {
@@ -638,16 +659,39 @@ const DDSpecPar* DDFilteredView::find(const std::string& key) const {
           }
         } // dont understand this
 
+	/*
+	if (isPrint) {
+	  std::cout << "AFTER NAMESPACE CUT, name = " << name << std::endl;
+	  std::cout << "AFTER NAMESPACE CUT, refname = " << refname << std::endl;
+	  }*/
+
 	// Compare copy number.
         auto cpos = refname.rfind('[');
+	// copy number is specified in XML path
         if (cpos != refname.npos) {
-          if (std::stoi(std::string(refname.substr(cpos + 1, refname.rfind(']')))) == copyNum()) {
-            refname.remove_suffix(refname.size() - cpos);
+	  const bool areCopyNumbersEqual = std::stoi(std::string(refname.substr(cpos + 1, refname.rfind(']')))) == nodeCopyNumber;
+	  /*
+	  if (isPrint) {
+	    std::cout << "std::stoi(std::string(refname.substr(cpos + 1, refname.rfind(']')))) = " << std::stoi(std::string(refname.substr(cpos + 1, refname.rfind(']')))) << std::endl;
+	    std::cout << "copyNum() = " << copyNum() << std::endl;
+	    std::cout << "nodeCopyNumber = " << nodeCopyNumber << std::endl;
+	    }*/
+
+          if (!areCopyNumbersEqual) {
+	    flag = false;
+            break;  
           } else {
-            flag = false;
-            break;
+            refname.remove_suffix(refname.size() - cpos);
           }
         }
+
+	/*
+	if (isPrint) {
+	  std::cout << "AFTER COPY NUMBER CUT, name = " << name << std::endl;
+	  std::cout << "AFTER COPY NUMBER CUT, refname = " << refname << std::endl;
+	  std::cout << "i->value<std::vector<double>>(key).at(0) = " << i->value<std::vector<double>>(key).at(0) << std::endl;
+	  std::cout << "i->strValue(key) = " <<  i->strValue(key) << std::endl;
+	  }*/
 
 	// Now that copy numbers are compared, compare the rest: the volume names.
 	const bool isRegex = dd4hep::dd::isRegex(refname);
@@ -662,9 +706,11 @@ const DDSpecPar* DDFilteredView::find(const std::string& key) const {
 	}
       }
 
+      //if (isPrint) { std::cout << "exited path" << std::endl; }
       return flag;
     });
     if (k != end(i->paths)) {
+      //std::cout << "exited SpecPar" << std::endl; 
       return i;
     }
   }
