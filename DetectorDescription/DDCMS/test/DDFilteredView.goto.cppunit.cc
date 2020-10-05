@@ -49,7 +49,7 @@ void testDDFilteredViewGoTo::checkFilteredView() {
     if (count == 45) {
       testPos = fview.navPos();
     }
-    if (count == 1000) {
+    if (count == 50) {
       break;
     }
     count++;
