@@ -15,13 +15,13 @@ cleanedPartons = hiPartons.clone(
     src = 'allPartons',
     )
 
-ak4HiCleanedGenJets = heavyIonCleanedGenJets.clone(src = "ak4HiGenJets")
+ak4HiGenJetsCleaned = heavyIonCleanedGenJets.clone(src = "ak4HiGenJets")
 
 cleanedGenJetsTask = cms.Task(
     genParticlesForJets,
     cleanedPartons,
     ak4HiGenJets,
-    ak4HiCleanedGenJets
+    ak4HiGenJetsCleaned
 )
 
 from RecoHI.HiJetAlgos.HiRecoPFJets_cff import PFTowers, pfEmptyCollection, ak4PFJetsForFlow, hiPuRho, hiFJRhoFlowModulation, akCs4PFJets
