@@ -14,6 +14,10 @@
 #include "DQM/SiTrackerPhase2/interface/TrackerPhase2DQMUtil.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
@@ -232,6 +236,155 @@ void Phase2ITMonitorRecHit::bookLayerHistos(DQMStore::IBooker& ibooker, unsigned
         config_.getParameter<edm::ParameterSet>("LocalPositionXY"), histoName.str(), ibooker);
     layerMEs_.insert(std::make_pair(key, local_histos));
   }
+}
+
+void Phase2ITMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // rechitMonitorIT
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("TopFolderName", "TrackerPhase2ITRecHit");
+  desc.add<edm::InputTag>("rechitsSrc", edm::InputTag("siPixelRecHits"));
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<double>("xmin", 0.0);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 0.0);
+    psd0.add<int>("NxBins", 50);
+    desc.add<edm::ParameterSetDescription>("LocalNumberRecHits", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<double>("ymax", 300.0);
+    psd0.add<int>("NxBins", 1500);
+    psd0.add<int>("NyBins", 300);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 3000.0);
+    psd0.add<double>("xmin", -3000.0);
+    psd0.add<double>("ymin", 0.0);
+    desc.add<edm::ParameterSetDescription>("GlobalPositionRZ_perlayer", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<double>("ymax", 300.0);
+    psd0.add<int>("NxBins", 1500);
+    psd0.add<int>("NyBins", 300);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 3000.0);
+    psd0.add<double>("xmin", -3000.0);
+    psd0.add<double>("ymin", 0.0);
+    desc.add<edm::ParameterSetDescription>("GlobalPositionRZ_PXB", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<double>("ymax", 300.0);
+    psd0.add<int>("NxBins", 600);
+    psd0.add<int>("NyBins", 600);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 300.0);
+    psd0.add<double>("xmin", -300.0);
+    psd0.add<double>("ymin", -300.0);
+    desc.add<edm::ParameterSetDescription>("GlobalPositionXY_PXB", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<double>("ymax", 300.0);
+    psd0.add<int>("NxBins", 1500);
+    psd0.add<int>("NyBins", 300);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 3000.0);
+    psd0.add<double>("xmin", -3000.0);
+    psd0.add<double>("ymin", 0.0);
+    desc.add<edm::ParameterSetDescription>("GlobalPositionRZ_PXEC", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<double>("xmin", 0.0);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 0.2);
+    psd0.add<int>("NxBins", 100);
+    desc.add<edm::ParameterSetDescription>("RecHitPosErrorX", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<double>("ymax", 300.0);
+    psd0.add<int>("NxBins", 600);
+    psd0.add<int>("NyBins", 600);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 300.0);
+    psd0.add<double>("xmin", -300.0);
+    psd0.add<double>("ymin", -300.0);
+    desc.add<edm::ParameterSetDescription>("GlobalPositionXY_perlayer", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<double>("xmin", 0.0);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 0.0);
+    psd0.add<int>("NxBins", 50);
+    desc.add<edm::ParameterSetDescription>("GlobalNumberRecHits", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<double>("xmin", -0.5);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 20.5);
+    psd0.add<int>("NxBins", 21);
+    desc.add<edm::ParameterSetDescription>("LocalClusterSizeX", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<double>("xmin", -2.5);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 2.5);
+    psd0.add<int>("NxBins", 100);
+    desc.add<edm::ParameterSetDescription>("RecHitPosY", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<double>("xmin", 0.0);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 0.2);
+    psd0.add<int>("NxBins", 100);
+    desc.add<edm::ParameterSetDescription>("RecHitPosErrorY", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<double>("ymax", 0.0);
+    psd0.add<int>("NxBins", 500);
+    psd0.add<int>("NyBins", 500);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 0.0);
+    psd0.add<double>("xmin", 0.0);
+    psd0.add<double>("ymin", 0.0);
+    desc.add<edm::ParameterSetDescription>("LocalPositionXY", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<double>("ymax", 300.0);
+    psd0.add<int>("NxBins", 600);
+    psd0.add<int>("NyBins", 600);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 300.0);
+    psd0.add<double>("xmin", -300.0);
+    psd0.add<double>("ymin", -300.0);
+    desc.add<edm::ParameterSetDescription>("GlobalPositionXY_PXEC", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<double>("xmin", -0.5);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 20.5);
+    psd0.add<int>("NxBins", 21);
+    desc.add<edm::ParameterSetDescription>("LocalClusterSizeY", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<double>("xmin", -2.5);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 2.5);
+    psd0.add<int>("NxBins", 100);
+    desc.add<edm::ParameterSetDescription>("RecHitPosX", psd0);
+  }
+  descriptions.add("Phase2ITMonitorRecHit", desc);
 }
 //define this as a plug-in
 DEFINE_FWK_MODULE(Phase2ITMonitorRecHit);

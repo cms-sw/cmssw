@@ -45,23 +45,15 @@ Phase2ITValidateRecHit::Phase2ITValidateRecHit(const edm::ParameterSet& iConfig)
       geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
       topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()) {
   edm::LogInfo("Phase2ITValidateRecHit") << ">>> Construct Phase2ITValidateRecHit ";
-  for (const auto& itag : config_.getParameter<std::vector<edm::InputTag>>("PSimHitSource"))
-    simHitTokens_.push_back(consumes<edm::PSimHitContainer>(itag));
+  for (const auto& itName : config_.getParameter<std::vector<std::string>>("ROUList")) {
+    simHitTokens_.push_back(consumes<std::vector<PSimHit>>(edm::InputTag("g4SimHits", itName)));
+  }
 }
 //
 Phase2ITValidateRecHit::~Phase2ITValidateRecHit() {
   edm::LogInfo("Phase2ITValidateRecHit") << ">>> Destroy Phase2ITValidateRecHit ";
 }
 void Phase2ITValidateRecHit::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  // Get the geometry
-  /* edm::ESHandle<TrackerGeometry> geomHandle = iSetup.getHandle(geomToken_);
-  //iSetup.get<TrackerDigiGeometryRecord>().get(geomHandle);
-  const TrackerGeometry* tkGeom = &(*geomHandle);
-
-  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(topoToken_);
-  //iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* tTopo = tTopoHandle.product();
-  */
   std::vector<edm::Handle<edm::PSimHitContainer>> simHits;
   for (const auto& itoken : simHitTokens_) {
     edm::Handle<edm::PSimHitContainer> simHitHandle;
@@ -274,6 +266,147 @@ void Phase2ITValidateRecHit::bookLayerHistos(DQMStore::IBooker& ibooker, unsigne
     layerMEs_.insert(std::make_pair(key, local_histos));
   }
 }
-
+void Phase2ITValidateRecHit::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // rechitValidIT
+  edm::ParameterSetDescription desc;
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<double>("ymax", 4.0);
+    psd0.add<int>("NxBins", 82);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 4.1);
+    psd0.add<double>("xmin", -4.1);
+    psd0.add<double>("ymin", -4.0);
+    desc.add<edm::ParameterSetDescription>("PullY_primary", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<double>("xmin", -0.2);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 0.2);
+    psd0.add<int>("NxBins", 100);
+    desc.add<edm::ParameterSetDescription>("DeltaY_primary", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<double>("ymax", 0.02);
+    psd0.add<int>("NxBins", 82);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 4.1);
+    psd0.add<double>("xmin", -4.1);
+    psd0.add<double>("ymin", -0.02);
+    desc.add<edm::ParameterSetDescription>("DeltaY_eta", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<double>("xmin", 0.0);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 0.0);
+    psd0.add<int>("NxBins", 100);
+    desc.add<edm::ParameterSetDescription>("nRecHits_primary", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<double>("ymax", 4.0);
+    psd0.add<int>("NxBins", 82);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 4.1);
+    psd0.add<double>("xmin", -4.1);
+    psd0.add<double>("ymin", -4.0);
+    desc.add<edm::ParameterSetDescription>("PullX_eta", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<double>("xmin", -0.2);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 0.2);
+    psd0.add<int>("NxBins", 100);
+    desc.add<edm::ParameterSetDescription>("DeltaX", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<double>("xmin", -0.2);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 0.2);
+    psd0.add<int>("NxBins", 100);
+    desc.add<edm::ParameterSetDescription>("DeltaY", psd0);
+  }
+  desc.add<bool>("Verbosity", false);
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<double>("ymax", 4.0);
+    psd0.add<int>("NxBins", 82);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 4.1);
+    psd0.add<double>("xmin", -4.1);
+    psd0.add<double>("ymin", -4.0);
+    desc.add<edm::ParameterSetDescription>("PullY_eta", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<double>("xmin", -4.0);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 4.0);
+    psd0.add<int>("NxBins", 100);
+    desc.add<edm::ParameterSetDescription>("PullY", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<double>("ymax", 4.0);
+    psd0.add<int>("NxBins", 82);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 4.1);
+    psd0.add<double>("xmin", -4.1);
+    psd0.add<double>("ymin", -4.0);
+    desc.add<edm::ParameterSetDescription>("PullX_primary", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<double>("ymax", 0.02);
+    psd0.add<int>("NxBins", 82);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 4.1);
+    psd0.add<double>("xmin", -4.1);
+    psd0.add<double>("ymin", -0.02);
+    desc.add<edm::ParameterSetDescription>("DeltaX_eta", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<double>("xmin", -4.0);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 4.0);
+    psd0.add<int>("NxBins", 100);
+    desc.add<edm::ParameterSetDescription>("PullX", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<double>("xmin", -0.2);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 0.2);
+    psd0.add<int>("NxBins", 100);
+    desc.add<edm::ParameterSetDescription>("DeltaX_primary", psd0);
+  }
+  //to be used in TrackerHitAssociator
+  desc.add<bool>("associatePixel", true);
+  desc.add<bool>("associateStrip", false);
+  desc.add<bool>("usePhase2Tracker", true);
+  desc.add<bool>("associateRecoTracks", false);
+  desc.add<bool>("associateHitbySimTrack", true);
+  desc.add<edm::InputTag>("pixelSimLinkSrc", edm::InputTag("simSiPixelDigis", "Pixel"));
+  desc.add<std::vector<std::string>>("ROUList",
+                                     {
+                                         "TrackerHitsPixelBarrelLowTof",
+                                         "TrackerHitsPixelBarrelHighTof",
+                                         "TrackerHitsPixelEndcapLowTof",
+                                         "TrackerHitsPixelEndcapHighTof",
+                                     });
+  //
+  desc.add<edm::InputTag>("simTracksSrc", edm::InputTag("g4SimHits"));
+  desc.add<edm::InputTag>("SimVertexSource", edm::InputTag("g4SimHits"));
+  desc.add<double>("SimTrackMinPt", 2.0);
+  desc.add<edm::InputTag>("rechitsSrc", edm::InputTag("siPixelRecHits"));
+  desc.add<std::string>("TopFolderName", "TrackerPhase2ITRecHitV");
+  descriptions.add("Phase2ITValidateRecHit", desc);
+}
 //define this as a plug-in
 DEFINE_FWK_MODULE(Phase2ITValidateRecHit);
