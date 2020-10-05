@@ -187,8 +187,7 @@ void PFTauPrimaryVertexProducerBase::produce(edm::Event& iEvent,const edm::Event
 	    fitOK = false;
 	  } else {
 	    //MB: protect against rare cases when transVtx is valid but its position is ill-defined
-	    reco::Vertex::Point pvPos(transVtx.position());
-	    if (!std::isfinite(pvPos.z())) //MB: it is enough to check one coordinate (?)
+	    if (!std::isfinite(transVtx.position().z())) //MB: it is enough to check one coordinate (?)
 	      fitOK = false;
 	  }
 	} else fitOK = false;
