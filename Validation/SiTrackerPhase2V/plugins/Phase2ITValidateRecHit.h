@@ -22,7 +22,6 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-
 // DQM Histograming
 class PixelDigiSimLink;
 class SimTrack;
@@ -36,17 +35,19 @@ public:
   ~Phase2ITValidateRecHit() override;
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
-  
- private:
-  void fillITHistos(const edm::Event& iEvent, 
-		    const TrackerTopology* tTopo, 
-		    const TrackerGeometry* tkGeom, 
-		    const TrackerHitAssociator& associateRecHit,
-		    const std::vector<edm::Handle<edm::PSimHitContainer>>& simHits,
-		    const std::map<unsigned int, SimTrack>& selectedSimTrackMap);
 
+private:
+  void fillITHistos(const edm::Event& iEvent,
+                    const TrackerTopology* tTopo,
+                    const TrackerGeometry* tkGeom,
+                    const TrackerHitAssociator& associateRecHit,
+                    const std::vector<edm::Handle<edm::PSimHitContainer>>& simHits,
+                    const std::map<unsigned int, SimTrack>& selectedSimTrackMap);
 
-  void bookLayerHistos(DQMStore::IBooker& ibooker, unsigned int det_id, const TrackerTopology* tTopo, std::string& subdir);
+  void bookLayerHistos(DQMStore::IBooker& ibooker,
+                       unsigned int det_id,
+                       const TrackerTopology* tTopo,
+                       std::string& subdir);
 
   edm::ParameterSet config_;
   bool pixelFlag_;
@@ -55,21 +56,12 @@ public:
   std::string geomType_;
   const edm::EDGetTokenT<SiPixelRecHitCollection> tokenRecHitsIT_;
   const edm::EDGetTokenT<edm::SimTrackContainer> simTracksToken_;
-  std::vector<edm::EDGetTokenT<edm::PSimHitContainer> > simHitTokens_;
-
-
-  MonitorElement* numberRecHits_;
-  MonitorElement* globalXY_;
-  MonitorElement* globalRZ_;
+  std::vector<edm::EDGetTokenT<edm::PSimHitContainer>> simHitTokens_;
 
   struct RecHitME {
     // use TH1D instead of TH1F to avoid stauration at 2^31
     // above this increments with +1 don't work for float, need double
-    MonitorElement* numberRecHits = nullptr;
-    MonitorElement* globalPosXY = nullptr;
-    MonitorElement* localPosXY = nullptr;
     MonitorElement* deltaX = nullptr;
-    MonitorElement* clusterSize = nullptr;
     MonitorElement* deltaY = nullptr;
     MonitorElement* pullX = nullptr;
     MonitorElement* pullY = nullptr;
@@ -84,6 +76,6 @@ public:
     MonitorElement* deltaX_primary;
     MonitorElement* deltaY_primary;
   };
-  std::map<std::string, RecHitME>  layerMEs_;
+  std::map<std::string, RecHitME> layerMEs_;
 };
 #endif

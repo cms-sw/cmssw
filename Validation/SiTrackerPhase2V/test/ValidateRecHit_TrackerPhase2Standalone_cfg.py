@@ -93,6 +93,6 @@ process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
 '''
 process.p = cms.Path(process.siPixelRecHits 
                      #*process.siPhase2RecHits 
-                     #* process.rechitValidIT 
+                     * process.rechitValidIT 
                      #* process.rechitValidOT 
                      * process.dqm_comm )
