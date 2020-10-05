@@ -97,8 +97,8 @@ public:
   void setGeographicalID(DetId id) { geographicalID_ = id; }
 
   // VOLUME POSITION in CMS frame of reference
-  const Translation& translation() const { return trans_; }
-  double rho() const { return rho_; }
+  const Translation& translation() const { return trans_; } // in mm
+  double rho() const { return rho_; } // in mm
   double phi() const { return phi_; }
   const RotationMatrix& rotation() const { return rot_; }
 
@@ -109,7 +109,7 @@ public:
 
   // SOLID SHAPE
   // old DD
-  LegacySolidShape shape() const { return cms::dd::value(cms::LegacySolidShapeMap, shape_); }
+  LegacySolidShape shape() const { return cms::dd::value(cms::LegacySolidShapeMap, shape_); } // in mm
   // DD4hep
   const cms::DDSolidShape& shape_dd4hep() const { return shape_; }
   // solid shape parameters
@@ -120,7 +120,7 @@ public:
           << "Called on a shape which is neither a box, a trap, nor a tub. This is not supported!";
     }
     return params_;
-  }
+  } // in mm
 
   // RADIATION LENGTH AND ENERGY LOSS
   double radLength() const { return radLength_; }
