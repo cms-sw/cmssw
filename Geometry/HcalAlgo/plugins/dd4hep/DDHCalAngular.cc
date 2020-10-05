@@ -8,8 +8,8 @@ using namespace geant_units::operators;
 
 static long algorithm(dd4hep::Detector& /* description */,
                       cms::DDParsingContext& ctxt,
-                      xml_h e,
-                      dd4hep::SensitiveDetector& /* sens */) {
+                      xml_h e) {
+
   cms::DDNamespace ns(ctxt, e, true);
   cms::DDAlgoArguments args(ctxt, e);
   // Header section of original DDHCalAngular.h
