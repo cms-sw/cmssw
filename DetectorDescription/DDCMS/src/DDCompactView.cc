@@ -11,8 +11,8 @@ std::vector<int> cms::DDCompactView::getVector<int>(const std::string& key) cons
   const auto& vmap = this->detector()->vectors();
   for (auto const& it : vmap) {
     if (dd4hep::dd::noNamespace(it.first) == key) {
-      std::transform(it.second.begin(), it.second.end(), std::back_inserter(result),
-		     [](int n) -> int { return (int)n; });
+      std::transform(
+          it.second.begin(), it.second.end(), std::back_inserter(result), [](int n) -> int { return (int)n; });
       return result;
     }
   }
@@ -38,17 +38,18 @@ std::vector<double> const& cms::DDCompactView::get<std::vector<double>>(const st
       return it.second;
     }
   }
-  throw cms::Exception("DDError") << "no vector<double> with name " << key; 
+  throw cms::Exception("DDError") << "no vector<double> with name " << key;
 }
 
 template <>
-tbb::concurrent_vector<double> const& cms::DDCompactView::get<tbb::concurrent_vector<double>>(const std::string& name, const std::string& key) const {
+tbb::concurrent_vector<double> const& cms::DDCompactView::get<tbb::concurrent_vector<double>>(
+    const std::string& name, const std::string& key) const {
   const auto& spec = specpars().specPar(name);
-  if(spec != nullptr) {
+  if (spec != nullptr) {
     auto const& nitem = spec->numpars.find(key);
     if (nitem != end(spec->numpars)) {
       return nitem->second;
     }
   }
-  throw cms::Exception("DDError") << "no SpecPar with name " << name << " and vector<double> key " << key; 
+  throw cms::Exception("DDError") << "no SpecPar with name " << name << " and vector<double> key " << key;
 }

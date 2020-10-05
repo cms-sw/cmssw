@@ -7,7 +7,7 @@
 
 namespace cms {
   using DDVectorsMap = std::unordered_map<std::string, std::vector<double>>;
-  
+
   struct DDVectorRegistry {
     DDVectorsMap vectors;
   };
