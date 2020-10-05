@@ -250,8 +250,8 @@ namespace cms {
     //  the registry
     const DDSpecPar* find(const std::string&) const;
     void filter(DDSpecParRefs&, const std::string&) const;
-    const std::string_view front(const std::string_view) const;
-    const std::string_view back(const std::string_view) const;
+    std::string_view front(const std::string_view) const;
+    std::string_view back(const std::string_view) const;
 
     ExpandedNodes nodes_;
     std::vector<Iterator> it_;
