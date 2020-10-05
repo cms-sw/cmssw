@@ -603,9 +603,9 @@ namespace trklet {
     //Default number of processing steps for one event
     std::unordered_map<std::string, unsigned int> maxstep_{{"Link", 108},
                                                            {"MC", 107},
-                                                           {"ME", 108},
+                                                           {"ME", 101},
                                                            {"MP", 108},
-                                                           {"PR", 103},
+                                                           {"PR", 107},
                                                            {"TC", 107},
                                                            {"TE", 101},
                                                            {"TP", 108},
