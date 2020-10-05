@@ -654,7 +654,6 @@ const DDSpecPar* DDFilteredView::find(const std::string& key) const {
             break;
           } else {
             flag = true;
-            continue;
           }
         } else {
           if (!regex_match(std::string(name.data(), name.size()), regex(std::string(refname)))) {
@@ -662,7 +661,6 @@ const DDSpecPar* DDFilteredView::find(const std::string& key) const {
             break;
           } else {
             flag = true;
-            continue;
           }
         }
       }
