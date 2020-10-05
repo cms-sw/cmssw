@@ -20,11 +20,11 @@
 //
 #include "DetectorDescription/DDCMS/interface/DDSolidShapes.h"
 #include "DetectorDescription/DDCMS/interface/ExpandedNodes.h"
+#include "DetectorDescription/DDCMS/interface/DDVectorRegistry.h"
 #include <DD4hep/Filter.h>
 #include <DD4hep/SpecParRegistry.h>
 #include <DD4hep/Volumes.h>
 #include <memory>
-#include <tuple>
 #include <vector>
 
 namespace cms {
@@ -50,7 +50,6 @@ namespace cms {
   using DDSpecPar = dd4hep::SpecPar;
   using DDSpecParRefs = dd4hep::SpecParRefs;
   using DDSpecParRegistry = dd4hep::SpecParRegistry;
-  using DDVectorsMap = dd4hep::VectorsMap;
   using Iterator = TGeoIterator;
   using Node = TGeoNode;
   using Translation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
@@ -252,6 +251,7 @@ namespace cms {
     const DDSpecPar* find(const std::string&) const;
     void filter(DDSpecParRefs&, const std::string&) const;
     const std::string_view front(const std::string_view) const;
+    const std::string_view back(const std::string_view) const;
 
     ExpandedNodes nodes_;
     std::vector<Iterator> it_;
