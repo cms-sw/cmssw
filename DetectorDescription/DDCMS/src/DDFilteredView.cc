@@ -472,72 +472,18 @@ LegacySolidShape DDFilteredView::legacyShape(const cms::DDSolidShape shape) cons
 }
 
 template <>
-std::string_view DDFilteredView::get<string_view>(const string& key) const {
+std::string_view DDFilteredView::get<string_view>(const string& key) {
   std::string_view result;
-  DDSpecParRefs refs;
-  registry_->filter(refs, key, "");
-  int level = it_.back().GetLevel();
-  for (auto const& i : refs) {
-    auto k = find_if(begin(i->paths), end(i->paths), [&](auto const& j) {
-      auto topos = j.size();
-      auto frompos = j.rfind('/');
-      bool flag = false;
-      for (int nit = level; frompos - 1 <= topos and nit > 0; --nit) {
-        std::string_view name = it_.back().GetNode(nit)->GetVolume()->GetName();
-        std::string_view refname{&j[frompos + 1], topos - frompos - 1};
-        topos = frompos;
-        frompos = j.substr(0, topos).rfind('/');
 
-        auto rpos = refname.find(':');
-        if (rpos == refname.npos) {
-          name = noNamespace(name);
-        } else {
-          if (name.find(':') == name.npos) {
-            refname.remove_prefix(rpos + 1);
-          }
-        }
-        auto cpos = refname.rfind('[');
-        if (cpos != refname.npos) {
-          if (std::stoi(std::string(refname.substr(cpos + 1, refname.rfind(']')))) == copyNum()) {
-            refname.remove_suffix(refname.size() - cpos);
-            flag = true;
-            continue;
-          } else {
-            flag = false;
-            break;
-          }
-        }
-        if (!dd4hep::dd::isRegex(refname)) {
-          if (!dd4hep::dd::compareEqual(name, refname)) {
-            flag = false;
-            break;
-          } else {
-            flag = true;
-            continue;
-          }
-        } else {
-          if (!regex_match(std::string(name.data(), name.size()), regex(std::string(refname)))) {
-            flag = false;
-            break;
-          } else {
-            flag = true;
-            continue;
-          }
-        }
-      }
-      return flag;
-    });
-    if (k != end(i->paths)) {
-      result = i->strValue(key);
-      return result;
-    }
+  currentSpecPar_ = find(key);
+  if (currentSpecPar_ != nullptr) {
+    result = currentSpecPar_->strValue(key);
   }
-
   return result;
 }
 
 template <>
-double DDFilteredView::get<double>(const string& key) const {
+double DDFilteredView::get<double>(const string& key) {
   double result(0.0);
   std::string_view tmpStrV = get<std::string_view>(key);
   if (!tmpStrV.empty())
@@ -666,6 +612,82 @@ const ExpandedNodes& DDFilteredView::history() {
   }
 
   return nodes_;
+}
+
+const DDSpecPar* DDFilteredView::find(const std::string& key) const {
+  DDSpecParRefs refs;
+  registry_->filter(refs, key, "");
+  int level = it_.back().GetLevel();
+  for (auto const& i : refs) {
+    auto k = find_if(begin(i->paths), end(i->paths), [&](auto const& j) {
+      auto topos = j.size();
+      auto frompos = j.rfind('/');
+      bool flag = false;
+      for (int nit = level; frompos - 1 <= topos and nit > 0; --nit) {
+        std::string_view name = it_.back().GetNode(nit)->GetVolume()->GetName();
+        std::string_view refname{&j[frompos + 1], topos - frompos - 1};
+        topos = frompos;
+        frompos = j.substr(0, topos).rfind('/');
+
+        auto rpos = refname.find(':');
+        if (rpos == refname.npos) {
+          name = noNamespace(name);
+        } else {
+          if (name.find(':') == name.npos) {
+            refname.remove_prefix(rpos + 1);
+          }
+        }
+        auto cpos = refname.rfind('[');
+        if (cpos != refname.npos) {
+          if (std::stoi(std::string(refname.substr(cpos + 1, refname.rfind(']')))) == copyNum()) {
+            refname.remove_suffix(refname.size() - cpos);
+            flag = true;
+            continue;
+          } else {
+            flag = false;
+            break;
+          }
+        }
+        if (!dd4hep::dd::isRegex(refname)) {
+          if (!dd4hep::dd::compareEqual(name, refname)) {
+            flag = false;
+            break;
+          } else {
+            flag = true;
+            continue;
+          }
+        } else {
+          if (!regex_match(std::string(name.data(), name.size()), regex(std::string(refname)))) {
+            flag = false;
+            break;
+          } else {
+            flag = true;
+            continue;
+          }
+        }
+      }
+      return flag;
+    });
+    if (k != end(i->paths)) {
+      return i;
+    }
+  }
+
+  return nullptr;
+}
+
+double DDFilteredView::getNextValue(const std::string& key) const {
+  double result(0.0);
+  std::string_view tmpresult;
+
+  if (currentSpecPar_ != nullptr) {
+    tmpresult = currentSpecPar_->strValue(key);
+  }
+  if (!tmpresult.empty()) {
+    result = dd4hep::_toDouble({tmpresult.data(), tmpresult.size()});
+  }
+
+  return result;
 }
 
 std::string_view DDFilteredView::name() const { return (volume().volume().name()); }
