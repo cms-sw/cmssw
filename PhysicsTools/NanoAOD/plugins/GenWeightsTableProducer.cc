@@ -565,12 +565,18 @@ public:
       std::vector<std::string> lheReweighingIDs;
 
       std::regex weightgroupmg26x("<weightgroup\\s+(?:name|type)=\"(.*)\"\\s+combine=\"(.*)\"\\s*>");
+      std::regex weightgroupmg26xNew("<weightgroup\\s+combine=\"(.*)\"\\s+(?:name|type)=\"(.*)\"\\s*>");
       std::regex weightgroup("<weightgroup\\s+combine=\"(.*)\"\\s+(?:name|type)=\"(.*)\"\\s*>");
       std::regex weightgroupRwgt("<weightgroup\\s+(?:name|type)=\"(.*)\"\\s*>");
       std::regex endweightgroup("</weightgroup>");
       std::regex scalewmg26x(
           "<weight\\s+(?:.*\\s+)?id=\"(\\d+)\"\\s*(?:lhapdf=\\d+|dyn=\\s*-?\\d+)?\\s*((?:[mM][uU][rR]|renscfact)=\"("
           "\\S+)\"\\s+(?:[mM][uU][Ff]|facscfact)=\"(\\S+)\")(\\s+.*)?</weight>");
+      std::regex scalewmg26xNew(
+          "<weight\\s*((?:[mM][uU][fF]|facscfact)=\"(\\S+)\"\\s+(?:[mM][uU][Rr]|renscfact)=\"(\\S+)\").+id=\"(\\d+)\"(."
+          "*)?</weight>");
+
+      //<weight MUF="1.0" MUR="2.0" PDF="306000" id="1006"> MUR=2.0  </weight>
       std::regex scalew(
           "<weight\\s+(?:.*\\s+)?id=\"(\\d+)\">\\s*(?:lhapdf=\\d+|dyn=\\s*-?\\d+)?\\s*((?:mu[rR]|renscfact)=(\\S+)\\s+("
           "?:mu[Ff]|facscfact)=(\\S+)(\\s+.*)?)</weight>");
@@ -581,6 +587,14 @@ public:
           "<weight\\s+id=\"(\\d+)\"\\s*MUR=\"(?:\\S+)\"\\s*MUF=\"(?:\\S+)\"\\s*(?:PDF "
           "set|lhapdf|PDF|pdfset)\\s*=\\s*\"(\\d+)\"\\s*>\\s*(?:PDF=(\\d+)\\s*MemberID=(\\d+))?\\s*(?:\\s.*)?</"
           "weight>");
+      //<weightgroup combine="symmhessian+as" name="NNPDF31_nnlo_as_0118_mc_hessian_pdfas">
+
+      //<weight MUF="1.0" MUR="1.0" PDF="325300" id="1048"> PDF=325300 MemberID=0 </weight>
+      std::regex pdfwmg26xNew(
+          "<weight\\s+MUF=\"(?:\\S+)\"\\s*MUR=\"(?:\\S+)\"\\s*PDF=\"(?:\\S+)\"\\s*id=\"(\\S+)\"\\s*>"
+          "\\s*(?:PDF=(\\d+)\\s*MemberID=(\\d+))?\\s*(?:\\s.*)?</"
+          "weight>");
+
       std::regex rwgt("<weight\\s+id=\"(.+)\">(.+)?(</weight>)?");
       std::smatch groups;
       for (auto iter = lheInfo->headers_begin(), end = lheInfo->headers_end(); iter != end; ++iter) {
@@ -595,34 +609,47 @@ public:
         bool missed_weightgroup =
             false;  //Needed because in some of the samples ( produced with MG26X ) a small part of the header info is ordered incorrectly
         bool ismg26x = false;
+        bool ismg26xNew = false;
         for (unsigned int iLine = 0, nLines = lines.size(); iLine < nLines;
              ++iLine) {  //First start looping through the lines to see which weightgroup pattern is matched
           boost::replace_all(lines[iLine], "&lt;", "<");
           boost::replace_all(lines[iLine], "&gt;", ">");
           if (std::regex_search(lines[iLine], groups, weightgroupmg26x)) {
             ismg26x = true;
+          } else if (std::regex_search(lines[iLine], groups, weightgroupmg26xNew)) {
+            ismg26xNew = true;
           }
         }
         for (unsigned int iLine = 0, nLines = lines.size(); iLine < nLines; ++iLine) {
           if (lheDebug)
             std::cout << lines[iLine];
-          if (std::regex_search(lines[iLine], groups, ismg26x ? weightgroupmg26x : weightgroup)) {
+          if (std::regex_search(lines[iLine],
+                                groups,
+                                ismg26x ? weightgroupmg26x : (ismg26xNew ? weightgroupmg26xNew : weightgroup))) {
             std::string groupname = groups.str(2);
             if (ismg26x)
               groupname = groups.str(1);
+            else if (ismg26xNew)
+              groupname = groups.str(2);
             if (lheDebug)
               std::cout << ">>> Looks like the beginning of a weight group for '" << groupname << "'" << std::endl;
             if (groupname.find("scale_variation") == 0 || groupname == "Central scale variation") {
               if (lheDebug)
                 std::cout << ">>> Looks like scale variation for theory uncertainties" << std::endl;
               for (++iLine; iLine < nLines; ++iLine) {
-                if (lheDebug)
+                if (lheDebug) {
                   std::cout << "    " << lines[iLine];
-                if (std::regex_search(lines[iLine], groups, ismg26x ? scalewmg26x : scalew)) {
+                }
+                if (std::regex_search(
+                        lines[iLine], groups, ismg26x ? scalewmg26x : (ismg26xNew ? scalewmg26xNew : scalew))) {
                   if (lheDebug)
                     std::cout << "    >>> Scale weight " << groups[1].str() << " for " << groups[3].str() << " , "
                               << groups[4].str() << " , " << groups[5].str() << std::endl;
-                  scaleVariationIDs.emplace_back(groups.str(1), groups.str(2), groups.str(3), groups.str(4));
+                  if (ismg26xNew) {
+                    scaleVariationIDs.emplace_back(groups.str(4), groups.str(1), groups.str(3), groups.str(2));
+                  } else {
+                    scaleVariationIDs.emplace_back(groups.str(1), groups.str(2), groups.str(3), groups.str(4));
+                  }
                 } else if (std::regex_search(lines[iLine], endweightgroup)) {
                   if (lheDebug)
                     std::cout << ">>> Looks like the end of a weight group" << std::endl;
@@ -630,12 +657,14 @@ public:
                     break;
                   } else
                     missed_weightgroup = false;
-                } else if (std::regex_search(lines[iLine], ismg26x ? weightgroupmg26x : weightgroup)) {
+                } else if (std::regex_search(
+                               lines[iLine],
+                               ismg26x ? weightgroupmg26x : (ismg26xNew ? weightgroupmg26xNew : weightgroup))) {
                   if (lheDebug)
                     std::cout << ">>> Looks like the beginning of a new weight group, I will assume I missed the end "
                                  "of the group."
                               << std::endl;
-                  if (ismg26x)
+                  if (ismg26x || ismg26xNew)
                     missed_weightgroup = true;
                   --iLine;  // rewind by one, and go back to the outer loop
                   break;
@@ -662,12 +691,14 @@ public:
                     break;
                   } else
                     missed_weightgroup = false;
-                } else if (std::regex_search(lines[iLine], ismg26x ? weightgroupmg26x : weightgroup)) {
+                } else if (std::regex_search(
+                               lines[iLine],
+                               ismg26x ? weightgroupmg26x : (ismg26xNew ? weightgroupmg26xNew : weightgroup))) {
                   if (lheDebug)
                     std::cout << ">>> Looks like the beginning of a new weight group, I will assume I missed the end "
                                  "of the group."
                               << std::endl;
-                  if (ismg26x)
+                  if (ismg26x || ismg26xNew)
                     missed_weightgroup = true;
                   --iLine;  // rewind by one, and go back to the outer loop
                   break;
@@ -704,7 +735,7 @@ public:
                     std::cout << ">>> Looks like the beginning of a new weight group, I will assume I missed the end "
                                  "of the group."
                               << std::endl;
-                  if (ismg26x)
+                  if (ismg26x || ismg26xNew)
                     missed_weightgroup = true;
                   --iLine;  // rewind by one, and go back to the outer loop
                   break;
@@ -718,10 +749,15 @@ public:
               for (++iLine; iLine < nLines; ++iLine) {
                 if (lheDebug)
                   std::cout << "    " << lines[iLine];
-                if (std::regex_search(lines[iLine], groups, ismg26x ? pdfwmg26x : pdfwOld)) {
+                if (std::regex_search(
+                        lines[iLine], groups, ismg26x ? pdfwmg26x : (ismg26xNew ? pdfwmg26xNew : pdfwOld))) {
                   unsigned int member = 0;
-                  if (ismg26x == 0) {
+                  if (!ismg26x && !ismg26xNew) {
                     member = std::stoi(groups.str(2));
+                  } else if (ismg26xNew) {
+                    if (!groups.str(3).empty()) {
+                      member = std::stoi(groups.str(3));
+                    }
                   } else {
                     if (!groups.str(4).empty()) {
                       member = std::stoi(groups.str(4));
@@ -750,7 +786,7 @@ public:
                     std::cout << ">>> Looks like the beginning of a new weight group, I will assume I missed the end "
                                  "of the group."
                               << std::endl;
-                  if (ismg26x)
+                  if (ismg26x || ismg26xNew)
                     missed_weightgroup = true;
                   --iLine;  // rewind by one, and go back to the outer loop
                   break;
@@ -772,7 +808,7 @@ public:
                     std::cout << ">>> Looks like the beginning of a new weight group, I will assume I missed the end "
                                  "of the group."
                               << std::endl;
-                  if (ismg26x)
+                  if (ismg26x || ismg26xNew)
                     missed_weightgroup = true;
                   --iLine;  // rewind by one, and go back to the outer loop
                   break;
