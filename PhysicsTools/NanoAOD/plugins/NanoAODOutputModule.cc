@@ -312,8 +312,9 @@ void NanoAODOutputModule::openFile(edm::FileBlock const&) {
     else if (keep.first->className() == "nanoaod::UniqueString" && keep.first->moduleLabel() == "nanoMetadata")
       m_nanoMetadata.emplace_back(keep.first->productInstanceName(), keep.second);
     else
-      throw cms::Exception("Configuration",
-                           "NanoAODOutputModule cannot handle class " + keep.first->className() + " in LuminosityBlock branch");
+      throw cms::Exception(
+          "Configuration",
+          "NanoAODOutputModule cannot handle class " + keep.first->className() + " in LuminosityBlock branch");
   }
 
   for (const auto& keep : keeps[edm::InRun]) {

@@ -75,7 +75,6 @@ public:
     desc.setUnknown();
     descriptions.addDefault(desc);
   }
-
 };
 
 DEFINE_FWK_MODULE(LHCInfoProducer);
