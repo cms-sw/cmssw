@@ -186,10 +186,10 @@ bool HcalParametersFromDD::build(const cms::DDCompactView& cpv, HcalParameters& 
   const cms::DDFilter filter("OnlyForHcalRecNumbering", "HCAL");
   cms::DDFilteredView fv(cpv, filter);
 
-  std::vector<std::string> tempS = fv.get<std::vector<std::string> >("hcal", "TopologyMode");
+  std::vector<std::string> tempS = fv.get<std::vector<std::string>>("hcal", "TopologyMode");
   std::string sv = (!tempS.empty()) ? tempS[0] : "HcalTopologyMode::SLHC";
   int topoMode = getTopologyMode(sv, true);
-  tempS = fv.get<std::vector<std::string> >("hcal", "TriggerMode");
+  tempS = fv.get<std::vector<std::string>>("hcal", "TriggerMode");
   sv = (!tempS.empty()) ? tempS[0] : "HcalTopologyMode::TriggerMode_2021";
   int trigMode = getTopologyMode(sv, false);
   php.topologyMode = ((trigMode & 0xFF) << 8) | (topoMode & 0xFF);
