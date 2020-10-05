@@ -709,7 +709,7 @@ void DDFilteredView::filter(DDSpecParRefs& refs, const std::string& key) const {
   }
 }
 
-const std::string_view DDFilteredView::front(const std::string_view path) const {
+std::string_view DDFilteredView::front(const std::string_view path) const {
   auto const& lpos = path.find_first_not_of('/');
   if (lpos != path.npos) {
     auto rpos = path.find_first_of('/', lpos);
@@ -723,7 +723,7 @@ const std::string_view DDFilteredView::front(const std::string_view path) const 
   return path;
 }
 
-const std::string_view DDFilteredView::back(const std::string_view path) const {
+std::string_view DDFilteredView::back(const std::string_view path) const {
   if (auto const& lpos = path.rfind('/') != path.npos) {
     return path.substr(lpos, path.size());
   }

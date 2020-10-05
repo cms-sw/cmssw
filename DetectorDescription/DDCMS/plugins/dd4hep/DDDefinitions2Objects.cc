@@ -509,7 +509,7 @@ void Converter<DDLElementaryMaterial>::operator()(xml_h element) const {
                "+++ Compared to XML values: Atomic weight %g, Atomic number %u",
                atomicWeight,
                atomicNumber);
-      static constexpr double const& weightTolerance = 1.0e-6;
+      static constexpr double const weightTolerance = 1.0e-6;
       if (atomicNumber != elt->Z() ||
           (std::abs(atomicWeight - elt->A()) > (weightTolerance * (atomicWeight + elt->A()))))
         newMatDef = true;
