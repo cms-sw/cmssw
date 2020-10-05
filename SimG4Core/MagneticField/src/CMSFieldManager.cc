@@ -66,8 +66,8 @@ void CMSFieldManager::InitialiseForVolume(const edm::ParameterSet &p,
   m_energyThTracker = p.getParameter<double>("EnergyThTracker") * CLHEP::GeV;
 
   double rmax = p.getParameter<double>("RmaxTracker") * CLHEP::mm;
-  m_Rmax2 = rmax*rmax;
-  m_Zmax  = p.getParameter<double>("ZmaxTracker") * CLHEP::mm;
+  m_Rmax2 = rmax * rmax;
+  m_Zmax = p.getParameter<double>("ZmaxTracker") * CLHEP::mm;
 
   m_dChordSimple = p.getParameter<double>("DeltaChordSimple") * CLHEP::mm;
   m_dOneStepSimple = p.getParameter<double>("DeltaOneStepSimple") * CLHEP::mm;
@@ -181,10 +181,10 @@ bool CMSFieldManager::isInsideVacuum(const G4Track *track) {
 }
 
 bool CMSFieldManager::isInsideTracker(const G4Track *track) {
-  const G4ThreeVector& pos = track->GetPosition();
+  const G4ThreeVector &pos = track->GetPosition();
   const double x = pos.x();
   const double y = pos.y();
-  return (x*x + y*y < m_Rmax2 && std::abs(pos.z()) < m_Zmax);
+  return (x * x + y * y < m_Rmax2 && std::abs(pos.z()) < m_Zmax);
 }
 
 void CMSFieldManager::setDefaultChordFinder() {
