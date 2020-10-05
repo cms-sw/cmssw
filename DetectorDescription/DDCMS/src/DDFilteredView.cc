@@ -477,7 +477,7 @@ std::string_view DDFilteredView::get<string_view>(const string& key) {
 
   currentSpecPar_ = find(key);
   if (currentSpecPar_ != nullptr) {
-    result = currentSpecPar_->strValue(key);
+    result = currentSpecPar_->strValue(key); /// Dont use that ir doesnt work
   }
   return result;
 }
@@ -613,7 +613,7 @@ const ExpandedNodes& DDFilteredView::history() {
 
   return nodes_;
 }
-
+//mySpecParSection->value<std::vector<T>>(parameterName);
 const DDSpecPar* DDFilteredView::find(const std::string& key) const {
   DDSpecParRefs refs;
   registry_->filter(refs, key, "");
@@ -636,13 +636,13 @@ const DDSpecPar* DDFilteredView::find(const std::string& key) const {
           if (name.find(':') == name.npos) {
             refname.remove_prefix(rpos + 1);
           }
-        }
+        } // dont understand this
+
+	// compare copy number
         auto cpos = refname.rfind('[');
         if (cpos != refname.npos) {
           if (std::stoi(std::string(refname.substr(cpos + 1, refname.rfind(']')))) == copyNum()) {
             refname.remove_suffix(refname.size() - cpos);
-            flag = true;
-            continue;
           } else {
             flag = false;
             break;
