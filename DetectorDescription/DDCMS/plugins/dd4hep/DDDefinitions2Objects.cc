@@ -28,6 +28,7 @@
 #include <vector>
 #include <unordered_map>
 #include <utility>
+#include <tbb/concurrent_vector.h>
 
 using namespace std;
 using namespace dd4hep;
@@ -394,7 +395,8 @@ void Converter<SolidSection>::operator()(xml_h element) const {
         Converter<DDLShapeless>(description, ns.context(), optional)(solid);
         break;
       default:
-        throw std::runtime_error("Request to process unknown shape '" + xml_dim_t(solid).nameStr() + "' [" + solid.tag() + "]");
+        throw std::runtime_error("Request to process unknown shape '" + xml_dim_t(solid).nameStr() + "' [" +
+                                 solid.tag() + "]");
         break;
     }
   }
@@ -1673,7 +1675,7 @@ void Converter<DDLVector>::operator()(xml_h element) const {
            val.c_str());
   try {
     std::vector<double> results = splitNumeric(val);
-    registry->insert({name, tbb::concurrent_vector(results.begin(), results.end()) });
+    registry->insert({name, tbb::concurrent_vector<double, tbb::cache_aligned_allocator<double>>(results.begin(), results.end())});
   } catch (const exception& e) {
     printout(INFO,
              "DD4CMS",
@@ -1836,11 +1838,11 @@ static long load_dddefinition(Detector& det, xml_h element) {
 
         while (!context.unresolvedVectors.empty()) {
           for (auto it = context.unresolvedVectors.begin(); it != context.unresolvedVectors.end();) {
-	    std::vector<double> result;
+            std::vector<double> result;
             for (const auto& i : it->second) {
               result.emplace_back(dd4hep::_toDouble(i));
             }
-            registry->insert({it->first, tbb::concurrent_vector(begin(result), end(result))});
+            registry->insert({it->first, tbb::concurrent_vector<double, tbb::cache_aligned_allocator<double>>(begin(result), end(result))});
             // All components are resolved
             it = context.unresolvedVectors.erase(it);
           }
