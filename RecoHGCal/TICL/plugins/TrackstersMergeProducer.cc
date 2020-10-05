@@ -40,6 +40,7 @@ private:
   void printTrackstersDebug(const std::vector<Trackster> &, const char *label) const;
   void dumpTrackster(const Trackster &) const;
 
+  const edm::EDGetTokenT<std::vector<Trackster>> tracksterstrkem_token_;
   const edm::EDGetTokenT<std::vector<Trackster>> trackstersem_token_;
   const edm::EDGetTokenT<std::vector<Trackster>> tracksterstrk_token_;
   const edm::EDGetTokenT<std::vector<Trackster>> trackstershad_token_;
@@ -72,7 +73,8 @@ private:
 };
 
 TrackstersMergeProducer::TrackstersMergeProducer(const edm::ParameterSet &ps, const CacheBase *cache)
-    : trackstersem_token_(consumes<std::vector<Trackster>>(ps.getParameter<edm::InputTag>("trackstersem"))),
+    : tracksterstrkem_token_(consumes<std::vector<Trackster>>(ps.getParameter<edm::InputTag>("tracksterstrkem"))),
+      trackstersem_token_(consumes<std::vector<Trackster>>(ps.getParameter<edm::InputTag>("trackstersem"))),
       tracksterstrk_token_(consumes<std::vector<Trackster>>(ps.getParameter<edm::InputTag>("tracksterstrk"))),
       trackstershad_token_(consumes<std::vector<Trackster>>(ps.getParameter<edm::InputTag>("trackstershad"))),
       seedingTrk_token_(consumes<std::vector<TICLSeedingRegion>>(ps.getParameter<edm::InputTag>("seedingTrk"))),
@@ -153,6 +155,7 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
 
   TICLTracksterTiles tracksterTile;
   std::vector<bool> usedTrackstersEM;
+  std::vector<bool> usedTrackstersTRKEM;
   std::vector<bool> usedTrackstersTRK;
   std::vector<bool> usedTrackstersHAD;
   std::vector<bool> usedSeeds;
@@ -169,6 +172,11 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
   evt.getByToken(trackstersem_token_, trackstersem_h);
   const auto &trackstersEM = *trackstersem_h;
   usedTrackstersEM.resize(trackstersEM.size(), false);
+
+  edm::Handle<std::vector<Trackster>> tracksterstrkem_h;
+  evt.getByToken(tracksterstrkem_token_, tracksterstrkem_h);
+  const auto &trackstersTRKEM = *tracksterstrkem_h;
+  usedTrackstersTRKEM.resize(trackstersTRKEM.size(), false);
 
   edm::Handle<std::vector<Trackster>> tracksterstrk_h;
   evt.getByToken(tracksterstrk_token_, tracksterstrk_h);
@@ -339,6 +347,21 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
       result->push_back(t);
     }
     tracksterHAD_idx++;
+  }
+
+  auto tracksterTRKEM_idx = 0;
+  for (auto const &t : trackstersTRKEM) {
+    if (debug_) {
+      LogDebug("TrackstersMergeProducer") << " Considering trackster " << tracksterTRKEM_idx
+                                          << " as used: " << usedTrackstersTRKEM[tracksterTRKEM_idx] << std::endl;
+    }
+    if (!usedTrackstersTRKEM[tracksterTRKEM_idx]) {
+      LogDebug("TrackstersMergeProducer")
+          << " Creating a photon from EM Trackster with track energy " << t.raw_energy() << " and direction "
+          << t.eigenvectors(0).eta() << ", " << t.eigenvectors(0).phi() << std::endl;
+      result->push_back(t);
+    }
+    tracksterTRKEM_idx++;
   }
 
   assignPCAtoTracksters(*result, layerClusters, rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z());
