@@ -79,5 +79,9 @@ Several detector combinations have been generated:
 * D65 = T23+C11+M4+I11+O5+F4
 * D66 = T21+C11+M8+I11+O5+F4
 * D67 = T21+C11+M9+I11+O5+F4
+* D68 = T21+C11+M6+I11+O5+F4
+* D69 = T21+C12+M6+I11+O5+F5
+* D70 = T21+C13+M7+I11+O6+F6
+* D71 = T21+C14+M7+I11+O7+F6
 
 D49 is the HLT TDR baseline.
