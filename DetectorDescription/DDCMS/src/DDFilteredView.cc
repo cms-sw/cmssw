@@ -166,8 +166,9 @@ void DDFilteredView::mergedSpecifics(DDSpecParRefs const& specs) {
   }
   for (const auto& i : specs) {
     for (const auto& j : i->paths) {
+      auto const& firstTok = front(j);
       auto const& filter = find_if(begin(filters_), end(filters_), [&](auto const& f) {
-        auto const& k = find_if(begin(f->skeys), end(f->skeys), [&](auto const& p) { return front(j) == p; });
+        auto const& k = find_if(begin(f->skeys), end(f->skeys), [&](auto const& p) { return firstTok == p; });
         if (k != end(f->skeys)) {
           currentFilter_ = f.get();
           return true;
@@ -176,8 +177,8 @@ void DDFilteredView::mergedSpecifics(DDSpecParRefs const& specs) {
       });
       if (filter == end(filters_)) {
         filters_.emplace_back(unique_ptr<Filter>(
-            new Filter{{front(j)},
-                       {std::regex(std::string("^").append({front(j).data(), front(j).size()}).append("$"))},
+            new Filter{{firstTok},
+                       {std::regex(std::string("^").append({firstTok.data(), firstTok.size()}).append("$"))},
                        nullptr,
                        nullptr,
                        i}));
@@ -715,7 +716,7 @@ const std::string_view DDFilteredView::front(const std::string_view path) const 
     if (rpos == path.npos) {
       rpos = path.size();
     }
-    return path.substr(lpos, rpos);
+    return path.substr(lpos, rpos - lpos);
   }
 
   // throw cms::Exception("Filtered View") << "Path must start with '//'  " << path;

@@ -7,8 +7,8 @@ using namespace cms_units::operators;
 
 static long algorithm(dd4hep::Detector& /* description */,
                       cms::DDParsingContext& context,
-                      xml_h element,
-                      dd4hep::SensitiveDetector& /* sens */) {
+                      xml_h element) {
+
   cms::DDNamespace ns(context, element, true);
   cms::DDAlgoArguments args(context, element);
 
