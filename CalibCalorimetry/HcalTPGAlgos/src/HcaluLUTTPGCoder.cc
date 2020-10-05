@@ -421,8 +421,10 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 
       // When containPhaseNS is not -999.0, and for QIE11 only, override from configuration
       if (qieType == QIE11) {
-        if (containPhaseNSHB_ != -999.0 and cell.ietaAbs() <= topo_->lastHBRing()) correctionPhaseNS = containPhaseNSHB_;
-        else if (containPhaseNSHE_ != -999.0 and cell.ietaAbs() > topo_->lastHBRing()) correctionPhaseNS = containPhaseNSHE_;
+        if (containPhaseNSHB_ != -999.0 and cell.ietaAbs() <= topo_->lastHBRing())
+          correctionPhaseNS = containPhaseNSHB_;
+        else if (containPhaseNSHE_ != -999.0 and cell.ietaAbs() > topo_->lastHBRing())
+          correctionPhaseNS = containPhaseNSHE_;
       }
       for (unsigned int adc = 0; adc < SIZE; ++adc) {
         if (isMasked)
@@ -438,12 +440,15 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
             // Use the 1-TS containment correction to estimate the charge of the pulse
             // from the individual samples
             double correctedCharge = containmentCorrection1TS * adc2fC(adc);
-            double containmentCorrection2TSCorrected = pulseCorr_->correction(cell, 2, correctionPhaseNS, correctedCharge);
+            double containmentCorrection2TSCorrected =
+                pulseCorr_->correction(cell, 2, correctionPhaseNS, correctedCharge);
 
-            containmentCorrection = containmentCorrection2TSCorrected; 
+            containmentCorrection = containmentCorrection2TSCorrected;
             if (qieType == QIE11) {
               // When contain1TS_ is set, it should still only apply for QIE11-related things
-              if ((contain1TSHB_ and cell.ietaAbs() <= topo_->lastHBRing()) or (contain1TSHE_ and cell.ietaAbs() > topo_->lastHBRing())) containmentCorrection = containmentCorrection1TS;
+              if ((contain1TSHB_ and cell.ietaAbs() <= topo_->lastHBRing()) or
+                  (contain1TSHE_ and cell.ietaAbs() > topo_->lastHBRing()))
+                containmentCorrection = containmentCorrection1TS;
 
               const HcalSiPMParameter& siPMParameter(*conditions.getHcalSiPMParameter(cell));
               HcalSiPMnonlinearity corr(
@@ -454,17 +459,16 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
             }
           }
           if (allLinear_)
+            lut[adc] = (LutElement)std::min(
+                std::max(0,
+                         int((adc2fC(adc) - ped) * gain * rcalib * nonlinearityCorrection * containmentCorrection /
+                             linearLSB / cosh_ieta(cell.ietaAbs(), cell.depth(), HcalEndcap))),
+                MASK);
+          else
             lut[adc] = (LutElement)std::min(std::max(0,
                                                      int((adc2fC(adc) - ped) * gain * rcalib * nonlinearityCorrection *
-                                                         containmentCorrection / linearLSB /
-                                                         cosh_ieta(cell.ietaAbs(), cell.depth(), HcalEndcap))),
+                                                         containmentCorrection / nominalgain_ / granularity)),
                                             MASK);
-          else
-            lut[adc] =
-                (LutElement)std::min(std::max(0,
-                                              int((adc2fC(adc) - ped) * gain * rcalib * nonlinearityCorrection *
-                                                  containmentCorrection / nominalgain_ / granularity)),
-                                     MASK);
 
           if (qieType == QIE11) {
             if (adc >= mipMin and adc < mipMax)
