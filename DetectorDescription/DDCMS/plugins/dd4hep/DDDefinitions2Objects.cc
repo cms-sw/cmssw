@@ -1675,7 +1675,8 @@ void Converter<DDLVector>::operator()(xml_h element) const {
            val.c_str());
   try {
     std::vector<double> results = splitNumeric(val);
-    registry->insert({name, tbb::concurrent_vector<double, tbb::cache_aligned_allocator<double>>(results.begin(), results.end())});
+    registry->insert(
+        {name, tbb::concurrent_vector<double, tbb::cache_aligned_allocator<double>>(results.begin(), results.end())});
   } catch (const exception& e) {
     printout(INFO,
              "DD4CMS",
@@ -1842,7 +1843,9 @@ static long load_dddefinition(Detector& det, xml_h element) {
             for (const auto& i : it->second) {
               result.emplace_back(dd4hep::_toDouble(i));
             }
-            registry->insert({it->first, tbb::concurrent_vector<double, tbb::cache_aligned_allocator<double>>(begin(result), end(result))});
+            registry->insert(
+                {it->first,
+                 tbb::concurrent_vector<double, tbb::cache_aligned_allocator<double>>(begin(result), end(result))});
             // All components are resolved
             it = context.unresolvedVectors.erase(it);
           }
