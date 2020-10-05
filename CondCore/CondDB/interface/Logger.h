@@ -25,68 +25,66 @@ namespace cond {
     template <typename EdmLogger>
     class EchoedLogStream {
     public:
-      EchoedLogStream()=delete;
-      explicit EchoedLogStream(const std::string& jobName, std::stringstream& buffer):
-	m_edmLogger(jobName),
-	m_buffer(&buffer){
-      }
-      virtual ~EchoedLogStream(){}
+      EchoedLogStream() = delete;
+      explicit EchoedLogStream(const std::string& jobName, std::stringstream& buffer)
+          : m_edmLogger(jobName), m_buffer(&buffer) {}
+      virtual ~EchoedLogStream() {}
       template <typename T>
-      EchoedLogStream& operator<<(const T& t){
-	*m_buffer << t;
-	m_edmLogger <<t;
-	return *this;
+      EchoedLogStream& operator<<(const T& t) {
+        *m_buffer << t;
+        m_edmLogger << t;
+        return *this;
       }
       EchoedLogStream& operator<<(std::ostream& (*f)(std::ostream&)) {
-	*m_buffer << f;
-	m_edmLogger << f;
-	return *this;
+        *m_buffer << f;
+        m_edmLogger << f;
+        return *this;
       }
       EchoedLogStream& operator<<(std::ios_base& (*f)(std::ios_base&)) {
-	*m_buffer << f;
-	m_edmLogger << f;
-	return *this;
-      } 
+        *m_buffer << f;
+        m_edmLogger << f;
+        return *this;
+      }
+
     private:
       EdmLogger m_edmLogger;
       std::stringstream* m_buffer;
     };
 
-    template<>
+    template <>
     class EchoedLogStream<edm::LogDebug_> {
     public:
-      EchoedLogStream()=delete;
-      explicit EchoedLogStream(const std::string& jobName, std::stringstream& buffer):
-	m_edmLogger(jobName,__FILE__,__LINE__),
-	m_buffer(&buffer){
-      }
-      virtual ~EchoedLogStream(){}
+      EchoedLogStream() = delete;
+      explicit EchoedLogStream(const std::string& jobName, std::stringstream& buffer)
+          : m_edmLogger(jobName, __FILE__, __LINE__), m_buffer(&buffer) {}
+      virtual ~EchoedLogStream() {}
       template <typename T>
-      EchoedLogStream& operator<<(const T& t){
-	*m_buffer << t;
-	m_edmLogger <<t;
-	return *this;
+      EchoedLogStream& operator<<(const T& t) {
+        *m_buffer << t;
+        m_edmLogger << t;
+        return *this;
       }
       EchoedLogStream& operator<<(std::ostream& (*f)(std::ostream&)) {
-	*m_buffer << f;
-	m_edmLogger << f;
-	return *this;
+        *m_buffer << f;
+        m_edmLogger << f;
+        return *this;
       }
       EchoedLogStream& operator<<(std::ios_base& (*f)(std::ios_base&)) {
-	*m_buffer << f;
-	m_edmLogger << f;
-	return *this;
-      } 
+        *m_buffer << f;
+        m_edmLogger << f;
+        return *this;
+      }
+
     private:
       edm::LogDebug_ m_edmLogger;
       std::stringstream* m_buffer;
     };
 
-    // 
+    //
     class Logger {
     public:
       // default constructor is suppressed
-      Logger()=delete;
+      Logger() = delete;
 
       // constructor
       explicit Logger(const std::string& jobName);
@@ -101,19 +99,19 @@ namespace cond {
       void start();
 
       //
-      void end( int retCode );
+      void end(int retCode);
 
       //
       void saveOnDb();
 
-      // 
+      //
       void saveOnFile();
 
       //
       void save();
 
-      // 
-      std::iostream& log( const std::string& tag );
+      //
+      std::iostream& log(const std::string& tag);
 
       EchoedLogStream<edm::LogInfo> logInfo();
       EchoedLogStream<edm::LogDebug_> logDebug();
