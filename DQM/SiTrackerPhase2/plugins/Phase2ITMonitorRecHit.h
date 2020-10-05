@@ -24,25 +24,28 @@
 // DQM Histograming
 class TrackerTopology;
 class TrackerGeometry;
-
+class TrackerDigiGeometryRecord;
+class TrackerTopologyRcd;
 class Phase2ITMonitorRecHit : public DQMEDAnalyzer {
 public:
   explicit Phase2ITMonitorRecHit(const edm::ParameterSet&);
   ~Phase2ITMonitorRecHit() override;
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  void dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
 
 private:
-  void fillITHistos(const edm::Event& iEvent, const TrackerTopology* tTopo, const TrackerGeometry* tkGeom);
+  void fillITHistos(const edm::Event& iEvent);
 
-  void bookLayerHistos(DQMStore::IBooker& ibooker,
-                       unsigned int det_id,
-                       const TrackerTopology* tTopo,
-                       std::string& subdir);
+  void bookLayerHistos(DQMStore::IBooker& ibooker, unsigned int det_id, std::string& subdir);
 
   edm::ParameterSet config_;
   std::string geomType_;
   const edm::EDGetTokenT<SiPixelRecHitCollection> tokenRecHitsIT_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
+  const TrackerGeometry* tkGeom_ = nullptr;
+  const TrackerTopology* tTopo_ = nullptr;
 
   MonitorElement* numberRecHits_;
   MonitorElement* globalXY_barrel_;

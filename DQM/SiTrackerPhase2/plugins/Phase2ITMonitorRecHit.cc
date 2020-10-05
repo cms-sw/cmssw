@@ -20,6 +20,8 @@
 #include "Geometry/CommonDetUnit/interface/TrackerGeomDet.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetType.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
@@ -31,7 +33,9 @@
 //
 Phase2ITMonitorRecHit::Phase2ITMonitorRecHit(const edm::ParameterSet& iConfig)
     : config_(iConfig),
-      tokenRecHitsIT_(consumes<SiPixelRecHitCollection>(iConfig.getParameter<edm::InputTag>("rechitsSrc"))) {
+      tokenRecHitsIT_(consumes<SiPixelRecHitCollection>(iConfig.getParameter<edm::InputTag>("rechitsSrc"))),
+      geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
+      topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()) {
   edm::LogInfo("Phase2ITMonitorRecHit") << ">>> Construct Phase2ITMonitorRecHit ";
 }
 
@@ -39,22 +43,9 @@ Phase2ITMonitorRecHit::~Phase2ITMonitorRecHit() {
   edm::LogInfo("Phase2ITMonitorRecHit") << ">>> Destroy Phase2ITMonitorRecHit ";
 }
 // -- Analyze
-void Phase2ITMonitorRecHit::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  // Get the geometry
-  edm::ESHandle<TrackerGeometry> geomHandle;
-  iSetup.get<TrackerDigiGeometryRecord>().get(geomHandle);
-  const TrackerGeometry* tkGeom = &(*geomHandle);
+void Phase2ITMonitorRecHit::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) { fillITHistos(iEvent); }
 
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* tTopo = tTopoHandle.product();
-
-  fillITHistos(iEvent, tTopo, tkGeom);
-}
-
-void Phase2ITMonitorRecHit::fillITHistos(const edm::Event& iEvent,
-                                         const TrackerTopology* tTopo,
-                                         const TrackerGeometry* tkGeom) {
+void Phase2ITMonitorRecHit::fillITHistos(const edm::Event& iEvent) {
   // Get the RecHits
   edm::Handle<SiPixelRecHitCollection> rechits;
   iEvent.getByToken(tokenRecHitsIT_, rechits);
@@ -69,10 +60,10 @@ void Phase2ITMonitorRecHit::fillITHistos(const edm::Event& iEvent,
     unsigned int rawid(DSViter->detId());
     DetId detId(rawid);
     // Get the geomdet
-    const GeomDetUnit* geomDetunit(tkGeom->idToDetUnit(detId));
+    const GeomDetUnit* geomDetunit(tkGeom_->idToDetUnit(detId));
     if (!geomDetunit)
       continue;
-    std::string key = Phase2TkUtil::getITHistoId(detId.rawId(), tTopo);
+    std::string key = Phase2TkUtil::getITHistoId(detId.rawId(), tTopo_);
     nTotrechitsinevt += DSViter->size();
     if (nrechitLayerMap.find(key) == nrechitLayerMap.end()) {
       nrechitLayerMap.insert(std::make_pair(key, DSViter->size()));
@@ -127,6 +118,14 @@ void Phase2ITMonitorRecHit::fillITHistos(const edm::Event& iEvent,
     if (layerMEs_[lme.first].numberRecHits)
       layerMEs_[lme.first].numberRecHits->Fill(lme.second);
 }
+
+void Phase2ITMonitorRecHit::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+  edm::ESHandle<TrackerGeometry> geomHandle = iSetup.getHandle(geomToken_);
+  tkGeom_ = &(*geomHandle);
+  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(topoToken_);
+  tTopo_ = tTopoHandle.product();
+}
+
 void Phase2ITMonitorRecHit::bookHistograms(DQMStore::IBooker& ibooker,
                                            edm::Run const& iRun,
                                            edm::EventSetup const& iSetup) {
@@ -160,31 +159,23 @@ void Phase2ITMonitorRecHit::bookHistograms(DQMStore::IBooker& ibooker,
 
   //Now book layer wise histos
   edm::ESWatcher<TrackerDigiGeometryRecord> theTkDigiGeomWatcher;
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
   if (theTkDigiGeomWatcher.check(iSetup)) {
-    edm::ESHandle<TrackerGeometry> geom_handle;
-    iSetup.get<TrackerDigiGeometryRecord>().get(geomType_, geom_handle);
-    const TrackerGeometry* tGeom = geom_handle.product();
-    for (auto const& det_u : tGeom->detUnits()) {
+    edm::ESHandle<TrackerGeometry> geomHandle = iSetup.getHandle(geomToken_);
+    for (auto const& det_u : tkGeom_->detUnits()) {
       //Always check TrackerNumberingBuilder before changing this part
       if (!(det_u->subDetector() == GeomDetEnumerators::SubDetector::P2PXB ||
             det_u->subDetector() == GeomDetEnumerators::SubDetector::P2PXEC))
         continue;
       unsigned int detId_raw = det_u->geographicalId().rawId();
       edm::LogInfo("Phase2ITMonitorRecHit") << "Detid:" << detId_raw << "\tsubdet=" << det_u->subDetector()
-                                            << "\t key=" << Phase2TkUtil::getITHistoId(detId_raw, tTopo) << std::endl;
-      bookLayerHistos(ibooker, detId_raw, tTopo, dir);
+                                            << "\t key=" << Phase2TkUtil::getITHistoId(detId_raw, tTopo_) << std::endl;
+      bookLayerHistos(ibooker, detId_raw, dir);
     }
   }
 }
 // -- Book Layer Histograms
-void Phase2ITMonitorRecHit::bookLayerHistos(DQMStore::IBooker& ibooker,
-                                            unsigned int det_id,
-                                            const TrackerTopology* tTopo,
-                                            std::string& subdir) {
-  std::string key = Phase2TkUtil::getITHistoId(det_id, tTopo);
+void Phase2ITMonitorRecHit::bookLayerHistos(DQMStore::IBooker& ibooker, unsigned int det_id, std::string& subdir) {
+  std::string key = Phase2TkUtil::getITHistoId(det_id, tTopo_);
   if (key.empty())
     return;
   if (layerMEs_.find(key) == layerMEs_.end()) {
@@ -192,7 +183,6 @@ void Phase2ITMonitorRecHit::bookLayerHistos(DQMStore::IBooker& ibooker,
     RecHitME local_histos;
     std::ostringstream histoName;
     ibooker.setCurrentFolder(subdir + "/" + key);
-    std::cout << "Setting subfolder>>>" << subdir << "\t" << key << std::endl;
     edm::LogInfo("Phase2ITMonitorRecHit") << " Booking Histograms in : " << (subdir + "/" + key);
     histoName.str("");
     histoName << "Number_RecHits";

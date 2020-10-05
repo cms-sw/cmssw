@@ -28,36 +28,35 @@ class SimTrack;
 class SimHit;
 class TrackerTopology;
 class TrackerGeometry;
-
+class TrackerDigiGeometryRecord;
+class TrackerTopologyRcd;
 class Phase2ITValidateRecHit : public DQMEDAnalyzer {
 public:
   explicit Phase2ITValidateRecHit(const edm::ParameterSet&);
   ~Phase2ITValidateRecHit() override;
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
 
 private:
   void fillITHistos(const edm::Event& iEvent,
-                    const TrackerTopology* tTopo,
-                    const TrackerGeometry* tkGeom,
                     const TrackerHitAssociator& associateRecHit,
                     const std::vector<edm::Handle<edm::PSimHitContainer>>& simHits,
                     const std::map<unsigned int, SimTrack>& selectedSimTrackMap);
 
-  void bookLayerHistos(DQMStore::IBooker& ibooker,
-                       unsigned int det_id,
-                       const TrackerTopology* tTopo,
-                       std::string& subdir);
+  void bookLayerHistos(DQMStore::IBooker& ibooker, unsigned int det_id, std::string& subdir);
 
   edm::ParameterSet config_;
-  bool pixelFlag_;
   TrackerHitAssociator::Config trackerHitAssociatorConfig_;
   const double simtrackminpt_;
   std::string geomType_;
   const edm::EDGetTokenT<SiPixelRecHitCollection> tokenRecHitsIT_;
   const edm::EDGetTokenT<edm::SimTrackContainer> simTracksToken_;
   std::vector<edm::EDGetTokenT<edm::PSimHitContainer>> simHitTokens_;
-
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
+  const TrackerGeometry* tkGeom_ = nullptr;
+  const TrackerTopology* tTopo_ = nullptr;
   struct RecHitME {
     // use TH1D instead of TH1F to avoid stauration at 2^31
     // above this increments with +1 don't work for float, need double
