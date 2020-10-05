@@ -23,6 +23,7 @@ ticlTrackstersTrkEM = _trackstersProducer.clone(
     seeding_regions = "ticlSeedingTrk",
     filter_on_categories = [0, 1],
     pid_threshold = 0.5,
+    energy_em_over_total_threshold = 0.85,
     max_out_in_hops = 4,
     missing_layers = 1,
     min_clusters_per_ntuplet = 10,
