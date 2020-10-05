@@ -21,7 +21,6 @@ using namespace SurfaceOrientation;
 using namespace std;
 using namespace magneticfield;
 using namespace edm;
-//using namespace angle_units::operators;
 
 using DDBox = dd4hep::Box;
 using DDTrap = dd4hep::Trap;
@@ -78,7 +77,7 @@ volumeHandle::volumeHandle(const cms::DDFilteredView &fv, bool expand2Pi, bool d
       double rInPlusZ = cons.rMin2();
       double rOutPlusZ = cons.rMax2();
       double startPhi = cons.startPhi();
-      double deltaPhi = cons.endPhi() - startPhi;
+      double deltaPhi = reco::deltaPhi(cons.endPhi(), startPhi);
       buildCons(zhalf, rInMinusZ, rOutMinusZ, rInPlusZ, rOutPlusZ, startPhi, deltaPhi);
     } break;
     case DDSolidShape::ddtubs: {
