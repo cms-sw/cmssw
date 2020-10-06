@@ -1,12 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-hiRun2LegacyCSVv2JetTags  = cms.EDProducer(
+heavyIonCSVJetTags  = cms.EDProducer(
    "JetTagProducer",
-   jetTagComputer = cms.string('hiRun2LegacyCSVv2Tags'),
+   jetTagComputer = cms.string('heavyIonCSVTags'),
    tagInfos = cms.VInputTag(
       cms.InputTag('impactParameterTagInfos'),
       cms.InputTag('secondaryVertexFinderTagInfos'),
       )
 )
-
-

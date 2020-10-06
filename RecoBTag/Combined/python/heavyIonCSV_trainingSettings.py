@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-hiRun2LegacyCSVv2_vpset = cms.VPSet([
+heavyIonCSV_vpset = cms.VPSet([
 cms.PSet(
     default = cms.double(-100),
     idx = cms.int32(0),
