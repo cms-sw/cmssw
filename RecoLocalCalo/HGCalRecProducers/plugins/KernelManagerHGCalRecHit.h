@@ -22,7 +22,7 @@ extern __constant__ uint32_t calo_rechit_masks[];
 
 namespace { //kernel parameters
   dim3 nb_rechits_;
-  constexpr dim3 nt_rechits_(256);
+  constexpr dim3 nt_rechits_(1024);
 }
 
 template <typename T>
@@ -62,7 +62,7 @@ class KernelManagerHGCalRecHit {
 
  private:
   void transfer_soas_to_device_(const cudaStream_t&);
-  void transfer_soa_to_host_and_synchronize_(const cudaStream_t&);
+  void transfer_soa_to_host_(const cudaStream_t&);
   void reuse_device_pointers_();
 
   int nbytes_host_;
