@@ -4,6 +4,7 @@
   <use name="root"/>
   <use name="xerces-c"/>
 </export>
+<use name="DataFormats/L1DTTrackFinder"/>
 <use name="DataFormats/L1TMuon"/>
 <use name="DataFormats/L1Trigger"/>
 <use name="DataFormats/RPCRecHit"/>
