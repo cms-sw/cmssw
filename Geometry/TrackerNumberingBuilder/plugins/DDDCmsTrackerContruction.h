@@ -23,6 +23,6 @@ namespace DDDCmsTrackerContruction {
   std::unique_ptr<GeometricDet> construct(DDCompactView const& cpv, std::vector<int> const& detidShifts);
   std::unique_ptr<GeometricDet> construct(cms::DDCompactView const& cpv, std::vector<int> const& detidShifts);
   void printAllTrackerGeometricDetsBeforeDetIDBuilding(const GeometricDet* tracker);
-};
+};  // namespace DDDCmsTrackerContruction
 
 #endif

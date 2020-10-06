@@ -477,7 +477,7 @@ std::string_view DDFilteredView::get<string_view>(const string& key) {
 
   currentSpecPar_ = find(key);
   if (currentSpecPar_ != nullptr) {
-    result = currentSpecPar_->strValue(key); /// Dont use that ir doesnt work
+    result = currentSpecPar_->strValue(key);  /// Dont use that ir doesnt work
   }
   return result;
 }
@@ -619,7 +619,6 @@ const ExpandedNodes& DDFilteredView::history() {
  * find the first SpecPar section containing a path matching the current node path.
  */
 const DDSpecPar* DDFilteredView::find(const std::string& key) const {
-
   // Filter the XML SpecPar sections: only those containing key are kept.
   DDSpecParRefs allSpecParXMLSections;
   registry_->filter(allSpecParXMLSections, key, "");
@@ -630,82 +629,85 @@ const DDSpecPar* DDFilteredView::find(const std::string& key) const {
 
   // Loop on all XML SpecPar sections
   for (auto const& mySpecParXMLSection : allSpecParXMLSections) {
-
     // Loop on all paths of a given XML SpecPar section
-    auto foundMatchingXMLPath = find_if(begin(mySpecParXMLSection->paths), end(mySpecParXMLSection->paths), [&](auto const& myXMLPath) {
+    auto foundMatchingXMLPath =
+        find_if(begin(mySpecParXMLSection->paths), end(mySpecParXMLSection->paths), [&](auto const& myXMLPath) {
+          // Initial conditions
+          auto myXMLVolumeNameStart = myXMLPath.rfind('/');
+          auto myXMLVolumeNameEnd = myXMLPath.size();
+          bool arePathsMatching = false;
 
-	// Initial conditions
-	auto myXMLVolumeNameStart = myXMLPath.rfind('/');
-	auto myXMLVolumeNameEnd = myXMLPath.size();
-	bool arePathsMatching = false;
+          // Loop on all the volumes names from the XML path, until any discrepancy is found.
+          for (int myNodeLevel = leafLevel; myXMLVolumeNameStart - 1 <= myXMLVolumeNameEnd and myNodeLevel >= 1;
+               --myNodeLevel) {
+            // Get node name
+            std::string_view myNodeName = it_.back().GetNode(myNodeLevel)->GetVolume()->GetName();
+            const int myNodeCopyNumber = allCopyNumbers.at(leafLevel - myNodeLevel);
 
-      // Loop on all the volumes names from the XML path, until any discrepancy is found.
-      for (int myNodeLevel = leafLevel; myXMLVolumeNameStart - 1 <= myXMLVolumeNameEnd and myNodeLevel >= 1; --myNodeLevel) {
-	// Get node name
-        std::string_view myNodeName = it_.back().GetNode(myNodeLevel)->GetVolume()->GetName();
-	const int myNodeCopyNumber = allCopyNumbers.at(leafLevel - myNodeLevel);
+            // Get XML volume name
+            std::string_view myXMLVolumeName{&myXMLPath[myXMLVolumeNameStart + 1],
+                                             myXMLVolumeNameEnd - myXMLVolumeNameStart - 1};
 
-	// Get XML volume name
-        std::string_view myXMLVolumeName{&myXMLPath[myXMLVolumeNameStart + 1], myXMLVolumeNameEnd - myXMLVolumeNameStart - 1};
+            // Re-initilialize
+            myXMLVolumeNameEnd = myXMLVolumeNameStart;
+            myXMLVolumeNameStart = myXMLPath.substr(0, myXMLVolumeNameEnd).rfind('/');
 
-	// Re-initilialize
-        myXMLVolumeNameEnd = myXMLVolumeNameStart;
-        myXMLVolumeNameStart = myXMLPath.substr(0, myXMLVolumeNameEnd).rfind('/');
+            // NAMESPACES
+            // Only keep namespace, when both XML volume name AND node name have any.
+            const auto foundXMLNamespace = myXMLVolumeName.find(':');
+            // XML name has no namespace:
+            if (foundXMLNamespace == std::string_view::npos) {
+              // remove namespace from node name
+              myNodeName = noNamespace(myNodeName);
+            }
+            // XML name has a namespace:
+            else {
+              // Node name has no namesdpace:
+              if (myNodeName.find(':') == std::string_view::npos) {
+                // remove namespace from XML name:
+                myXMLVolumeName.remove_prefix(foundXMLNamespace + 1);
+              }
+            }
 
-	// NAMESPACES
-	// Only keep namespace, when both XML volume name AND node name have any.
-        const auto foundXMLNamespace = myXMLVolumeName.find(':');
-	// XML name has no namespace:
-        if (foundXMLNamespace == std::string_view::npos) {
-	  // remove namespace from node name
-          myNodeName = noNamespace(myNodeName);
-        } 
-	// XML name has a namespace:
-	else {
-	  // Node name has no namesdpace:
-          if (myNodeName.find(':') == std::string_view::npos) {
-	    // remove namespace from XML name:
-            myXMLVolumeName.remove_prefix(foundXMLNamespace + 1);
+            // COPY NUMBERS
+            // Compare copy numbers.
+            const auto foundXMLCopyNumber = myXMLVolumeName.rfind('[');
+            // Enter only if ever copy number is specified in XML path.
+            if (foundXMLCopyNumber != std::string_view::npos) {
+              // Check whether copy numbers are equal
+              const bool areCopyNumbersEqual =
+                  std::stoi(std::string(myXMLVolumeName.substr(foundXMLCopyNumber + 1, myXMLVolumeName.rfind(']')))) ==
+                  myNodeCopyNumber;
+              // If copy numbers are not matching, exit
+              if (!areCopyNumbersEqual) {
+                arePathsMatching = false;
+                break;
+              }
+              // Otherwise, remove copy number from volume name
+              else {
+                myXMLVolumeName.remove_suffix(myXMLVolumeName.size() - foundXMLCopyNumber);
+              }
+            }
+
+            // VOLUME NAME
+            // Now that copy numbers are compared, compare the rest: the volume names.
+            const bool isRegex = dd4hep::dd::isRegex(myXMLVolumeName);
+            const bool areVolumeNamesEqual = (!isRegex ? dd4hep::dd::compareEqual(myNodeName, myXMLVolumeName)
+                                                       : regex_match(std::string(myNodeName.data(), myNodeName.size()),
+                                                                     regex(std::string(myXMLVolumeName))));
+            // If names are not matching, exit.
+            if (!areVolumeNamesEqual) {
+              arePathsMatching = false;
+              break;
+            }
+            // Otherwise, stay in loop to look at the other volumes of the same XML path
+            else {
+              arePathsMatching = true;
+            }
           }
-        }
 
-	// COPY NUMBERS
-	// Compare copy numbers.
-        const auto foundXMLCopyNumber = myXMLVolumeName.rfind('[');
-	// Enter only if ever copy number is specified in XML path.
-        if (foundXMLCopyNumber != std::string_view::npos) {
-	  // Check whether copy numbers are equal
-	  const bool areCopyNumbersEqual = std::stoi(std::string(myXMLVolumeName.substr(foundXMLCopyNumber + 1, myXMLVolumeName.rfind(']')))) == myNodeCopyNumber;
-	  // If copy numbers are not matching, exit
-          if (!areCopyNumbersEqual) {
-	    arePathsMatching = false;
-            break;  
-          } 
-	  // Otherwise, remove copy number from volume name
-	  else {
-            myXMLVolumeName.remove_suffix(myXMLVolumeName.size() - foundXMLCopyNumber);
-          }
-        }
-
-	// VOLUME NAME
-	// Now that copy numbers are compared, compare the rest: the volume names.
-	const bool isRegex = dd4hep::dd::isRegex(myXMLVolumeName);
-	const bool areVolumeNamesEqual = (!isRegex ? 
-					  dd4hep::dd::compareEqual(myNodeName, myXMLVolumeName)
-					  : regex_match(std::string(myNodeName.data(), myNodeName.size()), regex(std::string(myXMLVolumeName))));
-	// If names are not matching, exit.
-	if (!areVolumeNamesEqual) {
-	  arePathsMatching = false;
-	  break;
-	} 
-	// Otherwise, stay in loop to look at the other volumes of the same XML path
-	else {
-	  arePathsMatching = true;
-	}
-      }
-
-      return arePathsMatching;
-    });
+          return arePathsMatching;
+        });
     // If a path within one SpecPar section is found matching, return the SpecPar section.
     if (foundMatchingXMLPath != end(mySpecParXMLSection->paths)) {
       return mySpecParXMLSection;
