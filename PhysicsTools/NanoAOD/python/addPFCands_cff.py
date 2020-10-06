@@ -34,7 +34,7 @@ def addPFCands(process, runOnMC=False, allPF = False, onlyAK4=False, onlyAK8=Fal
     process.customConstituentsExtTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
                                                         src = candInput,
                                                         cut = cms.string(""), #we should not filter after pruning
-                                                        name = cms.string("JetPFCands"),
+                                                        name = cms.string("PFCands"),
                                                         doc = cms.string("interesting particles from AK4 and AK8 jets"),
                                                         singleton = cms.bool(False), # the number of entries is variable
                                                         extension = cms.bool(False), # this is the extension table for the AK8 constituents
@@ -100,7 +100,7 @@ def addPFCands(process, runOnMC=False, allPF = False, onlyAK4=False, onlyAK8=Fal
         process.genJetsParticleTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
                                                          src = genCandInput,
                                                          cut = cms.string(""), #we should not filter after pruning
-                                                         name= cms.string("GenJetCands"),
+                                                         name= cms.string("GenParticles"),
                                                          doc = cms.string("interesting gen particles from AK4 and AK8 jets"),
                                                          singleton = cms.bool(False), # the number of entries is variable
                                                          extension = cms.bool(False), # this is the main table for the AK8 constituents
