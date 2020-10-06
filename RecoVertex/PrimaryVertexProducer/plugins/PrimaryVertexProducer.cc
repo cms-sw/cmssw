@@ -26,7 +26,7 @@ PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& conf) : th
 
   //check if this is a recovery iteration
   isRecoveryIteration = conf.getParameter<bool>("isRecoveryIteration");
-  if(isRecoveryIteration){
+  if (isRecoveryIteration) {
     recoveryVtxToken = consumes<reco::VertexCollection>(conf.getParameter<edm::InputTag>("recoveryVtxCollection"));
   }
 
@@ -156,20 +156,20 @@ void PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   }
 
   //if this is a recovery iteration, check if we already have a valid PV
-  if(isRecoveryIteration){
+  if (isRecoveryIteration) {
     edm::Handle<reco::VertexCollection> oldPVs;
     iEvent.getByToken(recoveryVtxToken, oldPVs);
     const reco::VertexCollection* oldVertices;
     oldVertices = oldPVs.product();
     //look for the first valid (not-BeamSpot) vertex
-    for(size_t i = 0; i < oldVertices->size(); ++i){
-      if(!((*oldVertices)[i].isFake())){
+    for (size_t i = 0; i < oldVertices->size(); ++i) {
+      if (!((*oldVertices)[i].isFake())) {
         //found a valid vertex, write the first one to the collection and return
         //otherwise continue with regular vertexing procedure
         auto result = std::make_unique<reco::VertexCollection>();
-        reco::VertexCollection & vColl = (*result); 
+        reco::VertexCollection& vColl = (*result);
         vColl.push_back((*oldVertices)[i]);
-        iEvent.put(std::move(result), algorithms.begin()->label);           
+        iEvent.put(std::move(result), algorithms.begin()->label);
         return;
       }
     }
@@ -440,8 +440,8 @@ void PrimaryVertexProducer::fillDescriptions(edm::ConfigurationDescriptions& des
     psd0.add<std::string>("algorithm", "DA_vect");
     desc.add<edm::ParameterSetDescription>("TkClusParameters", psd0);
   }
-  desc.add<bool>("isRecoveryIteration",false);
-  desc.add<edm::InputTag>("recoveryVtxCollection",edm::InputTag("offlinePrimaryVertices"));
+  desc.add<bool>("isRecoveryIteration", false);
+  desc.add<edm::InputTag>("recoveryVtxCollection", edm::InputTag("offlinePrimaryVertices"));
 
   descriptions.add("primaryVertexProducer", desc);
 }
