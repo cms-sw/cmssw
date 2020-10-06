@@ -6,21 +6,14 @@
 
 #include "DataFormats/GeometrySurface/interface/SimpleConeBounds.h"
 
-void volumeHandle::buildCons() {
+void volumeHandle::buildCons(double zhalf,
+                             double rInMinusZ,
+                             double rOutMinusZ,
+                             double rInPlusZ,
+                             double rOutPlusZ,
+                             double startPhi,
+                             double deltaPhi) {
   LogTrace("MagGeoBuilder") << "Building cons surfaces...: ";
-
-  DDCons cons(solid);
-
-  // Old DD needs mm to cm conversion, but DD4hep needs no conversion.
-  // convertUnits should be defined appropriately.
-  double zhalf = convertUnits(cons.zhalf());
-  double rInMinusZ = convertUnits(cons.rInMinusZ());
-  double rOutMinusZ = convertUnits(cons.rOutMinusZ());
-  double rInPlusZ = convertUnits(cons.rInPlusZ());
-  double rOutPlusZ = convertUnits(cons.rOutPlusZ());
-  double startPhi = cons.phiFrom();
-  double deltaPhi = cons.deltaPhi();
-
   LogTrace("MagGeoBuilder") << "zhalf      " << zhalf << newln << "rInMinusZ  " << rInMinusZ << newln << "rOutMinusZ "
                             << rOutMinusZ << newln << "rInPlusZ   " << rInPlusZ << newln << "rOutPlusZ  " << rOutPlusZ
                             << newln << "phiFrom    " << startPhi << newln << "deltaPhi   " << deltaPhi;

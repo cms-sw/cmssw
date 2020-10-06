@@ -170,45 +170,11 @@ def customiseFor2017DtUnpacking(process):
 
     return process
 
-def customiseFor31295(process):
-    """Reorganization of kdtrees for PFBlockAlgo and optimize track-hcal links"""
-
-    # for PFBlockProducer
-    for producer in producers_by_type(process, "PFBlockProducer"):
-        if hasattr(producer,'linkDefinitions'):
-            for ps in producer.linkDefinitions.value():
-                if hasattr(ps,'linkerName') and (ps.linkerName == 'TrackAndHCALLinker'):
-                    if not hasattr(ps,'nMaxHcalLinksPerTrack'):
-                        ps.nMaxHcalLinksPerTrack = cms.int32(1)
-                if hasattr(ps,'linkerName') and (ps.linkerName == 'ECALAndHCALLinker'):
-                    if not hasattr(ps,'minAbsEtaEcal'):
-                        ps.minAbsEtaEcal = cms.double(2.5)
-
-    return process
-
-def customiseFor31263(process):
-    """Add the t0Label parameter (with default value) to DTTTrigSyncFromDB in HLT"""
-
-    if hasattr(process,'hltDt1DRecHits'):
-        process.hltDt1DRecHits.recAlgoConfig.tTrigModeConfig.t0Label = cms.string("")
-
-    if hasattr(process,'hltDt4DSegments'):
-        process.hltDt4DSegments.Reco4DAlgoConfig.recAlgoConfig.tTrigModeConfig.t0Label = cms.string("")
-        process.hltDt4DSegments.Reco4DAlgoConfig.Reco2DAlgoConfig.recAlgoConfig.tTrigModeConfig.t0Label = cms.string("")
-
-    if hasattr(process,'hltDt4DSegmentsMeanTimer'):
-        process.hltDt4DSegmentsMeanTimer.Reco4DAlgoConfig.recAlgoConfig.tTrigModeConfig.t0Label = cms.string("")
-        process.hltDt4DSegmentsMeanTimer.Reco4DAlgoConfig.Reco2DAlgoConfig.recAlgoConfig.tTrigModeConfig.t0Label = cms.string("")
-
-    return process
-
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
-    process = customiseFor31295(process)
-    process = customiseFor31263(process)
 
     return process
