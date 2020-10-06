@@ -1160,6 +1160,25 @@ namespace {
 
 }  // anonymous namespace
 
+using bd = deep_tau::DeepTauBase::BasicDiscriminator;
+const std::map<bd, std::string> deep_tau::DeepTauBase::stringFromDiscriminator_{
+    {bd::ChargedIsoPtSum, "ChargedIsoPtSum"},
+    {bd::NeutralIsoPtSum, "NeutralIsoPtSum"},
+    {bd::NeutralIsoPtSumWeight, "NeutralIsoPtSumWeight"},
+    {bd::FootprintCorrection, "TauFootprintCorrection"},
+    {bd::PhotonPtSumOutsideSignalCone, "PhotonPtSumOutsideSignalCone"},
+    {bd::PUcorrPtSum, "PUcorrPtSum"}};
+const std::vector<bd> deep_tau::DeepTauBase::requiredBasicDiscriminators = {bd::ChargedIsoPtSum,
+                                                                            bd::NeutralIsoPtSum,
+                                                                            bd::NeutralIsoPtSumWeight,
+                                                                            bd::PhotonPtSumOutsideSignalCone,
+                                                                            bd::PUcorrPtSum};
+const std::vector<bd> deep_tau::DeepTauBase::requiredBasicDiscriminatorsdR03 = {bd::ChargedIsoPtSum,
+                                                                                bd::NeutralIsoPtSum,
+                                                                                bd::NeutralIsoPtSumWeight,
+                                                                                bd::PhotonPtSumOutsideSignalCone,
+                                                                                bd::FootprintCorrection};
+
 class DeepTauId : public deep_tau::DeepTauBase {
 public:
   static constexpr float default_value = -999.;
@@ -1197,11 +1216,12 @@ public:
     //translate to a map of <BasicDiscriminator, index> and check if all discriminators are present
     std::map<BasicDiscriminator, size_t> discrIndexMap;
     for (size_t i = 0; i < requiredDiscr.size(); i++) {
-      if (discrIndexMapStr.find(stringFromDiscriminator_[requiredDiscr[i]]) == discrIndexMapStr.end())
-        throw cms::Exception("DeepTauId") << "Basic Discriminator " << stringFromDiscriminator_[requiredDiscr[i]]
+      std::cout << stringFromDiscriminator_.at(requiredDiscr[i]) << std::endl;
+      if (discrIndexMapStr.find(stringFromDiscriminator_.at(requiredDiscr[i])) == discrIndexMapStr.end())
+        throw cms::Exception("DeepTauId") << "Basic Discriminator " << stringFromDiscriminator_.at(requiredDiscr[i])
                                           << " was not provided in the config file.";
       else
-        discrIndexMap[requiredDiscr[i]] = discrIndexMapStr[stringFromDiscriminator_[requiredDiscr[i]]];
+        discrIndexMap[requiredDiscr[i]] = discrIndexMapStr[stringFromDiscriminator_.at(requiredDiscr[i])];
     }
     return discrIndexMap;
   }
