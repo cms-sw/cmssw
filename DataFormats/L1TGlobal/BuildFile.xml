@@ -1,4 +1,3 @@
-<use name="DataFormats/Candidate"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/L1Trigger"/>
 <export>
