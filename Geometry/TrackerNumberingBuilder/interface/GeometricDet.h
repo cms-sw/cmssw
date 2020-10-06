@@ -109,7 +109,7 @@ public:
 
   // SOLID SHAPE
   // old DD
-  LegacySolidShape shape() const { return cms::dd::value(cms::LegacySolidShapeMap, shape_); }  // in mm
+  LegacySolidShape shape() const { return cms::dd::value(cms::LegacySolidShapeMap, shape_); }
   // DD4hep
   const cms::DDSolidShape& shape_dd4hep() const { return shape_; }
   // solid shape parameters
@@ -170,13 +170,13 @@ private:
   nav_type ddd_;
   DetId geographicalID_;
 
-  Translation trans_;
-  double rho_;
+  Translation trans_;  // in mm
+  double rho_;         // in mm
   double phi_;
   RotationMatrix rot_;
 
   cms::DDSolidShape shape_;
-  std::vector<double> params_;
+  std::vector<double> params_;  // in mm
 
   double radLength_;
   double xi_;
