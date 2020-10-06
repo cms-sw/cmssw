@@ -38,14 +38,17 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
-  const edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> geomToken_;
-  const edm::ESGetToken<MTDTopology, MTDTopologyRcd> mtdtopoToken_;
+  edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> geomToken_;
+  edm::ESGetToken<MTDTopology, MTDTopologyRcd> mtdtopoToken_;
 };
 
 using namespace edm;
 
-MTDDetLayerGeometryESProducer::MTDDetLayerGeometryESProducer(const edm::ParameterSet& p)
-    : geomToken_(setWhatProduced(this).consumes()),mtdtopoToken_(setWhatProduced(this).consumes()) {}
+MTDDetLayerGeometryESProducer::MTDDetLayerGeometryESProducer(const edm::ParameterSet& p) {
+  auto cc = setWhatProduced(this);
+  geomToken_ = cc.consumes();
+  mtdtopoToken_ = cc.consumes();
+}
 
 std::unique_ptr<MTDDetLayerGeometry> MTDDetLayerGeometryESProducer::produce(const MTDRecoGeometryRecord& record) {
   auto mtdDetLayerGeometry = std::make_unique<MTDDetLayerGeometry>();

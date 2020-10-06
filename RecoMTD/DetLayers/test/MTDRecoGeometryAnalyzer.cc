@@ -284,13 +284,13 @@ void MTDRecoGeometryAnalyzer::testETLLayersNew(const MTDDetLayerGeometry* geo, c
 
     vector<DetLayer::DetWithState> compDets = layer->compatibleDets(tsos, prop, *theEstimator);
     if (compDets.size()) {
-      LogVerbatim("MTDLayerDump") << std::fixed << "compatibleDets: " << std::setw(14) << compDets.size() << "\n"
-                                  << "  final state pos: " << compDets.front().second.globalPosition() << "\n"
-                                  << "  det         pos: " << compDets.front().first->position() << " id: " << std::hex
-                                  << ETLDetId(compDets.front().first->geographicalId().rawId()).rawId() << std::dec
-                                  << "\n"
-                                  << "  distance " << std::setw(14)
-                                  << (compDets.front().second.globalPosition() - compDets.front().first->position()).mag();
+      LogVerbatim("MTDLayerDump")
+          << std::fixed << "compatibleDets: " << std::setw(14) << compDets.size() << "\n"
+          << "  final state pos: " << compDets.front().second.globalPosition() << "\n"
+          << "  det         pos: " << compDets.front().first->position() << " id: " << std::hex
+          << ETLDetId(compDets.front().first->geographicalId().rawId()).rawId() << std::dec << "\n"
+          << "  distance " << std::setw(14)
+          << (compDets.front().second.globalPosition() - compDets.front().first->position()).mag();
     } else {
       if (layer->isCrack(gp)) {
         LogVerbatim("MTDLayerDump") << " MTD crack found ";
