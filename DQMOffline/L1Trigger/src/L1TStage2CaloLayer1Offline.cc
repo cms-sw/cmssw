@@ -171,7 +171,6 @@ void L1TStage2CaloLayer1Offline::dqmAnalyze(const edm::Event& event,
       if (not EetAgreement) {
         data.ecalOccEtDiscrepancy_->Fill(ieta, iphi);
         data.ecalTPRawEtDiffNoMatch_->Fill(recdTp.compressedEt() - sentTp.compressedEt());
-        //updateMismatch(event, 0);
 
         if (sentTp.compressedEt() == 0)
           data.ecalOccRecdNotSent_->Fill(ieta, iphi);
@@ -183,7 +182,6 @@ void L1TStage2CaloLayer1Offline::dqmAnalyze(const edm::Event& event,
       if (not EfbAgreement) {
         // occ for fine grain mismatch
         data.ecalOccFgDiscrepancy_->Fill(ieta, iphi);
-        //updateMismatch(event, 1);
       }
     }
   }
