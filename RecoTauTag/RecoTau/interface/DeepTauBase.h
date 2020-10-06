@@ -124,19 +124,6 @@ namespace deep_tau {
       PUcorrPtSum
     };
 
-    std::map<BasicDiscriminator, std::string> stringFromDiscriminator_{
-        {ChargedIsoPtSum, "ChargedIsoPtSum"},
-        {NeutralIsoPtSum, "NeutralIsoPtSum"},
-        {NeutralIsoPtSumWeight, "NeutralIsoPtSumWeight"},
-        {FootprintCorrection, "TauFootprintCorrection"},
-        {PhotonPtSumOutsideSignalCone, "PhotonPtSumOutsideSignalCone"},
-        {PUcorrPtSum, "PUcorrPtSum"}};
-
-    std::vector<BasicDiscriminator> requiredBasicDiscriminators = {
-        ChargedIsoPtSum, NeutralIsoPtSum, NeutralIsoPtSumWeight, PhotonPtSumOutsideSignalCone, PUcorrPtSum};
-    std::vector<BasicDiscriminator> requiredBasicDiscriminatorsdR03 = {
-        ChargedIsoPtSum, NeutralIsoPtSum, NeutralIsoPtSumWeight, PhotonPtSumOutsideSignalCone, FootprintCorrection};
-
   private:
     virtual tensorflow::Tensor getPredictions(edm::Event& event, edm::Handle<TauCollection> taus) = 0;
     virtual void createOutputs(edm::Event& event, const tensorflow::Tensor& pred, edm::Handle<TauCollection> taus);
@@ -149,6 +136,10 @@ namespace deep_tau {
     const bool is_online;
     OutputCollection outputs_;
     const DeepTauCache* cache_;
+
+    static const std::map<BasicDiscriminator, std::string> stringFromDiscriminator_;
+    static const std::vector<BasicDiscriminator> requiredBasicDiscriminators;
+    static const std::vector<BasicDiscriminator> requiredBasicDiscriminatorsdR03;
   };
 
 }  // namespace deep_tau

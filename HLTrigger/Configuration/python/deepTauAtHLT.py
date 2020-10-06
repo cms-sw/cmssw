@@ -180,7 +180,7 @@ def update(process):
     VSjetWP = cms.vstring(working_points)
     )		
 
-    #Add DeepTauProducer
+    # Add DeepTauProducer
     process.HLTHPSMediumChargedIsoPFTauSequenceReg.insert(-1, process.deepTauProducer)
 
     return process
