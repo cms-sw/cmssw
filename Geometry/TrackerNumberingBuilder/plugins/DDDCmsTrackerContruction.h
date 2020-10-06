@@ -25,6 +25,7 @@ public:
   ///takes ownership of detidShifts
   static std::unique_ptr<GeometricDet> construct(DDCompactView const& cpv, std::vector<int> const& detidShifts);
   static std::unique_ptr<GeometricDet> construct(cms::DDCompactView const& cpv, std::vector<int> const& detidShifts);
-};
+  static void printAllTrackerGeometricDetsBeforeDetIDBuilding(const GeometricDet* tracker);
+};  // NB: no point having a class in which evth is static, should just use namespace...
 
 #endif
