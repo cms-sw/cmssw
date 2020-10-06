@@ -80,19 +80,17 @@ namespace ComparisonHelper {
   }
 }  // namespace ComparisonHelper
 
-//This now stores our monitor elements, 
+//This now stores our monitor elements,
 //and is made accessible as a part of the class template and arguments of many class functions
-namespace CaloL1Information
-{
-  struct data
-  {
+namespace CaloL1Information {
+  struct data {
     dqm::reco::MonitorElement *ecalDiscrepancy_;
     dqm::reco::MonitorElement *ecalLinkError_;
     dqm::reco::MonitorElement *ecalOccupancy_;
     dqm::reco::MonitorElement *hcalDiscrepancy_;
     dqm::reco::MonitorElement *hcalLinkError_;
     dqm::reco::MonitorElement *hcalOccupancy_;
-    
+
     dqm::reco::MonitorElement *ecalOccEtDiscrepancy_;
     dqm::reco::MonitorElement *ecalOccFgDiscrepancy_;
     dqm::reco::MonitorElement *ecalOccLinkMasked_;
@@ -107,11 +105,11 @@ namespace CaloL1Information
     dqm::reco::MonitorElement *ecalTPRawEtRecd_;
     dqm::reco::MonitorElement *ecalTPRawEtSentAndRecd_;
     dqm::reco::MonitorElement *ecalTPRawEtSent_;
-    
+
     dqm::reco::MonitorElement *ecalOccSentNotRecd_;
     dqm::reco::MonitorElement *ecalOccRecdNotSent_;
     dqm::reco::MonitorElement *ecalOccNoMatch_;
-    
+
     dqm::reco::MonitorElement *hcalOccEtDiscrepancy_;
     dqm::reco::MonitorElement *hcalOccFbDiscrepancy_;
     dqm::reco::MonitorElement *hcalOccFb2Discrepancy_;
@@ -130,15 +128,15 @@ namespace CaloL1Information
     dqm::reco::MonitorElement *hcalTPRawEtRecd_;
     dqm::reco::MonitorElement *hcalTPRawEtSentAndRecd_;
     dqm::reco::MonitorElement *hcalTPRawEtSent_;
-    
+
     dqm::reco::MonitorElement *hcalOccSentNotRecd_;
     dqm::reco::MonitorElement *hcalOccRecdNotSent_;
     dqm::reco::MonitorElement *hcalOccNoMatch_;
-    
+
     dqm::reco::MonitorElement *ECALmismatchesPerBx_;
     dqm::reco::MonitorElement *HBHEmismatchesPerBx_;
     dqm::reco::MonitorElement *HFmismatchesPerBx_;
-    
+
     dqm::reco::MonitorElement *bxidErrors_;
     dqm::reco::MonitorElement *l1idErrors_;
     dqm::reco::MonitorElement *orbitErrors_;
@@ -148,18 +146,21 @@ namespace CaloL1Information
     dqm::reco::MonitorElement *hcalLinkErrorByLumi_;
     dqm::reco::MonitorElement *hcalMismatchByLumi_;
   };
-}
+}  // namespace CaloL1Information
 
 class L1TStage2CaloLayer1Offline : public DQMGlobalEDAnalyzer<CaloL1Information::data> {
 public:
   L1TStage2CaloLayer1Offline(const edm::ParameterSet &ps);
   ~L1TStage2CaloLayer1Offline() override;
 
-protected:  
-  void dqmBeginRun(edm::Run const&, edm::EventSetup const&, CaloL1Information::data &) const override {};
-  void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run &, const edm::EventSetup &, CaloL1Information::data &data) const override;
-  void dqmAnalyze(edm::Event const&, edm::EventSetup const&, CaloL1Information::data const&) const override;
-  void dqmEndRun(edm::Run const&, edm::EventSetup const&, CaloL1Information::data const&) const override {};
+protected:
+  void dqmBeginRun(edm::Run const &, edm::EventSetup const &, CaloL1Information::data &) const override{};
+  void bookHistograms(DQMStore::IBooker &ibooker,
+                      const edm::Run &,
+                      const edm::EventSetup &,
+                      CaloL1Information::data &data) const override;
+  void dqmAnalyze(edm::Event const &, edm::EventSetup const &, CaloL1Information::data const &) const override;
+  void dqmEndRun(edm::Run const &, edm::EventSetup const &, CaloL1Information::data const &) const override{};
 
 private:
   // Input and config info
@@ -176,11 +177,11 @@ private:
   int tpFillThreshold_;
   bool ignoreHFfbs_;
 
-  //Elements removed from online version of module. 
+  //Elements removed from online version of module.
   //They were processed at luminosity block transitions incompatible with DQMGlobalEDAnalyzer
   /* MonitorElement *last20Mismatches_; */
   /* std::array<std::pair<std::string, int>, 20> last20MismatchArray_; */
-  /* size_t lastMismatchIndex_{0}; */  
+  /* size_t lastMismatchIndex_{0}; */
 
   /* MonitorElement *maxEvtLinkErrorsByLumiECAL_; */
   /* MonitorElement *maxEvtLinkErrorsByLumiHCAL_; */
@@ -192,7 +193,6 @@ private:
   /* MonitorElement *maxEvtMismatchByLumiHCAL_; */
   /* MonitorElement *maxEvtMismatchByLumi_; */
   /* int maxEvtMismatchECALCurrentLumi_{0}; */
-  /* int maxEvtMismatchHCALCurrentLumi_{0}; */  
-
+  /* int maxEvtMismatchHCALCurrentLumi_{0}; */
 };
 #endif

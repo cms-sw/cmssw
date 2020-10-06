@@ -30,12 +30,13 @@ L1TStage2CaloLayer1Offline::L1TStage2CaloLayer1Offline(const edm::ParameterSet& 
       fedRawData_(consumes<FEDRawDataCollection>(ps.getParameter<edm::InputTag>("fedRawDataLabel"))),
       histFolder_(ps.getParameter<std::string>("histFolder")),
       tpFillThreshold_(ps.getUntrackedParameter<int>("etDistributionsFillThreshold", 0)),
-      ignoreHFfbs_(ps.getUntrackedParameter<bool>("ignoreHFfbs", false)) {
-}
+      ignoreHFfbs_(ps.getUntrackedParameter<bool>("ignoreHFfbs", false)) {}
 
 L1TStage2CaloLayer1Offline::~L1TStage2CaloLayer1Offline() {}
 
-void L1TStage2CaloLayer1Offline::dqmAnalyze(const edm::Event& event, const edm::EventSetup& es, const CaloL1Information::data& data) const {
+void L1TStage2CaloLayer1Offline::dqmAnalyze(const edm::Event& event,
+                                            const edm::EventSetup& es,
+                                            const CaloL1Information::data& data) const {
   //This must be moved here compared to online version to avoid a const function modifying a class variable
   //This unfortunately means that the variable is local and reallocated per event
   std::vector<std::pair<EcalTriggerPrimitiveDigi, EcalTriggerPrimitiveDigi> > ecalTPSentRecd_;
@@ -186,7 +187,7 @@ void L1TStage2CaloLayer1Offline::dqmAnalyze(const edm::Event& event, const edm::
       }
     }
   }
-  
+
   //These monitoring elements are no longer available offline
   // if (nEcalLinkErrors > maxEvtLinkErrorsECALCurrentLumi_) {
   //   maxEvtLinkErrorsECALCurrentLumi_ = nEcalLinkErrors;
@@ -323,7 +324,7 @@ void L1TStage2CaloLayer1Offline::dqmAnalyze(const edm::Event& event, const edm::
       }
     }
   }
-  
+
   //These monitoring elements are no longer available offline
   // if (nHcalLinkErrors > maxEvtLinkErrorsHCALCurrentLumi_) {
   //   maxEvtLinkErrorsHCALCurrentLumi_ = nHcalLinkErrors;
@@ -372,7 +373,7 @@ void L1TStage2CaloLayer1Offline::dqmAnalyze(const edm::Event& event, const edm::
 
 // void L1TStage2CaloLayer1Offline::endLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup&) {
 //   auto id = static_cast<double>(lumi.id().luminosityBlock());  // uint64_t
-  
+
 //   if (maxEvtLinkErrorsECALCurrentLumi_ > 0) {
 //     maxEvtLinkErrorsByLumiECAL_->Fill(id, maxEvtLinkErrorsECALCurrentLumi_);
 //   }
@@ -406,7 +407,10 @@ void L1TStage2CaloLayer1Offline::dqmAnalyze(const edm::Event& event, const edm::
 //   maxEvtMismatchByLumi_->setBinContent(0, id);
 // }
 
-void L1TStage2CaloLayer1Offline::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& run, const edm::EventSetup& es, CaloL1Information::data& data)const  {
+void L1TStage2CaloLayer1Offline::bookHistograms(DQMStore::IBooker& ibooker,
+                                                const edm::Run& run,
+                                                const edm::EventSetup& es,
+                                                CaloL1Information::data& data) const {
   auto bookEt = [&ibooker](std::string name, std::string title) {
     return ibooker.book1D(name, title + ";Raw ET;Counts", 256, -0.5, 255.5);
   };
@@ -453,14 +457,17 @@ void L1TStage2CaloLayer1Offline::bookHistograms(DQMStore::IBooker& ibooker, cons
 
   ibooker.setCurrentFolder(histFolder_ + "/ECalDetail/TCCDebug");
   data.ecalOccSentNotRecd_ = bookHcalOccupancy("ecalOccSentNotRecd", "ECal TP Occupancy sent by TCC, zero at Layer1");
-  data.ecalOccRecdNotSent_ = bookHcalOccupancy("ecalOccRecdNotSent", "ECal TP Occupancy received by Layer1, zero at TCC");
-  data.ecalOccNoMatch_ = bookHcalOccupancy("ecalOccNoMatch", "ECal TP Occupancy for TCC and Layer1 nonzero, not matching");
+  data.ecalOccRecdNotSent_ =
+      bookHcalOccupancy("ecalOccRecdNotSent", "ECal TP Occupancy received by Layer1, zero at TCC");
+  data.ecalOccNoMatch_ =
+      bookHcalOccupancy("ecalOccNoMatch", "ECal TP Occupancy for TCC and Layer1 nonzero, not matching");
 
   ibooker.setCurrentFolder(histFolder_ + "/HCalDetail");
 
   data.hcalOccEtDiscrepancy_ = bookHcalOccupancy("hcalOccEtDiscrepancy", "HCal Et Discrepancy Occupancy");
   data.hcalOccFbDiscrepancy_ = bookHcalOccupancy("hcalOccFbDiscrepancy", "HCal Feature Bit Discrepancy Occupancy");
-  data.hcalOccFb2Discrepancy_ = bookHcalOccupancy("hcalOccFb2Discrepancy", "HCal Second Feature Bit Discrepancy Occupancy");
+  data.hcalOccFb2Discrepancy_ =
+      bookHcalOccupancy("hcalOccFb2Discrepancy", "HCal Second Feature Bit Discrepancy Occupancy");
   data.hcalOccLinkMasked_ = bookHcalOccupancy("hcalOccLinkMasked", "HCal Masked Links");
   data.hcalOccRecdFb_ = bookHcalOccupancy("hcalOccRecdFb", "HCal Feature Bit Occupancy at Layer1");
   data.hcalOccRecdFb2_ = bookHcalOccupancy("hcalOccRecdFb2", "HF Second Feature Bit Occupancy at Layer1");
@@ -480,8 +487,10 @@ void L1TStage2CaloLayer1Offline::bookHistograms(DQMStore::IBooker& ibooker, cons
 
   ibooker.setCurrentFolder(histFolder_ + "/HCalDetail/uHTRDebug");
   data.hcalOccSentNotRecd_ = bookHcalOccupancy("hcalOccSentNotRecd", "HCal TP Occupancy sent by uHTR, zero at Layer1");
-  data.hcalOccRecdNotSent_ = bookHcalOccupancy("hcalOccRecdNotSent", "HCal TP Occupancy received by Layer1, zero at uHTR");
-  data.hcalOccNoMatch_ = bookHcalOccupancy("hcalOccNoMatch", "HCal TP Occupancy for uHTR and Layer1 nonzero, not matching");
+  data.hcalOccRecdNotSent_ =
+      bookHcalOccupancy("hcalOccRecdNotSent", "HCal TP Occupancy received by Layer1, zero at uHTR");
+  data.hcalOccNoMatch_ =
+      bookHcalOccupancy("hcalOccNoMatch", "HCal TP Occupancy for uHTR and Layer1 nonzero, not matching");
 
   ibooker.setCurrentFolder(histFolder_ + "/MismatchDetail");
 
