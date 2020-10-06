@@ -87,7 +87,7 @@ namespace deep_tau {
       : tausToken_(consumes<TauCollection>(cfg.getParameter<edm::InputTag>("taus"))),
         pfcandToken_(consumes<CandidateType>(cfg.getParameter<edm::InputTag>("pfcands"))),
         vtxToken_(consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vertices"))),
-        is_online(cfg.getParameter<bool>("is_online")),
+        is_online_(cfg.getParameter<bool>("is_online")),
         outputs_(outputCollection),
         cache_(cache) {
     for (const auto& output_desc : outputs_) {
@@ -127,7 +127,7 @@ namespace deep_tau {
       const edm::InputTag& label = iPredisc.getParameter<edm::InputTag>("Producer");
       double cut = iPredisc.getParameter<double>("cut");
 
-      if (is_online) {
+      if (is_online_) {
         TauDiscInfo<reco::PFTauDiscriminator> thisDiscriminator;
         thisDiscriminator.label = label;
         thisDiscriminator.cut = cut;
@@ -153,7 +153,7 @@ namespace deep_tau {
         patPrediscriminants_.empty() ? recoPrediscriminants_.size() : patPrediscriminants_.size();
     for (size_t iDisc = 0; iDisc < nPrediscriminants; ++iDisc) {
       edm::ProductID discKeyId;
-      if (is_online) {
+      if (is_online_) {
         recoPrediscriminants_[iDisc].fill(event);
         discKeyId = recoPrediscriminants_[iDisc].handle->keyProduct().id();
       } else {
@@ -176,7 +176,7 @@ namespace deep_tau {
 
   void DeepTauBase::createOutputs(edm::Event& event, const tensorflow::Tensor& pred, edm::Handle<TauCollection> taus) {
     for (const auto& output_desc : outputs_) {
-      auto result = output_desc.second.get_value(taus, pred, workingPoints_.at(output_desc.first), is_online);
+      auto result = output_desc.second.get_value(taus, pred, workingPoints_.at(output_desc.first), is_online_);
       event.put(std::move(result), output_desc.first);
     }
   }
