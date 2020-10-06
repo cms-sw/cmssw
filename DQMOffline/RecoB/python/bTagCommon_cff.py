@@ -53,97 +53,19 @@ bTagCommonBlock = cms.PSet(
             label = cms.InputTag("pfImpactParameterTagInfos"),
             folder = cms.string("IPTag")
         ),
-        cms.PSet(
-            bTagCombinedSVAnalysisBlock,
-            listTagInfos = cms.VInputTag(
-                cms.InputTag("pfImpactParameterTagInfos"),
-                cms.InputTag("pfInclusiveSecondaryVertexFinderTagInfos")
-            ),
-            type = cms.string('GenericMVA'),
-            label = cms.InputTag("candidateCombinedSecondaryVertexV2Computer"),
-            folder = cms.string("CSVTag")
-        ),
-        cms.PSet(
-            bTagTrackCountingAnalysisBlock,
-            label = cms.InputTag("pfTrackCountingHighEffBJetTags"),
-            folder = cms.string("TCHE")
-        ),
+
         cms.PSet(
             bTagProbabilityAnalysisBlock,
             label = cms.InputTag("pfJetProbabilityBJetTags"),
             folder = cms.string("JP")
         ),
-        cms.PSet(
-            bTagBProbabilityAnalysisBlock,
-            label = cms.InputTag("pfJetBProbabilityBJetTags"),
-            folder = cms.string("JBP")
-        ),
-        cms.PSet(
-            bTagSimpleSVAnalysisBlock,
-            label = cms.InputTag("pfSimpleSecondaryVertexHighEffBJetTags"),
-            folder = cms.string("SSVHE")
-        ),
-        cms.PSet(
-            bTagSimpleSVAnalysisBlock,
-            label = cms.InputTag("pfSimpleInclusiveSecondaryVertexHighEffBJetTags"),
-            folder = cms.string("SISVHE")
-        ),
-        cms.PSet(
-            bTagGenericAnalysisBlock,
-            label = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
-            folder = cms.string("CSVv2"),
-            differentialPlots = cms.bool(True),
-            discrCut = cms.double(0.5803)
-        ),
-        cms.PSet(
-            bTagSymmetricAnalysisBlock,
-            label = cms.InputTag("pfCombinedMVAV2BJetTags"),
-            folder = cms.string("combMVAv2"),
-        ), 
+
         cms.PSet(
             bTagGenericAnalysisBlock,
             label = cms.InputTag("pfDeepCSVDiscriminatorsJetTags:BvsAll"),
             folder = cms.string("deepCSV_BvsAll"),
             differentialPlots = cms.bool(True),
             discrCut = cms.double(0.1522)
-        ),
-       cms.PSet(
-            bTagSoftLeptonAnalysisBlock,
-            label = cms.InputTag("softPFMuonBJetTags"),
-            folder = cms.string("SMT")
-        ),
-        cms.PSet(
-            bTagSoftLeptonAnalysisBlock,
-            label = cms.InputTag("softPFElectronBJetTags"),
-            folder = cms.string("SET")
-        ),
-        cms.PSet(
-           cTagCombinedSVAnalysisBlock,
-           listTagInfos = cms.VInputTag(
-               cms.InputTag("pfImpactParameterTagInfos"),
-               cms.InputTag("pfInclusiveSecondaryVertexFinderCvsLTagInfos"),                
-               cms.InputTag("softPFMuonsTagInfos"),
-               cms.InputTag("softPFElectronsTagInfos")
-           ),
-           type = cms.string('GenericMVA'),
-           label = cms.InputTag("candidateCombinedSecondaryVertexSoftLeptonCvsLComputer"),
-           folder = cms.string("CtaggerTag")
-        ),
-        cms.PSet(
-            cTagSymmetricAnalysisBlock,
-            label = cms.InputTag("pfCombinedCvsLJetTags"),
-            folder = cms.string("Ctagger_CvsL"),
-            doCTagPlots = cms.bool(True),
-            differentialPlots = cms.bool(True),
-            discrCut = cms.double(0.07)
-        ),
-        cms.PSet(
-            cTagSymmetricAnalysisBlock,
-            label = cms.InputTag("pfCombinedCvsBJetTags"),
-            folder = cms.string("Ctagger_CvsB"),
-            doCTagPlots = cms.bool(True),
-            differentialPlots = cms.bool(True),
-            discrCut = cms.double(-0.10)
         ),
         cms.PSet(
             cTagGenericAnalysisBlock,
@@ -161,15 +83,6 @@ bTagCommonBlock = cms.PSet(
             differentialPlots = cms.bool(True),
             discrCut = cms.double(0.28)
         ),
-        cms.PSet(
-            cTagCorrelationAnalysisBlock,
-            type = cms.string('TagCorrelation'),
-            label1 = cms.InputTag("pfCombinedCvsLJetTags"),
-            label2 = cms.InputTag("pfCombinedCvsBJetTags"),
-            folder = cms.string("Ctagger_TagCorrelation"),
-            doCTagPlots = cms.bool(True)
-        )
-    )    
+
+    )
 )
-
-
