@@ -8,6 +8,10 @@ from RecoTauTag.RecoTau.PFTauPrimaryVertexProducer_cfi      import *
 from RecoTauTag.RecoTau.PFTauSecondaryVertexProducer_cfi    import *
 from RecoTauTag.RecoTau.PFTauTransverseImpactParameters_cfi import *
 
+from RecoTauTag.RecoTau.PFRecoTauPFJetInputs_cfi import PFRecoTauPFJetInputs
+## DeltaBeta correction factor
+ak4dBetaCorrection = 0.20
+
 def update(process):
     process.options.wantSummary = cms.untracked.bool(True)
 
@@ -32,10 +36,14 @@ def update(process):
     process.hpsPFTauBasicDiscriminators = pfRecoTauDiscriminationByIsolation.clone(
         PFTauProducer = cms.InputTag('hltHpsPFTauProducerReg'),
         Prediscriminants = requireDecayMode.clone(),
+        deltaBetaPUTrackPtCutOverride     = True, # Set the boolean = True to override.
+        deltaBetaPUTrackPtCutOverride_val = 0.5,  # Set the value for new value.
         particleFlowSrc = cms.InputTag("hltParticleFlowReg"),
         vertexSrc = PFTauQualityCuts.primaryVertexSrc,
-        customOuterCone = 0.5,
+        customOuterCone = PFRecoTauPFJetInputs.isolationConeSize,
         isoConeSizeForDeltaBeta = 0.8,
+        deltaBetaFactor = "%0.4f"%(ak4dBetaCorrection),
+        qualityCuts = dict(isolationQualityCuts = dict(minTrackHits = 3, minGammaEt = 1.0, minTrackPt = 0.5)),
         IDdefinitions = cms.VPSet(
             cms.PSet(
                 IDname = cms.string("ChargedIsoPtSum"),
@@ -55,7 +63,6 @@ def update(process):
             ),
             cms.PSet(
                 IDname = cms.string("TauFootprintCorrection"),
-                applyDeltaBetaCorrection = cms.bool(True),
                 storeRawFootprintCorrection = cms.bool(True)
             ),
             cms.PSet(

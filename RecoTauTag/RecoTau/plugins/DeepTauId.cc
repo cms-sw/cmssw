@@ -1168,12 +1168,12 @@ const std::map<bd, std::string> deep_tau::DeepTauBase::stringFromDiscriminator_{
     {bd::FootprintCorrection, "TauFootprintCorrection"},
     {bd::PhotonPtSumOutsideSignalCone, "PhotonPtSumOutsideSignalCone"},
     {bd::PUcorrPtSum, "PUcorrPtSum"}};
-const std::vector<bd> deep_tau::DeepTauBase::requiredBasicDiscriminators = {bd::ChargedIsoPtSum,
+const std::vector<bd> deep_tau::DeepTauBase::requiredBasicDiscriminators_ = {bd::ChargedIsoPtSum,
                                                                             bd::NeutralIsoPtSum,
                                                                             bd::NeutralIsoPtSumWeight,
                                                                             bd::PhotonPtSumOutsideSignalCone,
                                                                             bd::PUcorrPtSum};
-const std::vector<bd> deep_tau::DeepTauBase::requiredBasicDiscriminatorsdR03 = {bd::ChargedIsoPtSum,
+const std::vector<bd> deep_tau::DeepTauBase::requiredBasicDiscriminatorsdR03_ = {bd::ChargedIsoPtSum,
                                                                                 bd::NeutralIsoPtSum,
                                                                                 bd::NeutralIsoPtSumWeight,
                                                                                 bd::PhotonPtSumOutsideSignalCone,
@@ -1404,7 +1404,7 @@ private:
     edm::Handle<edm::AssociationVector<reco::PFTauRefProd, std::vector<reco::PFTauTransverseImpactParameterRef>>>
         PFTauTransverseImpactParameters;
 
-    if (!is_online) {
+    if (!is_online_) {
       event.getByToken(electrons_token_, tmp_electrons);
       event.getByToken(muons_token_, tmp_muons);
     } else {
@@ -1415,9 +1415,9 @@ private:
       // Get indices for discriminators
       if (!discrIndicesMapped_) {
         basicDiscrIndexMap_ =
-            matchDiscriminatorIndices(event, basicTauDiscriminators_inputToken, requiredBasicDiscriminators);
+            matchDiscriminatorIndices(event, basicTauDiscriminators_inputToken, requiredBasicDiscriminators_);
         basicDiscrdR03IndexMap_ =
-            matchDiscriminatorIndices(event, basicTauDiscriminatorsdR03_inputToken, requiredBasicDiscriminatorsdR03);
+            matchDiscriminatorIndices(event, basicTauDiscriminatorsdR03_inputToken, requiredBasicDiscriminatorsdR03_);
         discrIndicesMapped_ = true;
       }
     }
@@ -1430,8 +1430,8 @@ private:
 
     lightLepFunc lightlep = {tmp_electrons, tmp_muons};
 
-    std::vector<pat::Electron> electrons = lightlep.getElectrons(is_online);
-    std::vector<pat::Muon> muons = lightlep.getMuons(is_online);
+    std::vector<pat::Electron> electrons = lightlep.getElectrons(is_online_);
+    std::vector<pat::Muon> muons = lightlep.getMuons(is_online_);
 
     edm::Handle<edm::View<reco::Candidate>> pfCands;
     event.getByToken(pfcandToken_, pfCands);
@@ -1450,7 +1450,7 @@ private:
       std::vector<tensorflow::Tensor> pred_vector;
 
       bool passesPrediscriminants;
-      if (is_online) {
+      if (is_online_) {
         passesPrediscriminants = tauIDs.passPrediscriminants<std::vector<TauDiscInfo<reco::PFTauDiscriminator>>>(
             recoPrediscriminants_, andPrediscriminants_, tauRef);
       } else {
@@ -1460,14 +1460,14 @@ private:
 
       if (passesPrediscriminants) {
         if (version == 1) {
-          if (is_online)
+          if (is_online_)
             getPredictionsV1<reco::PFCandidate, reco::PFTau>(
                 taus->at(tau_index), tau_index, tauRef, electrons, muons, pred_vector, tauIDs);
           else
             getPredictionsV1<pat::PackedCandidate, pat::Tau>(
                 taus->at(tau_index), tau_index, tauRef, electrons, muons, pred_vector, tauIDs);
         } else if (version == 2) {
-          if (is_online) {
+          if (is_online_) {
             getPredictionsV2<reco::PFCandidate, reco::PFTau>(taus->at(tau_index),
                                                              tau_index,
                                                              tauRef,

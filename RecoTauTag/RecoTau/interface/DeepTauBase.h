@@ -133,13 +133,13 @@ namespace deep_tau {
     edm::EDGetTokenT<CandidateType> pfcandToken_;
     edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
     std::map<std::string, WPList> workingPoints_;
-    const bool is_online;
+    const bool is_online_;
     OutputCollection outputs_;
     const DeepTauCache* cache_;
 
     static const std::map<BasicDiscriminator, std::string> stringFromDiscriminator_;
-    static const std::vector<BasicDiscriminator> requiredBasicDiscriminators;
-    static const std::vector<BasicDiscriminator> requiredBasicDiscriminatorsdR03;
+    static const std::vector<BasicDiscriminator> requiredBasicDiscriminators_;
+    static const std::vector<BasicDiscriminator> requiredBasicDiscriminatorsdR03_;
   };
 
 }  // namespace deep_tau
