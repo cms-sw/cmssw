@@ -28,7 +28,6 @@
 #include <vector>
 #include <unordered_map>
 #include <utility>
-//#include <tbb/concurrent_vector.h>
 
 using namespace std;
 using namespace dd4hep;
