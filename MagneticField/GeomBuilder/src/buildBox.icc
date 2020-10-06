@@ -4,15 +4,8 @@
  *  \author N. Amapane - INFN Torino
  */
 
-void volumeHandle::buildBox() {
+void volumeHandle::buildBox(double halfX, double halfY, double halfZ) {
   LogTrace("MagGeoBuilder") << "Building box surfaces...: ";
-
-  DDBox box(solid);
-  // Old DD needs mm to cm conversion, but DD4hep needs no conversion.
-  // convertUnits should be defined appropriately.
-  double halfX = convertUnits(box.halfX());
-  double halfY = convertUnits(box.halfY());
-  double halfZ = convertUnits(box.halfZ());
 
   // Global vectors of the normals to X, Y, Z axes
   GlobalVector planeXAxis = refPlane->toGlobal(LocalVector(1, 0, 0));

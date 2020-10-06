@@ -58,6 +58,8 @@ upgradeKeys[2026] = [
     '2026D65PU',
     '2026D66',
     '2026D66PU',
+    '2026D67',
+    '2026D67PU',
 ]
 
 # pre-generation of WF numbers
@@ -1037,6 +1039,13 @@ upgradeProperties[2026] = {
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T21',
         'Era' : 'Phase2C11',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D67' : {
+        'Geom' : 'Extended2026D67',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T21',
+        'Era' : 'Phase2C11M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
 }
