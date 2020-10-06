@@ -53,8 +53,8 @@
   <Polycone name="HFNoseVol" startPhi="0*deg" deltaPhi="360*deg">
     <ZSection z="[HFNoseZ1]" rMin="[HFNoseRMin1]" rMax="[HFNoseRMax1]"/>
     <ZSection z="[HFNoseZ2]" rMin="[HFNoseRMin2]" rMax="[HFNoseRMax2]"/>
-    <ZSection z="[HFNoseZ2]" rMin="[HFNoseRMin2]" rMax="[cms:CMSR3]"/>
-    <ZSection z="[HFNoseZ4]" rMin="[HFNoseRMin4]" rMax="[cms:CMSR3]"/>
+    <ZSection z="[HFNoseZ2]" rMin="[cms:ForwdBeamR1]" rMax="[cms:CMSR3]"/>
+    <ZSection z="[HFNoseZ4]" rMin="[cms:ForwdBeamR1]" rMax="[cms:CMSR3]"/>
   </Polycone>
   <Polycone name="HFNose" startPhi="0*deg" deltaPhi="360*deg">
     <ZSection z="[HFNoseZ1]" rMin="[HFNoseRMin1]" rMax="[HFNoseRMax1]"/>
