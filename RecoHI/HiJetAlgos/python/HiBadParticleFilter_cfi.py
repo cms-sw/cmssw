@@ -1,10 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-filteredParticleFlow = cms.EDFilter(
+filteredParticleFlow = cms.EDProducer(
     "HiBadParticleFilter",
     PFCandidates  = cms.InputTag("particleFlow"),   
     offlinePV  = cms.InputTag("offlinePrimaryVertices"),   
-    taggingMode   = cms.bool(False),
     verbose   = cms.bool(False),
     minMuonTrackRelErr = cms.double(2.0),          # minimum ptError/pt on muon best track
     minMuonPt     = cms.double(20.0),               # minimum muon pt 

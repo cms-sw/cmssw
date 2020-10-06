@@ -4,7 +4,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/global/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -25,20 +25,18 @@
 // class declaration
 //
 
-class HiBadParticleFilter : public edm::global::EDFilter<> {
+class HiBadParticleFilter : public edm::stream::EDProducer<> {
 public:
   explicit HiBadParticleFilter(const edm::ParameterSet&);
   ~HiBadParticleFilter() override;
 
 private:
-  bool filter(edm::StreamID iID, edm::Event&, const edm::EventSetup&) const override;
-
+  void produce(edm::Event&, const edm::EventSetup&) override;
   // ----------member data ---------------------------
 
   edm::EDGetTokenT<edm::View<reco::PFCandidate> > tokenPFCandidates_;
   edm::EDGetTokenT<reco::VertexCollection> tokenPV_;
 
-  const bool taggingMode_;
   const bool verbose_;
   const double minMuonPt_;
   const double minChargedHadronPt_;
@@ -56,7 +54,6 @@ private:
 HiBadParticleFilter::HiBadParticleFilter(const edm::ParameterSet& iConfig)
     : tokenPFCandidates_(consumes<edm::View<reco::PFCandidate> >(iConfig.getParameter<edm::InputTag>("PFCandidates"))),
       tokenPV_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("offlinePV"))),
-      taggingMode_(iConfig.getParameter<bool>("taggingMode")),
       verbose_(iConfig.getParameter<bool>("verbose")),
       minMuonPt_(iConfig.getParameter<double>("minMuonPt")),
       minChargedHadronPt_(iConfig.getParameter<double>("minChargedHadronPt")),
@@ -78,7 +75,7 @@ HiBadParticleFilter::~HiBadParticleFilter() {}
 //
 
 // ------------ method called on each new Event  ------------
-bool HiBadParticleFilter::filter(edm::StreamID iID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
+void HiBadParticleFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace std;
   using namespace edm;
 
@@ -125,29 +122,25 @@ bool HiBadParticleFilter::filter(edm::StreamID iID, edm::Event& iEvent, const ed
 
         if (track->algo() == 13 || track->algo() == 14 || track->originalAlgo() == 14 || track->originalAlgo() == 13 ||
             track->hitPattern().trackerLayersWithMeasurement() < 7) {
-          float xVtx = (*recoVertices)[0].position().x();
-          float yVtx = (*recoVertices)[0].position().y();
-          float zVtx = (*recoVertices)[0].position().z();
-          float xVtxErr = (*recoVertices)[0].xError();
-          float yVtxErr = (*recoVertices)[0].yError();
-          float zVtxErr = (*recoVertices)[0].zError();
+          const reco::Vertex& vtx = (*recoVertices)[0];
+          float bestVzError = vtx.zError();
+          const math::XYZPoint& bestVtx(vtx.position());
+          math::Error<3>::type vtx_cov = vtx.covariance();
+          float dz = std::abs(track->dz(bestVtx));
+          float dxy = std::abs(track->dxy(bestVtx));
+          float dzError = std::hypot(track->dzError(), bestVzError);
+          float dxyError = track->dxyError(bestVtx, vtx_cov);
 
-          math::XYZPoint vtx_temp(xVtx, yVtx, zVtx);
-
-          float Dz = track->dz(vtx_temp);
-          float DzError = sqrt(track->dzError() * track->dzError() + zVtxErr * zVtxErr);
-          float Dxy = track->dxy(vtx_temp);
-          float DxyError = sqrt(track->dxyError() * track->dxyError() + xVtxErr * yVtxErr);
-          float dzSig = Dz / DzError;
-          float dxySig = Dxy / DxyError;
+          float dzSig = dz / dzError;
+          float dxySig = dxy / dxyError;
 
           float sig3d = sqrt(dxySig * dxySig + dzSig * dzSig);
 
           if (sig3d > maxSigLoose_) {
             if (verbose_) {
               std::cout << " bad muon algo 14, large IP " << pfCandidate.pt() << std::endl;
-              std::cout << " dxy " << Dxy << " dxy err " << DxyError << std::endl;
-              std::cout << " dz " << Dz << " dz err " << DzError << std::endl;
+              std::cout << " dxy " << dxy << " dxy err " << dxyError << std::endl;
+              std::cout << " dz " << dz << " dz err " << dzError << std::endl;
             }
             pBadCandidateCollection->push_back(pfCandidate);
             foundBadCandidate = true;
@@ -191,21 +184,17 @@ bool HiBadParticleFilter::filter(edm::StreamID iID, edm::Event& iEvent, const ed
           continue;
         }
 
-        float xVtx = (*recoVertices)[0].position().x();
-        float yVtx = (*recoVertices)[0].position().y();
-        float zVtx = (*recoVertices)[0].position().z();
-        float xVtxErr = (*recoVertices)[0].xError();
-        float yVtxErr = (*recoVertices)[0].yError();
-        float zVtxErr = (*recoVertices)[0].zError();
+        const reco::Vertex& vtx = (*recoVertices)[0];
+        float bestVzError = vtx.zError();
+        const math::XYZPoint& bestVtx(vtx.position());
+        math::Error<3>::type vtx_cov = vtx.covariance();
+        float dz = std::abs(track->dz(bestVtx));
+        float dxy = std::abs(track->dxy(bestVtx));
+        float dzError = std::hypot(track->dzError(), bestVzError);
+        float dxyError = track->dxyError(bestVtx, vtx_cov);
 
-        math::XYZPoint vtx_temp(xVtx, yVtx, zVtx);
-
-        float Dz = track->dz(vtx_temp);
-        float DzError = sqrt(track->dzError() * track->dzError() + zVtxErr * zVtxErr);
-        float Dxy = track->dxy(vtx_temp);
-        float DxyError = sqrt(track->dxyError() * track->dxyError() + xVtxErr * yVtxErr);
-        float dzSig = Dz / DzError;
-        float dxySig = Dxy / DxyError;
+        float dzSig = dz / dzError;
+        float dxySig = dxy / dxyError;
 
         float sig3d = sqrt(dxySig * dxySig + dzSig * dzSig);
 
@@ -290,8 +279,6 @@ bool HiBadParticleFilter::filter(edm::StreamID iID, edm::Event& iEvent, const ed
   iEvent.put(std::move(pBadCandidateCollection), "cleaned");
 
   iEvent.put(std::make_unique<bool>(pass));
-
-  return taggingMode_ || pass;
 }
 
 //define this as a plug-in
