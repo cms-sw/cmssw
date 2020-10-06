@@ -1,0 +1,168 @@
+#!/bin/bash
+
+# defaults
+USEDOCKER=""
+GPU=""
+VERBOSE=""
+WTIME=60
+SERVER=triton_server_instance
+
+usage() {
+	ECHO="echo -e"
+	$ECHO "triton [options] [start|stop]"
+	$ECHO
+	$ECHO "Options:"
+	$ECHO "-d        \t use Docker instead of Singularity"
+	$ECHO "-g        \t use GPU instead of CPU"
+	$ECHO "-n        \t name of container instance (default: ${SERVER})"
+	$ECHO "-v        \t (verbose) start: activate server debugging info; stop: keep server logs"
+	$ECHO "-w        \t maximum time to wait for server to start (default: ${WTIME} seconds)"
+	$ECHO "-h        \t print this message and exit"
+	$ECHO
+	$ECHO "Operations:"
+	$ECHO "start    \t start server"
+	$ECHO "stop    \t stop server"
+	exit $1
+}
+
+# check shm locations
+SHM=/dev/shm
+if [ -e /run/shm ]; then
+	SHM=/run/shm
+fi
+
+while getopts "dgvhw:n:" opt; do
+	case "$opt" in
+		d) USEDOCKER=true
+		;;
+		g) GPU=true
+		;;
+		v) VERBOSE="--log-verbose=1 --log-error=1 --log-info=1"
+		;;
+		h) usage 0
+		;;
+		w) WTIME="$OPTARG"
+		;;
+		n) SERVER="$OPTARG"
+		;;
+	esac
+done
+
+shift $(($OPTIND - 1))
+OP=$1
+
+if [ "$OP" != start ] && [ "$OP" != stop ]; then
+	usage 1
+fi
+
+DOCKER="sudo docker"
+IMAGE=fastml/triton-torchgeo:20.06-v1-py3-geometric
+MODELS=${CMSSW_BASE}/src/HeterogeneousCore/SonicTriton/data/models
+LOG=log_triton_server.log
+LIB=lib
+STARTED_INDICATOR="Started GRPCService"
+EXTRA=""
+
+start_docker(){
+	$DOCKER run -d --name ${SERVER} \
+		--shm-size=1g --ulimit memlock=-1 --ulimit stack=67108864 \
+		-p8000:8000 -p8001:8001 -p8002:8002 $EXTRA \
+		-v${MODELS}:/models \
+		${IMAGE} tritonserver --model-repository=/models $VERBOSE
+}
+
+start_singularity(){
+	# triton server image may need to modify contents of opt/tritonserver/lib/
+	# but cvmfs is read-only
+	# -> make a writable local directory with the same contents
+	mkdir ${LIB}
+	ln -s /cvmfs/unpacked.cern.ch/registry.hub.docker.com/${IMAGE}/opt/tritonserver/lib/* ${LIB}/
+
+	# start instance
+	# need to bind /cvmfs for above symlinks to work inside container
+	singularity instance start \
+		-B ${SHM}:/run/shm -B ${MODELS}:/models -B ${LIB}:/opt/tritonserver/lib -B /cvmfs $EXTRA \
+		/cvmfs/unpacked.cern.ch/registry.hub.docker.com/${IMAGE} ${SERVER}
+
+	START_EXIT=$?
+	if [ "$START_EXIT" -ne 0 ]; then
+		rm -rf ${LIB}
+		return "$START_EXIT"
+	fi
+
+	# run the actual server
+	singularity run instance://${SERVER} \
+		tritonserver --model-repository=/models $VERBOSE >& ${LOG} &
+}
+
+stop_docker(){
+	# keep log
+	if [ -n "$VERBOSE" ]; then $DOCKER logs ${SERVER} >& ${LOG}; fi
+
+	$DOCKER stop ${SERVER}
+	$DOCKER rm ${SERVER}
+}
+
+stop_singularity(){
+	singularity instance stop ${SERVER}
+
+	# cleanup
+	rm -rf ${LIB}
+	if [ -z "$VERBOSE" ]; then rm ${LOG}; fi
+}
+
+test_docker(){
+	# docker logs print to stderr
+	${DOCKER} logs ${SERVER} |& grep "$STARTED_INDICATOR"
+}
+
+test_singularity(){
+	grep "$STARTED_INDICATOR" $LOG
+}
+
+wait_server(){
+	COUNT=0
+	while ! $WAIT_COND >& /dev/null; do
+		if [ "$COUNT" -gt "$WTIME" ]; then
+			echo "timed out waiting for server to start"
+			VERBOSE=true $STOP_FN
+			exit 1
+		else
+			COUNT=$(($COUNT + 1))
+			sleep 1
+		fi
+	done
+
+	echo "server is ready!"
+	exit 0
+}
+
+if [ -n "$USEDOCKER" ]; then
+	if [ -n "$GPU" ]; then
+		EXTRA="--gpus all"
+	fi
+	START_FN=start_docker
+	WAIT_COND=test_docker
+	STOP_FN=stop_docker
+	PROG_NAME=Docker
+else
+	if [ -n "$GPU" ]; then
+		EXTRA="--nv"
+	fi
+	START_FN=start_singularity
+	WAIT_COND=test_singularity
+	STOP_FN=stop_singularity
+	PROG_NAME=Singularity
+fi
+
+if [ "$OP" == start ]; then
+	$START_FN
+	START_EXIT=$?
+	if [ "$START_EXIT" -ne 0 ]; then
+		echo "Error from $PROG_NAME"
+		exit "$START_EXIT"
+	fi
+	wait_server
+else
+	$STOP_FN
+fi

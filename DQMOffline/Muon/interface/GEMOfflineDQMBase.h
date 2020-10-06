@@ -97,9 +97,11 @@ public:
 };
 
 inline int GEMOfflineDQMBase::getMaxVFAT(const int station) {
-  if (station == 1)
+  if (GEMSubDetId::station(station) == GEMSubDetId::Station::GE0)
+    return GEMeMap::maxVFatGE0_;
+  else if (GEMSubDetId::station(station) == GEMSubDetId::Station::GE11)
     return GEMeMap::maxVFatGE11_;
-  else if (station == 2)
+  else if (GEMSubDetId::station(station) == GEMSubDetId::Station::GE21)
     return GEMeMap::maxVFatGE21_;
   else
     return -1;
