@@ -30,19 +30,20 @@
 //        bool isItRBX(detId): if it/they is in the chosen RBX
 //        bool isItRBX(ieta, iphi): if it is in the chosen RBX
 // void CalibCorrTest(infile, flag)
-//      Tests a file which contains correction factors used by CalibCorr
+//      Tests a file which contains correction factors used by CalibCorr 
 //////////////////////////////////////////////////////////////////////////////
 
 #include <algorithm>
-#include <map>
-#include <vector>
-#include <string>
 #include <iomanip>
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <TROOT.h>
+#include <map>
+#include <string>
+#include <vector>
+
 #include <TChain.h>
+#include <TROOT.h>
 
 void unpackDetId(unsigned int detId, int& subdet, int& zside, int& ieta, int& iphi, int& depth) {
   // The maskings are defined in DataFormats/DetId/interface/DetId.h
