@@ -9,6 +9,11 @@
   <use name="dd4hep"/>
 </bin>
 
+<bin name="testDD4hepFilteredViewGet" file="DDFilteredView.get.cppunit.cc,testRunner.cpp">
+  <use name="DetectorDescription/DDCMS"/>
+  <use name="dd4hep"/>
+</bin>
+
 <bin name="testDD4hepFilteredViewGoTo" file="DDFilteredView.goto.cppunit.cc,testRunner.cpp">
   <use name="DetectorDescription/DDCMS"/>
   <use name="dd4hep"/>

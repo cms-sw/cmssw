@@ -643,6 +643,7 @@ const DDSpecPar* DDFilteredView::find(const std::string& key) const {
   filter(refs, key);
 
   int level = it_.back().GetLevel();
+
   for (auto const& i : refs) {
     auto k = find_if(begin(i->paths), end(i->paths), [&](auto const& j) {
       auto topos = j.size();
@@ -650,6 +651,7 @@ const DDSpecPar* DDFilteredView::find(const std::string& key) const {
       bool flag = false;
       for (int nit = level; frompos - 1 <= topos and nit > 0; --nit) {
         std::string_view name = it_.back().GetNode(nit)->GetVolume()->GetName();
+        const int copyNum = it_.back().GetNode(nit)->GetNumber();
         std::string_view refname{&j[frompos + 1], topos - frompos - 1};
         topos = frompos;
         frompos = j.substr(0, topos).rfind('/');
@@ -664,10 +666,9 @@ const DDSpecPar* DDFilteredView::find(const std::string& key) const {
         }
         auto cpos = refname.rfind('[');
         if (cpos != refname.npos) {
-          if (std::stoi(std::string(refname.substr(cpos + 1, refname.rfind(']')))) == copyNum()) {
+          if (std::stoi(std::string(refname.substr(cpos + 1, refname.rfind(']')))) == copyNum) {
             refname.remove_suffix(refname.size() - cpos);
             flag = true;
-            continue;
           } else {
             flag = false;
             break;
@@ -679,7 +680,6 @@ const DDSpecPar* DDFilteredView::find(const std::string& key) const {
             break;
           } else {
             flag = true;
-            continue;
           }
         } else {
           if (!regex_match(std::string(name.data(), name.size()), regex(std::string(refname)))) {

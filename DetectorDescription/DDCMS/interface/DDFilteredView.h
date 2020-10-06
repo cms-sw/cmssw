@@ -192,6 +192,36 @@ namespace cms {
     template <typename T>
     T get(const std::string&);
 
+    //! extract attribute value for current Node
+    //  keep the maespace for comparison
+    //  assume there are no regular expressions
+    template <typename T>
+    std::vector<T> getValuesNS(const std::string& key) {
+      DDSpecParRefs refs;
+      registry_->filter(refs, key);
+
+      std::string path = this->path();
+      for (const auto& specPar : refs) {
+        for (const auto& part : specPar->paths) {
+          bool flag(true);
+          std::size_t from = 0;
+          for (auto name : dd4hep::dd::split(part, "/")) {
+            auto const& to = path.find(name, from);
+            if (to == std::string::npos) {
+              flag = false;
+              break;
+            } else {
+              from = to;
+            }
+          }
+          if (flag) {
+            return specPar->value<std::vector<T>>(key);
+          }
+        }
+      }
+      return std::vector<T>();
+    }
+
     //! extract another value from the same SpecPar
     //  call get<double> first to find a relevant one
     double getNextValue(const std::string&) const;
