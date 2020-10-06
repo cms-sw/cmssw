@@ -477,7 +477,7 @@ std::string_view DDFilteredView::get<string_view>(const string& key) {
 
   currentSpecPar_ = find(key);
   if (currentSpecPar_ != nullptr) {
-    result = currentSpecPar_->strValue(key);  /// Dont use that ir doesnt work
+    result = currentSpecPar_->strValue(key);
   }
   return result;
 }
