@@ -1346,26 +1346,26 @@ _cell_association_table = PlotGroup("cellAssociation_table", [
         Plot("cellAssociation_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_assoc) for i in range(0,maxlayerzm)
         ], ncols=8 )
 
-_common_eff = {"stat": False, "legend": False}
+_common_eff = {"stat": False, "legend": False, "xbinlabelsize": 14, "xbinlabeloption": "d"}
 _effplots = [Plot("effic_eta", xtitle="", **_common_eff)]
 _effplots.extend([Plot("effic_phi", xtitle="", **_common_eff)])
 _effplots.extend([Plot("globalEfficiencies", xtitle="", **_common_eff)])
 _efficiencies = PlotGroup("Efficiencies", _effplots, ncols=3)
 
 
-_common_dup = {"stat": False, "legend": False}
+_common_dup = {"stat": False, "legend": False, "xbinlabelsize": 14, "xbinlabeloption": "d"}
 _dupplots = [Plot("duplicate_eta", xtitle="", **_common_dup)]
 _dupplots.extend([Plot("duplicate_phi", xtitle="", **_common_dup)])
 _dupplots.extend([Plot("globalEfficiencies", xtitle="", **_common_dup)])
 _duplicates = PlotGroup("Duplicates", _dupplots, ncols=3)
 
-_common_fake = {"stat": False, "legend": False}
+_common_fake = {"stat": False, "legend": False, "xbinlabelsize": 14, "xbinlabeloption": "d"}
 _fakeplots = [Plot("fake_eta", xtitle="", **_common_fake)]
 _fakeplots.extend([Plot("fake_phi", xtitle="", **_common_fake)])
 _fakeplots.extend([Plot("globalEfficiencies", xtitle="", **_common_fake)])
 _fakes = PlotGroup("FakeRate", _fakeplots, ncols=3)
 
-_common_merge = {"stat": False, "legend": False}
+_common_merge = {"stat": False, "legend": False, "xbinlabelsize": 14, "xbinlabeloption": "d"}
 _mergeplots = [Plot("merge_eta", xtitle="", **_common_merge)]
 _mergeplots.extend([Plot("merge_phi", xtitle="", **_common_merge)])
 _mergeplots.extend([Plot("globalEfficiencies", xtitle="", **_common_merge)])
