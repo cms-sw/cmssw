@@ -21,6 +21,7 @@ import pickle
 import string, re
 import configparser as ConfigParser
 import json
+import pprint
 import subprocess
 from optparse import OptionParser
 from subprocess import Popen, PIPE
@@ -121,7 +122,7 @@ def getNEvents(run, dataset):
     return 0 if nEvents == "[]\n" else int(nEvents)
 
 ##############################################
-def getLuminosity(minRun,maxRun,isRunBased):
+def getLuminosity(minRun,maxRun,isRunBased,verbose):
 ##############################################
     """Expects something like
     +-------+------+--------+--------+-------------------+------------------+
@@ -138,8 +139,9 @@ def getLuminosity(minRun,maxRun,isRunBased):
     #output = subprocess.check_output(["/afs/cern.ch/user/m/musich/.local/bin/brilcalc", "lumi", "-b", "STABLE BEAMS", "--normtag=/afs/cern.ch/user/l/lumipro/public/normtag_file/normtag_BRIL.json", "-u", "/pb", "--begin", str(minRun),"--end",str(maxRun),"--output-style","csv"])
     output = subprocess.check_output(["/afs/cern.ch/user/m/musich/.local/bin/brilcalc", "lumi", "-b", "STABLE BEAMS","-u", "/pb", "--begin", str(minRun),"--end",str(maxRun),"--output-style","csv","-c","web"])
 
-    print("INSIDE GET LUMINOSITY")
-    print(output)
+    if(verbose):
+        print("INSIDE GET LUMINOSITY")
+        print(output)
 
     for line in output.decode().split("\n"):
         if ("#" not in line):
@@ -149,7 +151,8 @@ def getLuminosity(minRun,maxRun,isRunBased):
             #print "lumi",lumiToCache
             myCachedLumi[runToCache] = lumiToCache
 
-    print(myCachedLumi)
+    if(verbose):
+        print(myCachedLumi)
     return myCachedLumi
 
 ##############################################
@@ -582,7 +585,8 @@ def main():
     parser.add_option('-i','--input',     help='set input configuration (overrides default)', dest='inputconfig',action='store',default=None)
     parser.add_option('-b','--begin',  help='starting point',        dest='start',  action='store'     ,default='1')
     parser.add_option('-e','--end',    help='ending point',          dest='end',    action='store'     ,default='999999')
-   
+    parser.add_option('-v','--verbose', help='verbose output',      dest='verbose',     action='store_true', default=False)
+
     (opts, args) = parser.parse_args()
 
     now = datetime.datetime.now()
@@ -768,12 +772,11 @@ def main():
         cmd = 'dasgoclient -limit=0 -query \'run dataset='+opts.data+'\''
         p = Popen(cmd , shell=True, stdout=PIPE, stderr=PIPE)
         out, err = p.communicate()
-        print(out)
+        #print(out)
         listOfRuns=out.decode().split("\n")
         listOfRuns.pop()
         listOfRuns.sort()
-        print("Will run on ",len(listOfRuns),"runs")
-        print(listOfRuns)
+        print("Will run on ",len(listOfRuns),"runs: \n",listOfRuns)
 
         mytuple=[]
 
@@ -838,8 +841,9 @@ def main():
         if(len(myRuns)==0):
             raise Exception('Will not run on any run.... please check again the configuration')
 
-        myLumiDB = getLuminosity(myRuns[0],myRuns[-1],doRunBased)
-        print(myLumiDB)
+        myLumiDB = getLuminosity(myRuns[0],myRuns[-1],doRunBased,opts.verbose)
+        if(opts.verbose):
+            pprint.pprint(myLumiDB)
 
     # start loop on samples
     for iConf in range(len(jobName)):
@@ -902,14 +906,18 @@ def main():
         batchJobIds = []
         mergedFile = None
 
-        print("myRuns =====>",myRuns)
+        if(opts.verbose):
+            print("myRuns =====>",myRuns)
 
         totalJobs=0
         theBashDir=None
         theBaseName=None
 
         for jobN,theSrcFiles in enumerate(inputFiles):
-            print("JOB:",jobN,"run",myRuns[jobN],theSrcFiles)
+            if(opts.verbose):
+                print("JOB:",jobN,"run",myRuns[jobN],theSrcFiles)
+            else:
+                print("JOB:",jobN,"run",myRuns[jobN])
             thejobIndex=None
             theLumi='1'
 

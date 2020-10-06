@@ -134,7 +134,8 @@ def getLuminosity(homedir,minRun,maxRun,isRunBased,verbose):
             #print("lumi",lumiToCache)
             myCachedLumi[runToCache] = lumiToCache
 
-    #print(myCachedLumi)
+    if(verbose):
+        print(myCachedLumi)
     return myCachedLumi
 
 ##############################################
@@ -253,6 +254,9 @@ def main():
     inputDict = as_dict(config)
     pprint.pprint(inputDict)
 
+    if(not bool(inputDict)):
+        raise SystemExit("\n\n ERROR! Could not parse any input file, perhaps you are submitting this from the wrong folder? \n\n")
+
     ## check first there is a valid grid proxy
     forward_proxy(".")
 
@@ -261,12 +265,12 @@ def main():
 
     if(not os.path.exists("cfg")):
         os.system("mkdir cfg")
-        os.system("mkdir bash")
+        os.system("mkdir BASH")
         os.system("mkdir harvest")
         os.system("mkdir out")
 
     cwd = os.getcwd()
-    bashdir = os.path.join(cwd,"bash")
+    bashdir = os.path.join(cwd,"BASH")
 
     runs.sort()
     # get from the DB the int luminosities
@@ -344,7 +348,7 @@ def main():
                 key = key.split(":", 1)[1]
                 print("dealing with",key)
 
-            os.system("cp PrimaryVertexResolution_templ_cfg.py ./cfg/PrimaryVertexResolution_"+key+"_"+run+"_cfg.py")
+            os.system("cp "+input_CMSSW_BASE+"/src/Alignment/OfflineValidation/test/PrimaryVertexResolution_templ_cfg.py ./cfg/PrimaryVertexResolution_"+key+"_"+run+"_cfg.py")
             os.system("sed -i 's|XXX_FILES_XXX|"+listOfFiles+"|g' "+cwd+"/cfg/PrimaryVertexResolution_"+key+"_"+run+"_cfg.py")
             os.system("sed -i 's|XXX_RUN_XXX|"+run+"|g' "+cwd+"/cfg/PrimaryVertexResolution_"+key+"_"+run+"_cfg.py")
             os.system("sed -i 's|YYY_KEY_YYY|"+key+"|g' "+cwd+"/cfg/PrimaryVertexResolution_"+key+"_"+run+"_cfg.py")
