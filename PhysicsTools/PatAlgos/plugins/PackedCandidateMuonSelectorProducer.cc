@@ -94,7 +94,7 @@ void pat::PackedCandidateMuonSelectorProducer::produce(edm::Event& iEvent, const
       const auto& cand = pat::PackedCandidateRef(candidates, i);
       const auto& candTrack = candidate2PF[cand]->trackRef();
       // check if candidate and muon are compatible
-      if (candTrack.isNonnull() && muonTrack.id() == candTrack.id()) {
+      if (candTrack.isNonnull() && muonTrack == candTrack) {
         for (const auto& sel : muonSelectors_) {
           if (muon::isGoodMuon(muon, muon::selectionTypeFromString(sel)))
             candMap[sel]->push_back(cand);
