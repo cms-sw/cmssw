@@ -32,15 +32,18 @@ void DDTestSpecPars::analyze(const Event&, const EventSetup& iEventSetup) {
   LogVerbatim("Geometry").log([&registry](auto& log) {
     log << "DD SpecPar Registry size: " << registry->specpars.size();
     for (const auto& i : registry->specpars) {
-      log << " " << i.first << " => ";
+      log << " " << i.first << " == " << std::string({i.second.name.data(), i.second.name.size()}) << " =>";
+      log << "\npaths:\n";
       for (const auto& k : i.second.paths)
         log << k << ", ";
+      log << "\nstring parameters:\n";
       for (const auto& l : i.second.spars) {
-        log << l.first << " => ";
+        log << l.first << " == " << i.second.strValue(l.first) << " = ";
         for (const auto& il : l.second) {
           log << il << ", ";
         }
       }
+      log << "\nnumeric parameters\n";
       for (const auto& m : i.second.numpars) {
         log << m.first << " => ";
         for (const auto& im : m.second) {

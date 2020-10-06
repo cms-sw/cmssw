@@ -8,10 +8,7 @@ using namespace dd4hep;
 using namespace cms;
 using namespace cms_units::operators;
 
-static long algorithm(Detector& /* description */,
-                      cms::DDParsingContext& context,
-                      xml_h element,
-                      SensitiveDetector& /* sens */) {
+static long algorithm(Detector& /* description */, cms::DDParsingContext& context, xml_h element) {
   using VecDouble = vector<double>;
 
   cms::DDNamespace ns(context, element, true);

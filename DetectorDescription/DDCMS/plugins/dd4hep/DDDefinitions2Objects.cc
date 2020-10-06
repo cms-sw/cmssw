@@ -25,9 +25,9 @@
 #include <iostream>
 #include <iomanip>
 #include <map>
+#include <vector>
+#include <unordered_map>
 #include <utility>
-#include "tbb/concurrent_unordered_map.h"
-#include "tbb/concurrent_vector.h"
 
 using namespace std;
 using namespace dd4hep;
@@ -50,8 +50,8 @@ namespace dd4hep {
     class DDLConstant;
 
     struct DDRegistry {
-      tbb::concurrent_vector<xml::Document> includes;
-      tbb::concurrent_unordered_map<std::string, std::string> unresolvedConst, allConst, originalConst;
+      std::vector<xml::Document> includes;
+      std::unordered_map<std::string, std::string> unresolvedConst, allConst, originalConst;
     };
 
     class MaterialSection;
@@ -101,8 +101,6 @@ namespace dd4hep {
     class PartSelector;
     class Parameter;
 
-    class vissection;
-    class vis;
     class debug;
   }  // namespace
 
@@ -132,13 +130,6 @@ namespace dd4hep {
   void Converter<DDLConstant>::operator()(xml_h element) const;
   template <>
   void Converter<DDRegistry>::operator()(xml_h element) const;
-
-  /// Converter for <VisSection/> tags
-  template <>
-  void Converter<vissection>::operator()(xml_h element) const;
-  /// Convert compact visualization attributes
-  template <>
-  void Converter<vis>::operator()(xml_h element) const;
 
   /// Converter for <MaterialSection/> tags
   template <>
@@ -279,13 +270,6 @@ void Converter<ConstantsSection>::operator()(xml_h element) const {
   xml_coll_t(element, DD_CMU(Vector)).for_each(Converter<DDLVector>(description, context, optional));
 }
 
-/// Converter for <VisSection/> tags
-template <>
-void Converter<vissection>::operator()(xml_h element) const {
-  cms::DDNamespace ns(_param<cms::DDParsingContext>(), element);
-  xml_coll_t(element, DD_CMU(vis)).for_each(Converter<vis>(description, ns.context(), optional));
-}
-
 /// Converter for <MaterialSection/> tags
 template <>
 void Converter<MaterialSection>::operator()(xml_h element) const {
@@ -347,7 +331,6 @@ template <>
 void Converter<SolidSection>::operator()(xml_h element) const {
   cms::DDNamespace ns(_param<cms::DDParsingContext>(), element);
   for (xml_coll_t solid(element, _U(star)); solid; ++solid) {
-    string tag = solid.tag();
     using cms::hash;
     switch (hash(solid.tag())) {
       case hash("Box"):
@@ -411,7 +394,8 @@ void Converter<SolidSection>::operator()(xml_h element) const {
         Converter<DDLShapeless>(description, ns.context(), optional)(solid);
         break;
       default:
-        throw std::runtime_error("Request to process unknown shape '" + xml_dim_t(solid).nameStr() + "' [" + tag + "]");
+        throw std::runtime_error("Request to process unknown shape '" + xml_dim_t(solid).nameStr() + "' [" +
+                                 solid.tag() + "]");
         break;
     }
   }
@@ -466,59 +450,6 @@ void Converter<DDLConstant>::operator()(xml_h element) const {
   res->allConst[real] = val;
   res->originalConst[real] = val;
   res->unresolvedConst[real] = val;
-}
-
-/** Convert compact visualization attribute to Detector visualization attribute
- *
- *  <vis name="SiVertexBarrelModuleVis"
- *       alpha="1.0" r="1.0" g="0.75" b="0.76"
- *       drawingStyle="wireframe"
- *       showDaughters="false"
- *       visible="true"/>
- */
-template <>
-void Converter<vis>::operator()(xml_h e) const {
-  cms::DDNamespace ns(_param<cms::DDParsingContext>());
-  VisAttr attr(e.attr<string>(_U(name)));
-  float red = e.hasAttr(_U(r)) ? e.attr<float>(_U(r)) : 1.0f;
-  float green = e.hasAttr(_U(g)) ? e.attr<float>(_U(g)) : 1.0f;
-  float blue = e.hasAttr(_U(b)) ? e.attr<float>(_U(b)) : 1.0f;
-
-  printout(ns.context()->debug_visattr ? ALWAYS : DEBUG,
-           "Compact",
-           "++ Converting VisAttr  structure: %-16s. R=%.3f G=%.3f B=%.3f",
-           attr.name(),
-           red,
-           green,
-           blue);
-  attr.setColor(red, green, blue);
-  if (e.hasAttr(_U(alpha)))
-    attr.setAlpha(e.attr<float>(_U(alpha)));
-  if (e.hasAttr(_U(visible)))
-    attr.setVisible(e.attr<bool>(_U(visible)));
-  if (e.hasAttr(_U(lineStyle))) {
-    string ls = e.attr<string>(_U(lineStyle));
-    if (ls == "unbroken")
-      attr.setLineStyle(VisAttr::SOLID);
-    else if (ls == "broken")
-      attr.setLineStyle(VisAttr::DASHED);
-  } else {
-    attr.setLineStyle(VisAttr::SOLID);
-  }
-  if (e.hasAttr(_U(drawingStyle))) {
-    string ds = e.attr<string>(_U(drawingStyle));
-    if (ds == "wireframe")
-      attr.setDrawingStyle(VisAttr::WIREFRAME);
-    else if (ds == "solid")
-      attr.setDrawingStyle(VisAttr::SOLID);
-  } else {
-    attr.setDrawingStyle(VisAttr::SOLID);
-  }
-  if (e.hasAttr(_U(showDaughters)))
-    attr.setShowDaughters(e.attr<bool>(_U(showDaughters)));
-  else
-    attr.setShowDaughters(true);
-  description.addVisAttribute(attr);
 }
 
 /// Converter for <DDLElementaryMaterial/> tags
@@ -577,7 +508,7 @@ void Converter<DDLElementaryMaterial>::operator()(xml_h element) const {
                "+++ Compared to XML values: Atomic weight %g, Atomic number %u",
                atomicWeight,
                atomicNumber);
-      static const double weightTolerance = 1.0e-6;
+      static constexpr double const weightTolerance = 1.0e-6;
       if (atomicNumber != elt->Z() ||
           (std::abs(atomicWeight - elt->A()) > (weightTolerance * (atomicWeight + elt->A()))))
         newMatDef = true;
@@ -981,7 +912,7 @@ void Converter<Parameter>::operator()(xml_h element) const {
 
   size_t idx = value.find('[');
   if (idx == string::npos || type == "string") {
-    registry.specpars[specParName].spars[name].emplace_back(value);
+    registry.specpars[specParName].spars[name].emplace_back(std::move(value));
     return;
   }
 
@@ -1657,17 +1588,14 @@ void Converter<DDLAlgorithm>::operator()(xml_h element) const {
   }
 
   size_t idx;
-  SensitiveDetector sd;
   string type = "DDCMS_" + ns.realName(name);
   while ((idx = type.find(NAMESPACE_SEP)) != string::npos)
     type[idx] = '_';
 
-  // SensitiveDetector and Segmentation currently are undefined. Let's keep it like this
-  // until we found something better.....
   printout(
       ns.context()->debug_algorithms ? ALWAYS : DEBUG, "DD4CMS", "+++ Start executing algorithm %s....", type.c_str());
 
-  long ret = PluginService::Create<long>(type, &description, ns.context(), &element, &sd);
+  long ret = PluginService::Create<long>(type, &description, ns.context(), &element);
   if (ret == s_executed) {
     printout(ns.context()->debug_algorithms ? ALWAYS : DEBUG,
              "DD4CMS",
@@ -1707,8 +1635,8 @@ namespace {
     return output;
   }
 
-  tbb::concurrent_vector<double> splitNumeric(const string& str, const string& delims = ",") {
-    tbb::concurrent_vector<double> output;
+  std::vector<double> splitNumeric(const string& str, const string& delims = ",") {
+    std::vector<double> output;
 
     for_each_token(cbegin(str), cend(str), cbegin(delims), cend(delims), [&output](auto first, auto second) {
       if (first != second) {
@@ -1745,8 +1673,10 @@ void Converter<DDLVector>::operator()(xml_h element) const {
            nEntries.c_str(),
            val.c_str());
   try {
-    tbb::concurrent_vector<double> results = splitNumeric(val);
-    registry->insert({name, results});
+    std::vector<double> results = splitNumeric(val);
+    registry->insert(
+        {name,
+         results});  //tbb::concurrent_vector<double, tbb::cache_aligned_allocator<double>>(results.begin(), results.end())});
   } catch (const exception& e) {
     printout(INFO,
              "DD4CMS",
@@ -1830,7 +1760,7 @@ void Converter<DDRegistry>::operator()(xml_h /* element */) const {
                  n.c_str(),
                  res->originalConst[n].c_str());
         ns.addConstantNS(n, v, "number");
-        res->unresolvedConst.unsafe_erase(n);
+        res->unresolvedConst.erase(n);
         break;
       }
     }
@@ -1888,7 +1818,6 @@ static long load_dddefinition(Detector& det, xml_h element) {
       print_doc((doc = dddef.document()).root());
       xml_coll_t(dddef, DD_CMU(DisabledAlgo)).for_each(Converter<disabled_algo>(det, &context, &res));
       xml_coll_t(dddef, DD_CMU(ConstantsSection)).for_each(Converter<ConstantsSection>(det, &context, &res));
-      xml_coll_t(dddef, DD_CMU(VisSection)).for_each(Converter<vissection>(det, &context));
       xml_coll_t(dddef, DD_CMU(RotationSection)).for_each(Converter<RotationSection>(det, &context));
       xml_coll_t(dddef, DD_CMU(MaterialSection)).for_each(Converter<MaterialSection>(det, &context));
 
@@ -1910,12 +1839,12 @@ static long load_dddefinition(Detector& det, xml_h element) {
 
         while (!context.unresolvedVectors.empty()) {
           for (auto it = context.unresolvedVectors.begin(); it != context.unresolvedVectors.end();) {
-            auto const& name = it->first;
-            tbb::concurrent_vector<double> result;
+            std::vector<double> result;
             for (const auto& i : it->second) {
               result.emplace_back(dd4hep::_toDouble(i));
             }
-            registry->insert({name, result});
+            registry->insert({it->first, result});
+            //                 tbb::concurrent_vector<double, tbb::cache_aligned_allocator<double>>(begin(result), end(result))});
             // All components are resolved
             it = context.unresolvedVectors.erase(it);
           }
