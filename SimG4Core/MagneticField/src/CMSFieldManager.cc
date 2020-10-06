@@ -17,7 +17,9 @@ CMSFieldManager::CMSFieldManager()
       m_chordFinderMonopole(nullptr),
       m_propagator(nullptr),
       m_dChord(0.001),
+      m_dChordTracker(0.001),
       m_dOneStep(0.001),
+      m_dOneStepTracker(0.0001),
       m_dIntersection(0.0001),
       m_dInterTracker(1e-6),
       m_Rmax2(1.e+6),
@@ -57,7 +59,9 @@ void CMSFieldManager::InitialiseForVolume(const edm::ParameterSet &p,
 
   // double
   m_dChord = p.getParameter<double>("DeltaChord") * CLHEP::mm;
+  m_dChordTracker = p.getParameter<double>("DeltaChord") * CLHEP::mm;
   m_dOneStep = p.getParameter<double>("DeltaOneStep") * CLHEP::mm;
+  m_dOneStepTracker = p.getParameter<double>("DeltaOneStepTracker") * CLHEP::mm;
   m_dIntersection = p.getParameter<double>("DeltaIntersection") * CLHEP::mm;
   m_dInterTracker = p.getParameter<double>("DeltaIntersectionTracker") * CLHEP::mm;
   m_stepMax = p.getParameter<double>("MaxStep") * CLHEP::cm;
@@ -199,9 +203,9 @@ void CMSFieldManager::setDefaultChordFinder() {
 
 void CMSFieldManager::setChordFinderForTracker() {
   m_currChordFinder = m_chordFinder;
-  m_currChordFinder->SetDeltaChord(m_dChord);
+  m_currChordFinder->SetDeltaChord(m_dChordTracker);
   SetChordFinder(m_currChordFinder);
-  SetDeltaOneStep(m_dOneStep);
+  SetDeltaOneStep(m_dOneStepTracker);
   SetDeltaIntersection(m_dInterTracker);
   m_propagator->SetLargestAcceptableStep(m_stepMax);
   m_cfVacuum = false;

@@ -62,7 +62,9 @@ private:
   std::vector<const G4Region *> m_regions;
 
   double m_dChord;
+  double m_dChordTracker;
   double m_dOneStep;
+  double m_dOneStepTracker;
   double m_dIntersection;
   double m_dInterTracker;
   double m_Rmax2;
