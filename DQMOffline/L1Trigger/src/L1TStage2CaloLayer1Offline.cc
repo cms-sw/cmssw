@@ -188,14 +188,6 @@ void L1TStage2CaloLayer1Offline::dqmAnalyze(const edm::Event& event,
     }
   }
 
-  //These monitoring elements are no longer available offline
-  // if (nEcalLinkErrors > maxEvtLinkErrorsECALCurrentLumi_) {
-  //   maxEvtLinkErrorsECALCurrentLumi_ = nEcalLinkErrors;
-  // }
-  // if (nEcalMismatch > maxEvtMismatchECALCurrentLumi_) {
-  //   maxEvtMismatchECALCurrentLumi_ = nEcalMismatch;
-  // }
-
   edm::Handle<HcalTrigPrimDigiCollection> hcalTPsSent;
   event.getByToken(hcalTPSourceSent_, hcalTPsSent);
   edm::Handle<HcalTrigPrimDigiCollection> hcalTPsRecd;
@@ -302,7 +294,6 @@ void L1TStage2CaloLayer1Offline::dqmAnalyze(const edm::Event& event,
         }
         data.hcalOccEtDiscrepancy_->Fill(ieta, iphi);
         data.hcalTPRawEtDiffNoMatch_->Fill(recdTp.SOI_compressedEt() - sentTp.SOI_compressedEt());
-        //updateMismatch(event, 2);
 
         // Handle HCal discrepancy debug
         if (sentTp.SOI_compressedEt() == 0)
@@ -315,24 +306,14 @@ void L1TStage2CaloLayer1Offline::dqmAnalyze(const edm::Event& event,
       if (not Hfb1Agreement) {
         // Handle fine grain discrepancies
         data.hcalOccFbDiscrepancy_->Fill(ieta, iphi);
-        //updateMismatch(event, 3);
       }
       if (not Hfb2Agreement) {
         // Handle fine grain discrepancies
         data.hcalOccFb2Discrepancy_->Fill(ieta, iphi);
-        //updateMismatch(event, 3);
       }
     }
   }
 
-  //These monitoring elements are no longer available offline
-  // if (nHcalLinkErrors > maxEvtLinkErrorsHCALCurrentLumi_) {
-  //   maxEvtLinkErrorsHCALCurrentLumi_ = nHcalLinkErrors;
-  // }
-  // if (nHcalMismatch > maxEvtMismatchHCALCurrentLumi_) {
-  //   maxEvtMismatchHCALCurrentLumi_ = nHcalMismatch;
-  // }
-  //This happens per event in offline
   //autoscales axis limits in render plugin
   auto id = static_cast<double>(event.id().luminosityBlock());
   data.ecalLinkErrorByLumi_->setBinContent(0, id);
@@ -340,72 +321,6 @@ void L1TStage2CaloLayer1Offline::dqmAnalyze(const edm::Event& event,
   data.hcalLinkErrorByLumi_->setBinContent(0, id);
   data.hcalMismatchByLumi_->setBinContent(0, id);
 }
-
-//
-// These functions are used in the online module for luminosity block transition information
-//
-
-// void L1TStage2CaloLayer1Offline::updateMismatch(const edm::Event& e, int mismatchType) {
-//   auto id = e.id();
-//   std::string eventString{std::to_string(id.run()) + ":" + std::to_string(id.luminosityBlock()) + ":" +
-//                           std::to_string(id.event())};
-//   if (last20MismatchArray_.at(lastMismatchIndex_).first == eventString) {
-//     // same event
-//     last20MismatchArray_.at(lastMismatchIndex_).second |= 1 << mismatchType;
-//   } else {
-//     // New event, advance
-//     lastMismatchIndex_ = (lastMismatchIndex_ + 1) % 20;
-//     last20MismatchArray_.at(lastMismatchIndex_) = {eventString, 1 << mismatchType};
-//   }
-// }
-
-// void L1TStage2CaloLayer1Offline::beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) {
-//   // Ugly way to loop backwards through the last 20 mismatches
-//   auto h = last20Mismatches_;
-//   for (size_t ibin = 1, imatch = lastMismatchIndex_; ibin <= 20; ibin++, imatch = (imatch + 19) % 20) {
-//     h->setBinLabel(ibin, last20MismatchArray_.at(imatch).first, /* axis */ 2);
-//     for (int itype = 0; itype < h->getNbinsX(); ++itype) {
-//       int binContent = (last20MismatchArray_.at(imatch).second >> itype) & 1;
-//       last20Mismatches_->setBinContent(itype + 1, ibin, binContent);
-//     }
-//   }
-// }
-
-// void L1TStage2CaloLayer1Offline::endLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup&) {
-//   auto id = static_cast<double>(lumi.id().luminosityBlock());  // uint64_t
-
-//   if (maxEvtLinkErrorsECALCurrentLumi_ > 0) {
-//     maxEvtLinkErrorsByLumiECAL_->Fill(id, maxEvtLinkErrorsECALCurrentLumi_);
-//   }
-//   if (maxEvtLinkErrorsHCALCurrentLumi_ > 0) {
-//     maxEvtLinkErrorsByLumiHCAL_->Fill(id, maxEvtLinkErrorsHCALCurrentLumi_);
-//   }
-//   if (maxEvtLinkErrorsECALCurrentLumi_ + maxEvtLinkErrorsHCALCurrentLumi_ > 0) {
-//     maxEvtLinkErrorsByLumi_->Fill(id, maxEvtLinkErrorsECALCurrentLumi_ + maxEvtLinkErrorsHCALCurrentLumi_);
-//   }
-//   maxEvtLinkErrorsECALCurrentLumi_ = 0;
-//   maxEvtLinkErrorsHCALCurrentLumi_ = 0;
-
-//   if (maxEvtMismatchECALCurrentLumi_ > 0) {
-//     maxEvtMismatchByLumiECAL_->Fill(id, maxEvtMismatchECALCurrentLumi_);
-//   }
-//   if (maxEvtMismatchHCALCurrentLumi_ > 0) {
-//     maxEvtMismatchByLumiHCAL_->Fill(id, maxEvtMismatchHCALCurrentLumi_);
-//   }
-//   if (maxEvtMismatchECALCurrentLumi_ + maxEvtMismatchHCALCurrentLumi_ > 0) {
-//     maxEvtMismatchByLumi_->Fill(id, maxEvtMismatchECALCurrentLumi_ + maxEvtMismatchHCALCurrentLumi_);
-//   }
-//   maxEvtMismatchECALCurrentLumi_ = 0;
-//   maxEvtMismatchHCALCurrentLumi_ = 0;
-
-//   // Simple way to embed current lumi to auto-scale axis limits in render plugin
-//   maxEvtLinkErrorsByLumiECAL_->setBinContent(0, id);
-//   maxEvtLinkErrorsByLumiHCAL_->setBinContent(0, id);
-//   maxEvtLinkErrorsByLumi_->setBinContent(0, id);
-//   maxEvtMismatchByLumiECAL_->setBinContent(0, id);
-//   maxEvtMismatchByLumiHCAL_->setBinContent(0, id);
-//   maxEvtMismatchByLumi_->setBinContent(0, id);
-// }
 
 void L1TStage2CaloLayer1Offline::bookHistograms(DQMStore::IBooker& ibooker,
                                                 const edm::Run& run,
@@ -494,25 +409,6 @@ void L1TStage2CaloLayer1Offline::bookHistograms(DQMStore::IBooker& ibooker,
 
   ibooker.setCurrentFolder(histFolder_ + "/MismatchDetail");
 
-  //Removed online monitoring element
-  //const int nMismatchTypes = 4;
-  // last20Mismatches_ = ibooker.book2D("last20Mismatches",
-  //                                    "Log of last 20 mismatches (use json tool to copy/paste)",
-  //                                    nMismatchTypes,
-  //                                    0,
-  //                                    nMismatchTypes,
-  //                                    20,
-  //                                    0,
-  //                                    20);
-  // last20Mismatches_->setBinLabel(1, "Ecal TP Et Mismatch");
-  // last20Mismatches_->setBinLabel(2, "Ecal TP Fine Grain Bit Mismatch");
-  // last20Mismatches_->setBinLabel(3, "Hcal TP Et Mismatch");
-  // last20Mismatches_->setBinLabel(4, "Hcal TP Feature Bit Mismatch");
-  // for (size_t i = 0; i < last20MismatchArray_.size(); ++i)
-  //   last20MismatchArray_[i] = {"-" + std::to_string(i), 0};
-  // for (size_t i = 1; i <= 20; ++i)
-  //   last20Mismatches_->setBinLabel(i, "-" + std::to_string(i), /* axis */ 2);
-
   const int nLumis = 2000;
   data.ecalLinkErrorByLumi_ = ibooker.book1D(
       "ecalLinkErrorByLumi", "Link error counts per lumi section for ECAL;LumiSection;Counts", nLumis, .5, nLumis + 0.5);
@@ -529,45 +425,6 @@ void L1TStage2CaloLayer1Offline::bookHistograms(DQMStore::IBooker& ibooker,
       ibooker.book1D("HBHEmismatchesPerBx", "Mismatch counts per bunch crossing for HBHE", 3564, -.5, 3563.5);
   data.HFmismatchesPerBx_ =
       ibooker.book1D("HFmismatchesPerBx", "Mismatch counts per bunch crossing for HF", 3564, -.5, 3563.5);
-
-  //Other removed online monitoring elements
-  // maxEvtLinkErrorsByLumiECAL_ =
-  //     ibooker.book1D("maxEvtLinkErrorsByLumiECAL",
-  //                    "Max number of single-event ECAL link errors per lumi section;LumiSection;Counts",
-  //                    nLumis,
-  //                    .5,
-  //                    nLumis + 0.5);
-  // maxEvtLinkErrorsByLumiHCAL_ =
-  //     ibooker.book1D("maxEvtLinkErrorsByLumiHCAL",
-  //                    "Max number of single-event HCAL link errors per lumi section;LumiSection;Counts",
-  //                    nLumis,
-  //                    .5,
-  //                    nLumis + 0.5);
-
-  // maxEvtMismatchByLumiECAL_ =
-  //     ibooker.book1D("maxEvtMismatchByLumiECAL",
-  //                    "Max number of single-event ECAL discrepancies per lumi section;LumiSection;Counts",
-  //                    nLumis,
-  //                    .5,
-  //                    nLumis + 0.5);
-  // maxEvtMismatchByLumiHCAL_ =
-  //     ibooker.book1D("maxEvtMismatchByLumiHCAL",
-  //                    "Max number of single-event HCAL discrepancies per lumi section;LumiSection;Counts",
-  //                    nLumis,
-  //                    .5,
-  //                    nLumis + 0.5);
-
-  // ibooker.setCurrentFolder(histFolder_);
-  // maxEvtLinkErrorsByLumi_ = ibooker.book1D("maxEvtLinkErrorsByLumi",
-  //                                          "Max number of single-event link errors per lumi section;LumiSection;Counts",
-  //                                          nLumis,
-  //                                          .5,
-  //                                          nLumis + 0.5);
-  // maxEvtMismatchByLumi_ = ibooker.book1D("maxEvtMismatchByLumi",
-  //                                        "Max number of single-event discrepancies per lumi section;LumiSection;Counts",
-  //                                        nLumis,
-  //                                        .5,
-  //                                        nLumis + 0.5);
 
   ibooker.setCurrentFolder(histFolder_ + "/AMC13ErrorCounters");
   data.bxidErrors_ =

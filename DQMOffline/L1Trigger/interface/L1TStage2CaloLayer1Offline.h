@@ -1,8 +1,7 @@
 #ifndef L1TStage2CaloLayer1Offline_H
 #define L1TStage2CaloLayer1Offline_H
 
-//change from "One" to "Global"
-//#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
+//This module is a duplicate of the L1TStage2CaloLayer1 online module, changed to global format
 #include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
 
 // system include files
@@ -176,23 +175,5 @@ private:
   std::string histFolder_;
   int tpFillThreshold_;
   bool ignoreHFfbs_;
-
-  //Elements removed from online version of module.
-  //They were processed at luminosity block transitions incompatible with DQMGlobalEDAnalyzer
-  /* MonitorElement *last20Mismatches_; */
-  /* std::array<std::pair<std::string, int>, 20> last20MismatchArray_; */
-  /* size_t lastMismatchIndex_{0}; */
-
-  /* MonitorElement *maxEvtLinkErrorsByLumiECAL_; */
-  /* MonitorElement *maxEvtLinkErrorsByLumiHCAL_; */
-  /* MonitorElement *maxEvtLinkErrorsByLumi_; */
-  /* int maxEvtLinkErrorsECALCurrentLumi_{0}; */
-  /* int maxEvtLinkErrorsHCALCurrentLumi_{0}; */
-
-  /* MonitorElement *maxEvtMismatchByLumiECAL_; */
-  /* MonitorElement *maxEvtMismatchByLumiHCAL_; */
-  /* MonitorElement *maxEvtMismatchByLumi_; */
-  /* int maxEvtMismatchECALCurrentLumi_{0}; */
-  /* int maxEvtMismatchHCALCurrentLumi_{0}; */
 };
 #endif
