@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from PhysicsTools.PatAlgos.slimming.primaryVertexAssociation_cfi import primaryVertexAssociation
 
 lostTracks = cms.EDProducer("PATLostTracks",
     inputCandidates = cms.InputTag("particleFlow"),
@@ -17,7 +18,8 @@ lostTracks = cms.EDProducer("PATLostTracks",
     covarianceSchema = cms.int32(0), #old miniaod like
     qualsToAutoAccept = cms.vstring("highPurity"),
     minPtToStoreProps = cms.double(0.95),
-    passThroughCut = cms.string("pt>2")                        
+    passThroughCut = cms.string("pt>2"),
+    pvAssignment = primaryVertexAssociation.assignment
 )
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 phase1Pixel.toModify(lostTracks, covarianceVersion =1 )

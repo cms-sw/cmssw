@@ -1,28 +1,15 @@
-#include <string>
-
-#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
-#include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/Common/interface/Association.h"
-#include "FWCore/Framework/interface/global/EDProducer.h"
-#include "DataFormats/Common/interface/View.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/PatCandidates/interface/Jet.h"
-#include "DataFormats/Common/interface/Association.h"
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 namespace {
@@ -50,9 +37,11 @@ namespace pat {
                             const reco::TrackRef& trk,
                             const reco::VertexRef& pvSlimmed,
                             const reco::VertexRefProd& pvSlimmedColl,
-                            const reco::Vertex& pvOrig,
-                            const TrkStatus trkStatus,
+                            const TrkStatus& trkStatus,
+                            const pat::PackedCandidate::PVAssociationQuality& pvAssocQuality,
                             edm::Handle<reco::MuonCollection> muons) const;
+    std::pair<int, pat::PackedCandidate::PVAssociationQuality> associateTrkToVtx(const reco::VertexCollection& vertices,
+                                                                                 const reco::TrackRef& trk) const;
 
   private:
     const edm::EDGetTokenT<reco::PFCandidateCollection> cands_;
@@ -72,6 +61,11 @@ namespace pat {
     std::vector<reco::TrackBase::TrackQuality> qualsToAutoAccept_;
     const edm::EDGetTokenT<reco::MuonCollection> muons_;
     StringCutObjectSelector<reco::Track, false> passThroughCut_;
+    const double maxDzForPrimaryAssignment_;
+    const double maxDzSigForPrimaryAssignment_;
+    const double maxDzErrorForPrimaryAssignment_;
+    const double maxDxyForNotReconstructedPrimary_;
+    const double maxDxySigForNotReconstructedPrimary_;
   };
 }  // namespace pat
 
@@ -92,7 +86,17 @@ pat::PATLostTracks::PATLostTracks(const edm::ParameterSet& iConfig)
       covarianceVersion_(iConfig.getParameter<int>("covarianceVersion")),
       covarianceSchema_(iConfig.getParameter<int>("covarianceSchema")),
       muons_(consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
-      passThroughCut_(iConfig.getParameter<std::string>("passThroughCut")) {
+      passThroughCut_(iConfig.getParameter<std::string>("passThroughCut")),
+      maxDzForPrimaryAssignment_(
+          iConfig.getParameter<edm::ParameterSet>("pvAssignment").getParameter<double>("maxDzForPrimaryAssignment")),
+      maxDzSigForPrimaryAssignment_(
+          iConfig.getParameter<edm::ParameterSet>("pvAssignment").getParameter<double>("maxDzSigForPrimaryAssignment")),
+      maxDzErrorForPrimaryAssignment_(iConfig.getParameter<edm::ParameterSet>("pvAssignment")
+                                          .getParameter<double>("maxDzErrorForPrimaryAssignment")),
+      maxDxyForNotReconstructedPrimary_(iConfig.getParameter<edm::ParameterSet>("pvAssignment")
+                                            .getParameter<double>("maxDxyForNotReconstructedPrimary")),
+      maxDxySigForNotReconstructedPrimary_(iConfig.getParameter<edm::ParameterSet>("pvAssignment")
+                                               .getParameter<double>("maxDxySigForNotReconstructedPrimary")) {
   std::vector<std::string> trkQuals(iConfig.getParameter<std::vector<std::string>>("qualsToAutoAccept"));
   std::transform(
       trkQuals.begin(), trkQuals.end(), std::back_inserter(qualsToAutoAccept_), reco::TrackBase::qualityByName);
@@ -140,12 +144,8 @@ void pat::PATLostTracks::produce(edm::StreamID, edm::Event& iEvent, const edm::E
   iEvent.getByToken(pv_, pvs);
   reco::VertexRef pv(pvs.id());
   reco::VertexRefProd pvRefProd(pvs);
-  if (!pvs->empty()) {
-    pv = reco::VertexRef(pvs, 0);
-  }
   edm::Handle<reco::VertexCollection> pvOrigs;
   iEvent.getByToken(pvOrigs_, pvOrigs);
-  const reco::Vertex& pvOrig = (*pvOrigs)[0];
 
   auto outPtrTrks = std::make_unique<std::vector<reco::Track>>();
   auto outPtrTrksAsCands = std::make_unique<std::vector<pat::PackedCandidate>>();
@@ -198,7 +198,15 @@ void pat::PATLostTracks::produce(edm::StreamID, edm::Event& iEvent, const edm::E
     reco::TrackRef trk(tracks, trkIndx);
     if (trkStatus[trkIndx] == TrkStatus::VTX || (trkStatus[trkIndx] == TrkStatus::NOTUSED && passTrkCuts(*trk))) {
       outPtrTrks->emplace_back(*trk);
-      addPackedCandidate(*outPtrTrksAsCands, trk, pv, pvRefProd, pvOrig, trkStatus[trkIndx], muons);
+      //association to PV
+      std::pair<int, pat::PackedCandidate::PVAssociationQuality> pvAsso = associateTrkToVtx(*pvOrigs, trk);
+      const reco::VertexRef& pvOrigRef = reco::VertexRef(pvOrigs, pvAsso.first);
+      if (pvOrigRef.isNonnull()) {
+        pv = reco::VertexRef(pvs, pvOrigRef.key());  // WARNING: assume the PV slimmer is keeping same order
+      } else if (!pvs->empty()) {
+        pv = reco::VertexRef(pvs, 0);
+      }
+      addPackedCandidate(*outPtrTrksAsCands, trk, pv, pvRefProd, trkStatus[trkIndx], pvAsso.second, muons);
 
       //for creating the reco::Track -> pat::PackedCandidate map
       //not done for the lostTrack:eleTracks collection
@@ -206,7 +214,15 @@ void pat::PATLostTracks::produce(edm::StreamID, edm::Event& iEvent, const edm::E
       lostTrkIndx++;
     } else if ((trkStatus[trkIndx] == TrkStatus::PFELECTRON || trkStatus[trkIndx] == TrkStatus::PFPOSITRON) &&
                passTrkCuts(*trk)) {
-      addPackedCandidate(*outPtrEleTrksAsCands, trk, pv, pvRefProd, pvOrig, trkStatus[trkIndx], muons);
+      //association to PV
+      std::pair<int, pat::PackedCandidate::PVAssociationQuality> pvAsso = associateTrkToVtx(*pvOrigs, trk);
+      const reco::VertexRef& pvOrigRef = reco::VertexRef(pvOrigs, pvAsso.first);
+      if (pvOrigRef.isNonnull()) {
+        pv = reco::VertexRef(pvs, pvOrigRef.key());  // WARNING: assume the PV slimmer is keeping same order
+      } else if (!pvs->empty()) {
+        pv = reco::VertexRef(pvs, 0);
+      }
+      addPackedCandidate(*outPtrEleTrksAsCands, trk, pv, pvRefProd, trkStatus[trkIndx], pvAsso.second, muons);
     }
   }
 
@@ -232,8 +248,8 @@ void pat::PATLostTracks::addPackedCandidate(std::vector<pat::PackedCandidate>& c
                                             const reco::TrackRef& trk,
                                             const reco::VertexRef& pvSlimmed,
                                             const reco::VertexRefProd& pvSlimmedColl,
-                                            const reco::Vertex& pvOrig,
-                                            const pat::PATLostTracks::TrkStatus trkStatus,
+                                            const pat::PATLostTracks::TrkStatus& trkStatus,
+                                            const pat::PackedCandidate::PVAssociationQuality& pvAssocQuality,
                                             edm::Handle<reco::MuonCollection> muons) const {
   const float mass = 0.13957018;
 
@@ -262,9 +278,61 @@ void pat::PATLostTracks::addPackedCandidate(std::vector<pat::PackedCandidate>& c
 
   if (trk->pt() > minPtToStoreProps_ || trkStatus == TrkStatus::VTX)
     cands.back().setTrackProperties(*trk, covarianceSchema_, covarianceVersion_);
-  if (pvOrig.trackWeight(trk) > 0.5) {
-    cands.back().setAssociationQuality(pat::PackedCandidate::UsedInFitTight);
+  cands.back().setAssociationQuality(pvAssocQuality);
+}
+
+std::pair<int, pat::PackedCandidate::PVAssociationQuality> pat::PATLostTracks::associateTrkToVtx(
+    const reco::VertexCollection& vertices, const reco::TrackRef& trk) const {
+  //Inspired by CommonTools/RecoAlgos/interface/PrimaryVertexAssignment.h
+  //but without specific association for secondaries in jets and option to use timing
+
+  int iVtxMaxWeight = -1;
+  int iVtxMinDzDist = -1;
+  size_t idx = 0;
+  float maxWeight = 0;
+  double minDz = std::numeric_limits<double>::max();
+  double minDzSig = std::numeric_limits<double>::max();
+  for (auto const& vtx : vertices) {
+    float w = vtx.trackWeight(trk);
+    double dz = std::abs(trk->dz(vtx.position()));
+    double dzSig = dz / trk->dzError();
+    if (w > maxWeight) {
+      maxWeight = w;
+      iVtxMaxWeight = idx;
+    }
+    if (dzSig < minDzSig) {
+      minDzSig = dzSig;
+      minDz = dz;
+      iVtxMinDzDist = idx;
+    }
+    idx++;
   }
+  // vertex in which fit the track was used
+  if (iVtxMaxWeight >= 0) {
+    if (maxWeight > 0.5) {
+      return std::pair<int, pat::PackedCandidate::PVAssociationQuality>(iVtxMaxWeight,
+                                                                        pat::PackedCandidate::UsedInFitTight);
+    } else {
+      return std::pair<int, pat::PackedCandidate::PVAssociationQuality>(iVtxMaxWeight,
+                                                                        pat::PackedCandidate::UsedInFitLoose);
+    }
+  }
+  // vertex "closest in Z" with tight cuts (targetting primary particles)
+  const double add_cov = iVtxMinDzDist >= 0 ? vertices[iVtxMinDzDist].covariance(2, 2) : 0.f;
+  const double dzErr = sqrt(trk->dzError() * trk->dzError() + add_cov);
+  if (iVtxMinDzDist >= 0 && (minDz < maxDzForPrimaryAssignment_ && minDz / dzErr < maxDzSigForPrimaryAssignment_ &&
+                             trk->dzError() < maxDzErrorForPrimaryAssignment_)) {
+    return std::pair<int, pat::PackedCandidate::PVAssociationQuality>(iVtxMinDzDist,
+                                                                      pat::PackedCandidate::CompatibilityDz);
+  }
+  // if the track is not compatible with other PVs but is compatible with the BeamSpot, we may simply have not reco'ed the PV!
+  //  we still point it to the closest in Z, but flag it as possible orphan-primary
+  if (!vertices.empty() && std::abs(trk->dxy(vertices[0].position())) < maxDxyForNotReconstructedPrimary_ &&
+      std::abs(trk->dxy(vertices[0].position()) / trk->dxyError()) < maxDxySigForNotReconstructedPrimary_)
+    return std::pair<int, pat::PackedCandidate::PVAssociationQuality>(iVtxMinDzDist,
+                                                                      pat::PackedCandidate::NotReconstructedPrimary);
+  // for tracks not associated to any PV return the closest in dz
+  return std::pair<int, pat::PackedCandidate::PVAssociationQuality>(iVtxMinDzDist, pat::PackedCandidate::OtherDeltaZ);
 }
 
 using pat::PATLostTracks;
