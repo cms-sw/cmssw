@@ -27,6 +27,6 @@ from Configuration.ProcessModifiers.miniAOD_skip_trackExtras_cff import miniAOD_
 
 (run2_miniAOD_80XLegacy | run2_miniAOD_94XFall17 | pp_on_AA_2018 | miniAOD_skip_trackExtras).toModify(slimmedMuons, trackExtraAssocs = ["slimmedMuonTrackExtras"])
 pp_on_AA_2018.toModify(slimmedMuons,
-                       packedPFCandidates = ["packedPFCandidates","packedPFCandidatesCleaned"],
-                       pfCandidates = ["filteredParticleFlow","filteredParticleFlow:cleaned"]
+                       packedPFCandidates = ["packedPFCandidates","packedPFCandidatesRemoved"],
+                       pfCandidates = ["cleanedParticleFlow","cleanedParticleFlow:removed"]
 )

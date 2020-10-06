@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-filteredParticleFlow = cms.EDProducer(
-    "HiBadParticleFilter",
+cleanedParticleFlow = cms.EDProducer(
+    "HiBadParticleCleaner",
     PFCandidates  = cms.InputTag("particleFlow"),   
     offlinePV  = cms.InputTag("offlinePrimaryVertices"),   
     verbose   = cms.bool(False),
@@ -13,5 +13,7 @@ filteredParticleFlow = cms.EDProducer(
     maxSigTight = cms.double(10.),
     minCaloCompatibility = cms.double(0.35),
     minTrackNHits = cms.uint32(10),
-    minPixelNHits = cms.uint32(3)
+    minPixelNHits = cms.uint32(3),
+    minTrackerLayersForMuonLoose  = cms.int32(7),  
+    minTrackerLayersForMuonTight  = cms.int32(10)  
 )
