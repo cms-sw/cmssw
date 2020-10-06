@@ -6,7 +6,7 @@
 #include "HGCalRecHitKernelImpl.cuh"
 
 __device__ 
-float get_weight_from_layer(const int& layer, const double (&weights)[maxsizes_constants::hef_weights])
+float get_weight_from_layer(const int32_t& layer, const double (&weights)[maxsizes_constants::hef_weights])
 {
   return (float)weights[layer];
 }
@@ -109,7 +109,8 @@ void ee_to_rechit(HGCRecHitSoA dst_soa, HGCUncalibratedRecHitSoA src_soa, const 
   for (unsigned int i = tid; i < length; i += blockDim.x * gridDim.x)
     {
       HeterogeneousHGCSiliconDetId detid(src_soa.id_[i]);
-      float weight         = get_weight_from_layer(detid.layer(), cdata.weights_);
+      int32_t layer = detid.layer();
+      float weight         = get_weight_from_layer(layer, cdata.weights_);
       float rcorr          = get_thickness_correction(detid.type(), cdata.rcorr_);
       float noise          = get_noise(detid.type(), cdata.noise_fC_);
       float cce_correction = get_cce_correction(detid.type(), cdata.cce_);
@@ -118,6 +119,7 @@ void ee_to_rechit(HGCRecHitSoA dst_soa, HGCUncalibratedRecHitSoA src_soa, const 
       make_rechit_silicon(i, dst_soa, src_soa, weight, rcorr, cce_correction, sigmaNoiseGeV,
 			  cdata.xmin_, cdata.xmax_, cdata.aterm_, cdata.cterm_);
     }
+  __syncthreads();
 }
 
 __global__
@@ -131,7 +133,7 @@ void hef_to_rechit(HGCRecHitSoA dst_soa, HGCUncalibratedRecHitSoA src_soa, const
 	CUDADataFormats/HGCal/interface/HGCUncalibratedRecHitsToRecHitsConstants.h maxsizes_constanats will perhaps have to be changed (change some 3's to 6's) 
       */
       HeterogeneousHGCSiliconDetId detid(src_soa.id_[i]);
-      uint32_t layer = detid.layer() + cdata.layerOffset_;
+      int32_t layer = detid.layer() + cdata.layerOffset_;
       float weight         = get_weight_from_layer(layer, cdata.weights_);
       float rcorr          = 1.f;//get_thickness_correction(detid.type(), cdata.rcorr_);
       float noise          = get_noise(detid.type(), cdata.noise_fC_);
@@ -141,6 +143,7 @@ void hef_to_rechit(HGCRecHitSoA dst_soa, HGCUncalibratedRecHitSoA src_soa, const
       make_rechit_silicon(i, dst_soa, src_soa, weight, rcorr, cce_correction, sigmaNoiseGeV,
 			  cdata.xmin_, cdata.xmax_, cdata.aterm_, cdata.cterm_);
     }
+  __syncthreads();
 }
 
 __global__
@@ -151,10 +154,11 @@ void heb_to_rechit(HGCRecHitSoA dst_soa, HGCUncalibratedRecHitSoA src_soa, const
   for (unsigned int i = tid; i < length; i += blockDim.x * gridDim.x)
     {
       HeterogeneousHGCScintillatorDetId detid(src_soa.id_[i]);
-      uint32_t layer = detid.layer() + cdata.layerOffset_;
+      int32_t layer = detid.layer() + cdata.layerOffset_;
       float weight        = get_weight_from_layer(layer, cdata.weights_);
       float noise         = cdata.noise_MIP_;
       float sigmaNoiseGeV = 1e-3 * noise * weight;
       make_rechit_scintillator(i, dst_soa, src_soa, weight, sigmaNoiseGeV);
     }
+  __syncthreads();
 }

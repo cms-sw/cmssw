@@ -36,10 +36,6 @@ void fill_positions_from_detids(const hgcal_conditions::HeterogeneousHEFCellPosi
       ypos += (cU - 0.5f * cV - n2) * r1_x2;
       conds->posmap.x[i] = xpos; // times side; multiply by -1 if one wants to obtain the position from the opposite endcap. CAREFUL WITH LATER DETECTOR ALIGNMENT!!!
       conds->posmap.y[i] = ypos;
-      if(tid==0)
-	{
-	  printf("Filling %lf, %lf\n", conds->posmap.x[i], conds->posmap.y[i]);
-	}
     }
 }
 
