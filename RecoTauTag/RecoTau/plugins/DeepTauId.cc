@@ -1216,7 +1216,6 @@ public:
     //translate to a map of <BasicDiscriminator, index> and check if all discriminators are present
     std::map<BasicDiscriminator, size_t> discrIndexMap;
     for (size_t i = 0; i < requiredDiscr.size(); i++) {
-      std::cout << stringFromDiscriminator_.at(requiredDiscr[i]) << std::endl;
       if (discrIndexMapStr.find(stringFromDiscriminator_.at(requiredDiscr[i])) == discrIndexMapStr.end())
         throw cms::Exception("DeepTauId") << "Basic Discriminator " << stringFromDiscriminator_.at(requiredDiscr[i])
                                           << " was not provided in the config file.";
