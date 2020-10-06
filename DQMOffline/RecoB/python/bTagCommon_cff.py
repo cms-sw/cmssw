@@ -28,7 +28,7 @@ bTagCommonBlock = cms.PSet(
     ptRecJetMax = cms.double(40000.0),
     # eta
     etaMin = cms.double(0.0),
-    etaMax = cms.double(2.4),
+    etaMax = cms.double(2.5),
     # lepton momentum to jet energy ratio, if you use caloJets put ratioMin to -1.0 and ratioMax to 0.8
     ratioMin = cms.double(-9999.0),
     ratioMax = cms.double(9999.0),
@@ -39,7 +39,7 @@ bTagCommonBlock = cms.PSet(
     useOldFlavourTool = cms.bool(False), #Recommended only for CaloJets, if True then define caloJetMCSrc and ignore jetMCSrc
     # eta and pt ranges
     ptRanges = cms.vdouble(50.0, 80.0, 120.0),
-    etaRanges = cms.vdouble(0.0, 1.4, 2.4),
+    etaRanges = cms.vdouble(0.0, 1.4, 2.5),
     #Jet ID and EnergyCorr.
     doJetID = cms.bool(False),
     doJEC = cms.bool(False),
