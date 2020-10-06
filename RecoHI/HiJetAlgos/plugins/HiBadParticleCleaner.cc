@@ -61,10 +61,9 @@ HiBadParticleCleaner::HiBadParticleCleaner(const edm::ParameterSet& iConfig)
       maxSigTight_(iConfig.getParameter<double>("maxSigTight")),
       minCaloCompatibility_(iConfig.getParameter<double>("minCaloCompatibility")),
       minTrackNHits_(iConfig.getParameter<uint>("minTrackNHits")),
-      minPixelNHits_(iConfig.getParameter<uint>("minPixelNHits")), 
-      minTrackerLayersForMuonLoose_(iConfig.getParameter<int>("minTrackerLayersForMuonLoose")), 
-      minTrackerLayersForMuonTight_(iConfig.getParameter<int>("minTrackerLayersForMuonTight")){
-
+      minPixelNHits_(iConfig.getParameter<uint>("minPixelNHits")),
+      minTrackerLayersForMuonLoose_(iConfig.getParameter<int>("minTrackerLayersForMuonLoose")),
+      minTrackerLayersForMuonTight_(iConfig.getParameter<int>("minTrackerLayersForMuonTight")) {
   produces<bool>();
   produces<reco::PFCandidateCollection>();
   produces<reco::PFCandidateCollection>("removed");
@@ -95,8 +94,7 @@ void HiBadParticleCleaner::produce(edm::StreamID, edm::Event& iEvent, const edm:
 
   bool foundBadCandidate = false;
 
-  for(const reco::PFCandidate& pfCandidate : *pfCandidates){
-
+  for (const reco::PFCandidate& pfCandidate : *pfCandidates) {
     if (pfCandidate.particleId() == reco::PFCandidate::ParticleType::mu)  // muon cleaning
     {
       if (pfCandidate.pt() > minMuonPt_) {
@@ -112,20 +110,24 @@ void HiBadParticleCleaner::produce(edm::StreamID, edm::Event& iEvent, const edm:
           continue;
         }
 
-        if (track->algo() == reco::TrackBase::muonSeededStepInOut || track->algo() == reco::TrackBase::muonSeededStepOutIn || track->originalAlgo() == reco::TrackBase::muonSeededStepInOut || track->originalAlgo() == reco::TrackBase::muonSeededStepOutIn || track->hitPattern().trackerLayersWithMeasurement() < minTrackerLayersForMuonLoose_) {
+        if (track->algo() == reco::TrackBase::muonSeededStepInOut ||
+            track->algo() == reco::TrackBase::muonSeededStepOutIn ||
+            track->originalAlgo() == reco::TrackBase::muonSeededStepInOut ||
+            track->originalAlgo() == reco::TrackBase::muonSeededStepOutIn ||
+            track->hitPattern().trackerLayersWithMeasurement() < minTrackerLayersForMuonLoose_) {
           const reco::Vertex& vtx = (*recoVertices)[0];
           float bestVzError = vtx.zError();
           const math::XYZPoint& bestVtx(vtx.position());
           math::Error<3>::type vtx_cov = vtx.covariance();
           float dz = std::abs(track->dz(bestVtx));
           float dxy = std::abs(track->dxy(bestVtx));
-          float dzError2 = track->dzError()*track->dzError() + bestVzError*bestVzError;
+          float dzError2 = track->dzError() * track->dzError() + bestVzError * bestVzError;
           float dxyError = track->dxyError(bestVtx, vtx_cov);
 
-          float dzSig2 = dz*dz / dzError2;
-          float dxySig2 = dxy*dxy / dxyError / dxyError;
+          float dzSig2 = dz * dz / dzError2;
+          float dxySig2 = dxy * dxy / dxyError / dxyError;
 
-          float sig3d = sqrt( dzSig2 + dxySig2 );
+          float sig3d = sqrt(dzSig2 + dxySig2);
 
           if (sig3d > maxSigLoose_) {
             pBadCandidateCollection->push_back(pfCandidate);
@@ -138,7 +140,8 @@ void HiBadParticleCleaner::produce(edm::StreamID, edm::Event& iEvent, const edm:
             pBadCandidateCollection->push_back(pfCandidate);
             continue;
           }
-          if (track->originalAlgo() == reco::TrackBase::muonSeededStepOutIn && track->hitPattern().trackerLayersWithMeasurement() < minTrackerLayersForMuonTight_) {
+          if (track->originalAlgo() == reco::TrackBase::muonSeededStepOutIn &&
+              track->hitPattern().trackerLayersWithMeasurement() < minTrackerLayersForMuonTight_) {
             foundBadCandidate = true;
             pBadCandidateCollection->push_back(pfCandidate);
             continue;
@@ -159,19 +162,19 @@ void HiBadParticleCleaner::produce(edm::StreamID, edm::Event& iEvent, const edm:
           continue;
         }
 
-	const reco::Vertex& vtx = (*recoVertices)[0];
-	float bestVzError = vtx.zError();
-	const math::XYZPoint& bestVtx(vtx.position());
-	math::Error<3>::type vtx_cov = vtx.covariance();
-	float dz = std::abs(track->dz(bestVtx));
-	float dxy = std::abs(track->dxy(bestVtx));
-	float dzError2 = track->dzError()*track->dzError() + bestVzError*bestVzError;
-	float dxyError = track->dxyError(bestVtx, vtx_cov);
-	
-	float dzSig2 = dz*dz / dzError2;
-	float dxySig2 = dxy*dxy / dxyError / dxyError;
-	
-	float sig3d = sqrt( dzSig2 + dxySig2 );
+        const reco::Vertex& vtx = (*recoVertices)[0];
+        float bestVzError = vtx.zError();
+        const math::XYZPoint& bestVtx(vtx.position());
+        math::Error<3>::type vtx_cov = vtx.covariance();
+        float dz = std::abs(track->dz(bestVtx));
+        float dxy = std::abs(track->dxy(bestVtx));
+        float dzError2 = track->dzError() * track->dzError() + bestVzError * bestVzError;
+        float dxyError = track->dxyError(bestVtx, vtx_cov);
+
+        float dzSig2 = dz * dz / dzError2;
+        float dxySig2 = dxy * dxy / dxyError / dxyError;
+
+        float sig3d = sqrt(dzSig2 + dxySig2);
 
         if (sig3d > maxSigLoose_) {
           foundBadCandidate = true;
@@ -185,7 +188,10 @@ void HiBadParticleCleaner::produce(edm::StreamID, edm::Event& iEvent, const edm:
           continue;
         }
 
-	if (track->algo() == reco::TrackBase::muonSeededStepInOut || track->algo() == reco::TrackBase::muonSeededStepOutIn || track->originalAlgo() == reco::TrackBase::muonSeededStepInOut || track->originalAlgo() == reco::TrackBase::muonSeededStepOutIn) {
+        if (track->algo() == reco::TrackBase::muonSeededStepInOut ||
+            track->algo() == reco::TrackBase::muonSeededStepOutIn ||
+            track->originalAlgo() == reco::TrackBase::muonSeededStepInOut ||
+            track->originalAlgo() == reco::TrackBase::muonSeededStepOutIn) {
           if (sig3d > maxSigLoose_) {
             foundBadCandidate = true;
             pBadCandidateCollection->push_back(pfCandidate);
