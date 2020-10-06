@@ -30,7 +30,7 @@
 //        bool isItRBX(detId): if it/they is in the chosen RBX
 //        bool isItRBX(ieta, iphi): if it is in the chosen RBX
 // void CalibCorrTest(infile, flag)
-//      Tests a file which contains correction factors used by CalibCorr 
+//      Tests a file which contains correction factors used by CalibCorr
 //////////////////////////////////////////////////////////////////////////////
 
 #include <algorithm>

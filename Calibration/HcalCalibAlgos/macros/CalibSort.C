@@ -1419,69 +1419,73 @@ void CalibPlotCombine::savePlot(const std::string &theName, bool append) {
 
 class CalibFitPU {
 private:
-  TTree          *fChain;   //!pointer to the analyzed TTree or TChain
-  Int_t           fCurrent; //!current Tree number in a TChain
+  TTree *fChain;   //!pointer to the analyzed TTree or TChain
+  Int_t fCurrent;  //!current Tree number in a TChain
 
   // Fixed size dimensions of array or collections stored in the TTree if any.
 
   // Declaration of leaf types
-  Int_t           t_Event;
-  Double_t        t_p_PU;
-  Double_t        t_eHcal_PU;
-  Double_t        t_delta_PU;
-  Double_t        t_p_NoPU;
-  Double_t        t_eHcal_noPU;
-  Double_t        t_delta_NoPU;
-  Int_t           t_ieta;
-  
+  Int_t t_Event;
+  Double_t t_p_PU;
+  Double_t t_eHcal_PU;
+  Double_t t_delta_PU;
+  Double_t t_p_NoPU;
+  Double_t t_eHcal_noPU;
+  Double_t t_delta_NoPU;
+  Int_t t_ieta;
+
   // List of branches
-  TBranch        *b_t_Event;
-  TBranch        *b_t_p_PU;
-  TBranch        *b_t_eHcal_PU;
-  TBranch        *b_t_delta_PU;
-  TBranch        *b_t_p_NoPU;
-  TBranch        *b_t_eHcal_noPU;
-  TBranch        *b_t_delta_NoPU;
-  TBranch        *b_t_ieta;
+  TBranch *b_t_Event;
+  TBranch *b_t_p_PU;
+  TBranch *b_t_eHcal_PU;
+  TBranch *b_t_delta_PU;
+  TBranch *b_t_p_NoPU;
+  TBranch *b_t_eHcal_noPU;
+  TBranch *b_t_delta_NoPU;
+  TBranch *b_t_ieta;
 
 public:
-  CalibFitPU(const char* fname = "isotrackRelval.root");
+  CalibFitPU(const char *fname = "isotrackRelval.root");
   virtual ~CalibFitPU();
-  virtual Int_t    Cut(Long64_t entry);
-  virtual Int_t    GetEntry(Long64_t entry);
+  virtual Int_t Cut(Long64_t entry);
+  virtual Int_t GetEntry(Long64_t entry);
   virtual Long64_t LoadTree(Long64_t entry);
-  virtual void     Init(TTree *tree);
-  virtual void     Loop(bool extract_PU_parameters, std::string fileName);
-  virtual Bool_t   Notify();
-  virtual void     Show(Long64_t entry = -1);
+  virtual void Init(TTree *tree);
+  virtual void Loop(bool extract_PU_parameters, std::string fileName);
+  virtual Bool_t Notify();
+  virtual void Show(Long64_t entry = -1);
 };
 
-CalibFitPU::CalibFitPU(const char* fname) : fChain(0) {
+CalibFitPU::CalibFitPU(const char *fname) : fChain(0) {
   // if parameter tree is not specified (or zero), connect the file
   // used to generate this class and read the Tree.
   TFile *f = new TFile(fname);
-  TTree* tree = new TTree();
+  TTree *tree = new TTree();
   f->GetObject("tree", tree);
   std::cout << "Find tree Tree in " << tree << " from " << fname << std::endl;
   Init(tree);
 }
 
 CalibFitPU::~CalibFitPU() {
-  if (!fChain) return;
+  if (!fChain)
+    return;
   delete fChain->GetCurrentFile();
 }
 
 Int_t CalibFitPU::GetEntry(Long64_t entry) {
   // Read contents of entry.
-  if (!fChain) return 0;
+  if (!fChain)
+    return 0;
   return fChain->GetEntry(entry);
 }
 
 Long64_t CalibFitPU::LoadTree(Long64_t entry) {
   // Set the environment to read one entry
-  if (!fChain) return -5;
+  if (!fChain)
+    return -5;
   Long64_t centry = fChain->LoadTree(entry);
-  if (centry < 0) return centry;
+  if (centry < 0)
+    return centry;
   if (fChain->GetTreeNumber() != fCurrent) {
     fCurrent = fChain->GetTreeNumber();
     Notify();
@@ -1499,11 +1503,12 @@ void CalibFitPU::Init(TTree *tree) {
   // (once per file to be processed).
 
   // Set branch addresses and branch pointers
-  if (!tree) return;
+  if (!tree)
+    return;
   fChain = tree;
   fCurrent = -1;
   fChain->SetMakeClass(1);
-  
+
   fChain->SetBranchAddress("t_Event", &t_Event, &b_t_Event);
   fChain->SetBranchAddress("t_p_PU", &t_p_PU, &b_t_p_PU);
   fChain->SetBranchAddress("t_eHcal_PU", &t_eHcal_PU, &b_t_eHcal_PU);
@@ -1521,14 +1526,15 @@ Bool_t CalibFitPU::Notify() {
   // is started when using PROOF. It is normally not necessary to make changes
   // to the generated code, but the routine can be extended by the
   // user if needed. The return value is currently not used.
-  
+
   return kTRUE;
 }
 
 void CalibFitPU::Show(Long64_t entry) {
   // Print contents of entry.
   // If entry is not specified, print current entry
-  if (!fChain) return;
+  if (!fChain)
+    return;
   fChain->Show(entry);
 }
 
@@ -1563,11 +1569,12 @@ void CalibFitPU::Loop(bool extract_PU_parameters, std::string fileName) {
   // METHOD2: replace line
   //    fChain->GetEntry(jentry);       //read all branches
   //by  b_branchname->GetEntry(ientry); //read only this branch
-  if (fChain == 0) return;
-  
+  if (fChain == 0)
+    return;
+
   Long64_t nentries = fChain->GetEntriesFast();
   Long64_t nbytes = 0, nb = 0;
-  
+
   char filename[100];
 
   gStyle->SetCanvasBorderMode(0);
@@ -1585,22 +1592,22 @@ void CalibFitPU::Loop(bool extract_PU_parameters, std::string fileName) {
   int nbins[n] = {4, 5, 12, nbin2, nbin2, nbin2, nbin2};
   char name[20], title[100];
 
-  std::vector<TH2D*> vec_h2;
-  std::vector<TGraph*> vec_gr;
-  std::vector<TProfile*> vec_hp;
+  std::vector<TH2D *> vec_h2;
+  std::vector<TGraph *> vec_gr;
+  std::vector<TProfile *> vec_hp;
 
-  if (extract_PU_parameters) {  
+  if (extract_PU_parameters) {
     for (int k = 0; k < n; k++) {
-      sprintf (name, "h2_ieta%d", k);
-      int ieta1 = (k == 0) ? 1 : ieta_grid[k-1];
-      sprintf (title, "PU Energy vs #Delta/p (i#eta = %d:%d)", ieta1, (ieta_grid[k] - 1));
+      sprintf(name, "h2_ieta%d", k);
+      int ieta1 = (k == 0) ? 1 : ieta_grid[k - 1];
+      sprintf(title, "PU Energy vs #Delta/p (i#eta = %d:%d)", ieta1, (ieta_grid[k] - 1));
       vec_h2.push_back(new TH2D(name, title, 100, 0, 10, 100, 0, 2));
       vec_gr.push_back(new TGraph());
-      sprintf (name, "hp_ieta%d", k);
-      if (k  < 3)
-	vec_hp.push_back(new TProfile(name, title, nbins[k], bins1));
+      sprintf(name, "hp_ieta%d", k);
+      if (k < 3)
+        vec_hp.push_back(new TProfile(name, title, nbins[k], bins1));
       else
-	vec_hp.push_back(new TProfile(name, title, nbins[k], bins2));
+        vec_hp.push_back(new TProfile(name, title, nbins[k], bins2));
     }
 
     int points[7] = {0, 0, 0, 0, 0, 0, 0};
@@ -1608,40 +1615,41 @@ void CalibFitPU::Loop(bool extract_PU_parameters, std::string fileName) {
 
     for (Long64_t jentry = 0; jentry < nentries; jentry++) {
       Long64_t ientry = LoadTree(jentry);
-      if (ientry < 0) break;
-      nb = fChain->GetEntry(jentry);   nbytes += nb;
+      if (ientry < 0)
+        break;
+      nb = fChain->GetEntry(jentry);
+      nbytes += nb;
 
       double deltaOvP = t_delta_PU / t_p_PU;
       double diffEpuEnopuOvP = t_eHcal_noPU / t_eHcal_PU;
-      
+
       for (int k = 0; k < n; k++) {
-	if (std::abs(t_ieta) < ieta_grid[k]) {
-	  points[k]++;
-	  vec_h2[k]->Fill(deltaOvP, diffEpuEnopuOvP);
-	  vec_gr[k]->SetPoint(points[k], deltaOvP, diffEpuEnopuOvP);
-	  vec_hp[k]->Fill(deltaOvP, diffEpuEnopuOvP);
-	  break;
-	}
+        if (std::abs(t_ieta) < ieta_grid[k]) {
+          points[k]++;
+          vec_h2[k]->Fill(deltaOvP, diffEpuEnopuOvP);
+          vec_gr[k]->SetPoint(points[k], deltaOvP, diffEpuEnopuOvP);
+          vec_hp[k]->Fill(deltaOvP, diffEpuEnopuOvP);
+          break;
+        }
       }
 
     }  //End of Event Loop to extract PU correction parameters
-    
+
     std::ofstream myfile0, myfile1, myfile2;
-    sprintf (filename, "%s_par2d.txt", fileName.c_str());
-    myfile0.open (filename);
-    sprintf (filename, "%s_parProf.txt", fileName.c_str());
-    myfile1.open (filename);
-    sprintf (filename, "%s_parGraph.txt", fileName.c_str());
-    myfile2.open (filename);
-    
+    sprintf(filename, "%s_par2d.txt", fileName.c_str());
+    myfile0.open(filename);
+    sprintf(filename, "%s_parProf.txt", fileName.c_str());
+    myfile1.open(filename);
+    sprintf(filename, "%s_parGraph.txt", fileName.c_str());
+    myfile2.open(filename);
+
     char namepng[20];
-    for (int k = 0; k < n; k++){
+    for (int k = 0; k < n; k++) {
       gStyle->SetOptStat(1100);
       gStyle->SetOptFit(1);
 
-      TF1* f1 = ((k < 2) ? (new TF1("f1", "[0]+[1]*x", 0, 5)) : 
-		 (new TF1("f1", "[0]+[1]*x+[2]*x*x", 0, 5)));
-      sprintf (name, "c_ieta%d2D", k);
+      TF1 *f1 = ((k < 2) ? (new TF1("f1", "[0]+[1]*x", 0, 5)) : (new TF1("f1", "[0]+[1]*x+[2]*x*x", 0, 5)));
+      sprintf(name, "c_ieta%d2D", k);
       TCanvas *pad1 = new TCanvas(name, name, 500, 500);
       pad1->SetLeftMargin(0.10);
       pad1->SetRightMargin(0.10);
@@ -1652,13 +1660,13 @@ void CalibFitPU::Loop(bool extract_PU_parameters, std::string fileName) {
       vec_h2[k]->GetYaxis()->SetTitle("E_{NoPU} / E_{PU}");
       vec_h2[k]->Draw();
       vec_h2[k]->Fit(f1);
-   
+
       a00[k] = f1->GetParameter(0);
       a10[k] = f1->GetParameter(1);
       a20[k] = (k < 2) ? 0 : f1->GetParameter(2);
       myfile0 << k << "\t" << a00[k] << "\t" << a10[k] << "\t" << a20[k] << "\n";
       pad1->Update();
-      TPaveStats* st1 = (TPaveStats*)vec_h2[k]->GetListOfFunctions()->FindObject("stats");
+      TPaveStats *st1 = (TPaveStats *)vec_h2[k]->GetListOfFunctions()->FindObject("stats");
       if (st1 != nullptr) {
         st1->SetY1NDC(0.70);
         st1->SetY2NDC(0.90);
@@ -1669,9 +1677,8 @@ void CalibFitPU::Loop(bool extract_PU_parameters, std::string fileName) {
       sprintf(namepng, "%s.png", pad1->GetName());
       pad1->Print(namepng);
 
-      TF1* f2 = ((k < 2) ? (new TF1("f2", "[0]+[1]*x", 0, 5)) : 
-		 (new TF1("f1", "[0]+[1]*x+[2]*x*x", 0, 5)));
-      sprintf (name, "c_ieta%dPr", k);
+      TF1 *f2 = ((k < 2) ? (new TF1("f2", "[0]+[1]*x", 0, 5)) : (new TF1("f1", "[0]+[1]*x+[2]*x*x", 0, 5)));
+      sprintf(name, "c_ieta%dPr", k);
       TCanvas *pad2 = new TCanvas(name, name, 500, 500);
       pad2->SetLeftMargin(0.10);
       pad2->SetRightMargin(0.10);
@@ -1682,13 +1689,13 @@ void CalibFitPU::Loop(bool extract_PU_parameters, std::string fileName) {
       vec_hp[k]->GetYaxis()->SetTitle("E_{NoPU} / E_{PU}");
       vec_hp[k]->Draw();
       vec_hp[k]->Fit(f2);
-   
+
       a01[k] = f2->GetParameter(0);
       a11[k] = f2->GetParameter(1);
       a21[k] = (k < 2) ? 0 : f2->GetParameter(2);
       myfile1 << k << "\t" << a01[k] << "\t" << a11[k] << "\t" << a21[k] << "\n";
       pad2->Update();
-      TPaveStats* st2 = (TPaveStats*)vec_hp[k]->GetListOfFunctions()->FindObject("stats");
+      TPaveStats *st2 = (TPaveStats *)vec_hp[k]->GetListOfFunctions()->FindObject("stats");
       if (st2 != nullptr) {
         st2->SetY1NDC(0.70);
         st2->SetY2NDC(0.90);
@@ -1698,10 +1705,9 @@ void CalibFitPU::Loop(bool extract_PU_parameters, std::string fileName) {
       pad2->Update();
       sprintf(namepng, "%s.png", pad2->GetName());
       pad2->Print(namepng);
-      
-      TF1* f3 = ((k < 2) ? (new TF1("f3", "[0]+[1]*x", 0, 5)) : 
-		 (new TF1("f1", "[0]+[1]*x+[2]*x*x", 0, 5)));
-      sprintf (name, "c_ieta%dGr", k);
+
+      TF1 *f3 = ((k < 2) ? (new TF1("f3", "[0]+[1]*x", 0, 5)) : (new TF1("f1", "[0]+[1]*x+[2]*x*x", 0, 5)));
+      sprintf(name, "c_ieta%dGr", k);
       TCanvas *pad3 = new TCanvas(name, name, 500, 500);
       pad3->SetLeftMargin(0.10);
       pad3->SetRightMargin(0.10);
@@ -1712,15 +1718,15 @@ void CalibFitPU::Loop(bool extract_PU_parameters, std::string fileName) {
       vec_gr[k]->GetXaxis()->SetTitle("#Delta/p");
       vec_gr[k]->GetYaxis()->SetTitle("E_{PU} - E_{NoPU}/p");
       vec_gr[k]->Fit(f3, "R");
-      vec_gr[k]->Draw("Ap");  
+      vec_gr[k]->Draw("Ap");
       f3->Draw("same");
-      
+
       a02[k] = f3->GetParameter(0);
       a12[k] = f3->GetParameter(1);
       a22[k] = (k < 2) ? 0 : f3->GetParameter(2);
       myfile2 << k << "\t" << a02[k] << "\t" << a12[k] << "\t" << a22[k] << "\n";
       pad3->Update();
-      TPaveStats* st3 = (TPaveStats*)vec_gr[k]->GetListOfFunctions()->FindObject("stats");
+      TPaveStats *st3 = (TPaveStats *)vec_gr[k]->GetListOfFunctions()->FindObject("stats");
       if (st3 != nullptr) {
         st3->SetY1NDC(0.70);
         st3->SetY2NDC(0.90);
@@ -1735,71 +1741,79 @@ void CalibFitPU::Loop(bool extract_PU_parameters, std::string fileName) {
   } else {
     std::string line;
     double number;
-    sprintf (filename, "%s_par2d.txt", fileName.c_str());
+    sprintf(filename, "%s_par2d.txt", fileName.c_str());
     std::ifstream myfile0(filename);
     if (myfile0.is_open()) {
       int iii = 0;
-      while (getline (myfile0, line)) {
-	std::istringstream iss2(line);
-	int ii = 0;
-	while (iss2 >> number) {
-	  if (ii == 0) a00[iii] = number;
-	  else if (ii == 1) a10[iii] = number;
-	  else if (ii == 2) a20[iii] = number;
-	  ++ii;
-	}
-	++iii;
+      while (getline(myfile0, line)) {
+        std::istringstream iss2(line);
+        int ii = 0;
+        while (iss2 >> number) {
+          if (ii == 0)
+            a00[iii] = number;
+          else if (ii == 1)
+            a10[iii] = number;
+          else if (ii == 2)
+            a20[iii] = number;
+          ++ii;
+        }
+        ++iii;
       }
     }
-    sprintf (filename, "%s_parProf.txt", fileName.c_str());
+    sprintf(filename, "%s_parProf.txt", fileName.c_str());
     std::ifstream myfile1(filename);
     if (myfile1.is_open()) {
       int iii = 0;
-      while (getline (myfile1, line)) {
-	std::istringstream iss2(line);
-	int ii = 0;
-	while (iss2 >> number) {
-	  if (ii == 0) a01[iii] = number;
-	  else if (ii == 1) a11[iii] = number;
-	  else if (ii == 2) a21[iii] = number;
-	  ++ii;
-	}
-	++iii;
+      while (getline(myfile1, line)) {
+        std::istringstream iss2(line);
+        int ii = 0;
+        while (iss2 >> number) {
+          if (ii == 0)
+            a01[iii] = number;
+          else if (ii == 1)
+            a11[iii] = number;
+          else if (ii == 2)
+            a21[iii] = number;
+          ++ii;
+        }
+        ++iii;
       }
     }
-    sprintf (filename, "%s_parGraph.txt", fileName.c_str());
+    sprintf(filename, "%s_parGraph.txt", fileName.c_str());
     std::ifstream myfile2(filename);
     if (myfile2.is_open()) {
       int iii = 0;
-      while (getline (myfile2, line)) {
-	std::istringstream iss2(line);
-	int ii = 0;
-	while (iss2 >> number) {
-	  if (ii == 0) a02[iii] = number;
-	  else if (ii == 1) a12[iii] = number;
-	  else if (ii == 2) a22[iii] = number;
-	  ++ii;
-	}
-	++iii;
+      while (getline(myfile2, line)) {
+        std::istringstream iss2(line);
+        int ii = 0;
+        while (iss2 >> number) {
+          if (ii == 0)
+            a02[iii] = number;
+          else if (ii == 1)
+            a12[iii] = number;
+          else if (ii == 2)
+            a22[iii] = number;
+          ++ii;
+        }
+        ++iii;
       }
     }
   }
 
   std::cout << "\nParameter Values:\n";
-  for (int i=0; i<n; i++) {
-    std::cout << "[" << i << "] (" << a00[i] << ", " << a10[i] << ", " << a20[i]
-	      << ")  ("  << a01[i] << ", " << a11[i] << ", " << a21[i] << ")  ("
-	      << a02[i] << ", " << a12[i] << ", " << a22[i] << ")\n";
+  for (int i = 0; i < n; i++) {
+    std::cout << "[" << i << "] (" << a00[i] << ", " << a10[i] << ", " << a20[i] << ")  (" << a01[i] << ", " << a11[i]
+              << ", " << a21[i] << ")  (" << a02[i] << ", " << a12[i] << ", " << a22[i] << ")\n";
   }
   std::cout << "\n\n";
-  std::vector<TH1F*> vec_EovP_UnCorr_PU, vec_EovP_UnCorr_NoPU;
-  std::vector<TH1F*> vec_EovP_Corr0_PU, vec_EovP_Corr0_NoPU;
-  std::vector<TH1F*> vec_EovP_Corr1_PU, vec_EovP_Corr1_NoPU;
-  std::vector<TH1F*> vec_EovP_Corr2_PU, vec_EovP_Corr2_NoPU;
-  TH1F* h_current;
-  
+  std::vector<TH1F *> vec_EovP_UnCorr_PU, vec_EovP_UnCorr_NoPU;
+  std::vector<TH1F *> vec_EovP_Corr0_PU, vec_EovP_Corr0_NoPU;
+  std::vector<TH1F *> vec_EovP_Corr1_PU, vec_EovP_Corr1_NoPU;
+  std::vector<TH1F *> vec_EovP_Corr2_PU, vec_EovP_Corr2_NoPU;
+  TH1F *h_current;
+
   for (int k = 0; k < (2 * 28 + 1); k++) {
-    if (k!=28) {
+    if (k != 28) {
       sprintf(name, "EovP_ieta%dUnPU", k - 28);
       sprintf(title, "E/p (Uncorrected PU) for i#eta = %d", k - 28);
       h_current = new TH1F(name, title, 100, 0, 5);
@@ -1852,39 +1866,51 @@ void CalibFitPU::Loop(bool extract_PU_parameters, std::string fileName) {
   }
   std::cout << "Book " << (8 * vec_EovP_UnCorr_PU.size()) << " histograms\n";
 
-  //==============================================================================================================================================  
-  
+  //==============================================================================================================================================
+
   nbytes = nb = 0;
   std::cout << nentries << " entries in the root file" << std::endl;
-  for (Long64_t jentry=0; jentry<nentries; jentry++) {
+  for (Long64_t jentry = 0; jentry < nentries; jentry++) {
     Long64_t ientry = LoadTree(jentry);
-    if (ientry < 0) break;
-    nb = fChain->GetEntry(jentry);   nbytes += nb;
-    
+    if (ientry < 0)
+      break;
+    nb = fChain->GetEntry(jentry);
+    nbytes += nb;
+
     int i1 = n;
     for (int k = 0; k < n; k++) {
       if (std::abs(t_ieta) < ieta_grid[k]) {
-	i1 = k;
-	break;
+        i1 = k;
+        break;
       }
     }
-    if ((t_ieta == 0) || (i1 >= n)) continue;
+    if ((t_ieta == 0) || (i1 >= n))
+      continue;
     int i2 = (t_ieta < 0) ? (t_ieta + 28) : (t_ieta + 27);
-    
+
     double EpuOvP = t_eHcal_PU / t_p_PU;
     double EnopuOvP = t_eHcal_noPU / t_p_PU;
     double deltaOvP = t_delta_PU / t_p_PU;
     double deltaNopuOvP = t_delta_NoPU / t_p_PU;
-      
+
     vec_EovP_UnCorr_PU[i2]->Fill(EpuOvP);
     vec_EovP_UnCorr_NoPU[i2]->Fill(EnopuOvP);
 
-    double c0p = (((i1 < 3) || (deltaOvP > 1.0)) ? (a00[i1] + a10[i1] * deltaOvP + a20[i1] * deltaOvP * deltaOvP) : 1.0);
-    double c1p = (((i1 < 3) || (deltaOvP > 1.0)) ? (a01[i1] + a11[i1] * deltaOvP + a21[i1] * deltaOvP * deltaOvP) : 1.0);
-    double c2p = (((i1 < 3) || (deltaOvP > 1.0)) ? (a02[i1] + a12[i1] * deltaOvP + a22[i1] * deltaOvP * deltaOvP) : 1.0);
-    double c0np = (((i1 < 3) || (deltaNopuOvP > 1.0)) ? (a00[i1] + a10[i1] * deltaNopuOvP + a12[i1] * deltaNopuOvP * deltaNopuOvP) : 1.0);
-    double c1np = (((i1 < 3) || (deltaNopuOvP > 1.0)) ? (a01[i1] + a11[i1] * deltaNopuOvP + a21[i1] * deltaNopuOvP * deltaNopuOvP) : 1.0);
-    double c2np = (((i1 < 3) || (deltaNopuOvP > 1.0)) ? (a02[i1] + a12[i1] * deltaNopuOvP + a22[i1] * deltaNopuOvP * deltaNopuOvP) : 1.0);
+    double c0p =
+        (((i1 < 3) || (deltaOvP > 1.0)) ? (a00[i1] + a10[i1] * deltaOvP + a20[i1] * deltaOvP * deltaOvP) : 1.0);
+    double c1p =
+        (((i1 < 3) || (deltaOvP > 1.0)) ? (a01[i1] + a11[i1] * deltaOvP + a21[i1] * deltaOvP * deltaOvP) : 1.0);
+    double c2p =
+        (((i1 < 3) || (deltaOvP > 1.0)) ? (a02[i1] + a12[i1] * deltaOvP + a22[i1] * deltaOvP * deltaOvP) : 1.0);
+    double c0np =
+        (((i1 < 3) || (deltaNopuOvP > 1.0)) ? (a00[i1] + a10[i1] * deltaNopuOvP + a12[i1] * deltaNopuOvP * deltaNopuOvP)
+                                            : 1.0);
+    double c1np =
+        (((i1 < 3) || (deltaNopuOvP > 1.0)) ? (a01[i1] + a11[i1] * deltaNopuOvP + a21[i1] * deltaNopuOvP * deltaNopuOvP)
+                                            : 1.0);
+    double c2np =
+        (((i1 < 3) || (deltaNopuOvP > 1.0)) ? (a02[i1] + a12[i1] * deltaNopuOvP + a22[i1] * deltaNopuOvP * deltaNopuOvP)
+                                            : 1.0);
 
     vec_EovP_Corr0_PU[i2]->Fill(EpuOvP * c0p);
     vec_EovP_Corr0_NoPU[i2]->Fill(EnopuOvP * c0np);
@@ -1894,8 +1920,8 @@ void CalibFitPU::Loop(bool extract_PU_parameters, std::string fileName) {
     vec_EovP_Corr2_NoPU[i2]->Fill(EnopuOvP * c2np);
   }
 
-  sprintf (filename, "%s.root", fileName.c_str());
-  TFile* f1=new TFile(filename, "RECREATE");
+  sprintf(filename, "%s.root", fileName.c_str());
+  TFile *f1 = new TFile(filename, "RECREATE");
   f1->cd();
   for (unsigned int k = 0; k < vec_EovP_UnCorr_PU.size(); k++) {
     vec_EovP_UnCorr_PU[k]->Write();
@@ -1912,5 +1938,4 @@ void CalibFitPU::Loop(bool extract_PU_parameters, std::string fileName) {
     vec_hp[k]->Write();
     vec_gr[k]->Write();
   }
-      
 }
