@@ -14,8 +14,6 @@
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DetectorDescription/DDCMS/interface/DDShapes.h"
-
 #include <string>
 #include <iterator>
 
@@ -24,8 +22,14 @@ using namespace std;
 using namespace magneticfield;
 using namespace edm;
 
+using DDBox = dd4hep::Box;
+using DDTrap = dd4hep::Trap;
+using DDTubs = dd4hep::Tube;
+using DDCons = dd4hep::ConeSegment;
+using DDTruncTubs = dd4hep::TruncatedTube;
+
 volumeHandle::volumeHandle(const cms::DDFilteredView &fv, bool expand2Pi, bool debugVal)
-    : BaseVolumeHandle(expand2Pi, debugVal), theShape(fv.legacyShape(cms::dd::getCurrentShape(fv))), solid(fv) {
+    : BaseVolumeHandle(expand2Pi, debugVal), theShape(fv.legacyShape(fv.shape())), solid(fv) {
   name = fv.name();
   copyno = fv.copyNum();
   const auto *const transArray = fv.trans();
@@ -41,25 +45,66 @@ volumeHandle::volumeHandle(const cms::DDFilteredView &fv, bool expand2Pi, bool d
   }
   referencePlane(fv);
   switch (theShape) {
-    case DDSolidShape::ddbox:
-      buildBox();
-      break;
-    case DDSolidShape::ddtrap:
-      buildTrap();
-      break;
-    case DDSolidShape::ddcons:
-      buildCons();
-      break;
-    case DDSolidShape::ddtubs:
-      buildTubs();
-      break;
+    case DDSolidShape::ddbox: {
+      DDBox box(solid.solid());
+      // DD4hep returns units in cm, no conversion needed.
+      double halfX = box.x();
+      double halfY = box.y();
+      double halfZ = box.z();
+      buildBox(halfX, halfY, halfZ);
+    } break;
+    case DDSolidShape::ddtrap: {
+      DDTrap trap(solid.solid());
+      double x1 = trap.bottomLow1();
+      double x2 = trap.topLow1();
+      double x3 = trap.bottomLow2();
+      double x4 = trap.topLow2();
+      double y1 = trap.high1();
+      double y2 = trap.high2();
+      double theta = trap.theta();
+      double phi = trap.phi();
+      double halfZ = trap.dZ();
+      double alpha1 = trap.alpha1();
+      double alpha2 = trap.alpha2();
+      buildTrap(x1, x2, x3, x4, y1, y2, theta, phi, halfZ, alpha1, alpha2);
+    } break;
+
+    case DDSolidShape::ddcons: {
+      DDCons cons(solid.solid());
+      double zhalf = cons.dZ();
+      double rInMinusZ = cons.rMin1();
+      double rOutMinusZ = cons.rMax1();
+      double rInPlusZ = cons.rMin2();
+      double rOutPlusZ = cons.rMax2();
+      double startPhi = cons.startPhi();
+      double deltaPhi = reco::deltaPhi(cons.endPhi(), startPhi);
+      buildCons(zhalf, rInMinusZ, rOutMinusZ, rInPlusZ, rOutPlusZ, startPhi, deltaPhi);
+    } break;
+    case DDSolidShape::ddtubs: {
+      DDTubs tubs(solid.solid());
+      double zhalf = tubs.dZ();
+      double rIn = tubs.rMin();
+      double rOut = tubs.rMax();
+      double startPhi = tubs.startPhi();
+      double deltaPhi = tubs.endPhi() - startPhi;
+      buildTubs(zhalf, rIn, rOut, startPhi, deltaPhi);
+    } break;
     case DDSolidShape::ddpseudotrap: {
       vector<double> d = solid.volume().volume().solid().dimensions();
       buildPseudoTrap(d[0], d[1], d[2], d[3], d[4], d[5], d[6]);
     } break;
-    case DDSolidShape::ddtrunctubs:
-      buildTruncTubs();
-      break;
+    case DDSolidShape::ddtrunctubs: {
+      DDTruncTubs tubs(solid.solid());
+      double zhalf = tubs.dZ();               // half of the z-Axis
+      double rIn = tubs.rMin();               // inner radius
+      double rOut = tubs.rMax();              // outer radius
+      double startPhi = tubs.startPhi();      // angular start of the tube-section
+      double deltaPhi = tubs.deltaPhi();      // angular span of the tube-section
+      double cutAtStart = tubs.cutAtStart();  // truncation at begin of the tube-section
+      double cutAtDelta = tubs.cutAtDelta();  // truncation at end of the tube-section
+      bool cutInside = tubs.cutInside();      // true, if truncation is on the inner side of the tube-section
+      buildTruncTubs(zhalf, rIn, rOut, startPhi, deltaPhi, cutAtStart, cutAtDelta, cutInside);
+    } break;
     default:
       LogError("magneticfield::volumeHandle")
           << "ctor: Unexpected shape # " << static_cast<int>(theShape) << " for vol " << name;
@@ -182,20 +227,6 @@ std::vector<VolumeSide> volumeHandle::sides() const {
   }
   return result;
 }
-
-// The files included below are used here and in the old DD version of this file.
-// To allow them to be used in both places, they call a "convertUnits" function
-// that is defined differently between old and new DD.
-// For the old DD, another version of this function converts mm to cm.
-
-namespace {
-  template <class NumType>
-  inline constexpr NumType convertUnits(NumType centimeters) {
-    return (centimeters);
-  }
-}  // namespace
-
-using namespace cms::dd;
 
 #include "buildBox.icc"
 #include "buildTrap.icc"
