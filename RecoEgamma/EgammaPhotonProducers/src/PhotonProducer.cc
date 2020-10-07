@@ -13,11 +13,9 @@
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonCore.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
@@ -277,10 +275,9 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     edm::ESHandle<CaloTowerConstituentsMap> ctmaph;
     es.get<CaloGeometryRecord>().get(ctmaph);
 
-    const EgammaHadTower egammaHadTower(*ctmaph);
-    auto towersBehindCluster = egammaHadTower.towersOf(*scRef);
-    float hcalDepth1OverEcalBc = egammaHadTower.getDepth1HcalESum(towersBehindCluster, hcalTowers) / scRef->energy();
-    float hcalDepth2OverEcalBc = egammaHadTower.getDepth2HcalESum(towersBehindCluster, hcalTowers) / scRef->energy();
+    auto towersBehindCluster = egammaHadTower::towersOf(*scRef, *ctmaph);
+    float hcalDepth1OverEcalBc = egammaHadTower::getDepth1HcalESum(towersBehindCluster, hcalTowers) / scRef->energy();
+    float hcalDepth2OverEcalBc = egammaHadTower::getDepth2HcalESum(towersBehindCluster, hcalTowers) / scRef->energy();
 
     // recalculate position of seed BasicCluster taking shower depth for unconverted photon
     math::XYZPoint unconvPos =

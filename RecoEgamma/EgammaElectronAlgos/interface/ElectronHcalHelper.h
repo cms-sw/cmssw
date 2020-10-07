@@ -1,24 +1,20 @@
-
 #ifndef ElectronHcalHelper_h
 #define ElectronHcalHelper_h
-
-class EgammaHcalIsolation;
-class EgammaTowerIsolation;
 
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 
+class EgammaHcalIsolation;
+class EgammaTowerIsolation;
 class EgammaHadTower;
 class HcalTopology;
 class HcalChannelQuality;
+class CaloTowerConstituentsMap;
 
 class ElectronHcalHelper {
 public:
@@ -71,8 +67,8 @@ private:
   // event data (towers strategy)
   EgammaTowerIsolation *towerIso1_;
   EgammaTowerIsolation *towerIso2_;
-  EgammaHadTower *hadTower_;
   CaloTowerCollection const *towersFromCollection_ = nullptr;
+  CaloTowerConstituentsMap const *towerMap_ = nullptr;
   HcalChannelQuality const *hcalQuality_ = nullptr;
   HcalTopology const *hcalTopology_ = nullptr;
 };
