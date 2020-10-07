@@ -315,7 +315,7 @@ def split(sequence, size):
 # based on http://sandrotosi.blogspot.com/2011/04/python-group-list-in-sub-lists-of-n.html
 # about generators see also http://stackoverflow.com/questions/231767/the-python-yield-keyword-explained
 ##########################
-    for i in xrange(0, len(sequence), size):
+    for i in range(0, len(sequence), size):
         yield sequence[i:i+size] 
 
 #############
@@ -401,7 +401,7 @@ class Job:
             os.makedirs(self.cfg_dir)
 
         self.outputCfgName=self.output_full_name+"_cfg.py"
-        fout=open(os.path.join(self.cfg_dir,self.outputCfgName),'w+b')
+        fout=open(os.path.join(self.cfg_dir,self.outputCfgName),'w')
 
         template_cfg_file = os.path.join(self.the_dir,"PVValidation_T_cfg.py")
 
@@ -870,7 +870,7 @@ def main():
                 cmd = 'dasgoclient -query \'file dataset='+opts.data+'\''
                 s = Popen(cmd , shell=True, stdout=PIPE, stderr=PIPE)
                 out,err = s.communicate()
-                mylist = out.split('\n')
+                mylist = out.decode().split('\n')
                 mylist.pop()
                 #print mylist
            
@@ -884,13 +884,13 @@ def main():
                 #print cmd
                 s = Popen(cmd , shell=True, stdout=PIPE, stderr=PIPE)
                 out,err = s.communicate()
-                mylist = out.split('\n')
+                mylist = out.decode().split('\n')
                 mylist.pop()
                 #print "len(mylist):",len(mylist)
                 print("mylist:",mylist)
                 inputFiles.append(mylist)
                 myRuns.append(str(runboundary[iConf]))
-                myLumiDB = getLuminosity(myRuns[0],myRuns[-1],True)
+                myLumiDB = getLuminosity(myRuns[0],myRuns[-1],True,opts.verbose)
 
         else:
             #pass

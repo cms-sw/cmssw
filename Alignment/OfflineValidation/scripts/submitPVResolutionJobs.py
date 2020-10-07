@@ -9,7 +9,6 @@ python submitPVResolutionJobs.py -i PVResolutionExample.ini -D /JetHT/Run2018C-T
 from __future__ import print_function
 import os,sys
 import getopt
-import commands
 import time
 import json
 import ROOT
@@ -21,7 +20,14 @@ from subprocess import Popen, PIPE
 import multiprocessing
 from optparse import OptionParser
 import os, shlex, shutil, getpass
-import ConfigParser
+import configparser as ConfigParser
+
+##############################################
+def get_status_output(*args, **kwargs):
+##############################################
+    p = subprocess.Popen(*args, **kwargs)
+    stdout, stderr = p.communicate()
+    return p.returncode, stdout, stderr
 
 ##############################################
 def check_proxy():
@@ -126,7 +132,7 @@ def getLuminosity(homedir,minRun,maxRun,isRunBased,verbose):
         print("INSIDE GET LUMINOSITY")
         print(output)
 
-    for line in output.split("\n"):
+    for line in output.decode().split("\n"):
         if ("#" not in line):
             runToCache  = line.split(",")[0].split(":")[0] 
             lumiToCache = line.split(",")[-1].replace("\r", "")
@@ -247,8 +253,8 @@ def main():
     try:
         config = ConfigParser.ConfigParser()
         config.read(opts.iniPathName)
-    except ConfigParser.MissingSectionHeaderError, e:
-        raise WrongIniFormatError(`e`)
+    except ConfigParser.MissingSectionHeaderError as e:
+        raise WrongIniFormatError(e)
 
     print("Parsed the following configuration \n\n")
     inputDict = as_dict(config)
@@ -260,7 +266,10 @@ def main():
     ## check first there is a valid grid proxy
     forward_proxy(".")
 
-    runs = commands.getstatusoutput("dasgoclient -query='run dataset="+opts.DATASET+"'")[1].split("\n")
+    #runs = commands.getstatusoutput("dasgoclient -query='run dataset="+opts.DATASET+"'")[1].split("\n")
+    runs  = get_status_output("dasgoclient -query='run dataset="+opts.DATASET+"'",shell=True, stdout=PIPE, stderr=PIPE)[1].decode().split("\n")
+    runs.pop()
+    runs.sort()
     print("\n\n Will run on the following runs: \n",runs)
 
     if(not os.path.exists("cfg")):
