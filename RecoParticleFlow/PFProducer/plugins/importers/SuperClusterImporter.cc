@@ -4,6 +4,8 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "RecoParticleFlow/PFProducer/interface/PFBlockElementSCEqual.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
 
 // for single tower H/E
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHadTower.h"
@@ -51,7 +53,15 @@ SuperClusterImporter::SuperClusterImporter(const edm::ParameterSet& conf, edm::C
       _superClustersArePF(conf.getParameter<bool>("superClustersArePF")) {}
 
 void SuperClusterImporter::updateEventSetup(const edm::EventSetup& es) {
-  _hadTower = std::make_unique<EgammaHadTower>(es, EgammaHadTower::SingleTower);
+  edm::ESHandle<CaloTowerConstituentsMap> ctmaph;
+  es.get<CaloGeometryRecord>().get(ctmaph);
+
+  edm::ESHandle<HcalChannelQuality> hQuality;
+  es.get<HcalChannelQualityRcd>().get("withTopo", hQuality);
+
+  edm::ESHandle<HcalTopology> hcalTopology;
+  es.get<HcalRecNumberingRecord>().get(hcalTopology);
+  _hadTower = std::make_unique<EgammaHadTower>(*ctmaph, *hQuality, *hcalTopology, EgammaHadTower::SingleTower);
 }
 
 void SuperClusterImporter::importToBlock(const edm::Event& e, BlockElementImporterBase::ElementList& elems) const {

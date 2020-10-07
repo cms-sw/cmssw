@@ -5,6 +5,8 @@
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHadTower.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
 
 using namespace reco;
 
@@ -18,7 +20,15 @@ void ElectronHcalHelper::checkSetup(const edm::EventSetup& es) {
 
   if (cfg_.useTowers) {
     delete hadTower_;
-    hadTower_ = new EgammaHadTower(es);
+    edm::ESHandle<CaloTowerConstituentsMap> ctmaph;
+    es.get<CaloGeometryRecord>().get(ctmaph);
+
+    edm::ESHandle<HcalChannelQuality> hQuality;
+    es.get<HcalChannelQualityRcd>().get("withTopo", hQuality);
+
+    edm::ESHandle<HcalTopology> hcalTopology;
+    es.get<HcalRecNumberingRecord>().get(hcalTopology);
+    hadTower_ = new EgammaHadTower(*ctmaph, *hQuality, *hcalTopology);
   } else {
     unsigned long long newCaloGeomCacheId_ = es.get<CaloGeometryRecord>().cacheIdentifier();
     if (caloGeomCacheId_ != newCaloGeomCacheId_) {

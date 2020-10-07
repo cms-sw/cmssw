@@ -1,6 +1,5 @@
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHadTower.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
@@ -17,21 +16,6 @@
 
 //#define EDM_ML_DEBUG
 
-EgammaHadTower::EgammaHadTower(const edm::EventSetup& es, HoeMode mode) : mode_(mode) {
-  edm::ESHandle<CaloTowerConstituentsMap> ctmaph;
-  es.get<CaloGeometryRecord>().get(ctmaph);
-  towerMap_ = &(*ctmaph);
-  nMaxClusters_ = 4;
-
-  edm::ESHandle<HcalChannelQuality> hQuality;
-  es.get<HcalChannelQualityRcd>().get("withTopo", hQuality);
-  hcalQuality_ = hQuality.product();
-
-  edm::ESHandle<HcalTopology> hcalTopology;
-  es.get<HcalRecNumberingRecord>().get(hcalTopology);
-  hcalTopology_ = hcalTopology.product();
-}
-
 CaloTowerDetId EgammaHadTower::towerOf(const reco::CaloCluster& cluster) const {
   DetId detid = cluster.seed();
   if (detid.det() != DetId::Ecal) {
@@ -43,11 +27,13 @@ CaloTowerDetId EgammaHadTower::towerOf(const reco::CaloCluster& cluster) const {
       return tower;
     }
   }
-  CaloTowerDetId id(towerMap_->towerOf(detid));
+  CaloTowerDetId id(towerMap_.towerOf(detid));
   return id;
 }
 
 std::vector<CaloTowerDetId> EgammaHadTower::towersOf(const reco::SuperCluster& sc) const {
+  constexpr unsigned int nMaxClusters = 4;
+
   std::vector<CaloTowerDetId> towers;
   std::vector<reco::CaloClusterPtr> orderedClusters;
 
@@ -64,7 +50,7 @@ std::vector<CaloTowerDetId> EgammaHadTower::towersOf(const reco::SuperCluster& s
     }
     std::sort(orderedClusters.begin(), orderedClusters.end(), [](auto& c1, auto& c2) { return (*c1 > *c2); });
     unsigned nclusters = orderedClusters.size();
-    for (unsigned iclus = 0; iclus < nclusters && iclus < nMaxClusters_; ++iclus) {
+    for (unsigned iclus = 0; iclus < nclusters && iclus < nMaxClusters; ++iclus) {
       // Get the tower
       CaloTowerDetId id = towerOf(*(orderedClusters[iclus]));
 #ifdef EDM_ML_DEBUG
@@ -123,7 +109,7 @@ bool EgammaHadTower::hasActiveHcal(const std::vector<CaloTowerDetId>& towers) co
 #endif
   for (auto towerid : towers) {
     unsigned int ngood = 0, nbad = 0;
-    for (DetId id : towerMap_->constituentsOf(towerid)) {
+    for (DetId id : towerMap_.constituentsOf(towerid)) {
       if (id.det() != DetId::Hcal) {
         continue;
       }
@@ -138,7 +124,7 @@ bool EgammaHadTower::hasActiveHcal(const std::vector<CaloTowerDetId>& towers) co
       // Sunanda's fix for 2017 Plan1
       // and removed protection
       int status =
-          hcalQuality_->getValues((DetId)(hcalTopology_->idFront(HcalDetId(id))), /*throwOnFail=*/true)->getValue();
+          hcalQuality_.getValues((DetId)(hcalTopology_.idFront(HcalDetId(id))), /*throwOnFail=*/true)->getValue();
 
 #ifdef EDM_ML_DEBUG
       std::cout << "channels status = " << std::hex << status << std::dec << "  int value = " << status << std::endl;
