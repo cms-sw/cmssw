@@ -327,7 +327,11 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
     runNegativeVertexing = False
     runNegativeCvsLVertexing = False
     for btagInfo in requiredTagInfos:
-        if btagInfo == 'pfInclusiveSecondaryVertexFinderNegativeTagInfos' or btagInfo == 'pfNegativeDeepFlavourTagInfos':
+        if btagInfo in (
+            'pfInclusiveSecondaryVertexFinderNegativeTagInfos',
+            'pfNegativeDeepFlavourTagInfos',
+            'pfNegativeParticleNetAK4TagInfos',
+            ):
             runNegativeVertexing = True
         if btagInfo == 'pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos':
             runNegativeCvsLVertexing = True
@@ -688,6 +692,40 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                                       pf_candidates = pfCandidates,
                                       puppi_value_map = puppi_value_map,
                                       vertex_associator = vertex_associator,
+                                      ),
+                                    process, task)
+
+            if 'ParticleNetAK4TagInfos' in btagInfo:
+                if btagInfo == 'pfNegativeParticleNetAK4TagInfos':
+                    secondary_vertices = btagPrefix + \
+                        'inclusiveCandidateNegativeSecondaryVertices' + labelName + postfix
+                    flip_ip_sign = True
+                    sip3dSigMax = 10
+                else:
+                    secondary_vertices = svSource
+                    flip_ip_sign = False
+                    sip3dSigMax = -1
+                if pfCandidates.value() == 'packedPFCandidates':
+                    # case 1: running over jets whose daughters are PackedCandidates (only via updateJetCollection for now)
+                    puppi_value_map = ""
+                    vertex_associator = ""
+                elif pfCandidates.value() == 'particleFlow':
+                    raise ValueError("Running pfDeepBoostedJetTagInfos with reco::PFCandidates is currently not supported.")
+                    # case 2: running on new jet collection whose daughters are PFCandidates (e.g., cluster jets in RECO/AOD)
+                    puppi_value_map = "puppi"
+                    vertex_associator = "primaryVertexAssociation:original"
+                else:
+                    raise ValueError("Invalid pfCandidates collection: %s." % pfCandidates.value())
+                addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
+                                    btag.pfParticleNetAK4TagInfos.clone(
+                                      jets = jetSource,
+                                      vertices = pvSource,
+                                      secondary_vertices = secondary_vertices,
+                                      pf_candidates = pfCandidates,
+                                      puppi_value_map = puppi_value_map,
+                                      vertex_associator = vertex_associator,
+                                      flip_ip_sign = flip_ip_sign,
+                                      sip3dSigMax = sip3dSigMax,
                                       ),
                                     process, task)
 

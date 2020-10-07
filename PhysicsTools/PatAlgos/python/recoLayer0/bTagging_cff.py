@@ -45,8 +45,11 @@ supportedBtagInfos = [
   , 'pfDeepDoubleXTagInfos'
     # DeepBoostedJet tag infos
   , 'pfDeepBoostedJetTagInfos'
-    # ParticleNet tag infos
+    # ParticleNet (AK8) tag infos
   , 'pfParticleNetTagInfos'
+    # ParticleNet (AK4) tag infos
+  , 'pfParticleNetAK4TagInfos'
+  , 'pfNegativeParticleNetAK4TagInfos'
     # HiggsInteractionNet tag infos
   , 'pfHiggsInteractionNetTagInfos'
   ]
@@ -240,7 +243,7 @@ for disc in _pfMassDecorrelatedDeepBoostedJetTagsMetaDiscrs:
 # -----------------------------------
 
 # -----------------------------------
-# setup ParticleNet
+# setup ParticleNet AK8
 from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetJetTagsProbs, _pfParticleNetJetTagsMetaDiscrs, \
     _pfMassDecorrelatedParticleNetJetTagsProbs, _pfMassDecorrelatedParticleNetJetTagsMetaDiscrs
 # update supportedBtagDiscr
@@ -252,8 +255,27 @@ for disc in _pfParticleNetJetTagsMetaDiscrs:
 for disc in _pfMassDecorrelatedParticleNetJetTagsMetaDiscrs:
     supportedMetaDiscr[disc] = _pfMassDecorrelatedParticleNetJetTagsProbs
 # -----------------------------------
+
+# -----------------------------------
+# setup ParticleNet AK4
+from RecoBTag.ONNXRuntime.pfParticleNetAK4_cff import _pfParticleNetAK4JetTagsProbs, _pfParticleNetAK4JetTagsMetaDiscrs
+# update supportedBtagDiscr
+for disc in _pfParticleNetAK4JetTagsProbs + _pfParticleNetAK4JetTagsMetaDiscrs:
+    supportedBtagDiscr[disc] = [["pfParticleNetAK4TagInfos"]]
+# update supportedMetaDiscr
+for disc in _pfParticleNetAK4JetTagsMetaDiscrs:
+    supportedMetaDiscr[disc] = _pfParticleNetAK4JetTagsProbs
+# -----------------------------------
+# setup Negative ParticleNet AK4
+from RecoBTag.ONNXRuntime.pfParticleNetAK4_cff import _pfNegativeParticleNetAK4JetTagsProbs
+for disc in _pfNegativeParticleNetAK4JetTagsProbs:
+    supportedBtagDiscr[disc] = [["pfNegativeParticleNetAK4TagInfos"]]
+# -----------------------------------
+
+# -----------------------------------
 # setup HiggsInteractionNet
 from RecoBTag.ONNXRuntime.pfHiggsInteractionNet_cff import _pfHiggsInteractionNetTagsProbs
 # update supportedBtagDiscr 
 for disc in _pfHiggsInteractionNetTagsProbs:
     supportedBtagDiscr[disc] = [["pfHiggsInteractionNetTagInfos"]]
+# -----------------------------------
