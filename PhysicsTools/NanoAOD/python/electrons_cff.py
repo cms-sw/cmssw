@@ -40,6 +40,9 @@ slimmedElectronsUpdated = cms.EDProducer("PATElectronUpdater",
 )
 run2_miniAOD_80XLegacy.toModify( slimmedElectronsUpdated, computeMiniIso = True )
 
+# bypass the update to 106X in 106X to only pick up the IP sign fix
+run2_nanoAOD_106Xv1.toModify(slimmedElectronsUpdated, src = cms.InputTag("slimmedElectrons"))
+
 
 electron_id_modules_WorkingPoints_nanoAOD = cms.PSet(
     modules = cms.vstring(
@@ -181,8 +184,7 @@ calibratedPatElectrons102X = RecoEgamma.EgammaTools.calibratedEgammas_cff.calibr
     produceCalibratedObjs = False,
     correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2018_Step2Closure_CoarseEtaR9Gain_v2"),
 )
-for modifier in run2_nanoAOD_102Xv1,run2_nanoAOD_106Xv1:
-    modifier.toModify(calibratedPatElectrons102X, src = "slimmedElectronsUpdated")
+run2_nanoAOD_102Xv1.toModify(calibratedPatElectrons102X, src = "slimmedElectronsUpdated")
 
 slimmedElectronsWithUserData = cms.EDProducer("PATElectronUserDataEmbedder",
     src = cms.InputTag("slimmedElectrons"),
@@ -263,13 +265,11 @@ run2_nanoAOD_94XMiniAODv2.toModify(slimmedElectronsWithUserData.userFloats,
     ecalTrkEnergyPostCorrNew    = cms.InputTag("calibratedPatElectrons94X","ecalTrkEnergyPostCorr"),
 )
 
-for modifier in run2_nanoAOD_102Xv1,run2_nanoAOD_106Xv1:
-    modifier.toModify(slimmedElectronsWithUserData.userFloats,
-        ecalTrkEnergyErrPostCorrNew = cms.InputTag("calibratedPatElectrons102X","ecalTrkEnergyErrPostCorr"),
-        ecalTrkEnergyPreCorrNew     = cms.InputTag("calibratedPatElectrons102X","ecalTrkEnergyPreCorr"),
-        ecalTrkEnergyPostCorrNew    = cms.InputTag("calibratedPatElectrons102X","ecalTrkEnergyPostCorr"),
-    )
-
+run2_nanoAOD_102Xv1.toModify(slimmedElectronsWithUserData.userFloats,
+    ecalTrkEnergyErrPostCorrNew = cms.InputTag("calibratedPatElectrons102X","ecalTrkEnergyErrPostCorr"),
+    ecalTrkEnergyPreCorrNew     = cms.InputTag("calibratedPatElectrons102X","ecalTrkEnergyPreCorr"),
+    ecalTrkEnergyPostCorrNew    = cms.InputTag("calibratedPatElectrons102X","ecalTrkEnergyPostCorr"),
+)
 
 run2_miniAOD_80XLegacy.toModify(slimmedElectronsWithUserData.userIntFromBools,
     mvaSpring16GP_WP90 = cms.InputTag("egmGsfElectronIDs:mvaEleID-Spring16-GeneralPurpose-V1-wp90"),
@@ -418,7 +418,7 @@ for modifier in run2_nanoAOD_94X2016,:
 #the94X miniAOD V2 had a bug in the scale and smearing for electrons in the E/p comb
 #therefore we redo it but but we need use a new name for the userFloat as we cant override existing userfloats
 #for technical reasons
-for modifier in run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_miniAOD_80XLegacy,run2_nanoAOD_102Xv1,run2_nanoAOD_106Xv1:
+for modifier in run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_miniAOD_80XLegacy,run2_nanoAOD_102Xv1:
     modifier.toModify(electronTable.variables,            
         pt = Var("pt*userFloat('ecalTrkEnergyPostCorrNew')/userFloat('ecalTrkEnergyPreCorrNew')", float, precision=-1, doc="p_{T}"),
         energyErr = Var("userFloat('ecalTrkEnergyErrPostCorrNew')", float, precision=6, doc="energy error of the cluster-track combination"),
@@ -511,5 +511,7 @@ run2_nanoAOD_94X2016.toReplaceWith(electronSequence, _withUpdateAnd_bitmapVIDFor
 
 _withUpdateAnd102XScale_sequence = _withUpdate_sequence.copy()
 _withUpdateAnd102XScale_sequence.replace(slimmedElectronsWithUserData, calibratedPatElectrons102X + slimmedElectronsWithUserData)
-for modifier in run2_nanoAOD_102Xv1,run2_nanoAOD_106Xv1:
-    modifier.toReplaceWith(electronSequence, _withUpdateAnd102XScale_sequence)
+run2_nanoAOD_102Xv1.toReplaceWith(electronSequence, _withUpdateAnd102XScale_sequence)
+
+_withPATUpdate106X_sequence = cms.Sequence(slimmedElectronsUpdated + electronSequence.copy())
+run2_nanoAOD_106Xv1.toReplaceWith(electronSequence, _withPATUpdate106X_sequence)
