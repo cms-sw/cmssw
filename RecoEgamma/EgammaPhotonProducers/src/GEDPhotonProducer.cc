@@ -40,6 +40,9 @@
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHadTower.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
 
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
+
 namespace {
   inline double ptFast(const double energy, const math::XYZPoint& position, const math::XYZPoint& origin) {
     const auto v = position - origin;
@@ -516,7 +519,16 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
       HoE1 = towerIso1.getTowerESum(&(*scRef)) / scRef->energy();
       HoE2 = towerIso2.getTowerESum(&(*scRef)) / scRef->energy();
 
-      EgammaHadTower towerIsoBehindClus(es);
+      edm::ESHandle<CaloTowerConstituentsMap> ctmaph;
+      es.get<CaloGeometryRecord>().get(ctmaph);
+
+      edm::ESHandle<HcalChannelQuality> hQuality;
+      es.get<HcalChannelQualityRcd>().get("withTopo", hQuality);
+
+      edm::ESHandle<HcalTopology> hcalTopology;
+      es.get<HcalRecNumberingRecord>().get(hcalTopology);
+      EgammaHadTower towerIsoBehindClus(*ctmaph, *hQuality, *hcalTopology);
+
       TowersBehindClus = towerIsoBehindClus.towersOf(*scRef);
       hcalDepth1OverEcalBc = towerIsoBehindClus.getDepth1HcalESum(TowersBehindClus, *hcalTowers) / scRef->energy();
       hcalDepth2OverEcalBc = towerIsoBehindClus.getDepth2HcalESum(TowersBehindClus, *hcalTowers) / scRef->energy();
