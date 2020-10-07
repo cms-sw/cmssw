@@ -33,9 +33,9 @@ namespace ticl {
         auto const& haf = layerCluster.hitsAndFractions();
         auto layerId = rhtools.getLayerWithOffset(haf[0].first);
 
-        if (layerCluster.algo() == algo_number_ and layerId <= max_layerId_ and
-            layerId >= min_layerId_ and haf.size()<= max_cluster_size_ and
-            (haf.size() >= min_cluster_size_ or !(rhtools.isSilicon(haf[0].first)) ) ) {
+        if (layerCluster.algo() == algo_number_ and layerId <= max_layerId_ and layerId >= min_layerId_ and
+            haf.size() <= max_cluster_size_ and
+            (haf.size() >= min_cluster_size_ or !(rhtools.isSilicon(haf[0].first)))) {
           filteredLayerClusters->emplace_back(cl);
         } else {
           layerClustersMask[cl.first] = 0.;
@@ -49,7 +49,6 @@ namespace ticl {
     unsigned int max_cluster_size_;
     unsigned int min_layerId_;
     unsigned int max_layerId_;
-
   };
 }  // namespace ticl
 
