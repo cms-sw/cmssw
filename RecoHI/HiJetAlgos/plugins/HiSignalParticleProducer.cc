@@ -40,7 +40,6 @@
 using namespace std;
 using namespace edm;
 
-
 //
 // class decleration
 //
@@ -48,20 +47,18 @@ using namespace edm;
 class HiSignalParticleProducer : public edm::EDProducer {
 public:
   explicit HiSignalParticleProducer(const edm::ParameterSet&);
-  ~HiSignalParticleProducer();
+  ~HiSignalParticleProducer() override;
 
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   // ----------member data ---------------------------
 
   edm::EDGetTokenT<edm::View<reco::GenParticle> > genParticleSrc_;
-
 };
 
 //
 // constants, enums and typedefs
 //
-
 
 //
 // static data member definitions
@@ -71,19 +68,16 @@ private:
 // constructors and destructor
 //
 
-HiSignalParticleProducer::HiSignalParticleProducer(const edm::ParameterSet& iConfig) :
-  genParticleSrc_(consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("src")))
-{
-  std::string alias = (iConfig.getParameter<InputTag>( "src")).label();
-  produces<reco::GenParticleCollection>().setBranchAlias (alias);
+HiSignalParticleProducer::HiSignalParticleProducer(const edm::ParameterSet& iConfig)
+    : genParticleSrc_(consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("src"))) {
+  std::string alias = (iConfig.getParameter<InputTag>("src")).label();
+  produces<reco::GenParticleCollection>().setBranchAlias(alias);
 }
 
-HiSignalParticleProducer::~HiSignalParticleProducer()
-{
+HiSignalParticleProducer::~HiSignalParticleProducer() {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
@@ -91,41 +85,38 @@ HiSignalParticleProducer::~HiSignalParticleProducer()
 
 // ------------ method called to produce the data  ------------
 
-void
-HiSignalParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+void HiSignalParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
   using namespace reco;
 
   auto signalGenParticles = std::make_unique<GenParticleCollection>();
 
   edm::Handle<edm::View<GenParticle> > genParticles;
-  iEvent.getByToken(genParticleSrc_,genParticles);
+  iEvent.getByToken(genParticleSrc_, genParticles);
 
   int genParticleSize = genParticles->size();
 
   vector<int> selection;
-  for(int igenParticle = 0; igenParticle < genParticleSize; ++igenParticle){
+  selection.reserve(genParticleSize);
+  for (int igenParticle = 0; igenParticle < genParticleSize; ++igenParticle) {
     selection.push_back(-1);
   }
 
   vector<int> selectedIndices;
   vector<int> removedIndices;
 
-  for(int igenParticle = 0; igenParticle < genParticleSize; ++igenParticle){
-
+  for (int igenParticle = 0; igenParticle < genParticleSize; ++igenParticle) {
     const GenParticle* genParticle = &((*genParticles)[igenParticle]);
-    if(genParticle->collisionId() == 0){
+    if (genParticle->collisionId() == 0) {
       signalGenParticles->push_back(*genParticle);
       selection[igenParticle] = 1;
-    }else{
+    } else {
       selection[igenParticle] = 0;
       removedIndices.push_back(igenParticle);
     }
   }
 
   iEvent.put(std::move(signalGenParticles));
-
 }
 
 DEFINE_FWK_MODULE(HiSignalParticleProducer);
