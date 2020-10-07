@@ -334,6 +334,7 @@ bool HGCalWaferMask::goodCell(int u, int v, int n, int type, int rotn) {
 }
 
 int HGCalWaferMask::getRotation(int zside, int type, int rotn) {
+  if (rotn >= HGCalTypes::WaferCornerMax) rotn = HGCalTypes::WaferCorner0;
   int newrotn(rotn);
   if ((zside < 0) && (type != HGCalTypes::WaferFull)) {
     if (type == HGCalTypes::WaferFive) {  //WaferFive
