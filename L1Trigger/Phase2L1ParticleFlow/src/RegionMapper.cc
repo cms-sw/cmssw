@@ -1,4 +1,12 @@
 #include "L1Trigger/Phase2L1ParticleFlow/interface/RegionMapper.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "DataFormats/Common/interface/RefToPtr.h"
+
+#include "DataFormats/L1TCorrelator/interface/TkElectron.h"
+#include "DataFormats/L1TCorrelator/interface/TkElectronFwd.h"
+#include "DataFormats/L1Trigger/interface/EGamma.h"
+#include "DataFormats/L1TCorrelator/interface/TkEm.h"
+#include "DataFormats/L1TCorrelator/interface/TkEmFwd.h"
 
 using namespace l1tpf_impl;
 
@@ -172,7 +180,7 @@ void RegionMapper::addEmCalo(const l1t::PFCluster &p) {
   for (Region &r : regions_) {
     if (r.contains(p.eta(), p.phi())) {
       CaloCluster calo;
-      calo.fill(p.pt(), p.emEt(), p.ptError(), r.localEta(p.eta()), r.localPhi(p.phi()), p.isEM(), 0, &p);
+      calo.fill(p.pt(), p.emEt(), p.ptError(), r.localEta(p.eta()), r.localPhi(p.phi()), p.isEM(), p.hwQual(), &p);
       r.emcalo.push_back(calo);
     }
   }
@@ -299,6 +307,50 @@ std::unique_ptr<l1t::PFCandidateCollection> RegionMapper::fetchTracks(float ptMi
     }
   }
   return ret;
+}
+
+void RegionMapper::putEgObjects(edm::Event& iEvent, std::string egLablel, std::string tkEmLabel, std::string tkEleLabel) const {
+  auto egs = std::make_unique<BXVector<l1t::EGamma>>();
+  auto tkems = std::make_unique<l1t::TkEmCollection>();
+  auto tkeles = std::make_unique<l1t::TkElectronCollection>();
+
+  auto ref_egs = iEvent.getRefBeforePut<BXVector<l1t::EGamma>>(egLablel);
+  edm::Ref<BXVector<l1t::EGamma>>::key_type idx = 0;
+
+  // FIXME: efficiency handling needs to be addressed
+  // FIXME: need to handle the barrel case where the EG already exist and we only need to use edm::refToPtr() from calo.src
+  // FIXME: do we need additional cuts?
+  for (const Region &r : regions_) {
+    for (const l1tpf_impl::EgObjectIndexer &egidxer: r.egobjs) {
+      const auto &calo = r.emcalo[egidxer.emCaloIdx];
+
+      // FIXME: check this is fiducial
+
+      l1t::EGamma eg(reco::Candidate::PolarLorentzVector(egidxer.ptcorr, calo.floatEta(), calo.floatPhi(), 0.));
+      eg.setHwQual(egidxer.hwQual);
+      egs->push_back(0, eg);
+
+      l1t::TkEm tkem(eg.p4(),
+                     edm::Ref<BXVector<l1t::EGamma>>(ref_egs, idx),
+                     egidxer.iso, egidxer.iso);
+      tkems->push_back(tkem);
+
+      if(egidxer.tkIdx == -1) continue;
+      const auto &tk = r.track[egidxer.tkIdx];
+
+      l1t::TkElectron tkele(eg.p4(),
+                            edm::Ref<BXVector<l1t::EGamma>>(ref_egs, idx),
+                            edm::refToPtr(tk.src->track()),
+                            egidxer.iso);
+      tkeles->push_back(tkele);
+
+      idx++;
+    }
+  }
+  iEvent.put(std::move(egs), egLablel);
+  iEvent.put(std::move(tkems), tkEmLabel);
+  iEvent.put(std::move(tkeles), tkEleLabel);
+
 }
 
 std::pair<unsigned, unsigned> RegionMapper::totAndMaxInput(int type) const {

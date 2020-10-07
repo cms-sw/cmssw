@@ -107,11 +107,11 @@ l1pfProducerBarrel = l1pfProducer.clone(
     puppiPtSlopes           = cms.vdouble( 0.3 ), # coefficient for pT
     puppiPtSlopesPhotons    = cms.vdouble( 0.3 ),
     puppiPtZeros            = cms.vdouble( 4.0 ), # ballpark pT from PU
-    puppiPtZerosPhotons     = cms.vdouble( 2.5 ), 
+    puppiPtZerosPhotons     = cms.vdouble( 2.5 ),
     puppiAlphaSlopes        = cms.vdouble( 0.7 ), # coefficient for alpha
     puppiAlphaSlopesPhotons = cms.vdouble( 0.7 ),
     puppiAlphaZeros         = cms.vdouble( 6.0 ), # ballpark alpha from PU
-    puppiAlphaZerosPhotons  = cms.vdouble( 6.0 ), 
+    puppiAlphaZerosPhotons  = cms.vdouble( 6.0 ),
     puppiAlphaCrops         = cms.vdouble(  4  ), # max. absolute value for alpha term
     puppiAlphaCropsPhotons  = cms.vdouble(  4  ),
     puppiPriors             = cms.vdouble( 5.0 ),
@@ -129,7 +129,7 @@ l1pfProducerBarrel = l1pfProducer.clone(
     ),
 )
 l1ParticleFlow_pf_barrel_Task = cms.Task(
-    pfTracksFromL1TracksBarrel ,   
+    pfTracksFromL1TracksBarrel ,
     l1pfProducerBarrel
 )
 l1ParticleFlow_pf_barrel = cms.Sequence(l1ParticleFlow_pf_barrel_Task)
@@ -145,7 +145,7 @@ l1pfProducerHGCal = l1pfProducer.clone(
     pfAlgo = "PFAlgo2HGC",
     # inputs
     tracks = cms.InputTag('pfTracksFromL1TracksHGCal'),
-    emClusters  = [ ],  # EM clusters are not used (only added to NTuple for calibration/monitoring)
+    emClusters  = [ cms.InputTag("pfClustersFromHGC3DClusters:em")],  # EM clusters are not used (only added to NTuple for calibration/monitoring)
     hadClusters = [ cms.InputTag("pfClustersFromHGC3DClusters") ],
     # track-based PUPPI
     puppiDrMin = 0.04,
@@ -162,7 +162,7 @@ l1pfProducerHGCal = l1pfProducer.clone(
     puppiPtSlopes           = cms.vdouble( 0.3, 0.3, 0.3 ), # coefficient for pT
     puppiPtSlopesPhotons    = cms.vdouble( 0.4, 0.4, 0.4 ), #When e/g ID not applied, use: cms.vdouble( 0.3, 0.3, 0.3 ),
     puppiPtZeros            = cms.vdouble( 5.0, 7.0, 9.0 ), # ballpark pT from PU
-    puppiPtZerosPhotons     = cms.vdouble( 3.0, 4.0, 5.0 ), 
+    puppiPtZerosPhotons     = cms.vdouble( 3.0, 4.0, 5.0 ),
     puppiAlphaSlopes        = cms.vdouble( 1.5, 1.5, 2.2 ),
     puppiAlphaSlopesPhotons = cms.vdouble( 1.5, 1.5, 2.2 ),
     puppiAlphaZeros         = cms.vdouble( 6.0, 6.0, 9.0 ),
@@ -207,7 +207,7 @@ l1pfProducerHGCalNoTK = l1pfProducerHGCal.clone(regions = cms.VPSet(
 ))
 
 l1ParticleFlow_pf_hgcal_Task = cms.Task(
-    pfTracksFromL1TracksHGCal ,   
+    pfTracksFromL1TracksHGCal ,
     l1pfProducerHGCal ,
     l1pfProducerHGCalNoTK
 )
@@ -289,7 +289,7 @@ l1ParticleFlow_pf_tsa = cms.Sequence(
 # Merging all outputs
 l1pfCandidates = cms.EDProducer("L1TPFCandMultiMerger",
     pfProducers = cms.VInputTag(
-        cms.InputTag("l1pfProducerBarrel"), 
+        cms.InputTag("l1pfProducerBarrel"),
         cms.InputTag("l1pfProducerHGCal"),
         cms.InputTag("l1pfProducerHGCalNoTK"),
         cms.InputTag("l1pfProducerHF")
