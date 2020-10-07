@@ -118,7 +118,7 @@ void TrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<edm::InputTag>("layer_clusters_hfnose_tiles", edm::InputTag("ticlLayerTileHFNose"));
   desc.add<edm::InputTag>("seeding_regions", edm::InputTag("ticlSeedingRegionProducer"));
   desc.add<std::vector<int>>("filter_on_categories", {0});
-  desc.add<double>("pid_threshold", 0.);  // make default such that no filtering is applied
+  desc.add<double>("pid_threshold", 0.);                    // make default such that no filtering is applied
   desc.add<double>("energy_em_over_total_threshold", -1.);  // make default such that no filtering is applied
   desc.add<int>("algo_verbosity", 0);
   desc.add<double>("min_cos_theta", 0.915);
@@ -193,7 +193,8 @@ void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
     for (auto index : filter_on_categories_) {
       cumulative_prob += t.id_probabilities(index);
     }
-    return (cumulative_prob <= pid_threshold_) && (t.raw_em_energy()/t.raw_energy() < energy_em_over_total_threshold_);
+    return (cumulative_prob <= pid_threshold_) &&
+           (t.raw_em_energy() / t.raw_energy() < energy_em_over_total_threshold_);
   };
 
   // Actually filter results and shrink size to fit
