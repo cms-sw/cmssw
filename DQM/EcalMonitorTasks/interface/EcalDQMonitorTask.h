@@ -15,7 +15,7 @@ namespace edm {
   class ParameterSetDescription;
 }  // namespace edm
 
-class EcalDQMonitorTask : public DQMOneLumiEDAnalyzer<>, public ecaldqm::EcalDQMonitor {
+class EcalDQMonitorTask : public DQMOneEDAnalyzer<edm::LuminosityBlockCache<ecaldqm::NoCache>>, public ecaldqm::EcalDQMonitor {
 public:
   EcalDQMonitorTask(edm::ParameterSet const&);
   ~EcalDQMonitorTask() override {}
@@ -27,8 +27,8 @@ public:
 
 private:
   void dqmEndRun(edm::Run const&, edm::EventSetup const&) override;
-  void dqmBeginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  void dqmEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  std::shared_ptr<ecaldqm::NoCache> globalBeginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) const override;
+  void globalEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   void analyze(edm::Event const&, edm::EventSetup const&) override;
 
   typedef void (EcalDQMonitorTask::*Processor)(edm::Event const&,

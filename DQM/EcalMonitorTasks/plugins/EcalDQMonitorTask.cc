@@ -25,7 +25,7 @@
 #include <sstream>
 
 EcalDQMonitorTask::EcalDQMonitorTask(edm::ParameterSet const& _ps)
-    : DQMOneLumiEDAnalyzer(),
+    : DQMOneEDAnalyzer<edm::LuminosityBlockCache<ecaldqm::NoCache> >(),
       ecaldqm::EcalDQMonitor(_ps),
       schedule_(),
       allowMissingCollections_(_ps.getUntrackedParameter<bool>("allowMissingCollections")),
@@ -119,11 +119,12 @@ void EcalDQMonitorTask::dqmEndRun(edm::Run const& _run, edm::EventSetup const& _
   executeOnWorkers_([](ecaldqm::DQWorker* worker) { worker->releaseMEs(); }, "releaseMEs", "releasing histograms");
 }
 
-void EcalDQMonitorTask::dqmBeginLuminosityBlock(edm::LuminosityBlock const& _lumi, edm::EventSetup const& _es) {
+std::shared_ptr<ecaldqm::NoCache> EcalDQMonitorTask::globalBeginLuminosityBlock(edm::LuminosityBlock const& _lumi, edm::EventSetup const& _es) const {
   ecaldqmBeginLuminosityBlock(_lumi, _es);
+  return nullptr;
 }
 
-void EcalDQMonitorTask::dqmEndLuminosityBlock(edm::LuminosityBlock const& _lumi, edm::EventSetup const& _es) {
+void EcalDQMonitorTask::globalEndLuminosityBlock(edm::LuminosityBlock const& _lumi, edm::EventSetup const& _es) {
   ecaldqmEndLuminosityBlock(_lumi, _es);
 
   if (lastResetTime_ != 0 && (time(nullptr) - lastResetTime_) / 3600. > resetInterval_) {
