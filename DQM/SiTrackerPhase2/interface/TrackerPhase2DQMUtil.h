@@ -1,5 +1,5 @@
-#ifndef _Validation_SiTrackerPhase2V_Phase2TrackierValidationUtil_h
-#define _Validation_SiTrackerPhase2V_Phase2TrackierValidationUtil_h
+#ifndef _DQM_SiTrackerPhase2_Phase2TrackerValidationUtil_h
+#define _DQM_SiTrackerPhase2_Phase2TrackerValidationUtil_h
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -61,8 +61,8 @@ namespace Phase2TkUtil {
   MonitorElement* book1DFromPSet(const edm::ParameterSet& hpars, const std::string& hname, DQMStore::IBooker& ibooker) {
     MonitorElement* temp = nullptr;
     if (hpars.getParameter<bool>("switch")) {
-      temp = ibooker.book1D(hname,
-                            hname,
+      temp = ibooker.book1D(hpars.getParameter<std::string>("name"),
+                            hpars.getParameter<std::string>("title"),
                             hpars.getParameter<int32_t>("NxBins"),
                             hpars.getParameter<double>("xmin"),
                             hpars.getParameter<double>("xmax"));
@@ -73,8 +73,8 @@ namespace Phase2TkUtil {
   MonitorElement* book2DFromPSet(const edm::ParameterSet& hpars, const std::string& hname, DQMStore::IBooker& ibooker) {
     MonitorElement* temp = nullptr;
     if (hpars.getParameter<bool>("switch")) {
-      temp = ibooker.book2D(hname,
-                            hname,
+      temp = ibooker.book2D(hpars.getParameter<std::string>("name"),
+                            hpars.getParameter<std::string>("title"),
                             hpars.getParameter<int32_t>("NxBins"),
                             hpars.getParameter<double>("xmin"),
                             hpars.getParameter<double>("xmax"),
@@ -90,8 +90,8 @@ namespace Phase2TkUtil {
                                         DQMStore::IBooker& ibooker) {
     MonitorElement* temp = nullptr;
     if (hpars.getParameter<bool>("switch")) {
-      temp = ibooker.bookProfile(hname,
-                                 hname,
+      temp = ibooker.bookProfile(hpars.getParameter<std::string>("name"),
+                                 hpars.getParameter<std::string>("title"),
                                  hpars.getParameter<int32_t>("NxBins"),
                                  hpars.getParameter<double>("xmin"),
                                  hpars.getParameter<double>("xmax"),
