@@ -30,7 +30,7 @@ namespace triton_utils {
 
 }  // namespace triton_utils
 
-template std::string triton_utils::printColl(const std::vector<int64_t>& coll, const std::string& delim);
+template std::string triton_utils::printColl(const edm::Span<const int64_t*>& coll, const std::string& delim);
 template std::string triton_utils::printColl(const std::vector<uint8_t>& coll, const std::string& delim);
 template std::string triton_utils::printColl(const std::vector<float>& coll, const std::string& delim);
 template std::string triton_utils::printColl(const std::unordered_set<std::string>& coll, const std::string& delim);

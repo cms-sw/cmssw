@@ -23,23 +23,25 @@ The model information from the server can be printed by enabling `verbose` outpu
 * `modelName`: name of model with which to perform inference
 * `modelVersion`: version number of model (default: -1, use latest available version on server)
 * `batchSize`: number of objects sent per request
-  * can also be set on per-event basis
+  * can also be set on per-event basis using `setBatchSize()`
   * some models don't support batching
 * `address`: server IP address
 * `port`: server port
-* `timeout`: maximum time a request is allowed to take
-  * currently not used, will be supported in next Triton version
+* `timeout`: maximum allowed time for a request
 * `outputs`: optional, specify which output(s) the server should send
 
 Useful `TritonData` accessors include:
-* `dims()`: return dimensions (provided by server)
 * `variableDims()`: return true if any variable dimensions
 * `sizeDims()`: return product of dimensions (-1 if any variable dimensions)
-* `shape()`: return concrete shape (if any variable dimensions), otherwise `dims()`
-  * a non-`const` accessor is also provided to modify `shape()` directly (for specifying concrete values)
+* `shape()`: return actual shape (list of dimensions)
 * `sizeShape()`: return product of shape dimensions (returns `sizeDims()` if no variable dimensions)
-* `byteSize()`: return # bytes for data type
+* `byteSize()`: return number of bytes for data type
 * `dname()`: return name of data type
+* `batchSize()`: return current batch size
+
+To update the `TritonData` shape in the variable-dimension case:
+* `setShape(const std::vector<int64_t>& newShape)`: update all (variable) dimensions with values provided in `newShape`
+* `setShape(unsigned loc, int64_t val)`: update variable dimension at `loc` with `val`
 
 There are specific local input and output containers that should be used in producers.
 Here, `T` is a primitive type, and the two aliases listed below are passed to `TritonInputData::toServer()`
