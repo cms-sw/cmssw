@@ -521,7 +521,7 @@
     <rParent name="etl:DiscSector_Front"/>
     <String name="ChildName" value="etl:SensorModule_Front_Left"/>
     <Numeric name="N" value="12"/>
-    <Numeric name="StartCopyNo" value="12"/>
+    <Numeric name="StartCopyNo" value="9"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+2*[DeltaX_ServiceModule]+[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector>
@@ -560,7 +560,7 @@
     <rParent name="etl:DiscSector_Front"/>
     <String name="ChildName" value="etl:SensorModule_Front_Left"/>
     <Numeric name="N" value="15"/>
-    <Numeric name="StartCopyNo" value="20"/>
+    <Numeric name="StartCopyNo" value="21"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+4*[DeltaX_ServiceModule]+2*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector>
@@ -599,7 +599,7 @@
     <rParent name="etl:DiscSector_Front"/>
     <String name="ChildName" value="etl:SensorModule_Front_Right"/>
     <Numeric name="N" value="15"/>
-    <Numeric name="StartCopyNo" value="20"/>
+    <Numeric name="StartCopyNo" value="22"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+6*[DeltaX_ServiceModule]+2*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector>
@@ -612,7 +612,7 @@
     <rParent name="etl:DiscSector_Front"/>
     <String name="ChildName" value="etl:SensorModule_Front_Left"/>
     <Numeric name="N" value="18"/>
-    <Numeric name="StartCopyNo" value="35"/>
+    <Numeric name="StartCopyNo" value="36"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+6*[DeltaX_ServiceModule]+3*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector>
@@ -638,7 +638,7 @@
     <rParent name="etl:DiscSector_Front"/>
     <String name="ChildName" value="etl:SensorModule_Front_Right"/>
     <Numeric name="N" value="18"/>
-    <Numeric name="StartCopyNo" value="34"/>
+    <Numeric name="StartCopyNo" value="37"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+8*[DeltaX_ServiceModule]+3*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector>
@@ -651,7 +651,7 @@
     <rParent name="etl:DiscSector_Front"/>
     <String name="ChildName" value="etl:SensorModule_Front_Left"/>
     <Numeric name="N" value="20"/>
-    <Numeric name="StartCopyNo" value="53"/>
+    <Numeric name="StartCopyNo" value="54"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+8*[DeltaX_ServiceModule]+4*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector>
@@ -690,7 +690,7 @@
     <rParent name="etl:DiscSector_Front"/>
     <String name="ChildName" value="etl:SensorModule_Front_Right"/>
     <Numeric name="N" value="21"/>
-    <Numeric name="StartCopyNo" value="53"/>
+    <Numeric name="StartCopyNo" value="55"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+10*[DeltaX_ServiceModule]+4*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector>
@@ -703,7 +703,7 @@
     <rParent name="etl:DiscSector_Front"/>
     <String name="ChildName" value="etl:SensorModule_Front_Left"/>
     <Numeric name="N" value="21"/>
-    <Numeric name="StartCopyNo" value="73"/>
+    <Numeric name="StartCopyNo" value="74"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+10*[DeltaX_ServiceModule]+5*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector>
@@ -742,7 +742,7 @@
     <rParent name="etl:DiscSector_Front"/>
     <String name="ChildName" value="etl:SensorModule_Front_Right"/>
     <Numeric name="N" value="21"/>
-    <Numeric name="StartCopyNo" value="73"/>
+    <Numeric name="StartCopyNo" value="76"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+12*[DeltaX_ServiceModule]+5*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector>
@@ -755,7 +755,7 @@
     <rParent name="etl:DiscSector_Front"/>
     <String name="ChildName" value="etl:SensorModule_Front_Left"/>
     <Numeric name="N" value="21"/>
-    <Numeric name="StartCopyNo" value="94"/>
+    <Numeric name="StartCopyNo" value="95"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+12*[DeltaX_ServiceModule]+6*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector>
@@ -794,7 +794,7 @@
     <rParent name="etl:DiscSector_Front"/>
     <String name="ChildName" value="etl:SensorModule_Front_Right"/>
     <Numeric name="N" value="21"/>
-    <Numeric name="StartCopyNo" value="94"/>
+    <Numeric name="StartCopyNo" value="97"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+14*[DeltaX_ServiceModule]+6*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector>
@@ -807,7 +807,7 @@
     <rParent name="etl:DiscSector_Front"/>
     <String name="ChildName" value="etl:SensorModule_Front_Left"/>
     <Numeric name="N" value="24"/>
-    <Numeric name="StartCopyNo" value="115"/>
+    <Numeric name="StartCopyNo" value="116"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+14*[DeltaX_ServiceModule]+7*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector>
@@ -833,7 +833,7 @@
     <rParent name="etl:DiscSector_Front"/>
     <String name="ChildName" value="etl:SensorModule_Front_Right"/>
     <Numeric name="N" value="24"/>
-    <Numeric name="StartCopyNo" value="115"/>
+    <Numeric name="StartCopyNo" value="118"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+16*[DeltaX_ServiceModule]+7*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector>
@@ -846,7 +846,7 @@
     <rParent name="etl:DiscSector_Front"/>
     <String name="ChildName" value="etl:SensorModule_Front_Left"/>
     <Numeric name="N" value="24"/>
-    <Numeric name="StartCopyNo" value="139"/>
+    <Numeric name="StartCopyNo" value="140"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+16*[DeltaX_ServiceModule]+8*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector>
@@ -872,7 +872,7 @@
     <rParent name="etl:DiscSector_Front"/>
     <String name="ChildName" value="etl:SensorModule_Front_Right"/>
     <Numeric name="N" value="24"/>
-    <Numeric name="StartCopyNo" value="139"/>
+    <Numeric name="StartCopyNo" value="142"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+18*[DeltaX_ServiceModule]+8*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector>
@@ -885,7 +885,7 @@
     <rParent name="etl:DiscSector_Front"/>
     <String name="ChildName" value="etl:SensorModule_Front_Left"/>
     <Numeric name="N" value="24"/>
-    <Numeric name="StartCopyNo" value="163"/>
+    <Numeric name="StartCopyNo" value="164"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+18*[DeltaX_ServiceModule]+9*[SensorModuledx])*cm, (2.2925+[SensorModuledy]+[DeltaY])*cm, 0.178*cm </Vector>
@@ -911,7 +911,7 @@
     <rParent name="etl:DiscSector_Front"/>
     <String name="ChildName" value="etl:SensorModule_Front_Right"/>
     <Numeric name="N" value="21"/>
-    <Numeric name="StartCopyNo" value="163"/>
+    <Numeric name="StartCopyNo" value="166"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+20*[DeltaX_ServiceModule]+9*[SensorModuledx])*cm, (2.2925+4*[SensorModuledy]+4*[DeltaY])*cm, 0.178*cm </Vector>
@@ -924,7 +924,7 @@
     <rParent name="etl:DiscSector_Front"/>
     <String name="ChildName" value="etl:SensorModule_Front_Left"/>
     <Numeric name="N" value="18"/>
-    <Numeric name="StartCopyNo" value="187"/>
+    <Numeric name="StartCopyNo" value="188"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+20*[DeltaX_ServiceModule]+10*[SensorModuledx])*cm, (2.2925+6*[SensorModuledy]+6*[DeltaY])*cm, 0.178*cm </Vector>
@@ -950,7 +950,7 @@
     <rParent name="etl:DiscSector_Front"/>
     <String name="ChildName" value="etl:SensorModule_Front_Right"/>
     <Numeric name="N" value="18"/>
-    <Numeric name="StartCopyNo" value="184"/>
+    <Numeric name="StartCopyNo" value="187"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+22*[DeltaX_ServiceModule]+10*[SensorModuledx])*cm, ( 2.2925+6*[SensorModuledy]+6*[DeltaY])*cm, 0.178*cm </Vector>
@@ -963,7 +963,7 @@
     <rParent name="etl:DiscSector_Front"/>
     <String name="ChildName" value="etl:SensorModule_Front_Left"/>
     <Numeric name="N" value="18"/>
-    <Numeric name="StartCopyNo" value="205"/>
+    <Numeric name="StartCopyNo" value="206"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+22*[DeltaX_ServiceModule]+11*[SensorModuledx])*cm, ( 2.2925+7*[SensorModuledy]+7*[DeltaY])*cm, 0.178*cm </Vector>
@@ -989,7 +989,7 @@
     <rParent name="etl:DiscSector_Front"/>
     <String name="ChildName" value="etl:SensorModule_Front_Right"/>
     <Numeric name="N" value="18"/>
-    <Numeric name="StartCopyNo" value="202"/>
+    <Numeric name="StartCopyNo" value="205"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+24*[DeltaX_ServiceModule]+11*[SensorModuledx])*cm, ( 2.2925+7*[SensorModuledy]+7*[DeltaY])*cm, 0.178*cm </Vector>
@@ -1002,7 +1002,7 @@
     <rParent name="etl:DiscSector_Front"/>
     <String name="ChildName" value="etl:SensorModule_Front_Left"/>
     <Numeric name="N" value="18"/>
-    <Numeric name="StartCopyNo" value="223"/>
+    <Numeric name="StartCopyNo" value="224"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+24*[DeltaX_ServiceModule]+12*[SensorModuledx])*cm, ( 2.2925+8*[SensorModuledy]+8*[DeltaY])*cm, 0.178*cm </Vector>
@@ -1028,7 +1028,7 @@
     <rParent name="etl:DiscSector_Front"/>
     <String name="ChildName" value="etl:SensorModule_Front_Right"/>
     <Numeric name="N" value="18"/>
-    <Numeric name="StartCopyNo" value="220"/>
+    <Numeric name="StartCopyNo" value="223"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (-111.93+26*[DeltaX_ServiceModule]+12*[SensorModuledx])*cm, ( 2.2925+8*[SensorModuledy]+8*[DeltaY])*cm, 0.178*cm </Vector>
@@ -1590,7 +1590,7 @@
     <rParent name="etl:DiscSector_Back"/>
     <String name="ChildName" value="etl:SensorModule_Back_Left"/>
     <Numeric name="N" value="17"/>
-    <Numeric name="StartCopyNo" value="224"/>
+    <Numeric name="StartCopyNo" value="223"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3"> (-113.555+25*[DeltaX_ServiceModule]+12*[SensorModuledx])*cm, (2.2925+8*[SensorModuledy]+8*[DeltaY])*cm, -0.178*cm </Vector>
@@ -1683,7 +1683,7 @@
     <rParent name="etl:DiscSector_Front_2"/>
     <String name="ChildName" value="etl:SensorModule_Front_Right"/>
     <Numeric name="N" value="12"/>
-    <Numeric name="StartCopyNo" value="12"/>
+    <Numeric name="StartCopyNo" value="9"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (111.93-2*[DeltaX_ServiceModule]-[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector>
@@ -1722,7 +1722,7 @@
     <rParent name="etl:DiscSector_Front_2"/>
     <String name="ChildName" value="etl:SensorModule_Front_Right"/>
     <Numeric name="N" value="15"/>
-    <Numeric name="StartCopyNo" value="20"/>
+    <Numeric name="StartCopyNo" value="21"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (111.93-4*[DeltaX_ServiceModule]-2*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector>
@@ -1761,7 +1761,7 @@
     <rParent name="etl:DiscSector_Front_2"/>
     <String name="ChildName" value="etl:SensorModule_Front_Left"/>
     <Numeric name="N" value="15"/>
-    <Numeric name="StartCopyNo" value="20"/>
+    <Numeric name="StartCopyNo" value="22"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (111.93-6*[DeltaX_ServiceModule]-2*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector>
@@ -1774,7 +1774,7 @@
     <rParent name="etl:DiscSector_Front_2"/>
     <String name="ChildName" value="etl:SensorModule_Front_Right"/>
     <Numeric name="N" value="18"/>
-    <Numeric name="StartCopyNo" value="35"/>
+    <Numeric name="StartCopyNo" value="36"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (111.93-6*[DeltaX_ServiceModule]-3*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector>
@@ -1800,7 +1800,7 @@
     <rParent name="etl:DiscSector_Front_2"/>
     <String name="ChildName" value="etl:SensorModule_Front_Left"/>
     <Numeric name="N" value="18"/>
-    <Numeric name="StartCopyNo" value="34"/>
+    <Numeric name="StartCopyNo" value="37"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (111.93-8*[DeltaX_ServiceModule]-3*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector>
@@ -1813,7 +1813,7 @@
     <rParent name="etl:DiscSector_Front_2"/>
     <String name="ChildName" value="etl:SensorModule_Front_Right"/>
     <Numeric name="N" value="20"/>
-    <Numeric name="StartCopyNo" value="53"/>
+    <Numeric name="StartCopyNo" value="54"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (111.93-8*[DeltaX_ServiceModule]-4*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector>
@@ -1852,7 +1852,7 @@
     <rParent name="etl:DiscSector_Front_2"/>
     <String name="ChildName" value="etl:SensorModule_Front_Left"/>
     <Numeric name="N" value="21"/>
-    <Numeric name="StartCopyNo" value="53"/>
+    <Numeric name="StartCopyNo" value="55"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (111.93-10*[DeltaX_ServiceModule]-4*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector>
@@ -1865,7 +1865,7 @@
     <rParent name="etl:DiscSector_Front_2"/>
     <String name="ChildName" value="etl:SensorModule_Front_Right"/>
     <Numeric name="N" value="21"/>
-    <Numeric name="StartCopyNo" value="73"/>
+    <Numeric name="StartCopyNo" value="74"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (111.93-10*[DeltaX_ServiceModule]-5*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector>
@@ -1904,7 +1904,7 @@
     <rParent name="etl:DiscSector_Front_2"/>
     <String name="ChildName" value="etl:SensorModule_Front_Left"/>
     <Numeric name="N" value="21"/>
-    <Numeric name="StartCopyNo" value="73"/>
+    <Numeric name="StartCopyNo" value="76"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (111.93-12*[DeltaX_ServiceModule]-5*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector>
@@ -1917,7 +1917,7 @@
     <rParent name="etl:DiscSector_Front_2"/>
     <String name="ChildName" value="etl:SensorModule_Front_Right"/>
     <Numeric name="N" value="21"/>
-    <Numeric name="StartCopyNo" value="94"/>
+    <Numeric name="StartCopyNo" value="95"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (111.93-12*[DeltaX_ServiceModule]-6*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector>
@@ -1956,7 +1956,7 @@
     <rParent name="etl:DiscSector_Front_2"/>
     <String name="ChildName" value="etl:SensorModule_Front_Left"/>
     <Numeric name="N" value="21"/>
-    <Numeric name="StartCopyNo" value="94"/>
+    <Numeric name="StartCopyNo" value="97"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (111.93-14*[DeltaX_ServiceModule]-6*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector>
@@ -1969,7 +1969,7 @@
     <rParent name="etl:DiscSector_Front_2"/>
     <String name="ChildName" value="etl:SensorModule_Front_Right"/>
     <Numeric name="N" value="24"/>
-    <Numeric name="StartCopyNo" value="115"/>
+    <Numeric name="StartCopyNo" value="116"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (111.93-14*[DeltaX_ServiceModule]-7*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector>
@@ -1995,7 +1995,7 @@
     <rParent name="etl:DiscSector_Front_2"/>
     <String name="ChildName" value="etl:SensorModule_Front_Left"/>
     <Numeric name="N" value="24"/>
-    <Numeric name="StartCopyNo" value="115"/>
+    <Numeric name="StartCopyNo" value="118"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (111.93-16*[DeltaX_ServiceModule]-7*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector>
@@ -2008,7 +2008,7 @@
     <rParent name="etl:DiscSector_Front_2"/>
     <String name="ChildName" value="etl:SensorModule_Front_Right"/>
     <Numeric name="N" value="24"/>
-    <Numeric name="StartCopyNo" value="139"/>
+    <Numeric name="StartCopyNo" value="140"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (111.93-16*[DeltaX_ServiceModule]-8*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector>
@@ -2034,7 +2034,7 @@
     <rParent name="etl:DiscSector_Front_2"/>
     <String name="ChildName" value="etl:SensorModule_Front_Left"/>
     <Numeric name="N" value="24"/>
-    <Numeric name="StartCopyNo" value="139"/>
+    <Numeric name="StartCopyNo" value="142"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (111.93-18*[DeltaX_ServiceModule]-8*[SensorModuledx])*cm, 2.2925*cm, 0.178*cm </Vector>
@@ -2047,7 +2047,7 @@
     <rParent name="etl:DiscSector_Front_2"/>
     <String name="ChildName" value="etl:SensorModule_Front_Right"/>
     <Numeric name="N" value="24"/>
-    <Numeric name="StartCopyNo" value="163"/>
+    <Numeric name="StartCopyNo" value="164"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (111.93-18*[DeltaX_ServiceModule]-9*[SensorModuledx])*cm, (2.2925+[SensorModuledy]+[DeltaY])*cm, 0.178*cm </Vector>
@@ -2073,7 +2073,7 @@
     <rParent name="etl:DiscSector_Front_2"/>
     <String name="ChildName" value="etl:SensorModule_Front_Left"/>
     <Numeric name="N" value="21"/>
-    <Numeric name="StartCopyNo" value="163"/>
+    <Numeric name="StartCopyNo" value="166"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (111.93-20*[DeltaX_ServiceModule]-9*[SensorModuledx])*cm, (2.2925+4*[SensorModuledy]+4*[DeltaY])*cm, 0.178*cm </Vector>
@@ -2086,7 +2086,7 @@
     <rParent name="etl:DiscSector_Front_2"/>
     <String name="ChildName" value="etl:SensorModule_Front_Right"/>
     <Numeric name="N" value="18"/>
-    <Numeric name="StartCopyNo" value="187"/>
+    <Numeric name="StartCopyNo" value="188"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (111.93-20*[DeltaX_ServiceModule]-10*[SensorModuledx])*cm, (2.2925+6*[SensorModuledy]+6*[DeltaY])*cm, 0.178*cm </Vector>
@@ -2112,7 +2112,7 @@
     <rParent name="etl:DiscSector_Front_2"/>
     <String name="ChildName" value="etl:SensorModule_Front_Left"/>
     <Numeric name="N" value="18"/>
-    <Numeric name="StartCopyNo" value="184"/>
+    <Numeric name="StartCopyNo" value="187"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (111.93-22*[DeltaX_ServiceModule]-10*[SensorModuledx])*cm, ( 2.2925+6*[SensorModuledy]+6*[DeltaY])*cm, 0.178*cm </Vector>
@@ -2125,7 +2125,7 @@
     <rParent name="etl:DiscSector_Front_2"/>
     <String name="ChildName" value="etl:SensorModule_Front_Right"/>
     <Numeric name="N" value="18"/>
-    <Numeric name="StartCopyNo" value="205"/>
+    <Numeric name="StartCopyNo" value="206"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (111.93-22*[DeltaX_ServiceModule]-11*[SensorModuledx])*cm, ( 2.2925+7*[SensorModuledy]+7*[DeltaY])*cm, 0.178*cm </Vector>
@@ -2151,7 +2151,7 @@
     <rParent name="etl:DiscSector_Front_2"/>
     <String name="ChildName" value="etl:SensorModule_Front_Left"/>
     <Numeric name="N" value="18"/>
-    <Numeric name="StartCopyNo" value="202"/>
+    <Numeric name="StartCopyNo" value="205"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (111.93-24*[DeltaX_ServiceModule]-11*[SensorModuledx])*cm, ( 2.2925+7*[SensorModuledy]+7*[DeltaY])*cm, 0.178*cm </Vector>
@@ -2164,7 +2164,7 @@
     <rParent name="etl:DiscSector_Front_2"/>
     <String name="ChildName" value="etl:SensorModule_Front_Right"/>
     <Numeric name="N" value="18"/>
-    <Numeric name="StartCopyNo" value="223"/>
+    <Numeric name="StartCopyNo" value="224"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (111.93-24*[DeltaX_ServiceModule]-12*[SensorModuledx])*cm, ( 2.2925+8*[SensorModuledy]+8*[DeltaY])*cm, 0.178*cm </Vector>
@@ -2190,7 +2190,7 @@
     <rParent name="etl:DiscSector_Front_2"/>
     <String name="ChildName" value="etl:SensorModule_Front_Left"/>
     <Numeric name="N" value="18"/>
-    <Numeric name="StartCopyNo" value="220"/>
+    <Numeric name="StartCopyNo" value="223"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([SensorModuledy]+[DeltaY])*cm"/>
     <Vector  name="Base" type="numeric" nEntries="3">  (111.93-26*[DeltaX_ServiceModule]-12*[SensorModuledx])*cm, ( 2.2925+8*[SensorModuledy]+8*[DeltaY])*cm, 0.178*cm </Vector>
