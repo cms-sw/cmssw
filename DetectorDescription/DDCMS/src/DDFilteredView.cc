@@ -247,11 +247,11 @@ int DDFilteredView::nodeCopyNo(const std::string_view copyNo) const {
   return -1;
 }
 
-std::vector<std::pair<std::string_view, int>> DDFilteredView::toNodeNames(const std::string& path) {
-  std::vector<std::pair<std::string_view, int>> result;
+std::vector<std::pair<std::string, int>> DDFilteredView::toNodeNames(const std::string& path) {
+  std::vector<std::pair<std::string, int>> result;
   std::vector<string_view> names = split(path, "/");
-  for (const auto& i : names) {
-    auto name = noNamespace(i);
+  for (auto it : names) {
+    auto name = noNamespace(it);
     int copyNo = -1;
     auto lpos = name.find_first_of('[');
     if (lpos != std::string::npos) {
@@ -259,16 +259,15 @@ std::vector<std::pair<std::string_view, int>> DDFilteredView::toNodeNames(const 
       if (rpos != std::string::npos) {
         copyNo = nodeCopyNo(name.substr(lpos + 1, rpos - 1));
       }
-      result.emplace_back(name.substr(0, lpos), copyNo);
-    } else {
-      result.emplace_back(name, -1);
+      name.remove_suffix(name.size() - lpos);
     }
+    result.emplace_back(std::string(name.data(), name.size()), copyNo);
   }
 
   return result;
 }
 
-bool DDFilteredView::match(const std::string& path, const std::vector<std::pair<std::string_view, int>>& names) const {
+bool DDFilteredView::match(const std::string& path, const std::vector<std::pair<std::string, int>>& names) const {
   std::vector<std::pair<std::string_view, int>> toks;
   std::vector<string_view> pnames = split(path, "/");
   for (const auto& i : pnames) {
@@ -307,7 +306,7 @@ std::vector<std::vector<Node*>> DDFilteredView::children(const std::string& sele
     throw cms::Exception("DDFilteredView") << "Can't get children of a null node. Please, call firstChild().";
   }
   it_.back().SetType(0);
-  std::vector<std::pair<std::string_view, int>> names = toNodeNames(selectPath);
+  std::vector<std::pair<std::string, int>> names = toNodeNames(selectPath);
   auto rit = names.rbegin();
   Node* node = it_.back().Next();
   while (node != nullptr) {
@@ -639,62 +638,14 @@ const ExpandedNodes& DDFilteredView::history() {
 }
 
 const DDSpecPar* DDFilteredView::find(const std::string& key) const {
-  DDSpecParRefs refs;
-  filter(refs, key);
+  DDSpecParRefs specParRefs;
+  filter(specParRefs, key);
 
-  int level = it_.back().GetLevel();
-
-  for (auto const& i : refs) {
-    auto k = find_if(begin(i->paths), end(i->paths), [&](auto const& j) {
-      auto topos = j.size();
-      auto frompos = j.rfind('/');
-      bool flag = false;
-      for (int nit = level; frompos - 1 <= topos and nit > 0; --nit) {
-        std::string_view name = it_.back().GetNode(nit)->GetVolume()->GetName();
-        const int copyNum = it_.back().GetNode(nit)->GetNumber();
-        std::string_view refname{&j[frompos + 1], topos - frompos - 1};
-        topos = frompos;
-        frompos = j.substr(0, topos).rfind('/');
-
-        auto rpos = refname.find(':');
-        if (rpos == refname.npos) {
-          name = noNamespace(name);
-        } else {
-          if (name.find(':') == name.npos) {
-            refname.remove_prefix(rpos + 1);
-          }
-        }
-        auto cpos = refname.rfind('[');
-        if (cpos != refname.npos) {
-          if (std::stoi(std::string(refname.substr(cpos + 1, refname.rfind(']')))) == copyNum) {
-            refname.remove_suffix(refname.size() - cpos);
-            flag = true;
-          } else {
-            flag = false;
-            break;
-          }
-        }
-        if (!dd4hep::dd::isRegex(refname)) {
-          if (!dd4hep::dd::compareEqual(name, refname)) {
-            flag = false;
-            break;
-          } else {
-            flag = true;
-          }
-        } else {
-          if (!regex_match(std::string(name.data(), name.size()), regex(std::string(refname)))) {
-            flag = false;
-            break;
-          } else {
-            flag = true;
-            continue;
-          }
-        }
-      }
-      return flag;
-    });
-    if (k != end(i->paths)) {
-      return i;
+  for (auto const& specPar : specParRefs) {
+    auto pos = find_if(
+        begin(specPar->paths), end(specPar->paths), [&](auto const& partSelector) { return matchPath(partSelector); });
+    if (pos != end(specPar->paths)) {
+      return specPar;
     }
   }
 
@@ -709,6 +660,7 @@ void DDFilteredView::filter(DDSpecParRefs& refs, const std::string& key) const {
   }
 }
 
+// First name in a path
 std::string_view DDFilteredView::front(const std::string_view path) const {
   auto const& lpos = path.find_first_not_of('/');
   if (lpos != path.npos) {
@@ -723,6 +675,7 @@ std::string_view DDFilteredView::front(const std::string_view path) const {
   return path;
 }
 
+// Last name in a path
 std::string_view DDFilteredView::back(const std::string_view path) const {
   if (auto const& lpos = path.rfind('/') != path.npos) {
     return path.substr(lpos, path.size());
@@ -730,6 +683,92 @@ std::string_view DDFilteredView::back(const std::string_view path) const {
 
   // throw cms::Exception("Filtered View") << "Path must start with '//'  " << path;
   return path;
+}
+
+// Current Iterator level Node name
+std::string_view DDFilteredView::nodeNameAt(int level) const {
+  assert(!it_.empty());
+  assert(it_.back().GetLevel() >= level);
+  return it_.back().GetNode(level)->GetVolume()->GetName();
+}
+
+// Current Iterator level Node copy number
+const int DDFilteredView::nodeCopyNoAt(int level) const {
+  assert(!it_.empty());
+  assert(it_.back().GetLevel() >= level);
+  return it_.back().GetNode(level)->GetNumber();
+}
+
+// Compare if name matches a selection pattern that
+// may or may not be defined as a regular expression
+bool DDFilteredView::compareEqualName(const std::string_view selection, const std::string_view name) const {
+  return (!(dd4hep::dd::isRegex(selection))
+              ? dd4hep::dd::compareEqual(name, selection)
+              : regex_match(std::string(name.data(), name.size()), regex(std::string(selection))));
+}
+
+// Check if both name and it's selection pattern
+// contain a namespace and
+// remove it if one of them does not
+std::tuple<std::string_view, std::string_view> DDFilteredView::alignNamespaces(std::string_view selection,
+                                                                               std::string_view name) const {
+  auto pos = selection.find(':');
+  if (pos == selection.npos) {
+    name = noNamespace(name);
+  } else {
+    if (name.find(':') == name.npos) {
+      selection.remove_prefix(pos + 1);
+    }
+  }
+  return std::make_tuple(selection, name);
+}
+
+// If a name has an XML-style copy number, e.g. Name[1]
+// and compare it to an integer
+bool DDFilteredView::compareEqualCopyNumber(const std::string_view name, int copy) const {
+  auto pos = name.rfind('[');
+  if (pos != name.npos) {
+    if (std::stoi(std::string(name.substr(pos + 1, name.rfind(']')))) == copy) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+bool DDFilteredView::matchPath(const std::string_view path) const {
+  assert(!it_.empty());
+  int level = it_.back().GetLevel();
+
+  auto to = path.size();
+  auto from = path.rfind('/');
+  bool result = false;
+  for (int it = level; from - 1 <= to and it > 0; --it) {
+    std::string_view name = nodeNameAt(it);
+    std::string_view refname{&path[from + 1], to - from - 1};
+    to = from;
+    from = path.substr(0, to).rfind('/');
+
+    std::tie(refname, name) = alignNamespaces(refname, name);
+
+    auto pos = refname.rfind('[');
+    if (pos != refname.npos) {
+      if (!compareEqualCopyNumber(refname, nodeCopyNoAt(it))) {
+        result = false;
+        break;
+      } else {
+        refname.remove_suffix(refname.size() - pos);
+        result = true;
+      }
+    }
+    if (!compareEqualName(refname, name)) {
+      result = false;
+      break;
+    } else {
+      result = true;
+    }
+  }
+  return result;
 }
 
 double DDFilteredView::getNextValue(const std::string& key) const {
