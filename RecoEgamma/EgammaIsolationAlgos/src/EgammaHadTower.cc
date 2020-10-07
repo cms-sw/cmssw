@@ -31,19 +31,19 @@ CaloTowerDetId EgammaHadTower::towerOf(const reco::CaloCluster& cluster) const {
   return id;
 }
 
-std::vector<CaloTowerDetId> EgammaHadTower::towersOf(const reco::SuperCluster& sc) const {
+std::vector<CaloTowerDetId> EgammaHadTower::towersOf(const reco::SuperCluster& sc, HoeMode mode) const {
   constexpr unsigned int nMaxClusters = 4;
 
   std::vector<CaloTowerDetId> towers;
   std::vector<reco::CaloClusterPtr> orderedClusters;
 
   // in this mode, check only the tower behind the seed
-  if (mode_ == SingleTower) {
+  if (mode == SingleTower) {
     towers.push_back(towerOf(*sc.seed()));
   }
 
   // in this mode check the towers behind each basic cluster
-  if (mode_ == TowersBehindCluster) {
+  if (mode == TowersBehindCluster) {
     // Loop on the basic clusters
     for (auto it = sc.clustersBegin(); it != sc.clustersEnd(); ++it) {
       orderedClusters.push_back(*it);
@@ -99,7 +99,9 @@ double EgammaHadTower::getDepth2HcalESum(const std::vector<CaloTowerDetId>& towe
   return esum;
 }
 
-bool EgammaHadTower::hasActiveHcal(const std::vector<CaloTowerDetId>& towers) const {
+bool EgammaHadTower::hasActiveHcal(const std::vector<CaloTowerDetId>& towers,
+                                   const HcalChannelQuality& hcalQuality,
+                                   HcalTopology const& hcalTopology) const {
   bool active = false;
   int statusMask = ((1 << HcalChannelStatus::HcalCellOff) | (1 << HcalChannelStatus::HcalCellMask) |
                     (1 << HcalChannelStatus::HcalCellDead));
@@ -124,7 +126,7 @@ bool EgammaHadTower::hasActiveHcal(const std::vector<CaloTowerDetId>& towers) co
       // Sunanda's fix for 2017 Plan1
       // and removed protection
       int status =
-          hcalQuality_.getValues((DetId)(hcalTopology_.idFront(HcalDetId(id))), /*throwOnFail=*/true)->getValue();
+          hcalQuality.getValues((DetId)(hcalTopology.idFront(HcalDetId(id))), /*throwOnFail=*/true)->getValue();
 
 #ifdef EDM_ML_DEBUG
       std::cout << "channels status = " << std::hex << status << std::dec << "  int value = " << status << std::endl;

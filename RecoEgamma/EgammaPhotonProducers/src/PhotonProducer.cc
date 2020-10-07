@@ -31,7 +31,6 @@
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHadTower.h"
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
 
 PhotonProducer::PhotonProducer(const edm::ParameterSet& config) : photonEnergyCorrector_(config, consumesCollector()) {
   // use onfiguration file to setup input/output collection names
@@ -278,12 +277,7 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     edm::ESHandle<CaloTowerConstituentsMap> ctmaph;
     es.get<CaloGeometryRecord>().get(ctmaph);
 
-    edm::ESHandle<HcalChannelQuality> hQuality;
-    es.get<HcalChannelQualityRcd>().get("withTopo", hQuality);
-
-    edm::ESHandle<HcalTopology> hcalTopology;
-    es.get<HcalRecNumberingRecord>().get(hcalTopology);
-    const EgammaHadTower egammaHadTower(*ctmaph, *hQuality, *hcalTopology);
+    const EgammaHadTower egammaHadTower(*ctmaph);
     auto towersBehindCluster = egammaHadTower.towersOf(*scRef);
     float hcalDepth1OverEcalBc = egammaHadTower.getDepth1HcalESum(towersBehindCluster, hcalTowers) / scRef->energy();
     float hcalDepth2OverEcalBc = egammaHadTower.getDepth2HcalESum(towersBehindCluster, hcalTowers) / scRef->energy();

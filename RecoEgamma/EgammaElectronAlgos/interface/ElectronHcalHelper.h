@@ -17,6 +17,8 @@ class EgammaTowerIsolation;
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class EgammaHadTower;
+class HcalTopology;
+class HcalChannelQuality;
 
 class ElectronHcalHelper {
 public:
@@ -71,6 +73,8 @@ private:
   EgammaTowerIsolation *towerIso2_;
   EgammaHadTower *hadTower_;
   CaloTowerCollection const *towersFromCollection_ = nullptr;
+  HcalChannelQuality const *hcalQuality_ = nullptr;
+  HcalTopology const *hcalTopology_ = nullptr;
 };
 
 #endif

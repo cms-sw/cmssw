@@ -5,7 +5,6 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "RecoParticleFlow/PFProducer/interface/PFBlockElementSCEqual.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
 
 // for single tower H/E
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHadTower.h"
@@ -56,12 +55,7 @@ void SuperClusterImporter::updateEventSetup(const edm::EventSetup& es) {
   edm::ESHandle<CaloTowerConstituentsMap> ctmaph;
   es.get<CaloGeometryRecord>().get(ctmaph);
 
-  edm::ESHandle<HcalChannelQuality> hQuality;
-  es.get<HcalChannelQualityRcd>().get("withTopo", hQuality);
-
-  edm::ESHandle<HcalTopology> hcalTopology;
-  es.get<HcalRecNumberingRecord>().get(hcalTopology);
-  _hadTower = std::make_unique<EgammaHadTower>(*ctmaph, *hQuality, *hcalTopology, EgammaHadTower::SingleTower);
+  _hadTower = std::make_unique<EgammaHadTower>(*ctmaph);
 }
 
 void SuperClusterImporter::importToBlock(const edm::Event& e, BlockElementImporterBase::ElementList& elems) const {
