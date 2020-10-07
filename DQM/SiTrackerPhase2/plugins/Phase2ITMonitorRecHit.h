@@ -1,5 +1,5 @@
-#ifndef _Validation_SiTrackerPhase2V_Phase2ITMonitorRecHit_h
-#define _Validation_SiTrackerPhase2V_Phase2ITMonitorRecHit_h
+#ifndef _DQM_SiTrackerPhase2_Phase2ITMonitorRecHit_h
+#define _DQM_SiTrackerPhase2_Phase2ITMonitorRecHit_h
 #include <iostream>
 #include <map>
 #include <vector>
@@ -47,7 +47,7 @@ private:
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
   const TrackerGeometry* tkGeom_ = nullptr;
   const TrackerTopology* tTopo_ = nullptr;
-
+  static constexpr float million = 1e6;
   MonitorElement* numberRecHits_;
   MonitorElement* globalXY_barrel_;
   MonitorElement* globalXY_endcap_;

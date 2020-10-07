@@ -271,52 +271,8 @@ void Phase2ITValidateRecHit::fillDescriptions(edm::ConfigurationDescriptions& de
   edm::ParameterSetDescription desc;
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<double>("ymax", 4.0);
-    psd0.add<int>("NxBins", 82);
-    psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 4.1);
-    psd0.add<double>("xmin", -4.1);
-    psd0.add<double>("ymin", -4.0);
-    desc.add<edm::ParameterSetDescription>("PullY_primary", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<double>("xmin", -0.2);
-    psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 0.2);
-    psd0.add<int>("NxBins", 100);
-    desc.add<edm::ParameterSetDescription>("DeltaY_primary", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<double>("ymax", 0.02);
-    psd0.add<int>("NxBins", 82);
-    psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 4.1);
-    psd0.add<double>("xmin", -4.1);
-    psd0.add<double>("ymin", -0.02);
-    desc.add<edm::ParameterSetDescription>("DeltaY_eta", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<double>("xmin", 0.0);
-    psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 0.0);
-    psd0.add<int>("NxBins", 100);
-    desc.add<edm::ParameterSetDescription>("nRecHits_primary", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<double>("ymax", 4.0);
-    psd0.add<int>("NxBins", 82);
-    psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 4.1);
-    psd0.add<double>("xmin", -4.1);
-    psd0.add<double>("ymin", -4.0);
-    desc.add<edm::ParameterSetDescription>("PullX_eta", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "Delta_X");
+    psd0.add<std::string>("title", "Delta_X;RecHit resolution X dimensiom");
     psd0.add<double>("xmin", -0.2);
     psd0.add<bool>("switch", true);
     psd0.add<double>("xmax", 0.2);
@@ -325,25 +281,28 @@ void Phase2ITValidateRecHit::fillDescriptions(edm::ConfigurationDescriptions& de
   }
   {
     edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "Delta_Y");
+    psd0.add<std::string>("title", "Delta_Y;RecHit resolution Y dimensiom;");
     psd0.add<double>("xmin", -0.2);
     psd0.add<bool>("switch", true);
     psd0.add<double>("xmax", 0.2);
     psd0.add<int>("NxBins", 100);
     desc.add<edm::ParameterSetDescription>("DeltaY", psd0);
   }
-  desc.add<bool>("Verbosity", false);
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<double>("ymax", 4.0);
-    psd0.add<int>("NxBins", 82);
+    psd0.add<std::string>("name", "Pull_X");
+    psd0.add<std::string>("title", "Pull_X;pull x;");
+    psd0.add<double>("xmin", -4.0);
     psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 4.1);
-    psd0.add<double>("xmin", -4.1);
-    psd0.add<double>("ymin", -4.0);
-    desc.add<edm::ParameterSetDescription>("PullY_eta", psd0);
+    psd0.add<double>("xmax", 4.0);
+    psd0.add<int>("NxBins", 100);
+    desc.add<edm::ParameterSetDescription>("PullX", psd0);
   }
   {
     edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "Pull_Y");
+    psd0.add<std::string>("title", "Pull_Y;pull y;");
     psd0.add<double>("xmin", -4.0);
     psd0.add<bool>("switch", true);
     psd0.add<double>("xmax", 4.0);
@@ -352,16 +311,8 @@ void Phase2ITValidateRecHit::fillDescriptions(edm::ConfigurationDescriptions& de
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<double>("ymax", 4.0);
-    psd0.add<int>("NxBins", 82);
-    psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 4.1);
-    psd0.add<double>("xmin", -4.1);
-    psd0.add<double>("ymin", -4.0);
-    desc.add<edm::ParameterSetDescription>("PullX_primary", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "Delta_X_vs_Eta");
+    psd0.add<std::string>("title", "Delta_X_vs_Eta;#eta;#Delta x");
     psd0.add<double>("ymax", 0.02);
     psd0.add<int>("NxBins", 82);
     psd0.add<bool>("switch", true);
@@ -372,19 +323,94 @@ void Phase2ITValidateRecHit::fillDescriptions(edm::ConfigurationDescriptions& de
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<double>("xmin", -4.0);
+    psd0.add<std::string>("name", "Delta_Y_vs_Eta");
+    psd0.add<std::string>("title", "Delta_Y_vs_Eta;#eta;#Delta y");
+    psd0.add<double>("ymax", 0.02);
+    psd0.add<int>("NxBins", 82);
     psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 4.0);
-    psd0.add<int>("NxBins", 100);
-    desc.add<edm::ParameterSetDescription>("PullX", psd0);
+    psd0.add<double>("xmax", 4.1);
+    psd0.add<double>("xmin", -4.1);
+    psd0.add<double>("ymin", -0.02);
+    desc.add<edm::ParameterSetDescription>("DeltaY_eta", psd0);
   }
   {
     edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "Pull_X_vs_Eta");
+    psd0.add<std::string>("title", "Pull_X_vs_Eta;#eta;pull x");
+    psd0.add<double>("ymax", 4.0);
+    psd0.add<int>("NxBins", 82);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 4.1);
+    psd0.add<double>("xmin", -4.1);
+    psd0.add<double>("ymin", -4.0);
+    desc.add<edm::ParameterSetDescription>("PullX_eta", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "Pull_Y_vs_Eta");
+    psd0.add<std::string>("title", "Pull_Y_vs_Eta;#eta;pull y");
+    psd0.add<double>("ymax", 4.0);
+    psd0.add<int>("NxBins", 82);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 4.1);
+    psd0.add<double>("xmin", -4.1);
+    psd0.add<double>("ymin", -4.0);
+    desc.add<edm::ParameterSetDescription>("PullY_eta", psd0);
+  }
+  //simhits primary
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "Number_RecHits_matched_PrimarySimTrack");
+    psd0.add<std::string>("title", "Number of RecHits matched to primary SimTrack;;");
+    psd0.add<double>("xmin", 0.0);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 0.0);
+    psd0.add<int>("NxBins", 100);
+    desc.add<edm::ParameterSetDescription>("nRecHits_primary", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "Delta_X_SimHitPrimary");
+    psd0.add<std::string>("title", "Delta_X_SimHitPrimary;#delta x;");
     psd0.add<double>("xmin", -0.2);
     psd0.add<bool>("switch", true);
     psd0.add<double>("xmax", 0.2);
     psd0.add<int>("NxBins", 100);
     desc.add<edm::ParameterSetDescription>("DeltaX_primary", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "Delta_Y_SimHitPrimary");
+    psd0.add<std::string>("title", "Delta_Y_SimHitPrimary;#Delta y;");
+    psd0.add<double>("xmin", -0.2);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 0.2);
+    psd0.add<int>("NxBins", 100);
+    desc.add<edm::ParameterSetDescription>("DeltaY_primary", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "Pull_X_SimHitPrimary");
+    psd0.add<std::string>("title", "Pull_X_SimHitPrimary;pull x;");
+    psd0.add<double>("ymax", 4.0);
+    psd0.add<int>("NxBins", 82);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 4.1);
+    psd0.add<double>("xmin", -4.1);
+    psd0.add<double>("ymin", -4.0);
+    desc.add<edm::ParameterSetDescription>("PullX_primary", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "Pull_Y_SimHitPrimary");
+    psd0.add<std::string>("title", "Pull_Y_SimHitPrimary;pull y;");
+    psd0.add<double>("ymax", 4.0);
+    psd0.add<int>("NxBins", 82);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 4.1);
+    psd0.add<double>("xmin", -4.1);
+    psd0.add<double>("ymin", -4.0);
+    desc.add<edm::ParameterSetDescription>("PullY_primary", psd0);
   }
   //to be used in TrackerHitAssociator
   desc.add<bool>("associatePixel", true);
@@ -406,6 +432,7 @@ void Phase2ITValidateRecHit::fillDescriptions(edm::ConfigurationDescriptions& de
   desc.add<double>("SimTrackMinPt", 2.0);
   desc.add<edm::InputTag>("rechitsSrc", edm::InputTag("siPixelRecHits"));
   desc.add<std::string>("TopFolderName", "TrackerPhase2ITRecHitV");
+  desc.add<bool>("Verbosity", false);
   descriptions.add("Phase2ITValidateRecHit", desc);
 }
 //define this as a plug-in
