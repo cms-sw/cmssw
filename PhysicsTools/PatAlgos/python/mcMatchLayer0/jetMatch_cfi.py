@@ -30,13 +30,9 @@ patJetGenJetMatch = cms.EDProducer("GenJetMatcher",  # cut on deltaR; pick best 
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
 (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(patJetGenJetMatch,
-                                           matched = 'ak4HiCleanedGenJets',
                                            maxDeltaR = 0.4,
                                            resolveByMatchQuality = True,
                                            src = "akCs4PFJets",
                                        )
 
-(pp_on_AA_2018 | pp_on_PbPb_run3).toModify(patJetPartonMatch,
-                                           matched = "cleanedPartons",
-                                           src = "akCs4PFJets",
-                                       )
+(pp_on_AA_2018 | pp_on_PbPb_run3).toModify(patJetPartonMatch, src = "akCs4PFJets")

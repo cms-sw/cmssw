@@ -1,28 +1,39 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoHI.HiJetAlgos.HiSignalParticleProducer_cfi import hiSignalGenParticles
 from RecoJets.Configuration.GenJetParticles_cff import genParticlesForJets
 from RecoHI.HiJetAlgos.HiGenCleaner_cff import hiPartons
 from RecoHI.HiJetAlgos.HiGenJets_cff import ak4HiGenJets
 from RecoHI.HiJetAlgos.HiGenCleaner_cff import heavyIonCleanedGenJets
+from RecoHI.HiJetAlgos.HiSignalGenJetProducer_cfi import hiSignalGenJets
 
 allPartons = cms.EDProducer(
     "PartonSelector",
-    src = cms.InputTag('genParticles'),
+    src = cms.InputTag('hiSignalGenParticles'),
     withLeptons = cms.bool(False),
     )
+
+from Configuration.Eras.Modifier_genJetSubEvent_cff import genJetSubEvent
+genJetSubEvent.toModify(allPartons,src = "genParticles")
 
 cleanedPartons = hiPartons.clone(
     src = 'allPartons',
     )
 
-ak4HiGenJetsCleaned = heavyIonCleanedGenJets.clone(src = "ak4HiGenJets")
+ak4HiSignalGenJets = hiSignalGenJets.clone(src = "ak4HiGenJets")
 
-cleanedGenJetsTask = cms.Task(
+hiGenJetsTask = cms.Task(
+    hiSignalGenParticles,
     genParticlesForJets,
-    cleanedPartons,
+    allPartons,
     ak4HiGenJets,
-    ak4HiGenJetsCleaned
+    ak4HiSignalGenJets
 )
+
+ak4HiGenJetsCleaned = heavyIonCleanedGenJets.clone(src = "ak4HiGenJets")
+hiCleanedGenJetsTask_ = hiGenJetsTask.copyAndExclude([hiSignalGenParticles,ak4HiSignalGenJets])
+hiCleanedGenJetsTask_.add(cleanedPartons,ak4HiGenJetsCleaned)
+genJetSubEvent.toReplaceWith(hiGenJetsTask,hiCleanedGenJetsTask_)
 
 from RecoHI.HiJetAlgos.HiRecoPFJets_cff import PFTowers, pfEmptyCollection, ak4PFJetsForFlow, hiPuRho, hiFJRhoFlowModulation, akCs4PFJets
 from RecoHI.HiTracking.highPurityGeneralTracks_cfi import highPurityGeneralTracks
@@ -62,5 +73,5 @@ recoPFJetsHIpostAODTask = cms.Task(
 recoJetsHIpostAODTask = cms.Task(
     recoPFJetsHIpostAODTask,
     allPartons,
-    cleanedGenJetsTask,
+    hiGenJetsTask,
     )
