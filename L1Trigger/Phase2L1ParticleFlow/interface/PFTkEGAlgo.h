@@ -23,8 +23,12 @@ namespace l1tpf_impl {
 
     void eg_algo(Region &r, const std::vector<int> &emCalo2emCalo, const std::vector<int> &emCalo2tk) const;
 
-    l1tpf_impl::EgObjectIndexer& addEgObjsToPF(std::vector<l1tpf_impl::EgObjectIndexer> egobjs,
-                                               const int calo_idx, const int hwQual, const float ptCorr = -1, const int tk_idx = -1, const float iso = -1) const;
+    l1tpf_impl::EgObjectIndexer &addEgObjsToPF(std::vector<l1tpf_impl::EgObjectIndexer> egobjs,
+                                               const int calo_idx,
+                                               const int hwQual,
+                                               const float ptCorr = -1,
+                                               const int tk_idx = -1,
+                                               const float iso = -1) const;
   };
 
 }  // namespace l1tpf_impl

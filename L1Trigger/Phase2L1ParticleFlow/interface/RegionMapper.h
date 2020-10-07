@@ -41,7 +41,7 @@ namespace l1tpf_impl {
     std::unique_ptr<l1t::PFCandidateCollection> fetchCalo(float ptMin = 0.01, bool emcalo = false) const;
     std::unique_ptr<l1t::PFCandidateCollection> fetchTracks(float ptMin = 0.01, bool fromPV = false) const;
     // FIXME: refine interface as needed
-    void putEgObjects(edm::Event& iEvent, std::string egLablel, std::string tkEmLabel, std::string tkEleLabel) const;
+    void putEgObjects(edm::Event &iEvent, std::string egLablel, std::string tkEmLabel, std::string tkEleLabel) const;
 
     std::pair<unsigned, unsigned> totAndMaxInput(/*Region::InputType*/ int type) const;
     std::pair<unsigned, unsigned> totAndMaxOutput(/*Region::OutputType*/ int type, bool puppi) const;

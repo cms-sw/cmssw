@@ -309,7 +309,10 @@ std::unique_ptr<l1t::PFCandidateCollection> RegionMapper::fetchTracks(float ptMi
   return ret;
 }
 
-void RegionMapper::putEgObjects(edm::Event& iEvent, std::string egLablel, std::string tkEmLabel, std::string tkEleLabel) const {
+void RegionMapper::putEgObjects(edm::Event &iEvent,
+                                std::string egLablel,
+                                std::string tkEmLabel,
+                                std::string tkEleLabel) const {
   auto egs = std::make_unique<BXVector<l1t::EGamma>>();
   auto tkems = std::make_unique<l1t::TkEmCollection>();
   auto tkeles = std::make_unique<l1t::TkElectronCollection>();
@@ -321,7 +324,7 @@ void RegionMapper::putEgObjects(edm::Event& iEvent, std::string egLablel, std::s
   // FIXME: need to handle the barrel case where the EG already exist and we only need to use edm::refToPtr() from calo.src
   // FIXME: do we need additional cuts?
   for (const Region &r : regions_) {
-    for (const l1tpf_impl::EgObjectIndexer &egidxer: r.egobjs) {
+    for (const l1tpf_impl::EgObjectIndexer &egidxer : r.egobjs) {
       const auto &calo = r.emcalo[egidxer.emCaloIdx];
 
       // FIXME: check this is fiducial
@@ -330,18 +333,15 @@ void RegionMapper::putEgObjects(edm::Event& iEvent, std::string egLablel, std::s
       eg.setHwQual(egidxer.hwQual);
       egs->push_back(0, eg);
 
-      l1t::TkEm tkem(eg.p4(),
-                     edm::Ref<BXVector<l1t::EGamma>>(ref_egs, idx),
-                     egidxer.iso, egidxer.iso);
+      l1t::TkEm tkem(eg.p4(), edm::Ref<BXVector<l1t::EGamma>>(ref_egs, idx), egidxer.iso, egidxer.iso);
       tkems->push_back(tkem);
 
-      if(egidxer.tkIdx == -1) continue;
+      if (egidxer.tkIdx == -1)
+        continue;
       const auto &tk = r.track[egidxer.tkIdx];
 
-      l1t::TkElectron tkele(eg.p4(),
-                            edm::Ref<BXVector<l1t::EGamma>>(ref_egs, idx),
-                            edm::refToPtr(tk.src->track()),
-                            egidxer.iso);
+      l1t::TkElectron tkele(
+          eg.p4(), edm::Ref<BXVector<l1t::EGamma>>(ref_egs, idx), edm::refToPtr(tk.src->track()), egidxer.iso);
       tkeles->push_back(tkele);
 
       idx++;
@@ -350,7 +350,6 @@ void RegionMapper::putEgObjects(edm::Event& iEvent, std::string egLablel, std::s
   iEvent.put(std::move(egs), egLablel);
   iEvent.put(std::move(tkems), tkEmLabel);
   iEvent.put(std::move(tkeles), tkEleLabel);
-
 }
 
 std::pair<unsigned, unsigned> RegionMapper::totAndMaxInput(int type) const {

@@ -84,9 +84,10 @@ void l1tpf::PFClusterProducerFromHGC3DClusters::produce(edm::Event &iEvent, cons
     if (pt <= etCut_)
       continue;
 
-    if(it->hwQual()) { // this is the EG ID shipped with the HGC TPs
+    if (it->hwQual()) {  // this is the EG ID shipped with the HGC TPs
       // we use the EM interpretation of the cluster energy
-      l1t::PFCluster egcluster(it->iPt(l1t::HGCalMulticluster::EnergyInterpretation::EM), it->eta(), it->phi(), hoe, false);
+      l1t::PFCluster egcluster(
+          it->iPt(l1t::HGCalMulticluster::EnergyInterpretation::EM), it->eta(), it->phi(), hoe, false);
       // FIXME: we use HW qual = 4 to identify the EG candidates and set isEM to false not to interfere with the rest of the PF...
       // we start from 4 not to intefere with flags used elesewhere
       egcluster.setHwQual(4);
