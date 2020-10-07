@@ -6,7 +6,7 @@
 #include <vector>
 #include <unordered_set>
 
-#include "request_grpc.h"
+#include "grpc_client.h"
 
 namespace triton_utils {
 

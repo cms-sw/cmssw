@@ -1,6 +1,7 @@
 #include "HeterogeneousCore/SonicTriton/interface/TritonData.h"
 #include "HeterogeneousCore/SonicTriton/interface/triton_utils.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "model_config.pb.h"
 
 #include <cstring>
@@ -10,16 +11,17 @@ namespace nic = ni::client;
 
 namespace nvidia {
   namespace inferenceserver {
-    //in librequest.so, but corresponding header src/core/model_config.h not available
-    size_t GetDataTypeByteSize(const DataType dtype);
+    //in libgrpcclient.so, but corresponding header src/core/model_config.h not available
+    size_t GetDataTypeByteSize(const inference::DataType dtype);
+    inference::DataType ProtocolStringToDataType(const std::string& dtype);
   }  // namespace inferenceserver
 }  // namespace nvidia
 
 template <typename IO>
-TritonData<IO>::TritonData(const std::string& name, std::shared_ptr<IO> data)
-    : name_(name), data_(std::move(data)), batchSize_(0) {
+TritonData<IO>::TritonData(const std::string& name, const TritonData<IO>::TensorMetadata& model_info)
+    : name_(name), batchSize_(0) {
   //convert google::protobuf::RepeatedField to vector
-  const auto& dimsTmp = data_->Dims();
+  const auto& dimsTmp = model_info.shape();
   dims_.assign(dimsTmp.begin(), dimsTmp.end());
 
   //check if variable dimensions
@@ -29,10 +31,25 @@ TritonData<IO>::TritonData(const std::string& name, std::shared_ptr<IO> data)
   else
     productDims_ = dimProduct(dims_);
 
-  dtype_ = data_->DType();
-  dname_ = ni::DataType_Name(dtype_);
+  dname_ = model_info.datatype();
+  dtype_ = ni::ProtocolStringToDataType(dname_);
   //get byte size for input conversion
   byteSize_ = ni::GetDataTypeByteSize(dtype_);
+
+  //create input or output object
+  IO* iotmp;
+  createObject(iotmp);
+  data_.reset(iotmp);
+}
+
+template <>
+void TritonInputData::createObject(nic::InferInput* ioptr) const {
+  nic::InferInput::Create(&ioptr, name_, shape(), dname_);
+}
+
+template <>
+void TritonOutputData::createObject(nic::InferRequestedOutput* ioptr) const {
+  nic::InferRequestedOutput::Create(&ioptr, name_);
 }
 
 //io accessors
@@ -65,7 +82,7 @@ void TritonInputData::toServer(std::shared_ptr<TritonInput<DT>> ptr) {
   int64_t nInput = sizeShape();
   for (unsigned i0 = 0; i0 < batchSize_; ++i0) {
     const DT* arr = data_in[i0].data();
-    triton_utils::throwIfError(data_->SetRaw(reinterpret_cast<const uint8_t*>(arr), nInput * byteSize_),
+    triton_utils::throwIfError(data_->AppendRaw(reinterpret_cast<const uint8_t*>(arr), nInput * byteSize_),
                                name_ + " input(): unable to set data for batch entry " + std::to_string(i0));
   }
 
@@ -96,18 +113,21 @@ TritonOutput<DT> TritonOutputData::fromServer() const {
 
   uint64_t nOutput = sizeShape();
   TritonOutput<DT> dataOut;
+  const uint8_t* r0;
+  size_t contentByteSize;
+  size_t expectedContentByteSize = nOutput * byteSize_ * batchSize_;
+  triton_utils::throwIfError(result_->RawData(name_, &r0, &contentByteSize),
+                             "output(): unable to get raw");
+  if (contentByteSize != expectedContentByteSize) {
+    throw cms::Exception("TritonDataError") << name_ << " output(): unexpected content byte size " << contentByteSize
+                                            << " (expected " << expectedContentByteSize << ")";
+  }
+
+  const DT* r1 = reinterpret_cast<const DT*>(r0);
   dataOut.reserve(batchSize_);
   for (unsigned i0 = 0; i0 < batchSize_; ++i0) {
-    const uint8_t* r0;
-    size_t contentByteSize;
-    triton_utils::throwIfError(result_->GetRaw(i0, &r0, &contentByteSize),
-                               "output(): unable to get raw for entry " + std::to_string(i0));
-    if (contentByteSize != nOutput * byteSize_) {
-      throw cms::Exception("TritonDataError") << name_ << " output(): unexpected content byte size " << contentByteSize
-                                              << " (expected " << nOutput * byteSize_ << ")";
-    }
-    const DT* r1 = reinterpret_cast<const DT*>(r0);
-    dataOut.emplace_back(r1, r1 + nOutput);
+    auto offset = i0 * nOutput;
+    dataOut.emplace_back(r1 + offset, r1 + offset + nOutput);
   }
 
   return dataOut;
@@ -127,10 +147,11 @@ void TritonOutputData::reset() {
 }
 
 //explicit template instantiation declarations
-template class TritonData<nic::InferContext::Input>;
-template class TritonData<nic::InferContext::Output>;
+template class TritonData<nic::InferInput>;
+template class TritonData<nic::InferRequestedOutput>;
 
 template void TritonInputData::toServer(std::shared_ptr<TritonInput<float>> data_in);
 template void TritonInputData::toServer(std::shared_ptr<TritonInput<int64_t>> data_in);
 
 template TritonOutput<float> TritonOutputData::fromServer() const;
+
