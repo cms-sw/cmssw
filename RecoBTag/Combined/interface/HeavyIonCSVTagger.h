@@ -26,7 +26,7 @@ public:
 
   /// explicit ctor
   HeavyIonCSVTagger(const edm::ParameterSet&, Tokens);
-  ~HeavyIonCSVTagger();
+  ~HeavyIonCSVTagger() override;
   float discriminator(const TagInfoHelper& tagInfo) const override;
   void initialize(const JetTagComputerRecord& record) override;
 
