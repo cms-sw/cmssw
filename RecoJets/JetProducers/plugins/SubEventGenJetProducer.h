@@ -24,7 +24,7 @@ namespace cms {
     void runAlgorithm(edm::Event&, const edm::EventSetup&) override;
 
   protected:
-    std::vector<std::vector<fastjet::PseudoJet> > subInputs_;
+    std::vector<std::vector<fastjet::PseudoJet>> subInputs_;
     std::unique_ptr<std::vector<reco::GenJet>> jets_;
     std::vector<int> hydroTag_;
     std::vector<int> nSubParticles_;

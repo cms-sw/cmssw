@@ -41,28 +41,25 @@
 using namespace std;
 using namespace edm;
 
-
 //
 // class decleration
 //
 
 class HiSignalGenJetProducer : public edm::EDProducer {
 public:
-      explicit HiSignalGenJetProducer(const edm::ParameterSet&);
-      ~HiSignalGenJetProducer();
+  explicit HiSignalGenJetProducer(const edm::ParameterSet&);
+  ~HiSignalGenJetProducer() override;
 
-   private:
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      // ----------member data ---------------------------
+private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  // ----------member data ---------------------------
 
-   edm::EDGetTokenT<edm::View<reco::GenJet> > jetSrc_;
-
+  edm::EDGetTokenT<edm::View<reco::GenJet> > jetSrc_;
 };
 
 //
 // constants, enums and typedefs
 //
-
 
 //
 // static data member definitions
@@ -72,19 +69,16 @@ public:
 // constructors and destructor
 //
 
-HiSignalGenJetProducer::HiSignalGenJetProducer(const edm::ParameterSet& iConfig) :
-  jetSrc_(consumes<edm::View<reco::GenJet> >(iConfig.getParameter<edm::InputTag>("src")))
-{
-  std::string alias = (iConfig.getParameter<InputTag>( "src")).label();
-  produces<reco::GenJetCollection>().setBranchAlias (alias);
+HiSignalGenJetProducer::HiSignalGenJetProducer(const edm::ParameterSet& iConfig)
+    : jetSrc_(consumes<edm::View<reco::GenJet> >(iConfig.getParameter<edm::InputTag>("src"))) {
+  std::string alias = (iConfig.getParameter<InputTag>("src")).label();
+  produces<reco::GenJetCollection>().setBranchAlias(alias);
 }
 
-HiSignalGenJetProducer::~HiSignalGenJetProducer()
-{
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
+HiSignalGenJetProducer::~HiSignalGenJetProducer() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
@@ -92,47 +86,43 @@ HiSignalGenJetProducer::~HiSignalGenJetProducer()
 
 // ------------ method called to produce the data  ------------
 
-void
-HiSignalGenJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   using namespace edm;
-   using namespace reco;
+void HiSignalGenJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  using namespace edm;
+  using namespace reco;
 
-   auto jets = std::make_unique<GenJetCollection>();
+  auto jets = std::make_unique<GenJetCollection>();
 
-   edm::Handle<edm::View<GenJet> > genjets;
-   iEvent.getByToken(jetSrc_,genjets);
+  edm::Handle<edm::View<GenJet> > genjets;
+  iEvent.getByToken(jetSrc_, genjets);
 
-   int jetsize = genjets->size();
+  int jetsize = genjets->size();
 
-   vector<int> selection;
-   for(int ijet = 0; ijet < jetsize; ++ijet){
-      selection.push_back(-1);
-   }
+  vector<int> selection;
+  selection.reserve(jetsize);
+  for (int ijet = 0; ijet < jetsize; ++ijet) {
+    selection.push_back(-1);
+  }
 
-   vector<int> selectedIndices;
-   vector<int> removedIndices;
+  vector<int> selectedIndices;
+  vector<int> removedIndices;
 
-   for(int ijet = 0; ijet < jetsize; ++ijet){
+  for (int ijet = 0; ijet < jetsize; ++ijet) {
+    const GenJet* jet1 = &((*genjets)[ijet]);
 
-     const GenJet* jet1 = &((*genjets)[ijet]);
+    const GenParticle* gencon = jet1->getGenConstituent(0);
 
-     const GenParticle* gencon = jet1->getGenConstituent(0);
+    if (gencon == nullptr)
+      throw cms::Exception("GenConstituent", "GenJet is missing its constituents");
+    else if (gencon->collisionId() == 0) {
+      jets->push_back(*jet1);
+      selection[ijet] = 1;
+    } else {
+      selection[ijet] = 0;
+      removedIndices.push_back(ijet);
+    }
+  }
 
-     if(gencon == 0) throw cms::Exception("GenConstituent","GenJet is missing its constituents");
-     else if(gencon->collisionId() == 0){
-       jets->push_back(*jet1);
-       selection[ijet] = 1;
-     }else{
-       selection[ijet] = 0;
-       removedIndices.push_back(ijet);
-     }
-   }
-
-   iEvent.put(std::move(jets));
-
+  iEvent.put(std::move(jets));
 }
 
 DEFINE_FWK_MODULE(HiSignalGenJetProducer);
-
-
