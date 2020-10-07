@@ -28,7 +28,6 @@ pfTICL = _pfTICLProducer.clone()
 ticlPFTask = cms.Task(ticlCandidateFromTracksters, pfTICL)
 
 iterTICLTask = cms.Task(ticlLayerTileTask
-    ,ticlMIPStepTask
     ,ticlTrkEMStepTask
     ,ticlEMStepTask
     ,ticlTrkStepTask
