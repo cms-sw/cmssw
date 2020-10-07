@@ -248,7 +248,6 @@ int DDFilteredView::nodeCopyNo(const std::string_view copyNo) const {
 }
 
 std::vector<std::pair<std::string, int>> DDFilteredView::toNodeNames(const std::string& path) {
-  std::cout << "DDFilteredView::toNodeNames\n";
   std::vector<std::pair<std::string, int>> result;
   std::vector<string_view> names = split(path, "/");
   for (auto it : names) {
@@ -296,7 +295,6 @@ bool DDFilteredView::match(const std::string& path, const std::vector<std::pair<
 }
 
 std::vector<std::vector<Node*>> DDFilteredView::children(const std::string& selectPath) {
-  std::cout << "DDFilteredView::children \n";
   currentSpecPar_ = nullptr;
 
   std::vector<std::vector<Node*>> paths;
@@ -307,14 +305,8 @@ std::vector<std::vector<Node*>> DDFilteredView::children(const std::string& sele
   if (node_ == nullptr) {
     throw cms::Exception("DDFilteredView") << "Can't get children of a null node. Please, call firstChild().";
   }
-  std::cout << "Here!\n";
   it_.back().SetType(0);
   std::vector<std::pair<std::string, int>> names = toNodeNames(selectPath);
-  std::cout << "Here!\n";
-  for (auto i : names) {
-    std::cout << i.first << "[" << i.second << "]/";
-  }
-  std::cout << "Here!\n";
   auto rit = names.rbegin();
   Node* node = it_.back().Next();
   while (node != nullptr) {
@@ -650,9 +642,8 @@ const DDSpecPar* DDFilteredView::find(const std::string& key) const {
   filter(specParRefs, key);
 
   for (auto const& specPar : specParRefs) {
-    auto pos = find_if(begin(specPar->paths), end(specPar->paths), [&](auto const& partSelector) {
-	return matchPath(partSelector);
-    });
+    auto pos = find_if(
+        begin(specPar->paths), end(specPar->paths), [&](auto const& partSelector) { return matchPath(partSelector); });
     if (pos != end(specPar->paths)) {
       return specPar;
     }
@@ -711,14 +702,16 @@ const int DDFilteredView::nodeCopyNoAt(int level) const {
 // Compare if name matches a selection pattern that
 // may or may not be defined as a regular expression
 bool DDFilteredView::compareEqualName(const std::string_view selection, const std::string_view name) const {
-  return ( !(dd4hep::dd::isRegex(selection)) ? dd4hep::dd::compareEqual(name, selection) :
-	   regex_match(std::string(name.data(), name.size()), regex(std::string(selection))));
+  return (!(dd4hep::dd::isRegex(selection))
+              ? dd4hep::dd::compareEqual(name, selection)
+              : regex_match(std::string(name.data(), name.size()), regex(std::string(selection))));
 }
 
 // Check if both name and it's selection pattern
 // contain a namespace and
 // remove it if one of them does not
-std::tuple<std::string_view, std::string_view> DDFilteredView::alignNamespaces(std::string_view selection, std::string_view name) const {
+std::tuple<std::string_view, std::string_view> DDFilteredView::alignNamespaces(std::string_view selection,
+                                                                               std::string_view name) const {
   auto pos = selection.find(':');
   if (pos == selection.npos) {
     name = noNamespace(name);
@@ -755,20 +748,20 @@ bool DDFilteredView::matchPath(const std::string_view path) const {
     std::string_view refname{&path[from + 1], to - from - 1};
     to = from;
     from = path.substr(0, to).rfind('/');
-    
+
     std::tie(refname, name) = alignNamespaces(refname, name);
-    
+
     auto pos = refname.rfind('[');
     if (pos != refname.npos) {
-      if (!compareEqualCopyNumber(refname, nodeCopyNoAt(it))){
-	result = false;
-	break;
+      if (!compareEqualCopyNumber(refname, nodeCopyNoAt(it))) {
+        result = false;
+        break;
       } else {
-	refname.remove_suffix(refname.size() - pos);
-	result = true;
+        refname.remove_suffix(refname.size() - pos);
+        result = true;
       }
     }
-    if(!compareEqualName(refname, name)) {
+    if (!compareEqualName(refname, name)) {
       result = false;
       break;
     } else {

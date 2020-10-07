@@ -284,14 +284,14 @@ namespace cms {
     std::string_view front(const std::string_view) const;
     std::string_view back(const std::string_view) const;
 
-    //! helper functions 
+    //! helper functions
     std::string_view nodeNameAt(int) const;
     const int nodeCopyNoAt(int) const;
     bool compareEqualName(const std::string_view, const std::string_view) const;
     std::tuple<std::string_view, std::string_view> alignNamespaces(std::string_view, std::string_view) const;
     bool compareEqualCopyNumber(const std::string_view, int) const;
     bool matchPath(const std::string_view) const;
-  
+
     ExpandedNodes nodes_;
     std::vector<Iterator> it_;
     std::vector<std::unique_ptr<Filter>> filters_;
