@@ -2,7 +2,6 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "catch.hpp"
 
-
 namespace edm {
   class TestEDGetToken {
   public:
@@ -15,12 +14,25 @@ namespace edm {
     static edm::EDGetTokenT<T> makeTokenT(Args&&... iArgs) {
       return edm::EDGetTokenT<T>(std::forward<Args>(iArgs)...);
     }
+
+    template <typename T, typename... Args>
+    static const edm::EDGetTokenT<T> makeConstTokenT(Args&&... iArgs) {
+      return edm::EDGetTokenT<T>(std::forward<Args>(iArgs)...);
+    }
   };
 }  // namespace edm
 
-#include <iostream>
+namespace {
+  class Adapter {
+  public:
+    template <typename T>
+    edm::EDGetTokenT<T> consumes() const {
+      return edm::TestEDGetToken::makeTokenT<T>(11U);
+    }
+  };
+}  // namespace
 
-TEST_CASE("Test EDGetToken","[EDGetToken]") {
+TEST_CASE("Test EDGetToken", "[EDGetToken]") {
   SECTION("EDGetTokenT") {
     SECTION("No argument ctr") {
       edm::EDGetTokenT<int> token1 = edm::TestEDGetToken::makeTokenT<int>();
@@ -39,14 +51,28 @@ TEST_CASE("Test EDGetToken","[EDGetToken]") {
       REQUIRE((token3.index() == 11));
     }
 
-    SECTION("const arg copy ctr"){
+    SECTION("const arg copy ctr") {
       const edm::EDGetTokenT<int> cToken2 = edm::TestEDGetToken::makeTokenT<int>(11U);
       edm::EDGetTokenT<int> token4(cToken2);
       REQUIRE(!token4.isUninitialized());
       REQUIRE(token4.index() == 11);
     }
+
+    SECTION("const arg copy ctr with move") {
+      auto const t = edm::TestEDGetToken::makeConstTokenT<int>(11U);
+      const edm::EDGetTokenT<int> cToken2{std::move(t)};
+      REQUIRE(!cToken2.isUninitialized());
+      REQUIRE(cToken2.index() == 11);
+    }
+
+    SECTION("Use Adapter") {
+      Adapter a;
+      const edm::EDGetTokenT<int> cToken2{a};
+      REQUIRE(!cToken2.isUninitialized());
+      REQUIRE(cToken2.index() == 11);
+    }
   }
-  
+
   SECTION("EDGetToken") {
     SECTION("No arg ctr") {
       edm::EDGetToken token10 = edm::TestEDGetToken::makeToken();
