@@ -1,4 +1,4 @@
-#include "RecoBTag/Combined/interface/heavyIonCSVTagger.h"
+#include "RecoBTag/Combined/interface/HeavyIonCSVTagger.h"
 #include "DataFormats/BTauReco/interface/CandIPTagInfo.h"
 #include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
 #include "FWCore/Utilities/interface/ESInputTag.h"
@@ -17,7 +17,6 @@ HeavyIonCSVTagger::Tokens::Tokens(const edm::ParameterSet &configuration, edm::E
                                                  : ""});
   }
 }
-//sl_computer_(configuration.getParameter<edm::ParameterSet>("slComputerCfg")),
 HeavyIonCSVTagger::HeavyIonCSVTagger(const edm::ParameterSet &configuration, Tokens tokens)
   :   sv_computer_(configuration.getParameter<edm::ParameterSet>("sv_cfg")),
       mva_name_(configuration.getParameter<std::string>("mvaName")),
@@ -80,26 +79,11 @@ float HeavyIonCSVTagger::discriminator(const TagInfoHelper &tagInfo) const {
   std::map<std::string, float> inputs;
   
   bool notTaggable = false;
-  bool noTrack = false;
-  float vtxMassVal = 0.;
+  std::vector<float> tagValList = vars.getList(reco::btau::trackSip3dSig, false);
+  bool noTrack = (tagValList.size() == 0);
+  bool noVertex = (vars.get(reco::btau::vertexCategory, -1.0) == 2); 
 
-  for (auto &mva_var : variables_) {
-    //vectorial tagging variable
-    if (mva_var.has_index) {
-      std::vector<float> vals = vars.getList(mva_var.id, false);
-      inputs[mva_var.name] = (vals.size() > mva_var.index) ? vals[mva_var.index] : mva_var.default_value;
-      if (mva_var.name == "TagVarCSV_trackSip3dSig_0" && inputs[mva_var.name] < -98.999) noTrack = true;      
-    }
-    //single value tagging var
-    else {
-      inputs[mva_var.name] = vars.get(mva_var.id, mva_var.default_value);
-      //IK: vtxMass check to check vtxType: vtxType = 2 (no vtx), vtxMass < 0, vtxType = 1 (pseudo vtx), vtxMass > 0
-      if (mva_var.name == "TagVarCSV_vertexMass") vtxMassVal = inputs[mva_var.name];
-    }
-  }
-
-  //IK: if no reco vtx (including pseudo vtx) and no tracks passing all selections (including K0s veto) -> jet is not taggable
-  if (vtxMassVal < 0 && noTrack) notTaggable = true;
+  if (noTrack && noVertex) notTaggable = true;
 
   //get the MVA output
   float tag = (mvaID_->evaluate(inputs) + 1.) / 2.;

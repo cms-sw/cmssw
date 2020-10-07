@@ -3,7 +3,7 @@ import RecoBTag.SecondaryVertex.candidateCombinedSecondaryVertexV2Computer_cfi a
 from RecoBTag.Combined.heavyIonCSV_trainingSettings import heavyIonCSV_vpset
 
 heavyIonCSVComputer = cms.ESProducer(
-   'heavyIonCSVESProducer',
+   'HeavyIonCSVESProducer',
    sv_cfg = cms.PSet(
       **sv_cfg.candidateCombinedSecondaryVertexV2Computer.parameters_()
       ),
