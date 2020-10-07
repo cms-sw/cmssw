@@ -25,6 +25,7 @@
 #include <DD4hep/SpecParRegistry.h>
 #include <DD4hep/Volumes.h>
 #include <memory>
+#include <tuple>
 #include <vector>
 
 namespace cms {
@@ -236,8 +237,8 @@ namespace cms {
   private:
     bool accept(std::string_view);
     int nodeCopyNo(const std::string_view) const;
-    std::vector<std::pair<std::string_view, int>> toNodeNames(const std::string&);
-    bool match(const std::string&, const std::vector<std::pair<std::string_view, int>>&) const;
+    std::vector<std::pair<std::string, int>> toNodeNames(const std::string&);
+    bool match(const std::string&, const std::vector<std::pair<std::string, int>>&) const;
 
     //! set the current node to the first sibling
     bool firstSibling();
@@ -250,6 +251,14 @@ namespace cms {
     void filter(DDSpecParRefs&, const std::string&) const;
     std::string_view front(const std::string_view) const;
     std::string_view back(const std::string_view) const;
+
+    //! helper functions
+    std::string_view nodeNameAt(int) const;
+    const int nodeCopyNoAt(int) const;
+    bool compareEqualName(const std::string_view, const std::string_view) const;
+    std::tuple<std::string_view, std::string_view> alignNamespaces(std::string_view, std::string_view) const;
+    bool compareEqualCopyNumber(const std::string_view, int) const;
+    bool matchPath(const std::string_view) const;
 
     ExpandedNodes nodes_;
     std::vector<Iterator> it_;
