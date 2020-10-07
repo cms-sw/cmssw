@@ -25,10 +25,12 @@ void ElectronHcalHelper::checkSetup(const edm::EventSetup& es) {
 
     edm::ESHandle<HcalChannelQuality> hQuality;
     es.get<HcalChannelQualityRcd>().get("withTopo", hQuality);
-
+    hcalQuality_ = hQuality.product();
     edm::ESHandle<HcalTopology> hcalTopology;
     es.get<HcalRecNumberingRecord>().get(hcalTopology);
-    hadTower_ = new EgammaHadTower(*ctmaph, *hQuality, *hcalTopology);
+    hcalTopology_ = hcalTopology.product();
+
+    hadTower_ = new EgammaHadTower(*ctmaph);
   } else {
     unsigned long long newCaloGeomCacheId_ = es.get<CaloGeometryRecord>().cacheIdentifier();
     if (caloGeomCacheId_ != newCaloGeomCacheId_) {
@@ -115,7 +117,7 @@ double ElectronHcalHelper::hcalESumDepth2(const SuperCluster& sc,
 
 bool ElectronHcalHelper::hasActiveHcal(const reco::SuperCluster& sc) const {
   if (cfg_.checkHcalStatus && cfg_.hOverEConeSize != 0 && cfg_.useTowers) {
-    return hadTower_->hasActiveHcal(hadTower_->towersOf(sc));
+    return hadTower_->hasActiveHcal(hadTower_->towersOf(sc), *hcalQuality_, *hcalTopology_);
   } else {
     return true;
   }

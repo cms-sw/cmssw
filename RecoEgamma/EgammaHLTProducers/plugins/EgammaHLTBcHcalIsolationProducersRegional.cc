@@ -16,7 +16,6 @@
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHadTower.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
 
 //this class produces either Hcal isolation or H for H/E  depending if doEtSum=true or false
 //H for H/E = towers behind SC, hcal isolation has these towers excluded
@@ -126,12 +125,7 @@ void EgammaHLTBcHcalIsolationProducersRegional::produce(edm::StreamID,
   edm::ESHandle<CaloTowerConstituentsMap> ctmaph;
   iSetup.get<CaloGeometryRecord>().get(ctmaph);
 
-  edm::ESHandle<HcalChannelQuality> hQuality;
-  iSetup.get<HcalChannelQualityRcd>().get("withTopo", hQuality);
-
-  edm::ESHandle<HcalTopology> hcalTopology;
-  iSetup.get<HcalRecNumberingRecord>().get(hcalTopology);
-  EgammaHadTower hadTower(*ctmaph, *hQuality, *hcalTopology);
+  EgammaHadTower hadTower(*ctmaph);
 
   const EgammaTowerIsolation towerIso1(outerCone_, 0., etMin_, 1, &caloTowers);
   const EgammaTowerIsolation towerIso2(outerCone_, 0., etMin_, 2, &caloTowers);
