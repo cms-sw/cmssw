@@ -246,12 +246,13 @@ public:
   TBranch *b_t_HitEnergies3;  //!
 
   struct counter {
+    static const int npsize = 4;
     counter() {
       total = 0;
-      for (int k = 0; k < 4; ++k)
+      for (int k = 0; k < npsize; ++k)
         count[k] = 0;
     };
-    unsigned int total, count[4];
+    unsigned int total, count[npsize];
   };
 
   CalibMonitor(const char *fname,
@@ -1099,13 +1100,13 @@ void CalibMonitor::Loop() {
         std::map<int, counter>::const_iterator itr = runEn1.find(t_Run);
         if (itr == runEn1.end()) {
           counter knt;
-          if ((kp >= 0) && (kp < (npsize - 1)))
+          if ((kp >= 0) && (kp < counter::npsize))
             knt.count[kp] = 1;
           knt.total = 1;
           runEn1[t_Run] = knt;
         } else {
           counter knt = runEn1[t_Run];
-          if ((kp >= 0) && (kp < (npsize - 1)))
+          if ((kp >= 0) && (kp < counter::npsize))
             ++knt.count[kp];
           ++knt.total;
           runEn1[t_Run] = knt;
@@ -1117,13 +1118,13 @@ void CalibMonitor::Loop() {
         std::map<int, counter>::const_iterator itr = runEn2.find(t_Run);
         if (itr == runEn2.end()) {
           counter knt;
-          if ((kp >= 0) && (kp < (npsize - 1)))
+          if ((kp >= 0) && (kp < counter::npsize))
             knt.count[kp] = 1;
           knt.total = 1;
           runEn2[t_Run] = knt;
         } else {
           counter knt = runEn2[t_Run];
-          if ((kp >= 0) && (kp < (npsize - 1)))
+          if ((kp >= 0) && (kp < counter::npsize))
             ++knt.count[kp];
           ++knt.total;
           runEn2[t_Run] = knt;
@@ -1152,13 +1153,13 @@ void CalibMonitor::Loop() {
           std::map<int, counter>::const_iterator itr = runSum.find(t_Run);
           if (itr == runSum.end()) {
             counter knt;
-            if ((kp >= 0) && (kp < (npsize - 1)))
+            if ((kp >= 0) && (kp < counter::npsize))
               knt.count[kp] = 1;
             knt.total = 1;
             runSum[t_Run] = knt;
           } else {
             counter knt = runSum[t_Run];
-            if ((kp >= 0) && (kp < (npsize - 1)))
+            if ((kp >= 0) && (kp < counter::npsize))
               ++knt.count[kp];
             ++knt.total;
             runSum[t_Run] = knt;
