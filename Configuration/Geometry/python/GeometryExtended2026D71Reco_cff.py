@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # This config was generated automatically using generate2026Geometry.py
 # If you notice a mistake, please update the generating script, not just this config
 
-from Configuration.Geometry.GeometryExtended2026D61_cff import *
+from Configuration.Geometry.GeometryExtended2026D71_cff import *
 
 # tracker
 from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *
@@ -51,8 +51,8 @@ from Geometry.ForwardGeometry.ForwardGeometry_cfi import *
 
 # timing
 from RecoMTD.DetLayers.mtdDetLayerGeometry_cfi import *
-from Geometry.MTDGeometryBuilder.mtdParameters_cfi import *
-from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *
+from Geometry.MTDGeometryBuilder.mtdParameters_cff import *
+from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cff import *
 from Geometry.MTDNumberingBuilder.mtdTopology_cfi import *
 from Geometry.MTDGeometryBuilder.mtdGeometry_cfi import *
 from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *
