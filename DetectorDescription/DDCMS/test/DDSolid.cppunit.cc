@@ -42,7 +42,9 @@ void testDDSolid::checkDDSolid() {
     std::cout << fview.name() << " is a " << title << " == " << name << "\n";
     CPPUNIT_ASSERT(title.compare(name) == 0);
 
-    if (fview.isASubtraction()) {
+    if ((dd4hep::isA<dd4hep::SubtractionSolid>(fview.solid()) and
+         not dd4hep::isA<dd4hep::TruncatedTube>(fview.solid()) and
+         not dd4hep::isA<dd4hep::PseudoTrap>(fview.solid()))) {
       DDSolid solid(fview.solid());
       auto solidA = solid.solidA();
       std::cout << "Solid A is a " << solidA->GetTitle() << "\n";

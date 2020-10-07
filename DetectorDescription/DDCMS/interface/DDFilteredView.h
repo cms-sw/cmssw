@@ -136,39 +136,7 @@ namespace cms {
     //! set current node to the parent node in the filtered tree
     void up();
 
-    // Get shape pointer of current node.
-    // Caller must check that current node matches desired type
-    // before calling this function.
-
-    template <class Shape>
-    const Shape* getShapePtr() const {
-      Volume currVol = node_->GetVolume();
-      return (dynamic_cast<Shape*>(currVol->GetShape()));
-    }
-
     // Shape of current node
-
-    template <class Shape>
-    bool isA() const {
-      return dd4hep::isA<Shape>(solid());
-    }
-
-    bool isABox() const { return isA<dd4hep::Box>(); }
-
-    bool isAConeSeg() const { return isA<dd4hep::ConeSegment>(); }
-
-    bool isAPseudoTrap() const { return isA<dd4hep::PseudoTrap>(); }
-
-    bool isATrapezoid() const { return isA<dd4hep::Trap>(); }
-
-    bool isATruncTube() const { return isA<dd4hep::TruncatedTube>(); }
-
-    bool isATubeSeg() const { return isA<dd4hep::Tube>(); }
-
-    bool isASubtraction() const {
-      return (isA<dd4hep::SubtractionSolid>() and not isA<dd4hep::TruncatedTube>() and not isA<dd4hep::PseudoTrap>());
-    }
-
     dd4hep::Solid solid() const;
 
     // Name of current node
