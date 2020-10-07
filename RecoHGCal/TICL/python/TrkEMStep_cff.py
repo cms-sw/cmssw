@@ -10,7 +10,6 @@ from RecoHGCal.TICL.multiClustersFromTrackstersProducer_cfi import multiClusters
 filteredLayerClustersTrkEM = _filteredLayerClustersProducer.clone(
     clusterFilter = "ClusterFilterByAlgoAndSizeAndLayerRange",
     min_cluster_size = 3, # inclusive
-    min_layerId = 3, # inclusive
     max_layerId = 30, # inclusive
     algo_number = 8,
     iteration_label = "TrkEM"
