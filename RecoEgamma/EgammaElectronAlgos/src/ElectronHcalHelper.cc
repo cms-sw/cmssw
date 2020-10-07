@@ -1,4 +1,3 @@
-
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHcalIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
@@ -11,7 +10,7 @@
 using namespace reco;
 
 ElectronHcalHelper::ElectronHcalHelper(const Configuration& cfg)
-    : cfg_(cfg), caloGeomCacheId_(0), hcalIso_(nullptr), towerIso1_(nullptr), towerIso2_(nullptr), hadTower_(nullptr) {}
+    : cfg_(cfg), caloGeomCacheId_(0), hcalIso_(nullptr), towerIso1_(nullptr), towerIso2_(nullptr) {}
 
 void ElectronHcalHelper::checkSetup(const edm::EventSetup& es) {
   if (cfg_.hOverEConeSize == 0) {
@@ -19,9 +18,9 @@ void ElectronHcalHelper::checkSetup(const edm::EventSetup& es) {
   }
 
   if (cfg_.useTowers) {
-    delete hadTower_;
     edm::ESHandle<CaloTowerConstituentsMap> ctmaph;
     es.get<CaloGeometryRecord>().get(ctmaph);
+    towerMap_ = ctmaph.product();
 
     edm::ESHandle<HcalChannelQuality> hQuality;
     es.get<HcalChannelQualityRcd>().get("withTopo", hQuality);
@@ -30,7 +29,6 @@ void ElectronHcalHelper::checkSetup(const edm::EventSetup& es) {
     es.get<HcalRecNumberingRecord>().get(hcalTopology);
     hcalTopology_ = hcalTopology.product();
 
-    hadTower_ = new EgammaHadTower(*ctmaph);
   } else {
     unsigned long long newCaloGeomCacheId_ = es.get<CaloGeometryRecord>().cacheIdentifier();
     if (caloGeomCacheId_ != newCaloGeomCacheId_) {
@@ -69,15 +67,15 @@ void ElectronHcalHelper::readEvent(const edm::Event& evt) {
 }
 
 std::vector<CaloTowerDetId> ElectronHcalHelper::hcalTowersBehindClusters(const reco::SuperCluster& sc) const {
-  return hadTower_->towersOf(sc);
+  return egammaHadTower::towersOf(sc, *towerMap_);
 }
 
 double ElectronHcalHelper::hcalESumDepth1BehindClusters(const std::vector<CaloTowerDetId>& towers) const {
-  return hadTower_->getDepth1HcalESum(towers, *towersFromCollection_);
+  return egammaHadTower::getDepth1HcalESum(towers, *towersFromCollection_);
 }
 
 double ElectronHcalHelper::hcalESumDepth2BehindClusters(const std::vector<CaloTowerDetId>& towers) const {
-  return hadTower_->getDepth2HcalESum(towers, *towersFromCollection_);
+  return egammaHadTower::getDepth2HcalESum(towers, *towersFromCollection_);
 }
 
 double ElectronHcalHelper::hcalESum(const SuperCluster& sc, const std::vector<CaloTowerDetId>* excludeTowers) const {
@@ -117,7 +115,8 @@ double ElectronHcalHelper::hcalESumDepth2(const SuperCluster& sc,
 
 bool ElectronHcalHelper::hasActiveHcal(const reco::SuperCluster& sc) const {
   if (cfg_.checkHcalStatus && cfg_.hOverEConeSize != 0 && cfg_.useTowers) {
-    return hadTower_->hasActiveHcal(hadTower_->towersOf(sc), *hcalQuality_, *hcalTopology_);
+    return egammaHadTower::hasActiveHcal(
+        egammaHadTower::towersOf(sc, *towerMap_), *towerMap_, *hcalQuality_, *hcalTopology_);
   } else {
     return true;
   }
@@ -130,7 +129,6 @@ ElectronHcalHelper::~ElectronHcalHelper() {
   if (cfg_.useTowers) {
     delete towerIso1_;
     delete towerIso2_;
-    delete hadTower_;
   } else {
     delete hcalIso_;
   }

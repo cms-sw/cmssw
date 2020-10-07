@@ -125,8 +125,6 @@ void EgammaHLTBcHcalIsolationProducersRegional::produce(edm::StreamID,
   edm::ESHandle<CaloTowerConstituentsMap> ctmaph;
   iSetup.get<CaloGeometryRecord>().get(ctmaph);
 
-  EgammaHadTower hadTower(*ctmaph);
-
   const EgammaTowerIsolation towerIso1(outerCone_, 0., etMin_, 1, &caloTowers);
   const EgammaTowerIsolation towerIso2(outerCone_, 0., etMin_, 2, &caloTowers);
 
@@ -137,8 +135,8 @@ void EgammaHLTBcHcalIsolationProducersRegional::produce(edm::StreamID,
 
     float isol = 0;
 
-    auto towersBehindCluster =
-        useSingleTower_ ? hadTower.towersOf(*(recoEcalCandRef->superCluster())) : std::vector<CaloTowerDetId>{};
+    auto towersBehindCluster = useSingleTower_ ? egammaHadTower::towersOf(*(recoEcalCandRef->superCluster()), *ctmaph)
+                                               : std::vector<CaloTowerDetId>{};
 
     if (doEtSum_) {  //calculate hcal isolation excluding the towers behind the cluster which will be used for H for H/E
       const EgammaTowerIsolation isolAlgo(outerCone_, innerCone_, etMin_, depth_, &caloTowers);
@@ -151,8 +149,8 @@ void EgammaHLTBcHcalIsolationProducersRegional::produce(edm::StreamID,
 
     } else {  //calcuate H for H/E
       if (useSingleTower_)
-        isol = hadTower.getDepth1HcalESum(towersBehindCluster, caloTowers) +
-               hadTower.getDepth2HcalESum(towersBehindCluster, caloTowers);
+        isol = egammaHadTower::getDepth1HcalESum(towersBehindCluster, caloTowers) +
+               egammaHadTower::getDepth2HcalESum(towersBehindCluster, caloTowers);
       else {
         auto const &sc = recoEcalCandRef->superCluster().get();
         isol = towerIso1.getTowerESum(sc) + towerIso2.getTowerESum(sc);
