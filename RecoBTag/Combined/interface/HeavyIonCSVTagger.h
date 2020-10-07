@@ -1,12 +1,11 @@
-#ifndef RecoBTag_Combined_heavyIonCSVTagger_h
-#define RecoBTag_Combined_heavyIonCSVTagger_h
+#ifndef RecoBTag_Combined_HeavyIonCSVTagger_h
+#define RecoBTag_Combined_HeavyIonCSVTagger_h
 
 #include "FWCore/Framework/interface/ESConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CommonTools/MVAUtils/interface/TMVAEvaluator.h"
 #include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
 #include "RecoBTag/SecondaryVertex/interface/CombinedSVComputer.h"
-//#include "RecoBTag/SecondaryVertex/interface/CombinedSVSoftLeptonComputer.h"
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
 #include "RecoBTau/JetTagComputer/interface/JetTagComputerRecord.h"
 
@@ -27,7 +26,7 @@ public:
 
   /// explicit ctor
   HeavyIonCSVTagger(const edm::ParameterSet&, Tokens);
-  ~HeavyIonCSVTagger() override;  //{}
+  ~HeavyIonCSVTagger();
   float discriminator(const TagInfoHelper& tagInfo) const override;
   void initialize(const JetTagComputerRecord& record) override;
 
@@ -43,7 +42,6 @@ public:
 
 private:
   std::unique_ptr<TMVAEvaluator> mvaID_;
-  //CombinedSVSoftLeptonComputer sl_computer_;
   CombinedSVComputer sv_computer_;
   std::vector<MVAVar> variables_;
 
