@@ -4,16 +4,11 @@
 #include "L1Trigger/Phase2L1ParticleFlow/interface/DiscretePFInputs.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
-
 namespace l1tpf_impl {
 
   struct EgObjectIndexer {
     EgObjectIndexer(int emCaloIdx, int hwQual, float ptcorr, int tkIdx = -1, float iso = -1)
-    : emCaloIdx(emCaloIdx),
-      hwQual(hwQual),
-      tkIdx(tkIdx),
-      ptcorr(ptcorr),
-      iso(iso) {}
+        : emCaloIdx(emCaloIdx), hwQual(hwQual), tkIdx(tkIdx), ptcorr(ptcorr), iso(iso) {}
 
     int emCaloIdx;
     int hwQual;
@@ -21,7 +16,6 @@ namespace l1tpf_impl {
     float ptcorr;
     float iso;
   };
-
 
   struct Region : public InputRegion {
     std::vector<PFParticle> pf;
