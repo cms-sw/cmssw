@@ -4,10 +4,30 @@
 #include "L1Trigger/Phase2L1ParticleFlow/interface/DiscretePFInputs.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
+
 namespace l1tpf_impl {
+
+  struct EgObjectIndexer {
+    EgObjectIndexer(int emCaloIdx, int hwQual, float ptcorr, int tkIdx = -1, float iso = -1)
+    : emCaloIdx(emCaloIdx),
+      hwQual(hwQual),
+      tkIdx(tkIdx),
+      ptcorr(ptcorr),
+      iso(iso) {}
+
+    int emCaloIdx;
+    int hwQual;
+    int tkIdx;
+    float ptcorr;
+    float iso;
+  };
+
+
   struct Region : public InputRegion {
     std::vector<PFParticle> pf;
     std::vector<PFParticle> puppi;
+    std::vector<l1tpf_impl::EgObjectIndexer> egobjs;
+
     unsigned int caloOverflow, emcaloOverflow, trackOverflow, muonOverflow, pfOverflow, puppiOverflow;
 
     const bool relativeCoordinates;  // whether the eta,phi in each region are global or relative to the region center
@@ -28,6 +48,7 @@ namespace l1tpf_impl {
         : InputRegion(0.5 * (etamin + etamax), etamin, etamax, phicenter, 0.5 * phiwidth, etaextra, phiextra),
           pf(),
           puppi(),
+          egobjs(),
           caloOverflow(),
           emcaloOverflow(),
           trackOverflow(),
@@ -96,6 +117,7 @@ namespace l1tpf_impl {
       muon.clear();
       pf.clear();
       puppi.clear();
+      egobjs.clear();
       caloOverflow = 0;
       emcaloOverflow = 0;
       trackOverflow = 0;
