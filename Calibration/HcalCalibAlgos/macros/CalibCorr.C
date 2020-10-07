@@ -187,7 +187,8 @@ double puFactor(int type, int ieta, double pmom, double eHcal, double ediff, boo
       const int PU_IETA_3 = 25;
       const int PU_IETA_4 = 26;
       const int PU_IETA_5 = 27;
-      unsigned icor = (unsigned(jeta >= PU_IETA_1) + unsigned(jeta >= PU_IETA_2) + unsigned(jeta >= PU_IETA_3) + unsigned(jeta >= PU_IETA_4) + unsigned(jeta >= PU_IETA_5));
+      unsigned icor = (unsigned(jeta >= PU_IETA_1) + unsigned(jeta >= PU_IETA_2) + unsigned(jeta >= PU_IETA_3) +
+                       unsigned(jeta >= PU_IETA_4) + unsigned(jeta >= PU_IETA_5));
       double deltaCut = (icor > 2) ? 1.0 : DELTA_CUT;
       if (d2p > deltaCut)
         fac = (CONST_COR_COEF[icor] + LINEAR_COR_COEF[icor] * d2p + SQUARE_COR_COEF[icor] * d2p * d2p);
