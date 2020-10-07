@@ -58,6 +58,7 @@ Fast Timing system:
 * I10: Fast Timing detector (LYSO barrel (bars along phi flat), silicon endcap), w/ passive materials, ETL in position defined in O4, material adjustments
 * I11: Same as I10, xml reorganized, comparison base for new ETL and DD4hep migration
 * I12: Starting from I11, new ETL layout from MTD TDR
+* I13: Starting from I11, new ETL layout from post MTD TDR (2 sectors per disc face)
 
 The script also handles the common and forward elements of the geometry:
 * O4: detailed cavern description, changes for modified CALO region for endcap part, no overlaps inside the Muon System 
@@ -73,7 +74,6 @@ The script also handles the common and forward elements of the geometry:
 Several detector combinations have been generated:
 * D49 = T15+C9+M4+I10+O4+F2
 * D50 = T15+C9+M4+I11+O4+F2
-* D53 = T15+C9+M4+I12+O4+F2
 * D60 = T15+C10+M4+I10+O4+F3
 * D64 = T22+C11+M4+I11+O5+F4
 * D65 = T23+C11+M4+I11+O5+F4
@@ -83,5 +83,7 @@ Several detector combinations have been generated:
 * D69 = T21+C12+M6+I11+O5+F5
 * D70 = T21+C13+M7+I11+O6+F6
 * D71 = T21+C14+M7+I11+O7+F6
+* D72 = T21+C11+M6+I12+O5+F4
+* D73 = T21+C11+M6+I13+O5+F4
 
 D49 is the HLT TDR baseline.
