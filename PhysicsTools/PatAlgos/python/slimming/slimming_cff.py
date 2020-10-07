@@ -78,7 +78,7 @@ lostTrackChi2 = packedPFCandidateTrackChi2.clone(candidates = "lostTracks", doLo
     slimmingTask, 
     cms.Task(slimmingTask.copy(), packedCandidateMuonID, packedPFCandidateTrackChi2, lostTrackChi2, centralityBin))
 
-from RecoHI.HiTracking.miniAODVertexRecovery_cff import *
+from RecoHI.HiTracking.miniAODVertexRecovery_cff import offlinePrimaryVerticesRecovery, offlineSlimmedPrimaryVerticesRecovery
 pp_on_AA_2018.toReplaceWith(
     slimmingTask,
     cms.Task(slimmingTask.copy(), offlinePrimaryVerticesRecovery, offlineSlimmedPrimaryVerticesRecovery))

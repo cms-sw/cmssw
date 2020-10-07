@@ -40,8 +40,10 @@ offlinePrimaryVertices = cms.EDProducer(
                maxDistanceToBeam = cms.double(1.0),
                )
       ]
-    )
-                                        
+    ),
+    
+    isRecoveryIteration = cms.bool(False),
+    recoveryVtxCollection = cms.InputTag("")
 
                                         
 )
