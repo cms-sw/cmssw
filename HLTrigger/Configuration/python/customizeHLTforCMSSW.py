@@ -170,6 +170,38 @@ def customiseFor2017DtUnpacking(process):
 
     return process
 
+def customisePixelGainForRun2Input(process):
+    """Customise the HLT to run on Run 2 data/MC using the old definition of the pixel calibrations
+
+    Up to 11.0.x, the pixel calibarations were fully specified in the configuration:
+        VCaltoElectronGain      =   47
+        VCaltoElectronGain_L1   =   50
+        VCaltoElectronOffset    =  -60
+        VCaltoElectronOffset_L1 = -670
+
+    Starting with 11.1.x, the calibrations for Run 3 were moved to the conditions, leaving in the configuration only:
+        VCaltoElectronGain      =    1
+        VCaltoElectronGain_L1   =    1
+        VCaltoElectronOffset    =    0
+        VCaltoElectronOffset_L1 =    0
+
+    Since the conditions for Run 2 have not been updated to the new scheme, the HLT configuration needs to be reverted.
+    """
+    # revert the Pixel parameters to be compatible with the Run 2 conditions
+    for producer in producers_by_type(process, "SiPixelClusterProducer"):
+        producer.VCaltoElectronGain      =   47
+        producer.VCaltoElectronGain_L1   =   50
+        producer.VCaltoElectronOffset    =  -60
+        producer.VCaltoElectronOffset_L1 = -670
+
+    return process
+
+
+def customiseFor2018Input(process):
+    """Customise the HLT to run on Run 2 data/MC"""
+    process = customisePixelGainForRun2Input(process)
+    process = synchronizeHCALHLTofflineRun3on2018data(process)
+
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
