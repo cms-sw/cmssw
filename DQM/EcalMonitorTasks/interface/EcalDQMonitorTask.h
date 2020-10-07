@@ -15,7 +15,8 @@ namespace edm {
   class ParameterSetDescription;
 }  // namespace edm
 
-class EcalDQMonitorTask : public DQMOneEDAnalyzer<edm::LuminosityBlockCache<ecaldqm::NoCache>>, public ecaldqm::EcalDQMonitor {
+class EcalDQMonitorTask : public DQMOneEDAnalyzer<edm::LuminosityBlockCache<ecaldqm::NoCache>>,
+                          public ecaldqm::EcalDQMonitor {
 public:
   EcalDQMonitorTask(edm::ParameterSet const&);
   ~EcalDQMonitorTask() override {}
@@ -27,7 +28,8 @@ public:
 
 private:
   void dqmEndRun(edm::Run const&, edm::EventSetup const&) override;
-  std::shared_ptr<ecaldqm::NoCache> globalBeginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) const override;
+  std::shared_ptr<ecaldqm::NoCache> globalBeginLuminosityBlock(edm::LuminosityBlock const&,
+                                                               edm::EventSetup const&) const override;
   void globalEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   void analyze(edm::Event const&, edm::EventSetup const&) override;
 
@@ -42,9 +44,9 @@ private:
 
   /* DATA MEMBERS */
 
-  edm::EDGetToken collectionTokens_[ecaldqm::nCollections];            // list of EDGetTokens
-  std::vector<std::pair<Processor, ecaldqm::Collections> > schedule_;  // schedule of collections to run
-  bool allowMissingCollections_;                                       // when true, skip missing collections silently
+  edm::EDGetToken collectionTokens_[ecaldqm::nCollections];           // list of EDGetTokens
+  std::vector<std::pair<Processor, ecaldqm::Collections>> schedule_;  // schedule of collections to run
+  bool allowMissingCollections_;                                      // when true, skip missing collections silently
   int processedEvents_;
 
   /* TASK TIME PROFILING */

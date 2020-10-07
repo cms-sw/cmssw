@@ -119,7 +119,8 @@ void EcalDQMonitorTask::dqmEndRun(edm::Run const& _run, edm::EventSetup const& _
   executeOnWorkers_([](ecaldqm::DQWorker* worker) { worker->releaseMEs(); }, "releaseMEs", "releasing histograms");
 }
 
-std::shared_ptr<ecaldqm::NoCache> EcalDQMonitorTask::globalBeginLuminosityBlock(edm::LuminosityBlock const& _lumi, edm::EventSetup const& _es) const {
+std::shared_ptr<ecaldqm::NoCache> EcalDQMonitorTask::globalBeginLuminosityBlock(edm::LuminosityBlock const& _lumi,
+                                                                                edm::EventSetup const& _es) const {
   ecaldqmBeginLuminosityBlock(_lumi, _es);
   return nullptr;
 }
