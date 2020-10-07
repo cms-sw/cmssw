@@ -39,6 +39,19 @@ TritonClient::TritonClient(const edm::ParameterSet& params)
   options_.model_version_ = params.getParameter<std::string>("modelVersion");
   options_.client_timeout_ = params.getUntrackedParameter<unsigned>("timeout");
 
+  //config needed for batch size
+  inference::ModelConfigResponse modelConfigResponse;
+  triton_utils::throwIfError(client_->ModelConfig(&modelConfigResponse, options_.model_name_, options_.model_version_), "TritonClient(): unable to get model config");
+  inference::ModelConfig modelConfig(modelConfigResponse.config());
+
+  //check batch size limitations (after i/o setup)
+  //triton uses max batch size = 0 to denote a model that does not support batching
+  //but for models that do support batching, a given event may set batch size 0 to indicate no valid input is present
+  //so set the local max to 1 and keep track of "no batch" case
+  maxBatchSize_ = modelConfig.max_batch_size();
+  noBatch_ = maxBatchSize_ == 0;
+  maxBatchSize_ = std::max(1u, maxBatchSize_);
+
   //get model info
   inference::ModelMetadataResponse modelMetadata;
   triton_utils::throwIfError(client_->ModelMetadata(&modelMetadata, options_.model_name_, options_.model_version_), "TritonClient(): unable to get model metadata");
@@ -72,12 +85,12 @@ TritonClient::TritonClient(const edm::ParameterSet& params)
   for (const auto& nicInput : nicInputs) {
     const auto& iname = nicInput.name();
     auto [curr_itr, success] =
-        input_.emplace(std::piecewise_construct, std::forward_as_tuple(iname), std::forward_as_tuple(iname, nicInput));
+        input_.emplace(std::piecewise_construct, std::forward_as_tuple(iname), std::forward_as_tuple(iname, nicInput, noBatch_));
     auto& curr_input = curr_itr->second;
 	inputsTriton_.push_back(curr_input.data());
     if (verbose_) {
       io_msg << "  " << iname << " (" << curr_input.dname() << ", " << curr_input.byteSize()
-             << " b) : " << triton_utils::printColl(curr_input.dims()) << "\n";
+             << " b) : " << triton_utils::printColl(curr_input.shape()) << "\n";
     }
   }
 
@@ -95,12 +108,12 @@ TritonClient::TritonClient(const edm::ParameterSet& params)
     if (!s_outputs.empty() and s_outputs.find(oname) == s_outputs.end())
       continue;
     auto [curr_itr, success] = output_.emplace(
-        std::piecewise_construct, std::forward_as_tuple(oname), std::forward_as_tuple(oname, nicOutput));
+        std::piecewise_construct, std::forward_as_tuple(oname), std::forward_as_tuple(oname, nicOutput, noBatch_));
     auto& curr_output = curr_itr->second;
     outputsTriton_.push_back(curr_output.data());
     if (verbose_) {
       io_msg << "  " << oname << " (" << curr_output.dname() << ", " << curr_output.byteSize()
-             << " b) : " << triton_utils::printColl(curr_output.dims()) << "\n";
+             << " b) : " << triton_utils::printColl(curr_output.shape()) << "\n";
     }
     if (!s_outputs.empty())
       s_outputs.erase(oname);
@@ -111,20 +124,7 @@ TritonClient::TritonClient(const edm::ParameterSet& params)
     throw cms::Exception("MissingOutput")
         << "Some requested outputs were not available on the server: " << triton_utils::printColl(s_outputs);
 
-  //config needed for batch size
-  inference::ModelConfigResponse modelConfigResponse;
-  triton_utils::throwIfError(client_->ModelConfig(&modelConfigResponse, options_.model_name_, options_.model_version_), "TritonClient(): unable to get model config");
-  inference::ModelConfig modelConfig(modelConfigResponse.config());
-
-  //check batch size limitations (after i/o setup)
-  //triton uses max batch size = 0 to denote a model that does not support batching
-  //but for models that do support batching, a given event may set batch size 0 to indicate no valid input is present
-  //so set the local max to 1 and keep track of "no batch" case
-
-  maxBatchSize_ = modelConfig.max_batch_size();
-  noBatch_ = maxBatchSize_ == 0;
-  maxBatchSize_ = std::max(1u, maxBatchSize_);
-  //check requested batch size
+  //check requested batch size and propagate to inputs and outputs
   setBatchSize(params.getUntrackedParameter<unsigned>("batchSize"));
 
   //print model info
@@ -168,10 +168,12 @@ bool TritonClient::getResults(std::shared_ptr<nic::InferResult> results) {
   for (auto& [oname,output] : output_) {
     //set shape here before output becomes const
     if (output.variableDims()) {
+      std::vector<int64_t> tmp_shape;
       bool status =
-          triton_utils::warnIfError(results->Shape(oname, &(output.shape())), "getResults(): unable to get output shape for "+oname);
+          triton_utils::warnIfError(results->Shape(oname, &tmp_shape), "getResults(): unable to get output shape for "+oname);
       if (!status)
         return status;
+      output.setShape(tmp_shape, false);
     }
     //extend lifetime
     output.setResult(results);
@@ -334,4 +336,5 @@ void TritonClient::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   descClient.addUntracked<std::vector<std::string>>("outputs", {});
   iDesc.add<edm::ParameterSetDescription>("Client", descClient);
 }
+
 

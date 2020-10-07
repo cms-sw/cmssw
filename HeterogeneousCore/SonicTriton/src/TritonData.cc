@@ -5,6 +5,7 @@
 #include "model_config.pb.h"
 
 #include <cstring>
+#include <sstream>
 
 namespace ni = nvidia::inferenceserver;
 namespace nic = ni::client;
@@ -17,39 +18,89 @@ namespace nvidia {
   }  // namespace inferenceserver
 }  // namespace nvidia
 
+//dims: kept constant, represents config.pbtxt parameters of model (converted from google::protobuf::RepeatedField to vector)
+//fullShape: if batching is enabled, first entry is batch size; values can be modified
+//shape: view into fullShape, excluding batch size entry
 template <typename IO>
-TritonData<IO>::TritonData(const std::string& name, const TritonData<IO>::TensorMetadata& model_info)
-    : name_(name), batchSize_(0) {
-  //convert google::protobuf::RepeatedField to vector
-  const auto& dimsTmp = model_info.shape();
-  dims_.assign(dimsTmp.begin(), dimsTmp.end());
-
-  //check if variable dimensions
-  variableDims_ = anyNeg(dims_);
-  if (variableDims_)
-    productDims_ = -1;
-  else
-    productDims_ = dimProduct(dims_);
-
-  dname_ = model_info.datatype();
-  dtype_ = ni::ProtocolStringToDataType(dname_);
-  //get byte size for input conversion
-  byteSize_ = ni::GetDataTypeByteSize(dtype_);
-
+TritonData<IO>::TritonData(const std::string& name, const TritonData<IO>::TensorMetadata& model_info, bool noBatch)
+    : name_(name),
+      dims_(model_info.shape().begin(), model_info.shape().end()),
+      noBatch_(noBatch),
+      batchSize_(0),
+      fullShape_(dims_),
+      shape_(&*(fullShape_.begin() + (noBatch_ ? 0 : 1)), &*(fullShape_.end())),
+      variableDims_(anyNeg(shape_)),
+      productDims_(variableDims_ ? -1 : dimProduct(shape_)),
+      dname_(model_info.datatype()),
+      dtype_(ni::ProtocolStringToDataType(dname_)),
+      byteSize_(ni::GetDataTypeByteSize(dtype_))
+      {
   //create input or output object
   IO* iotmp;
-  createObject(iotmp);
+  createObject(&iotmp);
   data_.reset(iotmp);
 }
 
 template <>
-void TritonInputData::createObject(nic::InferInput* ioptr) const {
-  nic::InferInput::Create(&ioptr, name_, shape(), dname_);
+void TritonInputData::createObject(nic::InferInput** ioptr) const {
+  nic::InferInput::Create(ioptr, name_, fullShape_, dname_);
 }
 
 template <>
-void TritonOutputData::createObject(nic::InferRequestedOutput* ioptr) const {
-  nic::InferRequestedOutput::Create(&ioptr, name_);
+void TritonOutputData::createObject(nic::InferRequestedOutput** ioptr) const {
+  nic::InferRequestedOutput::Create(ioptr, name_);
+}
+
+//setters
+template <typename IO>
+bool TritonData<IO>::setShape(const std::vector<int64_t>& newShape, bool canThrow) {
+  bool result = true;
+  for (unsigned i = 0; i < newShape.size(); ++i){
+    result &= setShape(i, newShape[i], canThrow);
+  }
+  return result;
+}
+
+template <typename IO>
+bool TritonData<IO>::setShape(unsigned loc, int64_t val, bool canThrow) {
+  std::stringstream msg;
+  unsigned full_loc = loc + (noBatch_ ? 0 : 1);
+
+  //check boundary
+  if (full_loc >= fullShape_.size()) {
+    msg << name_ << " setShape(): dimension " << full_loc << " out of bounds (" << fullShape_.size() << ")";
+    if (canThrow)
+      throw cms::Exception("TritonDataError") << msg.str();
+    else {
+      edm::LogWarning("TritonDataWarning") << msg.str();
+      return false;
+    }
+  }
+
+  if (val != fullShape_[full_loc]) {
+    if (dims_[full_loc] == -1) {
+      fullShape_[full_loc] = val;
+      return true;
+	}
+    else {
+      msg << name_ << " setShape(): attempt to change value of non-variable shape dimension " << loc;
+      if (canThrow)
+        throw cms::Exception("TritonDataError") << msg.str();
+      else {
+        edm::LogWarning("TritonDataError") << msg.str();
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+template <typename IO>
+void TritonData<IO>::setBatchSize(unsigned bsize) {
+  batchSize_ = bsize;
+  if (!noBatch_)
+    fullShape_[0] = batchSize_;
 }
 
 //io accessors
@@ -66,13 +117,7 @@ void TritonInputData::toServer(std::shared_ptr<TritonInput<DT>> ptr) {
 
   //shape must be specified for variable dims
   if (variableDims_) {
-    if (shape_.size() != dims_.size()) {
-      throw cms::Exception("TritonDataError")
-          << name_ << " input(): incorrect or missing shape (" << triton_utils::printColl(shape_)
-          << ") for model with variable dimensions (" << triton_utils::printColl(dims_) << ")";
-    } else {
-      triton_utils::throwIfError(data_->SetShape(shape_), name_ + " input(): unable to set input shape");
-    }
+    triton_utils::throwIfError(data_->SetShape(fullShape_), name_ + " input(): unable to set input shape");
   }
 
   if (byteSize_ != sizeof(DT))
@@ -95,15 +140,6 @@ template <typename DT>
 TritonOutput<DT> TritonOutputData::fromServer() const {
   if (!result_) {
     throw cms::Exception("TritonDataError") << name_ << " output(): missing result";
-  }
-
-  //shape must be specified for variable dims
-  if (variableDims_) {
-    if (shape_.size() != dims_.size()) {
-      throw cms::Exception("TritonDataError")
-          << name_ << " output(): incorrect or missing shape (" << triton_utils::printColl(shape_)
-          << ") for model with variable dimensions (" << triton_utils::printColl(dims_) << ")";
-    }
   }
 
   if (byteSize_ != sizeof(DT)) {
@@ -135,14 +171,12 @@ TritonOutput<DT> TritonOutputData::fromServer() const {
 
 template <>
 void TritonInputData::reset() {
-  shape_.clear();
   data_->Reset();
   holder_.reset();
 }
 
 template <>
 void TritonOutputData::reset() {
-  shape_.clear();
   result_.reset();
 }
 
@@ -154,4 +188,5 @@ template void TritonInputData::toServer(std::shared_ptr<TritonInput<float>> data
 template void TritonInputData::toServer(std::shared_ptr<TritonInput<int64_t>> data_in);
 
 template TritonOutput<float> TritonOutputData::fromServer() const;
+
 
