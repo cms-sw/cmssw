@@ -83,6 +83,18 @@ float HeavyIonCSVTagger::discriminator(const TagInfoHelper &tagInfo) const {
   bool noTrack = (tagValList.size() == 0);
   bool noVertex = (vars.get(reco::btau::vertexCategory, -1.0) == 2); 
 
+  for (auto &mva_var : variables_) {
+    //vectorial tagging variable
+    if (mva_var.has_index) {
+      std::vector<float> vals = vars.getList(mva_var.id, false);
+      inputs[mva_var.name] = (vals.size() > mva_var.index) ? vals[mva_var.index] : mva_var.default_value;   
+    }
+    //single value tagging var
+    else {
+      inputs[mva_var.name] = vars.get(mva_var.id, mva_var.default_value);
+    }
+  }
+
   if (noTrack && noVertex) notTaggable = true;
 
   //get the MVA output
