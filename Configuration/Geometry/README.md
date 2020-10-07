@@ -34,10 +34,8 @@ Different versions of various subdetectors can be combined. The available versio
 
 Tracker:
 * T15: Phase2 tilted tracker (v6.1.6) w/ phase 2 pixel (v6.1.3) (Active geometry: same as T14. Material Budget: major update in IT, gathering info from recent Mechanical designs.)
-* T17: Phase2 tilted tracker (v6.1.6) w/ phase 2 pixel (v6.1.5) TFPX: Changed sensors spacing within all double-disks + Increased distance between Disks 6 and 7 + Put TBPX portcards between Disks 6 and 7.
-* T19: Phase2 tilted tracker (v6.1.6) w/ phase 2 pixel (v7.0.0) Inner Tracker description with 3D sensors in TBPX L1 + TBPX L2 + TFPX R1.
-* T20: Phase2 tilted tracker. Outer Tracker (v6.1.6): All sensors 200 um -> 290 um + Update in Module MB + PS modules: s-sensor 164 um longer + Major update in OTST MB. Inner Tracker: (v6.1.5) from T17 is called.
-* T21: Phase2 tilted tracker. Outer Tracker (v8.0.0): TBPS update in Layer 1 (facilitate IT insertion) + In all TEDD, update sensors Z inter-spacing. Inner Tracker: (v6.1.5) from T17.
+* T21: Phase2 tilted tracker. Outer Tracker (v8.0.0): TBPS update in Layer 1 (facilitate IT insertion) + In all TEDD, update sensors Z inter-spacing. Inner Tracker: (v6.1.5) from previous T17
+(TFPX: Changed sensors spacing within all double-disks + Increased distance between Disks 6 and 7 + TBPX portcards between Disks 6 and 7.)
 * T22: Phase2 tilted tracker. Outer Tracker (v8.0.0): same as T21. Inner Tracker: Based on (v6.1.5) (T21), but with 50x50 pixel aspect ratio everywhere.
 * T23: Phase2 tilted tracker. Outer Tracker (v8.0.0): same as T21. Inner Tracker: Based on (v6.1.5) (T21), but with 3D sensors in TBPX L1 + TBPX L2 + TFPX R1.
 
@@ -51,8 +49,7 @@ Calorimeters:
 
 Muon system:
 * M4: Phase2 muon system for TDR w/ GE2/1, ME0, RE3/1, RE4/1 (incl. granularity in ME0, staggered GE2/1), 96 iRPC strips, no overlaps, MB4Shields
-* M5: same as M4 but with: the right value for YE3 size, no "hidden" overlaps inside the Muon System and iRPC updated.
-* M6: same as M5 but with adjustment of ME0 in view of updated boundaries
+* M6: same as M4 with right value for YE3 size, no "hidden" overlaps, iRPC updated, adjustment of ME0 in view of updated boundaries
 * M7: same as M6 with further ajustment of ME0 for boundaries
 * M8: same as M7 with changed number of strips for GE21
 * M9: same as M8 with GE0 replacing ME0
@@ -76,20 +73,15 @@ The script also handles the common and forward elements of the geometry:
 Several detector combinations have been generated:
 * D49 = T15+C9+M4+I10+O4+F2
 * D50 = T15+C9+M4+I11+O4+F2
-* D51 = T17+C9+M4+I10+O4+F2
 * D53 = T15+C9+M4+I12+O4+F2
-* D54 = T19+C9+M4+I10+O4+F2
-* D56 = T20+C9+M4+I10+O4+F2
-* D57 = T17+C11+M6+I11+O5+F4
-* D58 = T17+C12+M6+I11+O5+F5
-* D59 = T17+C13+M7+I11+O6+F6
 * D60 = T15+C10+M4+I10+O4+F3
-* D61 = T17+C9+M5+I10+O4+F2
-* D62 = T17+C14+M7+I11+O7+F6
-* D63 = T21+C11+M4+I11+O5+F4
 * D64 = T22+C11+M4+I11+O5+F4
 * D65 = T23+C11+M4+I11+O5+F4
 * D66 = T21+C11+M8+I11+O5+F4
 * D67 = T21+C11+M9+I11+O5+F4
+* D68 = T21+C11+M6+I11+O5+F4
+* D69 = T21+C12+M6+I11+O5+F5
+* D70 = T21+C13+M7+I11+O6+F6
+* D71 = T21+C14+M7+I11+O7+F6
 
 D49 is the HLT TDR baseline.
