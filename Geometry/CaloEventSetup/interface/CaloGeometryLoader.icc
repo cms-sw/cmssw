@@ -206,7 +206,7 @@ unsigned int CaloGeometryLoader<T>::getDetIdForDD4HepNode(const cms::DDFilteredV
   edm::LogVerbatim("CaloGeometryBuilder") << path << " n " << n;
   size_t start = n, startold = n;
   std::string det(""), num("");
-  bool done (false);
+  bool done(false);
   for (size_t i = n; i <= path.size(); ++i) {
     if (i == path.size() || path[i] == '/') {
       num = path.substr(start, i - start);
