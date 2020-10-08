@@ -38,7 +38,7 @@ int EcalBaseNumber::getCapacity() { return _sortedName.capacity(); }
 
 void EcalBaseNumber::reset() { _theLevels = 0; }
 
-void EcalBaseNumber::reverse() { 
+void EcalBaseNumber::reverse() {
   std::reverse(std::begin(_sortedName), std::end(_sortedName));
   std::reverse(std::begin(_sortedCopyNumber), std::end(_sortedCopyNumber));
 }
