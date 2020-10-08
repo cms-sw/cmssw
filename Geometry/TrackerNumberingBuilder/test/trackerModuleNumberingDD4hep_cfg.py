@@ -19,13 +19,13 @@ process.maxEvents = cms.untracked.PSet(
 
 process.MessageLogger = cms.Service(
     "MessageLogger",
-    statistics = cms.untracked.vstring('cout', 'tkmodulenumbering'),
-    categories = cms.untracked.vstring('Geometry', 'ModuleNumbering'),
+    statistics = cms.untracked.vstring('cout', 'tkmodulenumbering_dd4hep'),
+    categories = cms.untracked.vstring('Geometry', 'ModuleNumbering_dd4hep'),
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('DEBUG'),
         noLineBreaks = cms.untracked.bool(True)
         ),
-    tkmodulenumbering = cms.untracked.PSet(
+    tkmodulenumbering_dd4hep = cms.untracked.PSet(
         INFO = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
             ),
@@ -43,12 +43,12 @@ process.MessageLogger = cms.Service(
         Geometry = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
             ),
-        ModuleNumbering = cms.untracked.PSet(
+        ModuleNumbering_dd4hep = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
             )
         ),
     destinations = cms.untracked.vstring('cout',
-                                         'tkmodulenumbering')
+                                         'tkmodulenumbering_dd4hep')
     )
 
 process.prod = cms.EDAnalyzer("ModuleNumbering")    

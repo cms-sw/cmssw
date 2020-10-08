@@ -175,10 +175,6 @@ void ModuleNumbering::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   edm::LogInfo("ModuleNumbering") << "begins";
 
-  // output file
-  std::ofstream Output("ModuleNumbering.log", std::ios::out);
-  //
-
   // reset counters
   iOK = 0;
   iERROR = 0;
@@ -208,6 +204,12 @@ void ModuleNumbering::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   edm::LogInfo("ModuleNumbering") << " And Contains  Daughters: " << rDD.product()->deepComponents().size()
                                   << std::endl;
+
+  // output file
+  const std::string& outputFileName =
+      (!rDD.product()->isFromDD4hep() ? "ModuleNumbering.log" : "ModuleNumbering_dd4hep.log");
+  std::ofstream Output(outputFileName, std::ios::out);
+
   CmsTrackerDebugNavigator nav(*rDDE.product());
   nav.dump(*rDD.product(), *rDDE.product());
   //
