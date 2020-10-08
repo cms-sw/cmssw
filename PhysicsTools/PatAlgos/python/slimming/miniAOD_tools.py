@@ -589,7 +589,7 @@ def miniAOD_customizeMC(process):
     process.patJetPartons.particles = "genParticles"
     process.patJetPartonMatch.matched = "prunedGenParticles"
     _hiGeneral.toModify(process.patJetPartonMatch, matched =  "hiSignalGenParticles")
-    from Configuration.Eras.Modifier_genJetSubEvent_cff import genJetSubEvent
+    from Configuration.ProcessModifiers.genJetSubEvent_cff import genJetSubEvent
     genJetSubEvent.toModify(process.patJetPartonMatch, matched =  "cleanedPartons")
     process.patJetPartonMatch.mcStatus = [ 3, 23 ]
     process.patJetGenJetMatch.matched = "slimmedGenJets"

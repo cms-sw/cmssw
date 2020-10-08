@@ -13,7 +13,7 @@ allPartons = cms.EDProducer(
     withLeptons = cms.bool(False),
     )
 
-from Configuration.Eras.Modifier_genJetSubEvent_cff import genJetSubEvent
+from Configuration.ProcessModifiers.genJetSubEvent_cff import genJetSubEvent
 genJetSubEvent.toModify(allPartons,src = "genParticles")
 
 cleanedPartons = hiPartons.clone(
