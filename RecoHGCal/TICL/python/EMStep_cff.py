@@ -8,8 +8,9 @@ from RecoHGCal.TICL.multiClustersFromTrackstersProducer_cfi import multiClusters
 # CLUSTER FILTERING/MASKING
 
 filteredLayerClustersEM = _filteredLayerClustersProducer.clone(
-    clusterFilter = "ClusterFilterByAlgoAndSize",
+    clusterFilter = "ClusterFilterByAlgoAndSizeAndLayerRange",
     min_cluster_size = 3, # inclusive
+    max_layerId = 30, # inclusive
     algo_number = 8,
     LayerClustersInputMask = 'ticlTrackstersTrkEM',
     iteration_label = "EM"
