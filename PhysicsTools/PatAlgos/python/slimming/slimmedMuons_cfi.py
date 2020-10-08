@@ -26,7 +26,8 @@ from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 from Configuration.ProcessModifiers.miniAOD_skip_trackExtras_cff import miniAOD_skip_trackExtras
 
 (run2_miniAOD_80XLegacy | run2_miniAOD_94XFall17 | pp_on_AA_2018 | miniAOD_skip_trackExtras).toModify(slimmedMuons, trackExtraAssocs = ["slimmedMuonTrackExtras"])
-pp_on_AA_2018.toModify(slimmedMuons,
+from Configuration.Eras.Modifier_run2_miniAOD_pp_on_AA_103X_cff import run2_miniAOD_pp_on_AA_103X
+run2_miniAOD_pp_on_AA_103X.toModify(slimmedMuons,
                        packedPFCandidates = ["packedPFCandidates","packedPFCandidatesRemoved"],
                        pfCandidates = ["cleanedParticleFlow","cleanedParticleFlow:removed"]
 )

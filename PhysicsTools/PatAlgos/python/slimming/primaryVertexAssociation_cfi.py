@@ -8,6 +8,6 @@ primaryVertexAssociation = sortedPFPrimaryVertices.clone(
   produceNoPileUpCollection = cms.bool(False)
 )
 
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-pp_on_AA_2018.toModify(primaryVertexAssociation,particles = "cleanedParticleFlow")
+from Configuration.Eras.Modifier_run2_miniAOD_pp_on_AA_103X_cff import run2_miniAOD_pp_on_AA_103X
+run2_miniAOD_pp_on_AA_103X.toModify(primaryVertexAssociation,particles = "cleanedParticleFlow")
 primaryVertexAssociationCleaned = primaryVertexAssociation.clone(particles = "cleanedParticleFlow:removed")

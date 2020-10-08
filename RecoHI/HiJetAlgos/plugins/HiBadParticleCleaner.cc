@@ -1,6 +1,5 @@
 // system include files
 #include <memory>
-#include <iostream>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -27,7 +26,7 @@
 class HiBadParticleCleaner : public edm::global::EDProducer<> {
 public:
   explicit HiBadParticleCleaner(const edm::ParameterSet&);
-  ~HiBadParticleCleaner() override;
+  ~HiBadParticleCleaner();
 
 private:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;

@@ -1953,7 +1953,7 @@ steps['REMINIAODHID18']={ '--scenario':'pp',
                           '-s':'PAT,DQM:@miniAODDQM',
                           '--datatier':'MINIAOD,DQMIO',
                           '--eventcontent':'MINIAOD,DQM',
-                          '--era':'Run2_2018_pp_on_AA',
+                          '--era':'Run2_2018_pp_on_AA,run2_miniAOD_pp_on_AA_103X',
                           '--data':'',
                           '--processName':'PAT',
                           '-n':'100'
@@ -2507,9 +2507,8 @@ steps['REMINIAODHI2018PPRECOMB']=merge([{'-s':'PAT,VALIDATION:@miniAODValidation
                                          '--eventcontent':'MINIAODSIM,DQM',
                                          '-n':100,
                                          '--era':'Run2_2018_pp_on_AA',
-                                         '--procModifiers':'genJetSubEvent',
+                                         '--procModifiers':'genJetSubEvent,run2_miniAOD_pp_on_AA_103X',
                                      },hiDefaults2018_ppReco,step3Up2015Defaults])
-
 steps['ALCARECOHI2018PPRECO']=merge([hiDefaults2018_ppReco,{'-s':'ALCA:TkAlMinBias+SiStripCalMinBias',
                                                             '--datatier':'ALCARECO',
                                                             '--eventcontent':'ALCARECO'
