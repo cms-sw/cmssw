@@ -23,6 +23,7 @@ ticlTrackstersTrkEM = _trackstersProducer.clone(
     filter_on_categories = [0, 1],
     pid_threshold = 0.5,
     energy_em_over_total_threshold = 0.85,
+    shower_start_max_layer = 3, #inclusive
     max_out_in_hops = 4,
     missing_layers = 0,
     min_clusters_per_ntuplet = 10,
