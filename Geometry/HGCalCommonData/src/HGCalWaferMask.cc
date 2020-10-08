@@ -341,28 +341,28 @@ int HGCalWaferMask::getRotation(int zside, int type, int rotn) {
   if ((zside < 0) && (type != HGCalTypes::WaferFull)) {
     if (type == HGCalTypes::WaferFive) {  //WaferFive
       static const int rot1[HGCalTypes::WaferCornerMax] = {HGCalTypes::WaferCorner4,
-							   HGCalTypes::WaferCorner3,
-							   HGCalTypes::WaferCorner2,
-							   HGCalTypes::WaferCorner1,
-							   HGCalTypes::WaferCorner0,
-							   HGCalTypes::WaferCorner5};
+                                                           HGCalTypes::WaferCorner3,
+                                                           HGCalTypes::WaferCorner2,
+                                                           HGCalTypes::WaferCorner1,
+                                                           HGCalTypes::WaferCorner0,
+                                                           HGCalTypes::WaferCorner5};
       newrotn = rot1[rotn];
     } else if ((type == HGCalTypes::WaferThree) || (type == HGCalTypes::WaferSemi) ||
                (type == HGCalTypes::WaferSemi2)) {  //WaferThree/WaferSemi/WaferSemi2
       static const int rot2[HGCalTypes::WaferCornerMax] = {HGCalTypes::WaferCorner2,
-							   HGCalTypes::WaferCorner1,
-							   HGCalTypes::WaferCorner0,
-							   HGCalTypes::WaferCorner5,
-							   HGCalTypes::WaferCorner4,
-							   HGCalTypes::WaferCorner3};
+                                                           HGCalTypes::WaferCorner1,
+                                                           HGCalTypes::WaferCorner0,
+                                                           HGCalTypes::WaferCorner5,
+                                                           HGCalTypes::WaferCorner4,
+                                                           HGCalTypes::WaferCorner3};
       newrotn = rot2[rotn];
     } else {  //WaferHalf/WaferChopTwo/WaferChopTwoM
       static const int rot3[HGCalTypes::WaferCornerMax] = {HGCalTypes::WaferCorner3,
-							   HGCalTypes::WaferCorner2,
-							   HGCalTypes::WaferCorner1,
-							   HGCalTypes::WaferCorner0,
-							   HGCalTypes::WaferCorner5,
-							   HGCalTypes::WaferCorner4};
+                                                           HGCalTypes::WaferCorner2,
+                                                           HGCalTypes::WaferCorner1,
+                                                           HGCalTypes::WaferCorner0,
+                                                           HGCalTypes::WaferCorner5,
+                                                           HGCalTypes::WaferCorner4};
       newrotn = rot3[rotn];
     }
   }
