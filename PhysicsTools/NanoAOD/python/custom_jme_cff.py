@@ -24,7 +24,8 @@ bTagDeepJet  = [
   'pfDeepFlavourJetTags:probb','pfDeepFlavourJetTags:probbb','pfDeepFlavourJetTags:problepb',
   'pfDeepFlavourJetTags:probc','pfDeepFlavourJetTags:probuds','pfDeepFlavourJetTags:probg'
 ]
-bTagDiscriminatorsForAK4 = bTagCSVV2+bTagDeepCSV+bTagDeepJet
+from RecoBTag.ONNXRuntime.pfParticleNetAK4_cff import _pfParticleNetAK4JetTagsAll
+bTagDiscriminatorsForAK4 = bTagCSVV2+bTagDeepCSV+bTagDeepJet+_pfParticleNetAK4JetTagsAll
 
 #
 # By default, these collections are saved in NanoAODs:
@@ -179,6 +180,14 @@ DEEPJETVARS = cms.PSet(
   btagDeepFlavG   = Var("bDiscriminator('pfDeepFlavourJetTags:probg')",float,doc="DeepFlavour gluon tag raw score",precision=10),
   btagDeepFlavUDS = Var("bDiscriminator('pfDeepFlavourJetTags:probuds')",float,doc="DeepFlavour uds tag raw score",precision=10)
 )
+PARTICLENETAK4VARS = cms.PSet(
+  particleNetAK4_B = Var("bDiscriminator('pfParticleNetAK4DiscriminatorsJetTags:BvsAll')",float,doc="ParticleNetAK4 tagger b vs all (udsg, c) discriminator",precision=10),
+  particleNetAK4_CvsL = Var("bDiscriminator('pfParticleNetAK4DiscriminatorsJetTags:CvsL')",float,doc="ParticleNetAK4 tagger c vs udsg discriminator",precision=10),
+  particleNetAK4_CvsB = Var("bDiscriminator('pfParticleNetAK4DiscriminatorsJetTags:CvsB')",float,doc="ParticleNetAK4 tagger c vs b discriminator",precision=10),
+  particleNetAK4_QvsG = Var("bDiscriminator('pfParticleNetAK4DiscriminatorsJetTags:QvsG')",float,doc="ParticleNetAK4 tagger uds vs g discriminator",precision=10),
+  particleNetAK4_puIdDisc = Var("1-bDiscriminator('pfParticleNetAK4JetTags:probpu')",float,doc="ParticleNetAK4 tagger pileup jet discriminator",precision=10),
+)
+
 CALOJETVARS = cms.PSet(P4Vars,
   area      = jetTable.variables.area,
   rawFactor = jetTable.variables.rawFactor,
@@ -377,6 +386,19 @@ def AddDeepJetGluonLQuarkScores(proc, jetTableName=""):
 
   return proc
 
+def AddParticleNetAK4Scores(proc, jetTableName=""):
+  """
+  Store ParticleNetAK4 scores in jetTable
+  """
+
+  getattr(proc, jetTableName).variables.particleNetAK4_B = PARTICLENETAK4VARS.particleNetAK4_B
+  getattr(proc, jetTableName).variables.particleNetAK4_CvsL = PARTICLENETAK4VARS.particleNetAK4_CvsL
+  getattr(proc, jetTableName).variables.particleNetAK4_CvsB = PARTICLENETAK4VARS.particleNetAK4_CvsB
+  getattr(proc, jetTableName).variables.particleNetAK4_QvsG = PARTICLENETAK4VARS.particleNetAK4_QvsG
+  getattr(proc, jetTableName).variables.particleNetAK4_puIdDisc   = PARTICLENETAK4VARS.particleNetAK4_puIdDisc
+
+  return proc
+
 def AddNewPatJets(proc, recoJetInfo, runOnMC):
   """
   Add patJet into custom nanoAOD
@@ -541,6 +563,7 @@ def SavePatJets(proc, jetName, payload, patJetFinalColl, jetTablePrefix, jetTabl
   if doBTag:
     AddBTaggingScores(proc,jetTableName=jetTable)
     AddDeepJetGluonLQuarkScores(proc,jetTableName=jetTable)
+    AddParticleNetAK4Scores(proc,jetTableName=jetTable)
 
   return proc
 
@@ -641,6 +664,14 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
   #
   proc.jetTable.variables.btagDeepFlavG   = DEEPJETVARS.btagDeepFlavG  
   proc.jetTable.variables.btagDeepFlavUDS = DEEPJETVARS.btagDeepFlavUDS
+  #
+  # Add ParticleNetAK4 scores
+  #
+  proc.jetTable.variables.particleNetAK4_B          = PARTICLENETAK4VARS.particleNetAK4_B
+  proc.jetTable.variables.particleNetAK4_CvsL       = PARTICLENETAK4VARS.particleNetAK4_CvsL
+  proc.jetTable.variables.particleNetAK4_CvsB       = PARTICLENETAK4VARS.particleNetAK4_CvsB
+  proc.jetTable.variables.particleNetAK4_QvsG       = PARTICLENETAK4VARS.particleNetAK4_QvsG
+  proc.jetTable.variables.particleNetAK4_puIdDisc   = PARTICLENETAK4VARS.particleNetAK4_puIdDisc
 
   #Adding hf shower shape producer to the jet sequence. By default this producer is not automatically rerun at the NANOAOD step
   #The following lines make sure it is.
