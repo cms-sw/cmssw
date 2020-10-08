@@ -81,7 +81,7 @@ EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet &params, edm::Consume
       m_EBs25notCont(params.getParameter<double>("EBs25notContainment")),
       m_EEs25notCont(params.getParameter<double>("EEs25notContainment")),
 
-      m_readoutFrameSize(params.getParameter<int>("readoutFrameSize")),
+      m_readoutFrameSize(ecalPh1::sampleSize),
       m_ParameterMap(new EcalSimParameterMap(params.getParameter<double>("simHitToPhotoelectronsBarrel"),
                                              params.getParameter<double>("simHitToPhotoelectronsEndcap"),
                                              params.getParameter<double>("photoelectronsToAnalogBarrel"),
@@ -237,7 +237,7 @@ EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet &params, edm::Consume
                               m_EECorrNoise[2].get()));
 
   m_ElectronicsSim.reset(
-      new EcalElectronicsSim(m_ParameterMap.get(), m_Coder.get(), applyConstantTerm, rmsConstantTerm));
+      new EcalElectronicsSim_Ph1(m_ParameterMap.get(), m_Coder.get(), applyConstantTerm, rmsConstantTerm));
 
   if (m_apdSeparateDigi) {
     m_APDCoder.reset(new EcalCoder(false,
@@ -250,7 +250,7 @@ EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet &params, edm::Consume
                                    m_EECorrNoise[2].get()));
 
     m_APDElectronicsSim.reset(
-        new EcalElectronicsSim(m_ParameterMap.get(), m_APDCoder.get(), applyConstantTerm, rmsConstantTerm));
+        new EcalElectronicsSim_Ph1(m_ParameterMap.get(), m_APDCoder.get(), applyConstantTerm, rmsConstantTerm));
 
     m_APDDigitizer.reset(new EBDigitizer(m_APDResponse.get(), m_APDElectronicsSim.get(), false));
   }
