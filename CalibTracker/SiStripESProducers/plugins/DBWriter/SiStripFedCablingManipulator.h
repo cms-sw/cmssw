@@ -9,11 +9,12 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
+#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
+#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
+
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <string>
-
-class SiStripFedCabling;
 
 class SiStripFedCablingManipulator : public edm::EDAnalyzer {
 public:
@@ -24,9 +25,10 @@ public:
   void endRun(const edm::Run& run, const edm::EventSetup& es) override;
 
 private:
-  void manipulate(const SiStripFedCabling*, SiStripFedCabling*&);
+  std::unique_ptr<SiStripFedCabling> manipulate(const SiStripFedCabling&);
 
   edm::ParameterSet iConfig_;
+  edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> fedCablingToken_;
 };
 
 #endif
