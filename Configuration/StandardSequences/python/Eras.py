@@ -66,8 +66,7 @@ class Eras (object):
                            'run2_miniAOD_devel', 'run2_nanoAOD_102Xv1', 'run2_nanoAOD_106Xv1',
                            'hcalHardcodeConditions', 'hcalSkipPacker',
                            'run2_HLTconditions_2016','run2_HLTconditions_2017','run2_HLTconditions_2018',
-                           'bParking',
-                           'genJetSubEvent']
+                           'bParking']
         internalUseModChains = ['run2_2017_noTrackingModifier']
 
         self.pythonCfgLines = {}
