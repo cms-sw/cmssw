@@ -26,7 +26,7 @@
 class HiBadParticleCleaner : public edm::global::EDProducer<> {
 public:
   explicit HiBadParticleCleaner(const edm::ParameterSet&);
-  ~HiBadParticleCleaner() override;
+  ~HiBadParticleCleaner() override = default;
 
 private:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
@@ -67,8 +67,6 @@ HiBadParticleCleaner::HiBadParticleCleaner(const edm::ParameterSet& iConfig)
   produces<reco::PFCandidateCollection>();
   produces<reco::PFCandidateCollection>("removed");
 }
-
-HiBadParticleCleaner::~HiBadParticleCleaner() {}
 
 //
 // member functions
