@@ -120,5 +120,3 @@ extern template class TritonData<nvidia::inferenceserver::client::InferInput>;
 extern template class TritonData<nvidia::inferenceserver::client::InferRequestedOutput>;
 
 #endif
-
-
