@@ -20,4 +20,5 @@ packedPFCandidatesRemoved = packedPFCandidates.clone(
 )
 
 _pp_on_AA_2018_packedPFCandidatesTask = cms.Task(cleanedParticleFlow,packedPFCandidatesRemoved,packedPFCandidatesTask.copy())
-pp_on_AA_2018.toReplaceWith(packedPFCandidatesTask,_pp_on_AA_2018_packedPFCandidatesTask)
+from Configuration.Eras.Modifier_run2_miniAOD_pp_on_AA_103X_cff import run2_miniAOD_pp_on_AA_103X
+run2_miniAOD_pp_on_AA_103X.toReplaceWith(packedPFCandidatesTask,_pp_on_AA_2018_packedPFCandidatesTask)
