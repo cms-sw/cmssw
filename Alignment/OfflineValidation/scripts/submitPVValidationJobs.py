@@ -1,13 +1,16 @@
 #!/usr/bin/env python
 
-'''Script that submits CMS Tracker Alignment Primary Vertex Validation workflows
+'''Script that submits CMS Tracker Alignment Primary Vertex Validation workflows,
+usage:
+
+submitPVValidationJobs.py -j TEST -D /HLTPhysics/Run2016C-TkAlMinBias-07Dec2018-v1/ALCARECO -i testPVValidation_Relvals_DATA.ini -r
 '''
 
 from __future__ import print_function
 from builtins import range
 
 __author__ = 'Marco Musich'
-__copyright__ = 'Copyright 2015, CERN CMS'
+__copyright__ = 'Copyright 2020, CERN CMS'
 __credits__ = ['Ernesto Migliore', 'Salvatore Di Guida']
 __license__ = 'Unknown'
 __maintainer__ = 'Marco Musich'
@@ -26,6 +29,7 @@ import subprocess
 from optparse import OptionParser
 from subprocess import Popen, PIPE
 import collections
+import warnings
 import multiprocessing
 from enum import Enum
 
@@ -34,7 +38,7 @@ class RefitType(Enum):
     COMMON   = 2
 
 CopyRights  = '##################################\n'
-CopyRights += '#  PVValidationHTCondorSubmitter #\n'
+CopyRights += '#    submitPVValidationJobs.py   #\n'
 CopyRights += '#      marco.musich@cern.ch      #\n'
 CopyRights += '#           April 2020           #\n'
 CopyRights += '##################################\n'
@@ -122,7 +126,7 @@ def getNEvents(run, dataset):
     return 0 if nEvents == "[]\n" else int(nEvents)
 
 ##############################################
-def getLuminosity(minRun,maxRun,isRunBased,verbose):
+def getLuminosity(homedir,minRun,maxRun,isRunBased,verbose):
 ##############################################
     """Expects something like
     +-------+------+--------+--------+-------------------+------------------+
@@ -136,8 +140,8 @@ def getLuminosity(minRun,maxRun,isRunBased,verbose):
     if(not isRunBased):
         return myCachedLumi
 
-    #output = subprocess.check_output(["/afs/cern.ch/user/m/musich/.local/bin/brilcalc", "lumi", "-b", "STABLE BEAMS", "--normtag=/afs/cern.ch/user/l/lumipro/public/normtag_file/normtag_BRIL.json", "-u", "/pb", "--begin", str(minRun),"--end",str(maxRun),"--output-style","csv"])
-    output = subprocess.check_output(["/afs/cern.ch/user/m/musich/.local/bin/brilcalc", "lumi", "-b", "STABLE BEAMS","-u", "/pb", "--begin", str(minRun),"--end",str(maxRun),"--output-style","csv","-c","web"])
+    #output = subprocess.check_output([homedir+"/.local/bin/brilcalc", "lumi", "-b", "STABLE BEAMS", "--normtag=/afs/cern.ch/user/l/lumipro/public/normtag_file/normtag_BRIL.json", "-u", "/pb", "--begin", str(minRun),"--end",str(maxRun),"--output-style","csv"])
+    output = subprocess.check_output([homedir+"/.local/bin/brilcalc", "lumi", "-b", "STABLE BEAMS","-u", "/pb", "--begin", str(minRun),"--end",str(maxRun),"--output-style","csv","-c","web"])
 
     if(verbose):
         print("INSIDE GET LUMINOSITY")
@@ -158,9 +162,13 @@ def getLuminosity(minRun,maxRun,isRunBased,verbose):
 ##############################################
 def isInJSON(run,jsonfile):
 ##############################################
-    with open(jsonfile, 'rb') as myJSON:
-        jsonDATA = json.load(myJSON)
-        return (run in jsonDATA)
+    try:
+        with open(jsonfile, 'r') as myJSON:
+            jsonDATA = json.load(myJSON)
+            return (run in jsonDATA)
+    except:
+        warnings.warn('ATTENTION! Impossible to find lumi mask! All runs will be used.')
+        return True
 
 ##############################################
 def to_bool(value):
@@ -567,6 +575,8 @@ def main():
     global CopyRights
     print('\n'+CopyRights)
 
+    HOME = os.environ.get('HOME')
+
     # CMSSW section
     input_CMSSW_BASE = os.environ.get('CMSSW_BASE')
     AnalysisStep_dir = os.path.join(input_CMSSW_BASE,"src/Alignment/OfflineValidation/test")
@@ -841,7 +851,7 @@ def main():
         if(len(myRuns)==0):
             raise Exception('Will not run on any run.... please check again the configuration')
 
-        myLumiDB = getLuminosity(myRuns[0],myRuns[-1],doRunBased,opts.verbose)
+        myLumiDB = getLuminosity(HOME,myRuns[0],myRuns[-1],doRunBased,opts.verbose)
         if(opts.verbose):
             pprint.pprint(myLumiDB)
 
@@ -890,7 +900,7 @@ def main():
                 print("mylist:",mylist)
                 inputFiles.append(mylist)
                 myRuns.append(str(runboundary[iConf]))
-                myLumiDB = getLuminosity(myRuns[0],myRuns[-1],True,opts.verbose)
+                myLumiDB = getLuminosity(HOME,myRuns[0],myRuns[-1],True,opts.verbose)
 
         else:
             #pass
@@ -1025,6 +1035,7 @@ def main():
             fout.close()
         del output_file_list1
         
+###################################################
 if __name__ == "__main__":        
     main()
 
