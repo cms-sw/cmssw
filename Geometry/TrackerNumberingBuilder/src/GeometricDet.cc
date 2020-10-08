@@ -69,7 +69,7 @@ GeometricDet::~GeometricDet() { deleteComponents(); }
 GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type)
     : ddname_(fv->name()),
       type_(type),
-      ddd_(),
+      ddd_(),  // To remove after DetExtra is removed (not used)
       trans_(fv->translation()),
       rho_(trans_.Rho()),
       phi_(trans_.Phi()),
@@ -98,16 +98,15 @@ GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type)
 GeometricDet::GeometricDet(cms::DDFilteredView* fv, GeometricEnumType type)
     : ddname_(dd4hep::dd::noNamespace(fv->name())),
       type_(type),
-      ddd_(fv->navPos()),  // To be studied
+      ddd_(fv->navPos()),  // To remove after DetExtra is removed (not used)
       trans_(geant_units::operators::convertCmToMm(fv->translation())),
       rho_(trans_.Rho()),
       phi_(trans_.Phi()),
       rot_(fv->rotation()),
       shape_(fv->shape()),
       params_(computeLegacyShapeParameters(shape_, fv->solid())),
-      radLength_(fv->get<double>(
-          "TrackerRadLength")),           // NOT OK: XMLs SpecPar handling by DD4hep FilteredView needs modification
-      xi_(fv->get<double>("TrackerXi")),  // NOT OK: XMLs SpecPar handling by DD4hep FilteredView needs modification
+      radLength_(fv->get<double>("TrackerRadLength")),
+      xi_(fv->get<double>("TrackerXi")),
       pixROCRows_(fv->get<double>("PixelROCRows")),
       pixROCCols_(fv->get<double>("PixelROCCols")),
       pixROCx_(fv->get<double>("PixelROC_X")),
