@@ -34,7 +34,7 @@ void LowEnergyFastSimModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastS
 
   G4double inPointEnergy = param.GetInPointEnergyFraction(energy) * energy;
 
-  // take into account positron annihilation
+  // take into account positron annihilation (not included in in-point)
   if(-11 == fastTrack.GetPrimaryTrack()->GetDefinition()->GetPDGEncoding())
       energy += twomass;
 
@@ -51,7 +51,7 @@ void LowEnergyFastSimModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastS
   // tail energy deposition
   G4double etail = energy - inPointEnergy;
   const G4int nspots = int(etail) + 1;
-  const G4double tailEnergy = etail / nspots;
+  const G4double tailEnergy = etail / (G4double)nspots;
   for (G4int i = 0; i < nspots; ++i) {
     const G4double radius = param.GetRadius(energy);
     const G4double z = param.GetZ();
