@@ -3,10 +3,19 @@
 Submits per run Primary Vertex Resoltion Alignment validation using the split vertex method,
 usage:
 
-python submitPVResolutionJobs.py -i PVResolutionExample.ini -D /JetHT/Run2018C-TkAlMinBias-12Nov2019_UL2018-v2/ALCARECO
+submitPVResolutionJobs.py -i PVResolutionExample.ini -D /JetHT/Run2018C-TkAlMinBias-12Nov2019_UL2018-v2/ALCARECO
 '''
 
 from __future__ import print_function
+
+__author__ = 'Marco Musich'
+__copyright__ = 'Copyright 2020, CERN CMS'
+__credits__ = ['Ernesto Migliore', 'Salvatore Di Guida']
+__license__ = 'Unknown'
+__maintainer__ = 'Marco Musich'
+__email__ = 'marco.musich@cern.ch'
+__version__ = 1
+
 import os,sys
 import getopt
 import time
@@ -16,11 +25,18 @@ import urllib
 import string
 import subprocess
 import pprint
+import warnings
 from subprocess import Popen, PIPE
 import multiprocessing
 from optparse import OptionParser
 import os, shlex, shutil, getpass
 import configparser as ConfigParser
+
+CopyRights  = '##################################\n'
+CopyRights += '#    submitPVVResolutioJobs.py   #\n'
+CopyRights += '#      marco.musich@cern.ch      #\n'
+CopyRights += '#         October 2020           #\n'
+CopyRights += '##################################\n'
 
 ##############################################
 def get_status_output(*args, **kwargs):
@@ -147,9 +163,13 @@ def getLuminosity(homedir,minRun,maxRun,isRunBased,verbose):
 ##############################################
 def isInJSON(run,jsonfile):
 ##############################################
-    with open(jsonfile, 'rb') as myJSON:
-        jsonDATA = json.load(myJSON)
-        return (run in jsonDATA)
+    try:
+        with open(jsonfile, 'r') as myJSON:
+            jsonDATA = json.load(myJSON)
+            return (run in jsonDATA)
+    except:
+        warnings.warn('ATTENTION! Impossible to find lumi mask! All runs will be used.')
+        return True
 
 #######################################################
 def as_dict(config):
@@ -235,6 +255,9 @@ def main():
     parser.add_option('-v','--verbose', help='verbose output',      dest='verbose',     action='store_true', default=False)
     
     (opts, args) = parser.parse_args()
+
+    global CopyRights
+    print('\n'+CopyRights)
 
     input_CMSSW_BASE = os.environ.get('CMSSW_BASE')
 
@@ -383,5 +406,6 @@ def main():
             print(submissionCommand)
             os.system(submissionCommand)
 
+###################################################
 if __name__ == "__main__":        
     main()
