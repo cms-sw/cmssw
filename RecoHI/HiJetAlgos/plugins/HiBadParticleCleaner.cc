@@ -26,7 +26,7 @@
 class HiBadParticleCleaner : public edm::global::EDProducer<> {
 public:
   explicit HiBadParticleCleaner(const edm::ParameterSet&);
-  ~HiBadParticleCleaner();
+  ~HiBadParticleCleaner() override;
 
 private:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
