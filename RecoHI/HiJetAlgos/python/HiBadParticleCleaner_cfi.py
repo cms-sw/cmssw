@@ -4,7 +4,6 @@ cleanedParticleFlow = cms.EDProducer(
     "HiBadParticleCleaner",
     PFCandidates  = cms.InputTag("particleFlow"),   
     offlinePV  = cms.InputTag("offlinePrimaryVertices"),   
-    verbose   = cms.bool(False),
     minMuonTrackRelErr = cms.double(2.0),          # minimum ptError/pt on muon best track
     minMuonPt     = cms.double(20.0),               # minimum muon pt 
     minChargedHadronPt = cms.double(20.0),
