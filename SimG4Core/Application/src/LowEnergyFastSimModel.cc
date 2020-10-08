@@ -9,7 +9,7 @@
 #include "G4Region.hh"
 #include "G4PhysicalConstants.hh"
 
-constexpr double twomass = 2*CLHEP::electron_mass_c2;
+constexpr double twomass = 2 * CLHEP::electron_mass_c2;
 
 LowEnergyFastSimModel::LowEnergyFastSimModel(const G4String& name, G4Region* region, const edm::ParameterSet& parSet)
     : G4VFastSimulationModel(name, region),
@@ -35,8 +35,8 @@ void LowEnergyFastSimModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastS
   G4double inPointEnergy = param.GetInPointEnergyFraction(energy) * energy;
 
   // take into account positron annihilation (not included in in-point)
-  if(-11 == fastTrack.GetPrimaryTrack()->GetDefinition()->GetPDGEncoding())
-      energy += twomass;
+  if (-11 == fastTrack.GetPrimaryTrack()->GetDefinition()->GetPDGEncoding())
+    energy += twomass;
 
   const G4ThreeVector& momDir = fastTrack.GetPrimaryTrack()->GetMomentumDirection();
   const G4ThreeVector& ortho = momDir.orthogonal();
@@ -58,7 +58,6 @@ void LowEnergyFastSimModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastS
 
     const G4double phi = CLHEP::twopi * G4UniformRand();
     const G4ThreeVector tailPos = pos + z * momDir + radius * std::cos(phi) * ortho + radius * std::sin(phi) * cross;
-
 
     spot.SetEnergy(tailEnergy);
     spot.SetPosition(tailPos);
