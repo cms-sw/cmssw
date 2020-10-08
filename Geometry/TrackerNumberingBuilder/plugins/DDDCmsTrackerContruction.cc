@@ -94,10 +94,10 @@ std::unique_ptr<GeometricDet> DDDCmsTrackerContruction::construct(const cms::DDC
 }
 
 /*
- * Print all Tracker GeoemtricDets before DetIds building.
- * The tree is lareday fully constructed from XMLs, 
+ * Print all Tracker GeometricDets, before DetIds building process.
+ * The tree is already fully constructed from XMLs, 
  * and all GeometricDets are sorted according to their geometric position.
- * This allows a convenient debugging, as the DetIds are assigned according to this information.
+ * This allows a convenient debugging, as the DetIds will be later assigned according to this information.
  */
 void DDDCmsTrackerContruction::printAllTrackerGeometricDetsBeforeDetIDBuilding(const GeometricDet* tracker) {
   std::ofstream outputFile("All_Tracker_GeometricDets_before_DetId_building.log", std::ios::out);
