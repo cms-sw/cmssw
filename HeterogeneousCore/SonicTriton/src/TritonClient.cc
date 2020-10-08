@@ -37,7 +37,8 @@ TritonClient::TritonClient(const edm::ParameterSet& params)
 
   //set options
   options_.model_version_ = params.getParameter<std::string>("modelVersion");
-  options_.client_timeout_ = params.getUntrackedParameter<unsigned>("timeout");
+  //convert seconds to microseconds
+  options_.client_timeout_ = params.getUntrackedParameter<unsigned>("timeout") * 1e6;
 
   //config needed for batch size
   inference::ModelConfigResponse modelConfigResponse;

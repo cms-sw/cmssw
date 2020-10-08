@@ -115,10 +115,8 @@ void TritonInputData::toServer(std::shared_ptr<TritonInput<DT>> ptr) {
                                             << " but specified batch size is " << batchSize_;
   }
 
-  //shape must be specified for variable dims
-  if (variableDims_) {
-    triton_utils::throwIfError(data_->SetShape(fullShape_), name_ + " input(): unable to set input shape");
-  }
+  //shape must be specified for variable dims or if batch size changes
+  data_->SetShape(fullShape_);
 
   if (byteSize_ != sizeof(DT))
     throw cms::Exception("TritonDataError") << name_ << " input(): inconsistent byte size " << sizeof(DT)
