@@ -47,7 +47,8 @@ protected:
   void evaluate() override;
 
   void reportServerSideStats(const ServerSideStats& stats) const;
-  ServerSideStats summarizeServerStats(const inference::ModelStatistics& start_status, const inference::ModelStatistics& end_status) const;
+  ServerSideStats summarizeServerStats(const inference::ModelStatistics& start_status,
+                                       const inference::ModelStatistics& end_status) const;
 
   inference::ModelStatistics getServerSideStatus() const;
 
@@ -67,5 +68,3 @@ protected:
 };
 
 #endif
-
-

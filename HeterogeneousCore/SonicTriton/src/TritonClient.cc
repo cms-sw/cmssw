@@ -23,15 +23,15 @@ namespace nic = ni::client;
 TritonClient::TritonClient(const edm::ParameterSet& params)
     : SonicClient(params),
       verbose_(params.getUntrackedParameter<bool>("verbose")),
-	  options_(params.getParameter<std::string>("modelName"))
-	  {
+      options_(params.getParameter<std::string>("modelName")) {
   clientName_ = "TritonClient";
   //will get overwritten later, just used in constructor
   fullDebugName_ = clientName_;
 
   //connect to the server
   //TODO: add SSL options
-  std::string url(params.getUntrackedParameter<std::string>("address") + ":" + std::to_string(params.getUntrackedParameter<unsigned>("port")));
+  std::string url(params.getUntrackedParameter<std::string>("address") + ":" +
+                  std::to_string(params.getUntrackedParameter<unsigned>("port")));
   triton_utils::throwIfError(nic::InferenceServerGrpcClient::Create(&client_, url, false),
                              "TritonClient(): unable to create inference context");
 
@@ -42,7 +42,8 @@ TritonClient::TritonClient(const edm::ParameterSet& params)
 
   //config needed for batch size
   inference::ModelConfigResponse modelConfigResponse;
-  triton_utils::throwIfError(client_->ModelConfig(&modelConfigResponse, options_.model_name_, options_.model_version_), "TritonClient(): unable to get model config");
+  triton_utils::throwIfError(client_->ModelConfig(&modelConfigResponse, options_.model_name_, options_.model_version_),
+                             "TritonClient(): unable to get model config");
   inference::ModelConfig modelConfig(modelConfigResponse.config());
 
   //check batch size limitations (after i/o setup)
@@ -55,7 +56,8 @@ TritonClient::TritonClient(const edm::ParameterSet& params)
 
   //get model info
   inference::ModelMetadataResponse modelMetadata;
-  triton_utils::throwIfError(client_->ModelMetadata(&modelMetadata, options_.model_name_, options_.model_version_), "TritonClient(): unable to get model metadata");
+  triton_utils::throwIfError(client_->ModelMetadata(&modelMetadata, options_.model_name_, options_.model_version_),
+                             "TritonClient(): unable to get model metadata");
 
   //get input and output (which know their sizes)
   const auto& nicInputs = modelMetadata.inputs();
@@ -85,10 +87,10 @@ TritonClient::TritonClient(const edm::ParameterSet& params)
   inputsTriton_.reserve(nicInputs.size());
   for (const auto& nicInput : nicInputs) {
     const auto& iname = nicInput.name();
-    auto [curr_itr, success] =
-        input_.emplace(std::piecewise_construct, std::forward_as_tuple(iname), std::forward_as_tuple(iname, nicInput, noBatch_));
+    auto [curr_itr, success] = input_.emplace(
+        std::piecewise_construct, std::forward_as_tuple(iname), std::forward_as_tuple(iname, nicInput, noBatch_));
     auto& curr_input = curr_itr->second;
-	inputsTriton_.push_back(curr_input.data());
+    inputsTriton_.push_back(curr_input.data());
     if (verbose_) {
       io_msg << "  " << iname << " (" << curr_input.dname() << ", " << curr_input.byteSize()
              << " b) : " << triton_utils::printColl(curr_input.shape()) << "\n";
@@ -166,12 +168,12 @@ void TritonClient::reset() {
 }
 
 bool TritonClient::getResults(std::shared_ptr<nic::InferResult> results) {
-  for (auto& [oname,output] : output_) {
+  for (auto& [oname, output] : output_) {
     //set shape here before output becomes const
     if (output.variableDims()) {
       std::vector<int64_t> tmp_shape;
-      bool status =
-          triton_utils::warnIfError(results->Shape(oname, &tmp_shape), "getResults(): unable to get output shape for "+oname);
+      bool status = triton_utils::warnIfError(results->Shape(oname, &tmp_shape),
+                                              "getResults(): unable to get output shape for " + oname);
       if (!status)
         return status;
       output.setShape(tmp_shape, false);
@@ -198,34 +200,37 @@ void TritonClient::evaluate() {
     //non-blocking call
     auto t1 = std::chrono::high_resolution_clock::now();
     bool status = triton_utils::warnIfError(
-        client_->AsyncInfer([t1, start_status, this](nic::InferResult* results) {
-          //get results
-		  std::shared_ptr<nic::InferResult> results_ptr(results);
-          bool status =
-              triton_utils::warnIfError(results_ptr->RequestStatus(), "evaluate(): unable to get result");
-          if (!status) {
-            finish(false);
-            return;
-          }
-          auto t2 = std::chrono::high_resolution_clock::now();
+        client_->AsyncInfer(
+            [t1, start_status, this](nic::InferResult* results) {
+              //get results
+              std::shared_ptr<nic::InferResult> results_ptr(results);
+              bool status = triton_utils::warnIfError(results_ptr->RequestStatus(), "evaluate(): unable to get result");
+              if (!status) {
+                finish(false);
+                return;
+              }
+              auto t2 = std::chrono::high_resolution_clock::now();
 
-          if (!debugName_.empty())
-            edm::LogInfo(fullDebugName_) << "Remote time: "
-                                         << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+              if (!debugName_.empty())
+                edm::LogInfo(fullDebugName_)
+                    << "Remote time: " << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 
-          const auto& end_status = getServerSideStatus();
+              const auto& end_status = getServerSideStatus();
 
-          if (verbose()) {
-            const auto& stats = summarizeServerStats(start_status, end_status);
-            reportServerSideStats(stats);
-          }
+              if (verbose()) {
+                const auto& stats = summarizeServerStats(start_status, end_status);
+                reportServerSideStats(stats);
+              }
 
-          //check result
-          status = getResults(results_ptr);
+              //check result
+              status = getResults(results_ptr);
 
-          //finish
-          finish(status);
-        }, options_, inputsTriton_, outputsTriton_),
+              //finish
+              finish(status);
+            },
+            options_,
+            inputsTriton_,
+            outputsTriton_),
         "evaluate(): unable to launch async run");
 
     //if AsyncRun failed, finish() wasn't called
@@ -235,7 +240,8 @@ void TritonClient::evaluate() {
     //blocking call
     auto t1 = std::chrono::high_resolution_clock::now();
     nic::InferResult* results;
-    bool status = triton_utils::warnIfError(client_->Infer(&results, options_, inputsTriton_, outputsTriton_), "evaluate(): unable to run and/or get result");
+    bool status = triton_utils::warnIfError(client_->Infer(&results, options_, inputsTriton_, outputsTriton_),
+                                            "evaluate(): unable to run and/or get result");
     if (!status) {
       finish(false);
       return;
@@ -253,7 +259,7 @@ void TritonClient::evaluate() {
       reportServerSideStats(stats);
     }
 
-	std::shared_ptr<nic::InferResult> results_ptr(results);
+    std::shared_ptr<nic::InferResult> results_ptr(results);
     status = getResults(results_ptr);
 
     finish(status);
@@ -263,7 +269,7 @@ void TritonClient::evaluate() {
 void TritonClient::reportServerSideStats(const TritonClient::ServerSideStats& stats) const {
   std::stringstream msg;
 
-  // https://github.com/triton-inference-server/server/blob/v2.3.0/src/clients/c%2B%2B/perf_client/inference_profiler.cc
+  // https://github.com/triton-inference-server/server/blob/v2.3.0/src/clients/c++/perf_client/inference_profiler.cc
   const uint64_t count = stats.success_count_;
   msg << "  Inference count: " << stats.inference_count_ << "\n";
   msg << "  Execution count: " << stats.execution_count_ << "\n";
@@ -280,12 +286,12 @@ void TritonClient::reportServerSideStats(const TritonClient::ServerSideStats& st
     const uint64_t compute_input_avg_us = get_avg_us(stats.compute_input_time_ns_);
     const uint64_t compute_infer_avg_us = get_avg_us(stats.compute_infer_time_ns_);
     const uint64_t compute_output_avg_us = get_avg_us(stats.compute_output_time_ns_);
-    const uint64_t compute_avg_us =
-        compute_input_avg_us + compute_infer_avg_us + compute_output_avg_us;
+    const uint64_t compute_avg_us = compute_input_avg_us + compute_infer_avg_us + compute_output_avg_us;
     const uint64_t overhead =
         (cumm_avg_us > queue_avg_us + compute_avg_us) ? (cumm_avg_us - queue_avg_us - compute_avg_us) : 0;
 
-    msg << "  Avg request latency: " << cumm_avg_us << " usec" << "\n"
+    msg << "  Avg request latency: " << cumm_avg_us << " usec"
+        << "\n"
         << "  (overhead " << overhead << " usec + "
         << "queue " << queue_avg_us << " usec + "
         << "compute input " << compute_input_avg_us << " usec + "
@@ -303,12 +309,17 @@ TritonClient::ServerSideStats TritonClient::summarizeServerStats(const inference
 
   server_stats.inference_count_ = end_status.inference_count() - start_status.inference_count();
   server_stats.execution_count_ = end_status.execution_count() - start_status.execution_count();
-  server_stats.success_count_ = end_status.inference_stats().success().count() - start_status.inference_stats().success().count();
-  server_stats.cumm_time_ns_ = end_status.inference_stats().success().ns() - start_status.inference_stats().success().ns();
+  server_stats.success_count_ =
+      end_status.inference_stats().success().count() - start_status.inference_stats().success().count();
+  server_stats.cumm_time_ns_ =
+      end_status.inference_stats().success().ns() - start_status.inference_stats().success().ns();
   server_stats.queue_time_ns_ = end_status.inference_stats().queue().ns() - start_status.inference_stats().queue().ns();
-  server_stats.compute_input_time_ns_ = end_status.inference_stats().compute_input().ns() - start_status.inference_stats().compute_input().ns();
-  server_stats.compute_infer_time_ns_ = end_status.inference_stats().compute_infer().ns() - start_status.inference_stats().compute_infer().ns();
-  server_stats.compute_output_time_ns_ = end_status.inference_stats().compute_output().ns() - start_status.inference_stats().compute_output().ns();
+  server_stats.compute_input_time_ns_ =
+      end_status.inference_stats().compute_input().ns() - start_status.inference_stats().compute_input().ns();
+  server_stats.compute_infer_time_ns_ =
+      end_status.inference_stats().compute_infer().ns() - start_status.inference_stats().compute_infer().ns();
+  server_stats.compute_output_time_ns_ =
+      end_status.inference_stats().compute_output().ns() - start_status.inference_stats().compute_output().ns();
 
   return server_stats;
 }
@@ -316,8 +327,9 @@ TritonClient::ServerSideStats TritonClient::summarizeServerStats(const inference
 inference::ModelStatistics TritonClient::getServerSideStatus() const {
   if (verbose_) {
     inference::ModelStatisticsResponse resp;
-    triton_utils::warnIfError(client_->ModelInferenceStatistics(&resp, options_.model_name_, options_.model_version_), "getServerSideStatus(): unable to get model statistics");
-	return *(resp.model_stats().begin());
+    triton_utils::warnIfError(client_->ModelInferenceStatistics(&resp, options_.model_name_, options_.model_version_),
+                              "getServerSideStatus(): unable to get model statistics");
+    return *(resp.model_stats().begin());
   }
   return inference::ModelStatistics{};
 }
@@ -337,5 +349,3 @@ void TritonClient::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   descClient.addUntracked<std::vector<std::string>>("outputs", {});
   iDesc.add<edm::ParameterSetDescription>("Client", descClient);
 }
-
-

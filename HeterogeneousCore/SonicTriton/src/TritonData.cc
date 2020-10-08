@@ -33,8 +33,7 @@ TritonData<IO>::TritonData(const std::string& name, const TritonData<IO>::Tensor
       productDims_(variableDims_ ? -1 : dimProduct(shape_)),
       dname_(model_info.datatype()),
       dtype_(ni::ProtocolStringToDataType(dname_)),
-      byteSize_(ni::GetDataTypeByteSize(dtype_))
-      {
+      byteSize_(ni::GetDataTypeByteSize(dtype_)) {
   //create input or output object
   IO* iotmp;
   createObject(&iotmp);
@@ -55,7 +54,7 @@ void TritonOutputData::createObject(nic::InferRequestedOutput** ioptr) const {
 template <typename IO>
 bool TritonData<IO>::setShape(const std::vector<int64_t>& newShape, bool canThrow) {
   bool result = true;
-  for (unsigned i = 0; i < newShape.size(); ++i){
+  for (unsigned i = 0; i < newShape.size(); ++i) {
     result &= setShape(i, newShape[i], canThrow);
   }
   return result;
@@ -81,8 +80,7 @@ bool TritonData<IO>::setShape(unsigned loc, int64_t val, bool canThrow) {
     if (dims_[full_loc] == -1) {
       fullShape_[full_loc] = val;
       return true;
-	}
-    else {
+    } else {
       msg << name_ << " setShape(): attempt to change value of non-variable shape dimension " << loc;
       if (canThrow)
         throw cms::Exception("TritonDataError") << msg.str();
@@ -150,8 +148,7 @@ TritonOutput<DT> TritonOutputData::fromServer() const {
   const uint8_t* r0;
   size_t contentByteSize;
   size_t expectedContentByteSize = nOutput * byteSize_ * batchSize_;
-  triton_utils::throwIfError(result_->RawData(name_, &r0, &contentByteSize),
-                             "output(): unable to get raw");
+  triton_utils::throwIfError(result_->RawData(name_, &r0, &contentByteSize), "output(): unable to get raw");
   if (contentByteSize != expectedContentByteSize) {
     throw cms::Exception("TritonDataError") << name_ << " output(): unexpected content byte size " << contentByteSize
                                             << " (expected " << expectedContentByteSize << ")";
@@ -186,5 +183,3 @@ template void TritonInputData::toServer(std::shared_ptr<TritonInput<float>> data
 template void TritonInputData::toServer(std::shared_ptr<TritonInput<int64_t>> data_in);
 
 template TritonOutput<float> TritonOutputData::fromServer() const;
-
-
