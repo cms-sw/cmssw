@@ -71,17 +71,17 @@ void testDDFilteredViewFirstChild::checkFilteredViewFirstChild() {
   cms::DDSpecParRefs ref;
   mypar.filter(ref, attribute, "MuonChamber");
   fview.mergedSpecifics(ref);
-  
+
   fview.firstChild();
   std::cout << fview.name() << " is a " << cms::dd::name(cms::DDSolidShapeMap, fview.shape()) << "\n";
   std::cout << "Full path to it is " << fview.path() << "\n";
   auto copyNos = fview.copyNos();
   if (dd4hep::isA<dd4hep::Box>(fview.solid()))
     cout << "It's a Box\n";
-  
+
   std::cout << fview.name() << " is a " << cms::dd::name(cms::DDSolidShapeMap, fview.shape()) << "\n";
   do {
-      std::cout << fview.path() << "\n";
-    } while (fview.nextChild());
+    std::cout << fview.path() << "\n";
+  } while (fview.nextChild());
   std::cout << "Current node is:\n" << fview.path() << "\n";
 }
