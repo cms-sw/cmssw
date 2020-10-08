@@ -43,9 +43,9 @@ pair<vector<DetLayer*>, vector<DetLayer*> > ETLDetLayerGeometryBuilder::buildLay
       case static_cast<int>(MTDTopologyMode::Mode::btlv1etlv4):
         nSector *= ETLDetId::kETLv4maxSector;
         break;
-      //case static_cast<int>(MTDTopologyMode::Mode::btlv1etlv5):
-      //nSector *= ETLDetId::kETLv5maxSector;
-      //break;
+      case static_cast<int>(MTDTopologyMode::Mode::btlv1etlv5):
+        nSector *= ETLDetId::kETLv5maxSector;
+        break;
       default:
         throw cms::Exception("MTDDetLayers") << "Not implemented scenario " << mtdTopologyMode;
         break;
