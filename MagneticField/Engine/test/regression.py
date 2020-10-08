@@ -1,4 +1,5 @@
 
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 import sys
@@ -155,10 +156,10 @@ elif options.producerType == 'fromDB' or options.producerType == 'fromDB_DD4Hep'
 
 
 else :
-    print '\nERROR: invalid producerType', producerType,'\n'
+    print('\nERROR: invalid producerType', producerType,'\n')
 
 
-print '\nRegression for MF built with', options.producerType, 'era:', options.era, 'current:', options.current,'\n'
+print('\nRegression for MF built with', options.producerType, 'era:', options.era, 'current:', options.current,'\n')
 
 
 process.testMagneticField = cms.EDAnalyzer("testMagneticField",
