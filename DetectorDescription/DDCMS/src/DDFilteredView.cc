@@ -239,6 +239,28 @@ bool DDFilteredView::firstChild() {
   return false;
 }
 
+bool DDFilteredView::nextChild() {
+  currentSpecPar_ = nullptr;
+
+  if (it_.empty()) {
+    LogVerbatim("DDFilteredView") << "Iterator vector has zero size.";
+    return false;
+  }
+  it_.back().SetType(0);
+  Node* node = nullptr;
+  while ((node = it_.back().Next())) {
+    if (it_.back().GetLevel() <= startLevel_) {
+      return false;
+    }
+    if (accept(noNamespace(node->GetVolume()->GetName()))) {
+      node_ = node;
+      return true;
+    }
+  }
+  LogVerbatim("DDFilteredView") << "Search for first child failed.";
+  return false;
+}
+
 int DDFilteredView::nodeCopyNo(const std::string_view copyNo) const {
   int result;
   if (auto [p, ec] = std::from_chars(copyNo.data(), copyNo.data() + copyNo.size(), result); ec == std::errc()) {

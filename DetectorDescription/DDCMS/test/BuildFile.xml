@@ -4,6 +4,11 @@
   <use name="dd4hep"/>
 </bin>
 
+<bin name="testDD4hepFilteredViewFirstChild" file="DDFilteredView.firstChild.cppunit.cc,testRunner.cpp">
+  <use name="DetectorDescription/DDCMS"/>
+  <use name="dd4hep"/>
+</bin>
+
 <bin name="testDD4hepFilteredViewLevel" file="DDFilteredView.level.cppunit.cc,testRunner.cpp">
   <use name="DetectorDescription/DDCMS"/>
   <use name="dd4hep"/>
