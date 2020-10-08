@@ -174,11 +174,13 @@ MTDSectorForwardDoubleLayer* ETLDetLayerGeometryBuilder::buildLayerNew(int endca
     }
 
     if (!backGeomDets.empty()) {
+      std::sort(backGeomDets.begin(), backGeomDets.end(), orderGeomDets);
       LogDebug("MTDDetLayers") << "backGeomDets size = " << backGeomDets.size();
       backSectors.emplace_back(makeDetSector(backGeomDets));
     }
 
     if (!frontGeomDets.empty()) {
+      std::sort(frontGeomDets.begin(), frontGeomDets.end(), orderGeomDets);
       LogDebug("MTDDetLayers") << "frontGeomDets size = " << frontGeomDets.size();
       frontSectors.emplace_back(makeDetSector(frontGeomDets));
       assert(!backGeomDets.empty());
@@ -205,4 +207,8 @@ MTDDetSector* ETLDetLayerGeometryBuilder::makeDetSector(vector<const GeomDet*>& 
                            << (*result);
 
   return result;
+}
+
+bool ETLDetLayerGeometryBuilder::orderGeomDets(const GeomDet*& gd1, const GeomDet*& gd2) {
+  return {gd1->geographicalId().rawId() < gd2->geographicalId().rawId()};
 }

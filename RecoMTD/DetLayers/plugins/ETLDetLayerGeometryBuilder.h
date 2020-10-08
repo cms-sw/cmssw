@@ -41,5 +41,6 @@ private:
   static MTDDetRing* makeDetRing(std::vector<const GeomDet*>& geomDets);
   static bool isFront(int layer, int ring, int module);
   static MTDDetSector* makeDetSector(std::vector<const GeomDet*>& geomDets);
+  static bool orderGeomDets(const GeomDet*&, const GeomDet*&);
 };
 #endif
