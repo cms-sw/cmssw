@@ -97,8 +97,8 @@ public:
   void setGeographicalID(DetId id) { geographicalID_ = id; }
 
   // VOLUME POSITION in CMS frame of reference
-  const Translation& translation() const { return trans_; }
-  double rho() const { return rho_; }
+  const Translation& translation() const { return trans_; }  // in mm
+  double rho() const { return rho_; }                        // in mm
   double phi() const { return phi_; }
   const RotationMatrix& rotation() const { return rot_; }
 
@@ -120,7 +120,7 @@ public:
           << "Called on a shape which is neither a box, a trap, nor a tub. This is not supported!";
     }
     return params_;
-  }
+  }  // in mm
 
   // RADIATION LENGTH AND ENERGY LOSS
   double radLength() const { return radLength_; }
@@ -137,6 +137,9 @@ public:
   bool isLowerSensor() const { return isLowerSensor_; }
   bool isUpperSensor() const { return isUpperSensor_; }
   double siliconAPVNum() const { return siliconAPVNum_; }
+
+  // DETECTOR DESCRIPTION ORIGIN INFO
+  bool isFromDD4hep() const { return isFromDD4hep_; }
 
   // CHILDREN INFO
   GeometricDet* component(size_t index) { return const_cast<GeometricDet*>(container_[index]); }
@@ -170,13 +173,13 @@ private:
   nav_type ddd_;
   DetId geographicalID_;
 
-  Translation trans_;
-  double rho_;
+  Translation trans_;  // in mm
+  double rho_;         // in mm
   double phi_;
   RotationMatrix rot_;
 
   cms::DDSolidShape shape_;
-  std::vector<double> params_;
+  std::vector<double> params_;  // in mm
 
   double radLength_;
   double xi_;
