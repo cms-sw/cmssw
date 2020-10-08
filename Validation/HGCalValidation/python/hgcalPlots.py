@@ -2483,6 +2483,7 @@ def append_hgcalMultiClustersPlots(collection = 'ticlMultiClustersFromTracksters
   #            ))
 
 #=================================================================================================
+<<<<<<< HEAD
 _common_Calo = {"stat": False, "drawStyle": "hist", "staty": 0.65, "ymin": 0.0, "ylog": False}
 
 hgcalCaloParticlesPlotter = Plotter()
@@ -2532,6 +2533,44 @@ def append_hgcalCaloParticlesPlots(files, collection = '-211', name_collection =
   templateFile.Close()
 
   return hgcalCaloParticlesPlotter
+
+#=================================================================================================
+def create_hgcalTrackstersPlotter(files, collection = 'ticlTrackstersMerge'):
+
+  hgcalTrackstersPlotter = Plotter()
+  dqmfolder = "DQMData/Run 1/HGCAL/Run summary/TICLTracksters/" + collection
+  _multiplicity_tracksters_numberOfEventsHistogram = dqmfolder+"/Number of Trackster per Event"
+
+  templateFile = ROOT.TFile.Open(files[0]) # assuming all files have same structure
+  keys = gDirectory.GetDirectory(dqmfolder,True).GetListOfKeys()
+  key = keys[0]
+  while key:
+    obj = key.ReadObj()
+    name = obj.GetName()
+    fileName = TString(name)
+    fileName.ReplaceAll(" ","_")
+    pg= PlotGroup(fileName.Data(),[
+                  Plot(name,
+                       xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
+                       #drawCommand = "", # may want to customize for TH2 (colz, etc.)
+                       normalizeToNumberOfEvents = True, **_common)
+                  ],
+                  ncols=1) # probably need more ofr cosAngle_Beta_
+
+    hgcalTrackstersPlotter.append("TICLDebugger", [
+              dqmfolder
+              ], PlotFolder(
+                pg,
+                loopSubFolders=False,
+                purpose=PlotPurpose.PF, page="TICLDebugger",
+                numberOfEventsHistogram=_multiplicity_tracksters_numberOfEventsHistogram)
+              )
+
+    key = keys.After(key)
+
+  templateFile.Close()
+
+  return hgcalTrackstersPlotter
 
 #=================================================================================================
 # hitValidation
