@@ -39,6 +39,8 @@ namespace ticl {
     const float min_cos_pointing_;
     const float etaLimitIncreaseWindow_;
     const int missing_layers_;
+    const unsigned int shower_start_max_layer_;
+
     const int min_clusters_per_ntuplet_;
     const float max_delta_time_;
     const std::string eidInputName_;

@@ -57,6 +57,8 @@ private:
   const std::vector<int> filter_on_categories_;
   const double pid_threshold_;
   const double energy_em_over_total_threshold_;
+  const int shower_start_max_layer_;
+
   const std::string itername_;
 };
 DEFINE_FWK_MODULE(TrackstersProducer);
@@ -95,6 +97,7 @@ TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps, const Tracks
       filter_on_categories_(ps.getParameter<std::vector<int>>("filter_on_categories")),
       pid_threshold_(ps.getParameter<double>("pid_threshold")),
       energy_em_over_total_threshold_(ps.getParameter<double>("energy_em_over_total_threshold")),
+      shower_start_max_layer_(ps.getParameter<int>("shower_start_max_layer")),
       itername_(ps.getParameter<std::string>("itername")) {
   if (doNose_) {
     layer_clusters_tiles_hfnose_token_ =
@@ -120,6 +123,7 @@ void TrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<std::vector<int>>("filter_on_categories", {0});
   desc.add<double>("pid_threshold", 0.);                    // make default such that no filtering is applied
   desc.add<double>("energy_em_over_total_threshold", -1.);  // make default such that no filtering is applied
+  desc.add<int>("shower_start_max_layer", 9999); // make default such that no filtering is applied
   desc.add<int>("algo_verbosity", 0);
   desc.add<double>("min_cos_theta", 0.915);
   desc.add<double>("min_cos_pointing", -1.);
