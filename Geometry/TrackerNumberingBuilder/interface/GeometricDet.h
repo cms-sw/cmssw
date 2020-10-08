@@ -138,6 +138,9 @@ public:
   bool isUpperSensor() const { return isUpperSensor_; }
   double siliconAPVNum() const { return siliconAPVNum_; }
 
+  // DETECTOR DESCRIPTION ORIGIN INFO
+  bool isFromDD4hep() const { return isFromDD4hep_; }
+
   // CHILDREN INFO
   GeometricDet* component(size_t index) { return const_cast<GeometricDet*>(container_[index]); }
   bool isLeaf() const { return container_.empty(); }
