@@ -2,6 +2,8 @@
 #define EcalSimAlgos_EcalDigitizerTraits_h
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EcalCoder.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EcalLiteDTUCoder.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalElectronicsSim.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/ESElectronicsSimFast.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/ESElectronicsSim.h"
@@ -10,6 +12,7 @@
 #include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EEDataFrame.h"
+#include "DataFormats/EcalDigi/interface/EcalDataFrame_Ph2.h"
 
 class EcalHitResponse;
 
@@ -20,9 +23,8 @@ public:
   /// the dataframes
   typedef EBDataFrame Digi;
   /// the electronics simulation
-  typedef EcalElectronicsSim ElectronicsSim;
-
   typedef CaloTSamples<float, 10> EcalSamples;
+  typedef EcalElectronicsSim<EcalCoder, EcalSamples, EcalDataFrame> ElectronicsSim;
 
   static void fix(Digi& digi, edm::DataFrame df){};
 };
@@ -34,9 +36,8 @@ public:
   /// the dataframes
   typedef EEDataFrame Digi;
   /// the electronics simulation
-  typedef EcalElectronicsSim ElectronicsSim;
-
   typedef CaloTSamples<float, 10> EcalSamples;
+  typedef EcalElectronicsSim<EcalCoder, EcalSamples, EcalDataFrame> ElectronicsSim;
 
   static void fix(Digi& digi, edm::DataFrame df) {}
 };
@@ -73,6 +74,19 @@ public:
   typedef ESElectronicsSim ElectronicsSim;
 
   //      typedef CaloTSamples<float,3> EcalSamples ;
+};
+
+class EBDigitizerTraits_Ph2 {
+public:
+  /// the digis collection
+  typedef EBDigiCollectionPh2 DigiCollection;
+  /// the dataframes
+  typedef EcalDataFrame_Ph2 Digi;
+  /// the electronics simulation
+  typedef CaloTSamples<float, ecalPh2::sampleSize> EcalSamples;
+  typedef EcalElectronicsSim<EcalLiteDTUCoder, EcalSamples, Digi> ElectronicsSim;
+
+  static void fix(Digi& digi, edm::DataFrame df){};
 };
 
 #endif
