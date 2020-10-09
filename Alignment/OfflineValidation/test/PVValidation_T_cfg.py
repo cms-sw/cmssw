@@ -85,7 +85,7 @@ process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 ####################################################################
 # Get the Magnetic Field
 ####################################################################
-process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 
 ###################################################################
 # Standard loads

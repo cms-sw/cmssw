@@ -5,7 +5,6 @@ process = cms.Process("SiPixelGenErrorDBObjectReaderTest")
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")
-# process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
 # process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
 process.source = cms.Source("EmptySource")
