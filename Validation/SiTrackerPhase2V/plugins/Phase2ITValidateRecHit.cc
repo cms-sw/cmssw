@@ -10,32 +10,93 @@
 //
 // system include files
 #include <memory>
-#include "Validation/SiTrackerPhase2V/plugins/Phase2ITValidateRecHit.h"
-#include "Validation/SiTrackerPhase2V/interface/TrackerPhase2ValidationUtil.h"
-#include "DQM/SiTrackerPhase2/interface/TrackerPhase2DQMUtil.h"
+#include <map>
+#include <vector>
+#include <algorithm>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/GeometrySurface/interface/LocalError.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/TrackerGeomDet.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetType.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "DataFormats/GeometrySurface/interface/LocalError.h"
-#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 //--- for SimHit association
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-// DQM Histograming
+#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
+//DQM
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "Validation/SiTrackerPhase2V/interface/TrackerPhase2ValidationUtil.h"
+#include "DQM/SiTrackerPhase2/interface/TrackerPhase2DQMUtil.h"
+
+class Phase2ITValidateRecHit : public DQMEDAnalyzer {
+public:
+  explicit Phase2ITValidateRecHit(const edm::ParameterSet&);
+  ~Phase2ITValidateRecHit() override;
+  void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) override;
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  void fillITHistos(const edm::Event& iEvent,
+                    const TrackerHitAssociator& associateRecHit,
+                    const std::vector<edm::Handle<edm::PSimHitContainer>>& simHits,
+                    const std::map<unsigned int, SimTrack>& selectedSimTrackMap);
+
+  void bookLayerHistos(DQMStore::IBooker& ibooker, unsigned int det_id, std::string& subdir);
+
+  edm::ParameterSet config_;
+  TrackerHitAssociator::Config trackerHitAssociatorConfig_;
+  const double simtrackminpt_;
+  std::string geomType_;
+  const edm::EDGetTokenT<SiPixelRecHitCollection> tokenRecHitsIT_;
+  const edm::EDGetTokenT<edm::SimTrackContainer> simTracksToken_;
+  std::vector<edm::EDGetTokenT<edm::PSimHitContainer>> simHitTokens_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
+  const TrackerGeometry* tkGeom_ = nullptr;
+  const TrackerTopology* tTopo_ = nullptr;
+  struct RecHitME {
+    MonitorElement* deltaX = nullptr;
+    MonitorElement* deltaY = nullptr;
+    MonitorElement* pullX = nullptr;
+    MonitorElement* pullY = nullptr;
+    MonitorElement* deltaX_eta = nullptr;
+    MonitorElement* deltaY_eta = nullptr;
+    MonitorElement* pullX_eta = nullptr;
+    MonitorElement* pullY_eta = nullptr;
+    //For rechits matched to primary simhits
+    MonitorElement* numberRecHitsprimary = nullptr;
+    MonitorElement* pullX_primary;
+    MonitorElement* pullY_primary;
+    MonitorElement* deltaX_primary;
+    MonitorElement* deltaY_primary;
+  };
+  std::map<std::string, RecHitME> layerMEs_;
+};
+
 Phase2ITValidateRecHit::Phase2ITValidateRecHit(const edm::ParameterSet& iConfig)
     : config_(iConfig),
       trackerHitAssociatorConfig_(iConfig, consumesCollector()),
@@ -53,6 +114,7 @@ Phase2ITValidateRecHit::Phase2ITValidateRecHit(const edm::ParameterSet& iConfig)
 Phase2ITValidateRecHit::~Phase2ITValidateRecHit() {
   edm::LogInfo("Phase2ITValidateRecHit") << ">>> Destroy Phase2ITValidateRecHit ";
 }
+
 void Phase2ITValidateRecHit::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::vector<edm::Handle<edm::PSimHitContainer>> simHits;
   for (const auto& itoken : simHitTokens_) {
@@ -67,10 +129,9 @@ void Phase2ITValidateRecHit::analyze(const edm::Event& iEvent, const edm::EventS
   iEvent.getByToken(simTracksToken_, simTracks);
 
   std::map<unsigned int, SimTrack> selectedSimTrackMap;
-  for (edm::SimTrackContainer::const_iterator simTrackIt(simTracks->begin()); simTrackIt != simTracks->end();
-       ++simTrackIt) {
-    if (simTrackIt->momentum().pt() > simtrackminpt_) {
-      selectedSimTrackMap.insert(std::make_pair(simTrackIt->trackId(), *simTrackIt));
+  for (const auto& simTrackIt : *simTracks) {
+    if (simTrackIt.momentum().pt() > simtrackminpt_) {
+      selectedSimTrackMap.insert(std::make_pair(simTrackIt.trackId(), simTrackIt));
     }
   }
   TrackerHitAssociator associateRecHit(iEvent, trackerHitAssociatorConfig_);
@@ -88,42 +149,37 @@ void Phase2ITValidateRecHit::fillITHistos(const edm::Event& iEvent,
     return;
   std::map<std::string, unsigned int> nrechitLayerMap_primary;
   // Loop over modules
-  SiPixelRecHitCollection::const_iterator DSViter;
-  for (DSViter = rechits->begin(); DSViter != rechits->end(); ++DSViter) {
+  for (const auto& DSViter : *rechits) {
     // Get the detector unit's id
-    unsigned int rawid(DSViter->detId());
+    unsigned int rawid(DSViter.detId());
     DetId detId(rawid);
     // Get the geomdet
     const GeomDetUnit* geomDetunit(tkGeom_->idToDetUnit(detId));
     if (!geomDetunit)
       continue;
     // determine the detector we are in
-    std::string key = Phase2TkUtil::getITHistoId(detId.rawId(), tTopo_);
+    std::string key = phase2tkutil::getITHistoId(detId.rawId(), tTopo_);
     if (nrechitLayerMap_primary.find(key) == nrechitLayerMap_primary.end()) {
-      nrechitLayerMap_primary.insert(std::make_pair(key, DSViter->size()));
+      nrechitLayerMap_primary.emplace(key, DSViter.size());
     } else {
-      nrechitLayerMap_primary[key] += DSViter->size();
+      nrechitLayerMap_primary[key] += DSViter.size();
     }
-
-    edmNew::DetSet<SiPixelRecHit>::const_iterator rechitIt;
     //loop over rechits for a single detId
-    for (rechitIt = DSViter->begin(); rechitIt != DSViter->end(); ++rechitIt) {
+    for (const auto& rechit : DSViter) {
       //GetSimHits
-      const std::vector<SimHitIdpr>& matchedId = associateRecHit.associateHitId(*rechitIt);
+      const std::vector<SimHitIdpr>& matchedId = associateRecHit.associateHitId(rechit);
       const PSimHit* simhitClosest = nullptr;
       float minx = 10000;
-      LocalPoint lp = rechitIt->localPosition();
-      for (unsigned int si = 0; si < simHits.size(); ++si) {
-        for (edm::PSimHitContainer::const_iterator simhitIt = simHits.at(si)->begin();
-             simhitIt != simHits.at(si)->end();
-             ++simhitIt) {
-          if (detId.rawId() != simhitIt->detUnitId())
+      LocalPoint lp = rechit.localPosition();
+      for (const auto& simHitCol : simHits) {
+        for (const auto& simhitIt : *simHitCol) {
+          if (detId.rawId() != simhitIt.detUnitId())
             continue;
-          for (auto& mId : matchedId) {
-            if (simhitIt->trackId() == mId.first) {
-              if (!simhitClosest || fabs(simhitIt->localPosition().x() - lp.x()) < minx) {
-                minx = fabs(simhitIt->localPosition().x() - lp.x());
-                simhitClosest = &*simhitIt;
+          for (const auto& mId : matchedId) {
+            if (simhitIt.trackId() == mId.first) {
+              if (!simhitClosest || abs(simhitIt.localPosition().x() - lp.x()) < minx) {
+                minx = abs(simhitIt.localPosition().x() - lp.x());
+                simhitClosest = &simhitIt;
               }
             }
           }
@@ -135,9 +191,9 @@ void Phase2ITValidateRecHit::fillITHistos(const edm::Event& iEvent,
       bool isPrimary = false;
       //check if simhit is primary
       if (simTrackIt != selectedSimTrackMap.end())
-        isPrimary = Phase2TkUtil::isPrimary(simTrackIt->second, simhitClosest);
+        isPrimary = phase2tkutil::isPrimary(simTrackIt->second, simhitClosest);
       Local3DPoint simlp(simhitClosest->localPosition());
-      const LocalError& lperr = rechitIt->localPositionError();
+      const LocalError& lperr = rechit.localPositionError();
       double dx = lp.x() - simlp.x();
       double dy = lp.y() - simlp.y();
       double pullx = 999.;
@@ -166,7 +222,7 @@ void Phase2ITValidateRecHit::fillITHistos(const edm::Event& iEvent,
   }    //End loop over DetSetVector
 
   //fill nRecHit counter per layer
-  for (auto& lme : nrechitLayerMap_primary) {
+  for (const auto& lme : nrechitLayerMap_primary) {
     layerMEs_[lme.first].numberRecHitsprimary->Fill(nrechitLayerMap_primary[lme.first]);
   }
 }
@@ -200,7 +256,7 @@ void Phase2ITValidateRecHit::bookHistograms(DQMStore::IBooker& ibooker,
 //
 void Phase2ITValidateRecHit::bookLayerHistos(DQMStore::IBooker& ibooker, unsigned int det_id, std::string& subdir) {
   ibooker.cd();
-  std::string key = Phase2TkUtil::getITHistoId(det_id, tTopo_);
+  std::string key = phase2tkutil::getITHistoId(det_id, tTopo_);
   if (key.empty())
     return;
   if (layerMEs_.find(key) == layerMEs_.end()) {
@@ -212,58 +268,58 @@ void Phase2ITValidateRecHit::bookLayerHistos(DQMStore::IBooker& ibooker, unsigne
     histoName.str("");
     histoName << "Delta_X";
     local_histos.deltaX =
-        Phase2TkUtil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("DeltaX"), histoName.str(), ibooker);
+        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("DeltaX"), histoName.str(), ibooker);
     histoName.str("");
     histoName << "Delta_Y";
     local_histos.deltaY =
-        Phase2TkUtil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("DeltaX"), histoName.str(), ibooker);
+        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("DeltaX"), histoName.str(), ibooker);
     histoName.str("");
     histoName << "Pull_X";
     local_histos.pullX =
-        Phase2TkUtil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("PullX"), histoName.str(), ibooker);
+        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("PullX"), histoName.str(), ibooker);
     histoName.str("");
     histoName << "Pull_Y";
     local_histos.pullY =
-        Phase2TkUtil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("PullY"), histoName.str(), ibooker);
+        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("PullY"), histoName.str(), ibooker);
     histoName.str("");
     histoName << "Delta_X_vs_Eta";
-    local_histos.deltaX_eta = Phase2TkUtil::bookProfile1DFromPSet(
+    local_histos.deltaX_eta = phase2tkutil::bookProfile1DFromPSet(
         config_.getParameter<edm::ParameterSet>("DeltaX_eta"), histoName.str(), ibooker);
     histoName.str("");
     histoName << "Delta_Y_vs_Eta";
-    local_histos.deltaY_eta = Phase2TkUtil::bookProfile1DFromPSet(
+    local_histos.deltaY_eta = phase2tkutil::bookProfile1DFromPSet(
         config_.getParameter<edm::ParameterSet>("DeltaX_eta"), histoName.str(), ibooker);
     histoName.str("");
     histoName << "Pull_X_vs_Eta";
-    local_histos.pullX_eta = Phase2TkUtil::bookProfile1DFromPSet(
+    local_histos.pullX_eta = phase2tkutil::bookProfile1DFromPSet(
         config_.getParameter<edm::ParameterSet>("PullX_eta"), histoName.str(), ibooker);
     histoName.str("");
     histoName << "Pull_Y_vs_Eta";
-    local_histos.pullY_eta = Phase2TkUtil::bookProfile1DFromPSet(
+    local_histos.pullY_eta = phase2tkutil::bookProfile1DFromPSet(
         config_.getParameter<edm::ParameterSet>("PullY_eta"), histoName.str(), ibooker);
     ibooker.setCurrentFolder(subdir + "/" + key + "/PrimarySimHits");
     //all histos for Primary particles
     histoName.str("");
     histoName << "Number_RecHits_matched_PrimarySimTrack";
-    local_histos.numberRecHitsprimary = Phase2TkUtil::book1DFromPSet(
+    local_histos.numberRecHitsprimary = phase2tkutil::book1DFromPSet(
         config_.getParameter<edm::ParameterSet>("nRecHits_primary"), histoName.str(), ibooker);
     histoName.str("");
     histoName << "Delta_X_SimHitPrimary";
-    local_histos.deltaX_primary = Phase2TkUtil::book1DFromPSet(
+    local_histos.deltaX_primary = phase2tkutil::book1DFromPSet(
         config_.getParameter<edm::ParameterSet>("DeltaX_primary"), histoName.str(), ibooker);
     histoName.str("");
     histoName << "Delta_Y_SimHitPrimary";
-    local_histos.deltaY_primary = Phase2TkUtil::book1DFromPSet(
+    local_histos.deltaY_primary = phase2tkutil::book1DFromPSet(
         config_.getParameter<edm::ParameterSet>("DeltaY_primary"), histoName.str(), ibooker);
     histoName.str("");
     histoName << "Pull_X_SimHitPrimary";
-    local_histos.pullX_primary = Phase2TkUtil::book1DFromPSet(
+    local_histos.pullX_primary = phase2tkutil::book1DFromPSet(
         config_.getParameter<edm::ParameterSet>("PullX_primary"), histoName.str(), ibooker);
     histoName.str("");
     histoName << "Pull_Y_SimHitPrimary";
-    local_histos.pullY_primary = Phase2TkUtil::book1DFromPSet(
+    local_histos.pullY_primary = phase2tkutil::book1DFromPSet(
         config_.getParameter<edm::ParameterSet>("PullY_primary"), histoName.str(), ibooker);
-    layerMEs_.insert(std::make_pair(key, local_histos));
+    layerMEs_.emplace(key, local_histos);
   }
 }
 void Phase2ITValidateRecHit::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
