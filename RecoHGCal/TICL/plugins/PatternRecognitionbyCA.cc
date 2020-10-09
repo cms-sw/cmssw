@@ -140,14 +140,16 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
     }
     unsigned showerMinLayerId = 99999;
     for (auto const i : effective_cluster_idx) {
-      layer_cluster_usage[i]++;
       auto const& haf = input.layerClusters[i].hitsAndFractions();
       showerMinLayerId = std::min(rhtools_.getLayerWithOffset(haf[0].first),showerMinLayerId);
-      if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Basic)
-        LogDebug("HGCPatternRecoByCA") << "LayerID: " << i << " count: " << (int)layer_cluster_usage[i] << std::endl;
     }
 
     if(showerMinLayerId <= shower_start_max_layer_){
+      for (auto const i : effective_cluster_idx) {
+        layer_cluster_usage[i]++;
+        if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Basic)
+          LogDebug("HGCPatternRecoByCA") << "LayerID: " << i << " count: " << (int)layer_cluster_usage[i] << std::endl;
+      }
       // Put back indices, in the form of a Trackster, into the results vector
       Trackster tmp;
       tmp.vertices().reserve(effective_cluster_idx.size());
