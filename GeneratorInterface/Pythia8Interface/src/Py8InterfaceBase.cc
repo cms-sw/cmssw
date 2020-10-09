@@ -187,11 +187,11 @@ namespace gen {
 
       makeTmpSLHA(slhatable);
     } else if (currentParameters.exists("SLHATreeForPythia8")) {
-        auto f1 = currentParameters.getParameter<edm::FileInPath>("SLHATreeForPythia8");
-        TFile* file = TFile::Open(f1.fullPath().c_str());
-		if(!file) throw cms::Exception("MissingFile") << "Could not open file: " << f1.fullPath();
+        auto f1 = currentParameters.getParameter<std::string>("SLHATreeForPythia8");
+        TFile* file = TFile::Open(f1.c_str());
+		if(!file) throw cms::Exception("MissingFile") << "Could not open file: " << f1;
         TTree* tree = (TTree*)file->Get("mcmc");
-		if(!tree) throw cms::Exception("MissingTree") << "Could not get tree from file: " << f1.fullPath();
+		if(!tree) throw cms::Exception("MissingTree") << "Could not get tree from file: " << f1;
 
         //parse config description pMSSM_MCMC_#_# to get index: chain, iteration
         const auto& config_fields = splitline(currentParameters.getParameter<std::string>("ConfigDescription"),'_');
