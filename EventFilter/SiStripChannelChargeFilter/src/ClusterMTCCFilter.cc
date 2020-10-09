@@ -11,8 +11,6 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
@@ -35,6 +33,7 @@ namespace cms {
     ChargeThresholdTEC = ps.getParameter<int>("ChargeThresholdTEC");
     MinClustersDiffComponents = ps.getParameter<int>("MinClustersDiffComponents");
     clusterProducer = ps.getParameter<string>("ClusterProducer");
+    tTopoToken_ = esConsumes();
     //
     produces<int>();
     produces<unsigned int>();
@@ -42,10 +41,7 @@ namespace cms {
   }
 
   bool ClusterMTCCFilter::filter(edm::Event& e, edm::EventSetup const& c) {
-    //Retrieve tracker topology from geometry
-    edm::ESHandle<TrackerTopology> tTopoHandle;
-    c.get<IdealGeometryRecord>().get(tTopoHandle);
-    const TrackerTopology* const tTopo = tTopoHandle.product();
+    const auto& tTopo = c.getData(tTopoToken_);
 
     //get SiStripCluster
     edm::Handle<edm::DetSetVector<SiStripCluster>> h;
@@ -81,16 +77,16 @@ namespace cms {
             // calculate generalized_layer:  31 = TIB1, 32 = TIB2, 33 = TIB3, 50 = TOB, 60 = TEC
             if (thedetId.subdetId() == StripSubdetector::TIB) {
               generalized_layer =
-                  10 * thedetId.subdetId() + tTopo->tibLayer(thedetId.rawId()) + tTopo->tibStereo(thedetId.rawId());
-              if (tTopo->tibLayer(thedetId.rawId()) == 2) {
+                  10 * thedetId.subdetId() + tTopo.tibLayer(thedetId.rawId()) + tTopo.tibStereo(thedetId.rawId());
+              if (tTopo.tibLayer(thedetId.rawId()) == 2) {
                 generalized_layer++;
-                if (tTopo->tibGlued(thedetId.rawId()))
+                if (tTopo.tibGlued(thedetId.rawId()))
                   edm::LogError("ClusterMTCCFilter") << "WRONGGGG" << endl;
               }
             } else {
               generalized_layer = 10 * thedetId.subdetId();
               if (thedetId.subdetId() == StripSubdetector::TOB) {
-                generalized_layer += tTopo->tobLayer(thedetId.rawId());
+                generalized_layer += tTopo.tobLayer(thedetId.rawId());
               }
             }
             // fill clusters_in_subcomponents
