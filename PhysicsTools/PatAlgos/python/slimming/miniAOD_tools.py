@@ -138,7 +138,7 @@ def miniAOD_customizeCommon(process):
         
         from PhysicsTools.PatAlgos.slimming.applySubstructure_cff import applySubstructure
         applySubstructure( process )
-    (~_hiGeneral).toModify(process, _applySubstructure)
+    #(~_hiGeneral).toModify(process, _applySubstructure)
 
     _hiGeneral.toModify(process, func = lambda p: addToProcessAndTask('slimmedJets', p.selectedPatJets.clone(), p, task))
     _hiGeneral.toModify(process, func = lambda p: addToProcessAndTask('slimmedJetsAK8', _dummyPatJets.clone(), p, task))
