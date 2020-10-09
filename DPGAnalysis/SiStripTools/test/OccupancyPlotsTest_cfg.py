@@ -139,7 +139,7 @@ if options.triggerPath=="*":
 
 #--------------------------------------
 process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
-process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 
 process.seqRECO = cms.Sequence()

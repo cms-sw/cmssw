@@ -66,7 +66,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag, '')
 #-------------------------------------------------------------------------
 
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
-process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 
