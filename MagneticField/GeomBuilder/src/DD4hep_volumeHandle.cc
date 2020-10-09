@@ -90,7 +90,7 @@ volumeHandle::volumeHandle(const cms::DDFilteredView &fv, bool expand2Pi, bool d
       buildTubs(zhalf, rIn, rOut, startPhi, deltaPhi);
     } break;
     case DDSolidShape::ddpseudotrap: {
-      vector<double> d = solid.volume().volume().solid().dimensions();
+      vector<double> d = solid.parameters();
       buildPseudoTrap(d[0], d[1], d[2], d[3], d[4], d[5], d[6]);
     } break;
     case DDSolidShape::ddtrunctubs: {
