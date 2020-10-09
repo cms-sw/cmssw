@@ -1,6 +1,5 @@
 #include "CalibTracker/SiStripDCS/plugins/FilterTrackerOn.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include <iostream>
