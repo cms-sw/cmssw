@@ -34,7 +34,6 @@
 <use name="clhep"/>
 <use name="roottmva"/>
 <use name="lwtnn"/>
-<use name="DataFormats/TrackTfGraph"/>
 <library file="*.cc" name="RecoTrackerFinalTrackSelectorsPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>

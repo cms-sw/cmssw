@@ -4,13 +4,12 @@
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 
 class TfGraphDefWrapper {
-    public:
-        TfGraphDefWrapper(tensorflow::GraphDef*);
-        tensorflow::GraphDef* GetGraphDef() const;
+public:
+  TfGraphDefWrapper(tensorflow::GraphDef*);
+  tensorflow::GraphDef* GetGraphDef() const;
 
-    private:
-        tensorflow::GraphDef* graphDef_;
+private:
+  tensorflow::GraphDef* graphDef_;
 };
-
 
 #endif
