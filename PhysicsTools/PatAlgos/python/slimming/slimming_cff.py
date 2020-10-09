@@ -73,10 +73,11 @@ from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
 from PhysicsTools.PatAlgos.packedCandidateMuonID_cfi import packedCandidateMuonID
 from PhysicsTools.PatAlgos.packedPFCandidateTrackChi2_cfi import packedPFCandidateTrackChi2
 from RecoHI.HiCentralityAlgos.CentralityBin_cfi import centralityBin
+from RecoHI.HiCentralityAlgos.hiHFfilters_cfi import hiHFfilters
 lostTrackChi2 = packedPFCandidateTrackChi2.clone(candidates = "lostTracks", doLostTracks = True)
 (pp_on_AA_2018 | pp_on_PbPb_run3).toReplaceWith(
     slimmingTask, 
-    cms.Task(slimmingTask.copy(), packedCandidateMuonID, packedPFCandidateTrackChi2, lostTrackChi2, centralityBin))
+    cms.Task(slimmingTask.copy(), packedCandidateMuonID, packedPFCandidateTrackChi2, lostTrackChi2, centralityBin, hiHFfilters))
 
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 _phase2_timing_slimmingTask = cms.Task(slimmingTask.copy(),
