@@ -74,6 +74,10 @@ def main(opts):
             tracksterCollection = i_iter.replace("ticlMultiClustersFromTracksters","ticlTracksters")
             hgcalPlots.append_hgcalMultiClustersPlots(i_iter, tracksterCollection)
         val.doPlots(hgcmulticlus, plotterDrawArgs=drawArgs)
+        # TICLDebugger plots
+        tracksterCollection = opts.collection.replace("ticlMultiClustersFromTracksters","ticlTracksters")
+        hgctracksters = [hgcalPlots.create_hgcalTrackstersPlotter(sample.files(), tracksterCollection)]
+        val.doPlots(hgctracksters, plotterDrawArgs=drawArgs)
     elif (opts.collection == caloParticlesLabel):
         particletypes = {"pion-":"-211", "pion+":"211", "pion0": "111",
                          "muon-": "-13", "muon+":"13", 
