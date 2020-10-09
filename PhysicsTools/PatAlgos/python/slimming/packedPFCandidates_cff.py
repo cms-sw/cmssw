@@ -13,7 +13,6 @@ packedPFCandidatesTask = cms.Task(
 
 from RecoHI.HiJetAlgos.HiBadParticleCleaner_cfi import cleanedParticleFlow
 
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 packedPFCandidatesRemoved = packedPFCandidates.clone(
     inputCollection = "cleanedParticleFlow:removed",
     vertexAssociator = "primaryVertexAssociationCleaned:original"
