@@ -8,7 +8,7 @@
 class SLHAReaderpMSSM : public SLHAReaderBase {
 public:
   SLHAReaderpMSSM(const edm::ParameterSet& conf) : SLHAReaderBase(conf) {}
-  virtual ~SLHAReaderpMSSM() {}
+  ~SLHAReaderpMSSM() override {}
 
   std::string getSLHA(const std::string& configDesc) override;
 };
@@ -27,4 +27,3 @@ std::string SLHAReaderpMSSM::getSLHA(const std::string& configDesc) {
 
   return std::string(*slhabranch);
 }
-
