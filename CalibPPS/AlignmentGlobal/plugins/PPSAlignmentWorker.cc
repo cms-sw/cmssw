@@ -230,9 +230,9 @@ unsigned int PPSAlignmentWorker::SectorData::process(const CTPPSLocalTrackLiteCo
 
     // store corrected track into the right collection
     if (rpDecId == scfg.rp_N_.id_)
-      tracksUp.push_back(std::move(trCorr));
+      tracksUp.push_back(trCorr);
     if (rpDecId == scfg.rp_F_.id_)
-      tracksDw.push_back(std::move(trCorr));
+      tracksDw.push_back(trCorr);
   }
 
   // update plots before selection
