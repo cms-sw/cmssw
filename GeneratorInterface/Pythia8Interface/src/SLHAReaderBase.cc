@@ -18,9 +18,7 @@ SLHAReaderBase::SLHAReaderBase(const edm::ParameterSet& conf) {
     throw cms::Exception("MissingTree") << "Could not get tree " << treename << " from file " << filename;
 }
 
-SLHAReaderBase::~SLHAReaderBase() {
-  file_->Close();
-}
+SLHAReaderBase::~SLHAReaderBase() { file_->Close(); }
 
 std::vector<std::string> SLHAReaderBase::splitline(const std::string& line, char delim) {
   std::stringstream ss(line);

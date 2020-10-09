@@ -171,7 +171,8 @@ namespace gen {
       makeTmpSLHA(slhatable);
     } else if (currentParameters.exists("SLHATreeForPythia8")) {
       auto slhaReaderParams = currentParameters.getParameter<edm::ParameterSet>("SLHATreeForPythia8");
-      std::unique_ptr<SLHAReaderBase> reader = SLHAReaderFactory::get()->create(slhaReaderParams.getParameter<std::string>("name"), slhaReaderParams);
+      std::unique_ptr<SLHAReaderBase> reader =
+          SLHAReaderFactory::get()->create(slhaReaderParams.getParameter<std::string>("name"), slhaReaderParams);
 
       makeTmpSLHA(reader->getSLHA(currentParameters.getParameter<std::string>("ConfigDescription")));
     }
