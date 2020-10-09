@@ -21,7 +21,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "TrackingTools/Records/interface/TfGraphRecord.h"
-#include "DataFormats/TrackTfGraph/interface/TfGraphDefWrapper.h"
+#include "RecoTracker/FinalTrackSelectors/interface/TfGraphDefWrapper.h"
 
 // class declaration
 
@@ -36,14 +36,14 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-    TfGraphDefWrapper wrapper_;
+  TfGraphDefWrapper wrapper_;
 
   // ----------member data ---------------------------
 };
 
-TfGraphDefProducer::TfGraphDefProducer(const edm::ParameterSet& iConfig):
-wrapper_(TfGraphDefWrapper(tensorflow::loadGraphDef(iConfig.getParameter<edm::FileInPath>("FileName").fullPath())))
-{
+TfGraphDefProducer::TfGraphDefProducer(const edm::ParameterSet& iConfig)
+    : wrapper_(
+          TfGraphDefWrapper(tensorflow::loadGraphDef(iConfig.getParameter<edm::FileInPath>("FileName").fullPath()))) {
   auto componentName = iConfig.getParameter<std::string>("ComponentName");
   setWhatProduced(this, componentName);
 }
