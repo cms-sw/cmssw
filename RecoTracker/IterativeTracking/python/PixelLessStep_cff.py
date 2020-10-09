@@ -114,14 +114,14 @@ vectorHits.toModify(pixelLessStepSeedLayers,
     TOB = cms.PSet(
          TTRHBuilder    = cms.string('WithTrackAngle'), 
          clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone')),
-         vectorRecHits = cms.InputTag("siPhase2VectorHits", 'vectorHitsAccepted'),
+         vectorRecHits = cms.InputTag("siPhase2VectorHits", 'accepted'),
          skipClusters   = cms.InputTag('pixelLessStepClusters')
     ),
     TIB = None,
     TID = cms.PSet(
          TTRHBuilder    = cms.string('WithTrackAngle'), 
          clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone')),
-         vectorRecHits = cms.InputTag("siPhase2VectorHits", 'vectorHitsAccepted'),
+         vectorRecHits = cms.InputTag("siPhase2VectorHits", 'accepted'),
          skipClusters   = cms.InputTag('pixelLessStepClusters'),
          useRingSlector = cms.bool(True),
          minRing = cms.int32(1),

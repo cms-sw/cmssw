@@ -58,12 +58,13 @@ public:
   void loadDetSetVector(std::unordered_map<DetId, std::vector<VectorHit>>& theMap,
                         edmNew::DetSetVector<VectorHit>& theCollection) const;
 
-  const TrackerGeometry* theTkGeom;
-  const TrackerTopology* theTkTopo;
-  const ClusterParameterEstimator<Phase2TrackerCluster1D>* theCpe;
-  unsigned int nMaxVHforeachStack;
-  std::vector<double> barrelCut;
-  std::vector<double> endcapCut;
+  const TrackerGeometry* tkGeom_;
+  const TrackerTopology* tkTopo_;
+  const ClusterParameterEstimator<Phase2TrackerCluster1D>* cpe_;
+  unsigned int nMaxVHforeachStack_;
+  std::vector<double> barrelCut_;
+  std::vector<double> endcapCut_;
+
 
 private:
   edm::ESInputTag cpeTag_;

@@ -25,8 +25,8 @@ fastSim.toModify(MeasurementTrackerEvent,
 )
 from Configuration.ProcessModifiers.vectorHits_cff import vectorHits
 vectorHits.toModify(MeasurementTrackerEvent,
-    vectorHits = cms.InputTag("siPhase2VectorHits", "vectorHitsAccepted"),
-    vectorHitsRej = cms.InputTag("siPhase2VectorHits", "vectorHitsRejected"),
+    vectorHits = cms.InputTag("siPhase2VectorHits", "accepted"),
+    vectorHitsRej = cms.InputTag("siPhase2VectorHits", "rejected"),
 )
 
 MeasurementTrackerEventPreSplitting = MeasurementTrackerEvent.clone(

@@ -10,13 +10,13 @@
 #include "DataFormats/TrackerRecHit2D/interface/VectorHit.h"
 #include "RecoLocalTracker/Records/interface/TkPhase2OTCPERecord.h"
 
-#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
-#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 class VectorHitBuilderEDProducer : public edm::stream::EDProducer<> {
 public:
   explicit VectorHitBuilderEDProducer(const edm::ParameterSet&);
-  ~VectorHitBuilderEDProducer() override;
+  ~VectorHitBuilderEDProducer() override = default;
   void produce(edm::Event&, const edm::EventSetup&) override;
   void run(edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D>> clusters,
            edmNew::DetSetVector<Phase2TrackerCluster1D>& clustersAcc,
@@ -24,7 +24,7 @@ public:
            VectorHitCollection& outputAcc,
            VectorHitCollection& outputRej);
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  const VectorHitBuilderAlgorithm* algo() const { return stubsBuilder_; };
+  const VectorHitBuilderAlgorithm* algo() const { return stubsBuilder_; }
 
 private:
   const VectorHitBuilderAlgorithm* stubsBuilder_;
@@ -34,8 +34,6 @@ private:
   edm::EDGetTokenT<edmNew::DetSetVector<Phase2TrackerCluster1D>> clusterProducer_;
 };
 
-VectorHitBuilderEDProducer::~VectorHitBuilderEDProducer() {}
-
 VectorHitBuilderEDProducer::VectorHitBuilderEDProducer(edm::ParameterSet const& conf)
     : offlinestubsTag_(conf.getParameter<std::string>("offlinestubs")),
       maxOfflinestubs_(conf.getParameter<int>("maxVectorHits")),
@@ -43,24 +41,20 @@ VectorHitBuilderEDProducer::VectorHitBuilderEDProducer(edm::ParameterSet const& 
   clusterProducer_ =
       consumes<edmNew::DetSetVector<Phase2TrackerCluster1D>>(edm::InputTag(conf.getParameter<std::string>("Clusters")));
 
-  produces<edmNew::DetSetVector<Phase2TrackerCluster1D>>("ClustersAccepted");
-  produces<edmNew::DetSetVector<Phase2TrackerCluster1D>>("ClustersRejected");
-  produces<VectorHitCollection>(offlinestubsTag_ + "Accepted");
-  produces<VectorHitCollection>(offlinestubsTag_ + "Rejected");
+  produces<edmNew::DetSetVector<Phase2TrackerCluster1D>>("accepted");
+  produces<edmNew::DetSetVector<Phase2TrackerCluster1D>>("rejected");
+  produces<VectorHitCollection>("accepted");
+  produces<VectorHitCollection>("rejected");
 }
 
 void VectorHitBuilderEDProducer::produce(edm::Event& event, const edm::EventSetup& es) {
   LogDebug("VectorHitBuilderEDProducer") << "VectorHitBuilderEDProducer::produce() begin";
 
   // get input clusters data
-  edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D>> clustersHandle;
-  event.getByToken(clusterProducer_, clustersHandle);
-
+  auto clustersHandle = event.getHandle(clusterProducer_);
   // create the final output collection
-  std::unique_ptr<edmNew::DetSetVector<Phase2TrackerCluster1D>> outputClustersAccepted(
-      new edmNew::DetSetVector<Phase2TrackerCluster1D>);
-  std::unique_ptr<edmNew::DetSetVector<Phase2TrackerCluster1D>> outputClustersRejected(
-      new edmNew::DetSetVector<Phase2TrackerCluster1D>);
+  auto outputClustersAccepted = std::make_unique<edmNew::DetSetVector<Phase2TrackerCluster1D> >();
+  auto outputClustersRejected = std::make_unique<edmNew::DetSetVector<Phase2TrackerCluster1D> >();
   std::unique_ptr<VectorHitCollection> outputVHAccepted(new VectorHitCollection());
   std::unique_ptr<VectorHitCollection> outputVHRejected(new VectorHitCollection());
 
@@ -71,21 +65,22 @@ void VectorHitBuilderEDProducer::produce(edm::Event& event, const edm::EventSetu
   // running the stub building algorithm
   //ERICA::output should be moved in the different algo classes?
   run(clustersHandle, *outputClustersAccepted, *outputClustersRejected, *outputVHAccepted, *outputVHRejected);
-
+#ifdef EDM_ML_DEBUG
   unsigned int numberOfVectorHits = 0;
-  for (const auto& DSViter : *outputVHAccepted) {
-    for (const auto& vh : DSViter) {
+  for (const auto& dSViter : *outputVHAccepted) {
+    for (const auto& vh : dSViter) {
       numberOfVectorHits++;
-      LogDebug("VectorHitBuilderEDProducer") << "\t vectorhit in output " << vh << std::endl;
+      LogDebug("VectorHitBuilderEDProducer") << "\t vectorhit in output " << vh;
     }
   }
-  // write output to file
-  event.put(std::move(outputClustersAccepted), "ClustersAccepted");
-  event.put(std::move(outputClustersRejected), "ClustersRejected");
-  event.put(std::move(outputVHAccepted), offlinestubsTag_ + "Accepted");
-  event.put(std::move(outputVHRejected), offlinestubsTag_ + "Rejected");
-
   LogDebug("VectorHitBuilderEDProducer") << "found\n" << numberOfVectorHits << " .\n";
+#endif //EDM_ML_DEBUG
+  // write output to file
+  event.put(std::move(outputClustersAccepted), "accepted");
+  event.put(std::move(outputClustersRejected), "rejected");
+  event.put(std::move(outputVHAccepted), "accepted");
+  event.put(std::move(outputVHRejected), "rejected");
+
 }
 
 void VectorHitBuilderEDProducer::run(edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D>> clusters,
