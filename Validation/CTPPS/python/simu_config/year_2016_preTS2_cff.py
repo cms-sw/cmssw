@@ -38,11 +38,13 @@ ctppsDirectProtonSimulation.useEmpiricalApertures = True
 ctppsDirectProtonSimulation.empiricalAperture45="3.76296E-05+(([xi]<0.117122)*0.00712775+([xi]>=0.117122)*0.0148651)*([xi]-0.117122)"
 ctppsDirectProtonSimulation.empiricalAperture56="1.85954E-05+(([xi]<0.14324)*0.00475349+([xi]>=0.14324)*0.00629514)*([xi]-0.14324)"
 
+# xangle/beta* options
+def UseDefaultXangleBetaStar(process):
+  UseCrossingAngle(185, process)
+
+def UseDefaultXangleBetaStarDistribution(process):
+  UseXangleBetaStarHistogram(process, default_xangle_beta_star_file, "2016_preTS2/h2_betaStar_vs_xangle")
 
 # defaults
 def SetDefaults(process):
-  UseCrossingAngle(185, process)
-
-# xangle distribution
-def UseCrossingAngleDistribution(process, f):
-  UseCrossingAngleHistgoram(process, f, "h_xangle_2016_preTS2")
+  UseDefaultXangleBetaStarDistribution(process)
