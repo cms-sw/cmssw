@@ -239,7 +239,9 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
   //add general tracks
   for (unsigned int igt = 0; igt < generalTracks->size(); igt++) {
     const reco::Track& gentk = (*gt_h)[igt];
-    if(useHighPurity_) if (!(gentk.quality(reco::TrackBase::qualityByName("highPurity")))) continue;
+    if (useHighPurity_)
+      if (!(gentk.quality(reco::TrackBase::qualityByName("highPurity"))))
+        continue;
     reco::TrackRef tkref = reco::TrackRef(gt_h, igt);
     pat::PackedCandidateRef pcref = (*gt2pc)[tkref];
     pat::PackedCandidateRef ltref = (*gt2lt)[tkref];
