@@ -1,4 +1,5 @@
 #include "Geometry/EcalCommonData/interface/EcalBaseNumber.h"
+#include <algorithm>
 
 EcalBaseNumber::EcalBaseNumber() : _theLevels(0) {}
 
@@ -36,3 +37,8 @@ std::string const& EcalBaseNumber::getLevelName(int level) const { return _sorte
 int EcalBaseNumber::getCapacity() { return _sortedName.capacity(); }
 
 void EcalBaseNumber::reset() { _theLevels = 0; }
+
+void EcalBaseNumber::reverse() {
+  std::reverse(std::begin(_sortedName), std::end(_sortedName));
+  std::reverse(std::begin(_sortedCopyNumber), std::end(_sortedCopyNumber));
+}

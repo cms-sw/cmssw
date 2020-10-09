@@ -2,6 +2,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
 #include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <iostream>
 
@@ -9,6 +10,8 @@ typedef CaloCellGeometry::CCGFloat CCGFloat;
 typedef CaloCellGeometry::Pt3D Pt3D;
 typedef CaloCellGeometry::Pt3DVec Pt3DVec;
 typedef HepGeom::Plane3D<CCGFloat> Pl3D;
+
+//#define EDM_ML_DEBUG
 
 EcalPreshowerGeometry::EcalPreshowerGeometry()
     : m_xWidWaf(6.3),
@@ -21,6 +24,9 @@ EcalPreshowerGeometry::EcalPreshowerGeometry()
   m_zplane[1] = 0.;
   m_zplane[2] = 0.;
   m_zplane[3] = 0.;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("EcalGeom") << "EcalPreshowerGeometry::Creating an instance";
+#endif
 }
 
 EcalPreshowerGeometry::~EcalPreshowerGeometry() {}
@@ -80,6 +86,9 @@ void EcalPreshowerGeometry::initializeParms() {
   CCGFloat z1plus(0);
   CCGFloat z2plus(0);
   const std::vector<DetId>& esDetIds(getValidDetIds());
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("EcalGeom") << "EcalPreshowerGeometry:: Get " << esDetIds.size() << " valid DetIds";
+#endif
 
   for (unsigned int i(0); i != esDetIds.size(); ++i) {
     const ESDetId esid(esDetIds[i]);
@@ -193,6 +202,9 @@ void EcalPreshowerGeometry::newCell(const GlobalPoint& f1,
   const unsigned int cellIndex(ESDetId(detId).denseIndex());
   m_cellVec[cellIndex] = PreshowerStrip(f1, cornersMgr(), parm);
   addValidID(detId);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("EcalGeom") << "EcalPreshowerGeometry::Add a new DetId " << ESDetId(detId);
+#endif
 }
 
 const CaloCellGeometry* EcalPreshowerGeometry::getGeometryRawPtr(uint32_t index) const {

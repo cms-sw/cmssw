@@ -19,6 +19,10 @@ process.load('HLTrigger.Configuration.HLT_GRun_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.categories.append('EcalGeom')
+#   process.MessageLogger.categories.append('CaloGeometryBuilder')
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10),
     output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
