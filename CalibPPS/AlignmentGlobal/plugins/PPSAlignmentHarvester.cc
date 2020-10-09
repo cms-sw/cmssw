@@ -56,7 +56,7 @@ private:
   void dqmEndRun(DQMStore::IBooker &iBooker,
                  DQMStore::IGetter &iGetter,
                  edm::Run const &iRun,
-                 edm::EventSetup const &iSetup);
+                 edm::EventSetup const &iSetup) override;
 
   // ------------ x alignment ------------
   static int fitProfile(TProfile *p,
@@ -186,9 +186,9 @@ TGraphErrors *PPSAlignmentHarvester::buildGraphFromMonitorElements(DQMStore::IGe
     {
       // retrieve parent directory
       std::string parentPath = me->getPathname();
-      size_t parentPos = parentPath.substr(0, parentPath.size() - 1).find_last_of("/") + 1;
+      size_t parentPos = parentPath.substr(0, parentPath.size() - 1).find_last_of('/') + 1;
       std::string parentName = parentPath.substr(parentPos);
-      size_t d = parentName.find("-");
+      size_t d = parentName.find('-');
       const double xMin = std::stod(parentName.substr(0, d));
       const double xMax = std::stod(parentName.substr(d + 1));
 
@@ -849,8 +849,8 @@ void PPSAlignmentHarvester::dqmEndRun(DQMStore::IBooker &iBooker,
     resultsFile_.open(cfg->resultsDir(), std::ios::out | std::ios::trunc);
 
   // setting default sh_x values from config
-  for (const auto sd : {cfg->sectorConfig45(), cfg->sectorConfig56()}) {
-    for (const auto rpd : {sd.rp_N_, sd.rp_F_}) {
+  for (const auto &sd : {cfg->sectorConfig45(), cfg->sectorConfig56()}) {
+    for (const auto &rpd : {sd.rp_N_, sd.rp_F_}) {
       edm::LogInfo("PPS") << "[harvester] " << std::fixed << std::setprecision(3) << "Setting sh_x of " << rpd.name_
                           << " to " << rpd.sh_x_;
       sh_x_map[rpd.id_] = rpd.sh_x_;

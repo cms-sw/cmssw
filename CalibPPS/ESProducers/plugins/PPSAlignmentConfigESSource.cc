@@ -646,7 +646,7 @@ std::vector<PointErrors> PPSAlignmentConfigESSource::buildVectorFromDirectory(TD
     TKey *k = (TKey *)o;
 
     std::string name = k->GetName();
-    size_t d = name.find("-");
+    size_t d = name.find('-');
     const double x_min = std::stod(name.substr(0, d));
     const double x_max = std::stod(name.substr(d + 1));
 
