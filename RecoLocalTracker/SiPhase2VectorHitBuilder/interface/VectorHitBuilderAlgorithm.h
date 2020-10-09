@@ -21,11 +21,11 @@ public:
                             const TrackerTopology* tkTopoProd,
                             const ClusterParameterEstimator<Phase2TrackerCluster1D>* cpeProd)
       : VectorHitBuilderAlgorithmBase(conf, tkGeomProd, tkTopoProd, cpeProd){};
-  ~VectorHitBuilderAlgorithm() override{};
+  ~VectorHitBuilderAlgorithm() override = default;
 
   void run(edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D>> clusters,
-           VectorHitCollectionNew& vhAcc,
-           VectorHitCollectionNew& vhRej,
+           VectorHitCollection& vhAcc,
+           VectorHitCollection& vhRej,
            edmNew::DetSetVector<Phase2TrackerCluster1D>& clustersAcc,
            edmNew::DetSetVector<Phase2TrackerCluster1D>& clustersRej) const override;
 
@@ -37,11 +37,11 @@ public:
                                   Local3DPoint& posouter,
                                   LocalError& errinner,
                                   LocalError& errouter) const;
-
-  std::pair<std::pair<float, float>, float> curvatureANDphi(Global3DPoint gPositionLower,
-                                                            Global3DPoint gPositionUpper,
-                                                            GlobalError gErrorLower,
-                                                            GlobalError gErrorUpper) const;
+  struct CurvatureAndPhi { float curvature; float curvatureError; float phi; };
+  CurvatureAndPhi curvatureANDphi(Global3DPoint gPositionLower,
+                                                Global3DPoint gPositionUpper,
+                                                GlobalError gErrorLower,
+                                                GlobalError gErrorUpper) const;
 
   std::vector<std::pair<VectorHit, bool>> buildVectorHits(
       const StackGeomDet* stack,
@@ -79,7 +79,6 @@ public:
            AlgebraicSymMatrix22& covMatrix,
            double& chi2) const;
 
-private:
 };
 
 #endif

@@ -110,8 +110,8 @@ private:
                              unsigned int channel) const;
 
   edm::EDGetTokenT<edmNew::DetSetVector<Phase2TrackerCluster1D> > srcClu_;
-  edm::EDGetTokenT<VectorHitCollectionNew> VHacc_;
-  edm::EDGetTokenT<VectorHitCollectionNew> VHrej_;
+  edm::EDGetTokenT<VectorHitCollection> VHacc_;
+  edm::EDGetTokenT<VectorHitCollection> VHrej_;
   edm::ESInputTag cpeTag_;
   const ClusterParameterEstimator<Phase2TrackerCluster1D>* cpe_;
 

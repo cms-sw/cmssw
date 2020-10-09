@@ -239,7 +239,7 @@ HitExtractor::Hits HitExtractorSTRP::hits(const TkTransientTrackingRecHitBuilder
     if (hasVectorHits) {
       LogError("HitExtractorSTRP") << "TIB is not supposed to be in Phase2 TRK detector configuration. What follows "
                                       "have never been checked before! ";
-      edm::Handle<VectorHitCollectionNew> vectorHits;
+      edm::Handle<VectorHitCollection> vectorHits;
       ev.getByToken(theVectorHits, vectorHits);
       if (skipClusters)
         cleanFrom = result.size();
@@ -314,7 +314,7 @@ HitExtractor::Hits HitExtractorSTRP::hits(const TkTransientTrackingRecHitBuilder
     }
     if (hasVectorHits) {
       LogTrace("HitExtractorSTRP") << "Getting vector hits for IdLayer " << theIdLayer;
-      edm::Handle<VectorHitCollectionNew> vectorHits;
+      edm::Handle<VectorHitCollection> vectorHits;
       ev.getByToken(theVectorHits, vectorHits);
       //FIXME: check the skipClusters with VHits
       if (skipClusters)
@@ -390,7 +390,7 @@ HitExtractor::Hits HitExtractorSTRP::hits(const TkTransientTrackingRecHitBuilder
     }
     if (hasVectorHits) {
       LogTrace("HitExtractorSTRP") << "Getting vector hits for IdLayer " << theIdLayer;
-      edm::Handle<VectorHitCollectionNew> vectorHits;
+      edm::Handle<VectorHitCollection> vectorHits;
       ev.getByToken(theVectorHits, vectorHits);
       //FIXME: check the skipClusters with VHits
       if (skipClusters)
@@ -467,7 +467,7 @@ HitExtractor::Hits HitExtractorSTRP::hits(const TkTransientTrackingRecHitBuilder
     if (hasVectorHits) {
       LogError("HitExtractorSTRP") << "TEC is not supposed to be in Phase2 TRK detector configuration. What follows "
                                       "have never been checked before! ";
-      edm::Handle<VectorHitCollectionNew> vectorHits;
+      edm::Handle<VectorHitCollection> vectorHits;
       ev.getByToken(theVectorHits, vectorHits);
       if (skipClusters)
         cleanFrom = result.size();
