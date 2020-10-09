@@ -38,7 +38,6 @@
 #include "DataFormats/GeometrySurface/interface/BoundSurface.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerDebugNavigator.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -184,9 +183,7 @@ void ModuleNumbering::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   // get the GeometricDet
   //
   edm::ESHandle<GeometricDet> rDD;
-  edm::ESHandle<std::vector<GeometricDetExtra> > rDDE;
   iSetup.get<IdealGeometryRecord>().get(rDD);
-  iSetup.get<IdealGeometryRecord>().get(rDDE);
   edm::LogInfo("ModuleNumbering") << " Top node is  " << rDD.product() << " " << rDD.product()->name() << std::endl;
   edm::LogInfo("ModuleNumbering") << "    radLength " << rDD.product()->radLength() << "\n"
                                   << "           xi " << rDD.product()->xi() << "\n"
@@ -204,14 +201,11 @@ void ModuleNumbering::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   edm::LogInfo("ModuleNumbering") << " And Contains  Daughters: " << rDD.product()->deepComponents().size()
                                   << std::endl;
-
   // output file
   const std::string& outputFileName =
       (!rDD.product()->isFromDD4hep() ? "ModuleNumbering.log" : "ModuleNumbering_dd4hep.log");
   std::ofstream Output(outputFileName, std::ios::out);
 
-  CmsTrackerDebugNavigator nav(*rDDE.product());
-  nav.dump(*rDD.product(), *rDDE.product());
   //
   //first instance tracking geometry
   edm::ESHandle<TrackerGeometry> pDD;

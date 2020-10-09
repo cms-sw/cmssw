@@ -10,9 +10,9 @@ process.load('Geometry.CommonTopologies.globalTrackingGeometry_cfi')
 process.load('Geometry.TrackerGeometryBuilder.trackerParameters_cfi')
 process.load('Geometry.TrackerNumberingBuilder.trackerTopology_cfi')
 
-process.TrackerGeometricDetExtraESModule = cms.ESProducer( "TrackerGeometricDetExtraESModule",
-                                                           fromDDD = cms.bool( True )
-                                                           )
+process.TrackerGeometricDetESModule = cms.ESProducer( "TrackerGeometricDetESModule",
+                                                      fromDDD = cms.bool( True )
+                                                     )
 
 process.load("Alignment.CommonAlignmentProducer.FakeAlignmentSource_cfi")
 process.preferFakeAlign = cms.ESPrefer("FakeAlignmentSource") 
@@ -36,7 +36,6 @@ process.MessageLogger.cout = cms.untracked.PSet(
             TrackerNumberingBuilder = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
             TrackerGeometryBuilder = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
             ModuleInfo = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
-            CmsTrackerDebugNavigator =cms.untracked.PSet( limit = cms.untracked.int32(-1) )
             )
 
 process.prod = cms.EDAnalyzer("ModuleInfo",
