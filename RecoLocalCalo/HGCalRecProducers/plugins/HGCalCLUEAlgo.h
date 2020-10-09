@@ -41,18 +41,18 @@ public:
         dEdXweights_(ps.getParameter<std::vector<double>>("dEdXweights")),
         thicknessCorrection_(ps.getParameter<std::vector<double>>("thicknessCorrection")),
         sciThicknessCorrection_(ps.getParameter<double>("sciThicknessCorrection")),
-	deltasi_index_regemfac_(ps.getParameter<int>("deltasi_index_regemfac")),
+        deltasi_index_regemfac_(ps.getParameter<int>("deltasi_index_regemfac")),
         fcPerMip_(ps.getParameter<std::vector<double>>("fcPerMip")),
         fcPerEle_(ps.getParameter<double>("fcPerEle")),
         nonAgedNoises_(ps.getParameter<edm::ParameterSet>("noises").getParameter<std::vector<double>>("values")),
         noiseMip_(ps.getParameter<edm::ParameterSet>("noiseMip").getParameter<double>("noise_MIP")),
         use2x2_(ps.getParameter<bool>("use2x2")),
         initialized_(false) {
-          // repeat same noises for CE-H as well
-          if (!isNose_) {  
-            nonAgedNoises_.insert(std::end(nonAgedNoises_), std::begin(nonAgedNoises_), std::end(nonAgedNoises_));
-          }
-        }
+    // repeat same noises for CE-H as well
+    if (!isNose_) {
+      nonAgedNoises_.insert(std::end(nonAgedNoises_), std::begin(nonAgedNoises_), std::end(nonAgedNoises_));
+    }
+  }
 
   ~HGCalCLUEAlgoT() override {}
 
