@@ -63,8 +63,8 @@ MeasurementTrackerEventProducer::MeasurementTrackerEventProducer(const edm::Para
   }
   if (!(iConfig.getParameter<edm::InputTag>("vectorHits") == edm::InputTag("") ||
         iConfig.getParameter<edm::InputTag>("vectorHitsRej") == edm::InputTag(""))) {
-    thePh2OTVectorHitsLabel = consumes<VectorHitCollectionNew>(iConfig.getParameter<edm::InputTag>("vectorHits"));
-    thePh2OTVectorHitsRejLabel = consumes<VectorHitCollectionNew>(iConfig.getParameter<edm::InputTag>("vectorHitsRej"));
+    thePh2OTVectorHitsLabel = consumes<VectorHitCollection>(iConfig.getParameter<edm::InputTag>("vectorHits"));
+    thePh2OTVectorHitsRejLabel = consumes<VectorHitCollection>(iConfig.getParameter<edm::InputTag>("vectorHitsRej"));
     isPhase2_ = true;
     useVectorHits_ = true;
   }
@@ -125,8 +125,8 @@ void MeasurementTrackerEventProducer::produce(edm::Event& iEvent, const edm::Eve
   // put into event
   //
 
-  const VectorHitCollectionNew* phase2OTVectorHits = useVectorHits_ ? &iEvent.get(thePh2OTVectorHitsLabel) : nullptr;
-  const VectorHitCollectionNew* phase2OTVectorHitsRej =
+  const VectorHitCollection* phase2OTVectorHits = useVectorHits_ ? &iEvent.get(thePh2OTVectorHitsLabel) : nullptr;
+  const VectorHitCollection* phase2OTVectorHitsRej =
       useVectorHits_ ? &iEvent.get(thePh2OTVectorHitsRejLabel) : nullptr;
   iEvent.put(std::make_unique<MeasurementTrackerEvent>(*measurementTracker,
                                                        stripData.release(),

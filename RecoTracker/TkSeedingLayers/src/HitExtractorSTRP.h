@@ -48,7 +48,7 @@ namespace ctfseeding {
 
     void useVectorHits(const edm::InputTag& m, edm::ConsumesCollector& iC) {
       hasVectorHits = true;
-      theVectorHits = iC.consumes<VectorHitCollectionNew>(m);
+      theVectorHits = iC.consumes<VectorHitCollection>(m);
     }
     void useRingSelector(int minRing, int maxRing);
     void useSimpleRphiHitsCleaner(bool use) { hasSimpleRphiHitsCleaner = use; }
@@ -92,7 +92,7 @@ namespace ctfseeding {
     edm::EDGetTokenT<SiStripMatchedRecHit2DCollection> theMatchedHits;
     edm::EDGetTokenT<SiStripRecHit2DCollection> theRPhiHits;
     edm::EDGetTokenT<SiStripRecHit2DCollection> theStereoHits;
-    edm::EDGetTokenT<VectorHitCollectionNew> theVectorHits;
+    edm::EDGetTokenT<VectorHitCollection> theVectorHits;
     bool hasMatchedHits;
     bool hasRPhiHits;
     bool hasStereoHits;

@@ -42,12 +42,12 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
-  TrajectorySeedCollection run(edm::Handle<VectorHitCollectionNew>);
+  TrajectorySeedCollection run(edm::Handle<VectorHitCollection>);
   unsigned int checkLayer(unsigned int iidd);
   std::vector<VectorHit> collectVHsOnLayer(const edmNew::DetSetVector<VectorHit>&, unsigned int);
   void printVHsOnLayer(const edmNew::DetSetVector<VectorHit>&, unsigned int);
   const TrajectoryStateOnSurface buildInitialTSOS(const VectorHit&) const;
-  AlgebraicSymMatrix assign44To55(AlgebraicSymMatrix) const;
+  AlgebraicSymMatrix55 assign44To55(AlgebraicSymMatrix44) const;
   std::pair<bool, TrajectoryStateOnSurface> propagateAndUpdate(const TrajectoryStateOnSurface initialTSOS,
                                                                const Propagator&,
                                                                const TrackingRecHit& hit) const;
@@ -70,7 +70,7 @@ public:
   };
 
 private:
-  edm::EDGetTokenT<VectorHitCollectionNew> vhProducerToken_;
+  edm::EDGetTokenT<VectorHitCollection> vhProducerToken_;
   const TrackerTopology* tkTopo_;
   const MeasurementTracker* measurementTracker_;
   std::unique_ptr<LayerMeasurements> layerMeasurements_;
@@ -100,7 +100,7 @@ SeedingOTEDProducer::SeedingOTEDProducer(edm::ParameterSet const& conf)
       updatorToken_(esConsumes(edm::ESInputTag("", "KFUpdator"))),
       measurementTrackerToken_(esConsumes()),
       estToken_(esConsumes(edm::ESInputTag("", "Chi2"))) {
-  vhProducerToken_ = consumes<VectorHitCollectionNew>(edm::InputTag(conf.getParameter<edm::InputTag>("src")));
+  vhProducerToken_ = consumes<VectorHitCollection>(edm::InputTag(conf.getParameter<edm::InputTag>("src")));
   beamSpotToken_ = consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("beamSpotLabel"));
   updatorName_ = conf.getParameter<std::string>("updator");
   putToken_ = produces<TrajectorySeedCollection>();
@@ -143,13 +143,13 @@ void SeedingOTEDProducer::produce(edm::Event& event, const edm::EventSetup& es) 
   }
 
   // Get the vector hits
-  edm::Handle<VectorHitCollectionNew> vhs;
+  edm::Handle<VectorHitCollection> vhs;
   event.getByToken(vhProducerToken_, vhs);
 
   event.emplace(putToken_, run(vhs));
 }
 
-TrajectorySeedCollection SeedingOTEDProducer::run(edm::Handle<VectorHitCollectionNew> VHs) {
+TrajectorySeedCollection SeedingOTEDProducer::run(edm::Handle<VectorHitCollection> VHs) {
   TrajectorySeedCollection result;
   //check if all the first three layers have VHs
   std::vector<VectorHit> vhSeedsL1 = collectVHsOnLayer(*VHs.product(), 1);
@@ -313,24 +313,24 @@ const TrajectoryStateOnSurface SeedingOTEDProducer::buildInitialTSOS(const Vecto
   float signPz = copysign(1.0, vHit.globalPosition().z());
 
   LocalTrajectoryParameters ltpar2(charge / p, dx, dy, x, y, signPz);
-  AlgebraicSymMatrix mat = assign44To55(vHit.parametersError());
+  AlgebraicSymMatrix55 mat = assign44To55(vHit.covMatrix());
   // set the error on 1/p
   mat[0][0] = pow(computeInverseMomentumError(
                       vHit, theta, beamSpot_->sigmaZ(), vHit.transverseMomentum(magField_->inTesla(center).z())),
                   2);
 
   //building tsos
-  LocalTrajectoryError lterr(asSMatrix<5>(mat));
+  LocalTrajectoryError lterr(mat);
   const TrajectoryStateOnSurface tsos(ltpar2, lterr, vHit.det()->surface(), magField_);
 
   return tsos;
 }
 
-AlgebraicSymMatrix SeedingOTEDProducer::assign44To55(AlgebraicSymMatrix mat44) const {
-  if (mat44.num_row() != 4 || mat44.num_col() != 4)
-    assert("Wrong dimension! This should be a 4x4 matrix!");
+AlgebraicSymMatrix55 SeedingOTEDProducer::assign44To55(AlgebraicSymMatrix44 mat44) const {
+//  if (mat44.num_row() != 4 || mat44.num_col() != 4)
+//    assert("Wrong dimension! This should be a 4x4 matrix!");
 
-  AlgebraicSymMatrix result(5, 0);
+  AlgebraicSymMatrix55 result;
   for (int i = 1; i < 5; i++) {
     for (int j = 1; j < 5; j++) {
       result[i][j] = mat44[i - 1][j - 1];

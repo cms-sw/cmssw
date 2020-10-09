@@ -21,8 +21,8 @@ public:
   void run(edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D>> clusters,
            edmNew::DetSetVector<Phase2TrackerCluster1D>& clustersAcc,
            edmNew::DetSetVector<Phase2TrackerCluster1D>& clustersRej,
-           VectorHitCollectionNew& outputAcc,
-           VectorHitCollectionNew& outputRej);
+           VectorHitCollection& outputAcc,
+           VectorHitCollection& outputRej);
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   const VectorHitBuilderAlgorithm* algo() const { return stubsBuilder_; };
 
@@ -45,8 +45,8 @@ VectorHitBuilderEDProducer::VectorHitBuilderEDProducer(edm::ParameterSet const& 
 
   produces<edmNew::DetSetVector<Phase2TrackerCluster1D>>("ClustersAccepted");
   produces<edmNew::DetSetVector<Phase2TrackerCluster1D>>("ClustersRejected");
-  produces<VectorHitCollectionNew>(offlinestubsTag_ + "Accepted");
-  produces<VectorHitCollectionNew>(offlinestubsTag_ + "Rejected");
+  produces<VectorHitCollection>(offlinestubsTag_ + "Accepted");
+  produces<VectorHitCollection>(offlinestubsTag_ + "Rejected");
 }
 
 void VectorHitBuilderEDProducer::produce(edm::Event& event, const edm::EventSetup& es) {
@@ -61,8 +61,8 @@ void VectorHitBuilderEDProducer::produce(edm::Event& event, const edm::EventSetu
       new edmNew::DetSetVector<Phase2TrackerCluster1D>);
   std::unique_ptr<edmNew::DetSetVector<Phase2TrackerCluster1D>> outputClustersRejected(
       new edmNew::DetSetVector<Phase2TrackerCluster1D>);
-  std::unique_ptr<VectorHitCollectionNew> outputVHAccepted(new VectorHitCollectionNew());
-  std::unique_ptr<VectorHitCollectionNew> outputVHRejected(new VectorHitCollectionNew());
+  std::unique_ptr<VectorHitCollection> outputVHAccepted(new VectorHitCollection());
+  std::unique_ptr<VectorHitCollection> outputVHRejected(new VectorHitCollection());
 
   stubsBuilder_ = &es.getData(stubsBuilderToken_);
   // check on the input clusters
@@ -91,8 +91,8 @@ void VectorHitBuilderEDProducer::produce(edm::Event& event, const edm::EventSetu
 void VectorHitBuilderEDProducer::run(edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D>> clusters,
                                      edmNew::DetSetVector<Phase2TrackerCluster1D>& clustersAcc,
                                      edmNew::DetSetVector<Phase2TrackerCluster1D>& clustersRej,
-                                     VectorHitCollectionNew& outputAcc,
-                                     VectorHitCollectionNew& outputRej) {
+                                     VectorHitCollection& outputAcc,
+                                     VectorHitCollection& outputRej) {
   stubsBuilder_->run(clusters, outputAcc, outputRej, clustersAcc, clustersRej);
 }
 void VectorHitBuilderEDProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

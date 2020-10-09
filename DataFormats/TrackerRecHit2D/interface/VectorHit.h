@@ -29,14 +29,14 @@ class VectorHit final : public BaseTrackerRecHit {
 public:
   typedef OmniClusterRef::Phase2Cluster1DRef ClusterRef;
 
-  VectorHit() : thePosition(), theDirection(), theCovMatrix(), theDimension(0) { setType(bad); }
+  VectorHit() : thePosition(), theDirection(), theCovMatrix() { setType(bad); }
 
-  VectorHit(const VectorHit& vh);
+  //VectorHit(const VectorHit& vh);
 
   VectorHit(const GeomDet& idet,
             const LocalPoint& posInner,
             const LocalVector& dir,
-            const std::array<std::array<float, 4>, 4> covMatrix,
+            const AlgebraicSymMatrix44 covMatrix,
             const float chi2,
             OmniClusterRef const& lower,
             OmniClusterRef const& upper,
@@ -53,36 +53,34 @@ public:
             const float curvatureError,
             const float phi);
 
-  ~VectorHit() override;
+  ~VectorHit() override = default;
 
   VectorHit* clone() const override { return new VectorHit(*this); }
   RecHitPointer cloneSH() const override { return std::make_shared<VectorHit>(*this); }
 
   bool sharesInput(const TrackingRecHit* other, SharedInputType what) const override;
-  bool sharesClusters(VectorHit const& h1, VectorHit const& h2, SharedInputType what) const;
+  bool sharesClusters(VectorHit const& other, SharedInputType what) const;
 
   // Parameters of the segment, for the track fit
   // For a 4D segment: (dx/dz,dy/dz,x,y)
   bool hasPositionAndError() const override {
-    //if det is present pose&err are available as well.
-    //if det() is not present (null) the hit ihas been read from file and not updated
+    //if det is present pos&err are available as well.
+    //if det() is not present (null) the hit has been read from file and not updated
     return det();
   };
 
-  AlgebraicVector parameters() const override;
   void getKfComponents(KfComponentsHolder& holder) const override { getKfComponents4D(holder); }
   void getKfComponents4D(KfComponentsHolder& holder) const;
 
   // returning methods
   LocalPoint localPosition() const override { return thePosition; }
   virtual LocalVector localDirection() const { return theDirection; }
-  const std::array<std::array<float, 4>, 4> parametersErrorPlain() const;
-  AlgebraicSymMatrix parametersError() const override;
+  AlgebraicSymMatrix44 covMatrix() const;
   LocalError localPositionError() const override;
-  virtual LocalError localDirectionError() const;
-  Global3DVector globalDirection() const;
+  LocalError localDirectionError() const;
+  Global3DVector globalDirectionVH() const;
 
-  virtual float chi2() const { return theChi2; }
+  float chi2() const { return theChi2; }
   int dimension() const override { return theDimension; }
   float curvature() const { return theCurvature; }
   float curvatureError() const { return theCurvatureError; }
@@ -111,21 +109,13 @@ public:
   OmniClusterRef const& firstClusterRef() const override { return theLowerCluster; }
   ClusterRef cluster() const { return theLowerCluster.cluster_phase2OT(); }
 
-  //This method returns the delta in global coordinates
-  Global3DVector globalDelta() const;
+  //This method returns the direction of the segment/stub in global coordinates
+  Global3DVector globalDirection() const;
   float theta() const;
-
-  /// The projection matrix relates the trajectory state parameters to the segment parameters().
-  AlgebraicMatrix projectionMatrix() const override;
 
   // Access to component RecHits (if any)
   std::vector<const TrackingRecHit*> recHits() const override;
   std::vector<TrackingRecHit*> recHits() override;
-
-  // setting methods
-  void setPosition(LocalPoint pos) { thePosition = pos; }
-  void setDirection(LocalVector dir) { theDirection = dir; }
-  void setCovMatrix(std::array<std::array<float, 4>, 4> mat) { theCovMatrix = mat; }
 
 private:
   // double dispatch
@@ -146,16 +136,15 @@ private:
   // mat[3][3]=var(y)
   // mat[0][2]=cov(dx/dz,x)
   // mat[1][3]=cov(dy/dz,y)
-  std::array<std::array<float, 4>, 4> theCovMatrix;
+  AlgebraicSymMatrix44 theCovMatrix;
   float theChi2;
-  int theDimension;
+  static constexpr int theDimension = 4;
   OmniClusterRef theLowerCluster;
   OmniClusterRef theUpperCluster;
   float theCurvature;
   float theCurvatureError;
   float thePhi;
 
-  static constexpr int nComponents = 4;
 };
 
 inline bool operator<(const VectorHit& one, const VectorHit& other) { return (one.chi2() < other.chi2()); }
@@ -163,6 +152,6 @@ inline bool operator<(const VectorHit& one, const VectorHit& other) { return (on
 std::ostream& operator<<(std::ostream& os, const VectorHit& vh);
 
 typedef edmNew::DetSetVector<VectorHit> VectorHitCollection;
-typedef VectorHitCollection VectorHitCollectionNew;
+//typedef VectorHitCollection VectorHitCollectionNew;
 
 #endif

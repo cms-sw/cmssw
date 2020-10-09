@@ -12,8 +12,8 @@ VectorHitsBuilderValidation::VectorHitsBuilderValidation(const edm::ParameterSet
     : cpeTag_(conf.getParameter<edm::ESInputTag>("CPE")) {
   srcClu_ =
       consumes<edmNew::DetSetVector<Phase2TrackerCluster1D> >(edm::InputTag(conf.getParameter<std::string>("src")));
-  VHacc_ = consumes<VectorHitCollectionNew>(edm::InputTag(conf.getParameter<edm::InputTag>("VH_acc")));
-  VHrej_ = consumes<VectorHitCollectionNew>(edm::InputTag(conf.getParameter<edm::InputTag>("VH_rej")));
+  VHacc_ = consumes<VectorHitCollection>(edm::InputTag(conf.getParameter<edm::InputTag>("VH_acc")));
+  VHrej_ = consumes<VectorHitCollection>(edm::InputTag(conf.getParameter<edm::InputTag>("VH_rej")));
   siphase2OTSimLinksToken_ = consumes<edm::DetSetVector<PixelDigiSimLink> >(conf.getParameter<edm::InputTag>("links"));
   simHitsToken_ = consumes<edm::PSimHitContainer>(edm::InputTag("g4SimHits", "TrackerHitsPixelBarrelLowTof"));
   simTracksToken_ = consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits"));
@@ -96,10 +96,10 @@ void VectorHitsBuilderValidation::analyze(const edm::Event& event, const edm::Ev
   event.getByToken(srcClu_, clusters);
 
   // Get the vector hits
-  edm::Handle<VectorHitCollectionNew> vhsAcc;
+  edm::Handle<VectorHitCollection> vhsAcc;
   event.getByToken(VHacc_, vhsAcc);
 
-  edm::Handle<VectorHitCollectionNew> vhsRej;
+  edm::Handle<VectorHitCollection> vhsRej;
   event.getByToken(VHrej_, vhsRej);
 
   // load the cpe via the eventsetup
@@ -354,7 +354,7 @@ void VectorHitsBuilderValidation::analyze(const edm::Event& event, const edm::Ev
         LogTrace("VectorHitsBuilderValidation") << "local VH direction " << localDirVH << std::endl;
 
         VectorHit vh = vhIt;
-        Global3DVector globalDirVH = vh.globalDelta();
+        Global3DVector globalDirVH = vh.globalDirectionVH();
         dirVHs.push_back(globalDirVH);
         LogTrace("VectorHitsBuilderValidation") << "global VH direction " << globalDirVH << std::endl;
 

@@ -31,8 +31,8 @@ public:
 
   //FIXME::ERICA::this should be template, return different collection for different algo used!!
   virtual void run(edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D>> clusters,
-                   VectorHitCollectionNew& vhAcc,
-                   VectorHitCollectionNew& vhRej,
+                   VectorHitCollection& vhAcc,
+                   VectorHitCollection& vhRej,
                    edmNew::DetSetVector<Phase2TrackerCluster1D>& clustersAcc,
                    edmNew::DetSetVector<Phase2TrackerCluster1D>& clustersRej) const = 0;
 

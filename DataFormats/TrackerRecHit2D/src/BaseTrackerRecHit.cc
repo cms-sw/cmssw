@@ -27,8 +27,8 @@ void BaseTrackerRecHit::check() const {
 #endif
 
 bool BaseTrackerRecHit::hasPositionAndError() const {
-  //if det is present pose&err are available as well.
-  //    //if det() is not present (null) the hit ihas been read from file and not updated
+  //if det is present pos&err are available as well.
+  //    //if det() is not present (null) the hit has been read from file and not updated
   return det();
 }
 
