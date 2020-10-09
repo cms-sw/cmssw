@@ -3,7 +3,7 @@ std::string phase2tkutil::getITHistoId(uint32_t det_id, const TrackerTopology* t
   std::string Disc;
   std::ostringstream fname1;
   int layer = tTopo->getITPixelLayerNumber(det_id);
-  
+
   if (layer < 0)
     return "";
   if (layer < 100) {
@@ -26,7 +26,7 @@ std::string phase2tkutil::getOTHistoId(uint32_t det_id, const TrackerTopology* t
   std::string Disc;
   std::ostringstream fname1;
   int layer = tTopo->getOTLayerNumber(det_id);
-  
+
   if (layer < 0)
     return "";
   if (layer < 100) {
@@ -44,4 +44,3 @@ std::string phase2tkutil::getOTHistoId(uint32_t det_id, const TrackerTopology* t
   }
   return fname1.str();
 }
-

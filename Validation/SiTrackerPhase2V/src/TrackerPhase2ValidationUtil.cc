@@ -8,5 +8,3 @@ bool phase2tkutil::isPrimary(const SimTrack& simTrk, const PSimHit* simHit) {
   int ptype = simHit->processType();
   return ((vtxIndex == 0) && (ptype == 0));
 }
-
-
