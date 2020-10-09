@@ -1,4 +1,3 @@
-<use name="sigcpp"/>
 <use name="boost_chrono"/>
 <use name="DataFormats/Provenance"/>
 <use name="FWCore/Framework"/>
