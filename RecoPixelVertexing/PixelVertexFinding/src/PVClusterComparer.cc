@@ -77,11 +77,11 @@ double PVClusterComparer::pTSquaredSum(const reco::Vertex &v) {
 
 void PVClusterComparer::setChisquareQuantile() {
   maxChi2_.clear();
-  maxChi2_.resize(20,0.0);
+  maxChi2_.resize(20, 0.0);
   if (track_prob_min_ >= 0. && track_prob_min_ <= 1.)
     for (size_t ndof = 0; ndof < 20; ++ndof)
       // http://root.cern.ch/root/html/TMath.html#TMath:ChisquareQuantile
-      maxChi2_[ndof]=TMath::ChisquareQuantile(1 - track_prob_min_, ndof);
+      maxChi2_[ndof] = TMath::ChisquareQuantile(1 - track_prob_min_, ndof);
 }
 
 void PVClusterComparer::updateChisquareQuantile(size_t ndof) {
