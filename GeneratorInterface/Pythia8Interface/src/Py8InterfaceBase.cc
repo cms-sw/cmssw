@@ -1,13 +1,8 @@
 #include <memory>
 #include <string>
-#include <sstream>
-#include <vector>
-
-#include "TFile.h"
-#include "TTree.h"
-#include "TString.h"
 
 #include "GeneratorInterface/Pythia8Interface/interface/Py8InterfaceBase.h"
+#include "GeneratorInterface/Pythia8Interface/interface/SLHAReaderBase.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -20,18 +15,6 @@
 //#include "Pythia8Plugins/EvtGen.h"
 
 using namespace Pythia8;
-
-namespace {
-  std::vector<std::string> splitline(const std::string& line, char delim) {
-    std::stringstream ss(line);
-    std::string field;
-    std::vector<std::string> fields;
-    while (getline(ss, field, delim)) {
-      fields.push_back(field);
-    }
-    return fields;
-  }
-}  // namespace
 
 namespace gen {
 
@@ -187,30 +170,10 @@ namespace gen {
 
       makeTmpSLHA(slhatable);
     } else if (currentParameters.exists("SLHATreeForPythia8")) {
-      auto f1 = currentParameters.getParameter<std::string>("SLHATreeForPythia8");
-      TFile* file = TFile::Open(f1.c_str());
-      if (!file)
-        throw cms::Exception("MissingFile") << "Could not open file: " << f1;
-      TTree* tree = (TTree*)file->Get("mcmc");
-      if (!tree)
-        throw cms::Exception("MissingTree") << "Could not get tree from file: " << f1;
+      auto slhaReaderParams = currentParameters.getParameter<edm::ParameterSet>("SLHATreeForPythia8");
+      std::unique_ptr<SLHAReaderBase> reader = SLHAReaderFactory::get()->create(slhaReaderParams.getParameter<std::string>("name"), slhaReaderParams);
 
-      //parse config description pMSSM_MCMC_#_# to get index: chain, iteration
-      const auto& config_fields = splitline(currentParameters.getParameter<std::string>("ConfigDescription"), '_');
-      int chain = std::stoi(config_fields.at(2));
-      int iteration = std::stoi(config_fields.at(3));
-
-      //get slha string branch
-      auto slhabranch = std::make_unique<TString>();
-      auto slhabranch_ptr = slhabranch.get();
-      tree->SetBranchAddress("slhacontent", &slhabranch_ptr);
-      tree->GetEntryWithIndex(chain, iteration);
-
-      //make tmp file
-      makeTmpSLHA(std::string(*slhabranch));
-
-      //finish
-      file->Close();
+      makeTmpSLHA(reader->getSLHA(currentParameters.getParameter<std::string>("ConfigDescription")));
     }
 
     return true;

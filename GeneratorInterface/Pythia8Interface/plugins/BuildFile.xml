@@ -19,3 +19,8 @@
   <use name="GeneratorInterface/ExternalDecays"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<library file="SLHA*.cc" name="GeneratorInterfacePythia8SLHAReader">
+  <use name="GeneratorInterface/Pythia8Interface"/>
+  <use name="root"/>
+</library>
