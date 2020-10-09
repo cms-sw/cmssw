@@ -1,6 +1,5 @@
 <use name="FWCore/Framework"/>
 <use name="boost"/>
-<use name="sigcpp"/>
 <export>
   <lib name="1"/>
 </export>
