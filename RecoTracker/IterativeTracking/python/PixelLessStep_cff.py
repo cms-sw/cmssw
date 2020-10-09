@@ -114,17 +114,13 @@ vectorHits.toModify(pixelLessStepSeedLayers,
     TOB = cms.PSet(
          TTRHBuilder    = cms.string('WithTrackAngle'), 
          clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone')),
-         vectorRecHits = cms.InputTag("siPhase2VectorHits", 'accepted'),
+         vectorRecHits = cms.InputTag("siPhase2VectorHits", 'vectorHitsAccepted'),
          skipClusters   = cms.InputTag('pixelLessStepClusters')
     ),
     TIB = None,
-    TID = cms.PSet(
-         TTRHBuilder    = cms.string('WithTrackAngle'), 
-         clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone')),
+    TID = dict(
+         clusterChargeCut = dict(refToPSet_ = cms.string('SiStripClusterChargeCutNone')),
          vectorRecHits = cms.InputTag("siPhase2VectorHits", 'accepted'),
-         skipClusters   = cms.InputTag('pixelLessStepClusters'),
-         useRingSlector = cms.bool(True),
-         minRing = cms.int32(1),
          maxRing = cms.int32(8)
     ),
     TEC = None,
@@ -224,12 +220,9 @@ fastSim.toReplaceWith(pixelLessStepSeeds,_fastSim_pixelLessStepSeeds)
 vectorHits.toModify(pixelLessStepHitDoublets, produceSeedingHitSets=True, produceIntermediateHitDoublets=False)
 vectorHits.toModify(pixelLessStepSeeds, 
     seedingHitSets = "pixelLessStepHitDoublets",
-    SeedComparitorPSet = cms.PSet(
-        ClusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCache"),
+    SeedComparitorPSet = dict(
         ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter'),
-        ComponentName = cms.string('PixelClusterShapeSeedComparitor'),
         FilterAtHelixStage = cms.bool(False),
-        FilterPixelHits = cms.bool(False),
         FilterStripHits = cms.bool(False),
     )
 )
@@ -264,7 +257,7 @@ trackingLowPU.toModify(pixelLessStepChi2Est,
 
 vectorHits.toModify(pixelLessStepChi2Est,
     clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutNone'),
-    MaxChi2 = cms.double(30.0)
+    MaxChi2 = 30.0
 )
 
 # TRACK BUILDING

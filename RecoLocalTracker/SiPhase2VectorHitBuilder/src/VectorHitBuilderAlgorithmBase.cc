@@ -100,6 +100,7 @@ void VectorHitBuilderAlgorithmBase::loadDetSetVector(std::unordered_map<DetId, s
                                                      edmNew::DetSetVector<VectorHit>& theCollection) const {
   for (const auto& it : theMap) {
     edmNew::DetSetVector<VectorHit>::FastFiller vh_col(theCollection, it.first);
+    //vh_col.reserve(it.second.size());
     for (const auto& vh_it : it.second)
       vh_col.push_back(vh_it);
   }

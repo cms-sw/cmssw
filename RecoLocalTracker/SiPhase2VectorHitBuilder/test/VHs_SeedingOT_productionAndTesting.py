@@ -70,11 +70,8 @@ process.RECOSIMoutput = cms.OutputModule("PoolOutputModule",
 )
 
 # Analyzer
-process.analysis = cms.EDAnalyzer('VectorHitsBuilderValidation',
-    src = cms.string("siPhase2Clusters"),
-    VH_acc = cms.InputTag("siPhase2VectorHits", "vectorHitsAccepted"),
-    links = cms.InputTag("simSiPixelDigis", "Tracker")
-)
+process.load('RecoLocalTracker.SiPhase2VectorHitBuilder.vectorHitsBuilderValidation_cfi')
+
 process.TFileService = cms.Service('TFileService',
     fileName = cms.string('file:vh_validation_tilted.root')
 )
@@ -111,7 +108,7 @@ process.raw2digi_step = cms.Path(process.RawToDigi)
 process.L1Reco_step = cms.Path(process.L1Reco)
 process.trackerlocalreco_step  = cms.Path(process.trackerlocalreco+process.siPixelClusters+process.siPhase2VectorHits)
 process.seedingOT_step  = cms.Path(process.MeasurementTrackerEvent+process.offlineBeamSpot+process.phase2SeedingOTEDProducer)
-process.analysis_step = cms.Path(process.analysis)
+process.analysis_step = cms.Path(process.vectorHitsBuilderValidation)
 process.RECOSIMoutput_step = cms.EndPath(process.RECOSIMoutput)
 
 # Schedule definition
