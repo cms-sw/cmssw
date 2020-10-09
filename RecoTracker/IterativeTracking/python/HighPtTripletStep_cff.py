@@ -318,53 +318,8 @@ highPtTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_c
     ] #end of vpset
 ) #end of clone
 
-highPtTripletStepSelector_vectorHits = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
-    src = 'highPtTripletStepTracks',
-    trackSelectors = [
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
-            name = 'highPtTripletStepLoose',
-            chi2n_par = 2.0,
-            res_par = ( 0.003, 0.002 ),
-            minNumberLayers = 3,
-            maxNumberLostLayers = 3,
-            minNumber3DLayers = 3,
-            d0_par1 = ( 0.7, 4.0 ),
-            dz_par1 = ( 0.8, 4.0 ),
-            d0_par2 = ( 0.6, 4.0 ),
-            dz_par2 = ( 0.6, 4.0 )
-            ), #end of pset
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
-            name = 'highPtTripletStepTight',
-            preFilterName = 'highPtTripletStepLoose',
-            chi2n_par = 1.0,
-            res_par = ( 0.003, 0.002 ),
-            minNumberLayers = 3,
-            maxNumberLostLayers = 2,
-            minNumber3DLayers = 3,
-            d0_par1 = ( 0.6, 4.0 ),
-            dz_par1 = ( 0.7, 4.0 ),
-            d0_par2 = ( 0.5, 4.0 ),
-            dz_par2 = ( 0.6, 4.0 )
-            ),
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
-            name = 'highPtTripletStep',
-            preFilterName = 'highPtTripletStepTight',
-            min_eta = -4.1,
-            max_eta = 4.1,
-            chi2n_par = 0.8,
-            res_par = ( 0.003, 0.001 ),
-            min_nhits = 4,
-            minNumberLayers = 3,
-            maxNumberLostLayers = 2,
-            minNumber3DLayers = 3,
-            d0_par1 = ( 0.5, 4.0 ),
-            dz_par1 = ( 0.6, 4.0 ),
-            d0_par2 = ( 0.45, 4.0 ),
-            dz_par2 = ( 0.55, 4.0 )
-            ),
-    ] #end of vpset
-) #en
-
+from Configuration.ProcessModifiers.vectorHits_cff import vectorHits
+vectorHits.toModify(highPtTripletStepSelector.trackSelectors[2], minNumberLayers = 3, minNumber3DLayers = 3, d0_par1 = ( 0.5, 4.0 ), dz_par1 = ( 0.6, 4.0 ))
 
 # Final sequence
 HighPtTripletStepTask = cms.Task(highPtTripletStepClusters,
@@ -382,8 +337,6 @@ _HighPtTripletStepTask_Phase2PU140.replace(highPtTripletStep, highPtTripletStepS
 _HighPtTripletStep_Phase2PU140 = cms.Sequence(_HighPtTripletStepTask_Phase2PU140)
 trackingPhase2PU140.toReplaceWith(HighPtTripletStepTask, _HighPtTripletStepTask_Phase2PU140)
 
-from Configuration.ProcessModifiers.vectorHits_cff import vectorHits
-vectorHits.toReplaceWith(highPtTripletStepSelector, highPtTripletStepSelector_vectorHits)
 # fast tracking mask producer 
 from FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi import maskProducerFromClusterRemover
 highPtTripletStepMasks = maskProducerFromClusterRemover(highPtTripletStepClusters)

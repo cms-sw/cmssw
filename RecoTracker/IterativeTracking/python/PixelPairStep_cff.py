@@ -420,51 +420,7 @@ trackingPhase2PU140.toModify(pixelPairStepSelector,
 ) #end of clone
 
 from Configuration.ProcessModifiers.vectorHits_cff import vectorHits
-vectorHits.toModify(pixelPairStepSelector,
-    trackSelectors = cms.VPSet(
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
-            name = 'pixelPairStepLoose',
-            chi2n_par = 0.7,
-            res_par = ( 0.003, 0.002 ),
-            minNumberLayers = 3,
-            maxNumberLostLayers = 2,
-            minNumber3DLayers = 3,
-            d0_par1 = ( 0.4, 4.0 ),
-            dz_par1 = ( 0.4, 4.0 ),
-            d0_par2 = ( 0.6, 4.0 ),
-            dz_par2 = ( 0.45, 4.0 )
-            ), #end of pset
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
-            name = 'pixelPairStepTight',
-            preFilterName = 'pixelPairStepLoose',
-            chi2n_par = 0.6,
-            res_par = ( 0.003, 0.002 ),
-            minNumberLayers = 4,
-            maxNumberLostLayers = 2,
-            minNumber3DLayers = 3,
-            d0_par1 = ( 0.35, 4.0 ),
-            dz_par1 = ( 0.35, 4.0 ),
-            d0_par2 = ( 0.5, 4.0 ),
-            dz_par2 = ( 0.4, 4.0 )
-            ),
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
-            name = 'pixelPairStep',
-            preFilterName = 'pixelPairStepTight',
-#            min_eta = -4.0, # useless, the eta distribution does not even reach |eta| = 3 (!)
-#            max_eta = 4.0,
-            chi2n_par = 0.5,
-            res_par = ( 0.003, 0.001 ),
-            minNumberLayers = 4,
-            maxNumberLostLayers = 2,
-            minNumber3DLayers = 3,
-            d0_par1 = ( 0.3, 4.0 ),
-            dz_par1 = ( 0.3, 4.0 ),
-            d0_par2 = ( 0.45, 4.0 ),
-            dz_par2 = ( 0.35, 4.0 )
-            ),
-        ), #end of vpset
-    vertices = 'firstStepPrimaryVertices'
-) #end of clone
+vectorHits.toModify(pixelPairStepSelector.trackSelectors[2], minNumberLayers = 3, minNumber3DLayers = 3)
 
 # Final sequence
 PixelPairStepTask = cms.Task(pixelPairStepClusters,

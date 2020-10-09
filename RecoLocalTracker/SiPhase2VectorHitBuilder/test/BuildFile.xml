@@ -22,7 +22,7 @@
 <use   name="DataFormats/ParticleFlowCandidate"/>
 <use   name="DataFormats/ParticleFlowReco"/>
 <use   name="RecoLocalTracker/SiPhase2VectorHitBuilder"/>
-<library   file="VectorHitsValidation.cc" name="VectorHitsBuilderValidation">
+<library   file="VectorHitsBuilderValidation.cc" name="VectorHitsBuilderValidation">
   <flags   EDM_PLUGIN="1"/>
 </library>
 <library   file="ClustersValidationTGraph.cc" name="ClustersValidationTGraph">

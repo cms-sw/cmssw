@@ -35,17 +35,14 @@ void VectorHitBuilderAlgorithm::run(edm::Handle<edmNew::DetSetVector<Phase2Track
 
     const GeomDet* gd;
     const StackGeomDet* stackDet;
-    //const auto& it_detLower = clustersPhase2Collection->find(lowerDetId);
     const auto& it_detLower = dSViter;
     const auto& it_detUpper = clustersPhase2Collection->find(upperDetId);
 
-    //if (it_detLower != clustersPhase2Collection->end() && it_detUpper != clustersPhase2Collection->end()) {
     if (it_detUpper != clustersPhase2Collection->end()) {
       gd = tkGeom_->idToDet(detIdStack);
       stackDet = dynamic_cast<const StackGeomDet*>(gd);
       std::vector<VectorHit> vhsInStack_Acc;
       std::vector<VectorHit> vhsInStack_Rej;
-      //const auto& vhsInStack_AccRej = buildVectorHits(stackDet, clusters, *it_detLower, *it_detUpper);
       const auto& vhsInStack_AccRej = buildVectorHits(stackDet, clusters, it_detLower, *it_detUpper);
 
       //storing accepted and rejected VHs
@@ -83,7 +80,6 @@ void VectorHitBuilderAlgorithm::run(edm::Handle<edmNew::DetSetVector<Phase2Track
   loadDetSetVector(tempVHRej, vhRej);
 
   LogDebug("VectorHitBuilderAlgorithm") << "End run VectorHitBuilderAlgorithm ... \n";
-  return;
 }
 
 bool VectorHitBuilderAlgorithm::checkClustersCompatibilityBeforeBuilding(

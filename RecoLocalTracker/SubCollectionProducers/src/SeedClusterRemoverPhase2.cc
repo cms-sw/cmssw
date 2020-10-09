@@ -140,8 +140,6 @@ void SeedClusterRemoverPhase2::process(const TrackingRecHit *hit, float chi2, co
           << "SeedClusterRemoverPhase2: strip cluster ref from Product ID = " << cluster.id()
           << " does not match with source cluster collection (ID = " << outerTrackerSourceProdID << ")\n.";
 
-    assert(cluster.id() == outerTrackerSourceProdID);
-
     OTs[cluster.key()] = false;
     assert(collectedOuterTrackers_.size() > cluster.key());
     collectedOuterTrackers_[cluster.key()] = true;
@@ -152,8 +150,6 @@ void SeedClusterRemoverPhase2::process(const TrackingRecHit *hit, float chi2, co
       throw cms::Exception("Inconsistent Data")
           << "SeedClusterRemoverPhase2: strip cluster ref from Product ID = " << cluster.id()
           << " does not match with source cluster collection (ID = " << outerTrackerSourceProdID << ")\n.";
-
-    assert(cluster.id() == outerTrackerSourceProdID);
 
     OTs[cluster.key()] = false;
     assert(collectedOuterTrackers_.size() > cluster.key());
