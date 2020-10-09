@@ -12,12 +12,12 @@ VectorHitBuilderAlgorithmBase::VectorHitBuilderAlgorithmBase(
     const TrackerGeometry* tkGeomProd,
     const TrackerTopology* tkTopoProd,
     const ClusterParameterEstimator<Phase2TrackerCluster1D>* cpeProd)
-    : theTkGeom(tkGeomProd),
-      theTkTopo(tkTopoProd),
-      theCpe(cpeProd),
-      nMaxVHforeachStack(conf.getParameter<int>("maxVectorHitsInAStack")),
-      barrelCut(conf.getParameter<std::vector<double> >("BarrelCut")),
-      endcapCut(conf.getParameter<std::vector<double> >("EndcapCut")),
+    : tkGeom_(tkGeomProd),
+      tkTopo_(tkTopoProd),
+      cpe_(cpeProd),
+      nMaxVHforeachStack_(conf.getParameter<int>("maxVectorHitsInAStack")),
+      barrelCut_(conf.getParameter<std::vector<double> >("BarrelCut")),
+      endcapCut_(conf.getParameter<std::vector<double> >("EndcapCut")),
       cpeTag_(conf.getParameter<edm::ESInputTag>("CPE")) {}
 
 double VectorHitBuilderAlgorithmBase::computeParallaxCorrection(const PixelGeomDetUnit*& geomDetUnit_low,
@@ -53,7 +53,7 @@ void VectorHitBuilderAlgorithmBase::printClusters(const edmNew::DetSetVector<Pha
     for (const auto& clustIt : DSViter) {
       nCluster++;
       // get the detector unit's id
-      const GeomDetUnit* geomDetUnit(theTkGeom->idToDetUnit(DSViter.detId()));
+      const GeomDetUnit* geomDetUnit(tkGeom_->idToDetUnit(DSViter.detId()));
       if (!geomDetUnit)
         return;
       printCluster(geomDetUnit, &clustIt);
@@ -71,11 +71,11 @@ void VectorHitBuilderAlgorithmBase::printCluster(const GeomDet* geomDetUnit,
   if (!pixelGeomDetUnit)
     return;
 
-  unsigned int layer = theTkTopo->layer(geomDetUnit->geographicalId());
-  unsigned int module = theTkTopo->module(geomDetUnit->geographicalId());
+  unsigned int layer = tkTopo_->layer(geomDetUnit->geographicalId());
+  unsigned int module = tkTopo_->module(geomDetUnit->geographicalId());
   LogTrace("VectorHitBuilder") << "Layer:" << layer << " and DetId: " << geomDetUnit->geographicalId().rawId()
                                << std::endl;
-  TrackerGeometry::ModuleType mType = theTkGeom->getDetectorType(geomDetUnit->geographicalId());
+  TrackerGeometry::ModuleType mType = tkGeom_->getDetectorType(geomDetUnit->geographicalId());
   if (mType == TrackerGeometry::ModuleType::Ph2PSP)
     LogTrace("VectorHitBuilder") << "Pixel cluster (module:" << module << ") " << std::endl;
   else if (mType == TrackerGeometry::ModuleType::Ph2SS || mType == TrackerGeometry::ModuleType::Ph2PSS)
@@ -86,7 +86,7 @@ void VectorHitBuilderAlgorithmBase::printCluster(const GeomDet* geomDetUnit,
   LogTrace("VectorHitBuilder") << " and width:" << pixelGeomDetUnit->surface().bounds().width()
                                << " , lenght:" << pixelGeomDetUnit->surface().bounds().length() << std::endl;
 
-  auto&& lparams = theCpe->localParameters(*clustIt, *pixelGeomDetUnit);
+  auto&& lparams = cpe_->localParameters(*clustIt, *pixelGeomDetUnit);
   Global3DPoint gparams = pixelGeomDetUnit->surface().toGlobal(lparams.first);
 
   LogTrace("VectorHitBuilder") << "\t global pos " << gparams << std::endl;

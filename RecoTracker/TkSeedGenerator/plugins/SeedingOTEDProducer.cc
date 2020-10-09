@@ -110,7 +110,7 @@ SeedingOTEDProducer::~SeedingOTEDProducer() {}
 
 void SeedingOTEDProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("src", edm::InputTag("siPhase2VectorHits", "vectorHitsAccepted"));
+  desc.add<edm::InputTag>("src", edm::InputTag("siPhase2VectorHits", "accepted"));
   desc.add<edm::InputTag>("trackerEvent", edm::InputTag("MeasurementTrackerEvent"));
   desc.add<edm::InputTag>("beamSpotLabel", edm::InputTag("offlineBeamSpot"));
   desc.add<std::string>("updator", std::string("KFUpdator"));
