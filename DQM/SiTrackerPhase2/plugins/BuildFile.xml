@@ -12,4 +12,3 @@
 <use name="boost_system"/>
 <use name="rootcling"/>
 <flags EDM_PLUGIN="1"/>
-<flags CXXFLAGS="-g"/>
