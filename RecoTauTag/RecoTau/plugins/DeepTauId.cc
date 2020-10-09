@@ -1169,15 +1169,15 @@ const std::map<bd, std::string> deep_tau::DeepTauBase::stringFromDiscriminator_{
     {bd::PhotonPtSumOutsideSignalCone, "PhotonPtSumOutsideSignalCone"},
     {bd::PUcorrPtSum, "PUcorrPtSum"}};
 const std::vector<bd> deep_tau::DeepTauBase::requiredBasicDiscriminators_ = {bd::ChargedIsoPtSum,
-                                                                            bd::NeutralIsoPtSum,
-                                                                            bd::NeutralIsoPtSumWeight,
-                                                                            bd::PhotonPtSumOutsideSignalCone,
-                                                                            bd::PUcorrPtSum};
+                                                                             bd::NeutralIsoPtSum,
+                                                                             bd::NeutralIsoPtSumWeight,
+                                                                             bd::PhotonPtSumOutsideSignalCone,
+                                                                             bd::PUcorrPtSum};
 const std::vector<bd> deep_tau::DeepTauBase::requiredBasicDiscriminatorsdR03_ = {bd::ChargedIsoPtSum,
-                                                                                bd::NeutralIsoPtSum,
-                                                                                bd::NeutralIsoPtSumWeight,
-                                                                                bd::PhotonPtSumOutsideSignalCone,
-                                                                                bd::FootprintCorrection};
+                                                                                 bd::NeutralIsoPtSum,
+                                                                                 bd::NeutralIsoPtSumWeight,
+                                                                                 bd::PhotonPtSumOutsideSignalCone,
+                                                                                 bd::FootprintCorrection};
 
 class DeepTauId : public deep_tau::DeepTauBase {
 public:
