@@ -27,6 +27,17 @@
 using namespace SurfaceOrientation;
 using namespace std;
 
+#include "DataFormats/Math/interface/GeantUnits.h"
+
+namespace {
+  // Old DD returns lengths in mm, but CMS code uses cm
+  template <class NumType>
+  inline constexpr NumType convertUnits(NumType millimeters)  // Millimeters -> centimeters
+  {
+    return (geant_units::operators::convertMmToCm(millimeters));
+  }
+}  // namespace
+
 MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool expand2Pi, bool debugVal)
     : magneticfield::BaseVolumeHandle(expand2Pi, debugVal) {
   name = fv.logicalPart().name().name();
@@ -50,18 +61,64 @@ MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool 
   referencePlane(fv);
 
   if (solid.shape() == DDSolidShape::ddbox) {
-    buildBox();
+    DDBox box(solid);
+    double halfX = convertUnits(box.halfX());
+    double halfY = convertUnits(box.halfY());
+    double halfZ = convertUnits(box.halfZ());
+    buildBox(halfX, halfY, halfZ);
   } else if (solid.shape() == DDSolidShape::ddtrap) {
-    buildTrap();
+    DDTrap trap(solid);
+    double x1 = convertUnits(trap.x1());
+    double x2 = convertUnits(trap.x2());
+    double x3 = convertUnits(trap.x3());
+    double x4 = convertUnits(trap.x4());
+    double y1 = convertUnits(trap.y1());
+    double y2 = convertUnits(trap.y2());
+    double theta = trap.theta();
+    double phi = trap.phi();
+    double halfZ = convertUnits(trap.halfZ());
+    double alpha1 = trap.alpha1();
+    double alpha2 = trap.alpha2();
+    buildTrap(x1, x2, x3, x4, y1, y2, theta, phi, halfZ, alpha1, alpha2);
   } else if (solid.shape() == DDSolidShape::ddcons) {
-    buildCons();
+    DDCons cons(solid);
+    double zhalf = convertUnits(cons.zhalf());
+    double rInMinusZ = convertUnits(cons.rInMinusZ());
+    double rOutMinusZ = convertUnits(cons.rOutMinusZ());
+    double rInPlusZ = convertUnits(cons.rInPlusZ());
+    double rOutPlusZ = convertUnits(cons.rOutPlusZ());
+    double startPhi = cons.phiFrom();
+    double deltaPhi = cons.deltaPhi();
+    buildCons(zhalf, rInMinusZ, rOutMinusZ, rInPlusZ, rOutPlusZ, startPhi, deltaPhi);
   } else if (solid.shape() == DDSolidShape::ddtubs) {
-    buildTubs();
+    DDTubs tubs(solid);
+    double zhalf = convertUnits(tubs.zhalf());
+    double rIn = convertUnits(tubs.rIn());
+    double rOut = convertUnits(tubs.rOut());
+    double startPhi = tubs.startPhi();
+    double deltaPhi = tubs.deltaPhi();
+    buildTubs(zhalf, rIn, rOut, startPhi, deltaPhi);
   } else if (solid.shape() == DDSolidShape::ddpseudotrap) {
     DDPseudoTrap ptrap(solid);
-    buildPseudoTrap(ptrap.x1(), ptrap.x2(), ptrap.y1(), ptrap.y2(), ptrap.halfZ(), ptrap.radius(), ptrap.atMinusZ());
+    double x1 = convertUnits(ptrap.x1());
+    double x2 = convertUnits(ptrap.x2());
+    double y1 = convertUnits(ptrap.y1());
+    double y2 = convertUnits(ptrap.y2());
+    double halfZ = convertUnits(ptrap.halfZ());
+    double radius = convertUnits(ptrap.radius());
+    bool atMinusZ = ptrap.atMinusZ();
+    buildPseudoTrap(x1, x2, y1, y2, halfZ, radius, atMinusZ);
   } else if (solid.shape() == DDSolidShape::ddtrunctubs) {
-    buildTruncTubs();
+    DDTruncTubs tubs(solid);
+    double zhalf = convertUnits(tubs.zHalf());            // half of the z-Axis
+    double rIn = convertUnits(tubs.rIn());                // inner radius
+    double rOut = convertUnits(tubs.rOut());              // outer radius
+    double startPhi = tubs.startPhi();                    // angular start of the tube-section
+    double deltaPhi = tubs.deltaPhi();                    // angular span of the tube-section
+    double cutAtStart = convertUnits(tubs.cutAtStart());  // truncation at begin of the tube-section
+    double cutAtDelta = convertUnits(tubs.cutAtDelta());  // truncation at end of the tube-section
+    bool cutInside = tubs.cutInside();  // true, if truncation is on the inner side of the tube-section
+    buildTruncTubs(zhalf, rIn, rOut, startPhi, deltaPhi, cutAtStart, cutAtDelta, cutInside);
   } else {
     cout << "volumeHandle ctor: Unexpected solid: " << DDSolidShapesName::name(solid.shape()) << endl;
   }
@@ -233,19 +290,8 @@ std::vector<VolumeSide> MagGeoBuilderFromDDD::volumeHandle::sides() const {
   return result;
 }
 
-#include "DataFormats/Math/interface/GeantUnits.h"
-
 using volumeHandle = MagGeoBuilderFromDDD::volumeHandle;
 using namespace magneticfield;
-
-namespace {
-  // Old DD returns lengths in mm, but CMS code uses cm
-  template <class NumType>
-  inline constexpr NumType convertUnits(NumType millimeters)  // Millimeters -> centimeters
-  {
-    return (geant_units::operators::convertMmToCm(millimeters));
-  }
-}  // namespace
 
 #include "buildBox.icc"
 #include "buildTrap.icc"
