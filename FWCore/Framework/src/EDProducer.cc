@@ -29,7 +29,8 @@ namespace edm {
     e.setProducer(this, &previousParentage_);
     e.setSharedResourcesAcquirer(&resourceAcquirer_);
     EventSignalsSentry sentry(act, mcc);
-    const EventSetup c{info, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), false};
+    const EventSetup c{
+        info, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), esAnyConsumed()};
     this->produce(e, c);
     commit_(e, &previousParentageId_);
     return true;
@@ -47,8 +48,10 @@ namespace edm {
     Run r(info, moduleDescription_, mcc, false);
     r.setConsumer(this);
     Run const& cnstR = r;
-    const EventSetup c{
-        info, static_cast<unsigned int>(Transition::BeginRun), esGetTokenIndices(Transition::BeginRun), false};
+    const EventSetup c{info,
+                       static_cast<unsigned int>(Transition::BeginRun),
+                       esGetTokenIndices(Transition::BeginRun),
+                       esAnyConsumed()};
     this->beginRun(cnstR, c);
     commit_(r);
   }
@@ -58,7 +61,7 @@ namespace edm {
     r.setConsumer(this);
     Run const& cnstR = r;
     const EventSetup c{
-        info, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), false};
+        info, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), esAnyConsumed()};
     this->endRun(cnstR, c);
     commit_(r);
   }
@@ -70,7 +73,7 @@ namespace edm {
     const EventSetup c{info,
                        static_cast<unsigned int>(Transition::BeginLuminosityBlock),
                        esGetTokenIndices(Transition::BeginLuminosityBlock),
-                       false};
+                       esAnyConsumed()};
     this->beginLuminosityBlock(cnstLb, c);
     commit_(lb);
   }
@@ -81,7 +84,7 @@ namespace edm {
     const EventSetup c{info,
                        static_cast<unsigned int>(Transition::EndLuminosityBlock),
                        esGetTokenIndices(Transition::EndLuminosityBlock),
-                       false};
+                       esAnyConsumed()};
     LuminosityBlock const& cnstLb = lb;
     this->endLuminosityBlock(cnstLb, c);
     commit_(lb);

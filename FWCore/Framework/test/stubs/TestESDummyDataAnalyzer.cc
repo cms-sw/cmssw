@@ -115,5 +115,35 @@ void TestESDummyDataNoPrefetchAnalyzer::analyze(const edm::Event&, const edm::Ev
   *h;
 }
 
+class TestESDummyDataFailingAnalyzer : public edm::one::EDAnalyzer<edm::RunCache<DummyRunCache>> {
+public:
+  explicit TestESDummyDataFailingAnalyzer(const edm::ParameterSet&);
+
+private:
+  std::shared_ptr<DummyRunCache> globalBeginRun(const edm::Run&, const edm::EventSetup&) const override { return {}; }
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void globalEndRun(const edm::Run&, const edm::EventSetup&) override {}
+
+  int m_expectedValue;
+  // At the moment the begin run token is not used to get anything,
+  // but just its existence tests the indexing used in the esConsumes
+  // function call
+  edm::ESGetToken<edm::eventsetup::test::DummyData, edm::DefaultRecord> const m_esTokenBeginRun;
+};
+
+TestESDummyDataFailingAnalyzer::TestESDummyDataFailingAnalyzer(const edm::ParameterSet& iConfig)
+    : m_expectedValue{iConfig.getParameter<int>("expected")},
+      m_esTokenBeginRun{esConsumes<edm::Transition::BeginRun>()} {}
+
+void TestESDummyDataFailingAnalyzer::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
+  edm::ESHandle<edm::eventsetup::test::DummyData> pData;
+  iSetup.getData(pData);
+
+  if (m_expectedValue != pData->value_) {
+    throw cms::Exception("WrongValue") << "got value " << pData->value_ << " but expected " << m_expectedValue;
+  }
+}
+
 DEFINE_FWK_MODULE(TestESDummyDataAnalyzer);
 DEFINE_FWK_MODULE(TestESDummyDataNoPrefetchAnalyzer);
+DEFINE_FWK_MODULE(TestESDummyDataFailingAnalyzer);

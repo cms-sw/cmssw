@@ -55,7 +55,7 @@ namespace edm {
       e.setSharedResourcesAcquirer(&resourcesAcquirer_);
       EventSignalsSentry sentry(act, mcc);
       const EventSetup c{
-          info, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), false};
+          info, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), esAnyConsumed()};
       returnValue = this->filter(e, c);
       commit_(e, &previousParentageId_);
       return returnValue;
@@ -115,8 +115,10 @@ namespace edm {
       Run r(info, moduleDescription_, mcc, false);
       r.setConsumer(this);
       Run const& cnstR = r;
-      const EventSetup c{
-          info, static_cast<unsigned int>(Transition::BeginRun), esGetTokenIndices(Transition::BeginRun), false};
+      const EventSetup c{info,
+                         static_cast<unsigned int>(Transition::BeginRun),
+                         esGetTokenIndices(Transition::BeginRun),
+                         esAnyConsumed()};
       this->doBeginRun_(cnstR, c);
       r.setProducer(this);
       this->doBeginRunProduce_(r, c);
@@ -128,7 +130,7 @@ namespace edm {
       r.setConsumer(this);
       Run const& cnstR = r;
       const EventSetup c{
-          info, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), false};
+          info, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), esAnyConsumed()};
       this->doEndRun_(cnstR, c);
       r.setProducer(this);
       this->doEndRunProduce_(r, c);
@@ -142,7 +144,7 @@ namespace edm {
       const EventSetup c{info,
                          static_cast<unsigned int>(Transition::BeginLuminosityBlock),
                          esGetTokenIndices(Transition::BeginLuminosityBlock),
-                         false};
+                         esAnyConsumed()};
       this->doBeginLuminosityBlock_(cnstLb, c);
       lb.setProducer(this);
       this->doBeginLuminosityBlockProduce_(lb, c);
@@ -156,7 +158,7 @@ namespace edm {
       const EventSetup c{info,
                          static_cast<unsigned int>(Transition::EndLuminosityBlock),
                          esGetTokenIndices(Transition::EndLuminosityBlock),
-                         false};
+                         esAnyConsumed()};
       this->doEndLuminosityBlock_(cnstLb, c);
       lb.setProducer(this);
       this->doEndLuminosityBlockProduce_(lb, c);

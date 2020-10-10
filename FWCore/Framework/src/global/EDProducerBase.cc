@@ -81,7 +81,7 @@ namespace edm {
       e.setProducerForAcquire(this, nullptr, gotBranchIDsFromAcquire_[streamIndex]);
       EventAcquireSignalsSentry sentry(act, mcc);
       const EventSetup c{
-          info, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), false};
+          info, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), esAnyConsumed()};
       this->doAcquire_(e.streamID(), e, c, holder);
     }
 
@@ -133,8 +133,10 @@ namespace edm {
       Run r(info, moduleDescription_, mcc, false);
       r.setConsumer(this);
       Run const& cnstR = r;
-      const EventSetup c{
-          info, static_cast<unsigned int>(Transition::BeginRun), esGetTokenIndices(Transition::BeginRun), false};
+      const EventSetup c{info,
+                         static_cast<unsigned int>(Transition::BeginRun),
+                         esGetTokenIndices(Transition::BeginRun),
+                         esAnyConsumed()};
       this->doBeginRun_(cnstR, c);
       this->doBeginRunSummary_(cnstR, c);
       r.setProducer(this);
@@ -148,7 +150,7 @@ namespace edm {
       r.setProducer(this);
       Run const& cnstR = r;
       const EventSetup c{
-          info, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), false};
+          info, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), esAnyConsumed()};
       this->doEndRunSummary_(r, c);
       this->doEndRunProduce_(r, c);
       this->doEndRun_(cnstR, c);
@@ -162,7 +164,7 @@ namespace edm {
       const EventSetup c{info,
                          static_cast<unsigned int>(Transition::BeginLuminosityBlock),
                          esGetTokenIndices(Transition::BeginLuminosityBlock),
-                         false};
+                         esAnyConsumed()};
       this->doBeginLuminosityBlock_(cnstLb, c);
       this->doBeginLuminosityBlockSummary_(cnstLb, c);
       lb.setProducer(this);
@@ -178,7 +180,7 @@ namespace edm {
       const EventSetup c{info,
                          static_cast<unsigned int>(Transition::EndLuminosityBlock),
                          esGetTokenIndices(Transition::EndLuminosityBlock),
-                         false};
+                         esAnyConsumed()};
       this->doEndLuminosityBlockSummary_(cnstLb, c);
       this->doEndLuminosityBlockProduce_(lb, c);
       this->doEndLuminosityBlock_(cnstLb, c);
@@ -190,17 +192,18 @@ namespace edm {
     void EDProducerBase::doStreamBeginRun(StreamID id, RunTransitionInfo const& info, ModuleCallingContext const* mcc) {
       Run r(info, moduleDescription_, mcc, false);
       r.setConsumer(this);
-      this->doStreamBeginRun_(
-          id,
-          r,
-          EventSetup{
-              info, static_cast<unsigned int>(Transition::BeginRun), esGetTokenIndices(Transition::BeginRun), false});
+      this->doStreamBeginRun_(id,
+                              r,
+                              EventSetup{info,
+                                         static_cast<unsigned int>(Transition::BeginRun),
+                                         esGetTokenIndices(Transition::BeginRun),
+                                         esAnyConsumed()});
     }
     void EDProducerBase::doStreamEndRun(StreamID id, RunTransitionInfo const& info, ModuleCallingContext const* mcc) {
       Run r(info, moduleDescription_, mcc, true);
       r.setConsumer(this);
       const EventSetup c{
-          info, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), false};
+          info, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), esAnyConsumed()};
       this->doStreamEndRun_(id, r, c);
       this->doStreamEndRunSummary_(id, r, c);
     }
@@ -214,7 +217,7 @@ namespace edm {
                                           EventSetup{info,
                                                      static_cast<unsigned int>(Transition::BeginLuminosityBlock),
                                                      esGetTokenIndices(Transition::BeginLuminosityBlock),
-                                                     false});
+                                                     esAnyConsumed()});
     }
 
     void EDProducerBase::doStreamEndLuminosityBlock(StreamID id,
@@ -225,7 +228,7 @@ namespace edm {
       const EventSetup c{info,
                          static_cast<unsigned int>(Transition::EndLuminosityBlock),
                          esGetTokenIndices(Transition::EndLuminosityBlock),
-                         false};
+                         esAnyConsumed()};
       this->doStreamEndLuminosityBlock_(id, lb, c);
       this->doStreamEndLuminosityBlockSummary_(id, lb, c);
     }

@@ -54,8 +54,10 @@ namespace edm {
       e.setConsumer(mod);
       e.setProducer(mod, &mod->previousParentage_, &mod->gotBranchIDsFromAcquire_);
       EventSignalsSentry sentry(act, mcc);
-      const EventSetup c{
-          info, static_cast<unsigned int>(Transition::Event), mod->esGetTokenIndices(Transition::Event), false};
+      const EventSetup c{info,
+                         static_cast<unsigned int>(Transition::Event),
+                         mod->esGetTokenIndices(Transition::Event),
+                         mod->esAnyConsumed()};
       bool result = mod->filter(e, c);
       commit(e, &mod->previousParentageId_);
       return result;
@@ -72,8 +74,10 @@ namespace edm {
       e.setConsumer(mod);
       e.setProducerForAcquire(mod, nullptr, mod->gotBranchIDsFromAcquire_);
       EventAcquireSignalsSentry sentry(act, mcc);
-      const EventSetup c{
-          info, static_cast<unsigned int>(Transition::Event), mod->esGetTokenIndices(Transition::Event), false};
+      const EventSetup c{info,
+                         static_cast<unsigned int>(Transition::Event),
+                         mod->esGetTokenIndices(Transition::Event),
+                         mod->esAnyConsumed()};
       mod->doAcquire_(e, c, holder);
     }
 

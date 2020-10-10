@@ -135,6 +135,8 @@ namespace edm {
       return esRecordsToGetFromTransition_[static_cast<unsigned int>(iTrans)];
     }
 
+    bool esAnyConsumed() const { return m_esTokenInfo.size() != 0; }
+
   protected:
     friend class ConsumesCollector;
     template <Transition Tr>

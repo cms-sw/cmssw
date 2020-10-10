@@ -33,7 +33,8 @@ namespace edm {
     e.setConsumer(this);
     e.setSharedResourcesAcquirer(&resourceAcquirer_);
     EventSignalsSentry sentry(act, mcc);
-    const EventSetup c{info, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), false};
+    const EventSetup c{
+        info, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), esAnyConsumed()};
     this->analyze(e, c);
     return true;
   }
@@ -50,8 +51,10 @@ namespace edm {
   bool EDAnalyzer::doBeginRun(RunTransitionInfo const& info, ModuleCallingContext const* mcc) {
     Run r(info, moduleDescription_, mcc, false);
     r.setConsumer(this);
-    const EventSetup c{
-        info, static_cast<unsigned int>(Transition::BeginRun), esGetTokenIndices(Transition::BeginRun), false};
+    const EventSetup c{info,
+                       static_cast<unsigned int>(Transition::BeginRun),
+                       esGetTokenIndices(Transition::BeginRun),
+                       esAnyConsumed()};
     this->beginRun(r, c);
     return true;
   }
@@ -60,7 +63,7 @@ namespace edm {
     Run r(info, moduleDescription_, mcc, true);
     r.setConsumer(this);
     const EventSetup c{
-        info, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), false};
+        info, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), esAnyConsumed()};
     this->endRun(r, c);
     return true;
   }
@@ -71,7 +74,7 @@ namespace edm {
     const EventSetup c{info,
                        static_cast<unsigned int>(Transition::BeginLuminosityBlock),
                        esGetTokenIndices(Transition::BeginLuminosityBlock),
-                       false};
+                       esAnyConsumed()};
     this->beginLuminosityBlock(lb, c);
     return true;
   }
@@ -82,7 +85,7 @@ namespace edm {
     const EventSetup c{info,
                        static_cast<unsigned int>(Transition::EndLuminosityBlock),
                        esGetTokenIndices(Transition::EndLuminosityBlock),
-                       false};
+                       esAnyConsumed()};
     this->endLuminosityBlock(lb, c);
     return true;
   }
