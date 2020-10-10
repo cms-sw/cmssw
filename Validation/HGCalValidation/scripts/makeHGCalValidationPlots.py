@@ -29,8 +29,8 @@ def main(opts):
     if opts.collection=="hgcalLayerClusters":
 	hgclayclus = [hgcalPlots.hgcalLayerClustersPlotter]
 	val.doPlots(hgclayclus, plotterDrawArgs=drawArgs)
-    elif opts.collection in ["hgcalMultiClusters", "multiClustersFromTrackstersMIP", "multiClustersFromTrackstersTrk", "multiClustersFromTrackstersEM", "multiClustersFromTrackstersHAD"]:    
-        hgcmulticlus = [hgcalPlots.hgcalMultiClustersPlotter]
+    elif opts.collection in ["hgcalMultiClusters","ticlMultiClustersFromTrackstersMerge","ticlMultiClustersFromTrackstersTrk","ticlMultiClustersFromTrackstersEM","ticlMultiClustersFromTrackstersHAD"]:
+        hgcmulticlus = [hgcalPlots.create_hgcalMultiClustersPlotter(opts.collection)]
         val.doPlots(hgcmulticlus, plotterDrawArgs=drawArgs)
     elif opts.collection=="hitValidation":
     	hgchit = [hgcalPlots.hgcalHitPlotter]
@@ -97,13 +97,13 @@ if __name__ == "__main__":
                         help="Validation name for HTML page generation (enters to <title> element) (default '')")
     parser.add_argument("--verbose", action="store_true", default = False,
                         help="Be verbose")
-    parser.add_argument("--collection", choices=["hgcalLayerClusters", "hgcalMultiClusters", "multiClustersFromTrackstersMIP", "multiClustersFromTrackstersTrk", "multiClustersFromTrackstersEM", "multiClustersFromTrackstersHAD", "hitValidation", "hitCalibration", "all"], default="hgcalLayerClusters",
-                        help="Choose output plots collections: hgcalLayerCluster, hgcalMultiClusters, multiClustersFromTrackstersMIP, multiClustersFromTrackstersTrk, multiClustersFromTrackstersEM, multiClustersFromTrackstersHAD, hitValidation, hitCalibration, all")    
+    parser.add_argument("--collection", choices=["hgcalLayerClusters", "hgcalMultiClusters", "ticlMultiClustersFromTrackstersMerge", "ticlMultiClustersFromTrackstersTrk", "ticlMultiClustersFromTrackstersEM", "ticlMultiClustersFromTrackstersHAD", "hitValidation", "hitCalibration", "all"], default="hgcalLayerClusters",
+                        help="Choose output plots collections: hgcalLayerCluster, hgcalMultiClusters, ticlMultiClustersFromTrackstersMerge, ticlMultiClustersFromTrackstersTrk, ticlMultiClustersFromTrackstersEM, ticlMultiClustersFromTrackstersHAD, hitValidation, hitCalibration, all")    
 
     opts = parser.parse_args()
 
     if opts.collection == "all" and len(opts.outputDir)==1:
-	raise RuntimeError("need to assign names for all dirrectories")
+	raise RuntimeError("need to assign names for all directories")
 
     for f in opts.files:
         if not os.path.exists(f):

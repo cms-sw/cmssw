@@ -5,6 +5,7 @@
 #include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
@@ -203,20 +204,24 @@ unsigned int CaloGeometryLoader<T>::getDetIdForDD4HepNode(const cms::DDFilteredV
 
   size_t n = path.find("/") + 1;
   edm::LogVerbatim("CaloGeometryBuilder") << path << " n " << n;
-  size_t start = n;
+  size_t start = n, startold = n;
   std::string det(""), num("");
+  bool done(false);
   for (size_t i = n; i <= path.size(); ++i) {
     if (i == path.size() || path[i] == '/') {
       num = path.substr(start, i - start);
-      start = i + 1;
+      startold = start = i + 1;
       baseNumber.addLevel(det, std::stoi(num));
+      done = true;
     } else if (path[i] == ':') {
-      start = i + 1;
+      startold = start = i + 1;
     } else if (path[i] == '_') {
-      det = path.substr(start, i - start);
+      det = done ? path.substr(start, i - start) : path.substr(startold, i - startold);
       start = i + 1;
+      done = false;
     }
   }
+  baseNumber.reverse();
 
   return m_scheme.getUnitID(baseNumber);
 }

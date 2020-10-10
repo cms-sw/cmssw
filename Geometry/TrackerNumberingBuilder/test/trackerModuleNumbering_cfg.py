@@ -4,9 +4,7 @@ process = cms.Process("NumberingTest")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
-process.load("Configuration.Geometry.GeometryReco_cff")
-process.load("Geometry.CMSCommonData.cmsExtendedGeometryXML_cfi")
-process.load("Alignment.CommonAlignmentProducer.FakeAlignmentSource_cfi")
+process.load("Configuration.Geometry.GeometryExtended2021Reco_cff")
 
 #this is always needed if users want access to the vector<GeometricDetExtra>
 process.TrackerGeometricDetExtraESModule = cms.ESProducer( "TrackerGeometricDetExtraESModule",
@@ -18,15 +16,16 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
+
 process.MessageLogger = cms.Service(
     "MessageLogger",
-    statistics = cms.untracked.vstring('cout', 'tkModuleNumbering'),
+    statistics = cms.untracked.vstring('cout', 'tkmodulenumbering'),
     categories = cms.untracked.vstring('Geometry', 'ModuleNumbering'),
     cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('WARNING'),
+        threshold = cms.untracked.string('DEBUG'),
         noLineBreaks = cms.untracked.bool(True)
         ),
-    tkModuleNumbering = cms.untracked.PSet(
+    tkmodulenumbering = cms.untracked.PSet(
         INFO = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
             ),
@@ -49,10 +48,13 @@ process.MessageLogger = cms.Service(
             )
         ),
     destinations = cms.untracked.vstring('cout',
-                                         'tkModuleNumbering')
+                                         'tkmodulenumbering')
     )
 
 process.prod = cms.EDAnalyzer("ModuleNumbering")
+
+process.Timing = cms.Service("Timing")
+process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck")
 
 process.p1 = cms.Path(process.prod)
 

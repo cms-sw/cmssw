@@ -11,3 +11,8 @@
 <library file="queryField.cc" name="queryField">
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<bin file="regressionTestHelper.cpp" name="MagneticFieldEngineTestDriver">
+  <use name="FWCore/Utilities"/>
+  <flags TEST_RUNNER_ARGS="/bin/bash MagneticField/Engine/test runTest.sh"/>
+</bin>

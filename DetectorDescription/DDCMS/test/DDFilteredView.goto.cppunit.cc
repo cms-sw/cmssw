@@ -26,6 +26,8 @@ public:
 
 private:
   void printMe(const cms::DDFilteredView&);
+  double refRadLength_ = 0.03142;
+  double refXi_ = 6.24526e-05;
   std::string fileName_;
   std::vector<int> refPos_{0, 0, 6, 2, 2};
 };
@@ -49,7 +51,7 @@ void testDDFilteredViewGoTo::checkFilteredView() {
     if (count == 45) {
       testPos = fview.navPos();
     }
-    if (count == 1000) {
+    if (count == 50) {
       break;
     }
     count++;
@@ -60,8 +62,12 @@ void testDDFilteredViewGoTo::checkFilteredView() {
   std::vector<int> activeVol{0, 0, 6, 2, 93, 12, 1, 7, 1, 0};
   fview.goTo(activeVol);
   printMe(fview);
+
   double radLength = fview.get<double>("TrackerRadLength");
-  double xi = fview.get<double>("TrackerXi");
+  double xi = fview.getNextValue("TrackerXi");
+  CPPUNIT_ASSERT(radLength == refRadLength_);
+  CPPUNIT_ASSERT(xi == refXi_);
+
   std::cout << "TrackerRadLength = " << radLength << "\nTrackerXi = " << xi << "\n";
 
   std::cout << "\n==== Let's go to #45\n";

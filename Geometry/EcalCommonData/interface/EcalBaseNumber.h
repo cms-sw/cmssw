@@ -25,6 +25,7 @@ public:
   int getCapacity();
 
   void reset();
+  void reverse();
 
 protected:
   std::vector<std::string> _sortedName;

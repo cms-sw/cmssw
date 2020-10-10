@@ -16,7 +16,7 @@ using namespace cms;
 using namespace cms_units::operators;
 
 namespace {
-  long algorithm(dd4hep::Detector &description, cms::DDParsingContext &ctxt, xml_h e, SensitiveDetector & /* sens */) {
+  long algorithm(dd4hep::Detector &description, cms::DDParsingContext &ctxt, xml_h e) {
     cms::DDNamespace ns(ctxt, e, true);
     cms::DDAlgoArguments args(ctxt, e);
 

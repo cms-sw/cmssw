@@ -170,6 +170,9 @@ DQMHarvestCommonSiStripZeroBiasFakeHLT.remove( DQMHarvestTrigger )
 DQMHarvestTracking = cms.Sequence( TrackingOfflineDQMClient *
                                    dqmFastTimerServiceClient )
 
+DQMHarvestTrackingZeroBias = cms.Sequence( TrackingOfflineDQMClientZeroBias *
+                                           dqmFastTimerServiceClient )
+
 DQMHarvestPixelTracking = cms.Sequence( pixelTrackingEffFromHitPattern )
 
 DQMHarvestOuterTracker = cms.Sequence(
