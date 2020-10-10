@@ -5,9 +5,14 @@
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 #include "DataFormats/L1TParticleFlow/interface/PFCandidate.h"
 
+struct TauNNTFCache {
+  TauNNTFCache() : graphDef(nullptr) {}
+  std::atomic<tensorflow::GraphDef *> graphDef;
+};
+
 class TauNNId {
 public:
-  TauNNId(const std::string &iInput, const std::string &iWeightFile, int iNParticles);
+  TauNNId(const std::string &iInput, const TauNNTFCache *cache, const std::string &iWeightFile, int iNParticles);
   ~TauNNId();
 
   void setNNVectorVar();
@@ -16,7 +21,6 @@ public:
 
 private:
   tensorflow::Session *session_;
-  tensorflow::GraphDef *graphDef_;
   std::vector<float> NNvectorVar_;
   std::string fInput_;
   int fNParticles_;
