@@ -7,24 +7,22 @@
 
 class TauNNId {
 public:
-  TauNNId();
+  TauNNId(const std::string &iInput, const std::string &iWeightFile, int iNParticles);
   ~TauNNId();
 
-  void initialize(const std::string &iName, const std::string &iWeightFile, int iNParticles);
-  void SetNNVectorVar();
+  void setNNVectorVar();
   float EvaluateNN();
   float compute(const l1t::PFCandidate &iSeed, l1t::PFCandidateCollection &iParts);
 
+private:
+  tensorflow::Session *session_;
+  tensorflow::GraphDef *graphDef_;
+  std::vector<float> NNvectorVar_;
   std::string fInput_;
   int fNParticles_;
   unique_ptr<float[]> fPt_;
   unique_ptr<float[]> fEta_;
   unique_ptr<float[]> fPhi_;
   unique_ptr<float[]> fId_;
-
-private:
-  tensorflow::Session *session_;
-  tensorflow::GraphDef *graphDef_;
-  std::vector<float> NNvectorVar_;
 };
 #endif
