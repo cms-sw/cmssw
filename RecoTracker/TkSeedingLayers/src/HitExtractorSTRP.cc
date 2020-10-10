@@ -239,11 +239,10 @@ HitExtractor::Hits HitExtractorSTRP::hits(const TkTransientTrackingRecHitBuilder
     if (hasVectorHits) {
       LogError("HitExtractorSTRP") << "TIB is not supposed to be in Phase2 TRK detector configuration. What follows "
                                       "have never been checked before! ";
-      edm::Handle<VectorHitCollection> vectorHits;
-      ev.getByToken(theVectorHits, vectorHits);
+      auto const& vectorHits = ev.get(theVectorHits);
       if (skipClusters)
         cleanFrom = result.size();
-      range2SeedingHits(*vectorHits, result, tTopo->tibDetIdLayerComparator(theIdLayer));
+      range2SeedingHits(vectorHits, result, tTopo->tibDetIdLayerComparator(theIdLayer));
       if (skipClusters)
         cleanedOfClusters(ttrhBuilder, ev, result, false, cleanFrom);
     }
@@ -314,13 +313,12 @@ HitExtractor::Hits HitExtractorSTRP::hits(const TkTransientTrackingRecHitBuilder
     }
     if (hasVectorHits) {
       LogTrace("HitExtractorSTRP") << "Getting vector hits for IdLayer " << theIdLayer;
-      edm::Handle<VectorHitCollection> vectorHits;
-      ev.getByToken(theVectorHits, vectorHits);
+      auto const& vectorHits = ev.get(theVectorHits);
       //FIXME: check the skipClusters with VHits
       if (skipClusters)
         cleanFrom = result.size();
       auto getter = tTopo->tidDetIdWheelComparator(static_cast<unsigned int>(theSide), theIdLayer);
-      VectorHitCollection::Range range = vectorHits->equal_range(getter.first, getter.second);
+      VectorHitCollection::Range range = vectorHits.equal_range(getter.first, getter.second);
       for (VectorHitCollection::const_iterator it = range.first; it != range.second; ++it) {
         int ring = tTopo->tidRing(it->detId());
         if (!ringRange(ring))
