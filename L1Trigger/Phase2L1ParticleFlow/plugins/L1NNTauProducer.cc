@@ -1,4 +1,4 @@
-#include "L1Trigger/Phase2L1ParticleFlow/interface/L1NNTauProducer.hh"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/L1NNTauProducer.h"
 #include <TLorentzVector.h>
 #include <cmath>
 
