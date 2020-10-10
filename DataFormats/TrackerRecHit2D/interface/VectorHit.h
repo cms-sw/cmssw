@@ -144,7 +144,6 @@ private:
   float theCurvature;
   float theCurvatureError;
   float thePhi;
-
 };
 
 inline bool operator<(const VectorHit& one, const VectorHit& other) { return (one.chi2() < other.chi2()); }

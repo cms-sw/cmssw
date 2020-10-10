@@ -57,7 +57,7 @@ public:
 
   void loadDetSetVector(std::unordered_map<DetId, std::vector<VectorHit>>& theMap,
                         edmNew::DetSetVector<VectorHit>& theCollection,
-			const int totalSize) const;
+                        const int totalSize) const;
 
   const TrackerGeometry* tkGeom_;
   const TrackerTopology* tkTopo_;
@@ -65,7 +65,6 @@ public:
   unsigned int nMaxVHforeachStack_;
   std::vector<double> barrelCut_;
   std::vector<double> endcapCut_;
-
 
 private:
   edm::ESInputTag cpeTag_;

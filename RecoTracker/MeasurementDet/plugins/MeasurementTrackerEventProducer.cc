@@ -126,8 +126,7 @@ void MeasurementTrackerEventProducer::produce(edm::Event& iEvent, const edm::Eve
   //
 
   const VectorHitCollection* phase2OTVectorHits = useVectorHits_ ? &iEvent.get(thePh2OTVectorHitsLabel) : nullptr;
-  const VectorHitCollection* phase2OTVectorHitsRej =
-      useVectorHits_ ? &iEvent.get(thePh2OTVectorHitsRejLabel) : nullptr;
+  const VectorHitCollection* phase2OTVectorHitsRej = useVectorHits_ ? &iEvent.get(thePh2OTVectorHitsRejLabel) : nullptr;
   iEvent.put(std::make_unique<MeasurementTrackerEvent>(*measurementTracker,
                                                        stripData.release(),
                                                        pixelData.release(),

@@ -231,13 +231,13 @@ TrajectorySeedCollection SeedingOTEDProducer::run(edm::Handle<VectorHitCollectio
                 propagateAndUpdate(updatedTSOSL2_final.second, *buildingPropagator, *hitL3);
             if (!updatedTSOSL3_final.first)
               continue;
- 
+
             edm::OwnVector<TrackingRecHit> container;
             container.push_back(hitL1->clone());
             container.push_back(hitL2->clone());
             container.push_back(hitL3->clone());
 
-           TrajectorySeed ts =
+            TrajectorySeed ts =
                 createSeed(updatedTSOSL3_final.second, container, hitL3->geographicalId(), *buildingPropagator);
             result.push_back(ts);
           }
@@ -259,7 +259,7 @@ unsigned int SeedingOTEDProducer::checkLayer(unsigned int iidd) {
 }
 
 std::vector<const VectorHit*> SeedingOTEDProducer::collectVHsOnLayer(const edmNew::DetSetVector<VectorHit>& input,
-                                                              unsigned int layerNumber) {
+                                                                     unsigned int layerNumber) {
   std::vector<const VectorHit*> vHsOnLayer;
   if (!input.empty()) {
     for (const auto& DSViter : input) {
@@ -322,8 +322,8 @@ const TrajectoryStateOnSurface SeedingOTEDProducer::buildInitialTSOS(const Vecto
 }
 
 AlgebraicSymMatrix55 SeedingOTEDProducer::assign44To55(AlgebraicSymMatrix44 mat44) const {
-//  if (mat44.num_row() != 4 || mat44.num_col() != 4)
-//    assert("Wrong dimension! This should be a 4x4 matrix!");
+  //  if (mat44.num_row() != 4 || mat44.num_col() != 4)
+  //    assert("Wrong dimension! This should be a 4x4 matrix!");
 
   AlgebraicSymMatrix55 result;
   for (int i = 1; i < 5; i++) {
@@ -346,8 +346,7 @@ std::pair<bool, TrajectoryStateOnSurface> SeedingOTEDProducer::propagateAndUpdat
 }
 
 float SeedingOTEDProducer::computeGlobalThetaError(const VectorHit* vh, const double sigmaZ_beamSpot) const {
-  double derivative =
-      vh->globalPosition().perp() / vh->globalPosition().mag2();
+  double derivative = vh->globalPosition().perp() / vh->globalPosition().mag2();
   double derivative2 = pow(derivative, 2);
   return pow(derivative2 * vh->lowerGlobalPosErr().czz() + derivative2 * pow(sigmaZ_beamSpot, 2), 0.5);
 }

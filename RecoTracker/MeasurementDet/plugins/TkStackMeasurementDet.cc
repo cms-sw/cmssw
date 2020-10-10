@@ -32,16 +32,14 @@ TkStackMeasurementDet::RecHitContainer TkStackMeasurementDet::recHits(const Traj
   //find clusters to skip
   const detset& lowerDetSet = data.phase2OTData().detSet(lowerDet()->index());
   const detset& upperDetSet = data.phase2OTData().detSet(upperDet()->index());
-  std::vector<bool> skipClustersUpper(data.phase2OTClustersToSkip().empty()? 0 : upperDetSet.size(), false);
-  std::vector<bool> skipClustersLower(data.phase2OTClustersToSkip().empty()? 0 : lowerDetSet.size(), false);
-
+  std::vector<bool> skipClustersUpper(data.phase2OTClustersToSkip().empty() ? 0 : upperDetSet.size(), false);
+  std::vector<bool> skipClustersLower(data.phase2OTClustersToSkip().empty() ? 0 : lowerDetSet.size(), false);
 
   const Phase2TrackerCluster1D* begin = nullptr;
   if (!data.phase2OTData().handle()->data().empty()) {
     begin = &(data.phase2OTData().handle()->data().front());
   }
   if (!data.phase2OTClustersToSkip().empty()) {
-
     if (!lowerDetSet.empty()) {
       for (const_iterator cil = lowerDetSet.begin(); cil != lowerDetSet.end(); ++cil) {
         if (cil < begin) {
@@ -50,7 +48,7 @@ TkStackMeasurementDet::RecHitContainer TkStackMeasurementDet::recHits(const Traj
         }
         unsigned int indexl = cil - begin;
         if (data.phase2OTClustersToSkip()[indexl]) {
-	  int iLocalL = std::distance(lowerDetSet.begin(),cil);
+          int iLocalL = std::distance(lowerDetSet.begin(), cil);
           skipClustersLower[iLocalL] = true;
         }
       }
@@ -63,7 +61,7 @@ TkStackMeasurementDet::RecHitContainer TkStackMeasurementDet::recHits(const Traj
         }
         unsigned int indexu = ciu - begin;
         if (data.phase2OTClustersToSkip()[indexu]) {
-          int iLocalU = std::distance(upperDetSet.begin(),ciu);
+          int iLocalU = std::distance(upperDetSet.begin(), ciu);
           skipClustersUpper[iLocalU] = true;
         }
       }
@@ -75,10 +73,10 @@ TkStackMeasurementDet::RecHitContainer TkStackMeasurementDet::recHits(const Traj
   if (iterator == data.phase2OTVectorHits().end())
     return result;
   for (const auto& vecHit : data.phase2OTVectorHits()[detIdStack]) {
-    if (!data.phase2OTClustersToSkip().empty()){
-      if (skipClustersLower[vecHit.lowerCluster().key()-lowerDetSet.offset()])
+    if (!data.phase2OTClustersToSkip().empty()) {
+      if (skipClustersLower[vecHit.lowerCluster().key() - lowerDetSet.offset()])
         continue;
-      if (skipClustersUpper[vecHit.upperCluster().key()-upperDetSet.offset()])
+      if (skipClustersUpper[vecHit.upperCluster().key() - upperDetSet.offset()])
         continue;
     }
     result.push_back(std::make_shared<VectorHit>(vecHit));
@@ -88,10 +86,10 @@ TkStackMeasurementDet::RecHitContainer TkStackMeasurementDet::recHits(const Traj
   if (iterator == data.phase2OTVectorHitsRej().end())
     return result;
   for (const auto& vecHit : data.phase2OTVectorHitsRej()[detIdStack]) {
-    if (!data.phase2OTClustersToSkip().empty()){   
-      if (skipClustersLower[vecHit.lowerCluster().key()-lowerDetSet.offset()])
+    if (!data.phase2OTClustersToSkip().empty()) {
+      if (skipClustersLower[vecHit.lowerCluster().key() - lowerDetSet.offset()])
         continue;
-      if (skipClustersUpper[vecHit.upperCluster().key()-upperDetSet.offset()])
+      if (skipClustersUpper[vecHit.upperCluster().key() - upperDetSet.offset()])
         continue;
     }
     result.push_back(std::make_shared<VectorHit>(vecHit));
