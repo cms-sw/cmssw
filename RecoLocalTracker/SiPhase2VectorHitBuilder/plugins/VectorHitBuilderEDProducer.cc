@@ -59,8 +59,10 @@ void VectorHitBuilderEDProducer::produce(edm::Event& event, const edm::EventSetu
   std::unique_ptr<VectorHitCollection> outputVHRejected(new VectorHitCollection());
 
   stubsBuilder_ = &es.getData(stubsBuilderToken_);
+ #ifdef EDM_ML_DEBUG
   // check on the input clusters
   stubsBuilder_->printClusters(*clustersHandle);
+ #endif  //EDM_ML_DEBUG
 
   // running the stub building algorithm
   //ERICA::output should be moved in the different algo classes?
