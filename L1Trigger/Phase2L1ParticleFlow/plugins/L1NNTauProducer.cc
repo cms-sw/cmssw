@@ -101,6 +101,18 @@ float L1NNTauProducer::deltaR(const l1t::PFCandidate& iPart1, const l1t::PFCandi
   delta_r = sqrt((iPart1.eta() - iPart2.eta()) * (iPart1.eta() - iPart2.eta()) + pDPhi * pDPhi);
   return delta_r;
 }
+void L1NNTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // L1NNTauProducer
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("NNFileName", "L1Trigger/Phase2L1ParticleFlow/data/tau_3layer.pb");
+  desc.add<double>("tausize", 0.1);
+  desc.add<int>("maxtaus", 5);
+  desc.add<int>("nparticles", 10);
+  desc.add<double>("conesize", 0.4);
+  desc.add<double>("seedpt", 20);
+  desc.add<edm::InputTag>("L1PFObjects", edm::InputTag("L1PFProducer", "l1pfCandidates"));
+  descriptions.add("L1NNTauProducer", desc);
+}
 L1NNTauProducer::~L1NNTauProducer() {}
 
 #include "FWCore/Framework/interface/MakerMacros.h"
