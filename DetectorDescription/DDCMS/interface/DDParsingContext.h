@@ -66,6 +66,7 @@ namespace cms {
     bool debug_specpars = false;
 
     dd4hep::Detector& description;
+
     std::unordered_map<std::string, dd4hep::Assembly> assemblies;
     std::unordered_map<std::string, dd4hep::Rotation3D> rotations;
     std::unordered_map<std::string, dd4hep::Solid> shapes;
