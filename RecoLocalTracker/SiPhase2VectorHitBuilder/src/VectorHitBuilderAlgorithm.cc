@@ -124,25 +124,40 @@ std::vector<std::pair<VectorHit, bool>> VectorHitBuilderAlgorithm::buildVectorHi
   } else {
     LogTrace("VectorHitBuilderAlgorithm") << "  not compatible, going to the next cluster";
   }
+
+  unsigned int layerStack = tkTopo_->layer(stack->geographicalId());
+  if (stack->subDetector() == GeomDetEnumerators::SubDetector::P2OTB)
+    LogDebug("VectorHitBuilderAlgorithm") << " \t is barrel.    " << std::endl;
+  if (stack->subDetector() == GeomDetEnumerators::SubDetector::P2OTEC)
+    LogDebug("VectorHitBuilderAlgorithm") << " \t is endcap.    " << std::endl;
+  LogDebug("VectorHitBuilderAlgorithm") << " \t layer is : " << layerStack << std::endl;
+
+  float cut = 0.0;
+  if (stack->subDetector() == GeomDetEnumerators::SubDetector::P2OTB)
+    cut = barrelCut_.at(layerStack);
+  if (stack->subDetector() == GeomDetEnumerators::SubDetector::P2OTEC)
+    cut = endcapCut_.at(layerStack);
+   LogDebug("VectorHitBuilderAlgorithm") << " \t the cut is:" << cut << std::endl;
+
+
   //only cache local parameters for upper cluster as we loop over lower clusters only once anyway
   std::vector<std::pair<LocalPoint, LocalError>> localParamsUpper;
   std::vector<const PixelGeomDetUnit*> localGDUUpper;
 
   std::vector<Phase2TrackerCluster1DRef> upperClusters;
-  for (const_iterator ciu = theUpperDetSet.begin(); ciu != theUpperDetSet.end(); ++ciu) {
-    Phase2TrackerCluster1DRef clusterUpper = edmNew::makeRefTo(clusters, ciu);
-    const PixelGeomDetUnit* gduUpp = dynamic_cast<const PixelGeomDetUnit*>(stack->upperDet());
+  const PixelGeomDetUnit* gduUpp = dynamic_cast<const PixelGeomDetUnit*>(stack->upperDet());
+  for (auto const&  clusterUpper : theUpperDetSet) {
     localGDUUpper.push_back(gduUpp);
-    localParamsUpper.push_back(cpe_->localParameters(*clusterUpper, *gduUpp));
+    localParamsUpper.push_back(cpe_->localParameters(clusterUpper, *gduUpp));
   }
   int upperIterator = 0;
+  const PixelGeomDetUnit* gduLow = dynamic_cast<const PixelGeomDetUnit*>(stack->lowerDet());
   for (const_iterator cil = theLowerDetSet.begin(); cil != theLowerDetSet.end(); ++cil) {
     LogDebug("VectorHitBuilderAlgorithm") << " lower clusters " << std::endl;
     Phase2TrackerCluster1DRef cluL = edmNew::makeRefTo(clusters, cil);
 #ifdef EDM_ML_DEBUG
     printCluster(stack->lowerDet(), &*cluL);
 #endif
-    const PixelGeomDetUnit* gduLow = dynamic_cast<const PixelGeomDetUnit*>(stack->lowerDet());
     auto&& lparamsLow = cpe_->localParameters(*cluL, *gduLow);
     upperIterator = 0;
     for (const_iterator ciu = theUpperDetSet.begin(); ciu != theUpperDetSet.end(); ++ciu) {
@@ -157,57 +172,44 @@ std::vector<std::pair<VectorHit, bool>> VectorHitBuilderAlgorithm::buildVectorHi
       LogDebug("VectorHitBuilderAlgorithm") << " \t parallax correction:" << pC << std::endl;
       double lpos_upp_corr = 0.0;
       double lpos_low_corr = 0.0;
-      if (localParamsUpper[upperIterator].first.x() > lparamsLow.first.x()) {
-        if (localParamsUpper[upperIterator].first.x() > 0) {
+      auto const localUpperX = localParamsUpper[upperIterator].first.x();
+      if (localUpperX > lparamsLow.first.x()) {
+        if (localUpperX > 0) {
           lpos_low_corr = lparamsLow.first.x();
           lpos_upp_corr = localParamsUpper[upperIterator].first.x() - std::abs(pC);
-        } else if (localParamsUpper[upperIterator].first.x() < 0) {
+        } else if (localUpperX < 0) {
           lpos_low_corr = lparamsLow.first.x() + std::abs(pC);
-          lpos_upp_corr = localParamsUpper[upperIterator].first.x();
+          lpos_upp_corr = localUpperX;
         }
-      } else if (localParamsUpper[upperIterator].first.x() < lparamsLow.first.x()) {
-        if (localParamsUpper[upperIterator].first.x() > 0) {
+      } else if (localUpperX < lparamsLow.first.x()) {
+        if (localUpperX > 0) {
           lpos_low_corr = lparamsLow.first.x() - std::abs(pC);
-          lpos_upp_corr = localParamsUpper[upperIterator].first.x();
-        } else if (localParamsUpper[upperIterator].first.x() < 0) {
+          lpos_upp_corr = localUpperX;
+        } else if (localUpperX < 0) {
           lpos_low_corr = lparamsLow.first.x();
-          lpos_upp_corr = localParamsUpper[upperIterator].first.x() + std::abs(pC);
+          lpos_upp_corr = localUpperX + std::abs(pC);
         }
       } else {
-        if (localParamsUpper[upperIterator].first.x() > 0) {
+        if (localUpperX > 0) {
           lpos_low_corr = lparamsLow.first.x();
-          lpos_upp_corr = localParamsUpper[upperIterator].first.x() - std::abs(pC);
-        } else if (localParamsUpper[upperIterator].first.x() < 0) {
+          lpos_upp_corr = localUpperX - std::abs(pC);
+        } else if (localUpperX < 0) {
           lpos_low_corr = lparamsLow.first.x();
-          lpos_upp_corr = localParamsUpper[upperIterator].first.x() + std::abs(pC);
+          lpos_upp_corr = localUpperX + std::abs(pC);
         }
       }
 
       LogDebug("VectorHitBuilderAlgorithm") << " \t local pos upper corrected (x):" << lpos_upp_corr << std::endl;
       LogDebug("VectorHitBuilderAlgorithm") << " \t local pos lower corrected (x):" << lpos_low_corr << std::endl;
 
-      //building my tolerance : 10*sigma
-      double delta = 10.0 * sqrt(lparamsLow.second.xx() + localParamsUpper[upperIterator].second.xx());
-      LogDebug("VectorHitBuilderAlgorithm") << " \t delta: " << delta << std::endl;
-
       double width = lpos_low_corr - lpos_upp_corr;
       LogDebug("VectorHitBuilderAlgorithm") << " \t width: " << width << std::endl;
 
-      unsigned int layerStack = tkTopo_->layer(stack->geographicalId());
-      if (stack->subDetector() == GeomDetEnumerators::SubDetector::P2OTB)
-        LogDebug("VectorHitBuilderAlgorithm") << " \t is barrel.    " << std::endl;
-      if (stack->subDetector() == GeomDetEnumerators::SubDetector::P2OTEC)
-        LogDebug("VectorHitBuilderAlgorithm") << " \t is endcap.    " << std::endl;
-      LogDebug("VectorHitBuilderAlgorithm") << " \t layer is : " << layerStack << std::endl;
-
-      float cut = 0.0;
-      if (stack->subDetector() == GeomDetEnumerators::SubDetector::P2OTB)
-        cut = barrelCut_.at(layerStack);
-      if (stack->subDetector() == GeomDetEnumerators::SubDetector::P2OTEC)
-        cut = endcapCut_.at(layerStack);
-      LogDebug("VectorHitBuilderAlgorithm") << " \t the cut is:" << cut << std::endl;
 
       //old cut: indipendent from layer
+      //building my tolerance : 10*sigma
+      //double delta = 10.0 * sqrt(lparamsLow.second.xx() + localParamsUpper[upperIterator].second.xx());
+      //LogDebug("VectorHitBuilderAlgorithm") << " \t delta: " << delta << std::endl;
       //if( (lpos_upp_corr < lpos_low_corr + delta) &&
       //    (lpos_upp_corr > lpos_low_corr - delta) ){
       //new cut: dependent on layers
@@ -223,7 +225,9 @@ std::vector<std::pair<VectorHit, bool>> VectorHitBuilderAlgorithm::buildVectorHi
         LogDebug("VectorHitBuilderAlgorithm") << " rejecting VH: " << std::endl;
         //storing vh rejected for combinatiorial studies
         VectorHit vh = buildVectorHit(stack, cluL, cluU);
-        result.emplace_back(std::make_pair(vh, false));
+        if (vh.isValid()){
+        	result.emplace_back(std::make_pair(vh, false));
+        }
       }
       upperIterator += 1;
     }
@@ -308,10 +312,8 @@ VectorHit VectorHitBuilderAlgorithm::buildVectorHit(const StackGeomDet* stack,
     GlobalError gErrorUpper = VectorHit::phase2clusterGlobalPosErr(geomDetUpper);
 
     if (gPositionLower.perp() > gPositionUpper.perp()) {
-      gPositionLower = VectorHit::phase2clusterGlobalPos(geomDetUpper, upper);
-      gPositionUpper = VectorHit::phase2clusterGlobalPos(geomDetLower, lower);
-      gErrorLower = VectorHit::phase2clusterGlobalPosErr(geomDetUpper);
-      gErrorUpper = VectorHit::phase2clusterGlobalPosErr(geomDetLower);
+      std::swap(gPositionLower,gPositionUpper);
+      std::swap(gErrorLower,gErrorUpper);
     }
 
     const CurvatureAndPhi curvatureAndPhi = curvatureANDphi(gPositionLower, gPositionUpper, gErrorLower, gErrorUpper);
@@ -422,18 +424,20 @@ VectorHitBuilderAlgorithm::CurvatureAndPhi VectorHitBuilderAlgorithm::curvatureA
   double signCurv = -copysign(1.0, n3);
   double phi1 = atan2(gPositionUpper.y() - gPositionLower.y(), gPositionUpper.x() - gPositionLower.x());
 
+
+  double x2Low = pow(gPositionLower.x(), 2);
+  double y2Low = pow(gPositionLower.y(), 2);
+  double x2Up = pow(gPositionUpper.x(), 2);
+  double y2Up = pow(gPositionUpper.y(), 2);
+
   if (h1 != 0) {
     double h2 = 2 * h1;
     double h2Inf = 1. / (2 * h1);
-    double r12 = pow(gPositionLower.x(), 2) + pow(gPositionLower.y(), 2);
-    double r22 = pow(gPositionUpper.x(), 2) + pow(gPositionUpper.y(), 2);
-    double h3 =
-        (pow(gPositionLower.x(), 2) - 2. * gPositionLower.x() * gPositionUpper.x() + pow(gPositionUpper.x(), 2) +
-         pow(gPositionLower.y(), 2) - 2. * gPositionLower.y() * gPositionUpper.y() + pow(gPositionUpper.y(), 2));
-    double h4 = -pow(gPositionLower.x(), 2) * gPositionUpper.x() + gPositionLower.x() * pow(gPositionUpper.x(), 2) +
-                gPositionLower.x() * pow(gPositionUpper.y(), 2) - gPositionUpper.x() * pow(gPositionLower.y(), 2);
-    double h5 = pow(gPositionLower.x(), 2) * gPositionUpper.y() - pow(gPositionUpper.x(), 2) * gPositionLower.y() +
-                pow(gPositionLower.y(), 2) * gPositionUpper.y() - gPositionLower.y() * pow(gPositionUpper.y(), 2);
+    double r12 = gPositionLower.perp2();
+    double r22 = gPositionUpper.perp2();
+    double h3 = pow(n2[0],2) + pow(n2[1],2);
+    double h4 = -x2Low * gPositionUpper.x() + gPositionLower.x() * x2Up + gPositionLower.x() *y2Up - gPositionUpper.x() * y2Low;
+    double h5 = x2Low * gPositionUpper.y() - x2Up * gPositionLower.y() + y2Low * gPositionUpper.y() - gPositionLower.y() * y2Up;
 
     //radius of circle
     double invRho2 = (4. * h1 * h1) / (r12 * r22 * h3);
@@ -456,53 +460,33 @@ VectorHitBuilderAlgorithm::CurvatureAndPhi VectorHitBuilderAlgorithm::curvatureA
     double denom2 = 1. / (pow(r12 * r22 * h3, 1.5));
     jacobian[0][0] = 1.0;  // dx1/dx1 dx1/dy1 dx2/dx1 dy2/dx1
     jacobian[1][1] = 1.0;  //dy1/dx1 dy1/dy1 dy2/dx1 dy2/dx1
-    jacobian[2][0] =
-        -2. * ((h1 * (gPositionLower.x() * r22 * h3 + (gPositionLower.x() - gPositionUpper.x()) * r12 * r22)) * denom2 -
-               (gPositionUpper.y()) * denom1);  // dkappa/dx1
-    jacobian[2][1] =
-        -2. * ((gPositionUpper.x()) * denom1 +
-               (h1 * (gPositionLower.y() * r22 * h3 + r12 * r22 * (gPositionLower.y() - gPositionUpper.y()))) *
-                   denom2);  // dkappa/dy1
-    jacobian[2][2] =
-        -2. * ((gPositionLower.y()) * denom1 +
-               (h1 * (gPositionUpper.x() * r12 * h3 - (gPositionLower.x() - gPositionUpper.x()) * r12 * r22)) *
-                   denom2);  // dkappa/dx2
-    jacobian[2][3] =
-        -2. * ((h1 * (gPositionUpper.y() * r12 * h3 - r12 * r22 * (gPositionLower.y() - gPositionUpper.y()))) * denom2 -
-               (gPositionLower.x()) * denom1);  // dkappa/dy2
-    AlgebraicVector2 M;
+    jacobian[2][0] = -2. * ((h1 * (gPositionLower.x() * r22 * h3 + (gPositionLower.x() - gPositionUpper.x()) * r12 * r22)) * denom2 - (gPositionUpper.y()) * denom1);  // dkappa/dx1
+    jacobian[2][1] = -2. * ((gPositionUpper.x()) * denom1 + (h1 * (gPositionLower.y() * r22 * h3 + r12 * r22 * (gPositionLower.y() - gPositionUpper.y()))) * denom2);  // dkappa/dy1
+    jacobian[2][2] = -2. * ((gPositionLower.y()) * denom1 + (h1 * (gPositionUpper.x() * r12 * h3 - (gPositionLower.x() - gPositionUpper.x()) * r12 * r22)) * denom2);  // dkappa/dx2
+    jacobian[2][3] = -2. * ((h1 * (gPositionUpper.y() * r12 * h3 - r12 * r22 * (gPositionLower.y() - gPositionUpper.y()))) * denom2 - (gPositionLower.x()) * denom1);  // dkappa/dy2
+    AlgebraicVector2 mVector;
     //to compute phi at the cluster points
-    M[0] = (gPositionLower.y() - ycentre) * invRho2;   // dphi/dxcentre
-    M[1] = -(gPositionLower.x() - xcentre) * invRho2;  // dphi/dycentre
+    mVector[0] = (gPositionLower.y() - ycentre) * invRho2;   // dphi/dxcentre
+    mVector[1] = -(gPositionLower.x() - xcentre) * invRho2;  // dphi/dycentre
     //to compute phi at the origin
 
-    AlgebraicROOTObject<2, 4>::Matrix K;
-    K[0][0] =
-        2. * ((gPositionLower.x() * gPositionUpper.y()) * h2Inf - (gPositionUpper.y() * h5) / pow(h2, 2));  // dxm/dx1
-    K[0][1] = (2. * gPositionUpper.x() * h5) / pow(h2, 2) -
-              (pow(gPositionUpper.x(), 2) + pow(gPositionUpper.y(), 2) - 2. * gPositionLower.y() * gPositionUpper.y()) *
-                  h2Inf;  // dxm/dy1
-    K[0][2] =
-        2. * ((gPositionLower.y() * h5) / pow(h2, 2) - (gPositionUpper.x() * gPositionLower.y()) * h2Inf);  // dxm/dx2
-    K[0][3] = (pow(gPositionLower.x(), 2) + pow(gPositionLower.y(), 2) - 2. * gPositionUpper.y() * gPositionLower.y()) *
-                  h2Inf -
-              (2. * gPositionLower.x() * h5) / pow(h2, 2);  // dxm/dy2
-    K[1][0] = (pow(gPositionUpper.x(), 2) - 2. * gPositionLower.x() * gPositionUpper.x() + pow(gPositionUpper.y(), 2)) *
-                  h2Inf -
-              (2. * gPositionUpper.y() * h4) / pow(h2, 2);  // dym/dx1
-    K[1][1] =
-        2. * ((gPositionUpper.x() * h4) / pow(h2, 2) - (gPositionUpper.x() * gPositionLower.y()) * h2Inf);  // dym/dy1
-    K[1][2] = (2. * gPositionLower.y() * h4) / pow(h2, 2) -
-              (pow(gPositionLower.x(), 2) - 2. * gPositionUpper.x() * gPositionLower.x() + pow(gPositionLower.y(), 2)) *
-                  h2Inf;  // dym/dx2
-    K[1][3] =
-        2. * (gPositionLower.x() * gPositionUpper.y()) * h2Inf - (gPositionLower.x() * h4) / pow(h2, 2);  // dym/dy2
+    double h22Inv = 1./pow(h2, 2);
 
-    AlgebraicVector4 N = M * K;
-    jacobian[3][0] = N[0];  // dphi/(dx1,dy1,dx2,dy2)
-    jacobian[3][1] = N[1];  // dphi/(dx1,dy1,dx2,dy2)
-    jacobian[3][2] = N[2];  // dphi/(dx1,dy1,dx2,dy2)
-    jacobian[3][3] = N[3];  // dphi/(dx1,dy1,dx2,dy2)
+    AlgebraicROOTObject<2, 4>::Matrix kMatrix;
+    kMatrix[0][0] = 2. * ((gPositionLower.x() * gPositionUpper.y()) * h2Inf - (gPositionUpper.y() * h5) * h22Inv);  // dxm/dx1
+    kMatrix[0][1] = (2. * gPositionUpper.x() * h5) * h22Inv - (x2Up + y2Up - 2. * gPositionLower.y() * gPositionUpper.y()) * h2Inf;  // dxm/dy1
+    kMatrix[0][2] = 2. * ((gPositionLower.y() * h5) * h22Inv - (gPositionUpper.x() * gPositionLower.y()) * h2Inf);  // dxm/dx2
+    kMatrix[0][3] = (x2Low + y2Low - 2. * gPositionUpper.y() * gPositionLower.y()) * h2Inf - (2. * gPositionLower.x() * h5) * h22Inv;  // dxm/dy2
+    kMatrix[1][0] = (x2Up - 2. * gPositionLower.x() * gPositionUpper.x() + y2Up) * h2Inf - (2. * gPositionUpper.y() * h4) * h22Inv;  // dym/dx1
+    kMatrix[1][1] = 2. * ((gPositionUpper.x() * h4) * h22Inv - (gPositionUpper.x() * gPositionLower.y()) * h2Inf);  // dym/dy1
+    kMatrix[1][2] = (2. * gPositionLower.y() * h4) * h22Inv - (x2Low - 2. * gPositionUpper.x() * gPositionLower.x() + y2Low) * h2Inf;  // dym/dx2
+    kMatrix[1][3] = 2. * (gPositionLower.x() * gPositionUpper.y()) * h2Inf - (gPositionLower.x() * h4) * h22Inv;  // dym/dy2
+
+    AlgebraicVector4 nMatrix = mVector * kMatrix;
+    jacobian[3][0] = nMatrix[0];  // dphi/(dx1,dy1,dx2,dy2)
+    jacobian[3][1] = nMatrix[1];  // dphi/(dx1,dy1,dx2,dy2)
+    jacobian[3][2] = nMatrix[2];  // dphi/(dx1,dy1,dx2,dy2)
+    jacobian[3][3] = nMatrix[3];  // dphi/(dx1,dy1,dx2,dy2)
 
     //assign correct sign to the curvature errors
     if ((signCurv < 0 && curvature > 0) || (signCurv > 0 && curvature < 0)) {

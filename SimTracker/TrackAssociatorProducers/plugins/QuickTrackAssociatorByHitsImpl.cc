@@ -800,7 +800,6 @@ double QuickTrackAssociatorByHitsImpl::weightedNumberOfTrackClusters(iter begin,
       weightedClusters += weight;
     }
   }
-
   LogTrace("QuickTrackAssociatorByHitsImpl") << "  total weighted clusters: " << weightedClusters;
   return weightedClusters;
 }

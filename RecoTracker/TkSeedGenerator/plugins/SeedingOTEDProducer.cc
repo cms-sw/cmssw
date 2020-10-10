@@ -44,15 +44,15 @@ public:
 
   TrajectorySeedCollection run(edm::Handle<VectorHitCollection>);
   unsigned int checkLayer(unsigned int iidd);
-  std::vector<VectorHit> collectVHsOnLayer(const edmNew::DetSetVector<VectorHit>&, unsigned int);
+  std::vector<const VectorHit*> collectVHsOnLayer(const edmNew::DetSetVector<VectorHit>&, unsigned int);
   void printVHsOnLayer(const edmNew::DetSetVector<VectorHit>&, unsigned int);
-  const TrajectoryStateOnSurface buildInitialTSOS(const VectorHit&) const;
+  const TrajectoryStateOnSurface buildInitialTSOS(const VectorHit*) const;
   AlgebraicSymMatrix55 assign44To55(AlgebraicSymMatrix44) const;
   std::pair<bool, TrajectoryStateOnSurface> propagateAndUpdate(const TrajectoryStateOnSurface initialTSOS,
                                                                const Propagator&,
                                                                const TrackingRecHit& hit) const;
-  float computeGlobalThetaError(const VectorHit& vh, const double sigmaZ_beamSpot) const;
-  float computeInverseMomentumError(const VectorHit& vh,
+  float computeGlobalThetaError(const VectorHit* vh, const double sigmaZ_beamSpot) const;
+  float computeInverseMomentumError(const VectorHit* vh,
                                     const float globalTheta,
                                     const double sigmaZ_beamSpot,
                                     const double transverseMomentum) const;
@@ -64,7 +64,7 @@ public:
 
   struct isInvalid {
     bool operator()(const TrajectoryMeasurement& measurement) {
-      return (((measurement).recHit() == nullptr) || !((measurement).recHit()->isValid()) ||
+      return ((measurement.recHit() == nullptr) || !(measurement.recHit()->isValid()) ||
               !((measurement).updatedState().isValid()));
     }
   };
@@ -123,10 +123,9 @@ void SeedingOTEDProducer::produce(edm::Event& event, const edm::EventSetup& es) 
   edm::ESHandle<MeasurementTracker> measurementTrackerHandle = es.getHandle(measurementTrackerToken_);
   measurementTracker_ = measurementTrackerHandle.product();
 
-  edm::Handle<MeasurementTrackerEvent> measurementTrackerEvent;
-  event.getByToken(tkMeasEventToken_, measurementTrackerEvent);
+  auto const& measurementTrackerEvent = event.get(tkMeasEventToken_);
 
-  layerMeasurements_ = std::make_unique<LayerMeasurements>(*measurementTrackerHandle, *measurementTrackerEvent);
+  layerMeasurements_ = std::make_unique<LayerMeasurements>(*measurementTrackerHandle, measurementTrackerEvent);
 
   estimator_ = &es.getData(estToken_);
 
@@ -136,25 +135,20 @@ void SeedingOTEDProducer::produce(edm::Event& event, const edm::EventSetup& es) 
 
   updator_ = &es.getData(updatorToken_);
 
-  edm::Handle<reco::BeamSpot> beamSpotH;
-  event.getByToken(beamSpotToken_, beamSpotH);
-  if (beamSpotH.isValid()) {
-    beamSpot_ = beamSpotH.product();
-  }
+  beamSpot_ = &event.get(beamSpotToken_);
 
   // Get the vector hits
-  edm::Handle<VectorHitCollection> vhs;
-  event.getByToken(vhProducerToken_, vhs);
+  auto vhs = event.getHandle(vhProducerToken_);
 
   event.emplace(putToken_, run(vhs));
 }
 
-TrajectorySeedCollection SeedingOTEDProducer::run(edm::Handle<VectorHitCollection> VHs) {
+TrajectorySeedCollection SeedingOTEDProducer::run(edm::Handle<VectorHitCollection> vHs) {
   TrajectorySeedCollection result;
   //check if all the first three layers have VHs
-  std::vector<VectorHit> vhSeedsL1 = collectVHsOnLayer(*VHs.product(), 1);
-  std::vector<VectorHit> vhSeedsL2 = collectVHsOnLayer(*VHs.product(), 2);
-  std::vector<VectorHit> vhSeedsL3 = collectVHsOnLayer(*VHs.product(), 3);
+  std::vector<const VectorHit*> vhSeedsL1 = collectVHsOnLayer(*vHs.product(), 1);
+  std::vector<const VectorHit*> vhSeedsL2 = collectVHsOnLayer(*vHs.product(), 2);
+  std::vector<const VectorHit*> vhSeedsL3 = collectVHsOnLayer(*vHs.product(), 3);
   if (vhSeedsL1.empty() || vhSeedsL2.empty() || vhSeedsL3.empty()) {
     return result;
   }
@@ -176,7 +170,7 @@ TrajectorySeedCollection SeedingOTEDProducer::run(edm::Handle<VectorHitCollectio
     //set the direction of the propagator
     if (signZ * signPz > 0.0)
       searchingPropagator->setPropagationDirection(oppositeToMomentum);
-    if (signZ * signPz < 0.0)
+    else
       searchingPropagator->setPropagationDirection(alongMomentum);
 
     //find vHits in layer 2
@@ -217,15 +211,10 @@ TrajectorySeedCollection SeedingOTEDProducer::run(edm::Handle<VectorHitCollectio
             if (!updatedTSOSL1.first)
               continue;
 
-            edm::OwnVector<TrackingRecHit> container;
-            container.push_back(hitL1->clone());
-            container.push_back(hitL2->clone());
-            container.push_back(hitL3.clone());
-
             //building trajectory inside-out
             if (searchingPropagator->propagationDirection() == alongMomentum) {
               buildingPropagator->setPropagationDirection(oppositeToMomentum);
-            } else if (searchingPropagator->propagationDirection() == oppositeToMomentum) {
+            } else {
               buildingPropagator->setPropagationDirection(alongMomentum);
             }
 
@@ -239,11 +228,17 @@ TrajectorySeedCollection SeedingOTEDProducer::run(edm::Handle<VectorHitCollectio
             if (!updatedTSOSL2_final.first)
               continue;
             std::pair<bool, TrajectoryStateOnSurface> updatedTSOSL3_final =
-                propagateAndUpdate(updatedTSOSL2_final.second, *buildingPropagator, hitL3);
+                propagateAndUpdate(updatedTSOSL2_final.second, *buildingPropagator, *hitL3);
             if (!updatedTSOSL3_final.first)
               continue;
-            TrajectorySeed ts =
-                createSeed(updatedTSOSL3_final.second, container, hitL3.geographicalId(), *buildingPropagator);
+ 
+            edm::OwnVector<TrackingRecHit> container;
+            container.push_back(hitL1->clone());
+            container.push_back(hitL2->clone());
+            container.push_back(hitL3->clone());
+
+           TrajectorySeed ts =
+                createSeed(updatedTSOSL3_final.second, container, hitL3->geographicalId(), *buildingPropagator);
             result.push_back(ts);
           }
         }
@@ -263,20 +258,20 @@ unsigned int SeedingOTEDProducer::checkLayer(unsigned int iidd) {
   return 0;
 }
 
-std::vector<VectorHit> SeedingOTEDProducer::collectVHsOnLayer(const edmNew::DetSetVector<VectorHit>& input,
+std::vector<const VectorHit*> SeedingOTEDProducer::collectVHsOnLayer(const edmNew::DetSetVector<VectorHit>& input,
                                                               unsigned int layerNumber) {
-  std::vector<VectorHit> VHsOnLayer;
+  std::vector<const VectorHit*> vHsOnLayer;
   if (!input.empty()) {
     for (const auto& DSViter : input) {
       if (checkLayer(DSViter.id()) == layerNumber) {
         for (const auto& vh : DSViter) {
-          VHsOnLayer.push_back(vh);
+          vHsOnLayer.push_back(&vh);
         }
       }
     }
   }
 
-  return VHsOnLayer;
+  return vHsOnLayer;
 }
 
 void SeedingOTEDProducer::printVHsOnLayer(const edmNew::DetSetVector<VectorHit>& input, unsigned int layerNumber) {
@@ -292,36 +287,36 @@ void SeedingOTEDProducer::printVHsOnLayer(const edmNew::DetSetVector<VectorHit>&
   }
 }
 
-const TrajectoryStateOnSurface SeedingOTEDProducer::buildInitialTSOS(const VectorHit& vHit) const {
+const TrajectoryStateOnSurface SeedingOTEDProducer::buildInitialTSOS(const VectorHit* vHit) const {
   // having fun with theta
-  Global3DVector gv(vHit.globalPosition().x(), vHit.globalPosition().y(), vHit.globalPosition().z());
+  Global3DVector gv(vHit->globalPosition().x(), vHit->globalPosition().y(), vHit->globalPosition().z());
   float theta = gv.theta();
   // gv transform to local (lv)
-  const Local3DVector lv(vHit.det()->surface().toLocal(gv));
+  const Local3DVector lv(vHit->det()->surface().toLocal(gv));
 
   //FIXME::charge is fine 1 every two times!!
   GlobalPoint center(0.0, 0.0, 0.0);
   int charge = 1;
-  float p = vHit.momentum(magField_->inTesla(center).z());
-  float x = vHit.localPosition().x();
-  float y = vHit.localPosition().y();
-  float dx = vHit.localDirection().x();
+  float mom = vHit->momentum(magField_->inTesla(center).z());
+  float xPos = vHit->localPosition().x();
+  float yPos = vHit->localPosition().y();
+  float dx = vHit->localDirection().x();
   // for dy use second component of the lv renormalized to the z component
   float dy = lv.y() / lv.z();
 
   // Pz and Dz should have the same sign
-  float signPz = copysign(1.0, vHit.globalPosition().z());
+  float signPz = copysign(1.0, vHit->globalPosition().z());
 
-  LocalTrajectoryParameters ltpar2(charge / p, dx, dy, x, y, signPz);
-  AlgebraicSymMatrix55 mat = assign44To55(vHit.covMatrix());
+  LocalTrajectoryParameters ltpar2(charge / mom, dx, dy, xPos, yPos, signPz);
+  AlgebraicSymMatrix55 mat = assign44To55(vHit->covMatrix());
   // set the error on 1/p
   mat[0][0] = pow(computeInverseMomentumError(
-                      vHit, theta, beamSpot_->sigmaZ(), vHit.transverseMomentum(magField_->inTesla(center).z())),
+                      vHit, theta, beamSpot_->sigmaZ(), vHit->transverseMomentum(magField_->inTesla(center).z())),
                   2);
 
   //building tsos
   LocalTrajectoryError lterr(mat);
-  const TrajectoryStateOnSurface tsos(ltpar2, lterr, vHit.det()->surface(), magField_);
+  const TrajectoryStateOnSurface tsos(ltpar2, lterr, vHit->det()->surface(), magField_);
 
   return tsos;
 }
@@ -350,14 +345,14 @@ std::pair<bool, TrajectoryStateOnSurface> SeedingOTEDProducer::propagateAndUpdat
   return std::make_pair(true, updatedTSOS);
 }
 
-float SeedingOTEDProducer::computeGlobalThetaError(const VectorHit& vh, const double sigmaZ_beamSpot) const {
+float SeedingOTEDProducer::computeGlobalThetaError(const VectorHit* vh, const double sigmaZ_beamSpot) const {
   double derivative =
-      vh.globalPosition().perp() / (pow(vh.globalPosition().z(), 2) + pow(vh.globalPosition().perp(), 2));
+      vh->globalPosition().perp() / vh->globalPosition().mag2();
   double derivative2 = pow(derivative, 2);
-  return pow(derivative2 * vh.lowerGlobalPosErr().czz() + derivative2 * pow(sigmaZ_beamSpot, 2), 0.5);
+  return pow(derivative2 * vh->lowerGlobalPosErr().czz() + derivative2 * pow(sigmaZ_beamSpot, 2), 0.5);
 }
 
-float SeedingOTEDProducer::computeInverseMomentumError(const VectorHit& vh,
+float SeedingOTEDProducer::computeInverseMomentumError(const VectorHit* vh,
                                                        const float globalTheta,
                                                        const double sigmaZ_beamSpot,
                                                        const double transverseMomentum) const {
