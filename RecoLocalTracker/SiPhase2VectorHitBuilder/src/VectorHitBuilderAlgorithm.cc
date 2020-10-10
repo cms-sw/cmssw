@@ -79,7 +79,6 @@ void VectorHitBuilderAlgorithm::run(edm::Handle<edmNew::DetSetVector<Phase2Track
 #endif
     }
   }
-
   loadDetSetVector(tempVHAcc, vhAcc, totalAccepted);
   loadDetSetVector(tempVHRej, vhRej, totalRejected);
 
