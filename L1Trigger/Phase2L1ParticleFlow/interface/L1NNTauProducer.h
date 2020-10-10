@@ -20,6 +20,8 @@ public:
   explicit L1NNTauProducer(const edm::ParameterSet &);
   ~L1NNTauProducer() override;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+
 private:
   std::unique_ptr<TauNNId> fTauNNId_;
   void addTau(const l1t::PFCandidate &iCand,
