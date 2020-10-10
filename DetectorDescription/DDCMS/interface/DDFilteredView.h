@@ -112,6 +112,7 @@ namespace cms {
 
     //! set the current node to the first child
     bool firstChild();
+    bool nextChild();
 
     //! set the current node to the child in path
     std::vector<std::vector<Node*>> children(const std::string& path);
