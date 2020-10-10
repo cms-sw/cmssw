@@ -12,7 +12,7 @@ namespace cms {
 
   class DDParsingContext {
   public:
-    DDParsingContext(dd4hep::Detector& det) : description(det) {
+    DDParsingContext(dd4hep::Detector* det) : description(det) {
       assemblies.reserve(100);
       rotations.reserve(3000);
       shapes.reserve(4000);
