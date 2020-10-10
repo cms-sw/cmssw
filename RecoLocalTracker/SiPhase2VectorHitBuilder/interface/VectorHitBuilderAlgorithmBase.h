@@ -56,7 +56,8 @@ public:
   void printCluster(const GeomDet* geomDetUnit, const Phase2TrackerCluster1D* cluster) const;
 
   void loadDetSetVector(std::unordered_map<DetId, std::vector<VectorHit>>& theMap,
-                        edmNew::DetSetVector<VectorHit>& theCollection) const;
+                        edmNew::DetSetVector<VectorHit>& theCollection,
+			const int totalSize) const;
 
   const TrackerGeometry* tkGeom_;
   const TrackerTopology* tkTopo_;
