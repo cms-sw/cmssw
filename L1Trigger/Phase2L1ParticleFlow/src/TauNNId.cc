@@ -5,11 +5,10 @@
 
 static constexpr unsigned int n_particles_max = 10;
 
-TauNNId::TauNNId(const std::string &iInput, const std::string &iWeightFile, int iNParticles) {
+TauNNId::TauNNId(const std::string &iInput, const TauNNTFCache *cache, const std::string &iWeightFile, int iNParticles) {
   NNvectorVar_.clear();
   edm::FileInPath fp(iWeightFile);
-  graphDef_ = tensorflow::loadGraphDef(fp.fullPath());
-  session_ = tensorflow::createSession(graphDef_);
+  session_ = tensorflow::createSession(cache->graphDef);
   fNParticles_ = iNParticles;
 
   fPt_ = std::make_unique<float[]>(fNParticles_);
@@ -19,10 +18,7 @@ TauNNId::TauNNId(const std::string &iInput, const std::string &iWeightFile, int 
   fInput_ = iInput;
 }
 
-TauNNId::~TauNNId() {
-  tensorflow::closeSession(session_);
-  delete graphDef_;
-}
+TauNNId::~TauNNId() { tensorflow::closeSession(session_); }
 void TauNNId::setNNVectorVar() {
   NNvectorVar_.clear();
   for (int i0 = 0; i0 < fNParticles_; i0++) {

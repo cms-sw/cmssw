@@ -15,12 +15,14 @@
 
 using namespace l1t;
 
-class L1NNTauProducer : public edm::stream::EDProducer<> {
+class L1NNTauProducer : public edm::stream::EDProducer<edm::GlobalCache<TauNNTFCache>> {
 public:
-  explicit L1NNTauProducer(const edm::ParameterSet &);
+  explicit L1NNTauProducer(const edm::ParameterSet &, const TauNNTFCache *);
   ~L1NNTauProducer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+  static std::unique_ptr<TauNNTFCache> initializeGlobalCache(const edm::ParameterSet &);
+  static void globalEndJob(const TauNNTFCache *);
 
 private:
   std::unique_ptr<TauNNId> fTauNNId_;
@@ -35,7 +37,7 @@ private:
   double fTauSize_;
   int fMaxTaus_;
   int fNParticles_;
-  edm::EDGetTokenT<vector<l1t::PFCandidate> > fL1PFToken_;
+  edm::EDGetTokenT<vector<l1t::PFCandidate>> fL1PFToken_;
 };
 
 #endif
