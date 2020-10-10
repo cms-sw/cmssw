@@ -44,7 +44,8 @@ void HGCalCLUEAlgoT<T>::populate(const HGCRecHitCollection& hits) {
     if (dependSensor_) {
       int thickness_index = rhtools_.getSiThickIndex(detid);
       if (thickness_index == -1)
-        thickness_index = 6;
+        thickness_index = maxNumberOfThickIndices_;
+
       double storedThreshold = thresholds_[layerOnSide][thickness_index];
       if (detid.det() == DetId::HGCalEE || detid.subdetId() == HGCEE) {
         storedThreshold = thresholds_[layerOnSide][thickness_index];
@@ -523,13 +524,13 @@ void HGCalCLUEAlgoT<T>::computeThreshold() {
   initialized_ = true;
 
   std::vector<double> dummy;
-  const unsigned maxNumberOfThickIndices = 6;
-  dummy.resize(maxNumberOfThickIndices + !isNose_, 0);  // +1 to accomodate for the Scintillators
+
+  dummy.resize(maxNumberOfThickIndices_ + !isNose_, 0);  // +1 to accomodate for the Scintillators
   thresholds_.resize(maxlayer_, dummy);
   v_sigmaNoise_.resize(maxlayer_, dummy);
 
   for (unsigned ilayer = 1; ilayer <= maxlayer_; ++ilayer) {
-    for (unsigned ithick = 0; ithick < maxNumberOfThickIndices; ++ithick) {
+    for (unsigned ithick = 0; ithick < maxNumberOfThickIndices_; ++ithick) {
       float sigmaNoise = 0.001f * fcPerEle_ * nonAgedNoises_[ithick] * dEdXweights_[ilayer] /
                          (fcPerMip_[ithick] * thicknessCorrection_[ithick]);
       thresholds_[ilayer - 1][ithick] = sigmaNoise * ecut_;
@@ -542,8 +543,8 @@ void HGCalCLUEAlgoT<T>::computeThreshold() {
 
     if (!isNose_) {
       float scintillators_sigmaNoise = 0.001f * noiseMip_ * dEdXweights_[ilayer] / sciThicknessCorrection_;
-      thresholds_[ilayer - 1][maxNumberOfThickIndices] = ecut_ * scintillators_sigmaNoise;
-      v_sigmaNoise_[ilayer - 1][maxNumberOfThickIndices] = scintillators_sigmaNoise;
+      thresholds_[ilayer - 1][maxNumberOfThickIndices_] = ecut_ * scintillators_sigmaNoise;
+      v_sigmaNoise_[ilayer - 1][maxNumberOfThickIndices_] = scintillators_sigmaNoise;
       LogDebug("HGCalCLUEAlgo") << "ilayer: " << ilayer << " noiseMip: " << noiseMip_
                                 << " scintillators_sigmaNoise: " << scintillators_sigmaNoise << "\n";
     }
