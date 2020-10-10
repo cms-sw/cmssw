@@ -114,7 +114,7 @@ Global3DPoint VectorHit::upperGlobalPos() const {
 Global3DPoint VectorHit::phase2clusterGlobalPos(const PixelGeomDetUnit* geomDet, ClusterRef cluster) {
   const PixelTopology* topo = &geomDet->specificTopology();
   float ix = cluster->center();
-  float iy = cluster->column() + 0.5;                    // halfway the column
+  float iy = cluster->column() + 0.5f;                    // halfway the column
   LocalPoint lp(topo->localX(ix), topo->localY(iy), 0);  // x, y, z
   Global3DPoint gp = geomDet->surface().toGlobal(lp);
   return gp;
