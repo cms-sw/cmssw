@@ -42,6 +42,7 @@ public:
         thicknessCorrection_(ps.getParameter<std::vector<double>>("thicknessCorrection")),
         sciThicknessCorrection_(ps.getParameter<double>("sciThicknessCorrection")),
         deltasi_index_regemfac_(ps.getParameter<int>("deltasi_index_regemfac")),
+        maxNumberOfThickIndices_(ps.getParameter<unsigned>("maxNumberOfThickIndices")),
         fcPerMip_(ps.getParameter<std::vector<double>>("fcPerMip")),
         fcPerEle_(ps.getParameter<double>("fcPerEle")),
         nonAgedNoises_(ps.getParameter<edm::ParameterSet>("noises").getParameter<std::vector<double>>("values")),
@@ -103,6 +104,7 @@ public:
     iDesc.add<std::vector<double>>("thicknessCorrection", {});
     iDesc.add<double>("sciThicknessCorrection", 0.9);
     iDesc.add<int>("deltasi_index_regemfac", 3);
+    iDesc.add<unsigned>("maxNumberOfThickIndices", 6);
     iDesc.add<std::vector<double>>("fcPerMip", {});
     iDesc.add<double>("fcPerEle", 0.0);
     edm::ParameterSetDescription descNestedNoises;
@@ -141,6 +143,7 @@ private:
   std::vector<double> thicknessCorrection_;
   double sciThicknessCorrection_;
   int deltasi_index_regemfac_;
+  unsigned maxNumberOfThickIndices_;
   std::vector<double> fcPerMip_;
   double fcPerEle_;
   std::vector<double> nonAgedNoises_;
