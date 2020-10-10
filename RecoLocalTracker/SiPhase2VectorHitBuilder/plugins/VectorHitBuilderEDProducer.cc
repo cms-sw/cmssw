@@ -53,8 +53,8 @@ void VectorHitBuilderEDProducer::produce(edm::Event& event, const edm::EventSetu
   // get input clusters data
   auto clustersHandle = event.getHandle(clusterProducer_);
   // create the final output collection
-  auto outputClustersAccepted = std::make_unique<edmNew::DetSetVector<Phase2TrackerCluster1D> >();
-  auto outputClustersRejected = std::make_unique<edmNew::DetSetVector<Phase2TrackerCluster1D> >();
+  auto outputClustersAccepted = std::make_unique<edmNew::DetSetVector<Phase2TrackerCluster1D>>();
+  auto outputClustersRejected = std::make_unique<edmNew::DetSetVector<Phase2TrackerCluster1D>>();
   std::unique_ptr<VectorHitCollection> outputVHAccepted(new VectorHitCollection());
   std::unique_ptr<VectorHitCollection> outputVHRejected(new VectorHitCollection());
 
@@ -74,13 +74,12 @@ void VectorHitBuilderEDProducer::produce(edm::Event& event, const edm::EventSetu
     }
   }
   LogDebug("VectorHitBuilderEDProducer") << "found\n" << numberOfVectorHits << " .\n";
-#endif //EDM_ML_DEBUG
+#endif  //EDM_ML_DEBUG
   // write output to file
   event.put(std::move(outputClustersAccepted), "accepted");
   event.put(std::move(outputClustersRejected), "rejected");
   event.put(std::move(outputVHAccepted), "accepted");
   event.put(std::move(outputVHRejected), "rejected");
-
 }
 
 void VectorHitBuilderEDProducer::run(edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D>> clusters,

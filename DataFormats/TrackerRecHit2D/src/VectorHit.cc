@@ -39,7 +39,6 @@ VectorHit::VectorHit(const GeomDet& idet,
       theCurvature(curvature),
       theCurvatureError(curvatureError),
       thePhi(phi) {
-
   //building the cov matrix 4x4 starting from the 2x2
   const AlgebraicSymMatrix22 covMatZX = vh2Dzx.covMatrix();
   const AlgebraicSymMatrix22 covMatZY = vh2Dzy.covMatrix();
@@ -93,7 +92,8 @@ void VectorHit::getKfComponents4D(KfComponentsHolder& holder) const {
   holder.errors<theDimension>() = theCovMatrix;
 
   ProjectMatrix<double, 5, theDimension>& pf = holder.projFunc<theDimension>();
-  for (int i = 0; i<4; ++i) pf.index[i] = i+1;
+  for (int i = 0; i < 4; ++i)
+    pf.index[i] = i + 1;
 
   holder.measuredParams<theDimension>() = AlgebraicVector4(&holder.tsosLocalParameters().At(1), theDimension);
   holder.measuredErrors<theDimension>() = holder.tsosLocalErrors().Sub<AlgebraicSymMatrix44>(1, 1);
@@ -180,12 +180,7 @@ std::ostream& operator<<(std::ostream& os, const VectorHit& vh) {
 }
 
 /// Access to component RecHits (if any)
-std::vector<const TrackingRecHit*> VectorHit::recHits() const {
-  return {};
-}
+std::vector<const TrackingRecHit*> VectorHit::recHits() const { return {}; }
 
 /// Non-const access to component RecHits (if any)
-std::vector<TrackingRecHit*> VectorHit::recHits() {
-  return {};
-}
-
+std::vector<TrackingRecHit*> VectorHit::recHits() { return {}; }

@@ -37,11 +37,15 @@ public:
                                   Local3DPoint& posouter,
                                   LocalError& errinner,
                                   LocalError& errouter) const;
-  struct CurvatureAndPhi { float curvature; float curvatureError; float phi; };
+  struct CurvatureAndPhi {
+    float curvature;
+    float curvatureError;
+    float phi;
+  };
   CurvatureAndPhi curvatureANDphi(Global3DPoint gPositionLower,
-                                                Global3DPoint gPositionUpper,
-                                                GlobalError gErrorLower,
-                                                GlobalError gErrorUpper) const;
+                                  Global3DPoint gPositionUpper,
+                                  GlobalError gErrorLower,
+                                  GlobalError gErrorUpper) const;
 
   std::vector<std::pair<VectorHit, bool>> buildVectorHits(
       const StackGeomDet* stack,
@@ -78,7 +82,6 @@ public:
            Local3DVector& dir,
            AlgebraicSymMatrix22& covMatrix,
            double& chi2) const;
-
 };
 
 #endif
