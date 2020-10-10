@@ -13,6 +13,8 @@ void VectorHitBuilderAlgorithm::run(edm::Handle<edmNew::DetSetVector<Phase2Track
   const auto* clustersPhase2Collection = clusters.product();
 
   std::unordered_map<DetId, std::vector<VectorHit>> tempVHAcc, tempVHRej;
+  int totalAccepted = 0;
+  int totalRejected = 0;
 
   //loop over the DetSetVector
   LogDebug("VectorHitBuilderAlgorithm") << "with #clusters : " << clustersPhase2Collection->size() << std::endl;
@@ -50,8 +52,10 @@ void VectorHitBuilderAlgorithm::run(edm::Handle<edmNew::DetSetVector<Phase2Track
         if (vh.second == true) {
           vhsInStack_Acc.push_back(vh.first);
           std::push_heap(vhsInStack_Acc.begin(), vhsInStack_Acc.end());
+	  totalAccepted += 1;
         } else if (vh.second == false) {
           vhsInStack_Rej.push_back(vh.first);
+          totalRejected += 1;
         }
       }
 
@@ -76,8 +80,8 @@ void VectorHitBuilderAlgorithm::run(edm::Handle<edmNew::DetSetVector<Phase2Track
     }
   }
 
-  loadDetSetVector(tempVHAcc, vhAcc);
-  loadDetSetVector(tempVHRej, vhRej);
+  loadDetSetVector(tempVHAcc, vhAcc, totalAccepted);
+  loadDetSetVector(tempVHRej, vhRej, totalRejected);
 
   LogDebug("VectorHitBuilderAlgorithm") << "End run VectorHitBuilderAlgorithm ... \n";
 }

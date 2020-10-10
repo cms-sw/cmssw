@@ -97,10 +97,12 @@ void VectorHitBuilderAlgorithmBase::printCluster(const GeomDet* geomDetUnit,
 }
 
 void VectorHitBuilderAlgorithmBase::loadDetSetVector(std::unordered_map<DetId, std::vector<VectorHit> >& theMap,
-                                                     edmNew::DetSetVector<VectorHit>& theCollection) const {
-  for (const auto& it : theMap) {
+                                                     edmNew::DetSetVector<VectorHit>& theCollection, 
+					             const int totalSize) const {
+  
+theCollection.reserve(theMap.size(), totalSize);
+for (const auto& it : theMap) {
     edmNew::DetSetVector<VectorHit>::FastFiller vh_col(theCollection, it.first);
-    //vh_col.reserve(it.second.size());
     for (const auto& vh_it : it.second)
       vh_col.push_back(vh_it);
   }

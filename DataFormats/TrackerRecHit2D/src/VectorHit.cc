@@ -39,9 +39,6 @@ VectorHit::VectorHit(const GeomDet& idet,
       theCurvature(curvature),
       theCurvatureError(curvatureError),
       thePhi(phi) {
-//  thePosition = LocalPoint(vh2Dzx.localPosition().x(), vh2Dzy.localPosition().x(), 0.);
-
-//  theDirection = LocalVector(vh2Dzx.localDirection().x(), vh2Dzy.localDirection().x(), 1.);
 
   //building the cov matrix 4x4 starting from the 2x2
   const AlgebraicSymMatrix22 covMatZX = vh2Dzx.covMatrix();
@@ -96,10 +93,7 @@ void VectorHit::getKfComponents4D(KfComponentsHolder& holder) const {
   holder.errors<theDimension>() = theCovMatrix;
 
   ProjectMatrix<double, 5, theDimension>& pf = holder.projFunc<theDimension>();
-  pf.index[0] = 1;
-  pf.index[1] = 2;
-  pf.index[2] = 3;
-  pf.index[3] = 4;  
+  for (int i = 0; i<4; ++i) pf.index[i] = i+1;
 
   holder.measuredParams<theDimension>() = AlgebraicVector4(&holder.tsosLocalParameters().At(1), theDimension);
   holder.measuredErrors<theDimension>() = holder.tsosLocalErrors().Sub<AlgebraicSymMatrix44>(1, 1);
