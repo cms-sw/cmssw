@@ -5,7 +5,6 @@
 <use name="DataFormats/TrajectorySeed"/>
 <use name="DataFormats/Phase2TrackerCluster"/>
 <use name="FWCore/MessageLogger"/>
-<use name="FWCore/Framework"/>
 <use name="Geometry/CommonDetUnit"/>
 <export>
   <lib name="1"/>
