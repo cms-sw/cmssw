@@ -795,7 +795,7 @@ namespace {
       n_hits[MuonSubdetId::RPC].assign(n_muon_stations, 0);
     }
 
-    void addMatchedMuon(const pat::Muon& muon, const edm::View<reco::BaseTau>::const_reference& tau) {
+    void addMatchedMuon(const pat::Muon& muon, edm::View<reco::BaseTau>::const_reference& tau) {
       static constexpr int n_stations = 4;
 
       ++n_muons;
@@ -1078,7 +1078,7 @@ namespace {
   }
 
   template <>
-  CellObjectType GetCellObjectType(const edm::View<reco::Candidate>::const_reference& cand) {
+  CellObjectType GetCellObjectType(edm::View<reco::Candidate>::const_reference& cand) {
     static const std::map<int, CellObjectType> obj_types = {{11, CellObjectType::PfCand_electron},
                                                             {13, CellObjectType::PfCand_muon},
                                                             {22, CellObjectType::PfCand_gamma},
@@ -1506,7 +1506,7 @@ private:
   }
 
   template <typename CandidateCastType, typename TauCastType>
-  void getPredictionsV1(const TauCollection::const_reference& tau,
+  void getPredictionsV1(TauCollection::const_reference& tau,
                         const size_t tau_index,
                         const edm::RefToBase<reco::BaseTau> tau_ref,
                         const std::vector<pat::Electron>& electrons,
@@ -1519,7 +1519,7 @@ private:
   }
 
   template <typename CandidateCastType, typename TauCastType>
-  void getPredictionsV2(const TauCollection::const_reference& tau,
+  void getPredictionsV2(TauCollection::const_reference& tau,
                         const size_t tau_index,
                         const edm::RefToBase<reco::BaseTau> tau_ref,
                         const std::vector<pat::Electron>& electrons,
