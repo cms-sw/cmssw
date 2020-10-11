@@ -83,37 +83,46 @@ vector<GeometricSearchDet::DetWithState> MTDDetSector::compatibleDets(const Traj
   TrajectoryStateOnSurface& tsos = compat.second;
   GlobalPoint startPos = tsos.globalPosition();
 
+  LogTrace("MTDDetLayers") << "Starting position: " << startPos;
+
   // determine distance of det center from extrapolation on the surface, sort dets accordingly
 
   size_t idetMin = basicComponents().size();
   double dist2Min = 1.e6;  // arbitrary big number
+  std::vector<std::pair<double, size_t> > tmpDets;
+
   for (size_t idet = 0; idet < basicComponents().size(); idet++) {
     double dist2 = (startPos - theDets[idet]->position()).mag2();
+    tmpDets.emplace_back(make_pair(dist2, idet));
     if (dist2 < dist2Min) {
       dist2Min = dist2;
       idetMin = idet;
     }
     LogTrace("MTDDetLayers") << "MTDDetSector::compatibleDets " << std::fixed << std::setw(8) << idet << " "
-                             << theDets[idet]->geographicalId().rawId() << " " << startPos << " "
-                             << theDets[idet]->position() << " " << std::setw(10) << dist2
-                             << " Min idet/dist2 = " << std::setw(8) << idetMin << " " << std::setw(10) << dist2Min;
+                             << theDets[idet]->geographicalId().rawId() << " dist = " << std::setw(10)
+                             << std::sqrt(dist2) << " Min idet/dist = " << std::setw(8) << idetMin << " "
+                             << std::setw(10) << std::sqrt(dist2Min) << " " << theDets[idet]->position();
   }
 
   // loop on an interval od ordered detIds around the minimum
   // set a range of GeomDets around the minimum compatible with the geometry of ETL
 
-  size_t detsRange = 10;
+  size_t detsRange = 50;
+  size_t iniPos(idetMin > detsRange ? idetMin - detsRange : static_cast<size_t>(0));
+  size_t endPos(std::min(idetMin + detsRange, basicComponents().size() - 1));
+  std::vector<std::pair<double, size_t> > tmpDets2;
+  LogTrace("MTDDetLayers") << "MTDDetSector::compatibleDets iniPos, endPos = " << iniPos << " " << endPos;
+  std::copy(tmpDets.begin() + iniPos, tmpDets.begin() + endPos, std::back_inserter(tmpDets2));
+  std::sort(tmpDets2.begin(), tmpDets2.end());
 
-  for (size_t idet = std::max(idetMin - detsRange, static_cast<size_t>(0));
-       idet < std::min(idetMin + detsRange, basicComponents().size());
-       idet++) {
-    if (add(static_cast<int>(idet), result, tsos, prop, est)) {
-#ifdef EDM_ML_DEBUG
-      LogTrace("MTDDetLayers") << "MTDDetSector::compatibleDets found compatible det " << idet
-                               << " detId = " << theDets[idet]->geographicalId().rawId() << " at "
-                               << theDets[idet]->position()
-                               << " dist = " << (startPos - theDets[idet]->position()).mag();
-#endif
+  for (const auto& thisDet : tmpDets2) {
+    LogTrace("MTDDetLayers") << "after sorting " << thisDet.second << " " << std::sqrt(thisDet.first);
+    if (add(static_cast<int>(thisDet.second), result, tsos, prop, est)) {
+      LogTrace("MTDDetLayers") << "MTDDetSector::compatibleDets found compatible det " << thisDet.second
+                               << " detId = " << theDets[thisDet.second]->geographicalId().rawId() << " at "
+                               << theDets[thisDet.second]->position() << " dist = " << std::sqrt(thisDet.first);
+    } else {
+      break;
     }
   }
 #ifdef EDM_ML_DEBUG
