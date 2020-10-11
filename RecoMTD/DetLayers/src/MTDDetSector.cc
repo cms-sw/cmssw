@@ -1,4 +1,4 @@
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 #include "RecoMTD/DetLayers/interface/MTDDetSector.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
@@ -111,13 +111,11 @@ vector<GeometricSearchDet::DetWithState> MTDDetSector::compatibleDets(const Traj
   size_t iniPos(idetMin > detsRange ? idetMin - detsRange : static_cast<size_t>(0));
   size_t endPos(std::min(idetMin + detsRange, basicComponents().size() - 1));
   std::vector<std::pair<double, size_t> > tmpDets2;
-  LogTrace("MTDDetLayers") << "MTDDetSector::compatibleDets iniPos, endPos = " << iniPos << " " << endPos;
   std::copy(tmpDets.begin() + iniPos, tmpDets.begin() + endPos, std::back_inserter(tmpDets2));
   std::sort(tmpDets2.begin(), tmpDets2.end());
 
   for (const auto& thisDet : tmpDets2) {
-    LogTrace("MTDDetLayers") << "after sorting " << thisDet.second << " " << std::sqrt(thisDet.first);
-    if (add(static_cast<int>(thisDet.second), result, tsos, prop, est)) {
+    if (add(thisDet.second, result, tsos, prop, est)) {
       LogTrace("MTDDetLayers") << "MTDDetSector::compatibleDets found compatible det " << thisDet.second
                                << " detId = " << theDets[thisDet.second]->geographicalId().rawId() << " at "
                                << theDets[thisDet.second]->position() << " dist = " << std::sqrt(thisDet.first);
@@ -153,7 +151,7 @@ vector<DetGroup> MTDDetSector::groupedCompatibleDets(const TrajectoryStateOnSurf
   return result;
 }
 
-bool MTDDetSector::add(int idet,
+bool MTDDetSector::add(size_t idet,
                        vector<DetWithState>& result,
                        const TrajectoryStateOnSurface& tsos,
                        const Propagator& prop,
