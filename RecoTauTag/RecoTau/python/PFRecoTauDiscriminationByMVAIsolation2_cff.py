@@ -29,10 +29,10 @@ discriminationByIsolationMVA2raw = cms.EDProducer("PFRecoTauDiscriminationByIsol
 )
 
 discriminationByIsolationMVA2 = recoTauDiscriminantCutMultiplexerDefault.clone(
-    PFTauProducer = cms.InputTag('pfTauProducer'),    
+    PFTauProducer = 'pfTauProducer',    
     Prediscriminants = requireLeadTrack,
-    toMultiplex = cms.InputTag('discriminationByIsolationMVA2raw'),
-    loadMVAfromDB = cms.bool(True),
+    toMultiplex = 'discriminationByIsolationMVA2raw',
+    loadMVAfromDB = True,
     mapping = cms.VPSet(
         cms.PSet(
             category = cms.uint32(0),
@@ -40,13 +40,13 @@ discriminationByIsolationMVA2 = recoTauDiscriminantCutMultiplexerDefault.clone(
             variable = cms.string("pt"),
         )
     ),
-    workingPoints = cms.vstring(
+    workingPoints = [
         "Eff80",
         "Eff70",
         "Eff60",
         "Eff50",
         "Eff40"
-    )
+    ]
 )
 
 mvaIsolation2Task = cms.Task(

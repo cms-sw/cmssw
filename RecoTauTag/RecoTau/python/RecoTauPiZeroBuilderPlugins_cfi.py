@@ -44,9 +44,9 @@ strips = cms.PSet(
 )
 
 comboStrips = strips.clone(
-    name = cms.string("cs"),
-    plugin = cms.string("RecoTauPiZeroStripPlugin"),
-    makeCombinatoricStrips = cms.bool(True),
+    name = "cs",
+    plugin = "RecoTauPiZeroStripPlugin",
+    makeCombinatoricStrips = True,
     maxInputStrips = cms.int32(5),
     stripMassWhenCombining = cms.double(0.0), # assume photon like
 )
@@ -68,7 +68,7 @@ modStrips = strips.clone(
 # and eta x phi size of strip increasing for low pT photons
 
 modStrips2 = strips.clone(
-    plugin = cms.string('RecoTauPiZeroStripPlugin3'),
+    plugin = 'RecoTauPiZeroStripPlugin3',
     qualityCuts = PFTauQualityCuts,
     applyElecTrackQcuts = cms.bool(False),
     stripEtaAssociationDistanceFunc = cms.PSet(
