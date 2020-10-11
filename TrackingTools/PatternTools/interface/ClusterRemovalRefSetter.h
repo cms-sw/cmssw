@@ -1,5 +1,5 @@
-#ifndef RecoTracker_TrackProducer_ClusterRemovalRefSetter_h
-#define RecoTracker_TrackProducer_ClusterRemovalRefSetter_h
+#ifndef TrackingTools_PatternTools_ClusterRemovalRefSetter_h
+#define TrackingTools_PatternTools_ClusterRemovalRefSetter_h
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
