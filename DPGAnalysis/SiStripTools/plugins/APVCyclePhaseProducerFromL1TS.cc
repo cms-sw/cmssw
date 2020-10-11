@@ -72,6 +72,8 @@ private:
   edm::ESWatcher<SiStripConfObjectRcd> m_eswatcher;
   edm::EDGetTokenT<Level1TriggerScalersCollection> _l1tscollectionToken;
   edm::EDGetTokenT<TCDSRecord> _tcdsRecordToken;
+  edm::ESGetToken<SiStripConfObject, SiStripConfObjectRcd> _confObjectToken;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> _tTopoToken;
   const bool m_ignoreDB;
   const std::string m_rcdLabel;
   std::vector<std::string> _defpartnames;
@@ -107,6 +109,8 @@ APVCyclePhaseProducerFromL1TS::APVCyclePhaseProducerFromL1TS(const edm::Paramete
       _l1tscollectionToken(
           consumes<Level1TriggerScalersCollection>(iConfig.getParameter<edm::InputTag>("l1TSCollection"))),
       _tcdsRecordToken(consumes<TCDSRecord>(iConfig.getParameter<edm::InputTag>("tcdsRecordLabel"))),
+      _confObjectToken(esConsumes<edm::Transition::BeginRun>()),
+      _tTopoToken(esConsumes<edm::Transition::BeginRun>()),
       m_ignoreDB(iConfig.getUntrackedParameter<bool>("ignoreDB", false)),
       m_rcdLabel(iConfig.getUntrackedParameter<std::string>("recordLabel", "apvphaseoffsets")),
       _defpartnames(iConfig.getParameter<std::vector<std::string> >("defaultPartitionNames")),
@@ -150,21 +154,17 @@ void APVCyclePhaseProducerFromL1TS::beginRun(const edm::Run& iRun, const edm::Ev
   // update the parameters from DB
 
   if (!m_ignoreDB && m_eswatcher.check(iSetup)) {
-    edm::ESHandle<SiStripConfObject> confObj;
-    iSetup.get<SiStripConfObjectRcd>().get(m_rcdLabel, confObj);
-
-    edm::ESHandle<TrackerTopology> tTopo;
-    iSetup.get<TrackerTopologyRcd>().get(tTopo);
+    const auto& confObj = iSetup.getData(_confObjectToken);
 
     std::stringstream summary;
-    confObj->printDebug(summary, tTopo.product());
+    confObj.printDebug(summary, &iSetup.getData(_tTopoToken));
     LogDebug("SiStripConfObjectSummary") << summary.str();
 
-    _defpartnames = confObj->get<std::vector<std::string> >("defaultPartitionNames");
-    _defphases = confObj->get<std::vector<int> >("defaultPhases");
-    _useEC0 = confObj->get<bool>("useEC0");
-    m_badRun = confObj->get<bool>("badRun");
-    _magicOffset = confObj->get<int>("magicOffset");
+    _defpartnames = confObj.get<std::vector<std::string> >("defaultPartitionNames");
+    _defphases = confObj.get<std::vector<int> >("defaultPhases");
+    _useEC0 = confObj.get<bool>("useEC0");
+    m_badRun = confObj.get<bool>("badRun");
+    _magicOffset = confObj.get<int>("magicOffset");
 
     std::stringstream ss;
     printConfiguration(ss);

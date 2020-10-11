@@ -58,27 +58,28 @@ public:
 private:
   int m_modthr;
   bool m_useQuality;
-  std::string m_qualityLabel;
+  edm::ESGetToken<SiStripQuality, SiStripQualityRcd> m_qualityToken;
   int m_mult;
   edm::EDGetTokenT<T> m_collection;
 };
 
 template <class T>
-SingleMultiplicity<T>::SingleMultiplicity()
-    : m_modthr(-1), m_useQuality(false), m_qualityLabel(), m_mult(0), m_collection() {}
+SingleMultiplicity<T>::SingleMultiplicity() : m_modthr(-1), m_useQuality(false), m_mult(0), m_collection() {}
 
 template <class T>
 SingleMultiplicity<T>::SingleMultiplicity(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC)
     : m_modthr(iConfig.getUntrackedParameter<int>("moduleThreshold")),
       m_useQuality(iConfig.getUntrackedParameter<bool>("useQuality", false)),
-      m_qualityLabel(iConfig.getUntrackedParameter<std::string>("qualityLabel", "")),
+      m_qualityToken(iC.esConsumes<SiStripQuality, SiStripQualityRcd>(
+          edm::ESInputTag(iConfig.getUntrackedParameter<std::string>("qualityLabel", "")))),
       m_mult(0),
       m_collection(iC.consumes<T>(iConfig.getParameter<edm::InputTag>("collectionName"))) {}
 template <class T>
 SingleMultiplicity<T>::SingleMultiplicity(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC)
     : m_modthr(iConfig.getUntrackedParameter<int>("moduleThreshold")),
       m_useQuality(iConfig.getUntrackedParameter<bool>("useQuality", false)),
-      m_qualityLabel(iConfig.getUntrackedParameter<std::string>("qualityLabel", "")),
+      m_qualityToken(iC.esConsumes<SiStripQuality, SiStripQualityRcd>(
+          edm::ESInputTag(iConfig.getUntrackedParameter<std::string>("qualityLabel", "")))),
       m_mult(0),
       m_collection(iC.consumes<T>(iConfig.getParameter<edm::InputTag>("collectionName"))) {}
 
@@ -88,7 +89,7 @@ void SingleMultiplicity<T>::getEvent(const edm::Event& iEvent, const edm::EventS
 
   edm::ESHandle<SiStripQuality> qualityHandle;
   if (m_useQuality) {
-    iSetup.get<SiStripQualityRcd>().get(m_qualityLabel, qualityHandle);
+    qualityHandle = iSetup.getHandle(m_qualityToken);
   }
 
   edm::Handle<T> digis;
