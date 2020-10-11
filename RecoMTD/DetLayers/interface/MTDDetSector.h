@@ -52,7 +52,7 @@ public:
 protected:
   void setDisk(BoundDiskSector* diskS) { theDiskS = diskS; }
 
-  bool add(int idet,
+  bool add(size_t idet,
            std::vector<DetWithState>& result,
            const TrajectoryStateOnSurface& tsos,
            const Propagator& prop,
