@@ -103,9 +103,22 @@ trackingPhase2PU140.toReplaceWith(earlyGeneralTracks, _trackListMerger.clone(
 )
 from Configuration.ProcessModifiers.vectorHits_cff import vectorHits
 
-(trackingPhase2PU140 & vectorHits).toModify(earlyGeneralTracks, TrackProducers = earlyGeneralTracks.TrackProducers + ['pixelLessStepTracks'])
-(trackingPhase2PU140 & vectorHits).toModify(earlyGeneralTracks, hasSelector = earlyGeneralTracks.hasSelector + [1])
-(trackingPhase2PU140 & vectorHits).toModify(earlyGeneralTracks, indivShareFrac = earlyGeneralTracks.indivShareFrac + [0.095])
-(trackingPhase2PU140 & vectorHits).toModify(earlyGeneralTracks, selectedTrackQuals = earlyGeneralTracks.selectedTrackQuals + ['pixelLessStepSelector:pixelLessStep'])
-(trackingPhase2PU140 & vectorHits).toModify(earlyGeneralTracks, setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1,2,3,4,5,6), pQual=cms.bool(True))))
+(trackingPhase2PU140 & vectorHits).toModify(earlyGeneralTracks, TrackProducers = ['initialStepTracks',
+										  'highPtTripletStepTracks',
+										  'lowPtQuadStepTracks',
+										  'lowPtTripletStepTracks',
+										  'detachedQuadStepTracks',
+										  'pixelPairStepTracks',
+									          'pixelLessStepTracks'],
+							 	hasSelector = [1,1,1,1,1,1,1],
+								indivShareFrac = [1.0,0.16,0.095,0.09,0.09,0.09,0.095],
+								selectedTrackQuals = ['initialStepSelector:initialStep',
+							                              'highPtTripletStepSelector:highPtTripletStep',
+                          							      'lowPtQuadStepSelector:lowPtQuadStep',
+                          							      'lowPtTripletStepSelector:lowPtTripletStep',
+                          							      'detachedQuadStep',
+                          							      'pixelPairStepSelector:pixelPairStep',
+										      'pixelLessStepSelector:pixelLessStep'],
+								setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1,2,3,4,5,6), pQual=cms.bool(True)))
+)
 
