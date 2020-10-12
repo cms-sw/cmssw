@@ -272,7 +272,7 @@ void Phase2ITValidateRecHit::bookLayerHistos(DQMStore::IBooker& ibooker, unsigne
     histoName.str("");
     histoName << "Delta_Y";
     local_histos.deltaY =
-        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("DeltaX"), histoName.str(), ibooker);
+        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("DeltaY"), histoName.str(), ibooker);
     histoName.str("");
     histoName << "Pull_X";
     local_histos.pullX =
