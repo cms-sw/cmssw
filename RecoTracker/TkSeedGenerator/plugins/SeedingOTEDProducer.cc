@@ -297,6 +297,7 @@ const TrajectoryStateOnSurface SeedingOTEDProducer::buildInitialTSOS(const Vecto
   //FIXME::charge is fine 1 every two times!!
   GlobalPoint center(0.0, 0.0, 0.0);
   int charge = 1;
+  // momentum is a signed quantity in this case
   float mom = vHit->momentum(magField_->inTesla(center).z());
   float xPos = vHit->localPosition().x();
   float yPos = vHit->localPosition().y();

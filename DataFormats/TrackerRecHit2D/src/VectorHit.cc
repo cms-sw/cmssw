@@ -155,7 +155,9 @@ float VectorHit::theta() const { return globalDirection().theta(); }
 
 float VectorHit::transverseMomentum(float magField) const {
   return magField * (CLHEP::c_light * 1e-5F) / theCurvature;
-}  // pT [GeV] ~ 0.3 * B[T] * R [m], curvature is in cms, using precise value from speed of light
+  // pT [GeV] ~ 0.3 * B[T] * R [m], curvature is in cms, using precise value from speed of light
+  // because curvature is a signed quantity this transverse momentum is also signed
+}  
 float VectorHit::momentum(float magField) const { return transverseMomentum(magField) / (1. * sin(theta())); }
 
 LocalError VectorHit::localPositionError() const {
