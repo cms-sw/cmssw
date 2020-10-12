@@ -1167,11 +1167,16 @@ void HGCalGeomParameters::loadSpecParsHexagon8(HGCalParameters& php,
                                                const std::vector<int>& waferOrien) {
   // Store parameters from Philip's file
   for (unsigned int k = 0; k < waferIndex.size(); ++k) {
-    php.waferInfoMap_[waferIndex[k]] = HGCalParameters::waferInfo(waferTypes[k], waferParts[k], waferOrien[k]);
+    php.waferInfoMap_[waferIndex[k]] = HGCalParameters::waferInfo(
+        waferTypes[k], waferParts[k], HGCalWaferMask::getRotation(php.waferZSide_, waferParts[k], waferOrien[k]));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "[" << k << ":" << waferIndex[k] << "] "
+    edm::LogVerbatim("HGCalGeom") << "[" << k << ":" << waferIndex[k] << ":"
+                                  << HGCalWaferIndex::waferLayer(waferIndex[k]) << ":"
+                                  << HGCalWaferIndex::waferU(waferIndex[k]) << ":"
+                                  << HGCalWaferIndex::waferV(waferIndex[k]) << "] "
                                   << " Type " << waferTypes[k] << " Partial type " << waferParts[k] << " Orientation "
-                                  << waferOrien[k];
+                                  << waferOrien[k] << ":"
+                                  << HGCalWaferMask::getRotation(php.waferZSide_, waferParts[k], waferOrien[k]);
 #endif
   }
 }
