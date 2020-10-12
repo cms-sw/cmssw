@@ -170,8 +170,8 @@ string DDAlgoArguments::resolveValue(const std::string& aValue) const {
   for (idx = v.find('[', 0); idx != string::npos; idx = v.find('[', idx + 1)) {
     idq = v.find(']', idx + 1);
     rep = v.substr(idx + 1, idq - idx - 1);
-    auto r = ns.context()->description.load()->constants().find(rep);
-    if (r != ns.context()->description.load()->constants().end()) {
+    auto r = ns.context()->description.constants().find(rep);
+    if (r != ns.context()->description.constants().end()) {
       rep = "(" + r->second->type + ")";
       v.replace(idx, idq - idx + 1, rep);
     }
