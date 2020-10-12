@@ -4,6 +4,7 @@ from L1Trigger.Phase2L1ParticleFlow.pfTracksFromL1Tracks_cfi import pfTracksFrom
 from L1Trigger.Phase2L1ParticleFlow.pfClustersFromL1EGClusters_cfi import pfClustersFromL1EGClusters
 from L1Trigger.Phase2L1ParticleFlow.pfClustersFromCombinedCalo_cfi import pfClustersFromCombinedCalo
 from L1Trigger.Phase2L1ParticleFlow.l1pfProducer_cfi import l1pfProducer
+from L1Trigger.Phase2L1ParticleFlow.l1TkEgAlgo_cfi import tkEgConfig
 
 # Using phase2_hgcalV10 to customize the config for all 106X samples, since there's no other modifier for it
 from Configuration.Eras.Modifier_phase2_hgcalV10_cff import phase2_hgcalV10
@@ -85,6 +86,11 @@ l1ParticleFlow_calo_Task = cms.Task(
 )
 l1ParticleFlow_calo = cms.Sequence(l1ParticleFlow_calo_Task)
 
+l1TkEgConfigBarrel = tkEgConfig.clone(
+    doBremRecovery=False,
+    filterHwQuality=False,
+    writeEgSta=False
+)
 
 # PF in the barrel
 l1pfProducerBarrel = l1pfProducer.clone(
@@ -99,6 +105,8 @@ l1pfProducerBarrel = l1pfProducer.clone(
     vtxAlgo = "external",
     vtxFormat = cms.string("TkPrimaryVertex"),
     vtxCollection = cms.InputTag("L1TkPrimaryVertex",""),
+    # eg algo configuration
+    tkEgAlgoConfig = l1TkEgConfigBarrel,
     # puppi tuning
     puAlgo = "LinearizedPuppi",
     puppiEtaCuts            = cms.vdouble( 1.6 ), # just one bin
@@ -135,6 +143,9 @@ l1ParticleFlow_pf_barrel_Task = cms.Task(
 l1ParticleFlow_pf_barrel = cms.Sequence(l1ParticleFlow_pf_barrel_Task)
 
 
+l1TkEgConfigHGCal = tkEgConfig.clone(
+    debug=0
+)
 
 # PF in HGCal
 pfTracksFromL1TracksHGCal = pfTracksFromL1Tracks.clone(
@@ -154,6 +165,8 @@ l1pfProducerHGCal = l1pfProducer.clone(
     vtxAlgo = "external",
     vtxFormat = cms.string("TkPrimaryVertex"),
     vtxCollection = cms.InputTag("L1TkPrimaryVertex",""),
+    # eg algo configuration
+    tkEgAlgoConfig = l1TkEgConfigHGCal,
     # puppi tuning
     puAlgo = "LinearizedPuppi",
     puppiEtaCuts            = cms.vdouble( 2.0, 2.4, 3.1 ), # two bins in the tracker (different pT), one outside
@@ -213,8 +226,9 @@ l1ParticleFlow_pf_hgcal_Task = cms.Task(
 )
 l1ParticleFlow_pf_hgcal = cms.Sequence(l1ParticleFlow_pf_hgcal_Task)
 
-
-
+l1TkEgConfigHF = tkEgConfig.clone(
+    debug=0
+)
 # PF in HF
 l1pfProducerHF = l1pfProducer.clone(
     # inputs
@@ -228,6 +242,8 @@ l1pfProducerHF = l1pfProducer.clone(
     vtxAlgo = "external",
     vtxFormat = cms.string("TkPrimaryVertex"),
     vtxCollection = cms.InputTag("L1TkPrimaryVertex",""),
+    # eg algo configuration
+    tkEgAlgoConfig = l1TkEgConfigHF,
     # puppi tuning
     puAlgo = "LinearizedPuppi",
     puppiEtaCuts            = cms.vdouble( 5.5 ), # one bin
