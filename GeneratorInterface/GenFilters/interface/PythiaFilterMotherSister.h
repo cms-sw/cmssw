@@ -67,5 +67,6 @@ class PythiaFilterMotherSister : public edm::global::EDFilter<> {
        //const int processID;    
 
        const double betaBoost;
+       const double maxSisDisplacement;
 };
 #endif

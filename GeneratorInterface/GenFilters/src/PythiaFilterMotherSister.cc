@@ -27,7 +27,8 @@ maxphicut(iConfig.getUntrackedParameter("MaxPhi", 3.5)),
 motherIDs(iConfig.getUntrackedParameter("MotherIDs", std::vector<int>{0})),
 sisterID(iConfig.getUntrackedParameter("SisterID", 0)),
 //processID(iConfig.getUntrackedParameter("ProcessID", 0)),
-betaBoost(iConfig.getUntrackedParameter("BetaBoost",0.))
+betaBoost(iConfig.getUntrackedParameter("BetaBoost",0.)),
+maxSisDisplacement(iConfig.getUntrackedParameter("MaxSisterDisplacement", -1.))
 {
    //now do what ever initialization is needed
 
@@ -107,7 +108,27 @@ bool PythiaFilterMotherSister::filter(edm::StreamID, edm::Event& iEvent, const e
                    HepMC::FourVector mom_dau_hnl = MCFilterZboostHelper::zboost((*dau_hnl)->momentum(),betaBoost);
                    std::cout << "        daughter of HNL " << (*dau_hnl)->pdg_id() << " pt=" << mom_dau_hnl.rho() << " status=" << (*dau_hnl)->status() << std::endl;    
                }*/
-               accepted = true;
+               
+               // calculate displacement wrt B, need the orig vertex of the trigger muon 
+               //HepMC::GenVertex* v1_B = mother->end_vertex(); // where the B decays
+               HepMC::GenVertex* v1   = (*dau)->production_vertex();
+               HepMC::GenVertex* v2   = (*dau)->end_vertex();
+
+               double lx12 = v1->position().x() - v2->position().x();
+               double ly12 = v1->position().y() - v2->position().y();
+               //double lz12 = v1->position().z() - v2->position().z();
+               double lxy12 =  sqrt( lx12*lx12 + ly12*ly12);
+               //double lxyz12 = sqrt( lx12*lx12 + ly12*ly12 + lz12*lz12 );
+               //std::cout << "Lxyz from HNL vertices: " << lxyz12 << "   " << std::endl;
+               //std::cout << "Unit of length: " << HepMC::Units::name(myGenEvent->length_unit()) << std::endl ;
+               if(maxSisDisplacement!= -1){
+                 if(lxy12 < maxSisDisplacement){
+                   accepted = true;
+                 }
+               } else {
+                   accepted = true;
+               }
+
              } // if sister was found
            } // loop over daughters
          } // if mother was found 
