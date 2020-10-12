@@ -30,7 +30,7 @@ ak4dBetaCorrection = 0.20
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByHPSSelection_cfi import hpsSelectionDiscriminator, decayMode_1Prong0Pi0, decayMode_1Prong1Pi0, decayMode_1Prong2Pi0, decayMode_2Prong0Pi0, decayMode_2Prong1Pi0, decayMode_3Prong0Pi0, decayMode_3Prong1Pi0
 
 hpsPFTauDiscriminationByDecayModeFindingNewDMs = hpsSelectionDiscriminator.clone(
-    PFTauProducer = cms.InputTag('hpsPFTauProducer'),
+    PFTauProducer = 'hpsPFTauProducer',
     #----------------------------------------------------------------------------
     # CV: disable 3Prong1Pi0 decay mode
     decayModes = cms.VPSet(
@@ -45,14 +45,14 @@ hpsPFTauDiscriminationByDecayModeFindingNewDMs = hpsSelectionDiscriminator.clone
     #----------------------------------------------------------------------------
 )
 hpsPFTauDiscriminationByDecayModeFindingOldDMs = hpsSelectionDiscriminator.clone(
-    PFTauProducer = cms.InputTag('hpsPFTauProducer'),
+    PFTauProducer = 'hpsPFTauProducer',
     decayModes = cms.VPSet(
         decayMode_1Prong0Pi0,
         decayMode_1Prong1Pi0,
         decayMode_1Prong2Pi0,
         decayMode_3Prong0Pi0
     ),
-    requireTauChargedHadronsToBeChargedPFCands = cms.bool(True)
+    requireTauChargedHadronsToBeChargedPFCands = True
 )
 hpsPFTauDiscriminationByDecayModeFinding = hpsPFTauDiscriminationByDecayModeFindingOldDMs.clone() ## CV: kept for backwards compatibility
 
@@ -67,7 +67,7 @@ requireDecayMode = cms.PSet(
 
 ## Cut based isolations dR=0.5
 hpsPFTauBasicDiscriminators = pfRecoTauDiscriminationByIsolation.clone(
-    PFTauProducer = cms.InputTag("hpsPFTauProducer"),
+    PFTauProducer = "hpsPFTauProducer",
     Prediscriminants = requireDecayMode.clone(),
     deltaBetaPUTrackPtCutOverride     = True, # Set the boolean = True to override.
     deltaBetaPUTrackPtCutOverride_val = 0.5,  # Set the value for new value.
@@ -170,7 +170,7 @@ hpsPFTauBasicDiscriminatorsdR03Task = cms.Task(
 # define helper function to read indices of basic IDs or antimuon
 ## MuonRejection3
 hpsPFTauDiscriminationByMuonRejection3 = pfRecoTauDiscriminationAgainstMuon2Container.clone(
-    PFTauProducer = cms.InputTag('hpsPFTauProducer'),
+    PFTauProducer = 'hpsPFTauProducer',
     Prediscriminants = noPrediscriminants,
     IDWPdefinitions = cms.VPSet(
         cms.PSet(
@@ -195,50 +195,50 @@ hpsPFTauDiscriminationByMuonRejection3 = pfRecoTauDiscriminationAgainstMuon2Cont
 
 ## ByLooseElectronRejection
 hpsPFTauDiscriminationByLooseElectronRejection = pfRecoTauDiscriminationAgainstElectron.clone(
-    PFTauProducer = cms.InputTag('hpsPFTauProducer'),
+    PFTauProducer = 'hpsPFTauProducer',
     Prediscriminants = noPrediscriminants,
-    PFElectronMVA_maxValue = cms.double(0.6)
+    PFElectronMVA_maxValue = 0.6
 )
 ## ByMediumElectronRejection
 hpsPFTauDiscriminationByMediumElectronRejection = pfRecoTauDiscriminationAgainstElectron.clone(
-    PFTauProducer = cms.InputTag('hpsPFTauProducer'),
+    PFTauProducer = 'hpsPFTauProducer',
     Prediscriminants = noPrediscriminants,
-    ApplyCut_EcalCrackCut = cms.bool(True)
+    ApplyCut_EcalCrackCut = True
 )
 ## ByTightElectronRejection
 hpsPFTauDiscriminationByTightElectronRejection = pfRecoTauDiscriminationAgainstElectron.clone(
-    PFTauProducer = cms.InputTag('hpsPFTauProducer'),
+    PFTauProducer = 'hpsPFTauProducer',
     Prediscriminants = noPrediscriminants,
-    ApplyCut_EcalCrackCut = cms.bool(True),
-    ApplyCut_BremCombined = cms.bool(True)
+    ApplyCut_EcalCrackCut = True,
+    ApplyCut_BremCombined = True
 )
 ## ByDeadECALElectronRejection 
 hpsPFTauDiscriminationByDeadECALElectronRejection = pfRecoTauDiscriminationAgainstElectronDeadECAL.clone(
-    PFTauProducer = cms.InputTag('hpsPFTauProducer'),
+    PFTauProducer = 'hpsPFTauProducer',
     Prediscriminants = requireDecayMode.clone()
 )
 ## ByMVA6rawElectronRejection
 hpsPFTauDiscriminationByMVA6rawElectronRejection = pfRecoTauDiscriminationAgainstElectronMVA6.clone(
-    PFTauProducer = cms.InputTag('hpsPFTauProducer'),
-    srcElectrons = cms.InputTag('gedGsfElectrons'),
+    PFTauProducer = 'hpsPFTauProducer',
+    srcElectrons = 'gedGsfElectrons',
     Prediscriminants = requireDecayMode.clone(),
-    loadMVAfromDB = cms.bool(True),
-    vetoEcalCracks = cms.bool(False),
-    mvaName_NoEleMatch_woGwoGSF_BL = cms.string("RecoTauTag_antiElectronMVA_NoEleMatch_woGwoGSF_BL"),
-    mvaName_NoEleMatch_wGwoGSF_BL = cms.string("RecoTauTag_antiElectronMVA_NoEleMatch_wGwoGSF_BL"),
-    mvaName_woGwGSF_BL = cms.string("RecoTauTag_antiElectronMVA_woGwGSF_BL"),
-    mvaName_wGwGSF_BL = cms.string("RecoTauTag_antiElectronMVA_wGwGSF_BL"),
-    mvaName_NoEleMatch_woGwoGSF_EC = cms.string("RecoTauTag_antiElectronMVA_NoEleMatch_woGwoGSF_EC"),
-    mvaName_NoEleMatch_wGwoGSF_EC = cms.string("RecoTauTag_antiElectronMVA_NoEleMatch_wGwoGSF_EC"),
-    mvaName_woGwGSF_EC = cms.string("RecoTauTag_antiElectronMVA_woGwGSF_EC"),
-    mvaName_wGwGSF_EC = cms.string("RecoTauTag_antiElectronMVA_wGwGSF_EC")
+    loadMVAfromDB  = True,
+    vetoEcalCracks = False,
+    mvaName_NoEleMatch_woGwoGSF_BL = "RecoTauTag_antiElectronMVA_NoEleMatch_woGwoGSF_BL",
+    mvaName_NoEleMatch_wGwoGSF_BL  = "RecoTauTag_antiElectronMVA_NoEleMatch_wGwoGSF_BL",
+    mvaName_woGwGSF_BL             = "RecoTauTag_antiElectronMVA_woGwGSF_BL",
+    mvaName_wGwGSF_BL              = "RecoTauTag_antiElectronMVA_wGwGSF_BL",
+    mvaName_NoEleMatch_woGwoGSF_EC = "RecoTauTag_antiElectronMVA_NoEleMatch_woGwoGSF_EC",
+    mvaName_NoEleMatch_wGwoGSF_EC  = "RecoTauTag_antiElectronMVA_NoEleMatch_wGwoGSF_EC",
+    mvaName_woGwGSF_EC             = "RecoTauTag_antiElectronMVA_woGwGSF_EC",
+    mvaName_wGwGSF_EC              = "RecoTauTag_antiElectronMVA_wGwGSF_EC"
 )
 ## ByMVA6ElectronRejection
 hpsPFTauDiscriminationByMVA6ElectronRejection = recoTauDiscriminantCutMultiplexerDefault.clone(
-    PFTauProducer = cms.InputTag('hpsPFTauProducer'),
+    PFTauProducer = 'hpsPFTauProducer',
     Prediscriminants = requireDecayMode.clone(),
-    toMultiplex = cms.InputTag('hpsPFTauDiscriminationByMVA6rawElectronRejection'),
-    loadMVAfromDB = cms.bool(True),
+    toMultiplex = 'hpsPFTauDiscriminationByMVA6rawElectronRejection',
+    loadMVAfromDB = True,
     mapping = cms.VPSet(
         cms.PSet(
             category = cms.uint32(0), # minMVANoEleMatchWOgWOgsfBL
@@ -311,46 +311,46 @@ hpsSelectionDiscriminator.decayModes = cms.VPSet(
 
 from RecoTauTag.RecoTau.RecoTauCleaner_cfi import RecoTauCleaner
 hpsPFTauProducerSansRefs = RecoTauCleaner.clone(
-    src = cms.InputTag("combinatoricRecoTaus")
+    src = "combinatoricRecoTaus",
+    cleaners = {1: dict(src = "hpsSelectionDiscriminator")}
 )
-hpsPFTauProducerSansRefs.cleaners[1].src = cms.InputTag("hpsSelectionDiscriminator")
 
 from RecoTauTag.RecoTau.RecoTauPiZeroUnembedder_cfi import RecoTauPiZeroUnembedder
 hpsPFTauProducer = RecoTauPiZeroUnembedder.clone(
-    src = cms.InputTag("hpsPFTauProducerSansRefs")
+    src = "hpsPFTauProducerSansRefs"
 )
 
 from RecoTauTag.RecoTau.PFTauPrimaryVertexProducer_cfi      import *
 from RecoTauTag.RecoTau.PFTauSecondaryVertexProducer_cfi    import *
 from RecoTauTag.RecoTau.PFTauTransverseImpactParameters_cfi import *
 hpsPFTauPrimaryVertexProducer = PFTauPrimaryVertexProducer.clone(
-    PFTauTag = cms.InputTag("hpsPFTauProducer"),
-    ElectronTag = cms.InputTag(""),
-    MuonTag = cms.InputTag(""),
-    PVTag = cms.InputTag("offlinePrimaryVertices"),
-    beamSpot = cms.InputTag("offlineBeamSpot"),
-    Algorithm = cms.int32(0),
-    useBeamSpot = cms.bool(True),
-    RemoveMuonTracks = cms.bool(False),
-    RemoveElectronTracks = cms.bool(False),
-    useSelectedTaus = cms.bool(False),
+    PFTauTag = "hpsPFTauProducer",
+    ElectronTag = "",
+    MuonTag = "",
+    PVTag = "offlinePrimaryVertices",
+    beamSpot = "offlineBeamSpot",
+    Algorithm = 0,
+    useBeamSpot = True,
+    RemoveMuonTracks = False,
+    RemoveElectronTracks = False,
+    useSelectedTaus = False,
     discriminators = cms.VPSet(
         cms.PSet(
             discriminator = cms.InputTag('hpsPFTauDiscriminationByDecayModeFindingNewDMs'),
             selectionCut = cms.double(0.5)
         )
     ),
-    cut = cms.string("pt > 18.0 & abs(eta) < 2.4")
+    cut = "pt > 18.0 & abs(eta) < 2.4"
 )
 
 hpsPFTauSecondaryVertexProducer = PFTauSecondaryVertexProducer.clone(
-    PFTauTag = cms.InputTag("hpsPFTauProducer")
+    PFTauTag = "hpsPFTauProducer"
 )
 hpsPFTauTransverseImpactParameters = PFTauTransverseImpactParameters.clone(
-    PFTauTag = cms.InputTag("hpsPFTauProducer"),
-    PFTauPVATag = cms.InputTag("hpsPFTauPrimaryVertexProducer"),
-    PFTauSVATag = cms.InputTag("hpsPFTauSecondaryVertexProducer"),
-    useFullCalculation = cms.bool(True)
+    PFTauTag = "hpsPFTauProducer",
+    PFTauPVATag = "hpsPFTauPrimaryVertexProducer",
+    PFTauSVATag = "hpsPFTauSecondaryVertexProducer",
+    useFullCalculation = True
 )
 hpsPFTauVertexAndImpactParametersTask = cms.Task(
     hpsPFTauPrimaryVertexProducer,
@@ -373,11 +373,11 @@ hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw = discriminationByIsolat
 )
 
 hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLT = discriminationByIsolationMVArun2v1.clone(
-    PFTauProducer = cms.InputTag('hpsPFTauProducer'),
+    PFTauProducer = 'hpsPFTauProducer',
     Prediscriminants = requireDecayMode.clone(),
-    toMultiplex = cms.InputTag('hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw'),
-    loadMVAfromDB = cms.bool(True),
-    mvaOutput_normalization = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT_mvaOutput_normalization"),
+    toMultiplex = 'hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw',
+    loadMVAfromDB = True,
+    mvaOutput_normalization = "RecoTauTag_tauIdMVAIsoDBoldDMwLT_mvaOutput_normalization",
     mapping = cms.VPSet(
         cms.PSet(
             category = cms.uint32(0),
@@ -385,7 +385,7 @@ hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLT = discriminationByIsolation
             variable = cms.string("pt")
         )
     ),
-    workingPoints = cms.vstring(
+    workingPoints = [
         "_VVLoose",
         "_VLoose",
         "_Loose",
@@ -393,19 +393,19 @@ hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLT = discriminationByIsolation
         "_Tight",
         "_VTight",
         "_VVTight"
-    )
+    ]
 )
     
 hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLTraw = hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw.clone(
-    mvaName = cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT"),
-    mvaOpt = cms.string("DBnewDMwLTwGJ"),
-    verbosity = cms.int32(0)
+    mvaName = "RecoTauTag_tauIdMVAIsoDBnewDMwLT",
+    mvaOpt  = "DBnewDMwLTwGJ",
+    verbosity = 0
 )
 
 hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLT = hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLT.clone(
-    toMultiplex = cms.InputTag('hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLTraw'),
-    loadMVAfromDB = cms.bool(True),
-    mvaOutput_normalization = cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT_mvaOutput_normalization"),
+    toMultiplex = 'hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLTraw',
+    loadMVAfromDB = True,
+    mvaOutput_normalization = "RecoTauTag_tauIdMVAIsoDBnewDMwLT_mvaOutput_normalization",
     mapping = cms.VPSet(
         cms.PSet(
             category = cms.uint32(0),
@@ -419,15 +419,15 @@ hpsPFTauDiscriminationByIsolationMVArun2v1DBdR03oldDMwLTraw = hpsPFTauDiscrimina
     mvaName = "RecoTauTag_tauIdMVAIsoDBoldDMdR0p3wLT",
     mvaOpt = "DBoldDMwLTwGJ",
     srcBasicTauDiscriminators = "hpsPFTauBasicDiscriminatorsdR03",
-    inputIDNameSuffix = cms.string("dR03"),
+    inputIDNameSuffix = "dR03",
     verbosity = 0
 )
 hpsPFTauDiscriminationByIsolationMVArun2v1DBdR03oldDMwLT = hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLT.clone(
-    PFTauProducer = cms.InputTag('hpsPFTauProducer'),
+    PFTauProducer = 'hpsPFTauProducer',
     Prediscriminants = requireDecayMode.clone(),
-    toMultiplex = cms.InputTag('hpsPFTauDiscriminationByIsolationMVArun2v1DBdR03oldDMwLTraw'),
-    loadMVAfromDB = cms.bool(True),
-    mvaOutput_normalization = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMdR0p3wLT_mvaOutput_normalization"),
+    toMultiplex = 'hpsPFTauDiscriminationByIsolationMVArun2v1DBdR03oldDMwLTraw',
+    loadMVAfromDB = True,
+    mvaOutput_normalization = "RecoTauTag_tauIdMVAIsoDBoldDMdR0p3wLT_mvaOutput_normalization",
     mapping = cms.VPSet(
         cms.PSet(
             category = cms.uint32(0),
