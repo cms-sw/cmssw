@@ -4,7 +4,7 @@ from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
 process = cms.Process('SIM',Phase2C9)
 
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
-#process.load("Configuration.Geometry.GeometryExtended2026D41_cff")
+#process.load("Configuration.Geometry.GeometryExtended2026D49_cff")
 process.load("Geometry.HGCalCommonData.testHGCalV11XML_cfi")
 process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
 process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
