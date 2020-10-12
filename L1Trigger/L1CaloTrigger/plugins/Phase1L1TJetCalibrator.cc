@@ -18,6 +18,7 @@
 // Original Author:  Simone Bologna
 //         Created:  Wed, 19 Dec 2018 12:44:23 GMT
 //
+// Rewrite: Vladimir Rekovic, Oct 2020
 //
 
 // system include files
@@ -47,9 +48,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginStream(edm::StreamID) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endStream() override;
 
   edm::EDGetTokenT<std::vector<reco::CaloJet>> inputCollectionTag_;
   std::vector<double> absEtaBinning_;
@@ -57,7 +56,7 @@ private:
   std::vector<edm::ParameterSet> calibration_;
   std::string outputCollectionName_;
 
-  std::vector<std::vector<double>> _jetCalibrationFactorsBinnedInEta;
+  std::vector<std::vector<double>> jetCalibrationFactorsBinnedInEta_;
   std::vector<std::vector<double>> _jetCalibrationFactorsPtBins;
 
   // ----------member data ---------------------------
@@ -85,7 +84,7 @@ Phase1L1TJetCalibrator::Phase1L1TJetCalibrator(const edm::ParameterSet& iConfig)
 {
   for (const auto& pset : calibration_) {
     _jetCalibrationFactorsPtBins.emplace_back(pset.getParameter<std::vector<double>>("l1tPtBins"));
-    _jetCalibrationFactorsBinnedInEta.emplace_back(pset.getParameter<std::vector<double>>("l1tCalibrationFactors"));
+    jetCalibrationFactorsBinnedInEta_.emplace_back(pset.getParameter<std::vector<double>>("l1tCalibrationFactors"));
   }
 
   produces<std::vector<reco::CaloJet>>(outputCollectionName_).setBranchAlias(outputCollectionName_);
@@ -102,7 +101,7 @@ void Phase1L1TJetCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& 
   edm::Handle<std::vector<reco::CaloJet>> inputCollectionHandle;
   iEvent.getByToken(inputCollectionTag_, inputCollectionHandle);
 
-  std::unique_ptr<std::vector<reco::CaloJet>> calibratedCollectionPtr(new std::vector<reco::CaloJet>());
+  auto calibratedCollectionPtr = std::make_unique<std::vector<reco::CaloJet>>();
 
   // for each candidate:
   // 1 get pt and eta
@@ -112,6 +111,9 @@ void Phase1L1TJetCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& 
   // 5 fetch the calibration factor
   // 6 update the candidate pt by applying the calibration factor
   // 7 store calibrated candidate in a new collection
+
+  calibratedCollectionPtr->reserve(inputCollectionHandle->size());
+
   for (const auto& candidate : *inputCollectionHandle) {
     // 1
     float pt = candidate.pt();
@@ -123,7 +125,7 @@ void Phase1L1TJetCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& 
 
     //3
     const std::vector<double>& l1tPtBins = _jetCalibrationFactorsPtBins[etaIndex];
-    const std::vector<double>& l1tCalibrationFactors = _jetCalibrationFactorsBinnedInEta[etaIndex];
+    const std::vector<double>& l1tCalibrationFactors = jetCalibrationFactorsBinnedInEta_[etaIndex];
 
     //4
     auto ptBin = upper_bound(l1tPtBins.begin(), l1tPtBins.end(), pt);
@@ -132,32 +134,27 @@ void Phase1L1TJetCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& 
     //5
     const double& l1tCalibrationFactor = l1tCalibrationFactors[ptBinIndex];
 
-    //6
+    //6 and 7
     reco::Candidate::PolarLorentzVector candidateP4(candidate.polarP4());
-    reco::CaloJet* newCandidate = candidate.clone();
     candidateP4.SetPt(candidateP4.pt() * l1tCalibrationFactor);
-    newCandidate->setP4(candidateP4);
-
-    //7
-    calibratedCollectionPtr->emplace_back(*newCandidate);
-    // clean up
+    calibratedCollectionPtr->emplace_back(candidate);
+    calibratedCollectionPtr->back().setP4(candidateP4);
 
 #ifdef DEBUG
     if (newCandidate->pt() < 0) {
-      std::cout << "######################" << std::endl;
-      std::cout << "PRE-CALIBRATION " << std::endl;
-      std::cout << "\t Jet properties (pt, eta, phi, pile-up): " << candidate.pt() << "\t" << candidate.eta() << "\t"
-                << candidate.phi() << "\t" << candidate.pileup() << std::endl;
-      std::cout << "CALIBRATION " << std::endl;
-      std::cout << "\t Using eta - pt - factor " << *etaBin << " - " << *ptBin << " - " << l1tCalibrationFactor
-                << std::endl;
-      std::cout << "POST-CALIBRATION " << std::endl;
-      std::cout << "\t Jet properties (pt, eta, phi, pile-up): " << newCandidate->pt() << "\t" << newCandidate->eta()
+      LogDebug("Phase1L1TJetCalibrator") << "######################" << std::endl;
+      LogDebug("Phase1L1TJetCalibrator") << "PRE-CALIBRATION " << std::endl;
+      LogDebug("Phase1L1TJetCalibrator") << "\t Jet properties (pt, eta, phi, pile-up): " << candidate.pt() << "\t" << candidate.eta() << "\t"
+      LogDebug("Phase1L1TJetCalibrator") << candidate.phi() << "\t" << candidate.pileup() << std::endl;
+      LogDebug("Phase1L1TJetCalibrator") << "CALIBRATION " << std::endl;
+      LogDebug("Phase1L1TJetCalibrator") << "\t Using eta - pt - factor " << *etaBin << " - " << *ptBin << " - " << l1tCalibrationFactor
+      LogDebug("Phase1L1TJetCalibrator") << std::endl;
+      LogDebug("Phase1L1TJetCalibrator") << "POST-CALIBRATION " << std::endl;
+      LogDebug("Phase1L1TJetCalibrator") << "\t Jet properties (pt, eta, phi, pile-up): " << newCandidate->pt() << "\t" << newCandidate->eta()
                 << "\t" << newCandidate->phi() << "\t" << newCandidate->pileup() << std::endl;
     }
 #endif
 
-    delete newCandidate;
   }
 
   // finally, sort the collection by pt
@@ -167,12 +164,6 @@ void Phase1L1TJetCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& 
 
   iEvent.put(std::move(calibratedCollectionPtr), outputCollectionName_);
 }
-
-// ------------ method called once each stream before processing any runs, lumis or events  ------------
-void Phase1L1TJetCalibrator::beginStream(edm::StreamID) {}
-
-// ------------ method called once each stream after processing all runs, lumis and events  ------------
-void Phase1L1TJetCalibrator::endStream() {}
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void Phase1L1TJetCalibrator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
