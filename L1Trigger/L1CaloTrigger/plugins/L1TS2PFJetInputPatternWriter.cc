@@ -21,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -39,7 +39,19 @@
 // class declaration
 //
 
-class L1TS2PFJetInputPatternWriter : public edm::EDAnalyzer {
+constexpr unsigned int bit_shift_phi = 16;
+constexpr unsigned int bit_shift_eta = 26;
+constexpr unsigned int mod_13_1 = 1;
+constexpr unsigned int mod_13_2 = 2;
+constexpr unsigned int n_latency_clocks = 13;
+constexpr unsigned int n_first_empty_frames = 14;
+constexpr unsigned int framesPerFile = 1015;
+constexpr float eta_first_region_boundary = 0.75;
+constexpr float eta_second_region_boundary = 1.5;
+constexpr float phi_region_boundary = 0.7;
+
+
+class L1TS2PFJetInputPatternWriter : public edm::one::EDAnalyzer<> {
 public:
   explicit L1TS2PFJetInputPatternWriter(const edm::ParameterSet&);
   ~L1TS2PFJetInputPatternWriter() override;
@@ -95,6 +107,8 @@ L1TS2PFJetInputPatternWriter::L1TS2PFJetInputPatternWriter(const edm::ParameterS
     : pfToken_(consumes<std::vector<l1t::PFCandidate>>(iConfig.getParameter<edm::InputTag>("pfTag"))),
       filename_(iConfig.getUntrackedParameter<std::string>("filename")),
       outDir_(iConfig.getUntrackedParameter<std::string>("outDir")),
+      nChan_(iConfig.getUntrackedParameter<unsigned>("nChanPerQuad")),
+      nQuad_(iConfig.getUntrackedParameter<unsigned>("nQuads")),
       nHeaderFrames_(iConfig.getUntrackedParameter<unsigned>("nHeaderFrames")),
       nPayloadFrames_(iConfig.getUntrackedParameter<unsigned>("nPayloadFrames")),
       nClearFrames_(iConfig.getUntrackedParameter<unsigned>("nClearFrames")) {
@@ -102,8 +116,6 @@ L1TS2PFJetInputPatternWriter::L1TS2PFJetInputPatternWriter(const edm::ParameterS
 
   // register what you consume and keep token for later access:
 
-  nChan_ = 4;
-  nQuad_ = 18;
   ptLSB_ = 0.25;
   etaLSB_ = 0.0043633231;
   phiLSB_ = 0.0043633231;
@@ -135,16 +147,17 @@ void L1TS2PFJetInputPatternWriter::analyze(const edm::Event& iEvent, const edm::
 
   edm::Handle<std::vector<l1t::PFCandidate>> pfHandle;
   iEvent.getByToken(pfToken_, pfHandle);
+  std::vector<l1t::PFCandidate> const& pfCands = *pfHandle;
 
   std::vector<l1t::PFCandidate> pfPartsA;
   std::vector<l1t::PFCandidate> pfPartsB;
 
-  for (std::vector<l1t::PFCandidate>::const_iterator pfIt = pfHandle->begin(); pfIt != pfHandle->end(); pfIt++) {
+  for (auto const& pfc : pfCands) {
     // select first two "small" regions for current fw
-    if (pfIt->eta() >= 0 && pfIt->eta() < 0.75 && pfIt->phi() >= 0 && pfIt->phi() < 0.7)
-      pfPartsA.push_back(*pfIt);
-    if (pfIt->eta() >= 0.75 && pfIt->eta() < 1.5 && pfIt->phi() >= 0 && pfIt->phi() < 0.7)
-      pfPartsB.push_back(*pfIt);
+    if (pfc.eta() >= 0 && pfc.eta() < eta_first_region_boundary && pfc.phi() >= 0 && pfc.phi() < phi_region_boundary)
+      pfPartsA.push_back(pfc);
+    if (pfc.eta() >= eta_first_region_boundary && pfc.eta() < eta_second_region_boundary && pfc.phi() >= 0 && pfc.phi() < phi_region_boundary)
+      pfPartsB.push_back(pfc);
   }
 
   if (pfPartsA.empty() && pfPartsB.empty())
@@ -152,16 +165,12 @@ void L1TS2PFJetInputPatternWriter::analyze(const edm::Event& iEvent, const edm::
 
   if (nFrame_ == 0 || nFrameFile_ == 0) {
     //first empty frames
-    while (nFrameFile_ < 14) {
+    while (nFrameFile_ < n_first_empty_frames) {
       dataValid_.push_back(1);
       for (unsigned iQuad = 0; iQuad < nQuad_; ++iQuad) {
         for (unsigned iChan = 0; iChan < nChan_; ++iChan) {
           uint iLink = (iQuad * nChan_) + iChan;
-          if (iLink == 0)
-            data_.at(iLink).push_back(0);
-          else
-            data_.at(iLink).push_back(0);
-          continue;
+          data_.at(iLink).push_back(0);
         }
       }
       nFrame_++;
@@ -180,18 +189,18 @@ void L1TS2PFJetInputPatternWriter::analyze(const edm::Event& iEvent, const edm::
 
         uint64_t data = 0;
 
-        if ((nFrameFile_ % 13) == 1) {
+        if ((nFrameFile_ % n_latency_clocks) == mod_13_1) {
           if (iLink < 24 && pfPartsA.size() > iLink) {
             data |= ((uint64_t)floor(pfPartsA.at(iLink).pt() / ptLSB_) & 0xffff);
-            data |= ((uint64_t)floor(pfPartsA.at(iLink).phi() / phiLSB_) & 0x3ff) << 16;
-            data |= ((uint64_t)floor(pfPartsA.at(iLink).eta() / etaLSB_) & 0x3ff) << 26;
+            data |= ((uint64_t)floor(pfPartsA.at(iLink).phi() / phiLSB_) & 0x3ff) << bit_shift_phi;
+            data |= ((uint64_t)floor(pfPartsA.at(iLink).eta() / etaLSB_) & 0x3ff) << bit_shift_eta;
           }
         }
-        if ((nFrameFile_ % 13) == 2) {
+        if ((nFrameFile_ % n_latency_clocks) == mod_13_2) {
           if (iLink < 24 && pfPartsB.size() > iLink) {
             data |= ((uint64_t)floor(pfPartsB.at(iLink).pt() / ptLSB_) & 0xffff);
-            data |= ((uint64_t)floor(pfPartsB.at(iLink).phi() / phiLSB_) & 0x3ff) << 16;
-            data |= ((uint64_t)floor((pfPartsB.at(iLink).eta() - 0.75) / etaLSB_) & 0x3ff) << 26;
+            data |= ((uint64_t)floor(pfPartsB.at(iLink).phi() / phiLSB_) & 0x3ff) << bit_shift_phi;
+            data |= ((uint64_t)floor((pfPartsB.at(iLink).eta() - eta_first_region_boundary) / etaLSB_) & 0x3ff) << bit_shift_eta;
           }
         }
         // add data to output
@@ -200,7 +209,7 @@ void L1TS2PFJetInputPatternWriter::analyze(const edm::Event& iEvent, const edm::
     }
     nFrame_++;
     nFrameFile_++;
-    if (nFrame_ % 1015 == 0)
+    if (nFrame_ % framesPerFile == 0)
       nFrameFile_ = 0;
   }
 }
@@ -212,9 +221,6 @@ void L1TS2PFJetInputPatternWriter::beginJob() {}
 void L1TS2PFJetInputPatternWriter::endJob() {
   //frames per event
   unsigned int framesPerEv = nHeaderFrames_ + nPayloadFrames_ + nClearFrames_;
-
-  //frames per file
-  unsigned int framesPerFile = 1015;
 
   //events per file
   unsigned int evPerFile = floor(framesPerFile / framesPerEv);
@@ -236,7 +242,6 @@ void L1TS2PFJetInputPatternWriter::endJob() {
     outFilename << outDir_ << "/" << filename_ << "_" << itFile << ".txt";
     outFiles[itFile] = std::ofstream(outFilename.str());
     LogDebug("L1TDebug") << "Writing to file: ./" << outFilename.str() << std::endl;
-    std::cout << "Writing to file: ./" << outFilename.str() << std::endl;
 
     outFiles[itFile] << "Board SRNTY_TEST" << std::endl;
 
@@ -286,11 +291,15 @@ void L1TS2PFJetInputPatternWriter::endJob() {
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void L1TS2PFJetInputPatternWriter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.addUntracked<unsigned int>("nPayloadFrames", 40);
+  desc.addUntracked<unsigned int>("nHeaderFrames", 1);
+  desc.add<edm::InputTag>("inputCollectionTag", edm::InputTag("l1pfCandidates","Puppi","IN"));
+  desc.addUntracked<std::string>("filename", "pattern.txt");
+  desc.addUntracked<unsigned int>("nChanPerQuad", 4);
+  desc.addUntracked<unsigned int>("nClearFrames", 13);
+  desc.addUntracked<unsigned int>("nQuads", 18);
+  descriptions.add("l1tS2PFJetInputPatternWriter", desc);
 }
 
 //define this as a plug-in
