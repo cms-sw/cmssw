@@ -12,10 +12,6 @@ void VectorHitBuilderAlgorithm::run(edm::Handle<edmNew::DetSetVector<Phase2Track
   LogDebug("VectorHitBuilderAlgorithm") << "Run VectorHitBuilderAlgorithm ... \n";
   const auto* clustersPhase2Collection = clusters.product();
 
-  std::unordered_map<DetId, std::vector<VectorHit>> tempVHAcc, tempVHRej;
-  int totalAccepted = 0;
-  int totalRejected = 0;
-
   //loop over the DetSetVector
   LogDebug("VectorHitBuilderAlgorithm") << "with #clusters : " << clustersPhase2Collection->size() << std::endl;
   for (auto dSViter : *clustersPhase2Collection) {
@@ -43,45 +39,9 @@ void VectorHitBuilderAlgorithm::run(edm::Handle<edmNew::DetSetVector<Phase2Track
     if (it_detUpper != clustersPhase2Collection->end()) {
       gd = tkGeom_->idToDet(detIdStack);
       stackDet = dynamic_cast<const StackGeomDet*>(gd);
-      std::vector<VectorHit> vhsInStack_Acc;
-      std::vector<VectorHit> vhsInStack_Rej;
-      const auto& vhsInStack_AccRej = buildVectorHits(stackDet, clusters, it_detLower, *it_detUpper);
-
-      //storing accepted and rejected VHs
-      for (const auto& vh : vhsInStack_AccRej) {
-        if (vh.second == true) {
-          vhsInStack_Acc.push_back(vh.first);
-          std::push_heap(vhsInStack_Acc.begin(), vhsInStack_Acc.end());
-          totalAccepted += 1;
-        } else if (vh.second == false) {
-          vhsInStack_Rej.push_back(vh.first);
-          totalRejected += 1;
-        }
-      }
-
-      //ERICA:: to be checked with map!
-      //sorting vhs for best chi2
-      std::sort_heap(vhsInStack_Acc.begin(), vhsInStack_Acc.end());
-
-      tempVHAcc[detIdStack] = vhsInStack_Acc;
-      tempVHRej[detIdStack] = vhsInStack_Rej;
-#ifdef EDM_ML_DEBUG
-      LogTrace("VectorHitBuilderAlgorithm")
-          << "For detId #" << detIdStack.rawId() << " the following VHits have been accepted:";
-      for (const auto& vhIt : vhsInStack_Acc) {
-        LogTrace("VectorHitBuilderAlgorithm") << "accepted VH: " << vhIt;
-      }
-      LogTrace("VectorHitBuilderAlgorithm")
-          << "For detId #" << detIdStack.rawId() << " the following VHits have been rejected:";
-      for (const auto& vhIt : vhsInStack_Rej) {
-        LogTrace("VectorHitBuilderAlgorithm") << "rejected VH: " << vhIt;
-      }
-#endif
+      buildVectorHits(vhAcc, vhRej, detIdStack, stackDet, clusters, it_detLower, *it_detUpper);
     }
   }
-  loadDetSetVector(tempVHAcc, vhAcc, totalAccepted);
-  loadDetSetVector(tempVHRej, vhRej, totalRejected);
-
   LogDebug("VectorHitBuilderAlgorithm") << "End run VectorHitBuilderAlgorithm ... \n";
 }
 
@@ -115,18 +75,25 @@ bool VectorHitBuilderAlgorithm::checkClustersCompatibility(Local3DPoint& poslowe
 
 //----------------------------------------------------------------------------
 //ERICA::in the DT code the global position is used to compute the alpha angle and put a cut on that.
-std::vector<std::pair<VectorHit, bool>> VectorHitBuilderAlgorithm::buildVectorHits(
+void VectorHitBuilderAlgorithm::buildVectorHits(
+    VectorHitCollection& vhAcc,
+    VectorHitCollection& vhRej,
+    DetId detIdStack,
     const StackGeomDet* stack,
     edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D>> clusters,
     const detset& theLowerDetSet,
     const detset& theUpperDetSet,
     const std::vector<bool>& phase2OTClustersToSkip) const {
-  std::vector<std::pair<VectorHit, bool>> result;
   if (checkClustersCompatibilityBeforeBuilding(clusters, theLowerDetSet, theUpperDetSet)) {
     LogDebug("VectorHitBuilderAlgorithm") << "  compatible -> continue ... " << std::endl;
   } else {
     LogTrace("VectorHitBuilderAlgorithm") << "  not compatible, going to the next cluster";
   }
+
+
+  edmNew::DetSetVector<VectorHit>::FastFiller vh_colAcc(vhAcc, detIdStack);
+  edmNew::DetSetVector<VectorHit>::FastFiller vh_colRej(vhRej, detIdStack);
+
 
   unsigned int layerStack = tkTopo_->layer(stack->geographicalId());
   if (stack->subDetector() == GeomDetEnumerators::SubDetector::P2OTB)
@@ -146,7 +113,6 @@ std::vector<std::pair<VectorHit, bool>> VectorHitBuilderAlgorithm::buildVectorHi
   std::vector<std::pair<LocalPoint, LocalError>> localParamsUpper;
   std::vector<const PixelGeomDetUnit*> localGDUUpper;
 
-  std::vector<Phase2TrackerCluster1DRef> upperClusters;
   const PixelGeomDetUnit* gduUpp = dynamic_cast<const PixelGeomDetUnit*>(stack->upperDet());
   for (auto const& clusterUpper : theUpperDetSet) {
     localGDUUpper.push_back(gduUpp);
@@ -219,7 +185,7 @@ std::vector<std::pair<VectorHit, bool>> VectorHitBuilderAlgorithm::buildVectorHi
         VectorHit vh = buildVectorHit(stack, cluL, cluU);
         //protection: the VH can also be empty!!
         if (vh.isValid()) {
-          result.emplace_back(std::make_pair(vh, true));
+          vh_colAcc.push_back(vh);
         }
 
       } else {
@@ -227,14 +193,12 @@ std::vector<std::pair<VectorHit, bool>> VectorHitBuilderAlgorithm::buildVectorHi
         //storing vh rejected for combinatiorial studies
         VectorHit vh = buildVectorHit(stack, cluL, cluU);
         if (vh.isValid()) {
-          result.emplace_back(std::make_pair(vh, false));
+          vh_colRej.push_back(vh);
         }
       }
       upperIterator += 1;
     }
   }
-
-  return result;
 }
 
 VectorHit VectorHitBuilderAlgorithm::buildVectorHit(const StackGeomDet* stack,
