@@ -88,7 +88,7 @@ void l1tpf::PFClusterProducerFromHGC3DClusters::produce(edm::Event &iEvent, cons
       // we use the EM interpretation of the cluster energy
       l1t::PFCluster egcluster(
           it->iPt(l1t::HGCalMulticluster::EnergyInterpretation::EM), it->eta(), it->phi(), hoe, false);
-      // FIXME: we use HW qual = 4 to identify the EG candidates and set isEM to false not to interfere with the rest of the PF...
+      // NOTE: we use HW qual = 4 to identify the EG candidates and set isEM to false not to interfere with the rest of the PF...
       // we start from 4 not to intefere with flags used elesewhere
       egcluster.setHwQual(4);
       egcluster.addConstituent(edm::Ptr<l1t::L1Candidate>(multiclusters, multiclusters->key(it)));
@@ -104,7 +104,6 @@ void l1tpf::PFClusterProducerFromHGC3DClusters::produce(edm::Event &iEvent, cons
     if (!emVsPionID_.method().empty()) {
       isEM = emVsPionID_.passID(*it, cluster);
       cluster.setIsEM(isEM);
-      //FIXME: in the previous version isEM would remain ttrue resulting in pions in the em collection
     }
     if (corrector_.valid())
       corrector_.correctPt(cluster);
