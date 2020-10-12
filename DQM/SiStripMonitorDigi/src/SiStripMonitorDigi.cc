@@ -37,7 +37,6 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtFdlWord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "CondFormats/RunInfo/interface/RunInfo.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 /* mia: but is there not a smarter way ?!?!?! */
@@ -178,6 +177,16 @@ SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig)
 
   gtEvmToken_ = consumes<L1GlobalTriggerEvmReadoutRecord>(edm::InputTag("gtEvmDigis"));
 
+  if (show_mechanical_structure_view) {
+    tTopoTokenRun_ = esConsumes<edm::Transition::BeginRun>();
+    tkDetMapTokenRun_ = esConsumes<edm::Transition::BeginRun>();
+    SiStripDetCablingTokenRun_ = esConsumes<edm::Transition::BeginRun>();
+  }
+  if (subdetswitchtotdigifailureon) {
+    runInfoTokenRun_ = esConsumes<edm::Transition::BeginRun>();
+  }
+  tTopoToken_ = esConsumes();
+
   // Create DCS Status
   bool checkDCS = conf_.getParameter<bool>("UseDCSFiltering");
   if (checkDCS)
@@ -225,8 +234,6 @@ void SiStripMonitorDigi::dqmBeginRun(const edm::Run& run, const edm::EventSetup&
     if (m_cacheID_ != cacheID) {
       m_cacheID_ = cacheID;
     }
-    edm::ESHandle<SiStripDetCabling> detCabling_;
-    es.get<SiStripDetCablingRcd>().get(detCabling_);
 
     //nFEDConnected = 0;
     nFedTIB = 0;
@@ -240,8 +247,7 @@ void SiStripMonitorDigi::dqmBeginRun(const edm::Run& run, const edm::EventSetup&
     //const int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID;
 
     if (auto runInfoRec = es.tryToGet<RunInfoRcd>()) {
-      edm::ESHandle<RunInfo> sumFED;
-      runInfoRec->get(sumFED);
+      edm::ESHandle<RunInfo> sumFED = runInfoRec->getHandle(runInfoTokenRun_);
 
       if (sumFED.isValid()) {
         std::vector<int> FedsInIds = sumFED->m_fed_in;
@@ -312,15 +318,11 @@ void SiStripMonitorDigi::globalEndLuminosityBlock(const edm::LuminosityBlock& lb
 void SiStripMonitorDigi::createMEs(DQMStore::IBooker& ibooker, const edm::EventSetup& es) {
   if (show_mechanical_structure_view) {
     //Retrieve tracker topology from geometry
-    edm::ESHandle<TrackerTopology> tTopoHandle;
-    es.get<TrackerTopologyRcd>().get(tTopoHandle);
-    const TrackerTopology* const tTopo = tTopoHandle.product();
-    edm::ESHandle<TkDetMap> tkDetMapHandle;
-    es.get<TrackerTopologyRcd>().get(tkDetMapHandle);
-    const TkDetMap* tkDetMap = tkDetMapHandle.product();
+    const TrackerTopology* const tTopo = &es.getData(tTopoTokenRun_);
+    const TkDetMap* tkDetMap = &es.getData(tkDetMapTokenRun_);
 
     // take from eventSetup the SiStripDetCabling object - here will use SiStripDetControl later on
-    es.get<SiStripDetCablingRcd>().get(SiStripDetCabling_);
+    SiStripDetCabling_ = &es.getData(SiStripDetCablingTokenRun_);
 
     // get list of active detectors from SiStripDetCabling
     std::vector<uint32_t> activeDets;
@@ -576,9 +578,7 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
     return;
 
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const TrackerTopology* const tTopo = &iSetup.getData(tTopoToken_);
 
   TotalNShots = 0;
 

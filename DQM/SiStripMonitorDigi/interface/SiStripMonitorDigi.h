@@ -9,6 +9,7 @@
 // Original Author:  dkcira
 //         Created:  Sat Feb  4 20:49:51 CET 2006
 #include <memory>
+#include "CondFormats/RunInfo/interface/RunInfo.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -146,7 +147,7 @@ private:
   std::vector<const edm::DetSetVector<SiStripDigi>*> digi_detset_handles;
 
   unsigned long long m_cacheID_;
-  edm::ESHandle<SiStripDetCabling> SiStripDetCabling_;
+  const SiStripDetCabling* SiStripDetCabling_;
   std::vector<uint32_t> ModulesToBeExcluded_;
 
   //Global MEs to monitor APV Shots properties
@@ -227,6 +228,11 @@ private:
   edm::EDGetTokenT<EventWithHistory> historyProducerToken_;
   edm::EDGetTokenT<APVCyclePhaseCollection> apvPhaseProducerToken_;
   edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> gtEvmToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoTokenRun_;
+  edm::ESGetToken<TkDetMap, TrackerTopologyRcd> tkDetMapTokenRun_;
+  edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> SiStripDetCablingTokenRun_;
+  edm::ESGetToken<RunInfo, RunInfoRcd> runInfoTokenRun_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
 
   SiStripDCSStatus* dcsStatus_;
 };
