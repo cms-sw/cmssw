@@ -310,44 +310,63 @@ std::unique_ptr<l1t::PFCandidateCollection> RegionMapper::fetchTracks(float ptMi
 }
 
 void RegionMapper::putEgObjects(edm::Event &iEvent,
-                                std::string egLablel,
-                                std::string tkEmLabel,
-                                std::string tkEleLabel) const {
+                                const bool writeEgSta,
+                                const std::string &egLablel,
+                                const std::string &tkEmLabel,
+                                const std::string &tkEleLabel,
+                                const float ptMin) const {
   auto egs = std::make_unique<BXVector<l1t::EGamma>>();
   auto tkems = std::make_unique<l1t::TkEmCollection>();
   auto tkeles = std::make_unique<l1t::TkElectronCollection>();
 
-  auto ref_egs = iEvent.getRefBeforePut<BXVector<l1t::EGamma>>(egLablel);
+  edm::RefProd<BXVector<l1t::EGamma>> ref_egs;
+  if (writeEgSta)
+    ref_egs = iEvent.getRefBeforePut<BXVector<l1t::EGamma>>(egLablel);
+
   edm::Ref<BXVector<l1t::EGamma>>::key_type idx = 0;
 
-  // FIXME: efficiency handling needs to be addressed
-  // FIXME: need to handle the barrel case where the EG already exist and we only need to use edm::refToPtr() from calo.src
-  // FIXME: do we need additional cuts?
   for (const Region &r : regions_) {
     for (const l1tpf_impl::EgObjectIndexer &egidxer : r.egobjs) {
+      if (egidxer.ptcorr < ptMin)
+        continue;
+
       const auto &calo = r.emcalo[egidxer.emCaloIdx];
 
-      // FIXME: check this is fiducial
+      if (!r.fiducialLocal(calo.floatEta(), calo.floatPhi()))
+        continue;
 
-      l1t::EGamma eg(reco::Candidate::PolarLorentzVector(egidxer.ptcorr, calo.floatEta(), calo.floatPhi(), 0.));
-      eg.setHwQual(egidxer.hwQual);
-      egs->push_back(0, eg);
+      edm::Ref<BXVector<l1t::EGamma>> reg;
+      auto mom = reco::Candidate::PolarLorentzVector(
+          egidxer.ptcorr, r.globalEta(calo.floatEta()), r.globalPhi(calo.floatPhi()), 0.);
+      int hwQual = -1;
+      if (writeEgSta) {
+        l1t::EGamma eg(mom);
+        eg.setHwQual(egidxer.hwQual);
+        egs->push_back(0, eg);
+        reg = edm::Ref<BXVector<l1t::EGamma>>(ref_egs, idx++);
+        hwQual = eg.hwQual();
 
-      l1t::TkEm tkem(eg.p4(), edm::Ref<BXVector<l1t::EGamma>>(ref_egs, idx), egidxer.iso, egidxer.iso);
+      } else {
+        auto egptr = calo.src->constituentsAndFractions()[0].first;
+        reg = edm::Ref<BXVector<l1t::EGamma>>(egptr.id(), dynamic_cast<const l1t::EGamma *>(egptr.get()), egptr.key());
+        hwQual = egptr->hwQual();
+      }
+
+      l1t::TkEm tkem(reco::Candidate::LorentzVector(mom), reg, egidxer.iso, egidxer.iso);
+      tkem.setHwQual(hwQual);
       tkems->push_back(tkem);
 
       if (egidxer.tkIdx == -1)
         continue;
       const auto &tk = r.track[egidxer.tkIdx];
 
-      l1t::TkElectron tkele(
-          eg.p4(), edm::Ref<BXVector<l1t::EGamma>>(ref_egs, idx), edm::refToPtr(tk.src->track()), egidxer.iso);
+      l1t::TkElectron tkele(reco::Candidate::LorentzVector(mom), reg, edm::refToPtr(tk.src->track()), egidxer.iso);
+      tkele.setHwQual(hwQual);
       tkeles->push_back(tkele);
-
-      idx++;
     }
   }
-  iEvent.put(std::move(egs), egLablel);
+  if (writeEgSta)
+    iEvent.put(std::move(egs), egLablel);
   iEvent.put(std::move(tkems), tkEmLabel);
   iEvent.put(std::move(tkeles), tkEleLabel);
 }
