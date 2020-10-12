@@ -39,7 +39,7 @@ if __name__ == "__main__":
         
         conf.Data.inputDataset = dataset
         conf.Data.splitting = 'LumiBased'
-        conf.Data.unitsPerJob = 10
+        conf.Data.unitsPerJob = 1
         #conf.Data.totalUnits = 50
         conf.Data.publication = False
         conf.Data.outputDatasetTag = 'pfvalidation'
