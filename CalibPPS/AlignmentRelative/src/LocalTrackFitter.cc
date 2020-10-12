@@ -99,12 +99,7 @@ void LocalTrackFitter::fitAndRemoveOutliers(HitCollection &selection,
   TMatrixD ATViA(4, 4);
   ATViA = AT * Vi * A;
   TMatrixD ATViAI(ATViA);
-  try {
-    ATViAI = ATViA.Invert();
-  } catch (...) {
-    failed = true;
-    return;
-  }
+  ATViAI = ATViA.Invert();
   TVectorD theta(4);
   theta = ATViAI * AT * Vi * measVec;
 

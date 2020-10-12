@@ -113,7 +113,7 @@ void factorRPFromSensorCorrections(const CTPPSRPAlignmentCorrectionsData &inputA
   }
 
   // convert full alignments to expandedAlignments
-  for (const auto it : fullAlignments) {
+  for (const auto &it : fullAlignments) {
     expandedAlignments.setSensorCorrection(it.first, it.second);
   }
 
