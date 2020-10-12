@@ -109,11 +109,11 @@ void DDNamespace::addConstantNS(const string& name, const string& val, const str
                    type.c_str());
   dd4hep::_toDictionary(n, v, type);
   dd4hep::Constant c(n, v, type);
-  m_context->description.load()->addConstant(c);
+  m_context->description.addConstant(c);
 }
 
 dd4hep::Material DDNamespace::material(const string& name) const {
-  return m_context->description.load()->material(realName(name));
+  return m_context->description.material(realName(name));
 }
 
 void DDNamespace::addRotation(const string& name, const dd4hep::Rotation3D& rot) const {
@@ -258,7 +258,7 @@ dd4hep::Solid DDNamespace::solid(const string& nam) const {
 }
 
 std::vector<double> DDNamespace::vecDbl(const std::string& name) const {
-  cms::DDVectorsMap* registry = m_context->description.load()->extension<cms::DDVectorsMap>();
+  cms::DDVectorsMap* registry = m_context->description.extension<cms::DDVectorsMap>();
   auto it = registry->find(name);
   if (it != registry->end()) {
     return {begin(it->second), end(it->second)};
@@ -267,7 +267,7 @@ std::vector<double> DDNamespace::vecDbl(const std::string& name) const {
 }
 
 std::vector<float> DDNamespace::vecFloat(const std::string& name) const {
-  cms::DDVectorsMap* registry = m_context->description.load()->extension<cms::DDVectorsMap>();
+  cms::DDVectorsMap* registry = m_context->description.extension<cms::DDVectorsMap>();
   auto it = registry->find(name);
   if (it != registry->end()) {
     std::vector<float> result;

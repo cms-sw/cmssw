@@ -12,7 +12,7 @@ namespace cms {
 
   class DDParsingContext {
   public:
-    DDParsingContext(dd4hep::Detector* det) : description(det) {
+    DDParsingContext(dd4hep::Detector& det) : description(det) {
       assemblies.reserve(100);
       rotations.reserve(3000);
       shapes.reserve(4000);
@@ -23,6 +23,10 @@ namespace cms {
 
       namespaces.emplace_back("");
     }
+
+    DDParsingContext() = delete;
+    DDParsingContext(const DDParsingContext&) = delete;
+    DDParsingContext& operator=(const DDParsingContext&) = delete;
 
     ~DDParsingContext() = default;
 
@@ -61,7 +65,7 @@ namespace cms {
     bool debug_algorithms = false;
     bool debug_specpars = false;
 
-    std::atomic<dd4hep::Detector*> description;
+    dd4hep::Detector& description;
     std::unordered_map<std::string, dd4hep::Assembly> assemblies;
     std::unordered_map<std::string, dd4hep::Rotation3D> rotations;
     std::unordered_map<std::string, dd4hep::Solid> shapes;

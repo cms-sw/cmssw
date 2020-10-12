@@ -858,7 +858,7 @@ template <>
 void Converter<PartSelector>::operator()(xml_h element) const {
   cms::DDNamespace ns(_param<cms::DDParsingContext>());
   cms::DDParsingContext* const context = ns.context();
-  dd4hep::SpecParRegistry& registry = *context->description.load()->extension<dd4hep::SpecParRegistry>();
+  dd4hep::SpecParRegistry& registry = *context->description.extension<dd4hep::SpecParRegistry>();
   xml_dim_t e(element);
   xml_dim_t specPar = e.parent();
   string specParName = specPar.attr<string>(_U(name));
@@ -881,7 +881,7 @@ template <>
 void Converter<Parameter>::operator()(xml_h element) const {
   cms::DDNamespace ns(_param<cms::DDParsingContext>());
   cms::DDParsingContext* const context = ns.context();
-  dd4hep::SpecParRegistry& registry = *context->description.load()->extension<dd4hep::SpecParRegistry>();
+  dd4hep::SpecParRegistry& registry = *context->description.extension<dd4hep::SpecParRegistry>();
   xml_dim_t e(element);
   xml_dim_t specPar = e.parent();
   xml_dim_t specParSect = specPar.parent();
@@ -923,8 +923,8 @@ void Converter<Parameter>::operator()(xml_h element) const {
   for (idx = v.find('[', 0); idx != string::npos; idx = v.find('[', idx + 1)) {
     idq = v.find(']', idx + 1);
     rep = v.substr(idx + 1, idq - idx - 1);
-    auto r = ns.context()->description.load()->constants().find(rep);
-    if (r != ns.context()->description.load()->constants().end()) {
+    auto r = ns.context()->description.constants().find(rep);
+    if (r != ns.context()->description.constants().end()) {
       rep = "(" + r->second->type + ")";
       v.replace(idx, idq - idx + 1, rep);
     }
@@ -967,12 +967,12 @@ static void convert_boolean(cms::DDParsingContext* context, xml_h element) {
 
   if (solids[0].isValid() && solids[1].isValid()) {
     Transform3D trafo;
-    Converter<DDLTransform3D>(*context->description, context, &trafo)(element);
+    Converter<DDLTransform3D>(context->description, context, &trafo)(element);
     boolean = TYPE(solids[0], solids[1], trafo);
   } else {
     // Register it for later processing
     Transform3D trafo;
-    Converter<DDLTransform3D>(*context->description, context, &trafo)(element);
+    Converter<DDLTransform3D>(context->description, context, &trafo)(element);
     ns.context()->unresolvedShapes.emplace(nam,
                                            DDParsingContext::BooleanShape<TYPE>(solidName[0], solidName[1], trafo));
   }
@@ -1639,7 +1639,7 @@ template <>
 void Converter<DDLVector>::operator()(xml_h element) const {
   cms::DDNamespace ns(_param<cms::DDParsingContext>());
   cms::DDParsingContext* const context = ns.context();
-  DDVectorsMap* registry = context->description.load()->extension<DDVectorsMap>();
+  DDVectorsMap* registry = context->description.extension<DDVectorsMap>();
   xml_dim_t e(element);
   string name = ns.prepend(e.nameStr());
   string type = ns.attr<string>(e, _U(type));
@@ -1770,7 +1770,7 @@ void Converter<print_xml_doc>::operator()(xml_h element) const {
 static long load_dddefinition(Detector& det, xml_h element) {
   xml_elt_t dddef(element);
   if (dddef) {
-    cms::DDParsingContext context(&det);
+    cms::DDParsingContext context(det);
     cms::DDNamespace ns(context);
     ns.addConstantNS("world_x", "101*m", "number");
     ns.addConstantNS("world_y", "101*m", "number");
@@ -1811,7 +1811,7 @@ static long load_dddefinition(Detector& det, xml_h element) {
       // Before we continue, we have to resolve all constants NOW!
       Converter<DDRegistry>(det, &context, &res)(dddef);
       {
-        DDVectorsMap* registry = context.description.load()->extension<DDVectorsMap>();
+        DDVectorsMap* registry = context.description.extension<DDVectorsMap>();
 
         printout(context.debug_constants ? ALWAYS : DEBUG,
                  "DD4CMS",
