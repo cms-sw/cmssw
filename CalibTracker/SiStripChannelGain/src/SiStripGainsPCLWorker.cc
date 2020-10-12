@@ -32,9 +32,10 @@ SiStripGainsPCLWorker::SiStripGainsPCLWorker(const edm::ParameterSet& iConfig) {
     int id = APVGain::subdetectorId((hnames[i]).first);
     int side = APVGain::subdetectorSide((hnames[i]).first);
     int plane = APVGain::subdetectorPlane((hnames[i]).first);
+    int thick = APVGain::thickness((hnames[i]).first);
     std::string s = hnames[i].first;
 
-    auto loc = APVloc(id, side, plane, s);
+    auto loc = APVloc(thick, id, side, plane, s);
     theTopologyMap.insert(std::make_pair(i, loc));
   }
 

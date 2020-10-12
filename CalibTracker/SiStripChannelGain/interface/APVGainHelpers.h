@@ -19,6 +19,8 @@ namespace APVGain {
   int subdetectorId(uint32_t);
   int subdetectorId(const std::string&);
   int subdetectorSide(uint32_t, const TrackerTopology*);
+  int thickness(uint32_t);
+  int thickness(const std::string& tag);
   int subdetectorSide(const std::string&);
   int subdetectorPlane(uint32_t, const TrackerTopology*);
   int subdetectorPlane(const std::string&);
@@ -27,8 +29,8 @@ namespace APVGain {
 
   struct APVmon {
   public:
-    APVmon(int v1, int v2, int v3, MonitorElement* v4)
-        : m_subdetectorId(v1), m_subdetectorSide(v2), m_subdetectorPlane(v3), m_monitor(v4) {}
+    APVmon(int v0, int v1, int v2, int v3, MonitorElement* v4)
+        : m_thickness(v0), m_subdetectorId(v1), m_subdetectorSide(v2), m_subdetectorPlane(v3), m_monitor(v4) {}
 
     int getSubdetectorId() { return m_subdetectorId; }
 
@@ -36,17 +38,21 @@ namespace APVGain {
 
     int getSubdetectorPlane() { return m_subdetectorPlane; }
 
+    int getThickness() { return m_thickness; }
+
     MonitorElement* getMonitor() { return m_monitor; }
 
     void printAll() {
       LogDebug("APVGainHelpers") << "subDetectorID:" << m_subdetectorId << std::endl;
       LogDebug("APVGainHelpers") << "subDetectorSide:" << m_subdetectorSide << std::endl;
       LogDebug("APVGainHelpers") << "subDetectorPlane:" << m_subdetectorPlane << std::endl;
+      LogDebug("APVGainHelpers") << "thickness:" << m_thickness << std::endl;
       LogDebug("APVGainHelpers") << "histoName:" << m_monitor->getName() << std::endl;
       return;
     }
 
   private:
+    int m_thickness;
     int m_subdetectorId;
     int m_subdetectorSide;
     int m_subdetectorPlane;
