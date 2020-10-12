@@ -8,8 +8,6 @@
 // user include files
 #include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -17,7 +15,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //DataFormats
@@ -30,6 +27,8 @@
 #include "DataFormats/Luminosity/interface/LumiSummary.h"  // Luminosity Information
 
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
+
+#include "DQM/L1TMonitor/interface/L1TMenuHelper.h"
 
 #include <TString.h>
 
@@ -117,6 +116,9 @@ private:
   // MonitorElement
   MonitorElement* m_ErrorMonitor;
 
+  const edm::ESGetToken<L1GtTriggerMenu, L1GtTriggerMenuRcd> m_menuToken;
+  const edm::ESGetToken<L1GtPrescaleFactors, L1GtPrescaleFactorsAlgoTrigRcd> m_l1GtPfAlgoToken;
+  L1TMenuHelper::Tokens m_helperTokens;
   L1GtUtils m_l1GtUtils;
 };
 
