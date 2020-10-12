@@ -39,6 +39,11 @@ HGVHistoProducerAlgo::HGVHistoProducerAlgo(const edm::ParameterSet& pset)
       maxPhi_(pset.getParameter<double>("maxPhi")),
       nintPhi_(pset.getParameter<int>("nintPhi")),
 
+      //parameters for counting mixed hits simclusters
+      minMixedHitsSimCluster_(pset.getParameter<double>("minMixedHitsSimCluster")),
+      maxMixedHitsSimCluster_(pset.getParameter<double>("maxMixedHitsSimCluster")),
+      nintMixedHitsSimCluster_(pset.getParameter<int>("nintMixedHitsSimCluster")),
+
       //parameters for counting mixed hits clusters
       minMixedHitsCluster_(pset.getParameter<double>("minMixedHitsCluster")),
       maxMixedHitsCluster_(pset.getParameter<double>("maxMixedHitsCluster")),
@@ -58,6 +63,11 @@ HGVHistoProducerAlgo::HGVHistoProducerAlgo(const edm::ParameterSet& pset)
       minZpos_(pset.getParameter<double>("minZpos")),
       maxZpos_(pset.getParameter<double>("maxZpos")),
       nintZpos_(pset.getParameter<int>("nintZpos")),
+
+      //Parameters for the total number of simclusters per layer
+      minTotNsimClsperlay_(pset.getParameter<double>("minTotNsimClsperlay")),
+      maxTotNsimClsperlay_(pset.getParameter<double>("maxTotNsimClsperlay")),
+      nintTotNsimClsperlay_(pset.getParameter<int>("nintTotNsimClsperlay")),
 
       //Parameters for the total number of layer clusters per layer
       minTotNClsperlay_(pset.getParameter<double>("minTotNClsperlay")),
@@ -89,6 +99,11 @@ HGVHistoProducerAlgo::HGVHistoProducerAlgo(const edm::ParameterSet& pset)
       minMCLSharedEneFrac_(pset.getParameter<double>("minMCLSharedEneFrac")),
       maxMCLSharedEneFrac_(pset.getParameter<double>("maxMCLSharedEneFrac")),
       nintMCLSharedEneFrac_(pset.getParameter<int>("nintMCLSharedEneFrac")),
+
+      //Parameters for the total number of simclusters per thickness
+      minTotNsimClsperthick_(pset.getParameter<double>("minTotNsimClsperthick")),
+      maxTotNsimClsperthick_(pset.getParameter<double>("maxTotNsimClsperthick")),
+      nintTotNsimClsperthick_(pset.getParameter<int>("nintTotNsimClsperthick")),
 
       //Parameters for the total number of layer clusters per thickness
       minTotNClsperthick_(pset.getParameter<double>("minTotNClsperthick")),
@@ -203,6 +218,61 @@ void HGVHistoProducerAlgo::bookCaloParticleHistos(DQMStore::IBooker& ibook, Hist
   histograms.h_caloparticle_pt[pdgid] = ibook.book1D("caloparticle_pt", "Pt of caloparticle", nintPt_, minPt_, maxPt_);
   histograms.h_caloparticle_phi[pdgid] =
       ibook.book1D("caloparticle_phi", "Phi of caloparticle", nintPhi_, minPhi_, maxPhi_);
+}
+
+void HGVHistoProducerAlgo::bookSimClusterHistos(DQMStore::IBooker& ibook,
+                                             Histograms& histograms,
+                                             unsigned layers,
+                                             std::vector<int> thicknesses) {
+
+  //---------------------------------------------------------------------------------------------------------------------------
+  for (unsigned ilayer = 0; ilayer < 2 * layers; ++ilayer) {
+    auto istr1 = std::to_string(ilayer);
+    while (istr1.size() < 2) {
+      istr1.insert(0, "0");
+    }
+    //We will make a mapping to the regural layer naming plus z- or z+ for convenience
+    std::string istr2 = "";
+    //First with the -z endcap
+    if (ilayer < layers) {
+      istr2 = std::to_string(ilayer + 1) + " in z-";
+    } else {  //Then for the +z
+      istr2 = std::to_string(ilayer - (layers - 1)) + " in z+";
+    }
+    histograms.h_simclusternum_perlayer[ilayer] = ibook.book1D("totsimclusternum_layer_" + istr1,
+                                                            "total number of SimClusters for layer " + istr2,
+                                                            nintTotNsimClsperlay_,
+                                                            minTotNsimClsperlay_,
+                                                            maxTotNsimClsperlay_);
+
+  }//end of loop over layers
+  //---------------------------------------------------------------------------------------------------------------------------
+  for (std::vector<int>::iterator it = thicknesses.begin(); it != thicknesses.end(); ++it) {
+    auto istr = std::to_string(*it);
+    histograms.h_simclusternum_perthick[(*it)] = ibook.book1D("totsimclusternum_thick_" + istr,
+                                                           "total number of simclusters for thickness " + istr,
+                                                           nintTotNsimClsperthick_,
+                                                           minTotNsimClsperthick_,
+                                                           maxTotNsimClsperthick_);
+  }//end of loop over thicknesses
+
+  //---------------------------------------------------------------------------------------------------------------------------
+  //z-
+  histograms.h_mixedhitssimcluster_zminus.push_back(
+						 ibook.book1D("mixedhitssimcluster_zminus",
+							      "N of simclusters that contain hits of more than one kind in z-",
+							      nintMixedHitsSimCluster_,
+							      minMixedHitsSimCluster_,
+							      maxMixedHitsSimCluster_));
+  //z+
+  histograms.h_mixedhitssimcluster_zplus.push_back(
+						ibook.book1D("mixedhitssimcluster_zplus",
+							     "N of simclusters that contain hits of more than one kind in z+",
+							     nintMixedHitsSimCluster_,
+							     minMixedHitsSimCluster_,
+							     maxMixedHitsSimCluster_));
+
+  
 }
 
 void HGVHistoProducerAlgo::bookClusterHistos(DQMStore::IBooker& ibook,
@@ -800,6 +870,142 @@ void HGVHistoProducerAlgo::fill_caloparticle_histos(const Histograms& histograms
     histograms.h_caloparticle_phi.at(pdgid)->Fill(caloparticle.phi());
   }
 }
+
+void HGVHistoProducerAlgo::fill_simcluster_histos(
+    const Histograms& histograms,
+    int count,
+    std::vector<SimCluster>const& simclusters,
+    unsigned layers,
+    std::vector<int> thicknesses) const {
+
+  //Each event to be treated as two events: an event in +ve endcap,
+  //plus another event in -ve endcap. In this spirit there will be
+  //a layer variable (layerid) that maps the layers in :
+  //-z: 0->49
+  //+z: 50->99
+
+  //To keep track of total num of simclusters per layer
+  //tnscpl[layerid]
+  std::vector<int> tnscpl(1000, 0);  //tnscpl.clear(); tnscpl.reserve(1000);
+
+  //To keep track of the total num of clusters per thickness in plus and in minus endcaps
+  std::map<std::string, int> tnscpthplus;
+  tnscpthplus.clear();
+  std::map<std::string, int> tnscpthminus;
+  tnscpthminus.clear();
+  //At the beginning of the event all layers should be initialized to zero total clusters per thickness
+  for (std::vector<int>::iterator it = thicknesses.begin(); it != thicknesses.end(); ++it) {
+    tnscpthplus.insert(std::pair<std::string, int>(std::to_string(*it), 0));
+    tnscpthminus.insert(std::pair<std::string, int>(std::to_string(*it), 0));
+  }
+  //To keep track of the total num of simclusters with mixed thickness hits per event
+  tnscpthplus.insert(std::pair<std::string, int>("mixed", 0));
+  tnscpthminus.insert(std::pair<std::string, int>("mixed", 0));
+
+  //loop through simclusters
+  for (unsigned int ic = 0; ic < simclusters.size(); ++ic) {
+    const auto& sc = simclusters[ic];
+    const auto& hitsAndFractions = sc.hits_and_fractions();
+
+    //Auxillary variables to count the number of different kind of hits in each simcluster
+    int nthhits120p = 0;
+    int nthhits200p = 0;
+    int nthhits300p = 0;
+    int nthhitsscintp = 0;
+    int nthhits120m = 0;
+    int nthhits200m = 0;
+    int nthhits300m = 0;
+    int nthhitsscintm = 0;
+    //For the hits thickness of the layer cluster.
+    double thickness = 0.;
+    //The layer the cluster belongs to. As mentioned in the mapping above, it takes into account -z and +z.
+    int layerid = recHitTools_->getLayerWithOffset(hitsAndFractions[0].first) + layers * ((recHitTools_->zside(hitsAndFractions[0].first) + 1) >> 1) - 1;
+    //zside that the current cluster belongs to.
+    int zside = recHitTools_->zside(hitsAndFractions[0].first);
+
+    //add the simcluster to the relevant layer
+    tnscpl[layerid]++;
+
+    //loop through hits of the simcluster
+    for (const auto& hAndF : hitsAndFractions) {
+
+      const DetId sh_detid = hAndF.first;
+
+      if (sh_detid.det() == DetId::Forward || sh_detid.det() == DetId::HGCalEE || sh_detid.det() == DetId::HGCalHSi) {
+        thickness = recHitTools_->getSiThickness(sh_detid);
+      } else if (sh_detid.det() == DetId::HGCalHSc) {
+        thickness = -1;
+      } else {
+        LogDebug("HGCalValidator") << "These are HGCal simclusters, you shouldn't be here !!! " << layerid << "\n";
+        continue;
+      }
+
+      if ((thickness == 120.) && (zside > 0.)) {
+        nthhits120p++;
+      } else if ((thickness == 120.) && (zside < 0.)) {
+        nthhits120m++;
+      } else if ((thickness == 200.) && (zside > 0.)) {
+        nthhits200p++;
+      } else if ((thickness == 200.) && (zside < 0.)) {
+        nthhits200m++;
+      } else if ((thickness == 300.) && (zside > 0.)) {
+        nthhits300p++;
+      } else if ((thickness == 300.) && (zside < 0.)) {
+        nthhits300m++;
+      } else if ((thickness == -1) && (zside > 0.)) {
+        nthhitsscintp++;
+      } else if ((thickness == -1) && (zside < 0.)) {
+        nthhitsscintm++;
+      } else {  //assert(0);
+        LogDebug("HGCalValidator")
+            << " You are running a geometry that contains thicknesses different than the normal ones. "
+            << "\n";
+      }
+
+    }//end of loop through hits
+
+    //Check for simultaneously having hits of different kind. Checking at least two combinations is sufficient.
+    if ((nthhits120p != 0 && nthhits200p != 0) || (nthhits120p != 0 && nthhits300p != 0) ||
+        (nthhits120p != 0 && nthhitsscintp != 0) || (nthhits200p != 0 && nthhits300p != 0) ||
+        (nthhits200p != 0 && nthhitsscintp != 0) || (nthhits300p != 0 && nthhitsscintp != 0)) {
+      tnscpthplus["mixed"]++;
+    } else if ((nthhits120p != 0 || nthhits200p != 0 || nthhits300p != 0 || nthhitsscintp != 0)) {
+      //This is a cluster with hits of one kind
+      tnscpthplus[std::to_string((int)thickness)]++;
+    }
+    if ((nthhits120m != 0 && nthhits200m != 0) || (nthhits120m != 0 && nthhits300m != 0) ||
+        (nthhits120m != 0 && nthhitsscintm != 0) || (nthhits200m != 0 && nthhits300m != 0) ||
+        (nthhits200m != 0 && nthhitsscintm != 0) || (nthhits300m != 0 && nthhitsscintm != 0)) {
+      tnscpthminus["mixed"]++;
+    } else if ((nthhits120m != 0 || nthhits200m != 0 || nthhits300m != 0 || nthhitsscintm != 0)) {
+      //This is a cluster with hits of one kind
+      tnscpthminus[std::to_string((int)thickness)]++;
+    }
+
+
+  }//end of loop through simclusters of the event
+
+  //Per layer : Loop 0->99
+  for (unsigned ilayer = 0; ilayer < layers * 2; ++ilayer) {
+    if (histograms.h_simclusternum_perlayer.count(ilayer)) {
+      histograms.h_simclusternum_perlayer.at(ilayer)->Fill(tnscpl[ilayer]);
+    }
+  } //end of loop through layers
+
+  //Per thickness
+  for (std::vector<int>::iterator it = thicknesses.begin(); it != thicknesses.end(); ++it) {
+    if (histograms.h_simclusternum_perthick.count(*it)) {
+      histograms.h_simclusternum_perthick.at(*it)->Fill(tnscpthplus[std::to_string(*it)]);
+      histograms.h_simclusternum_perthick.at(*it)->Fill(tnscpthminus[std::to_string(*it)]);
+    }
+  }
+  //Mixed thickness clusters
+  histograms.h_mixedhitssimcluster_zplus[count]->Fill(tnscpthplus["mixed"]);
+  histograms.h_mixedhitssimcluster_zminus[count]->Fill(tnscpthminus["mixed"]);
+
+
+}
+
 
 void HGVHistoProducerAlgo::fill_cluster_histos(const Histograms& histograms,
                                                int count,

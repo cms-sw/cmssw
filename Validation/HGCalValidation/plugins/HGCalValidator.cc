@@ -12,6 +12,7 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
       SaveGeneralInfo_(pset.getUntrackedParameter<bool>("SaveGeneralInfo")),
       doCaloParticlePlots_(pset.getUntrackedParameter<bool>("doCaloParticlePlots")),
       doCaloParticleSelection_(pset.getUntrackedParameter<bool>("doCaloParticleSelection")),
+      dosimclustersPlots_(pset.getUntrackedParameter<bool>("dosimclustersPlots")),
       dolayerclustersPlots_(pset.getUntrackedParameter<bool>("dolayerclustersPlots")),
       domulticlustersPlots_(pset.getUntrackedParameter<bool>("domulticlustersPlots")),
       cummatbudinxo_(pset.getParameter<edm::FileInPath>("cummatbudinxo")) {
@@ -27,6 +28,8 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
   hitMap_ = consumes<std::unordered_map<DetId, const HGCRecHit*>>(edm::InputTag("hgcalRecHitMapProducer"));
 
   density_ = consumes<Density>(edm::InputTag("hgcalLayerClusters"));
+
+  simclusters_ = consumes<std::vector<SimCluster>>(pset.getParameter<edm::InputTag>("label_scl"));
 
   layerclusters_ = consumes<reco::CaloClusterCollection>(label_lcl);
 
@@ -95,6 +98,16 @@ void HGCalValidator::bookHistograms(DQMStore::IBooker& ibook,
     }
     ibook.cd();
     ibook.setCurrentFolder(dirName_);
+  }
+
+  //Booking histograms concerning with simclusters
+  if (dosimclustersPlots_) {
+    ibook.cd();
+    ibook.setCurrentFolder(dirName_ + "simClusters");
+    histoProducerAlgo_->bookSimClusterHistos(ibook,
+                                          histograms.histoProducerAlgo,
+                                          totallayers_to_monitor_,
+                                          thicknesses_to_monitor_);
   }
 
   //Booking histograms concerning with hgcal layer clusters
@@ -219,6 +232,11 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   cpParametersAndSelection(histograms, caloParticles, simVertices, selected_cPeff);
 
   //get collections from the event
+  //simClusters
+  edm::Handle<std::vector<SimCluster>> simClustersHandle;
+  event.getByToken(simclusters_, simClustersHandle);
+  std::vector<SimCluster> const& simclusters = *simClustersHandle;
+
   //Layer clusters
   edm::Handle<reco::CaloClusterCollection> clusterHandle;
   event.getByToken(layerclusters_, clusterHandle);
@@ -228,6 +246,21 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   edm::Handle<Density> densityHandle;
   event.getByToken(density_, densityHandle);
   const Density& densities = *densityHandle;
+
+  // ##############################################
+  // fill simcluster histograms
+  // ##############################################
+  int ws = 0;
+  if (dosimclustersPlots_) {
+    histoProducerAlgo_->fill_simcluster_histos(histograms.histoProducerAlgo,
+					       ws,
+					       simclusters,
+					       totallayers_to_monitor_,
+					       thicknesses_to_monitor_);
+
+    //General Info on simClusters
+    LogTrace("HGCalValidator") << "\n# of simclusters: " << simclusters.size() << "\n";
+  }
 
   // ##############################################
   // fill layercluster histograms

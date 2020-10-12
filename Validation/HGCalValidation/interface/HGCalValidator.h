@@ -62,11 +62,13 @@ protected:
   const bool SaveGeneralInfo_;
   const bool doCaloParticlePlots_;
   const bool doCaloParticleSelection_;
+  const bool dosimclustersPlots_;
   const bool dolayerclustersPlots_;
   const bool domulticlustersPlots_;
   const edm::FileInPath cummatbudinxo_;
 
   std::vector<edm::EDGetTokenT<reco::CaloClusterCollection>> labelToken;
+  edm::EDGetTokenT<std::vector<SimCluster>> simclusters_;
   edm::EDGetTokenT<reco::CaloClusterCollection> layerclusters_;
   std::vector<edm::EDGetTokenT<std::vector<reco::HGCalMultiCluster>>> label_mclTokens;
   edm::EDGetTokenT<std::vector<CaloParticle>> label_cp_effic;

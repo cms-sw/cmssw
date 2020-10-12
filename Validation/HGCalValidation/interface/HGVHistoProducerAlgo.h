@@ -93,6 +93,12 @@ struct HGVHistoProducerAlgoHistograms {
   std::unordered_map<int, dqm::reco::MonitorElement*> h_caloparticle_pt;
   std::unordered_map<int, dqm::reco::MonitorElement*> h_caloparticle_phi;
 
+  //For simclusters
+  std::unordered_map<int, dqm::reco::MonitorElement*> h_simclusternum_perlayer;
+  std::unordered_map<int, dqm::reco::MonitorElement*> h_simclusternum_perthick;
+  std::vector<dqm::reco::MonitorElement*> h_mixedhitssimcluster_zminus;
+  std::vector<dqm::reco::MonitorElement*> h_mixedhitssimcluster_zplus;
+
   //For multiclusters
   std::vector<dqm::reco::MonitorElement*> h_score_multicl2caloparticle;
   std::vector<dqm::reco::MonitorElement*> h_score_caloparticle2multicl;
@@ -157,6 +163,11 @@ public:
   void bookInfo(DQMStore::IBooker& ibook, Histograms& histograms);
   void bookCaloParticleHistos(DQMStore::IBooker& ibook, Histograms& histograms, int pdgid);
 
+  void bookSimClusterHistos(DQMStore::IBooker& ibook,
+                         Histograms& histograms,
+                         unsigned layers,
+                         std::vector<int> thicknesses);
+  
   void bookClusterHistos(DQMStore::IBooker& ibook,
                          Histograms& histograms,
                          unsigned layers,
@@ -187,6 +198,13 @@ public:
                                 int pdgid,
                                 const CaloParticle& caloparticle,
                                 std::vector<SimVertex> const& simVertices) const;
+  void fill_simcluster_histos(
+      const Histograms& histograms,
+      int count,
+      std::vector<SimCluster>const& simclusters,
+      unsigned layers,
+      std::vector<int> thicknesses) const;
+  
   void fill_cluster_histos(const Histograms& histograms, int count, const reco::CaloCluster& cluster) const;
   void fill_generic_cluster_histos(
       const Histograms& histograms,
@@ -253,6 +271,8 @@ private:
   int nintPt_;
   double minPhi_, maxPhi_;
   int nintPhi_;
+  double minMixedHitsSimCluster_, maxMixedHitsSimCluster_;
+  int nintMixedHitsSimCluster_;
   double minMixedHitsCluster_, maxMixedHitsCluster_;
   int nintMixedHitsCluster_;
   double minEneCl_, maxEneCl_;
@@ -261,6 +281,8 @@ private:
   int nintLongDepBary_;
   double minZpos_, maxZpos_;
   int nintZpos_;
+  double minTotNsimClsperlay_, maxTotNsimClsperlay_;
+  int nintTotNsimClsperlay_;
   double minTotNClsperlay_, maxTotNClsperlay_;
   int nintTotNClsperlay_;
   double minEneClperlay_, maxEneClperlay_;
@@ -271,6 +293,8 @@ private:
   int nintSharedEneFrac_;
   double minMCLSharedEneFrac_, maxMCLSharedEneFrac_;
   int nintMCLSharedEneFrac_;
+  double minTotNsimClsperthick_, maxTotNsimClsperthick_;
+  int nintTotNsimClsperthick_;
   double minTotNClsperthick_, maxTotNClsperthick_;
   int nintTotNClsperthick_;
   double minTotNcellsperthickperlayer_, maxTotNcellsperthickperlayer_;

@@ -23,6 +23,11 @@ HGVHistoProducerAlgoBlock = cms.PSet(
     nintPhi = cms.int32(100),
 
     #parameters for counting mixed hits clusters
+    minMixedHitsSimCluster = cms.double(0.),
+    maxMixedHitsSimCluster = cms.double(800.),
+    nintMixedHitsSimCluster = cms.int32(100),
+
+    #parameters for counting mixed hits clusters
     minMixedHitsCluster = cms.double(0.),
     maxMixedHitsCluster = cms.double(800.),
     nintMixedHitsCluster = cms.int32(100),
@@ -41,6 +46,11 @@ HGVHistoProducerAlgoBlock = cms.PSet(
     minZpos = cms.double(-550.),
     maxZpos = cms.double(550.),
     nintZpos = cms.int32(1100),
+
+    #Parameters for the total number of simclusters per layer
+    minTotNsimClsperlay = cms.double(0.),
+    maxTotNsimClsperlay = cms.double(50.),
+    nintTotNsimClsperlay = cms.int32(50),
 
     #Parameters for the total number of layer clusters per layer
     minTotNClsperlay = cms.double(0.),
@@ -72,6 +82,11 @@ HGVHistoProducerAlgoBlock = cms.PSet(
     minMCLSharedEneFrac = cms.double(0.),
     maxMCLSharedEneFrac = cms.double(1.0),
     nintMCLSharedEneFrac = cms.int32(100),
+
+    #Parameters for the total number of simclusters per thickness
+    minTotNsimClsperthick = cms.double(0.),
+    maxTotNsimClsperthick = cms.double(800.),
+    nintTotNsimClsperthick = cms.int32(100),
 
     #Parameters for the total number of layer clusters per thickness
     minTotNClsperthick = cms.double(0.),

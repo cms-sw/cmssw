@@ -26,6 +26,8 @@ hgcalValidator = DQMEDAnalyzer(
     doCaloParticlePlots = cms.untracked.bool(True),
     #Select caloParticles for efficiency or pass through
     doCaloParticleSelection = cms.untracked.bool(True),
+    #SimCluster related plots
+    dosimclustersPlots = cms.untracked.bool(True),
     #Layer Cluster related plots
     dolayerclustersPlots = cms.untracked.bool(True),
     #Multi Cluster related plots
@@ -39,6 +41,8 @@ hgcalValidator = DQMEDAnalyzer(
     ### sim input configuration ###
     label_cp_effic = cms.InputTag("mix","MergedCaloTruth"),
     label_cp_fake = cms.InputTag("mix","MergedCaloTruth"),
+    #simClusters
+    label_scl = cms.InputTag("mix","MergedCaloTruth"),
 
     simVertices = cms.InputTag("g4SimHits"),
 
