@@ -47,7 +47,10 @@ public:
                                   GlobalError gErrorLower,
                                   GlobalError gErrorUpper) const;
 
-  std::vector<std::pair<VectorHit, bool>> buildVectorHits(
+  void buildVectorHits(
+      VectorHitCollection& vhAcc,
+      VectorHitCollection& vhRej,
+      DetId detIdStack,
       const StackGeomDet* stack,
       edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D>> clusters,
       const detset& DSVinner,

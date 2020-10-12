@@ -36,7 +36,10 @@ public:
                    edmNew::DetSetVector<Phase2TrackerCluster1D>& clustersAcc,
                    edmNew::DetSetVector<Phase2TrackerCluster1D>& clustersRej) const = 0;
 
-  virtual std::vector<std::pair<VectorHit, bool>> buildVectorHits(
+  virtual void buildVectorHits(
+      VectorHitCollection& vhAcc,
+      VectorHitCollection& vhRej,
+      DetId detIdStack,
       const StackGeomDet* stack,
       edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D>> clusters,
       const detset& DSVinner,
