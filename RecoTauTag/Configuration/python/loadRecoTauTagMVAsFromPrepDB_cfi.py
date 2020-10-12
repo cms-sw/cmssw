@@ -2,7 +2,7 @@ import socket
 from CondCore.CondDB.CondDB_cfi import *
 '''Helper procedure that loads mva inputs from database'''
 
-CondDBTauConnection = CondDB.clone( connect = cms.string( 'frontier://FrontierProd/CMS_CONDITIONS' ) )
+CondDBTauConnection = CondDB.clone( connect = 'frontier://FrontierProd/CMS_CONDITIONS' )
 
 loadRecoTauTagMVAsFromPrepDB = cms.ESSource( "PoolDBESSource",
                                              CondDBTauConnection,
