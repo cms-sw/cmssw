@@ -18,9 +18,9 @@ isChargedPFCandidate = cms.PSet(
 )
 
 isTrack = isChargedPFCandidate.clone(
-    selection = cms.string("algoIs('kTrack')")
+    selection = "algoIs('kTrack')"
 )
 
 isPFNeutralHadron = isChargedPFCandidate.clone(
-    selection = cms.string("algoIs('kPFNeutralHadron')")
+    selection = "algoIs('kPFNeutralHadron')"
 )

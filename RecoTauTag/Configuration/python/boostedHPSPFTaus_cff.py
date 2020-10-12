@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-import copy
 
 '''
 
@@ -9,12 +8,12 @@ Sequences for reconstructing boosted taus using the HPS algorithm
 
 import CommonTools.ParticleFlow.pfNoPileUp_cff as boostedTaus
 pfPileUpForBoostedTaus = boostedTaus.pfPileUp.clone(
-    PFCandidates = cms.InputTag('particleFlow'),
-    checkClosestZVertex = cms.bool(False)
+    PFCandidates = 'particleFlow',
+    checkClosestZVertex = False
 )
 pfNoPileUpForBoostedTaus = boostedTaus.pfNoPileUp.clone(
-    topCollection = cms.InputTag('pfPileUpForBoostedTaus'),
-    bottomCollection = cms.InputTag('particleFlow')
+    topCollection = 'pfPileUpForBoostedTaus',
+    bottomCollection = 'particleFlow'
 )
 
 
@@ -22,12 +21,12 @@ import RecoJets.JetProducers.ak4PFJets_cfi as boostedTaus2
 import RecoJets.JetProducers.CMSBoostedTauSeedingParameters_cfi as boostedTaus3
 ca8PFJetsCHSprunedForBoostedTaus = boostedTaus2.ak4PFJets.clone(
     boostedTaus3.CMSBoostedTauSeedingParameters,
-    #src = cms.InputTag('pfNoPileUpForBoostedTaus'),
-    jetPtMin = cms.double(100.0),
-    doAreaFastjet = cms.bool(True),
+    #src = 'pfNoPileUpForBoostedTaus',
+    jetPtMin = 100.0,
+    doAreaFastjet = True,
     nFilt = cms.int32(100),
-    rParam = cms.double(0.8),
-    jetAlgorithm = cms.string("CambridgeAachen"),
+    rParam = 0.8,
+    jetAlgorithm = "CambridgeAachen",
     writeCompound = cms.bool(True),
     jetCollInstanceName = cms.string('subJetsForSeedingBoostedTaus')
 )

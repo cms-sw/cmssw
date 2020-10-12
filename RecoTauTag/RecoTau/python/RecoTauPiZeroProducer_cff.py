@@ -27,7 +27,7 @@ ak4PFJetsRecoTauGreedyPiZeros = recoTauPiZeroProducer.clone(
     jetSrc = PFRecoTauPFJetInputs.inputJetCollection,
     minJetPt = PFRecoTauPFJetInputs.minJetPt,
     maxJetAbsEta = PFRecoTauPFJetInputs.maxJetAbsEta,
-    outputSelection = cms.string('pt > 1.5'),
+    outputSelection = 'pt > 1.5',
     builders = cms.VPSet(
         builders.comboStrips
     ),
@@ -41,7 +41,7 @@ ak4PFJetsRecoTauPiZeros = recoTauPiZeroProducer.clone(
     jetSrc = PFRecoTauPFJetInputs.inputJetCollection,
     minJetPt = PFRecoTauPFJetInputs.minJetPt,
     maxJetAbsEta = PFRecoTauPFJetInputs.maxJetAbsEta,
-    outputSelection = cms.string('pt > 1.5'),
+    outputSelection = 'pt > 1.5',
     builders = cms.VPSet(
         builders.combinatoricPhotonPairs,
         builders.modStrips2
@@ -58,7 +58,7 @@ ak4PFJetsLegacyTaNCPiZeros = recoTauPiZeroProducer.clone(
     jetSrc = PFRecoTauPFJetInputs.inputJetCollection,
     minJetPt = PFRecoTauPFJetInputs.minJetPt,
     maxJetAbsEta = PFRecoTauPFJetInputs.maxJetAbsEta,
-    outputSelection = cms.string('pt > 1.5'),
+    outputSelection = 'pt > 1.5',
     builders = cms.VPSet(
         builders.allSinglePhotons,
         builders.combinatoricPhotonPairs
