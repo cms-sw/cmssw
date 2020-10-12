@@ -14,7 +14,20 @@ namespace {
   }
 }  // namespace
 
-PFTkEGAlgo::PFTkEGAlgo(const edm::ParameterSet &) {}
+PFTkEGAlgo::PFTkEGAlgo(const edm::ParameterSet &pset):
+  debug_(pset.getUntrackedParameter<int>("debug")),
+  doBremRecovery_(pset.getParameter<bool>("doBremRecovery")),
+  filterHwQuality_(pset.getParameter<bool>("filterHwQuality")),
+  caloHwQual_(pset.getParameter<int>("caloHwQual")),
+  dEtaMaxBrem_(pset.getParameter<double>("dEtaMaxBrem")),
+  dPhiMaxBrem_(pset.getParameter<double>("dPhiMaxBrem")),
+  absEtaBoundaries_(pset.getParameter<std::vector<double>>("absEtaBoundaries")),
+  dEtaValues_(pset.getParameter<std::vector<double>>("dEtaValues")),
+  dPhiValues_(pset.getParameter<std::vector<double>>("dPhiValues")),
+  caloEtMin_(pset.getParameter<double>("caloEtMin")),
+  trkQualityPtMin_(pset.getParameter<double>("trkQualityPtMin")),
+  trkQualityChi2_(pset.getParameter<double>("trkQualityChi2")),
+  writeEgSta_(pset.getParameter<bool>("writeEgSta")) {}
 
 PFTkEGAlgo::~PFTkEGAlgo() {}
 
@@ -26,12 +39,13 @@ void PFTkEGAlgo::initRegion(Region &r) const {
 void PFTkEGAlgo::runTkEG(Region &r) const {
   initRegion(r);
 
-  //FIXME: configurable (off for barrel)
-  bool doBremRecovery = true;
-
-  // NOTE: we run this step for all clusters (before matching) as it is done in the pre-PF algorithm
+  if(debug_ > 0) {
+    std::cout << "[PFTkEGAlgo::runTkEG] START" << std::endl;
+    std::cout << "   # emCalo: " << r.emcalo.size() << " # tk: " << r.track.size() << std::endl;
+  }
+  // NOTE: we run this step for all clusters (before matching) as it is done in the pre-PF EG algorithm
   std::vector<int> emCalo2emCalo(r.emcalo.size(), -1);
-  if (doBremRecovery)
+  if (doBremRecovery_)
     link_emCalo2emCalo(r, emCalo2emCalo);
 
   // track to EM calo matching
@@ -45,17 +59,19 @@ void PFTkEGAlgo::runTkEG(Region &r) const {
 }
 
 void PFTkEGAlgo::eg_algo(Region &r, const std::vector<int> &emCalo2emCalo, const std::vector<int> &emCalo2tk) const {
-  // FIXME: configurables
-  int caloHwQual_ = 4;
 
   for (int ic = 0, nc = r.emcalo.size(); ic < nc; ++ic) {
     auto &calo = r.emcalo[ic];
-    if (calo.hwFlags != caloHwQual_)
+    if (filterHwQuality_ && calo.hwFlags != caloHwQual_)
       continue;
 
     int itk = emCalo2tk[ic];
     // 1. create EG objects before brem recovery
     addEgObjsToPF(r.egobjs, ic, calo.hwFlags, calo.floatPt(), itk);
+
+    // check if brem recovery is on
+    if(!doBremRecovery_)
+      continue;
 
     // check if the cluster has already been used in a brem reclustering
     if (emCalo2emCalo[ic] != -1)
@@ -70,12 +86,12 @@ void PFTkEGAlgo::eg_algo(Region &r, const std::vector<int> &emCalo2emCalo, const
       }
     }
 
-    // 2. create TkEle with brem recovery
+    // 2. create EG objects with brem recovery
     addEgObjsToPF(r.egobjs, ic, calo.hwFlags + 1, ptBremReco, itk);
   }
 }
 
-l1tpf_impl::EgObjectIndexer &PFTkEGAlgo::addEgObjsToPF(std::vector<l1tpf_impl::EgObjectIndexer> egobjs,
+l1tpf_impl::EgObjectIndexer &PFTkEGAlgo::addEgObjsToPF(std::vector<l1tpf_impl::EgObjectIndexer> &egobjs,
                                                        const int calo_idx,
                                                        const int hwQual,
                                                        const float ptCorr,
@@ -86,27 +102,25 @@ l1tpf_impl::EgObjectIndexer &PFTkEGAlgo::addEgObjsToPF(std::vector<l1tpf_impl::E
 }
 
 void PFTkEGAlgo::link_emCalo2emCalo(Region &r, std::vector<int> &emCalo2emCalo) const {
-  // FIXME: configurables
-  int caloHwQual_ = 4;
-  float dEtaMax = 0.02;
-  float dPhiMax = 0.1;
-
   // NOTE: we assume the input to be sorted!!!
   for (int ic = 0, nc = r.emcalo.size(); ic < nc; ++ic) {
     auto &calo = r.emcalo[ic];
-    if (calo.hwFlags != caloHwQual_)
+    if (filterHwQuality_ && calo.hwFlags != caloHwQual_)
       continue;
 
     if (emCalo2emCalo[ic] != -1)
       continue;
 
-    for (int jc = ic; jc < nc; ++jc) {
+    for (int jc = ic+1; jc < nc; ++jc) {
       if (emCalo2emCalo[jc] != -1)
         continue;
 
       auto &otherCalo = r.emcalo[jc];
-      if (fabs(otherCalo.floatEta() - calo.floatEta()) < dEtaMax &&
-          fabs(deltaPhi(otherCalo.floatPhi(), calo.floatPhi())) < dPhiMax) {
+      if (filterHwQuality_ && otherCalo.hwFlags != caloHwQual_)
+        continue;
+
+      if (fabs(otherCalo.floatEta() - calo.floatEta()) < dEtaMaxBrem_ &&
+          fabs(deltaPhi(otherCalo.floatPhi(), calo.floatPhi())) < dEtaMaxBrem_) {
         emCalo2emCalo[jc] = ic;
       }
     }
@@ -114,48 +128,42 @@ void PFTkEGAlgo::link_emCalo2emCalo(Region &r, std::vector<int> &emCalo2emCalo) 
 }
 
 void PFTkEGAlgo::link_emCalo2tk(Region &r, std::vector<int> &emCalo2tk) const {
-  // FIXME: configurable
-  // configuration of the elliptic cut over the whole detector
-  std::vector<float> absEtaBountaries_{0.0, 0.9, 1.5};
-  std::vector<float> dEtaValues_{0.025, 0.015, 0.01};  // last was  0.0075  in TDR
-  std::vector<float> dPhiValues_{0.07, 0.07, 0.07};
-  float caloEtMin_ = 0.0;
-  // FIXME this needs configuration depending on where we are...? Or maybe a list of qualities
-  int caloHwQual_ = 4;
-
-  float trkQualityPtMin_ = 10.0;
-  float trkQualityChi2_ = 1e10;
-
   // track to calo matching (first iteration, with a lower bound on the calo pt; there may be another one later)
   for (int ic = 0, nc = r.emcalo.size(); ic < nc; ++ic) {
     auto &calo = r.emcalo[ic];
-    // std::cout << "[" << ic << "] pt: " << calo.floatPt() << std::endl;
-    if (calo.hwFlags != caloHwQual_)
+
+    if (filterHwQuality_ && calo.hwFlags != caloHwQual_)
       continue;
     // compute elliptic matching
     auto eta_index = std::distance(
-        absEtaBountaries_.begin(),
-        std::lower_bound(absEtaBountaries_.begin(), absEtaBountaries_.end(), r.globalAbsEta(calo.floatEta())));
+        absEtaBoundaries_.begin(),
+        std::lower_bound(absEtaBoundaries_.begin(), absEtaBoundaries_.end(), r.globalAbsEta(calo.floatEta()))) - 1;
     float dEtaMax = dEtaValues_[eta_index];
     float dPhiMax = dPhiValues_[eta_index];
 
-    float dPtMin = 999;
+    if(debug_ > 0) std::cout << "idx: " << eta_index << " deta: " << dEtaMax << " dphi: " << dPhiMax << std::endl;
 
+    float dPtMin = 999;
+    if(debug_ > 0) std::cout << "--- calo: pt: " << calo.floatPt() << " eta: " << calo.floatEta() << " phi: " << calo.floatPhi() << std::endl;
     for (int itk = 0, ntk = r.track.size(); itk < ntk; ++itk) {
       const auto &tk = r.track[itk];
+      if(debug_ > 0) std::cout << "  - tk: pt: " << tk.floatPt() << " eta: " << tk.floatEta() << " phi: " << tk.floatPhi() << std::endl;
+
       if (tk.floatPt() < trkQualityPtMin_)
         continue;
 
       float d_phi = deltaPhi(tk.floatPhi(), calo.floatPhi());
       float d_eta = fabs(tk.floatEta() - calo.floatEta());
 
+      if(debug_ > 0) std::cout << " deta: " << d_eta << " dphi: " << d_phi << " ell: " << ((d_phi / dPhiMax) * (d_phi / dPhiMax)) + ((d_eta / dEtaMax) * (d_eta / dEtaMax))<< std::endl;
       // std::cout << "Global abs eta: " << r.globalAbsEta(calo.floatEta())
       //           << " abs eta: " << fabs(calo.floatEta()) << std::endl;
 
-      if (((d_phi / dPhiMax) * (d_phi / dPhiMax)) + ((d_eta / dEtaMax) * (d_eta / dEtaMax)) < 1.) {
-        // FIXME: how to define the best match? Closest in pt? See what done in PF
-        // maybe we want the highest in pT and then recover using the brem recovery???
+      if ((((d_phi / dPhiMax) * (d_phi / dPhiMax)) + ((d_eta / dEtaMax) * (d_eta / dEtaMax))) < 1.) {
+        if(debug_ > 0) std::cout << "    pass elliptic " << std::endl;
+        // NOTE: for now we implement only best pt match. This is NOT what is done in the L1TkElectronTrackProducer
         if (fabs(tk.floatPt() - calo.floatPt()) < dPtMin) {
+          if(debug_ > 0) std::cout << "     best pt match: " << fabs(tk.floatPt() - calo.floatPt()) << std::endl;
           emCalo2tk[ic] = itk;
           dPtMin = fabs(tk.floatPt() - calo.floatPt());
         }
