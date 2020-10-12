@@ -35,9 +35,10 @@ struct stAPVGain {
 
 struct APVloc {
 public:
-  APVloc(int v1, int v2, int v3, const std::string& s)
-      : m_subdetectorId(v1), m_subdetectorSide(v2), m_subdetectorPlane(v3), m_string(s) {}
+  APVloc(int v0, int v1, int v2, int v3, const std::string& s)
+      : m_thickness(v0), m_subdetectorId(v1), m_subdetectorSide(v2), m_subdetectorPlane(v3), m_string(s) {}
 
+  int m_thickness;
   int m_subdetectorId;
   int m_subdetectorSide;
   int m_subdetectorPlane;
@@ -45,7 +46,7 @@ public:
 
   bool operator==(const APVloc& a) const {
     return (m_subdetectorId == a.m_subdetectorId && m_subdetectorSide == a.m_subdetectorSide &&
-            m_subdetectorPlane == a.m_subdetectorPlane);
+            m_subdetectorPlane == a.m_subdetectorPlane && m_thickness == a.m_thickness);
   }
 };
 
