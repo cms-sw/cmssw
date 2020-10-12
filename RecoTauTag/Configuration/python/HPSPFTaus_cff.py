@@ -419,7 +419,7 @@ hpsPFTauDiscriminationByIsolationMVArun2v1DBdR03oldDMwLTraw = hpsPFTauDiscrimina
     mvaName = "RecoTauTag_tauIdMVAIsoDBoldDMdR0p3wLT",
     mvaOpt = "DBoldDMwLTwGJ",
     srcBasicTauDiscriminators = "hpsPFTauBasicDiscriminatorsdR03",
-    inputIDNameSuffix = cms.string("dR03"),
+    inputIDNameSuffix = "dR03",
     verbosity = 0
 )
 hpsPFTauDiscriminationByIsolationMVArun2v1DBdR03oldDMwLT = hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLT.clone(
