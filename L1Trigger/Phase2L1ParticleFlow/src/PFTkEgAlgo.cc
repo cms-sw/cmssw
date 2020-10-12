@@ -14,20 +14,20 @@ namespace {
   }
 }  // namespace
 
-PFTkEGAlgo::PFTkEGAlgo(const edm::ParameterSet &pset):
-  debug_(pset.getUntrackedParameter<int>("debug")),
-  doBremRecovery_(pset.getParameter<bool>("doBremRecovery")),
-  filterHwQuality_(pset.getParameter<bool>("filterHwQuality")),
-  caloHwQual_(pset.getParameter<int>("caloHwQual")),
-  dEtaMaxBrem_(pset.getParameter<double>("dEtaMaxBrem")),
-  dPhiMaxBrem_(pset.getParameter<double>("dPhiMaxBrem")),
-  absEtaBoundaries_(pset.getParameter<std::vector<double>>("absEtaBoundaries")),
-  dEtaValues_(pset.getParameter<std::vector<double>>("dEtaValues")),
-  dPhiValues_(pset.getParameter<std::vector<double>>("dPhiValues")),
-  caloEtMin_(pset.getParameter<double>("caloEtMin")),
-  trkQualityPtMin_(pset.getParameter<double>("trkQualityPtMin")),
-  trkQualityChi2_(pset.getParameter<double>("trkQualityChi2")),
-  writeEgSta_(pset.getParameter<bool>("writeEgSta")) {}
+PFTkEGAlgo::PFTkEGAlgo(const edm::ParameterSet &pset)
+    : debug_(pset.getUntrackedParameter<int>("debug")),
+      doBremRecovery_(pset.getParameter<bool>("doBremRecovery")),
+      filterHwQuality_(pset.getParameter<bool>("filterHwQuality")),
+      caloHwQual_(pset.getParameter<int>("caloHwQual")),
+      dEtaMaxBrem_(pset.getParameter<double>("dEtaMaxBrem")),
+      dPhiMaxBrem_(pset.getParameter<double>("dPhiMaxBrem")),
+      absEtaBoundaries_(pset.getParameter<std::vector<double>>("absEtaBoundaries")),
+      dEtaValues_(pset.getParameter<std::vector<double>>("dEtaValues")),
+      dPhiValues_(pset.getParameter<std::vector<double>>("dPhiValues")),
+      caloEtMin_(pset.getParameter<double>("caloEtMin")),
+      trkQualityPtMin_(pset.getParameter<double>("trkQualityPtMin")),
+      trkQualityChi2_(pset.getParameter<double>("trkQualityChi2")),
+      writeEgSta_(pset.getParameter<bool>("writeEgSta")) {}
 
 PFTkEGAlgo::~PFTkEGAlgo() {}
 
@@ -39,7 +39,7 @@ void PFTkEGAlgo::initRegion(Region &r) const {
 void PFTkEGAlgo::runTkEG(Region &r) const {
   initRegion(r);
 
-  if(debug_ > 0) {
+  if (debug_ > 0) {
     std::cout << "[PFTkEGAlgo::runTkEG] START" << std::endl;
     std::cout << "   # emCalo: " << r.emcalo.size() << " # tk: " << r.track.size() << std::endl;
   }
@@ -59,7 +59,6 @@ void PFTkEGAlgo::runTkEG(Region &r) const {
 }
 
 void PFTkEGAlgo::eg_algo(Region &r, const std::vector<int> &emCalo2emCalo, const std::vector<int> &emCalo2tk) const {
-
   for (int ic = 0, nc = r.emcalo.size(); ic < nc; ++ic) {
     auto &calo = r.emcalo[ic];
     if (filterHwQuality_ && calo.hwFlags != caloHwQual_)
@@ -70,7 +69,7 @@ void PFTkEGAlgo::eg_algo(Region &r, const std::vector<int> &emCalo2emCalo, const
     addEgObjsToPF(r.egobjs, ic, calo.hwFlags, calo.floatPt(), itk);
 
     // check if brem recovery is on
-    if(!doBremRecovery_)
+    if (!doBremRecovery_)
       continue;
 
     // check if the cluster has already been used in a brem reclustering
@@ -111,7 +110,7 @@ void PFTkEGAlgo::link_emCalo2emCalo(Region &r, std::vector<int> &emCalo2emCalo) 
     if (emCalo2emCalo[ic] != -1)
       continue;
 
-    for (int jc = ic+1; jc < nc; ++jc) {
+    for (int jc = ic + 1; jc < nc; ++jc) {
       if (emCalo2emCalo[jc] != -1)
         continue;
 
@@ -135,19 +134,26 @@ void PFTkEGAlgo::link_emCalo2tk(Region &r, std::vector<int> &emCalo2tk) const {
     if (filterHwQuality_ && calo.hwFlags != caloHwQual_)
       continue;
     // compute elliptic matching
-    auto eta_index = std::distance(
-        absEtaBoundaries_.begin(),
-        std::lower_bound(absEtaBoundaries_.begin(), absEtaBoundaries_.end(), r.globalAbsEta(calo.floatEta()))) - 1;
+    auto eta_index =
+        std::distance(
+            absEtaBoundaries_.begin(),
+            std::lower_bound(absEtaBoundaries_.begin(), absEtaBoundaries_.end(), r.globalAbsEta(calo.floatEta()))) -
+        1;
     float dEtaMax = dEtaValues_[eta_index];
     float dPhiMax = dPhiValues_[eta_index];
 
-    if(debug_ > 0) std::cout << "idx: " << eta_index << " deta: " << dEtaMax << " dphi: " << dPhiMax << std::endl;
+    if (debug_ > 0)
+      std::cout << "idx: " << eta_index << " deta: " << dEtaMax << " dphi: " << dPhiMax << std::endl;
 
     float dPtMin = 999;
-    if(debug_ > 0) std::cout << "--- calo: pt: " << calo.floatPt() << " eta: " << calo.floatEta() << " phi: " << calo.floatPhi() << std::endl;
+    if (debug_ > 0)
+      std::cout << "--- calo: pt: " << calo.floatPt() << " eta: " << calo.floatEta() << " phi: " << calo.floatPhi()
+                << std::endl;
     for (int itk = 0, ntk = r.track.size(); itk < ntk; ++itk) {
       const auto &tk = r.track[itk];
-      if(debug_ > 0) std::cout << "  - tk: pt: " << tk.floatPt() << " eta: " << tk.floatEta() << " phi: " << tk.floatPhi() << std::endl;
+      if (debug_ > 0)
+        std::cout << "  - tk: pt: " << tk.floatPt() << " eta: " << tk.floatEta() << " phi: " << tk.floatPhi()
+                  << std::endl;
 
       if (tk.floatPt() < trkQualityPtMin_)
         continue;
@@ -155,15 +161,20 @@ void PFTkEGAlgo::link_emCalo2tk(Region &r, std::vector<int> &emCalo2tk) const {
       float d_phi = deltaPhi(tk.floatPhi(), calo.floatPhi());
       float d_eta = fabs(tk.floatEta() - calo.floatEta());
 
-      if(debug_ > 0) std::cout << " deta: " << d_eta << " dphi: " << d_phi << " ell: " << ((d_phi / dPhiMax) * (d_phi / dPhiMax)) + ((d_eta / dEtaMax) * (d_eta / dEtaMax))<< std::endl;
+      if (debug_ > 0)
+        std::cout << " deta: " << d_eta << " dphi: " << d_phi
+                  << " ell: " << ((d_phi / dPhiMax) * (d_phi / dPhiMax)) + ((d_eta / dEtaMax) * (d_eta / dEtaMax))
+                  << std::endl;
       // std::cout << "Global abs eta: " << r.globalAbsEta(calo.floatEta())
       //           << " abs eta: " << fabs(calo.floatEta()) << std::endl;
 
       if ((((d_phi / dPhiMax) * (d_phi / dPhiMax)) + ((d_eta / dEtaMax) * (d_eta / dEtaMax))) < 1.) {
-        if(debug_ > 0) std::cout << "    pass elliptic " << std::endl;
+        if (debug_ > 0)
+          std::cout << "    pass elliptic " << std::endl;
         // NOTE: for now we implement only best pt match. This is NOT what is done in the L1TkElectronTrackProducer
         if (fabs(tk.floatPt() - calo.floatPt()) < dPtMin) {
-          if(debug_ > 0) std::cout << "     best pt match: " << fabs(tk.floatPt() - calo.floatPt()) << std::endl;
+          if (debug_ > 0)
+            std::cout << "     best pt match: " << fabs(tk.floatPt() - calo.floatPt()) << std::endl;
           emCalo2tk[ic] = itk;
           dPtMin = fabs(tk.floatPt() - calo.floatPt());
         }

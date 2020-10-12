@@ -15,9 +15,7 @@ namespace l1tpf_impl {
     virtual ~PFTkEGAlgo();
     void runTkEG(Region &r) const;
 
-    bool writeEgSta() const {
-      return writeEgSta_;
-    }
+    bool writeEgSta() const { return writeEgSta_; }
 
   protected:
     int debug_;
