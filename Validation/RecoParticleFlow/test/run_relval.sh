@@ -33,7 +33,7 @@ NTHREADS=2
 
 #Argument parsing
 if [ "$#" -ne 3 ]; then
-    echo "Must pass exactly 3 arguments: run_relval.sh [QCD|QCDPU|ZEEPU|ZMMPU|TENTAUPU|NuGunPU] [reco|dqm] [njob]"
+    echo "Must pass exactly 3 arguments: run_relval.sh [QCD|QCDPU|ZEEPU|ZMMPU|TenTauPU|NuGunPU] [reco|dqm] [njob]"
     exit 0
 fi
 
@@ -68,9 +68,9 @@ elif [ "$1" == "ZEEPU" ]; then
 elif [ "$1" == "ZMMPU" ]; then
     INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/tmp/das_cache/ZMM_PU.txt
     NAME=ZMM
-elif [ "$1" == "TENTAUPU" ]; then
-    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/tmp/das_cache/TENTAU_PU.txt
-    NAME=TENTAU
+elif [ "$1" == "TenTauPU" ]; then
+    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/tmp/das_cache/TenTau_PU.txt
+    NAME=TenTau
 elif [ "$1" == "NuGunPU" ]; then
     INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/tmp/das_cache/NuGun_PU.txt
     NAME=NuGunPU
@@ -78,7 +78,7 @@ elif [ "$1" == "conf" ]; then  # special switch for creating conf file,
     INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/tmp/das_cache/NuGun_PU.txt # dummy
     NAME=conf
 else
-    echo "Argument 1 must be [QCD|QCDPU|ZEEPU|ZMMPU|TENTAUPU|NuGunPU|conf] but was $1"
+    echo "Argument 1 must be [QCD|QCDPU|ZEEPU|ZMMPU|TenTauPU|NuGunPU|conf] but was $1"
     exit 1
 fi
 
