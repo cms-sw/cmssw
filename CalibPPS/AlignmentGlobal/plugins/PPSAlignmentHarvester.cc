@@ -238,7 +238,7 @@ void PPSAlignmentHarvester::doMatch(DQMStore::IBooker &iBooker,
                                     double sh_max,
                                     double &sh_best,
                                     double &sh_best_unc) {
-  const auto range_test = cfg->alignment_x_meth_o_ranges()[rpd.id_];
+  const auto range_test = cfg->alignment_x_meth_o_ranges().at(rpd.id_);
 
   // print config
   edm::LogInfo("PPS") << std::fixed << std::setprecision(3) << "[x_alignment] "
@@ -407,7 +407,7 @@ void PPSAlignmentHarvester::xAlignment(DQMStore::IBooker &iBooker,
       if (debug_)
         rpDir = xAliDir->mkdir(rpd.name_.c_str());
 
-      auto vec_ref = cfg_ref->matchingReferencePoints()[rpd.id_];
+      auto vec_ref = cfg_ref->matchingReferencePoints().at(rpd.id_);
       if (vec_ref.empty()) {
         edm::LogInfo("PPS") << "[x_alignment] " << rpd.name_ << ": reference points vector is empty";
         continue;
@@ -445,14 +445,14 @@ void PPSAlignmentHarvester::xAlignment(DQMStore::IBooker &iBooker,
         g_test->Write("g_test");
       }
 
-      const auto &shiftRange = cfg_ref->matchingShiftRanges()[rpd.id_];
+      const auto &shiftRange = cfg_ref->matchingShiftRanges().at(rpd.id_);
       double sh = 0., sh_unc = 0.;
       doMatch(iBooker,
               cfg,
               rpd,
               g_ref,
               g_test,
-              cfg_ref->alignment_x_meth_o_ranges()[rpd.id_],
+              cfg_ref->alignment_x_meth_o_ranges().at(rpd.id_),
               shiftRange.x_min_,
               shiftRange.x_max_,
               sh,
@@ -510,8 +510,8 @@ void PPSAlignmentHarvester::xAlignmentRelative(DQMStore::IBooker &iBooker,
       continue;
     }
 
-    const double xMin = cfg->alignment_x_relative_ranges()[sd.rp_N_.id_].x_min_;
-    const double xMax = cfg->alignment_x_relative_ranges()[sd.rp_N_.id_].x_max_;
+    const double xMin = cfg->alignment_x_relative_ranges().at(sd.rp_N_.id_).x_min_;
+    const double xMax = cfg->alignment_x_relative_ranges().at(sd.rp_N_.id_).x_max_;
 
     const double sh_x_N = sh_x_map[sd.rp_N_.id_];
     double slope = sd.slope_;
@@ -732,8 +732,8 @@ void PPSAlignmentHarvester::yAlignment(DQMStore::IBooker &iBooker,
         continue;
       }
 
-      const double xMin = cfg->alignment_y_ranges()[rpd.id_].x_min_;
-      const double xMax = cfg->alignment_y_ranges()[rpd.id_].x_max_;
+      const double xMin = cfg->alignment_y_ranges().at(rpd.id_).x_min_;
+      const double xMax = cfg->alignment_y_ranges().at(rpd.id_).x_max_;
 
       const double sh_x = sh_x_map[rpd.id_];
       double slope = rpd.slope_;
