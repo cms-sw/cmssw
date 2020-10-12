@@ -54,7 +54,7 @@ comboStrips = strips.clone(
 # Produce a "strips" of photons
 # with no track quality cuts applied to PFElectrons
 modStrips = strips.clone(
-    plugin = cms.string('RecoTauPiZeroStripPlugin2'),
+    plugin = 'RecoTauPiZeroStripPlugin2',
     applyElecTrackQcuts = cms.bool(False),
     minGammaEtStripSeed = cms.double(1.0),
     minGammaEtStripAdd = cms.double(1.0),
@@ -81,7 +81,7 @@ modStrips2 = strips.clone(
         par0 = cms.double(3.52476e-01),
         par1 = cms.double(7.07716e-01)
     ),
-    makeCombinatoricStrips = cms.bool(False),
+    makeCombinatoricStrips = False,
     minGammaEtStripSeed = cms.double(1.0),
     minGammaEtStripAdd = cms.double(1.0),
     minStripEt = cms.double(1.0),
