@@ -47,15 +47,14 @@ public:
                                   GlobalError gErrorLower,
                                   GlobalError gErrorUpper) const;
 
-  void buildVectorHits(
-      VectorHitCollection& vhAcc,
-      VectorHitCollection& vhRej,
-      DetId detIdStack,
-      const StackGeomDet* stack,
-      edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D>> clusters,
-      const detset& DSVinner,
-      const detset& DSVouter,
-      const std::vector<bool>& phase2OTClustersToSkip = std::vector<bool>()) const override;
+  void buildVectorHits(VectorHitCollection& vhAcc,
+                       VectorHitCollection& vhRej,
+                       DetId detIdStack,
+                       const StackGeomDet* stack,
+                       edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D>> clusters,
+                       const detset& DSVinner,
+                       const detset& DSVouter,
+                       const std::vector<bool>& phase2OTClustersToSkip = std::vector<bool>()) const override;
 
   VectorHit buildVectorHit(const StackGeomDet* stack,
                            Phase2TrackerCluster1DRef lower,
