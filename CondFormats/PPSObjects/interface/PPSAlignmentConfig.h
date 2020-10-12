@@ -95,11 +95,11 @@ std::ostream &operator<<(std::ostream &os, Binning &b);
 class PPSAlignmentConfig {
 public:
   // Getters
-  std::vector<std::string> sequence() const;
-  std::string resultsDir() const;
+  const std::vector<std::string> &sequence() const;
+  const std::string &resultsDir() const;
 
-  SectorConfig sectorConfig45() const;
-  SectorConfig sectorConfig56() const;
+  const SectorConfig &sectorConfig45() const;
+  const SectorConfig &sectorConfig56() const;
 
   double x_ali_sh_step() const;
 
@@ -111,23 +111,23 @@ public:
   double maxRPTracksSize() const;
   double n_si() const;
 
-  std::map<unsigned int, std::vector<PointErrors>> matchingReferencePoints() const;
-  std::map<unsigned int, SelectionRange> matchingShiftRanges() const;
+  const std::map<unsigned int, std::vector<PointErrors>> &matchingReferencePoints() const;
+  const std::map<unsigned int, SelectionRange> &matchingShiftRanges() const;
 
-  std::map<unsigned int, SelectionRange> alignment_x_meth_o_ranges() const;
+  const std::map<unsigned int, SelectionRange> &alignment_x_meth_o_ranges() const;
   unsigned int fitProfileMinBinEntries() const;
   unsigned int fitProfileMinNReasonable() const;
   unsigned int methOGraphMinN() const;
   double methOUncFitRange() const;
 
-  std::map<unsigned int, SelectionRange> alignment_x_relative_ranges() const;
+  const std::map<unsigned int, SelectionRange> &alignment_x_relative_ranges() const;
   unsigned int nearFarMinEntries() const;
 
-  std::map<unsigned int, SelectionRange> alignment_y_ranges() const;
+  const std::map<unsigned int, SelectionRange> &alignment_y_ranges() const;
   unsigned int modeGraphMinN() const;
   unsigned int multSelProjYMinEntries() const;
 
-  Binning binning() const;
+  const Binning &binning() const;
 
   // Setters
   void setSequence(std::vector<std::string> &sequence);

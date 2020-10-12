@@ -238,7 +238,6 @@ void PPSAlignmentHarvester::doMatch(DQMStore::IBooker &iBooker,
                                     double sh_max,
                                     double &sh_best,
                                     double &sh_best_unc) {
-  // const auto &range_test = cfg->alignment_x_meth_o_ranges()[rpd.id_];	// Does not work (wrong results)
   const auto range_test = cfg->alignment_x_meth_o_ranges()[rpd.id_];
 
   // print config

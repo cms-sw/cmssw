@@ -21,11 +21,11 @@ TYPELOOKUP_DATA_REG(PPSAlignmentConfig);
 
 // -------------------------------- PPSAlignmentConfig getters --------------------------------
 
-std::vector<std::string> PPSAlignmentConfig::sequence() const { return sequence_; }
-std::string PPSAlignmentConfig::resultsDir() const { return resultsDir_; }
+const std::vector<std::string> &PPSAlignmentConfig::sequence() const { return sequence_; }
+const std::string &PPSAlignmentConfig::resultsDir() const { return resultsDir_; }
 
-SectorConfig PPSAlignmentConfig::sectorConfig45() const { return sectorConfig45_; }
-SectorConfig PPSAlignmentConfig::sectorConfig56() const { return sectorConfig56_; }
+const SectorConfig &PPSAlignmentConfig::sectorConfig45() const { return sectorConfig45_; }
+const SectorConfig &PPSAlignmentConfig::sectorConfig56() const { return sectorConfig56_; }
 
 double PPSAlignmentConfig::x_ali_sh_step() const { return x_ali_sh_step_; }
 
@@ -37,12 +37,14 @@ double PPSAlignmentConfig::y_mode_max_valid() const { return y_mode_max_valid_; 
 double PPSAlignmentConfig::maxRPTracksSize() const { return maxRPTracksSize_; }
 double PPSAlignmentConfig::n_si() const { return n_si_; }
 
-std::map<unsigned int, std::vector<PointErrors>> PPSAlignmentConfig::matchingReferencePoints() const {
+const std::map<unsigned int, std::vector<PointErrors>> &PPSAlignmentConfig::matchingReferencePoints() const {
   return matchingReferencePoints_;
 }
-std::map<unsigned int, SelectionRange> PPSAlignmentConfig::matchingShiftRanges() const { return matchingShiftRanges_; }
+const std::map<unsigned int, SelectionRange> &PPSAlignmentConfig::matchingShiftRanges() const {
+  return matchingShiftRanges_;
+}
 
-std::map<unsigned int, SelectionRange> PPSAlignmentConfig::alignment_x_meth_o_ranges() const {
+const std::map<unsigned int, SelectionRange> &PPSAlignmentConfig::alignment_x_meth_o_ranges() const {
   return alignment_x_meth_o_ranges_;
 }
 unsigned int PPSAlignmentConfig::fitProfileMinBinEntries() const { return fitProfileMinBinEntries_; }
@@ -50,16 +52,18 @@ unsigned int PPSAlignmentConfig::fitProfileMinNReasonable() const { return fitPr
 unsigned int PPSAlignmentConfig::methOGraphMinN() const { return methOGraphMinN_; }
 double PPSAlignmentConfig::methOUncFitRange() const { return methOUncFitRange_; }
 
-std::map<unsigned int, SelectionRange> PPSAlignmentConfig::alignment_x_relative_ranges() const {
+const std::map<unsigned int, SelectionRange> &PPSAlignmentConfig::alignment_x_relative_ranges() const {
   return alignment_x_relative_ranges_;
 }
 unsigned int PPSAlignmentConfig::nearFarMinEntries() const { return nearFarMinEntries_; }
 
-std::map<unsigned int, SelectionRange> PPSAlignmentConfig::alignment_y_ranges() const { return alignment_y_ranges_; }
+const std::map<unsigned int, SelectionRange> &PPSAlignmentConfig::alignment_y_ranges() const {
+  return alignment_y_ranges_;
+}
 unsigned int PPSAlignmentConfig::modeGraphMinN() const { return modeGraphMinN_; }
 unsigned int PPSAlignmentConfig::multSelProjYMinEntries() const { return multSelProjYMinEntries_; }
 
-Binning PPSAlignmentConfig::binning() const { return binning_; }
+const Binning &PPSAlignmentConfig::binning() const { return binning_; }
 
 // -------------------------------- PPSAlignmentConfig setters --------------------------------
 
