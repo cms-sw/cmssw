@@ -7,7 +7,6 @@
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ServiceRegistry/interface/SystemBounds.h"
 #include "CondCore/CondDB/interface/Exception.h"
-#include "CondCore/CondDB/interface/Exception.h"
 //
 #include <vector>
 #include <memory>
