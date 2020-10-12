@@ -13,6 +13,9 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CondFormats/DataRecord/interface/SiStripLorentzAngleRcd.h"
+
+class SiStripLorentzAngle;
 
 //
 //
@@ -28,6 +31,7 @@ public:
 private:
   uint32_t printdebug_;
   std::string label_;
+  edm::ESGetToken<SiStripLorentzAngle, SiStripLorentzAngleRcd> laToken_;
 };
 
 #endif
