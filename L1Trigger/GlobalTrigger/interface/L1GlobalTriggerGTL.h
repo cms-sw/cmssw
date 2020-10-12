@@ -21,6 +21,9 @@
 #include <vector>
 
 // user include files
+#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
+#include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
+#include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
@@ -102,13 +105,14 @@ private:
   // cached stuff
 
   // trigger menu
-  const L1GtTriggerMenu *m_l1GtMenu;
-  unsigned long long m_l1GtMenuCacheID;
+  const edm::ESGetToken<L1GtTriggerMenu, L1GtTriggerMenuRcd> m_l1GtMenuToken;
 
   // L1 scales (phi, eta) for Mu, Calo and EnergySum objects
+  const edm::ESGetToken<L1CaloGeometry, L1CaloGeometryRecord> m_l1CaloGeometryToken;
   const L1CaloGeometry *m_l1CaloGeometry;
   unsigned long long m_l1CaloGeometryCacheID;
 
+  const edm::ESGetToken<L1MuTriggerScales, L1MuTriggerScalesRcd> m_l1MuTriggerScalesToken;
   const L1MuTriggerScales *m_l1MuTriggerScales;
   unsigned long long m_l1MuTriggerScalesCacheID;
 
