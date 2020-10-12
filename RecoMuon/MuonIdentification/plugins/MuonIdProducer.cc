@@ -32,7 +32,9 @@
 
 #include "RecoMuon/MuonIdentification/interface/MuonKinkFinder.h"
 
-MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig) {
+MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
+    : geomTokenRun_(esConsumes<edm::Transition::BeginRun>()),
+      propagatorToken_(esConsumes(edm::ESInputTag("", "SteppingHelixPropagatorAny"))) {
   LogTrace("MuonIdentification") << "RecoMuon/MuonIdProducer :: Constructor called";
 
   produces<reco::MuonCollection>();
@@ -195,9 +197,7 @@ void MuonIdProducer::init(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   pickyCollectionHandle_.clear();
   dytCollectionHandle_.clear();
 
-  edm::ESHandle<Propagator> propagator;
-  iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", propagator);
-  trackAssociator_.setPropagator(propagator.product());
+  trackAssociator_.setPropagator(&iSetup.getData(propagatorToken_));
 
   if (fillTrackerKink_)
     trackerKinkFinder_->init(iSetup);
@@ -411,10 +411,7 @@ int MuonIdProducer::overlap(const reco::Muon& muon, const reco::Track& track) {
 }
 
 void MuonIdProducer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  edm::ESHandle<CSCGeometry> geomHandle;
-  iSetup.get<MuonGeometryRecord>().get(geomHandle);
-
-  meshAlgo_->setCSCGeometry(geomHandle.product());
+  meshAlgo_->setCSCGeometry(&iSetup.getData(geomTokenRun_));
 
   if (fillShowerDigis_ && fillMatching_)
     theShowerDigiFiller_->getES(iSetup);
