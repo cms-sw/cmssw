@@ -127,11 +127,6 @@ L1TPFProducer::L1TPFProducer(const edm::ParameterSet& iConfig)
   produces<l1t::PFCandidateCollection>("TK");
   produces<l1t::PFCandidateCollection>("TKVtx");
 
-  // FIXME: should this be conditional to running the right algorithm?
-  produces<BXVector<l1t::EGamma>>("L1Eg");
-  produces<l1t::TkElectronCollection>("L1TkEle");
-  produces<l1t::TkEmCollection>("L1TkEm");
-
   produces<float>("z0");
 
   for (const auto& tag : iConfig.getParameter<std::vector<edm::InputTag>>("emClusters")) {
@@ -159,14 +154,11 @@ L1TPFProducer::L1TPFProducer(const edm::ParameterSet& iConfig)
   } else
     throw cms::Exception("Configuration", "Unsupported PUAlgo");
 
-  // const std::string& pualgo = iConfig.getParameter<std::string>("puAlgo");
-  l1tkegalgo_.reset(new l1tpf_impl::PFTkEGAlgo(iConfig));
-  // if (pualgo == "Puppi") {
-  //   l1pualgo_.reset(new l1tpf_impl::PuppiAlgo(iConfig));
-  // } else if (pualgo == "LinearizedPuppi") {
-  //   l1pualgo_.reset(new l1tpf_impl::LinearizedPuppiAlgo(iConfig));
-  // } else
-  // throw cms::Exception("Configuration", "Unsupported PUAlgo");
+  l1tkegalgo_.reset(new l1tpf_impl::PFTkEGAlgo(iConfig.getParameter<edm::ParameterSet>("tkEgAlgoConfig")));
+  if (l1tkegalgo_->writeEgSta())
+    produces<BXVector<l1t::EGamma>>("L1Eg");
+  produces<l1t::TkElectronCollection>("L1TkEle");
+  produces<l1t::TkEmCollection>("L1TkEm");
 
   std::string vtxAlgo = iConfig.getParameter<std::string>("vtxAlgo");
   if (vtxAlgo == "TP")
@@ -367,8 +359,8 @@ void L1TPFProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Then run PF in each region
   for (auto& l1region : l1regions_.regions()) {
     l1pfalgo_->runPF(l1region);
-    l1tkegalgo_->runTkEG(l1region);
     l1pualgo_->runChargedPV(l1region, z0);
+    l1tkegalgo_->runTkEG(l1region);
   }
   // save PF into the event
   iEvent.put(l1regions_.fetch(false), "PF");
@@ -393,10 +385,8 @@ void L1TPFProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // and save puppi
   iEvent.put(l1regions_.fetch(true), "Puppi");
 
-  l1regions_.putEgObjects(iEvent, "L1Eg", "L1TkEm", "L1TkEle");
-  // iEvent.put(l1regions_.fetchEgs(), "L1Eg");
-  // iEvent.put(l1regions_.fetchTkEms(), "TkEm");
-  // iEvent.put(l1regions_.fetchTkEles(), "TkEle");
+  // save the EG objects
+  l1regions_.putEgObjects(iEvent, l1tkegalgo_->writeEgSta(), "L1Eg", "L1TkEm", "L1TkEle");
 
   // Then go do the multiplicities
 
