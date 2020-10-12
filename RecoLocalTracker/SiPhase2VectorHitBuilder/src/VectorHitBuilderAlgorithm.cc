@@ -75,25 +75,22 @@ bool VectorHitBuilderAlgorithm::checkClustersCompatibility(Local3DPoint& poslowe
 
 //----------------------------------------------------------------------------
 //ERICA::in the DT code the global position is used to compute the alpha angle and put a cut on that.
-void VectorHitBuilderAlgorithm::buildVectorHits(
-    VectorHitCollection& vhAcc,
-    VectorHitCollection& vhRej,
-    DetId detIdStack,
-    const StackGeomDet* stack,
-    edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D>> clusters,
-    const detset& theLowerDetSet,
-    const detset& theUpperDetSet,
-    const std::vector<bool>& phase2OTClustersToSkip) const {
+void VectorHitBuilderAlgorithm::buildVectorHits(VectorHitCollection& vhAcc,
+                                                VectorHitCollection& vhRej,
+                                                DetId detIdStack,
+                                                const StackGeomDet* stack,
+                                                edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D>> clusters,
+                                                const detset& theLowerDetSet,
+                                                const detset& theUpperDetSet,
+                                                const std::vector<bool>& phase2OTClustersToSkip) const {
   if (checkClustersCompatibilityBeforeBuilding(clusters, theLowerDetSet, theUpperDetSet)) {
     LogDebug("VectorHitBuilderAlgorithm") << "  compatible -> continue ... " << std::endl;
   } else {
     LogTrace("VectorHitBuilderAlgorithm") << "  not compatible, going to the next cluster";
   }
 
-
   edmNew::DetSetVector<VectorHit>::FastFiller vh_colAcc(vhAcc, detIdStack);
   edmNew::DetSetVector<VectorHit>::FastFiller vh_colRej(vhRej, detIdStack);
-
 
   unsigned int layerStack = tkTopo_->layer(stack->geographicalId());
   if (stack->subDetector() == GeomDetEnumerators::SubDetector::P2OTB)
