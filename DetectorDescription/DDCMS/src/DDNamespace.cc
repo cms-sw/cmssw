@@ -5,8 +5,8 @@
 #include "XML/XML.h"
 
 #include <TClass.h>
-#include "tbb/concurrent_unordered_map.h"
-#include "tbb/concurrent_vector.h"
+#include <unordered_map>
+#include <vector>
 
 using namespace std;
 using namespace cms;
@@ -16,13 +16,12 @@ DDNamespace::DDNamespace(DDParsingContext* context, xml_h element) : m_context(c
   m_name = path.filename().substr(0, path.filename().rfind('.'));
   if (!m_name.empty())
     m_name += NAMESPACE_SEP;
-  m_context->namespaces.emplace(m_name);
+  m_context->namespaces.emplace_back(m_name);
   m_pop = true;
   dd4hep::printout(m_context->debug_namespaces ? dd4hep::ALWAYS : dd4hep::DEBUG,
                    "DD4CMS",
                    "+++ Current namespace is now: %s",
                    m_name.c_str());
-  return;
 }
 
 DDNamespace::DDNamespace(DDParsingContext& ctx, xml_h element, bool) : m_context(&ctx) {
@@ -30,36 +29,31 @@ DDNamespace::DDNamespace(DDParsingContext& ctx, xml_h element, bool) : m_context
   m_name = path.filename().substr(0, path.filename().rfind('.'));
   if (!m_name.empty())
     m_name += NAMESPACE_SEP;
-  m_context->namespaces.emplace(m_name);
+  m_context->namespaces.emplace_back(m_name);
   m_pop = true;
   dd4hep::printout(m_context->debug_namespaces ? dd4hep::ALWAYS : dd4hep::DEBUG,
                    "DD4CMS",
                    "+++ Current namespace is now: %s",
                    m_name.c_str());
-  return;
 }
 
 DDNamespace::DDNamespace(DDParsingContext* ctx) : m_context(ctx) {
-  if (!m_context->ns(m_name))
-    m_name.clear();
+  if (!m_context->namespaces.empty())
+    m_name = m_context->namespaces.back();
 }
 
 DDNamespace::DDNamespace(DDParsingContext& ctx) : m_context(&ctx) {
-  if (!m_context->ns(m_name))
-    m_name.clear();
+  if (!m_context->namespaces.empty())
+    m_name = m_context->namespaces.back();
 }
 
 DDNamespace::~DDNamespace() {
   if (m_pop) {
-    string result("");
-    if (m_context->namespaces.try_pop(result))
-      m_name = result;
-    else
-      m_name.clear();
+    m_context->namespaces.pop_back();
     dd4hep::printout(m_context->debug_namespaces ? dd4hep::ALWAYS : dd4hep::DEBUG,
                      "DD4CMS",
                      "+++ Current namespace is now: %s",
-                     m_name.c_str());
+                     m_context->ns().c_str());
   }
 }
 
@@ -86,40 +80,40 @@ string DDNamespace::realName(const string& v) const {
   return val;
 }
 
-string DDNamespace::nsName(const string& nam) {
+string DDNamespace::nsName(const string& name) {
   size_t idx;
-  if ((idx = nam.find(NAMESPACE_SEP)) != string::npos)
-    return nam.substr(0, idx);
+  if ((idx = name.find(NAMESPACE_SEP)) != string::npos)
+    return name.substr(0, idx);
   return "";
 }
 
-string DDNamespace::objName(const string& nam) {
+string DDNamespace::objName(const string& name) {
   size_t idx;
-  if ((idx = nam.find(NAMESPACE_SEP)) != string::npos)
-    return nam.substr(idx + 1);
+  if ((idx = name.find(NAMESPACE_SEP)) != string::npos)
+    return name.substr(idx + 1);
   return "";
 }
 
-void DDNamespace::addConstant(const string& nam, const string& val, const string& typ) const {
-  addConstantNS(prepend(nam), val, typ);
+void DDNamespace::addConstant(const string& name, const string& val, const string& type) const {
+  addConstantNS(prepend(name), val, type);
 }
 
-void DDNamespace::addConstantNS(const string& nam, const string& val, const string& typ) const {
+void DDNamespace::addConstantNS(const string& name, const string& val, const string& type) const {
   const string& v = val;
-  const string& n = nam;
+  const string& n = name;
   dd4hep::printout(m_context->debug_constants ? dd4hep::ALWAYS : dd4hep::DEBUG,
                    "DD4CMS",
                    "+++ Add constant object: %-40s = %s [type:%s]",
                    n.c_str(),
                    v.c_str(),
-                   typ.c_str());
-  dd4hep::_toDictionary(n, v, typ);
-  dd4hep::Constant c(n, v, typ);
-  m_context->description.load()->addConstant(c);
+                   type.c_str());
+  dd4hep::_toDictionary(n, v, type);
+  dd4hep::Constant c(n, v, type);
+  m_context->description.addConstant(c);
 }
 
 dd4hep::Material DDNamespace::material(const string& name) const {
-  return m_context->description.load()->material(realName(name));
+  return m_context->description.material(realName(name));
 }
 
 void DDNamespace::addRotation(const string& name, const dd4hep::Rotation3D& rot) const {
@@ -127,24 +121,24 @@ void DDNamespace::addRotation(const string& name, const dd4hep::Rotation3D& rot)
   m_context->rotations[n] = rot;
 }
 
-const dd4hep::Rotation3D& DDNamespace::rotation(const string& nam) const {
+const dd4hep::Rotation3D& DDNamespace::rotation(const string& name) const {
   static const dd4hep::Rotation3D s_null;
   size_t idx;
-  auto i = m_context->rotations.find(nam);
+  auto i = m_context->rotations.find(name);
   if (i != m_context->rotations.end())
     return (*i).second;
-  else if (nam == "NULL")
+  else if (name == "NULL")
     return s_null;
-  else if (nam.find(":NULL") == nam.length() - 5)
+  else if (name.find(":NULL") == name.length() - 5)
     return s_null;
-  string n = nam;
-  if ((idx = nam.find(NAMESPACE_SEP)) != string::npos) {
+  string n = name;
+  if ((idx = name.find(NAMESPACE_SEP)) != string::npos) {
     n[idx] = NAMESPACE_SEP;
     i = m_context->rotations.find(n);
     if (i != m_context->rotations.end())
       return (*i).second;
   }
-  throw runtime_error("Unknown rotation identifier:" + nam);
+  throw runtime_error("Unknown rotation identifier:" + name);
 }
 
 dd4hep::Volume DDNamespace::addVolumeNS(dd4hep::Volume vol) const {
@@ -171,7 +165,6 @@ dd4hep::Volume DDNamespace::addVolume(dd4hep::Volume vol) const {
   string n = prepend(vol.name());
   dd4hep::Solid s = vol.solid();
   dd4hep::Material m = vol.material();
-  //vol->SetName(n.c_str());
   m_context->volumes[n] = vol;
   const char* solidName = "Invalid solid";
   if (s.isValid())         // Protect against seg fault
@@ -191,7 +184,7 @@ dd4hep::Assembly DDNamespace::addAssembly(dd4hep::Assembly assembly) const {
   string n = assembly.name();
   m_context->assemblies[n] = assembly;
   dd4hep::printout(
-      m_context->debug_volumes ? dd4hep::ALWAYS : dd4hep::DEBUG, "DD4CMS", "+++ Add assemblyNS:%-38s", assembly.name());
+      m_context->debug_volumes ? dd4hep::ALWAYS : dd4hep::DEBUG, "DD4CMS", "+++ Add assembly:%-38s", assembly.name());
   return assembly;
 }
 
@@ -265,24 +258,21 @@ dd4hep::Solid DDNamespace::solid(const string& nam) const {
 }
 
 std::vector<double> DDNamespace::vecDbl(const std::string& name) const {
-  cms::DDVectorsMap* registry = m_context->description.load()->extension<cms::DDVectorsMap>();
+  cms::DDVectorsMap* registry = m_context->description.extension<cms::DDVectorsMap>();
   auto it = registry->find(name);
   if (it != registry->end()) {
-    std::vector<double> result;
-    for (auto in : it->second)
-      result.emplace_back(in);
-    return result;
+    return {begin(it->second), end(it->second)};
   } else
     return std::vector<double>();
 }
 
 std::vector<float> DDNamespace::vecFloat(const std::string& name) const {
-  cms::DDVectorsMap* registry = m_context->description.load()->extension<cms::DDVectorsMap>();
+  cms::DDVectorsMap* registry = m_context->description.extension<cms::DDVectorsMap>();
   auto it = registry->find(name);
   if (it != registry->end()) {
     std::vector<float> result;
-    for (auto in : it->second)
-      result.emplace_back((float)in);
+    std::transform(
+        begin(it->second), end(it->second), std::back_inserter(result), [](double i) -> float { return (float)i; });
     return result;
   } else
     return std::vector<float>();

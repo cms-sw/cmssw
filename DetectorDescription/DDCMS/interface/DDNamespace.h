@@ -51,12 +51,13 @@ namespace cms {
     void addConstantNS(const std::string& name, const std::string& value, const std::string& type) const;
 
     dd4hep::Material material(const std::string& name) const;
+
     dd4hep::Solid solid(const std::string& name) const;
     dd4hep::Solid addSolid(const std::string& name, dd4hep::Solid solid) const;
     dd4hep::Solid addSolidNS(const std::string& name, dd4hep::Solid solid) const;
 
-    dd4hep::Assembly addAssembly(dd4hep::Assembly asmb) const;
     dd4hep::Assembly assembly(const std::string& name) const;
+    dd4hep::Assembly addAssembly(dd4hep::Assembly asmb) const;
 
     dd4hep::Volume volume(const std::string& name, bool exc = true) const;
     dd4hep::Volume addVolume(dd4hep::Volume vol) const;
