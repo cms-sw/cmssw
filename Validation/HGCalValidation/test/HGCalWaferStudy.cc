@@ -25,6 +25,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/transform.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
@@ -65,6 +66,8 @@ private:
   // ----------member data ---------------------------
   const std::vector<std::string> nameDetectors_, caloHitSources_;
   const std::vector<edm::InputTag> digiSources_;
+  const std::vector<edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord>> ddTokens_;
+  const std::vector<edm::ESGetToken<HGCalGeometry, IdealGeometryRecord>> geomTokens_;
   const int verbosity_, nBinHit_, nBinDig_;
   const double xyMinHit_, xyMaxHit_;
   const double xyMinDig_, xyMaxDig_;
@@ -87,6 +90,16 @@ HGCalWaferStudy::HGCalWaferStudy(const edm::ParameterSet& iConfig)
     : nameDetectors_(iConfig.getParameter<std::vector<std::string> >("detectorNames")),
       caloHitSources_(iConfig.getParameter<std::vector<std::string> >("caloHitSources")),
       digiSources_(iConfig.getParameter<std::vector<edm::InputTag> >("digiSources")),
+      ddTokens_{
+  edm::vector_transform(nameDetectors_,
+			[this](const std::string& name) {
+			  return esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name});
+			})},
+  geomTokens_{
+    edm::vector_transform(nameDetectors_,
+			  [this](const std::string& name) {
+			    return esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name});
+			  })},
       verbosity_(iConfig.getUntrackedParameter<int>("verbosity", 0)),
       nBinHit_(iConfig.getUntrackedParameter<int>("nBinHit", 600)),
       nBinDig_(iConfig.getUntrackedParameter<int>("nBinDig", 600)),
@@ -246,9 +259,8 @@ void HGCalWaferStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 // ------------ method called when starting to processes a run  ------------
 void HGCalWaferStudy::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
   for (unsigned int k = 0; k < nameDetectors_.size(); ++k) {
-    edm::ESHandle<HGCalDDDConstants> pHGDC;
-    iSetup.get<IdealGeometryRecord>().get(nameDetectors_[k], pHGDC);
-    hgcons_.emplace_back(&(*pHGDC));
+    const auto& pHGDC = iSetup.getData(ddTokens_[k]);
+    hgcons_.emplace_back(&pHGDC);
     layerSim_.emplace_back(hgcons_.back()->layers(false));
     layerDig_.emplace_back(hgcons_.back()->layers(true));
     layerFront_.emplace_back(hgcons_.back()->firstLayer());
@@ -257,9 +269,8 @@ void HGCalWaferStudy::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
     layerMxSim_[k] = std::min((layerFront_[k] + layerSim_[k] - 1), layerMxSim_[k]);
     layerMxDig_[k] = std::min((layerFront_[k] + layerDig_[k] - 1), layerMxDig_[k]);
 
-    edm::ESHandle<HGCalGeometry> geom;
-    iSetup.get<IdealGeometryRecord>().get(nameDetectors_[k], geom);
-    hgeoms_.emplace_back(geom.product());
+    const auto& geom = iSetup.getData(geomTokens_[k]);
+    hgeoms_.emplace_back(&geom);
     if (verbosity_ > 0)
       edm::LogVerbatim("HGCalValidation")
           << nameDetectors_[k] << " defined with " << layerFront_[k] << ":" << layerSim_[k] << ":" << layerDig_[k]
