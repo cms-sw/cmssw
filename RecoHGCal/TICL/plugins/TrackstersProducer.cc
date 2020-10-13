@@ -115,7 +115,7 @@ void TrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<double>("pid_threshold", 0.);                    // make default such that no filtering is applied
   desc.add<double>("energy_em_over_total_threshold", -1.);  // make default such that no filtering is applied
   desc.add<double>("max_longitudinal_sigmaPCA", 9999);
-  desc.add<int>("shower_start_max_layer", 9999);            // make default such that no filtering is applied
+  desc.add<int>("shower_start_max_layer", 9999);  // make default such that no filtering is applied
   desc.add<int>("algo_verbosity", 0);
   desc.add<double>("min_cos_theta", 0.915);
   desc.add<double>("root_doublet_max_distance_from_seed", 9999);
@@ -178,8 +178,6 @@ void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   // Copy over the previous state
   std::copy(
       std::begin(original_layerclusters_mask), std::end(original_layerclusters_mask), std::back_inserter(*output_mask));
-
-
 
   // Mask the used elements, accordingly
   for (auto const& trackster : *result) {

@@ -178,15 +178,13 @@ void HGCGraphT<TILES>::makeAndConnectDoublets(const TILES &histo,
                                                                               minCosTheta,
                                                                               minCosPointing,
                                                                               verbosity_ > Advanced);
-                    if(isRootDoublet and checkDistanceRootDoubletVsSeed)
-                    {
+                    if (isRootDoublet and checkDistanceRootDoubletVsSeed) {
                       auto lcEta = layerClusters[innerClusterId].eta();
                       auto lcPhi = layerClusters[innerClusterId].phi();
-                      if(std::hypot(lcEta-origin_eta, lcPhi-origin_phi) > root_doublet_max_distance_from_seed)
+                      if (std::hypot(lcEta - origin_eta, lcPhi - origin_phi) > root_doublet_max_distance_from_seed)
                         isRootDoublet = false;
                     }
-                    if (isRootDoublet)
-                    {
+                    if (isRootDoublet) {
                       theRootDoublets_.push_back(doubletId);
                     }
                   }
