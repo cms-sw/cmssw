@@ -210,5 +210,5 @@ MTDDetSector* ETLDetLayerGeometryBuilder::makeDetSector(vector<const GeomDet*>& 
 }
 
 bool ETLDetLayerGeometryBuilder::orderGeomDets(const GeomDet*& gd1, const GeomDet*& gd2) {
-  return {gd1->geographicalId().rawId() < gd2->geographicalId().rawId()};
+  return gd1->geographicalId().rawId() < gd2->geographicalId().rawId();
 }
