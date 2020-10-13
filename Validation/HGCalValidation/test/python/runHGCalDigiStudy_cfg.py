@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
 process = cms.Process('HGCGeomAnalysis',Phase2C11)
-process.load('Configuration.Geometry.GeometryExtended2026D62_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D62Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D71_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D71Reco_cff')
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")
@@ -28,7 +28,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string('hgcDigiD62tt.root'),
+                                   fileName = cms.string('hgcDigiD71tt.root'),
                                    closeFileFast = cms.untracked.bool(True)
                                    )
 

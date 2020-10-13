@@ -1,8 +1,8 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun protoSimValid_cfg.py geometry=D62 type=hgcalBHValidation
+#   cmsRun protoSimValid_cfg.py geometry=D71 type=hgcalBHValidation
 #
-#   Options for geometry D49, D58, D59, D62
+#   Options for geometry D49, D68, D70, D71
 #               type hgcalBHValidation, hgcalSiliconValidation
 #
 ###############################################################################
@@ -14,10 +14,10 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "D62",
+                 "D71",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D49, D58, D59, D62")
+                  "geometry of operations: D49, D68, D70, D71")
 options.register ('type',
                   "hgcalBHValidation",
                   VarParsing.VarParsing.multiplicity.singleton,
@@ -41,33 +41,33 @@ if (options.geometry == "D49"):
         fileName = 'hgcSilValidD49.root'
     else:
         fileName = 'hgcBHValidD49.root'
-elif (options.geometry == "D58"):
+elif (options.geometry == "D68"):
     from Configuration.Eras.Era_Phase2C12_cff import Phase2C12
     process = cms.Process('PROD',Phase2C12)
-    process.load('Configuration.Geometry.GeometryExtended2026D58_cff')
-    process.load('Configuration.Geometry.GeometryExtended2026D58Reco_cff')
+    process.load('Configuration.Geometry.GeometryExtended2026D68_cff')
+    process.load('Configuration.Geometry.GeometryExtended2026D68Reco_cff')
     if (options.type == "hgcalSiliconValidation"):
-        fileName = 'hgcSilValidD58.root'
+        fileName = 'hgcSilValidD68.root'
     else:
-        fileName = 'hgcBHValidD58.root'
-elif (options.geometry == "D59"):
+        fileName = 'hgcBHValidD68.root'
+elif (options.geometry == "D70"):
     from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
     process = cms.Process('PROD',Phase2C11)
-    process.load('Configuration.Geometry.GeometryExtended2026D59_cff')
-    process.load('Configuration.Geometry.GeometryExtended2026D59Reco_cff')
+    process.load('Configuration.Geometry.GeometryExtended2026D70_cff')
+    process.load('Configuration.Geometry.GeometryExtended2026D70Reco_cff')
     if (options.type == "hgcalSiliconValidation"):
-        fileName = 'hgcSilValidD59.root'
+        fileName = 'hgcSilValidD70.root'
     else:
-        fileName = 'hgcBHValidD59.root'
+        fileName = 'hgcBHValidD70.root'
 else:
     from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
     process = cms.Process('PROD',Phase2C11)
-    process.load('Configuration.Geometry.GeometryExtended2026D62_cff')
-    process.load('Configuration.Geometry.GeometryExtended2026D62Reco_cff')
+    process.load('Configuration.Geometry.GeometryExtended2026D71_cff')
+    process.load('Configuration.Geometry.GeometryExtended2026D71Reco_cff')
     if (options.type == "hgcalSiliconValidation"):
-        fileName = 'hgcSilValidD62.root'
+        fileName = 'hgcSilValidD71.root'
     else:
-        fileName = 'hgcBHValidD62.root'
+        fileName = 'hgcBHValidD71.root'
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
