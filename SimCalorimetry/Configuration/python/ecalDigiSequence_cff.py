@@ -32,18 +32,4 @@ phase2_ecal_devel.toReplaceWith(ecalDigiTask,_phase2_ecalDigiTask_devel)
 def _modifyEcalPedestals( process ):
     process.load("SimCalorimetry.EcalSimProducers.esEcalLiteDTUPedestalsProducer_cfi")
 
-    process.load("CondCore.CondDB.CondDB_cfi")
-
-    process.CondDB.connect = 'sqlite_file:simPulseShapePhaseII.db'
-
-    process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-        process.CondDB,
-        toPut = cms.VPSet(
-            cms.PSet(
-                 record = cms.string('EcalSimPulseShapeRcd'),
-                 tag = cms.string('EcalSimPulseShapePhaseII')
-               )
-          )
-    )
-
 modifyDigi_Phase2EcalPed = phase2_ecal_devel.makeProcessModifier(_modifyEcalPedestals)
