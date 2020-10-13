@@ -500,7 +500,7 @@ struct HGCalHEFileAlgo {
         if (corner.first > 0 && type >= 0) {
           int copy = HGCalTypes::packTypeUV(type, u, v);
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("HGCalGeom") << " DDHGCalHEFileAlgo: " << wafers_[type] << " number " << copy << " type "
+          edm::LogVerbatim("HGCalGeom") << " DDHGCalHEFileAlgo: " << waferNames_[type] << " number " << copy << " type "
                                         << type << " layer:u:v:indx " << (layer + firstLayer_) << ":" << u << ":" << v
                                         << ":" << indx;
           if (iu > ium)
