@@ -23,6 +23,7 @@
 #include <algorithm>
 
 // user include files
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
@@ -389,7 +390,7 @@ HBHEPhase1Reconstructor::HBHEPhase1Reconstructor(const edm::ParameterSet& conf)
       setNoiseFlagsQIE11_(conf.getParameter<bool>("setNoiseFlagsQIE11")),
       setPulseShapeFlagsQIE8_(conf.getParameter<bool>("setPulseShapeFlagsQIE8")),
       setPulseShapeFlagsQIE11_(conf.getParameter<bool>("setPulseShapeFlagsQIE11")),
-      reco_(parseHBHEPhase1AlgoDescription(conf.getParameter<edm::ParameterSet>("algorithm"))),
+      reco_(parseHBHEPhase1AlgoDescription(conf.getParameter<edm::ParameterSet>("algorithm"), consumesCollector())),
       negEFilter_(nullptr) {
   // Check that the reco algorithm has been successfully configured
   if (!reco_.get())

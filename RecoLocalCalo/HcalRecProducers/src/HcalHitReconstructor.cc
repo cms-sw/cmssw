@@ -2,6 +2,7 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/Common/interface/EDCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
@@ -25,7 +26,8 @@
 HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf)
     : reco_(conf.getParameter<bool>("correctForTimeslew"),
             conf.getParameter<bool>("correctForPhaseContainment"),
-            conf.getParameter<double>("correctionPhaseNS")),
+            conf.getParameter<double>("correctionPhaseNS"),
+            consumesCollector()),
       det_(DetId::Hcal),
       inputLabel_(conf.getParameter<edm::InputTag>("digiLabel")),
       correctTiming_(conf.getParameter<bool>("correctTiming")),

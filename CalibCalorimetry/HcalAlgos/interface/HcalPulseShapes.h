@@ -8,6 +8,7 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 
 /** \class HcalPulseShapes
   *  
@@ -21,7 +22,9 @@ namespace CLHEP {
 class HcalPulseShapes {
 public:
   typedef HcalPulseShape Shape;
+  // Default constructor is for callers that do not call beginRun(EventSetup)
   HcalPulseShapes();
+  explicit HcalPulseShapes(edm::ConsumesCollector iC);
   ~HcalPulseShapes();
   // only needed if you'll be getting shapes by DetId
   void beginRun(edm::EventSetup const& es);
@@ -112,6 +115,7 @@ private:
   Shape hpdShape_v2, hpdShapeMC_v2;
   Shape hpdShape_v3, hpdShapeMC_v3;
   Shape hpdBV30Shape_v2, hpdBV30ShapeMC_v2;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> theDbServiceToken;
   const HcalDbService* theDbService;
   typedef std::map<int, const Shape*> ShapeMap;
   ShapeMap theShapes;

@@ -1,6 +1,7 @@
 #include <cassert>
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/parseHBHEPhase1AlgoDescription.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -104,7 +105,8 @@ static std::unique_ptr<HcalDeterministicFit> parseHBHEMethod3Description(const e
   return fit;
 }
 
-std::unique_ptr<AbsHBHEPhase1Algo> parseHBHEPhase1AlgoDescription(const edm::ParameterSet& ps) {
+std::unique_ptr<AbsHBHEPhase1Algo> parseHBHEPhase1AlgoDescription(const edm::ParameterSet& ps,
+                                                                  edm::ConsumesCollector iC) {
   std::unique_ptr<AbsHBHEPhase1Algo> algo;
 
   const std::string& className = ps.getParameter<std::string>("Class");
@@ -126,16 +128,16 @@ std::unique_ptr<AbsHBHEPhase1Algo> parseHBHEPhase1AlgoDescription(const edm::Par
     if (ps.getParameter<bool>("useM3"))
       detFit = parseHBHEMethod3Description(ps);
 
-    algo =
-        std::unique_ptr<AbsHBHEPhase1Algo>(new SimpleHBHEPhase1Algo(ps.getParameter<int>("firstSampleShift"),
-                                                                    ps.getParameter<int>("samplesToAdd"),
-                                                                    ps.getParameter<double>("correctionPhaseNS"),
-                                                                    ps.getParameter<double>("tdcTimeShift"),
-                                                                    ps.getParameter<bool>("correctForPhaseContainment"),
-                                                                    ps.getParameter<bool>("applyLegacyHBMCorrection"),
-                                                                    std::move(m2),
-                                                                    std::move(detFit),
-                                                                    std::move(mahi)));
+    algo = std::make_unique<SimpleHBHEPhase1Algo>(ps.getParameter<int>("firstSampleShift"),
+                                                  ps.getParameter<int>("samplesToAdd"),
+                                                  ps.getParameter<double>("correctionPhaseNS"),
+                                                  ps.getParameter<double>("tdcTimeShift"),
+                                                  ps.getParameter<bool>("correctForPhaseContainment"),
+                                                  ps.getParameter<bool>("applyLegacyHBMCorrection"),
+                                                  std::move(m2),
+                                                  std::move(detFit),
+                                                  std::move(mahi),
+                                                  iC);
   }
 
   return algo;

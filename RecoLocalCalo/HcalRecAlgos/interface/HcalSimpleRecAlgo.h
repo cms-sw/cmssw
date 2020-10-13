@@ -34,7 +34,7 @@
 class HcalSimpleRecAlgo {
 public:
   /** Full featured constructor for HB/HE and HO (HPD-based detectors) */
-  HcalSimpleRecAlgo(bool correctForTimeslew, bool correctForContainment, float fixedPhaseNs);
+  HcalSimpleRecAlgo(bool correctForTimeslew, bool correctForContainment, float fixedPhaseNs, edm::ConsumesCollector iC);
 
   void beginRun(edm::EventSetup const& es);
   void endRun();
@@ -73,6 +73,7 @@ private:
   bool correctForTimeslew_;
   bool correctForPulse_;
   float phaseNS_;
+  const edm::ESGetToken<HcalTimeSlew, HcalTimeSlewRecord> delayToken_;
   std::unique_ptr<HcalPulseContainmentManager> pulseCorr_;
   int runnum_;  // data run numer
   bool setLeakCorrection_;
