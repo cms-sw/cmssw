@@ -20,7 +20,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -30,12 +30,8 @@
 
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
-#include "DataFormats/GeometryVector/interface/VectorUtil.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
-
-#include "DataFormats/Math/interface/Point3D.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
 
 using namespace std;
 using namespace edm;
@@ -44,13 +40,15 @@ using namespace edm;
 // class decleration
 //
 
-class HiSignalParticleProducer : public edm::EDProducer {
+class HiSignalParticleProducer : public edm::global::EDProducer<> {
 public:
   explicit HiSignalParticleProducer(const edm::ParameterSet&);
-  ~HiSignalParticleProducer() override;
+  ~HiSignalParticleProducer() override = default;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   // ----------member data ---------------------------
 
   edm::EDGetTokenT<edm::View<reco::GenParticle> > genParticleSrc_;
@@ -74,18 +72,13 @@ HiSignalParticleProducer::HiSignalParticleProducer(const edm::ParameterSet& iCon
   produces<reco::GenParticleCollection>().setBranchAlias(alias);
 }
 
-HiSignalParticleProducer::~HiSignalParticleProducer() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
 
-void HiSignalParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void HiSignalParticleProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) const {
   using namespace edm;
   using namespace reco;
 
@@ -96,27 +89,21 @@ void HiSignalParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup
 
   int genParticleSize = genParticles->size();
 
-  vector<int> selection;
-  selection.reserve(genParticleSize);
-  for (int igenParticle = 0; igenParticle < genParticleSize; ++igenParticle) {
-    selection.push_back(-1);
-  }
-
-  vector<int> selectedIndices;
-  vector<int> removedIndices;
-
   for (int igenParticle = 0; igenParticle < genParticleSize; ++igenParticle) {
     const GenParticle* genParticle = &((*genParticles)[igenParticle]);
     if (genParticle->collisionId() == 0) {
       signalGenParticles->push_back(*genParticle);
-      selection[igenParticle] = 1;
-    } else {
-      selection[igenParticle] = 0;
-      removedIndices.push_back(igenParticle);
     }
   }
 
   iEvent.put(std::move(signalGenParticles));
+}
+
+void HiSignalParticleProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.setComment("Selects genParticles from collision id = 0");
+  desc.add<std::string>("src", "genParticles");
+  descriptions.add("HiSignalParticleProducer", desc);
 }
 
 DEFINE_FWK_MODULE(HiSignalParticleProducer);
