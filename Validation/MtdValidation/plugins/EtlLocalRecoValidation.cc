@@ -187,9 +187,7 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
   }
 
   // --- Loop over the ETL RECO clusters ---
-  int i;
   for (const auto& DetSetClu : *etlRecCluHandle) {
-    i++;
     for (const auto& cluster : DetSetClu) {
       if (topo1Dis) {
         if (cluster.energy() < hitMinEnergy1Dis_)
