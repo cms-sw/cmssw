@@ -43,6 +43,9 @@ namespace ticl {
     bool check_missing_layers_ = false;
     const unsigned int shower_start_max_layer_;
     const unsigned int min_layers_per_trackster_;
+    const std::vector<int> filter_on_categories_;
+    const double pid_threshold_;
+    const double energy_em_over_total_threshold_;
     const int min_clusters_per_ntuplet_;
     const float max_delta_time_;
     const std::string eidInputName_;
