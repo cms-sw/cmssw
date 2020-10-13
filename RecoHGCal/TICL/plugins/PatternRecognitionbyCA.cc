@@ -34,6 +34,7 @@ PatternRecognitionbyCA<TILES>::PatternRecognitionbyCA(const edm::ParameterSet &c
       filter_on_categories_(conf.getParameter<std::vector<int>>("filter_on_categories")),
       pid_threshold_(conf.getParameter<double>("pid_threshold")),
       energy_em_over_total_threshold_(conf.getParameter<double>("energy_em_over_total_threshold")),
+      max_longitudinal_sigmaPCA_(conf.getParameter<double>("max_longitudinal_sigmaPCA")),
       min_clusters_per_ntuplet_(min_layers_per_trackster_),
       max_delta_time_(conf.getParameter<double>("max_delta_time")),
       eidInputName_(conf.getParameter<std::string>("eid_input_name")),
@@ -231,7 +232,7 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
   std::vector<unsigned int> selectedTrackstersIds;
   for(unsigned i = 0; i< tmpTracksters.size(); ++i)
   {
-    if(!filter_on_pids(tmpTracksters[i])){
+    if(!filter_on_pids(tmpTracksters[i]) and tmpTracksters[i].sigmasPCA()[0] < max_longitudinal_sigmaPCA_){
       selectedTrackstersIds.push_back(i);
     }
   }
