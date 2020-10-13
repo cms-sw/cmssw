@@ -20,8 +20,6 @@
 // user include files
 #include "RecoMuon/MuonIdentification/interface/MuonShowerDigiFiller.h"
 
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
-
 //
 // constructors and destructor
 //
@@ -30,15 +28,17 @@ MuonShowerDigiFiller::MuonShowerDigiFiller(const edm::ParameterSet& iConfig, edm
     : m_digiMaxDistanceX(iConfig.getParameter<double>("digiMaxDistanceX")),
       m_dtDigisToken(iC.consumes<DTDigiCollection>(iConfig.getParameter<edm::InputTag>("dtDigiCollectionLabel"))),
       m_cscDigisToken(
-          iC.consumes<CSCStripDigiCollection>(iConfig.getParameter<edm::InputTag>("cscDigiCollectionLabel"))) {}
+          iC.consumes<CSCStripDigiCollection>(iConfig.getParameter<edm::InputTag>("cscDigiCollectionLabel"))),
+      m_dtGeometryToken(iC.esConsumes<edm::Transition::BeginRun>()),
+      m_cscGeometryToken(iC.esConsumes<edm::Transition::BeginRun>()) {}
 
 //
 // member functions
 //
 
 void MuonShowerDigiFiller::getES(const edm::EventSetup& iSetup) {
-  iSetup.get<MuonGeometryRecord>().get(m_dtGeometry);
-  iSetup.get<MuonGeometryRecord>().get(m_cscGeometry);
+  m_dtGeometry = iSetup.getHandle(m_dtGeometryToken);
+  m_cscGeometry = iSetup.getHandle(m_cscGeometryToken);
 }
 
 void MuonShowerDigiFiller::getDigis(edm::Event& iEvent) {
