@@ -115,13 +115,5 @@ namespace edm {
       return getAfterPrefetch(iRecord, iKey, iTransiently);
     }
 
-    void DataProxy::doGet(const EventSetupRecordImpl& iRecord,
-                          const DataKey& iKey,
-                          bool iTransiently,
-                          ActivityRegistry const* activityRegistry,
-                          EventSetupImpl const* iEventSetupImpl) const {
-      get(iRecord, iKey, iTransiently, activityRegistry, iEventSetupImpl);
-    }
-
   }  // namespace eventsetup
 }  // namespace edm
