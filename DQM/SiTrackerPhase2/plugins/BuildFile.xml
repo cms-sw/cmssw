@@ -1,12 +1,14 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="DataFormats/SiPixelDigi"/>
+<use name="DataFormats/Common"/>
 <use name="DataFormats/DetId"/>
+<use name="DataFormats/TrackerRecHit2D"/>
 <use name="Geometry/Records"/>
 <use name="Geometry/CommonDetUnit"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="DQMServices/Core"/>
-<use name="DataFormats/Common"/>
+<use name="DQM/SiTrackerPhase2"/>
 <use name="boost_system"/>
 <use name="rootcling"/>
 <flags EDM_PLUGIN="1"/>
