@@ -26,7 +26,7 @@ public:
                               float minCosThetai,
                               float maxCosPointing,
                               float etaLimitIncreaseWindow,
-                              int missing_layers,
+                              int skip_layers,
                               int maxNumberOfLayers,
                               float maxDeltaTime);
 
