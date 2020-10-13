@@ -50,11 +50,11 @@ DDFilteredView::DDFilteredView(const DDCompactView& cpv, const cms::DDFilter& fi
     log << "Filtered by an attribute " << filter.attribute() << "==" << filter.value()
         << " DD SpecPar Registry size: " << refs_.size() << "\n";
     for (const auto& t : refs_) {
-      log << "\nRegExps { ";
-      for (const auto& ki : t->paths)
+      log << "\nSpecPar " << t.first << "\nRegExps { ";
+      for (const auto& ki : t.second->paths)
         log << ki << " ";
       log << "};\n ";
-      for (const auto& kl : t->spars) {
+      for (const auto& kl : t.second->spars) {
         log << kl.first << " = ";
         for (const auto& kil : kl.second) {
           log << kil << " ";
@@ -164,7 +164,7 @@ void DDFilteredView::mergedSpecifics(DDSpecParRefs const& specs) {
     filters_.shrink_to_fit();
   }
   for (const auto& i : specs) {
-    for (const auto& j : i->paths) {
+    for (const auto& j : i.second->paths) {
       auto const& firstTok = front(j);
       auto const& filter = find_if(begin(filters_), end(filters_), [&](auto const& f) {
         auto const& k = find_if(begin(f->skeys), end(f->skeys), [&](auto const& p) { return firstTok == p; });
@@ -175,12 +175,20 @@ void DDFilteredView::mergedSpecifics(DDSpecParRefs const& specs) {
         return false;
       });
       if (filter == end(filters_)) {
-        filters_.emplace_back(unique_ptr<Filter>(
-            new Filter{{firstTok},
-                       {std::regex(std::string("^").append({firstTok.data(), firstTok.size()}).append("$"))},
-                       nullptr,
-                       nullptr,
-                       i}));
+        bool isRegex = dd4hep::dd::isRegex(firstTok);
+        filters_.emplace_back(make_unique<Filter>());
+        filters_.back()->isRegex.emplace_back(isRegex);
+        filters_.back()->hasNamaspace.emplace_back(dd4hep::dd::hasNamespace(firstTok));
+        if (isRegex) {
+          filters_.back()->index.emplace_back(filters_.back()->keys.size());
+          filters_.back()->keys.emplace_back(std::regex(begin(firstTok), end(firstTok)));
+        } else {
+          filters_.back()->index.emplace_back(filters_.back()->skeys.size());
+        }
+        filters_.back()->skeys.emplace_back(firstTok);
+        filters_.back()->up = nullptr;
+        filters_.back()->spec = i.second;
+
         // initialize current filter if it's empty
         if (currentFilter_ == nullptr) {
           currentFilter_ = filters_.back().get();
@@ -195,26 +203,63 @@ void DDFilteredView::mergedSpecifics(DDSpecParRefs const& specs) {
             return toks.front() == p;
           });
           if (l == end(currentFilter_->skeys)) {
+            bool isRegex = dd4hep::dd::isRegex(toks[pos]);
+            currentFilter_->isRegex.emplace_back(isRegex);
+            currentFilter_->hasNamaspace.emplace_back(dd4hep::dd::hasNamespace(toks[pos]));
+            if (isRegex) {
+              currentFilter_->index.emplace_back(currentFilter_->keys.size());
+              currentFilter_->keys.emplace_back(std::regex(std::begin(toks[pos]), std::end(toks[pos])));
+            } else {
+              currentFilter_->index.emplace_back(currentFilter_->skeys.size());
+            }
             currentFilter_->skeys.emplace_back(toks[pos]);
-            currentFilter_->keys.emplace_back(
-                std::regex(std::string("^").append({toks[pos].data(), toks[pos].size()}).append("$")));
           }
         } else {
-          currentFilter_->next.reset(
-              new Filter{{toks[pos]},
-                         {std::regex(std::string("^").append({toks[pos].data(), toks[pos].size()}).append("$"))},
-                         nullptr,
-                         currentFilter_,
-                         i});
+          auto filter = std::make_unique<Filter>();
+          bool isRegex = dd4hep::dd::isRegex(toks[pos]);
+          filter->isRegex.emplace_back(isRegex);
+          filter->hasNamaspace.emplace_back(dd4hep::dd::hasNamespace(toks[pos]));
+          if (isRegex) {
+            filter->index.emplace_back(filters_.back()->keys.size());
+            filter->keys.emplace_back(std::regex(toks[pos].begin(), toks[pos].end()));
+          } else {
+            filter->index.emplace_back(filters_.back()->skeys.size());
+          }
+          filter->skeys.emplace_back(toks.front());
+          filter->next = nullptr;
+          filter->up = currentFilter_;
+          filter->spec = i.second;
+
+          currentFilter_->next = std::move(filter);
         }
       }
     }
   }
 }
 
+void print(const Filter* filter) {
+  edm::LogVerbatim("Geometry").log([&](auto& log) {
+    for (const auto& it : filter->skeys) {
+      log << it << ", ";
+    }
+  });
+}
+
 void DDFilteredView::printFilter() const {
   for (const auto& f : filters_) {
-    f->print();
+    edm::LogVerbatim("Geometry").log([&](auto& log) {
+      for (const auto& it : f->skeys) {
+        log << it << ", ";
+      }
+      if (f->next) {
+        log << "Next:\n";
+        print(&*f->next);
+      }
+      if (f->up) {
+        log << "Up:\n";
+        print(f->up);
+      }
+    });
   }
 }
 
@@ -664,10 +709,11 @@ const DDSpecPar* DDFilteredView::find(const std::string& key) const {
   filter(specParRefs, key);
 
   for (auto const& specPar : specParRefs) {
-    auto pos = find_if(
-        begin(specPar->paths), end(specPar->paths), [&](auto const& partSelector) { return matchPath(partSelector); });
-    if (pos != end(specPar->paths)) {
-      return specPar;
+    auto pos = find_if(begin(specPar.second->paths), end(specPar.second->paths), [&](auto const& partSelector) {
+      return matchPath(partSelector);
+    });
+    if (pos != end(specPar.second->paths)) {
+      return specPar.second;
     }
   }
 
@@ -677,7 +723,7 @@ const DDSpecPar* DDFilteredView::find(const std::string& key) const {
 void DDFilteredView::filter(DDSpecParRefs& refs, const std::string& key) const {
   for (auto const& it : registry_->specpars) {
     if (it.second.hasValue(key) || (it.second.spars.find(key) != end(it.second.spars))) {
-      refs.emplace_back(&it.second);
+      refs.emplace_back(it.first, &it.second);
     }
   }
 }

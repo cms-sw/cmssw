@@ -51,8 +51,19 @@ void testFilter::setUp() {
       return false;
     });
     if (filter == end(filters_)) {
-      filters_.emplace_back(unique_ptr<Filter>(new Filter{
-          {toks.front()}, {std::regex(std::string(toks.front().data(), toks.front().size()))}, nullptr, nullptr}));
+      bool isRegex = dd4hep::dd::isRegex(toks.front());
+      filters_.emplace_back(make_unique<Filter>());
+      filters_.back()->isRegex.emplace_back(isRegex);
+      filters_.back()->hasNamaspace.emplace_back(dd4hep::dd::hasNamespace(toks.front()));
+      if (isRegex) {
+        filters_.back()->index.emplace_back(filters_.back()->keys.size());
+        filters_.back()->keys.emplace_back(std::regex(std::begin(toks.front()), std::end(toks.front())));
+      } else {
+        filters_.back()->index.emplace_back(filters_.back()->skeys.size());
+      }
+      filters_.back()->skeys.emplace_back(toks.front());
+      filters_.back()->up = nullptr;
+      filters_.back()->spec = nullptr;
       currentFilter = filters_.back().get();
     }
     // all next levels
@@ -62,12 +73,33 @@ void testFilter::setUp() {
         auto const& l = find_if(
             begin(currentFilter->skeys), end(currentFilter->skeys), [&](auto const& p) { return toks[pos] == p; });
         if (l == end(currentFilter->skeys)) {
+          bool isRegex = dd4hep::dd::isRegex(toks.front());
+          currentFilter->isRegex.emplace_back(isRegex);
+          currentFilter->hasNamaspace.emplace_back(dd4hep::dd::hasNamespace(toks.front()));
+          if (isRegex) {
+            currentFilter->index.emplace_back(currentFilter->keys.size());
+            currentFilter->keys.emplace_back(std::regex(std::begin(toks.front()), std::end(toks.front())));
+          } else {
+            currentFilter->index.emplace_back(currentFilter->skeys.size());
+          }
           currentFilter->skeys.emplace_back(toks.front());
-          currentFilter->keys.emplace_back(std::regex(std::string(toks.front().data(), toks.front().size())));
         }
       } else {
-        currentFilter->next.reset(new Filter{
-            {toks[pos]}, {std::regex(std::string({toks[pos].data(), toks[pos].size()}))}, nullptr, currentFilter});
+        auto filter = std::make_unique<Filter>();
+        bool isRegex = dd4hep::dd::isRegex(toks[pos]);
+        filter->isRegex.emplace_back(isRegex);
+        filter->hasNamaspace.emplace_back(dd4hep::dd::hasNamespace(toks[pos]));
+        if (isRegex) {
+          filter->index.emplace_back(filters_.back()->keys.size());
+          filter->keys.emplace_back(std::regex(toks[pos].begin(), toks[pos].end()));
+        } else {
+          filter->index.emplace_back(filters_.back()->skeys.size());
+        }
+        filter->skeys.emplace_back(toks.front());
+        filter->next = nullptr;
+        filter->up = currentFilter;
+
+        currentFilter->next = std::move(filter);
       }
     }
   }
@@ -75,7 +107,7 @@ void testFilter::setUp() {
 
 void testFilter::checkFilter() {
   string_view name = "MB2P.*"sv;
-  CPPUNIT_ASSERT(std::regex_match(std::string({name.data(), name.size()}), filters_.front()->keys.front()) == 1);
+  CPPUNIT_ASSERT(std::regex_match(name.begin(), name.end(), filters_.front()->keys.front()) == 1);
   CPPUNIT_ASSERT(filters_.front()->up == nullptr);
   CPPUNIT_ASSERT(filters_.front()->next != nullptr);
   CPPUNIT_ASSERT(filters_.size() == 1);
