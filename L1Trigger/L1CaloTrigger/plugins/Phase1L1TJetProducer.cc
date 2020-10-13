@@ -47,7 +47,7 @@ Description: Produces jets with a phase-1 like sliding window algorithm using a 
 
 #include <algorithm>
 
-class Phase1L1TJetProducer : public edm::one::EDProducer<edm::one::SharedResources> {
+class Phase1L1TJetProducer : public edm::one::EDProducer<> {
 public:
   explicit Phase1L1TJetProducer(const edm::ParameterSet&);
   ~Phase1L1TJetProducer() override;
@@ -68,7 +68,7 @@ private:
   void subtract9x9Pileup(const TH2F& caloGrid, reco::CaloJet& jet);
 
   /// Get the energy of a certain tower while correctly handling phi periodicity in case of overflow
-  float getTowerEnergy(const TH2F& caloGrid, int iEta, int iPhi);
+  const float getTowerEnergy(const TH2F& caloGrid, int iEta, int iPhi);
 
   reco::CaloJet buildJetFromSeed(const TH2F& caloGrid, const std::tuple<int, int>& seed);
 
@@ -118,7 +118,7 @@ Phase1L1TJetProducer::Phase1L1TJetProducer(const edm::ParameterSet& iConfig)
 
 Phase1L1TJetProducer::~Phase1L1TJetProducer() {}
 
-float Phase1L1TJetProducer::getTowerEnergy(const TH2F& caloGrid, int iEta, int iPhi) {
+const float Phase1L1TJetProducer::getTowerEnergy(const TH2F& caloGrid, int iEta, int iPhi) {
   // We return the pt of a certain bin in the calo grid, taking account of the phi periodicity when overflowing (e.g. phi > phiSize), and returning 0 for the eta out of bounds
 
   int nBinsEta = caloGrid.GetNbinsX();
@@ -145,7 +145,7 @@ void Phase1L1TJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   caloGrid_->Reset();
   fillCaloGrid<>(*(caloGrid_), *inputCollectionHandle);
 
-  const auto seedsVector = findSeeds(*(caloGrid_), seedPtThreshold_);  // seedPtThreshold = 6
+  const auto& seedsVector = findSeeds(*(caloGrid_), seedPtThreshold_);  // seedPtThreshold = 6
   std::vector<reco::CaloJet> l1jetVector;
   if (puSubtraction_) {
     l1jetVector = _buildJetsFromSeedsWithPUSubtraction(*(caloGrid_), seedsVector, vetoZeroPt_);
