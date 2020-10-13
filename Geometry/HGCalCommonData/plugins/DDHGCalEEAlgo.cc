@@ -305,12 +305,16 @@ void DDHGCalEEAlgo::constructLayers(const DDLogicalPart& module, DDCompactView& 
           edm::LogVerbatim("HGCalGeom") << "[" << k << "] z " << pgonZ[k] << " R " << pgonRin[k] << ":" << pgonRout[k];
 #endif
       } else {
-	double rins = (sensitiveMode_ < 1) ? rinB : HGCalGeomTools::radius(zz + hthick, zFrontB_, rMinFront_, slopeB_);
-	double routs = (sensitiveMode_ < 1) ? routF : HGCalGeomTools::radius(zz - hthick, zFrontT_, rMaxFront_, slopeT_);
+        double rins = (sensitiveMode_ < 1) ? rinB : HGCalGeomTools::radius(zz + hthick, zFrontB_, rMinFront_, slopeB_);
+        double routs =
+            (sensitiveMode_ < 1) ? routF : HGCalGeomTools::radius(zz - hthick, zFrontT_, rMaxFront_, slopeT_);
         DDSolid solid = DDSolidFactory::tubs(DDName(name, nameSpace_), hthick, rins, routs, 0.0, 2._pi);
         glog = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCalGeom") << "DDHGCalEEFileAlgo: " << solid.name() << " Tubs made of " << matName << ":" << &matter << " of dimensions " << rinB << ":" << rins << ", " << routF << ":" << routs << ", " << hthick << ", 0.0, 360.0 and position " << glog.name() << " number " << copy << ":" << layerCenter_[copy - firstLayer_];
+        edm::LogVerbatim("HGCalGeom") << "DDHGCalEEFileAlgo: " << solid.name() << " Tubs made of " << matName << ":"
+                                      << &matter << " of dimensions " << rinB << ":" << rins << ", " << routF << ":"
+                                      << routs << ", " << hthick << ", 0.0, 360.0 and position " << glog.name()
+                                      << " number " << copy << ":" << layerCenter_[copy - firstLayer_];
 #endif
         positionSensitive(glog, rins, routs, zz, layerSense_[ly], layerCenter_[copy - firstLayer_], cpv);
       }
