@@ -83,24 +83,3 @@ def _modifyEnableHcalHardcode( theProcess ):
 
 from Configuration.Eras.Modifier_hcalHardcodeConditions_cff import hcalHardcodeConditions
 modifyEnableHcalHardcode_ = hcalHardcodeConditions.makeProcessModifier( _modifyEnableHcalHardcode )
-
-
-#phase 2 ecal pedestals
-def _modifyEcalPedestals( process ):
-    process.load("SimCalorimetry.EcalSimProducers.esEcalLiteDTUPedestalsProducer_cfi")
-
-    from CondCore.CondDB.CondDB_cfi import CondDB
-    CondDB.connect = cms.string('sqlite_file:SimCalorimetry/EcalSimProducers/data/simPulseShapePhaseII.db')
-    process.ecalConditions = cms.ESSource("PoolDBESSource", CondDB,
-      toGet = cms.VPSet(         
-                  cms.PSet(
-                      record = cms.string('EcalSimPulseShapeRcd') ,
-                      tag = cms.string('EcalSimPulseShape_default_mc')
-                  )
-              )
-        )
-    process.es_prefer_ecalPulseShape = cms.ESPrefer("PoolDBESSource","ecalConditions")
-
-from Configuration.Eras.Modifier_phase2_ecal_devel_cff import phase2_ecal_devel
-modifyDigi_Phase2EcalPed = phase2_ecal_devel.makeProcessModifier(_modifyEcalPedestals)
-
