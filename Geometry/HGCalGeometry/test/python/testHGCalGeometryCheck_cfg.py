@@ -1,14 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
-#from Configuration.Eras.Era_Phase2C4_cff import Phase2C4
-#process = cms.Process('PROD',Phase2C4)
-#process.load('Configuration.Geometry.GeometryExtended2026D35_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D35Reco_cff')
+#from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
+#process = cms.Process('PROD',Phase2C9)
+#process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
+#process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
 
-from Configuration.Eras.Era_Phase2C4_cff import Phase2C4
-process = cms.Process('PROD',Phase2C4)
-process.load('Configuration.Geometry.GeometryExtended2026D41_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D41Reco_cff')
+from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
+process = cms.Process('PROD',Phase2C11)
+process.load('Configuration.Geometry.GeometryExtended2026D71_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D71Reco_cff')
 
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 process.load('Geometry.HGCalGeometry.hgcalGeometryCheck_cfi')
