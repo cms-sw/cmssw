@@ -25,6 +25,7 @@ ticlTrackstersEM = _trackstersProducer.clone(
     filter_on_categories = [0, 1],
     pid_threshold = 0.5,
     energy_em_over_total_threshold = 0.9,
+    max_longitudinal_sigmaPCA = 10,
     shower_start_max_layer = 5, #inclusive
     max_out_in_hops = 1,
     skip_layers = 2,

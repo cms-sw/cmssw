@@ -114,6 +114,7 @@ void TrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<std::vector<int>>("filter_on_categories", {0});
   desc.add<double>("pid_threshold", 0.);                    // make default such that no filtering is applied
   desc.add<double>("energy_em_over_total_threshold", -1.);  // make default such that no filtering is applied
+  desc.add<double>("max_longitudinal_sigmaPCA", 9999);
   desc.add<int>("shower_start_max_layer", 9999);            // make default such that no filtering is applied
   desc.add<int>("algo_verbosity", 0);
   desc.add<double>("min_cos_theta", 0.915);
