@@ -20,7 +20,7 @@ void HGCGraphT<TILES>::makeAndConnectDoublets(const TILES &histo,
                                               float minCosTheta,
                                               float minCosPointing,
                                               float etaLimitIncreaseWindow,
-                                              int missing_layers,
+                                              int skip_layers,
                                               int maxNumberOfLayers,
                                               float maxDeltaTime) {
   isOuterClusterOfDoublets_.clear();
@@ -75,7 +75,7 @@ void HGCGraphT<TILES>::makeAndConnectDoublets(const TILES &histo,
     }
 
     for (int il = 0; il < maxNumberOfLayers - 1; ++il) {
-      for (int outer_layer = 0; outer_layer < std::min(1 + missing_layers, maxNumberOfLayers - 1 - il); ++outer_layer) {
+      for (int outer_layer = 0; outer_layer < std::min(1 + skip_layers, maxNumberOfLayers - 1 - il); ++outer_layer) {
         int currentInnerLayerId = il + maxNumberOfLayers * zSide;
         int currentOuterLayerId = currentInnerLayerId + 1 + outer_layer;
         auto const &outerLayerHisto = histo[currentOuterLayerId];
