@@ -77,7 +77,7 @@ private:
   std::vector<int> layerSim_, layerDig_, layerFront_;
   std::vector<const HGCalDDDConstants*> hgcons_;
   std::vector<const HGCalGeometry*> hgeoms_;
-  std::vector<edm::EDGetTokenT<edm::PCaloHitContainer> > tok_hits_;
+  std::vector<edm::EDGetTokenT<edm::PCaloHitContainer>> tok_hits_;
   std::vector<edm::EDGetToken> tok_digi_;
 
   //histogram related stuff
@@ -87,19 +87,20 @@ private:
 };
 
 HGCalWaferStudy::HGCalWaferStudy(const edm::ParameterSet& iConfig)
-    : nameDetectors_(iConfig.getParameter<std::vector<std::string> >("detectorNames")),
-      caloHitSources_(iConfig.getParameter<std::vector<std::string> >("caloHitSources")),
-      digiSources_(iConfig.getParameter<std::vector<edm::InputTag> >("digiSources")),
+    : nameDetectors_(iConfig.getParameter<std::vector<std::string>>("detectorNames")),
+      caloHitSources_(iConfig.getParameter<std::vector<std::string>>("caloHitSources")),
+      digiSources_(iConfig.getParameter<std::vector<edm::InputTag>>("digiSources")),
       ddTokens_{
-  edm::vector_transform(nameDetectors_,
-			[this](const std::string& name) {
-			  return esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name});
-			})},
-  geomTokens_{
-    edm::vector_transform(nameDetectors_,
-			  [this](const std::string& name) {
-			    return esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name});
-			  })},
+          edm::vector_transform(nameDetectors_,
+                                [this](const std::string& name) {
+                                  return esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+                                      edm::ESInputTag{"", name});
+                                })},
+      geomTokens_{edm::vector_transform(
+          nameDetectors_,
+          [this](const std::string& name) {
+            return esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name});
+          })},
       verbosity_(iConfig.getUntrackedParameter<int>("verbosity", 0)),
       nBinHit_(iConfig.getUntrackedParameter<int>("nBinHit", 600)),
       nBinDig_(iConfig.getUntrackedParameter<int>("nBinDig", 600)),
@@ -108,10 +109,10 @@ HGCalWaferStudy::HGCalWaferStudy(const edm::ParameterSet& iConfig)
       xyMinDig_(iConfig.getUntrackedParameter<double>("xyMinDig", -300.0)),
       xyMaxDig_(iConfig.getUntrackedParameter<double>("xyMaxDig", 300.0)),
       ifNose_(iConfig.getUntrackedParameter<bool>("ifNose", false)),
-      layerMnSim_(iConfig.getUntrackedParameter<std::vector<int> >("layerMinSim")),
-      layerMxSim_(iConfig.getUntrackedParameter<std::vector<int> >("layerMaxSim")),
-      layerMnDig_(iConfig.getUntrackedParameter<std::vector<int> >("layerMinDig")),
-      layerMxDig_(iConfig.getUntrackedParameter<std::vector<int> >("layerMaxDig")) {
+      layerMnSim_(iConfig.getUntrackedParameter<std::vector<int>>("layerMinSim")),
+      layerMxSim_(iConfig.getUntrackedParameter<std::vector<int>>("layerMaxSim")),
+      layerMnDig_(iConfig.getUntrackedParameter<std::vector<int>>("layerMinDig")),
+      layerMxDig_(iConfig.getUntrackedParameter<std::vector<int>>("layerMaxDig")) {
   usesResource(TFileService::kSharedResource);
 
   for (auto const& source : caloHitSources_) {
@@ -132,9 +133,9 @@ void HGCalWaferStudy::fillDescriptions(edm::ConfigurationDescriptions& descripti
                                            edm::InputTag("simHGCalUnsuppressedDigis", "HEfront")};
   std::vector<int> layers = {28, 24};
   std::vector<int> layerMin = {1, 1};
-  desc.add<std::vector<std::string> >("detectorNames", names);
-  desc.add<std::vector<std::string> >("caloHitSources", simSources);
-  desc.add<std::vector<edm::InputTag> >("digiSources", digSources);
+  desc.add<std::vector<std::string>>("detectorNames", names);
+  desc.add<std::vector<std::string>>("caloHitSources", simSources);
+  desc.add<std::vector<edm::InputTag>>("digiSources", digSources);
   desc.addUntracked<int>("verbosity", 0);
   desc.addUntracked<int>("nBinHit", 600);
   desc.addUntracked<int>("nBinDig", 600);
@@ -143,10 +144,10 @@ void HGCalWaferStudy::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.addUntracked<double>("xyMinDig", -300.0);
   desc.addUntracked<double>("xyMaxDig", 300.0);
   desc.addUntracked<bool>("ifNose", false);
-  desc.addUntracked<std::vector<int> >("layerMaxSim", layers);
-  desc.addUntracked<std::vector<int> >("layerMaxDig", layers);
-  desc.addUntracked<std::vector<int> >("layerMinSim", layerMin);
-  desc.addUntracked<std::vector<int> >("layerMinDig", layerMin);
+  desc.addUntracked<std::vector<int>>("layerMaxSim", layers);
+  desc.addUntracked<std::vector<int>>("layerMaxDig", layers);
+  desc.addUntracked<std::vector<int>>("layerMinSim", layerMin);
+  desc.addUntracked<std::vector<int>>("layerMinDig", layerMin);
   descriptions.add("hgcalWaferStudy", desc);
 }
 
