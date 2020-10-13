@@ -160,7 +160,6 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
     uniqueLayerIds.erase(std::unique(uniqueLayerIds.begin(), uniqueLayerIds.end()), uniqueLayerIds.end());
     unsigned int numberOfLayersInTrackster = uniqueLayerIds.size();
     if (check_missing_layers_) {
-
       int numberOfMissingLayers = 0;
       unsigned int j = showerMinLayerId;
       unsigned int indexInVec = 0;
