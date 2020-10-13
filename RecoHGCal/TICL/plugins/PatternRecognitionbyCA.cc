@@ -168,7 +168,7 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
         if (layer != j) {
           numberOfMissingLayers++;
           j++;
-          if (numberOfMissingLayers == max_missing_layers_in_trackster_) {
+          if (numberOfMissingLayers > max_missing_layers_in_trackster_) {
             numberOfLayersInTrackster = indexInVec;
             for (auto &llpair : lcIdAndLayer) {
               if (llpair.second >= layer) {
