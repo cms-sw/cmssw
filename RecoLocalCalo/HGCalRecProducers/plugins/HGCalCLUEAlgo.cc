@@ -47,9 +47,7 @@ void HGCalCLUEAlgoT<T>::populate(const HGCRecHitCollection& hits) {
         thickness_index = maxNumberOfThickIndices_;
 
       double storedThreshold = thresholds_[layerOnSide][thickness_index];
-      if (detid.subdetId() == HGCEE) {
-        storedThreshold = thresholds_[layerOnSide][thickness_index];
-      } else if (detid.subdetId() == HGCHEF) {
+      if ( detid.det() == DetId::HGCalHSi || detid.subdetId() == HGCHEF ) {
         storedThreshold = thresholds_[layerOnSide][thickness_index + deltasi_index_regemfac_];
       }
       sigmaNoise = v_sigmaNoise_[layerOnSide][thickness_index];
