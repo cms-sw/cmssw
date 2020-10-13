@@ -114,7 +114,7 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
 
     int nWords = fedData.size() / sizeof(uint64_t);
     LogDebug("GEMRawToDigiModule") << "fedId:" << fedId << " words: " << nWords;
-    
+
     if (nWords < 5)
       continue;
     const unsigned char* data = fedData.data();
@@ -123,11 +123,11 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
 
 #ifdef EDM_ML_DEBUG
     const uint64_t* w = word;
-    for (int i =0; i< nWords;i++) {
+    for (int i = 0; i < nWords; i++) {
       std::cout << std::bitset<64>(*(w++)) << std::endl;
     }
 #endif
-    
+
     auto amc13Event = gemRawToDigi_->convertWordToAMC13Event(word);
 
     if (amc13Event == nullptr)
@@ -193,9 +193,9 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
             GEMDigi digi(stripId, bx);
 
             LogDebug("GEMRawToDigiModule")
-              << " fed: " << fedId << " amc:" << int(amcNum) << " geb:" << int(gebId)
-              << " vfat:" << vfat_dc.localPhi << ",type: " << vfat_dc.vfatType << " id:" << gemId
-              << " ch:" << chMap.chNum << " st:" << digi.strip() << " bx:" << digi.bx();
+                << " fed: " << fedId << " amc:" << int(amcNum) << " geb:" << int(gebId) << " vfat:" << vfat_dc.localPhi
+                << ",type: " << vfat_dc.vfatType << " id:" << gemId << " ch:" << chMap.chNum << " st:" << digi.strip()
+                << " bx:" << digi.bx();
 
             outGEMDigis.get()->insertDigi(gemId, digi);
 

@@ -223,7 +223,7 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
       //CDF trailer
       uint32_t EvtLength = amc13EvtLength + 4;  // 2 header and 2 trailer
       LogDebug("GEMDigiToRawModule") << " EvtLength: " << int(EvtLength);
-      
+
       amc13Event->setCDFTrailer(EvtLength);
       amc13Events.emplace_back(std::move(amc13Event));
     }  // finished making amc13Event data
@@ -273,8 +273,8 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
       std::cout << std::bitset<64>(word) << std::endl;
 #endif
       *(w++) = word;
-    }    
-    LogDebug("GEMDigiToRawModule") << " words " << words.size();    
+    }
+    LogDebug("GEMDigiToRawModule") << " words " << words.size();
   }
 
   iEvent.put(std::move(fedRawDataCol));
