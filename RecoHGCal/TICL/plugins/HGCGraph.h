@@ -25,6 +25,7 @@ public:
                               int deltaIPhi,
                               float minCosThetai,
                               float maxCosPointing,
+                              float root_doublet_max_distance_from_seed,
                               float etaLimitIncreaseWindow,
                               int skip_layers,
                               int maxNumberOfLayers,
