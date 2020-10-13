@@ -56,8 +56,7 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet& ps) : 
     rcorr_.push_back(1.0 / corr);
   }
   // here for scintillator
-  const auto& rcorrscint = ps.getParameter<double>("sciThicknessCorrection");
-  rcorrscint_ = 1.0 / rcorrscint;
+  rcorrscint_ = 1.0 / ps.getParameter<double>("sciThicknessCorrection");
 
   //This is for the index position in CE_H silicon thickness cases
   deltasi_index_regemfac_ = ps.getParameter<int>("deltasi_index_regemfac");
