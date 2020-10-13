@@ -78,7 +78,7 @@ public:
     bool ecalDrivenEcalErrorFromClassBasedParameterization;
     bool pureTrackerDrivenEcalErrorFromSimpleParameterization;
     // ambiguity solving
-    bool applyAmbResolution;              // if not true, ambiguity solving is not applied
+    bool applyAmbResolution;  // if not true, ambiguity solving is not applied
     bool ignoreNotPreselected;
     unsigned ambSortingStrategy;          // 0:isBetter, 1:isInnermost
     unsigned ambClustersOverlapStrategy;  // 0:sc adresses, 1:bc shared energy
