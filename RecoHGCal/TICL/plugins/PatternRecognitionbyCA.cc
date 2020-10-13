@@ -30,7 +30,8 @@ PatternRecognitionbyCA<TILES>::PatternRecognitionbyCA(const edm::ParameterSet &c
       skip_layers_(conf.getParameter<int>("skip_layers")),
       max_missing_layers_in_trackster_(conf.getParameter<int>("max_missing_layers_in_trackster")),
       shower_start_max_layer_(conf.getParameter<int>("shower_start_max_layer")),
-      min_clusters_per_ntuplet_(conf.getParameter<int>("min_clusters_per_ntuplet")),
+      min_layers_per_trackster_(conf.getParameter<int>("min_layers_per_trackster")),
+      min_clusters_per_ntuplet_(min_layers_per_trackster_),
       max_delta_time_(conf.getParameter<double>("max_delta_time")),
       eidInputName_(conf.getParameter<std::string>("eid_input_name")),
       eidOutputNameEnergy_(conf.getParameter<std::string>("eid_output_name_energy")),
@@ -46,6 +47,9 @@ PatternRecognitionbyCA<TILES>::PatternRecognitionbyCA(const edm::ParameterSet &c
         << "PatternRecognitionbyCA received an empty graph definition from the global cache";
   }
   eidSession_ = tensorflow::createSession(trackstersCache->eidGraphDef);
+  if (max_missing_layers_in_trackster_ < 100) {
+    check_missing_layers_ = true;
+  }
 }
 
 template <typename TILES>
@@ -140,12 +144,47 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
       }
     }
     unsigned showerMinLayerId = 99999;
+    std::vector<unsigned int> layerIds;
+    std::vector<unsigned int> uniqueLayerIds;
+    uniqueLayerIds.reserve(effective_cluster_idx.size());
+    std::vector<std::pair<unsigned int, unsigned int>> lcIdAndLayer;
+    lcIdAndLayer.reserve(effective_cluster_idx.size());
     for (auto const i : effective_cluster_idx) {
-      auto const& haf = input.layerClusters[i].hitsAndFractions();
-      showerMinLayerId = std::min(rhtools_.getLayerWithOffset(haf[0].first),showerMinLayerId);
+      auto const &haf = input.layerClusters[i].hitsAndFractions();
+      auto layerId = rhtools_.getLayerWithOffset(haf[0].first);
+      showerMinLayerId = std::min(layerId, showerMinLayerId);
+      uniqueLayerIds.push_back(layerId);
+      lcIdAndLayer.emplace_back(i, layerId);
     }
 
-    if(showerMinLayerId <= shower_start_max_layer_){
+    if (check_missing_layers_) {
+      std::sort(uniqueLayerIds.begin(), uniqueLayerIds.end());
+      uniqueLayerIds.erase(std::unique(uniqueLayerIds.begin(), uniqueLayerIds.end()), uniqueLayerIds.end());
+      int numberOfMissingLayers = 0;
+      unsigned int j = showerMinLayerId;
+      unsigned int indexInVec = 0;
+      for (auto &layer : uniqueLayerIds) {
+        if (layer != j) {
+          numberOfMissingLayers++;
+          j++;
+          if (numberOfMissingLayers == max_missing_layers_in_trackster_) {
+            uniqueLayerIds.erase(uniqueLayerIds.begin() + indexInVec, uniqueLayerIds.end());
+            for (auto &llpair : lcIdAndLayer) {
+              if (llpair.second >= layer) {
+                effective_cluster_idx.erase(llpair.first);
+              }
+            }
+            break;
+          }
+        }
+        indexInVec++;
+        j++;
+      }
+    }
+
+    bool selected =
+        (uniqueLayerIds.size() >= min_layers_per_trackster_) and (showerMinLayerId <= shower_start_max_layer_);
+    if (selected) {
       for (auto const i : effective_cluster_idx) {
         layer_cluster_usage[i]++;
         if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Basic)

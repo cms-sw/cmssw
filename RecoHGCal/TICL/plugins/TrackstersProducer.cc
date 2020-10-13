@@ -123,14 +123,14 @@ void TrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<std::vector<int>>("filter_on_categories", {0});
   desc.add<double>("pid_threshold", 0.);                    // make default such that no filtering is applied
   desc.add<double>("energy_em_over_total_threshold", -1.);  // make default such that no filtering is applied
-  desc.add<int>("shower_start_max_layer", 9999); // make default such that no filtering is applied
+  desc.add<int>("shower_start_max_layer", 9999);            // make default such that no filtering is applied
   desc.add<int>("algo_verbosity", 0);
   desc.add<double>("min_cos_theta", 0.915);
   desc.add<double>("min_cos_pointing", -1.);
   desc.add<int>("skip_layers", 0);
   desc.add<int>("max_missing_layers_in_trackster", 9999);
   desc.add<double>("etaLimitIncreaseWindow", 2.1);
-  desc.add<int>("min_clusters_per_ntuplet", 10);
+  desc.add<int>("min_layers_per_trackster", 10);
   desc.add<double>("max_delta_time", 3.);  //nsigma
   desc.add<bool>("out_in_dfs", true);
   desc.add<int>("max_out_in_hops", 10);

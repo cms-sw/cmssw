@@ -29,7 +29,7 @@ ticlTrackstersEM = _trackstersProducer.clone(
     max_out_in_hops = 1,
     skip_layers = 1,
     max_missing_layers_in_trackster = 1,
-    min_clusters_per_ntuplet = 10,
+    min_layers_per_trackster = 10,
     min_cos_theta = 0.97,  # ~14 degrees
     min_cos_pointing = 0.94, # ~20 degrees
     max_delta_time = 3.,
@@ -64,7 +64,7 @@ ticlTrackstersHFNoseEM = ticlTrackstersEM.clone(
     filtered_mask = "filteredLayerClustersHFNoseEM:EMn",
     seeding_regions = "ticlSeedingGlobalHFNose",
     time_layerclusters = "hgcalLayerClustersHFNose:timeLayerCluster",
-    min_clusters_per_ntuplet = 6
+    min_layers_per_trackster = 6
 )
 
 ticlHFNoseEMStepTask = cms.Task(ticlSeedingGlobalHFNose
