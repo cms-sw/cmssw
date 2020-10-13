@@ -89,8 +89,10 @@ void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
 
   bool topo1Dis = false;
   bool topo2Dis = false;
-  if (topology->getMTDTopologyMode() <= static_cast<int>(MTDTopologyMode::Mode::barphiflat)) topo1Dis = true;
-  if (topology->getMTDTopologyMode() > static_cast<int>(MTDTopologyMode::Mode::barphiflat)) topo2Dis = true;
+  if (topology->getMTDTopologyMode() <= static_cast<int>(MTDTopologyMode::Mode::barphiflat))
+    topo1Dis = true;
+  if (topology->getMTDTopologyMode() > static_cast<int>(MTDTopologyMode::Mode::barphiflat))
+    topo2Dis = true;
 
   edm::ESHandle<MTDGeometry> geometryHandle;
   iSetup.get<MTDDigiGeometryRecord>().get(geometryHandle);
@@ -122,7 +124,7 @@ void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
     // --- Fill the histograms
 
     int idet = 999;
-    
+
     if (topo1Dis) {
       if (detId.zside() == -1) {
         idet = 0;
@@ -173,10 +175,10 @@ void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
   }
 
   if (topo2Dis) {
-    for (int i=0; i<4; i++) {
+    for (int i = 0; i < 4; i++) {
       meNhits_[i]->Fill(n_digi_etl[i]);
     }
-  } 
+  }
 }
 
 // ------------ method for histogram booking ------------
@@ -187,28 +189,59 @@ void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
 
   // --- histograms booking
 
-  meNhits_[0] = ibook.book1D("EtlNhitsZnegD1", "Number of ETL DIGI hits (-Z, Single(topo1D)/First(topo2D) disk);log_{10}(N_{DIGI})", 100, 0., 5000.);
-  meNhits_[1] = ibook.book1D("EtlNhitsZnegD2", "Number of ETL DIGI hits (-Z, Second disk);log_{10}(N_{DIGI})", 100, 0., 5000.);
-  meNhits_[2] = ibook.book1D("EtlNhitsZposD1", "Number of ETL DIGI hits (+Z, Single(topo1D)/First(topo2D) disk);log_{10}(N_{DIGI})", 100, 0., 5000.);
-  meNhits_[3] = ibook.book1D("EtlNhitsZposD2", "Number of ETL DIGI hits (+Z, Second disk);log_{10}(N_{DIGI})", 100, 0., 5000.);
+  meNhits_[0] = ibook.book1D("EtlNhitsZnegD1",
+                             "Number of ETL DIGI hits (-Z, Single(topo1D)/First(topo2D) disk);log_{10}(N_{DIGI})",
+                             100,
+                             0.,
+                             5000.);
+  meNhits_[1] =
+      ibook.book1D("EtlNhitsZnegD2", "Number of ETL DIGI hits (-Z, Second disk);log_{10}(N_{DIGI})", 100, 0., 5000.);
+  meNhits_[2] = ibook.book1D("EtlNhitsZposD1",
+                             "Number of ETL DIGI hits (+Z, Single(topo1D)/First(topo2D) disk);log_{10}(N_{DIGI})",
+                             100,
+                             0.,
+                             5000.);
+  meNhits_[3] =
+      ibook.book1D("EtlNhitsZposD2", "Number of ETL DIGI hits (+Z, Second disk);log_{10}(N_{DIGI})", 100, 0., 5000.);
 
-  meHitCharge_[0] = ibook.book1D("EtlHitChargeZnegD1", "ETL DIGI hits charge (-Z, Single(topo1D)/First(topo2D) disk);Q_{DIGI} [ADC counts]", 100, 0., 256.);
-  meHitCharge_[1] = ibook.book1D("EtlHitChargeZnegD2", "ETL DIGI hits charge (-Z, Second disk);Q_{DIGI} [ADC counts]", 100, 0., 256.);
-  meHitCharge_[2] = ibook.book1D("EtlHitChargeZposD1", "ETL DIGI hits charge (+Z, Single(topo1D)/First(topo2D) disk);Q_{DIGI} [ADC counts]", 100, 0., 256.);
-  meHitCharge_[3] = ibook.book1D("EtlHitChargeZposD2", "ETL DIGI hits charge (+Z, Second disk);Q_{DIGI} [ADC counts]", 100, 0., 256.);
-  meHitTime_[0] = ibook.book1D("EtlHitTimeZnegD1", "ETL DIGI hits ToA (-Z, Single(topo1D)/First(topo2D) disk);ToA_{DIGI} [TDC counts]", 100, 0., 2000.);
-  meHitTime_[1] = ibook.book1D("EtlHitTimeZnegD2", "ETL DIGI hits ToA (-Z, Second disk);ToA_{DIGI} [TDC counts]", 100, 0., 2000.);
-  meHitTime_[2] = ibook.book1D("EtlHitTimeZposD1", "ETL DIGI hits ToA (+Z, Single(topo1D)/First(topo2D) disk);ToA_{DIGI} [TDC counts]", 100, 0., 2000.);
-  meHitTime_[3] = ibook.book1D("EtlHitTimeZposD2", "ETL DIGI hits ToA (+Z, Second disk);ToA_{DIGI} [TDC counts]", 100, 0., 2000.);
+  meHitCharge_[0] = ibook.book1D("EtlHitChargeZnegD1",
+                                 "ETL DIGI hits charge (-Z, Single(topo1D)/First(topo2D) disk);Q_{DIGI} [ADC counts]",
+                                 100,
+                                 0.,
+                                 256.);
+  meHitCharge_[1] =
+      ibook.book1D("EtlHitChargeZnegD2", "ETL DIGI hits charge (-Z, Second disk);Q_{DIGI} [ADC counts]", 100, 0., 256.);
+  meHitCharge_[2] = ibook.book1D("EtlHitChargeZposD1",
+                                 "ETL DIGI hits charge (+Z, Single(topo1D)/First(topo2D) disk);Q_{DIGI} [ADC counts]",
+                                 100,
+                                 0.,
+                                 256.);
+  meHitCharge_[3] =
+      ibook.book1D("EtlHitChargeZposD2", "ETL DIGI hits charge (+Z, Second disk);Q_{DIGI} [ADC counts]", 100, 0., 256.);
+  meHitTime_[0] = ibook.book1D("EtlHitTimeZnegD1",
+                               "ETL DIGI hits ToA (-Z, Single(topo1D)/First(topo2D) disk);ToA_{DIGI} [TDC counts]",
+                               100,
+                               0.,
+                               2000.);
+  meHitTime_[1] =
+      ibook.book1D("EtlHitTimeZnegD2", "ETL DIGI hits ToA (-Z, Second disk);ToA_{DIGI} [TDC counts]", 100, 0., 2000.);
+  meHitTime_[2] = ibook.book1D("EtlHitTimeZposD1",
+                               "ETL DIGI hits ToA (+Z, Single(topo1D)/First(topo2D) disk);ToA_{DIGI} [TDC counts]",
+                               100,
+                               0.,
+                               2000.);
+  meHitTime_[3] =
+      ibook.book1D("EtlHitTimeZposD2", "ETL DIGI hits ToA (+Z, Second disk);ToA_{DIGI} [TDC counts]", 100, 0., 2000.);
 
-  meOccupancy_[0] = ibook.book2D("EtlOccupancyZnegD1",
-                                 "ETL DIGI hits occupancy (-Z, Single(topo1D)/First(topo2D) disk);X_{DIGI} [cm];Y_{DIGI} [cm]",
-                                 135,
-                                 -135.,
-                                 135.,
-                                 135,
-                                 -135.,
-                                 135.);
+  meOccupancy_[0] =
+      ibook.book2D("EtlOccupancyZnegD1",
+                   "ETL DIGI hits occupancy (-Z, Single(topo1D)/First(topo2D) disk);X_{DIGI} [cm];Y_{DIGI} [cm]",
+                   135,
+                   -135.,
+                   135.,
+                   135,
+                   -135.,
+                   135.);
   meOccupancy_[1] = ibook.book2D("EtlOccupancyZnegD2",
                                  "ETL DIGI hits occupancy (-Z, Second disk);X_{DIGI} [cm];Y_{DIGI} [cm]",
                                  135,
@@ -217,14 +250,15 @@ void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
                                  135,
                                  -135.,
                                  135.);
-  meOccupancy_[2] = ibook.book2D("EtlOccupancyZposD1",
-                                 "ETL DIGI hits occupancy (+Z, Single(topo1D)/First(topo2D) disk);X_{DIGI} [cm];Y_{DIGI} [cm]",
-                                 135,
-                                 -135.,
-                                 135.,
-                                 135,
-                                 -135.,
-                                 135.);
+  meOccupancy_[2] =
+      ibook.book2D("EtlOccupancyZposD1",
+                   "ETL DIGI hits occupancy (+Z, Single(topo1D)/First(topo2D) disk);X_{DIGI} [cm];Y_{DIGI} [cm]",
+                   135,
+                   -135.,
+                   135.,
+                   135,
+                   -135.,
+                   135.);
   meOccupancy_[3] = ibook.book2D("EtlOccupancyZposD2",
                                  "ETL DIGI hits occupancy (+Z, Second disk);X_{DIGI} [cm];Y_{DIGI} [cm]",
                                  135,
@@ -234,128 +268,202 @@ void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
                                  -135.,
                                  135.);
 
-  meHitX_[0] = ibook.book1D("EtlHitXZnegD1", "ETL DIGI hits X (-Z, Single(topo1D)/First(topo2D) disk);X_{DIGI} [cm]", 100, -130., 130.);
+  meHitX_[0] = ibook.book1D(
+      "EtlHitXZnegD1", "ETL DIGI hits X (-Z, Single(topo1D)/First(topo2D) disk);X_{DIGI} [cm]", 100, -130., 130.);
   meHitX_[1] = ibook.book1D("EtlHitXZnegD2", "ETL DIGI hits X (-Z, Second disk);X_{DIGI} [cm]", 100, -130., 130.);
-  meHitX_[2] = ibook.book1D("EtlHitXZposD1", "ETL DIGI hits X (+Z, Single(topo1D)/First(topo2D) disk);X_{DIGI} [cm]", 100, -130., 130.);
+  meHitX_[2] = ibook.book1D(
+      "EtlHitXZposD1", "ETL DIGI hits X (+Z, Single(topo1D)/First(topo2D) disk);X_{DIGI} [cm]", 100, -130., 130.);
   meHitX_[3] = ibook.book1D("EtlHitXZposD2", "ETL DIGI hits X (+Z, Second disk);X_{DIGI} [cm]", 100, -130., 130.);
-  meHitY_[0] = ibook.book1D("EtlHitYZnegD1", "ETL DIGI hits Y (-Z, Single(topo1D)/First(topo2D) disk);Y_{DIGI} [cm]", 100, -130., 130.);
+  meHitY_[0] = ibook.book1D(
+      "EtlHitYZnegD1", "ETL DIGI hits Y (-Z, Single(topo1D)/First(topo2D) disk);Y_{DIGI} [cm]", 100, -130., 130.);
   meHitY_[1] = ibook.book1D("EtlHitYZnegD2", "ETL DIGI hits Y (-Z, Second disk);Y_{DIGI} [cm]", 100, -130., 130.);
-  meHitY_[2] = ibook.book1D("EtlHitYZposD1", "ETL DIGI hits Y (+Z, Single(topo1D)/First(topo2D) disk);Y_{DIGI} [cm]", 100, -130., 130.);
+  meHitY_[2] = ibook.book1D(
+      "EtlHitYZposD1", "ETL DIGI hits Y (+Z, Single(topo1D)/First(topo2D) disk);Y_{DIGI} [cm]", 100, -130., 130.);
   meHitY_[3] = ibook.book1D("EtlHitYZposD2", "ETL DIGI hits Y (+Z, Second disk);Y_{DIGI} [cm]", 100, -130., 130.);
-  meHitZ_[0] = ibook.book1D("EtlHitZZnegD1", "ETL DIGI hits Z (-Z, Single(topo1D)/First(topo2D) disk);Z_{DIGI} [cm]", 100, -310, -301);
+  meHitZ_[0] = ibook.book1D(
+      "EtlHitZZnegD1", "ETL DIGI hits Z (-Z, Single(topo1D)/First(topo2D) disk);Z_{DIGI} [cm]", 100, -310, -301);
   meHitZ_[1] = ibook.book1D("EtlHitZZnegD2", "ETL DIGI hits Z (-Z, Second disk);Z_{DIGI} [cm]", 100, -310, -301);
-  meHitZ_[2] = ibook.book1D("EtlHitZZposD1", "ETL DIGI hits Z (+Z, Single(topo1D)/First(topo2D) disk);Z_{DIGI} [cm]", 100, 301, 310);
+  meHitZ_[2] = ibook.book1D(
+      "EtlHitZZposD1", "ETL DIGI hits Z (+Z, Single(topo1D)/First(topo2D) disk);Z_{DIGI} [cm]", 100, 301, 310);
   meHitZ_[3] = ibook.book1D("EtlHitZZposD2", "ETL DIGI hits Z (+Z, Second disk);Z_{DIGI} [cm]", 100, 301, 310);
 
-  meHitPhi_[0] = ibook.book1D("EtlHitPhiZnegD1", "ETL DIGI hits #phi (-Z, Single(topo1D)/First(topo2D) disk);#phi_{DIGI} [rad]", 100, -3.15, 3.15);
-  meHitPhi_[1] = ibook.book1D("EtlHitPhiZnegD2", "ETL DIGI hits #phi (-Z, Second disk);#phi_{DIGI} [rad]", 100, -3.15, 3.15);
-  meHitPhi_[2] = ibook.book1D("EtlHitPhiZposD1", "ETL DIGI hits #phi (+Z, Single(topo1D)/First(topo2D) disk);#phi_{DIGI} [rad]", 100, -3.15, 3.15);
-  meHitPhi_[3] = ibook.book1D("EtlHitPhiZposD2", "ETL DIGI hits #phi (+Z, Second disk);#phi_{DIGI} [rad]", 100, -3.15, 3.15);
-  meHitEta_[0] = ibook.book1D("EtlHitEtaZnegD1", "ETL DIGI hits #eta (-Z, Single(topo1D)/First(topo2D) disk);#eta_{DIGI}", 100, -3.2, -1.56);
+  meHitPhi_[0] = ibook.book1D("EtlHitPhiZnegD1",
+                              "ETL DIGI hits #phi (-Z, Single(topo1D)/First(topo2D) disk);#phi_{DIGI} [rad]",
+                              100,
+                              -3.15,
+                              3.15);
+  meHitPhi_[1] =
+      ibook.book1D("EtlHitPhiZnegD2", "ETL DIGI hits #phi (-Z, Second disk);#phi_{DIGI} [rad]", 100, -3.15, 3.15);
+  meHitPhi_[2] = ibook.book1D("EtlHitPhiZposD1",
+                              "ETL DIGI hits #phi (+Z, Single(topo1D)/First(topo2D) disk);#phi_{DIGI} [rad]",
+                              100,
+                              -3.15,
+                              3.15);
+  meHitPhi_[3] =
+      ibook.book1D("EtlHitPhiZposD2", "ETL DIGI hits #phi (+Z, Second disk);#phi_{DIGI} [rad]", 100, -3.15, 3.15);
+  meHitEta_[0] = ibook.book1D(
+      "EtlHitEtaZnegD1", "ETL DIGI hits #eta (-Z, Single(topo1D)/First(topo2D) disk);#eta_{DIGI}", 100, -3.2, -1.56);
   meHitEta_[1] = ibook.book1D("EtlHitEtaZnegD2", "ETL DIGI hits #eta (-Z, Second disk);#eta_{DIGI}", 100, -3.2, -1.56);
-  meHitEta_[2] = ibook.book1D("EtlHitEtaZposD1", "ETL DIGI hits #eta (+Z, Single(topo1D)/First(topo2D) disk);#eta_{DIGI}", 100, 1.56, 3.2);
+  meHitEta_[2] = ibook.book1D(
+      "EtlHitEtaZposD1", "ETL DIGI hits #eta (+Z, Single(topo1D)/First(topo2D) disk);#eta_{DIGI}", 100, 1.56, 3.2);
   meHitEta_[3] = ibook.book1D("EtlHitEtaZposD2", "ETL DIGI hits #eta (+Z, Second disk);#eta_{DIGI}", 100, 1.56, 3.2);
 
-  meHitTvsQ_[0] = ibook.bookProfile("EtlHitTvsQZnegD1",
-                                    "ETL DIGI ToA vs charge (-Z, Single(topo1D)/First(topo2D) disk);Q_{DIGI} [ADC counts];ToA_{DIGI} [TDC counts]",
-                                    50,
-                                    0.,
-                                    256.,
-                                    0.,
-                                    1024.);
-  meHitTvsQ_[1] = ibook.bookProfile("EtlHitTvsQZnegD2",
-                                    "ETL DIGI ToA vs charge (-Z, Second Disk);Q_{DIGI} [ADC counts];ToA_{DIGI} [TDC counts]",
-                                    50,
-                                    0.,
-                                    256.,
-                                    0.,
-                                    1024.);
-  meHitTvsQ_[2] = ibook.bookProfile("EtlHitTvsQZposD1",
-                                    "ETL DIGI ToA vs charge (+Z, Single(topo1D)/First(topo2D) disk);Q_{DIGI} [ADC counts];ToA_{DIGI} [TDC counts]",
-                                    50,
-                                    0.,
-                                    256.,
-                                    0.,
-                                    1024.);
-  meHitTvsQ_[3] = ibook.bookProfile("EtlHitTvsQZposD2",
-                                    "ETL DIGI ToA vs charge (+Z, Second disk);Q_{DIGI} [ADC counts];ToA_{DIGI} [TDC counts]",
-                                    50,
-                                    0.,
-                                    256.,
-                                    0.,
-                                    1024.);
-  meHitQvsPhi_[0] = ibook.bookProfile("EtlHitQvsPhiZnegD1",
-                                      "ETL DIGI charge vs #phi (-Z, Single(topo1D)/First(topo2D) disk);#phi_{DIGI} [rad];Q_{DIGI} [ADC counts]",
-                                      50,
-                                      -3.15,
-                                      3.15,
-                                      0.,
-                                      1024.);
-  meHitQvsPhi_[1] = ibook.bookProfile("EtlHitQvsPhiZnegD2",
-                                      "ETL DIGI charge vs #phi (-Z, Second disk);#phi_{DIGI} [rad];Q_{DIGI} [ADC counts]",
-                                      50,
-                                      -3.15,
-                                      3.15,
-                                      0.,
-                                      1024.);
-  meHitQvsPhi_[2] = ibook.bookProfile("EtlHitQvsPhiZposD1",
-                                      "ETL DIGI charge vs #phi (+Z, Single(topo1D)/First(topo2D) disk);#phi_{DIGI} [rad];Q_{DIGI} [ADC counts]",
-                                      50,
-                                      -3.15,
-                                      3.15,
-                                      0.,
-                                      1024.);
-  meHitQvsPhi_[3] = ibook.bookProfile("EtlHitQvsPhiZpos",
-                                      "ETL DIGI charge vs #phi (+Z, Second disk);#phi_{DIGI} [rad];Q_{DIGI} [ADC counts]",
-                                      50,
-                                      -3.15,
-                                      3.15,
-                                      0.,
-                                      1024.);
+  meHitTvsQ_[0] = ibook.bookProfile(
+      "EtlHitTvsQZnegD1",
+      "ETL DIGI ToA vs charge (-Z, Single(topo1D)/First(topo2D) disk);Q_{DIGI} [ADC counts];ToA_{DIGI} [TDC counts]",
+      50,
+      0.,
+      256.,
+      0.,
+      1024.);
+  meHitTvsQ_[1] =
+      ibook.bookProfile("EtlHitTvsQZnegD2",
+                        "ETL DIGI ToA vs charge (-Z, Second Disk);Q_{DIGI} [ADC counts];ToA_{DIGI} [TDC counts]",
+                        50,
+                        0.,
+                        256.,
+                        0.,
+                        1024.);
+  meHitTvsQ_[2] = ibook.bookProfile(
+      "EtlHitTvsQZposD1",
+      "ETL DIGI ToA vs charge (+Z, Single(topo1D)/First(topo2D) disk);Q_{DIGI} [ADC counts];ToA_{DIGI} [TDC counts]",
+      50,
+      0.,
+      256.,
+      0.,
+      1024.);
+  meHitTvsQ_[3] =
+      ibook.bookProfile("EtlHitTvsQZposD2",
+                        "ETL DIGI ToA vs charge (+Z, Second disk);Q_{DIGI} [ADC counts];ToA_{DIGI} [TDC counts]",
+                        50,
+                        0.,
+                        256.,
+                        0.,
+                        1024.);
+  meHitQvsPhi_[0] = ibook.bookProfile(
+      "EtlHitQvsPhiZnegD1",
+      "ETL DIGI charge vs #phi (-Z, Single(topo1D)/First(topo2D) disk);#phi_{DIGI} [rad];Q_{DIGI} [ADC counts]",
+      50,
+      -3.15,
+      3.15,
+      0.,
+      1024.);
+  meHitQvsPhi_[1] =
+      ibook.bookProfile("EtlHitQvsPhiZnegD2",
+                        "ETL DIGI charge vs #phi (-Z, Second disk);#phi_{DIGI} [rad];Q_{DIGI} [ADC counts]",
+                        50,
+                        -3.15,
+                        3.15,
+                        0.,
+                        1024.);
+  meHitQvsPhi_[2] = ibook.bookProfile(
+      "EtlHitQvsPhiZposD1",
+      "ETL DIGI charge vs #phi (+Z, Single(topo1D)/First(topo2D) disk);#phi_{DIGI} [rad];Q_{DIGI} [ADC counts]",
+      50,
+      -3.15,
+      3.15,
+      0.,
+      1024.);
+  meHitQvsPhi_[3] =
+      ibook.bookProfile("EtlHitQvsPhiZpos",
+                        "ETL DIGI charge vs #phi (+Z, Second disk);#phi_{DIGI} [rad];Q_{DIGI} [ADC counts]",
+                        50,
+                        -3.15,
+                        3.15,
+                        0.,
+                        1024.);
   meHitQvsEta_[0] = ibook.bookProfile(
-      "EtlHitQvsEtaZnegD1", "ETL DIGI charge vs #eta (-Z, Single(topo1D)/First(topo2D) disk);#eta_{DIGI};Q_{DIGI} [ADC counts]", 50, -3.2, -1.56, 0., 1024.);
-  meHitQvsEta_[1] = ibook.bookProfile(
-      "EtlHitQvsEtaZnegD2", "ETL DIGI charge vs #eta (-Z, Second disk);#eta_{DIGI};Q_{DIGI} [ADC counts]", 50, -3.2, -1.56, 0., 1024.);
+      "EtlHitQvsEtaZnegD1",
+      "ETL DIGI charge vs #eta (-Z, Single(topo1D)/First(topo2D) disk);#eta_{DIGI};Q_{DIGI} [ADC counts]",
+      50,
+      -3.2,
+      -1.56,
+      0.,
+      1024.);
+  meHitQvsEta_[1] = ibook.bookProfile("EtlHitQvsEtaZnegD2",
+                                      "ETL DIGI charge vs #eta (-Z, Second disk);#eta_{DIGI};Q_{DIGI} [ADC counts]",
+                                      50,
+                                      -3.2,
+                                      -1.56,
+                                      0.,
+                                      1024.);
   meHitQvsEta_[2] = ibook.bookProfile(
-      "EtlHitQvsEtaZposD1", "ETL DIGI charge vs #eta (+Z, Single(topo1D)/First(topo2D) disk);#eta_{DIGI};Q_{DIGI} [ADC counts]", 50, 1.56, 3.2, 0., 1024.);
-  meHitQvsEta_[3] = ibook.bookProfile(
-      "EtlHitQvsEtaZposD2", "ETL DIGI charge vs #eta (+Z, Second disk);#eta_{DIGI};Q_{DIGI} [ADC counts]", 50, 1.56, 3.2, 0., 1024.);
-  meHitTvsPhi_[0] = ibook.bookProfile("EtlHitTvsPhiZnegD1",
-                                      "ETL DIGI ToA vs #phi (-Z, Single(topo1D)/First(topo2D) disk);#phi_{DIGI} [rad];ToA_{DIGI} [TDC counts]",
+      "EtlHitQvsEtaZposD1",
+      "ETL DIGI charge vs #eta (+Z, Single(topo1D)/First(topo2D) disk);#eta_{DIGI};Q_{DIGI} [ADC counts]",
+      50,
+      1.56,
+      3.2,
+      0.,
+      1024.);
+  meHitQvsEta_[3] = ibook.bookProfile("EtlHitQvsEtaZposD2",
+                                      "ETL DIGI charge vs #eta (+Z, Second disk);#eta_{DIGI};Q_{DIGI} [ADC counts]",
                                       50,
-                                      -3.15,
-                                      3.15,
+                                      1.56,
+                                      3.2,
                                       0.,
                                       1024.);
-  meHitTvsPhi_[1] = ibook.bookProfile("EtlHitTvsPhiZnegD2",
-                                      "ETL DIGI ToA vs #phi (-Z, Second disk);#phi_{DIGI} [rad];ToA_{DIGI} [TDC counts]",
-                                      50,
-                                      -3.15,
-                                      3.15,
-                                      0.,
-                                      1024.);
-  meHitTvsPhi_[2] = ibook.bookProfile("EtlHitTvsPhiZposD1",
-                                      "ETL DIGI ToA vs #phi (+Z, Single(topo1D)/First(topo2D) disk);#phi_{DIGI} [rad];ToA_{DIGI} [TDC counts]",
-                                      50,
-                                      -3.15,
-                                      3.15,
-                                      0.,
-                                      1024.);
-  meHitTvsPhi_[3] = ibook.bookProfile("EtlHitTvsPhiZposD2",
-                                      "ETL DIGI ToA vs #phi (+Z, Second disk);#phi_{DIGI} [rad];ToA_{DIGI} [TDC counts]",
-                                      50,
-                                      -3.15,
-                                      3.15,
-                                      0.,
-                                      1024.);
+  meHitTvsPhi_[0] = ibook.bookProfile(
+      "EtlHitTvsPhiZnegD1",
+      "ETL DIGI ToA vs #phi (-Z, Single(topo1D)/First(topo2D) disk);#phi_{DIGI} [rad];ToA_{DIGI} [TDC counts]",
+      50,
+      -3.15,
+      3.15,
+      0.,
+      1024.);
+  meHitTvsPhi_[1] =
+      ibook.bookProfile("EtlHitTvsPhiZnegD2",
+                        "ETL DIGI ToA vs #phi (-Z, Second disk);#phi_{DIGI} [rad];ToA_{DIGI} [TDC counts]",
+                        50,
+                        -3.15,
+                        3.15,
+                        0.,
+                        1024.);
+  meHitTvsPhi_[2] = ibook.bookProfile(
+      "EtlHitTvsPhiZposD1",
+      "ETL DIGI ToA vs #phi (+Z, Single(topo1D)/First(topo2D) disk);#phi_{DIGI} [rad];ToA_{DIGI} [TDC counts]",
+      50,
+      -3.15,
+      3.15,
+      0.,
+      1024.);
+  meHitTvsPhi_[3] =
+      ibook.bookProfile("EtlHitTvsPhiZposD2",
+                        "ETL DIGI ToA vs #phi (+Z, Second disk);#phi_{DIGI} [rad];ToA_{DIGI} [TDC counts]",
+                        50,
+                        -3.15,
+                        3.15,
+                        0.,
+                        1024.);
   meHitTvsEta_[0] = ibook.bookProfile(
-      "EtlHitTvsEtaZnegD1", "ETL DIGI ToA vs #eta (-Z, Single(topo1D)/First(topo2D) disk);#eta_{DIGI};ToA_{DIGI} [TDC counts]", 50, -3.2, -1.56, 0., 1024.);
-  meHitTvsEta_[1] = ibook.bookProfile(
-      "EtlHitTvsEtaZnegD2", "ETL DIGI ToA vs #eta (-Z, Second disk);#eta_{DIGI};ToA_{DIGI} [TDC counts]", 50, -3.2, -1.56, 0., 1024.);
+      "EtlHitTvsEtaZnegD1",
+      "ETL DIGI ToA vs #eta (-Z, Single(topo1D)/First(topo2D) disk);#eta_{DIGI};ToA_{DIGI} [TDC counts]",
+      50,
+      -3.2,
+      -1.56,
+      0.,
+      1024.);
+  meHitTvsEta_[1] = ibook.bookProfile("EtlHitTvsEtaZnegD2",
+                                      "ETL DIGI ToA vs #eta (-Z, Second disk);#eta_{DIGI};ToA_{DIGI} [TDC counts]",
+                                      50,
+                                      -3.2,
+                                      -1.56,
+                                      0.,
+                                      1024.);
   meHitTvsEta_[2] = ibook.bookProfile(
-      "EtlHitTvsEtaZposD1", "ETL DIGI ToA vs #eta (+Z, Single(topo1D)/First(topo2D) disk);#eta_{DIGI};ToA_{DIGI} [TDC counts]", 50, 1.56, 3.2, 0., 1024.);
-  meHitTvsEta_[3] = ibook.bookProfile(
-      "EtlHitTvsEtaZposD2", "ETL DIGI ToA vs #eta (+Z, Second disk);#eta_{DIGI};ToA_{DIGI} [TDC counts]", 50, 1.56, 3.2, 0., 1024.);
+      "EtlHitTvsEtaZposD1",
+      "ETL DIGI ToA vs #eta (+Z, Single(topo1D)/First(topo2D) disk);#eta_{DIGI};ToA_{DIGI} [TDC counts]",
+      50,
+      1.56,
+      3.2,
+      0.,
+      1024.);
+  meHitTvsEta_[3] = ibook.bookProfile("EtlHitTvsEtaZposD2",
+                                      "ETL DIGI ToA vs #eta (+Z, Second disk);#eta_{DIGI};ToA_{DIGI} [TDC counts]",
+                                      50,
+                                      1.56,
+                                      3.2,
+                                      0.,
+                                      1024.);
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

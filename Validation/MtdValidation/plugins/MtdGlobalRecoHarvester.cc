@@ -68,10 +68,11 @@ void MtdGlobalRecoHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGett
 
   if (!meBTLTrackEffEtaTot || !meBTLTrackEffPhiTot || !meBTLTrackEffPtTot || !meBTLTrackEffEtaMtd ||
       !meBTLTrackEffPhiMtd || !meBTLTrackEffPtMtd || !meETLTrackEffEtaTotZneg || !meETLTrackEffPhiTotZneg ||
-      !meETLTrackEffPtTotZneg || !meETLTrackEffEtaMtdZnegD1 || !meETLTrackEffPhiMtdZnegD1 || !meETLTrackEffPtMtdZnegD1 ||
-      !meETLTrackEffEtaTotZpos || !meETLTrackEffPhiTotZpos || !meETLTrackEffPtTotZpos || !meETLTrackEffEtaMtdZposD1 ||
-      !meETLTrackEffPhiMtdZposD1 || !meETLTrackEffPtMtdZposD1 || !meETLTrackEffEtaMtdZnegD2 || !meETLTrackEffPhiMtdZnegD2 ||
-      !meETLTrackEffPtMtdZnegD2 || !meETLTrackEffEtaMtdZposD2 || !meETLTrackEffPhiMtdZposD2 || !meETLTrackEffPtMtdZposD2) {
+      !meETLTrackEffPtTotZneg || !meETLTrackEffEtaMtdZnegD1 || !meETLTrackEffPhiMtdZnegD1 ||
+      !meETLTrackEffPtMtdZnegD1 || !meETLTrackEffEtaTotZpos || !meETLTrackEffPhiTotZpos || !meETLTrackEffPtTotZpos ||
+      !meETLTrackEffEtaMtdZposD1 || !meETLTrackEffPhiMtdZposD1 || !meETLTrackEffPtMtdZposD1 ||
+      !meETLTrackEffEtaMtdZnegD2 || !meETLTrackEffPhiMtdZnegD2 || !meETLTrackEffPtMtdZnegD2 ||
+      !meETLTrackEffEtaMtdZposD2 || !meETLTrackEffPhiMtdZposD2 || !meETLTrackEffPtMtdZposD2) {
     edm::LogError("MtdGlobalRecoHarvester") << "Monitoring histograms not found!" << std::endl;
     return;
   }
@@ -103,11 +104,12 @@ void MtdGlobalRecoHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGett
                                  meETLTrackEffEtaTotZneg->getNbinsX(),
                                  meETLTrackEffEtaTotZneg->getTH1()->GetXaxis()->GetXmin(),
                                  meETLTrackEffEtaTotZneg->getTH1()->GetXaxis()->GetXmax());
-  meEtlPhiEff_[0] = ibook.book1D("EtlPhiEffZnegD1",
-                                 "Track Efficiency VS Phi (-Z, Single(topo1D)/First(topo2D) Disk);#phi [rad];Efficiency",
-                                 meETLTrackEffPhiTotZneg->getNbinsX(),
-                                 meETLTrackEffPhiTotZneg->getTH1()->GetXaxis()->GetXmin(),
-                                 meETLTrackEffPhiTotZneg->getTH1()->GetXaxis()->GetXmax());
+  meEtlPhiEff_[0] =
+      ibook.book1D("EtlPhiEffZnegD1",
+                   "Track Efficiency VS Phi (-Z, Single(topo1D)/First(topo2D) Disk);#phi [rad];Efficiency",
+                   meETLTrackEffPhiTotZneg->getNbinsX(),
+                   meETLTrackEffPhiTotZneg->getTH1()->GetXaxis()->GetXmin(),
+                   meETLTrackEffPhiTotZneg->getTH1()->GetXaxis()->GetXmax());
   meEtlPhiEff_[1] = ibook.book1D("EtlPhiEffZnegD2",
                                  "Track Efficiency VS Phi (-Z, Second Disk);#phi [rad];Efficiency",
                                  meETLTrackEffPhiTotZneg->getNbinsX(),
@@ -133,11 +135,12 @@ void MtdGlobalRecoHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGett
                                  meETLTrackEffEtaTotZpos->getNbinsX(),
                                  meETLTrackEffEtaTotZpos->getTH1()->GetXaxis()->GetXmin(),
                                  meETLTrackEffEtaTotZpos->getTH1()->GetXaxis()->GetXmax());
-  meEtlPhiEff_[2] = ibook.book1D("EtlPhiEffZposD1",
-                                 "Track Efficiency VS Phi (+Z, Single(topo1D)/First(topo2D) Disk);#phi [rad];Efficiency",
-                                 meETLTrackEffPhiTotZpos->getNbinsX(),
-                                 meETLTrackEffPhiTotZpos->getTH1()->GetXaxis()->GetXmin(),
-                                 meETLTrackEffPhiTotZpos->getTH1()->GetXaxis()->GetXmax());
+  meEtlPhiEff_[2] =
+      ibook.book1D("EtlPhiEffZposD1",
+                   "Track Efficiency VS Phi (+Z, Single(topo1D)/First(topo2D) Disk);#phi [rad];Efficiency",
+                   meETLTrackEffPhiTotZpos->getNbinsX(),
+                   meETLTrackEffPhiTotZpos->getTH1()->GetXaxis()->GetXmin(),
+                   meETLTrackEffPhiTotZpos->getTH1()->GetXaxis()->GetXmax());
   meEtlPhiEff_[3] = ibook.book1D("EtlPhiEffZposD2",
                                  "Track Efficiency VS Phi (+Z, Second Disk);#phi [rad];Efficiency",
                                  meETLTrackEffPhiTotZpos->getNbinsX(),
@@ -156,7 +159,7 @@ void MtdGlobalRecoHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGett
   meBtlEtaEff_->getTH1()->SetMinimum(0.);
   meBtlPhiEff_->getTH1()->SetMinimum(0.);
   meBtlPtEff_->getTH1()->SetMinimum(0.);
-  for (int i=0; i<4; i++) {
+  for (int i = 0; i < 4; i++) {
     meEtlEtaEff_[i]->getTH1()->SetMinimum(0.);
     meEtlPhiEff_[i]->getTH1()->SetMinimum(0.);
     meEtlPtEff_[i]->getTH1()->SetMinimum(0.);
@@ -226,7 +229,7 @@ void MtdGlobalRecoHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGett
     }
     meEtlEtaEff_[1]->setBinContent(ibin, eff);
     meEtlEtaEff_[1]->setBinError(ibin, bin_err);
-  } 
+  }
 
   for (int ibin = 1; ibin <= meETLTrackEffEtaTotZpos->getNbinsX(); ibin++) {
     double eff = meETLTrackEffEtaMtdZposD1->getBinContent(ibin) / meETLTrackEffEtaTotZpos->getBinContent(ibin);
@@ -269,7 +272,7 @@ void MtdGlobalRecoHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGett
     meEtlPhiEff_[0]->setBinContent(ibin, eff);
     meEtlPhiEff_[0]->setBinError(ibin, bin_err);
   }
-  
+
   for (int ibin = 1; ibin <= meETLTrackEffPhiTotZneg->getNbinsX(); ibin++) {
     double eff = meETLTrackEffPhiMtdZnegD2->getBinContent(ibin) / meETLTrackEffPhiTotZneg->getBinContent(ibin);
     double bin_err =
@@ -282,8 +285,7 @@ void MtdGlobalRecoHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGett
     }
     meEtlPhiEff_[1]->setBinContent(ibin, eff);
     meEtlPhiEff_[1]->setBinError(ibin, bin_err);
-
-  }  
+  }
 
   for (int ibin = 1; ibin <= meETLTrackEffPhiTotZpos->getNbinsX(); ibin++) {
     double eff = meETLTrackEffPhiMtdZposD1->getBinContent(ibin) / meETLTrackEffPhiTotZpos->getBinContent(ibin);
@@ -354,7 +356,7 @@ void MtdGlobalRecoHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGett
     meEtlPtEff_[2]->setBinContent(ibin, eff);
     meEtlPtEff_[2]->setBinError(ibin, bin_err);
   }
-  
+
   for (int ibin = 1; ibin <= meETLTrackEffPtTotZpos->getNbinsX(); ibin++) {
     double eff = meETLTrackEffPtMtdZposD2->getBinContent(ibin) / meETLTrackEffPtTotZpos->getBinContent(ibin);
     double bin_err =

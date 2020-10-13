@@ -114,8 +114,10 @@ void EtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
 
   bool topo1Dis = false;
   bool topo2Dis = false;
-  if (topology->getMTDTopologyMode() <= static_cast<int>(MTDTopologyMode::Mode::barphiflat)) topo1Dis = true;
-  if (topology->getMTDTopologyMode() > static_cast<int>(MTDTopologyMode::Mode::barphiflat)) topo2Dis = true;
+  if (topology->getMTDTopologyMode() <= static_cast<int>(MTDTopologyMode::Mode::barphiflat))
+    topo1Dis = true;
+  if (topology->getMTDTopologyMode() > static_cast<int>(MTDTopologyMode::Mode::barphiflat))
+    topo2Dis = true;
 
   auto etlSimHitsHandle = makeValid(iEvent.getHandle(etlSimHitsToken_));
   MixCollection<PSimHit> etlSimHits(etlSimHitsHandle.product());
@@ -180,8 +182,9 @@ void EtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   //  Histogram filling
   // ==============================================================================
 
-  for (int idet = 0; idet < 4; ++idet) { //two disks per side
-    if ( ((idet == 1) || (idet == 3)) && (topo1Dis == true) ) continue;
+  for (int idet = 0; idet < 4; ++idet) {  //two disks per side
+    if (((idet == 1) || (idet == 3)) && (topo1Dis == true))
+      continue;
     meNhits_[idet]->Fill(m_etlHits[idet].size());
 
     for (auto const& hit : m_etlTrkPerCell[idet]) {
@@ -191,11 +194,11 @@ void EtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     for (auto const& hit : m_etlHits[idet]) {
       if (topo1Dis) {
         if ((hit.second).energy < hitMinEnergy1Dis_)
-           continue;
+          continue;
       }
       if (topo2Dis) {
         if ((hit.second).energy < hitMinEnergy2Dis_)
-           continue;
+          continue;
       }
       // --- Get the SIM hit global position
       ETLDetId detId(hit.first);
@@ -240,107 +243,291 @@ void EtlSimHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
 
   // --- histograms booking
 
-  meNhits_[0] = ibook.book1D("EtlNhitsZnegD1", "Number of ETL cells with SIM hits (-Z, Single(topo1D)/First(topo2D) disk);N_{ETL cells}", 100, 0., 5000.);
-  meNhits_[1] = ibook.book1D("EtlNhitsZnegD2", "Number of ETL cells with SIM hits (-Z, Second disk);N_{ETL cells}", 100, 0., 5000.);
-  meNhits_[2] = ibook.book1D("EtlNhitsZposD1", "Number of ETL cells with SIM hits (+Z, Single(topo1D)/First(topo2D) disk);N_{ETL cells}", 100, 0., 5000.);
-  meNhits_[3] = ibook.book1D("EtlNhitsZposD2", "Number of ETL cells with SIM hits (+Z, Second Disk);N_{ETL cells}", 100, 0., 5000.);
-  meNtrkPerCell_[0] = ibook.book1D("EtlNtrkPerCellZnegD1", "Number of tracks per ETL sensor (-Z, Single(topo1D)/First(topo2D) disk);N_{trk}", 10, 0., 10.);
-  meNtrkPerCell_[1] = ibook.book1D("EtlNtrkPerCellZneg", "Number of tracks per ETL sensor (-Z, Second disk);N_{trk}", 10, 0., 10.);
-  meNtrkPerCell_[2] = ibook.book1D("EtlNtrkPerCellZpos", "Number of tracks per ETL sensor (+Z, Single(topo1D)/First(topo2D) disk);N_{trk}", 10, 0., 10.);
-  meNtrkPerCell_[3] = ibook.book1D("EtlNtrkPerCellZpos", "Number of tracks per ETL sensor (+Z, Second disk);N_{trk}", 10, 0., 10.);
+  meNhits_[0] = ibook.book1D("EtlNhitsZnegD1",
+                             "Number of ETL cells with SIM hits (-Z, Single(topo1D)/First(topo2D) disk);N_{ETL cells}",
+                             100,
+                             0.,
+                             5000.);
+  meNhits_[1] = ibook.book1D(
+      "EtlNhitsZnegD2", "Number of ETL cells with SIM hits (-Z, Second disk);N_{ETL cells}", 100, 0., 5000.);
+  meNhits_[2] = ibook.book1D("EtlNhitsZposD1",
+                             "Number of ETL cells with SIM hits (+Z, Single(topo1D)/First(topo2D) disk);N_{ETL cells}",
+                             100,
+                             0.,
+                             5000.);
+  meNhits_[3] = ibook.book1D(
+      "EtlNhitsZposD2", "Number of ETL cells with SIM hits (+Z, Second Disk);N_{ETL cells}", 100, 0., 5000.);
+  meNtrkPerCell_[0] = ibook.book1D("EtlNtrkPerCellZnegD1",
+                                   "Number of tracks per ETL sensor (-Z, Single(topo1D)/First(topo2D) disk);N_{trk}",
+                                   10,
+                                   0.,
+                                   10.);
+  meNtrkPerCell_[1] =
+      ibook.book1D("EtlNtrkPerCellZneg", "Number of tracks per ETL sensor (-Z, Second disk);N_{trk}", 10, 0., 10.);
+  meNtrkPerCell_[2] = ibook.book1D("EtlNtrkPerCellZpos",
+                                   "Number of tracks per ETL sensor (+Z, Single(topo1D)/First(topo2D) disk);N_{trk}",
+                                   10,
+                                   0.,
+                                   10.);
+  meNtrkPerCell_[3] =
+      ibook.book1D("EtlNtrkPerCellZpos", "Number of tracks per ETL sensor (+Z, Second disk);N_{trk}", 10, 0., 10.);
 
-  meHitEnergy_[0] = ibook.book1D("EtlHitEnergyZnegD1", "ETL SIM hits energy (-Z, Single(topo1D)/First(topo2D) disk);E_{SIM} [MeV]", 100, 0., 3.);
-  meHitEnergy_[1] = ibook.book1D("EtlHitEnergyZnegD2", "ETL SIM hits energy (-Z, Second disk);E_{SIM} [MeV]", 100, 0., 3.);
-  meHitEnergy_[2] = ibook.book1D("EtlHitEnergyZposD1", "ETL SIM hits energy (+Z, Single(topo1D)/First(topo2D) disk);E_{SIM} [MeV]", 100, 0., 3.);
-  meHitEnergy_[3] = ibook.book1D("EtlHitEnergyZposD2", "ETL SIM hits energy (+Z, Second disk);E_{SIM} [MeV]", 100, 0., 3.);
-  meHitTime_[0] = ibook.book1D("EtlHitTimeZnegD1", "ETL SIM hits ToA (-Z, Single(topo1D)/First(topo2D) disk);ToA_{SIM} [ns]", 100, 0., 25.);
+  meHitEnergy_[0] = ibook.book1D(
+      "EtlHitEnergyZnegD1", "ETL SIM hits energy (-Z, Single(topo1D)/First(topo2D) disk);E_{SIM} [MeV]", 100, 0., 3.);
+  meHitEnergy_[1] =
+      ibook.book1D("EtlHitEnergyZnegD2", "ETL SIM hits energy (-Z, Second disk);E_{SIM} [MeV]", 100, 0., 3.);
+  meHitEnergy_[2] = ibook.book1D(
+      "EtlHitEnergyZposD1", "ETL SIM hits energy (+Z, Single(topo1D)/First(topo2D) disk);E_{SIM} [MeV]", 100, 0., 3.);
+  meHitEnergy_[3] =
+      ibook.book1D("EtlHitEnergyZposD2", "ETL SIM hits energy (+Z, Second disk);E_{SIM} [MeV]", 100, 0., 3.);
+  meHitTime_[0] = ibook.book1D(
+      "EtlHitTimeZnegD1", "ETL SIM hits ToA (-Z, Single(topo1D)/First(topo2D) disk);ToA_{SIM} [ns]", 100, 0., 25.);
   meHitTime_[1] = ibook.book1D("EtlHitTimeZnegD2", "ETL SIM hits ToA (-Z, Second disk);ToA_{SIM} [ns]", 100, 0., 25.);
-  meHitTime_[2] = ibook.book1D("EtlHitTimeZposD1", "ETL SIM hits ToA (+Z, Single(topo1D)/First(topo2D) disk);ToA_{SIM} [ns]", 100, 0., 25.);
+  meHitTime_[2] = ibook.book1D(
+      "EtlHitTimeZposD1", "ETL SIM hits ToA (+Z, Single(topo1D)/First(topo2D) disk);ToA_{SIM} [ns]", 100, 0., 25.);
   meHitTime_[3] = ibook.book1D("EtlHitTimeZposD2", "ETL SIM hits ToA (+Z, Second disk);ToA_{SIM} [ns]", 100, 0., 25.);
 
-  meHitXlocal_[0] = ibook.book1D("EtlHitXlocalZnegD1", "ETL SIM local X (-Z, Single(topo1D)/First(topo2D) disk);X_{SIM}^{LOC} [mm]", 100, -25., 25.);
-  meHitXlocal_[1] = ibook.book1D("EtlHitXlocalZnegD2", "ETL SIM local X (-Z, Second disk);X_{SIM}^{LOC} [mm]", 100, -25., 25.);
-  meHitXlocal_[2] = ibook.book1D("EtlHitXlocalZposD1", "ETL SIM local X (+Z, Single(topo1D)/First(topo2D) disk);X_{SIM}^{LOC} [mm]", 100, -25., 25.);
-  meHitXlocal_[3] = ibook.book1D("EtlHitXlocalZposD2", "ETL SIM local X (+Z, Second disk);X_{SIM}^{LOC} [mm]", 100, -25., 25.);
+  meHitXlocal_[0] = ibook.book1D("EtlHitXlocalZnegD1",
+                                 "ETL SIM local X (-Z, Single(topo1D)/First(topo2D) disk);X_{SIM}^{LOC} [mm]",
+                                 100,
+                                 -25.,
+                                 25.);
+  meHitXlocal_[1] =
+      ibook.book1D("EtlHitXlocalZnegD2", "ETL SIM local X (-Z, Second disk);X_{SIM}^{LOC} [mm]", 100, -25., 25.);
+  meHitXlocal_[2] = ibook.book1D("EtlHitXlocalZposD1",
+                                 "ETL SIM local X (+Z, Single(topo1D)/First(topo2D) disk);X_{SIM}^{LOC} [mm]",
+                                 100,
+                                 -25.,
+                                 25.);
+  meHitXlocal_[3] =
+      ibook.book1D("EtlHitXlocalZposD2", "ETL SIM local X (+Z, Second disk);X_{SIM}^{LOC} [mm]", 100, -25., 25.);
 
-  meHitYlocal_[0] = ibook.book1D("EtlHitYlocalZnegD1", "ETL SIM local Y (-Z, Single(topo1D)/First(topo2D) disk);Y_{SIM}^{LOC} [mm]", 100, -48., 48.);
-  meHitYlocal_[1] = ibook.book1D("EtlHitYlocalZnegD2", "ETL SIM local Y (-Z, Second Disk);Y_{SIM}^{LOC} [mm]", 100, -48., 48.);
-  meHitYlocal_[2] = ibook.book1D("EtlHitYlocalZposD1", "ETL SIM local Y (+Z, Single(topo1D)/First(topo2D) disk);Y_{SIM}^{LOC} [mm]", 100, -48., 48.);
-  meHitYlocal_[3] = ibook.book1D("EtlHitYlocalZposD2", "ETL SIM local Y (+Z, Second disk);Y_{SIM}^{LOC} [mm]", 100, -48., 48.);
-  meHitZlocal_[0] = ibook.book1D("EtlHitZlocalZnegD1", "ETL SIM local Z (-Z, Single(topo1D)/First(topo2D) disk);Z_{SIM}^{LOC} [mm]", 80, -0.16, 0.16);
-  meHitZlocal_[1] = ibook.book1D("EtlHitZlocalZnegD2", "ETL SIM local Z (-Z, Second disk);Z_{SIM}^{LOC} [mm]", 80, -0.16, 0.16);
-  meHitZlocal_[2] = ibook.book1D("EtlHitZlocalZposD1", "ETL SIM local Z (+Z, Single(topo1D)/First(topo2D) disk);Z_{SIM}^{LOC} [mm]", 80, -0.16, 0.16);
-  meHitZlocal_[3] = ibook.book1D("EtlHitZlocalZposD2", "ETL SIM local Z (+Z, Second disk);Z_{SIM}^{LOC} [mm]", 80, -0.16, 0.16);
+  meHitYlocal_[0] = ibook.book1D("EtlHitYlocalZnegD1",
+                                 "ETL SIM local Y (-Z, Single(topo1D)/First(topo2D) disk);Y_{SIM}^{LOC} [mm]",
+                                 100,
+                                 -48.,
+                                 48.);
+  meHitYlocal_[1] =
+      ibook.book1D("EtlHitYlocalZnegD2", "ETL SIM local Y (-Z, Second Disk);Y_{SIM}^{LOC} [mm]", 100, -48., 48.);
+  meHitYlocal_[2] = ibook.book1D("EtlHitYlocalZposD1",
+                                 "ETL SIM local Y (+Z, Single(topo1D)/First(topo2D) disk);Y_{SIM}^{LOC} [mm]",
+                                 100,
+                                 -48.,
+                                 48.);
+  meHitYlocal_[3] =
+      ibook.book1D("EtlHitYlocalZposD2", "ETL SIM local Y (+Z, Second disk);Y_{SIM}^{LOC} [mm]", 100, -48., 48.);
+  meHitZlocal_[0] = ibook.book1D("EtlHitZlocalZnegD1",
+                                 "ETL SIM local Z (-Z, Single(topo1D)/First(topo2D) disk);Z_{SIM}^{LOC} [mm]",
+                                 80,
+                                 -0.16,
+                                 0.16);
+  meHitZlocal_[1] =
+      ibook.book1D("EtlHitZlocalZnegD2", "ETL SIM local Z (-Z, Second disk);Z_{SIM}^{LOC} [mm]", 80, -0.16, 0.16);
+  meHitZlocal_[2] = ibook.book1D("EtlHitZlocalZposD1",
+                                 "ETL SIM local Z (+Z, Single(topo1D)/First(topo2D) disk);Z_{SIM}^{LOC} [mm]",
+                                 80,
+                                 -0.16,
+                                 0.16);
+  meHitZlocal_[3] =
+      ibook.book1D("EtlHitZlocalZposD2", "ETL SIM local Z (+Z, Second disk);Z_{SIM}^{LOC} [mm]", 80, -0.16, 0.16);
 
-  meOccupancy_[0] = ibook.book2D(
-      "EtlOccupancyZnegD1", "ETL SIM hits occupancy (-Z, Single(topo1D)/First(topo2D) disk);X_{SIM} [cm];Y_{SIM} [cm]", 135, -135., 135., 135, -135., 135.);
-  meOccupancy_[1] = ibook.book2D(
-      "EtlOccupancyZnegD2", "ETL SIM hits occupancy (-Z, Second disk);X_{SIM} [cm];Y_{SIM} [cm]", 135, -135., 135., 135, -135., 135.);
-  meOccupancy_[2] = ibook.book2D(
-      "EtlOccupancyZposD1", "ETL SIM hits occupancy (+Z, Single(topo1D)/First(topo2D) disk);X_{SIM} [cm];Y_{SIM} [cm]", 135, -135., 135., 135, -135., 135.);
-  meOccupancy_[3] = ibook.book2D(
-      "EtlOccupancyZposD2", "ETL SIM hits occupancy (+Z, Second disk);X_{SIM} [cm];Y_{SIM} [cm]", 135, -135., 135., 135, -135., 135.);
+  meOccupancy_[0] =
+      ibook.book2D("EtlOccupancyZnegD1",
+                   "ETL SIM hits occupancy (-Z, Single(topo1D)/First(topo2D) disk);X_{SIM} [cm];Y_{SIM} [cm]",
+                   135,
+                   -135.,
+                   135.,
+                   135,
+                   -135.,
+                   135.);
+  meOccupancy_[1] = ibook.book2D("EtlOccupancyZnegD2",
+                                 "ETL SIM hits occupancy (-Z, Second disk);X_{SIM} [cm];Y_{SIM} [cm]",
+                                 135,
+                                 -135.,
+                                 135.,
+                                 135,
+                                 -135.,
+                                 135.);
+  meOccupancy_[2] =
+      ibook.book2D("EtlOccupancyZposD1",
+                   "ETL SIM hits occupancy (+Z, Single(topo1D)/First(topo2D) disk);X_{SIM} [cm];Y_{SIM} [cm]",
+                   135,
+                   -135.,
+                   135.,
+                   135,
+                   -135.,
+                   135.);
+  meOccupancy_[3] = ibook.book2D("EtlOccupancyZposD2",
+                                 "ETL SIM hits occupancy (+Z, Second disk);X_{SIM} [cm];Y_{SIM} [cm]",
+                                 135,
+                                 -135.,
+                                 135.,
+                                 135,
+                                 -135.,
+                                 135.);
 
-  meHitX_[0] = ibook.book1D("EtlHitXZnegD1", "ETL SIM hits X (+Z, Single(topo1D)/First(topo2D) disk);X_{SIM} [cm]", 100, -130., 130.);
+  meHitX_[0] = ibook.book1D(
+      "EtlHitXZnegD1", "ETL SIM hits X (+Z, Single(topo1D)/First(topo2D) disk);X_{SIM} [cm]", 100, -130., 130.);
   meHitX_[1] = ibook.book1D("EtlHitXZnegD2", "ETL SIM hits X (-Z, Second disk);X_{SIM} [cm]", 100, -130., 130.);
-  meHitX_[2] = ibook.book1D("EtlHitXZposD1", "ETL SIM hits X (+Z, Single(topo1D)/First(topo2D) disk);X_{SIM} [cm]", 100, -130., 130.);
+  meHitX_[2] = ibook.book1D(
+      "EtlHitXZposD1", "ETL SIM hits X (+Z, Single(topo1D)/First(topo2D) disk);X_{SIM} [cm]", 100, -130., 130.);
   meHitX_[3] = ibook.book1D("EtlHitXZposD2", "ETL SIM hits X (+Z, Second disk);X_{SIM} [cm]", 100, -130., 130.);
-  meHitY_[0] = ibook.book1D("EtlHitYZnegD1", "ETL SIM hits Y (-Z, Single(topo1D)/First(topo2D) disk);Y_{SIM} [cm]", 100, -130., 130.);
+  meHitY_[0] = ibook.book1D(
+      "EtlHitYZnegD1", "ETL SIM hits Y (-Z, Single(topo1D)/First(topo2D) disk);Y_{SIM} [cm]", 100, -130., 130.);
   meHitY_[1] = ibook.book1D("EtlHitYZnegD2", "ETL SIM hits Y (-Z, Second disk);Y_{SIM} [cm]", 100, -130., 130.);
-  meHitY_[2] = ibook.book1D("EtlHitYZposD1", "ETL SIM hits Y (+Z, Single(topo1D)/First(topo2D) disk);Y_{SIM} [cm]", 100, -130., 130.);
+  meHitY_[2] = ibook.book1D(
+      "EtlHitYZposD1", "ETL SIM hits Y (+Z, Single(topo1D)/First(topo2D) disk);Y_{SIM} [cm]", 100, -130., 130.);
   meHitY_[3] = ibook.book1D("EtlHitYZposD2", "ETL SIM hits Y (+Z, Second disk);Y_{SIM} [cm]", 100, -130., 130.);
-  meHitZ_[0] = ibook.book1D("EtlHitZZnegD1", "ETL SIM hits Z (-Z, Single(topo1D)/First(topo2D) disk);Z_{SIM} [cm]", 100, -305, -301);
+  meHitZ_[0] = ibook.book1D(
+      "EtlHitZZnegD1", "ETL SIM hits Z (-Z, Single(topo1D)/First(topo2D) disk);Z_{SIM} [cm]", 100, -305, -301);
   meHitZ_[1] = ibook.book1D("EtlHitZZnegD2", "ETL SIM hits Z (-Z, Second disk);Z_{SIM} [cm]", 100, -305, -301);
-  meHitZ_[2] = ibook.book1D("EtlHitZZposD1", "ETL SIM hits Z (+Z, Single(topo1D)/First(topo2D) disk);Z_{SIM} [cm]", 100, 301, 305);
-  meHitZ_[3] = ibook.book1D("EtlHitZZposD2", "ETL SIM hits Z (+Z, Second disk);Z_{SIM} [cm]", 100, 301, 305);  
+  meHitZ_[2] = ibook.book1D(
+      "EtlHitZZposD1", "ETL SIM hits Z (+Z, Single(topo1D)/First(topo2D) disk);Z_{SIM} [cm]", 100, 301, 305);
+  meHitZ_[3] = ibook.book1D("EtlHitZZposD2", "ETL SIM hits Z (+Z, Second disk);Z_{SIM} [cm]", 100, 301, 305);
 
-  meHitPhi_[0] = ibook.book1D("EtlHitPhiZnegD1", "ETL SIM hits #phi (-Z, Single(topo1D)/First(topo2D) disk);#phi_{SIM} [rad]", 100, -3.15, 3.15);
-  meHitPhi_[1] = ibook.book1D("EtlHitPhiZnegD2", "ETL SIM hits #phi (-Z, Second disk);#phi_{SIM} [rad]", 100, -3.15, 3.15);
-  meHitPhi_[2] = ibook.book1D("EtlHitPhiZposD1", "ETL SIM hits #phi (+Z, Single(topo1D)/First(topo2D) disk);#phi_{SIM} [rad]", 100, -3.15, 3.15);
-  meHitPhi_[3] = ibook.book1D("EtlHitPhiZposD2", "ETL SIM hits #phi (+Z, Second disk);#phi_{SIM} [rad]", 100, -3.15, 3.15);
-  meHitEta_[0] = ibook.book1D("EtlHitEtaZnegD1", "ETL SIM hits #eta (-Z, Single(topo1D)/First(topo2D) disk);#eta_{SIM}", 100, -3.2, -1.56);
+  meHitPhi_[0] = ibook.book1D(
+      "EtlHitPhiZnegD1", "ETL SIM hits #phi (-Z, Single(topo1D)/First(topo2D) disk);#phi_{SIM} [rad]", 100, -3.15, 3.15);
+  meHitPhi_[1] =
+      ibook.book1D("EtlHitPhiZnegD2", "ETL SIM hits #phi (-Z, Second disk);#phi_{SIM} [rad]", 100, -3.15, 3.15);
+  meHitPhi_[2] = ibook.book1D(
+      "EtlHitPhiZposD1", "ETL SIM hits #phi (+Z, Single(topo1D)/First(topo2D) disk);#phi_{SIM} [rad]", 100, -3.15, 3.15);
+  meHitPhi_[3] =
+      ibook.book1D("EtlHitPhiZposD2", "ETL SIM hits #phi (+Z, Second disk);#phi_{SIM} [rad]", 100, -3.15, 3.15);
+  meHitEta_[0] = ibook.book1D(
+      "EtlHitEtaZnegD1", "ETL SIM hits #eta (-Z, Single(topo1D)/First(topo2D) disk);#eta_{SIM}", 100, -3.2, -1.56);
   meHitEta_[1] = ibook.book1D("EtlHitEtaZnegD2", "ETL SIM hits #eta (-Z, Second disk);#eta_{SIM}", 100, -3.2, -1.56);
-  meHitEta_[2] = ibook.book1D("EtlHitEtaZposD1", "ETL SIM hits #eta (+Z, Single(topo1D)/First(topo2D) disk);#eta_{SIM}", 100, 1.56, 3.2);
+  meHitEta_[2] = ibook.book1D(
+      "EtlHitEtaZposD1", "ETL SIM hits #eta (+Z, Single(topo1D)/First(topo2D) disk);#eta_{SIM}", 100, 1.56, 3.2);
   meHitEta_[3] = ibook.book1D("EtlHitEtaZposD2", "ETL SIM hits #eta (+Z, Second disk);#eta_{SIM}", 100, 1.56, 3.2);
 
-  meHitTvsE_[0] = ibook.bookProfile(
-      "EtlHitTvsEZnegD1", "ETL SIM time vs energy (-Z, Single(topo1D)/First(topo2D) disk);E_{SIM} [MeV];T_{SIM} [ns]", 50, 0., 2., 0., 100.);
+  meHitTvsE_[0] =
+      ibook.bookProfile("EtlHitTvsEZnegD1",
+                        "ETL SIM time vs energy (-Z, Single(topo1D)/First(topo2D) disk);E_{SIM} [MeV];T_{SIM} [ns]",
+                        50,
+                        0.,
+                        2.,
+                        0.,
+                        100.);
   meHitTvsE_[1] = ibook.bookProfile(
       "EtlHitTvsEZnegD2", "ETL SIM time vs energy (-Z, Second disk);E_{SIM} [MeV];T_{SIM} [ns]", 50, 0., 2., 0., 100.);
-  meHitTvsE_[2] = ibook.bookProfile(
-      "EtlHitTvsEZposD1", "ETL SIM time vs energy (+Z, Single(topo1D)/First(topo2D) disk);E_{SIM} [MeV];T_{SIM} [ns]", 50, 0., 2., 0., 100.);
+  meHitTvsE_[2] =
+      ibook.bookProfile("EtlHitTvsEZposD1",
+                        "ETL SIM time vs energy (+Z, Single(topo1D)/First(topo2D) disk);E_{SIM} [MeV];T_{SIM} [ns]",
+                        50,
+                        0.,
+                        2.,
+                        0.,
+                        100.);
   meHitTvsE_[3] = ibook.bookProfile(
       "EtlHitTvsEZposD2", "ETL SIM time vs energy (+Z, Second disk);E_{SIM} [MeV];T_{SIM} [ns]", 50, 0., 2., 0., 100.);
-  meHitEvsPhi_[0] = ibook.bookProfile(
-      "EtlHitEvsPhiZnegD1", "ETL SIM energy vs #phi (-Z, Single(topo1D)/First(topo2D) disk);#phi_{SIM} [rad];E_{SIM} [MeV]", 50, -3.15, 3.15, 0., 100.);
-  meHitEvsPhi_[1] = ibook.bookProfile(
-      "EtlHitEvsPhiZnegD2", "ETL SIM energy vs #phi (-Z, Second disk);#phi_{SIM} [rad];E_{SIM} [MeV]", 50, -3.15, 3.15, 0., 100.);
-  meHitEvsPhi_[2] = ibook.bookProfile(
-      "EtlHitEvsPhiZposD1", "ETL SIM energy vs #phi (+Z, Single(topo1D)/First(topo2D) disk);#phi_{SIM} [rad];E_{SIM} [MeV]", 50, -3.15, 3.15, 0., 100.);
-  meHitEvsPhi_[3] = ibook.bookProfile(
-      "EtlHitEvsPhiZposD2", "ETL SIM energy vs #phi (+Z, Second disk);#phi_{SIM} [rad];E_{SIM} [MeV]", 50, -3.15, 3.15, 0., 100.);
-  meHitEvsEta_[0] = ibook.bookProfile(
-      "EtlHitEvsEtaZnegD1", "ETL SIM energy vs #eta (-Z, Single(topo1D)/First(topo2D) disk);#eta_{SIM};E_{SIM} [MeV]", 50, -3.2, -1.56, 0., 100.);
-  meHitEvsEta_[1] = ibook.bookProfile(
-      "EtlHitEvsEtaZnegD2", "ETL SIM energy vs #eta (-Z, Second disk);#eta_{SIM};E_{SIM} [MeV]", 50, -3.2, -1.56, 0., 100.);
-  meHitEvsEta_[2] = ibook.bookProfile(
-      "EtlHitEvsEtaZposD1", "ETL SIM energy vs #eta (+Z, Single(topo1D)/First(topo2D) disk);#eta_{SIM};E_{SIM} [MeV]", 50, 1.56, 3.2, 0., 100.);
-  meHitEvsEta_[3] = ibook.bookProfile(
-      "EtlHitEvsEtaZposD2", "ETL SIM energy vs #eta (+Z, Second disk);#eta_{SIM};E_{SIM} [MeV]", 50, 1.56, 3.2, 0., 100.);
-  meHitTvsPhi_[0] = ibook.bookProfile(
-      "EtlHitTvsPhiZnegD1", "ETL SIM time vs #phi (-Z, Single(topo1D)/First(topo2D) disk);#phi_{SIM} [rad];T_{SIM} [ns]", 50, -3.15, 3.15, 0., 100.);
-  meHitTvsPhi_[1] = ibook.bookProfile(
-      "EtlHitTvsPhiZnegD2", "ETL SIM time vs #phi (-Z, Second disk);#phi_{SIM} [rad];T_{SIM} [ns]", 50, -3.15, 3.15, 0., 100.);
-  meHitTvsPhi_[2] = ibook.bookProfile(
-      "EtlHitTvsPhiZposD1", "ETL SIM time vs #phi (+Z, Single(topo1D)/First(topo2D) disk);#phi_{SIM} [rad];T_{SIM} [ns]", 50, -3.15, 3.15, 0., 100.);
-  meHitTvsPhi_[3] = ibook.bookProfile(
-      "EtlHitTvsPhiZposD2", "ETL SIM time vs #phi (+Z, Second disk);#phi_{SIM} [rad];T_{SIM} [ns]", 50, -3.15, 3.15, 0., 100.);
-  meHitTvsEta_[0] = ibook.bookProfile(
-      "EtlHitTvsEtaZnegD1", "ETL SIM time vs #eta (-Z, Single(topo1D)/First(topo2D) disk);#eta_{SIM};T_{SIM} [ns]", 50, -3.2, -1.56, 0., 100.);
+  meHitEvsPhi_[0] =
+      ibook.bookProfile("EtlHitEvsPhiZnegD1",
+                        "ETL SIM energy vs #phi (-Z, Single(topo1D)/First(topo2D) disk);#phi_{SIM} [rad];E_{SIM} [MeV]",
+                        50,
+                        -3.15,
+                        3.15,
+                        0.,
+                        100.);
+  meHitEvsPhi_[1] = ibook.bookProfile("EtlHitEvsPhiZnegD2",
+                                      "ETL SIM energy vs #phi (-Z, Second disk);#phi_{SIM} [rad];E_{SIM} [MeV]",
+                                      50,
+                                      -3.15,
+                                      3.15,
+                                      0.,
+                                      100.);
+  meHitEvsPhi_[2] =
+      ibook.bookProfile("EtlHitEvsPhiZposD1",
+                        "ETL SIM energy vs #phi (+Z, Single(topo1D)/First(topo2D) disk);#phi_{SIM} [rad];E_{SIM} [MeV]",
+                        50,
+                        -3.15,
+                        3.15,
+                        0.,
+                        100.);
+  meHitEvsPhi_[3] = ibook.bookProfile("EtlHitEvsPhiZposD2",
+                                      "ETL SIM energy vs #phi (+Z, Second disk);#phi_{SIM} [rad];E_{SIM} [MeV]",
+                                      50,
+                                      -3.15,
+                                      3.15,
+                                      0.,
+                                      100.);
+  meHitEvsEta_[0] =
+      ibook.bookProfile("EtlHitEvsEtaZnegD1",
+                        "ETL SIM energy vs #eta (-Z, Single(topo1D)/First(topo2D) disk);#eta_{SIM};E_{SIM} [MeV]",
+                        50,
+                        -3.2,
+                        -1.56,
+                        0.,
+                        100.);
+  meHitEvsEta_[1] = ibook.bookProfile("EtlHitEvsEtaZnegD2",
+                                      "ETL SIM energy vs #eta (-Z, Second disk);#eta_{SIM};E_{SIM} [MeV]",
+                                      50,
+                                      -3.2,
+                                      -1.56,
+                                      0.,
+                                      100.);
+  meHitEvsEta_[2] =
+      ibook.bookProfile("EtlHitEvsEtaZposD1",
+                        "ETL SIM energy vs #eta (+Z, Single(topo1D)/First(topo2D) disk);#eta_{SIM};E_{SIM} [MeV]",
+                        50,
+                        1.56,
+                        3.2,
+                        0.,
+                        100.);
+  meHitEvsEta_[3] = ibook.bookProfile("EtlHitEvsEtaZposD2",
+                                      "ETL SIM energy vs #eta (+Z, Second disk);#eta_{SIM};E_{SIM} [MeV]",
+                                      50,
+                                      1.56,
+                                      3.2,
+                                      0.,
+                                      100.);
+  meHitTvsPhi_[0] =
+      ibook.bookProfile("EtlHitTvsPhiZnegD1",
+                        "ETL SIM time vs #phi (-Z, Single(topo1D)/First(topo2D) disk);#phi_{SIM} [rad];T_{SIM} [ns]",
+                        50,
+                        -3.15,
+                        3.15,
+                        0.,
+                        100.);
+  meHitTvsPhi_[1] = ibook.bookProfile("EtlHitTvsPhiZnegD2",
+                                      "ETL SIM time vs #phi (-Z, Second disk);#phi_{SIM} [rad];T_{SIM} [ns]",
+                                      50,
+                                      -3.15,
+                                      3.15,
+                                      0.,
+                                      100.);
+  meHitTvsPhi_[2] =
+      ibook.bookProfile("EtlHitTvsPhiZposD1",
+                        "ETL SIM time vs #phi (+Z, Single(topo1D)/First(topo2D) disk);#phi_{SIM} [rad];T_{SIM} [ns]",
+                        50,
+                        -3.15,
+                        3.15,
+                        0.,
+                        100.);
+  meHitTvsPhi_[3] = ibook.bookProfile("EtlHitTvsPhiZposD2",
+                                      "ETL SIM time vs #phi (+Z, Second disk);#phi_{SIM} [rad];T_{SIM} [ns]",
+                                      50,
+                                      -3.15,
+                                      3.15,
+                                      0.,
+                                      100.);
+  meHitTvsEta_[0] =
+      ibook.bookProfile("EtlHitTvsEtaZnegD1",
+                        "ETL SIM time vs #eta (-Z, Single(topo1D)/First(topo2D) disk);#eta_{SIM};T_{SIM} [ns]",
+                        50,
+                        -3.2,
+                        -1.56,
+                        0.,
+                        100.);
   meHitTvsEta_[1] = ibook.bookProfile(
       "EtlHitTvsEtaZnegD2", "ETL SIM time vs #eta (-Z, Second disk);#eta_{SIM};T_{SIM} [ns]", 50, -3.2, -1.56, 0., 100.);
-  meHitTvsEta_[2] = ibook.bookProfile(
-      "EtlHitTvsEtaZposD2", "ETL SIM time vs #eta (+Z, Single(topo1D)/First(topo2D) disk);#eta_{SIM};T_{SIM} [ns]", 50, 1.56, 3.2, 0., 100.);
+  meHitTvsEta_[2] =
+      ibook.bookProfile("EtlHitTvsEtaZposD2",
+                        "ETL SIM time vs #eta (+Z, Single(topo1D)/First(topo2D) disk);#eta_{SIM};T_{SIM} [ns]",
+                        50,
+                        1.56,
+                        3.2,
+                        0.,
+                        100.);
   meHitTvsEta_[3] = ibook.bookProfile(
       "EtlHitTvsEtaZposD2", "ETL SIM time vs #eta (+Z, Second disk);#eta_{SIM};T_{SIM} [ns]", 50, 1.56, 3.2, 0., 100.);
 }
@@ -351,7 +538,7 @@ void EtlSimHitsValidation::fillDescriptions(edm::ConfigurationDescriptions& desc
 
   desc.add<std::string>("folder", "MTD/ETL/SimHits");
   desc.add<edm::InputTag>("inputTag", edm::InputTag("mix", "g4SimHitsFastTimerHitsEndcap"));
-  desc.add<double>("hitMinimumEnergy1Dis", 0.01);  // [MeV]
+  desc.add<double>("hitMinimumEnergy1Dis", 0.01);   // [MeV]
   desc.add<double>("hitMinimumEnergy2Dis", 0.001);  // [MeV]
 
   descriptions.add("etlSimHits", desc);
