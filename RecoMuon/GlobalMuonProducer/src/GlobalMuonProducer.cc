@@ -64,7 +64,7 @@ GlobalMuonProducer::GlobalMuonProducer(const ParameterSet& parameterSet) {
   auto mtl = std::make_unique<MuonTrackLoader>(trackLoaderParameters, iC, theService);
   auto gmtb = std::make_unique<GlobalMuonTrajectoryBuilder>(trajectoryBuilderParameters, theService, iC);
 
-  theTrackFinder = new MuonTrackFinder(std::move(gmtb), std::move(mtl));
+  theTrackFinder = std::make_unique<MuonTrackFinder>(std::move(gmtb), std::move(mtl), iC);
 
   setAlias(parameterSet.getParameter<std::string>("@module_label"));
   produces<reco::TrackCollection>().setBranchAlias(theAlias + "Tracks");
@@ -82,8 +82,6 @@ GlobalMuonProducer::~GlobalMuonProducer() {
   LogTrace("Muon|RecoMuon|GlobalMuonProducer") << "destructor called" << endl;
   if (theService)
     delete theService;
-  if (theTrackFinder)
-    delete theTrackFinder;
 }
 
 //
