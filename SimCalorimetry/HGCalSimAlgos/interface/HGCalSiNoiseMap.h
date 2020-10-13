@@ -3,7 +3,6 @@
 
 #include "SimCalorimetry/HGCalSimAlgos/interface/HGCalRadiationMap.h"
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCFEElectronics.h"
-#include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include <string>
 #include <array>
@@ -66,13 +65,13 @@ public:
      @short returns the charge collection efficiency and noise
      if gain range is set to auto, it will find the most appropriate gain to put the mip peak close to 10 ADC counts
   */
-  const SiCellOpCharacteristicsCore getSiCellOpCharacteristicsCore(const HGCSiliconDetId &did,
+  const SiCellOpCharacteristicsCore getSiCellOpCharacteristicsCore(const unsigned cell_raw_Id,
                                                                    GainRange_t gain,
                                                                    int aimMIPtoADC);
-  const SiCellOpCharacteristicsCore getSiCellOpCharacteristicsCore(const HGCSiliconDetId &did) {
-    return getSiCellOpCharacteristicsCore(did, defaultGain_, defaultAimMIPtoADC_);
+  const SiCellOpCharacteristicsCore getSiCellOpCharacteristicsCore(const unsigned cell_raw_Id) {
+    return getSiCellOpCharacteristicsCore(cell_raw_Id, defaultGain_, defaultAimMIPtoADC_);
   }
-  SiCellOpCharacteristics getSiCellOpCharacteristics(const HGCSiliconDetId &did,
+  SiCellOpCharacteristics getSiCellOpCharacteristics(const unsigned cell_raw_Id,
                                                      GainRange_t gain = GainRange_t::AUTO,
                                                      int aimMIPtoADC = 10);
   SiCellOpCharacteristics getSiCellOpCharacteristics(double &cellCap,

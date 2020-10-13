@@ -109,52 +109,96 @@ void HGCalSiNoiseMap::setGeometry(const CaloSubdetectorGeometry *hgcGeom, GainRa
   for (const auto &did : validDetIds) {
     //use only positive side detIds
     unsigned int rawId(did.rawId());
-    HGCSiliconDetId hgcDetId(rawId);
-    if (hgcDetId.zside() != 1)
-      continue;
+
+    unsigned det = did.det();
+    if (det == DetId::Forward && did.subdetId() == ForwardSubdetector::HFNose) {
+      HFNoseDetId hgcDetId(rawId);
+      if (hgcDetId.zside() != 1)
+        continue;
+    } else if (det == DetId::HGCalEE || det == DetId::HGCalHSi) {
+      HGCSiliconDetId hgcDetId(rawId);
+      if (hgcDetId.zside() != 1)
+        continue;
+    }
 
     //compute and store in cache
-    siopCache_.emplace(rawId, getSiCellOpCharacteristicsCore(hgcDetId));
+    siopCache_.emplace(rawId, getSiCellOpCharacteristicsCore(rawId));
   }
 }
 
 //
 const HGCalSiNoiseMap::SiCellOpCharacteristicsCore HGCalSiNoiseMap::getSiCellOpCharacteristicsCore(
-    const HGCSiliconDetId &cellId, GainRange_t gain, int aimMIPtoADC) {
+    const unsigned cell_raw_Id, GainRange_t gain, int aimMIPtoADC) {
   //re-compute
   if (!activateCachedOp_)
-    return getSiCellOpCharacteristics(cellId, gain, aimMIPtoADC).core;
+    return getSiCellOpCharacteristics(cell_raw_Id, gain, aimMIPtoADC).core;
 
-  //re-use from cache
-  HGCSiliconDetId posCellId(cellId.subdet(),
-                            1,
-                            cellId.type(),
-                            cellId.layer(),
-                            cellId.waferU(),
-                            cellId.waferV(),
-                            cellId.cellU(),
-                            cellId.cellV());
-  uint32_t key(posCellId.rawId());
+  unsigned det = DetId(cell_raw_Id).det();
+
+  uint32_t key;
+
+  if (det == DetId::Forward && DetId(cell_raw_Id).subdetId() == ForwardSubdetector::HFNose) {
+    HFNoseDetId cellId(cell_raw_Id);
+    HFNoseDetId posCellId(
+        1, cellId.type(), cellId.layer(), cellId.waferU(), cellId.waferV(), cellId.cellU(), cellId.cellV());
+    key = posCellId.rawId();
+
+  } else if (det == DetId::HGCalEE || det == DetId::HGCalHSi) {
+    HGCSiliconDetId cellId(cell_raw_Id);
+    //re-use from cache
+    HGCSiliconDetId posCellId(cellId.subdet(),
+                              1,
+                              cellId.type(),
+                              cellId.layer(),
+                              cellId.waferU(),
+                              cellId.waferV(),
+                              cellId.cellU(),
+                              cellId.cellV());
+
+    key = posCellId.rawId();
+  }
+
   return siopCache_[key];
 }
 
 //
-HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteristics(const HGCSiliconDetId &cellId,
+HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteristics(const unsigned cell_raw_Id,
                                                                                      GainRange_t gain,
                                                                                      int aimMIPtoADC) {
+  unsigned int cellThick;
+  int subdet, layer;
+  double radius;
+
+  unsigned det = DetId(cell_raw_Id).det();
+
+  if (det == DetId::Forward && DetId(cell_raw_Id).subdetId() == ForwardSubdetector::HFNose) {
+    HFNoseDetId cellId(cell_raw_Id);
+    layer = cellId.layer();
+    cellThick = cellId.type();
+    subdet = cellId.subdet();
+
+    //location of the cell
+    const auto &xy(ddd()->locateCell(
+        cellId.layer(), cellId.waferU(), cellId.waferV(), cellId.cellU(), cellId.cellV(), true, true));
+    radius = sqrt(std::pow(xy.first, 2) + std::pow(xy.second, 2));  //in cm
+
+  } else if (det == DetId::HGCalEE || det == DetId::HGCalHSi) {
+    HGCSiliconDetId cellId(cell_raw_Id);
+    layer = cellId.layer();
+    cellThick = cellId.type();
+    subdet = cellId.subdet();
+
+    //location of the cell
+    const auto &xy(ddd()->locateCell(
+        cellId.layer(), cellId.waferU(), cellId.waferV(), cellId.cellU(), cellId.cellV(), true, true));
+    radius = sqrt(std::pow(xy.first, 2) + std::pow(xy.second, 2));  //in cm
+  }
+
   //decode cell properties
-  int layer(cellId.layer());
-  unsigned int cellThick = cellId.type();
+  std::vector<double> &cceParam = cceParam_[cellThick];
   double cellCap(cellCapacitance_[cellThick]);
   double cellVol(cellVolume_[cellThick]);
   double mipEqfC(mipEqfC_[cellThick]);
-
-  //location of the cell
-  int subdet(cellId.subdet());
-  std::vector<double> &cceParam = cceParam_[cellThick];
-  const auto &xy(
-      ddd()->locateCell(cellId.layer(), cellId.waferU(), cellId.waferV(), cellId.cellU(), cellId.cellV(), true, true));
-  double radius = sqrt(std::pow(xy.first, 2) + std::pow(xy.second, 2));  //in cm
 
   //call baseline method and add to cache
   return getSiCellOpCharacteristics(cellCap, cellVol, mipEqfC, cceParam, subdet, layer, radius, gain, aimMIPtoADC);
