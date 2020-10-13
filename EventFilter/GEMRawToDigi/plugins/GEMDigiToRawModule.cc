@@ -122,8 +122,8 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
     }
   }
 
-  uint32_t amc13EvtLength = 0;
   for (unsigned int fedId = FEDNumbering::MINGEMFEDID; fedId <= FEDNumbering::MAXGEMFEDID; ++fedId) {
+    uint32_t amc13EvtLength = 0;
     std::unique_ptr<AMC13Event> amc13Event = std::make_unique<AMC13Event>();
 
     for (auto const& gemBx : gemBxMap) {
@@ -222,6 +222,8 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
       amc13Event->setAMC13Trailer(BX_id, LV1_id, BX_id);
       //CDF trailer
       uint32_t EvtLength = amc13EvtLength + 4;  // 2 header and 2 trailer
+      LogDebug("GEMDigiToRawModule") << " EvtLength: " << int(EvtLength);
+      
       amc13Event->setCDFTrailer(EvtLength);
       amc13Events.emplace_back(std::move(amc13Event));
     }  // finished making amc13Event data
@@ -266,10 +268,13 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
     fedRawData.resize(dataSize);
 
     uint64_t* w = reinterpret_cast<uint64_t*>(fedRawData.data());
-    for (const auto& word : words)
+    for (const auto& word : words) {
+#ifdef EDM_ML_DEBUG
+      std::cout << std::bitset<64>(word) << std::endl;
+#endif
       *(w++) = word;
-
-    LogDebug("GEMDigiToRawModule") << " words " << words.size();
+    }    
+    LogDebug("GEMDigiToRawModule") << " words " << words.size();    
   }
 
   iEvent.put(std::move(fedRawDataCol));
