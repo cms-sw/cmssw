@@ -225,7 +225,7 @@ namespace cond {
       }
 
       void addStaticCondition(const std::string& condition) {
-        if (m_clause.size() > 0) {
+        if (!m_clause.empty()) {
           m_clause += " AND ";
         }
         m_clause += condition;
