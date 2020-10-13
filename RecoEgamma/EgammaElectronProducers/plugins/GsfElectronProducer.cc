@@ -131,12 +131,14 @@ void GsfElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<bool>("checkHcalStatus", true);
 
   // steering
+  desc.add<bool>("useDefaultEnergyCorrection", true);
   desc.add<bool>("useCombinationRegression", false);
   desc.add<bool>("ecalDrivenEcalEnergyFromClassBasedParameterization", true);
   desc.add<bool>("ecalDrivenEcalErrorFromClassBasedParameterization", true);
   desc.add<bool>("applyPreselection", false);
   desc.add<bool>("useEcalRegression", false);
   desc.add<bool>("applyAmbResolution", false);
+  desc.add<bool>("ignoreNotPreselected", true);
   desc.add<bool>("useGsfPfRecTracks", true);
   desc.add<bool>("pureTrackerDrivenEcalErrorFromSimpleParameterization", true);
   desc.add<unsigned int>("ambSortingStrategy", 1);
@@ -306,6 +308,7 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const Gsf
   if (cfg.getParameter<bool>("fillConvVtxFitProb"))
     inputCfg_.conversions = consumes<reco::ConversionCollection>(cfg.getParameter<edm::InputTag>("conversionsTag"));
 
+  strategyCfg_.useDefaultEnergyCorrection = cfg.getParameter<bool>("useDefaultEnergyCorrection");
   strategyCfg_.applyPreselection = cfg.getParameter<bool>("applyPreselection");
   strategyCfg_.ecalDrivenEcalEnergyFromClassBasedParameterization =
       cfg.getParameter<bool>("ecalDrivenEcalEnergyFromClassBasedParameterization");
@@ -314,6 +317,7 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const Gsf
   strategyCfg_.pureTrackerDrivenEcalErrorFromSimpleParameterization =
       cfg.getParameter<bool>("pureTrackerDrivenEcalErrorFromSimpleParameterization");
   strategyCfg_.applyAmbResolution = cfg.getParameter<bool>("applyAmbResolution");
+  strategyCfg_.ignoreNotPreselected = cfg.getParameter<bool>("ignoreNotPreselected");
   strategyCfg_.ambSortingStrategy = cfg.getParameter<unsigned>("ambSortingStrategy");
   strategyCfg_.ambClustersOverlapStrategy = cfg.getParameter<unsigned>("ambClustersOverlapStrategy");
   strategyCfg_.ctfTracksCheck = cfg.getParameter<bool>("ctfTracksCheck");
@@ -572,7 +576,7 @@ void GsfElectronProducer::produce(edm::Event& event, const edm::EventSetup& setu
     logElectrons(electrons, event, "GsfElectronAlgo Info (after preselection)");
   }
   // ambiguity
-  setAmbiguityData(electrons, event);
+  setAmbiguityData(electrons, event, strategyCfg_.ignoreNotPreselected);
   if (strategyCfg_.applyAmbResolution) {
     electrons.erase(std::remove_if(electrons.begin(), electrons.end(), std::mem_fn(&reco::GsfElectron::ambiguous)),
                     electrons.end());
