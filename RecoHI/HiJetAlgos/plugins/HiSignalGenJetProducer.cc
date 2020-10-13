@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -32,11 +32,7 @@
 
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
-#include "DataFormats/GeometryVector/interface/VectorUtil.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-
-#include "DataFormats/Math/interface/Point3D.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
 
 using namespace std;
 using namespace edm;
@@ -45,13 +41,15 @@ using namespace edm;
 // class decleration
 //
 
-class HiSignalGenJetProducer : public edm::EDProducer {
+class HiSignalGenJetProducer : public edm::global::EDProducer<> {
 public:
   explicit HiSignalGenJetProducer(const edm::ParameterSet&);
-  ~HiSignalGenJetProducer() override;
+  ~HiSignalGenJetProducer() override = default;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   // ----------member data ---------------------------
 
   edm::EDGetTokenT<edm::View<reco::GenJet> > jetSrc_;
@@ -75,18 +73,13 @@ HiSignalGenJetProducer::HiSignalGenJetProducer(const edm::ParameterSet& iConfig)
   produces<reco::GenJetCollection>().setBranchAlias(alias);
 }
 
-HiSignalGenJetProducer::~HiSignalGenJetProducer() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
 
-void HiSignalGenJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void HiSignalGenJetProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) const {
   using namespace edm;
   using namespace reco;
 
@@ -97,15 +90,6 @@ void HiSignalGenJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 
   int jetsize = genjets->size();
 
-  vector<int> selection;
-  selection.reserve(jetsize);
-  for (int ijet = 0; ijet < jetsize; ++ijet) {
-    selection.push_back(-1);
-  }
-
-  vector<int> selectedIndices;
-  vector<int> removedIndices;
-
   for (int ijet = 0; ijet < jetsize; ++ijet) {
     const GenJet* jet1 = &((*genjets)[ijet]);
 
@@ -115,14 +99,17 @@ void HiSignalGenJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
       throw cms::Exception("GenConstituent", "GenJet is missing its constituents");
     else if (gencon->collisionId() == 0) {
       jets->push_back(*jet1);
-      selection[ijet] = 1;
-    } else {
-      selection[ijet] = 0;
-      removedIndices.push_back(ijet);
     }
   }
 
   iEvent.put(std::move(jets));
+}
+
+void HiSignalGenJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.setComment("Selects genJets from collision id = 0");
+  desc.add<std::string>("src", "ak4HiGenJets");
+  descriptions.add("HiSignalGenJetProducer", desc);
 }
 
 DEFINE_FWK_MODULE(HiSignalGenJetProducer);

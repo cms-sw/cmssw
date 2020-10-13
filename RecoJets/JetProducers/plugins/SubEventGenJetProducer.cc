@@ -36,7 +36,6 @@ namespace {
 }  // namespace
 
 SubEventGenJetProducer::SubEventGenJetProducer(edm::ParameterSet const& conf) : VirtualJetProducer(conf) {
-  //   mapSrc_ = conf.getParameter<edm::InputTag>( "srcMap");
   ignoreHydro_ = conf.getUntrackedParameter<bool>("ignoreHydro", true);
 
   // the subjet collections are set through the config file in the "jetCollInstanceName" field.
