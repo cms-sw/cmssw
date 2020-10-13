@@ -1,6 +1,43 @@
-#include "L1Trigger/Phase2L1ParticleFlow/interface/L1NNTauProducer.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include <cmath>
+#include <vector>
+
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "DataFormats/L1TParticleFlow/interface/PFTau.h"
+#include "DataFormats/L1TParticleFlow/interface/PFCandidate.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/TauNNId.h"
+
+using namespace l1t;
+
+class L1NNTauProducer : public edm::stream::EDProducer<edm::GlobalCache<TauNNTFCache>> {
+public:
+  explicit L1NNTauProducer(const edm::ParameterSet&, const TauNNTFCache*);
+  ~L1NNTauProducer() override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static std::unique_ptr<TauNNTFCache> initializeGlobalCache(const edm::ParameterSet&);
+  static void globalEndJob(const TauNNTFCache*);
+
+private:
+  std::unique_ptr<TauNNId> fTauNNId_;
+  void addTau(const l1t::PFCandidate& iCand,
+              const l1t::PFCandidateCollection& iParts,
+              std::unique_ptr<PFTauCollection>& outputTaus);
+  float deltaR(const l1t::PFCandidate& iPart1, const l1t::PFCandidate& iPart2);
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+
+  double fSeedPt_;
+  double fConeSize_;
+  double fTauSize_;
+  int fMaxTaus_;
+  int fNParticles_;
+  edm::EDGetTokenT<vector<l1t::PFCandidate>> fL1PFToken_;
+};
 
 static constexpr float track_trigger_eta_max = 2.5;
 
@@ -10,7 +47,7 @@ L1NNTauProducer::L1NNTauProducer(const edm::ParameterSet& cfg, const TauNNTFCach
       fTauSize_(cfg.getParameter<double>("tausize")),
       fMaxTaus_(cfg.getParameter<int>("maxtaus")),
       fNParticles_(cfg.getParameter<int>("nparticles")),
-      fL1PFToken_(consumes<vector<l1t::PFCandidate> >(cfg.getParameter<edm::InputTag>("L1PFObjects"))) {
+      fL1PFToken_(consumes<vector<l1t::PFCandidate>>(cfg.getParameter<edm::InputTag>("L1PFObjects"))) {
   std::string lNNFile = cfg.getParameter<std::string>("NNFileName");  //,"L1Trigger/Phase2L1Taus/data/tau_3layer.pb");
   fTauNNId_ = std::make_unique<TauNNId>(
       lNNFile.find("v0") == std::string::npos ? "input_1:0" : "dense_1_input:0", cache, lNNFile, fNParticles_);
