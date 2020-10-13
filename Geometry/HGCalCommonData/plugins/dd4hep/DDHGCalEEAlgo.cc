@@ -103,7 +103,7 @@ struct HGCalEEAlgo {
     sensitiveMode_ = args.value<int>("SensitiveMode");
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "First Layer " << firstLayer_ << " and "
-				  << "Absober:Sensitive mode " << absorbMode_ << ":" << sensitiveMode_;
+                                  << "Absober:Sensitive mode " << absorbMode_ << ":" << sensitiveMode_;
 #endif
     layerCenter_ = args.value<std::vector<int>>("LayerCenter");
 #ifdef EDM_ML_DEBUG
@@ -284,17 +284,23 @@ struct HGCalEEAlgo {
                 << "[" << k << "] z " << pgonZ[k] << " R " << pgonRin[k] << ":" << pgonRout[k];
 #endif
         } else {
-	  double rins = (sensitiveMode_ < 1) ? rinB : HGCalGeomTools::radius(zz + hthick, zFrontB_, rMinFront_, slopeB_);
-	  double routs = (sensitiveMode_ < 1) ? routF : HGCalGeomTools::radius(zz - hthick, zFrontT_, rMaxFront_, slopeT_);
+          double rins =
+              (sensitiveMode_ < 1) ? rinB : HGCalGeomTools::radius(zz + hthick, zFrontB_, rMinFront_, slopeB_);
+          double routs =
+              (sensitiveMode_ < 1) ? routF : HGCalGeomTools::radius(zz - hthick, zFrontT_, rMaxFront_, slopeT_);
           dd4hep::Solid solid = dd4hep::Tube(rins, routs, hthick, 0.0, 2._pi);
           ns.addSolidNS(ns.prepend(name), solid);
           glog = dd4hep::Volume(solid.name(), solid, matter);
           ns.addVolumeNS(glog);
 
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("HGCalGeom") << "DDHGCalEEFileAlgo: " << solid.name() << " Tubs made of " << matter.name() << " of dimensions " << rinB << ":" << rins << ", " << routF << ":" << routs << ", " << hthick << ", 0.0, 360.0 and position " << glog.name() << " number " << copy << ":" << layerCenter_[copy - firstLayer_];
+          edm::LogVerbatim("HGCalGeom") << "DDHGCalEEFileAlgo: " << solid.name() << " Tubs made of " << matter.name()
+                                        << " of dimensions " << rinB << ":" << rins << ", " << routF << ":" << routs
+                                        << ", " << hthick << ", 0.0, 360.0 and position " << glog.name() << " number "
+                                        << copy << ":" << layerCenter_[copy - firstLayer_];
 #endif
-          PositionSensitive(ctxt, e, glog, rins, routs, zz, layerSense_[ly], layerCenter_[copy - firstLayer_]);  //, cpv);
+          PositionSensitive(
+              ctxt, e, glog, rins, routs, zz, layerSense_[ly], layerCenter_[copy - firstLayer_]);  //, cpv);
         }
 
         dd4hep::Position r1(0, 0, zz);
