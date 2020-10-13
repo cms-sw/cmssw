@@ -118,6 +118,7 @@ void TrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<int>("shower_start_max_layer", 9999);            // make default such that no filtering is applied
   desc.add<int>("algo_verbosity", 0);
   desc.add<double>("min_cos_theta", 0.915);
+  desc.add<double>("root_doublet_max_distance_from_seed", 9999);
   desc.add<double>("min_cos_pointing", -1.);
   desc.add<int>("skip_layers", 0);
   desc.add<int>("max_missing_layers_in_trackster", 9999);
