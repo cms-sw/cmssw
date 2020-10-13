@@ -2,8 +2,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "RecoJets/JetProducers/plugins/SubEventGenJetProducer.h"
 
-#include <memory>
-
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "RecoJets/JetProducers/interface/JetSpecific.h"
