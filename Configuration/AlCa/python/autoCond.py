@@ -34,7 +34,7 @@ autoCond = {
     # GlobalTag for Run2 data relvals: allows customization to run with fixed L1 menu
     'run2_data_relval'  :   '112X_dataRun2_relval_v4',
     # GlobalTag for Run2 HI data
-    'run2_data_promptlike_hi' : '110X_dataRun2_PromptLike_HI_v10',
+    'run2_data_promptlike_hi' : '112X_dataRun2_PromptLike_HI_v1',
     # GlobalTag for Run1 HLT: it points to the online GT
     'run1_hlt'          :   '101X_dataRun2_HLT_frozen_v9',
     # GlobalTag for Run2 HLT: it points to the online GT
@@ -61,7 +61,7 @@ autoCond = {
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector
     'phase1_2018_realistic'    :  '112X_upgrade2018_realistic_v3',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector for Heavy Ion
-    'phase1_2018_realistic_hi' :  '112X_upgrade2018_realistic_HI_v3',
+    'phase1_2018_realistic_hi' :  '112X_upgrade2018_realistic_HI_v4',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector: HEM-15-16 fail
     'phase1_2018_realistic_HEfail' :  '112X_upgrade2018_realistic_HEfail_v3',
     # GlobalTag for MC production (cosmics) with realistic conditions for full Phase1 2018 detector,  Strip tracker in DECO mode
