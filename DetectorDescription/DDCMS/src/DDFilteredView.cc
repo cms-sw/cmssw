@@ -6,7 +6,6 @@
 #include "DD4hep/Shapes.h"
 #include <TGeoBBox.h>
 #include <TGeoBoolNode.h>
-#include <vector>
 #include <charconv>
 
 using namespace cms;
@@ -780,7 +779,6 @@ bool DDFilteredView::matchPath(const std::string_view path) const {
         break;
       } else {
         refname.remove_suffix(refname.size() - pos);
-        result = true;
       }
     }
     if (!compareEqualName(refname, name)) {
