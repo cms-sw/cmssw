@@ -58,7 +58,7 @@ L3MuonProducer::L3MuonProducer(const ParameterSet& parameterSet) {
   // instantiate the concrete trajectory builder in the Track Finder
   auto mtl = std::make_unique<MuonTrackLoader>(trackLoaderParameters, iC, theService.get());
   auto l3mtb = std::make_unique<L3MuonTrajectoryBuilder>(trajectoryBuilderParameters, theService.get(), iC);
-  theTrackFinder = std::make_unique<MuonTrackFinder>(std::move(l3mtb), std::move(mtl));
+  theTrackFinder = std::make_unique<MuonTrackFinder>(std::move(l3mtb), std::move(mtl), iC);
 
   theL2SeededTkLabel =
       trackLoaderParameters.getUntrackedParameter<std::string>("MuonSeededTracksInstance", std::string());
