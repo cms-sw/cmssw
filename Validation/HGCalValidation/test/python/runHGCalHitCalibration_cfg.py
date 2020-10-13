@@ -3,8 +3,8 @@ import FWCore.Utilities.FileUtils as FileUtils
 
 from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
 process = cms.Process('HGCGeomAnalysis',Phase2C11)
-process.load('Configuration.Geometry.GeometryExtended2026D62_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D62Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D71_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D71Reco_cff')
 
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')    
@@ -36,7 +36,7 @@ process.maxEvents = cms.untracked.PSet(
 process.load('Validation.HGCalValidation.hgcalHitCalibration_cfi')
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string('relValD62.root'),
+                                   fileName = cms.string('relValD71.root'),
                                    closeFileFast = cms.untracked.bool(True)
                                    )
 
