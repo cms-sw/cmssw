@@ -27,3 +27,23 @@ phase2_common.toReplaceWith(ecalDigiTask,_phase2_ecalDigiTask)
 from Configuration.Eras.Modifier_phase2_ecal_devel_cff import phase2_ecal_devel
 _phase2_ecalDigiTask_devel = cms.Task()
 phase2_ecal_devel.toReplaceWith(ecalDigiTask,_phase2_ecalDigiTask_devel)
+
+#phase 2 ecal pedestals                                                                                                                                                                                                                                                                  
+def _modifyEcalPedestals( process ):
+    process.load("SimCalorimetry.EcalSimProducers.esEcalLiteDTUPedestalsProducer_cfi")
+
+    process.load("CondCore.CondDB.CondDB_cfi")
+
+    process.CondDB.connect = 'sqlite_file:simPulseShapePhaseII.db'
+
+    process.PoolDBOutputService = cms.Service("PoolDBOutputService",
+        process.CondDB,
+        toPut = cms.VPSet(
+            cms.PSet(
+                 record = cms.string('EcalSimPulseShapeRcd'),
+                 tag = cms.string('EcalSimPulseShapePhaseII')
+               )
+          )
+    )
+
+modifyDigi_Phase2EcalPed = phase2_ecal_devel.makeProcessModifier(_modifyEcalPedestals)
