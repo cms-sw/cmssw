@@ -40,8 +40,9 @@ namespace ticl {
     const float etaLimitIncreaseWindow_;
     const int skip_layers_;
     const int max_missing_layers_in_trackster_;
+    bool check_missing_layers_ = false;
     const unsigned int shower_start_max_layer_;
-
+    const unsigned int min_layers_per_trackster_;
     const int min_clusters_per_ntuplet_;
     const float max_delta_time_;
     const std::string eidInputName_;
