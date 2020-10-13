@@ -1,11 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Phase2C6_cff import Phase2C6
-process = cms.Process('PROD',Phase2C6)
+from Configuration.Eras.Era_Phase2C10_cff import Phase2C10
+process = cms.Process('PROD',Phase2C10)
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
-process.load('Configuration.Geometry.GeometryExtended2026D44_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D60_cff')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')
@@ -28,7 +28,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string('hfnSimHitD44tt.root'),
+                                   fileName = cms.string('hfnSimHitD60tt.root'),
                                    closeFileFast = cms.untracked.bool(True)
                                    )
 
