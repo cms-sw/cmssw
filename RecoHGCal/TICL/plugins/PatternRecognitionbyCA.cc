@@ -28,6 +28,7 @@ PatternRecognitionbyCA<TILES>::PatternRecognitionbyCA(const edm::ParameterSet &c
       min_cos_pointing_(conf.getParameter<double>("min_cos_pointing")),
       etaLimitIncreaseWindow_(conf.getParameter<double>("etaLimitIncreaseWindow")),
       skip_layers_(conf.getParameter<int>("skip_layers")),
+      max_missing_layers_in_trackster_(conf.getParameter<int>("max_missing_layers_in_trackster")),
       shower_start_max_layer_(conf.getParameter<int>("shower_start_max_layer")),
       min_clusters_per_ntuplet_(conf.getParameter<int>("min_clusters_per_ntuplet")),
       max_delta_time_(conf.getParameter<double>("max_delta_time")),

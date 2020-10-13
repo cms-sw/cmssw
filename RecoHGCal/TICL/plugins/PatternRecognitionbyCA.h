@@ -39,6 +39,7 @@ namespace ticl {
     const float min_cos_pointing_;
     const float etaLimitIncreaseWindow_;
     const int skip_layers_;
+    const int max_missing_layers_in_trackster_;
     const unsigned int shower_start_max_layer_;
 
     const int min_clusters_per_ntuplet_;
