@@ -191,7 +191,6 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
         j++;
       }
     }
-    
 
     bool selected =
         (numberOfLayersInTrackster >= min_layers_per_trackster_) and (showerMinLayerId <= shower_start_max_layer_);
@@ -212,17 +211,18 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
       tracksterId++;
     }
   }
-  ticl::assignPCAtoTracksters(tmpTracksters, input.layerClusters, rhtools_.getPositionLayer(rhtools_.lastLayerEE(type)).z());
+  ticl::assignPCAtoTracksters(
+      tmpTracksters, input.layerClusters, rhtools_.getPositionLayer(rhtools_.lastLayerEE(type)).z());
 
   // run energy regression and ID
   energyRegressionAndID(input.layerClusters, tmpTracksters);
-    // Filter results based on PID criteria or EM/Total energy ratio.
+  // Filter results based on PID criteria or EM/Total energy ratio.
   // We want to **keep** tracksters whose cumulative
   // probability summed up over the selected categories
   // is greater than the chosen threshold. Therefore
   // the filtering function should **discard** all
   // tracksters **below** the threshold.
-  auto filter_on_pids = [&](Trackster& t) -> bool {
+  auto filter_on_pids = [&](Trackster &t) -> bool {
     auto cumulative_prob = 0.;
     for (auto index : filter_on_categories_) {
       cumulative_prob += t.id_probabilities(index);
@@ -232,22 +232,21 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
   };
 
   std::vector<unsigned int> selectedTrackstersIds;
-  for(unsigned i = 0; i< tmpTracksters.size(); ++i)
-  {
-    if(!filter_on_pids(tmpTracksters[i]) and tmpTracksters[i].sigmasPCA()[0] < max_longitudinal_sigmaPCA_){
+  for (unsigned i = 0; i < tmpTracksters.size(); ++i) {
+    if (!filter_on_pids(tmpTracksters[i]) and tmpTracksters[i].sigmasPCA()[0] < max_longitudinal_sigmaPCA_) {
       selectedTrackstersIds.push_back(i);
     }
   }
 
   result.reserve(selectedTrackstersIds.size());
 
-  for(unsigned i = 0; i<selectedTrackstersIds.size(); ++i )
-  {
-    auto & t = tmpTracksters[selectedTrackstersIds[i]];
+  for (unsigned i = 0; i < selectedTrackstersIds.size(); ++i) {
+    auto &t = tmpTracksters[selectedTrackstersIds[i]];
     for (auto const lcId : t.vertices()) {
       layer_cluster_usage[lcId]++;
       if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Basic)
-        LogDebug("HGCPatternRecoByCA") << "LayerID: " << lcId << " count: " << (int)layer_cluster_usage[lcId] << std::endl;
+        LogDebug("HGCPatternRecoByCA") << "LayerID: " << lcId << " count: " << (int)layer_cluster_usage[lcId]
+                                       << std::endl;
     }
     t.setSeed(input.regions[0].collectionID, seedIndices[i]);
     if (isRegionalIter) {
@@ -255,7 +254,6 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
     }
     result.push_back(t);
   }
-
 
   for (auto &trackster : result) {
     assert(trackster.vertices().size() <= trackster.vertex_multiplicity().size());
@@ -272,7 +270,6 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
     mergeTrackstersTRK(result, input.layerClusters, tmp, seedToTracksterAssociation);
     tmp.swap(result);
   }
-
 
   ticl::assignPCAtoTracksters(result, input.layerClusters, rhtools_.getPositionLayer(rhtools_.lastLayerEE(type)).z());
   // run energy regression and ID
