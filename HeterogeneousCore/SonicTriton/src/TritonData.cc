@@ -28,7 +28,7 @@ TritonData<IO>::TritonData(const std::string& name, const TritonData<IO>::Tensor
       noBatch_(noBatch),
       batchSize_(0),
       fullShape_(dims_),
-      shape_(&*(fullShape_.begin() + (noBatch_ ? 0 : 1)), &*(fullShape_.end())),
+      shape_(fullShape_.begin() + (noBatch_ ? 0 : 1), fullShape_.end()),
       variableDims_(anyNeg(shape_)),
       productDims_(variableDims_ ? -1 : dimProduct(shape_)),
       dname_(model_info.datatype()),
@@ -52,7 +52,7 @@ void TritonOutputData::createObject(nic::InferRequestedOutput** ioptr) const {
 
 //setters
 template <typename IO>
-bool TritonData<IO>::setShape(const std::vector<int64_t>& newShape, bool canThrow) {
+bool TritonData<IO>::setShape(const TritonData<IO>::ShapeType& newShape, bool canThrow) {
   bool result = true;
   for (unsigned i = 0; i < newShape.size(); ++i) {
     result &= setShape(i, newShape[i], canThrow);
