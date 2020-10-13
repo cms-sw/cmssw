@@ -1960,7 +1960,8 @@ void HGCalGeomParameters::rescale(std::vector<double>& v, const double s) {
 }
 
 void HGCalGeomParameters::resetZero(std::vector<double>& v) {
-  for (auto n : v)
+  for (auto& n : v) {
     if (std::abs(n) < tolmin)
       n = 0;
+  }
 }
