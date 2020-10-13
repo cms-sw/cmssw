@@ -156,10 +156,11 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
       uniqueLayerIds.push_back(layerId);
       lcIdAndLayer.emplace_back(i, layerId);
     }
-
+    std::sort(uniqueLayerIds.begin(), uniqueLayerIds.end());
+    uniqueLayerIds.erase(std::unique(uniqueLayerIds.begin(), uniqueLayerIds.end()), uniqueLayerIds.end());
+    unsigned int numberOfLayersInTrackster = uniqueLayerIds.size();
     if (check_missing_layers_) {
-      std::sort(uniqueLayerIds.begin(), uniqueLayerIds.end());
-      uniqueLayerIds.erase(std::unique(uniqueLayerIds.begin(), uniqueLayerIds.end()), uniqueLayerIds.end());
+
       int numberOfMissingLayers = 0;
       unsigned int j = showerMinLayerId;
       unsigned int indexInVec = 0;
@@ -168,7 +169,7 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
           numberOfMissingLayers++;
           j++;
           if (numberOfMissingLayers == max_missing_layers_in_trackster_) {
-            uniqueLayerIds.erase(uniqueLayerIds.begin() + indexInVec, uniqueLayerIds.end());
+            numberOfLayersInTrackster = indexInVec;
             for (auto &llpair : lcIdAndLayer) {
               if (llpair.second >= layer) {
                 effective_cluster_idx.erase(llpair.first);
@@ -183,7 +184,7 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
     }
 
     bool selected =
-        (uniqueLayerIds.size() >= min_layers_per_trackster_) and (showerMinLayerId <= shower_start_max_layer_);
+        (numberOfLayersInTrackster >= min_layers_per_trackster_) and (showerMinLayerId <= shower_start_max_layer_);
     if (selected) {
       for (auto const i : effective_cluster_idx) {
         layer_cluster_usage[i]++;
