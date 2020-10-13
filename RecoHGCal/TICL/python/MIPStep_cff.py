@@ -21,7 +21,7 @@ ticlTrackstersMIP = _trackstersProducer.clone(
     filtered_mask = cms.InputTag("filteredLayerClustersMIP", "MIP"),
     seeding_regions = "ticlSeedingGlobal",
     skip_layers = 3,
-    min_clusters_per_ntuplet = 10,
+    min_layers_per_trackster = 10,
     min_cos_theta = 0.99, # ~10 degrees
     min_cos_pointing = 0.5,
     out_in_dfs = False,
@@ -55,7 +55,7 @@ ticlTrackstersHFNoseMIP = ticlTrackstersMIP.clone(
     filtered_mask = cms.InputTag("filteredLayerClustersHFNoseMIP","MIPn"),
     seeding_regions = "ticlSeedingGlobalHFNose",
     time_layerclusters = cms.InputTag("hgcalLayerClustersHFNose","timeLayerCluster"),
-    min_clusters_per_ntuplet = 6
+    min_layers_per_trackster = 6
 )
 
 ticlHFNoseMIPStepTask = cms.Task(ticlSeedingGlobalHFNose
