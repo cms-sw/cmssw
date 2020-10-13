@@ -112,10 +112,10 @@ void DD4hep_MTDTopologyAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
     log << "Filtered DD SpecPar Registry size: " << specs.size() << "\n";
     for (const auto& t : specs) {
       log << "\nRegExps { ";
-      for (const auto& ki : t->paths)
+      for (const auto& ki : t.second->paths)
         log << ki << " ";
       log << "};\n ";
-      for (const auto& kl : t->spars) {
+      for (const auto& kl : t.second->spars) {
         log << kl.first << " = ";
         for (const auto& kil : kl.second) {
           log << kil << " ";
@@ -178,7 +178,7 @@ void DD4hep_MTDTopologyAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
       bool isSens = false;
 
       for (auto const& t : specs) {
-        for (auto const& it : t->paths) {
+        for (auto const& it : t.second->paths) {
           if (dd4hep::dd::compareEqual(fv.name(), dd4hep::dd::realTopName(it))) {
             isSens = true;
             break;
