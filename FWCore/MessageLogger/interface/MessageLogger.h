@@ -146,6 +146,8 @@ namespace edm {
              false,
              (MessageDrop::warningAlwaysSuppressed || !MessageDrop::instance()->warningEnabled))  // Change log 21
     {}
+    LogWarning(LogWarning const&) = delete;  // Change log 9
+    LogWarning& operator=(LogWarning const&) = delete;
     ~LogWarning();  // Change log 13
 
     template <class T>
@@ -182,8 +184,6 @@ namespace edm {
 
   private:
     MessageSender ap;
-    LogWarning(LogWarning const&) = delete;  // Change log 9
-    LogWarning& operator=(LogWarning const&) = delete;
 
   };  // LogWarning
 
@@ -192,6 +192,8 @@ namespace edm {
     explicit LogError(std::string_view id)
         : ap(ELerror, id, false, !MessageDrop::instance()->errorEnabled)  // Change log 24
     {}
+    LogError(LogError const&) = delete;  // Change log 9
+    LogError& operator=(LogError const&) = delete;
     ~LogError();  // Change log 13
 
     template <class T>
@@ -228,14 +230,14 @@ namespace edm {
 
   private:
     MessageSender ap;
-    LogError(LogError const&) = delete;  // Change log 9
-    LogError& operator=(LogError const&) = delete;
 
   };  // LogError
 
   class LogSystem {
   public:
     explicit LogSystem(std::string_view id) : ap(ELsevere, id) {}
+    LogSystem(LogSystem const&) = delete;  // Change log 9
+    LogSystem& operator=(LogSystem const&) = delete;
     ~LogSystem();  // Change log 13
 
     template <class T>
@@ -267,8 +269,6 @@ namespace edm {
 
   private:
     MessageSender ap;
-    LogSystem(LogSystem const&) = delete;  // Change log 9
-    LogSystem& operator=(LogSystem const&) = delete;
 
   };  // LogSystem
 
@@ -280,6 +280,9 @@ namespace edm {
              false,
              (MessageDrop::infoAlwaysSuppressed || !MessageDrop::instance()->infoEnabled))  // Change log 21
     {}
+    LogInfo(LogInfo const&) = delete;  // Change log 9
+    LogInfo& operator=(LogInfo const&) = delete;
+
     ~LogInfo();  // Change log 13
 
     template <class T>
@@ -316,8 +319,6 @@ namespace edm {
 
   private:
     MessageSender ap;
-    LogInfo(LogInfo const&) = delete;  // Change log 9
-    LogInfo& operator=(LogInfo const&) = delete;
 
   };  // LogInfo
 
@@ -331,6 +332,8 @@ namespace edm {
              true,
              (MessageDrop::infoAlwaysSuppressed || !MessageDrop::instance()->infoEnabled))  // Change log 21
     {}
+    LogVerbatim(LogVerbatim const&) = delete;  // Change log 9
+    LogVerbatim& operator=(LogVerbatim const&) = delete;
     ~LogVerbatim();  // Change log 13
 
     template <class T>
@@ -368,8 +371,6 @@ namespace edm {
 
   private:
     MessageSender ap;
-    LogVerbatim(LogVerbatim const&) = delete;  // Change log 9
-    LogVerbatim& operator=(LogVerbatim const&) = delete;
 
   };  // LogVerbatim
 
@@ -383,6 +384,8 @@ namespace edm {
              true,
              (MessageDrop::warningAlwaysSuppressed || !MessageDrop::instance()->warningEnabled))  // Change log 21
     {}
+    LogPrint(LogPrint const&) = delete;  // Change log 9
+    LogPrint& operator=(LogPrint const&) = delete;
     ~LogPrint();  // Change log 13
 
     template <class T>
@@ -420,8 +423,6 @@ namespace edm {
 
   private:
     MessageSender ap;
-    LogPrint(LogPrint const&) = delete;  // Change log 9
-    LogPrint& operator=(LogPrint const&) = delete;
 
   };  // LogPrint
 
@@ -432,6 +433,8 @@ namespace edm {
     explicit LogProblem(std::string_view id)
         : ap(ELerror, id, true, !MessageDrop::instance()->errorEnabled)  // Change log 24
     {}
+    LogProblem(LogProblem const&) = delete;  // Change log 9
+    LogProblem& operator=(LogProblem const&) = delete;
     ~LogProblem();  // Change log 13
 
     template <class T>
@@ -468,8 +471,6 @@ namespace edm {
 
   private:
     MessageSender ap;
-    LogProblem(LogProblem const&) = delete;  // Change log 9
-    LogProblem& operator=(LogProblem const&) = delete;
 
   };  // LogProblem
 
@@ -480,6 +481,8 @@ namespace edm {
     explicit LogImportant(std::string_view id)
         : ap(ELerror, id, true, !MessageDrop::instance()->errorEnabled)  // Change log 24
     {}
+    LogImportant(LogImportant const&) = delete;  // Change log 9
+    LogImportant& operator=(LogImportant const&) = delete;
     ~LogImportant();  // Change log 13
 
     template <class T>
@@ -516,8 +519,6 @@ namespace edm {
 
   private:
     MessageSender ap;
-    LogImportant(LogImportant const&) = delete;  // Change log 9
-    LogImportant& operator=(LogImportant const&) = delete;
 
   };  // LogImportant
 
@@ -528,6 +529,8 @@ namespace edm {
     explicit LogAbsolute(std::string_view id)
         : ap(ELsevere, id, true)  // true for verbatim
     {}
+    LogAbsolute(LogAbsolute const&) = delete;  // Change log 9
+    LogAbsolute& operator=(LogAbsolute const&) = delete;
     ~LogAbsolute();  // Change log 13
 
     template <class T>
@@ -559,8 +562,6 @@ namespace edm {
 
   private:
     MessageSender ap;
-    LogAbsolute(LogAbsolute const&) = delete;  // Change log 9
-    LogAbsolute& operator=(LogAbsolute const&) = delete;
 
   };  // LogAbsolute
 
@@ -667,6 +668,8 @@ namespace edm {
                false,
                (MessageDrop::infoAlwaysSuppressed || !MessageDrop::instance()->warningEnabled))  // Change log 22
       {}
+      LogWarningThatSuppressesLikeLogInfo(LogWarningThatSuppressesLikeLogInfo const&) = delete;  // Change log 9
+      LogWarningThatSuppressesLikeLogInfo& operator=(LogWarningThatSuppressesLikeLogInfo const&) = delete;
       ~LogWarningThatSuppressesLikeLogInfo();
       template <class T>
       LogWarningThatSuppressesLikeLogInfo& operator<<(T const& t) {
@@ -702,8 +705,6 @@ namespace edm {
 
     private:
       MessageSender ap;
-      LogWarningThatSuppressesLikeLogInfo(LogWarningThatSuppressesLikeLogInfo const&) = delete;  // Change log 9
-      LogWarningThatSuppressesLikeLogInfo& operator=(LogWarningThatSuppressesLikeLogInfo const&) = delete;
 
     };  // LogWarningThatSuppressesLikeLogInfo
   }     // end namespace edmmltest

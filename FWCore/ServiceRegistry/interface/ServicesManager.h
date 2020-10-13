@@ -67,6 +67,8 @@ namespace edm {
                       std::vector<ParameterSet>& iConfiguration,
                       bool associate = true);
 
+      ServicesManager(ServicesManager const&) = delete;                   // stop default
+      ServicesManager const& operator=(ServicesManager const&) = delete;  // stop default
       ~ServicesManager();
 
       // ---------- const member functions ---------------------
@@ -144,10 +146,6 @@ namespace edm {
       void copySlotsFrom(ActivityRegistry&);
 
     private:
-      ServicesManager(ServicesManager const&) = delete;  // stop default
-
-      ServicesManager const& operator=(ServicesManager const&) = delete;  // stop default
-
       void fillListOfMakers(std::vector<ParameterSet>&);
       void createServices();
       void createServiceFor(MakerHolder const&);

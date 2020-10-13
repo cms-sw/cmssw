@@ -38,6 +38,9 @@ namespace edm {
       }
     }
 
+    UnscheduledConfigurator(const UnscheduledConfigurator&) = delete;                   // stop default
+    const UnscheduledConfigurator& operator=(const UnscheduledConfigurator&) = delete;  // stop default
+
     // ---------- const member functions ---------------------
     Worker* findWorker(std::string const& iLabel) const {
       auto itFound = m_labelToWorker.find(iLabel);
@@ -50,10 +53,6 @@ namespace edm {
     UnscheduledAuxiliary const* auxiliary() const { return m_aux; }
 
   private:
-    UnscheduledConfigurator(const UnscheduledConfigurator&) = delete;  // stop default
-
-    const UnscheduledConfigurator& operator=(const UnscheduledConfigurator&) = delete;  // stop default
-
     // ---------- member data --------------------------------
     std::unordered_map<std::string, Worker*> m_labelToWorker;
     UnscheduledAuxiliary const* m_aux;

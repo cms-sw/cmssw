@@ -37,6 +37,8 @@ namespace edmplugin {
   class PluginFactoryBase {
   public:
     PluginFactoryBase() {}
+    PluginFactoryBase(const PluginFactoryBase&) = delete;                   // stop default
+    const PluginFactoryBase& operator=(const PluginFactoryBase&) = delete;  // stop default
     virtual ~PluginFactoryBase();
 
     struct PluginMakerInfo {
@@ -102,10 +104,6 @@ namespace edmplugin {
     void registerPMaker(void* iPMaker, const std::string& iName);
 
   private:
-    PluginFactoryBase(const PluginFactoryBase&) = delete;  // stop default
-
-    const PluginFactoryBase& operator=(const PluginFactoryBase&) = delete;  // stop default
-
     void checkProperLoadable(const std::string& iName, const std::string& iLoadedFrom) const;
     // ---------- member data --------------------------------
     Plugins m_plugins;
