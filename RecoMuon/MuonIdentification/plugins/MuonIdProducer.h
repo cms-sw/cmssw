@@ -246,6 +246,9 @@ private:
   edm::Handle<RPCRecHitCollection> rpcHitHandle_;
   edm::Handle<edm::ValueMap<reco::MuonQuality> > glbQualHandle_;
 
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> geomTokenRun_;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorToken_;
+
   MuonCaloCompatibility muonCaloCompatibility_;
   std::unique_ptr<reco::isodeposit::IsoDepositExtractor> muIsoExtractorCalo_;
   std::unique_ptr<reco::isodeposit::IsoDepositExtractor> muIsoExtractorTrack_;
