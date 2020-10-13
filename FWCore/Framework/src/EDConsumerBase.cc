@@ -193,6 +193,8 @@ void EDConsumerBase::updateLookup(BranchType iBranchType,
 }
 
 void EDConsumerBase::updateLookup(eventsetup::ESRecordsToProxyIndices const& iPI) {
+  registerLateConsumes(iPI);
+
   unsigned int index = 0;
   for (auto it = m_esTokenInfo.begin<kESLookupInfo>(); it != m_esTokenInfo.end<kESLookupInfo>(); ++it, ++index) {
     auto indexInRecord = iPI.indexInRecord(it->m_record, it->m_key);
