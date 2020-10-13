@@ -29,6 +29,8 @@ namespace edmplugin {
   class SharedLibrary {
   public:
     SharedLibrary(const std::filesystem::path& iName);
+    SharedLibrary(const SharedLibrary&) = delete;                   // stop default
+    const SharedLibrary& operator=(const SharedLibrary&) = delete;  // stop default
     ~SharedLibrary();
 
     // ---------- const member functions ---------------------
@@ -40,10 +42,6 @@ namespace edmplugin {
     // ---------- member functions ---------------------------
 
   private:
-    SharedLibrary(const SharedLibrary&) = delete;  // stop default
-
-    const SharedLibrary& operator=(const SharedLibrary&) = delete;  // stop default
-
     // ---------- member data --------------------------------
     void* libraryHandle_;
     std::filesystem::path path_;

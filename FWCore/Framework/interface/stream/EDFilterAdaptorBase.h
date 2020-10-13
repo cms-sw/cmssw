@@ -53,6 +53,8 @@ namespace edm {
       friend class edm::WorkerT;
 
       EDFilterAdaptorBase();
+      EDFilterAdaptorBase(const EDFilterAdaptorBase&) = delete;                   // stop default
+      const EDFilterAdaptorBase& operator=(const EDFilterAdaptorBase&) = delete;  // stop default
 
       // ---------- const member functions ---------------------
 
@@ -66,10 +68,6 @@ namespace edm {
       using ProducingModuleAdaptorBase<EDFilterBase>::commit;
 
     private:
-      EDFilterAdaptorBase(const EDFilterAdaptorBase&) = delete;  // stop default
-
-      const EDFilterAdaptorBase& operator=(const EDFilterAdaptorBase&) = delete;  // stop default
-
       bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
 
       void doAcquire(EventTransitionInfo const&,
