@@ -30,13 +30,14 @@ class TritonData {
 public:
   using Result = nvidia::inferenceserver::client::InferResult;
   using TensorMetadata = inference::ModelMetadataResponse_TensorMetadata;
-  using ShapeView = edm::Span<const int64_t*>;
+  using ShapeType = std::vector<int64_t>;
+  using ShapeView = edm::Span<ShapeType::const_iterator>;
 
   //constructor
   TritonData(const std::string& name, const TensorMetadata& model_info, bool noBatch);
 
   //some members can be modified
-  bool setShape(const std::vector<int64_t>& newShape) { return setShape(newShape, true); }
+  bool setShape(const ShapeType& newShape) { return setShape(newShape, true); }
   bool setShape(unsigned loc, int64_t val) { return setShape(loc, val, true); }
 
   //io accessors
@@ -61,7 +62,7 @@ private:
   friend class TritonClient;
 
   //private accessors only used by client
-  bool setShape(const std::vector<int64_t>& newShape, bool canThrow);
+  bool setShape(const ShapeType& newShape, bool canThrow);
   bool setShape(unsigned loc, int64_t val, bool canThrow);
   void setBatchSize(unsigned bsize);
   void reset();
@@ -80,10 +81,10 @@ private:
   //members
   std::string name_;
   std::shared_ptr<IO> data_;
-  const std::vector<int64_t> dims_;
+  const ShapeType dims_;
   bool noBatch_;
   unsigned batchSize_;
-  std::vector<int64_t> fullShape_;
+  ShapeType fullShape_;
   ShapeView shape_;
   bool variableDims_;
   int64_t productDims_;
