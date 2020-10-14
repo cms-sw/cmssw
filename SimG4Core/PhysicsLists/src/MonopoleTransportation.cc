@@ -104,7 +104,7 @@ G4double MonopoleTransportation::AlongStepGetPhysicalInteractionLength(const G4T
                                                                        G4double& currentSafety,
                                                                        G4GPILSelection* selection) {
   // change to monopole equation
-  fieldMgrCMS->SetMonopoleTracking(true);
+  fieldMgrCMS->setMonopoleTracking(true);
 
   G4double geometryStepLength, newSafety;
   fParticleIsLooping = false;
@@ -515,7 +515,7 @@ G4VParticleChange* MonopoleTransportation::PostStepDoIt(const G4Track& track, co
   fParticleChange.SetTouchableHandle(retCurrentTouchable);
 
   // change to normal equation
-  fieldMgrCMS->SetMonopoleTracking(false);
+  fieldMgrCMS->setMonopoleTracking(false);
 
   return &fParticleChange;
 }
