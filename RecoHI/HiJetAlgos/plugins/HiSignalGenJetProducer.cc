@@ -34,14 +34,12 @@ HiSignalGenJetProducer::HiSignalGenJetProducer(const edm::ParameterSet& iConfig)
 }
 
 void HiSignalGenJetProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) const {
-
   auto jets = std::make_unique<reco::GenJetCollection>();
 
   edm::Handle<edm::View<reco::GenJet> > genjets;
   iEvent.getByToken(jetSrc_, genjets);
 
-  for (const reco::GenJet &jet1 : *genjets){
-
+  for (const reco::GenJet& jet1 : *genjets) {
     const reco::GenParticle* gencon = jet1.getGenConstituent(0);
 
     if (gencon == nullptr)

@@ -35,13 +35,12 @@ HiSignalParticleProducer::HiSignalParticleProducer(const edm::ParameterSet& iCon
 }
 
 void HiSignalParticleProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) const {
-
   auto signalGenParticles = std::make_unique<reco::GenParticleCollection>();
-  
+
   edm::Handle<edm::View<reco::GenParticle> > genParticles;
   iEvent.getByToken(genParticleSrc_, genParticles);
-  
-  for (const reco::GenParticle &genParticle : *genParticles){
+
+  for (const reco::GenParticle& genParticle : *genParticles) {
     if (genParticle.collisionId() == 0) {
       signalGenParticles->push_back(genParticle);
     }
