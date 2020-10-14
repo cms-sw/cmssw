@@ -1284,7 +1284,7 @@ _common_score = {#"title": "Score CaloParticle to MultiClusters",
                  "ylog": True
                 }
 _common_score.update(_legend_common)
-_score_caloparticle_to_multiclusters = PlotGroup("score_caloparticle_to_multicluster", [
+_score_caloparticle_to_multiclusters = PlotGroup("ScoreCaloParticlesToMultiClusters", [
         Plot("Score_caloparticle2multicl", **_common_score)
         ], ncols=1)
 
@@ -1299,9 +1299,9 @@ _common_score = {#"title": "Score MultiCluster to CaloParticles",
                  "ylog": True
                 }
 _common_score.update(_legend_common)
-_score_multicluster_to_caloparticles = PlotGroup("score_multicluster_to_caloparticle", [
+_score_multicluster_to_caloparticles = PlotGroup("ScoreMultiClustersToCaloParticles", [
         Plot("Score_multicl2caloparticle", **_common_score)
-        ])
+        ], ncols=1)
 
 _common_shared= {"title": "Shared Energy CaloParticle To Multi Cluster ",
                  "stat": False,
@@ -1315,7 +1315,7 @@ _common_shared["xmin"] = -4.0
 _common_shared["xmax"] = 4.0
 _shared_plots.extend([Plot("SharedEnergy_caloparticle2multicl_vs_eta", **_common_shared)])
 _shared_plots.extend([Plot("SharedEnergy_caloparticle2multicl_vs_phi", **_common_shared)])
-_sharedEnergy_caloparticle_to_multicluster = PlotGroup("sharedEnergy_caloparticle_to_multicluster", _shared_plots, ncols=3)
+_sharedEnergy_caloparticle_to_multicluster = PlotGroup("SharedEnergy_CaloParticleToMultiCluster", _shared_plots, ncols=3)
 
 _common_shared= {"title": "Shared Energy Multi Cluster To CaloParticle ",
                  "stat": False,
@@ -1329,7 +1329,7 @@ _common_shared["xmin"] = -4.0
 _common_shared["xmax"] = 4.0
 _shared_plots2.extend([Plot("SharedEnergy_multicl2caloparticle_vs_eta", **_common_shared)])
 _shared_plots2.extend([Plot("SharedEnergy_multicl2caloparticle_vs_phi", **_common_shared)])
-_sharedEnergy_multicluster_to_caloparticle = PlotGroup("sharedEnergy_multicluster_to_caloparticle", _shared_plots2, ncols=3)
+_sharedEnergy_multicluster_to_caloparticle = PlotGroup("SharedEnergy_MultiClusterToCaloParticle", _shared_plots2, ncols=3)
 
 
 _common_assoc = {#"title": "Cell Association Table",
@@ -1374,39 +1374,32 @@ _merges = PlotGroup("MergeRate", _mergeplots, ncols=3)
 _common_energy_score = dict(removeEmptyBins=True, xbinlabelsize=10, xbinlabeloption="d")
 _common_energy_score["ymax"] = 1.
 _common_energy_score["xmax"] = 1.0
-_energyscore_cp2mcl = PlotOnSideGroup("_energyscore_cp2mcl", Plot("Energy_vs_Score_caloparticle2multi", drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score), ncols=1)
+_energyscore_cp2mcl = PlotOnSideGroup("Energy_vs_Score_CaloParticlesToMultiClusters", Plot("Energy_vs_Score_caloparticle2multi", drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score), ncols=1)
 _common_energy_score["ymax"] = 1.
 _common_energy_score["xmax"] = 1.0
-_energyscore_mcl2cp = PlotOnSideGroup("_energyscore_mcl2cp", Plot("Energy_vs_Score_multi2caloparticle", drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score), ncols=1)
+_energyscore_mcl2cp = PlotOnSideGroup("Energy_vs_Score_MultiClustersToCaloParticles", Plot("Energy_vs_Score_multi2caloparticle", drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score), ncols=1)
 
 #Coming back to the usual box definition
 _common = {"stat": True, "drawStyle": "hist", "staty": 0.65 }
 
-_totmulticlusternum = PlotGroup("totmulticlusternum", [
+_totmulticlusternum = PlotGroup("TotalNumberofMultiClusters", [
   Plot("totmulticlusternum", xtitle="", **_common)
 ],ncols=1)
 
-_multicluster_firstlayer = PlotGroup("multicluster_firstlayer", [
-  Plot("multicluster_firstlayer", xtitle="Layer number", **_common)
-],ncols=1)
-
-_multicluster_lastlayer = PlotGroup("multicluster_lastlayer", [
-  Plot("multicluster_lastlayer", xtitle="Layer number", **_common)
-],ncols=1)
-
-_multicluster_layersnum = PlotGroup("multicluster_layersnum", [
-  Plot("multicluster_layersnum", xtitle="", **_common)
-],ncols=1)
+_multicluster_layernum_plots = [Plot("multicluster_firstlayer", xtitle="MultiCluster First Layer", **_common)]
+_multicluster_layernum_plots.extend([Plot("multicluster_lastlayer", xtitle="MultiCluster Last Layer", **_common)])
+_multicluster_layernum_plots.extend([Plot("multicluster_layersnum", xtitle="MultiCluster Number of Layers", **_common)])
+_multicluster_layernum = PlotGroup("LayerNumbersOfMultiCluster", _multicluster_layernum_plots, ncols=3)
 
 _common["xmax"] = 50
-_clusternum_in_multicluster = PlotGroup("clusternum_in_multicluster",[
+_clusternum_in_multicluster = PlotGroup("NumberofLayerClustersinMultiCluster",[
   Plot("clusternum_in_multicluster", xtitle="", **_common)
 ],ncols=1)
 
 _common = {"stat": True, "drawStyle": "hist", "staty": 0.65}
 _common = {"stat": True, "drawStyle": "pcolz", "staty": 0.65}
 
-_clusternum_in_multicluster_vs_layer = PlotGroup("clusternum_in_multicluster_vs_layer",[
+_clusternum_in_multicluster_vs_layer = PlotGroup("NumberofLayerClustersinMultiClusterPerLayer",[
   Plot("clusternum_in_multicluster_vs_layer", xtitle="Layer number", ytitle = "<2d Layer Clusters in Multicluster>",  **_common)
 ],ncols=1)
 
@@ -1415,50 +1408,45 @@ _common["scale"] = 100.
 _multiplicity_numberOfEventsHistogram = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/ticlMultiClustersFromTrackstersEM/multiplicity_numberOfEventsHistogram"
 _multiplicity_zminus_numberOfEventsHistogram = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/ticlMultiClustersFromTrackstersEM/multiplicity_zminus_numberOfEventsHistogram"
 _multiplicity_zplus_numberOfEventsHistogram = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/ticlMultiClustersFromTrackstersEM/multiplicity_zplus_numberOfEventsHistogram"
-_multiplicityOfLCinMCL = PlotGroup("multiplicityOfLCinMCL",[
-  Plot("multiplicityOfLCinMCL", xtitle="Layer Cluster multiplicity in Multiclusters", ytitle = "Cluster size (n_{hit})         ", drawCommand = "colz text45", normalizeToNumberOfEvents = True, **_common)
-],ncols=1)
 
-_multiplicityOfLCinMCL_vs_layercluster_zminus = PlotGroup("multiplicityOfLCinMCL_vs_layercluster_zminus",[
-  Plot("multiplicityOfLCinMCL_vs_layercluster_zminus", xtitle="Layer Cluster multiplicity in Multiclusters", ytitle = "Layer Number         ", drawCommand = "colz text45", normalizeToNumberOfEvents = True, **_common)
-],ncols=1)
-
-_multiplicityOfLCinMCL_vs_layercluster_zplus = PlotGroup("multiplicityOfLCinMCL_vs_layercluster_zplus",[
-  Plot("multiplicityOfLCinMCL_vs_layercluster_zplus", xtitle="Layer Cluster multiplicity in Multiclusters", ytitle = "Layer Number         ", drawCommand = "colz text45", normalizeToNumberOfEvents = True, **_common)
-],ncols=1)
-
-_multiplicityOfLCinMCL_vs_layerclusterenergy = PlotGroup("multiplicityOfLCinMCL_vs_layerclusterenergy",[
-  Plot("multiplicityOfLCinMCL_vs_layerclusterenergy", xtitle="Layer Cluster multiplicity in Multiclusters", ytitle = "Cluster Energy (GeV)         ", drawCommand = "colz text45", normalizeToNumberOfEvents = True, **_common)
-],ncols=1)
+_multiplicityOfLCinMCL_plots = [Plot("multiplicityOfLCinMCL", xtitle="Layer Cluster multiplicity in Multiclusters", ytitle = "Cluster size (n_{hit})", 
+                                drawCommand = "colz text45", normalizeToNumberOfEvents = True, **_common)]
+_multiplicityOfLCinMCL_plots.extend([Plot("multiplicityOfLCinMCL_vs_layerclusterenergy", xtitle="Layer Cluster multiplicity in Multiclusters", ytitle = "Cluster Energy (GeV)", 
+                                drawCommand = "colz text45", normalizeToNumberOfEvents = True, **_common)]) 
+_multiplicityOfLCinMCL_plots.extend([Plot("multiplicityOfLCinMCL_vs_layercluster_zplus", xtitle="Layer Cluster multiplicity in Multiclusters", ytitle = "Layer Number", 
+                                drawCommand = "colz text45", normalizeToNumberOfEvents = True, **_common)])
+_multiplicityOfLCinMCL_plots.extend([Plot("multiplicityOfLCinMCL_vs_layercluster_zminus", xtitle="Layer Cluster multiplicity in Multiclusters", ytitle = "Layer Number", 
+                                drawCommand = "colz text45", normalizeToNumberOfEvents = True, **_common)])
+_multiplicityOfLCinMCL = PlotGroup("MultiplcityofLCinMLC", _multiplicityOfLCinMCL_plots, ncols=2)
 
 _common = {"stat": True, "drawStyle": "hist", "staty": 0.65}
 #--------------------------------------------------------------------------------------------
 # z-
 #--------------------------------------------------------------------------------------------
-_clusternum_in_multicluster_perlayer_zminus_EE = PlotGroup("clusternum_in_multicluster_perlayer_zminus_EE", [
+_clusternum_in_multicluster_perlayer_zminus_EE = PlotGroup("NumberofLayerClustersinMultiClusterPerLayer_zminus_EE", [
   Plot("clusternum_in_multicluster_perlayer{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
 ], ncols=4)
 
-_clusternum_in_multicluster_perlayer_zminus_FH = PlotGroup("clusternum_in_multicluster_perlayer_zminus_FH", [
+_clusternum_in_multicluster_perlayer_zminus_FH = PlotGroup("NumberofLayerClustersinMultiClusterPerLayer_zminus_FH", [
   Plot("clusternum_in_multicluster_perlayer{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
 ], ncols=4)
 
-_clusternum_in_multicluster_perlayer_zminus_BH = PlotGroup("clusternum_in_multicluster_perlayer_zminus_BH", [
+_clusternum_in_multicluster_perlayer_zminus_BH = PlotGroup("NumberofLayerClustersinMultiClusterPerLayer_zminus_BH", [
   Plot("clusternum_in_multicluster_perlayer{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
 ], ncols=4)
 
 #--------------------------------------------------------------------------------------------
 # z+
 #--------------------------------------------------------------------------------------------
-_clusternum_in_multicluster_perlayer_zplus_EE = PlotGroup("clusternum_in_multicluster_perlayer_zplus_EE", [
+_clusternum_in_multicluster_perlayer_zplus_EE = PlotGroup("NumberofLayerClustersinMultiClusterPerLayer_zplus_EE", [
   Plot("clusternum_in_multicluster_perlayer{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
 ], ncols=4)
 
-_clusternum_in_multicluster_perlayer_zplus_FH = PlotGroup("clusternum_in_multicluster_perlayer_zplus_FH", [
+_clusternum_in_multicluster_perlayer_zplus_FH = PlotGroup("NumberofLayerClustersinMultiClusterPerLayer_zplus_FH", [
   Plot("clusternum_in_multicluster_perlayer{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
 ], ncols=4)
 
-_clusternum_in_multicluster_perlayer_zplus_BH = PlotGroup("clusternum_in_multicluster_perlayer_zplus_BH", [
+_clusternum_in_multicluster_perlayer_zplus_BH = PlotGroup("NumberofLayerClustersinMultiClusterPerLayer_zplus_BH", [
   Plot("clusternum_in_multicluster_perlayer{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
 ], ncols=4)
 
@@ -1466,33 +1454,16 @@ _clusternum_in_multicluster_perlayer_zplus_BH = PlotGroup("clusternum_in_multicl
 _common = {"stat": True, "drawStyle": "hist", "staty": 0.65 }
 
 #Some multiclusters quantities
-_multicluster_pt = PlotGroup("multicluster_pt", [
-  Plot("multicluster_pt", xtitle="", **_common)
-],ncols=1)
+_multicluster_eppe_plots = [Plot("multicluster_eta", xtitle="MultiCluster #eta", **_common)]
+_multicluster_eppe_plots.extend([Plot("multicluster_phi", xtitle="MultiCluster #phi", **_common)])
+_multicluster_eppe_plots.extend([Plot("multicluster_pt", xtitle="MultiCluster p_{T}", **_common)])
+_multicluster_eppe_plots.extend([Plot("multicluster_energy", xtitle="MultiCluster Energy", **_common)])
+_multicluster_eppe = PlotGroup("EtaPhiPtEnergy", _multicluster_eppe_plots, ncols=2)
 
-_multicluster_eta = PlotGroup("multicluster_eta", [
-  Plot("multicluster_eta", xtitle="", **_common)
-],ncols=1)
-
-_multicluster_phi = PlotGroup("multicluster_phi", [
-  Plot("multicluster_phi", xtitle="", **_common)
-],ncols=1)
-
-_multicluster_energy = PlotGroup("multicluster_energy", [
-  Plot("multicluster_energy", xtitle="", **_common)
-],ncols=1)
-
-_multicluster_x = PlotGroup("multicluster_x", [
-  Plot("multicluster_x", xtitle="", **_common)
-],ncols=1)
-
-_multicluster_y = PlotGroup("multicluster_y", [
-  Plot("multicluster_y", xtitle="", **_common)
-],ncols=1)
-
-_multicluster_z = PlotGroup("multicluster_z", [
-  Plot("multicluster_z", xtitle="", **_common)
-],ncols=1)
+_multicluster_xyz_plots = [Plot("multicluster_x", xtitle="MultiCluster x", **_common)]
+_multicluster_xyz_plots.extend([Plot("multicluster_y", xtitle="MultiCluster y", **_common)])
+_multicluster_xyz_plots.extend([Plot("multicluster_z", xtitle="MultiCluster z", **_common)])
+_multicluster_xyz = PlotGroup("XYZ", _multicluster_xyz_plots, ncols=3)
 
 #--------------------------------------------------------------------------------------------
 # SIMHITS, DIGIS, RECHITS
@@ -2111,20 +2082,20 @@ hgcalLayerClustersPlotter.append("ScoreLayerClustersToCaloParticles_zplus", [
 
 # [K] Shared Energy between CaloParticle and LayerClusters
 # z-
-hgcalLayerClustersPlotter.append("SharedEnergyC2L_zminus", [
+hgcalLayerClustersPlotter.append("SharedEnergy_C2L_zminus", [
             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
             ], PlotFolder(
             _sharedEnergy_caloparticle_to_layercluster_zminus,
             loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="SharedEnergyCaloParticleToLayerCluster_zminus"))
+            purpose=PlotPurpose.Timing, page="SharedEnergy_CaloParticleToLayerCluster_zminus"))
 
 # z+
-hgcalLayerClustersPlotter.append("SharedEnergyC2L_zplus", [
+hgcalLayerClustersPlotter.append("SharedEnergy_C2L_zplus", [
             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
             ], PlotFolder(
             _sharedEnergy_caloparticle_to_layercluster_zplus,
             loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="SharedEnergyCaloParticleToLayerCluster_zplus"))
+            purpose=PlotPurpose.Timing, page="SharedEnergy_CaloParticleToLayerCluster_zplus"))
 
 # [K2] Shared Energy between LayerClusters and CaloParticle
 # z-
@@ -2267,175 +2238,65 @@ for i,item in enumerate(_energyscore_lc2cp_zplus, start=1):
               purpose=PlotPurpose.Timing, page="Energy_vs_Score_LC2CP_zplus"))
 
 #=================================================================================================
-def create_hgcalMultiClustersPlotter(collection = 'ticlMultiClustersFromTrackstersMerge'):
+def _hgcalFolders(lastDirName="hgcalLayerClusters"):
+    return "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/"+lastDirName
 
-  hgcalMultiClustersPlotter = Plotter()
-  dqmfolder = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/" + collection
+_multiclustersAllPlots = [
+  _efficiencies,
+  _duplicates,
+  _fakes,
+  _merges,
+  _multicluster_eppe,
+  _multicluster_xyz,
+  _totmulticlusternum,
+  _score_caloparticle_to_multiclusters,
+  _score_multicluster_to_caloparticles,
+  _sharedEnergy_caloparticle_to_multicluster,
+  _sharedEnergy_multicluster_to_caloparticle,
+  #_energyscore_cp2mcl_mcl2cp,
+  _energyscore_cp2mcl,
+  _energyscore_mcl2cp,
+  _clusternum_in_multicluster,
+  _clusternum_in_multicluster_vs_layer,
+  _clusternum_in_multicluster_perlayer_zminus_EE,
+  _clusternum_in_multicluster_perlayer_zminus_FH,
+  _clusternum_in_multicluster_perlayer_zminus_BH,
+  _clusternum_in_multicluster_perlayer_zplus_EE,
+  _clusternum_in_multicluster_perlayer_zplus_FH,
+  _clusternum_in_multicluster_perlayer_zplus_BH,
+  _multicluster_layernum,
+  _multiplicityOfLCinMCL,
+]
 
-  # [A] Score of CaloParticles wrt Multi Clusters
-  hgcalMultiClustersPlotter.append("ScoreCaloParticlesToMultiClusters", [
-              dqmfolder
+hgcalMultiClustersPlotter = Plotter()
+def append_hgcalMultiClustersPlots(collection = 'ticlMultiClustersFromTrackstersMerge', name_collection = "MultiClustersMerge"):
+  # Appending all plots for MCs
+  hgcalMultiClustersPlotter.append(name_collection, [
+              _hgcalFolders(collection)
               ], PlotFolder(
-              _score_caloparticle_to_multiclusters,
+              *_multiclustersAllPlots,
               loopSubFolders=False,
-              purpose=PlotPurpose.Timing, page="ScoreCaloParticlesToMultiClusters"))
+              purpose=PlotPurpose.Timing, page="MultiClusters", section=name_collection))
 
-  # [B] Score of MultiClusters wrt CaloParticles
-  hgcalMultiClustersPlotter.append("ScoreMultiClustersToCaloParticles", [
-              dqmfolder
-              ], PlotFolder(
-              _score_multicluster_to_caloparticles,
-              loopSubFolders=False,
-              purpose=PlotPurpose.Timing, page="ScoreMultiClustersToCaloParticles"))
-  
-  # [C] Shared Energy between CaloParticle and MultiClusters
-  hgcalMultiClustersPlotter.append("SharedEnergy_CP2MCL", [
-              dqmfolder
-              ], PlotFolder(
-              _sharedEnergy_caloparticle_to_multicluster,
-              loopSubFolders=False,
-              purpose=PlotPurpose.Timing, page="SharedEnergyCaloParticleToMultiCluster"))
-  
-  # [C2] Shared Energy between MultiClusters and CaloParticle
-  hgcalMultiClustersPlotter.append("SharedEnergy_MCL2CP", [
-              dqmfolder
-              ], PlotFolder(
-              _sharedEnergy_multicluster_to_caloparticle,
-              loopSubFolders=False,
-              purpose=PlotPurpose.Timing, page="SharedEnergyMultiClusterToCaloParticle"))
-  
-  # [E] Efficiency Plots
-  hgcalMultiClustersPlotter.append("Efficiencies", [
-              dqmfolder
-              ], PlotFolder(
-              _efficiencies,
-              loopSubFolders=False,
-              purpose=PlotPurpose.Timing, page="Efficiencies"))
-  
-  # [F] Duplicate Plots
-  hgcalMultiClustersPlotter.append("Duplicates", [
-              dqmfolder
-              ], PlotFolder(
-              _duplicates,
-              loopSubFolders=False,
-              purpose=PlotPurpose.Timing, page="Duplicates"))
-  
-  # [G] Fake Rate Plots
-  hgcalMultiClustersPlotter.append("FakeRate", [
-              dqmfolder
-              ], PlotFolder(
-              _fakes,
-              loopSubFolders=False,
-              purpose=PlotPurpose.Timing, page="Fakes"))
-  
-  # [H] Merge Rate Plots
-  hgcalMultiClustersPlotter.append("MergeRate", [
-              dqmfolder
-              ], PlotFolder(
-              _merges,
-              loopSubFolders=False,
-              purpose=PlotPurpose.Timing, page="Merges"))
-  
-  # [I] Energy vs Score 2D plots CP to MCL and MCL to CP
-  hgcalMultiClustersPlotter.append("Energy_vs_Score_CP2MCL_MCL2CP", [
-              dqmfolder
-              ], PlotFolder(
-              #_energyscore_cp2mcl_mcl2cp,
-              _energyscore_cp2mcl,
-              loopSubFolders=False,
-              purpose=PlotPurpose.Timing, page="Energy_vs_Score_CP2MCL"))
-  
-  # [J] Energy vs Score 2D plots MCL to CP
-  hgcalMultiClustersPlotter.append("Energy_vs_Score_MCL2CP", [
-              dqmfolder
-              ], PlotFolder(
-              _energyscore_mcl2cp,
-              loopSubFolders=False,
-              purpose=PlotPurpose.Timing, page="Energy_vs_Score_MCL2CP"))
-  
-  #[K] Number of multiclusters per event.
-  hgcalMultiClustersPlotter.append("NumberofMultiClusters", [
-              dqmfolder
-              ], PlotFolder(
-              _totmulticlusternum,
-              loopSubFolders=False,
-              purpose=PlotPurpose.Timing, page="NumberofMultiClusters"
-              ))
-  
-  #[L] total number of layer clusters in multicluster per event and per layer
-  hgcalMultiClustersPlotter.append("NumberofLayerClustersinMultiClusterPerEventAndPerLayer", [
-              dqmfolder
-              ], PlotFolder(
-              _clusternum_in_multicluster,
-              _clusternum_in_multicluster_vs_layer,
-              _clusternum_in_multicluster_perlayer_zminus_EE,
-              _clusternum_in_multicluster_perlayer_zminus_FH,
-              _clusternum_in_multicluster_perlayer_zminus_BH,
-              _clusternum_in_multicluster_perlayer_zplus_EE,
-              _clusternum_in_multicluster_perlayer_zplus_FH,
-              _clusternum_in_multicluster_perlayer_zplus_BH,
-              loopSubFolders=False,
-              purpose=PlotPurpose.Timing, page="NumberofLayerClustersinMultiClusterPerEventAndPerLayer"
-              ))
-  
-  #[M] For each multicluster: pt, eta, phi, energy, x, y, z.
-  hgcalMultiClustersPlotter.append("MultiClustersPtEtaPhiEneXYZ", [
-              dqmfolder
-              ], PlotFolder(
-              _multicluster_pt,
-              _multicluster_eta,
-              _multicluster_phi,
-              _multicluster_energy,
-              _multicluster_x,
-              _multicluster_y,
-              _multicluster_z,
-              loopSubFolders=False,
-              purpose=PlotPurpose.Timing, page="MultiClustersPtEtaPhiEneXYZ"
-              ))
-  
-  #[N] Multicluster first, last, total number of layers
-  hgcalMultiClustersPlotter.append("NumberofMultiClusters_First_Last_NLayers", [
-              dqmfolder
-              ], PlotFolder(
-              _multicluster_firstlayer,
-              _multicluster_lastlayer,
-              _multicluster_layersnum,
-              loopSubFolders=False,
-              purpose=PlotPurpose.Timing, page="NumberofMultiClusters_First_Last_NLayers"
-              ))
-  
-  #[O] Multiplicity of layer clusters in multicluster
-  hgcalMultiClustersPlotter.append("Multiplicity", [
-              dqmfolder
-              ], PlotFolder(
-              _multiplicityOfLCinMCL,
-              _multiplicityOfLCinMCL_vs_layerclusterenergy,
-              loopSubFolders=False,
-              purpose=PlotPurpose.Timing, page="Multiplicity",
-              numberOfEventsHistogram=_multiplicity_numberOfEventsHistogram
-              ))
-  
   #We append here two PlotFolder because we want the text to be in percent
   #and the number of events are different in zplus and zminus
-  hgcalMultiClustersPlotter.append("Multiplicity", [
-              dqmfolder
-              ], PlotFolder(
-              _multiplicityOfLCinMCL_vs_layercluster_zminus,
-              loopSubFolders=False,
-              purpose=PlotPurpose.Timing, page="Multiplicity",
-              numberOfEventsHistogram=_multiplicity_zminus_numberOfEventsHistogram
-              ))
-  
-  hgcalMultiClustersPlotter.append("Multiplicity", [
-              dqmfolder
-              ], PlotFolder(
-              _multiplicityOfLCinMCL_vs_layercluster_zplus,
-              loopSubFolders=False,
-              purpose=PlotPurpose.Timing, page="Multiplicity",
-              numberOfEventsHistogram=_multiplicity_zplus_numberOfEventsHistogram
-              ))
-
-  return hgcalMultiClustersPlotter
+  #hgcalMultiClustersPlotter.append("Multiplicity", [
+  #            dqmfolder
+  #            ], PlotFolder(
+  #            _multiplicityOfLCinMCL_vs_layercluster_zminus,
+  #            loopSubFolders=False,
+  #            purpose=PlotPurpose.Timing, page=collection,
+  #            numberOfEventsHistogram=_multiplicity_zminus_numberOfEventsHistogram
+  #            ))
+  #
+  #hgcalMultiClustersPlotter.append("Multiplicity", [
+  #            dqmfolder
+  #            ], PlotFolder(
+  #            _multiplicityOfLCinMCL_vs_layercluster_zplus,
+  #            loopSubFolders=False,
+  #            purpose=PlotPurpose.Timing, page=collection,
+  #            numberOfEventsHistogram=_multiplicity_zplus_numberOfEventsHistogram
+  #            ))
 
 
 #=================================================================================================
