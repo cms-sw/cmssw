@@ -319,8 +319,7 @@ void Tracklet::addMatch(int layer,
                         const trklet::Stub* stubptr) {
   assert(layer > 0 && layer <= N_LAYER);
   layerresid_[layer - 1].init(
-			      settings_, layer, ideltaphi, ideltaz, stubid, dphi, dz,
-			      dphiapprox, dzapprox, rstub, stubptr); 
+      settings_, layer, ideltaphi, ideltaz, stubid, dphi, dz, dphiapprox, dzapprox, rstub, stubptr);
 }
 
 void Tracklet::addMatchDisk(int disk,

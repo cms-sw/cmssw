@@ -8,7 +8,6 @@
 #include "L1Trigger/TrackFindingTracklet/interface/CircularBuffer.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletEngineUnit.h"
 
-
 #include <vector>
 #include <tuple>
 #include <map>
@@ -46,11 +45,11 @@ namespace trklet {
     VMStubsTEMemory* outervmstubs_;
 
     //                                               istub          imem        start imem    end imem
-    std::vector<std::tuple<CircularBuffer<TEData>, unsigned int , unsigned int, unsigned int, unsigned int> > tedatabuffers_;
+    std::vector<std::tuple<CircularBuffer<TEData>, unsigned int, unsigned int, unsigned int, unsigned int> >
+        tedatabuffers_;
 
     std::vector<TrackletEngineUnit> teunits_;
 
-    
     std::vector<AllStubsMemory*> innerallstubs_;
     std::vector<AllStubsMemory*> outerallstubs_;
 
@@ -61,21 +60,19 @@ namespace trklet {
     std::vector<bool> pttableouternew_;
 
     std::vector<std::vector<bool> > useregion_;
-    
+
     int nbitsfinephi_;
     int nbitsfinephidiff_;
-    
+
     int innerphibits_;
     int outerphibits_;
-    
+
     unsigned int nbitszfinebintable_;
     unsigned int nbitsrfinebintable_;
 
     unsigned int nbitsrzbin_;
 
-    
     VMRouterTable vmrtable_;
-    
   };
 
 };  // namespace trklet

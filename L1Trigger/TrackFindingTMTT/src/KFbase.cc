@@ -791,30 +791,27 @@ namespace tmtt {
     // Only helps in extreme forward sector, and there not significantly.
     // UNDERSTAND IF CAN BE USED ELSEWHERE.
 
-    
-  const unsigned int nEta = 16;
-  const unsigned int nKFlayer = 7;
-  constexpr bool ambiguityMap[nEta/2][nKFlayer] =
-    {
-      {false, false, false, false, false, false, false},
-      {false, false, false, false, false, false, false},
-      {false, false, false, false, false, false, false},
-      {false, false, false, false, false, false, false},
-      {false, false, false, false, false, false, false},
-      {false, false, true, false, false, false, false},
-      {true, true, false, false, false, false, false},
-      {true , false, false, false, false, false, false},
-    }; 
+    const unsigned int nEta = 16;
+    const unsigned int nKFlayer = 7;
+    constexpr bool ambiguityMap[nEta / 2][nKFlayer] = {
+        {false, false, false, false, false, false, false},
+        {false, false, false, false, false, false, false},
+        {false, false, false, false, false, false, false},
+        {false, false, false, false, false, false, false},
+        {false, false, false, false, false, false, false},
+        {false, false, true, false, false, false, false},
+        {true, true, false, false, false, false, false},
+        {true, false, false, false, false, false, false},
+    };
 
-  unsigned int kfEtaReg;  // KF VHDL eta sector def: small in barrel & large in endcap.
-  if (iEtaReg < numEtaRegions_/2) {
-    kfEtaReg = numEtaRegions_/2 - 1 - iEtaReg;
-  } else {
-    kfEtaReg = iEtaReg - numEtaRegions_/2;
-  }
+    unsigned int kfEtaReg;  // KF VHDL eta sector def: small in barrel & large in endcap.
+    if (iEtaReg < numEtaRegions_ / 2) {
+      kfEtaReg = numEtaRegions_ / 2 - 1 - iEtaReg;
+    } else {
+      kfEtaReg = iEtaReg - numEtaRegions_ / 2;
+    }
 
-  bool ambiguous = ambiguityMap[kfEtaReg][kfLayer];
-  
+    bool ambiguous = ambiguityMap[kfEtaReg][kfLayer];
 
     //bool ambiguous = false;
     return ambiguous;
