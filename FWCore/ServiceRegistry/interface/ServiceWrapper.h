@@ -36,7 +36,8 @@ namespace edm {
     class ServiceWrapper : public ServiceWrapperBase {
     public:
       ServiceWrapper(std::unique_ptr<T> iService) : service_(std::move(iService)) {}
-      //virtual ~ServiceWrapper();
+      ServiceWrapper(const ServiceWrapper&) = delete;                   // stop default
+      const ServiceWrapper& operator=(const ServiceWrapper&) = delete;  // stop default
 
       // ---------- const member functions ---------------------
       T const& get() const { return *service_; }
@@ -47,10 +48,6 @@ namespace edm {
       T& get() { return *service_; }
 
     private:
-      ServiceWrapper(const ServiceWrapper&) = delete;  // stop default
-
-      const ServiceWrapper& operator=(const ServiceWrapper&) = delete;  // stop default
-
       // ---------- member data --------------------------------
       edm::propagate_const<std::unique_ptr<T>> service_;
     };
