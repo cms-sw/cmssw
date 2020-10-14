@@ -705,13 +705,13 @@ namespace tmtt {
         {7, 0, 1, 5, 4, 3, 7, 2},  // B1 B2 B3 B4 B5 B6
         {7, 0, 1, 5, 4, 3, 7, 2},  // B1 B2 B3 B4(/D3) B5(/D2) B6(/D1)
 
-        {7, 0, 1, 3, 4, 2, 6, 2},  // B1 B2 B3(/D5)+B4(/D3) D1 D2 X D4  -- current FW
+        {7, 0, 1, 3, 4, 2, 5, 2},  // B1 B2 B3(/D5)+B4(/D3) D1 D2 X D4  -- current FW
         //{ 7,  0,  1,  3,  4,  3,  6,  2 },  // B1 B2 B3(/D5) D1+B4(/D3) D2 X D4   -- for use with "Fix cases" below.
 
-        {7, 0, 1, 1, 2, 3, 4, 5},  // B1 B2+D1 D2 D3 D5 D6
+        {7, 0, 1, 2, 3, 4, 5, 6},  // B1 B2+D1 D2 D3 D5 D6
 
         //{ 7,  0,  7,  1,  2,  3,  4,  5 },  // B1 D1 D2 D3 D4 D5  = current FW (or when Ambiguous function used)
-        {7, 0, 7, 0, 1, 2, 3, 4},  // Avoid effi loss for eta > 2.3 when Ambiguous function not used.
+        {7, 0, 7, 1, 2, 3, 4, 5},  // Avoid effi loss for eta > 2.3 when Ambiguous function not used.
     };
 
     unsigned int kfEtaReg;  // KF VHDL eta sector def: small in barrel & large in endcap.
@@ -791,7 +791,7 @@ namespace tmtt {
     // Only helps in extreme forward sector, and there not significantly.
     // UNDERSTAND IF CAN BE USED ELSEWHERE.
 
-    /*
+    
   const unsigned int nEta = 16;
   const unsigned int nKFlayer = 7;
   constexpr bool ambiguityMap[nEta/2][nKFlayer] =
@@ -801,8 +801,8 @@ namespace tmtt {
       {false, false, false, false, false, false, false},
       {false, false, false, false, false, false, false},
       {false, false, false, false, false, false, false},
-      {false, false, false, false, false, false, false},
-      {false, false, false, false, false, false, false},
+      {false, false, true, false, false, false, false},
+      {true, true, false, false, false, false, false},
       {true , false, false, false, false, false, false},
     }; 
 
@@ -814,9 +814,9 @@ namespace tmtt {
   }
 
   bool ambiguous = ambiguityMap[kfEtaReg][kfLayer];
-  */
+  
 
-    bool ambiguous = false;
+    //bool ambiguous = false;
     return ambiguous;
   }
 
