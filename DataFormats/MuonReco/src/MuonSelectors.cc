@@ -43,14 +43,14 @@ unsigned int muon::RequiredStationMask(const reco::Muon& muon,
                                        reco::Muon::ArbitrationType arbitrationType) {
   unsigned int theMask = 0;
 
-  for (int stationIdx = 1; stationIdx < 5; ++stationIdx)
-    for (int detectorIdx = 1; detectorIdx < 3; ++detectorIdx)
-      if (muon.trackDist(stationIdx, detectorIdx, arbitrationType) < maxChamberDist &&
-          muon.trackDist(stationIdx, detectorIdx, arbitrationType) /
-                  muon.trackDistErr(stationIdx, detectorIdx, arbitrationType) <
-              maxChamberDistPull)
+  for (int stationIdx = 1; stationIdx < 5; ++stationIdx) {
+    for (int detectorIdx = 1; detectorIdx < 3; ++detectorIdx) {
+      float dist = muon.trackDist(stationIdx, detectorIdx, arbitrationType);
+      if (dist < maxChamberDist &&
+          dist / muon.trackDistErr(stationIdx, detectorIdx, arbitrationType) < maxChamberDistPull)
         theMask += 1 << ((stationIdx - 1) + 4 * (detectorIdx - 1));
-
+    }
+  }
   return theMask;
 }
 
@@ -76,12 +76,13 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
     // ********************************************************;
     // *** fill local info for this muon (do some counting) ***;
     // ************** begin ***********************************;
-    if (i <= 4) {                                            // this is the section for the DTs
-      if (muon.trackDist(i, 1, arbitrationType) < 999999) {  //current "raw" info that a track is close to a chamber
+    if (i <= 4) {  // this is the section for the DTs
+      float thisTrackDist = muon.trackDist(i, 1, arbitrationType);
+      if (thisTrackDist < 999999) {  //current "raw" info that a track is close to a chamber
         ++nr_of_stations_crossed;
         station_was_crossed[i - 1] = 1;
-        if (muon.trackDist(i, 1, arbitrationType) > -10.)
-          stations_w_track_at_boundary[i - 1] = muon.trackDist(i, 1, arbitrationType);
+        if (thisTrackDist > -10.)
+          stations_w_track_at_boundary[i - 1] = thisTrackDist;
         else
           stations_w_track_at_boundary[i - 1] = 0.;
       }
@@ -90,12 +91,13 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
         ++nr_of_stations_with_segment;
         station_has_segmentmatch[i - 1] = 1;
       }
-    } else {                                                     // this is the section for the CSCs
-      if (muon.trackDist(i - 4, 2, arbitrationType) < 999999) {  //current "raw" info that a track is close to a chamber
+    } else {  // this is the section for the CSCs
+      float thisTrackDist = muon.trackDist(i - 4, 2, arbitrationType);
+      if (thisTrackDist < 999999) {  //current "raw" info that a track is close to a chamber
         ++nr_of_stations_crossed;
         station_was_crossed[i - 1] = 1;
-        if (muon.trackDist(i - 4, 2, arbitrationType) > -10.)
-          stations_w_track_at_boundary[i - 1] = muon.trackDist(i - 4, 2, arbitrationType);
+        if (thisTrackDist > -10.)
+          stations_w_track_at_boundary[i - 1] = thisTrackDist;
         else
           stations_w_track_at_boundary[i - 1] = 0.;
       }
@@ -834,7 +836,7 @@ bool muon::overlap(
           continue;
         if (id1.ring() != id2.ring())
           continue;
-        if (abs(id1.chamber() - id2.chamber()) > 1)
+        if (std::abs(id1.chamber() - id2.chamber()) > 1)
           continue;
         // FIXME: we don't handle 18->1; 36->1 transitions since
         // I don't know how to check for sure how many chambers
