@@ -103,7 +103,6 @@ void CMSFieldManager::InitialiseForVolume(const edm::ParameterSet &p,
   m_chordFinder = cf;
   m_chordFinderMonopole = cfmon;
 
-  //  m_chordFinder->SetDeltaChord(dChord);
   m_chordFinderMonopole->SetDeltaChord(m_dChord);
 
   // initialisation of field manager
@@ -118,8 +117,8 @@ void CMSFieldManager::InitialiseForVolume(const edm::ParameterSet &p,
   pf->SetMinimumEpsilonStep(minEpsStep);
   pf->SetMaximumEpsilonStep(maxEpsStep);
 
-  // initial initialisation the default chord finder is defined
-  SetMonopoleTracking(false);
+  // initial initialisation the default chord finder
+  setMonopoleTracking(false);
 
   // define regions
   std::vector<std::string> rnames = p.getParameter<std::vector<std::string>>("VacRegions");
@@ -140,7 +139,7 @@ void CMSFieldManager::InitialiseForVolume(const edm::ParameterSet &p,
 
 void CMSFieldManager::ConfigureForTrack(const G4Track *track) {
   // run time parameters per track
-  if ((track->GetKineticEnergy() > m_energyThTracker) && isInsideTracker(track)) {
+  if (track->GetKineticEnergy() > m_energyThTracker && isInsideTracker(track)) {
     if (!m_cfTracker) {
       setChordFinderForTracker();
     }
@@ -156,10 +155,10 @@ void CMSFieldManager::ConfigureForTrack(const G4Track *track) {
   }
 }
 
-void CMSFieldManager::SetMonopoleTracking(G4bool flag) {
+void CMSFieldManager::setMonopoleTracking(G4bool flag) {
   if (flag) {
     if (m_currChordFinder != m_chordFinderMonopole) {
-      if (m_cfVacuum) {
+      if (m_cfTracker || m_cfVacuum) {
         setDefaultChordFinder();
       }
       m_currChordFinder = m_chordFinderMonopole;
@@ -192,9 +191,11 @@ bool CMSFieldManager::isInsideTracker(const G4Track *track) {
 }
 
 void CMSFieldManager::setDefaultChordFinder() {
-  m_currChordFinder = m_chordFinder;
+  if (m_currChordFinder != m_chordFinder) {
+    m_currChordFinder = m_chordFinder;
+    SetChordFinder(m_currChordFinder);
+  }
   m_currChordFinder->SetDeltaChord(m_dChord);
-  SetChordFinder(m_currChordFinder);
   SetDeltaOneStep(m_dOneStep);
   SetDeltaIntersection(m_dIntersection);
   m_propagator->SetLargestAcceptableStep(m_stepMax);
@@ -202,9 +203,11 @@ void CMSFieldManager::setDefaultChordFinder() {
 }
 
 void CMSFieldManager::setChordFinderForTracker() {
-  m_currChordFinder = m_chordFinder;
+  if (m_currChordFinder != m_chordFinder) {
+    m_currChordFinder = m_chordFinder;
+    SetChordFinder(m_currChordFinder);
+  }
   m_currChordFinder->SetDeltaChord(m_dChordTracker);
-  SetChordFinder(m_currChordFinder);
   SetDeltaOneStep(m_dOneStepTracker);
   SetDeltaIntersection(m_dInterTracker);
   m_propagator->SetLargestAcceptableStep(m_stepMax);
@@ -213,6 +216,10 @@ void CMSFieldManager::setChordFinderForTracker() {
 }
 
 void CMSFieldManager::setChordFinderForVacuum() {
+  if (m_currChordFinder != m_chordFinder) {
+    m_currChordFinder = m_chordFinder;
+    SetChordFinder(m_currChordFinder);
+  }
   m_currChordFinder->SetDeltaChord(m_dChordSimple);
   SetDeltaOneStep(m_dOneStepSimple);
   SetDeltaIntersection(m_dIntersectionSimple);
