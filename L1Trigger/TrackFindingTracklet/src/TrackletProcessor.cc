@@ -298,7 +298,7 @@ void TrackletProcessor::execute() {
             }
           }
 
-          if (tedata.regions_.size() > 0) {
+          if (!tedata.regions_.empty()) {
             ntedata++;
             //cout << getName() << " adding TE data" << endl;
             tedatabuffer.store(tedata);

@@ -106,7 +106,7 @@ MatchProcessor::MatchProcessor(string name, Settings const& settings, Globals* g
       string fname = "METable_L";
       fname += layer;
       fname += ".tab";
-      out.open(settings_.tablePath() + fname.c_str());
+      out.open(settings_.tablePath() + fname);
       out << "{" << endl;
       for (unsigned int i = 0; i < table_.size(); i++) {
         if (i != 0) {
