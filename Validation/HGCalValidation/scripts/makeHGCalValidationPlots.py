@@ -30,7 +30,8 @@ def main(opts):
 	hgclayclus = [hgcalPlots.hgcalLayerClustersPlotter]
 	val.doPlots(hgclayclus, plotterDrawArgs=drawArgs)
     elif opts.collection in ["hgcalMultiClusters","ticlMultiClustersFromTrackstersMerge","ticlMultiClustersFromTrackstersTrk","ticlMultiClustersFromTrackstersEM","ticlMultiClustersFromTrackstersHAD"]:
-        hgcmulticlus = [hgcalPlots.create_hgcalMultiClustersPlotter(opts.collection)]
+        hgcmulticlus = [hgcalPlots.hgcalMultiClustersPlotter]
+        hgcalPlots.append_hgcalMultiClustersPlots(opts.collection, opts.collection)
         val.doPlots(hgcmulticlus, plotterDrawArgs=drawArgs)
     elif opts.collection=="hitValidation":
     	hgchit = [hgcalPlots.hgcalHitPlotter]
@@ -39,38 +40,48 @@ def main(opts):
         hgchitcalib = [hgcalPlots.hgcalHitCalibPlotter]
         val.doPlots(hgchitcalib, plotterDrawArgs=drawArgs)
     else :
-        #In case of all you have to keep a specific order in one to one 
-        #correspondance between subdirprefix and collections and validation names
-	#layer clusters 
-	hgclayclus = [hgcalPlots.hgcalLayerClustersPlotter]
-	val.doPlots(hgclayclus, plotterDrawArgs=drawArgs)
-        #multiclusters
-        sample = SimpleSample(opts.subdirprefix[1], opts.html_sample, filenames)
-        val = SimpleValidation([sample], opts.outputDir[1])
-        htmlReport_2 = val.createHtmlReport(validationName=opts.html_validation_name[1])
         hgcmulticlus = [hgcalPlots.hgcalMultiClustersPlotter]
+        hgcalPlots.append_hgcalMultiClustersPlots("ticlMultiClustersFromTrackstersTrk", "MultiClustersTrk")
+        hgcalPlots.append_hgcalMultiClustersPlots("ticlMultiClustersFromTrackstersEM", "MultiClustersEM")
+        hgcalPlots.append_hgcalMultiClustersPlots("ticlMultiClustersFromTrackstersHAD", "MultiClustersHAD")
+        hgcalPlots.append_hgcalMultiClustersPlots("ticlMultiClustersFromTrackstersMerge", "MultiClustersMerge")
         val.doPlots(hgcmulticlus, plotterDrawArgs=drawArgs)
-        #hits
-	sample = SimpleSample(opts.subdirprefix[2], opts.html_sample, filenames)
-	val = SimpleValidation([sample], opts.outputDir[2])
-	htmlReport_3 = val.createHtmlReport(validationName=opts.html_validation_name[2])
-	hgchit = [hgcalPlots.hgcalHitPlotter]
-        val.doPlots(hgchit, plotterDrawArgs=drawArgs)
-        #calib
-        sample = SimpleSample(opts.subdirprefix[3], opts.html_sample, filenames)
-        val = SimpleValidation([sample], opts.outputDir[3])
-        htmlReport_4 = val.createHtmlReport(validationName=opts.html_validation_name[3])
-        hgchitcalib = [hgcalPlots.hgcalHitCalibPlotter]
-        val.doPlots(hgchitcalib, plotterDrawArgs=drawArgs)
+
+	#hgclayclus = [hgcalPlots.hgcalLayerClustersPlotter]
+	#val.doPlots(hgclayclus, plotterDrawArgs=drawArgs)
+
+#        #In case of all you have to keep a specific order in one to one 
+#        #correspondance between subdirprefix and collections and validation names
+#	#layer clusters 
+#	hgclayclus = [hgcalPlots.hgcalLayerClustersPlotter]
+#	val.doPlots(hgclayclus, plotterDrawArgs=drawArgs)
+#        #multiclusters
+#        sample = SimpleSample(opts.subdirprefix[1], opts.html_sample, filenames)
+#        val = SimpleValidation([sample], opts.outputDir[1])
+#        htmlReport_2 = val.createHtmlReport(validationName=opts.html_validation_name[1])
+#        hgcmulticlus = [hgcalPlots.hgcalMultiClustersPlotter]
+#        val.doPlots(hgcmulticlus, plotterDrawArgs=drawArgs)
+#        #hits
+#	sample = SimpleSample(opts.subdirprefix[2], opts.html_sample, filenames)
+#	val = SimpleValidation([sample], opts.outputDir[2])
+#	htmlReport_3 = val.createHtmlReport(validationName=opts.html_validation_name[2])
+#	hgchit = [hgcalPlots.hgcalHitPlotter]
+#        val.doPlots(hgchit, plotterDrawArgs=drawArgs)
+#        #calib
+#        sample = SimpleSample(opts.subdirprefix[3], opts.html_sample, filenames)
+#        val = SimpleValidation([sample], opts.outputDir[3])
+#        htmlReport_4 = val.createHtmlReport(validationName=opts.html_validation_name[3])
+#        hgchitcalib = [hgcalPlots.hgcalHitCalibPlotter]
+#        val.doPlots(hgchitcalib, plotterDrawArgs=drawArgs)
 
     if opts.no_html:
         print("Plots created into directory '%s'." % opts.outputDir)
     else:
         htmlReport.write()
-	if(opts.collection=="all"):
-		htmlReport_2.write()
-                htmlReport_3.write()
-		htmlReport_4.write()
+#	if(opts.collection=="all"):
+#		htmlReport_2.write()
+#                htmlReport_3.write()
+#		htmlReport_4.write()
 
         print("Plots and HTML report created into directory '%s'. You can just move it to some www area and access the pages via web browser" % (','.join(opts.outputDir)))
 
@@ -102,8 +113,8 @@ if __name__ == "__main__":
 
     opts = parser.parse_args()
 
-    if opts.collection == "all" and len(opts.outputDir)==1:
-	raise RuntimeError("need to assign names for all directories")
+#    if opts.collection == "all" and len(opts.outputDir)==1:
+#	raise RuntimeError("need to assign names for all directories")
 
     for f in opts.files:
         if not os.path.exists(f):
