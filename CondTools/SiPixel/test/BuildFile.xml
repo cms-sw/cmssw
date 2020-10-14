@@ -19,3 +19,9 @@
   </bin>
 </environment>
 
+<environment>
+  <bin   file="testPixelDBs.cpp">
+    <flags TEST_RUNNER_ARGS=" /bin/bash CondTools/run_Phase2cpeDBTest_v6.sh"/>
+    <use   name="FWCore/Utilities"/>
+  </bin>
+</environment>
