@@ -81,12 +81,14 @@ namespace {
 BoundDiskSector* MTDDiskSectorBuilderFromDet::operator()(const vector<const GeomDet*>& dets) const {
   // check that the dets are all at about the same z
   float zcheck = dets.front()->surface().position().z();
-  for (vector<const GeomDet*>::const_iterator i = dets.begin(); i != dets.end(); i++) {
-    float zdiff = zcheck - (**i).surface().position().z();
-    if (std::abs(zdiff) > 0.5)  // distance between modules on opposite faces of disk is about 1 cm
+  constexpr double tol(0.5);  // minimal safety check on z position of modules within a sector, width ~ 10 mm
+  for (auto const& idet : dets) {
+    float zdiff = zcheck - (*idet).surface().position().z();
+    if (std::abs(zdiff) > tol) {
       edm::LogError("MTDDetLayers")
           << " MTDDiskSectorBuilderFromDet: Trying to build sector from Dets at different z positions !! Delta_z = "
           << zdiff;
+    }
   }
 
   auto bo = computeBounds(dets);

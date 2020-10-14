@@ -25,14 +25,14 @@ MTDSectorForwardLayer::MTDSectorForwardLayer(const vector<const MTDDetSector*>& 
 
   // Cache chamber pointers (the basic components_)
   // and find extension in R and Z
-  for (vector<const MTDDetSector*>::const_iterator it = sectors.begin(); it != sectors.end(); it++) {
-    vector<const GeomDet*> tmp2 = (*it)->basicComponents();
+  for (const auto& isect : sectors) {
+    vector<const GeomDet*> tmp2 = isect->basicComponents();
     theBasicComps.insert(theBasicComps.end(), tmp2.begin(), tmp2.end());
 
-    theRmin = min(theRmin, (*it)->specificSurface().innerRadius());
-    theRmax = max(theRmax, (*it)->specificSurface().outerRadius());
-    float halfThick = (*it)->surface().bounds().thickness() / 2.;
-    float zCenter = (*it)->surface().position().z();
+    theRmin = min(theRmin, isect->specificSurface().innerRadius());
+    theRmax = max(theRmax, isect->specificSurface().outerRadius());
+    float halfThick = isect->surface().bounds().thickness() / 2.;
+    float zCenter = isect->surface().position().z();
     theZmin = min(theZmin, zCenter - halfThick);
     theZmax = max(theZmax, zCenter + halfThick);
   }
