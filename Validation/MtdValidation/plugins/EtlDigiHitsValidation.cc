@@ -367,7 +367,7 @@ void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
       0.,
       1024.);
   meHitQvsPhi_[3] =
-      ibook.bookProfile("EtlHitQvsPhiZpos",
+      ibook.bookProfile("EtlHitQvsPhiZposD2",
                         "ETL DIGI charge vs #phi (+Z, Second disk);#phi_{DIGI} [rad];Q_{DIGI} [ADC counts]",
                         50,
                         -3.15,
