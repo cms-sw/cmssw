@@ -1,12 +1,18 @@
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
+from enum import Enum
 import sys
  
+class RefitType(Enum):
+     STANDARD = 1
+     COMMON   = 2
+
 isDA = ISDATEMPLATE
 isMC = ISMCTEMPLATE
 allFromGT = ALLFROMGTTEMPLATE
 applyBows = APPLYBOWSTEMPLATE
 applyExtraConditions = EXTRACONDTEMPLATE
+theRefitter = REFITTERTEMPLATE
 
 process = cms.Process("PrimaryVertexValidation") 
 
@@ -49,11 +55,6 @@ process.source = cms.Source("PoolSource",
                             fileNames = readFiles ,
                             duplicateCheckMode = cms.untracked.string('checkAllFilesOpened')
                             )
-
-#process.load("Alignment.OfflineValidation.DATASETTEMPLATE");
-process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.destinations = ['cout', 'cerr']
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 runboundary = RUNBOUNDARYTEMPLATE
 process.source.firstRun = cms.untracked.uint32(int(runboundary))
@@ -187,27 +188,79 @@ else:
 ####################################################################
 # Load and Configure common selection sequence
 ####################################################################
-import Alignment.CommonAlignment.tools.trackselectionRefitting as trackselRefit
-process.seqTrackselRefit = trackselRefit.getSequence(process,'TRACKTYPETEMPLATE')
-process.HighPurityTrackSelector.trackQualities = cms.vstring()
-process.HighPurityTrackSelector.pMin     = cms.double(0.)
-#process.TrackerTrackHitFilter.usePixelQualityFlag = cms.bool(False)    # do not use the pixel quality flag
-#process.TrackerTrackHitFilter.commands   = cms.vstring("drop PXB 1")   # drop BPix1 hits
-process.AlignmentTrackSelector.pMin      = cms.double(0.)
-process.AlignmentTrackSelector.ptMin     = cms.double(0.)
-process.AlignmentTrackSelector.nHitMin2D = cms.uint32(0)
-process.AlignmentTrackSelector.nHitMin   = cms.double(0.)
-process.AlignmentTrackSelector.d0Min     = cms.double(-999999.0)
-process.AlignmentTrackSelector.d0Max     = cms.double(+999999.0)                  
-process.AlignmentTrackSelector.dzMin     = cms.double(-999999.0)
-process.AlignmentTrackSelector.dzMax     = cms.double(+999999.0)  
+# import Alignment.CommonAlignment.tools.trackselectionRefitting as trackselRx1efit
+# process.seqTrackselRefit = trackselRefit.getSequence(process,'TRACKTYPETEMPLATE')
+# process.HighPurityTrackSelector.trackQualities = cms.vstring()
+# process.HighPurityTrackSelector.pMin     = cms.double(0.)
+# #process.TrackerTrackHitFilter.usePixelQualityFlag = cms.bool(False)    # do not use the pixel quality flag
+# #process.TrackerTrackHitFilter.commands   = cms.vstring("drop PXB 1")   # drop BPix1 hits
+# process.AlignmentTrackSelector.pMin      = cms.double(0.)
+# process.AlignmentTrackSelector.ptMin     = cms.double(0.)
+# process.AlignmentTrackSelector.nHitMin2D = cms.uint32(0)
+# process.AlignmentTrackSelector.nHitMin   = cms.double(0.)
+# process.AlignmentTrackSelector.d0Min     = cms.double(-999999.0)
+# process.AlignmentTrackSelector.d0Max     = cms.double(+999999.0)
+# process.AlignmentTrackSelector.dzMin     = cms.double(-999999.0)
+# process.AlignmentTrackSelector.dzMax     = cms.double(+999999.0)
+
+if(theRefitter == RefitType.COMMON):
+
+     print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: using the common track selection and refit sequence!")
+     ####################################################################
+     # Load and Configure Common Track Selection and refitting sequence
+     ####################################################################
+     import Alignment.CommonAlignment.tools.trackselectionRefitting as trackselRefit
+     process.seqTrackselRefit = trackselRefit.getSequence(process, 'TRACKTYPETEMPLATE',
+                                                          isPVValidation=True,
+                                                          TTRHBuilder='TTRHBUILDERTEMPLATE',
+                                                          usePixelQualityFlag=True,
+                                                          openMassWindow=False,
+                                                          cosmicsDecoMode=True,
+                                                          cosmicsZeroTesla=False,
+                                                          momentumConstraint=None,
+                                                          cosmicTrackSplitting=False,
+                                                          use_d0cut=False,
+                                                          )
+     if((process.TrackerTrackHitFilter.usePixelQualityFlag.value()==True) and (process.FirstTrackRefitter.TTRHBuilder.value()=="WithTrackAngle")):
+          print(" \n\n","*"*70,"\n *\t\t\t\t WARNING!!!!!\t\t\t\n *\n * Found an inconsistent configuration!\n * TTRHBuilder = WithTrackAngle requires usePixelQualityFlag = False.\n * Going to reset it! \n *\n","*"*70)
+          process.TrackerTrackHitFilter.usePixelQualityFlag = False
+
+elif (theRefitter == RefitType.STANDARD):
+
+     print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: using the standard single refit sequence!")
+     ####################################################################
+     # Load and Configure Measurement Tracker Event
+     # (needed in case NavigationSchool is set != '')
+     ####################################################################
+     # process.load("RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi")
+     # process.MeasurementTrackerEvent.pixelClusterProducer = 'TRACKTYPETEMPLATE'
+     # process.MeasurementTrackerEvent.stripClusterProducer = 'TRACKTYPETEMPLATE'
+     # process.MeasurementTrackerEvent.inactivePixelDetectorLabels = cms.VInputTag()
+     # process.MeasurementTrackerEvent.inactiveStripDetectorLabels = cms.VInputTag()
+
+     ####################################################################
+     # Load and Configure TrackRefitter
+     ####################################################################
+     process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
+     import RecoTracker.TrackProducer.TrackRefitters_cff
+     process.FinalTrackRefitter = RecoTracker.TrackProducer.TrackRefitter_cfi.TrackRefitter.clone()
+     process.FinalTrackRefitter.src = "TRACKTYPETEMPLATE"
+     process.FinalTrackRefitter.TrajectoryInEvent = True
+     process.FinalTrackRefitter.NavigationSchool = ''
+     process.FinalTrackRefitter.TTRHBuilder = "TTRHBUILDERTEMPLATE"
+
+     ####################################################################
+     # Sequence
+     ####################################################################
+     process.seqTrackselRefit = cms.Sequence(process.offlineBeamSpot*
+                                             # in case NavigatioSchool is set !=''
+                                             #process.MeasurementTrackerEvent*
+                                             process.FinalTrackRefitter)
 
 ####################################################################
 # Output file
 ####################################################################
-process.TFileService = cms.Service("TFileService",
-                                   fileName=cms.string("OUTFILETEMPLATE")
-                                   )
+process.TFileService = cms.Service("TFileService",fileName=cms.string("OUTFILETEMPLATE"))
 
 ####################################################################
 # Imports of parameters

@@ -5,6 +5,7 @@ cfg to produce pv resolution plots
 here doing refit of tracks and vertices using latest alignment 
 '''
 
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 from fnmatch import fnmatch
 import FWCore.ParameterSet.VarParsing as VarParsing
@@ -18,9 +19,9 @@ def best_match(rcd):
     '''
     find out where to best match the input conditions
     '''
-    print rcd
+    print(rcd)
     for pattern, string in connection_map:
-        print pattern, fnmatch(rcd, pattern)
+        print(pattern, fnmatch(rcd, pattern))
         if fnmatch(rcd, pattern):
             return string
 
@@ -58,10 +59,10 @@ options.register ('GlobalTag',
 
 options.parseArguments()
 
-print "conditionGT       : ", options.GlobalTag
-print "conditionOverwrite: ", options.records
-print "external conditions:", options.external
-print "outputFile        : ", options.outputRootFile
+print("conditionGT       : ", options.GlobalTag)
+print("conditionOverwrite: ", options.records)
+print("external conditions:", options.external)
+print("outputFile        : ", options.outputRootFile)
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr = cms.untracked.PSet(placeholder = cms.untracked.bool(True))
