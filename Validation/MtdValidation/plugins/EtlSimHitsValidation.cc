@@ -540,7 +540,7 @@ void EtlSimHitsValidation::fillDescriptions(edm::ConfigurationDescriptions& desc
 
   desc.add<std::string>("folder", "MTD/ETL/SimHits");
   desc.add<edm::InputTag>("inputTag", edm::InputTag("mix", "g4SimHitsFastTimerHitsEndcap"));
-  desc.add<double>("hitMinimumEnergy1Dis", 0.1);   // [MeV]
+  desc.add<double>("hitMinimumEnergy1Dis", 0.1);    // [MeV]
   desc.add<double>("hitMinimumEnergy2Dis", 0.001);  // [MeV]
 
   descriptions.add("etlSimHits", desc);
