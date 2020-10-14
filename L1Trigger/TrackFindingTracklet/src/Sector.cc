@@ -192,7 +192,7 @@ ProcessBase* Sector::getProc(string procName) {
   if (it != Processes_.end()) {
     return it->second.get();
   }
-  throw cms::Exception("BadConfig") << __FILE__ << " " << __LINE__ << " Could not find process : " << procName<<endl;
+  throw cms::Exception("BadConfig") << __FILE__ << " " << __LINE__ << " Could not find process : " << procName << endl;
   return nullptr;
 }
 

@@ -227,12 +227,11 @@ void VMRouter::execute() {
       if (layerdisk_ >= N_LAYER)
         nbendbits = settings_.nbendbitsmedisk();
 
-      VMStubME vmstub(
-          stub,
-          stub->iphivmFineBins(settings_.nbitsallstubs(layerdisk_) + settings_.nbitsvmme(layerdisk_),3),
-          FPGAWord(rzfine, 3, true, __LINE__, __FILE__),
-          FPGAWord(stub->bend().value(), nbendbits, true, __LINE__, __FILE__),
-          allStubIndex);
+      VMStubME vmstub(stub,
+                      stub->iphivmFineBins(settings_.nbitsallstubs(layerdisk_) + settings_.nbitsvmme(layerdisk_), 3),
+                      FPGAWord(rzfine, 3, true, __LINE__, __FILE__),
+                      FPGAWord(stub->bend().value(), nbendbits, true, __LINE__, __FILE__),
+                      allStubIndex);
 
       assert(vmstubsMEPHI_[ivmPlus] != nullptr);
       vmstubsMEPHI_[ivmPlus]->addStub(vmstub, vmbin);

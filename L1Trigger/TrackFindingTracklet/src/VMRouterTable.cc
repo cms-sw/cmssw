@@ -9,7 +9,8 @@ using namespace trklet;
 
 VMRouterTable::VMRouterTable(Settings const& settings) : settings_(settings) {}
 
-VMRouterTable::VMRouterTable(Settings const& settings, unsigned int layerdisk, std::string const& name) : settings_(settings) {
+VMRouterTable::VMRouterTable(Settings const& settings, unsigned int layerdisk, std::string const& name)
+    : settings_(settings) {
   init(layerdisk, name);
 }
 

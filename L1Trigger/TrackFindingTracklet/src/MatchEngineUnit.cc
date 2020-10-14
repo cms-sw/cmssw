@@ -39,7 +39,6 @@ void MatchEngineUnit::step() {
 
   const VMStubME& vmstub = vmstubsmemory_->getVMStubMEBin(slot_, istub_);
 
-  
   bool isPSmodule = vmstub.isPSmodule();
   int stubfinerz = vmstub.finerz().value();
   int stubfinephi = vmstub.finephi().value();
@@ -77,22 +76,20 @@ void MatchEngineUnit::step() {
   }
 
   istub_++;
-  if (istub_ >= vmstubsmemory_->nStubsBin(slot_)){
+  if (istub_ >= vmstubsmemory_->nStubsBin(slot_)) {
     if (usesecond_) {
-      usesecond_=false;
-      istub_=0;
+      usesecond_ = false;
+      istub_ = 0;
       slot_++;
-      projfinerz_-=8;
+      projfinerz_ -= 8;
     } else {
       idle_ = true;
     }
   }
-
-  
 }
 
 void MatchEngineUnit::reset() {
   candmatches_.reset();
   idle_ = true;
-  istub_=0;
+  istub_ = 0;
 }

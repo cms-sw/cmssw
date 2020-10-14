@@ -21,11 +21,10 @@ namespace trklet {
   class VMStubsTEMemory;
 
   struct VMStubsTEPHICM {
-    VMStubsTEPHICM(unsigned int seednumber_,
-		   std::vector<VMStubsTEMemory*> vmstubmem_)
-    : seednumber(seednumber_), vmstubmem(vmstubmem_){};
-    
-    unsigned int seednumber;    //seed number [0,11]
+    VMStubsTEPHICM(unsigned int seednumber_, std::vector<VMStubsTEMemory*> vmstubmem_)
+        : seednumber(seednumber_), vmstubmem(vmstubmem_){};
+
+    unsigned int seednumber;                  //seed number [0,11]
     std::vector<VMStubsTEMemory*> vmstubmem;  // m_vmstubmem[n] is the VMStubsTEMemory for the nth copy
   };
 
@@ -52,15 +51,15 @@ namespace trklet {
     int nbitszfinebintable_;
     int nbitsrfinebintable_;
 
-    unsigned int nvmmebins_; //number of long z/r bins in VM
-    
+    unsigned int nvmmebins_;  //number of long z/r bins in VM
+
     VMRouterTable vmrtable_;
 
     //The input stub memories
     std::vector<InputLinkMemory*> stubinputs_;
 
     //The all stub memories
-    std::vector<std::pair<char,AllStubsMemory*> > allstubs_;
+    std::vector<std::pair<char, AllStubsMemory*> > allstubs_;
 
     //The VM stubs memories used by the MEs
     std::vector<VMStubsMEMemory*> vmstubsMEPHI_;

@@ -28,7 +28,7 @@ namespace trklet {
               double zprojapprox,
               double phiprojderapprox,
               double zprojderapprox,
-	      bool isPSseed=false);
+              bool isPSseed = false);
 
     bool valid() const { return valid_; }
 

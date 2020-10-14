@@ -560,7 +560,7 @@ bool TrackletCalculatorBase::barrelSeeding(const Stub* innerFPGAStub,
   izproj[2] = ITC->zL_2_final.ival();
   izproj[3] = ITC->zL_3_final.ival();
 
-  if (!goodTrackPars(ITC->rinv_final.local_passes(), ITC->z0_final.local_passes())){
+  if (!goodTrackPars(ITC->rinv_final.local_passes(), ITC->z0_final.local_passes())) {
     return false;
   }
 
@@ -602,7 +602,7 @@ bool TrackletCalculatorBase::barrelSeeding(const Stub* innerFPGAStub,
                        zprojapprox[i],
                        ITC->der_phiL_final.fval(),
                        ITC->der_zL_final.fval(),
-		       !(iSeed_==1||iSeed_==2));
+                       !(iSeed_ == 1 || iSeed_ == 2));
   }
 
   iphiprojdisk[0] = ITC->phiD_0_final.ival();
@@ -1004,7 +1004,7 @@ bool TrackletCalculatorBase::diskSeeding(const Stub* innerFPGAStub,
                        zprojapprox[i],
                        ITC->der_phiL_final.fval(),
                        ITC->der_zL_final.fval(),
-		       true);
+                       true);
   }
 
   iphiprojdisk[0] = ITC->phiD_0_final.ival();
@@ -1378,7 +1378,7 @@ bool TrackletCalculatorBase::overlapSeeding(const Stub* innerFPGAStub,
                        zprojapprox[i],
                        ITC->der_phiL_final.fval(),
                        ITC->der_zL_final.fval(),
-		       true);
+                       true);
   }
 
   for (int i = 0; i < 4; ++i) {
