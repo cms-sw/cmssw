@@ -574,7 +574,7 @@ void EtlLocalRecoValidation::fillDescriptions(edm::ConfigurationDescriptions& de
   desc.add<std::string>("folder", "MTD/ETL/LocalReco");
   desc.add<edm::InputTag>("recHitsTag", edm::InputTag("mtdRecHits", "FTLEndcap"));
   desc.add<edm::InputTag>("recCluTag", edm::InputTag("mtdClusters", "FTLEndcap"));
-  desc.add<double>("hitMinimumEnergy1Dis", 0.01);   // [MeV]
+  desc.add<double>("hitMinimumEnergy1Dis", 1.);   // [MeV]
   desc.add<double>("hitMinimumEnergy2Dis", 0.001);  // [MeV]
 
   descriptions.add("etlLocalReco", desc);
