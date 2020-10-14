@@ -108,13 +108,15 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
   theGraph_->findNtuplets(foundNtuplets, seedIndices, min_clusters_per_ntuplet_, out_in_dfs_, max_out_in_hops_);
   //#ifdef FP_DEBUG
   const auto &doublets = theGraph_->getAllDoublets();
-  int tracksterId = 0;
+  int tracksterId = -1;
 
   // container for holding tracksters before selection
   std::vector<Trackster> tmpTracksters;
   tmpTracksters.reserve(foundNtuplets.size());
 
   for (auto const &ntuplet : foundNtuplets) {
+    tracksterId++;
+
     std::set<unsigned int> effective_cluster_idx;
     std::pair<std::set<unsigned int>::iterator, bool> retVal;
 
@@ -201,6 +203,7 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
       tmp.vertex_multiplicity().resize(effective_cluster_idx.size(), 1);
       //regions and seedIndices can have different size
       //if a seeding region does not lead to any trackster
+      t.setSeed(input.regions[0].collectionID, seedIndices[i]);
 
       std::pair<float, float> timeTrackster(-99., -1.);
       hgcalsimclustertime::ComputeClusterTime timeEstimator;
@@ -208,7 +211,6 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
       tmp.setTimeAndError(timeTrackster.first, timeTrackster.second);
       std::copy(std::begin(effective_cluster_idx), std::end(effective_cluster_idx), std::back_inserter(tmp.vertices()));
       tmpTracksters.push_back(tmp);
-      tracksterId++;
     }
   }
   ticl::assignPCAtoTracksters(
@@ -248,7 +250,6 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
         LogDebug("HGCPatternRecoByCA") << "LayerID: " << lcId << " count: " << (int)layer_cluster_usage[lcId]
                                        << std::endl;
     }
-    t.setSeed(input.regions[0].collectionID, seedIndices[i]);
     if (isRegionalIter) {
       seedToTracksterAssociation[t.seedIndex()].push_back(i);
     }
