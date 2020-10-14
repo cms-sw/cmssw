@@ -44,13 +44,13 @@ TrackerGeometry* TrackerGeomBuilderFromGeometricDet::build(const GeometricDet* g
                                                            const PTrackerParameters& ptp,
                                                            const TrackerTopology* tTopo) {
   if (ptp.vpars.size() != 6) {
-    edm::LogError("TrackerGeomBuilderFromGeometricDet")
+    throw cms::Exception("TrackerGeomBuilderFromGeometricDet")
         << "Tracker parameters block from XMLs called vPars is expected to have 6 entries, but has " << ptp.vpars.size()
         << " entrie(s).";
   }
 
-  const int BIG_PIX_PER_ROC_X = ptp.vpars.at(2);
-  const int BIG_PIX_PER_ROC_Y = ptp.vpars.at(3);
+  const int BIG_PIX_PER_ROC_X = ptp.vpars[2];
+  const int BIG_PIX_PER_ROC_Y = ptp.vpars[3];
 
   thePixelDetTypeMap.clear();
   theStripDetTypeMap.clear();
