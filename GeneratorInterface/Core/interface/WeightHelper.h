@@ -30,8 +30,10 @@ namespace gen {
   public:
     WeightHelper();
     edm::OwnVector<gen::WeightGroupInfo> weightGroups() { return weightGroups_; }
-    std::unique_ptr<GenWeightProduct> weightProduct(std::vector<gen::WeightsInfo>, float w0);
-    std::unique_ptr<GenWeightProduct> weightProduct(std::vector<double>, float w0);
+
+    template <typename T>
+    std::unique_ptr<GenWeightProduct> weightProduct(std::vector<T> weights, float w0);
+
     void setModel(std::string model) { model_ = model; }
     void addUnassociatedGroup() {
       weightGroups_.push_back(std::make_unique<UnknownWeightGroupInfo>("unassociated"));
@@ -57,10 +59,11 @@ namespace gen {
     bool isPdfWeightGroup(const ParsedWeight& weight);
     bool isPartonShowerWeightGroup(const ParsedWeight& weight);
     bool isOrphanPdfWeightGroup(ParsedWeight& weight);
-    void updateScaleInfo(const ParsedWeight& weight, int index);
+    void updateScaleInfo(gen::ScaleWeightGroupInfo& scaleGroup, const ParsedWeight& weight);
     void updateMEParamInfo(const ParsedWeight& weight, int index);
-    void updatePdfInfo(const ParsedWeight& weight, int index);
+    void updatePdfInfo(gen::PdfWeightGroupInfo& pdfGroup, const ParsedWeight& weight);
     void cleanupOrphanCentralWeight();
+    bool splitPdfWeight(ParsedWeight& weight);
 
     int lhapdfId(const ParsedWeight& weight, gen::PdfWeightGroupInfo& pdfGroup);
     std::string searchAttributes(const std::string& label, const ParsedWeight& weight) const;
@@ -83,6 +86,27 @@ namespace gen {
     void buildGroups();
     std::string searchString(const std::string& label, const std::string& name);
   };
+
+  // Templated function (needed here because of plugins)
+  template <typename T>
+  std::unique_ptr<GenWeightProduct> WeightHelper::weightProduct(std::vector<T> weights, float w0) {
+    auto weightProduct = std::make_unique<GenWeightProduct>(w0);
+    weightProduct->setNumWeightSets(weightGroups_.size());
+    int weightGroupIndex = 0;
+    int i = 0;
+    // This happens if there are no PS weights, so the weights vector contains only the central GEN weight.
+    // Just add an empty product (need for all cases or...?)
+    if (weights.size() > 1) {
+      for (const auto& weight : weights) {
+        if constexpr (std::is_same<T, gen::WeightsInfo>::value)
+          weightGroupIndex = addWeightToProduct(weightProduct, weight.wgt, weight.id, i, weightGroupIndex);
+        else if (std::is_same<T, double>::value)
+          weightGroupIndex = addWeightToProduct(weightProduct, weight, std::to_string(i), i, weightGroupIndex);
+        i++;
+      }
+    }
+    return std::move(weightProduct);
+  }
 }  // namespace gen
 
 #endif

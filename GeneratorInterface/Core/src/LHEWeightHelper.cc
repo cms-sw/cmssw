@@ -24,22 +24,23 @@ namespace gen {
     std::string fullHeader = boost::algorithm::join(headerLines_, "");
     if (debug_)
       std::cout << "Full header is \n" << fullHeader << std::endl;
-
     int xmlError = xmlDoc.Parse(fullHeader.c_str());
+
     // in case of &gt; instead of <
-    if (xmlError != 0) {
+    if (xmlError != 0 && failIfInvalidXML_) {
+      xmlDoc.PrintError();
+      throw std::runtime_error("XML is unreadable because of above error.");
+    } else if (xmlError != 0 && !failIfInvalidXML_) {
       boost::replace_all(fullHeader, "&lt;", "<");
       boost::replace_all(fullHeader, "&gt;", ">");
       xmlError = xmlDoc.Parse(fullHeader.c_str());
     }
+
     // error persists (how to handle error?)
     if (xmlError != 0) {
       std::cerr << "WARNING: Error in parsing XML of LHE weight header!" << std::endl;
       xmlDoc.PrintError();
-      if (failIfInvalidXML_)
-        throw std::runtime_error("XML is unreadable because of above error.");
-      else
-        return false;
+      return false;
     }
 
     return true;
@@ -75,16 +76,13 @@ namespace gen {
       if (strcmp(e->Name(), "weight") == 0) {
         if (debug_)
           std::cout << "Found weight unmatched to group\n";
-        // need to fix
         addGroup(e, groupName, groupIndex, weightIndex);
       } else if (strcmp(e->Name(), "weightgroup") == 0) {
         groupName = parseGroupName(e);
         if (debug_)
           std::cout << ">>>> Found a weight group: " << groupName << std::endl;
-
         for (auto inner = e->FirstChildElement("weight"); inner != nullptr; inner = inner->NextSiblingElement("weight"))
           addGroup(inner, groupName, groupIndex, weightIndex);
-
       } else
         std::cout << "Found an invalid entry\n";
       groupIndex++;
