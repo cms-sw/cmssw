@@ -81,27 +81,43 @@
 //   append       (bool)       = true/false if the histogram file to be opened
 //                               in append/output mode
 //
+// .L CalibSort.C+g (for the o/p of isotrackRootTreeMaker.py)
+//  CalibFitPU c1(fname)
+//  c1.Loop(extractPUparams, fileName)
+//
+//   fname        (const char*)= file name of the input ROOT tree which is
+//                               output of isotrackRootTreeMaker.py
+//   extractPUparams (bool)    = flag to see if extraction is needed
+//   filename     (std::string)= root name of all files to be created/read
+//                               (_par2d.txt, _parProf.txt, _parGraph.txt
+//                               will be names of files of parameters from
+//                               2D, profile, graphs; .root for storing all
+//                               histograms created)
+//
 //////////////////////////////////////////////////////////////////////////////
 
-#include <TROOT.h>
+#include <TCanvas.h>
 #include <TChain.h>
-#include <TFile.h>
 #include <TF1.h>
-#include <TH1D.h>
-#include <TProfile.h>
+#include <TFile.h>
 #include <TFitResult.h>
 #include <TFitResultPtr.h>
-#include <TStyle.h>
-#include <TCanvas.h>
+#include <TGraph.h>
+#include <TH1D.h>
+#include <TH2D.h>
 #include <TLegend.h>
 #include <TPaveStats.h>
 #include <TPaveText.h>
+#include <TProfile.h>
+#include <TROOT.h>
+#include <TStyle.h>
 
 #include <algorithm>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <map>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -1399,4 +1415,527 @@ void CalibPlotCombine::savePlot(const std::string &theName, bool append) {
   prof->Write();
   std::cout << "All done" << std::endl;
   theFile->Close();
+}
+
+class CalibFitPU {
+private:
+  TTree *fChain;   //!pointer to the analyzed TTree or TChain
+  Int_t fCurrent;  //!current Tree number in a TChain
+
+  // Fixed size dimensions of array or collections stored in the TTree if any.
+
+  // Declaration of leaf types
+  Int_t t_Event;
+  Double_t t_p_PU;
+  Double_t t_eHcal_PU;
+  Double_t t_delta_PU;
+  Double_t t_p_NoPU;
+  Double_t t_eHcal_noPU;
+  Double_t t_delta_NoPU;
+  Int_t t_ieta;
+
+  // List of branches
+  TBranch *b_t_Event;
+  TBranch *b_t_p_PU;
+  TBranch *b_t_eHcal_PU;
+  TBranch *b_t_delta_PU;
+  TBranch *b_t_p_NoPU;
+  TBranch *b_t_eHcal_noPU;
+  TBranch *b_t_delta_NoPU;
+  TBranch *b_t_ieta;
+
+public:
+  CalibFitPU(const char *fname = "isotrackRelval.root");
+  virtual ~CalibFitPU();
+  virtual Int_t Cut(Long64_t entry);
+  virtual Int_t GetEntry(Long64_t entry);
+  virtual Long64_t LoadTree(Long64_t entry);
+  virtual void Init(TTree *tree);
+  virtual void Loop(bool extract_PU_parameters, std::string fileName);
+  virtual Bool_t Notify();
+  virtual void Show(Long64_t entry = -1);
+};
+
+CalibFitPU::CalibFitPU(const char *fname) : fChain(0) {
+  // if parameter tree is not specified (or zero), connect the file
+  // used to generate this class and read the Tree.
+  TFile *f = new TFile(fname);
+  TTree *tree = new TTree();
+  f->GetObject("tree", tree);
+  std::cout << "Find tree Tree in " << tree << " from " << fname << std::endl;
+  Init(tree);
+}
+
+CalibFitPU::~CalibFitPU() {
+  if (!fChain)
+    return;
+  delete fChain->GetCurrentFile();
+}
+
+Int_t CalibFitPU::GetEntry(Long64_t entry) {
+  // Read contents of entry.
+  if (!fChain)
+    return 0;
+  return fChain->GetEntry(entry);
+}
+
+Long64_t CalibFitPU::LoadTree(Long64_t entry) {
+  // Set the environment to read one entry
+  if (!fChain)
+    return -5;
+  Long64_t centry = fChain->LoadTree(entry);
+  if (centry < 0)
+    return centry;
+  if (fChain->GetTreeNumber() != fCurrent) {
+    fCurrent = fChain->GetTreeNumber();
+    Notify();
+  }
+  return centry;
+}
+
+void CalibFitPU::Init(TTree *tree) {
+  // The Init() function is called when the selector needs to initialize
+  // a new tree or chain. Typically here the branch addresses and branch
+  // pointers of the tree will be set.
+  // It is normally not necessary to make changes to the generated
+  // code, but the routine can be extended by the user if needed.
+  // Init() will be called many times when running on PROOF
+  // (once per file to be processed).
+
+  // Set branch addresses and branch pointers
+  if (!tree)
+    return;
+  fChain = tree;
+  fCurrent = -1;
+  fChain->SetMakeClass(1);
+
+  fChain->SetBranchAddress("t_Event", &t_Event, &b_t_Event);
+  fChain->SetBranchAddress("t_p_PU", &t_p_PU, &b_t_p_PU);
+  fChain->SetBranchAddress("t_eHcal_PU", &t_eHcal_PU, &b_t_eHcal_PU);
+  fChain->SetBranchAddress("t_delta_PU", &t_delta_PU, &b_t_delta_PU);
+  fChain->SetBranchAddress("t_p_NoPU", &t_p_NoPU, &b_t_p_NoPU);
+  fChain->SetBranchAddress("t_eHcal_noPU", &t_eHcal_noPU, &b_t_eHcal_noPU);
+  fChain->SetBranchAddress("t_delta_NoPU", &t_delta_NoPU, &b_t_delta_NoPU);
+  fChain->SetBranchAddress("t_ieta", &t_ieta, &b_t_ieta);
+  Notify();
+}
+
+Bool_t CalibFitPU::Notify() {
+  // The Notify() function is called when a new file is opened. This
+  // can be either for a new TTree in a TChain or when when a new TTree
+  // is started when using PROOF. It is normally not necessary to make changes
+  // to the generated code, but the routine can be extended by the
+  // user if needed. The return value is currently not used.
+
+  return kTRUE;
+}
+
+void CalibFitPU::Show(Long64_t entry) {
+  // Print contents of entry.
+  // If entry is not specified, print current entry
+  if (!fChain)
+    return;
+  fChain->Show(entry);
+}
+
+Int_t CalibFitPU::Cut(Long64_t) {
+  // This function may be called from Loop.
+  // returns  1 if entry is accepted.
+  // returns -1 otherwise.
+  return 1;
+}
+
+void CalibFitPU::Loop(bool extract_PU_parameters, std::string fileName) {
+  //   In a ROOT session, you can do:
+  //      root> .L CalibFitPU.C
+  //      root> CalibFitPU t
+  //      root> t.GetEntry(12); // Fill t data members with entry number 12
+  //      root> t.Show();       // Show values of entry 12
+  //      root> t.Show(16);     // Read and show values of entry 16
+  //      root> t.Loop();       // Loop on all entries
+  //
+
+  //     This is the loop skeleton where:
+  //    jentry is the global entry number in the chain
+  //    ientry is the entry number in the current Tree
+  //  Note that the argument to GetEntry must be:
+  //    jentry for TChain::GetEntry
+  //    ientry for TTree::GetEntry and TBranch::GetEntry
+  //
+  //       To read only selected branches, Insert statements like:
+  // METHOD1:
+  //    fChain->SetBranchStatus("*",0);  // disable all branches
+  //    fChain->SetBranchStatus("branchname",1);  // activate branchname
+  // METHOD2: replace line
+  //    fChain->GetEntry(jentry);       //read all branches
+  //by  b_branchname->GetEntry(ientry); //read only this branch
+  if (fChain == 0)
+    return;
+
+  Long64_t nentries = fChain->GetEntriesFast();
+  Long64_t nbytes = 0, nb = 0;
+
+  char filename[100];
+
+  gStyle->SetCanvasBorderMode(0);
+  gStyle->SetCanvasColor(kWhite);
+  gStyle->SetPadColor(kWhite);
+  gStyle->SetFillColor(kWhite);
+
+  const int n = 7;
+  int ieta_grid[n] = {7, 16, 25, 26, 27, 28, 29};
+  double a00[n], a10[n], a20[n], a01[n], a11[n], a21[n], a02[n], a12[n], a22[n];
+  const int nbin1 = 15;
+  double bins1[nbin1 + 1] = {0.0, 0.1, 0.2, 0.3, 0.4, 0.6, 0.8, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 6.0, 9.0};
+  const int nbin2 = 7;
+  double bins2[nbin1 + 1] = {1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0};
+  int nbins[n] = {4, 5, 12, nbin2, nbin2, nbin2, nbin2};
+  char name[20], title[100];
+
+  std::vector<TH2D *> vec_h2;
+  std::vector<TGraph *> vec_gr;
+  std::vector<TProfile *> vec_hp;
+
+  if (extract_PU_parameters) {
+    for (int k = 0; k < n; k++) {
+      sprintf(name, "h2_ieta%d", k);
+      int ieta1 = (k == 0) ? 1 : ieta_grid[k - 1];
+      sprintf(title, "PU Energy vs #Delta/p (i#eta = %d:%d)", ieta1, (ieta_grid[k] - 1));
+      vec_h2.push_back(new TH2D(name, title, 100, 0, 10, 100, 0, 2));
+      vec_gr.push_back(new TGraph());
+      sprintf(name, "hp_ieta%d", k);
+      if (k < 3)
+        vec_hp.push_back(new TProfile(name, title, nbins[k], bins1));
+      else
+        vec_hp.push_back(new TProfile(name, title, nbins[k], bins2));
+    }
+
+    int points[7] = {0, 0, 0, 0, 0, 0, 0};
+    //=======================================Starting of event Loop=======================================================
+
+    for (Long64_t jentry = 0; jentry < nentries; jentry++) {
+      Long64_t ientry = LoadTree(jentry);
+      if (ientry < 0)
+        break;
+      nb = fChain->GetEntry(jentry);
+      nbytes += nb;
+
+      double deltaOvP = t_delta_PU / t_p_PU;
+      double diffEpuEnopuOvP = t_eHcal_noPU / t_eHcal_PU;
+
+      for (int k = 0; k < n; k++) {
+        if (std::abs(t_ieta) < ieta_grid[k]) {
+          points[k]++;
+          vec_h2[k]->Fill(deltaOvP, diffEpuEnopuOvP);
+          vec_gr[k]->SetPoint(points[k], deltaOvP, diffEpuEnopuOvP);
+          vec_hp[k]->Fill(deltaOvP, diffEpuEnopuOvP);
+          break;
+        }
+      }
+
+    }  //End of Event Loop to extract PU correction parameters
+
+    std::ofstream myfile0, myfile1, myfile2;
+    sprintf(filename, "%s_par2d.txt", fileName.c_str());
+    myfile0.open(filename);
+    sprintf(filename, "%s_parProf.txt", fileName.c_str());
+    myfile1.open(filename);
+    sprintf(filename, "%s_parGraph.txt", fileName.c_str());
+    myfile2.open(filename);
+
+    char namepng[20];
+    for (int k = 0; k < n; k++) {
+      gStyle->SetOptStat(1100);
+      gStyle->SetOptFit(1);
+
+      TF1 *f1 = ((k < 2) ? (new TF1("f1", "[0]+[1]*x", 0, 5)) : (new TF1("f1", "[0]+[1]*x+[2]*x*x", 0, 5)));
+      sprintf(name, "c_ieta%d2D", k);
+      TCanvas *pad1 = new TCanvas(name, name, 500, 500);
+      pad1->SetLeftMargin(0.10);
+      pad1->SetRightMargin(0.10);
+      pad1->SetTopMargin(0.10);
+      vec_h2[k]->GetXaxis()->SetLabelSize(0.035);
+      vec_h2[k]->GetYaxis()->SetLabelSize(0.035);
+      vec_h2[k]->GetXaxis()->SetTitle("#Delta/p");
+      vec_h2[k]->GetYaxis()->SetTitle("E_{NoPU} / E_{PU}");
+      vec_h2[k]->Draw();
+      vec_h2[k]->Fit(f1);
+
+      a00[k] = f1->GetParameter(0);
+      a10[k] = f1->GetParameter(1);
+      a20[k] = (k < 2) ? 0 : f1->GetParameter(2);
+      myfile0 << k << "\t" << a00[k] << "\t" << a10[k] << "\t" << a20[k] << "\n";
+      pad1->Update();
+      TPaveStats *st1 = (TPaveStats *)vec_h2[k]->GetListOfFunctions()->FindObject("stats");
+      if (st1 != nullptr) {
+        st1->SetY1NDC(0.70);
+        st1->SetY2NDC(0.90);
+        st1->SetX1NDC(0.65);
+        st1->SetX2NDC(0.90);
+      }
+      pad1->Update();
+      sprintf(namepng, "%s.png", pad1->GetName());
+      pad1->Print(namepng);
+
+      TF1 *f2 = ((k < 2) ? (new TF1("f2", "[0]+[1]*x", 0, 5)) : (new TF1("f1", "[0]+[1]*x+[2]*x*x", 0, 5)));
+      sprintf(name, "c_ieta%dPr", k);
+      TCanvas *pad2 = new TCanvas(name, name, 500, 500);
+      pad2->SetLeftMargin(0.10);
+      pad2->SetRightMargin(0.10);
+      pad2->SetTopMargin(0.10);
+      vec_hp[k]->GetXaxis()->SetLabelSize(0.035);
+      vec_hp[k]->GetYaxis()->SetLabelSize(0.035);
+      vec_hp[k]->GetXaxis()->SetTitle("#Delta/p");
+      vec_hp[k]->GetYaxis()->SetTitle("E_{NoPU} / E_{PU}");
+      vec_hp[k]->Draw();
+      vec_hp[k]->Fit(f2);
+
+      a01[k] = f2->GetParameter(0);
+      a11[k] = f2->GetParameter(1);
+      a21[k] = (k < 2) ? 0 : f2->GetParameter(2);
+      myfile1 << k << "\t" << a01[k] << "\t" << a11[k] << "\t" << a21[k] << "\n";
+      pad2->Update();
+      TPaveStats *st2 = (TPaveStats *)vec_hp[k]->GetListOfFunctions()->FindObject("stats");
+      if (st2 != nullptr) {
+        st2->SetY1NDC(0.70);
+        st2->SetY2NDC(0.90);
+        st2->SetX1NDC(0.65);
+        st2->SetX2NDC(0.90);
+      }
+      pad2->Update();
+      sprintf(namepng, "%s.png", pad2->GetName());
+      pad2->Print(namepng);
+
+      TF1 *f3 = ((k < 2) ? (new TF1("f3", "[0]+[1]*x", 0, 5)) : (new TF1("f1", "[0]+[1]*x+[2]*x*x", 0, 5)));
+      sprintf(name, "c_ieta%dGr", k);
+      TCanvas *pad3 = new TCanvas(name, name, 500, 500);
+      pad3->SetLeftMargin(0.10);
+      pad3->SetRightMargin(0.10);
+      pad3->SetTopMargin(0.10);
+      gStyle->SetOptFit(1111);
+      vec_gr[k]->GetXaxis()->SetLabelSize(0.035);
+      vec_gr[k]->GetYaxis()->SetLabelSize(0.035);
+      vec_gr[k]->GetXaxis()->SetTitle("#Delta/p");
+      vec_gr[k]->GetYaxis()->SetTitle("E_{PU} - E_{NoPU}/p");
+      vec_gr[k]->Fit(f3, "R");
+      vec_gr[k]->Draw("Ap");
+      f3->Draw("same");
+
+      a02[k] = f3->GetParameter(0);
+      a12[k] = f3->GetParameter(1);
+      a22[k] = (k < 2) ? 0 : f3->GetParameter(2);
+      myfile2 << k << "\t" << a02[k] << "\t" << a12[k] << "\t" << a22[k] << "\n";
+      pad3->Update();
+      TPaveStats *st3 = (TPaveStats *)vec_gr[k]->GetListOfFunctions()->FindObject("stats");
+      if (st3 != nullptr) {
+        st3->SetY1NDC(0.70);
+        st3->SetY2NDC(0.90);
+        st3->SetX1NDC(0.65);
+        st3->SetX2NDC(0.90);
+      }
+      pad3->Update();
+      pad3->Modified();
+      sprintf(namepng, "%s.png", pad3->GetName());
+      pad3->Print(namepng);
+    }
+  } else {
+    std::string line;
+    double number;
+    sprintf(filename, "%s_par2d.txt", fileName.c_str());
+    std::ifstream myfile0(filename);
+    if (myfile0.is_open()) {
+      int iii = 0;
+      while (getline(myfile0, line)) {
+        std::istringstream iss2(line);
+        int ii = 0;
+        while (iss2 >> number) {
+          if (ii == 0)
+            a00[iii] = number;
+          else if (ii == 1)
+            a10[iii] = number;
+          else if (ii == 2)
+            a20[iii] = number;
+          ++ii;
+        }
+        ++iii;
+      }
+    }
+    sprintf(filename, "%s_parProf.txt", fileName.c_str());
+    std::ifstream myfile1(filename);
+    if (myfile1.is_open()) {
+      int iii = 0;
+      while (getline(myfile1, line)) {
+        std::istringstream iss2(line);
+        int ii = 0;
+        while (iss2 >> number) {
+          if (ii == 0)
+            a01[iii] = number;
+          else if (ii == 1)
+            a11[iii] = number;
+          else if (ii == 2)
+            a21[iii] = number;
+          ++ii;
+        }
+        ++iii;
+      }
+    }
+    sprintf(filename, "%s_parGraph.txt", fileName.c_str());
+    std::ifstream myfile2(filename);
+    if (myfile2.is_open()) {
+      int iii = 0;
+      while (getline(myfile2, line)) {
+        std::istringstream iss2(line);
+        int ii = 0;
+        while (iss2 >> number) {
+          if (ii == 0)
+            a02[iii] = number;
+          else if (ii == 1)
+            a12[iii] = number;
+          else if (ii == 2)
+            a22[iii] = number;
+          ++ii;
+        }
+        ++iii;
+      }
+    }
+  }
+
+  std::cout << "\nParameter Values:\n";
+  for (int i = 0; i < n; i++) {
+    std::cout << "[" << i << "] (" << a00[i] << ", " << a10[i] << ", " << a20[i] << ")  (" << a01[i] << ", " << a11[i]
+              << ", " << a21[i] << ")  (" << a02[i] << ", " << a12[i] << ", " << a22[i] << ")\n";
+  }
+  std::cout << "\n\n";
+  std::vector<TH1F *> vec_EovP_UnCorr_PU, vec_EovP_UnCorr_NoPU;
+  std::vector<TH1F *> vec_EovP_Corr0_PU, vec_EovP_Corr0_NoPU;
+  std::vector<TH1F *> vec_EovP_Corr1_PU, vec_EovP_Corr1_NoPU;
+  std::vector<TH1F *> vec_EovP_Corr2_PU, vec_EovP_Corr2_NoPU;
+  TH1F *h_current;
+
+  for (int k = 0; k < (2 * 28 + 1); k++) {
+    if (k != 28) {
+      sprintf(name, "EovP_ieta%dUnPU", k - 28);
+      sprintf(title, "E/p (Uncorrected PU) for i#eta = %d", k - 28);
+      h_current = new TH1F(name, title, 100, 0, 5);
+      h_current->GetXaxis()->SetTitle(title);
+      h_current->GetYaxis()->SetTitle("Tracks");
+      vec_EovP_UnCorr_PU.push_back(h_current);
+      sprintf(name, "EovP_ieta%dUnNoPU", k - 28);
+      sprintf(title, "E/p (Uncorrected No PU) for i#eta = %d", k - 28);
+      h_current = new TH1F(name, title, 100, 0, 5);
+      h_current->GetXaxis()->SetTitle(title);
+      h_current->GetYaxis()->SetTitle("Tracks");
+      vec_EovP_UnCorr_NoPU.push_back(h_current);
+      sprintf(name, "EovP_ieta%dCor0NoPU", k - 28);
+      sprintf(title, "E/p (Corrected using 2D No PU) for i#eta = %d", k - 28);
+      h_current = new TH1F(name, title, 100, 0, 5);
+      h_current->GetXaxis()->SetTitle(title);
+      h_current->GetYaxis()->SetTitle("Tracks");
+      vec_EovP_Corr0_NoPU.push_back(h_current);
+      sprintf(name, "EovP_ieta%dCor0PU", k - 28);
+      sprintf(title, "E/p (Corrected using 2D PU) for i#eta = %d", k - 28);
+      h_current = new TH1F(name, title, 100, 0, 5);
+      h_current->GetXaxis()->SetTitle(title);
+      h_current->GetYaxis()->SetTitle("Tracks");
+      vec_EovP_Corr0_PU.push_back(h_current);
+      sprintf(name, "EovP_ieta%dCor1NoPU", k - 28);
+      sprintf(title, "E/p (Corrected using profile No PU) for i#eta = %d", k - 28);
+      h_current = new TH1F(name, title, 100, 0, 5);
+      h_current->GetXaxis()->SetTitle(title);
+      h_current->GetYaxis()->SetTitle("Tracks");
+      vec_EovP_Corr1_NoPU.push_back(h_current);
+      sprintf(name, "EovP_ieta%dCor1PU", k - 28);
+      sprintf(title, "E/p (Corrected using profile PU) for i#eta = %d", k - 28);
+      h_current = new TH1F(name, title, 100, 0, 5);
+      h_current->GetXaxis()->SetTitle(title);
+      h_current->GetYaxis()->SetTitle("Tracks");
+      vec_EovP_Corr1_PU.push_back(h_current);
+      sprintf(name, "EovP_ieta%dCor2NoPU", k - 28);
+      sprintf(title, "E/p (Corrected using graph No PU) for i#eta = %d", k - 28);
+      h_current = new TH1F(name, title, 100, 0, 5);
+      h_current->GetXaxis()->SetTitle(title);
+      h_current->GetYaxis()->SetTitle("Tracks");
+      vec_EovP_Corr2_NoPU.push_back(h_current);
+      sprintf(name, "EovP_ieta%dCor2PU", k - 28);
+      sprintf(title, "E/p (Corrected using graph PU) for i#eta = %d", k - 28);
+      h_current = new TH1F(name, title, 100, 0, 5);
+      h_current->GetXaxis()->SetTitle(title);
+      h_current->GetYaxis()->SetTitle("Tracks");
+      vec_EovP_Corr2_PU.push_back(h_current);
+    }
+  }
+  std::cout << "Book " << (8 * vec_EovP_UnCorr_PU.size()) << " histograms\n";
+
+  //==============================================================================================================================================
+
+  nbytes = nb = 0;
+  std::cout << nentries << " entries in the root file" << std::endl;
+  for (Long64_t jentry = 0; jentry < nentries; jentry++) {
+    Long64_t ientry = LoadTree(jentry);
+    if (ientry < 0)
+      break;
+    nb = fChain->GetEntry(jentry);
+    nbytes += nb;
+
+    int i1 = n;
+    for (int k = 0; k < n; k++) {
+      if (std::abs(t_ieta) < ieta_grid[k]) {
+        i1 = k;
+        break;
+      }
+    }
+    if ((t_ieta == 0) || (i1 >= n))
+      continue;
+    int i2 = (t_ieta < 0) ? (t_ieta + 28) : (t_ieta + 27);
+
+    double EpuOvP = t_eHcal_PU / t_p_PU;
+    double EnopuOvP = t_eHcal_noPU / t_p_PU;
+    double deltaOvP = t_delta_PU / t_p_PU;
+    double deltaNopuOvP = t_delta_NoPU / t_p_PU;
+
+    vec_EovP_UnCorr_PU[i2]->Fill(EpuOvP);
+    vec_EovP_UnCorr_NoPU[i2]->Fill(EnopuOvP);
+
+    double c0p =
+        (((i1 < 3) || (deltaOvP > 1.0)) ? (a00[i1] + a10[i1] * deltaOvP + a20[i1] * deltaOvP * deltaOvP) : 1.0);
+    double c1p =
+        (((i1 < 3) || (deltaOvP > 1.0)) ? (a01[i1] + a11[i1] * deltaOvP + a21[i1] * deltaOvP * deltaOvP) : 1.0);
+    double c2p =
+        (((i1 < 3) || (deltaOvP > 1.0)) ? (a02[i1] + a12[i1] * deltaOvP + a22[i1] * deltaOvP * deltaOvP) : 1.0);
+    double c0np =
+        (((i1 < 3) || (deltaNopuOvP > 1.0)) ? (a00[i1] + a10[i1] * deltaNopuOvP + a12[i1] * deltaNopuOvP * deltaNopuOvP)
+                                            : 1.0);
+    double c1np =
+        (((i1 < 3) || (deltaNopuOvP > 1.0)) ? (a01[i1] + a11[i1] * deltaNopuOvP + a21[i1] * deltaNopuOvP * deltaNopuOvP)
+                                            : 1.0);
+    double c2np =
+        (((i1 < 3) || (deltaNopuOvP > 1.0)) ? (a02[i1] + a12[i1] * deltaNopuOvP + a22[i1] * deltaNopuOvP * deltaNopuOvP)
+                                            : 1.0);
+
+    vec_EovP_Corr0_PU[i2]->Fill(EpuOvP * c0p);
+    vec_EovP_Corr0_NoPU[i2]->Fill(EnopuOvP * c0np);
+    vec_EovP_Corr1_PU[i2]->Fill(EpuOvP * c1p);
+    vec_EovP_Corr1_NoPU[i2]->Fill(EnopuOvP * c1np);
+    vec_EovP_Corr2_PU[i2]->Fill(EpuOvP * c2p);
+    vec_EovP_Corr2_NoPU[i2]->Fill(EnopuOvP * c2np);
+  }
+
+  sprintf(filename, "%s.root", fileName.c_str());
+  TFile *f1 = new TFile(filename, "RECREATE");
+  f1->cd();
+  for (unsigned int k = 0; k < vec_EovP_UnCorr_PU.size(); k++) {
+    vec_EovP_UnCorr_PU[k]->Write();
+    vec_EovP_UnCorr_NoPU[k]->Write();
+    vec_EovP_Corr0_PU[k]->Write();
+    vec_EovP_Corr0_NoPU[k]->Write();
+    vec_EovP_Corr1_PU[k]->Write();
+    vec_EovP_Corr1_NoPU[k]->Write();
+    vec_EovP_Corr2_PU[k]->Write();
+    vec_EovP_Corr2_NoPU[k]->Write();
+  }
+  for (unsigned int k = 0; k < vec_hp.size(); ++k) {
+    vec_h2[k]->Write();
+    vec_hp[k]->Write();
+    vec_gr[k]->Write();
+  }
 }

@@ -65,6 +65,7 @@ private:
   std::vector<int> layerCenter_;        // Centering of the wafers
   int firstLayer_;                      // Copy # of the first sensitive layer
   int absorbMode_;                      // Absorber mode
+  int sensitiveMode_;                   // Sensitive mode
   double zMinBlock_;                    // Starting z-value of the block
   std::vector<double> rad100to200_;     // Parameters for 120-200mum trans.
   std::vector<double> rad200to300_;     // Parameters for 200-300mum trans.
@@ -127,9 +128,10 @@ void DDHGCalEEFileAlgo::initialize(const DDNumericArguments& nArgs,
   layerSense_ = dbl_to_int(vArgs["LayerSense"]);
   firstLayer_ = (int)(nArgs["FirstLayer"]);
   absorbMode_ = (int)(nArgs["AbsorberMode"]);
+  sensitiveMode_ = (int)(nArgs["SensitiveMode"]);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "First Layer " << firstLayer_ << " and "
-                                << "Absober mode " << absorbMode_;
+                                << "Absober:Sensitive mode " << absorbMode_ << ":" << sensitiveMode_;
 #endif
   layerCenter_ = dbl_to_int(vArgs["LayerCenter"]);
 #ifdef EDM_ML_DEBUG
@@ -305,15 +307,18 @@ void DDHGCalEEFileAlgo::constructLayers(const DDLogicalPart& module, DDCompactVi
           edm::LogVerbatim("HGCalGeom") << "[" << k << "] z " << pgonZ[k] << " R " << pgonRin[k] << ":" << pgonRout[k];
 #endif
       } else {
-        DDSolid solid = DDSolidFactory::tubs(DDName(name, nameSpace_), hthick, rinB, routF, 0.0, 2._pi);
+        double rins = (sensitiveMode_ < 1) ? rinB : HGCalGeomTools::radius(zz + hthick, zFrontB_, rMinFront_, slopeB_);
+        double routs =
+            (sensitiveMode_ < 1) ? routF : HGCalGeomTools::radius(zz - hthick, zFrontT_, rMaxFront_, slopeT_);
+        DDSolid solid = DDSolidFactory::tubs(DDName(name, nameSpace_), hthick, rins, routs, 0.0, 2._pi);
         glog = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalEEFileAlgo: " << solid.name() << " Tubs made of " << matName << ":"
-                                      << &matter << " of dimensions " << rinB << ", " << routF << ", " << hthick
-                                      << ", 0.0, 360.0 and position " << glog.name() << " number " << copy << ":"
-                                      << layerCenter_[copy - firstLayer_];
+                                      << &matter << " of dimensions " << rinB << ":" << rins << ", " << routF << ":"
+                                      << routs << ", " << hthick << ", 0.0, 360.0 and position " << glog.name()
+                                      << " number " << copy << ":" << layerCenter_[copy - firstLayer_];
 #endif
-        positionSensitive(glog, rinB, routF, zz, layerSense_[ly], (copy - firstLayer_), cpv);
+        positionSensitive(glog, rins, routs, zz, layerSense_[ly], (copy - firstLayer_), cpv);
       }
       DDTranslation r1(0, 0, zz);
       DDRotation rot;
