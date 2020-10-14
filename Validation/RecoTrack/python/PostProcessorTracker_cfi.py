@@ -325,10 +325,10 @@ fastSim.toModify(postProcessorTrackSummary, subDirs = [e for e in _defaultSubdir
 ########
 
 postProcessorTrackStandalone = postProcessorTrack.clone(
-    subDirs = _defaultSubdirs.append("Tracking/TrackBHadron/*"),
+    subDirs = _defaultSubdirs+["Tracking/TrackBHadron/*"]
 )
 postProcessorTrackSummaryStandalone = postProcessorTrackSummary.clone(
-    subDirs = _defaultSubdirs.append("Tracking/TrackBHadron/*"),
+    subDirs = _defaultSubdirs+["Tracking/TrackBHadron/*"]
 )
 
 postProcessorTrackSequenceStandalone = cms.Sequence(
