@@ -2491,25 +2491,25 @@ steps['RECOHI2018PPRECO']=merge([hiDefaults2018_ppReco,{'-s':'RAW2DIGI,L1Reco,RE
                                                         '--eventcontent':'RECOSIM,MINIAODSIM,DQM,ALCARECO',
                                                         },step3Up2015Defaults])
 steps['RECOHI2018PPRECOMB']=merge([hiDefaults2018_ppReco,{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiPixelCalZeroBias,EI,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM',
-                                                        '--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO,ALCARECO',
-                                                        '--eventcontent':'RECOSIM,MINIAODSIM,DQM,ALCARECO',
+                                                          '--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO,ALCARECO',
+                                                          '--eventcontent':'RECOSIM,MINIAODSIM,DQM,ALCARECO',
                                                           '--era':'Run2_2018_pp_on_AA',
                                                           '--procModifiers':'genJetSubEvent',
-                               },step3Up2015Defaults])
+                                                      },step3Up2015Defaults])
 steps['RECOHI2018PPRECOml']=merge([concurrentLumis,steps['RECOHI2018PPRECOMB']])
 
 steps['REMINIAODHI2018PPRECO']=merge([{'-s':'PAT,VALIDATION:@miniAODValidation,DQM:@miniAODDQM',
-                                                             '--datatier':'MINIAODSIM,DQMIO',
-                                                             '--eventcontent':'MINIAODSIM,DQM',
-                                                             '-n':100,
-                                                         },hiDefaults2018_ppReco,step3Up2015Defaults])
+                                       '--datatier':'MINIAODSIM,DQMIO',
+                                       '--eventcontent':'MINIAODSIM,DQM',
+                                       '-n':100,
+                                   },hiDefaults2018_ppReco,step3Up2015Defaults])
 steps['REMINIAODHI2018PPRECOMB']=merge([{'-s':'PAT,VALIDATION:@miniAODValidation,DQM:@miniAODDQM',
-                                                             '--datatier':'MINIAODSIM,DQMIO',
-                                                             '--eventcontent':'MINIAODSIM,DQM',
-                                                             '-n':100,
+                                         '--datatier':'MINIAODSIM,DQMIO',
+                                         '--eventcontent':'MINIAODSIM,DQM',
+                                         '-n':100,
                                          '--era':'Run2_2018_pp_on_AA',
                                          '--procModifiers':'genJetSubEvent',
-                                                         },hiDefaults2018_ppReco,step3Up2015Defaults])
+                                     },hiDefaults2018_ppReco,step3Up2015Defaults])
 
 steps['ALCARECOHI2018PPRECO']=merge([hiDefaults2018_ppReco,{'-s':'ALCA:TkAlMinBias+SiStripCalMinBias',
                                                             '--datatier':'ALCARECO',
