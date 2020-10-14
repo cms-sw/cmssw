@@ -596,9 +596,10 @@ namespace trklet {
          {{3.6, 3.8, 0.0, 0.0, 3.6, 0.0, 3.5, 3.8, 0.0, 0.0, 3.0, 3.0}},    //disk 4
          {{0.0, 0.0, 0.0, 0.0, 3.6, 3.4, 3.7, 0.0, 0.0, 0.0, 0.0, 3.0}}}};  //disk 5
 
-    //Offset to the maximum number of steps in each processing step. Set to 0 for standard
-    //trunction. Set to large value, e.g. 10000 to remove truncation
-    unsigned int maxstepoffset_{10000};
+    // Offset to the maximum number of steps in each processing step:
+    // Set to 0 (default) means standard trunction
+    // Set to large value, e.g. 10000, to disable truncation
+    unsigned int maxstepoffset_{0};
 
     //Default number of processing steps for one event
     std::unordered_map<std::string, unsigned int> maxstep_{{"Link", 108},
