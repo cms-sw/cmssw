@@ -39,7 +39,7 @@ public:
                            double delta,
                            G4PropagatorInField *);
 
-  void SetMonopoleTracking(G4bool);
+  void setMonopoleTracking(G4bool);
 
   CMSFieldManager(const CMSFieldManager &) = delete;
   CMSFieldManager &operator=(const CMSFieldManager &) = delete;
