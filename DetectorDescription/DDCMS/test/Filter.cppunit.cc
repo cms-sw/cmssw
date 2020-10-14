@@ -54,7 +54,7 @@ void testFilter::setUp() {
       bool isRegex = dd4hep::dd::isRegex(toks.front());
       filters_.emplace_back(make_unique<Filter>());
       filters_.back()->isRegex.emplace_back(isRegex);
-      filters_.back()->hasNamaspace.emplace_back(dd4hep::dd::hasNamespace(toks.front()));
+      filters_.back()->hasNamespace.emplace_back(dd4hep::dd::hasNamespace(toks.front()));
       if (isRegex) {
         filters_.back()->index.emplace_back(filters_.back()->keys.size());
         filters_.back()->keys.emplace_back(std::regex(std::begin(toks.front()), std::end(toks.front())));
@@ -75,7 +75,7 @@ void testFilter::setUp() {
         if (l == end(currentFilter->skeys)) {
           bool isRegex = dd4hep::dd::isRegex(toks.front());
           currentFilter->isRegex.emplace_back(isRegex);
-          currentFilter->hasNamaspace.emplace_back(dd4hep::dd::hasNamespace(toks.front()));
+          currentFilter->hasNamespace.emplace_back(dd4hep::dd::hasNamespace(toks.front()));
           if (isRegex) {
             currentFilter->index.emplace_back(currentFilter->keys.size());
             currentFilter->keys.emplace_back(std::regex(std::begin(toks.front()), std::end(toks.front())));
@@ -88,7 +88,7 @@ void testFilter::setUp() {
         auto filter = std::make_unique<Filter>();
         bool isRegex = dd4hep::dd::isRegex(toks[pos]);
         filter->isRegex.emplace_back(isRegex);
-        filter->hasNamaspace.emplace_back(dd4hep::dd::hasNamespace(toks[pos]));
+        filter->hasNamespace.emplace_back(dd4hep::dd::hasNamespace(toks[pos]));
         if (isRegex) {
           filter->index.emplace_back(filters_.back()->keys.size());
           filter->keys.emplace_back(std::regex(toks[pos].begin(), toks[pos].end()));

@@ -50,7 +50,7 @@ DDFilteredView::DDFilteredView(const DDCompactView& cpv, const cms::DDFilter& fi
     log << "Filtered by an attribute " << filter.attribute() << "==" << filter.value()
         << " DD SpecPar Registry size: " << refs_.size() << "\n";
     for (const auto& t : refs_) {
-      log << "\nSpecPar " << t.first << "\nRegExps { ";
+      log << "\nSpecPar " << std::string(t.first.data(), t.first.size()) << "\nRegExps { ";
       for (const auto& ki : t.second->paths)
         log << ki << " ";
       log << "};\n ";
@@ -178,7 +178,7 @@ void DDFilteredView::mergedSpecifics(DDSpecParRefs const& specs) {
         bool isRegex = dd4hep::dd::isRegex(firstTok);
         filters_.emplace_back(make_unique<Filter>());
         filters_.back()->isRegex.emplace_back(isRegex);
-        filters_.back()->hasNamaspace.emplace_back(dd4hep::dd::hasNamespace(firstTok));
+        filters_.back()->hasNamespace.emplace_back(dd4hep::dd::hasNamespace(firstTok));
         if (isRegex) {
           filters_.back()->index.emplace_back(filters_.back()->keys.size());
           filters_.back()->keys.emplace_back(std::regex(begin(firstTok), end(firstTok)));
@@ -205,7 +205,7 @@ void DDFilteredView::mergedSpecifics(DDSpecParRefs const& specs) {
           if (l == end(currentFilter_->skeys)) {
             bool isRegex = dd4hep::dd::isRegex(toks[pos]);
             currentFilter_->isRegex.emplace_back(isRegex);
-            currentFilter_->hasNamaspace.emplace_back(dd4hep::dd::hasNamespace(toks[pos]));
+            currentFilter_->hasNamespace.emplace_back(dd4hep::dd::hasNamespace(toks[pos]));
             if (isRegex) {
               currentFilter_->index.emplace_back(currentFilter_->keys.size());
               currentFilter_->keys.emplace_back(std::regex(std::begin(toks[pos]), std::end(toks[pos])));
@@ -218,7 +218,7 @@ void DDFilteredView::mergedSpecifics(DDSpecParRefs const& specs) {
           auto filter = std::make_unique<Filter>();
           bool isRegex = dd4hep::dd::isRegex(toks[pos]);
           filter->isRegex.emplace_back(isRegex);
-          filter->hasNamaspace.emplace_back(dd4hep::dd::hasNamespace(toks[pos]));
+          filter->hasNamespace.emplace_back(dd4hep::dd::hasNamespace(toks[pos]));
           if (isRegex) {
             filter->index.emplace_back(filters_.back()->keys.size());
             filter->keys.emplace_back(std::regex(toks[pos].begin(), toks[pos].end()));
@@ -413,7 +413,7 @@ bool DDFilteredView::firstSibling() {
   else
     return false;
   do {
-    if (accepted(currentFilter_->keys, noNamespace(node->GetVolume()->GetName()))) {
+    if (dd4hep::dd::accepted(currentFilter_, noNamespace(node->GetVolume()->GetName()))) {
       node_ = node;
       return true;
     }
@@ -435,7 +435,7 @@ bool DDFilteredView::nextSibling() {
     it_.back().SetType(1);
     Node* node = node_;
     do {
-      if (accepted(currentFilter_->keys, noNamespace(node->GetVolume()->GetName()))) {
+      if (dd4hep::dd::accepted(currentFilter_, noNamespace(node->GetVolume()->GetName()))) {
         node_ = node;
         return true;
       }
@@ -453,7 +453,7 @@ bool DDFilteredView::sibling() {
   it_.back().SetType(1);
   Node* node = nullptr;
   while ((node = it_.back().Next())) {
-    if (accepted(currentFilter_->keys, node->GetVolume()->GetName())) {
+    if (dd4hep::dd::accepted(currentFilter_, node->GetVolume()->GetName())) {
       node_ = node;
       return true;
     }
@@ -469,7 +469,7 @@ bool DDFilteredView::checkChild() {
   it_.back().SetType(1);
   Node* node = nullptr;
   while ((node = it_.back().Next())) {
-    if (accepted(currentFilter_->keys, node->GetVolume()->GetName())) {
+    if (dd4hep::dd::accepted(currentFilter_, node->GetVolume()->GetName())) {
       return true;
     }
   }
@@ -523,14 +523,12 @@ void DDFilteredView::up() {
 }
 
 bool DDFilteredView::accept(std::string_view name) {
-  bool result = false;
   for (const auto& it : filters_) {
     currentFilter_ = it.get();
-    result = accepted(currentFilter_->keys, name);
-    if (result)
-      return result;
+    if (dd4hep::dd::accepted(currentFilter_, name))
+      return true;
   }
-  return result;
+  return false;
 }
 
 const std::vector<double> DDFilteredView::parameters() const {
