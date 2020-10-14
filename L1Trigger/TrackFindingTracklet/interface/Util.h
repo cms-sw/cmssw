@@ -18,14 +18,13 @@ namespace trklet {
     unsigned int radix = 1, value = 0;
     for (int i = binary.length() - 1; i >= 0; i--) {
       if (binary.at(i) != '0' && binary.at(i) != '1')
-          continue;
+        continue;
       value += (binary.at(i) - '0') * radix;
       if (radix == 8) {
         ss << std::hex << value;
         radix = 1;
         value = 0;
-      }
-      else
+      } else
         radix <<= 1;
     }
     if (radix != 1)

@@ -21,7 +21,7 @@ void LayerProjection::init(Settings const& settings,
                            double zprojapprox,
                            double phiprojderapprox,
                            double zprojderapprox,
-			   bool isPSseed) {
+                           bool isPSseed) {
   assert(projlayer > 0);
   assert(projlayer <= N_LAYER);
 
@@ -63,15 +63,15 @@ void LayerProjection::init(Settings const& settings,
   ////This determines the central bin:
   ////int zbin=4+(zproj.value()>>(zproj.nbits()-3));
   ////But we need some range (particularly for L5L6 seed projecting to L1-L3):
-  int offset=4;
+  int offset = 4;
   if (isPSseed) {
-    offset=1;
+    offset = 1;
   }
   unsigned int zbin1 = (1 << (settings.MEBinsBits() - 1)) +
                        (((fpgazproj_.value() >> (fpgazproj_.nbits() - settings.MEBinsBits() - 3)) - offset) >> 3);
   unsigned int zbin2 = (1 << (settings.MEBinsBits() - 1)) +
                        (((fpgazproj_.value() >> (fpgazproj_.nbits() - settings.MEBinsBits() - 3)) + offset) >> 3);
-  if (zbin1 >= settings.MEBins()){
+  if (zbin1 >= settings.MEBins()) {
     zbin1 = 0;  //note that zbin1 is unsigned
   }
   if (zbin2 >= settings.MEBins())

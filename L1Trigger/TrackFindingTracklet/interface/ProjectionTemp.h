@@ -14,7 +14,7 @@ namespace trklet {
                    int projfinerz,
                    unsigned int projfinephi,
                    unsigned int iphi,
-		   bool usesecond,
+                   bool usesecond,
                    bool isPSseed);
 
     ProjectionTemp();

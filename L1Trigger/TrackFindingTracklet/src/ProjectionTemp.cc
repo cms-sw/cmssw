@@ -9,7 +9,7 @@ ProjectionTemp::ProjectionTemp(Tracklet* proj,
                                int projfinerz,
                                unsigned int projfinephi,
                                unsigned int iphi,
-			       bool usesecond,
+                               bool usesecond,
                                bool isPSseed) {
   proj_ = proj;
   slot_ = slot;
@@ -28,6 +28,6 @@ ProjectionTemp::ProjectionTemp() {
   projfinerz_ = 0;
   projfinephi_ = 0;
   iphi_ = 0;
-  usesecond_=false;
+  usesecond_ = false;
   isPSseed_ = false;
 }

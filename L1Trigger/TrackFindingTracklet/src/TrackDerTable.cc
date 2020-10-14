@@ -357,7 +357,7 @@ void TrackDerTable::fillTable() {
   }
 
   if (settings_.writeTable()) {
-    ofstream outL(settings_.tablePath()+"FitDerTableNew_LayerMem.tab");
+    ofstream outL(settings_.tablePath() + "FitDerTableNew_LayerMem.tab");
     for (unsigned int i = 0; i < LayerMem_.size(); i++) {
       FPGAWord tmp;
       int tmp1 = LayerMem_[i];
@@ -369,7 +369,7 @@ void TrackDerTable::fillTable() {
     }
     outL.close();
 
-    ofstream outD(settings_.tablePath()+"FitDerTableNew_DiskMem.tab");
+    ofstream outD(settings_.tablePath() + "FitDerTableNew_DiskMem.tab");
     for (int tmp1 : DiskMem_) {
       if (tmp1 < 0)
         tmp1 = (1 << 7) - 1;
@@ -379,7 +379,7 @@ void TrackDerTable::fillTable() {
     }
     outD.close();
 
-    ofstream outLD(settings_.tablePath()+"FitDerTableNew_LayerDiskMem.tab");
+    ofstream outLD(settings_.tablePath() + "FitDerTableNew_LayerDiskMem.tab");
     for (int tmp1 : LayerDiskMem_) {
       if (tmp1 < 0)
         tmp1 = (1 << 15) - 1;
@@ -393,7 +393,7 @@ void TrackDerTable::fillTable() {
     //edm::LogVerbatim("Tracklet") << "nderivatives = " << nderivatives;
 
     const std::array<string, N_TRKLSEED> seedings = {{"L1L2", "L3L4", "L5L6", "D1D2", "D3D4", "D1L1", "D1L2"}};
-    const string prefix = settings_.tablePath()+"FitDerTableNew_";
+    const string prefix = settings_.tablePath() + "FitDerTableNew_";
 
     // open files for derivative tables
     ofstream outrinvdphi[N_TRKLSEED];
