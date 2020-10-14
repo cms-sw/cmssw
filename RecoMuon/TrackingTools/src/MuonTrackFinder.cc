@@ -22,9 +22,6 @@
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-
 using namespace std;
 using namespace edm;
 

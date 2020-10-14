@@ -19,9 +19,6 @@
 
 #include <vector>
 
-class TrackerTopology;
-class TrackerTopologyRcd;
-
 class MuonTrajectoryBuilder;
 class MuonTrajectoryCleaner;
 class MuonTrackLoader;
