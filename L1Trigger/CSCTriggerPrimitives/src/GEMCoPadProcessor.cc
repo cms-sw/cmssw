@@ -34,8 +34,7 @@ std::vector<GEMCoPadDigi> GEMCoPadProcessor::run(const GEMPadDigiCollection* in_
     const GEMDetId& id = (*det_range).first;
 
     // coincidence pads are not build for ME0
-    // -> ignore hits from station 0
-    if (id.station() == 0)
+    if (id.isME0())
       continue;
 
     // same chamber (no restriction on the roll number)
@@ -103,6 +102,14 @@ void GEMCoPadProcessor::declusterize(const GEMPadDigiClusterCollection* in_clust
     const GEMDetId& id = (*detUnitIt).first;
     const auto& range = (*detUnitIt).second;
     for (auto digiIt = range.first; digiIt != range.second; ++digiIt) {
+      // no clusters from ME0
+      if (id.isME0())
+        continue;
+
+      // same chamber (no restriction on the roll number)
+      if (id.region() != theRegion or id.station() != theStation or id.chamber() != theChamber)
+        continue;
+
       // ignore 16-partition GE2/1 pads
       if (id.isGE21() and digiIt->nPartitions() == GEMPadDigiCluster::GE21SplitStrip)
         continue;
