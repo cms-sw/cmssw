@@ -24,6 +24,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class GEMDigiToRawModule : public edm::global::EDProducer<edm::RunCache<GEMROMapping>> {
 public:
@@ -269,9 +270,7 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
 
     uint64_t* w = reinterpret_cast<uint64_t*>(fedRawData.data());
     for (const auto& word : words) {
-#ifdef EDM_ML_DEBUG
-      std::cout << std::bitset<64>(word) << std::endl;
-#endif
+      LogDebug("GEMDigiToRawModule") << std::bitset<64>(word);
       *(w++) = word;
     }
     LogDebug("GEMDigiToRawModule") << " words " << words.size();
