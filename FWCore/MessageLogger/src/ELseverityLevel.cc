@@ -97,12 +97,6 @@ namespace edm {
   // Birth/death:
   // ----------------------------------------------------------------------
 
-  ELseverityLevel::ELseverityLevel(enum ELsev_ lev) : myLevel(lev) {
-#ifdef ELsevConTRACE
-    std::cerr << "--- ELseverityLevel " << lev << " (" << getName() << ")\n" << std::flush;
-#endif
-  }
-
   ELseverityLevel::ELseverityLevel(std::string_view s) {
     static ELmap const& m = loadMap();
 
@@ -110,19 +104,9 @@ namespace edm {
     myLevel = (i == m.end()) ? ELsev_unspecified : i->second;
   }
 
-  ELseverityLevel::~ELseverityLevel() { ; }
-
-  // ----------------------------------------------------------------------
-  // Comparator:
-  // ----------------------------------------------------------------------
-
-  int ELseverityLevel::cmp(ELseverityLevel const& e) const { return myLevel - e.myLevel; }
-
   // ----------------------------------------------------------------------
   // Accessors:
   // ----------------------------------------------------------------------
-
-  int ELseverityLevel::getLevel() const { return myLevel; }
 
   const std::string& ELseverityLevel::getSymbol() const {
     static const auto symbols = []() {
@@ -205,60 +189,5 @@ namespace edm {
   // ----------------------------------------------------------------------
 
   std::ostream& operator<<(std::ostream& os, const ELseverityLevel& sev) { return os << " -" << sev.getName() << "- "; }
-
-  // ----------------------------------------------------------------------
-  // Declare the globally available severity objects,
-  // one generator function and one proxy per non-default ELsev_:
-  // ----------------------------------------------------------------------
-
-  ELseverityLevel const ELzeroSeverityGen() {
-    static ELseverityLevel const e(ELseverityLevel::ELsev_zeroSeverity);
-    return e;
-  }
-  ELslProxy<ELzeroSeverityGen> const ELzeroSeverity;
-
-  ELseverityLevel const ELdebugGen() {
-    static ELseverityLevel const e(ELseverityLevel::ELsev_success);
-    return e;
-  }
-  ELslProxy<ELdebugGen> const ELdebug;
-
-  ELseverityLevel const ELinfoGen() {
-    static ELseverityLevel const e(ELseverityLevel::ELsev_info);
-    return e;
-  }
-  ELslProxy<ELinfoGen> const ELinfo;
-
-  ELseverityLevel const ELwarningGen() {
-    static ELseverityLevel const e(ELseverityLevel::ELsev_warning);
-    return e;
-  }
-  ELslProxy<ELwarningGen> const ELwarning;
-
-  ELseverityLevel const ELerrorGen() {
-    static ELseverityLevel const e(ELseverityLevel::ELsev_error);
-    return e;
-  }
-  ELslProxy<ELerrorGen> const ELerror;
-
-  ELseverityLevel const ELunspecifiedGen() {
-    static ELseverityLevel const e(ELseverityLevel::ELsev_unspecified);
-    return e;
-  }
-  ELslProxy<ELunspecifiedGen> const ELunspecified;
-
-  ELseverityLevel const ELsevereGen() {
-    static ELseverityLevel const e(ELseverityLevel::ELsev_severe);
-    return e;
-  }
-  ELslProxy<ELsevereGen> const ELsevere;
-
-  ELseverityLevel const ELhighestSeverityGen() {
-    static ELseverityLevel const e(ELseverityLevel::ELsev_highestSeverity);
-    return e;
-  }
-  ELslProxy<ELhighestSeverityGen> const ELhighestSeverity;
-
-  // ----------------------------------------------------------------------
 
 }  // end of namespace edm  */
