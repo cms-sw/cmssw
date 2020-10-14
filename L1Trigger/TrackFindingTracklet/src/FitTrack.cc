@@ -934,12 +934,10 @@ void FitTrack::execute() {
     bool match = false;
 
     if (indexArray[0] < matches1.size()) {
-      while (matches1[indexArray[0]] == bestTracklet) {
+      while (matches1[indexArray[0]] == bestTracklet && indexArray[0] < matches1.size()) {
         indexArray[0]++;
         nMatches++;
         match = true;
-        if (indexArray[0] >= matches1.size())
-          break;
       }
     }
 
@@ -948,12 +946,10 @@ void FitTrack::execute() {
     match = false;
 
     if (indexArray[1] < matches2.size()) {
-      while (matches2[indexArray[1]] == bestTracklet) {
+      while (matches2[indexArray[1]] == bestTracklet && indexArray[1] < matches2.size()) {
         indexArray[1]++;
         nMatches++;
         match = true;
-        if (indexArray[1] >= matches2.size())
-          break;
       }
     }
 
@@ -962,12 +958,10 @@ void FitTrack::execute() {
     match = false;
 
     if (indexArray[2] < matches3.size()) {
-      while (matches3[indexArray[2]] == bestTracklet) {
+      while (matches3[indexArray[2]] == bestTracklet && indexArray[2] < matches3.size()) {
         indexArray[2]++;
         nMatches++;
         match = true;
-        if (indexArray[2] >= matches3.size())
-          break;
       }
     }
 
@@ -976,12 +970,10 @@ void FitTrack::execute() {
     match = false;
 
     if (indexArray[3] < matches4.size()) {
-      while (matches4[indexArray[3]] == bestTracklet) {
+      while (matches4[indexArray[3]] == bestTracklet && indexArray[3] < matches4.size()) {
         indexArray[3]++;
         nMatches++;
         match = true;
-        if (indexArray[3] >= matches4.size())
-          break;
       }
     }
 
