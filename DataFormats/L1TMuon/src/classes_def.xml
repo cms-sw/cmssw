@@ -1,7 +1,14 @@
 <lcgdict>
  <selection>
 
-  <class name="l1t::RegionalMuonCand"/>
+  <class name="l1t::RegionalMuonCand" ClassVersion="11">
+    <version ClassVersion="11" checksum="2292293737"/>
+    <version ClassVersion="10" checksum="1070099328"/>
+  </class>
+  <ioread sourceClass="l1t::RegionalMuonCand" targetClass="l1t::RegionalMuonCand" version="[-10]"  source="int m_hwPt2" target="m_hwPtUnconstrained">
+    <![CDATA[ m_hwPtUnconstrained = onfile.m_hwPt2; ]]>
+  </ioread>
+
   <class name="std::vector<l1t::RegionalMuonCand>"/>
   <class name="l1t::RegionalMuonCandBxCollection"/>
   <class name="edm::Wrapper<l1t::RegionalMuonCandBxCollection>"/>
@@ -65,7 +72,8 @@
 
 
 
-  <class name="L1MuBMTrack" ClassVersion="13">
+  <class name="L1MuBMTrack" ClassVersion="14">
+   <version ClassVersion="14" checksum="2164413511"/>
     <version ClassVersion="10" checksum="955528069"/>
     <version ClassVersion="11" checksum="1941187557"/>
     <version ClassVersion="12" checksum="4194061270"/>
