@@ -19,13 +19,12 @@ from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
 import copy
 
 bTagCSVV2    = ['pfDeepCSVJetTags:probb','pfDeepCSVJetTags:probbb','pfDeepCSVJetTags:probc']
-bTagCMVAV2   = ['pfCombinedMVAV2BJetTags']
 bTagDeepCSV  = ['pfCombinedInclusiveSecondaryVertexV2BJetTags']
 bTagDeepJet  = [
   'pfDeepFlavourJetTags:probb','pfDeepFlavourJetTags:probbb','pfDeepFlavourJetTags:problepb',
   'pfDeepFlavourJetTags:probc','pfDeepFlavourJetTags:probuds','pfDeepFlavourJetTags:probg'
 ]
-bTagDiscriminatorsForAK4 = bTagCSVV2+bTagCMVAV2+bTagDeepCSV+bTagDeepJet
+bTagDiscriminatorsForAK4 = bTagCSVV2+bTagDeepCSV+bTagDeepJet
 
 #
 # By default, these collections are saved in NanoAODs:
@@ -170,14 +169,13 @@ QGLVARS = cms.PSet(
   qgl_mult        =  Var("userInt('qgl_mult')", int,doc="PF candidates multiplicity (Quark vs Gluon likelihood input variable)"),
 )
 BTAGVARS = cms.PSet(
-  btagCMVA  = jetTable.variables.btagCMVA,
   btagDeepB = jetTable.variables.btagDeepB,
   btagCSVV2 = jetTable.variables.btagCSVV2,
-  btagDeepC = jetTable.variables.btagDeepC,
+  btagDeepCvL = jetTable.variables.btagDeepCvL,
 )
 DEEPJETVARS = cms.PSet(
   btagDeepFlavB   = jetTable.variables.btagDeepFlavB,
-  btagDeepFlavC   = jetTable.variables.btagDeepFlavC,
+  btagDeepFlavC   = Var("bDiscriminator('pfDeepFlavourJetTags:probc')",float,doc="DeepFlavour charm tag raw score",precision=10),
   btagDeepFlavG   = Var("bDiscriminator('pfDeepFlavourJetTags:probg')",float,doc="DeepFlavour gluon tag raw score",precision=10),
   btagDeepFlavUDS = Var("bDiscriminator('pfDeepFlavourJetTags:probuds')",float,doc="DeepFlavour uds tag raw score",precision=10)
 )
@@ -361,12 +359,11 @@ def AddBTaggingScores(proc, jetTableName=""):
   Store b-tagging scores from various algortihm
   """
 
-  getattr(proc, jetTableName).variables.btagCMVA      = jetTable.variables.btagCMVA
   getattr(proc, jetTableName).variables.btagDeepB     = jetTable.variables.btagDeepB
   getattr(proc, jetTableName).variables.btagCSVV2     = jetTable.variables.btagCSVV2
-  getattr(proc, jetTableName).variables.btagDeepC     = jetTable.variables.btagDeepC
+  getattr(proc, jetTableName).variables.btagDeepCvL     = jetTable.variables.btagDeepCvL
   getattr(proc, jetTableName).variables.btagDeepFlavB = jetTable.variables.btagDeepFlavB
-  getattr(proc, jetTableName).variables.btagDeepFlavC = jetTable.variables.btagDeepFlavC
+  getattr(proc, jetTableName).variables.btagDeepFlavCvL = jetTable.variables.btagDeepFlavCvL
 
   return proc
 
