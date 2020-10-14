@@ -104,15 +104,10 @@ uint32_t EcalBarrelNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) 
   ++count;
 */
   edm::LogVerbatim("EcalGeom") << "EcalBarrelNumberingScheme: "
-			       << "supmCopy = " << supmCopy
-			       << ", fawCopy = " << fawCopy
-			       << ", hawCopy = " << hawCopy
-			       << ", wallCopy = " << wallCopy
-			       << ", cryType = " << cryType
-			       << "\n           zsign = "  << zsign
-			       << ", eta = " << eta
-			       << ", phi = " << phi
-			       << ", packed index = 0x" << std::hex << intindex << std::dec ;
+                               << "supmCopy = " << supmCopy << ", fawCopy = " << fawCopy << ", hawCopy = " << hawCopy
+                               << ", wallCopy = " << wallCopy << ", cryType = " << cryType
+                               << "\n           zsign = " << zsign << ", eta = " << eta << ", phi = " << phi
+                               << ", packed index = 0x" << std::hex << intindex << std::dec;
 
   return intindex;
 }

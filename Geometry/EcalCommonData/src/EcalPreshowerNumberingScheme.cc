@@ -414,10 +414,14 @@ uint32_t EcalPreshowerNumberingScheme::getUnitID(const EcalBaseNumber& baseNumbe
 
     intIndex = ESDetId(strip, x, y, layer, zside).rawId();
 
-    edm::LogVerbatim("EcalGeom") << "EcalPreshowerNumberingScheme : zside " << zside << " Ladd " << ladd  << " ladd_copy: " << ladd_copy << " box " << box << " x " << x << " y " << y << " layer " << layer << " strip " << strip << " UnitID 0x" << std::hex << intIndex << std::dec;
+    edm::LogVerbatim("EcalGeom") << "EcalPreshowerNumberingScheme : zside " << zside << " Ladd " << ladd
+                                 << " ladd_copy: " << ladd_copy << " box " << box << " x " << x << " y " << y
+                                 << " layer " << layer << " strip " << strip << " UnitID 0x" << std::hex << intIndex
+                                 << std::dec;
 
     for (int ich = 0; ich < level; ich++) {
-      edm::LogVerbatim("EcalGeom") << "Name = " << baseNumber.getLevelName(ich) << " copy = " << baseNumber.getCopyNumber(ich);
+      edm::LogVerbatim("EcalGeom") << "Name = " << baseNumber.getLevelName(ich)
+                                   << " copy = " << baseNumber.getCopyNumber(ich);
     }
   }
 

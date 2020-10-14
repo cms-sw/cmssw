@@ -50,10 +50,9 @@ uint32_t EcalEndcapNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) 
 
     uint32_t intindex = EEDetId(module_number, crystal_number, zside, EEDetId::SCCRYSTALMODE).rawId();
 
-    edm::LogVerbatim("EcalGeom") << "EcalEndcapNumberingScheme: zside = "  << zside
-				 << " super crystal = " << module_number << " crystal = "
-				 << crystal_number << " packed index = 0x" << std::hex
-				 << intindex << std::dec;
+    edm::LogVerbatim("EcalGeom") << "EcalEndcapNumberingScheme: zside = " << zside
+                                 << " super crystal = " << module_number << " crystal = " << crystal_number
+                                 << " packed index = 0x" << std::hex << intindex << std::dec;
 
     return intindex;
   } else {
