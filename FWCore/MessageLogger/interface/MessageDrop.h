@@ -85,11 +85,11 @@ namespace edm {
   struct MessageDrop {
   private:
     MessageDrop();  // change log 10:
-                    // moved to cc file
+
+  public:
     MessageDrop(MessageDrop const&) = delete;
     MessageDrop& operator=(MessageDrop const&) = delete;
 
-  public:
     ~MessageDrop();  // change log 10
     static MessageDrop* instance();
     std::string moduleContext();

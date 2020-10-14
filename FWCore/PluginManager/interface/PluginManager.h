@@ -67,6 +67,8 @@ namespace edmplugin {
       bool m_mustHaveCache = true;
     };
 
+    PluginManager(const PluginManager&) = delete;                   // stop default
+    const PluginManager& operator=(const PluginManager&) = delete;  // stop default
     ~PluginManager();
 
     // ---------- const member functions ---------------------
@@ -101,9 +103,6 @@ namespace edmplugin {
 
   private:
     PluginManager(const Config&);
-    PluginManager(const PluginManager&) = delete;  // stop default
-
-    const PluginManager& operator=(const PluginManager&) = delete;  // stop default
 
     void newFactory(const PluginFactoryBase*);
     static std::string& loadingLibraryNamed_();

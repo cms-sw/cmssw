@@ -41,6 +41,9 @@ namespace edm {
     //needed for testing
     friend class ::testSharedResourcesRegistry;
 
+    SharedResourcesRegistry(const SharedResourcesRegistry&) = delete;                   // stop default
+    const SharedResourcesRegistry& operator=(const SharedResourcesRegistry&) = delete;  // stop default
+
     // ---------- const member functions ---------------------
     SharedResourcesAcquirer createAcquirer(std::vector<std::string> const&) const;
 
@@ -66,10 +69,6 @@ namespace edm {
   private:
     SharedResourcesRegistry();
     ~SharedResourcesRegistry() = default;
-
-    SharedResourcesRegistry(const SharedResourcesRegistry&) = delete;  // stop default
-
-    const SharedResourcesRegistry& operator=(const SharedResourcesRegistry&) = delete;  // stop default
 
     // ---------- member data --------------------------------
     std::map<std::string, std::pair<std::shared_ptr<SerialTaskQueue>, unsigned int>> resourceMap_;

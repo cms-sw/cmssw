@@ -70,6 +70,8 @@ namespace edm {
       friend class edm::maker::ModuleHolderT;
 
       ProducingModuleAdaptorBase();
+      ProducingModuleAdaptorBase(const ProducingModuleAdaptorBase&) = delete;                   // stop default
+      const ProducingModuleAdaptorBase& operator=(const ProducingModuleAdaptorBase&) = delete;  // stop default
       virtual ~ProducingModuleAdaptorBase();
 
       // ---------- const member functions ---------------------
@@ -142,10 +144,6 @@ namespace edm {
       const ProducerBase* producer() { return m_streamModules[0]; }
 
     private:
-      ProducingModuleAdaptorBase(const ProducingModuleAdaptorBase&) = delete;  // stop default
-
-      const ProducingModuleAdaptorBase& operator=(const ProducingModuleAdaptorBase&) = delete;  // stop default
-
       void doPreallocate(PreallocationConfiguration const&);
       virtual void preallocLumis(unsigned int) {}
       virtual void setupStreamModules() = 0;
