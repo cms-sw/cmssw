@@ -1,26 +1,6 @@
-// -*- C++ -*-
-//
-// Package:    HiSignalGenJetProducer
-// Class:      HiSignalGenJetProducer
-//
-/**\class HiSignalGenJetProducer HiSignalGenJetProducer.cc yetkin/HiSignalGenJetProducer/src/HiSignalGenJetProducer.cc
-
- Description: <one line class summary>
-
- Implementation:
-     <Notes on implementation>
-*/
-//
-// Original Author:  Yetkin Yilmaz
-//         Created:  Tue Jul 21 04:26:01 EDT 2009
-//
-//
-
-// system include files
 #include <memory>
 #include <vector>
 
-// user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 
@@ -34,13 +14,6 @@
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
-using namespace std;
-using namespace edm;
-
-//
-// class decleration
-//
-
 class HiSignalGenJetProducer : public edm::global::EDProducer<> {
 public:
   explicit HiSignalGenJetProducer(const edm::ParameterSet&);
@@ -50,55 +23,31 @@ public:
 
 private:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-  // ----------member data ---------------------------
 
   edm::EDGetTokenT<edm::View<reco::GenJet> > jetSrc_;
 };
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
-
 HiSignalGenJetProducer::HiSignalGenJetProducer(const edm::ParameterSet& iConfig)
     : jetSrc_(consumes<edm::View<reco::GenJet> >(iConfig.getParameter<edm::InputTag>("src"))) {
-  std::string alias = (iConfig.getParameter<InputTag>("src")).label();
+  std::string alias = (iConfig.getParameter<edm::InputTag>("src")).label();
   produces<reco::GenJetCollection>().setBranchAlias(alias);
 }
 
-//
-// member functions
-//
-
-// ------------ method called to produce the data  ------------
-
 void HiSignalGenJetProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) const {
-  using namespace edm;
-  using namespace reco;
 
-  auto jets = std::make_unique<GenJetCollection>();
+  auto jets = std::make_unique<reco::GenJetCollection>();
 
-  edm::Handle<edm::View<GenJet> > genjets;
+  edm::Handle<edm::View<reco::GenJet> > genjets;
   iEvent.getByToken(jetSrc_, genjets);
 
-  int jetsize = genjets->size();
+  for (const reco::GenJet &jet1 : *genjets){
 
-  for (int ijet = 0; ijet < jetsize; ++ijet) {
-    const GenJet* jet1 = &((*genjets)[ijet]);
-
-    const GenParticle* gencon = jet1->getGenConstituent(0);
+    const reco::GenParticle* gencon = jet1.getGenConstituent(0);
 
     if (gencon == nullptr)
       throw cms::Exception("GenConstituent", "GenJet is missing its constituents");
     else if (gencon->collisionId() == 0) {
-      jets->push_back(*jet1);
+      jets->push_back(jet1);
     }
   }
 
@@ -108,7 +57,7 @@ void HiSignalGenJetProducer::produce(edm::StreamID, edm::Event& iEvent, const ed
 void HiSignalGenJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.setComment("Selects genJets from collision id = 0");
-  desc.add<std::string>("src", "ak4HiGenJets");
+  desc.add<edm::InputTag>("src", edm::InputTag("akHiGenJets"));
   descriptions.add("HiSignalGenJetProducer", desc);
 }
 
