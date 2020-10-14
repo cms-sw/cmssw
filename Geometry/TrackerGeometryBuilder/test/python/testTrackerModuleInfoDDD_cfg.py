@@ -29,7 +29,6 @@ process.MessageLogger.debugModules.append('*')
 process.MessageLogger.categories.append('TrackerGeometryBuilder')
 process.MessageLogger.categories.append('TrackerNumberingBuilder')
 process.MessageLogger.categories.append('ModuleInfo')
-process.MessageLogger.categories.append('CmsTrackerDebugNavigator')
 process.MessageLogger.cout = cms.untracked.PSet(
         threshold = cms.untracked.string('DEBUG'),
             default = cms.untracked.PSet( limit = cms.untracked.int32(0) ),

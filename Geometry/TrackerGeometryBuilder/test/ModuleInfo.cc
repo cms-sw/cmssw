@@ -41,7 +41,6 @@
 #include "DataFormats/Math/interface/Rounding.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerDebugNavigator.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerStringToEnum.h"
@@ -76,8 +75,6 @@ private:
   bool printDDD_;
   double tolerance_;
 };
-
-static const double density_units = 6.24151e+18;
 
 ModuleInfo::ModuleInfo(const edm::ParameterSet& ps)
     : fromDDD_(ps.getParameter<bool>("fromDDD")),
