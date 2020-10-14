@@ -78,17 +78,17 @@ void MTDRecoGeometryAnalyzer::analyze(const Event& ev, const EventSetup& es) {
 
   LogVerbatim("MTDLayerDump") << "\n*** allBTLLayers(): " << std::fixed << std::setw(14) << geo->allBTLLayers().size();
   for (auto dl = geo->allBTLLayers().begin(); dl != geo->allBTLLayers().end(); ++dl) {
-    LogVerbatim("MTDLayerDump") << "  " << (int)(dl - geo->allBTLLayers().begin()) << " " << dumpLayer(*dl);
+    LogVerbatim("MTDLayerDump") << "  " << static_cast<int>(dl - geo->allBTLLayers().begin()) << " " << dumpLayer(*dl);
   }
 
   LogVerbatim("MTDLayerDump") << "\n*** allETLLayers(): " << std::fixed << std::setw(14) << geo->allETLLayers().size();
   for (auto dl = geo->allETLLayers().begin(); dl != geo->allETLLayers().end(); ++dl) {
-    LogVerbatim("MTDLayerDump") << "  " << (int)(dl - geo->allETLLayers().begin()) << " " << dumpLayer(*dl);
+    LogVerbatim("MTDLayerDump") << "  " << static_cast<int>(dl - geo->allETLLayers().begin()) << " " << dumpLayer(*dl);
   }
 
   LogVerbatim("MTDLayerDump") << "\n*** allLayers(): " << std::fixed << std::setw(14) << geo->allLayers().size();
   for (auto dl = geo->allLayers().begin(); dl != geo->allLayers().end(); ++dl) {
-    LogVerbatim("MTDLayerDump") << "  " << (int)(dl - geo->allLayers().begin()) << " " << dumpLayer(*dl);
+    LogVerbatim("MTDLayerDump") << "  " << static_cast<int>(dl - geo->allLayers().begin()) << " " << dumpLayer(*dl);
   }
 
   testBTLLayers(geo.product(), magfield.product());
@@ -102,8 +102,8 @@ void MTDRecoGeometryAnalyzer::analyze(const Event& ev, const EventSetup& es) {
 void MTDRecoGeometryAnalyzer::testBTLLayers(const MTDDetLayerGeometry* geo, const MagneticField* field) {
   const vector<const DetLayer*>& layers = geo->allBTLLayers();
 
-  for (auto ilay = layers.begin(); ilay != layers.end(); ++ilay) {
-    const MTDTrayBarrelLayer* layer = (const MTDTrayBarrelLayer*)(*ilay);
+  for (const auto& ilay : layers) {
+    const MTDTrayBarrelLayer* layer = static_cast<const MTDTrayBarrelLayer*>(ilay);
 
     LogVerbatim("MTDLayerDump") << std::fixed << "\nBTL layer " << std::setw(4) << layer->subDetector()
                                 << " rods = " << std::setw(14) << layer->rods().size() << " dets = " << std::setw(14)
@@ -159,8 +159,8 @@ void MTDRecoGeometryAnalyzer::testBTLLayers(const MTDDetLayerGeometry* geo, cons
 void MTDRecoGeometryAnalyzer::testETLLayers(const MTDDetLayerGeometry* geo, const MagneticField* field) {
   const vector<const DetLayer*>& layers = geo->allETLLayers();
 
-  for (auto ilay = layers.begin(); ilay != layers.end(); ++ilay) {
-    const MTDRingForwardDoubleLayer* layer = (const MTDRingForwardDoubleLayer*)(*ilay);
+  for (const auto& ilay : layers) {
+    const MTDRingForwardDoubleLayer* layer = static_cast<const MTDRingForwardDoubleLayer*>(ilay);
 
     LogVerbatim("MTDLayerDump") << std::fixed << "\nETL layer " << std::setw(4) << layer->subDetector()
                                 << " rings = " << std::setw(14) << layer->rings().size() << " dets = " << std::setw(14)
@@ -224,8 +224,8 @@ void MTDRecoGeometryAnalyzer::testETLLayersNew(const MTDDetLayerGeometry* geo, c
 
   // dump of ETL layers structure
 
-  for (auto ilay = layers.begin(); ilay != layers.end(); ++ilay) {
-    const MTDSectorForwardDoubleLayer* layer = (const MTDSectorForwardDoubleLayer*)(*ilay);
+  for (const auto& ilay : layers) {
+    const MTDSectorForwardDoubleLayer* layer = static_cast<const MTDSectorForwardDoubleLayer*>(ilay);
 
     LogVerbatim("MTDLayerDump") << std::fixed << "\nETL layer " << std::setw(4) << layer->subDetector()
                                 << " at z = " << std::setw(14) << layer->surface().position().z()
@@ -251,8 +251,8 @@ void MTDRecoGeometryAnalyzer::testETLLayersNew(const MTDDetLayerGeometry* geo, c
 
   // test propagation through layers
 
-  for (auto ilay = layers.begin(); ilay != layers.end(); ++ilay) {
-    const MTDSectorForwardDoubleLayer* layer = (const MTDSectorForwardDoubleLayer*)(*ilay);
+  for (const auto& ilay : layers) {
+    const MTDSectorForwardDoubleLayer* layer = static_cast<const MTDSectorForwardDoubleLayer*>(ilay);
 
     const BoundDisk& disk = layer->specificSurface();
 

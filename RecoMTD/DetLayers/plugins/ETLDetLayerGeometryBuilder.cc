@@ -105,7 +105,7 @@ MTDRingForwardDoubleLayer* ETLDetLayerGeometryBuilder::buildLayer(int endcap,
       assert(!backGeomDets.empty());
       float frontz = frontRings[0]->position().z();
       float backz = backRings[0]->position().z();
-      assert(fabs(frontz) < fabs(backz));
+      assert(std::abs(frontz) < std::abs(backz));
     }
   }
 
@@ -186,7 +186,7 @@ MTDSectorForwardDoubleLayer* ETLDetLayerGeometryBuilder::buildLayerNew(int endca
       assert(!backGeomDets.empty());
       float frontz = frontSectors.back()->position().z();
       float backz = backSectors.back()->position().z();
-      assert(fabs(frontz) < fabs(backz));
+      assert(std::abs(frontz) < std::abs(backz));
     }
   }
 

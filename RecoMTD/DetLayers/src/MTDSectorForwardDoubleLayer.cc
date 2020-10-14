@@ -27,8 +27,8 @@ MTDSectorForwardDoubleLayer::MTDSectorForwardDoubleLayer(const vector<const MTDD
 
   // Cache chamber pointers (the basic components_)
   // and find extension in R and Z
-  for (vector<const MTDDetSector*>::const_iterator it = theSectors.begin(); it != theSectors.end(); it++) {
-    vector<const GeomDet*> tmp2 = (*it)->basicComponents();
+  for (const auto& isect : theSectors) {
+    vector<const GeomDet*> tmp2 = isect->basicComponents();
     theBasicComponents.insert(theBasicComponents.end(), tmp2.begin(), tmp2.end());
   }
 
@@ -80,7 +80,7 @@ std::pair<bool, TrajectoryStateOnSurface> MTDSectorForwardDoubleLayer::compatibl
     return make_pair(false, myState);
 
   // take into account the thickness of the layer
-  float deltaR = surface().bounds().thickness() / 2. * fabs(tan(myState.localDirection().theta()));
+  float deltaR = surface().bounds().thickness() / 2. * std::abs(tan(myState.localDirection().theta()));
 
   // take into account the error on the predicted state
   const float nSigma = 3.;
@@ -159,9 +159,9 @@ void MTDSectorForwardDoubleLayer::selfTest() const {
 
   // test that each front z is less than each back z
   for (; frontItr != lastFront; ++frontItr) {
-    float frontz = fabs((**frontItr).surface().position().z());
+    float frontz = std::abs((**frontItr).surface().position().z());
     for (; backItr != lastBack; ++backItr) {
-      float backz = fabs((**backItr).surface().position().z());
+      float backz = std::abs((**backItr).surface().position().z());
       assert(frontz < backz);
     }
   }

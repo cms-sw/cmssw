@@ -55,10 +55,7 @@ pair<bool, TrajectoryStateOnSurface> MTDDetSector::compatible(const TrajectorySt
   }
 #endif
 
-  if (ms.isValid())
-    return make_pair(est.estimate(ms, specificSurface()) != 0, ms);
-  else
-    return make_pair(false, ms);
+  return make_pair(ms.isValid() and est.estimate(ms, specificSurface()) != 0, ms);
 }
 
 vector<GeometricSearchDet::DetWithState> MTDDetSector::compatibleDets(const TrajectoryStateOnSurface& startingState,
@@ -88,7 +85,7 @@ vector<GeometricSearchDet::DetWithState> MTDDetSector::compatibleDets(const Traj
   // determine distance of det center from extrapolation on the surface, sort dets accordingly
 
   size_t idetMin = basicComponents().size();
-  double dist2Min = 1.e6;  // arbitrary big number
+  double dist2Min = std::numeric_limits<double>::max();
   std::vector<std::pair<double, size_t> > tmpDets;
 
   for (size_t idet = 0; idet < basicComponents().size(); idet++) {
@@ -107,7 +104,7 @@ vector<GeometricSearchDet::DetWithState> MTDDetSector::compatibleDets(const Traj
   // loop on an interval od ordered detIds around the minimum
   // set a range of GeomDets around the minimum compatible with the geometry of ETL
 
-  size_t detsRange = 50;
+  constexpr size_t detsRange(50);
   size_t iniPos(idetMin > detsRange ? idetMin - detsRange : static_cast<size_t>(0));
   size_t endPos(std::min(idetMin + detsRange, basicComponents().size() - 1));
   std::vector<std::pair<double, size_t> > tmpDets2;
