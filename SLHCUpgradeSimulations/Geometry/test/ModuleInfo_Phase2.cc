@@ -42,7 +42,6 @@
 #include "DataFormats/GeometrySurface/interface/BoundSurface.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerDebugNavigator.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -84,10 +83,6 @@ private:
 // constants, enums and typedefs
 //
 
-//
-// static data member definitions
-//
-static const double density_units = 6.24151e+18;
 
 //
 // constructors and destructor
