@@ -26,6 +26,7 @@ ticlTrackstersTrkEM = _trackstersProducer.clone(
     max_longitudinal_sigmaPCA = 10,
     shower_start_max_layer = 5, #inclusive
     max_out_in_hops = 1,
+    max_missing_layers_in_trackster = 2,
     skip_layers = 2,
     min_layers_per_trackster = 10,
     min_cos_theta = 0.97,  # ~14 degrees
