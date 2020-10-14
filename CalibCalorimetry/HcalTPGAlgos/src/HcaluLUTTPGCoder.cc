@@ -442,13 +442,14 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
             double correctedCharge = containmentCorrection1TS * adc2fC(adc);
             double containmentCorrection2TSCorrected =
                 pulseCorr_->correction(cell, 2, correctionPhaseNS, correctedCharge);
-
-            containmentCorrection = containmentCorrection2TSCorrected;
             if (qieType == QIE11) {
               // When contain1TS_ is set, it should still only apply for QIE11-related things
               if ((contain1TSHB_ and cell.ietaAbs() <= topo_->lastHBRing()) or
-                  (contain1TSHE_ and cell.ietaAbs() > topo_->lastHBRing()))
+                  (contain1TSHE_ and cell.ietaAbs() > topo_->lastHBRing())) {
                 containmentCorrection = containmentCorrection1TS;
+              } else {
+                containmentCorrection = containmentCorrection2TSCorrected;
+              }
 
               const HcalSiPMParameter& siPMParameter(*conditions.getHcalSiPMParameter(cell));
               HcalSiPMnonlinearity corr(
@@ -456,6 +457,8 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
               const double fcByPE = siPMParameter.getFCByPE();
               const double effectivePixelsFired = correctedCharge / fcByPE;
               nonlinearityCorrection = corr.getRecoCorrectionFactor(effectivePixelsFired);
+            } else {
+              containmentCorrection = containmentCorrection2TSCorrected;
             }
           }
           if (allLinear_)
