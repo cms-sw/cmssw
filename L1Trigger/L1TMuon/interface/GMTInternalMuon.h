@@ -43,6 +43,8 @@ namespace l1t {
     const RegionalMuonCand& origin() const { return m_regional; };
 
     inline const int hwPt() const { return m_regional.hwPt(); };
+    inline const int hwPtUnconstrained() const { return m_regional.hwPtUnconstrained(); };
+    inline const int hwDXY() const { return m_regional.hwDXY(); };
     inline const int hwLocalPhi() const { return m_regional.hwPhi(); };
     inline const int hwEta() const { return m_regional.hwEta(); };
     inline const int hwSign() const { return m_regional.hwSign(); };

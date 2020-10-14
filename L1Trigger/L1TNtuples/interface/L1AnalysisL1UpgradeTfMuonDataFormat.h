@@ -1,7 +1,9 @@
 #ifndef __L1Analysis_L1AnalysisL1UpgradeTfMuonDataFormat_H__
 #define __L1Analysis_L1AnalysisL1UpgradeTfMuonDataFormat_H__
 
+#include "L1Trigger/L1TMuon/interface/RegionalMuonRawDigiTranslator.h"
 #include <vector>
+#include <map>
 
 namespace L1Analysis {
   struct L1AnalysisL1UpgradeTfMuonDataFormat {
@@ -24,6 +26,8 @@ namespace L1Analysis {
       tfMuonBx.clear();
       tfMuonWh.clear();
       tfMuonTrAdd.clear();
+      tfMuonDecodedTrAdd.clear();
+      tfMuonHwTrAdd.clear();
     }
 
     unsigned short int nTfMuons;
@@ -41,6 +45,8 @@ namespace L1Analysis {
     std::vector<short int> tfMuonBx;
     std::vector<short int> tfMuonWh;
     std::vector<short int> tfMuonTrAdd;
+    std::vector<std::map<std::string, int>> tfMuonDecodedTrAdd;
+    std::vector<short int> tfMuonHwTrAdd;
   };
 }  // namespace L1Analysis
 #endif
