@@ -265,14 +265,14 @@ void EtlSimHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
                                    0.,
                                    10.);
   meNtrkPerCell_[1] =
-      ibook.book1D("EtlNtrkPerCellZneg", "Number of tracks per ETL sensor (-Z, Second disk);N_{trk}", 10, 0., 10.);
-  meNtrkPerCell_[2] = ibook.book1D("EtlNtrkPerCellZpos",
+      ibook.book1D("EtlNtrkPerCellZnegD2", "Number of tracks per ETL sensor (-Z, Second disk);N_{trk}", 10, 0., 10.);
+  meNtrkPerCell_[2] = ibook.book1D("EtlNtrkPerCellZposD1",
                                    "Number of tracks per ETL sensor (+Z, Single(topo1D)/First(topo2D) disk);N_{trk}",
                                    10,
                                    0.,
                                    10.);
   meNtrkPerCell_[3] =
-      ibook.book1D("EtlNtrkPerCellZpos", "Number of tracks per ETL sensor (+Z, Second disk);N_{trk}", 10, 0., 10.);
+      ibook.book1D("EtlNtrkPerCellZposD2", "Number of tracks per ETL sensor (+Z, Second disk);N_{trk}", 10, 0., 10.);
 
   meHitEnergy_[0] = ibook.book1D(
       "EtlHitEnergyZnegD1", "ETL SIM hits energy (-Z, Single(topo1D)/First(topo2D) disk);E_{SIM} [MeV]", 100, 0., 3.);
