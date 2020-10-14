@@ -83,7 +83,6 @@ private:
 // constants, enums and typedefs
 //
 
-
 //
 // constructors and destructor
 //
