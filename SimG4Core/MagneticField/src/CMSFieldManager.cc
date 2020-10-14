@@ -144,7 +144,7 @@ void CMSFieldManager::ConfigureForTrack(const G4Track *track) {
       setChordFinderForTracker();
     }
 
-  } else if ((track->GetKineticEnergy() <= m_energyThreshold) || isInsideVacuum(track)) {
+  } else if ((track->GetKineticEnergy() <= m_energyThreshold && track->GetParentID() > 0) || isInsideVacuum(track)) {
     if (!m_cfVacuum) {
       setChordFinderForVacuum();
     }
