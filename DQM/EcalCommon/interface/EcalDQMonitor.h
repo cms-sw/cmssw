@@ -17,7 +17,10 @@ namespace edm {
 }  // namespace edm
 
 namespace ecaldqm {
-  struct NoCache {};
+  struct EcalLSCache {
+    std::map<std::string, bool> ByLumiPlotsResetSwitches;
+    bool lhcStatusSet_;
+  };
 
   class EcalDQMonitor {
   public:
@@ -41,7 +44,7 @@ namespace ecaldqm {
 
     std::vector<DQWorker *> workers_;
     std::string const moduleName_;
-    int const verbosity_;
+    const int verbosity_;
   };
 
   template <typename FuncOnWorker>
