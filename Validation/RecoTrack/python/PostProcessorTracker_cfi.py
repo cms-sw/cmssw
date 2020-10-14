@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
 def _addNoFlow(module):
     _noflowSeen = set()
@@ -315,6 +316,9 @@ postProcessorTrackSequence = cms.Sequence(
     postProcessorTrackSummary
 )
 
+fastSim.toModify(postProcessorTrack, subDirs = [e for e in _defaultSubdirs if e not in ["Tracking/TrackGsf/*","Tracking/TrackConversion/*"]])
+fastSim.toModify(postProcessorTrackSummary, subDirs = [e for e in _defaultSubdirs if e not in ["Tracking/TrackGsf/*","Tracking/TrackConversion/*"]])
+
 #######
 # Define a standalone seuquence to support the Standalone harvesting mode
 # see https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideMultiTrackValidator#cmsDriver_MTV_alone_i_e_standalone for more information
@@ -345,10 +349,13 @@ phase2_tracker.toReplaceWith(postProcessorTrackSummary,postProcessorTrackSummary
 postProcessorTrackTrackingOnly = postProcessorTrack.clone()
 postProcessorTrackTrackingOnly.subDirs.extend(["Tracking/TrackBHadron/*","Tracking/TrackSeeding/*", "Tracking/PixelTrack/*"])
 postProcessorTrackSummaryTrackingOnly = postProcessorTrackSummary.clone()
-postProcessorTrackSummaryTrackingOnly.subDirs.extend(["Tracking/TrackBHadron/*","Tracking/TrackSeeding", "Tracking/PixelTrack"])
+postProcessorTrackSummaryTrackingOnly.subDirs.extend(["Tracking/TrackBHadron/*","Tracking/TrackSeeding/*", "Tracking/PixelTrack/*"])
 
 postProcessorTrackSequenceTrackingOnly = cms.Sequence(
     postProcessorTrackTrackingOnly+
     postProcessorTrackNrecVsNsim+
     postProcessorTrackSummaryTrackingOnly
 )
+
+fastSim.toModify(postProcessorTrackTrackingOnly,subDirs = [e for e in _defaultSubdirs if e not in ["Tracking/TrackGsf/*","Tracking/TrackConversion/*","Tracking/TrackBHadron/*"]])
+fastSim.toModify(postProcessorTrackSummaryTrackingOnly,subDirs = [e for e in _defaultSubdirs if e not in ["Tracking/TrackGsf/*","Tracking/TrackConversion/*","Tracking/TrackBHadron/*"]])
