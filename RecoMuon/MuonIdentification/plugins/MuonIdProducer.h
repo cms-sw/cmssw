@@ -122,7 +122,7 @@ private:
 
   unsigned int chamberId(const DetId&);
 
-  double phiOfMuonIneteractionRegion(const reco::Muon& muon) const;
+  double phiOfMuonInteractionRegion(const reco::Muon& muon) const;
 
   bool checkLinks(const reco::MuonTrackLinks*) const;
   inline bool approxEqual(const double a, const double b, const double tol = 1E-3) const {
