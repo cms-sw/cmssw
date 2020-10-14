@@ -51,4 +51,4 @@ output [
 EOF
 
 mkdir -p 1
-cp /cvmfs/unpacked.cern.ch/registry.hub.docker.com/fastml/triton-torchgeo:20.06-v1-py3-geometric/torch_geometric/examples/model.pt 1/model.pt
+cp /cvmfs/unpacked.cern.ch/registry.hub.docker.com/fastml/triton-torchgeo:20.09-py3-geometric/torch_geometric/examples/model.pt 1/model.pt

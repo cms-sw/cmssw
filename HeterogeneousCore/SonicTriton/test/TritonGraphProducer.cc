@@ -33,13 +33,13 @@ public:
 
     //set shapes
     auto& input1 = iInput.at("x__0");
-    input1.shape() = {nnodes, input1.dims()[1]};
+    input1.setShape(0, nnodes);
     auto data1 = std::make_shared<TritonInput<float>>(1);
     auto& vdata1 = (*data1)[0];
     vdata1.reserve(input1.sizeShape());
 
     auto& input2 = iInput.at("edgeindex__1");
-    input2.shape() = {input2.dims()[0], nedges};
+    input2.setShape(1, nedges);
     auto data2 = std::make_shared<TritonInput<int64_t>>(1);
     auto& vdata2 = (*data2)[0];
     vdata2.reserve(input2.sizeShape());
