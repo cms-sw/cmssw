@@ -564,7 +564,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
         for (auto& muon : *outputMuons) {
           if (muon.innerTrack().get() == trackerMuon.innerTrack().get() &&
-              cos(phiOfMuonIneteractionRegion(muon) - phiOfMuonIneteractionRegion(trackerMuon)) > 0) {
+              cos(phiOfMuonInteractionRegion(muon) - phiOfMuonInteractionRegion(trackerMuon)) > 0) {
             newMuon = false;
             muon.setMatches(trackerMuon.matches());
             if (trackerMuon.isTimeValid())
@@ -665,7 +665,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
       // predict direction based on the muon interaction region location
       // if it's available
       if (muon.isStandAloneMuon()) {
-        if (cos(phiOfMuonIneteractionRegion(muon) - muon.phi()) > 0) {
+        if (cos(phiOfMuonInteractionRegion(muon) - muon.phi()) > 0) {
           fillMuonId(iEvent, iSetup, muon, TrackDetectorAssociator::InsideOut);
         } else {
           fillMuonId(iEvent, iSetup, muon, TrackDetectorAssociator::OutsideIn);
@@ -1322,7 +1322,7 @@ double MuonIdProducer::sectorPhi(const DetId& id) {
   return phi;
 }
 
-double MuonIdProducer::phiOfMuonIneteractionRegion(const reco::Muon& muon) const {
+double MuonIdProducer::phiOfMuonInteractionRegion(const reco::Muon& muon) const {
   if (muon.isStandAloneMuon())
     return muon.standAloneMuon()->innerPosition().phi();
   // the rest is tracker muon only
