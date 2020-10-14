@@ -56,11 +56,11 @@ if [ "$OP" != start ] && [ "$OP" != stop ]; then
 fi
 
 DOCKER="sudo docker"
-IMAGE=fastml/triton-torchgeo:20.06-v1-py3-geometric
+IMAGE=fastml/triton-torchgeo:20.09-py3-geometric
 MODELS=${CMSSW_BASE}/src/HeterogeneousCore/SonicTriton/data/models
 LOG=log_triton_server.log
 LIB=lib
-STARTED_INDICATOR="Started GRPCService"
+STARTED_INDICATOR="Started GRPCInferenceService"
 EXTRA=""
 
 start_docker(){
