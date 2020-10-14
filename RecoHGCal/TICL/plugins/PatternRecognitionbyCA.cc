@@ -203,7 +203,7 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
       tmp.vertex_multiplicity().resize(effective_cluster_idx.size(), 1);
       //regions and seedIndices can have different size
       //if a seeding region does not lead to any trackster
-      t.setSeed(input.regions[0].collectionID, seedIndices[i]);
+      tmp.setSeed(input.regions[0].collectionID, seedIndices[tracksterId]);
 
       std::pair<float, float> timeTrackster(-99., -1.);
       hgcalsimclustertime::ComputeClusterTime timeEstimator;
