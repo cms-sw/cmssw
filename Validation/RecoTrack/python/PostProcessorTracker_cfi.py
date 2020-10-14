@@ -17,6 +17,7 @@ def _addNoFlow(module):
             module.noFlowDists.append(tmp[ind-1])
 
 _defaultSubdirs = ["Tracking/Track/*", "Tracking/TrackTPPtLess09/*", "Tracking/TrackFromPV/*", "Tracking/TrackFromPVAllTP/*", "Tracking/TrackAllTPEffic/*", "Tracking/TrackBuilding/*","Tracking/TrackConversion/*", "Tracking/TrackGsf/*"]
+_defaultSubdirsSummary = [e.replace("/*","") for e in _defaultSubdirs]
 
 postProcessorTrack = DQMEDHarvester("DQMGenericClient",
     subDirs = cms.untracked.vstring(_defaultSubdirs),
@@ -297,7 +298,7 @@ _addNoFlow(postProcessorTrackNrecVsNsim2D)
 
 
 postProcessorTrackSummary = DQMEDHarvester("DQMGenericClient",
-    subDirs = cms.untracked.vstring(_defaultSubdirs),
+    subDirs = cms.untracked.vstring(_defaultSubdirsSummary),
     efficiency = cms.vstring(
     "effic_vs_coll 'Efficiency vs track collection' num_assoc(simToReco)_coll num_simul_coll",
     "effic_vs_coll_allPt 'Efficiency vs track collection' num_assoc(simToReco)_coll_allPt num_simul_coll_allPt",
@@ -317,7 +318,7 @@ postProcessorTrackSequence = cms.Sequence(
 )
 
 fastSim.toModify(postProcessorTrack, subDirs = [e for e in _defaultSubdirs if e not in ["Tracking/TrackGsf/*","Tracking/TrackConversion/*"]])
-fastSim.toModify(postProcessorTrackSummary, subDirs = [e for e in _defaultSubdirs if e not in ["Tracking/TrackGsf/*","Tracking/TrackConversion/*"]])
+fastSim.toModify(postProcessorTrackSummary, subDirs = [e for e in _defaultSubdirsSummary if e not in ["Tracking/TrackGsf","Tracking/TrackConversion"]])
 
 #######
 # Define a standalone seuquence to support the Standalone harvesting mode
@@ -328,7 +329,7 @@ postProcessorTrackStandalone = postProcessorTrack.clone(
     subDirs = _defaultSubdirs+["Tracking/TrackBHadron/*"]
 )
 postProcessorTrackSummaryStandalone = postProcessorTrackSummary.clone(
-    subDirs = _defaultSubdirs+["Tracking/TrackBHadron/*"]
+    subDirs = _defaultSubdirs+["Tracking/TrackBHadron"]
 )
 
 postProcessorTrackSequenceStandalone = cms.Sequence(
@@ -349,7 +350,7 @@ phase2_tracker.toReplaceWith(postProcessorTrackSummary,postProcessorTrackSummary
 postProcessorTrackTrackingOnly = postProcessorTrack.clone()
 postProcessorTrackTrackingOnly.subDirs.extend(["Tracking/TrackBHadron/*","Tracking/TrackSeeding/*", "Tracking/PixelTrack/*"])
 postProcessorTrackSummaryTrackingOnly = postProcessorTrackSummary.clone()
-postProcessorTrackSummaryTrackingOnly.subDirs.extend(["Tracking/TrackBHadron/*","Tracking/TrackSeeding/*", "Tracking/PixelTrack/*"])
+postProcessorTrackSummaryTrackingOnly.subDirs.extend(["Tracking/TrackBHadron","Tracking/TrackSeeding", "Tracking/PixelTrack"])
 
 postProcessorTrackSequenceTrackingOnly = cms.Sequence(
     postProcessorTrackTrackingOnly+
@@ -358,4 +359,4 @@ postProcessorTrackSequenceTrackingOnly = cms.Sequence(
 )
 
 fastSim.toModify(postProcessorTrackTrackingOnly,subDirs = [e for e in _defaultSubdirs if e not in ["Tracking/TrackGsf/*","Tracking/TrackConversion/*","Tracking/TrackBHadron/*"]])
-fastSim.toModify(postProcessorTrackSummaryTrackingOnly,subDirs = [e for e in _defaultSubdirs if e not in ["Tracking/TrackGsf/*","Tracking/TrackConversion/*","Tracking/TrackBHadron/*"]])
+fastSim.toModify(postProcessorTrackSummaryTrackingOnly,subDirs = [e for e in _defaultSubdirsSummary if e not in ["Tracking/TrackGsf","Tracking/TrackConversion","Tracking/TrackBHadron"]])
