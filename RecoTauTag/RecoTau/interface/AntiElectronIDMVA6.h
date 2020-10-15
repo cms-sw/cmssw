@@ -152,6 +152,10 @@ private:
   double dCrackEta(double eta);
   double minimum(double a, double b);
   double dCrackPhi(double phi, double eta);
+  bool energyWeightedEtaAndPhiAtECal(
+      const pat::Tau& theTau,
+      float& eta,
+      float& phi);  // MB: needed only for pat::Tau and called within pat::Tau specific method so also pat::Tau specific
 
   static constexpr float ecalBarrelEndcapEtaBorder_ = 1.479;
   static constexpr float ecalEndcapVFEndcapEtaBorder_ = 2.4;
@@ -203,12 +207,12 @@ private:
 
   std::vector<TFile*> inputFilesToDelete_;
 
+  const bool isPhase2_;
+
   PositionAtECalEntranceComputer positionAtECalEntrance_;
 
   std::map<std::string, edm::EDGetTokenT<edm::ValueMap<float>>> electronIds_tokens_;
   std::map<std::string, edm::Handle<edm::ValueMap<float>>> electronIds_;
-
-  const bool isPhase2_;
 
   const int verbosity_;
 };

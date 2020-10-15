@@ -15,9 +15,10 @@
 namespace hgcal_helpers {
   class SimpleTrackPropagator {
   public:
-    SimpleTrackPropagator(MagneticField const* f) : field_(f), prod_(field_, alongMomentum, 5.e-5), absz_target_(0) {
+    SimpleTrackPropagator(MagneticField const* f) : field_(f), prod_(field_, alongMomentum), absz_target_(0) {
       ROOT::Math::SMatrixIdentity id;
       AlgebraicSymMatrix55 C(id);
+      //MB: To define uncertainty of starting point of trajectory propagation scale identity matrix created above by 0.001
       C *= 0.001;
       err_ = CurvilinearTrajectoryError(C);
     }
@@ -33,7 +34,7 @@ namespace hgcal_helpers {
                    reco::Candidate::Point& output) const;
 
   private:
-    SimpleTrackPropagator() : field_(nullptr), prod_(field_, alongMomentum, 5e-5), absz_target_(0) {}
+    SimpleTrackPropagator() : field_(nullptr), prod_(field_, alongMomentum), absz_target_(0) {}
     const RKPropagatorInS& RKProp() const { return prod_.propagator; }
     Plane::PlanePointer targetPlaneForward_, targetPlaneBackward_;
     MagneticField const* field_;
