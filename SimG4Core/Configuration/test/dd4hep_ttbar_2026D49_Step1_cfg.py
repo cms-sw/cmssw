@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Run3_dd4hep_cff import Run3_dd4hep
+from Configuration.Eras.Era_Phase2C9_dd4hep_cff import Phase2C9_dd4hep
 
-process = cms.Process('SIM',Run3_dd4hep)
+process = cms.Process('SIM',Phase2C9_dd4hep)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -10,30 +10,19 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
+process.load('Configuration.Geometry.GeometryDD4hepExtended2026D49_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
-process.load('IOMC.EventVertexGenerators.VtxSmearedRun3RoundOptics25ns13TeVLowSigmaZ_cfi')
+process.load('IOMC.EventVertexGenerators.VtxSmearedHLLHC14TeV_cfi')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load('Configuration.Geometry.GeometryDD4hepExtended2021_cff') # there w
-
-#if hasattr(process,'MessageLogger'):
-#    process.MessageLogger.categories.append('EcalGeom')
-#    process.MessageLogger.categories.append('MuonSim')
-#    process.MessageLogger.categories.append('CaloSim')
-#    process.MessageLogger.categories.append('EcalSim')
-#    process.MessageLogger.categories.append('HcalSim')
-#    process.MessageLogger.categories.append('SimG4CoreApplication')
-#    process.MessageLogger.categories.append("TrackerGeometryBuilder");
-#    process.MessageLogger.categories.append("TrackerSimInfoNumbering");
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10),
     output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
 )
-
 
 # Input source
 process.source = cms.Source("EmptySource")
@@ -67,7 +56,7 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    annotation = cms.untracked.string('ZMM_14TeV_TuneCP5_cfi nevts:10'),
+    annotation = cms.untracked.string('TTbar_14TeV_TuneCP5_cfi nevts:10'),
     name = cms.untracked.string('Applications'),
     version = cms.untracked.string('$Revision: 1.19 $')
 )
@@ -82,7 +71,7 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
         dataTier = cms.untracked.string('GEN-SIM'),
         filterName = cms.untracked.string('')
     ),
-    fileName = cms.untracked.string('file:step1_ZMM_dd4hep.root'),
+    fileName = cms.untracked.string('file:step1.root'),
     outputCommands = process.FEVTDEBUGEventContent.outputCommands,
     splitLevel = cms.untracked.int32(0)
 )
@@ -91,8 +80,8 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
 
 # Other statements
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
-from Configuration.AlCa.GlobalTag import GlobalTag 
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T14', '')
 
 process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     PythiaParameters = cms.PSet(
@@ -102,10 +91,9 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
             'processParameters'
         ),
         processParameters = cms.vstring(
-            'WeakSingleBoson:ffbar2gmZ = on', 
-            '23:onMode = off', 
-            '23:onIfAny = 13', 
-            'PhaseSpace:mHatMin = 75.'
+            'Top:gg2ttbar = on ', 
+            'Top:qqbar2ttbar = on ', 
+            '6:m0 = 175 '
         ),
         pythia8CP5Settings = cms.vstring(
             'Tune:pp 14', 
@@ -150,18 +138,7 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
 )
 
 
-process.mumugenfilter = cms.EDFilter("MCParticlePairFilter",
-    MaxEta = cms.untracked.vdouble(4.0, 4.0),
-    MinEta = cms.untracked.vdouble(-4.0, -4.0),
-    MinPt = cms.untracked.vdouble(2.5, 2.5),
-    ParticleCharge = cms.untracked.int32(-1),
-    ParticleID1 = cms.untracked.vint32(13),
-    ParticleID2 = cms.untracked.vint32(13),
-    Status = cms.untracked.vint32(1, 1)
-)
-
-
-process.ProductionFilterSequence = cms.Sequence(process.generator+process.mumugenfilter)
+process.ProductionFilterSequence = cms.Sequence(process.generator)
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)
