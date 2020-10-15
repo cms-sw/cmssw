@@ -121,7 +121,8 @@ TauDiscriminationAgainstElectronMVA6<TauType, TauDiscriminator, ElectronType>::d
           hasGsfTrack = (std::abs(packedLeadChCand->pdgId()) == 11);
         } else {
           const reco::PFCandidate* pfLeadChCand = dynamic_cast<const reco::PFCandidate*>(leadChCand.get());
-          hasGsfTrack = (pfLeadChCand != nullptr && pfLeadChCand->gsfTrackRef().isNonnull());
+          //pfLeadChCand can not be a nullptr here as it would be imply taus not built either with PFCandidates or PackedCandidates
+          hasGsfTrack = pfLeadChCand->gsfTrackRef().isNonnull();
         }
       }
     }
@@ -307,20 +308,21 @@ TauDiscriminationAgainstElectronMVA6<TauType, TauDiscriminator, ElectronType>::g
     float leadChargedCandEtaAtECalEntrance = -99;
     float sumEtaTimesEnergy = 0.;
     float sumEnergy = 0.;
+    float leadChargedCandPt = -99;
 
-    bool success = false;
-    reco::Candidate::Point posAtECal = positionAtECalEntrance_(theTauRef->leadChargedHadrCand().get(), success);
-    if (success) {
-      leadChargedCandEtaAtECalEntrance = posAtECal.eta();
-    } else {
-      leadChargedCandEtaAtECalEntrance = theTauRef->leadChargedHadrCand()->eta();
-    }
     for (const auto& candidate : theTauRef->signalCands()) {
       float etaAtECalEntrance = candidate->eta();
-      success = false;
-      posAtECal = positionAtECalEntrance_(candidate.get(), success);
+      bool success = false;
+      reco::Candidate::Point posAtECal = positionAtECalEntrance_(candidate.get(), success);
       if (success) {
         etaAtECalEntrance = posAtECal.eta();
+      }
+      const reco::Track* track = candidate->bestTrack();
+      if (track != nullptr) {
+        if (track->pt() > leadChargedCandPt) {
+          leadChargedCandEtaAtECalEntrance = etaAtECalEntrance;
+          leadChargedCandPt = track->pt();
+        }
       }
       sumEtaTimesEnergy += etaAtECalEntrance * candidate->energy();
       sumEnergy += candidate->energy();

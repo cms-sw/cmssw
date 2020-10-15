@@ -48,8 +48,8 @@ AntiElectronIDMVA6<TauType, ElectronType>::AntiElectronIDMVA6(const edm::Paramet
       mva_NoEleMatch_wGwoGSF_VFEC_(nullptr),
       mva_woGwGSF_VFEC_(nullptr),
       mva_wGwGSF_VFEC_(nullptr),
-      positionAtECalEntrance_(PositionAtECalEntranceComputer(cc, cfg.getParameter<bool>("isPhase2"))),
       isPhase2_(cfg.getParameter<bool>("isPhase2")),
+      positionAtECalEntrance_(PositionAtECalEntranceComputer(cc, isPhase2_)),
       verbosity_(cfg.getParameter<int>("verbosity")) {
   loadMVAfromDB_ = cfg.exists("loadMVAfromDB") ? cfg.getParameter<bool>("loadMVAfromDB") : false;
   if (!loadMVAfromDB_) {
@@ -199,9 +199,7 @@ void AntiElectronIDMVA6<TauType, ElectronType>::beginEvent(const edm::Event& evt
   //MB: Handle additional inputs (HGCal EleID variables) only for Phase2 and reco::GsfElectrons
   if (isPhase2_ && std::is_same<ElectronType, reco::GsfElectron>::value) {
     for (const auto& eId_token : electronIds_tokens_) {
-      edm::Handle<edm::ValueMap<float>> electronId;
-      evt.getByToken(eId_token.second, electronId);
-      electronIds_[eId_token.first] = electronId;
+      electronIds_[eId_token.first] = evt.getHandle(eId_token.second);
     }
   }
 }
@@ -1102,20 +1100,11 @@ TauVars AntiElectronIDMVA6<TauType, ElectronType>::getTauVarsTypeSpecific(const 
     if (!usePhiAtEcalEntranceExtrapolation_) {
       tauVars.phi = theTau.phiAtEcalEntrance();
     } else {
-      float sumPhiTimesEnergy = 0.;
-      float sumEnergy = 0.;
-      for (const auto& candidate : theTau.signalCands()) {
-        float phiAtECalEntrance = candidate->phi();
-        bool success = false;
-        reco::Candidate::Point posAtECal = positionAtECalEntrance_(candidate.get(), success);
-        if (success) {
-          phiAtECalEntrance = posAtECal.phi();
-        }
-        sumPhiTimesEnergy += phiAtECalEntrance * candidate->energy();
-        sumEnergy += candidate->energy();
-      }
-      if (sumEnergy > 0.) {
-        tauVars.phi = sumPhiTimesEnergy / sumEnergy;
+      float etaAtECal = 0.;
+      float phiAtECal = 0.;
+      bool success = energyWeightedEtaAndPhiAtECal(theTau, etaAtECal, phiAtECal);
+      if (success) {
+        tauVars.phi = phiAtECal;
       }
     }
     tauVars.emFraction = std::max(theTau.emFraction_MVA(), 0.f);
@@ -1128,20 +1117,11 @@ TauVars AntiElectronIDMVA6<TauType, ElectronType>::getTauVarsTypeSpecific(const 
       if (success) {
         tauVars.leadChargedPFCandEtaAtEcalEntrance = posAtECal.eta();
       }
-      float sumEtaTimesEnergy = 0.;
-      float sumEnergy = 0.;
-      for (const auto& candidate : theTau.signalCands()) {
-        float etaAtECalEntrance = candidate->eta();
-        success = false;
-        posAtECal = positionAtECalEntrance_(candidate.get(), success);
-        if (success) {
-          etaAtECalEntrance = posAtECal.eta();
-        }
-        sumEtaTimesEnergy += etaAtECalEntrance * candidate->energy();
-        sumEnergy += candidate->energy();
-      }
-      if (sumEnergy > 0.) {
-        tauVars.etaAtEcalEntrance = sumEtaTimesEnergy / sumEnergy;
+      float phiAtECal = 0.;
+      float etaAtECal = 0.;
+      success = energyWeightedEtaAndPhiAtECal(theTau, etaAtECal, phiAtECal);
+      if (success) {
+        tauVars.etaAtEcalEntrance = etaAtECal;
       }
     }
     tauVars.emFraction = std::max(theTau.ecalEnergyLeadChargedHadrCand() /
@@ -1334,6 +1314,36 @@ void AntiElectronIDMVA6<TauType, ElectronType>::getElecVarsHGCalTypeSpecific(
   elecVars.hgcalExpectedDepth = theEleRef->userFloat("hgcElectronID:expectedDepth");
   elecVars.hgcalExpectedSigma = theEleRef->userFloat("hgcElectronID:expectedSigma");
   elecVars.hgcalDepthCompatibility = theEleRef->userFloat("hgcElectronID:depthCompatibility");
+}
+
+template <class TauType, class ElectronType>
+bool AntiElectronIDMVA6<TauType, ElectronType>::energyWeightedEtaAndPhiAtECal(const pat::Tau& theTau,
+                                                                              float& eta,
+                                                                              float& phi) {
+  eta = 0.;
+  phi = 0.;
+  float sumEnergy = 0.;
+  for (const auto& candidate : theTau.signalCands()) {
+    float etaAtECalEntrance = candidate->eta();
+    float phiAtECalEntrance = candidate->phi();
+    bool success = false;
+    reco::Candidate::Point posAtECal = positionAtECalEntrance_(candidate.get(), success);
+    if (success) {
+      etaAtECalEntrance = posAtECal.eta();
+      phiAtECalEntrance = posAtECal.phi();
+    }
+    eta += etaAtECalEntrance * candidate->energy();
+    phi += phiAtECalEntrance * candidate->energy();
+    sumEnergy += candidate->energy();
+  }
+  if (sumEnergy > 0.) {
+    eta = eta / sumEnergy;
+    phi = phi / sumEnergy;
+  } else {
+    eta = -99.;
+    phi = -99.;
+  }
+  return (sumEnergy > 0.);
 }
 
 // compile desired types and make available to linker
