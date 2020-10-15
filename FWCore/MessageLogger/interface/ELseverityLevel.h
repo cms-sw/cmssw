@@ -12,29 +12,6 @@
 //	might use is to check the relative level of two severities
 //	using operator< or the like.
 //
-// 30-Jun-1998 mf	Created file.
-// 26-Aug-1998 WEB	Made ELseverityLevel object less weighty.
-// 16-Jun-1999 mf	Added constructor from string.
-// 23-Jun-1999 mf	Additional ELsev_noValueAssigned to allow constructor
-//			from string to give ELunspecified when not found, while
-//			still allowing finding zero severity.
-// 23-Jun-1999 mf	Corrections for subtleties in initialization of
-//			global symbols:
-//				Added ELsevLevGlobals array
-//				Changed extern consts of SLseverityLevels into
-//				  const ELseverityLevel & 's
-//				Inserted class ELinitializeGlobalSeverityObjects
-//				  in place of the
-//				  initializeGlobalSeverityObjects() function.
-//				Changed globalSeverityObjectsGuarantor to an
-//				  ELinitializeGlobalSeverityObjects instance.
-// 30-Jun-1999 mf	Modifications to eliminate problems with order of
-//                      globals initializations:
-//				translate(), getInputStr(), getVarName()
-// 12-Jun-2000 web	Final fix to global static initialization problem
-// 14-Jun-2000 web	Declare classes before granting friendship.
-// 27-Jun-2000 web	Fix order-of-static-destruction problem
-//
 // ----------------------------------------------------------------------
 
 #include <string>
@@ -59,6 +36,8 @@ namespace edm {
       ELsev_success  // report reaching a milestone
       ,
       ELsev_info  // information
+      ,
+      ELsev_fwkInfo  // framework
       ,
       ELsev_warning  // warning
       ,
@@ -115,6 +94,8 @@ namespace edm {
   constexpr const ELseverityLevel ELdebug{ELseverityLevel::ELsev_success};
 
   constexpr const ELseverityLevel ELinfo{ELseverityLevel::ELsev_info};
+
+  constexpr const ELseverityLevel ELfwkInfo{ELseverityLevel::ELsev_fwkInfo};
 
   constexpr const ELseverityLevel ELwarning{ELseverityLevel::ELsev_warning};
 

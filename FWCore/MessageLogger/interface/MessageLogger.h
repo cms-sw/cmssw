@@ -48,6 +48,12 @@ namespace edm {
         return (MessageDrop::warningAlwaysSuppressed || !MessageDrop::instance()->warningEnabled);
       }
     };
+    struct FwkInfo {
+      static constexpr const ELseverityLevel level = ELfwkInfo;
+      static bool suppress() noexcept {
+        return (MessageDrop::fwkInfoAlwaysSuppressed || !MessageDrop::instance()->fwkInfoEnabled);
+      }
+    };
     struct Info {
       static constexpr const ELseverityLevel level = ELinfo;
       static bool suppress() noexcept {
@@ -116,8 +122,10 @@ namespace edm {
   using LogError = Log<level::Error, false>;
   using LogSystem = Log<level::System, false>;
   using LogInfo = Log<level::Info, false>;
+  using LogFwkInfo = Log<level::FwkInfo, false>;
 
   using LogVerbatim = Log<level::Info, true>;
+  using LogFwkVerbatim = Log<level::FwkInfo, true>;
   using LogPrint = Log<level::Warning, true>;
   using LogProblem = Log<level::Error, true>;
   // less judgemental verbatim version of LogError
@@ -191,6 +199,7 @@ namespace edm {
 
   bool isDebugEnabled();
   bool isInfoEnabled();
+  bool isFwkInfoEnabled();
   bool isWarningEnabled();
   void HaltMessageLogging();
   void FlushMessageLog();
