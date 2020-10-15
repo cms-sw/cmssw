@@ -95,3 +95,17 @@ getPayloadData.py \
     --test;
 
 mv *.png $W_DIR/results/SiStripConfObjectDisplay.png
+
+######################
+# Test DetVOff
+######################
+getPayloadData.py \
+    --plugin pluginSiStripDetVOff_PayloadInspector \
+    --plot plot_SiStripDetVOffTest \
+    --tag SiStripDetVOff_v3_offline \
+    --time_type Time \
+    --iovs '{"start_iov": "685006631803433472", "end_iov": "6850066318803433472"}' \
+    --db Prod \
+    --test ;
+
+getPayloadData.py --plugin pluginSiStripDetVOff_PayloadInspector --plot plot_SiStripLVOffListOfModules --tag SiStripDetVOff_v3_offline --time_type Time --iovs '{"start_iov": "6850066318803433472", "end_iov": "6850066318803433472"}' --db Prod --test > & out.out &
