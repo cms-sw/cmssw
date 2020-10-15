@@ -148,7 +148,7 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
 
   if (fillTrackerKink_) {
     trackerKinkFinder_ =
-        std::make_unique<MuonKinkFinder>(iConfig.getParameter<edm::ParameterSet>("TrackerKinkFinderParameters"));
+        std::make_unique<MuonKinkFinder>(iConfig.getParameter<edm::ParameterSet>("TrackerKinkFinderParameters"), iC);
   }
 
   //create mesh holder
