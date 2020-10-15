@@ -113,9 +113,9 @@ void DDG4ProductionCuts::dd4hepInitialize() {
 
   for (auto const& it : *dd4hepMap_) {
     for (auto const& fit : specs) {
-      for (auto const& pit : fit->paths) {
+      for (auto const& pit : fit.second->paths) {
         if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first.name()), dd4hep::dd::realTopName(pit))) {
-          dd4hepVec_.emplace_back(std::make_pair<G4LogicalVolume*, const dd4hep::SpecPar*>(&*it.second, &*fit));
+          dd4hepVec_.emplace_back(std::make_pair<G4LogicalVolume*, const dd4hep::SpecPar*>(&*it.second, &*fit.second));
         }
       }
     }
