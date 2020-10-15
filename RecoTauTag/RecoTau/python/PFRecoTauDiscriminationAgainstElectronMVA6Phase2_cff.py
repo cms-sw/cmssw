@@ -27,18 +27,7 @@ pfRecoTauDiscriminationAgainstElectronMVA6Phase2Raw = pfRecoTauDiscriminationAga
     isPhase2 = True,
     vetoEcalCracks = False,
     hgcalElectronIDs = [cms.InputTag("hgcElectronIdForTauId", key) for key in hgcElectronIdForTauId.variables],
-    mvaName_NoEleMatch_woGwoGSF_BL = mvaNames_phase2.mvaName_NoEleMatch_woGwoGSF_BL,
-    mvaName_NoEleMatch_wGwoGSF_BL = mvaNames_phase2.mvaName_NoEleMatch_wGwoGSF_BL,
-    mvaName_woGwGSF_BL = mvaNames_phase2.mvaName_woGwGSF_BL,
-    mvaName_wGwGSF_BL = mvaNames_phase2.mvaName_wGwGSF_BL,
-    mvaName_NoEleMatch_woGwoGSF_EC = mvaNames_phase2.mvaName_NoEleMatch_woGwoGSF_EC,
-    mvaName_NoEleMatch_wGwoGSF_EC = mvaNames_phase2.mvaName_NoEleMatch_wGwoGSF_EC,
-    mvaName_woGwGSF_EC = mvaNames_phase2.mvaName_woGwGSF_EC,
-    mvaName_wGwGSF_EC = mvaNames_phase2.mvaName_wGwGSF_EC,
-    mvaName_NoEleMatch_woGwoGSF_VFEC = mvaNames_phase2.mvaName_NoEleMatch_woGwoGSF_VFEC,
-    mvaName_NoEleMatch_wGwoGSF_VFEC = mvaNames_phase2.mvaName_NoEleMatch_wGwoGSF_VFEC,
-    mvaName_woGwGSF_VFEC = mvaNames_phase2.mvaName_woGwGSF_VFEC,
-    mvaName_wGwGSF_VFEC = mvaNames_phase2.mvaName_wGwGSF_VFEC
+    **mvaNames_phase2
 )
 # anti-e phase-2 tauID (WPs)
 from RecoTauTag.RecoTau.recoTauDiscriminantCutMultiplexerDefault_cfi import recoTauDiscriminantCutMultiplexerDefault

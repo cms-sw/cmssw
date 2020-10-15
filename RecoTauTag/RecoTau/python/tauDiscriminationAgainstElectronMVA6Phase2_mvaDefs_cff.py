@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # anti-e phase-2 tauID mva names
-mvaNames_phase2 = cms.PSet(
+mvaNames_phase2 = dict(
     mvaName_NoEleMatch_woGwoGSF_BL = cms.string("RecoTauTag_antiElectronPhase2MVA6v1_gbr_NoEleMatch_woGwoGSF_BL"),
     mvaName_NoEleMatch_wGwoGSF_BL = cms.string("RecoTauTag_antiElectronPhase2MVA6v1_gbr_NoEleMatch_wGwoGSF_BL"),
     mvaName_woGwGSF_BL = cms.string("RecoTauTag_antiElectronPhase2MVA6v1_gbr_woGwGSF_BL"),
