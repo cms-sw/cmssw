@@ -149,7 +149,10 @@ unsigned int Muon::stationMask(ArbitrationType type) const {
       RPCDetId rollId = chamberMatch.id.rawId();
       int rpcIndex = rollId.region() == 0 ? 1 : 2;
 
-      for (auto& rpcMatch : chamberMatch.rpcMatches) {
+      //    for (auto& rpcMatch : chamberMatch.rpcMatches) { // TO BE FIXED: there is clearly something odd here
+      // Replaced by something which restores the previous functionality, but one should verify which were the
+      // Original intentions of the author and provide a more appropriate fix (and remove these comment lines)
+      if (!chamberMatch.rpcMatches.empty()) {
         curMask = 1 << ((chamberMatch.station() - 1) + 4 * (rpcIndex - 1));
 
         // do not double count
@@ -234,7 +237,10 @@ unsigned int Muon::RPClayerMask(ArbitrationType type) const {
     } else
       rpcLayer += 6;
 
-    for (auto& rpcMatch : chamberMatch.rpcMatches) {  // There is clearly something odd here
+    //    for (auto& rpcMatch : chamberMatch.rpcMatches) { // TO BE FIXED: there is clearly something odd here
+    // Replaced by something which restores the previous functionality, but one should verify which were the
+    // Original intentions of the author and provide a more appropriate fix (and remove these comment lines)
+    if (!chamberMatch.rpcMatches.empty()) {
       curMask = 1 << (rpcLayer - 1);
 
       // do not double count
@@ -293,8 +299,8 @@ unsigned int Muon::stationGapMaskPull(float sigmaCut) const {
         std::abs(edgeY / yErr) > sigmaCut)  // inside the chamber so negates all gaps for this station
       continue;
 
-    if ((std::abs(edgeX / xErr) < sigmaCut && edgeY / yErr < sigmaCut) ||
-        (std::abs(edgeY / yErr) < sigmaCut && edgeX / xErr < sigmaCut))  // inside gap
+    if ((std::abs(edgeX / xErr) < sigmaCut && edgeY < sigmaCut * yErr) ||
+        (std::abs(edgeY / yErr) < sigmaCut && edgeX < sigmaCut * xErr))  // inside gap
       curMask = 1 << ((stationIndex - 1) + 4 * (detectorIndex - 1));
     totMask += curMask;  // add to total mask
   }
@@ -503,7 +509,7 @@ float Muon::pullX(int station, int muonSubdetId, ArbitrationType type, bool incl
     return 999999;
   if (includeSegmentError)
     return (chamberSegmentPair.first->x - chamberSegmentPair.second->x) /
-           sqrt(pow(chamberSegmentPair.first->xErr, 2) + pow(chamberSegmentPair.second->xErr, 2));
+           sqrt(std::pow(chamberSegmentPair.first->xErr, 2) + std::pow(chamberSegmentPair.second->xErr, 2));
   return (chamberSegmentPair.first->x - chamberSegmentPair.second->x) / chamberSegmentPair.first->xErr;
 }
 
@@ -518,7 +524,7 @@ float Muon::pullY(int station, int muonSubdetId, ArbitrationType type, bool incl
     return 999999;
   if (includeSegmentError)
     return (chamberSegmentPair.first->y - chamberSegmentPair.second->y) /
-           sqrt(pow(chamberSegmentPair.first->yErr, 2) + pow(chamberSegmentPair.second->yErr, 2));
+           sqrt(std::pow(chamberSegmentPair.first->yErr, 2) + std::pow(chamberSegmentPair.second->yErr, 2));
   return (chamberSegmentPair.first->y - chamberSegmentPair.second->y) / chamberSegmentPair.first->yErr;
 }
 
@@ -531,7 +537,7 @@ float Muon::pullDxDz(int station, int muonSubdetId, ArbitrationType type, bool i
     return 999999;
   if (includeSegmentError)
     return (chamberSegmentPair.first->dXdZ - chamberSegmentPair.second->dXdZ) /
-           sqrt(pow(chamberSegmentPair.first->dXdZErr, 2) + pow(chamberSegmentPair.second->dXdZErr, 2));
+           sqrt(std::pow(chamberSegmentPair.first->dXdZErr, 2) + std::pow(chamberSegmentPair.second->dXdZErr, 2));
   return (chamberSegmentPair.first->dXdZ - chamberSegmentPair.second->dXdZ) / chamberSegmentPair.first->dXdZErr;
 }
 
@@ -546,7 +552,7 @@ float Muon::pullDyDz(int station, int muonSubdetId, ArbitrationType type, bool i
     return 999999;
   if (includeSegmentError)
     return (chamberSegmentPair.first->dYdZ - chamberSegmentPair.second->dYdZ) /
-           sqrt(pow(chamberSegmentPair.first->dYdZErr, 2) + pow(chamberSegmentPair.second->dYdZErr, 2));
+           sqrt(std::pow(chamberSegmentPair.first->dYdZErr, 2) + std::pow(chamberSegmentPair.second->dYdZErr, 2));
   return (chamberSegmentPair.first->dYdZ - chamberSegmentPair.second->dYdZ) / chamberSegmentPair.first->dYdZErr;
 }
 

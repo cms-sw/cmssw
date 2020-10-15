@@ -47,7 +47,7 @@ unsigned int muon::RequiredStationMask(const reco::Muon& muon,
     for (int detectorIdx = 1; detectorIdx < 3; ++detectorIdx) {
       float dist = muon.trackDist(stationIdx, detectorIdx, arbitrationType);
       if (dist < maxChamberDist &&
-          dist / muon.trackDistErr(stationIdx, detectorIdx, arbitrationType) < maxChamberDistPull)
+          dist < maxChamberDistPull * muon.trackDistErr(stationIdx, detectorIdx, arbitrationType))
         theMask += 1 << ((stationIdx - 1) + 4 * (detectorIdx - 1));
     }
   }
@@ -558,7 +558,7 @@ bool muon::isGoodMuon(const reco::Muon& muon,
       for (const auto& rpcMatch : chamberMatch.rpcMatches) {
         const float rpcX = rpcMatch.x;
         const float dX = std::abs(rpcX - trkX);
-        if (dX < maxAbsDx or dX / errX < maxAbsPullX) {
+        if (dX < maxAbsDx or dX < maxAbsPullX * errX) {
           ++nMatch;
           break;
         }
@@ -593,10 +593,11 @@ bool muon::isGoodMuon(const reco::Muon& muon,
 
         const float dX = std::abs(me0X - trkX);
         const float dY = std::abs(me0Y - trkY);
-        const float pullX = dX / std::sqrt(errX2 + me0ErrX2);
-        const float pullY = dY / std::sqrt(errY2 + me0ErrY2);
+        const float invPullX2 = errX2 + me0ErrX2;
+        const float invPullY2 = errY2 + me0ErrY2;
 
-        if ((dX < maxAbsDx or pullX < maxAbsPullX) and (dY < maxAbsDy or pullY < maxAbsPullY)) {
+        if ((dX < maxAbsDx or dX < maxAbsPullX * std::sqrt(invPullX2)) and
+            (dY < maxAbsDy or dY < maxAbsPullY * std::sqrt(invPullY2))) {
           ++nMatch;
           break;
         }
@@ -628,10 +629,11 @@ bool muon::isGoodMuon(const reco::Muon& muon,
 
         const float dX = std::abs(gemX - trkX);
         const float dY = std::abs(gemY - trkY);
-        const float pullX = dX / std::sqrt(errX2 + gemErrX2);
-        const float pullY = dY / std::sqrt(errY2 + gemErrY2);
+        const float invPullX2 = errX2 + gemErrX2;
+        const float invPullY2 = errY2 + gemErrY2;
 
-        if ((dX < maxAbsDx or pullX < maxAbsPullX) and (dY < maxAbsDy or pullY < maxAbsPullY)) {
+        if ((dX < maxAbsDx or dX < maxAbsPullX * std::sqrt(invPullX2)) and
+            (dY < maxAbsDy or dY < maxAbsPullY * std::sqrt(invPullY2))) {
           ++nMatch;
           break;
         }
@@ -965,7 +967,7 @@ bool muon::isTrackerHighPtMuon(const reco::Muon& muon, const reco::Vertex& vtx) 
   bool hits = muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
               muon.innerTrack()->hitPattern().numberOfValidPixelHits() > 0;
 
-  bool momQuality = muon.tunePMuonBestTrack()->ptError() / muon.tunePMuonBestTrack()->pt() < 0.3;
+  bool momQuality = muon.tunePMuonBestTrack()->ptError() < 0.3 * muon.tunePMuonBestTrack()->pt();
 
   bool ip =
       std::abs(muon.innerTrack()->dxy(vtx.position())) < 0.2 && std::abs(muon.innerTrack()->dz(vtx.position())) < 0.5;

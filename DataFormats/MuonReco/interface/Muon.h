@@ -419,12 +419,14 @@ namespace reco {
 
     float t0(int n = 0) {
       int i = 0;
-      for (auto& chamber : muMatches_)
-        for (auto& segment : chamber.segmentMatches) {
-          if (i == n)
-            return segment.t0;
-          ++i;
+      for (auto& chamber : muMatches_) {
+        int segmentMatchesSize = (int)chamber.segmentMatches.size();
+        if (i + segmentMatchesSize < n) {
+          i += segmentMatchesSize;
+          continue;
         }
+        return chamber.segmentMatches[n - i].t0;
+      }
       return 0;
     }
   };
