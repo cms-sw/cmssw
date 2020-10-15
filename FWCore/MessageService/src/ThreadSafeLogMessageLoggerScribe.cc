@@ -319,6 +319,9 @@ namespace edm {
       if (threshold_sev <= ELseverityLevel::ELsev_info) {
         edm::MessageDrop::infoAlwaysSuppressed = false;
       }
+      if (threshold_sev <= ELseverityLevel::ELsev_fwkInfo) {
+        edm::MessageDrop::fwkInfoAlwaysSuppressed = false;
+      }
       if (threshold_sev <= ELseverityLevel::ELsev_warning) {
         edm::MessageDrop::warningAlwaysSuppressed = false;
       }
@@ -438,9 +441,10 @@ namespace edm {
       PSet empty_PSet;
 
       // Initialize unversal suppression variables
-      MessageDrop::debugAlwaysSuppressed = true;    // change log 37
-      MessageDrop::infoAlwaysSuppressed = true;     // change log 37
-      MessageDrop::warningAlwaysSuppressed = true;  // change log 37
+      MessageDrop::debugAlwaysSuppressed = true;
+      MessageDrop::infoAlwaysSuppressed = true;
+      MessageDrop::fwkInfoAlwaysSuppressed = true;
+      MessageDrop::warningAlwaysSuppressed = true;
 
       // grab list of destinations:
       vString destinations = getAparameter<vString>(*job_pset_p, "destinations", empty_vString);

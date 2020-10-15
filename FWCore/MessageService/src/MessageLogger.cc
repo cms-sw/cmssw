@@ -9,68 +9,6 @@
 // Original Author:  W. Brown, M. Fischler
 //         Created:  Fri Nov 11 16:42:39 CST 2005
 //
-// Change log
-//
-// 1  mf  5/12/06	In ctor, MessageDrop::debugEnabled is set to a
-//			sensible value in case action happens before modules
-//			are entered.  If any modules enable debugs, such
-//			LogDebug messages are not immediately discarded
-//			(though they might be filtered at the server side).
-//
-// 2  mf  5/27/06	In preEventProcessing, change the syntax for
-//			runEvent from 1/23 to Run: 1 Event: 23
-//
-// 3 mf   6/27/06	PreModuleConstruction and PreSourceConstruction get
-//			correct module name
-//
-// 4 mf   6/27/06	Between events the run/event is previous one
-//
-// 5  mf  3/30/07	Support for --jobreport option
-//
-// 6 mf   6/6/07	Remove the catches for forgiveness of tracked
-//			parameters
-//
-// 7 mf   6/19/07	Support for --jobreport option
-//
-// 8 wmtan 6/25/07	Enable suppression for sources, just as for modules
-//
-// 9 mf   7/25/07	Modify names of the MessageLoggerQ methods, eg MLqLOG
-//
-//10 mf   6/18/07	Insert into the PostEndJob a possible SummarizeInJobReport
-//
-//11 mf   3/18/09	Fix wrong-sense test establishing anyDebugEnabled_
-//
-//12 mf   5/19/09	MessageService PSet Validation
-//
-//13 mf   5/26/09	Get parameters without throwing since validation
-//			will point out any problems and throw at that point
-//
-//14 mf   7/1/09	Establish module name and set up enables/suppresses
-//			for all possible calls supplying module descriptor
-//
-//14 mf   7/1/09	Establish pseudo-module name and set up
-//			enables/suppresses for other calls from framework
-//15 mf   9/8/09	Clean up erroneous assignments of some callbacks
-//			for specific watch routines (eg PreXYZ called postXYZ)
-//
-//16 mf   9/8/09	Eliminate caching by descriptor address during ctor
-//			phases (since addresses are not yet permanent then)
-//
-//17 mf   11/2/10	Move preparation of module out to MessageDrop methods
-//   crj		which will only be called if a message is actually
-//			issued.  Caching of the work is done within MessageDrop
-//			so that case of many messages in a module is still fast.
-//
-//18 mf	  11/2/10	Eliminated curr_module, since it was only being used
-//			as a local variable for preparation of name (never
-//			used to transfer info between functions) and change
-//			17 obviates its need.
-//
-// 19 mf 11/30/10	Add a messageDrop->snapshot() when establishing
-//    crj		module ctors, to cure bug 75836.
-//
-// 20 fwyzard 7/06/11   Add support fro dropping LogError messages
-//                      on a per-module basis (needed at HLT)
 
 // system include files
 // user include files
@@ -189,6 +127,7 @@ namespace edm {
       vString debugModules;
       vString suppressDebug;
       vString suppressInfo;
+      vString suppressFwkInfo;
       vString suppressWarning;
       vString suppressError;  // change log 20
 
@@ -203,6 +142,8 @@ namespace edm {
         suppressDebug = iPS.getUntrackedParameter<vString>("suppressDebug", empty_vString);
 
         suppressInfo = iPS.getUntrackedParameter<vString>("suppressInfo", empty_vString);
+
+        suppressFwkInfo = iPS.getUntrackedParameter<vString>("suppressFwkInfo", empty_vString);
 
         suppressWarning = iPS.getUntrackedParameter<vString>("suppressWarning", empty_vString);
 
@@ -220,6 +161,10 @@ namespace edm {
 
       for (vString::const_iterator it = suppressInfo.begin(); it != suppressInfo.end(); ++it) {
         suppression_levels_[*it] = ELseverityLevel::ELsev_info;
+      }
+
+      for (vString::const_iterator it = suppressFwkInfo.begin(); it != suppressFwkInfo.end(); ++it) {
+        suppression_levels_[*it] = ELseverityLevel::ELsev_fwkInfo;
       }
 
       for (vString::const_iterator it = suppressWarning.begin(); it != suppressWarning.end(); ++it) {
@@ -403,10 +348,12 @@ namespace edm {
       if (it != suppression_levels_.end()) {
         messageDrop->debugEnabled = messageDrop->debugEnabled && (it->second < ELseverityLevel::ELsev_success);
         messageDrop->infoEnabled = (it->second < ELseverityLevel::ELsev_info);
+        messageDrop->fwkInfoEnabled = (it->second < ELseverityLevel::ELsev_fwkInfo);
         messageDrop->warningEnabled = (it->second < ELseverityLevel::ELsev_warning);
         messageDrop->errorEnabled = (it->second < ELseverityLevel::ELsev_error);
       } else {
         messageDrop->infoEnabled = true;
+        messageDrop->fwkInfoEnabled = true;
         messageDrop->warningEnabled = true;
         messageDrop->errorEnabled = true;
       }
@@ -442,10 +389,12 @@ namespace edm {
       if (it != suppression_levels_.end()) {
         messageDrop->debugEnabled = messageDrop->debugEnabled && (it->second < ELseverityLevel::ELsev_success);
         messageDrop->infoEnabled = (it->second < ELseverityLevel::ELsev_info);
+        messageDrop->fwkInfoEnabled = (it->second < ELseverityLevel::ELsev_fwkInfo);
         messageDrop->warningEnabled = (it->second < ELseverityLevel::ELsev_warning);
         messageDrop->errorEnabled = (it->second < ELseverityLevel::ELsev_error);
       } else {
         messageDrop->infoEnabled = true;
+        messageDrop->fwkInfoEnabled = true;
         messageDrop->warningEnabled = true;
         messageDrop->errorEnabled = true;
       }
@@ -517,10 +466,12 @@ namespace edm {
       if (it != suppression_levels_.end()) {
         messageDrop->debugEnabled = messageDrop->debugEnabled && (it->second < ELseverityLevel::ELsev_success);
         messageDrop->infoEnabled = (it->second < ELseverityLevel::ELsev_info);
+        messageDrop->fwkInfoEnabled = (it->second < ELseverityLevel::ELsev_fwkInfo);
         messageDrop->warningEnabled = (it->second < ELseverityLevel::ELsev_warning);
         messageDrop->errorEnabled = (it->second < ELseverityLevel::ELsev_error);
       } else {
         messageDrop->infoEnabled = true;
+        messageDrop->fwkInfoEnabled = true;
         messageDrop->warningEnabled = true;
         messageDrop->errorEnabled = true;
       }

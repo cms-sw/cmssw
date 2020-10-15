@@ -9,33 +9,6 @@
 //      might use is to check the relative level of two severities
 //      using operator<() or the like.
 //
-// 29-Jun-1998 mf       Created file.
-// 26-Aug-1998 WEB      Made ELseverityLevel object less weighty.
-// 16-Jun-1999 mf       Added constructor from string, plus two lists
-//                      of names to match.  Also added default constructor,
-//                      more streamlined than default lev on original.
-// 23-Jun-1999 mf       Modifications to properly handle pre-main order
-//                      of initialization issues:
-//                              Instantiation ofthe 14 const ELseverity &'s
-//                              Instantiation of objectsInitialized as false
-//                              Constructor of ELinitializeGlobalSeverityObjects
-//                              Removed guarantor function in favor of the
-//                              constructor.
-// 30-Jun-1999 mf       Modifications to eliminate propblems with order of
-//                      globals initializations:
-//                              Constructor from lev calls translate()
-//                              Constructor from string uses translate()
-//                              translate() method
-//                              List of strings for names in side getname() etc.
-//                              Immediate initilization of ELsevLevGlobals
-//                              Mods involving ELinitializeGlobalSeverityObjects
-// 12-Jun-2000 web      Final fix to global static initialization problem
-// 27-Jun-2000 web      Fix order-of-static-destruction problem
-// 24-Aug-2000 web      Fix defective C++ switch generation
-// 13-Jun-2007 mf       Change (requested by CMS) the name Severe to System
-//			(since that his how MessageLogger uses that level)
-// 21-Apr-2009 mf	Change the symbol for ELsev_success (which is used
-//                      by CMS for LogDebug) from -! to -d.
 // ----------------------------------------------------------------------
 
 #include <cassert>
@@ -44,8 +17,6 @@
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
 #include "FWCore/MessageLogger/interface/ELmap.h"
 
-// Possible Traces
-// #define ELsevConTRACE
 namespace {
 
   // ----------------------------------------------------------------------
@@ -67,6 +38,10 @@ namespace {
                             {edm::ELinfo.getName(), edm::ELseverityLevel::ELsev_info},
                             {edm::ELinfo.getInputStr(), edm::ELseverityLevel::ELsev_info},
                             {edm::ELinfo.getVarName(), edm::ELseverityLevel::ELsev_info},
+                            {edm::ELfwkInfo.getSymbol(), edm::ELseverityLevel::ELsev_fwkInfo},
+                            {edm::ELfwkInfo.getName(), edm::ELseverityLevel::ELsev_fwkInfo},
+                            {edm::ELfwkInfo.getInputStr(), edm::ELseverityLevel::ELsev_fwkInfo},
+                            {edm::ELfwkInfo.getVarName(), edm::ELseverityLevel::ELsev_fwkInfo},
                             {edm::ELwarning.getSymbol(), edm::ELseverityLevel::ELsev_warning},
                             {edm::ELwarning.getName(), edm::ELseverityLevel::ELsev_warning},
                             {edm::ELwarning.getInputStr(), edm::ELseverityLevel::ELsev_warning},
@@ -113,8 +88,9 @@ namespace edm {
       std::array<std::string, nLevels> ret;
       ret[ELsev_noValueAssigned] = "0";
       ret[ELsev_zeroSeverity] = "--";
-      ret[ELsev_success] = "-d";  // 4/21/09 mf
+      ret[ELsev_success] = "-d";
       ret[ELsev_info] = "-i";
+      ret[ELsev_fwkInfo] = "-f";
       ret[ELsev_warning] = "-w";
       ret[ELsev_error] = "-e";
       ret[ELsev_unspecified] = "??";
@@ -134,6 +110,7 @@ namespace edm {
       ret[ELsev_zeroSeverity] = "--";
       ret[ELsev_success] = "Debug";  // 4/21/09 mf
       ret[ELsev_info] = "Info";
+      ret[ELsev_fwkInfo] = "FwkInfo";
       ret[ELsev_warning] = "Warning";
       ret[ELsev_error] = "Error";
       ret[ELsev_unspecified] = "??";
@@ -153,6 +130,7 @@ namespace edm {
       ret[ELsev_zeroSeverity] = "ZERO";
       ret[ELsev_success] = "DEBUG";
       ret[ELsev_info] = "INFO";
+      ret[ELsev_fwkInfo] = "FWKINFO";
       ret[ELsev_warning] = "WARNING";
       ret[ELsev_error] = "ERROR";
       ret[ELsev_unspecified] = "UNSPECIFIED";
@@ -172,6 +150,7 @@ namespace edm {
       ret[ELsev_zeroSeverity] = "ELzeroSeverity   ";
       ret[ELsev_success] = "ELdebug          ";  // 4/21/09
       ret[ELsev_info] = "ELinfo           ";
+      ret[ELsev_fwkInfo] = "ELfwkInfo        ";
       ret[ELsev_warning] = "ELwarning        ";
       ret[ELsev_error] = "ELerror          ";
       ret[ELsev_unspecified] = "ELunspecified    ";

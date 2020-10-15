@@ -9,8 +9,6 @@
 // Original Author:  M. Fischler
 //         Created:  Wed May 20 2009
 //
-// Change log
-//
 //
 
 // system include files
@@ -161,6 +159,12 @@ namespace edm {
               << " PSet: \n"
               << "Use of wildcard (*) in suppressInfo is not supported\n";
       }
+      suppressFwkInfo = check<vString>(pset, "MessageLogger", "suppressFwkInfo");
+      if (wildcard(suppressFwkInfo)) {
+        flaws << "MessageLogger"
+              << " PSet: \n"
+              << "Use of wildcard (*) in suppressFwkInfo is not supported\n";
+      }
       suppressWarning = check<vString>(pset, "MessageLogger", "suppressWarning");
       if (wildcard(suppressWarning)) {
         flaws << "MessageLogger"
@@ -214,6 +218,8 @@ namespace edm {
       if (s == "debugModules")
         return true;
       if (s == "suppressInfo")
+        return true;
+      if (s == "suppressFwkInfo")
         return true;
       if (s == "suppressDebug")
         return true;
@@ -322,6 +328,8 @@ namespace edm {
       if (word == "debugModules")
         return false;
       if (word == "suppressInfo")
+        return false;
+      if (word == "suppressFwkInfo")
         return false;
       if (word == "suppressDebug")
         return false;
