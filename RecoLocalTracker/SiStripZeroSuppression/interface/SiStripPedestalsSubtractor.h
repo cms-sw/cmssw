@@ -3,10 +3,13 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
+#include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
 #include <vector>
 
 class SiStripPedestalsSubtractor {
@@ -18,10 +21,12 @@ public:
   void init(const edm::EventSetup&);
 
 private:
-  SiStripPedestalsSubtractor(bool mode) : peds_cache_id(0), fedmode_(mode){};
+  SiStripPedestalsSubtractor(bool mode, edm::ConsumesCollector&& iC)
+      : pedestalsToken_(iC.esConsumes<SiStripPedestals, SiStripPedestalsRcd>()), fedmode_(mode) {}
+  edm::ESGetToken<SiStripPedestals, SiStripPedestalsRcd> pedestalsToken_;
+  edm::ESWatcher<SiStripPedestalsRcd> pedestalsWatcher_;
   edm::ESHandle<SiStripPedestals> pedestalsHandle;
   std::vector<int> pedestals;
-  uint32_t peds_cache_id;
   bool fedmode_;
 
   template <class input_t>
