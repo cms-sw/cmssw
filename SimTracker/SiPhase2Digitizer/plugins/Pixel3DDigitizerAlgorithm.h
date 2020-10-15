@@ -55,13 +55,15 @@ public:
                      const std::vector<DigitizerUtility::SignalPoint>& collection_points) override;
 
 private:
-  // Raidus of Column np and ohmic
-  float _np_column_radius;
-  float _ohm_column_radius;
+  // Radius of Column np and ohmic
+  const float _np_column_radius;
+  const float _ohm_column_radius;
+  // Gap of np column
+  const float _np_column_gap; 
 
   // Check if a carrier is inside the column: The point should
   // be described in the pixel cell frame
-  const bool _is_inside_n_column(const LocalPoint& p) const;
+  const bool _is_inside_n_column(const LocalPoint& p, const float & sensor_thickness) const;
   const bool _is_inside_ohmic_column(const LocalPoint& p, const std::pair<float, float>& pitch) const;
 };
 #endif

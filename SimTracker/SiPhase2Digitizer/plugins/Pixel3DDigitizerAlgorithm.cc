@@ -53,9 +53,9 @@ void Pixel3DDigitizerAlgorithm::init(const edm::EventSetup& es) {
 Pixel3DDigitizerAlgorithm::Pixel3DDigitizerAlgorithm(const edm::ParameterSet& conf)
     : Phase2TrackerDigitizerAlgorithm(conf.getParameter<edm::ParameterSet>("AlgorithmCommon"),
                                       conf.getParameter<edm::ParameterSet>("Pixel3DDigitizerAlgorithm")),
-      // The size of the column np-junction (XXX: to be included via config)
-      _np_column_radius(5.0_um),
-      _ohm_column_radius(5.0_um) {
+      _np_column_radius((conf.getParameter<edm::ParameterSet>("Pixel3DDigitizerAlgorithm").getParameter<double>("NPColumnRadius"))*1.0_um), 
+      _ohm_column_radius((conf.getParameter<edm::ParameterSet>("Pixel3DDigitizerAlgorithm").getParameter<double>("OhmicColumnRadius"))*1.0_um),
+      _np_column_gap((conf.getParameter<edm::ParameterSet>("Pixel3DDigitizerAlgorithm").getParameter<double>("NPColumnGap"))*1.0_um) {
   // XXX - NEEDED?
   pixelFlag_ = true;
 
@@ -80,8 +80,9 @@ bool Pixel3DDigitizerAlgorithm::select_hit(const PSimHit& hit, double tCorr, dou
   return (time >= theTofLowerCut_ && time < theTofUpperCut_);
 }
 
-const bool Pixel3DDigitizerAlgorithm::_is_inside_n_column(const LocalPoint& p) const {
-  return (p.perp() <= _np_column_radius);
+const bool Pixel3DDigitizerAlgorithm::_is_inside_n_column(const LocalPoint& p, const float & sensor_thickness) const {
+  // The insensitive volume of the column: sensor thickness - column gap distance
+  return (p.perp() <= _np_column_radius && p.z() <= (sensor_thickness - _np_column_gap));
 }
 
 const bool Pixel3DDigitizerAlgorithm::_is_inside_ohmic_column(const LocalPoint& p,
@@ -95,7 +96,7 @@ const bool Pixel3DDigitizerAlgorithm::_is_inside_ohmic_column(const LocalPoint& 
 
 // Diffusion algorithm: Probably not needed,
 // Assuming the position point is given in the reference system of the proxy
-// cell, centered at the n-column corner.
+// cell, centered at the n-column.
 // The algorithm assumes only 1-axis could produce the charge migration, this assumption
 // could be enough given that the p-columns (5 um radius) are in the corners of the cell
 // (no producing charge in there)
@@ -304,7 +305,7 @@ std::vector<DigitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::drift(
         << "\nNe=" << super_charge.energy() << " electrons";
 
     // Check if the point is inside any of the column --> no charge was actually created then
-    if (_is_inside_n_column(position_at_pc) || _is_inside_ohmic_column(position_at_pc, half_pitch)) {
+    if (_is_inside_n_column(position_at_pc, thickness) || _is_inside_ohmic_column(position_at_pc, half_pitch)) {
       LogDebug("Pixel3DDigitizerAlgorithm::drift") << "Remove charge,  inside the n-column or p-column!!";
       continue;
     }
