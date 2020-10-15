@@ -39,12 +39,18 @@ bool TrackerParametersFromDD::build(const cms::DDCompactView* cvp, PTrackerParam
     }
   }
 
-  auto it = vmap.find("vPars");
-  if (it != end(vmap)) {
-    std::vector<int> tmpVec;
-    for (const auto& i : it->second)
-      tmpVec.emplace_back(std::round(i));
-    ptp.vpars = tmpVec;
+  // get "vPars" parameter block from XMLs.
+  const std::string& vPars = "trackerParameters:vPars";
+  for (auto const& parameterXMLBlock : vmap) {
+    const std::string& parameterName = parameterXMLBlock.first;
+    // Look for vPars parameter XML block.
+    if (dd4hep::dd::compareEqual(vPars, parameterName)) {
+      const std::vector<double>& parameterValues = parameterXMLBlock.second;
+      for (const auto& value : parameterValues) {
+        ptp.vpars.emplace_back(std::round(value));
+      }
+      break;  // Same logic as old DD: it should be found only once.
+    }
   }
 
   return true;
