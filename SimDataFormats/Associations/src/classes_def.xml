@@ -12,6 +12,9 @@
   <class name="hgcal::LayerClusterToCaloParticleAssociator" persistent="false"/>
   <class name="edm::Wrapper<hgcal::LayerClusterToCaloParticleAssociator>" persistent="false"/>
 
+  <class name="hgcal::LayerClusterToSimClusterAssociator" persistent="false"/>
+  <class name="edm::Wrapper<hgcal::LayerClusterToSimClusterAssociator>" persistent="false"/>
+
   <class name="reco::VertexSimToRecoCollection" >
     <field name="transientMap_" transient="true"/>
   </class>
