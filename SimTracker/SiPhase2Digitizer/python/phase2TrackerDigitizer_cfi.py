@@ -203,6 +203,11 @@ phase2TrackerDigitizer = cms.PSet(
     )
 )
 
+# Add some additional parameters for 3D pixels
+phase2TrackerDigitizer.Pixel3DDigitizerAlgorithm.NPColumnRadius = cms.double(4.0)
+phase2TrackerDigitizer.Pixel3DDigitizerAlgorithm.OhmicColumnRadius = cms.double(4.0)
+phase2TrackerDigitizer.Pixel3DDigitizerAlgorithm.NPColumnGap = cms.double(46.0)
+
 # For premixing stage1
 # - add noise as by default
 # - do not add noisy pixels (to be done in stage2)
