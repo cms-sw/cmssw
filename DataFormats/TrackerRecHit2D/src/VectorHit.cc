@@ -5,7 +5,7 @@
 VectorHit::VectorHit(const GeomDet& idet,
                      const LocalPoint& posLower,
                      const LocalVector& dir,
-                     const AlgebraicSymMatrix44 covMatrix,
+                     const AlgebraicSymMatrix44& covMatrix,
                      const float chi2,
                      OmniClusterRef const& lower,
                      OmniClusterRef const& upper,
@@ -168,7 +168,7 @@ LocalError VectorHit::localDirectionError() const {
   return LocalError(theCovMatrix[0][0], theCovMatrix[0][1], theCovMatrix[1][1]);
 }
 
-AlgebraicSymMatrix44 VectorHit::covMatrix() const { return theCovMatrix; }
+const AlgebraicSymMatrix44& VectorHit::covMatrix() const { return theCovMatrix; }
 
 std::ostream& operator<<(std::ostream& os, const VectorHit& vh) {
   os << " VectorHit create in the DetId#: " << vh.geographicalId() << "\n"

@@ -18,8 +18,8 @@
 class VectorHitBuilderAlgorithmBase {
 public:
   typedef edm::Ref<edmNew::DetSetVector<Phase2TrackerCluster1D>, Phase2TrackerCluster1D> Phase2TrackerCluster1DRef;
-  typedef edmNew::DetSet<Phase2TrackerCluster1D> detset;
-  typedef detset::const_iterator const_iterator;
+  typedef edmNew::DetSet<Phase2TrackerCluster1D> Detset;
+  typedef Detset::const_iterator const_iterator;
   typedef edmNew::DetSetVector<VectorHit> output_t;
   typedef std::pair<StackGeomDet, std::vector<Phase2TrackerCluster1D>> StackClusters;
 
@@ -41,25 +41,21 @@ public:
                                DetId detIdStack,
                                const StackGeomDet* stack,
                                edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D>> clusters,
-                               const detset& DSVinner,
-                               const detset& DSVouter,
+                               const Detset& DSVinner,
+                               const Detset& DSVouter,
                                const std::vector<bool>& phase2OTClustersToSkip = std::vector<bool>()) const = 0;
 
   virtual VectorHit buildVectorHit(const StackGeomDet* stack,
                                    Phase2TrackerCluster1DRef lower,
                                    Phase2TrackerCluster1DRef upper) const = 0;
 
-  double computeParallaxCorrection(const PixelGeomDetUnit*&,
+  double computeParallaxCorrection(const PixelGeomDetUnit*,
                                    const Point3DBase<float, LocalTag>&,
-                                   const PixelGeomDetUnit*&,
+                                   const PixelGeomDetUnit*,
                                    const Point3DBase<float, LocalTag>&) const;
 
   void printClusters(const edmNew::DetSetVector<Phase2TrackerCluster1D>& clusters) const;
   void printCluster(const GeomDet* geomDetUnit, const Phase2TrackerCluster1D* cluster) const;
-
-  void loadDetSetVector(std::unordered_map<DetId, std::vector<VectorHit>>& theMap,
-                        edmNew::DetSetVector<VectorHit>& theCollection,
-                        const int totalSize) const;
 
   const TrackerGeometry* tkGeom_;
   const TrackerTopology* tkTopo_;

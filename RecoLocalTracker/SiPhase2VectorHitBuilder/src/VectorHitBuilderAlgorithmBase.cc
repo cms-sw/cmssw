@@ -20,9 +20,9 @@ VectorHitBuilderAlgorithmBase::VectorHitBuilderAlgorithmBase(
       endcapCut_(conf.getParameter<std::vector<double> >("EndcapCut")),
       cpeTag_(conf.getParameter<edm::ESInputTag>("CPE")) {}
 
-double VectorHitBuilderAlgorithmBase::computeParallaxCorrection(const PixelGeomDetUnit*& geomDetUnit_low,
+double VectorHitBuilderAlgorithmBase::computeParallaxCorrection(const PixelGeomDetUnit* geomDetUnit_low,
                                                                 const Point3DBase<float, LocalTag>& lPosClu_low,
-                                                                const PixelGeomDetUnit*& geomDetUnit_upp,
+                                                                const PixelGeomDetUnit* geomDetUnit_upp,
                                                                 const Point3DBase<float, LocalTag>& lPosClu_upp) const {
   double parallCorr = 0.0;
   Global3DPoint origin(0, 0, 0);
@@ -96,13 +96,3 @@ void VectorHitBuilderAlgorithmBase::printCluster(const GeomDet* geomDetUnit,
   return;
 }
 
-void VectorHitBuilderAlgorithmBase::loadDetSetVector(std::unordered_map<DetId, std::vector<VectorHit> >& theMap,
-                                                     edmNew::DetSetVector<VectorHit>& theCollection,
-                                                     const int totalSize) const {
-  theCollection.reserve(theMap.size(), totalSize);
-  for (const auto& it : theMap) {
-    edmNew::DetSetVector<VectorHit>::FastFiller vh_col(theCollection, it.first);
-    for (const auto& vh_it : it.second)
-      vh_col.push_back(vh_it);
-  }
-}

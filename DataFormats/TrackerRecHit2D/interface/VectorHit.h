@@ -31,12 +31,10 @@ public:
 
   VectorHit() : thePosition(), theDirection(), theCovMatrix() { setType(bad); }
 
-  //VectorHit(const VectorHit& vh);
-
   VectorHit(const GeomDet& idet,
             const LocalPoint& posInner,
             const LocalVector& dir,
-            const AlgebraicSymMatrix44 covMatrix,
+            const AlgebraicSymMatrix44& covMatrix,
             const float chi2,
             OmniClusterRef const& lower,
             OmniClusterRef const& upper,
@@ -75,7 +73,7 @@ public:
   // returning methods
   LocalPoint localPosition() const override { return thePosition; }
   virtual LocalVector localDirection() const { return theDirection; }
-  AlgebraicSymMatrix44 covMatrix() const;
+  const AlgebraicSymMatrix44& covMatrix() const;
   LocalError localPositionError() const override;
   LocalError localDirectionError() const;
   Global3DVector globalDirectionVH() const;
@@ -151,6 +149,5 @@ inline bool operator<(const VectorHit& one, const VectorHit& other) { return (on
 std::ostream& operator<<(std::ostream& os, const VectorHit& vh);
 
 typedef edmNew::DetSetVector<VectorHit> VectorHitCollection;
-//typedef VectorHitCollection VectorHitCollectionNew;
 
 #endif

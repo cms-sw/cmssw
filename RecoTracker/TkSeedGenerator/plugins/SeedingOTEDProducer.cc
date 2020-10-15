@@ -47,7 +47,7 @@ public:
   std::vector<const VectorHit*> collectVHsOnLayer(const edmNew::DetSetVector<VectorHit>&, unsigned int);
   void printVHsOnLayer(const edmNew::DetSetVector<VectorHit>&, unsigned int);
   const TrajectoryStateOnSurface buildInitialTSOS(const VectorHit*) const;
-  AlgebraicSymMatrix55 assign44To55(AlgebraicSymMatrix44) const;
+  AlgebraicSymMatrix55 assign44To55(const AlgebraicSymMatrix44&) const;
   std::pair<bool, TrajectoryStateOnSurface> propagateAndUpdate(const TrajectoryStateOnSurface initialTSOS,
                                                                const Propagator&,
                                                                const TrackingRecHit& hit) const;
@@ -322,9 +322,7 @@ const TrajectoryStateOnSurface SeedingOTEDProducer::buildInitialTSOS(const Vecto
   return tsos;
 }
 
-AlgebraicSymMatrix55 SeedingOTEDProducer::assign44To55(AlgebraicSymMatrix44 mat44) const {
-  //  if (mat44.num_row() != 4 || mat44.num_col() != 4)
-  //    assert("Wrong dimension! This should be a 4x4 matrix!");
+AlgebraicSymMatrix55 SeedingOTEDProducer::assign44To55(const AlgebraicSymMatrix44& mat44) const {
 
   AlgebraicSymMatrix55 result;
   for (int i = 1; i < 5; i++) {

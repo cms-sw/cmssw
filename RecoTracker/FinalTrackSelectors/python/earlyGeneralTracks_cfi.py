@@ -102,23 +102,11 @@ trackingPhase2PU140.toReplaceWith(earlyGeneralTracks, _trackListMerger.clone(
     )
 )
 from Configuration.ProcessModifiers.vectorHits_cff import vectorHits
-
-(trackingPhase2PU140 & vectorHits).toModify(earlyGeneralTracks, TrackProducers = ['initialStepTracks',
-										  'highPtTripletStepTracks',
-										  'lowPtQuadStepTracks',
-										  'lowPtTripletStepTracks',
-										  'detachedQuadStepTracks',
-										  'pixelPairStepTracks',
-									          'pixelLessStepTracks'],
-							 	hasSelector = [1,1,1,1,1,1,1],
-								indivShareFrac = [1.0,0.16,0.095,0.09,0.09,0.09,0.095],
-								selectedTrackQuals = ['initialStepSelector:initialStep',
-							                              'highPtTripletStepSelector:highPtTripletStep',
-                          							      'lowPtQuadStepSelector:lowPtQuadStep',
-                          							      'lowPtTripletStepSelector:lowPtTripletStep',
-                          							      'detachedQuadStep',
-                          							      'pixelPairStepSelector:pixelPairStep',
-										      'pixelLessStepSelector:pixelLessStep'],
-								setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1,2,3,4,5,6), pQual=cms.bool(True)))
-)
+def _extend_pixelLess(x):
+    x.TrackProducers += ['pixelLessStepTracks']
+    x.hasSelector += [1]
+    x.indivShareFrac += [0.095]
+    x.selectedTrackQuals += ['pixelLessStepSelector:pixelLessStep']
+    x.setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1,2,3,4,5,6), pQual=cms.bool(True)))
+(trackingPhase2PU140 & vectorHits).toModify(earlyGeneralTracks, _extend_pixelLess)
 
