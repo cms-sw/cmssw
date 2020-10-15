@@ -9,16 +9,16 @@
 #include <iomanip>
 
 EcalEndcapNumberingScheme::EcalEndcapNumberingScheme() : EcalNumberingScheme() {
-  edm::LogInfo("EcalGeom") << "Creating EcalEndcapNumberingScheme";
+  edm::LogVerbatim("EcalGeom") << "Creating EcalEndcapNumberingScheme";
 }
 
 EcalEndcapNumberingScheme::~EcalEndcapNumberingScheme() {
-  edm::LogInfo("EcalGeom") << "Deleting EcalEndcapNumberingScheme";
+  edm::LogVerbatim("EcalGeom") << "Deleting EcalEndcapNumberingScheme";
 }
 uint32_t EcalEndcapNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) const {
   const uint32_t nLevels(baseNumber.getLevels());
 
-  //LogDebug("EcalGeom") << "ECalEndcapNumberingScheme geometry levels = " << nLevels;
+  edm::LogVerbatim("EcalGeom") << "ECalEndcapNumberingScheme geometry levels = " << nLevels;
 
   if (7 > nLevels) {
     edm::LogWarning("EcalGeom") << "ECalEndcapNumberingScheme::getUnitID(): "
@@ -50,10 +50,9 @@ uint32_t EcalEndcapNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) 
 
     uint32_t intindex = EEDetId(module_number, crystal_number, zside, EEDetId::SCCRYSTALMODE).rawId();
 
-    //LogDebug("EcalGeom") << "EcalEndcapNumberingScheme: zside = "  << zside
-    //                     << " super crystal = " << module_number << " crystal = "
-    //                     << crystal_number << " packed index = 0x" << std::hex
-    //                     << intindex << std::dec;
+    edm::LogVerbatim("EcalGeom") << "EcalEndcapNumberingScheme: zside = " << zside
+                                 << " super crystal = " << module_number << " crystal = " << crystal_number
+                                 << " packed index = 0x" << std::hex << intindex << std::dec;
 
     return intindex;
   } else {
