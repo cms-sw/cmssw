@@ -18,7 +18,7 @@ process.hltHbhereco = cms.EDProducer("FacileHcalReconstructor",
         timeout = cms.untracked.uint32(300),
         modelName = cms.string("facile_all_v2"),
         mode = cms.string("Async"),
-        modelVersion = cms.string(-1),
+        modelVersion = cms.string(""),
         verbose = cms.untracked.bool(False),
         allowedTries = cms.untracked.uint32(5),
         outputs = cms.untracked.vstring("output/BiasAdd"),
@@ -29,4 +29,7 @@ process.hltHbhereco = cms.EDProducer("FacileHcalReconstructor",
 process.HLTDoLocalHcalSequence = cms.Sequence( process.hltHcalDigis + process.hltHbherecopre + process.hltHbhereco + process.hltHfprereco + process.hltHfreco + process.hltHoreco )
 process.HLTStoppedHSCPLocalHcalReco = cms.Sequence( process.hltHcalDigis + process.hltHbherecopre + process.hltHbhereco)
 
-process.source.fileNames = cms.untracked.vstring("file:RelVal_Raw_GRun_MC.root")
+from Configuration.AlCa.GlobalTag import GlobalTag as customiseGlobalTag
+process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = '112X_mcRun3_2021_realistic_v7')
+
+process.source.fileNames = cms.untracked.vstring("root://cmsxrootd.fnal.gov//store/relval/CMSSW_11_2_0_pre6_ROOT622/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/112X_mcRun3_2021_realistic_v7-v1/20000/FED4709C-569E-0A42-8FF7-20E565ABE999.root")
