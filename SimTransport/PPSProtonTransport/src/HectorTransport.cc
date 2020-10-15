@@ -154,8 +154,10 @@ bool HectorTransport::transportProton(const HepMC::GenParticle* gpart) {
   double theta = sqrt(thx * thx + thy * thy) * urad;
 
   // copy the kinematic changing to CMS ref. frame, only the negative Pz needs to be changed
-  TLorentzVector p_out(
-      -tan(thx * urad) * partP * cos(theta), tan(thy * urad) * partP * cos(theta), -direction*partP * cos(theta), h_p.getE());
+  TLorentzVector p_out(-tan(thx * urad) * partP * cos(theta),
+                       tan(thy * urad) * partP * cos(theta),
+                       -direction * partP * cos(theta),
+                       h_p.getE());
 
   m_beamPart[line] = p_out;
   m_xAtTrPoint[line] = -x1_ctpps * um_to_mm;  // move to CMS ref. frame
