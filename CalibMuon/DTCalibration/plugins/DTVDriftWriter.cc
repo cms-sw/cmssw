@@ -46,7 +46,6 @@ DTVDriftWriter::DTVDriftWriter(const ParameterSet& pset)
 
   readLegacyVDriftDB = pset.getParameter<bool>("readLegacyVDriftDB");
   writeLegacyVDriftDB = pset.getParameter<bool>("writeLegacyVDriftDB");
-
 }
 
 DTVDriftWriter::~DTVDriftWriter() { LogVerbatim("Calibration") << "[DTVDriftWriter]Destructor called!"; }
@@ -57,7 +56,7 @@ void DTVDriftWriter::beginRun(const edm::Run& run, const edm::EventSetup& setup)
     ESHandle<DTMtime> mTime;
     setup.get<DTMtimeRcd>().get(mTime);
     mTimeMap_ = &*mTime;
-  } else { 
+  } else {
     ESHandle<DTRecoConditions> hVdrift;
     setup.get<DTRecoConditionsVdriftRcd>().get(hVdrift);
     vDriftMap_ = &*hVdrift;
@@ -80,7 +79,7 @@ void DTVDriftWriter::endJob() {
   DTRecoConditions* vDriftNewMap = nullptr;
   if (writeLegacyVDriftDB) {
     mTimeNewMap = new DTMtime();
-  } else{
+  } else {
     vDriftNewMap = new DTRecoConditions();
     vDriftNewMap->setFormulaExpr("[0]");
     //vDriftNewMap->setFormulaExpr("[0]*(1-[1]*x)"); // add parametrization for dependency along Y
@@ -99,37 +98,36 @@ void DTVDriftWriter::endJob() {
       float vDriftNew = -1.;
       float resolutionNew = -1;
       try {
-	dtCalibration::DTVDriftData vDriftData = vDriftAlgo_->compute(slId);
-	 vDriftNew = vDriftData.vdrift;
-	 resolutionNew = vDriftData.resolution;
-	 LogVerbatim("Calibration") << "vDrift for: " << slId << " Mean " << vDriftNew << " Resolution "
-				    << resolutionNew;
-      } catch (cms::Exception& e) { // Failure to compute new value, fall back to old table
+        dtCalibration::DTVDriftData vDriftData = vDriftAlgo_->compute(slId);
+        vDriftNew = vDriftData.vdrift;
+        resolutionNew = vDriftData.resolution;
+        LogVerbatim("Calibration") << "vDrift for: " << slId << " Mean " << vDriftNew << " Resolution "
+                                   << resolutionNew;
+      } catch (cms::Exception& e) {  // Failure to compute new value, fall back to old table
         LogError("Calibration") << e.explainSelf();
-	if (readLegacyVDriftDB) { //...reading old db format...
-	  int status = mTimeMap_->get(slId, vDriftNew, resolutionNew, DTVelocityUnits::cm_per_ns);	
-	  if (status == 0) { // not found; silently skip this SL
-	    continue;
-	  }
-	} else { //...reading new db format
-	  try {
-	    vDriftNew = vDriftMap_->get(DTWireId(slId.rawId()));
-	  } catch (cms::Exception& e2) {
-	    // not found; silently skip this SL
-	    continue;
-	  }
-	}
-	LogVerbatim("Calibration") << "Keep original vDrift for: " << slId << " Mean " << vDriftNew << " Resolution "
-                                     << resolutionNew;
-
+        if (readLegacyVDriftDB) {  //...reading old db format...
+          int status = mTimeMap_->get(slId, vDriftNew, resolutionNew, DTVelocityUnits::cm_per_ns);
+          if (status == 0) {  // not found; silently skip this SL
+            continue;
+          }
+        } else {  //...reading new db format
+          try {
+            vDriftNew = vDriftMap_->get(DTWireId(slId.rawId()));
+          } catch (cms::Exception& e2) {
+            // not found; silently skip this SL
+            continue;
+          }
+        }
+        LogVerbatim("Calibration") << "Keep original vDrift for: " << slId << " Mean " << vDriftNew << " Resolution "
+                                   << resolutionNew;
       }
-      
+
       // Add value to the vdrift table
       if (writeLegacyVDriftDB) {
-	mTimeNewMap->set(slId, vDriftNew, resolutionNew, DTVelocityUnits::cm_per_ns);
+        mTimeNewMap->set(slId, vDriftNew, resolutionNew, DTVelocityUnits::cm_per_ns);
       } else {
         vector<double> params = {vDriftNew};
-	vDriftNewMap->set(DTWireId(slId.rawId()), params);
+        vDriftNewMap->set(DTWireId(slId.rawId()), params);
       }
     }  // End of loop on superlayers
   }
@@ -139,7 +137,7 @@ void DTVDriftWriter::endJob() {
   if (writeLegacyVDriftDB) {
     string record = "DTMtimeRcd";
     DTCalibDBUtils::writeToDB<DTMtime>(record, mTimeNewMap);
-  } else{
+  } else {
     DTCalibDBUtils::writeToDB<DTRecoConditions>("DTRecoConditionsVdriftRcd", vDriftNewMap);
   }
 }
