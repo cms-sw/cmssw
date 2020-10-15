@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 
@@ -54,16 +55,16 @@ RUN       = options.run
 #Input sanification
 
 if DBFORMAT not in ['Legacy', 'DTRecoConditions'] :
-    print '\nERROR: invalid value for dbformat: ',  DBFORMAT,'\n'
+    print('\nERROR: invalid value for dbformat: ',  DBFORMAT,'\n')
     exit()
     
 if TYPE not in ['TZeroDB', 'TTrigDB',  'VDriftDB', 'UncertDB'] :
-    print '\nERROR: invalid value for type: ',  TYPE,'\n'
+    print('\nERROR: invalid value for type: ',  TYPE,'\n')
     exit()
 
 
 if INPUTTAG!="" and INPUTFILE!="" :
-    print '\nERROR: specify either inputtag or inputfile\n'
+    print('\nERROR: specify either inputtag or inputfile\n')
     exit()
 
 
@@ -94,7 +95,7 @@ elif DBFORMAT=="Legacy" :
     if TYPE=="VDriftDB" : RECORD = "DTMtimeRcd"
     if TYPE=="UncertDB" :
         RECORD = "DTRecoUncertaintiesRcd"
-        print '\nWARNING, Legacy RecoUncertDB is deprecated, as it is no longer used in reconstruction code'
+        print('\nWARNING, Legacy RecoUncertDB is deprecated, as it is no longer used in reconstruction code')
 elif DBFORMAT=="DTRecoConditions" :
     if TYPE=="TTrigDB" : RECORD = "DTRecoConditionsTtrigRcd"
     if TYPE=="VDriftDB" : RECORD = "DTRecoConditionsVdriftRcd"
@@ -120,9 +121,9 @@ process.GlobalTag = GlobalTag(process.GlobalTag, GLOBALTAG, '')
 
 # Read from local db file
 if INPUTFILE!="" :
-    print "\nDumpDBToFile: Read from: ", INPUTFILE
-    print "              Record:    ", RECORD
-    print "              Type:      ", TYPE
+    print("\nDumpDBToFile: Read from: ", INPUTFILE)
+    print("              Record:    ", RECORD)
+    print("              Type:      ", TYPE)
 
 
     process.GlobalTag.toGet = cms.VPSet(
@@ -135,9 +136,9 @@ if INPUTFILE!="" :
 
 # Read payload with the specified tag from frontier
 if INPUTTAG!="" :
-    print "\nDumpDBToFile: Read from Frontier, tag:    ", INPUTTAG
-    print "                               Record: ", RECORD
-    print "                                 Type:   ", TYPE
+    print("\nDumpDBToFile: Read from Frontier, tag:    ", INPUTTAG)
+    print("                               Record: ", RECORD)
+    print("                                 Type:   ", TYPE)
 
     process.GlobalTag.toGet = cms.VPSet(
         cms.PSet(record = cms.string(RECORD),
@@ -149,10 +150,10 @@ if INPUTTAG!="" :
 
 # Read payload specified in the GT
 else :
-    print "\nDumpDBToFile: Read from GT:", GLOBALTAG
-    print "                      Type:", TYPE
+    print("\nDumpDBToFile: Read from GT:", GLOBALTAG)
+    print("                      Type:", TYPE)
 
-print 'Writing to file: ', OUTPUTFILE, '\n'
+print('Writing to file: ', OUTPUTFILE, '\n')
 
 
 

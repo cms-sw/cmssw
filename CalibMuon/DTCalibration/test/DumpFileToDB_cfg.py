@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 import os
@@ -32,15 +33,15 @@ INPUTFILE = options.inputfile
 #Input sanification
 
 if DBFORMAT not in ['Legacy', 'DTRecoConditions'] :
-    print '\nERROR: invalid value for dbformat: ',  DBFORMAT,'\n'
+    print('\nERROR: invalid value for dbformat: ',  DBFORMAT,'\n')
     exit()
     
 if TYPE not in ['TZeroDB', 'TTrigDB',  'VDriftDB', 'UncertDB'] :
-    print '\nERROR: invalid value for type: ',  TYPE,'\n'
+    print('\nERROR: invalid value for type: ',  TYPE,'\n')
     exit()
 
 if INPUTFILE == '' :
-    print '\nERROR: must specify inputfile\n'
+    print('\nERROR: must specify inputfile\n')
     exit()
     
 
@@ -74,7 +75,7 @@ if DBFORMAT=="Legacy" :
     if TYPE=="VDriftDB" : RECORD = "DTMtimeRcd"
     if TYPE=="UncertDB" :
         RECORD = "DTRecoUncertaintiesRcd"
-        print '\nWARNING, Legacy RecoUncertDB is deprecated, as it is no longer used in reconstruction code'
+        print('\nWARNING, Legacy RecoUncertDB is deprecated, as it is no longer used in reconstruction code')
 elif DBFORMAT=="DTRecoConditions" :
     if TYPE=="TTrigDB" : RECORD = "DTRecoConditionsTtrigRcd"
     if TYPE=="VDriftDB" : RECORD = "DTRecoConditionsVdriftRcd"
@@ -87,9 +88,9 @@ except OSError:
     pass
 
 
-print '\n Reading ', TYPE, ' from ', INPUTFILE
-print '      Record : ', RECORD
-print 'writing db file : ', OUTPUTFILE, '\n'
+print('\n Reading ', TYPE, ' from ', INPUTFILE)
+print('      Record : ', RECORD)
+print('writing db file : ', OUTPUTFILE, '\n')
 
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
