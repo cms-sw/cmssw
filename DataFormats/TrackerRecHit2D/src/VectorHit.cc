@@ -40,8 +40,8 @@ VectorHit::VectorHit(const GeomDet& idet,
       theCurvatureError(curvatureError),
       thePhi(phi) {
   //building the cov matrix 4x4 starting from the 2x2
-  const AlgebraicSymMatrix22 covMatZX = vh2Dzx.covMatrix();
-  const AlgebraicSymMatrix22 covMatZY = vh2Dzy.covMatrix();
+  const AlgebraicSymMatrix22& covMatZX = vh2Dzx.covMatrix();
+  const AlgebraicSymMatrix22& covMatZY = vh2Dzy.covMatrix();
 
   theCovMatrix = AlgebraicSymMatrix44();
 
