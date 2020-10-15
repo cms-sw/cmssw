@@ -73,8 +73,7 @@ public:
     std::vector<int> multiRP_arm;
 
     // book output variables for tracks
-    std::vector<float> trackX, trackY, trackTime, trackTimeUnc, localSlopeX, localSlopeY,
-        normalizedChi2;
+    std::vector<float> trackX, trackY, trackTime, trackTimeUnc, localSlopeX, localSlopeY, normalizedChi2;
     std::vector<int> singleRPProtonIdx, multiRPProtonIdx, decRPId, numFitPoints, pixelRecoInfo, rpType;
 
     // process single-RP protons
@@ -95,7 +94,7 @@ public:
       multiRP_arm.reserve(num_proton);
 
       for (const auto &proton : *hRecoProtonsMultiRP) {
-	multiRP_arm.push_back((proton.pz() < 0.) ? 1 : 0);
+        multiRP_arm.push_back((proton.pz() < 0.) ? 1 : 0);
       }
     }
 
