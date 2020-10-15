@@ -11,6 +11,13 @@
 // user include files
 #include "RecoMuon/MuonIdentification/plugins/MuonIdProducer.h"
 
+#include "DataFormats/Math/interface/deltaPhi.h"
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+#include "DataFormats/MuonDetId/interface/DTChamberId.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/MuonDetId/interface/GEMDetId.h"
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
 #include "DataFormats/MuonReco/interface/MuonCocktails.h"
 #include "DataFormats/MuonReco/interface/MuonTime.h"
 #include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
@@ -21,15 +28,7 @@
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractorFactory.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
-#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
-#include "DataFormats/MuonDetId/interface/DTChamberId.h"
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
-#include "DataFormats/MuonDetId/interface/RPCDetId.h"
-#include "DataFormats/MuonDetId/interface/GEMDetId.h"
-#include "DataFormats/MuonDetId/interface/ME0DetId.h"
-
 #include "RecoMuon/MuonIdentification/interface/MuonMesh.h"
-
 #include "RecoMuon/MuonIdentification/interface/MuonKinkFinder.h"
 
 MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
@@ -564,7 +563,8 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
         for (auto& muon : *outputMuons) {
           if (muon.innerTrack().get() == trackerMuon.innerTrack().get() &&
-              cos(phiOfMuonInteractionRegion(muon) - phiOfMuonInteractionRegion(trackerMuon)) > 0) {
+              std::abs(reco::deltaPhi(phiOfMuonInteractionRegion(muon), phiOfMuonInteractionRegion(trackerMuon))) <
+                  0.5 * M_PI) {
             newMuon = false;
             muon.setMatches(trackerMuon.matches());
             if (trackerMuon.isTimeValid())
@@ -665,7 +665,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
       // predict direction based on the muon interaction region location
       // if it's available
       if (muon.isStandAloneMuon()) {
-        if (cos(phiOfMuonInteractionRegion(muon) - muon.phi()) > 0) {
+        if (std::abs(reco::deltaPhi(phiOfMuonInteractionRegion(muon), muon.phi())) < 0.5 * M_PI) {
           fillMuonId(iEvent, iSetup, muon, TrackDetectorAssociator::InsideOut);
         } else {
           fillMuonId(iEvent, iSetup, muon, TrackDetectorAssociator::OutsideIn);
@@ -925,8 +925,10 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent,
                                      << ", chamber y: " << matchedChamber.y << ", max: " << maxAbsDy_;
       const double matchedSegChDx = std::abs(matchedSegment.x - matchedChamber.x);
       const double matchedSegChDy = std::abs(matchedSegment.y - matchedChamber.y);
-      const double matchedSegChPullX = matchedSegChDx / std::hypot(matchedSegment.xErr, matchedChamber.xErr);
-      const double matchedSegChPullY = matchedSegChDy / std::hypot(matchedSegment.yErr, matchedChamber.yErr);
+      const double matchedSegChPullX =
+          matchedSegChDx / std::sqrt(std::pow(matchedSegment.xErr, 2) + std::pow(matchedChamber.xErr, 2));
+      const double matchedSegChPullY =
+          matchedSegChDy / std::sqrt(std::pow(matchedSegment.yErr, 2) + std::pow(matchedChamber.yErr, 2));
       if (matchedSegment.xErr > 0 && matchedChamber.xErr > 0)
         LogTrace("MuonIdentification") << " xpull: " << matchedSegChPullX;
       if (matchedSegment.yErr > 0 && matchedChamber.yErr > 0)
@@ -995,7 +997,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent,
         rpcHitMatch.bx = rpcRecHit.BunchX();
 
         const double absDx = std::abs(rpcRecHit.localPosition().x() - chamber.tState.localPosition().x());
-        if (absDx <= 20 or absDx / sqrt(localError.xx()) <= 4)
+        if (absDx <= 20 or absDx * absDx <= 16 * localError.xx())
           matchedChamber.rpcMatches.push_back(rpcHitMatch);
       }
 
@@ -1297,7 +1299,7 @@ void MuonIdProducer::fillMuonIsolation(edm::Event& iEvent,
 }
 
 reco::Muon MuonIdProducer::makeMuon(const reco::Track& track) {
-  const double energy = hypot(track.p(), 0.105658369);
+  const double energy = std::sqrt(track.p() * track.p() + 0.105658369 * 0.105658369);
   const math::XYZTLorentzVector p4(track.px(), track.py(), track.pz(), energy);
   return reco::Muon(track.charge(), p4, track.vertex());
 }
