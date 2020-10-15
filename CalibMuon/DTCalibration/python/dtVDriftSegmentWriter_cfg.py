@@ -2,6 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DTVDriftWriter")
 
+### Set to true to switch to writing constants in the new DB format.
+NEWDBFORMAT = False 
+###
+
 process.load("CalibMuon.DTCalibration.messageLoggerDebug_cff")
 process.MessageLogger.debugModules = cms.untracked.vstring('dtVDriftSegmentWriter')
 
@@ -21,11 +25,15 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
+RECORD = 'DTMtimeRcd'
+if NEWDBFORMAT :
+    RECORD = 'DTRecoConditionsVdriftRcd'
+
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDB,
     timetype = cms.untracked.string('runnumber'),
     toPut = cms.VPSet(cms.PSet(
-        record = cms.string('DTMtimeRcd'),
+        record = cms.string(RECORD),
         tag = cms.string('vDrift')
     ))
 )
