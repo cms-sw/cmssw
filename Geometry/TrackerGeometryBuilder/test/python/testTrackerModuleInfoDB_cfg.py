@@ -16,6 +16,8 @@ process.TrackerGeometricDetESModule = cms.ESProducer( "TrackerGeometricDetESModu
                                                       fromDDD = cms.bool( False )
                                                      )
 
+process.es_prefer_geomdet = cms.ESPrefer("TrackerGeometricDetESModule","")
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )

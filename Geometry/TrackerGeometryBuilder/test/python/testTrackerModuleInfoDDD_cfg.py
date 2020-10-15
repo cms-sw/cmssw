@@ -14,6 +14,8 @@ process.TrackerGeometricDetESModule = cms.ESProducer( "TrackerGeometricDetESModu
                                                       fromDDD = cms.bool( True )
                                                      )
 
+process.es_prefer_geomdet = cms.ESPrefer("TrackerGeometricDetESModule","")
+
 process.load("Alignment.CommonAlignmentProducer.FakeAlignmentSource_cfi")
 process.preferFakeAlign = cms.ESPrefer("FakeAlignmentSource") 
 
