@@ -6,6 +6,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
@@ -26,7 +27,7 @@ class SiStripAPVRestorer {
   friend class SiStripRawProcessingFactory;
 
 protected:
-  SiStripAPVRestorer(const edm::ParameterSet& conf);
+  SiStripAPVRestorer(const edm::ParameterSet& conf, edm::ConsumesCollector&&);
 
 public:
   virtual ~SiStripAPVRestorer(){};
@@ -83,10 +84,15 @@ private:
   void createCMMapCMstored(const edm::DetSetVector<SiStripProcessedRawDigi>& input);
 
 private:  // members
+  edm::ESGetToken<SiStripQuality, SiStripQualityRcd> qualityToken_;
+  edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> noiseToken_;
+  edm::ESGetToken<SiStripPedestals, SiStripPedestalsRcd> pedestalToken_;
   edm::ESHandle<SiStripQuality> qualityHandle;
   edm::ESHandle<SiStripNoises> noiseHandle;
   edm::ESHandle<SiStripPedestals> pedestalHandle;
-  uint32_t quality_cache_id, noise_cache_id, pedestal_cache_id;
+  edm::ESWatcher<SiStripQualityRcd> qualityWatcher_;
+  edm::ESWatcher<SiStripNoisesRcd> noiseWatcher_;
+  edm::ESWatcher<SiStripPedestalsRcd> pedestalWatcher_;
 
   // event state
   CMMap meanCMmap_;

@@ -73,6 +73,7 @@ private:
   edm::EDGetTokenT<edm::DetSetVector<SiStripDigi>> srcDigis_;
   edm::EDGetTokenT<edm::DetSetVector<SiStripProcessedRawDigi>> srcAPVCM_;
   edm::Service<TFileService> fs_;
+  edm::ESGetToken<SiStripPedestals, SiStripPedestalsRcd> pedestalsToken_;
 
   TH1F* h1Digis_;
   TH1F* h1APVCM_;
@@ -98,6 +99,7 @@ SiStripHybridFormatAnalyzer::SiStripHybridFormatAnalyzer(const edm::ParameterSet
 
   srcDigis_ = consumes<edm::DetSetVector<SiStripDigi>>(conf.getParameter<edm::InputTag>("srcDigis"));
   srcAPVCM_ = consumes<edm::DetSetVector<SiStripProcessedRawDigi>>(conf.getParameter<edm::InputTag>("srcAPVCM"));
+  pedestalsToken_ = esConsumes();
   nModuletoDisplay_ = conf.getParameter<uint32_t>("nModuletoDisplay");
   plotAPVCM_ = conf.getParameter<bool>("plotAPVCM");
 
@@ -153,20 +155,15 @@ void SiStripHybridFormatAnalyzer::analyze(const edm::Event& e, const edm::EventS
   //plotting pedestals
   //------------------------------------------------------------------
   if (actualModule_ == 0) {
-    edm::ESHandle<SiStripPedestals> pedestalsHandle;
-    uint32_t p_cache_id = es.get<SiStripPedestalsRcd>().cacheIdentifier();
-    if (p_cache_id != peds_cache_id_) {
-      es.get<SiStripPedestalsRcd>().get(pedestalsHandle);
-      peds_cache_id_ = p_cache_id;
-    }
+    const auto& pedestalsObj = es.getData(pedestalsToken_);
     std::vector<uint32_t> detIdV;
-    pedestalsHandle->getDetIds(detIdV);
+    pedestalsObj.getDetIds(detIdV);
     std::vector<int> pedestals;
     for (const auto det : detIdV) {
       pedestals.clear();
-      SiStripPedestals::Range pedestalsRange = pedestalsHandle->getRange(det);
+      SiStripPedestals::Range pedestalsRange = pedestalsObj.getRange(det);
       pedestals.resize((pedestalsRange.second - pedestalsRange.first) * 0.8);
-      pedestalsHandle->allPeds(pedestals, pedestalsRange);
+      pedestalsObj.allPeds(pedestals, pedestalsRange);
       for (const int ped : pedestals) {
         h1Pedestals_->Fill(ped);
       }
