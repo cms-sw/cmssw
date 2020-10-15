@@ -34,9 +34,9 @@ using namespace edm;
 namespace dtCalibration {
 
   DTVDriftSegment::DTVDriftSegment(const ParameterSet& pset)
-    : nSigmas_(pset.getUntrackedParameter<unsigned int>("nSigmasFitRange", 1)),
-      mTimeMap_(nullptr),
-      vDriftMap_(nullptr) {
+      : nSigmas_(pset.getUntrackedParameter<unsigned int>("nSigmasFitRange", 1)),
+        mTimeMap_(nullptr),
+        vDriftMap_(nullptr) {
     string rootFileName = pset.getParameter<string>("rootFileName");
     rootFile_ = new TFile(rootFileName.c_str(), "READ");
 
@@ -65,7 +65,7 @@ namespace dtCalibration {
       // Consistency check: no parametrization is implemented for the time being
       int version = vDriftMap_->version();
       if (version != 1) {
-	throw cms::Exception("Configuration") << "only version 1 is presently supported for VDriftDB";
+        throw cms::Exception("Configuration") << "only version 1 is presently supported for VDriftDB";
       }
     }
   }
@@ -73,13 +73,13 @@ namespace dtCalibration {
   DTVDriftData DTVDriftSegment::compute(DTSuperLayerId const& slId) {
     // Get original value from DB; vdrift is cm/ns , resolution is cm
     // Note that resolution is irrelevant as it is no longer used anywhere in reconstruction.
- 
-    float vDrift = 0., resolution = 0.; 
-    if (readLegacyVDriftDB) { // Legacy format
+
+    float vDrift = 0., resolution = 0.;
+    if (readLegacyVDriftDB) {  // Legacy format
       int status = mTimeMap_->get(slId, vDrift, resolution, DTVelocityUnits::cm_per_ns);
       if (status != 0)
-	throw cms::Exception("DTCalibration") << "Could not find vDrift entry in DB for" << slId << endl;
-    } else { // New DB format
+        throw cms::Exception("DTCalibration") << "Could not find vDrift entry in DB for" << slId << endl;
+    } else {  // New DB format
       vDrift = vDriftMap_->get(DTWireId(slId.rawId()));
     }
 

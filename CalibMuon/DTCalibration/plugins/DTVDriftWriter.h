@@ -35,10 +35,10 @@ public:
 private:
   std::string granularity_;  // enforced by SL
 
-  const DTMtime* mTimeMap_;           // legacy DB object
-  const DTRecoConditions* vDriftMap_; // DB object in new format 
-  bool readLegacyVDriftDB;            // which format to use to read old values
-  bool writeLegacyVDriftDB;           // which format to be created
+  const DTMtime* mTimeMap_;            // legacy DB object
+  const DTRecoConditions* vDriftMap_;  // DB object in new format
+  bool readLegacyVDriftDB;             // which format to use to read old values
+  bool writeLegacyVDriftDB;            // which format to be created
 
   edm::ESHandle<DTGeometry> dtGeom_;
 
