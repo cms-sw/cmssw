@@ -6,3 +6,5 @@
 <use name="DataFormats/Common"/>
 <use name="Geometry/Records"/>
 <use name="boost"/>
+<use name="HeterogeneousCore/SonicTriton"/>
+<use name="HeterogeneousCore/SonicCore"/>
