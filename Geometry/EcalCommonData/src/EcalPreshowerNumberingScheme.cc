@@ -84,11 +84,11 @@ EcalPreshowerNumberingScheme::EcalPreshowerNumberingScheme() : EcalNumberingSche
     L1ay[i] = vL1ay[i];
   }
 
-  edm::LogInfo("EcalGeom") << "Creating EcalPreshowerNumberingScheme";
+  edm::LogVerbatim("EcalGeom") << "Creating EcalPreshowerNumberingScheme";
 }
 
 EcalPreshowerNumberingScheme::~EcalPreshowerNumberingScheme() {
-  edm::LogInfo("EcalGeom") << "Deleting EcalPreshowerNumberingScheme";
+  edm::LogVerbatim("EcalGeom") << "Deleting EcalPreshowerNumberingScheme";
 }
 
 uint32_t EcalPreshowerNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) const {
@@ -97,9 +97,9 @@ uint32_t EcalPreshowerNumberingScheme::getUnitID(const EcalBaseNumber& baseNumbe
   if (level > 0) {
     // depth index - silicon layer 1-st or 2-nd
     int layer = 0;
-    if (baseNumber.getLevelName(0) == "SFSX") {
+    if (baseNumber.getLevelName(0).find("SFSX") != std::string::npos) {
       layer = 1;
-    } else if (baseNumber.getLevelName(0) == "SFSY") {
+    } else if (baseNumber.getLevelName(0).find("SFSY") != std::string::npos) {
       layer = 2;
     } else {
       edm::LogWarning("EcalGeom") << "EcalPreshowerNumberingScheme: Wrong name"
@@ -116,7 +116,7 @@ uint32_t EcalPreshowerNumberingScheme::getUnitID(const EcalBaseNumber& baseNumbe
     int x = 0, y = 0, ix, iy, id;
     int mapX[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     int mapY[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    const std::string& ladd = baseNumber.getLevelName(3);
+    const std::string& ladd = baseNumber.getLevelName(3).substr(0, 6);
     int ladd_copy = baseNumber.getCopyNumber(3);
 
     if (ladd == "SFLX0a" || ladd == "SFLY0a") {
@@ -414,12 +414,14 @@ uint32_t EcalPreshowerNumberingScheme::getUnitID(const EcalBaseNumber& baseNumbe
 
     intIndex = ESDetId(strip, x, y, layer, zside).rawId();
 
-    LogDebug("EcalGeom") << "EcalPreshowerNumberingScheme : zside " << zside << " Ladd " << ladd
-                         << " ladd_copy: " << ladd_copy << " box " << box << " x " << x << " y " << y << " layer "
-                         << layer << " strip " << strip << " UnitID 0x" << std::hex << intIndex << std::dec;
+    edm::LogVerbatim("EcalGeom") << "EcalPreshowerNumberingScheme : zside " << zside << " Ladd " << ladd
+                                 << " ladd_copy: " << ladd_copy << " box " << box << " x " << x << " y " << y
+                                 << " layer " << layer << " strip " << strip << " UnitID 0x" << std::hex << intIndex
+                                 << std::dec;
 
     for (int ich = 0; ich < level; ich++) {
-      LogDebug("EcalGeom") << "Name = " << baseNumber.getLevelName(ich) << " copy = " << baseNumber.getCopyNumber(ich);
+      edm::LogVerbatim("EcalGeom") << "Name = " << baseNumber.getLevelName(ich)
+                                   << " copy = " << baseNumber.getCopyNumber(ich);
     }
   }
 
