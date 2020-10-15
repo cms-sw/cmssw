@@ -107,6 +107,6 @@ def _extend_pixelLess(x):
     x.hasSelector += [1]
     x.indivShareFrac += [0.095]
     x.selectedTrackQuals += ['pixelLessStepSelector:pixelLessStep']
-    x.setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1,2,3,4,5,6), pQual=cms.bool(True)))
+    x.setsToMerge[0].tLists += [6]
 (trackingPhase2PU140 & vectorHits).toModify(earlyGeneralTracks, _extend_pixelLess)
 

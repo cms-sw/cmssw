@@ -323,7 +323,6 @@ const TrajectoryStateOnSurface SeedingOTEDProducer::buildInitialTSOS(const Vecto
 }
 
 AlgebraicSymMatrix55 SeedingOTEDProducer::assign44To55(const AlgebraicSymMatrix44& mat44) const {
-
   AlgebraicSymMatrix55 result;
   for (int i = 1; i < 5; i++) {
     for (int j = 1; j < 5; j++) {

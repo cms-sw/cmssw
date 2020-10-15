@@ -95,4 +95,3 @@ void VectorHitBuilderAlgorithmBase::printCluster(const GeomDet* geomDetUnit,
 
   return;
 }
-

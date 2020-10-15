@@ -16,7 +16,7 @@ public:
         theDirection(dir),
         theCovMatrix(covMatrix),
         theLocalError(theCovMatrix[0][0], theCovMatrix[0][1], theCovMatrix[1][1]),
-        theChi2(chi2){}
+        theChi2(chi2) {}
 
   const LocalPoint& localPosition() const { return thePosition; }
   const LocalVector& localDirection() const { return theDirection; }
