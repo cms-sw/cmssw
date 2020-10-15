@@ -51,10 +51,9 @@ uint32_t EcalEndcapNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) 
     uint32_t intindex = EEDetId(module_number, crystal_number, zside, EEDetId::SCCRYSTALMODE).rawId();
 
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EcalGeom") << "EcalEndcapNumberingScheme: zside = "  << zside
-				 << " super crystal = " << module_number << " crystal = "
-				 << crystal_number << " packed index = 0x" << std::hex
-				 << intindex << std::dec;
+    edm::LogVerbatim("EcalGeom") << "EcalEndcapNumberingScheme: zside = " << zside
+                                 << " super crystal = " << module_number << " crystal = " << crystal_number
+                                 << " packed index = 0x" << std::hex << intindex << std::dec;
 #endif
     return intindex;
   } else {
@@ -121,9 +120,9 @@ uint32_t EcalEndcapNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) 
     }
 
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EdalGeom") << "ECalEndcapNumberingScheme::getUnitID(): " << std::dec << ix << ", " << iy << ", " << iq << ", " << id << ", " << iz << ", " << std::hex << idet << std::dec;
-    edm::LogVerbatim("EdalGeom") << "ECalEndcapNumberingScheme::EEDetId: "
-				 << EEDetId(idet)              ;
+    edm::LogVerbatim("EdalGeom") << "ECalEndcapNumberingScheme::getUnitID(): " << std::dec << ix << ", " << iy << ", "
+                                 << iq << ", " << id << ", " << iz << ", " << std::hex << idet << std::dec;
+    edm::LogVerbatim("EdalGeom") << "ECalEndcapNumberingScheme::EEDetId: " << EEDetId(idet);
 #endif
     return idet;
   }
