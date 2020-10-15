@@ -16,6 +16,8 @@ process.GlobalTag.globaltag = ''
 
 process.load("CondCore.CondDB.CondDB_cfi")
 
+process.load("CalibMuon.DTCalibration.dtVDriftSegmentWriter_cfi")
+
 process.source = cms.Source("EmptySource",
     numberEventsInRun = cms.untracked.uint32(1),
     firstRun = cms.untracked.uint32(1)
@@ -28,6 +30,10 @@ process.maxEvents = cms.untracked.PSet(
 RECORD = 'DTMtimeRcd'
 if NEWDBFORMAT :
     RECORD = 'DTRecoConditionsVdriftRcd'
+    process.dtVDriftSegmentWriter.writeLegacyVDriftDB = False
+    # The following needs to be set as well if calibration should start use
+    # constants written in the new format as a starting point.
+    # process.dtVDriftSegmentWriter.vDriftAlgoConfig.readLegacyVDriftDB = False
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDB,
@@ -38,7 +44,5 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     ))
 )
 process.PoolDBOutputService.connect = cms.string('sqlite_file:vDrift.db')
-
-process.load("CalibMuon.DTCalibration.dtVDriftSegmentWriter_cfi")
 
 process.p = cms.Path(process.dtVDriftSegmentWriter)
