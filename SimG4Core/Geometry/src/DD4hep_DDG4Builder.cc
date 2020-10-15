@@ -40,9 +40,10 @@ G4VPhysicalVolume *DDG4Builder::BuildGeometry(SensitiveDetectorCatalog &catalog)
   dd4hep::SpecParRefs specs;
   specPars.filter(specs, "SensitiveDetector");
   for (auto const &it : map_) {
+    bool isRegex = dd4hep::dd::isRegex(it.first.name());
     for (auto const &fit : specs) {
       for (auto const &pit : fit->paths) {
-        if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first.name()), dd4hep::dd::realTopName(pit))) {
+        if (dd4hep::dd::compareEqualName(dd4hep::dd::noNamespace(it.first.name()), dd4hep::dd::realTopName(pit))) {
           dd4hepVec.emplace_back(&*it.second, &*fit);
         }
       }
