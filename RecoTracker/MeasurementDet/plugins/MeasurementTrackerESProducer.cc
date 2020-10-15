@@ -17,7 +17,6 @@
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 
 #include "RecoLocalTracker/Records/interface/TrackerCPERecord.h"
-//#include "RecoLocalTracker/Records/interface/TkPhase2OTCPERecord.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 

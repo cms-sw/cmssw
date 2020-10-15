@@ -47,8 +47,8 @@ void VectorHitBuilderAlgorithm::run(edm::Handle<edmNew::DetSetVector<Phase2Track
 
 bool VectorHitBuilderAlgorithm::checkClustersCompatibilityBeforeBuilding(
     edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D>> clusters,
-    const detset& theLowerDetSet,
-    const detset& theUpperDetSet) const {
+    const Detset& theLowerDetSet,
+    const Detset& theUpperDetSet) const {
   if (theLowerDetSet.size() == 1 && theUpperDetSet.size() == 1)
     return true;
 
@@ -80,8 +80,8 @@ void VectorHitBuilderAlgorithm::buildVectorHits(VectorHitCollection& vhAcc,
                                                 DetId detIdStack,
                                                 const StackGeomDet* stack,
                                                 edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D>> clusters,
-                                                const detset& theLowerDetSet,
-                                                const detset& theUpperDetSet,
+                                                const Detset& theLowerDetSet,
+                                                const Detset& theUpperDetSet,
                                                 const std::vector<bool>& phase2OTClustersToSkip) const {
   if (checkClustersCompatibilityBeforeBuilding(clusters, theLowerDetSet, theUpperDetSet)) {
     LogDebug("VectorHitBuilderAlgorithm") << "  compatible -> continue ... " << std::endl;

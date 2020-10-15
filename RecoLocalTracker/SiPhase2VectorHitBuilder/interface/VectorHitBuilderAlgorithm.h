@@ -31,8 +31,8 @@ public:
 
   //not implemented yet
   bool checkClustersCompatibilityBeforeBuilding(edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D>> clusters,
-                                                const detset& theLowerDetSet,
-                                                const detset& theUpperDetSet) const;
+                                                const Detset& theLowerDetSet,
+                                                const Detset& theUpperDetSet) const;
   bool checkClustersCompatibility(Local3DPoint& posinner,
                                   Local3DPoint& posouter,
                                   LocalError& errinner,
@@ -52,8 +52,8 @@ public:
                        DetId detIdStack,
                        const StackGeomDet* stack,
                        edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D>> clusters,
-                       const detset& DSVinner,
-                       const detset& DSVouter,
+                       const Detset& DSVinner,
+                       const Detset& DSVouter,
                        const std::vector<bool>& phase2OTClustersToSkip = std::vector<bool>()) const override;
 
   VectorHit buildVectorHit(const StackGeomDet* stack,

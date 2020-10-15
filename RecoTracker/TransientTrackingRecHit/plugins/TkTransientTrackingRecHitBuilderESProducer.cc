@@ -5,7 +5,6 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "RecoLocalTracker/Records/interface/TrackerCPERecord.h"
-//#include "RecoLocalTracker/Records/interface/TkPhase2OTCPERecord.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
