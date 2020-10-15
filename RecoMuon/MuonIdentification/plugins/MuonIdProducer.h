@@ -205,9 +205,9 @@ private:
 
   // matching
   double maxAbsDx_;
-  double maxAbsPullX_;
+  double maxAbsPullX2_;
   double maxAbsDy_;
-  double maxAbsPullY_;
+  double maxAbsPullY2_;
 
   // what information to fill
   bool fillCaloCompatibility_;
