@@ -322,7 +322,9 @@ std::vector<DigitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::drift(
         const float pixel_x = current_pixel_int.first + (mc.x() + center_proxy_cell.x()) / pitch.first;
         const float pixel_y = current_pixel_int.second + (mc.y() + center_proxy_cell.y()) / pitch.second;
         const auto lp = pixdet->specificTopology().localPosition(MeasurementPoint(pixel_x, pixel_y));
-        mc.migrate_position(LocalPoint(lp.x(), lp.y(), mc.z()));
+	//Remember: the drift function will move the reference system to the bottom. We need to add what we previously subtract
+	//in order to avoid a double translation when calling the drift function once again below
+	mc.migrate_position(LocalPoint(lp.x(), lp.y(), mc.z() + center_proxy_cell.z()));
       }
       if (!migrated_charges.empty()) {
         LogDebug("Pixel3DDigitizerAlgorithm::drift") << "****************"
