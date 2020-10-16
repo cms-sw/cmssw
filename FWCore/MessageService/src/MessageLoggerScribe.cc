@@ -237,7 +237,6 @@ namespace edm {
     }  // MessageLoggerScribe::configure_errorlog()
 
     void MessageLoggerScribe::configure_dest(std::shared_ptr<ELdestination> dest_ctrl, String const& filename) {
-
       static const int NO_VALUE_SET = -45654;
       vString empty_vString;
       PSet empty_PSet;
