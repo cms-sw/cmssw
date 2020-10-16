@@ -22,6 +22,8 @@ namespace edm {
     MessageSender(ELseverityLevel const& sev, std::string_view id, bool verbatim = false, bool suppressed = false);
     MessageSender(MessageSender&&) = default;
     MessageSender(MessageSender const&) = default;
+    MessageSender& operator=(MessageSender&&) = default;
+    MessageSender& operator=(MessageSender const&) = default;
     ~MessageSender();
 
     // ---  stream out the next part of a message:
