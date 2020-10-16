@@ -1,10 +1,9 @@
 <use name="Geometry/ForwardGeometry"/>
 <use name="Geometry/Records"/>
+<use name="Geometry/CaloEventSetup"/>
 <use name="Geometry/CaloGeometry"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
-<use name="CondFormats/Alignment"/>
-<use name="zlib"/>
 <library file="*.cc" name="GeometryForwardGeometryPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
