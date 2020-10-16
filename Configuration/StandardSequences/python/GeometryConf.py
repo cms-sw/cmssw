@@ -33,7 +33,6 @@ GeometryConf={
     'HCal'        : 'Configuration.Geometry.GeometrySimHCAL_cff,Configuration.Geometry.GeometryRecoHCAL_cff',
     'Extended2026D49' : 'Extended2026D49,Extended2026D49Reco',
     'Extended2026D50' : 'Extended2026D50,Extended2026D50Reco',
-    'Extended2026D53' : 'Extended2026D53,Extended2026D53Reco',
     'Extended2026D60' : 'Extended2026D60,Extended2026D60Reco',
     'Extended2026D64' : 'Extended2026D64,Extended2026D64Reco',
     'Extended2026D65' : 'Extended2026D65,Extended2026D65Reco',
@@ -43,4 +42,6 @@ GeometryConf={
     'Extended2026D69' : 'Extended2026D69,Extended2026D69Reco',
     'Extended2026D70' : 'Extended2026D70,Extended2026D70Reco',
     'Extended2026D71' : 'Extended2026D71,Extended2026D71Reco',
+    'Extended2026D72' : 'Extended2026D72,Extended2026D72Reco',
+    'Extended2026D73' : 'Extended2026D73,Extended2026D73Reco',
     }
