@@ -19,8 +19,8 @@ SiStripProcessedRawDigiProducer::SiStripProcessedRawDigiProducer(edm::ParameterS
       inputTokensRawDigi_(edm::vector_transform(
           inputTags_, [this](edm::InputTag const& tag) { return consumes<edm::DetSetVector<SiStripRawDigi> >(tag); })),
       gainToken_(esConsumes()),
-      subtractorPed_(SiStripRawProcessingFactory::create_SubtractorPed(conf)),
-      subtractorCMN_(SiStripRawProcessingFactory::create_SubtractorCMN(conf)) {
+      subtractorPed_(SiStripRawProcessingFactory::create_SubtractorPed(conf, consumesCollector())),
+      subtractorCMN_(SiStripRawProcessingFactory::create_SubtractorCMN(conf, consumesCollector())) {
   produces<edm::DetSetVector<SiStripProcessedRawDigi> >("");
 }
 
