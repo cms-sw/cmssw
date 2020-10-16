@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Phase2C8_dd4hep_cff import Phase2C8_dd4hep
+from Configuration.Eras.Era_Run3_dd4hep_cff import Run3_dd4hep
 
-process = cms.Process('SIM',Phase2C8_dd4hep)
+process = cms.Process('SIM',Run3_dd4hep)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -10,7 +10,7 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryDD4hepExtended2026D41_cff')
+process.load('Configuration.Geometry.GeometryDD4hepExtended2021_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedHLLHC14TeV_cfi')
@@ -81,7 +81,7 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
 # Other statements
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T14', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
 
 process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     PythiaParameters = cms.PSet(
