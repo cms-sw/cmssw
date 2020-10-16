@@ -107,7 +107,7 @@ SiPixelQualityHistory::SiPixelQualityHistory(const edm::ParameterSet& iConfig)
 
   for (const auto& ps : m_monitoredspq) {
     m_spqTokens.emplace_back(
-        esConsumes<edm::Transition::BeginRun>(edm::ESInputTag(ps.getParameter<std::string>("spqLabel"))));
+        esConsumes<edm::Transition::BeginRun>(edm::ESInputTag{"", ps.getParameter<std::string>("spqLabel")}));
 
     std::string name = ps.getParameter<std::string>("name");
 

@@ -128,9 +128,9 @@ OccupancyPlots::OccupancyPlots(const edm::ParameterSet& iConfig)
           [this](edm::InputTag const& tag) { return consumes<std::map<unsigned int, int> >(tag); })),
       m_fp(iConfig.getUntrackedParameter<edm::FileInPath>(
           "file", edm::FileInPath("CalibTracker/SiPixelESProducers/data/PixelSkimmedGeometry.txt"))),
-      m_tkGeomToken(esConsumes<edm::Transition::EndRun>(edm::ESInputTag(""))),
-      m_stripQualityToken(esConsumes<edm::Transition::EndRun>(edm::ESInputTag(""))),
-      m_pixelQualityToken(esConsumes<edm::Transition::EndRun>(edm::ESInputTag(""))),
+      m_tkGeomToken(esConsumes<edm::Transition::EndRun>()),
+      m_stripQualityToken(esConsumes<edm::Transition::EndRun>()),
+      m_pixelQualityToken(esConsumes<edm::Transition::EndRun>()),
       m_rhm(consumesCollector()),
       m_wantedsubdets() {
   //now do what ever initialization is needed

@@ -11,7 +11,7 @@ using namespace cms;
 SiStripLorentzAngleReader::SiStripLorentzAngleReader(const edm::ParameterSet& iConfig)
     : printdebug_(iConfig.getUntrackedParameter<uint32_t>("printDebug", 5)),
       label_(iConfig.getUntrackedParameter<std::string>("label", "")),
-      laToken_(esConsumes(edm::ESInputTag(label_))) {}
+      laToken_(esConsumes(edm::ESInputTag{"", label_})) {}
 SiStripLorentzAngleReader::~SiStripLorentzAngleReader() {}
 
 void SiStripLorentzAngleReader::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {

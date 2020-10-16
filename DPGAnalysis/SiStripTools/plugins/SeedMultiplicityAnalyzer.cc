@@ -129,7 +129,7 @@ private:
 // constructors and destructor
 //
 SeedMultiplicityAnalyzer::SeedMultiplicityAnalyzer(const edm::ParameterSet& iConfig)
-    : _magFieldToken(esConsumes(edm::ESInputTag(iConfig.getParameter<std::string>("TTRHBuilder")))),
+    : _magFieldToken(esConsumes(edm::ESInputTag{"", iConfig.getParameter<std::string>("TTRHBuilder")})),
       _TTRHBuilderToken(esConsumes()),
       _seedcollTokens(),
       _seedbins(),

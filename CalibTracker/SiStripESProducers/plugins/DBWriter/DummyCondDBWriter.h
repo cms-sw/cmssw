@@ -34,7 +34,7 @@ template <typename TObject, typename TObjectO, typename TRecord>
 DummyCondDBWriter<TObject, TObjectO, TRecord>::DummyCondDBWriter(const edm::ParameterSet& iConfig)
     : iConfig_(iConfig),
       token_(esConsumes<edm::Transition::EndRun>(
-          edm::ESInputTag(iConfig.getUntrackedParameter<std::string>("label", "")))) {
+          edm::ESInputTag{"", iConfig.getUntrackedParameter<std::string>("label", "")})) {
   edm::LogInfo("DummyCondDBWriter") << "DummyCondDBWriter constructor for typename " << typeid(TObject).name()
                                     << " and record " << typeid(TRecord).name() << std::endl;
 }
