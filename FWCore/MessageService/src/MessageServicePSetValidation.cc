@@ -235,7 +235,7 @@ namespace edm {
       if (checkThreshold(thresh))
         return true;
       flaws << psetName << " PSet: \n"
-            << "threshold has value " << thresh << " which is not among {DEBUG, INFO, WARNING, ERROR}\n";
+            << "threshold has value " << thresh << " which is not among {DEBUG, INFO, FWKINFO, WARNING, ERROR}\n";
       return false;
     }  // validateThreshold
 
@@ -243,6 +243,8 @@ namespace edm {
       if (thresh == "WARNING")
         return true;
       if (thresh == "INFO")
+        return true;
+      if (thresh == "FWKINFO")
         return true;
       if (thresh == "ERROR")
         return true;
