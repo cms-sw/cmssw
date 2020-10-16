@@ -12,7 +12,6 @@ class DDFilteredView;
 class MuonOffsetMap;
 
 class MuonOffsetFromDD {
-
 public:
   MuonOffsetFromDD() = default;
   virtual ~MuonOffsetFromDD() {}

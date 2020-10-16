@@ -21,7 +21,7 @@ class MuonGeometryConstants;
 
 class MuonRPCFrameRotation : public MuonFrameRotation {
 public:
-  MuonRPCFrameRotation(const MuonGeometryConstants& constants,  const MuonOffsetMap* offMap, bool dd4hep);
+  MuonRPCFrameRotation(const MuonGeometryConstants& constants, const MuonOffsetMap* offMap, bool dd4hep);
   ~MuonRPCFrameRotation() override;
   Local3DPoint transformPoint(const Local3DPoint&, const G4Step*) const override;
 
