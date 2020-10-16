@@ -61,6 +61,12 @@ namespace ecaldqm {
 
     towerReadouts_.clear();
 
+    if (ByLumiResetSwitch) {
+      MEs_.at("EtSummaryByLumi").reset();
+      MEs_.at("TTFlags4ByLumi").reset();
+      MEs_.at("LHCStatusByLumi").reset(-1);
+    }
+
     if (!lhcStatusSet) {
       // Update LHC status once each LS
       MESet& meLHCStatusByLumi(static_cast<MESet&>(MEs_.at("LHCStatusByLumi")));
@@ -70,12 +76,6 @@ namespace ecaldqm {
         meLHCStatusByLumi.fill(double(tcdsData->getBST().getBeamMode()));
         lhcStatusSet = true;
       }
-    }
-
-    if (ByLumiResetSwitch) {
-      MEs_.at("EtSummaryByLumi").reset();
-      MEs_.at("TTFlags4ByLumi").reset();
-      MEs_.at("LHCStatusByLumi").reset(-1);
     }
 
     realTps_ = nullptr;
