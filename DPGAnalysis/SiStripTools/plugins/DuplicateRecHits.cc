@@ -94,8 +94,8 @@ private:
 //
 DuplicateRecHits::DuplicateRecHits(const edm::ParameterSet& iConfig)
     : m_trkcollToken(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("trackCollection"))),
-      m_builderToken(
-          esConsumes<edm::Transition::BeginRun>(edm::ESInputTag(iConfig.getParameter<std::string>("TTRHBuilder")))) {
+      m_builderToken(esConsumes<edm::Transition::BeginRun>(
+          edm::ESInputTag{"", iConfig.getParameter<std::string>("TTRHBuilder")})) {
   //now do what ever initialization is needed
 
   // histogram parameters

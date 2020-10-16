@@ -88,7 +88,7 @@ LargeEvents<T>::LargeEvents(const edm::ParameterSet& iConfig)
       _absthr(iConfig.getUntrackedParameter<int>("absoluteThreshold")),
       _modthr(iConfig.getUntrackedParameter<int>("moduleThreshold")),
       _useQuality(iConfig.getUntrackedParameter<bool>("useQuality", false)),
-      _qualityToken(esConsumes(edm::ESInputTag(iConfig.getUntrackedParameter<std::string>("qualityLabel", "")))) {
+      _qualityToken(esConsumes(edm::ESInputTag{"", iConfig.getUntrackedParameter<std::string>("qualityLabel", "")})) {
   //now do what ever initialization is needed
 }
 

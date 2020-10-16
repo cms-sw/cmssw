@@ -12,7 +12,7 @@ std::unique_ptr<StripClusterizerAlgorithm> StripClusterizerAlgorithmFactory::cre
   if (algorithm == "ThreeThresholdAlgorithm") {
     return std::unique_ptr<StripClusterizerAlgorithm>(
         new ThreeThresholdAlgorithm(iC.esConsumes<SiStripClusterizerConditions, SiStripClusterizerConditionsRcd>(
-                                        edm::ESInputTag(conf.getParameter<std::string>("ConditionsLabel"))),
+                                        edm::ESInputTag{"", conf.getParameter<std::string>("ConditionsLabel")}),
                                     conf.getParameter<double>("ChannelThreshold"),
                                     conf.getParameter<double>("SeedThreshold"),
                                     conf.getParameter<double>("ClusterThreshold"),

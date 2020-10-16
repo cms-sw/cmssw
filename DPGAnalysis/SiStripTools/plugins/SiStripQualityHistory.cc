@@ -106,7 +106,7 @@ SiStripQualityHistory::SiStripQualityHistory(const edm::ParameterSet& iConfig)
 
   for (const auto& ps : _monitoredssq) {
     _ssqTokens.emplace_back(
-        esConsumes<edm::Transition::BeginRun>(edm::ESInputTag(ps.getParameter<std::string>("ssqLabel"))));
+        esConsumes<edm::Transition::BeginRun>(edm::ESInputTag{"", ps.getParameter<std::string>("ssqLabel")}));
     std::string name = ps.getParameter<std::string>("name");
     //    _history[name] = tfserv->make<TGraph>();
     //    _history[name]->SetName(name.c_str());     _history[name]->SetTitle(name.c_str());
