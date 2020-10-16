@@ -54,8 +54,8 @@ MTDSectorForwardLayer::MTDSectorForwardLayer(const vector<const MTDDetSector*>& 
 }
 
 MTDSectorForwardLayer::~MTDSectorForwardLayer() {
-  for (vector<const MTDDetSector*>::iterator i = theSectors.begin(); i < theSectors.end(); i++) {
-    delete *i;
+  for (auto& i : theSectors) {
+    delete i;
   }
 }
 

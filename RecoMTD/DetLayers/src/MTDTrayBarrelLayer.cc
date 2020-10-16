@@ -33,8 +33,8 @@ MTDTrayBarrelLayer::MTDTrayBarrelLayer(vector<const DetRod*>& rods)
   std::copy(theRods.begin(), theRods.end(), back_inserter(theComponents));
 
   // Cache chamber pointers (the basic components_)
-  for (vector<const DetRod*>::const_iterator it = rods.begin(); it != rods.end(); it++) {
-    vector<const GeomDet*> tmp2 = (*it)->basicComponents();
+  for (const auto& it : rods) {
+    vector<const GeomDet*> tmp2 = it->basicComponents();
     theBasicComps.insert(theBasicComps.end(), tmp2.begin(), tmp2.end());
   }
 
@@ -59,8 +59,8 @@ MTDTrayBarrelLayer::MTDTrayBarrelLayer(vector<const DetRod*>& rods)
 
 MTDTrayBarrelLayer::~MTDTrayBarrelLayer() {
   delete theBinFinder;
-  for (vector<const DetRod*>::iterator i = theRods.begin(); i < theRods.end(); i++) {
-    delete *i;
+  for (auto& i : theRods) {
+    delete i;
   }
 }
 

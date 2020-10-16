@@ -90,7 +90,7 @@ vector<GeometricSearchDet::DetWithState> MTDDetSector::compatibleDets(const Traj
 
   for (size_t idet = 0; idet < basicComponents().size(); idet++) {
     double dist2 = (startPos - theDets[idet]->position()).mag2();
-    tmpDets.emplace_back(make_pair(dist2, idet));
+    tmpDets.emplace_back(dist2, idet);
     if (dist2 < dist2Min) {
       dist2Min = dist2;
       idetMin = idet;
@@ -107,11 +107,11 @@ vector<GeometricSearchDet::DetWithState> MTDDetSector::compatibleDets(const Traj
   constexpr size_t detsRange(50);
   size_t iniPos(idetMin > detsRange ? idetMin - detsRange : static_cast<size_t>(0));
   size_t endPos(std::min(idetMin + detsRange, basicComponents().size() - 1));
-  std::vector<std::pair<double, size_t> > tmpDets2;
-  std::copy(tmpDets.begin() + iniPos, tmpDets.begin() + endPos, std::back_inserter(tmpDets2));
-  std::sort(tmpDets2.begin(), tmpDets2.end());
+  tmpDets.erase(tmpDets.begin() + endPos, tmpDets.end());
+  tmpDets.erase(tmpDets.begin(), tmpDets.begin() + iniPos);
+  std::sort(tmpDets.begin(), tmpDets.end());
 
-  for (const auto& thisDet : tmpDets2) {
+  for (const auto& thisDet : tmpDets) {
     if (add(thisDet.second, result, tsos, prop, est)) {
       LogTrace("MTDDetLayers") << "MTDDetSector::compatibleDets found compatible det " << thisDet.second
                                << " detId = " << theDets[thisDet.second]->geographicalId().rawId() << " at "
