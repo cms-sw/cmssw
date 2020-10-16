@@ -171,7 +171,8 @@ public:
       : onDemand(conf.getParameter<bool>("onDemand")),
         clusterizer_(StripClusterizerAlgorithmFactory::create(consumesCollector(),
                                                               conf.getParameter<edm::ParameterSet>("Clusterizer"))),
-        rawAlgos_(SiStripRawProcessingFactory::create(conf.getParameter<edm::ParameterSet>("Algorithms"))),
+        rawAlgos_(SiStripRawProcessingFactory::create(conf.getParameter<edm::ParameterSet>("Algorithms"),
+                                                      consumesCollector())),
         doAPVEmulatorCheck_(conf.existsAs<bool>("DoAPVEmulatorCheck") ? conf.getParameter<bool>("DoAPVEmulatorCheck")
                                                                       : true),
         legacy_(conf.existsAs<bool>("LegacyUnpacker") ? conf.getParameter<bool>("LegacyUnpacker") : false),
