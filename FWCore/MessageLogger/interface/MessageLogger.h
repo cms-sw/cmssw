@@ -74,6 +74,7 @@ namespace edm {
     Log(ThisLog&&) = default;
     Log(ThisLog const&) = delete;
     Log& operator=(ThisLog const&) = delete;
+    Log& operator=(ThisLog&&) = default;
     ~Log() = default;
 
     template <class T>
