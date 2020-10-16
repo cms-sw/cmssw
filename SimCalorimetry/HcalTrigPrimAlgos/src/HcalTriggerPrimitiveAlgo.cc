@@ -28,8 +28,8 @@ HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo(bool pf,
                                                    uint32_t ZS_threshold,
                                                    int numberOfSamples,
                                                    int numberOfPresamples,
-                                                   int numberOfPresamplesHBQIE11,
-                                                   int numberOfPresamplesHEQIE11,
+                                                   int numberOfFilterPresamplesHBQIE11,
+                                                   int numberOfFilterPresamplesHEQIE11,
                                                    int numberOfSamplesHF,
                                                    int numberOfPresamplesHF,
                                                    bool useTDCInMinBiasBits,
@@ -46,8 +46,8 @@ HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo(bool pf,
       ZS_threshold_(ZS_threshold),
       numberOfSamples_(numberOfSamples),
       numberOfPresamples_(numberOfPresamples),
-      numberOfPresamplesHBQIE11_(numberOfPresamplesHBQIE11),
-      numberOfPresamplesHEQIE11_(numberOfPresamplesHEQIE11),
+      numberOfFilterPresamplesHBQIE11_(numberOfFilterPresamplesHBQIE11),
+      numberOfFilterPresamplesHEQIE11_(numberOfFilterPresamplesHEQIE11),
       numberOfSamplesHF_(numberOfSamplesHF),
       numberOfPresamplesHF_(numberOfPresamplesHF),
       useTDCInMinBiasBits_(useTDCInMinBiasBits),
@@ -378,14 +378,19 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
   // Get the |ieta| for current sample
   unsigned int theIeta = detId.ietaAbs();
 
+  unsigned int dgSamples = samples.size();
   unsigned int dgPresamples = samples.presamples();
-  unsigned int tpSamples = weightsQIE11_[theIeta].size();
-  unsigned int tpPresamples = (theIeta <= HBHE_OVERLAP_TOWER) ? numberOfPresamplesHBQIE11_ : numberOfPresamplesHEQIE11_;
+
+  unsigned int tpSamples = numberOfSamples_;
+  unsigned int tpPresamples = numberOfPresamples_;
+
+  unsigned int filterSamples = weightsQIE11_[theIeta].size();
 
   unsigned int shift = dgPresamples - tpPresamples;
-  unsigned int dgSamples = samples.size();
 
-  unsigned int shrink = tpSamples - 1;
+  // shrink keeps the FIR filter from going off the end of the 8TS vector
+  unsigned int shrink = filterSamples - 1;
+
   auto& msb = fgUpgradeMap_[samples.id()];
   IntegerCaloSamples sum(samples.id(), samples.size());
 
@@ -393,7 +398,7 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
   //slide algo window
   for (unsigned int ibin = 0; ibin < dgSamples - shrink; ++ibin) {
     int algosumvalue = 0;
-    for (unsigned int i = 0; i < tpSamples; i++) {
+    for (unsigned int i = 0; i < filterSamples; i++) {
       //add up value * scale factor
       // In addition, divide by two in the 10 degree phi segmentation region
       // to mimic 5 degree segmentation for the trigger
@@ -429,7 +434,7 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
     // ibin - index for output TP
     // idx - index for samples + shift - tpPresamples
     // Subtract tpPresamples one more time to get SOI in the right position
-    int idx = ibin + shift - tpPresamples;
+    int idx = ibin + shift;
 
     // When idx is <= 0 peakfind would compare out-of-bounds of the vector. Avoid this ambiguity
     if (idx <= 0) {
