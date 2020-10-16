@@ -151,7 +151,7 @@ unsigned int Muon::stationMask(ArbitrationType type) const {
 
       //    for (auto& rpcMatch : chamberMatch.rpcMatches) { // TO BE FIXED: there is clearly something odd here
       // Replaced by something which restores the previous functionality, but one should verify which were the
-      // Original intentions of the author and provide a more appropriate fix (and remove these comment lines)
+      // original intentions of the author and provide a more appropriate fix (and remove these comment lines)
       if (!chamberMatch.rpcMatches.empty()) {
         curMask = 1 << ((chamberMatch.station() - 1) + 4 * (rpcIndex - 1));
 
@@ -227,19 +227,20 @@ unsigned int Muon::RPClayerMask(ArbitrationType type) const {
 
     RPCDetId rollId = chamberMatch.id.rawId();
     const int region = rollId.region();
+    const int stationIndex = chamberMatch.station();
 
-    int rpcLayer = chamberMatch.station();
+    int rpcLayer = stationIndex;
     if (region == 0) {
       const int layer = rollId.layer();
-      rpcLayer = chamberMatch.station() - 1 + chamberMatch.station() * layer;
-      if ((chamberMatch.station() == 2 && layer == 2) || (chamberMatch.station() == 4 && layer == 1))
+      rpcLayer = stationIndex - 1 + stationIndex * layer;
+      if ((stationIndex == 2 && layer == 2) || (stationIndex == 4 && layer == 1))
         rpcLayer -= 1;
     } else
       rpcLayer += 6;
 
     //    for (auto& rpcMatch : chamberMatch.rpcMatches) { // TO BE FIXED: there is clearly something odd here
     // Replaced by something which restores the previous functionality, but one should verify which were the
-    // Original intentions of the author and provide a more appropriate fix (and remove these comment lines)
+    // original intentions of the author and provide a more appropriate fix (and remove these comment lines)
     if (!chamberMatch.rpcMatches.empty()) {
       curMask = 1 << (rpcLayer - 1);
 
@@ -257,11 +258,11 @@ unsigned int Muon::stationGapMaskDistance(float distanceCut) const {
   distanceCut = std::abs(distanceCut);
   for (auto& chamberMatch : muMatches_) {
     unsigned int curMask(0);
-    int stationIndex = chamberMatch.station();
-    if (stationIndex < 1 || stationIndex >= 5)
-      continue;
-    int detectorIndex = chamberMatch.detector();
+    const int detectorIndex = chamberMatch.detector();
     if (detectorIndex < 1 || detectorIndex >= 4)
+      continue;
+    const int stationIndex = chamberMatch.station();
+    if (stationIndex < 1 || stationIndex >= 5)
       continue;
 
     float edgeX = chamberMatch.edgeX;
@@ -284,11 +285,11 @@ unsigned int Muon::stationGapMaskPull(float sigmaCut) const {
   unsigned int totMask(0);
   for (auto& chamberMatch : muMatches_) {
     unsigned int curMask(0);
-    int stationIndex = chamberMatch.station();
-    if (stationIndex < 1 || stationIndex >= 5)
-      continue;
-    int detectorIndex = chamberMatch.detector();
+    const int detectorIndex = chamberMatch.detector();
     if (detectorIndex < 1 || detectorIndex >= 4)
+      continue;
+    const int stationIndex = chamberMatch.station();
+    if (stationIndex < 1 || stationIndex >= 5)
       continue;
 
     float edgeX = chamberMatch.edgeX;
@@ -376,7 +377,7 @@ int Muon::numberOfSegments(int station, int muonSubdetId, ArbitrationType type) 
   for (auto& chamberMatch : muMatches_) {
     if (chamberMatch.segmentMatches.empty())
       continue;
-    if (!(chamberMatch.station() == station && chamberMatch.detector() == muonSubdetId))
+    if (chamberMatch.detector() != muonSubdetId || chamberMatch.station() != station)
       continue;
 
     if (type == NoArbitration) {
@@ -414,7 +415,7 @@ const std::vector<const MuonChamberMatch*> Muon::chambers(int station, int muonS
   for (std::vector<MuonChamberMatch>::const_iterator chamberMatch = muMatches_.begin();
        chamberMatch != muMatches_.end();
        chamberMatch++)
-    if (chamberMatch->station() == station && chamberMatch->detector() == muonSubdetId)
+    if (chamberMatch->detector() == muonSubdetId && chamberMatch->station() == station)
       chambers.push_back(&(*chamberMatch));
   return chambers;
 }
