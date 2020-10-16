@@ -21,10 +21,11 @@
 class G4Step;
 class MuonBaseNumber;
 class MuonGeometryConstants;
+class MuonOffsetMap;
 
 class MuonG4Numbering {
 public:
-  MuonG4Numbering(const MuonGeometryConstants& muonConstants);
+  MuonG4Numbering(const MuonGeometryConstants& muonConstants, const MuonOffsetMap* offMap, bool dd4hep);
   ~MuonG4Numbering(){};
 
   MuonBaseNumber PhysicalVolumeToBaseNumber(const G4Step* aStep);
@@ -35,6 +36,8 @@ private:
   const int getCopyNoBaseNo(const int);
   const bool copyNoRelevant(const int);
 
+  const MuonOffsetMap* offMap_;
+  const bool dd4hep_;
   int theLevelPart;
   int theSuperPart;
   int theBasePart;
