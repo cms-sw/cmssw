@@ -6,7 +6,6 @@
 #include "DataFormats/Common/interface/traits.h"
 
 #include <boost/iterator/transform_iterator.hpp>
-#include <boost/any.hpp>
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
@@ -86,7 +85,7 @@ namespace edmNew {
         return *this;
       }
       mutable std::atomic<bool> m_filling;
-      boost::any m_getter;
+      std::shared_ptr<void> m_getter;
       mutable std::atomic<size_type> m_dataSize;
 
       void swap(DetSetVectorTrans& rh) {
@@ -413,7 +412,7 @@ namespace edmNew {
     DetSetVector(DetSetVector&&) = default;
     DetSetVector& operator=(DetSetVector&&) = default;
 
-    bool onDemand() const { return !m_getter.empty(); }
+    bool onDemand() const { return static_cast<bool>(m_getter); }
 
     void swap(DetSetVector& rh) {
       DetSetVectorTrans::swap(rh);
@@ -620,7 +619,7 @@ namespace edmNew {
   template <typename T>
   inline void DetSetVector<T>::update(const Item& item) const {
     // no m_getter or already updated
-    if (m_getter.empty()) {
+    if (!m_getter) {
       assert(item.isValid());
       return;
     }
@@ -628,7 +627,7 @@ namespace edmNew {
       assert(item.initializing());
       {
         TSFastFiller ff(*this, item);
-        (*boost::any_cast<std::shared_ptr<Getter>>(&m_getter))->fill(ff);
+        static_cast<Getter*>(m_getter.get())->fill(ff);
       }
       assert(item.isValid());
     }
