@@ -53,7 +53,7 @@ void HiSignalParticleProducer::fillDescriptions(edm::ConfigurationDescriptions& 
   edm::ParameterSetDescription desc;
   desc.setComment("Selects genParticles from collision id = 0");
   desc.add<edm::InputTag>("src", edm::InputTag("genParticles"));
-  descriptions.add("HiSignalParticleProducer", desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_MODULE(HiSignalParticleProducer);

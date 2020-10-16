@@ -56,7 +56,7 @@ void HiSignalGenJetProducer::fillDescriptions(edm::ConfigurationDescriptions& de
   edm::ParameterSetDescription desc;
   desc.setComment("Selects genJets from collision id = 0");
   desc.add<edm::InputTag>("src", edm::InputTag("akHiGenJets"));
-  descriptions.add("HiSignalGenJetProducer", desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_MODULE(HiSignalGenJetProducer);
