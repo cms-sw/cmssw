@@ -381,11 +381,11 @@ void EtlSimHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
       "EtlHitYZposD1", "ETL SIM hits Y (+Z, Single(topo1D)/First(topo2D) disk);Y_{SIM} [cm]", 100, -130., 130.);
   meHitY_[3] = ibook.book1D("EtlHitYZposD2", "ETL SIM hits Y (+Z, Second disk);Y_{SIM} [cm]", 100, -130., 130.);
   meHitZ_[0] = ibook.book1D(
-      "EtlHitZZnegD1", "ETL SIM hits Z (-Z, Single(topo1D)/First(topo2D) disk);Z_{SIM} [cm]", 100, -305, -301);
-  meHitZ_[1] = ibook.book1D("EtlHitZZnegD2", "ETL SIM hits Z (-Z, Second disk);Z_{SIM} [cm]", 100, -305, -301);
+      "EtlHitZZnegD1", "ETL SIM hits Z (-Z, Single(topo1D)/First(topo2D) disk);Z_{SIM} [cm]", 100, -304.2, -303.4);
+  meHitZ_[1] = ibook.book1D("EtlHitZZnegD2", "ETL SIM hits Z (-Z, Second disk);Z_{SIM} [cm]", 100, -304.2, -303.4);
   meHitZ_[2] = ibook.book1D(
-      "EtlHitZZposD1", "ETL SIM hits Z (+Z, Single(topo1D)/First(topo2D) disk);Z_{SIM} [cm]", 100, 301, 305);
-  meHitZ_[3] = ibook.book1D("EtlHitZZposD2", "ETL SIM hits Z (+Z, Second disk);Z_{SIM} [cm]", 100, 301, 305);
+      "EtlHitZZposD1", "ETL SIM hits Z (+Z, Single(topo1D)/First(topo2D) disk);Z_{SIM} [cm]", 100, 303.4, 304.2);
+  meHitZ_[3] = ibook.book1D("EtlHitZZposD2", "ETL SIM hits Z (+Z, Second disk);Z_{SIM} [cm]", 100, 303.4, 304.2);
 
   meHitPhi_[0] = ibook.book1D(
       "EtlHitPhiZnegD1", "ETL SIM hits #phi (-Z, Single(topo1D)/First(topo2D) disk);#phi_{SIM} [rad]", 100, -3.15, 3.15);
