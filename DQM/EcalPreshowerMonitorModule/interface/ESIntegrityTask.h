@@ -31,7 +31,8 @@ protected:
   void dqmEndRun(const edm::Run& r, const edm::EventSetup& c) override;
 
   /// Begin Lumi
-  std::shared_ptr<ESLSCache> globalBeginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& c) const override;
+  std::shared_ptr<ESLSCache> globalBeginLuminosityBlock(const edm::LuminosityBlock& lumi,
+                                                        const edm::EventSetup& c) const override;
 
   /// End Lumi
   void globalEndLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& c) override;

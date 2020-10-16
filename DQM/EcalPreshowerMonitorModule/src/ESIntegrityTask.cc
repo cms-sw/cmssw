@@ -67,7 +67,8 @@ void ESIntegrityTask::dqmEndRun(const Run& r, const EventSetup& c) {
   // TODO: no longer possible, clone histo beforehand if full statisticcs at end of run are required.
 }
 
-std::shared_ptr<ESLSCache> ESIntegrityTask::globalBeginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& c) const {
+std::shared_ptr<ESLSCache> ESIntegrityTask::globalBeginLuminosityBlock(const edm::LuminosityBlock& lumi,
+                                                                       const edm::EventSetup& c) const {
   LogInfo("ESIntegrityTask") << "analyzed " << ievt_ << " events";
   // In case of Lumi based analysis SoftReset the Integrity histogram
   auto lumiCache = std::make_shared<ESLSCache>();
@@ -343,7 +344,8 @@ void ESIntegrityTask::calculateDIFraction(const edm::LuminosityBlock& lumi, cons
           nValidChannelsES++;
         }
       }
-      if (nValidChannelsES != 0) reportSummaryES = 1 - nGlobalErrorsES / nValidChannelsES;
+      if (nValidChannelsES != 0)
+        reportSummaryES = 1 - nGlobalErrorsES / nValidChannelsES;
       meDIFraction_->setBinContent(i + 1, j + 1, reportSummaryES);
     }
   }
