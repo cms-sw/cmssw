@@ -108,13 +108,13 @@ namespace edm {
       std::array<std::string, nLevels> ret;
       ret[ELsev_noValueAssigned] = "?no value?";
       ret[ELsev_zeroSeverity] = "--";
-      ret[ELsev_success] = "Debug";  // 4/21/09 mf
+      ret[ELsev_success] = "Debug";
       ret[ELsev_info] = "Info";
       ret[ELsev_fwkInfo] = "FwkInfo";
       ret[ELsev_warning] = "Warning";
       ret[ELsev_error] = "Error";
       ret[ELsev_unspecified] = "??";
-      ret[ELsev_severe] = "System";  // 6/13/07 mf
+      ret[ELsev_severe] = "System";
       ret[ELsev_highestSeverity] = "!!";
       return ret;
     }();
@@ -134,7 +134,7 @@ namespace edm {
       ret[ELsev_warning] = "WARNING";
       ret[ELsev_error] = "ERROR";
       ret[ELsev_unspecified] = "UNSPECIFIED";
-      ret[ELsev_severe] = "SYSTEM";  // 6/13/07 mf
+      ret[ELsev_severe] = "SYSTEM";
       ret[ELsev_highestSeverity] = "HIGHEST";
       return ret;
     }();
@@ -148,13 +148,13 @@ namespace edm {
       std::array<std::string, nLevels> ret;
       ret[ELsev_noValueAssigned] = "?no value?";
       ret[ELsev_zeroSeverity] = "ELzeroSeverity   ";
-      ret[ELsev_success] = "ELdebug          ";  // 4/21/09
+      ret[ELsev_success] = "ELdebug          ";
       ret[ELsev_info] = "ELinfo           ";
       ret[ELsev_fwkInfo] = "ELfwkInfo        ";
       ret[ELsev_warning] = "ELwarning        ";
       ret[ELsev_error] = "ELerror          ";
       ret[ELsev_unspecified] = "ELunspecified    ";
-      ret[ELsev_severe] = "ELsystem         ";  // 6/13/07
+      ret[ELsev_severe] = "ELsystem         ";
       ret[ELsev_highestSeverity] = "ELhighestSeverity";
       return ret;
     }();
