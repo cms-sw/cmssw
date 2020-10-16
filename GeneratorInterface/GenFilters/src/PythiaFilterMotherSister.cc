@@ -116,13 +116,13 @@ bool PythiaFilterMotherSister::filter(edm::StreamID, edm::Event& iEvent, const e
 
                double lx12 = v1->position().x() - v2->position().x();
                double ly12 = v1->position().y() - v2->position().y();
-               //double lz12 = v1->position().z() - v2->position().z();
-               double lxy12 =  sqrt( lx12*lx12 + ly12*ly12);
-               //double lxyz12 = sqrt( lx12*lx12 + ly12*ly12 + lz12*lz12 );
+               double lz12 = v1->position().z() - v2->position().z();
+               //double lxy12 =  sqrt( lx12*lx12 + ly12*ly12);
+               double lxyz12 = sqrt( lx12*lx12 + ly12*ly12 + lz12*lz12 );
                //std::cout << "Lxyz from HNL vertices: " << lxyz12 << "   " << std::endl;
                //std::cout << "Unit of length: " << HepMC::Units::name(myGenEvent->length_unit()) << std::endl ;
                if(maxSisDisplacement!= -1){
-                 if(lxy12 < maxSisDisplacement){
+                 if(lxyz12 < maxSisDisplacement){
                    accepted = true;
                  }
                } else {
