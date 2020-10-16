@@ -38,10 +38,10 @@ private:
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeo_esToken_;
   double bField_z_;
   bool isPhase2_;
-  MagneticField const* bField_;
   hgcal::RecHitTools recHitTools_;
   float hgcalFace_z_;
   static constexpr float ecalBarrelEndcapEtaBorder_ = 1.479;
+  static constexpr float hgcalHfEtaBorder_ = 3.0;
 };
 
 #endif  // RecoTauTag_RecoTau_PositionAtECalEntranceComputer_h
