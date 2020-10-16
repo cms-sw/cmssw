@@ -32,6 +32,7 @@ ak5JetTracksAssociatorAtVertex
 from RecoBTag.SecondaryVertex.simpleSecondaryVertex2TrkComputer_cfi import *
 from RecoBTag.SecondaryVertex.simpleSecondaryVertex3TrkComputer_cfi import *
 from RecoBTag.SecondaryVertex.combinedSecondaryVertexV2Computer_cfi import *
+from RecoBTag.Combined.heavyIonCSVComputer_cfi import *
 from RecoBTag.ImpactParameter.jetBProbabilityComputer_cfi import *
 from RecoBTag.ImpactParameter.jetProbabilityComputer_cfi import *
 from RecoBTag.ImpactParameter.trackCounting3D2ndComputer_cfi import *
