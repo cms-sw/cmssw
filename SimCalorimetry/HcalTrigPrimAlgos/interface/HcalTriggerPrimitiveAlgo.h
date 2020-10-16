@@ -32,8 +32,8 @@ public:
                            uint32_t ZS_threshold,
                            int numberOfSamples,
                            int numberOfPresamples,
-                           int numberOfPresamplesHBQIE11,
-                           int numberOfPresamplesHEQIE11,
+                           int numberOfFilterPresamplesHBQIE11,
+                           int numberOfFilterPresamplesHEQIE11,
                            int numberOfSamplesHF,
                            int numberOfPresamplesHF,
                            bool useTDCInMinBiasBits,
@@ -132,8 +132,8 @@ private:
   int ZS_threshold_I_;
   int numberOfSamples_;
   int numberOfPresamples_;
-  int numberOfPresamplesHBQIE11_;
-  int numberOfPresamplesHEQIE11_;
+  int numberOfFilterPresamplesHBQIE11_;
+  int numberOfFilterPresamplesHEQIE11_;
   int numberOfSamplesHF_;
   int numberOfPresamplesHF_;
   bool useTDCInMinBiasBits_;
