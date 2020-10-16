@@ -33,7 +33,7 @@ std::vector<GEMCoPadDigi> GEMCoPadProcessor::run(const GEMPadDigiCollection* in_
   for (auto det_range = in_pads->begin(); det_range != in_pads->end(); ++det_range) {
     const GEMDetId& id = (*det_range).first;
 
-    // coincidence pads are not build for ME0
+    // coincidence pads are not built for ME0
     if (id.isME0())
       continue;
 
@@ -102,7 +102,8 @@ void GEMCoPadProcessor::declusterize(const GEMPadDigiClusterCollection* in_clust
     const GEMDetId& id = (*detUnitIt).first;
     const auto& range = (*detUnitIt).second;
     for (auto digiIt = range.first; digiIt != range.second; ++digiIt) {
-      // no clusters from ME0
+
+      // coincidence pads are not built for ME0
       if (id.isME0())
         continue;
 

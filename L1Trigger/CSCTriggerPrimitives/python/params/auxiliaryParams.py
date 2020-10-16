@@ -55,7 +55,7 @@ mpcParamRun2 = mpcParamRun1.clone(
 # GEM coincidence pad processors
 copadParamGE11 = cms.PSet(
     verbosity = cms.uint32(0),
-    maxDeltaPad = cms.uint32(2),
+    maxDeltaPad = cms.uint32(4),
     maxDeltaRoll = cms.uint32(1),
     maxDeltaBX = cms.uint32(0)
 )
