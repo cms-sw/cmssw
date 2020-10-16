@@ -114,11 +114,12 @@ vector<GeometricSearchDet::DetWithState> MTDSectorForwardDoubleLayer::compatible
   // This code should be moved in a common place intead of being
   // copied many times.
   vector<DetGroup> vectorGroups = groupedCompatibleDets(tsos, prop, est);
-  for (vector<DetGroup>::const_iterator itDG = vectorGroups.begin(); itDG != vectorGroups.end(); itDG++) {
-    for (vector<DetGroupElement>::const_iterator itDGE = itDG->begin(); itDGE != itDG->end(); itDGE++) {
-      result.push_back(DetWithState(itDGE->det(), itDGE->trajectoryState()));
+  for (const auto& thisDG : vectorGroups) {
+    for (const auto& thisDGE : thisDG) {
+      result.emplace_back(DetWithState(thisDGE.det(), thisDGE.trajectoryState()));
     }
   }
+
   return result;
 }
 
@@ -154,14 +155,11 @@ void MTDSectorForwardDoubleLayer::selfTest() const {
   const std::vector<const GeomDet*>& frontDets = theFrontLayer.basicComponents();
   const std::vector<const GeomDet*>& backDets = theBackLayer.basicComponents();
 
-  std::vector<const GeomDet*>::const_iterator frontItr = frontDets.begin(), lastFront = frontDets.end(),
-                                              backItr = backDets.begin(), lastBack = backDets.end();
-
   // test that each front z is less than each back z
-  for (; frontItr != lastFront; ++frontItr) {
-    float frontz = std::abs((**frontItr).surface().position().z());
-    for (; backItr != lastBack; ++backItr) {
-      float backz = std::abs((**backItr).surface().position().z());
+  for (const auto& thisFront : frontDets) {
+    float frontz = std::abs(thisFront->surface().position().z());
+    for (const auto& thisBack : backDets) {
+      float backz = std::abs(thisBack->surface().position().z());
       assert(frontz < backz);
     }
   }
