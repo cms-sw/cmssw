@@ -183,8 +183,6 @@ public:
     assert(rawAlgos_.get());
   }
 
-  void beginRun(const edm::Run&, const edm::EventSetup& es) override { initialize(es); }
-
   void produce(edm::Event& ev, const edm::EventSetup& es) override {
     initialize(es);
 
