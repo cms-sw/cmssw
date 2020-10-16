@@ -28,6 +28,7 @@
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalClusteringAlgoBase.h"
 
 #include "SimDataFormats/Associations/interface/LayerClusterToCaloParticleAssociator.h"
+#include "SimDataFormats/Associations/interface/LayerClusterToSimClusterAssociator.h"
 
 class PileupSummaryInfo;
 
@@ -77,6 +78,7 @@ protected:
   edm::EDGetTokenT<std::unordered_map<DetId, const HGCRecHit*>> hitMap_;
   edm::EDGetTokenT<Density> density_;
   edm::EDGetTokenT<hgcal::LayerClusterToCaloParticleAssociator> LCAssocByEnergyScoreProducer_;
+  edm::EDGetTokenT<hgcal::LayerClusterToSimClusterAssociator> SCAssocByEnergyScoreProducer_;
   std::unique_ptr<HGVHistoProducerAlgo> histoProducerAlgo_;
 
 private:

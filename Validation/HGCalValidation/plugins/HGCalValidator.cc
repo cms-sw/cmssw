@@ -40,6 +40,9 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
   LCAssocByEnergyScoreProducer_ =
       consumes<hgcal::LayerClusterToCaloParticleAssociator>(edm::InputTag("lcAssocByEnergyScoreProducer"));
 
+  SCAssocByEnergyScoreProducer_ =
+      consumes<hgcal::LayerClusterToSimClusterAssociator>(edm::InputTag("scAssocByEnergyScoreProducer"));
+
   cpSelector = CaloParticleSelector(pset.getParameter<double>("ptMinCP"),
                                     pset.getParameter<double>("ptMaxCP"),
                                     pset.getParameter<double>("minRapidityCP"),
@@ -103,11 +106,18 @@ void HGCalValidator::bookHistograms(DQMStore::IBooker& ibook,
   //Booking histograms concerning with simclusters
   if (dosimclustersPlots_) {
     ibook.cd();
-    ibook.setCurrentFolder(dirName_ + "simClusters");
+    ibook.setCurrentFolder(dirName_ + "simClusters/ClusterLevel");
     histoProducerAlgo_->bookSimClusterHistos(ibook,
                                           histograms.histoProducerAlgo,
                                           totallayers_to_monitor_,
                                           thicknesses_to_monitor_);
+    ibook.cd();
+    ibook.setCurrentFolder(dirName_ + "simClusters/SC_LC_association");
+    histoProducerAlgo_->bookSimClusterAssociationHistos(ibook,
+                                          histograms.histoProducerAlgo,
+                                          totallayers_to_monitor_,
+                                          thicknesses_to_monitor_);
+    
   }
 
   //Booking histograms concerning with hgcal layer clusters
@@ -199,6 +209,9 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   edm::Handle<hgcal::LayerClusterToCaloParticleAssociator> LCAssocByEnergyScoreHandle;
   event.getByToken(LCAssocByEnergyScoreProducer_, LCAssocByEnergyScoreHandle);
 
+  edm::Handle<hgcal::LayerClusterToSimClusterAssociator> SCAssocByEnergyScoreHandle;
+  event.getByToken(SCAssocByEnergyScoreProducer_, SCAssocByEnergyScoreHandle);
+
   edm::Handle<std::unordered_map<DetId, const HGCRecHit*>> hitMapHandle;
   event.getByToken(hitMap_, hitMapHandle);
   const std::unordered_map<DetId, const HGCRecHit*>* hitMap = &*hitMapHandle;
@@ -247,6 +260,23 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   event.getByToken(density_, densityHandle);
   const Density& densities = *densityHandle;
 
+  auto nSimClusters = simclusters.size();
+  std::vector<size_t> sCIndices;
+  //There shouldn't be any SimTracks from different crossings, but maybe they will be added later.
+  //At the moment there should be one SimTrack in each SimCluster. 
+  for (unsigned int scId = 0; scId < nSimClusters; ++scId) {
+    if (simclusters[scId].g4Tracks()[0].eventId().event() != 0 or
+        simclusters[scId].g4Tracks()[0].eventId().bunchCrossing() != 0) {
+      LogDebug("HGCalValidator") << "Excluding SimClusters from event: "
+                                 << simclusters[scId].g4Tracks()[0].eventId().event()
+                                 << " with BX: " << simclusters[scId].g4Tracks()[0].eventId().bunchCrossing()
+                                 << std::endl;
+      continue;
+    }
+    sCIndices.emplace_back(scId);
+  }
+
+
   // ##############################################
   // fill simcluster histograms
   // ##############################################
@@ -254,12 +284,18 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   if (dosimclustersPlots_) {
     histoProducerAlgo_->fill_simcluster_histos(histograms.histoProducerAlgo,
 					       ws,
+					       clusterHandle,
+					       clusters,
+					       simClustersHandle,
 					       simclusters,
+					       sCIndices,
+					       *hitMap,
 					       totallayers_to_monitor_,
-					       thicknesses_to_monitor_);
+					       thicknesses_to_monitor_,
+					       SCAssocByEnergyScoreHandle);
 
     //General Info on simClusters
-    LogTrace("HGCalValidator") << "\n# of simclusters: " << simclusters.size() << "\n";
+    LogTrace("HGCalValidator") << "\n# of simclusters: " << nSimClusters << "\n";
   }
 
   // ##############################################

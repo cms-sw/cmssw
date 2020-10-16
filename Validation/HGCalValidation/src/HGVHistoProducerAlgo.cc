@@ -14,6 +14,8 @@ using namespace std;
 //configuration parameter for the HGCAL associator.
 const double ScoreCutLCtoCP_ = 0.1;
 const double ScoreCutCPtoLC_ = 0.1;
+const double ScoreCutLCtoSC_ = 0.1;
+const double ScoreCutSCtoLC_ = 0.1;
 const double ScoreCutMCLtoCPFakeMerge_ = 0.6;
 const double ScoreCutCPtoMCLDup_ = 0.2;
 
@@ -275,6 +277,200 @@ void HGVHistoProducerAlgo::bookSimClusterHistos(DQMStore::IBooker& ibook,
   
 }
 
+void HGVHistoProducerAlgo::bookSimClusterAssociationHistos(DQMStore::IBooker& ibook,
+                                             Histograms& histograms,
+                                             unsigned layers,
+                                             std::vector<int> thicknesses) {
+
+
+  //---------------------------------------------------------------------------------------------------------------------------
+  for (unsigned ilayer = 0; ilayer < 2 * layers; ++ilayer) {
+    auto istr1 = std::to_string(ilayer);
+    while (istr1.size() < 2) {
+      istr1.insert(0, "0");
+    }
+    //We will make a mapping to the regural layer naming plus z- or z+ for convenience
+    std::string istr2 = "";
+    //First with the -z endcap
+    if (ilayer < layers) {
+      istr2 = std::to_string(ilayer + 1) + " in z-";
+    } else {  //Then for the +z
+      istr2 = std::to_string(ilayer - (layers - 1)) + " in z+";
+    }
+    //-------------------------------------------------------------------------------------------------------------------------
+    histograms.h_denom_layercl_in_simcl_eta_perlayer[ilayer] =
+      ibook.book1D("Denom_LayerCluster_in_SimCluster_Eta_perlayer" + istr1,
+		   "Denom LayerCluster in SimCluster Eta per Layer Cluster for layer " + istr2,
+		   nintEta_,
+		   minEta_,
+		   maxEta_);
+    //-------------------------------------------------------------------------------------------------------------------------
+    histograms.h_denom_layercl_in_simcl_phi_perlayer[ilayer] =
+      ibook.book1D("Denom_LayerCluster_in_SimCluster_Phi_perlayer" + istr1,
+		   "Denom LayerCluster in SimCluster Phi per Layer Cluster for layer " + istr2,
+		   nintPhi_,
+		   minPhi_,
+		   maxPhi_);
+    //-------------------------------------------------------------------------------------------------------------------------
+    histograms.h_score_layercl2simcluster_perlayer[ilayer] =
+      ibook.book1D("Score_layercl2simcluster_perlayer" + istr1,
+		   "Score of Layer Cluster per SimCluster for layer " + istr2,
+		   nintScore_,
+		   minScore_,
+		   maxScore_);
+    //-------------------------------------------------------------------------------------------------------------------------
+    histograms.h_score_simcluster2layercl_perlayer[ilayer] =
+      ibook.book1D("Score_simcluster2layercl_perlayer" + istr1,
+		   "Score of SimCluster per Layer Cluster for layer " + istr2,
+		   nintScore_,
+		   minScore_,
+		   maxScore_);
+    //-------------------------------------------------------------------------------------------------------------------------
+    histograms.h_energy_vs_score_simcluster2layercl_perlayer[ilayer] =
+      ibook.book2D("Energy_vs_Score_simcluster2layer_perlayer" + istr1,
+		   "Energy vs Score of SimCluster per Layer Cluster for layer " + istr2,
+		   nintScore_,
+		   minScore_,
+		   maxScore_,
+		   nintSharedEneFrac_,
+		   minSharedEneFrac_,
+		   maxSharedEneFrac_);
+    //-------------------------------------------------------------------------------------------------------------------------
+    histograms.h_energy_vs_score_layercl2simcluster_perlayer[ilayer] =
+      ibook.book2D("Energy_vs_Score_layer2simcluster_perlayer" + istr1,
+		   "Energy vs Score of Layer Cluster per SimCluster for layer " + istr2,
+		   nintScore_,
+		   minScore_,
+		   maxScore_,
+		   nintSharedEneFrac_,
+		   minSharedEneFrac_,
+		   maxSharedEneFrac_);
+    //-------------------------------------------------------------------------------------------------------------------------
+    histograms.h_sharedenergy_simcluster2layercl_perlayer[ilayer] =
+      ibook.book1D("SharedEnergy_simcluster2layercl_perlayer" + istr1,
+		   "Shared Energy of SimCluster per Layer Cluster for layer " + istr2,
+		   nintSharedEneFrac_,
+		   minSharedEneFrac_,
+		   maxSharedEneFrac_);
+    //-------------------------------------------------------------------------------------------------------------------------
+    histograms.h_sharedenergy_simcluster2layercl_vs_eta_perlayer[ilayer] =
+      ibook.bookProfile("SharedEnergy_simcluster2layercl_vs_eta_perlayer" + istr1,
+			"Shared Energy of SimCluster vs #eta per best Layer Cluster for layer " + istr2,
+			nintEta_,
+			minEta_,
+			maxEta_,
+			minSharedEneFrac_,
+			maxSharedEneFrac_);
+    //-------------------------------------------------------------------------------------------------------------------------
+    histograms.h_sharedenergy_simcluster2layercl_vs_phi_perlayer[ilayer] =
+      ibook.bookProfile("SharedEnergy_simcluster2layercl_vs_phi_perlayer" + istr1,
+			"Shared Energy of SimCluster vs #phi per best Layer Cluster for layer " + istr2,
+			nintPhi_,
+			minPhi_,
+			maxPhi_,
+			minSharedEneFrac_,
+			maxSharedEneFrac_);
+    //-------------------------------------------------------------------------------------------------------------------------
+    histograms.h_sharedenergy_layercl2simcluster_perlayer[ilayer] =
+      ibook.book1D("SharedEnergy_layercluster2simcluster_perlayer" + istr1,
+		   "Shared Energy of Layer Cluster per SimCluster for layer " + istr2,
+		   nintSharedEneFrac_,
+		   minSharedEneFrac_,
+		   maxSharedEneFrac_);
+    //-------------------------------------------------------------------------------------------------------------------------
+    histograms.h_sharedenergy_layercl2simcluster_vs_eta_perlayer[ilayer] =
+      ibook.bookProfile("SharedEnergy_layercl2simcluster_vs_eta_perlayer" + istr1,
+			"Shared Energy of LayerCluster vs #eta per best SimCluster for layer " + istr2,
+			nintEta_,
+			minEta_,
+			maxEta_,
+			minSharedEneFrac_,
+			maxSharedEneFrac_);
+    //-------------------------------------------------------------------------------------------------------------------------
+    histograms.h_sharedenergy_layercl2simcluster_vs_phi_perlayer[ilayer] =
+      ibook.bookProfile("SharedEnergy_layercl2simcluster_vs_phi_perlayer" + istr1,
+			"Shared Energy of LayerCluster vs #phi per best SimCluster for layer " + istr2,
+			nintPhi_,
+			minPhi_,
+			maxPhi_,
+			minSharedEneFrac_,
+			maxSharedEneFrac_);
+    //-------------------------------------------------------------------------------------------------------------------------
+    histograms.h_num_simcluster_eta_perlayer[ilayer] =
+      ibook.book1D("Num_SimCluster_Eta_perlayer" + istr1,
+		   "Num SimCluster Eta per Layer Cluster for layer " + istr2,
+		   nintEta_,
+		   minEta_,
+		   maxEta_);
+    //-------------------------------------------------------------------------------------------------------------------------
+    histograms.h_numDup_simcluster_eta_perlayer[ilayer] =
+      ibook.book1D("NumDup_SimCluster_Eta_perlayer" + istr1,
+		   "Num Duplicate SimCluster Eta per Layer Cluster for layer " + istr2,
+		   nintEta_,
+		   minEta_,
+		   maxEta_);
+    //-------------------------------------------------------------------------------------------------------------------------
+    histograms.h_denom_simcluster_eta_perlayer[ilayer] =
+      ibook.book1D("Denom_SimCluster_Eta_perlayer" + istr1,
+		   "Denom SimCluster Eta per Layer Cluster for layer " + istr2,
+		   nintEta_,
+		   minEta_,
+		   maxEta_);
+    //-------------------------------------------------------------------------------------------------------------------------
+    histograms.h_num_simcluster_phi_perlayer[ilayer] =
+      ibook.book1D("Num_SimCluster_Phi_perlayer" + istr1,
+		   "Num SimCluster Phi per Layer Cluster for layer " + istr2,
+		   nintPhi_,
+		   minPhi_,
+		   maxPhi_);
+    //-------------------------------------------------------------------------------------------------------------------------
+    histograms.h_numDup_simcluster_phi_perlayer[ilayer] =
+      ibook.book1D("NumDup_SimCluster_Phi_perlayer" + istr1,
+		   "Num Duplicate SimCluster Phi per Layer Cluster for layer " + istr2,
+		   nintPhi_,
+		   minPhi_,
+		   maxPhi_);
+    //-------------------------------------------------------------------------------------------------------------------------
+    histograms.h_denom_simcluster_phi_perlayer[ilayer] =
+      ibook.book1D("Denom_SimCluster_Phi_perlayer" + istr1,
+		   "Denom SimCluster Phi per Layer Cluster for layer " + istr2,
+		   nintPhi_,
+		   minPhi_,
+		   maxPhi_);
+    //-------------------------------------------------------------------------------------------------------------------------
+    histograms.h_num_layercl_in_simcl_eta_perlayer[ilayer] = 
+      ibook.book1D("Num_LayerCluster_in_SimCluster_Eta_perlayer" + istr1,
+		   "Num LayerCluster Eta per Layer Cluster in SimCluster for layer " + istr2,
+		   nintEta_,
+		   minEta_,
+		   maxEta_);
+    //-------------------------------------------------------------------------------------------------------------------------
+    histograms.h_numMerge_layercl_in_simcl_eta_perlayer[ilayer] =
+      ibook.book1D("NumMerge_LayerCluster_in_SimCluster_Eta_perlayer" + istr1,
+		   "Num Merge LayerCluster Eta per Layer Cluster in SimCluster for layer " + istr2,
+		   nintEta_,
+		   minEta_,
+		   maxEta_);
+    //-------------------------------------------------------------------------------------------------------------------------
+    histograms.h_num_layercl_in_simcl_phi_perlayer[ilayer] =
+      ibook.book1D("Num_LayerCluster_in_SimCluster_Phi_perlayer" + istr1,
+		   "Num LayerCluster Phi per Layer Cluster in SimCluster for layer " + istr2,
+		   nintPhi_,
+		   minPhi_,
+		   maxPhi_);
+    //-------------------------------------------------------------------------------------------------------------------------
+    histograms.h_numMerge_layercl_in_simcl_phi_perlayer[ilayer] =
+      ibook.book1D("NumMerge_LayerCluster_in_SimCluster_Phi_perlayer" + istr1,
+		   "Num Merge LayerCluster Phi per Layer Cluster in SimCluster for layer " + istr2,
+		   nintPhi_,
+		   minPhi_,
+		   maxPhi_);
+    
+
+  } //end of loop over layers
+
+  
+}
 void HGVHistoProducerAlgo::bookClusterHistos(DQMStore::IBooker& ibook,
                                              Histograms& histograms,
                                              unsigned layers,
@@ -871,12 +1067,17 @@ void HGVHistoProducerAlgo::fill_caloparticle_histos(const Histograms& histograms
   }
 }
 
-void HGVHistoProducerAlgo::fill_simcluster_histos(
-    const Histograms& histograms,
-    int count,
-    std::vector<SimCluster>const& simclusters,
-    unsigned layers,
-    std::vector<int> thicknesses) const {
+void HGVHistoProducerAlgo::HGVHistoProducerAlgo::fill_simcluster_histos(const Histograms& histograms,
+									int count,
+									edm::Handle<reco::CaloClusterCollection> clusterHandle,
+									const reco::CaloClusterCollection& clusters,
+									edm::Handle<std::vector<SimCluster>> simClusterHandle,
+									std::vector<SimCluster> const& simclusters,
+									std::vector<size_t> const& sCIndices,
+									std::unordered_map<DetId, const HGCRecHit*> const& hitMap,
+									unsigned layers,
+									std::vector<int> thicknesses,
+									edm::Handle<hgcal::LayerClusterToSimClusterAssociator>& SCAssocByEnergyScoreHandle) const {
 
   //Each event to be treated as two events: an event in +ve endcap,
   //plus another event in -ve endcap. In this spirit there will be
@@ -1003,7 +1204,17 @@ void HGVHistoProducerAlgo::fill_simcluster_histos(
   histograms.h_mixedhitssimcluster_zplus[count]->Fill(tnscpthplus["mixed"]);
   histograms.h_mixedhitssimcluster_zminus[count]->Fill(tnscpthminus["mixed"]);
 
-
+  layerClusters_to_SimClusters(histograms,
+			       clusterHandle,
+			       clusters,
+			       simClusterHandle,
+			       simclusters,
+			       sCIndices,
+			       hitMap,
+			       layers,
+			       SCAssocByEnergyScoreHandle);
+  
+  
 }
 
 
@@ -1280,6 +1491,183 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(
             cP[cpId].g4Tracks()[0].momentum().eta(), best->second.first / cPEnergyOnLayer[layerId]);
         histograms.h_sharedenergy_caloparticle2layercl_vs_phi_perlayer.at(layerId)->Fill(
             cP[cpId].g4Tracks()[0].momentum().phi(), best->second.first / cPEnergyOnLayer[layerId]);
+      }
+    }
+  }
+}
+
+void HGVHistoProducerAlgo::layerClusters_to_SimClusters(
+    const Histograms& histograms,
+    edm::Handle<reco::CaloClusterCollection> clusterHandle,
+    const reco::CaloClusterCollection& clusters,
+    edm::Handle<std::vector<SimCluster>> simClusterHandle,
+    std::vector<SimCluster> const& sC,
+    std::vector<size_t> const& sCIndices,
+    std::unordered_map<DetId, const HGCRecHit*> const& hitMap,
+    unsigned layers,
+    const edm::Handle<hgcal::LayerClusterToSimClusterAssociator>& SCAssocByEnergyScoreHandle) const {
+  auto nLayerClusters = clusters.size();
+
+  hgcal::RecoToSimCollectionWithSimClusters scsInLayerClusterMap =
+      SCAssocByEnergyScoreHandle->associateRecoToSim(clusterHandle, simClusterHandle);
+  hgcal::SimToRecoCollectionWithSimClusters lcsInSimClusterMap =
+      SCAssocByEnergyScoreHandle->associateSimToReco(clusterHandle, simClusterHandle);
+  // Here we do fill the plots to compute the different metrics linked to
+  // reco-level, namely fake-rate an merge-rate. In this loop we should *not*
+  // restrict only to the selected simClusters.
+  for (unsigned int lcId = 0; lcId < nLayerClusters; ++lcId) {
+    const std::vector<std::pair<DetId, float>>& hits_and_fractions = clusters[lcId].hitsAndFractions();
+    const auto firstHitDetId = hits_and_fractions[0].first;
+    const int lcLayerId =
+        recHitTools_->getLayerWithOffset(firstHitDetId) + layers * ((recHitTools_->zside(firstHitDetId) + 1) >> 1) - 1;
+    //Although the ones below are already created in the LC to CP association, we will
+    //recreate them here since in the post processor it looks in a specific directory. 
+    histograms.h_denom_layercl_in_simcl_eta_perlayer.at(lcLayerId)->Fill(clusters[lcId].eta());
+    histograms.h_denom_layercl_in_simcl_phi_perlayer.at(lcLayerId)->Fill(clusters[lcId].phi());
+    //
+    const edm::Ref<reco::CaloClusterCollection> lcRef(clusterHandle, lcId);
+    const auto& scsIt = scsInLayerClusterMap.find(lcRef);
+    if (scsIt == scsInLayerClusterMap.end())
+      continue;
+
+    const auto& scs = scsIt->val;
+    // If a reconstructed LayerCluster has energy 0 but is linked to at least a
+    // SimCluster, then his score should be 1 as set in the associator
+    if (clusters[lcId].energy() == 0. && !scs.empty()) {
+      for (const auto& scPair : scs) {
+        histograms.h_score_layercl2simcluster_perlayer.at(lcLayerId)->Fill(scPair.second);
+      }
+      continue;
+    }
+    //Loop through all simClusters linked to the layer cluster under study
+    for (const auto& scPair : scs) {
+      LogDebug("HGCalValidator") << "layerCluster Id: \t" << lcId << "\t SC id: \t" << scPair.first.index()
+                                 << "\t score \t" << scPair.second << std::endl;
+      //This should be filled #layerclusters x #linked SimClusters
+      histograms.h_score_layercl2simcluster_perlayer.at(lcLayerId)->Fill(scPair.second);
+      auto const& sc_linked =
+          std::find_if(std::begin(lcsInSimClusterMap[scPair.first]),
+                       std::end(lcsInSimClusterMap[scPair.first]),
+                       [&lcRef](const std::pair<edm::Ref<reco::CaloClusterCollection>, std::pair<float, float>>& p) {
+                         return p.first == lcRef;
+                       });
+      if (sc_linked ==
+          lcsInSimClusterMap[scPair.first].end())  // This should never happen by construction of the association maps
+        continue;
+      histograms.h_sharedenergy_layercl2simcluster_perlayer.at(lcLayerId)->Fill(
+          sc_linked->second.first / clusters[lcId].energy(), clusters[lcId].energy());
+      histograms.h_energy_vs_score_layercl2simcluster_perlayer.at(lcLayerId)->Fill(
+          scPair.second, sc_linked->second.first / clusters[lcId].energy());
+    }
+    //Here he counts how many of the linked simclusters of the layer cluster under study have a score above a certain value. 
+    const auto assoc =
+        std::count_if(std::begin(scs), std::end(scs), [](const auto& obj) { return obj.second < ScoreCutLCtoSC_; });
+    if (assoc) {
+      histograms.h_num_layercl_in_simcl_eta_perlayer.at(lcLayerId)->Fill(clusters[lcId].eta());
+      histograms.h_num_layercl_in_simcl_phi_perlayer.at(lcLayerId)->Fill(clusters[lcId].phi());
+      if (assoc > 1) {
+        histograms.h_numMerge_layercl_in_simcl_eta_perlayer.at(lcLayerId)->Fill(clusters[lcId].eta());
+        histograms.h_numMerge_layercl_in_simcl_phi_perlayer.at(lcLayerId)->Fill(clusters[lcId].phi());
+      }
+      const auto& best = std::min_element(
+          std::begin(scs), std::end(scs), [](const auto& obj1, const auto& obj2) { return obj1.second < obj2.second; });
+      //From all simclusters he founds the one with the best (lowest) score and takes his scId
+      const auto& best_sc_linked =
+          std::find_if(std::begin(lcsInSimClusterMap[best->first]),
+                       std::end(lcsInSimClusterMap[best->first]),
+                       [&lcRef](const std::pair<edm::Ref<reco::CaloClusterCollection>, std::pair<float, float>>& p) {
+                         return p.first == lcRef;
+                       });
+      if (best_sc_linked ==
+          lcsInSimClusterMap[best->first].end())  // This should never happen by construction of the association maps
+        continue;
+      histograms.h_sharedenergy_layercl2simcluster_vs_eta_perlayer.at(lcLayerId)->Fill(
+          clusters[lcId].eta(), best_sc_linked->second.first / clusters[lcId].energy());
+      histograms.h_sharedenergy_layercl2simcluster_vs_phi_perlayer.at(lcLayerId)->Fill(
+          clusters[lcId].phi(), best_sc_linked->second.first / clusters[lcId].energy());
+    }
+  }  // End of loop over LayerClusters
+
+  // Here we do fill the plots to compute the different metrics linked to
+  // gen-level, namely efficiency and duplicate. In this loop we should restrict
+  // only to the selected simClusters.
+  for (const auto& scId : sCIndices) {
+    const edm::Ref<SimClusterCollection> scRef(simClusterHandle, scId);
+    const auto& lcsIt = lcsInSimClusterMap.find(scRef);
+
+    std::map<unsigned int, float> sCEnergyOnLayer;
+    for (unsigned int layerId = 0; layerId < layers * 2; ++layerId)
+      sCEnergyOnLayer[layerId] = 0;
+
+    const auto& hits_and_fractions = sC[scId].hits_and_fractions();
+    const auto firstHitDetId = hits_and_fractions[0].first;
+    const int scLayerId =
+      recHitTools_->getLayerWithOffset(firstHitDetId) + layers * ((recHitTools_->zside(firstHitDetId) + 1) >> 1) - 1;
+    for (const auto& it_haf : hits_and_fractions) {
+      const DetId hitid = (it_haf.first);
+      std::unordered_map<DetId, const HGCRecHit*>::const_iterator itcheck = hitMap.find(hitid);
+      if (itcheck != hitMap.end()) {
+    	const HGCRecHit* hit = itcheck->second;
+    	sCEnergyOnLayer[scLayerId] += it_haf.second * hit->energy();
+      }
+    }
+    //===>>>>> CHECK IF THE LINE BELOW GIVES THE SAME RESULT TO AVOID THE LOOP
+    // sCEnergyOnLayer[scLayerId] = lcsInSimClusterMap[scId][scLayerId].energy;
+   
+    for (unsigned int layerId = 0; layerId < layers * 2; ++layerId) {
+      if (!sCEnergyOnLayer[layerId])
+        continue;
+
+      histograms.h_denom_simcluster_eta_perlayer.at(layerId)->Fill(sC[scId].eta());
+      histograms.h_denom_simcluster_phi_perlayer.at(layerId)->Fill(sC[scId].phi());
+
+      if (lcsIt == lcsInSimClusterMap.end())
+        continue;
+      const auto& lcs = lcsIt->val;
+
+      auto getLCLayerId = [&](const unsigned int lcId) {
+        const std::vector<std::pair<DetId, float>>& hits_and_fractions = clusters[lcId].hitsAndFractions();
+        const auto firstHitDetId = hits_and_fractions[0].first;
+        const unsigned int lcLayerId = recHitTools_->getLayerWithOffset(firstHitDetId) +
+                                       layers * ((recHitTools_->zside(firstHitDetId) + 1) >> 1) - 1;
+        return lcLayerId;
+      };
+
+      //Loop through layer clusters linked to the simcluster under study 
+      for (const auto& lcPair : lcs) {
+        if (getLCLayerId(lcPair.first.index()) != layerId)
+          continue;
+        histograms.h_score_simcluster2layercl_perlayer.at(layerId)->Fill(lcPair.second.second);
+        histograms.h_sharedenergy_simcluster2layercl_perlayer.at(layerId)->Fill(
+            lcPair.second.first / sCEnergyOnLayer[layerId], sCEnergyOnLayer[layerId]);
+        histograms.h_energy_vs_score_simcluster2layercl_perlayer.at(layerId)->Fill(
+            lcPair.second.second, lcPair.second.first / sCEnergyOnLayer[layerId]);
+      }
+      const auto assoc = std::count_if(std::begin(lcs), std::end(lcs), [&](const auto& obj) {
+        if (getLCLayerId(obj.first.index()) != layerId)
+          return false;
+        else
+          return obj.second.second < ScoreCutSCtoLC_;
+      });
+      if (assoc) {
+        histograms.h_num_simcluster_eta_perlayer.at(layerId)->Fill(sC[scId].eta());
+        histograms.h_num_simcluster_phi_perlayer.at(layerId)->Fill(sC[scId].phi());
+        if (assoc > 1) {
+          histograms.h_numDup_simcluster_eta_perlayer.at(layerId)->Fill(sC[scId].eta());
+          histograms.h_numDup_simcluster_phi_perlayer.at(layerId)->Fill(sC[scId].phi());
+        }
+        const auto best = std::min_element(std::begin(lcs), std::end(lcs), [&](const auto& obj1, const auto& obj2) {
+          if (getLCLayerId(obj1.first.index()) != layerId)
+            return false;
+          else if (getLCLayerId(obj2.first.index()) == layerId)
+            return obj1.second.second < obj2.second.second;
+          else
+            return true;
+        });
+        histograms.h_sharedenergy_simcluster2layercl_vs_eta_perlayer.at(layerId)->Fill(
+            sC[scId].eta(), best->second.first / sCEnergyOnLayer[layerId]);
+        histograms.h_sharedenergy_simcluster2layercl_vs_phi_perlayer.at(layerId)->Fill(
+            sC[scId].phi(), best->second.first / sCEnergyOnLayer[layerId]);
       }
     }
   }

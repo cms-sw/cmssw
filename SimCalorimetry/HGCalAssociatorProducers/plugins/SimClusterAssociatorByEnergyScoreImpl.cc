@@ -30,7 +30,7 @@ hgcal::association SimClusterAssociatorByEnergyScoreImpl::makeConnections(
   for (unsigned int scId = 0; scId < nSimClusters; ++scId) {
     if (hardScatterOnly_ && (simClusters[scId].g4Tracks()[0].eventId().event() != 0 or
                              simClusters[scId].g4Tracks()[0].eventId().bunchCrossing() != 0)) {
-      LogDebug("SimClusterAssociatorByEnergyScoreImpl")
+      LogDebug("SimClusterAssociatorByEnergyScoreImpl") 
           << "Excluding SimCluster from event: " << simClusters[scId].g4Tracks()[0].eventId().event()
           << " with BX: " << simClusters[scId].g4Tracks()[0].eventId().bunchCrossing() << std::endl;
       continue;
@@ -50,11 +50,11 @@ hgcal::association SimClusterAssociatorByEnergyScoreImpl::makeConnections(
       lcsInSimCluster[i][j].simClusterId = i;
       lcsInSimCluster[i][j].energy = 0.f;
       lcsInSimCluster[i][j].hits_and_fractions.clear();
-      for (unsigned int lcId = 0; lcId < nLayerClusters; ++lcId) {
-	//lcsInSimCluster[i][j].layerClusterIdToEnergyAndScore.reserve(nLayerClusters);
-	lcsInSimCluster[i][j].layerClusterIdToEnergyAndScore[lcId].first  = 0.f;
-	lcsInSimCluster[i][j].layerClusterIdToEnergyAndScore[lcId].second = 0.f;
-      }
+      // for (unsigned int lcId = 0; lcId < nLayerClusters; ++lcId) {
+      // 	//lcsInSimCluster[i][j].layerClusterIdToEnergyAndScore.reserve(nLayerClusters);
+      // 	lcsInSimCluster[i][j].layerClusterIdToEnergyAndScore[lcId].first  = 0.f;
+      // 	lcsInSimCluster[i][j].layerClusterIdToEnergyAndScore[lcId].second = 0.f;
+      // }
       
     }
   }
@@ -87,15 +87,14 @@ hgcal::association SimClusterAssociatorByEnergyScoreImpl::makeConnections(
  
 
 #ifdef EDM_ML_DEBUG
-  LogDebug("SimClusterAssociatorByEnergyScoreImpl") << "lcsInSimCluster INFO (Only SimCluster filled at the moment)" << std::endl;
+  LogDebug("SimClusterAssociatorByEnergyScoreImpl")  << "lcsInSimCluster INFO (Only SimCluster filled at the moment)" << std::endl;
   for (size_t sc = 0; sc < lcsInSimCluster.size(); ++sc) {
-    LogDebug("SimClusterAssociatorByEnergyScoreImpl") << "For SimCluster Idx: " << sc << " we have: " << std::endl;
+    LogDebug("SimClusterAssociatorByEnergyScoreImpl")  << "For SimCluster Idx: " << sc << " we have: " << std::endl;
     for (size_t sclay = 0; sclay < lcsInSimCluster[sc].size(); ++sclay) {
-      LogDebug("SimClusterAssociatorByEnergyScoreImpl") << "  On Layer: " << sclay << " we have:" << std::endl;
-      LogDebug("SimClusterAssociatorByEnergyScoreImpl")
-          << "    SimClusterIdx: " << lcsInSimCluster[sc][sclay].simClusterId << std::endl;
-      LogDebug("SimClusterAssociatorByEnergyScoreImpl")
-          << "    Energy:          " << lcsInSimCluster[sc][sclay].energy << std::endl;
+      LogDebug("SimClusterAssociatorByEnergyScoreImpl")  << "  On Layer: " << sclay << " we have:" << std::endl;
+      LogDebug("SimClusterAssociatorByEnergyScoreImpl")  << "    SimClusterIdx: " << lcsInSimCluster[sc][sclay].simClusterId << std::endl;
+      LogDebug("SimClusterAssociatorByEnergyScoreImpl")  << "    Energy:          " << lcsInSimCluster[sc][sclay].energy << std::endl;
+      LogDebug("SimClusterAssociatorByEnergyScoreImpl")  << "    # of clusters :          " << nLayerClusters << std::endl;
       double tot_energy = 0.;
       for (auto const& haf : lcsInSimCluster[sc][sclay].hits_and_fractions) {
         LogDebug("SimClusterAssociatorByEnergyScoreImpl")
@@ -111,13 +110,13 @@ hgcal::association SimClusterAssociatorByEnergyScoreImpl::makeConnections(
     }
   }
 
-  LogDebug("SimClusterAssociatorByEnergyScoreImpl") << "detIdToSimClusterId_Map INFO" << std::endl;
+  LogDebug("SimClusterAssociatorByEnergyScoreImpl")  << "detIdToSimClusterId_Map INFO" << std::endl;
   for (auto const& sc : detIdToSimClusterId_Map) {
-    LogDebug("SimClusterAssociatorByEnergyScoreImpl")
+    LogDebug("SimClusterAssociatorByEnergyScoreImpl") 
         << "For detId: " << (uint32_t)sc.first
         << " we have found the following connections with SimClusters:" << std::endl;
     for (auto const& sclu : sc.second) {
-      LogDebug("SimClusterAssociatorByEnergyScoreImpl")
+      LogDebug("SimClusterAssociatorByEnergyScoreImpl") 
           << "  SimCluster Id: " << sclu.clusterId << " with fraction: " << sclu.fraction
           << " and energy: " << sclu.fraction * hitMap_->at(sc.first)->energy() << std::endl;
     }
