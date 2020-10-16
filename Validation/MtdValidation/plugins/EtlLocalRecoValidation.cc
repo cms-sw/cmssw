@@ -118,7 +118,7 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
   // --- Loop over the ELT RECO hits
 
-  unsigned int n_reco_etl[4];
+  unsigned int n_reco_etl[4] = {0, 0, 0, 0};
   for (const auto& recHit : *etlRecHitsHandle) {
     ETLDetId detId = recHit.id();
     DetId geoId = detId.geographicalId();
