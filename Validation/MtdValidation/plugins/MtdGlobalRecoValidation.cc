@@ -62,9 +62,9 @@ private:
 
   MonitorElement* meETLTrackRPTime_[4];
   MonitorElement* meETLTrackNumHits_[4];
-  MonitorElement* meETLTrackEffEtaTot_[4];
-  MonitorElement* meETLTrackEffPhiTot_[4];
-  MonitorElement* meETLTrackEffPtTot_[4];
+  MonitorElement* meETLTrackEffEtaTot_[2];
+  MonitorElement* meETLTrackEffPhiTot_[2];
+  MonitorElement* meETLTrackEffPtTot_[2];
   MonitorElement* meETLTrackEffEtaMtd_[4];
   MonitorElement* meETLTrackEffPhiMtd_[4];
   MonitorElement* meETLTrackEffPtMtd_[4];
@@ -308,13 +308,13 @@ void MtdGlobalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
   meETLTrackEffPhiMtd_[1] = ibook.book1D(
       "TrackETLEffPhiMtdZnegD2", "Track efficiency vs phi (Mtd) (-Z, Second Disk);#phi_{RECO} [rad]", 100, -3.2, 3.2);
   meETLTrackEffPhiMtd_[2] =
-      ibook.book1D("TrackETLEffPhiMtdZposD2",
+      ibook.book1D("TrackETLEffPhiMtdZposD1",
                    "Track efficiency vs phi (Mtd) (+Z, Single(topo1D)/First(topo2D) Disk);#phi_{RECO} [rad]",
                    100,
                    -3.2,
                    3.2);
   meETLTrackEffPhiMtd_[3] = ibook.book1D(
-      "TrackETLEffPhiMtdZposD1", "Track efficiency vs phi (Mtd) (+Z, Second Disk);#phi_{RECO} [rad]", 100, -3.2, 3.2);
+      "TrackETLEffPhiMtdZposD2", "Track efficiency vs phi (Mtd) (+Z, Second Disk);#phi_{RECO} [rad]", 100, -3.2, 3.2);
   meETLTrackEffPtMtd_[0] =
       ibook.book1D("TrackETLEffPtMtdZnegD1",
                    "Track efficiency vs pt (Mtd) (-Z, Single(topo1D)/First(topo2D) Disk);pt_{RECO} [GeV]",

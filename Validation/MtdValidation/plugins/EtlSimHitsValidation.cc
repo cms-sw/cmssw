@@ -523,7 +523,7 @@ void EtlSimHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
   meHitTvsEta_[1] = ibook.bookProfile(
       "EtlHitTvsEtaZnegD2", "ETL SIM time vs #eta (-Z, Second disk);#eta_{SIM};T_{SIM} [ns]", 50, -3.2, -1.56, 0., 100.);
   meHitTvsEta_[2] =
-      ibook.bookProfile("EtlHitTvsEtaZposD2",
+      ibook.bookProfile("EtlHitTvsEtaZposD1",
                         "ETL SIM time vs #eta (+Z, Single(topo1D)/First(topo2D) disk);#eta_{SIM};T_{SIM} [ns]",
                         50,
                         1.56,
