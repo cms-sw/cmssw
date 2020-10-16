@@ -5,7 +5,9 @@
 
 #include "G4Step.hh"
 
-MuonRPCFrameRotation::MuonRPCFrameRotation(const MuonGeometryConstants& muonConstants, const MuonOffsetMap* offMap, bool dd4hep)
+MuonRPCFrameRotation::MuonRPCFrameRotation(const MuonGeometryConstants& muonConstants,
+                                           const MuonOffsetMap* offMap,
+                                           bool dd4hep)
     : MuonFrameRotation::MuonFrameRotation() {
   g4numbering = new MuonG4Numbering(muonConstants, offMap, dd4hep);
   int theLevelPart = muonConstants.getValue("level");

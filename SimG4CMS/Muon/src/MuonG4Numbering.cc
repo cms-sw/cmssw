@@ -12,7 +12,8 @@
 
 //#define EDM_ML_DEBUG
 
-MuonG4Numbering::MuonG4Numbering(const MuonGeometryConstants& muonConstants, const MuonOffsetMap* offMap, bool dd4hep) : offMap_(offMap), dd4hep_(dd4hep) {
+MuonG4Numbering::MuonG4Numbering(const MuonGeometryConstants& muonConstants, const MuonOffsetMap* offMap, bool dd4hep)
+    : offMap_(offMap), dd4hep_(dd4hep) {
   theLevelPart = muonConstants.getValue("level");
   theSuperPart = muonConstants.getValue("super");
   theBasePart = muonConstants.getValue("base");
@@ -52,20 +53,20 @@ MuonBaseNumber MuonG4Numbering::PhysicalVolumeToBaseNumber(const G4Step* aStep) 
     int extra(0);
     if (dd4hep_ && (offMap_ != nullptr)) {
       std::string namx = static_cast<std::string>(vol->GetName());
-      std::size_t last = namx.rfind("_");
+      std::size_t last = namx.rfind('_');
       std::string name = ((last == std::string::npos) ? namx : (namx.substr(0, last)));
       auto itr = offMap_->muonMap_.find(name);
       if (itr != offMap_->muonMap_.end())
-	extra = (itr->second).first + (itr->second).second;
+        extra = (itr->second).first + (itr->second).second;
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("MuonSim") << "MuonG4Numbering: " << namx << ":" << name << " iterator " << (itr != offMap_->muonMap_.end()) << " Extra " << extra;
+      edm::LogVerbatim("MuonSim") << "MuonG4Numbering: " << namx << ":" << name << " iterator "
+                                  << (itr != offMap_->muonMap_.end()) << " Extra " << extra;
 #endif
-    }	
+    }
     copyno += extra;
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("MuonSim") << "MuonG4Numbering: " << vol->GetName() << " " << copyno 
-                                << " Split " << copyNoRelevant(copyno) << ":" << theLevelPart << ":" << theSuperPart
-                                << " ";
+    edm::LogVerbatim("MuonSim") << "MuonG4Numbering: " << vol->GetName() << " " << copyno << " Split "
+                                << copyNoRelevant(copyno) << ":" << theLevelPart << ":" << theSuperPart << " ";
 #endif
     if (copyNoRelevant(copyno)) {
       num.addBase(getCopyNoLevel(copyno), getCopyNoSuperNo(copyno), getCopyNoBaseNo(copyno) - theStartCopyNo);

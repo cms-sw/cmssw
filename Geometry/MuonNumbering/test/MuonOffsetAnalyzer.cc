@@ -30,7 +30,8 @@ void MuonOffsetAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::EventS
 
   unsigned int k(0);
   for (auto itr = php->muonMap_.begin(); itr != php->muonMap_.end(); ++itr, ++k) {
-    edm::LogVerbatim("MuonGeom") << "[" << k << "] " << itr->first << ": (" << (itr->second).first << ", " << (itr->second).second << ")";
+    edm::LogVerbatim("MuonGeom") << "[" << k << "] " << itr->first << ": (" << (itr->second).first << ", "
+                                 << (itr->second).second << ")";
   }
 }
 

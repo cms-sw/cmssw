@@ -95,9 +95,8 @@ MuonSensitiveDetector::MuonSensitiveDetector(const std::string& name,
     thePrinter = new SimHitPrinter("HitPositionOSCAR.dat");
   }
 
-  edm::LogVerbatim("MuonSim")
-      << " of type " << sdet << " <" << GetName() << "> EnergyThresholdForPersistency(GeV) "
-      << ePersistentCutGeV / CLHEP::GeV << " allMuonsPersistent: " << allMuonsPersistent;
+  edm::LogVerbatim("MuonSim") << " of type " << sdet << " <" << GetName() << "> EnergyThresholdForPersistency(GeV) "
+                              << ePersistentCutGeV / CLHEP::GeV << " allMuonsPersistent: " << allMuonsPersistent;
 
   theG4ProcessTypeEnumerator = new G4ProcessTypeEnumerator;
 }

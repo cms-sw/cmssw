@@ -50,7 +50,7 @@ private:
 };
 
 MuonOffsetESProducer::MuonOffsetESProducer(const edm::ParameterSet& iConfig)
-  : fromDD4Hep_(iConfig.getParameter<bool>("fromDD4Hep")) {
+    : fromDD4Hep_(iConfig.getParameter<bool>("fromDD4Hep")) {
   auto cc = setWhatProduced(this);
   if (fromDD4Hep_) {
     cpvTokenDD4Hep_ = cc.consumesFrom<cms::DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
