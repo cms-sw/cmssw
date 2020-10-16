@@ -103,8 +103,10 @@ GlobalTrajectoryBuilderBase::GlobalTrajectoryBuilderBase(const edm::ParameterSet
   theMuonHitsOption = refitterParameters.getParameter<int>("MuonHitsOption");
   theRefitFlag = refitterParameters.getParameter<bool>("RefitFlag");
 
-  theTrackerRecHitBuilderName = par.getParameter<std::string>("TrackerRecHitBuilder");
-  theMuonRecHitBuilderName = par.getParameter<std::string>("MuonRecHitBuilder");
+  theTrackerRecHitBuilderToken =
+      iC.esConsumes(edm::ESInputTag("", par.getParameter<std::string>("TrackerRecHitBuilder")));
+  theMuonRecHitBuilderToken = iC.esConsumes(edm::ESInputTag("", par.getParameter<std::string>("MuonRecHitBuilder")));
+  theTopoToken = iC.esConsumes();
 
   theRPCInTheFit = par.getParameter<bool>("RefitRPCHits");
 
@@ -112,8 +114,6 @@ GlobalTrajectoryBuilderBase::GlobalTrajectoryBuilderBase(const edm::ParameterSet
   theTECyScale = par.getParameter<double>("ScaleTECyFactor");
   thePtCut = par.getParameter<double>("PtCut");
   thePCut = par.getParameter<double>("PCut");
-
-  theCacheId_TRH = 0;
 }
 
 //--------------
@@ -142,18 +142,11 @@ void GlobalTrajectoryBuilderBase::setEvent(const edm::Event& event) {
   theGlbRefitter->setEvent(event);
   theGlbRefitter->setServices(theService->eventSetup());
 
-  unsigned long long newCacheId_TRH = theService->eventSetup().get<TransientRecHitRecord>().cacheIdentifier();
-  if (newCacheId_TRH != theCacheId_TRH) {
-    LogDebug(theCategory) << "TransientRecHitRecord changed!";
-    theCacheId_TRH = newCacheId_TRH;
-    theService->eventSetup().get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName, theTrackerRecHitBuilder);
-    theService->eventSetup().get<TransientRecHitRecord>().get(theMuonRecHitBuilderName, theMuonRecHitBuilder);
-  }
+  theTrackerRecHitBuilder = &theService->eventSetup().getData(theTrackerRecHitBuilderToken);
+  theMuonRecHitBuilder = &theService->eventSetup().getData(theMuonRecHitBuilderToken);
 
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHand;
-  theService->eventSetup().get<TrackerTopologyRcd>().get(tTopoHand);
-  theTopo = tTopoHand.product();
+  theTopo = &theService->eventSetup().getData(theTopoToken);
 }
 
 //
@@ -510,7 +503,7 @@ TransientTrackingRecHit::ConstRecHitContainer GlobalTrajectoryBuilderBase::getTr
   TrajectoryStateOnSurface currTsos = trajectoryStateTransform::innerStateOnSurface(
       track, *theService->trackingGeometry(), &*theService->magneticField());
 
-  auto tkbuilder = static_cast<TkTransientTrackingRecHitBuilder const*>(theTrackerRecHitBuilder.product());
+  auto tkbuilder = static_cast<TkTransientTrackingRecHitBuilder const*>(theTrackerRecHitBuilder);
   auto hitCloner = tkbuilder->cloner();
   for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit) {
     if ((*hit)->isValid()) {
