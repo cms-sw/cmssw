@@ -34,7 +34,7 @@ DD4hep_MaterialAccountingGroup::DD4hep_MaterialAccountingGroup(const std::string
 
   edm::LogVerbatim("TrackingMaterialAnalysis") << "Elements within: " << name;
 
-  for (const auto j : fv.specpars()) {
+  for (const auto& j : fv.specpars()) {
     for (const auto& k : j.second->paths) {
       if (firstChild) {
         std::vector<std::vector<cms::Node*>> children = fv.children(k);
