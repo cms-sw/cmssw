@@ -53,11 +53,7 @@ reco::Candidate::Point PositionAtECalEntranceComputer::operator()(const reco::Ca
   }
   if (propagator.getSuccess() != 0) {
     position = propagator.particle().vertex().Vect();
-    if (std::abs(position.eta()) > hgcalHfEtaBorder_) {
-      success = false;
-    } else {
-      success = true;
-    }
+    success = (std::abs(position.eta()) <= hgcalHfEtaBorder_);
   } else {
     success = false;
   }
