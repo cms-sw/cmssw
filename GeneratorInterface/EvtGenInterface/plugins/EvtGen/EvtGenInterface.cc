@@ -190,18 +190,18 @@ void EvtGenInterface::SetDefault_m_PDGs() {
   m_PDGs.push_back(4322);
   m_PDGs.push_back(4312);
 
-  m_PDGs.push_back(13122);
-  m_PDGs.push_back(13124);
-  m_PDGs.push_back(23122);
-  m_PDGs.push_back(33122);
-  m_PDGs.push_back(43122);
-  m_PDGs.push_back(53122);
-  m_PDGs.push_back(13126);
+  m_PDGs.push_back(102132);
+  m_PDGs.push_back(103124);
+  m_PDGs.push_back(203122);
+  m_PDGs.push_back(103122);
+  m_PDGs.push_back(123122);
+  m_PDGs.push_back(213122);
+  m_PDGs.push_back(103126);
   m_PDGs.push_back(13212);
   //m_PDGs.push_back( 13241 ); unknown particle -typo?
 
-  m_PDGs.push_back(3126);
-  m_PDGs.push_back(3124);
+  m_PDGs.push_back(203126);
+  m_PDGs.push_back(102134);
   m_PDGs.push_back(3122);
   m_PDGs.push_back(3222);
   m_PDGs.push_back(2214);
