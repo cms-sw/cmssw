@@ -1,5 +1,7 @@
-<use name="DetectorDescription/Core"/>
+<use name="CondFormats/GeometryObjects"/>
 <use name="DataFormats/MuonDetId"/>
+<use name="DetectorDescription/Core"/>
+<use name="DetectorDescription/DDCMS"/>
 <export>
   <lib name="1"/>
 </export>
