@@ -367,7 +367,7 @@ void DD4hep_ListGroups::analyze(const edm::Event &evt, const edm::EventSetup &se
   cms::DDFilteredView fv(*cpv, filter);
 
   for (const auto &t : fv.specpars()) {
-    m_group_names.insert(t->strValue("TrackingMaterialGroup"));
+    m_group_names.insert(t.second->strValue("TrackingMaterialGroup"));
   }
 
   for (const auto &i : m_group_names) {
@@ -376,7 +376,7 @@ void DD4hep_ListGroups::analyze(const edm::Event &evt, const edm::EventSetup &se
     bool firstChild = fv1.firstChild();
 
     for (const auto j : fv1.specpars()) {
-      for (const auto &k : j->paths) {
+      for (const auto &k : j.second->paths) {
         if (firstChild) {
           std::vector<std::vector<cms::Node *>> children = fv1.children(k);
           for (auto const &path : children) {
