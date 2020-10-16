@@ -67,7 +67,7 @@ namespace reco {
 
     bool inDynamicDPhiWindow(
         const float seedEta, const float seedPhi, const float ClustE, const float ClusEta, const float ClusPhi) {
-      // from Rishi's fits 06 June 2013 in log base 10
+      // Parameters from the analysis by L. Zygala [https://indico.cern.ch/event/949294/contributions/3988389/attachments/2091573/3514649/2020_08_26_Clustering.pdf]
       constexpr double yoffsetEB = 0.0280506;
       constexpr double scaleEB = 0.946048;
       constexpr double xoffsetEB = -0.101172;
