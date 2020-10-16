@@ -345,6 +345,8 @@ namespace edm {
         return false;
       if (word == "WARNING")
         return false;
+      if (word == "FWKINFO")
+        return false;
       if (word == "INFO")
         return false;
       if (word == "DEBUG")
@@ -692,6 +694,8 @@ namespace edm {
           continue;
         if ((*i) == "WARNING")
           continue;
+        if ((*i) == "FWKINFO")
+          continue;
         if ((*i) == "INFO")
           continue;
         if ((*i) == "DEBUG")
@@ -723,6 +727,7 @@ namespace edm {
                                                                    std::string const& psetName) {
       categoryPSet(pset, psetName, "ERROR");
       categoryPSet(pset, psetName, "WARNING");
+      categoryPSet(pset, psetName, "FWKINFO");
       categoryPSet(pset, psetName, "INFO");
       categoryPSet(pset, psetName, "DEBUG");
       if (psetName != "MessageLogger")

@@ -237,6 +237,7 @@ namespace edm {
     }  // MessageLoggerScribe::configure_errorlog()
 
     void MessageLoggerScribe::configure_dest(std::shared_ptr<ELdestination> dest_ctrl, String const& filename) {
+
       static const int NO_VALUE_SET = -45654;
       vString empty_vString;
       PSet empty_PSet;
@@ -248,8 +249,7 @@ namespace edm {
       const int COMMON_DEFAULT_INTERVAL = NO_VALUE_SET;
       const int COMMON_DEFAULT_TIMESPAN = NO_VALUE_SET;
 
-      char const* severity_array[] = {"WARNING", "INFO", "ERROR", "DEBUG"};
-      vString const severities(severity_array + 0, severity_array + 4);
+      vString const severities = {{"WARNING", "INFO", "FWKINFO", "ERROR", "DEBUG"}};
 
       // grab list of categories
       vString categories = getAparameter<vString>(*job_pset_p, "categories", empty_vString);
@@ -386,6 +386,7 @@ namespace edm {
       for (vString::const_iterator sev_it = severities.begin(); sev_it != severities.end(); ++sev_it) {
         String sevID = *sev_it;
         ELseverityLevel severity(sevID);
+
         PSet default_sev_pset = getAparameter<PSet>(default_pset, sevID, empty_PSet);
         PSet sev_pset = getAparameter<PSet>(dest_pset, sevID, default_sev_pset);
         int limit = getAparameter<int>(sev_pset, "limit", NO_VALUE_SET);

@@ -229,8 +229,7 @@ namespace edm {
       const int COMMON_DEFAULT_INTERVAL = NO_VALUE_SET;  // change log 6
       const int COMMON_DEFAULT_TIMESPAN = NO_VALUE_SET;
 
-      char const* severity_array[] = {"WARNING", "INFO", "ERROR", "DEBUG"};
-      vString const severities(severity_array + 0, severity_array + 4);
+      vString const severities = {{"WARNING", "INFO", "FWKINFO", "ERROR", "DEBUG"}};
 
       // grab list of categories
       vString categories = getAparameter<vString>(*job_pset_p, "categories", empty_vString);
