@@ -17,6 +17,10 @@ namespace edm {
     return ((!edm::MessageDrop::infoAlwaysSuppressed) && edm::MessageDrop::instance()->infoEnabled);
   }
 
+  bool isFwkInfoEnabled() {
+    return ((!edm::MessageDrop::fwkInfoAlwaysSuppressed) && edm::MessageDrop::instance()->fwkInfoEnabled);
+  }
+
   bool isWarningEnabled() {
     return ((!edm::MessageDrop::warningAlwaysSuppressed) && edm::MessageDrop::instance()->warningEnabled);
   }
