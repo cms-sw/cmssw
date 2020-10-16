@@ -6,8 +6,7 @@
 #include "Geometry/EcalCommonData/interface/EcalPreshowerNumberingScheme.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 
-#include <iostream>
-using namespace std;
+//#define EDM_ML_DEBUG
 
 EcalPreshowerNumberingScheme::EcalPreshowerNumberingScheme() : EcalNumberingScheme() {
   // For SFLX2a, we use copy# 1-3
@@ -414,15 +413,16 @@ uint32_t EcalPreshowerNumberingScheme::getUnitID(const EcalBaseNumber& baseNumbe
 
     intIndex = ESDetId(strip, x, y, layer, zside).rawId();
 
+#ifdef EDM_ML_DEBUG
     edm::LogVerbatim("EcalGeom") << "EcalPreshowerNumberingScheme : zside " << zside << " Ladd " << ladd
                                  << " ladd_copy: " << ladd_copy << " box " << box << " x " << x << " y " << y
                                  << " layer " << layer << " strip " << strip << " UnitID 0x" << std::hex << intIndex
                                  << std::dec;
 
-    for (int ich = 0; ich < level; ich++) {
+    for (int ich = 0; ich < level; ich++)
       edm::LogVerbatim("EcalGeom") << "Name = " << baseNumber.getLevelName(ich)
                                    << " copy = " << baseNumber.getCopyNumber(ich);
-    }
+#endif
   }
 
   return intIndex;
