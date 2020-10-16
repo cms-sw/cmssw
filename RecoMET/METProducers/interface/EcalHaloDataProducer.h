@@ -116,6 +116,7 @@ namespace reco {
     edm::EDGetTokenT<reco::SuperClusterCollection> supercluster_token_;
     edm::EDGetTokenT<reco::PhotonCollection> photon_token_;
     edm::ESGetToken<CaloGeometry, CaloGeometryRecord> calogeometry_token_;
+    EcalHaloAlgo EcalAlgo;
 
     float EBRecHitEnergyThreshold;
     float EERecHitEnergyThreshold;
