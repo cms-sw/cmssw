@@ -1,11 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoHI.HiJetAlgos.HiSignalParticleProducer_cfi import hiSignalGenParticles
+from RecoHI.HiJetAlgos.hiSignalParticleProducer_cfi import hiSignalParticleProducer as hiSignalGenParticles
 from RecoJets.Configuration.GenJetParticles_cff import genParticlesForJets
 from RecoHI.HiJetAlgos.HiGenCleaner_cff import hiPartons
 from RecoHI.HiJetAlgos.HiGenJets_cff import ak4HiGenJets
 from RecoHI.HiJetAlgos.HiGenCleaner_cff import heavyIonCleanedGenJets
-from RecoHI.HiJetAlgos.HiSignalGenJetProducer_cfi import hiSignalGenJets
+from RecoHI.HiJetAlgos.hiSignalGenJetProducer_cfi import hiSignalGenJetProducer
+ak4HiSignalGenJets = hiSignalGenJetProducer.clone(src = "ak4HiGenJets")
 
 allPartons = cms.EDProducer(
     "PartonSelector",
@@ -19,8 +20,6 @@ genJetSubEvent.toModify(allPartons,src = "genParticles")
 cleanedPartons = hiPartons.clone(
     src = 'allPartons',
     )
-
-ak4HiSignalGenJets = hiSignalGenJets.clone(src = "ak4HiGenJets")
 
 hiGenJetsTask = cms.Task(
     hiSignalGenParticles,
