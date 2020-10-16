@@ -375,7 +375,7 @@ void DD4hep_ListGroups::analyze(const edm::Event &evt, const edm::EventSetup &se
     cms::DDFilteredView fv1(*cpv, filter1);
     bool firstChild = fv1.firstChild();
 
-    for (const auto j : fv1.specpars()) {
+    for (const auto& j : fv1.specpars()) {
       for (const auto &k : j.second->paths) {
         if (firstChild) {
           std::vector<std::vector<cms::Node *>> children = fv1.children(k);
