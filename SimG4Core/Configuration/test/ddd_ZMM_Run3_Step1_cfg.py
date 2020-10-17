@@ -26,6 +26,7 @@ process.load('Configuration.Geometry.GeometryExtended2021_cff') # there w
 #    process.MessageLogger.categories.append("TrackerSimInfoNumbering");
 
 
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10),
     output = cms.optional.untracked.allowed(cms.int32,cms.PSet)

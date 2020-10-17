@@ -30,15 +30,10 @@ void TrackerG4SimHitNumberingScheme::buildAll() {
 
   for (auto& theSD : allSensitiveDets) {
     auto const& t = theSD->translation();
-    edm::LogVerbatim("TrackerSimInfoNumbering") << "::buildAll" << theSD->geographicalId().rawId() << "\t" << t;
     theNavigator.LocateGlobalPointAndSetup(G4ThreeVector(t.x(), t.y(), t.z()));
     G4TouchableHistory* hist = theNavigator.CreateTouchableHistory();
-    assert(!!hist);
     TrackerG4SimHitNumberingScheme::Nav_Story st;
     touchToNavStory(hist, st);
-
-    for (const std::pair<int, std::string>& p : st)
-      edm::LogVerbatim("TrackerSimInfoNumbering") << "Nav_Story\t" << p.first << "\t" << p.second;
 
     directMap_[st] = theSD->geographicalId();
 
@@ -60,24 +55,27 @@ void TrackerG4SimHitNumberingScheme::buildAll() {
 
 void TrackerG4SimHitNumberingScheme::touchToNavStory(const G4VTouchable* v,
                                                      TrackerG4SimHitNumberingScheme::Nav_Story& st) {
+#ifdef DEBUG
   std::vector<int> debugint;
   std::vector<std::string> debugstring;
-
+#endif
   int levels = v->GetHistoryDepth();
 
   for (int k = 0; k <= levels; ++k) {
     if (v->GetVolume(k)->GetLogicalVolume()->GetName() != "TOBInactive") {
       st.emplace_back(
           std::pair<int, std::string>(v->GetVolume(k)->GetCopyNo(), v->GetVolume(k)->GetLogicalVolume()->GetName()));
+#ifdef DEBUG
       debugint.emplace_back(v->GetVolume(k)->GetCopyNo());
       debugstring.emplace_back(v->GetVolume(k)->GetLogicalVolume()->GetName());
+#endif
     }
   }
-
-  for (const int& i : debugint)
-    edm::LogVerbatim("TrackerSimInfoNumbering") << " G4 TrackerG4SimHitNumberingScheme " << i;
-  for (const std::string& s : debugstring)
-    edm::LogVerbatim("TrackerSimInfoNumbering") << " " << s;
+#ifdef DEBUG
+  LogDebug("TrackerSimDebugNumbering") << " G4 TrackerG4SimHitNumberingScheme " << debugint;
+  for (u_int32_t jj = 0; jj < debugstring.size(); jj++)
+    LogDebug("TrackerSimDebugNumbering") << " " << debugstring[jj];
+#endif
 }
 
 unsigned int TrackerG4SimHitNumberingScheme::g4ToNumberingScheme(const G4VTouchable* v) {
@@ -87,8 +85,10 @@ unsigned int TrackerG4SimHitNumberingScheme::g4ToNumberingScheme(const G4VToucha
   TrackerG4SimHitNumberingScheme::Nav_Story st;
   touchToNavStory(v, st);
 
+#ifdef DEBUG
   dumpG4VPV(v);
-  edm::LogVerbatim("TrackerSimInfoNumbering") << " Returning: " << directMap_[st];
+  LogDebug("TrackerSimDebugNumbering") << " Returning: " << directMap_[st];
+#endif
 
   return directMap_[st];
 }
@@ -96,9 +96,9 @@ unsigned int TrackerG4SimHitNumberingScheme::g4ToNumberingScheme(const G4VToucha
 void TrackerG4SimHitNumberingScheme::dumpG4VPV(const G4VTouchable* v) {
   int levels = v->GetHistoryDepth();
 
-  edm::LogVerbatim("TrackerSimInfoNumbering") << " NAME : " << v->GetVolume()->GetLogicalVolume()->GetName();
+  LogDebug("TrackerSimDebugNumbering") << " NAME : " << v->GetVolume()->GetLogicalVolume()->GetName();
   for (int k = 0; k <= levels; k++) {
-    edm::LogVerbatim("TrackerSimInfoNumbering")
-        << " Hist: " << v->GetVolume(k)->GetLogicalVolume()->GetName() << " Copy " << v->GetVolume(k)->GetCopyNo();
+    LogDebug("TrackerSimInfoNumbering") << " Hist: " << v->GetVolume(k)->GetLogicalVolume()->GetName() << " Copy "
+                                        << v->GetVolume(k)->GetCopyNo();
   }
 }
