@@ -18,7 +18,6 @@
  *  \author A. Everett 		 Purdue University
  */
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
@@ -38,6 +37,7 @@ class MuonDetLayerMeasurements;
 class MuonServiceProxy;
 class MuonTrackingRegionBuilder;
 class GlobalMuonRefitter;
+class TransientRecHitRecord;
 
 class GlobalTrajectoryBuilderBase : public MuonTrajectoryBuilder {
 public:
@@ -151,7 +151,6 @@ private:
   MuonTrackingRegionBuilder* theRegionBuilder;
   const MuonServiceProxy* theService;
   GlobalMuonRefitter* theGlbRefitter;
-  unsigned long long theCacheId_TRH;
   bool theRPCInTheFit;
   bool theRefitFlag;
   int theMuonHitsOption;
@@ -159,10 +158,11 @@ private:
   float theTECyScale;
   std::string theTrackerPropagatorName;
   const edm::Event* theEvent;
-  std::string theTrackerRecHitBuilderName;
-  edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
-  std::string theMuonRecHitBuilderName;
-  edm::ESHandle<TransientTrackingRecHitBuilder> theMuonRecHitBuilder;
+  edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> theTrackerRecHitBuilderToken;
+  const TransientTrackingRecHitBuilder* theTrackerRecHitBuilder;
+  edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> theMuonRecHitBuilderToken;
+  const TransientTrackingRecHitBuilder* theMuonRecHitBuilder;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> theTopoToken;
   const TrackerTopology* theTopo;
 };
 #endif
