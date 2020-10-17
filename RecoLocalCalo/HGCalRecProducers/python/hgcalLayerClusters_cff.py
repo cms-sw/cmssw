@@ -12,8 +12,10 @@ hgcalLayerClusters = hgcalLayerClusters_.clone()
 
 hgcalLayerClusters.timeOffset = hgceeDigitizer.tofDelay
 hgcalLayerClusters.plugin.dEdXweights = cms.vdouble(dEdX.weights)
-hgcalLayerClusters.plugin.fcPerMip = cms.vdouble(HGCalUncalibRecHit.HGCEEConfig.fCPerMIP)
+hgcalLayerClusters.plugin.fcPerMip = cms.vdouble(HGCalUncalibRecHit.HGCEEConfig.fCPerMIP + HGCalUncalibRecHit.HGCHEFConfig.fCPerMIP)
 hgcalLayerClusters.plugin.thicknessCorrection = cms.vdouble(HGCalRecHit.thicknessCorrection)
+hgcalLayerClusters.plugin.sciThicknessCorrection = HGCalRecHit.sciThicknessCorrection
+hgcalLayerClusters.plugin.deltasi_index_regemfac = HGCalRecHit.deltasi_index_regemfac
 hgcalLayerClusters.plugin.fcPerEle = cms.double(fC_per_ele)
 hgcalLayerClusters.plugin.noises = cms.PSet(refToPSet_ = cms.string('HGCAL_noises'))
 hgcalLayerClusters.plugin.noiseMip = hgchebackDigitizer.digiCfg.noise
