@@ -19,6 +19,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.Geometry.GeometryDD4hepExtended2021_cff') # there w
 
+
 #if hasattr(process,'MessageLogger'):
 #    process.MessageLogger.categories.append('EcalGeom')
 #    process.MessageLogger.categories.append('MuonSim')
