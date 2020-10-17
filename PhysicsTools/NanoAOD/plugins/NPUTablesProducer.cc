@@ -18,8 +18,7 @@ public:
       : npuTag_(consumes<std::vector<PileupSummaryInfo>>(params.getParameter<edm::InputTag>("src"))),
         pvTag_(consumes<std::vector<reco::Vertex>>(params.getParameter<edm::InputTag>("pvsrc"))),
         vz_(params.getParameter<std::vector<double>>("zbins")),
-        savePtHatMax_(params.getParameter<bool>("savePtHatMax"))
-        {
+        savePtHatMax_(params.getParameter<bool>("savePtHatMax")) {
     produces<nanoaod::FlatTable>();
   }
 
@@ -51,7 +50,7 @@ public:
     float gpudensity = 0;
 
     float pthatmax = 0;
-    
+
     for (unsigned int ibx = 0; ibx < npuProd.size(); ibx++) {
       if (npuProd[ibx].getBunchCrossing() == 0) {
         bx0 = ibx;
@@ -70,7 +69,7 @@ public:
         }
         gpudensity /= (20.0 * (*(zbin) - *(zbin - 1)));
 
-        if (savePtHatMax_){
+        if (savePtHatMax_) {
           pthatmax = *max_element(npuProd[ibx].getPU_pT_hats().begin(), npuProd[ibx].getPU_pT_hats().end());
         }
       }
@@ -95,7 +94,7 @@ public:
     out.addColumnValue<int>("sumLOOT", loot, "number of late out of time pileup");
     out.addColumnValue<float>("pudensity", pudensity, "PU vertices / mm");
     out.addColumnValue<float>("gpudensity", gpudensity, "Generator-level PU vertices / mm");
-    if (savePtHatMax_){
+    if (savePtHatMax_) {
       out.addColumnValue<float>("pthatmax", pthatmax, "Maximum pt-hat");
     }
   }
@@ -107,7 +106,7 @@ public:
     desc.add<edm::InputTag>("pvsrc", edm::InputTag("offlineSlimmedPrimaryVertices"))->setComment("tag for the PVs");
     desc.add<std::vector<double>>("zbins", {})
         ->setComment("Z bins to compute the generator-level number of PU vertices per mm");
-    desc.add<bool>("savePtHatMax",false)->setComment("Store maximum pt-hat of PU");
+    desc.add<bool>("savePtHatMax", false)->setComment("Store maximum pt-hat of PU");
     descriptions.add("puTable", desc);
   }
 
