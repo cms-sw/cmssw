@@ -364,6 +364,10 @@ class _Parameterizable(object):
         # usings need to go first
         resultList = usings
         resultList.extend(others)
+        if self.__validator is not None:
+            options.indent()
+            resultList.append(options.indentation()+"allowAnyLabel_="+self.__validator.dumpPython(options))
+            options.unindent()
         return ',\n'.join(resultList)+'\n'
     def __repr__(self):
         return self.dumpPython()
