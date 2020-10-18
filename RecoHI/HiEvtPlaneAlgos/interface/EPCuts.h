@@ -54,7 +54,7 @@ namespace hi {
     bool isGoodHF(const TrackStructure& track) const {
       if (track.pdgid != 1 && track.pdgid != 2)
         return false;
-      if (fabs(track.eta) < 3 || fabs(track.eta) > 5)
+      if (std::abs(track.eta) < 3 || std::abs(track.eta) > 5)
         return false;
       return true;
     }
@@ -82,9 +82,9 @@ namespace hi {
         return false;
       if (track.chi2layer > chi2perlayer_)
         return false;
-      if (fabs(track.dxy / track.dxyError) > dxyerror_)
+      if (std::abs(track.dxy) > dxyerror_ * track.dxyError)
         return false;
-      if (fabs(track.dz / track.dzError) > dzerror_)
+      if (std::abs(track.dz) > dzerror_ * track.dzError)
         return false;
       return true;
     }
@@ -98,9 +98,9 @@ namespace hi {
         return false;
       if (track.ptError > pterror_ * track.pt)
         return false;
-      if (fabs(track.dxy / track.dxyError) > dxyerror_)
+      if (std::abs(track.dxy) > dxyerror_ * track.dxyError)
         return false;
-      if (fabs(track.dz / track.dzError) > dzerror_)
+      if (std::abs(track.dz) > dzerror_ * track.dzError)
         return false;
       if (track.chi2layer > chi2perlayer_)
         return false;
@@ -133,23 +133,23 @@ namespace hi {
         if (track.pt > 2.4 && algo != reco::TrackBase::initialStep && algo != reco::TrackBase::lowPtTripletStep &&
             algo != reco::TrackBase::pixelPairStep && algo != reco::TrackBase::detachedTripletStep)
           return false;
-        if (fabs(track.dxy / track.dxyError) > dxyerror_)
+        if (std::abs(track.dxy) > dxyerror_ * track.dxyError)
           return false;
-        if (fabs(track.dz / track.dzError) > dzerror_)
+        if (std::abs(track.dz) > dzerror_ * track.dzError)
           return false;
       } else {
         if (track.chi2layer > chi2Pix_)
           return false;
-        if (fabs(track.dz / track.dzError) > dzerror_Pix_)
+        if (std::abs(track.dz) > dzerror_Pix_ * track.dzError)
           return false;
       }
       return true;
     }
 
-    bool TrackQuality_GenMC(const TrackStructure& track) const {
+    bool trackQuality_GenMC(const TrackStructure& track) const {
       if (track.charge == 0)
         return false;
-      if (fabs(track.eta) > 2.4)
+      if (std::abs(track.eta) > 2.4)
         return false;
       return true;
     }

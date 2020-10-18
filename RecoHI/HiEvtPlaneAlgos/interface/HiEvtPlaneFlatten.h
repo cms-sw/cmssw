@@ -230,7 +230,7 @@ public:
     return minvtx_ + (ivtx + 1) * delvtx_;
   }
 
-  std::string getRangeString(int indx) {
+  std::string rangeString(int indx) {
     char buf[120];
     sprintf(buf, "%5.1f < cent < %5.1f; %4.1f < vtx < %4.1f", minCent(indx), maxCent(indx), minVtx(indx), maxVtx(indx));
     return std::string(buf);

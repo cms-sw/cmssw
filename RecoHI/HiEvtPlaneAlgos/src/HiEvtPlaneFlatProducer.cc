@@ -210,8 +210,7 @@ void HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   //Get Event Planes
   //
 
-  edm::Handle<reco::EvtPlaneCollection> evtPlanes_;
-  iEvent.getByToken(inputPlanesToken_, evtPlanes_);
+  auto const& evtPlanes = iEvent.get(inputPlanesToken_);
 
   auto evtplaneOutput = std::make_unique<EvtPlaneCollection>();
   EvtPlane* ep[NumEPNames];
@@ -219,7 +218,7 @@ void HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
     ep[i] = nullptr;
   }
   int indx = 0;
-  for (auto&& rp : (*evtPlanes_)) {
+  for (auto&& rp : (evtPlanes)) {
     double s = rp.sumSin(0);
     double c = rp.sumCos(0);
     uint m = rp.mult();
