@@ -84,7 +84,7 @@ ElectronSeedProducer::ElectronSeedProducer(const edm::ParameterSet& conf)
       hcalCfg.hcalTowers = consumes<CaloTowerCollection>(conf.getParameter<edm::InputTag>("hcalTowers"));
       hcalCfg.hOverEPtMin = conf.getParameter<double>("hOverEPtMin");
     }
-    hcalHelper_ = std::make_unique<ElectronHcalHelper>(hcalCfg);
+    hcalHelper_ = std::make_unique<ElectronHcalHelper>(hcalCfg, consumesCollector());
 
     allowHGCal_ = conf.getParameter<bool>("allowHGCal");
     if (allowHGCal_) {
