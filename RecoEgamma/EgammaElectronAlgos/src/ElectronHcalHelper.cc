@@ -1,6 +1,4 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHcalIsolation.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHadTower.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -9,15 +7,18 @@
 
 using namespace reco;
 
-ElectronHcalHelper::ElectronHcalHelper(const Configuration& cfg)
-    : cfg_(cfg), caloGeomCacheId_(0), hcalIso_(nullptr), towerIso1_(nullptr), towerIso2_(nullptr) {}
-
-void ElectronHcalHelper::checkSetup(const edm::EventSetup& es) {
+void ElectronHcalHelper::beginEvent(const edm::Event& evt, const edm::EventSetup& es) {
   if (cfg_.hOverEConeSize == 0) {
     return;
   }
 
   if (cfg_.useTowers) {
+    towersFromCollection_ = &evt.get(cfg_.hcalTowers);
+    towerIso1_ =
+        std::make_unique<EgammaTowerIsolation>(cfg_.hOverEConeSize, 0., cfg_.hOverEPtMin, 1, towersFromCollection_);
+    towerIso2_ =
+        std::make_unique<EgammaTowerIsolation>(cfg_.hOverEConeSize, 0., cfg_.hOverEPtMin, 2, towersFromCollection_);
+
     edm::ESHandle<CaloTowerConstituentsMap> ctmaph;
     es.get<CaloGeometryRecord>().get(ctmaph);
     towerMap_ = ctmaph.product();
@@ -28,41 +29,20 @@ void ElectronHcalHelper::checkSetup(const edm::EventSetup& es) {
     edm::ESHandle<HcalTopology> hcalTopology;
     es.get<HcalRecNumberingRecord>().get(hcalTopology);
     hcalTopology_ = hcalTopology.product();
-
   } else {
-    unsigned long long newCaloGeomCacheId_ = es.get<CaloGeometryRecord>().cacheIdentifier();
-    if (caloGeomCacheId_ != newCaloGeomCacheId_) {
-      caloGeomCacheId_ = newCaloGeomCacheId_;
-      es.get<CaloGeometryRecord>().get(caloGeom_);
-    }
-  }
-}
-
-void ElectronHcalHelper::readEvent(const edm::Event& evt) {
-  if (cfg_.hOverEConeSize == 0) {
-    return;
-  }
-
-  if (cfg_.useTowers) {
-    delete towerIso1_;
-    towerIso1_ = nullptr;
-    delete towerIso2_;
-    towerIso2_ = nullptr;
-
-    towersFromCollection_ = &evt.get(cfg_.hcalTowers);
-    towerIso1_ = new EgammaTowerIsolation(cfg_.hOverEConeSize, 0., cfg_.hOverEPtMin, 1, towersFromCollection_);
-    towerIso2_ = new EgammaTowerIsolation(cfg_.hOverEConeSize, 0., cfg_.hOverEPtMin, 2, towersFromCollection_);
-  } else {
-    delete hcalIso_;
-    hcalIso_ = nullptr;
-
     edm::Handle<HBHERecHitCollection> hbhe_;
     if (!evt.getByToken(cfg_.hcalRecHits, hbhe_)) {
       edm::LogError("ElectronHcalHelper::readEvent") << "failed to get the rechits";
     }
 
-    hcalIso_ = new EgammaHcalIsolation(
+    hcalIso_ = std::make_unique<EgammaHcalIsolation>(
         cfg_.hOverEConeSize, 0., cfg_.hOverEHBMinE, cfg_.hOverEHFMinE, 0., 0., caloGeom_, *hbhe_);
+
+    unsigned long long newCaloGeomCacheId_ = es.get<CaloGeometryRecord>().cacheIdentifier();
+    if (caloGeomCacheId_ != newCaloGeomCacheId_) {
+      caloGeomCacheId_ = newCaloGeomCacheId_;
+      es.get<CaloGeometryRecord>().get(caloGeom_);
+    }
   }
 }
 
@@ -119,17 +99,5 @@ bool ElectronHcalHelper::hasActiveHcal(const reco::SuperCluster& sc) const {
         egammaHadTower::towersOf(sc, *towerMap_), *towerMap_, *hcalQuality_, *hcalTopology_);
   } else {
     return true;
-  }
-}
-
-ElectronHcalHelper::~ElectronHcalHelper() {
-  if (cfg_.hOverEConeSize == 0) {
-    return;
-  }
-  if (cfg_.useTowers) {
-    delete towerIso1_;
-    delete towerIso2_;
-  } else {
-    delete hcalIso_;
   }
 }

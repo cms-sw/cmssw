@@ -8,9 +8,9 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHcalIsolation.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 
-class EgammaHcalIsolation;
-class EgammaTowerIsolation;
 class EgammaHadTower;
 class HcalTopology;
 class HcalChannelQuality;
@@ -35,10 +35,9 @@ public:
     double hOverEHFMinE;
   };
 
-  ElectronHcalHelper(const Configuration &);
-  void checkSetup(const edm::EventSetup &);
-  void readEvent(const edm::Event &);
-  ~ElectronHcalHelper();
+  ElectronHcalHelper(const Configuration &cfg) : cfg_(cfg) {}
+
+  void beginEvent(const edm::Event &, const edm::EventSetup &);
 
   double hcalESum(const reco::SuperCluster &, const std::vector<CaloTowerDetId> *excludeTowers = nullptr) const;
   double hcalESumDepth1(const reco::SuperCluster &, const std::vector<CaloTowerDetId> *excludeTowers = nullptr) const;
@@ -58,15 +57,15 @@ private:
   const Configuration cfg_;
 
   // event setup data (rechits strategy)
-  unsigned long long caloGeomCacheId_;
+  unsigned long long caloGeomCacheId_ = 0;
   edm::ESHandle<CaloGeometry> caloGeom_;
 
   // event data (rechits strategy)
-  EgammaHcalIsolation *hcalIso_;
+  std::unique_ptr<EgammaHcalIsolation> hcalIso_ = nullptr;
 
   // event data (towers strategy)
-  EgammaTowerIsolation *towerIso1_;
-  EgammaTowerIsolation *towerIso2_;
+  std::unique_ptr<EgammaTowerIsolation> towerIso1_ = nullptr;
+  std::unique_ptr<EgammaTowerIsolation> towerIso2_ = nullptr;
   CaloTowerCollection const *towersFromCollection_ = nullptr;
   CaloTowerConstituentsMap const *towerMap_ = nullptr;
   HcalChannelQuality const *hcalQuality_ = nullptr;

@@ -77,7 +77,7 @@ ElectronSeedProducer::ElectronSeedProducer(const edm::ParameterSet& conf)
   // for H/E
   applyHOverECut_ = conf.getParameter<bool>("applyHOverECut");
   if (applyHOverECut_) {
-    ElectronHcalHelper::Configuration hcalCfg;
+    ElectronHcalHelper::Configuration hcalCfg{};
     hcalCfg.hOverEConeSize = conf.getParameter<double>("hOverEConeSize");
     if (hcalCfg.hOverEConeSize > 0) {
       hcalCfg.useTowers = true;
@@ -116,8 +116,7 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
   std::unique_ptr<TrajectorySeedCollection> initialSeedCollectionPtr = nullptr;  //created on the fly
 
   if (hcalHelper_) {
-    hcalHelper_->checkSetup(iSetup);
-    hcalHelper_->readEvent(e);
+    hcalHelper_->beginEvent(e, iSetup);
     if (allowHGCal_) {
       hgcClusterTools_->getEventSetup(iSetup);
       hgcClusterTools_->getEvent(e);
