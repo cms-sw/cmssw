@@ -74,10 +74,12 @@ std::shared_ptr<ESLSCache> ESIntegrityTask::globalBeginLuminosityBlock(const edm
   auto lumiCache = std::make_shared<ESLSCache>();
   lumiCache->ievtLS_ = 0;
   if (doLumiAnalysis_) {
-    for (int i = 0; i < 2; ++i) {
-      for (int j = 0; j < 2; ++j) {
-        if (meDIErrors_[i][j]) {
-          meDIErrors_[i][j]->Reset();
+    for (int iz = 0; iz < 2; ++iz) {
+      for (int ip = 0; ip < 2; ++ip) {
+        for (int ix = 0; ix < 40; ++ix) {
+          for (int iy = 0; iy < 40; ++iy) {
+            (lumiCache->DIErrorsLS_)[iz][ip][ix][iy] = 0;
+          }
         }
       }
     }
@@ -312,8 +314,11 @@ void ESIntegrityTask::analyze(const Event& e, const EventSetup& c) {
           if (fed_[iz][ip][ix][iy] == -1)
             continue;
 
-          if (nDIErr[fed_[iz][ip][ix][iy] - 520][fiber_[iz][ip][ix][iy]] > 0)
+          if (nDIErr[fed_[iz][ip][ix][iy] - 520][fiber_[iz][ip][ix][iy]] > 0) {
             meDIErrors_[iz][ip]->Fill(ix + 1, iy + 1, 1);
+            if (doLumiAnalysis_)
+              (lumiCache->DIErrorsLS_)[iz][ip][ix][iy] += 1;
+          }
         }
 }
 //
@@ -329,11 +334,9 @@ void ESIntegrityTask::calculateDIFraction(const edm::LuminosityBlock& lumi, cons
       float nValidChannelsES = 0;
       float nGlobalErrorsES = 0;
       float reportSummaryES = -1;
-      if (!meDIErrors_[i][j])
-        continue;
       for (int x = 0; x < 40; ++x) {
         for (int y = 0; y < 40; ++y) {
-          float val = meDIErrors_[i][j]->getBinContent(x + 1, y + 1);
+          float val = 1.0*((lumiCache->DIErrorsLS_)[i][j][x][y]);
           if (fed_[i][j][x][y] == -1)
             continue;
           if ((lumiCache->ievtLS_) != 0)

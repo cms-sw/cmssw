@@ -11,6 +11,7 @@
 
 struct ESLSCache {
   int ievtLS_;
+  int DIErrorsLS_[2][2][40][40];
 };
 
 class ESIntegrityTask : public DQMOneEDAnalyzer<edm::LuminosityBlockCache<ESLSCache>> {
