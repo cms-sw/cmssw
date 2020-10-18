@@ -31,6 +31,8 @@
 #include "Geometry/MuonNumbering/interface/MuonOffsetFromDD.h"
 
 #include <memory>
+#include <string>
+#include <vector>
 
 //#define EDM_ML_DEBUG
 
@@ -45,12 +47,14 @@ public:
 
 private:
   const bool fromDD4Hep_;
+  const std::vector<std::string> names_;
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> cpvTokenDDD_;
   edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> cpvTokenDD4Hep_;
 };
 
 MuonOffsetESProducer::MuonOffsetESProducer(const edm::ParameterSet& iConfig)
-    : fromDD4Hep_(iConfig.getParameter<bool>("fromDD4Hep")) {
+    : fromDD4Hep_(iConfig.getParameter<bool>("fromDD4Hep")),
+      names_(iConfig.getParameter<std::vector<std::string> >("names")) {
   auto cc = setWhatProduced(this);
   if (fromDD4Hep_) {
     cpvTokenDD4Hep_ = cc.consumesFrom<cms::DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
@@ -64,7 +68,59 @@ MuonOffsetESProducer::MuonOffsetESProducer(const edm::ParameterSet& iConfig)
 
 void MuonOffsetESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  std::vector<std::string> names = {"MuonCommonNumbering",
+				    "MuonBarrel",
+				    "MuonEndcap",
+				    "MuonBarrelWheels",
+				    "MuonBarrelStation1",
+				    "MuonBarrelStation2",
+				    "MuonBarrelStation3",
+				    "MuonBarrelStation4",
+				    "MuonBarrelSuperLayer",
+				    "MuonBarrelLayer",
+				    "MuonBarrelWire",
+				    "MuonRpcPlane1I",
+				    "MuonRpcPlane1O",
+				    "MuonRpcPlane2I",
+				    "MuonRpcPlane2O",
+				    "MuonRpcPlane3S",
+				    "MuonRpcPlane4",
+				    "MuonRpcChamberLeft",
+				    "MuonRpcChamberMiddle",
+				    "MuonRpcChamberRight",
+				    "MuonRpcEndcap1",
+				    "MuonRpcEndcap2",
+				    "MuonRpcEndcap3",
+				    "MuonRpcEndcap4",
+				    "MuonRpcEndcapSector",
+				    "MuonRpcEndcapChamberB1",
+				    "MuonRpcEndcapChamberB2",
+				    "MuonRpcEndcapChamberB3",
+				    "MuonRpcEndcapChamberC1",
+				    "MuonRpcEndcapChamberC2",
+				    "MuonRpcEndcapChamberC3",
+				    "MuonRpcEndcapChamberE1",
+				    "MuonRpcEndcapChamberE2",
+				    "MuonRpcEndcapChamberE3",
+				    "MuonRpcEndcapChamberF1",
+				    "MuonRpcEndcapChamberF2",
+				    "MuonRpcEndcapChamberF3",
+				    "MuonEndcapStation1",
+				    "MuonEndcapStation2",
+				    "MuonEndcapStation3",
+				    "MuonEndcapStation4",
+				    "MuonEndcapSubrings",
+				    "MuonEndcapSectors",
+				    "MuonEndcapLayers",
+				    "MuonEndcapRing1",
+				    "MuonEndcapRing2",
+				    "MuonEndcapRing3",
+				    "MuonEndcapRingA",
+				    "MuonGEMEndcap",
+				    "MuonGEMSector",
+				    "MuonGEMChamber"};
   desc.add<bool>("fromDD4Hep", false);
+  desc.add<std::vector<std::string>>("names", names);
   descriptions.add("muonOffsetESProducer", desc);
 }
 
@@ -74,7 +130,7 @@ MuonOffsetESProducer::ReturnType MuonOffsetESProducer::produce(const IdealGeomet
 #endif
 
   auto ptp = std::make_unique<MuonOffsetMap>();
-  MuonOffsetFromDD builder;
+  MuonOffsetFromDD builder(names_);
 
   if (fromDD4Hep_) {
 #ifdef EDM_ML_DEBUG
