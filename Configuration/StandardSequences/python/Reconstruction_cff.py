@@ -209,6 +209,9 @@ reconstructionTask.visit(cms.ModuleNamesFromGlobalsVisitor(globals(),_modulesInR
 logErrorHarvester.includeModules = cms.untracked.vstring(set(_modulesInReconstruction))
 
 reconstruction_trackingOnlyTask = cms.Task(localrecoTask,globalreco_trackingTask)
+#calo parts removed as long as tracking is not running jetCore in phase2
+trackingPhase2PU140.toReplaceWith(reconstruction_trackingOnlyTask,
+                                  reconstruction_trackingOnlyTask.copyAndExclude([hgcalLocalRecoTask,castorreco]))
 reconstruction_trackingOnly = cms.Sequence(reconstruction_trackingOnlyTask)
 reconstruction_pixelTrackingOnlyTask = cms.Task(
     pixeltrackerlocalrecoTask,
