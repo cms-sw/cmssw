@@ -44,7 +44,6 @@ bool MuonOffsetFromDD::build(const DDCompactView* cpv, MuonOffsetMap& php) {
 bool MuonOffsetFromDD::build(const cms::DDCompactView* cpv, MuonOffsetMap& php) {
   edm::LogVerbatim("MuonGeom") << "Inside MuonOffsetFromDD::build(const cms::DDCompactView*, MuonOffsetMap&)";
 
-
   // Get the offsets and tags first
   int offsets[nset_], tags[nset_];
   cms::DDFilteredView fv(cpv->detector(), cpv->detector()->worldVolume());
