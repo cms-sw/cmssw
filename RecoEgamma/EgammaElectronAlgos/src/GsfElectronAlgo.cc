@@ -397,7 +397,6 @@ GsfElectronAlgo::GsfElectronAlgo(const Tokens& input,
 {}
 
 void GsfElectronAlgo::checkSetup(const edm::EventSetup& es) {
-  hcalHelper_.checkSetup(es);
   if (cfg_.strategy.useEcalRegression || cfg_.strategy.useCombinationRegression)
     regHelper_.checkSetup(es);
 
@@ -412,9 +411,6 @@ void GsfElectronAlgo::checkSetup(const edm::EventSetup& es) {
 GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent(edm::Event const& event,
                                                        CaloGeometry const& caloGeometry,
                                                        EcalSeverityLevelAlgo const& ecalSeveretyLevelAlgo) {
-  // prepare access to hcal data
-  hcalHelper_.readEvent(event);
-
   auto const& towers = event.get(cfg_.tokens.hcalTowersTag);
 
   // Isolation algos
@@ -537,6 +533,9 @@ reco::GsfElectronCollection GsfElectronAlgo::completeElectrons(edm::Event const&
   auto const& caloTopology = eventSetup.getData(caloTopologyToken_);
   auto const& trackerGeometry = eventSetup.getData(trackerGeometryToken_);
   auto const& ecalSeveretyLevelAlgo = eventSetup.getData(ecalSeveretyLevelAlgoToken_);
+
+  // prepare access to hcal data
+  hcalHelper_.beginEvent(event, eventSetup);
 
   checkSetup(eventSetup);
   auto eventData = beginEvent(event, caloGeometry, ecalSeveretyLevelAlgo);
