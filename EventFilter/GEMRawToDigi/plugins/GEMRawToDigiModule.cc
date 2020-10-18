@@ -118,15 +118,9 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
 
     if (nWords < 5)
       continue;
+    
     const unsigned char* data = fedData.data();
-
     const uint64_t* word = reinterpret_cast<const uint64_t*>(data);
-
-    // const uint64_t* w = word;
-    // for (int i =0; i< nWords;i++) {
-    //   std::cout << std::bitset<64>(*(w++)) << std::endl;
-    // }
-
     auto amc13Event = gemRawToDigi_->convertWordToAMC13Event(word);
 
     if (amc13Event == nullptr){
