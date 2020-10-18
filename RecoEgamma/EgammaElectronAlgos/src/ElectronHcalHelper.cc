@@ -3,46 +3,49 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 using namespace reco;
 
-void ElectronHcalHelper::beginEvent(const edm::Event& evt, const edm::EventSetup& es) {
+ElectronHcalHelper::ElectronHcalHelper(const Configuration& cfg, edm::ConsumesCollector&& cc) : cfg_(cfg) {
+  if (cfg_.hOverEConeSize == 0) {
+    return;
+  }
+
+  if (cfg_.useTowers) {
+    hcalChannelQualityToken_ = cc.esConsumes(edm::ESInputTag("", "withTopo"));
+    hcalTopologyToken_ = cc.esConsumes();
+    towerMapToken_ = cc.esConsumes();
+  } else {
+    caloGeometryToken_ = cc.esConsumes();
+  }
+}
+
+void ElectronHcalHelper::beginEvent(const edm::Event& evt, const edm::EventSetup& eventSetup) {
   if (cfg_.hOverEConeSize == 0) {
     return;
   }
 
   if (cfg_.useTowers) {
     towersFromCollection_ = &evt.get(cfg_.hcalTowers);
+
+    towerMap_ = &eventSetup.getData(towerMapToken_);
+    hcalQuality_ = &eventSetup.getData(hcalChannelQualityToken_);
+    hcalTopology_ = &eventSetup.getData(hcalTopologyToken_);
+
     towerIso1_ =
         std::make_unique<EgammaTowerIsolation>(cfg_.hOverEConeSize, 0., cfg_.hOverEPtMin, 1, towersFromCollection_);
     towerIso2_ =
         std::make_unique<EgammaTowerIsolation>(cfg_.hOverEConeSize, 0., cfg_.hOverEPtMin, 2, towersFromCollection_);
-
-    edm::ESHandle<CaloTowerConstituentsMap> ctmaph;
-    es.get<CaloGeometryRecord>().get(ctmaph);
-    towerMap_ = ctmaph.product();
-
-    edm::ESHandle<HcalChannelQuality> hQuality;
-    es.get<HcalChannelQualityRcd>().get("withTopo", hQuality);
-    hcalQuality_ = hQuality.product();
-    edm::ESHandle<HcalTopology> hcalTopology;
-    es.get<HcalRecNumberingRecord>().get(hcalTopology);
-    hcalTopology_ = hcalTopology.product();
   } else {
-    edm::Handle<HBHERecHitCollection> hbhe_;
-    if (!evt.getByToken(cfg_.hcalRecHits, hbhe_)) {
-      edm::LogError("ElectronHcalHelper::readEvent") << "failed to get the rechits";
-    }
-
-    hcalIso_ = std::make_unique<EgammaHcalIsolation>(
-        cfg_.hOverEConeSize, 0., cfg_.hOverEHBMinE, cfg_.hOverEHFMinE, 0., 0., caloGeom_, *hbhe_);
-
-    unsigned long long newCaloGeomCacheId_ = es.get<CaloGeometryRecord>().cacheIdentifier();
-    if (caloGeomCacheId_ != newCaloGeomCacheId_) {
-      caloGeomCacheId_ = newCaloGeomCacheId_;
-      es.get<CaloGeometryRecord>().get(caloGeom_);
-    }
+    hcalIso_ = std::make_unique<EgammaHcalIsolation>(cfg_.hOverEConeSize,
+                                                     0.,
+                                                     cfg_.hOverEHBMinE,
+                                                     cfg_.hOverEHFMinE,
+                                                     0.,
+                                                     0.,
+                                                     eventSetup.getHandle(caloGeometryToken_),
+                                                     evt.get(cfg_.hcalRecHits));
   }
 }
 

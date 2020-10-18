@@ -3,6 +3,7 @@
 
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -10,7 +11,9 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHcalIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
+#include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
 
+class ConsumesCollector;
 class EgammaHadTower;
 class HcalTopology;
 class HcalChannelQuality;
@@ -35,7 +38,7 @@ public:
     double hOverEHFMinE;
   };
 
-  ElectronHcalHelper(const Configuration &cfg) : cfg_(cfg) {}
+  ElectronHcalHelper(const Configuration &cfg, edm::ConsumesCollector &&cc);
 
   void beginEvent(const edm::Event &, const edm::EventSetup &);
 
@@ -56,9 +59,10 @@ public:
 private:
   const Configuration cfg_;
 
-  // event setup data (rechits strategy)
-  unsigned long long caloGeomCacheId_ = 0;
-  edm::ESHandle<CaloGeometry> caloGeom_;
+  edm::ESGetToken<HcalChannelQuality, HcalChannelQualityRcd> hcalChannelQualityToken_;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> hcalTopologyToken_;
+  edm::ESGetToken<CaloTowerConstituentsMap, CaloGeometryRecord> towerMapToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
 
   // event data (rechits strategy)
   std::unique_ptr<EgammaHcalIsolation> hcalIso_ = nullptr;
