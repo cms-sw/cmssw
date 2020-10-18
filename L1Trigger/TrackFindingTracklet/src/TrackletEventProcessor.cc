@@ -286,7 +286,7 @@ void TrackletEventProcessor::event(SLHCEvent& ev) {
         assert(layerdiskcode < 4);
         FPGAWord ldcode;
         ldcode.set(layerdiskcode, 2);
-        string dataword = "1|" + ldcode.str() + "|" + fpgastub.str();
+        string dataword = fpgastub.str() + "|" + ldcode.str() + "|1";
         if (topbit == 0) {
           (*dtcstubs[dtcbase + "A"]) << dataword << " " << trklet::hexFormat(dataword) << endl;
         } else {
