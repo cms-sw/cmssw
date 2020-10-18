@@ -10,13 +10,21 @@
 
 //#define EDM_ML_DEBUG
 
+MuonOffsetFromDD::MuonOffsetFromDD(std::vector<std::string> name) : specpars_(name), nset_(name.size()) {
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("MuonGeom") << "MuonOffsetFromDD initialized with " << nset_ << " specpars";
+#endif
+}
+
 bool MuonOffsetFromDD::build(const DDCompactView* cpv, MuonOffsetMap& php) {
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("MuonGeom") << "Inside MuonOffsetFromDD::build(const DDCompactView*, MuonOffsetMap&)";
+#endif
 
   // Loop over all the sets
   std::string attribute = "OnlyForMuonNumbering";
   std::string name;
-  for (int k = 0; k < nset_; ++k) {
+  for (unsigned int k = 0; k < nset_; ++k) {
     name = "muonstep" + std::to_string(k);
     DDSpecificsMatchesValueFilter filter{DDValue(attribute, name, 0)};
     DDFilteredView fv(*cpv, filter);
@@ -36,71 +44,20 @@ bool MuonOffsetFromDD::build(const DDCompactView* cpv, MuonOffsetMap& php) {
 bool MuonOffsetFromDD::build(const cms::DDCompactView* cpv, MuonOffsetMap& php) {
   edm::LogVerbatim("MuonGeom") << "Inside MuonOffsetFromDD::build(const cms::DDCompactView*, MuonOffsetMap&)";
 
-  std::string specpars[nset_] = {"MuonCommonNumbering",
-                                 "MuonBarrel",
-                                 "MuonEndcap",
-                                 "MuonBarrelWheels",
-                                 "MuonBarrelStation1",
-                                 "MuonBarrelStation2",
-                                 "MuonBarrelStation3",
-                                 "MuonBarrelStation4",
-                                 "MuonBarrelSuperLayer",
-                                 "MuonBarrelLayer",
-                                 "MuonBarrelWire",
-                                 "MuonRpcPlane1I",
-                                 "MuonRpcPlane1O",
-                                 "MuonRpcPlane2I",
-                                 "MuonRpcPlane2O",
-                                 "MuonRpcPlane3S",
-                                 "MuonRpcPlane4",
-                                 "MuonRpcChamberLeft",
-                                 "MuonRpcChamberMiddle",
-                                 "MuonRpcChamberRight",
-                                 "MuonRpcEndcap1",
-                                 "MuonRpcEndcap2",
-                                 "MuonRpcEndcap3",
-                                 "MuonRpcEndcap4",
-                                 "MuonRpcEndcapSector",
-                                 "MuonRpcEndcapChamberB1",
-                                 "MuonRpcEndcapChamberB2",
-                                 "MuonRpcEndcapChamberB3",
-                                 "MuonRpcEndcapChamberC1",
-                                 "MuonRpcEndcapChamberC2",
-                                 "MuonRpcEndcapChamberC3",
-                                 "MuonRpcEndcapChamberE1",
-                                 "MuonRpcEndcapChamberE2",
-                                 "MuonRpcEndcapChamberE3",
-                                 "MuonRpcEndcapChamberF1",
-                                 "MuonRpcEndcapChamberF2",
-                                 "MuonRpcEndcapChamberF3",
-                                 "MuonEndcapStation1",
-                                 "MuonEndcapStation2",
-                                 "MuonEndcapStation3",
-                                 "MuonEndcapStation4",
-                                 "MuonEndcapSubrings",
-                                 "MuonEndcapSectors",
-                                 "MuonEndcapLayers",
-                                 "MuonEndcapRing1",
-                                 "MuonEndcapRing2",
-                                 "MuonEndcapRing3",
-                                 "MuonEndcapRingA",
-                                 "MuonGEMEndcap",
-                                 "MuonGEMSector",
-                                 "MuonGEMChamber"};
 
   // Get the offsets and tags first
   int offsets[nset_], tags[nset_];
   cms::DDFilteredView fv(cpv->detector(), cpv->detector()->worldVolume());
-  for (int k = 0; k < nset_; ++k) {
-    std::vector<int> off = fv.get<std::vector<int>>(specpars[k], "CopyNoOffset");
+  for (unsigned int k = 0; k < nset_; ++k) {
+    std::vector<int> off = fv.get<std::vector<int>>(specpars_[k], "CopyNoOffset");
     offsets[k] = (!off.empty()) ? off[0] : 0;
-    std::vector<int> tag = fv.get<std::vector<int>>(specpars[k], "CopyNoTag");
+    std::vector<int> tag = fv.get<std::vector<int>>(specpars_[k], "CopyNoTag");
     tags[k] = (!tag.empty()) ? tag[0] : 0;
   }
   // Now loop over the detectors
   std::string attribute = "OnlyForMuonNumbering";
   std::string name;
-  for (int k = 0; k < nset_; ++k) {
+  for (unsigned int k = 0; k < nset_; ++k) {
     name = "muonstep" + std::to_string(k);
     const cms::DDFilter filter(attribute, name);
     cms::DDFilteredView fv((*cpv), filter);

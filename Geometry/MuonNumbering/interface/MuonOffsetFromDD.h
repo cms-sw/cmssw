@@ -13,8 +13,7 @@ class MuonOffsetMap;
 
 class MuonOffsetFromDD {
 public:
-  MuonOffsetFromDD() = default;
-  virtual ~MuonOffsetFromDD() {}
+  MuonOffsetFromDD(std::vector<std::string> names);
 
   bool build(const DDCompactView*, MuonOffsetMap&);
   bool build(const cms::DDCompactView*, MuonOffsetMap&);
@@ -22,7 +21,8 @@ public:
 private:
   bool buildParameters(const MuonOffsetMap&);
   int getNumber(const std::string&, const DDsvalues_type&);
-  static constexpr int nset_ = 51;
+  const std::vector<std::string> specpars_;
+  const unsigned int nset_;
 };
 
 #endif
