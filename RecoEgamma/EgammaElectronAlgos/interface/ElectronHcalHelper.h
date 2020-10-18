@@ -10,6 +10,7 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHcalIsolation.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHadTower.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 #include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
 
@@ -48,9 +49,13 @@ public:
   double hOverEConeSize() const { return cfg_.hOverEConeSize; }
 
   // Behind clusters
-  std::vector<CaloTowerDetId> hcalTowersBehindClusters(const reco::SuperCluster &sc) const;
-  double hcalESumDepth1BehindClusters(const std::vector<CaloTowerDetId> &towers) const;
-  double hcalESumDepth2BehindClusters(const std::vector<CaloTowerDetId> &towers) const;
+  inline auto hcalTowersBehindClusters(const reco::SuperCluster &sc) const { return egamma::towersOf(sc, *towerMap_); }
+  inline auto hcalESumDepth1BehindClusters(const std::vector<CaloTowerDetId> &towers) const {
+    return egamma::depth1HcalESum(towers, *towersFromCollection_);
+  }
+  inline auto hcalESumDepth2BehindClusters(const std::vector<CaloTowerDetId> &towers) const {
+    return egamma::depth2HcalESum(towers, *towersFromCollection_);
+  }
 
   // forward EgammaHadTower methods, if checkHcalStatus is enabled, using towers and H/E
   // otherwise, return true

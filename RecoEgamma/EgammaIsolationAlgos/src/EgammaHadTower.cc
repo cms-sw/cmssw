@@ -7,7 +7,7 @@
 #include <iostream>
 #include <algorithm>
 
-CaloTowerDetId egammaHadTower::towerOf(const reco::CaloCluster& cluster, CaloTowerConstituentsMap const& towerMap) {
+CaloTowerDetId egamma::towerOf(const reco::CaloCluster& cluster, CaloTowerConstituentsMap const& towerMap) {
   DetId detid = cluster.seed();
   if (detid.det() != DetId::Ecal) {
     // Basic clusters of hybrid super-cluster do not have the seed set; take the first DetId instead
@@ -22,9 +22,9 @@ CaloTowerDetId egammaHadTower::towerOf(const reco::CaloCluster& cluster, CaloTow
   return id;
 }
 
-std::vector<CaloTowerDetId> egammaHadTower::towersOf(const reco::SuperCluster& sc,
-                                                     CaloTowerConstituentsMap const& towerMap,
-                                                     HoeMode mode) {
+std::vector<CaloTowerDetId> egamma::towersOf(const reco::SuperCluster& sc,
+                                             CaloTowerConstituentsMap const& towerMap,
+                                             HoeMode mode) {
   constexpr unsigned int nMaxClusters = 4;
 
   std::vector<CaloTowerDetId> towers;
@@ -70,8 +70,7 @@ std::vector<CaloTowerDetId> egammaHadTower::towersOf(const reco::SuperCluster& s
   return towers;
 }
 
-double egammaHadTower::getDepth1HcalESum(const std::vector<CaloTowerDetId>& towers,
-                                         CaloTowerCollection const& towerCollection) {
+double egamma::depth1HcalESum(const std::vector<CaloTowerDetId>& towers, CaloTowerCollection const& towerCollection) {
   double esum = 0.;
   for (auto const& tower : towerCollection) {
     if (std::find(towers.begin(), towers.end(), tower.id()) != towers.end()) {
@@ -81,8 +80,7 @@ double egammaHadTower::getDepth1HcalESum(const std::vector<CaloTowerDetId>& towe
   return esum;
 }
 
-double egammaHadTower::getDepth2HcalESum(const std::vector<CaloTowerDetId>& towers,
-                                         CaloTowerCollection const& towerCollection) {
+double egamma::depth2HcalESum(const std::vector<CaloTowerDetId>& towers, CaloTowerCollection const& towerCollection) {
   double esum = 0.;
   for (auto const& tower : towerCollection) {
     if (std::find(towers.begin(), towers.end(), tower.id()) != towers.end()) {
@@ -92,10 +90,10 @@ double egammaHadTower::getDepth2HcalESum(const std::vector<CaloTowerDetId>& towe
   return esum;
 }
 
-bool egammaHadTower::hasActiveHcal(const std::vector<CaloTowerDetId>& towers,
-                                   CaloTowerConstituentsMap const& towerMap,
-                                   const HcalChannelQuality& hcalQuality,
-                                   HcalTopology const& hcalTopology) {
+bool egamma::hasActiveHcal(const std::vector<CaloTowerDetId>& towers,
+                           CaloTowerConstituentsMap const& towerMap,
+                           const HcalChannelQuality& hcalQuality,
+                           HcalTopology const& hcalTopology) {
   bool active = false;
   int statusMask = ((1 << HcalChannelStatus::HcalCellOff) | (1 << HcalChannelStatus::HcalCellMask) |
                     (1 << HcalChannelStatus::HcalCellDead));
@@ -113,9 +111,9 @@ bool egammaHadTower::hasActiveHcal(const std::vector<CaloTowerDetId>& towers,
       if (hid.subdet() != HcalBarrel && hid.subdet() != HcalEndcap)
         continue;
 #ifdef EDM_ML_DEBUG
-      std::cout << "egammaHadTower DetId " << std::hex << id.rawId() << "  hid.rawId  " << hid.rawId() << std::dec
-                << "   sub " << hid.subdet() << "   ieta " << hid.ieta() << "   iphi " << hid.iphi() << "   depth "
-                << hid.depth() << std::endl;
+      std::cout << "egamma DetId " << std::hex << id.rawId() << "  hid.rawId  " << hid.rawId() << std::dec << "   sub "
+                << hid.subdet() << "   ieta " << hid.ieta() << "   iphi " << hid.iphi() << "   depth " << hid.depth()
+                << std::endl;
 #endif
       // Sunanda's fix for 2017 Plan1
       // and removed protection

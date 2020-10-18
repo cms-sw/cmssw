@@ -74,9 +74,9 @@ void SuperClusterImporter::importToBlock(const edm::Event& e, BlockElementImport
     PFBlockElementSCEqual myEqual(scref);
     auto sc_elem = std::find_if(elems.begin(), SCs_end, myEqual);
     const double scpT = ptFast(sc->energy(), sc->position(), _zero);
-    const auto towersBehindCluster = egammaHadTower::towersOf(*sc, *towerMap_);
-    const double H_tower = (egammaHadTower::getDepth1HcalESum(towersBehindCluster, towers) +
-                            egammaHadTower::getDepth2HcalESum(towersBehindCluster, towers));
+    const auto towersBehindCluster = egamma::towersOf(*sc, *towerMap_);
+    const double H_tower =
+        (egamma::depth1HcalESum(towersBehindCluster, towers) + egamma::depth2HcalESum(towersBehindCluster, towers));
     const double HoverE = H_tower / sc->energy();
     if (sc_elem == SCs_end && scpT > _minSCPt && (scpT > _pTbyPass || HoverE < _maxHoverE)) {
       scbe = new reco::PFBlockElementSuperCluster(scref);
@@ -93,9 +93,9 @@ void SuperClusterImporter::importToBlock(const edm::Event& e, BlockElementImport
     PFBlockElementSCEqual myEqual(scref);
     auto sc_elem = std::find_if(elems.begin(), SCs_end, myEqual);
     const double scpT = ptFast(sc->energy(), sc->position(), _zero);
-    const auto towersBehindCluster = egammaHadTower::towersOf(*sc, *towerMap_);
-    const double H_tower = (egammaHadTower::getDepth1HcalESum(towersBehindCluster, towers) +
-                            egammaHadTower::getDepth2HcalESum(towersBehindCluster, towers));
+    const auto towersBehindCluster = egamma::towersOf(*sc, *towerMap_);
+    const double H_tower =
+        (egamma::depth1HcalESum(towersBehindCluster, towers) + egamma::depth2HcalESum(towersBehindCluster, towers));
     const double HoverE = H_tower / sc->energy();
     if (sc_elem == SCs_end && scpT > _minSCPt && (scpT > _pTbyPass || HoverE < _maxHoverE)) {
       scbe = new reco::PFBlockElementSuperCluster(scref);

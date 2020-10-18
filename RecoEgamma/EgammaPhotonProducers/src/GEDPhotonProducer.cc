@@ -518,12 +518,12 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
       edm::ESHandle<HcalTopology> hcalTopology;
       es.get<HcalRecNumberingRecord>().get(hcalTopology);
 
-      TowersBehindClus = egammaHadTower::towersOf(*scRef, *ctmaph);
-      hcalDepth1OverEcalBc = egammaHadTower::getDepth1HcalESum(TowersBehindClus, *hcalTowers) / scRef->energy();
-      hcalDepth2OverEcalBc = egammaHadTower::getDepth2HcalESum(TowersBehindClus, *hcalTowers) / scRef->energy();
+      TowersBehindClus = egamma::towersOf(*scRef, *ctmaph);
+      hcalDepth1OverEcalBc = egamma::depth1HcalESum(TowersBehindClus, *hcalTowers) / scRef->energy();
+      hcalDepth2OverEcalBc = egamma::depth2HcalESum(TowersBehindClus, *hcalTowers) / scRef->energy();
 
       if (checkHcalStatus_ && hcalDepth1OverEcalBc == 0 && hcalDepth2OverEcalBc == 0) {
-        invalidHcal = !egammaHadTower::hasActiveHcal(TowersBehindClus, *ctmaph, *hcalQuality, *hcalTopology);
+        invalidHcal = !egamma::hasActiveHcal(TowersBehindClus, *ctmaph, *hcalQuality, *hcalTopology);
       }
     }
 
