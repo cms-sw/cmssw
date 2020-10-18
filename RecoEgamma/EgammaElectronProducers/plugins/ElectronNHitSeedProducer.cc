@@ -85,7 +85,7 @@ ElectronNHitSeedProducer::ElectronNHitSeedProducer(const edm::ParameterSet& pset
       beamSpotToken_(consumes<reco::BeamSpot>(pset.getParameter<edm::InputTag>("beamSpot"))),
       measTkEvtToken_(consumes<MeasurementTrackerEvent>(pset.getParameter<edm::InputTag>("measTkEvt"))),
       putToken_{produces<reco::ElectronSeedCollection>()},
-      trackerTopologyToken_{esConsumes<TrackerTopology, TrackerTopologyRcd>()} {
+      trackerTopologyToken_{esConsumes()} {
   for (const auto& scTag : pset.getParameter<std::vector<edm::InputTag>>("superClusters")) {
     superClustersTokens_.emplace_back(consumes<std::vector<reco::SuperClusterRef>>(scTag));
   }

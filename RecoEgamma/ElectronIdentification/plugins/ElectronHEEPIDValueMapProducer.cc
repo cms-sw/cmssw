@@ -198,7 +198,7 @@ ElectronHEEPIDValueMapProducer::ElectronHEEPIDValueMapProducer(const edm::Parame
   setToken(eleToken_, iConfig, "elesAOD", "elesMiniAOD", dataFormat_);
   setToken(candTokens_, iConfig, "candsAOD", "candsMiniAOD", dataFormat_);
   setToken(beamSpotToken_, iConfig, "beamSpot");
-  caloTopoToken_ = esConsumes<CaloTopology, CaloTopologyRecord>();
+  caloTopoToken_ = esConsumes();
 
   auto fillVetos = [](const auto& in, auto& out) {
     std::transform(in.begin(), in.end(), std::back_inserter(out), EleTkIsolFromCands::pidVetoFromStr);

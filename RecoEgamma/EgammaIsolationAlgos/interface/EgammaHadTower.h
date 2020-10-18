@@ -12,11 +12,11 @@
 
 class HcalChannelQuality;
 
-namespace egammaHadTower {
+namespace egamma {
   enum class HoeMode { SingleTower = 0, TowersBehindCluster = 1 };
 
-  double getDepth1HcalESum(std::vector<CaloTowerDetId> const& towers, CaloTowerCollection const&);
-  double getDepth2HcalESum(std::vector<CaloTowerDetId> const& towers, CaloTowerCollection const&);
+  double depth1HcalESum(std::vector<CaloTowerDetId> const& towers, CaloTowerCollection const&);
+  double depth2HcalESum(std::vector<CaloTowerDetId> const& towers, CaloTowerCollection const&);
 
   std::vector<CaloTowerDetId> towersOf(reco::SuperCluster const& sc,
                                        CaloTowerConstituentsMap const& towerMap,
@@ -28,6 +28,6 @@ namespace egammaHadTower {
                      CaloTowerConstituentsMap const& towerMap,
                      HcalChannelQuality const& hcalQuality,
                      HcalTopology const& hcalTopology);
-};  // namespace egammaHadTower
+};  // namespace egamma
 
 #endif
