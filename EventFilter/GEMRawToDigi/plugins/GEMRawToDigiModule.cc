@@ -57,10 +57,10 @@ DEFINE_FWK_MODULE(GEMRawToDigiModule);
 using namespace gem;
 
 GEMRawToDigiModule::GEMRawToDigiModule(const edm::ParameterSet& pset)
-    : fed_token(consumes<FEDRawDataCollection>(pset.getParameter<edm::InputTag>("InputLabel"))),
-      useDBEMap_(pset.getParameter<bool>("useDBEMap")),
-      unPackStatusDigis_(pset.getParameter<bool>("unPackStatusDigis")),
-      gemRawToDigi_(std::make_unique<GEMRawToDigi>()) {
+  : fed_token(consumes<FEDRawDataCollection>(pset.getParameter<edm::InputTag>("InputLabel"))),
+    useDBEMap_(pset.getParameter<bool>("useDBEMap")),
+    unPackStatusDigis_(pset.getParameter<bool>("unPackStatusDigis")),
+    gemRawToDigi_(std::make_unique<GEMRawToDigi>()) {
   produces<GEMDigiCollection>();
   if (unPackStatusDigis_) {
     produces<GEMVfatStatusDigiCollection>("vfatStatus");
@@ -122,14 +122,25 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
 
     const uint64_t* word = reinterpret_cast<const uint64_t*>(data);
 
+    // const uint64_t* w = word;
+    // for (int i =0; i< nWords;i++) {
+    //   std::cout << std::bitset<64>(*(w++)) << std::endl;
+    // }
+
     auto amc13Event = gemRawToDigi_->convertWordToAMC13Event(word);
 
-    if (amc13Event == nullptr)
+    if (amc13Event == nullptr){
+      LogDebug("GEMRawToDigiModule") << "amc13Event does not exists";
       continue;
-
+    }
+    LogDebug("GEMRawToDigiModule") << "Event bx:" << iEvent.bunchCrossing() << " lv1Id:" << iEvent.id().event() << " orbitNumber:" << iEvent.orbitNumber();
+    LogDebug("GEMRawToDigiModule") << "AMC13 bx:" << amc13Event->bxId() << " lv1Id:" << int(amc13Event->lv1Id()) << " orbitNumber:" << amc13Event->orbitNumber();  
+    
     // Read AMC data
     for (auto amcData : *(amc13Event->getAMCpayloads())) {
+      uint16_t amcBx = amcData.bx();
       uint8_t amcNum = amcData.amcNum();
+      LogDebug("GEMRawToDigiModule") << "AMC bx:" << int(amcData.bx()) << " lv1Id:" << int(amcData.l1A()) << " orbitNumber:" << int(amcData.orbitNum());
 
       // Read GEB data
       for (auto gebData : *amcData.gebs()) {
@@ -137,6 +148,7 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
         GEMROMapping::chamEC geb_ec = {fedId, amcNum, gebId};
         GEMROMapping::chamDC geb_dc = gemROMap->chamberPos(geb_ec);
         GEMDetId gemChId = geb_dc.detId;
+        LogDebug("GEMRawToDigiModule") << "GEB bx:" << int(gebData.bcOH()) << " lv1Id:" << int(gebData.ecOH());
 
         //Read vfat data
         for (auto vfatData : *gebData.vFATs()) {
@@ -147,18 +159,18 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
           // check if ChipID exists.
           if (!gemROMap->isValidChipID(vfat_ec)) {
             edm::LogWarning("GEMRawToDigiModule")
-                << "InValid: amcNum " << int(amcNum) << " gebId " << int(gebId) << " vfatId " << int(vfatId)
-                << " vfat Pos " << int(vfatData.position());
+              << "InValid: amcNum " << int(amcNum) << " gebId " << int(gebId) << " vfatId " << int(vfatId)
+              << " vfat Pos " << int(vfatData.position());
             continue;
           }
           // check vfat data
           if (vfatData.quality()) {
             edm::LogWarning("GEMRawToDigiModule")
-                << "Quality " << int(vfatData.quality()) << " b1010 " << int(vfatData.b1010()) << " b1100 "
-                << int(vfatData.b1100()) << " b1110 " << int(vfatData.b1110());
+              << "Quality " << int(vfatData.quality()) << " b1010 " << int(vfatData.b1010()) << " b1100 "
+              << int(vfatData.b1100()) << " b1110 " << int(vfatData.b1110());
             if (vfatData.crc() != vfatData.checkCRC()) {
               edm::LogWarning("GEMRawToDigiModule")
-                  << "DIFFERENT CRC :" << vfatData.crc() << "   " << vfatData.checkCRC();
+                << "DIFFERENT CRC :" << vfatData.crc() << "   " << vfatData.checkCRC();
             }
           }
 
@@ -166,7 +178,7 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
 
           vfatData.setPhi(vfat_dc.localPhi);
           GEMDetId gemId = vfat_dc.detId;
-          int bx(vfatData.bc());
+          int bx = vfatData.bc()-amcBx;
 
           for (int chan = 0; chan < VFATdata::nChannels; ++chan) {
             uint8_t chan0xf = 0;
@@ -186,10 +198,11 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
 
             GEMDigi digi(stripId, bx);
 
+            LogDebug("GEMRawToDigiModule") << "VFATbx:" << int(vfatData.bc()) << " lv1Id:" << int(vfatData.ec());
             LogDebug("GEMRawToDigiModule")
-                << " fed: " << fedId << " amc:" << int(amcNum) << " geb:" << int(gebId) << " vfat:" << vfat_dc.localPhi
-                << ",type: " << vfat_dc.vfatType << " id:" << gemId << " ch:" << chMap.chNum << " st:" << digi.strip()
-                << " bx:" << digi.bx();
+              << " fed: " << fedId << " amc:" << int(amcNum) << " geb:" << int(gebId) << " vfat:" << vfat_dc.localPhi
+              << ",type: " << vfat_dc.vfatType << " id:" << gemId << " ch:" << chMap.chNum << " st:" << digi.strip()
+              << " bx:" << digi.bx();
 
             outGEMDigis.get()->insertDigi(gemId, digi);
 
