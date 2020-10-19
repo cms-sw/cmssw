@@ -894,13 +894,13 @@ class TauIDEmbedder(object):
                     )
                 ),
                 workingPoints = cms.vstring(
-                    "_WPEff95",
-                    "_WPEff90",
-                    "_WPEff80",
-                    "_WPEff70",
-                    "_WPEff60",
-                    "_WPEff50",
-                    "_WPEff40"
+                    "_VVLoose",
+                    "_VLoose",
+                    "_Loose",
+                    "_Medium",
+                    "_Tight",
+                    "_VTight",
+                    "_VVTight"
                 )
             )
             self.process.rerunIsolationMVADBnewDMwLTPhase2Task = cms.Task(
@@ -911,13 +911,13 @@ class TauIDEmbedder(object):
             self.process.rerunMvaIsolationSequence += cms.Sequence(self.process.rerunIsolationMVADBnewDMwLTPhase2Task)
 
             tauIDSources.byIsolationMVADBnewDMwLTPhase2raw = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "raw")
-            tauIDSources.byVVLooseIsolationMVADBnewDMwLTPhase2 = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "_WPEff95")
-            tauIDSources.byVLooseIsolationMVADBnewDMwLTPhase2 = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "_WPEff90")
-            tauIDSources.byLooseIsolationMVADBnewDMwLTPhase2 = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "_WPEff80")
-            tauIDSources.byMediumIsolationMVADBnewDMwLTPhase2 = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "_WPEff70")
-            tauIDSources.byTightIsolationMVADBnewDMwLTPhase2 = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "_WPEff60")
-            tauIDSources.byVTightIsolationMVADBnewDMwLTPhase2 = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "_WPEff50")
-            tauIDSources.byVVTightIsolationMVADBnewDMwLTPhase2 = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "_WPEff40")
+            tauIDSources.byVVLooseIsolationMVADBnewDMwLTPhase2 = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "_VVLoose")
+            tauIDSources.byVLooseIsolationMVADBnewDMwLTPhase2 = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "_VLoose")
+            tauIDSources.byLooseIsolationMVADBnewDMwLTPhase2 = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "_Loose")
+            tauIDSources.byMediumIsolationMVADBnewDMwLTPhase2 = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "_Medium")
+            tauIDSources.byTightIsolationMVADBnewDMwLTPhase2 = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "_Tight")
+            tauIDSources.byVTightIsolationMVADBnewDMwLTPhase2 = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "_VTight")
+            tauIDSources.byVVTightIsolationMVADBnewDMwLTPhase2 = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "_VVTight")
 
         if "againstElePhase2v1" in self.toKeep:
             if self.debug: print ("Adding anti-e Phase2v1 ID")
@@ -948,11 +948,11 @@ class TauIDEmbedder(object):
             _againstElectronTauIDPhase2v1Sources = cms.PSet(
                 againstElectronMVA6RawPhase2v1 = self.tauIDMVAinputs("patTauDiscriminationByElectronRejectionMVA6Phase2v1", "raw"),
                 againstElectronMVA6categoryPhase2v1 = self.tauIDMVAinputs("patTauDiscriminationByElectronRejectionMVA6Phase2v1", "category"),
-                againstElectronVLooseMVA6Phase2v1 = self.tauIDMVAinputs("patTauDiscriminationByElectronRejectionMVA6Phase2v1", "_WPEff98"),
-                againstElectronLooseMVA6Phase2v1 = self.tauIDMVAinputs("patTauDiscriminationByElectronRejectionMVA6Phase2v1", "_WPEff90"),
-                againstElectronMediumMVA6Phase2v1 = self.tauIDMVAinputs("patTauDiscriminationByElectronRejectionMVA6Phase2v1", "_WPEff80"),
-                againstElectronTightMVA6Phase2v1 = self.tauIDMVAinputs("patTauDiscriminationByElectronRejectionMVA6Phase2v1", "_WPEff70"),
-                againstElectronVTightMVA6Phase2v1 = self.tauIDMVAinputs("patTauDiscriminationByElectronRejectionMVA6Phase2v1", "_WPEff60")
+                againstElectronVLooseMVA6Phase2v1 = self.tauIDMVAinputs("patTauDiscriminationByElectronRejectionMVA6Phase2v1", "_VLoose"),
+                againstElectronLooseMVA6Phase2v1 = self.tauIDMVAinputs("patTauDiscriminationByElectronRejectionMVA6Phase2v1", "_Loose"),
+                againstElectronMediumMVA6Phase2v1 = self.tauIDMVAinputs("patTauDiscriminationByElectronRejectionMVA6Phase2v1", "_Medium"),
+                againstElectronTightMVA6Phase2v1 = self.tauIDMVAinputs("patTauDiscriminationByElectronRejectionMVA6Phase2v1", "_Tight"),
+                againstElectronVTightMVA6Phase2v1 = self.tauIDMVAinputs("patTauDiscriminationByElectronRejectionMVA6Phase2v1", "_VTight")
             )
             _tauIDSourcesWithAgainistElePhase2v1 = cms.PSet(
                 tauIDSources.clone(),

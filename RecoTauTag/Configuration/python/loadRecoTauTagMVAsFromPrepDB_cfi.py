@@ -44,7 +44,7 @@ tauIdDiscrMVA_trainings_run2_2017 = {
     'tauIdMVAIsoDBoldDMdR0p3wLT2017' : "tauIdMVAIsoDBoldDMdR0p3wLT2017",
 }
 tauIdDiscrMVA_trainings_phase2 = {
-    'tauIdMVAIsoPhase2' : "tauIdMVAIsoPhase2",
+    'tauIdMVAIsoPhase2_v1' : "tauIdMVAIsoPhase2",
 }
 tauIdDiscrMVA_WPs = {
     'tauIdMVAoldDMwoLT' : {
@@ -178,7 +178,7 @@ tauIdDiscrMVA_WPs_run2_2017 = {
     }
 }
 tauIdDiscrMVA_WPs_phase2 = {
-    'tauIdMVAIsoPhase2' : {
+    'tauIdMVAIsoPhase2_v1' : {
         'Eff95' : "Phase2Eff95",
         'Eff90' : "Phase2Eff90",
         'Eff80' : "Phase2Eff80",
@@ -212,7 +212,7 @@ tauIdDiscrMVA_mvaOutput_normalizations_run2_2017 = {
     'tauIdMVAIsoDBoldDMdR0p3wLT2017' : "mvaOutput_normalization"
 }
 tauIdDiscrMVA_mvaOutput_normalizations_phase2 = {
-    'tauIdMVAIsoPhase2' : "mvaOutput_normalization",
+    'tauIdMVAIsoPhase2_v1' : "mvaOutput_normalization",
 }
 
 tauIdDiscrMVA_version = "v1"
@@ -321,7 +321,7 @@ for training, gbrForestName in tauIdDiscrMVA_trainings_phase2.items():
         cms.PSet(
             record = cms.string('GBRWrapperRcd'),
             tag = cms.string("RecoTauTag_%s" % (gbrForestName)),
-            label = cms.untracked.string("RecoTauTag_%s" % (gbrForestName))
+            label = cms.untracked.string("RecoTauTag_%s" % (training))
         )
     )
     for WP in tauIdDiscrMVA_WPs_phase2[training].keys():
@@ -329,14 +329,14 @@ for training, gbrForestName in tauIdDiscrMVA_trainings_phase2.items():
             cms.PSet(
                 record = cms.string('PhysicsTGraphPayloadRcd'),
                 tag = cms.string("RecoTauTag_%s_WP%s" % (gbrForestName, WP)),
-                label = cms.untracked.string("RecoTauTag_%s_WP%s" % (gbrForestName, WP))
+                label = cms.untracked.string("RecoTauTag_%s_WP%s" % (training, WP))
             )
          )
     loadRecoTauTagMVAsFromPrepDB.toGet.append(
         cms.PSet(
             record = cms.string('PhysicsTFormulaPayloadRcd'),
             tag = cms.string("RecoTauTag_%s_mvaOutput_normalization" % (gbrForestName)),
-            label = cms.untracked.string("RecoTauTag_%s_mvaOutput_normalization" % (gbrForestName))
+            label = cms.untracked.string("RecoTauTag_%s_mvaOutput_normalization" % (training))
        )
     )
 
