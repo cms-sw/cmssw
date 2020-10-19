@@ -52,6 +52,7 @@ public:
 private:
   std::vector<std::string> getPoints(
       double xpos, double ypos, double delX, double delY, double rin, double rout, int lay, int waferU, int waferV);
+  std::vector<double> getCorners(double xpos, double ypos, double delX, double delY);
   const std::string nameSense_, nameDetector_;
   const int verbosity_;
   const edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> geomToken_;
@@ -104,12 +105,16 @@ void HGCalWaferInFileTest::analyze(const edm::Event& iEvent, const edm::EventSet
         const auto& xy = hgdc.waferPosition(layer, waferU, waferV, true, true);
         const auto& rr = hgdc.rangeRLayer(layer, true);
         auto points = getPoints(xy.first, xy.second, delX, delY, rr.first, rr.second, layer, waferU, waferV);
+	auto rpos = getCorners(xy.first, xy.second, delX, delY);
         std::cout << "ID[" << k << "]: (" << (hgdc.getLayerOffset() + layer) << ", " << waferU << ", " << waferV << ", "
                   << typex << ") at (" << std::setprecision(4) << xy.first << ", " << xy.second << ", "
                   << hgdc.waferZ(layer, true) << ") not present with " << points.size() << " points:";
         for (auto point : points)
           std::cout << " " << point;
-        std::cout << " in the region " << rr.first << ":" << rr.second << std::endl;
+        std::cout << " in the region " << rr.first << ":" << rr.second << " Corners";
+	for (auto point : rpos)
+	  std::cout << " " << point;
+	std::cout << std::endl;
         ++bad1;
         if ((layer - layerf) < layers)
           ++miss[layer - layerf];
@@ -152,8 +157,8 @@ void HGCalWaferInFileTest::analyze(const edm::Event& iEvent, const edm::EventSet
               << " wafers with the same indices\n\n";
 
     // Now cross check the content (partial and orientation)
-    int allX(0), badG(0), badP(0), badR(0);
-    std::vector<int> wrongP(layers, 0), wrongR(layers, 0);
+    int allX(0), badG(0), badP(0), badP2(0), badR(0);
+    std::vector<int> wrongP(layers, 0), wrongP2(layers, 0), wrongR(layers, 0);
     for (unsigned int k = 0; k < hgdc.waferFileSize(); ++k) {
       int indx = hgdc.waferFileIndex(k);
       int part1 = std::get<1>(hgdc.waferFileInfo(k));
@@ -169,10 +174,16 @@ void HGCalWaferInFileTest::analyze(const edm::Event& iEvent, const edm::EventSet
         int rotn2 = hgdc.waferTypeRotation(id.layer(), id.waferU(), id.waferV(), false, false).second;
         bool partOK = ((part1 == part2) || ((part1 == HGCalTypes::WaferFull) && (part2 == HGCalTypes::WaferOut)));
         bool rotnOK = ((rotn1 == rotn2) || (part1 == HGCalTypes::WaferFull) || (part2 == HGCalTypes::WaferFull));
+	bool partOK2 = (partOK) || (part2 < part1);
         if (!partOK) {
           ++badP;
           if ((layer - layerf) < layers)
             ++wrongP[layer - layerf];
+        }
+        if (!partOK2) {
+          ++badP2;
+          if ((layer - layerf) < layers)
+            ++wrongP2[layer - layerf];
         }
         if (!rotnOK) {
           ++badR;
@@ -181,27 +192,32 @@ void HGCalWaferInFileTest::analyze(const edm::Event& iEvent, const edm::EventSet
         }
         if ((!partOK) || (!rotnOK)) {
           ++badG;
-          std::string partx1 = (part1 < static_cast<int>(types.size())) ? types[part1] : "X";
-          std::string partx2 = (part2 < static_cast<int>(types.size())) ? types[part2] : "X";
-          const auto& xy = hgdc.waferPosition(layer, waferU, waferV, true, false);
-          const auto& rr = hgdc.rangeRLayer(layer, true);
-          auto points = getPoints(xy.first, xy.second, delX, delY, rr.first, rr.second, layer, waferU, waferV);
-          std::cout << "ID[" << k << "]: (" << (hgdc.getLayerOffset() + layer) << ", " << waferU << ", " << waferV
-                    << "," << type2 << ", " << partx1 << ":" << partx2 << ":" << part1 << ":" << part2 << ", " << rotn1
-                    << ":" << rotn2 << ") at (" << std::setprecision(4) << xy.first << ", " << xy.second << ", "
-                    << hgdc.waferZ(layer, true) << ") failure flag " << partOK << ":" << rotnOK << " with "
-                    << points.size() << " points:";
-          for (auto point : points)
-            std::cout << " " << point;
-          std::cout << " in the region " << rr.first << ":" << rr.second << std::endl;
+	  if ((verbosity_ > 0) || (!partOK2)) {
+	    std::string partx1 = (part1 < static_cast<int>(types.size())) ? types[part1] : "X";
+	    std::string partx2 = (part2 < static_cast<int>(types.size())) ? types[part2] : "X";
+	    const auto& xy = hgdc.waferPosition(layer, waferU, waferV, true, false);
+	    const auto& rr = hgdc.rangeRLayer(layer, true);
+	    auto points = getPoints(xy.first, xy.second, delX, delY, rr.first, rr.second, layer, waferU, waferV);
+	    auto rpos = getCorners(xy.first, xy.second, delX, delY);
+	    std::cout << "ID[" << k << "]: (" << (hgdc.getLayerOffset() + layer) << ", " << waferU << ", " << waferV
+		      << "," << type2 << ", " << partx1 << ":" << partx2 << ":" << part1 << ":" << part2 << ", " << rotn1
+		      << ":" << rotn2 << ") at (" << std::setprecision(4) << xy.first << ", " << xy.second << ", "
+		      << hgdc.waferZ(layer, true) << ") failure flag " << partOK << ":" << rotnOK << " with "
+		      << points.size() << " points:";
+	    for (auto point : points)
+	      std::cout << " " << point;
+	    std::cout << " in the region " << rr.first << ":" << rr.second << " Corners";
+	    for (auto point : rpos)
+	      std::cout << " " << point;
+	    std::cout << std::endl;
+	  }
         }
       }
     }
-    std::cout << "\n\nFinds " << badG << " (" << badP << ":" << badR << ") mismatch in partial|orientation among "
-              << allX << " wafers with the same indices" << std::endl;
+    std::cout << "\n\nFinds " << badG << " (" << badP << ":" << badP2 << ":" << badR << ") mismatch in partial|orientation among " << allX << " wafers with the same indices" << std::endl;
     for (int k = 0; k < layers; ++k) {
       if ((wrongP[k] > 0) || (wrongR[k] > 0))
-        std::cout << "Layer[" << k << ":" << (layerf + k) << "] " << wrongP[k] << ":" << wrongR[k] << std::endl;
+        std::cout << "Layer[" << k << ":" << (layerf + k) << "] " << wrongP[k] << ":" << wrongP2[k] << ":" << wrongR[k] << std::endl;
     }
     std::cout << std::endl;
   }
@@ -229,14 +245,14 @@ std::vector<std::string> HGCalWaferInFileTest::getPoints(
       iok *= base;
     }
   }
-  if (verbosity_ > 0)
+  if (verbosity_ > 1)
     std::cout << "I/p " << layer << ":" << waferU << ":" << waferV << ":" << xpos << ":" << ypos << ":" << delX << ":"
               << delY << ":" << rin << ":" << rout << " Corners " << ncor << " iok " << iok << std::endl;
 
   static const int parts = 3;
   static const std::string c1[parts] = {"A1", "A2", "A3"};
-  double dx1[parts] = {0.25 * delX, 0.50 * delX, 0.75 * delX};
-  double dy1[parts] = {-0.875 * delY, -0.75 * delY, -0.625 * delY};
+  double dx1[parts] = {0.225 * delX, 0.50 * delX, 0.775 * delX};
+  double dy1[parts] = {-0.8875 * delY, -0.75 * delY, -0.6125 * delY};
   if ((((iok / 10000) % 10) == 1) && (((iok / 100000) % 10) == 0)) {
     for (int k = 0; k < parts; ++k) {
       double xc1 = xpos + dx1[k];
@@ -263,7 +279,7 @@ std::vector<std::string> HGCalWaferInFileTest::getPoints(
 
   static const std::string c2[parts] = {"B1", "B2", "B3"};
   double dx2[parts] = {delX, delX, delX};
-  double dy2[parts] = {-0.5 * delY, 0.0, 0.5 * delY};
+  double dy2[parts] = {-0.275 * delY, 0.0, 0.275 * delY};
   if ((((iok / 1000) % 10) == 1) && (((iok / 10000) % 10) == 0)) {
     for (int k = 0; k < parts; ++k) {
       double xc1 = xpos + dx2[k];
@@ -289,8 +305,8 @@ std::vector<std::string> HGCalWaferInFileTest::getPoints(
   }
 
   static const std::string c3[parts] = {"C1", "C2", "C3"};
-  double dx3[parts] = {0.75 * delX, 0.50 * delX, 0.25 * delX};
-  double dy3[parts] = {0.625 * delY, 0.75 * delY, 0.875 * delY};
+  double dx3[parts] = {0.775 * delX, 0.50 * delX, 0.225 * delX};
+  double dy3[parts] = {0.6125 * delY, 0.75 * delY, 0.8875 * delY};
   if ((((iok / 100) % 10) == 1) && (((iok / 1000) % 10) == 0)) {
     for (int k = 0; k < parts; ++k) {
       double xc1 = xpos + dx3[k];
@@ -316,8 +332,8 @@ std::vector<std::string> HGCalWaferInFileTest::getPoints(
   }
 
   static const std::string c4[parts] = {"D1", "D2", "D3"};
-  double dx4[parts] = {-0.25 * delX, -0.50 * delX, -0.75 * delX};
-  double dy4[parts] = {0.875 * delY, 0.75 * delY, 0.625 * delY};
+  double dx4[parts] = {-0.225 * delX, -0.50 * delX, -0.775 * delX};
+  double dy4[parts] = {0.8875 * delY, 0.75 * delY, 0.6125 * delY};
   if ((((iok / 10) % 10) == 1) && (((iok / 100) % 10) == 0)) {
     for (int k = 0; k < parts; ++k) {
       double xc1 = xpos + dx4[k];
@@ -344,7 +360,7 @@ std::vector<std::string> HGCalWaferInFileTest::getPoints(
 
   static const std::string c5[parts] = {"E1", "E2", "E3"};
   double dx5[parts] = {-delX, -delX, -delX};
-  double dy5[parts] = {0.5 * delY, 0.0, -0.5 * delY};
+  double dy5[parts] = {0.275 * delY, 0.0, -0.275 * delY};
   if ((((iok / 1) % 10) == 1) && (((iok / 10) % 10) == 0)) {
     for (int k = 0; k < parts; ++k) {
       double xc1 = xpos + dx5[k];
@@ -370,8 +386,8 @@ std::vector<std::string> HGCalWaferInFileTest::getPoints(
   }
 
   static const std::string c6[parts] = {"F1", "F2", "F3"};
-  double dx6[parts] = {-0.75 * delX, -0.50 * delX, -0.25 * delX};
-  double dy6[parts] = {-0.625 * delY, -0.75 * delY, -0.875 * delY};
+  double dx6[parts] = {-0.775 * delX, -0.50 * delX, -0.225 * delX};
+  double dy6[parts] = {-0.6125 * delY, -0.75 * delY, -0.8875 * delY};
   if ((((iok / 100000) % 10) == 1) && (((iok / 1) % 10) == 0)) {
     for (int k = 0; k < parts; ++k) {
       double xc1 = xpos + dx6[k];
@@ -396,6 +412,20 @@ std::vector<std::string> HGCalWaferInFileTest::getPoints(
     }
   }
 
+  return points;
+}
+
+std::vector<double> HGCalWaferInFileTest::getCorners(double xpos, double ypos, double delX, double delY) {
+  std::vector<double> points;
+  static const int corners = 6;
+  double dx0[corners] = {0.0, delX, delX, 0.0, -delX, -delX};
+  double dy0[corners] = {-delY, -0.5 * delY, 0.5 * delY, delY, 0.5 * delY, -0.5 * delY};
+  for (int k = 0; k < corners; ++k) {
+    double xc = xpos + dx0[k];
+    double yc = ypos + dy0[k];
+    double rpos = sqrt(xc * xc + yc * yc);
+    points.emplace_back(rpos);
+  }
   return points;
 }
 
