@@ -82,6 +82,10 @@ namespace gem {
     void setCDFTrailer(uint64_t word) { cdft_ = word; }
     void setCDFTrailer(uint32_t EvtLength);
     uint64_t getCDFTrailer() const { return cdft_; }
+    uint32_t fragmentLength() const { return CDFTrailer{cdft_}.evtLength; }
+    uint16_t crc() const { return CDFTrailer{cdft_}.crcCDF; }
+    uint8_t evtStatus() const { return CDFTrailer{cdft_}.evtStat; }
+    uint8_t ttsBits() const { return CDFTrailer{cdft_}.tts; }
 
     int bxId() const { return (int8_t)CDFHeader{cdfh_}.bxId; }
     uint32_t lv1Id() const { return CDFHeader{cdfh_}.lv1Id; }
