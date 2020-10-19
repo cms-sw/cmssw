@@ -27,7 +27,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     u1_infos = cms.untracked.PSet(
         threshold = cms.untracked.string('INFO'),
         noTimeStamps = cms.untracked.bool(True),
-        FwkJob = cms.untracked.PSet(
+        FwkTest = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         preEventProcessing = cms.untracked.PSet(
@@ -41,7 +41,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     u1_debugs = cms.untracked.PSet(
         threshold = cms.untracked.string('DEBUG'),
         noTimeStamps = cms.untracked.bool(True),
-        FwkJob = cms.untracked.PSet(
+        FwkTest = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         preEventProcessing = cms.untracked.PSet(
@@ -50,7 +50,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     ),
     u1_default = cms.untracked.PSet(
         noTimeStamps = cms.untracked.bool(True),
-        FwkJob = cms.untracked.PSet(
+        FwkTest = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         preEventProcessing = cms.untracked.PSet(
@@ -63,7 +63,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     ),
     debugModules = cms.untracked.vstring('*'),
     categories = cms.untracked.vstring('preEventProcessing', 
-        'FwkJob'),
+        'FwkTest'),
     destinations = cms.untracked.vstring('u1_warnings', 
         'u1_errors', 
         'u1_infos', 
