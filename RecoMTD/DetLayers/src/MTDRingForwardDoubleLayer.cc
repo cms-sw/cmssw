@@ -13,6 +13,8 @@
 #include <TrackingTools/DetLayers/interface/MeasurementEstimator.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
+#include <DataFormats/ForwardDetId/interface/ETLDetId.h>
+
 #include <algorithm>
 #include <iostream>
 #include <vector>
@@ -170,12 +172,25 @@ void MTDRingForwardDoubleLayer::selfTest() const {
   const std::vector<const GeomDet*>& frontDets = theFrontLayer.basicComponents();
   const std::vector<const GeomDet*>& backDets = theBackLayer.basicComponents();
 
-  // test that each front z is less than each back z
-  for (const auto& thisFront : frontDets) {
-    float frontz = std::abs(thisFront->surface().position().z());
-    for (const auto& thisBack : backDets) {
-      float backz = std::abs(thisBack->surface().position().z());
-      assert(frontz < backz);
+  for (int iring = 0; iring <= ETLDetId::kETLv1maxRing; iring++) {
+    float frontz(0.);
+    float backz(1e3f);
+    for (const auto& thisFront : frontDets) {
+      if (static_cast<ETLDetId>(thisFront->geographicalId().rawId()).mtdRR() == iring) {
+        float tmpz(std::abs(thisFront->surface().position().z()));
+        if (tmpz > frontz) {
+          frontz = tmpz;
+        }
+      }
     }
+    for (const auto& thisBack : backDets) {
+      if (static_cast<ETLDetId>(thisBack->geographicalId().rawId()).mtdRR() == iring) {
+        float tmpz(std::abs(thisBack->surface().position().z()));
+        if (tmpz < backz) {
+          backz = tmpz;
+        }
+      }
+    }
+    assert(frontz < backz);
   }
 }
