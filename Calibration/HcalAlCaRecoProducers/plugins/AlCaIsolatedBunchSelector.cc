@@ -76,8 +76,9 @@ AlCaIsolatedBunchSelector::AlCaIsolatedBunchSelector(const edm::ParameterSet& iC
   // define tokens for access
   tok_trigRes_ = consumes<edm::TriggerResults>(theTriggerResultsLabel_);
 
-  edm::LogVerbatim("AlCaIsoBunch") << "Input tag for trigger results " << theTriggerResultsLabel_ << " with trigger name "
-                               << trigName_ << " and process " << processName_ << std::endl;
+  edm::LogVerbatim("AlCaIsoBunch") << "Input tag for trigger results " << theTriggerResultsLabel_
+                                   << " with trigger name " << trigName_ << " and process " << processName_
+                                   << std::endl;
 }
 
 AlCaIsolatedBunchSelector::~AlCaIsolatedBunchSelector() {}
@@ -92,7 +93,7 @@ bool AlCaIsolatedBunchSelector::filter(edm::Event& iEvent, edm::EventSetup const
   ++nAll_;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("AlCaIsoBunch") << "Run " << iEvent.id().run() << " Event " << iEvent.id().event() << " Luminosity "
-                               << iEvent.luminosityBlock() << " Bunch " << iEvent.bunchCrossing() << std::endl;
+                                   << iEvent.luminosityBlock() << " Bunch " << iEvent.bunchCrossing() << std::endl;
 #endif
   //Step1: Find if the event passes the chosen trigger
   edm::Handle<edm::TriggerResults> triggerResults;
@@ -106,8 +107,8 @@ bool AlCaIsolatedBunchSelector::filter(edm::Event& iEvent, edm::EventSetup const
         if (hlt > 0) {
           accept = true;
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("AlCaIsoBunch") << triggerNames_[iHLT] << " has got HLT flag " << hlt << ":" << accept
-                                       << std::endl;
+          edm::LogVerbatim("AlCaIsoBunch")
+              << triggerNames_[iHLT] << " has got HLT flag " << hlt << ":" << accept << std::endl;
 #endif
           break;
         }
@@ -135,7 +136,7 @@ void AlCaIsolatedBunchSelector::globalEndJob(const AlCaIsolatedBunch::Counters* 
 void AlCaIsolatedBunchSelector::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
   bool changed(false);
   edm::LogVerbatim("AlCaIsoBunch") << "Run[" << nRun_ << "] " << iRun.run() << " hltconfig.init "
-                               << hltConfig_.init(iRun, iSetup, processName_, changed) << std::endl;
+                                   << hltConfig_.init(iRun, iSetup, processName_, changed) << std::endl;
 }
 // ------------ method called when ending the processing of a run  ------------
 void AlCaIsolatedBunchSelector::endRun(edm::Run const& iRun, edm::EventSetup const&) {

@@ -116,8 +116,8 @@ AlCaHEMuonFilter::AlCaHEMuonFilter(edm::ParameterSet const& iConfig, const AlCaH
   tok_magField_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
 
   edm::LogVerbatim("HEMuon") << "Parameters read from config file \n"
-                         << "Process " << processName_ << "  Prescale " << preScale_ << "  Isolation Cuts "
-                         << trackIsoCut_ << ":" << caloIsoCut_ << "\n";
+                             << "Process " << processName_ << "  Prescale " << preScale_ << "  Isolation Cuts "
+                             << trackIsoCut_ << ":" << caloIsoCut_ << "\n";
   for (unsigned int k = 0; k < trigNames_.size(); ++k)
     edm::LogVerbatim("HEMuon") << "Trigger[" << k << "] " << trigNames_[k] << "\n";
 }  // AlCaHEMuonFilter::AlCaHEMuonFilter  constructor
@@ -134,8 +134,8 @@ bool AlCaHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetup)
   ++nAll_;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HEMuon") << "AlCaHEMuonFilter::Run " << iEvent.id().run() << " Event " << iEvent.id().event()
-                         << " Luminosity " << iEvent.luminosityBlock() << " Bunch " << iEvent.bunchCrossing()
-                         << std::endl;
+                             << " Luminosity " << iEvent.luminosityBlock() << " Bunch " << iEvent.bunchCrossing()
+                             << std::endl;
 #endif
   //Step1: Find if the event passes one of the chosen triggers
   /////////////////////////////TriggerResults
@@ -154,8 +154,8 @@ bool AlCaHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetup)
             ok = true;
           }
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("HEMuon") << "AlCaHEMuonFilter::Trigger " << triggerNames_[iHLT] << " Flag " << hlt << ":" << ok
-                                 << std::endl;
+          edm::LogVerbatim("HEMuon") << "AlCaHEMuonFilter::Trigger " << triggerNames_[iHLT] << " Flag " << hlt << ":"
+                                     << ok << std::endl;
 #endif
         }
       }
@@ -175,10 +175,10 @@ bool AlCaHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetup)
       if (_Muon.isValid()) {
         for (reco::MuonCollection::const_iterator RecMuon = _Muon->begin(); RecMuon != _Muon->end(); ++RecMuon) {
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("HEMuon") << "AlCaHEMuonFilter::Muon:Track " << RecMuon->track().isNonnull() << " innerTrack "
-                                 << RecMuon->innerTrack().isNonnull() << " outerTrack "
-                                 << RecMuon->outerTrack().isNonnull() << " globalTrack "
-                                 << RecMuon->globalTrack().isNonnull() << std::endl;
+          edm::LogVerbatim("HEMuon") << "AlCaHEMuonFilter::Muon:Track " << RecMuon->track().isNonnull()
+                                     << " innerTrack " << RecMuon->innerTrack().isNonnull() << " outerTrack "
+                                     << RecMuon->outerTrack().isNonnull() << " globalTrack "
+                                     << RecMuon->globalTrack().isNonnull() << std::endl;
 #endif
           if ((RecMuon->track().isNonnull()) && (RecMuon->innerTrack().isNonnull()) &&
               (RecMuon->outerTrack().isNonnull()) && (RecMuon->globalTrack().isNonnull())) {
@@ -191,7 +191,7 @@ bool AlCaHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetup)
             spr::propagatedTrackID trackID = spr::propagateCALO(pTrack, geo, bField, false);
 #ifdef EDM_ML_DEBUG
             edm::LogVerbatim("HEMuon") << "AlCaHEMuonFilter::Propagate: ECAL " << trackID.okECAL << " to HCAL "
-                                   << trackID.okHCAL << std::endl;
+                                       << trackID.okHCAL << std::endl;
 #endif
             double trackIso = RecMuon->isolationR03().sumPt;
             double caloIso = RecMuon->isolationR03().emEt + RecMuon->isolationR03().hadEt;
@@ -233,7 +233,7 @@ void AlCaHEMuonFilter::endStream() {
 
 void AlCaHEMuonFilter::globalEndJob(const AlCaHEMuons::Counters* count) {
   edm::LogVerbatim("HEMuon") << "Selects " << count->nFinal_ << " out of " << count->nGood_ << " good events out of "
-                         << count->nAll_ << " total # of events\n";
+                             << count->nAll_ << " total # of events\n";
 }
 
 // ------------ method called when starting to processes a run  ------------

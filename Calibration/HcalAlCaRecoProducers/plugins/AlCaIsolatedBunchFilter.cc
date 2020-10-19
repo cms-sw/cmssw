@@ -78,8 +78,8 @@ AlCaIsolatedBunchFilter::AlCaIsolatedBunchFilter(const edm::ParameterSet& iConfi
   tok_trigRes_ = consumes<edm::TriggerResults>(theTriggerResultsLabel_);
 
   edm::LogVerbatim("AlCaIsoBunch") << "Input tag for trigger results " << theTriggerResultsLabel_ << " with "
-                               << trigIsoBunchNames_.size() << ":" << trigJetNames_.size() << " trigger names and"
-                               << " process " << processName_ << std::endl;
+                                   << trigIsoBunchNames_.size() << ":" << trigJetNames_.size() << " trigger names and"
+                                   << " process " << processName_ << std::endl;
   for (unsigned int k = 0; k < trigIsoBunchNames_.size(); ++k)
     edm::LogVerbatim("AlCaIsoBunch") << "Isolated Bunch[" << k << "] " << trigIsoBunchNames_[k] << std::endl;
   for (unsigned int k = 0; k < trigJetNames_.size(); ++k)
@@ -98,7 +98,7 @@ bool AlCaIsolatedBunchFilter::filter(edm::Event& iEvent, edm::EventSetup const& 
   ++nAll_;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("AlCaIsoBunch") << "Run " << iEvent.id().run() << " Event " << iEvent.id().event() << " Luminosity "
-                               << iEvent.luminosityBlock() << " Bunch " << iEvent.bunchCrossing() << std::endl;
+                                   << iEvent.luminosityBlock() << " Bunch " << iEvent.bunchCrossing() << std::endl;
 #endif
   //Step1: Find if the event passes one of the chosen triggers
   if ((trigIsoBunchNames_.empty()) && (trigJetNames_.empty())) {
@@ -171,7 +171,7 @@ void AlCaIsolatedBunchFilter::globalEndJob(const AlCaIsolatedBunch::Counters* co
 void AlCaIsolatedBunchFilter::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
   bool changed(false);
   edm::LogVerbatim("AlCaIsoBunch") << "Run[" << nRun_ << "] " << iRun.run() << " hltconfig.init "
-                               << hltConfig_.init(iRun, iSetup, processName_, changed) << std::endl;
+                                   << hltConfig_.init(iRun, iSetup, processName_, changed) << std::endl;
 }
 // ------------ method called when ending the processing of a run  ------------
 void AlCaIsolatedBunchFilter::endRun(edm::Run const& iRun, edm::EventSetup const&) {
