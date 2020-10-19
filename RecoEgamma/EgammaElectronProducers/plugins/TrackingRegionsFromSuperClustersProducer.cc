@@ -132,6 +132,8 @@ private:
   edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
   edm::EDGetTokenT<MeasurementTrackerEvent> measTrackerEventToken_;
   std::vector<edm::EDGetTokenT<std::vector<reco::SuperClusterRef>>> superClustersTokens_;
+
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
 };
 
 namespace {
@@ -144,7 +146,8 @@ namespace {
 }  // namespace
 
 TrackingRegionsFromSuperClustersProducer::TrackingRegionsFromSuperClustersProducer(const edm::ParameterSet& cfg,
-                                                                                   edm::ConsumesCollector&& iC) {
+                                                                                   edm::ConsumesCollector&& iC)
+    : magFieldToken_{iC.esConsumes()} {
   edm::ParameterSet regionPSet = cfg.getParameter<edm::ParameterSet>("RegionPSet");
 
   ptMin_ = regionPSet.getParameter<double>("ptMin");
@@ -227,17 +230,16 @@ std::vector<std::unique_ptr<TrackingRegion>> TrackingRegionsFromSuperClustersPro
   if (!measTrackerEventToken_.isUninitialized()) {
     measTrackerEvent = getHandle(iEvent, measTrackerEventToken_).product();
   }
-  edm::ESHandle<MagneticField> magFieldHandle;
-  iSetup.get<IdealMagneticFieldRecord>().get(magFieldHandle);
+  auto const& magField = iSetup.getData(magFieldToken_);
 
   for (auto& superClustersToken : superClustersTokens_) {
     auto superClustersHandle = getHandle(iEvent, superClustersToken);
     for (auto& superClusterRef : *superClustersHandle) {
       //do both charge hypothesises
       trackingRegions.emplace_back(
-          createTrackingRegion(*superClusterRef, vtxPos, deltaZVertex, Charge::POS, measTrackerEvent, *magFieldHandle));
+          createTrackingRegion(*superClusterRef, vtxPos, deltaZVertex, Charge::POS, measTrackerEvent, magField));
       trackingRegions.emplace_back(
-          createTrackingRegion(*superClusterRef, vtxPos, deltaZVertex, Charge::NEG, measTrackerEvent, *magFieldHandle));
+          createTrackingRegion(*superClusterRef, vtxPos, deltaZVertex, Charge::NEG, measTrackerEvent, magField));
     }
   }
   return trackingRegions;
