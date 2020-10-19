@@ -77,7 +77,7 @@ namespace ecaldqm {
 
     static void fillDescriptions(edm::ParameterSetDescription&);
 
-    virtual void beginEvent(edm::Event const&, edm::EventSetup const&) {}
+    virtual void beginEvent(edm::Event const&, edm::EventSetup const&, bool const&, bool&) {}
     virtual void endEvent(edm::Event const&, edm::EventSetup const&) {}
 
     virtual bool filterRunType(short const*) { return true; };
