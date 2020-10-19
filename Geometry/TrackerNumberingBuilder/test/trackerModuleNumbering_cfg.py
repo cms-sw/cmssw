@@ -6,10 +6,10 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 process.load("Configuration.Geometry.GeometryExtended2021Reco_cff")
 
-#this is always needed if users want access to the vector<GeometricDetExtra>
-process.TrackerGeometricDetExtraESModule = cms.ESProducer( "TrackerGeometricDetExtraESModule",
-                                                            fromDDD = cms.bool( True )
-                                                            )
+process.TrackerGeometricDetESModule = cms.ESProducer( "TrackerGeometricDetESModule",
+                                                      fromDDD = cms.bool( True )
+                                                     )
+
 process.source = cms.Source("EmptySource")
 
 process.maxEvents = cms.untracked.PSet(
