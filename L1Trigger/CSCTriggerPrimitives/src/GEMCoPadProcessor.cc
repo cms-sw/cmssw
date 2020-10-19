@@ -102,7 +102,6 @@ void GEMCoPadProcessor::declusterize(const GEMPadDigiClusterCollection* in_clust
     const GEMDetId& id = (*detUnitIt).first;
     const auto& range = (*detUnitIt).second;
     for (auto digiIt = range.first; digiIt != range.second; ++digiIt) {
-
       // coincidence pads are not built for ME0
       if (id.isME0())
         continue;
