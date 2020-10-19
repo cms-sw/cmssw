@@ -103,6 +103,8 @@ TrackDetectorAssociator::TrackDetectorAssociator() {
   useDefaultPropagator_ = false;
 }
 
+TrackDetectorAssociator::~TrackDetectorAssociator() = default;
+
 void TrackDetectorAssociator::setPropagator(const Propagator* ptr) {
   ivProp_ = ptr;
   cachedTrajectory_.setPropagator(ivProp_);

@@ -46,6 +46,7 @@
 class TrackDetectorAssociator {
 public:
   explicit TrackDetectorAssociator();
+  ~TrackDetectorAssociator();
 
   typedef TrackAssociatorParameters AssociatorParameters;
   enum Direction { Any, InsideOut, OutsideIn };
