@@ -112,7 +112,7 @@ namespace ecaldqm {
       edm::LogInfo("EcalDQM") << moduleName_ << "::ecaldqmEndRun";
   }
 
-  void EcalDQMonitor::ecaldqmBeginLuminosityBlock(edm::LuminosityBlock const &_lumi, edm::EventSetup const &_es) {
+  void EcalDQMonitor::ecaldqmBeginLuminosityBlock(edm::LuminosityBlock const &_lumi, edm::EventSetup const &_es) const {
     executeOnWorkers_(
         [&_lumi, &_es](DQWorker *worker) {
           if (worker->onlineMode())
