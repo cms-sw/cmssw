@@ -73,6 +73,9 @@ void CSCGEMMotherboardME21::run(const CSCWireDigiCollection* wiredc,
   alctV = alctProc->run(wiredc);  // run anodeLCT
   clctV = clctProc->run(compdc);  // run cathodeLCT
 
+  // retrieve pads and copads in a certain BX window for this CSC
+  processGEMClusters(gemClusters);
+
   // if there are no ALCTs and no CLCTs, it does not make sense to run this TMB
   if (alctV.empty() and clctV.empty())
     return;
@@ -80,9 +83,6 @@ void CSCGEMMotherboardME21::run(const CSCWireDigiCollection* wiredc,
   int used_clct_mask[20];
   for (int c = 0; c < 20; ++c)
     used_clct_mask[c] = 0;
-
-  // retrieve pads and copads in a certain BX window for this CSC
-  processGEMClusters(gemClusters);
 
   const bool hasCoPads(!coPads_.empty());
 

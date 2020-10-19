@@ -90,6 +90,8 @@ void CSCGEMMotherboardME11::run(const CSCWireDigiCollection* wiredc,
   alctV = alctProc->run(wiredc);  // run anodeLCT
   clctV = clctProc->run(compdc);  // run cathodeLCT
 
+  processGEMClusters(gemClusters);
+
   // if there are no ALCTs and no CLCTs, it does not make sense to run this TMB
   if (alctV.empty() and clctV.empty())
     return;
@@ -97,8 +99,6 @@ void CSCGEMMotherboardME11::run(const CSCWireDigiCollection* wiredc,
   int used_clct_mask[20];
   for (int b = 0; b < 20; b++)
     used_clct_mask[b] = 0;
-
-  processGEMClusters(gemClusters);
 
   const bool hasPads(!pads_.empty());
   const bool hasCoPads(hasPads and !coPads_.empty());
