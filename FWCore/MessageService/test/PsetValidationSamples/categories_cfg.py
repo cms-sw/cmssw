@@ -17,15 +17,15 @@ process.MessageLogger = cms.Service("MessageLogger",
     statistics = cms.untracked.vstring( 'u1_warnings', 'u1_default', 'u1_y'), 
         
 #enable one of the following -- the first should pass, the rest fail
-    categories = cms.untracked.vstring('preEventProcessing','FwkJob',
+    categories = cms.untracked.vstring('preEventProcessing','FwkTest',
                                        'cat_A','cat_B'),
-#   categories = cms.vstring('preEventProcessing','FwkJob','u1_x'),
-#   categories = cms.vstring('preEventProcessing','FwkJob','u1_y'),
-#   categories = cms.vstring('preEventProcessing','FwkJob','u1_f'),
+#   categories = cms.vstring('preEventProcessing','FwkTest','u1_x'),
+#   categories = cms.vstring('preEventProcessing','FwkTest','u1_y'),
+#   categories = cms.vstring('preEventProcessing','FwkTest','u1_f'),
 #    categories = cms.untracked.int32(2),
-#    categories = cms.untracked.vstring('preEventProcessing','FwkJob',
+#    categories = cms.untracked.vstring('preEventProcessing','FwkTest',
 #					'cat_A','cat_B','cat_A'),
-#    categories = cms.untracked.vstring('preEventProcessing','FwkJob',
+#    categories = cms.untracked.vstring('preEventProcessing','FwkTest',
 #					'cat_A','cat_B','limit'),
 
 # If the passing one above enabled, enabling this should now fail:
@@ -34,7 +34,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     u1_infos = cms.untracked.PSet(
         threshold = cms.untracked.string('INFO'),
         noTimeStamps = cms.untracked.bool(True),
-        FwkJob = cms.untracked.PSet(
+        FwkTest = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         preEventProcessing = cms.untracked.PSet(
@@ -48,7 +48,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     u1_debugs = cms.untracked.PSet(
         threshold = cms.untracked.string('DEBUG'),
         noTimeStamps = cms.untracked.bool(True),
-        FwkJob = cms.untracked.PSet(
+        FwkTest = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         preEventProcessing = cms.untracked.PSet(
@@ -57,7 +57,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     ),
     u1_default = cms.untracked.PSet(
         noTimeStamps = cms.untracked.bool(True),
-        FwkJob = cms.untracked.PSet(
+        FwkTest = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         preEventProcessing = cms.untracked.PSet(

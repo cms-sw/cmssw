@@ -27,14 +27,14 @@ process.MessageLogger = cms.Service("MessageLogger",
         preEventProcessing = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        FwkJob = cms.untracked.PSet(
+        FwkTest = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         )
     ),
     debugModules = cms.untracked.vstring('*'),
     categories = cms.untracked.vstring('preEventProcessing', 
         'FwkReport', 
-        'FwkJob'),
+        'FwkTest'),
     destinations = cms.untracked.vstring('memory_t1_infos')
 )
 
