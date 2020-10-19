@@ -597,6 +597,7 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('x', 'x', 20, -0.5, 0.5, 'secondary vertex X position, in cm'),
                 Plot1D('y', 'y', 20, -0.5, 0.5, 'secondary vertex Y position, in cm'),
                 Plot1D('z', 'z', 20, -10, 10, 'secondary vertex Z position, in cm'),
+                Plot1D('ntracks', 'ntracks', 11, -0.5, 10.5, 'number of tracks'),
             )
         ),
         SoftActivityJet = cms.PSet(
