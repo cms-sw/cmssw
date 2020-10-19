@@ -336,7 +336,7 @@ void ESIntegrityTask::calculateDIFraction(const edm::LuminosityBlock& lumi, cons
       float reportSummaryES = -1;
       for (int x = 0; x < 40; ++x) {
         for (int y = 0; y < 40; ++y) {
-          float val = 1.0*((lumiCache->DIErrorsLS_)[i][j][x][y]);
+          float val = 1.0 * ((lumiCache->DIErrorsLS_)[i][j][x][y]);
           if (fed_[i][j][x][y] == -1)
             continue;
           if ((lumiCache->ievtLS_) != 0)
