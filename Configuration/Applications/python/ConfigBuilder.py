@@ -2240,7 +2240,10 @@ class ConfigBuilder(object):
         self.pythonCfgCode+="associatePatAlgosToolsTask(process)\n"
 
         if True:
-            self.pythonCfgCode +="\n"
+            self._options.nThreads = "4"
+            self._options.nStreams = "4"
+            self._options.nConcurrentLumis = "2"
+	    self.pythonCfgCode +="\n"
             self.pythonCfgCode +="#Setup FWK for multithreaded\n"
             self.pythonCfgCode +="process.options.numberOfThreads=cms.untracked.uint32("+self._options.nThreads+")\n"
             self.pythonCfgCode +="process.options.numberOfStreams=cms.untracked.uint32("+self._options.nStreams+")\n"
