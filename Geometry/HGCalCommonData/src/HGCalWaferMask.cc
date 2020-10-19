@@ -411,14 +411,14 @@ std::pair<int, int> HGCalWaferMask::getTypeMode(const double& xpos,
   double dy1[corners] = {-0.75 * delY, 0.0, 0.75 * delY, 0.75 * delY, 0.0, -0.75 * delY};
   double dx2[corners] = {0.5 * delX, -0.5 * delX, -delX, -0.5 * delX, 0.5 * delX, delX};
   double dy2[corners] = {0.75 * delY, 0.75 * delY, 0.0, -0.75 * delY, -0.75 * delY, 0.0};
-  double dx3[corners] = {0.25 * delX, delX, 0.75 * delX, -0.25 * delX, -delX, -0.75 * delX};
-  double dy3[corners] = {-0.875 * delY, -0.25 * delY, 0.625 * delY, 0.875 * delY, 0.25 * delY, -0.625 * delY};
-  double dx4[corners] = {0.25 * delX, -0.75 * delX, -delX, -0.25 * delX, 0.75 * delX, delX};
-  double dy4[corners] = {0.875 * delY, 0.625 * delY, -0.25 * delY, -0.875 * delY, -0.625 * delY, 0.25 * delY};
+  double dx3[corners] = {0.225 * delX, delX, 0.775 * delX, -0.225 * delX, -delX, -0.775 * delX};
+  double dy3[corners] = {-0.8875 * delY, -0.275 * delY, 0.6125 * delY, 0.8875 * delY, 0.275 * delY, -0.6125 * delY};
+  double dx4[corners] = {0.225 * delX, -0.775 * delX, -delX, -0.225 * delX, 0.775 * delX, delX};
+  double dy4[corners] = {0.8875 * delY, 0.6125 * delY, -0.275 * delY, -0.8875 * delY, -0.6125 * delY, 0.275 * delY};
   double dx5[corners] = {-0.5 * delX, -delX, -0.5 * delX, 0.5 * delX, delX, 0.5 * delX};
   double dy5[corners] = {0.75 * delY, 0.0, -0.75 * delY, -0.75 * delY, 0.0, 0.75 * delY};
-  double dx6[corners] = {-0.75 * delX, -delX, -0.25 * delX, 0.75 * delX, delX, 0.25 * delX};
-  double dy6[corners] = {0.625 * delY, -0.25 * delY, -0.875 * delY, -0.625 * delY, 0.25 * delY, 0.875 * delY};
+  double dx6[corners] = {-0.775 * delX, -delX, -0.225 * delX, 0.775 * delX, delX, 0.225 * delX};
+  double dy6[corners] = {0.6125 * delY, -0.275 * delY, -0.8875 * delY, -0.6125 * delY, 0.275 * delY, 0.8875 * delY};
 
   if (ncor == HGCalGeomTools::k_allCorners) {
   } else if (ncor == HGCalGeomTools::k_fiveCorners) {
