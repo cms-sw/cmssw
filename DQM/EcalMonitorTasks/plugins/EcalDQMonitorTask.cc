@@ -25,7 +25,7 @@
 #include <sstream>
 
 EcalDQMonitorTask::EcalDQMonitorTask(edm::ParameterSet const& _ps)
-    : DQMOneLumiEDAnalyzer(),
+    : DQMOneEDAnalyzer<edm::LuminosityBlockCache<ecaldqm::EcalLSCache>>(),
       ecaldqm::EcalDQMonitor(_ps),
       schedule_(),
       allowMissingCollections_(_ps.getUntrackedParameter<bool>("allowMissingCollections")),
@@ -119,11 +119,22 @@ void EcalDQMonitorTask::dqmEndRun(edm::Run const& _run, edm::EventSetup const& _
   executeOnWorkers_([](ecaldqm::DQWorker* worker) { worker->releaseMEs(); }, "releaseMEs", "releasing histograms");
 }
 
-void EcalDQMonitorTask::dqmBeginLuminosityBlock(edm::LuminosityBlock const& _lumi, edm::EventSetup const& _es) {
+std::shared_ptr<ecaldqm::EcalLSCache> EcalDQMonitorTask::globalBeginLuminosityBlock(edm::LuminosityBlock const& _lumi,
+                                                                                    edm::EventSetup const& _es) const {
+  std::shared_ptr<ecaldqm::EcalLSCache> tmpCache = std::make_shared<ecaldqm::EcalLSCache>();
+  executeOnWorkers_(
+      [&tmpCache](ecaldqm::DQWorker* worker) { (tmpCache->ByLumiPlotsResetSwitches)[worker->getName()] = true; },
+      "globalBeginLuminosityBlock");
+  if (this->verbosity_ > 2)
+    edm::LogInfo("EcalDQM") << "Set LS cache.";
+
+  // Reset lhcStatusSet_ to false at the beginning of each LS; when LHC status is set in some event this variable will be set to tru
+  tmpCache->lhcStatusSet_ = false;
   ecaldqmBeginLuminosityBlock(_lumi, _es);
+  return tmpCache;
 }
 
-void EcalDQMonitorTask::dqmEndLuminosityBlock(edm::LuminosityBlock const& _lumi, edm::EventSetup const& _es) {
+void EcalDQMonitorTask::globalEndLuminosityBlock(edm::LuminosityBlock const& _lumi, edm::EventSetup const& _es) {
   ecaldqmEndLuminosityBlock(_lumi, _es);
 
   if (lastResetTime_ != 0 && (time(nullptr) - lastResetTime_) / 3600. > resetInterval_) {
@@ -185,13 +196,18 @@ void EcalDQMonitorTask::analyze(edm::Event const& _evt, edm::EventSetup const& _
   ++processedEvents_;
 
   // start event processing
+  auto lumiCache = luminosityBlockCache(_evt.getLuminosityBlock().index());
   executeOnWorkers_(
-      [&_evt, &_es, &enabledTasks](ecaldqm::DQWorker* worker) {
+      [&_evt, &_es, &enabledTasks, &lumiCache](ecaldqm::DQWorker* worker) {
         if (enabledTasks.find(worker) != enabledTasks.end()) {
           if (worker->onlineMode())
             worker->setTime(time(nullptr));
           worker->setEventNumber(_evt.id().event());
-          static_cast<ecaldqm::DQWorkerTask*>(worker)->beginEvent(_evt, _es);
+          bool ByLumiResetSwitch = (lumiCache->ByLumiPlotsResetSwitches).at(worker->getName());
+          bool lhcStatusSet = lumiCache->lhcStatusSet_;
+          static_cast<ecaldqm::DQWorkerTask*>(worker)->beginEvent(_evt, _es, ByLumiResetSwitch, lhcStatusSet);
+          (lumiCache->ByLumiPlotsResetSwitches)[worker->getName()] = false;
+          lumiCache->lhcStatusSet_ = lhcStatusSet;
         }
       },
       "beginEvent");
