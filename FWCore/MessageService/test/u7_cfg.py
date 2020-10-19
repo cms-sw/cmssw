@@ -11,9 +11,6 @@ process.options = FWCore.Framework.test.cmsExceptionsFatal_cff.options
 process.load("FWCore.MessageService.test.Services_cff")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    u7_job_report = cms.untracked.PSet(
-	extension = cms.untracked.string("mxml")
-    ),
     u7_restrict = cms.untracked.PSet(
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
@@ -32,8 +29,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('u7_log', 
         'u7_restrict'),
     categories = cms.untracked.vstring('FwkJob', 
-        'special'),
-    fwkJobReports = cms.untracked.vstring('u7_job_report')
+        'special')
 )
 
 process.maxEvents = cms.untracked.PSet(
