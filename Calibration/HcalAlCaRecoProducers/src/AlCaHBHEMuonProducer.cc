@@ -1,5 +1,5 @@
 // -*- C++ -*-
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 // system include files
 #include <atomic>
@@ -96,7 +96,7 @@ AlCaHBHEMuonProducer::AlCaHBHEMuonProducer(edm::ParameterSet const& iConfig, con
   tok_HBHE_ = consumes<HBHERecHitCollection>(labelHBHE_);
   tok_Muon_ = consumes<reco::MuonCollection>(labelMuon_);
 
-  edm::LogInfo("HcalHBHEMuon") << "Parameters read from config file \n"
+  edm::LogVerbatim("HcalHBHEMuon") << "Parameters read from config file \n"
                                << "\t minP of muon " << pMuonMin_ << "\t input labels " << labelBS_ << " " << labelVtx_
                                << " " << labelEB_ << " " << labelEE_ << " " << labelHBHE_ << " " << labelMuon_;
 
@@ -114,8 +114,8 @@ AlCaHBHEMuonProducer::~AlCaHBHEMuonProducer() {}
 void AlCaHBHEMuonProducer::produce(edm::Event& iEvent, edm::EventSetup const& iSetup) {
   ++nAll_;
   bool valid(true);
-#ifdef DebugLog
-  edm::LogInfo("HcalHBHEMuon") << "AlCaHBHEMuonProducer::Run " << iEvent.id().run() << " Event " << iEvent.id().event()
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalHBHEMuon") << "AlCaHBHEMuonProducer::Run " << iEvent.id().run() << " Event " << iEvent.id().event()
                                << " Luminosity " << iEvent.luminosityBlock() << " Bunch " << iEvent.bunchCrossing();
 #endif
 
@@ -162,8 +162,8 @@ void AlCaHBHEMuonProducer::produce(edm::Event& iEvent, edm::EventSetup const& iS
     valid = false;
   }
 
-#ifdef DebugLog
-  edm::LogInfo("HcalHBHEMuon") << "AlCaHBHEMuonProducer::obtained the collections with validity flag " << valid;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalHBHEMuon") << "AlCaHBHEMuonProducer::obtained the collections with validity flag " << valid;
 #endif
 
   //For accepted events
@@ -220,16 +220,16 @@ void AlCaHBHEMuonProducer::endStream() {
 }
 
 void AlCaHBHEMuonProducer::globalEndJob(const AlCaHBHEMuons::Counters* count) {
-  edm::LogInfo("HcalHBHEMuon") << "Finds " << count->nGood_ << " good tracks in " << count->nAll_ << " events";
+  edm::LogVerbatim("HcalHBHEMuon") << "Finds " << count->nGood_ << " good tracks in " << count->nAll_ << " events";
 }
 
 void AlCaHBHEMuonProducer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
-  edm::LogInfo("HcalHBHEMuon") << "Run[" << nRun_ << "] " << iRun.run();
+  edm::LogVerbatim("HcalHBHEMuon") << "Run[" << nRun_ << "] " << iRun.run();
 }
 
 void AlCaHBHEMuonProducer::endRun(edm::Run const& iRun, edm::EventSetup const&) {
   ++nRun_;
-  edm::LogInfo("HcalHBHEMuon") << "endRun[" << nRun_ << "] " << iRun.run();
+  edm::LogVerbatim("HcalHBHEMuon") << "endRun[" << nRun_ << "] " << iRun.run();
 }
 
 bool AlCaHBHEMuonProducer::select(const reco::MuonCollection& muons) {
