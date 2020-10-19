@@ -75,7 +75,6 @@ private:
   edm::ESGetToken<SiStripConfObject, SiStripConfObjectRcd> _confObjectToken;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> _tTopoToken;
   const bool m_ignoreDB;
-  const std::string m_rcdLabel;
   std::vector<std::string> _defpartnames;
   std::vector<int> _defphases;
   bool _useEC0;
@@ -109,10 +108,10 @@ APVCyclePhaseProducerFromL1TS::APVCyclePhaseProducerFromL1TS(const edm::Paramete
       _l1tscollectionToken(
           consumes<Level1TriggerScalersCollection>(iConfig.getParameter<edm::InputTag>("l1TSCollection"))),
       _tcdsRecordToken(consumes<TCDSRecord>(iConfig.getParameter<edm::InputTag>("tcdsRecordLabel"))),
-      _confObjectToken(esConsumes<edm::Transition::BeginRun>()),
+      _confObjectToken(esConsumes<edm::Transition::BeginRun>(
+          edm::ESInputTag{"", iConfig.getUntrackedParameter<std::string>("recordLabel", "apvphaseoffsets")})),
       _tTopoToken(esConsumes<edm::Transition::BeginRun>()),
       m_ignoreDB(iConfig.getUntrackedParameter<bool>("ignoreDB", false)),
-      m_rcdLabel(iConfig.getUntrackedParameter<std::string>("recordLabel", "apvphaseoffsets")),
       _defpartnames(iConfig.getParameter<std::vector<std::string> >("defaultPartitionNames")),
       _defphases(iConfig.getParameter<std::vector<int> >("defaultPhases")),
       _useEC0(iConfig.getUntrackedParameter<bool>("useEC0", false)),
