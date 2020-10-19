@@ -20,16 +20,12 @@
 #include "DataFormats/Common/interface/RefVector.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/TrackerRecHit2D/interface/MTDTrackingRecHit.h"
 
 #include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
 #include "Geometry/Records/interface/MTDTopologyRcd.h"
 #include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
+#include "Geometry/MTDCommonData/interface/MTDTopologyMode.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
 #include "Geometry/MTDGeometryBuilder/interface/ProxyMTDTopology.h"
 #include "Geometry/MTDGeometryBuilder/interface/RectangularMTDTopology.h"
@@ -64,14 +60,14 @@ private:
   MonitorElement* meBTLTrackEffPhiMtd_;
   MonitorElement* meBTLTrackEffPtMtd_;
 
-  MonitorElement* meETLTrackRPTime_[2];
-  MonitorElement* meETLTrackNumHits_[2];
+  MonitorElement* meETLTrackRPTime_[4];
+  MonitorElement* meETLTrackNumHits_[4];
   MonitorElement* meETLTrackEffEtaTot_[2];
   MonitorElement* meETLTrackEffPhiTot_[2];
   MonitorElement* meETLTrackEffPtTot_[2];
-  MonitorElement* meETLTrackEffEtaMtd_[2];
-  MonitorElement* meETLTrackEffPhiMtd_[2];
-  MonitorElement* meETLTrackEffPtMtd_[2];
+  MonitorElement* meETLTrackEffEtaMtd_[4];
+  MonitorElement* meETLTrackEffPhiMtd_[4];
+  MonitorElement* meETLTrackEffPtMtd_[4];
 
   MonitorElement* meTrackNumHits_;
 
@@ -97,6 +93,19 @@ void MtdGlobalRecoValidation::analyze(const edm::Event& iEvent, const edm::Event
   using namespace edm;
   using namespace geant_units::operators;
   using namespace std;
+
+  edm::ESHandle<MTDTopology> topologyHandle;
+  iSetup.get<MTDTopologyRcd>().get(topologyHandle);
+  const MTDTopology* topology = topologyHandle.product();
+
+  bool topo1Dis = false;
+  bool topo2Dis = false;
+  if (topology->getMTDTopologyMode() <= static_cast<int>(MTDTopologyMode::Mode::barphiflat)) {
+    topo1Dis = true;
+  }
+  if (topology->getMTDTopologyMode() > static_cast<int>(MTDTopologyMode::Mode::barphiflat)) {
+    topo2Dis = true;
+  }
 
   auto RecTrackHandle = makeValid(iEvent.getHandle(RecTrackToken_));
   auto RecVertexHandle = makeValid(iEvent.getHandle(RecVertexToken_));
@@ -148,39 +157,78 @@ void MtdGlobalRecoValidation::analyze(const edm::Event& iEvent, const edm::Event
         meETLTrackEffPtTot_[1]->Fill(track.pt());
       }
 
-      bool MTDEtlZneg = false;
-      bool MTDEtlZpos = false;
+      bool MTDEtlZnegD1 = false;
+      bool MTDEtlZnegD2 = false;
+      bool MTDEtlZposD1 = false;
+      bool MTDEtlZposD2 = false;
       int numMTDEtlvalidhits = 0;
       for (const auto hit : track.recHits()) {
         if (hit->isValid() == false)
           continue;
         MTDDetId Hit = hit->geographicalId();
-        if ((Hit.det() == 6) && (Hit.subdetId() == 1) && (Hit.mtdSubDetector() == 2) && (Hit.zside() == -1)) {
-          MTDEtlZneg = true;
-          numMTDEtlvalidhits++;
-        }
-        if ((Hit.det() == 6) && (Hit.subdetId() == 1) && (Hit.mtdSubDetector() == 2) && (Hit.zside() == 1)) {
-          MTDEtlZpos = true;
-          numMTDEtlvalidhits++;
+        if ((Hit.det() == 6) && (Hit.subdetId() == 1) && (Hit.mtdSubDetector() == 2)) {
+          ETLDetId ETLHit = hit->geographicalId();
+
+          if (topo2Dis) {
+            if ((ETLHit.zside() == -1) && (ETLHit.nDisc() == 1)) {
+              MTDEtlZnegD1 = true;
+              numMTDEtlvalidhits++;
+            }
+            if ((ETLHit.zside() == -1) && (ETLHit.nDisc() == 2)) {
+              MTDEtlZnegD2 = true;
+              numMTDEtlvalidhits++;
+            }
+            if ((ETLHit.zside() == 1) && (ETLHit.nDisc() == 1)) {
+              MTDEtlZposD1 = true;
+              numMTDEtlvalidhits++;
+            }
+            if ((ETLHit.zside() == 1) && (ETLHit.nDisc() == 2)) {
+              MTDEtlZposD2 = true;
+              numMTDEtlvalidhits++;
+            }
+          }
+
+          if (topo1Dis) {
+            if (ETLHit.zside() == -1) {
+              MTDEtlZnegD1 = true;
+              numMTDEtlvalidhits++;
+            }
+            if (ETLHit.zside() == 1) {
+              MTDEtlZposD1 = true;
+              numMTDEtlvalidhits++;
+            }
+          }
         }
       }
       meTrackNumHits_->Fill(-numMTDEtlvalidhits);
 
       // --- keeping only tracks with last hit in MTD ---
       if ((track.eta() < -trackMinEta_) && (track.eta() > -trackMaxEta_)) {
-        if (MTDEtlZneg == true) {
+        if (MTDEtlZnegD1 == true) {
           meETLTrackEffEtaMtd_[0]->Fill(track.eta());
           meETLTrackEffPhiMtd_[0]->Fill(track.phi());
           meETLTrackEffPtMtd_[0]->Fill(track.pt());
           meETLTrackRPTime_[0]->Fill(track.t0());
         }
-      }
-      if ((track.eta() > trackMinEta_) && (track.eta() < trackMaxEta_)) {
-        if (MTDEtlZpos == true) {
+        if (MTDEtlZnegD2 == true) {
           meETLTrackEffEtaMtd_[1]->Fill(track.eta());
           meETLTrackEffPhiMtd_[1]->Fill(track.phi());
           meETLTrackEffPtMtd_[1]->Fill(track.pt());
           meETLTrackRPTime_[1]->Fill(track.t0());
+        }
+      }
+      if ((track.eta() > trackMinEta_) && (track.eta() < trackMaxEta_)) {
+        if (MTDEtlZposD1 == true) {
+          meETLTrackEffEtaMtd_[2]->Fill(track.eta());
+          meETLTrackEffPhiMtd_[2]->Fill(track.phi());
+          meETLTrackEffPtMtd_[2]->Fill(track.pt());
+          meETLTrackRPTime_[2]->Fill(track.t0());
+        }
+        if (MTDEtlZposD2 == true) {
+          meETLTrackEffEtaMtd_[3]->Fill(track.eta());
+          meETLTrackEffPhiMtd_[3]->Fill(track.phi());
+          meETLTrackEffPtMtd_[3]->Fill(track.pt());
+          meETLTrackRPTime_[3]->Fill(track.t0());
         }
       }
     }
@@ -215,8 +263,14 @@ void MtdGlobalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
   meBTLTrackEffPhiMtd_ =
       ibook.book1D("TrackBTLEffPhiMtd", "Track efficiency vs phi (Mtd);#phi_{RECO} [rad]", 100, -3.2, 3.2);
   meBTLTrackEffPtMtd_ = ibook.book1D("TrackBTLEffPtMtd", "Track efficiency vs pt (Mtd);pt_{RECO} [GeV]", 50, 0, 10);
-  meETLTrackRPTime_[0] = ibook.book1D("TrackETLRPTimeZneg", "Track t0 with respect to R.P. (-Z);t0 [ns]", 100, -1, 3);
-  meETLTrackRPTime_[1] = ibook.book1D("TrackETLRPTimeZpos", "Track t0 with respect to R.P. (+Z);t0 [ns]", 100, -1, 3);
+  meETLTrackRPTime_[0] =
+      ibook.book1D("TrackETLRPTimeZnegD1", "Track t0 with respect to R.P. (-Z, Firstl Disk);t0 [ns]", 100, -1, 3);
+  meETLTrackRPTime_[1] =
+      ibook.book1D("TrackETLRPTimeZnegD2", "Track t0 with respect to R.P. (-Z, Second Disk);t0 [ns]", 100, -1, 3);
+  meETLTrackRPTime_[2] =
+      ibook.book1D("TrackETLRPTimeZposD1", "Track t0 with respect to R.P. (+Z, First Disk);t0 [ns]", 100, -1, 3);
+  meETLTrackRPTime_[3] =
+      ibook.book1D("TrackETLRPTimeZposD2", "Track t0 with respect to R.P. (+Z, Second Disk);t0 [ns]", 100, -1, 3);
   meETLTrackEffEtaTot_[0] =
       ibook.book1D("TrackETLEffEtaTotZneg", "Track efficiency vs eta (Tot) (-Z);#eta_{RECO}", 100, -3.2, -1.4);
   meETLTrackEffEtaTot_[1] =
@@ -230,17 +284,53 @@ void MtdGlobalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
   meETLTrackEffPtTot_[1] =
       ibook.book1D("TrackETLEffPtTotZpos", "Track efficiency vs pt (Tot) (+Z);pt_{RECO} [GeV]", 50, 0, 10);
   meETLTrackEffEtaMtd_[0] =
-      ibook.book1D("TrackETLEffEtaMtdZneg", "Track efficiency vs eta (Mtd) (-Z);#eta_{RECO}", 100, -3.2, -1.4);
-  meETLTrackEffEtaMtd_[1] =
-      ibook.book1D("TrackETLEffEtaMtdZpos", "Track efficiency vs eta (Mtd) (+Z);#eta_{RECO}", 100, 1.4, 3.2);
+      ibook.book1D("TrackETLEffEtaMtdZnegD1",
+                   "Track efficiency vs eta (Mtd) (-Z, Single(topo1D)/First(topo2D) Disk);#eta_{RECO}",
+                   100,
+                   -3.2,
+                   -1.4);
+  meETLTrackEffEtaMtd_[1] = ibook.book1D(
+      "TrackETLEffEtaMtdZnegD2", "Track efficiency vs eta (Mtd) (-Z, Second Disk);#eta_{RECO}", 100, -3.2, -1.4);
+  meETLTrackEffEtaMtd_[2] =
+      ibook.book1D("TrackETLEffEtaMtdZposD1",
+                   "Track efficiency vs eta (Mtd) (+Z, Single(topo1D)/First(topo2D) Disk);#eta_{RECO}",
+                   100,
+                   1.4,
+                   3.2);
+  meETLTrackEffEtaMtd_[3] = ibook.book1D(
+      "TrackETLEffEtaMtdZposD2", "Track efficiency vs eta (Mtd) (+Z, Second Disk);#eta_{RECO}", 100, 1.4, 3.2);
   meETLTrackEffPhiMtd_[0] =
-      ibook.book1D("TrackETLEffPhiMtdZneg", "Track efficiency vs phi (Mtd) (-Z);#phi_{RECO} [rad]", 100, -3.2, 3.2);
-  meETLTrackEffPhiMtd_[1] =
-      ibook.book1D("TrackETLEffPhiMtdZpos", "Track efficiency vs phi (Mtd) (+Z);#phi_{RECO} [rad]", 100, -3.2, 3.2);
+      ibook.book1D("TrackETLEffPhiMtdZnegD1",
+                   "Track efficiency vs phi (Mtd) (-Z, Single(topo1D)/First(topo2D) Disk);#phi_{RECO} [rad]",
+                   100,
+                   -3.2,
+                   3.2);
+  meETLTrackEffPhiMtd_[1] = ibook.book1D(
+      "TrackETLEffPhiMtdZnegD2", "Track efficiency vs phi (Mtd) (-Z, Second Disk);#phi_{RECO} [rad]", 100, -3.2, 3.2);
+  meETLTrackEffPhiMtd_[2] =
+      ibook.book1D("TrackETLEffPhiMtdZposD1",
+                   "Track efficiency vs phi (Mtd) (+Z, Single(topo1D)/First(topo2D) Disk);#phi_{RECO} [rad]",
+                   100,
+                   -3.2,
+                   3.2);
+  meETLTrackEffPhiMtd_[3] = ibook.book1D(
+      "TrackETLEffPhiMtdZposD2", "Track efficiency vs phi (Mtd) (+Z, Second Disk);#phi_{RECO} [rad]", 100, -3.2, 3.2);
   meETLTrackEffPtMtd_[0] =
-      ibook.book1D("TrackETLEffPtMtdZneg", "Track efficiency vs pt (Mtd) (-Z);pt_{RECO} [GeV]", 50, 0, 10);
-  meETLTrackEffPtMtd_[1] =
-      ibook.book1D("TrackETLEffPtMtdZpos", "Track efficiency vs pt (Mtd) (+Z);pt_{RECO} [GeV]", 50, 0, 10);
+      ibook.book1D("TrackETLEffPtMtdZnegD1",
+                   "Track efficiency vs pt (Mtd) (-Z, Single(topo1D)/First(topo2D) Disk);pt_{RECO} [GeV]",
+                   50,
+                   0,
+                   10);
+  meETLTrackEffPtMtd_[1] = ibook.book1D(
+      "TrackETLEffPtMtdZnegD2", "Track efficiency vs pt (Mtd) (-Z, Second Disk);pt_{RECO} [GeV]", 50, 0, 10);
+  meETLTrackEffPtMtd_[2] =
+      ibook.book1D("TrackETLEffPtMtdZposD1",
+                   "Track efficiency vs pt (Mtd) (+Z, Single(topo1D)/First(topo2D) Disk);pt_{RECO} [GeV]",
+                   50,
+                   0,
+                   10);
+  meETLTrackEffPtMtd_[3] = ibook.book1D(
+      "TrackETLEffPtMtdZposD2", "Track efficiency vs pt (Mtd) (+Z, Second Disk);pt_{RECO} [GeV]", 50, 0, 10);
   meTrackNumHits_ = ibook.book1D("TrackNumHits", "Number of valid MTD hits per track ; Number of hits", 10, -5, 5);
   meVerZ_ = ibook.book1D("VerZ", "RECO Vertex Z;Z_{RECO} [cm]", 180, -18, 18);
   meVerTime_ = ibook.book1D("VerTime", "RECO Vertex Time;t0 [ns]", 100, -1, 1);
