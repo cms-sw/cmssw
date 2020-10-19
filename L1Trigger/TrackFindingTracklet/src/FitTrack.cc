@@ -826,7 +826,7 @@ std::vector<Tracklet*> FitTrack::orderedMatches(vector<FullMatchMemory*>& fullma
 
   int bestIndex = -1;
   do {
-    int bestTCID = (1 << 16);
+    int bestTCID = -1;
     bestIndex = -1;
     for (unsigned int i = 0; i < fullmatch.size(); i++) {
       if (indexArray[i] >= fullmatch[i]->nMatches()) {
@@ -834,7 +834,7 @@ std::vector<Tracklet*> FitTrack::orderedMatches(vector<FullMatchMemory*>& fullma
         continue;
       }
       int TCID = fullmatch[i]->getTracklet(indexArray[i])->TCID();
-      if (TCID < bestTCID) {
+      if (TCID < bestTCID || bestTCID < 0) {
         bestTCID = TCID;
         bestIndex = i;
       }

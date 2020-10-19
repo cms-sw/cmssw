@@ -170,6 +170,7 @@ namespace trklet {
 
     unsigned int writememsect() const { return writememsect_; }
 
+    bool enableTripletTables() const { return enableTripletTables_; }
     bool writeTripletTables() const { return writeTripletTables_; }
 
     bool writeoutReal() const { return writeoutReal_; }
@@ -238,6 +239,9 @@ namespace trklet {
     std::string skimfile() const { return skimfile_; }
     void setSkimfile(std::string skimfile) { skimfile_ = skimfile; }
 
+    unsigned int nbitstrackletindex() const { return nbitstrackletindex_; }
+    void setNbitstrackletindex(unsigned int nbitstrackletindex) { nbitstrackletindex_ = nbitstrackletindex; }
+
     double dphisectorHG() const {
       return 2 * M_PI / N_SECTOR +
              2 * std::max(std::abs(asin(0.5 * rinvmax() * rmean(0)) - asin(0.5 * rinvmax() * rcrit_)),
@@ -282,7 +286,7 @@ namespace trklet {
     unsigned int NLONGVMBITS() const { return NLONGVMBITS_; }
     unsigned int NLONGVMBINS() const { return (1 << NLONGVMBITS_); }
 
-    unsigned int ntrackletmax() const { return ntrackletmax_; }
+    unsigned int ntrackletmax() const { return ((1 << nbitstrackletindex_) - 1); }
 
     //Bits used to store track parameter in tracklet
     int nbitsrinv() const { return nbitsrinv_; }
@@ -434,7 +438,7 @@ namespace trklet {
 
     double ptcutte_{1.8};  //Minimum pt in TE
 
-    unsigned int ntrackletmax_{127};  //maximum number of tracklets that can be stored
+    unsigned int nbitstrackletindex_{7};  //Bits used to store the tracklet index
 
     //Bits used to store track parameter in tracklet
     int nbitsrinv_{14};
@@ -672,10 +676,13 @@ namespace trklet {
 
     unsigned int writememsect_{3};  //writemem only for this sector (note that the files will have _4 extension)
 
-    bool writeTripletTables_{false};  //Train and write the TED and TRE tables. N.B.: the tables
-                                      //cannot be applied while they are being trained, i.e.,
-                                      //this flag effectively turns off the cuts in
-                                      //TrackletEngineDisplaced and TripletEngine
+    bool enableTripletTables_{false};  //Enable the application of the TED and
+                                       //TRE tables; when this flag is false,
+                                       //the tables will not be read from disk
+    bool writeTripletTables_{false};   //Train and write the TED and TRE tables. N.B.: the tables
+                                       //cannot be applied while they are being trained, i.e.,
+                                       //this flag effectively turns off the cuts in
+                                       //TrackletEngineDisplaced and TripletEngine
 
     bool writeoutReal_{false};
 

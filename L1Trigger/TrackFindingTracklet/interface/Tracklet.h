@@ -489,7 +489,7 @@ namespace trklet {
     bool isOverlap() const { return overlap_; }
     int isDisk() const { return disk_; }
 
-    void setTrackletIndex(int index);
+    void setTrackletIndex(unsigned int index);
 
     int trackletIndex() const { return trackletIndex_; }
 
@@ -497,7 +497,7 @@ namespace trklet {
 
     int TCIndex() const { return TCIndex_; }
 
-    int TCID() const { return TCIndex_ * (1 << 7) + trackletIndex_; }
+    int TCID() const { return TCIndex_ * (1 << settings_.nbitstrackletindex()) + trackletIndex_; }
 
     int getISeed() const;
     int getITC() const;
