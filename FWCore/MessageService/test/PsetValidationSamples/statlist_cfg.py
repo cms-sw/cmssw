@@ -60,7 +60,6 @@ process.MessageLogger = cms.Service("MessageLogger",
         threshold = cms.untracked.string('ERROR'),
         noTimeStamps = cms.untracked.bool(True)
     ),
-    fwkJobReports = cms.untracked.vstring('u1_job_report.mxml'),
     debugModules = cms.untracked.vstring('*'),
     categories = cms.untracked.vstring('preEventProcessing', 
         'FwkJob')

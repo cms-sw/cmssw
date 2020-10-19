@@ -36,8 +36,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     ),
     categories = cms.untracked.vstring('preEventProcessing', 
         'FwkJob', 
-        'ridiculously_long_category_name'),
-    fwkJobReports = cms.untracked.vstring('u1_job_report.mxml')
+        'ridiculously_long_category_name')
 )
 
 process.maxEvents = cms.untracked.PSet(

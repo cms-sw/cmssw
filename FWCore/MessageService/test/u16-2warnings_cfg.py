@@ -68,7 +68,6 @@ process.MessageLogger = cms.Service("MessageLogger",
         extension = cms.untracked.string('mmlog'),
         filename = cms.untracked.string('u16_altDebugs')
     ),
-    fwkJobReports = cms.untracked.vstring('u16_job_report'),
     destinations = cms.untracked.vstring('u16_warnings', 
         'u16_warnings2', 
         'u16_errors', 

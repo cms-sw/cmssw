@@ -14,7 +14,6 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 
 process.MessageLogger.destinations = ['warnings', 'infos']
 process.MessageLogger.statistics = ['warnings', 'infos']
-process.MessageLogger.fwkJobReports = ['job_report']
 process.MessageLogger.default = cms.untracked.PSet(
     noTimeStamps = cms.untracked.bool(False),
     FwkJob = cms.untracked.PSet(
