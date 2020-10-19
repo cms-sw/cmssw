@@ -195,7 +195,7 @@ namespace l1t {
     const std::vector<std::pair<std::string, bool>> initialDecisions = m_gtUtil->decisionsInitial();
     const std::vector<std::pair<std::string, bool>> intermDecisions = m_gtUtil->decisionsInterm();
     const std::vector<std::pair<std::string, bool>> finalDecisions = m_gtUtil->decisionsFinal();
-    const std::vector<std::pair<std::string, int>> prescales = m_gtUtil->prescales();
+    const std::vector<std::pair<std::string, double>> prescales = m_gtUtil->prescales();
     const std::vector<std::pair<std::string, std::vector<int>>> masks = m_gtUtil->masks();
 
     LogDebug("GtRecordDump") << "retrieved all event vectors " << endl;
