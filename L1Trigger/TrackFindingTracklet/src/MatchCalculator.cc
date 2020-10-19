@@ -501,7 +501,7 @@ std::vector<std::pair<std::pair<Tracklet*, int>, const Stub*> > MatchCalculator:
   int bestIndex = -1;
   do {
     int bestSector = 100;
-    int bestTCID = (1 << 16);
+    int bestTCID = -1;
     bestIndex = -1;
     for (unsigned int i = 0; i < candmatch.size(); i++) {
       if (indexArray[i] >= candmatch[i]->nMatches()) {
@@ -523,7 +523,7 @@ std::vector<std::pair<std::pair<Tracklet*, int>, const Stub*> > MatchCalculator:
         bestIndex = i;
       }
       if (dSector == bestSector) {
-        if (TCID < bestTCID) {
+        if (TCID < bestTCID || bestTCID < 0) {
           bestTCID = TCID;
           bestIndex = i;
         }

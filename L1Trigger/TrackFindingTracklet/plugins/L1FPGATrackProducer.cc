@@ -261,6 +261,11 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig)
   if (extended_) {
     settings.setTableTEDFile(tableTEDFile.fullPath());
     settings.setTableTREFile(tableTREFile.fullPath());
+
+    //FIXME: The TED and TRE tables are currently disabled by default, so we
+    //need to allow for the additional tracklets that will eventually be
+    //removed by these tables, once they are finalized
+    settings.setNbitstrackletindex(10);
   }
 
   eventnum = 0;
