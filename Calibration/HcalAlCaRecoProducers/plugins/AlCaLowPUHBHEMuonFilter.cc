@@ -111,9 +111,9 @@ AlCaLowPUHBHEMuonFilter::AlCaLowPUHBHEMuonFilter(edm::ParameterSet const& iConfi
   tok_magField_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
 
   edm::LogVerbatim("LowPUHBHEMuon") << "Parameters read from config file \n"
-                                << "Process " << processName_ << "  PF Isolation Cuts " << pfIsoCut_
-                                << " minimum Muon pT cut " << minimumMuonpT_ << " minimum Muon eta cut "
-                                << minimumMuoneta_;
+                                    << "Process " << processName_ << "  PF Isolation Cuts " << pfIsoCut_
+                                    << " minimum Muon pT cut " << minimumMuonpT_ << " minimum Muon eta cut "
+                                    << minimumMuoneta_;
   for (unsigned int k = 0; k < trigNames_.size(); ++k)
     edm::LogVerbatim("LowPUHBHEMuon") << "Trigger[" << k << "] " << trigNames_[k];
 }  // AlCaLowPUHBHEMuonFilter::AlCaLowPUHBHEMuonFilter  constructor
@@ -130,8 +130,8 @@ bool AlCaLowPUHBHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& 
   ++nAll_;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("LowPUHBHEMuon") << "AlCaLowPUHBHEMuonFilter::Run " << iEvent.id().run() << " Event "
-                                << iEvent.id().event() << " Luminosity " << iEvent.luminosityBlock() << " Bunch "
-                                << iEvent.bunchCrossing();
+                                    << iEvent.id().event() << " Luminosity " << iEvent.luminosityBlock() << " Bunch "
+                                    << iEvent.bunchCrossing();
 #endif
   //Step1: Find if the event passes one of the chosen triggers
   /////////////////////////////TriggerResults
@@ -151,8 +151,8 @@ bool AlCaLowPUHBHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& 
           if (hlt > 0)
             ok = true;
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("LowPUHBHEMuon") << "AlCaLowPUHBHEMuonFilter::Trigger " << triggerNames_[iHLT] << " Flag " << hlt
-                                        << ":" << ok;
+          edm::LogVerbatim("LowPUHBHEMuon")
+              << "AlCaLowPUHBHEMuonFilter::Trigger " << triggerNames_[iHLT] << " Flag " << hlt << ":" << ok;
 #endif
         }
       }
@@ -171,10 +171,10 @@ bool AlCaLowPUHBHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& 
       if (_Muon.isValid()) {
         for (reco::MuonCollection::const_iterator RecMuon = _Muon->begin(); RecMuon != _Muon->end(); ++RecMuon) {
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("LowPUHBHEMuon") << "AlCaLowPUHBHEMuonFilter::Muon:Track " << RecMuon->track().isNonnull()
-                                        << " innerTrack " << RecMuon->innerTrack().isNonnull() << " outerTrack "
-                                        << RecMuon->outerTrack().isNonnull() << " globalTrack "
-                                        << RecMuon->globalTrack().isNonnull();
+          edm::LogVerbatim("LowPUHBHEMuon")
+              << "AlCaLowPUHBHEMuonFilter::Muon:Track " << RecMuon->track().isNonnull() << " innerTrack "
+              << RecMuon->innerTrack().isNonnull() << " outerTrack " << RecMuon->outerTrack().isNonnull()
+              << " globalTrack " << RecMuon->globalTrack().isNonnull();
 #endif
           if ((RecMuon->pt() < minimumMuonpT_) || fabs(RecMuon->eta() < minimumMuoneta_))
             continue;
@@ -218,7 +218,7 @@ void AlCaLowPUHBHEMuonFilter::endStream() {
 
 void AlCaLowPUHBHEMuonFilter::globalEndJob(const AlCaLowPUHBHEMuons::Counters* count) {
   edm::LogVerbatim("LowPUHBHEMuon") << "Selects " << count->nGood_ << " good events out of " << count->nAll_
-                                << " total # of events";
+                                    << " total # of events";
 }
 
 // ------------ method called when starting to processes a run  ------------

@@ -196,22 +196,23 @@ AlCaIsoTracksFilter::AlCaIsoTracksFilter(const edm::ParameterSet& iConfig, const
   tok_magField_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
 
   edm::LogVerbatim("HcalIsoTrack") << "Parameters read from config file \n"
-                               << "\t minPt " << selectionParameter_.minPt << "\t theTrackQuality " << theTrackQuality_
-                               << "\t minQuality " << selectionParameter_.minQuality << "\t maxDxyPV "
-                               << selectionParameter_.maxDxyPV << "\t maxDzPV " << selectionParameter_.maxDzPV
-                               << "\t maxChi2 " << selectionParameter_.maxChi2 << "\t maxDpOverP "
-                               << selectionParameter_.maxDpOverP << "\t minOuterHit " << selectionParameter_.minOuterHit
-                               << "\t minLayerCrossed " << selectionParameter_.minLayerCrossed << "\t maxInMiss "
-                               << selectionParameter_.maxInMiss << "\t maxOutMiss " << selectionParameter_.maxOutMiss
-                               << "\n"
-                               << "\t a_coneR " << a_coneR_ << "\t a_charIsoR " << a_charIsoR_ << "\t a_mipR "
-                               << a_mipR_ << "\t maxRestrictionP_ " << maxRestrictionP_ << "\t slopeRestrictionP_ "
-                               << slopeRestrictionP_ << "\t eIsolate_ " << eIsolate_ << "\n"
-                               << "\t Precale factor " << preScale_ << "\t in momentum range " << pTrackLow_ << ":"
-                               << pTrackHigh_ << " and prescale factor " << preScaleH_ << " for p > " << pTrackH_
-                               << " Threshold for EB " << hitEthrEB_ << " EE " << hitEthrEE0_ << ":" << hitEthrEE1_
-                               << ":" << hitEthrEE2_ << ":" << hitEthrEE3_ << ":" << hitEthrEELo_ << ":"
-                               << hitEthrEEHi_;
+                                   << "\t minPt " << selectionParameter_.minPt << "\t theTrackQuality "
+                                   << theTrackQuality_ << "\t minQuality " << selectionParameter_.minQuality
+                                   << "\t maxDxyPV " << selectionParameter_.maxDxyPV << "\t maxDzPV "
+                                   << selectionParameter_.maxDzPV << "\t maxChi2 " << selectionParameter_.maxChi2
+                                   << "\t maxDpOverP " << selectionParameter_.maxDpOverP << "\t minOuterHit "
+                                   << selectionParameter_.minOuterHit << "\t minLayerCrossed "
+                                   << selectionParameter_.minLayerCrossed << "\t maxInMiss "
+                                   << selectionParameter_.maxInMiss << "\t maxOutMiss "
+                                   << selectionParameter_.maxOutMiss << "\n"
+                                   << "\t a_coneR " << a_coneR_ << "\t a_charIsoR " << a_charIsoR_ << "\t a_mipR "
+                                   << a_mipR_ << "\t maxRestrictionP_ " << maxRestrictionP_ << "\t slopeRestrictionP_ "
+                                   << slopeRestrictionP_ << "\t eIsolate_ " << eIsolate_ << "\n"
+                                   << "\t Precale factor " << preScale_ << "\t in momentum range " << pTrackLow_ << ":"
+                                   << pTrackHigh_ << " and prescale factor " << preScaleH_ << " for p > " << pTrackH_
+                                   << " Threshold for EB " << hitEthrEB_ << " EE " << hitEthrEE0_ << ":" << hitEthrEE1_
+                                   << ":" << hitEthrEE2_ << ":" << hitEthrEE3_ << ":" << hitEthrEELo_ << ":"
+                                   << hitEthrEEHi_;
 
   for (unsigned int k = 0; k < trigNames_.size(); ++k)
     edm::LogVerbatim("HcalIsoTrack") << "Trigger[" << k << "] " << trigNames_[k];
@@ -430,7 +431,7 @@ void AlCaIsoTracksFilter::globalEndJob(const AlCaIsoTracks::Counters* count) {
 void AlCaIsoTracksFilter::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
   bool changed(false);
   edm::LogVerbatim("HcalIsoTrack") << "Run[" << nRun_ << "] " << iRun.run() << " hltconfig.init "
-                               << hltConfig_.init(iRun, iSetup, processName_, changed);
+                                   << hltConfig_.init(iRun, iSetup, processName_, changed);
 }
 
 // ------------ method called when ending the processing of a run  ------------

@@ -97,8 +97,9 @@ AlCaHBHEMuonProducer::AlCaHBHEMuonProducer(edm::ParameterSet const& iConfig, con
   tok_Muon_ = consumes<reco::MuonCollection>(labelMuon_);
 
   edm::LogVerbatim("HcalHBHEMuon") << "Parameters read from config file \n"
-                               << "\t minP of muon " << pMuonMin_ << "\t input labels " << labelBS_ << " " << labelVtx_
-                               << " " << labelEB_ << " " << labelEE_ << " " << labelHBHE_ << " " << labelMuon_;
+                                   << "\t minP of muon " << pMuonMin_ << "\t input labels " << labelBS_ << " "
+                                   << labelVtx_ << " " << labelEB_ << " " << labelEE_ << " " << labelHBHE_ << " "
+                                   << labelMuon_;
 
   //saves the following collections
   produces<reco::BeamSpot>(labelBS_.label());
@@ -115,8 +116,9 @@ void AlCaHBHEMuonProducer::produce(edm::Event& iEvent, edm::EventSetup const& iS
   ++nAll_;
   bool valid(true);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalHBHEMuon") << "AlCaHBHEMuonProducer::Run " << iEvent.id().run() << " Event " << iEvent.id().event()
-                               << " Luminosity " << iEvent.luminosityBlock() << " Bunch " << iEvent.bunchCrossing();
+  edm::LogVerbatim("HcalHBHEMuon") << "AlCaHBHEMuonProducer::Run " << iEvent.id().run() << " Event "
+                                   << iEvent.id().event() << " Luminosity " << iEvent.luminosityBlock() << " Bunch "
+                                   << iEvent.bunchCrossing();
 #endif
 
   //Step1: Get all the relevant containers
