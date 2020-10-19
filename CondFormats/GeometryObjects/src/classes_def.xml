@@ -5,12 +5,6 @@
  <class name="PGeometricDet::Item"/>
  <class name="std::vector<PGeometricDet::Item>"/>
 
- <class name="PGeometricDetExtra" class_version="0">
-   <field name="pgdes_" mapping="blob"/>
- </class>
- <class name="PGeometricDetExtra::Item"/>
- <class name="std::vector<PGeometricDetExtra::Item>"/>
-
  <class name="PGeometricTimingDet" class_version="0">
    <field name="pgeomdets_" mapping="blob"/>
  </class>
