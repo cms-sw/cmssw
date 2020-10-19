@@ -5,7 +5,7 @@
 // user include files
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -42,7 +42,7 @@ static constexpr float max_mu_propagator_eta = 2.5;
 
 using namespace l1t;
 
-class L1TkMuonProducer : public edm::global::EDProducer<> {
+class L1TkMuonProducer : public edm::stream::EDProducer<> {
 public:
   typedef TTTrack<Ref_Phase2TrackerDigi_> L1TTTrackType;
   typedef std::vector<L1TTTrackType> L1TTTrackCollectionType;
@@ -66,7 +66,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   PropState propagateToGMT(const L1TTTrackType& l1tk) const;
   double sigmaEtaTP(const RegionalMuonCand& mu) const;
   double sigmaPhiTP(const RegionalMuonCand& mu) const;
@@ -290,7 +290,7 @@ L1TkMuonProducer::L1TkMuonProducer(const edm::ParameterSet& iConfig)
 L1TkMuonProducer::~L1TkMuonProducer() {}
 
 // ------------ method called to produce the data  ------------
-void L1TkMuonProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
+void L1TkMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // the L1Mu objects
   edm::Handle<RegionalMuonCandBxCollection> l1bmtfH;
   edm::Handle<RegionalMuonCandBxCollection> l1omtfH;
