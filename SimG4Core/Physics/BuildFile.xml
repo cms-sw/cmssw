@@ -5,5 +5,4 @@
 <use name="geant4core"/>
 <use name="heppdt"/>
 <use name="boost"/>
-<use name="sigcpp"/>
 <use name="expat"/>
