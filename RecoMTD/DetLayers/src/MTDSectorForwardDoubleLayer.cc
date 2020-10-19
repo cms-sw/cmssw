@@ -156,11 +156,19 @@ void MTDSectorForwardDoubleLayer::selfTest() const {
   const std::vector<const GeomDet*>& backDets = theBackLayer.basicComponents();
 
   // test that each front z is less than each back z
+  float frontz(0.);
+  float backz(1e3f);
   for (const auto& thisFront : frontDets) {
-    float frontz = std::abs(thisFront->surface().position().z());
-    for (const auto& thisBack : backDets) {
-      float backz = std::abs(thisBack->surface().position().z());
-      assert(frontz < backz);
+    float tmpz(std::abs(thisFront->surface().position().z()));
+    if (tmpz > frontz) {
+      frontz = tmpz;
     }
   }
+  for (const auto& thisBack : backDets) {
+    float tmpz(std::abs(thisBack->surface().position().z()));
+    if (tmpz < backz) {
+      backz = tmpz;
+    }
+  }
+  assert(frontz < backz);
 }
