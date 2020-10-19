@@ -180,7 +180,7 @@ void L1TGlobalSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     const std::vector<std::pair<std::string, bool>> initialDecisions = gtUtil_->decisionsInitial();
     const std::vector<std::pair<std::string, bool>> intermDecisions = gtUtil_->decisionsInterm();
     const std::vector<std::pair<std::string, bool>> finalDecisions = gtUtil_->decisionsFinal();
-    const std::vector<std::pair<std::string, int>> prescales = gtUtil_->prescales();
+    const std::vector<std::pair<std::string, double>> prescales = gtUtil_->prescales();
     const std::vector<std::pair<std::string, std::vector<int>>> masks = gtUtil_->masks();
 
     if ((decisionCount_.size() != gtUtil_->decisionsInitial().size()) ||
