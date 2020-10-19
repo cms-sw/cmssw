@@ -100,10 +100,10 @@ ElectronSeedProducer::ElectronSeedProducer(const edm::ParameterSet& conf)
   esg_tokens.token_bs = beamSpotTag_;
   esg_tokens.token_vtx = mayConsume<reco::VertexCollection>(conf.getParameter<edm::InputTag>("vertices"));
 
-  matcher_ = std::make_unique<ElectronSeedGenerator>(conf, esg_tokens);
+  matcher_ = std::make_unique<ElectronSeedGenerator>(conf, esg_tokens, consumesCollector());
 
-  superClusters_[0] = consumes<reco::SuperClusterCollection>(conf.getParameter<edm::InputTag>("barrelSuperClusters"));
-  superClusters_[1] = consumes<reco::SuperClusterCollection>(conf.getParameter<edm::InputTag>("endcapSuperClusters"));
+  superClusters_[0] = consumes(conf.getParameter<edm::InputTag>("barrelSuperClusters"));
+  superClusters_[1] = consumes(conf.getParameter<edm::InputTag>("endcapSuperClusters"));
 
   //register your products
   produces<ElectronSeedCollection>();
@@ -137,7 +137,7 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
   // loop over barrel + endcap
   for (unsigned int i = 0; i < 2; i++) {
     auto clusterRefs = filterClusters(beamSportPosition, e.getHandle(superClusters_[i]));
-    matcher_->run(e, iSetup, clusterRefs, initialSeedCollections, *seeds);
+    matcher_->run(e, clusterRefs, initialSeedCollections, *seeds);
   }
 
   // store the accumulated result

@@ -111,9 +111,9 @@ bool egamma::hasActiveHcal(const std::vector<CaloTowerDetId>& towers,
       if (hid.subdet() != HcalBarrel && hid.subdet() != HcalEndcap)
         continue;
 #ifdef EDM_ML_DEBUG
-      std::cout << "egamma DetId " << std::hex << id.rawId() << "  hid.rawId  " << hid.rawId() << std::dec << "   sub "
-                << hid.subdet() << "   ieta " << hid.ieta() << "   iphi " << hid.iphi() << "   depth " << hid.depth()
-                << std::endl;
+      std::cout << "EgammaHadTower DetId " << std::hex << id.rawId() << "  hid.rawId  " << hid.rawId() << std::dec
+                << "   sub " << hid.subdet() << "   ieta " << hid.ieta() << "   iphi " << hid.iphi() << "   depth "
+                << hid.depth() << std::endl;
 #endif
       // Sunanda's fix for 2017 Plan1
       // and removed protection

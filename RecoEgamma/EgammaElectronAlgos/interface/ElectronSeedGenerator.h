@@ -31,12 +31,16 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
+
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 class ElectronSeedGenerator {
 public:
@@ -50,11 +54,10 @@ public:
   typedef TransientTrackingRecHit::RecHitPointer RecHitPointer;
   typedef TransientTrackingRecHit::RecHitContainer RecHitContainer;
 
-  ElectronSeedGenerator(const edm::ParameterSet&, const Tokens&);
+  ElectronSeedGenerator(const edm::ParameterSet&, const Tokens&, edm::ConsumesCollector&&);
 
   void setupES(const edm::EventSetup& setup);
   void run(edm::Event&,
-           const edm::EventSetup& setup,
            const reco::SuperClusterRefVector&,
            const std::vector<const TrajectorySeedCollection*>& seedsV,
            reco::ElectronSeedCollection&);
@@ -66,8 +69,11 @@ private:
                             reco::ElectronSeedCollection& out);
 
   const bool dynamicPhiRoad_;
+
   const edm::EDGetTokenT<std::vector<reco::Vertex> > verticesTag_;
   const edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryToken_;
 
   const float lowPtThresh_;
   const float highPtThresh_;
@@ -83,10 +89,6 @@ private:
   const double dPhi1Coef1_;
 
   const std::vector<const TrajectorySeedCollection*>* initialSeedCollectionVector_ = nullptr;
-
-  edm::ESHandle<MagneticField> magField_;
-  edm::ESHandle<TrackerGeometry> trackerGeometry_;
-  std::unique_ptr<PropagatorWithMaterial> propagator_;
 
   // keep cacheIds to get records only when necessary
   unsigned long long cacheIDMagField_ = 0;
