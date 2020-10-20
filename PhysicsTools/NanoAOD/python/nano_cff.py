@@ -322,10 +322,10 @@ def nanoAOD_customizeCommon(process):
                                   addDeepFlavour=nanoAOD_addDeepInfo_switch.nanoAOD_addDeepFlavourTag_switch)
     nanoAOD_addDeepInfoAK8_switch = cms.PSet(
         nanoAOD_addDeepBTag_switch = cms.untracked.bool(False),
-        nanoAOD_addDeepBoostedJet_switch = cms.untracked.bool(False),
-        nanoAOD_addDeepDoubleX_switch = cms.untracked.bool(False),
-        nanoAOD_addDeepDoubleXV2_switch = cms.untracked.bool(False),
-        nanoAOD_addParticleNet_switch = cms.untracked.bool(False),
+        nanoAOD_addDeepBoostedJet_switch = cms.untracked.bool(True),
+        nanoAOD_addDeepDoubleX_switch = cms.untracked.bool(True),
+        nanoAOD_addDeepDoubleXV2_switch = cms.untracked.bool(True),
+        nanoAOD_addParticleNet_switch = cms.untracked.bool(True),
         jecPayload = cms.untracked.string('AK8PFPuppi')
         )
     # deepAK8 should not run on 80X, that contains ak8PFJetsCHS jets
@@ -342,7 +342,6 @@ def nanoAOD_customizeCommon(process):
         nanoAOD_addDeepDoubleX_switch = False,
         nanoAOD_addDeepDoubleXV2_switch = False,
         nanoAOD_addParticleNet_switch = False,
-        )
         )
     process = nanoAOD_addDeepInfoAK8(process,
                                      addDeepBTag=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepBTag_switch,
