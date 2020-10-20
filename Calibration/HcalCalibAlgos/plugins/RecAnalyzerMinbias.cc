@@ -184,13 +184,13 @@ RecAnalyzerMinbias::RecAnalyzerMinbias(const edm::ParameterSet& iConfig) : init_
       }
     }
     infile.close();
-    edm::LogInfo("RecAnalyzer") << "Reads " << nrec << " correction factors for " << ndets << " detIds";
+    edm::LogVerbatim("RecAnalyzer") << "Reads " << nrec << " correction factors for " << ndets << " detIds";
     theRecalib_ = (ndets > 0);
   }
 
-  edm::LogInfo("RecAnalyzer") << " Flags (ReCalib): " << theRecalib_ << " (IgnoreL1): " << ignoreL1_ << " (NZS) "
+  edm::LogVerbatim("RecAnalyzer") << " Flags (ReCalib): " << theRecalib_ << " (IgnoreL1): " << ignoreL1_ << " (NZS) "
                               << runNZS_ << " and with " << ieta.size() << " detId for full histogram";
-  edm::LogInfo("RecAnalyzer") << "Thresholds for HB " << eLowHB_ << ":" << eHighHB_ << "  for HE " << eLowHE_ << ":"
+  edm::LogVerbatim("RecAnalyzer") << "Thresholds for HB " << eLowHB_ << ":" << eHighHB_ << "  for HE " << eLowHE_ << ":"
                               << eHighHE_ << "  for HF " << eLowHF_ << ":" << eHighHF_;
   for (unsigned int k = 0; k < ieta.size(); ++k) {
     HcalSubdetector subd =
@@ -201,11 +201,11 @@ RecAnalyzerMinbias::RecAnalyzerMinbias(const edm::ParameterSet& iConfig) : init_
                                                                    : (depth[k] == 4) ? HcalOuter : HcalBarrel);
     unsigned int id = (HcalDetId(subd, ieta[k], iphi[k], depth[k])).rawId();
     hcalID_.push_back(id);
-    edm::LogInfo("RecAnalyzer") << "DetId[" << k << "] " << HcalDetId(id);
+    edm::LogVerbatim("RecAnalyzer") << "DetId[" << k << "] " << HcalDetId(id);
   }
-  edm::LogInfo("RecAnalyzer") << "Select on " << trigbit_.size() << " L1 Trigger selection";
+  edm::LogVerbatim("RecAnalyzer") << "Select on " << trigbit_.size() << " L1 Trigger selection";
   for (unsigned int k = 0; k < trigbit_.size(); ++k)
-    edm::LogInfo("RecAnalyzer") << "Bit[" << k << "] " << trigbit_[k];
+    edm::LogVerbatim("RecAnalyzer") << "Bit[" << k << "] " << trigbit_[k];
 }
 
 RecAnalyzerMinbias::~RecAnalyzerMinbias() {}
@@ -583,7 +583,7 @@ void RecAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
         }
       }
       if (!ok) {
-        edm::LogInfo("RecAnalyzer") << "No passed L1 Trigger found";
+        edm::LogVerbatim("RecAnalyzer") << "No passed L1 Trigger found";
       }
     }
   }
