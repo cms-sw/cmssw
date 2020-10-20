@@ -874,6 +874,12 @@ def PrepJMECustomNanoAOD(process,runOnMC):
     cfg = { k : v for k, v in jetConfig.items() if k != "enabled"}
     recoJetInfo = recoJA.addRecoJetCollection(process, **cfg)
     AddNewPatJets(process, recoJetInfo, runOnMC)
+
+  ###########################################################################
+  # Save Maximum of Pt Hat Max
+  ###########################################################################
+  if runOnMC:
+    process.puTable.savePtHatMax = True
   
   return process
 
