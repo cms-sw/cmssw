@@ -79,7 +79,7 @@ void HGCGeomAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &e
   boundaries.open(txtFileName_);
 
   //get geometry
-  const CaloGeometry* caloGeom = &es.getData(geomToken_);
+  const CaloGeometry *caloGeom = &es.getData(geomToken_);
 
   std::vector<DetId::Detector> dets = {DetId::HGCalEE, DetId::HGCalHSi, DetId::HGCalHSc};
   for (const auto &d : dets) {
