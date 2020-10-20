@@ -11,8 +11,8 @@ process.options = FWCore.Framework.test.cmsExceptionsFatal_cff.options
 process.load("FWCore.MessageService.test.Services_cff")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    suppressInfo = cms.untracked.vstring('sendSomeMessages', 
-        'source'),
+    suppressInfo = cms.untracked.vstring('sendSomeMessages'),
+    suppressFwkInfo = cms.untracked.vstring('source'),
     u14_default = cms.untracked.PSet(
         noTimeStamps = cms.untracked.bool(True),
         preEventProcessing = cms.untracked.PSet(
@@ -44,7 +44,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     fwkJobReports = cms.untracked.vstring('u14_job_report.mxml'),
     debugModules = cms.untracked.vstring('*'),
     categories = cms.untracked.vstring('preEventProcessing'),
-    destinations = cms.untracked.vstring('u14_warnings', 
+    destinations = cms.untracked.vstring('u14_warnings',
         'u14_errors', 
         'u14_infos', 
         'u14_debugs', 

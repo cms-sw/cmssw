@@ -17,111 +17,6 @@
 //		     See MessageService/interface/MessageLogger.h
 //
 // =================================================
-// Change log
-//
-// 1 mf 5/11/06	    Added a space before the file/line string in LogDebug_
-//		    to avoid the run-together with the run and event number
-//
-// 2 mf 6/6/06	    Added LogVerbatim and LogTrace
-//
-// 3 mf 10/30/06    Added LogSystem and LogPrint
-//
-// 4 mf 6/1/07      Added LogAbsolute and LogProblem
-//
-// 5 mf 7/24/07     Added HaltMessageLogging
-//
-// 6 mf 8/7/07      Added FlushMessageLog
-//
-// 7 mf 8/7/07      Added GroupLogStatistics(category)
-//
-// 8 mf 12/12/07    Reworked LogDebug macro, LogDebug_class,, and similarly
-//		    for LogTrace, to avoid the need for the static dummy
-//		    objects.  This cures the use-of-thread-commands-after-
-//		    exit problem in programs that link but do not use the
-//		    MessageLogger.
-//
-// 9  mf 12/12/07   Check for subtly terrible situation of copying and then
-//		    writing to a LogDebug_ object.  Also forbid copying any
-//		    of the ordinary LogXXX objects (since that implies either
-//		    copying a MessageSender, or having a stale copy available
-//		    to lose message contents).
-//
-// 10 mf 12/14/07   Moved the static free function onlyLowestDirectory
-//		    to a class member function of LogDebug_, changing
-//		    name to a more descriptive stripLeadingDirectoryTree.
-//		    Cures the 2600-copies-of-this-function complaint.
-//
-// 11 mf  6/24/08   Added LogImportant which is LogProblem.  For output
-//		    which "obviously" ought to emerge, but allowing specific
-//		    suppression as if it were at the LogError level, rather
-//		    than the non-suppressible LogAbsolute.
-//
-// 12 ge  9/12/08   MessageLogger now works even when compiled with -DNDEBUG.
-//                  The problem was that Suppress_LogDebug_ was missing the operator<<
-//                  needed for streaming `std::iomanip`s.
-//
-// 13 wmtan 11/18/08 Use explicit non-inlined destructors
-//
-// 14 mf  3/23/09   ap.valid() used whenever possible suppression, to avoid
-//		    null pointer usage
-//
-// 15 mf  8/11/09   provision for control of standalone threshold and ignores
-//
-// 16 mf  10/2/09  Correct mission in logVerbatim and others of check for
-//		   whether this severity is enabled
-//
-// 17 wmtan 10/29/09 Out of line LogDebug_ and LogTrace_ constructors.
-//
-// 18 wmtan 07/08/10 Remove unnecessary includes
-//
-// 19 mf  09/21/10 !!! BEHAVIOR CHANGE: LogDebug suppression.
-//                 The sole preprocessor symbol controlling suppression of
-//                 LogDebug is EDM_ML_DEBUG.  If EDM_ML_DEBUG is not defined
-//                 then LogDebug is suppressed.  Thus by default LogDebug is
-//                 suppressed.
-//
-// 20 mf  09/21/10 The mechanism of LogDebug is modified such that if LogDebug
-//                 is suppressed, whether via lack of the EDM_ML_DEBUG symbol
-//                 or dynabically via !debgEnabled, all code past the
-//                 LogDebug(...), including operator<< and functions to
-//                 prepare the output strings, is squelched.  This was the
-//                 original intended behavior.
-//
-//  ************   Note that in this regard, LogDebug behaves like assert:
-//                 The use of functions having side effects, on a LogDebug
-//                 statement (just as within an assert()), is unwise as it
-//                 makes turning on the debugging aid alter the program
-//                 behavior.
-//
-// 21  mf 9/23/10  Support for situations where no thresholds are low
-//                 enough to react to LogDebug (or info, or warning).
-//		   A key observation is that while debugEnabled
-//		   should in principle be obtained via an instance() of
-//		   MessageDrop, debugAlwaysSuppressed is universal across
-//		   threads and hence is properly just a class static, which
-//		   is much quicker to check.
-//
-// 22  mf 9/27/10  edmmltest::LogWarningThatSuppressesLikeLogInfo,
-//		   a class provided solely to allow testing of the feature
-//		   that if all destinations have threshold too high, then
-//		   a level of messages (in this case, INFO) will be suppressed
-//		   without even being seen by the destinations.
-//
-// 23 mf 11/30/10  SnapshotMessageLog() method to force MessageDrop to
-//		   capture any pointed-to strings in anticipation of key
-//		   objects going away before a message is going to be issued.
-//
-// 24 fwyzard 7/6/11    Add support for discarding LogError-level messages
-//                      on a per-module basis (needed at HLT)
-//
-// 25 wmtan 7/17/11 Allocate MessageSender on stack rather than heap
-//
-// 26 wmtan 7/22/11 Fix clang compilation errors for LogDebug and LogTrace
-//                  by making MessageSender copyable, and holding
-//                  the ErrorObj in a shared pointer with a custom deleter.
-//
-// 27 mkortela 2/27/17 Add IfLogTrace and IfLogDebug
-// =================================================
 
 // system include files
 
@@ -134,580 +29,151 @@
 
 #include "FWCore/MessageLogger/interface/MessageSender.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
-#include "FWCore/Utilities/interface/EDMException.h"  // Change log 8
+#include "FWCore/Utilities/interface/EDMException.h"
 
 namespace edm {
 
-  class LogWarning {
+  namespace level {
+    struct System {
+      static constexpr const ELseverityLevel level = ELsevere;
+      constexpr static bool suppress() noexcept { return false; }
+    };
+    struct Error {
+      static constexpr const ELseverityLevel level = ELerror;
+      static bool suppress() noexcept { return !MessageDrop::instance()->errorEnabled; }
+    };
+    struct Warning {
+      static constexpr const ELseverityLevel level = ELwarning;
+      static bool suppress() noexcept {
+        return (MessageDrop::warningAlwaysSuppressed || !MessageDrop::instance()->warningEnabled);
+      }
+    };
+    struct FwkInfo {
+      static constexpr const ELseverityLevel level = ELfwkInfo;
+      static bool suppress() noexcept {
+        return (MessageDrop::fwkInfoAlwaysSuppressed || !MessageDrop::instance()->fwkInfoEnabled);
+      }
+    };
+    struct Info {
+      static constexpr const ELseverityLevel level = ELinfo;
+      static bool suppress() noexcept {
+        return (MessageDrop::infoAlwaysSuppressed || !MessageDrop::instance()->infoEnabled);
+      }
+    };
+    struct Debug {
+      static constexpr const ELseverityLevel level = ELdebug;
+      constexpr static bool suppress() noexcept { return false; }
+    };
+  }  // namespace level
+
+  template <typename LVL, bool VERBATIM>
+  class Log {
   public:
-    explicit LogWarning(std::string_view id)
-        : ap(ELwarning,
-             id,
-             false,
-             (MessageDrop::warningAlwaysSuppressed || !MessageDrop::instance()->warningEnabled))  // Change log 21
-    {}
-    LogWarning(LogWarning const&) = delete;  // Change log 9
-    LogWarning& operator=(LogWarning const&) = delete;
-    ~LogWarning();  // Change log 13
+    using ThisLog = Log<LVL, VERBATIM>;
+    explicit Log(std::string_view id) : ap(LVL::level, id, VERBATIM, LVL::suppress()) {}
+    Log(ThisLog&&) = default;
+    Log(ThisLog const&) = delete;
+    Log& operator=(ThisLog const&) = delete;
+    Log& operator=(ThisLog&&) = default;
+    ~Log() = default;
 
     template <class T>
-    LogWarning& operator<<(T const& t) {
+    ThisLog& operator<<(T const& t) {
       if (ap.valid())
         ap << t;
       return *this;
     }
-    LogWarning& operator<<(std::ostream& (*f)(std::ostream&)) {
+    ThisLog& operator<<(std::ostream& (*f)(std::ostream&)) {
       if (ap.valid())
         ap << f;
       return *this;
     }
-    LogWarning& operator<<(std::ios_base& (*f)(std::ios_base&)) {
+    ThisLog& operator<<(std::ios_base& (*f)(std::ios_base&)) {
       if (ap.valid())
         ap << f;
       return *this;
     }
 
     template <typename... Args>
-    LogWarning& format(std::string_view fmt, Args const&... args) {
+    ThisLog& format(std::string_view fmt, Args const&... args) {
       if (ap.valid())
         ap.format(fmt, args...);
       return *this;
     }
 
     template <typename F>
-    LogWarning& log(F&& iF) {
+    ThisLog& log(F&& iF) {
       if (ap.valid()) {
         iF(ap);
       }
       return *this;
     }
 
-  private:
-    MessageSender ap;
-
-  };  // LogWarning
-
-  class LogError {
-  public:
-    explicit LogError(std::string_view id)
-        : ap(ELerror, id, false, !MessageDrop::instance()->errorEnabled)  // Change log 24
-    {}
-    LogError(LogError const&) = delete;  // Change log 9
-    LogError& operator=(LogError const&) = delete;
-    ~LogError();  // Change log 13
-
-    template <class T>
-    LogError& operator<<(T const& t) {
-      if (ap.valid())
-        ap << t;
-      return *this;
-    }
-    LogError& operator<<(std::ostream& (*f)(std::ostream&)) {
-      if (ap.valid())
-        ap << f;
-      return *this;
-    }
-    LogError& operator<<(std::ios_base& (*f)(std::ios_base&)) {
-      if (ap.valid())
-        ap << f;
-      return *this;
-    }
-
-    template <typename... Args>
-    LogError& format(std::string_view fmt, Args const&... args) {
-      if (ap.valid())
-        ap.format(fmt, args...);
-      return *this;
-    }
-
-    template <typename F>
-    LogError& log(F&& iF) {
-      if (ap.valid()) {
-        iF(ap);
-      }
-      return *this;
-    }
+  protected:
+    Log() = default;
+    //Want standard copy ctr to be deleted to make compiler errors
+    // clearer. This does the same thing but with different signature
+    //Needed for LogDebug and LogTrace macros
+    Log(std::nullptr_t, ThisLog const& iOther) : ap(iOther.ap) {}
 
   private:
     MessageSender ap;
+  };
+  using LogWarning = Log<level::Warning, false>;
+  using LogError = Log<level::Error, false>;
+  using LogSystem = Log<level::System, false>;
+  using LogInfo = Log<level::Info, false>;
+  using LogFwkInfo = Log<level::FwkInfo, false>;
 
-  };  // LogError
-
-  class LogSystem {
-  public:
-    explicit LogSystem(std::string_view id) : ap(ELsevere, id) {}
-    LogSystem(LogSystem const&) = delete;  // Change log 9
-    LogSystem& operator=(LogSystem const&) = delete;
-    ~LogSystem();  // Change log 13
-
-    template <class T>
-    LogSystem& operator<<(T const& t) {
-      ap << t;
-      return *this;
-    }
-    LogSystem& operator<<(std::ostream& (*f)(std::ostream&)) {
-      ap << f;
-      return *this;
-    }
-    LogSystem& operator<<(std::ios_base& (*f)(std::ios_base&)) {
-      ap << f;
-      return *this;
-    }
-
-    template <typename... Args>
-    LogSystem& format(std::string_view fmt, Args const&... args) {
-      if (ap.valid())
-        ap.format(fmt, args...);
-      return *this;
-    }
-
-    template <typename F>
-    LogSystem& log(F&& iF) {
-      iF(ap);
-      return *this;
-    }
-
-  private:
-    MessageSender ap;
-
-  };  // LogSystem
-
-  class LogInfo {
-  public:
-    explicit LogInfo(std::string_view id)
-        : ap(ELinfo,
-             id,
-             false,
-             (MessageDrop::infoAlwaysSuppressed || !MessageDrop::instance()->infoEnabled))  // Change log 21
-    {}
-    LogInfo(LogInfo const&) = delete;  // Change log 9
-    LogInfo& operator=(LogInfo const&) = delete;
-
-    ~LogInfo();  // Change log 13
-
-    template <class T>
-    LogInfo& operator<<(T const& t) {
-      if (ap.valid())
-        ap << t;
-      return *this;
-    }
-    LogInfo& operator<<(std::ostream& (*f)(std::ostream&)) {
-      if (ap.valid())
-        ap << f;
-      return *this;
-    }
-    LogInfo& operator<<(std::ios_base& (*f)(std::ios_base&)) {
-      if (ap.valid())
-        ap << f;
-      return *this;
-    }
-
-    template <typename... Args>
-    LogInfo& format(std::string_view fmt, Args const&... args) {
-      if (ap.valid())
-        ap.format(fmt, args...);
-      return *this;
-    }
-
-    template <typename F>
-    LogInfo& log(F&& iF) {
-      if (ap.valid()) {
-        iF(ap);
-      }
-      return *this;
-    }
-
-  private:
-    MessageSender ap;
-
-  };  // LogInfo
-
-  // verbatim version of LogInfo
-  class LogVerbatim  // change log 2
-  {
-  public:
-    explicit LogVerbatim(std::string_view id)
-        : ap(ELinfo,
-             id,
-             true,
-             (MessageDrop::infoAlwaysSuppressed || !MessageDrop::instance()->infoEnabled))  // Change log 21
-    {}
-    LogVerbatim(LogVerbatim const&) = delete;  // Change log 9
-    LogVerbatim& operator=(LogVerbatim const&) = delete;
-    ~LogVerbatim();  // Change log 13
-
-    template <class T>
-    LogVerbatim& operator<<(T const& t) {
-      if (ap.valid())
-        ap << t;
-      return *this;
-    }
-    // Change log 14
-    LogVerbatim& operator<<(std::ostream& (*f)(std::ostream&)) {
-      if (ap.valid())
-        ap << f;
-      return *this;
-    }
-    LogVerbatim& operator<<(std::ios_base& (*f)(std::ios_base&)) {
-      if (ap.valid())
-        ap << f;
-      return *this;
-    }
-
-    template <typename... Args>
-    LogVerbatim& format(std::string_view fmt, Args&... args) {
-      if (ap.valid())
-        ap.format(fmt, args...);
-      return *this;
-    }
-
-    template <typename F>
-    LogVerbatim& log(F&& iF) {
-      if (ap.valid()) {
-        iF(ap);
-      }
-      return *this;
-    }
-
-  private:
-    MessageSender ap;
-
-  };  // LogVerbatim
-
-  // verbatim version of LogWarning
-  class LogPrint  // change log 3
-  {
-  public:
-    explicit LogPrint(std::string_view id)
-        : ap(ELwarning,
-             id,
-             true,
-             (MessageDrop::warningAlwaysSuppressed || !MessageDrop::instance()->warningEnabled))  // Change log 21
-    {}
-    LogPrint(LogPrint const&) = delete;  // Change log 9
-    LogPrint& operator=(LogPrint const&) = delete;
-    ~LogPrint();  // Change log 13
-
-    template <class T>
-    LogPrint& operator<<(T const& t) {
-      if (ap.valid())
-        ap << t;
-      return *this;
-    }
-    // Change log 14
-    LogPrint& operator<<(std::ostream& (*f)(std::ostream&)) {
-      if (ap.valid())
-        ap << f;
-      return *this;
-    }
-    LogPrint& operator<<(std::ios_base& (*f)(std::ios_base&)) {
-      if (ap.valid())
-        ap << f;
-      return *this;
-    }
-
-    template <typename... Args>
-    LogPrint& format(std::string_view fmt, Args const&... args) {
-      if (ap.valid())
-        ap.format(fmt, args...);
-      return *this;
-    }
-
-    template <typename F>
-    LogPrint& log(F&& iF) {
-      if (ap.valid()) {
-        iF(ap);
-      }
-      return *this;
-    }
-
-  private:
-    MessageSender ap;
-
-  };  // LogPrint
-
-  // verbatim version of LogError
-  class LogProblem  // change log 4
-  {
-  public:
-    explicit LogProblem(std::string_view id)
-        : ap(ELerror, id, true, !MessageDrop::instance()->errorEnabled)  // Change log 24
-    {}
-    LogProblem(LogProblem const&) = delete;  // Change log 9
-    LogProblem& operator=(LogProblem const&) = delete;
-    ~LogProblem();  // Change log 13
-
-    template <class T>
-    LogProblem& operator<<(T const& t) {
-      if (ap.valid())
-        ap << t;
-      return *this;
-    }
-    LogProblem& operator<<(std::ostream& (*f)(std::ostream&)) {
-      if (ap.valid())
-        ap << f;
-      return *this;
-    }
-    LogProblem& operator<<(std::ios_base& (*f)(std::ios_base&)) {
-      if (ap.valid())
-        ap << f;
-      return *this;
-    }
-
-    template <typename... Args>
-    LogProblem& format(std::string_view fmt, Args const&... args) {
-      if (ap.valid())
-        ap.format(fmt, args...);
-      return *this;
-    }
-
-    template <typename F>
-    LogProblem& log(F&& iF) {
-      if (ap.valid()) {
-        iF(ap);
-      }
-      return *this;
-    }
-
-  private:
-    MessageSender ap;
-
-  };  // LogProblem
-
+  using LogVerbatim = Log<level::Info, true>;
+  using LogFwkVerbatim = Log<level::FwkInfo, true>;
+  using LogPrint = Log<level::Warning, true>;
+  using LogProblem = Log<level::Error, true>;
   // less judgemental verbatim version of LogError
-  class LogImportant  // change log 11
-  {
-  public:
-    explicit LogImportant(std::string_view id)
-        : ap(ELerror, id, true, !MessageDrop::instance()->errorEnabled)  // Change log 24
-    {}
-    LogImportant(LogImportant const&) = delete;  // Change log 9
-    LogImportant& operator=(LogImportant const&) = delete;
-    ~LogImportant();  // Change log 13
-
-    template <class T>
-    LogImportant& operator<<(T const& t) {
-      if (ap.valid())
-        ap << t;
-      return *this;
-    }
-    LogImportant& operator<<(std::ostream& (*f)(std::ostream&)) {
-      if (ap.valid())
-        ap << f;
-      return *this;
-    }
-    LogImportant& operator<<(std::ios_base& (*f)(std::ios_base&)) {
-      if (ap.valid())
-        ap << f;
-      return *this;
-    }
-
-    template <typename... Args>
-    LogImportant& format(std::string_view fmt, Args const&... args) {
-      if (ap.valid())
-        ap.format(fmt, args...);
-      return *this;
-    }
-
-    template <typename F>
-    LogImportant& log(F&& iF) {
-      if (ap.valid()) {
-        iF(ap);
-      }
-      return *this;
-    }
-
-  private:
-    MessageSender ap;
-
-  };  // LogImportant
-
-  // verbatim version of LogSystem
-  class LogAbsolute  // change log 4
-  {
-  public:
-    explicit LogAbsolute(std::string_view id)
-        : ap(ELsevere, id, true)  // true for verbatim
-    {}
-    LogAbsolute(LogAbsolute const&) = delete;  // Change log 9
-    LogAbsolute& operator=(LogAbsolute const&) = delete;
-    ~LogAbsolute();  // Change log 13
-
-    template <class T>
-    LogAbsolute& operator<<(T const& t) {
-      ap << t;
-      return *this;
-    }
-    LogAbsolute& operator<<(std::ostream& (*f)(std::ostream&)) {
-      ap << f;
-      return *this;
-    }
-    LogAbsolute& operator<<(std::ios_base& (*f)(std::ios_base&)) {
-      ap << f;
-      return *this;
-    }
-
-    template <typename... Args>
-    LogAbsolute& format(std::string_view fmt, Args const&... args) {
-      if (ap.valid())
-        ap.format(fmt, args...);
-      return *this;
-    }
-
-    template <typename F>
-    LogAbsolute& log(F&& iF) {
-      iF(ap);
-      return *this;
-    }
-
-  private:
-    MessageSender ap;
-
-  };  // LogAbsolute
-
-  // change log 10:  removed onlyLowestDirectory()
+  using LogImportant = Log<level::Error, true>;
+  using LogAbsolute = Log<level::System, true>;
 
   void LogStatistics();
 
-  class LogDebug_ {
+  class LogDebug_ : public Log<level::Debug, false> {
   public:
-    LogDebug_() : ap() {}
-    explicit LogDebug_(std::string_view id, std::string_view file, int line);  // Change log 17
-    ~LogDebug_();
-
-    template <class T>
-    LogDebug_& operator<<(T const& t) {
-      if (ap.valid())
-        ap << t;
-      return *this;
-    }
-    LogDebug_& operator<<(std::ostream& (*f)(std::ostream&)) {
-      if (ap.valid())
-        ap << f;
-      return *this;
-    }
-    LogDebug_& operator<<(std::ios_base& (*f)(std::ios_base&)) {
-      if (ap.valid())
-        ap << f;
-      return *this;
-    }
-    // Change log 8:  The tests for ap.valid() being null
-
-    template <typename... Args>
-    LogDebug_& format(std::string_view fmt, Args const&... args) {
-      if (ap.valid())
-        ap.format(fmt, args...);
-      return *this;
-    }
-
-    template <typename F>
-    LogDebug_& log(F&& iF) {
-      if (ap.valid()) {
-        iF(ap);
-      }
-      return *this;
-    }
+    LogDebug_() = default;
+    explicit LogDebug_(std::string_view id, std::string_view file, int line);
+    //Needed for the LogDebug macro
+    LogDebug_(Log<level::Debug, false> const& iOther) : Log<level::Debug, false>(nullptr, iOther) {}
 
   private:
-    MessageSender ap;
     std::string_view stripLeadingDirectoryTree(std::string_view file) const;
-    // change log 10
   };  // LogDebug_
 
-  class LogTrace_ {
+  class LogTrace_ : public Log<level::Debug, true> {
   public:
-    LogTrace_() : ap() {}
-    explicit LogTrace_(std::string_view id);  // Change log 13
-    ~LogTrace_();
+    LogTrace_() = default;
+    explicit LogTrace_(std::string_view id) : Log<level::Debug, true>(id) {}
+    //Needed for the LogTrace macro
+    LogTrace_(Log<level::Debug, true> const& iOther) : Log<level::Debug, true>(nullptr, iOther) {}
+  };
 
-    template <class T>
-    LogTrace_& operator<<(T const& t) {
-      if (ap.valid())
-        ap << t;
-      return *this;
-    }
-    LogTrace_& operator<<(std::ostream& (*f)(std::ostream&)) {
-      if (ap.valid())
-        ap << f;
-      return *this;
-    }
-    LogTrace_& operator<<(std::ios_base& (*f)(std::ios_base&)) {
-      if (ap.valid())
-        ap << f;
-      return *this;
-    }
-    // Change log 8:  The tests for ap.valid() being null
+  namespace impl {
+    //Needed for LogDebug and LogTrace macros in order to get the
+    // type on both sides of the ?: to be the same
+    struct LogDebugAdapter {
+      //Need an operator with lower precendence than operator<<
+      LogDebug_ operator|(Log<level::Debug, false>& iOther) { return LogDebug_(iOther); }
+      LogTrace_ operator|(Log<level::Debug, true>& iOther) { return LogTrace_(iOther); }
+    };
+  }  // namespace impl
 
-    template <typename... Args>
-    LogTrace_& format(std::string_view fmt, Args const&... args) {
-      if (ap.valid())
-        ap.format(fmt, args...);
-      return *this;
-    }
-
-    template <typename F>
-    LogTrace_& log(F&& iF) {
-      if (ap.valid()) {
-        iF(ap);
-      }
-      return *this;
-    }
-
-  private:
-    MessageSender ap;
-
-  };  // LogTrace_
-
-  // Change log 22
   namespace edmmltest {
-    class LogWarningThatSuppressesLikeLogInfo {
-    public:
-      explicit LogWarningThatSuppressesLikeLogInfo(std::string_view id)
-          : ap(ELwarning,
-               id,
-               false,
-               (MessageDrop::infoAlwaysSuppressed || !MessageDrop::instance()->warningEnabled))  // Change log 22
-      {}
-      LogWarningThatSuppressesLikeLogInfo(LogWarningThatSuppressesLikeLogInfo const&) = delete;  // Change log 9
-      LogWarningThatSuppressesLikeLogInfo& operator=(LogWarningThatSuppressesLikeLogInfo const&) = delete;
-      ~LogWarningThatSuppressesLikeLogInfo();
-      template <class T>
-      LogWarningThatSuppressesLikeLogInfo& operator<<(T const& t) {
-        if (ap.valid())
-          ap << t;
-        return *this;
+    struct WarningThatSuppressesLikeLogInfo {
+      static constexpr const ELseverityLevel level = ELwarning;
+      static bool suppress() noexcept {
+        return (MessageDrop::infoAlwaysSuppressed || !MessageDrop::instance()->warningEnabled);
       }
-      LogWarningThatSuppressesLikeLogInfo& operator<<(std::ostream& (*f)(std::ostream&)) {
-        if (ap.valid())
-          ap << f;
-        return *this;
-      }
-      LogWarningThatSuppressesLikeLogInfo& operator<<(std::ios_base& (*f)(std::ios_base&)) {
-        if (ap.valid())
-          ap << f;
-        return *this;
-      }
+    };
 
-      template <typename... Args>
-      LogWarningThatSuppressesLikeLogInfo& format(std::string_view fmt, Args const&... args) {
-        if (ap.valid())
-          ap.format(fmt, args...);
-        return *this;
-      }
-
-      template <typename F>
-      LogWarningThatSuppressesLikeLogInfo& log(F&& iF) {
-        if (ap.valid()) {
-          iF(ap);
-        }
-        return *this;
-      }
-
-    private:
-      MessageSender ap;
-
-    };  // LogWarningThatSuppressesLikeLogInfo
-  }     // end namespace edmmltest
+    using LogWarningThatSuppressesLikeLogInfo = Log<WarningThatSuppressesLikeLogInfo, false>;
+  }  // end namespace edmmltest
 
   class Suppress_LogDebug_ {
     // With any decent optimization, use of Suppress_LogDebug_ (...)
@@ -717,9 +183,9 @@ namespace edm {
     template <class T>
     Suppress_LogDebug_& operator<<(T const&) {
       return *this;
-    }                                                                                     // Change log 12
-    Suppress_LogDebug_& operator<<(std::ostream& (*)(std::ostream&)) { return *this; }    // Change log 12
-    Suppress_LogDebug_& operator<<(std::ios_base& (*)(std::ios_base&)) { return *this; }  // Change log 12
+    }
+    Suppress_LogDebug_& operator<<(std::ostream& (*)(std::ostream&)) { return *this; }
+    Suppress_LogDebug_& operator<<(std::ios_base& (*)(std::ios_base&)) { return *this; }
 
     template <typename... Args>
     Suppress_LogDebug_& format(std::string_view fmt, Args const&... args) {
@@ -734,6 +200,7 @@ namespace edm {
 
   bool isDebugEnabled();
   bool isInfoEnabled();
+  bool isFwkInfoEnabled();
   bool isWarningEnabled();
   void HaltMessageLogging();
   void FlushMessageLog();
@@ -741,7 +208,6 @@ namespace edm {
   void GroupLogStatistics(std::string_view category);
   bool isMessageProcessingSetUp();
 
-  // Change Log 15
   // The following two methods have no effect except in stand-alone apps
   // that do not create a MessageServicePresence:
   void setStandAloneMessageThreshold(edm::ELseverityLevel const& severity);
@@ -749,8 +215,7 @@ namespace edm {
 
 }  // namespace edm
 
-// change log 19 and change log 20
-// The preprocessor symbol controlling suppression of LogDebug is EDM_ML_DEBUG.  Thus by default (BEHAVIOR CHANGE) LogDebug is
+// The preprocessor symbol controlling suppression of LogDebug is EDM_ML_DEBUG.  Thus by default LogDebug is
 // If LogDebug is suppressed, all code past the LogDebug(...) is squelched.
 // See doc/suppression.txt.
 
@@ -758,18 +223,16 @@ namespace edm {
 #define LogDebug(id) true ? edm::Suppress_LogDebug_() : edm::Suppress_LogDebug_()
 #define LogTrace(id) true ? edm::Suppress_LogDebug_() : edm::Suppress_LogDebug_()
 #else
-// change log 21
 #define LogDebug(id)                                                                       \
   (edm::MessageDrop::debugAlwaysSuppressed || !edm::MessageDrop::instance()->debugEnabled) \
       ? edm::LogDebug_()                                                                   \
-      : edm::LogDebug_(id, __FILE__, __LINE__)
-#define LogTrace(id)                                                                                          \
-  (edm::MessageDrop::debugAlwaysSuppressed || !edm::MessageDrop::instance()->debugEnabled) ? edm::LogTrace_() \
-                                                                                           : edm::LogTrace_(id)
+      : edm::impl::LogDebugAdapter() | edm::LogDebug_(id, __FILE__, __LINE__)
+#define LogTrace(id)                                                                       \
+  (edm::MessageDrop::debugAlwaysSuppressed || !edm::MessageDrop::instance()->debugEnabled) \
+      ? edm::LogTrace_()                                                                   \
+      : edm::impl::LogDebugAdapter() | edm::LogTrace_(id)
 #endif
 
-// change log 27
-//
 // These macros reduce the need to pollute the code with #ifdefs. The
 // idea is that the condition is checked only if debugging is enabled.
 // That way the condition expression may use variables that are

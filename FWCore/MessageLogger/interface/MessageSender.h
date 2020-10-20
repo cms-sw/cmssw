@@ -8,17 +8,6 @@
 
 #include <map>
 
-// Change log
-//
-//  1  mf 8/25/08	error summary information for LoggedErrorsSummary()
-//
-//  2  mf 6/22/09	add severity to LoggedErrorsSummary by using
-//			ErrorSummaryEntry as map key
-//
-//  3 wmtan 6/22/11     Hold the ErrorObj with a shared pointer with a custom deleter.
-//                      The custom deleter takes over the function of the message sending from the MessageSender destructor.
-//                      This allows MessageSender to be copyable, which fixes the clang compilation errors.
-
 namespace edm {
 
   class MessageSender {
@@ -29,8 +18,12 @@ namespace edm {
 
   public:
     // ---  birth/death:
-    MessageSender() : errorobj_p() {}
+    MessageSender() = default;
     MessageSender(ELseverityLevel const& sev, std::string_view id, bool verbatim = false, bool suppressed = false);
+    MessageSender(MessageSender&&) = default;
+    MessageSender(MessageSender const&) = default;
+    MessageSender& operator=(MessageSender&&) = default;
+    MessageSender& operator=(MessageSender const&) = default;
     ~MessageSender();
 
     // ---  stream out the next part of a message:
@@ -48,7 +41,7 @@ namespace edm {
       return *this;
     }
 
-    bool valid() { return errorobj_p != nullptr; }
+    bool valid() const noexcept { return errorobj_p != nullptr; }
 
   private:
     // data:
