@@ -16,7 +16,6 @@ std::unique_ptr<AMC13Event> GEMRawToDigi::convertWordToAMC13Event(const uint64_t
   amc13Event->setAMC13Header(*(++word));
 
   // Readout out AMC headers
-  LogDebug("GEMRawToDigi") << "nAMC: " << int(amc13Event->nAMC());
   for (uint8_t i = 0; i < amc13Event->nAMC(); ++i)
     amc13Event->addAMCheader(*(++word));
 
@@ -27,13 +26,11 @@ std::unique_ptr<AMC13Event> GEMRawToDigi::convertWordToAMC13Event(const uint64_t
     amcData.setAMCheader2(*(++word));
     amcData.setGEMeventHeader(*(++word));
 
-    LogDebug("GEMRawToDigi") << "davCnt: " << int(amcData.davCnt());
     // Fill GEB
     for (uint8_t j = 0; j < amcData.davCnt(); ++j) {
       auto gebData = GEBdata();
       gebData.setChamberHeader(*(++word));
 
-      LogDebug("GEMRawToDigi") << "vfatWordCnt: " << int(gebData.vfatWordCnt());
       // Fill vfat
       for (uint16_t k = 0; k < gebData.vfatWordCnt() / 3; k++) {
         auto vfatData = VFATdata();
@@ -47,8 +44,6 @@ std::unique_ptr<AMC13Event> GEMRawToDigi::convertWordToAMC13Event(const uint64_t
       gebData.setChamberTrailer(*(++word));
       if (gebData.vfatWordCnt() != gebData.vfatWordCntT()) {
         vfatError_ = true;
-        edm::LogWarning("GEMRawToDigi") << "VFAT word count mismatch between header:" << gebData.vfatWordCnt()
-                                        << " and trailer:" << gebData.vfatWordCntT();
       }
       amcData.addGEB(gebData);
 
@@ -58,8 +53,6 @@ std::unique_ptr<AMC13Event> GEMRawToDigi::convertWordToAMC13Event(const uint64_t
     amcData.setAMCTrailer(*(++word));
     if (amc13Event->getAMCsize(i) != amcData.dataLength()) {
       amcError_ = true;
-      edm::LogWarning("GEMRawToDigi") << "AMC size mismatch - AMC13:" << int(amc13Event->getAMCsize(i))
-                                      << " AMC:" << int(amcData.dataLength());
     }
     amc13Event->addAMCpayload(amcData);
 
