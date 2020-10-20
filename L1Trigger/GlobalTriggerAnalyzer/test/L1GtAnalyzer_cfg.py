@@ -166,7 +166,6 @@ process.MessageLogger.destinations = ['L1GtAnalyzer_error',
                                       ]
 
 process.MessageLogger.cerr.default.limit = 0
-process.MessageLogger.cerr.FwkJob.limit = 0
 process.MessageLogger.cerr.FwkReport.limit = 0
 process.MessageLogger.cerr.FwkSummary.limit = 0
 
