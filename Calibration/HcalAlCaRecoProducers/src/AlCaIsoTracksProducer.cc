@@ -1,6 +1,5 @@
-
 // -*- C++ -*-
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 // system include files
 #include <atomic>
@@ -144,6 +143,8 @@ private:
   edm::EDGetTokenT<EcalRecHitCollection> tok_EB_;
   edm::EDGetTokenT<EcalRecHitCollection> tok_EE_;
   edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_magField_;
 };
 
 AlCaIsoTracksProducer::AlCaIsoTracksProducer(edm::ParameterSet const& iConfig, const AlCaIsoTracks::Counters* counters)
@@ -204,25 +205,29 @@ AlCaIsoTracksProducer::AlCaIsoTracksProducer(edm::ParameterSet const& iConfig, c
   tok_EB_ = consumes<EcalRecHitCollection>(labelEB_);
   tok_EE_ = consumes<EcalRecHitCollection>(labelEE_);
   tok_hbhe_ = consumes<HBHERecHitCollection>(labelHBHE_);
+  // for event setup
+  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>();
+  tok_magField_ = esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>();
 
-  edm::LogInfo("HcalIsoTrack") << "Parameters read from config file \n"
-                               << "\t minPt " << selectionParameter_.minPt << "\t theTrackQuality " << theTrackQuality_
-                               << "\t minQuality " << selectionParameter_.minQuality << "\t maxDxyPV "
-                               << selectionParameter_.maxDxyPV << "\t maxDzPV " << selectionParameter_.maxDzPV
-                               << "\t maxChi2 " << selectionParameter_.maxChi2 << "\t maxDpOverP "
-                               << selectionParameter_.maxDpOverP << "\t minOuterHit " << selectionParameter_.minOuterHit
-                               << "\t minLayerCrossed " << selectionParameter_.minLayerCrossed << "\t maxInMiss "
-                               << selectionParameter_.maxInMiss << "\t maxOutMiss " << selectionParameter_.maxOutMiss
-                               << "\n"
-                               << "\t a_coneR " << a_coneR_ << "\t a_charIsoR " << a_charIsoR_ << "\t a_mipR "
-                               << a_mipR_ << "\t pTrackMin " << pTrackMin_ << "\t eEcalMax " << eEcalMax_
-                               << "\t maxRestrictionP_ " << maxRestrictionP_ << "\t slopeRestrictionP_ "
-                               << slopeRestrictionP_ << "\t eIsolate_ " << eIsolate_ << "\t Process " << processName_
-                               << "\n"
-                               << "\t Precale factor " << preScale_ << "\t in momentum range " << pTrackLow_ << ":"
-                               << pTrackHigh_;
+  edm::LogVerbatim("HcalIsoTrack") << "Parameters read from config file \n"
+                                   << "\t minPt " << selectionParameter_.minPt << "\t theTrackQuality "
+                                   << theTrackQuality_ << "\t minQuality " << selectionParameter_.minQuality
+                                   << "\t maxDxyPV " << selectionParameter_.maxDxyPV << "\t maxDzPV "
+                                   << selectionParameter_.maxDzPV << "\t maxChi2 " << selectionParameter_.maxChi2
+                                   << "\t maxDpOverP " << selectionParameter_.maxDpOverP << "\t minOuterHit "
+                                   << selectionParameter_.minOuterHit << "\t minLayerCrossed "
+                                   << selectionParameter_.minLayerCrossed << "\t maxInMiss "
+                                   << selectionParameter_.maxInMiss << "\t maxOutMiss "
+                                   << selectionParameter_.maxOutMiss << "\n"
+                                   << "\t a_coneR " << a_coneR_ << "\t a_charIsoR " << a_charIsoR_ << "\t a_mipR "
+                                   << a_mipR_ << "\t pTrackMin " << pTrackMin_ << "\t eEcalMax " << eEcalMax_
+                                   << "\t maxRestrictionP_ " << maxRestrictionP_ << "\t slopeRestrictionP_ "
+                                   << slopeRestrictionP_ << "\t eIsolate_ " << eIsolate_ << "\t Process "
+                                   << processName_ << "\n"
+                                   << "\t Precale factor " << preScale_ << "\t in momentum range " << pTrackLow_ << ":"
+                                   << pTrackHigh_;
   for (unsigned int k = 0; k < trigNames_.size(); ++k)
-    edm::LogInfo("HcalIsoTrack") << "Trigger[" << k << "] " << trigNames_[k];
+    edm::LogVerbatim("HcalIsoTrack") << "Trigger[" << k << "] " << trigNames_[k];
 
   //create also IsolatedPixelTrackCandidateCollection which contains isolation info and reference to primary track
   produces<reco::HcalIsolatedTrackCandidateCollection>(labelIsoTk_);
@@ -231,13 +236,13 @@ AlCaIsoTracksProducer::AlCaIsoTracksProducer(edm::ParameterSet const& iConfig, c
   produces<EcalRecHitCollection>(labelEE_.instance());
   produces<HBHERecHitCollection>(labelHBHE_.label());
 
-  edm::LogInfo("HcalIsoTrack") << " Expected to produce the collections:\n"
-                               << "reco::HcalIsolatedTrackCandidateCollection "
-                               << " with label HcalIsolatedTrackCollection\n"
-                               << "reco::VertexCollection with label " << labelRecVtx_.label() << "\n"
-                               << "EcalRecHitCollection with label EcalRecHitsEB\n"
-                               << "EcalRecHitCollection with label EcalRecHitsEE\n"
-                               << "HBHERecHitCollection with label " << labelHBHE_.label();
+  edm::LogVerbatim("HcalIsoTrack") << " Expected to produce the collections:\n"
+                                   << "reco::HcalIsolatedTrackCandidateCollection "
+                                   << " with label HcalIsolatedTrackCollection\n"
+                                   << "reco::VertexCollection with label " << labelRecVtx_.label() << "\n"
+                                   << "EcalRecHitCollection with label EcalRecHitsEB\n"
+                                   << "EcalRecHitCollection with label EcalRecHitsEE\n"
+                                   << "HBHERecHitCollection with label " << labelHBHE_.label();
 }
 
 AlCaIsoTracksProducer::~AlCaIsoTracksProducer() {}
@@ -288,9 +293,9 @@ void AlCaIsoTracksProducer::fillDescriptions(edm::ConfigurationDescriptions& des
 
 void AlCaIsoTracksProducer::produce(edm::Event& iEvent, edm::EventSetup const& iSetup) {
   nAll_++;
-#ifdef DebugLog
-  edm::LogInfo("HcalIsoTrack") << "Run " << iEvent.id().run() << " Event " << iEvent.id().event() << " Luminosity "
-                               << iEvent.luminosityBlock() << " Bunch " << iEvent.bunchCrossing();
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalIsoTrack") << "Run " << iEvent.id().run() << " Event " << iEvent.id().event() << " Luminosity "
+                                   << iEvent.luminosityBlock() << " Bunch " << iEvent.bunchCrossing();
 #endif
   bool valid(true);
   //Step1: Get all the relevant containers
@@ -332,8 +337,8 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, edm::EventSetup const& i
       leadPV = beamSpotH->position();
     }
   }
-#ifdef DebugLog
-  edm::LogInfo("HcalIsoTrack") << "Primary Vertex " << leadPV;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalIsoTrack") << "Primary Vertex " << leadPV;
 #endif
 
   edm::Handle<EcalRecHitCollection> barrelRecHitsHandle;
@@ -400,8 +405,9 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, edm::EventSetup const& i
                                                                  ptL1,
                                                                  etaL1,
                                                                  phiL1);
-#ifdef DebugLog
-      edm::LogInfo("HcalIsoTrack") << "AlCaIsoTracksProducer::select returns " << isotk->size() << " isolated tracks";
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HcalIsoTrack") << "AlCaIsoTracksProducer::select returns " << isotk->size()
+                                       << " isolated tracks";
 #endif
 
       if (!isotk->empty()) {
@@ -460,25 +466,21 @@ void AlCaIsoTracksProducer::endStream() {
 }
 
 void AlCaIsoTracksProducer::globalEndJob(const AlCaIsoTracks::Counters* count) {
-  edm::LogInfo("HcalIsoTrack") << "Finds " << count->nGood_ << " good tracks in " << count->nAll_ << " events and "
-                               << count->nRange_ << " events in the momentum raange";
+  edm::LogVerbatim("HcalIsoTrack") << "Finds " << count->nGood_ << " good tracks in " << count->nAll_ << " events and "
+                                   << count->nRange_ << " events in the momentum raange";
 }
 
 void AlCaIsoTracksProducer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
   bool changed(false);
-  edm::LogInfo("HcalIsoTrack") << "Run[" << nRun_ << "] " << iRun.run() << " hltconfig.init "
-                               << hltConfig_.init(iRun, iSetup, processName_, changed);
+  edm::LogVerbatim("HcalIsoTrack") << "Run[" << nRun_ << "] " << iRun.run() << " hltconfig.init "
+                                   << hltConfig_.init(iRun, iSetup, processName_, changed);
 
-  edm::ESHandle<MagneticField> bFieldH;
-  iSetup.get<IdealMagneticFieldRecord>().get(bFieldH);
-  bField = bFieldH.product();
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
-  geo = pG.product();
+  bField = &(iSetup.getData(tok_magField_));
+  geo = &(iSetup.getData(tok_geom_));
 }
 
 void AlCaIsoTracksProducer::endRun(edm::Run const& iRun, edm::EventSetup const&) {
-  edm::LogInfo("HcalIsoTrack") << "endRun [" << nRun_ << "] " << iRun.run();
+  edm::LogVerbatim("HcalIsoTrack") << "endRun [" << nRun_ << "] " << iRun.run();
   ++nRun_;
 }
 
@@ -504,8 +506,8 @@ reco::HcalIsolatedTrackCandidateCollection* AlCaIsoTracksProducer::select(
         if (hlt > 0) {
           ok = true;
         }
-        edm::LogInfo("HcalIsoTrack") << "The trigger we are looking for " << triggerNames_[iHLT] << " Flag " << hlt
-                                     << ":" << ok;
+        edm::LogVerbatim("HcalIsoTrack") << "The trigger we are looking for " << triggerNames_[iHLT] << " Flag " << hlt
+                                         << ":" << ok;
       }
     }
   }
@@ -520,15 +522,15 @@ reco::HcalIsolatedTrackCandidateCollection* AlCaIsoTracksProducer::select(
        trkDetItr++, nTracks++) {
     const reco::Track* pTrack = &(*(trkDetItr->trkItr));
     math::XYZTLorentzVector v4(pTrack->px(), pTrack->py(), pTrack->pz(), pTrack->p());
-#ifdef DebugLog
-    edm::LogInfo("HcalIsoTrack") << "This track : " << nTracks << " (pt|eta|phi|p) :" << pTrack->pt() << "|"
-                                 << pTrack->eta() << "|" << pTrack->phi() << "|" << pTrack->p();
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HcalIsoTrack") << "This track : " << nTracks << " (pt|eta|phi|p) :" << pTrack->pt() << "|"
+                                     << pTrack->eta() << "|" << pTrack->phi() << "|" << pTrack->p();
 #endif
     //Selection of good track
     bool qltyFlag = spr::goodTrack(pTrack, leadPV, selectionParameter_, false);
-#ifdef DebugLog
-    edm::LogInfo("HcalIsoTrack") << "qltyFlag|okECAL|okHCAL : " << qltyFlag << "|" << trkDetItr->okECAL << "|"
-                                 << trkDetItr->okHCAL;
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HcalIsoTrack") << "qltyFlag|okECAL|okHCAL : " << qltyFlag << "|" << trkDetItr->okECAL << "|"
+                                     << trkDetItr->okHCAL;
 #endif
     if (qltyFlag && trkDetItr->okECAL && trkDetItr->okHCAL) {
       double t_p = pTrack->p();
@@ -548,10 +550,10 @@ reco::HcalIsolatedTrackCandidateCollection* AlCaIsoTracksProducer::select(
       double eIsolation = (maxRestrictionP_ * exp(slopeRestrictionP_ * ((double)(ieta))));
       if (eIsolation < eIsolate_)
         eIsolation = eIsolate_;
-#ifdef DebugLog
-      edm::LogInfo("HcalIsoTrack") << "This track : " << nTracks << " (pt|eta|phi|p) :" << pTrack->pt() << "|"
-                                   << pTrack->eta() << "|" << pTrack->phi() << "|" << t_p << " e_MIP " << eMipDR
-                                   << " Chg Isolation " << hmaxNearP << ":" << eIsolation;
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HcalIsoTrack") << "This track : " << nTracks << " (pt|eta|phi|p) :" << pTrack->pt() << "|"
+                                       << pTrack->eta() << "|" << pTrack->phi() << "|" << t_p << " e_MIP " << eMipDR
+                                       << " Chg Isolation " << hmaxNearP << ":" << eIsolation;
 #endif
       if (t_p > pTrackMin_ && eMipDR < eEcalMax_ && hmaxNearP < eIsolation) {
         reco::HcalIsolatedTrackCandidate newCandidate(v4);

@@ -50,6 +50,8 @@ namespace cms {
 
     tok_hbheProd_ = consumes<HBHERecHitCollection>(edm::InputTag(nameProd_, hbheInput_));
     tok_hbhe_ = consumes<HBHERecHitCollection>(edm::InputTag(hbheInput_));
+
+    tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
   }
 
   ProducerAnalyzer::~ProducerAnalyzer() {
@@ -69,9 +71,7 @@ namespace cms {
   void ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     using namespace edm;
 
-    edm::ESHandle<CaloGeometry> pG;
-    iSetup.get<CaloGeometryRecord>().get(pG);
-    const CaloGeometry* geo = pG.product();
+    const CaloGeometry* geo = &(iSetup.getData(tok_geom_));
 
     std::vector<StableProvenance const*> theProvenance;
     iEvent.getAllStableProvenance(theProvenance);
