@@ -44,8 +44,8 @@ public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void beginJob() override;
   void endJob() override;
-  void beginRun(const edm::Run& r, const edm::EventSetup& iSetup) override {};
-  void endRun(const edm::Run& r, const edm::EventSetup& iSetup) override {};
+  void beginRun(const edm::Run& r, const edm::EventSetup& iSetup) override{};
+  void endRun(const edm::Run& r, const edm::EventSetup& iSetup) override{};
 
 private:
   // ----------member data ---------------------------
@@ -120,8 +120,8 @@ void SimAnalyzerMinbias::endJob() {
       cells++;
 
       edm::LogVerbatim("AnalyzerMB") << " Result=  " << mysubd << " " << ieta << " " << iphi << " mom0  " << mom0_MB
-                                 << " mom1 " << mom1_MB << " mom2 " << mom2_MB << " mom3 " << mom3_MB << " mom4 "
-                                 << mom4_MB;
+                                     << " mom1 " << mom1_MB << " mom2 " << mom2_MB << " mom3 " << mom3_MB << " mom4 "
+                                     << mom4_MB;
       myTree_->Fill();
     }
   }
@@ -136,7 +136,7 @@ void SimAnalyzerMinbias::endJob() {
 
 void SimAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
   edm::LogVerbatim("AnalyzerMB") << " Start SimAnalyzerMinbias::analyze " << iEvent.id().run() << ":"
-                             << iEvent.id().event();
+                                 << iEvent.id().event();
 
   edm::Handle<edm::HepMCProduct> evtMC;
   iEvent.getByToken(tok_evt_, evtMC);
@@ -145,7 +145,7 @@ void SimAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
   } else {
     const HepMC::GenEvent* myGenEvent = evtMC->GetEvent();
     edm::LogVerbatim("AnalyzerMB") << "Event with " << myGenEvent->particles_size() << " particles + "
-                               << myGenEvent->vertices_size() << " vertices";
+                                   << myGenEvent->vertices_size() << " vertices";
   }
 
   edm::Handle<edm::PCaloHitContainer> hcalHits;
@@ -171,7 +171,7 @@ void SimAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
     }
   }
   edm::LogVerbatim("AnalyzerMB") << "extract information of " << hitMap.size() << " towers from " << HitHcal->size()
-                             << " hits";
+                                 << " hits";
 
   for (std::map<HcalDetId, double>::const_iterator hcalItr = hitMap.begin(); hcalItr != hitMap.end(); ++hcalItr) {
     HcalDetId hid = hcalItr->first;
