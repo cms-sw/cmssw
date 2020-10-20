@@ -3,7 +3,6 @@
 #include <iomanip>
 #include <iostream>
 #include <memory>
-#include <bitset>
 
 // Default values of configuration parameters.
 const unsigned int CSCCathodeLCTProcessor::def_fifo_tbins = 12;
@@ -1310,9 +1309,7 @@ int CSCCathodeLCTProcessor::calculateComparatorCode(const std::array<std::array<
 }
 
 void CSCCathodeLCTProcessor::assignPositionCC(const unsigned offset,
-                                              uint16_t& halfstrip,
-                                              bool& quartstrip,
-                                              bool& eightstrip) const {
+                                              std::tuple<uint16_t, bool, bool>& returnValue) const {
   /*
     | Value | Half-Strip Offset  | Delta Half-Strip  | Quarter-Strip Bit  | Eighth-Strip Bit |
     |-------|--------------------|-------------------|--------------------|------------------|
@@ -1333,17 +1330,25 @@ void CSCCathodeLCTProcessor::assignPositionCC(const unsigned offset,
     |   14  |   7/4              |   1               |   1                |   1              |
     |   15  |   2                |   2               |   0                |   0              |
    */
-  if (offset <= 2)
-    halfstrip -= 2;
-  else if (offset > 2 and offset <= 6)
-    halfstrip--;
-  else if (offset > 10 and offset <= 14)
-    halfstrip += 1;
-  else if (offset == 15)
-    halfstrip += 2;
-
-  quartstrip = std::bitset<4>(offset + 1)[1];
-  eightstrip = !std::bitset<4>(offset)[0];
+  std::vector<std::tuple<uint16_t, bool, bool>> my_tuple = {
+      {-2, false, true},
+      {-2, true, false},
+      {-2, true, true},
+      {-1, false, false},
+      {-1, false, true},
+      {-1, true, false},
+      {-1, true, true},
+      {0, false, false},
+      {0, false, true},
+      {0, true, false},
+      {0, true, true},
+      {1, false, false},
+      {1, false, true},
+      {1, true, false},
+      {1, true, true},
+      {2, false, false},
+  };
+  returnValue = my_tuple[offset];
 }
 
 void CSCCathodeLCTProcessor::runCCLUT(CSCCLCTDigi& digi) const {
@@ -1403,24 +1408,23 @@ void CSCCathodeLCTProcessor::runCCLUT(CSCCLCTDigi& digi) const {
   unsigned run2PatternCC(lutpatconv_[pattern]->lookup(comparatorCode));
 
   // if the slope is negative, set bending to 0
-  if (slopeCC < 16)
-    digi.setBend(0);
-  else
-    digi.setBend(1);
+  const bool slopeCCSign((slopeCC >> 4) & 0x1);
+  const unsigned slopeCCValue(slopeCC & 0xf);
+  digi.setBend(slopeCCSign);
 
   // calculate the new position
   uint16_t halfstrip = digi.getKeyStrip();
-  bool quartstrip = false;
-  bool eightstrip = false;
-  assignPositionCC(positionCC, halfstrip, quartstrip, eightstrip);
+  std::tuple<uint16_t, bool, bool> halfstripoffset;
+  assignPositionCC(positionCC, halfstripoffset);
+  halfstrip += std::get<0>(halfstripoffset);
 
   // store the new 1/2, 1/4 and 1/8 strip positions
   digi.setStrip(halfstrip - digi.getCFEB() * 32);
-  digi.setQuartStrip(quartstrip);
-  digi.setEightStrip(eightstrip);
+  digi.setQuartStrip(std::get<1>(halfstripoffset));
+  digi.setEightStrip(std::get<2>(halfstripoffset));
 
   // store the bending angle value in the pattern data member
-  digi.setSlope(slopeCC);
+  digi.setSlope(slopeCCValue);
 
   // set the quasi Run-2 pattern - to accommodate integration with EMTF/OMTF
   if (run2PatternCC == 0) {
@@ -1444,7 +1448,6 @@ void CSCCathodeLCTProcessor::runCCLUT(CSCCLCTDigi& digi) const {
 }
 
 unsigned CSCCathodeLCTProcessor::convertSlopeToRun2Pattern(const unsigned slope) const {
-  // interesting: the "right-bending" patterns have a negative slope
   const unsigned slopeList[32] = {2,  2,  2, 4, 4, 4, 6, 6, 6, 6, 8, 8, 8, 8, 10, 10,
                                   10, 10, 9, 9, 9, 9, 7, 7, 7, 7, 5, 5, 5, 3, 3,  3};
   return slopeList[slope];
