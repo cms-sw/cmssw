@@ -16,8 +16,6 @@
 //
 //
 
-#include <memory>
-
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
@@ -134,13 +132,13 @@ MuonOffsetESProducer::ReturnType MuonOffsetESProducer::produce(const IdealGeomet
 
   if (fromDD4Hep_) {
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HCalGeom") << "CaloSimParametersESModule::Try to access cms::DDCompactView";
+    edm::LogVerbatim("MuonGeom") << "MuonOffsetESProducer::Try to access cms::DDCompactView";
 #endif
     edm::ESTransientHandle<cms::DDCompactView> cpv = iRecord.getTransientHandle(cpvTokenDD4Hep_);
     builder.build(&(*cpv), *ptp);
   } else {
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HCalGeom") << "CaloSimParametersESModule::Try to access DDCompactView";
+    edm::LogVerbatim("MuonGeom") << "MuonOffsetESProducer::Try to access DDCompactView";
 #endif
     edm::ESTransientHandle<DDCompactView> cpv = iRecord.getTransientHandle(cpvTokenDDD_);
     builder.build(&(*cpv), *ptp);
