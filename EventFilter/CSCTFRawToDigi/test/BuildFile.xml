@@ -1,6 +1,5 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/Utilities"/>
-<use name="FWCore/PluginManager"/>
 <library file="CSCTFSingleGen.cc" name="EventFilterCSCTFSingleGen_test">
   <use name="DataFormats/CSCDigi"/>
   <use name="DataFormats/MuonDetId"/>
