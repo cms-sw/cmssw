@@ -47,7 +47,8 @@ std::unique_ptr<AMC13Event> GEMRawToDigi::convertWordToAMC13Event(const uint64_t
       gebData.setChamberTrailer(*(++word));
       if (gebData.vfatWordCnt() != gebData.vfatWordCntT()) {
         vfatError_ = true;
-        edm::LogWarning("GEMRawToDigi") << "VFAT word count miss match between header and trailer";
+        edm::LogWarning("GEMRawToDigi") << "VFAT word count mismatch between header:" << gebData.vfatWordCnt()
+                                        << " and trailer:" << gebData.vfatWordCntT();
       }
       amcData.addGEB(gebData);
 
@@ -55,11 +56,10 @@ std::unique_ptr<AMC13Event> GEMRawToDigi::convertWordToAMC13Event(const uint64_t
 
     amcData.setGEMeventTrailer(*(++word));
     amcData.setAMCTrailer(*(++word));
-    LogDebug("GEMRawToDigi") << "amcData.dataLength(): " << int(amcData.dataLength())
-                             << " amc13Event->getAMCsize(i): " << int(amc13Event->getAMCsize(i));
     if (amc13Event->getAMCsize(i) != amcData.dataLength()) {
       amcError_ = true;
-      edm::LogWarning("GEMRawToDigi") << "AMC size miss match";
+      edm::LogWarning("GEMRawToDigi") << "AMC size mismatch - AMC13:" << int(amc13Event->getAMCsize(i))
+                                      << " AMC:" << int(amcData.dataLength());
     }
     amc13Event->addAMCpayload(amcData);
 
