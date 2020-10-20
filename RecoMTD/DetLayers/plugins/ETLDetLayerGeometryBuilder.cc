@@ -27,6 +27,7 @@ pair<vector<DetLayer*>, vector<DetLayer*> > ETLDetLayerGeometryBuilder::buildLay
       // there is only one layer for ETL right now, maybe more later
       for (unsigned layer = 0; layer < ETLDetId::kETLv1nDisc; ++layer) {
         vector<unsigned> rings;
+        rings.reserve(ETLDetId::kETLv1maxRing + 1);
         for (unsigned ring = 1; ring <= ETLDetId::kETLv1maxRing; ++ring) {
           rings.push_back(ring);
         }
@@ -55,6 +56,7 @@ pair<vector<DetLayer*>, vector<DetLayer*> > ETLDetLayerGeometryBuilder::buildLay
       // number of layers is two, identical for post TDR scenarios, pick v4
       for (unsigned layer = 1; layer <= ETLDetId::kETLv4nDisc; ++layer) {
         vector<unsigned> sectors;
+        sectors.reserve(nSector + 1);
         for (unsigned sector = 1; sector <= nSector; ++sector) {
           sectors.push_back(sector);
         }
