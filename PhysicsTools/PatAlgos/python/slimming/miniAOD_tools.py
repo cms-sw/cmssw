@@ -381,7 +381,8 @@ def miniAOD_customizeCommon(process):
         toKeep = ['deepTau2017v2p1']
     )
     from Configuration.Eras.Modifier_phase2_common_cff import phase2_common #Phase2 Tau MVA
-    phase2_common.toModify(tauIdEmbedder.toKeep, func=lambda t:t.append('newDMPhase2v1')) #Phase2 Tau MVA
+    phase2_common.toModify(tauIdEmbedder.toKeep, func=lambda t:t.append('newDMPhase2v1')) #Phase2 Tau isolation MVA
+    phase2_common.toModify(tauIdEmbedder.toKeep, func=lambda t:t.append('againstElePhase2v1')) #Phase2 Tau anti-e MVA
     tauIdEmbedder.runTauID()
     addToProcessAndTask(_noUpdatedTauName, process.slimmedTaus.clone(),process,task)
     delattr(process, 'slimmedTaus')
@@ -395,6 +396,10 @@ def miniAOD_customizeCommon(process):
         process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2raw.PATTauProducer=_noUpdatedTauName
         process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2.PATTauProducer=_noUpdatedTauName
         task.add(process.rerunIsolationMVADBnewDMwLTPhase2Task)
+    if 'againstElePhase2v1' in tauIdEmbedder.toKeep:
+        process.patTauDiscriminationByElectronRejectionMVA6Phase2v1Raw.PATTauProducer=_noUpdatedTauName
+        process.patTauDiscriminationByElectronRejectionMVA6Phase2v1.PATTauProducer=_noUpdatedTauName
+        task.add(process.patTauDiscriminationByElectronRejectionMVA6Phase2v1Task)
 
     #-- Rerun tauID against dead ECal towers to taus for the various re-MiniAOD eras
     # to enable default behoviour with leading track extrapolation to ECAL
