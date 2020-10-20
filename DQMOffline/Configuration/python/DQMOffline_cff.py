@@ -260,3 +260,5 @@ run3_HB.toReplaceWith( PostDQMOfflineMiniAOD, PostDQMOfflineMiniAOD.copyAndExclu
 from PhysicsTools.NanoAOD.nanoDQM_cff import nanoDQM
 DQMOfflineNanoAOD = cms.Sequence(nanoDQM)
 #PostDQMOfflineNanoAOD = cms.Sequence(nanoDQM)
+from PhysicsTools.NanoAOD.nanogenDQM_cff import nanogenDQM
+DQMOfflineNanoGen = cms.Sequence(nanogenDQM)
