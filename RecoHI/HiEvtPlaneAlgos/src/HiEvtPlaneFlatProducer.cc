@@ -202,9 +202,6 @@ void HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   double bestvz = -999.9;
   const reco::Vertex& vtx = iEvent.get(vertexToken_)[0];
   bestvz = vtx.z();
-  //  Produce the EP regardless of vz position
-  //  if (bestvz < minvtx_ || bestvz > maxvtx_)
-  //    return;
 
   //
   //Get Event Planes
