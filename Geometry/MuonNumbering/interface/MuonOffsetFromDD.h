@@ -19,7 +19,7 @@ public:
   bool build(const cms::DDCompactView*, MuonOffsetMap&);
 
 private:
-  bool buildParameters(const MuonOffsetMap&);
+  bool debugParameters(const MuonOffsetMap&);
   int getNumber(const std::string&, const DDsvalues_type&);
   const std::vector<std::string> specpars_;
   const unsigned int nset_;
