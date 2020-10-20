@@ -10,8 +10,6 @@
 namespace hcal {
   namespace reconstruction {
 
-    constexpr int32_t IPHI_MAX = 72;
-
     // this is from HcalTimeSlew.
     // HcalTimeSlew are values that come in from ESProducer that takes them
     // from a python config. see DeclsForKernels for more explanation
@@ -64,7 +62,7 @@ namespace hcal {
     // 2 funcs below are taken from HcalTopology (reimplemented here).
     // Inputs are constants that are also taken from HcalTopology
     // but passed to the kernel as arguments using the HclaTopology itself
-    //    constexpr int32_t IPHI_MAX = 72;
+    constexpr int32_t IPHI_MAX = 72;
 
     __forceinline__ __device__ uint32_t did2linearIndexHB(
         uint32_t const didraw, int const maxDepthHB, int const firstHBRing, int const lastHBRing, int const nEtaHB) {
