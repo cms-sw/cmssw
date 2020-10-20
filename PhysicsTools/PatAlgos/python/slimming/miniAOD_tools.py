@@ -592,6 +592,9 @@ def miniAOD_customizeMC(process):
     process.tauGenJetsBoosted.GenParticles = "prunedGenParticles"
     process.patJetPartons.particles = "genParticles"
     process.patJetPartonMatch.matched = "prunedGenParticles"
+    _hiGeneral.toModify(process.patJetPartonMatch, matched =  "hiSignalGenParticles")
+    from Configuration.ProcessModifiers.genJetSubEvent_cff import genJetSubEvent
+    genJetSubEvent.toModify(process.patJetPartonMatch, matched =  "cleanedPartons")
     process.patJetPartonMatch.mcStatus = [ 3, 23 ]
     process.patJetGenJetMatch.matched = "slimmedGenJets"
     (~_hiGeneral).toModify(process, patJetGenJetMatchAK8Puppi = dict(matched =  "slimmedGenJetsAK8"))
@@ -607,6 +610,7 @@ def miniAOD_customizeMC(process):
     
     from PhysicsTools.PatAlgos.producersHeavyIons.heavyIonJetSetup import removeJECsForMC
     _hiGeneral.toModify(process, removeJECsForMC)
+    _hiGeneral.toReplaceWith(task,task.copyAndExclude([process.slimmedGenJetsFlavourInfos]))
 
 
 def miniAOD_customizeOutput(out):
