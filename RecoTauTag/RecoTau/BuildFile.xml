@@ -1,6 +1,7 @@
 <use name="MagneticField/Engine"/>
 <use name="MagneticField/Records"/>
 <use name="Geometry/CaloTopology"/>
+<use name="Geometry/CaloGeometry"/>
 <use name="CondFormats/EgammaObjects"/>
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/EcalObjects"/>
@@ -22,6 +23,7 @@
 <use name="PhysicsTools/JetMCUtils"/>
 <use name="CommonTools/Utils"/>
 <use name="CommonTools/BaseParticlePropagator"/>
+<use name="RecoLocalCalo/HGCalRecAlgos"/>
 <use name="roottmva"/>
 <use name="PhysicsTools/TensorFlow"/>
 <export>
