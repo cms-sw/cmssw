@@ -97,7 +97,7 @@ AlCaDiJetsProducer::~AlCaDiJetsProducer() {}
 void AlCaDiJetsProducer::beginJob() {}
 
 void AlCaDiJetsProducer::endJob() {
-  edm::LogInfo("AlcaDiJets") << "Accepts " << nSelect_ << " events from a total of " << nAll_ << " events";
+  edm::LogVerbatim("AlcaDiJets") << "Accepts " << nSelect_ << " events from a total of " << nAll_ << " events";
 }
 
 bool AlCaDiJetsProducer::select(reco::PFJetCollection jt) {

@@ -73,10 +73,10 @@ AlCaIsoTracksProducerFilter::AlCaIsoTracksProducerFilter(const edm::ParameterSet
   // define tokens for access
   tok_trigRes_ = consumes<edm::TriggerResults>(triggerResultsLabel_);
 
-  edm::LogInfo("HcalIsoTrack") << "Use process name " << processName_ << " Labels " << triggerResultsLabel_
-                               << " selecting " << trigNames_.size() << " triggers\n";
+  edm::LogVerbatim("HcalIsoTrack") << "Use process name " << processName_ << " Labels " << triggerResultsLabel_
+                                   << " selecting " << trigNames_.size() << " triggers\n";
   for (unsigned int k = 0; k < trigNames_.size(); ++k) {
-    edm::LogInfo("HcalIsoTrack") << "Trigger[" << k << "] " << trigNames_[k] << std::endl;
+    edm::LogVerbatim("HcalIsoTrack") << "Trigger[" << k << "] " << trigNames_[k] << std::endl;
   }
 }
 
@@ -84,8 +84,8 @@ AlCaIsoTracksProducerFilter::~AlCaIsoTracksProducerFilter() {}
 
 bool AlCaIsoTracksProducerFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetup) {
   ++nAll_;
-  edm::LogInfo("HcalIsoTrack") << "Run " << iEvent.id().run() << " Event " << iEvent.id().event() << " Luminosity "
-                               << iEvent.luminosityBlock() << " Bunch " << iEvent.bunchCrossing() << std::endl;
+  edm::LogVerbatim("HcalIsoTrack") << "Run " << iEvent.id().run() << " Event " << iEvent.id().event() << " Luminosity "
+                                   << iEvent.luminosityBlock() << " Bunch " << iEvent.bunchCrossing() << std::endl;
 
   //Find if the event passes one of the chosen triggers
   bool triggerSatisfied(false);
@@ -102,8 +102,8 @@ bool AlCaIsoTracksProducerFilter::filter(edm::Event& iEvent, edm::EventSetup con
         int hlt = triggerResults->accept(iHLT);
         for (unsigned int i = 0; i < trigNames_.size(); ++i) {
           if (triggerNames_[iHLT].find(trigNames_[i]) != std::string::npos) {
-            edm::LogInfo("HcalIsoTrack") << triggerNames_[iHLT] << " has got HLT flag " << hlt << ":"
-                                         << triggerSatisfied << std::endl;
+            edm::LogVerbatim("HcalIsoTrack")
+                << triggerNames_[iHLT] << " has got HLT flag " << hlt << ":" << triggerSatisfied << std::endl;
             if (hlt > 0) {
               triggerSatisfied = true;
               break;
@@ -126,18 +126,18 @@ void AlCaIsoTracksProducerFilter::endStream() {
 }
 
 void AlCaIsoTracksProducerFilter::globalEndJob(const AlCaIsoTracksProdFilter::Counters* count) {
-  edm::LogInfo("HcalIsoTrack") << "Selects " << count->nGood_ << " in " << count->nAll_ << " events " << std::endl;
+  edm::LogVerbatim("HcalIsoTrack") << "Selects " << count->nGood_ << " in " << count->nAll_ << " events " << std::endl;
 }
 
 void AlCaIsoTracksProducerFilter::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
   bool changed(false);
   bool flag = hltConfig_.init(iRun, iSetup, processName_, changed);
-  edm::LogInfo("HcalIsoTrack") << "Run[" << nRun_ << "] " << iRun.run() << " hltconfig.init " << flag << std::endl;
+  edm::LogVerbatim("HcalIsoTrack") << "Run[" << nRun_ << "] " << iRun.run() << " hltconfig.init " << flag << std::endl;
 }
 
 void AlCaIsoTracksProducerFilter::endRun(edm::Run const& iRun, edm::EventSetup const&) {
   ++nRun_;
-  edm::LogInfo("HcalIsoTrack") << "endRun[" << nRun_ << "] " << iRun.run() << std::endl;
+  edm::LogVerbatim("HcalIsoTrack") << "endRun[" << nRun_ << "] " << iRun.run() << std::endl;
 }
 
 void AlCaIsoTracksProducerFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
