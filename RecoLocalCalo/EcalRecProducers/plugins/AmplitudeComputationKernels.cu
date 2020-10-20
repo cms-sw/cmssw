@@ -279,15 +279,17 @@ namespace ecal {
           //DataType matrixLForFnnlsStorage[MapSymM<DataType, NPULSES>::total];
           calo::multifit::MapSymM<DataType, NPULSES> matrixLForFnnls{shrMatrixLForFnnlsStorage};
 
-          fnnls(AtA,
-                Atb,
-                //amplitudes[idx],
-                resultAmplitudes,
-                npassive,
-                pulseOffsets,
-                matrixLForFnnls,
-                1e-11,
-                500);
+          calo::multifit::fnnls(AtA,
+                                Atb,
+                                //amplitudes[idx],
+                                resultAmplitudes,
+                                npassive,
+                                pulseOffsets,
+                                matrixLForFnnls,
+                                1e-11,
+                                500,
+                                16,
+                                2);
 
           {
             DataType accum[NSAMPLES];

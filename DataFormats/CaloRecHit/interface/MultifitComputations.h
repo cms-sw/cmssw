@@ -1,5 +1,5 @@
-#ifndef DataFormats_Math_interface_EigenComputations_h
-#define DataFormats_Math_interface_EigenComputations_h
+#ifndef DataFormats_CaloRecHit_interface_MultifitComputations_h
+#define DataFormats_CaloRecHit_interface_MultifitComputations_h
 
 #include <cmath>
 #include <limits>
@@ -32,16 +32,16 @@ namespace calo {
       static constexpr int stride = Stride;
       T* data;
 
-      __forceinline__ __device__ MapSymM(T* data) : data{data} {}
+      EIGEN_ALWAYS_INLINE EIGEN_DEVICE_FUNC MapSymM(T* data) : data{data} {}
 
-      __forceinline__ __device__ T const& operator()(int const row, int const col) const {
+      EIGEN_ALWAYS_INLINE EIGEN_DEVICE_FUNC T const& operator()(int const row, int const col) const {
         auto const tmp = (Stride - col) * (Stride - col + 1) / 2;
         auto const index = total - tmp + row - col;
         return data[index];
       }
 
       template <typename U = T>
-      __forceinline__ __device__ typename std::enable_if<std::is_same<base_type, U>::value, base_type>::type&
+      EIGEN_ALWAYS_INLINE EIGEN_DEVICE_FUNC typename std::enable_if<std::is_same<base_type, U>::value, base_type>::type&
       operator()(int const row, int const col) {
         auto const tmp = (Stride - col) * (Stride - col + 1) / 2;
         auto const index = total - tmp + row - col;
@@ -58,9 +58,9 @@ namespace calo {
       using base_type = typename std::remove_cv<type>::type;
 
       type* data;
-      __forceinline__ __device__ MapMForPM(type* data) : data{data} {}
+      EIGEN_ALWAYS_INLINE EIGEN_DEVICE_FUNC MapMForPM(type* data) : data{data} {}
 
-      __forceinline__ __device__ base_type operator()(int const row, int const col) const {
+      EIGEN_ALWAYS_INLINE EIGEN_DEVICE_FUNC base_type operator()(int const row, int const col) const {
         auto const index = 2 - col + row;
         return index >= 0 ? data[index] : 0;
       }
@@ -68,7 +68,7 @@ namespace calo {
 
     // simple/trivial cholesky decomposition impl
     template <typename MatrixType1, typename MatrixType2>
-    __forceinline__ __device__ void compute_decomposition_unrolled(MatrixType1& L, MatrixType2 const& M) {
+    EIGEN_ALWAYS_INLINE EIGEN_DEVICE_FUNC void compute_decomposition_unrolled(MatrixType1& L, MatrixType2 const& M) {
       auto const sqrtm_0_0 = std::sqrt(M(0, 0));
       L(0, 0) = sqrtm_0_0;
       using T = typename MatrixType1::base_type;
@@ -94,7 +94,9 @@ namespace calo {
     }
 
     template <typename MatrixType1, typename MatrixType2>
-    __forceinline__ __device__ void compute_decomposition(MatrixType1& L, MatrixType2 const& M, int const N) {
+    EIGEN_ALWAYS_INLINE EIGEN_DEVICE_FUNC void compute_decomposition(MatrixType1& L,
+                                                                     MatrixType2 const& M,
+                                                                     int const N) {
       auto const sqrtm_0_0 = std::sqrt(M(0, 0));
       L(0, 0) = sqrtm_0_0;
       using T = typename MatrixType1::base_type;
@@ -119,7 +121,7 @@ namespace calo {
     }
 
     template <typename MatrixType1, typename MatrixType2, typename VectorType>
-    __forceinline__ __device__ void compute_decomposition_forwardsubst_with_offsets(
+    EIGEN_ALWAYS_INLINE EIGEN_DEVICE_FUNC void compute_decomposition_forwardsubst_with_offsets(
         MatrixType1& L,
         MatrixType2 const& M,
         float b[MatrixType1::stride],
@@ -158,7 +160,7 @@ namespace calo {
     }
 
     template <typename MatrixType1, typename MatrixType2, typename VectorType>
-    __forceinline__ __device__ void update_decomposition_forwardsubst_with_offsets(
+    EIGEN_ALWAYS_INLINE EIGEN_DEVICE_FUNC void update_decomposition_forwardsubst_with_offsets(
         MatrixType1& L,
         MatrixType2 const& M,
         float b[MatrixType1::stride],
@@ -190,9 +192,9 @@ namespace calo {
     }
 
     template <typename MatrixType1, typename MatrixType2, typename MatrixType3>
-    __device__ void solve_forward_subst_matrix(MatrixType1& A,
-                                               MatrixType2 const& pulseMatrixView,
-                                               MatrixType3 const& matrixL) {
+    EIGEN_DEVICE_FUNC void solve_forward_subst_matrix(MatrixType1& A,
+                                                      MatrixType2 const& pulseMatrixView,
+                                                      MatrixType3 const& matrixL) {
       // FIXME: this assumes pulses are on columns and samples on rows
       constexpr auto NPULSES = MatrixType2::ColsAtCompileTime;
       constexpr auto NSAMPLES = MatrixType2::RowsAtCompileTime;
@@ -205,7 +207,12 @@ namespace calo {
 // preload a column and load column 0 of cholesky
 #pragma unroll
         for (int i = 0; i < NSAMPLES; i++) {
+#ifdef __CUDA_ARCH__
+          // load through the read-only cache
           reg_b[i] = __ldg(&pulseMatrixView.coeffRef(i, icol));
+#else
+          reg_b[i] = pulseMatrixView.coeffRef(i, icol);
+#endif  // __CUDA_ARCH__
           reg_L[i] = matrixL(i, 0);
         }
 
@@ -236,9 +243,9 @@ namespace calo {
     }
 
     template <typename MatrixType1, typename MatrixType2>
-    __device__ void solve_forward_subst_vector(float reg_b[MatrixType1::RowsAtCompileTime],
-                                               MatrixType1 inputAmplitudesView,
-                                               MatrixType2 matrixL) {
+    EIGEN_DEVICE_FUNC void solve_forward_subst_vector(float reg_b[MatrixType1::RowsAtCompileTime],
+                                                      MatrixType1 inputAmplitudesView,
+                                                      MatrixType2 matrixL) {
       constexpr auto NSAMPLES = MatrixType1::RowsAtCompileTime;
 
       float reg_b_tmp[NSAMPLES];
@@ -276,24 +283,24 @@ namespace calo {
       }
     }
 
-    /*
     // TODO: add active bxs
     template <typename MatrixType, typename VectorType>
-    __device__ void fnnls(MatrixType const& AtA,
-                          VectorType const& Atb,
-                          VectorType& solution,
-                          int& npassive,
-                          ColumnVector<VectorType::RowsAtCompileTime, int>& pulseOffsets,
-                          MapSymM<float, VectorType::RowsAtCompileTime>& matrixL,
-                          double const eps,
-                          int const maxIterations) {
+    EIGEN_DEVICE_FUNC void fnnls(MatrixType const& AtA,
+                                 VectorType const& Atb,
+                                 VectorType& solution,
+                                 int& npassive,
+                                 ColumnVector<VectorType::RowsAtCompileTime, int>& pulseOffsets,
+                                 MapSymM<float, VectorType::RowsAtCompileTime>& matrixL,
+                                 double eps,                    // convergence condition
+                                 const int maxIterations,       // maximum number of iterations
+                                 const int relaxationPeriod,    // every "relaxationPeriod" iterations
+                                 const int relaxationFactor) {  // multiply "eps" by "relaxationFactor"
       // constants
       constexpr auto NPULSES = VectorType::RowsAtCompileTime;
 
       // to keep track of where to terminate if converged
       Eigen::Index w_max_idx_prev = 0;
       float w_max_prev = 0;
-      auto eps_to_use = eps;
       bool recompute = false;
 
       // used throughout
@@ -331,7 +338,7 @@ namespace calo {
           }
 
           // check for convergence
-          if (w_max < eps_to_use || w_max_idx == w_max_idx_prev && w_max == w_max_prev)
+          if (w_max < eps || w_max_idx == w_max_idx_prev && w_max == w_max_prev)
             break;
 
           if (iter >= maxIterations)
@@ -428,13 +435,12 @@ namespace calo {
 
         // as in cpu
         ++iter;
-        if (iter % 16 == 0)
-          eps_to_use *= 2;
+        if (iter % relaxationPeriod == 0)
+          eps *= relaxationFactor;
       }
     }
-    */
 
   }  // namespace multifit
 }  // namespace calo
 
-#endif  // DataFormats_Math_interface_EigenComputations_h
+#endif  // DataFormats_CaloRecHit_interface_MultifitComputations_h
