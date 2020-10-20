@@ -14,8 +14,6 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -23,9 +21,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DQM/L1TMonitor/interface/L1TMenuHelper.h"
 #include "DQM/L1TMonitor/interface/L1TOMDSHelper.h"
 
 //DataFormats
@@ -135,6 +133,8 @@ private:
   // Input tags
   edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> m_l1GtEvmSource;
   edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_l1GtDataDaqInputTag;
+  const edm::ESGetToken<L1GtTriggerMenu, L1GtTriggerMenuRcd> m_menuToken;
+  L1TMenuHelper::Tokens m_helperTokens;
 
   L1GtUtils m_l1GtUtils;
 };
