@@ -39,9 +39,15 @@ namespace gem {
   union CDFTrailer {
     uint64_t word;
     struct {
-      uint64_t tts : 8;         // tts (first 4 bits)
-      uint64_t evtStat : 4;     // event status
-      uint64_t crcCDF : 20;     // CDF crc (first 16 bits)
+      uint64_t res1 : 2;
+      uint64_t crcModified : 1;
+      uint64_t moreTrailers : 1;
+      uint64_t tts : 4;      // tts
+      uint64_t evtStat : 4;  // event status
+      uint64_t res2 : 2;
+      uint64_t slinkError : 1;
+      uint64_t wrongFedId : 1;
+      uint64_t crcCDF : 16;     // CDF crc
       uint64_t evtLength : 24;  // event length
       uint64_t eventType : 4;   // Event Type
       uint64_t cbA : 4;         // 0xA
