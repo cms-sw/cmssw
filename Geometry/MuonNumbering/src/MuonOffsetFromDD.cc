@@ -38,7 +38,7 @@ bool MuonOffsetFromDD::build(const DDCompactView* cpv, MuonOffsetMap& php) {
       dodet = fv.next();
     }
   }
-  return this->buildParameters(php);
+  return this->debugParameters(php);
 }
 
 bool MuonOffsetFromDD::build(const cms::DDCompactView* cpv, MuonOffsetMap& php) {
@@ -65,10 +65,10 @@ bool MuonOffsetFromDD::build(const cms::DDCompactView* cpv, MuonOffsetMap& php) 
       php.muonMap_[name] = std::make_pair(offsets[k], tags[k]);
     }
   }
-  return this->buildParameters(php);
+  return this->debugParameters(php);
 }
 
-bool MuonOffsetFromDD::buildParameters(const MuonOffsetMap& php) {
+bool MuonOffsetFromDD::debugParameters(const MuonOffsetMap& php) {
   edm::LogVerbatim("MuonGeom") << "MuonOffsetFromDD: Finds " << php.muonMap_.size() << " entries in the map";
 #ifdef EDM_ML_DEBUG
   unsigned int k(0);
