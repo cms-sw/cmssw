@@ -323,13 +323,6 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig)
                                      << edm::InputTag(modnam, labelEE_, prdnam) << " "
                                      << edm::InputTag(modnam, labelHBHE_, prdnam) << " " << labelTower_;
   }
-  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_bFieldH_;
-  edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> tok_ecalChStatus_;
-  edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> tok_sevlv_;
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
-  edm::ESGetToken<CaloTopology, CaloTopologyRecord> tok_caloTopology_;
-  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
-  edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_resp_;
 
   tok_ddrec_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>();
   tok_bFieldH_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
