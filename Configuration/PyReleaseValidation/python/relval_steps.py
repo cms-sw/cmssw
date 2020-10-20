@@ -2093,7 +2093,7 @@ steps['ALCASPLITSIPIXELCAL']={'-s':'ALCAOUTPUT:SiPixelCalZeroBias,ALCA:PromptCal
 
 steps['ALCAHARVDHPBS']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdBeamSpotHP']),
                         #'--conditions':'auto:run2_data_promptlike',
-                        '--conditions':'92X_dataRun2_Express_v2_snapshotted', # to replaced with line above once run2_data_promptlike will contain DropBoxMetadata
+                        '--conditions':'auto:run3_data_express', # to replaced with line above once run2_data_promptlike will contain DropBoxMetadata
                         '--scenario':'pp',
                         '--data':'',
                         '--era':'Run2_2017',
@@ -2102,7 +2102,7 @@ steps['ALCAHARVDHPBS']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdBeamSpotH
 
 steps['ALCAHARVDHPBSLOWPU']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdBeamSpotHPLowPU']),
                         #'--conditions':'auto:run2_data_promptlike',
-                        '--conditions':'92X_dataRun2_Express_v2_snapshotted', # to replaced with line above once run2_data_promptlike will contain DropBoxMetadata
+                        '--conditions':'auto:run3_data_express', # to replaced with line above once run2_data_promptlike will contain DropBoxMetadata
                         '--scenario':'pp',
                         '--data':'',
                         '--era':'Run2_2017',
@@ -2111,7 +2111,7 @@ steps['ALCAHARVDHPBSLOWPU']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdBeam
 
 
 steps['ALCAHARVDSIPIXELCAL']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdSiPixel']),
-                        '--conditions':'100X_dataRun2_Express_v2',
+                        '--conditions':'auto:run3_data_express',
                         '--scenario':'pp',
                         '--data':'',
                         '--era':'Run2_2017',
