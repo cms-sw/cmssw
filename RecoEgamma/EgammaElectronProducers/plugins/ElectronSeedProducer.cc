@@ -72,7 +72,7 @@ ElectronSeedProducer::ElectronSeedProducer(const edm::ParameterSet& conf)
   auto theconsumes = consumesCollector();
 
   // new beamSpot tag
-  beamSpotTag_ = consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("beamSpot"));
+  beamSpotTag_ = consumes(conf.getParameter<edm::InputTag>("beamSpot"));
 
   // for H/E
   applyHOverECut_ = conf.getParameter<bool>("applyHOverECut");
@@ -81,7 +81,7 @@ ElectronSeedProducer::ElectronSeedProducer(const edm::ParameterSet& conf)
     hcalCfg.hOverEConeSize = conf.getParameter<double>("hOverEConeSize");
     if (hcalCfg.hOverEConeSize > 0) {
       hcalCfg.useTowers = true;
-      hcalCfg.hcalTowers = consumes<CaloTowerCollection>(conf.getParameter<edm::InputTag>("hcalTowers"));
+      hcalCfg.hcalTowers = consumes(conf.getParameter<edm::InputTag>("hcalTowers"));
       hcalCfg.hOverEPtMin = conf.getParameter<double>("hOverEPtMin");
     }
     hcalHelper_ = std::make_unique<ElectronHcalHelper>(hcalCfg, consumesCollector());
