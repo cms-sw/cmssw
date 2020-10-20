@@ -158,7 +158,7 @@ protected:
   int calculateComparatorCode(const std::array<std::array<int, 3>, 6>& halfStripPattern) const;
 
   // sets the 1/4 and 1/8 strip bits given a floating point position offset
-  void assignPositionCC(const unsigned offset, uint16_t& halfstrip, bool& quartstrip, bool& eightstrip) const;
+  void assignPositionCC(const unsigned offset, std::tuple<uint16_t, bool, bool>& returnValue) const;
 
   // runs the CCLUT procedure
   void runCCLUT(CSCCLCTDigi& digi) const;
