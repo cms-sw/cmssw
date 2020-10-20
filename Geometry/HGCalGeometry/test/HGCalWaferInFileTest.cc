@@ -105,16 +105,16 @@ void HGCalWaferInFileTest::analyze(const edm::Event& iEvent, const edm::EventSet
         const auto& xy = hgdc.waferPosition(layer, waferU, waferV, true, true);
         const auto& rr = hgdc.rangeRLayer(layer, true);
         auto points = getPoints(xy.first, xy.second, delX, delY, rr.first, rr.second, layer, waferU, waferV);
-	auto rpos = getCorners(xy.first, xy.second, delX, delY);
+        auto rpos = getCorners(xy.first, xy.second, delX, delY);
         std::cout << "ID[" << k << "]: (" << (hgdc.getLayerOffset() + layer) << ", " << waferU << ", " << waferV << ", "
                   << typex << ") at (" << std::setprecision(4) << xy.first << ", " << xy.second << ", "
                   << hgdc.waferZ(layer, true) << ") not present with " << points.size() << " points:";
         for (auto point : points)
           std::cout << " " << point;
         std::cout << " in the region " << rr.first << ":" << rr.second << " Corners";
-	for (auto point : rpos)
-	  std::cout << " " << point;
-	std::cout << std::endl;
+        for (auto point : rpos)
+          std::cout << " " << point;
+        std::cout << std::endl;
         ++bad1;
         if ((layer - layerf) < layers)
           ++miss[layer - layerf];
@@ -174,7 +174,7 @@ void HGCalWaferInFileTest::analyze(const edm::Event& iEvent, const edm::EventSet
         int rotn2 = hgdc.waferTypeRotation(id.layer(), id.waferU(), id.waferV(), false, false).second;
         bool partOK = ((part1 == part2) || ((part1 == HGCalTypes::WaferFull) && (part2 == HGCalTypes::WaferOut)));
         bool rotnOK = ((rotn1 == rotn2) || (part1 == HGCalTypes::WaferFull) || (part2 == HGCalTypes::WaferFull));
-	bool partOK2 = (partOK) || (part2 < part1);
+        bool partOK2 = (partOK) || (part2 < part1);
         if (!partOK) {
           ++badP;
           if ((layer - layerf) < layers)
@@ -192,32 +192,34 @@ void HGCalWaferInFileTest::analyze(const edm::Event& iEvent, const edm::EventSet
         }
         if ((!partOK) || (!rotnOK)) {
           ++badG;
-	  if ((verbosity_ > 0) || (!partOK2)) {
-	    std::string partx1 = (part1 < static_cast<int>(types.size())) ? types[part1] : "X";
-	    std::string partx2 = (part2 < static_cast<int>(types.size())) ? types[part2] : "X";
-	    const auto& xy = hgdc.waferPosition(layer, waferU, waferV, true, false);
-	    const auto& rr = hgdc.rangeRLayer(layer, true);
-	    auto points = getPoints(xy.first, xy.second, delX, delY, rr.first, rr.second, layer, waferU, waferV);
-	    auto rpos = getCorners(xy.first, xy.second, delX, delY);
-	    std::cout << "ID[" << k << "]: (" << (hgdc.getLayerOffset() + layer) << ", " << waferU << ", " << waferV
-		      << "," << type2 << ", " << partx1 << ":" << partx2 << ":" << part1 << ":" << part2 << ", " << rotn1
-		      << ":" << rotn2 << ") at (" << std::setprecision(4) << xy.first << ", " << xy.second << ", "
-		      << hgdc.waferZ(layer, true) << ") failure flag " << partOK << ":" << rotnOK << " with "
-		      << points.size() << " points:";
-	    for (auto point : points)
-	      std::cout << " " << point;
-	    std::cout << " in the region " << rr.first << ":" << rr.second << " Corners";
-	    for (auto point : rpos)
-	      std::cout << " " << point;
-	    std::cout << std::endl;
-	  }
+          if ((verbosity_ > 0) || (!partOK2)) {
+            std::string partx1 = (part1 < static_cast<int>(types.size())) ? types[part1] : "X";
+            std::string partx2 = (part2 < static_cast<int>(types.size())) ? types[part2] : "X";
+            const auto& xy = hgdc.waferPosition(layer, waferU, waferV, true, false);
+            const auto& rr = hgdc.rangeRLayer(layer, true);
+            auto points = getPoints(xy.first, xy.second, delX, delY, rr.first, rr.second, layer, waferU, waferV);
+            auto rpos = getCorners(xy.first, xy.second, delX, delY);
+            std::cout << "ID[" << k << "]: (" << (hgdc.getLayerOffset() + layer) << ", " << waferU << ", " << waferV
+                      << "," << type2 << ", " << partx1 << ":" << partx2 << ":" << part1 << ":" << part2 << ", "
+                      << rotn1 << ":" << rotn2 << ") at (" << std::setprecision(4) << xy.first << ", " << xy.second
+                      << ", " << hgdc.waferZ(layer, true) << ") failure flag " << partOK << ":" << rotnOK << " with "
+                      << points.size() << " points:";
+            for (auto point : points)
+              std::cout << " " << point;
+            std::cout << " in the region " << rr.first << ":" << rr.second << " Corners";
+            for (auto point : rpos)
+              std::cout << " " << point;
+            std::cout << std::endl;
+          }
         }
       }
     }
-    std::cout << "\n\nFinds " << badG << " (" << badP << ":" << badP2 << ":" << badR << ") mismatch in partial|orientation among " << allX << " wafers with the same indices" << std::endl;
+    std::cout << "\n\nFinds " << badG << " (" << badP << ":" << badP2 << ":" << badR
+              << ") mismatch in partial|orientation among " << allX << " wafers with the same indices" << std::endl;
     for (int k = 0; k < layers; ++k) {
       if ((wrongP[k] > 0) || (wrongR[k] > 0))
-        std::cout << "Layer[" << k << ":" << (layerf + k) << "] " << wrongP[k] << ":" << wrongP2[k] << ":" << wrongR[k] << std::endl;
+        std::cout << "Layer[" << k << ":" << (layerf + k) << "] " << wrongP[k] << ":" << wrongP2[k] << ":" << wrongR[k]
+                  << std::endl;
     }
     std::cout << std::endl;
   }
