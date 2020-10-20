@@ -25,7 +25,7 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.destinations = ['cerr']
 process.MessageLogger.statistics = []
-process.MessageLogger.fwkJobReports = []
+
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(20))
 
