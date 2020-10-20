@@ -8,8 +8,8 @@
 
 class MuonOffsetMap {
 public:
-  MuonOffsetMap() {}
-  ~MuonOffsetMap() {}
+  MuonOffsetMap() = default;
+  ~MuonOffsetMap() = default;
 
   std::unordered_map<std::string, std::pair<int, int> > muonMap_;
 
