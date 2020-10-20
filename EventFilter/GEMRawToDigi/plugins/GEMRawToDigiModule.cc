@@ -144,16 +144,16 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
     }
     // compare trailers
     if (amc13Event->fragmentLength() != trailer.fragmentLength()) {
-      edm::LogWarning("GEMRawToDigiModule") << " fragmentLength miss match";
+      edm::LogWarning("GEMRawToDigiModule") << " fragmentLength mismatch";
     }
     if (amc13Event->crc() != trailer.crc()) {
-      edm::LogWarning("GEMRawToDigiModule") << " crc miss match";
+      edm::LogWarning("GEMRawToDigiModule") << " crc mismatch";
     }
     if (amc13Event->evtStatus() != trailer.evtStatus()) {
-      edm::LogWarning("GEMRawToDigiModule") << " evtStatus miss match";
+      edm::LogWarning("GEMRawToDigiModule") << " evtStatus mismatch";
     }
     if (amc13Event->ttsBits() != trailer.ttsBits()) {
-      edm::LogWarning("GEMRawToDigiModule") << " ttsBits miss match";
+      edm::LogWarning("GEMRawToDigiModule") << " ttsBits mismatch";
     }
 
     LogDebug("GEMRawToDigiModule") << "Event bx:" << iEvent.bunchCrossing() << " lv1Id:" << iEvent.id().event()
