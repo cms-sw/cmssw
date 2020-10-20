@@ -477,7 +477,7 @@ std::unique_ptr<G4SimEvent> RunManagerMTWorker::produce(const edm::Event& inpevt
   if (!(m_tls && m_tls->threadInitialized)) {
     edm::LogVerbatim("SimG4CoreApplication")
         << "RunManagerMTWorker::produce(): stream " << inpevt.streamID() << " thread " << getThreadIndex()
-        << " initializing in the produce(..) method - there is a problem";
+        << " Geant4 initialisation for this thread";
     initializeG4(&runManagerMaster, es);
     m_tls->threadInitialized = true;
   }

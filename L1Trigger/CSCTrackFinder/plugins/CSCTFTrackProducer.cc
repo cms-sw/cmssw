@@ -26,7 +26,8 @@ CSCTFTrackProducer::CSCTFTrackProducer(const edm::ParameterSet& pset)
       m_scalesToken(esConsumes<L1MuTriggerScales, L1MuTriggerScalesRcd>()),
       m_ptScaleToken(esConsumes<L1MuTriggerPtScale, L1MuTriggerPtScaleRcd>()),
       m_pDDToken(esConsumes<CSCGeometry, MuonGeometryRecord>()),
-      sp_pset{pset.getParameter<edm::ParameterSet>("SectorProcessor")} {
+      sp_pset{pset.getParameter<edm::ParameterSet>("SectorProcessor")},
+      m_builderTokens(CSCTFTrackBuilder::consumes(sp_pset, consumesCollector())) {
   m_scalesCacheID = 0ULL;
   m_ptScaleCacheID = 0ULL;
   produces<L1CSCTrackCollection>();
@@ -48,10 +49,9 @@ void CSCTFTrackProducer::produce(edm::Event& e, const edm::EventSetup& c) {
     edm::ESHandle<L1MuTriggerScales> scales = c.getHandle(m_scalesToken);
 
     edm::ESHandle<L1MuTriggerPtScale> ptScale = c.getHandle(m_ptScaleToken);
-    c.get<L1MuTriggerPtScaleRcd>().get(ptScale);
 
     my_builder = std::make_unique<CSCTFTrackBuilder>(sp_pset, TMB07, scales.product(), ptScale.product());
-    my_builder->initialize(c);
+    my_builder->initialize(c, m_builderTokens);
 
     m_scalesCacheID = c.get<L1MuTriggerScalesRcd>().cacheIdentifier();
     m_ptScaleCacheID = c.get<L1MuTriggerPtScaleRcd>().cacheIdentifier();

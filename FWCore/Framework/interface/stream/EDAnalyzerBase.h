@@ -40,6 +40,8 @@ namespace edm {
       typedef EDAnalyzerAdaptorBase ModuleType;
 
       EDAnalyzerBase();
+      EDAnalyzerBase(const EDAnalyzerBase&) = delete;                   // stop default
+      const EDAnalyzerBase& operator=(const EDAnalyzerBase&) = delete;  // stop default
       ~EDAnalyzerBase() override;
 
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
@@ -52,10 +54,6 @@ namespace edm {
       void callWhenNewProductsRegistered(std::function<void(BranchDescription const&)> const& func);
 
     private:
-      EDAnalyzerBase(const EDAnalyzerBase&) = delete;  // stop default
-
-      const EDAnalyzerBase& operator=(const EDAnalyzerBase&) = delete;  // stop default
-
       void registerProductsAndCallbacks(EDAnalyzerBase const*, ProductRegistry* reg);
 
       virtual void beginStream(StreamID) {}

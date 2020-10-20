@@ -229,8 +229,7 @@ namespace edm {
       const int COMMON_DEFAULT_INTERVAL = NO_VALUE_SET;  // change log 6
       const int COMMON_DEFAULT_TIMESPAN = NO_VALUE_SET;
 
-      char const* severity_array[] = {"WARNING", "INFO", "ERROR", "DEBUG"};
-      vString const severities(severity_array + 0, severity_array + 4);
+      vString const severities = {{"WARNING", "INFO", "FWKINFO", "ERROR", "DEBUG"}};
 
       // grab list of categories
       vString categories = getAparameter<vString>(*job_pset_p, "categories", empty_vString);
@@ -318,6 +317,9 @@ namespace edm {
       }
       if (threshold_sev <= ELseverityLevel::ELsev_info) {
         edm::MessageDrop::infoAlwaysSuppressed = false;
+      }
+      if (threshold_sev <= ELseverityLevel::ELsev_fwkInfo) {
+        edm::MessageDrop::fwkInfoAlwaysSuppressed = false;
       }
       if (threshold_sev <= ELseverityLevel::ELsev_warning) {
         edm::MessageDrop::warningAlwaysSuppressed = false;
@@ -438,9 +440,10 @@ namespace edm {
       PSet empty_PSet;
 
       // Initialize unversal suppression variables
-      MessageDrop::debugAlwaysSuppressed = true;    // change log 37
-      MessageDrop::infoAlwaysSuppressed = true;     // change log 37
-      MessageDrop::warningAlwaysSuppressed = true;  // change log 37
+      MessageDrop::debugAlwaysSuppressed = true;
+      MessageDrop::infoAlwaysSuppressed = true;
+      MessageDrop::fwkInfoAlwaysSuppressed = true;
+      MessageDrop::warningAlwaysSuppressed = true;
 
       // grab list of destinations:
       vString destinations = getAparameter<vString>(*job_pset_p, "destinations", empty_vString);

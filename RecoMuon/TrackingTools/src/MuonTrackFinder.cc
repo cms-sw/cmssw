@@ -22,24 +22,25 @@
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-
 using namespace std;
 using namespace edm;
 
 // Constructor, with default cleaner. For the STA reconstruction the trackLoader must have the propagator.
 MuonTrackFinder::MuonTrackFinder(std::unique_ptr<MuonTrajectoryBuilder> ConcreteMuonTrajectoryBuilder,
-                                 std::unique_ptr<MuonTrackLoader> trackLoader)
-    : theTrajBuilder(std::move(ConcreteMuonTrajectoryBuilder)),
-      theTrajCleaner(new MuonTrajectoryCleaner()),
-      theTrackLoader(std::move(trackLoader)) {}
+                                 std::unique_ptr<MuonTrackLoader> trackLoader,
+                                 edm::ConsumesCollector iC)
+    : MuonTrackFinder(std::move(ConcreteMuonTrajectoryBuilder),
+                      std::move(trackLoader),
+                      std::make_unique<MuonTrajectoryCleaner>(),
+                      iC) {}
 
 // Constructor, with user-defined cleaner. For the STA reconstruction the trackLoader must have the propagator.
 MuonTrackFinder::MuonTrackFinder(std::unique_ptr<MuonTrajectoryBuilder> ConcreteMuonTrajectoryBuilder,
                                  std::unique_ptr<MuonTrackLoader> trackLoader,
-                                 std::unique_ptr<MuonTrajectoryCleaner> cleaner)
-    : theTrajBuilder(std::move(ConcreteMuonTrajectoryBuilder)),
+                                 std::unique_ptr<MuonTrajectoryCleaner> cleaner,
+                                 edm::ConsumesCollector iC)
+    : theTtopoToken(iC.esConsumes()),
+      theTrajBuilder(std::move(ConcreteMuonTrajectoryBuilder)),
       theTrajCleaner(std::move(cleaner)),
       theTrackLoader(std::move(trackLoader)) {}
 
@@ -72,8 +73,7 @@ edm::OrphanHandle<reco::TrackCollection> MuonTrackFinder::reconstruct(
   // Percolate the event
   setEvent(event);
 
-  edm::ESHandle<TrackerTopology> httopo;
-  es.get<TrackerTopologyRcd>().get(httopo);
+  const auto& ttopo = es.getData(theTtopoToken);
 
   // Trajectory container
   TrajectoryContainer muonTrajectories;
@@ -96,7 +96,7 @@ edm::OrphanHandle<reco::TrackCollection> MuonTrackFinder::reconstruct(
 
   // convert the trajectories into tracks and load them in to the event
   LogTrace(metname) << "Convert the trajectories into tracks and load them in to the event" << endl;
-  return load(muonTrajectories, event, *httopo);
+  return load(muonTrajectories, event, ttopo);
 }
 
 // reconstruct trajectories
@@ -106,8 +106,7 @@ void MuonTrackFinder::reconstruct(const std::vector<TrackCand>& staCandColl, Eve
   // percolate the event
   setEvent(event);
 
-  edm::ESHandle<TrackerTopology> httopo;
-  es.get<TrackerTopologyRcd>().get(httopo);
+  const auto& ttopo = es.getData(theTtopoToken);
 
   // Muon Candidate container
   CandidateContainer muonCandidates;
@@ -126,5 +125,5 @@ void MuonTrackFinder::reconstruct(const std::vector<TrackCand>& staCandColl, Eve
 
   // convert the trajectories into staTracks and load them into the event
   LogTrace(metname) << "Load Muon Candidates into the event" << endl;
-  load(muonCandidates, event, *httopo);
+  load(muonCandidates, event, ttopo);
 }

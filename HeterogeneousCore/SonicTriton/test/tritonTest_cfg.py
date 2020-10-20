@@ -46,7 +46,7 @@ process.TritonProducer = cms.EDProducer(options.producer,
         port = cms.untracked.uint32(options.port),
         timeout = cms.untracked.uint32(options.timeout),
         modelName = cms.string(models[options.producer]),
-        modelVersion = cms.int32(-1),
+        modelVersion = cms.string(""),
         verbose = cms.untracked.bool(options.verbose),
         allowedTries = cms.untracked.uint32(0),
     )

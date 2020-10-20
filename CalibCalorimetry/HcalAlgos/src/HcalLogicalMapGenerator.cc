@@ -2021,7 +2021,7 @@ void HcalLogicalMapGenerator::buildHOXMap(const HcalTopology* topo,
               ihtr_fi = HO_htr_fi_eta1234_sipm[phmod6][4][(irm - 1) / 2][sidear];
               itb = 0;
               fpga = "top";
-              mytype = 3;
+              //              mytype = 3;
               ih = 2;
               ihtr = ihslotho[php2mod18ov6][ih];
               ispigot = ihtr < 9 ? (ihtr - 2) * 2 + itb : (ihtr - 13) * 2 + itb;

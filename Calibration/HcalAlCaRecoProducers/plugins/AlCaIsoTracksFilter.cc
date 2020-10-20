@@ -110,6 +110,8 @@ private:
   edm::EDGetTokenT<EcalRecHitCollection> tok_EB_;
   edm::EDGetTokenT<EcalRecHitCollection> tok_EE_;
   edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_magField_;
 };
 
 //
@@ -190,26 +192,30 @@ AlCaIsoTracksFilter::AlCaIsoTracksFilter(const edm::ParameterSet& iConfig, const
   tok_EE_ = consumes<EcalRecHitCollection>(labelEE_);
   tok_hbhe_ = consumes<HBHERecHitCollection>(labelHBHE_);
 
-  edm::LogInfo("HcalIsoTrack") << "Parameters read from config file \n"
-                               << "\t minPt " << selectionParameter_.minPt << "\t theTrackQuality " << theTrackQuality_
-                               << "\t minQuality " << selectionParameter_.minQuality << "\t maxDxyPV "
-                               << selectionParameter_.maxDxyPV << "\t maxDzPV " << selectionParameter_.maxDzPV
-                               << "\t maxChi2 " << selectionParameter_.maxChi2 << "\t maxDpOverP "
-                               << selectionParameter_.maxDpOverP << "\t minOuterHit " << selectionParameter_.minOuterHit
-                               << "\t minLayerCrossed " << selectionParameter_.minLayerCrossed << "\t maxInMiss "
-                               << selectionParameter_.maxInMiss << "\t maxOutMiss " << selectionParameter_.maxOutMiss
-                               << "\n"
-                               << "\t a_coneR " << a_coneR_ << "\t a_charIsoR " << a_charIsoR_ << "\t a_mipR "
-                               << a_mipR_ << "\t maxRestrictionP_ " << maxRestrictionP_ << "\t slopeRestrictionP_ "
-                               << slopeRestrictionP_ << "\t eIsolate_ " << eIsolate_ << "\n"
-                               << "\t Precale factor " << preScale_ << "\t in momentum range " << pTrackLow_ << ":"
-                               << pTrackHigh_ << " and prescale factor " << preScaleH_ << " for p > " << pTrackH_
-                               << " Threshold for EB " << hitEthrEB_ << " EE " << hitEthrEE0_ << ":" << hitEthrEE1_
-                               << ":" << hitEthrEE2_ << ":" << hitEthrEE3_ << ":" << hitEthrEELo_ << ":"
-                               << hitEthrEEHi_;
+  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
+  tok_magField_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
+
+  edm::LogVerbatim("HcalIsoTrack") << "Parameters read from config file \n"
+                                   << "\t minPt " << selectionParameter_.minPt << "\t theTrackQuality "
+                                   << theTrackQuality_ << "\t minQuality " << selectionParameter_.minQuality
+                                   << "\t maxDxyPV " << selectionParameter_.maxDxyPV << "\t maxDzPV "
+                                   << selectionParameter_.maxDzPV << "\t maxChi2 " << selectionParameter_.maxChi2
+                                   << "\t maxDpOverP " << selectionParameter_.maxDpOverP << "\t minOuterHit "
+                                   << selectionParameter_.minOuterHit << "\t minLayerCrossed "
+                                   << selectionParameter_.minLayerCrossed << "\t maxInMiss "
+                                   << selectionParameter_.maxInMiss << "\t maxOutMiss "
+                                   << selectionParameter_.maxOutMiss << "\n"
+                                   << "\t a_coneR " << a_coneR_ << "\t a_charIsoR " << a_charIsoR_ << "\t a_mipR "
+                                   << a_mipR_ << "\t maxRestrictionP_ " << maxRestrictionP_ << "\t slopeRestrictionP_ "
+                                   << slopeRestrictionP_ << "\t eIsolate_ " << eIsolate_ << "\n"
+                                   << "\t Precale factor " << preScale_ << "\t in momentum range " << pTrackLow_ << ":"
+                                   << pTrackHigh_ << " and prescale factor " << preScaleH_ << " for p > " << pTrackH_
+                                   << " Threshold for EB " << hitEthrEB_ << " EE " << hitEthrEE0_ << ":" << hitEthrEE1_
+                                   << ":" << hitEthrEE2_ << ":" << hitEthrEE3_ << ":" << hitEthrEELo_ << ":"
+                                   << hitEthrEEHi_;
 
   for (unsigned int k = 0; k < trigNames_.size(); ++k)
-    edm::LogInfo("HcalIsoTrack") << "Trigger[" << k << "] " << trigNames_[k];
+    edm::LogVerbatim("HcalIsoTrack") << "Trigger[" << k << "] " << trigNames_[k];
 }  // AlCaIsoTracksFilter::AlCaIsoTracksFilter  constructor
 
 AlCaIsoTracksFilter::~AlCaIsoTracksFilter() {}
@@ -265,13 +271,8 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
   //Step2: Get geometry/B-field information
   if (triggerSatisfied) {
     //Get magnetic field
-    edm::ESHandle<MagneticField> bFieldH;
-    iSetup.get<IdealMagneticFieldRecord>().get(bFieldH);
-    const MagneticField* bField = bFieldH.product();
-    // get handles to calogeometry and calotopology
-    edm::ESHandle<CaloGeometry> pG;
-    iSetup.get<CaloGeometryRecord>().get(pG);
-    const CaloGeometry* geo = pG.product();
+    const MagneticField* bField = &(iSetup.getData(tok_magField_));
+    const CaloGeometry* geo = &(iSetup.getData(tok_geom_));
 
     //Also relevant information to extrapolate tracks to Hcal surface
     bool foundCollections(true);
@@ -429,14 +430,14 @@ void AlCaIsoTracksFilter::globalEndJob(const AlCaIsoTracks::Counters* count) {
 // ------------ method called when starting to processes a run  ------------
 void AlCaIsoTracksFilter::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
   bool changed(false);
-  edm::LogInfo("HcalIsoTrack") << "Run[" << nRun_ << "] " << iRun.run() << " hltconfig.init "
-                               << hltConfig_.init(iRun, iSetup, processName_, changed);
+  edm::LogVerbatim("HcalIsoTrack") << "Run[" << nRun_ << "] " << iRun.run() << " hltconfig.init "
+                                   << hltConfig_.init(iRun, iSetup, processName_, changed);
 }
 
 // ------------ method called when ending the processing of a run  ------------
 void AlCaIsoTracksFilter::endRun(edm::Run const& iRun, edm::EventSetup const&) {
   ++nRun_;
-  edm::LogInfo("HcalIsoTrack") << "endRun[" << nRun_ << "] " << iRun.run();
+  edm::LogVerbatim("HcalIsoTrack") << "endRun[" << nRun_ << "] " << iRun.run();
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

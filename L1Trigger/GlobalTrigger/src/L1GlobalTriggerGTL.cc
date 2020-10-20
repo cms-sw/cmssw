@@ -24,7 +24,6 @@
 
 #include "CondFormats/L1TObjects/interface/L1GtFwd.h"
 
-#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtAlgorithm.h"
@@ -41,8 +40,6 @@
 #include "CondFormats/L1TObjects/interface/L1GtJetCountsTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtMuonTemplate.h"
 
-#include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
-#include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
 #include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
 #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
 
@@ -69,18 +66,19 @@
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-
 // forward declarations
 
 // constructor
 L1GlobalTriggerGTL::L1GlobalTriggerGTL(const edm::InputTag &m_muGmtInputTag, edm::ConsumesCollector &&iC)
-    : m_candL1Mu(new std::vector<const L1MuGMTCand *>), m_isDebugEnabled(edm::isDebugEnabled()) {
+    : m_l1GtMenuToken(iC.esConsumes()),
+      m_l1CaloGeometryToken(iC.esConsumes()),
+      m_l1MuTriggerScalesToken(iC.esConsumes()),
+      m_candL1Mu(new std::vector<const L1MuGMTCand *>),
+      m_isDebugEnabled(edm::isDebugEnabled()) {
   m_gtlAlgorithmOR.reset();
   m_gtlDecisionWord.reset();
 
   // initialize cached IDs
-  m_l1GtMenuCacheID = 0ULL;
   m_l1CaloGeometryCacheID = 0ULL;
   m_l1MuTriggerScalesCacheID = 0ULL;
 
@@ -172,25 +170,16 @@ void L1GlobalTriggerGTL::run(edm::Event &iEvent,
                              const int ifMuEtaNumberBits,
                              const int ifCaloEtaNumberBits) {
   // get / update the trigger menu from the EventSetup
-  // local cache & check on cacheIdentifier
+  const auto &l1GtMenu = evSetup.getData(m_l1GtMenuToken);
 
-  unsigned long long l1GtMenuCacheID = evSetup.get<L1GtTriggerMenuRcd>().cacheIdentifier();
+  const std::vector<ConditionMap> &conditionMap = l1GtMenu.gtConditionMap();
+  const AlgorithmMap &algorithmMap = l1GtMenu.gtAlgorithmMap();
 
-  if (m_l1GtMenuCacheID != l1GtMenuCacheID) {
-    edm::ESHandle<L1GtTriggerMenu> l1GtMenu;
-    evSetup.get<L1GtTriggerMenuRcd>().get(l1GtMenu);
-    m_l1GtMenu = l1GtMenu.product();
-    m_l1GtMenuCacheID = l1GtMenuCacheID;
-  }
+  const std::vector<std::vector<L1GtMuonTemplate>> &corrMuon = l1GtMenu.corMuonTemplate();
 
-  const std::vector<ConditionMap> &conditionMap = m_l1GtMenu->gtConditionMap();
-  const AlgorithmMap &algorithmMap = m_l1GtMenu->gtAlgorithmMap();
+  const std::vector<std::vector<L1GtCaloTemplate>> &corrCalo = l1GtMenu.corCaloTemplate();
 
-  const std::vector<std::vector<L1GtMuonTemplate>> &corrMuon = m_l1GtMenu->corMuonTemplate();
-
-  const std::vector<std::vector<L1GtCaloTemplate>> &corrCalo = m_l1GtMenu->corCaloTemplate();
-
-  const std::vector<std::vector<L1GtEnergySumTemplate>> &corrEnergySum = m_l1GtMenu->corEnergySumTemplate();
+  const std::vector<std::vector<L1GtEnergySumTemplate>> &corrEnergySum = l1GtMenu.corEnergySumTemplate();
 
   // conversion needed for correlation conditions
   // done in the condition loop when the first correlation template is in the
@@ -202,10 +191,7 @@ void L1GlobalTriggerGTL::run(edm::Event &iEvent,
   unsigned long long l1CaloGeometryCacheID = evSetup.get<L1CaloGeometryRecord>().cacheIdentifier();
 
   if (m_l1CaloGeometryCacheID != l1CaloGeometryCacheID) {
-    edm::ESHandle<L1CaloGeometry> l1CaloGeometry;
-    evSetup.get<L1CaloGeometryRecord>().get(l1CaloGeometry);
-    m_l1CaloGeometry = l1CaloGeometry.product();
-
+    m_l1CaloGeometry = &evSetup.getData(m_l1CaloGeometryToken);
     m_l1CaloGeometryCacheID = l1CaloGeometryCacheID;
     convertScale = true;
   }
@@ -215,10 +201,7 @@ void L1GlobalTriggerGTL::run(edm::Event &iEvent,
   unsigned long long l1MuTriggerScalesCacheID = evSetup.get<L1MuTriggerScalesRcd>().cacheIdentifier();
 
   if (m_l1MuTriggerScalesCacheID != l1MuTriggerScalesCacheID) {
-    edm::ESHandle<L1MuTriggerScales> l1MuTriggerScales;
-    evSetup.get<L1MuTriggerScalesRcd>().get(l1MuTriggerScales);
-    m_l1MuTriggerScales = l1MuTriggerScales.product();
-
+    m_l1MuTriggerScales = &evSetup.getData(m_l1MuTriggerScalesToken);
     m_l1MuTriggerScalesCacheID = l1MuTriggerScalesCacheID;
     convertScale = true;
   }

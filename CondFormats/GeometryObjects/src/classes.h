@@ -1,5 +1,4 @@
 #include "CondFormats/GeometryObjects/interface/PGeometricDet.h"
-#include "CondFormats/GeometryObjects/interface/PGeometricDetExtra.h"
 #include "CondFormats/GeometryObjects/interface/PGeometricTimingDet.h"
 #include "CondFormats/GeometryObjects/interface/PGeometricTimingDetExtra.h"
 #include "CondFormats/GeometryObjects/interface/PCaloGeometry.h"

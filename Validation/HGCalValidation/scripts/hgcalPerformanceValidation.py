@@ -31,8 +31,8 @@ def parseOptions():
     parser.add_option('', '--Obj', dest='OBJ',  type='string', default=None, help='Object to run. Options are: Geometry, SimHits, Digis, RecHits, Calibrations, CaloParticles, hgcalLayerClusters')
     parser.add_option('', '--html-validation-name', dest='HTMLVALNAME', type='string', default='', help='Could be either be hgcalLayerClusters or hgcalMultiClusters')
     parser.add_option('-d', '--download', action='store_true', dest='DOWNLOAD', default=False, help='Download DQM files from RelVals')
-    parser.add_option('-g', '--gather', dest='GATHER',  type='string', default=None, help='Objects to gather: hitValidation, hitCalibration, hgcalLayerClusters, hgcalMultiClusters, multiClustersFromTrackstersEM, multiClustersFromTrackstersHAD')
-    parser.add_option('-w', '--wwwarea', dest='WWWAREA',  type='string', default='/eos/project/h/hgcaldpg/www', help='Objects to gather: hitValidation, hitCalibration, hgcalLayerClusters, hgcalMultiClusters, multiClustersFromTrackstersEM, multiClustersFromTrackstersHAD')
+    parser.add_option('-g', '--gather', dest='GATHER',  type='string', default=None, help='Objects to gather: hitValidation, hitCalibration, hgcalLayerClusters, hgcalMultiClusters, ticlMultiClustersFromTrackstersEM, ticlMultiClustersFromTrackstersHAD')
+    parser.add_option('-w', '--wwwarea', dest='WWWAREA',  type='string', default='/eos/project/h/hgcaldpg/www', help='Objects to gather: hitValidation, hitCalibration, hgcalLayerClusters, hgcalMultiClusters, ticlMultiClustersFromTrackstersEM, ticlMultiClustersFromTrackstersHAD')
     parser.add_option('-y', '--dry-run', action='store_true', dest='DRYRUN', default=False, help='perform a dry run (nothing is lauched).')
     parser.add_option('-i', '--inputeosarea', dest='INPUT',  type='string', default='/eos/cms/store/group/dpg_hgcal/comm_hgcal/apsallid/RelVals', help='Eos area where we will place all DQM files of the new and reference release campaign')
 
@@ -78,7 +78,19 @@ def putype(t):
 #                                             will be placed.
 #------------------------------------------------------------------------------------------
 #thereleases = { "CMSSW 11_1_X" : ["CMSSW_11_1_0_pre4_GEANT4","CMSSW_11_1_0_pre3","CMSSW_11_1_0_pre2"] }
-thereleases = { "CMSSW 11_1_X" : [
+thereleases = { "CMSSW 11_2_X" : [
+    "CMSSW_11_2_0_pre7_vs_CMSSW_11_2_0_pre6",
+    "CMSSW_11_2_0_pre6_ROOT622_vs_CMSSW_11_2_0_pre6",
+    "CMSSW_11_2_0_pre6_vs_CMSSW_11_2_0_pre5",
+    "CMSSW_11_2_0_pre5_GEANT106_vs_CMSSW_11_2_0_pre5",
+    "CMSSW_11_2_0_pre5_vs_CMSSW_11_2_0_pre3",
+    "CMSSW_11_2_0_pre3_vs_CMSSW_11_2_0_pre1",
+    "CMSSW_11_2_0_pre1_vs_CMSSW_11_1_0_pre8"
+                ],
+                "CMSSW 11_1_X" : [
+    "CMSSW_11_1_0_pre8_raw1100_vs_CMSSW_11_1_0_pre8",
+    "CMSSW_11_1_0_pre8_raw1100_vs_CMSSW_11_1_0_pre7_raw1100",
+    "CMSSW_11_1_0_pre8_vs_CMSSW_11_1_0_pre7",
     "CMSSW_11_1_0_pre7_raw1100_vs_CMSSW_11_1_0_pre7",
     "CMSSW_11_1_0_pre7_raw1100_vs_CMSSW_11_1_0_pre6_raw1100",
     "CMSSW_11_1_0_pre7_vs_CMSSW_11_1_0_pre6",
@@ -91,11 +103,12 @@ thereleases = { "CMSSW 11_1_X" : [
     "CMSSW_11_1_0_pre4_raw1100_vs_CMSSW_11_1_0_pre4",
     "CMSSW_11_1_0_pre4_raw1100_vs_CMSSW_11_1_0_pre3_raw1100",
     "CMSSW_11_1_0_pre4_GEANT4","CMSSW_11_1_0_pre4"
-] }
+               ] 
+}
 
-RefRelease='CMSSW_11_1_0_pre7'
+RefRelease='CMSSW_11_2_0_pre7'
 
-NewRelease='CMSSW_11_1_0_pre7'
+NewRelease='CMSSW_11_2_0_pre7'
 
 NotNormalRelease = "raw"
 NotNormalRefRelease = "normal"
@@ -106,7 +119,9 @@ if ( os.path.isdir('%s/%s' %(opt.WWWAREA, NewRelease))) :
     exit()
 
 if "raw" in NotNormalRelease: 
-   appendglobaltag = "_2026D49noPU_raw1100_rsb"
+#   appendglobaltag = "_2026D49noPU_raw1100_rsb"
+#   appendglobaltag = "_2026D49noPU_raw1100"
+   appendglobaltag = "_2026D49noPU_gcc900"
 else: 
    appendglobaltag = "_2026D49noPU"
 
@@ -158,32 +173,76 @@ phase2samples_noPU_oldnaming = [
 #Main workflow RelVals
 phase2samples_noPU = [
 
-    #Sample("RelValZpTT_1500", midfix="14", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    #Sample("RelValZpTT_1500", midfix="14", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v2" ),
+    ##Sample("RelValZpTT_1500", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v2" ),
+    #Sample("RelValZTT", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v2" ),
+    #Sample("RelValZMM", midfix="14", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v2" ),
+    #Sample("RelValZEE", midfix="14", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v2" ),
+    ##Sample("RelValTenTau_15_500_Eta3p1", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v2"  ),
+    #Sample("RelValTenTau_15_500", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v2"  ),
+    #Sample("RelValTTbar", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v2" ),
+    #Sample("RelValQCD_Pt15To7000_Flat", midfix="14", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v2" ),
+    ##Sample("RelValQCD_Pt15To7000_Flat", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v2" ),
+    #Sample("RelValNuGun", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v2" ),
+    ##Sample("RelValMinBias", midfix="14", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v2" ),
+    #Sample("RelValMinBias", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v2" ),
+    #Sample("RelValH125GGgluonfusion", midfix="14", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v2" )
+
+
+    Sample("RelValZpTT_1500", midfix="14", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    #Sample("RelValZpTT_1500", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag ),
     Sample("RelValZTT", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag ),
     Sample("RelValZMM", midfix="14", scenario="2026D49", appendGlobalTag=appendglobaltag ),
     Sample("RelValZEE", midfix="14", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    #Sample("RelValTenTau_15_500_Eta3p1", scenario="2026D49", appendGlobalTag=appendglobaltag  ),
     Sample("RelValTenTau_15_500", scenario="2026D49", appendGlobalTag=appendglobaltag  ),
     Sample("RelValTTbar", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag ),
-    #Sample("RelValQCD_Pt15To7000_Flat", midfix="14", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    Sample("RelValQCD_Pt15To7000_Flat", midfix="14", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    #Sample("RelValQCD_Pt15To7000_Flat", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag ),
     Sample("RelValNuGun", scenario="2026D49", appendGlobalTag=appendglobaltag ),
-    #Sample("RelValMinBias", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    #Sample("RelValMinBias", midfix="14", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    Sample("RelValMinBias", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag ),
     Sample("RelValH125GGgluonfusion", midfix="14", scenario="2026D49", appendGlobalTag=appendglobaltag )
+
 
 ]
 
 
 #More workflows 
 phase2samples_noPU_extend = [
+
+    #Sample("RelValSingleMuPt10", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v2"),
+    #Sample("RelValSingleMuPt100", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v2" ),
+    #Sample("RelValSingleMuPt1000", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v2" )
+
+
+
     Sample("RelValSingleMuPt10", scenario="2026D49", appendGlobalTag=appendglobaltag ),
     Sample("RelValSingleMuPt100", scenario="2026D49", appendGlobalTag=appendglobaltag ),
     Sample("RelValSingleMuPt1000", scenario="2026D49", appendGlobalTag=appendglobaltag )
+
 ]
 
 #These workflows were added in CMSSW_11_1_0_pre6 but there were missing from CMSSW_11_1_0_pre5.
 #So, I am only download them to be reary for pre7. Then, I comment them out
-#For the moment I cannot find these in pre7. 
-'''
+#For the moment I cannot find these in pre7.
 phase2samples_noPU_extend_more = [
+
+    #Sample("RelValCloseByPGun_CE_H_Fine_300um", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v2" ),
+    #Sample("RelValCloseByPGun_CE_H_Fine_200um", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v2" ),
+    #Sample("RelValCloseByPGun_CE_H_Fine_120um", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v2" ),
+    #Sample("RelValCloseByPGun_CE_H_Coarse_Scint", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v2" ),
+    #Sample("RelValCloseByPGun_CE_H_Coarse_300um", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v2" ),
+    #Sample("RelValCloseByPGun_CE_E_Front_300um", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v2" ),
+    #Sample("RelValCloseByPGun_CE_E_Front_200um", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v2" ),
+    #Sample("RelValCloseByPGun_CE_E_Front_120um", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v2" ),
+    #Sample("RelValSingleGammaFlatPt8To150", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v2" ),
+    #Sample("RelValSingleEFlatPt2To100", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v2" ),
+    #Sample("RelValSinglePiFlatPt0p7To10", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v2" )
+
+
+
+
     Sample("RelValCloseByPGun_CE_H_Fine_300um", scenario="2026D49", appendGlobalTag=appendglobaltag ),
     Sample("RelValCloseByPGun_CE_H_Fine_200um", scenario="2026D49", appendGlobalTag=appendglobaltag ),
     Sample("RelValCloseByPGun_CE_H_Fine_120um", scenario="2026D49", appendGlobalTag=appendglobaltag ),
@@ -194,25 +253,40 @@ phase2samples_noPU_extend_more = [
     Sample("RelValCloseByPGun_CE_E_Front_120um", scenario="2026D49", appendGlobalTag=appendglobaltag ),
     Sample("RelValSingleGammaFlatPt8To150", scenario="2026D49", appendGlobalTag=appendglobaltag ),
     Sample("RelValSingleEFlatPt2To100", scenario="2026D49", appendGlobalTag=appendglobaltag ),
-    Sample("RelValSinglePiFlatPt0p7To10", scenario="2026D49", appendGlobalTag=appendglobaltag ),
-    Sample("RelValQCD_Pt20toInfMuEnrichPt15", midfix="14", scenario="2026D49", appendGlobalTag=appendglobaltag ),
-    Sample("RelValDisplacedMuPt30To100", scenario="2026D49", appendGlobalTag=appendglobaltag ),
-    Sample("RelValDisplacedMuPt2To10", scenario="2026D49", appendGlobalTag=appendglobaltag ),
-    Sample("RelValDisplacedMuPt10To30", scenario="2026D49", appendGlobalTag=appendglobaltag ),
-    Sample("RelValB0ToKstarMuMu", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag ),
-    Sample("RelValBsToEleEle", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag ),
-    Sample("RelValBsToMuMu", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag ),
-    Sample("RelValBsToJpsiGamma", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag ),
-    Sample("RelValBsToJpsiPhi_mumuKK", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag ),
-    Sample("RelValBsToPhiPhi_KKKK", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag ),
-    Sample("RelValTauToMuMuMu", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag ),
-    Sample("RelValSingleTauFlatPt2To150", scenario="2026D49", appendGlobalTag=appendglobaltag ),
-    Sample("RelValSingleMuFlatPt0p7To10", scenario="2026D49", appendGlobalTag=appendglobaltag )
+    Sample("RelValSinglePiFlatPt0p7To10", scenario="2026D49", appendGlobalTag=appendglobaltag )
+
+
+    #Sample("RelValCloseByPGun_CE_H_Fine_300um", scenario="2026D49", appendGlobalTag=appendglobaltag + "_HGCal" ),
+    #Sample("RelValCloseByPGun_CE_H_Fine_200um", scenario="2026D49", appendGlobalTag=appendglobaltag + "_HGCal" ),
+    #Sample("RelValCloseByPGun_CE_H_Fine_120um", scenario="2026D49", appendGlobalTag=appendglobaltag + "_HGCal" ),
+    #Sample("RelValCloseByPGun_CE_H_Coarse_Scint", scenario="2026D49", appendGlobalTag=appendglobaltag + "_HGCal" ),
+    #Sample("RelValCloseByPGun_CE_H_Coarse_300um", scenario="2026D49", appendGlobalTag=appendglobaltag + "_HGCal" ),
+    #Sample("RelValCloseByPGun_CE_E_Front_300um", scenario="2026D49", appendGlobalTag=appendglobaltag + "_HGCal" ),
+    #Sample("RelValCloseByPGun_CE_E_Front_200um", scenario="2026D49", appendGlobalTag=appendglobaltag + "_HGCal" ),
+    #Sample("RelValCloseByPGun_CE_E_Front_120um", scenario="2026D49", appendGlobalTag=appendglobaltag + "_HGCal" ),
+    #Sample("RelValSingleGammaFlatPt8To150", scenario="2026D49", appendGlobalTag=appendglobaltag + "_HGCal" ),
+    #Sample("RelValSingleEFlatPt2To100", scenario="2026D49", appendGlobalTag=appendglobaltag + "_HGCal" ),
+    #Sample("RelValSinglePiFlatPt0p7To10", scenario="2026D49", appendGlobalTag=appendglobaltag + "_HGCal" )
+
+
+    #Sample("RelValQCD_Pt20toInfMuEnrichPt15", midfix="14", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    #Sample("RelValDisplacedMuPt30To100", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    #Sample("RelValDisplacedMuPt2To10", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    #Sample("RelValDisplacedMuPt10To30", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    #Sample("RelValB0ToKstarMuMu", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    #Sample("RelValBsToEleEle", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    #Sample("RelValBsToMuMu", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    #Sample("RelValBsToJpsiGamma", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    #Sample("RelValBsToJpsiPhi_mumuKK", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    #Sample("RelValBsToPhiPhi_KKKK", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    #Sample("RelValTauToMuMuMu", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    #Sample("RelValSingleTauFlatPt2To150", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    #Sample("RelValSingleMuFlatPt0p7To10", scenario="2026D49", appendGlobalTag=appendglobaltag )
 
 ]
-'''
+
 phase2samples_noPU.extend(phase2samples_noPU_extend)
-#phase2samples_noPU.extend(phase2samples_noPU_extend_more)
+phase2samples_noPU.extend(phase2samples_noPU_extend_more)
 #phase2samples_noPU.extend(phase2samples_noPU_oldnaming)
 
 #For the PU samples 
@@ -247,14 +321,20 @@ if(opt.DOWNLOAD):
         processCmd('mkdir -p '+RefRepository+'/'+NewRelease)
 
     for infi in phase2samples_noPU:
-        processCmd('mv ' + infi.filename(NewRelease) + ' ' + RefRepository+'/'+NewRelease)
+        if "_HGCal" in infi.filename(NewRelease): 
+                processCmd('mv ' + infi.filename(NewRelease) + ' ' + infi.filename(NewRelease).replace("_HGCal",""))
+		processCmd('mv ' + infi.filename(NewRelease).replace("_HGCal","") + ' ' + RefRepository+'/'+NewRelease)
+        else: 
+                #processCmd('mv ' + infi.filename(NewRelease) + ' ' + infi.filename(NewRelease).replace("2026D49noPU-v2","2026D49noPU-v1"))
+                #processCmd('mv ' + infi.filename(NewRelease).replace("2026D49noPU-v2","2026D49noPU-v1")  + ' ' + RefRepository+'/'+NewRelease)
+                processCmd('mv ' + infi.filename(NewRelease)  + ' ' + RefRepository+'/'+NewRelease)
 
 #------------------------------------------------------------------------------------------
 #Objects processing section: The objects defined in --Obj are analyzed here. 
 #------------------------------------------------------------------------------------------
 
-#This is the hgcalLayerClusters,  multiClustersFromTrackstersEM, multiClustersFromTrackstersHAD, and hitCalibration part
-if (opt.OBJ == 'hgcalLayerClusters' or opt.OBJ == 'hitCalibration' or opt.OBJ == 'multiClustersFromTrackstersEM' or opt.OBJ == 'multiClustersFromTrackstersHAD'):
+#This is the hgcalLayerClusters, ticlMultiClustersFromTrackstersEM, ticlMultiClustersFromTrackstersHAD, and hitCalibration part
+if (opt.OBJ == 'hgcalLayerClusters' or opt.OBJ == 'hitCalibration' or opt.OBJ == 'ticlMultiClustersFromTrackstersEM' or opt.OBJ == 'ticlMultiClustersFromTrackstersHAD'):
     fragments = []
     #Now  that we have them in eos lets produce plots
     #Let's loop through RelVals
@@ -278,11 +358,11 @@ if (opt.OBJ == 'hgcalLayerClusters' or opt.OBJ == 'hitCalibration' or opt.OBJ ==
         if RefRelease == None:
             cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename)+ ' --collection %s' %(opt.HTMLVALNAME)
         elif "raw" in NotNormalRelease and "normal" in NotNormalRefRelease:
-            #cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease).replace("mcRun4_realistic_v3_raw1100-v1","mcRun4_realistic_v3_2026D49noPU-v1") + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
-            cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease).replace("mcRun4_realistic_v3_2026D49noPU_raw1100_rsb-v1","mcRun4_realistic_v3_2026D49noPU-v1") + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
+            cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease).replace("mcRun4_realistic_v2_2026D49noPU_gcc900-v1","mcRun4_realistic_v2_2026D49noPU-v1") + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
+            #cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease).replace("mcRun4_realistic_v3_2026D49noPU_raw1100_rsb-v1","mcRun4_realistic_v3_2026D49noPU-v1") + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
         elif "raw" in NotNormalRelease and "raw" in NotNormalRefRelease:
-            cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease) + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
-            #cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease).replace("_2026D49noPU_raw1100_rsb","_raw1100") + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
+            #cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease) + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
+            cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease).replace("_raw1100","_raw1100_rsb") + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
         elif "normal" in NotNormalRelease and "normal" in NotNormalRefRelease:
             cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease) + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
         else: 
@@ -300,7 +380,7 @@ if (opt.OBJ == 'hgcalLayerClusters' or opt.OBJ == 'hitCalibration' or opt.OBJ ==
                 processCmd('awk \'NR>=6&&NR<=44\' HGCValid_%s_Plots/index.html > HGCValid_%s_Plots/index_%s.html '% (opt.HTMLVALNAME,opt.HTMLVALNAME, samplename))
             if opt.OBJ == 'hitCalibration':
                 processCmd('awk \'NR>=6&&NR<=15\' HGCValid_%s_Plots/index.html > HGCValid_%s_Plots/index_%s.html '% (opt.HTMLVALNAME,opt.HTMLVALNAME, samplename))
-            if opt.OBJ == 'multiClustersFromTrackstersEM' or opt.OBJ == 'multiClustersFromTrackstersHAD':
+            if opt.OBJ == 'ticlMultiClustersFromTrackstersEM' or opt.OBJ == 'ticlMultiClustersFromTrackstersHAD':
                 processCmd('awk \'NR>=6&&NR<=25\' HGCValid_%s_Plots/index.html > HGCValid_%s_Plots/index_%s.html '% (opt.HTMLVALNAME,opt.HTMLVALNAME, samplename))
 
     
@@ -372,10 +452,11 @@ if (opt.OBJ == 'hitValidation'):
         if RefRelease == None:
             cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename)+ ' --collection %s' %(opt.HTMLVALNAME)
         elif "raw" in NotNormalRelease and "normal" in NotNormalRefRelease:
-            cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease).replace("mcRun4_realistic_v3_2026D49noPU_raw1100_rsb-v1","mcRun4_realistic_v3_2026D49noPU-v1") + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
+            cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease).replace("mcRun4_realistic_v2_2026D49noPU_gcc900-v1","mcRun4_realistic_v2_2026D49noPU-v1") + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
+            #cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease).replace("mcRun4_realistic_v3_2026D49noPU_raw1100_rsb-v1","mcRun4_realistic_v3_2026D49noPU-v1") + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
         elif "raw" in NotNormalRelease and "raw" in NotNormalRefRelease:
-            cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease) + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
-            #cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease).replace("_2026D49noPU_raw1100_rsb","_raw1100") + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
+            #cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease) + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
+            cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease).replace("_raw1100","_raw1100_rsb") + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
         elif "normal" in NotNormalRelease and "normal" in NotNormalRefRelease:
             cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease) + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
         else: 

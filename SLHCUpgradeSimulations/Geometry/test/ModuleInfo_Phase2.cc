@@ -42,7 +42,6 @@
 #include "DataFormats/GeometrySurface/interface/BoundSurface.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerDebugNavigator.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -83,11 +82,6 @@ private:
 //
 // constants, enums and typedefs
 //
-
-//
-// static data member definitions
-//
-static const double density_units = 6.24151e+18;
 
 //
 // constructors and destructor
@@ -131,19 +125,11 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
   // get the GeometricDet
   //
   edm::ESHandle<GeometricDet> rDD;
-  edm::ESHandle<std::vector<GeometricDetExtra> > rDDE;
-  //if (fromDDD_) {
+
   iSetup.get<IdealGeometryRecord>().get(rDD);
-  iSetup.get<IdealGeometryRecord>().get(rDDE);
-  //} else {
-  //  iSetup.get<PGeometricDetRcd>().get( rDD );
-  //}
   edm::LogInfo("ModuleInfo_Phase2") << " Top node is  " << rDD.product() << " " << rDD.product()->name() << std::endl;
   edm::LogInfo("ModuleInfo_Phase2") << " And Contains  Daughters: " << rDD.product()->deepComponents().size()
                                     << std::endl;
-  CmsTrackerDebugNavigator nav(*rDDE.product());
-  nav.dump(*rDD.product(), *rDDE.product());
-  //
   //first instance tracking geometry
   edm::ESHandle<TrackerGeometry> pDD;
   iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
@@ -261,34 +247,6 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
   double thepixROCRowsD[16] = {0.0};
   double thepixROCColsD[16] = {0.0};
   //
-  double volume_total = 0.0;
-  double weight_total = 0.0;
-  double activeSurface_total = 0.0;
-  double volume_pxb = 0.0;
-  double weight_pxb = 0.0;
-  double activeSurface_pxb = 0.0;
-  double activeSurface_pxb_L[16] = {0.0};
-  double volume_pxf = 0.0;
-  double weight_pxf = 0.0;
-  double activeSurface_pxf = 0.0;
-  double activeSurface_pxf_D[6] = {0.0};
-  double volume_tib = 0.0;
-  double weight_tib = 0.0;
-  double activeSurface_tib = 0.0;
-  double activeSurface_tib_L[4] = {0.0};
-  double volume_tid = 0.0;
-  double weight_tid = 0.0;
-  double activeSurface_tid = 0.0;
-  double activeSurface_tid_D[3] = {0.0};
-  double volume_tob = 0.0;
-  double weight_tob = 0.0;
-  double activeSurface_tob = 0.0;
-  double activeSurface_tob_L[6] = {0.0};
-  double volume_tec = 0.0;
-  double weight_tec = 0.0;
-  double activeSurface_tec = 0.0;
-  double activeSurface_tec_D[9] = {0.0};
-  //
   unsigned int nlayersPXB = 0;  //  number of layers
   unsigned int nlayersTIB = 0;  //  number of layers
   unsigned int nlayersTOB = 0;  //  number of layers
@@ -299,51 +257,27 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
   std::vector<const GeometricDet*> modules = (*rDD).deepComponents();
   Output << "************************ List of modules with positions ************************" << std::endl;
   // MEC: 2010-04-13: need to find corresponding GeometricDetExtra.
-  std::vector<GeometricDetExtra>::const_iterator gdei(rDDE->begin()), gdeEnd(rDDE->end());
+
   for (unsigned int i = 0; i < modules.size(); i++) {
     unsigned int rawid = modules[i]->geographicalId().rawId();
-    gdei = rDDE->begin();
-    for (; gdei != gdeEnd; ++gdei) {
-      if (gdei->geographicalId() == modules[i]->geographicalId())
-        break;
-    }
-
-    if (gdei == gdeEnd)
-      throw cms::Exception("ModuleInfo") << "THERE IS NO MATCHING DetId in the GeometricDetExtra";  //THIS never happens!
 
     GeometricDet::nav_type detNavType = modules[i]->navType();
     Output << std::fixed << std::setprecision(6);  // set as default 6 decimal digits
     std::bitset<32> binary_rawid(rawid);
     Output << " ******** raw Id = " << rawid << " (" << binary_rawid << ") ";
 
-    //    if ( fromDDD_ && printDDD_ ) {
-    //      Output << "\t nav type = " << detNavType;
-    //    }
-    //nav_type typedef changed in 3_6_2; comment out for now.  idr 10/6/10
-
     Output << std::endl;
     int subdetid = modules[i]->geographicalId().subdetId();
-    double volume = gdei->volume() / 1000;  // mm3->cm3
-    double density = gdei->density() / density_units;
-    double weight = gdei->weight() / density_units / 1000.;        // [kg], hence the factor 1000;
     double thickness = modules[i]->bounds()->thickness() * 10000;  // cm-->um
     double length = (modules[i]->bounds()->length());              // already in cm
-    //double width = (modules[i]->bounds()->width()); // already in cm
-    double activeSurface = volume / (thickness / 10000);  // cm2 (thickness in um)
     double polarRadius = std::sqrt(modules[i]->translation().X() * modules[i]->translation().X() +
                                    modules[i]->translation().Y() * modules[i]->translation().Y());
     double positionZ = std::abs(modules[i]->translation().Z()) / 10.;  //cm
-    volume_total += volume;
-    weight_total += weight;
-    activeSurface_total += activeSurface;
 
     switch (subdetid) {
         // PXB
       case 1: {
         pxbN++;
-        volume_pxb += volume;
-        weight_pxb += weight;
-        activeSurface_pxb += activeSurface;
         std::string name = modules[i]->name();
         if (name == "PixelBarrelActiveFull" || name == "PixelBarrelActiveFull0" || name == "PixelBarrelActiveFull1" ||
             name == "PixelBarrelActiveFull2" || name == "PixelBarrelActiveFull3")
@@ -419,7 +353,6 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
           std::cout << "\nYou have added PXB layers that are not taken into account! \ti.e. " << name << "\n";
         if (16 < theLayer)
           std::cout << "\nYou need to increase the PXB array sizes!\n";
-        activeSurface_pxb_L[theLayer - 1] += activeSurface;
         psi_pxb_L[theLayer - 1] += modules[i]->pixROCx() * modules[i]->pixROCy();
 
         if (pxbZ_L[theLayer - 1] < positionZ + length / 2)
@@ -429,20 +362,12 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
                << "\t"
                << "Layer " << theLayer << " Ladder " << theLadder << "\t"
                << " module " << theModule << " " << name << "\t";
-        if (fromDDD_ && printDDD_) {
-          Output << "son of " << gdei->parents()[gdei->parents().size() - 3].logicalPart().name() << std::endl;
-        } else {
-          Output << " NO DDD Hierarchy available " << std::endl;
-        }
         break;
       }
 
         // PXF
       case 2: {
         pxfN++;
-        volume_pxf += volume;
-        weight_pxf += weight;
-        activeSurface_pxf += activeSurface;
         std::string name = modules[i]->name();
         if (name == "PixelForwardSensor" || name == "PixelForwardSensor1" || name == "PixelForwardSensor2" ||
             name == "PixelForwardSensor3")
@@ -496,7 +421,6 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
           std::cout << "\nYou have added PXF layers that are not taken into account! \ti.e. " << name << "\n";
         if (3 < theDisk)
           std::cout << "\nYou need to increase the PXF array sizes!\n";
-        activeSurface_pxf_D[theDisk - 1] += activeSurface;
         psi_pxf_D[theDisk - 1] += modules[i]->pixROCx() * modules[i]->pixROCy();
         psi_pxf[theDisk - 1] += modules[i]->pixROCx() * modules[i]->pixROCy();
         pxfZ_D[theDisk - 1] += positionZ;
@@ -510,20 +434,12 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
         Output << " PXF" << side << "\t"
                << "Disk " << theDisk << " Blade " << theBlade << " Panel " << thePanel << "\t"
                << " module " << theModule << "\t" << name << "\t";
-        if (fromDDD_ && printDDD_) {
-          Output << "son of " << gdei->parents()[gdei->parents().size() - 3].logicalPart().name() << std::endl;
-        } else {
-          Output << " NO DDD Hierarchy available " << std::endl;
-        }
         break;
       }
 
         // TIB
       case 3: {
         tibN++;
-        volume_tib += volume;
-        weight_tib += weight;
-        activeSurface_tib += activeSurface;
         std::string name = modules[i]->name();
         if (name == "TIBActiveRphi0")
           tib_L12_rphiN++;
@@ -547,7 +463,6 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
           std::cout << "\nYou have added TIB layers that are not taken into account!\n\n";
         if (6 < theLayer)
           std::cout << "\nYou need to increase the TIB array sizes!\n";
-        activeSurface_tib_L[theLayer - 1] += activeSurface;
         tib_apv_L[theLayer - 1] += modules[i]->siliconAPVNum();
         apv_tib += modules[i]->siliconAPVNum();
         if (tibZ_L[theLayer - 1] < positionZ + length / 2)
@@ -562,11 +477,6 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
                << "Layer " << theLayer << " " << part << "\t"
                << "string " << theString[2] << "\t"
                << " module " << theModule << " " << name << "\t";
-        if (fromDDD_ && printDDD_) {
-          Output << "son of " << gdei->parents()[gdei->parents().size() - 3].logicalPart().name();
-        } else {
-          Output << " NO DDD Hierarchy available ";
-        }
         Output << " " << modules[i]->translation().X() << "   \t" << modules[i]->translation().Y() << "   \t"
                << modules[i]->translation().Z() << std::endl;
         break;
@@ -575,9 +485,6 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
         // TID
       case 4: {
         tidN++;
-        volume_tid += volume;
-        weight_tid += weight;
-        activeSurface_tid += activeSurface;
         std::string name = modules[i]->name();
         if (name == "TIDModule0RphiActive")
           tid_r1_rphiN++;
@@ -610,7 +517,6 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
           std::cout << "\nYou have added TID layers that are not taken into account!\n\n";
         if (3 < theDisk)
           std::cout << "\nYou need to increase the TID array sizes!\n";
-        activeSurface_tid_D[theDisk - 1] += activeSurface;
         tid_apv_D[theDisk - 1] += modules[i]->siliconAPVNum();
         apv_tid += modules[i]->siliconAPVNum();
         tidZ_D[theDisk - 1] += positionZ;
@@ -626,11 +532,6 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
         Output << " TID" << side << "\t"
                << "Disk " << theDisk << " Ring " << theRing << " " << part << "\t"
                << " module " << theModule[1] << "\t" << name << "\t";
-        if (fromDDD_ && printDDD_) {
-          Output << "son of " << gdei->parents()[gdei->parents().size() - 3].logicalPart().name();
-        } else {
-          Output << " NO DDD Hierarchy available ";
-        }
         Output << " " << modules[i]->translation().X() << "   \t" << modules[i]->translation().Y() << "   \t"
                << modules[i]->translation().Z() << std::endl;
         break;
@@ -639,9 +540,6 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
         // TOB
       case 5: {
         tobN++;
-        volume_tob += volume;
-        weight_tob += weight;
-        activeSurface_tob += activeSurface;
         std::string name = modules[i]->name();
         if (name == "TOBActiveRphi0")
           tob_L12_rphiN++;
@@ -670,7 +568,6 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
           std::cout << "\nYou have added TOB layers that are not taken into account!\n\n";
         if (6 < theLayer)
           std::cout << "\nYou need to increase the TOB array sizes!\n";
-        activeSurface_tob_L[theLayer - 1] += activeSurface;
         tob_apv_L[theLayer - 1] += modules[i]->siliconAPVNum();
         apv_tob += modules[i]->siliconAPVNum();
         if (tobZ_L[theLayer - 1] < positionZ + length / 2)
@@ -682,11 +579,6 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
         Output << " TOB" << side << "\t"
                << "Layer " << theLayer << "\t"
                << "rod " << theRod[1] << " module " << theModule << "\t" << name << "\t";
-        if (fromDDD_ && printDDD_) {
-          Output << "son of " << gdei->parents()[gdei->parents().size() - 3].logicalPart().name();
-        } else {
-          Output << " NO DDD Hierarchy available ";
-        }
         Output << " " << modules[i]->translation().X() << "   \t" << modules[i]->translation().Y() << "   \t"
                << modules[i]->translation().Z() << std::endl;
         break;
@@ -695,9 +587,6 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
         // TEC
       case 6: {
         tecN++;
-        volume_tec += volume;
-        weight_tec += weight;
-        activeSurface_tec += activeSurface;
         std::string name = modules[i]->name();
         if (name == "TECModule0RphiActive")
           tec_r1_rphiN++;
@@ -753,7 +642,6 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
           std::cout << "\nYou have added TOB layers that are not taken into account!,\t" << name << "\n";
         if (9 < theWheel)
           std::cout << "\nYou need to increase the TEC array sizes!\n";
-        activeSurface_tec_D[theWheel - 1] += activeSurface;
         tec_apv_D[theWheel - 1] += modules[i]->siliconAPVNum();
         apv_tec += modules[i]->siliconAPVNum();
         tecZ_D[theWheel - 1] += positionZ;
@@ -770,11 +658,6 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
                << "Wheel " << theWheel << " Petal " << thePetal[1] << " " << petal << " Ring " << theRing << "\t"
                << "\t"
                << " module " << theModule << "\t" << name << "\t";
-        if (fromDDD_ && printDDD_) {
-          Output << "son of " << gdei->parents()[gdei->parents().size() - 3].logicalPart().name();
-        } else {
-          Output << " NO DDD Hierarchy available ";
-        }
         Output << " " << modules[i]->translation().X() << "   \t" << modules[i]->translation().Y() << "   \t"
                << modules[i]->translation().Z() << std::endl;
 
@@ -860,11 +743,7 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
     // Output: set as default 4 decimal digits (0.1 um or 0.1 deg/rad)
     // active area center
     Output << "\t"
-           << "volume " << std::fixed << std::setprecision(3) << volume << " cm3 \t"
-           << "density " << std::fixed << std::setprecision(3) << density << " g/cm3 \t"
-           << "weight " << std::fixed << std::setprecision(6) << weight << " kg \t"
-           << "thickness " << std::fixed << std::setprecision(0) << thickness << " um \t"
-           << " active area " << std::fixed << std::setprecision(2) << activeSurface << " cm2" << std::endl;
+           << "thickness " << std::fixed << std::setprecision(0) << thickness << " um \n";
     Output << "\tActive Area Center" << std::endl;
     Output << "\t O = (" << std::fixed << std::setprecision(4) << modules[i]->translation().X() << "," << std::fixed
            << std::setprecision(4) << modules[i]->translation().Y() << "," << std::fixed << std::setprecision(4)
@@ -959,9 +838,6 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
   //Output << "   Strx34: Full = " << pxb_full_strx34N << std::endl;
   //Output << "   Strx34: Half = " << pxb_half_strx34N << std::endl;
   Output << "   Active Silicon Detectors" << std::endl;
-  Output << "     Weight  = " << weight_pxb << " kg" << std::endl;
-  Output << "     Volume  = " << volume_pxb << " cm3" << std::endl;
-  Output << "     Surface = " << activeSurface_pxb << " cm2" << std::endl;
   Output << "        NEED TO VERIFY THE NEXT 6 LINES!!!!!!!!!!!!!!!!! " << std::endl;
   Output << "        PSI46s Inner  = " << (int)psi_pxbN << std::endl;
   Output << "        PSI46s Strx12  = " << (int)psi_pxb_strx12N << std::endl;
@@ -977,9 +853,6 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
   Output << "   2x4 = " << pxf_2x4N << std::endl;
   Output << "   2x5 = " << pxf_2x5N << std::endl;
   Output << "   Active Silicon Detectors" << std::endl;
-  Output << "     Weight  = " << weight_pxf << " kg" << std::endl;
-  Output << "     Volume  = " << volume_pxf << " cm3" << std::endl;
-  Output << "     Surface = " << activeSurface_pxf << " cm2" << std::endl;
   Output << "        PSI46s   = " << (int)psi_pxfN << std::endl;
   Output << "        channels = " << (int)chan_pxf << std::endl;
   Output << " TIB    = " << tibN << std::endl;
@@ -987,9 +860,6 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
   Output << "   L12 stereo = " << tib_L12_sterN << std::endl;
   Output << "   L34        = " << tib_L34_rphiN << std::endl;
   Output << "   Active Silicon Detectors" << std::endl;
-  Output << "     Weight  = " << weight_tib << " kg" << std::endl;
-  Output << "     Volume  = " << volume_tib << " cm3" << std::endl;
-  Output << "     Surface = " << activeSurface_tib << " cm2" << std::endl;
   Output << "        APV25s   = " << (int)apv_tib << std::endl;
   Output << "        channels = " << (int)chan_tib << std::endl;
   Output << " TID    = " << tidN << std::endl;
@@ -999,10 +869,6 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
   Output << "   r2 stereo  = " << tid_r2_sterN << std::endl;
   Output << "   r3 rphi    = " << tid_r3_rphiN << std::endl;
   Output << "   Active Silicon Detectors" << std::endl;
-  Output << "     Weight  = " << weight_tid << " kg" << std::endl;
-  Output << "     Volume  = " << volume_tid << " cm3" << std::endl;
-  ;
-  Output << "     Surface = " << activeSurface_tid << " cm2" << std::endl;
   Output << "        APV25s   = " << (int)apv_tid << std::endl;
   Output << "        channels = " << (int)chan_tid << std::endl;
   Output << " TOB    = " << tobN << std::endl;
@@ -1011,9 +877,6 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
   Output << "   L34        = " << tob_L34_rphiN << std::endl;
   Output << "   L56        = " << tob_L56_rphiN << std::endl;
   Output << "   Active Silicon Detectors" << std::endl;
-  Output << "     Weight  = " << weight_tob << " kg" << std::endl;
-  Output << "     Volume  = " << volume_tob << " cm3" << std::endl;
-  Output << "     Surface = " << activeSurface_tob << " cm2" << std::endl;
   Output << "        APV25s   = " << (int)apv_tob << std::endl;
   Output << "        channels = " << (int)chan_tob << std::endl;
   Output << " TEC    = " << tecN << std::endl;
@@ -1028,15 +891,9 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
   Output << "   r6 rphi    = " << tec_r6_rphiN << std::endl;
   Output << "   r7 rphi    = " << tec_r7_rphiN << std::endl;
   Output << "   Active Silicon Detectors" << std::endl;
-  Output << "     Weight  = " << weight_tec << " kg" << std::endl;
-  Output << "     Volume  = " << volume_tec << " cm3" << std::endl;
-  Output << "     Surface = " << activeSurface_tec << " cm2" << std::endl;
   Output << "        APV25s   = " << (int)apv_tec << std::endl;
   Output << "        channels = " << (int)chan_tec << std::endl;
   Output << "---------------------" << std::endl;
-  Output << " Total Weight      = " << weight_total << " kg" << std::endl;
-  Output << " Total Volume      = " << volume_total << " cm3" << std::endl;
-  Output << " Total Active Area = " << activeSurface_total << " cm2" << std::endl;
   Output << "        PSI46s   = " << (int)psi_tot << std::endl;
   Output << "        APV25s   = " << (int)apv_tot << std::endl;
   Output << "        pixel channels = " << (int)chan_pixel << std::endl;
@@ -1051,8 +908,6 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
     GeometryOutput << "        Number of Full module in PXB layer no. " << i + 1 << ": " << pxb_full_L[i] << std::endl;
     GeometryOutput << "        Number of Half module in PXB layer no. " << i + 1 << ": " << pxb_half_L[i] << std::endl;
     GeometryOutput << "        Number of stack module in PXB layer no. " << i + 1 << ": " << pxb_stack[i] << std::endl;
-    GeometryOutput << "        Active Silicon surface in PXB layer no. " << i + 1 << ": " << activeSurface_pxb_L[i]
-                   << " [cm^2]" << std::endl;
     GeometryOutput << "        Number of PSI46s in PXB layer no. " << i + 1 << ": " << psi_pxb_L[i] << std::endl;
     GeometryOutput << "        Number of pixel channels in PXB layer no. " << i + 1 << ": "
                    << (int)psi_pxb_L[i] * chan_per_psiB[i] << std::endl;
@@ -1060,9 +915,9 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
                    << pxbpitchy[i] << std::endl;
     GeometryOutput << std::endl;
     GeometryXLS << "PXB" << i + 1 << " " << pxbR_L[i] / (pxb_full_L[i] + pxb_half_L[i] + pxb_stack[i]) << " " << 0
-                << " " << pxbZ_L[i] << " " << activeSurface_pxb_L[i] << " " << psi_pxb_L[i] << " "
-                << (int)psi_pxb_L[i] * chan_per_psiB[i] << " " << pxb_full_L[i] + pxb_half_L[i] + pxb_stack[i] << " "
-                << pxb_full_L[i] << " " << pxb_half_L[i] << " " << pxb_stack[i] << std::endl;
+                << " " << pxbZ_L[i] << " " << psi_pxb_L[i] << " " << (int)psi_pxb_L[i] * chan_per_psiB[i] << " "
+                << pxb_full_L[i] + pxb_half_L[i] + pxb_stack[i] << " " << pxb_full_L[i] << " " << pxb_half_L[i] << " "
+                << pxb_stack[i] << std::endl;
   }
   for (unsigned int i = 0; i < nlayersTIB; i++) {
     GeometryOutput << "   TIB Layer no. " << i + 1 << std::endl;
@@ -1078,16 +933,16 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
     if (tib_L34_rphi_L[i] != 0)
       GeometryOutput << "        Number of IB2 rphi minimodules in TIB layer no. " << i + 1 << ": " << tib_L34_rphi_L[i]
                      << std::endl;
-    GeometryOutput << "        Active Silicon surface in TIB layer no. " << i + 1 << ": " << activeSurface_tib_L[i]
-                   << std::endl;
+    GeometryOutput << "        Active Silicon surface in TIB layer no. " << i + 1 << ": " << std::endl;
     GeometryOutput << "        Number of APV25s in TIB layer no. " << i + 1 << ": " << tib_apv_L[i] << std::endl;
     GeometryOutput << "        Number of strip channels in TIB layer no. " << i + 1 << ": "
                    << (int)tib_apv_L[i] * chan_per_apv << std::endl;
     GeometryOutput << std::endl;
     GeometryXLS << "TIB" << i + 1 << " " << tibR_L[i] / (tib_L12_rphi_L[i] + tib_L12_ster_L[i] + tib_L34_rphi_L[i])
-                << " " << 0 << " " << tibZ_L[i] << " " << activeSurface_tib_L[i] << " " << tib_apv_L[i] << " "
-                << (int)tib_apv_L[i] * chan_per_apv << " " << tib_L12_rphi_L[i] + tib_L12_ster_L[i] + tib_L34_rphi_L[i]
-                << " " << tib_L12_rphi_L[i] << " " << tib_L12_ster_L[i] << " " << tib_L34_rphi_L[i] << std::endl;
+                << " " << 0 << " " << tibZ_L[i] << " "
+                << " " << tib_apv_L[i] << " " << (int)tib_apv_L[i] * chan_per_apv << " "
+                << tib_L12_rphi_L[i] + tib_L12_ster_L[i] + tib_L34_rphi_L[i] << " " << tib_L12_rphi_L[i] << " "
+                << tib_L12_ster_L[i] << " " << tib_L34_rphi_L[i] << std::endl;
   }
   for (unsigned int i = 0; i < nlayersTOB; i++) {
     GeometryOutput << "   TOB Layer no. " << i + 1 << std::endl;
@@ -1107,16 +962,14 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
     if (tob_L56_rphi_L[i] != 0)
       GeometryOutput << "        Number of OB2 rphi minimodules in TOB layer no. " << i + 1 << ": " << tob_L56_rphi_L[i]
                      << std::endl;
-    GeometryOutput << "        Active Silicon surface in TOB layer no. " << i + 1 << ": " << activeSurface_tob_L[i]
-                   << std::endl;
     GeometryOutput << "        Number of APV25s in TOB layer no. " << i + 1 << ": " << tob_apv_L[i] << std::endl;
     GeometryOutput << "        Number of strip channels in TOB layer no. " << i + 1 << ": "
                    << (int)tob_apv_L[i] * chan_per_apv << std::endl;
     GeometryOutput << std::endl;
     GeometryXLS << "TOB" << i + 1 << " "
                 << tobR_L[i] / (tob_L12_rphi_L[i] + tob_L12_ster_L[i] + tob_L34_rphi_L[i] + tob_L56_rphi_L[i]) << " "
-                << 0 << " " << tobZ_L[i] << " " << activeSurface_tob_L[i] << " " << tob_apv_L[i] << " "
-                << (int)tob_apv_L[i] * chan_per_apv << " "
+                << 0 << " " << tobZ_L[i] << " "
+                << " " << tob_apv_L[i] << " " << (int)tob_apv_L[i] * chan_per_apv << " "
                 << tob_L12_rphi_L[i] + tob_L12_ster_L[i] + tob_L34_rphi_L[i] + tob_L56_rphi_L[i] << " "
                 << tob_L12_rphi_L[i] << " " << tob_L12_ster_L[i] << " " << tob_L34_rphi_L[i] << " " << tob_L56_rphi_L[i]
                 << std::endl;
@@ -1134,8 +987,6 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
     GeometryOutput << "        Number of 2x4 modules in PXF disk no. " << i + 1 << ": " << pxf_2x4_D[i] << std::endl;
     GeometryOutput << "        Number of 2x5 modules in PXF disk no. " << i + 1 << ": " << pxf_2x5_D[i] << std::endl;
     GeometryOutput << "        Number of 2x8 modules in PXF disk no. " << i + 1 << ": " << pxf_D[i] << std::endl;
-    GeometryOutput << "        Active Silicon surface in PXF disk no. " << i + 1 << ": " << activeSurface_pxf_D[i]
-                   << " [cm^2]" << std::endl;
     GeometryOutput << "        Number of PSI46s in PXF disk no. " << i + 1 << ": " << psi_pxf_D[i] << std::endl;
     GeometryOutput << "        Number of pixel channels in PXF disk no. " << i + 1 << ": "
                    << (int)psi_pxf_D[i] * chan_per_psiD[i] << std::endl;
@@ -1144,8 +995,8 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
     GeometryOutput << std::endl;
     GeometryXLS << "PXF" << i + 1 << " " << pxfR_min_D[i] << " " << pxfR_max_D[i] << " "
                 << pxfZ_D[i] / (pxf_D[i] + pxf_1x2_D[i] + pxf_1x5_D[i] + pxf_2x3_D[i] + pxf_2x4_D[i] + pxf_2x5_D[i])
-                << " " << activeSurface_pxf_D[i] << " " << psi_pxf_D[i] << " " << (int)psi_pxf_D[i] * chan_per_psiD[i]
-                << " " << pxf_D[i] + pxf_1x2_D[i] + pxf_1x5_D[i] + pxf_2x3_D[i] + pxf_2x4_D[i] + pxf_2x5_D[i] << " "
+                << " " << psi_pxf_D[i] << " " << (int)psi_pxf_D[i] * chan_per_psiD[i] << " "
+                << pxf_D[i] + pxf_1x2_D[i] + pxf_1x5_D[i] + pxf_2x3_D[i] + pxf_2x4_D[i] + pxf_2x5_D[i] << " "
                 << pxf_D[i] << " " << pxf_1x2_D[i] << " " << pxf_1x5_D[i] << " " << pxf_2x3_D[i] << " " << pxf_2x4_D[i]
                 << " " << pxf_2x5_D[i] << std::endl;
   }
@@ -1165,16 +1016,14 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
                    << std::endl;
     GeometryOutput << "        Number of r3_rphi modules in TID disk no. " << i + 1 << ": " << tid_r3_rphi_D[i]
                    << std::endl;
-    GeometryOutput << "        Active Silicon surface in TID disk no. " << i + 1 << ": " << activeSurface_tid_D[i]
-                   << " [cm^2]" << std::endl;
     GeometryOutput << "        Number of APV25s in TID disk no. " << i + 1 << ": " << tid_apv_D[i] << std::endl;
     GeometryOutput << "        Number of strip channels in TID disk no. " << i + 1 << ": "
                    << (int)tid_apv_D[i] * chan_per_apv << std::endl;
     GeometryOutput << std::endl;
     GeometryXLS << "TID" << i + 1 << " " << tidR_min_D[i] << " " << tidR_max_D[i] << " " << tidZ_D[i] / tot << " "
-                << activeSurface_tid_D[i] << " " << tid_apv_D[i] << " " << (int)tid_apv_D[i] * chan_per_apv << " "
-                << tot << " " << tid_r1_rphi_D[i] << " " << tid_r1_ster_D[i] << " " << tid_r2_rphi_D[i] << " "
-                << tid_r2_ster_D[i] << " " << tid_r3_rphi_D[i] << std::endl;
+                << " " << tid_apv_D[i] << " " << (int)tid_apv_D[i] * chan_per_apv << " " << tot << " "
+                << tid_r1_rphi_D[i] << " " << tid_r1_ster_D[i] << " " << tid_r2_rphi_D[i] << " " << tid_r2_ster_D[i]
+                << " " << tid_r3_rphi_D[i] << std::endl;
   }
   for (unsigned int i = 0; i < nwheelsTEC; i++) {
     GeometryOutput << "   TEC Disk no. " << i + 1 << " (numbers are the total for both sides)" << std::endl;
@@ -1203,17 +1052,15 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
                    << std::endl;
     GeometryOutput << "        Number of r7_rphi modules in TEC wheel no. " << i + 1 << ": " << tec_r7_rphi_D[i]
                    << std::endl;
-    GeometryOutput << "        Active Silicon surface in TEC wheel no. " << i + 1 << ": " << activeSurface_tec_D[i]
-                   << " [cm^2]" << std::endl;
     GeometryOutput << "        Number of APV25s in TEC wheel no. " << i + 1 << ": " << tec_apv_D[i] << std::endl;
     GeometryOutput << "        Number of strip channels in TEC wheel no. " << i + 1 << ": "
                    << (int)tec_apv_D[i] * chan_per_apv << std::endl;
     GeometryOutput << std::endl;
     GeometryXLS << "TEC" << i + 1 << " " << tecR_min_D[i] << " " << tecR_max_D[i] << " " << tecZ_D[i] / tot << " "
-                << activeSurface_tec_D[i] << " " << tec_apv_D[i] << " " << (int)tec_apv_D[i] * chan_per_apv << " "
-                << tot << " " << tec_r1_rphi_D[i] << " " << tec_r1_ster_D[i] << " " << tec_r2_rphi_D[i] << " "
-                << tec_r2_ster_D[i] << " " << tec_r3_rphi_D[i] << " " << tec_r4_rphi_D[i] << " " << tec_r5_rphi_D[i]
-                << " " << tec_r5_ster_D[i] << " " << tec_r6_rphi_D[i] << " " << tec_r7_rphi_D[i] << std::endl;
+                << tec_apv_D[i] << " " << (int)tec_apv_D[i] * chan_per_apv << " " << tot << " " << tec_r1_rphi_D[i]
+                << " " << tec_r1_ster_D[i] << " " << tec_r2_rphi_D[i] << " " << tec_r2_ster_D[i] << " "
+                << tec_r3_rphi_D[i] << " " << tec_r4_rphi_D[i] << " " << tec_r5_rphi_D[i] << " " << tec_r5_ster_D[i]
+                << " " << tec_r6_rphi_D[i] << " " << tec_r7_rphi_D[i] << std::endl;
   }
 }
 

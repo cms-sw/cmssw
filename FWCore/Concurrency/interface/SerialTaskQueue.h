@@ -74,6 +74,9 @@ namespace edm {
           m_pauseCount(iOther.m_pauseCount.exchange(0)) {
       assert(m_tasks.empty() and m_taskChosen == false);
     }
+    SerialTaskQueue(const SerialTaskQueue&) = delete;
+    const SerialTaskQueue& operator=(const SerialTaskQueue&) = delete;
+
     ~SerialTaskQueue();
 
     // ---------- const member functions ---------------------
@@ -139,9 +142,6 @@ namespace edm {
     tbb::task* pushAndGetNextTaskToRun(const T& iAction);
 
   private:
-    SerialTaskQueue(const SerialTaskQueue&) = delete;
-    const SerialTaskQueue& operator=(const SerialTaskQueue&) = delete;
-
     /** Base class for all tasks held by the SerialTaskQueue */
     class TaskBase : public tbb::task {
       friend class SerialTaskQueue;

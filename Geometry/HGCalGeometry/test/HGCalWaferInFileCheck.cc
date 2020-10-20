@@ -126,7 +126,7 @@ void HGCalWaferInFileCheck::analyze(const edm::Event& iEvent, const edm::EventSe
               << " extra ones\n\n";
 
     // Now cross check the content
-    int allG(0), badT(0), badP(0), badR(0), badG(0), badT1(0), badT2(0);
+    int allG(0), badT(0), badP(0), badP2(0), badR(0), badG(0), badT1(0), badT2(0);
     for (unsigned int k = 0; k < hgdc.waferFileSize(); ++k) {
       int indx = hgdc.waferFileIndex(k);
       int type1 = std::get<0>(hgdc.waferFileInfo(k));
@@ -144,6 +144,8 @@ void HGCalWaferInFileCheck::analyze(const edm::Event& iEvent, const edm::EventSe
         bool typeOK = (type1 == type2);
         bool partOK = ((part1 == part2) || ((part1 == HGCalTypes::WaferFull) && (part2 == HGCalTypes::WaferOut)));
         bool rotnOK = ((rotn1 == rotn2) || (part1 == HGCalTypes::WaferFull) || (part2 == HGCalTypes::WaferFull));
+        if (part1 < part2)
+          ++badP2;
         if (!typeOK) {
           ++badT;
           if (type1 == 0)
@@ -163,13 +165,13 @@ void HGCalWaferInFileCheck::analyze(const edm::Event& iEvent, const edm::EventSe
           std::cout << "ID[" << k << "]: (" << (hgdc.getLayerOffset() + layer) << ", " << waferU << ", " << waferV
                     << ", " << type1 << ":" << type2 << ", " << partx1 << ":" << partx2 << ", " << rotn1 << ":" << rotn2
                     << ") at (" << std::setprecision(4) << xy.first << ", " << xy.second << ", "
-                    << hgdc.waferZ(layer, true) << ") failure flag " << typeOK << ":" << partOK << ":" << rotnOK
-                    << std::endl;
+                    << hgdc.waferZ(layer, true) << ") failure flag " << typeOK << ":" << partOK << ":" << rotnOK << ":"
+                    << (part1 >= part2) << std::endl;
         }
       }
     }
-    std::cout << "\n\nFinds " << badG << " (" << badT << "[" << badT1 << ":" << badT2 << "]:" << badP << ":" << badR
-              << ") mismatch among " << allG << " wafers with the same indices\n\n";
+    std::cout << "\n\nFinds " << badG << " (" << badT << "[" << badT1 << ":" << badT2 << "]:" << badP << ":" << badP2
+              << ":" << badR << ") mismatch among " << allG << " wafers with the same indices\n\n";
   }
 }
 

@@ -5,21 +5,21 @@
 #include "Geometry/EcalCommonData/interface/EcalEndcapNumberingScheme.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
-#include <iostream>
-#include <iomanip>
+//#define EDM_ML_DEBUG
 
 EcalEndcapNumberingScheme::EcalEndcapNumberingScheme() : EcalNumberingScheme() {
-  edm::LogInfo("EcalGeom") << "Creating EcalEndcapNumberingScheme";
+  edm::LogVerbatim("EcalGeom") << "Creating EcalEndcapNumberingScheme";
 }
 
 EcalEndcapNumberingScheme::~EcalEndcapNumberingScheme() {
-  edm::LogInfo("EcalGeom") << "Deleting EcalEndcapNumberingScheme";
+  edm::LogVerbatim("EcalGeom") << "Deleting EcalEndcapNumberingScheme";
 }
 uint32_t EcalEndcapNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) const {
   const uint32_t nLevels(baseNumber.getLevels());
 
-  //LogDebug("EcalGeom") << "ECalEndcapNumberingScheme geometry levels = " << nLevels;
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("EcalGeom") << "ECalEndcapNumberingScheme geometry levels = " << nLevels;
+#endif
   if (7 > nLevels) {
     edm::LogWarning("EcalGeom") << "ECalEndcapNumberingScheme::getUnitID(): "
                                 << "Not enough levels found in EcalBaseNumber ( " << nLevels << ") Returning 0";
@@ -50,11 +50,11 @@ uint32_t EcalEndcapNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) 
 
     uint32_t intindex = EEDetId(module_number, crystal_number, zside, EEDetId::SCCRYSTALMODE).rawId();
 
-    //LogDebug("EcalGeom") << "EcalEndcapNumberingScheme: zside = "  << zside
-    //                     << " super crystal = " << module_number << " crystal = "
-    //                     << crystal_number << " packed index = 0x" << std::hex
-    //                     << intindex << std::dec;
-
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("EcalGeom") << "EcalEndcapNumberingScheme: zside = " << zside
+                                 << " super crystal = " << module_number << " crystal = " << crystal_number
+                                 << " packed index = 0x" << std::hex << intindex << std::dec;
+#endif
     return intindex;
   } else {
     // algorithmic geometry
@@ -119,14 +119,11 @@ uint32_t EcalEndcapNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) 
       return 0;
     }
 
-    //*************************************************************************************
-    /*
-      edm::LogWarning("EdalGeom") << "ECalEndcapNumberingScheme::getUnitID(): "
-				  <<std::dec<< ix << ", " << iy << ", " <<iq << ", " << id << ", " << iz << ", " << std::hex << idet              ;
-
-      edm::LogWarning("EdalGeom") << "ECalEndcapNumberingScheme::EEDetId: "
-				  << EEDetId(idet)              ;
-*/
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("EdalGeom") << "ECalEndcapNumberingScheme::getUnitID(): " << std::dec << ix << ", " << iy << ", "
+                                 << iq << ", " << id << ", " << iz << ", " << std::hex << idet << std::dec;
+    edm::LogVerbatim("EdalGeom") << "ECalEndcapNumberingScheme::EEDetId: " << EEDetId(idet);
+#endif
     return idet;
   }
 }
