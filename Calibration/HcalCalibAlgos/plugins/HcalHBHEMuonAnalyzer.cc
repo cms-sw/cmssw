@@ -309,7 +309,7 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
   const EcalChannelStatus* theEcalChStatus = &iSetup.getData(tok_chan_);
   const EcalSeverityLevelAlgo* sevlv = &iSetup.getData(tok_sevlv_);
   const CaloTopology* caloTopology = &iSetup.getData(tok_topo_);
-  const HcalDbService*  conditions = &iSetup.getData(tok_dbservice_);
+  const HcalDbService* conditions = &iSetup.getData(tok_dbservice_);
 
   // Relevant blocks from iEvent
   edm::Handle<reco::VertexCollection> vtx;
@@ -889,7 +889,6 @@ void HcalHBHEMuonAnalyzer::beginJob() {
 
 // ------------ method called when starting to processes a run  ------------
 void HcalHBHEMuonAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
-
   hdc_ = &iSetup.getData(tok_ddrec_);
   actHB.clear();
   actHE.clear();

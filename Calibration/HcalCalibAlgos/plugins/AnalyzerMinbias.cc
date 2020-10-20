@@ -216,12 +216,12 @@ void AnalyzerMinbias::endJob() {
       ieta = itr->first.second.ieta();
       iphi = itr->first.second.iphi();
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("AnalyzerMB") << " Result=  " << trigbit << " " << mysubd << " " << ieta << " " << iphi << " mom0  "
-                             << mom0_MB << " mom1 " << mom1_MB << " mom2 " << mom2_MB << " mom3 " << mom3_MB << " mom4 "
-                             << mom4_MB << " mom0_Noise " << mom0_Noise << " mom1_Noise " << mom1_Noise
-                             << " mom2_Noise " << mom2_Noise << " mom3_Noise " << mom3_Noise << " mom4_Noise "
-                             << mom4_Noise << " mom0_Diff " << mom0_Diff << " mom1_Diff " << mom1_Diff << " mom2_Diff "
-                             << mom2_Diff;
+      edm::LogVerbatim("AnalyzerMB") << " Result=  " << trigbit << " " << mysubd << " " << ieta << " " << iphi
+                                     << " mom0  " << mom0_MB << " mom1 " << mom1_MB << " mom2 " << mom2_MB << " mom3 "
+                                     << mom3_MB << " mom4 " << mom4_MB << " mom0_Noise " << mom0_Noise << " mom1_Noise "
+                                     << mom1_Noise << " mom2_Noise " << mom2_Noise << " mom3_Noise " << mom3_Noise
+                                     << " mom4_Noise " << mom4_Noise << " mom0_Diff " << mom0_Diff << " mom1_Diff "
+                                     << mom1_Diff << " mom2_Diff " << mom2_Diff;
 #endif
       myTree->Fill();
       ii++;

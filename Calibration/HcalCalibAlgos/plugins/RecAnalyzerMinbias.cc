@@ -189,9 +189,9 @@ RecAnalyzerMinbias::RecAnalyzerMinbias(const edm::ParameterSet& iConfig) : init_
   }
 
   edm::LogVerbatim("RecAnalyzer") << " Flags (ReCalib): " << theRecalib_ << " (IgnoreL1): " << ignoreL1_ << " (NZS) "
-                              << runNZS_ << " and with " << ieta.size() << " detId for full histogram";
+                                  << runNZS_ << " and with " << ieta.size() << " detId for full histogram";
   edm::LogVerbatim("RecAnalyzer") << "Thresholds for HB " << eLowHB_ << ":" << eHighHB_ << "  for HE " << eLowHE_ << ":"
-                              << eHighHE_ << "  for HF " << eLowHF_ << ":" << eHighHF_;
+                                  << eHighHE_ << "  for HF " << eLowHF_ << ":" << eHighHF_;
   for (unsigned int k = 0; k < ieta.size(); ++k) {
     HcalSubdetector subd =
         ((std::abs(ieta[k]) > 29) ? HcalForward

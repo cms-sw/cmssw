@@ -118,7 +118,7 @@ private:
   const EcalChannelStatus* theEcalChStatus_;
   const EcalSeverityLevelAlgo* sevlv_;
   const CaloTopology* caloTopology_;
-  const HcalDbService*  conditions_;
+  const HcalDbService* conditions_;
 
   edm::EDGetTokenT<reco::VertexCollection> tok_Vtx_;
   edm::EDGetTokenT<EcalRecHitCollection> tok_EB_;
@@ -143,7 +143,7 @@ private:
 
   //////////////////////////////////////////////////////
   static const int depthMax_ = 7;
-  TTree *tree_;
+  TTree* tree_;
   unsigned int runNumber_, eventNumber_, goodVertex_;
   std::vector<bool> mediumMuon_;
   std::vector<double> ptGlob_, etaGlob_, phiGlob_, energyMuon_, pMuon_;
