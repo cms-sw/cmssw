@@ -83,7 +83,7 @@ std::pair<bool, TrajectoryStateOnSurface> MTDSectorForwardDoubleLayer::compatibl
   float deltaR = surface().bounds().thickness() / 2. * std::abs(tan(myState.localDirection().theta()));
 
   // take into account the error on the predicted state
-  const float nSigma = 3.;
+  constexpr float nSigma = 3.;
   if (myState.hasError()) {
     LocalError err = myState.localError().positionError();
     // ignore correlation for the moment...
@@ -113,7 +113,7 @@ vector<GeometricSearchDet::DetWithState> MTDSectorForwardDoubleLayer::compatible
   // groupedCompatibleDets implemented.
   // This code should be moved in a common place intead of being
   // copied many times.
-  vector<DetGroup> vectorGroups = groupedCompatibleDets(tsos, prop, est);
+  vector<DetGroup> vectorGroups(groupedCompatibleDets(tsos, prop, est));
   for (const auto& thisDG : vectorGroups) {
     for (const auto& thisDGE : thisDG) {
       result.emplace_back(DetWithState(thisDGE.det(), thisDGE.trajectoryState()));

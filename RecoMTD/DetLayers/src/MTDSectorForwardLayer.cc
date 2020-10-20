@@ -111,7 +111,7 @@ vector<GeometricSearchDet::DetWithState> MTDSectorForwardLayer::compatibleDets(
                                  << " sX: " << sqrt(tsos.localError().positionError().xx());
       }
 #endif
-      vector<DetWithState> nextRodDets = theSectors[isect]->compatibleDets(tsos, prop, est);
+      vector<DetWithState> nextRodDets(theSectors[isect]->compatibleDets(tsos, prop, est));
       if (!nextRodDets.empty()) {
         result.insert(result.end(), nextRodDets.begin(), nextRodDets.end());
       } else {

@@ -18,7 +18,7 @@ public:
   /// Construct from a vector of GeomDet*
   MTDDetSector(const std::vector<const GeomDet*>& dets);
 
-  ~MTDDetSector() override;
+  ~MTDDetSector() override{};
 
   // GeometricSearchDet structure
 
@@ -61,6 +61,13 @@ protected:
 private:
   ReferenceCountingPointer<BoundDiskSector> theDiskS;
   std::vector<const GeomDet*> theDets;
+
+  // Window of detid ordered modules around that closest to the track extrapolation on the sector surface
+  // needed to limit the size of the vector of distances to sort
+  // value 50 based on the possible mismatch of module number between adjacent
+  // modules, due to left-right type imparity
+
+  static constexpr size_t detsRange = 50;
 
   void init();
 };

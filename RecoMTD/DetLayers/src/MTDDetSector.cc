@@ -9,6 +9,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
+#include <iomanip>
 #include <vector>
 
 using namespace std;
@@ -26,8 +27,6 @@ void MTDDetSector::init() {
   // simple initial version, no sorting for the time being
   setDisk(MTDDiskSectorBuilderFromDet()(theDets));
 }
-
-MTDDetSector::~MTDDetSector() {}
 
 const vector<const GeometricSearchDet*>& MTDDetSector::components() const {
   // FIXME dummy impl.
@@ -87,6 +86,7 @@ vector<GeometricSearchDet::DetWithState> MTDDetSector::compatibleDets(const Traj
   size_t idetMin = basicComponents().size();
   double dist2Min = std::numeric_limits<double>::max();
   std::vector<std::pair<double, size_t> > tmpDets;
+  tmpDets.reserve(basicComponents().size());
 
   for (size_t idet = 0; idet < basicComponents().size(); idet++) {
     double dist2 = (startPos - theDets[idet]->position()).mag2();
@@ -104,7 +104,6 @@ vector<GeometricSearchDet::DetWithState> MTDDetSector::compatibleDets(const Traj
   // loop on an interval od ordered detIds around the minimum
   // set a range of GeomDets around the minimum compatible with the geometry of ETL
 
-  constexpr size_t detsRange(50);
   size_t iniPos(idetMin > detsRange ? idetMin - detsRange : static_cast<size_t>(0));
   size_t endPos(std::min(idetMin + detsRange, basicComponents().size() - 1));
   tmpDets.erase(tmpDets.begin() + endPos, tmpDets.end());
@@ -161,8 +160,6 @@ bool MTDDetSector::add(size_t idet,
 
   return compat.first;
 }
-
-#include <iomanip>
 
 std::ostream& operator<<(std::ostream& os, const MTDDetSector& id) {
   os << " MTDDetSector at " << std::fixed << id.specificSurface().position() << std::endl
