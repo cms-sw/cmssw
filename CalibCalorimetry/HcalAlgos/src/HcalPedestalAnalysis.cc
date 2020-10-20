@@ -803,7 +803,6 @@ void HcalPedestalAnalysis::Trendings(map<HcalDetId, map<int, PEDBUNCH> >& toolT,
       _meot->second[i].second.second[4]->GetYaxis()->SetTitle("Distant correlation");
       _meot->second[i].second.second[4]->Write(); */
       // chi2
-      j = 0;
       for (sample_it = _meot->second[i].second.first[4].begin(); sample_it != _meot->second[i].second.first[4].end();
            ++sample_it) {
         Chi2->Fill(*sample_it);
