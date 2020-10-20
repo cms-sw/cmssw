@@ -164,7 +164,9 @@ ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset,
                useRecoVertex_) {}
 
 void ElectronSeedGenerator::setupES(const edm::EventSetup &setup) {
-  matcher_.setES(setup.getData(magFieldToken_), setup.getData(trackerGeometryToken_));
+  if (magneticFieldWatcher_.check(setup) || trackerGeometryWatcher_.check(setup)) {
+    matcher_.setES(setup.getData(magFieldToken_), setup.getData(trackerGeometryToken_));
+  }
 }
 
 void ElectronSeedGenerator::run(edm::Event &e,

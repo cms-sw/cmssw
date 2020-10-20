@@ -172,15 +172,15 @@ TrackingRegionsFromSuperClustersProducer::TrackingRegionsFromSuperClustersProduc
   auto measTrackerEventTag = regionPSet.getParameter<edm::InputTag>("measurementTrackerEvent");
 
   if (useZInVertex_) {
-    verticesToken_ = iC.consumes<reco::VertexCollection>(verticesTag);
+    verticesToken_ = iC.consumes(verticesTag);
   } else {
-    beamSpotToken_ = iC.consumes<reco::BeamSpot>(beamSpotTag);
+    beamSpotToken_ = iC.consumes(beamSpotTag);
   }
   if (whereToUseMeasTracker_ != RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kNever) {
-    measTrackerEventToken_ = iC.consumes<MeasurementTrackerEvent>(measTrackerEventTag);
+    measTrackerEventToken_ = iC.consumes(measTrackerEventTag);
   }
   for (const auto& tag : superClustersTags) {
-    superClustersTokens_.emplace_back(iC.consumes<std::vector<reco::SuperClusterRef>>(tag));
+    superClustersTokens_.emplace_back(iC.consumes(tag));
   }
 }
 

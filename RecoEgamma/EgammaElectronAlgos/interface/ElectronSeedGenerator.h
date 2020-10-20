@@ -35,6 +35,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
@@ -74,6 +75,8 @@ private:
   const edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_;
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryToken_;
+  edm::ESWatcher<IdealMagneticFieldRecord> magneticFieldWatcher_;
+  edm::ESWatcher<TrackerDigiGeometryRecord> trackerGeometryWatcher_;
 
   const float lowPtThresh_;
   const float highPtThresh_;
@@ -89,11 +92,6 @@ private:
   const double dPhi1Coef1_;
 
   const std::vector<const TrajectorySeedCollection*>* initialSeedCollectionVector_ = nullptr;
-
-  // keep cacheIds to get records only when necessary
-  unsigned long long cacheIDMagField_ = 0;
-  unsigned long long cacheIDCkfComp_ = 0;
-  unsigned long long cacheIDTrkGeom_ = 0;
 
   const bool useRecoVertex_;
 
