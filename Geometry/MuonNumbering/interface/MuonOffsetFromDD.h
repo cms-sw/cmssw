@@ -1,5 +1,5 @@
-#ifndef MuonNUmbering_MuonOffsetFromDD_h
-#define MuonNUmbering_MuonOffsetFromDD_h
+#ifndef Geometry_MuonNUmbering_MuonOffsetFromDD_h
+#define Geometry_MuonNUmbering_MuonOffsetFromDD_h
 
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
