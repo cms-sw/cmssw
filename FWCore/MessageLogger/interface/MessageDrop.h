@@ -31,46 +31,6 @@
 #include <string>
 #include <string_view>
 
-// Change log
-//
-//  1  mf 5/12/06	initialize debugEnabled to true, to avoid unitialized
-//			data detection in memory checks (and to be safe in
-//			getting enabled output independant of timings)
-//
-//  4  mf 2/22/07	static ex_p to have a way to convey exceptions to throw
-//			(this is needed when configuring could lead to an
-//			exception, for example)
-//
-//  5  mf 2/22/07	jobreport_name to have a way to convey content
-//			of jobreport option from cmsRun to MessageLogger class
-//
-//  6  mf 6/18/07	jobMode to have a way to convey choice of hardwired
-//			MessageLogger defaults
-//
-//  7  mf 6/20/08	MessageLoggerScribeIsRunning to let the scribe convey
-//			that it is active.
-//
-//  8  cdj 2/08/10      Make debugEnabled, infoEnabled, warningEnabled statics
-//                      to avoid overhead of thread specific singleton access
-//                      when deciding to keep or throw away messages
-//
-//  9  mf 9/23/10	Support for situations where no thresholds are low
-//                      enough to react to LogDebug (or info, or warning)
-//
-// 10  mf, crj 11/2/10	(see MessageServer/src/MessageLogger.cc change 17)
-//                      Support for reducing the string operations done when
-//			moving from one module to the next.
-//
-// 11  mf 11/29/10	Snapshot method to preare for invalidation of the
-//			pointers used to hold module context.  Supports
-//			surviving throws that cause objects to go out of scope.
-//
-// 12  fwyzard 7/6/11   Add support for discarding LogError-level messages
-//                      on a per-module basis (needed at HLT)
-//
-// 13  wmtan 11/11/11   Make non-copyable to satisfy Coverity. Would otherwise
-//                      need special copy ctor and copy assignment operator.
-
 // user include files
 
 namespace edm {
@@ -84,13 +44,13 @@ namespace edm {
 
   struct MessageDrop {
   private:
-    MessageDrop();  // change log 10:
+    MessageDrop();
 
   public:
     MessageDrop(MessageDrop const&) = delete;
     MessageDrop& operator=(MessageDrop const&) = delete;
 
-    ~MessageDrop();  // change log 10
+    ~MessageDrop();
     static MessageDrop* instance();
     std::string moduleContext();
     void setModuleWithPhase(std::string const& name, std::string const& label, unsigned int moduleID, const char* phase);
@@ -100,16 +60,19 @@ namespace edm {
 
     std::string_view runEvent;
     unsigned int streamID;
-    bool debugEnabled;    // change log 8
-    bool infoEnabled;     // change log 8
-    bool warningEnabled;  // change log 8
-    bool errorEnabled;    // change log 8, 12
+    bool debugEnabled;
+    bool infoEnabled;
+    bool fwkInfoEnabled;
+    bool warningEnabled;
+    bool errorEnabled;
 
-    CMS_THREAD_SAFE static std::string jobMode;                         // change log 6
-    CMS_THREAD_SAFE static unsigned char messageLoggerScribeIsRunning;  // change log 7
-    CMS_THREAD_SAFE static bool debugAlwaysSuppressed;                  // change log 9
-    CMS_THREAD_SAFE static bool infoAlwaysSuppressed;                   // change log 9
-    CMS_THREAD_SAFE static bool warningAlwaysSuppressed;                // change log 9
+    CMS_THREAD_SAFE static std::string jobMode;
+    CMS_THREAD_SAFE static unsigned char messageLoggerScribeIsRunning;
+    CMS_THREAD_SAFE static bool debugAlwaysSuppressed;
+    CMS_THREAD_SAFE static bool infoAlwaysSuppressed;
+    CMS_THREAD_SAFE static bool fwkInfoAlwaysSuppressed;
+    CMS_THREAD_SAFE static bool warningAlwaysSuppressed;
+
   private:
     edm::propagate_const<messagedrop::StringProducerWithPhase*> spWithPhase;
     edm::propagate_const<messagedrop::StringProducerPath*> spPath;
@@ -117,7 +80,7 @@ namespace edm {
     messagedrop::StringProducer const* moduleNameProducer;
   };
 
-  static const unsigned char MLSCRIBE_RUNNING_INDICATOR = 29;  // change log 7
+  static const unsigned char MLSCRIBE_RUNNING_INDICATOR = 29;
 
 }  // end of namespace edm
 

@@ -262,6 +262,7 @@ namespace edm {
       std::vector<std::string> messageIDs;
       std::vector<std::string> debugModules;
       std::vector<std::string> suppressInfo;
+      std::vector<std::string> suppressFwkInfo;
       std::vector<std::string> suppressDebug;
       std::vector<std::string> suppressWarning;
       std::vector<std::string> suppressError;
