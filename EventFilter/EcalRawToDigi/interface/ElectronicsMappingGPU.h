@@ -6,7 +6,7 @@
 #ifndef __CUDACC__
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
 #include "HeterogeneousCore/CUDACore/interface/ESProduct.h"
-#endif
+#endif  // __CUDACC__
 
 namespace ecal {
   namespace raw {
@@ -38,7 +38,7 @@ namespace ecal {
       std::vector<uint32_t, cms::cuda::HostAllocator<uint32_t>> eid2did_;
 
       cms::cuda::ESProduct<Product> product_;
-#endif
+#endif  // __CUDACC__
     };
 
   }  // namespace raw

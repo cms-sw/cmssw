@@ -1,8 +1,9 @@
-#ifndef EcalRecHitParametersGPURecord_h
-#define EcalRecHitParametersGPURecord_h
+#ifndef RecoLocalCalo_EcalRecProducers_plugins_EcalRecHitParametersGPURecord_h
+#define RecoLocalCalo_EcalRecProducers_plugins_EcalRecHitParametersGPURecord_h
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
+
 class EcalRecHitParametersGPURecord
     : public edm::eventsetup::EventSetupRecordImplementation<EcalRecHitParametersGPURecord> {};
 
-#endif
+#endif  // RecoLocalCalo_EcalRecProducers_plugins_EcalRecHitParametersGPURecord_h

@@ -1,12 +1,12 @@
-#ifndef CUDADataFormats_EcalRecHitSoA_interface_EcalRecHit_soa_h
-#define CUDADataFormats_EcalRecHitSoA_interface_EcalRecHit_soa_h
+#ifndef CUDADataFormats_EcalRecHitSoA_interface_EcalRecHit_h
+#define CUDADataFormats_EcalRecHitSoA_interface_EcalRecHit_h
 
-#include <vector>
 #include <array>
+#include <vector>
 
+#include "CUDADataFormats/CaloCommon/interface/Common.h"
 #include "CUDADataFormats/EcalRecHitSoA/interface/RecoTypes.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
-#include "CUDADataFormats/CaloCommon/interface/Common.h"
 
 namespace ecal {
 
@@ -27,7 +27,6 @@ namespace ecal {
         extra;  // packed uint32_t for timeError, chi2, energyError
     typename StoragePolicy::template StorageSelector<uint32_t>::type
         flagBits;  // store rechit condition (see Flags enum) in a bit-wise way
-
     typename StoragePolicy::template StorageSelector<uint32_t>::type did;
 
     template <typename U = typename StoragePolicy::TagType>
@@ -43,5 +42,4 @@ namespace ecal {
 
 }  // namespace ecal
 
-#endif
-// RecoLocalCalo_EcalRecAlgos_interface_EcalRecHit_soa_h
+#endif  // CUDADataFormats_EcalRecHitSoA_interface_EcalRecHit_h

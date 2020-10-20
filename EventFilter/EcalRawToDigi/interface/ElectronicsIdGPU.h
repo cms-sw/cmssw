@@ -88,4 +88,4 @@ namespace ecal {
   }  // namespace raw
 }  // namespace ecal
 
-#endif  // EventFilter_EcalRawToDigi_interface_id_h
+#endif  // EventFilter_EcalRawToDigi_interface_ElectronicsIdGPU_h

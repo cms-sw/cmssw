@@ -1,12 +1,12 @@
-#ifndef RecoLocalCalo_EcalRecProducers_src_EcalLinearCorrectionsGPU_h
-#define RecoLocalCalo_EcalRecProducers_src_EcalLinearCorrectionsGPU_h
+#ifndef RecoLocalCalo_EcalRecAlgos_interface_EcalLinearCorrectionsGPU_h
+#define RecoLocalCalo_EcalRecAlgos_interface_EcalLinearCorrectionsGPU_h
 
 #include "CondFormats/EcalObjects/interface/EcalLinearCorrections.h"
 
 #ifndef __CUDACC__
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
 #include "HeterogeneousCore/CUDACore/interface/ESProduct.h"
-#endif
+#endif  // __CUDACC__
 
 class EcalLinearCorrectionsGPU {
 public:
@@ -47,7 +47,7 @@ private:
 
   cms::cuda::ESProduct<Product> product_;
 
-#endif
+#endif  // __CUDACC__
 };
 
-#endif
+#endif  // RecoLocalCalo_EcalRecAlgos_interface_EcalLinearCorrectionsGPU_h

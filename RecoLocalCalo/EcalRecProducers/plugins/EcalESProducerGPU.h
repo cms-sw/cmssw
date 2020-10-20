@@ -1,15 +1,15 @@
-#ifndef RecoLocalCalo_EcalRecProducers_src_EcalESProducerGPU_h
-#define RecoLocalCalo_EcalRecProducers_src_EcalESProducerGPU_h
-
-#include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Utilities/interface/typelookup.h"
-#include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "FWCore/Framework/interface/ModuleFactory.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#ifndef RecoLocalCalo_EcalRecProducers_plugins_EcalESProducerGPU_h
+#define RecoLocalCalo_EcalRecProducers_plugins_EcalESProducerGPU_h
 
 #include <iostream>
+
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 
 template <typename Target, typename Source, typename Record>
 class EcalESProducerGPU : public edm::ESProducer {
@@ -41,4 +41,4 @@ private:
   edm::ESGetToken<Source, Record> token_;
 };
 
-#endif
+#endif  // RecoLocalCalo_EcalRecProducers_plugins_EcalESProducerGPU_h

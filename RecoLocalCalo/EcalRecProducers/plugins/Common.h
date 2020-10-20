@@ -1,10 +1,10 @@
 #ifndef RecoLocalCalo_EcalRecProducers_plugins_Common_h
 #define RecoLocalCalo_EcalRecProducers_plugins_Common_h
 
-#include <cstdint>
-#include <cmath>
 #include <cassert>
 #include <chrono>
+#include <cmath>
+#include <cstdint>
 #include <iostream>
 
 #include <cuda.h>

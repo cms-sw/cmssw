@@ -1,12 +1,12 @@
-#ifndef RecoLocalCalo_EcalRecProducers_src_EcalTimeBiasCorrectionsGPU_h
-#define RecoLocalCalo_EcalRecProducers_src_EcalTimeBiasCorrectionsGPU_h
+#ifndef RecoLocalCalo_EcalRecAlgos_interface_EcalTimeBiasCorrectionsGPU_h
+#define RecoLocalCalo_EcalRecAlgos_interface_EcalTimeBiasCorrectionsGPU_h
 
 #include "CondFormats/EcalObjects/interface/EcalTimeBiasCorrections.h"
 
 #ifndef __CUDACC__
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
 #include "HeterogeneousCore/CUDACore/interface/ESProduct.h"
-#endif
+#endif  // __CUDACC__
 
 class EcalTimeBiasCorrectionsGPU {
 public:
@@ -30,7 +30,7 @@ public:
 
   //
   static std::string name() { return std::string{"ecalTimeBiasCorrectionsGPU"}; }
-#endif
+#endif  // __CUDACC__
 
   std::vector<float> const& EBTimeCorrAmplitudeBins() const { return EBTimeCorrAmplitudeBins_; }
   std::vector<float> const& EETimeCorrAmplitudeBins() const { return EETimeCorrAmplitudeBins_; }
@@ -43,7 +43,7 @@ private:
 
 #ifndef __CUDACC__
   cms::cuda::ESProduct<Product> product_;
-#endif
+#endif  // __CUDACC__
 };
 
-#endif
+#endif  // RecoLocalCalo_EcalRecAlgos_interface_EcalTimeBiasCorrectionsGPU_h

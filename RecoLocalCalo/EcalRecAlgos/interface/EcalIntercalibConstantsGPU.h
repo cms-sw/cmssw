@@ -1,12 +1,12 @@
-#ifndef RecoLocalCalo_EcalRecProducers_src_EcalIntercalibConstantsGPU_h
-#define RecoLocalCalo_EcalRecProducers_src_EcalIntercalibConstantsGPU_h
+#ifndef RecoLocalCalo_EcalRecAlgos_interface_EcalIntercalibConstantsGPU_h
+#define RecoLocalCalo_EcalRecAlgos_interface_EcalIntercalibConstantsGPU_h
 
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 
 #ifndef __CUDACC__
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
 #include "HeterogeneousCore/CUDACore/interface/ESProduct.h"
-#endif
+#endif  // __CUDACC__
 
 class EcalIntercalibConstantsGPU {
 public:
@@ -37,7 +37,7 @@ private:
   std::vector<float> const& valuesEE_;
 
   cms::cuda::ESProduct<Product> product_;
-#endif
+#endif  // __CUDACC__
 };
 
-#endif
+#endif  // RecoLocalCalo_EcalRecAlgos_interface_EcalIntercalibConstantsGPU_h
