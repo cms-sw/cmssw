@@ -498,7 +498,7 @@ void EvtPlaneProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
   for (int i = 0; i < NumEPNames; i++)
     rp[i]->reset();
   edm::Handle<edm::ValueMap<float>> chi2Map;
-  edm::Handle<edm::View<pat::PackedCandidate>> cands;
+  edm::Handle<pat::PackedCandidateCollection> cands;
   edm::Handle<reco::PFCandidateCollection> calocands;
   if (bStrack_packedPFCandidates_) {
     for (int idx = 1; idx < 3; idx++) {
@@ -542,8 +542,8 @@ void EvtPlaneProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
         track_.dzSig = track_.dz / track_.dzError;
         track_.dxySig = track_.dxy / track_.dxyError;
         const reco::HitPattern &hit_pattern = trk.hitPattern();
-        track_.normalizedChi2 = (*chi2Map)[cands->ptrAt(i)];
-        track_.chi2layer = (*chi2Map)[cands->ptrAt(i)] / hit_pattern.trackerLayersWithMeasurement();
+        track_.normalizedChi2 = (*chi2Map)[pat::PackedCandidateRef(cands, i)];
+        track_.chi2layer = (*chi2Map)[pat::PackedCandidateRef(cands, i)] / hit_pattern.trackerLayersWithMeasurement();
         if (cuts_.isGoodTrack(track_)) {
           fillTracker(track_, bestvz, bin);
         }

@@ -120,7 +120,7 @@ namespace hi {
       int nHits = track.numberOfValidHits;
       if (track.ptError > pterror_ * track.pt)
         return false;
-      if (track.pt < 2.4 and (nHits == 3 or nHits == 4 or nHits == 5 or nHits == 6))
+      if (track.pt < 2.4 and (nHits <= 6))
         bPix = true;
       if (not bPix) {
         if (nHits < numberOfValidHits_)
