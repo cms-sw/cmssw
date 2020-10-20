@@ -1,12 +1,12 @@
-#ifndef RecoLocalCalo_EcalRecProducers_src_EcalLaserAPDPNRatiosGPU_h
-#define RecoLocalCalo_EcalRecProducers_src_EcalLaserAPDPNRatiosGPU_h
+#ifndef RecoLocalCalo_EcalRecAlgos_interface_EcalLaserAPDPNRatiosGPU_h
+#define RecoLocalCalo_EcalRecAlgos_interface_EcalLaserAPDPNRatiosGPU_h
 
 #include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
 
 #ifndef __CUDACC__
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
 #include "HeterogeneousCore/CUDACore/interface/ESProduct.h"
-#endif
+#endif  // __CUDACC__
 
 class EcalLaserAPDPNRatiosGPU {
 public:
@@ -47,7 +47,7 @@ private:
 
   cms::cuda::ESProduct<Product> product_;
 
-#endif
+#endif  // __CUDACC__
 };
 
-#endif
+#endif  // RecoLocalCalo_EcalRecAlgos_interface_EcalLaserAPDPNRatiosGPU_h

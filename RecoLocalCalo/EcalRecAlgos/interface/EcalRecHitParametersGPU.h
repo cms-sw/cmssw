@@ -1,5 +1,5 @@
-#ifndef RecoLocalCalo_EcalRecAlgos_interfaceEcalRecHitParametersGPU_h
-#define RecoLocalCalo_EcalRecAlgos_interfaceEcalRecHitParametersGPU_h
+#ifndef RecoLocalCalo_EcalRecAlgos_interface_EcalRecHitParametersGPU_h
+#define RecoLocalCalo_EcalRecAlgos_interface_EcalRecHitParametersGPU_h
 
 #include <array>
 
@@ -8,7 +8,7 @@
 #ifndef __CUDACC__
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
 #include "HeterogeneousCore/CUDACore/interface/ESProduct.h"
-#endif
+#endif  // __CUDACC__
 
 class EcalRecHitParametersGPU {
 public:
@@ -41,7 +41,7 @@ private:
       expanded_flagbit_v_DB_reco_flags_;
 
   cms::cuda::ESProduct<Product> product_;
-#endif
+#endif  // __CUDACC__
 };
 
-#endif  // RecoLocalCalo_EcalRecAlgos_interfaceEcalRecHitParametersGPU_h
+#endif  // RecoLocalCalo_EcalRecAlgos_interface_EcalRecHitParametersGPU_h

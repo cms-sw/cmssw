@@ -24,6 +24,7 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalLaserAPDPNRatiosRefGPU.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalLaserAlphasGPU.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalLinearCorrectionsGPU.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalMultifitParametersGPU.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalPedestalsGPU.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalPulseCovariancesGPU.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalPulseShapesGPU.h"
@@ -32,7 +33,6 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSamplesCorrelationGPU.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalTimeBiasCorrectionsGPU.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalTimeCalibConstantsGPU.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalMultifitParametersGPU.h"
 
 #include "EigenMatrixTypes_gpu.h"
 

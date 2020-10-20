@@ -1,12 +1,12 @@
-#ifndef RecoLocalCalo_EcalRecProducers_src_EcalPulseShapesGPU_h
-#define RecoLocalCalo_EcalRecProducers_src_EcalPulseShapesGPU_h
+#ifndef RecoLocalCalo_EcalRecAlgos_interface_EcalPulseShapesGPU_h
+#define RecoLocalCalo_EcalRecAlgos_interface_EcalPulseShapesGPU_h
 
 #include "CondFormats/EcalObjects/interface/EcalPulseShapes.h"
 
 #ifndef __CUDACC__
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
 #include "HeterogeneousCore/CUDACore/interface/ESProduct.h"
-#endif
+#endif  // __CUDACC__
 
 class EcalPulseShapesGPU {
 public:
@@ -34,7 +34,7 @@ private:
   std::vector<EcalPulseShape> const& valuesEE_;
 
   cms::cuda::ESProduct<Product> product_;
-#endif
+#endif  // __CUDACC__
 };
 
-#endif
+#endif  // RecoLocalCalo_EcalRecAlgos_interface_EcalPulseShapesGPU_h
