@@ -10,14 +10,15 @@
 
 #include <vector>
 #include <iostream>
-
+#include <algorithm>
 
 class NPUTablesProducer : public edm::global::EDProducer<> {
     public:
         NPUTablesProducer( edm::ParameterSet const & params ) :
 	   npuTag_(consumes<std::vector<PileupSummaryInfo>>(params.getParameter<edm::InputTag>("src"))),
 	   pvTag_(consumes<std::vector<reco::Vertex>>(params.getParameter<edm::InputTag>("pvsrc"))),
-	   vz_(params.getParameter<std::vector<double>>("zbins"))
+	   vz_(params.getParameter<std::vector<double>>("zbins")),
+     savePtHatMax_(params.getParameter<bool>("savePtHatMax"))
         {
             produces<nanoaod::FlatTable>();
         }
@@ -48,6 +49,7 @@ class NPUTablesProducer : public edm::global::EDProducer<> {
 	  auto zbin = std::lower_bound( vz_.begin(), vz_.end()-1, std::abs(refpvz) );
 	  float pudensity = 0;
 	  float gpudensity = 0;
+    float pthatmax = 0;
 	      
 	  for(unsigned int ibx=0; ibx<npuProd.size(); ibx++) {
 	    if(npuProd[ibx].getBunchCrossing()==0) {
@@ -64,6 +66,9 @@ class NPUTablesProducer : public edm::global::EDProducer<> {
 		if ( bin != vz_.end() && bin==zbin) gpudensity++;
 	      }
 	      gpudensity/=(20.0*( *(zbin) - *(zbin - 1) )) ;
+        if (savePtHatMax_) {
+          pthatmax = *max_element(npuProd[ibx].getPU_pT_hats().begin(), npuProd[ibx].getPU_pT_hats().end());
+        }
 	    }
 	  }
 	  unsigned int eoot = 0;
@@ -80,6 +85,9 @@ class NPUTablesProducer : public edm::global::EDProducer<> {
 	  out.addColumnValue<int>("sumLOOT", loot, "number of late out of time pileup" , nanoaod::FlatTable::IntColumn);
 	  out.addColumnValue<float>("pudensity", pudensity, "PU vertices / mm", nanoaod::FlatTable::FloatColumn);
 	  out.addColumnValue<float>("gpudensity", gpudensity, "Generator-level PU vertices / mm", nanoaod::FlatTable::FloatColumn);
+    if (savePtHatMax_) {
+       out.addColumnValue<float>("pthatmax", pthatmax, "Maximum pt-hat", nanoaod::FlatTable::FloatColumn);
+     }
         }
 
         static void fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
@@ -87,6 +95,7 @@ class NPUTablesProducer : public edm::global::EDProducer<> {
             desc.add<edm::InputTag>("src", edm::InputTag("slimmedAddPileupInfo"))->setComment("tag for the PU information (vector<PileupSummaryInfo>)");
 	    desc.add<edm::InputTag>("pvsrc", edm::InputTag("offlineSlimmedPrimaryVertices"))->setComment("tag for the PVs");
 	    desc.add<std::vector<double>> ("zbins", {})->setComment("Z bins to compute the generator-level number of PU vertices per mm");
+      desc.add<bool>("savePtHatMax", false)->setComment("Store maximum pt-hat of PU");
             descriptions.add("puTable", desc);
         }
 
@@ -95,6 +104,8 @@ class NPUTablesProducer : public edm::global::EDProducer<> {
        const edm::EDGetTokenT<std::vector<reco::Vertex>> pvTag_;
 
        const std::vector<double> vz_;
+
+       bool savePtHatMax_;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
