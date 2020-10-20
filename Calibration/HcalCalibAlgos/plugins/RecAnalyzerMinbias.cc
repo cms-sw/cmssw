@@ -362,17 +362,17 @@ void RecAnalyzerMinbias::beginRun(edm::Run const&, edm::EventSetup const& iS) {
       double x_min = (Noise_) ? -3. : 0.;
       double x_max = (Noise_) ? 3. : 2. * eHighHB_;
       for (int eta = -50; eta < 50; eta++) {
-	for (int phi = 0; phi < 100; phi++) {
-	  for (int depth = 1; depth <= maxDepthHB; depth++) {
-	    HcalDetId cell(HcalBarrel, eta, phi, depth);
-	    if (hcaltopology->valid(cell)) {
-	      sprintf(name, "HBeta%dphi%ddep%d", eta, phi, depth);
-	      sprintf(title, "HB #eta %d #phi %d depth %d", eta, phi, depth);
-	      TH1D* h = fs_->make<TH1D>(name, title, nbinHB, x_min, x_max);
-	      histHC_[cell] = h;
-	    }
-	  }
-	}
+        for (int phi = 0; phi < 100; phi++) {
+          for (int depth = 1; depth <= maxDepthHB; depth++) {
+            HcalDetId cell(HcalBarrel, eta, phi, depth);
+            if (hcaltopology->valid(cell)) {
+              sprintf(name, "HBeta%dphi%ddep%d", eta, phi, depth);
+              sprintf(title, "HB #eta %d #phi %d depth %d", eta, phi, depth);
+              TH1D* h = fs_->make<TH1D>(name, title, nbinHB, x_min, x_max);
+              histHC_[cell] = h;
+            }
+          }
+        }
       }
       // For HE
       int maxDepthHE = hcaltopology->maxDepthHE();
@@ -380,17 +380,17 @@ void RecAnalyzerMinbias::beginRun(edm::Run const&, edm::EventSetup const& iS) {
       x_min = (Noise_) ? -3. : 0.;
       x_max = (Noise_) ? 3. : 2. * eHighHE_;
       for (int eta = -50; eta < 50; eta++) {
-	for (int phi = 0; phi < 100; phi++) {
-	  for (int depth = 1; depth <= maxDepthHE; depth++) {
-	    HcalDetId cell(HcalEndcap, eta, phi, depth);
-	    if (hcaltopology->valid(cell)) {
-	      sprintf(name, "HEeta%dphi%ddep%d", eta, phi, depth);
-	      sprintf(title, "HE #eta %d #phi %d depth %d", eta, phi, depth);
-	      TH1D* h = fs_->make<TH1D>(name, title, nbinHE, x_min, x_max);
-	      histHC_[cell] = h;
-	    }
-	  }
-	}
+        for (int phi = 0; phi < 100; phi++) {
+          for (int depth = 1; depth <= maxDepthHE; depth++) {
+            HcalDetId cell(HcalEndcap, eta, phi, depth);
+            if (hcaltopology->valid(cell)) {
+              sprintf(name, "HEeta%dphi%ddep%d", eta, phi, depth);
+              sprintf(title, "HE #eta %d #phi %d depth %d", eta, phi, depth);
+              TH1D* h = fs_->make<TH1D>(name, title, nbinHE, x_min, x_max);
+              histHC_[cell] = h;
+            }
+          }
+        }
       }
       // For HF
       int maxDepthHF = 4;
@@ -398,14 +398,14 @@ void RecAnalyzerMinbias::beginRun(edm::Run const&, edm::EventSetup const& iS) {
       x_min = (Noise_) ? -10. : 0.;
       x_max = (Noise_) ? 10. : 2. * eHighHF_;
       for (int eta = -50; eta < 50; eta++) {
-	for (int phi = 0; phi < 100; phi++) {
-	  for (int depth = 1; depth <= maxDepthHF; depth++) {
-	    HcalDetId cell(HcalForward, eta, phi, depth);
-	    if (hcaltopology->valid(cell)) {
-	      sprintf(name, "HFeta%dphi%ddep%d", eta, phi, depth);
-	      sprintf(title, "Energy (HF #eta %d #phi %d depth %d)", eta, phi, depth);
-	      TH1D* h = fs_->make<TH1D>(name, title, nbinHF, x_min, x_max);
-	      histHC_[cell] = h;
+        for (int phi = 0; phi < 100; phi++) {
+          for (int depth = 1; depth <= maxDepthHF; depth++) {
+            HcalDetId cell(HcalForward, eta, phi, depth);
+            if (hcaltopology->valid(cell)) {
+              sprintf(name, "HFeta%dphi%ddep%d", eta, phi, depth);
+              sprintf(title, "Energy (HF #eta %d #phi %d depth %d)", eta, phi, depth);
+              TH1D* h = fs_->make<TH1D>(name, title, nbinHF, x_min, x_max);
+              histHC_[cell] = h;
             }
           }
         }
