@@ -5,11 +5,14 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseShapes.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "CondFormats/DataRecord/interface/HcalTimeSlewRecord.h"
 
 class HcalPulseContainmentManager {
 public:
+  // for callers not calling beginRun(EventSetup)
   HcalPulseContainmentManager(float max_fracerror);
+  // for callers calling beginRun(EventSetup)
+  HcalPulseContainmentManager(float max_fracerror, edm::ConsumesCollector iC);
   double correction(const HcalDetId& detId, int toAdd, float fixedphase_ns, double fc_ampl);
   const HcalPulseContainmentCorrection* get(const HcalDetId& detId, int toAdd, float fixedphase_ns);
 
@@ -35,6 +38,7 @@ private:
   HcalPulseShapes shapes_;
   float fixedphase_ns_;
   float max_fracerror_;
+  const edm::ESGetToken<HcalTimeSlew, HcalTimeSlewRecord> delayToken_;
 
   const HcalTimeSlew* hcalTimeSlew_delay_;
 };

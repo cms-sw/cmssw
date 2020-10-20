@@ -115,6 +115,21 @@ void CSCCLCTDigi::setSlope(const uint16_t slope) {
   setDataWord(slope, pattern_, kRun3SlopeShift, kRun3SlopeMask);
 }
 
+// slope in number of half-strips/layer
+float CSCCLCTDigi::getFractionalSlope(const uint16_t nBits) const {
+  if (isRun3()) {
+    const float minSlope = 0;
+    const float maxSlope = 2.5;
+    const int range = pow(2, nBits);
+    const float deltaSlope = (maxSlope - minSlope) / range;
+    const float slopeValue = minSlope + deltaSlope * getSlope();
+    return (2 * getBend() - 1) * slopeValue;
+  } else {
+    int slope[11] = {0, 0, -8, 8, -6, 6, -4, 4, -2, 2, 0};
+    return float(slope[getPattern()] / 5.);
+  }
+}
+
 uint16_t CSCCLCTDigi::getKeyStrip(const uint16_t n) const {
   // 10-bit case for strip data word
   if (compCode_ != -1 and n == 8) {
@@ -132,9 +147,9 @@ uint16_t CSCCLCTDigi::getKeyStrip(const uint16_t n) const {
 
 /// return the fractional strip (middle of the strip)
 float CSCCLCTDigi::getFractionalStrip(const uint16_t n) const {
-  if (n == 8) {
+  if (compCode_ != -1 and n == 8) {
     return 0.125f * (getKeyStrip(n) + 0.5);
-  } else if (n == 4) {
+  } else if (compCode_ != -1 and n == 4) {
     return 0.25f * (getKeyStrip(n) + 0.5);
   } else {
     return 0.5f * (getKeyStrip(n) + 0.5);

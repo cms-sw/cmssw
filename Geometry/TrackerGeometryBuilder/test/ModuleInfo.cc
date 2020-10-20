@@ -41,7 +41,6 @@
 #include "DataFormats/Math/interface/Rounding.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerDebugNavigator.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerStringToEnum.h"
@@ -77,8 +76,6 @@ private:
   double tolerance_;
 };
 
-static const double density_units = 6.24151e+18;
-
 ModuleInfo::ModuleInfo(const edm::ParameterSet& ps)
     : fromDDD_(ps.getParameter<bool>("fromDDD")),
       printDDD_(ps.getUntrackedParameter<bool>("printDDD", true)),
@@ -100,14 +97,10 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   // get the GeometricDet
   //
   edm::ESHandle<GeometricDet> rDD;
-  edm::ESHandle<std::vector<GeometricDetExtra> > rDDE;
   iSetup.get<IdealGeometryRecord>().get(rDD);
-  iSetup.get<IdealGeometryRecord>().get(rDDE);
 
   edm::LogInfo("ModuleInfo") << " Top node is  " << rDD.product() << " " << rDD.product()->name() << std::endl;
   edm::LogInfo("ModuleInfo") << " And Contains  Daughters: " << rDD.product()->deepComponents().size() << std::endl;
-  CmsTrackerDebugNavigator nav(*rDDE.product());
-  nav.dump(*rDD.product(), *rDDE.product());
   //
   //first instance tracking geometry
   edm::ESHandle<TrackerGeometry> pDD;
@@ -153,45 +146,13 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   unsigned int tec_r5_sterN = 0;
   unsigned int tec_r6_rphiN = 0;
   unsigned int tec_r7_rphiN = 0;
-  //
-  double volume_total = 0.0;
-  double weight_total = 0.0;
-  double activeSurface_total = 0.0;
-  double volume_pxb = 0.0;
-  double weight_pxb = 0.0;
-  double activeSurface_pxb = 0.0;
-  double volume_pxf = 0.0;
-  double weight_pxf = 0.0;
-  double activeSurface_pxf = 0.0;
-  double volume_tib = 0.0;
-  double weight_tib = 0.0;
-  double activeSurface_tib = 0.0;
-  double volume_tid = 0.0;
-  double weight_tid = 0.0;
-  double activeSurface_tid = 0.0;
-  double volume_tob = 0.0;
-  double weight_tob = 0.0;
-  double activeSurface_tob = 0.0;
-  double volume_tec = 0.0;
-  double weight_tec = 0.0;
-  double activeSurface_tec = 0.0;
-  //
 
   std::vector<const GeometricDet*> modules = (*rDD).deepComponents();
   Output << "************************ List of modules with positions ************************" << std::endl;
-  // MEC: 2010-04-13: need to find corresponding GeometricDetExtra.
-  std::vector<GeometricDetExtra>::const_iterator gdei(rDDE->begin()), gdeEnd(rDDE->end());
+
   for (auto& module : modules) {
     unsigned int rawid = module->geographicalId().rawId();
     DetId id(rawid);
-    gdei = rDDE->begin();
-    for (; gdei != gdeEnd; ++gdei) {
-      if (gdei->geographicalId() == module->geographicalId())
-        break;
-    }
-
-    if (gdei == gdeEnd)
-      throw cms::Exception("ModuleInfo") << "THERE IS NO MATCHING DetId in the GeometricDetExtra";  //THIS never happens!
 
     GeometricDet::NavRange detPos = module->navpos();
     Output << std::fixed << std::setprecision(6);  // set as default 6 decimal digits
@@ -202,22 +163,12 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     }
     Output << std::endl;
     int subdetid = module->geographicalId().subdetId();
-    double volume = gdei->volume() / 1000;  // mm3->cm3
-    double density = gdei->density() / density_units;
-    double weight = gdei->weight() / density_units / 1000.;    // [kg], hence the factor 1000;
     double thickness = module->bounds()->thickness() * 10000;  // cm-->um
-    double activeSurface = volume / (thickness / 10000);       // cm2 (thickness in um)
 
-    volume_total += volume;
-    weight_total += weight;
-    activeSurface_total += activeSurface;
     switch (subdetid) {
         // PXB
       case PixelSubdetector::PixelBarrel: {
         pxbN++;
-        volume_pxb += volume;
-        weight_pxb += weight;
-        activeSurface_pxb += activeSurface;
         const std::string& name = module->name();
         if (name == "PixelBarrelActiveFull")
           pxb_fullN++;
@@ -231,20 +182,12 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
                << "\t"
                << "Layer " << theLayer << " Ladder " << theLadder << "\t"
                << " module " << theModule << " " << name << "\t";
-        if (fromDDD_ && printDDD_) {
-          Output << "son of " << gdei->parents()[gdei->parents().size() - 3].logicalPart().name() << std::endl;
-        } else {
-          Output << " NO DDD Hierarchy available " << std::endl;
-        }
         break;
       }
 
         // PXF
       case PixelSubdetector::PixelEndcap: {
         pxfN++;
-        volume_pxf += volume;
-        weight_pxf += weight;
-        activeSurface_pxf += activeSurface;
         const std::string& name = module->name();
         if (name == "PixelForwardActive1x2")
           pxf_1x2N++;
@@ -265,20 +208,12 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
         Output << " PXF" << side << "\t"
                << "Disk " << theDisk << " Blade " << theBlade << " Panel " << thePanel << "\t"
                << " module " << theModule << "\t" << name << "\t";
-        if (fromDDD_ && printDDD_) {
-          Output << "son of " << gdei->parents()[gdei->parents().size() - 3].logicalPart().name() << std::endl;
-        } else {
-          Output << " NO DDD Hierarchy available " << std::endl;
-        }
         break;
       }
 
         // TIB
       case StripSubdetector::TIB: {
         tibN++;
-        volume_tib += volume;
-        weight_tib += weight;
-        activeSurface_tib += activeSurface;
         const std::string& name = module->name();
         if (name == "TIBActiveRphi0")
           tib_L12_rphiN++;
@@ -298,11 +233,6 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
                << "Layer " << theLayer << " " << part << "\t"
                << "string " << theString[2] << "\t"
                << " module " << theModule << " " << name << "\t";
-        if (fromDDD_ && printDDD_) {
-          Output << "son of " << gdei->parents()[gdei->parents().size() - 3].logicalPart().name();
-        } else {
-          Output << " NO DDD Hierarchy available ";
-        }
         Output << " " << module->translation().X() << "   \t" << module->translation().Y() << "   \t"
                << module->translation().Z() << std::endl;
         break;
@@ -311,9 +241,6 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
         // TID
       case StripSubdetector::TID: {
         tidN++;
-        volume_tid += volume;
-        weight_tid += weight;
-        activeSurface_tid += activeSurface;
         const std::string& name = module->name();
         if (name == "TIDModule0RphiActive")
           tid_r1_rphiN++;
@@ -334,11 +261,6 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
         Output << " TID" << side << "\t"
                << "Disk " << theDisk << " Ring " << theRing << " " << part << "\t"
                << " module " << tTopo->tidModule(id) << "\t" << name << "\t";
-        if (fromDDD_ && printDDD_) {
-          Output << "son of " << gdei->parents()[gdei->parents().size() - 3].logicalPart().name();
-        } else {
-          Output << " NO DDD Hierarchy available ";
-        }
         Output << " " << module->translation().X() << "   \t" << module->translation().Y() << "   \t"
                << module->translation().Z() << std::endl;
         break;
@@ -347,9 +269,6 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
         // TOB
       case StripSubdetector::TOB: {
         tobN++;
-        volume_tob += volume;
-        weight_tob += weight;
-        activeSurface_tob += activeSurface;
         const std::string& name = module->name();
         if (name == "TOBActiveRphi0")
           tob_L12_rphiN++;
@@ -368,11 +287,6 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
         Output << " TOB" << side << "\t"
                << "Layer " << theLayer << "\t"
                << "rod " << tTopo->tobRod(id) << " module " << theModule << "\t" << name << "\t";
-        if (fromDDD_ && printDDD_) {
-          Output << "son of " << gdei->parents()[gdei->parents().size() - 3].logicalPart().name();
-        } else {
-          Output << " NO DDD Hierarchy available ";
-        }
         Output << " " << module->translation().X() << "   \t" << module->translation().Y() << "   \t"
                << module->translation().Z() << std::endl;
         break;
@@ -381,9 +295,6 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
         // TEC
       case StripSubdetector::TEC: {
         tecN++;
-        volume_tec += volume;
-        weight_tec += weight;
-        activeSurface_tec += activeSurface;
         const std::string& name = module->name();
         if (name == "TECModule0RphiActive")
           tec_r1_rphiN++;
@@ -417,11 +328,6 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
                << "\t"
                << "\t"
                << " module " << theModule << "\t" << name << "\t";
-        if (fromDDD_ && printDDD_) {
-          Output << "son of " << gdei->parents()[gdei->parents().size() - 3].logicalPart().name();
-        } else {
-          Output << " NO DDD Hierarchy available ";
-        }
         Output << " " << module->translation().X() << "   \t" << module->translation().Y() << "   \t"
                << module->translation().Z() << std::endl;
 
@@ -507,11 +413,7 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     // Output: set as default 4 decimal digits (0.1 um or 0.1 deg/rad)
     // active area center
     Output << "\t"
-           << "volume " << std::fixed << std::setprecision(3) << volume << " cm3 \t"
-           << "density " << std::fixed << std::setprecision(3) << density << " g/cm3 \t"
-           << "weight " << std::fixed << std::setprecision(6) << weight << " kg \t"
-           << "thickness " << std::fixed << std::setprecision(0) << thickness << " um \t"
-           << " active area " << std::fixed << std::setprecision(2) << activeSurface << " cm2" << std::endl;
+           << "thickness " << std::fixed << std::setprecision(0) << thickness << " um \n";
     Output << "\tActive Area Center" << std::endl;
     Output << "\t O = (" << std::fixed << std::setprecision(4) << module->translation().X() << "," << std::fixed
            << std::setprecision(4) << module->translation().Y() << "," << std::fixed << std::setprecision(4)
@@ -595,9 +497,6 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   Output << "   Full = " << pxb_fullN << std::endl;
   Output << "   Half = " << pxb_halfN << std::endl;
   Output << "   Active Silicon Detectors" << std::endl;
-  Output << "     Weight  = " << weight_pxb << " kg" << std::endl;
-  Output << "     Volume  = " << volume_pxb << " cm3" << std::endl;
-  Output << "     Surface = " << activeSurface_pxb << " cm2" << std::endl;
   Output << "        PSI46s   = " << psi_pxb << std::endl;
   Output << "        channels = " << chan_pxb << std::endl;
   Output << " PXF    = " << pxfN << std::endl;
@@ -607,9 +506,6 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   Output << "   2x4 = " << pxf_2x4N << std::endl;
   Output << "   2x5 = " << pxf_2x5N << std::endl;
   Output << "   Active Silicon Detectors" << std::endl;
-  Output << "     Weight  = " << weight_pxf << " kg" << std::endl;
-  Output << "     Volume  = " << volume_pxf << " cm3" << std::endl;
-  Output << "     Surface = " << activeSurface_pxf << " cm2" << std::endl;
   Output << "        PSI46s   = " << psi_pxf << std::endl;
   Output << "        channels = " << chan_pxf << std::endl;
   Output << " TIB    = " << tibN << std::endl;
@@ -617,9 +513,6 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   Output << "   L12 stereo = " << tib_L12_sterN << std::endl;
   Output << "   L34        = " << tib_L34_rphiN << std::endl;
   Output << "   Active Silicon Detectors" << std::endl;
-  Output << "     Weight  = " << weight_tib << " kg" << std::endl;
-  Output << "     Volume  = " << volume_tib << " cm3" << std::endl;
-  Output << "     Surface = " << activeSurface_tib << " cm2" << std::endl;
   Output << "        APV25s   = " << apv_tib << std::endl;
   Output << "        channels = " << chan_tib << std::endl;
   Output << " TID    = " << tidN << std::endl;
@@ -629,10 +522,6 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   Output << "   r2 stereo  = " << tid_r2_sterN << std::endl;
   Output << "   r3 rphi    = " << tid_r3_rphiN << std::endl;
   Output << "   Active Silicon Detectors" << std::endl;
-  Output << "     Weight  = " << weight_tid << " kg" << std::endl;
-  Output << "     Volume  = " << volume_tid << " cm3" << std::endl;
-  ;
-  Output << "     Surface = " << activeSurface_tid << " cm2" << std::endl;
   Output << "        APV25s   = " << apv_tid << std::endl;
   Output << "        channels = " << chan_tid << std::endl;
   Output << " TOB    = " << tobN << std::endl;
@@ -641,9 +530,6 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   Output << "   L34        = " << tob_L34_rphiN << std::endl;
   Output << "   L56        = " << tob_L56_rphiN << std::endl;
   Output << "   Active Silicon Detectors" << std::endl;
-  Output << "     Weight  = " << weight_tob << " kg" << std::endl;
-  Output << "     Volume  = " << volume_tob << " cm3" << std::endl;
-  Output << "     Surface = " << activeSurface_tob << " cm2" << std::endl;
   Output << "        APV25s   = " << apv_tob << std::endl;
   Output << "        channels = " << chan_tob << std::endl;
   Output << " TEC    = " << tecN << std::endl;
@@ -658,15 +544,9 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   Output << "   r6 rphi    = " << tec_r6_rphiN << std::endl;
   Output << "   r7 rphi    = " << tec_r7_rphiN << std::endl;
   Output << "   Active Silicon Detectors" << std::endl;
-  Output << "     Weight  = " << weight_tec << " kg" << std::endl;
-  Output << "     Volume  = " << volume_tec << " cm3" << std::endl;
-  Output << "     Surface = " << activeSurface_tec << " cm2" << std::endl;
   Output << "        APV25s   = " << apv_tec << std::endl;
   Output << "        channels = " << chan_tec << std::endl;
   Output << "---------------------" << std::endl;
-  Output << " Total Weight      = " << weight_total << " kg" << std::endl;
-  Output << " Total Volume      = " << volume_total << " cm3" << std::endl;
-  Output << " Total Active Area = " << activeSurface_total << " cm2" << std::endl;
   Output << "        PSI46s   = " << psi_tot << std::endl;
   Output << "        APV25s   = " << apv_tot << std::endl;
   Output << "        pixel channels = " << chan_pixel << std::endl;

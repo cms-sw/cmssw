@@ -20,13 +20,11 @@
 
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "Geometry/Records/interface/GeometryFileRcd.h"
-#include "Geometry/Records/interface/PGeometricDetExtraRcd.h"
 #include "Geometry/Records/interface/PGeometricTimingDetExtraRcd.h"
 #include "FWCore/Utilities/interface/mplVector.h"
 
-class IdealGeometryRecord
-    : public edm::eventsetup::DependentRecordImplementation<
-          IdealGeometryRecord,
-          edm::mpl::Vector<GeometryFileRcd, PGeometricDetExtraRcd, PGeometricTimingDetExtraRcd> > {};
+class IdealGeometryRecord : public edm::eventsetup::DependentRecordImplementation<
+                                IdealGeometryRecord,
+                                edm::mpl::Vector<GeometryFileRcd, PGeometricTimingDetExtraRcd> > {};
 
 #endif /* RECORDS_IDEALGEOMETRYRECORD_H */

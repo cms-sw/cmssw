@@ -6,9 +6,9 @@ MessageLogger Summary
  type     category        sev    module        subroutine        count    total
  ---- -------------------- -- ---------------- ----------------  -----    -----
     1 FwkJob               -i UnitTestClient_A                       3*       3
-    2 FwkReport            -i AfterSource                            3*       3
-    3 cat_A                -i UnitTestClient_A                       3*       3
-    4 cat_B                -i UnitTestClient_A                       3*       3
+    2 cat_A                -i UnitTestClient_A                       3*       3
+    3 cat_B                -i UnitTestClient_A                       3*       3
+    4 FwkReport            -f AfterSource                            3*       3
     5 cat_A                -w UnitTestClient_A                       3*       3
     6 cat_B                -w UnitTestClient_A                       3*       3
     7 cat_A                -e UnitTestClient_A                       3        3
@@ -19,9 +19,9 @@ MessageLogger Summary
  type    category    Examples: run/evt        run/evt          run/evt
  ---- -------------------- ---------------- ---------------- ----------------
     1 FwkJob               1/1              1/2              1/3
-    2 FwkReport            AfterSource      AfterSource      AfterSource
-    3 cat_A                1/1              1/2              1/3
-    4 cat_B                1/1              1/2              1/3
+    2 cat_A                1/1              1/2              1/3
+    3 cat_B                1/1              1/2              1/3
+    4 FwkReport            AfterSource      AfterSource      AfterSource
     5 cat_A                1/1              1/2              1/3
     6 cat_B                1/1              1/2              1/3
     7 cat_A                1/1              1/2              1/3
@@ -29,7 +29,8 @@ MessageLogger Summary
 
 Severity    # Occurrences   Total Occurrences
 --------    -------------   -----------------
-Info                   12                  12
+Info                    9                   9
+FwkInfo                 3                   3
 Warning                 6                   6
 Error                   6                   6
 

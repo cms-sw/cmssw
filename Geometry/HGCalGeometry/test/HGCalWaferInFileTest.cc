@@ -152,8 +152,8 @@ void HGCalWaferInFileTest::analyze(const edm::Event& iEvent, const edm::EventSet
               << " wafers with the same indices\n\n";
 
     // Now cross check the content (partial and orientation)
-    int allX(0), badG(0), badP(0), badR(0);
-    std::vector<int> wrongP(layers, 0), wrongR(layers, 0);
+    int allX(0), badG(0), badP(0), badP2(0), badR(0);
+    std::vector<int> wrongP(layers, 0), wrongP2(layers, 0), wrongR(layers, 0);
     for (unsigned int k = 0; k < hgdc.waferFileSize(); ++k) {
       int indx = hgdc.waferFileIndex(k);
       int part1 = std::get<1>(hgdc.waferFileInfo(k));
@@ -169,10 +169,16 @@ void HGCalWaferInFileTest::analyze(const edm::Event& iEvent, const edm::EventSet
         int rotn2 = hgdc.waferTypeRotation(id.layer(), id.waferU(), id.waferV(), false, false).second;
         bool partOK = ((part1 == part2) || ((part1 == HGCalTypes::WaferFull) && (part2 == HGCalTypes::WaferOut)));
         bool rotnOK = ((rotn1 == rotn2) || (part1 == HGCalTypes::WaferFull) || (part2 == HGCalTypes::WaferFull));
+        bool partOK2 = ((part1 > part2) || partOK);
         if (!partOK) {
           ++badP;
           if ((layer - layerf) < layers)
             ++wrongP[layer - layerf];
+        }
+        if (!partOK2) {
+          ++badP2;
+          if ((layer - layerf) < layers)
+            ++wrongP2[layer - layerf];
         }
         if (!rotnOK) {
           ++badR;
@@ -188,20 +194,21 @@ void HGCalWaferInFileTest::analyze(const edm::Event& iEvent, const edm::EventSet
           auto points = getPoints(xy.first, xy.second, delX, delY, rr.first, rr.second, layer, waferU, waferV);
           std::cout << "ID[" << k << "]: (" << (hgdc.getLayerOffset() + layer) << ", " << waferU << ", " << waferV
                     << "," << type2 << ", " << partx1 << ":" << partx2 << ":" << part1 << ":" << part2 << ", " << rotn1
-                    << ":" << rotn2 << ") at (" << std::setprecision(4) << xy.first << ", " << xy.second << ", "
-                    << hgdc.waferZ(layer, true) << ") failure flag " << partOK << ":" << rotnOK << " with "
-                    << points.size() << " points:";
+                    << ":" << rotn2 << ", " << partOK2 << ") at (" << std::setprecision(4) << xy.first << ", "
+                    << xy.second << ", " << hgdc.waferZ(layer, true) << ") failure flag " << partOK << ":" << rotnOK
+                    << " with " << points.size() << " points:";
           for (auto point : points)
             std::cout << " " << point;
           std::cout << " in the region " << rr.first << ":" << rr.second << std::endl;
         }
       }
     }
-    std::cout << "\n\nFinds " << badG << " (" << badP << ":" << badR << ") mismatch in partial|orientation among "
-              << allX << " wafers with the same indices" << std::endl;
+    std::cout << "\n\nFinds " << badG << " (" << badP << ":" << badP2 << ":" << badR
+              << ") mismatch in partial|orientation among " << allX << " wafers with the same indices" << std::endl;
     for (int k = 0; k < layers; ++k) {
       if ((wrongP[k] > 0) || (wrongR[k] > 0))
-        std::cout << "Layer[" << k << ":" << (layerf + k) << "] " << wrongP[k] << ":" << wrongR[k] << std::endl;
+        std::cout << "Layer[" << k << ":" << (layerf + k) << "] " << wrongP[k] << ":" << wrongP2[k] << ":" << wrongR[k]
+                  << std::endl;
     }
     std::cout << std::endl;
   }

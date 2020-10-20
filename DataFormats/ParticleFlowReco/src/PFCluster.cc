@@ -1,35 +1,6 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 
-#include "vdt/vdtMath.h"
 #include "Math/GenVector/etaMax.h"
-
-namespace {
-
-  // an implementation of Eta_FromRhoZ of root libraries using vdt
-  template <typename Scalar>
-  inline Scalar Eta_FromRhoZ_fast(Scalar rho, Scalar z) {
-    using namespace ROOT::Math;
-    // value to control Taylor expansion of sqrt
-    const Scalar big_z_scaled = std::pow(std::numeric_limits<Scalar>::epsilon(), static_cast<Scalar>(-.25));
-    if (rho > 0) {
-      Scalar z_scaled = z / rho;
-      if (std::fabs(z_scaled) < big_z_scaled) {
-        return vdt::fast_log(z_scaled + std::sqrt(z_scaled * z_scaled + 1.0));
-      } else {
-        // apply correction using first order Taylor expansion of sqrt
-        return z > 0 ? vdt::fast_log(2.0 * z_scaled + 0.5 / z_scaled) : -vdt::fast_log(-2.0 * z_scaled);
-      }
-    }
-    // case vector has rho = 0
-    else if (z == 0) {
-      return 0;
-    } else if (z > 0) {
-      return z + etaMax<Scalar>();
-    } else {
-      return z - etaMax<Scalar>();
-    }
-  }
-}  // namespace
 
 using namespace std;
 using namespace reco;

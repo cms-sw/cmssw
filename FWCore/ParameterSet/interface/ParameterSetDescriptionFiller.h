@@ -33,6 +33,8 @@ namespace edm {
   class ParameterSetDescriptionFiller : public ParameterSetDescriptionFillerBase {
   public:
     ParameterSetDescriptionFiller() {}
+    ParameterSetDescriptionFiller(const ParameterSetDescriptionFiller&) = delete;                   // stop default
+    const ParameterSetDescriptionFiller& operator=(const ParameterSetDescriptionFiller&) = delete;  // stop default
 
     void fill(ConfigurationDescriptions& descriptions) const override {
       T::fillDescriptions(descriptions);
@@ -45,10 +47,6 @@ namespace edm {
       const T* type = nullptr;
       return ParameterSetDescriptionFillerBase::extendedBaseType(type);
     }
-
-  private:
-    ParameterSetDescriptionFiller(const ParameterSetDescriptionFiller&) = delete;                   // stop default
-    const ParameterSetDescriptionFiller& operator=(const ParameterSetDescriptionFiller&) = delete;  // stop default
   };
 
   // We need a special version of this class for Services because there is
@@ -149,6 +147,8 @@ namespace edm {
   class DescriptionFillerForESSources : public ParameterSetDescriptionFillerBase {
   public:
     DescriptionFillerForESSources() {}
+    DescriptionFillerForESSources(const DescriptionFillerForESSources&) = delete;                   // stop default
+    const DescriptionFillerForESSources& operator=(const DescriptionFillerForESSources&) = delete;  // stop default
 
     // If T has a fillDescriptions function then just call that, otherwise
     // put in an "unknown description" as a default.
@@ -169,16 +169,14 @@ namespace edm {
     const std::string& baseType() const override { return kBaseForESSource; }
 
     const std::string& extendedBaseType() const override { return kEmpty; }
-
-  private:
-    DescriptionFillerForESSources(const DescriptionFillerForESSources&) = delete;                   // stop default
-    const DescriptionFillerForESSources& operator=(const DescriptionFillerForESSources&) = delete;  // stop default
   };
 
   template <typename T>
   class DescriptionFillerForESProducers : public ParameterSetDescriptionFillerBase {
   public:
     DescriptionFillerForESProducers() {}
+    DescriptionFillerForESProducers(const DescriptionFillerForESProducers&) = delete;                   // stop default
+    const DescriptionFillerForESProducers& operator=(const DescriptionFillerForESProducers&) = delete;  // stop default
 
     // If T has a fillDescriptions function then just call that, otherwise
     // put in an "unknown description" as a default.
@@ -199,10 +197,6 @@ namespace edm {
     const std::string& baseType() const override { return kBaseForESProducer; }
 
     const std::string& extendedBaseType() const override { return kEmpty; }
-
-  private:
-    DescriptionFillerForESProducers(const DescriptionFillerForESProducers&) = delete;                   // stop default
-    const DescriptionFillerForESProducers& operator=(const DescriptionFillerForESProducers&) = delete;  // stop default
   };
 }  // namespace edm
 #endif

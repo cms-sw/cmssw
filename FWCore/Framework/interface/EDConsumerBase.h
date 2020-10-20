@@ -39,6 +39,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Utilities/interface/ESGetTokenGeneric.h"
 #include "FWCore/Utilities/interface/ESInputTag.h"
 #include "FWCore/Utilities/interface/SoATuple.h"
 #include "FWCore/Utilities/interface/Transition.h"
@@ -222,7 +223,16 @@ namespace edm {
       return EDConsumerBaseWithTagESAdaptor<Tr>(this, std::move(tag));
     }
 
+    ///Used with EventSetupRecord::doGet
+    template <Transition Tr = Transition::Event>
+    ESGetTokenGeneric esConsumes(eventsetup::EventSetupRecordKey const& iRecord, eventsetup::DataKey const& iKey) {
+      return ESGetTokenGeneric(static_cast<unsigned int>(Tr),
+                               recordESConsumes(Tr, iRecord, iKey.type(), ESInputTag("", iKey.name().value())),
+                               iRecord.type());
+    }
+
   private:
+    virtual void registerLateConsumes(eventsetup::ESRecordsToProxyIndices const&) {}
     unsigned int recordConsumes(BranchType iBranch, TypeToGet const& iType, edm::InputTag const& iTag, bool iAlwaysGets);
     ESTokenIndex recordESConsumes(Transition,
                                   eventsetup::EventSetupRecordKey const&,

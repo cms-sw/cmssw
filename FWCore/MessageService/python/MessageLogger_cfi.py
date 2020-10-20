@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 MessageLogger = cms.Service("MessageLogger",
     suppressInfo = cms.untracked.vstring(),
+    suppressFwkInfo = cms.untracked.vstring(),
     debugs = cms.untracked.PSet(
         placeholder = cms.untracked.bool(True)
     ),

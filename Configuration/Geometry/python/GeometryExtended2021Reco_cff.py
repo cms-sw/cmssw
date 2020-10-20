@@ -39,7 +39,7 @@ from Geometry.EcalMapping.EcalMappingRecord_cfi import *
 # muon
 from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *
 from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
-from Geometry.GEMGeometryBuilder.gemGeometry_cfi import *
+from Geometry.GEMGeometryBuilder.gemGeometry_cff import *
 from Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff import *
 from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *
 

@@ -74,13 +74,18 @@ public:
   /// set the slope
   void setSlope(const uint16_t slope);
 
+  /// slope in number of half-strips/layer
+  float getFractionalSlope(const uint16_t slope = 5) const;
+
   /// return striptype
   uint16_t getStripType() const { return striptype_; }
 
   /// set stripType
   void setStripType(const uint16_t stripType) { striptype_ = stripType; }
 
-  /// return bend (left or right)
+  /// return bending
+  /// 0: left-bending (negative delta-strip)
+  /// 1: right-bending (positive delta-strip)
   uint16_t getBend() const { return bend_; }
 
   /// set bend

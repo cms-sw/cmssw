@@ -110,26 +110,12 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(0)
         ),
         threshold = cms.untracked.string('INFO'),
-        FwkJob = cms.untracked.PSet(
-            optionalPSet = cms.untracked.bool(True),
-            limit = cms.untracked.int32(0)
-        ),
         FwkSummary = cms.untracked.PSet(
             reportEvery = cms.untracked.int32(1),
             optionalPSet = cms.untracked.bool(True),
             limit = cms.untracked.int32(10000000)
         ),
         optionalPSet = cms.untracked.bool(True)
-    ),
-    FrameworkJobReport = cms.untracked.PSet(
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        optionalPSet = cms.untracked.bool(True),
-        FwkJob = cms.untracked.PSet(
-            optionalPSet = cms.untracked.bool(True),
-            limit = cms.untracked.int32(10000000)
-        )
     ),
     suppressWarning = cms.untracked.vstring(),
     errors = cms.untracked.PSet(
@@ -150,11 +136,9 @@ process.MessageLogger = cms.Service("MessageLogger",
         ),
         placeholder = cms.untracked.bool(True)
     ),
-    categories = cms.untracked.vstring('FwkJob', 
-        'FwkReport', 
+    categories = cms.untracked.vstring('FwkReport', 
         'FwkSummary', 
-        'Root_NoDictionary'),
-    fwkJobReports = cms.untracked.vstring('FrameworkJobReport')
+        'Root_NoDictionary')
 )
 
 
