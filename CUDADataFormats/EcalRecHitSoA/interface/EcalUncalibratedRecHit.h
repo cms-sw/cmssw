@@ -1,13 +1,12 @@
 #ifndef CUDADataFormats_EcalRecHitSoA_interface_EcalUncalibratedRecHit_h
 #define CUDADataFormats_EcalRecHitSoA_interface_EcalUncalibratedRecHit_h
 
-#include <vector>
 #include <array>
-
-#include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
+#include <vector>
 
 #include "CUDADataFormats/CaloCommon/interface/Common.h"
 #include "CUDADataFormats/EcalRecHitSoA/interface/RecoTypes.h"
+#include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
 
 namespace ecal {
 
@@ -44,4 +43,4 @@ namespace ecal {
 
 }  // namespace ecal
 
-#endif  // RecoLocalCalo_EcalRecAlgos_interface_EcalUncalibratedRecHit_h
+#endif  // CUDADataFormats_EcalRecHitSoA_interface_EcalUncalibratedRecHit_h

@@ -1,12 +1,12 @@
-#ifndef RecoLocalCalo_EcalRecProducers_src_EcalPedestalsGPU_h
-#define RecoLocalCalo_EcalRecProducers_src_EcalPedestalsGPU_h
+#ifndef RecoLocalCalo_EcalRecAlgos_interface_EcalPedestalsGPU_h
+#define RecoLocalCalo_EcalRecAlgos_interface_EcalPedestalsGPU_h
 
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 
 #ifndef __CUDACC__
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
 #include "HeterogeneousCore/CUDACore/interface/ESProduct.h"
-#endif
+#endif  // __CUDACC__
 
 class EcalPedestalsGPU {
 public:
@@ -41,7 +41,7 @@ private:
   std::vector<float, cms::cuda::HostAllocator<float>> rms_x1_;
 
   cms::cuda::ESProduct<Product> product_;
-#endif
+#endif  // __CUDACC__
 };
 
-#endif
+#endif  // RecoLocalCalo_EcalRecAlgos_interface_EcalPedestalsGPU_h

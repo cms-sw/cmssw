@@ -96,7 +96,7 @@ namespace ecal {
 #ifdef RUN_BUILD_AOS_RECHIT
     __global__ void kernel_build_rechit(
         float const* energies, float const* chi2s, uint32_t* dids, EcalUncalibratedRecHit* rechits, int nchannels);
-#endif
+#endif  // RUN_BUILD_AOS_RECHIT
 
   }  // namespace multifit
 }  // namespace ecal
