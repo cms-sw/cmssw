@@ -18,43 +18,16 @@
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
-// Change Log
-//
-// 1 12/13/07 mf     	the static drops had been file-global level; moved it
-//		     	into the instance() method to cure a 24-byte memory
-//			leak reported by valgrind. Suggested by MP.
-//
-// 2 9/23/10 mf		Variables supporting situations where no thresholds are
-//                      low enough to react to LogDebug (or info, or warning)
-//
-// 3 11/2/10 mf, crj 	Prepare moduleContext method:
-//			see MessageServer/src/MessageLogger.cc change 17.
-//			Change is extensive, involving StringProducer and
-//			its derivative classes.
-//
-// 4 11/29/10 mf	Intitalize all local string-holders in the various
-//			string producers.
-//
-// 5  mf 11/30/10	Snapshot method to prepare for invalidation of the
-//			pointers used to hold module context.  Supports
-//			surviving throws that cause objects to go out of scope.
-//
-// 6  mf 12/7/10	Fix in snapshot method to avoid strncpy from
-//			a string to the identical address, which valgrind
-// 			reports as an overlap problem.
-//
-// 7  fwyzard 7/6/11    Add support for discarding LogError-level messages
-//                      on a per-module basis (needed at HLT)
-
 using namespace edm;
 
 // The following are false at initialization (in case configure is not done)
 // and are set true at the start of configure_ordinary_destinations,
 // but are set false once a destination is thresholded to react to the
 // corresponding severity:
-bool MessageDrop::debugAlwaysSuppressed = false;    // change log 2
-bool MessageDrop::infoAlwaysSuppressed = false;     // change log 2
-bool MessageDrop::warningAlwaysSuppressed = false;  // change log 2
+bool MessageDrop::debugAlwaysSuppressed = false;
+bool MessageDrop::infoAlwaysSuppressed = false;
+bool MessageDrop::fwkInfoAlwaysSuppressed = false;
+bool MessageDrop::warningAlwaysSuppressed = false;
 std::string MessageDrop::jobMode{};
 
 MessageDrop* MessageDrop::instance() {
@@ -165,6 +138,7 @@ namespace edm {
         streamID(std::numeric_limits<unsigned int>::max()),
         debugEnabled(true),
         infoEnabled(true),
+        fwkInfoEnabled(true),
         warningEnabled(true),
         errorEnabled(true),
         spWithPhase(new messagedrop::StringProducerWithPhase),

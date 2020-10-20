@@ -33,6 +33,9 @@ process.MessageLogger = cms.Service("MessageLogger",
         INFO = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
+        FWKINFO = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
         noTimeStamps = cms.untracked.bool(True),
         importantInfo = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)

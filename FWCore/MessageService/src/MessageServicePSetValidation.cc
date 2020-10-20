@@ -9,8 +9,6 @@
 // Original Author:  M. Fischler
 //         Created:  Wed May 20 2009
 //
-// Change log
-//
 //
 
 // system include files
@@ -161,6 +159,12 @@ namespace edm {
               << " PSet: \n"
               << "Use of wildcard (*) in suppressInfo is not supported\n";
       }
+      suppressFwkInfo = check<vString>(pset, "MessageLogger", "suppressFwkInfo");
+      if (wildcard(suppressFwkInfo)) {
+        flaws << "MessageLogger"
+              << " PSet: \n"
+              << "Use of wildcard (*) in suppressFwkInfo is not supported\n";
+      }
       suppressWarning = check<vString>(pset, "MessageLogger", "suppressWarning");
       if (wildcard(suppressWarning)) {
         flaws << "MessageLogger"
@@ -215,6 +219,8 @@ namespace edm {
         return true;
       if (s == "suppressInfo")
         return true;
+      if (s == "suppressFwkInfo")
+        return true;
       if (s == "suppressDebug")
         return true;
       if (s == "suppressWarning")
@@ -229,7 +235,7 @@ namespace edm {
       if (checkThreshold(thresh))
         return true;
       flaws << psetName << " PSet: \n"
-            << "threshold has value " << thresh << " which is not among {DEBUG, INFO, WARNING, ERROR}\n";
+            << "threshold has value " << thresh << " which is not among {DEBUG, INFO, FWKINFO, WARNING, ERROR}\n";
       return false;
     }  // validateThreshold
 
@@ -237,6 +243,8 @@ namespace edm {
       if (thresh == "WARNING")
         return true;
       if (thresh == "INFO")
+        return true;
+      if (thresh == "FWKINFO")
         return true;
       if (thresh == "ERROR")
         return true;
@@ -323,6 +331,8 @@ namespace edm {
         return false;
       if (word == "suppressInfo")
         return false;
+      if (word == "suppressFwkInfo")
+        return false;
       if (word == "suppressDebug")
         return false;
       if (word == "suppressWarning")
@@ -334,6 +344,8 @@ namespace edm {
       if (word == "ERROR")
         return false;
       if (word == "WARNING")
+        return false;
+      if (word == "FWKINFO")
         return false;
       if (word == "INFO")
         return false;
@@ -682,6 +694,8 @@ namespace edm {
           continue;
         if ((*i) == "WARNING")
           continue;
+        if ((*i) == "FWKINFO")
+          continue;
         if ((*i) == "INFO")
           continue;
         if ((*i) == "DEBUG")
@@ -713,6 +727,7 @@ namespace edm {
                                                                    std::string const& psetName) {
       categoryPSet(pset, psetName, "ERROR");
       categoryPSet(pset, psetName, "WARNING");
+      categoryPSet(pset, psetName, "FWKINFO");
       categoryPSet(pset, psetName, "INFO");
       categoryPSet(pset, psetName, "DEBUG");
       if (psetName != "MessageLogger")

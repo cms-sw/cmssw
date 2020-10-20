@@ -336,11 +336,11 @@ namespace edm {
   }
 
   void InputSource::issueReports(EventID const& eventID, StreamID streamID) {
-    if (isInfoEnabled()) {
-      LogVerbatim("FwkReport") << "Begin processing the " << readCount_ << suffix(readCount_) << " record. Run "
-                               << eventID.run() << ", Event " << eventID.event() << ", LumiSection "
-                               << eventID.luminosityBlock() << " on stream " << streamID.value() << " at "
-                               << std::setprecision(3) << TimeOfDay();
+    if (isFwkInfoEnabled()) {
+      LogFwkVerbatim("FwkReport") << "Begin processing the " << readCount_ << suffix(readCount_) << " record. Run "
+                                  << eventID.run() << ", Event " << eventID.event() << ", LumiSection "
+                                  << eventID.luminosityBlock() << " on stream " << streamID.value() << " at "
+                                  << std::setprecision(3) << TimeOfDay();
     }
     if (!statusFileName_.empty()) {
       std::ofstream statusFile(statusFileName_.c_str());
