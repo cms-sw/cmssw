@@ -156,81 +156,79 @@ void DDFilteredView::rot(dd4hep::Rotation3D& matrixOut) const {
                           rotation[8]);
 }
 
-void DDFilteredView::mergedSpecifics(DDSpecParRefs const& specs) {
+void DDFilteredView::mergedSpecifics(DDSpecParRefs const& specPars) {
   currentSpecPar_ = nullptr;
-
   if (!filters_.empty()) {
     filters_.clear();
     filters_.shrink_to_fit();
   }
-  for (const auto& i : specs) {
-    for (const auto& j : i.second->paths) {
-      auto const& firstTok = front(j);
-      auto const& filter = find_if(begin(filters_), end(filters_), [&](auto const& f) {
-        auto const& k = find_if(begin(f->skeys), end(f->skeys), [&](auto const& p) { return firstTok == p; });
-        if (k != end(f->skeys)) {
-          currentFilter_ = f.get();
+
+  Filter* currentFilter = nullptr;
+  for (const auto& section : specPars) {
+    for (const auto& partSelector : section.second->paths) {
+      auto const& firstPartName = front(partSelector);
+      auto const& filterMatch = find_if(begin(filters_), end(filters_), [&](auto const& it) {
+        auto const& key =
+            find_if(begin(it->skeys), end(it->skeys), [&](auto const& partName) { return firstPartName == partName; });
+        if (key != end(it->skeys)) {
+          currentFilter = it.get();
           return true;
         }
         return false;
       });
-      if (filter == end(filters_)) {
-        bool isRegex = dd4hep::dd::isRegex(firstTok);
+      if (filterMatch == end(filters_)) {
         filters_.emplace_back(make_unique<Filter>());
-        filters_.back()->isRegex.emplace_back(isRegex);
-        filters_.back()->hasNamespace.emplace_back(dd4hep::dd::hasNamespace(firstTok));
-        if (isRegex) {
+        filters_.back()->hasNamespace.emplace_back(dd4hep::dd::hasNamespace(firstPartName));
+        if (dd4hep::dd::isRegex(firstPartName)) {
+          filters_.back()->isRegex.emplace_back(true);
           filters_.back()->index.emplace_back(filters_.back()->keys.size());
-          filters_.back()->keys.emplace_back(std::regex(begin(firstTok), end(firstTok)));
+          filters_.back()->keys.emplace_back(std::regex(std::begin(firstPartName), std::end(firstPartName)));
         } else {
+          filters_.back()->isRegex.emplace_back(false);
           filters_.back()->index.emplace_back(filters_.back()->skeys.size());
         }
-        filters_.back()->skeys.emplace_back(firstTok);
+        filters_.back()->skeys.emplace_back(firstPartName);
         filters_.back()->up = nullptr;
-        filters_.back()->spec = i.second;
-
-        // initialize current filter if it's empty
-        if (currentFilter_ == nullptr) {
-          currentFilter_ = filters_.back().get();
-        }
+        filters_.back()->next = nullptr;
+        filters_.back()->spec = section.second;
+        currentFilter = filters_.back().get();
       }
       // all next levels
-      vector<string_view> toks = split(j, "/");
+      vector<string_view> toks = split(partSelector, "/");
       for (size_t pos = 1; pos < toks.size(); ++pos) {
-        if (currentFilter_->next != nullptr) {
-          currentFilter_ = currentFilter_->next.get();
-          auto const& l = find_if(begin(currentFilter_->skeys), end(currentFilter_->skeys), [&](auto const& p) {
-            return toks.front() == p;
-          });
-          if (l == end(currentFilter_->skeys)) {
-            bool isRegex = dd4hep::dd::isRegex(toks[pos]);
-            currentFilter_->isRegex.emplace_back(isRegex);
-            currentFilter_->hasNamespace.emplace_back(dd4hep::dd::hasNamespace(toks[pos]));
-            if (isRegex) {
-              currentFilter_->index.emplace_back(currentFilter_->keys.size());
-              currentFilter_->keys.emplace_back(std::regex(std::begin(toks[pos]), std::end(toks[pos])));
+        if (currentFilter->next != nullptr) {
+          currentFilter = currentFilter->next.get();
+          auto const& key = find_if(
+              begin(currentFilter->skeys), end(currentFilter->skeys), [&](auto const& p) { return toks[pos] == p; });
+          if (key == end(currentFilter->skeys)) {
+            currentFilter->hasNamespace.emplace_back(dd4hep::dd::hasNamespace(toks[pos]));
+            if (dd4hep::dd::isRegex(toks[pos])) {
+              currentFilter->isRegex.emplace_back(true);
+              currentFilter->index.emplace_back(currentFilter->keys.size());
+              currentFilter->keys.emplace_back(std::regex(std::begin(toks[pos]), std::end(toks[pos])));
             } else {
-              currentFilter_->index.emplace_back(currentFilter_->skeys.size());
+              currentFilter->isRegex.emplace_back(false);
+              currentFilter->index.emplace_back(currentFilter->skeys.size());
             }
-            currentFilter_->skeys.emplace_back(toks[pos]);
+            currentFilter->skeys.emplace_back(toks[pos]);
           }
         } else {
-          auto filter = std::make_unique<Filter>();
+          auto nextLevelFilter = std::make_unique<Filter>();
           bool isRegex = dd4hep::dd::isRegex(toks[pos]);
-          filter->isRegex.emplace_back(isRegex);
-          filter->hasNamespace.emplace_back(dd4hep::dd::hasNamespace(toks[pos]));
+          nextLevelFilter->isRegex.emplace_back(isRegex);
+          nextLevelFilter->hasNamespace.emplace_back(dd4hep::dd::hasNamespace(toks[pos]));
           if (isRegex) {
-            filter->index.emplace_back(filters_.back()->keys.size());
-            filter->keys.emplace_back(std::regex(toks[pos].begin(), toks[pos].end()));
+            nextLevelFilter->index.emplace_back(filters_.back()->keys.size());
+            nextLevelFilter->keys.emplace_back(std::regex(toks[pos].begin(), toks[pos].end()));
           } else {
-            filter->index.emplace_back(filters_.back()->skeys.size());
+            nextLevelFilter->index.emplace_back(filters_.back()->skeys.size());
           }
-          filter->skeys.emplace_back(toks.front());
-          filter->next = nullptr;
-          filter->up = currentFilter_;
-          filter->spec = i.second;
+          nextLevelFilter->skeys.emplace_back(toks[pos]);
+          nextLevelFilter->next = nullptr;
+          nextLevelFilter->up = currentFilter;
+          nextLevelFilter->spec = section.second;
 
-          currentFilter_->next = std::move(filter);
+          currentFilter->next = std::move(nextLevelFilter);
         }
       }
     }
@@ -248,15 +246,16 @@ void print(const Filter* filter) {
 void DDFilteredView::printFilter() const {
   for (const auto& f : filters_) {
     edm::LogVerbatim("Geometry").log([&](auto& log) {
+      log << "\nFilter: ";
       for (const auto& it : f->skeys) {
         log << it << ", ";
       }
       if (f->next) {
-        log << "Next:\n";
+        log << "\nNext: ";
         print(&*f->next);
       }
       if (f->up) {
-        log << "Up:\n";
+        log << "Up: ";
         print(f->up);
       }
     });
@@ -853,7 +852,9 @@ double DDFilteredView::getNextValue(const std::string& key) const {
   return result;
 }
 
-std::string_view DDFilteredView::name() const { return (volume().volume().name()); }
+std::string_view DDFilteredView::name() const {
+  return (node_ == nullptr ? std::string_view() : (volume().volume().name()));
+}
 
 dd4hep::Solid DDFilteredView::solid() const { return (volume().volume().solid()); }
 

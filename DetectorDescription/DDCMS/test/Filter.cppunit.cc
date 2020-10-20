@@ -41,7 +41,6 @@ void testFilter::setUp() {
 
   for (const auto& i : selections) {
     vector<string_view> toks = split(i, "/");
-    unique_ptr<Filter> f = nullptr;
     auto const& filter = find_if(begin(filters_), end(filters_), [&](auto const& f) {
       auto const& k = find_if(begin(f->skeys), end(f->skeys), [&](auto const& p) { return toks.front() == p; });
       if (k != end(f->skeys)) {
@@ -73,16 +72,16 @@ void testFilter::setUp() {
         auto const& l = find_if(
             begin(currentFilter->skeys), end(currentFilter->skeys), [&](auto const& p) { return toks[pos] == p; });
         if (l == end(currentFilter->skeys)) {
-          bool isRegex = dd4hep::dd::isRegex(toks.front());
+          bool isRegex = dd4hep::dd::isRegex(toks[pos]);
           currentFilter->isRegex.emplace_back(isRegex);
-          currentFilter->hasNamespace.emplace_back(dd4hep::dd::hasNamespace(toks.front()));
+          currentFilter->hasNamespace.emplace_back(dd4hep::dd::hasNamespace(toks[pos]));
           if (isRegex) {
             currentFilter->index.emplace_back(currentFilter->keys.size());
-            currentFilter->keys.emplace_back(std::regex(std::begin(toks.front()), std::end(toks.front())));
+            currentFilter->keys.emplace_back(std::regex(std::begin(toks[pos]), std::end(toks[pos])));
           } else {
             currentFilter->index.emplace_back(currentFilter->skeys.size());
           }
-          currentFilter->skeys.emplace_back(toks.front());
+          currentFilter->skeys.emplace_back(toks[pos]);
         }
       } else {
         auto filter = std::make_unique<Filter>();
@@ -95,7 +94,7 @@ void testFilter::setUp() {
         } else {
           filter->index.emplace_back(filters_.back()->skeys.size());
         }
-        filter->skeys.emplace_back(toks.front());
+        filter->skeys.emplace_back(toks[pos]);
         filter->next = nullptr;
         filter->up = currentFilter;
 
@@ -116,6 +115,10 @@ void testFilter::checkFilter() {
   for (auto const& i : filters_) {
     current = i.get();
     do {
+      for (auto const& i : current->skeys) {
+        std::cout << i << ", ";
+      }
+      std::cout << "\n";
       current = current->next.get();
     } while (current != nullptr);
   }
