@@ -37,10 +37,6 @@ MessageLogger = cms.Service("MessageLogger",
             optionalPSet = cms.untracked.bool(True),
             limit = cms.untracked.int32(0)
         ),
-        FwkJob = cms.untracked.PSet(
-            optionalPSet = cms.untracked.bool(True),
-            limit = cms.untracked.int32(0)
-        ),
         FwkSummary = cms.untracked.PSet(
             optionalPSet = cms.untracked.bool(True),
             reportEvery = cms.untracked.int32(1),
@@ -70,8 +66,7 @@ MessageLogger = cms.Service("MessageLogger",
         'cout', 
         'cerr'),
     debugModules = cms.untracked.vstring(),
-    categories = cms.untracked.vstring('FwkJob', 
-        'FwkReport', 
+    categories = cms.untracked.vstring('FwkReport', 
         'FwkSummary', 
         'Root_NoDictionary')
 )
