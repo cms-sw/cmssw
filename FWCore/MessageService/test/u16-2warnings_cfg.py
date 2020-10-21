@@ -26,7 +26,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         extension = cms.untracked.string('mmxml')
     ),
     default = cms.untracked.PSet(
-        FwkJob = cms.untracked.PSet(
+        FwkTest = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         )
     ),
@@ -68,7 +68,6 @@ process.MessageLogger = cms.Service("MessageLogger",
         extension = cms.untracked.string('mmlog'),
         filename = cms.untracked.string('u16_altDebugs')
     ),
-    fwkJobReports = cms.untracked.vstring('u16_job_report'),
     destinations = cms.untracked.vstring('u16_warnings', 
         'u16_warnings2', 
         'u16_errors', 
@@ -77,7 +76,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         'u16_default'),
     debugModules = cms.untracked.vstring('*'),
     categories = cms.untracked.vstring('preEventProcessing', 
-        'FwkJob'),
+        'FwkTest'),
     # produce another file u16_altWarnings.log - temporary test
     u16_warnings2 = cms.untracked.PSet(
         threshold = cms.untracked.string('WARNING'),
