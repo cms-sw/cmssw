@@ -256,7 +256,6 @@ namespace edm {
       std::vector<std::string> destinations;
       std::vector<std::string> statistics;
       std::vector<std::string> categories;
-      std::vector<std::string> messageIDs;
       std::vector<std::string> debugModules;
       std::vector<std::string> suppressInfo;
       std::vector<std::string> suppressFwkInfo;
