@@ -5,7 +5,7 @@ process = cms.Process("READ")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.destinations = ['cerr']
 process.MessageLogger.statistics = []
-process.MessageLogger.fwkJobReports = []
+
 
 process.load("FWCore.Framework.test.cmsExceptionsFatal_cff")
 
