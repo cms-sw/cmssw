@@ -23,23 +23,21 @@
 
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "TrackingTools/TrackAssociator/interface/DetIdAssociator.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetMatchInfo.h"
 #include "TrackingTools/TrackAssociator/interface/CachedTrajectory.h"
+#include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
 
-#include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackingRecHit/interface/RecSegment.h"
 
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
-
-#include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
 
 #include "FWCore/Utilities/interface/Visibility.h"
 
@@ -161,6 +159,6 @@ private:
   const CaloGeometry* theCaloGeometry_;
   const GlobalTrackingGeometry* theTrackingGeometry_;
 
-  edm::ESWatcher<IdealMagneticFieldRecord> theMagneticFeildWatcher_;
+  edm::ESWatcher<IdealMagneticFieldRecord> theMagneticFieldWatcher_;
 };
 #endif
