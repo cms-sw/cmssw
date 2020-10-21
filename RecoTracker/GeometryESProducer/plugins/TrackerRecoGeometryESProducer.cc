@@ -28,11 +28,13 @@ public:
 private:
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopToken_;
+  bool usePhase2Stacks_;
 };
 
 using namespace edm;
 
-TrackerRecoGeometryESProducer::TrackerRecoGeometryESProducer(const edm::ParameterSet &p) {
+TrackerRecoGeometryESProducer::TrackerRecoGeometryESProducer(const edm::ParameterSet &p)
+    : usePhase2Stacks_(p.getParameter<bool>("usePhase2Stacks")) {
   auto c = setWhatProduced(this);
 
   // 08-Oct-2007 - Patrick Janot
@@ -50,12 +52,14 @@ std::unique_ptr<GeometricSearchTracker> TrackerRecoGeometryESProducer::produce(
   TrackerGeometry const &tG = iRecord.get(geomToken_);
 
   GeometricSearchTrackerBuilder builder;
-  return std::unique_ptr<GeometricSearchTracker>(builder.build(tG.trackerDet(), &tG, &iRecord.get(tTopToken_)));
+  return std::unique_ptr<GeometricSearchTracker>(
+      builder.build(tG.trackerDet(), &tG, &iRecord.get(tTopToken_), usePhase2Stacks_));
 }
 
 void TrackerRecoGeometryESProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
 
+  desc.add<bool>("usePhase2Stacks", false);
   desc.addUntracked<std::string>("trackerGeometryLabel", "");
   descriptions.addDefault(desc);
 }
