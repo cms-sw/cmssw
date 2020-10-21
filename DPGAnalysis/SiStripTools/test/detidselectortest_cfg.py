@@ -20,7 +20,7 @@ process.source = cms.Source("EmptySource",
                             numberEventsInRun = cms.untracked.uint32(1)
                             )
 
-process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 

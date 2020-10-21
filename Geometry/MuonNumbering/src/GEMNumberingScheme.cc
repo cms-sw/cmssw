@@ -35,7 +35,7 @@ int GEMNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const 
 #ifdef EDM_ML_DEBUG
   if (levels != theRollLevel)
     edm::LogVerbatim("GEMNumberingScheme") << "MuonGEMNumberingScheme::BNToUN: BaseNumber has " << num.getLevels()
-                                           << " levels, need " << maxLevel << ":" << theRingLevel;
+                                           << " levels, need at least till " << theRollLevel;
 #endif
 
   int region(GEMDetId::minRegionId), ring(GEMDetId::minRingId);

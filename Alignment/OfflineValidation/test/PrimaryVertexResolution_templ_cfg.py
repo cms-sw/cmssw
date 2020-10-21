@@ -75,7 +75,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(150000) )
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
-process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load('Configuration.Geometry.GeometryRecoDB_cff')
 
 process.load('Configuration/StandardSequences/Services_cff')
