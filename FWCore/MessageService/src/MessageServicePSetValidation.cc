@@ -110,13 +110,6 @@ namespace edm {
       noDuplicates(categories, destinations, "MessageLogger", "categories", "destinations");
       noDuplicates(categories, statistics, "MessageLogger", "categories", "statistics");
 
-      messageIDs = check<vString>(pset, "MessageLogger", "messageIDs");
-      noDuplicates(messageIDs, "MessageLogger", "messageIDs");
-      noKeywords(messageIDs, "MessageLogger", "messageIDs");
-      noNonPSetUsage(pset, messageIDs, "MessageLogger", "messageIDs");
-      noDuplicates(messageIDs, destinations, "MessageLogger", "messageIDs", "destinations");
-      noDuplicates(messageIDs, statistics, "MessageLogger", "messageIDs", "statistics");
-
     }  // psetLists
 
     void edm::service::MessageServicePSetValidation::suppressionLists(ParameterSet const& pset) {
@@ -199,8 +192,6 @@ namespace edm {
       if (s == "destinations")
         return true;
       if (s == "categories")
-        return true;
-      if (s == "messageIDs")
         return true;
       if (s == "debugModules")
         return true;
@@ -305,8 +296,6 @@ namespace edm {
       if (word == "default")
         return false;
       if (word == "categories")
-        return false;
-      if (word == "messageIDs")
         return false;
       if (word == "destinations")
         return false;
@@ -414,8 +403,6 @@ namespace edm {
         if (lookForMatch(statistics, *i))
           continue;
         if (lookForMatch(categories, *i))
-          continue;
-        if (lookForMatch(messageIDs, *i))
           continue;
         if ((*i) == "default")
           continue;
@@ -620,8 +607,6 @@ namespace edm {
       vString::const_iterator end = psnames.end();
       for (vString::const_iterator i = psnames.begin(); i != end; ++i) {
         if (lookForMatch(categories, *i))
-          continue;
-        if (lookForMatch(messageIDs, *i))
           continue;
         if ((*i) == "default")
           continue;
