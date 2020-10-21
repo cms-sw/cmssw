@@ -1,4 +1,5 @@
 #include "SimG4CMS/Muon/interface/MuonG4Numbering.h"
+#include "CondFormats/GeometryObjects/interface/MuonOffsetMap.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -11,7 +12,8 @@
 
 //#define EDM_ML_DEBUG
 
-MuonG4Numbering::MuonG4Numbering(const MuonGeometryConstants& muonConstants) {
+MuonG4Numbering::MuonG4Numbering(const MuonGeometryConstants& muonConstants, const MuonOffsetMap* offMap, bool dd4hep)
+    : offMap_(offMap), dd4hep_(dd4hep) {
   theLevelPart = muonConstants.getValue("level");
   theSuperPart = muonConstants.getValue("super");
   theBasePart = muonConstants.getValue("base");
@@ -37,6 +39,7 @@ MuonG4Numbering::MuonG4Numbering(const MuonGeometryConstants& muonConstants) {
   edm::LogVerbatim("MuonSim") << "MuonG4Numbering configured with"
                               << "Level = " << theLevelPart << " Super = " << theSuperPart << " Base = " << theBasePart
                               << " StartCopyNo = " << theStartCopyNo;
+  edm::LogVerbatim("MuonSim") << "dd4hep flag set to " << dd4hep_ << " and offsetmap at " << offMap_;
 #endif
 }
 
@@ -47,10 +50,23 @@ MuonBaseNumber MuonG4Numbering::PhysicalVolumeToBaseNumber(const G4Step* aStep) 
   for (int ii = 0; ii < touch->GetHistoryDepth(); ii++) {
     G4VPhysicalVolume* vol = touch->GetVolume(ii);
     int copyno = vol->GetCopyNo();
+    int extra(0);
+    if (dd4hep_ && (offMap_ != nullptr)) {
+      std::string namx = static_cast<std::string>(vol->GetName());
+      std::size_t last = namx.rfind('_');
+      std::string name = ((last == std::string::npos) ? namx : (namx.substr(0, last)));
+      auto itr = offMap_->muonMap_.find(name);
+      if (itr != offMap_->muonMap_.end())
+        extra = (itr->second).first + (itr->second).second;
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("MuonSim") << "MuonG4Numbering: " << vol->GetName() << " " << copyno << std::endl
-                                << "Split " << copyNoRelevant(copyno) << ":" << theLevelPart << ":" << theSuperPart
-                                << " ";
+      edm::LogVerbatim("MuonSim") << "MuonG4Numbering: " << namx << ":" << name << " iterator "
+                                  << (itr != offMap_->muonMap_.end()) << " Extra " << extra;
+#endif
+    }
+    copyno += extra;
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("MuonSim") << "MuonG4Numbering: " << vol->GetName() << " " << copyno << " Split "
+                                << copyNoRelevant(copyno) << ":" << theLevelPart << ":" << theSuperPart << " ";
 #endif
     if (copyNoRelevant(copyno)) {
       num.addBase(getCopyNoLevel(copyno), getCopyNoSuperNo(copyno), getCopyNoBaseNo(copyno) - theStartCopyNo);

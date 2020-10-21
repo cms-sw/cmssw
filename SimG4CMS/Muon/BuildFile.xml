@@ -1,9 +1,10 @@
+<use name="CondFormats/GeometryObjects"/>
+<use name="Geometry/MuonNumbering"/>
+<use name="Geometry/Records"/>
 <use name="SimG4Core/SensitiveDetector"/>
 <use name="SimG4Core/Notification"/>
 <use name="SimG4Core/Physics"/>
 <use name="SimDataFormats/SimHitMaker"/>
-<use name="Geometry/MuonNumbering"/>
-<use name="Geometry/Records"/>
 <use name="boost"/>
 <use name="geant4core"/>
 <use name="hepmc"/>
