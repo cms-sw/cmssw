@@ -12,7 +12,7 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 
-EcalHaloDataProducer::EcalHaloDataProducer(const edm::ParameterSet& iConfig) {
+EcalHaloDataProducer::EcalHaloDataProducer(const edm::ParameterSet& iConfig) : EcalAlgo(consumesCollector()) {
   //RecHit Level
   IT_EBRecHit = iConfig.getParameter<edm::InputTag>("EBRecHitLabel");
   IT_EERecHit = iConfig.getParameter<edm::InputTag>("EERecHitLabel");
@@ -82,7 +82,6 @@ void EcalHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   iEvent.getByToken(photon_token_, ThePhotons);
 
   //Run the EcalHaloAlgo to reconstruct the EcalHaloData object
-  EcalHaloAlgo EcalAlgo;
   EcalAlgo.SetRoundnessCut(RoundnessCut);
   EcalAlgo.SetAngleCut(AngleCut);
   EcalAlgo.SetRecHitEnergyThresholds(EBRecHitEnergyThreshold, EERecHitEnergyThreshold, ESRecHitEnergyThreshold);
