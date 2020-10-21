@@ -10,7 +10,7 @@ process.options = FWCore.Framework.test.cmsExceptionsFatal_cff.options
 
 process.MessageLogger = cms.Service("MessageLogger",
     default = cms.untracked.PSet(
-        FwkJob = cms.untracked.PSet(
+        FwkTest = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         )
     ),
@@ -18,7 +18,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     u31_infos = cms.untracked.PSet(
         threshold = cms.untracked.string('INFO'),
         noTimeStamps = cms.untracked.bool(True),
-        FwkJob = cms.untracked.PSet(
+        FwkTest = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         preEventProcessing = cms.untracked.PSet(
@@ -26,7 +26,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         )
     ),
     categories = cms.untracked.vstring('preEventProcessing', 
-        'FwkJob', 
+        'FwkTest', 
         'timer', 
         'trace'),
     destinations = cms.untracked.vstring('u31_infos')
