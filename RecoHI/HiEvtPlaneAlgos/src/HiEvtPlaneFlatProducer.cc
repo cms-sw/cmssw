@@ -81,8 +81,6 @@ private:
 
   const int FlatOrder_;
   int NumFlatBins_;
-  double minvtx_;
-  double maxvtx_;
   int flatnvtxbins_;
   double flatminvtx_;
   double flatdelvtx_;
@@ -105,8 +103,6 @@ HiEvtPlaneFlatProducer::HiEvtPlaneFlatProducer(const edm::ParameterSet& iConfig)
       trackTag_(iConfig.getParameter<edm::InputTag>("trackTag")),
       FlatOrder_(iConfig.getParameter<int>("FlatOrder")),
       NumFlatBins_(iConfig.getParameter<int>("NumFlatBins")),
-      minvtx_(iConfig.getParameter<double>("minvtx")),
-      maxvtx_(iConfig.getParameter<double>("maxvtx")),
       flatnvtxbins_(iConfig.getParameter<int>("flatnvtxbins")),
       flatminvtx_(iConfig.getParameter<double>("flatminvtx")),
       flatdelvtx_(iConfig.getParameter<double>("flatdelvtx")),
