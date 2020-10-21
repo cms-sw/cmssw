@@ -383,12 +383,12 @@ GsfElectronAlgo::GsfElectronAlgo(const Tokens& input,
       tkIsol04CalcCfg_(tkIsol04),
       tkIsolHEEP03CalcCfg_(tkIsolHEEP03),
       tkIsolHEEP04CalcCfg_(tkIsolHEEP04),
-      magneticFieldToken_{cc.esConsumes<MagneticField, IdealMagneticFieldRecord>()},
-      caloGeometryToken_{cc.esConsumes<CaloGeometry, CaloGeometryRecord>()},
-      caloTopologyToken_{cc.esConsumes<CaloTopology, CaloTopologyRecord>()},
-      trackerGeometryToken_{cc.esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()},
-      ecalSeveretyLevelAlgoToken_{cc.esConsumes<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd>()},
-      hcalHelper_{hcal},
+      magneticFieldToken_{cc.esConsumes()},
+      caloGeometryToken_{cc.esConsumes()},
+      caloTopologyToken_{cc.esConsumes()},
+      trackerGeometryToken_{cc.esConsumes()},
+      ecalSeveretyLevelAlgoToken_{cc.esConsumes()},
+      hcalHelper_{hcal, std::move(cc)},
       superClusterErrorFunction_{
           std::forward<std::unique_ptr<EcalClusterFunctionBaseClass>>(superClusterErrorFunction)},
       crackCorrectionFunction_{std::forward<std::unique_ptr<EcalClusterFunctionBaseClass>>(crackCorrectionFunction)},
@@ -397,7 +397,6 @@ GsfElectronAlgo::GsfElectronAlgo(const Tokens& input,
 {}
 
 void GsfElectronAlgo::checkSetup(const edm::EventSetup& es) {
-  hcalHelper_.checkSetup(es);
   if (cfg_.strategy.useEcalRegression || cfg_.strategy.useCombinationRegression)
     regHelper_.checkSetup(es);
 
@@ -412,9 +411,6 @@ void GsfElectronAlgo::checkSetup(const edm::EventSetup& es) {
 GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent(edm::Event const& event,
                                                        CaloGeometry const& caloGeometry,
                                                        EcalSeverityLevelAlgo const& ecalSeveretyLevelAlgo) {
-  // prepare access to hcal data
-  hcalHelper_.readEvent(event);
-
   auto const& towers = event.get(cfg_.tokens.hcalTowersTag);
 
   // Isolation algos
@@ -537,6 +533,9 @@ reco::GsfElectronCollection GsfElectronAlgo::completeElectrons(edm::Event const&
   auto const& caloTopology = eventSetup.getData(caloTopologyToken_);
   auto const& trackerGeometry = eventSetup.getData(trackerGeometryToken_);
   auto const& ecalSeveretyLevelAlgo = eventSetup.getData(ecalSeveretyLevelAlgoToken_);
+
+  // prepare access to hcal data
+  hcalHelper_.beginEvent(event, eventSetup);
 
   checkSetup(eventSetup);
   auto eventData = beginEvent(event, caloGeometry, ecalSeveretyLevelAlgo);
