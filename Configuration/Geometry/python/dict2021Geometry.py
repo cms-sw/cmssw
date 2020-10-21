@@ -1020,7 +1020,7 @@ muonDict = {
             'Geometry/MuonCommonData/data/mb3/2021/v1/mb3.xml',
             'Geometry/MuonCommonData/data/mb4/2015/v2/mb4.xml',
             'Geometry/MuonCommonData/data/mb4Shield/2021/v1/mb4Shield.xml',
-            'Geometry/MuonCommonData/data/muonYoke/2021/v4/muonYoke.xml',
+            'Geometry/MuonCommonData/data/muonYoke/2021/v5/muonYoke.xml',
             'Geometry/MuonCommonData/data/mf/2021/v2/mf.xml',
             'Geometry/MuonCommonData/data/rpcf/2015/v1/rpcf.xml',
             'Geometry/MuonCommonData/data/gemf/TDR_BaseLine/gemf.xml',
@@ -1029,7 +1029,7 @@ muonDict = {
             'Geometry/MuonCommonData/data/mfshield/2017/v2/mfshield.xml',
         ],
         2 : [
-            'Geometry/MuonCommonData/data/muonNumbering/2021/v2/muonNumbering.xml',
+            'Geometry/MuonCommonData/data/muonNumbering/2021/v3/muonNumbering.xml',
         ],
         3 : [
             'Geometry/MuonSimData/data/v2/muonSens.xml',
@@ -1045,6 +1045,7 @@ muonDict = {
         ],
         "sim" : [
             'from Geometry.MuonNumbering.muonGeometryConstants_cff import *',
+            'from Geometry.MuonNumbering.muonOffsetESProducer_cff import *',
         ],
         "reco" : [
             'from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *',

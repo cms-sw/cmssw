@@ -200,6 +200,9 @@
    <field name="matNames_"              mapping="blob"/>
    <field name="dzs_"                   mapping="blob"/>
  </class>
+ <class name="MuonOffsetMap" class_version="0"> 
+   <field name="muonMap_"         mapping="blob"/>
+ </class>
 
  <class name="PDetGeomDesc" class_version="0">
    <field name="container_" mapping="blob"/>
