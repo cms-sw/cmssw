@@ -163,7 +163,6 @@ void DDFilteredView::mergedSpecifics(DDSpecParRefs const& specPars) {
     filters_.shrink_to_fit();
   }
 
-  Filter* currentFilter = nullptr;
   for (const auto& section : specPars) {
     for (const auto& partSelector : section.second->paths) {
       auto const& firstPartName = front(partSelector);
@@ -171,7 +170,7 @@ void DDFilteredView::mergedSpecifics(DDSpecParRefs const& specPars) {
         auto const& key =
             find_if(begin(it->skeys), end(it->skeys), [&](auto const& partName) { return firstPartName == partName; });
         if (key != end(it->skeys)) {
-          currentFilter = it.get();
+          currentFilter_ = it.get();
           return true;
         }
         return false;
@@ -191,26 +190,30 @@ void DDFilteredView::mergedSpecifics(DDSpecParRefs const& specPars) {
         filters_.back()->up = nullptr;
         filters_.back()->next = nullptr;
         filters_.back()->spec = section.second;
-        currentFilter = filters_.back().get();
+        // initialize current filter if it's empty
+        if (currentFilter_ == nullptr) {
+          currentFilter_ = filters_.back().get();
+        }
       }
       // all next levels
       vector<string_view> toks = split(partSelector, "/");
       for (size_t pos = 1; pos < toks.size(); ++pos) {
-        if (currentFilter->next != nullptr) {
-          currentFilter = currentFilter->next.get();
-          auto const& key = find_if(
-              begin(currentFilter->skeys), end(currentFilter->skeys), [&](auto const& p) { return toks[pos] == p; });
-          if (key == end(currentFilter->skeys)) {
-            currentFilter->hasNamespace.emplace_back(dd4hep::dd::hasNamespace(toks[pos]));
+        if (currentFilter_->next != nullptr) {
+          currentFilter_ = currentFilter_->next.get();
+          auto const& key = find_if(begin(currentFilter_->skeys), end(currentFilter_->skeys), [&](auto const& p) {
+            return toks.front() == p;
+          });
+          if (key == end(currentFilter_->skeys)) {
+            currentFilter_->hasNamespace.emplace_back(dd4hep::dd::hasNamespace(toks[pos]));
             if (dd4hep::dd::isRegex(toks[pos])) {
-              currentFilter->isRegex.emplace_back(true);
-              currentFilter->index.emplace_back(currentFilter->keys.size());
-              currentFilter->keys.emplace_back(std::regex(std::begin(toks[pos]), std::end(toks[pos])));
+              currentFilter_->isRegex.emplace_back(true);
+              currentFilter_->index.emplace_back(currentFilter_->keys.size());
+              currentFilter_->keys.emplace_back(std::regex(std::begin(toks[pos]), std::end(toks[pos])));
             } else {
-              currentFilter->isRegex.emplace_back(false);
-              currentFilter->index.emplace_back(currentFilter->skeys.size());
+              currentFilter_->isRegex.emplace_back(false);
+              currentFilter_->index.emplace_back(currentFilter_->skeys.size());
             }
-            currentFilter->skeys.emplace_back(toks[pos]);
+            currentFilter_->skeys.emplace_back(toks[pos]);
           }
         } else {
           auto nextLevelFilter = std::make_unique<Filter>();
@@ -225,10 +228,10 @@ void DDFilteredView::mergedSpecifics(DDSpecParRefs const& specPars) {
           }
           nextLevelFilter->skeys.emplace_back(toks[pos]);
           nextLevelFilter->next = nullptr;
-          nextLevelFilter->up = currentFilter;
+          nextLevelFilter->up = currentFilter_;
           nextLevelFilter->spec = section.second;
 
-          currentFilter->next = std::move(nextLevelFilter);
+          currentFilter_->next = std::move(nextLevelFilter);
         }
       }
     }
