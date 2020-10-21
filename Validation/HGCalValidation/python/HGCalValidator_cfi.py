@@ -46,6 +46,8 @@ hgcalValidator = DQMEDAnalyzer(
 
     simVertices = cms.InputTag("g4SimHits"),
 
+    LayerClustersInputMask = cms.InputTag("ticlTrackstersEM"),
+
     #Total number of layers of HGCal that we want to monitor
     #Could get this also from HGCalImagingAlgo::maxlayer but better to get it from here
     totallayers_to_monitor = cms.int32(52),

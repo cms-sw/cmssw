@@ -47,9 +47,10 @@ namespace hgcal {
 class SimClusterAssociatorByEnergyScoreImpl : public hgcal::LayerClusterToSimClusterAssociatorBaseImpl {
 public:
   explicit SimClusterAssociatorByEnergyScoreImpl(edm::EDProductGetter const &,
-                                                   bool,
-                                                   std::shared_ptr<hgcal::RecHitTools>,
-                                                   const std::unordered_map<DetId, const HGCRecHit *> *&);
+						 bool,
+						 const std::vector<float> &,
+						 std::shared_ptr<hgcal::RecHitTools>,
+						 const std::unordered_map<DetId, const HGCRecHit *> *&);
 
   hgcal::RecoToSimCollectionWithSimClusters associateRecoToSim(const edm::Handle<reco::CaloClusterCollection> &cCH,
                                                 const edm::Handle<SimClusterCollection> &sCCH) const override;
@@ -59,6 +60,7 @@ public:
 
 private:
   const bool hardScatterOnly_;
+  const std::vector<float> &mask_;
   std::shared_ptr<hgcal::RecHitTools> recHitTools_;
   const std::unordered_map<DetId, const HGCRecHit *> *hitMap_;
   unsigned layers_;

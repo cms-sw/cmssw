@@ -221,6 +221,7 @@ public:
       edm::Handle<std::vector<SimCluster>> simClusterHandle,
       std::vector<SimCluster> const& simclusters,
       std::vector<size_t> const& sCIndices,
+      const std::vector<float> &mask,
       std::unordered_map<DetId, const HGCRecHit*> const&,
       unsigned layers,
       const edm::Handle<hgcal::LayerClusterToSimClusterAssociator>& SCAssocByEnergyScoreHandle) const;
@@ -244,6 +245,7 @@ public:
 			      edm::Handle<std::vector<SimCluster>> simClusterHandle,
 			      std::vector<SimCluster> const& simclusters,
 			      std::vector<size_t> const& sCIndices,
+			      const std::vector<float> &mask,
 			      std::unordered_map<DetId, const HGCRecHit*> const&,
 			      unsigned layers,
 			      std::vector<int> thicknesses,

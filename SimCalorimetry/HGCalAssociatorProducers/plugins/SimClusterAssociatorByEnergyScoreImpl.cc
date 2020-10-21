@@ -6,9 +6,11 @@
 SimClusterAssociatorByEnergyScoreImpl::SimClusterAssociatorByEnergyScoreImpl(
     edm::EDProductGetter const& productGetter,
     bool hardScatterOnly,
+    const std::vector<float> &mask,
     std::shared_ptr<hgcal::RecHitTools> recHitTools,
     const std::unordered_map<DetId, const HGCRecHit*>*& hitMap)
     : hardScatterOnly_(hardScatterOnly),
+      mask_(mask),
       recHitTools_(recHitTools),
       hitMap_(hitMap),
       productGetter_(&productGetter)
@@ -133,6 +135,12 @@ hgcal::association SimClusterAssociatorByEnergyScoreImpl::makeConnections(
   scsInLayerCluster.resize(nLayerClusters);
 
   for (unsigned int lcId = 0; lcId < nLayerClusters; ++lcId) {
+
+    if (mask_[lcId] == 0.) {
+      LogDebug("SimClusterAssociatorByEnergyScoreImpl") << "Skipping masked cluster " << lcId << std::endl;
+      continue;
+    }
+	      
     const std::vector<std::pair<DetId, float>>& hits_and_fractions = clusters[lcId].hitsAndFractions();
     unsigned int numberOfHitsInLC = hits_and_fractions.size();
     const auto firstHitDetId = hits_and_fractions[0].first;
@@ -170,6 +178,10 @@ hgcal::association SimClusterAssociatorByEnergyScoreImpl::makeConnections(
 
 #ifdef EDM_ML_DEBUG
   for (unsigned int lcId = 0; lcId < nLayerClusters; ++lcId) {
+    if (mask_[lcId] == 0.) {
+      LogDebug("SimClusterAssociatorByEnergyScoreImpl") << "Skipping masked cluster " << lcId << std::endl;
+      continue;
+    }
     const auto& hits_and_fractions = clusters[lcId].hitsAndFractions();
     unsigned int numberOfHitsInLC = hits_and_fractions.size();
     const auto firstHitDetId = hits_and_fractions[0].first;
@@ -332,6 +344,12 @@ hgcal::association SimClusterAssociatorByEnergyScoreImpl::makeConnections(
   // Update scsInLayerCluster; compute the score LayerCluster-to-SimCluster,
   // together with the returned AssociationMap
   for (unsigned int lcId = 0; lcId < nLayerClusters; ++lcId) {
+    
+    if (mask_[lcId] == 0.) {
+      LogDebug("SimClusterAssociatorByEnergyScoreImpl") << "Skipping masked cluster " << lcId << std::endl;
+      continue;
+    }
+
     // The simclusters contributing to the layer clusters should already be unique.  
     // find the unique simclusters id contributing to the layer clusters
     std::sort(scsInLayerCluster[lcId].begin(), scsInLayerCluster[lcId].end());

@@ -25,6 +25,8 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
 
   simVertices_ = consumes<std::vector<SimVertex>>(pset.getParameter<edm::InputTag>("simVertices"));
 
+  clustersMask_ = consumes<std::vector<float>>(pset.getParameter<edm::InputTag>("LayerClustersInputMask"));
+
   hitMap_ = consumes<std::unordered_map<DetId, const HGCRecHit*>>(edm::InputTag("hgcalRecHitMapProducer"));
 
   density_ = consumes<Density>(edm::InputTag("hgcalLayerClusters"));
@@ -212,6 +214,8 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   edm::Handle<hgcal::LayerClusterToSimClusterAssociator> SCAssocByEnergyScoreHandle;
   event.getByToken(SCAssocByEnergyScoreProducer_, SCAssocByEnergyScoreHandle);
 
+  const auto& inputClusterMask = event.get(clustersMask_);
+
   edm::Handle<std::unordered_map<DetId, const HGCRecHit*>> hitMapHandle;
   event.getByToken(hitMap_, hitMapHandle);
   const std::unordered_map<DetId, const HGCRecHit*>* hitMap = &*hitMapHandle;
@@ -289,6 +293,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
 					       simClustersHandle,
 					       simclusters,
 					       sCIndices,
+					       inputClusterMask,
 					       *hitMap,
 					       totallayers_to_monitor_,
 					       thicknesses_to_monitor_,
