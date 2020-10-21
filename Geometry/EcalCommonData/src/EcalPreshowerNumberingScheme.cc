@@ -106,8 +106,8 @@ uint32_t EcalPreshowerNumberingScheme::getUnitID(const EcalBaseNumber& baseNumbe
     }
 
     // Z index +Z = 1 ; -Z = 2
-    int zside = baseNumber.getCopyNumber("EREG");
-    zside = 2 * (1 - zside) + 1;
+    int zs = baseNumber.getCopyNumber("EREG");
+    int zside = 2 * (1 - zs) + 1;
 
     // box number
     int box = baseNumber.getCopyNumber(2);
@@ -414,14 +414,10 @@ uint32_t EcalPreshowerNumberingScheme::getUnitID(const EcalBaseNumber& baseNumbe
     intIndex = ESDetId(strip, x, y, layer, zside).rawId();
 
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EcalGeom") << "EcalPreshowerNumberingScheme : zside " << zside << " Ladd " << ladd
-                                 << " ladd_copy: " << ladd_copy << " box " << box << " x " << x << " y " << y
-                                 << " layer " << layer << " strip " << strip << " UnitID 0x" << std::hex << intIndex
-                                 << std::dec;
+    edm::LogVerbatim("EcalGeom") << "EcalPreshowerNumberingScheme : zside " << zs << ":" << zside << " Ladd " << ladd  << " ladd_copy: " << ladd_copy << " box " << box << " x " << x << " y " << y << " layer " << layer << " strip " << strip << " UnitID 0x" << std::hex << intIndex << std::dec;
 
     for (int ich = 0; ich < level; ich++)
-      edm::LogVerbatim("EcalGeom") << "Name = " << baseNumber.getLevelName(ich)
-                                   << " copy = " << baseNumber.getCopyNumber(ich);
+      edm::LogVerbatim("EcalGeom") << "Name = " << baseNumber.getLevelName(ich) << " copy = " << baseNumber.getCopyNumber(ich);
 #endif
   }
 
