@@ -11,7 +11,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.globaltag = 'GR09_R_35X_V2::All'
 
-process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration/StandardSequences/GeometryExtended_cff')
 
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
