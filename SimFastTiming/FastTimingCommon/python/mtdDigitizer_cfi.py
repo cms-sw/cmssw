@@ -84,6 +84,9 @@ _endcap_MTDDigitizer = cms.PSet(
         )
 )
 
+from Configuration.Eras.Modifier_phase2_etlV4_cff import phase2_etlV4
+phase2_etlV4.toModify(_endcap_MTDDigitizer.DeviceSimulation, meVPerMIP = 0.001 )
+
 from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
 for _m in [_barrel_MTDDigitizer, _endcap_MTDDigitizer]:
     premix_stage1.toModify(_m, premixStage1 = True)
