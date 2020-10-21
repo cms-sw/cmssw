@@ -1954,6 +1954,7 @@ steps['REMINIAODHID18']={ '--scenario':'pp',
                           '--datatier':'MINIAOD,DQMIO',
                           '--eventcontent':'MINIAOD,DQM',
                           '--era':'Run2_2018_pp_on_AA',
+                          '--procModifiers':'run2_miniAOD_pp_on_AA_103X',
                           '--data':'',
                           '--processName':'PAT',
                           '-n':'100'
@@ -2501,15 +2502,16 @@ steps['REMINIAODHI2018PPRECO']=merge([{'-s':'PAT,VALIDATION:@miniAODValidation,D
                                        '--datatier':'MINIAODSIM,DQMIO',
                                        '--eventcontent':'MINIAODSIM,DQM',
                                        '-n':100,
+                                       '--era':'Run2_2018_pp_on_AA',
+                                       '--procModifiers':'run2_miniAOD_pp_on_AA_103X',
                                    },hiDefaults2018_ppReco,step3Up2015Defaults])
 steps['REMINIAODHI2018PPRECOMB']=merge([{'-s':'PAT,VALIDATION:@miniAODValidation,DQM:@miniAODDQM',
                                          '--datatier':'MINIAODSIM,DQMIO',
                                          '--eventcontent':'MINIAODSIM,DQM',
                                          '-n':100,
                                          '--era':'Run2_2018_pp_on_AA',
-                                         '--procModifiers':'genJetSubEvent',
+                                         '--procModifiers':'genJetSubEvent,run2_miniAOD_pp_on_AA_103X',
                                      },hiDefaults2018_ppReco,step3Up2015Defaults])
-
 steps['ALCARECOHI2018PPRECO']=merge([hiDefaults2018_ppReco,{'-s':'ALCA:TkAlMinBias+SiStripCalMinBias',
                                                             '--datatier':'ALCARECO',
                                                             '--eventcontent':'ALCARECO'
