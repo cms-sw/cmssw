@@ -37,6 +37,10 @@ def UpdatePuppiTuneV15(process, runOnMC=True):
   process.puppiNoLep.PtMaxNeutralsStartSlope = 20.
   process.puppiNoLep.NumOfPUVtxsForCharged = 2
 
+  from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+  phase2_common.toModify( process.puppi, EtaMinUseDeltaZ = 4.0)
+  phase2_common.toModify( process.puppiNoLep, EtaMinUseDeltaZ = 4.0)
+
 def UpdatePuppiTuneV15_MC(process):
   UpdatePuppiTuneV15(process,runOnMC=True)
 
