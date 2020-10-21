@@ -3,16 +3,12 @@
 #include "RecoLocalFastTime/Records/interface/MTDTimeCalibRecord.h"
 #include "RecoLocalFastTime/FTLCommonAlgos/interface/MTDTimeCalib.h"
 
-#include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
-#include "Geometry/MTDCommonData/interface/MTDTopologyMode.h"
-#include <iostream>
-
 class MTDRecHitAlgo : public MTDRecHitAlgoBase {
 public:
   /// Constructor
   MTDRecHitAlgo(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
       : MTDRecHitAlgoBase(conf, sumes),
-        thresholdToKeep_(conf.getParameter<std::vector<double>>("thresholdToKeep")),
+        thresholdToKeep_(conf.getParameter<double>("thresholdToKeep")),
         calibration_(conf.getParameter<double>("calibrationConstant")) {}
 
   /// Destructor
@@ -26,19 +22,14 @@ public:
   FTLRecHit makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32_t& flags) const final;
 
 private:
-  std::vector<double> thresholdToKeep_;
-  double calibration_;
+  double thresholdToKeep_, calibration_;
   const MTDTimeCalib* time_calib_;
-  const MTDTopology* topology_;
 };
 
 void MTDRecHitAlgo::getEventSetup(const edm::EventSetup& es) {
   edm::ESHandle<MTDTimeCalib> pTC;
   es.get<MTDTimeCalibRecord>().get("MTDTimeCalib", pTC);
   time_calib_ = pTC.product();
-  edm::ESHandle<MTDTopology> topologyHandle;
-  es.get<MTDTopologyRcd>().get(topologyHandle);
-  topology_ = topologyHandle.product();
 }
 
 FTLRecHit MTDRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32_t& flags) const {
@@ -47,11 +38,6 @@ FTLRecHit MTDRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32
 
   float energy = 0.;
   float time = 0.;
-
-  // MTD topology
-  unsigned int index_topology = 0;  //1Disks geometry
-  if (topology_->getMTDTopologyMode() > static_cast<int>(MTDTopologyMode::Mode::barphiflat))
-    index_topology = 1;  //2Disk geometry
 
   /// position and positionError in unit cm
   float position = -1.f;
@@ -94,7 +80,7 @@ FTLRecHit MTDRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32
 
   // Now fill flags
   // all rechits from the digitizer are "good" at present
-  if (energy > thresholdToKeep_[index_topology]) {
+  if (energy > thresholdToKeep_) {
     flags = FTLRecHit::kGood;
     rh.setFlag(flags);
   } else {
