@@ -75,7 +75,7 @@ private:
   virtual void myVar(const reco::GsfElectron& ele,
                      const reco::Vertex& vertex,
                      const TransientTrackBuilder& transientTrackBuilder,
-                     EcalClusterLazyTools myEcalCluster,
+                     EcalClusterLazyTools const& myEcalCluster,
                      bool printDebug = kFALSE);
   virtual void evaluate_mvas(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
@@ -446,7 +446,7 @@ void ElectronTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 void ElectronTestAnalyzer::myVar(const reco::GsfElectron& ele,
                                  const reco::Vertex& vertex,
                                  const TransientTrackBuilder& transientTrackBuilder,
-                                 EcalClusterLazyTools myEcalCluster,
+                                 EcalClusterLazyTools const& myEcalCluster,
                                  bool printDebug) {
   bool validKF = false;
   reco::TrackRef myTrackRef = ele.closestCtfTrackRef();
