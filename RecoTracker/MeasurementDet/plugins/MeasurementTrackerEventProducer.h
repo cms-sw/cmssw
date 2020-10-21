@@ -12,6 +12,7 @@
 #include "DataFormats/DetId/interface/DetIdCollection.h"
 #include "DataFormats/SiPixelDetId/interface/PixelFEDChannel.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
+#include "DataFormats/TrackerRecHit2D/interface/VectorHit.h"
 
 class dso_hidden MeasurementTrackerEventProducer final : public edm::stream::EDProducer<> {
 public:
@@ -40,6 +41,8 @@ protected:
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> thePixelClusterLabel;
   edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster>> theStripClusterLabel;
   edm::EDGetTokenT<edmNew::DetSetVector<Phase2TrackerCluster1D>> thePh2OTClusterLabel;
+  edm::EDGetTokenT<VectorHitCollection> thePh2OTVectorHitsLabel;
+  edm::EDGetTokenT<VectorHitCollection> thePh2OTVectorHitsRejLabel;
   edm::EDGetTokenT<edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster>>> thePixelClusterMask;
   edm::EDGetTokenT<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster>>> theStripClusterMask;
 
@@ -50,7 +53,8 @@ protected:
 
   bool selfUpdateSkipClusters_;
   bool switchOffPixelsIfEmpty_;
-  bool isPhase2;
+  bool isPhase2_;
+  bool useVectorHits_;
 };
 
 #endif

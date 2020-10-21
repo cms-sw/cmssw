@@ -104,7 +104,30 @@ trackingLowPU.toModify(pixelLessStepSeedLayers,
     MTID = None,
     MTEC = None,
 )
-
+from Configuration.ProcessModifiers.vectorHits_cff import vectorHits
+vectorHits.toModify(pixelLessStepSeedLayers,
+    layerList = [
+        'TOB1+TOB2', 'TOB2+TOB3',
+#        'TOB3+TOB4', 'TOB4+TOB5', 
+        'TID1_pos+TID2_pos', 'TID1_neg+TID2_neg'
+    ],
+    TOB = cms.PSet(
+         TTRHBuilder    = cms.string('WithTrackAngle'), 
+         clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone')),
+         vectorRecHits = cms.InputTag("siPhase2VectorHits", 'vectorHitsAccepted'),
+         skipClusters   = cms.InputTag('pixelLessStepClusters')
+    ),
+    TIB = None,
+    TID = dict(
+         clusterChargeCut = dict(refToPSet_ = cms.string('SiStripClusterChargeCutNone')),
+         vectorRecHits = cms.InputTag("siPhase2VectorHits", 'accepted'),
+         maxRing = cms.int32(8)
+    ),
+    TEC = None,
+    MTIB = None,
+    MTID = None,
+    MTEC = None,
+)
 # TrackingRegion
 from RecoTracker.TkTrackingRegions.globalTrackingRegionFromBeamSpotFixedZ_cfi import globalTrackingRegionFromBeamSpotFixedZ as _globalTrackingRegionFromBeamSpotFixedZ
 pixelLessStepTrackingRegions = _globalTrackingRegionFromBeamSpotFixedZ.clone(RegionPSet = dict(
@@ -194,6 +217,16 @@ _fastSim_pixelLessStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi
 ))
 fastSim.toReplaceWith(pixelLessStepSeeds,_fastSim_pixelLessStepSeeds)
 
+vectorHits.toModify(pixelLessStepHitDoublets, produceSeedingHitSets=True, produceIntermediateHitDoublets=False)
+vectorHits.toModify(pixelLessStepSeeds, 
+    seedingHitSets = "pixelLessStepHitDoublets",
+    SeedComparitorPSet = dict(
+        ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter'),
+        FilterAtHelixStage = cms.bool(False),
+        FilterStripHits = cms.bool(False),
+    )
+)
+
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
 _pixelLessStepTrajectoryFilterBase = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
@@ -208,6 +241,9 @@ trackingLowPU.toReplaceWith(pixelLessStepTrajectoryFilter, _pixelLessStepTraject
 for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
     e.toModify(pixelLessStepTrajectoryFilter, minPt=2.0)
 
+vectorHits.toReplaceWith(pixelLessStepTrajectoryFilter, _pixelLessStepTrajectoryFilterBase)
+vectorHits.toModify(pixelLessStepTrajectoryFilter, minimumNumberOfHits = 4, maxLostHits = 1)
+
 import RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cfi
 pixelLessStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cfi.Chi2ChargeMeasurementEstimator.clone(
     ComponentName    = 'pixelLessStepChi2Est',
@@ -217,6 +253,11 @@ pixelLessStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator
 )
 trackingLowPU.toModify(pixelLessStepChi2Est,
     clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTiny')
+)
+
+vectorHits.toModify(pixelLessStepChi2Est,
+    clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutNone'),
+    MaxChi2 = 30.0
 )
 
 # TRACK BUILDING
@@ -250,6 +291,11 @@ fastSim.toReplaceWith(pixelLessStepTrackCandidates,
         MinNumberOfCrossedLayers = 6, # ?
         hitMasks = cms.InputTag('pixelLessStepMasks')
         )
+)
+
+vectorHits.toModify(pixelLessStepTrackCandidates,
+    phase2clustersToSkip = cms.InputTag('pixelLessStepClusters'),
+    clustersToSkip = None
 )
 
 from TrackingTools.TrajectoryCleaning.TrajectoryCleanerBySharedHits_cfi import trajectoryCleanerBySharedHits
@@ -358,6 +404,55 @@ pixelLessStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.m
     vertices = 'pixelVertices'#end of vpset
 ) #end of clone
 
+vectorHits.toModify(pixelLessStepSelector, 
+    GBRForestLabel = None,
+    useAnyMVA = None,
+    trackSelectors= cms.VPSet(
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+            name = 'pixelLessStepLoose',
+            chi2n_par = 1.0,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 0,
+            maxNumberLostLayers = 1,
+            minNumber3DLayers = 0,
+            d0_par1 = ( 0.9, 4.0 ),
+            dz_par1 = ( 0.9, 4.0 ),
+            d0_par2 = ( 1.0, 4.0 ),
+            dz_par2 = ( 1.0, 4.0 )
+        ),
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
+            name = 'pixelLessStepTight',
+            preFilterName = 'pixelLessStepLoose',
+            chi2n_par = 0.35,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 4,
+            maxNumberLostLayers = 0,
+            minNumber3DLayers = 3,
+            d0_par1 = ( 1.1, 4.0 ),
+            dz_par1 = ( 1.1, 4.0 ),
+            d0_par2 = ( 1.1, 4.0 ),
+            dz_par2 = ( 1.1, 4.0 )
+        ),
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
+            name = 'QualityMasks',
+            preFilterName = 'pixelLessStepTight',
+            chi2n_par = 0.2,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 1,
+            maxNumberLostLayers = 2,
+            minNumber3DLayers = 0,
+            d0_par1 = ( 100., 4.0 ),
+            dz_par1 = ( 100., 4.0 ),
+            d0_par2 = ( 100., 4.0 ),
+            dz_par2 = ( 100., 4.0 )
+        ),
+    ),
+    vertices = 'firstStepPrimaryVertices'
+) 
+
+vectorHits.toModify(pixelLessStepSelector.trackSelectors[2], name = 'pixelLessStep')
+
+
 PixelLessStepTask = cms.Task(pixelLessStepClusters,
                              pixelLessStepSeedLayers,
                              pixelLessStepTrackingRegions,
@@ -386,3 +481,17 @@ fastSim.toReplaceWith(PixelLessStepTask,
                                    ,pixelLessStep                             
                                    )
 )
+from RecoLocalTracker.SiPhase2VectorHitBuilder.siPhase2VectorHits_cfi import *
+from RecoTracker.TkSeedGenerator.SeedingOTEDProducer_cfi import SeedingOTEDProducer as _SeedingOTEDProducer
+pixelLessStepSeeds_vectorHits = _SeedingOTEDProducer.clone()
+
+_PixelLessStepTask_vectorHits = cms.Task(siPhase2VectorHits,
+			     pixelLessStepClusters,
+                             pixelLessStepSeeds,
+                             pixelLessStepTrackCandidates,
+                             pixelLessStepTracks,
+                             pixelLessStepSelector)
+_PixelLessStep_vectorHits = cms.Sequence(_PixelLessStepTask_vectorHits)
+vectorHits.toReplaceWith(pixelLessStepSeeds,pixelLessStepSeeds_vectorHits)
+vectorHits.toReplaceWith(PixelLessStepTask, _PixelLessStepTask_vectorHits)
+vectorHits.toReplaceWith(PixelLessStep, _PixelLessStep_vectorHits)

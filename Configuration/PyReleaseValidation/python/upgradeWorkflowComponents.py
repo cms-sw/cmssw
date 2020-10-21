@@ -300,6 +300,23 @@ upgradeWFs['trackingMkFit'].step3 = {
     '--procModifiers': 'trackingMkFit'
 }
 
+# Vector Hits workflows
+class UpgradeWorkflow_vectorHits(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        stepDict[stepName][k] = merge([{'--procModifiers': 'vectorHits'}, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return fragment=="TTbar_14TeV" and '2026' in key
+upgradeWFs['vectorHits'] = UpgradeWorkflow_vectorHits(
+    steps = [
+        'RecoGlobal',
+    ],
+    PU = [
+        'RecoGlobal',
+    ],
+    suffix = '_vectorHits',
+    offset = 0.9,
+)
+
 # Patatrack workflows
 class UpgradeWorkflowPatatrack(UpgradeWorkflow):
     def condition(self, fragment, stepList, key, hasHarvest):

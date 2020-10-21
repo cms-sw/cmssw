@@ -363,6 +363,9 @@ trackingPhase2PU140.toModify(lowPtTripletStepSelector,
 ) #end of clone
 
 
+from Configuration.ProcessModifiers.vectorHits_cff import vectorHits
+vectorHits.toModify(lowPtTripletStepSelector.trackSelectors[2], minNumberLayers = 3, minNumber3DLayers = 3)
+
 
 # Final sequence
 LowPtTripletStepTask = cms.Task(lowPtTripletStepClusters,

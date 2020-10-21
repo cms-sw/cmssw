@@ -262,10 +262,10 @@ void TrackerGeomBuilderFromGeometricDet::buildGeomDet(TrackerGeometry* tracker) 
         tracker->addDetId(composedDetId);
 
       } else if (gduTypeName.find("Lower") != std::string::npos) {
-        //FIXME::ERICA: the plane builder is built in the middle...
-        PlaneBuilderForGluedDet::ResultType plane = gluedplaneBuilder.plane(composed);
+        //The plane is *not* built in the middle, but on the Lower surface
+        Plane* plane = new Plane(dus->surface());
         composedDetId = theTopo->stack(gduId[i]);
-        StackGeomDet* stackDet = new StackGeomDet(&(*plane), dum, dus, composedDetId);
+        StackGeomDet* stackDet = new StackGeomDet(&(*plane), dus, dum, composedDetId);
         tracker->addDet((GeomDet*)stackDet);
         tracker->addDetId(composedDetId);
       }

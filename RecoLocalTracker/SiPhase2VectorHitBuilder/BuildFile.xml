@@ -1,0 +1,15 @@
+<use name="CommonTools/Statistics"/>
+<use name="DataFormats/Common"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/Utilities"/>
+<use name="DataFormats/SiPixelDetId"/>
+<use name="DataFormats/TrackerRecHit2D"/>
+<use name="Geometry/CommonDetUnit"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="RecoLocalTracker/Phase2TrackerRecHits"/>
+<use name="RecoLocalTracker/ClusterParameterEstimator"/>
+<use name="RecoLocalTracker/Records"/>
+<export>
+  <lib   name="1"/>
+</export>
