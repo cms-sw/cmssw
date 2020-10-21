@@ -18,7 +18,7 @@ filteredLayerClustersEM = _filteredLayerClustersProducer.clone(
 # CA - PATTERN RECOGNITION
 
 ticlTrackstersEM = _trackstersProducer.clone(
-    filtered_mask = cms.InputTag("filteredLayerClustersEM", "EM"),
+    filtered_mask = "filteredLayerClustersEM:EM",
     original_mask = 'ticlTrackstersTrk',
     seeding_regions = "ticlSeedingGlobal",
     filter_on_categories = [0, 1],
@@ -46,7 +46,7 @@ ticlEMStepTask = cms.Task(ticlSeedingGlobal
 
 filteredLayerClustersHFNoseEM = filteredLayerClustersEM.clone(
     LayerClusters = 'hgcalLayerClustersHFNose',
-    LayerClustersInputMask = cms.InputTag("hgcalLayerClustersHFNose","InitialLayerClustersMask"),
+    LayerClustersInputMask = "hgcalLayerClustersHFNose:InitialLayerClustersMask",
     iteration_label = "EMn",
     algo_number = 9
 #no tracking mask for EM for now
@@ -56,10 +56,10 @@ ticlTrackstersHFNoseEM = ticlTrackstersEM.clone(
     detector = "HFNose",
     layer_clusters = "hgcalLayerClustersHFNose",
     layer_clusters_hfnose_tiles = "ticlLayerTileHFNose",
-    original_mask = cms.InputTag("hgcalLayerClustersHFNose","InitialLayerClustersMask"),
-    filtered_mask = cms.InputTag("filteredLayerClustersHFNoseEM","EMn"),
+    original_mask = "hgcalLayerClustersHFNose:InitialLayerClustersMask",
+    filtered_mask = "filteredLayerClustersHFNoseEM:EMn",
     seeding_regions = "ticlSeedingGlobalHFNose",
-    time_layerclusters = cms.InputTag("hgcalLayerClustersHFNose","timeLayerCluster"),
+    time_layerclusters = "hgcalLayerClustersHFNose:timeLayerCluster",
     min_clusters_per_ntuplet = 6
 )
 
