@@ -26,6 +26,14 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
+#include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
+#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
 #include <optional>
 
 class CaloTopology;
@@ -34,8 +42,41 @@ class CaloSubdetectorTopology;
 
 class EcalClusterLazyToolsBase {
 public:
+  struct ESData {
+    CaloGeometry const &caloGeometry;
+    CaloTopology const &caloTopology;
+    EcalIntercalibConstants const &ecalIntercalibConstants;
+    EcalADCToGeVConstant const &ecalADCToGeV;
+    EcalLaserDbService const &ecalLaserDbService;
+  };
+
+  class ESGetTokens {
+  public:
+    ESGetTokens(edm::ConsumesCollector &&cc)
+        : caloGeometryToken_{cc.esConsumes()},
+          caloTopologyToken_{cc.esConsumes()},
+          ecalIntercalibConstantsToken_{cc.esConsumes()},
+          ecalADCToGeVConstantToken_{cc.esConsumes()},
+          ecalLaserDbServiceToken_{cc.esConsumes()} {}
+
+    ESData get(edm::EventSetup const &eventSetup) const {
+      return {.caloGeometry = eventSetup.getData(caloGeometryToken_),
+              .caloTopology = eventSetup.getData(caloTopologyToken_),
+              .ecalIntercalibConstants = eventSetup.getData(ecalIntercalibConstantsToken_),
+              .ecalADCToGeV = eventSetup.getData(ecalADCToGeVConstantToken_),
+              .ecalLaserDbService = eventSetup.getData(ecalLaserDbServiceToken_)};
+    }
+
+  private:
+    edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
+    edm::ESGetToken<CaloTopology, CaloTopologyRecord> caloTopologyToken_;
+    edm::ESGetToken<EcalIntercalibConstants, EcalIntercalibConstantsRcd> ecalIntercalibConstantsToken_;
+    edm::ESGetToken<EcalADCToGeVConstant, EcalADCToGeVConstantRcd> ecalADCToGeVConstantToken_;
+    edm::ESGetToken<EcalLaserDbService, EcalLaserDbRecord> ecalLaserDbServiceToken_;
+  };
+
   EcalClusterLazyToolsBase(const edm::Event &ev,
-                           const edm::EventSetup &es,
+                           ESData const &esData,
                            edm::EDGetTokenT<EcalRecHitCollection> token1,
                            edm::EDGetTokenT<EcalRecHitCollection> token2,
                            std::optional<edm::EDGetTokenT<EcalRecHitCollection>> token3);
@@ -47,7 +88,9 @@ public:
   // get BasicClusterSeedTime of the seed basic cluser of the supercluster
   float SuperClusterSeedTime(const reco::SuperCluster &cluster);
   // get BasicClusterTime of the seed basic cluser of the supercluster
-  float SuperClusterTime(const reco::SuperCluster &cluster, const edm::Event &ev);
+  inline float SuperClusterTime(const reco::SuperCluster &cluster, const edm::Event &ev) {
+    return BasicClusterTime((*cluster.seed()), ev);
+  }
 
   // mapping for preshower rechits
   std::map<DetId, EcalRecHit> rechits_map_;
@@ -67,12 +110,6 @@ public:
   float eseffsixix(const reco::SuperCluster &cluster);
   float eseffsiyiy(const reco::SuperCluster &cluster);
 
-  EcalRecHitCollection const *getEcalEBRecHitCollection() const { return ebRecHits_; }
-  EcalRecHitCollection const *getEcalEERecHitCollection() const { return eeRecHits_; }
-  EcalRecHitCollection const *getEcalESRecHitCollection() const { return esRecHits_; }
-  EcalIntercalibConstants const &getEcalIntercalibConstants() const { return *icalMap; }
-  edm::ESHandle<EcalLaserDbService> const &getLaserHandle() const { return laser; }
-
 protected:
   EcalRecHitCollection const *getEcalRecHitCollection(const reco::BasicCluster &cluster) const;
 
@@ -82,17 +119,15 @@ protected:
   const EcalRecHitCollection *eeRecHits_;
   const EcalRecHitCollection *esRecHits_;
 
-  edm::EDGetTokenT<EcalRecHitCollection> esRHToken_;
-
   std::unique_ptr<CaloSubdetectorTopology const> ecalPS_topology_ = nullptr;
 
-  edm::ESHandle<EcalIntercalibConstants> ical;
-  const EcalIntercalibConstantMap *icalMap;
-  edm::ESHandle<EcalADCToGeVConstant> agc;
-  edm::ESHandle<EcalLaserDbService> laser;
+  EcalIntercalibConstants const *ical = nullptr;
+  EcalIntercalibConstantMap const *icalMap = nullptr;
+  EcalADCToGeVConstant const *agc = nullptr;
+  EcalLaserDbService const *laser = nullptr;
 
 private:
-  void getESRecHits(const edm::Event &ev);
+  void getESRecHits(const edm::Event &ev, edm::EDGetTokenT<EcalRecHitCollection> const &esRecHitsToken);
 
 };  // class EcalClusterLazyToolsBase
 
@@ -100,17 +135,17 @@ template <class ClusterTools>
 class EcalClusterLazyToolsT : public EcalClusterLazyToolsBase {
 public:
   EcalClusterLazyToolsT(const edm::Event &ev,
-                        const edm::EventSetup &es,
+                        ESData const &esData,
                         edm::EDGetTokenT<EcalRecHitCollection> token1,
                         edm::EDGetTokenT<EcalRecHitCollection> token2)
-      : EcalClusterLazyToolsBase(ev, es, token1, token2, std::nullopt) {}
+      : EcalClusterLazyToolsBase(ev, esData, token1, token2, std::nullopt) {}
 
   EcalClusterLazyToolsT(const edm::Event &ev,
-                        const edm::EventSetup &es,
+                        ESData const &esData,
                         edm::EDGetTokenT<EcalRecHitCollection> token1,
                         edm::EDGetTokenT<EcalRecHitCollection> token2,
                         edm::EDGetTokenT<EcalRecHitCollection> token3)
-      : EcalClusterLazyToolsBase(ev, es, token1, token2, token3) {}
+      : EcalClusterLazyToolsBase(ev, esData, token1, token2, token3) {}
 
   // Get the rec hit energies in a rectangle matrix around the seed.
   std::vector<float> energyMatrix(reco::BasicCluster const &cluster, int size) const {

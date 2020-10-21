@@ -56,7 +56,9 @@ GEDPhotonProducer::RecoStepInfo::RecoStepInfo(const std::string& step) : flags_(
 }
 
 GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config)
-    : recoStep_(config.getParameter<std::string>("reconstructionStep")), conf_(config) {
+    : ecalClusterESGetTokens_{consumesCollector()},
+      recoStep_(config.getParameter<std::string>("reconstructionStep")),
+      conf_(config) {
   // use configuration file to setup input/output collection names
   //
   photonProducer_ = conf_.getParameter<edm::InputTag>("photonProducer");
@@ -644,7 +646,8 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     }
 
     // fill preshower shapes
-    EcalClusterLazyTools toolsforES(evt, es, barrelEcalHits_, endcapEcalHits_, preshowerHits_);
+    EcalClusterLazyTools toolsforES(
+        evt, ecalClusterESGetTokens_.get(es), barrelEcalHits_, endcapEcalHits_, preshowerHits_);
     const float sigmaRR = toolsforES.eseffsirir(*scRef);
     showerShape.effSigmaRR = sigmaRR;
     newCandidate.setShowerShapeVariables(showerShape);
