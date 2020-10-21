@@ -16,7 +16,7 @@ HGCalEgammaIDHelper::HGCalEgammaIDHelper(const edm::ParameterSet& iConfig, edm::
   recHitsFH_ = iC.consumes<HGCRecHitCollection>(fhRecHitInputTag_);
   recHitsBH_ = iC.consumes<HGCRecHitCollection>(bhRecHitInputTag_);
   hitMap_ = iC.consumes<std::unordered_map<DetId, const HGCRecHit*>>(hitMapInputTag_);
-  caloGeometry_ = iC.esConsumes<CaloGeometry, CaloGeometryRecord>();
+  caloGeometry_ = iC.esConsumes();
   pcaHelper_.setdEdXWeights(dEdXWeights_);
   debug_ = iConfig.getUntrackedParameter<bool>("debug", false);
 }

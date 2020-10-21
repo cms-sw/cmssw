@@ -27,8 +27,8 @@
 GamIsoDetIdCollectionProducer::GamIsoDetIdCollectionProducer(const edm::ParameterSet& iConfig)
     : recHitsToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitsLabel"))),
       emObjectToken_(consumes<reco::PhotonCollection>(iConfig.getParameter<edm::InputTag>("emObjectLabel"))),
-      caloGeometryToken_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
-      sevLvToken_(esConsumes<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd>()),
+      caloGeometryToken_(esConsumes()),
+      sevLvToken_(esConsumes()),
       //the labels are still used to decide if its endcap or barrel...
       recHitsLabel_(iConfig.getParameter<edm::InputTag>("recHitsLabel")),
       emObjectLabel_(iConfig.getParameter<edm::InputTag>("emObjectLabel")),
