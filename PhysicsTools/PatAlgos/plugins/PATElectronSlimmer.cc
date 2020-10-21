@@ -46,6 +46,7 @@ namespace pat {
     const StringCutObjectSelector<pat::Electron> saveNonZSClusterShapes_;
     const edm::EDGetTokenT<EcalRecHitCollection> reducedBarrelRecHitCollectionToken_,
         reducedEndcapRecHitCollectionToken_;
+    const EcalClusterLazyTools::ESGetTokens ecalClusterToolsESGetTokens_;
     const bool modifyElectron_;
     std::unique_ptr<pat::ObjectModifier<pat::Electron>> electronModifier_;
   };
@@ -74,9 +75,10 @@ pat::PATElectronSlimmer::PATElectronSlimmer(const edm::ParameterSet& iConfig)
       linkToPackedPF_(iConfig.getParameter<bool>("linkToPackedPFCandidates")),
       saveNonZSClusterShapes_(iConfig.getParameter<std::string>("saveNonZSClusterShapes")),
       reducedBarrelRecHitCollectionToken_(
-          consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedBarrelRecHitCollection"))),
+          consumes(iConfig.getParameter<edm::InputTag>("reducedBarrelRecHitCollection"))),
       reducedEndcapRecHitCollectionToken_(
-          consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedEndcapRecHitCollection"))),
+          consumes(iConfig.getParameter<edm::InputTag>("reducedEndcapRecHitCollection"))),
+      ecalClusterToolsESGetTokens_{consumesCollector()},
       modifyElectron_(iConfig.getParameter<bool>("modifyElectrons")) {
   if (modifyElectron_) {
     const edm::ParameterSet& mod_config = iConfig.getParameter<edm::ParameterSet>("modifierConfig");
@@ -106,8 +108,10 @@ void pat::PATElectronSlimmer::produce(edm::Event& iEvent, const edm::EventSetup&
     iEvent.getByToken(pf2pc_, pf2pc);
     iEvent.getByToken(pc_, pc);
   }
-  noZS::EcalClusterLazyTools lazyToolsNoZS(
-      iEvent, iSetup, reducedBarrelRecHitCollectionToken_, reducedEndcapRecHitCollectionToken_);
+  noZS::EcalClusterLazyTools lazyToolsNoZS(iEvent,
+                                           ecalClusterToolsESGetTokens_.get(iSetup),
+                                           reducedBarrelRecHitCollectionToken_,
+                                           reducedEndcapRecHitCollectionToken_);
 
   auto out = std::make_unique<std::vector<pat::Electron>>();
   out->reserve(src->size());
