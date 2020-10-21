@@ -173,9 +173,10 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
               else
                 msData |= 1UL << (chMap.chNum - 64);
 
-              LogDebug("") << " fed: " << fedId << " amc:" << int(amcNum) << " geb:" << int(gebId)
-                           << " vfat:" << vfat_dc.localPhi << ",type: " << vfat_dc.vfatType << " id:" << gemId
-                           << " ch:" << chMap.chNum << " st:" << digi.strip() << " bx:" << digi.bx();
+              LogDebug("GEMDigiToRawModule")
+                  << " fed: " << fedId << " amc:" << int(amcNum) << " geb:" << int(gebId)
+                  << " vfat:" << vfat_dc.localPhi << ",type: " << vfat_dc.vfatType << " id:" << gemId
+                  << " ch:" << chMap.chNum << " st:" << digi.strip() << " bx:" << digi.bx();
             }
 
             if (!hasDigi)
@@ -266,7 +267,7 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
     for (const auto& word : words) {
       *(w++) = word;
     }
-    LogDebug("") << " words " << words.size();
+    LogDebug("GEMDigiToRawModule") << " words " << words.size();
   }
 
   iEvent.put(std::move(fedRawDataCol));
