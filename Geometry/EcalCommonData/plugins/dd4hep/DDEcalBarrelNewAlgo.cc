@@ -129,25 +129,25 @@ namespace {
     unsigned int nCryPerAlvEta;  // number of crystals in eta per alveolus
   };
   struct Capsule {
-    string name;   // Capsule
-    double here;   //
-    string mat;    //
+    string name;       // Capsule
+    double here;       //
+    string mat;        //
     double xSizeHalf;  //
     double ySizeHalf;  //
     double thickHalf;  //
   };
 
   struct Ceramic {
-    string name;   // Ceramic
-    string mat;    //
+    string name;       // Ceramic
+    string mat;        //
     double xSizeHalf;  //
     double ySizeHalf;  //
     double thickHalf;  //
   };
 
   struct BulkSilicon {
-    string name;   // Bulk Silicon
-    string mat;    //
+    string name;       // Bulk Silicon
+    string mat;        //
     double xSizeHalf;  //
     double ySizeHalf;  //
     double thickHalf;  //
@@ -162,8 +162,8 @@ namespace {
     double x1;     //
     double x2;     //
 
-    string atjName;   // After-The-Junction
-    string atjMat;    //
+    string atjName;       // After-The-Junction
+    string atjMat;        //
     double atjThickHalf;  //
 
     string sglName;   // APD-Silicone glue
@@ -198,15 +198,15 @@ namespace {
     VecStr vecIlyMat;       // materials of inner layer volumes
     VecDouble vecIlyThick;  // Thicknesses of inner layer volumes
 
-    string pipeName;             // Cooling pipes
-    double pipeHere;             //
-    string pipeMat;              //
+    string pipeName;                 // Cooling pipes
+    double pipeHere;                 //
+    string pipeMat;                  //
     double pipeODHalf;               //
-    double pipeID;               //
+    double pipeID;                   //
     VecDouble vecIlyPipeLengthHalf;  //
-    VecDouble vecIlyPipeType;    //
-    VecDouble vecIlyPipePhi;     //
-    VecDouble vecIlyPipeZ;       //
+    VecDouble vecIlyPipeType;        //
+    VecDouble vecIlyPipePhi;         //
+    VecDouble vecIlyPipeZ;           //
 
     string pTMName;          // PTM
     double pTMHere;          //
@@ -220,24 +220,24 @@ namespace {
     string fanOutName;          // FanOut
     double fanOutHere;          //
     string fanOutMat;           //
-    double fanOutWidthHalf;         //
-    double fanOutLengthHalf;        //
+    double fanOutWidthHalf;     //
+    double fanOutLengthHalf;    //
     double fanOutHeightHalf;    //
     VecDouble vecIlyFanOutZ;    //
     VecDouble vecIlyFanOutPhi;  //
     string diffName;            // Diffuser
     string diffMat;             //
     double diffOff;             //
-    double diffLengthHalf;          //
+    double diffLengthHalf;      //
     string bndlName;            // Fiber bundle
     string bndlMat;             //
     double bndlOff;             //
-    double bndlLengthHalf;          //
+    double bndlLengthHalf;      //
     string fEMName;             // FEM
     string fEMMat;              //
-    double fEMWidthHalf;            //
-    double fEMLengthHalf;           //
-    double fEMHeightHalf;           //
+    double fEMWidthHalf;        //
+    double fEMLengthHalf;       //
+    double fEMHeightHalf;       //
     VecDouble vecIlyFEMZ;       //
     VecDouble vecIlyFEMPhi;     //
   };
@@ -422,13 +422,13 @@ namespace {
 
     string envName;        // pincer envelope
     string envMat;         //
-    double envWidthHalf;       //
-    double envHeightHalf;      //
-    double envLengthHalf;      //
+    double envWidthHalf;   //
+    double envHeightHalf;  //
+    double envLengthHalf;  //
     VecDouble vecEnvZOff;  //
 
-    string blkName;    // pincer block
-    string blkMat;     //
+    string blkName;        // pincer block
+    string blkMat;         //
     double blkLengthHalf;  //
 
     string shim1Name;   // pincer shim
@@ -485,51 +485,51 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   // Barrel volume
   // barrel parent volume
   Barrel bar;
-  bar.name = ns.prepend(args.str("BarName"));           // Barrel volume name
-  bar.mat = args.str("BarMat");             // Barrel material name
-  bar.vecZPts = args.vecDble("BarZPts");    // Barrel list of z pts
-  bar.vecRMin = args.vecDble("BarRMin");    // Barrel list of rMin pts
-  bar.vecRMax = args.vecDble("BarRMax");    // Barrel list of rMax pts
-  bar.vecTran = args.vecDble("BarTran");    // Barrel translation
-  bar.vecRota = args.vecDble("BarRota");    // Barrel rotation
-  bar.vecRota2 = args.vecDble("BarRota2");  // 2nd Barrel rotation
-  bar.vecRota3 = args.vecDble("BarRota3");  // 3rd Barrel rotation
-  bar.phiLo = args.dble("BarPhiLo");        // Barrel phi lo
-  bar.phiHi = args.dble("BarPhiHi");        // Barrel phi hi
-  bar.here = args.dble("BarHere");          // Barrel presence flag
+  bar.name = ns.prepend(args.str("BarName"));  // Barrel volume name
+  bar.mat = args.str("BarMat");                // Barrel material name
+  bar.vecZPts = args.vecDble("BarZPts");       // Barrel list of z pts
+  bar.vecRMin = args.vecDble("BarRMin");       // Barrel list of rMin pts
+  bar.vecRMax = args.vecDble("BarRMax");       // Barrel list of rMax pts
+  bar.vecTran = args.vecDble("BarTran");       // Barrel translation
+  bar.vecRota = args.vecDble("BarRota");       // Barrel rotation
+  bar.vecRota2 = args.vecDble("BarRota2");     // 2nd Barrel rotation
+  bar.vecRota3 = args.vecDble("BarRota3");     // 3rd Barrel rotation
+  bar.phiLo = args.dble("BarPhiLo");           // Barrel phi lo
+  bar.phiHi = args.dble("BarPhiHi");           // Barrel phi hi
+  bar.here = args.dble("BarHere");             // Barrel presence flag
 
   // Supermodule volume
   Supermodule spm;
-  spm.name = ns.prepend(args.str("SpmName"));               // Supermodule volume name
-  spm.mat = args.str("SpmMat");                 // Supermodule material name
-  spm.vecZPts = args.vecDble("SpmZPts");        // Supermodule list of z pts
-  spm.vecRMin = args.vecDble("SpmRMin");        // Supermodule list of rMin pts
-  spm.vecRMax = args.vecDble("SpmRMax");        // Supermodule list of rMax pts
-  spm.vecTran = args.vecDble("SpmTran");        // Supermodule translation
-  spm.vecRota = args.vecDble("SpmRota");        // Supermodule rotation
-  spm.vecBTran = args.vecDble("SpmBTran");      // Base Supermodule translation
-  spm.vecBRota = args.vecDble("SpmBRota");      // Base Supermodule rotation
-  spm.nPerHalf = args.integer("SpmNPerHalf");   // # Supermodules per half detector
-  spm.lowPhi = args.dble("SpmLowPhi");          // Low   phi value of base supermodule
-  spm.delPhi = args.dble("SpmDelPhi");          // Delta phi value of base supermodule
-  spm.phiOff = args.dble("SpmPhiOff");          // Phi offset value supermodule
-  spm.vecHere = args.vecDble("SpmHere");        // Bit saying if a supermodule is present or not
-  spm.cutName = ns.prepend(args.str("SpmCutName"));         // Name of cut box
-  spm.cutThick = args.dble("SpmCutThick");      // Box thickness
-  spm.cutShow = args.value<int>("SpmCutShow");  // Non-zero means show the box on display (testing only)
-  spm.vecCutTM = args.vecDble("SpmCutTM");      // Translation for minus phi cut box
-  spm.vecCutTP = args.vecDble("SpmCutTP");      // Translation for plus  phi cut box
-  spm.cutRM = args.dble("SpmCutRM");            // Rotation for minus phi cut box
-  spm.cutRP = args.dble("SpmCutRP");            // Rotation for plus  phi cut box
-  spm.expThick = args.dble("SpmExpThick");      // Thickness (x) of supermodule expansion box
-  spm.expWide = args.dble("SpmExpWide");        // Width     (y) of supermodule expansion box
-  spm.expYOff = args.dble("SpmExpYOff");        // Offset    (y) of supermodule expansion box
-  spm.sideName = ns.prepend(args.str("SpmSideName"));       // Supermodule Side Plate volume name
-  spm.sideMat = args.str("SpmSideMat");         // Supermodule Side Plate material name
-  spm.sideHigh = args.dble("SpmSideHigh");      // Side plate height
-  spm.sideThick = args.dble("SpmSideThick");    // Side plate thickness
-  spm.sideYOffM = args.dble("SpmSideYOffM");    // Side plate Y offset on minus phi side
-  spm.sideYOffP = args.dble("SpmSideYOffP");    // Side plate Y offset on plus  phi side
+  spm.name = ns.prepend(args.str("SpmName"));          // Supermodule volume name
+  spm.mat = args.str("SpmMat");                        // Supermodule material name
+  spm.vecZPts = args.vecDble("SpmZPts");               // Supermodule list of z pts
+  spm.vecRMin = args.vecDble("SpmRMin");               // Supermodule list of rMin pts
+  spm.vecRMax = args.vecDble("SpmRMax");               // Supermodule list of rMax pts
+  spm.vecTran = args.vecDble("SpmTran");               // Supermodule translation
+  spm.vecRota = args.vecDble("SpmRota");               // Supermodule rotation
+  spm.vecBTran = args.vecDble("SpmBTran");             // Base Supermodule translation
+  spm.vecBRota = args.vecDble("SpmBRota");             // Base Supermodule rotation
+  spm.nPerHalf = args.integer("SpmNPerHalf");          // # Supermodules per half detector
+  spm.lowPhi = args.dble("SpmLowPhi");                 // Low   phi value of base supermodule
+  spm.delPhi = args.dble("SpmDelPhi");                 // Delta phi value of base supermodule
+  spm.phiOff = args.dble("SpmPhiOff");                 // Phi offset value supermodule
+  spm.vecHere = args.vecDble("SpmHere");               // Bit saying if a supermodule is present or not
+  spm.cutName = ns.prepend(args.str("SpmCutName"));    // Name of cut box
+  spm.cutThick = args.dble("SpmCutThick");             // Box thickness
+  spm.cutShow = args.value<int>("SpmCutShow");         // Non-zero means show the box on display (testing only)
+  spm.vecCutTM = args.vecDble("SpmCutTM");             // Translation for minus phi cut box
+  spm.vecCutTP = args.vecDble("SpmCutTP");             // Translation for plus  phi cut box
+  spm.cutRM = args.dble("SpmCutRM");                   // Rotation for minus phi cut box
+  spm.cutRP = args.dble("SpmCutRP");                   // Rotation for plus  phi cut box
+  spm.expThick = args.dble("SpmExpThick");             // Thickness (x) of supermodule expansion box
+  spm.expWide = args.dble("SpmExpWide");               // Width     (y) of supermodule expansion box
+  spm.expYOff = args.dble("SpmExpYOff");               // Offset    (y) of supermodule expansion box
+  spm.sideName = ns.prepend(args.str("SpmSideName"));  // Supermodule Side Plate volume name
+  spm.sideMat = args.str("SpmSideMat");                // Supermodule Side Plate material name
+  spm.sideHigh = args.dble("SpmSideHigh");             // Side plate height
+  spm.sideThick = args.dble("SpmSideThick");           // Side plate thickness
+  spm.sideYOffM = args.dble("SpmSideYOffM");           // Side plate Y offset on minus phi side
+  spm.sideYOffP = args.dble("SpmSideYOffP");           // Side plate Y offset on plus  phi side
 
   Crystal cry;
   cry.nomCryDimAF = args.dble("NomCryDimAF");
@@ -646,9 +646,11 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   ily.pipeODHalf = 0.5 * args.dble("IlyPipeOD");
   ily.pipeID = args.dble("IlyPipeID");
   ily.vecIlyPipeLengthHalf = args.vecDble("IlyPipeLength");
-  std::transform(ily.vecIlyPipeLengthHalf.begin(), ily.vecIlyPipeLengthHalf.end(), ily.vecIlyPipeLengthHalf.begin(),
-		 [](double length) -> double { return 0.5 * length; });
-  
+  std::transform(ily.vecIlyPipeLengthHalf.begin(),
+                 ily.vecIlyPipeLengthHalf.end(),
+                 ily.vecIlyPipeLengthHalf.begin(),
+                 [](double length) -> double { return 0.5 * length; });
+
   ily.vecIlyPipeType = args.vecDble("IlyPipeType");
   ily.vecIlyPipePhi = args.vecDble("IlyPipePhi");
   ily.vecIlyPipeZ = args.vecDble("IlyPipeZ");
@@ -765,8 +767,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   BackCooling backCool;
   backCool.here = args.dble("BackCoolHere");
   backCool.vecName = args.vecStr("BackCoolName");
-  std::transform(backCool.vecName.begin(), backCool.vecName.end(), backCool.vecName.begin(),
-		 [&ns](std::string name) -> std::string { return ns.prepend(name); });
+  std::transform(backCool.vecName.begin(),
+                 backCool.vecName.end(),
+                 backCool.vecName.begin(),
+                 [&ns](std::string name) -> std::string { return ns.prepend(name); });
   backCool.barHere = args.dble("BackCoolBarHere");
   backCool.barWidth = args.dble("BackCoolBarWidth");
   backCool.barHeight = args.dble("BackCoolBarHeight");
@@ -787,8 +791,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   backCool.backVFEMat = args.str("BackVFEMat");
   backCool.vecBackVFELyrThick = args.vecDble("BackVFELyrThick");
   backCool.vecBackVFELyrName = args.vecStr("BackVFELyrName");
-  std::transform(backCool.vecBackVFELyrName.begin(), backCool.vecBackVFELyrName.end(), backCool.vecBackVFELyrName.begin(),
-		 [&ns](std::string name) -> std::string { return ns.prepend(name); });  
+  std::transform(backCool.vecBackVFELyrName.begin(),
+                 backCool.vecBackVFELyrName.end(),
+                 backCool.vecBackVFELyrName.begin(),
+                 [&ns](std::string name) -> std::string { return ns.prepend(name); });
   backCool.vecBackVFELyrMat = args.vecStr("BackVFELyrMat");
   backCool.vecBackCoolNSec = args.vecDble("BackCoolNSec");
   backCool.vecBackCoolSecSep = args.vecDble("BackCoolSecSep");
@@ -798,8 +804,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   backMisc.here = args.dble("BackMiscHere");
   backMisc.vecThick = args.vecDble("BackMiscThick");
   backMisc.vecName = args.vecStr("BackMiscName");
-  std::transform(backMisc.vecName.begin(), backMisc.vecName.end(), backMisc.vecName.begin(),
-		 [&ns](std::string name) -> std::string { return ns.prepend(name); });  
+  std::transform(backMisc.vecName.begin(),
+                 backMisc.vecName.end(),
+                 backMisc.vecName.begin(),
+                 [&ns](std::string name) -> std::string { return ns.prepend(name); });
   backMisc.vecMat = args.vecStr("BackMiscMat");
   backMisc.backCBStdSep = args.dble("BackCBStdSep");
 
@@ -807,9 +815,11 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   patchPanel.here = args.dble("PatchPanelHere");
   patchPanel.vecThick = args.vecDble("PatchPanelThick");
   patchPanel.vecNames = args.vecStr("PatchPanelNames");
-  std::transform(patchPanel.vecNames.begin(), patchPanel.vecNames.end(), patchPanel.vecNames.begin(),
-		 [&ns](std::string name) -> std::string { return ns.prepend(name); });  
-  
+  std::transform(patchPanel.vecNames.begin(),
+                 patchPanel.vecNames.end(),
+                 patchPanel.vecNames.begin(),
+                 [&ns](std::string name) -> std::string { return ns.prepend(name); });
+
   patchPanel.vecMat = args.vecStr("PatchPanelMat");
   patchPanel.name = ns.prepend(args.str("PatchPanelName"));
 
@@ -852,8 +862,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   mbLyr.here = args.dble("MBLyrHere");
   mbLyr.vecMBLyrThick = args.vecDble("MBLyrThick");
   mbLyr.vecMBLyrName = args.vecStr("MBLyrName");
-  std::transform(mbLyr.vecMBLyrName.begin(), mbLyr.vecMBLyrName.end(), mbLyr.vecMBLyrName.begin(),
-		 [&ns](std::string name) -> std::string { return ns.prepend(name); });
+  std::transform(mbLyr.vecMBLyrName.begin(),
+                 mbLyr.vecMBLyrName.end(),
+                 mbLyr.vecMBLyrName.begin(),
+                 [&ns](std::string name) -> std::string { return ns.prepend(name); });
   mbLyr.vecMBLyrMat = args.vecStr("MBLyrMat");
 
   Pincer pincer;
@@ -1023,7 +1035,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     Solid ilySolid = Tube(ily.name,
                           ilyRMin,                   // rmin
                           ilyRMin + ilyThick,        // rmax
-                          ilyLengthHalf,           // dz
+                          ilyLengthHalf,             // dz
                           ily.phiLow,                // startPhi
                           ily.phiLow + ily.delPhi);  // startPhi + deltaPhi
     Volume ilyLog = Volume(ily.name, ilySolid, ns.material(spm.mat));
@@ -1038,20 +1050,20 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         string pName(ily.pipeName + "_" + std::to_string(iPipeType + 1));
 
         Solid ilyPipeSolid = Tube(pName,
-                                  0,                                      // rmin
+                                  0,                                    // rmin
                                   ily.pipeODHalf,                       // rmax
                                   ily.vecIlyPipeLengthHalf[iPipeType],  // dz
-                                  0_deg,                                  // startPhi
-                                  360_deg);                               // startPhi + deltaPhi
+                                  0_deg,                                // startPhi
+                                  360_deg);                             // startPhi + deltaPhi
         ilyPipeLog[iPipeType] = Volume(pName, ilyPipeSolid, ns.material(ily.pipeMat));
 
         string pWaName(ily.pipeName + "Wa_" + std::to_string(iPipeType + 1));
         Solid ilyPipeWaSolid = Tube(pWaName,
-                                    0,                                      // rmin
-                                    0.5 * ily.pipeID,                       // rmax
+                                    0,                                    // rmin
+                                    0.5 * ily.pipeID,                     // rmax
                                     ily.vecIlyPipeLengthHalf[iPipeType],  // dz
-                                    0_deg,                                  // startPhi
-                                    360_deg);                               // startPhi + deltaPhi
+                                    0_deg,                                // startPhi
+                                    360_deg);                             // startPhi + deltaPhi
         Volume ilyPipeWaLog = Volume(pWaName, ilyPipeWaSolid, ns.material(backPipe.waterMat));
         ilyPipeLog[iPipeType].placeVolume(ilyPipeWaLog, copyOne);
 #ifdef EDM_ML_DEBUG
@@ -1236,9 +1248,9 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                             0.5 * H_hawR,  //double aHalfLengthYNegZ    , // h1, H/2
                             0.5 * h_hawR,  //double aHalfLengthYPosZ    , // h2, h/2
                             0.5 * L_hawR,  //double aHalfLengthZ        , // dz,  L/2
-                            90_deg,       //double aAngleAD            , // alfa1
-                            0,            //double aCoord15X           , // x15
-                            0             //double aCoord15Y             // y15
+                            90_deg,        //double aAngleAD            , // alfa1
+                            0,             //double aCoord15X           , // x15
+                            0              //double aCoord15Y             // y15
     );
 
     string hawRName1(alvWedge.hawRName + "1");
@@ -1247,15 +1259,15 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     const double al1_fawR(atan((B_hawR - a_hawR) / H_hawR) + M_PI_2);
 
     // here is trap for Full Alveolar Wedge
-    const EcalTrap trapFAW(a_hawR,       //double aHalfLengthXNegZLoY , // bl1, A/2
-                           a_hawR,       //double aHalfLengthXPosZLoY , // bl2, a/2
-                           b_hawR,       //double aHalfLengthXPosZHiY , // tl2, b/2
+    const EcalTrap trapFAW(a_hawR,        //double aHalfLengthXNegZLoY , // bl1, A/2
+                           a_hawR,        //double aHalfLengthXPosZLoY , // bl2, a/2
+                           b_hawR,        //double aHalfLengthXPosZHiY , // tl2, b/2
                            0.5 * H_hawR,  //double aHalfLengthYNegZ    , // h1, H/2
                            0.5 * h_hawR,  //double aHalfLengthYPosZ    , // h2, h/2
                            0.5 * L_hawR,  //double aHalfLengthZ        , // dz,  L/2
-                           al1_fawR,     //double aAngleAD            , // alfa1
-                           0,            //double aCoord15X           , // x15
-                           0             //double aCoord15Y             // y15
+                           al1_fawR,      //double aAngleAD            , // alfa1
+                           0,             //double aCoord15X           , // x15
+                           0              //double aCoord15Y             // y15
     );
 
     const string fawName1(alvWedge.fawName + "1");
@@ -1348,7 +1360,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     for (unsigned int iPhi(1); iPhi <= alvWedge.nFawPerSupm; ++iPhi) {
       const double rPhi(alvWedge.fawPhiOff + (iPhi - 0.5) * alvWedge.fawDelPhi);
 
-      const Tf3D fawform(RoZ3D(rPhi) * Tl3D(alvWedge.fawRadOff + (trapFAW.H() + trapFAW.h()) / 4, 0, 0.5 * trapFAW.L()) *
+      const Tf3D fawform(RoZ3D(rPhi) *
+                         Tl3D(alvWedge.fawRadOff + (trapFAW.H() + trapFAW.h()) / 4, 0, 0.5 * trapFAW.L()) *
                          RoZ3D(-90_deg + alvWedge.fawPhiRot));
       if (alvWedge.fawHere) {
         spmLog.placeVolume(
@@ -1372,13 +1385,13 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
     const EcalTrap trapGrid(0.5 * (B_hawR - h_Grid * (B_hawR - a_hawR) / H_hawR),  // bl1, A/2
                             0.5 * (b_hawR - h_Grid * (B_hawR - a_hawR) / H_hawR),  // bl2, a/2
-                            0.5 * b_hawR,                                         // tl2, b/2
-                            0.5 * h_Grid,                                         // h1, H/2
-                            0.5 * h_Grid,                                         // h2, h/2
-                            0.5 * (L_hawR - 8_cm),                                // dz,  L/2
-                            90_deg,                                              // alfa1
-                            0,                                                   // x15
-                            H_hawR - h_hawR                                      // y15
+                            0.5 * b_hawR,                                          // tl2, b/2
+                            0.5 * h_Grid,                                          // h1, H/2
+                            0.5 * h_Grid,                                          // h2, h/2
+                            0.5 * (L_hawR - 8_cm),                                 // dz,  L/2
+                            90_deg,                                                // alfa1
+                            0,                                                     // x15
+                            H_hawR - h_hawR                                        // y15
     );
 
     Solid gridSolid = mytrap(grid.name, trapGrid);
@@ -1450,12 +1463,12 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
       const double alfCry(90_deg + atan((bNom - bUnd - aNom + aUnd) / (hNom - hUnd)));
 
-      const EcalTrap trapCry(0.5 * (ANom - AUnd),         //double aHalfLengthXNegZLoY , // bl1, A/2
-                             0.5 * (aNom - aUnd),         //double aHalfLengthXPosZLoY , // bl2, a/2
-                             0.5 * (bNom - bUnd),         //double aHalfLengthXPosZHiY , // tl2, b/2
-                             0.5 * (HNom - HUnd),         //double aHalfLengthYNegZ    , // h1, H/2
-                             0.5 * (hNom - hUnd),         //double aHalfLengthYPosZ    , // h2, h/2
-                             0.5 * (LNom - LUnd),         //double aHalfLengthZ        , // dz,  L/2
+      const EcalTrap trapCry(0.5 * (ANom - AUnd),        //double aHalfLengthXNegZLoY , // bl1, A/2
+                             0.5 * (aNom - aUnd),        //double aHalfLengthXPosZLoY , // bl2, a/2
+                             0.5 * (bNom - bUnd),        //double aHalfLengthXPosZHiY , // tl2, b/2
+                             0.5 * (HNom - HUnd),        //double aHalfLengthYNegZ    , // h1, H/2
+                             0.5 * (hNom - hUnd),        //double aHalfLengthYPosZ    , // h2, h/2
+                             0.5 * (LNom - LUnd),        //double aHalfLengthZ        , // dz,  L/2
                              alfCry,                     //double aAngleAD            , // alfa1
                              aNom - aUnd - ANom + AUnd,  //double aCoord15X           , // x15
                              hNom - hUnd - HNom + HUnd   //double aCoord15Y             // y15
@@ -1526,9 +1539,9 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                              0.5 * (HNom + sClr + rClr * sindelta),  //double aHalfLengthYNegZ    , // h1,  H/2
                              0.5 * (hNom + sClr - fClr * sindelta),  //double aHalfLengthYPosZ    , // h2,  h/2
                              0.5 * (LNom + fClr + rClr),             // dz,  L/2
-                             alfClr,                                //double aAngleAD            , // alfa1
-                             aNom - ANom,                           //double aCoord15X           , // x15
-                             hNom - HNom                            //double aCoord15Y             // y15
+                             alfClr,                                 //double aAngleAD            , // alfa1
+                             aNom - ANom,                            //double aCoord15X           , // x15
+                             hNom - HNom                             //double aCoord15Y             // y15
       );
 
       const string clrDDName(cry.clrName + sType);
@@ -1543,8 +1556,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                               0.5 * (trapClr.b() + 2. * sWrap - fWrap * sinbeta),   // tl2, b/2
                               0.5 * (trapClr.H() + 2. * sWrap + rWrap * sindelta),  // h1,  H/2
                               0.5 * (trapClr.h() + 2. * sWrap - fWrap * sindelta),  // h2,  h/2
-                              0.5 * (trapClr.L() + fWrap + rWrap),                // dz,  L/2
-                              alfWrap,                                           //double aAngleAD            , // alfa1
+                              0.5 * (trapClr.L() + fWrap + rWrap),                  // dz,  L/2
+                              alfWrap,  //double aAngleAD            , // alfa1
                               aNom - ANom - (cryType > 9 ? 0 : 0.020_mm),
                               hNom - HNom  //double aCoord15Y             // y15
       );
@@ -1562,8 +1575,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                               0.5 * (trapWrap.b() + 2 * sWall - fWall * sinbeta),   // b/2
                               0.5 * (trapWrap.H() + 2 * sWall + rWall * sindelta),  // H/2
                               0.5 * (trapWrap.h() + 2 * sWall - fWall * sindelta),  // h/2
-                              0.5 * (trapWrap.L() + fWall + rWall),                // L/2
-                              alfWall,                                            // alfa1
+                              0.5 * (trapWrap.L() + fWall + rWall),                 // L/2
+                              alfWall,                                              // alfa1
                               aNom - ANom - (cryType < 10 ? 0.150_mm : 0.100_mm),
                               hNom - HNom  // y15
       );
@@ -1658,12 +1671,12 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         const double BWebx(trapWall.b() + (trapWall.B() - trapWall.b()) * LWebx / trapWall.L());
 
         const double thick(web.vecWebPlTh[iWeb] + web.vecWebClrTh[iWeb]);
-        const EcalTrap trapWebClr(0.5 * BWebx,             // A/2
-                                  0.5 * trapWall.b(),      // a/2
-                                  0.5 * trapWall.b(),      // b/2
-                                  0.5 * thick,             // H/2
-                                  0.5 * thick,             // h/2
-                                  0.5 * LWebx,             // L/2
+        const EcalTrap trapWebClr(0.5 * BWebx,           // A/2
+                                  0.5 * trapWall.b(),    // a/2
+                                  0.5 * trapWall.b(),    // b/2
+                                  0.5 * thick,           // H/2
+                                  0.5 * thick,           // h/2
+                                  0.5 * LWebx,           // L/2
                                   90_deg,                // alfa1
                                   trapWall.b() - BWebx,  // x15
                                   0                      // y15
@@ -1672,12 +1685,12 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         Solid webClrSolid = mytrap(webClrName, trapWebClr);
         Volume webClrLog = Volume(webClrName, webClrSolid, ns.material(web.clrMat));
 
-        const EcalTrap trapWebPl(0.5 * trapWebClr.A(),               // A/2
-                                 0.5 * trapWebClr.a(),               // a/2
-                                 0.5 * trapWebClr.b(),               // b/2
-                                 0.5 * web.vecWebPlTh[iWeb],         // H/2
-                                 0.5 * web.vecWebPlTh[iWeb],         // h/2
-                                 0.5 * trapWebClr.L(),              // L/2
+        const EcalTrap trapWebPl(0.5 * trapWebClr.A(),             // A/2
+                                 0.5 * trapWebClr.a(),             // a/2
+                                 0.5 * trapWebClr.b(),             // b/2
+                                 0.5 * web.vecWebPlTh[iWeb],       // H/2
+                                 0.5 * web.vecWebPlTh[iWeb],       // h/2
+                                 0.5 * trapWebClr.L(),             // L/2
                                  90._deg,                          // alfa1
                                  trapWebClr.b() - trapWebClr.B(),  // x15
                                  0                                 // y15
@@ -1769,12 +1782,12 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         const double BWebx(trapWall.a() + (trapWall.A() - trapWall.a()) * LWebx / trapWall.L());
 
         const double thick(web.vecWebPlTh[iWeb] + web.vecWebClrTh[iWeb]);
-        const EcalTrap trapWebClr(0.5 * BWebx,             // A/2
-                                  0.5 * trapWall.a(),      // a/2
-                                  0.5 * trapWall.a(),      // b/2
-                                  0.5 * thick,             // H/2
-                                  0.5 * thick,             // h/2
-                                  0.5 * LWebx,             // L/2
+        const EcalTrap trapWebClr(0.5 * BWebx,           // A/2
+                                  0.5 * trapWall.a(),    // a/2
+                                  0.5 * trapWall.a(),    // b/2
+                                  0.5 * thick,           // H/2
+                                  0.5 * thick,           // h/2
+                                  0.5 * LWebx,           // L/2
                                   90_deg,                // alfa1
                                   trapWall.a() - BWebx,  // x15
                                   0                      // y15
@@ -1783,12 +1796,12 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         Solid webClrSolid = mytrap(webClrName, trapWebClr);
         Volume webClrLog = Volume(webClrName, webClrSolid, ns.material(web.clrMat));
 
-        const EcalTrap trapWebPl(0.5 * trapWebClr.A(),               // A/2
-                                 0.5 * trapWebClr.a(),               // a/2
-                                 0.5 * trapWebClr.b(),               // b/2
-                                 0.5 * web.vecWebPlTh[iWeb],         // H/2
-                                 0.5 * web.vecWebPlTh[iWeb],         // h/2
-                                 0.5 * trapWebClr.L(),              // L/2
+        const EcalTrap trapWebPl(0.5 * trapWebClr.A(),             // A/2
+                                 0.5 * trapWebClr.a(),             // a/2
+                                 0.5 * trapWebClr.b(),             // b/2
+                                 0.5 * web.vecWebPlTh[iWeb],       // H/2
+                                 0.5 * web.vecWebPlTh[iWeb],       // h/2
+                                 0.5 * trapWebClr.L(),             // L/2
                                  90._deg,                          // alfa1
                                  trapWebClr.b() - trapWebClr.B(),  // x15
                                  0                                 // y15
@@ -2127,7 +2140,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         Solid backVFELyrSolid =
             Box(backCool.barHeight / 2., backCool.barWidth / 2., backCool.vecBackVFELyrThick[iLyr] / 2.);
         Volume backVFELyrLog =
-	  Volume(backCool.vecBackVFELyrName[iLyr], backVFELyrSolid, ns.material(backCool.vecBackVFELyrMat[iLyr]));
+            Volume(backCool.vecBackVFELyrName[iLyr], backVFELyrSolid, ns.material(backCool.vecBackVFELyrMat[iLyr]));
         const Position backVFELyrTra(0, 0, backCool.vecBackVFELyrThick[iLyr] / 2);
         backVFELog.placeVolume(backVFELyrLog, copyOne, Transform3D(backVFELyrTra + offTra));
 #ifdef EDM_ML_DEBUG
@@ -2276,7 +2289,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
           Solid bSolid =
               Box(backMisc.vecThick[iMod * nMisc + j] / 2, backCool.barWidth / 2. + backCoolTank.width, halfZBCool);
 
-          Volume bLog = Volume(backMisc.vecName[iMod * nMisc + j], bSolid, ns.material(backMisc.vecMat[iMod * nMisc + j]));
+          Volume bLog =
+              Volume(backMisc.vecName[iMod * nMisc + j], bSolid, ns.material(backMisc.vecMat[iMod * nMisc + j]));
 
           const Position bTra(backMisc.vecThick[iMod * nMisc + j] / 2, 0_mm, 0_mm);
 
@@ -2297,7 +2311,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
           for (unsigned int j(0); j != mbLyr.vecMBLyrThick.size(); ++j)  // loop over MB layers
           {
             Solid mSolid = Box(mbLyr.vecMBLyrThick[j] / 2, bHalfWidth, halfZBCool);
-            Volume mLog = Volume(mbLyr.vecMBLyrName[j] + "_" + std::to_string(iMod + 1), mSolid, ns.material(mbLyr.vecMBLyrMat[j]));
+            Volume mLog = Volume(
+                mbLyr.vecMBLyrName[j] + "_" + std::to_string(iMod + 1), mSolid, ns.material(mbLyr.vecMBLyrMat[j]));
 
             mTra += Position(mbLyr.vecMBLyrThick[j] / 2.0, 0_mm, 0_mm);
             backCoolLog.placeVolume(mLog, copyOne, Transform3D(Rotation3D(), mTra));
@@ -2477,7 +2492,6 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       Position pTra(-patchParms[0], 0, 0);
 
       for (unsigned int j(0); j != patchPanel.vecNames.size(); ++j) {
-
         Solid pSolid = Box(patchPanel.vecThick[j] / 2., patchParms[1], patchParms[2]);
         Volume pLog = Volume(patchPanel.vecNames[j], pSolid, ns.material(patchPanel.vecMat[j]));
 
@@ -2553,9 +2567,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 #endif
 
         for (unsigned int iEnv(0); iEnv != pincer.vecEnvZOff.size(); ++iEnv) {
-          rodLog.placeVolume(envLog,
-                             1 + iEnv,
-                             Position(0_mm, 0_mm, -ilyLengthHalf + pincer.vecEnvZOff[iEnv] - pincer.envLengthHalf));
+          rodLog.placeVolume(
+              envLog, 1 + iEnv, Position(0_mm, 0_mm, -ilyLengthHalf + pincer.vecEnvZOff[iEnv] - pincer.envLengthHalf));
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("EcalGeom") << envLog.name() << ":" << (1 + iEnv) << " positioned in " << rodLog.name();
 #endif
