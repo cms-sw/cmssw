@@ -758,7 +758,7 @@ void Converter<DDLRotationByAxis>::operator()(xml_h element) const {
   xml_dim_t xrot(element);
   xml_dim_t par(xrot.parent());
   if (xrot.hasAttr(_U(name))) {
-    string nam = xrot.nameStr();  // + string("Rotation"); // xrot.hasAttr(_U(name)) ? xrot.nameStr() : par.nameStr();
+    string nam = xrot.nameStr();
     string axis = ns.attr<string>(xrot, DD_CMU(axis));
     double angle = ns.attr<double>(xrot, _U(angle));
     Rotation3D rot;
@@ -786,7 +786,7 @@ void Converter<DDLLogicalPart>::operator()(xml_h element) const {
   xml_dim_t e(element);
   string sol = e.child(DD_CMU(rSolid)).attr<string>(_U(name));
   string mat = e.child(DD_CMU(rMaterial)).attr<string>(_U(name));
-  string volName = e.attr<string>(_U(name));
+  string volName = ns.prepend(e.attr<string>(_U(name)));
   Solid solid = ns.solid(sol);
   Material material = ns.material(mat);
 
@@ -852,8 +852,8 @@ void Converter<DDLPosPart>::operator()(xml_h element) const {
   cms::DDNamespace ns(_param<cms::DDParsingContext>());  //, element, true );
   xml_dim_t e(element);
   int copy = e.attr<int>(DD_CMU(copyNumber));
-  string parentName = ns.attr<string>(e.child(DD_CMU(rParent)), _U(name));
-  string childName = ns.attr<string>(e.child(DD_CMU(rChild)), _U(name));
+  string parentName = ns.prepend(ns.attr<string>(e.child(DD_CMU(rParent)), _U(name)));
+  string childName = ns.prepend(ns.attr<string>(e.child(DD_CMU(rChild)), _U(name)));
   Volume parent = ns.volume(parentName, false);
   Volume child = ns.volume(childName, false);
 

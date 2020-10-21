@@ -70,6 +70,7 @@ namespace cms {
     DDParsingContext* setContext() { return m_context; }
 
     std::string_view name() const { return m_name; }
+    std::string noNamespace(const std::string&) const;
 
     std::vector<double> vecDbl(const std::string& name) const;
     std::vector<float> vecFloat(const std::string& name) const;
