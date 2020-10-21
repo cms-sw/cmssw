@@ -79,16 +79,6 @@ namespace edm {
         destination["cerr"] = cerr;
       }
       {
-        Destination FrameworkJobReport;  // PSet FrameworkJobReport
-        Category default_for_dest;       // PSet default
-        default_for_dest.limit = 0;      // int32 limit = 0
-        FrameworkJobReport.category["default"] = default_for_dest;
-        Category FwkJob;          // PSet FwkJob
-        FwkJob.limit = 10000000;  // int32 limit = 10000000
-        FrameworkJobReport.category["FwkJob"] = FwkJob;
-        destination["FrameworkJobReport"] = FrameworkJobReport;
-      }
-      {
         Destination cerr_stats;            // PSet cerr_stats
         cerr_stats.threshold = "WARNING";  // string threshold = "WARNING"
         cerr_stats.output = "cerr";        // string output = "cerr"
@@ -132,16 +122,6 @@ namespace edm {
         Root_NoDictionary.limit = 0;  // int32 limit = 0
         cerr.category["Root_NoDictionary"] = Root_NoDictionary;
         destination["cerr"] = cerr;
-      }
-      {
-        Destination FrameworkJobReport;  // PSet FrameworkJobReport
-        Category default_for_dest;       // PSet default
-        default_for_dest.limit = 0;      // int32 limit = 0
-        FrameworkJobReport.category["default"] = default_for_dest;
-        Category FwkJob;          // PSet FwkJob
-        FwkJob.limit = 10000000;  // int32 limit = 10000000
-        FrameworkJobReport.category["FwkJob"] = FwkJob;
-        destination["FrameworkJobReport"] = FrameworkJobReport;
       }
       {
         Destination cerr_stats;         // PSet cerr_stats
