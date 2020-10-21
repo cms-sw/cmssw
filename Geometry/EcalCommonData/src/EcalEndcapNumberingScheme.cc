@@ -20,7 +20,8 @@ uint32_t EcalEndcapNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("EcalGeom") << "ECalEndcapNumberingScheme geometry levels = " << nLevels;
   for (uint32_t k = 0; k < nLevels; ++k)
-    edm::LogVerbatim("EcalGeom") << "[" << k << "] " << baseNumber.getLevelName(k) << ":" << baseNumber.getCopyNumber(k);
+    edm::LogVerbatim("EcalGeom") << "[" << k << "] " << baseNumber.getLevelName(k) << ":"
+                                 << baseNumber.getCopyNumber(k);
 #endif
   if (7 > nLevels) {
     edm::LogWarning("EcalGeom") << "ECalEndcapNumberingScheme::getUnitID(): "
@@ -53,10 +54,9 @@ uint32_t EcalEndcapNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) 
     uint32_t intindex = EEDetId(module_number, crystal_number, zside, EEDetId::SCCRYSTALMODE).rawId();
 
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EcalGeom") << "EcalEndcapNumberingScheme: zside = "  << zs  << ":" << zside
-				 << " super crystal = " << module_number << " crystal = "
-				 << crystal_number << " packed index = 0x" << std::hex
-				 << intindex << std::dec;
+    edm::LogVerbatim("EcalGeom") << "EcalEndcapNumberingScheme: zside = " << zs << ":" << zside
+                                 << " super crystal = " << module_number << " crystal = " << crystal_number
+                                 << " packed index = 0x" << std::hex << intindex << std::dec;
 #endif
     return intindex;
   } else {
@@ -123,9 +123,9 @@ uint32_t EcalEndcapNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) 
     }
 
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EcalGeom") << "ECalEndcapNumberingScheme::getUnitID(): " << std::dec << ix << ", " << iy << ", " << iq << ", " << id << ", " << iz << ", " << std::hex << idet << std::dec;
-    edm::LogVerbatim("EcalGeom") << "ECalEndcapNumberingScheme::EEDetId: "
-				 << EEDetId(idet)              ;
+    edm::LogVerbatim("EcalGeom") << "ECalEndcapNumberingScheme::getUnitID(): " << std::dec << ix << ", " << iy << ", "
+                                 << iq << ", " << id << ", " << iz << ", " << std::hex << idet << std::dec;
+    edm::LogVerbatim("EcalGeom") << "ECalEndcapNumberingScheme::EEDetId: " << EEDetId(idet);
 #endif
     return idet;
   }
