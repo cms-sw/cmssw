@@ -55,7 +55,7 @@ LowPtGsfElectronSCProducer::LowPtGsfElectronSCProducer(const edm::ParameterSet& 
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void LowPtGsfElectronSCProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
+void LowPtGsfElectronSCProducer::produce(edm::Event& event, const edm::EventSetup&) {
   // Input GsfPFRecTracks collection
   auto gsfPfRecTracks = edm::makeValid(event.getHandle(gsfPfRecTracks_));
 

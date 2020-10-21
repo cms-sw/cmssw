@@ -48,8 +48,8 @@ EgammaEcalRecHitIsolationProducer::EgammaEcalRecHitIsolationProducer(const edm::
   vetoClustered_ = conf_.getParameter<bool>("vetoClustered");
 
   //EventSetup Tokens
-  sevLvToken_ = esConsumes<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd>();
-  caloGeometrytoken_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
+  sevLvToken_ = esConsumes();
+  caloGeometrytoken_ = esConsumes();
 
   //register your products
   produces<edm::ValueMap<double>>();
