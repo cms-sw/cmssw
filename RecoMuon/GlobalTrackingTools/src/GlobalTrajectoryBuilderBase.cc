@@ -90,7 +90,7 @@ GlobalTrajectoryBuilderBase::GlobalTrajectoryBuilderBase(const edm::ParameterSet
   theTrackerPropagatorName = par.getParameter<std::string>("TrackerPropagator");
 
   edm::ParameterSet trackTransformerPSet = par.getParameter<edm::ParameterSet>("TrackTransformer");
-  theTrackTransformer = new TrackTransformer(trackTransformerPSet);
+  theTrackTransformer = new TrackTransformer(trackTransformerPSet, iC);
 
   edm::ParameterSet regionBuilderPSet = par.getParameter<edm::ParameterSet>("MuonTrackingRegionBuilder");
 
