@@ -1186,7 +1186,7 @@ timingDict = {
             'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
             'mtdGeometry.applyAlignment = cms.bool(False)'
         ],
-        "era" : "phase2_timing, phase2_timing_layer",
+        "era" : "phase2_timing, phase2_timing_layer, phase2_etlV4",
     },
     "I13" : {
         1 : [
@@ -1214,7 +1214,7 @@ timingDict = {
            'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
            'mtdGeometry.applyAlignment = cms.bool(False)'
            ],
-       "era" : "phase2_timing, phase2_timing_layer",
+       "era" : "phase2_timing, phase2_timing_layer, phase2_etlV4",
     },
 }
 
