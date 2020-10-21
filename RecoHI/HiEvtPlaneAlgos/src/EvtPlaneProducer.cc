@@ -119,8 +119,6 @@ namespace hi {
                     double &PtOrEt2,
                     uint &epmult) {
       ang = -10;
-      sv = 0;
-      cv = 0;
       sv = sumsin;
       cv = sumcos;
       svNoWgt = sumsinNoWgt;
@@ -219,8 +217,6 @@ private:
   double maxet_;
   double minpt_;
   double maxpt_;
-  double minvtx_;
-  double maxvtx_;
   int flatnvtxbins_;
   double flatminvtx_;
   double flatdelvtx_;
@@ -251,14 +247,14 @@ private:
     for (int i = 0; i < NumEPNames; i++) {
       if (EPDet[i] != HF)
         continue;
-      if (track.et < minet)
-        continue;
-      if (track.et > maxet)
-        continue;
       if (minet_ < 0)
         minet = minTransverse[i];
       if (maxet_ < 0)
         maxet = maxTransverse[i];
+      if (track.et < minet)
+        continue;
+      if (track.et > maxet)
+        continue;
       if (not passEta(track.eta, i))
         continue;
       double w = track.et;
@@ -278,14 +274,14 @@ private:
     double maxet = maxet_;
     for (int i = 0; i < NumEPNames; i++) {
       if (EPDet[i] == Castor) {
-        if (track.et < minet)
-          continue;
-        if (track.et > maxet)
-          continue;
         if (minet_ < 0)
           minet = minTransverse[i];
         if (maxet_ < 0)
           maxet = maxTransverse[i];
+        if (track.et < minet)
+          continue;
+        if (track.et > maxet)
+          continue;
         if (not passEta(track.eta, i))
           continue;
         double w = track.et;
@@ -321,14 +317,14 @@ private:
     double maxpt = maxpt_;
     for (int i = 0; i < NumEPNames; i++) {
       if (EPDet[i] == Tracker) {
-        if (track.pt < minpt)
-          continue;
-        if (track.pt > maxpt)
-          continue;
         if (minpt_ < 0)
           minpt = minTransverse[i];
         if (maxpt_ < 0)
           maxpt = maxTransverse[i];
+        if (track.pt < minpt)
+          continue;
+        if (track.pt > maxpt)
+          continue;
         if (not passEta(track.eta, i))
           continue;
         double w = track.pt;
@@ -360,8 +356,6 @@ EvtPlaneProducer::EvtPlaneProducer(const edm::ParameterSet &iConfig)
       maxet_(iConfig.getParameter<double>("maxet")),
       minpt_(iConfig.getParameter<double>("minpt")),
       maxpt_(iConfig.getParameter<double>("maxpt")),
-      minvtx_(iConfig.getParameter<double>("minvtx")),
-      maxvtx_(iConfig.getParameter<double>("maxvtx")),
       flatnvtxbins_(iConfig.getParameter<int>("flatnvtxbins")),
       flatminvtx_(iConfig.getParameter<double>("flatminvtx")),
       flatdelvtx_(iConfig.getParameter<double>("flatdelvtx")),
@@ -491,9 +485,6 @@ void EvtPlaneProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
   double bestvzError = vtx.zError();
   math::XYZPoint bestvtx(bestvx, bestvy, bestvz);
   math::Error<3>::type vtx_cov = vtx.covariance();
-  //  Produce the EP regardless of vz position
-  //  if (bestvz < minvtx_ || bestvz > maxvtx_)
-  //    return;
 
   for (int i = 0; i < NumEPNames; i++)
     rp[i]->reset();
