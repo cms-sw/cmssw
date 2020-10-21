@@ -27,7 +27,7 @@ uint32_t EcalBarrelNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) 
     return 0;
   }
 
-  const std::string& cryName(baseNumber.getLevelName(0).substr(0,7));  // name of crystal volume
+  const std::string& cryName(baseNumber.getLevelName(0).substr(0, 7));  // name of crystal volume
 
   const int cryType(::atoi(cryName.c_str() + 5));
 
@@ -38,30 +38,18 @@ uint32_t EcalBarrelNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) 
   const uint32_t fawCopy(baseNumber.getCopyNumber(5 + off));
   const uint32_t supmCopy(baseNumber.getCopyNumber(6 + off));
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("EcalGeom") << nLevels << ", " << off << ", "
-			       << cryType << ", "
-			       << baseNumber.getLevelName(0) << ":"
-			       << baseNumber.getCopyNumber(0) << ", "
-			       << baseNumber.getLevelName(1) << ":"
-			       << baseNumber.getCopyNumber(1) << ", "
-			       << baseNumber.getLevelName(2) << ":"
-			       << baseNumber.getCopyNumber(2) << ", "
-			       << baseNumber.getLevelName(3) << ":"
-			       << baseNumber.getCopyNumber(3) << ", "
-			       << baseNumber.getLevelName(4) << ":"
-			       << baseNumber.getCopyNumber(4) << ", "
-			       << baseNumber.getLevelName(5) << ":"
-			       << baseNumber.getCopyNumber(5) << ", "
-			       << baseNumber.getLevelName(6) << ":"
-			       << baseNumber.getCopyNumber(6) << ", "
-			       << baseNumber.getLevelName(7) << ":"
-			       << baseNumber.getCopyNumber(7) << ", "
-			       << baseNumber.getLevelName(8) << ":"
-			       << baseNumber.getCopyNumber(8) << ", "
-			       << baseNumber.getLevelName(9) << ":"
-			       << baseNumber.getCopyNumber(9) << ", "
-			       << baseNumber.getLevelName(10) << ":"
-			       << baseNumber.getCopyNumber(10);
+  edm::LogVerbatim("EcalGeom") << nLevels << ", " << off << ", " << cryType << ", " << baseNumber.getLevelName(0) << ":"
+                               << baseNumber.getCopyNumber(0) << ", " << baseNumber.getLevelName(1) << ":"
+                               << baseNumber.getCopyNumber(1) << ", " << baseNumber.getLevelName(2) << ":"
+                               << baseNumber.getCopyNumber(2) << ", " << baseNumber.getLevelName(3) << ":"
+                               << baseNumber.getCopyNumber(3) << ", " << baseNumber.getLevelName(4) << ":"
+                               << baseNumber.getCopyNumber(4) << ", " << baseNumber.getLevelName(5) << ":"
+                               << baseNumber.getCopyNumber(5) << ", " << baseNumber.getLevelName(6) << ":"
+                               << baseNumber.getCopyNumber(6) << ", " << baseNumber.getLevelName(7) << ":"
+                               << baseNumber.getCopyNumber(7) << ", " << baseNumber.getLevelName(8) << ":"
+                               << baseNumber.getCopyNumber(8) << ", " << baseNumber.getLevelName(9) << ":"
+                               << baseNumber.getCopyNumber(9) << ", " << baseNumber.getLevelName(10) << ":"
+                               << baseNumber.getCopyNumber(10);
 #endif
   // error checking
 
@@ -122,15 +110,10 @@ uint32_t EcalBarrelNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) 
 */
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("EcalGeom") << "EcalBarrelNumberingScheme: "
-			       << "supmCopy = " << supmCopy
-			       << ", fawCopy = " << fawCopy
-			       << ", hawCopy = " << hawCopy
-			       << ", wallCopy = " << wallCopy
-			       << ", cryType = " << cryType
-			       << "\n           zsign = "  << zsign
-			       << ", eta = " << eta
-			       << ", phi = " << phi
-			       << ", packed index = 0x" << std::hex << intindex << std::dec ;
+                               << "supmCopy = " << supmCopy << ", fawCopy = " << fawCopy << ", hawCopy = " << hawCopy
+                               << ", wallCopy = " << wallCopy << ", cryType = " << cryType
+                               << "\n           zsign = " << zsign << ", eta = " << eta << ", phi = " << phi
+                               << ", packed index = 0x" << std::hex << intindex << std::dec;
 #endif
   return intindex;
 }
