@@ -141,10 +141,10 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
   uint32_t level(0);
 
   do {
-    if (fv.name() == "BarrelTimingLayer") {
+    if (dd4hep::dd::noNamespace(fv.name()) == "BarrelTimingLayer") {
       isBarrel = true;
       edm::LogInfo("DD4hep_TestMTDIdealGeometry") << "isBarrel = " << isBarrel;
-    } else if (fv.name() == "EndcapTimingLayer") {
+    } else if (dd4hep::dd::noNamespace(fv.name()) == "EndcapTimingLayer") {
       isBarrel = false;
       edm::LogInfo("DD4hep_TestMTDIdealGeometry") << "isBarrel = " << isBarrel;
     }
@@ -168,7 +168,7 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
       write = false;
       exitLoop = true;
     }
-    if (fv.name() == ddTopNodeName_) {
+    if (dd4hep::dd::noNamespace(fv.name()) == ddTopNodeName_) {
       write = true;
       level = fv.navPos().size();
     }
@@ -194,7 +194,7 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
 
       for (auto const& t : specs) {
         for (auto const& it : t.second->paths) {
-          if (dd4hep::dd::compareEqual(fv.name(), dd4hep::dd::realTopName(it))) {
+          if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(fv.name()), dd4hep::dd::realTopName(it))) {
             isSens = true;
             break;
           }
