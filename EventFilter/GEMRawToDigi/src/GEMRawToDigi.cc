@@ -3,8 +3,6 @@
  */
 #include "EventFilter/GEMRawToDigi/interface/GEMRawToDigi.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-// temp
-#include <iostream>
 using namespace gem;
 
 std::unique_ptr<AMC13Event> GEMRawToDigi::convertWordToAMC13Event(const uint64_t* word) {

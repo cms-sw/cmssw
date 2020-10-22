@@ -92,7 +92,7 @@ namespace gem {
     uint8_t amcNum() const { return AMCheader1{amch1_}.AMCnum; }
 
     uint16_t boardId() const { return AMCheader2{amch2_}.boardID; }
-    int16_t orbitNum() const { return AMCheader2{amch2_}.orbitNum; }
+    uint16_t orbitNum() const { return AMCheader2{amch2_}.orbitNum; }
     uint8_t param3() const { return AMCheader2{amch2_}.param3; }
     uint8_t param2() const { return AMCheader2{amch2_}.param2; }
     uint8_t param1() const { return AMCheader2{amch2_}.param1; }
