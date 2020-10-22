@@ -586,7 +586,11 @@ upgradeWFs['heCollapse'] = UpgradeWorkflow_heCollapse(
 
 class UpgradeWorkflow_ecalDevel(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
-        stepDict[stepName][k] = merge([{'--era': stepDict[step][k]['--era']+',phase2_ecal_devel'}, stepDict[step][k]])
+        # temporarily remove trigger & downstream steps
+        mods = {'--era': stepDict[step][k]['--era']+',phase2_ecal_devel'}
+        if 'Digi' in step:
+            mods['-s'] = 'DIGI:pdigi_valid'
+        stepDict[stepName][k] = merge([mods, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
         return fragment=="TTbar_14TeV" and '2026' in key
 upgradeWFs['ecalDevel'] = UpgradeWorkflow_ecalDevel(
