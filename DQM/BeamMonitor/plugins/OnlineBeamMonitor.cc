@@ -9,7 +9,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-//#include "DataFormats/Scalers/interface/BeamSpotOnline.h"
 #include "DQM/BeamMonitor/plugins/OnlineBeamMonitor.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/View.h"
@@ -179,7 +178,7 @@ std::shared_ptr<onlinebeammonitor::NoCache> OnlineBeamMonitor::globalBeginLumino
   } else {
     LogInfo("OnlineBeamMonitor") << "Database BeamSpot is not valid at lumi: " << iLumi.id().luminosityBlock();
   }
- if (bsLegacyHandle.isValid()) {  // check the product
+  if (bsLegacyHandle.isValid()) {  // check the product
     const BeamSpotOnlineObjects* spotDB = bsLegacyHandle.product();
 
     // translate from BeamSpotObjects to reco::BeamSpot
@@ -244,7 +243,7 @@ std::shared_ptr<onlinebeammonitor::NoCache> OnlineBeamMonitor::globalBeginLumino
     //  << *aSpot << std::endl;
   } else {
     LogInfo("OnlineBeamMonitor") << "Database BeamSpot is not valid at lumi: " << iLumi.id().luminosityBlock();
-  }  
+  }
   return nullptr;
 }
 
@@ -266,7 +265,7 @@ if (beamSpotsMap_.find("Transient") != beamSpotsMap_.end()) {
 }else{
     bsChoice_->setBinContent(iLumi.id().luminosityBlock(),0);
     bsChoice_->setBinError(iLumi.id().luminosityBlock(),0.05);    
-  }
+}
 
   //    "PV,BF..."      Value,Error
   map<std::string, pair<double, double> > resultsMap;
