@@ -188,12 +188,12 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
 
         }  // end of vfats in GEB
 
-         if (!gebData->vFATs()->empty()) {
+        if (!gebData->vFATs()->empty()) {
           amcSize += 2;
           gebData->setChamberHeader(gebData->vFATs()->size() * 3, gebId);
           gebData->setChamberTrailer(LV1_id, BX_id, gebData->vFATs()->size() * 3);
           amcData->addGEB(*gebData);
-          }
+        }
       }  // end of GEB loop
 
       amcSize += 5;
@@ -217,8 +217,8 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
       //CDF trailer
       uint32_t EvtLength = amc13EvtLength + 4;  // 2 header and 2 trailer
       amc13Event->setCDFTrailer(EvtLength);
-      
-      amc13Events.emplace_back(std::move(amc13Event));      
+
+      amc13Events.emplace_back(std::move(amc13Event));
     }  // finished making amc13Event data
   }    // end of FED loop
 
