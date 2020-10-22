@@ -28,16 +28,16 @@ using namespace reco;
 
 //----------------------------------------------------------------------------------------------------------------------
 OnlineBeamMonitor::OnlineBeamMonitor(const ParameterSet& ps)
-    : monitorName_(ps.getUntrackedParameter<string>("MonitorName")),      
+    : monitorName_(ps.getUntrackedParameter<string>("MonitorName")),
       bsTransientToken_(esConsumes<edm::Transition::BeginLuminosityBlock>()),
       bsHLTToken_(esConsumes<edm::Transition::BeginLuminosityBlock>()),
       bsLegacyToken_(esConsumes<edm::Transition::BeginLuminosityBlock>()),
       numberOfValuesToSave_(0) {
   if (!monitorName_.empty())
     monitorName_ = monitorName_ + "/";
-  
+
   processedLumis_.clear();
-  
+
   varNamesV_.push_back("x");
   varNamesV_.push_back("y");
   varNamesV_.push_back("z");
@@ -56,7 +56,7 @@ OnlineBeamMonitor::OnlineBeamMonitor(const ParameterSet& ps)
   histoByCategoryNames_.insert(pair<string, string>("lumi", "Lumibased BeamSpotHLT"));
   histoByCategoryNames_.insert(pair<string, string>("lumi", "Lumibased BeamSpotLegacy"));
   histoByCategoryNames_.insert(pair<string, string>("lumi", "Lumibased BeamSpotTransient"));
-  
+
   for (vector<string>::iterator itV = varNamesV_.begin(); itV != varNamesV_.end(); itV++) {
     for (multimap<string, string>::iterator itM = histoByCategoryNames_.begin(); itM != histoByCategoryNames_.end();
          itM++) {
@@ -73,7 +73,9 @@ void OnlineBeamMonitor::fillDescriptions(edm::ConfigurationDescriptions& iDesc) 
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-void OnlineBeamMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) {
+void OnlineBeamMonitor::bookHistograms(DQMStore::IBooker& ibooker,
+                                       edm::Run const& iRun,
+                                       edm::EventSetup const& iSetup) {
   string name;
   string title;
   int firstLumi = 1;
@@ -112,14 +114,18 @@ void OnlineBeamMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run cons
   // create and cd into new folder
   ibooker.setCurrentFolder(monitorName_ + "Validation");
   //Book histograms
-  bsChoice_ = ibooker.book1D("bsChoice", "Choice between HLT (+1) and Legacy (-1) BS", lastLumi - firstLumi + 1, firstLumi - 0.5, lastLumi + 0.5);
+  bsChoice_ = ibooker.book1D("bsChoice",
+                             "Choice between HLT (+1) and Legacy (-1) BS",
+                             lastLumi - firstLumi + 1,
+                             firstLumi - 0.5,
+                             lastLumi + 0.5);
   bsChoice_->setAxisTitle("Lumisection", 1);
   bsChoice_->setAxisTitle("Choice", 2);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-std::shared_ptr<onlinebeammonitor::NoCache> OnlineBeamMonitor::globalBeginLuminosityBlock(const LuminosityBlock& iLumi,
-                                                                                      const EventSetup& iSetup) const {
+std::shared_ptr<onlinebeammonitor::NoCache> OnlineBeamMonitor::globalBeginLuminosityBlock(
+    const LuminosityBlock& iLumi, const EventSetup& iSetup) const {
   // Always create a beamspot group for each lumi weather we have results or not! Each Beamspot will be of unknown type!
 
   processedLumis_.push_back(iLumi.id().luminosityBlock());
@@ -210,7 +216,7 @@ std::shared_ptr<onlinebeammonitor::NoCache> OnlineBeamMonitor::globalBeginLumino
     //  << *aSpot << std::endl;
   } else {
     LogInfo("OnlineBeamMonitor") << "Database BeamSpot is not valid at lumi: " << iLumi.id().luminosityBlock();
-  } 
+  }
   if (bsTransientHandle.isValid()) {  // check the product
     const BeamSpotObjects* spotDB = bsTransientHandle.product();
 
@@ -249,23 +255,24 @@ std::shared_ptr<onlinebeammonitor::NoCache> OnlineBeamMonitor::globalBeginLumino
 
 //----------------------------------------------------------------------------------------------------------------------
 void OnlineBeamMonitor::globalEndLuminosityBlock(const LuminosityBlock& iLumi, const EventSetup& iSetup) {
-
-//Setting up the choice
-if (beamSpotsMap_.find("Transient") != beamSpotsMap_.end()) {
-    if (beamSpotsMap_.find("HLT") != beamSpotsMap_.end() && beamSpotsMap_["Transient"].x0() == beamSpotsMap_["HLT"].x0() ){
-      bsChoice_->setBinContent(iLumi.id().luminosityBlock(),1);
-      bsChoice_->setBinError(iLumi.id().luminosityBlock(),0.05);
-    }else if (beamSpotsMap_.find("Legacy") != beamSpotsMap_.end() && beamSpotsMap_["Transient"].x0() == beamSpotsMap_["Legacy"].x0() ){
-      bsChoice_->setBinContent(iLumi.id().luminosityBlock(),-1);
-      bsChoice_->setBinError(iLumi.id().luminosityBlock(),0.05);      
-    }else{
-      bsChoice_->setBinContent(iLumi.id().luminosityBlock(),-10);
-      bsChoice_->setBinError(iLumi.id().luminosityBlock(),0.05);      
+  //Setting up the choice
+  if (beamSpotsMap_.find("Transient") != beamSpotsMap_.end()) {
+    if (beamSpotsMap_.find("HLT") != beamSpotsMap_.end() &&
+        beamSpotsMap_["Transient"].x0() == beamSpotsMap_["HLT"].x0()) {
+      bsChoice_->setBinContent(iLumi.id().luminosityBlock(), 1);
+      bsChoice_->setBinError(iLumi.id().luminosityBlock(), 0.05);
+    } else if (beamSpotsMap_.find("Legacy") != beamSpotsMap_.end() &&
+               beamSpotsMap_["Transient"].x0() == beamSpotsMap_["Legacy"].x0()) {
+      bsChoice_->setBinContent(iLumi.id().luminosityBlock(), -1);
+      bsChoice_->setBinError(iLumi.id().luminosityBlock(), 0.05);
+    } else {
+      bsChoice_->setBinContent(iLumi.id().luminosityBlock(), -10);
+      bsChoice_->setBinError(iLumi.id().luminosityBlock(), 0.05);
     }
-}else{
-    bsChoice_->setBinContent(iLumi.id().luminosityBlock(),0);
-    bsChoice_->setBinError(iLumi.id().luminosityBlock(),0.05);    
-}
+  } else {
+    bsChoice_->setBinContent(iLumi.id().luminosityBlock(), 0);
+    bsChoice_->setBinError(iLumi.id().luminosityBlock(), 0.05);
+  }
 
   //    "PV,BF..."      Value,Error
   map<std::string, pair<double, double> > resultsMap;
@@ -273,7 +280,7 @@ if (beamSpotsMap_.find("Transient") != beamSpotsMap_.end()) {
   MonitorElement* histo = nullptr;
   for (vector<string>::iterator itV = varNamesV_.begin(); itV != varNamesV_.end(); itV++) {
     resultsMap.clear();
-    for (BeamSpotContainer::iterator itBS = beamSpotsMap_.begin(); itBS != beamSpotsMap_.end(); itBS++) {      
+    for (BeamSpotContainer::iterator itBS = beamSpotsMap_.begin(); itBS != beamSpotsMap_.end(); itBS++) {
       if (itBS->second.type() == BeamSpot::Tracker) {
         if (*itV == "x") {
           resultsMap[itBS->first] = pair<double, double>(itBS->second.x0(), itBS->second.x0Error());
@@ -289,12 +296,12 @@ if (beamSpotsMap_.find("Transient") != beamSpotsMap_.end()) {
           resultsMap[itBS->first] = pair<double, double>(itBS->second.sigmaZ(), itBS->second.sigmaZ0Error());
         } else {
           LogInfo("OnlineBeamMonitor") << "The histosMap_ has been built with the name " << *itV
-                                     << " that I can't recognize!";
+                                       << " that I can't recognize!";
           //assert(0);
         }
       }
     }
-    
+
     for (multimap<string, string>::iterator itM = histoByCategoryNames_.begin(); itM != histoByCategoryNames_.end();
          itM++) {
       if ((histo = histosMap_[*itV][itM->first][itM->second]) == nullptr)
@@ -313,15 +320,14 @@ if (beamSpotsMap_.find("Transient") != beamSpotsMap_.end()) {
         if (resultsMap.find("Transient") != resultsMap.end()) {
           histo->setBinContent(iLumi.id().luminosityBlock(), resultsMap["Transient"].first);
           histo->setBinError(iLumi.id().luminosityBlock(), resultsMap["Transient"].second);
-        }     
-        }else {
+        }
+      } else {
         LogInfo("OnlineBeamMonitor") << "The histosMap_ have a histogram named " << itM->second
-                                   << " that I can't recognize in this loop!";
+                                     << " that I can't recognize in this loop!";
         //assert(0);
       }
     }
   }
-
 }
 
 void OnlineBeamMonitor::dqmEndRun(edm::Run const&, edm::EventSetup const&) {
@@ -350,16 +356,16 @@ void OnlineBeamMonitor::dqmEndRun(edm::Run const&, edm::EventSetup const&) {
             for (int bin = 1; bin <= itHHH->second->getTH1()->GetNbinsX(); bin++) {
               if (itHHH->second->getTH1()->GetBinError(bin) != 0 || itHHH->second->getTH1()->GetBinContent(bin) != 0) {
                 if (itHHH->first == "Lumibased BeamSpotHLT" || itHHH->first == "Lumibased BeamSpotLegacy" ||
-                    itHHH->first == "Lumibased BeamSpotTransient" ) {
+                    itHHH->first == "Lumibased BeamSpotTransient") {
                   if (min > itHHH->second->getTH1()->GetBinContent(bin)) {
                     min = itHHH->second->getTH1()->GetBinContent(bin);
                   }
                   if (max < itHHH->second->getTH1()->GetBinContent(bin)) {
                     max = itHHH->second->getTH1()->GetBinContent(bin);
                   }
-                }  else {
+                } else {
                   LogInfo("OnlineBeamMonitorClient") << "The histosMap_ have a histogram named " << itHHH->first
-                                                   << " that I can't recognize in this loop!";
+                                                     << " that I can't recognize in this loop!";
                   // assert(0);
                 }
               }
@@ -380,7 +386,7 @@ void OnlineBeamMonitor::dqmEndRun(edm::Run const&, edm::EventSetup const&) {
               }
             } else {
               LogInfo("OnlineBeamMonitorClient") << "The histosMap_ have a histogram named " << itHHH->first
-                                               << " that I can't recognize in this loop!";
+                                                 << " that I can't recognize in this loop!";
             }
             itHHH->second->getTH1()->GetXaxis()->SetRangeUser(firstLumi - 0.5, lastLumi + 0.5);
           }
