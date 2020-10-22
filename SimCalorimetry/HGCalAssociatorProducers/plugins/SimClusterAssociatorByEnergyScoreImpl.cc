@@ -88,7 +88,7 @@ hgcal::association SimClusterAssociatorByEnergyScoreImpl::makeConnections(
   }// end of loop over SimClusters
  
 
-  //#ifdef EDM_ML_DEBUG
+#ifdef EDM_ML_DEBUG
   LogDebug("SimClusterAssociatorByEnergyScoreImpl")   << "lcsInSimCluster INFO (Only SimCluster filled at the moment)" << std::endl;
   for (size_t sc = 0; sc < lcsInSimCluster.size(); ++sc) {
     LogDebug("SimClusterAssociatorByEnergyScoreImpl")   << "For SimCluster Idx: " << sc << " we have: " << std::endl;
@@ -123,7 +123,7 @@ hgcal::association SimClusterAssociatorByEnergyScoreImpl::makeConnections(
           << " and energy: " << sclu.fraction * hitMap_->at(sc.first)->energy() << std::endl;
     }
   }
-  //#endif
+#endif
 
   // Fill detIdToLayerClusterId_Map and scsInLayerCluster; update lcsInSimCluster
   std::unordered_map<DetId, std::vector<hgcal::detIdInfoInCluster>> detIdToLayerClusterId_Map;
@@ -176,7 +176,7 @@ hgcal::association SimClusterAssociatorByEnergyScoreImpl::makeConnections(
     }  // End loop over hits on a LayerCluster
   }    // End of loop over LayerClusters
 
-  //#ifdef EDM_ML_DEBUG
+#ifdef EDM_ML_DEBUG
   for (unsigned int lcId = 0; lcId < nLayerClusters; ++lcId) {
     if (mask_[lcId] != 0.) {
       LogDebug("SimClusterAssociatorByEnergyScoreImpl")  << "Skipping cluster not belonging to mask " << lcId << std::endl;
@@ -339,7 +339,7 @@ hgcal::association SimClusterAssociatorByEnergyScoreImpl::makeConnections(
           << " and energy: " << sclu.fraction * hitMap_->at(sc.first)->energy() << std::endl;
     }
   }
-  //#endif
+#endif
 
   // Update scsInLayerCluster; compute the score LayerCluster-to-SimCluster,
   // together with the returned AssociationMap
@@ -398,12 +398,12 @@ hgcal::association SimClusterAssociatorByEnergyScoreImpl::makeConnections(
             (rhFraction - scFraction) * (rhFraction - scFraction) * hitEnergyWeight * invLayerClusterEnergyWeight;
       }
     }  // End of loop over Hits within a LayerCluster
-    //#ifdef EDM_ML_DEBUG
+#ifdef EDM_ML_DEBUG
     if (scsInLayerCluster[lcId].empty())
       LogDebug("SimClusterAssociatorByEnergyScoreImpl")  << "layerCluster Id: \t" << lcId << "\tSC id:\t-1 "
                                                           << "\t score \t-1"
                                                           << "\n";
-    //#endif
+#endif
   }  // End of loop over LayerClusters
 
   // Compute the SimCluster-To-LayerCluster score
@@ -412,7 +412,7 @@ hgcal::association SimClusterAssociatorByEnergyScoreImpl::makeConnections(
       unsigned int SCNumberOfHits = lcsInSimCluster[scId][layerId].hits_and_fractions.size();
       if (SCNumberOfHits == 0)
         continue;
-      //#ifdef EDM_ML_DEBUG
+#ifdef EDM_ML_DEBUG
       int lcWithMaxEnergyInSC = -1;
       //energy of the most energetic LC from all that were linked to SC
       float maxEnergyLCinSC = 0.f;
@@ -438,7 +438,7 @@ hgcal::association SimClusterAssociatorByEnergyScoreImpl::makeConnections(
           << simClusters[scId].energy() << "\t" << std::setw(15) << SCenergy << "\t" << std::setw(14)
           << SCNumberOfHits << "\t" << std::setw(18) << lcWithMaxEnergyInSC << "\t" << std::setw(15) << maxEnergyLCinSC
           << "\t" << std::setw(20) << SCEnergyFractionInLC << "\n";
-      //#endif
+#endif
       // Compute the correct normalization
       float invSCEnergyWeight = 0.f;
       for (auto const& haf : lcsInSimCluster[scId][layerId].hits_and_fractions) {
@@ -471,17 +471,17 @@ hgcal::association SimClusterAssociatorByEnergyScoreImpl::makeConnections(
           }
           lcPair.second.second +=
               (lcFraction - scFraction) * (lcFraction - scFraction) * hitEnergyWeight * invSCEnergyWeight;
-	  //#ifdef EDM_ML_DEBUG
+#ifdef EDM_ML_DEBUG
           LogDebug("SimClusterAssociatorByEnergyScoreImpl") 
               << "scDetId:\t" << (uint32_t)sc_hitDetId << "\tlayerClusterId:\t" << layerClusterId << "\t"
               << "lcfraction,scfraction:\t" << lcFraction << ", " << scFraction << "\t"
               << "hitEnergyWeight:\t" << hitEnergyWeight << "\t"
               << "current score:\t" << lcPair.second.second << "\t"
               << "invSCEnergyWeight:\t" << invSCEnergyWeight << "\n";
-	  //#endif
+#endif
         }  // End of loop over LayerClusters linked to hits of this SimCluster
       }    // End of loop over hits of SimCluster on a Layer
-      //#ifdef EDM_ML_DEBUG
+#ifdef EDM_ML_DEBUG
       if (lcsInSimCluster[scId][layerId].layerClusterIdToEnergyAndScore.empty())
         LogDebug("SimClusterAssociatorByEnergyScoreImpl")  << "SC Id: \t" << scId << "\tLC id:\t-1 "
                                                             << "\t score \t-1"
@@ -493,7 +493,7 @@ hgcal::association SimClusterAssociatorByEnergyScoreImpl::makeConnections(
             << "\t shared energy:\t" << lcPair.second.first << "\t shared energy fraction:\t"
             << (lcPair.second.first / SCenergy) << "\n";
       }
-      //#endif
+#endif
     }
   }
   return {scsInLayerCluster, lcsInSimCluster};
