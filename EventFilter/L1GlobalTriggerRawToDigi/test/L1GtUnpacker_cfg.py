@@ -126,7 +126,6 @@ process.MessageLogger.destinations = ['L1GtUnpacker_errors',
                                       'L1GtUnpacker'
                                       ]
 process.MessageLogger.statistics = []
-process.MessageLogger.fwkJobReports = []
 
 process.MessageLogger.L1GtUnpacker_errors = cms.untracked.PSet( 
         threshold = cms.untracked.string('ERROR'),
