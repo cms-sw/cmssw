@@ -35,7 +35,6 @@ public:
 
 protected:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
   std::shared_ptr<onlinebeammonitor::NoCache> globalBeginLuminosityBlock(const edm::LuminosityBlock& iLumi,
                                                                        const edm::EventSetup& iSetup) const override;
   void globalEndLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) override;
