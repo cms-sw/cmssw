@@ -19,7 +19,7 @@ public:
   void convertDummy(GEMROMapping& romap);
 
   struct GEMChamberMap {
-    std::vector<int> fedId;
+    std::vector<unsigned int> fedId;
     std::vector<uint8_t> amcNum;
     std::vector<uint8_t> gebId;
     std::vector<int> gemNum;
@@ -59,11 +59,9 @@ public:
   static const int vfatVerV3_ = 3;       // VFAT v3
   static const int vfatTypeV3_ = 11;     // VFAT v3
   static const int chipIdMask_ = 0xfff;  // chipId mask for 12 bits
-  static const int maxAMCs_ = 15;        // 4 bits for AMC no.
   static const int maxGEBs_ = 32;        // 5 bits for GEB id
-  static const int maxGEB0_ = 30;        // Not known yet for ME0
-  static const int maxGEB1_ = 12;        // 12 for GE11
-  static const int maxVFatGE0_ = 3;      // vFat per eta partition, not known yet for ME0
+  static const int maxAMCs_ = 15;        // 4 bits for AMC no.
+  static const int maxVFatGE0_ = 12;     // vFat per eta partition, not known yet for ME0
   static const int maxVFatGE11_ = 3;     // vFat per eta partition in GE11
   static const int maxVFatGE21_ = 6;     // vFat per eta partition in GE21
   static const int maxChan_ = 128;       // channels per vFat

@@ -123,7 +123,7 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
     }
   }
 
-  for (int fedId = FEDNumbering::MINGEMFEDID; fedId <= FEDNumbering::MAXME0FEDID; ++fedId) {
+  for (unsigned int fedId = FEDNumbering::MINGEMFEDID; fedId <= FEDNumbering::MAXME0FEDID; ++fedId) {
     uint32_t amc13EvtLength = 0;
     std::unique_ptr<AMC13Event> amc13Event = std::make_unique<AMC13Event>();
 

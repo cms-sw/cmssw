@@ -111,7 +111,7 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
 
   auto gemROMap = runCache(iEvent.getRun().index());
 
-  for (int fedId = FEDNumbering::MINGEMFEDID; fedId <= FEDNumbering::MAXGEMFEDID; ++fedId) {
+  for (unsigned int fedId = FEDNumbering::MINGEMFEDID; fedId <= FEDNumbering::MAXGEMFEDID; ++fedId) {
     const FEDRawData& fedData = fed_buffers->FEDData(fedId);
 
     int nWords = fedData.size() / sizeof(uint64_t);

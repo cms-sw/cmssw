@@ -7,7 +7,7 @@
 class GEMROMapping {
 public:
   struct chamEC {
-    int fedId;
+    unsigned int fedId;
     uint8_t amcNum;
     uint8_t gebId;
     bool operator<(const chamEC& r) const {
