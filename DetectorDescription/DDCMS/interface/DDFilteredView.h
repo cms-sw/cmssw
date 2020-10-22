@@ -172,7 +172,7 @@ namespace cms {
 
       std::string path = this->path();
       for (const auto& specPar : refs) {
-        for (const auto& part : specPar->paths) {
+        for (const auto& part : specPar.second->paths) {
           bool flag(true);
           std::size_t from = 0;
           for (auto name : dd4hep::dd::split(part, "/")) {
@@ -185,7 +185,7 @@ namespace cms {
             }
           }
           if (flag) {
-            return specPar->value<std::vector<T>>(key);
+            return specPar.second->value<std::vector<T>>(key);
           }
         }
       }

@@ -3,7 +3,7 @@
 #include <DD4hep/Filter.h>
 
 #include <cmath>
-#include "tbb/concurrent_vector.h"
+#include <vector>
 
 template <>
 std::vector<int> cms::DDCompactView::getVector<int>(const std::string& key) const {
@@ -42,8 +42,8 @@ std::vector<double> const& cms::DDCompactView::get<std::vector<double>>(const st
 }
 
 template <>
-tbb::concurrent_vector<double> const& cms::DDCompactView::get<tbb::concurrent_vector<double>>(
-    const std::string& name, const std::string& key) const {
+std::vector<double> const& cms::DDCompactView::get<std::vector<double>>(const std::string& name,
+                                                                        const std::string& key) const {
   const auto& spec = specpars().specPar(name);
   if (spec != nullptr) {
     auto const& nitem = spec->numpars.find(key);
