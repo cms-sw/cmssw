@@ -26,5 +26,6 @@ from Configuration.Eras.Modifier_peripheralPbPb_cff import peripheralPbPb
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
 from Configuration.Eras.Modifier_ppRef_2017_cff import ppRef_2017
-for e in [pA_2016, peripheralPbPb, pp_on_AA_2018, pp_on_XeXe_2017, ppRef_2017]:
+from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
+for e in [pA_2016, peripheralPbPb, pp_on_AA_2018, pp_on_XeXe_2017, ppRef_2017, pp_on_PbPb_run3]:
     e.toReplaceWith(photonTask, _photonTaskWithIsland)
