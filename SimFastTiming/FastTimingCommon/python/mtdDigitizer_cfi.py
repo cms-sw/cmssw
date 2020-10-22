@@ -34,8 +34,8 @@ _barrel_MTDDigitizer = cms.PSet(
         SigmaClock                 = cms.double(0.015), # [ns]
         CorrelationCoefficient     = cms.double(1.),
         SmearTimeForOOTtails       = cms.bool(True),
-        Npe_to_pC                  = cms.double(0.016), # [pC] 
-        Npe_to_V                   = cms.double(0.0064),# [V] 
+        Npe_to_pC                  = cms.double(0.016), # [pC]
+        Npe_to_V                   = cms.double(0.0064),# [V]
 
         # n bits for the ADC 
         adcNbits          = cms.uint32(10),
@@ -100,4 +100,3 @@ mtdDigitizer = cms.PSet(
     barrelDigitizer = _barrel_MTDDigitizer,
     endcapDigitizer = _endcap_MTDDigitizer
 )
-

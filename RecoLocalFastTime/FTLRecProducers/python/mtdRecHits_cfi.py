@@ -14,8 +14,7 @@ _endcapAlgo = cms.PSet(
 )
 
 from Configuration.Eras.Modifier_phase2_etlV4_cff import phase2_etlV4
-phase2_etlV4.toModify(_endcapAlgo, thresholdToKeep = 0.005 )
-phase2_etlV4.toModify(_endcapAlgo, calibrationConstant = 0.001 )
+phase2_etlV4.toModify(_endcapAlgo, thresholdToKeep = 0.005, calibrationConstant = 0.001 )
 
 mtdRecHits = cms.EDProducer(
     "MTDRecHitProducer",
@@ -26,5 +25,3 @@ mtdRecHits = cms.EDProducer(
     BarrelHitsName = cms.string('FTLBarrel'),
     EndcapHitsName = cms.string('FTLEndcap'),
 )
-
-
