@@ -27,7 +27,7 @@ from RecoTauTag.RecoTau.TauDiscriminatorTools import noPrediscriminants
 ### Load payloads via GlobalTag
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '112X_mcRun4_realistic_Candidate_2020_09_17_13_57_14', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
 
 from RecoTauTag.RecoTau.PATTauDiscriminationByMVAIsolationRun2_cff import *
