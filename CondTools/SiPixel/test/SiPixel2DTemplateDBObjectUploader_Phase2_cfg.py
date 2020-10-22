@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as opts
 import csv
+from io import open
 
 options = opts.VarParsing ('standard')
 
@@ -83,31 +84,28 @@ if len(magfieldstrsplit)>1 :
 	MagFieldString+=magfieldstrsplit[1]
 
 #open the map file
-mapfile = open(options.Map,'rUb')
+mapfile = open(options.Map,'rU', newline='')
 #read the csv file into a reader
 mapfilereader = csv.reader(mapfile,delimiter=options.Delimiter,quotechar=options.Quotechar)
 #separate into the different sections
 barrel_rule_lines = []; endcap_rule_lines = []
 barrel_exception_lines = []; endcap_exception_lines = []
 sections = [barrel_rule_lines, endcap_rule_lines, barrel_exception_lines, endcap_exception_lines]
-i=0; line = mapfilereader.next()
+i=0; line = next(mapfilereader)
 for i in range(len(sections)) :
-	#print 'line = %s (length=%d)'%(line,len(line)) #DEBUG
-	while len(line)==0 or line[0].find('NUMERATOR TEMPLATE ID')==-1 : #skip to just before the section of info
-		line=mapfilereader.next()
-	#	print 'line = %s (length=%d)'%(line,len(line)) #DEBUG
+	while line[0].find('TEMPLATE ID')==-1 : #skip to just before the section of info
+		line=next(mapfilereader)
 	try :
-		line=mapfilereader.next()
+		line=next(mapfilereader)
 	except StopIteration :
-		print 'Done reading input file' #DEBUG
+		print('Done reading input file')
 		break
-	#print 'line2 = %s'%(line) #DEBUG
-	while len(line)>0 and line[1]!='' : #add the relevant lines to the section
+	while line[1]!='' : #add the lines that are the barrel rules
 		sections[i].append(line) 
 		try :
-			line=mapfilereader.next()
+			line=next(mapfilereader)
 		except StopIteration :
-			print 'Done reading input file'
+			print('Done reading input file')
 			break
 #print 'barrel rules = %s\nendcap rules = %s\nbarrel exceptions = %s\nendcap exceptions = %s'%(barrel_rule_lines,endcap_rule_lines,barrel_exception_lines,endcap_exception_lines) #DEBUG
 #Make the lists of location strings and template IDs
@@ -121,7 +119,7 @@ suffix = '.out'
 for s in range(len(sections)) :
 	for line in sections[s] :
 	#	print 'reading line: %s'%(line) #DEBUG
-		template_ID_s = line[0] if options.numerator==True else line[1]
+		template_ID_s = line[0]
 		while len(template_ID_s)<4 :
 			template_ID_s='0'+template_ID_s
 		newtemplatefilename = prefix+template_ID_s+suffix
@@ -129,7 +127,7 @@ for s in range(len(sections)) :
 		if not newtemplatefilename in template_filenames :
 			template_filenames.append(newtemplatefilename)
 		if s%2==0 :
-			lay, lad, mod = line[2], line[3], line[4]
+			lay, lad, mod = line[1], line[2], line[3]
 	#		print '	lay = %s, lad = %s, mod = %s'%(lay, lad, mod) #DEBUG
 			#barrel ID strings are "layer_ladder_module"
 			laysplit = lay.split('-'); firstlay=int(laysplit[0]); lastlay= int(laysplit[1])+1 if len(laysplit)>1 else firstlay+1
@@ -149,7 +147,7 @@ for s in range(len(sections)) :
 							location_index = barrel_locations.index(location_string)
 							barrel_template_IDs[location_index]=template_ID
 		else : 
-			disk, blade, side, panel = line[2], line[3], line[4], line[5]
+			disk, blade, side, panel = line[1], line[2], line[3], line[4]
 			#endcap ID strings are "disk_blade_side_panel"
 			disksplit = disk.split('-'); firstdisk=int(disksplit[0]); lastdisk = int(disksplit[1])+1 if len(disksplit)>1 else firstdisk+1
 			for i in range(firstdisk,lastdisk) :
@@ -172,9 +170,9 @@ for s in range(len(sections)) :
 #Debug print out assignments
 #print 'BARREL ASSIGNMENTS:' #DEBUG
 #for i in range(len(barrel_locations)) : #DEBUG
-#	tempid = barrel_template_IDs[i] #DEBUG
-#	lay, lad, mod = barrel_locations[i].split('_')[0], barrel_locations[i].split('_')[1], barrel_locations[i].split('_')[2] #DEBUG
-#	print '	layer %s, ladder %s, module %s will have template ID %d assigned to it'%(lay,lad,mod,tempid) #DEBUG
+	#tempid = barrel_template_IDs[i] #DEBUG
+	#lay, lad, mod = barrel_locations[i].split('_')[0], barrel_locations[i].split('_')[1], barrel_locations[i].split('_')[2] #DEBUG
+	#print '	layer %s, ladder %s, module %s will have template ID %d assigned to it'%(lay,lad,mod,tempid) #DEBUG
 #print 'ENDCAP ASSIGNMENTS:' #DEBUG
 #for i in range(len(endcap_locations)) : #DEBUG
 #	tempid = endcap_template_IDs[i] #DEBUG
@@ -186,13 +184,13 @@ from Configuration.StandardSequences.Eras import eras
 process = cms.Process("SiPixel2DTemplateDBUpload",eras.Phase2)#C2)
 process.load("CondCore.CondDB.CondDB_cfi")
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023D17_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, options.GlobalTag, '')
 
-template_base = 'SiPixel2DTemplateDBObject_phase2_'+MagFieldString+'T_'+options.Year+'_v'+version
+template_base = 'SiPixel2DTemplateDBObject_phase2_'+MagFieldString+'T'+'_v'+version
 if options.numerator==True :
 	template_base+='_num'
 elif options.denominator==True :
@@ -205,49 +203,49 @@ sqlitefilename = 'sqlite_file:'+template_base+'.db'
 print '\nUploading %s with record SiPixel2DTemplateDBObjectRcd in file %s\n' % (template_base,sqlitefilename)
 
 process.source = cms.Source("EmptyIOVSource",
-							timetype = cms.string('runnumber'),
-							firstValue = cms.uint64(1),
-							lastValue = cms.uint64(1),
-							interval = cms.uint64(1)
-							)
+		timetype = cms.string('runnumber'),
+		firstValue = cms.uint64(1),
+		lastValue = cms.uint64(1),
+                interval = cms.uint64(1)
+		)
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 if options.numerator==True :
 	process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-											  DBParameters = cms.PSet(messageLevel = cms.untracked.int32(0),
-																	  authenticationPath = cms.untracked.string('.')
-																	  ),
-											  timetype = cms.untracked.string('runnumber'),
-											  connect = cms.string(sqlitefilename),
-											  toPut = cms.VPSet(cms.PSet(record = cms.string('SiPixel2DTemplateDBObjectRcd'),
-																		 tag = cms.string(template_base)
-																		 )
-																)
-											  )
+		DBParameters = cms.PSet(messageLevel = cms.untracked.int32(0),
+                    authenticationPath = cms.untracked.string('.')
+                    ),
+		timetype = cms.untracked.string('runnumber'),
+		connect = cms.string(sqlitefilename),
+		toPut = cms.VPSet(cms.PSet(record = cms.string('SiPixel2DTemplateDBObjectRcd'),
+		tag = cms.string(template_base)
+		)
+		)
+		)
 elif options.denominator==True :
 	process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-											  DBParameters = cms.PSet(messageLevel = cms.untracked.int32(0),
-																	  authenticationPath = cms.untracked.string('.')
-																	  ),
-											  timetype = cms.untracked.string('runnumber'),
-											  connect = cms.string(sqlitefilename),
-											  toPut = cms.VPSet(cms.PSet(record = cms.string('SiPixel2DTemplateDBObjectRcd'),
-											  							 label=cms.string('unirradiated'),
-																		 tag = cms.string(template_base)
-																		 )
-																)
-											  )
+	DBParameters = cms.PSet(messageLevel = cms.untracked.int32(0),
+                         authenticationPath = cms.untracked.string('.')
+                         ),
+			timetype = cms.untracked.string('runnumber'),
+			connect = cms.string(sqlitefilename),
+			toPut = cms.VPSet(cms.PSet(record = cms.string('SiPixel2DTemplateDBObjectRcd'),
+                            label=cms.string('unirradiated'),
+                            tag = cms.string(template_base)
+			)
+			)
+                    )
 process.uploader = cms.EDAnalyzer("SiPixel2DTemplateDBObjectUploader",
-								  siPixelTemplateCalibrations = cms.vstring(template_filenames),
-								  theTemplateBaseString = cms.string(template_base),
-								  Version = cms.double(3.0),
-								  MagField = cms.double(MagFieldValue),
-								  detIds = cms.vuint32(1,2), #0 is for all, 1 is Barrel, 2 is EndCap
-								  barrelLocations = cms.vstring(barrel_locations),
-								  endcapLocations = cms.vstring(endcap_locations),
-								  barrelTemplateIds = cms.vuint32(barrel_template_IDs),
-								  endcapTemplateIds = cms.vuint32(endcap_template_IDs),
-								  useVectorIndices  = cms.untracked.bool(options.useVectorIndices),
-								 )
+	siPixelTemplateCalibrations = cms.vstring(template_filenames),
+	theTemplateBaseString = cms.string(template_base),
+	Version = cms.double(3.0),
+	MagField = cms.double(MagFieldValue),
+	detIds = cms.vuint32(1,2), #0 is for all, 1 is Barrel, 2 is EndCap
+	barrelLocations = cms.vstring(barrel_locations),
+	endcapLocations = cms.vstring(endcap_locations),
+	barrelTemplateIds = cms.vuint32(barrel_template_IDs),
+	endcapTemplateIds = cms.vuint32(endcap_template_IDs),
+	useVectorIndices  = cms.untracked.bool(options.useVectorIndices),
+	)
 process.myprint = cms.OutputModule("AsciiOutputModule")
 process.p = cms.Path(process.uploader)
 process.CondDB.connect = sqlitefilename
