@@ -2,9 +2,12 @@ import FWCore.ParameterSet.Config as cms
 
 def customizePixelTracksSoAonCPU(process):
   
-  process.CUDAService = cms.Service("CUDAService",
+  process.CUDAService = cms.Service('CUDAService',
     enabled = cms.untracked.bool(False)
   )
+
+  # ensure the same results when running on GPU (which supports only the 'HLT' payload) and CPU
+  process.siPixelClustersPreSplitting.cpu.payloadType = cms.string('HLT')
 
   from RecoLocalTracker.SiPixelRecHits.siPixelRecHitHostSoA_cfi import siPixelRecHitHostSoA
   process.siPixelRecHitsPreSplitting = siPixelRecHitHostSoA.clone(
