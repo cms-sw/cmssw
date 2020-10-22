@@ -249,10 +249,6 @@ std::shared_ptr<onlinebeammonitor::NoCache> OnlineBeamMonitor::globalBeginLumino
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-void OnlineBeamMonitor::analyze(const Event& iEvent, const EventSetup& iSetup) {  
-}
-
-//----------------------------------------------------------------------------------------------------------------------
 void OnlineBeamMonitor::globalEndLuminosityBlock(const LuminosityBlock& iLumi, const EventSetup& iSetup) {
 
 //Setting up the choice
