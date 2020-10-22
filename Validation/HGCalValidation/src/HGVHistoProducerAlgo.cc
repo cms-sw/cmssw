@@ -1607,11 +1607,10 @@ void HGVHistoProducerAlgo::layerClusters_to_SimClusters(
       sCEnergyOnLayer[layerId] = 0;
 
     const auto& hits_and_fractions = sC[scId].hits_and_fractions();
-    const auto firstHitDetId = hits_and_fractions[0].first;
-    const int scLayerId =
-      recHitTools_->getLayerWithOffset(firstHitDetId) + layers * ((recHitTools_->zside(firstHitDetId) + 1) >> 1) - 1;
     for (const auto& it_haf : hits_and_fractions) {
       const DetId hitid = (it_haf.first);
+      const int scLayerId =
+	recHitTools_->getLayerWithOffset(hitid) + layers * ((recHitTools_->zside(hitid) + 1) >> 1) - 1;
       std::unordered_map<DetId, const HGCRecHit*>::const_iterator itcheck = hitMap.find(hitid);
       if (itcheck != hitMap.end()) {
     	const HGCRecHit* hit = itcheck->second;

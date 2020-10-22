@@ -65,12 +65,11 @@ hgcal::association SimClusterAssociatorByEnergyScoreImpl::makeConnections(
   std::unordered_map<DetId, std::vector<hgcal::detIdInfoInCluster>> detIdToSimClusterId_Map;
   for (const auto& scId : sCIndices) {
     const auto& hits_and_fractions = simClusters[scId].hits_and_fractions();
-    const auto firstHitDetId = hits_and_fractions[0].first;
-    const auto scLayerId =
-      recHitTools_->getLayerWithOffset(firstHitDetId) + layers_ * ((recHitTools_->zside(firstHitDetId) + 1) >> 1) - 1;
-    
     for (const auto& it_haf : hits_and_fractions) {
       const auto hitid = (it_haf.first);
+      const auto scLayerId =
+      recHitTools_->getLayerWithOffset(hitid) + layers_ * ((recHitTools_->zside(hitid) + 1) >> 1) - 1;
+    
       const auto itcheck = hitMap_->find(hitid);
       if (itcheck != hitMap_->end()) {
 	auto hit_find_it = detIdToSimClusterId_Map.find(hitid);
