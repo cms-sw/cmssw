@@ -25,11 +25,8 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/isFinite.h"
-#include "DataFormats/Common/interface/OrphanHandle.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
@@ -103,14 +100,10 @@ using namespace reco;
 
 TrackDetectorAssociator::TrackDetectorAssociator() {
   ivProp_ = nullptr;
-  defProp_ = nullptr;
   useDefaultPropagator_ = false;
 }
 
-TrackDetectorAssociator::~TrackDetectorAssociator() {
-  if (defProp_)
-    delete defProp_;
-}
+TrackDetectorAssociator::~TrackDetectorAssociator() = default;
 
 void TrackDetectorAssociator::setPropagator(const Propagator* ptr) {
   ivProp_ = ptr;
@@ -119,36 +112,31 @@ void TrackDetectorAssociator::setPropagator(const Propagator* ptr) {
 
 void TrackDetectorAssociator::useDefaultPropagator() { useDefaultPropagator_ = true; }
 
-void TrackDetectorAssociator::init(const edm::EventSetup& iSetup) {
+void TrackDetectorAssociator::init(const edm::EventSetup& iSetup, const AssociatorParameters& parameters) {
   // access the calorimeter geometry
-  iSetup.get<CaloGeometryRecord>().get(theCaloGeometry_);
-  if (!theCaloGeometry_.isValid())
-    throw cms::Exception("FatalError") << "Unable to find CaloGeometryRecord in event!\n";
+  theCaloGeometry_ = &iSetup.getData(parameters.theCaloGeometryToken);
 
   // get the tracking Geometry
-  iSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry_);
-  if (!theTrackingGeometry_.isValid())
-    throw cms::Exception("FatalError") << "Unable to find GlobalTrackingGeometryRecord in event!\n";
+  theTrackingGeometry_ = &iSetup.getData(parameters.theTrackingGeometryToken);
 
   if (useDefaultPropagator_ && (!defProp_ || theMagneticFeildWatcher_.check(iSetup))) {
     // setup propagator
-    edm::ESHandle<MagneticField> bField;
-    iSetup.get<IdealMagneticFieldRecord>().get(bField);
+    const MagneticField* bField = &iSetup.getData(parameters.bFieldToken);
 
-    SteppingHelixPropagator* prop = new SteppingHelixPropagator(&*bField, anyDirection);
+    auto prop = std::make_unique<SteppingHelixPropagator>(bField, anyDirection);
     prop->setMaterialMode(false);
     prop->applyRadX0Correction(true);
     // prop->setDebug(true); // tmp
-    defProp_ = prop;
-    setPropagator(defProp_);
+    defProp_ = std::move(prop);
+    setPropagator(defProp_.get());
   }
 
-  iSetup.get<DetIdAssociatorRecord>().get("EcalDetIdAssociator", ecalDetIdAssociator_);
-  iSetup.get<DetIdAssociatorRecord>().get("HcalDetIdAssociator", hcalDetIdAssociator_);
-  iSetup.get<DetIdAssociatorRecord>().get("HODetIdAssociator", hoDetIdAssociator_);
-  iSetup.get<DetIdAssociatorRecord>().get("CaloDetIdAssociator", caloDetIdAssociator_);
-  iSetup.get<DetIdAssociatorRecord>().get("MuonDetIdAssociator", muonDetIdAssociator_);
-  iSetup.get<DetIdAssociatorRecord>().get("PreshowerDetIdAssociator", preshowerDetIdAssociator_);
+  ecalDetIdAssociator_ = &iSetup.getData(parameters.ecalDetIdAssociatorToken);
+  hcalDetIdAssociator_ = &iSetup.getData(parameters.hcalDetIdAssociatorToken);
+  hoDetIdAssociator_ = &iSetup.getData(parameters.hoDetIdAssociatorToken);
+  caloDetIdAssociator_ = &iSetup.getData(parameters.caloDetIdAssociatorToken);
+  muonDetIdAssociator_ = &iSetup.getData(parameters.muonDetIdAssociatorToken);
+  preshowerDetIdAssociator_ = &iSetup.getData(parameters.preshowerDetIdAssociatorToken);
 }
 
 TrackDetMatchInfo TrackDetectorAssociator::associate(const edm::Event& iEvent,
@@ -173,7 +161,7 @@ TrackDetMatchInfo TrackDetectorAssociator::associate(const edm::Event& iEvent,
   info.stateAtIP = *innerState;
   cachedTrajectory_.setStateAtIP(trackOrigin);
 
-  init(iSetup);
+  init(iSetup, parameters);
   // get track trajectory
   // ECAL points (EB+EE)
   // If the phi angle between a track entrance and exit points is more
@@ -566,7 +554,7 @@ void TrackDetectorAssociator::fillHO(const edm::Event& iEvent,
   }
 }
 
-FreeTrajectoryState TrackDetectorAssociator::getFreeTrajectoryState(const edm::EventSetup& iSetup,
+FreeTrajectoryState TrackDetectorAssociator::getFreeTrajectoryState(const MagneticField* bField,
                                                                     const SimTrack& track,
                                                                     const SimVertex& vertex) {
   GlobalVector vector(track.momentum().x(), track.momentum().y(), track.momentum().z());
@@ -577,17 +565,14 @@ FreeTrajectoryState TrackDetectorAssociator::getFreeTrajectoryState(const edm::E
       abs(track.type()) == 321 ||          // kaon
       abs(track.type()) == 2212)
     charge = track.type() < 0 ? -1 : 1;
-  return getFreeTrajectoryState(iSetup, vector, point, charge);
+  return getFreeTrajectoryState(bField, vector, point, charge);
 }
 
-FreeTrajectoryState TrackDetectorAssociator::getFreeTrajectoryState(const edm::EventSetup& iSetup,
+FreeTrajectoryState TrackDetectorAssociator::getFreeTrajectoryState(const MagneticField* bField,
                                                                     const GlobalVector& momentum,
                                                                     const GlobalPoint& vertex,
                                                                     const int charge) {
-  edm::ESHandle<MagneticField> bField;
-  iSetup.get<IdealMagneticFieldRecord>().get(bField);
-
-  GlobalTrajectoryParameters tPars(vertex, momentum, charge, &*bField);
+  GlobalTrajectoryParameters tPars(vertex, momentum, charge, bField);
 
   ROOT::Math::SMatrixIdentity id;
   AlgebraicSymMatrix66 covT(id);
@@ -597,16 +582,13 @@ FreeTrajectoryState TrackDetectorAssociator::getFreeTrajectoryState(const edm::E
   return FreeTrajectoryState(tPars, tCov);
 }
 
-FreeTrajectoryState TrackDetectorAssociator::getFreeTrajectoryState(const edm::EventSetup& iSetup,
+FreeTrajectoryState TrackDetectorAssociator::getFreeTrajectoryState(const MagneticField* bField,
                                                                     const reco::Track& track) {
-  edm::ESHandle<MagneticField> bField;
-  iSetup.get<IdealMagneticFieldRecord>().get(bField);
-
   GlobalVector vector(track.momentum().x(), track.momentum().y(), track.momentum().z());
 
   GlobalPoint point(track.vertex().x(), track.vertex().y(), track.vertex().z());
 
-  GlobalTrajectoryParameters tPars(point, vector, track.charge(), &*bField);
+  GlobalTrajectoryParameters tPars(point, vector, track.charge(), bField);
 
   // FIX THIS !!!
   // need to convert from perigee to global or helix (curvilinear) frame
@@ -1011,8 +993,7 @@ TrackDetMatchInfo TrackDetectorAssociator::associate(const edm::Event& iEvent,
                                                      Direction direction /*= Any*/) {
   double currentStepSize = cachedTrajectory_.getPropagationStep();
 
-  edm::ESHandle<MagneticField> bField;
-  iSetup.get<IdealMagneticFieldRecord>().get(bField);
+  const MagneticField* bField = &iSetup.getData(parameters.bFieldToken);
 
   if (track.extra().isNull()) {
     if (direction != InsideOut)
@@ -1020,14 +1001,14 @@ TrackDetMatchInfo TrackDetectorAssociator::associate(const edm::Event& iEvent,
                                             "something else than InsideOut track.\n"
                                          << "Either change the parameter or provide needed data!\n";
     LogTrace("TrackAssociator") << "Track Extras not found\n";
-    FreeTrajectoryState initialState = trajectoryStateTransform::initialFreeState(track, &*bField);
+    FreeTrajectoryState initialState = trajectoryStateTransform::initialFreeState(track, bField);
     return associate(iEvent, iSetup, parameters, &initialState);  // 5th argument is null pointer
   }
 
   LogTrace("TrackAssociator") << "Track Extras found\n";
-  FreeTrajectoryState innerState = trajectoryStateTransform::innerFreeState(track, &*bField);
-  FreeTrajectoryState outerState = trajectoryStateTransform::outerFreeState(track, &*bField);
-  FreeTrajectoryState referenceState = trajectoryStateTransform::initialFreeState(track, &*bField);
+  FreeTrajectoryState innerState = trajectoryStateTransform::innerFreeState(track, bField);
+  FreeTrajectoryState outerState = trajectoryStateTransform::outerFreeState(track, bField);
+  FreeTrajectoryState referenceState = trajectoryStateTransform::initialFreeState(track, bField);
 
   LogTrace("TrackAssociator") << "inner track state (rho, z, phi):" << track.innerPosition().Rho() << ", "
                               << track.innerPosition().z() << ", " << track.innerPosition().phi() << "\n";
@@ -1092,7 +1073,8 @@ TrackDetMatchInfo TrackDetectorAssociator::associate(const edm::Event& iEvent,
                                                      const SimTrack& track,
                                                      const SimVertex& vertex,
                                                      const AssociatorParameters& parameters) {
-  return associate(iEvent, iSetup, getFreeTrajectoryState(iSetup, track, vertex), parameters);
+  auto const* bField = &iSetup.getData(parameters.bFieldToken);
+  return associate(iEvent, iSetup, getFreeTrajectoryState(bField, track, vertex), parameters);
 }
 
 TrackDetMatchInfo TrackDetectorAssociator::associate(const edm::Event& iEvent,
@@ -1101,7 +1083,8 @@ TrackDetMatchInfo TrackDetectorAssociator::associate(const edm::Event& iEvent,
                                                      const GlobalPoint& vertex,
                                                      const int charge,
                                                      const AssociatorParameters& parameters) {
-  return associate(iEvent, iSetup, getFreeTrajectoryState(iSetup, momentum, vertex, charge), parameters);
+  auto const* bField = &iSetup.getData(parameters.bFieldToken);
+  return associate(iEvent, iSetup, getFreeTrajectoryState(bField, momentum, vertex, charge), parameters);
 }
 
 bool TrackDetectorAssociator::crossedIP(const reco::Track& track) {

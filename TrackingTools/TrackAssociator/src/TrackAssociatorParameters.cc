@@ -80,6 +80,16 @@ void TrackAssociatorParameters::loadParameters(const edm::ParameterSet& iConfig,
     simEcalHitsEEToken = iC.consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "EcalHitsEE"));
     simHcalHitsToken = iC.consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "HcalHits"));
   }
+
+  ecalDetIdAssociatorToken = iC.esConsumes(edm::ESInputTag("", "EcalDetIdAssociator"));
+  hcalDetIdAssociatorToken = iC.esConsumes(edm::ESInputTag("", "HcalDetIdAssociator"));
+  hoDetIdAssociatorToken = iC.esConsumes(edm::ESInputTag("", "HODetIdAssociator"));
+  caloDetIdAssociatorToken = iC.esConsumes(edm::ESInputTag("", "CaloDetIdAssociator"));
+  muonDetIdAssociatorToken = iC.esConsumes(edm::ESInputTag("", "MuonDetIdAssociator"));
+  preshowerDetIdAssociatorToken = iC.esConsumes(edm::ESInputTag("", "PreshowerDetIdAssociator"));
+  theCaloGeometryToken = iC.esConsumes();
+  theTrackingGeometryToken = iC.esConsumes();
+  bFieldToken = iC.esConsumes();
 }
 
 TrackAssociatorParameters::TrackAssociatorParameters(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC) {
