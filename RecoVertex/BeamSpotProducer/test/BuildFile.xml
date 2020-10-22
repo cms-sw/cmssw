@@ -8,3 +8,9 @@
   <flags NO_TESTRUN="1"/>
   <lib name="NtupleHelper"/>
 </bin>
+
+<environment>
+  <bin file="testReadWriteBSFromDB.cpp">
+    <flags TEST_RUNNER_ARGS="/bin/bash RecoVertex/BeamSpotProducer/test testReadWriteBSFromDB.sh"/>
+  </bin>
+</environment>
