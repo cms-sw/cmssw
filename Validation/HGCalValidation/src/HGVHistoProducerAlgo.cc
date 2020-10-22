@@ -1519,8 +1519,8 @@ void HGVHistoProducerAlgo::layerClusters_to_SimClusters(
   // reco-level, namely fake-rate an merge-rate. In this loop we should *not*
   // restrict only to the selected simClusters.
   for (unsigned int lcId = 0; lcId < nLayerClusters; ++lcId) {
-    if (mask[lcId] == 0.) {
-      LogDebug("HGCalValidator") << "Skipping masked cluster " << lcId << std::endl;
+    if (mask[lcId] != 0.) {
+      LogDebug("HGCalValidator") << "Skipping cluster not belonging to mask " << lcId << std::endl;
       continue;
     }
     const std::vector<std::pair<DetId, float>>& hits_and_fractions = clusters[lcId].hitsAndFractions();
