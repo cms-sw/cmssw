@@ -89,7 +89,6 @@ namespace edm {
 
       std::vector<std::string> categories;
       std::vector<std::string> destinations;
-      std::vector<std::string> fwkJobReports;
       std::vector<std::string> statistics;
       std::map<std::string, Destination> destination;
 
