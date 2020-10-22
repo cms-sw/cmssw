@@ -28,8 +28,9 @@ from Configuration.Eras.Modifier_phase2_ecal_devel_cff import phase2_ecal_devel
 _phase2_ecalDigiTask_devel = cms.Task()
 phase2_ecal_devel.toReplaceWith(ecalDigiTask,_phase2_ecalDigiTask_devel)
 
-#phase 2 ecal pedestals                                                                                                                                                                                                                                                                  
-def _modifyEcalPedestals( process ):
+#phase 2 ecal                                                                                                                                                                                                                                                                   
+def _modifyEcalForPh2( process ):
     process.load("SimCalorimetry.EcalSimProducers.esEcalLiteDTUPedestalsProducer_cfi")
+    process.load("SimCalorimetry.EcalSimProducers.esCATIAGainProducer_cfi")
 
-modifyDigi_Phase2EcalPed = phase2_ecal_devel.makeProcessModifier(_modifyEcalPedestals)
+modifyDigi_Phase2EcalPed = phase2_ecal_devel.makeProcessModifier(_modifyEcalForPh2)
