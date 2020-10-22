@@ -42,7 +42,6 @@ TCDSRecord::TCDSRecord(const unsigned char* rawData) {
   triggerTypeFlags_ = tcdsRaw->header.triggerTypeFlags;
   inputs_ = tcdsRaw->header.inputs;
   bxid_ = tcdsRaw->header.bxid;
-  sourceid_ = fedHeader.sourceID();
 
   activePartitions_ = ActivePartitions(tcdsRaw->header.activePartitions0);
   activePartitions_ |= ActivePartitions(tcdsRaw->header.activePartitions1) << 32;

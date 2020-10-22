@@ -99,9 +99,6 @@ public:
   // The BST message as received from the LHC
   const BSTRecord& getBST() const { return bst_; }
 
-  // Source FED ID
-  uint16_t getSourceID() const { return sourceid_; }
-
   // List of active paritions, currently not implemented
   typedef std::bitset<96> ActivePartitions;
   ActivePartitions getActivePartitions() const { return activePartitions_; }
@@ -149,7 +146,6 @@ private:
   uint16_t triggerTypeFlags_;
   uint16_t inputs_;
   uint16_t bxid_;
-  uint16_t sourceid_;
 
   ActivePartitions activePartitions_;
   L1aHistory l1aHistory_;
