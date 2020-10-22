@@ -17,11 +17,11 @@ EcalLiteDTUCoder::EcalLiteDTUCoder(bool addNoise,
       m_intercals(nullptr),
       m_maxEneEB(ecalPh2::maxEneEB),  // Maximum for CATIA: LSB gain 10: 0.048 MeV
       m_addNoise(addNoise),
-      m_PreMix1(PreMix1)
-
+      m_PreMix1(PreMix1),
+      m_ebCorrNoise{ebCorrNoise0, ebCorrNoise1}
+     
 {
-  m_ebCorrNoise[0] = ebCorrNoise0;
-  m_ebCorrNoise[1] = ebCorrNoise1;
+
 }
 
 EcalLiteDTUCoder::~EcalLiteDTUCoder() {}
@@ -154,11 +154,17 @@ void EcalLiteDTUCoder::encode(const EcalSamples& ecalSamples,
 
 void EcalLiteDTUCoder::findPedestal(const DetId& detId, int gainId, double& ped, double& width) const {
   EcalLiteDTUPedestalsMap::const_iterator itped = m_peds->getMap().find(detId);
-  ped = (*itped).mean(gainId);
-  width = (*itped).rms(gainId);
-
-  LogDebug("EcalLiteDTUCoder") << "Pedestals for " << detId.rawId() << " gain range " << gainId << " : \n"
+  if (itped != m_peds->getMap().end()){
+    ped = (*itped).mean(gainId);
+    width = (*itped).rms(gainId);
+    LogDebug("EcalLiteDTUCoder") << "Pedestals for " << detId.rawId() << " gain range " << gainId << " : \n"
                                << "Mean = " << ped << " rms = " << width;
+  }
+  else{
+    LogDebug("EcalLiteDTUCoder") << "Pedestals not found, put default values (ped: 12; width: 2.5) \n";
+    ped=12.;
+    width=2.5;
+  }
 }
 
 void EcalLiteDTUCoder::findIntercalibConstant(const DetId& detId, double& icalconst) const {
@@ -166,8 +172,14 @@ void EcalLiteDTUCoder::findIntercalibConstant(const DetId& detId, double& icalco
   // find intercalib constant for this xtal
   const EcalIntercalibConstantMCMap& icalMap = m_intercals->getMap();
   EcalIntercalibConstantMCMap::const_iterator icalit = icalMap.find(detId);
+  if(icalit!=icalMap.end()) {
+    thisconst = (*icalit);
+  }
+  else { 
+    LogDebug("EcalLiteDTUCoder") << "Intercalib Constant not found, put default value \n";
+    thisconst = 1.;
+  }
 
-  thisconst = (*icalit);
   if (icalconst == 0.)
     thisconst = 1.;
 
