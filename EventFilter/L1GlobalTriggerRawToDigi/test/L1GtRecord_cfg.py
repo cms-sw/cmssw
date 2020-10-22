@@ -431,7 +431,6 @@ process.MessageLogger.categories.append('L1GlobalTriggerRecord')
 process.MessageLogger.categories.append('L1GtTrigReport')
 
 process.MessageLogger.cerr.default.limit = 0
-process.MessageLogger.cerr.FwkJob.limit = 0
 process.MessageLogger.cerr.FwkReport.limit = 0
 process.MessageLogger.cerr.FwkSummary.limit = 0
 

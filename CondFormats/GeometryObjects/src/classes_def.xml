@@ -11,13 +11,6 @@
  <class name="PGeometricTimingDet::Item"/>
  <class name="std::vector<PGeometricTimingDet::Item>"/>
 
- <class name="PGeometricTimingDetExtra" class_version="0">
-   <field name="pgdes_" mapping="blob"/>
- </class>
- <class name="PGeometricTimingDetExtra::Item"/>
- <class name="std::vector<PGeometricTimingDetExtra::Item>"/>
-
- 
  <class name="PCaloGeometry" class_version="0">
    <field name="m_translation" mapping="blob"/>
    <field name="m_dimension" mapping="blob"/>
