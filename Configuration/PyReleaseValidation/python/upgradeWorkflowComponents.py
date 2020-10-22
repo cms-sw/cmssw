@@ -584,6 +584,26 @@ upgradeWFs['heCollapse'] = UpgradeWorkflow_heCollapse(
     offset = 0.6,
 )
 
+class UpgradeWorkflow_ecalDevel(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        stepDict[stepName][k] = merge([{'--era': stepDict[step][k]['--era']+',phase2_ecal_devel'}, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return fragment=="TTbar_14TeV" and '2026' in key
+upgradeWFs['ecalDevel'] = UpgradeWorkflow_ecalDevel(
+    steps = [
+        'DigiTrigger',
+        'RecoGlobal',
+        'HARVESTGlobal',
+    ],
+    PU = [
+        'DigiTrigger',
+        'RecoGlobal',
+        'HARVESTGlobal',
+    ],
+    suffix = '_ecalDevel',
+    offset = 0.61,
+)
+
 class UpgradeWorkflow_0T(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         myGT=stepDict[step][k]['--conditions']
