@@ -19,10 +19,8 @@ EcalLiteDTUCoder::EcalLiteDTUCoder(bool addNoise,
       m_addNoise(addNoise),
       m_PreMix1(PreMix1),
       m_ebCorrNoise{ebCorrNoise0, ebCorrNoise1}
-     
-{
 
-}
+{}
 
 EcalLiteDTUCoder::~EcalLiteDTUCoder() {}
 
@@ -154,16 +152,15 @@ void EcalLiteDTUCoder::encode(const EcalSamples& ecalSamples,
 
 void EcalLiteDTUCoder::findPedestal(const DetId& detId, int gainId, double& ped, double& width) const {
   EcalLiteDTUPedestalsMap::const_iterator itped = m_peds->getMap().find(detId);
-  if (itped != m_peds->getMap().end()){
+  if (itped != m_peds->getMap().end()) {
     ped = (*itped).mean(gainId);
     width = (*itped).rms(gainId);
     LogDebug("EcalLiteDTUCoder") << "Pedestals for " << detId.rawId() << " gain range " << gainId << " : \n"
-                               << "Mean = " << ped << " rms = " << width;
-  }
-  else{
+                                 << "Mean = " << ped << " rms = " << width;
+  } else {
     LogDebug("EcalLiteDTUCoder") << "Pedestals not found, put default values (ped: 12; width: 2.5) \n";
-    ped=12.;
-    width=2.5;
+    ped = 12.;
+    width = 2.5;
   }
 }
 
@@ -172,10 +169,9 @@ void EcalLiteDTUCoder::findIntercalibConstant(const DetId& detId, double& icalco
   // find intercalib constant for this xtal
   const EcalIntercalibConstantMCMap& icalMap = m_intercals->getMap();
   EcalIntercalibConstantMCMap::const_iterator icalit = icalMap.find(detId);
-  if(icalit!=icalMap.end()) {
+  if (icalit != icalMap.end()) {
     thisconst = (*icalit);
-  }
-  else { 
+  } else {
     LogDebug("EcalLiteDTUCoder") << "Intercalib Constant not found, put default value \n";
     thisconst = 1.;
   }
