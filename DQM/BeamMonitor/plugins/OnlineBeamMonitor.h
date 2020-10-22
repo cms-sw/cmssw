@@ -26,7 +26,7 @@
 
 namespace onlinebeammonitor {
   struct NoCache {};
-}  // namespace OnlineBeamMonitor
+}  // namespace onlinebeammonitor
 
 class OnlineBeamMonitor : public DQMOneEDAnalyzer<edm::LuminosityBlockCache<onlinebeammonitor::NoCache>> {
 public:
@@ -36,7 +36,7 @@ public:
 protected:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   std::shared_ptr<onlinebeammonitor::NoCache> globalBeginLuminosityBlock(const edm::LuminosityBlock& iLumi,
-                                                                       const edm::EventSetup& iSetup) const override;
+                                                                         const edm::EventSetup& iSetup) const override;
   void globalEndLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) override;
   void dqmEndRun(edm::Run const&, edm::EventSetup const&) override;
 
@@ -61,7 +61,7 @@ private:
   mutable std::vector<int> processedLumis_;
   // MonitorElements:
   MonitorElement* bsChoice_;
-  
+
   //mutable MonitorElement* theValuesContainer_;
 
   //Containers
