@@ -122,7 +122,7 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
 
     // trailer checks
     FEDTrailer trailer(fedData.data() + fedData.size() - FEDTrailer::length);
-    
+
     bool failTrailerCheck = false, failTrailerMatch = false;
     if (!trailer.check() || (trailer.fragmentLength() * sizeof(uint64_t) != fedData.size())) {
       failTrailerCheck = true;
