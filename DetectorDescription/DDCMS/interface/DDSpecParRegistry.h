@@ -7,6 +7,7 @@ namespace cms {
 
   using DDSpecParRegistry = dd4hep::SpecParRegistry;
   using DDSpecPar = dd4hep::SpecPar;
+  using DDSpecParRefs = dd4hep::SpecParRefs;
 
 }  // namespace cms
 

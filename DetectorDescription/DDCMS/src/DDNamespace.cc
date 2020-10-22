@@ -109,6 +109,7 @@ void DDNamespace::addConstantNS(const string& name, const string& val, const str
                    type.c_str());
   dd4hep::_toDictionary(n, v, type);
   dd4hep::Constant c(n, v, type);
+
   m_context->description.addConstant(c);
 }
 
