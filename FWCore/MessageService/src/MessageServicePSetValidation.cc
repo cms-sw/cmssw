@@ -63,7 +63,6 @@ namespace edm {
       destinationPSets(pset);
       defaultPSet(pset);
       statisticsPSets(pset);
-      fwkJobReportPSets(pset);
       categoryPSets(pset, "MessageLogger");
 
       // No other PSets -- unless they contain optionalPSet or placeholder=True
@@ -104,29 +103,12 @@ namespace edm {
       noKeywords(statistics, "MessageLogger", "statistics");
       noNonPSetUsage(pset, statistics, "MessageLogger", "statistics");
 
-      fwkJobReports = check<vString>(pset, "MessageLogger", "fwkJobReports");
-      noDuplicates(fwkJobReports, "MessageLogger", "fwkJobReports");
-      noKeywords(fwkJobReports, "MessageLogger", "fwkJobReports");
-      noNonPSetUsage(pset, fwkJobReports, "MessageLogger", "fwkJobReports");
-      noDuplicates(fwkJobReports, destinations, "MessageLogger", "fwkJobReports", "destinations");
-      noDuplicates(fwkJobReports, statistics, "MessageLogger", "fwkJobReports", "statistics");
-
       categories = check<vString>(pset, "MessageLogger", "categories");
       noDuplicates(categories, "MessageLogger", "categories");
       noKeywords(categories, "MessageLogger", "categories");
       noNonPSetUsage(pset, categories, "MessageLogger", "categories");
       noDuplicates(categories, destinations, "MessageLogger", "categories", "destinations");
       noDuplicates(categories, statistics, "MessageLogger", "categories", "statistics");
-      noDuplicates(categories, fwkJobReports, "MessageLogger", "categories", "fwkJobReports");
-
-      messageIDs = check<vString>(pset, "MessageLogger", "messageIDs");
-      noDuplicates(messageIDs, "MessageLogger", "messageIDs");
-      noKeywords(messageIDs, "MessageLogger", "messageIDs");
-      noNonPSetUsage(pset, messageIDs, "MessageLogger", "messageIDs");
-      noDuplicates(messageIDs, destinations, "MessageLogger", "messageIDs", "destinations");
-      noDuplicates(messageIDs, statistics, "MessageLogger", "messageIDs", "statistics");
-      noDuplicates(messageIDs, fwkJobReports, "MessageLogger", "messageIDs", "fwkJobReports");
-      noDuplicates(messageIDs, fwkJobReports, "MessageLogger", "messageIDs", "categories");
 
     }  // psetLists
 
@@ -209,11 +191,7 @@ namespace edm {
         return true;
       if (s == "destinations")
         return true;
-      if (s == "fwkJobReports")
-        return true;
       if (s == "categories")
-        return true;
-      if (s == "messageIDs")
         return true;
       if (s == "debugModules")
         return true;
@@ -318,10 +296,6 @@ namespace edm {
       if (word == "default")
         return false;
       if (word == "categories")
-        return false;
-      if (word == "messageIDs")
-        return false;
-      if (word == "fwkJobReports")
         return false;
       if (word == "destinations")
         return false;
@@ -428,11 +402,7 @@ namespace edm {
           continue;
         if (lookForMatch(statistics, *i))
           continue;
-        if (lookForMatch(fwkJobReports, *i))
-          continue;
         if (lookForMatch(categories, *i))
-          continue;
-        if (lookForMatch(messageIDs, *i))
           continue;
         if ((*i) == "default")
           continue;
@@ -630,54 +600,6 @@ namespace edm {
 
     }  // statisticsPSet
 
-    void edm::service::MessageServicePSetValidation::fwkJobReportPSets(ParameterSet const& pset) {
-      ParameterSet empty_PSet;
-      std::vector<std::string>::const_iterator end = fwkJobReports.end();
-      for (std::vector<std::string>::const_iterator i = fwkJobReports.begin(); i != end; ++i) {
-        ParameterSet const& d = pset.getUntrackedParameterSet(*i, empty_PSet);
-        fwkJobReportPSet(d, *i);
-      }
-    }  // fwkJobReportPSets
-
-    void edm::service::MessageServicePSetValidation::fwkJobReportPSet(ParameterSet const& pset,
-                                                                      std::string const& psetName) {
-      // Category PSets
-
-      categoryPSets(pset, psetName);
-
-      // No other PSets -- unless they contain optionalPSet or placeholder=True
-
-      noNoncategoryPsets(pset, psetName);
-
-      // General parameters
-
-      check<bool>(pset, psetName, "placeholder");
-      std::string s = check<std::string>(pset, "psetName", "filename");
-      if ((s == "cerr") || (s == "cout")) {
-        flaws << psetName << " PSet: \n" << s << " is not allowed as a value of filename \n";
-      }
-      s = check<std::string>(pset, "psetName", "extension");
-      if ((s == "cerr") || (s == "cout")) {
-        flaws << psetName << " PSet: \n" << s << " is not allowed as a value of extension \n";
-      }
-      s = check<std::string>(pset, "psetName", "output");
-
-      // No other parameters
-
-      noneExcept<int>(pset, psetName, "int");
-
-      vString okbool;
-      okbool.push_back("placeholder");
-      okbool.push_back("optionalPSet");
-      noneExcept<bool>(pset, psetName, "bool", okbool);
-      vString okstring;
-      okstring.push_back("output");
-      okstring.push_back("filename");
-      okstring.push_back("extension");
-      noneExcept<std::string>(pset, psetName, "string", okstring);
-
-    }  // fwkJobReportPSet
-
     void edm::service::MessageServicePSetValidation::noNoncategoryPsets(ParameterSet const& pset,
                                                                         std::string const& psetName) {
       vString psnames;
@@ -685,8 +607,6 @@ namespace edm {
       vString::const_iterator end = psnames.end();
       for (vString::const_iterator i = psnames.begin(); i != end; ++i) {
         if (lookForMatch(categories, *i))
-          continue;
-        if (lookForMatch(messageIDs, *i))
           continue;
         if ((*i) == "default")
           continue;

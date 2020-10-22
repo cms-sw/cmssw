@@ -10,8 +10,6 @@ process.options = FWCore.Framework.test.cmsExceptionsFatal_cff.options
 process.load("FWCore.MessageService.test.Services_cff")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    messageIDs = cms.untracked.vstring('unimportant', 
-        'trkwarning'),
     default = cms.untracked.PSet(
         limit = cms.untracked.int32(100),
         timespan = cms.untracked.int32(60)
@@ -37,7 +35,8 @@ process.MessageLogger = cms.Service("MessageLogger",
         threshold = cms.untracked.string('ERROR')
     ),
     debugModules = cms.untracked.vstring('sendSomeMessages'),
-    categories = cms.untracked.vstring('postBeginJob'),
+    categories = cms.untracked.vstring('postBeginJob', 'unimportant',
+        'trkwarning'),
     destinations = cms.untracked.vstring('detailedInfo', 
         'critical')
 )
