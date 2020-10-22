@@ -80,4 +80,3 @@ _simEcalDigisPh2 = simEcalDigis.clone(
 # Turn off SR in Ecal for premixing stage1
 from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
 premix_stage1.toModify(simEcalDigis, UseFullReadout = True)
-premix_stage1.toModify(simEcalDigisPh2, UseFullReadout = True)
