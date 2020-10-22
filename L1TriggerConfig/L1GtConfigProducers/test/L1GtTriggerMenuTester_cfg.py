@@ -119,7 +119,6 @@ process.MessageLogger.destinations = ['L1GtTriggerMenuTester_errors',
                                       'L1GtTriggerMenuTester_debug'
                                       ]
 process.MessageLogger.statistics = []
-process.MessageLogger.fwkJobReports = []
 
 process.MessageLogger.L1GtTriggerMenuTester_errors = cms.untracked.PSet( 
         threshold = cms.untracked.string('ERROR'),

@@ -81,8 +81,6 @@ namespace edm {
       void defaultPSet(ParameterSet const& main_pset);
       void statisticsPSets(ParameterSet const& pset);
       void statisticsPSet(ParameterSet const& pset, std::string const& psetName);
-      void fwkJobReportPSets(ParameterSet const& pset);
-      void fwkJobReportPSet(ParameterSet const& pset, std::string const& psetName);
       void categoryPSets(ParameterSet const& pset, std::string const& psetName);
       void categoryPSet(ParameterSet const& pset, std::string const& OuterPsetName, std::string const& categoryName);
       void catInts(ParameterSet const& pset, std::string const& psetName, std::string const& categoryName);
@@ -257,9 +255,7 @@ namespace edm {
       std::ostringstream flaws;
       std::vector<std::string> destinations;
       std::vector<std::string> statistics;
-      std::vector<std::string> fwkJobReports;
       std::vector<std::string> categories;
-      std::vector<std::string> messageIDs;
       std::vector<std::string> debugModules;
       std::vector<std::string> suppressInfo;
       std::vector<std::string> suppressFwkInfo;

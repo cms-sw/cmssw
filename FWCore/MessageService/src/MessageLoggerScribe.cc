@@ -253,15 +253,6 @@ namespace edm {
       // grab list of categories
       vString categories = getAparameter<vString>(*job_pset_p, "categories", empty_vString);
 
-      // grab list of messageIDs -- these are a synonym for categories
-      // Note -- the use of messageIDs is deprecated in favor of categories
-      {
-        vString messageIDs = getAparameter<vString>(*job_pset_p, "messageIDs", empty_vString);
-
-        // combine the lists, not caring about possible duplicates (for now)
-        copy_all(messageIDs, std::back_inserter(categories));
-      }  // no longer need messageIDs
-
       // grab list of hardwired categories (hardcats) -- these are to be added
       // to the list of categories
       {
