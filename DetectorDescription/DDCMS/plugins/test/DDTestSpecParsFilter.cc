@@ -65,7 +65,7 @@ void DDTestSpecParsFilter::analyze(const Event&, const EventSetup& iEventSetup) 
     }
   });
   std::cout << "*** Check names in a path after filtering:\n";
-  for (auto it : myReg) {
+  for (const auto& it : myReg) {
     if (it.second->hasPath("//ME11AlumFrame")) {
       std::cout << it.first << "\n";
     }
