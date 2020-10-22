@@ -593,14 +593,15 @@ def main():
 
     desc="""This is a description of %prog."""
     parser = OptionParser(description=desc,version='%prog version 0.1')
-    parser.add_option('-s','--submit',    help='job submitted',    dest='submit',     action='store_true',  default=False)
-    parser.add_option('-j','--jobname',   help='task name',        dest='taskname',   action='store',       default='myTask')
-    parser.add_option('-D','--dataset',   help='selected dataset', dest='data',       action='store'      , default='')
-    parser.add_option('-r','--doRunBased',help='selected dataset', dest='doRunBased', action='store_true' , default=False)
+    parser.add_option('-s','--submit',    help='job submitted',         dest='submit',     action='store_true',  default=False)
+    parser.add_option('-j','--jobname',   help='task name',             dest='taskname',   action='store',       default='myTask')
+    parser.add_option('-D','--dataset',   help='selected dataset',      dest='data',       action='store',       default='')
+    parser.add_option('-r','--doRunBased',help='selected dataset',      dest='doRunBased', action='store_true' , default=False)
     parser.add_option('-i','--input',     help='set input configuration (overrides default)', dest='inputconfig',action='store',default=None)
-    parser.add_option('-b','--begin',  help='starting point',        dest='start',  action='store'     ,default='1')
-    parser.add_option('-e','--end',    help='ending point',          dest='end',    action='store'     ,default='999999')
-    parser.add_option('-v','--verbose', help='verbose output',      dest='verbose',     action='store_true', default=False)
+    parser.add_option('-b','--begin',     help='starting point',        dest='start',      action='store',       default='1')
+    parser.add_option('-e','--end',       help='ending point',          dest='end',        action='store',       default='999999')
+    parser.add_option('-v','--verbose',   help='verbose output',        dest='verbose',    action='store_true',  default=False)
+    parser.add_option('-u','--unitTest',  help='unit tests?',           dest='isUnitTest', action='store_true',  default=False)
 
     (opts, args) = parser.parse_args()
 
@@ -851,12 +852,22 @@ def main():
 
         od = collections.OrderedDict(sorted(file_info.items()))
         # print od
-            
-        # get from the DB the int luminosities
-        if(len(myRuns)==0):
-            raise Exception('Will not run on any run.... please check again the configuration')
 
-        myLumiDB = getLuminosity(HOME,myRuns[0],myRuns[-1],doRunBased,opts.verbose)
+        ## check that the list of runs is not empty
+        if(len(myRuns)==0):
+            if(opts.isUnitTest):
+                print('\n')
+                print('=' * 70)
+                print("|| WARNING: won't run on any run, probably DAS returned an empty query,\n|| but that's fine because this is a unit test!")
+                print('=' * 70)
+                print('\n')
+                sys.exit(0)
+            else:
+                raise Exception('Will not run on any run.... please check again the configuration')
+        else:
+            # get from the DB the int luminosities
+            myLumiDB = getLuminosity(HOME,myRuns[0],myRuns[-1],doRunBased,opts.verbose)
+
         if(opts.verbose):
             pprint.pprint(myLumiDB)
 
