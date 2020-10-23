@@ -44,7 +44,6 @@ class Eras (object):
                  'Phase2C11_dd4hep',
                  'Phase2C12_dd4hep',
                  'Phase2C11M9',
-                 'Phase2C11_Ecal_Devel'
         ]
 
         internalUseMods = ['run2_common', 'run2_25ns_specific',
