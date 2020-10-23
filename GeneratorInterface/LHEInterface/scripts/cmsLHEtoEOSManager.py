@@ -235,11 +235,14 @@ if __name__ == '__main__':
         if reallyDoIt and options.compress:
           theList = theCompressedFilesList
         for f in theList:
-            exeCheckSum = subprocess.Popen(["/afs/cern.ch/cms/caf/bin/cms_adler32",f], stdout=subprocess.PIPE) 
-            getCheckSum = subprocess.Popen(["awk", "{print $1}"], stdin=exeCheckSum.stdout, stdout=subprocess.PIPE)
-            exeCheckSum.stdout.close()
-            output,err = getCheckSum.communicate()
-            theCheckSumList.append(output.strip())
+            try:
+                exeCheckSum = subprocess.Popen(["/afs/cern.ch/cms/caf/bin/cms_adler32",f], stdout=subprocess.PIPE)
+                getCheckSum = subprocess.Popen(["awk", "{print $1}"], stdin=exeCheckSum.stdout, stdout=subprocess.PIPE)
+                exeCheckSum.stdout.close()
+                output,err = getCheckSum.communicate()
+                theCheckSumList.append(output.strip())
+            except:
+                theCheckSumList.append("missing-adler32")
 
     newArt = 0
     uploadPath = ''
