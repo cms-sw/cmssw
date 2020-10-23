@@ -27,7 +27,7 @@ uint32_t EcalBarrelNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) 
     return 0;
   }
 
-  const std::string& cryName(baseNumber.getLevelName(0).substr(0, 7));  // name of crystal volume
+  const std::string& cryName(baseNumber.getLevelName(0).substr(7, 14));  // name of crystal volume
 
   const int cryType(::atoi(cryName.c_str() + 5));
 
