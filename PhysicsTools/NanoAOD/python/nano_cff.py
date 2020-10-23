@@ -212,7 +212,7 @@ def nanoAOD_recalibrateMETs(process,isData):
             recoMetFromPFCs = cms.untracked.bool(False),
             reclusterJets = cms.untracked.bool(False),
             )
-    run2_nanoAOD_106Xv1.toModify( nanoAOD_PuppiV15_switch, recoMetFromPFCs=True, reclusterJets=True )
+    run2_nanoAOD_106Xv1.toModify(nanoAOD_PuppiV15_switch,recoMetFromPFCs=True,reclusterJets=True)
     runMetCorAndUncFromMiniAOD(process,isData=isData,metType="Puppi",postfix="Puppi",jetFlavor="AK4PFPuppi", recoMetFromPFCs=bool(nanoAOD_PuppiV15_switch.recoMetFromPFCs), reclusterJets=bool(nanoAOD_PuppiV15_switch.reclusterJets))
     process.nanoSequenceCommon.insert(process.nanoSequenceCommon.index(process.jetSequence),cms.Sequence(process.puppiMETSequence+process.fullPatMetSequencePuppi))
     return process
