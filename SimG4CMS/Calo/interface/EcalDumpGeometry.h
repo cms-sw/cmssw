@@ -20,14 +20,14 @@
 #include <vector>
 
 class EcalDumpGeometry {
-
 public:
-  explicit EcalDumpGeometry(const std::vector<std::string_view>&, int);
+  explicit EcalDumpGeometry(const std::vector<std::string_view> &, int);
   ~EcalDumpGeometry() = default;
 
   void update();
+
 private:
-  void dumpTouch(G4VPhysicalVolume *pv, unsigned int leafDepth) ;
+  void dumpTouch(G4VPhysicalVolume *pv, unsigned int leafDepth);
 
   EcalBarrelNumberingScheme ebNumbering_;
   EcalEndcapNumberingScheme eeNumbering_;

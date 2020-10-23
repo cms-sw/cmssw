@@ -74,7 +74,7 @@ ECalSD::ECalSD(const std::string& name,
   bool nullNS = m_EC.getUntrackedParameter<bool>("NullNumbering", false);
   storeRL = m_EC.getUntrackedParameter<bool>("StoreRadLength", false);
   scaleRL = m_EC.getUntrackedParameter<double>("ScaleRadLength", 1.0);
-  int dumpGeom =  m_EC.getUntrackedParameter<int>("DumpGeometry", 0);
+  int dumpGeom = m_EC.getUntrackedParameter<int>("DumpGeometry", 0);
 
   //Changes for improved timing simulation
   storeLayerTimeSim = m_EC.getUntrackedParameter<bool>("StoreLayerTimeSim", false);
@@ -111,11 +111,11 @@ ECalSD::ECalSD(const std::string& name,
   } else if (name == "EcalHitsEB") {
     scheme = dynamic_cast<EcalNumberingScheme*>(new EcalBarrelNumberingScheme());
     type = 0;
-    dump = ((dumpGeom%10) > 0);
+    dump = ((dumpGeom % 10) > 0);
   } else if (name == "EcalHitsEE") {
     scheme = dynamic_cast<EcalNumberingScheme*>(new EcalEndcapNumberingScheme());
     type = 1;
-    dump = (((dumpGeom/10)%10) > 0);
+    dump = (((dumpGeom / 10) % 10) > 0);
   } else if (name == "EcalHitsES") {
     if (isItTB)
       scheme = dynamic_cast<EcalNumberingScheme*>(new ESTBNumberingScheme());
@@ -123,7 +123,7 @@ ECalSD::ECalSD(const std::string& name,
       scheme = dynamic_cast<EcalNumberingScheme*>(new EcalPreshowerNumberingScheme());
     useWeight = false;
     type = 2;
-    dump = (((dumpGeom/100)%10) > 0);
+    dump = (((dumpGeom / 100) % 10) > 0);
   } else {
     edm::LogWarning("EcalSim") << "ECalSD: ReadoutName not supported";
   }
