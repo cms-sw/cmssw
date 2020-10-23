@@ -630,8 +630,8 @@ void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberM
     }
     LocalPoint localPoint = geomDet->surface().toLocal(stateOnSurface.freeState()->position());
     LocalError localError = stateOnSurface.localError().positionError();
-    float distanceX = 0;
-    float distanceY = 0;
+    float distanceX = 0.f;
+    float distanceY = 0.f;
     if (const CSCChamber* cscChamber = dynamic_cast<const CSCChamber*>(geomDet)) {
       const CSCChamberSpecs* chamberSpecs = cscChamber->specs();
       if (!chamberSpecs) {
@@ -653,21 +653,21 @@ void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberM
       float narrowWidth = wireTopology->narrowWidthOfPlane();
       float length = wireTopology->lengthOfPlane();
       // If slanted, there is no y offset between local origin and symmetry center of wire plane
-      float yOfFirstWire = std::abs(wireTopology->wireAngle()) > 1.E-06 ? -0.5 * length : wireTopology->yOfWire(1);
+      float yOfFirstWire = std::abs(wireTopology->wireAngle()) > 1.E-06f ? -0.5 * length : wireTopology->yOfWire(1);
       // y offset between local origin and symmetry center of wire plane
-      float yCOWPOffset = yOfFirstWire + 0.5 * length;
+      float yCOWPOffset = yOfFirstWire + 0.5f * length;
 
       // tangent of the incline angle from inside the trapezoid
-      float tangent = (wideWidth - narrowWidth) / (2. * length);
+      float tangent = (wideWidth - narrowWidth) / (2.f * length);
       // y position wrt bottom of trapezoid
       float yPrime = localPoint.y() + std::abs(yOfFirstWire);
       // half trapezoid width at y' is 0.5 * narrowWidth + x side of triangle with the above tangent and side y'
-      float halfWidthAtYPrime = 0.5 * narrowWidth + yPrime * tangent;
+      float halfWidthAtYPrime = 0.5f * narrowWidth + yPrime * tangent;
       distanceX = std::abs(localPoint.x()) - halfWidthAtYPrime;
-      distanceY = std::abs(localPoint.y() - yCOWPOffset) - 0.5 * length;
+      distanceY = std::abs(localPoint.y() - yCOWPOffset) - 0.5f * length;
     } else {
-      distanceX = std::abs(localPoint.x()) - 0.5 * geomDet->surface().bounds().width();
-      distanceY = std::abs(localPoint.y()) - 0.5 * geomDet->surface().bounds().length();
+      distanceX = std::abs(localPoint.x()) - 0.5f * geomDet->surface().bounds().width();
+      distanceY = std::abs(localPoint.y()) - 0.5f * geomDet->surface().bounds().length();
     }
     if ((distanceX < parameters.muonMaxDistanceX && distanceY < parameters.muonMaxDistanceY) ||
         (distanceX * distanceX <
@@ -815,8 +815,8 @@ bool TrackDetectorAssociator::addTAMuonSegmentMatch(TAMuonChamberMatch& matchedC
     isDTWithoutY = true;
 
   float deltaPhi(std::abs(segmentGlobalPosition.phi() - trajectoryStateOnSurface.freeState()->position().phi()));
-  if (deltaPhi > M_PI)
-    deltaPhi = std::abs(deltaPhi - M_PI * 2.);
+  if (deltaPhi > float(M_PI))
+    deltaPhi = std::abs(deltaPhi - float(M_PI) * 2.f);
   float deltaEta = std::abs(segmentGlobalPosition.eta() - trajectoryStateOnSurface.freeState()->position().eta());
 
   if (isDTWithoutY) {
@@ -841,13 +841,13 @@ bool TrackDetectorAssociator::addTAMuonSegmentMatch(TAMuonChamberMatch& matchedC
     // AlgebraicSymMatrix segmentCovMatrix = segment->parametersError();
     // muonSegment.segmentLocalErrorXDxDz = segmentCovMatrix[2][0];
     // muonSegment.segmentLocalErrorYDyDz = segmentCovMatrix[3][1];
-    muonSegment.segmentLocalErrorXDxDz = -999;
-    muonSegment.segmentLocalErrorYDyDz = -999;
+    muonSegment.segmentLocalErrorXDxDz = -999.f;
+    muonSegment.segmentLocalErrorYDyDz = -999.f;
     muonSegment.hasZed = true;
     muonSegment.hasPhi = true;
 
     // timing information
-    muonSegment.t0 = 0;
+    muonSegment.t0 = 0.f;
     if (dtseg) {
       if ((dtseg->hasPhi()) && (!isDTWithoutY)) {
         int phiHits = dtseg->phiSegment()->specificRecHits().size();
@@ -1019,7 +1019,7 @@ TrackDetMatchInfo TrackDetectorAssociator::associate(const edm::Event& iEvent,
             track.outerPosition().Dot(track.outerMomentum()) < 0) {
           cachedTrajectory_.setPropagationStep(-std::abs(currentStepSize));
           TrackDetMatchInfo result;
-          if (track.innerPosition().R() < track.outerPosition().R())
+          if (track.innerPosition().Mag2() < track.outerPosition().Mag2())
             result = associate(iEvent, iSetup, parameters, &innerState, &outerState);
           else
             result = associate(iEvent, iSetup, parameters, &outerState, &innerState);
