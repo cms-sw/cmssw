@@ -1,5 +1,4 @@
 #include <memory>  // unique_ptr
-#include <cmath>   // cosh
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -55,7 +54,6 @@ private:
   const double pt_sigma_high_;
   const double pt_sigma_low_;
   const double halo_max_distance2_;
-  const double mergeTRK_max_dR_;
   const double cosangle_align_;
   const double e_over_h_threshold_;
   const double pt_neutral_threshold_;
@@ -92,7 +90,6 @@ TrackstersMergeProducer::TrackstersMergeProducer(const edm::ParameterSet &ps, co
       pt_sigma_high_(ps.getParameter<double>("pt_sigma_high")),
       pt_sigma_low_(ps.getParameter<double>("pt_sigma_low")),
       halo_max_distance2_(ps.getParameter<double>("halo_max_distance2")),
-      mergeTRK_max_dR_(ps.getParameter<double>("mergeTRK_max_dR")),
       cosangle_align_(ps.getParameter<double>("cosangle_align")),
       e_over_h_threshold_(ps.getParameter<double>("e_over_h_threshold")),
       pt_neutral_threshold_(ps.getParameter<double>("pt_neutral_threshold")),
@@ -265,7 +262,7 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
   for (unsigned i = 0; i < trackstersEM.size(); ++i) {
     auto mergedIdx = indexInMergedCollEM[i];
     usedTrackstersMerged[mergedIdx] = true;
-    auto &t = trackstersEM[i];  //trackster
+    const auto &t = trackstersEM[i];  //trackster
     TICLCandidate tmpCandidate;
     tmpCandidate.addTrackster(edm::Ptr<ticl::Trackster>(trackstersMergedHandle, mergedIdx));
     tmpCandidate.setCharge(0);
@@ -284,7 +281,7 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
   for (unsigned i = 0; i < trackstersHAD.size(); ++i) {
     auto mergedIdx = indexInMergedCollHAD[i];
     usedTrackstersMerged[mergedIdx] = true;
-    auto &t = trackstersHAD[i];  //trackster
+    const auto &t = trackstersHAD[i];  //trackster
     TICLCandidate tmpCandidate;
     tmpCandidate.addTrackster(edm::Ptr<ticl::Trackster>(trackstersMergedHandle, mergedIdx));
     tmpCandidate.setCharge(0);
@@ -303,7 +300,7 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
   for (unsigned i = 0; i < trackstersTRKEM.size(); ++i) {
     auto mergedIdx = indexInMergedCollTRKEM[i];
     if (!usedTrackstersMerged[mergedIdx]) {
-      auto &t = trackstersTRKEM[i];  //trackster
+      const auto &t = trackstersTRKEM[i];  //trackster
       auto trackIdx = t.seedIndex();
       auto const &track = tracks[trackIdx];
       if (!usedSeeds[trackIdx] and t.raw_energy() > 0) {
@@ -353,7 +350,10 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
             for (auto otherTracksterIdx : trackstersTRKwithSameSeed) {
               tmpCandidate.addTrackster(edm::Ptr<ticl::Trackster>(trackstersMergedHandle, otherTracksterIdx));
             }
-            float p = tracksterTotalRawPt * cosh(t.barycenter().eta());
+            const auto &barycenter = t.barycenter();
+            float p = tracksterTotalRawPt *
+                      std::sqrt(1 + (barycenter.z() * barycenter.z()) /
+                                        (barycenter.x() * barycenter.x() + (barycenter.y() * barycenter.y())));
             float energy = std::sqrt(p * p + mpion2);
             tmpCandidate.setRawEnergy(energy);
             math::XYZTLorentzVector p4(p * track.momentum().unit().x(),
@@ -372,7 +372,10 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
               tmpCandidate.addTrackster(edm::Ptr<ticl::Trackster>(trackstersMergedHandle, otherTracksterIdx));
             }
             tmpCandidate.setPdgId(11 * track.charge());
-            float p = tracksterTotalRawPt * cosh(t.barycenter().eta());
+            const auto &barycenter = t.barycenter();
+            float p = tracksterTotalRawPt *
+                      std::sqrt(1 + (barycenter.z() * barycenter.z()) /
+                                        (barycenter.x() * barycenter.x() + (barycenter.y() * barycenter.y())));
             tmpCandidate.setRawEnergy(p);
             math::XYZTLorentzVector p4(
                 p * track.momentum().unit().x(), p * track.momentum().unit().y(), p * track.momentum().unit().z(), p);
@@ -400,7 +403,10 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
             for (auto otherTracksterIdx : trackstersTRKwithSameSeed) {
               tmpCandidate.addTrackster(edm::Ptr<ticl::Trackster>(trackstersMergedHandle, otherTracksterIdx));
             }
-            float p = tracksterTotalRawPt * cosh(t.barycenter().eta());
+            const auto &barycenter = t.barycenter();
+            float p = tracksterTotalRawPt *
+                      std::sqrt(1 + (barycenter.z() * barycenter.z()) /
+                                        (barycenter.x() * barycenter.x() + (barycenter.y() * barycenter.y())));
             float energy = std::sqrt(p * p + mpion2);
             tmpCandidate.setRawEnergy(energy);
             math::XYZTLorentzVector p4(p * track.momentum().unit().x(),
@@ -419,7 +425,10 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
               tmpCandidate.addTrackster(edm::Ptr<ticl::Trackster>(trackstersMergedHandle, otherTracksterIdx));
             }
             tmpCandidate.setPdgId(11 * track.charge());
-            float p = tracksterTotalRawPt * cosh(t.barycenter().eta());
+            const auto &barycenter = t.barycenter();
+            float p = tracksterTotalRawPt *
+                      std::sqrt(1 + (barycenter.z() * barycenter.z()) /
+                                        (barycenter.x() * barycenter.x() + (barycenter.y() * barycenter.y())));
             tmpCandidate.setRawEnergy(p);
             math::XYZTLorentzVector p4(
                 p * track.momentum().unit().x(), p * track.momentum().unit().y(), p * track.momentum().unit().z(), p);
@@ -450,7 +459,7 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
 
   for (unsigned i = 0; i < trackstersTRK.size(); ++i) {
     auto mergedIdx = indexInMergedCollTRK[i];
-    auto &t = trackstersTRK[i];  //trackster
+    const auto &t = trackstersTRK[i];  //trackster
 
     if (!usedTrackstersMerged[mergedIdx] and t.raw_energy() > 0) {
       auto trackIdx = t.seedIndex();
@@ -458,7 +467,9 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
       if (!usedSeeds[trackIdx]) {
         usedSeeds[trackIdx] = true;
         usedTrackstersMerged[mergedIdx] = true;
-        float p = t.raw_pt() * cosh(t.barycenter().eta());
+        const auto &barycenter = t.barycenter();
+        float p = t.raw_pt() * std::sqrt(1 + (barycenter.z() * barycenter.z()) /
+                                                 (barycenter.x() * barycenter.x() + (barycenter.y() * barycenter.y())));
         float energy = std::sqrt(p * p + mpion2);
         TICLCandidate tmpCandidate;
         tmpCandidate.addTrackster(edm::Ptr<ticl::Trackster>(trackstersMergedHandle, mergedIdx));
@@ -715,7 +726,6 @@ void TrackstersMergeProducer::fillDescriptions(edm::ConfigurationDescriptions &d
   desc.add<double>("pt_sigma_high", 2.);
   desc.add<double>("pt_sigma_low", 2.);
   desc.add<double>("halo_max_distance2", 4.);
-  desc.add<double>("mergeTRK_max_dR", 0.03);
   desc.add<double>("cosangle_align", 0.9945);
   desc.add<double>("e_over_h_threshold", 1.);
   desc.add<double>("pt_neutral_threshold", 2.);

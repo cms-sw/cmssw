@@ -26,10 +26,12 @@ PatternRecognitionbyCA<TILES>::PatternRecognitionbyCA(const edm::ParameterSet &c
       max_out_in_hops_(conf.getParameter<int>("max_out_in_hops")),
       min_cos_theta_(conf.getParameter<double>("min_cos_theta")),
       min_cos_pointing_(conf.getParameter<double>("min_cos_pointing")),
-      root_doublet_max_distance_from_seed_(conf.getParameter<double>("root_doublet_max_distance_from_seed")),
+      root_doublet_max_distance_from_seed_squared_(
+          conf.getParameter<double>("root_doublet_max_distance_from_seed_squared")),
       etaLimitIncreaseWindow_(conf.getParameter<double>("etaLimitIncreaseWindow")),
       skip_layers_(conf.getParameter<int>("skip_layers")),
       max_missing_layers_in_trackster_(conf.getParameter<int>("max_missing_layers_in_trackster")),
+      check_missing_layers_(max_missing_layers_in_trackster_ < 100),
       shower_start_max_layer_(conf.getParameter<int>("shower_start_max_layer")),
       min_layers_per_trackster_(conf.getParameter<int>("min_layers_per_trackster")),
       filter_on_categories_(conf.getParameter<std::vector<int>>("filter_on_categories")),
@@ -52,9 +54,6 @@ PatternRecognitionbyCA<TILES>::PatternRecognitionbyCA(const edm::ParameterSet &c
         << "PatternRecognitionbyCA received an empty graph definition from the global cache";
   }
   eidSession_ = tensorflow::createSession(trackstersCache->eidGraphDef);
-  if (max_missing_layers_in_trackster_ < 100) {
-    check_missing_layers_ = true;
-  }
 }
 
 template <typename TILES>
@@ -99,7 +98,7 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
                                     1,
                                     min_cos_theta_,
                                     min_cos_pointing_,
-                                    root_doublet_max_distance_from_seed_,
+                                    root_doublet_max_distance_from_seed_squared_,
                                     etaLimitIncreaseWindow_,
                                     skip_layers_,
                                     rhtools_.lastLayer(type),
@@ -156,7 +155,6 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
       }
     }
     unsigned showerMinLayerId = 99999;
-    std::vector<unsigned int> layerIds;
     std::vector<unsigned int> uniqueLayerIds;
     uniqueLayerIds.reserve(effective_cluster_idx.size());
     std::vector<std::pair<unsigned int, unsigned int>> lcIdAndLayer;
@@ -175,7 +173,7 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
       int numberOfMissingLayers = 0;
       unsigned int j = showerMinLayerId;
       unsigned int indexInVec = 0;
-      for (auto &layer : uniqueLayerIds) {
+      for (const auto &layer : uniqueLayerIds) {
         if (layer != j) {
           numberOfMissingLayers++;
           j++;
@@ -194,9 +192,7 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
       }
     }
 
-    bool selected =
-        (numberOfLayersInTrackster >= min_layers_per_trackster_) and (showerMinLayerId <= shower_start_max_layer_);
-    if (selected) {
+    if ((numberOfLayersInTrackster >= min_layers_per_trackster_) and (showerMinLayerId <= shower_start_max_layer_)) {
       // Put back indices, in the form of a Trackster, into the results vector
       Trackster tmp;
       tmp.vertices().reserve(effective_cluster_idx.size());
@@ -230,7 +226,7 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
       cumulative_prob += t.id_probabilities(index);
     }
     return (cumulative_prob <= pid_threshold_) &&
-           (t.raw_em_energy() / t.raw_energy() < energy_em_over_total_threshold_);
+           (t.raw_em_energy() < energy_em_over_total_threshold_ * t.raw_energy());
   };
 
   std::vector<unsigned int> selectedTrackstersIds;
@@ -243,7 +239,7 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
   result.reserve(selectedTrackstersIds.size());
 
   for (unsigned i = 0; i < selectedTrackstersIds.size(); ++i) {
-    auto &t = tmpTracksters[selectedTrackstersIds[i]];
+    const auto &t = tmpTracksters[selectedTrackstersIds[i]];
     for (auto const lcId : t.vertices()) {
       layer_cluster_usage[lcId]++;
       if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Basic)
