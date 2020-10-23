@@ -1,0 +1,9 @@
+#ifndef RecoLocalCalo_EcalRecProducers_plugins_EcalMultifitParametersGPURecord_h
+#define RecoLocalCalo_EcalRecProducers_plugins_EcalMultifitParametersGPURecord_h
+
+#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
+
+class EcalMultifitParametersGPURecord
+    : public edm::eventsetup::EventSetupRecordImplementation<EcalMultifitParametersGPURecord> {};
+
+#endif  // RecoLocalCalo_EcalRecProducers_plugins_EcalMultifitParametersGPURecord_h
