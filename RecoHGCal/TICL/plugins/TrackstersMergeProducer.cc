@@ -265,7 +265,7 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
   for (unsigned i = 0; i < trackstersEM.size(); ++i) {
     auto mergedIdx = indexInMergedCollEM[i];
     usedTrackstersMerged[mergedIdx] = true;
-    auto &t = trackstersEM[i];  //trackster
+    const auto &t = trackstersEM[i];  //trackster
     TICLCandidate tmpCandidate;
     tmpCandidate.addTrackster(edm::Ptr<ticl::Trackster>(trackstersMergedHandle, mergedIdx));
     tmpCandidate.setCharge(0);
@@ -284,7 +284,7 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
   for (unsigned i = 0; i < trackstersHAD.size(); ++i) {
     auto mergedIdx = indexInMergedCollHAD[i];
     usedTrackstersMerged[mergedIdx] = true;
-    auto &t = trackstersHAD[i];  //trackster
+    const auto &t = trackstersHAD[i];  //trackster
     TICLCandidate tmpCandidate;
     tmpCandidate.addTrackster(edm::Ptr<ticl::Trackster>(trackstersMergedHandle, mergedIdx));
     tmpCandidate.setCharge(0);
@@ -303,7 +303,7 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
   for (unsigned i = 0; i < trackstersTRKEM.size(); ++i) {
     auto mergedIdx = indexInMergedCollTRKEM[i];
     if (!usedTrackstersMerged[mergedIdx]) {
-      auto &t = trackstersTRKEM[i];  //trackster
+      const auto &t = trackstersTRKEM[i];  //trackster
       auto trackIdx = t.seedIndex();
       auto const &track = tracks[trackIdx];
       if (!usedSeeds[trackIdx] and t.raw_energy() > 0) {
@@ -450,7 +450,7 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
 
   for (unsigned i = 0; i < trackstersTRK.size(); ++i) {
     auto mergedIdx = indexInMergedCollTRK[i];
-    auto &t = trackstersTRK[i];  //trackster
+    const auto &t = trackstersTRK[i];  //trackster
 
     if (!usedTrackstersMerged[mergedIdx] and t.raw_energy() > 0) {
       auto trackIdx = t.seedIndex();

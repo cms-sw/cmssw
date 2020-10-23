@@ -30,6 +30,7 @@ PatternRecognitionbyCA<TILES>::PatternRecognitionbyCA(const edm::ParameterSet &c
       etaLimitIncreaseWindow_(conf.getParameter<double>("etaLimitIncreaseWindow")),
       skip_layers_(conf.getParameter<int>("skip_layers")),
       max_missing_layers_in_trackster_(conf.getParameter<int>("max_missing_layers_in_trackster")),
+      check_missing_layers_(max_missing_layers_in_trackster_ < 100),
       shower_start_max_layer_(conf.getParameter<int>("shower_start_max_layer")),
       min_layers_per_trackster_(conf.getParameter<int>("min_layers_per_trackster")),
       filter_on_categories_(conf.getParameter<std::vector<int>>("filter_on_categories")),
@@ -52,9 +53,6 @@ PatternRecognitionbyCA<TILES>::PatternRecognitionbyCA(const edm::ParameterSet &c
         << "PatternRecognitionbyCA received an empty graph definition from the global cache";
   }
   eidSession_ = tensorflow::createSession(trackstersCache->eidGraphDef);
-  if (max_missing_layers_in_trackster_ < 100) {
-    check_missing_layers_ = true;
-  }
 }
 
 template <typename TILES>
@@ -156,7 +154,6 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
       }
     }
     unsigned showerMinLayerId = 99999;
-    std::vector<unsigned int> layerIds;
     std::vector<unsigned int> uniqueLayerIds;
     uniqueLayerIds.reserve(effective_cluster_idx.size());
     std::vector<std::pair<unsigned int, unsigned int>> lcIdAndLayer;
@@ -175,7 +172,7 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
       int numberOfMissingLayers = 0;
       unsigned int j = showerMinLayerId;
       unsigned int indexInVec = 0;
-      for (auto &layer : uniqueLayerIds) {
+      for (const auto &layer : uniqueLayerIds) {
         if (layer != j) {
           numberOfMissingLayers++;
           j++;
@@ -194,9 +191,7 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
       }
     }
 
-    bool selected =
-        (numberOfLayersInTrackster >= min_layers_per_trackster_) and (showerMinLayerId <= shower_start_max_layer_);
-    if (selected) {
+    if ((numberOfLayersInTrackster >= min_layers_per_trackster_) and (showerMinLayerId <= shower_start_max_layer_)) {
       // Put back indices, in the form of a Trackster, into the results vector
       Trackster tmp;
       tmp.vertices().reserve(effective_cluster_idx.size());
@@ -243,7 +238,7 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
   result.reserve(selectedTrackstersIds.size());
 
   for (unsigned i = 0; i < selectedTrackstersIds.size(); ++i) {
-    auto &t = tmpTracksters[selectedTrackstersIds[i]];
+    const auto &t = tmpTracksters[selectedTrackstersIds[i]];
     for (auto const lcId : t.vertices()) {
       layer_cluster_usage[lcId]++;
       if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Basic)

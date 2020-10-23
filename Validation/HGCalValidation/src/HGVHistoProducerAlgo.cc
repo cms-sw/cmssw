@@ -1616,7 +1616,7 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
             cPOnLayer[h.clusterId][lcLayerId].layerClusterIdToEnergyAndScore[mclId].second = FLT_MAX;
             //cpsInMultiCluster[multicluster][CPids]
             //Connects a multi cluster with all related caloparticles.
-            cpsInMultiCluster[mclId].emplace_back(std::make_pair<int, float>(h.clusterId, FLT_MAX));
+            cpsInMultiCluster[mclId].emplace_back(h.clusterId, FLT_MAX);
             //From all CaloParticles related to a layer cluster, he saves id and energy of the calo particle
             //that after simhit-rechit matching in layer has the maximum energy.
             if (shared_fraction > maxCPEnergyInLC) {
@@ -1633,7 +1633,7 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
 
       //Loop through all rechits to count how many of them are noise and how many are matched.
       //In case of matched rechit-simhit, he counts and saves the number of rechits related to the maximum energy CaloParticle.
-      for (auto& c : hitsToCaloParticleId) {
+      for (auto c : hitsToCaloParticleId) {
         if (c < 0) {
           numberOfNoiseHitsInMCL++;
         } else {
