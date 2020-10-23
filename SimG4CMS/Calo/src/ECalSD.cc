@@ -3,6 +3,7 @@
 // Description: Sensitive Detector class for electromagnetic calorimeters
 ///////////////////////////////////////////////////////////////////////////////
 #include "SimG4CMS/Calo/interface/ECalSD.h"
+#include "SimG4CMS/Calo/interface/EcalDumpGeometry.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "Geometry/EcalCommonData/interface/EcalBarrelNumberingScheme.h"
 #include "Geometry/EcalCommonData/interface/EcalBaseNumber.h"
@@ -73,6 +74,7 @@ ECalSD::ECalSD(const std::string& name,
   bool nullNS = m_EC.getUntrackedParameter<bool>("NullNumbering", false);
   storeRL = m_EC.getUntrackedParameter<bool>("StoreRadLength", false);
   scaleRL = m_EC.getUntrackedParameter<double>("ScaleRadLength", 1.0);
+  int dumpGeom = m_EC.getUntrackedParameter<int>("DumpGeometry", 0);
 
   //Changes for improved timing simulation
   storeLayerTimeSim = m_EC.getUntrackedParameter<bool>("StoreLayerTimeSim", false);
@@ -101,19 +103,27 @@ ECalSD::ECalSD(const std::string& name,
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("EcalSim") << "Names (Depth 1):" << depth1Name << " (Depth 2):" << depth2Name << std::endl;
 #endif
+  int type(-1);
+  bool dump(false);
   EcalNumberingScheme* scheme = nullptr;
   if (nullNS) {
     scheme = nullptr;
   } else if (name == "EcalHitsEB") {
     scheme = dynamic_cast<EcalNumberingScheme*>(new EcalBarrelNumberingScheme());
+    type = 0;
+    dump = ((dumpGeom % 10) > 0);
   } else if (name == "EcalHitsEE") {
     scheme = dynamic_cast<EcalNumberingScheme*>(new EcalEndcapNumberingScheme());
+    type = 1;
+    dump = (((dumpGeom / 10) % 10) > 0);
   } else if (name == "EcalHitsES") {
     if (isItTB)
       scheme = dynamic_cast<EcalNumberingScheme*>(new ESTBNumberingScheme());
     else
       scheme = dynamic_cast<EcalNumberingScheme*>(new EcalPreshowerNumberingScheme());
     useWeight = false;
+    type = 2;
+    dump = (((dumpGeom / 100) % 10) > 0);
   } else {
     edm::LogWarning("EcalSim") << "ECalSD: ReadoutName not supported";
   }
@@ -161,6 +171,11 @@ ECalSD::ECalSD(const std::string& name,
       g2L_[k] = 0;
   }
 #endif
+  if (dump) {
+    const auto& lvNames = clg.logicalNames(name);
+    EcalDumpGeometry geom(lvNames, type);
+    geom.update();
+  }
 }
 
 ECalSD::~ECalSD() { delete numberingScheme_; }
