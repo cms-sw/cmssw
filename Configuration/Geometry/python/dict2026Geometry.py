@@ -769,6 +769,7 @@ muonDict = {
         ],
         "sim" : [
             'from Geometry.MuonNumbering.muonGeometryConstants_cff import *',
+            'from Geometry.MuonNumbering.muonOffsetESProducer_cff import *',
         ],
         "reco" : [
             'from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *',
@@ -815,6 +816,7 @@ muonDict = {
         ],
         "sim" : [
             'from Geometry.MuonNumbering.muonGeometryConstants_cff import *',
+            'from Geometry.MuonNumbering.muonOffsetESProducer_cff import *',
         ],
         "reco" : [
             'from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *',
@@ -861,6 +863,7 @@ muonDict = {
         ],
         "sim" : [
             'from Geometry.MuonNumbering.muonGeometryConstants_cff import *',
+            'from Geometry.MuonNumbering.muonOffsetESProducer_cff import *',
         ],
         "reco" : [
             'from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *',
@@ -907,6 +910,7 @@ muonDict = {
         ],
         "sim" : [
             'from Geometry.MuonNumbering.muonGeometryConstants_cff import *',
+            'from Geometry.MuonNumbering.muonOffsetESProducer_cff import *',
         ],
         "reco" : [
             'from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *',
@@ -953,6 +957,7 @@ muonDict = {
         ],
         "sim" : [
             'from Geometry.MuonNumbering.muonGeometryConstants_cff import *',
+            'from Geometry.MuonNumbering.muonOffsetESProducer_cff import *',
         ],
         "reco" : [
             'from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *',
