@@ -84,6 +84,8 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
     amc13Event->setCDFHeader(*word);
     amc13Event->setAMC13Header(*(++word));
 
+    bool unknownChamber = false, unknownVFat = false, badVfat = false;
+    
     // Readout out AMC headers
     for (uint8_t i = 0; i < amc13Event->nAMC(); ++i)
       amc13Event->addAMCheader(*(++word));
@@ -104,9 +106,17 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
 
         uint8_t gebId = gebData->inputID();
         GEMROMapping::chamEC geb_ec = {fedId, amcNum, gebId};
+
+        // check if Chamber exists.
+        if (!gemROMap->isValidChamber(geb_ec)) {
+          unknownChamber = true;
+          LogDebug("GEMRawToDigiModule") << "InValid: amcNum " << int(amcNum) << " gebId " << int(gebId);
+          continue;
+        }
+        
         GEMROMapping::chamDC geb_dc = gemROMap->chamberPos(geb_ec);
         GEMDetId gemChId = geb_dc.detId;
-
+        
         for (uint16_t k = 0; k < gebData->vfatWordCnt() / 3; k++) {
           auto vfatData = std::make_unique<VFATdata>();
           vfatData->read_fw(*(++word));
@@ -119,19 +129,20 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
 
           // check if ChipID exists.
           if (!gemROMap->isValidChipID(vfat_ec)) {
-            edm::LogWarning("GEMRawToDigiModule")
-                << "InValid: amcNum " << int(amcNum) << " gebId " << int(gebId) << " vfatId " << int(vfatId)
-                << " vfat Pos " << int(vfatData->position());
+            unknownVFat = true;
+            LogDebug("GEMRawToDigiModule") << "InValid: amcNum " << int(amcNum) << " gebId " << int(gebId) << " vfatId "
+                                           << int(vfatId) << " vfat Pos " << int(vfatData->position());
             continue;
           }
+
           // check vfat data
           if (vfatData->quality()) {
-            edm::LogWarning("GEMRawToDigiModule")
-                << "Quality " << int(vfatData->quality()) << " b1010 " << int(vfatData->b1010()) << " b1100 "
-                << int(vfatData->b1100()) << " b1110 " << int(vfatData->b1110());
+            badVfat = true;
+            LogDebug("GEMRawToDigiModule")
+              << "Quality " << int(vfatData->quality()) << " b1010 " << int(vfatData->b1010()) << " b1100 "
+              << int(vfatData->b1100()) << " b1110 " << int(vfatData->b1110());
             if (vfatData->crc() != vfatData->checkCRC()) {
-              edm::LogWarning("GEMRawToDigiModule")
-                  << "DIFFERENT CRC :" << vfatData->crc() << "   " << vfatData->checkCRC();
+              LogDebug("GEMRawToDigiModule") << "DIFFERENT CRC :" << vfatData->crc() << "   " << vfatData->checkCRC();
             }
           }
 
@@ -200,6 +211,11 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
       outAMC13Event.get()->insertDigi(amc13Event->bxId(), AMC13Event(*amc13Event));
     }
 
+    if (unknownChamber || unknownVFat || badVfat) {
+      edm::LogWarning("GEMRawToDigiModule") << "unpacking error: unknown Chamber " << unknownChamber << " unknown VFat "
+                                            << unknownVFat << " bad VFat " << badVfat;
+    }
+    
   }  // end of amc13Event
 
   iEvent.put(std::move(outGEMDigis));
