@@ -122,17 +122,8 @@ void ParametrisedEMPhysics::ConstructParticle() {
   G4LeptonConstructor pLeptonConstructor;
   pLeptonConstructor.ConstructParticle();
 
-  G4MesonConstructor pMesonConstructor;
-  pMesonConstructor.ConstructParticle();
-
   G4BaryonConstructor pBaryonConstructor;
   pBaryonConstructor.ConstructParticle();
-
-  G4ShortLivedConstructor pShortLivedConstructor;
-  pShortLivedConstructor.ConstructParticle();
-
-  G4IonConstructor pConstructor;
-  pConstructor.ConstructParticle();
 }
 
 void ParametrisedEMPhysics::ConstructProcess() {
@@ -160,6 +151,7 @@ void ParametrisedEMPhysics::ConstructProcess() {
       G4Positron::Positron()->GetProcessManager()->AddDiscreteProcess(m_tpmod->theFastSimulationManagerProcess.get());
     } else if (lowEnergyGem) {
       G4Electron::Electron()->GetProcessManager()->AddDiscreteProcess(m_tpmod->theFastSimulationManagerProcess.get());
+      G4Positron::Positron()->GetProcessManager()->AddDiscreteProcess(m_tpmod->theFastSimulationManagerProcess.get());
     }
 
     if (gemHad || ghadHad) {
@@ -319,8 +311,6 @@ void ParametrisedEMPhysics::ConstructProcess() {
     double th2 = theParSet.getUntrackedParameter<double>("ThresholdImportantEnergy") * MeV;
     int nt = theParSet.getUntrackedParameter<int>("ThresholdTrials");
     ModifyTransportation(G4Electron::Electron(), nt, th1, th2);
-    ModifyTransportation(G4Positron::Positron(), nt, th1, th2);
-    ModifyTransportation(G4Proton::Proton(), nt, th1, th2);
   }
   edm::LogVerbatim("SimG4CoreApplication") << "ParametrisedEMPhysics::ConstructProcess() is done";
 }

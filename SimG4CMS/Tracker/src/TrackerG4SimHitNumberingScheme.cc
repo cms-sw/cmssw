@@ -30,7 +30,7 @@ void TrackerG4SimHitNumberingScheme::buildAll() {
 
   for (auto& theSD : allSensitiveDets) {
     auto const& t = theSD->translation();
-    edm::LogVerbatim("TrackerSimInfoNumbering") << "::buildAll" << theSD->geographicalID().rawId() << "\t" << t;
+    edm::LogVerbatim("TrackerSimInfoNumbering") << "::buildAll" << theSD->geographicalId().rawId() << "\t" << t;
     theNavigator.LocateGlobalPointAndSetup(G4ThreeVector(t.x(), t.y(), t.z()));
     G4TouchableHistory* hist = theNavigator.CreateTouchableHistory();
     assert(!!hist);
@@ -40,7 +40,7 @@ void TrackerG4SimHitNumberingScheme::buildAll() {
     for (const std::pair<int, std::string>& p : st)
       edm::LogVerbatim("TrackerSimInfoNumbering") << "Nav_Story\t" << p.first << "\t" << p.second;
 
-    directMap_[st] = theSD->geographicalID();
+    directMap_[st] = theSD->geographicalId();
 
     LogDebug("TrackerSimDebugNumbering") << " INSERTING LV " << hist->GetVolume()->GetLogicalVolume()->GetName()
                                          << " SD: "

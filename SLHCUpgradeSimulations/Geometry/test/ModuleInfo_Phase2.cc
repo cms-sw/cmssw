@@ -301,7 +301,7 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
   // MEC: 2010-04-13: need to find corresponding GeometricDetExtra.
   std::vector<GeometricDetExtra>::const_iterator gdei(rDDE->begin()), gdeEnd(rDDE->end());
   for (unsigned int i = 0; i < modules.size(); i++) {
-    unsigned int rawid = modules[i]->geographicalID().rawId();
+    unsigned int rawid = modules[i]->geographicalId().rawId();
     gdei = rDDE->begin();
     for (; gdei != gdeEnd; ++gdei) {
       if (gdei->geographicalId() == modules[i]->geographicalId())
@@ -322,7 +322,7 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
     //nav_type typedef changed in 3_6_2; comment out for now.  idr 10/6/10
 
     Output << std::endl;
-    int subdetid = modules[i]->geographicalID().subdetId();
+    int subdetid = modules[i]->geographicalId().subdetId();
     double volume = gdei->volume() / 1000;  // mm3->cm3
     double density = gdei->density() / density_units;
     double weight = gdei->weight() / density_units / 1000.;        // [kg], hence the factor 1000;
@@ -367,7 +367,7 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
         thepixROCRowsB[theLayer - 1] = modules[i]->pixROCRows();
         thepixROCColsB[theLayer - 1] = modules[i]->pixROCCols();
         {
-          const DetId& detid = modules[i]->geographicalID();
+          const DetId& detid = modules[i]->geographicalId();
           DetId detIdObject(detid);
           const GeomDetUnit* genericDet = pDD->idToDetUnit(detIdObject);
           const PixelGeomDetUnit* pixDet = dynamic_cast<const PixelGeomDetUnit*>(genericDet);
@@ -465,7 +465,7 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
         thepixROCRowsD[theDisk - 1] = modules[i]->pixROCRows();
         thepixROCColsD[theDisk - 1] = modules[i]->pixROCCols();
         {
-          const DetId& detid = modules[i]->geographicalID();
+          const DetId& detid = modules[i]->geographicalId();
           DetId detIdObject(detid);
           const GeomDetUnit* genericDet = pDD->idToDetUnit(detIdObject);
           const PixelGeomDetUnit* pixDet = dynamic_cast<const PixelGeomDetUnit*>(genericDet);
@@ -846,7 +846,7 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
     }
 
     // Local axes from Reco
-    const GeomDet* geomdet = pDD->idToDet(modules[i]->geographicalID());
+    const GeomDet* geomdet = pDD->idToDet(modules[i]->geographicalId());
     // Global Coordinates (i,j,k)
     LocalVector xLocal(1, 0, 0);
     LocalVector yLocal(0, 1, 0);

@@ -54,9 +54,6 @@
   <use name="tbb"/>
 </bin>
 
-<bin file="EDGetToken_t.cpp">
-</bin>
-
 <bin file="RunningAverage_t.cpp">
   <use name="tbb"/>
 </bin>

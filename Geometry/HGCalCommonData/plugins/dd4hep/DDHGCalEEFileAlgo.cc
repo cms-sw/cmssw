@@ -396,10 +396,7 @@ struct HGCalEEFileAlgo {
   double alpha_, cosAlpha_;
 };
 
-static long algorithm(dd4hep::Detector& /* description */,
-                      cms::DDParsingContext& ctxt,
-                      xml_h e,
-                      dd4hep::SensitiveDetector& /* sens */) {
+static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e) {
   HGCalEEFileAlgo eealgo(ctxt, e);
   return cms::s_executed;
 }

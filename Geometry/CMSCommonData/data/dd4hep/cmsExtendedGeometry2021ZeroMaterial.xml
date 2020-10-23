@@ -234,10 +234,10 @@
     <Include ref='Geometry/HcalCommonData/data/average/hcalforwardmaterial.xml'/>
     <Include ref='Geometry/HcalCommonData/data/hcalSimNumbering/2021/hcalSimNumbering.xml'/>
     <Include ref='Geometry/HcalCommonData/data/hcalRecNumbering/2021/hcalRecNumbering.xml'/>
-    <Include ref='Geometry/MuonCommonData/data/mbCommon/2021/v1/mbCommon.xml'/>
-    <Include ref='Geometry/MuonCommonData/data/mb1/2015/v2/mb1.xml'/>
-    <Include ref='Geometry/MuonCommonData/data/mb2/2015/v2/mb2.xml'/>
-    <Include ref='Geometry/MuonCommonData/data/mb3/2015/v2/mb3.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/mbCommon/2021/v2/mbCommon.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/mb1/2021/v1/mb1.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/mb2/2021/v1/mb2.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/mb3/2021/v1/mb3.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mb4/2015/v2/mb4.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mb4Shield/2021/v1/mb4Shield.xml'/>
     <Include ref='Geometry/MuonCommonData/data/muonYoke/2021/v4/muonYoke.xml'/>

@@ -67,7 +67,7 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
 
             'trackingZeroBias': ['DQMOfflineTrackingMinBias',
                        'PostDQMOffline',
-                       'DQMHarvestTracking+DQMCertTracking'],
+                       'DQMHarvestTrackingZeroBias+DQMCertTracking'],
 
 	    'hlt': ['DQMOfflineTrigger',
 		    'PostDQMOffline',

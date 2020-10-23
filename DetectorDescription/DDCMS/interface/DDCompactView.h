@@ -35,6 +35,11 @@ namespace cms {
     template <typename T>
     std::vector<T> getVector(const std::string&) const;
 
+    template <typename T>
+    T const& get(const std::string&) const;
+    template <typename T>
+    T const& get(const std::string&, const std::string&) const;
+
   private:
     const cms::DDDetector& m_det;
   };

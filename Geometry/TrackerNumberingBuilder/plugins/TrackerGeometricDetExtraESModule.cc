@@ -183,37 +183,37 @@ std::unique_ptr<std::vector<GeometricDetExtra> > TrackerGeometricDetExtraESModul
     PGeometricDetExtra const& pgde = iRecord.getRecord<PGeometricDetExtraRcd>().get(pgToken_);
     std::map<uint32_t, const GeometricDet*> helperMap;
     const GeometricDet* tracker = &gd;
-    helperMap[gd.geographicalID()] = tracker;
+    helperMap[gd.geographicalId()] = tracker;
     std::vector<const GeometricDet*> tc = tracker->components();
     std::vector<const GeometricDet*>::const_iterator git = tc.begin();
     std::vector<const GeometricDet*>::const_iterator egit = tc.end();
     for (; git != egit; ++git) {  // one level below "tracker"
-      helperMap[(*git)->geographicalID()] = (*git);
+      helperMap[(*git)->geographicalId()] = (*git);
       std::vector<const GeometricDet*> inone = (*git)->components();
       std::vector<const GeometricDet*>::const_iterator git2 = inone.begin();
       std::vector<const GeometricDet*>::const_iterator egit2 = inone.end();
       for (; git2 != egit2; ++git2) {  // level 2
-        helperMap[(*git2)->geographicalID()] = (*git2);
+        helperMap[(*git2)->geographicalId()] = (*git2);
         std::vector<const GeometricDet*> intwo = (*git2)->components();
         std::vector<const GeometricDet*>::const_iterator git3 = intwo.begin();
         std::vector<const GeometricDet*>::const_iterator egit3 = intwo.end();
         for (; git3 != egit3; ++git3) {  // level 3
-          helperMap[(*git3)->geographicalID()] = (*git3);
+          helperMap[(*git3)->geographicalId()] = (*git3);
           std::vector<const GeometricDet*> inthree = (*git3)->components();
           std::vector<const GeometricDet*>::const_iterator git4 = inthree.begin();
           std::vector<const GeometricDet*>::const_iterator egit4 = inthree.end();
           for (; git4 != egit4; ++git4) {  //level 4
-            helperMap[(*git4)->geographicalID()] = (*git4);
+            helperMap[(*git4)->geographicalId()] = (*git4);
             std::vector<const GeometricDet*> infour = (*git4)->components();
             std::vector<const GeometricDet*>::const_iterator git5 = infour.begin();
             std::vector<const GeometricDet*>::const_iterator egit5 = infour.end();
             for (; git5 != egit5; ++git5) {  // level 5
-              helperMap[(*git5)->geographicalID()] = (*git5);
+              helperMap[(*git5)->geographicalId()] = (*git5);
               std::vector<const GeometricDet*> infive = (*git5)->components();
               std::vector<const GeometricDet*>::const_iterator git6 = infive.begin();
               std::vector<const GeometricDet*>::const_iterator egit6 = infive.end();
               for (; git6 != egit6; ++git6) {  //level 6
-                helperMap[(*git6)->geographicalID()] = (*git6);
+                helperMap[(*git6)->geographicalId()] = (*git6);
                 if (!(*git6)->components().empty()) {
                   edm::LogError("GeometricDetExtra") << "Hierarchy has exceeded hard-coded level of 6 for Tracker ";
                 }
