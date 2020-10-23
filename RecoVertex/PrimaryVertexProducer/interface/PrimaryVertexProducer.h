@@ -82,7 +82,7 @@ private:
   edm::ParameterSet theConfig;
   bool fVerbose;
 
-  bool isRecoveryIteration;
+  bool fRecoveryIteration;
   edm::EDGetTokenT<reco::VertexCollection> recoveryVtxToken;
 
   edm::EDGetTokenT<reco::BeamSpot> bsToken;
