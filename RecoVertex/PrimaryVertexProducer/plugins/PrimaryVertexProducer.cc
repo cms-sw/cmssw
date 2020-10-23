@@ -24,12 +24,6 @@ PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& conf) : th
   bsToken = consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("beamSpotLabel"));
   f4D = false;
 
-  //check if this is a recovery iteration
-  isRecoveryIteration = conf.getParameter<bool>("isRecoveryIteration");
-  if (isRecoveryIteration) {
-    recoveryVtxToken = consumes<reco::VertexCollection>(conf.getParameter<edm::InputTag>("recoveryVtxCollection"));
-  }
-
   // select and configure the track selection
   std::string trackSelectionAlgorithm =
       conf.getParameter<edm::ParameterSet>("TkFilterParameters").getParameter<std::string>("algorithm");
@@ -121,6 +115,13 @@ PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& conf) : th
     algorithms.push_back(algorithm);
     produces<reco::VertexCollection>(algorithm.label);
   }
+
+  //check if this is a recovery iteration
+  fRecoveryIteration = conf.getParameter<bool>("isRecoveryIteration");
+  if (fRecoveryIteration) {
+    assert(algorithms.size() == 1);
+    recoveryVtxToken = consumes<reco::VertexCollection>(conf.getParameter<edm::InputTag>("recoveryVtxCollection"));
+  }
 }
 
 PrimaryVertexProducer::~PrimaryVertexProducer() {
@@ -156,19 +157,15 @@ void PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   }
 
   //if this is a recovery iteration, check if we already have a valid PV
-  if (isRecoveryIteration) {
-    edm::Handle<reco::VertexCollection> oldPVs;
-    iEvent.getByToken(recoveryVtxToken, oldPVs);
-    const reco::VertexCollection* oldVertices;
-    oldVertices = oldPVs.product();
+  if (fRecoveryIteration) {
+    auto const& oldVertices = iEvent.get(recoveryVtxToken);
     //look for the first valid (not-BeamSpot) vertex
-    for (size_t i = 0; i < oldVertices->size(); ++i) {
-      if (!((*oldVertices)[i].isFake())) {
+    for (auto const& old : oldVertices) {
+      if (!(old.isFake())) {
         //found a valid vertex, write the first one to the collection and return
         //otherwise continue with regular vertexing procedure
         auto result = std::make_unique<reco::VertexCollection>();
-        reco::VertexCollection& vColl = (*result);
-        vColl.push_back((*oldVertices)[i]);
+        result->push_back(old);
         iEvent.put(std::move(result), algorithms.begin()->label);
         return;
       }
@@ -441,7 +438,7 @@ void PrimaryVertexProducer::fillDescriptions(edm::ConfigurationDescriptions& des
     desc.add<edm::ParameterSetDescription>("TkClusParameters", psd0);
   }
   desc.add<bool>("isRecoveryIteration", false);
-  desc.add<edm::InputTag>("recoveryVtxCollection", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<edm::InputTag>("recoveryVtxCollection", {""});
 
   descriptions.add("primaryVertexProducer", desc);
 }
