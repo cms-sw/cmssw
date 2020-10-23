@@ -274,7 +274,7 @@ std::unique_ptr<RPCGeometry> RPCGeometryBuilder::buildGeometry(cms::DDFilteredVi
     RPCRollSpecs* rollspecs = nullptr;
     Bounds* bounds = nullptr;
 
-    if (fview.isABox() == 1) {
+    if (dd4hep::isA<dd4hep::Box>(fview.solid())) {
       const float width = dpar[0];
       const float length = dpar[1];
       const float thickness = dpar[2];

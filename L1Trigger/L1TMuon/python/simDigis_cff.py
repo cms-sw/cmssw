@@ -103,6 +103,10 @@ from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 from L1Trigger.L1TGEM.me0TriggerDigis_cff import *
 _phase2_SimL1TMuonTask = SimL1TMuonTask.copy()
 _phase2_SimL1TMuonTask.add(me0TriggerAllDigiTask)
+_phase2_GE0_SimL1TMuonTask = SimL1TMuonTask.copyAndExclude([me0TriggerAllDigiTask])
 
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 (stage2L1Trigger & phase2_muon).toReplaceWith( SimL1TMuonTask, _phase2_SimL1TMuonTask )
+
+from Configuration.Eras.Modifier_phase2_GE0_cff import phase2_GE0
+(stage2L1Trigger & phase2_GE0).toReplaceWith( SimL1TMuonTask, _phase2_GE0_SimL1TMuonTask )

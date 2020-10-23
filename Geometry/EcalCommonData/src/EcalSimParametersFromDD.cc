@@ -166,7 +166,7 @@ bool EcalSimParametersFromDD::build(const cms::DDCompactView* cpv,
       php.matNames_.emplace_back(matName);
       php.lvNames_.emplace_back(name);
       const std::vector<double>& paras = fv.parameters();
-      double dz = (fv.isATrapezoid()) ? convertCmToMm(2 * paras[0]) : 0.0;
+      double dz = (dd4hep::isA<dd4hep::Trap>(fv.solid())) ? convertCmToMm(2 * paras[0]) : 0.0;
       php.dzs_.emplace_back(dz);
     }
   };

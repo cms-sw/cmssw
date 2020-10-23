@@ -24,7 +24,7 @@ bool TrackerParametersFromDD::build(const DDCompactView* cvp, PTrackerParameters
 }
 
 bool TrackerParametersFromDD::build(const cms::DDCompactView* cvp, PTrackerParameters& ptp) {
-  dd4hep::VectorsMap vmap = cvp->detector()->vectors();
+  const auto& vmap = cvp->detector()->vectors();
   for (int subdet = 1; subdet <= 6; ++subdet) {
     std::stringstream sstm;
     sstm << "Subdetector" << subdet;

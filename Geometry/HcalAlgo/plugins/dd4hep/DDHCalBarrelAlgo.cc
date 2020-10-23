@@ -977,10 +977,7 @@ struct HcalBarrelAlgo {
   }
 };
 
-static long algorithm(dd4hep::Detector& /* description */,
-                      cms::DDParsingContext& ctxt,
-                      xml_h e,
-                      dd4hep::SensitiveDetector& /* sens */) {
+static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e) {
   HcalBarrelAlgo hcalbarrelalgo(ctxt, e);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "<<== End of DDHCalBarrelAlgo construction";

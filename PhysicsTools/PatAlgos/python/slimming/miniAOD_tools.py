@@ -4,6 +4,10 @@ from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
 
 from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask, addToProcessAndTask
 
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
+_hiGeneral = pp_on_AA_2018 | pp_on_PbPb_run3
+
 def miniAOD_customizeCommon(process):
     process.patMuons.isoDeposits = cms.PSet()
     process.patElectrons.isoDeposits = cms.PSet()
@@ -120,20 +124,25 @@ def miniAOD_customizeCommon(process):
     from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
     phase2_muon.toModify(process.selectedPatMuons, cut = "pt > 5 || isPFMuon || (pt > 3 && (isGlobalMuon || isStandAloneMuon || numberOfMatches > 0 || muonID('RPCMuLoose') || muonID('ME0MuonArbitrated') || muonID('GEMMuonArbitrated')) )")
     
-    from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-    from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
-    (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process.selectedPatMuons, cut = "pt > 5 || isPFMuon || (pt > 1.2 && (isGlobalMuon || isStandAloneMuon) )")
+    _hiGeneral.toModify(process.selectedPatMuons, cut = "pt > 5 || isPFMuon || (pt > 1.2 && (isGlobalMuon || isStandAloneMuon) )")
 
     process.selectedPatElectrons.cut = cms.string("")
     process.selectedPatTaus.cut = cms.string("pt > 18. && tauID('decayModeFindingNewDMs')> 0.5")
     process.selectedPatPhotons.cut = cms.string("")
 
-    from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
+    _dummyPatJets = process.selectedPatJets.clone(cut = "pt < 0")
+    task = getPatAlgosToolsTask(process)
 
-    from PhysicsTools.PatAlgos.slimming.applySubstructure_cff import applySubstructure
-    applySubstructure( process )
-
+    def _applySubstructure(process):
+        from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
         
+        from PhysicsTools.PatAlgos.slimming.applySubstructure_cff import applySubstructure
+        applySubstructure( process )
+    (~_hiGeneral).toModify(process, _applySubstructure)
+
+    _hiGeneral.toModify(process, func = lambda p: addToProcessAndTask('slimmedJets', p.selectedPatJets.clone(), p, task))
+    _hiGeneral.toModify(process, func = lambda p: addToProcessAndTask('slimmedJetsAK8', _dummyPatJets.clone(), p, task))
+
     #
     from PhysicsTools.PatAlgos.tools.trigTools import switchOnTriggerStandAlone
     switchOnTriggerStandAlone( process, outputModule = '' )
@@ -155,8 +164,6 @@ def miniAOD_customizeCommon(process):
 
     #noHF pfMET =========
 
-    task = getPatAlgosToolsTask(process)
-
     process.noHFCands = cms.EDFilter("GenericPFCandidateSelector",
                                      src=cms.InputTag("particleFlow"),
                                      cut=cms.string("abs(pdgId)!=1 && abs(pdgId)!=2 && abs(eta)<3.0")
@@ -172,20 +179,22 @@ def miniAOD_customizeCommon(process):
 
     process.load('PhysicsTools.PatAlgos.slimming.slimmedMETs_cfi')
     task.add(process.slimmedMETs)
-    process.slimmedMETs.addDeepMETs = True
+    (~_hiGeneral).toModify(process.slimmedMETs, addDeepMETs = True)
 
-    addToProcessAndTask('slimmedMETsNoHF', process.slimmedMETs.clone(), process, task)
-    process.slimmedMETsNoHF.src = cms.InputTag("patMETsNoHF")
-    process.slimmedMETsNoHF.rawVariation =  cms.InputTag("patPFMetNoHF")
-    process.slimmedMETsNoHF.t1Uncertainties = cms.InputTag("patPFMetT1%sNoHF") 
-    process.slimmedMETsNoHF.t01Variation = cms.InputTag("patPFMetT0pcT1NoHF")
-    process.slimmedMETsNoHF.t1SmearedVarsAndUncs = cms.InputTag("patPFMetT1Smear%sNoHF")
-    process.slimmedMETsNoHF.tXYUncForRaw = cms.InputTag("patPFMetTxyNoHF")
-    process.slimmedMETsNoHF.tXYUncForT1 = cms.InputTag("patPFMetT1TxyNoHF")
-    process.slimmedMETsNoHF.tXYUncForT01 = cms.InputTag("patPFMetT0pcT1TxyNoHF")
-    process.slimmedMETsNoHF.tXYUncForT1Smear = cms.InputTag("patPFMetT1SmearTxyNoHF")
-    process.slimmedMETsNoHF.tXYUncForT01Smear = cms.InputTag("patPFMetT0pcT1SmearTxyNoHF")
-    del process.slimmedMETsNoHF.caloMET
+    def _add_slimmedMETsNoHF(process):
+        addToProcessAndTask('slimmedMETsNoHF', process.slimmedMETs.clone(), process, task)
+        process.slimmedMETsNoHF.src = cms.InputTag("patMETsNoHF")
+        process.slimmedMETsNoHF.rawVariation =  cms.InputTag("patPFMetNoHF")
+        process.slimmedMETsNoHF.t1Uncertainties = cms.InputTag("patPFMetT1%sNoHF") 
+        process.slimmedMETsNoHF.t01Variation = cms.InputTag("patPFMetT0pcT1NoHF")
+        process.slimmedMETsNoHF.t1SmearedVarsAndUncs = cms.InputTag("patPFMetT1Smear%sNoHF")
+        process.slimmedMETsNoHF.tXYUncForRaw = cms.InputTag("patPFMetTxyNoHF")
+        process.slimmedMETsNoHF.tXYUncForT1 = cms.InputTag("patPFMetT1TxyNoHF")
+        process.slimmedMETsNoHF.tXYUncForT01 = cms.InputTag("patPFMetT0pcT1TxyNoHF")
+        process.slimmedMETsNoHF.tXYUncForT1Smear = cms.InputTag("patPFMetT1SmearTxyNoHF")
+        process.slimmedMETsNoHF.tXYUncForT01Smear = cms.InputTag("patPFMetT0pcT1SmearTxyNoHF")
+        del process.slimmedMETsNoHF.caloMET
+    (~_hiGeneral).toModify(process, _add_slimmedMETsNoHF)
     # ================== NoHF pfMET
 
     #  ==================  CHSMET 
@@ -249,13 +258,15 @@ def miniAOD_customizeCommon(process):
     process.patJets.userData.userInts.src += [ 'hfJetShowerShape:centralEtaStripSize', 'hfJetShowerShape:adjacentEtaStripsSize']
 
     ## DeepCSV meta discriminators (simple arithmethic on output probabilities)
-    process.load('RecoBTag.Combined.deepFlavour_cff')
-    task.add(process.pfDeepCSVDiscriminatorsJetTags)
-    process.patJets.discriminatorSources.extend([
-            cms.InputTag('pfDeepCSVDiscriminatorsJetTags:BvsAll' ),
-            cms.InputTag('pfDeepCSVDiscriminatorsJetTags:CvsB'   ),
-            cms.InputTag('pfDeepCSVDiscriminatorsJetTags:CvsL'   ),
-            ])
+    def _add_deepFlavour(process):
+        process.load('RecoBTag.Combined.deepFlavour_cff')
+        task.add(process.pfDeepCSVDiscriminatorsJetTags)
+        process.patJets.discriminatorSources.extend([
+            'pfDeepCSVDiscriminatorsJetTags:BvsAll',
+            'pfDeepCSVDiscriminatorsJetTags:CvsB',
+            'pfDeepCSVDiscriminatorsJetTags:CvsL',
+        ])
+    (~_hiGeneral).toModify(process, _add_deepFlavour)
 
     ## CaloJets
     process.caloJetMap = cms.EDProducer("RecoJetDeltaRValueMapProducer",
@@ -267,6 +278,9 @@ def miniAOD_customizeCommon(process):
 	 lazyParser = cms.bool(True) )
     task.add(process.caloJetMap)
     process.patJets.userData.userFloats.src += [ 'caloJetMap:pt', 'caloJetMap:emEnergyFraction' ]
+
+    _hiGeneral.toModify(process.patJets.userData.userInts, src = [] )
+    _hiGeneral.toModify(process.patJets.userData.userFloats, src = [] )
 
     #Muon object modifications 
     from PhysicsTools.PatAlgos.slimming.muonIsolationsPUPPI_cfi import makeInputForPUPPIIsolationMuon
@@ -421,89 +435,107 @@ def miniAOD_customizeCommon(process):
     )
     task.add(process.patJetPuppiCharge)
 
-    noDeepFlavourDiscriminators = [x.value() for x in process.patJets.discriminatorSources if not "DeepFlavour" in x.value()]
-    addJetCollection(process, postfix   = "", labelName = 'Puppi', jetSource = cms.InputTag('ak4PFJetsPuppi'),
-                    jetCorrections = ('AK4PFPuppi', ['L2Relative', 'L3Absolute'], ''),
-                    pfCandidates = cms.InputTag("particleFlow"),
-                    algo= 'AK', rParam = 0.4, btagDiscriminators = noDeepFlavourDiscriminators
-                    )
+    def _add_jetsPuppi(process):
+        from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
+        noDeepFlavourDiscriminators = [x.value() if isinstance(x, cms.InputTag) else x for x in process.patJets.discriminatorSources 
+                                       if not "DeepFlavour" in str(x)]
+        addJetCollection(process, postfix   = "", labelName = 'Puppi', jetSource = cms.InputTag('ak4PFJetsPuppi'),
+                         jetCorrections = ('AK4PFPuppi', ['L2Relative', 'L3Absolute'], ''),
+                         pfCandidates = cms.InputTag("particleFlow"),
+                         algo= 'AK', rParam = 0.4, btagDiscriminators = noDeepFlavourDiscriminators
+                     )
+
+        process.patJetGenJetMatchPuppi.matched = 'slimmedGenJets'
     
-    process.patJetGenJetMatchPuppi.matched = 'slimmedGenJets'
+        process.patJetsPuppi.jetChargeSource = cms.InputTag("patJetPuppiCharge")
     
-    process.patJetsPuppi.jetChargeSource = cms.InputTag("patJetPuppiCharge")
+        process.selectedPatJetsPuppi.cut = cms.string("pt > 15")
+    
+        from PhysicsTools.PatAlgos.slimming.applyDeepBtagging_cff import applyDeepBtagging
+        applyDeepBtagging( process )
 
-    process.selectedPatJetsPuppi.cut = cms.string("pt > 15")
+        addToProcessAndTask('slimmedJetsPuppi', process.slimmedJetsNoDeepFlavour.clone(
+            src = "selectedPatJetsPuppi", packedPFCandidates = "packedPFCandidates"),
+                            process, task)
+    
+        task.add(process.slimmedJetsPuppi)
 
-    from PhysicsTools.PatAlgos.slimming.applyDeepBtagging_cff import applyDeepBtagging
-    applyDeepBtagging( process )
+        process.slimmedJetsNoDeepFlavour.dropTagInfos = '0'
+        process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour.addTagInfos = True
+        process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour.tagInfoSources = ["pixelClusterTagInfos"]
+        _run2_miniAOD_ANY.toModify(process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour, addTagInfos = False )
+    (~_hiGeneral).toModify(process, _add_jetsPuppi)
 
-    addToProcessAndTask('slimmedJetsPuppi', process.slimmedJetsNoDeepFlavour.clone(
-                          src = "selectedPatJetsPuppi", packedPFCandidates = "packedPFCandidates"),
-                        process, task)
-
-    task.add(process.slimmedJetsPuppi)
+    _hiGeneral.toModify(process, func = lambda p: addToProcessAndTask('slimmedJetsPuppi', _dummyPatJets.clone(), p, task))
 
     # Embed pixelClusterTagInfos in slimmedJets
     process.patJets.addTagInfos = True
     process.patJets.tagInfoSources = ["pixelClusterTagInfos"]
-    process.slimmedJetsNoDeepFlavour.dropTagInfos = '0'
-    process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour.addTagInfos = True
-    process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour.tagInfoSources = ["pixelClusterTagInfos"]
 
     _run2_miniAOD_ANY.toModify(process.patJets, addTagInfos = False )
-    _run2_miniAOD_ANY.toModify(process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour, addTagInfos = False )
     
+    _hiGeneral.toModify(process.patJets, addTagInfos = True )
+    _hiGeneral.toModify(process.patJets, tagInfoSources = cms.VInputTag(["impactParameterTagInfos","secondaryVertexTagInfos"]) )
+
     ## puppi met
-    process.load('RecoMET.METProducers.pfMetPuppi_cfi')
-    _rerun_puppimet_task = task.copy()
-    _rerun_puppimet_task.add(process.puppiNoLep, process.pfMetPuppi)
-    (_run2_miniAOD_ANY | pA_2016 | pp_on_AA_2018).toReplaceWith(task, _rerun_puppimet_task)
+    def _add_metPuppi(process):
+        process.load('RecoMET.METProducers.pfMetPuppi_cfi')
+        _rerun_puppimet_task = task.copy()
+        _rerun_puppimet_task.add(process.puppiNoLep, process.pfMetPuppi)
+        (_run2_miniAOD_ANY | pA_2016 | pp_on_AA_2018).toReplaceWith(task, _rerun_puppimet_task)
     
-    runMetCorAndUncForMiniAODProduction(process, metType="Puppi",
-                                        jetCollUnskimmed="slimmedJetsPuppi",
-                                        recoMetFromPFCs=True,
-                                        jetFlavor="AK4PFPuppi",
-                                        postfix="Puppi"
+        runMetCorAndUncForMiniAODProduction(process, metType="Puppi",
+                                            jetCollUnskimmed="slimmedJetsPuppi",
+                                            recoMetFromPFCs=True,
+                                            jetFlavor="AK4PFPuppi",
+                                            postfix="Puppi"
                                         )
-    
+    (~_hiGeneral).toModify(process, _add_metPuppi)
+
     process.load('PhysicsTools.PatAlgos.slimming.slimmedMETs_cfi')
     task.add(process.slimmedMETs)
-    addToProcessAndTask('slimmedMETsPuppi', process.slimmedMETs.clone(), process, task)
-    process.slimmedMETsPuppi.src = cms.InputTag("patMETsPuppi")
-    process.slimmedMETsPuppi.rawVariation =  cms.InputTag("patPFMetPuppi")
-    process.slimmedMETsPuppi.t1Uncertainties = cms.InputTag("patPFMetT1%sPuppi")
-    process.slimmedMETsPuppi.t01Variation = cms.InputTag("patPFMetT0pcT1Puppi")
-    process.slimmedMETsPuppi.t1SmearedVarsAndUncs = cms.InputTag("patPFMetT1Smear%sPuppi")
-    process.slimmedMETsPuppi.tXYUncForRaw = cms.InputTag("patPFMetTxyPuppi")
-    process.slimmedMETsPuppi.tXYUncForT1 = cms.InputTag("patPFMetT1TxyPuppi")
-    process.slimmedMETsPuppi.tXYUncForT01 = cms.InputTag("patPFMetT0pcT1TxyPuppi")
-    process.slimmedMETsPuppi.tXYUncForT1Smear = cms.InputTag("patPFMetT1SmearTxyPuppi")
-    process.slimmedMETsPuppi.tXYUncForT01Smear = cms.InputTag("patPFMetT0pcT1SmearTxyPuppi")
-    del process.slimmedMETsPuppi.caloMET
 
-    process.load('RecoMET.METPUSubtraction.deepMETProducer_cfi')
+    def _add_slimmedMETsPuppi(process):
+        addToProcessAndTask('slimmedMETsPuppi', process.slimmedMETs.clone(), process, task)
+        process.slimmedMETsPuppi.src = cms.InputTag("patMETsPuppi")
+        process.slimmedMETsPuppi.rawVariation =  cms.InputTag("patPFMetPuppi")
+        process.slimmedMETsPuppi.t1Uncertainties = cms.InputTag("patPFMetT1%sPuppi")
+        process.slimmedMETsPuppi.t01Variation = cms.InputTag("patPFMetT0pcT1Puppi")
+        process.slimmedMETsPuppi.t1SmearedVarsAndUncs = cms.InputTag("patPFMetT1Smear%sPuppi")
+        process.slimmedMETsPuppi.tXYUncForRaw = cms.InputTag("patPFMetTxyPuppi")
+        process.slimmedMETsPuppi.tXYUncForT1 = cms.InputTag("patPFMetT1TxyPuppi")
+        process.slimmedMETsPuppi.tXYUncForT01 = cms.InputTag("patPFMetT0pcT1TxyPuppi")
+        process.slimmedMETsPuppi.tXYUncForT1Smear = cms.InputTag("patPFMetT1SmearTxyPuppi")
+        process.slimmedMETsPuppi.tXYUncForT01Smear = cms.InputTag("patPFMetT0pcT1SmearTxyPuppi")
+        del process.slimmedMETsPuppi.caloMET
+    (~_hiGeneral).toModify(process, _add_slimmedMETsPuppi)
 
-    addToProcessAndTask('deepMETsResolutionTune', process.deepMETProducer.clone(), process, task)
-    addToProcessAndTask('deepMETsResponseTune', process.deepMETProducer.clone(), process, task)
-    process.deepMETsResponseTune.graph_path = 'RecoMET/METPUSubtraction/data/deepmet/deepmet_resp_v1_2018.pb'
+    def _add_deepMET(process):
+        process.load('RecoMET.METPUSubtraction.deepMETProducer_cfi')
 
-    from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
-    phase2_common.toModify(
-        process.deepMETsResolutionTune,
-        max_n_pf=12500,
-        graph_path="RecoMET/METPUSubtraction/data/deepmet/deepmet_v1_phase2.pb"
-    )
-    phase2_common.toModify(
-        process.deepMETsResponseTune,
-        max_n_pf=12500,
-        graph_path="RecoMET/METPUSubtraction/data/deepmet/deepmet_resp_v1_phase2.pb"
-    )
+        addToProcessAndTask('deepMETsResolutionTune', process.deepMETProducer.clone(), process, task)
+        addToProcessAndTask('deepMETsResponseTune', process.deepMETProducer.clone(), process, task)
+        process.deepMETsResponseTune.graph_path = 'RecoMET/METPUSubtraction/data/deepmet/deepmet_resp_v1_2018.pb'
 
-    from Configuration.Eras.Modifier_run2_jme_2016_cff import run2_jme_2016
-    run2_jme_2016.toModify(
-        process.deepMETsResponseTune,
-        graph_path="RecoMET/METPUSubtraction/data/deepmet/deepmet_resp_v1_2016.pb"
-    )
+        from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+        phase2_common.toModify(
+            process.deepMETsResolutionTune,
+            max_n_pf=12500,
+            graph_path="RecoMET/METPUSubtraction/data/deepmet/deepmet_v1_phase2.pb"
+        )
+        phase2_common.toModify(
+            process.deepMETsResponseTune,
+            max_n_pf=12500,
+            graph_path="RecoMET/METPUSubtraction/data/deepmet/deepmet_resp_v1_phase2.pb"
+        )
+        
+        from Configuration.Eras.Modifier_run2_jme_2016_cff import run2_jme_2016
+        run2_jme_2016.toModify(
+            process.deepMETsResponseTune,
+            graph_path="RecoMET/METPUSubtraction/data/deepmet/deepmet_resp_v1_2016.pb"
+        )
+    (~_hiGeneral).toModify(process, _add_deepMET)
+
     # add DetIdAssociatorRecords to EventSetup (for isolatedTracks)
     process.load("TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff")
 
@@ -521,6 +553,9 @@ def miniAOD_customizeCommon(process):
     stage1L1Trigger.toModify(process.prefiringweight, DataEra = "2016BtoH")
     stage2L1Trigger_2017.toModify(process.prefiringweight, DataEra = "2017BtoF")
     run2_L1prefiring.toModify(task, func=lambda t: t.add(process.prefiringweight))
+
+    from PhysicsTools.PatAlgos.producersHeavyIons.heavyIonJetSetup import removeL1FastJetJECs
+    _hiGeneral.toModify(process, removeL1FastJetJECs)
 
 def miniAOD_customizeMC(process):
     task = getPatAlgosToolsTask(process)
@@ -555,7 +590,7 @@ def miniAOD_customizeMC(process):
     process.patJetPartonMatch.matched = "prunedGenParticles"
     process.patJetPartonMatch.mcStatus = [ 3, 23 ]
     process.patJetGenJetMatch.matched = "slimmedGenJets"
-    process.patJetGenJetMatchAK8Puppi.matched =  "slimmedGenJetsAK8"
+    (~_hiGeneral).toModify(process, patJetGenJetMatchAK8Puppi = dict(matched =  "slimmedGenJetsAK8"))
     process.patMuons.embedGenMatch = False
     process.patElectrons.embedGenMatch = False
     process.patPhotons.embedGenMatch = False
@@ -565,6 +600,10 @@ def miniAOD_customizeMC(process):
     process.patJets.embedGenPartonMatch = False
     #also jet flavour must be switched
     process.patJetFlavourAssociation.rParam = 0.4
+    
+    from PhysicsTools.PatAlgos.producersHeavyIons.heavyIonJetSetup import removeJECsForMC
+    _hiGeneral.toModify(process, removeJECsForMC)
+
 
 def miniAOD_customizeOutput(out):
     from PhysicsTools.PatAlgos.slimming.MicroEventContent_cff import MiniAODOverrideBranchesSplitLevel

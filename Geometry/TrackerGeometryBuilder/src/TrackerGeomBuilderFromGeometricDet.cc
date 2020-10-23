@@ -86,7 +86,7 @@ TrackerGeometry* TrackerGeomBuilderFromGeometricDet::build(const GeometricDet* g
   tec.reserve(comp.size());
 
   for (auto& i : comp)
-    dets[i->geographicalID().subdetId() - 1].emplace_back(i);
+    dets[i->geographicalId().subdetId() - 1].emplace_back(i);
 
   //loop on all the six elements of dets and firstly check if they are from pixel-like detector and call buildPixel, then loop again and check if they are strip and call buildSilicon. "unknown" can be filled either way but the vector of GeometricDet must be empty !!
   // this order is VERY IMPORTANT!!!!! For the moment I (AndreaV) understand that some pieces of code rely on pixel-like being before strip-like
@@ -178,10 +178,10 @@ void TrackerGeomBuilderFromGeometricDet::buildPixel(
     }
 
     PlaneBuilderFromGeometricDet::ResultType plane = buildPlaneWithMaterial(i);
-    GeomDetUnit* temp = new PixelGeomDetUnit(&(*plane), thePixelDetTypeMap[detName], i->geographicalID());
+    GeomDetUnit* temp = new PixelGeomDetUnit(&(*plane), thePixelDetTypeMap[detName], i->geographicalId());
 
     tracker->addDetUnit(temp);
-    tracker->addDetUnitId(i->geographicalID());
+    tracker->addDetUnitId(i->geographicalId());
   }
   tracker->setEndsetDU(GeomDetEnumerators::subDetGeom[det]);
 }
@@ -206,13 +206,13 @@ void TrackerGeomBuilderFromGeometricDet::buildSilicon(std::vector<const Geometri
       tracker->addType(theStripDetTypeMap[detName]);
     }
 
-    double scale = (theTopo->partnerDetId(i->geographicalID())) ? 0.5 : 1.0;
+    double scale = (theTopo->partnerDetId(i->geographicalId())) ? 0.5 : 1.0;
 
     PlaneBuilderFromGeometricDet::ResultType plane = buildPlaneWithMaterial(i, scale);
-    GeomDetUnit* temp = new StripGeomDetUnit(&(*plane), theStripDetTypeMap[detName], i->geographicalID());
+    GeomDetUnit* temp = new StripGeomDetUnit(&(*plane), theStripDetTypeMap[detName], i->geographicalId());
 
     tracker->addDetUnit(temp);
-    tracker->addDetUnitId(i->geographicalID());
+    tracker->addDetUnitId(i->geographicalId());
   }
   tracker->setEndsetDU(GeomDetEnumerators::subDetGeom[det]);
 }

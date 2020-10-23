@@ -24,8 +24,8 @@
     <Vector name="Layers" type="numeric" nEntries="8"> 
       13, 12, 12, 12, 12, 12, 10, 10</Vector>
     <Vector name="LayerThick" type="numeric" nEntries="8"> 
-      91.35*mm, 41.35*mm, 41.35*mm, 41.35*mm, 41.35*mm, 41.35*mm, 88.35*mm,
-      88.35*mm </Vector>
+      91.55*mm, 41.55*mm, 41.55*mm, 41.55*mm, 41.55*mm, 41.55*mm, 88.55*mm,
+      88.55*mm </Vector>
     <Vector name="LayerType" type="numeric" nEntries="93"> 
       0, 1, 2, 1, 9, 8, 4,10, 5,11, 7, 3, 8,
       1, 2, 1, 9, 8, 4,10, 5,11, 7, 3, 8,
