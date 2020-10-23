@@ -11,10 +11,13 @@ import time
 import re
 
 defaultEOSRootPath = '/eos/cms/store/lhe'
+if "CMSEOS_LHE_ROOT_DIRECTORY" in os.environ:
+  defaultEOSRootPath = os.environ["CMSEOS_LHE_ROOT_DIRECTORY"]
 defaultEOSLoadPath = 'root://eoscms.cern.ch/'
 defaultEOSlistCommand = 'xrdfs '+defaultEOSLoadPath+' ls '
 defaultEOSmkdirCommand = 'xrdfs '+defaultEOSLoadPath+' mkdir '
 defaultEOSfeCommand = 'xrdfs '+defaultEOSLoadPath+' stat -q IsReadable '
+defaultEOSchecksumCommand = 'xrdfs '+defaultEOSLoadPath+' query checksum '
 defaultEOScpCommand = 'xrdcp -np '
 
 def findXrdDir(theDirRecord):
@@ -52,7 +55,7 @@ def lastArticle():
     return max(artList)
 
 
-def fileUpload(uploadPath,lheList, checkSumList, reallyDoIt):
+def fileUpload(uploadPath,lheList, checkSumList, reallyDoIt, force=False):
 
     inUploadScript = ''
     index = 0
@@ -65,7 +68,7 @@ def fileUpload(uploadPath,lheList, checkSumList, reallyDoIt):
         theCommand = defaultEOSfeCommand+' '+newFileName
         exeFullList = subprocess.Popen(["/bin/sh","-c",theCommand], stdout=subprocess.PIPE)
         result = exeFullList.stdout.readlines()
-        if result[-1].rstrip('\n') == 'Query:  IsReadable':
+        if [line for line in result if ("flags:" in line.lower()) and ("isreadable" in line.lower())] and (not force):
             addFile = False
             print('File '+newFileName+' already exists: do you want to overwrite? [y/n]')
             reply = raw_input()
@@ -82,7 +85,7 @@ def fileUpload(uploadPath,lheList, checkSumList, reallyDoIt):
             if reallyDoIt:
                 exeRealUpload = subprocess.Popen(["/bin/sh","-c",inUploadScript])
                 exeRealUpload.communicate()
-                eosCheckSumCommand = '/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select find --checksum ' + uploadPath + '/' + str(realFileName) + ' | awk \'{print $2}\' | cut -d= -f2'
+                eosCheckSumCommand = defaultEOSchecksumCommand + uploadPath + '/' + str(realFileName) + ' | awk \'{print $2}\' | cut -d= -f2'
                 exeEosCheckSum = subprocess.Popen(eosCheckSumCommand ,shell=True, stdout=subprocess.PIPE)
                 EosCheckSum = exeEosCheckSum.stdout.read()
                 assert exeEosCheckSum.wait() == 0
@@ -95,7 +98,7 @@ def fileUpload(uploadPath,lheList, checkSumList, reallyDoIt):
                     print('please try to re-upload file ' + str(realFileName) + ' to EOS.\n')
                 else:
                     print('Checksum OK for file ' + str(realFileName))
-        index = index+1            
+        index = index+1
  
 # launch the upload shell script        
 
@@ -149,6 +152,12 @@ if __name__ == '__main__':
                       action='store_true',
                       default=False,
                       dest='compress')
+
+    parser.add_option('--force',
+                      help='Force update if file already exists.',
+                      action='store_true',
+                      default=False,
+                      dest='force')
 
     (options,args) = parser.parse_args()
 
@@ -226,11 +235,14 @@ if __name__ == '__main__':
         if reallyDoIt and options.compress:
           theList = theCompressedFilesList
         for f in theList:
-            exeCheckSum = subprocess.Popen(["/afs/cern.ch/cms/caf/bin/cms_adler32",f], stdout=subprocess.PIPE) 
-            getCheckSum = subprocess.Popen(["awk", "{print $1}"], stdin=exeCheckSum.stdout, stdout=subprocess.PIPE)
-            exeCheckSum.stdout.close()
-            output,err = getCheckSum.communicate()
-            theCheckSumList.append(output)
+            try:
+                exeCheckSum = subprocess.Popen(["/afs/cern.ch/cms/caf/bin/cms_adler32",f], stdout=subprocess.PIPE)
+                getCheckSum = subprocess.Popen(["awk", "{print $1}"], stdin=exeCheckSum.stdout, stdout=subprocess.PIPE)
+                exeCheckSum.stdout.close()
+                output,err = getCheckSum.communicate()
+                theCheckSumList.append(output.strip())
+            except:
+                theCheckSumList.append("missing-adler32")
 
     newArt = 0
     uploadPath = ''
@@ -268,7 +280,7 @@ if __name__ == '__main__':
 
 
     if newArt > 0:
-        fileUpload(uploadPath,theList, theCheckSumList, reallyDoIt)
+        fileUpload(uploadPath,theList, theCheckSumList, reallyDoIt, options.force)
         listPath = defaultEOSRootPath+'/'+str(newArt)
         print('')
         print('Listing the '+str(newArt)+' article content after upload:')
