@@ -5,7 +5,7 @@ fi
 CMSEOS_BASE="/eos/cms/store/user/cmsbuild/unittest/lhe"
 export CMSEOS_LHE_ROOT_DIRECTORY="${CMSEOS_BASE}/ref"
 LHEtoEOSManager=${CMSSW_BASE}/src/GeneratorInterface/LHEInterface/scripts/cmsLHEtoEOSManager.py
-REF_FILE=$(${LHEtoEOSManager} -l 1 | grep 'lhe.xz$')
+REF_FILE=$(${LHEtoEOSManager} -l 1 | grep 'lhe.xz$' | tail -1)
 if [ $REF_FILE = "" ] ; then
   echo "ERROR: Unable to find reference LHE file"
   exit 1
@@ -28,4 +28,3 @@ popd
 rm -rf test_cmsLHEtoEOSManager
 xrdfs root://eoscms.cern.ch/ rm    ${CMSEOS_LHE_ROOT_DIRECTORY}/1/${UNQ_NAME}.xz || true
 exit $ERR
-
