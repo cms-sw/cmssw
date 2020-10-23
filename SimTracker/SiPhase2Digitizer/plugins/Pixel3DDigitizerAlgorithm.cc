@@ -292,7 +292,7 @@ std::vector<DigitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::drift(
     // Changing the reference frame to the proxy pixel cell
     LocalPoint position_at_pc(relative_position_at_pc.first - center_proxy_cell.x(),
                               relative_position_at_pc.second - center_proxy_cell.y(),
-                              super_charge.z());
+                              super_charge.z() - center_proxy_cell.z());
 
     LogDebug("Pixel3DDigitizerAlgorithm::drift")
         << "(super-)Charge\nlocal position: (" << super_charge.x() * 1.0_um_inv << ", " << super_charge.y() * 1.0_um_inv
