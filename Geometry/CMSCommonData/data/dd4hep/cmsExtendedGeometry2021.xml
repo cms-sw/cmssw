@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <DDDefinition>
   <open_geometry/>
-  <close_geometry/>
+  <!--close_geometry/-->
 
   <IncludeSection>
     <Include ref='Geometry/CMSCommonData/data/materials/2021/v2/materials.xml'/>
