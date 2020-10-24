@@ -4,13 +4,12 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include <cmath>
 
-// FIXME use ESWatcher auto-call to get rid of init (here and in IteratedMedian
 void TT6CMNSubtractor::init(const edm::EventSetup& es) {
   if (noiseWatcher_.check(es)) {
-    noiseHandle = es.getHandle(noiseToken_);
+    noiseHandle = &es.getData(noiseToken_);
   }
   if (qualityWatcher_.check(es)) {
-    qualityHandle = es.getHandle(qualityToken_);
+    qualityHandle = &es.getData(qualityToken_);
   }
 }
 

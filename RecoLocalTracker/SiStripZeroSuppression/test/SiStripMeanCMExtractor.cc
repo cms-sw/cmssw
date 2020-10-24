@@ -28,7 +28,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDProducer.h"
 
@@ -62,7 +61,7 @@ private:
   void init(const edm::EventSetup&);
 
   edm::ESGetToken<SiStripPedestals, SiStripPedestalsRcd> pedestalsToken_;
-  edm::ESHandle<SiStripPedestals> pedestalHandle_;
+  const SiStripPedestals* pedestalHandle_;
   edm::ESWatcher<SiStripPedestalsRcd> pedestalsWatcher_;
 
   void StoreMean(const edm::DetSetVector<SiStripProcessedRawDigi>&);
@@ -99,7 +98,7 @@ void SiStripMeanCMExtractor::fillDescriptions(edm::ConfigurationDescriptions& de
 
 void SiStripMeanCMExtractor::init(const edm::EventSetup& es) {
   if (pedestalsWatcher_.check(es)) {
-    pedestalHandle_ = es.getHandle(pedestalsToken_);
+    pedestalHandle_ = &es.getData(pedestalsToken_);
   }
 }
 
