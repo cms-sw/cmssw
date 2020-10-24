@@ -414,7 +414,7 @@ void ECalSD::initMap() {
   int i = 0;
   for (auto ite : xtalLMap) {
     G4String name("Unknown");
-    if (ite.first != 0)
+    if (ite.first != nullptr)
       name = (ite.first)->GetName();
     edm::LogVerbatim("EcalSim") << " " << i << " " << ite.first << " " << name << " L = " << ite.second;
     ++i;
@@ -489,10 +489,10 @@ double ECalSD::getBirkL3(const G4Step* aStep) {
 }
 
 std::string ECalSD::getNameNoNS(const std::string& name) {
-  if (name.find(":") == std::string::npos) {
+  if (name.find(':') == std::string::npos) {
     return name;
   } else {
-    auto n1 = name.find(":") + 1;
+    auto n1 = name.find(':') + 1;
     return name.substr(n1, (name.size() - n1));
   }
 }
