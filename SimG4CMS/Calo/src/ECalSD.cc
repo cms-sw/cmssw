@@ -146,7 +146,13 @@ ECalSD::ECalSD(const std::string& name,
                                 << " by Birk or light yield curve";
   }
 
-  edm::LogVerbatim("EcalSim") << "ECalSD:: Suppression Flag " << suppressHeavy << "\tprotons below " << kmaxProton / CLHEP::MeV << " MeV,\tneutrons below " << kmaxNeutron / CLHEP::MeV << " MeV,\tions below " << kmaxIon / CLHEP::MeV << " MeV \n\tDepth1 Name = " << depth1Name << "\tDepth2 Name = " << depth2Name << "\n\tstoreRL " << storeRL << ":" << scaleRL << "\tstoreLayerTimeSim " << storeLayerTimeSim << "\n\ttime Granularity " << p.getParameter<edm::ParameterSet>("ECalSD").getParameter<double>("TimeSliceUnit") << " ns";
+  edm::LogVerbatim("EcalSim") << "ECalSD:: Suppression Flag " << suppressHeavy << "\tprotons below "
+                              << kmaxProton / CLHEP::MeV << " MeV,\tneutrons below " << kmaxNeutron / CLHEP::MeV
+                              << " MeV,\tions below " << kmaxIon / CLHEP::MeV << " MeV \n\tDepth1 Name = " << depth1Name
+                              << "\tDepth2 Name = " << depth2Name << "\n\tstoreRL " << storeRL << ":" << scaleRL
+                              << "\tstoreLayerTimeSim " << storeLayerTimeSim << "\n\ttime Granularity "
+                              << p.getParameter<edm::ParameterSet>("ECalSD").getParameter<double>("TimeSliceUnit")
+                              << " ns";
   if (useWeight)
     initMap();
 #ifdef plotDebug
@@ -215,7 +221,9 @@ double ECalSD::getEnergyDeposit(const G4Step* aStep) {
     edep *= wt2;
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("EcalSim") << lv->GetName() << " " << getNameNoNS(lv->GetName()) << " Light Collection Efficiency " << weight << ":" << wt1 << " wt2= " << wt2 << " Weighted Energy Deposit " << edep / CLHEP::MeV << " MeV";
+  edm::LogVerbatim("EcalSim") << lv->GetName() << " " << getNameNoNS(lv->GetName()) << " Light Collection Efficiency "
+                              << weight << ":" << wt1 << " wt2= " << wt2 << " Weighted Energy Deposit "
+                              << edep / CLHEP::MeV << " MeV";
 #endif
   return edep;
 }
@@ -288,7 +296,11 @@ uint16_t ECalSD::getRadiationLength(const G4StepPoint* hitPoint, const G4Logical
 #endif
 #ifdef EDM_ML_DEBUG
     G4ThreeVector localPoint = setToLocal(hitPoint->GetPosition(), hitPoint->GetTouchable());
-    edm::LogVerbatim("EcalSim") << lv->GetName() << " " << getNameNoNS(lv->GetName()) << " Global " << hitPoint->GetPosition() << ":" << (hitPoint->GetPosition()).rho() << " Local " << localPoint << " Crystal Length " << crystalLength << " Radl " << radl << " crystalDepth " << crystalDepth << " Index " << thisX0 << " : " << getLayerIDForTimeSim();
+    edm::LogVerbatim("EcalSim") << lv->GetName() << " " << getNameNoNS(lv->GetName()) << " Global "
+                                << hitPoint->GetPosition() << ":" << (hitPoint->GetPosition()).rho() << " Local "
+                                << localPoint << " Crystal Length " << crystalLength << " Radl " << radl
+                                << " crystalDepth " << crystalDepth << " Index " << thisX0 << " : "
+                                << getLayerIDForTimeSim();
 #endif
   }
   return thisX0;
@@ -442,7 +454,9 @@ void ECalSD::getBaseNumber(const G4Step* aStep) {
     for (int ii = 0; ii < theSize; ii++) {
       theBaseNumber.addLevel(getNameNoNS(touch->GetVolume(ii)->GetName()), touch->GetReplicaNumber(ii));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("EcalSim") << "ECalSD::getBaseNumber(): Adding level " << ii << ": " << getNameNoNS(touch->GetVolume(ii)->GetName()) << "[" << touch->GetReplicaNumber(ii) << "]";
+      edm::LogVerbatim("EcalSim") << "ECalSD::getBaseNumber(): Adding level " << ii << ": "
+                                  << getNameNoNS(touch->GetVolume(ii)->GetName()) << "[" << touch->GetReplicaNumber(ii)
+                                  << "]";
 #endif
     }
   }
@@ -466,7 +480,9 @@ double ECalSD::getBirkL3(const G4Step* aStep) {
         weight = 1.;
     }
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EcalSim") << "ECalSD::getBirkL3 in " << getNameNoNS(mat->GetName()) << " Charge " << charge << " dE/dx " << dedx << " Birk Const " << rkb << " Weight = " << weight << " dE " << aStep->GetTotalEnergyDeposit();
+    edm::LogVerbatim("EcalSim") << "ECalSD::getBirkL3 in " << getNameNoNS(mat->GetName()) << " Charge " << charge
+                                << " dE/dx " << dedx << " Birk Const " << rkb << " Weight = " << weight << " dE "
+                                << aStep->GetTotalEnergyDeposit();
 #endif
   }
   return weight;
