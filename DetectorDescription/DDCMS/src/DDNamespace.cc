@@ -143,7 +143,7 @@ const dd4hep::Rotation3D& DDNamespace::rotation(const string& name) const {
 }
 
 dd4hep::Volume DDNamespace::addVolumeNS(dd4hep::Volume vol) const {
-  string n = vol.name();
+  string n = prepend(vol.name());
   dd4hep::Solid s = vol.solid();
   dd4hep::Material m = vol.material();
   vol->SetName(n.c_str());
@@ -277,4 +277,14 @@ std::vector<float> DDNamespace::vecFloat(const std::string& name) const {
     return result;
   } else
     return std::vector<float>();
+}
+
+std::string DDNamespace::noNamespace(const std::string& fullName) const {
+  std::string result(fullName);
+  auto n = result.find(':');
+  if (n == std::string::npos) {
+    return result;
+  } else {
+    return result.substr(n + 1);
+  }
 }
