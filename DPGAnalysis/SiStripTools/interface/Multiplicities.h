@@ -1,7 +1,6 @@
 #ifndef DPGAnalysis_SiStripTools_Multiplicities_H
 #define DPGAnalysis_SiStripTools_Multiplicities_H
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -87,16 +86,16 @@ template <class T>
 void SingleMultiplicity<T>::getEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   m_mult = 0;
 
-  edm::ESHandle<SiStripQuality> qualityHandle;
+  const SiStripQuality* quality = nullptr;
   if (m_useQuality) {
-    qualityHandle = iSetup.getHandle(m_qualityToken);
+    quality = &iSetup.getData(m_qualityToken);
   }
 
   edm::Handle<T> digis;
   iEvent.getByToken(m_collection, digis);
 
   for (typename T::const_iterator it = digis->begin(); it != digis->end(); it++) {
-    if (!m_useQuality || !qualityHandle->IsModuleBad(it->detId())) {
+    if (!m_useQuality || !quality->IsModuleBad(it->detId())) {
       if (m_modthr < 0 || int(it->size()) < m_modthr) {
         m_mult += it->size();
         //      mult += it->size();

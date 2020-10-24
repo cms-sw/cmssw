@@ -3,7 +3,6 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripPedestalsSubtractor.h"
@@ -30,16 +29,24 @@ private:
   template <class T>
   std::string findInput(edm::Handle<T>& handle, const std::vector<edm::EDGetTokenT<T> >& tokens, const edm::Event& e);
 
-  void vr_process(const edm::DetSetVector<SiStripRawDigi>&, edm::DetSetVector<SiStripProcessedRawDigi>&);
-  void pr_process(const edm::DetSetVector<SiStripRawDigi>&, edm::DetSetVector<SiStripProcessedRawDigi>&);
-  void zs_process(const edm::DetSetVector<SiStripDigi>&, edm::DetSetVector<SiStripProcessedRawDigi>&);
-  void common_process(const uint32_t, std::vector<float>&, edm::DetSetVector<SiStripProcessedRawDigi>&);
+  void vr_process(const edm::DetSetVector<SiStripRawDigi>&,
+                  edm::DetSetVector<SiStripProcessedRawDigi>&,
+                  const SiStripGain&);
+  void pr_process(const edm::DetSetVector<SiStripRawDigi>&,
+                  edm::DetSetVector<SiStripProcessedRawDigi>&,
+                  const SiStripGain&);
+  void zs_process(const edm::DetSetVector<SiStripDigi>&,
+                  edm::DetSetVector<SiStripProcessedRawDigi>&,
+                  const SiStripGain&);
+  void common_process(const uint32_t,
+                      std::vector<float>&,
+                      edm::DetSetVector<SiStripProcessedRawDigi>&,
+                      const SiStripGain&);
 
   std::vector<edm::InputTag> inputTags_;
   std::vector<edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > > inputTokensDigi_;
   std::vector<edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > > inputTokensRawDigi_;
   edm::ESGetToken<SiStripGain, SiStripGainRcd> gainToken_;
-  edm::ESHandle<SiStripGain> gainHandle_;
 
   std::unique_ptr<SiStripPedestalsSubtractor> subtractorPed_;
   std::unique_ptr<SiStripCommonModeNoiseSubtractor> subtractorCMN_;

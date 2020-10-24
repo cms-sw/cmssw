@@ -1,7 +1,6 @@
 #ifndef RECOLOCALTRACKER_SISTRIPZEROSUPPRESSION_SISTRIPPEDESTALSSUBTRACTOR_H
 #define RECOLOCALTRACKER_SISTRIPZEROSUPPRESSION_SISTRIPPEDESTALSSUBTRACTOR_H
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -25,7 +24,7 @@ private:
       : pedestalsToken_(iC.esConsumes<SiStripPedestals, SiStripPedestalsRcd>()), fedmode_(mode) {}
   edm::ESGetToken<SiStripPedestals, SiStripPedestalsRcd> pedestalsToken_;
   edm::ESWatcher<SiStripPedestalsRcd> pedestalsWatcher_;
-  edm::ESHandle<SiStripPedestals> pedestalsHandle;
+  const SiStripPedestals* pedestalsHandle;
   std::vector<int> pedestals;
   bool fedmode_;
 

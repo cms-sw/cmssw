@@ -5,7 +5,6 @@
 
 #include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
@@ -34,8 +33,8 @@ private:
   int iterations_;
   edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> noiseToken_;
   edm::ESGetToken<SiStripQuality, SiStripQualityRcd> qualityToken_;
-  edm::ESHandle<SiStripNoises> noiseHandle;
-  edm::ESHandle<SiStripQuality> qualityHandle;
+  const SiStripNoises* noiseHandle;
+  const SiStripQuality* qualityHandle;
   edm::ESWatcher<SiStripNoisesRcd> noiseWatcher_;
   edm::ESWatcher<SiStripQualityRcd> qualityWatcher_;
 };

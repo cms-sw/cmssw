@@ -42,7 +42,6 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/transform.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -164,8 +163,7 @@ private:
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
   edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> fedCablingToken_;
-  edm::ESHandle<SiStripFedCabling> cabling_;
-  edm::ESHandle<TrackerGeometry> tracker_;
+  const TrackerGeometry* tracker_;
   std::multimap<const uint32_t, const FedChannelConnection*> connections_;
   bool functionality_offtrackClusters_, functionality_ontrackClusters_, functionality_pixclusters_,
       functionality_pixvertices_, functionality_missingHits_, functionality_tracks_, functionality_vertices_,
@@ -1025,7 +1023,7 @@ void TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup
 // ------------ method called once each job just before starting event loop  ------------
 void TrackerDpgAnalysis::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   const auto& tTopo = iSetup.getData(tTopoToken_);
-  tracker_ = iSetup.getHandle(tkGeomToken_);
+  tracker_ = &iSetup.getData(tkGeomToken_);
 
   //HLT names
   bool changed(true);
@@ -1045,10 +1043,10 @@ void TrackerDpgAnalysis::beginRun(const edm::Run& iRun, const edm::EventSetup& i
   TrackerMap tmap("Delays");
 
   // cabling I (readout)
-  cabling_ = iSetup.getHandle(fedCablingToken_);
-  auto feds = cabling_->fedIds();
+  const auto& cabling = iSetup.getData(fedCablingToken_);
+  auto feds = cabling.fedIds();
   for (auto fedid = feds.begin(); fedid < feds.end(); ++fedid) {
-    auto connections = cabling_->fedConnections(*fedid);
+    auto connections = cabling.fedConnections(*fedid);
     for (auto conn = connections.begin(); conn < connections.end(); ++conn) {
       // Fill the "old" map to be used for lookup during analysis
       if (conn->isConnected())

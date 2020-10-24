@@ -54,13 +54,13 @@ SiStripAPVRestorer::SiStripAPVRestorer(const edm::ParameterSet& conf, edm::Consu
 
 void SiStripAPVRestorer::init(const edm::EventSetup& es) {
   if (noiseWatcher_.check(es)) {
-    noiseHandle = es.getHandle(noiseToken_);
+    noiseHandle = &es.getData(noiseToken_);
   }
   if (qualityWatcher_.check(es)) {
-    qualityHandle = es.getHandle(qualityToken_);
+    qualityHandle = &es.getData(qualityToken_);
   }
   if (pedestalWatcher_.check(es)) {
-    pedestalHandle = es.getHandle(pedestalToken_);
+    pedestalHandle = &es.getData(pedestalToken_);
   }
 }
 

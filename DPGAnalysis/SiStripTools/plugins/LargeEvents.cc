@@ -26,7 +26,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -66,7 +65,7 @@ private:
   int _absthr;
   int _modthr;
   bool _useQuality;
-  edm::ESHandle<SiStripQuality> _qualityHandle;
+  const SiStripQuality* _qualityHandle = nullptr;
   edm::ESWatcher<SiStripQualityRcd> _qualityWatcher;
   edm::ESGetToken<SiStripQuality, SiStripQualityRcd> _qualityToken;
 };
@@ -109,7 +108,7 @@ bool LargeEvents<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   if (_useQuality) {
     if (_qualityWatcher.check(iSetup)) {
-      _qualityHandle = iSetup.getHandle(_qualityToken);
+      _qualityHandle = &iSetup.getData(_qualityToken);
       LogDebug("SiStripQualityUpdated") << "SiStripQuality has changed and it will be updated";
     }
   }

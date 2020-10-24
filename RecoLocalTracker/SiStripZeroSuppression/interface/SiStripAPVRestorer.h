@@ -5,7 +5,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
@@ -87,9 +86,9 @@ private:  // members
   edm::ESGetToken<SiStripQuality, SiStripQualityRcd> qualityToken_;
   edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> noiseToken_;
   edm::ESGetToken<SiStripPedestals, SiStripPedestalsRcd> pedestalToken_;
-  edm::ESHandle<SiStripQuality> qualityHandle;
-  edm::ESHandle<SiStripNoises> noiseHandle;
-  edm::ESHandle<SiStripPedestals> pedestalHandle;
+  const SiStripQuality* qualityHandle;
+  const SiStripNoises* noiseHandle;
+  const SiStripPedestals* pedestalHandle;
   edm::ESWatcher<SiStripQualityRcd> qualityWatcher_;
   edm::ESWatcher<SiStripNoisesRcd> noiseWatcher_;
   edm::ESWatcher<SiStripPedestalsRcd> pedestalWatcher_;

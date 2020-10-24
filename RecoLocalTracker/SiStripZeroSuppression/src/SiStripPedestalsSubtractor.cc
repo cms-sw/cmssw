@@ -4,7 +4,7 @@
 
 void SiStripPedestalsSubtractor::init(const edm::EventSetup& es) {
   if (pedestalsWatcher_.check(es)) {
-    pedestalsHandle = es.getHandle(pedestalsToken_);
+    pedestalsHandle = &es.getData(pedestalsToken_);
   }
 }
 

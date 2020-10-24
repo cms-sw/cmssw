@@ -153,8 +153,6 @@ namespace sistrip {
         std::stringstream sss;
         sss << "[sistrip::RawToDigiModule::" << __func__ << "]"
             << " Summary of FED cabling:" << std::endl;
-        edm::ESHandle<TrackerTopology> tTopo;
-        setup.get<TrackerTopologyRcd>().get(tTopo);
         cabling_->summary(sss, &setup.getData(tTopoToken_));
         LogTrace("SiStripRawToDigi") << sss.str();
       }

@@ -27,7 +27,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -83,7 +82,7 @@ private:
 
   std::unique_ptr<SiStripPedestalsSubtractor> subtractorPed_;
   edm::ESGetToken<SiStripPedestals, SiStripPedestalsRcd> pedestalsToken_;
-  edm::ESHandle<SiStripPedestals> pedestalsHandle;
+  const SiStripPedestals* pedestalsHandle;
   edm::ESWatcher<SiStripPedestalsRcd> pedestalsWatcher_;
   std::vector<int> pedestals;
 
@@ -165,7 +164,7 @@ void SiStripBaselineAnalyzer::analyze(const edm::Event& e, const edm::EventSetup
   using namespace edm;
   if (plotPedestals_ && actualModule_ == 0) {
     if (pedestalsWatcher_.check(es)) {
-      pedestalsHandle = es.getHandle(pedestalsToken_);
+      pedestalsHandle = &es.getData(pedestalsToken_);
     }
 
     std::vector<uint32_t> detIdV;
