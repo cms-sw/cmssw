@@ -164,7 +164,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     tag = "Stereo";
   //usefull constants
   const double topFrameEndZ = 0.5 * (-waferPosition + fullHeight) + pitchHeight + hybridHeight - topFrameHeight;
-  string idName = ns.prepend(ns.realName(mother.name()));
+  string idName = ns.noNamespace(mother.name());
   edm::LogVerbatim("TECGeom") << "idName: " << idName << " parent " << mother.name() << " namespace " << ns.name();
   Solid solid;
 
