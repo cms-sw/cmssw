@@ -1,11 +1,23 @@
-<use name="FWCore/Framework"/>
-<use name="FWCore/ParameterSet"/>
-<use name="DataFormats/SiPixelDetId"/>
+<use name="CondFormats/SiPixelObjects"/>
 <use name="DataFormats/Common"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/FEDRawData"/>
 <use name="DataFormats/Provenance"/>
+<use name="DataFormats/SiPixelCluster"/>
+<use name="DataFormats/SiPixelDetId"/>
+<use name="DataFormats/SiPixelDigi"/>
+<use name="DataFormats/TrackerCommon"/>
+<use name="DataFormats/TrackerRecHit2D"/>
+<use name="DataFormats/TrackingRecHit"/>
+<use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
-<use name="clhep"/>
-<use name="root"/>
+<use name="FWCore/ParameterSet"/>
+<use name="Geometry/CommonDetUnit"/>
+<use name="Geometry/CommonTopologies"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="rootcling"/>
+<use name="rootrflx"/>
 <export>
   <lib name="1"/>
 </export>
+
