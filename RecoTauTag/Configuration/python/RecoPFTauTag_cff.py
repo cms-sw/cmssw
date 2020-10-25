@@ -24,8 +24,8 @@ recoTauAK4PFJets08Region = RecoTauJetRegionProducer.clone(
 )
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+for e in [pp_on_XeXe_2017, pp_on_AA]:
     e.toModify(recoTauAK4PFJets08Region, minJetPt = 999999.0)
 
 # Reconstruct the pi zeros in our pre-selected jets.
@@ -57,7 +57,7 @@ combinatoricRecoTaus = combinatoricRecoTaus.clone(
     chargedHadronSrc = "ak4PFJetsRecoTauChargedHadrons",
     piZeroSrc = "ak4PFJetsLegacyHPSPiZeros"
 )
-for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
+for e in [pp_on_XeXe_2017, pp_on_AA]:
     e.toModify(combinatoricRecoTaus, minJetPt = recoTauAK4PFJets08Region.minJetPt)
 
 #--------------------------------------------------------------------------------

@@ -52,7 +52,6 @@ b2gDiJetHLTValidation = DQMEDAnalyzer('B2GHadronicHLTValidation',
 )
 
 # puppi jets don't exist in HI wfs, use Cs jets instead
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
-(pp_on_AA_2018 | pp_on_PbPb_run3).toModify(b2gSingleJetHLTValidation, sJets = "akCs4PFJets")
-(pp_on_AA_2018 | pp_on_PbPb_run3).toModify(b2gDiJetHLTValidation, sJets = "akCs4PFJets")
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toModify(b2gSingleJetHLTValidation, sJets = "akCs4PFJets")
+pp_on_AA.toModify(b2gDiJetHLTValidation, sJets = "akCs4PFJets")

@@ -84,6 +84,6 @@ particleFlowEGammaFinalTask = cms.Task(particleBasedIsolationTmp,
                                        gedElectronPFIsoTask)
 particleFlowEGammaFinal = cms.Sequence(particleFlowEGammaFinalTask)
 
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-pp_on_AA_2018.toReplaceWith(particleFlowEGammaFullTask, particleFlowEGammaFullTask.copyAndExclude([ootPhotonTask]))
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toReplaceWith(particleFlowEGammaFullTask, particleFlowEGammaFullTask.copyAndExclude([ootPhotonTask]))
 

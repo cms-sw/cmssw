@@ -51,9 +51,9 @@ tobTecStepTrackingRegionsTripl = _globalTrackingRegionFromBeamSpotFixedZ.clone(R
 ))
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 from RecoTracker.IterativeTracking.MixedTripletStep_cff import _mixedTripletStepTrackingRegionsCommon_pp_on_HI
-(pp_on_XeXe_2017 | pp_on_AA_2018).toReplaceWith(tobTecStepTrackingRegionsTripl, 
+(pp_on_XeXe_2017 | pp_on_AA).toReplaceWith(tobTecStepTrackingRegionsTripl, 
                 _mixedTripletStepTrackingRegionsCommon_pp_on_HI.clone(RegionPSet=dict(
                     ptMinScaling4BigEvts = False,
                     fixedError           = 5.0,
@@ -147,7 +147,7 @@ tobTecStepTrackingRegionsPair = _globalTrackingRegionFromBeamSpotFixedZ.clone(Re
     originRadius     = 6.0,
 ))
 
-(pp_on_XeXe_2017 | pp_on_AA_2018).toReplaceWith(tobTecStepTrackingRegionsPair, 
+(pp_on_XeXe_2017 | pp_on_AA).toReplaceWith(tobTecStepTrackingRegionsPair, 
                 _mixedTripletStepTrackingRegionsCommon_pp_on_HI.clone(RegionPSet = dict(
                     ptMinScaling4BigEvts = False,
                     fixedError           = 7.5,
@@ -207,8 +207,8 @@ tobTecStepTrajectoryFilter = _tobTecStepTrajectoryFilterBase.clone(
 trackingLowPU.toReplaceWith(tobTecStepTrajectoryFilter, _tobTecStepTrajectoryFilterBase.clone(
     minimumNumberOfHits = 6,
 ))
-for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
-    e.toModify(tobTecStepTrajectoryFilter, minPt=2.0)
+
+(pp_on_XeXe_2017 | pp_on_AA).toModify(tobTecStepTrajectoryFilter, minPt=2.0)
 
 tobTecStepInOutTrajectoryFilter = tobTecStepTrajectoryFilter.clone(
     minimumNumberOfHits = 4,
@@ -380,7 +380,7 @@ trackdnn.toReplaceWith(tobTecStep, TrackLwtnnClassifier.clone(
 ))
 (trackdnn & fastSim).toModify(tobTecStep,vertices = 'firstStepPrimaryVerticesBeforeMixing')
 
-pp_on_AA_2018.toModify(tobTecStep, qualityCuts = [-0.6,-0.3,0.7])
+pp_on_AA.toModify(tobTecStep, qualityCuts = [-0.6,-0.3,0.7])
 
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 trackingLowPU.toReplaceWith(tobTecStep, RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
