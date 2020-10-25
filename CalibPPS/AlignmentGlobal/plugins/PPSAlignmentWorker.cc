@@ -79,24 +79,24 @@ private:
     std::map<unsigned int, SlicePlots> x_slice_plots_N, x_slice_plots_F;
 
     void init(DQMStore::IBooker &iBooker,
-              const edm::ESHandle<PPSAlignmentConfig> &cfg,
+              const PPSAlignmentConfig &cfg,
               const SectorConfig &_scfg,
               const std::string &folder,
               bool debug);
 
-    unsigned int process(const CTPPSLocalTrackLiteCollection &tracks,
-                         const edm::ESHandle<PPSAlignmentConfig> &cfg,
-                         bool debug);
+    unsigned int process(const CTPPSLocalTrackLiteCollection &tracks, const PPSAlignmentConfig &cfg, bool debug);
   };
 
   // ------------ member data ------------
+  edm::ESGetToken<PPSAlignmentConfig, PPSAlignmentConfigRcd> esTokenBookHistograms_;
+  edm::ESGetToken<PPSAlignmentConfig, PPSAlignmentConfigRcd> esTokenAnalyze_;
+
   edm::EDGetTokenT<CTPPSLocalTrackLiteCollection> tracksToken_;
 
   SectorData sectorData45;
   SectorData sectorData56;
 
   std::string folder_;
-  std::string label_;
   bool debug_;
 };
 
@@ -114,23 +114,23 @@ PPSAlignmentWorker::SectorData::SlicePlots::SlicePlots(DQMStore::IBooker &iBooke
 }
 
 void PPSAlignmentWorker::SectorData::init(DQMStore::IBooker &iBooker,
-                                          const edm::ESHandle<PPSAlignmentConfig> &cfg,
+                                          const PPSAlignmentConfig &cfg,
                                           const SectorConfig &_scfg,
                                           const std::string &folder,
                                           bool debug) {
   scfg = _scfg;
 
   // binning
-  const double bin_size_x = cfg->binning().bin_size_x_;
-  const unsigned int n_bins_x = cfg->binning().n_bins_x_;
+  const double bin_size_x = cfg.binning().bin_size_x_;
+  const unsigned int n_bins_x = cfg.binning().n_bins_x_;
 
-  const double pixel_x_offset = cfg->binning().pixel_x_offset_;
+  const double pixel_x_offset = cfg.binning().pixel_x_offset_;
 
   const double x_min_pix = pixel_x_offset, x_max_pix = pixel_x_offset + n_bins_x * bin_size_x;
   const double x_min_str = 0., x_max_str = n_bins_x * bin_size_x;
 
-  const unsigned int n_bins_y = cfg->binning().n_bins_y_;
-  const double y_min = cfg->binning().y_min_, y_max = cfg->binning().y_max_;
+  const unsigned int n_bins_y = cfg.binning().n_bins_y_;
+  const double y_min = cfg.binning().y_min_, y_max = cfg.binning().y_max_;
 
   // hit distributions
   iBooker.setCurrentFolder(folder + "/" + scfg.name_ + "/before selection/" + scfg.rp_N_.name_);
@@ -198,7 +198,7 @@ void PPSAlignmentWorker::SectorData::init(DQMStore::IBooker &iBooker,
 }
 
 unsigned int PPSAlignmentWorker::SectorData::process(const CTPPSLocalTrackLiteCollection &tracks,
-                                                     const edm::ESHandle<PPSAlignmentConfig> &cfg,
+                                                     const PPSAlignmentConfig &cfg,
                                                      bool debug) {
   CTPPSLocalTrackLiteCollection tracksUp, tracksDw;
 
@@ -243,10 +243,10 @@ unsigned int PPSAlignmentWorker::SectorData::process(const CTPPSLocalTrackLiteCo
     m_h2_y_vs_x_bef_sel[scfg.rp_F_.id_]->Fill(tr.x(), tr.y());
 
   // skip crowded events
-  if (tracksUp.size() > cfg->maxRPTracksSize())
+  if (tracksUp.size() > cfg.maxRPTracksSize())
     return 0;
 
-  if (tracksDw.size() > cfg->maxRPTracksSize())
+  if (tracksDw.size() > cfg.maxRPTracksSize())
     return 0;
 
   // update plots with multiplicity selection
@@ -266,11 +266,11 @@ unsigned int PPSAlignmentWorker::SectorData::process(const CTPPSLocalTrackLiteCo
 
       const double cq_h = trDw.x() + scfg.cut_h_a_ * trUp.x() + scfg.cut_h_c_;
       h_q_cut_h_bef->Fill(cq_h);
-      const bool cv_h = (std::fabs(cq_h) < cfg->n_si() * scfg.cut_h_si_);
+      const bool cv_h = (std::fabs(cq_h) < cfg.n_si() * scfg.cut_h_si_);
 
       const double cq_v = trDw.y() + scfg.cut_v_a_ * trUp.y() + scfg.cut_v_c_;
       h_q_cut_v_bef->Fill(cq_v);
-      const bool cv_v = (std::fabs(cq_v) < cfg->n_si() * scfg.cut_v_si_);
+      const bool cv_v = (std::fabs(cq_v) < cfg.n_si() * scfg.cut_v_si_);
 
       bool cutsPassed = true;
       if (scfg.cut_h_apply_)
@@ -317,24 +317,25 @@ unsigned int PPSAlignmentWorker::SectorData::process(const CTPPSLocalTrackLiteCo
 // -------------------------------- PPSAlignmentWorker methods --------------------------------
 
 PPSAlignmentWorker::PPSAlignmentWorker(const edm::ParameterSet &iConfig)
-    : tracksToken_(consumes<CTPPSLocalTrackLiteCollection>(iConfig.getParameter<edm::InputTag>("tagTracks"))),
+    : esTokenBookHistograms_(esConsumes<PPSAlignmentConfig, PPSAlignmentConfigRcd, edm::Transition::BeginRun>(
+          edm::ESInputTag("", iConfig.getParameter<std::string>("label")))),
+      esTokenAnalyze_(esConsumes<PPSAlignmentConfig, PPSAlignmentConfigRcd>(
+          edm::ESInputTag("", iConfig.getParameter<std::string>("label")))),
+      tracksToken_(consumes<CTPPSLocalTrackLiteCollection>(iConfig.getParameter<edm::InputTag>("tagTracks"))),
       folder_(iConfig.getParameter<std::string>("folder")),
-      label_(iConfig.getParameter<std::string>("label")),
       debug_(iConfig.getParameter<bool>("debug")) {}
 
 void PPSAlignmentWorker::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &, edm::EventSetup const &iSetup) {
-  edm::ESHandle<PPSAlignmentConfig> cfg;
-  iSetup.get<PPSAlignmentConfigRcd>().get(label_, cfg);
+  const auto &cfg = iSetup.getData(esTokenBookHistograms_);
 
-  sectorData45.init(iBooker, cfg, cfg->sectorConfig45(), folder_ + "/worker", debug_);
-  sectorData56.init(iBooker, cfg, cfg->sectorConfig56(), folder_ + "/worker", debug_);
+  sectorData45.init(iBooker, cfg, cfg.sectorConfig45(), folder_ + "/worker", debug_);
+  sectorData56.init(iBooker, cfg, cfg.sectorConfig56(), folder_ + "/worker", debug_);
 }
 
 void PPSAlignmentWorker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   const auto &tracks = iEvent.get(tracksToken_);
 
-  edm::ESHandle<PPSAlignmentConfig> cfg;
-  iSetup.get<PPSAlignmentConfigRcd>().get(label_, cfg);
+  const auto &cfg = iSetup.getData(esTokenAnalyze_);
 
   sectorData45.process(tracks, cfg, debug_);
   sectorData56.process(tracks, cfg, debug_);
