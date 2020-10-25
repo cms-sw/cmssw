@@ -99,8 +99,8 @@ _trackClusterRemoverBase = _trackClusterRemover.clone(
     minNumberOfLayersWithMeasBeforeFiltering = 0,
 )
 
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-pp_on_AA_2018.toModify(_trackClusterRemoverBase, TrackQuality = 'tight')
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toModify(_trackClusterRemoverBase, TrackQuality = 'tight')
 
 #Phase2 : configuring the phase2 track Cluster Remover
 from RecoLocalTracker.SubCollectionProducers.phase2trackClusterRemover_cfi import phase2trackClusterRemover as _phase2trackClusterRemover

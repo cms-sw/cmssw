@@ -12,10 +12,10 @@ bTagPlotsDATA = cms.Sequence(pfDeepCSVDiscriminatorsJetTags * bTagAnalysis)
 
 ## customizations for the pp_on_AA eras
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-(pp_on_XeXe_2017 | pp_on_AA_2018).toModify(bTagAnalysis,
-                                           doJEC=False
-                                           )
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+(pp_on_XeXe_2017 | pp_on_AA).toModify(bTagAnalysis,
+                                      doJEC=False
+)
 
 
 ########## MC ############
@@ -43,9 +43,8 @@ newpatJetGenJetMatch = patJetGenJetMatch.clone(
     resolveAmbiguities = cms.bool(True)
 )
 
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
-(pp_on_AA_2018 | pp_on_PbPb_run3).toModify(newpatJetGenJetMatch, src = "akCs4PFJets")
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toModify(newpatJetGenJetMatch, src = "akCs4PFJets")
 
 # Module execution for MC
 from Validation.RecoB.bTagAnalysis_cfi import *
@@ -60,9 +59,9 @@ prebTagSequenceMC = cms.Sequence(ak4GenJetsForPUid*newpatJetGenJetMatch*selected
 bTagPlotsMC = cms.Sequence(bTagValidation)
 
 ## customizations for the pp_on_AA eras
-(pp_on_XeXe_2017 | pp_on_AA_2018).toModify(bTagValidation,
-                                           doJEC=False
-                                           )
+(pp_on_XeXe_2017 | pp_on_AA).toModify(bTagValidation,
+                                      doJEC=False
+)
 
 #to run on fullsim in the validation sequence, all histograms produced in the dqmoffline sequence
 bTagValidationNoall = bTagValidation.clone(flavPlots="bcl")

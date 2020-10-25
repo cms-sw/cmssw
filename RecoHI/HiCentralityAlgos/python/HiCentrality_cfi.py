@@ -35,12 +35,11 @@ hiCentrality = cms.EDProducer("CentralityProducer",
                             )
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
-(pp_on_XeXe_2017 | pp_on_AA_2018 | pp_on_PbPb_run3).toModify(hiCentrality,
-                                                             producePixelTracks = True,
-                                                             srcPixelTracks = "hiConformalPixelTracks",
-                                                             srcTracks = "generalTracks",
-                                                             srcVertex = "offlinePrimaryVertices"
-                                                         )
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+(pp_on_XeXe_2017 | pp_on_AA).toModify(hiCentrality,
+                                      producePixelTracks = True,
+                                      srcPixelTracks = "hiConformalPixelTracks",
+                                      srcTracks = "generalTracks",
+                                      srcVertex = "offlinePrimaryVertices"
+)
 

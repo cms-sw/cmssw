@@ -62,9 +62,9 @@ trackingPhase1.toModify(lowPtTripletStepTrackingRegions, RegionPSet = dict(ptMin
 trackingPhase2PU140.toModify(lowPtTripletStepTrackingRegions, RegionPSet = dict(ptMin = 0.40))
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
-(pp_on_XeXe_2017 | pp_on_AA_2018).toReplaceWith(lowPtTripletStepTrackingRegions, 
+(pp_on_XeXe_2017 | pp_on_AA).toReplaceWith(lowPtTripletStepTrackingRegions, 
                 _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
                     useFixedError = False,
                     ptMin         = 0.49,
@@ -172,8 +172,7 @@ from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
 trackingLowPU.toReplaceWith(lowPtTripletStepStandardTrajectoryFilter, _lowPtTripletStepStandardTrajectoryFilterBase)
 trackingPhase2PU140.toReplaceWith(lowPtTripletStepStandardTrajectoryFilter, _lowPtTripletStepStandardTrajectoryFilterBase)
 
-for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
-    e.toModify(lowPtTripletStepStandardTrajectoryFilter, minPt=0.49)
+(pp_on_XeXe_2017 | pp_on_AA).toModify(lowPtTripletStepStandardTrajectoryFilter, minPt=0.49)
 
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeTrajectoryFilter_cfi import *
 # Composite filter
@@ -288,7 +287,7 @@ trackdnn.toReplaceWith(lowPtTripletStep, TrackLwtnnClassifier.clone(
 ))
 
 highBetaStar_2018.toModify(lowPtTripletStep,qualityCuts = [-0.7,-0.3,-0.1])
-pp_on_AA_2018.toModify(lowPtTripletStep, 
+pp_on_AA.toModify(lowPtTripletStep, 
         mva         = dict(GBRForestLabel = 'HIMVASelectorLowPtTripletStep_Phase1'),
         qualityCuts = [-0.8, -0.4, 0.5],
 )
