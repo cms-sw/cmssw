@@ -92,7 +92,7 @@ void testDDFilteredViewFind::checkFilteredView() {
   fview.goTo({0, 0, 8});
   printMe(fview);
 
-  CPPUNIT_ASSERT(fview.name() == "muonBase:MUON");
+  CPPUNIT_ASSERT(fview.fullName() == "muonBase:MUON");
 
   // Go to the first daughter
   fview.next(0);
@@ -129,7 +129,7 @@ void testDDFilteredViewFind::checkFilteredView() {
   std::cout << "\n==== Let's do it again, go to Muon\n";
   fview.goTo({0, 0, 8});
   printMe(fview);
-  CPPUNIT_ASSERT(fview.name() == "muonBase:MUON");
+  CPPUNIT_ASSERT(fview.name() == "MUON");
 
   // Go to the first daughter
   fview.next(0);
