@@ -856,6 +856,10 @@ double DDFilteredView::getNextValue(const std::string& key) const {
 }
 
 std::string_view DDFilteredView::name() const {
+  return (node_ == nullptr ? std::string_view() : (dd4hep::dd::noNamespace(volume().volume().name())));
+}
+
+std::string_view DDFilteredView::fullName() const {
   return (node_ == nullptr ? std::string_view() : (volume().volume().name()));
 }
 

@@ -144,6 +144,9 @@ namespace cms {
     // Name of current node
     std::string_view name() const;
 
+    // Name of current node with namespace
+    std::string_view fullName() const;
+
     // Copy number of current node
     unsigned short copyNum() const;
 

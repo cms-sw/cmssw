@@ -212,7 +212,7 @@ void DD4hep_MTDTopologyAnalyzer::theBaseNumber(cms::DDFilteredView& fv) {
   thisN_.setSize(fv.copyNos().size());
 
   for (uint ii = 0; ii < fv.copyNos().size(); ii++) {
-    std::string name((fv.geoHistory()[ii])->GetName());
+    std::string name(dd4hep::dd::noNamespace((fv.geoHistory()[ii])->GetName()));
     name.assign(name.erase(name.rfind('_')));
     int copyN(fv.copyNos()[ii]);
     thisN_.addLevel(name, copyN);
