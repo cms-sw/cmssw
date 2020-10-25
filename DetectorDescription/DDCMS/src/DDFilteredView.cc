@@ -455,7 +455,7 @@ bool DDFilteredView::sibling() {
   it_.back().SetType(1);
   Node* node = nullptr;
   while ((node = it_.back().Next())) {
-    if (dd4hep::dd::accepted(currentFilter_, node->GetVolume()->GetName())) {
+    if (dd4hep::dd::accepted(currentFilter_, noNamespace(node->GetVolume()->GetName()))) {
       node_ = node;
       return true;
     }
@@ -471,7 +471,7 @@ bool DDFilteredView::checkChild() {
   it_.back().SetType(1);
   Node* node = nullptr;
   while ((node = it_.back().Next())) {
-    if (dd4hep::dd::accepted(currentFilter_, node->GetVolume()->GetName())) {
+    if (dd4hep::dd::accepted(currentFilter_, noNamespace(node->GetVolume()->GetName()))) {
       return true;
     }
   }
