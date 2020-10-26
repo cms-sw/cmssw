@@ -89,7 +89,8 @@ void HcalTestSimHitID::analyze(const edm::Event& e, const edm::EventSetup& iS) {
   const HcalTopology* theHBHETopology = htopo.product();
   edm::ESHandle<CaloGeometry> geom = iS.getHandle(tok_geom_);
   const CaloGeometry* caloGeom = geom.product();
-  const HcalGeometry* hcalGeom =  static_cast<const HcalGeometry*>(caloGeom->getSubdetectorGeometry(DetId::Hcal, HcalBarrel));
+  const HcalGeometry* hcalGeom =
+      static_cast<const HcalGeometry*>(caloGeom->getSubdetectorGeometry(DetId::Hcal, HcalBarrel));
 
   if (nevt_ <= maxEvent_) {
     std::vector<PCaloHit> hcHits;
@@ -105,21 +106,21 @@ void HcalTestSimHitID::analyze(const edm::Event& e, const edm::EventSetup& iS) {
       for (unsigned int i = 0; i < hits.size(); i++) {
         unsigned int id = hits[i].id();
         HcalDetId hid;
-	GlobalPoint p1, p2;
+        GlobalPoint p1, p2;
         if (testN_) {
-	  p1 = hcalGeom->getPosition(id, true);
+          p1 = hcalGeom->getPosition(id, true);
           hid = HcalDetId(HcalHitRelabeller::relabel(id, hcr));
         } else {
           hid = HcalDetId(id);
         }
-	p2 = hcalGeom->getPosition(DetId(hid));
+        p2 = hcalGeom->getPosition(DetId(hid));
         if (theHBHETopology->validHcal(hid)) {
           ++good;
           if (dumpHits_) {
             std::cout << "Hit[" << i << "] " << hid << " \n";
-	    if (testN_)
-	      std::cout << "Test " << p1 << " from HcalDetId " << p2 << "\n";
-	  }
+            if (testN_)
+              std::cout << "Test " << p1 << " from HcalDetId " << p2 << "\n";
+          }
         } else {
           std::cout << "Hit[" << i << "] " << hid << " ***** ERROR *****\n";
         }

@@ -190,7 +190,15 @@ GlobalPoint HcalGeometry::getPosition(uint32_t idx, bool test) const {
     HcalTestNumbering::unpackHcalIndex(idx, subdet, z, depth, eta, phi, lay);
     int sign = (z == 0) ? (-1) : (1);
     auto id = m_topology.dddConstants()->getHCID(subdet, (sign * eta), phi, lay, depth);
-    auto hcId = ((id.subdet == static_cast<int>(HcalBarrel)) ? HcalDetId(HcalBarrel, sign * id.eta, id.phi, id.depth) : ((id.subdet == static_cast<int>(HcalEndcap)) ? HcalDetId(HcalEndcap, sign * id.eta, id.phi, id.depth) : ((id.subdet == static_cast<int>(HcalOuter)) ? HcalDetId(HcalOuter, sign * id.eta, id.phi, id.depth) : ((id.subdet == static_cast<int>(HcalForward)) ? HcalDetId(HcalForward, sign * id.eta, id.phi, id.depth) : HcalDetId()))));
+    auto hcId = ((id.subdet == static_cast<int>(HcalBarrel))
+                     ? HcalDetId(HcalBarrel, sign * id.eta, id.phi, id.depth)
+                     : ((id.subdet == static_cast<int>(HcalEndcap))
+                            ? HcalDetId(HcalEndcap, sign * id.eta, id.phi, id.depth)
+                            : ((id.subdet == static_cast<int>(HcalOuter))
+                                   ? HcalDetId(HcalOuter, sign * id.eta, id.phi, id.depth)
+                                   : ((id.subdet == static_cast<int>(HcalForward))
+                                          ? HcalDetId(HcalForward, sign * id.eta, id.phi, id.depth)
+                                          : HcalDetId()))));
     return getPosition(DetId(hcId));
   } else {
     return getPosition(DetId(idx));
@@ -213,7 +221,15 @@ GlobalPoint HcalGeometry::getBackPosition(uint32_t idx, bool test) const {
     HcalTestNumbering::unpackHcalIndex(idx, subdet, z, depth, eta, phi, lay);
     int sign = (z == 0) ? (-1) : (1);
     auto id = m_topology.dddConstants()->getHCID(subdet, (sign * eta), phi, lay, depth);
-    auto hcId = ((id.subdet == static_cast<int>(HcalBarrel)) ? HcalDetId(HcalBarrel, sign * id.eta, id.phi, id.depth) : ((id.subdet == static_cast<int>(HcalEndcap)) ? HcalDetId(HcalEndcap, sign * id.eta, id.phi, id.depth) : ((id.subdet == static_cast<int>(HcalOuter)) ? HcalDetId(HcalOuter, sign * id.eta, id.phi, id.depth) : ((id.subdet == static_cast<int>(HcalForward)) ? HcalDetId(HcalForward, sign * id.eta, id.phi, id.depth) : HcalDetId()))));
+    auto hcId = ((id.subdet == static_cast<int>(HcalBarrel))
+                     ? HcalDetId(HcalBarrel, sign * id.eta, id.phi, id.depth)
+                     : ((id.subdet == static_cast<int>(HcalEndcap))
+                            ? HcalDetId(HcalEndcap, sign * id.eta, id.phi, id.depth)
+                            : ((id.subdet == static_cast<int>(HcalOuter))
+                                   ? HcalDetId(HcalOuter, sign * id.eta, id.phi, id.depth)
+                                   : ((id.subdet == static_cast<int>(HcalForward))
+                                          ? HcalDetId(HcalForward, sign * id.eta, id.phi, id.depth)
+                                          : HcalDetId()))));
     return getBackPosition(DetId(hcId));
   } else {
     return getBackPosition(DetId(idx));
