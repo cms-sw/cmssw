@@ -328,21 +328,24 @@ def nanoAOD_customizeCommon(process):
         nanoAOD_addParticleNet_switch = cms.untracked.bool(True),
         jecPayload = cms.untracked.string('AK8PFPuppi')
         )
-    # deepAK8 should not run on 80X, that contains ak8PFJetsCHS jets
+    # Don't run on old mini due to compatibility
+    # 80X contains ak8PFJetsCHS jets instead of puppi
     run2_miniAOD_80XLegacy.toModify(nanoAOD_addDeepInfoAK8_switch,
                                     nanoAOD_addDeepBTag_switch = True,
                                     nanoAOD_addDeepBoostedJet_switch = False,
                                     nanoAOD_addDeepDoubleX_switch = False,
+                                    nanoAOD_addDeepDoubleXV2_switch = False,
                                     nanoAOD_addParticleNet_switch = False,
                                     jecPayload = 'AK8PFchs')
-    # for Re-MiniAOD: no need to re-run DeepAK8, DeepDoubleX and ParticleNet
-    run2_miniAOD_devel.toModify(
-        nanoAOD_addDeepInfoAK8_switch,
-        nanoAOD_addDeepBoostedJet_switch = False,
-        nanoAOD_addDeepDoubleX_switch = False,
-        nanoAOD_addDeepDoubleXV2_switch = False,
-        nanoAOD_addParticleNet_switch = False,
-        )
+    # Don't rerun where already present
+    for modifier in run2_miniAOD_devel, run2_nanoAOD_106Xv1
+        modifier.toModify(
+            nanoAOD_addDeepInfoAK8_switch,
+            nanoAOD_addDeepBoostedJet_switch = False,
+            nanoAOD_addDeepDoubleX_switch = False,
+            nanoAOD_addDeepDoubleXV2_switch = False,
+            nanoAOD_addParticleNet_switch = False,
+            )
     process = nanoAOD_addDeepInfoAK8(process,
                                      addDeepBTag=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepBTag_switch,
                                      addDeepBoostedJet=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepBoostedJet_switch,
