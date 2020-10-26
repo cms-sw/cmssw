@@ -36,6 +36,7 @@
 <use name="DataFormats/SiPixelDetId"/>
 <use name="DataFormats/L1TrackTrigger"/>
 <use name="DataFormats/Phase2TrackerDigi"/>
+<use name="PhysicsTools/ONNXRuntime"/>
 <export>
   <flags SEALPLUGIN="1"/>
   <lib name="1"/>

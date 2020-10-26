@@ -168,7 +168,7 @@ process.L1TrackNtuple = cms.EDAnalyzer('L1TrackNtupleMaker',
                                        TrackingVertexInputTag = cms.InputTag("mix", "MergedTrackTruth"),
                                        # tracking in jets (--> requires AK4 genjet collection present!)
                                        TrackingInJets = cms.bool(False),
-                                       GenJetInputTag = cms.InputTag("ak4GenJets", ""),
+                                       GenJetInputTag = cms.InputTag("ak4GenJets", "")
                                        )
 
 process.ana = cms.Path(process.L1TrackNtuple)
