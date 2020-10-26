@@ -9,8 +9,8 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelFrameConverter.h"
 
 
-void SiPixelTopoFinder::init(const TrackerTopology* trackerTopology,
-                               const TrackerGeometry* trackerGeometry,
+void SiPixelTopoFinder::init(const TrackerGeometry* trackerGeometry,
+                               const TrackerTopology* trackerTopology,
                                const SiPixelFedCablingMap* siPixelFedCablingMap)
 {
     phase_ = -1;
