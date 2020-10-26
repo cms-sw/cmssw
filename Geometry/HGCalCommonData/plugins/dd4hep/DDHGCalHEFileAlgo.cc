@@ -64,9 +64,10 @@ struct HGCalHEFileAlgo {
     layerSense_ = args.value<std::vector<int>>("LayerSense");
     firstLayer_ = args.value<int>("FirstLayer");
     absorbMode_ = args.value<int>("AbsorberMode");
+    sensitiveMode_ = args.value<int>("SensitiveMode");
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "First Layer " << firstLayer_ << " and "
-                                  << "Absober mode " << absorbMode_;
+                                  << "Absober:Sensitive mode " << absorbMode_ << ":" << sensitiveMode_;
 #endif
     layerCenter_ = args.value<std::vector<int>>("LayerCenter");
 #ifdef EDM_ML_DEBUG
@@ -250,17 +251,22 @@ struct HGCalHEFileAlgo {
                 << "[" << k << "] z " << pgonZ[k] << " R " << pgonRin[k] << ":" << pgonRout[k];
 #endif
         } else {
-          dd4hep::Solid solid = dd4hep::Tube(rinB, routF, hthick, 0.0, 2._pi);
+          double rins =
+              (sensitiveMode_ < 1) ? rinB : HGCalGeomTools::radius(zz + hthick, zFrontB_, rMinFront_, slopeB_);
+          double routs =
+              (sensitiveMode_ < 1) ? routF : HGCalGeomTools::radius(zz - hthick, zFrontT_, rMaxFront_, slopeT_);
+          dd4hep::Solid solid = dd4hep::Tube(rins, routs, hthick, 0.0, 2._pi);
           ns.addSolidNS(ns.prepend(name), solid);
           glog = dd4hep::Volume(solid.name(), solid, matter);
           ns.addVolumeNS(glog);
 
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("HGCalGeom") << "DDHGCalHEFileAlgo: " << solid.name() << " Tubs made of " << matter.name()
-                                        << " of dimensions " << rinB << ", " << routF << ", " << hthick
-                                        << ", 0.0, 360.0 and positioned in: " << glog.name() << " number " << copy;
+                                        << " of dimensions " << rinB << ":" << rins << ", " << routF << ":" << routs
+                                        << ", " << hthick << ", 0.0, 360.0 and positioned in: " << glog.name()
+                                        << " number " << copy;
 #endif
-          positionMix(ctxt, e, glog, name, copy, thickness_[ii], matter, rinB, rMixLayer_[i], routF, zz);
+          positionMix(ctxt, e, glog, name, copy, thickness_[ii], matter, rins, rMixLayer_[i], routs, zz);
         }
 
         dd4hep::Position r1(0, 0, zz);
@@ -559,6 +565,7 @@ struct HGCalHEFileAlgo {
   std::vector<int> layerSense_;            // Content of a layer (sensitive?)
   int firstLayer_;                         // Copy # of the first sensitive layer
   int absorbMode_;                         // Absorber mode
+  int sensitiveMode_;                      // Sensitive mode
   std::vector<std::string> materialsTop_;  // Materials of top layers
   std::vector<std::string> namesTop_;      // Names of top layers
   std::vector<double> layerThickTop_;      // Thickness of the top sections

@@ -158,7 +158,7 @@ struct HGCalEEFileAlgo {
         int ii = layerType_[ly];
         int copy = copyNumber_[ii];
         double hthick = 0.5 * thick_[ii];
-        double rinB = HGCalGeomTools::radius(zo, zFrontB_, rMinFront_, slopeB_);
+        double rinB = HGCalGeomTools::radius(zo - tol1, zFrontB_, rMinFront_, slopeB_);
         zz += hthick;
         thickTot += thick_[ii];
 
@@ -222,7 +222,7 @@ struct HGCalEEFileAlgo {
 #endif
         } else {
           double rins =
-              (sensitiveMode_ < 1) ? rinB : HGCalGeomTools::radius(zz + hthick, zFrontB_, rMinFront_, slopeB_);
+              (sensitiveMode_ < 1) ? rinB : HGCalGeomTools::radius(zz + hthick - tol1, zFrontB_, rMinFront_, slopeB_);
           double routs =
               (sensitiveMode_ < 1) ? routF : HGCalGeomTools::radius(zz - hthick, zFrontT_, rMaxFront_, slopeT_);
           dd4hep::Solid solid = dd4hep::Tube(rins, routs, hthick, 0.0, 2._pi);
