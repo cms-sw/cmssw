@@ -20,8 +20,8 @@ public:
   SiPixelTopoFinder();
   virtual ~SiPixelTopoFinder();
 
-  void init(const TrackerTopology* trackerTopology,
-              const TrackerGeometry* trackerGeometry,
+  void init(const TrackerGeometry* trackerGeometry,
+              const TrackerTopology* trackerTopology,
               const SiPixelFedCablingMap* siPixelFedCablingMap);
 
   std::vector<int> getDetIds() { return fDetIds_; }
