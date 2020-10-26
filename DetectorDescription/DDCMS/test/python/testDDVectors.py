@@ -41,7 +41,7 @@ process.MessageLogger = cms.Service(
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             appendToDataLabel = cms.string('CMS'),
-                                            confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-test-ddvectors.xml')
+                                            confGeomXMLFiles = cms.FileInPath('Geometry/CMSCommonData/data/dd4hep/cmsExtendedGeometry2021.xml')
                                             )
 
 process.DDVectorRegistryESProducer = cms.ESProducer("DDVectorRegistryESProducer",

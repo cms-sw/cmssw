@@ -30,12 +30,19 @@ void DDTestVectors::analyze(const Event&, const EventSetup& iEventSetup) {
   iEventSetup.get<DDVectorRegistryRcd>().get(m_tag, registry);
 
   LogVerbatim("Geometry").log([&registry](auto& log) {
-    log << "DD Vector Registry size: " << registry->vectors.size();
+    log << "DD Vector Registry size: " << registry->vectors.size() << "\n";
     for (const auto& p : registry->vectors) {
       log << " " << p.first << " => ";
       for (const auto& i : p.second)
         log << i << ", ";
+      log << "\n";
     }
+    for (const auto& j : registry->vectors.at("trackerParameters:Subdetector4"))
+      log << j << ", ";
+    log << "\n";
+    for (const auto& k : registry->vectors.at("trackerParameters:detIdShifts"))
+      log << k << ", ";
+    log << "\n";
   });
 }
 
