@@ -16,18 +16,16 @@
 //
 //
 
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "TrackingTools/TrackAssociator/interface/DetIdInfo.h"
+#include "TrackingTools/Records/interface/DetIdAssociatorRecord.h"
 
-// user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Utilities/interface/isFinite.h"
+#include "DataFormats/Common/interface/Handle.h"
 
+#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
@@ -36,33 +34,20 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment2D.h"
+#include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
+#include "DataFormats/GEMRecHit/interface/GEMSegmentCollection.h"
+#include "DataFormats/GEMRecHit/interface/ME0SegmentCollection.h"
 
-// calorimeter info
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-
-#include "Geometry/DTGeometry/interface/DTLayer.h"
-#include "Geometry/DTGeometry/interface/DTGeometry.h"
+// calorimeter and muon infos
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
-
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
-#include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
-
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
-
-#include "DataFormats/GeometrySurface/interface/Cylinder.h"
-#include "DataFormats/GeometrySurface/interface/Plane.h"
-
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 #include <stack>
@@ -72,29 +57,12 @@
 #include "Math/VectorUtil.h"
 #include <algorithm>
 
-#include "TrackingTools/TrackAssociator/interface/DetIdAssociator.h"
-#include "TrackingTools/TrackAssociator/interface/DetIdInfo.h"
-// #include "TrackingTools/TrackAssociator/interface/CaloDetIdAssociator.h"
-// #include "TrackingTools/TrackAssociator/interface/EcalDetIdAssociator.h"
-// #include "TrackingTools/TrackAssociator/interface/PreshowerDetIdAssociator.h"
-
-#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
-#include "DataFormats/DTRecHit/interface/DTRecSegment2D.h"
-#include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
-#include "DataFormats/GEMRecHit/interface/GEMSegmentCollection.h"
-#include "DataFormats/GEMRecHit/interface/ME0SegmentCollection.h"
-#include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
-
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
-
-#include "TrackingTools/Records/interface/DetIdAssociatorRecord.h"
 
 using namespace reco;
 
@@ -119,7 +87,7 @@ void TrackDetectorAssociator::init(const edm::EventSetup& iSetup, const Associat
   // get the tracking Geometry
   theTrackingGeometry_ = &iSetup.getData(parameters.theTrackingGeometryToken);
 
-  if (useDefaultPropagator_ && (!defProp_ || theMagneticFeildWatcher_.check(iSetup))) {
+  if (useDefaultPropagator_ && (!defProp_ || theMagneticFieldWatcher_.check(iSetup))) {
     // setup propagator
     const MagneticField* bField = &iSetup.getData(parameters.bFieldToken);
 
@@ -199,7 +167,7 @@ TrackDetMatchInfo TrackDetectorAssociator::associate(const edm::Event& iEvent,
 
   // If track extras exist and outerState is before HO maximum, then use outerState
   if (outerState) {
-    if (outerState->position().perp() < HOmaxR && fabs(outerState->position().z()) < HOmaxZ) {
+    if (outerState->position().perp() < HOmaxR && std::abs(outerState->position().z()) < HOmaxZ) {
       LogTrace("TrackAssociator") << "Using outerState as trackOrigin at Rho=" << outerState->position().perp()
                                   << "  Z=" << outerState->position().z() << "\n";
       trackOrigin = SteppingHelixStateInfo(*outerState);
@@ -610,11 +578,11 @@ DetIdAssociator::MapRange TrackDetectorAssociator::getMapRange(const std::pair<f
   if (delta.first > 0)
     mapRange.dThetaPlus += delta.first;
   else
-    mapRange.dThetaMinus += fabs(delta.first);
+    mapRange.dThetaMinus += std::abs(delta.first);
   if (delta.second > 0)
     mapRange.dPhiPlus += delta.second;
   else
-    mapRange.dPhiMinus += fabs(delta.second);
+    mapRange.dPhiMinus += std::abs(delta.second);
   LogTrace("TrackAssociator") << "Selection range: (dThetaPlus, dThetaMinus, dPhiPlus, dPhiMinus, dRPreselection): "
                               << mapRange.dThetaPlus << ", " << mapRange.dThetaMinus << ", " << mapRange.dPhiPlus
                               << ", " << mapRange.dPhiMinus << ", " << dR;
@@ -662,10 +630,8 @@ void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberM
     }
     LocalPoint localPoint = geomDet->surface().toLocal(stateOnSurface.freeState()->position());
     LocalError localError = stateOnSurface.localError().positionError();
-    float distanceX = 0;
-    float distanceY = 0;
-    float sigmaX = 0.0;
-    float sigmaY = 0.0;
+    float distanceX = 0.f;
+    float distanceY = 0.f;
     if (const CSCChamber* cscChamber = dynamic_cast<const CSCChamber*>(geomDet)) {
       const CSCChamberSpecs* chamberSpecs = cscChamber->specs();
       if (!chamberSpecs) {
@@ -687,28 +653,27 @@ void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberM
       float narrowWidth = wireTopology->narrowWidthOfPlane();
       float length = wireTopology->lengthOfPlane();
       // If slanted, there is no y offset between local origin and symmetry center of wire plane
-      float yOfFirstWire = fabs(wireTopology->wireAngle()) > 1.E-06 ? -0.5 * length : wireTopology->yOfWire(1);
+      float yOfFirstWire = std::abs(wireTopology->wireAngle()) > 1.E-06f ? -0.5 * length : wireTopology->yOfWire(1);
       // y offset between local origin and symmetry center of wire plane
-      float yCOWPOffset = yOfFirstWire + 0.5 * length;
+      float yCOWPOffset = yOfFirstWire + 0.5f * length;
 
       // tangent of the incline angle from inside the trapezoid
-      float tangent = (wideWidth - narrowWidth) / (2. * length);
+      float tangent = (wideWidth - narrowWidth) / (2.f * length);
       // y position wrt bottom of trapezoid
-      float yPrime = localPoint.y() + fabs(yOfFirstWire);
+      float yPrime = localPoint.y() + std::abs(yOfFirstWire);
       // half trapezoid width at y' is 0.5 * narrowWidth + x side of triangle with the above tangent and side y'
-      float halfWidthAtYPrime = 0.5 * narrowWidth + yPrime * tangent;
-      distanceX = fabs(localPoint.x()) - halfWidthAtYPrime;
-      distanceY = fabs(localPoint.y() - yCOWPOffset) - 0.5 * length;
-      sigmaX = distanceX / sqrt(localError.xx());
-      sigmaY = distanceY / sqrt(localError.yy());
+      float halfWidthAtYPrime = 0.5f * narrowWidth + yPrime * tangent;
+      distanceX = std::abs(localPoint.x()) - halfWidthAtYPrime;
+      distanceY = std::abs(localPoint.y() - yCOWPOffset) - 0.5f * length;
     } else {
-      distanceX = fabs(localPoint.x()) - geomDet->surface().bounds().width() / 2.;
-      distanceY = fabs(localPoint.y()) - geomDet->surface().bounds().length() / 2.;
-      sigmaX = distanceX / sqrt(localError.xx());
-      sigmaY = distanceY / sqrt(localError.yy());
+      distanceX = std::abs(localPoint.x()) - 0.5f * geomDet->surface().bounds().width();
+      distanceY = std::abs(localPoint.y()) - 0.5f * geomDet->surface().bounds().length();
     }
     if ((distanceX < parameters.muonMaxDistanceX && distanceY < parameters.muonMaxDistanceY) ||
-        (sigmaX < parameters.muonMaxDistanceSigmaX && sigmaY < parameters.muonMaxDistanceSigmaY)) {
+        (distanceX * distanceX <
+             localError.xx() * parameters.muonMaxDistanceSigmaX * parameters.muonMaxDistanceSigmaX &&
+         distanceY * distanceY <
+             localError.yy() * parameters.muonMaxDistanceSigmaY * parameters.muonMaxDistanceSigmaY)) {
       LogTrace("TrackAssociator") << "found a match: " << DetIdInfo::info(*detId, nullptr) << "\n";
       TAMuonChamberMatch match;
       match.tState = stateOnSurface;
@@ -719,7 +684,8 @@ void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberM
     } else {
       LogTrace("TrackAssociator") << "chamber is too far: " << DetIdInfo::info(*detId, nullptr)
                                   << "\n\tdistanceX: " << distanceX << "\t distanceY: " << distanceY
-                                  << "\t sigmaX: " << sigmaX << "\t sigmaY: " << sigmaY << "\n";
+                                  << "\t sigmaX: " << distanceX / sqrt(localError.xx())
+                                  << "\t sigmaY: " << distanceY / sqrt(localError.yy()) << "\n";
     }
   }
 }
@@ -848,17 +814,17 @@ bool TrackDetectorAssociator::addTAMuonSegmentMatch(TAMuonChamberMatch& matchedC
   if (dtseg && (!dtseg->hasZed()))
     isDTWithoutY = true;
 
-  double deltaPhi(fabs(segmentGlobalPosition.phi() - trajectoryStateOnSurface.freeState()->position().phi()));
-  if (deltaPhi > M_PI)
-    deltaPhi = fabs(deltaPhi - M_PI * 2.);
+  float deltaPhi(std::abs(segmentGlobalPosition.phi() - trajectoryStateOnSurface.freeState()->position().phi()));
+  if (deltaPhi > float(M_PI))
+    deltaPhi = std::abs(deltaPhi - float(M_PI) * 2.f);
+  float deltaEta = std::abs(segmentGlobalPosition.eta() - trajectoryStateOnSurface.freeState()->position().eta());
 
   if (isDTWithoutY) {
     isGood = deltaPhi < parameters.dRMuon;
     // Be in chamber
-    isGood &= fabs(segmentGlobalPosition.eta() - trajectoryStateOnSurface.freeState()->position().eta()) < .3;
+    isGood &= deltaEta < .3f;
   } else
-    isGood = sqrt(pow(segmentGlobalPosition.eta() - trajectoryStateOnSurface.freeState()->position().eta(), 2) +
-                  deltaPhi * deltaPhi) < parameters.dRMuon;
+    isGood = deltaEta * deltaEta + deltaPhi * deltaPhi < parameters.dRMuon * parameters.dRMuon;
 
   if (isGood) {
     TAMuonSegmentMatch muonSegment;
@@ -875,13 +841,13 @@ bool TrackDetectorAssociator::addTAMuonSegmentMatch(TAMuonChamberMatch& matchedC
     // AlgebraicSymMatrix segmentCovMatrix = segment->parametersError();
     // muonSegment.segmentLocalErrorXDxDz = segmentCovMatrix[2][0];
     // muonSegment.segmentLocalErrorYDyDz = segmentCovMatrix[3][1];
-    muonSegment.segmentLocalErrorXDxDz = -999;
-    muonSegment.segmentLocalErrorYDyDz = -999;
+    muonSegment.segmentLocalErrorXDxDz = -999.f;
+    muonSegment.segmentLocalErrorYDyDz = -999.f;
     muonSegment.hasZed = true;
     muonSegment.hasPhi = true;
 
     // timing information
-    muonSegment.t0 = 0;
+    muonSegment.t0 = 0.f;
     if (dtseg) {
       if ((dtseg->hasPhi()) && (!isDTWithoutY)) {
         int phiHits = dtseg->phiSegment()->specificRecHits().size();
@@ -960,8 +926,8 @@ void TrackDetectorAssociator::fillCaloTruth(const edm::Event& iEvent,
   }
   if (simTrack != simTracks->end()) {
     info.simTrack = &(*simTrack);
-    double ecalTrueEnergy(0);
-    double hcalTrueEnergy(0);
+    float ecalTrueEnergy(0);
+    float hcalTrueEnergy(0);
 
     // loop over calo hits
     for (PCaloHitContainer::const_iterator hit = simEcalHitsEB->begin(); hit != simEcalHitsEB->end(); ++hit)
@@ -979,10 +945,10 @@ void TrackDetectorAssociator::fillCaloTruth(const edm::Event& iEvent,
     info.ecalTrueEnergy = ecalTrueEnergy;
     info.hcalTrueEnergy = hcalTrueEnergy;
     info.hcalTrueEnergyCorrected = hcalTrueEnergy;
-    if (fabs(info.trkGlobPosAtHcal.eta()) < 1.3)
-      info.hcalTrueEnergyCorrected = hcalTrueEnergy * 113.2;
-    else if (fabs(info.trkGlobPosAtHcal.eta()) < 3.0)
-      info.hcalTrueEnergyCorrected = hcalTrueEnergy * 167.2;
+    if (std::abs(info.trkGlobPosAtHcal.eta()) < 1.3f)
+      info.hcalTrueEnergyCorrected = hcalTrueEnergy * 113.2f;
+    else if (std::abs(info.trkGlobPosAtHcal.eta()) < 3.0f)
+      info.hcalTrueEnergyCorrected = hcalTrueEnergy * 167.2f;
   }
 }
 
@@ -1028,7 +994,7 @@ TrackDetMatchInfo TrackDetectorAssociator::associate(const edm::Event& iEvent,
         return associate(iEvent, iSetup, parameters, &referenceState, &outerState);
         break;
       case OutsideIn: {
-        cachedTrajectory_.setPropagationStep(-fabs(currentStepSize));
+        cachedTrajectory_.setPropagationStep(-std::abs(currentStepSize));
         TrackDetMatchInfo result = associate(iEvent, iSetup, parameters, &innerState, &referenceState);
         cachedTrajectory_.setPropagationStep(currentStepSize);
         return result;
@@ -1041,7 +1007,7 @@ TrackDetMatchInfo TrackDetectorAssociator::associate(const edm::Event& iEvent,
         return associate(iEvent, iSetup, parameters, &innerState, &outerState);
         break;
       case OutsideIn: {
-        cachedTrajectory_.setPropagationStep(-fabs(currentStepSize));
+        cachedTrajectory_.setPropagationStep(-std::abs(currentStepSize));
         TrackDetMatchInfo result = associate(iEvent, iSetup, parameters, &outerState, &innerState);
         cachedTrajectory_.setPropagationStep(currentStepSize);
         return result;
@@ -1051,9 +1017,9 @@ TrackDetMatchInfo TrackDetectorAssociator::associate(const edm::Event& iEvent,
         // check if we deal with clear outside-in case
         if (track.innerPosition().Dot(track.innerMomentum()) < 0 &&
             track.outerPosition().Dot(track.outerMomentum()) < 0) {
-          cachedTrajectory_.setPropagationStep(-fabs(currentStepSize));
+          cachedTrajectory_.setPropagationStep(-std::abs(currentStepSize));
           TrackDetMatchInfo result;
-          if (track.innerPosition().R() < track.outerPosition().R())
+          if (track.innerPosition().Mag2() < track.outerPosition().Mag2())
             result = associate(iEvent, iSetup, parameters, &innerState, &outerState);
           else
             result = associate(iEvent, iSetup, parameters, &outerState, &innerState);
