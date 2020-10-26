@@ -134,7 +134,8 @@ HGCalRecHitStudy::HGCalRecHitStudy(const edm::ParameterSet& iConfig)
   tok_hcaldd_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>();
   tok_caloGeom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
   if (nameDetector_ != "HCal") {
-    tok_hgcaldd_ = esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", nameDetector_});
+    tok_hgcaldd_ = esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+        edm::ESInputTag{"", nameDetector_});
     tok_hgcGeom_ = esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", nameDetector_});
   }
 }
