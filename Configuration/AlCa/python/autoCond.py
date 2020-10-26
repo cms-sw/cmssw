@@ -81,7 +81,7 @@ autoCond = {
     # GlobalTag for MC production with realistic conditions for Phase1 2024
     'phase1_2024_realistic'    : '112X_mcRun3_2024_realistic_v10', # GT containing realistic conditions for Phase1 2024
     # GlobalTag for MC production with realistic conditions for Phase2
-    'phase2_realistic'         : '112X_mcRun4_realistic_v3'
+    'phase2_realistic'         : '112X_mcRun4_realistic_v4'
 }
 
 aliases = {
