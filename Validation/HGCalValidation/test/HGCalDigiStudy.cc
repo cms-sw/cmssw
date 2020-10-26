@@ -135,8 +135,9 @@ HGCalDigiStudy::HGCalDigiStudy(const edm::ParameterSet& iConfig)
   edm::LogVerbatim("HGCalValidation") << "HGCalDigiStudy: request for Digi "
                                       << "collection " << source_ << " for " << nameDetector_;
   tok_caloGeom_ = esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>();
- tok_hgcGeom_ = esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", nameDetector_});
- tok_cond_ = esConsumes<HcalDbService, HcalDbRecord>();
+  tok_hgcGeom_ =
+      esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", nameDetector_});
+  tok_cond_ = esConsumes<HcalDbService, HcalDbRecord>();
 }
 
 void HGCalDigiStudy::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

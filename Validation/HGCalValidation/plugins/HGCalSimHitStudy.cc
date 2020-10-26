@@ -111,10 +111,12 @@ HGCalSimHitStudy::HGCalSimHitStudy(const edm::ParameterSet& iConfig)
     if (name == "HCal") {
       heRebuild_.emplace_back(true);
       tok_hrndc_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>();
-      tok_hgcGeom_.emplace_back(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", "HGCalHEScintillatorSensitive"}));
+      tok_hgcGeom_.emplace_back(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag{"", "HGCalHEScintillatorSensitive"}));
     } else {
       heRebuild_.emplace_back(false);
-      tok_hgcGeom_.emplace_back(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name}));
+      tok_hgcGeom_.emplace_back(
+          esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name}));
     }
   }
   for (auto const& source : caloHitSources_) {

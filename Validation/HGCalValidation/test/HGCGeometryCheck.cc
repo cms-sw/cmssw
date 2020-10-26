@@ -71,11 +71,13 @@ HGCGeometryCheck::HGCGeometryCheck(const edm::ParameterSet &cfg) : hcons_(nullpt
   g4Token_ = consumes<PHGCalValidInfo>(cfg.getParameter<edm::InputTag>("g4Source"));
   geometrySource_ = cfg.getUntrackedParameter<std::vector<std::string> >("geometrySource");
   tok_hrndc_ = esConsumes<HcalDDDSimConstants, HcalSimNumberingRecord, edm::Transition::BeginRun>();
-  for (const auto& name :  geometrySource_) {
-    if (name == "HCAL") 
-      tok_hgcGeom_.emplace_back(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", "HGCalHEScintillatorSensitive"}));
+  for (const auto &name : geometrySource_) {
+    if (name == "HCAL")
+      tok_hgcGeom_.emplace_back(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag{"", "HGCalHEScintillatorSensitive"}));
     else
-      tok_hgcGeom_.emplace_back(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name}));
+      tok_hgcGeom_.emplace_back(
+          esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name}));
   }
 
   edm::LogVerbatim("HGCalValid") << "HGCGeometryCheck:: use information from "
