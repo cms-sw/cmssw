@@ -66,7 +66,7 @@ MicroEventContent = cms.PSet(
         'keep *_l1extraParticles_*_*',
         'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*',
         # stage 2 L1 trigger
-        'keep *_gtStage2Digis__*', 
+        'keep *_gtStage2Digis__*',
         'keep *_gmtStage2Digis_Muon_*',
         'keep *_caloStage2Digis_Jet_*',
         'keep *_caloStage2Digis_Tau_*',
@@ -100,7 +100,7 @@ MicroEventContentGEN = cms.PSet(
         'keep GenLumiInfoHeader_generator_*_*',
         'keep GenLumiInfoProduct_*_*_*',
         'keep GenEventInfoProduct_generator_*_*',
-        'keep recoGenParticles_genPUProtons_*_*', 
+        'keep recoGenParticles_genPUProtons_*_*',
         'keep *_slimmedGenJetsFlavourInfos_*_*',
         'keep *_slimmedGenJets__*',
         'keep *_slimmedGenJetsAK8__*',
@@ -136,7 +136,7 @@ run2_HCAL_2018.toModify(MicroEventContent, outputCommands = MicroEventContent.ou
 _run3_common_extraCommands = ["drop *_packedPFCandidates_hcalDepthEnergyFractions_*"]
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toModify(MicroEventContent, outputCommands = MicroEventContent.outputCommands + _run3_common_extraCommands)
-# --- 
+# ---
 
 _pp_on_AA_extraCommands = [
     'keep patPackedCandidates_hiPixelTracks_*_*',
@@ -148,6 +148,8 @@ _pp_on_AA_extraCommands = [
     'keep recoCentrality_hiCentrality_*_*',
     'keep int_centralityBin_*_*',
     'keep recoHFFilterInfo_hiHFfilters_*_*',
+    'keep *_hiEvtPlane_*_*',
+    'keep *_hiEvtPlaneFlat_*_*'
 ]
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
