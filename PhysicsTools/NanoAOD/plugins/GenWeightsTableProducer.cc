@@ -799,8 +799,8 @@ public:
                   break;
                 }
               }
-            // I aplogize to contributing the rampant copy paste of code
-            } else if (groupname == "mass_variation" || groupname == "sthw2_variation" || groupname == "width_variation") {
+            } else if (groupname == "mass_variation" || groupname == "sthw2_variation" ||
+                       groupname == "width_variation") {
               if (lheDebug)
                 std::cout << ">>> Looks like an EW parameter weight" << std::endl;
               for (++iLine; iLine < nLines; ++iLine) {
@@ -817,7 +817,7 @@ public:
                 } else if (std::regex_search(lines[iLine], endweightgroup)) {
                   if (lheDebug)
                     std::cout << ">>> Looks like the end of a weight group" << std::endl;
-                } 
+                }
               }
             } else {
               for (++iLine; iLine < nLines; ++iLine) {
