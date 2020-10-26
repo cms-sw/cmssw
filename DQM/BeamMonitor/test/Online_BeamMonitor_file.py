@@ -4,26 +4,30 @@ process = cms.Process("DQM")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
-process.BeamSpotDBSource = cms.ESSource("PoolDBESSource",
-                                        process.CondDBSetup,
-                                        toGet = cms.VPSet(
-                                            cms.PSet(
-                                                record = cms.string('BeamSpotOnlineLegacyObjectsRcd'),
-                                                tag = cms.string("BeamSpotOnlineTestLegacy"),
-                                                refreshTime = cms.uint64(1)
-                                            ),
-                                            cms.PSet(
-                                                record = cms.string('BeamSpotOnlineHLTObjectsRcd'),
-                                                tag = cms.string("BeamSpotOnlineTestHLT"),
-                                                refreshTime = cms.uint64(1)
+#ESProducer                                                                                                                                                                                                      
+process.load("CondCore.CondDB.CondDB_cfi")                                                                                                                                                                       
+process.BeamSpotDBSource = cms.ESSource("PoolDBESSource",                                                                                                                                                        
+                       process.CondDB,                                                                                                                                                                          
+                                        toGet = cms.VPSet(                                                                                                                                                       
+                            cms.PSet(                                                                                                                                                                            
+                                record = cms.string('BeamSpotOnlineLegacyObjectsRcd'),                                                                                                                           
+                                tag = cms.string("BeamSpotOnlineTestLegacy"),                                                                                                                                    
+                                refreshTime = cms.uint64(1)                                                                                                                                                      
+                            ),                                                                                                                                                                                   
+                             cms.PSet(                                                                                                                                                                         
+                                record = cms.string('BeamSpotOnlineHLTObjectsRcd'),                                                                                                                              
+                                tag = cms.string("BeamSpotOnlineTestHLT"),                                                                                                                                       
+                                refreshTime = cms.uint64(1)                                                                                                                            
+                            ),                                                                                                                                                                                   
+                      )                                                                                                                                                                                          
+)                                                                                                                                                                                                                
+process.BeamSpotDBSource.connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')                                                                                                                     
+process.BeamSpotESProducer = cms.ESProducer("OnlineBeamSpotESProducer")                                                                                                                                          
 
-                                            ),
-                                ),
-                                        connect = cms.string('oracle://cms_orcon_prod/CMS_CONDITIONS')
 
-                                        )
-process.BeamSpotESProducer = cms.ESProducer("OnlineBeamSpotESProducer")
+
+
+
 
 # initialize MessageLogger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")

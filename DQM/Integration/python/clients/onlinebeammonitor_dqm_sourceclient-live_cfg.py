@@ -116,9 +116,9 @@ else:
   process.source.streamLabel = cms.untracked.string('streamDQMOnlineBeamspot')
 
 #ESProducer
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
+process.load("CondCore.CondDB.CondDB_cfi")
 process.BeamSpotDBSource = cms.ESSource("PoolDBESSource",
-                      process.CondDBSetup,
+                      process.CondDB,
                       toGet = cms.VPSet(
                             cms.PSet(
                                 record = cms.string('BeamSpotOnlineLegacyObjectsRcd'),
@@ -131,11 +131,14 @@ process.BeamSpotDBSource = cms.ESSource("PoolDBESSource",
                                 refreshTime = cms.uint64(1)
 
                             ),
-                      ),
-                      connect = cms.string('oracle://cms_orcon_prod/CMS_CONDITIONS')
+                      )
+
 )
 process.BeamSpotESProducer = cms.ESProducer("OnlineBeamSpotESProducer")
-
+if unitTest == True:
+  process.BeamSpotDBSource.connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS') 
+else:
+  process.BeamSpotDBSource.connect = cms.string('oracle://cms_orcon_prod/CMS_CONDITIONS') 
 #-----------------------------
 # DQM Live Environment
 #-----------------------------
