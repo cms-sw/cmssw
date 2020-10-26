@@ -10,7 +10,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
-process.load("SimG4CMS.Calo.hcalGeometryDetIdTester_cfi")
+process.load("SimG4CMS.Calo.hcalTestSimHitID_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['run2_mc']
@@ -48,12 +48,12 @@ process.generator = cms.EDProducer("FlatRandomPtGunProducer",
 
 process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)
-process.analysis_step   = cms.Path(process.hcalGeometryDetIdTester)
+process.analysis_step   = cms.Path(process.hcalTestSimHitID)
 
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/FTFP_BERT_EMM'
 process.g4SimHits.HCalSD.TestNumberingScheme  = True
-process.hcalGeometryDetIdTester.testNumbering = True
-process.hcalGeometryDetIdTester.dumpHits      = True
+process.hcalTestSimHitID.testNumbering = True
+process.hcalTestSimHitID.dumpHits      = True
 
 # Schedule definition
 process.schedule = cms.Schedule(process.generation_step,
