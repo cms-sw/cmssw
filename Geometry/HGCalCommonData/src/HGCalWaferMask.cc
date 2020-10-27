@@ -478,3 +478,214 @@ std::pair<int, int> HGCalWaferMask::getTypeMode(const double& xpos,
                                   << ":" << rotn;
   return ((mode == 0) ? std::make_pair(ncor, rotn) : std::make_pair(type, (rotn + HGCalWaferMask::k_OffsetRotation)));
 }
+
+bool HGCalWaferMask::goodTypeMode(double xpos, double ypos, double delX, double delY, double rin, double rout, int part, int rotn, bool debug) {
+  if (part < 0 || part > HGCalTypes::WaferSizeMax) 
+    return false;
+  if (rotn < 0 || rotn > HGCalTypes::WaferCornerMax)
+    return false;
+  static const int corners = HGCalTypes::WaferCornerMax;
+  static const int corner2 = 2 * HGCalTypes::WaferCornerMax;
+  static const int base = 10;
+  static const int base2 = 100;
+  double dx0[corners] = {0.0, delX, delX, 0.0, -delX, -delX};
+  double dy0[corners] = {-delY, -0.5 * delY, 0.5 * delY, delY, 0.5 * delY, -0.5 * delY};
+  double dx1[corners] = {0.5 * delX, delX, 0.5 * delX, -0.5 * delX, -delX, -0.5 * delX};
+  double dy1[corners] = {-0.75 * delY, 0.0, 0.75 * delY, 0.75 * delY, 0.0, -0.75 * delY};
+  double dx2[corner2] = {0.225 * delX, 0.775 * delX, delX, delX, 0.775 * delX, 0.225 * delX, -0.225 * delX, -0.775 * delX, -delX, -delX, -0.775 * delX, -0.225 * delX};
+  double dy2[corner2] = {-0.8875 * delY, -0.6125 * delY, -0.275 * delY, 0.275 * delY, 0.6125 * delY, 0.8875 * delY, 0.8875 * delY, 0.6125 * delY, 0.275 * delY, -0.275 * delY, -0.6125 * delY, -0.8875 * delY};
+  bool ok(true);
+  int ncf(-1);
+  switch (part) {
+  case (HGCalTypes::WaferThree): {
+      static const int nc0[corners] = {450, 150, 201, 312, 423, 534};
+      int nc = nc0[rotn];
+      for (int k1 = 0; k1 < 3; ++k1) {
+	int k = nc % base;
+	double xc1 = xpos + dx0[k];
+	double yc1 = ypos + dy0[k];
+	double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
+	if ((rpos > rout) || (rpos < rin)) {
+	  ok = false;
+	  ncf = k;
+	  break;
+	}
+	nc /= base;
+      }
+      break;
+    }
+    case (HGCalTypes::WaferSemi2): {
+      static const int nc10[corners] = {450, 150, 201, 312, 423, 534};
+      static const int nc11[corners] = {700, 902, 1104, 106, 308, 510};
+      int nc = nc10[rotn];
+      for (int k1 = 0; k1 < 3; ++k1) {
+	int k = nc % base;
+	double xc1 = xpos + dx0[k];
+	double yc1 = ypos + dy0[k];
+	double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
+	if ((rpos > rout) || (rpos < rin)) {
+	  ok = false;
+	  ncf = k;
+	  break;
+	}
+	nc /= base;
+      }
+      nc = nc11[rotn];
+      for (int k1 = 0; k1 < 2; ++k1) {
+	int k = nc % base2;
+	double xc1 = xpos + dx2[k];
+	double yc1 = ypos + dy2[k];
+	double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
+	if ((rpos > rout) || (rpos < rin)) {
+	  ok = false;
+	  ncf = k + base2;
+	  break;
+	}
+	nc /= base2;
+      }
+      break;
+    }
+    case (HGCalTypes::WaferSemi): {
+      static const int nc20[corners] = {450, 150, 201, 312, 423, 534};
+      static const int nc21[corners] = {30, 14, 25, 30, 41, 52};
+      int nc = nc20[rotn];
+      for (int k1 = 0; k1 < 3; ++k1) {
+	int k = nc % base;
+	double xc1 = xpos + dx0[k];
+	double yc1 = ypos + dy0[k];
+	double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
+	if ((rpos > rout) || (rpos < rin)) {
+	  ok = false;
+	  ncf = k;
+	  break;
+	}
+	nc /= base;
+      }
+      nc = nc21[rotn];
+      for (int k1 = 0; k1 < 2; ++k1) {
+	int k = nc % base;
+	double xc1 = xpos + dx1[k];
+	double yc1 = ypos + dy1[k];
+	double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
+	if ((rpos > rout) || (rpos < rin)) {
+	  ok = false;
+	  ncf = k + base2;
+	  break;
+	}
+	nc /= base;
+      }
+      break;
+    }
+    case (HGCalTypes::WaferHalf): {
+      static const int nc3[corners] = {3450, 1450, 2501, 3012, 4123, 5234};
+      int nc = nc3[rotn];
+      for (int k1 = 0; k1 < 4; ++k1) {
+	int k = nc % base;
+	double xc1 = xpos + dx0[k];
+	double yc1 = ypos + dy0[k];
+	double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
+	if ((rpos > rout) || (rpos < rin)) {
+	  ok = false;
+	  ncf = k;
+	  break;
+	}
+	nc /= base;
+      }
+      break;
+    }
+    case (HGCalTypes::WaferChopTwoM): {
+      static const int nc40[corners] = {3450, 1450, 2501, 3012, 4123, 5234};
+      static const int nc41[corners] = {500, 702, 904, 1106, 108, 310};
+      int nc = nc40[rotn];
+      for (int k1 = 0; k1 < 4; ++k1) {
+	int k = nc % base;
+	double xc1 = xpos + dx0[k];
+	double yc1 = ypos + dy0[k];
+	double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
+	if ((rpos > rout) || (rpos < rin)) {
+	  ok = false;
+	  ncf = k;
+	  break;
+	}
+	nc /= base;
+      }
+      nc = nc41[rotn];
+      for (int k1 = 0; k1 < 2; ++k1) {
+	int k = nc % base2;
+	double xc1 = xpos + dx2[k];
+	double yc1 = ypos + dy2[k];
+	double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
+	if ((rpos > rout) || (rpos < rin)) {
+	  ok = false;
+	  ncf = k + base2;
+	  break;
+	}
+	nc /= base2;
+      }
+      break;
+    }
+    case (HGCalTypes::WaferChopTwo): {
+      static const int nc50[corners] = {3450, 1450, 2501, 3012, 4123, 5234};
+      static const int nc51[corners] = {20, 13, 24, 35, 40, 51};
+      int nc = nc50[rotn];
+      for (int k1 = 0; k1 < 4; ++k1) {
+	int k = nc % base;
+	double xc1 = xpos + dx0[k];
+	double yc1 = ypos + dy0[k];
+	double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
+	if ((rpos > rout) || (rpos < rin)) {
+	  ok = false;
+	  ncf = k;
+	  break;
+	}
+	nc /= base;
+      }
+      nc = nc51[rotn];
+      for (int k1 = 0; k1 < 2; ++k1) {
+	int k = nc % base;
+	double xc1 = xpos + dx1[k];
+	double yc1 = ypos + dy1[k];
+	double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
+	if ((rpos > rout) || (rpos < rin)) {
+	  ok = false;
+	  ncf = k + base2;
+	  break;
+	}
+	nc /= base;
+      }
+      break;
+    }
+    case (HGCalTypes::WaferFive): {
+      static const int nc6[corners] = {23450, 13450, 24501, 35012, 40123, 51234};
+      int nc = nc6[rotn];
+      for (int k1 = 0; k1 < 5; ++k1) {
+	int k = nc % base;
+	double xc1 = xpos + dx0[k];
+	double yc1 = ypos + dy0[k];
+	double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
+	if ((rpos > rout) || (rpos < rin)) {
+	  ok = false;
+	  ncf = k;
+	  break;
+	}
+      }
+      break;
+    }
+    default: {
+      for (int k = 0; k < corners; ++k) {
+	double xc1 = xpos + dx0[k];
+	double yc1 = ypos + dy0[k];
+	double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
+	if ((rpos > rout) || (rpos < rin)) {
+	  ok = false;
+	  ncf = k;
+	  break;
+	}
+      }
+      break;
+    }
+  }
+  if (debug)
+    edm::LogVerbatim("HGCalGeom") << "I/p " << ":" << xpos << ":" << ypos << ":" << delX << ":" << delY << ":" << rin << ":" << rout << ":" << part << ":" << rotn << " Results " << ok << ":" << ncf;
+  return ok;
+}

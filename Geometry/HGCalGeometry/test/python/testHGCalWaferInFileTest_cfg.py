@@ -37,6 +37,8 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
+#process.hgcalEEWaferInFileTest.Verbosity = 1
+
 process.hgcalHEWaferInFileTest = process.hgcalEEWaferInFileTest.clone(
     NameSense  = "HGCalHESiliconSensitive",
     NameDevice = "HGCal HE Silicon",

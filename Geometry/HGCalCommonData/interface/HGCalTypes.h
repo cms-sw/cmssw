@@ -59,7 +59,8 @@ public:
   };
 
   static constexpr int32_t WaferCornerMin = 3;
-  static constexpr int32_t WaferCornerMax = 6;
+  static constexpr int32_t WaferCornerMax = 6;  
+  static constexpr int32_t WaferSizeMax = 7;
 
   enum TileType { TileFine = 0, TileCoarseCast = 1, TileCoarseMould = 2 };
 
