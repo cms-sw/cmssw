@@ -49,6 +49,8 @@ namespace edm {
       typedef EDFilterAdaptorBase ModuleType;
 
       EDFilterBase();
+      EDFilterBase(const EDFilterBase&) = delete;                   // stop default
+      const EDFilterBase& operator=(const EDFilterBase&) = delete;  // stop default
       ~EDFilterBase() override;
 
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
@@ -59,10 +61,6 @@ namespace edm {
       ModuleDescription const& moduleDescription() const { return *moduleDescriptionPtr_; }
 
     private:
-      EDFilterBase(const EDFilterBase&) = delete;  // stop default
-
-      const EDFilterBase& operator=(const EDFilterBase&) = delete;  // stop default
-
       virtual void beginStream(StreamID) {}
       virtual void beginRun(edm::Run const&, edm::EventSetup const&) {}
       virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}

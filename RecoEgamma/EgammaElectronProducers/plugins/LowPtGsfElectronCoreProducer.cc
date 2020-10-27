@@ -36,7 +36,7 @@ LowPtGsfElectronCoreProducer::LowPtGsfElectronCoreProducer(const edm::ParameterS
       superClusterRefs_(consumes<edm::ValueMap<SuperClusterRef> >(config.getParameter<edm::InputTag>("superClusters"))),
       putToken_(produces<reco::GsfElectronCoreCollection>()) {}
 
-void LowPtGsfElectronCoreProducer::produce(edm::StreamID, edm::Event& event, const edm::EventSetup& setup) const {
+void LowPtGsfElectronCoreProducer::produce(edm::StreamID, edm::Event& event, const edm::EventSetup&) const {
   // Output collection
   reco::GsfElectronCoreCollection electrons;
 

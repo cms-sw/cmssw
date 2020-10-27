@@ -106,14 +106,14 @@ void DD4hepTestDDDWorld::initialize(const dd4hep::sim::Geant4GeometryMaps::Volum
   LogVerbatim("Geometry").log([&](auto& log) {
     for (auto const& it : vmap) {
       for (auto const& fit : specs_) {
-        for (auto const& sit : fit->spars) {
+        for (auto const& sit : fit.second->spars) {
           log << sit.first << " =  " << sit.second[0] << "\n";
         }
-        for (auto const& pit : fit->paths) {
+        for (auto const& pit : fit.second->paths) {
           log << dd4hep::dd::realTopName(pit) << "\n";
           log << "   compare equal to " << dd4hep::dd::noNamespace(it.first.name()) << " ... ";
           if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first.name()), dd4hep::dd::realTopName(pit))) {
-            vec_.emplace_back(std::make_pair<G4LogicalVolume*, const dd4hep::SpecPar*>(&*it.second, &*fit));
+            vec_.emplace_back(std::make_pair<G4LogicalVolume*, const dd4hep::SpecPar*>(&*it.second, &*fit.second));
             log << "   are equal!\n";
           } else
             log << "   nope.\n";

@@ -36,7 +36,6 @@ process.MessageLogger.categories = ['Alignment']
 
 
 # initialize magnetic field
-#process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 #process.load("Configuration.StandardSequences.MagneticField_0T_cff")
 

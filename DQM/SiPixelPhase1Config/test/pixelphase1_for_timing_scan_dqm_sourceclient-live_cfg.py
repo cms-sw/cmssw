@@ -94,7 +94,7 @@ process.dqmSaver.tag = TAG
 # Magnetic Field
 #-----------------------------
 # 3.8T field
-process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 
 #-------------------------------------------------
 # GEOMETRY

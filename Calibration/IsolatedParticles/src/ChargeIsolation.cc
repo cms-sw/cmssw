@@ -259,7 +259,8 @@ namespace spr {
       // candidate
       if (trkItr2 != trkItr) {
         // Get propagator
-        const FreeTrajectoryState fts2 = associator.getFreeTrajectoryState(iSetup, *pTrack2);
+        const FreeTrajectoryState fts2 =
+            associator.getFreeTrajectoryState(&iSetup.getData(parameters_.bFieldToken), *pTrack2);
         TrackDetMatchInfo info2 = associator.associate(iEvent, iSetup, fts2, parameters_);
 
         // Make sure it reaches Hcal

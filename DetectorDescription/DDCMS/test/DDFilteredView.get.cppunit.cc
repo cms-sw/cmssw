@@ -95,7 +95,7 @@ void testDDFilteredViewGet::checkFilteredView() {
   fview.goTo({0, 0, 8});
   printMe(fview);
 
-  CPPUNIT_ASSERT(fview.name() == "MUON");
+  CPPUNIT_ASSERT(fview.fullName() == "muonBase:MUON");
 
   // Go to the first daughter
   fview.next(0);

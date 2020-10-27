@@ -419,6 +419,8 @@ trackingPhase2PU140.toModify(pixelPairStepSelector,
     vertices = 'firstStepPrimaryVertices'
 ) #end of clone
 
+from Configuration.ProcessModifiers.vectorHits_cff import vectorHits
+vectorHits.toModify(pixelPairStepSelector.trackSelectors[2], minNumberLayers = 3, minNumber3DLayers = 3)
 
 # Final sequence
 PixelPairStepTask = cms.Task(pixelPairStepClusters,

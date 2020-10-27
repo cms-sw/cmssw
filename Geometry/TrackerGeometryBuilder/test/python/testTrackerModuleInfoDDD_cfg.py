@@ -10,9 +10,11 @@ process.load('Geometry.CommonTopologies.globalTrackingGeometry_cfi')
 process.load('Geometry.TrackerGeometryBuilder.trackerParameters_cfi')
 process.load('Geometry.TrackerNumberingBuilder.trackerTopology_cfi')
 
-process.TrackerGeometricDetExtraESModule = cms.ESProducer( "TrackerGeometricDetExtraESModule",
-                                                           fromDDD = cms.bool( True )
-                                                           )
+process.TrackerGeometricDetESModule = cms.ESProducer( "TrackerGeometricDetESModule",
+                                                      fromDDD = cms.bool( True )
+                                                     )
+
+process.es_prefer_geomdet = cms.ESPrefer("TrackerGeometricDetESModule","")
 
 process.load("Alignment.CommonAlignmentProducer.FakeAlignmentSource_cfi")
 process.preferFakeAlign = cms.ESPrefer("FakeAlignmentSource") 
@@ -29,14 +31,12 @@ process.MessageLogger.debugModules.append('*')
 process.MessageLogger.categories.append('TrackerGeometryBuilder')
 process.MessageLogger.categories.append('TrackerNumberingBuilder')
 process.MessageLogger.categories.append('ModuleInfo')
-process.MessageLogger.categories.append('CmsTrackerDebugNavigator')
 process.MessageLogger.cout = cms.untracked.PSet(
         threshold = cms.untracked.string('DEBUG'),
             default = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
             TrackerNumberingBuilder = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
             TrackerGeometryBuilder = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
             ModuleInfo = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
-            CmsTrackerDebugNavigator =cms.untracked.PSet( limit = cms.untracked.int32(-1) )
             )
 
 process.prod = cms.EDAnalyzer("ModuleInfo",

@@ -22,7 +22,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         extension = cms.untracked.string('mmxml')
     ),
     default = cms.untracked.PSet(
-        FwkJob = cms.untracked.PSet(
+        FwkTest = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         )
     ),
@@ -32,7 +32,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     ),
     debugModules = cms.untracked.vstring('*'),
     categories = cms.untracked.vstring('preEventProcessing', 
-        'FwkJob'),
+        'FwkTest'),
     destinations = cms.untracked.vstring('timing_t')
 )
 

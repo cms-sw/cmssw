@@ -539,40 +539,44 @@ void SiStripGainFromCalibTree::bookDQMHistos(const char* dqm_dir, const char* ta
   for (unsigned int i = 0; i < hnames.size(); i++) {
     std::string htag = (hnames[i]).first + stag;
     MonitorElement* monitor = dbe->book1DD(htag.c_str(), (hnames[i]).second.c_str(), 100, 0., 1000.);
+    int thick = APVGain::thickness((hnames[i]).first);
     int id = APVGain::subdetectorId((hnames[i]).first);
     int side = APVGain::subdetectorSide((hnames[i]).first);
     int plane = APVGain::subdetectorPlane((hnames[i]).first);
-    Charge_1[elepos].push_back(APVGain::APVmon(id, side, plane, monitor));
+    Charge_1[elepos].push_back(APVGain::APVmon(thick, id, side, plane, monitor));
   }
 
   hnames = APVGain::monHnames(VChargeHisto, doChargeMonitorPerPlane, "woG2");
   for (unsigned int i = 0; i < hnames.size(); i++) {
     std::string htag = (hnames[i]).first + stag;
     MonitorElement* monitor = dbe->book1DD(htag.c_str(), (hnames[i]).second.c_str(), 100, 0., 1000.);
+    int thick = APVGain::thickness((hnames[i]).first);
     int id = APVGain::subdetectorId((hnames[i]).first);
     int side = APVGain::subdetectorSide((hnames[i]).first);
     int plane = APVGain::subdetectorPlane((hnames[i]).first);
-    Charge_2[elepos].push_back(APVGain::APVmon(id, side, plane, monitor));
+    Charge_2[elepos].push_back(APVGain::APVmon(thick, id, side, plane, monitor));
   }
 
   hnames = APVGain::monHnames(VChargeHisto, doChargeMonitorPerPlane, "woG1");
   for (unsigned int i = 0; i < hnames.size(); i++) {
     std::string htag = (hnames[i]).first + stag;
     MonitorElement* monitor = dbe->book1DD(htag.c_str(), (hnames[i]).second.c_str(), 100, 0., 1000.);
+    int thick = APVGain::thickness((hnames[i]).first);
     int id = APVGain::subdetectorId((hnames[i]).first);
     int side = APVGain::subdetectorSide((hnames[i]).first);
     int plane = APVGain::subdetectorPlane((hnames[i]).first);
-    Charge_3[elepos].push_back(APVGain::APVmon(id, side, plane, monitor));
+    Charge_3[elepos].push_back(APVGain::APVmon(thick, id, side, plane, monitor));
   }
 
   hnames = APVGain::monHnames(VChargeHisto, doChargeMonitorPerPlane, "woG1G2");
   for (unsigned int i = 0; i < hnames.size(); i++) {
     std::string htag = (hnames[i]).first + stag;
     MonitorElement* monitor = dbe->book1DD(htag.c_str(), (hnames[i]).second.c_str(), 100, 0., 1000.);
+    int thick = APVGain::thickness((hnames[i]).first);
     int id = APVGain::subdetectorId((hnames[i]).first);
     int side = APVGain::subdetectorSide((hnames[i]).first);
     int plane = APVGain::subdetectorPlane((hnames[i]).first);
-    Charge_4[elepos].push_back(APVGain::APVmon(id, side, plane, monitor));
+    Charge_4[elepos].push_back(APVGain::APVmon(thick, id, side, plane, monitor));
   }
 
   //Book validation histograms
@@ -637,10 +641,11 @@ void SiStripGainFromCalibTree::bookDQMHistos(const char* dqm_dir, const char* ta
         APVGain::monHnames(VChargeHisto, doChargeMonitorPerPlane, "newG2");
     for (unsigned int i = 0; i < hnames.size(); i++) {
       MonitorElement* monitor = dbe->book1DD((hnames[i]).first.c_str(), (hnames[i]).second.c_str(), 100, 0., 1000.);
+      int thick = APVGain::thickness((hnames[i]).first);
       int id = APVGain::subdetectorId((hnames[i]).first);
       int side = APVGain::subdetectorSide((hnames[i]).first);
       int plane = APVGain::subdetectorPlane((hnames[i]).first);
-      newCharge.push_back(APVGain::APVmon(id, side, plane, monitor));
+      newCharge.push_back(APVGain::APVmon(thick, id, side, plane, monitor));
     }
   }
 }
@@ -977,7 +982,7 @@ void SiStripGainFromCalibTree::algoEndRun(const edm::Run& run, const edm::EventS
           APVGain::monHnames(VChargeHisto, doChargeMonitorPerPlane, "");
       for (unsigned int i = 0; i < tags.size(); i++) {
         std::string tag = DQM_dir + "/" + (tags[i]).first + stag;
-        Charge_1[elepos].push_back(APVGain::APVmon(0, 0, 0, dbe->get(tag)));
+        Charge_1[elepos].push_back(APVGain::APVmon(0, 0, 0, 0, dbe->get(tag)));
         if ((Charge_1[elepos][i]).getMonitor() == nullptr) {
           edm::LogError("SiStripGainFromCalibTree")
               << "Harvesting: could not retrieve " << tag.c_str() << ", statistics will not be summed!" << std::endl;
@@ -988,7 +993,7 @@ void SiStripGainFromCalibTree::algoEndRun(const edm::Run& run, const edm::EventS
       tags = APVGain::monHnames(VChargeHisto, doChargeMonitorPerPlane, "woG2");
       for (unsigned int i = 0; i < tags.size(); i++) {
         std::string tag = DQM_dir + "/" + (tags[i]).first + stag;
-        Charge_2[elepos].push_back(APVGain::APVmon(0, 0, 0, dbe->get(tag)));
+        Charge_2[elepos].push_back(APVGain::APVmon(0, 0, 0, 0, dbe->get(tag)));
         if ((Charge_2[elepos][i]).getMonitor() == nullptr) {
           edm::LogError("SiStripGainFromCalibTree")
               << "Harvesting: could not retrieve " << tag.c_str() << ", statistics will not be summed!" << std::endl;
@@ -999,7 +1004,7 @@ void SiStripGainFromCalibTree::algoEndRun(const edm::Run& run, const edm::EventS
       tags = APVGain::monHnames(VChargeHisto, doChargeMonitorPerPlane, "woG1");
       for (unsigned int i = 0; i < tags.size(); i++) {
         std::string tag = DQM_dir + "/" + (tags[i]).first + stag;
-        Charge_3[elepos].push_back(APVGain::APVmon(0, 0, 0, dbe->get(tag)));
+        Charge_3[elepos].push_back(APVGain::APVmon(0, 0, 0, 0, dbe->get(tag)));
         if ((Charge_3[elepos][i]).getMonitor() == nullptr) {
           edm::LogError("SiStripGainFromCalibTree")
               << "Harvesting: could not retrieve " << tag.c_str() << ", statistics will not be summed!" << std::endl;
@@ -1010,7 +1015,7 @@ void SiStripGainFromCalibTree::algoEndRun(const edm::Run& run, const edm::EventS
       tags = APVGain::monHnames(VChargeHisto, doChargeMonitorPerPlane, "woG1G2");
       for (unsigned int i = 0; i < tags.size(); i++) {
         std::string tag = DQM_dir + "/" + (tags[i]).first + stag;
-        Charge_4[elepos].push_back(APVGain::APVmon(0, 0, 0, dbe->get(tag)));
+        Charge_4[elepos].push_back(APVGain::APVmon(0, 0, 0, 0, dbe->get(tag)));
         if ((Charge_4[elepos][i]).getMonitor() == nullptr) {
           edm::LogError("SiStripGainFromCalibTree")
               << "Harvesting: could not retrieve " << tag.c_str() << ", statistics will not be summed!" << std::endl;

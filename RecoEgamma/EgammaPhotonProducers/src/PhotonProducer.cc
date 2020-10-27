@@ -13,11 +13,9 @@
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonCore.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
@@ -29,6 +27,8 @@
 #include "RecoEgamma/EgammaPhotonProducers/interface/PhotonProducer.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHadTower.h"
+
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 PhotonProducer::PhotonProducer(const edm::ParameterSet& config) : photonEnergyCorrector_(config, consumesCollector()) {
   // use onfiguration file to setup input/output collection names
@@ -272,10 +272,12 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     double HoE1 = towerIso1.getTowerESum(&(*scRef)) / scRef->energy();
     double HoE2 = towerIso2.getTowerESum(&(*scRef)) / scRef->energy();
 
-    const EgammaHadTower egammaHadTower(es);
-    auto towersBehindCluster = egammaHadTower.towersOf(*scRef);
-    float hcalDepth1OverEcalBc = egammaHadTower.getDepth1HcalESum(towersBehindCluster, hcalTowers) / scRef->energy();
-    float hcalDepth2OverEcalBc = egammaHadTower.getDepth2HcalESum(towersBehindCluster, hcalTowers) / scRef->energy();
+    edm::ESHandle<CaloTowerConstituentsMap> ctmaph;
+    es.get<CaloGeometryRecord>().get(ctmaph);
+
+    auto towersBehindCluster = egamma::towersOf(*scRef, *ctmaph);
+    float hcalDepth1OverEcalBc = egamma::depth1HcalESum(towersBehindCluster, hcalTowers) / scRef->energy();
+    float hcalDepth2OverEcalBc = egamma::depth2HcalESum(towersBehindCluster, hcalTowers) / scRef->energy();
 
     // recalculate position of seed BasicCluster taking shower depth for unconverted photon
     math::XYZPoint unconvPos =

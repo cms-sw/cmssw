@@ -1,3 +1,4 @@
+
 #include "Geometry/HGCalCommonData/interface/HGCalWaferMask.h"
 #include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
@@ -333,6 +334,44 @@ bool HGCalWaferMask::goodCell(int u, int v, int n, int type, int rotn) {
   return good;
 }
 
+int HGCalWaferMask::getRotation(int zside, int type, int rotn) {
+  if (rotn >= HGCalTypes::WaferCornerMax)
+    rotn = HGCalTypes::WaferCorner0;
+  int newrotn(rotn);
+  if ((zside < 0) && (type != HGCalTypes::WaferFull)) {
+    if (type == HGCalTypes::WaferFive) {  //WaferFive
+      static const int rot1[HGCalTypes::WaferCornerMax] = {HGCalTypes::WaferCorner4,
+                                                           HGCalTypes::WaferCorner3,
+                                                           HGCalTypes::WaferCorner2,
+                                                           HGCalTypes::WaferCorner1,
+                                                           HGCalTypes::WaferCorner0,
+                                                           HGCalTypes::WaferCorner5};
+      newrotn = rot1[rotn];
+    } else if ((type == HGCalTypes::WaferThree) || (type == HGCalTypes::WaferSemi) ||
+               (type == HGCalTypes::WaferSemi2)) {  //WaferThree/WaferSemi/WaferSemi2
+      static const int rot2[HGCalTypes::WaferCornerMax] = {HGCalTypes::WaferCorner2,
+                                                           HGCalTypes::WaferCorner1,
+                                                           HGCalTypes::WaferCorner0,
+                                                           HGCalTypes::WaferCorner5,
+                                                           HGCalTypes::WaferCorner4,
+                                                           HGCalTypes::WaferCorner3};
+      newrotn = rot2[rotn];
+    } else {  //WaferHalf/WaferChopTwo/WaferChopTwoM
+      static const int rot3[HGCalTypes::WaferCornerMax] = {HGCalTypes::WaferCorner3,
+                                                           HGCalTypes::WaferCorner2,
+                                                           HGCalTypes::WaferCorner1,
+                                                           HGCalTypes::WaferCorner0,
+                                                           HGCalTypes::WaferCorner5,
+                                                           HGCalTypes::WaferCorner4};
+      newrotn = rot3[rotn];
+    }
+  }
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "zside " << zside << " type " << type << " rotn " << rotn << ":" << newrotn;
+#endif
+  return newrotn;
+}
+
 std::pair<int, int> HGCalWaferMask::getTypeMode(const double& xpos,
                                                 const double& ypos,
                                                 const double& delX,
@@ -372,14 +411,14 @@ std::pair<int, int> HGCalWaferMask::getTypeMode(const double& xpos,
   double dy1[corners] = {-0.75 * delY, 0.0, 0.75 * delY, 0.75 * delY, 0.0, -0.75 * delY};
   double dx2[corners] = {0.5 * delX, -0.5 * delX, -delX, -0.5 * delX, 0.5 * delX, delX};
   double dy2[corners] = {0.75 * delY, 0.75 * delY, 0.0, -0.75 * delY, -0.75 * delY, 0.0};
-  double dx3[corners] = {0.25 * delX, delX, 0.75 * delX, -0.25 * delX, -delX, -0.75 * delX};
-  double dy3[corners] = {-0.875 * delY, -0.25 * delY, 0.625 * delY, 0.875 * delY, 0.25 * delY, -0.625 * delY};
-  double dx4[corners] = {0.25 * delX, -0.75 * delX, -delX, -0.25 * delX, 0.75 * delX, delX};
-  double dy4[corners] = {0.875 * delY, 0.625 * delY, -0.25 * delY, -0.875 * delY, -0.625 * delY, 0.25 * delY};
+  double dx3[corners] = {0.225 * delX, delX, 0.775 * delX, -0.225 * delX, -delX, -0.775 * delX};
+  double dy3[corners] = {-0.8875 * delY, -0.275 * delY, 0.6125 * delY, 0.8875 * delY, 0.275 * delY, -0.6125 * delY};
+  double dx4[corners] = {0.225 * delX, -0.775 * delX, -delX, -0.225 * delX, 0.775 * delX, delX};
+  double dy4[corners] = {0.8875 * delY, 0.6125 * delY, -0.275 * delY, -0.8875 * delY, -0.6125 * delY, 0.275 * delY};
   double dx5[corners] = {-0.5 * delX, -delX, -0.5 * delX, 0.5 * delX, delX, 0.5 * delX};
   double dy5[corners] = {0.75 * delY, 0.0, -0.75 * delY, -0.75 * delY, 0.0, 0.75 * delY};
-  double dx6[corners] = {-0.75 * delX, -delX, -0.25 * delX, 0.75 * delX, delX, 0.25 * delX};
-  double dy6[corners] = {0.625 * delY, -0.25 * delY, -0.875 * delY, -0.625 * delY, 0.25 * delY, 0.875 * delY};
+  double dx6[corners] = {-0.775 * delX, -delX, -0.225 * delX, 0.775 * delX, delX, 0.225 * delX};
+  double dy6[corners] = {0.6125 * delY, -0.275 * delY, -0.8875 * delY, -0.6125 * delY, 0.275 * delY, 0.8875 * delY};
 
   if (ncor == HGCalGeomTools::k_allCorners) {
   } else if (ncor == HGCalGeomTools::k_fiveCorners) {

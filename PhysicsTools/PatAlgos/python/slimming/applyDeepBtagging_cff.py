@@ -51,18 +51,12 @@ def applyDeepBtagging( process, postfix="" ) :
     # make clone for DeepTags-less slimmed AK8 jets, so output name is preserved
     addToProcessAndTask('slimmedJetsAK8NoDeepTags', process.slimmedJetsAK8.clone(), process, task)
     _btagDiscriminators = cms.PSet( names = cms.vstring(
-        'pfDeepDoubleBvLJetTags:probQCD',
-        'pfDeepDoubleBvLJetTags:probHbb',
-        'pfDeepDoubleCvLJetTags:probQCD',
-        'pfDeepDoubleCvLJetTags:probHcc',
-        'pfDeepDoubleCvBJetTags:probHbb',
-        'pfDeepDoubleCvBJetTags:probHcc',
-        'pfMassIndependentDeepDoubleBvLJetTags:probQCD',
-        'pfMassIndependentDeepDoubleBvLJetTags:probHbb',
-        'pfMassIndependentDeepDoubleCvLJetTags:probQCD',
-        'pfMassIndependentDeepDoubleCvLJetTags:probHcc',
-        'pfMassIndependentDeepDoubleCvBJetTags:probHbb',
-        'pfMassIndependentDeepDoubleCvBJetTags:probHcc',
+        'pfMassIndependentDeepDoubleBvLV2JetTags:probQCD',
+        'pfMassIndependentDeepDoubleBvLV2JetTags:probHbb',
+        'pfMassIndependentDeepDoubleCvLV2JetTags:probQCD',
+        'pfMassIndependentDeepDoubleCvLV2JetTags:probHcc',
+        'pfMassIndependentDeepDoubleCvBV2JetTags:probHbb',
+        'pfMassIndependentDeepDoubleCvBV2JetTags:probHcc',
         ) + pfDeepBoostedJetTagsAll + pfParticleNetJetTagsAll + pfHiggsInteractionNetTagsProbs
     )
     updateJetCollection(

@@ -33,8 +33,7 @@ HGCalGeomLocaterTester::HGCalGeomLocaterTester(const edm::ParameterSet& iC)
       geomToken_{esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", name_})} {}
 
 void HGCalGeomLocaterTester::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
-  const auto& geomR = iSetup.getData(geomToken_);
-  const HGCalGeometry* geom = &geomR;
+  const HGCalGeometry* geom = &iSetup.getData(geomToken_);
   if (geom->topology().waferHexagon8()) {
     DetId::Detector det;
     if (name_ == "HGCalHESiliconSensitive")

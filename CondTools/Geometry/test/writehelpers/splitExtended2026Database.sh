@@ -2,7 +2,6 @@
 
 conddb_import -f sqlite_file:myfile.db -c sqlite_file:GeometryFileExtended2026D41.db -t XMLFILE_Geometry_TagXX_Extended2026D41_mc -i XMLFILE_Geometry_TagXX_Extended2026D41_mc
 conddb_import -f sqlite_file:myfile.db -c sqlite_file:TKRECO_Geometry.db -t TKRECO_Geometry_TagXX -i TKRECO_Geometry_TagXX
-conddb_import -f sqlite_file:myfile.db -c sqlite_file:TKExtra_Geometry.db -t TKExtra_Geometry_TagXX -i TKExtra_Geometry_TagXX
 conddb_import -f sqlite_file:myfile.db -c sqlite_file:TKParameters_Geometry.db -t TKParameters_Geometry_TagXX -i TKParameters_Geometry_TagXX
 conddb_import -f sqlite_file:myfile.db -c sqlite_file:EBRECO_Geometry.db -t EBRECO_Geometry_TagXX -i EBRECO_Geometry_TagXX
 conddb_import -f sqlite_file:myfile.db -c sqlite_file:HCALRECO_Geometry.db -t HCALRECO_Geometry_TagXX -i HCALRECO_Geometry_TagXX

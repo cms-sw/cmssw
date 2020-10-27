@@ -12,7 +12,7 @@ process.load("FWCore.MessageService.test.Services_cff")
 
 process.MessageLogger = cms.Service("MessageLogger",
     default = cms.untracked.PSet(
-        FwkJob = cms.untracked.PSet(
+        FwkTest = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         )
     ),
@@ -32,7 +32,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         filename = cms.untracked.string('u24')
     ),
     categories = cms.untracked.vstring('preEventProcessing', 
-        'FwkJob'),
+        'FwkTest'),
     destinations = cms.untracked.vstring('u24_warnings', 
         'u24_errors')
 )

@@ -19,7 +19,7 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -30,11 +30,9 @@
 #include <vector>
 #include <TTree.h>
 
-class ShallowTree : public edm::EDAnalyzer {
+class ShallowTree : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 private:
-  void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override {}
 
   template <class T>
   void eat(edm::BranchDescription const* desc) {

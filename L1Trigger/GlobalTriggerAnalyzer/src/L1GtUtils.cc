@@ -230,9 +230,6 @@ void L1GtUtils::retrieveL1EventSetup(const edm::EventSetup& evSetup, bool isRun)
   unsigned long long l1GtTmVetoAlgoCacheID = l1GtTriggerMaskVetoAlgoTrigRcd.cacheIdentifier();
 
   if (m_l1GtTmVetoAlgoCacheID != l1GtTmVetoAlgoCacheID) {
-    edm::ESHandle<L1GtTriggerMask> l1GtTmVetoAlgo;
-    evSetup.get<L1GtTriggerMaskVetoAlgoTrigRcd>().get(l1GtTmVetoAlgo);
-    m_l1GtTmVetoAlgo = l1GtTmVetoAlgo.product();
     if (isRun) {
       m_l1GtTmVetoAlgo = &l1GtTriggerMaskVetoAlgoTrigRcd.get(m_L1GtTriggerMaskVetoAlgoTrigRunToken);
     } else {
@@ -266,9 +263,6 @@ void L1GtUtils::retrieveL1EventSetup(const edm::EventSetup& evSetup, bool isRun)
   unsigned long long l1GtMenuCacheID = l1GtTriggerMenuRcd.cacheIdentifier();
 
   if (m_l1GtMenuCacheID != l1GtMenuCacheID) {
-    edm::ESHandle<L1GtTriggerMenu> l1GtMenu;
-    evSetup.get<L1GtTriggerMenuRcd>().get(l1GtMenu);
-    m_l1GtMenu = l1GtMenu.product();
     if (isRun) {
       m_l1GtMenu = &l1GtTriggerMenuRcd.get(m_L1GtTriggerMenuRunToken);
     } else {

@@ -37,6 +37,9 @@ process.MessageLogger = cms.Service(
         INFO = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
             ),
+        FWKINFO = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+            ),
         noLineBreaks = cms.untracked.bool(True),
         DEBUG = cms.untracked.PSet(
             limit = cms.untracked.int32(0)

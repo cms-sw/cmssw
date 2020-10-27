@@ -133,6 +133,9 @@ SeedingLayerSetsBuilder::LayerSpec::LayerSpec(unsigned short index,
     if (cfgLayer.exists("stereoRecHits")) {
       extr->useStereoHits(cfgLayer.getParameter<edm::InputTag>("stereoRecHits"), iC);
     }
+    if (cfgLayer.exists("vectorRecHits")) {
+      extr->useVectorHits(cfgLayer.getParameter<edm::InputTag>("vectorRecHits"), iC);
+    }
     if (cfgLayer.exists("useRingSlector") && cfgLayer.getParameter<bool>("useRingSlector")) {
       extr->useRingSelector(cfgLayer.getParameter<int>("minRing"), cfgLayer.getParameter<int>("maxRing"));
     }

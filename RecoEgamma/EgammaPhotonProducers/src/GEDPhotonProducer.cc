@@ -2,7 +2,6 @@
 #include <vector>
 #include <memory>
 
-// Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/isFinite.h"
@@ -15,21 +14,12 @@
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonCore.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
-#include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtra.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtraFwd.h"
-
-#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
-
-#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
-#include "RecoCaloTools/Selectors/interface/CaloConeSelector.h"
 
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
@@ -39,6 +29,9 @@
 
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHadTower.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
+
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
 
 namespace {
   inline double ptFast(const double energy, const math::XYZPoint& position, const math::XYZPoint& origin) {
@@ -516,13 +509,21 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
       HoE1 = towerIso1.getTowerESum(&(*scRef)) / scRef->energy();
       HoE2 = towerIso2.getTowerESum(&(*scRef)) / scRef->energy();
 
-      EgammaHadTower towerIsoBehindClus(es);
-      TowersBehindClus = towerIsoBehindClus.towersOf(*scRef);
-      hcalDepth1OverEcalBc = towerIsoBehindClus.getDepth1HcalESum(TowersBehindClus, *hcalTowers) / scRef->energy();
-      hcalDepth2OverEcalBc = towerIsoBehindClus.getDepth2HcalESum(TowersBehindClus, *hcalTowers) / scRef->energy();
+      edm::ESHandle<CaloTowerConstituentsMap> ctmaph;
+      es.get<CaloGeometryRecord>().get(ctmaph);
+
+      edm::ESHandle<HcalChannelQuality> hcalQuality;
+      es.get<HcalChannelQualityRcd>().get("withTopo", hcalQuality);
+
+      edm::ESHandle<HcalTopology> hcalTopology;
+      es.get<HcalRecNumberingRecord>().get(hcalTopology);
+
+      TowersBehindClus = egamma::towersOf(*scRef, *ctmaph);
+      hcalDepth1OverEcalBc = egamma::depth1HcalESum(TowersBehindClus, *hcalTowers) / scRef->energy();
+      hcalDepth2OverEcalBc = egamma::depth2HcalESum(TowersBehindClus, *hcalTowers) / scRef->energy();
 
       if (checkHcalStatus_ && hcalDepth1OverEcalBc == 0 && hcalDepth2OverEcalBc == 0) {
-        invalidHcal = !towerIsoBehindClus.hasActiveHcal(TowersBehindClus);
+        invalidHcal = !egamma::hasActiveHcal(TowersBehindClus, *ctmaph, *hcalQuality, *hcalTopology);
       }
     }
 

@@ -10,4 +10,5 @@ from Geometry.HcalCommonData.hcalDDDSimConstants_cff import *
 from Geometry.HGCalCommonData.hgcalParametersInitialization_cfi import *
 from Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi import *
 from Geometry.MuonNumbering.muonGeometryConstants_cff import *
+from Geometry.MuonNumbering.muonOffsetESProducer_cff import *
 from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *
