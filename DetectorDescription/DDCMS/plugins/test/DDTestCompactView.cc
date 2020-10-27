@@ -29,6 +29,17 @@ void DDTestCompactView::analyze(const Event&, const EventSetup& iEventSetup) {
   ESTransientHandle<DDCompactView> cpv;
   iEventSetup.get<IdealGeometryRecord>().get(m_tag, cpv);
 
+  std::cout << "Get trackerParameters:detIdShifts:\n";
+  auto const& vec = cpv->getVector<int>("detIdShifts");
+  for (const auto& i : vec)
+    std::cout << i << ", ";
+  std::cout << ";\ndone\n";
+
+  auto const& v = cpv->detector()->vectors().at("trackerParameters:detIdShifts");
+  for (const auto& i : v)
+    std::cout << i << ", ";
+  std::cout << ";\ndone\n";
+
   LogVerbatim("Geometry") << "DDTestCompactView::analyze done.";
 }
 
