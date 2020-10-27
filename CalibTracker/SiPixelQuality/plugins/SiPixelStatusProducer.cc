@@ -33,11 +33,27 @@
 #include "CalibTracker/SiPixelQuality/plugins/SiPixelStatusProducer.h"
 
 
+SiPixelStatusProducer::SiPixelStatusProducer(const edm::ParameterSet& iConfig)
+    : trackerGeometryToken_(
+          esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginLuminosityBlock>()),
+      trackerTopologyToken_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginLuminosityBlock>()),
+      siPixelFedCablingMapToken_(
+          esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd, edm::Transition::BeginLuminosityBlock>()) {
 
-SiPixelStatusProducer::SiPixelStatusProducer(edm::ParameterSet const& iPSet){
-      
-      //we need to register the fact that we will make the BeamSpot object
-      produces<SiPixelDetectorStatus, edm::Transition::EndLuminosityBlock>();
+  /* badPixelFEDChannelCollections */
+  std::vector<edm::InputTag> badPixelFEDChannelCollectionLabels =
+      iConfig.getParameter<edm::ParameterSet>("SiPixelStatusProducerParameters")
+          .getParameter<std::vector<edm::InputTag>>("badPixelFEDChannelCollections");
+  for (auto& t : badPixelFEDChannelCollectionLabels)
+    theBadPixelFEDChannelsTokens_.push_back(consumes<PixelFEDChannelCollection>(t));
+
+  /* pixel clusters */
+  fPixelClusterLabel_ = iConfig.getParameter<edm::ParameterSet>("SiPixelStatusProducerParameters")
+                            .getUntrackedParameter<edm::InputTag>("pixelClusterLabel");
+  fSiPixelClusterToken_ = consumes<edmNew::DetSetVector<SiPixelCluster>>(fPixelClusterLabel_);
+
+  /* register products */
+  produces<SiPixelDetectorStatus, edm::Transition::EndLuminosityBlock>("siPixelStatus");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -62,6 +78,12 @@ void SiPixelStatusProducer::endLuminosityBlockSummary(edm::LuminosityBlock const
 }
 
 
-
+/* helper function */
+int SiPixelStatusProducer::indexROC(int irow, int icol, int nROCcolumns) {
+  return int(icol + irow * nROCcolumns);
+  // generate the folling roc index that is going to map with ROC id as
+  // 8  9  10 11 12 13 14 15
+  // 0  1  2  3  4  5  6  7
+}
 
 DEFINE_FWK_MODULE(SiPixelStatusProducer);
