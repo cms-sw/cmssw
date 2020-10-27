@@ -119,7 +119,12 @@ PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& conf) : th
   //check if this is a recovery iteration
   fRecoveryIteration = conf.getParameter<bool>("isRecoveryIteration");
   if (fRecoveryIteration) {
-    assert(algorithms.size() == 1);
+    if(algorithms.size() == 0){
+      throw VertexException("PrimaryVertexProducerAlgorithm: No algorithm specified. ");
+    }
+    else if( algorithms.size() > 1){
+      throw VertexException("PrimaryVertexProducerAlgorithm: Running in Recovery mode and more than one algorithm specified.  Please only one algorithm.");
+    }
     recoveryVtxToken = consumes<reco::VertexCollection>(conf.getParameter<edm::InputTag>("recoveryVtxCollection"));
   }
 }
