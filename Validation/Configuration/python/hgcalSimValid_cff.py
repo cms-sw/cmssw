@@ -17,8 +17,27 @@ hgcalPFJetValidation = _hgcalPFJetValidation.clone(BenchmarkLabel = 'PFJetValida
     VariablePtBins=[10., 30., 80., 120., 250., 600.],
     DeltaPtOvPtHistoParameter = dict(EROn=True,EREtaMax=3.0, EREtaMin=1.6, slicingOn=True))
 
+scAssocByEnergyScoreProducerticlTrackstersMIP = scAssocByEnergyScoreProducer.clone(
+    LayerClustersInputMask = 'ticlTrackstersMIP',
+)
+
+scAssocByEnergyScoreProducerticlTrackstersTrk = scAssocByEnergyScoreProducer.clone(
+    LayerClustersInputMask = 'ticlTrackstersTrk',
+)
+
+scAssocByEnergyScoreProducerticlTrackstersEM = scAssocByEnergyScoreProducer.clone(
+    LayerClustersInputMask = 'ticlTrackstersEM',
+)
+
+scAssocByEnergyScoreProducerticlTrackstersHAD = scAssocByEnergyScoreProducer.clone(
+    LayerClustersInputMask = 'ticlTrackstersHAD',
+)
+
 hgcalAssociators = cms.Task(lcAssocByEnergyScoreProducer,
-                            scAssocByEnergyScoreProducer)
+                            scAssocByEnergyScoreProducerticlTrackstersMIP,
+                            scAssocByEnergyScoreProducerticlTrackstersTrk,
+                            scAssocByEnergyScoreProducerticlTrackstersEM,
+                            scAssocByEnergyScoreProducerticlTrackstersHAD)
 
 hgcalValidation = cms.Sequence(hgcalSimHitValidationEE
                                + hgcalSimHitValidationHEF

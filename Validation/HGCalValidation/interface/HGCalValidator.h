@@ -66,6 +66,7 @@ protected:
   const bool dosimclustersPlots_;
   const bool dolayerclustersPlots_;
   const bool domulticlustersPlots_;
+  std::vector<edm::InputTag> label_clustersmask;
   const edm::FileInPath cummatbudinxo_;
 
   std::vector<edm::EDGetTokenT<reco::CaloClusterCollection>> labelToken;
@@ -75,11 +76,11 @@ protected:
   edm::EDGetTokenT<std::vector<CaloParticle>> label_cp_effic;
   edm::EDGetTokenT<std::vector<CaloParticle>> label_cp_fake;
   edm::EDGetTokenT<std::vector<SimVertex>> simVertices_;
-  edm::EDGetTokenT<std::vector<float>> clustersMask_;
+  std::vector<edm::EDGetTokenT<std::vector<float>>> clustersMaskTokens_;
   edm::EDGetTokenT<std::unordered_map<DetId, const HGCRecHit*>> hitMap_;
   edm::EDGetTokenT<Density> density_;
   edm::EDGetTokenT<hgcal::LayerClusterToCaloParticleAssociator> LCAssocByEnergyScoreProducer_;
-  edm::EDGetTokenT<hgcal::LayerClusterToSimClusterAssociator> SCAssocByEnergyScoreProducer_;
+  std::vector<edm::EDGetTokenT<hgcal::LayerClusterToSimClusterAssociator> > SCAssocByEnergyScoreProducer_;
   std::unique_ptr<HGVHistoProducerAlgo> histoProducerAlgo_;
 
 private:

@@ -15,6 +15,7 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
       dosimclustersPlots_(pset.getUntrackedParameter<bool>("dosimclustersPlots")),
       dolayerclustersPlots_(pset.getUntrackedParameter<bool>("dolayerclustersPlots")),
       domulticlustersPlots_(pset.getUntrackedParameter<bool>("domulticlustersPlots")),
+      label_clustersmask(pset.getParameter<std::vector<edm::InputTag>>("LayerClustersInputMask")),
       cummatbudinxo_(pset.getParameter<edm::FileInPath>("cummatbudinxo")) {
   //In this way we can easily generalize to associations between other objects also.
   const edm::InputTag& label_cp_effic_tag = pset.getParameter<edm::InputTag>("label_cp_effic");
@@ -25,8 +26,11 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
 
   simVertices_ = consumes<std::vector<SimVertex>>(pset.getParameter<edm::InputTag>("simVertices"));
 
-  clustersMask_ = consumes<std::vector<float>>(pset.getParameter<edm::InputTag>("LayerClustersInputMask"));
-
+  for (auto& itag :label_clustersmask){
+    clustersMaskTokens_.push_back(consumes<std::vector<float>>(itag));
+    SCAssocByEnergyScoreProducer_.push_back(consumes<hgcal::LayerClusterToSimClusterAssociator>(edm::InputTag("scAssocByEnergyScoreProducer" + itag.label())));
+  }
+  
   hitMap_ = consumes<std::unordered_map<DetId, const HGCRecHit*>>(edm::InputTag("hgcalRecHitMapProducer"));
 
   density_ = consumes<Density>(edm::InputTag("hgcalLayerClusters"));
@@ -41,9 +45,6 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
 
   LCAssocByEnergyScoreProducer_ =
       consumes<hgcal::LayerClusterToCaloParticleAssociator>(edm::InputTag("lcAssocByEnergyScoreProducer"));
-
-  SCAssocByEnergyScoreProducer_ =
-      consumes<hgcal::LayerClusterToSimClusterAssociator>(edm::InputTag("scAssocByEnergyScoreProducer"));
 
   cpSelector = CaloParticleSelector(pset.getParameter<double>("ptMinCP"),
                                     pset.getParameter<double>("ptMaxCP"),
@@ -110,17 +111,38 @@ void HGCalValidator::bookHistograms(DQMStore::IBooker& ibook,
     ibook.cd();
     ibook.setCurrentFolder(dirName_ + "simClusters/ClusterLevel");
     histoProducerAlgo_->bookSimClusterHistos(ibook,
-                                          histograms.histoProducerAlgo,
-                                          totallayers_to_monitor_,
-                                          thicknesses_to_monitor_);
-    ibook.cd();
-    ibook.setCurrentFolder(dirName_ + "simClusters/SC_LC_association");
-    histoProducerAlgo_->bookSimClusterAssociationHistos(ibook,
-                                          histograms.histoProducerAlgo,
-                                          totallayers_to_monitor_,
-                                          thicknesses_to_monitor_);
-    
-  }
+					     histograms.histoProducerAlgo,
+					     totallayers_to_monitor_,
+					     thicknesses_to_monitor_);
+
+    for (unsigned int ws = 0; ws < label_clustersmask.size(); ws++) {
+      ibook.cd();
+      InputTag algo = label_clustersmask[ws];
+      string dirName = dirName_ + "simClusters/";
+      if (!algo.process().empty())
+	dirName += algo.process() + "_";
+      LogDebug("HGCalValidator") << dirName << "\n";
+      if (!algo.label().empty())
+	dirName += algo.label() + "_";
+      LogDebug("HGCalValidator") << dirName << "\n";
+      if (!algo.instance().empty())
+	dirName += algo.instance() + "_";
+      LogDebug("HGCalValidator") << dirName << "\n";
+
+      if (!dirName.empty()) {
+	dirName.resize(dirName.size() - 1);
+      }
+
+      LogDebug("HGCalValidator") << dirName << "\n";
+
+      ibook.setCurrentFolder(dirName);
+
+      histoProducerAlgo_->bookSimClusterAssociationHistos(ibook,
+							  histograms.histoProducerAlgo,
+							  totallayers_to_monitor_,
+							  thicknesses_to_monitor_);
+    }//end of loop over masks
+  }//if for simcluster plots
 
   //Booking histograms concerning with hgcal layer clusters
   if (dolayerclustersPlots_) {
@@ -211,11 +233,6 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   edm::Handle<hgcal::LayerClusterToCaloParticleAssociator> LCAssocByEnergyScoreHandle;
   event.getByToken(LCAssocByEnergyScoreProducer_, LCAssocByEnergyScoreHandle);
 
-  edm::Handle<hgcal::LayerClusterToSimClusterAssociator> SCAssocByEnergyScoreHandle;
-  event.getByToken(SCAssocByEnergyScoreProducer_, SCAssocByEnergyScoreHandle);
-
-  const auto& inputClusterMask = event.get(clustersMask_);
-
   edm::Handle<std::unordered_map<DetId, const HGCRecHit*>> hitMapHandle;
   event.getByToken(hitMap_, hitMapHandle);
   const std::unordered_map<DetId, const HGCRecHit*>* hitMap = &*hitMapHandle;
@@ -280,27 +297,38 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
     sCIndices.emplace_back(scId);
   }
 
-
   // ##############################################
   // fill simcluster histograms
   // ##############################################
-  int ws = 0;
   if (dosimclustersPlots_) {
-    histoProducerAlgo_->fill_simcluster_histos(histograms.histoProducerAlgo,
-					       ws,
-					       clusterHandle,
-					       clusters,
-					       simClustersHandle,
-					       simclusters,
-					       sCIndices,
-					       inputClusterMask,
-					       *hitMap,
-					       totallayers_to_monitor_,
-					       thicknesses_to_monitor_,
-					       SCAssocByEnergyScoreHandle);
 
-    //General Info on simClusters
-    LogTrace("HGCalValidator") << "\n# of simclusters: " << nSimClusters << "\n";
+    histoProducerAlgo_->fill_simcluster_histos(histograms.histoProducerAlgo,
+					       simclusters,
+					       totallayers_to_monitor_,
+					       thicknesses_to_monitor_);
+
+    for (unsigned int ws = 0; ws < label_clustersmask.size(); ws++) {
+
+      const auto& inputClusterMask = event.get(clustersMaskTokens_[ws]);
+
+      edm::Handle<hgcal::LayerClusterToSimClusterAssociator> SCAssocByEnergyScoreHandle;
+      event.getByToken(SCAssocByEnergyScoreProducer_[ws], SCAssocByEnergyScoreHandle);
+
+      histoProducerAlgo_->fill_simclusterassosiation_histos(histograms.histoProducerAlgo,
+							    ws,
+							    clusterHandle,
+							    clusters,
+							    simClustersHandle,
+							    simclusters,
+							    sCIndices,
+							    inputClusterMask,
+							    *hitMap,
+							    totallayers_to_monitor_,
+							    SCAssocByEnergyScoreHandle);
+
+      //General Info on simClusters
+      LogTrace("HGCalValidator") << "\n# of simclusters: " << nSimClusters << " label_clustersmask[ws].label() " << label_clustersmask[ws].label() << "\n";
+    }//end of loop overs masks
   }
 
   // ##############################################
