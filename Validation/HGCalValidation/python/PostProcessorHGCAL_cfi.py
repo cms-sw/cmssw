@@ -34,7 +34,12 @@ eff_simclusters.extend(["merge_eta_layer{:02d} 'LayerCluster Merge Rate vs #eta 
 eff_simclusters.extend(["merge_phi_layer{:02d} 'LayerCluster Merge Rate vs #phi Layer{:02d} in z-' NumMerge_LayerCluster_in_SimCluster_Phi_perlayer{:02d} Denom_LayerCluster_in_SimCluster_Phi_perlayer{:02d}".format(i, i%maxlayerzm+1, i, i) if (i<maxlayerzm) else "merge_phi_layer{:02d} 'LayerCluster Merge Rate vs #phi Layer{:02d} in z+' NumMerge_LayerCluster_in_SimCluster_Phi_perlayer{:02d} Denom_LayerCluster_in_SimCluster_Phi_perlayer{:02d}".format(i, i%maxlayerzm+1, i, i) for i in range(maxlayerzp) ])
 
 postProcessorHGCALsimclusters= DQMEDHarvester('DQMGenericClient',
-    subDirs = cms.untracked.vstring('HGCAL/HGCalValidator/simClusters/SC_LC_association'),
+    subDirs = cms.untracked.vstring(
+        'HGCAL/HGCalValidator/simClusters/ticlTrackstersMIP',
+        'HGCAL/HGCalValidator/simClusters/ticlTrackstersTrk',
+        'HGCAL/HGCalValidator/simClusters/ticlTrackstersEM',
+        'HGCAL/HGCalValidator/simClusters/ticlTrackstersHAD'
+    ),
     efficiency = cms.vstring(eff_simclusters),
     resolution = cms.vstring(),
     cumulativeDists = cms.untracked.vstring(),
