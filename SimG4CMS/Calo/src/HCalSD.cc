@@ -5,6 +5,7 @@
 
 #include "SimG4CMS/Calo/interface/HCalSD.h"
 #include "SimG4CMS/Calo/interface/HcalTestNumberingScheme.h"
+#include "SimG4CMS/Calo/interface/HcalDumpGeometry.h"
 #include "SimG4CMS/Calo/interface/HFFibreFiducial.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
@@ -104,6 +105,7 @@ HCalSD::HCalSD(const std::string& name,
   testNS_ = m_HC.getUntrackedParameter<bool>("TestNS", false);
   edm::ParameterSet m_HF = p.getParameter<edm::ParameterSet>("HFShower");
   applyFidCut = m_HF.getParameter<bool>("ApplyFiducialCut");
+  bool dumpGeom = m_HC.getUntrackedParameter<bool>("DumpGeometry", false);
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalSim") << "***************************************************"
@@ -322,6 +324,13 @@ HCalSD::HCalSD(const std::string& name,
     }
   }
 #endif
+  if (dumpGeom) {
+    const HcalNumberingFromDDD* hcn = new HcalNumberingFromDDD(hcalConstants_);
+    const auto& lvNames = clg.logicalNames(name);
+    HcalDumpGeometry geom(lvNames, hcn, testNumber);
+    geom.update();
+    delete hcn;
+  }
 }
 
 void HCalSD::fillLogVolumeVector(const std::string& value,
