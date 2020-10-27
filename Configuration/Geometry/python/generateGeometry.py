@@ -155,7 +155,7 @@ class GeometryGenerator(object):
         simDD4hepFile.write(preamble)
         # always need XML
         simDD4hepFile.write("from Configuration.Geometry.GeometryDD4hep_cff"+" import *"+"\n")
-        simDD4hepFile.write("cmsDD4hepXML=Geometry/CMSCommonData/data/python/"+os.path.basename(xmlDD4hepName)+"\n\n")
+        simDD4hepFile.write("DDDetectorESProducer.confGeomXMLFiles = cms.FileInPath(\"Geometry/CMSCommonData/data/python/"+os.path.basename(xmlDD4hepName)+"\")\n\n")
         for iDict,aDict in enumerate(self.allDicts):
             if "sim" in aDict[detectorTuple[iDict]].keys():
                 simDD4hepFile.write('\n'.join([ aLine for aLine in aDict[detectorTuple[iDict]]["sim"] ])+"\n")
@@ -167,8 +167,8 @@ class GeometryGenerator(object):
         recoFile.write("from Configuration.Geometry."+os.path.basename(simName).replace(".py","")+" import *"+"\n\n")
         for iDict,aDict in enumerate(self.allDicts):
             if "reco" in aDict[detectorTuple[iDict]].keys():
-                recoFile.write("# "+aDict["name"]+"\n")
-                recoFile.write('\n'.join([ aLine for aLine in aDict[detectorTuple[iDict]]["reco"] ])+"\n\n")
+               recoFile.write("# "+aDict["name"]+"\n")
+               recoFile.write('\n'.join([ aLine for aLine in aDict[detectorTuple[iDict]]["reco"] ])+"\n\n")
         recoFile.close()
 
         # create recoDD4hep config

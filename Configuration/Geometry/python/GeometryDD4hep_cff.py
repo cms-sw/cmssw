@@ -1,5 +1,7 @@
+import FWCore.ParameterSet.Config as cms
+
 DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                    confGeomXMLFiles = cms.FileInPath(cmsDD4hepXML),
+                                    confGeomXMLFiles = cms.FileInPath(''),
                                     appendToDataLabel = cms.string('')
 )
 
