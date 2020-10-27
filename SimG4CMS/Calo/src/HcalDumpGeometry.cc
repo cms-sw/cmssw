@@ -3,14 +3,18 @@
 #include "SimG4CMS/Calo/interface/HcalDumpGeometry.h"
 
 #include <iostream>
+#include <memory>
 
 //#define EDM_ML_DEBUG
 
-HcalDumpGeometry::HcalDumpGeometry(const std::vector<std::string_view>& names, const HcalNumberingFromDDD* hcn, bool test) : numberingFromDDD_(hcn) {
+HcalDumpGeometry::HcalDumpGeometry(const std::vector<std::string_view>& names,
+                                   const HcalNumberingFromDDD* hcn,
+                                   bool test)
+    : numberingFromDDD_(hcn) {
   if (test)
     numberingScheme_.reset(dynamic_cast<HcalNumberingScheme*>(new HcalTestNumberingScheme(false)));
   else
-    numberingScheme_.reset(new HcalNumberingScheme());
+    numberingScheme_ = std::make_unique<HcalNumberingScheme>();
   std::stringstream ss;
   for (const auto& lvname : names)
     ss << " " << lvname;
@@ -20,10 +24,11 @@ HcalDumpGeometry::HcalDumpGeometry(const std::vector<std::string_view>& names, c
     std::string namex = (getNameNoNS(static_cast<std::string>(name))).substr(0, 3);
     if (std::find(namg.begin(), namg.end(), namex) != namg.end()) {
       if (std::find(names_.begin(), names_.end(), namex) == names_.end())
-	names_.emplace_back(namex);
+        names_.emplace_back(namex);
     }
   }
-  edm::LogVerbatim("HCalGeom") << "HcalDumpGeometry:: dump geometry information for Hcal with " << names_.size() << " elements:";
+  edm::LogVerbatim("HCalGeom") << "HcalDumpGeometry:: dump geometry information for Hcal with " << names_.size()
+                               << " elements:";
   for (unsigned int k = 0; k < names_.size(); ++k)
     edm::LogVerbatim("HCalGeom") << "[" << k << "] : " << names_[k];
 }
@@ -60,14 +65,17 @@ void HcalDumpGeometry::dumpTouch(G4VPhysicalVolume* pv, unsigned int leafDepth) 
       int theSize = fHistory_.GetDepth();
       //Get name and copy numbers
       if (theSize > 5) {
-	int depth = (fHistory_.GetVolume(theSize)->GetCopyNo()) % 10 + 1;
-	int lay = (fHistory_.GetVolume(theSize)->GetCopyNo() / 10) % 100 + 1;
-	int det = (fHistory_.GetVolume(theSize - 1)->GetCopyNo()) / 1000;
-	HcalNumberingFromDDD::HcalID tmp =
-	  numberingFromDDD_->unitID(det, math::XYZVectorD(globalpoint.x(), globalpoint.y(), globalpoint.z()), depth, lay);
-	uint32_t id = numberingScheme_->getUnitID(tmp);
+        int depth = (fHistory_.GetVolume(theSize)->GetCopyNo()) % 10 + 1;
+        int lay = (fHistory_.GetVolume(theSize)->GetCopyNo() / 10) % 100 + 1;
+        int det = (fHistory_.GetVolume(theSize - 1)->GetCopyNo()) / 1000;
+        HcalNumberingFromDDD::HcalID tmp = numberingFromDDD_->unitID(
+            det, math::XYZVectorD(globalpoint.x(), globalpoint.y(), globalpoint.z()), depth, lay);
+        uint32_t id = numberingScheme_->getUnitID(tmp);
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("HCalGeom") << "Det " << det << " Layer " << lay << ":" << depth << " Volume " << fHistory_.GetVolume(theSize)->GetName() << ":" << fHistory_.GetVolume(theSize - 1)->GetName() << " ID " << std::hex << id << std::dec;
+        edm::LogVerbatim("HCalGeom") << "Det " << det << " Layer " << lay << ":" << depth << " Volume "
+                                     << fHistory_.GetVolume(theSize)->GetName() << ":"
+                                     << fHistory_.GetVolume(theSize - 1)->GetName() << " ID " << std::hex << id
+                                     << std::dec;
 #endif
 
         std::vector<double> pars;
