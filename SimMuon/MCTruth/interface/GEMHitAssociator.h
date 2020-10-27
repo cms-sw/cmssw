@@ -9,7 +9,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
-#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
+#include "SimDataFormats/GEMDigiSimLink/interface/GEMDigiSimLink.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
@@ -32,8 +32,8 @@
 
 class GEMHitAssociator {
 public:
-  typedef edm::DetSetVector<StripDigiSimLink> DigiSimLinks;
-  typedef edm::DetSet<StripDigiSimLink> LayerLinks;
+  typedef edm::DetSetVector<GEMDigiSimLink> DigiSimLinks;
+  typedef edm::DetSet<GEMDigiSimLink> LayerLinks;
   typedef std::pair<uint32_t, EncodedEventId> SimHitIdpr;
 
   // Constructor with configurable parameters
@@ -58,7 +58,7 @@ private:
 
   edm::EDGetTokenT<CrossingFrame<PSimHit>> GEMsimhitsXFToken_;
   edm::EDGetTokenT<edm::PSimHitContainer> GEMsimhitsToken_;
-  edm::EDGetTokenT<edm::DetSetVector<StripDigiSimLink>> GEMdigisimlinkToken_;
+  edm::EDGetTokenT<edm::DetSetVector<GEMDigiSimLink>> GEMdigisimlinkToken_;
 
   std::map<unsigned int, edm::PSimHitContainer> _SimHitMap;
 };
