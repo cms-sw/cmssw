@@ -1619,20 +1619,25 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
           int wl = HGCalWaferIndex::waferIndex(lay, u, v);
           if (php.waferMaskMode_ > 0) {
             std::pair<int, int> corner0 = HGCalWaferMask::getTypeMode(
-								      xpos0, ypos0, r1, R1, php.rMinLayHex_[i], php.rMaxLayHex_[i], type, php.waferMaskMode_);
-	    if (php.mode_ == HGCalGeometryMode::Hexagon8File) {
-	      auto itr = php.waferInfoMap_.find(wl);
-	      if (itr != php.waferInfoMap_.end()) {
-		int part = (itr->second).part;
-		int orient = (itr->second).orient;
-		bool ok = HGCalWaferMask::goodTypeMode(xpos0, ypos0, r1, R1, php.rMinLayHex_[i], php.rMaxLayHex_[i], part, orient, false);
+                xpos0, ypos0, r1, R1, php.rMinLayHex_[i], php.rMaxLayHex_[i], type, php.waferMaskMode_);
+            if (php.mode_ == HGCalGeometryMode::Hexagon8File) {
+              auto itr = php.waferInfoMap_.find(wl);
+              if (itr != php.waferInfoMap_.end()) {
+                int part = (itr->second).part;
+                int orient = (itr->second).orient;
+                bool ok = HGCalWaferMask::goodTypeMode(
+                    xpos0, ypos0, r1, R1, php.rMinLayHex_[i], php.rMaxLayHex_[i], part, orient, false);
 #ifdef EDM_ML_DEBUG
-		edm::LogVerbatim("HGCalGeom") << "Layer:u:v " << i << ":" << lay << ":" << u << ":" << v << " Part " << corner0.first << ":" << part << " Orient " << corner0.second << ":" << orient << " Position " << xpos0 << ":" << ypos0 << " delta " << r1 << ":" << R1 << " Limit " << php.rMinLayHex_[i] << ":" << php.rMaxLayHex_[i] << " Compatibiliety Flag " << ok;	
+                edm::LogVerbatim("HGCalGeom")
+                    << "Layer:u:v " << i << ":" << lay << ":" << u << ":" << v << " Part " << corner0.first << ":"
+                    << part << " Orient " << corner0.second << ":" << orient << " Position " << xpos0 << ":" << ypos0
+                    << " delta " << r1 << ":" << R1 << " Limit " << php.rMinLayHex_[i] << ":" << php.rMaxLayHex_[i]
+                    << " Compatibiliety Flag " << ok;
 #endif
-		if (!ok) 
-		  ++nwarn;
-	      }
-	    }
+                if (!ok)
+                  ++nwarn;
+              }
+            }
             waferTypes[wl] = corner0;
 #ifdef EDM_ML_DEBUG
             edm::LogVerbatim("HGCalGeom")
@@ -1641,7 +1646,7 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
                 << php.rMaxLayHex_[i] << type << ":" << php.waferMaskMode_ << " corner " << corner.first << ":"
                 << corner.second << " croner0 " << corner0.first << ":" << corner0.second;
 #endif
-	      } else {
+          } else {
             waferTypes[wl] = corner;
 #ifdef EDM_ML_DEBUG
             edm::LogVerbatim("HGCalGeom") << "Layer " << lay << " u|v " << u << ":" << v << " with corner "
@@ -1653,7 +1658,8 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
     }
   }
   if (nwarn > 0)
-    edm::LogWarning("HGCalGeom") << "HGCalGeomParameters::loadWafer8: there are " << nwarn << " wafers with non-matching partial- orientation types";
+    edm::LogWarning("HGCalGeom") << "HGCalGeomParameters::loadWafer8: there are " << nwarn
+                                 << " wafers with non-matching partial- orientation types";
   php.waferUVMax_ = uvmax;
   php.waferUVMaxLayer_ = uvmx;
   php.wafersInLayers_ = wafersInLayers;
