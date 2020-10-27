@@ -1,0 +1,53 @@
+--- DQM/BeamMonitor/plugins/OnlineBeamMonitor.cc
++++ DQM/BeamMonitor/plugins/OnlineBeamMonitor.cc
+@@ -244,32 +238,32 @@
+     //  << *aSpot << std::endl;
+   } else {
+     LogInfo("OnlineBeamMonitor") << "Database BeamSpot is not valid at lumi: " << iLumi.id().luminosityBlock();
+-  }
++  }  
+   return nullptr;
+ }
+ 
+ //----------------------------------------------------------------------------------------------------------------------
+-void OnlineBeamMonitor::analyze(const Event& iEvent, const EventSetup& iSetup) {}
++void OnlineBeamMonitor::analyze(const Event& iEvent, const EventSetup& iSetup) {  
++}
+ 
+ //----------------------------------------------------------------------------------------------------------------------
+ void OnlineBeamMonitor::globalEndLuminosityBlock(const LuminosityBlock& iLumi, const EventSetup& iSetup) {
+-  //Setting up the choice
+-  if (beamSpotsMap_.find("Transient") != beamSpotsMap_.end()) {
+-    if (beamSpotsMap_.find("HLT") != beamSpotsMap_.end() &&
+-        beamSpotsMap_["Transient"].x0() == beamSpotsMap_["HLT"].x0()) {
+-      bsChoice_->setBinContent(iLumi.id().luminosityBlock(), 1);
+-      bsChoice_->setBinError(iLumi.id().luminosityBlock(), 0.05);
+-    } else if (beamSpotsMap_.find("Legacy") != beamSpotsMap_.end() &&
+-               beamSpotsMap_["Transient"].x0() == beamSpotsMap_["Legacy"].x0()) {
+-      bsChoice_->setBinContent(iLumi.id().luminosityBlock(), -1);
+-      bsChoice_->setBinError(iLumi.id().luminosityBlock(), 0.05);
+-    } else {
+-      bsChoice_->setBinContent(iLumi.id().luminosityBlock(), -10);
+-      bsChoice_->setBinError(iLumi.id().luminosityBlock(), 0.05);
++
++//Setting up the choice
++if (beamSpotsMap_.find("Transient") != beamSpotsMap_.end()) {
++    if (beamSpotsMap_.find("HLT") != beamSpotsMap_.end() && beamSpotsMap_["Transient"].x0() == beamSpotsMap_["HLT"].x0() ){
++      bsChoice_->setBinContent(iLumi.id().luminosityBlock(),1);
++      bsChoice_->setBinError(iLumi.id().luminosityBlock(),0.05);
++    }else if (beamSpotsMap_.find("Legacy") != beamSpotsMap_.end() && beamSpotsMap_["Transient"].x0() == beamSpotsMap_["Legacy"].x0() ){
++      bsChoice_->setBinContent(iLumi.id().luminosityBlock(),-1);
++      bsChoice_->setBinError(iLumi.id().luminosityBlock(),0.05);      
++    }else{
++      bsChoice_->setBinContent(iLumi.id().luminosityBlock(),-10);
++      bsChoice_->setBinError(iLumi.id().luminosityBlock(),0.05);      
+     }
+-  } else {
+-    bsChoice_->setBinContent(iLumi.id().luminosityBlock(), 0);
+-    bsChoice_->setBinError(iLumi.id().luminosityBlock(), 0.05);
++}else{
++    bsChoice_->setBinContent(iLumi.id().luminosityBlock(),0);
++    bsChoice_->setBinError(iLumi.id().luminosityBlock(),0.05);    
+   }
+ 
+   //    "PV,BF..."      Value,Error
