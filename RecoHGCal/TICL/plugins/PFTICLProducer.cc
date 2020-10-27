@@ -23,20 +23,39 @@ public:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
 private:
+  // parameters
+  const bool useTimingQuality_, useTimingAverage_;
+  const float timingQualityThreshold_;
+
   // inputs
   const edm::EDGetTokenT<edm::View<TICLCandidate>> ticl_candidates_;
+  const edm::EDGetTokenT<edm::ValueMap<float>> srcTrackTime_, srcTrackTimeError_, srcTrackTimeQuality_;
 };
 
 DEFINE_FWK_MODULE(PFTICLProducer);
 
 PFTICLProducer::PFTICLProducer(const edm::ParameterSet& conf)
-    : ticl_candidates_(consumes<edm::View<TICLCandidate>>(conf.getParameter<edm::InputTag>("ticlCandidateSrc"))) {
+    : useTimingQuality_(conf.existsAs<edm::InputTag>("trackTimeQualityMap")),
+      useTimingAverage_(conf.existsAs<bool>("useTimingAverage") ? conf.getParameter<bool>("useTimingAverage") : false),
+      timingQualityThreshold_(useTimingQuality_ ? conf.getParameter<double>("timingQualityThreshold") : -99.),
+      ticl_candidates_(consumes<edm::View<TICLCandidate>>(conf.getParameter<edm::InputTag>("ticlCandidateSrc"))),
+      srcTrackTime_(consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeValueMap"))),
+      srcTrackTimeError_(consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeErrorMap"))),
+      srcTrackTimeQuality_(useTimingQuality_
+                           ? consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeQualityMap"))
+                           : edm::EDGetTokenT<edm::ValueMap<float>>())
+ {
   produces<reco::PFCandidateCollection>();
 }
 
 void PFTICLProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("ticlCandidateSrc", edm::InputTag("ticlTrackstersMerge"));
+  desc.add<edm::InputTag>("trackTimeValueMap", edm::InputTag("tofPID:t0"));
+  desc.add<edm::InputTag>("trackTimeErrorMap", edm::InputTag("tofPID:sigmat0"));
+  desc.add<edm::InputTag>("trackTimeQualityMap", edm::InputTag("mtdTrackQualityMVA:mtdQualMVA"));
+  desc.add<double>("timingQualityThreshold", 0.5);
+  desc.add<bool>("useTimingAverage", false);
   descriptions.add("pfTICLProducer", desc);
 }
 
@@ -45,6 +64,12 @@ void PFTICLProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSet
   edm::Handle<edm::View<TICLCandidate>> ticl_cand_h;
   evt.getByToken(ticl_candidates_, ticl_cand_h);
   const auto ticl_candidates = *ticl_cand_h;
+  edm::Handle<edm::ValueMap<float>> trackTimeH, trackTimeErrH, trackTimeQualH;
+  evt.getByToken(srcTrackTime_, trackTimeH);
+  evt.getByToken(srcTrackTimeError_, trackTimeErrH);
+  if (useTimingQuality_) {
+    evt.getByToken(srcTrackTimeQuality_, trackTimeQualH);
+  }
 
   auto candidates = std::make_unique<reco::PFCandidateCollection>();
 
@@ -95,7 +120,33 @@ void PFTICLProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSet
       reco::TrackRef ref(ticl_cand.trackPtr().id(), int(ticl_cand.trackPtr().key()), &evt.productGetter());
       candidate.setTrackRef(ref);
     }
-    candidate.setTime(ticl_cand.time(), ticl_cand.timeError());
+
+    // HGCAL timing as default values
+    auto time = ticl_cand.time();
+    auto timeE = ticl_cand.timeError();
+
+    if (candidate.charge()) { // Check MTD timing availability
+      const bool assocQuality = (*trackTimeQualH)[candidate.trackRef()] > timingQualityThreshold_;
+      if (assocQuality) {
+        const auto timeHGC = time;
+        const auto timeEHGC = timeE;
+        const auto timeMTD = (*trackTimeH)[candidate.trackRef()];
+        const auto timeEMTD = (*trackTimeErrH)[candidate.trackRef()];
+
+        if (useTimingAverage_ && (timeEMTD>0 && timeEHGC>0)) {
+          // Compute weighted average between HGCAL and MTD timing
+          timeE = sqrt(1 / (pow(timeEHGC,-2) + pow(timeEMTD,-2)));
+          time = (timeHGC/pow(timeEHGC,2) + timeMTD/pow(timeEMTD,2)) * pow(timeE,2);
+        } else if (timeEMTD>0 && timeEHGC<0) {
+          // Passthrough MTD timing if HGCAL is not available
+          timeE = timeEMTD;
+          time = timeMTD;
+        }
+        time = timeMTD;
+        timeE = timeEMTD;
+      }
+    }
+    candidate.setTime(time, timeE);
   }
 
   evt.put(std::move(candidates));
