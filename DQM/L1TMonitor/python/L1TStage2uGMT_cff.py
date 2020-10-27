@@ -100,6 +100,7 @@ l1tStage2BmtfOutVsuGMTIn = DQMEDAnalyzer(
     summaryTitle = cms.untracked.string("Summary of comparison between BMTF output muons and uGMT input muons from BMTF"),
     ignoreBin = cms.untracked.vint32(ignoreBins['Bmtf']),
     verbose = cms.untracked.bool(False),
+    isBmtf = cms.untracked.bool(True),
 )
 
 # compares the unpacked OMTF output regional muon collection with the unpacked uGMT input regional muon collection from OMTF
