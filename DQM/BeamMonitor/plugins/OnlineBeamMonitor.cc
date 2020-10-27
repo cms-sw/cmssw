@@ -352,8 +352,8 @@ void OnlineBeamMonitor::dqmEndRun(edm::Run const&, edm::EventSetup const&) {
                 itHHH.second->getTH1()->SetMaximum(max + 0.1 * (max - min));
               }
             } else {
-              LogInfo("OnlineBeamMonitorClient") << "The histosMap_ have a histogram named " << itHHH.first
-                                                 << " that I can't recognize in this loop!";
+              LogInfo("OnlineBeamMonitorClient")
+                  << "The histosMap_ have a histogram named " << itHHH.first << " that I can't recognize in this loop!";
             }
             itHHH.second->getTH1()->GetXaxis()->SetRangeUser(firstLumi - 0.5, lastLumi + 0.5);
           }
