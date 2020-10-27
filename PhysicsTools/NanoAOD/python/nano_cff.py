@@ -338,14 +338,18 @@ def nanoAOD_customizeCommon(process):
                                     nanoAOD_addParticleNet_switch = False,
                                     jecPayload = 'AK8PFchs')
     # Don't rerun where already present
-    for modifier in run2_miniAOD_devel, run2_nanoAOD_106Xv1
-        modifier.toModify(
-            nanoAOD_addDeepInfoAK8_switch,
-            nanoAOD_addDeepBoostedJet_switch = False,
-            nanoAOD_addDeepDoubleX_switch = False,
-            nanoAOD_addDeepDoubleXV2_switch = False,
-            nanoAOD_addParticleNet_switch = False,
-            )
+    run2_miniAOD_devel.toModify(
+        nanoAOD_addDeepInfoAK8_switch,
+        nanoAOD_addDeepBoostedJet_switch = False,
+        nanoAOD_addDeepDoubleX_switch = False,
+        nanoAOD_addDeepDoubleXV2_switch = False,
+        nanoAOD_addParticleNet_switch = False,
+        )
+    run2_nanoAOD_106Xv1.toModify(
+         nanoAOD_addDeepInfoAK8_switch,
+         nanoAOD_addDeepBoostedJet_switch = False,
+         nanoAOD_addDeepDoubleX_switch = False,
+         )
     process = nanoAOD_addDeepInfoAK8(process,
                                      addDeepBTag=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepBTag_switch,
                                      addDeepBoostedJet=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepBoostedJet_switch,
