@@ -19,8 +19,8 @@ offlinePrimaryVerticesRecovery = offlinePrimaryVertices.clone(
 
   TkClusParameters = dict(
         algorithm = "gap",
-        TkGapClusParameters = dict(
-            zSeparation = 1.0        
+        TkGapClusParameters = cms.PSet(
+            zSeparation = cms.double(1.0)       
         )
   ),
 
@@ -28,6 +28,7 @@ offlinePrimaryVerticesRecovery = offlinePrimaryVertices.clone(
 )    
 
 from PhysicsTools.PatAlgos.slimming.offlineSlimmedPrimaryVertices_cfi import offlineSlimmedPrimaryVertices
-offlineSlimmedPrimaryVerticesRecovery = cms.EDProducer("PATVertexSlimmer",
-  src = cms.InputTag("offlinePrimaryVerticesRecovery"),
+offlineSlimmedPrimaryVerticesRecovery = offlineSlimmedPrimaryVertices.clone(
+    src = "offlinePrimaryVerticesRecovery",
+    score = None
 )
