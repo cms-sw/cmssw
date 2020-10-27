@@ -19,7 +19,7 @@
 
 class HcalDumpGeometry {
 public:
-  explicit HcalDumpGeometry(const std::vector<std::string_view> &, const HcalNumberingFromDDD*, bool);
+  explicit HcalDumpGeometry(const std::vector<std::string_view> &, const HcalNumberingFromDDD *, bool);
   ~HcalDumpGeometry() = default;
 
   void update();
@@ -28,7 +28,7 @@ private:
   void dumpTouch(G4VPhysicalVolume *pv, unsigned int leafDepth);
   std::string getNameNoNS(const std::string &name);
 
-  const HcalNumberingFromDDD* numberingFromDDD_;
+  const HcalNumberingFromDDD *numberingFromDDD_;
   std::unique_ptr<HcalNumberingScheme> numberingScheme_;
   std::vector<std::string> names_;
   G4NavigationHistory fHistory_;
