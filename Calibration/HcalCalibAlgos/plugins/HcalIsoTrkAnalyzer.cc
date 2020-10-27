@@ -779,7 +779,6 @@ void HcalIsoTrkAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& i
                                    << " init flag " << flag << " change flag " << changed_;
   // check if trigger names in (new) config
   if (changed_) {
-    changed_ = false;
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HcalIsoTrack") << "New trigger menu found !!!";
 #endif
