@@ -56,6 +56,8 @@ _iterations_trackingPhase2PU140 = [
     "DetachedQuadStep",
     "PixelPairStep",
 ]
+from Configuration.ProcessModifiers.vectorHits_cff import vectorHits
+vectorHits.toModify(_iterations_trackingPhase2PU140, func=lambda x: x.append('PixelLessStep'))
 _iterations_muonSeeded = [
     "MuonSeededStepInOut",
     "MuonSeededStepOutIn",

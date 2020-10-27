@@ -16,11 +16,11 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
@@ -33,9 +33,6 @@
 #include "DataFormats/MuonReco/interface/DYTInfo.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 
-namespace edm {
-  class Event;
-}
 namespace reco {
   class TransientTrack;
 }
@@ -48,6 +45,8 @@ class MuonServiceProxy;
 class Trajectory;
 
 class TrajectoryFitter;
+class TrajectoryFitterRecord;
+class TransientRecHitRecord;
 
 class GlobalMuonRefitter {
 public:
@@ -172,15 +171,15 @@ private:
   edm::ParameterSet theDYTthrsParameters;
   reco::DYTInfo* dytInfo;
 
-  std::string theFitterName;
+  edm::ESGetToken<TrajectoryFitter, TrajectoryFitterRecord> theFitterToken;
   std::unique_ptr<TrajectoryFitter> theFitter;
 
-  std::string theTrackerRecHitBuilderName;
-  edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
+  edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> theTrackerRecHitBuilderToken;
+  const TransientTrackingRecHitBuilder* theTrackerRecHitBuilder;
   TkClonerImpl hitCloner;
 
-  std::string theMuonRecHitBuilderName;
-  edm::ESHandle<TransientTrackingRecHitBuilder> theMuonRecHitBuilder;
+  edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> theMuonRecHitBuilderToken;
+  const TransientTrackingRecHitBuilder* theMuonRecHitBuilder;
 
   const MuonServiceProxy* theService;
   const edm::Event* theEvent;

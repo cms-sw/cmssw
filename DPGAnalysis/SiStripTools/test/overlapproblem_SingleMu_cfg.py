@@ -31,7 +31,7 @@ process.source.fileNames = cms.untracked.vstring(
     "rfio:/castor/cern.ch/user/v/venturia/SingleMuPt15_tec5_GEN_SIM_RECODEBUG_default.root")
 #    "rfio:/castor/cern.ch/user/v/venturia/SingleMuPt15_tec5_GEN_SIM_RECODEBUG_1500um.root")
 
-process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByHits_cfi")
 

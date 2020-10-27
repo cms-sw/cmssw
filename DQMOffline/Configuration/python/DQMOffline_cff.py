@@ -14,6 +14,7 @@ from DQM.SiPixelCommon.SiPixelOfflineDQM_source_cff import *
 from DQM.DTMonitorModule.dtDQMOfflineSources_cff import *
 from DQM.RPCMonitorClient.RPCTier0Source_cff import *
 from DQM.CSCMonitorModule.csc_dqm_sourceclient_offline_cff import *
+from DQMOffline.Muon.gem_dqm_offline_source_cff import *
 from DQM.CastorMonitor.castor_dqm_sourceclient_offline_cff import *
 from DQM.CTPPS.ctppsDQM_cff import *
 from DQM.SiTrackerPhase2.Phase2TrackerDQMFirstStep_cff import *
@@ -59,6 +60,11 @@ DQMOfflineTrackerPixel = cms.Sequence( 	siPixelOfflineDQM_source )
 DQMOfflineMuonDPG = cms.Sequence( dtSources *
                                   rpcTier0Source *
                                   cscSources )
+
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+_run3_GEM_DQMOfflineMuonDPG = DQMOfflineMuonDPG.copy()
+_run3_GEM_DQMOfflineMuonDPG += gemSources
+run3_GEM.toReplaceWith(DQMOfflineMuonDPG, _run3_GEM_DQMOfflineMuonDPG)
 
 DQMOfflineCASTOR = cms.Sequence( castorSources )
 
@@ -221,6 +227,10 @@ DQMOfflineMuon = cms.Sequence( dtSources *
                                muonMonitors
                               )
 
+_run3_GEM_DQMOfflineMuon = DQMOfflineMuon.copy()
+_run3_GEM_DQMOfflineMuon += gemSources
+run3_GEM.toReplaceWith(DQMOfflineMuon, _run3_GEM_DQMOfflineMuon)
+
 #Taus not created in pp conditions for HI
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 _DQMOfflineTAU = cms.Sequence()
@@ -250,3 +260,5 @@ run3_HB.toReplaceWith( PostDQMOfflineMiniAOD, PostDQMOfflineMiniAOD.copyAndExclu
 from PhysicsTools.NanoAOD.nanoDQM_cff import nanoDQM
 DQMOfflineNanoAOD = cms.Sequence(nanoDQM)
 #PostDQMOfflineNanoAOD = cms.Sequence(nanoDQM)
+from PhysicsTools.NanoAOD.nanogenDQM_cff import nanogenDQM
+DQMOfflineNanoGen = cms.Sequence(nanogenDQM)

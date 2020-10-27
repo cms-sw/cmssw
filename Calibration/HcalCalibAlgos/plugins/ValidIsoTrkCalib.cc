@@ -24,7 +24,6 @@ https://twiki.cern.ch/twiki/bin/view/CMS/ValidIsoTrkCalib
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 //#include "FWCore/Framework/interface/Event.h"
 //#include "FWCore/Framework/interface/MakerMacros.h"
@@ -89,6 +88,9 @@ private:
   edm::EDGetTokenT<HORecHitCollection> tok_ho_;
   edm::EDGetTokenT<reco::IsolatedPixelTrackCandidateCollection> tok_track_;
   edm::EDGetTokenT<reco::TrackCollection> tok_track1_;
+
+  edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_recalibCorrs_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
 
   //std::string m_inputTrackLabel;
   //std::string m_hcalLabel;
@@ -202,6 +204,9 @@ ValidIsoTrkCalib::ValidIsoTrkCalib(const edm::ParameterSet& iConfig) {
       consumes<reco::IsolatedPixelTrackCandidateCollection>(iConfig.getParameter<edm::InputTag>("HcalIsolTrackInput"));
   tok_track1_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("trackInput"));
 
+  tok_recalibCorrs_ = esConsumes(edm::ESInputTag("", "recalibrate"));
+  tok_geom_ = esConsumes();
+
   associationConeSize_ = iConfig.getParameter<double>("associationConeSize");
   allowMissingInputs_ = iConfig.getUntrackedParameter<bool>("allowMissingInputs", true);
   //  outputFileName_=iConfig.getParameter<std::string>("outputFileName");
@@ -229,9 +234,7 @@ ValidIsoTrkCalib::ValidIsoTrkCalib(const edm::ParameterSet& iConfig) {
 // ------------ method called to for each event  ------------
 void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   try {
-    edm::ESHandle<HcalRespCorrs> recalibCorrs;
-    iSetup.get<HcalRespCorrsRcd>().get("recalibrate", recalibCorrs);
-    respRecalib = recalibCorrs.product();
+    respRecalib = &iSetup.getData(tok_recalibCorrs_);
 
     edm::LogInfo("CalibConstants") << "  Loaded:  OK ";
 
@@ -259,9 +262,7 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   iEvent.getByToken(tok_hbhe_, hbhe);
   const HBHERecHitCollection Hithbhe = *(hbhe.product());
 
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
-  geo = pG.product();
+  geo = &iSetup.getData(tok_geom_);
 
   const HcalGeometry* gHcal = static_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal, HcalBarrel));
   //Note: even though it says HcalBarrel, we actually get the whole Hcal detector geometry!
@@ -328,8 +329,11 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     //cout<<"Point 0.3.  Matched :: pt: "<<trit->pt()<<" wholeEnergy: "<<trackE<<"  emEnergy: "<<emEnergy<<"  eta: "<<etahcal<<" phi: "<<phihcal<<endl;
     //cout<<"Point 0.4.  EM energy in cone: "<<emEnergy<<"  EtaHcal: "<<etahcal<<"  PhiHcal: "<<phihcal<<endl;
 
-    TrackDetMatchInfo info =
-        trackAssociator_.associate(iEvent, iSetup, trackAssociator_.getFreeTrajectoryState(iSetup, *trit), parameters_);
+    TrackDetMatchInfo info = trackAssociator_.associate(
+        iEvent,
+        iSetup,
+        trackAssociator_.getFreeTrajectoryState(&iSetup.getData(parameters_.bFieldToken), *trit),
+        parameters_);
 
     //float etaecal=info.trkGlobPosAtEcal.eta();
     //float phiecal=info.trkGlobPosAtEcal.phi();

@@ -13,7 +13,7 @@ GEMDigiMatcher::GEMDigiMatcher(const edm::ParameterSet& pset, edm::ConsumesColle
   maxBXDigi_ = gemDigi.getParameter<int>("maxBX");
   matchDeltaStrip_ = gemDigi.getParameter<int>("matchDeltaStrip");
   verboseDigi_ = gemDigi.getParameter<int>("verbose");
-  matchToSimLink_ = gemDigi.getParameter<int>("matchToSimLink");
+  matchToSimLink_ = gemDigi.getParameter<bool>("matchToSimLink");
 
   const auto& gemPad = pset.getParameterSet("gemPadDigi");
   minBXPad_ = gemPad.getParameter<int>("minBX");
@@ -33,7 +33,9 @@ GEMDigiMatcher::GEMDigiMatcher(const edm::ParameterSet& pset, edm::ConsumesColle
   // make a new simhits matcher
   muonSimHitMatcher_.reset(new GEMSimHitMatcher(pset, std::move(iC)));
 
-  gemSimLinkToken_ = iC.consumes<edm::DetSetVector<GEMDigiSimLink>>(gemSimLink.getParameter<edm::InputTag>("inputTag"));
+  if (matchToSimLink_)
+    gemSimLinkToken_ =
+        iC.consumes<edm::DetSetVector<GEMDigiSimLink>>(gemSimLink.getParameter<edm::InputTag>("inputTag"));
   gemDigiToken_ = iC.consumes<GEMDigiCollection>(gemDigi.getParameter<edm::InputTag>("inputTag"));
   gemPadToken_ = iC.consumes<GEMPadDigiCollection>(gemPad.getParameter<edm::InputTag>("inputTag"));
   gemClusterToken_ = iC.consumes<GEMPadDigiClusterCollection>(gemCluster.getParameter<edm::InputTag>("inputTag"));
@@ -45,7 +47,8 @@ GEMDigiMatcher::GEMDigiMatcher(const edm::ParameterSet& pset, edm::ConsumesColle
 void GEMDigiMatcher::init(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   muonSimHitMatcher_->init(iEvent, iSetup);
 
-  iEvent.getByToken(gemSimLinkToken_, gemDigisSLH_);
+  if (matchToSimLink_)
+    iEvent.getByToken(gemSimLinkToken_, gemDigisSLH_);
   iEvent.getByToken(gemDigiToken_, gemDigisH_);
   iEvent.getByToken(gemPadToken_, gemPadsH_);
   iEvent.getByToken(gemClusterToken_, gemClustersH_);
@@ -73,7 +76,8 @@ void GEMDigiMatcher::match(const SimTrack& t, const SimVertex& v) {
     return;
 
   // now match the digis
-  matchDigisSLToSimTrack(gemDigisSL);
+  if (matchToSimLink_)
+    matchDigisSLToSimTrack(gemDigisSL);
   matchDigisToSimTrack(gemDigis);
   matchPadsToSimTrack(gemPads);
   matchClustersToSimTrack(gemClusters);

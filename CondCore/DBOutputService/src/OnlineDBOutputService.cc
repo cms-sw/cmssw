@@ -49,6 +49,8 @@ namespace cond {
     std::ifstream lastLumiFile(fileName);
     if (lastLumiFile) {
       lastLumiFile >> lastLumiProcessed;
+    } else {
+      throw Exception(std::string("Can't access lastLumi file ") + fileName);
     }
     return lastLumiProcessed;
   }
@@ -70,8 +72,6 @@ namespace cond {
     unsigned int run = boost::lexical_cast<unsigned int>(srun);
     unsigned int lumi = boost::lexical_cast<unsigned int>(slumi);
     lastLumiProcessed = cond::time::lumiTime(run, lumi);
-    edm::LogInfo(service::OnlineDBOutputService::MSGSOURCE)
-        << "Last lumi: " << lastLumiProcessed << " Current run: " << run << " lumi id:" << lumi;
     return lastLumiProcessed;
   }
 
@@ -106,6 +106,9 @@ cond::Time_t cond::service::OnlineDBOutputService::getLastLumiProcessed() {
   std::string info("");
   if (!m_omsServiceUrl.empty()) {
     lastLumiProcessed = cond::getLastLumiFromOMS(m_omsServiceUrl);
+    logger().logInfo() << "Last lumi: " << lastLumiProcessed
+                       << " Current run: " << cond::time::unpack(lastLumiProcessed).first
+                       << " lumi id:" << cond::time::unpack(lastLumiProcessed).second;
   } else {
     if (!m_lastLumiUrl.empty()) {
       std::string info("");
@@ -113,16 +116,16 @@ cond::Time_t cond::service::OnlineDBOutputService::getLastLumiProcessed() {
         throw Exception("Can't get last Lumisection from DAQ.");
       unsigned int lastL = boost::lexical_cast<unsigned int>(info);
       lastLumiProcessed = cond::time::lumiTime(m_runNumber, lastL);
-      edm::LogInfo(MSGSOURCE) << "Last lumi: " << lastLumiProcessed << " Current run: " << m_runNumber
-                              << " lumi id:" << lastL;
+      logger().logInfo() << "Last lumi: " << lastLumiProcessed << " Current run: " << m_runNumber
+                         << " lumi id:" << lastL;
     } else {
       if (m_lastLumiFile.empty()) {
         throw Exception("File name for last lumi has not been provided.");
       } else {
         lastLumiProcessed = cond::getLatestLumiFromFile(m_lastLumiFile);
         auto upkTime = cond::time::unpack(lastLumiProcessed);
-        edm::LogInfo(MSGSOURCE) << "Last lumi: " << lastLumiProcessed << " Current run: " << upkTime.first
-                                << " lumi id:" << upkTime.second;
+        logger().logInfo() << "Last lumi: " << lastLumiProcessed << " Current run: " << upkTime.first
+                           << " lumi id:" << upkTime.second;
       }
     }
   }

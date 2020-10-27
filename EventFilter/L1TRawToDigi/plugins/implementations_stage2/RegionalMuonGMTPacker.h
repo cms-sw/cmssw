@@ -13,10 +13,13 @@ namespace l1t {
     class RegionalMuonGMTPacker : public Packer {
     public:
       Blocks pack(const edm::Event&, const PackerTokens*) override;
+      void setKalmanAlgoTrue() { isKalman_ = true; };
 
     private:
       typedef std::map<unsigned int, std::vector<uint32_t>> PayloadMap;
       void packTF(const edm::Event&, const edm::EDGetTokenT<RegionalMuonCandBxCollection>&, Blocks&);
+
+      bool isKalman_{false};
     };
   }  // namespace stage2
 }  // namespace l1t

@@ -381,7 +381,8 @@ def miniAOD_customizeCommon(process):
         toKeep = ['deepTau2017v2p1']
     )
     from Configuration.Eras.Modifier_phase2_common_cff import phase2_common #Phase2 Tau MVA
-    phase2_common.toModify(tauIdEmbedder.toKeep, func=lambda t:t.append('newDMPhase2v1')) #Phase2 Tau MVA
+    phase2_common.toModify(tauIdEmbedder.toKeep, func=lambda t:t.append('newDMPhase2v1')) #Phase2 Tau isolation MVA
+    phase2_common.toModify(tauIdEmbedder.toKeep, func=lambda t:t.append('againstElePhase2v1')) #Phase2 Tau anti-e MVA
     tauIdEmbedder.runTauID()
     addToProcessAndTask(_noUpdatedTauName, process.slimmedTaus.clone(),process,task)
     delattr(process, 'slimmedTaus')
@@ -395,6 +396,10 @@ def miniAOD_customizeCommon(process):
         process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2raw.PATTauProducer=_noUpdatedTauName
         process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2.PATTauProducer=_noUpdatedTauName
         task.add(process.rerunIsolationMVADBnewDMwLTPhase2Task)
+    if 'againstElePhase2v1' in tauIdEmbedder.toKeep:
+        process.patTauDiscriminationByElectronRejectionMVA6Phase2v1Raw.PATTauProducer=_noUpdatedTauName
+        process.patTauDiscriminationByElectronRejectionMVA6Phase2v1.PATTauProducer=_noUpdatedTauName
+        task.add(process.patTauDiscriminationByElectronRejectionMVA6Phase2v1Task)
 
     #-- Rerun tauID against dead ECal towers to taus for the various re-MiniAOD eras
     # to enable default behoviour with leading track extrapolation to ECAL
@@ -420,7 +425,7 @@ def miniAOD_customizeCommon(process):
     from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
     _rerun_puppijets_task = task.copy()
     _rerun_puppijets_task.add(process.puppi, process.ak4PFJetsPuppi)
-    (_run2_miniAOD_ANY | pA_2016 | pp_on_AA_2018).toReplaceWith(task, _rerun_puppijets_task)
+    (_run2_miniAOD_ANY | pA_2016 | pp_on_AA_2018 | pp_on_PbPb_run3 ).toReplaceWith(task, _rerun_puppijets_task)
 
     from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import j2tParametersVX
     process.ak4PFJetsPuppiTracksAssociatorAtVertex = cms.EDProducer("JetTracksAssociatorAtVertex",
@@ -474,7 +479,6 @@ def miniAOD_customizeCommon(process):
 
     _run2_miniAOD_ANY.toModify(process.patJets, addTagInfos = False )
     
-    _hiGeneral.toModify(process.patJets, addTagInfos = True )
     _hiGeneral.toModify(process.patJets, tagInfoSources = cms.VInputTag(["impactParameterTagInfos","secondaryVertexTagInfos"]) )
 
     ## puppi met
@@ -588,6 +592,9 @@ def miniAOD_customizeMC(process):
     process.tauGenJetsBoosted.GenParticles = "prunedGenParticles"
     process.patJetPartons.particles = "genParticles"
     process.patJetPartonMatch.matched = "prunedGenParticles"
+    _hiGeneral.toModify(process.patJetPartonMatch, matched =  "hiSignalGenParticles")
+    from Configuration.ProcessModifiers.genJetSubEvent_cff import genJetSubEvent
+    genJetSubEvent.toModify(process.patJetPartonMatch, matched =  "cleanedPartons")
     process.patJetPartonMatch.mcStatus = [ 3, 23 ]
     process.patJetGenJetMatch.matched = "slimmedGenJets"
     (~_hiGeneral).toModify(process, patJetGenJetMatchAK8Puppi = dict(matched =  "slimmedGenJetsAK8"))
@@ -603,6 +610,7 @@ def miniAOD_customizeMC(process):
     
     from PhysicsTools.PatAlgos.producersHeavyIons.heavyIonJetSetup import removeJECsForMC
     _hiGeneral.toModify(process, removeJECsForMC)
+    _hiGeneral.toReplaceWith(task,task.copyAndExclude([process.slimmedGenJetsFlavourInfos]))
 
 
 def miniAOD_customizeOutput(out):

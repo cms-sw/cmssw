@@ -120,5 +120,5 @@ hiRecoPFJetsTask = cms.Task(
     )
 hiRecoPFJets = cms.Sequence(hiRecoPFJetsTask)
 
-
-
+from Configuration.ProcessModifiers.run2_miniAOD_pp_on_AA_103X_cff import run2_miniAOD_pp_on_AA_103X
+run2_miniAOD_pp_on_AA_103X.toModify(akCs4PFJets,src = 'cleanedParticleFlow')

@@ -43,8 +43,14 @@ namespace {
 TrackerGeometry* TrackerGeomBuilderFromGeometricDet::build(const GeometricDet* gd,
                                                            const PTrackerParameters& ptp,
                                                            const TrackerTopology* tTopo) {
-  int BIG_PIX_PER_ROC_X = ptp.vpars[2];
-  int BIG_PIX_PER_ROC_Y = ptp.vpars[3];
+  if (ptp.vpars.size() != 6) {
+    throw cms::Exception("TrackerGeomBuilderFromGeometricDet")
+        << "Tracker parameters block from XMLs called vPars is expected to have 6 entries, but has " << ptp.vpars.size()
+        << " entrie(s).";
+  }
+
+  const int BIG_PIX_PER_ROC_X = ptp.vpars[2];
+  const int BIG_PIX_PER_ROC_Y = ptp.vpars[3];
 
   thePixelDetTypeMap.clear();
   theStripDetTypeMap.clear();
@@ -256,10 +262,10 @@ void TrackerGeomBuilderFromGeometricDet::buildGeomDet(TrackerGeometry* tracker) 
         tracker->addDetId(composedDetId);
 
       } else if (gduTypeName.find("Lower") != std::string::npos) {
-        //FIXME::ERICA: the plane builder is built in the middle...
-        PlaneBuilderForGluedDet::ResultType plane = gluedplaneBuilder.plane(composed);
+        //The plane is *not* built in the middle, but on the Lower surface
+        Plane* plane = new Plane(dus->surface());
         composedDetId = theTopo->stack(gduId[i]);
-        StackGeomDet* stackDet = new StackGeomDet(&(*plane), dum, dus, composedDetId);
+        StackGeomDet* stackDet = new StackGeomDet(&(*plane), dus, dum, composedDetId);
         tracker->addDet((GeomDet*)stackDet);
         tracker->addDetId(composedDetId);
       }

@@ -1,8 +1,8 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun protoVHGCalSimWatcher_cfg.py geometry=D62
+#   cmsRun protoVHGCalSimWatcher_cfg.py geometry=D71
 #
-#   Options for geometry D49, D58, D59, D62
+#   Options for geometry D49, D68, D70, D71
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -13,10 +13,10 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "D62",
+                 "D71",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D49, D58, D59, D62")
+                  "geometry of operations: D49, D68, D70, D71")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -31,21 +31,21 @@ if (options.geometry == "D49"):
     process = cms.Process('PROD',Phase2C9)
     process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
     process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
-elif (options.geometry == "D58"):
+elif (options.geometry == "D68"):
     from Configuration.Eras.Era_Phase2C12_cff import Phase2C12
     process = cms.Process('PROD',Phase2C12)
-    process.load('Configuration.Geometry.GeometryExtended2026D58_cff')
-    process.load('Configuration.Geometry.GeometryExtended2026D58Reco_cff')
-elif (options.geometry == "D59"):
+    process.load('Configuration.Geometry.GeometryExtended2026D68_cff')
+    process.load('Configuration.Geometry.GeometryExtended2026D68Reco_cff')
+elif (options.geometry == "D70"):
     from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
     process = cms.Process('PROD',Phase2C11)
-    process.load('Configuration.Geometry.GeometryExtended2026D59_cff')
-    process.load('Configuration.Geometry.GeometryExtended2026D59Reco_cff')
+    process.load('Configuration.Geometry.GeometryExtended2026D70_cff')
+    process.load('Configuration.Geometry.GeometryExtended2026D70Reco_cff')
 else:
     from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
     process = cms.Process('PROD',Phase2C11)
-    process.load('Configuration.Geometry.GeometryExtended2026D62_cff')
-    process.load('Configuration.Geometry.GeometryExtended2026D62Reco_cff')
+    process.load('Configuration.Geometry.GeometryExtended2026D71_cff')
+    process.load('Configuration.Geometry.GeometryExtended2026D71Reco_cff')
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')

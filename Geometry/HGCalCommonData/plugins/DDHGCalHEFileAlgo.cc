@@ -74,6 +74,7 @@ private:
   std::vector<int> layerSense_;            // Content of a layer (sensitive?)
   int firstLayer_;                         // Copy # of the first sensitive layer
   int absorbMode_;                         // Absorber mode
+  int sensitiveMode_;                      // Sensitive mode
   std::vector<std::string> materialsTop_;  // Materials of top layers
   std::vector<std::string> namesTop_;      // Names of top layers
   std::vector<double> layerThickTop_;      // Thickness of the top sections
@@ -150,9 +151,10 @@ void DDHGCalHEFileAlgo::initialize(const DDNumericArguments& nArgs,
   layerSense_ = dbl_to_int(vArgs["LayerSense"]);
   firstLayer_ = (int)(nArgs["FirstLayer"]);
   absorbMode_ = (int)(nArgs["AbsorberMode"]);
+  sensitiveMode_ = (int)(nArgs["SensitiveMode"]);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "First Layer " << firstLayer_ << " and "
-                                << "Absober mode " << absorbMode_;
+                                << "Absober:Sensitive mode " << absorbMode_ << ":" << sensitiveMode_;
 #endif
   layerCenter_ = dbl_to_int(vArgs["LayerCenter"]);
 #ifdef EDM_ML_DEBUG
@@ -353,14 +355,18 @@ void DDHGCalHEFileAlgo::constructLayers(const DDLogicalPart& module, DDCompactVi
           edm::LogVerbatim("HGCalGeom") << "[" << k << "] z " << pgonZ[k] << " R " << pgonRin[k] << ":" << pgonRout[k];
 #endif
       } else {
-        DDSolid solid = DDSolidFactory::tubs(DDName(name, nameSpace_), hthick, rinB, routF, 0.0, 2._pi);
+        double rins = (sensitiveMode_ < 1) ? rinB : HGCalGeomTools::radius(zz + hthick, zFrontB_, rMinFront_, slopeB_);
+        double routs =
+            (sensitiveMode_ < 1) ? routF : HGCalGeomTools::radius(zz - hthick, zFrontT_, rMaxFront_, slopeT_);
+        DDSolid solid = DDSolidFactory::tubs(DDName(name, nameSpace_), hthick, rins, routs, 0.0, 2._pi);
         glog = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalHEFileAlgo: " << solid.name() << " Tubs made of " << matName
-                                      << " of dimensions " << rinB << ", " << routF << ", " << hthick
-                                      << ", 0.0, 360.0 and positioned in: " << glog.name() << " number " << copy;
+                                      << " of dimensions " << rinB << ":" << rins << ", " << routF << ":" << routs
+                                      << ", " << hthick << ", 0.0, 360.0 and positioned in: " << glog.name()
+                                      << " number " << copy;
 #endif
-        positionMix(glog, name, copy, thick_[ii], matter, rinB, rMixLayer_[i], routF, zz, cpv);
+        positionMix(glog, name, copy, thick_[ii], matter, rins, rMixLayer_[i], routs, zz, cpv);
       }
       DDTranslation r1(0, 0, zz);
       DDRotation rot;

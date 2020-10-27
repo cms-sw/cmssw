@@ -87,7 +87,7 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
   risolveAmbiguity_ = conf_.getParameter<bool>("risolveConversionAmbiguity");
   likelihoodWeights_ = conf_.getParameter<std::string>("MVA_weights_location");
 
-  caloGeomToken_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
+  caloGeomToken_ = esConsumes();
   mFToken_ = esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>();
   transientTrackToken_ = esConsumes<TransientTrackBuilder, TransientTrackRecord, edm::Transition::BeginRun>(
       edm::ESInputTag("", "TransientTrackBuilder"));

@@ -68,6 +68,8 @@ namespace edm {
       friend class edm::maker::ModuleHolderT;
 
       EDAnalyzerAdaptorBase();
+      EDAnalyzerAdaptorBase(const EDAnalyzerAdaptorBase&) = delete;                   // stop default
+      const EDAnalyzerAdaptorBase& operator=(const EDAnalyzerAdaptorBase&) = delete;  // stop default
       virtual ~EDAnalyzerAdaptorBase();
 
       // ---------- const member functions ---------------------
@@ -119,10 +121,6 @@ namespace edm {
       std::vector<ConsumesInfo> consumesInfo() const;
 
     private:
-      EDAnalyzerAdaptorBase(const EDAnalyzerAdaptorBase&) = delete;  // stop default
-
-      const EDAnalyzerAdaptorBase& operator=(const EDAnalyzerAdaptorBase&) = delete;  // stop default
-
       bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
       void doPreallocate(PreallocationConfiguration const&);
       virtual void preallocLumis(unsigned int) {}

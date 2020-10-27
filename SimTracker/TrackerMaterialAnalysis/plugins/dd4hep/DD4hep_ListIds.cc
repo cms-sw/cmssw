@@ -51,7 +51,7 @@ void DD4hep_ListIds::analyze(const edm::Event &evt, const edm::EventSetup &setup
   std::set<std::string_view> tkdss;
 
   for (const auto &t : fv.specpars()) {
-    tkdss.insert(t->strValue(attribute));
+    tkdss.insert(t.second->strValue(attribute));
   }
 
   for (const auto &i : tkdss) {

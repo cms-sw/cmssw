@@ -105,7 +105,7 @@ l1t::RegionalMuonCand L1TMuonBarrelKalmanAlgo::convertToBMTF(const L1MuKBMTrack&
 
   l1t::RegionalMuonCand muon(pt, phi, eta, sign, signValid, quality, processor, l1t::bmtf, addr);
   muon.setHwHF(HF);
-  muon.setHwPt2(pt2);
+  muon.setHwPtUnconstrained(pt2);
   muon.setHwDXY(dxy);
 
   //nw the words!
@@ -1068,10 +1068,10 @@ std::map<int, int> L1TMuonBarrelKalmanAlgo::trackAddress(const L1MuKBMTrack& tra
     out[l1t::RegionalMuonCand::kWheelNum] = 2;
   else
     out[l1t::RegionalMuonCand::kWheelNum] = 0;
-  out[l1t::RegionalMuonCand::kStat1] = 3;
+  out[l1t::RegionalMuonCand::kStat1] = 15;
   out[l1t::RegionalMuonCand::kStat2] = 15;
   out[l1t::RegionalMuonCand::kStat3] = 15;
-  out[l1t::RegionalMuonCand::kStat4] = 15;
+  out[l1t::RegionalMuonCand::kStat4] = 3;
   out[l1t::RegionalMuonCand::kSegSelStat1] = 0;
   out[l1t::RegionalMuonCand::kSegSelStat2] = 0;
   out[l1t::RegionalMuonCand::kSegSelStat3] = 0;
@@ -1092,24 +1092,24 @@ std::map<int, int> L1TMuonBarrelKalmanAlgo::trackAddress(const L1MuKBMTrack& tra
         addr = 1;
       else
         addr = 2;
-      out[l1t::RegionalMuonCand::kStat1] = addr;
+      out[l1t::RegionalMuonCand::kStat4] = addr;
     }
     if (stub->stNum() == 3) {
-      out[l1t::RegionalMuonCand::kStat2] = addr;
-    }
-    if (stub->stNum() == 2) {
       out[l1t::RegionalMuonCand::kStat3] = addr;
     }
+    if (stub->stNum() == 2) {
+      out[l1t::RegionalMuonCand::kStat2] = addr;
+    }
     if (stub->stNum() == 1) {
-      out[l1t::RegionalMuonCand::kStat4] = addr;
+      out[l1t::RegionalMuonCand::kStat1] = addr;
     }
   }
 
   word = 0;
-  word = word | out[l1t::RegionalMuonCand::kStat1] << 12;
-  word = word | out[l1t::RegionalMuonCand::kStat2] << 8;
-  word = word | out[l1t::RegionalMuonCand::kStat3] << 4;
-  word = word | out[l1t::RegionalMuonCand::kStat4];
+  word = word | out[l1t::RegionalMuonCand::kStat4] << 12;
+  word = word | out[l1t::RegionalMuonCand::kStat3] << 8;
+  word = word | out[l1t::RegionalMuonCand::kStat2] << 4;
+  word = word | out[l1t::RegionalMuonCand::kStat1];
 
   return out;
 }

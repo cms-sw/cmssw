@@ -77,7 +77,7 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.destinations = ['cerr']
 process.MessageLogger.statistics = []
-process.MessageLogger.fwkJobReports = []
+
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     generator = cms.PSet(

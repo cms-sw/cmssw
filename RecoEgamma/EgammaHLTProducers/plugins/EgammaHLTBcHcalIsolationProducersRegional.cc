@@ -15,6 +15,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHadTower.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 //this class produces either Hcal isolation or H for H/E  depending if doEtSum=true or false
 //H for H/E = towers behind SC, hcal isolation has these towers excluded
@@ -121,7 +122,8 @@ void EgammaHLTBcHcalIsolationProducersRegional::produce(edm::StreamID,
   }
 
   auto const &caloTowers = iEvent.get(caloTowerProducer_);
-  EgammaHadTower hadTower(iSetup);
+  edm::ESHandle<CaloTowerConstituentsMap> ctmaph;
+  iSetup.get<CaloGeometryRecord>().get(ctmaph);
 
   const EgammaTowerIsolation towerIso1(outerCone_, 0., etMin_, 1, &caloTowers);
   const EgammaTowerIsolation towerIso2(outerCone_, 0., etMin_, 2, &caloTowers);
@@ -134,7 +136,7 @@ void EgammaHLTBcHcalIsolationProducersRegional::produce(edm::StreamID,
     float isol = 0;
 
     auto towersBehindCluster =
-        useSingleTower_ ? hadTower.towersOf(*(recoEcalCandRef->superCluster())) : std::vector<CaloTowerDetId>{};
+        useSingleTower_ ? egamma::towersOf(*(recoEcalCandRef->superCluster()), *ctmaph) : std::vector<CaloTowerDetId>{};
 
     if (doEtSum_) {  //calculate hcal isolation excluding the towers behind the cluster which will be used for H for H/E
       const EgammaTowerIsolation isolAlgo(outerCone_, innerCone_, etMin_, depth_, &caloTowers);
@@ -147,8 +149,8 @@ void EgammaHLTBcHcalIsolationProducersRegional::produce(edm::StreamID,
 
     } else {  //calcuate H for H/E
       if (useSingleTower_)
-        isol = hadTower.getDepth1HcalESum(towersBehindCluster, caloTowers) +
-               hadTower.getDepth2HcalESum(towersBehindCluster, caloTowers);
+        isol = egamma::depth1HcalESum(towersBehindCluster, caloTowers) +
+               egamma::depth2HcalESum(towersBehindCluster, caloTowers);
       else {
         auto const &sc = recoEcalCandRef->superCluster().get();
         isol = towerIso1.getTowerESum(sc) + towerIso2.getTowerESum(sc);

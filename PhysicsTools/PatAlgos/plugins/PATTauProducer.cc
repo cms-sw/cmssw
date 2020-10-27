@@ -32,7 +32,8 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet& iConfig)
                                                 : edm::ParameterSet(),
                 consumesCollector(),
                 false),
-      useUserData_(iConfig.exists("userData")) {
+      useUserData_(iConfig.exists("userData")),
+      posAtECalEntranceComputer_(consumesCollector()) {
   firstOccurence_ = true;
   // initialize the configurables
   baseTauToken_ = consumes<edm::View<reco::BaseTau>>(iConfig.getParameter<edm::InputTag>("tauSource"));

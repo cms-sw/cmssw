@@ -86,7 +86,7 @@ void testDDFilteredViewGoTo::checkFilteredView() {
   // Start with Tracker
   std::cout << "\n==== Let's go to Tracker\n";
   fview.goTo({0, 0, 6});
-  CPPUNIT_ASSERT(fview.name() == "Tracker");
+  CPPUNIT_ASSERT(fview.fullName() == "tracker:Tracker");
   printMe(fview);
 
   // Go to the first daughter

@@ -187,10 +187,6 @@ process.MessageLogger.cerr = cms.untracked.PSet(
                  optionalPSet = cms.untracked.bool(True),
                  limit = cms.untracked.int32(0)
                  ),
-    FwkJob = cms.untracked.PSet(
-    optionalPSet = cms.untracked.bool(True),
-    limit = cms.untracked.int32(0)
-    ),
     FwkSummary = cms.untracked.PSet(
     optionalPSet = cms.untracked.bool(True),
     reportEvery = cms.untracked.int32(1),

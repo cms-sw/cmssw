@@ -52,7 +52,6 @@ process.MessageLogger = cms.Service("MessageLogger",
     default = cms.untracked.PSet(limit = cms.untracked.int32(10000000)),
     Root_NoDictionary = cms.untracked.PSet(limit = cms.untracked.int32(0)),
     DEBUG = cms.untracked.PSet(limit = cms.untracked.int32(0)),
-    FwkJob = cms.untracked.PSet(limit = cms.untracked.int32(0)),
     FwkSummary = cms.untracked.PSet(reportEvery = cms.untracked.int32(1), limit = cms.untracked.int32(10000000) ),
     threshold = cms.untracked.string('DEBUG')
   )

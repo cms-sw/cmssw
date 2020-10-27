@@ -79,6 +79,7 @@ private:
 
   // ----------member data ---------------------------
   edm::InputTag src_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
 
   edm::Service<TFileService> fs_;
   TTree* tree_;
@@ -98,7 +99,8 @@ private:
 //
 // constructors and destructor
 //
-EopTreeWriter::EopTreeWriter(const edm::ParameterSet& iConfig) : src_(iConfig.getParameter<edm::InputTag>("src")) {
+EopTreeWriter::EopTreeWriter(const edm::ParameterSet& iConfig)
+    : src_(iConfig.getParameter<edm::InputTag>("src")), geometryToken_(esConsumes()) {
   //now do what ever initialization is needed
 
   // TrackAssociator parameters
@@ -125,9 +127,7 @@ void EopTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   using namespace edm;
 
   // get geometry
-  edm::ESHandle<CaloGeometry> geometry;
-  iSetup.get<CaloGeometryRecord>().get(geometry);
-  const CaloGeometry* geo = geometry.product();
+  const CaloGeometry* geo = &iSetup.getData(geometryToken_);
   //    const CaloSubdetectorGeometry* towerGeometry =
   //      geo->getSubdetectorGeometry(DetId::Calo, CaloTowerDetId::SubdetId);
 
@@ -190,7 +190,10 @@ void EopTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
     trackAssociator_.useDefaultPropagator();
     TrackDetMatchInfo info = trackAssociator_.associate(
-        iEvent, iSetup, trackAssociator_.getFreeTrajectoryState(iSetup, *track), parameters_);
+        iEvent,
+        iSetup,
+        trackAssociator_.getFreeTrajectoryState(&iSetup.getData(parameters_.bFieldToken), *track),
+        parameters_);
 
     trackemc1 = info.nXnEnergy(TrackDetMatchInfo::EcalRecHits, 0);
     trackemc3 = info.nXnEnergy(TrackDetMatchInfo::EcalRecHits, 1);
