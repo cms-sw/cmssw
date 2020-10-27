@@ -496,6 +496,7 @@ steps['RunCosmics2016B']={'INPUT':InputInfo(dataSet='/Cosmics/Run2016B-v1/RAW',l
 
 ### LS2 - MWGR ###
 steps['RunCosmics2020']={'INPUT':InputInfo(dataSet='/ExpressCosmics/Commissioning2019-Express-v1/FEVT',label='2020GR0',run=[334393],events=100000,location='STD')}
+steps['RunCosmics2020GEM']={'INPUT':InputInfo(dataSet='/ExpressCosmics/Commissioning2020-Express-v1/FEVT',label='2020GR4',run=[337973],events=100000,location='STD')}
 
 #### Test of lumi section boundary crossing with run2 2018D ####
 Run2018Dml1={320822: [[1,1]] , 320823: [[1,1]]}
