@@ -58,14 +58,14 @@ l1tStage2uGMTZeroSupp = DQMEDAnalyzer(
                                       0x000001FF,
                                       0x00000000),
     # mask for outputs (pt==0 defines empty muon)
-    maskCapId2 = cms.untracked.vint32(0x0007FC00,
+    maskCapId2 = cms.untracked.vint32(0x00000000,
                                       0x00000000,
                                       0x0007FC00,
                                       0x00000000,
                                       0x0007FC00,
                                       0x00000000),
     # mask for validation event outputs (pt==0 defines empty muon)
-    maskCapId3 = cms.untracked.vint32(0x0007FC00,
+    maskCapId3 = cms.untracked.vint32(0x00000000,
                                       0x00000000,
                                       0x0007FC00,
                                       0x00000000,
