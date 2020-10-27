@@ -54,7 +54,17 @@ private:
   std::vector<std::string> getPoints(
       double xpos, double ypos, double delX, double delY, double rin, double rout, int lay, int waferU, int waferV);
   std::vector<double> getCorners(double xpos, double ypos, double delX, double delY);
-  std::pair<bool, std::string> getPoints(double xpos, double ypos, double delX, double delY, double rin, double rout, int part, int rotn, int layer, int waferU, int waferV);
+  std::pair<bool, std::string> getPoints(double xpos,
+                                         double ypos,
+                                         double delX,
+                                         double delY,
+                                         double rin,
+                                         double rout,
+                                         int part,
+                                         int rotn,
+                                         int layer,
+                                         int waferU,
+                                         int waferV);
 
   const std::string nameSense_, nameDetector_;
   const int verbosity_;
@@ -178,28 +188,29 @@ void HGCalWaferInFileTest::analyze(const edm::Event& iEvent, const edm::EventSet
         bool partOK = ((part1 == part2) || ((part1 == HGCalTypes::WaferFull) && (part2 == HGCalTypes::WaferOut)));
         bool rotnOK = ((rotn1 == rotn2) || (part1 == HGCalTypes::WaferFull) || (part2 == HGCalTypes::WaferFull));
         bool partOK2 = (partOK) || (part2 < part1);
-	bool rotnOK2(true);
-	std::string miss;
+        bool rotnOK2(true);
+        std::string miss;
         if (!partOK) {
           ++badP;
           if ((layer - layerf) < layers)
             ++wrongP[layer - layerf];
         }
-	const auto& xy = hgdc.waferPosition(layer, waferU, waferV, true, false);
+        const auto& xy = hgdc.waferPosition(layer, waferU, waferV, true, false);
         const auto& rr = hgdc.rangeRLayer(layer, true);
 
         if (!partOK2) {
           ++badP2;
           if ((layer - layerf) < layers)
             ++wrongP2[layer - layerf];
-	  auto result = getPoints(xy.first, xy.second, delX, delY, rr.first, rr.second, part1, rotn1, layer, waferU, waferV);
-	  rotnOK2 = result.first;
-	  miss = result.second;
-	  if (!rotnOK2) {
-	    ++badR2;
-	    if ((layer - layerf) < layers)
-	      ++wrongR2[layer - layerf];
-	  }
+          auto result =
+              getPoints(xy.first, xy.second, delX, delY, rr.first, rr.second, part1, rotn1, layer, waferU, waferV);
+          rotnOK2 = result.first;
+          miss = result.second;
+          if (!rotnOK2) {
+            ++badR2;
+            if ((layer - layerf) < layers)
+              ++wrongR2[layer - layerf];
+          }
         }
         if (!rotnOK) {
           ++badR;
@@ -209,29 +220,32 @@ void HGCalWaferInFileTest::analyze(const edm::Event& iEvent, const edm::EventSet
         if ((!partOK) || (!rotnOK)) {
           ++badG;
           if ((verbosity_ > 0) || ((!partOK2) || (!rotnOK2))) {
-	    std::string partx1 = (part1 < static_cast<int>(types.size())) ? types[part1] : "X";
+            std::string partx1 = (part1 < static_cast<int>(types.size())) ? types[part1] : "X";
             std::string partx2 = (part2 < static_cast<int>(types.size())) ? types[part2] : "X";
             auto points = getPoints(xy.first, xy.second, delX, delY, rr.first, rr.second, layer, waferU, waferV);
             auto rpos = getCorners(xy.first, xy.second, delX, delY);
             std::cout << "ID[" << k << "]: (" << (hgdc.getLayerOffset() + layer) << ", " << waferU << ", " << waferV
                       << "," << type2 << ", " << partx1 << ":" << partx2 << ":" << part1 << ":" << part2 << ", "
                       << rotn1 << ":" << rotn2 << ") at (" << std::setprecision(4) << xy.first << ", " << xy.second
-                      << ", " << hgdc.waferZ(layer, true) << ") failure flags (part = " << partOK << ":" << partOK2 << " rotn " << rotnOK << ":" << rotnOK2 << " at " << miss << " with " << points.size() << " points:";
+                      << ", " << hgdc.waferZ(layer, true) << ") failure flags (part = " << partOK << ":" << partOK2
+                      << " rotn " << rotnOK << ":" << rotnOK2 << " at " << miss << " with " << points.size()
+                      << " points:";
             for (auto point : points)
               std::cout << " " << point;
             std::cout << " in the region " << rr.first << ":" << rr.second << " Corners";
             for (auto point : rpos)
               std::cout << " " << point;
             std::cout << std::endl;
-	  }
-	}
+          }
+        }
       }
     }
     std::cout << "\n\nFinds " << badG << " (" << badP << ":" << badP2 << ":" << badR << ":" << badR2
               << ") mismatch in partial|orientation among " << allX << " wafers with the same indices" << std::endl;
     for (int k = 0; k < layers; ++k) {
       if ((wrongP[k] > 0) || (wrongR[k] > 0))
-        std::cout << "Layer[" << k << ":" << (layerf + k) << "] " << wrongP[k] << ":" << wrongP2[k] << ":" << wrongR[k] << ":" << wrongR2[k] << std::endl;
+        std::cout << "Layer[" << k << ":" << (layerf + k) << "] " << wrongP[k] << ":" << wrongP2[k] << ":" << wrongR[k]
+                  << ":" << wrongR2[k] << std::endl;
     }
     std::cout << std::endl;
   }
@@ -443,7 +457,17 @@ std::vector<double> HGCalWaferInFileTest::getCorners(double xpos, double ypos, d
   return points;
 }
 
-std::pair<bool, std::string> HGCalWaferInFileTest::getPoints(double xpos, double ypos, double delX, double delY, double rin, double rout, int part, int rotn, int layer, int waferU, int waferV) {
+std::pair<bool, std::string> HGCalWaferInFileTest::getPoints(double xpos,
+                                                             double ypos,
+                                                             double delX,
+                                                             double delY,
+                                                             double rin,
+                                                             double rout,
+                                                             int part,
+                                                             int rotn,
+                                                             int layer,
+                                                             int waferU,
+                                                             int waferV) {
   std::string point;
   static const int corners = 6;
   static const int corner2 = 12;
@@ -456,24 +480,46 @@ std::pair<bool, std::string> HGCalWaferInFileTest::getPoints(double xpos, double
   double dy0[corners] = {-delY, -0.5 * delY, 0.5 * delY, delY, 0.5 * delY, -0.5 * delY};
   double dx1[corners] = {0.5 * delX, delX, 0.5 * delX, -0.5 * delX, -delX, -0.5 * delX};
   double dy1[corners] = {-0.75 * delY, 0.0, 0.75 * delY, 0.75 * delY, 0.0, -0.75 * delY};
-  double dx2[corner2] = {0.225 * delX, 0.775 * delX, delX, delX, 0.775 * delX, 0.225 * delX, -0.225 * delX, -0.775 * delX, -delX, -delX, -0.775 * delX, -0.225 * delX};
-  double dy2[corner2] = {-0.8875 * delY, -0.6125 * delY, -0.275 * delY, 0.275 * delY, 0.6125 * delY, 0.8875 * delY, 0.8875 * delY, 0.6125 * delY, 0.275 * delY, -0.275 * delY, -0.6125 * delY, -0.8875 * delY};
+  double dx2[corner2] = {0.225 * delX,
+                         0.775 * delX,
+                         delX,
+                         delX,
+                         0.775 * delX,
+                         0.225 * delX,
+                         -0.225 * delX,
+                         -0.775 * delX,
+                         -delX,
+                         -delX,
+                         -0.775 * delX,
+                         -0.225 * delX};
+  double dy2[corner2] = {-0.8875 * delY,
+                         -0.6125 * delY,
+                         -0.275 * delY,
+                         0.275 * delY,
+                         0.6125 * delY,
+                         0.8875 * delY,
+                         0.8875 * delY,
+                         0.6125 * delY,
+                         0.275 * delY,
+                         -0.275 * delY,
+                         -0.6125 * delY,
+                         -0.8875 * delY};
   bool ok(true);
   switch (part) {
-  case (HGCalTypes::WaferThree): {
+    case (HGCalTypes::WaferThree): {
       static const int nc0[corners] = {450, 150, 201, 312, 423, 534};
       int nc = nc0[rotn];
       for (int k1 = 0; k1 < 3; ++k1) {
-	int k = nc % base;
-	double xc1 = xpos + dx0[k];
-	double yc1 = ypos + dy0[k];
-	double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
-	if (rpos <= rout && rpos >= rin) {
-	  point = c0[k];
-	  ok = false;
-	  break;
-	}
-	nc /= base;
+        int k = nc % base;
+        double xc1 = xpos + dx0[k];
+        double yc1 = ypos + dy0[k];
+        double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
+        if (rpos <= rout && rpos >= rin) {
+          point = c0[k];
+          ok = false;
+          break;
+        }
+        nc /= base;
       }
       break;
     }
@@ -482,29 +528,29 @@ std::pair<bool, std::string> HGCalWaferInFileTest::getPoints(double xpos, double
       static const int nc11[corners] = {700, 902, 1104, 106, 308, 510};
       int nc = nc10[rotn];
       for (int k1 = 0; k1 < 3; ++k1) {
-	int k = nc % base;
-	double xc1 = xpos + dx0[k];
-	double yc1 = ypos + dy0[k];
-	double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
-	if (rpos <= rout && rpos >= rin) {
-	  point = c0[k];
-	  ok = false;
-	  break;
-	}
-	nc /= base;
+        int k = nc % base;
+        double xc1 = xpos + dx0[k];
+        double yc1 = ypos + dy0[k];
+        double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
+        if (rpos <= rout && rpos >= rin) {
+          point = c0[k];
+          ok = false;
+          break;
+        }
+        nc /= base;
       }
       nc = nc11[rotn];
       for (int k1 = 0; k1 < 2; ++k1) {
-	int k = nc % base2;
-	double xc1 = xpos + dx2[k];
-	double yc1 = ypos + dy2[k];
-	double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
-	if (rpos <= rout && rpos >= rin) {
-	  point = c2[k];
-	  ok = false;
-	  break;
-	}
-	nc /= base2;
+        int k = nc % base2;
+        double xc1 = xpos + dx2[k];
+        double yc1 = ypos + dy2[k];
+        double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
+        if (rpos <= rout && rpos >= rin) {
+          point = c2[k];
+          ok = false;
+          break;
+        }
+        nc /= base2;
       }
       break;
     }
@@ -513,29 +559,29 @@ std::pair<bool, std::string> HGCalWaferInFileTest::getPoints(double xpos, double
       static const int nc21[corners] = {30, 14, 25, 30, 41, 52};
       int nc = nc20[rotn];
       for (int k1 = 0; k1 < 3; ++k1) {
-	int k = nc % base;
-	double xc1 = xpos + dx0[k];
-	double yc1 = ypos + dy0[k];
-	double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
-	if (rpos <= rout && rpos >= rin) {
-	  point = c0[k];
-	  ok = false;
-	  break;
-	}
-	nc /= base;
+        int k = nc % base;
+        double xc1 = xpos + dx0[k];
+        double yc1 = ypos + dy0[k];
+        double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
+        if (rpos <= rout && rpos >= rin) {
+          point = c0[k];
+          ok = false;
+          break;
+        }
+        nc /= base;
       }
       nc = nc21[rotn];
       for (int k1 = 0; k1 < 2; ++k1) {
-	int k = nc % base;
-	double xc1 = xpos + dx1[k];
-	double yc1 = ypos + dy1[k];
-	double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
-	if (rpos <= rout && rpos >= rin) {
-	  point = c1[k];
-	  ok = false;
-	  break;
-	}
-	nc /= base;
+        int k = nc % base;
+        double xc1 = xpos + dx1[k];
+        double yc1 = ypos + dy1[k];
+        double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
+        if (rpos <= rout && rpos >= rin) {
+          point = c1[k];
+          ok = false;
+          break;
+        }
+        nc /= base;
       }
       break;
     }
@@ -543,16 +589,16 @@ std::pair<bool, std::string> HGCalWaferInFileTest::getPoints(double xpos, double
       static const int nc3[corners] = {3450, 1450, 2501, 3012, 4123, 5234};
       int nc = nc3[rotn];
       for (int k1 = 0; k1 < 4; ++k1) {
-	int k = nc % base;
-	double xc1 = xpos + dx0[k];
-	double yc1 = ypos + dy0[k];
-	double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
-	if (rpos <= rout && rpos >= rin) {
-	  point = c0[k];
-	  ok = false;
-	  break;
-	}
-	nc /= base;
+        int k = nc % base;
+        double xc1 = xpos + dx0[k];
+        double yc1 = ypos + dy0[k];
+        double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
+        if (rpos <= rout && rpos >= rin) {
+          point = c0[k];
+          ok = false;
+          break;
+        }
+        nc /= base;
       }
       break;
     }
@@ -561,29 +607,29 @@ std::pair<bool, std::string> HGCalWaferInFileTest::getPoints(double xpos, double
       static const int nc41[corners] = {500, 702, 904, 1106, 108, 310};
       int nc = nc40[rotn];
       for (int k1 = 0; k1 < 4; ++k1) {
-	int k = nc % base;
-	double xc1 = xpos + dx0[k];
-	double yc1 = ypos + dy0[k];
-	double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
-	if (rpos <= rout && rpos >= rin) {
-	  point = c0[k];
-	  ok = false;
-	  break;
-	}
-	nc /= base;
+        int k = nc % base;
+        double xc1 = xpos + dx0[k];
+        double yc1 = ypos + dy0[k];
+        double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
+        if (rpos <= rout && rpos >= rin) {
+          point = c0[k];
+          ok = false;
+          break;
+        }
+        nc /= base;
       }
       nc = nc41[rotn];
       for (int k1 = 0; k1 < 2; ++k1) {
-	int k = nc % base2;
-	double xc1 = xpos + dx2[k];
-	double yc1 = ypos + dy2[k];
-	double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
-	if (rpos <= rout && rpos >= rin) {
-	  point = c2[k];
-	  ok = false;
-	  break;
-	}
-	nc /= base2;
+        int k = nc % base2;
+        double xc1 = xpos + dx2[k];
+        double yc1 = ypos + dy2[k];
+        double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
+        if (rpos <= rout && rpos >= rin) {
+          point = c2[k];
+          ok = false;
+          break;
+        }
+        nc /= base2;
       }
       break;
     }
@@ -592,29 +638,29 @@ std::pair<bool, std::string> HGCalWaferInFileTest::getPoints(double xpos, double
       static const int nc51[corners] = {20, 13, 24, 35, 40, 51};
       int nc = nc50[rotn];
       for (int k1 = 0; k1 < 4; ++k1) {
-	int k = nc % base;
-	double xc1 = xpos + dx0[k];
-	double yc1 = ypos + dy0[k];
-	double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
-	if (rpos <= rout && rpos >= rin) {
-	  point = c0[k];
-	  ok = false;
-	  break;
-	}
-	nc /= base;
+        int k = nc % base;
+        double xc1 = xpos + dx0[k];
+        double yc1 = ypos + dy0[k];
+        double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
+        if (rpos <= rout && rpos >= rin) {
+          point = c0[k];
+          ok = false;
+          break;
+        }
+        nc /= base;
       }
       nc = nc51[rotn];
       for (int k1 = 0; k1 < 2; ++k1) {
-	int k = nc % base;
-	double xc1 = xpos + dx1[k];
-	double yc1 = ypos + dy1[k];
-	double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
-	if (rpos <= rout && rpos >= rin) {
-	  point = c1[k];
-	  ok = false;
-	  break;
-	}
-	nc /= base;
+        int k = nc % base;
+        double xc1 = xpos + dx1[k];
+        double yc1 = ypos + dy1[k];
+        double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
+        if (rpos <= rout && rpos >= rin) {
+          point = c1[k];
+          ok = false;
+          break;
+        }
+        nc /= base;
       }
       break;
     }
@@ -622,28 +668,28 @@ std::pair<bool, std::string> HGCalWaferInFileTest::getPoints(double xpos, double
       static const int nc6[corners] = {23450, 13450, 24501, 35012, 40123, 51234};
       int nc = nc6[rotn];
       for (int k1 = 0; k1 < 5; ++k1) {
-	int k = nc % base;
-	double xc1 = xpos + dx0[k];
-	double yc1 = ypos + dy0[k];
-	double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
-	if (rpos <= rout && rpos >= rin) {
-	  point = c0[k];
-	  ok = false;
-	  break;
-	}
+        int k = nc % base;
+        double xc1 = xpos + dx0[k];
+        double yc1 = ypos + dy0[k];
+        double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
+        if (rpos <= rout && rpos >= rin) {
+          point = c0[k];
+          ok = false;
+          break;
+        }
       }
       break;
     }
     default: {
       for (int k = 0; k < corners; ++k) {
-	double xc1 = xpos + dx0[k];
-	double yc1 = ypos + dy0[k];
-	double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
-	if (rpos <= rout && rpos >= rin) {
-	  point = c0[k];
-	  ok = false;
-	  break;
-	}
+        double xc1 = xpos + dx0[k];
+        double yc1 = ypos + dy0[k];
+        double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
+        if (rpos <= rout && rpos >= rin) {
+          point = c0[k];
+          ok = false;
+          break;
+        }
       }
       break;
     }
