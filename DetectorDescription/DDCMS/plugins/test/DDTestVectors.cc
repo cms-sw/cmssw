@@ -37,12 +37,6 @@ void DDTestVectors::analyze(const Event&, const EventSetup& iEventSetup) {
         log << i << ", ";
       log << "\n";
     }
-    for (const auto& j : registry->vectors.at("trackerParameters:Subdetector4"))
-      log << j << ", ";
-    log << "\n";
-    for (const auto& k : registry->vectors.at("trackerParameters:detIdShifts"))
-      log << k << ", ";
-    log << "\n";
   });
 }
 
