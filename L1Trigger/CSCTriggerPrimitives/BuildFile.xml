@@ -8,7 +8,6 @@
 <use name="FWCore/Utilities"/>
 <use name="Geometry/CSCGeometry"/>
 <use name="Geometry/GEMGeometry"/>
-<use name="Geometry/CSCGeometry"/>
 <export>
   <lib name="1"/>
 </export>
