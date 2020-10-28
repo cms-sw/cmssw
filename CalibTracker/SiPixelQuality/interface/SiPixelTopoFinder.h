@@ -18,7 +18,7 @@ class SiPixelTopoFinder {
 
 public:
   SiPixelTopoFinder();
-  virtual ~SiPixelTopoFinder();
+  ~SiPixelTopoFinder();
 
   void init(const TrackerGeometry* trackerGeometry,
               const TrackerTopology* trackerTopology,
@@ -38,8 +38,9 @@ private:
 
   // initialize with nullptr
   int phase_ = -1;
-  const TrackerTopology* tTopo_ = nullptr;
-  const TrackerGeometry* tGeom_ = nullptr;
+
+  const TrackerTopology* tkTopo_ = nullptr;
+  const TrackerGeometry* tkGeom_ = nullptr;
   const SiPixelFedCablingMap* cablingMap_ = nullptr;
 
   // List of <int> DetIds
