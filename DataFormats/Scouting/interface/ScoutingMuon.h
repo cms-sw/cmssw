@@ -39,16 +39,16 @@ public:
                float trk_dsz,
                float trk_dszError,
                std::vector<int> vtxIndx,
-	       float trk_qoverp_lambda_cov, 
-  	       float trk_qoverp_phi_cov,
-  	       float trk_qoverp_dxy_cov, 
-  	       float trk_qoverp_dsz_cov, 
-  	       float trk_lambda_phi_cov, 
-  	       float trk_lambda_dxy_cov, 
-  	       float trk_lambda_dsz_cov, 
-  	       float trk_phi_dxy_cov, 
-  	       float trk_phi_dsz_cov,
-  	       float trk_dxy_dsz_cov)
+               float trk_qoverp_lambda_cov,
+               float trk_qoverp_phi_cov,
+               float trk_qoverp_dxy_cov,
+               float trk_qoverp_dsz_cov,
+               float trk_lambda_phi_cov,
+               float trk_lambda_dxy_cov,
+               float trk_lambda_dsz_cov,
+               float trk_phi_dxy_cov,
+               float trk_phi_dsz_cov,
+               float trk_dxy_dsz_cov)
       : pt_(pt),
         eta_(eta),
         phi_(phi),
@@ -79,17 +79,17 @@ public:
         trk_phiError_(trk_phiError),
         trk_dsz_(trk_dsz),
         trk_dszError_(trk_dszError),
-    	vtxIndx_(std::move(vtxIndx)),
-	trk_qoverp_lambda_cov_(trk_qoverp_lambda_cov), 
-  	trk_qoverp_phi_cov_(trk_qoverp_phi_cov), 
-  	trk_qoverp_dxy_cov_(trk_qoverp_dxy_cov), 
- 	trk_qoverp_dsz_cov_(trk_qoverp_dsz_cov), 
-	trk_lambda_phi_cov_(trk_lambda_phi_cov), 
-  	trk_lambda_dxy_cov_(trk_lambda_dxy_cov), 
- 	trk_lambda_dsz_cov_(trk_lambda_dsz_cov), 
-  	trk_phi_dxy_cov_(trk_phi_dxy_cov), 
-  	trk_phi_dsz_cov_(trk_phi_dsz_cov), 
-  	trk_dxy_dsz_cov_(trk_dxy_dsz_cov) {}
+        vtxIndx_(std::move(vtxIndx)),
+        trk_qoverp_lambda_cov_(trk_qoverp_lambda_cov),
+        trk_qoverp_phi_cov_(trk_qoverp_phi_cov),
+        trk_qoverp_dxy_cov_(trk_qoverp_dxy_cov),
+        trk_qoverp_dsz_cov_(trk_qoverp_dsz_cov),
+        trk_lambda_phi_cov_(trk_lambda_phi_cov),
+        trk_lambda_dxy_cov_(trk_lambda_dxy_cov),
+        trk_lambda_dsz_cov_(trk_lambda_dsz_cov),
+        trk_phi_dxy_cov_(trk_phi_dxy_cov),
+        trk_phi_dsz_cov_(trk_phi_dsz_cov),
+        trk_dxy_dsz_cov_(trk_dxy_dsz_cov) {}
   //default constructor
   ScoutingMuon()
       : pt_(0),
@@ -122,17 +122,17 @@ public:
         trk_phiError_(0),
         trk_dsz_(0),
         trk_dszError_(0),
-	vtxIndx_(0), 
-	trk_qoverp_lambda_cov_(0), 
-  	trk_qoverp_phi_cov_(0), 
-  	trk_qoverp_dxy_cov_(0), 
- 	trk_qoverp_dsz_cov_(0), 
-	trk_lambda_phi_cov_(0), 
-  	trk_lambda_dxy_cov_(0), 
- 	trk_lambda_dsz_cov_(0), 
-  	trk_phi_dxy_cov_(0), 
-  	trk_phi_dsz_cov_(0), 
-  	trk_dxy_dsz_cov_(0){}
+        vtxIndx_(0),
+        trk_qoverp_lambda_cov_(0),
+        trk_qoverp_phi_cov_(0),
+        trk_qoverp_dxy_cov_(0),
+        trk_qoverp_dsz_cov_(0),
+        trk_lambda_phi_cov_(0),
+        trk_lambda_dxy_cov_(0),
+        trk_lambda_dsz_cov_(0),
+        trk_phi_dxy_cov_(0),
+        trk_phi_dsz_cov_(0),
+        trk_dxy_dsz_cov_(0) {}
 
   //accessor functions
   float pt() const { return pt_; }
@@ -212,16 +212,16 @@ private:
   float trk_dsz_;
   float trk_dszError_;
   std::vector<int> vtxIndx_;
-  float trk_qoverp_lambda_cov_; 
-  float trk_qoverp_phi_cov_; 
-  float trk_qoverp_dxy_cov_; 
-  float trk_qoverp_dsz_cov_; 
-  float trk_lambda_phi_cov_; 
-  float trk_lambda_dxy_cov_; 
-  float trk_lambda_dsz_cov_; 
-  float trk_phi_dxy_cov_; 
-  float trk_phi_dsz_cov_; 
-  float trk_dxy_dsz_cov_; 
+  float trk_qoverp_lambda_cov_;
+  float trk_qoverp_phi_cov_;
+  float trk_qoverp_dxy_cov_;
+  float trk_qoverp_dsz_cov_;
+  float trk_lambda_phi_cov_;
+  float trk_lambda_dxy_cov_;
+  float trk_lambda_dsz_cov_;
+  float trk_phi_dxy_cov_;
+  float trk_phi_dsz_cov_;
+  float trk_dxy_dsz_cov_;
 };
 
 typedef std::vector<ScoutingMuon> ScoutingMuonCollection;
