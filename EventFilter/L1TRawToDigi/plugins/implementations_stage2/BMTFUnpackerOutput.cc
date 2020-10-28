@@ -65,19 +65,19 @@ namespace l1t {
           }
 
           RegionalMuonCand muCand;
-          RegionalMuonRawDigiTranslator::fillRegionalMuonCand(muCand, raw_first, raw_secnd, processor, tftype::bmtf);
+          RegionalMuonRawDigiTranslator::fillRegionalMuonCand(
+              muCand, raw_first, raw_secnd, processor, tftype::bmtf, isKalman);
 
-          if (muCand.hwQual() == 0)
+          if (muCand.hwPt() == 0) {
             continue;
+          }
 
-          muCand.setLink(48 + processor);  //the link corresponds to the uGMT input
           if (isKalman) {
-            muCand.setHwPt2((raw_secnd >> 23) & 0xFF);
-            muCand.setHwDXY((raw_secnd >> 2) & 0x3);
             LogDebug("L1T") << "Pt = " << muCand.hwPt() << " eta: " << muCand.hwEta() << " phi: " << muCand.hwPhi()
-                            << " diplacedPt = " << muCand.hwPt2();
-          } else
+                            << " diplacedPt = " << muCand.hwPtUnconstrained();
+          } else {
             LogDebug("L1T") << "Pt = " << muCand.hwPt() << " eta: " << muCand.hwEta() << " phi: " << muCand.hwPhi();
+          }
 
           res->push_back(ibx, muCand);
 
