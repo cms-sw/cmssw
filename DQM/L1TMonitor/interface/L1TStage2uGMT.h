@@ -34,6 +34,7 @@ private:
   std::string monitorDir;
   bool emul;
   bool verbose;
+  bool displacedQuantities_;
 
   const float etaScale_;
   const float phiScale_;
