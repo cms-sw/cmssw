@@ -225,7 +225,7 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
       cumulative_prob += t.id_probabilities(index);
     }
     return (cumulative_prob <= pid_threshold_) &&
-           (t.raw_em_energy() / t.raw_energy() < energy_em_over_total_threshold_);
+           (t.raw_em_energy() < energy_em_over_total_threshold_*t.raw_energy());
   };
 
   std::vector<unsigned int> selectedTrackstersIds;
