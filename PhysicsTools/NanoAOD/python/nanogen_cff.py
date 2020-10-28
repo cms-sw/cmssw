@@ -52,8 +52,8 @@ def nanoGenCommonCustomize(process):
     process.particleLevel.lepMaxEta = 999.
     process.genJetFlavourTable.jetFlavourInfos = "genJetFlavourAssociation"
     # Same as default RECO
-    setGenPhiPrecision(process, CandVars.pt.precision)
-    setGenPtPrecision(process, CandVars.eta.precision)
+    setGenPtPrecision(process, CandVars.pt.precision)
+    setGenEtaPrecision(process, CandVars.eta.precision)
     setGenPhiPrecision(process, CandVars.phi.precision)
 
 def customizeNanoGENFromMini(process):
