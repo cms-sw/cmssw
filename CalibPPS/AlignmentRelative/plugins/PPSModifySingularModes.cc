@@ -43,11 +43,8 @@ using namespace edm;
 
 //----------------------------------------------------------------------------------------------------
 
-PPSModifySingularModes::PPSModifySingularModes(const ParameterSet &ps) :
-  ps_(ps),
-  tokenRealGeometry_(esConsumes<edm::Transition::BeginRun>())
-{
-}
+PPSModifySingularModes::PPSModifySingularModes(const ParameterSet &ps)
+    : ps_(ps), tokenRealGeometry_(esConsumes<edm::Transition::BeginRun>()) {}
 
 //----------------------------------------------------------------------------------------------------
 

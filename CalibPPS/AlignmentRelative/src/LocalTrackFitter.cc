@@ -73,8 +73,7 @@ void LocalTrackFitter::fitAndRemoveOutliers(HitCollection &selection,
   }
 
   // check if input size is sufficient
-  if (selection.size() < 4)
-  {
+  if (selection.size() < 4) {
     failed = true;
     return;
   }
@@ -109,9 +108,7 @@ void LocalTrackFitter::fitAndRemoveOutliers(HitCollection &selection,
 
   try {
     ATViAI = ATViA.Invert();
-  }
-  catch (...)
-  {
+  } catch (...) {
     failed = true;
     return;
   }

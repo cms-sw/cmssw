@@ -51,7 +51,8 @@ public:
   virtual ~StraightTrackAlignment();
 
   virtual void begin(edm::ESHandle<CTPPSRPAlignmentCorrectionsData> hRealAlignment,
-    edm::ESHandle<CTPPSGeometry> hRealGeometry, edm::ESHandle<CTPPSGeometry> hMisalignedGeometry);
+                     edm::ESHandle<CTPPSGeometry> hRealGeometry,
+                     edm::ESHandle<CTPPSGeometry> hMisalignedGeometry);
 
   virtual void processEvent(const edm::EventID &eventId,
                             const edm::DetSetVector<TotemRPUVPattern> &uvPatternsStrip,

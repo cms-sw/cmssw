@@ -206,8 +206,7 @@ PPSFastLocalSimulation::PPSFastLocalSimulation(const edm::ParameterSet &ps)
       position_dist_(ps.getParameterSet("position_distribution")),
       angular_dist_(ps.getParameterSet("angular_distribution")),
 
-      esTokenGeometry_(esConsumes())
- {
+      esTokenGeometry_(esConsumes()) {
   // v position of strip 0
   stripZeroPosition_ = RPTopology::last_strip_to_border_dist_ + (RPTopology::no_of_strips_ - 1) * RPTopology::pitch_ -
                        RPTopology::y_width_ / 2.;

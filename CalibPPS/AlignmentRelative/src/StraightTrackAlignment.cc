@@ -250,7 +250,8 @@ StraightTrackAlignment::~StraightTrackAlignment() {
 //----------------------------------------------------------------------------------------------------
 
 void StraightTrackAlignment::begin(edm::ESHandle<CTPPSRPAlignmentCorrectionsData> hRealAlignment,
-    edm::ESHandle<CTPPSGeometry> hRealGeometry, edm::ESHandle<CTPPSGeometry> hMisalignedGeometry) {
+                                   edm::ESHandle<CTPPSGeometry> hRealGeometry,
+                                   edm::ESHandle<CTPPSGeometry> hMisalignedGeometry) {
   // reset counters
   eventsTotal = 0;
   eventsFitted = 0;
