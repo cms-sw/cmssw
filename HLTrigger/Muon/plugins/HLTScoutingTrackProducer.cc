@@ -46,7 +46,7 @@ private:
   const edm::EDGetTokenT<reco::VertexCollection> vertexCollection_;
 
   const int mantissaPrecision;
-  const int vtxMinDist;
+  const double vtxMinDist;
 };
 
 //
@@ -56,7 +56,7 @@ HLTScoutingTrackProducer::HLTScoutingTrackProducer(const edm::ParameterSet& iCon
     : otherTrackCollection_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("OtherTracks"))),
       vertexCollection_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexCollection"))),
       mantissaPrecision(iConfig.getParameter<int>("mantissaPrecision")),
-      vtxMinDist(iConfig.getParameter<int>("vtxMinDist")) {
+      vtxMinDist(iConfig.getParameter<double>("vtxMinDist")) {
   //register products
   produces<ScoutingTrackCollection>();
 }
@@ -76,7 +76,7 @@ void HLTScoutingTrackProducer::produce(edm::StreamID sid, edm::Event& iEvent, ed
     //match tracks to vertices
     for (auto& trk : *otherTrackCollection) {
       int vtxInd = -1;
-      float min_dist = vtxMinDist;
+      double min_dist = vtxMinDist;
       int vtxIt = 0;
 
       if (iEvent.getByToken(vertexCollection_, vertexCollection)) {
@@ -141,7 +141,7 @@ void HLTScoutingTrackProducer::fillDescriptions(edm::ConfigurationDescriptions& 
   desc.add<edm::InputTag>("vertexCollection", edm::InputTag("hltPixelVertices"));
 
   desc.add<int>("mantissaPrecision", 23);
-  desc.add<int>("vtxMinDist", 0.01);
+  desc.add<double>("vtxMinDist", 0.01);
   descriptions.add("hltScoutingTrackProducer", desc);
 }
 
