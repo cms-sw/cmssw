@@ -436,7 +436,8 @@ std::pair<int, int> HGCalWaferMask::getTypeMode(const double& xpos,
         type = HGCalTypes::WaferChopTwo;
     }
     if (debug)
-      edm::LogVerbatim("HGCalGeom") << "Test for Chop2 " << std::sqrt(rpos12) << ":" << std::sqrt(rpos22) << " Type " << type;
+      edm::LogVerbatim("HGCalGeom") << "Test for Chop2 " << std::sqrt(rpos12) << ":" << std::sqrt(rpos22) << " Type "
+                                    << type;
     if ((type == HGCalTypes::WaferHalf) && (wType == 0)) {
       rpos12 = ((xpos + dx3[rotn]) * (xpos + dx3[rotn]) + (ypos + dy3[rotn]) * (ypos + dy3[rotn]));
       if (rpos12 <= rout2 && rpos12 >= rin2) {
@@ -445,7 +446,8 @@ std::pair<int, int> HGCalWaferMask::getTypeMode(const double& xpos,
           type = HGCalTypes::WaferChopTwoM;
       }
       if (debug)
-        edm::LogVerbatim("HGCalGeom") << "Test for Chop2M " << std::sqrt(rpos12) << ":" << std::sqrt(rpos22) << " Type " << type;
+        edm::LogVerbatim("HGCalGeom") << "Test for Chop2M " << std::sqrt(rpos12) << ":" << std::sqrt(rpos22) << " Type "
+                                      << type;
     }
   } else if (ncor == HGCalGeomTools::k_threeCorners) {
     rotn = static_cast<int>(std::find(ipat3, ipat3 + 6, iok) - ipat3);
@@ -458,7 +460,8 @@ std::pair<int, int> HGCalWaferMask::getTypeMode(const double& xpos,
         type = HGCalTypes::WaferSemi;
     }
     if (debug)
-      edm::LogVerbatim("HGCalGeom") << "Test for Semi " << std::sqrt(rpos12) << ":" << std::sqrt(rpos22) << " Type " << type;
+      edm::LogVerbatim("HGCalGeom") << "Test for Semi " << std::sqrt(rpos12) << ":" << std::sqrt(rpos22) << " Type "
+                                    << type;
     if ((type == HGCalTypes::WaferThree) && (wType == 0)) {
       rpos12 = ((xpos + dx3[rotn]) * (xpos + dx3[rotn]) + (ypos + dy3[rotn]) * (ypos + dy3[rotn]));
       if (rpos12 <= rout2 && rpos12 >= rin2) {
@@ -467,7 +470,8 @@ std::pair<int, int> HGCalWaferMask::getTypeMode(const double& xpos,
           type = HGCalTypes::WaferSemi2;
       }
       if (debug)
-        edm::LogVerbatim("HGCalGeom") << "Test for SemiM " << std::sqrt(rpos12) << ":" << std::sqrt(rpos22) << " Type " << type;
+        edm::LogVerbatim("HGCalGeom") << "Test for SemiM " << std::sqrt(rpos12) << ":" << std::sqrt(rpos22) << " Type "
+                                      << type;
     }
   } else {
     type = HGCalTypes::WaferOut;
