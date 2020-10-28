@@ -146,91 +146,89 @@ void FW3DViewGeometry::showMuonEndcap(bool showMuonEndcap) {
 
     for (Int_t iEndcap = 1; iEndcap <= 2; ++iEndcap)  // 1=forward (+Z), 2=backward(-Z)
     {
-       TEveElementList* cEndcap = nullptr;
-       if (iEndcap == 1)
-          cEndcap = new TEveElementList("CSC Forward");
-       else
-          cEndcap = new TEveElementList("CSC Backward");
-       m_muonEndcapElements->AddElement(cEndcap);
-       // Actual CSC geometry:
-       // Station 1 has 4 rings with 36 chambers in each
-       // Station 2: ring 1 has 18 chambers, ring 2 has 36 chambers
-       // Station 3: ring 1 has 18 chambers, ring 2 has 36 chambers
-       // Station 4: ring 1 has 18 chambers
-       Int_t maxChambers = 36;
-       for (Int_t iStation = 1; iStation <= 4; ++iStation) {
+      TEveElementList* cEndcap = nullptr;
+      if (iEndcap == 1)
+        cEndcap = new TEveElementList("CSC Forward");
+      else
+        cEndcap = new TEveElementList("CSC Backward");
+      m_muonEndcapElements->AddElement(cEndcap);
+      // Actual CSC geometry:
+      // Station 1 has 4 rings with 36 chambers in each
+      // Station 2: ring 1 has 18 chambers, ring 2 has 36 chambers
+      // Station 3: ring 1 has 18 chambers, ring 2 has 36 chambers
+      // Station 4: ring 1 has 18 chambers
+      Int_t maxChambers = 36;
+      for (Int_t iStation = 1; iStation <= 4; ++iStation) {
+        std::ostringstream s;
+        s << "Station" << iStation;
+        TEveElementList* cStation = new TEveElementList(s.str().c_str());
+        cEndcap->AddElement(cStation);
+        for (Int_t iRing = 1; iRing <= 4; ++iRing) {
+          if (iStation > 1 && iRing > 2)
+            continue;
+          // if( iStation > 3 && iRing > 1 ) continue;
           std::ostringstream s;
-          s << "Station" << iStation;
-          TEveElementList* cStation = new TEveElementList(s.str().c_str());
-          cEndcap->AddElement(cStation);
-          for (Int_t iRing = 1; iRing <= 4; ++iRing) {
-             if (iStation > 1 && iRing > 2)
-                continue;
-             // if( iStation > 3 && iRing > 1 ) continue;
-             std::ostringstream s;
-             s << "Ring" << iRing;
-             TEveElementList* cRing = new TEveElementList(s.str().c_str());
-             cStation->AddElement(cRing);
-             (iRing == 1 && iStation > 1) ? (maxChambers = 18) : (maxChambers = 36);
-             for (Int_t iChamber = 1; iChamber <= maxChambers; ++iChamber) {
-                Int_t iLayer = 0;  // chamber
-                CSCDetId id(iEndcap, iStation, iRing, iChamber, iLayer);
-                TEveGeoShape* shape = m_geom->getEveShape(id.rawId());
-                shape->SetTitle(TString::Format(
-                                                "CSC: %s, S=%d, R=%d, C=%d\ndet-id=%u", cEndcap->GetName(), iStation, iRing, iChamber, id.rawId()));
+          s << "Ring" << iRing;
+          TEveElementList* cRing = new TEveElementList(s.str().c_str());
+          cStation->AddElement(cRing);
+          (iRing == 1 && iStation > 1) ? (maxChambers = 18) : (maxChambers = 36);
+          for (Int_t iChamber = 1; iChamber <= maxChambers; ++iChamber) {
+            Int_t iLayer = 0;  // chamber
+            CSCDetId id(iEndcap, iStation, iRing, iChamber, iLayer);
+            TEveGeoShape* shape = m_geom->getEveShape(id.rawId());
+            shape->SetTitle(TString::Format(
+                "CSC: %s, S=%d, R=%d, C=%d\ndet-id=%u", cEndcap->GetName(), iStation, iRing, iChamber, id.rawId()));
 
-                addToCompound(shape, kFWMuonEndcapLineColorIndex);
-                cRing->AddElement(shape);
-             }
+            addToCompound(shape, kFWMuonEndcapLineColorIndex);
+            cRing->AddElement(shape);
           }
-       }
+        }
+      }
     }
 
     // hardcoded gem and me0; need to find better way for different gem geometries
-    for (Int_t iRegion = GEMDetId::minRegionId; iRegion <= GEMDetId::maxRegionId; iRegion+=2) {
-       TEveElementList* teEndcap = nullptr;
-       teEndcap = new TEveElementList(Form("GEM Reg=%d", iRegion));
-       m_muonEndcapElements->AddElement(teEndcap);
-       int iStation = 1;
-       {
-          std::ostringstream s;
-          s << "Station" << iStation;
-          TEveElementList* cStation = new TEveElementList(s.str().c_str());
-          teEndcap->AddElement(cStation);
+    for (Int_t iRegion = GEMDetId::minRegionId; iRegion <= GEMDetId::maxRegionId; iRegion += 2) {
+      TEveElementList* teEndcap = nullptr;
+      teEndcap = new TEveElementList(Form("GEM Reg=%d", iRegion));
+      m_muonEndcapElements->AddElement(teEndcap);
+      int iStation = 1;
+      {
+        std::ostringstream s;
+        s << "Station" << iStation;
+        TEveElementList* cStation = new TEveElementList(s.str().c_str());
+        teEndcap->AddElement(cStation);
 
+        for (Int_t iLayer = GEMDetId::minLayerId; iLayer <= GEMDetId::maxLayerId; ++iLayer) {
+          int maxChamber = GEMDetId::maxChamberId;
+          std::ostringstream sl;
+          sl << "Layer" << iLayer;
+          TEveElementList* elayer = new TEveElementList(sl.str().c_str());
+          cStation->AddElement(elayer);
 
-          for (Int_t iLayer = GEMDetId::minLayerId; iLayer <= GEMDetId::maxLayerId; ++iLayer) {
-             int maxChamber = GEMDetId::maxChamberId;
-             std::ostringstream sl;
-             sl << "Layer" << iLayer;
-             TEveElementList* elayer = new TEveElementList(sl.str().c_str());
-             cStation->AddElement(elayer);
+          for (Int_t iChamber = 1; iChamber <= maxChamber; ++iChamber) {
+            std::ostringstream cl;
+            cl << "Chamber" << iChamber;
+            TEveElementList* cha = new TEveElementList(cl.str().c_str());
+            elayer->AddElement(cha);
 
-             for (Int_t iChamber = 1; iChamber <= maxChamber; ++iChamber) {
-                std::ostringstream cl;
-                cl << "Chamber" << iChamber;
-                TEveElementList* cha = new TEveElementList(cl.str().c_str());
-                elayer->AddElement(cha);
+            Int_t iRing = 1;
+            Int_t iRoll = 0;
+            try {
+              GEMDetId id(iRegion, iRing, iStation, iLayer, iChamber, iRoll);
+              TEveGeoShape* shape = m_geom->getEveShape(id.rawId());
+              if (shape) {
+                shape->SetTitle(TString::Format(
+                    "GEM: , Rng=%d, St=%d, Ch=%d Rl=%d\ndet-id=%u", iRing, iStation, iChamber, iRoll, id.rawId()));
 
-                Int_t iRing = 1;
-                Int_t iRoll = 0;
-                try {
-                   GEMDetId id(iRegion, iRing, iStation, iLayer, iChamber, iRoll);
-                   TEveGeoShape* shape = m_geom->getEveShape(id.rawId());
-                   if (shape) {
-                      shape->SetTitle(TString::Format(
-                                                      "GEM: , Rng=%d, St=%d, Ch=%d Rl=%d\ndet-id=%u", iRing, iStation, iChamber, iRoll, id.rawId()));
-
-                      cha->AddElement(shape);
-                      addToCompound(shape, kFWMuonEndcapLineColorIndex);
-                   }
-                }
-                catch (cms::Exception& e){
-                   fwLog(fwlog::kError) << "FW3DViewGeomtery " << e << std::endl;
-                }
-             }
+                cha->AddElement(shape);
+                addToCompound(shape, kFWMuonEndcapLineColorIndex);
+              }
+            } catch (cms::Exception& e) {
+              fwLog(fwlog::kError) << "FW3DViewGeomtery " << e << std::endl;
+            }
           }
-       }
+        }
+      }
     }
 
     // adding me0
