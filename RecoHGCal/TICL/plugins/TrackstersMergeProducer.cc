@@ -350,8 +350,10 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
             for (auto otherTracksterIdx : trackstersTRKwithSameSeed) {
               tmpCandidate.addTrackster(edm::Ptr<ticl::Trackster>(trackstersMergedHandle, otherTracksterIdx));
             }
-            const auto& barycenter = t.barycenter();
-            float p = tracksterTotalRawPt * std::sqrt(1+(barycenter.z()*barycenter.z())/(barycenter.x()*barycenter.x()+(barycenter.y()*barycenter.y())));
+            const auto &barycenter = t.barycenter();
+            float p = tracksterTotalRawPt *
+                      std::sqrt(1 + (barycenter.z() * barycenter.z()) /
+                                        (barycenter.x() * barycenter.x() + (barycenter.y() * barycenter.y())));
             float energy = std::sqrt(p * p + mpion2);
             tmpCandidate.setRawEnergy(energy);
             math::XYZTLorentzVector p4(p * track.momentum().unit().x(),
@@ -370,8 +372,10 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
               tmpCandidate.addTrackster(edm::Ptr<ticl::Trackster>(trackstersMergedHandle, otherTracksterIdx));
             }
             tmpCandidate.setPdgId(11 * track.charge());
-            const auto& barycenter = t.barycenter();
-            float p = tracksterTotalRawPt * std::sqrt(1+(barycenter.z()*barycenter.z())/(barycenter.x()*barycenter.x()+(barycenter.y()*barycenter.y())));
+            const auto &barycenter = t.barycenter();
+            float p = tracksterTotalRawPt *
+                      std::sqrt(1 + (barycenter.z() * barycenter.z()) /
+                                        (barycenter.x() * barycenter.x() + (barycenter.y() * barycenter.y())));
             tmpCandidate.setRawEnergy(p);
             math::XYZTLorentzVector p4(
                 p * track.momentum().unit().x(), p * track.momentum().unit().y(), p * track.momentum().unit().z(), p);
@@ -399,8 +403,10 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
             for (auto otherTracksterIdx : trackstersTRKwithSameSeed) {
               tmpCandidate.addTrackster(edm::Ptr<ticl::Trackster>(trackstersMergedHandle, otherTracksterIdx));
             }
-            const auto& barycenter = t.barycenter();
-            float p = tracksterTotalRawPt * std::sqrt(1+(barycenter.z()*barycenter.z())/(barycenter.x()*barycenter.x()+(barycenter.y()*barycenter.y())));
+            const auto &barycenter = t.barycenter();
+            float p = tracksterTotalRawPt *
+                      std::sqrt(1 + (barycenter.z() * barycenter.z()) /
+                                        (barycenter.x() * barycenter.x() + (barycenter.y() * barycenter.y())));
             float energy = std::sqrt(p * p + mpion2);
             tmpCandidate.setRawEnergy(energy);
             math::XYZTLorentzVector p4(p * track.momentum().unit().x(),
@@ -458,8 +464,9 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
       if (!usedSeeds[trackIdx]) {
         usedSeeds[trackIdx] = true;
         usedTrackstersMerged[mergedIdx] = true;
-        const auto& barycenter = t.barycenter();
-        float p = t.raw_pt() * std::sqrt(1+(barycenter.z()*barycenter.z())/(barycenter.x()*barycenter.x()+(barycenter.y()*barycenter.y())));
+        const auto &barycenter = t.barycenter();
+        float p = t.raw_pt() * std::sqrt(1 + (barycenter.z() * barycenter.z()) /
+                                                 (barycenter.x() * barycenter.x() + (barycenter.y() * barycenter.y())));
         float energy = std::sqrt(p * p + mpion2);
         TICLCandidate tmpCandidate;
         tmpCandidate.addTrackster(edm::Ptr<ticl::Trackster>(trackstersMergedHandle, mergedIdx));
