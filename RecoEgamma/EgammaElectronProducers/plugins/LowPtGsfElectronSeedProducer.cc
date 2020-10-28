@@ -152,6 +152,7 @@ private:  // member data
   const edm::ESGetToken<TrajectoryFitter, TrajectoryFitter::Record> trajectoryFitterToken_;
   const edm::ESGetToken<TrajectorySmoother, TrajectoryFitter::Record> trajectorySmootherToken_;
   const edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> builderToken_;
+  const noZS::EcalClusterLazyTools::ESGetTokens ecalClusterToolsESGetTokens_;
 
   const bool passThrough_;
   const bool usePfTracks_;
@@ -182,6 +183,7 @@ LowPtGsfElectronSeedProducer::LowPtGsfElectronSeedProducer(const edm::ParameterS
       trajectoryFitterToken_{esConsumes(conf.getParameter<edm::ESInputTag>("Fitter"))},
       trajectorySmootherToken_{esConsumes(conf.getParameter<edm::ESInputTag>("Smoother"))},
       builderToken_{esConsumes(conf.getParameter<edm::ESInputTag>("TTRHBuilder"))},
+      ecalClusterToolsESGetTokens_{consumesCollector()},
       passThrough_(conf.getParameter<bool>("PassThrough")),
       usePfTracks_(conf.getParameter<bool>("UsePfTracks")),
       minPtThreshold_(conf.getParameter<double>("MinPtThreshold")),
@@ -313,7 +315,7 @@ void LowPtGsfElectronSeedProducer::loop(const edm::Handle<std::vector<T> >& hand
   auto ecalClusters = event.getHandle(ecalClusters_);
 
   // Utility to access to shower shape vars
-  noZS::EcalClusterLazyTools ecalTools(event, setup, ebRecHits_, eeRecHits_);
+  noZS::EcalClusterLazyTools ecalTools(event, ecalClusterToolsESGetTokens_.get(setup), ebRecHits_, eeRecHits_);
 
   // Ensure each cluster is only matched once to a track
   std::vector<int> matchedEcalClusters;
