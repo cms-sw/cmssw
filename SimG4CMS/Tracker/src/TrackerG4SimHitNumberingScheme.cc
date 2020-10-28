@@ -2,7 +2,7 @@
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+#include "DD4hep/Filter.h"
 #include "G4TransportationManager.hh"
 #include "G4Navigator.hh"
 #include "G4VTouchable.hh"
@@ -62,7 +62,7 @@ void TrackerG4SimHitNumberingScheme::touchToNavStory(const G4VTouchable* v,
   int levels = v->GetHistoryDepth();
 
   for (int k = 0; k <= levels; ++k) {
-    if (v->GetVolume(k)->GetLogicalVolume()->GetName() != "TOBInactive") {
+    if (dd4hep::dd::noNamespace(v->GetVolume(k)->GetLogicalVolume()->GetName()) != "TOBInactive") {
       st.emplace_back(
           std::pair<int, std::string>(v->GetVolume(k)->GetCopyNo(), v->GetVolume(k)->GetLogicalVolume()->GetName()));
 #ifdef DEBUG
