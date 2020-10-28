@@ -17,15 +17,17 @@
   <class name="ScoutingElectron" ClassVersion="2">
       <version ClassVersion="2" checksum="1190461538"/>
   </class>
-  <class name="ScoutingMuon" ClassVersion="3">
+  <class name="ScoutingMuon" ClassVersion="4">
      <version ClassVersion="2" checksum="9151"/>
      <version ClassVersion="3" checksum="3167554832"/>
+     <version ClassVersion="4" checksum="2090828742"/>
   </class>
   <class name="ScoutingPhoton" ClassVersion="2">
       <version ClassVersion="2" checksum="2797410539"/>
   </class>
-  <class name="ScoutingTrack" ClassVersion="2">
+  <class name="ScoutingTrack" ClassVersion="3">
       <version ClassVersion="2" checksum="1342928770"/>
+      <version ClassVersion="3" checksum="3678008453"/>
 </class>
   <class name="std::vector<ScoutingCaloJet>"/>
   <class name="std::vector<ScoutingPFJet>"/>
