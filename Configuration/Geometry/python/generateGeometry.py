@@ -155,7 +155,7 @@ class GeometryGenerator(object):
         simDD4hepFile.write(preamble)
         # always need XML
         simDD4hepFile.write("from Configuration.Geometry.GeometryDD4hep_cff"+" import *"+"\n")
-        simDD4hepFile.write("DDDetectorESProducer.confGeomXMLFiles = cms.FileInPath(\"Geometry/CMSCommonData/data/python/"+os.path.basename(xmlDD4hepName)+"\")\n\n")
+        simDD4hepFile.write("DDDetectorESProducer.confGeomXMLFiles = cms.FileInPath(\"Geometry/CMSCommonData/data/dd4hep/"+os.path.basename(xmlDD4hepName)+"\")\n\n")
         for iDict,aDict in enumerate(self.allDicts):
             if "sim" in aDict[detectorTuple[iDict]].keys():
                 simDD4hepFile.write('\n'.join([ aLine for aLine in aDict[detectorTuple[iDict]]["sim"] ])+"\n")
