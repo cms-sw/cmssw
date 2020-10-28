@@ -22,6 +22,7 @@ Description: Producer for Scouting Tracks
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Scouting/interface/ScoutingMuon.h"
@@ -29,6 +30,7 @@ Description: Producer for Scouting Tracks
 #include "DataFormats/Scouting/interface/ScoutingVertex.h"
 #include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/Math/interface/libminifloat.h"
 
 class HLTScoutingTrackProducer : public edm::global::EDProducer<> {
 public:
@@ -41,13 +43,20 @@ private:
   void produce(edm::StreamID sid, edm::Event& iEvent, edm::EventSetup const& setup) const final;
 
   const edm::EDGetTokenT<reco::TrackCollection> otherTrackCollection_;
+  const edm::EDGetTokenT<reco::VertexCollection> vertexCollection_;
+  
+  const int mantissaPrecision;
+  const int vtxMinDist;
 };
 
 //
 // constructors and destructor
 //
 HLTScoutingTrackProducer::HLTScoutingTrackProducer(const edm::ParameterSet& iConfig)
-    : otherTrackCollection_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("OtherTracks"))) {
+  : otherTrackCollection_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("OtherTracks"))),
+	vertexCollection_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexCollection"))),
+    mantissaPrecision(iConfig.getParameter<int>("mantissaPrecision")),
+    vtxMinDist(iConfig.getParameter<int>("vtxMinDist")){
   //register products
   produces<ScoutingTrackCollection>();
 }
@@ -61,30 +70,68 @@ void HLTScoutingTrackProducer::produce(edm::StreamID sid, edm::Event& iEvent, ed
   std::unique_ptr<ScoutingTrackCollection> outTrack(new ScoutingTrackCollection());
 
   Handle<reco::TrackCollection> otherTrackCollection;
+  Handle<reco::VertexCollection> vertexCollection;
 
   if (iEvent.getByToken(otherTrackCollection_, otherTrackCollection)) {
-    // Produce tracks in event
+    
+    //match tracks to vertices
     for (auto& trk : *otherTrackCollection) {
-      outTrack->emplace_back(trk.pt(),
-                             trk.eta(),
-                             trk.phi(),
-                             trk.chi2(),
+	
+      int vtxInd = -1;
+      float min_dist = vtxMinDist;
+      int vtxIt = 0;
+
+      if(iEvent.getByToken(vertexCollection_, vertexCollection)){
+	for (auto& vrt : *vertexCollection) {
+	  std::cout<<vrt.position().x()<<std::endl;
+	  double min_dist_tmp = pow(trk.dz(vrt.position()),2); // hltPixelVertices only clustered in Z
+		std::cout<<vrt.position().x()<<std::endl;
+		if(min_dist_tmp < min_dist){
+
+		  min_dist = min_dist_tmp;
+		  vtxInd = vtxIt;
+
+		}
+
+		vtxIt++;
+	}
+      }
+
+      //fill track information
+outTrack->emplace_back(	     MiniFloatConverter::reduceMantissaToNbitsRounding(trk.pt(), mantissaPrecision),
+		             MiniFloatConverter::reduceMantissaToNbitsRounding(trk.eta(), mantissaPrecision),
+		             MiniFloatConverter::reduceMantissaToNbitsRounding(trk.phi(), mantissaPrecision),
+                             MiniFloatConverter::reduceMantissaToNbitsRounding(trk.chi2(), mantissaPrecision),
                              trk.ndof(),
                              trk.charge(),
-                             trk.dxy(),
-                             trk.dz(),
+                             MiniFloatConverter::reduceMantissaToNbitsRounding(trk.dxy(), mantissaPrecision),
+                             MiniFloatConverter::reduceMantissaToNbitsRounding(trk.dz(), mantissaPrecision),
                              trk.hitPattern().numberOfValidPixelHits(),
                              trk.hitPattern().trackerLayersWithMeasurement(),
                              trk.hitPattern().numberOfValidStripHits(),
-                             trk.qoverp(),
-                             trk.lambda(),
-                             trk.dxyError(),
-                             trk.dzError(),
-                             trk.qoverpError(),
-                             trk.lambdaError(),
-                             trk.phiError(),
-                             trk.dsz(),
-                             trk.dszError());
+                             MiniFloatConverter::reduceMantissaToNbitsRounding(trk.qoverp(), mantissaPrecision),
+                             MiniFloatConverter::reduceMantissaToNbitsRounding(trk.lambda(), mantissaPrecision),
+                             MiniFloatConverter::reduceMantissaToNbitsRounding(trk.dxyError(), mantissaPrecision),
+                             MiniFloatConverter::reduceMantissaToNbitsRounding(trk.dzError(), mantissaPrecision),
+                             MiniFloatConverter::reduceMantissaToNbitsRounding(trk.qoverpError(), mantissaPrecision),
+                             MiniFloatConverter::reduceMantissaToNbitsRounding(trk.lambdaError(), mantissaPrecision),
+                             MiniFloatConverter::reduceMantissaToNbitsRounding(trk.phiError(), mantissaPrecision),
+                             MiniFloatConverter::reduceMantissaToNbitsRounding(trk.dsz(), mantissaPrecision),
+                             MiniFloatConverter::reduceMantissaToNbitsRounding(trk.dszError(), mantissaPrecision),
+			     MiniFloatConverter::reduceMantissaToNbitsRounding(trk.covariance(0, 1), mantissaPrecision),
+			     MiniFloatConverter::reduceMantissaToNbitsRounding(trk.covariance(0, 2), mantissaPrecision),
+			     MiniFloatConverter::reduceMantissaToNbitsRounding(trk.covariance(0, 3), mantissaPrecision),
+			     MiniFloatConverter::reduceMantissaToNbitsRounding(trk.covariance(0, 4), mantissaPrecision),
+			     MiniFloatConverter::reduceMantissaToNbitsRounding(trk.covariance(1, 2), mantissaPrecision),
+			     MiniFloatConverter::reduceMantissaToNbitsRounding(trk.covariance(1, 3), mantissaPrecision),
+			     MiniFloatConverter::reduceMantissaToNbitsRounding(trk.covariance(1, 4), mantissaPrecision),
+			     MiniFloatConverter::reduceMantissaToNbitsRounding(trk.covariance(2, 3), mantissaPrecision),
+			     MiniFloatConverter::reduceMantissaToNbitsRounding(trk.covariance(2, 4), mantissaPrecision),
+			     MiniFloatConverter::reduceMantissaToNbitsRounding(trk.covariance(3, 4), mantissaPrecision),
+			     vtxInd,
+			     MiniFloatConverter::reduceMantissaToNbitsRounding(trk.vx(), mantissaPrecision),
+			     MiniFloatConverter::reduceMantissaToNbitsRounding(trk.vy(), mantissaPrecision),
+			     MiniFloatConverter::reduceMantissaToNbitsRounding(trk.vz(), mantissaPrecision)					    	);
     }
   }
 
@@ -95,7 +142,12 @@ void HLTScoutingTrackProducer::produce(edm::StreamID sid, edm::Event& iEvent, ed
 void HLTScoutingTrackProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("OtherTracks", edm::InputTag("hltPixelTracksL3MuonNoVtx"));
+  desc.add<edm::InputTag>("vertexCollection", edm::InputTag("hltPixelVertices"));
+  
+  desc.add<int>("mantissaPrecision", 23);
+  desc.add<int>("vtxMinDist", 0.01);
   descriptions.add("hltScoutingTrackProducer", desc);
+  
 }
 
 // declare this class as a framework plugin

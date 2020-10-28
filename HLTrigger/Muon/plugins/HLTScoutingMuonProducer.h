@@ -27,6 +27,9 @@ Description: Producer for ScoutingMuon
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/Common/interface/getRef.h"
 #include "DataFormats/Common/interface/ValueMap.h"
