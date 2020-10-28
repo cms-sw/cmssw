@@ -308,16 +308,17 @@ photonMC = cms.Sequence(photonsMCMatchForTable + photonMCTable)
 
 from RecoEgamma.EgammaIsolationAlgos.egmPhotonIsolationMiniAOD_cff import egmPhotonIsolation
 from RecoEgamma.PhotonIdentification.photonIDValueMapProducer_cff import photonIDValueMapProducer
+###UL to be done first
+_withUL17Scale_sequence = photonSequence.copy()
+_withUL17Scale_sequence.replace(slimmedPhotonsWithUserData, calibratedPatPhotonsUL17  + slimmedPhotonsWithUserData)
+run2_egamma_2017.toReplaceWith(photonSequence, _withUL17Scale_sequence)
+
 _updatePhoTo106X_sequence =cms.Sequence(egmPhotonIsolation + photonIDValueMapProducer + slimmedPhotonsTo106X)
 _withUpdatePho_sequence = photonSequence.copy()
 _withUpdatePho_sequence.insert(0,_updatePhoTo106X_sequence)
 for modifier in run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016 ,run2_nanoAOD_102Xv1:
     modifier.toReplaceWith(photonSequence, _withUpdatePho_sequence)
 
-###UL to be done first
-_withUL17Scale_sequence = photonSequence.copy()
-_withUL17Scale_sequence.replace(slimmedPhotonsWithUserData, calibratedPatPhotonsUL17  + slimmedPhotonsWithUserData)
-run2_egamma_2017.toReplaceWith(photonSequence, _withUL17Scale_sequence)
 
 _withUL18Scale_sequence = photonSequence.copy()
 _withUL18Scale_sequence.replace(slimmedPhotonsWithUserData, calibratedPatPhotonsUL18  + slimmedPhotonsWithUserData)
