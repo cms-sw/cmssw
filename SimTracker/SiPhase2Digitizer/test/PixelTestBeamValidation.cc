@@ -191,7 +191,7 @@ void PixelTestBeamValidation::analyze(const edm::Event& iEvent, const edm::Event
     const int layer = topo->layer(detId);
     // Get the relevant histo key
     const auto& me_unit = meUnit_(tkDetUnit->type().isBarrel(), layer, topo->side(detId));
-    
+
     // Get the id of the detector unit
     const unsigned int detId_raw = detId.rawId();
 
@@ -199,15 +199,15 @@ void PixelTestBeamValidation::analyze(const edm::Event& iEvent, const edm::Event
     // in this detector unit
     std::vector<const PSimHit*> it_simhits;
 
-    for (const auto* sh_c : simhits){
-      for (const auto& sh : *sh_c){
-	if (sh.detUnitId() == detId_raw){
-	  it_simhits.push_back(&sh); //insert and/or reserve (?)
-	}
+    for (const auto* sh_c : simhits) {
+      for (const auto& sh : *sh_c) {
+        if (sh.detUnitId() == detId_raw) {
+          it_simhits.push_back(&sh);  //insert and/or reserve (?)
+        }
       }
     }
 
-    if (it_simhits.size() == 0){
+    if (it_simhits.size() == 0) {
       continue;
     }
 
@@ -220,8 +220,7 @@ void PixelTestBeamValidation::analyze(const edm::Event& iEvent, const edm::Event
     // by the primary+secundaries) to check if they are associated with
     // some digi, that is, if the simdigi link exists and to obtain the list
     // of channels illuminated
-    for (const auto* psh : it_simhits){
-
+    for (const auto* psh : it_simhits) {
       // Check user conditions to accept the hits
       if (!use_this_track_(psh)) {
         continue;
@@ -324,20 +323,16 @@ void PixelTestBeamValidation::analyze(const edm::Event& iEvent, const edm::Event
           vME_dx_cell_[me_unit][i]->Fill(icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um, dx_um);
           vME_dy_cell_[me_unit][i]->Fill(icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um, dy_um);
           // Charge
-          vME_charge_cell_[me_unit][i]->Fill(
-              icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um, cluster_tot);
+          vME_charge_cell_[me_unit][i]->Fill(icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um, cluster_tot);
           vME_charge_elec_cell_[me_unit][i]->Fill(
               icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um, cluster_tot_elec);
           // Cluster size
-          vME_clsize_cell_[me_unit][i]->Fill(
-              icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um, cluster_size);
+          vME_clsize_cell_[me_unit][i]->Fill(icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um, cluster_size);
         }
       }
     }
   }
 }
-
-
 
 //
 // -- Book Histograms
@@ -684,24 +679,23 @@ bool PixelTestBeamValidation::channel_iluminated_by_(const PSimHit& ps,
 }
 
 std::set<int> PixelTestBeamValidation::get_illuminated_channels_(const PSimHit& ps,
-								 const DetId& detid,
-								 const edm::DetSetVector<PixelDigiSimLink>* simdigis){
+                                                                 const DetId& detid,
+                                                                 const edm::DetSetVector<PixelDigiSimLink>* simdigis) {
   // Find simulated digi links (simdigis) created in this det unit
   const auto& it_simdigilink = simdigis->find(detid);
 
-  if (it_simdigilink == simdigis->end()){
+  if (it_simdigilink == simdigis->end()) {
     return std::set<int>();
   }
 
   std::set<int> channels;
-  for (const auto& hdsim : *it_simdigilink){
-    if (ps.trackId() == hdsim.SimTrackId()){
+  for (const auto& hdsim : *it_simdigilink) {
+    if (ps.trackId() == hdsim.SimTrackId()) {
       channels.insert(hdsim.channel());
     }
   }
   return channels;
 }
-
 
 std::set<std::pair<int, int>> PixelTestBeamValidation::get_illuminated_pixels_(const PSimHit& ps,
                                                                                const PixelGeomDetUnit* tkDetUnit) {
