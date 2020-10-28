@@ -101,6 +101,11 @@ calibratedPatPhotons94Xv1 = RecoEgamma.EgammaTools.calibratedEgammas_cff.calibra
     correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2017_17Nov2017_v1_ele_unc")
 )
 
+calibratedPatPhotons94Xv2 = RecoEgamma.EgammaTools.calibratedEgammas_cff.calibratedPatPhotons.clone(
+    produceCalibratedObjs = False,
+    correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2017_17Nov2017_v1_ele_unc")
+)
+
 calibratedPatPhotons80XLegacy = RecoEgamma.EgammaTools.calibratedEgammas_cff.calibratedPatPhotons.clone(
     produceCalibratedObjs = False,
     correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Legacy2016_07Aug2017_FineEtaR9_v3_ele_unc"),
@@ -159,6 +164,12 @@ run2_nanoAOD_94XMiniAODv1.toModify(slimmedPhotonsWithUserData.userFloats,
     ecalEnergyPreCorrNew     = cms.InputTag("calibratedPatPhotons94Xv1","ecalEnergyPreCorr"),
     ecalEnergyPostCorrNew    = cms.InputTag("calibratedPatPhotons94Xv1","ecalEnergyPostCorr"),
 )
+run2_nanoAOD_94XMiniAODv2.toModify(slimmedPhotonsWithUserData.userFloats,
+    ecalEnergyErrPostCorrNew = cms.InputTag("calibratedPatPhotons94Xv2","ecalEnergyErrPostCorr"),
+    ecalEnergyPreCorrNew     = cms.InputTag("calibratedPatPhotons94Xv2","ecalEnergyPreCorr"),
+    ecalEnergyPostCorrNew    = cms.InputTag("calibratedPatPhotons94Xv2","ecalEnergyPostCorr"),
+)
+
 run2_nanoAOD_102Xv1.toModify(slimmedPhotonsWithUserData.userFloats,
     ecalEnergyErrPostCorrNew = cms.InputTag("calibratedPatPhotons102Xv1","ecalEnergyErrPostCorr"),
     ecalEnergyPreCorrNew     = cms.InputTag("calibratedPatPhotons102Xv1","ecalEnergyPreCorr"),
@@ -238,7 +249,7 @@ for modifier in run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_94X2016:
     )
 
 #these eras need to make the energy correction, hence the "New"
-for modifier in run2_egamma_2017,run2_egamma_2018,run2_nanoAOD_94XMiniAODv1, run2_miniAOD_80XLegacy, run2_nanoAOD_102Xv1:
+for modifier in run2_egamma_2017,run2_egamma_2018,run2_nanoAOD_94XMiniAODv1, run2_miniAOD_80XLegacy, run2_nanoAOD_102Xv1,run2_nanoAOD_94XMiniAODv2:
     modifier.toModify(photonTable.variables,
         pt = Var("pt*userFloat('ecalEnergyPostCorrNew')/userFloat('ecalEnergyPreCorrNew')", float, precision=-1, doc="p_{T}"),
         energyErr = Var("userFloat('ecalEnergyErrPostCorrNew')",float,doc="energy error of the cluster from regression",precision=6),
@@ -283,7 +294,7 @@ slimmedPhotonsTo106X = cms.EDProducer("ModifiedPhotonProducer",
 #might as well fix 80X while we're at it although the differences are not so relavent for nano
 run2_miniAOD_80XLegacy.toModify( slimmedPhotonsTo106X.modifierConfig.modifications, prependEgamma8XObjectUpdateModifier )
 
-for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016 ,run2_nanoAOD_102Xv1:
+for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016 ,run2_nanoAOD_102Xv1,run2_nanoAOD_94XMiniAODv2:
     modifier.toModify(bitmapVIDForPho, src = "slimmedPhotonsTo106X")
     modifier.toModify(bitmapVIDForPhoSpring16V2p2, src = "slimmedPhotonsTo106X")
     modifier.toModify(isoForPho, src = "slimmedPhotonsTo106X")
@@ -313,16 +324,17 @@ _withUL17Scale_sequence = photonSequence.copy()
 _withUL17Scale_sequence.replace(slimmedPhotonsWithUserData, calibratedPatPhotonsUL17  + slimmedPhotonsWithUserData)
 run2_egamma_2017.toReplaceWith(photonSequence, _withUL17Scale_sequence)
 
+_withUL18Scale_sequence = photonSequence.copy()
+_withUL18Scale_sequence.replace(slimmedPhotonsWithUserData, calibratedPatPhotonsUL18  + slimmedPhotonsWithUserData)
+run2_egamma_2018.toReplaceWith(photonSequence, _withUL18Scale_sequence)
+
+
 _updatePhoTo106X_sequence =cms.Sequence(egmPhotonIsolation + photonIDValueMapProducer + slimmedPhotonsTo106X)
 _withUpdatePho_sequence = photonSequence.copy()
 _withUpdatePho_sequence.insert(0,_updatePhoTo106X_sequence)
 for modifier in run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016 ,run2_nanoAOD_102Xv1:
     modifier.toReplaceWith(photonSequence, _withUpdatePho_sequence)
 
-
-_withUL18Scale_sequence = photonSequence.copy()
-_withUL18Scale_sequence.replace(slimmedPhotonsWithUserData, calibratedPatPhotonsUL18  + slimmedPhotonsWithUserData)
-run2_egamma_2018.toReplaceWith(photonSequence, _withUL18Scale_sequence)
 
 
 _with80XScale_sequence = _withUpdatePho_sequence.copy()
@@ -332,6 +344,10 @@ run2_miniAOD_80XLegacy.toReplaceWith(photonSequence, _with80XScale_sequence)
 _with94Xv1Scale_sequence = _withUpdatePho_sequence.copy()
 _with94Xv1Scale_sequence.replace(slimmedPhotonsWithUserData, calibratedPatPhotons94Xv1 + slimmedPhotonsWithUserData)
 run2_nanoAOD_94XMiniAODv1.toReplaceWith(photonSequence, _with94Xv1Scale_sequence)
+
+_with94Xv2Scale_sequence = _withUpdatePho_sequence.copy()
+_with94Xv2Scale_sequence.replace(slimmedPhotonsWithUserData, calibratedPatPhotons94Xv2 + slimmedPhotonsWithUserData)
+run2_nanoAOD_94XMiniAODv2.toReplaceWith(photonSequence, _with94Xv2Scale_sequence)
 
 _with102Xv1Scale_sequence = photonSequence.copy()
 _with102Xv1Scale_sequence.replace(slimmedPhotonsWithUserData, calibratedPatPhotons102Xv1 + slimmedPhotonsWithUserData)
