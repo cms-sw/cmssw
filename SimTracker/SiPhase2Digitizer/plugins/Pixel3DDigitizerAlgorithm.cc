@@ -53,9 +53,15 @@ void Pixel3DDigitizerAlgorithm::init(const edm::EventSetup& es) {
 Pixel3DDigitizerAlgorithm::Pixel3DDigitizerAlgorithm(const edm::ParameterSet& conf)
     : Phase2TrackerDigitizerAlgorithm(conf.getParameter<edm::ParameterSet>("AlgorithmCommon"),
                                       conf.getParameter<edm::ParameterSet>("Pixel3DDigitizerAlgorithm")),
-      _np_column_radius((conf.getParameter<edm::ParameterSet>("Pixel3DDigitizerAlgorithm").getParameter<double>("NPColumnRadius"))*1.0_um), 
-      _ohm_column_radius((conf.getParameter<edm::ParameterSet>("Pixel3DDigitizerAlgorithm").getParameter<double>("OhmicColumnRadius"))*1.0_um),
-      _np_column_gap((conf.getParameter<edm::ParameterSet>("Pixel3DDigitizerAlgorithm").getParameter<double>("NPColumnGap"))*1.0_um) {
+      _np_column_radius(
+          (conf.getParameter<edm::ParameterSet>("Pixel3DDigitizerAlgorithm").getParameter<double>("NPColumnRadius")) *
+          1.0_um),
+      _ohm_column_radius(
+          (conf.getParameter<edm::ParameterSet>("Pixel3DDigitizerAlgorithm").getParameter<double>("OhmicColumnRadius")) *
+          1.0_um),
+      _np_column_gap(
+          (conf.getParameter<edm::ParameterSet>("Pixel3DDigitizerAlgorithm").getParameter<double>("NPColumnGap")) *
+          1.0_um) {
   // XXX - NEEDED?
   pixelFlag_ = true;
 
@@ -80,7 +86,7 @@ bool Pixel3DDigitizerAlgorithm::select_hit(const PSimHit& hit, double tCorr, dou
   return (time >= theTofLowerCut_ && time < theTofUpperCut_);
 }
 
-const bool Pixel3DDigitizerAlgorithm::_is_inside_n_column(const LocalPoint& p, const float & sensor_thickness) const {
+const bool Pixel3DDigitizerAlgorithm::_is_inside_n_column(const LocalPoint& p, const float& sensor_thickness) const {
   // The insensitive volume of the column: sensor thickness - column gap distance
   return (p.perp() <= _np_column_radius && p.z() <= (sensor_thickness - _np_column_gap));
 }
@@ -323,9 +329,9 @@ std::vector<DigitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::drift(
         const float pixel_x = current_pixel_int.first + (mc.x() + center_proxy_cell.x()) / pitch.first;
         const float pixel_y = current_pixel_int.second + (mc.y() + center_proxy_cell.y()) / pitch.second;
         const auto lp = pixdet->specificTopology().localPosition(MeasurementPoint(pixel_x, pixel_y));
-	//Remember: the drift function will move the reference system to the bottom. We need to add what we previously subtract
-	//in order to avoid a double translation when calling the drift function once again below
-	mc.migrate_position(LocalPoint(lp.x(), lp.y(), mc.z() + center_proxy_cell.z()));
+        //Remember: the drift function will move the reference system to the bottom. We need to add what we previously subtract
+        //in order to avoid a double translation when calling the drift function once again below
+        mc.migrate_position(LocalPoint(lp.x(), lp.y(), mc.z() + center_proxy_cell.z()));
       }
       if (!migrated_charges.empty()) {
         LogDebug("Pixel3DDigitizerAlgorithm::drift") << "****************"

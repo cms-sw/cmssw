@@ -59,11 +59,11 @@ private:
   const float _np_column_radius;
   const float _ohm_column_radius;
   // Gap of np column
-  const float _np_column_gap; 
+  const float _np_column_gap;
 
   // Check if a carrier is inside the column: The point should
   // be described in the pixel cell frame
-  const bool _is_inside_n_column(const LocalPoint& p, const float & sensor_thickness) const;
+  const bool _is_inside_n_column(const LocalPoint& p, const float& sensor_thickness) const;
   const bool _is_inside_ohmic_column(const LocalPoint& p, const std::pair<float, float>& pitch) const;
 };
 #endif
