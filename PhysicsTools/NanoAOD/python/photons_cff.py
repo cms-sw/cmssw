@@ -294,12 +294,13 @@ slimmedPhotonsTo106X = cms.EDProducer("ModifiedPhotonProducer",
 #might as well fix 80X while we're at it although the differences are not so relavent for nano
 run2_miniAOD_80XLegacy.toModify( slimmedPhotonsTo106X.modifierConfig.modifications, prependEgamma8XObjectUpdateModifier )
 
-for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016 ,run2_nanoAOD_102Xv1,run2_nanoAOD_94XMiniAODv2:
+for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016 ,run2_nanoAOD_102Xv1:
     modifier.toModify(bitmapVIDForPho, src = "slimmedPhotonsTo106X")
     modifier.toModify(bitmapVIDForPhoSpring16V2p2, src = "slimmedPhotonsTo106X")
     modifier.toModify(isoForPho, src = "slimmedPhotonsTo106X")
     modifier.toModify(calibratedPatPhotons102Xv1, src = "slimmedPhotonsTo106X")
     modifier.toModify(calibratedPatPhotons94Xv1, src = "slimmedPhotonsTo106X")
+    modifier.toModify(calibratedPatPhotons94Xv2, src = "slimmedPhotonsTo106X")
     modifier.toModify(calibratedPatPhotons80XLegacy, src = "slimmedPhotonsTo106X")
     modifier.toModify(slimmedPhotonsWithUserData, src = "slimmedPhotonsTo106X")
     modifier.toModify(seedGainPho, src = "slimmedPhotonsTo106X")
@@ -332,7 +333,7 @@ run2_egamma_2018.toReplaceWith(photonSequence, _withUL18Scale_sequence)
 _updatePhoTo106X_sequence =cms.Sequence(egmPhotonIsolation + photonIDValueMapProducer + slimmedPhotonsTo106X)
 _withUpdatePho_sequence = photonSequence.copy()
 _withUpdatePho_sequence.insert(0,_updatePhoTo106X_sequence)
-for modifier in run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016 ,run2_nanoAOD_102Xv1:
+for modifier in run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016 ,run2_nanoAOD_102Xv1,run2_nanoAOD_94XMiniAODv1:
     modifier.toReplaceWith(photonSequence, _withUpdatePho_sequence)
 
 
