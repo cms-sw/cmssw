@@ -1,47 +1,55 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/EcalCommonData/interface/EcalBarrelNumberingScheme.h"
-#include "Geometry/EcalCommonData/interface/EcalBaseNumber.h"
-#include "Geometry/EcalCommonData/interface/EcalEndcapNumberingScheme.h"
-#include "Geometry/EcalCommonData/interface/EcalPreshowerNumberingScheme.h"
-#include "SimG4CMS/Calo/interface/EcalDumpGeometry.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "SimG4CMS/Calo/interface/HcalDumpGeometry.h"
 
 #include <iostream>
+#include <memory>
 
 //#define EDM_ML_DEBUG
 
-EcalDumpGeometry::EcalDumpGeometry(const std::vector<std::string_view>& names, int type) : type_(type) {
+HcalDumpGeometry::HcalDumpGeometry(const std::vector<std::string_view>& names,
+                                   const HcalNumberingFromDDD* hcn,
+                                   bool test)
+    : numberingFromDDD_(hcn) {
+  if (test)
+    numberingScheme_.reset(dynamic_cast<HcalNumberingScheme*>(new HcalTestNumberingScheme(false)));
+  else
+    numberingScheme_ = std::make_unique<HcalNumberingScheme>();
   std::stringstream ss;
   for (const auto& lvname : names)
     ss << " " << lvname;
-  edm::LogVerbatim("EcalGeom") << " Type: " << type << " with " << names.size() << " LVs: " << ss.str();
+  edm::LogVerbatim("HCalGeom") << " Testmode: " << test << " with " << names.size() << " LVs: " << ss.str();
+  const std::vector<std::string> namg = {"HBS", "HES", "HTS", "HVQ"};
   for (const auto& name : names) {
-    std::string namex = (getNameNoNS(static_cast<std::string>(name))).substr(0, 4);
-    if (std::find(names_.begin(), names_.end(), namex) == names_.end())
-      names_.emplace_back(namex);
+    std::string namex = (getNameNoNS(static_cast<std::string>(name))).substr(0, 3);
+    if (std::find(namg.begin(), namg.end(), namex) != namg.end()) {
+      if (std::find(names_.begin(), names_.end(), namex) == names_.end())
+        names_.emplace_back(namex);
+    }
   }
-  edm::LogVerbatim("EcalGeom") << "EcalDumpGeometry:: dump geometry information for detector of type " << type_
-                               << " with " << names_.size() << " elements:";
+  edm::LogVerbatim("HCalGeom") << "HcalDumpGeometry:: dump geometry information for Hcal with " << names_.size()
+                               << " elements:";
   for (unsigned int k = 0; k < names_.size(); ++k)
-    edm::LogVerbatim("EcalGeom") << "[" << k << "] : " << names_[k];
+    edm::LogVerbatim("HCalGeom") << "[" << k << "] : " << names_[k];
 }
 
-void EcalDumpGeometry::update() {
+void HcalDumpGeometry::update() {
   G4VPhysicalVolume* theTopPV =
       G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume();
-  edm::LogVerbatim("EcalGeom") << "EcalDumpGeometry entered with entry of top PV at " << theTopPV;
+  edm::LogVerbatim("HCalGeom") << "HcalDumpGeometry entered with entry of top PV at " << theTopPV;
 
   dumpTouch(theTopPV, 0);
   fHistory_.SetFirstEntry(theTopPV);
-  edm::LogVerbatim("EcalGeom") << "EcalDumpGeometry finds " << infoVec_.size() << " touchables";
+  edm::LogVerbatim("HCalGeom") << "HcalDumpGeometry finds " << infoVec_.size() << " touchables";
   sort(infoVec_.begin(), infoVec_.end(), CaloDetInfoLess());
   unsigned int k(0);
   for (const auto& info : infoVec_) {
-    edm::LogVerbatim("EcalGeom") << "[" << k << "] " << info;
+    edm::LogVerbatim("HCalGeom") << "[" << k << "] " << info;
     ++k;
   }
 }
 
-void EcalDumpGeometry::dumpTouch(G4VPhysicalVolume* pv, unsigned int leafDepth) {
+void HcalDumpGeometry::dumpTouch(G4VPhysicalVolume* pv, unsigned int leafDepth) {
   if (leafDepth == 0)
     fHistory_.SetFirstEntry(pv);
   else
@@ -51,38 +59,32 @@ void EcalDumpGeometry::dumpTouch(G4VPhysicalVolume* pv, unsigned int leafDepth) 
   G4LogicalVolume* lv = pv->GetLogicalVolume();
 
   const std::string& lvname = lv->GetName();
-  std::string namex = (getNameNoNS(lvname)).substr(0, 4);
-  EcalBaseNumber theBaseNumber;
+  std::string namex = (getNameNoNS(lvname)).substr(0, 3);
   for (unsigned int k = 0; k < names_.size(); ++k) {
     if (namex == names_[k]) {
       int theSize = fHistory_.GetDepth();
       //Get name and copy numbers
       if (theSize > 5) {
-        theBaseNumber.reset();
-        if (theBaseNumber.getCapacity() < theSize + 1)
-          theBaseNumber.setSize(theSize + 1);
+        int depth = (fHistory_.GetVolume(theSize)->GetCopyNo()) % 10 + 1;
+        int lay = (fHistory_.GetVolume(theSize)->GetCopyNo() / 10) % 100 + 1;
+        int det = (fHistory_.GetVolume(theSize - 1)->GetCopyNo()) / 1000;
+        HcalNumberingFromDDD::HcalID tmp = numberingFromDDD_->unitID(
+            det, math::XYZVectorD(globalpoint.x(), globalpoint.y(), globalpoint.z()), depth, lay);
+        uint32_t id = numberingScheme_->getUnitID(tmp);
 #ifdef EDM_ML_DEBUG
-        std::stringstream ss;
+        edm::LogVerbatim("HCalGeom") << "Det " << det << " Layer " << lay << ":" << depth << " Volume "
+                                     << fHistory_.GetVolume(theSize)->GetName() << ":"
+                                     << fHistory_.GetVolume(theSize - 1)->GetName() << " ID " << std::hex << id
+                                     << std::dec;
 #endif
-        for (int ii = theSize; ii >= 0; --ii) {
-          theBaseNumber.addLevel(fHistory_.GetVolume(ii)->GetName(), fHistory_.GetVolume(ii)->GetCopyNo());
-#ifdef EDM_ML_DEBUG
-          ss << " " << ii << " " << fHistory_.GetVolume(ii)->GetName() << ":" << fHistory_.GetVolume(ii)->GetCopyNo();
-#endif
-        }
-#ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << " Fielde: " << ss.str();
-#endif
-        uint32_t id = ((type_ == 0) ? ebNumbering_.getUnitID(theBaseNumber)
-                                    : ((type_ == 1) ? eeNumbering_.getUnitID(theBaseNumber)
-                                                    : esNumbering_.getUnitID(theBaseNumber)));
+
         std::vector<double> pars;
-        if (type_ > 1) {
+        if ((namex == "HBS") || (namex == "HTS")) {
           G4Box* solid = static_cast<G4Box*>(lv->GetSolid());
           pars.emplace_back(solid->GetXHalfLength());
           pars.emplace_back(solid->GetYHalfLength());
           pars.emplace_back(solid->GetZHalfLength());
-        } else {
+        } else if ((namex == "HES") || (namex == "HVQ")) {
           G4Trap* solid = static_cast<G4Trap*>(lv->GetSolid());
           pars.emplace_back(solid->GetZHalfLength());
           pars.emplace_back(solid->GetYHalfLength1());
@@ -113,7 +115,7 @@ void EcalDumpGeometry::dumpTouch(G4VPhysicalVolume* pv, unsigned int leafDepth) 
     fHistory_.BackLevel();
 }
 
-std::string EcalDumpGeometry::getNameNoNS(const std::string& name) {
+std::string HcalDumpGeometry::getNameNoNS(const std::string& name) {
   if (name.find(':') == std::string::npos) {
     return name;
   } else {
