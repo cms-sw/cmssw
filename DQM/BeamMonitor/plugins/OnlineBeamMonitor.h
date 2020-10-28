@@ -62,8 +62,6 @@ private:
   // MonitorElements:
   MonitorElement* bsChoice_;
 
-  //mutable MonitorElement* theValuesContainer_;
-
   //Containers
   mutable BeamSpotContainer beamSpotsMap_;
   HistosContainer histosMap_;
