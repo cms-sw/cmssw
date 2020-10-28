@@ -214,6 +214,29 @@ def nanoAOD_recalibrateMETs(process,isData):
             )
     run2_nanoAOD_106Xv1.toModify(nanoAOD_PuppiV15_switch,recoMetFromPFCs=True,reclusterJets=True)
     runMetCorAndUncFromMiniAOD(process,isData=isData,metType="Puppi",postfix="Puppi",jetFlavor="AK4PFPuppi", recoMetFromPFCs=bool(nanoAOD_PuppiV15_switch.recoMetFromPFCs), reclusterJets=bool(nanoAOD_PuppiV15_switch.reclusterJets))
+    if nanoAOD_PuppiV15_switch.reclusterJets:
+        from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
+        from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask, addToProcessAndTask
+        task = getPatAlgosToolsTask(process)
+        addToProcessAndTask('ak4PuppiJets', ak4PFJets.clone (src = 'puppi', doAreaFastjet = True, jetPtMin = 2.), process, task)
+        from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
+        addJetCollection(process,
+                            labelName = 'Puppi',
+                            jetSource = cms.InputTag('ak4PuppiJets'),
+                            algo = 'AK', rParam=0.4,
+                            genJetCollection=cms.InputTag('slimmedGenJets'),
+                            jetCorrections = ('AK4PFPuppi', ['L1FastJet', 'L2Relative', 'L3Absolute','L2L3Residual'], 'None'),
+                            pfCandidates = cms.InputTag('packedPFCandidates'),
+                            pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
+                            svSource = cms.InputTag('slimmedSecondaryVertices'),
+                            muSource =cms.InputTag( 'slimmedMuons'),
+                            elSource = cms.InputTag('slimmedElectrons'),
+                            genParticles= cms.InputTag('prunedGenParticles'),
+                            getJetMCFlavour=False
+        )
+
+        process.patJetsPuppi.addGenPartonMatch = cms.bool(False)
+        process.patJetsPuppi.addGenJetMatch = cms.bool(False)
     process.nanoSequenceCommon.insert(process.nanoSequenceCommon.index(process.jetSequence),cms.Sequence(process.puppiMETSequence+process.fullPatMetSequencePuppi))
     return process
 
