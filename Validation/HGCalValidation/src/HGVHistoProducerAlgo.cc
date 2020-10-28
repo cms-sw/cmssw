@@ -1709,10 +1709,6 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
         for (auto& cpPair : cpsInMultiCluster[mclId]) {
           //In case of a multi cluster with zero energy but related CaloParticles the score is set to 1.
           cpPair.second = 1.;
-          // LogDebug("HGCalValidator") << "multiCluster Id: \t" << mclId
-          // 			   << "\t CP id: \t" << cpPair.first
-          // 			   << "\t score \t" << cpPair.second
-          // 			   << "\n";
           LogDebug("HGCalValidator") << "multiCluster Id: \t" << mclId << "\t CP id: \t" << cpPair.first
                                      << "\t score \t" << cpPair.second << std::endl;
           histograms.h_score_multicl2caloparticle[count]->Fill(cpPair.second);
