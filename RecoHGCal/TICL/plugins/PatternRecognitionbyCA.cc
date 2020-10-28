@@ -26,7 +26,8 @@ PatternRecognitionbyCA<TILES>::PatternRecognitionbyCA(const edm::ParameterSet &c
       max_out_in_hops_(conf.getParameter<int>("max_out_in_hops")),
       min_cos_theta_(conf.getParameter<double>("min_cos_theta")),
       min_cos_pointing_(conf.getParameter<double>("min_cos_pointing")),
-      root_doublet_max_distance_from_seed_squared_(conf.getParameter<double>("root_doublet_max_distance_from_seed_squared")),
+      root_doublet_max_distance_from_seed_squared_(
+          conf.getParameter<double>("root_doublet_max_distance_from_seed_squared")),
       etaLimitIncreaseWindow_(conf.getParameter<double>("etaLimitIncreaseWindow")),
       skip_layers_(conf.getParameter<int>("skip_layers")),
       max_missing_layers_in_trackster_(conf.getParameter<int>("max_missing_layers_in_trackster")),
@@ -225,7 +226,7 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
       cumulative_prob += t.id_probabilities(index);
     }
     return (cumulative_prob <= pid_threshold_) &&
-           (t.raw_em_energy() < energy_em_over_total_threshold_*t.raw_energy());
+           (t.raw_em_energy() < energy_em_over_total_threshold_ * t.raw_energy());
   };
 
   std::vector<unsigned int> selectedTrackstersIds;
