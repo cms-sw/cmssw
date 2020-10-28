@@ -4,6 +4,7 @@
   <use name="Geometry/Records"/>
   <flags EDM_PLUGIN="1"/>
   <library file="HGCSiNoiseMapAnalyzer.cc" name="HGCSiNoiseMapAnalyzer">
+  <library file="HFNoseNoiseMapAnalyzer.cc" name="HFNoseNoiseMapAnalyzer">
 </library>
 
   <library file="HGCHEbackSignalScalerAnalyzer.cc" name="HGCHEbackSignalScalerAnalyzer">
