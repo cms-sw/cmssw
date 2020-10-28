@@ -9,14 +9,19 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelFrameConverter.h"
 
 
+
+SiPixelTopoFinder::SiPixelTopoFinder() {}
+
+SiPixelTopoFinder::~SiPixelTopoFinder() {}
+
 void SiPixelTopoFinder::init(const TrackerGeometry* trackerGeometry,
                                const TrackerTopology* trackerTopology,
                                const SiPixelFedCablingMap* siPixelFedCablingMap)
 {
     phase_ = -1;
 
-    tTopo_ = trackerTopology;
-    tGeom_ = trackerGeometry;
+    tkGeom_ = trackerGeometry;
+    tkTopo_ = trackerTopology;
     cablingMap_ = siPixelFedCablingMap;
 
     // clear data
@@ -27,7 +32,7 @@ void SiPixelTopoFinder::init(const TrackerGeometry* trackerGeometry,
 
     // loop over tracker geometry
     for (TrackerGeometry::DetContainer::const_iterator it = trackerGeometry->dets().begin();
-         it != tGeom_->dets().end(); it++){// tracker geo
+         it != tkGeom_->dets().end(); it++){// tracker geo
 
              const PixelGeomDetUnit* pgdu = dynamic_cast<const PixelGeomDetUnit*>((*it));
              if (pgdu == nullptr) continue;
@@ -118,9 +123,9 @@ int SiPixelTopoFinder::indexROC(int irow, int icol, int nROCcolumns) {
 // The following three functions copied from DQM/SiPixelPhase1Common/src/SiPixelCoordinates.cc
 int SiPixelTopoFinder::quadrant(const DetId& detid) {
     if (detid.subdetId() == PixelSubdetector::PixelBarrel)
-      return PixelBarrelName(detid, tTopo_, phase_).shell();
+      return PixelBarrelName(detid, tkTopo_, phase_).shell();
     else if (detid.subdetId() == PixelSubdetector::PixelEndcap)
-      return PixelEndcapName(detid, tTopo_, phase_).halfCylinder();
+      return PixelEndcapName(detid, tkTopo_, phase_).halfCylinder();
     else return -9999;
 }
 
@@ -128,12 +133,12 @@ int SiPixelTopoFinder::side(const DetId& detid) {
     if (detid.subdetId() == PixelSubdetector::PixelBarrel)
        return 1 + (SiPixelTopoFinder::quadrant(detid) > 2);
     else if (detid.subdetId() == PixelSubdetector::PixelEndcap)
-       return tTopo_->pxfSide(detid);
+       return tkTopo_->pxfSide(detid);
     else return -9999;
 }
 
 int SiPixelTopoFinder::half(const DetId& detid) {
     if (detid.subdetId() == PixelSubdetector::PixelBarrel)
-       return PixelBarrelName(detid, tTopo_, phase_).isHalfModule();
+       return PixelBarrelName(detid, tkTopo_, phase_).isHalfModule();
     else return -9999;   
 }
