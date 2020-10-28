@@ -1,4 +1,4 @@
-#include "L1Trigger/TrackFindingTracklet/interface/HistImp.h"
+#include "L1Trigger/TrackFindingTracklet/test/INTERNAL/HistImp.h"
 #include "L1Trigger/TrackFindingTracklet/interface/slhcevent.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Globals.h"
 
