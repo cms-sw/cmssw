@@ -257,7 +257,7 @@ def main():
     parser.add_option('-e','--end',     help='ending point',        dest='end',         action='store',      default='999999')
     parser.add_option('-D','--Dataset', help='dataset to run upon', dest='DATASET',     action='store',      default='/StreamExpressAlignment/Run2017F-TkAlMinBias-Express-v1/ALCARECO')
     parser.add_option('-v','--verbose', help='verbose output',      dest='verbose',     action='store_true', default=False)
-    
+    parser.add_option('-u','--unitTest',help='unit tests?',         dest='isUnitTest',  action='store_true', default=False)
     (opts, args) = parser.parse_args()
 
     global CopyRights
@@ -309,8 +309,22 @@ def main():
     bashdir = os.path.join(cwd,"BASH")
 
     runs.sort()
-    # get from the DB the int luminosities
-    myLumiDB = getLuminosity(HOME,runs[0],runs[-1],True,opts.verbose)
+
+    ## check that the list of runs is not empty
+    if(len(runs)==0):
+        if(opts.isUnitTest):
+            print('\n')
+            print('=' * 70)
+            print("|| WARNING: won't run on any run, probably DAS returned an empty query,\n|| but that's fine because this is a unit test!")
+            print('=' * 70)
+            print('\n')
+            sys.exit(0)
+        else:
+            raise Exception('Will not run on any run.... please check again the configuration')
+    else:
+        # get from the DB the int luminosities
+        myLumiDB = getLuminosity(HOME,runs[0],runs[-1],True,opts.verbose)
+
     if(opts.verbose):
         pprint.pprint(myLumiDB)
 
