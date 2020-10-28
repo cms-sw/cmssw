@@ -31,6 +31,7 @@
 #include "CalibPPS/AlignmentRelative/interface/AlignmentTask.h"
 #include "CalibPPS/AlignmentRelative/interface/LocalTrackFit.h"
 #include "CalibPPS/AlignmentRelative/interface/LocalTrackFitter.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 namespace edm {
   class ParameterSet;
@@ -49,7 +50,8 @@ public:
   StraightTrackAlignment(const edm::ParameterSet &);
   virtual ~StraightTrackAlignment();
 
-  virtual void begin(const edm::EventSetup &);
+  virtual void begin(edm::ESHandle<CTPPSRPAlignmentCorrectionsData> hRealAlignment,
+    edm::ESHandle<CTPPSGeometry> hRealGeometry, edm::ESHandle<CTPPSGeometry> hMisalignedGeometry);
 
   virtual void processEvent(const edm::EventID &eventId,
                             const edm::DetSetVector<TotemRPUVPattern> &uvPatternsStrip,

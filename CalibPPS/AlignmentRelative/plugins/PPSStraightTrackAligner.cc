@@ -10,12 +10,15 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "CalibPPS/AlignmentRelative/interface/StraightTrackAlignment.h"
 
-#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
+#include "CondFormats/AlignmentRecord/interface/RPRealAlignmentRecord.h"
+#include "Geometry/Records/interface/VeryForwardMisalignedGeometryRecord.h"
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
+#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/CTPPSReco/interface/TotemRPRecHit.h"
@@ -45,10 +48,14 @@ private:
   edm::EDGetTokenT<edm::DetSetVector<CTPPSPixelRecHit>> tokenPixelHits_;
   edm::EDGetTokenT<edm::DetSetVector<CTPPSPixelLocalTrack>> tokenPixelLocalTracks_;
 
+  edm::ESWatcher<VeryForwardRealGeometryRecord> geometryWatcher_;
+
+  edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> esTokenRealGeometry_;
+  edm::ESGetToken<CTPPSGeometry, VeryForwardMisalignedGeometryRecord> esTokenMisalignedGeometry_;
+  edm::ESGetToken<CTPPSRPAlignmentCorrectionsData, RPRealAlignmentRecord> esTokenRealAlignment_;
+
   bool worker_initialized_;
   StraightTrackAlignment worker_;
-
-  edm::ESWatcher<VeryForwardRealGeometryRecord> geometryWatcher_;
 
   void analyze(const edm::Event &e, const edm::EventSetup &es) override;
 
@@ -73,6 +80,10 @@ PPSStraightTrackAligner::PPSStraightTrackAligner(const ParameterSet &ps)
       tokenPixelHits_(consumes<DetSetVector<CTPPSPixelRecHit>>(tagPixelHits_)),
       tokenPixelLocalTracks_(consumes<DetSetVector<CTPPSPixelLocalTrack>>(tagPixelLocalTracks_)),
 
+      esTokenRealGeometry_(esConsumes()),
+      esTokenMisalignedGeometry_(esConsumes()),
+      esTokenRealAlignment_(esConsumes()),
+
       worker_initialized_(false),
       worker_(ps) {
   if (!tagPixelHits_.label().empty() && !tagPixelLocalTracks_.label().empty())
@@ -92,7 +103,11 @@ void PPSStraightTrackAligner::analyze(const edm::Event &event, const edm::EventS
 
   // check if worker already initialised
   if (!worker_initialized_) {
-    worker_.begin(es);
+    auto hRealGeometry = es.getHandle(esTokenRealGeometry_);
+    auto hMisalignedGeometry = es.getHandle(esTokenMisalignedGeometry_);
+    auto hRealAlignment = es.getHandle(esTokenRealAlignment_);
+
+    worker_.begin(hRealAlignment, hRealGeometry, hMisalignedGeometry);
     worker_initialized_ = true;
   }
 

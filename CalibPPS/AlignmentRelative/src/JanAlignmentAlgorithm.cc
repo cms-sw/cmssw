@@ -39,7 +39,7 @@ JanAlignmentAlgorithm::~JanAlignmentAlgorithm() {}
 
 //----------------------------------------------------------------------------------------------------
 
-void JanAlignmentAlgorithm::begin(const edm::EventSetup &) {
+void JanAlignmentAlgorithm::begin(const CTPPSGeometry *geometryReal, const CTPPSGeometry *geometryMisaligned) {
   // initialize M and S components
   Mc = new TVectorD[task->quantityClasses.size()];
   Sc = new TMatrixD *[task->quantityClasses.size()];

@@ -11,9 +11,9 @@
 #include "CalibPPS/AlignmentRelative/interface/LocalTrackFit.h"
 #include "CalibPPS/AlignmentRelative/interface/AlignmentGeometry.h"
 #include "CalibPPS/AlignmentRelative/interface/HitCollection.h"
-#include "CalibPPS/AlignmentRelative/interface/SingularMode.h"
 #include "CalibPPS/AlignmentRelative/interface/AlignmentConstraint.h"
 #include "CalibPPS/AlignmentRelative/interface/AlignmentResult.h"
+#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 
 #include <string>
 #include <map>
@@ -53,7 +53,7 @@ public:
   virtual bool hasErrorEstimate() = 0;
 
   /// prepare for processing
-  virtual void begin(const edm::EventSetup &) = 0;
+  virtual void begin(const CTPPSGeometry *geometryReal, const CTPPSGeometry *geometryMisaligned) = 0;
 
   /// process one track
   virtual void feed(const HitCollection &, const LocalTrackFit &) = 0;

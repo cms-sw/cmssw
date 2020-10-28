@@ -7,6 +7,7 @@
 #define CalibPPS_AlignmentRelative_JanAlignmentAlgorithm_h
 
 #include "CalibPPS/AlignmentRelative/interface/AlignmentAlgorithm.h"
+#include "CalibPPS/AlignmentRelative/interface/SingularMode.h"
 
 #include "TMatrixD.h"
 #include "TVectorD.h"
@@ -90,7 +91,7 @@ public:
 
   bool hasErrorEstimate() override { return true; }
 
-  void begin(const edm::EventSetup &) override;
+  void begin(const CTPPSGeometry *geometryReal, const CTPPSGeometry *geometryMisaligned) override;
 
   void feed(const HitCollection &, const LocalTrackFit &) override;
 

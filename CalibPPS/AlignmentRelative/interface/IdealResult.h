@@ -38,13 +38,13 @@ public:
 
   bool hasErrorEstimate() override { return false; }
 
-  void begin(const edm::EventSetup &) override;
+  void begin(const CTPPSGeometry *geometryReal, const CTPPSGeometry *geometryMisaligned) override;
 
   void feed(const HitCollection &, const LocalTrackFit &) override {}
 
   void saveDiagnostics(TDirectory *) override {}
 
-  void analyze() override;
+  void analyze() override {}
 
   unsigned int solve(const std::vector<AlignmentConstraint> &,
                      std::map<unsigned int, AlignmentResult> &result,

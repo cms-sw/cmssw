@@ -249,7 +249,8 @@ StraightTrackAlignment::~StraightTrackAlignment() {
 
 //----------------------------------------------------------------------------------------------------
 
-void StraightTrackAlignment::begin(const EventSetup &es) {
+void StraightTrackAlignment::begin(edm::ESHandle<CTPPSRPAlignmentCorrectionsData> hRealAlignment,
+    edm::ESHandle<CTPPSGeometry> hRealGeometry, edm::ESHandle<CTPPSGeometry> hMisalignedGeometry) {
   // reset counters
   eventsTotal = 0;
   eventsFitted = 0;
@@ -258,10 +259,8 @@ void StraightTrackAlignment::begin(const EventSetup &es) {
   selectedTracksPerRPSet.clear();
   selectedHitsPerPlane.clear();
 
-  // prepare geometry (in fact, this should be done whenever es gets changed)
-  ESHandle<CTPPSGeometry> hGeometry;
-  es.get<VeryForwardRealGeometryRecord>().get(hGeometry);
-  task.buildGeometry(rpIds, excludePlanes, hGeometry.product(), z0, task.geometry);
+  // prepare geometry
+  task.buildGeometry(rpIds, excludePlanes, hRealGeometry.product(), z0, task.geometry);
 
   // build matrix index mappings
   task.buildIndexMaps();
@@ -278,12 +277,10 @@ void StraightTrackAlignment::begin(const EventSetup &es) {
 
   // initiate the algorithms
   for (const auto &a : algorithms)
-    a->begin(es);
+    a->begin(hRealGeometry.product(), hMisalignedGeometry.product());
 
   // get initial alignments
-  ESHandle<CTPPSRPAlignmentCorrectionsData> h;
-  es.get<RPRealAlignmentRecord>().get(h);
-  initialAlignments = *h;
+  initialAlignments = *hRealAlignment;
 }
 
 //----------------------------------------------------------------------------------------------------

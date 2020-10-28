@@ -21,15 +21,10 @@ IdealResult::IdealResult(const edm::ParameterSet &gps, AlignmentTask *_t) : Alig
 
 //----------------------------------------------------------------------------------------------------
 
-void IdealResult::begin(const edm::EventSetup &iSetup) {
-  iSetup.get<VeryForwardRealGeometryRecord>().get(gReal);
-  iSetup.get<VeryForwardMisalignedGeometryRecord>().get(gMisaligned);
+void IdealResult::begin(const CTPPSGeometry *geometryReal, const CTPPSGeometry *geometryMisaligned) {
+  gReal = geometryReal;
+  gMisaligned = geometryMisaligned;
 }
-
-//----------------------------------------------------------------------------------------------------
-
-void IdealResult::analyze() {}
-
 //----------------------------------------------------------------------------------------------------
 
 unsigned int IdealResult::solve(const std::vector<AlignmentConstraint> &constraints,
