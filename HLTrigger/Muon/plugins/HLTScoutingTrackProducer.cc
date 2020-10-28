@@ -81,7 +81,7 @@ void HLTScoutingTrackProducer::produce(edm::StreamID sid, edm::Event& iEvent, ed
 
       if (iEvent.getByToken(vertexCollection_, vertexCollection)) {
         for (auto& vrt : *vertexCollection) {
-          std::cout << vrt.position().x() << std::endl;
+          
           double min_dist_tmp = pow(trk.dz(vrt.position()), 2);  // hltPixelVertices only clustered in Z
           std::cout << vrt.position().x() << std::endl;
           if (min_dist_tmp < min_dist) {
