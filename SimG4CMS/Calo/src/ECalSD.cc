@@ -222,9 +222,9 @@ double ECalSD::getEnergyDeposit(const G4Step* aStep) {
     edep *= wt2;
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("EcalSim") << lv->GetName() << " " << dd4hep::dd::noNamespace(lv->GetName()) << " Light Collection Efficiency "
-                              << weight << ":" << wt1 << " wt2= " << wt2 << " Weighted Energy Deposit "
-                              << edep / CLHEP::MeV << " MeV";
+  edm::LogVerbatim("EcalSim") << lv->GetName() << " " << dd4hep::dd::noNamespace(lv->GetName())
+                              << " Light Collection Efficiency " << weight << ":" << wt1 << " wt2= " << wt2
+                              << " Weighted Energy Deposit " << edep / CLHEP::MeV << " MeV";
 #endif
   return edep;
 }
@@ -456,9 +456,8 @@ void ECalSD::getBaseNumber(const G4Step* aStep) {
       std::string_view name = dd4hep::dd::noNamespace(touch->GetVolume(ii)->GetName());
       theBaseNumber.addLevel(std::string(name), touch->GetReplicaNumber(ii));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("EcalSim") << "ECalSD::getBaseNumber(): Adding level " << ii << ": "
-				  << name << "[" << touch->GetReplicaNumber(ii)
-                                  << "]";
+      edm::LogVerbatim("EcalSim") << "ECalSD::getBaseNumber(): Adding level " << ii << ": " << name << "["
+                                  << touch->GetReplicaNumber(ii) << "]";
 #endif
     }
   }
@@ -482,9 +481,9 @@ double ECalSD::getBirkL3(const G4Step* aStep) {
         weight = 1.;
     }
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EcalSim") << "ECalSD::getBirkL3 in " << dd4hep::dd::noNamespace(mat->GetName()) << " Charge " << charge
-                                << " dE/dx " << dedx << " Birk Const " << rkb << " Weight = " << weight << " dE "
-                                << aStep->GetTotalEnergyDeposit();
+    edm::LogVerbatim("EcalSim") << "ECalSD::getBirkL3 in " << dd4hep::dd::noNamespace(mat->GetName()) << " Charge "
+                                << charge << " dE/dx " << dedx << " Birk Const " << rkb << " Weight = " << weight
+                                << " dE " << aStep->GetTotalEnergyDeposit();
 #endif
   }
   return weight;
