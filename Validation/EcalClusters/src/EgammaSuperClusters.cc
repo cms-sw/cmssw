@@ -4,8 +4,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
-
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
@@ -31,6 +29,7 @@ EgammaSuperClusters::EgammaSuperClusters(const edm::ParameterSet &ps)
           consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("barrelRecHitCollection"))),
       endcapRecHitCollectionToken_(
           consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("endcapRecHitCollection"))),
+      ecalClusterToolsESGetTokens_{consumesCollector()},
       hsSize_(ps, "Size"),
       hsNumBC_(ps, "NumBC"),
       hsET_(ps, "ET"),
@@ -419,7 +418,8 @@ void EgammaSuperClusters::analyze(const edm::Event &evt, const edm::EventSetup &
   if (skipBarrel || skipEndcap)
     return;
 
-  EcalClusterLazyTools lazyTool(evt, es, barrelRecHitCollectionToken_, endcapRecHitCollectionToken_);
+  EcalClusterLazyTools lazyTool(
+      evt, ecalClusterToolsESGetTokens_.get(es), barrelRecHitCollectionToken_, endcapRecHitCollectionToken_);
 
   // Get the BARREL collections
   const reco::SuperClusterCollection *barrelRawSuperClusters = pBarrelRawSuperClusters.product();

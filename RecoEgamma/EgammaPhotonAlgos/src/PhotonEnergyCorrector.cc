@@ -1,6 +1,5 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/PhotonEnergyCorrector.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
@@ -11,7 +10,8 @@
 
 #include "RecoEgamma/EgammaPhotonAlgos/interface/EnergyUncertaintyPhotonSpecific.h"
 
-PhotonEnergyCorrector::PhotonEnergyCorrector(const edm::ParameterSet& config, edm::ConsumesCollector&& iC) {
+PhotonEnergyCorrector::PhotonEnergyCorrector(const edm::ParameterSet& config, edm::ConsumesCollector&& iC)
+    : ecalClusterToolsESGetTokens_{std::move(iC)} {
   minR9Barrel_ = config.getParameter<double>("minR9Barrel");
   minR9Endcap_ = config.getParameter<double>("minR9Endcap");
   // get the geometry from the event setup:
@@ -95,7 +95,8 @@ void PhotonEnergyCorrector::calculate(edm::Event& evt,
     minR9 = minR9Endcap_;
   }
 
-  EcalClusterLazyTools lazyTools(evt, iSetup, barrelEcalHitsToken_, endcapEcalHitsToken_);
+  EcalClusterLazyTools lazyTools(
+      evt, ecalClusterToolsESGetTokens_.get(iSetup), barrelEcalHitsToken_, endcapEcalHitsToken_);
 
   ////////////// Here default Ecal corrections based on electrons  ////////////////////////
   if (thePhoton.r9() > minR9) {
