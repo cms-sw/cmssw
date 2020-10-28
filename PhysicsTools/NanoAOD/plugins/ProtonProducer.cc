@@ -50,7 +50,7 @@ public:
             mayConsume<reco::ForwardProtonCollection>(ps.getParameter<edm::InputTag>("tagRecoProtonsMulti"))),
         tokenTracksLite_(mayConsume<std::vector<CTPPSLocalTrackLite>>(ps.getParameter<edm::InputTag>("tagTrackLite"))) {
     produces<edm::ValueMap<int>>("protonRPId");
-    produces<edm::ValueMap<int>>("arm");
+    produces<edm::ValueMap<int>>("arm"); 
     produces<nanoaod::FlatTable>("ppsTrackTable");
   }
   ~ProtonProducer() override {}
@@ -73,7 +73,8 @@ public:
     std::vector<int> multiRP_arm;
 
     // book output variables for tracks
-    std::vector<float> trackX, trackY, trackTime, trackTimeUnc, localSlopeX, localSlopeY, normalizedChi2;
+    std::vector<float> trackX, trackY, trackTime, trackTimeUnc, localSlopeX, localSlopeY,
+        normalizedChi2;
     std::vector<int> singleRPProtonIdx, multiRPProtonIdx, decRPId, numFitPoints, pixelRecoInfo, rpType;
 
     // process single-RP protons
@@ -94,7 +95,7 @@ public:
       multiRP_arm.reserve(num_proton);
 
       for (const auto &proton : *hRecoProtonsMultiRP) {
-        multiRP_arm.push_back((proton.pz() < 0.) ? 1 : 0);
+	multiRP_arm.push_back((proton.pz() < 0.) ? 1 : 0);
       }
     }
 
@@ -147,6 +148,7 @@ public:
     fillerID.insert(hRecoProtonsSingleRP, singleRP_RPId.begin(), singleRP_RPId.end());
     fillerID.fill();
 
+    // Testing
     std::unique_ptr<edm::ValueMap<int>> multiRP_armV(new edm::ValueMap<int>());
     edm::ValueMap<int>::Filler fillermultiArm(*multiRP_armV);
     fillermultiArm.insert(hRecoProtonsMultiRP, multiRP_arm.begin(), multiRP_arm.end());
@@ -161,12 +163,7 @@ public:
     ppsTab->addColumn<float>("time", trackTime, "local track time", 16);
     ppsTab->addColumn<float>("timeUnc", trackTimeUnc, "local track time uncertainty", 13);
     ppsTab->addColumn<int>("decRPId", decRPId, "local track detector dec id");
-    ppsTab->addColumn<int>("numFitPoints", numFitPoints, "number of points used for fit");
-    ppsTab->addColumn<int>("pixelRecoInfo", pixelRecoInfo, "flag if a ROC was shifted by a bunchx");
-    ppsTab->addColumn<float>("normalizedChi2", normalizedChi2, "chi2 over NDF", 8);
     ppsTab->addColumn<int>("rpType", rpType, "strip=3, pixel=4, diamond=5, timing=6");
-    ppsTab->addColumn<float>("localSlopeX", localSlopeX, "track horizontal angle", 11);
-    ppsTab->addColumn<float>("localSlopeY", localSlopeY, "track vertical angle", 11);
     ppsTab->setDoc("ppsLocalTrack variables");
 
     // save output
