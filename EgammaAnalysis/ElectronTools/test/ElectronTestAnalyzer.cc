@@ -75,7 +75,7 @@ private:
   virtual void myVar(const reco::GsfElectron& ele,
                      const reco::Vertex& vertex,
                      const TransientTrackBuilder& transientTrackBuilder,
-                     EcalClusterLazyTools myEcalCluster,
+                     EcalClusterLazyTools const& myEcalCluster,
                      bool printDebug = kFALSE);
   virtual void evaluate_mvas(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
@@ -92,6 +92,7 @@ private:
   edm::EDGetTokenT<reco::MuonCollection> muonToken_;
   edm::EDGetTokenT<EcalRecHitCollection> reducedEBRecHitCollectionToken_;
   edm::EDGetTokenT<EcalRecHitCollection> reducedEERecHitCollectionToken_;
+  const EcalClusterLazyTools::ESGetTokens ecalClusterESGetTokens_;
 
   EGammaMvaEleEstimator* myMVATrigV0;
   EGammaMvaEleEstimator* myMVATrigNoIPV0;
@@ -179,7 +180,8 @@ ElectronTestAnalyzer::ElectronTestAnalyzer(const edm::ParameterSet& iConfig)
       eventrhoToken_(consumes<double>(edm::InputTag("kt6PFJets", "rho"))),
       muonToken_(consumes<reco::MuonCollection>(edm::InputTag("muons"))),
       reducedEBRecHitCollectionToken_(consumes<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEB"))),
-      reducedEERecHitCollectionToken_(consumes<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEE"))) {
+      reducedEERecHitCollectionToken_(consumes<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEE"))),
+      ecalClusterESGetTokens_{consumesCollector()} {
   Bool_t manualCat = true;
 
   ev = 0;
@@ -294,7 +296,8 @@ void ElectronTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
     reco::Vertex::Point p(0, 0, 0);
     dummy = reco::Vertex(p, e, 0, 0, 0);
   }
-  EcalClusterLazyTools lazyTools(iEvent, iSetup, reducedEBRecHitCollectionToken_, reducedEERecHitCollectionToken_);
+  EcalClusterLazyTools lazyTools(
+      iEvent, ecalClusterESGetTokens_.get(iSetup), reducedEBRecHitCollectionToken_, reducedEERecHitCollectionToken_);
 
   edm::ESHandle<TransientTrackBuilder> builder;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
@@ -446,7 +449,7 @@ void ElectronTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 void ElectronTestAnalyzer::myVar(const reco::GsfElectron& ele,
                                  const reco::Vertex& vertex,
                                  const TransientTrackBuilder& transientTrackBuilder,
-                                 EcalClusterLazyTools myEcalCluster,
+                                 EcalClusterLazyTools const& myEcalCluster,
                                  bool printDebug) {
   bool validKF = false;
   reco::TrackRef myTrackRef = ele.closestCtfTrackRef();
@@ -687,7 +690,8 @@ void ElectronTestAnalyzer::evaluate_mvas(const edm::Event& iEvent, const edm::Ev
     IdentifiedMuons.push_back(*iM);
   }
 
-  EcalClusterLazyTools lazyTools(iEvent, iSetup, reducedEBRecHitCollectionToken_, reducedEERecHitCollectionToken_);
+  EcalClusterLazyTools lazyTools(
+      iEvent, ecalClusterESGetTokens_.get(iSetup), reducedEBRecHitCollectionToken_, reducedEERecHitCollectionToken_);
 
   edm::ESHandle<TransientTrackBuilder> builder;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);

@@ -954,7 +954,7 @@ Double_t EGammaMvaEleEstimator::isoMvaValue(Double_t Pt,
 Double_t EGammaMvaEleEstimator::mvaValue(const reco::GsfElectron& ele,
                                          const reco::Vertex& vertex,
                                          const TransientTrackBuilder& transientTrackBuilder,
-                                         EcalClusterLazyTools myEcalCluster,
+                                         EcalClusterLazyTools const& myEcalCluster,
                                          bool printDebug) {
   if (!fisInitialized) {
     std::cout << "Error: EGammaMvaEleEstimator not properly initialized.\n";
@@ -1066,7 +1066,7 @@ Double_t EGammaMvaEleEstimator::mvaValue(const reco::GsfElectron& ele,
                                          const reco::Vertex& vertex,
                                          double rho,
                                          //const TransientTrackBuilder& transientTrackBuilder,
-                                         EcalClusterLazyTools myEcalCluster,
+                                         EcalClusterLazyTools const& myEcalCluster,
                                          bool printDebug) {
   if (!fisInitialized) {
     std::cout << "Error: EGammaMvaEleEstimator not properly initialized.\n";
@@ -1619,7 +1619,7 @@ Double_t EGammaMvaEleEstimator::isoMvaValue(const reco::GsfElectron& ele,
 Double_t EGammaMvaEleEstimator::IDIsoCombinedMvaValue(const reco::GsfElectron& ele,
                                                       const reco::Vertex& vertex,
                                                       const TransientTrackBuilder& transientTrackBuilder,
-                                                      EcalClusterLazyTools myEcalCluster,
+                                                      EcalClusterLazyTools const& myEcalCluster,
                                                       const reco::PFCandidateCollection& PFCandidates,
                                                       double Rho,
                                                       ElectronEffectiveArea::ElectronEffectiveAreaTarget EATarget,
