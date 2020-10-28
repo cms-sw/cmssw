@@ -5,12 +5,7 @@
 // CMSSW FW
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/ESWatcher.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Transition.h"
 // CMSSW DataFormats
 #include "DataFormats/Common/interface/ConditionsInEdm.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -33,12 +28,7 @@
 #include "CalibTracker/SiPixelQuality/plugins/SiPixelStatusProducer.h"
 
 
-SiPixelStatusProducer::SiPixelStatusProducer(const edm::ParameterSet& iConfig)
-    : trackerGeometryToken_(
-          esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginLuminosityBlock>()),
-      trackerTopologyToken_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginLuminosityBlock>()),
-      siPixelFedCablingMapToken_(
-          esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd, edm::Transition::BeginLuminosityBlock>()) {
+SiPixelStatusProducer::SiPixelStatusProducer(const edm::ParameterSet& iConfig,  SiPixelTopoCache const*){
 
   /* badPixelFEDChannelCollections */
   std::vector<edm::InputTag> badPixelFEDChannelCollectionLabels =
