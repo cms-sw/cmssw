@@ -55,7 +55,6 @@ private:
   const double pt_sigma_high_;
   const double pt_sigma_low_;
   const double halo_max_distance2_;
-  const double mergeTRK_max_dR_;
   const double cosangle_align_;
   const double e_over_h_threshold_;
   const double pt_neutral_threshold_;
@@ -92,7 +91,6 @@ TrackstersMergeProducer::TrackstersMergeProducer(const edm::ParameterSet &ps, co
       pt_sigma_high_(ps.getParameter<double>("pt_sigma_high")),
       pt_sigma_low_(ps.getParameter<double>("pt_sigma_low")),
       halo_max_distance2_(ps.getParameter<double>("halo_max_distance2")),
-      mergeTRK_max_dR_(ps.getParameter<double>("mergeTRK_max_dR")),
       cosangle_align_(ps.getParameter<double>("cosangle_align")),
       e_over_h_threshold_(ps.getParameter<double>("e_over_h_threshold")),
       pt_neutral_threshold_(ps.getParameter<double>("pt_neutral_threshold")),
@@ -714,7 +712,6 @@ void TrackstersMergeProducer::fillDescriptions(edm::ConfigurationDescriptions &d
   desc.add<double>("pt_sigma_high", 2.);
   desc.add<double>("pt_sigma_low", 2.);
   desc.add<double>("halo_max_distance2", 4.);
-  desc.add<double>("mergeTRK_max_dR", 0.03);
   desc.add<double>("cosangle_align", 0.9945);
   desc.add<double>("e_over_h_threshold", 1.);
   desc.add<double>("pt_neutral_threshold", 2.);
