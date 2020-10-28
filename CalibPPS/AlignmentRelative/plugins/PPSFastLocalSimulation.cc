@@ -8,6 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -97,18 +98,17 @@ protected:
   /// v position of strip 0, in mm
   double stripZeroPosition_;
 
-  edm::ESHandle<CTPPSGeometry> geometry;
+  edm::ESGetToken<CTPPSGeometry, VeryForwardMisalignedGeometryRecord> esTokenGeometry_;
 
   void GenerateTrack(unsigned int pi,
                      CLHEP::HepRandomEngine &rndEng,
                      HepMC::GenEvent *gEv,
                      std::unique_ptr<edm::DetSetVector<TotemRPRecHit>> &stripHitColl,
                      std::unique_ptr<edm::DetSetVector<CTPPSDiamondRecHit>> &diamondHitColl,
-                     std::unique_ptr<edm::DetSetVector<CTPPSPixelRecHit>> &pixelHitColl);
+                     std::unique_ptr<edm::DetSetVector<CTPPSPixelRecHit>> &pixelHitColl,
+                     const CTPPSGeometry &geometry);
 
   //---------- framework methods ----------
-
-  void beginRun(edm::Run const &, edm::EventSetup const &) override;
 
   void produce(edm::Event &, const edm::EventSetup &) override;
 };
@@ -204,7 +204,10 @@ PPSFastLocalSimulation::PPSFastLocalSimulation(const edm::ParameterSet &ps)
       insensitiveMarginStrips_(ps.getParameter<double>("insensitiveMarginStrips")),
 
       position_dist_(ps.getParameterSet("position_distribution")),
-      angular_dist_(ps.getParameterSet("angular_distribution")) {
+      angular_dist_(ps.getParameterSet("angular_distribution")),
+
+      esTokenGeometry_(esConsumes())
+ {
   // v position of strip 0
   stripZeroPosition_ = RPTopology::last_strip_to_border_dist_ + (RPTopology::no_of_strips_ - 1) * RPTopology::pitch_ -
                        RPTopology::y_width_ / 2.;
@@ -226,19 +229,13 @@ PPSFastLocalSimulation::~PPSFastLocalSimulation() {}
 
 //----------------------------------------------------------------------------------------------------
 
-void PPSFastLocalSimulation::beginRun(edm::Run const &, edm::EventSetup const &es) {
-  // get geometry
-  es.get<VeryForwardMisalignedGeometryRecord>().get(geometry);
-}
-
-//----------------------------------------------------------------------------------------------------
-
 void PPSFastLocalSimulation::GenerateTrack(unsigned int idx,
                                            CLHEP::HepRandomEngine &rndEng,
                                            HepMC::GenEvent *gEv,
                                            unique_ptr<edm::DetSetVector<TotemRPRecHit>> &stripHitColl,
                                            unique_ptr<edm::DetSetVector<CTPPSDiamondRecHit>> &diamondHitColl,
-                                           unique_ptr<edm::DetSetVector<CTPPSPixelRecHit>> &pixelHitColl) {
+                                           unique_ptr<edm::DetSetVector<CTPPSPixelRecHit>> &pixelHitColl,
+                                           const CTPPSGeometry &geometry) {
   // generate track
   double bx = 0., by = 0., ax = 0., ay = 0.;
   position_dist_.Generate(rndEng, bx, by);
@@ -268,7 +265,7 @@ void PPSFastLocalSimulation::GenerateTrack(unsigned int idx,
 
   if (makeHits_) {
     // check all sensors known to geometry
-    for (CTPPSGeometry::mapType::const_iterator it = geometry->beginSensor(); it != geometry->endSensor(); ++it) {
+    for (CTPPSGeometry::mapType::const_iterator it = geometry.beginSensor(); it != geometry.endSensor(); ++it) {
       // get RP decimal id
       CTPPSDetId detId(it->first);
       unsigned int decRPId = detId.arm() * 100 + detId.station() * 10 + detId.rp();
@@ -292,9 +289,9 @@ void PPSFastLocalSimulation::GenerateTrack(unsigned int idx,
 
       // determine the track impact point (in global coordinates)
       // !! this assumes that local axes (1, 0, 0) and (0, 1, 0) describe the sensor surface
-      const auto gl_o = geometry->localToGlobal(detId, CTPPSGeometry::Vector(0, 0, 0));
-      const auto gl_a1 = geometry->localToGlobal(detId, CTPPSGeometry::Vector(1, 0, 0)) - gl_o;
-      const auto gl_a2 = geometry->localToGlobal(detId, CTPPSGeometry::Vector(0, 1, 0)) - gl_o;
+      const auto gl_o = geometry.localToGlobal(detId, CTPPSGeometry::Vector(0, 0, 0));
+      const auto gl_a1 = geometry.localToGlobal(detId, CTPPSGeometry::Vector(1, 0, 0)) - gl_o;
+      const auto gl_a2 = geometry.localToGlobal(detId, CTPPSGeometry::Vector(0, 1, 0)) - gl_o;
 
       TMatrixD A(3, 3);
       TVectorD B(3);
@@ -319,7 +316,7 @@ void PPSFastLocalSimulation::GenerateTrack(unsigned int idx,
       CTPPSGeometry::Vector h_glo(ax * de_z + bx, ay * de_z + by, de_z + z0_);
 
       // hit in local coordinates
-      CTPPSGeometry::Vector h_loc = geometry->globalToLocal(detId, h_glo);
+      CTPPSGeometry::Vector h_loc = geometry.globalToLocal(detId, h_glo);
 
       // strips
       if (detId.subdetId() == CTPPSDetId::sdTrackingStrip) {
@@ -406,6 +403,9 @@ void PPSFastLocalSimulation::produce(edm::Event &event, const edm::EventSetup &e
   if (verbosity_ > 5)
     printf("\tseed = %li\n", rndEng.getSeed());
 
+  // get geometry
+  auto const &geometry = es.getData(esTokenGeometry_);
+
   // initialize products
   GenEvent *gEv = new GenEvent();
   gEv->set_event_number(event.id().event());
@@ -419,7 +419,7 @@ void PPSFastLocalSimulation::produce(edm::Event &event, const edm::EventSetup &e
     if (verbosity_ > 5)
       printf("    generating track %u\n", pi);
 
-    GenerateTrack(pi, rndEng, gEv, stripHitColl, diamondHitColl, pixelHitColl);
+    GenerateTrack(pi, rndEng, gEv, stripHitColl, diamondHitColl, pixelHitColl, geometry);
   }
 
   // save products

@@ -31,6 +31,8 @@ public:
 private:
   edm::ParameterSet ps_;
 
+  edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> tokenRealGeometry_;
+
   void beginRun(edm::Run const &, edm::EventSetup const &) override;
 
   void analyze(const edm::Event &e, const edm::EventSetup &es) override {}
@@ -41,7 +43,11 @@ using namespace edm;
 
 //----------------------------------------------------------------------------------------------------
 
-PPSModifySingularModes::PPSModifySingularModes(const ParameterSet &ps) : ps_(ps) {}
+PPSModifySingularModes::PPSModifySingularModes(const ParameterSet &ps) :
+  ps_(ps),
+  tokenRealGeometry_(esConsumes<edm::Transition::BeginRun>())
+{
+}
 
 //----------------------------------------------------------------------------------------------------
 
@@ -70,8 +76,7 @@ void PPSModifySingularModes::beginRun(edm::Run const &, edm::EventSetup const &e
   const double a_rho = (de_rho2 - de_rho1) / (z2 - z1), b_rho = de_rho1 - a_rho * z1;
 
   // get geometry
-  ESHandle<CTPPSGeometry> geometry;
-  es.get<VeryForwardRealGeometryRecord>().get(geometry);
+  const auto &geometry = es.getData(tokenRealGeometry_);
 
   // get input alignments
   CTPPSRPAlignmentCorrectionsDataSequence inputSequence = CTPPSRPAlignmentCorrectionsMethods::loadFromXML(inputFile);
@@ -83,7 +88,7 @@ void PPSModifySingularModes::beginRun(edm::Run const &, edm::EventSetup const &e
   for (auto &it : input.getSensorMap()) {
     const auto &sensorId = it.first;
 
-    const auto &c = geometry->sensorTranslation(sensorId);
+    const auto &c = geometry.sensorTranslation(sensorId);
 
     // pixels cannot be described by one single value of z, but no better approxiamtion can be made
     const double z = c.z();
@@ -120,7 +125,7 @@ void PPSModifySingularModes::beginRun(edm::Run const &, edm::EventSetup const &e
   // build alignment geometry (needed for the factorisation below)
   AlignmentGeometry alignmentGeometry;
   vector<unsigned int> excludePlanes;
-  AlignmentTask::buildGeometry(rps, excludePlanes, geometry.product(), 0., alignmentGeometry);
+  AlignmentTask::buildGeometry(rps, excludePlanes, &geometry, 0., alignmentGeometry);
 
   // factorise output
   CTPPSRPAlignmentCorrectionsData outputExpanded;
