@@ -72,6 +72,13 @@ void LocalTrackFitter::fitAndRemoveOutliers(HitCollection &selection,
     return;
   }
 
+  // check if input size is sufficient
+  if (selection.size() < 4)
+  {
+    failed = true;
+    return;
+  }
+
   // build matrices and vectors
   TMatrixD A(selection.size(), 4);
   TMatrixD Vi(selection.size(), selection.size());
@@ -99,7 +106,16 @@ void LocalTrackFitter::fitAndRemoveOutliers(HitCollection &selection,
   TMatrixD ATViA(4, 4);
   ATViA = AT * Vi * A;
   TMatrixD ATViAI(ATViA);
-  ATViAI = ATViA.Invert();
+
+  try {
+    ATViAI = ATViA.Invert();
+  }
+  catch (...)
+  {
+    failed = true;
+    return;
+  }
+
   TVectorD theta(4);
   theta = ATViAI * AT * Vi * measVec;
 
