@@ -73,10 +73,10 @@ simEcalDigis = cms.EDProducer("EcalSelectiveReadoutProducer",
     defaultTtf = cms.int32(4)
 )
 
-_simEcalDigisPh2 = simEcalDigis.clone(
-    trigPrimBypass = True,
-)
-
 # Turn off SR in Ecal for premixing stage1
 from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
 premix_stage1.toModify(simEcalDigis, UseFullReadout = True)
+
+_simEcalDigisPh2 = simEcalDigis.clone(
+    trigPrimBypass = True,
+)
