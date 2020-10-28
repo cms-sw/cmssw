@@ -19,7 +19,7 @@ void HGCGraphT<TILES>::makeAndConnectDoublets(const TILES &histo,
                                               int deltaIPhi,
                                               float minCosTheta,
                                               float minCosPointing,
-                                              float root_doublet_max_distance_from_seed,
+                                              float root_doublet_max_distance_from_seed_squared,
                                               float etaLimitIncreaseWindow,
                                               int skip_layers,
                                               int maxNumberOfLayers,
@@ -28,7 +28,7 @@ void HGCGraphT<TILES>::makeAndConnectDoublets(const TILES &histo,
   isOuterClusterOfDoublets_.resize(layerClusters.size());
   allDoublets_.clear();
   theRootDoublets_.clear();
-  bool checkDistanceRootDoubletVsSeed = root_doublet_max_distance_from_seed < 9999;
+  bool checkDistanceRootDoubletVsSeed = root_doublet_max_distance_from_seed_squared < 9999;
   float origin_eta;
   float origin_phi;
   for (const auto &r : regions) {
@@ -179,9 +179,11 @@ void HGCGraphT<TILES>::makeAndConnectDoublets(const TILES &histo,
                                                                               minCosPointing,
                                                                               verbosity_ > Advanced);
                     if (isRootDoublet and checkDistanceRootDoubletVsSeed) {
-                      auto lcEta = layerClusters[innerClusterId].eta();
-                      auto lcPhi = layerClusters[innerClusterId].phi();
-                      if (std::hypot(lcEta - origin_eta, lcPhi - origin_phi) > root_doublet_max_distance_from_seed)
+                      auto dEtaSquared = (layerClusters[innerClusterId].eta() - origin_eta);
+                      dEtaSquared *= dEtaSquared;
+                      auto dPhiSquared = (layerClusters[innerClusterId].phi() - origin_phi);
+                      dPhiSquared *= dPhiSquared;
+                      if (dEtaSquared + dPhiSquared > root_doublet_max_distance_from_seed_squared)
                         isRootDoublet = false;
                     }
                     if (isRootDoublet) {
