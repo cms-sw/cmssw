@@ -742,6 +742,26 @@ public:
                   break;
                 }
               }
+            } else if (groupname == "mass_variation" || groupname == "sthw2_variation" ||
+                       groupname == "width_variation") {
+              if (lheDebug)
+                std::cout << ">>> Looks like an EW parameter weight" << std::endl;
+              for (++iLine; iLine < nLines; ++iLine) {
+                if (lheDebug)
+                  std::cout << "    " << lines[iLine];
+                if (std::regex_search(lines[iLine], groups, rwgt)) {
+                  std::string rwgtID = groups.str(1);
+                  if (lheDebug)
+                    std::cout << "    >>> LHE reweighting weight: " << rwgtID << std::endl;
+                  if (std::find(lheReweighingIDs.begin(), lheReweighingIDs.end(), rwgtID) == lheReweighingIDs.end()) {
+                    // we're only interested in the beggining of the block
+                    lheReweighingIDs.emplace_back(rwgtID);
+                  }
+                } else if (std::regex_search(lines[iLine], endweightgroup)) {
+                  if (lheDebug)
+                    std::cout << ">>> Looks like the end of a weight group" << std::endl;
+                }
+              }
             } else {
               for (++iLine; iLine < nLines; ++iLine) {
                 if (lheDebug)
