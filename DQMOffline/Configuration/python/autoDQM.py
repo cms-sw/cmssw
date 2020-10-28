@@ -104,11 +104,6 @@ autoDQM = { 'common': ['DQMOfflineCommon+@L1TMon',
                            'PostDQMOffline',
                            'DQMHarvestNanoAOD'],
 
-            'pfDQM': ['DQMOfflinePF+DQMOfflinePFExtended',
-                      'PostDQMOffline',
-                      'DQMHarvestPF'],
-
-#           'standardDQM': ['@dcs+@DQMMessageLogger+@ecal+@hcal+@hcal2+@strip+@pixel+@castor+@ctpps+@muon+@tracking+@jetmet+@egamma+@L1TMon+@hlt+@btag+@beam+@physics+@HLTMon',
             'standardDQM': ['DQMOffline',
                             'PostDQMOffline',
                             'dqmHarvesting'],
