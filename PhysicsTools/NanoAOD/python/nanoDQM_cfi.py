@@ -124,13 +124,10 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('btagCMVA', 'btagCMVA', 20, -1, 1, 'CMVA V2 btag discriminator'),
                 Plot1D('btagCSVV2', 'btagCSVV2', 20, -1, 1, ' pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)'),
                 Plot1D('btagDDBvL', 'btagDDBvL', 20, -1, 1, 'DeepDoubleX (mass-decorrelated) discriminator for H(Z)->bb vs QCD'),
-                Plot1D('btagDDBvLV2', 'btagDDBvLV2', 20, 0, 1, 'DeepDoubleX V2(mass-decorrelated) discriminator for H(Z)->bb vs QCD'),
                 Plot1D('btagDDBvL_noMD', 'btagDDBvL_noMD', 20, 0, 1, 'DeepDoubleX discriminator (no mass-decorrelation) for H(Z)->bb vs QCD'),
                 Plot1D('btagDDCvB', 'btagDDCvB', 20, -1, 1, 'DeepDoubleX (mass-decorrelated) discriminator for H(Z)->cc vs H(Z)->bb'),
-                Plot1D('btagDDCvBV2', 'btagDDCvBV2', 20, 0, 1, 'DeepDoubleX V2 (mass-decorrelated) discriminator for H(Z)->cc vs H(Z)->bb'),
                 Plot1D('btagDDCvB_noMD', 'btagDDCvB_noMD', 20, 0, 1, 'DeepDoubleX discriminator (no mass-decorrelation) for H(Z)->cc vs H(Z)->bb'),
                 Plot1D('btagDDCvL', 'btagDDCvL', 20, -1, 1, 'DeepDoubleX (mass-decorrelated) discriminator for H(Z)->cc vs QCD'),
-                Plot1D('btagDDCvLV2', 'btagDDCvLV2', 20, 0, 1, 'DeepDoubleX V2 (mass-decorrelated) discriminator for H(Z)->cc vs QCD'),
                 Plot1D('btagDDCvL_noMD', 'btagDDCvL_noMD', 20, 0, 1, 'DeepDoubleX discriminator (no mass-decorrelation) for H(Z)->cc vs QCD'),
                 Plot1D('btagDeepB', 'btagDeepB', 20, -1, 1, 'Deep B+BB btag discriminator'),
                 Plot1D('btagHbb', 'btagHbb', 20, -1, 1, 'Higgs to BB tagger discriminator'),
@@ -345,13 +342,8 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('btagCSVV2', 'btagCSVV2', 20, -1, 1, ' pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)'),
                 Plot1D('btagDeepB', 'btagDeepB', 20, -1, 1, 'Deep B+BB btag discriminator'),
                 Plot1D('btagDeepC', 'btagDeepC', 20, 0, 1, 'DeepCSV charm btag discriminator'),
-                Plot1D('btagDeepCvB', 'btagDeepCvB', 20, -1, 1, 'DeepCSV c vs b+bb discriminator'),
-                Plot1D('btagDeepCvL', 'btagDeepCvL', 20, -1, 1, 'DeepCSV c vs udsg discriminator'),
                 Plot1D('btagDeepFlavB', 'btagDeepFlavB', 20, 0, 1, 'DeepFlavour b+bb tag discriminator'),
                 Plot1D('btagDeepFlavC', 'btagDeepFlavC', 20, 0, 1, 'DeepFlavour charm tag discriminator'),
-                Plot1D('btagDeepFlavCvB', 'btagDeepFlavCvB', 20, -1, 1, 'DeepJet c vs b+bb+lepb discriminator'),
-                Plot1D('btagDeepFlavCvL', 'btagDeepFlavCvL', 20, -1, 1, 'DeepJet c vs uds+g discriminator'),
-                Plot1D('btagDeepFlavQG', 'btagDeepFlavQG', 20, -1, 1, 'DeepJet g vs uds discriminator'),
                 Plot1D('cRegCorr', 'cRegCorr', 20, 0.6, 2, 'pt correction for c-jet energy regression'),
                 Plot1D('cRegRes', 'cRegRes', 20, 0.05, 0.4, 'res on pt corrected with c-jet regression'),
                 Plot1D('chEmEF', 'chEmEF', 20, 0, 1, 'charged Electromagnetic Energy Fraction'),
@@ -390,31 +382,6 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('rawFactor', 'rawFactor', 20, -0.5, 0.5, '1 - Factor to get back to raw pT'),
             )
         ),
-        LHEPart = cms.PSet(
-            sels = cms.PSet(),
-            plots = cms.VPSet(
-                Count1D('_size', 20, 0, 20, 'LHE particles'),
-                Plot1D('eta', 'eta', 20, -30000, 30000, 'eta'),
-                Plot1D('pdgId', 'pdgId', 20, -6000, 6000, 'PDG id'),
-                Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'phi'),
-                Plot1D('pt', 'pt', 20, 0, 200, 'pt'),
-            )
-        ),
-        LHEPdfWeight = cms.PSet(
-            sels = cms.PSet(),
-            plots = cms.VPSet(
-                Count1D('_size', 1000, 0, 2000, 'LHE PDF weights'),
-                Plot1D('', '', 100, 0, 2, 'all weights'),
-            )
-        ),
-        LHEScaleWeight = cms.PSet(
-            sels = cms.PSet(),
-            plots = cms.VPSet(
-                Count1D('_size', 20, 0, 20, 'LHE scale weights'),
-                Plot1D('', '', 100, 0, 2, 'all weights'),
-            )
-        ),
-
         MET = cms.PSet(
             sels = cms.PSet(),
             plots = cms.VPSet(
@@ -499,32 +466,6 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
             plots = cms.VPSet(
                 NoPlot('_size'),
                 Plot1D('z', 'z', 20, -20, 20, 'Z position of other primary vertices, excluding the main PV'),
-            )
-        ),
-        PPSLocalTrack = cms.PSet(
-            sels = cms.PSet(),
-            plots = cms.VPSet(
-                Count1D('_size', 34, -0.5, 33.5, 'ppsLocalTrack variables'),
-                Plot1D('decRPId', 'decRPId', 20, 0, 200, 'local track detector dec id'),
-                Plot1D('localSlopeX', 'localSlopeX', 20, -0.2, 0.2, 'track horizontal angle'),
-                Plot1D('localSlopeY', 'localSlopeY', 20, -0.2, 0.2, 'track vertical angle'),
-                NoPlot('multiRPProtonIdx'),
-                Plot1D('normalizedChi2', 'normalizedChi2', 20, 0, 5, 'chi2 over NDF'),
-                Plot1D('numFitPoints', 'numFitPoints', 7, -0.5, 6.5, 'number of points used for fit'),
-                Plot1D('pixelRecoInfo', 'pixelRecoInfo', 6, -0.5, 5.5, 'flag if a ROC was shifted by a bunchx'),
-                Plot1D('rpType', 'rpType', 2, 3.5, 5.5, 'strip=3, pixel=4, diamond=5, timing=6'),
-                NoPlot('singleRPProtonIdx'),
-                Plot1D('time', 'time', 20, -7, 7, 'local track time'),
-                Plot1D('timeUnc', 'timeUnc', 20, 0, 0.3, 'local track time uncertainty'),
-                Plot1D('x', 'x', 20, 2, 30, 'local track x'),
-                Plot1D('y', 'y', 20, -20, 20, 'local track y'),
-            )
-        ),
-        PSWeight = cms.PSet(
-            sels = cms.PSet(),
-            plots = cms.VPSet(
-                Plot1D('', '', 20, 0, 2, 'All PS weights (w_var / w_nominal)'),
-                Count1D('_size', 46, -0.5, 45.5, 'Number of PS weights'),
             )
         ),
         PV = cms.PSet(
@@ -658,7 +599,6 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('x', 'x', 20, -0.5, 0.5, 'secondary vertex X position, in cm'),
                 Plot1D('y', 'y', 20, -0.5, 0.5, 'secondary vertex Y position, in cm'),
                 Plot1D('z', 'z', 20, -10, 10, 'secondary vertex Z position, in cm'),
-                Plot1D('ntracks', 'ntracks', 11, -0.5, 10.5, 'number of tracks'),
             )
         ),
         SoftActivityJet = cms.PSet(
@@ -678,7 +618,6 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('btagCSVV2', 'btagCSVV2', 20, -1, 1, ' pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)'),
                 Plot1D('btagDeepB', 'btagDeepB', 20, -1, 1, 'Deep B+BB btag discriminator'),
                 Plot1D('eta', 'eta', 20, -4, 4, 'eta'),
-                Plot1D('hadronFlavour', 'hadronFlavour', 6, -0.5, 5.5, 'flavour from hadron ghost clustering'),
                 Plot1D('mass', 'mass', 20, -200, 200, 'mass'),
                 Plot1D('n2b1', 'n2b1', 20, 0, 1, 'N2 (beta=1)'),
                 Plot1D('n3b1', 'n3b1', 20, 0, 5, 'N3 (beta=1)'),
