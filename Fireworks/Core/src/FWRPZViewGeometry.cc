@@ -532,43 +532,41 @@ void FWRPZViewGeometry::showRpcEndcap(bool show) {
 //______________________________________________________________________________
 
 void FWRPZViewGeometry::showGEM(bool show) {
-   // hardcoded gem and me0; need to find better way for different gem geometries
-   if (!m_GEMElements && show) {
-      m_GEMElements = new TEveElementList("GEM");
+  // hardcoded gem and me0; need to find better way for different gem geometries
+  if (!m_GEMElements && show) {
+    m_GEMElements = new TEveElementList("GEM");
 
-      for (Int_t iRegion = GEMDetId::minRegionId; iRegion <= GEMDetId::maxRegionId; iRegion = iRegion + 2) {
-         int iStation = 1;
-         int iRing = 1;
-         int iLayer = 1;
+    for (Int_t iRegion = GEMDetId::minRegionId; iRegion <= GEMDetId::maxRegionId; iRegion = iRegion + 2) {
+      int iStation = 1;
+      int iRing = 1;
+      int iLayer = 1;
 
-         int carr[4] = {10, 11, 29, 30};
-         for (int i = 0; i < 4; ++i)
-         {
-            int iChamber = carr[i];
-            int iRoll = 0;
-            try {
-               GEMDetId id(iRegion, iRing, iStation, iLayer, iChamber, iRoll);
-               TEveGeoShape* shape = m_geom->getEveShape(id.rawId());
-               if (shape) {
-                  addToCompound(shape, kFWMuonEndcapLineColorIndex);
-                  m_GEMElements->AddElement(shape);
-                  gEve->AddToListTree(shape, true);
-               }
-            }
-            catch (cms::Exception& e) {
-               fwLog(fwlog::kError) << "FWRPZViewGeomtery " << e << std::endl;
-            }
-         }
+      int carr[4] = {10, 11, 29, 30};
+      for (int i = 0; i < 4; ++i) {
+        int iChamber = carr[i];
+        int iRoll = 0;
+        try {
+          GEMDetId id(iRegion, iRing, iStation, iLayer, iChamber, iRoll);
+          TEveGeoShape* shape = m_geom->getEveShape(id.rawId());
+          if (shape) {
+            addToCompound(shape, kFWMuonEndcapLineColorIndex);
+            m_GEMElements->AddElement(shape);
+            gEve->AddToListTree(shape, true);
+          }
+        } catch (cms::Exception& e) {
+          fwLog(fwlog::kError) << "FWRPZViewGeomtery " << e << std::endl;
+        }
       }
+    }
 
-      AddElement(m_GEMElements);
-      importNew(m_GEMElements);
-   }
+    AddElement(m_GEMElements);
+    importNew(m_GEMElements);
+  }
 
-   if (m_GEMElements) {
-      m_GEMElements->SetRnrState(show);
-      gEve->Redraw3D();
-   }
+  if (m_GEMElements) {
+    m_GEMElements->SetRnrState(show);
+    gEve->Redraw3D();
+  }
 }
 
 void FWRPZViewGeometry::showME0(bool show) {
