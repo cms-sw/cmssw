@@ -31,8 +31,6 @@ private:
     MUONALL,
     MUONGOOD,
     PTBAD,
-    PTUNCONSTRBAD,
-    DXYBAD,
     ETABAD,
     PHIBAD,
     ETAATVTXBAD,
@@ -41,15 +39,15 @@ private:
     CHARGEVALBAD,
     QUALBAD,
     ISOBAD,
-    IDXBAD
+    IDXBAD,
+    PTUNCONSTRBAD,
+    DXYBAD
   };
   enum ratioVariables {
     RBXRANGE = 1,
     RNMUON,
     RMUON,
     RPT,
-    RPTUNCONSTR,
-    RDXY,
     RETA,
     RPHI,
     RETAATVTX,
@@ -58,9 +56,11 @@ private:
     RCHARGEVAL,
     RQUAL,
     RISO,
-    RIDX
+    RIDX,
+    RPTUNCONSTR,
+    RDXY
   };
-  bool incBin[RIDX + 1];
+  bool incBin[RDXY + 1];
 
   edm::EDGetTokenT<l1t::MuonBxCollection> muonToken1;
   edm::EDGetTokenT<l1t::MuonBxCollection> muonToken2;
@@ -71,6 +71,7 @@ private:
   std::vector<int> ignoreBin;
   bool verbose;
   bool enable2DComp;  // Default value is false. Set to true in the configuration file for enabling 2D eta-phi histograms
+  bool displacedQuantities_;
 
   MonitorElement* summary;
   MonitorElement* errorSummaryNum;
