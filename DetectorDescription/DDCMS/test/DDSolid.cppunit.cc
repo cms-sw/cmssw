@@ -36,10 +36,13 @@ void testDDSolid::setUp() {
 void testDDSolid::checkDDSolid() {
   unique_ptr<DDDetector> det = make_unique<DDDetector>("DUMMY", fileName_);
   DDFilteredView fview(det.get(), det->description()->worldVolume());
+  int counter = 0;
   while (fview.next(0)) {
+    std::cout << fview.path() << "\n";
     std::string title(fview.solid()->GetTitle());
     std::string name(cms::dd::name(cms::DDSolidShapeMap, fview.shape()));
-    std::cout << fview.name() << " is a " << title << " == " << name << "\n";
+    std::cout << "#" << counter++ << ": " << fview.name() << "[" << fview.copyNum() << "]"
+              << " is a " << title << " == " << name << "\n";
     CPPUNIT_ASSERT(title.compare(name) == 0);
 
     if ((dd4hep::isA<dd4hep::SubtractionSolid>(fview.solid()) and
