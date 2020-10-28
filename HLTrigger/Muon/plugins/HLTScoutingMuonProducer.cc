@@ -217,16 +217,16 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event& iEvent, edm
                            track->dsz(),
                            track->dszError(),
                            vtxInd,
-			   track->covariance(0, 1),
-			   track->covariance(0, 2),
-			   track->covariance(0, 3),
-			   track->covariance(0, 4),
-			   track->covariance(1, 2),
-			   track->covariance(1, 3),
-			   track->covariance(1, 4),
-			   track->covariance(2, 3),
-			   track->covariance(2, 4),
-			   track->covariance(3, 4));
+                           track->covariance(0, 1),
+                           track->covariance(0, 2),
+                           track->covariance(0, 3),
+                           track->covariance(0, 4),
+                           track->covariance(1, 2),
+                           track->covariance(1, 3),
+                           track->covariance(1, 4),
+                           track->covariance(2, 3),
+                           track->covariance(2, 4),
+                           track->covariance(3, 4));
     vtxInd.clear();
   }
 
