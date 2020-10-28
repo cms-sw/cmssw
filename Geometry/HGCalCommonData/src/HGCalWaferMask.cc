@@ -1,4 +1,3 @@
-
 #include "Geometry/HGCalCommonData/interface/HGCalWaferMask.h"
 #include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
@@ -386,14 +385,16 @@ std::pair<int, int> HGCalWaferMask::getTypeMode(const double& xpos,
 
   static const int corners = 6;
   static const int base = 10;
+  double rin2 = rin * rin;
+  double rout2 = rout * rout;
   double dx0[corners] = {0.0, delX, delX, 0.0, -delX, -delX};
   double dy0[corners] = {-delY, -0.5 * delY, 0.5 * delY, delY, 0.5 * delY, -0.5 * delY};
   double xc[corners], yc[corners];
   for (int k = 0; k < corners; ++k) {
     xc[k] = xpos + dx0[k];
     yc[k] = ypos + dy0[k];
-    double rpos = sqrt(xc[k] * xc[k] + yc[k] * yc[k]);
-    if (rpos <= rout && rpos >= rin) {
+    double rpos2 = (xc[k] * xc[k] + yc[k] * yc[k]);
+    if (rpos2 <= rout2 && rpos2 >= rin2) {
       ++ncor;
       iok = iok * base + 1;
     } else {
@@ -427,46 +428,46 @@ std::pair<int, int> HGCalWaferMask::getTypeMode(const double& xpos,
   } else if (ncor == HGCalGeomTools::k_fourCorners) {
     rotn = static_cast<int>(std::find(ipat4, ipat4 + 6, iok) - ipat4);
     type = HGCalTypes::WaferHalf;
-    double rpos1 = sqrt((xpos + dx1[rotn]) * (xpos + dx1[rotn]) + (ypos + dy1[rotn]) * (ypos + dy1[rotn]));
-    double rpos2(0);
-    if (rpos1 <= rout && rpos1 >= rin) {
-      rpos2 = sqrt((xpos + dx2[rotn]) * (xpos + dx2[rotn]) + (ypos + dy2[rotn]) * (ypos + dy2[rotn]));
-      if (rpos2 <= rout && rpos2 >= rin)
+    double rpos12 = ((xpos + dx1[rotn]) * (xpos + dx1[rotn]) + (ypos + dy1[rotn]) * (ypos + dy1[rotn]));
+    double rpos22(0);
+    if (rpos12 <= rout2 && rpos12 >= rin2) {
+      rpos22 = ((xpos + dx2[rotn]) * (xpos + dx2[rotn]) + (ypos + dy2[rotn]) * (ypos + dy2[rotn]));
+      if (rpos22 <= rout2 && rpos22 >= rin2)
         type = HGCalTypes::WaferChopTwo;
     }
     if (debug)
-      edm::LogVerbatim("HGCalGeom") << "Test for Chop2 " << rpos1 << ":" << rpos2 << " Type " << type;
+      edm::LogVerbatim("HGCalGeom") << "Test for Chop2 " << std::sqrt(rpos12) << ":" << std::sqrt(rpos22) << " Type " << type;
     if ((type == HGCalTypes::WaferHalf) && (wType == 0)) {
-      rpos1 = sqrt((xpos + dx3[rotn]) * (xpos + dx3[rotn]) + (ypos + dy3[rotn]) * (ypos + dy3[rotn]));
-      if (rpos1 <= rout && rpos1 >= rin) {
-        rpos2 = sqrt((xpos + dx4[rotn]) * (xpos + dx4[rotn]) + (ypos + dy4[rotn]) * (ypos + dy4[rotn]));
-        if (rpos2 <= rout && rpos2 >= rin)
+      rpos12 = ((xpos + dx3[rotn]) * (xpos + dx3[rotn]) + (ypos + dy3[rotn]) * (ypos + dy3[rotn]));
+      if (rpos12 <= rout2 && rpos12 >= rin2) {
+        rpos22 = ((xpos + dx4[rotn]) * (xpos + dx4[rotn]) + (ypos + dy4[rotn]) * (ypos + dy4[rotn]));
+        if (rpos22 <= rout2 && rpos22 >= rin2)
           type = HGCalTypes::WaferChopTwoM;
       }
       if (debug)
-        edm::LogVerbatim("HGCalGeom") << "Test for Chop2M " << rpos1 << ":" << rpos2 << " Type " << type;
+        edm::LogVerbatim("HGCalGeom") << "Test for Chop2M " << std::sqrt(rpos12) << ":" << std::sqrt(rpos22) << " Type " << type;
     }
   } else if (ncor == HGCalGeomTools::k_threeCorners) {
     rotn = static_cast<int>(std::find(ipat3, ipat3 + 6, iok) - ipat3);
     type = HGCalTypes::WaferThree;
-    double rpos1 = sqrt((xpos + dx1[rotn]) * (xpos + dx1[rotn]) + (ypos + dy1[rotn]) * (ypos + dy1[rotn]));
-    double rpos2(0);
-    if (rpos1 <= rout && rpos1 >= rin) {
-      rpos2 = sqrt((xpos + dx5[rotn]) * (xpos + dx5[rotn]) + (ypos + dy5[rotn]) * (ypos + dy5[rotn]));
-      if (rpos2 <= rout && rpos2 >= rin)
+    double rpos12 = ((xpos + dx1[rotn]) * (xpos + dx1[rotn]) + (ypos + dy1[rotn]) * (ypos + dy1[rotn]));
+    double rpos22(0);
+    if (rpos12 <= rout2 && rpos12 >= rin2) {
+      rpos22 = ((xpos + dx5[rotn]) * (xpos + dx5[rotn]) + (ypos + dy5[rotn]) * (ypos + dy5[rotn]));
+      if (rpos22 <= rout2 && rpos22 >= rin2)
         type = HGCalTypes::WaferSemi;
     }
     if (debug)
-      edm::LogVerbatim("HGCalGeom") << "Test for Semi " << rpos1 << ":" << rpos2 << " Type " << type;
+      edm::LogVerbatim("HGCalGeom") << "Test for Semi " << std::sqrt(rpos12) << ":" << std::sqrt(rpos22) << " Type " << type;
     if ((type == HGCalTypes::WaferThree) && (wType == 0)) {
-      rpos1 = sqrt((xpos + dx3[rotn]) * (xpos + dx3[rotn]) + (ypos + dy3[rotn]) * (ypos + dy3[rotn]));
-      if (rpos1 <= rout && rpos1 >= rin) {
-        rpos2 = sqrt((xpos + dx6[rotn]) * (xpos + dx6[rotn]) + (ypos + dy6[rotn]) * (ypos + dy6[rotn]));
-        if (rpos2 <= rout && rpos2 >= rin)
+      rpos12 = ((xpos + dx3[rotn]) * (xpos + dx3[rotn]) + (ypos + dy3[rotn]) * (ypos + dy3[rotn]));
+      if (rpos12 <= rout2 && rpos12 >= rin2) {
+        rpos22 = ((xpos + dx6[rotn]) * (xpos + dx6[rotn]) + (ypos + dy6[rotn]) * (ypos + dy6[rotn]));
+        if (rpos22 <= rout2 && rpos22 >= rin2)
           type = HGCalTypes::WaferSemi2;
       }
       if (debug)
-        edm::LogVerbatim("HGCalGeom") << "Test for SemiM " << rpos1 << ":" << rpos2 << " Type " << type;
+        edm::LogVerbatim("HGCalGeom") << "Test for SemiM " << std::sqrt(rpos12) << ":" << std::sqrt(rpos22) << " Type " << type;
     }
   } else {
     type = HGCalTypes::WaferOut;
@@ -485,6 +486,8 @@ bool HGCalWaferMask::goodTypeMode(
     return false;
   if (rotn < 0 || rotn > HGCalTypes::WaferCornerMax)
     return false;
+  double rin2 = rin * rin;
+  double rout2 = rout * rout;
   static const int corners = HGCalTypes::WaferCornerMax;
   static const int corner2 = 2 * HGCalTypes::WaferCornerMax;
   static const int base = 10;
@@ -527,8 +530,8 @@ bool HGCalWaferMask::goodTypeMode(
         int k = nc % base;
         double xc1 = xpos + dx0[k];
         double yc1 = ypos + dy0[k];
-        double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
-        if ((rpos > rout) || (rpos < rin)) {
+        double rpos2 = (xc1 * xc1 + yc1 * yc1);
+        if ((rpos2 > rout2) || (rpos2 < rin2)) {
           ok = false;
           ncf = k;
           break;
@@ -545,8 +548,8 @@ bool HGCalWaferMask::goodTypeMode(
         int k = nc % base;
         double xc1 = xpos + dx0[k];
         double yc1 = ypos + dy0[k];
-        double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
-        if ((rpos > rout) || (rpos < rin)) {
+        double rpos2 = (xc1 * xc1 + yc1 * yc1);
+        if ((rpos2 > rout2) || (rpos2 < rin2)) {
           ok = false;
           ncf = k;
           break;
@@ -558,8 +561,8 @@ bool HGCalWaferMask::goodTypeMode(
         int k = nc % base2;
         double xc1 = xpos + dx2[k];
         double yc1 = ypos + dy2[k];
-        double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
-        if ((rpos > rout) || (rpos < rin)) {
+        double rpos2 = (xc1 * xc1 + yc1 * yc1);
+        if ((rpos2 > rout2) || (rpos2 < rin2)) {
           ok = false;
           ncf = k + base2;
           break;
@@ -576,8 +579,8 @@ bool HGCalWaferMask::goodTypeMode(
         int k = nc % base;
         double xc1 = xpos + dx0[k];
         double yc1 = ypos + dy0[k];
-        double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
-        if ((rpos > rout) || (rpos < rin)) {
+        double rpos2 = (xc1 * xc1 + yc1 * yc1);
+        if ((rpos2 > rout2) || (rpos2 < rin2)) {
           ok = false;
           ncf = k;
           break;
@@ -589,8 +592,8 @@ bool HGCalWaferMask::goodTypeMode(
         int k = nc % base;
         double xc1 = xpos + dx1[k];
         double yc1 = ypos + dy1[k];
-        double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
-        if ((rpos > rout) || (rpos < rin)) {
+        double rpos2 = (xc1 * xc1 + yc1 * yc1);
+        if ((rpos2 > rout2) || (rpos2 < rin2)) {
           ok = false;
           ncf = k + base2;
           break;
@@ -606,8 +609,8 @@ bool HGCalWaferMask::goodTypeMode(
         int k = nc % base;
         double xc1 = xpos + dx0[k];
         double yc1 = ypos + dy0[k];
-        double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
-        if ((rpos > rout) || (rpos < rin)) {
+        double rpos2 = (xc1 * xc1 + yc1 * yc1);
+        if ((rpos2 > rout2) || (rpos2 < rin2)) {
           ok = false;
           ncf = k;
           break;
@@ -624,8 +627,8 @@ bool HGCalWaferMask::goodTypeMode(
         int k = nc % base;
         double xc1 = xpos + dx0[k];
         double yc1 = ypos + dy0[k];
-        double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
-        if ((rpos > rout) || (rpos < rin)) {
+        double rpos2 = (xc1 * xc1 + yc1 * yc1);
+        if ((rpos2 > rout2) || (rpos2 < rin2)) {
           ok = false;
           ncf = k;
           break;
@@ -637,8 +640,8 @@ bool HGCalWaferMask::goodTypeMode(
         int k = nc % base2;
         double xc1 = xpos + dx2[k];
         double yc1 = ypos + dy2[k];
-        double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
-        if ((rpos > rout) || (rpos < rin)) {
+        double rpos2 = (xc1 * xc1 + yc1 * yc1);
+        if ((rpos2 > rout2) || (rpos2 < rin2)) {
           ok = false;
           ncf = k + base2;
           break;
@@ -655,8 +658,8 @@ bool HGCalWaferMask::goodTypeMode(
         int k = nc % base;
         double xc1 = xpos + dx0[k];
         double yc1 = ypos + dy0[k];
-        double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
-        if ((rpos > rout) || (rpos < rin)) {
+        double rpos2 = (xc1 * xc1 + yc1 * yc1);
+        if ((rpos2 > rout2) || (rpos2 < rin2)) {
           ok = false;
           ncf = k;
           break;
@@ -668,8 +671,8 @@ bool HGCalWaferMask::goodTypeMode(
         int k = nc % base;
         double xc1 = xpos + dx1[k];
         double yc1 = ypos + dy1[k];
-        double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
-        if ((rpos > rout) || (rpos < rin)) {
+        double rpos2 = (xc1 * xc1 + yc1 * yc1);
+        if ((rpos2 > rout2) || (rpos2 < rin2)) {
           ok = false;
           ncf = k + base2;
           break;
@@ -685,8 +688,8 @@ bool HGCalWaferMask::goodTypeMode(
         int k = nc % base;
         double xc1 = xpos + dx0[k];
         double yc1 = ypos + dy0[k];
-        double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
-        if ((rpos > rout) || (rpos < rin)) {
+        double rpos2 = (xc1 * xc1 + yc1 * yc1);
+        if ((rpos2 > rout2) || (rpos2 < rin2)) {
           ok = false;
           ncf = k;
           break;
@@ -698,8 +701,8 @@ bool HGCalWaferMask::goodTypeMode(
       for (int k = 0; k < corners; ++k) {
         double xc1 = xpos + dx0[k];
         double yc1 = ypos + dy0[k];
-        double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
-        if ((rpos > rout) || (rpos < rin)) {
+        double rpos2 = (xc1 * xc1 + yc1 * yc1);
+        if ((rpos2 > rout2) || (rpos2 < rin2)) {
           ok = false;
           ncf = k;
           break;
