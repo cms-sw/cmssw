@@ -62,31 +62,31 @@ private:
 //----------------------------------------------------------------------------------------------------
 
 PPSProtonFilter::PPSProtonFilter(const edm::ParameterSet &iConfig)
-  : verbosity_(iConfig.getUntrackedParameter<unsigned int>("verbosity", 0)),
-    n_protons_single_rp_all(0),
-    n_protons_single_rp_kept(0),
-    n_protons_multi_rp_all(0),
-    n_protons_multi_rp_kept(0) {
+    : verbosity_(iConfig.getUntrackedParameter<unsigned int>("verbosity", 0)),
+      n_protons_single_rp_all(0),
+      n_protons_single_rp_kept(0),
+      n_protons_multi_rp_all(0),
+      n_protons_multi_rp_kept(0) {
   const auto &tracks_all = iConfig.getParameterSet("tracks_all");
   tracks_all_local_angle_x_max_ = tracks_all.getParameter<double>("local_angle_x_max");
   tracks_all_local_angle_y_max_ = tracks_all.getParameter<double>("local_angle_y_max");
 
   const auto &tracks_pixel = iConfig.getParameterSet("tracks_pixel");
   tracks_pixel_forbidden_RecoInfo_values_ =
-    tracks_pixel.getParameter<std::vector<unsigned int>>("forbidden_RecoInfo_values");
+      tracks_pixel.getParameter<std::vector<unsigned int>>("forbidden_RecoInfo_values");
   tracks_pixel_number_of_hits_min_ = tracks_pixel.getParameter<unsigned int>("number_of_hits_min");
   tracks_pixel_normalised_chi_sq_max_ = tracks_pixel.getParameter<double>("normalised_chi_sq_max");
 
   const auto &protons_single_rp = iConfig.getParameterSet("protons_single_rp");
   protons_single_rp_include_ = protons_single_rp.getParameter<bool>("include");
   protons_single_rp_input_token_ =
-    consumes<reco::ForwardProtonCollection>(protons_single_rp.getParameter<edm::InputTag>("input_tag"));
+      consumes<reco::ForwardProtonCollection>(protons_single_rp.getParameter<edm::InputTag>("input_tag"));
   protons_single_rp_output_label_ = protons_single_rp.getParameter<std::string>("output_label");
 
   const auto &protons_multi_rp = iConfig.getParameterSet("protons_multi_rp");
   protons_multi_rp_include_ = protons_multi_rp.getParameter<bool>("include");
   protons_multi_rp_input_token_ =
-    consumes<reco::ForwardProtonCollection>(protons_multi_rp.getParameter<edm::InputTag>("input_tag"));
+      consumes<reco::ForwardProtonCollection>(protons_multi_rp.getParameter<edm::InputTag>("input_tag"));
   protons_multi_rp_output_label_ = protons_multi_rp.getParameter<std::string>("output_label");
   protons_multi_rp_check_valid_fit_ = protons_multi_rp.getParameter<bool>("check_valid_fit");
   protons_multi_rp_chi_sq_max_ = protons_multi_rp.getParameter<double>("chi_sq_max");
@@ -108,28 +108,28 @@ void PPSProtonFilter::fillDescriptions(edm::ConfigurationDescriptions &descripti
 
   edm::ParameterSetDescription tracks_all;
   tracks_all.add<double>("local_angle_x_max", 0.020)
-    ->setComment("maximum absolute value of local horizontal angle, in rad");
+      ->setComment("maximum absolute value of local horizontal angle, in rad");
   tracks_all.add<double>("local_angle_y_max", 0.020)
-    ->setComment("maximum absolute value of local horizontal angle, in rad");
+      ->setComment("maximum absolute value of local horizontal angle, in rad");
   desc.add<edm::ParameterSetDescription>("tracks_all", tracks_all)->setComment("settings for all tracks");
 
   edm::ParameterSetDescription tracks_pixel;
   const std::vector<unsigned int> def_for_RecoInfo_vals = {
-    (unsigned int)CTPPSpixelLocalTrackReconstructionInfo::allShiftedPlanes,
-    (unsigned int)CTPPSpixelLocalTrackReconstructionInfo::mixedPlanes};
+      (unsigned int)CTPPSpixelLocalTrackReconstructionInfo::allShiftedPlanes,
+      (unsigned int)CTPPSpixelLocalTrackReconstructionInfo::mixedPlanes};
   tracks_pixel.add<std::vector<unsigned int>>("forbidden_RecoInfo_values", def_for_RecoInfo_vals)
-    ->setComment("list of forbidden RecoInfo values");
+      ->setComment("list of forbidden RecoInfo values");
   tracks_pixel.add<unsigned int>("number_of_hits_min", 0)->setComment("minimum required number of hits");
   tracks_pixel.add<double>("normalised_chi_sq_max", 1E100)->setComment("maximum tolerated chi square / ndof");
   desc.add<edm::ParameterSetDescription>("tracks_pixel", tracks_pixel)
-    ->setComment("specific settings for pixel-RP tracks");
+      ->setComment("specific settings for pixel-RP tracks");
 
   edm::ParameterSetDescription protons_single_rp;
   protons_single_rp.add<bool>("include", true)->setComment("flag whether single-RP protons should be processed");
   protons_single_rp.add<edm::InputTag>("input_tag", edm::InputTag("ctppsProtons", "singleRP"))->setComment("input tag");
   protons_single_rp.add<std::string>("output_label", "singleRP")->setComment("output label");
   desc.add<edm::ParameterSetDescription>("protons_single_rp", protons_single_rp)
-    ->setComment("settings for single-RP protons");
+      ->setComment("settings for single-RP protons");
 
   edm::ParameterSetDescription protons_multi_rp;
   protons_multi_rp.add<bool>("include", true)->setComment("flag whether multi-RP protons should be processed");
@@ -138,9 +138,9 @@ void PPSProtonFilter::fillDescriptions(edm::ConfigurationDescriptions &descripti
   protons_multi_rp.add<bool>("check_valid_fit", true)->setComment("flag whether validFit should be checked");
   protons_multi_rp.add<double>("chi_sq_max", 1E-4)->setComment("maximum tolerated value of chi square");
   protons_multi_rp.add<double>("normalised_chi_sq_max", 1E100)
-    ->setComment("maximum tolerated value of chi square / ndof, applied only if ndof > 0");
+      ->setComment("maximum tolerated value of chi square / ndof, applied only if ndof > 0");
   desc.add<edm::ParameterSetDescription>("protons_multi_rp", protons_multi_rp)
-    ->setComment("settings for multi-RP protons");
+      ->setComment("settings for multi-RP protons");
 
   descriptions.add("ppsProtonFilter", desc);
 }
@@ -262,13 +262,13 @@ void PPSProtonFilter::produce(edm::Event &iEvent, const edm::EventSetup &iSetup)
 
 void PPSProtonFilter::endStream() {
   edm::LogInfo("PPS")
-    << "single-RP protons: total=" << n_protons_single_rp_all << ", kept=" << n_protons_single_rp_kept
-    << " --> keep rate="
-    << ((n_protons_single_rp_all > 0) ? double(n_protons_single_rp_kept) / n_protons_single_rp_all * 100. : 0.)
-    << "%\n"
-    << "multi-RP protons: total=" << n_protons_multi_rp_all << ", kept=" << n_protons_multi_rp_kept
-    << " --> keep rate="
-    << ((n_protons_multi_rp_all > 0) ? double(n_protons_multi_rp_kept) / n_protons_multi_rp_all * 100. : 0.) << "%";
+      << "single-RP protons: total=" << n_protons_single_rp_all << ", kept=" << n_protons_single_rp_kept
+      << " --> keep rate="
+      << ((n_protons_single_rp_all > 0) ? double(n_protons_single_rp_kept) / n_protons_single_rp_all * 100. : 0.)
+      << "%\n"
+      << "multi-RP protons: total=" << n_protons_multi_rp_all << ", kept=" << n_protons_multi_rp_kept
+      << " --> keep rate="
+      << ((n_protons_multi_rp_all > 0) ? double(n_protons_multi_rp_kept) / n_protons_multi_rp_all * 100. : 0.) << "%";
 }
 
 //----------------------------------------------------------------------------------------------------
