@@ -31,7 +31,7 @@ ticlTrackstersTrkEM = _trackstersProducer.clone(
     min_layers_per_trackster = 10,
     min_cos_theta = 0.97,  # ~14 degrees
     min_cos_pointing = 0.94, # ~20 degrees
-    root_doublet_max_distance_from_seed = 0.05,
+    root_doublet_max_distance_from_seed_squared = 2.5e-3, # dR=0.05
     max_delta_time = 3.,
     itername = "TrkEM",
     algo_verbosity = 0,

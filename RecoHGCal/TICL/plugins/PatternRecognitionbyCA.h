@@ -37,7 +37,7 @@ namespace ticl {
     const unsigned int max_out_in_hops_;
     const float min_cos_theta_;
     const float min_cos_pointing_;
-    const float root_doublet_max_distance_from_seed_;
+    const float root_doublet_max_distance_from_seed_squared_;
     const float etaLimitIncreaseWindow_;
     const int skip_layers_;
     const int max_missing_layers_in_trackster_;
