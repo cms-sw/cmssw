@@ -4,7 +4,7 @@
 *  Cristian Baldenegro (crisx.baldenegro@gmail.com)
 ****************************************************************************/
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -27,7 +27,7 @@
 /**
  *\brief An EDAnalyzer that runs StraightTrackAlignment.
  **/
-class PPSStraightTrackAligner : public edm::EDAnalyzer {
+class PPSStraightTrackAligner : public edm::one::EDAnalyzer<> {
 public:
   PPSStraightTrackAligner(const edm::ParameterSet &ps);
   ~PPSStraightTrackAligner() override {}
@@ -49,10 +49,6 @@ private:
   StraightTrackAlignment worker_;
 
   edm::ESWatcher<VeryForwardRealGeometryRecord> geometryWatcher_;
-
-  void beginJob() override {}
-
-  void beginRun(edm::Run const &, edm::EventSetup const &) override;
 
   void analyze(const edm::Event &e, const edm::EventSetup &es) override;
 
@@ -83,10 +79,6 @@ PPSStraightTrackAligner::PPSStraightTrackAligner(const ParameterSet &ps)
     LogWarning("PPS")
         << "Both tagPixelHits and tagPixelLocalTracks are not empty - most likely this not what you want.";
 }
-
-//----------------------------------------------------------------------------------------------------
-
-void PPSStraightTrackAligner::beginRun(edm::Run const &, edm::EventSetup const &es) {}
 
 //----------------------------------------------------------------------------------------------------
 

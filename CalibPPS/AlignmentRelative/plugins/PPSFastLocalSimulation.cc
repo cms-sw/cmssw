@@ -3,7 +3,7 @@
 *  Jan Kašpar (jan.kaspar@gmail.com) 
 ****************************************************************************/
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -40,7 +40,7 @@
  *\brief Fast (no G4) proton simulation in within one station.
  * Uses misaligned geometry.
  */
-class PPSFastLocalSimulation : public edm::EDProducer {
+class PPSFastLocalSimulation : public edm::stream::EDProducer<> {
 public:
   PPSFastLocalSimulation(const edm::ParameterSet &);
   ~PPSFastLocalSimulation() override;

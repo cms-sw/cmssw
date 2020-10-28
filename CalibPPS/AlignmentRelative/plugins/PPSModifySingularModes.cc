@@ -3,7 +3,7 @@
 *  Jan Kašpar (jan.kaspar@gmail.com) 
 ****************************************************************************/
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -24,7 +24,7 @@
 /**
  *\brief Modifies the alignment modes unconstrained by the track-based alignment.
  **/
-class PPSModifySingularModes : public edm::EDAnalyzer {
+class PPSModifySingularModes : public edm::stream::EDAnalyzer<> {
 public:
   PPSModifySingularModes(const edm::ParameterSet &ps);
 
