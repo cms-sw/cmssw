@@ -151,12 +151,10 @@ StraightTrackAlignment::StraightTrackAlignment(const ParameterSet &ps)
   for (unsigned int i = 0; i < alNames.size(); i++) {
     AlignmentAlgorithm *a = nullptr;
 
-    if (alNames[i].compare("Ideal") == 0) {
+    if (alNames[i] == "Ideal") {
       IdealResult *ir = new IdealResult(ps, &task);
       a = ir;
-    }
-
-    if (alNames[i].compare("Jan") == 0) {
+    } else if (alNames[i] == "Jan") {
       JanAlignmentAlgorithm *jaa = new JanAlignmentAlgorithm(ps, &task);
       a = jaa;
     }
