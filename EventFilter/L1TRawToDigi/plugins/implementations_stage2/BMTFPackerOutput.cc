@@ -50,16 +50,6 @@ namespace l1t {
 
       blocks.push_back(block);
 
-      /*
-      //debug from here
-      std::cout << "block id : " << block.header().getID() << std::endl;
-
-      std::cout << "payload created : " << std::endl;
-      for (auto &word : block.payload())
-        std::cout << std::bitset<32>(word).to_string() << std::endl;
-      //debug up to here
-    */
-
       return blocks;
     }
 
