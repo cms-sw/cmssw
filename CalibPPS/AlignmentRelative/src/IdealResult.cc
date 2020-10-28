@@ -28,10 +28,7 @@ void IdealResult::begin(const edm::EventSetup &iSetup) {
 
 //----------------------------------------------------------------------------------------------------
 
-vector<SingularMode> IdealResult::analyze() {
-  vector<SingularMode> dummy;
-  return dummy;
-}
+void IdealResult::analyze() {}
 
 //----------------------------------------------------------------------------------------------------
 

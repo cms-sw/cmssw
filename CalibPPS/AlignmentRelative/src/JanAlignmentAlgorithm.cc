@@ -265,7 +265,7 @@ void JanAlignmentAlgorithm::feed(const HitCollection &selection, const LocalTrac
 
 //----------------------------------------------------------------------------------------------------
 
-vector<SingularMode> JanAlignmentAlgorithm::analyze() {
+void JanAlignmentAlgorithm::analyze() {
   if (verbosity > 2)
     printf("\n>> JanAlignmentAlgorithm::Analyze\n");
 
@@ -347,11 +347,7 @@ vector<SingularMode> JanAlignmentAlgorithm::analyze() {
   for (int i = 0; i < S_eigVal.GetNrows(); i++) {
     double nev = S_eigVal[i] / events;
     if (fabs(nev) < singularLimit) {
-      SingularMode sM;
-      sM.val = S_eigVal[i];
-      sM.vec.ResizeTo(dim);
-      sM.vec = TMatrixDColumn(S_eigVec, i);
-      sM.idx = i;
+      SingularMode sM{S_eigVal[i], TMatrixDColumn(S_eigVec, i), i};
       singularModes.push_back(sM);
     }
   }
@@ -378,8 +374,6 @@ vector<SingularMode> JanAlignmentAlgorithm::analyze() {
   } else
     printf("\n* S has no singular modes\n");
 #endif
-
-  return singularModes;
 }
 
 //----------------------------------------------------------------------------------------------------

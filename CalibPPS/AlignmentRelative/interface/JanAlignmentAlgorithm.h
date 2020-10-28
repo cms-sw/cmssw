@@ -96,7 +96,7 @@ public:
 
   void saveDiagnostics(TDirectory *) override;
 
-  std::vector<SingularMode> analyze() override;
+  void analyze() override;
 
   unsigned int solve(const std::vector<AlignmentConstraint> &,
                      std::map<unsigned int, AlignmentResult> &results,

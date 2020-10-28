@@ -19,7 +19,7 @@ struct SingularMode {
   TVectorD vec;
 
   /// index
-  unsigned int idx;
+  int idx;
 };
 
 #endif

@@ -61,8 +61,8 @@ public:
   /// saves diagnostic histograms/plots
   virtual void saveDiagnostics(TDirectory *) = 0;
 
-  /// analyzes the data collected, returns a list of singular modes
-  virtual std::vector<SingularMode> analyze() = 0;
+  /// analyzes the data collected
+  virtual void analyze() = 0;
 
   /// solves the alignment problem with the given constraints
   /// \param dir a directory (in StraightTrackAlignment::taskDataFileName) where
