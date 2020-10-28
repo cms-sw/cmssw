@@ -2243,6 +2243,11 @@ static long load_dddefinition(Detector& det, xml_h element) {
       if (mfv1.isValid())
         wv.placeVolume(mfv1, 1);
 
+      // Can not deal with reflections without closed geometry
+      det.manager().CloseGeometry();
+      // Convert reflections via TGeo reflection factory
+      det.manager().ConvertReflections();
+
       det.endDocument();
     }
     printout(INFO, "DDDefinition", "+++ Finished processing %s", fname.c_str());
