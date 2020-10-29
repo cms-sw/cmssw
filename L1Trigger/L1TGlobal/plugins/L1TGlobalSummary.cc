@@ -143,7 +143,7 @@ void L1TGlobalSummary::endRun(Run const&, EventSetup const&) {
 
         auto const& name = prescales.at(i).first;
         if (name != "NULL") {
-          int prescale = prescales.at(i).second;
+          double prescale = prescales.at(i).second;
           auto const& mask = masks.at(i).second;
           out << std::dec << setfill(' ') << "   " << setw(5) << i << "   " << setw(40) << name << "   " << setw(7)
               << resultInit << setw(7) << resultPre << setw(7) << resultFin << setw(10) << prescale << setw(11)
@@ -214,7 +214,7 @@ void L1TGlobalSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       bool resultFin = (finalDecisions.at(i)).second;
 
       // get the prescale and mask (needs some error checking here)
-      int prescale = (prescales.at(i)).second;
+      double prescale = (prescales.at(i)).second;
       std::vector<int> mask = (masks.at(i)).second;
 
       if (resultInit)

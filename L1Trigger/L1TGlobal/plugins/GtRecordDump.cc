@@ -232,7 +232,7 @@ namespace l1t {
         (m_algoSummary.find(name)->second).at(2) += 1;
 
       // get the prescale and mask (needs some error checking here)
-      int prescale = (prescales.at(i)).second;
+      double prescale = (prescales.at(i)).second;
       std::vector<int> mask = (masks.at(i)).second;
 
       if (m_dumpTriggerResults && name != "NULL")
