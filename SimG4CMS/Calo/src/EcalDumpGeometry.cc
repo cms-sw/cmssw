@@ -67,7 +67,7 @@ void EcalDumpGeometry::dumpTouch(G4VPhysicalVolume* pv, unsigned int leafDepth) 
         std::stringstream ss;
 #endif
         for (int ii = theSize; ii >= 0; --ii) {
-	  std::string_view name = dd4hep::dd::noNamespace(fHistory_.GetVolume(ii)->GetName());
+          std::string_view name = dd4hep::dd::noNamespace(fHistory_.GetVolume(ii)->GetName());
           theBaseNumber.addLevel(static_cast<std::string>(name), fHistory_.GetVolume(ii)->GetCopyNo());
 #ifdef EDM_ML_DEBUG
           ss << " " << ii << " " << name << ":" << fHistory_.GetVolume(ii)->GetCopyNo();
@@ -77,7 +77,7 @@ void EcalDumpGeometry::dumpTouch(G4VPhysicalVolume* pv, unsigned int leafDepth) 
                                     : ((type_ == 1) ? eeNumbering_.getUnitID(theBaseNumber)
                                                     : esNumbering_.getUnitID(theBaseNumber)));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << " Field: " << ss.str() << " ID " << std::hex << id << std::dec; 
+        edm::LogVerbatim("EcalGeom") << " Field: " << ss.str() << " ID " << std::hex << id << std::dec;
 #endif
         std::vector<double> pars;
         if (type_ > 1) {
