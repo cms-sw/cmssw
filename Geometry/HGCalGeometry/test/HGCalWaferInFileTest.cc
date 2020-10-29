@@ -36,6 +36,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
+#include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferIndex.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
@@ -53,6 +54,18 @@ private:
   std::vector<std::string> getPoints(
       double xpos, double ypos, double delX, double delY, double rin, double rout, int lay, int waferU, int waferV);
   std::vector<double> getCorners(double xpos, double ypos, double delX, double delY);
+  std::pair<bool, std::string> getPoints(double xpos,
+                                         double ypos,
+                                         double delX,
+                                         double delY,
+                                         double rin,
+                                         double rout,
+                                         int part,
+                                         int rotn,
+                                         int layer,
+                                         int waferU,
+                                         int waferV);
+
   const std::string nameSense_, nameDetector_;
   const int verbosity_;
   const edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> geomToken_;
@@ -157,8 +170,8 @@ void HGCalWaferInFileTest::analyze(const edm::Event& iEvent, const edm::EventSet
               << " wafers with the same indices\n\n";
 
     // Now cross check the content (partial and orientation)
-    int allX(0), badG(0), badP(0), badP2(0), badR(0);
-    std::vector<int> wrongP(layers, 0), wrongP2(layers, 0), wrongR(layers, 0);
+    int allX(0), badG(0), badP(0), badP2(0), badR(0), badR2(0);
+    std::vector<int> wrongP(layers, 0), wrongP2(layers, 0), wrongR(layers, 0), wrongR2(layers, 0);
     for (unsigned int k = 0; k < hgdc.waferFileSize(); ++k) {
       int indx = hgdc.waferFileIndex(k);
       int part1 = std::get<1>(hgdc.waferFileInfo(k));
@@ -175,15 +188,29 @@ void HGCalWaferInFileTest::analyze(const edm::Event& iEvent, const edm::EventSet
         bool partOK = ((part1 == part2) || ((part1 == HGCalTypes::WaferFull) && (part2 == HGCalTypes::WaferOut)));
         bool rotnOK = ((rotn1 == rotn2) || (part1 == HGCalTypes::WaferFull) || (part2 == HGCalTypes::WaferFull));
         bool partOK2 = (partOK) || (part2 < part1);
+        bool rotnOK2(true);
+        std::string miss;
         if (!partOK) {
           ++badP;
           if ((layer - layerf) < layers)
             ++wrongP[layer - layerf];
         }
+        const auto& xy = hgdc.waferPosition(layer, waferU, waferV, true, false);
+        const auto& rr = hgdc.rangeRLayer(layer, true);
+
         if (!partOK2) {
           ++badP2;
           if ((layer - layerf) < layers)
             ++wrongP2[layer - layerf];
+          auto result =
+              getPoints(xy.first, xy.second, delX, delY, rr.first, rr.second, part1, rotn1, layer, waferU, waferV);
+          rotnOK2 = result.first;
+          miss = result.second;
+          if (!rotnOK2) {
+            ++badR2;
+            if ((layer - layerf) < layers)
+              ++wrongR2[layer - layerf];
+          }
         }
         if (!rotnOK) {
           ++badR;
@@ -192,18 +219,17 @@ void HGCalWaferInFileTest::analyze(const edm::Event& iEvent, const edm::EventSet
         }
         if ((!partOK) || (!rotnOK)) {
           ++badG;
-          if ((verbosity_ > 0) || (!partOK2)) {
+          if ((verbosity_ > 0) || ((!partOK2) || (!rotnOK2))) {
             std::string partx1 = (part1 < static_cast<int>(types.size())) ? types[part1] : "X";
             std::string partx2 = (part2 < static_cast<int>(types.size())) ? types[part2] : "X";
-            const auto& xy = hgdc.waferPosition(layer, waferU, waferV, true, false);
-            const auto& rr = hgdc.rangeRLayer(layer, true);
             auto points = getPoints(xy.first, xy.second, delX, delY, rr.first, rr.second, layer, waferU, waferV);
             auto rpos = getCorners(xy.first, xy.second, delX, delY);
             std::cout << "ID[" << k << "]: (" << (hgdc.getLayerOffset() + layer) << ", " << waferU << ", " << waferV
                       << "," << type2 << ", " << partx1 << ":" << partx2 << ":" << part1 << ":" << part2 << ", "
                       << rotn1 << ":" << rotn2 << ") at (" << std::setprecision(4) << xy.first << ", " << xy.second
-                      << ", " << hgdc.waferZ(layer, true) << ") failure flag " << partOK << ":" << rotnOK << " with "
-                      << points.size() << " points:";
+                      << ", " << hgdc.waferZ(layer, true) << ") failure flags (part = " << partOK << ":" << partOK2
+                      << " rotn " << rotnOK << ":" << rotnOK2 << " at " << miss << " with " << points.size()
+                      << " points:";
             for (auto point : points)
               std::cout << " " << point;
             std::cout << " in the region " << rr.first << ":" << rr.second << " Corners";
@@ -214,12 +240,12 @@ void HGCalWaferInFileTest::analyze(const edm::Event& iEvent, const edm::EventSet
         }
       }
     }
-    std::cout << "\n\nFinds " << badG << " (" << badP << ":" << badP2 << ":" << badR
+    std::cout << "\n\nFinds " << badG << " (" << badP << ":" << badP2 << ":" << badR << ":" << badR2
               << ") mismatch in partial|orientation among " << allX << " wafers with the same indices" << std::endl;
     for (int k = 0; k < layers; ++k) {
       if ((wrongP[k] > 0) || (wrongR[k] > 0))
         std::cout << "Layer[" << k << ":" << (layerf + k) << "] " << wrongP[k] << ":" << wrongP2[k] << ":" << wrongR[k]
-                  << std::endl;
+                  << ":" << wrongR2[k] << std::endl;
     }
     std::cout << std::endl;
   }
@@ -429,6 +455,249 @@ std::vector<double> HGCalWaferInFileTest::getCorners(double xpos, double ypos, d
     points.emplace_back(rpos);
   }
   return points;
+}
+
+std::pair<bool, std::string> HGCalWaferInFileTest::getPoints(double xpos,
+                                                             double ypos,
+                                                             double delX,
+                                                             double delY,
+                                                             double rin,
+                                                             double rout,
+                                                             int part,
+                                                             int rotn,
+                                                             int layer,
+                                                             int waferU,
+                                                             int waferV) {
+  std::string point;
+  static const int corners = 6;
+  static const int corner2 = 12;
+  static const int base = 10;
+  static const int base2 = 100;
+  static const std::string c0[corners] = {"A0", "B0", "C0", "D0", "E0", "F0"};
+  static const std::string c1[corners] = {"A2", "B2", "C2", "D2", "E2", "F2"};
+  static const std::string c2[corner2] = {"A1", "A3", "B1", "B3", "C1", "C3", "D1", "D3", "E1", "E3", "F1", "F3"};
+  double dx0[corners] = {0.0, delX, delX, 0.0, -delX, -delX};
+  double dy0[corners] = {-delY, -0.5 * delY, 0.5 * delY, delY, 0.5 * delY, -0.5 * delY};
+  double dx1[corners] = {0.5 * delX, delX, 0.5 * delX, -0.5 * delX, -delX, -0.5 * delX};
+  double dy1[corners] = {-0.75 * delY, 0.0, 0.75 * delY, 0.75 * delY, 0.0, -0.75 * delY};
+  double dx2[corner2] = {0.225 * delX,
+                         0.775 * delX,
+                         delX,
+                         delX,
+                         0.775 * delX,
+                         0.225 * delX,
+                         -0.225 * delX,
+                         -0.775 * delX,
+                         -delX,
+                         -delX,
+                         -0.775 * delX,
+                         -0.225 * delX};
+  double dy2[corner2] = {-0.8875 * delY,
+                         -0.6125 * delY,
+                         -0.275 * delY,
+                         0.275 * delY,
+                         0.6125 * delY,
+                         0.8875 * delY,
+                         0.8875 * delY,
+                         0.6125 * delY,
+                         0.275 * delY,
+                         -0.275 * delY,
+                         -0.6125 * delY,
+                         -0.8875 * delY};
+  bool ok(true);
+  switch (part) {
+    case (HGCalTypes::WaferThree): {
+      static const int nc0[corners] = {450, 150, 201, 312, 423, 534};
+      int nc = nc0[rotn];
+      for (int k1 = 0; k1 < 3; ++k1) {
+        int k = nc % base;
+        double xc1 = xpos + dx0[k];
+        double yc1 = ypos + dy0[k];
+        double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
+        if (rpos <= rout && rpos >= rin) {
+          point = c0[k];
+          ok = false;
+          break;
+        }
+        nc /= base;
+      }
+      break;
+    }
+    case (HGCalTypes::WaferSemi2): {
+      static const int nc10[corners] = {450, 150, 201, 312, 423, 534};
+      static const int nc11[corners] = {700, 902, 1104, 106, 308, 510};
+      int nc = nc10[rotn];
+      for (int k1 = 0; k1 < 3; ++k1) {
+        int k = nc % base;
+        double xc1 = xpos + dx0[k];
+        double yc1 = ypos + dy0[k];
+        double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
+        if (rpos <= rout && rpos >= rin) {
+          point = c0[k];
+          ok = false;
+          break;
+        }
+        nc /= base;
+      }
+      nc = nc11[rotn];
+      for (int k1 = 0; k1 < 2; ++k1) {
+        int k = nc % base2;
+        double xc1 = xpos + dx2[k];
+        double yc1 = ypos + dy2[k];
+        double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
+        if (rpos <= rout && rpos >= rin) {
+          point = c2[k];
+          ok = false;
+          break;
+        }
+        nc /= base2;
+      }
+      break;
+    }
+    case (HGCalTypes::WaferSemi): {
+      static const int nc20[corners] = {450, 150, 201, 312, 423, 534};
+      static const int nc21[corners] = {30, 14, 25, 30, 41, 52};
+      int nc = nc20[rotn];
+      for (int k1 = 0; k1 < 3; ++k1) {
+        int k = nc % base;
+        double xc1 = xpos + dx0[k];
+        double yc1 = ypos + dy0[k];
+        double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
+        if (rpos <= rout && rpos >= rin) {
+          point = c0[k];
+          ok = false;
+          break;
+        }
+        nc /= base;
+      }
+      nc = nc21[rotn];
+      for (int k1 = 0; k1 < 2; ++k1) {
+        int k = nc % base;
+        double xc1 = xpos + dx1[k];
+        double yc1 = ypos + dy1[k];
+        double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
+        if (rpos <= rout && rpos >= rin) {
+          point = c1[k];
+          ok = false;
+          break;
+        }
+        nc /= base;
+      }
+      break;
+    }
+    case (HGCalTypes::WaferHalf): {
+      static const int nc3[corners] = {3450, 1450, 2501, 3012, 4123, 5234};
+      int nc = nc3[rotn];
+      for (int k1 = 0; k1 < 4; ++k1) {
+        int k = nc % base;
+        double xc1 = xpos + dx0[k];
+        double yc1 = ypos + dy0[k];
+        double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
+        if (rpos <= rout && rpos >= rin) {
+          point = c0[k];
+          ok = false;
+          break;
+        }
+        nc /= base;
+      }
+      break;
+    }
+    case (HGCalTypes::WaferChopTwoM): {
+      static const int nc40[corners] = {3450, 1450, 2501, 3012, 4123, 5234};
+      static const int nc41[corners] = {500, 702, 904, 1106, 108, 310};
+      int nc = nc40[rotn];
+      for (int k1 = 0; k1 < 4; ++k1) {
+        int k = nc % base;
+        double xc1 = xpos + dx0[k];
+        double yc1 = ypos + dy0[k];
+        double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
+        if (rpos <= rout && rpos >= rin) {
+          point = c0[k];
+          ok = false;
+          break;
+        }
+        nc /= base;
+      }
+      nc = nc41[rotn];
+      for (int k1 = 0; k1 < 2; ++k1) {
+        int k = nc % base2;
+        double xc1 = xpos + dx2[k];
+        double yc1 = ypos + dy2[k];
+        double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
+        if (rpos <= rout && rpos >= rin) {
+          point = c2[k];
+          ok = false;
+          break;
+        }
+        nc /= base2;
+      }
+      break;
+    }
+    case (HGCalTypes::WaferChopTwo): {
+      static const int nc50[corners] = {3450, 1450, 2501, 3012, 4123, 5234};
+      static const int nc51[corners] = {20, 13, 24, 35, 40, 51};
+      int nc = nc50[rotn];
+      for (int k1 = 0; k1 < 4; ++k1) {
+        int k = nc % base;
+        double xc1 = xpos + dx0[k];
+        double yc1 = ypos + dy0[k];
+        double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
+        if (rpos <= rout && rpos >= rin) {
+          point = c0[k];
+          ok = false;
+          break;
+        }
+        nc /= base;
+      }
+      nc = nc51[rotn];
+      for (int k1 = 0; k1 < 2; ++k1) {
+        int k = nc % base;
+        double xc1 = xpos + dx1[k];
+        double yc1 = ypos + dy1[k];
+        double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
+        if (rpos <= rout && rpos >= rin) {
+          point = c1[k];
+          ok = false;
+          break;
+        }
+        nc /= base;
+      }
+      break;
+    }
+    case (HGCalTypes::WaferFive): {
+      static const int nc6[corners] = {23450, 13450, 24501, 35012, 40123, 51234};
+      int nc = nc6[rotn];
+      for (int k1 = 0; k1 < 5; ++k1) {
+        int k = nc % base;
+        double xc1 = xpos + dx0[k];
+        double yc1 = ypos + dy0[k];
+        double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
+        if (rpos <= rout && rpos >= rin) {
+          point = c0[k];
+          ok = false;
+          break;
+        }
+      }
+      break;
+    }
+    default: {
+      for (int k = 0; k < corners; ++k) {
+        double xc1 = xpos + dx0[k];
+        double yc1 = ypos + dy0[k];
+        double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
+        if (rpos <= rout && rpos >= rin) {
+          point = c0[k];
+          ok = false;
+          break;
+        }
+      }
+      break;
+    }
+  }
+  if (verbosity_ > 1)
+    std::cout << "I/p " << layer << ":" << waferU << ":" << waferV << ":" << xpos << ":" << ypos << ":" << delX << ":"
+              << delY << ":" << rin << ":" << rout << " Results " << ok << " point " << point << std::endl;
+  return std::make_pair(ok, point);
 }
 
 // define this as a plug-in
