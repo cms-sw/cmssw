@@ -21,6 +21,10 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidatePhotonExtra.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
+#include "CondFormats/EcalObjects/interface/EcalMustacheSCParameters.h"
+#include "CondFormats/DataRecord/interface/EcalMustacheSCParametersRcd.h"
+#include "RecoEcal/EgammaCoreTools/interface/MustacheSCParametersHelper.h"
+
 
 class CaloGeometry;
 class CaloTopology;
@@ -34,6 +38,7 @@ public:
   explicit PFPhotonTranslator(const edm::ParameterSet &);
   ~PFPhotonTranslator() override;
 
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void produce(edm::Event &, const edm::EventSetup &) override;
 
   typedef std::vector<edm::Handle<edm::ValueMap<double> > > IsolationValueMaps;
@@ -132,6 +137,10 @@ private:
   edm::ESHandle<CaloTopology> theCaloTopo_;
   edm::ESHandle<CaloGeometry> theCaloGeom_;
 
+  // Mustache SC parameters
+  edm::ESGetToken<EcalMustacheSCParameters, EcalMustacheSCParametersRcd> ecalMustacheSCParametersToken_;
+  std::shared_ptr<reco::MustacheSCParametersHelper> mustacheSCParamsHelper_;
+
   bool emptyIsOk_;
 };
 
@@ -177,6 +186,8 @@ PFPhotonTranslator::PFPhotonTranslator(const edm::ParameterSet &iConfig) {
   else
     emptyIsOk_ = false;
 
+  ecalMustacheSCParametersToken_ = esConsumes<EcalMustacheSCParameters, EcalMustacheSCParametersRcd, edm::Transition::BeginRun>();
+
   produces<reco::BasicClusterCollection>(PFBasicClusterCollection_);
   produces<reco::PreshowerClusterCollection>(PFPreshowerClusterCollection_);
   produces<reco::SuperClusterCollection>(PFSuperClusterCollection_);
@@ -186,6 +197,11 @@ PFPhotonTranslator::PFPhotonTranslator(const edm::ParameterSet &iConfig) {
 }
 
 PFPhotonTranslator::~PFPhotonTranslator() {}
+
+void PFPhotonTranslator::beginRun(const edm::Run&, const edm::EventSetup &iSetup) {
+  edm::ESHandle<EcalMustacheSCParameters> ecalMustacheSCParamsHandle_ = iSetup.getHandle(ecalMustacheSCParametersToken_);
+  mustacheSCParamsHelper_ = std::make_shared<reco::MustacheSCParametersHelper>(*ecalMustacheSCParamsHandle_.product());
+}
 
 void PFPhotonTranslator::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   //cout << "NEW EVENT"<<endl;
@@ -996,7 +1012,7 @@ void PFPhotonTranslator::createPhotons(reco::VertexCollection &vertexCollection,
 
     reco::Photon::PflowIDVariables myPFVariables;
 
-    reco::Mustache myMustache;
+    reco::Mustache myMustache(mustacheSCParamsHelper_);
     myMustache.MustacheID(
         *(myPhoton.parentSuperCluster()), myPFVariables.nClusterOutsideMustache, myPFVariables.etOutsideMustache);
     myPFVariables.mva = pfPhotonMva_[iphot];
