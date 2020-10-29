@@ -176,7 +176,8 @@ PFElectronTranslator::PFElectronTranslator(const edm::ParameterSet& iConfig) {
   else
     emptyIsOk_ = false;
 
-  ecalMustacheSCParametersToken_ = esConsumes<EcalMustacheSCParameters, EcalMustacheSCParametersRcd, edm::Transition::BeginRun>();
+  ecalMustacheSCParametersToken_ =
+      esConsumes<EcalMustacheSCParameters, EcalMustacheSCParametersRcd, edm::Transition::BeginRun>();
 
   produces<reco::BasicClusterCollection>(PFBasicClusterCollection_);
   produces<reco::PreshowerClusterCollection>(PFPreshowerClusterCollection_);
@@ -189,8 +190,9 @@ PFElectronTranslator::PFElectronTranslator(const edm::ParameterSet& iConfig) {
 
 PFElectronTranslator::~PFElectronTranslator() {}
 
-void PFElectronTranslator::beginRun(const edm::Run&, const edm::EventSetup &iSetup) {
-  edm::ESHandle<EcalMustacheSCParameters> ecalMustacheSCParamsHandle_ = iSetup.getHandle(ecalMustacheSCParametersToken_);
+void PFElectronTranslator::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
+  edm::ESHandle<EcalMustacheSCParameters> ecalMustacheSCParamsHandle_ =
+      iSetup.getHandle(ecalMustacheSCParametersToken_);
   mustacheSCParamsHelper_ = std::make_shared<reco::MustacheSCParametersHelper>(*ecalMustacheSCParamsHandle_.product());
 }
 

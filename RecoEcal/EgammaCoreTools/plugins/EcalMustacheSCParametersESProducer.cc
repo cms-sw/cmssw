@@ -2,7 +2,7 @@
 //
 // Package:    RecoEcal/EgammaCoreTools
 // Class:      EcalMustacheSCParametersESProducer
-// 
+//
 /**\class EcalMustacheSCParametersESProducer
 
  Description: Produces the mustache superclusedr parameters
@@ -31,44 +31,40 @@
 //
 
 class EcalMustacheSCParametersESProducer : public edm::ESProducer {
- public:
+public:
   EcalMustacheSCParametersESProducer(const edm::ParameterSet&);
   ~EcalMustacheSCParametersESProducer() override;
 
   using ReturnType = std::unique_ptr<EcalMustacheSCParameters>;
 
   ReturnType produce(const EcalMustacheSCParametersRcd&);
- private:
+
+private:
   EcalMustacheSCParameters params_;
 };
 
 //
 // constructors and destructor
 //
-EcalMustacheSCParametersESProducer::EcalMustacheSCParametersESProducer(const edm::ParameterSet& iConfig)
-{
+EcalMustacheSCParametersESProducer::EcalMustacheSCParametersESProducer(const edm::ParameterSet& iConfig) {
   setWhatProduced(this);
 
   reco::MustacheSCParametersHelper mustacheSCParams(iConfig);
   params_ = static_cast<EcalMustacheSCParameters>(mustacheSCParams);
 }
 
-EcalMustacheSCParametersESProducer::~EcalMustacheSCParametersESProducer()
-{
-}
+EcalMustacheSCParametersESProducer::~EcalMustacheSCParametersESProducer() {}
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-EcalMustacheSCParametersESProducer::ReturnType
-EcalMustacheSCParametersESProducer::produce(const EcalMustacheSCParametersRcd& iRecord)
-{
+EcalMustacheSCParametersESProducer::ReturnType EcalMustacheSCParametersESProducer::produce(
+    const EcalMustacheSCParametersRcd& iRecord) {
   auto product = std::make_unique<EcalMustacheSCParameters>(params_);
   return product;
 }
 
 //define this as a plug-in
 DEFINE_FWK_EVENTSETUP_MODULE(EcalMustacheSCParametersESProducer);
-

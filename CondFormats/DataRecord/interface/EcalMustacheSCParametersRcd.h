@@ -20,6 +20,7 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class EcalMustacheSCParametersRcd : public edm::eventsetup::EventSetupRecordImplementation<EcalMustacheSCParametersRcd> {};
+class EcalMustacheSCParametersRcd
+    : public edm::eventsetup::EventSetupRecordImplementation<EcalMustacheSCParametersRcd> {};
 
 #endif
