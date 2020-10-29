@@ -338,7 +338,7 @@ namespace calo {
           }
 
           // check for convergence
-          if (w_max < eps || w_max_idx == w_max_idx_prev && w_max == w_max_prev)
+          if (w_max < eps || (w_max_idx == w_max_idx_prev && w_max == w_max_prev))
             break;
 
           if (iter >= maxIterations)
