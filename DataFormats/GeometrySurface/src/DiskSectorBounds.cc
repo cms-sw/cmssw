@@ -1,4 +1,4 @@
-#include "DiskSectorBounds.h"
+#include "DataFormats/GeometrySurface/interface/DiskSectorBounds.h"
 
 using namespace std;
 

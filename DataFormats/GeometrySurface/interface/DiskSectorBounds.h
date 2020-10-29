@@ -1,5 +1,5 @@
-#ifndef RecoTracker_TkDetLayers_DiskSectorBounds_h
-#define RecoTracker_TkDetLayers_DiskSectorBounds_h
+#ifndef DataFormats_GeometrySurface_DiskSectorBounds_h
+#define DataFormats_GeometrySurface_DiskSectorBounds_h
 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
@@ -8,7 +8,6 @@
 #include <cmath>
 #include <cassert>
 
-#pragma GCC visibility push(hidden)
 class DiskSectorBounds final : public Bounds {
 public:
   DiskSectorBounds(float rmin, float rmax, float zmin, float zmax, float phiExt)
@@ -44,5 +43,4 @@ private:
   float theOffset;
 };
 
-#pragma GCC visibility pop
 #endif

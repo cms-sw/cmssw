@@ -1,25 +1,17 @@
-#ifndef RecoMTD_DetLayers_MTDTrayBarrelLayer_H
-#define RecoMTD_DetLayers_MTDTrayBarrelLayer_H
+#ifndef RecoMTD_DetLayers_MTDSectorForwardLayer_H
+#define RecoMTD_DetLayers_MTDSectorForwardLayer_H
 
-/** \class MTDTrayBarrelLayer
- *  A cylinder composed of half-trays. Represents Barrel Timing Layer.
- *
- *  \author L. Gray - FNAL
- *
- */
-#include "TrackingTools/DetLayers/interface/RodBarrelLayer.h"
-#include "Utilities/BinningTools/interface/BaseBinFinder.h"
+#include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 
-class DetRod;
-class DetRodBuilder;
+class MTDDetSector;
 class GeomDet;
 
-class MTDTrayBarrelLayer : public RodBarrelLayer {
+class MTDSectorForwardLayer : public ForwardDetLayer {
 public:
   /// Constructor, takes ownership of pointers
-  MTDTrayBarrelLayer(std::vector<const DetRod*>& rods);
+  MTDSectorForwardLayer(const std::vector<const MTDDetSector*>& sectors);
 
-  ~MTDTrayBarrelLayer() override;
+  ~MTDSectorForwardLayer() override;
 
   // GeometricSearchDet interface
 
@@ -40,17 +32,12 @@ public:
 
   // Extension of the interface
 
-  /// Return the vector of rods.
-  virtual const std::vector<const DetRod*>& rods() const { return theRods; }
+  /// Return the vector of sectors
+  virtual const std::vector<const MTDDetSector*>& sectors() const { return theSectors; }
 
 private:
-  float xError(const TrajectoryStateOnSurface& tsos, const MeasurementEstimator& est) const;
-
-  std::vector<const DetRod*> theRods;
+  std::vector<const MTDDetSector*> theSectors;
   std::vector<const GeometricSearchDet*> theComponents;  // duplication of the above
   std::vector<const GeomDet*> theBasicComps;             // All chambers
-  BaseBinFinder<double>* theBinFinder;
-  bool isOverlapping;
 };
-
 #endif
