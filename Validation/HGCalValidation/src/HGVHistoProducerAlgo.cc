@@ -1191,9 +1191,9 @@ void HGVHistoProducerAlgo::HGVHistoProducerAlgo::fill_simcluster_histos(const Hi
       //zside that the current cluster belongs to.
       int zside = recHitTools_->zside(sh_detid);
 
-      occurenceSCinlayer[layerid]++;
       //add the simcluster to the relevant layer. A simcluster may give contribution to several layers.
       if (occurenceSCinlayer[layerid] == 0){tnscpl[layerid]++;}
+      occurenceSCinlayer[layerid]++;
 
       if (sh_detid.det() == DetId::Forward || sh_detid.det() == DetId::HGCalEE || sh_detid.det() == DetId::HGCalHSi) {
         thickness = recHitTools_->getSiThickness(sh_detid);
@@ -1633,10 +1633,8 @@ void HGVHistoProducerAlgo::layerClusters_to_SimClusters(
     }
     //Loop through all simClusters linked to the layer cluster under study
     for (const auto& scPair : scs) {
-      // LogDebug("HGCalValidator") << "layerCluster Id: \t" << lcId << "\t SC id: \t" << scPair.first.index()
-      //                            << "\t score \t" << scPair.second << std::endl;
-      std::cout << "layerCluster Id: \t" << lcId << "\t SC id: \t" << scPair.first.index()
-                                 << "\t score \t" << scPair.second << std::endl;
+      LogDebug("HGCalValidator") << "layerCluster Id: \t" << lcId << "\t SC id: \t" << scPair.first.index()
+				 << "\t score \t" << scPair.second << std::endl;
       //This should be filled #layerclusters in layer x #linked SimClusters
       histograms.h_score_layercl2simcluster_perlayer[count].at(lcLayerId)->Fill(scPair.second);
       auto const& sc_linked =
@@ -1648,7 +1646,6 @@ void HGVHistoProducerAlgo::layerClusters_to_SimClusters(
       if (sc_linked ==
           lcsInSimClusterMap[scPair.first].end())  // This should never happen by construction of the association maps
         continue;
-      std::cout << " " << sc_linked->second.first << " " << clusters[lcId].energy() << std::endl;
       histograms.h_sharedenergy_layercl2simcluster_perlayer[count].at(lcLayerId)->Fill(
           sc_linked->second.first / clusters[lcId].energy(), clusters[lcId].energy());
       histograms.h_energy_vs_score_layercl2simcluster_perlayer[count].at(lcLayerId)->Fill(
@@ -1731,7 +1728,6 @@ void HGVHistoProducerAlgo::layerClusters_to_SimClusters(
       for (const auto& lcPair : lcs) {
         if (getLCLayerId(lcPair.first.index()) != layerId)
           continue;
-	std::cout << "SC Id " << scId << " LayerCluster Id " << lcPair.first.index() << " num " << lcPair.second.first << " denom " << sCEnergyOnLayer[layerId] << std::endl;
         histograms.h_score_simcluster2layercl_perlayer[count].at(layerId)->Fill(lcPair.second.second);
         histograms.h_sharedenergy_simcluster2layercl_perlayer[count].at(layerId)->Fill(
             lcPair.second.first / sCEnergyOnLayer[layerId], sCEnergyOnLayer[layerId]);
