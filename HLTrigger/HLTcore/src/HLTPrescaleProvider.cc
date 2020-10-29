@@ -90,7 +90,7 @@ int HLTPrescaleProvider::prescaleSet(const edm::Event& iEvent, const edm::EventS
   } else if (l1tType == 2) {
     checkL1TGlobalUtil();
     l1tGlobalUtil_->retrieveL1Event(iEvent, iSetup);
-    return static_cast<int>(l1tGlobalUtil_->prescaleColumn());
+    return static_cast<double>(l1tGlobalUtil_->prescaleColumn());
   } else {
     if (count_[0] < countMax) {
       count_[0] += 1;
@@ -117,7 +117,7 @@ std::pair<int, int> HLTPrescaleProvider::prescaleValues(const edm::Event& iEvent
                                                         const edm::EventSetup& iSetup,
                                                         const std::string& trigger) {
   // start with setting both L1T and HLT prescale values to 0
-  std::pair<int, int> result(std::pair<int, int>(0, 0));
+  std::pair<double, int> result(std::pair<double, int>(0, 0));
 
   // get HLT prescale (possible if HLT prescale set index is correctly found)
   const int set(prescaleSet(iEvent, iSetup));
@@ -299,13 +299,13 @@ std::pair<std::vector<std::pair<std::string, int> >, int> HLTPrescaleProvider::p
       GlobalLogicParser l1tGlobalLogicParser = GlobalLogicParser(l1tname);
       const std::vector<GlobalLogicParser::OperandToken> l1tSeeds = l1tGlobalLogicParser.expressionSeedsOperandList();
       int l1error(0);
-      int l1tPrescale(-1);
+      double l1tPrescale(-1);
       for (auto const& i : l1tSeeds) {
         const string& l1tSeed = i.tokenName;
         if (!l1tGlobalUtil_->getPrescaleByName(l1tSeed, l1tPrescale)) {
           l1error += 1;
         }
-        result.first.push_back(std::pair<std::string, int>(l1tSeed, l1tPrescale));
+        result.first.push_back(std::pair<std::string, double>(l1tSeed, l1tPrescale));
       }
       if (l1error != 0) {
         if (count_[3] < countMax) {
