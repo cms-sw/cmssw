@@ -1,28 +1,20 @@
-#ifndef RecoMTD_DetLayers_MTDRingForwardDoubleLayer_H
-#define RecoMTD_DetLayers_MTDRingForwardDoubleLayer_H
+#ifndef RecoMTD_DetLayers_MTDSectorForwardDoubleLayer_H
+#define RecoMTD_DetLayers_MTDSectorForwardDoubleLayer_H
 
-/** \class MTDRingForwardDoubleLayer
- *  A plane composed two layers of disks. The Endcap Timing Layer.
- *
- *  \author L. Gray
- *
- */
-
-#include "TrackingTools/DetLayers/interface/RingedForwardLayer.h"
+#include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "Utilities/BinningTools/interface/BaseBinFinder.h"
-#include "RecoMTD/DetLayers/interface/MTDRingForwardLayer.h"
+#include "RecoMTD/DetLayers/interface/MTDSectorForwardLayer.h"
 
-class ForwardDetRing;
-class ForwardDetRingBuilder;
+class MTDDetSector;
 class GeomDet;
 
-class MTDRingForwardDoubleLayer : public RingedForwardLayer {
+class MTDSectorForwardDoubleLayer : public ForwardDetLayer {
 public:
   /// Constructor, takes ownership of pointers
-  MTDRingForwardDoubleLayer(const std::vector<const ForwardDetRing*>& frontRings,
-                            const std::vector<const ForwardDetRing*>& backRings);
+  MTDSectorForwardDoubleLayer(const std::vector<const MTDDetSector*>& frontSectors,
+                              const std::vector<const MTDDetSector*>& backSectors);
 
-  ~MTDRingForwardDoubleLayer() override {}
+  ~MTDSectorForwardDoubleLayer() override {}
 
   // GeometricSearchDet interface
 
@@ -50,13 +42,13 @@ public:
 
   // Extension of the interface
 
-  /// Return the vector of rings.
-  virtual const std::vector<const ForwardDetRing*>& rings() const { return theRings; }
+  /// Return the vector of sectors.
+  virtual const std::vector<const MTDDetSector*>& sectors() const { return theSectors; }
 
   bool isCrack(const GlobalPoint& gp) const;
 
-  const MTDRingForwardLayer* frontLayer() const { return &theFrontLayer; }
-  const MTDRingForwardLayer* backLayer() const { return &theBackLayer; }
+  const MTDSectorForwardLayer* frontLayer() const { return &theFrontLayer; }
+  const MTDSectorForwardLayer* backLayer() const { return &theBackLayer; }
 
   void selfTest() const;
 
@@ -64,9 +56,9 @@ protected:
   BoundDisk* computeSurface() override;
 
 private:
-  MTDRingForwardLayer theFrontLayer;
-  MTDRingForwardLayer theBackLayer;
-  std::vector<const ForwardDetRing*> theRings;
+  MTDSectorForwardLayer theFrontLayer;
+  MTDSectorForwardLayer theBackLayer;
+  std::vector<const MTDDetSector*> theSectors;
   std::vector<const GeometricSearchDet*> theComponents;  // duplication of the above
   std::vector<const GeomDet*> theBasicComponents;        // All chambers
 };

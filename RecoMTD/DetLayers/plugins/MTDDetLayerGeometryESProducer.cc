@@ -15,6 +15,8 @@
 #include "RecoMTD/Records/interface/MTDRecoGeometryRecord.h"
 #include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
+#include "Geometry/Records/interface/MTDTopologyRcd.h"
+#include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
 
 #include "ETLDetLayerGeometryBuilder.h"
 #include "BTLDetLayerGeometryBuilder.h"
@@ -36,13 +38,17 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
-  const edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> geomToken_;
+  edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> geomToken_;
+  edm::ESGetToken<MTDTopology, MTDTopologyRcd> mtdtopoToken_;
 };
 
 using namespace edm;
 
-MTDDetLayerGeometryESProducer::MTDDetLayerGeometryESProducer(const edm::ParameterSet& p)
-    : geomToken_(setWhatProduced(this).consumes()) {}
+MTDDetLayerGeometryESProducer::MTDDetLayerGeometryESProducer(const edm::ParameterSet& p) {
+  auto cc = setWhatProduced(this);
+  geomToken_ = cc.consumes();
+  mtdtopoToken_ = cc.consumes();
+}
 
 std::unique_ptr<MTDDetLayerGeometry> MTDDetLayerGeometryESProducer::produce(const MTDRecoGeometryRecord& record) {
   auto mtdDetLayerGeometry = std::make_unique<MTDDetLayerGeometry>();
@@ -50,8 +56,12 @@ std::unique_ptr<MTDDetLayerGeometry> MTDDetLayerGeometryESProducer::produce(cons
   if (auto mtd = record.getHandle(geomToken_)) {
     // Build BTL layers
     mtdDetLayerGeometry->addBTLLayers(BTLDetLayerGeometryBuilder::buildLayers(*mtd));
-    // Build ETL layers
-    mtdDetLayerGeometry->addETLLayers(ETLDetLayerGeometryBuilder::buildLayers(*mtd));
+    // Build ETL layers, depends on the scenario
+    if (auto mtdtopo = record.getHandle(mtdtopoToken_)) {
+      mtdDetLayerGeometry->addETLLayers(ETLDetLayerGeometryBuilder::buildLayers(*mtd, mtdtopo->getMTDTopologyMode()));
+    } else {
+      LogWarning("MTDDetLayers") << "No MTD topology  is available.";
+    }
   } else {
     LogWarning("MTDDetLayers") << "No MTD geometry is available.";
   }

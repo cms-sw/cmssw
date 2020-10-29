@@ -1,5 +1,5 @@
-#ifndef RecoTracker_TkDetLayers_BladeShapeBuilderFromDet_h
-#define RecoTracker_TkDetLayers_BladeShapeBuilderFromDet_h
+#ifndef RecoMTD_DetLayers_MTDDiskSectorBuilderFromDet_H
+#define RecoMTD_DetLayers_MTDDiskSectorBuilderFromDet_H
 
 #include "DataFormats/GeometrySurface/interface/BoundDiskSector.h"
 #include "DataFormats/GeometrySurface/interface/DiskSectorBounds.h"
@@ -12,11 +12,9 @@
 /** The trapezoid has the minimal size fully containing all Dets.
  */
 
-#pragma GCC visibility push(hidden)
-class BladeShapeBuilderFromDet {
+class MTDDiskSectorBuilderFromDet {
 public:
-  static BoundDiskSector* build(const std::vector<const GeomDet*>& dets) __attribute__((cold));
+  BoundDiskSector* operator()(const std::vector<const GeomDet*>& dets) const;
 };
 
-#pragma GCC visibility pop
 #endif
