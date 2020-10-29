@@ -29,6 +29,9 @@ public:
                                          const int& waferType,
                                          const int& mode,
                                          bool deug = false);
+  static bool goodTypeMode(
+      double xpos, double ypos, double delX, double delY, double rin, double rout, int part, int rotn, bool debug);
+
   static const int k_OffsetRotation = 10;
 };
 
