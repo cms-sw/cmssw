@@ -150,8 +150,7 @@ std::vector<DigitizerUtility::EnergyDepositUnit> Pixel3DDigitizerAlgorithm::diff
   std::function<std::vector<float>(int)> do_step =
       [&pos_moving, &u_drift, diffusion_step](int i) -> std::vector<float> {
     auto dd = u_drift(pos_moving[0], pos_moving[1]);
-    return std::vector<float>(
-        {i * diffusion_step * dd.x(), i * diffusion_step * dd.y(), i * diffusion_step * dd.z()});
+    return std::vector<float>({i * diffusion_step * dd.x(), i * diffusion_step * dd.y(), i * diffusion_step * dd.z()});
   };
 
   LogDebug("Pixel3DDigitizerAlgorithm::diffusion")
