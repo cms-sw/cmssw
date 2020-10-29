@@ -121,11 +121,14 @@ private:
   std::vector<Float_t> psClusterRawEnergy, psClusterEta, psClusterPhi;
 };
 
-void PFEGCandidateTreeMaker::beginRun(const edm::Run&, const edm::EventSetup &iSetup) {
-  edm::ESHandle<EcalMustacheSCParameters> ecalMustacheSCParamsHandle_ = iSetup.getHandle(ecalMustacheSCParametersToken_);
+void PFEGCandidateTreeMaker::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
+  edm::ESHandle<EcalMustacheSCParameters> ecalMustacheSCParamsHandle_ =
+      iSetup.getHandle(ecalMustacheSCParametersToken_);
   mustacheSCParamsHelper_ = std::make_shared<reco::MustacheSCParametersHelper>(*ecalMustacheSCParamsHandle_.product());
-  edm::ESHandle<EcalSCDynamicDPhiParameters> ecalSCDynamicDPhiParametersHandle_ = iSetup.getHandle(ecalSCDynamicDPhiParametersToken_);
-  scDynamicDPhiParamsHelper_ = std::make_shared<reco::SCDynamicDPhiParametersHelper>(*ecalSCDynamicDPhiParametersHandle_.product());
+  edm::ESHandle<EcalSCDynamicDPhiParameters> ecalSCDynamicDPhiParametersHandle_ =
+      iSetup.getHandle(ecalSCDynamicDPhiParametersToken_);
+  scDynamicDPhiParamsHelper_ =
+      std::make_shared<reco::SCDynamicDPhiParametersHelper>(*ecalSCDynamicDPhiParametersHandle_.product());
 }
 
 void PFEGCandidateTreeMaker::analyze(const edm::Event& e, const edm::EventSetup& es) {
@@ -278,10 +281,14 @@ void PFEGCandidateTreeMaker::processEGCandidateFillTree(const edm::Event& e,
       clusterDPhiToGen[iclus] = TVector2::Phi_mpi_pi(pclus->phi() - genmatch->phi());
       clusterDEtaToGen[iclus] = pclus->eta() - genmatch->eta();
     }
-    clusterInMustache[iclus] = (Int_t)reco::MustacheKernel::inMustache(mustacheSCParamsHelper_,
-        theseed->eta(), theseed->phi(), pclus->energy(), pclus->eta(), pclus->phi());
+    clusterInMustache[iclus] = (Int_t)reco::MustacheKernel::inMustache(
+        mustacheSCParamsHelper_, theseed->eta(), theseed->phi(), pclus->energy(), pclus->eta(), pclus->phi());
     clusterInDynDPhi[iclus] = (Int_t)reco::MustacheKernel::inDynamicDPhiWindow(scDynamicDPhiParamsHelper_,
-        PFLayer::ECAL_BARREL == pclus->layer(), theseed->phi(), pclus->energy(), pclus->eta(), pclus->phi());
+                                                                               PFLayer::ECAL_BARREL == pclus->layer(),
+                                                                               theseed->phi(),
+                                                                               pclus->energy(),
+                                                                               pclus->eta(),
+                                                                               pclus->phi());
     ++iclus;
   }
   // loop over all preshower clusters
@@ -328,8 +335,10 @@ bool PFEGCandidateTreeMaker::getPFCandMatch(const reco::PFCandidate& cand,
 }
 
 PFEGCandidateTreeMaker::PFEGCandidateTreeMaker(const PSet& p) {
-  ecalMustacheSCParametersToken_ = esConsumes<EcalMustacheSCParameters, EcalMustacheSCParametersRcd, edm::Transition::BeginRun>();
-  ecalSCDynamicDPhiParametersToken_ = esConsumes<EcalSCDynamicDPhiParameters, EcalSCDynamicDPhiParametersRcd, edm::Transition::BeginRun>();
+  ecalMustacheSCParametersToken_ =
+      esConsumes<EcalMustacheSCParameters, EcalMustacheSCParametersRcd, edm::Transition::BeginRun>();
+  ecalSCDynamicDPhiParametersToken_ =
+      esConsumes<EcalSCDynamicDPhiParameters, EcalSCDynamicDPhiParametersRcd, edm::Transition::BeginRun>();
 
   N_ECALClusters = 1;
   N_PSClusters = 1;

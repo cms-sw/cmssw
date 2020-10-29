@@ -7,9 +7,9 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 class EcalSCDynamicDPhiParameters {
- public:
-  EcalSCDynamicDPhiParameters() {};
-  ~EcalSCDynamicDPhiParameters() {};
+public:
+  EcalSCDynamicDPhiParameters(){};
+  ~EcalSCDynamicDPhiParameters(){};
 
   struct DynamicDPhiParameters {
     double eMin;
@@ -30,8 +30,8 @@ class EcalSCDynamicDPhiParameters {
     params.print(out);
     return out;
   }
-  
- protected:
+
+protected:
   // collection is expected to be sorted in descending DynamicDPhiParameters.etaMax and ascending DynamicDPhiParameters.minEt
   std::vector<DynamicDPhiParameters> dynamicDPhiParametersCollection_;
 
@@ -39,4 +39,3 @@ class EcalSCDynamicDPhiParameters {
 };
 
 #endif
-

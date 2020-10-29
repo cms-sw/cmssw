@@ -2,7 +2,7 @@
 //
 // Package:    RecoEcal/EgammaCoreTools
 // Class:      EcalSCDynamicDPhiParametersESProducer
-// 
+//
 /**\class EcalSCDynamicDPhiParametersESProducer
 
  Description: Produces the supercluster dynamic dPhi parameters
@@ -31,44 +31,40 @@
 //
 
 class EcalSCDynamicDPhiParametersESProducer : public edm::ESProducer {
- public:
+public:
   EcalSCDynamicDPhiParametersESProducer(const edm::ParameterSet&);
   ~EcalSCDynamicDPhiParametersESProducer() override;
 
   using ReturnType = std::unique_ptr<EcalSCDynamicDPhiParameters>;
 
   ReturnType produce(const EcalSCDynamicDPhiParametersRcd&);
- private:
+
+private:
   EcalSCDynamicDPhiParameters params_;
 };
 
 //
 // constructors and destructor
 //
-EcalSCDynamicDPhiParametersESProducer::EcalSCDynamicDPhiParametersESProducer(const edm::ParameterSet& iConfig)
-{
+EcalSCDynamicDPhiParametersESProducer::EcalSCDynamicDPhiParametersESProducer(const edm::ParameterSet& iConfig) {
   setWhatProduced(this);
 
   reco::SCDynamicDPhiParametersHelper scDynamicDPhiParams(iConfig);
   params_ = static_cast<EcalSCDynamicDPhiParameters>(scDynamicDPhiParams);
 }
 
-EcalSCDynamicDPhiParametersESProducer::~EcalSCDynamicDPhiParametersESProducer()
-{
-}
+EcalSCDynamicDPhiParametersESProducer::~EcalSCDynamicDPhiParametersESProducer() {}
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-EcalSCDynamicDPhiParametersESProducer::ReturnType
-EcalSCDynamicDPhiParametersESProducer::produce(const EcalSCDynamicDPhiParametersRcd& iRecord)
-{
+EcalSCDynamicDPhiParametersESProducer::ReturnType EcalSCDynamicDPhiParametersESProducer::produce(
+    const EcalSCDynamicDPhiParametersRcd& iRecord) {
   auto product = std::make_unique<EcalSCDynamicDPhiParameters>(params_);
   return product;
 }
 
 //define this as a plug-in
 DEFINE_FWK_EVENTSETUP_MODULE(EcalSCDynamicDPhiParametersESProducer);
-

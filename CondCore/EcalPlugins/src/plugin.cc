@@ -230,4 +230,3 @@ REGISTER_PLUGIN(EcalPulseSymmCovariancesRcd, EcalCondObjectContainer<EcalPulseSy
 
 REGISTER_PLUGIN(EcalMustacheSCParametersRcd, EcalMustacheSCParameters);
 REGISTER_PLUGIN(EcalSCDynamicDPhiParametersRcd, EcalSCDynamicDPhiParameters);
-

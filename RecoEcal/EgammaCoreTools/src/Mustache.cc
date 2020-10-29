@@ -5,8 +5,12 @@ using namespace std;
 
 namespace reco {
   namespace MustacheKernel {
-    bool inMustache(const std::shared_ptr<MustacheSCParametersHelper> &params,
-        const float maxEta, const float maxPhi, const float ClustE, const float ClusEta, const float ClusPhi) {
+    bool inMustache(const std::shared_ptr<MustacheSCParametersHelper>& params,
+                    const float maxEta,
+                    const float maxPhi,
+                    const float ClustE,
+                    const float ClusEta,
+                    const float ClusPhi) {
       const auto log10ClustE = std::log10(ClustE);
       const auto parabola_params = params->parabolaParameters(log10ClustE, std::abs(ClusEta));
 
@@ -20,18 +24,22 @@ namespace reco {
       //and has a slight dependence on E on the upper edge
       // this only works because of fine tuning :-D
       const float sqrt_log10_clustE = std::sqrt(log10ClustE + params->sqrtLogClustETuning());
-      const float b_upper = parabola_params.w1Up[0] * eta0xsineta0 + parabola_params.w1Up[1] / sqrt_log10_clustE
-                          - 0.5 * (parabola_params.w1Up[0] * eta0xsineta0 + parabola_params.w1Up[1] / sqrt_log10_clustE
-                                 + parabola_params.w0Up[0] * eta0xsineta0 + parabola_params.w0Up[1] / sqrt_log10_clustE);
-      const float b_lower = parabola_params.w0Low[0] * eta0xsineta0 + parabola_params.w0Low[1] / sqrt_log10_clustE
-                          - 0.5 * (parabola_params.w1Low[0] * eta0xsineta0 + parabola_params.w1Low[1] / sqrt_log10_clustE
-                                 + parabola_params.w0Low[0] * eta0xsineta0 + parabola_params.w0Low[1] / sqrt_log10_clustE);
+      const float b_upper =
+          parabola_params.w1Up[0] * eta0xsineta0 + parabola_params.w1Up[1] / sqrt_log10_clustE -
+          0.5 * (parabola_params.w1Up[0] * eta0xsineta0 + parabola_params.w1Up[1] / sqrt_log10_clustE +
+                 parabola_params.w0Up[0] * eta0xsineta0 + parabola_params.w0Up[1] / sqrt_log10_clustE);
+      const float b_lower =
+          parabola_params.w0Low[0] * eta0xsineta0 + parabola_params.w0Low[1] / sqrt_log10_clustE -
+          0.5 * (parabola_params.w1Low[0] * eta0xsineta0 + parabola_params.w1Low[1] / sqrt_log10_clustE +
+                 parabola_params.w0Low[0] * eta0xsineta0 + parabola_params.w0Low[1] / sqrt_log10_clustE);
 
       //the curvature comes from a parabolic
       //fit for many slices in eta given a
       //slice -0.1 < log10(Et) < 0.1
-      const float curv_up = eta0xsineta0 * (parabola_params.pUp[0] * eta0xsineta0 + parabola_params.pUp[1]) + parabola_params.pUp[2];
-      const float curv_low = eta0xsineta0 * (parabola_params.pLow[0] * eta0xsineta0 + parabola_params.pLow[1]) + parabola_params.pLow[2];
+      const float curv_up =
+          eta0xsineta0 * (parabola_params.pUp[0] * eta0xsineta0 + parabola_params.pUp[1]) + parabola_params.pUp[2];
+      const float curv_low =
+          eta0xsineta0 * (parabola_params.pLow[0] * eta0xsineta0 + parabola_params.pLow[1]) + parabola_params.pLow[2];
 
       //solving for the curviness given the width of this particular point
       const float a_upper = (1 / (4 * curv_up)) - std::abs(b_upper);
@@ -42,7 +50,8 @@ namespace reco {
       // minimum offset is half a crystal width in either direction
       // because science.
       constexpr float half_crystal_width = 0.0087;
-      const float upper_cut = (std::max((1. / (4. * a_upper)), 0.0) * dphi2 + std::max(b_upper, half_crystal_width)) + half_crystal_width;
+      const float upper_cut =
+          (std::max((1. / (4. * a_upper)), 0.0) * dphi2 + std::max(b_upper, half_crystal_width)) + half_crystal_width;
       const float lower_cut = (std::max((1. / (4. * a_lower)), 0.0) * dphi2 + std::min(b_lower, -half_crystal_width));
 
       //if(deta < upper_cut && deta > lower_cut) inMust=true;
@@ -51,14 +60,20 @@ namespace reco {
       return (deta < upper_cut && deta > lower_cut);
     }
 
-    bool inDynamicDPhiWindow(const std::shared_ptr<SCDynamicDPhiParametersHelper> &params,
-        const float seedEta, const float seedPhi, const float ClustE, const float ClusEta, const float ClusPhi) {
+    bool inDynamicDPhiWindow(const std::shared_ptr<SCDynamicDPhiParametersHelper>& params,
+                             const float seedEta,
+                             const float seedPhi,
+                             const float ClustE,
+                             const float ClusEta,
+                             const float ClusPhi) {
       const double absSeedEta = std::abs(seedEta);
       const double logClustEt = std::log10(ClustE / std::cosh(ClusEta));
       const double clusDphi = std::abs(TVector2::Phi_mpi_pi(seedPhi - ClusPhi));
 
       const auto dynamicDPhiParams = params->dynamicDPhiParameters(ClustE, absSeedEta);
-      auto maxdphi = dynamicDPhiParams.yoffset + dynamicDPhiParams.scale / (1 + std::exp((logClustEt - dynamicDPhiParams.xoffset) / dynamicDPhiParams.width));
+      auto maxdphi =
+          dynamicDPhiParams.yoffset +
+          dynamicDPhiParams.scale / (1 + std::exp((logClustEt - dynamicDPhiParams.xoffset) / dynamicDPhiParams.width));
       maxdphi = std::min(maxdphi, dynamicDPhiParams.cutoff);
       maxdphi = std::max(maxdphi, dynamicDPhiParams.saturation);
 
@@ -66,8 +81,8 @@ namespace reco {
     }
   }  // namespace MustacheKernel
 
-  Mustache::Mustache(const std::shared_ptr<MustacheSCParametersHelper> &mustache_params_helper) : mustache_params_helper_(mustache_params_helper) {
-  }
+  Mustache::Mustache(const std::shared_ptr<MustacheSCParametersHelper>& mustache_params_helper)
+      : mustache_params_helper_(mustache_params_helper) {}
 
   void Mustache::MustacheID(const reco::SuperCluster& sc, int& nclusters, float& EoutsideMustache) {
     MustacheID(sc.clustersBegin(), sc.clustersEnd(), nclusters, EoutsideMustache);
@@ -114,7 +129,8 @@ namespace reco {
     bool inMust = false;
     icl = begin;
     for (; icl != end; ++icl) {
-      inMust = MustacheKernel::inMustache(mustache_params_helper_, eta0, phi0, (*icl)->energy(), (*icl)->eta(), (*icl)->phi());
+      inMust = MustacheKernel::inMustache(
+          mustache_params_helper_, eta0, phi0, (*icl)->energy(), (*icl)->eta(), (*icl)->phi());
 
       nclusters += (int)!inMust;
       EoutsideMustache += (!inMust) * ((*icl)->energy());
@@ -145,8 +161,8 @@ namespace reco {
     float phi0 = (clusters[imax]).phi();
 
     for (unsigned int k = 0; k < ncl; k++) {
-      bool inMust =
-          MustacheKernel::inMustache(mustache_params_helper_, eta0, phi0, (clusters[k]).energy(), (clusters[k]).eta(), (clusters[k]).phi());
+      bool inMust = MustacheKernel::inMustache(
+          mustache_params_helper_, eta0, phi0, (clusters[k]).energy(), (clusters[k]).eta(), (clusters[k]).phi());
       //return indices of Clusters outside the Mustache
       if (!(inMust)) {
         outsideMust.push_back(k);

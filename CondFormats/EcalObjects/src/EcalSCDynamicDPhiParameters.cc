@@ -3,7 +3,7 @@
 void EcalSCDynamicDPhiParameters::print(std::ostream& out) const {
   out << "SC dynamic dPhi parameters:" << std::endl;
   out << " Parameters are binned in " << dynamicDPhiParametersCollection_.size() << " (E, |eta|) regions." << std::endl;
-  for (const auto &params : dynamicDPhiParametersCollection_) {
+  for (const auto& params : dynamicDPhiParametersCollection_) {
     out << " Parameters for E_min=" << params.eMin << " and |eta_min|=" << params.etaMin << ":" << std::endl;
     out << "  yoffset:    " << params.yoffset << std::endl;
     out << "  scale:      " << params.scale << std::endl;
@@ -13,4 +13,3 @@ void EcalSCDynamicDPhiParameters::print(std::ostream& out) const {
     out << "  cutoff:     " << params.cutoff << std::endl;
   }
 }
-
