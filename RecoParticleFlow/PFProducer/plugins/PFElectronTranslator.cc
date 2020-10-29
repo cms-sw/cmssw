@@ -17,6 +17,9 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "CondFormats/EcalObjects/interface/EcalMustacheSCParameters.h"
+#include "CondFormats/DataRecord/interface/EcalMustacheSCParametersRcd.h"
+#include "RecoEcal/EgammaCoreTools/interface/MustacheSCParametersHelper.h"
 
 class DetId;
 namespace edm {
@@ -28,6 +31,7 @@ public:
   explicit PFElectronTranslator(const edm::ParameterSet&);
   ~PFElectronTranslator() override;
 
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   typedef std::vector<edm::Handle<edm::ValueMap<double>>> IsolationValueMaps;
@@ -129,6 +133,10 @@ private:
   std::map<reco::GsfTrackRef, reco::SuperClusterRef> scMap_;
   std::map<reco::GsfTrackRef, float> gsfMvaMap_;
 
+  // Mustache SC parameters
+  edm::ESGetToken<EcalMustacheSCParameters, EcalMustacheSCParametersRcd> ecalMustacheSCParametersToken_;
+  std::shared_ptr<reco::MustacheSCParametersHelper> mustacheSCParamsHelper_;
+
   bool emptyIsOk_;
 };
 
@@ -168,6 +176,8 @@ PFElectronTranslator::PFElectronTranslator(const edm::ParameterSet& iConfig) {
   else
     emptyIsOk_ = false;
 
+  ecalMustacheSCParametersToken_ = esConsumes<EcalMustacheSCParameters, EcalMustacheSCParametersRcd, edm::Transition::BeginRun>();
+
   produces<reco::BasicClusterCollection>(PFBasicClusterCollection_);
   produces<reco::PreshowerClusterCollection>(PFPreshowerClusterCollection_);
   produces<reco::SuperClusterCollection>(PFSuperClusterCollection_);
@@ -178,6 +188,11 @@ PFElectronTranslator::PFElectronTranslator(const edm::ParameterSet& iConfig) {
 }
 
 PFElectronTranslator::~PFElectronTranslator() {}
+
+void PFElectronTranslator::beginRun(const edm::Run&, const edm::EventSetup &iSetup) {
+  edm::ESHandle<EcalMustacheSCParameters> ecalMustacheSCParamsHandle_ = iSetup.getHandle(ecalMustacheSCParametersToken_);
+  mustacheSCParamsHelper_ = std::make_shared<reco::MustacheSCParametersHelper>(*ecalMustacheSCParamsHandle_.product());
+}
 
 void PFElectronTranslator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   auto gsfElectronCores_p = std::make_unique<reco::GsfElectronCoreCollection>();
@@ -664,7 +679,7 @@ void PFElectronTranslator::createGsfElectrons(const reco::PFCandidateCollection&
     myMvaInput.hadEnergy = pfCandidate.electronExtraRef()->hadEnergy();
 
     // Mustache
-    reco::Mustache myMustache;
+    reco::Mustache myMustache(mustacheSCParamsHelper_);
     myMustache.MustacheID(
         *(myElectron.parentSuperCluster()), myMvaInput.nClusterOutsideMustache, myMvaInput.etOutsideMustache);
 
