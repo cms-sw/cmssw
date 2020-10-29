@@ -84,12 +84,14 @@ namespace {
   bool isClustered(const CalibClusterPtr& x,
                    const CalibClusterPtr seed,
                    const PFECALSuperClusterAlgo::clustering_type type,
+                   const std::shared_ptr<reco::MustacheSCParametersHelper> &mustache_params_helper,
+                   const std::shared_ptr<reco::SCDynamicDPhiParametersHelper> &dynamic_dphi_params_helper,
                    const bool dyn_dphi,
                    const double etawidthSuperCluster,
                    const double phiwidthSuperCluster) {
     const double dphi = std::abs(TVector2::Phi_mpi_pi(seed->phi() - x->phi()));
     const bool passes_dphi = ((!dyn_dphi && dphi < phiwidthSuperCluster) ||
-                              (dyn_dphi && reco::MustacheKernel::inDynamicDPhiWindow(
+                              (dyn_dphi && reco::MustacheKernel::inDynamicDPhiWindow(dynamic_dphi_params_helper,
                                                seed->eta(), seed->phi(), x->energy_nocalib(), x->eta(), x->phi())));
 
     if (type == PFECALSuperClusterAlgo::kBOX) {
@@ -97,7 +99,7 @@ namespace {
     }
     if (type == PFECALSuperClusterAlgo::kMustache) {
       return (passes_dphi &&
-              reco::MustacheKernel::inMustache(seed->eta(), seed->phi(), x->energy_nocalib(), x->eta(), x->phi()));
+              reco::MustacheKernel::inMustache(mustache_params_helper, seed->eta(), seed->phi(), x->energy_nocalib(), x->eta(), x->phi()));
     }
     return false;
   }
@@ -119,6 +121,8 @@ void PFECALSuperClusterAlgo::setTokens(const edm::ParameterSet& iConfig, edm::Co
   esEEInterCalibToken_ =
       cc.esConsumes<ESEEIntercalibConstants, ESEEIntercalibConstantsRcd, edm::Transition::BeginLuminosityBlock>();
   esChannelStatusToken_ = cc.esConsumes<ESChannelStatus, ESChannelStatusRcd, edm::Transition::BeginLuminosityBlock>();
+  ecalMustacheSCParametersToken_ = cc.esConsumes<EcalMustacheSCParameters, EcalMustacheSCParametersRcd, edm::Transition::BeginRun>();
+  ecalSCDynamicDPhiParametersToken_ = cc.esConsumes<EcalSCDynamicDPhiParameters, EcalSCDynamicDPhiParametersRcd, edm::Transition::BeginRun>();
 
   if (useRegression_) {
     const edm::ParameterSet& regconf = iConfig.getParameter<edm::ParameterSet>("regressionConfig");
@@ -143,6 +147,13 @@ void PFECALSuperClusterAlgo::update(const edm::EventSetup& setup) {
 
   edm::ESHandle<ESChannelStatus> esChannelStatusHandle_ = setup.getHandle(esChannelStatusToken_);
   channelStatus_ = esChannelStatusHandle_.product();
+}
+
+void PFECALSuperClusterAlgo::updateSCParams(const edm::EventSetup& setup) {
+  edm::ESHandle<EcalMustacheSCParameters> ecalMustacheSCParamsHandle_ = setup.getHandle(ecalMustacheSCParametersToken_);
+  mustacheSCParamsHelper_ = std::make_shared<reco::MustacheSCParametersHelper>(*ecalMustacheSCParamsHandle_.product());
+  edm::ESHandle<EcalSCDynamicDPhiParameters> ecalSCDynamicDPhiParamsHandle_ = setup.getHandle(ecalSCDynamicDPhiParametersToken_);
+  scDynamicDPhiParamsHelper_ = std::make_shared<reco::SCDynamicDPhiParametersHelper>(*ecalSCDynamicDPhiParamsHandle_.product());
 }
 
 void PFECALSuperClusterAlgo::loadAndSortPFClusters(const edm::Event& iEvent) {
@@ -268,7 +279,7 @@ void PFECALSuperClusterAlgo::buildSuperCluster(CalibClusterPtr& seed, CalibClust
       break;
   }
   auto isClusteredWithSeed =
-      std::bind(isClustered, _1, seed, _clustype, useDynamicDPhi_, etawidthSuperCluster, phiwidthSuperCluster);
+      std::bind(isClustered, _1, seed, _clustype, mustacheSCParamsHelper_, scDynamicDPhiParamsHelper_, useDynamicDPhi_, etawidthSuperCluster, phiwidthSuperCluster);
   auto matchesSeedByRecHit = std::bind(isLinkedByRecHit, _1, seed, satelliteThreshold_, fractionForMajority_, 0.1, 0.2);
 
   // this function shuffles the list of clusters into a list

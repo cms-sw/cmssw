@@ -45,6 +45,7 @@ public:
   explicit PFECALSuperClusterProducer(const edm::ParameterSet&);
   ~PFECALSuperClusterProducer() override;
 
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
 

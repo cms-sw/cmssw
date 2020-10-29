@@ -64,6 +64,8 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGSpike.h"
 #include "CondFormats/EcalObjects/interface/EcalSRSettings.h"
 #include "CondFormats/EcalObjects/interface/EcalSimPulseShape.h"
+#include "CondFormats/EcalObjects/interface/EcalMustacheSCParameters.h"
+#include "CondFormats/EcalObjects/interface/EcalSCDynamicDPhiParameters.h"
 #include <cstdint>
 
 namespace CondFormats_EcalObjects {
@@ -221,5 +223,13 @@ namespace CondFormats_EcalObjects {
     EcalCondObjectContainer<EcalPulseSymmCovariance> ecalSPCmap;  //typedef EcalPulseSymmCovariance
 
     EcalSimPulseShape ecal_sim_pulse_shapes;
+
+    EcalMustacheSCParameters ecal_mustache_sc_parameters;
+    EcalMustacheSCParameters::ParabolaParameters ecal_mustache_sc_parabola_parameters;
+    std::vector<EcalMustacheSCParameters::ParabolaParameters> v_ecal_mustache_sc_parabola_parameters;
+
+    EcalSCDynamicDPhiParameters ecal_sc_dynamic_dphi_parameters;
+    EcalSCDynamicDPhiParameters::DynamicDPhiParameters ecal_sc_dynamic_dphi_parameters_struct;
+    std::vector<EcalSCDynamicDPhiParameters::DynamicDPhiParameters> v_ecal_sc_dynamic_dphi_parameters;
   };
 }  // namespace CondFormats_EcalObjects

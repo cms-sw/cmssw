@@ -32,6 +32,13 @@
 #include "CondFormats/DataRecord/interface/ESChannelStatusRcd.h"
 #include "CondFormats/ESObjects/interface/ESEEIntercalibConstants.h"
 
+#include "CondFormats/EcalObjects/interface/EcalMustacheSCParameters.h"
+#include "CondFormats/DataRecord/interface/EcalMustacheSCParametersRcd.h"
+#include "RecoEcal/EgammaCoreTools/interface/MustacheSCParametersHelper.h"
+#include "CondFormats/EcalObjects/interface/EcalSCDynamicDPhiParameters.h"
+#include "CondFormats/DataRecord/interface/EcalSCDynamicDPhiParametersRcd.h"
+#include "RecoEcal/EgammaCoreTools/interface/SCDynamicDPhiParametersHelper.h"
+
 #include <vector>
 #include <memory>
 
@@ -106,6 +113,7 @@ public:
 
   void setTokens(const edm::ParameterSet&, edm::ConsumesCollector&&);
   void update(const edm::EventSetup&);
+  void updateSCParams(const edm::EventSetup&);
 
   std::unique_ptr<reco::SuperClusterCollection>& getEBOutputSCCollection() { return superClustersEB_; }
   std::unique_ptr<reco::SuperClusterCollection>& getEEOutputSCCollection() { return superClustersEE_; }
@@ -121,9 +129,13 @@ private:
 
   edm::ESGetToken<ESEEIntercalibConstants, ESEEIntercalibConstantsRcd> esEEInterCalibToken_;
   edm::ESGetToken<ESChannelStatus, ESChannelStatusRcd> esChannelStatusToken_;
+  edm::ESGetToken<EcalMustacheSCParameters, EcalMustacheSCParametersRcd> ecalMustacheSCParametersToken_;
+  edm::ESGetToken<EcalSCDynamicDPhiParameters, EcalSCDynamicDPhiParametersRcd> ecalSCDynamicDPhiParametersToken_;
 
   const reco::BeamSpot* beamSpot_;
   const ESChannelStatus* channelStatus_;
+  std::shared_ptr<reco::MustacheSCParametersHelper> mustacheSCParamsHelper_;
+  std::shared_ptr<reco::SCDynamicDPhiParametersHelper> scDynamicDPhiParamsHelper_;
 
   CalibratedClusterPtrVector _clustersEB;
   CalibratedClusterPtrVector _clustersEE;
