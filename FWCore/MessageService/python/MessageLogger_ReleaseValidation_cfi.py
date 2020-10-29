@@ -3,21 +3,12 @@ import FWCore.ParameterSet.Config as cms
 MessageLogger = cms.Service("MessageLogger",
     suppressInfo = cms.untracked.vstring(),
     suppressFwkInfo = cms.untracked.vstring(),
-    debugs = cms.untracked.PSet(
-        placeholder = cms.untracked.bool(True)
-    ),
     suppressDebug = cms.untracked.vstring(),
     cout = cms.untracked.PSet(
         placeholder = cms.untracked.bool(True)
     ),
-    warnings = cms.untracked.PSet(
-        placeholder = cms.untracked.bool(True)
-    ),
     default = cms.untracked.PSet(
 
-    ),
-    errors = cms.untracked.PSet(
-        placeholder = cms.untracked.bool(True)
     ),
     cerr = cms.untracked.PSet(
         INFO = cms.untracked.PSet(
@@ -46,16 +37,7 @@ MessageLogger = cms.Service("MessageLogger",
         threshold = cms.untracked.string('INFO'),
         output = cms.untracked.string('cerr')
     ),
-    infos = cms.untracked.PSet(
-        Root_NoDictionary = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        placeholder = cms.untracked.bool(True)
-    ),
-    destinations = cms.untracked.vstring('warnings', 
-        'errors', 
-        'infos', 
-        'debugs', 
+    destinations = cms.untracked.vstring(
         'cout', 
         'cerr'),
     debugModules = cms.untracked.vstring(),
