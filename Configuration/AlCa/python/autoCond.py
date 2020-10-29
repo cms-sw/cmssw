@@ -34,7 +34,7 @@ autoCond = {
     # GlobalTag for Run2 data relvals: allows customization to run with fixed L1 menu
     'run2_data_relval'  :   '112X_dataRun2_relval_v5',
     # GlobalTag for Run2 HI data
-    'run2_data_promptlike_hi' : '112X_dataRun2_PromptLike_HI_v2',
+    'run2_data_promptlike_hi' : '112X_dataRun2_PromptLike_HI_v3',
     # GlobalTag for Run1 HLT: it points to the online GT
     'run1_hlt'          :   '101X_dataRun2_HLT_frozen_v10',
     # GlobalTag for Run2 HLT: it points to the online GT
@@ -75,7 +75,7 @@ autoCond = {
     # GlobalTag for MC production (cosmics) with realistic conditions for Phase1 2021,  Strip tracker in DECO mode
     'phase1_2021_cosmics'      : '112X_mcRun3_2021cosmics_realistic_deco_v10',
     # GlobalTag for MC production with realistic conditions for Phase1 2021 detector for Heavy Ion
-    'phase1_2021_realistic_hi' : '112X_mcRun3_2021_realistic_HI_v11',
+    'phase1_2021_realistic_hi' : '112X_mcRun3_2021_realistic_HI_v12',
     # GlobalTag for MC production with realistic conditions for Phase1 2023
     'phase1_2023_realistic'    : '112X_mcRun3_2023_realistic_v10', # GT containing realistic conditions for Phase1 2023
     # GlobalTag for MC production with realistic conditions for Phase1 2024
