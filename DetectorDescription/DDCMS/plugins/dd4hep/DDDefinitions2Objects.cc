@@ -2058,7 +2058,7 @@ static long load_dddefinition(Detector& det, xml_h element) {
 
     string fname = xml::DocumentHandler::system_path(element);
     bool open_geometry = dddef.hasChild(DD_CMU(open_geometry)) ? dddef.child(DD_CMU(open_geometry)) : true;
-    bool close_geometry = dddef.hasChild(DD_CMU(close_geometry)) ? dddef.hasChild(DD_CMU(close_geometry)) : true;
+    bool close_geometry = dddef.hasChild(DD_CMU(close_geometry)) ? dddef.hasChild(DD_CMU(close_geometry)) : false;
 
     xml_coll_t(dddef, _U(debug)).for_each(Converter<debug>(det, &context));
 
@@ -2242,6 +2242,11 @@ static long load_dddefinition(Detector& det, xml_h element) {
       Volume mfv1 = ns.volume("MagneticFieldVolumes:MAGF", false);
       if (mfv1.isValid())
         wv.placeVolume(mfv1, 1);
+
+      // Can not deal with reflections without closed geometry
+      det.manager().CloseGeometry();
+      // Convert reflections via TGeo reflection factory
+      det.manager().ConvertReflections();
 
       det.endDocument();
     }
