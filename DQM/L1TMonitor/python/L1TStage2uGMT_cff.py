@@ -125,8 +125,11 @@ l1tStage2BmtfOutVsuGMTIn = DQMEDAnalyzer(
     summaryTitle = cms.untracked.string("Summary of comparison between BMTF output muons and uGMT input muons from BMTF"),
     ignoreBin = cms.untracked.vint32(ignoreBins['Bmtf']),
     verbose = cms.untracked.bool(False),
-    isBmtf = cms.untracked.bool(True),
 )
+
+## Era: Run3_2021; Displaced muons from BMTF used in uGMT from Run-3
+from Configuration.Eras.Modifier_stage2L1Trigger_2021_cff import stage2L1Trigger_2021
+stage2L1Trigger_2021.toModify(l1tStage2BmtfOutVsuGMTIn, isBmtf = cms.untracked.bool(True))
 
 # compares the unpacked OMTF output regional muon collection with the unpacked uGMT input regional muon collection from OMTF
 # only muons that do not match are filled in the histograms
