@@ -27,6 +27,12 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "RecoEcal/EgammaCoreTools/interface/Mustache.h"
+#include "CondFormats/EcalObjects/interface/EcalMustacheSCParameters.h"
+#include "CondFormats/DataRecord/interface/EcalMustacheSCParametersRcd.h"
+#include "RecoEcal/EgammaCoreTools/interface/MustacheSCParametersHelper.h"
+#include "CondFormats/EcalObjects/interface/EcalSCDynamicDPhiParameters.h"
+#include "CondFormats/DataRecord/interface/EcalSCDynamicDPhiParametersRcd.h"
+#include "RecoEcal/EgammaCoreTools/interface/SCDynamicDPhiParametersHelper.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 
 #include "TTree.h"
@@ -73,6 +79,7 @@ public:
   PFEGCandidateTreeMaker(const PSet&);
   ~PFEGCandidateTreeMaker() {}
 
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void analyze(const edm::Event&, const edm::EventSetup&);
 
 private:
@@ -89,6 +96,13 @@ private:
                                   const reco::PFCandidateRef&,
                                   const edm::Handle<reco::PFCandidateCollection>&);
   bool getPFCandMatch(const reco::PFCandidate&, const edm::Handle<reco::PFCandidateCollection>&, const int);
+
+  // SC parameters
+  edm::ESGetToken<EcalMustacheSCParameters, EcalMustacheSCParametersRcd> ecalMustacheSCParametersToken_;
+  std::shared_ptr<reco::MustacheSCParametersHelper> mustacheSCParamsHelper_;
+  edm::ESGetToken<EcalSCDynamicDPhiParameters, EcalSCDynamicDPhiParametersRcd> ecalSCDynamicDPhiParametersToken_;
+  std::shared_ptr<reco::SCDynamicDPhiParametersHelper> scDynamicDPhiParamsHelper_;
+
   // the tree
   void setTreeArraysForSize(const size_t N_ECAL, const size_t N_PS);
   treeptr _tree;
@@ -106,6 +120,13 @@ private:
   Int_t N_PSClusters;
   std::vector<Float_t> psClusterRawEnergy, psClusterEta, psClusterPhi;
 };
+
+void PFEGCandidateTreeMaker::beginRun(const edm::Run&, const edm::EventSetup &iSetup) {
+  edm::ESHandle<EcalMustacheSCParameters> ecalMustacheSCParamsHandle_ = iSetup.getHandle(ecalMustacheSCParametersToken_);
+  mustacheSCParamsHelper_ = std::make_shared<reco::MustacheSCParametersHelper>(*ecalMustacheSCParamsHandle_.product());
+  edm::ESHandle<EcalSCDynamicDPhiParameters> ecalSCDynamicDPhiParametersHandle_ = iSetup.getHandle(ecalSCDynamicDPhiParametersToken_);
+  scDynamicDPhiParamsHelper_ = std::make_shared<reco::SCDynamicDPhiParametersHelper>(*ecalSCDynamicDPhiParametersHandle_.product());
+}
 
 void PFEGCandidateTreeMaker::analyze(const edm::Event& e, const edm::EventSetup& es) {
   edm::Handle<reco::VertexCollection> vtcs;
@@ -257,9 +278,9 @@ void PFEGCandidateTreeMaker::processEGCandidateFillTree(const edm::Event& e,
       clusterDPhiToGen[iclus] = TVector2::Phi_mpi_pi(pclus->phi() - genmatch->phi());
       clusterDEtaToGen[iclus] = pclus->eta() - genmatch->eta();
     }
-    clusterInMustache[iclus] = (Int_t)reco::MustacheKernel::inMustache(
+    clusterInMustache[iclus] = (Int_t)reco::MustacheKernel::inMustache(mustacheSCParamsHelper_,
         theseed->eta(), theseed->phi(), pclus->energy(), pclus->eta(), pclus->phi());
-    clusterInDynDPhi[iclus] = (Int_t)reco::MustacheKernel::inDynamicDPhiWindow(
+    clusterInDynDPhi[iclus] = (Int_t)reco::MustacheKernel::inDynamicDPhiWindow(scDynamicDPhiParamsHelper_,
         PFLayer::ECAL_BARREL == pclus->layer(), theseed->phi(), pclus->energy(), pclus->eta(), pclus->phi());
     ++iclus;
   }
@@ -307,6 +328,9 @@ bool PFEGCandidateTreeMaker::getPFCandMatch(const reco::PFCandidate& cand,
 }
 
 PFEGCandidateTreeMaker::PFEGCandidateTreeMaker(const PSet& p) {
+  ecalMustacheSCParametersToken_ = esConsumes<EcalMustacheSCParameters, EcalMustacheSCParametersRcd, edm::Transition::BeginRun>();
+  ecalSCDynamicDPhiParametersToken_ = esConsumes<EcalSCDynamicDPhiParameters, EcalSCDynamicDPhiParametersRcd, edm::Transition::BeginRun>();
+
   N_ECALClusters = 1;
   N_PSClusters = 1;
   _tree = _fs->make<TTree>("SuperClusterTree", "Dump of all available SC info");
