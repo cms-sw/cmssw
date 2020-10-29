@@ -3,25 +3,16 @@ import FWCore.ParameterSet.Config as cms
 MessageLogger = cms.Service("MessageLogger",
     suppressInfo = cms.untracked.vstring(),
     suppressFwkInfo = cms.untracked.vstring(),
-    debugs = cms.untracked.PSet(
-        placeholder = cms.untracked.bool(True)
-    ),
     suppressDebug = cms.untracked.vstring(),
     cout = cms.untracked.PSet(
-        placeholder = cms.untracked.bool(True)
-    ),
-    warnings = cms.untracked.PSet(
         placeholder = cms.untracked.bool(True)
     ),
     default = cms.untracked.PSet(
 
     ),
-    errors = cms.untracked.PSet(
-        placeholder = cms.untracked.bool(True)
-    ),
     cerr = cms.untracked.PSet(
         optionalPSet = cms.untracked.bool(True),
-    INFO = cms.untracked.PSet(
+        INFO = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         noTimeStamps = cms.untracked.bool(False),
@@ -51,18 +42,7 @@ MessageLogger = cms.Service("MessageLogger",
         threshold = cms.untracked.string('WARNING'),
         output = cms.untracked.string('cerr')
     ),
-    infos = cms.untracked.PSet(
-        placeholder = cms.untracked.bool(True),
-        optionalPSet = cms.untracked.bool(True),
-        Root_NoDictionary = cms.untracked.PSet(
-            optionalPSet = cms.untracked.bool(True),
-            limit = cms.untracked.int32(0)
-        ),
-    ),
-    destinations = cms.untracked.vstring('warnings', 
-        'errors', 
-        'infos', 
-        'debugs', 
+    destinations = cms.untracked.vstring(
         'cout', 
         'cerr'),
     debugModules = cms.untracked.vstring(),
