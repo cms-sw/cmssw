@@ -84,7 +84,13 @@ phase2TrackerDigitizer = cms.PSet(
 #Pixel Digitizer Algorithm
     PixelDigitizerAlgorithm   = PixelDigitizerAlgorithmCommon.clone(),
 #Pixel-3D Digitizer Algorithm
-    Pixel3DDigitizerAlgorithm = PixelDigitizerAlgorithmCommon.clone(SigmaCoeff = cms.double(1.80)),
+    Pixel3DDigitizerAlgorithm = PixelDigitizerAlgorithmCommon.clone(
+        SigmaCoeff = cms.double(1.80),
+        NPColumnRadius = cms.double(4.0),
+        OhmicColumnRadius = cms.double(4.0),
+        NPColumnGap = cms.double(46.0)
+    ),
+
 #Pixel in PS Module
     PSPDigitizerAlgorithm = cms.PSet(
       ElectronPerAdc = cms.double(135.0),
@@ -202,11 +208,6 @@ phase2TrackerDigitizer = cms.PSet(
         CBCDeadTime = cms.double(0.0) # (2.7 ns deadtime in latched mode)
     )
 )
-
-# Add some additional parameters for 3D pixels
-phase2TrackerDigitizer.Pixel3DDigitizerAlgorithm.NPColumnRadius = cms.double(4.0)
-phase2TrackerDigitizer.Pixel3DDigitizerAlgorithm.OhmicColumnRadius = cms.double(4.0)
-phase2TrackerDigitizer.Pixel3DDigitizerAlgorithm.NPColumnGap = cms.double(46.0)
 
 # For premixing stage1
 # - add noise as by default
