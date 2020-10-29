@@ -25,7 +25,7 @@ int EcalBaseNumber::getCopyNumber(int level) const { return _sortedCopyNumber[le
 
 int EcalBaseNumber::getCopyNumber(const std::string& levelName) const {
   for (int iLevel = 0; iLevel < _theLevels; iLevel++) {
-    if (_sortedName[iLevel].find(levelName) != std::string::npos) {
+    if (_sortedName[iLevel] == levelName) {
       return _sortedCopyNumber[iLevel];
     }
   }

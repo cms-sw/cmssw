@@ -51,7 +51,6 @@ private:
 
   void getBaseNumber(const G4Step *);
   double getBirkL3(const G4Step *);
-  std::string getNameNoNS(const std::string &name);
 
   // initialised before run
   const EcalSimulationParameters *ecalSimParameters_;
