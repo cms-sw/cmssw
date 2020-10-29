@@ -53,14 +53,20 @@ private:
   FloatArrays data_;
 };
 
-const std::vector<unsigned> DeepVertexONNXJetTagsProducer::input_sizes_{
-    n_features_global_, n_seed_* n_features_seed_, n_neighbor_* n_features_neighbor_, 
-    n_neighbor_* n_features_neighbor_, n_neighbor_* n_features_neighbor_, n_neighbor_* n_features_neighbor_,
-     n_neighbor_* n_features_neighbor_, n_neighbor_* n_features_neighbor_, n_neighbor_* n_features_neighbor_,
-      n_neighbor_* n_features_neighbor_, n_neighbor_* n_features_neighbor_, n_neighbor_* n_features_neighbor_};
+const std::vector<unsigned> DeepVertexONNXJetTagsProducer::input_sizes_{n_features_global_,
+                                                                        n_seed_* n_features_seed_,
+                                                                        n_neighbor_* n_features_neighbor_,
+                                                                        n_neighbor_* n_features_neighbor_,
+                                                                        n_neighbor_* n_features_neighbor_,
+                                                                        n_neighbor_* n_features_neighbor_,
+                                                                        n_neighbor_* n_features_neighbor_,
+                                                                        n_neighbor_* n_features_neighbor_,
+                                                                        n_neighbor_* n_features_neighbor_,
+                                                                        n_neighbor_* n_features_neighbor_,
+                                                                        n_neighbor_* n_features_neighbor_,
+                                                                        n_neighbor_* n_features_neighbor_};
 
-DeepVertexONNXJetTagsProducer::DeepVertexONNXJetTagsProducer(const edm::ParameterSet& iConfig,
-                                                               const ONNXRuntime* cache)
+DeepVertexONNXJetTagsProducer::DeepVertexONNXJetTagsProducer(const edm::ParameterSet& iConfig, const ONNXRuntime* cache)
     : src_(consumes<TagInfoCollection>(iConfig.getParameter<edm::InputTag>("src"))),
       flav_names_(iConfig.getParameter<std::vector<std::string>>("flav_names")),
       input_names_(iConfig.getParameter<std::vector<std::string>>("input_names")),
@@ -79,12 +85,22 @@ void DeepVertexONNXJetTagsProducer::fillDescriptions(edm::ConfigurationDescripti
   // pfDeepFlavourJetTags
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag("pfDeepFlavourTagInfos"));
-  desc.add<std::vector<std::string>>("input_names", {"input_1", "input_2", "input_3", "input_4", "input_5", "input_6", "input_7", "input_8", "input_9", "input_10", "input_11", "input_12"});
-  desc.add<edm::FileInPath>("model_path",
-                            edm::FileInPath("RecoBTag/Combined/data/DeepVertex/phase1_deepvertex.onnx"));
+  desc.add<std::vector<std::string>>("input_names",
+                                     {"input_1",
+                                      "input_2",
+                                      "input_3",
+                                      "input_4",
+                                      "input_5",
+                                      "input_6",
+                                      "input_7",
+                                      "input_8",
+                                      "input_9",
+                                      "input_10",
+                                      "input_11",
+                                      "input_12"});
+  desc.add<edm::FileInPath>("model_path", edm::FileInPath("RecoBTag/Combined/data/DeepVertex/phase1_deepvertex.onnx"));
   desc.add<std::vector<std::string>>("output_names", {"dense_6"});
-  desc.add<std::vector<std::string>>(
-      "flav_names", std::vector<std::string>{"probb", "probc", "probuds", "probg"});
+  desc.add<std::vector<std::string>>("flav_names", std::vector<std::string>{"probb", "probc", "probuds", "probg"});
 
   descriptions.add("pfDeepVertexJetTags", desc);
 }
@@ -108,32 +124,32 @@ void DeepVertexONNXJetTagsProducer::produce(edm::Event& iEvent, const edm::Event
       output_tags.emplace_back(std::make_unique<JetTagCollection>(ref2prod));
     }
 
-//     std::cout << "intializing data storage" << std::endl;
+    //     std::cout << "intializing data storage" << std::endl;
     // init data storage
     data_.clear();
     for (const auto& len : input_sizes_) {
       data_.emplace_back(tag_infos->size() * len, 0);
     }
-//     std::cout << "make inoputs" << std::endl;
+    //     std::cout << "make inoputs" << std::endl;
     // convert inputs
     for (unsigned jet_n = 0; jet_n < tag_infos->size(); ++jet_n) {
       const auto& taginfo = (*tag_infos)[jet_n];
       make_inputs(jet_n, taginfo);
     }
-     
-//     std::cout << "run the predictions" << std::endl;
+
+    //     std::cout << "run the predictions" << std::endl;
     // run prediction
     auto outputs = globalCache()->run(input_names_, data_, {}, output_names_, tag_infos->size())[0];
     assert(outputs.size() == flav_names_.size() * tag_infos->size());
 
     // get the outputs
-//     std::cout << "get predictions" << std::endl;
+    //     std::cout << "get predictions" << std::endl;
     unsigned i_output = 0;
     for (unsigned jet_n = 0; jet_n < tag_infos->size(); ++jet_n) {
       const auto& jet_ref = tag_infos->at(jet_n).jet();
       for (std::size_t flav_n = 0; flav_n < flav_names_.size(); flav_n++) {
         (*(output_tags[flav_n]))[jet_ref] = outputs[i_output];
-//         std::cout <<  outputs[i_output] << " my outttt  " << flav_names_[flav_n] << std::endl;
+        //         std::cout <<  outputs[i_output] << " my outttt  " << flav_names_[flav_n] << std::endl;
         ++i_output;
       }
     }
@@ -202,50 +218,48 @@ void DeepVertexONNXJetTagsProducer::make_inputs(unsigned i_jet, const reco::Deep
   // neighbours
   offset = i_jet * input_sizes_[kNeighbourTracks];
   for (std::size_t seed_n = 0; seed_n < max_seed_n; seed_n++) {
-      const auto& neighbourTracks_features = features.seed_features.at(seed_n).nearTracks;
-      auto max_neighbour_n = std::min(neighbourTracks_features.size(), (std::size_t)25);
-      for (std::size_t neighbour_n = 0; neighbour_n < max_neighbour_n; neighbour_n++) {
-          ptr = &data_[kNeighbourTracks+seed_n][offset + neighbour_n * n_features_neighbor_];
-          start = ptr;
-          *ptr = neighbourTracks_features[neighbour_n].pt;
-          *(++ptr) = neighbourTracks_features[neighbour_n].eta;
-          *(++ptr) = neighbourTracks_features[neighbour_n].phi;
-          *(++ptr) = neighbourTracks_features[neighbour_n].dz;
-          *(++ptr) = neighbourTracks_features[neighbour_n].dxy;
-          *(++ptr) = neighbourTracks_features[neighbour_n].mass;
-          *(++ptr) = neighbourTracks_features[neighbour_n].ip3D;
-          *(++ptr) = neighbourTracks_features[neighbour_n].sip3D;
-          *(++ptr) = neighbourTracks_features[neighbour_n].ip2D;
-          *(++ptr) = neighbourTracks_features[neighbour_n].sip2D;
-          *(++ptr) = neighbourTracks_features[neighbour_n].distPCA;
-          *(++ptr) = neighbourTracks_features[neighbour_n].dsigPCA;
-          *(++ptr) = neighbourTracks_features[neighbour_n].x_PCAonSeed;
-          *(++ptr) = neighbourTracks_features[neighbour_n].y_PCAonSeed;
-          *(++ptr) = neighbourTracks_features[neighbour_n].z_PCAonSeed;
-          *(++ptr) = neighbourTracks_features[neighbour_n].xerr_PCAonSeed;
-          *(++ptr) = neighbourTracks_features[neighbour_n].yerr_PCAonSeed;
-          *(++ptr) = neighbourTracks_features[neighbour_n].zerr_PCAonSeed;
-          *(++ptr) = neighbourTracks_features[neighbour_n].x_PCAonTrack;
-          *(++ptr) = neighbourTracks_features[neighbour_n].y_PCAonTrack;
-          *(++ptr) = neighbourTracks_features[neighbour_n].z_PCAonTrack;
-          *(++ptr) = neighbourTracks_features[neighbour_n].xerr_PCAonTrack;
-          *(++ptr) = neighbourTracks_features[neighbour_n].yerr_PCAonTrack;
-          *(++ptr) = neighbourTracks_features[neighbour_n].zerr_PCAonTrack;
-          *(++ptr) = neighbourTracks_features[neighbour_n].dotprodTrack;
-          *(++ptr) = neighbourTracks_features[neighbour_n].dotprodSeed;
-          *(++ptr) = neighbourTracks_features[neighbour_n].dotprodTrackSeed2D;
-          *(++ptr) = neighbourTracks_features[neighbour_n].dotprodTrackSeed3D;
-          *(++ptr) = neighbourTracks_features[neighbour_n].dotprodTrackSeedVectors2D;
-          *(++ptr) = neighbourTracks_features[neighbour_n].dotprodTrackSeedVectors3D;
-          *(++ptr) = neighbourTracks_features[neighbour_n].pvd_PCAonSeed;
-          *(++ptr) = neighbourTracks_features[neighbour_n].pvd_PCAonTrack;
-          *(++ptr) = neighbourTracks_features[neighbour_n].dist_PCAjetAxis;
-          *(++ptr) = neighbourTracks_features[neighbour_n].dotprod_PCAjetMomenta;
-          *(++ptr) = neighbourTracks_features[neighbour_n].deta_PCAjetDirs;
-          *(++ptr) = neighbourTracks_features[neighbour_n].dphi_PCAjetDirs;
-          assert(start + n_features_neighbor_ - 1 == ptr);
-          
-          
+    const auto& neighbourTracks_features = features.seed_features.at(seed_n).nearTracks;
+    auto max_neighbour_n = std::min(neighbourTracks_features.size(), (std::size_t)25);
+    for (std::size_t neighbour_n = 0; neighbour_n < max_neighbour_n; neighbour_n++) {
+      ptr = &data_[kNeighbourTracks + seed_n][offset + neighbour_n * n_features_neighbor_];
+      start = ptr;
+      *ptr = neighbourTracks_features[neighbour_n].pt;
+      *(++ptr) = neighbourTracks_features[neighbour_n].eta;
+      *(++ptr) = neighbourTracks_features[neighbour_n].phi;
+      *(++ptr) = neighbourTracks_features[neighbour_n].dz;
+      *(++ptr) = neighbourTracks_features[neighbour_n].dxy;
+      *(++ptr) = neighbourTracks_features[neighbour_n].mass;
+      *(++ptr) = neighbourTracks_features[neighbour_n].ip3D;
+      *(++ptr) = neighbourTracks_features[neighbour_n].sip3D;
+      *(++ptr) = neighbourTracks_features[neighbour_n].ip2D;
+      *(++ptr) = neighbourTracks_features[neighbour_n].sip2D;
+      *(++ptr) = neighbourTracks_features[neighbour_n].distPCA;
+      *(++ptr) = neighbourTracks_features[neighbour_n].dsigPCA;
+      *(++ptr) = neighbourTracks_features[neighbour_n].x_PCAonSeed;
+      *(++ptr) = neighbourTracks_features[neighbour_n].y_PCAonSeed;
+      *(++ptr) = neighbourTracks_features[neighbour_n].z_PCAonSeed;
+      *(++ptr) = neighbourTracks_features[neighbour_n].xerr_PCAonSeed;
+      *(++ptr) = neighbourTracks_features[neighbour_n].yerr_PCAonSeed;
+      *(++ptr) = neighbourTracks_features[neighbour_n].zerr_PCAonSeed;
+      *(++ptr) = neighbourTracks_features[neighbour_n].x_PCAonTrack;
+      *(++ptr) = neighbourTracks_features[neighbour_n].y_PCAonTrack;
+      *(++ptr) = neighbourTracks_features[neighbour_n].z_PCAonTrack;
+      *(++ptr) = neighbourTracks_features[neighbour_n].xerr_PCAonTrack;
+      *(++ptr) = neighbourTracks_features[neighbour_n].yerr_PCAonTrack;
+      *(++ptr) = neighbourTracks_features[neighbour_n].zerr_PCAonTrack;
+      *(++ptr) = neighbourTracks_features[neighbour_n].dotprodTrack;
+      *(++ptr) = neighbourTracks_features[neighbour_n].dotprodSeed;
+      *(++ptr) = neighbourTracks_features[neighbour_n].dotprodTrackSeed2D;
+      *(++ptr) = neighbourTracks_features[neighbour_n].dotprodTrackSeed3D;
+      *(++ptr) = neighbourTracks_features[neighbour_n].dotprodTrackSeedVectors2D;
+      *(++ptr) = neighbourTracks_features[neighbour_n].dotprodTrackSeedVectors3D;
+      *(++ptr) = neighbourTracks_features[neighbour_n].pvd_PCAonSeed;
+      *(++ptr) = neighbourTracks_features[neighbour_n].pvd_PCAonTrack;
+      *(++ptr) = neighbourTracks_features[neighbour_n].dist_PCAjetAxis;
+      *(++ptr) = neighbourTracks_features[neighbour_n].dotprod_PCAjetMomenta;
+      *(++ptr) = neighbourTracks_features[neighbour_n].deta_PCAjetDirs;
+      *(++ptr) = neighbourTracks_features[neighbour_n].dphi_PCAjetDirs;
+      assert(start + n_features_neighbor_ - 1 == ptr);
     }
   }
 }
