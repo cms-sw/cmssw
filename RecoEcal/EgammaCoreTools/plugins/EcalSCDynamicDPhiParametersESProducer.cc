@@ -33,7 +33,7 @@
 class EcalSCDynamicDPhiParametersESProducer : public edm::ESProducer {
  public:
   EcalSCDynamicDPhiParametersESProducer(const edm::ParameterSet&);
-  ~EcalSCDynamicDPhiParametersESProducer();
+  ~EcalSCDynamicDPhiParametersESProducer() override;
 
   using ReturnType = std::unique_ptr<EcalSCDynamicDPhiParameters>;
 
