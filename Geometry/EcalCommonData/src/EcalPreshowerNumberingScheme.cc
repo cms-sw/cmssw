@@ -106,8 +106,7 @@ uint32_t EcalPreshowerNumberingScheme::getUnitID(const EcalBaseNumber& baseNumbe
     }
 
     // Z index +Z = 1 ; -Z = 2
-    //  int zs = baseNumber.getCopyNumber("EREG");
-    int zs = baseNumber.getCopyNumber(5);
+    int zs = baseNumber.getCopyNumber("EREG");
     int zside = 2 * (1 - zs) + 1;
 
     // box number
