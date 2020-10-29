@@ -4,10 +4,27 @@ process = cms.Process("DQM")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 
-#ESProducer                                                                                                                                                                                                      
-process.load("CondCore.CondDB.CondDB_cfi")                                                                                                                                                                       
-process.BeamSpotDBSource = cms.ESSource("PoolDBESSource",                                                                                                                                                        
-                       process.CondDB,                                                                                                                                                                          
+process.load("CondCore.CondDB.CondDB_cfi")
+process.BeamSpotDBSource = cms.ESSource("PoolDBESSource",
+                                        process.CondDB,
+                                        toGet = cms.VPSet(
+                                            cms.PSet(
+                                                record = cms.string('BeamSpotOnlineLegacyObjectsRcd'),
+                                                tag = cms.string("BeamSpotOnlineTestLegacy"),
+                                                refreshTime = cms.uint64(1)
+                                            ),
+                                            cms.PSet(
+                                                record = cms.string('BeamSpotOnlineHLTObjectsRcd'),
+                                                tag = cms.string("BeamSpotOnlineTestHLT"),
+                                                refreshTime = cms.uint64(1)
+
+                                            ),
+                                ),
+                                        )
+process.BeamSpotDBSource.connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS') 
+process.BeamSpotESProducer = cms.ESProducer("OnlineBeamSpotESProducer")
+
+
                                         toGet = cms.VPSet(                                                                                                                                                       
                             cms.PSet(                                                                                                                                                                            
                                 record = cms.string('BeamSpotOnlineLegacyObjectsRcd'),                                                                                                                           
