@@ -33,7 +33,7 @@
 class EcalMustacheSCParametersESProducer : public edm::ESProducer {
  public:
   EcalMustacheSCParametersESProducer(const edm::ParameterSet&);
-  ~EcalMustacheSCParametersESProducer();
+  ~EcalMustacheSCParametersESProducer() override;
 
   using ReturnType = std::unique_ptr<EcalMustacheSCParameters>;
 
