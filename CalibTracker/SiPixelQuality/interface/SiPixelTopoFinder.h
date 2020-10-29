@@ -24,15 +24,15 @@ public:
               const TrackerTopology* trackerTopology,
               const SiPixelFedCablingMap* siPixelFedCablingMap);
 
-  std::vector<int> getDetIds() { return fDetIds_; }
+  std::vector<int> getDetIds() const { return fDetIds_; }
 
-  std::map<int, std::pair<int, int>> getSensors() { return fSensors_; }
+  std::map<int, std::pair<int, int>> getSensors() const { return fSensors_; }
 
-  std::map<int, std::pair<int, int>> getSensorLayout() { return fSensorLayout_; }
+  std::map<int, std::pair<int, int>> getSensorLayout() const { return fSensorLayout_; }
 
-  std::unordered_map<uint32_t, unsigned int> getFedIds() { return fFedIds_; }
+  std::unordered_map<uint32_t, unsigned int> getFedIds() const { return fFedIds_; }
 
-  std::map<int, std::map<int, int>> getRocIds() { return fRocIds_; }
+  std::map<int, std::map<int, int>> getRocIds() const { return fRocIds_; }
 
 private:
 

@@ -167,6 +167,8 @@ public:
 
    /*|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
 
+   void beginRun(edm::Run const&, edm::EventSetup const&) final; 
+
    void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) final;
    //void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) final {}
 
@@ -211,6 +213,32 @@ private:
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyToken_;
   edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> siPixelFedCablingMapToken_;
   */
+
+  /*|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
+  /* private data member, one instance per stream */
+
+  /* per-Run data (The pixel topo cannot be changed during a Run) */
+  /* vector of all <int> detIds */
+  std::vector<int> fDetIds_;
+  /* ROC size (number of row, number of columns for each det id) */
+  std::map<int, std::pair<int, int>> fSensors_;
+  /* the roc layout on a module */
+  std::map<int, std::pair<int, int>> fSensorLayout_;
+  /* fedId as a function of detId */
+  std::unordered_map<uint32_t, unsigned int> fFedIds_;
+  /* map the index ROC to rocId */
+  std::map<int, std::map<int, int>> fRocIds_;
+
+  /* per-LuminosityBlock data */
+  unsigned long int ftotalevents_;
+
+  int beginLumi_;
+  int endLumi_;
+  int beginRun_;
+  int endRun_;
+
+  /* Channels always have FEDerror25 for all events in the lumisection */
+  std::map<int, std::vector<PixelFEDChannel>> fFEDerror25_;
 
   // Producer production (output collection)
   SiPixelDetectorStatus fDet_;
