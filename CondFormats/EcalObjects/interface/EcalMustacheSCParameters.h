@@ -7,9 +7,9 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 class EcalMustacheSCParameters {
- public:
-  EcalMustacheSCParameters() {};
-  ~EcalMustacheSCParameters() {};
+public:
+  EcalMustacheSCParameters(){};
+  ~EcalMustacheSCParameters(){};
 
   struct ParabolaParameters {
     double log10EMin;
@@ -30,8 +30,8 @@ class EcalMustacheSCParameters {
     params.print(out);
     return out;
   }
-  
- protected:
+
+protected:
   float sqrtLogClustETuning_;
 
   // collection is expected to be sorted in descending ParabolaParameters.etaMax and ascending ParabolaParameters.minEt
@@ -41,4 +41,3 @@ class EcalMustacheSCParameters {
 };
 
 #endif
-

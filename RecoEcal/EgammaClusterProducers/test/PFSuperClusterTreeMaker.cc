@@ -121,11 +121,14 @@ private:
   std::shared_ptr<Float_t> psClusterRawEnergy, psClusterEta, psClusterPhi;
 };
 
-void PFSuperClusterTreeMaker::beginRun(const edm::Run&, const edm::EventSetup &iSetup) {
-  edm::ESHandle<EcalMustacheSCParameters> ecalMustacheSCParamsHandle_ = iSetup.getHandle(ecalMustacheSCParametersToken_);
+void PFSuperClusterTreeMaker::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
+  edm::ESHandle<EcalMustacheSCParameters> ecalMustacheSCParamsHandle_ =
+      iSetup.getHandle(ecalMustacheSCParametersToken_);
   mustacheSCParamsHelper_ = std::make_shared<reco::MustacheSCParametersHelper>(*ecalMustacheSCParamsHandle_.product());
-  edm::ESHandle<EcalSCDynamicDPhiParameters> ecalSCDynamicDPhiParametersHandle_ = iSetup.getHandle(ecalSCDynamicDPhiParametersToken_);
-  scDynamicDPhiParamsHelper_ = std::make_shared<reco::SCDynamicDPhiParametersHelper>(*ecalSCDynamicDPhiParametersHandle_.product());
+  edm::ESHandle<EcalSCDynamicDPhiParameters> ecalSCDynamicDPhiParametersHandle_ =
+      iSetup.getHandle(ecalSCDynamicDPhiParametersToken_);
+  scDynamicDPhiParamsHelper_ =
+      std::make_shared<reco::SCDynamicDPhiParametersHelper>(*ecalSCDynamicDPhiParametersHandle_.product());
 }
 
 void PFSuperClusterTreeMaker::analyze(const edm::Event& e, const edm::EventSetup& es) {
@@ -282,11 +285,11 @@ void PFSuperClusterTreeMaker::processSuperClusterFillTree(const edm::Event& e, c
       clusterDPhiToGen.get()[iclus] = TVector2::Phi_mpi_pi((*clus)->phi() - genmatch->phi());
       clusterDEtaToGen.get()[iclus] = (*clus)->eta() - genmatch->eta();
     }
-    clusterInMustache.get()[iclus] =
-        (Int_t)MK::inMustache(mustacheSCParamsHelper_, theseed->eta(), theseed->phi(), (*clus)->energy(), (*clus)->eta(), (*clus)->phi());
+    clusterInMustache.get()[iclus] = (Int_t)MK::inMustache(
+        mustacheSCParamsHelper_, theseed->eta(), theseed->phi(), (*clus)->energy(), (*clus)->eta(), (*clus)->phi());
 
-    clusterInDynDPhi.get()[iclus] = (Int_t)MK::inDynamicDPhiWindow(scDynamicDPhiParamsHelper_,
-        theseed->eta(), theseed->phi(), (*clus)->energy(), (*clus)->eta(), (*clus)->phi());
+    clusterInDynDPhi.get()[iclus] = (Int_t)MK::inDynamicDPhiWindow(
+        scDynamicDPhiParamsHelper_, theseed->eta(), theseed->phi(), (*clus)->energy(), (*clus)->eta(), (*clus)->phi());
     ++iclus;
   }
   // loop over all preshower clusters
@@ -304,8 +307,10 @@ void PFSuperClusterTreeMaker::processSuperClusterFillTree(const edm::Event& e, c
 }
 
 PFSuperClusterTreeMaker::PFSuperClusterTreeMaker(const PSet& p) {
-  ecalMustacheSCParametersToken_ = esConsumes<EcalMustacheSCParameters, EcalMustacheSCParametersRcd, edm::Transition::BeginRun>();
-  ecalSCDynamicDPhiParametersToken_ = esConsumes<EcalSCDynamicDPhiParameters, EcalSCDynamicDPhiParametersRcd, edm::Transition::BeginRun>();
+  ecalMustacheSCParametersToken_ =
+      esConsumes<EcalMustacheSCParameters, EcalMustacheSCParametersRcd, edm::Transition::BeginRun>();
+  ecalSCDynamicDPhiParametersToken_ =
+      esConsumes<EcalSCDynamicDPhiParameters, EcalSCDynamicDPhiParametersRcd, edm::Transition::BeginRun>();
 
   _calib.reset(new PFEnergyCalibration());
   N_ECALClusters = 1;

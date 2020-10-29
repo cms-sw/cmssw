@@ -20,6 +20,7 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class EcalSCDynamicDPhiParametersRcd : public edm::eventsetup::EventSetupRecordImplementation<EcalSCDynamicDPhiParametersRcd> {};
+class EcalSCDynamicDPhiParametersRcd
+    : public edm::eventsetup::EventSetupRecordImplementation<EcalSCDynamicDPhiParametersRcd> {};
 
 #endif

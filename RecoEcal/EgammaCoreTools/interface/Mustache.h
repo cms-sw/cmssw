@@ -10,16 +10,24 @@
 
 namespace reco {
   namespace MustacheKernel {
-    bool inMustache(const std::shared_ptr<MustacheSCParametersHelper> &params,
-        const float maxEta, const float maxPhi, const float ClustE, const float ClusEta, const float ClusPhi);
-    bool inDynamicDPhiWindow(const std::shared_ptr<SCDynamicDPhiParametersHelper> &params,
-        const float seedEta, const float seedPhi, const float ClustE, const float ClusEta, const float clusPhi);
+    bool inMustache(const std::shared_ptr<MustacheSCParametersHelper>& params,
+                    const float maxEta,
+                    const float maxPhi,
+                    const float ClustE,
+                    const float ClusEta,
+                    const float ClusPhi);
+    bool inDynamicDPhiWindow(const std::shared_ptr<SCDynamicDPhiParametersHelper>& params,
+                             const float seedEta,
+                             const float seedPhi,
+                             const float ClustE,
+                             const float ClusEta,
+                             const float clusPhi);
 
   }  // namespace MustacheKernel
 
   class Mustache {
   public:
-    Mustache(const std::shared_ptr<MustacheSCParametersHelper> &mustache_params_helper);
+    Mustache(const std::shared_ptr<MustacheSCParametersHelper>& mustache_params_helper);
 
     void MustacheID(const CaloClusterPtrVector& clusters, int& nclusters, float& EoutsideMustache);
     void MustacheID(const std::vector<const CaloCluster*>&, int& nclusers, float& EoutsideMustache);

@@ -6,20 +6,19 @@
 
 namespace reco {
 
-class MustacheSCParametersHelper : public EcalMustacheSCParameters {
- public:
-  MustacheSCParametersHelper(const EcalMustacheSCParameters &params);
-  MustacheSCParametersHelper(const edm::ParameterSet& iConfig);
-  ~MustacheSCParametersHelper() {};
+  class MustacheSCParametersHelper : public EcalMustacheSCParameters {
+  public:
+    MustacheSCParametersHelper(const EcalMustacheSCParameters &params);
+    MustacheSCParametersHelper(const edm::ParameterSet &iConfig);
+    ~MustacheSCParametersHelper(){};
 
-  float sqrtLogClustETuning() const;
-  void setSqrtLogClustETuning(const float sqrtLogClustETuning);
+    float sqrtLogClustETuning() const;
+    void setSqrtLogClustETuning(const float sqrtLogClustETuning);
 
-  ParabolaParameters parabolaParameters(float log10ClustE, float absSeedEta) const;
-  void addParabolaParameters(const EcalMustacheSCParameters::ParabolaParameters &params);
-};
+    ParabolaParameters parabolaParameters(float log10ClustE, float absSeedEta) const;
+    void addParabolaParameters(const EcalMustacheSCParameters::ParabolaParameters &params);
+  };
 
-} // namespace reco
+}  // namespace reco
 
 #endif
-
