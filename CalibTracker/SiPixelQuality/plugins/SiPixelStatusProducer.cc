@@ -46,9 +46,25 @@ SiPixelStatusProducer::SiPixelStatusProducer(const edm::ParameterSet& iConfig,  
   produces<SiPixelDetectorStatus, edm::Transition::EndLuminosityBlock>("siPixelStatus");
 }
 
-//--------------------------------------------------------------------------------------------------
 SiPixelStatusProducer::~SiPixelStatusProducer() {}
 
+//--------------------------------------------------------------------------------------------------
+
+void SiPixelStatusProducer::beginRun(edm::Run const&, edm::EventSetup const&) {
+
+  /* update the std::map for pixel geo/topo */
+  /* vector of all <int> detIds */
+  fDetIds_ = runCache()->getDetIds();//getDetIds();
+  /* ROC size (number of row, number of columns for each det id) */
+  fSensors_ = runCache()->getSensors();
+  /* the roc layout on a module */
+  fSensorLayout_ = runCache()->getSensorLayout();
+  /* fedId as a function of detId */
+  fFedIds_ = runCache()->getFedIds();
+  /* map the index ROC to rocId */
+  fRocIds_ = runCache()->getRocIds();
+
+}
 
 
 void SiPixelStatusProducer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
