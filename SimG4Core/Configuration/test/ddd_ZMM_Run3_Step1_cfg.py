@@ -19,9 +19,9 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.Geometry.GeometryExtended2021_cff') # there w
 
-#if hasattr(process,'MessageLogger'):
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.categories.append('EcalGeom')
 #    process.MessageLogger.categories.append('Geometry')
-#    process.MessageLogger.categories.append('EcalGeom')
 #    process.MessageLogger.categories.append("TrackerGeometryBuilder");
 #    process.MessageLogger.categories.append("TrackerSimInfoNumbering");
 
