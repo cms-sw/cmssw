@@ -1,5 +1,5 @@
-#ifndef DetLayers_MTDDetLayerGeometry_h
-#define DetLayers_MTDDetLayerGeometry_h
+#ifndef RecoMTD_DetLayers_MTDDetLayerGeometry_h
+#define RecoMTD_DetLayers_MTDDetLayerGeometry_h
 
 /** \class MTDDetLayerGeometry
  *

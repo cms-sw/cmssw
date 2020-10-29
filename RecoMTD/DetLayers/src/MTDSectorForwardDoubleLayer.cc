@@ -1,19 +1,12 @@
 //#define EDM_ML_DEBUG
 
-/** \file
- *
- *  \author L. Gray
- */
-
-#include <RecoMTD/DetLayers/interface/MTDRingForwardDoubleLayer.h>
-#include <RecoMTD/DetLayers/interface/MTDDetRing.h>
+#include <RecoMTD/DetLayers/interface/MTDSectorForwardDoubleLayer.h>
+#include <RecoMTD/DetLayers/interface/MTDDetSector.h>
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
 #include <DataFormats/GeometrySurface/interface/SimpleDiskBounds.h>
 #include <TrackingTools/GeomPropagators/interface/Propagator.h>
 #include <TrackingTools/DetLayers/interface/MeasurementEstimator.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
-
-#include <DataFormats/ForwardDetId/interface/ETLDetId.h>
 
 #include <algorithm>
 #include <iostream>
@@ -21,35 +14,36 @@
 
 using namespace std;
 
-MTDRingForwardDoubleLayer::MTDRingForwardDoubleLayer(const vector<const ForwardDetRing*>& frontRings,
-                                                     const vector<const ForwardDetRing*>& backRings)
-    : RingedForwardLayer(true),
-      theFrontLayer(frontRings),
-      theBackLayer(backRings),
-      theRings(frontRings),  // add back later
+MTDSectorForwardDoubleLayer::MTDSectorForwardDoubleLayer(const vector<const MTDDetSector*>& frontSectors,
+                                                         const vector<const MTDDetSector*>& backSectors)
+    : ForwardDetLayer(true),
+      theFrontLayer(frontSectors),
+      theBackLayer(backSectors),
+      theSectors(frontSectors),  // add back later
       theComponents(),
       theBasicComponents() {
-  theRings.insert(theRings.end(), backRings.begin(), backRings.end());
-  theComponents = std::vector<const GeometricSearchDet*>(theRings.begin(), theRings.end());
+  theSectors.insert(theSectors.end(), backSectors.begin(), backSectors.end());
+  theComponents = std::vector<const GeometricSearchDet*>(theSectors.begin(), theSectors.end());
 
   // Cache chamber pointers (the basic components_)
   // and find extension in R and Z
-  for (vector<const ForwardDetRing*>::const_iterator it = theRings.begin(); it != theRings.end(); it++) {
-    vector<const GeomDet*> tmp2 = (*it)->basicComponents();
+  for (const auto& isect : theSectors) {
+    vector<const GeomDet*> tmp2 = isect->basicComponents();
     theBasicComponents.insert(theBasicComponents.end(), tmp2.begin(), tmp2.end());
   }
 
   setSurface(computeSurface());
 
-  LogTrace("MTDDetLayers") << "Constructing MTDRingForwardDoubleLayer: " << basicComponents().size() << " Dets "
-                           << theRings.size() << " Rings "
-                           << " Z: " << specificSurface().position().z() << " R1: " << specificSurface().innerRadius()
-                           << " R2: " << specificSurface().outerRadius();
+  LogTrace("MTDDetLayers") << "Constructing MTDSectorForwardDoubleLayer: " << std::fixed << std::setw(14)
+                           << basicComponents().size() << " Dets " << std::setw(14) << theSectors.size() << " Sectors "
+                           << " Z: " << std::setw(14) << specificSurface().position().z() << " R1: " << std::setw(14)
+                           << specificSurface().innerRadius() << " R2: " << std::setw(14)
+                           << specificSurface().outerRadius();
 
   selfTest();
 }
 
-BoundDisk* MTDRingForwardDoubleLayer::computeSurface() {
+BoundDisk* MTDSectorForwardDoubleLayer::computeSurface() {
   const BoundDisk& frontDisk = theFrontLayer.specificSurface();
   const BoundDisk& backDisk = theBackLayer.specificSurface();
 
@@ -68,28 +62,28 @@ BoundDisk* MTDRingForwardDoubleLayer::computeSurface() {
   return new BoundDisk(pos, rot, new SimpleDiskBounds(rmin, rmax, zmin - zPos, zmax - zPos));
 }
 
-bool MTDRingForwardDoubleLayer::isInsideOut(const TrajectoryStateOnSurface& tsos) const {
+bool MTDSectorForwardDoubleLayer::isInsideOut(const TrajectoryStateOnSurface& tsos) const {
   return tsos.globalPosition().basicVector().dot(tsos.globalMomentum().basicVector()) > 0;
 }
 
-std::pair<bool, TrajectoryStateOnSurface> MTDRingForwardDoubleLayer::compatible(
+std::pair<bool, TrajectoryStateOnSurface> MTDSectorForwardDoubleLayer::compatible(
     const TrajectoryStateOnSurface& startingState, const Propagator& prop, const MeasurementEstimator& est) const {
   // mostly copied from ForwardDetLayer, except propagates to closest surface,
   // not to center
 
   bool insideOut = isInsideOut(startingState);
-  const MTDRingForwardLayer& closerLayer = (insideOut) ? theFrontLayer : theBackLayer;
-  LogTrace("MTDDetLayers") << "MTDRingForwardDoubleLayer::compatible is assuming inside-out direction: " << insideOut;
+  const MTDSectorForwardLayer& closerLayer = (insideOut) ? theFrontLayer : theBackLayer;
+  LogTrace("MTDDetLayers") << "MTDSectorForwardDoubleLayer::compatible is assuming inside-out direction: " << insideOut;
 
   TrajectoryStateOnSurface myState = prop.propagate(startingState, closerLayer.specificSurface());
   if (!myState.isValid())
     return make_pair(false, myState);
 
   // take into account the thickness of the layer
-  float deltaR = surface().bounds().thickness() / 2. * fabs(tan(myState.localDirection().theta()));
+  float deltaR = surface().bounds().thickness() / 2. * std::abs(tan(myState.localDirection().theta()));
 
   // take into account the error on the predicted state
-  const float nSigma = 3.;
+  constexpr float nSigma = 3.;
   if (myState.hasError()) {
     LocalError err = myState.localError().positionError();
     // ignore correlation for the moment...
@@ -102,13 +96,13 @@ std::pair<bool, TrajectoryStateOnSurface> MTDRingForwardDoubleLayer::compatible(
   return make_pair(tmp.inside(myState.localPosition()), myState);
 }
 
-vector<GeometricSearchDet::DetWithState> MTDRingForwardDoubleLayer::compatibleDets(
+vector<GeometricSearchDet::DetWithState> MTDSectorForwardDoubleLayer::compatibleDets(
     const TrajectoryStateOnSurface& startingState, const Propagator& prop, const MeasurementEstimator& est) const {
   vector<DetWithState> result;
   pair<bool, TrajectoryStateOnSurface> compat = compatible(startingState, prop, est);
 
   if (!compat.first) {
-    LogTrace("MTDDetLayers") << "     MTDRingForwardDoubleLayer::compatibleDets: not compatible"
+    LogTrace("MTDDetLayers") << "     MTDSectorForwardDoubleLayer::compatibleDets: not compatible"
                              << " (should not have been selected!)";
     return result;
   }
@@ -119,23 +113,24 @@ vector<GeometricSearchDet::DetWithState> MTDRingForwardDoubleLayer::compatibleDe
   // groupedCompatibleDets implemented.
   // This code should be moved in a common place intead of being
   // copied many times.
-  vector<DetGroup> vectorGroups = groupedCompatibleDets(tsos, prop, est);
+  vector<DetGroup> vectorGroups(groupedCompatibleDets(tsos, prop, est));
   for (const auto& thisDG : vectorGroups) {
     for (const auto& thisDGE : thisDG) {
       result.emplace_back(DetWithState(thisDGE.det(), thisDGE.trajectoryState()));
     }
   }
+
   return result;
 }
 
-vector<DetGroup> MTDRingForwardDoubleLayer::groupedCompatibleDets(const TrajectoryStateOnSurface& startingState,
-                                                                  const Propagator& prop,
-                                                                  const MeasurementEstimator& est) const {
+vector<DetGroup> MTDSectorForwardDoubleLayer::groupedCompatibleDets(const TrajectoryStateOnSurface& startingState,
+                                                                    const Propagator& prop,
+                                                                    const MeasurementEstimator& est) const {
   vector<GeometricSearchDet::DetWithState> detWithStates1, detWithStates2;
 
   LogTrace("MTDDetLayers") << "groupedCompatibleDets are currently given always in inside-out order";
   // this should be fixed either in RecoMTD/MeasurementDet/MTDDetLayerMeasurements or
-  // RecoMTD/DetLayers/MTDRingForwardDoubleLayer
+  // RecoMTD/DetLayers/MTDSectorForwardDoubleLayer
 
   detWithStates1 = theFrontLayer.compatibleDets(startingState, prop, est);
   detWithStates2 = theBackLayer.compatibleDets(startingState, prop, est);
@@ -149,48 +144,31 @@ vector<DetGroup> MTDRingForwardDoubleLayer::groupedCompatibleDets(const Trajecto
   return result;
 }
 
-bool MTDRingForwardDoubleLayer::isCrack(const GlobalPoint& gp) const {
-  // approximate
+bool MTDSectorForwardDoubleLayer::isCrack(const GlobalPoint& gp) const {
   bool result = false;
-  double r = gp.perp();
-  const std::vector<const ForwardDetRing*>& backRings = theBackLayer.rings();
-  if (backRings.size() > 1) {
-    const MTDDetRing* innerRing = dynamic_cast<const MTDDetRing*>(backRings[0]);
-    const MTDDetRing* outerRing = dynamic_cast<const MTDDetRing*>(backRings[1]);
-    assert(innerRing && outerRing);
-    float crackInner = innerRing->specificSurface().outerRadius();
-    float crackOuter = outerRing->specificSurface().innerRadius();
-    LogTrace("MTDDetLayers") << "In a crack:" << crackInner << " " << r << " " << crackOuter;
-    if (r > crackInner && r < crackOuter)
-      return true;
-  }
-  // non-overlapping rings
+  LogTrace("MTDDetLayers")
+      << "MTDSectorForwardDoubleLayer::isCrack kept only for backward compatibility, no real implementation";
   return result;
 }
 
-void MTDRingForwardDoubleLayer::selfTest() const {
+void MTDSectorForwardDoubleLayer::selfTest() const {
   const std::vector<const GeomDet*>& frontDets = theFrontLayer.basicComponents();
   const std::vector<const GeomDet*>& backDets = theBackLayer.basicComponents();
 
-  for (int iring = 0; iring <= ETLDetId::kETLv1maxRing; iring++) {
-    float frontz(0.);
-    float backz(1e3f);
-    for (const auto& thisFront : frontDets) {
-      if (static_cast<ETLDetId>(thisFront->geographicalId().rawId()).mtdRR() == iring) {
-        float tmpz(std::abs(thisFront->surface().position().z()));
-        if (tmpz > frontz) {
-          frontz = tmpz;
-        }
-      }
+  // test that each front z is less than each back z
+  float frontz(0.);
+  float backz(1e3f);
+  for (const auto& thisFront : frontDets) {
+    float tmpz(std::abs(thisFront->surface().position().z()));
+    if (tmpz > frontz) {
+      frontz = tmpz;
     }
-    for (const auto& thisBack : backDets) {
-      if (static_cast<ETLDetId>(thisBack->geographicalId().rawId()).mtdRR() == iring) {
-        float tmpz(std::abs(thisBack->surface().position().z()));
-        if (tmpz < backz) {
-          backz = tmpz;
-        }
-      }
-    }
-    assert(frontz < backz);
   }
+  for (const auto& thisBack : backDets) {
+    float tmpz(std::abs(thisBack->surface().position().z()));
+    if (tmpz < backz) {
+      backz = tmpz;
+    }
+  }
+  assert(frontz < backz);
 }

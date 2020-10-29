@@ -37,10 +37,7 @@ pair<bool, TrajectoryStateOnSurface> MTDDetTray::compatible(const TrajectoryStat
                                                             const Propagator& prop,
                                                             const MeasurementEstimator& est) const {
   TrajectoryStateOnSurface ms = prop.propagate(ts, specificSurface());
-  if (ms.isValid())
-    return make_pair(est.estimate(ms, specificSurface()) != 0, ms);
-  else
-    return make_pair(false, ms);
+  return make_pair(ms.isValid() and est.estimate(ms, specificSurface()) != 0, ms);
 }
 
 vector<GeometricSearchDet::DetWithState> MTDDetTray::compatibleDets(const TrajectoryStateOnSurface& startingState,
