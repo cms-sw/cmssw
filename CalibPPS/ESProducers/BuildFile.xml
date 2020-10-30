@@ -1,0 +1,10 @@
+  <use name="FWCore/Framework"/>
+  <use name="Utilities/Xerces"/>
+  <use name="CondFormats/DataRecord"/>
+  <use name="CondFormats/PPSObjects"/>
+  <use name="DataFormats/CTPPSDetId"/>
+  <use name="CondFormats/RunInfo"/>
+  <use name="clhep"/>
+<export>
+  <lib name="1"/>
+</export>
