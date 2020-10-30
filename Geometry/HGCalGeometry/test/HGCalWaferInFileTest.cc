@@ -257,8 +257,14 @@ std::vector<std::string> HGCalWaferInFileTest::getPoints(
   static const int corners = 6;
   static const int base = 10;
   static const std::string c0[corners] = {"A0", "B0", "C0", "D0", "E0", "F0"};
-  double dx0[corners] = {0.0, HGCalTypes::c10 * delX, HGCalTypes::c10 * delX, 0.0, -HGCalTypes::c10 * delX, -HGCalTypes::c10 * delX};
-  double dy0[corners] = {-HGCalTypes::c10 * delY, -HGCalTypes::c50 * delY, HGCalTypes::c50 * delY, HGCalTypes::c10 * delY, HGCalTypes::c50 * delY, -HGCalTypes::c50 * delY};
+  double dx0[corners] = {
+      0.0, HGCalTypes::c10 * delX, HGCalTypes::c10 * delX, 0.0, -HGCalTypes::c10 * delX, -HGCalTypes::c10 * delX};
+  double dy0[corners] = {-HGCalTypes::c10 * delY,
+                         -HGCalTypes::c50 * delY,
+                         HGCalTypes::c50 * delY,
+                         HGCalTypes::c10 * delY,
+                         HGCalTypes::c50 * delY,
+                         -HGCalTypes::c50 * delY};
   double xc[corners], yc[corners];
   int ncor(0), iok(0);
   for (int k = 0; k < corners; ++k) {
@@ -446,8 +452,14 @@ std::vector<std::string> HGCalWaferInFileTest::getPoints(
 std::vector<double> HGCalWaferInFileTest::getCorners(double xpos, double ypos, double delX, double delY) {
   std::vector<double> points;
   static const int corners = 6;
-  double dx0[corners] = {0.0, HGCalTypes::c10 * delX, HGCalTypes::c10 * delX, 0.0, -HGCalTypes::c10 * delX, -HGCalTypes::c10 * delX};
-  double dy0[corners] = {-HGCalTypes::c10 * delY, -HGCalTypes::c50 * delY, HGCalTypes::c50 * delY, HGCalTypes::c10 * delY, HGCalTypes::c50 * delY, -HGCalTypes::c50 * delY};
+  double dx0[corners] = {
+      0.0, HGCalTypes::c10 * delX, HGCalTypes::c10 * delX, 0.0, -HGCalTypes::c10 * delX, -HGCalTypes::c10 * delX};
+  double dy0[corners] = {-HGCalTypes::c10 * delY,
+                         -HGCalTypes::c50 * delY,
+                         HGCalTypes::c50 * delY,
+                         HGCalTypes::c10 * delY,
+                         HGCalTypes::c50 * delY,
+                         -HGCalTypes::c50 * delY};
   for (int k = 0; k < corners; ++k) {
     double xc = xpos + dx0[k];
     double yc = ypos + dy0[k];
@@ -476,10 +488,22 @@ std::pair<bool, std::string> HGCalWaferInFileTest::getPoints(double xpos,
   static const std::string c0[corners] = {"A0", "B0", "C0", "D0", "E0", "F0"};
   static const std::string c1[corners] = {"A2", "B2", "C2", "D2", "E2", "F2"};
   static const std::string c2[corner2] = {"A1", "A3", "B1", "B3", "C1", "C3", "D1", "D3", "E1", "E3", "F1", "F3"};
-  double dx0[corners] = {0.0, HGCalTypes::c10 * delX, HGCalTypes::c10 * delX, 0.0, -HGCalTypes::c10 * delX, -HGCalTypes::c10 * delX};
-  double dy0[corners] = {-HGCalTypes::c10 * delY, -HGCalTypes::c50 * delY, HGCalTypes::c50 * delY, HGCalTypes::c10 * delY, HGCalTypes::c50 * delY, -HGCalTypes::c50 * delY};
-  double dx1[corners] = {HGCalTypes::c50 * delX, HGCalTypes::c10 * delX, HGCalTypes::c50 * delX, -HGCalTypes::c50 * delX, -HGCalTypes::c10 * delX, -HGCalTypes::c50 * delX};
-  double dy1[corners] = {-HGCalTypes::c75 * delY, 0.0, HGCalTypes::c75 * delY, HGCalTypes::c75 * delY, 0.0, -HGCalTypes::c75 * delY};
+  double dx0[corners] = {
+      0.0, HGCalTypes::c10 * delX, HGCalTypes::c10 * delX, 0.0, -HGCalTypes::c10 * delX, -HGCalTypes::c10 * delX};
+  double dy0[corners] = {-HGCalTypes::c10 * delY,
+                         -HGCalTypes::c50 * delY,
+                         HGCalTypes::c50 * delY,
+                         HGCalTypes::c10 * delY,
+                         HGCalTypes::c50 * delY,
+                         -HGCalTypes::c50 * delY};
+  double dx1[corners] = {HGCalTypes::c50 * delX,
+                         HGCalTypes::c10 * delX,
+                         HGCalTypes::c50 * delX,
+                         -HGCalTypes::c50 * delX,
+                         -HGCalTypes::c10 * delX,
+                         -HGCalTypes::c50 * delX};
+  double dy1[corners] = {
+      -HGCalTypes::c75 * delY, 0.0, HGCalTypes::c75 * delY, HGCalTypes::c75 * delY, 0.0, -HGCalTypes::c75 * delY};
   double dx2[corner2] = {HGCalTypes::c22 * delX,
                          HGCalTypes::c77 * delX,
                          HGCalTypes::c10 * delX,
