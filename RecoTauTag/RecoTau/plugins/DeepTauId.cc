@@ -536,7 +536,6 @@ namespace {
     }
     auto getFlightLengthSig(const pat::Tau& tau, const size_t tau_index) const { return tau.flightLengthSig(); }
 
-
     auto getLeadingTrackNormChi2(const reco::PFTau& tau) { return reco::tau::lead_track_chi2(tau); }
     auto getLeadingTrackNormChi2(const pat::Tau& tau) { return tau.leadingTrackNormChi2(); }
     auto getEmFraction(const pat::Tau& tau) { return tau.emFraction_MVA(); }
