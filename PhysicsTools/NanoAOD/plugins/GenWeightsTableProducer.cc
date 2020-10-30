@@ -968,7 +968,7 @@ public:
           if (keepAllPSWeights_) {
             weightChoice->psWeightIDs.push_back(weightIter);  // PS variations
           } else if (std::regex_search(line, groups, mainPSw)) {
-            if (weightChoice->psWeightIDs.size() == 0)
+            if (weightChoice->psWeightIDs.empty())
               weightChoice->psWeightIDs = std::vector<unsigned int>(4, -1);
             int psIdx = (line.find("fsr") != std::string::npos) ? 1 : 0;
             psIdx += (groups.str(2) == "Hi" || groups.str(2) == "_up" || groups.str(2) == "2.0") ? 0 : 2;
