@@ -28,7 +28,7 @@ public:
 
 private:
   void dumpTouch(G4VPhysicalVolume *pv, unsigned int leafDepth);
-  std::string noRefl(const std::string& name);
+  std::string noRefl(const std::string &name);
 
   EcalBarrelNumberingScheme ebNumbering_;
   EcalEndcapNumberingScheme eeNumbering_;
