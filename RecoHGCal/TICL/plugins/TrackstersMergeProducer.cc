@@ -352,13 +352,12 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
             for (auto otherTracksterIdx : trackstersTRKwithSameSeed) {
               tmpCandidate.addTrackster(edm::Ptr<ticl::Trackster>(trackstersMergedHandle, otherTracksterIdx));
               raw_energy += trackstersMergedHandle->at(otherTracksterIdx).raw_energy();
-
             }
             tmpCandidate.setRawEnergy(raw_energy);
             math::XYZTLorentzVector p4(raw_energy * t.barycenter().unit().x(),
-                               raw_energy * t.barycenter().unit().y(),
-                               raw_energy * t.barycenter().unit().z(),
-                               raw_energy);
+                                       raw_energy * t.barycenter().unit().y(),
+                                       raw_energy * t.barycenter().unit().z(),
+                                       raw_energy);
             tmpCandidate.setP4(p4);
             resultCandidates->push_back(tmpCandidate);
 
@@ -376,9 +375,9 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
 
             tmpCandidate.setRawEnergy(raw_energy);
             math::XYZTLorentzVector p4(raw_energy * t.barycenter().unit().x(),
-                               raw_energy * t.barycenter().unit().y(),
-                               raw_energy * t.barycenter().unit().z(),
-                               raw_energy);
+                                       raw_energy * t.barycenter().unit().y(),
+                                       raw_energy * t.barycenter().unit().z(),
+                                       raw_energy);
             tmpCandidate.setP4(p4);
             resultCandidates->push_back(tmpCandidate);
           }
@@ -404,15 +403,15 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
             tmpCandidate.setPdgId(211 * track.charge());
             for (auto otherTracksterIdx : trackstersTRKwithSameSeed) {
               tmpCandidate.addTrackster(edm::Ptr<ticl::Trackster>(trackstersMergedHandle, otherTracksterIdx));
-              raw_energy +=trackstersMergedHandle->at(otherTracksterIdx).raw_energy();
+              raw_energy += trackstersMergedHandle->at(otherTracksterIdx).raw_energy();
             }
             tmpCandidate.setRawEnergy(raw_energy);
             float momentum = std::sqrt(raw_energy * raw_energy - mpion2);
             const auto &barycenter = trackstersMergedHandle->at(closestTrackster).barycenter();
             math::XYZTLorentzVector p4(momentum * barycenter.unit().x(),
-                                      momentum * barycenter.unit().y(),
-                                      momentum * barycenter.unit().z(),
-                                      t.raw_energy());
+                                       momentum * barycenter.unit().y(),
+                                       momentum * barycenter.unit().z(),
+                                       t.raw_energy());
             tmpCandidate.setP4(p4);
             resultCandidates->push_back(tmpCandidate);
 
@@ -425,14 +424,14 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
             tmpCandidate.setTrackPtr(edm::Ptr<reco::Track>(track_h, trackIdx));
             for (auto otherTracksterIdx : trackstersTRKwithSameSeed) {
               tmpCandidate.addTrackster(edm::Ptr<ticl::Trackster>(trackstersMergedHandle, otherTracksterIdx));
-              raw_energy +=trackstersMergedHandle->at(otherTracksterIdx).raw_energy();
+              raw_energy += trackstersMergedHandle->at(otherTracksterIdx).raw_energy();
             }
             tmpCandidate.setPdgId(11 * track.charge());
             tmpCandidate.setRawEnergy(raw_energy);
             math::XYZTLorentzVector p4(raw_energy * t.barycenter().unit().x(),
-                               raw_energy * t.barycenter().unit().y(),
-                               raw_energy * t.barycenter().unit().z(),
-                               raw_energy);
+                                       raw_energy * t.barycenter().unit().y(),
+                                       raw_energy * t.barycenter().unit().z(),
+                                       raw_energy);
             tmpCandidate.setP4(p4);
             resultCandidates->push_back(tmpCandidate);
           }
@@ -477,8 +476,10 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
         tmpCandidate.setRawEnergy(t.raw_energy());
         float momentum = std::sqrt(t.raw_energy() * t.raw_energy() - mpion2);
 
-        math::XYZTLorentzVector p4(
-            momentum * barycenter.unit().x(), momentum * barycenter.unit().y(), momentum * barycenter.unit().z(), t.raw_energy());
+        math::XYZTLorentzVector p4(momentum * barycenter.unit().x(),
+                                   momentum * barycenter.unit().y(),
+                                   momentum * barycenter.unit().z(),
+                                   t.raw_energy());
         tmpCandidate.setP4(p4);
         resultCandidates->push_back(tmpCandidate);
       }
