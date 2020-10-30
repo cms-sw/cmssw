@@ -4,6 +4,11 @@ from Validation.CTPPS.simu_config.base_cff import *
 
 # geometry
 from Geometry.VeryForwardGeometry.geometryRPFromDD_2017_cfi import * # using 2017 here is OK
+del ctppsGeometryESModule
+
+from CalibPPS.ESProducers.ctppsInterpolatedOpticalFunctionsESSource_cfi import *
+ctppsInterpolatedOpticalFunctionsESSource.lhcInfoLabel = ""
+ctppsInterpolatedOpticalFunctionsESSource.opticsLabel = ""
 
 # local reconstruction
 ctppsLocalTrackLiteProducer.includeStrips = True
@@ -22,3 +27,8 @@ rpIds = cms.PSet(
   rp_56_N = cms.uint32(102),
   rp_56_F = cms.uint32(103)
 )
+
+#load profiles
+from Validation.CTPPS.simu_config.year_2016_preTS2_cff import profile_2016_preTS2
+from Validation.CTPPS.simu_config.year_2016_postTS2_cff import profile_2016_postTS2
+ctppsCompositeESSource.periods=[profile_2016_postTS2,profile_2016_preTS2]

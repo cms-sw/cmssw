@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+from CalibPPS.ESProducers.CTPPSCompositeESSource_cfi import *
 # load standard files
 from RecoPPS.ProtonReconstruction.ctppsProtons_cff import *
 
@@ -12,40 +13,15 @@ from RecoPPS.ProtonReconstruction.ctppsProtons_cff import *
 #del esPreferLocalOptics
 del ctppsInterpolatedOpticalFunctionsESSource
 
-# beam parameters as declared by LHC
-ctppsLHCInfoESSource = cms.ESSource("CTPPSLHCInfoESSource",
-  label = cms.string(""),
-  validityRange = cms.EventRange("0:min - 999999:max"),
-  beamEnergy = cms.double(6500),  # GeV
-  xangle = cms.double(-1),  # murad
-  betaStar = cms.double(-1)
-)
 
 # beam parameters as determined by PPS
-ctppsBeamParametersESSource = cms.ESSource("CTPPSBeamParametersESSource",
-  setBeamPars = cms.bool(True),
-
-  #  beam momentum  (GeV)
-  beamMom45 = cms.double(6500.),
-  beamMom56 = cms.double(6500.),
-
-  #  beta*  (cm)
-  betaStarX45 = cms.double(0.),
-  betaStarX56 = cms.double(0.),
-  betaStarY45 = cms.double(0.),
-  betaStarY56 = cms.double(0.),
+ctppsBeamParametersFromLHCInfoESSource = cms.ESProducer("CTPPSBeamParametersFromLHCInfoESSource",
 
   #  beam divergence  (rad)
   beamDivX45 = cms.double(30E-6),
   beamDivX56 = cms.double(30E-6),
   beamDivY45 = cms.double(30E-6),
   beamDivY56 = cms.double(30E-6),
-
-  #  half crossing angle  (rad)
-  halfXangleX45 = cms.double(-1),
-  halfXangleX56 = cms.double(-1),
-  halfXangleY45 = cms.double(0.),
-  halfXangleY56 = cms.double(0.),
 
   #  vertex offset  (cm)
   vtxOffsetX45 = cms.double(0.),
@@ -54,14 +30,12 @@ ctppsBeamParametersESSource = cms.ESSource("CTPPSBeamParametersESSource",
   vtxOffsetY56 = cms.double(0.),
   vtxOffsetZ45 = cms.double(0.),
   vtxOffsetZ56 = cms.double(0.),
-  vtxOffsetT45 = cms.double(0.),
-  vtxOffsetT56 = cms.double(0.),
 
   #  vertex sigma  (cm)
   vtxStddevX = cms.double(10E-4),
   vtxStddevY = cms.double(10E-4),
   vtxStddevZ = cms.double(5),
-  vtxStddevT = cms.double(6)
+  lhcInfoLabel=cms.string("")
 )
 
 # particle-data table
@@ -78,7 +52,7 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
 # default source
 source = cms.Source("EmptySource",
   firstRun = cms.untracked.uint32(1),
-  numberEventsInLuminosityBlock = cms.untracked.uint32(10)
+  numberEventsInLuminosityBlock=cms.untracked.uint32(100)
 )
 
 # particle generator
@@ -117,8 +91,54 @@ ctppsLocalTrackLiteProducer.includeDiamonds = False
 # proton reconstruction
 ctppsProtons.tagLocalTrackLite = cms.InputTag('ctppsLocalTrackLiteProducer')
 
-#----------------------------------------------------------------------------------------------------
+#xangle/beta*
+default_xangle_beta_star_file = "CalibPPS/ESProducers/data/xangle_beta_distributions/version1.root"
 
+#----------------------------------------------------------------------------------------------------
+#profile structure
+profile=cms.PSet(
+  L_i=cms.double(1),
+  #LHCInfo
+  ctppsLHCInfo = cms.PSet(
+	xangle=cms.double(-1),
+	betaStar=cms.double(-1),
+  	beamEnergy = cms.double(6500),  # GeV
+  	xangleBetaStarHistogramFile=cms.string(default_xangle_beta_star_file),
+  	xangleBetaStarHistogramObject=cms.string("")
+  ),
+
+  #Optics
+  ctppsOpticalFunctions = cms.PSet(
+  	opticalFunctions=cms.VPSet(),
+  	scoringPlanes=cms.VPSet()
+  ),
+  #geometry
+  xmlIdealGeometry=cms.PSet(
+	geomXMLFiles=cms.string(""),
+	rootNodeName=cms.string("")
+
+  ),
+  #alignment
+  ctppsRPAlignmentCorrectionsDataXML=cms.PSet(
+	MeasuredFiles=cms.vstring(),
+	RealFiles=cms.vstring(""),
+	MisalignedFiles=cms.vstring("")
+  ),
+
+  #direct simu data
+  ctppsDirectSimuData=cms.PSet(
+	useEmpiricalApertures=cms.bool(False),
+	empiricalAperture45=cms.string(""),
+	empiricalAperture56=cms.string(""),
+	timeResolutionDiamonds45=cms.string("999"),
+	timeResolutionDiamonds56=cms.string("999"),
+	useTimeEfficiencyCheck=cms.bool(False),
+	effTimePath=cms.string(""),
+	effTimeObject45=cms.string(""),
+	effTimeObject56=cms.string("")
+  )
+)
+#----------------------------------------------------------------------------------------------------
 def SetSmearingLevel1(obj):
   obj.vtxStddevX = 0E-4
   obj.vtxStddevZ = 0
@@ -167,36 +187,13 @@ def SetLowTheta(process):
 def SetLargeTheta(process):
   pass
 
-# xangle in murad
-def UseCrossingAngle(xangle, process):
-  process.ctppsLHCInfoESSource.xangle = xangle
-  process.ctppsBeamParametersESSource.halfXangleX45 = xangle * 1E-6
-  process.ctppsBeamParametersESSource.halfXangleX56 = xangle * 1E-6
 
-default_xangle_beta_star_file = "CalibPPS/ESProducers/data/xangle_beta_distributions/version1.root"
+def UseConstantXangleBetaStar(process, xangle, betaStar):
+  for p in ctppsCompositeESSource.periods:
+	  p.ctppsLHCInfo.xangle = xangle
+	  p.ctppsLHCInfo.betaStar = betaStar
 
-def UseXangleBetaStarHistogram(process, f, obj):
-  process.load("CalibPPS.ESProducers.ctppsLHCInfoRandomXangleESSource_cfi")
-  process.ctppsLHCInfoRandomXangleESSource.generateEveryNEvents = 10 # this is to be synchronised with source.numberEventsInLuminosityBlock
-  process.ctppsLHCInfoRandomXangleESSource.xangleBetaStarHistogramFile = f
-  process.ctppsLHCInfoRandomXangleESSource.xangleBetaStarHistogramObject = obj
-  process.ctppsLHCInfoRandomXangleESSource.beamEnergy = ctppsLHCInfoESSource.beamEnergy
-
-  del process.ctppsLHCInfoESSource
-
-  process.load("CalibPPS.ESProducers.ctppsBeamParametersFromLHCInfoESSource_cfi")
-  process.ctppsBeamParametersFromLHCInfoESSource.beamDivX45 = process.ctppsBeamParametersESSource.beamDivX45
-  process.ctppsBeamParametersFromLHCInfoESSource.beamDivX56 = process.ctppsBeamParametersESSource.beamDivX56
-  process.ctppsBeamParametersFromLHCInfoESSource.beamDivY45 = process.ctppsBeamParametersESSource.beamDivY45
-  process.ctppsBeamParametersFromLHCInfoESSource.beamDivY56 = process.ctppsBeamParametersESSource.beamDivY56
-  process.ctppsBeamParametersFromLHCInfoESSource.vtxOffsetX45 = process.ctppsBeamParametersESSource.vtxOffsetX45
-  process.ctppsBeamParametersFromLHCInfoESSource.vtxOffsetX56 = process.ctppsBeamParametersESSource.vtxOffsetX56
-  process.ctppsBeamParametersFromLHCInfoESSource.vtxOffsetY45 = process.ctppsBeamParametersESSource.vtxOffsetY45
-  process.ctppsBeamParametersFromLHCInfoESSource.vtxOffsetY56 = process.ctppsBeamParametersESSource.vtxOffsetY56
-  process.ctppsBeamParametersFromLHCInfoESSource.vtxOffsetZ45 = process.ctppsBeamParametersESSource.vtxOffsetZ45
-  process.ctppsBeamParametersFromLHCInfoESSource.vtxOffsetZ56 = process.ctppsBeamParametersESSource.vtxOffsetZ56
-  process.ctppsBeamParametersFromLHCInfoESSource.vtxStddevX = process.ctppsBeamParametersESSource.vtxStddevX
-  process.ctppsBeamParametersFromLHCInfoESSource.vtxStddevY = process.ctppsBeamParametersESSource.vtxStddevY
-  process.ctppsBeamParametersFromLHCInfoESSource.vtxStddevZ = process.ctppsBeamParametersESSource.vtxStddevZ
-
-  del process.ctppsBeamParametersESSource
+def UseXangleBetaStarHistogram(process,f, obj):
+  for p in ctppsCompositeESSource.periods:
+  	p.ctppsLHCInfo.xangleBetaStarHistogramFile = f
+  	p.ctppsLHCInfo.xangleBetaStarHistogramObject = obj

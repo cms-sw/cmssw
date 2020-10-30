@@ -66,5 +66,17 @@
     <class name="LHCOpticalFunctionsSetCollection"/>
     <class name="LHCInterpolatedOpticalFunctionsSet"/>
     <class name="LHCInterpolatedOpticalFunctionsSetCollection"/>
+
+    <class name="PPSDirectSimulationData"  class_version="0">
+      <field name="useEmpiricalApertures"/>
+      <field name="empiricalAperture45"/>
+      <field name="empiricalAperture56"/>
+      <field name="timeResolutionDiamonds45"/>
+      <field name="timeResolutionDiamonds56"/>
+      <field name="useTimeEfficiencyCheck"/>
+      <field name="effTimePath"/>
+      <field name="effTimeObject45"/>
+      <field name="effTimeObject56"/>
+    </class>
 </lcgdict>
 

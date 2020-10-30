@@ -6,5 +6,13 @@
   <use name="CondFormats/PPSObjects"/>
   <use name="DataFormats/CTPPSDetId"/>
   <use name="CondFormats/RunInfo"/>
+  <use name="FWCore/MessageLogger"/>
   <use name="clhep"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="Geometry/Records"/>
+  <use name="CondFormats/Common"/>
+  <use name="CondFormats/GeometryObjects"/>
+  <use name="MagneticField/Records"/>
+  <use name="Geometry/VeryForwardGeometryBuilder"/>
+  <use name="CalibPPS/ESProducers"/>
 </library>
