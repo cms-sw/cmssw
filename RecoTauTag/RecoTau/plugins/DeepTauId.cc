@@ -416,9 +416,9 @@ namespace {
   }  // namespace dnn_inputs_2017_v2
 
   struct TauFunc {
-    edm::Handle<reco::TauDiscriminatorContainer> basicTauDiscriminatorCollection;
-    edm::Handle<reco::TauDiscriminatorContainer> basicTauDiscriminatordR03Collection;
-    edm::Handle<edm::AssociationVector<reco::PFTauRefProd, std::vector<reco::PFTauTransverseImpactParameterRef>>>
+    const reco::TauDiscriminatorContainer* basicTauDiscriminatorCollection;
+    const reco::TauDiscriminatorContainer* basicTauDiscriminatordR03Collection;
+    const edm::AssociationVector<reco::PFTauRefProd, std::vector<reco::PFTauTransverseImpactParameterRef>>*
         pfTauTransverseImpactParameters;
 
     using BasicDiscr = deep_tau::DeepTauBase::BasicDiscriminator;
@@ -586,28 +586,6 @@ namespace {
     }
   };
 
-  struct LightLepFunc {
-    edm::Handle<std::vector<pat::Electron>> electron_collection;
-    edm::Handle<std::vector<pat::Muon>> muon_collection;
-    const std::vector<pat::Electron>* dummy_electrons;
-    const std::vector<pat::Muon>* dummy_muons;
-
-    const std::vector<pat::Electron>* getElectrons(bool online) {
-      if (!online)
-        return &(*(electron_collection));
-      else {
-        return dummy_electrons;
-      }
-    }
-    const std::vector<pat::Muon>* getMuons(bool online) {
-      if (!online)
-        return &(*(muon_collection));
-      else {
-        return dummy_muons;
-      }
-    }
-  };
-
   namespace candFunc {
     auto getTauDz(const reco::PFCandidate& cand, float default_value) {
       return cand.bestTrack() != nullptr ? cand.bestTrack()->dz() : default_value;
@@ -746,7 +724,7 @@ namespace {
 
     template <typename TauCastType>
     static std::vector<const pat::Muon*> findMatchedMuons(const TauCastType& tau,
-                                                          const std::vector<pat::Muon>& muons,
+                                                          const std::vector<pat::Muon>* muons,
                                                           double deltaR,
                                                           double minPt) {
       const reco::Muon* hadr_cand_muon = nullptr;
@@ -754,7 +732,7 @@ namespace {
         hadr_cand_muon = tau.leadPFChargedHadrCand()->muonRef().get();
       std::vector<const pat::Muon*> matched_muons;
       const double dR2 = deltaR * deltaR;
-      for (const pat::Muon& muon : muons) {
+      for (const pat::Muon& muon : *muons) {
         const reco::Muon* reco_muon = &muon;
         if (muon.pt() <= minPt)
           continue;
@@ -1305,20 +1283,33 @@ private:
 
 private:
   tensorflow::Tensor getPredictions(edm::Event& event, edm::Handle<TauCollection> taus) override {
-    edm::Handle<std::vector<pat::Electron>> tmp_electrons;
-    edm::Handle<std::vector<pat::Muon>> tmp_muons;
-    edm::Handle<reco::TauDiscriminatorContainer> basicTauDiscriminators;
-    edm::Handle<reco::TauDiscriminatorContainer> basicTauDiscriminatorsdR03;
-    edm::Handle<edm::AssociationVector<reco::PFTauRefProd, std::vector<reco::PFTauTransverseImpactParameterRef>>>
+    // Empty dummy vectors
+    const std::vector<pat::Electron> electron_collection_default;
+    const std::vector<pat::Muon> muon_collection_default;
+    const reco::TauDiscriminatorContainer basicTauDiscriminators_default;
+    const reco::TauDiscriminatorContainer basicTauDiscriminatorsdR03_default;
+    const edm::AssociationVector<reco::PFTauRefProd, std::vector<reco::PFTauTransverseImpactParameterRef>>
+        pfTauTransverseImpactParameters_default;
+
+    const std::vector<pat::Electron>* electron_collection;
+    const std::vector<pat::Muon>* muon_collection;
+    const reco::TauDiscriminatorContainer* basicTauDiscriminators;
+    const reco::TauDiscriminatorContainer* basicTauDiscriminatorsdR03;
+    const edm::AssociationVector<reco::PFTauRefProd, std::vector<reco::PFTauTransverseImpactParameterRef>>*
         pfTauTransverseImpactParameters;
 
     if (!is_online_) {
-      event.getByToken(electrons_token_, tmp_electrons);
-      event.getByToken(muons_token_, tmp_muons);
+      electron_collection = &event.get(electrons_token_);
+      muon_collection = &event.get(muons_token_);
+      pfTauTransverseImpactParameters = &pfTauTransverseImpactParameters_default;
+      basicTauDiscriminators = &basicTauDiscriminators_default;
+      basicTauDiscriminatorsdR03 = &basicTauDiscriminatorsdR03_default;
     } else {
-      event.getByToken(pfTauTransverseImpactParameters_token_, pfTauTransverseImpactParameters);
-      event.getByToken(basicTauDiscriminators_inputToken_, basicTauDiscriminators);
-      event.getByToken(basicTauDiscriminatorsdR03_inputToken_, basicTauDiscriminatorsdR03);
+      electron_collection = &electron_collection_default;
+      muon_collection = &muon_collection_default;
+      pfTauTransverseImpactParameters = &event.get(pfTauTransverseImpactParameters_token_);
+      basicTauDiscriminators = &event.get(basicTauDiscriminators_inputToken_);
+      basicTauDiscriminatorsdR03 = &event.get(basicTauDiscriminatorsdR03_inputToken_);
 
       // Get indices for discriminators
       if (!discrIndicesMapped_) {
@@ -1335,13 +1326,6 @@ private:
                       pfTauTransverseImpactParameters,
                       basicDiscrIndexMap_,
                       basicDiscrdR03IndexMap_};
-
-    static const std::vector<pat::Electron> dummy_e;
-    static const std::vector<pat::Muon> dummy_mu;
-    LightLepFunc lightlep = {tmp_electrons, tmp_muons, &dummy_e, &dummy_mu};
-
-    std::vector<pat::Electron> electrons = *lightlep.getElectrons(is_online_);
-    std::vector<pat::Muon> muons = *lightlep.getMuons(is_online_);
 
     edm::Handle<edm::View<reco::Candidate>> pfCands;
     event.getByToken(pfcandToken_, pfCands);
@@ -1372,17 +1356,17 @@ private:
         if (version_ == 1) {
           if (is_online_)
             getPredictionsV1<reco::PFCandidate, reco::PFTau>(
-                taus->at(tau_index), tau_index, tauRef, electrons, muons, pred_vector, tauIDs);
+                taus->at(tau_index), tau_index, tauRef, electron_collection, muon_collection, pred_vector, tauIDs);
           else
             getPredictionsV1<pat::PackedCandidate, pat::Tau>(
-                taus->at(tau_index), tau_index, tauRef, electrons, muons, pred_vector, tauIDs);
+                taus->at(tau_index), tau_index, tauRef, electron_collection, muon_collection, pred_vector, tauIDs);
         } else if (version_ == 2) {
           if (is_online_) {
             getPredictionsV2<reco::PFCandidate, reco::PFTau>(taus->at(tau_index),
                                                              tau_index,
                                                              tauRef,
-                                                             electrons,
-                                                             muons,
+                                                             electron_collection,
+                                                             muon_collection,
                                                              *pfCands,
                                                              vertices->at(0),
                                                              *rho,
@@ -1392,8 +1376,8 @@ private:
             getPredictionsV2<pat::PackedCandidate, pat::Tau>(taus->at(tau_index),
                                                              tau_index,
                                                              tauRef,
-                                                             electrons,
-                                                             muons,
+                                                             electron_collection,
+                                                             muon_collection,
                                                              *pfCands,
                                                              vertices->at(0),
                                                              *rho,
@@ -1419,8 +1403,8 @@ private:
   void getPredictionsV1(TauCollection::const_reference& tau,
                         const size_t tau_index,
                         const edm::RefToBase<reco::BaseTau> tau_ref,
-                        const std::vector<pat::Electron>& electrons,
-                        const std::vector<pat::Muon>& muons,
+                        const std::vector<pat::Electron>* electrons,
+                        const std::vector<pat::Muon>* muons,
                         std::vector<tensorflow::Tensor>& pred_vector,
                         TauFunc tau_funcs) {
     const tensorflow::Tensor& inputs = createInputsV1<dnn_inputs_2017v1, const CandidateCastType>(
@@ -1432,8 +1416,8 @@ private:
   void getPredictionsV2(TauCollection::const_reference& tau,
                         const size_t tau_index,
                         const edm::RefToBase<reco::BaseTau> tau_ref,
-                        const std::vector<pat::Electron>& electrons,
-                        const std::vector<pat::Muon>& muons,
+                        const std::vector<pat::Electron>* electrons,
+                        const std::vector<pat::Muon>* muons,
                         const edm::View<reco::Candidate>& pfCands,
                         const reco::Vertex& pv,
                         double rho,
@@ -1441,8 +1425,8 @@ private:
                         TauFunc tau_funcs) {
     CellGrid inner_grid(dnn_inputs_2017_v2::number_of_inner_cell, dnn_inputs_2017_v2::number_of_inner_cell, 0.02, 0.02);
     CellGrid outer_grid(dnn_inputs_2017_v2::number_of_outer_cell, dnn_inputs_2017_v2::number_of_outer_cell, 0.05, 0.05);
-    fillGrids(dynamic_cast<const TauCastType&>(tau), electrons, inner_grid, outer_grid);
-    fillGrids(dynamic_cast<const TauCastType&>(tau), muons, inner_grid, outer_grid);
+    fillGrids(dynamic_cast<const TauCastType&>(tau), *electrons, inner_grid, outer_grid);
+    fillGrids(dynamic_cast<const TauCastType&>(tau), *muons, inner_grid, outer_grid);
     fillGrids(dynamic_cast<const TauCastType&>(tau), pfCands, inner_grid, outer_grid);
 
     createTauBlockInputs<CandidateCastType>(
@@ -1545,8 +1529,8 @@ private:
                           const edm::RefToBase<reco::BaseTau> tau_ref,
                           const reco::Vertex& pv,
                           double rho,
-                          const std::vector<pat::Electron>& electrons,
-                          const std::vector<pat::Muon>& muons,
+                          const std::vector<pat::Electron>* electrons,
+                          const std::vector<pat::Muon>* muons,
                           const edm::View<reco::Candidate>& pfCands,
                           const CellGrid& grid,
                           TauFunc tau_funcs,
@@ -1728,7 +1712,7 @@ private:
                                const edm::RefToBase<reco::BaseTau> tau_ref,
                                const reco::Vertex& pv,
                                double rho,
-                               const std::vector<pat::Electron>& electrons,
+                               const std::vector<pat::Electron>* electrons,
                                const edm::View<reco::Candidate>& pfCands,
                                const Cell& cell_map,
                                TauFunc tau_funcs,
@@ -1878,14 +1862,14 @@ private:
       size_t index_ele = cell_map.at(CellObjectType::Electron);
 
       get(dnn::ele_valid) = valid_index_ele;
-      get(dnn::ele_rel_pt) = getValueNorm(electrons.at(index_ele).polarP4().pt() / tau.polarP4().pt(),
+      get(dnn::ele_rel_pt) = getValueNorm(electrons->at(index_ele).polarP4().pt() / tau.polarP4().pt(),
                                           is_inner ? 1.067f : 0.5111f,
                                           is_inner ? 1.521f : 2.765f);
-      get(dnn::ele_deta) = getValueLinear(electrons.at(index_ele).polarP4().eta() - tau.polarP4().eta(),
+      get(dnn::ele_deta) = getValueLinear(electrons->at(index_ele).polarP4().eta() - tau.polarP4().eta(),
                                           is_inner ? -0.1f : -0.5f,
                                           is_inner ? 0.1f : 0.5f,
                                           false);
-      get(dnn::ele_dphi) = getValueLinear(dPhi(tau.polarP4(), electrons.at(index_ele).polarP4()),
+      get(dnn::ele_dphi) = getValueLinear(dPhi(tau.polarP4(), electrons->at(index_ele).polarP4()),
                                           is_inner ? -0.1f : -0.5f,
                                           is_inner ? 0.1f : 0.5f,
                                           false);
@@ -1893,63 +1877,63 @@ private:
       float cc_ele_energy, cc_gamma_energy;
       int cc_n_gamma;
       const bool cc_valid =
-          calculateElectronClusterVarsV2(electrons.at(index_ele), cc_ele_energy, cc_gamma_energy, cc_n_gamma);
+          calculateElectronClusterVarsV2(electrons->at(index_ele), cc_ele_energy, cc_gamma_energy, cc_n_gamma);
       if (cc_valid) {
         get(dnn::ele_cc_valid) = cc_valid;
         get(dnn::ele_cc_ele_rel_energy) =
-            getValueNorm(cc_ele_energy / electrons.at(index_ele).polarP4().pt(), 1.729f, 1.644f);
+            getValueNorm(cc_ele_energy / electrons->at(index_ele).polarP4().pt(), 1.729f, 1.644f);
         get(dnn::ele_cc_gamma_rel_energy) = getValueNorm(cc_gamma_energy / cc_ele_energy, 0.1439f, 0.3284f);
         get(dnn::ele_cc_n_gamma) = getValueNorm(cc_n_gamma, 1.794f, 2.079f);
       }
       get(dnn::ele_rel_trackMomentumAtVtx) = getValueNorm(
-          electrons.at(index_ele).trackMomentumAtVtx().R() / electrons.at(index_ele).polarP4().pt(), 1.531f, 1.424f);
+          electrons->at(index_ele).trackMomentumAtVtx().R() / electrons->at(index_ele).polarP4().pt(), 1.531f, 1.424f);
       get(dnn::ele_rel_trackMomentumAtCalo) = getValueNorm(
-          electrons.at(index_ele).trackMomentumAtCalo().R() / electrons.at(index_ele).polarP4().pt(), 1.531f, 1.424f);
+          electrons->at(index_ele).trackMomentumAtCalo().R() / electrons->at(index_ele).polarP4().pt(), 1.531f, 1.424f);
       get(dnn::ele_rel_trackMomentumOut) = getValueNorm(
-          electrons.at(index_ele).trackMomentumOut().R() / electrons.at(index_ele).polarP4().pt(), 0.7735f, 0.935f);
+          electrons->at(index_ele).trackMomentumOut().R() / electrons->at(index_ele).polarP4().pt(), 0.7735f, 0.935f);
       get(dnn::ele_rel_trackMomentumAtEleClus) =
-          getValueNorm(electrons.at(index_ele).trackMomentumAtEleClus().R() / electrons.at(index_ele).polarP4().pt(),
+          getValueNorm(electrons->at(index_ele).trackMomentumAtEleClus().R() / electrons->at(index_ele).polarP4().pt(),
                        0.7735f,
                        0.935f);
       get(dnn::ele_rel_trackMomentumAtVtxWithConstraint) = getValueNorm(
-          electrons.at(index_ele).trackMomentumAtVtxWithConstraint().R() / electrons.at(index_ele).polarP4().pt(),
+          electrons->at(index_ele).trackMomentumAtVtxWithConstraint().R() / electrons->at(index_ele).polarP4().pt(),
           1.625f,
           1.581f);
       get(dnn::ele_rel_ecalEnergy) =
-          getValueNorm(electrons.at(index_ele).ecalEnergy() / electrons.at(index_ele).polarP4().pt(), 1.993f, 1.308f);
+          getValueNorm(electrons->at(index_ele).ecalEnergy() / electrons->at(index_ele).polarP4().pt(), 1.993f, 1.308f);
       get(dnn::ele_ecalEnergy_sig) = getValueNorm(
-          electrons.at(index_ele).ecalEnergy() / electrons.at(index_ele).ecalEnergyError(), 70.25f, 58.16f);
-      get(dnn::ele_eSuperClusterOverP) = getValueNorm(electrons.at(index_ele).eSuperClusterOverP(), 2.432f, 15.13f);
-      get(dnn::ele_eSeedClusterOverP) = getValueNorm(electrons.at(index_ele).eSeedClusterOverP(), 2.034f, 13.96f);
-      get(dnn::ele_eSeedClusterOverPout) = getValueNorm(electrons.at(index_ele).eSeedClusterOverPout(), 6.64f, 36.8f);
-      get(dnn::ele_eEleClusterOverPout) = getValueNorm(electrons.at(index_ele).eEleClusterOverPout(), 4.183f, 20.63f);
+          electrons->at(index_ele).ecalEnergy() / electrons->at(index_ele).ecalEnergyError(), 70.25f, 58.16f);
+      get(dnn::ele_eSuperClusterOverP) = getValueNorm(electrons->at(index_ele).eSuperClusterOverP(), 2.432f, 15.13f);
+      get(dnn::ele_eSeedClusterOverP) = getValueNorm(electrons->at(index_ele).eSeedClusterOverP(), 2.034f, 13.96f);
+      get(dnn::ele_eSeedClusterOverPout) = getValueNorm(electrons->at(index_ele).eSeedClusterOverPout(), 6.64f, 36.8f);
+      get(dnn::ele_eEleClusterOverPout) = getValueNorm(electrons->at(index_ele).eEleClusterOverPout(), 4.183f, 20.63f);
       get(dnn::ele_deltaEtaSuperClusterTrackAtVtx) =
-          getValueNorm(electrons.at(index_ele).deltaEtaSuperClusterTrackAtVtx(), 0.f, 0.0363f);
+          getValueNorm(electrons->at(index_ele).deltaEtaSuperClusterTrackAtVtx(), 0.f, 0.0363f);
       get(dnn::ele_deltaEtaSeedClusterTrackAtCalo) =
-          getValueNorm(electrons.at(index_ele).deltaEtaSeedClusterTrackAtCalo(), -0.0001f, 0.0512f);
+          getValueNorm(electrons->at(index_ele).deltaEtaSeedClusterTrackAtCalo(), -0.0001f, 0.0512f);
       get(dnn::ele_deltaEtaEleClusterTrackAtCalo) =
-          getValueNorm(electrons.at(index_ele).deltaEtaEleClusterTrackAtCalo(), -0.0001f, 0.0541f);
+          getValueNorm(electrons->at(index_ele).deltaEtaEleClusterTrackAtCalo(), -0.0001f, 0.0541f);
       get(dnn::ele_deltaPhiEleClusterTrackAtCalo) =
-          getValueNorm(electrons.at(index_ele).deltaPhiEleClusterTrackAtCalo(), 0.0002f, 0.0553f);
+          getValueNorm(electrons->at(index_ele).deltaPhiEleClusterTrackAtCalo(), 0.0002f, 0.0553f);
       get(dnn::ele_deltaPhiSuperClusterTrackAtVtx) =
-          getValueNorm(electrons.at(index_ele).deltaPhiSuperClusterTrackAtVtx(), 0.0001f, 0.0523f);
+          getValueNorm(electrons->at(index_ele).deltaPhiSuperClusterTrackAtVtx(), 0.0001f, 0.0523f);
       get(dnn::ele_deltaPhiSeedClusterTrackAtCalo) =
-          getValueNorm(electrons.at(index_ele).deltaPhiSeedClusterTrackAtCalo(), 0.0004f, 0.0777f);
-      get(dnn::ele_mvaInput_earlyBrem) = getValue(electrons.at(index_ele).mvaInput().earlyBrem);
-      get(dnn::ele_mvaInput_lateBrem) = getValue(electrons.at(index_ele).mvaInput().lateBrem);
+          getValueNorm(electrons->at(index_ele).deltaPhiSeedClusterTrackAtCalo(), 0.0004f, 0.0777f);
+      get(dnn::ele_mvaInput_earlyBrem) = getValue(electrons->at(index_ele).mvaInput().earlyBrem);
+      get(dnn::ele_mvaInput_lateBrem) = getValue(electrons->at(index_ele).mvaInput().lateBrem);
       get(dnn::ele_mvaInput_sigmaEtaEta) =
-          getValueNorm(electrons.at(index_ele).mvaInput().sigmaEtaEta, 0.0008f, 0.0052f);
-      get(dnn::ele_mvaInput_hadEnergy) = getValueNorm(electrons.at(index_ele).mvaInput().hadEnergy, 14.04f, 69.48f);
-      get(dnn::ele_mvaInput_deltaEta) = getValueNorm(electrons.at(index_ele).mvaInput().deltaEta, 0.0099f, 0.0851f);
-      const auto& gsfTrack = electrons.at(index_ele).gsfTrack();
+          getValueNorm(electrons->at(index_ele).mvaInput().sigmaEtaEta, 0.0008f, 0.0052f);
+      get(dnn::ele_mvaInput_hadEnergy) = getValueNorm(electrons->at(index_ele).mvaInput().hadEnergy, 14.04f, 69.48f);
+      get(dnn::ele_mvaInput_deltaEta) = getValueNorm(electrons->at(index_ele).mvaInput().deltaEta, 0.0099f, 0.0851f);
+      const auto& gsfTrack = electrons->at(index_ele).gsfTrack();
       if (gsfTrack.isNonnull()) {
         get(dnn::ele_gsfTrack_normalizedChi2) = getValueNorm(gsfTrack->normalizedChi2(), 3.049f, 10.39f);
         get(dnn::ele_gsfTrack_numberOfValidHits) = getValueNorm(gsfTrack->numberOfValidHits(), 16.52f, 2.806f);
         get(dnn::ele_rel_gsfTrack_pt) =
-            getValueNorm(gsfTrack->pt() / electrons.at(index_ele).polarP4().pt(), 1.355f, 16.81f);
+            getValueNorm(gsfTrack->pt() / electrons->at(index_ele).polarP4().pt(), 1.355f, 16.81f);
         get(dnn::ele_gsfTrack_pt_sig) = getValueNorm(gsfTrack->pt() / gsfTrack->ptError(), 5.046f, 3.119f);
       }
-      const auto& closestCtfTrack = electrons.at(index_ele).closestCtfTrackRef();
+      const auto& closestCtfTrack = electrons->at(index_ele).closestCtfTrackRef();
       const bool has_closestCtfTrack = closestCtfTrack.isNonnull();
       if (has_closestCtfTrack) {
         get(dnn::ele_has_closestCtfTrack) = has_closestCtfTrack;
@@ -1969,7 +1953,7 @@ private:
                              const edm::RefToBase<reco::BaseTau> tau_ref,
                              const reco::Vertex& pv,
                              double rho,
-                             const std::vector<pat::Muon>& muons,
+                             const std::vector<pat::Muon>* muons,
                              const edm::View<reco::Candidate>& pfCands,
                              const Cell& cell_map,
                              TauFunc tau_funcs,
@@ -2052,40 +2036,42 @@ private:
       size_t index_muon = cell_map.at(CellObjectType::Muon);
 
       get(dnn::muon_valid) = valid_index_muon;
-      get(dnn::muon_rel_pt) = getValueNorm(muons.at(index_muon).polarP4().pt() / tau.polarP4().pt(),
+      get(dnn::muon_rel_pt) = getValueNorm(muons->at(index_muon).polarP4().pt() / tau.polarP4().pt(),
                                            is_inner ? 0.7966f : 0.2678f,
                                            is_inner ? 3.402f : 3.592f);
-      get(dnn::muon_deta) = getValueLinear(muons.at(index_muon).polarP4().eta() - tau.polarP4().eta(),
+      get(dnn::muon_deta) = getValueLinear(muons->at(index_muon).polarP4().eta() - tau.polarP4().eta(),
                                            is_inner ? -0.1f : -0.5f,
                                            is_inner ? 0.1f : 0.5f,
                                            false);
-      get(dnn::muon_dphi) = getValueLinear(
-          dPhi(tau.polarP4(), muons.at(index_muon).polarP4()), is_inner ? -0.1f : -0.5f, is_inner ? 0.1f : 0.5f, false);
-      get(dnn::muon_dxy) = getValueNorm(muons.at(index_muon).dB(pat::Muon::PV2D), 0.0019f, 1.039f);
+      get(dnn::muon_dphi) = getValueLinear(dPhi(tau.polarP4(), muons->at(index_muon).polarP4()),
+                                           is_inner ? -0.1f : -0.5f,
+                                           is_inner ? 0.1f : 0.5f,
+                                           false);
+      get(dnn::muon_dxy) = getValueNorm(muons->at(index_muon).dB(pat::Muon::PV2D), 0.0019f, 1.039f);
       get(dnn::muon_dxy_sig) =
-          getValueNorm(std::abs(muons.at(index_muon).dB(pat::Muon::PV2D)) / muons.at(index_muon).edB(pat::Muon::PV2D),
+          getValueNorm(std::abs(muons->at(index_muon).dB(pat::Muon::PV2D)) / muons->at(index_muon).edB(pat::Muon::PV2D),
                        8.98f,
                        71.17f);
 
       const bool normalizedChi2_valid =
-          muons.at(index_muon).globalTrack().isNonnull() && muons.at(index_muon).normChi2() >= 0;
+          muons->at(index_muon).globalTrack().isNonnull() && muons->at(index_muon).normChi2() >= 0;
       if (normalizedChi2_valid) {
         get(dnn::muon_normalizedChi2_valid) = normalizedChi2_valid;
-        get(dnn::muon_normalizedChi2) = getValueNorm(muons.at(index_muon).normChi2(), 21.52f, 265.8f);
-        if (muons.at(index_muon).innerTrack().isNonnull())
-          get(dnn::muon_numberOfValidHits) = getValueNorm(muons.at(index_muon).numberOfValidHits(), 21.84f, 10.59f);
+        get(dnn::muon_normalizedChi2) = getValueNorm(muons->at(index_muon).normChi2(), 21.52f, 265.8f);
+        if (muons->at(index_muon).innerTrack().isNonnull())
+          get(dnn::muon_numberOfValidHits) = getValueNorm(muons->at(index_muon).numberOfValidHits(), 21.84f, 10.59f);
       }
-      get(dnn::muon_segmentCompatibility) = getValue(muons.at(index_muon).segmentCompatibility());
-      get(dnn::muon_caloCompatibility) = getValue(muons.at(index_muon).caloCompatibility());
+      get(dnn::muon_segmentCompatibility) = getValue(muons->at(index_muon).segmentCompatibility());
+      get(dnn::muon_caloCompatibility) = getValue(muons->at(index_muon).caloCompatibility());
 
-      const bool pfEcalEnergy_valid = muons.at(index_muon).pfEcalEnergy() >= 0;
+      const bool pfEcalEnergy_valid = muons->at(index_muon).pfEcalEnergy() >= 0;
       if (pfEcalEnergy_valid) {
         get(dnn::muon_pfEcalEnergy_valid) = pfEcalEnergy_valid;
         get(dnn::muon_rel_pfEcalEnergy) =
-            getValueNorm(muons.at(index_muon).pfEcalEnergy() / muons.at(index_muon).polarP4().pt(), 0.2273f, 0.4865f);
+            getValueNorm(muons->at(index_muon).pfEcalEnergy() / muons->at(index_muon).polarP4().pt(), 0.2273f, 0.4865f);
       }
 
-      MuonHitMatchV2 hit_match(muons.at(index_muon));
+      MuonHitMatchV2 hit_match(muons->at(index_muon));
       static const std::map<int, std::pair<int, int>> muonMatchHitVars = {
           {MuonSubdetId::DT, {dnn::muon_n_matches_DT_1, dnn::muon_n_hits_DT_1}},
           {MuonSubdetId::CSC, {dnn::muon_n_matches_CSC_1, dnn::muon_n_hits_CSC_1}},
@@ -2237,8 +2223,8 @@ private:
   tensorflow::Tensor createInputsV1(const TauCastType& tau,
                                     const size_t tau_index,
                                     const edm::RefToBase<reco::BaseTau> tau_ref,
-                                    const std::vector<pat::Electron>& electrons,
-                                    const std::vector<pat::Muon>& muons,
+                                    const std::vector<pat::Electron>* electrons,
+                                    const std::vector<pat::Muon>* muons,
                                     TauFunc tau_funcs) const {
     static constexpr bool check_all_set = false;
     static constexpr float default_value_for_set_check = -42;
@@ -2570,11 +2556,11 @@ private:
 
   template <typename TauCastType>
   static const pat::Electron* findMatchedElectron(const TauCastType& tau,
-                                                  const std::vector<pat::Electron>& electrons,
+                                                  const std::vector<pat::Electron>* electrons,
                                                   double deltaR) {
     const double dR2 = deltaR * deltaR;
     const pat::Electron* matched_ele = nullptr;
-    for (const auto& ele : electrons) {
+    for (const auto& ele : *electrons) {
       if (reco::deltaR2(tau.p4(), ele.p4()) < dR2 && (!matched_ele || matched_ele->pt() < ele.pt())) {
         matched_ele = &ele;
       }
