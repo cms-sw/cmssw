@@ -425,7 +425,10 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
               tmpCandidate.addTrackster(edm::Ptr<ticl::Trackster>(trackstersMergedHandle, otherTracksterIdx));
             }
             tmpCandidate.setPdgId(11 * track.charge());
-            float p = tracksterTotalRawPt * cosh(t.barycenter().eta());
+            const auto &barycenter = t.barycenter();
+            float p = tracksterTotalRawPt *
+                      std::sqrt(1 + (barycenter.z() * barycenter.z()) /
+                                        (barycenter.x() * barycenter.x() + (barycenter.y() * barycenter.y())));
             tmpCandidate.setRawEnergy(p);
             math::XYZTLorentzVector p4(
                 p * track.momentum().unit().x(), p * track.momentum().unit().y(), p * track.momentum().unit().z(), p);
