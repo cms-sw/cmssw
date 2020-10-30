@@ -21,9 +21,6 @@
 #include "DataFormats/TauReco/interface/TauDiscriminatorContainer.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 #include "DataFormats/PatCandidates/interface/PATTauDiscriminator.h"
-#include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterAssociation.h"
-#include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterFwd.h"
-#include "DataFormats/TauReco/interface/PFTauTransverseImpactParameter.h"
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 #include "RecoTauTag/RecoTau/interface/PFRecoTauClusterVariables.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -41,7 +38,7 @@ namespace deep_tau {
   class TauWPThreshold {
   public:
     explicit TauWPThreshold(const std::string& cut_str);
-    double operator()(edm::View<reco::BaseTau>::const_reference& tau, bool is_online) const;
+    double operator()(const reco::BaseTau& tau, bool isPFTau) const;
 
   private:
     std::unique_ptr<TF1> fn_;
@@ -70,7 +67,7 @@ namespace deep_tau {
   public:
     using TauDiscriminator = reco::TauDiscriminatorContainer;
     using TauCollection = edm::View<reco::BaseTau>;
-    using CandidateType = edm::View<reco::Candidate>;
+    using CandidateCollection = edm::View<reco::Candidate>;
     using TauRef = edm::Ref<TauCollection>;
     using TauRefProd = edm::RefProd<TauCollection>;
     using ElectronCollection = pat::ElectronCollection;
@@ -107,7 +104,7 @@ namespace deep_tau {
       edm::Handle<ConsumeType> handle;
       edm::EDGetTokenT<ConsumeType> disc_token;
       double cut;
-      void fill(const edm::Event& evt) { evt.getByToken(disc_token, handle); };
+      void fill(const edm::Event& evt) { evt.getByToken(disc_token, handle); }
     };
 
     // select boolean operation on prediscriminants (and = 0x01, or = 0x00)
@@ -130,7 +127,7 @@ namespace deep_tau {
 
   protected:
     edm::EDGetTokenT<TauCollection> tausToken_;
-    edm::EDGetTokenT<CandidateType> pfcandToken_;
+    edm::EDGetTokenT<CandidateCollection> pfcandToken_;
     edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
     std::map<std::string, WPList> workingPoints_;
     const bool is_online_;
