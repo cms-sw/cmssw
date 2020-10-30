@@ -5,6 +5,8 @@
 #include "Geometry/EcalCommonData/interface/EcalPreshowerNumberingScheme.h"
 #include "SimG4CMS/Calo/interface/EcalDumpGeometry.h"
 
+#include "DD4hep/Filter.h"
+
 #include <iostream>
 
 //#define EDM_ML_DEBUG
@@ -15,7 +17,7 @@ EcalDumpGeometry::EcalDumpGeometry(const std::vector<std::string_view>& names, i
     ss << " " << lvname;
   edm::LogVerbatim("EcalGeom") << " Type: " << type << " with " << names.size() << " LVs: " << ss.str();
   for (const auto& name : names) {
-    std::string namex = (getNameNoNS(static_cast<std::string>(name))).substr(0, 4);
+    std::string namex = (static_cast<std::string>(dd4hep::dd::noNamespace(name))).substr(0, 4);
     if (std::find(names_.begin(), names_.end(), namex) == names_.end())
       names_.emplace_back(namex);
   }
@@ -50,8 +52,8 @@ void EcalDumpGeometry::dumpTouch(G4VPhysicalVolume* pv, unsigned int leafDepth) 
   G4ThreeVector globalpoint = fHistory_.GetTopTransform().Inverse().TransformPoint(G4ThreeVector(0, 0, 0));
   G4LogicalVolume* lv = pv->GetLogicalVolume();
 
-  const std::string& lvname = lv->GetName();
-  std::string namex = (getNameNoNS(lvname)).substr(0, 4);
+  std::string lvname = (static_cast<std::string>(dd4hep::dd::noNamespace(lv->GetName())));
+  std::string namex = lvname.substr(0, 4);
   EcalBaseNumber theBaseNumber;
   for (unsigned int k = 0; k < names_.size(); ++k) {
     if (namex == names_[k]) {
@@ -65,17 +67,18 @@ void EcalDumpGeometry::dumpTouch(G4VPhysicalVolume* pv, unsigned int leafDepth) 
         std::stringstream ss;
 #endif
         for (int ii = theSize; ii >= 0; --ii) {
-          theBaseNumber.addLevel(fHistory_.GetVolume(ii)->GetName(), fHistory_.GetVolume(ii)->GetCopyNo());
+          std::string_view name = dd4hep::dd::noNamespace(fHistory_.GetVolume(ii)->GetName());
+          theBaseNumber.addLevel(static_cast<std::string>(name), fHistory_.GetVolume(ii)->GetCopyNo());
 #ifdef EDM_ML_DEBUG
-          ss << " " << ii << " " << fHistory_.GetVolume(ii)->GetName() << ":" << fHistory_.GetVolume(ii)->GetCopyNo();
+          ss << " " << ii << " " << name << ":" << fHistory_.GetVolume(ii)->GetCopyNo();
 #endif
         }
-#ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << " Fielde: " << ss.str();
-#endif
         uint32_t id = ((type_ == 0) ? ebNumbering_.getUnitID(theBaseNumber)
                                     : ((type_ == 1) ? eeNumbering_.getUnitID(theBaseNumber)
                                                     : esNumbering_.getUnitID(theBaseNumber)));
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("EcalGeom") << " Field: " << ss.str() << " ID " << std::hex << id << std::dec;
+#endif
         std::vector<double> pars;
         if (type_ > 1) {
           G4Box* solid = static_cast<G4Box*>(lv->GetSolid());
@@ -96,7 +99,7 @@ void EcalDumpGeometry::dumpTouch(G4VPhysicalVolume* pv, unsigned int leafDepth) 
           double a2 = (std::abs(solid->GetTanAlpha2()) > 1.e-5) ? solid->GetTanAlpha2() : 0.0;
           pars.emplace_back(a2);
         }
-        infoVec_.emplace_back(CaloDetInfo(id, getNameNoNS(lvname), globalpoint, pars));
+        infoVec_.emplace_back(CaloDetInfo(id, lvname, globalpoint, pars));
       }
       break;
     }
@@ -111,13 +114,4 @@ void EcalDumpGeometry::dumpTouch(G4VPhysicalVolume* pv, unsigned int leafDepth) 
 
   if (leafDepth > 0)
     fHistory_.BackLevel();
-}
-
-std::string EcalDumpGeometry::getNameNoNS(const std::string& name) {
-  if (name.find(':') == std::string::npos) {
-    return name;
-  } else {
-    auto n1 = name.find(':') + 1;
-    return name.substr(n1, (name.size() - n1));
-  }
 }
