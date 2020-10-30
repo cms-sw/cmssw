@@ -83,7 +83,7 @@ from Configuration.ProcessModifiers.run2_miniAOD_pp_on_AA_103X_cff import run2_m
 run2_miniAOD_pp_on_AA_103X.toReplaceWith(slimmingTask,cms.Task(primaryVertexAssociationCleaned,slimmingTask.copy()))
 
 from RecoHI.HiTracking.miniAODVertexRecovery_cff import offlinePrimaryVerticesRecovery, offlineSlimmedPrimaryVerticesRecovery
-pp_on_AA_2018.toReplaceWith(
+pp_on_AA.toReplaceWith(
     slimmingTask,
     cms.Task(slimmingTask.copy(), offlinePrimaryVerticesRecovery, offlineSlimmedPrimaryVerticesRecovery))
 
