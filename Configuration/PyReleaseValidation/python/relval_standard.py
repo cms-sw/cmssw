@@ -435,7 +435,7 @@ workflows[136.888522] = ['',['RunJetHT2018D','HLTDR2_2018','RECODR2_2018reHLT_HC
 workflows[137.8] = ['',['RunEGamma2018C','HLTDR2_2018','RECODR2_2018reHLT_skimEGamma_Offline_L1TEgDQM',
                         'RunEGamma2018D','HLTDR2_2018','RECODR2_2018reHLT_skimEGamma_Prompt_L1TEgDQM','HARVEST2018_L1TEgDQM_MULTIRUN']]
 ### LS2 - MWGR ###
-workflows[138.1] = ['',['RunCosmics2020','RECOCOSDRUN3','ALCACOSDRUN3','HARVESTDCRUN3']]
+workflows[138.1] = ['',['RunCosmics2020GEM','RECOCOSDRUN3','ALCACOSDRUN3','HARVESTDCRUN3']]
 workflows[138.2] = ['',['RunCosmics2020','RECOCOSDEXPRUN3','ALCACOSDEXPRUN3','HARVESTDCEXPRUN3']]
 
 #### Test of lumi section boundary crossing with run2 2018D ####
