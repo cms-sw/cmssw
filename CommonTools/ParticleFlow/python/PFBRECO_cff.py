@@ -6,6 +6,10 @@ from RecoParticleFlow.PFProducer.pfLinker_cff import particleFlowPtrs
 from CommonTools.ParticleFlow.pfPileUp_cfi import *
 from CommonTools.ParticleFlow.TopProjectors.pfNoPileUp_cfi import *
 pfPileUpIsoPFBRECO = pfPileUp.clone( PFCandidates = 'particleFlowPtrs' )
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
+(pp_on_AA_2018 | pp_on_PbPb_run3).toModify(pfPileUpIsoPFBRECO, Enable = False)
+
 pfNoPileUpIsoPFBRECO = pfNoPileUp.clone( topCollection = 'pfPileUpIsoPFBRECO',
                                          bottomCollection = 'particleFlowPtrs')
 pfNoPileUpIsoPFBRECOTask = cms.Task(
@@ -175,6 +179,3 @@ PFBRECO = cms.Sequence(
     pfMETPFBRECO
     )
 
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
-(pp_on_AA_2018 | pp_on_PbPb_run3).toModify(pfPileUpIsoPFBRECO, Enable = False)
