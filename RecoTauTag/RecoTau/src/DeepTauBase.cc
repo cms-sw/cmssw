@@ -39,14 +39,14 @@ namespace deep_tau {
     }
   }
 
-  double TauWPThreshold::operator()(edm::View<reco::BaseTau>::const_reference& tau, bool is_online) const {
+  double TauWPThreshold::operator()(const reco::BaseTau& tau, bool isPFTau) const {
     if (!fn_)
       return value_;
 
-    if (!is_online)
-      fn_->SetParameter(0, dynamic_cast<const pat::Tau&>(tau).decayMode());
-    else
+    if (isPFTau)
       fn_->SetParameter(0, dynamic_cast<const reco::PFTau&>(tau).decayMode());
+    else
+      fn_->SetParameter(0, dynamic_cast<const pat::Tau&>(tau).decayMode());
     fn_->SetParameter(1, tau.pt());
     fn_->SetParameter(2, tau.eta());
     return fn_->Eval(0);
@@ -85,7 +85,7 @@ namespace deep_tau {
                            const OutputCollection& outputCollection,
                            const DeepTauCache* cache)
       : tausToken_(consumes<TauCollection>(cfg.getParameter<edm::InputTag>("taus"))),
-        pfcandToken_(consumes<CandidateType>(cfg.getParameter<edm::InputTag>("pfcands"))),
+        pfcandToken_(consumes<CandidateCollection>(cfg.getParameter<edm::InputTag>("pfcands"))),
         vtxToken_(consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vertices"))),
         is_online_(cfg.getParameter<bool>("is_online")),
         outputs_(outputCollection),
@@ -120,10 +120,8 @@ namespace deep_tau {
     std::vector<std::string> prediscriminantsNames =
         prediscriminantConfig.getParameterNamesForType<edm::ParameterSet>();
 
-    for (std::vector<std::string>::const_iterator iDisc = prediscriminantsNames.begin();
-         iDisc != prediscriminantsNames.end();
-         ++iDisc) {
-      const edm::ParameterSet& iPredisc = prediscriminantConfig.getParameter<edm::ParameterSet>(*iDisc);
+    for (auto const& iDisc : prediscriminantsNames) {
+      const edm::ParameterSet& iPredisc = prediscriminantConfig.getParameter<edm::ParameterSet>(iDisc);
       const edm::InputTag& label = iPredisc.getParameter<edm::InputTag>("Producer");
       double cut = iPredisc.getParameter<double>("cut");
 
