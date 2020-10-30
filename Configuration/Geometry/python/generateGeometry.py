@@ -55,7 +55,9 @@ class GeometryGenerator(object):
         xmlName = "cmsExtendedGeometry"+self.detectorYear+detectorVersion+"XML_cfi.py"
         xmlDD4hepName = "cmsExtendedGeometry"+self.detectorYear+detectorVersion+".xml"
         simName = "GeometryExtended"+self.detectorYear+detectorVersion+"_cff.py"
+        simDD4hepName = "GeometryDD4hepExtended"+self.detectorYear+detectorVersion+"_cff.py"
         recoName = "GeometryExtended"+self.detectorYear+detectorVersion+"Reco_cff.py"
+        recoDD4hepName = "GeometryDD4hepExtended"+self.detectorYear+detectorVersion+"Reco_cff.py"
 
         # check directories
         CMSSWBASE = os.getenv("CMSSW_BASE")
@@ -64,6 +66,7 @@ class GeometryGenerator(object):
         xmlDir = os.path.join(CMSSWBASE,"src","Geometry","CMSCommonData","python")
         xmlDD4hepDir = os.path.join(CMSSWBASE,"src","Geometry","CMSCommonData","data","dd4hep")
         simrecoDir = os.path.join(CMSSWBASE,"src","Configuration","Geometry","python")
+        simrecoDD4hepDir = os.path.join(CMSSWBASE,"src","Configuration","Geometry","python")
         if args.doTest:
             if not os.path.isdir(xmlDir):
                 xmlDir = os.path.join(CMSSWRELBASE,"src","Geometry","CMSCommonData","python")
@@ -84,6 +87,12 @@ class GeometryGenerator(object):
             else:
                 simName = os.path.join(simrecoDir,simName)
                 recoName = os.path.join(simrecoDir,recoName)
+            if not os.path.isdir(simrecoDD4hepDir):
+                mvCommands += "mv "+simDD4hepName+" "+simrecoDD4hepDir+"/\n"
+                mvCommands += "mv "+recoDD4hepName+" "+simrecoDD4hepDir+"/\n"
+            else:
+                simDD4hepName = os.path.join(simrecoDD4hepDir,simDD4hepName)
+                recoDD4hepName = os.path.join(simrecoDD4hepDir,recoDD4hepName)
             if len(mvCommands)>0:
                 print("Warning: some geometry packages not checked out.\nOnce they are available, please execute the following commands manually:\n"+mvCommands)
 
@@ -91,7 +100,9 @@ class GeometryGenerator(object):
         xmlFile = open(xmlName,'w')
         xmlDD4hepFile = open(xmlDD4hepName,'w')
         simFile = open(simName,'w')
+        simDD4hepFile = open(simDD4hepName,'w')
         recoFile = open(recoName,'w')
+        recoDD4hepFile = open(recoDD4hepName,'w')
 
         # common preamble
         preamble = "import FWCore.ParameterSet.Config as cms"+"\n"+"\n"
@@ -140,15 +151,35 @@ class GeometryGenerator(object):
                 simFile.write('\n'.join([ aLine for aLine in aDict[detectorTuple[iDict]]["sim"] ])+"\n")
         simFile.close()
 
+        # create simDD4hep config
+        simDD4hepFile.write(preamble)
+        # always need XML
+        simDD4hepFile.write("from Configuration.Geometry.GeometryDD4hep_cff"+" import *"+"\n")
+        simDD4hepFile.write("DDDetectorESProducer.confGeomXMLFiles = cms.FileInPath(\"Geometry/CMSCommonData/data/dd4hep/"+os.path.basename(xmlDD4hepName)+"\")\n\n")
+        for iDict,aDict in enumerate(self.allDicts):
+            if "sim" in aDict[detectorTuple[iDict]].keys():
+                simDD4hepFile.write('\n'.join([ aLine for aLine in aDict[detectorTuple[iDict]]["sim"] ])+"\n")
+        simDD4hepFile.close()
+
         # create reco config
         recoFile.write(preamble)
         # always need sim
         recoFile.write("from Configuration.Geometry."+os.path.basename(simName).replace(".py","")+" import *"+"\n\n")
         for iDict,aDict in enumerate(self.allDicts):
             if "reco" in aDict[detectorTuple[iDict]].keys():
-                recoFile.write("# "+aDict["name"]+"\n")
-                recoFile.write('\n'.join([ aLine for aLine in aDict[detectorTuple[iDict]]["reco"] ])+"\n\n")
+               recoFile.write("# "+aDict["name"]+"\n")
+               recoFile.write('\n'.join([ aLine for aLine in aDict[detectorTuple[iDict]]["reco"] ])+"\n\n")
         recoFile.close()
+
+        # create recoDD4hep config
+        recoDD4hepFile.write(preamble)
+        # always need sim
+        recoDD4hepFile.write("from Configuration.Geometry."+os.path.basename(simDD4hepName).replace(".py","")+" import *"+"\n\n")
+        for iDict,aDict in enumerate(self.allDicts):
+            if "reco" in aDict[detectorTuple[iDict]].keys():
+                recoDD4hepFile.write("# "+aDict["name"]+"\n")
+                recoDD4hepFile.write('\n'.join([ aLine for aLine in aDict[detectorTuple[iDict]]["reco"] ])+"\n\n")
+        recoDD4hepFile.close()
 
         from Configuration.StandardSequences.GeometryConf import GeometryConf
         if not args.doTest: # todo: include these in unit test somehow
@@ -180,11 +211,21 @@ class GeometryGenerator(object):
                 errorList.append(simName+" missing")
             elif not filecmp.cmp(simName,simFile):
                 errorList.append(simName+" differs")
+            simDD4hepFile = os.path.join(simrecoDD4hepDir,simDD4hepName)
+            if not os.path.isfile(simDD4hepFile):
+                errorList.append(simDD4hepName+" missing")
+            elif not filecmp.cmp(simDD4hepName,simDD4hepFile):
+                errorList.append(simDD4hepName+" differs")
             recoFile = os.path.join(simrecoDir,recoName)
             if not os.path.isfile(recoFile):
                 errorList.append(recoName+" missing")
             elif not filecmp.cmp(recoName,recoFile):
                 errorList.append(recoName+" differs")
+            recoDD4hepFile = os.path.join(simrecoDD4hepDir,recoDD4hepName)
+            if not os.path.isfile(recoDD4hepFile):
+                errorList.append(recoDD4hepName+" missing")
+            elif not filecmp.cmp(recoDD4hepName,recoDD4hepFile):
+                errorList.append(recoDD4hepName+" differs")
             # test for Configuration/StandardSequences
             if not 'Extended'+self.detectorYear+detectorVersion in GeometryConf.keys():
                 errorList.append('Extended'+self.detectorYear+detectorVersion+" missing from GeometryConf")

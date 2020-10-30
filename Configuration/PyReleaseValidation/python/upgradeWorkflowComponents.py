@@ -846,15 +846,26 @@ upgradeWFs['PMXS1S2PR'] = UpgradeWorkflowAdjustPU(
 
 class UpgradeWorkflow_DD4hep(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
-        stepDict[stepName][k] = merge([{'--geometry': 'DD4hepExtended2021', '--era': 'Run3_dd4hep'}, stepDict[step][k]])
+        if 'Run3' in stepDict[step][k]['--era']:
+            stepDict[stepName][k] = merge([{'--geometry': 'DD4hepExtended2021', '--procModifiers': 'dd4hep'}, stepDict[step][k]])
+        elif 'Phase2' in stepDict[step][k]['--era']:
+            dd4hepGeom="DD4hep"
+            dd4hepGeom+=stepDict[step][k]['--geometry']
+            stepDict[stepName][k] = merge([{'--geometry' : dd4hepGeom, '--procModifiers': 'dd4hep'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return (fragment=='TTbar_13' or fragment=='ZMM_13' or fragment=='SingleMuPt10') and '2021' in key
+        return ((fragment=='TTbar_13' or fragment=='ZMM_13' or fragment=='SingleMuPt10') and '2021' in key) \
+            or ((fragment=='TTbar_14TeV' or fragment=='ZMM_14' or fragment=='SingleMuPt10') and '2026' in key)
 upgradeWFs['DD4hep'] = UpgradeWorkflow_DD4hep(
     steps = [
         'GenSim',
+        'GenSimHLBeamSpot',
+        'GenSimHLBeamSpot14',
         'Digi',
+        'DigiTrigger',
         'Reco',
+        'RecoGlobal',
         'HARVEST',
+        'HARVESTGlobal',
         'ALCA',
     ],
     PU = [],

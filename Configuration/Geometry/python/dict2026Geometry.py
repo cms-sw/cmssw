@@ -1124,12 +1124,12 @@ timingDict = {
             'Geometry/MTDSimData/data/CrystalBarPhiFlat/mtdProdCuts.xml'
             ],
         "sim" : [
-            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *',
+            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cff import *',
         ],
         "reco" :[
             'from RecoMTD.DetLayers.mtdDetLayerGeometry_cfi import *',
-            'from Geometry.MTDGeometryBuilder.mtdParameters_cfi import *',
-            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *',
+            'from Geometry.MTDGeometryBuilder.mtdParameters_cff import *',
+            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cff import *',
             'from Geometry.MTDNumberingBuilder.mtdTopology_cfi import *',
             'from Geometry.MTDGeometryBuilder.mtdGeometry_cfi import *',
             'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',

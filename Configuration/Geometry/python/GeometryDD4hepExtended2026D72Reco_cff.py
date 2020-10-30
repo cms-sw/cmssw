@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # This config was generated automatically using generate2026Geometry.py
 # If you notice a mistake, please update the generating script, not just this config
 
-from Configuration.Geometry.GeometryExtended2026D60_cff import *
+from Configuration.Geometry.GeometryDD4hepExtended2026D72_cff import *
 
 # tracker
 from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *
@@ -16,8 +16,6 @@ trackerGeometry.applyAlignment = cms.bool(False)
 # calo
 from Geometry.CaloEventSetup.HGCalV9Topology_cfi import *
 from Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi import *
-from Geometry.CaloEventSetup.HFNoseTopology_cfi import *
-from Geometry.ForwardGeometry.HFNoseGeometryESProducer_cfi import *
 from Geometry.CaloEventSetup.CaloTopology_cfi import *
 from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *
 CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",
@@ -27,8 +25,7 @@ CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",
                                 "TOWER",
                                 "HGCalEESensitive",
                                 "HGCalHESiliconSensitive",
-                                "HGCalHEScintillatorSensitive",
-                                "HGCalHFNoseSensitive",
+                                "HGCalHEScintillatorSensitive"
     )
 )
 from Geometry.EcalAlgo.EcalBarrelGeometry_cfi import *
