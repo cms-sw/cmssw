@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-# Ideal geometry, needed for transient ECAL alignement
+# This config was generated automatically using generate2021Geometry.py
+# If you notice a mistake, please update the generating script, not just this config
+
 from Configuration.Geometry.GeometryDD4hepExtended2021ZeroMaterial_cff import *
 
 # tracker

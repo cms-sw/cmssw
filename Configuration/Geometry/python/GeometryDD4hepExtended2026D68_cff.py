@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 # If you notice a mistake, please update the generating script, not just this config
 
 from Configuration.Geometry.GeometryDD4hep_cff import *
-DDDetectorESProducer.confGeomXMLFiles = cms.FileInPath("Geometry/CMSCommonData/data/dd4hep/cmsExtendedGeometry2026D49.xml")
+DDDetectorESProducer.confGeomXMLFiles = cms.FileInPath("Geometry/CMSCommonData/data/dd4hep/cmsExtendedGeometry2026D68.xml")
 
 from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *
 from Geometry.EcalCommonData.ecalSimulationParameters_cff import *
