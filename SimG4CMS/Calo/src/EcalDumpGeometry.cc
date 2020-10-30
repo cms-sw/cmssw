@@ -116,11 +116,11 @@ void EcalDumpGeometry::dumpTouch(G4VPhysicalVolume* pv, unsigned int leafDepth) 
     fHistory_.BackLevel();
 }
 
-std::string EcalDumpGeometry::noRefl(const std::string & name) {
+std::string EcalDumpGeometry::noRefl(const std::string& name) {
   if (name.find("_refl") == std::string::npos) {
     return name;
   } else {
     size_t n = name.size();
-    return name.substr(0, n-5);
+    return name.substr(0, n - 5);
   }
 }

@@ -114,6 +114,7 @@ protected:
   inline void setNumberCheckedHits(int val) { nCheckedHits = val; }
 
   bool isItFineCalo(const G4VTouchable* touch);
+
 private:
   void storeHit(CaloG4Hit*);
   bool saveHit(CaloG4Hit*);

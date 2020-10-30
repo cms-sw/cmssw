@@ -139,7 +139,8 @@ CaloSD::CaloSD(const std::string& name,
     edm::LogVerbatim("CaloSim") << "CaloSD::Loads information for " << fineDetectors_.size() << " fine detectors";
     unsigned int k(0);
     for (const auto& detector : fineDetectors_) {
-      edm::LogVerbatim("CaloSim") << "Detector[" << k << "] " << detector.name << " at level " << detector.level << " pointer to LV: " << detector.lv;
+      edm::LogVerbatim("CaloSim") << "Detector[" << k << "] " << detector.name << " at level " << detector.level
+                                  << " pointer to LV: " << detector.lv;
     }
 #endif
   } else {
@@ -309,9 +310,11 @@ bool CaloSD::isItFineCalo(const G4VTouchable* touch) {
       ok = (lv == detector.lv);
 #ifdef EDM_ML_DEBUG
       std::string name = (lv == 0) ? "Unknown" : lv->GetName();
-      edm::LogVerbatim("CaloSim") << "CaloSD: volume " << name1 << ":" << detector.name << " at Level " << detector.level << " Flag " << ok;
+      edm::LogVerbatim("CaloSim") << "CaloSD: volume " << name1 << ":" << detector.name << " at Level "
+                                  << detector.level << " Flag " << ok;
 #endif
-      if (ok) break;
+      if (ok)
+        break;
     }
   }
   return ok;
