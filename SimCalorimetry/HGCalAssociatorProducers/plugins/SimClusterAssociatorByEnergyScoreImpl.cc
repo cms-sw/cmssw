@@ -395,6 +395,14 @@ hgcal::association SimClusterAssociatorByEnergyScoreImpl::makeConnections(
         }
         scPair.second +=
             (rhFraction - scFraction) * (rhFraction - scFraction) * hitEnergyWeight * invLayerClusterEnergyWeight;
+#ifdef EDM_ML_DEBUG
+	LogDebug("SimClusterAssociatorByEnergyScoreImpl") 
+	  << "rh_detid:\t" << (uint32_t) rh_detid << "\tlayerClusterId:\t" << lcId << "\t"
+	  << "rhfraction,scfraction:\t" << rhFraction << ", " << scFraction << "\t"
+	  << "hitEnergyWeight:\t" << hitEnergyWeight << "\t"
+	  << "current score:\t" << scPair.second << "\t"
+	  << "invLayerClusterEnergyWeight:\t" << invLayerClusterEnergyWeight << "\n";
+#endif
       }
     }  // End of loop over Hits within a LayerCluster
 #ifdef EDM_ML_DEBUG
