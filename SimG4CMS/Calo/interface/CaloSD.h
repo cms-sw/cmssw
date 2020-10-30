@@ -67,6 +67,8 @@ public:
   void fillHits(edm::PCaloHitContainer&, const std::string&) override;
   void reset() override;
 
+  bool isItFineCalo(const G4VTouchable* touch);
+
 protected:
   virtual double getEnergyDeposit(const G4Step* step);
   virtual double EnergyCorrected(const G4Step& step, const G4Track*);
@@ -112,8 +114,6 @@ protected:
   }
 
   inline void setNumberCheckedHits(int val) { nCheckedHits = val; }
-
-  bool isItFineCalo(const G4VTouchable* touch);
 
 private:
   void storeHit(CaloG4Hit*);
