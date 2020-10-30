@@ -368,10 +368,6 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       int scopy(0);
       double boxax(0.), boxay(0.), boxaz(0.);
       int ladd_not_plain(0), ladd_subtr_no(0), ladd_upper(0), ladd_side(0);
-      // const string& nam,
-      // double z, double theta, double phi,
-      // double h1, double bl1, double tl1, double alpha1,
-      // double h2, double bl2, double tl2, double alpha2)
       Solid solid_lfront = Trap("esalgo:LDRFRNT",
                                 es.ldrFrnt_Length / 2.,                                                 // pDz
                                 -es.wedge_angle,                                                        // pTheta
@@ -461,8 +457,6 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
             const string& dd_tmp_name_5a("esalgo:" + es.ladPfx[2]);
             const string& dd_tmp_name_5b("esalgo:" + es.ladPfx[3] + to_string(enb));
             const string& dd_tmp_name_5c("esalgo:" + es.ladPfx[4] + to_string(enb));
-            const string& dd_tmp_name_5d("esalgo:" + es.ladPfx[5] + to_string(enb));
-            const string& dd_tmp_name_5e("esalgo:" + es.ladPfx[6]);
 
             boxay = ladder_length - es.ldrFrnt_Length - es.ldrBck_Length;
             boxax = es.ladder_width;
@@ -562,9 +556,6 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
             const string& dd_tmp_name_a("esalgo:" + es.ladPfx[7]);
             const string& dd_tmp_name_b("esalgo:" + es.ladPfx[8] + to_string(enb));
-            const string& dd_tmp_name_c("esalgo:" + es.ladPfx[9] + to_string(enb));
-            const string& dd_tmp_name_d("esalgo:" + es.ladPfx[10] + to_string(enb));
-            const string& dd_tmp_name_e("esalgo:" + es.ladPfx[11]);
 
             boxay = ladder_length - es.ldrFrnt_Length - es.ldrBck_Length;
             boxax = es.ladder_width;
@@ -602,9 +593,6 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
               const string& dd_tmp_name_a("esalgo:" + es.ladPfx[7]);
               const string& dd_tmp_name_b("esalgo:" + es.ladPfx[8] + to_string(enb));
-              const string& dd_tmp_name_c("esalgo:" + es.ladPfx[9] + to_string(enb));
-              const string& dd_tmp_name_d("esalgo:" + es.ladPfx[10] + to_string(enb));
-              const string& dd_tmp_name_e("esalgo:" + es.ladPfx[11]);
 
               boxay = ladder_length - es.ldrFrnt_Length - es.ldrBck_Length;
               boxax = es.ladder_width;
@@ -641,8 +629,6 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
               const string& dd_tmp_name_a("esalgo:" + es.ladPfx[7]);
               const string& dd_tmp_name_b("esalgo:" + es.ladPfx[8] + to_string(enb));
               const string& dd_tmp_name_c("esalgo:" + es.ladPfx[9] + to_string(enb));
-              const string& dd_tmp_name_d("esalgo:" + es.ladPfx[10] + to_string(enb));
-              const string& dd_tmp_name_e("esalgo:" + es.ladPfx[11]);
 
               boxay = ladder_length - es.ldrFrnt_Length - es.ldrBck_Length;
               boxax = es.ladder_width;
