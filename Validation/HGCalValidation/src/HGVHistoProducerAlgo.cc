@@ -1926,8 +1926,8 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
         for (auto& cpPair : cpsInMultiCluster[mclId]) {
           //In case of a multi cluster with zero energy but related CaloParticles the score is set to 1.
           cpPair.second = 1.;
-          LogDebug("HGCalValidator") << "multiCluster Id: \t" << mclId << "\t CP id: \t" << cpPair.first << "\t score \t"
-            << cpPair.second << std::endl;
+          LogDebug("HGCalValidator") << "multiCluster Id: \t" << mclId << "\t CP id: \t" << cpPair.first
+                                     << "\t score \t" << cpPair.second << std::endl;
           histograms.h_score_multicl2caloparticle[count]->Fill(cpPair.second);
         }
         continue;
@@ -1937,7 +1937,7 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
       float invMultiClusterEnergyWeight = 0.f;
       for (auto const& haf : multiClusters[mclId].hitsAndFractions()) {
         invMultiClusterEnergyWeight +=
-          (haf.second * hitMap.at(haf.first)->energy()) * (haf.second * hitMap.at(haf.first)->energy());
+            (haf.second * hitMap.at(haf.first)->energy()) * (haf.second * hitMap.at(haf.first)->energy());
       }
       invMultiClusterEnergyWeight = 1.f / invMultiClusterEnergyWeight;
 
@@ -1958,8 +1958,8 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
           float cpFraction = 0.f;
           if (!hitWithNoCP) {
             auto findHitIt = std::find(detIdToCaloParticleId_Map[rh_detid].begin(),
-                detIdToCaloParticleId_Map[rh_detid].end(),
-                HGVHistoProducerAlgo::detIdInfoInCluster{cpPair.first, 0.f});
+                                       detIdToCaloParticleId_Map[rh_detid].end(),
+                                       HGVHistoProducerAlgo::detIdInfoInCluster{cpPair.first, 0.f});
             if (findHitIt != detIdToCaloParticleId_Map[rh_detid].end()) {
               cpFraction = findHitIt->fraction;
             }
@@ -1968,22 +1968,22 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
             cpPair.second = 0.f;
           }
           cpPair.second +=
-            (rhFraction - cpFraction) * (rhFraction - cpFraction) * hitEnergyWeight * invMultiClusterEnergyWeight;
+              (rhFraction - cpFraction) * (rhFraction - cpFraction) * hitEnergyWeight * invMultiClusterEnergyWeight;
         }
       }  //end of loop through rechits of layer cluster
 
       //In case of a multi cluster with some energy but none related CaloParticles print some info.
       if (cpsInMultiCluster[mclId].empty())
         LogDebug("HGCalValidator") << "multiCluster Id: \t" << mclId << "\tCP id:\t-1 "
-          << "\t score \t-1"
-          << "\n";
+                                   << "\t score \t-1"
+                                   << "\n";
 
       auto score = std::min_element(std::begin(cpsInMultiCluster[mclId]),
-          std::end(cpsInMultiCluster[mclId]),
-          [](const auto& obj1, const auto& obj2) { return obj1.second < obj2.second; });
+                                    std::end(cpsInMultiCluster[mclId]),
+                                    [](const auto& obj1, const auto& obj2) { return obj1.second < obj2.second; });
       for (auto& cpPair : cpsInMultiCluster[mclId]) {
         LogDebug("HGCalValidator") << "multiCluster Id: \t" << mclId << "\t CP id: \t" << cpPair.first << "\t score \t"
-          << cpPair.second << std::endl;
+                                   << cpPair.second << std::endl;
         if (cpPair.first == score->first) {
           histograms.h_score_multicl2caloparticle[count]->Fill(score->second);
         }
@@ -1996,15 +1996,15 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
         LogDebug("HGCalValidator") << "sharedeneCPallLayers " << sharedeneCPallLayers << std::endl;
         if (cpPair.first == score->first) {
           histograms.h_sharedenergy_multicl2caloparticle[count]->Fill(sharedeneCPallLayers /
-              multiClusters[mclId].energy());
+                                                                      multiClusters[mclId].energy());
           histograms.h_energy_vs_score_multicl2caloparticle[count]->Fill(
               score->second, sharedeneCPallLayers / multiClusters[mclId].energy());
         }
       }
 
       auto assocFakeMerge = std::count_if(std::begin(cpsInMultiCluster[mclId]),
-          std::end(cpsInMultiCluster[mclId]),
-          [](const auto& obj) { return obj.second < ScoreCutMCLtoCPFakeMerge_; });
+                                          std::end(cpsInMultiCluster[mclId]),
+                                          [](const auto& obj) { return obj.second < ScoreCutMCLtoCPFakeMerge_; });
       tracksters_fakemerge[mclId] = assocFakeMerge;
     }
   }  //end of loop through multiclusters
@@ -2200,8 +2200,8 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
         histograms.h_num_multicl_eta[count]->Fill(multiClusters[mclId].eta());
         histograms.h_num_multicl_phi[count]->Fill(multiClusters[mclId].phi());
         auto best = std::min_element(std::begin(cpsInMultiCluster[mclId]),
-            std::end(cpsInMultiCluster[mclId]),
-            [](const auto& obj1, const auto& obj2) { return obj1.second < obj2.second; });
+                                     std::end(cpsInMultiCluster[mclId]),
+                                     [](const auto& obj1, const auto& obj2) { return obj1.second < obj2.second; });
 
         //This is the shared energy taking the best caloparticle in each layer
         float sharedeneCPallLayers = 0.;
