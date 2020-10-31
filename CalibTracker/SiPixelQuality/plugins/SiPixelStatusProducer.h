@@ -145,8 +145,25 @@ public:
                descriptions.add("siPixelStatusProducer", desc);
    }
 
+
+   /*|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
+
+   /* For each instance of the module*/
+   void beginRun(edm::Run const&, edm::EventSetup const&) final; 
+
+   void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) final;
+   void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) final;
+
+   void accumulate(edm::Event const& iEvent, edm::EventSetup const& iSetup) final;
+
+   void endLuminosityBlockSummary(edm::LuminosityBlock const& iLumi, edm::EventSetup const&, 
+                                  std::vector<SiPixelDetectorStatus>* siPixelDetectorStatusVtr) const final;//override;
+
+
+   /* For global or runCache */
+
    static std::unique_ptr<SiPixelTopoCache> initializeGlobalCache(edm::ParameterSet const& iPSet) {
-       return std::unique_ptr<SiPixelTopoCache>(new SiPixelTopoCache(iPSet));
+          return std::unique_ptr<SiPixelTopoCache>(new SiPixelTopoCache(iPSet));
    }
 
    static std::shared_ptr<SiPixelTopoFinder> globalBeginRun(edm::Run const& iRun, edm::EventSetup const& iSetup,
@@ -158,25 +175,13 @@ public:
 
 
    static void globalEndRun(edm::Run const& iRun, edm::EventSetup const&, RunContext const* iContext) {
-               //Do nothing
+               /* Do nothing */
    }
-     
+
    static void globalEndJob(SiPixelTopoCache const*) {
-               //Do nothing
+               /* Do nothing */
    }
 
-   /*|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
-
-   void beginRun(edm::Run const&, edm::EventSetup const&) final; 
-
-   void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) final;
-   //void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) final {}
-
-   void accumulate(edm::Event const& iEvent, edm::EventSetup const& iSetup) final;
-
-
-   void endLuminosityBlockSummary(edm::LuminosityBlock const& iLumi, edm::EventSetup const&, 
-                                  std::vector<SiPixelDetectorStatus>* siPixelDetectorStatusVtr) const override;
 
 
    static std::shared_ptr<std::vector<SiPixelDetectorStatus>> globalBeginLuminosityBlockSummary(edm::LuminosityBlock const&,
@@ -189,14 +194,36 @@ public:
                                                edm::EventSetup const&,
                                                LuminosityBlockContext const* iContext,
                                                std::vector<SiPixelDetectorStatus>*) {
-      //Nothing to do
+               /* Do nothing */
+
    }
 
    static void globalEndLuminosityBlockProduce(edm::LuminosityBlock& iLumi,
                                                edm::EventSetup const&,
                                                LuminosityBlockContext const* iContext,
                                                std::vector<SiPixelDetectorStatus> const* siPixelDetectorStatusVtr) {
-      //
+
+               edm::LogInfo("SiPixelStatusProducer") << "endlumi producer " << std::endl;
+
+               // only save result for non-zero event lumi block              
+               if ( siPixelDetectorStatusVtr->size() > 0 ){
+  	           int lumi = iLumi.luminosityBlock();
+                   int run  = iLumi.run();
+
+                   SiPixelDetectorStatus siPixelDetectorStatus = SiPixelDetectorStatus();
+                   for (unsigned int instance = 0; instance < siPixelDetectorStatusVtr->size(); instance++){
+                       siPixelDetectorStatus.updateDetectorStatus((*siPixelDetectorStatusVtr)[instance]);
+                   }
+
+  	           /* save result */
+                   auto result = std::make_unique<SiPixelDetectorStatus>();
+                   *result = siPixelDetectorStatus;
+
+                   iLumi.put(std::move(result), std::string("siPixelStatus"));
+                   edm::LogInfo("SiPixelStatusProducer") <<" lumi-based data stored for run "<< run <<" lumi "<< lumi << std::endl;
+
+               }
+
    }                           
 
 private:
