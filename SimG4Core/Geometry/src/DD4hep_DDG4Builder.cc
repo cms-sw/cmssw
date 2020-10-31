@@ -32,6 +32,7 @@ G4VPhysicalVolume *DDG4Builder::BuildGeometry(SensitiveDetectorCatalog &catalog)
   DetElement world = det->description()->world();
   const Detector &detector = *det->description();
   Geant4Converter g4Geo(detector);
+  g4Geo.debugMaterials = false;
   Geant4GeometryInfo *geometry = g4Geo.create(world).detach();
   map_ = geometry->g4Volumes;
 
