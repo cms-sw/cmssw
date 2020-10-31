@@ -22,8 +22,10 @@
 #include "CondCore/ESSources/interface/DataProxy.h"
 
 #include "CondCore/CondDB/interface/PayloadProxy.h"
+#include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include <exception>
 
 #include <iomanip>
@@ -123,6 +125,17 @@ CondDBESSource::CondDBESSource(const edm::ParameterSet& iConfig)
     globaltag = iConfig.getParameter<std::string>("globaltag");
     // the global tag _requires_ a connection string
     m_connectionString = iConfig.getParameter<std::string>("connect");
+
+    if (!globaltag.empty()) {
+      edm::Service<edm::SiteLocalConfig> siteLocalConfig;
+      if (siteLocalConfig.isAvailable()) {
+        if (siteLocalConfig->useLocalConnectString()) {
+          std::string const& localConnectPrefix = siteLocalConfig->localConnectPrefix();
+          std::string const& localConnectSuffix = siteLocalConfig->localConnectSuffix();
+          m_connectionString = localConnectPrefix + globaltag + localConnectSuffix;
+        }
+      }
+    }
   } else if (iConfig.exists("connect"))  // default connection string
     m_connectionString = iConfig.getParameter<std::string>("connect");
 
