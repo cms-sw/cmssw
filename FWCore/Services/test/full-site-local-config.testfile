@@ -9,10 +9,9 @@
     <catalog url="trivialcatalog_file:/dummy/storage.xml?protocol=srm"/>
   </local-stage-out>
   <calib-data>
-    <frontier-connect>
-      <proxy url="http://cmsfrontier.dummy.foo:3128"/>
-      <proxy url="http://cmsfrontier.dummy.foo:3128"/>
-    </frontier-connect>
+    <local-connect>
+      <connectString prefix="Test:Prefix" suffix="Test.Suffix"/>
+    </local-connect>
   </calib-data>
   <source-config>
     <cache-temp-dir name="/a/b/c"/>
