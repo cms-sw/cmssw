@@ -99,7 +99,7 @@ void EcalDumpGeometry::dumpTouch(G4VPhysicalVolume* pv, unsigned int leafDepth) 
           double a2 = (std::abs(solid->GetTanAlpha2()) > 1.e-5) ? solid->GetTanAlpha2() : 0.0;
           pars.emplace_back(a2);
         }
-        infoVec_.emplace_back(CaloDetInfo(id, lvname, globalpoint, pars));
+        infoVec_.emplace_back(CaloDetInfo(id, noRefl(lvname), globalpoint, pars));
       }
       break;
     }
@@ -114,4 +114,13 @@ void EcalDumpGeometry::dumpTouch(G4VPhysicalVolume* pv, unsigned int leafDepth) 
 
   if (leafDepth > 0)
     fHistory_.BackLevel();
+}
+
+std::string EcalDumpGeometry::noRefl(const std::string& name) {
+  if (name.find("_refl") == std::string::npos) {
+    return name;
+  } else {
+    size_t n = name.size();
+    return name.substr(0, n - 5);
+  }
 }

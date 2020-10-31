@@ -8,8 +8,13 @@
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
 #include "SimG4Core/Notification/interface/SimTrackManager.h"
+#include "Geometry/Records/interface/HcalParametersRcd.h"
+#include "CondFormats/GeometryObjects/interface/CaloSimulationParameters.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "G4EventManager.hh"
+#include "G4LogicalVolumeStore.hh"
+#include "G4LogicalVolume.hh"
 #include "G4SDManager.hh"
 #include "G4Step.hh"
 #include "G4Track.hh"
@@ -101,6 +106,47 @@ CaloSD::CaloSD(const std::string& name,
                               << eminHitD / CLHEP::MeV << " MeV (for nonzero depths);\n        Time Slice Unit "
                               << timeSlice << "\nIgnore TrackID Flag " << ignoreTrackID << " UseFineCaloID flag "
                               << useFineCaloID_;
+
+  // Get pointer to CaloSimulationParameters
+  edm::ESHandle<CaloSimulationParameters> csps;
+  es.get<HcalParametersRcd>().get(csps);
+  if (csps.isValid()) {
+    const CaloSimulationParameters* csp = csps.product();
+    edm::LogVerbatim("CaloSim") << "CaloSD: " << csp->fCaloNames_.size() << " entries for fineCalorimeters:";
+    for (unsigned int i = 0; i < csp->fCaloNames_.size(); i++)
+      edm::LogVerbatim("CaloSim") << " [" << i << "] " << csp->fCaloNames_[i] << ":" << csp->fLevels_[i];
+
+    const G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
+    std::vector<G4LogicalVolume*>::const_iterator lvcite;
+    for (unsigned int i = 0; i < csp->fCaloNames_.size(); i++) {
+      G4LogicalVolume* lv = nullptr;
+      G4String name = static_cast<G4String>(csp->fCaloNames_[i]);
+      for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
+        if ((*lvcite)->GetName() == name) {
+          lv = (*lvcite);
+          break;
+        }
+      }
+      if (lv != nullptr) {
+        CaloSD::Detector detector;
+        detector.name = name;
+        detector.lv = lv;
+        detector.level = csp->fLevels_[i];
+        fineDetectors_.emplace_back(detector);
+      }
+    }
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("CaloSim") << "CaloSD::Loads information for " << fineDetectors_.size() << " fine detectors";
+    unsigned int k(0);
+    for (const auto& detector : fineDetectors_) {
+      edm::LogVerbatim("CaloSim") << "Detector[" << k << "] " << detector.name << " at level " << detector.level
+                                  << " pointer to LV: " << detector.lv;
+    }
+#endif
+  } else {
+    edm::LogError("CaloSim") << "CaloSD: Cannot find CaloSimulationParameters";
+    throw cms::Exception("Unknown", "CaloSD") << "Cannot find CaloSimulationParameters\n";
+  }
 }
 
 CaloSD::~CaloSD() {}
@@ -253,6 +299,26 @@ double CaloSD::getEnergyDeposit(const G4Step* aStep) { return aStep->GetTotalEne
 double CaloSD::EnergyCorrected(const G4Step& aStep, const G4Track*) { return aStep.GetTotalEnergyDeposit(); }
 
 bool CaloSD::getFromLibrary(const G4Step*) { return false; }
+
+bool CaloSD::isItFineCalo(const G4VTouchable* touch) {
+  bool ok(false);
+  int level = ((touch->GetHistoryDepth()) + 1);
+  for (const auto& detector : fineDetectors_) {
+    if (level > 0 && level >= detector.level) {
+      int ii = level - detector.level;
+      G4LogicalVolume* lv = touch->GetVolume(ii)->GetLogicalVolume();
+      ok = (lv == detector.lv);
+#ifdef EDM_ML_DEBUG
+      std::string name = (lv == 0) ? "Unknown" : lv->GetName();
+      edm::LogVerbatim("CaloSim") << "CaloSD: volume " << name1 << ":" << detector.name << " at Level "
+                                  << detector.level << " Flag " << ok;
+#endif
+      if (ok)
+        break;
+    }
+  }
+  return ok;
+}
 
 void CaloSD::Initialize(G4HCofThisEvent* HCE) {
   totalHits = 0;
