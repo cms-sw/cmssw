@@ -207,7 +207,7 @@ unsigned int CaloGeometryLoader<T>::getDetIdForDD4HepNode(const cms::DDFilteredV
   EcalBaseNumber baseNumber;
   baseNumber.setSize(psize);
 
-  size_t n = path.find("/") + 1;
+  size_t n = path.find('/') + 1;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("EcalGeom") << path << " n " << n;
 #endif
@@ -232,7 +232,8 @@ unsigned int CaloGeometryLoader<T>::getDetIdForDD4HepNode(const cms::DDFilteredV
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("EcalGeom") << "Base number with " << baseNumber.getLevels() << " levels";
   for (int k = 0; k < baseNumber.getLevels(); ++k)
-    edm::LogVerbatim("EcalGeom") << "[" << k << "] " << baseNumber.getLevelName(k) << ":" << baseNumber.getCopyNumber(k);
+    edm::LogVerbatim("EcalGeom") << "[" << k << "] " << baseNumber.getLevelName(k) << ":"
+                                 << baseNumber.getCopyNumber(k);
 #endif
   return m_scheme.getUnitID(baseNumber);
 }
