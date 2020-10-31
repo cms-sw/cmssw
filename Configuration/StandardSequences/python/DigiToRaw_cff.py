@@ -19,7 +19,8 @@ from EventFilter.RawDataCollector.rawDataCollector_cfi import *
 from L1Trigger.Configuration.L1TDigiToRaw_cff import *
 from EventFilter.CTPPSRawToDigi.ctppsDigiToRaw_cff import *
 
-DigiToRawTask = cms.Task(L1TDigiToRawTask, siPixelRawData, SiStripDigiToRaw, ecalPacker, esDigiToRaw, hcalRawDataTask, cscpacker, dtpacker, rpcpacker, ctppsRawData, castorRawData, rawDataCollector)
+#DigiToRawTask = cms.Task(L1TDigiToRawTask, siPixelRawData, SiStripDigiToRaw, ecalPacker, esDigiToRaw, hcalRawDataTask, cscpacker, dtpacker, rpcpacker, ctppsRawData, castorRawData, rawDataCollector)
+DigiToRawTask = cms.Task(L1TDigiToRawTask, siPixelRawData, SiStripDigiToRaw, ecalPacker, esDigiToRaw, hcalRawDataTask, cscpacker, dtpacker, rpcpacker, castorRawData, rawDataCollector)
 DigiToRaw = cms.Sequence(DigiToRawTask)
 
 ecalPacker.Label = 'simEcalDigis'
