@@ -438,7 +438,7 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
           for (auto otherTracksterIdx : trackstersTRKEMwithSameSeed) {
             auto tmpIndex = (otherTracksterIdx != closestTrackster) ? otherTracksterIdx : mergedIdx;
             TICLCandidate photonCandidate;
-            auto &otherTrackster = trackstersMergedHandle->at(tmpIndex);
+            const auto &otherTrackster = trackstersMergedHandle->at(tmpIndex);
             auto gammaEnergy = otherTrackster.raw_energy();
             photonCandidate.setCharge(0);
             photonCandidate.setPdgId(22);
