@@ -54,7 +54,7 @@ void PFTICLProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSet
     const auto& four_mom = ticl_cand.p4();
     double ecal_energy = 0.;
 
-    for (const auto t : ticl_cand.tracksters()) {
+    for (const auto& t : ticl_cand.tracksters()) {
       double ecal_energy_fraction = t->raw_em_pt() / t->raw_pt();
       ecal_energy += t->raw_energy() * ecal_energy_fraction;
     }
