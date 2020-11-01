@@ -51,7 +51,7 @@ private:
 
   // ----------member data ---------------------------
   edm::Service<TFileService> fs_;
-  std::map<DetId::Detector, std::unique_ptr<HGCalSiNoiseMap>> noiseMaps_;
+  std::map<DetId::Detector, std::unique_ptr<HGCalSiNoiseMap<HFNoseDetId>>> noiseMaps_;
   std::map<std::pair<DetId::Detector, int>, TH1F *> layerN_, layerCCE_, layerNoise_, layerIleak_, layerSN_, layerF_,
       layerGain_, layerMipPeak_;
   std::map<DetId::Detector, TH2F *> detN_, detCCE_, detNoise_, detIleak_, detSN_, detF_, detGain_, detMipPeak_;
@@ -82,7 +82,7 @@ HFNoseNoiseMapAnalyzer::HFNoseNoiseMapAnalyzer(const edm::ParameterSet &iConfig)
   std::vector<double> cceParamThick(
       iConfig.getParameter<edm::ParameterSet>("cceParams").template getParameter<std::vector<double>>("cceParamThick"));
 
-  noiseMaps_[DetId::Forward] = std::unique_ptr<HGCalSiNoiseMap>(new HGCalSiNoiseMap);
+  noiseMaps_[DetId::Forward] = std::unique_ptr<HGCalSiNoiseMap<HFNoseDetId>>(new HGCalSiNoiseMap<HFNoseDetId>);
   noiseMaps_[DetId::Forward]->setDoseMap(doseMapURL, doseMapAlgo);
   noiseMaps_[DetId::Forward]->setFluenceScaleFactor(scaleByDoseFactor);
   noiseMaps_[DetId::Forward]->setIleakParam(ileakParam);
@@ -172,11 +172,11 @@ void HFNoseNoiseMapAnalyzer::analyze(const edm::Event &iEvent, const edm::EventS
       GlobalPoint pt = noiseMaps_[d]->geom()->getPosition(id);
       double r(pt.perp());
 
-      HGCalSiNoiseMap::GainRange_t gainToSet(HGCalSiNoiseMap::AUTO);
+      HGCalSiNoiseMap<HFNoseDetId>::GainRange_t gainToSet(HGCalSiNoiseMap<HFNoseDetId>::AUTO);
       if (ignoreGainSettings_)
-        gainToSet = HGCalSiNoiseMap::q80fC;
-      HGCalSiNoiseMap::SiCellOpCharacteristics siop =
-          noiseMaps_[d]->getSiCellOpCharacteristics(cellId.rawId(), gainToSet, aimMIPtoADC_);
+        gainToSet = HGCalSiNoiseMap<HFNoseDetId>::q80fC;
+      HGCalSiNoiseMap<HFNoseDetId>::SiCellOpCharacteristics siop =
+          noiseMaps_[d]->getSiCellOpCharacteristics(id, gainToSet, aimMIPtoADC_);
 
       //fill histos (layer,radius)
       detN_[d]->Fill(layer, r, 1);
