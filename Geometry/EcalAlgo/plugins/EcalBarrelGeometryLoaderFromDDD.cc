@@ -36,7 +36,7 @@ void EcalBGL::fillGeom(EcalBarrelGeometry* geom,
   pv.reserve(size);
   for (unsigned int i(0); i != size; ++i) {
     unsigned int ii = ioff + i;
-    const CCGFloat factor(1 == ii || 2 == ii || 6 == ii || 10 == ii ? 1 : (CCGFloat)scale);
+    const CCGFloat factor(1 == i || 2 == i || 6 == i || 10 == i ? 1 : static_cast<CCGFloat>(scale));
     pv.emplace_back(factor * vv[ii]);
   }
 
