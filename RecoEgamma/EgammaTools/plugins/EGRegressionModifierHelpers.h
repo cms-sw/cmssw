@@ -3,12 +3,23 @@
 
 #include "CondFormats/DataRecord/interface/GBRDWrapperRcd.h"
 #include "CondFormats/EgammaObjects/interface/GBRForestD.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include <string>
 #include <vector>
 
-std::vector<const GBRForestD*> retrieveGBRForests(edm::EventSetup const& evs, std::vector<std::string> const& names);
+struct EGRegressionModifierCondTokens {
+  EGRegressionModifierCondTokens(edm::ParameterSet const& config,
+                                 std::string const& regressionKey,
+                                 std::string const& uncertaintyKey,
+                                 edm::ConsumesCollector& cc);
+  std::vector<edm::ESGetToken<GBRForestD, GBRDWrapperRcd>> mean;
+  std::vector<edm::ESGetToken<GBRForestD, GBRDWrapperRcd>> sigma;
+};
+
+std::vector<const GBRForestD*> retrieveGBRForests(
+    edm::EventSetup const& evs, std::vector<edm::ESGetToken<GBRForestD, GBRDWrapperRcd>> const& tokens);
 
 #endif

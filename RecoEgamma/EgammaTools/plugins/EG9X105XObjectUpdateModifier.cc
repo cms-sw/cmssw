@@ -39,7 +39,6 @@ public:
   ~EG9X105XObjectUpdateModifier() override {}
 
   void setEvent(const edm::Event&) final;
-  void setEventContent(const edm::EventSetup&) final;
 
   void modifyObject(reco::GsfElectron& ele) const final;
   void modifyObject(reco::Photon& pho) const final;
@@ -119,8 +118,6 @@ void EG9X105XObjectUpdateModifier::setEvent(const edm::Event& iEvent) {
   if (updateChargedHadPFPVIso_)
     phoChargedHadPFPVIso_.setHandle(iEvent);
 }
-
-void EG9X105XObjectUpdateModifier::setEventContent(const edm::EventSetup& iSetup) {}
 
 void EG9X105XObjectUpdateModifier::modifyObject(reco::GsfElectron& ele) const {
   edm::Ptr<reco::GsfElectron> ptrForVM = getPtrForValueMap(ele, eleCollVMsAreKeyedTo_.handle());
