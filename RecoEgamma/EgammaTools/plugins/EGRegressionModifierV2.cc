@@ -28,13 +28,8 @@ public:
   void modifyObject(pat::Photon& pho) const final { modifyObject(static_cast<reco::Photon&>(pho)); }
 
 private:
-  struct CondNames {
-    std::vector<std::string> mean;
-    std::vector<std::string> sigma;
-  };
-
-  CondNames eleCondNames_;
-  CondNames phoCondNames_;
+  EGRegressionModifierCondTokens eleCondTokens_;
+  EGRegressionModifierCondTokens phoCondTokens_;
 
   float rhoValue_;
   edm::EDGetTokenT<double> rhoToken_;
@@ -58,6 +53,9 @@ DEFINE_EDM_PLUGIN(ModifyObjectValueFactory, EGRegressionModifierV2, "EGRegressio
 
 EGRegressionModifierV2::EGRegressionModifierV2(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
     : ModifyObjectValueBase(conf),
+      eleCondTokens_{conf.getParameter<edm::ParameterSet>("electron_config"), "regressionKey", "uncertaintyKey", cc},
+      phoCondTokens_{conf.getParameter<edm::ParameterSet>("photon_config"), "regressionKey", "uncertaintyKey", cc},
+
       rhoToken_(cc.consumes<double>(conf.getParameter<edm::InputTag>("rhoCollection"))),
       lowEnergyEcalOnlyThr_(conf.getParameter<double>("lowEnergy_ECALonlyThr")),
       lowEnergyEcalTrackThr_(conf.getParameter<double>("lowEnergy_ECALTRKThr")),
@@ -66,23 +64,11 @@ EGRegressionModifierV2::EGRegressionModifierV2(const edm::ParameterSet& conf, ed
       epDiffSigEcalTrackThr_(conf.getParameter<double>("epDiffSig_ECALTRKThr")),
       epSigEcalTrackThr_(conf.getParameter<double>("epSig_ECALTRKThr")),
       forceHighEnergyEcalTrainingIfSaturated_(conf.getParameter<bool>("forceHighEnergyEcalTrainingIfSaturated")) {
-  const edm::ParameterSet& electrons = conf.getParameter<edm::ParameterSet>("electron_config");
-  eleCondNames_ = CondNames{
-      .mean = electrons.getParameter<std::vector<std::string> >("regressionKey"),
-      .sigma = electrons.getParameter<std::vector<std::string> >("uncertaintyKey"),
-  };
-
-  unsigned int encor = eleCondNames_.mean.size();
+  unsigned int encor = eleCondTokens_.mean.size();
   eleForestsMean_.reserve(2 * encor);
   eleForestsSigma_.reserve(2 * encor);
 
-  const edm::ParameterSet& photons = conf.getParameter<edm::ParameterSet>("photon_config");
-  phoCondNames_ = CondNames{
-      .mean = photons.getParameter<std::vector<std::string> >("regressionKey"),
-      .sigma = photons.getParameter<std::vector<std::string> >("uncertaintyKey"),
-  };
-
-  unsigned int ncor = phoCondNames_.mean.size();
+  unsigned int ncor = phoCondTokens_.mean.size();
   phoForestsMean_.reserve(ncor);
   phoForestsSigma_.reserve(ncor);
 }
@@ -94,11 +80,11 @@ void EGRegressionModifierV2::setEvent(const edm::Event& evt) {
 }
 
 void EGRegressionModifierV2::setEventContent(const edm::EventSetup& evs) {
-  phoForestsMean_ = retrieveGBRForests(evs, phoCondNames_.mean);
-  phoForestsSigma_ = retrieveGBRForests(evs, phoCondNames_.sigma);
+  phoForestsMean_ = retrieveGBRForests(evs, phoCondTokens_.mean);
+  phoForestsSigma_ = retrieveGBRForests(evs, phoCondTokens_.sigma);
 
-  eleForestsMean_ = retrieveGBRForests(evs, eleCondNames_.mean);
-  eleForestsSigma_ = retrieveGBRForests(evs, eleCondNames_.sigma);
+  eleForestsMean_ = retrieveGBRForests(evs, eleCondTokens_.mean);
+  eleForestsSigma_ = retrieveGBRForests(evs, eleCondTokens_.sigma);
 
   evs.get<CaloGeometryRecord>().get(caloGeometry_);
 }

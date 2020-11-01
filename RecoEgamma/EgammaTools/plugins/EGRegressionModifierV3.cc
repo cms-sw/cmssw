@@ -22,7 +22,7 @@
 class EGRegressionModifierV3 : public ModifyObjectValueBase {
 public:
   struct EleRegs {
-    EleRegs(const edm::ParameterSet& iConfig);
+    EleRegs(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc);
     void setEventContent(const edm::EventSetup& iSetup);
     EgammaRegressionContainer ecalOnlyMean;
     EgammaRegressionContainer ecalOnlySigma;
@@ -30,7 +30,7 @@ public:
   };
 
   struct PhoRegs {
-    PhoRegs(const edm::ParameterSet& iConfig);
+    PhoRegs(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc);
     void setEventContent(const edm::EventSetup& iSetup);
     EgammaRegressionContainer ecalOnlyMean;
     EgammaRegressionContainer ecalOnlySigma;
@@ -76,10 +76,10 @@ EGRegressionModifierV3::EGRegressionModifierV3(const edm::ParameterSet& conf, ed
       maxRawEnergyForLowPtEBSigma_(conf.getParameter<double>("maxRawEnergyForLowPtEBSigma")),
       maxRawEnergyForLowPtEESigma_(conf.getParameter<double>("maxRawEnergyForLowPtEESigma")) {
   if (conf.exists("eleRegs")) {
-    eleRegs_ = std::make_unique<EleRegs>(conf.getParameter<edm::ParameterSet>("eleRegs"));
+    eleRegs_ = std::make_unique<EleRegs>(conf.getParameter<edm::ParameterSet>("eleRegs"), cc);
   }
   if (conf.exists("phoRegs")) {
-    phoRegs_ = std::make_unique<PhoRegs>(conf.getParameter<edm::ParameterSet>("phoRegs"));
+    phoRegs_ = std::make_unique<PhoRegs>(conf.getParameter<edm::ParameterSet>("phoRegs"), cc);
   }
 }
 
@@ -358,10 +358,10 @@ void EGRegressionModifierV3::getSeedCrysCoord(const reco::CaloCluster& clus, int
   }
 }
 
-EGRegressionModifierV3::EleRegs::EleRegs(const edm::ParameterSet& iConfig)
-    : ecalOnlyMean(iConfig.getParameter<edm::ParameterSet>("ecalOnlyMean")),
-      ecalOnlySigma(iConfig.getParameter<edm::ParameterSet>("ecalOnlySigma")),
-      epComb(iConfig.getParameter<edm::ParameterSet>("epComb")) {}
+EGRegressionModifierV3::EleRegs::EleRegs(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
+    : ecalOnlyMean(iConfig.getParameter<edm::ParameterSet>("ecalOnlyMean"), cc),
+      ecalOnlySigma(iConfig.getParameter<edm::ParameterSet>("ecalOnlySigma"), cc),
+      epComb(iConfig.getParameter<edm::ParameterSet>("epComb"), std::move(cc)) {}
 
 void EGRegressionModifierV3::EleRegs::setEventContent(const edm::EventSetup& iSetup) {
   ecalOnlyMean.setEventContent(iSetup);
@@ -369,9 +369,9 @@ void EGRegressionModifierV3::EleRegs::setEventContent(const edm::EventSetup& iSe
   epComb.setEventContent(iSetup);
 }
 
-EGRegressionModifierV3::PhoRegs::PhoRegs(const edm::ParameterSet& iConfig)
-    : ecalOnlyMean(iConfig.getParameter<edm::ParameterSet>("ecalOnlyMean")),
-      ecalOnlySigma(iConfig.getParameter<edm::ParameterSet>("ecalOnlySigma")) {}
+EGRegressionModifierV3::PhoRegs::PhoRegs(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
+    : ecalOnlyMean(iConfig.getParameter<edm::ParameterSet>("ecalOnlyMean"), cc),
+      ecalOnlySigma(iConfig.getParameter<edm::ParameterSet>("ecalOnlySigma"), cc) {}
 
 void EGRegressionModifierV3::PhoRegs::setEventContent(const edm::EventSetup& iSetup) {
   ecalOnlyMean.setEventContent(iSetup);

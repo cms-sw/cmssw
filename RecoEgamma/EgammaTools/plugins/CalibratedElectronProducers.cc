@@ -16,6 +16,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
@@ -86,7 +87,7 @@ namespace {
 template <typename T>
 CalibratedElectronProducerT<T>::CalibratedElectronProducerT(const edm::ParameterSet& conf)
     : electronToken_(consumes<edm::View<T>>(conf.getParameter<edm::InputTag>("src"))),
-      epCombinationTool_(conf.getParameter<edm::ParameterSet>("epCombConfig")),
+      epCombinationTool_{conf.getParameter<edm::ParameterSet>("epCombConfig"), consumesCollector()},
       energyCorrector_(epCombinationTool_, conf.getParameter<std::string>("correctionFile")),
       recHitCollectionEBToken_(consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("recHitCollectionEB"))),
       recHitCollectionEEToken_(consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("recHitCollectionEE"))),

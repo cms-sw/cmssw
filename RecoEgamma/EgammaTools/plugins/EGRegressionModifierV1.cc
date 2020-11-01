@@ -30,15 +30,10 @@ public:
   void modifyObject(pat::Photon& pho) const final { modifyObject(static_cast<reco::Photon&>(pho)); }
 
 private:
-  struct CondNames {
-    std::vector<std::string> mean50ns;
-    std::vector<std::string> sigma50ns;
-    std::vector<std::string> mean25ns;
-    std::vector<std::string> sigma25ns;
-  };
-
-  CondNames eleCondNames_;
-  CondNames phoCondNames_;
+  EGRegressionModifierCondTokens eleCond50nsTokens_;
+  EGRegressionModifierCondTokens phoCond50nsTokens_;
+  EGRegressionModifierCondTokens eleCond25nsTokens_;
+  EGRegressionModifierCondTokens phoCond25nsTokens_;
 
   std::string condNamesWeight50ns_;
   std::string condNamesWeight25ns_;
@@ -65,6 +60,14 @@ DEFINE_EDM_PLUGIN(ModifyObjectValueFactory, EGRegressionModifierV1, "EGRegressio
 
 EGRegressionModifierV1::EGRegressionModifierV1(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
     : ModifyObjectValueBase(conf),
+      eleCond50nsTokens_{
+          conf.getParameter<edm::ParameterSet>("electron_config"), "regressionKey_50ns", "uncertaintyKey_50ns", cc},
+      phoCond50nsTokens_{
+          conf.getParameter<edm::ParameterSet>("photon_config"), "regressionKey_50ns", "uncertaintyKey_50ns", cc},
+      eleCond25nsTokens_{
+          conf.getParameter<edm::ParameterSet>("electron_config"), "regressionKey_25ns", "uncertaintyKey_25ns", cc},
+      phoCond25nsTokens_{
+          conf.getParameter<edm::ParameterSet>("photon_config"), "regressionKey_25ns", "uncertaintyKey_25ns", cc},
       autoDetectBunchSpacing_(conf.getParameter<bool>("autoDetectBunchSpacing")),
       bunchspacing_(autoDetectBunchSpacing_ ? 450 : conf.getParameter<int>("manualBunchSpacing")),
       rhoToken_(cc.consumes<double>(conf.getParameter<edm::InputTag>("rhoCollection"))),
@@ -73,19 +76,9 @@ EGRegressionModifierV1::EGRegressionModifierV1(const edm::ParameterSet& conf, ed
   if (autoDetectBunchSpacing_)
     bunchSpacingToken_ = cc.consumes<unsigned int>(conf.getParameter<edm::InputTag>("bunchSpacingTag"));
 
-  const edm::ParameterSet& electrons = conf.getParameter<edm::ParameterSet>("electron_config");
-  eleCondNames_ = CondNames{.mean50ns = electrons.getParameter<std::vector<std::string>>("regressionKey_50ns"),
-                            .sigma50ns = electrons.getParameter<std::vector<std::string>>("uncertaintyKey_50ns"),
-                            .mean25ns = electrons.getParameter<std::vector<std::string>>("regressionKey_25ns"),
-                            .sigma25ns = electrons.getParameter<std::vector<std::string>>("uncertaintyKey_25ns")};
+  auto const& electrons = conf.getParameter<edm::ParameterSet>("electron_config");
   condNamesWeight50ns_ = electrons.getParameter<std::string>("combinationKey_50ns");
   condNamesWeight25ns_ = electrons.getParameter<std::string>("combinationKey_25ns");
-
-  const edm::ParameterSet& photons = conf.getParameter<edm::ParameterSet>("photon_config");
-  phoCondNames_ = CondNames{.mean50ns = photons.getParameter<std::vector<std::string>>("regressionKey_50ns"),
-                            .sigma50ns = photons.getParameter<std::vector<std::string>>("uncertaintyKey_50ns"),
-                            .mean25ns = photons.getParameter<std::vector<std::string>>("regressionKey_25ns"),
-                            .sigma25ns = photons.getParameter<std::vector<std::string>>("uncertaintyKey_25ns")};
 }
 
 void EGRegressionModifierV1::setEvent(const edm::Event& evt) {
@@ -106,11 +99,13 @@ void EGRegressionModifierV1::setEvent(const edm::Event& evt) {
 void EGRegressionModifierV1::setEventContent(const edm::EventSetup& evs) {
   evs.get<CaloGeometryRecord>().get(caloGeomH_);
 
-  phoForestsMean_ = retrieveGBRForests(evs, (bunchspacing_ == 25) ? phoCondNames_.mean25ns : phoCondNames_.mean50ns);
-  phoForestsSigma_ = retrieveGBRForests(evs, (bunchspacing_ == 25) ? phoCondNames_.sigma25ns : phoCondNames_.sigma50ns);
+  phoForestsMean_ = retrieveGBRForests(evs, (bunchspacing_ == 25) ? phoCond25nsTokens_.mean : phoCond50nsTokens_.mean);
+  phoForestsSigma_ =
+      retrieveGBRForests(evs, (bunchspacing_ == 25) ? phoCond25nsTokens_.sigma : phoCond50nsTokens_.sigma);
 
-  eleForestsMean_ = retrieveGBRForests(evs, (bunchspacing_ == 25) ? eleCondNames_.mean25ns : eleCondNames_.mean50ns);
-  eleForestsSigma_ = retrieveGBRForests(evs, (bunchspacing_ == 25) ? eleCondNames_.sigma25ns : eleCondNames_.sigma50ns);
+  eleForestsMean_ = retrieveGBRForests(evs, (bunchspacing_ == 25) ? eleCond25nsTokens_.mean : eleCond50nsTokens_.mean);
+  eleForestsSigma_ =
+      retrieveGBRForests(evs, (bunchspacing_ == 25) ? eleCond25nsTokens_.sigma : eleCond50nsTokens_.sigma);
 
   edm::ESHandle<GBRForest> forestEH;
   const std::string ep_condnames_weight = (bunchspacing_ == 25) ? condNamesWeight25ns_ : condNamesWeight50ns_;

@@ -53,7 +53,6 @@ public:
   EGFull5x5ShowerShapeModifierFromValueMaps(const edm::ParameterSet& conf, edm::ConsumesCollector& cc);
 
   void setEvent(const edm::Event&) final;
-  void setEventContent(const edm::EventSetup&) final;
 
   void modifyObject(pat::Electron&) const final;
   void modifyObject(pat::Photon&) const final;
@@ -191,8 +190,6 @@ void EGFull5x5ShowerShapeModifierFromValueMaps::setEvent(const edm::Event& evt) 
   get_product(evt, ph_conf.tok_hcalDepth1OverEcalBc, pho_vmaps);
   get_product(evt, ph_conf.tok_hcalDepth2OverEcalBc, pho_vmaps);
 }
-
-void EGFull5x5ShowerShapeModifierFromValueMaps::setEventContent(const edm::EventSetup& evs) {}
 
 namespace {
   template <typename T, typename U, typename V>
