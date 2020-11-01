@@ -74,12 +74,11 @@ void L1TStage2MuonComp::bookHistograms(DQMStore::IBooker& ibooker, const edm::Ru
     summary->setBinLabel(DXYBAD, "dXY mismatch", 1);
   }
 
-  int numErrBins{13};
   if (displacedQuantities_) {
-    numErrBins += 2;
+    numErrBins_ += 2;
   }
   errorSummaryNum = ibooker.book1D(
-      "errorSummaryNum", summaryTitle.c_str(), numErrBins, 1, numErrBins + 1);  // range to match bin numbering
+      "errorSummaryNum", summaryTitle.c_str(), numErrBins_, 1, numErrBins_ + 1);  // range to match bin numbering
   errorSummaryNum->setBinLabel(RBXRANGE, "BX range mismatch", 1);
   errorSummaryNum->setBinLabel(RNMUON, "muon collection size mismatch", 1);
   errorSummaryNum->setBinLabel(RMUON, "mismatching muons", 1);
@@ -110,10 +109,10 @@ void L1TStage2MuonComp::bookHistograms(DQMStore::IBooker& ibooker, const edm::Ru
   errorSummaryNum->getTH1F()->GetXaxis()->SetCanExtend(false);
 
   errorSummaryDen =
-      ibooker.book1D("errorSummaryDen", "denominators", numErrBins, 1, numErrBins + 1);  // range to match bin numbering
+      ibooker.book1D("errorSummaryDen", "denominators", numErrBins_, 1, numErrBins_ + 1);  // range to match bin numbering
   errorSummaryDen->setBinLabel(RBXRANGE, "# events", 1);
   errorSummaryDen->setBinLabel(RNMUON, "# muon collections", 1);
-  for (int i = RMUON; i <= RIDX; ++i) {
+  for (int i = RMUON; i <= numErrBins_; ++i) {
     errorSummaryDen->setBinLabel(i, "# muons", 1);
   }
   // Needed for correct histogram summing in multithreaded running.
@@ -279,8 +278,13 @@ void L1TStage2MuonComp::analyze(const edm::Event& e, const edm::EventSetup& c) {
           muColl1hwQual->Fill(muonIt1->hwQual());
           muColl1hwIso->Fill(muonIt1->hwIso());
           muColl1Index->Fill(muonIt1->tfMuonIndex());
-          if (enable2DComp)
+          if (enable2DComp) {
             muColl1EtaPhimap->Fill(muonIt1->eta(), muonIt1->phi());
+          }
+          if (displacedQuantities_) {
+            muColl1hwPtUnconstrained->Fill(muonIt1->hwPtUnconstrained());
+            muColl1hwDXY->Fill(muonIt1->hwDXY());
+          }
         }
       } else {
         muonIt2 = muonBxColl2->begin(iBx) + muonBxColl1->size(iBx);
@@ -298,6 +302,10 @@ void L1TStage2MuonComp::analyze(const edm::Event& e, const edm::EventSetup& c) {
           if (enable2DComp) {
             muColl2EtaPhimap->Fill(muonIt2->eta(), muonIt2->phi());
           }
+          if (displacedQuantities_) {
+            muColl2hwPtUnconstrained->Fill(muonIt2->hwPtUnconstrained());
+            muColl2hwDXY->Fill(muonIt2->hwDXY());
+          }
         }
       }
     } else {
@@ -308,7 +316,7 @@ void L1TStage2MuonComp::analyze(const edm::Event& e, const edm::EventSetup& c) {
     muonIt2 = muonBxColl2->begin(iBx);
     while (muonIt1 != muonBxColl1->end(iBx) && muonIt2 != muonBxColl2->end(iBx)) {
       summary->Fill(MUONALL);
-      for (int i = RMUON; i <= RIDX; ++i) {
+      for (int i = RMUON; i <= numErrBins_; ++i) {
         errorSummaryDen->Fill(i);
       }
 
