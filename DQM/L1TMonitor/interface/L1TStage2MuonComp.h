@@ -60,7 +60,8 @@ private:
     RPTUNCONSTR,
     RDXY
   };
-  int numErrBins_ { RIDX }; // In Run-2 we didn't have the last two bins. This is incremented in source file if we configure for Run-3.
+  int numErrBins_{
+      RIDX};  // In Run-2 we didn't have the last two bins. This is incremented in source file if we configure for Run-3.
   bool incBin[RDXY + 1];
 
   edm::EDGetTokenT<l1t::MuonBxCollection> muonToken1;
