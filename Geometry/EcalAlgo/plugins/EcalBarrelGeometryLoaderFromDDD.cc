@@ -93,6 +93,7 @@ void EcalBGL::fillNamedParams(const DDFilteredView& _fv, EcalBarrelGeometry* geo
       const std::vector<double>& ebvec = valEtaB.doubles();
       assert(!ebvec.empty());
       std::vector<int> EtaBaskets;
+      EtaBaskets.reserve(ebvec.size());
       for (const auto& ebv : ebvec)
         EtaBaskets.emplace_back(static_cast<int>(ebv));
       geom->setEtaBaskets(EtaBaskets);
