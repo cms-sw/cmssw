@@ -10,6 +10,8 @@
 
 GEMStripTopology::GEMStripTopology(int ns, float aw, float dh, float r0)
     : numberOfStrips_(ns), angularWidth_(aw), detHeight_(dh), centreToIntersection_(r0) {
+  assert(angularWidth_ != 0);
+  assert(detHeight_ != 0);
   yAxisOrientation_ = 1;
   phiOfOneEdge_ = -(0.5 * numberOfStrips_) * angularWidth_ * yAxisOrientation_;
   yCentre_ = 0;
@@ -20,6 +22,8 @@ GEMStripTopology::GEMStripTopology(int ns, float aw, float dh, float r0)
 
 GEMStripTopology::GEMStripTopology(int ns, float aw, float dh, float r0, float yAx)
     : numberOfStrips_(ns), angularWidth_(aw), detHeight_(dh), centreToIntersection_(r0), yAxisOrientation_(yAx) {
+  assert(angularWidth_ != 0);
+  assert(detHeight_ != 0);
   phiOfOneEdge_ = -(0.5 * numberOfStrips_) * angularWidth_ * yAxisOrientation_;
   yCentre_ = 0;
   LogTrace("GEMStripTopology") << "Constructing GEMStripTopology with"
@@ -49,7 +53,9 @@ LocalError GEMStripTopology::localError(float strip, float stripErr2) const {
 }
 
 LocalError GEMStripTopology::localError(const MeasurementPoint& mp, const MeasurementError& me) const {
-  const double phi(stripAngle(mp.x())), s1(std::sin(phi)), c1(std::cos(phi)), cs(s1 * c1), s2(s1 * s1),
+  const double phi(stripAngle(mp.x())), s1(std::sin(phi)), c1(std::cos(phi));
+  assert(c1 != 0);
+  const double cs(s1 * c1), s2(s1 * s1),
       c2(1 - s2),  // rotation matrix
 
       T(angularWidth() * (centreToIntersection() + yAxisOrientation() * mp.y() * detHeight()) /
@@ -83,9 +89,10 @@ MeasurementPoint GEMStripTopology::measurementPosition(const LocalPoint& lp) con
 }
 
 MeasurementError GEMStripTopology::measurementError(const LocalPoint& p, const LocalError& e) const {
-  const double yHitToInter(yDistanceToIntersection(p.y())),
-      t(yAxisOrientation() * p.x() / yHitToInter),  // tan(strip angle)
-      cs(t / (1 + t * t)), s2(t * cs), c2(1 - s2),  // rotation matrix
+  const double yHitToInter(yDistanceToIntersection(p.y()));
+  assert(yHitToInter != 0);
+  const double t(yAxisOrientation() * p.x() / yHitToInter),  // tan(strip angle)
+      cs(t / (1 + t * t)), s2(t * cs), c2(1 - s2),           // rotation matrix
 
       T2(1. / (std::pow(angularWidth(), 2) *
                (std::pow(p.x(), 2) + std::pow(yHitToInter, 2)))),  // 1./tangential measurement unit (local pitch) ^2
@@ -104,6 +111,7 @@ float GEMStripTopology::pitch() const { return localPitch(LocalPoint(0, 0)); }
 float GEMStripTopology::localPitch(const LocalPoint& lp) const {
   const int istrip = std::min(nstrips(), static_cast<int>(strip(lp)) + 1);  // which strip number
   const float fangle = stripAngle(static_cast<float>(istrip) - 0.5);        // angle of strip centre
+  assert(std::cos(fangle - 0.5f * angularWidth()) != 0);
   return yDistanceToIntersection(lp.y()) * std::sin(angularWidth()) /
          std::pow(std::cos(fangle - 0.5f * angularWidth()), 2);
 }
@@ -113,6 +121,7 @@ float GEMStripTopology::stripAngle(float strip) const {
 }
 
 float GEMStripTopology::localStripLength(const LocalPoint& lp) const {
+  assert(yDistanceToIntersection(lp.y()) != 0);
   return detHeight() * std::sqrt(1.f + std::pow(lp.x() / yDistanceToIntersection(lp.y()), 2));
 }
 
