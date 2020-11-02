@@ -9,6 +9,9 @@
 
 
 // C++ standard
+#include <cstring>
+#include <iostream>
+#include <fstream>
 #include <string>
 // // CMS FW
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -86,14 +89,14 @@ public:
           //const TrackerTopology* trackerTopology = &iSetup.getData(trackerTopologyToken);
           //const SiPixelFedCablingMap* cablingMap = &iSetup.getData(siPixelFedCablingMapToken);
 
-          /*use a lambda to generate a new PixelTopoFinder only if there isn't an old one available*/
           returnValue = m_holder.makeOrGet( [this]() { return new SiPixelTopoFinder();});
+          returnValue->init(trackerGeometry, trackerTopology, cablingMap);
 
-          m_mostRecentSiPixelTopoFinder_->init(trackerGeometry, trackerTopology, cablingMap);
           m_mostRecentSiPixelTopoFinder_ = returnValue;
         }
 
     });//m_queue
+
 
     return returnValue;
 
@@ -127,7 +130,6 @@ class SiPixelStatusProducer :
                                      edm::EndLuminosityBlockProducer,
                                      edm::Accumulator> {
 public:
-
 
    SiPixelStatusProducer(edm::ParameterSet const& iPSet, SiPixelTopoCache const*);
    ~SiPixelStatusProducer();
@@ -163,12 +165,14 @@ public:
    /* For global or runCache */
 
    static std::unique_ptr<SiPixelTopoCache> initializeGlobalCache(edm::ParameterSet const& iPSet) {
+          edm::LogInfo("SiPixelStatusProducer") << "Init global Cache " << std::endl;
           return std::unique_ptr<SiPixelTopoCache>(new SiPixelTopoCache(iPSet));
    }
 
    static std::shared_ptr<SiPixelTopoFinder> globalBeginRun(edm::Run const& iRun, edm::EventSetup const& iSetup,
                                                             GlobalCache const* iCache) {
 
+          edm::LogInfo("SiPixelStatusProducer") << "Global beginRun " << std::endl;
           return iCache->getSiPixelTopoFinder(iSetup);
 
    }
@@ -203,7 +207,7 @@ public:
                                                LuminosityBlockContext const* iContext,
                                                std::vector<SiPixelDetectorStatus> const* siPixelDetectorStatusVtr) {
 
-               edm::LogInfo("SiPixelStatusProducer") << "endlumi producer " << std::endl;
+               edm::LogInfo("SiPixelStatusProducer") << "Global endlumi producer " << std::endl;
 
                // only save result for non-zero event lumi block              
                if ( siPixelDetectorStatusVtr->size() > 0 ){
@@ -213,6 +217,17 @@ public:
                    SiPixelDetectorStatus siPixelDetectorStatus = SiPixelDetectorStatus();
                    for (unsigned int instance = 0; instance < siPixelDetectorStatusVtr->size(); instance++){
                        siPixelDetectorStatus.updateDetectorStatus((*siPixelDetectorStatusVtr)[instance]);
+                   }
+
+                   siPixelDetectorStatus.setRunRange(run,run);
+                   siPixelDetectorStatus.setLSRange(lumi,lumi);
+
+                   if(debug_){
+                      std::string outTxt = Form("SiPixelDetectorStatus_Run%d_Lumi%d.txt", run,lumi);
+                      std::ofstream outFile;
+                      outFile.open(outTxt.c_str(), std::ios::app);
+                      siPixelDetectorStatus.dumpToFile(outFile);
+                      outFile.close();
                    }
 
   	           /* save result */
@@ -231,6 +246,8 @@ private:
   virtual int indexROC(int irow, int icol, int nROCcolumns) final;
 
   /* ParameterSet */
+  static const bool debug_ = true;
+
   edm::InputTag fPixelClusterLabel_;
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> fSiPixelClusterToken_;
   std::vector<edm::EDGetTokenT<PixelFEDChannelCollection>> theBadPixelFEDChannelsTokens_;
