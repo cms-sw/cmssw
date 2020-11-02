@@ -23,6 +23,8 @@ void SiPixelTopoFinder::init(const TrackerGeometry* trackerGeometry,
     tkGeom_ = trackerGeometry;
     tkTopo_ = trackerTopology;
     cablingMap_ = siPixelFedCablingMap;
+    // from cabling map to FedIds
+    fFedIds_ = cablingMap_->det2fedMap();
 
     // clear data
     fDetIds_.clear();
@@ -31,7 +33,7 @@ void SiPixelTopoFinder::init(const TrackerGeometry* trackerGeometry,
     fRocIds_.clear();
 
     // loop over tracker geometry
-    for (TrackerGeometry::DetContainer::const_iterator it = trackerGeometry->dets().begin();
+    for (TrackerGeometry::DetContainer::const_iterator it = tkGeom_->dets().begin();
          it != tkGeom_->dets().end(); it++){// tracker geo
 
              const PixelGeomDetUnit* pgdu = dynamic_cast<const PixelGeomDetUnit*>((*it));
@@ -113,11 +115,9 @@ void SiPixelTopoFinder::onlineRocColRow(const DetId& detId, const SiPixelFedCabl
 int SiPixelTopoFinder::indexROC(int irow, int icol, int nROCcolumns) {
   return int(icol + irow * nROCcolumns);
 
-  // generate the folling roc index that is going to map with ROC id as
-  //   // 8  9  10 11 12 13 14 15
-  //     // 0  1  2  3  4  5  6  7
-  //     }
-  //
+  /*generate the folling roc index that is going to map with ROC id as
+     8  9  10 11 12 13 14 15
+     0  1  2  3  4  5  6  7  */
 }
 
 // The following three functions copied from DQM/SiPixelPhase1Common/src/SiPixelCoordinates.cc
