@@ -24,7 +24,7 @@ private:
   void subtract_(uint32_t detId, uint16_t firstAPV, std::vector<T>& digis);
   inline float pairMedian(std::vector<std::pair<float, float> >& sample);
 
-  IteratedMedianCMNSubtractor(double sigma, int iterations, edm::ConsumesCollector&& iC)
+  IteratedMedianCMNSubtractor(double sigma, int iterations, edm::ConsumesCollector iC)
       : cut_to_avoid_signal_(sigma),
         iterations_(iterations),
         noiseToken_(iC.esConsumes<SiStripNoises, SiStripNoisesRcd>()),

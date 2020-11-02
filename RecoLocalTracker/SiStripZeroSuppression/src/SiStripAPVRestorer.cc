@@ -7,7 +7,7 @@
 #include <iostream>
 #include <algorithm>
 
-SiStripAPVRestorer::SiStripAPVRestorer(const edm::ParameterSet& conf, edm::ConsumesCollector&& iC)
+SiStripAPVRestorer::SiStripAPVRestorer(const edm::ParameterSet& conf, edm::ConsumesCollector iC)
     : qualityToken_(iC.esConsumes<SiStripQuality, SiStripQualityRcd>()),
       noiseToken_(iC.esConsumes<SiStripNoises, SiStripNoisesRcd>()),
       pedestalToken_(iC.esConsumes<SiStripPedestals, SiStripPedestalsRcd>()),
