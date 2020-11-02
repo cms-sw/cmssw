@@ -6,7 +6,7 @@ from PhysicsTools.NanoAOD.genparticles_cff import *
 from PhysicsTools.NanoAOD.particlelevel_cff import *
 from PhysicsTools.NanoAOD.lheInfoTable_cfi import *
 from PhysicsTools.NanoAOD.genWeightsTable_cfi import *
-from PhysicsTools.NanoAOD.common_cff import CandVars
+from PhysicsTools.NanoAOD.common_cff import Var,CandVars
 
 nanoMetadata = cms.EDProducer("UniqueStringProducer",
     strings = cms.PSet(
@@ -52,8 +52,8 @@ def nanoGenCommonCustomize(process):
     process.particleLevel.lepMaxEta = 999.
     process.genJetFlavourTable.jetFlavourInfos = "genJetFlavourAssociation"
     # Same as default RECO
-    setGenPhiPrecision(process, CandVars.pt.precision)
-    setGenPtPrecision(process, CandVars.eta.precision)
+    setGenPtPrecision(process, CandVars.pt.precision)
+    setGenEtaPrecision(process, CandVars.eta.precision)
     setGenPhiPrecision(process, CandVars.phi.precision)
 
 def customizeNanoGENFromMini(process):
@@ -62,8 +62,9 @@ def customizeNanoGENFromMini(process):
     process.nanoAOD_step.insert(0, process.mergedGenParticles)
 
     process.metMCTable.src = "slimmedMETs"
-    process.metMCTable.variables.pt = Var("genMET.pt", float, doc="pt", precision=10)
-    process.metMCTable.variables.phi = Var("genMET.phi", float, doc="phi", precision=10)
+    process.metMCTable.variables.pt = Var("genMET.pt", float, doc="pt")
+    process.metMCTable.variables.phi = Var("genMET.phi", float, doc="phi")
+    process.metMCTable.variables.phi.precision = CandVars.phi.precision
 
     process.rivetProducerHTXS.HepMCCollection = "genParticles2HepMCHiggsVtx:unsmeared"
     process.genParticleTable.src = "prunedGenParticles"
@@ -80,8 +81,7 @@ def customizeNanoGENFromMini(process):
 
 def customizeNanoGEN(process):
     process.metMCTable.src = "genMetTrue"
-    process.metMCTable.variables.pt = Var("pt", float, doc="pt", precision=10)
-    process.metMCTable.variables.phi = Var("phi", float, doc="phi", precision=10)
+    process.metMCTable.variables = cms.PSet(PTVars)
 
     process.rivetProducerHTXS.HepMCCollection = "generatorSmeared"
     process.genParticleTable.src = "genParticles"
@@ -134,7 +134,6 @@ def setGenPtPrecision(process, precision):
 def setGenEtaPrecision(process, precision):
     process.genParticleTable.variables.eta.precision = precision
     process.genJetTable.variables.eta.precision = precision
-    process.metMCTable.variables.eta.precision = precision
     return process
 
 def setGenPhiPrecision(process, precision):
