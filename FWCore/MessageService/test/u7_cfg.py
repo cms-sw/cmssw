@@ -1,5 +1,5 @@
 # Unit test configuration file for MessageLogger service:
-#   Filtering all but one category (for example FwkJob)
+#   Filtering all but one category (for example FwkTest)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -11,9 +11,6 @@ process.options = FWCore.Framework.test.cmsExceptionsFatal_cff.options
 process.load("FWCore.MessageService.test.Services_cff")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    u7_job_report = cms.untracked.PSet(
-	extension = cms.untracked.string("mxml")
-    ),
     u7_restrict = cms.untracked.PSet(
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
@@ -25,15 +22,14 @@ process.MessageLogger = cms.Service("MessageLogger",
     ),
     u7_log = cms.untracked.PSet(
         noTimeStamps = cms.untracked.bool(True),
-        FwkJob = cms.untracked.PSet(
+        FwkTest = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         )
     ),
     destinations = cms.untracked.vstring('u7_log', 
         'u7_restrict'),
-    categories = cms.untracked.vstring('FwkJob', 
-        'special'),
-    fwkJobReports = cms.untracked.vstring('u7_job_report')
+    categories = cms.untracked.vstring('FwkTest', 
+        'special')
 )
 
 process.maxEvents = cms.untracked.PSet(

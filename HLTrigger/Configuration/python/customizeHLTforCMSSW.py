@@ -170,36 +170,47 @@ def customiseFor2017DtUnpacking(process):
 
     return process
 
-def customiseFor31295(process):
-    """Reorganization of kdtrees for PFBlockAlgo and optimize track-hcal links"""
+def customisePixelGainForRun2Input(process):
+    """Customise the HLT to run on Run 2 data/MC using the old definition of the pixel calibrations
 
-    # for PFBlockProducer
-    for producer in producers_by_type(process, "PFBlockProducer"):
-        if hasattr(producer,'linkDefinitions'):
-            for ps in producer.linkDefinitions.value():
-                if hasattr(ps,'linkerName') and (ps.linkerName == 'TrackAndHCALLinker'):
-                    if not hasattr(ps,'nMaxHcalLinksPerTrack'):
-                        ps.nMaxHcalLinksPerTrack = cms.int32(1)
-                if hasattr(ps,'linkerName') and (ps.linkerName == 'ECALAndHCALLinker'):
-                    if not hasattr(ps,'minAbsEtaEcal'):
-                        ps.minAbsEtaEcal = cms.double(2.5)
+    Up to 11.0.x, the pixel calibarations were fully specified in the configuration:
+        VCaltoElectronGain      =   47
+        VCaltoElectronGain_L1   =   50
+        VCaltoElectronOffset    =  -60
+        VCaltoElectronOffset_L1 = -670
+
+    Starting with 11.1.x, the calibrations for Run 3 were moved to the conditions, leaving in the configuration only:
+        VCaltoElectronGain      =    1
+        VCaltoElectronGain_L1   =    1
+        VCaltoElectronOffset    =    0
+        VCaltoElectronOffset_L1 =    0
+
+    Since the conditions for Run 2 have not been updated to the new scheme, the HLT configuration needs to be reverted.
+    """
+    # revert the Pixel parameters to be compatible with the Run 2 conditions
+    for producer in producers_by_type(process, "SiPixelClusterProducer"):
+        producer.VCaltoElectronGain      =   47
+        producer.VCaltoElectronGain_L1   =   50
+        producer.VCaltoElectronOffset    =  -60
+        producer.VCaltoElectronOffset_L1 = -670
 
     return process
 
-def customiseFor31263(process):
-    """Add the t0Label parameter (with default value) to DTTTrigSyncFromDB in HLT"""
 
-    if hasattr(process,'hltDt1DRecHits'):
-        process.hltDt1DRecHits.recAlgoConfig.tTrigModeConfig.t0Label = cms.string("")
+def customiseFor2018Input(process):
+    """Customise the HLT to run on Run 2 data/MC"""
+    process = customisePixelGainForRun2Input(process)
+    process = synchronizeHCALHLTofflineRun3on2018data(process)
 
-    if hasattr(process,'hltDt4DSegments'):
-        process.hltDt4DSegments.Reco4DAlgoConfig.recAlgoConfig.tTrigModeConfig.t0Label = cms.string("")
-        process.hltDt4DSegments.Reco4DAlgoConfig.Reco2DAlgoConfig.recAlgoConfig.tTrigModeConfig.t0Label = cms.string("")
 
-    if hasattr(process,'hltDt4DSegmentsMeanTimer'):
-        process.hltDt4DSegmentsMeanTimer.Reco4DAlgoConfig.recAlgoConfig.tTrigModeConfig.t0Label = cms.string("")
-        process.hltDt4DSegmentsMeanTimer.Reco4DAlgoConfig.Reco2DAlgoConfig.recAlgoConfig.tTrigModeConfig.t0Label = cms.string("")
-
+def customizeToDropObsoleteMessageLoggerOptions(process):
+    if 'MessageLogger' in process.__dict__:
+        if not hasattr(process.MessageLogger, "fwkJobReports"):
+            return process
+        for config in process.MessageLogger.fwkJobReports.value():
+            if hasattr(process.MessageLogger, config):
+                delattr(process.MessageLogger, config)
+        delattr(process.MessageLogger, "fwkJobReports")
     return process
 
 
@@ -208,7 +219,8 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
-    process = customiseFor31295(process)
-    process = customiseFor31263(process)
+
+    #introduced in pull request #31859
+    process = customizeToDropObsoleteMessageLoggerOptions(process)
 
     return process

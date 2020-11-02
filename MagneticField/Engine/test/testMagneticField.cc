@@ -263,6 +263,9 @@ void testMagneticField::validate(string filename, string type) {
          << " testMagneticField::validate: tested " << count << " points " << fail
          << " failures; max delta = " << maxdelta << endl
          << endl;
+    if (fail != 0)
+      throw cms::Exception("RegressionFailure") << "MF regression found: " << fail << " failures";
+    ;
   }
 }
 

@@ -121,11 +121,11 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
   edm::LogVerbatim("Geometry").log([&specs](auto& log) {
     log << "Filtered DD SpecPar Registry size: " << specs.size() << "\n";
     for (const auto& t : specs) {
-      log << "\nRegExps { ";
-      for (const auto& ki : t->paths)
+      log << "\nSpecPar " << t.first << ":\nRegExps { ";
+      for (const auto& ki : t.second->paths)
         log << ki << " ";
       log << "};\n ";
-      for (const auto& kl : t->spars) {
+      for (const auto& kl : t.second->spars) {
         log << kl.first << " = ";
         for (const auto& kil : kl.second) {
           log << kil << " ";
@@ -141,10 +141,10 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
   uint32_t level(0);
 
   do {
-    if (fv.name() == "BarrelTimingLayer") {
+    if (dd4hep::dd::noNamespace(fv.name()) == "BarrelTimingLayer") {
       isBarrel = true;
       edm::LogInfo("DD4hep_TestMTDIdealGeometry") << "isBarrel = " << isBarrel;
-    } else if (fv.name() == "EndcapTimingLayer") {
+    } else if (dd4hep::dd::noNamespace(fv.name()) == "EndcapTimingLayer") {
       isBarrel = false;
       edm::LogInfo("DD4hep_TestMTDIdealGeometry") << "isBarrel = " << isBarrel;
     }
@@ -168,7 +168,7 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
       write = false;
       exitLoop = true;
     }
-    if (fv.name() == ddTopNodeName_) {
+    if (dd4hep::dd::noNamespace(fv.name()) == ddTopNodeName_) {
       write = true;
       level = fv.navPos().size();
     }
@@ -193,8 +193,8 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
       bool isSens = false;
 
       for (auto const& t : specs) {
-        for (auto const& it : t->paths) {
-          if (dd4hep::dd::compareEqual(fv.name(), dd4hep::dd::realTopName(it))) {
+        for (auto const& it : t.second->paths) {
+          if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(fv.name()), dd4hep::dd::realTopName(it))) {
             isSens = true;
             break;
           }

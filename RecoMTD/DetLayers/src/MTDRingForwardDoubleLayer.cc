@@ -13,6 +13,8 @@
 #include <TrackingTools/DetLayers/interface/MeasurementEstimator.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
+#include <DataFormats/ForwardDetId/interface/ETLDetId.h>
+
 #include <algorithm>
 #include <iostream>
 #include <vector>
@@ -118,9 +120,9 @@ vector<GeometricSearchDet::DetWithState> MTDRingForwardDoubleLayer::compatibleDe
   // This code should be moved in a common place intead of being
   // copied many times.
   vector<DetGroup> vectorGroups = groupedCompatibleDets(tsos, prop, est);
-  for (vector<DetGroup>::const_iterator itDG = vectorGroups.begin(); itDG != vectorGroups.end(); itDG++) {
-    for (vector<DetGroupElement>::const_iterator itDGE = itDG->begin(); itDGE != itDG->end(); itDGE++) {
-      result.push_back(DetWithState(itDGE->det(), itDGE->trajectoryState()));
+  for (const auto& thisDG : vectorGroups) {
+    for (const auto& thisDGE : thisDG) {
+      result.emplace_back(DetWithState(thisDGE.det(), thisDGE.trajectoryState()));
     }
   }
   return result;
@@ -170,15 +172,25 @@ void MTDRingForwardDoubleLayer::selfTest() const {
   const std::vector<const GeomDet*>& frontDets = theFrontLayer.basicComponents();
   const std::vector<const GeomDet*>& backDets = theBackLayer.basicComponents();
 
-  std::vector<const GeomDet*>::const_iterator frontItr = frontDets.begin(), lastFront = frontDets.end(),
-                                              backItr = backDets.begin(), lastBack = backDets.end();
-
-  // test that each front z is less than each back z
-  for (; frontItr != lastFront; ++frontItr) {
-    float frontz = fabs((**frontItr).surface().position().z());
-    for (; backItr != lastBack; ++backItr) {
-      float backz = fabs((**backItr).surface().position().z());
-      assert(frontz < backz);
+  for (int iring = 0; iring <= ETLDetId::kETLv1maxRing; iring++) {
+    float frontz(0.);
+    float backz(1e3f);
+    for (const auto& thisFront : frontDets) {
+      if (static_cast<ETLDetId>(thisFront->geographicalId().rawId()).mtdRR() == iring) {
+        float tmpz(std::abs(thisFront->surface().position().z()));
+        if (tmpz > frontz) {
+          frontz = tmpz;
+        }
+      }
     }
+    for (const auto& thisBack : backDets) {
+      if (static_cast<ETLDetId>(thisBack->geographicalId().rawId()).mtdRR() == iring) {
+        float tmpz(std::abs(thisBack->surface().position().z()));
+        if (tmpz < backz) {
+          backz = tmpz;
+        }
+      }
+    }
+    assert(frontz < backz);
   }
 }

@@ -14,6 +14,7 @@ process.load("FWCore.MessageService.test.Services_cff")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
+process.MessageLogger.destinations.append('errors')
 process.MessageLogger.errors = cms.untracked.PSet(
     threshold = cms.untracked.string('ERROR'),
     default = cms.untracked.PSet(

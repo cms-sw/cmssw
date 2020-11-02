@@ -1,20 +1,33 @@
 #ifndef CSCTrackFinder_CSCTFPtLUT_h
 #define CSCTrackFinder_CSCTFPtLUT_h
 
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <L1Trigger/CSCTrackFinder/interface/CSCTrackFinderDataTypes.h>
-#include <CondFormats/L1TObjects/interface/L1MuTriggerScales.h>
-#include <CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h>
-#include <L1Trigger/CSCTrackFinder/interface/CSCTFPtMethods.h>
-#include <FWCore/ParameterSet/interface/FileInPath.h>
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "L1Trigger/CSCTrackFinder/interface/CSCTrackFinderDataTypes.h"
+#include "CondFormats/L1TObjects/interface/L1MuCSCPtLut.h"
+#include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
+#include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
+#include "CondFormats/DataRecord/interface/L1MuCSCPtLutRcd.h"
+#include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
+#include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
+#include "L1Trigger/CSCTrackFinder/interface/CSCTFPtMethods.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 ///KK
-#include <FWCore/Framework/interface/EventSetup.h>
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 ///
 
 class CSCTFPtLUT {
 public:
+  struct Tokens {
+    edm::ESGetToken<L1MuCSCPtLut, L1MuCSCPtLutRcd> ptLUT;
+    edm::ESGetToken<L1MuTriggerScales, L1MuTriggerScalesRcd> scales;
+    edm::ESGetToken<L1MuTriggerPtScale, L1MuTriggerPtScaleRcd> ptScale;
+  };
+
+  static Tokens consumes(edm::ConsumesCollector iC);
+
   ///KK
-  CSCTFPtLUT(const edm::EventSetup& c);
+  CSCTFPtLUT(const edm::EventSetup& c, const Tokens& tokens);
   ///
 
   CSCTFPtLUT(const edm::ParameterSet&, const L1MuTriggerScales* scales, const L1MuTriggerPtScale* ptScale);

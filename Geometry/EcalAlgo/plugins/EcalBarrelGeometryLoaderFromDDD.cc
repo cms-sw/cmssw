@@ -29,12 +29,15 @@ void EcalBGL::fillGeom(EcalBarrelGeometry* geom,
                        const HepGeom::Transform3D& tr,
                        const DetId& id,
                        const double& scale) {
+  static constexpr uint32_t maxSize = 11;
   std::vector<CCGFloat> pv;
-  pv.reserve(vv.size());
-  for (unsigned int i(0); i != vv.size(); ++i) {
-    const CCGFloat factor(1 == i || 2 == i || 6 == i || 10 == i ? 1 : (CCGFloat)scale);
-
-    pv.emplace_back(factor * vv[i]);
+  unsigned int size = (vv.size() > maxSize) ? maxSize : vv.size();
+  unsigned int ioff = (vv.size() > maxSize) ? (vv.size() - maxSize) : 0;
+  pv.reserve(size);
+  for (unsigned int i(0); i != size; ++i) {
+    unsigned int ii = ioff + i;
+    const CCGFloat factor(1 == i || 2 == i || 6 == i || 10 == i ? 1 : static_cast<CCGFloat>(scale));
+    pv.emplace_back(factor * vv[ii]);
   }
 
   std::vector<GlobalPoint> corners(8);

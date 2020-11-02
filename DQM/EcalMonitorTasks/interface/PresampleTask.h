@@ -14,13 +14,13 @@ namespace ecaldqm {
 
     bool filterRunType(short const*) override;
 
+    void beginEvent(edm::Event const&, edm::EventSetup const&, bool const&, bool&) override;
     bool analyze(void const*, Collections) override;
 
     template <typename DigiCollection>
     void runOnDigis(DigiCollection const&);
 
   private:
-    void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
     void setParams(edm::ParameterSet const&) override;
 
     bool doPulseMaxCheck_;

@@ -167,10 +167,11 @@ void SiStripGainsPCLHarvester::gainQualityMonitor(DQMStore::IBooker& ibooker_,
       APVGain::monHnames(VChargeHisto, doChargeMonitorPerPlane, "newG2");
   for (unsigned int i = 0; i < cnames.size(); i++) {
     MonitorElement* monitor = ibooker_.book1DD((cnames[i]).first, (cnames[i]).second.c_str(), 100, 0., 1000.);
+    int thick = APVGain::thickness((cnames[i]).first);
     int id = APVGain::subdetectorId((cnames[i]).first);
     int side = APVGain::subdetectorSide((cnames[i]).first);
     int plane = APVGain::subdetectorPlane((cnames[i]).first);
-    new_charge_histos.push_back(APVGain::APVmon(id, side, plane, monitor));
+    new_charge_histos.push_back(APVGain::APVmon(thick, id, side, plane, monitor));
   }
 
   int MPVbin = 300;

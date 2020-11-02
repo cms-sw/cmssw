@@ -4,7 +4,6 @@
 <use name="DataFormats/SiStripDetId"/>
 <use name="DataFormats/Scalers"/>
 <use name="DataFormats/OnlineMetaData"/>
-<use name="SimDataFormats/TrackingAnalysis"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ServiceRegistry"/>

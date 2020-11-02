@@ -43,14 +43,14 @@ unsigned int muon::RequiredStationMask(const reco::Muon& muon,
                                        reco::Muon::ArbitrationType arbitrationType) {
   unsigned int theMask = 0;
 
-  for (int stationIdx = 1; stationIdx < 5; ++stationIdx)
-    for (int detectorIdx = 1; detectorIdx < 3; ++detectorIdx)
-      if (muon.trackDist(stationIdx, detectorIdx, arbitrationType) < maxChamberDist &&
-          muon.trackDist(stationIdx, detectorIdx, arbitrationType) /
-                  muon.trackDistErr(stationIdx, detectorIdx, arbitrationType) <
-              maxChamberDistPull)
+  for (int stationIdx = 1; stationIdx < 5; ++stationIdx) {
+    for (int detectorIdx = 1; detectorIdx < 3; ++detectorIdx) {
+      float dist = muon.trackDist(stationIdx, detectorIdx, arbitrationType);
+      if (dist < maxChamberDist &&
+          dist < maxChamberDistPull * muon.trackDistErr(stationIdx, detectorIdx, arbitrationType))
         theMask += 1 << ((stationIdx - 1) + 4 * (detectorIdx - 1));
-
+    }
+  }
   return theMask;
 }
 
@@ -76,12 +76,13 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
     // ********************************************************;
     // *** fill local info for this muon (do some counting) ***;
     // ************** begin ***********************************;
-    if (i <= 4) {                                            // this is the section for the DTs
-      if (muon.trackDist(i, 1, arbitrationType) < 999999) {  //current "raw" info that a track is close to a chamber
+    if (i <= 4) {  // this is the section for the DTs
+      float thisTrackDist = muon.trackDist(i, 1, arbitrationType);
+      if (thisTrackDist < 999999) {  //current "raw" info that a track is close to a chamber
         ++nr_of_stations_crossed;
         station_was_crossed[i - 1] = 1;
-        if (muon.trackDist(i, 1, arbitrationType) > -10.)
-          stations_w_track_at_boundary[i - 1] = muon.trackDist(i, 1, arbitrationType);
+        if (thisTrackDist > -10.)
+          stations_w_track_at_boundary[i - 1] = thisTrackDist;
         else
           stations_w_track_at_boundary[i - 1] = 0.;
       }
@@ -90,12 +91,13 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
         ++nr_of_stations_with_segment;
         station_has_segmentmatch[i - 1] = 1;
       }
-    } else {                                                     // this is the section for the CSCs
-      if (muon.trackDist(i - 4, 2, arbitrationType) < 999999) {  //current "raw" info that a track is close to a chamber
+    } else {  // this is the section for the CSCs
+      float thisTrackDist = muon.trackDist(i - 4, 2, arbitrationType);
+      if (thisTrackDist < 999999) {  //current "raw" info that a track is close to a chamber
         ++nr_of_stations_crossed;
         station_was_crossed[i - 1] = 1;
-        if (muon.trackDist(i - 4, 2, arbitrationType) > -10.)
-          stations_w_track_at_boundary[i - 1] = muon.trackDist(i - 4, 2, arbitrationType);
+        if (thisTrackDist > -10.)
+          stations_w_track_at_boundary[i - 1] = thisTrackDist;
         else
           stations_w_track_at_boundary[i - 1] = 0.;
       }
@@ -556,7 +558,7 @@ bool muon::isGoodMuon(const reco::Muon& muon,
       for (const auto& rpcMatch : chamberMatch.rpcMatches) {
         const float rpcX = rpcMatch.x;
         const float dX = std::abs(rpcX - trkX);
-        if (dX < maxAbsDx or dX / errX < maxAbsPullX) {
+        if (dX < maxAbsDx or dX < maxAbsPullX * errX) {
           ++nMatch;
           break;
         }
@@ -591,10 +593,11 @@ bool muon::isGoodMuon(const reco::Muon& muon,
 
         const float dX = std::abs(me0X - trkX);
         const float dY = std::abs(me0Y - trkY);
-        const float pullX = dX / std::sqrt(errX2 + me0ErrX2);
-        const float pullY = dY / std::sqrt(errY2 + me0ErrY2);
+        const float invPullX2 = errX2 + me0ErrX2;
+        const float invPullY2 = errY2 + me0ErrY2;
 
-        if ((dX < maxAbsDx or pullX < maxAbsPullX) and (dY < maxAbsDy or pullY < maxAbsPullY)) {
+        if ((dX < maxAbsDx or dX < maxAbsPullX * std::sqrt(invPullX2)) and
+            (dY < maxAbsDy or dY < maxAbsPullY * std::sqrt(invPullY2))) {
           ++nMatch;
           break;
         }
@@ -626,10 +629,11 @@ bool muon::isGoodMuon(const reco::Muon& muon,
 
         const float dX = std::abs(gemX - trkX);
         const float dY = std::abs(gemY - trkY);
-        const float pullX = dX / std::sqrt(errX2 + gemErrX2);
-        const float pullY = dY / std::sqrt(errY2 + gemErrY2);
+        const float invPullX2 = errX2 + gemErrX2;
+        const float invPullY2 = errY2 + gemErrY2;
 
-        if ((dX < maxAbsDx or pullX < maxAbsPullX) and (dY < maxAbsDy or pullY < maxAbsPullY)) {
+        if ((dX < maxAbsDx or dX < maxAbsPullX * std::sqrt(invPullX2)) and
+            (dY < maxAbsDy or dY < maxAbsPullY * std::sqrt(invPullY2))) {
           ++nMatch;
           break;
         }
@@ -834,7 +838,7 @@ bool muon::overlap(
           continue;
         if (id1.ring() != id2.ring())
           continue;
-        if (abs(id1.chamber() - id2.chamber()) > 1)
+        if (std::abs(id1.chamber() - id2.chamber()) > 1)
           continue;
         // FIXME: we don't handle 18->1; 36->1 transitions since
         // I don't know how to check for sure how many chambers
@@ -963,7 +967,7 @@ bool muon::isTrackerHighPtMuon(const reco::Muon& muon, const reco::Vertex& vtx) 
   bool hits = muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
               muon.innerTrack()->hitPattern().numberOfValidPixelHits() > 0;
 
-  bool momQuality = muon.tunePMuonBestTrack()->ptError() / muon.tunePMuonBestTrack()->pt() < 0.3;
+  bool momQuality = muon.tunePMuonBestTrack()->ptError() < 0.3 * muon.tunePMuonBestTrack()->pt();
 
   bool ip =
       std::abs(muon.innerTrack()->dxy(vtx.position())) < 0.2 && std::abs(muon.innerTrack()->dz(vtx.position())) < 0.5;

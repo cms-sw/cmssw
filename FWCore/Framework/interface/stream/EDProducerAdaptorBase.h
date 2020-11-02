@@ -53,6 +53,8 @@ namespace edm {
       friend class edm::WorkerT;
 
       EDProducerAdaptorBase();
+      EDProducerAdaptorBase(const EDProducerAdaptorBase&) = delete;                   // stop default
+      const EDProducerAdaptorBase& operator=(const EDProducerAdaptorBase&) = delete;  // stop default
 
       // ---------- const member functions ---------------------
 
@@ -66,10 +68,6 @@ namespace edm {
       using ProducingModuleAdaptorBase<EDProducerBase>::commit;
 
     private:
-      EDProducerAdaptorBase(const EDProducerAdaptorBase&) = delete;  // stop default
-
-      const EDProducerAdaptorBase& operator=(const EDProducerAdaptorBase&) = delete;  // stop default
-
       bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
 
       void doAcquire(EventTransitionInfo const&,

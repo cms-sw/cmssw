@@ -17,14 +17,14 @@ process.MessageLogger = cms.Service("MessageLogger",
     statistics = cms.untracked.vstring('u27_infos'),
     messageSummaryToJobReport = cms.untracked.bool(True),
     default = cms.untracked.PSet(
-        FwkJob = cms.untracked.PSet(
+        FwkTest = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         )
     ),
     u27_infos = cms.untracked.PSet(
         threshold = cms.untracked.string('INFO'),
         noTimeStamps = cms.untracked.bool(True),
-        FwkJob = cms.untracked.PSet(
+        FwkTest = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         preEventProcessing = cms.untracked.PSet(
@@ -32,7 +32,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         )
     ),
     categories = cms.untracked.vstring('preEventProcessing', 
-        'FwkJob', 
+        'FwkTest', 
         'timer', 
         'trace'),
     destinations = cms.untracked.vstring('u27_infos')

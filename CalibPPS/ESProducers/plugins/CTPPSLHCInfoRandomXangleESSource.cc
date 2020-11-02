@@ -16,7 +16,7 @@
 #include "CLHEP/Random/JamesRandom.h"
 
 #include "TFile.h"
-#include "TH1D.h"
+#include "TH2D.h"
 
 //----------------------------------------------------------------------------------------------------
 
@@ -39,15 +39,15 @@ private:
   unsigned int m_generateEveryNEvents;
 
   double m_beamEnergy;
-  double m_betaStar;
 
   std::unique_ptr<CLHEP::HepRandomEngine> m_engine;
 
   struct BinData {
-    double min, max, xangle;
+    double min, max;
+    double xangle, betaStar;
   };
 
-  std::vector<BinData> binData;
+  std::vector<BinData> xangleBetaStarBins;
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -59,35 +59,42 @@ CTPPSLHCInfoRandomXangleESSource::CTPPSLHCInfoRandomXangleESSource(const edm::Pa
       m_generateEveryNEvents(conf.getParameter<unsigned int>("generateEveryNEvents")),
 
       m_beamEnergy(conf.getParameter<double>("beamEnergy")),
-      m_betaStar(conf.getParameter<double>("betaStar")),
 
       m_engine(new CLHEP::HepJamesRandom(conf.getParameter<unsigned int>("seed"))) {
-  const auto &xangleHistogramFile = conf.getParameter<std::string>("xangleHistogramFile");
-  const auto &xangleHistogramObject = conf.getParameter<std::string>("xangleHistogramObject");
+  // get input beta* vs. xangle histogram
+  const auto &xangleBetaStarHistogramFile = conf.getParameter<std::string>("xangleBetaStarHistogramFile");
+  const auto &xangleBetaStarHistogramObject = conf.getParameter<std::string>("xangleBetaStarHistogramObject");
 
-  TFile *f_in = TFile::Open(xangleHistogramFile.c_str());
+  edm::FileInPath fip(xangleBetaStarHistogramFile);
+  std::unique_ptr<TFile> f_in(TFile::Open(fip.fullPath().c_str()));
   if (!f_in)
-    throw cms::Exception("PPS") << "Cannot open input file '" << xangleHistogramFile << "'.";
+    throw cms::Exception("PPS") << "Cannot open input file '" << xangleBetaStarHistogramFile << "'.";
 
-  TH1D *h_xangle = (TH1D *)f_in->Get(xangleHistogramObject.c_str());
-  if (!h_xangle)
-    throw cms::Exception("PPS") << "Cannot load input object '" << xangleHistogramObject << "'.";
+  TH2D *h_xangle_beta_star = (TH2D *)f_in->Get(xangleBetaStarHistogramObject.c_str());
+  if (!h_xangle_beta_star)
+    throw cms::Exception("PPS") << "Cannot load input object '" << xangleBetaStarHistogramObject << "'.";
 
-  double s = 0.;
-  for (int bi = 1; bi <= h_xangle->GetNbinsX(); ++bi)
-    s += h_xangle->GetBinContent(bi);
-
-  double cw = 0.;
-  for (int bi = 1; bi <= h_xangle->GetNbinsX(); ++bi) {
-    double xangle = h_xangle->GetBinCenter(bi);
-    double w = h_xangle->GetBinContent(bi) / s;
-
-    binData.push_back({cw, cw + w, xangle});
-
-    cw += w;
+  // parse histogram
+  double sum = 0.;
+  for (int x = 1; x <= h_xangle_beta_star->GetNbinsX(); ++x) {
+    for (int y = 1; y <= h_xangle_beta_star->GetNbinsY(); ++y)
+      sum += h_xangle_beta_star->GetBinContent(x, y);
   }
 
-  delete f_in;
+  double cw = 0;
+  for (int x = 1; x <= h_xangle_beta_star->GetNbinsX(); ++x) {
+    for (int y = 1; y <= h_xangle_beta_star->GetNbinsY(); ++y) {
+      const double c = h_xangle_beta_star->GetBinContent(x, y);
+      const double xangle = h_xangle_beta_star->GetXaxis()->GetBinCenter(x);
+      const double betaStar = h_xangle_beta_star->GetYaxis()->GetBinCenter(y);
+
+      if (c > 0.) {
+        const double rc = c / sum;
+        xangleBetaStarBins.push_back({cw, cw + rc, xangle, betaStar});
+        cw += rc;
+      }
+    }
+  }
 
   setWhatProduced(this, m_label);
   findingRecord<LHCInfoRcd>();
@@ -104,11 +111,10 @@ void CTPPSLHCInfoRandomXangleESSource::fillDescriptions(edm::ConfigurationDescri
 
   desc.add<unsigned int>("generateEveryNEvents", 1)->setComment("how often to generate new xangle");
 
-  desc.add<std::string>("xangleHistogramFile", "")->setComment("ROOT file with xangle distribution");
-  desc.add<std::string>("xangleHistogramObject", "")->setComment("xangle distribution object in the ROOT file");
+  desc.add<std::string>("xangleBetaStarHistogramFile", "")->setComment("ROOT file with xangle distribution");
+  desc.add<std::string>("xangleBetaStarHistogramObject", "")->setComment("xangle distribution object in the ROOT file");
 
   desc.add<double>("beamEnergy", 0.)->setComment("beam energy");
-  desc.add<double>("betaStar", 0.)->setComment("beta*");
 
   descriptions.add("ctppsLHCInfoRandomXangleESSource", desc);
 }
@@ -128,19 +134,19 @@ void CTPPSLHCInfoRandomXangleESSource::setIntervalFor(const edm::eventsetup::Eve
 edm::ESProducts<std::unique_ptr<LHCInfo>> CTPPSLHCInfoRandomXangleESSource::produce(const LHCInfoRcd &) {
   auto output = std::make_unique<LHCInfo>();
 
+  double xangle = 0., betaStar = 0.;
   const double u = CLHEP::RandFlat::shoot(m_engine.get(), 0., 1.);
-
-  double xangle = 0.;
-  for (const auto &d : binData) {
+  for (const auto &d : xangleBetaStarBins) {
     if (d.min <= u && u <= d.max) {
       xangle = d.xangle;
+      betaStar = d.betaStar;
       break;
     }
   }
 
   output->setEnergy(m_beamEnergy);
   output->setCrossingAngle(xangle);
-  output->setBetaStar(m_betaStar);
+  output->setBetaStar(betaStar);
 
   return edm::es::products(std::move(output));
 }

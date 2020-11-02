@@ -9,22 +9,15 @@
  *  \author N. Amapane - INFN Torino
  */
 
-void volumeHandle::buildTruncTubs() {
+void volumeHandle::buildTruncTubs(double zhalf,
+                                  double rIn,
+                                  double rOut,
+                                  double startPhi,
+                                  double deltaPhi,
+                                  double cutAtStart,
+                                  double cutAtDelta,
+                                  bool cutInside) {
   LogTrace("MagGeoBuilder") << "Building TruncTubs surfaces...: ";
-
-  DDTruncTubs tubs(solid);
-
-  // Old DD needs mm to cm conversion, but DD4hep needs no conversion.
-  // convertUnits should be defined appropriately.
-  double zhalf = convertUnits(tubs.zHalf());            // half of the z-Axis
-  double rIn = convertUnits(tubs.rIn());                // inner radius
-  double rOut = convertUnits(tubs.rOut());              // outer radius
-  double startPhi = tubs.startPhi();                    // angular start of the tube-section
-  double deltaPhi = tubs.deltaPhi();                    // angular span of the tube-section
-  double cutAtStart = convertUnits(tubs.cutAtStart());  // truncation at begin of the tube-section
-  double cutAtDelta = convertUnits(tubs.cutAtDelta());  // truncation at end of the tube-section
-  bool cutInside = tubs.cutInside();                    // true, if truncation is on the inner side of the tube-section
-
   LogTrace("MagGeoBuilder") << "zhalf      " << zhalf << newln << "rIn        " << rIn << newln << "rOut       " << rOut
                             << newln << "startPhi   " << startPhi << newln << "deltaPhi   " << deltaPhi << newln
                             << "cutAtStart " << cutAtStart << newln << "cutAtDelta " << cutAtDelta << newln

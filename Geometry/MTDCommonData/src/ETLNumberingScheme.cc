@@ -50,7 +50,7 @@ uint32_t ETLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
     ETLDetId tmpId;
     ringCopy = static_cast<int>(tmpId.encodeSector(discN, sectorS, sectorN));
 
-    modtyp = (baseNumber.getLevelName(2).find("_Left") != std::string::npos) ? 2 : 1;
+    modtyp = (baseNumber.getLevelName(2).find("_Left") != std::string::npos) ? 1 : 2;
   }
 
   // Side choice: up to scenario D38 is given by level 7 (HGCal v9)

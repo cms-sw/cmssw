@@ -51,7 +51,7 @@ process.MessageLogger.cout = cms.untracked.PSet(INFO = cms.untracked.PSet(
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
-process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 #process.load("Configuration.StandardSequences.MagneticField_0T_cff")
 process.load("CondCore.CondDB.CondDB_cfi")
 

@@ -105,6 +105,7 @@ namespace reco {
     edm::EDGetTokenT<HFRecHitCollection> hfrechit_token_;
     edm::EDGetTokenT<CaloTowerCollection> calotower_token_;
     edm::ESGetToken<CaloGeometry, CaloGeometryRecord> calogeometry_token_;
+    HcalHaloAlgo HcalAlgo;
 
     float HBRecHitEnergyThreshold;
     float HERecHitEnergyThreshold;

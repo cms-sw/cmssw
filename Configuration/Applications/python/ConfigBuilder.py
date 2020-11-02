@@ -1050,10 +1050,6 @@ class ConfigBuilder(object):
         self.USERDefaultCFF=None
 
         # the magnetic field
-        if self._options.isData:
-            if self._options.magField==defaultOptions.magField:
-                print("magnetic field option forced to: AutoFromDBCurrent")
-            self._options.magField='AutoFromDBCurrent'
         self.magFieldCFF = 'Configuration/StandardSequences/MagneticField_'+self._options.magField.replace('.','')+'_cff'
         self.magFieldCFF = self.magFieldCFF.replace("__",'_')
 

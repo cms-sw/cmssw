@@ -4,15 +4,17 @@ process = cms.Process("clusterAnalysis")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
 
-
-process.MessageLogger.infos.placeholder = cms.untracked.bool(False)
-process.MessageLogger.infos.threshold = cms.untracked.string("INFO")
-process.MessageLogger.infos.default = cms.untracked.PSet(
-    limit = cms.untracked.int32(10000000)
-        )
-process.MessageLogger.infos.FwkReport = cms.untracked.PSet(
-    reportEvery = cms.untracked.int32(10000)
-        )
+process.MessageLogger.destinations.append('infos')
+process.MessageLogger.infos = cms.untracked.PSet(
+    placeholder = cms.untracked.bool(False),
+    threshold = cms.untracked.string("INFO"),
+    default = cms.untracked.PSet(
+        limit = cms.untracked.int32(10000000)
+    ),
+    FwkReport = cms.untracked.PSet(
+        reportEvery = cms.untracked.int32(10000)
+    )
+)
 process.MessageLogger.cerr.threshold = cms.untracked.string("WARNING")
 
 
@@ -259,7 +261,7 @@ process.GlobalTag.globaltag = 'GR10_P_V5::All'
 
 #Geometry and field
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
-process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Geometry.CommonTopologies.globalTrackingGeometry_cfi")
 process.load("TrackingTools.RecoGeometry.RecoGeometries_cff")
 

@@ -2,6 +2,7 @@
 #include "TrackingTools/TrackRefitter/interface/TrackTransformerForGlobalCosmicMuons.h"
 #include "TrackingTools/TrackRefitter/interface/TrackTransformerForCosmicMuons.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -72,7 +73,7 @@ TracksToTrajectories::TracksToTrajectories(const ParameterSet& parameterSet, con
   string type = parameterSet.getParameter<string>("Type");
 
   if (type == "Default")
-    theTrackTransformer = std::make_unique<TrackTransformer>(trackTransformerParam);
+    theTrackTransformer = std::make_unique<TrackTransformer>(trackTransformerParam, consumesCollector());
   else if (type == "GlobalCosmicMuonsForAlignment")
     theTrackTransformer = std::make_unique<TrackTransformerForGlobalCosmicMuons>(trackTransformerParam);
   else if (type == "CosmicMuonsForAlignment")

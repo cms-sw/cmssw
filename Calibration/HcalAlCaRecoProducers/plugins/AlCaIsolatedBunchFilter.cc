@@ -26,7 +26,7 @@
 // class declaration
 //
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 namespace AlCaIsolatedBunch {
   struct Counters {
@@ -77,13 +77,13 @@ AlCaIsolatedBunchFilter::AlCaIsolatedBunchFilter(const edm::ParameterSet& iConfi
   // define tokens for access
   tok_trigRes_ = consumes<edm::TriggerResults>(theTriggerResultsLabel_);
 
-  edm::LogInfo("AlCaIsoBunch") << "Input tag for trigger results " << theTriggerResultsLabel_ << " with "
-                               << trigIsoBunchNames_.size() << ":" << trigJetNames_.size() << " trigger names and"
-                               << " process " << processName_ << std::endl;
+  edm::LogVerbatim("AlCaIsoBunch") << "Input tag for trigger results " << theTriggerResultsLabel_ << " with "
+                                   << trigIsoBunchNames_.size() << ":" << trigJetNames_.size() << " trigger names and"
+                                   << " process " << processName_ << std::endl;
   for (unsigned int k = 0; k < trigIsoBunchNames_.size(); ++k)
-    edm::LogInfo("AlCaIsoBunch") << "Isolated Bunch[" << k << "] " << trigIsoBunchNames_[k] << std::endl;
+    edm::LogVerbatim("AlCaIsoBunch") << "Isolated Bunch[" << k << "] " << trigIsoBunchNames_[k] << std::endl;
   for (unsigned int k = 0; k < trigJetNames_.size(); ++k)
-    edm::LogInfo("AlCaIsoBunch") << "Jet Trigger[" << k << "] " << trigJetNames_[k] << std::endl;
+    edm::LogVerbatim("AlCaIsoBunch") << "Jet Trigger[" << k << "] " << trigJetNames_[k] << std::endl;
 }
 
 AlCaIsolatedBunchFilter::~AlCaIsolatedBunchFilter() {}
@@ -96,9 +96,9 @@ AlCaIsolatedBunchFilter::~AlCaIsolatedBunchFilter() {}
 bool AlCaIsolatedBunchFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetup) {
   bool accept(false);
   ++nAll_;
-#ifdef DebugLog
-  edm::LogInfo("AlCaIsoBunch") << "Run " << iEvent.id().run() << " Event " << iEvent.id().event() << " Luminosity "
-                               << iEvent.luminosityBlock() << " Bunch " << iEvent.bunchCrossing() << std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("AlCaIsoBunch") << "Run " << iEvent.id().run() << " Event " << iEvent.id().event() << " Luminosity "
+                                   << iEvent.luminosityBlock() << " Bunch " << iEvent.bunchCrossing() << std::endl;
 #endif
   //Step1: Find if the event passes one of the chosen triggers
   if ((trigIsoBunchNames_.empty()) && (trigJetNames_.empty())) {
@@ -119,8 +119,8 @@ bool AlCaIsolatedBunchFilter::filter(edm::Event& iEvent, edm::EventSetup const& 
               if (hlt > 0)
                 jet = true;
               if (jet) {
-#ifdef DebugLog
-                edm::LogInfo("AlCaIsoBunch")
+#ifdef EDM_ML_DEBUG
+                edm::LogVerbatim("AlCaIsoBunch")
                     << triggerNames_[iHLT] << " has got HLT flag " << hlt << ":" << jet << ":" << isobunch << std::endl;
 #endif
                 break;
@@ -134,8 +134,8 @@ bool AlCaIsolatedBunchFilter::filter(edm::Event& iEvent, edm::EventSetup const& 
               if (hlt > 0)
                 isobunch = true;
               if (isobunch) {
-#ifdef DebugLog
-                edm::LogInfo("AlCaIsoBunch")
+#ifdef EDM_ML_DEBUG
+                edm::LogVerbatim("AlCaIsoBunch")
                     << triggerNames_[iHLT] << " has got HLT flag " << hlt << ":" << jet << ":" << isobunch << std::endl;
 #endif
                 break;
@@ -164,19 +164,19 @@ void AlCaIsolatedBunchFilter::endStream() {
 }
 
 void AlCaIsolatedBunchFilter::globalEndJob(const AlCaIsolatedBunch::Counters* count) {
-  edm::LogInfo("AlCaIsoBunch") << "Selects " << count->nGood_ << " in " << count->nAll_ << " events" << std::endl;
+  edm::LogVerbatim("AlCaIsoBunch") << "Selects " << count->nGood_ << " in " << count->nAll_ << " events" << std::endl;
 }
 
 // ------------ method called when starting to processes a run  ------------
 void AlCaIsolatedBunchFilter::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
   bool changed(false);
-  edm::LogInfo("AlCaIsoBunch") << "Run[" << nRun_ << "] " << iRun.run() << " hltconfig.init "
-                               << hltConfig_.init(iRun, iSetup, processName_, changed) << std::endl;
+  edm::LogVerbatim("AlCaIsoBunch") << "Run[" << nRun_ << "] " << iRun.run() << " hltconfig.init "
+                                   << hltConfig_.init(iRun, iSetup, processName_, changed) << std::endl;
 }
 // ------------ method called when ending the processing of a run  ------------
 void AlCaIsolatedBunchFilter::endRun(edm::Run const& iRun, edm::EventSetup const&) {
   ++nRun_;
-  edm::LogInfo("AlCaIsoBunch") << "endRun[" << nRun_ << "] " << iRun.run() << std::endl;
+  edm::LogVerbatim("AlCaIsoBunch") << "endRun[" << nRun_ << "] " << iRun.run() << std::endl;
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

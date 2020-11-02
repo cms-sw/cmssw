@@ -14,7 +14,6 @@
 #include "CondFormats/PPSObjects/interface/CTPPSRPAlignmentCorrectionData.h"
 
 #include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/DDCMS/interface/DDShapes.h"
 #include "DetectorDescription/DDCMS/interface/DDSolidShapes.h"
 
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"

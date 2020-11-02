@@ -12,7 +12,7 @@ namespace cms {
 
   DDDetector::DDDetector(const std::string& tag, const std::string& fileName, bool bigXML) : m_tag(tag) {
     m_description = &dd4hep::Detector::getInstance(tag);
-    m_description->addExtension<dd4hep::VectorsMap>(&m_vectors);
+    m_description->addExtension<cms::DDVectorsMap>(&m_vectors);
     m_description->addExtension<dd4hep::PartSelectionMap>(&m_partsels);
     m_description->addExtension<dd4hep::SpecParRegistry>(&m_specpars);
     if (bigXML)

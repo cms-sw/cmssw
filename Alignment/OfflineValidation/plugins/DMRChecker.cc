@@ -558,17 +558,18 @@ private:
 
     edm::Handle<edm::TriggerResults> hltresults;
     event.getByToken(hltresultsToken, hltresults);
+    if (hltresults.isValid()) {
+      const edm::TriggerNames &triggerNames_ = event.triggerNames(*hltresults);
+      int ntrigs = hltresults->size();
 
-    const edm::TriggerNames &triggerNames_ = event.triggerNames(*hltresults);
-    int ntrigs = hltresults->size();
-
-    for (int itrig = 0; itrig != ntrigs; ++itrig) {
-      const string &trigName = triggerNames_.triggerName(itrig);
-      bool accept = hltresults->accept(itrig);
-      if (accept == 1) {
-        // emd::LogVerbatim("DMRChecker") << trigName << " " << accept << " ,track size: " << tC.size() << endl;
-        triggerMap_[trigName].first += 1;
-        triggerMap_[trigName].second += tC.size();
+      for (int itrig = 0; itrig != ntrigs; ++itrig) {
+        const string &trigName = triggerNames_.triggerName(itrig);
+        bool accept = hltresults->accept(itrig);
+        if (accept == 1) {
+          // emd::LogVerbatim("DMRChecker") << trigName << " " << accept << " ,track size: " << tC.size() << endl;
+          triggerMap_[trigName].first += 1;
+          triggerMap_[trigName].second += tC.size();
+        }
       }
     }
 
@@ -1533,7 +1534,8 @@ private:
 
     for (auto &bpixid : resDetailsBPixX_) {
       DMRBPixX_->Fill(bpixid.second.runningMeanOfRes_);
-      pixelmap->fillBarrelBin("DMRsX", bpixid.first, bpixid.second.runningMeanOfRes_);
+      if (phase_ == SiPixelPI::phase::one)
+        pixelmap->fillBarrelBin("DMRsX", bpixid.first, bpixid.second.runningMeanOfRes_);
 
       //auto myLocalTopo = PixelDMRS_x_ByLayer->getTheTopo();
       //edm::LogPrint("DMRChecker") << myLocalTopo->print(bpixid.first) << std::endl;
@@ -1555,7 +1557,8 @@ private:
 
     for (auto &bpixid : resDetailsBPixY_) {
       DMRBPixY_->Fill(bpixid.second.runningMeanOfRes_);
-      pixelmap->fillBarrelBin("DMRsY", bpixid.first, bpixid.second.runningMeanOfRes_);
+      if (phase_ == SiPixelPI::phase::one)
+        pixelmap->fillBarrelBin("DMRsY", bpixid.first, bpixid.second.runningMeanOfRes_);
       PixelDMRS_y_ByLayer->fill(bpixid.first, bpixid.second.runningMeanOfRes_);
 
       // split DMR
@@ -1573,7 +1576,8 @@ private:
 
     for (auto &fpixid : resDetailsFPixX_) {
       DMRFPixX_->Fill(fpixid.second.runningMeanOfRes_);
-      pixelmap->fillForwardBin("DMRsX", fpixid.first, fpixid.second.runningMeanOfRes_);
+      if (phase_ == SiPixelPI::phase::one)
+        pixelmap->fillForwardBin("DMRsX", fpixid.first, fpixid.second.runningMeanOfRes_);
       PixelDMRS_x_ByLayer->fill(fpixid.first, fpixid.second.runningMeanOfRes_);
 
       // split DMR
@@ -1591,7 +1595,8 @@ private:
 
     for (auto &fpixid : resDetailsFPixY_) {
       DMRFPixY_->Fill(fpixid.second.runningMeanOfRes_);
-      pixelmap->fillForwardBin("DMRsY", fpixid.first, fpixid.second.runningMeanOfRes_);
+      if (phase_ == SiPixelPI::phase::one)
+        pixelmap->fillForwardBin("DMRsY", fpixid.first, fpixid.second.runningMeanOfRes_);
       PixelDMRS_y_ByLayer->fill(fpixid.first, fpixid.second.runningMeanOfRes_);
 
       // split DMR
@@ -1670,24 +1675,26 @@ private:
     tmap->save(true, 0, 0, "StripHitMap.pdf");
     tmap->save(true, 0, 0, "StripHitMap.png");
 
-    gStyle->SetPalette(kRainBow);
-    pixelmap->beautifyAllHistograms();
+    if (phase_ == SiPixelPI::phase::one) {
+      gStyle->SetPalette(kRainBow);
+      pixelmap->beautifyAllHistograms();
 
-    TCanvas cBX("CanvXBarrel", "CanvXBarrel", 1200, 1000);
-    pixelmap->DrawBarrelMaps("DMRsX", cBX);
-    cBX.SaveAs("pixelBarrelDMR_x.png");
+      TCanvas cBX("CanvXBarrel", "CanvXBarrel", 1200, 1000);
+      pixelmap->DrawBarrelMaps("DMRsX", cBX);
+      cBX.SaveAs("pixelBarrelDMR_x.png");
 
-    TCanvas cFX("CanvXForward", "CanvXForward", 1600, 1000);
-    pixelmap->DrawForwardMaps("DMRsX", cFX);
-    cFX.SaveAs("pixelForwardDMR_x.png");
+      TCanvas cFX("CanvXForward", "CanvXForward", 1600, 1000);
+      pixelmap->DrawForwardMaps("DMRsX", cFX);
+      cFX.SaveAs("pixelForwardDMR_x.png");
 
-    TCanvas cBY("CanvYBarrel", "CanvYBarrel", 1200, 1000);
-    pixelmap->DrawBarrelMaps("DMRsY", cBY);
-    cBY.SaveAs("pixelBarrelDMR_y.png");
+      TCanvas cBY("CanvYBarrel", "CanvYBarrel", 1200, 1000);
+      pixelmap->DrawBarrelMaps("DMRsY", cBY);
+      cBY.SaveAs("pixelBarrelDMR_y.png");
 
-    TCanvas cFY("CanvXForward", "CanvXForward", 1600, 1000);
-    pixelmap->DrawForwardMaps("DMRsY", cFY);
-    cFY.SaveAs("pixelForwardDMR_y.png");
+      TCanvas cFY("CanvXForward", "CanvXForward", 1600, 1000);
+      pixelmap->DrawForwardMaps("DMRsY", cFY);
+      cFY.SaveAs("pixelForwardDMR_y.png");
+    }
 
     // take care now of the 1D histograms
     gStyle->SetOptStat("emr");

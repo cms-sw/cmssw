@@ -257,49 +257,6 @@ namespace edm {
       return proxies_[std::distance(keysForProxies_.begin(), lb)].get();
     }
 
-    bool EventSetupRecordImpl::doGet(const DataKey& aKey,
-                                     EventSetupImpl const* iEventSetupImpl,
-                                     bool aGetTransiently) const {
-      const DataProxy* proxy = find(aKey);
-      if (nullptr != proxy) {
-        try {
-          convertException::wrap(
-              [&]() { proxy->doGet(*this, aKey, aGetTransiently, activityRegistry_, iEventSetupImpl); });
-        } catch (cms::Exception& e) {
-          addTraceInfoToCmsException(e, aKey.name().value(), proxy->providerDescription(), aKey);
-          //NOTE: the above function can't do the 'throw' since it causes the C++ class type
-          // of the throw to be changed, a 'rethrow' does not have that problem
-          throw;
-        }
-      }
-      return nullptr != proxy;
-    }
-
-    bool EventSetupRecordImpl::doGet(ESProxyIndex iProxyIndex,
-                                     EventSetupImpl const* iEventSetupImpl,
-                                     bool aGetTransiently) const {
-      if UNLIKELY (iProxyIndex.value() == std::numeric_limits<int>::max()) {
-        return false;
-      }
-
-      const DataProxy* proxy = proxies_[iProxyIndex.value()];
-      if (nullptr != proxy) {
-        try {
-          convertException::wrap([&]() {
-            auto const& key = keysForProxies_[iProxyIndex.value()];
-            proxy->doGet(*this, key, aGetTransiently, activityRegistry_, iEventSetupImpl);
-          });
-        } catch (cms::Exception& e) {
-          auto const& key = keysForProxies_[iProxyIndex.value()];
-          addTraceInfoToCmsException(e, key.name().value(), proxy->providerDescription(), key);
-          //NOTE: the above function can't do the 'throw' since it causes the C++ class type
-          // of the throw to be changed, a 'rethrow' does not have that problem
-          throw;
-        }
-      }
-      return nullptr != proxy;
-    }
-
     void EventSetupRecordImpl::prefetchAsync(WaitingTask* iTask,
                                              ESProxyIndex iProxyIndex,
                                              EventSetupImpl const* iEventSetupImpl,

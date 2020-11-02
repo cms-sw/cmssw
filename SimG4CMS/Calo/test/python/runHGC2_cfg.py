@@ -1,20 +1,19 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
 
-process = cms.Process("PROD")
+process = cms.Process("PROD",Phase2C9)
+
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
-process.load("Geometry.CMSCommonData.cmsExtendedGeometry2023D3XML_cfi")
+process.load("Configuration.Geometry.GeometryExtended2026D49_cff")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.EventContent.EventContent_cff")
-process.load("Geometry.HcalCommonData.hcalDDConstants_cff")
-process.load("Geometry.HGCalCommonData.hgcalV6ParametersInitialization_cfi")
-process.load("Geometry.HGCalCommonData.hgcalV6NumberingInitialization_cfi")
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag = autoCond['run2_mc']
+process.GlobalTag.globaltag = autoCond['phase2_realistic']
 
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout'),

@@ -56,7 +56,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         expect_non_supercede_common_specific = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        FwkJob = cms.untracked.PSet(
+        FwkTest = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         int25bydefaults = cms.untracked.PSet(
@@ -145,7 +145,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         'expect_non_supercede_common_specific', 
         'expect_specific', 
         'FwkReport', 
-        'FwkJob'),
+        'FwkTest'),
     destinations = cms.untracked.vstring('u11_overall_unnamed', 
         'u11_overall_specific', 
         'u11_supercede_specific', 

@@ -1,13 +1,13 @@
 # hltGetConfiguration --cff --data /dev/CMSSW_11_2_0/PIon --type PIon
 
-# /dev/CMSSW_11_2_0/PIon/V9 (CMSSW_11_2_0_pre5)
+# /dev/CMSSW_11_2_0/PIon/V10 (CMSSW_11_2_0_pre7)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_11_2_0/PIon/V9')
+  tableName = cms.string('/dev/CMSSW_11_2_0/PIon/V10')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -5366,6 +5366,7 @@ fragment.hltGtStage2Digis = cms.EDProducer( "L1TRawToDigi",
 fragment.hltGtStage2ObjectMap = cms.EDProducer( "L1TGlobalProducer",
     L1DataBxInEvent = cms.int32( 5 ),
     AlgorithmTriggersUnmasked = cms.bool( True ),
+    RequireMenuToMatchAlgoBlkInput = cms.bool( True ),
     EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
     BstLengthBytes = cms.int32( -1 ),
     MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
@@ -5379,12 +5380,12 @@ fragment.hltGtStage2ObjectMap = cms.EDProducer( "L1TGlobalProducer",
     PrescaleCSVFile = cms.string( "prescale_L1TGlobal.csv" ),
     PrintL1Menu = cms.untracked.bool( False ),
     ExtInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    AlgoBlkInputTag = cms.InputTag( "hltGtStage2Digis" ),
+    TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
     PrescaleSet = cms.uint32( 1 ),
     EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
     ProduceL1GtObjectMapRecord = cms.bool( True ),
     GetPrescaleColumnFromData = cms.bool( False ),
-    TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' )
+    AlgoBlkInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltScalersRawToDigi = cms.EDProducer( "ScalersRawToDigi",
     scalersInputTag = cms.InputTag( "rawDataCollector" )

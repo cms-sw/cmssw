@@ -5,18 +5,16 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
+#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 
@@ -63,7 +61,9 @@ private:
   edm::EDGetTokenT<EBRecHitCollection> EBRecHitCollectionToken_;
   edm::EDGetTokenT<EERecHitCollection> EERecHitCollectionToken_;
 
-  edm::ESHandle<DetIdAssociator> ecalDetIdAssociator_;
-  edm::ESHandle<MagneticField> bField_;
-  edm::ESHandle<CaloGeometry> theCaloGeometry_;
+  edm::ESGetToken<DetIdAssociator, DetIdAssociatorRecord> ecalDetIdAssociatorToken_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> bFieldToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> theCaloGeometryToken_;
+  edm::ESGetToken<CaloTopology, CaloTopologyRecord> caloTopologyToken_;
+  const MagneticField* bField_;
 };

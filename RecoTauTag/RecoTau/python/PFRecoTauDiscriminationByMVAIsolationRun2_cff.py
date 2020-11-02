@@ -8,22 +8,22 @@ from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauBasicDiscriminators
 discriminationByIsolationMVArun2v1raw = pfRecoTauDiscriminationByMVAIsolationRun2.clone(
 
     # tau collection to discriminate
-    PFTauProducer = cms.InputTag('pfTauProducer'),
+    PFTauProducer = 'pfTauProducer',
 
     # Require leading pion ensures that:
     #  1) these is at least one track above threshold (0.5 GeV) in the signal cone
     #  2) a track OR a pi-zero in the signal cone has pT > 5 GeV
     Prediscriminants = requireLeadTrack,
-    loadMVAfromDB = cms.bool(True),
+    loadMVAfromDB = True,
         
-    srcBasicTauDiscriminators = cms.InputTag('hpsPFTauBasicDiscriminators')
+    srcBasicTauDiscriminators = 'hpsPFTauBasicDiscriminators'
 )
 
 discriminationByIsolationMVArun2v1 = recoTauDiscriminantCutMultiplexerDefault.clone(
-    PFTauProducer = cms.InputTag('pfTauProducer'),    
+    PFTauProducer = 'pfTauProducer',    
     Prediscriminants = requireLeadTrack,
-    toMultiplex = cms.InputTag('discriminationByIsolationMVArun2v1raw'),
-    loadMVAfromDB = cms.bool(True),
+    toMultiplex = 'discriminationByIsolationMVArun2v1raw',
+    loadMVAfromDB = True,
     mapping = cms.VPSet(
         cms.PSet(
             category = cms.uint32(0),

@@ -68,7 +68,7 @@ process.dqmSaverPB.runNumber = options.runNumber
 # Magnetic Field
 #-----------------------------
 
-process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 
 #-------------------------------------------------
 # GEOMETRY
@@ -116,7 +116,6 @@ if (process.runType.getRunType() == process.runType.hi_run):
 else :
     process.siPixelDigis.InputLabel   = cms.InputTag("rawDataCollector")
     process.siStripDigis.InputLabel   = cms.InputTag("rawDataCollector")
-
 
 ## Collision Reconstruction
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
@@ -186,6 +185,7 @@ if (process.runType.getRunType() == process.runType.cosmic_run or process.runTyp
                          ##### TRIGGER SELECTION #####
                          process.hltHighLevel*
                          process.scalersRawToDigi*
+                         process.tcdsDigis*
                          process.APVPhases*
                          process.consecutiveHEs*
                          process.hltTriggerTypeFilter*
@@ -231,6 +231,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     process.p = cms.Path(
       process.hltHighLevel #trigger selection
      *process.scalersRawToDigi
+     *process.tcdsDigis
      *process.APVPhases
      *process.consecutiveHEs
      *process.Reco
