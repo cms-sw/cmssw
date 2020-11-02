@@ -83,8 +83,7 @@ void SiPixelDetectorStatus::readFromFile(std::string filename) {
 }
 
 // ----------------------------------------------------------------------
-void SiPixelDetectorStatus::dumpToFile(std::string filename) {
-  std::ofstream OD(filename.c_str());
+void SiPixelDetectorStatus::dumpToFile(std::ofstream& OD) {
   OD << "# SiPixelDetectorStatus START" << std::endl;
   OD << "# SiPixelDetectorStatus for LS  " << fLS0_ << " .. " << fLS1_ << std::endl;
   OD << "# SiPixelDetectorStatus for run " << fRun0_ << " .. " << fRun1_ << std::endl;
@@ -94,14 +93,10 @@ void SiPixelDetectorStatus::dumpToFile(std::string filename) {
        it != SiPixelDetectorStatus::end();
        ++it) {
     for (int iroc = 0; iroc < it->second.nrocs(); ++iroc) {
-      for (int idc = 0; idc < 26; ++idc) {
-        //
         OD << Form("%10d %2d %3d", it->first, iroc, int(it->second.getRoc(iroc)->digiOccROC())) << std::endl;
-      }
     }
   }
   OD << "# SiPixelDetectorStatus END" << std::endl;
-  OD.close();
 }
 
 

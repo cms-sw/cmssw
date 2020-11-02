@@ -20,7 +20,7 @@ public:
 
   // file I/O
   void readFromFile(std::string filename);
-  void dumpToFile(std::string filename);
+  void dumpToFile(std::ofstream& outFile);
 
   /*|||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
 
