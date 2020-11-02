@@ -150,7 +150,8 @@ _pp_on_AA_extraCommands = [
     'keep recoHFFilterInfo_hiHFfilters_*_*',
     'keep *_offlineSlimmedPrimaryVerticesRecovery_*_*',
     'keep *_hiEvtPlane_*_*',
-    'keep *_hiEvtPlaneFlat_*_*'
+    'keep *_hiEvtPlaneFlat_*_*',
+    'keep QIE10DataFrameHcalDataFrameContainer_hcalDigis_ZDC_*',
 ]
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
