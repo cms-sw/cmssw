@@ -8,8 +8,19 @@
 class ScoutingPhoton {
 public:
   //constructor with values for all data fields
-  ScoutingPhoton(
-		 float pt, float eta, float phi, float m, float sigmaIetaIeta, float hOverE, float ecalIso, float hcalIso, float trkIso, float r9, float sMin, float sMaj, std::vector<float> energyMatrix)
+  ScoutingPhoton(float pt,
+                 float eta,
+                 float phi,
+                 float m,
+                 float sigmaIetaIeta,
+                 float hOverE,
+                 float ecalIso,
+                 float hcalIso,
+                 float trkIso,
+                 float r9,
+                 float sMin,
+                 float sMaj,
+                 std::vector<float> energyMatrix)
       : pt_(pt),
         eta_(eta),
         phi_(phi),
@@ -24,7 +35,20 @@ public:
         sMaj_(sMaj),
         energyMatrix_(std::move(energyMatrix)) {}
   //default constructor
- ScoutingPhoton() : pt_(0), eta_(0), phi_(0), m_(0), sigmaIetaIeta_(0), hOverE_(0), ecalIso_(0), hcalIso_(0), trkIso_(0), r9_(0), sMin_(0), sMaj_(0), energyMatrix_(0) {}
+  ScoutingPhoton()
+      : pt_(0),
+        eta_(0),
+        phi_(0),
+        m_(0),
+        sigmaIetaIeta_(0),
+        hOverE_(0),
+        ecalIso_(0),
+        hcalIso_(0),
+        trkIso_(0),
+        r9_(0),
+        sMin_(0),
+        sMaj_(0),
+        energyMatrix_(0) {}
 
   //accessor functions
   float pt() const { return pt_; }

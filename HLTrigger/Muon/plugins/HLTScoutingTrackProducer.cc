@@ -139,7 +139,7 @@ void HLTScoutingTrackProducer::fillDescriptions(edm::ConfigurationDescriptions& 
   desc.add<edm::InputTag>("OtherTracks", edm::InputTag("hltPixelTracksL3MuonNoVtx"));
   desc.add<edm::InputTag>("vertexCollection", edm::InputTag("hltPixelVertices"));
 
-  desc.add<int>("mantissaPrecision", 10); //default float16, change to 23 for float32
+  desc.add<int>("mantissaPrecision", 10);  //default float16, change to 23 for float32
   desc.add<double>("vtxMinDist", 0.01);
   descriptions.add("hltScoutingTrackProducer", desc);
 }
