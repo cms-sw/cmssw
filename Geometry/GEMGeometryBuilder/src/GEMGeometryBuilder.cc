@@ -437,14 +437,14 @@ GEMEtaPartition* GEMGeometryBuilder::buildEtaPartition(cms::DDFilteredView& fv, 
 
   auto nStrips = fv.get<double>("nStrips");
   auto nPads = fv.get<double>("nPads");
-
+  auto dPhi = fv.get<double>("dPhi");
   // EtaPartition specific parameter (size)
 
   std::vector<double> dpar = fv.parameters();
 
   double ti = 0.4;  // half thickness
 
-  const std::vector<float> pars{float(dpar[0]), float(dpar[1]), float(dpar[3]), float(nStrips), float(nPads)};
+  const std::vector<float> pars{float(dpar[0]), float(dpar[1]), float(dpar[3]), float(nStrips), float(nPads), float(dPhi)};
 
   bool isOdd = detId.chamber() % 2;
   RCPBoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(dpar[0], dpar[1], dpar[3], ti), isOdd));
