@@ -511,8 +511,9 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
   // for all general tracks (high purity, pt > 1), check if they have been used: if not, promote them as charged hadrons
   for (unsigned i = 0; i < tracks.size(); ++i) {
     auto const &track = tracks[i];
-    if (track.pt() > track_min_pt_ and track.quality(reco::TrackBase::highPurity) and track_max_missing_outerhits_ < 5 and
-        std::abs(track.outerEta()) > track_min_eta_ and std::abs(track.outerEta()) < track_max_eta_ and usedSeeds[i] == false) {
+    if (track.pt() > track_min_pt_ and track.quality(reco::TrackBase::highPurity) and
+        track_max_missing_outerhits_ < 5 and std::abs(track.outerEta()) > track_min_eta_ and
+        std::abs(track.outerEta()) < track_max_eta_ and usedSeeds[i] == false) {
       // emit a charged hadron
       TICLCandidate tmpCandidate;
       tmpCandidate.setCharge(track.charge());
