@@ -2,6 +2,9 @@
 
 #include "RecoEcal/EgammaCoreTools/interface/SCDynamicDPhiParametersHelper.h"
 
+#include <algorithm>
+#include <utility>
+
 using namespace reco;
 
 SCDynamicDPhiParametersHelper::SCDynamicDPhiParametersHelper(const EcalSCDynamicDPhiParameters &params)
@@ -20,12 +23,13 @@ SCDynamicDPhiParametersHelper::SCDynamicDPhiParametersHelper(const edm::Paramete
                                                                pSet.getParameter<double>("saturation"),
                                                                pSet.getParameter<double>("cutoff")});
     addDynamicDPhiParameters(params);
+    sortDynamicDPhiParametersCollection();
   }
 }
 
 EcalSCDynamicDPhiParameters::DynamicDPhiParameters SCDynamicDPhiParametersHelper::dynamicDPhiParameters(
     double clustE, double absSeedEta) const {
-  // assume the collection is sorted in descending DynamicDPhiParams.etaMin and ascending DynamicDPhiParams.eMin
+  // assume the collection is sorted in descending DynamicDPhiParams.etaMin and descending DynamicDPhiParams.eMin
   for (const auto &dynamicDPhiParams : dynamicDPhiParametersCollection_) {
     if (clustE < dynamicDPhiParams.eMin || absSeedEta < dynamicDPhiParams.etaMin) {
       continue;
@@ -39,4 +43,12 @@ EcalSCDynamicDPhiParameters::DynamicDPhiParameters SCDynamicDPhiParametersHelper
 void SCDynamicDPhiParametersHelper::addDynamicDPhiParameters(
     const EcalSCDynamicDPhiParameters::DynamicDPhiParameters &params) {
   dynamicDPhiParametersCollection_.emplace_back(params);
+}
+
+void SCDynamicDPhiParametersHelper::sortDynamicDPhiParametersCollection() {
+  std::sort(dynamicDPhiParametersCollection_.begin(), dynamicDPhiParametersCollection_.end(), [](const EcalSCDynamicDPhiParameters::DynamicDPhiParameters &p1, const EcalSCDynamicDPhiParameters::DynamicDPhiParameters &p2) {
+    const auto p1Mins = std::make_pair(p1.eMin, p1.etaMin);
+    const auto p2Mins = std::make_pair(p2.eMin, p2.etaMin);
+    return p1Mins > p2Mins;
+  });
 }

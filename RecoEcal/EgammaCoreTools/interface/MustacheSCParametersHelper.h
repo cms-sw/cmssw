@@ -17,6 +17,7 @@ namespace reco {
 
     ParabolaParameters parabolaParameters(float log10ClustE, float absSeedEta) const;
     void addParabolaParameters(const EcalMustacheSCParameters::ParabolaParameters &params);
+    void sortParabolaParametersCollection();
   };
 
 }  // namespace reco
