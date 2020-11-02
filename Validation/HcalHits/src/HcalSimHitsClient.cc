@@ -18,7 +18,7 @@ HcalSimHitsClient::HcalSimHitsClient(const edm::ParameterSet &iConfig) {
 HcalSimHitsClient::~HcalSimHitsClient() {}
 
 void HcalSimHitsClient::beginRun(edm::Run const &run, edm::EventSetup const &c) {
-  const auto& pHRNDC = c.getData(tok_HRNDC_);
+  const auto &pHRNDC = c.getData(tok_HRNDC_);
   hcons = &pHRNDC;
   maxDepthHB_ = hcons->getMaxDepth(0);
   maxDepthHE_ = hcons->getMaxDepth(1);

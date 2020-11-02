@@ -36,7 +36,7 @@ HcalSimHitsValidation::HcalSimHitsValidation(edm::ParameterSet const &conf) {
 HcalSimHitsValidation::~HcalSimHitsValidation() {}
 
 void HcalSimHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run, edm::EventSetup const &es) {
-  const auto& pHRNDC = es.getData(tok_HRNDC_);
+  const auto &pHRNDC = es.getData(tok_HRNDC_);
   hcons = &pHRNDC;
   maxDepthHB_ = hcons->getMaxDepth(0);
   maxDepthHE_ = hcons->getMaxDepth(1);
