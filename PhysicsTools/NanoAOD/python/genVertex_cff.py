@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-from PhysicsTools.NanoAOD.common_cff import Var
+from PhysicsTools.NanoAOD.common_cff import Var,ExtVar
 
 genVertexTable = cms.EDProducer("SimpleXYZPointFlatTableProducer",
     src = cms.InputTag("genParticles:xyz0"),
@@ -14,3 +14,11 @@ genVertexTable = cms.EDProducer("SimpleXYZPointFlatTableProducer",
          z = Var("Z", float, doc="gen vertex z", precision=16),
     ) 
 )
+
+genVertexT0Table = cms.EDProducer("GlobalVariablesTableProducer",
+    variables = cms.PSet(
+        GenVtx_t0 = ExtVar( cms.InputTag("genParticles:t0"), "float", doc = "gen vertex t0", precision=12),
+    )
+)
+
+genVertexTables = cms.Sequence(genVertexTable+genVertexT0Table)
