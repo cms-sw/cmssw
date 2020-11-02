@@ -2,7 +2,7 @@
 
 void EcalMustacheSCParameters::print(std::ostream& out) const {
   out << "Mustache SC parameters:" << std::endl;
-  out << " sqrtLogClustETuning: " << std::endl;
+  out << " sqrtLogClustETuning: " << sqrtLogClustETuning_ << std::endl;
   out << " Parabola parameters are binned in " << parabolaParametersCollection_.size() << " (log10(E), |eta|) regions."
       << std::endl;
   for (const auto& params : parabolaParametersCollection_) {
