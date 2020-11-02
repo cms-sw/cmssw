@@ -26,7 +26,7 @@ public:
   class TokenHandlePair {
   public:
     TokenHandlePair(const edm::ParameterSet& conf, const std::string& name, edm::ConsumesCollector& cc)
-        : token_(cc.consumes<T>(conf.getParameter<edm::InputTag>(name))) {}
+        : token_(cc.consumes(conf.getParameter<edm::InputTag>(name))) {}
     void setHandle(const edm::Event& iEvent) { iEvent.getByToken(token_, handle_); }
     const edm::Handle<T>& handle() const { return handle_; }
 
