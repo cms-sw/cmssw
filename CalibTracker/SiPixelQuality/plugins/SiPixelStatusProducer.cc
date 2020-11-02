@@ -42,6 +42,8 @@ SiPixelStatusProducer::SiPixelStatusProducer(const edm::ParameterSet& iConfig,  
                             .getUntrackedParameter<edm::InputTag>("pixelClusterLabel");
   fSiPixelClusterToken_ = consumes<edmNew::DetSetVector<SiPixelCluster>>(fPixelClusterLabel_);
 
+  //debug_ = iConfig.getUntrackedParameter<bool>("debug");
+
   /* register products */
   produces<SiPixelDetectorStatus, edm::Transition::EndLuminosityBlock>("siPixelStatus");
 }
@@ -55,6 +57,7 @@ void SiPixelStatusProducer::beginRun(edm::Run const&, edm::EventSetup const&) {
    /*Is it good to pass the objects stored in runCache to set class private members values  *
      or just call runCahche every time in the calss function?*/
 
+  edm::LogInfo("SiPixelStatusProducer") << "beginRun: update the std::map for pixel geo/topo " << std::endl;
   /* update the std::map for pixel geo/topo */
   /* vector of all <int> detIds */
   fDetIds_ = runCache()->getDetIds();//getDetIds();
@@ -71,7 +74,7 @@ void SiPixelStatusProducer::beginRun(edm::Run const&, edm::EventSetup const&) {
 
 
 void SiPixelStatusProducer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
-     edm::LogInfo("SiPixelStatusProducer") << "beginlumi instance setup " << std::endl;
+     edm::LogInfo("SiPixelStatusProducer") << "beginlumi instance" << std::endl;
 
      /* initialize fDet_ with a set of modules(detIds) and clean the fFEDerror25_ */
      fDet_ = SiPixelDetectorStatus();
@@ -93,8 +96,8 @@ void SiPixelStatusProducer::accumulate(edm::Event const& iEvent, edm::EventSetup
   ftotalevents_++;
 
   /* ----------------------------------------------------------------------
- *      -- Pixel cluster analysis
- *        ----------------------------------------------------------------------*/
+     -- Pixel cluster analysis
+     ----------------------------------------------------------------------*/
 
   edm::Handle<edmNew::DetSetVector<SiPixelCluster>> hClusterColl;
   if (!iEvent.getByToken(fSiPixelClusterToken_, hClusterColl)) {
@@ -231,10 +234,10 @@ void SiPixelStatusProducer::accumulate(edm::Event const& iEvent, edm::EventSetup
   }  /* look over different resouces of takens */
 
   /* Caveat
- *      no per-event collection put into iEvent
- *           If use produce() function and no collection is put into iEvent, produce() will not run in unScheduled mode
- *                Now since CMSSW_10_1_X, the accumulate() function will run whatsoever in the unScheduled mode
- *                     Accumulate() is NOT available for releases BEFORE CMSSW_10_1_X */
+     no per-event collection put into iEvent
+     If use produce() function and no collection is put into iEvent, produce() will not run in unScheduled mode
+     Now since CMSSW_10_1_X, the accumulate() function will run whatsoever in the unScheduled mode
+     Accumulate() is NOT available for releases BEFORE CMSSW_10_1_X */
 }
 
 
@@ -275,9 +278,10 @@ void SiPixelStatusProducer::endLuminosityBlockSummary(edm::LuminosityBlock const
 /* helper function */
 int SiPixelStatusProducer::indexROC(int irow, int icol, int nROCcolumns) {
   return int(icol + irow * nROCcolumns);
-  // generate the folling roc index that is going to map with ROC id as
-  // 8  9  10 11 12 13 14 15
-  // 0  1  2  3  4  5  6  7
+
+  /* generate the folling roc index that is going to map with ROC id as
+     8  9  10 11 12 13 14 15
+     0  1  2  3  4  5  6  7 */
 }
 
 DEFINE_FWK_MODULE(SiPixelStatusProducer);
