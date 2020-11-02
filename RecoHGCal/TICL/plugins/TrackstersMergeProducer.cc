@@ -54,6 +54,10 @@ private:
   const double pt_sigma_high_;
   const double pt_sigma_low_;
   const double halo_max_distance2_;
+  const double track_min_pt_;
+  const double track_min_eta_;
+  const double track_max_eta_;
+  const int track_max_missing_outerhits_;
   const double cosangle_align_;
   const double e_over_h_threshold_;
   const double pt_neutral_threshold_;
@@ -90,6 +94,10 @@ TrackstersMergeProducer::TrackstersMergeProducer(const edm::ParameterSet &ps, co
       pt_sigma_high_(ps.getParameter<double>("pt_sigma_high")),
       pt_sigma_low_(ps.getParameter<double>("pt_sigma_low")),
       halo_max_distance2_(ps.getParameter<double>("halo_max_distance2")),
+      track_min_pt_(ps.getParameter<double>("track_min_pt")),
+      track_min_eta_(ps.getParameter<double>("track_min_eta")),
+      track_max_eta_(ps.getParameter<double>("track_max_eta")),
+      track_max_missing_outerhits_(ps.getParameter<int>("track_max_missing_outerhits")),
       cosangle_align_(ps.getParameter<double>("cosangle_align")),
       e_over_h_threshold_(ps.getParameter<double>("e_over_h_threshold")),
       pt_neutral_threshold_(ps.getParameter<double>("pt_neutral_threshold")),
@@ -499,12 +507,14 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
       usedSeeds[s.index] = true;
     }
   }
+
   // for all general tracks (high purity, pt > 1), check if they have been used: if not, promote them as charged hadrons
   for (unsigned i = 0; i < tracks.size(); ++i) {
     auto const &track = tracks[i];
-    if (track.pt() > 1.f and track.quality(reco::TrackBase::highPurity) and
-        track.hitPattern().numberOfLostHits(reco::HitPattern::MISSING_OUTER_HITS) < 5 and
-        std::abs(track.outerEta()) > 1.48 and std::abs(track.outerEta()) < 3.0 and usedSeeds[i] == false) {
+    if (track.pt() > track_min_pt_ and track.quality(reco::TrackBase::highPurity) and
+        track.hitPattern().numberOfLostHits(reco::HitPattern::MISSING_OUTER_HITS) < track_max_missing_outerhits_ and
+        std::abs(track.outerEta()) > track_min_eta_ and std::abs(track.outerEta()) < track_max_eta_ and
+        usedSeeds[i] == false) {
       // emit a charged hadron
       TICLCandidate tmpCandidate;
       tmpCandidate.setCharge(track.charge());
@@ -724,6 +734,10 @@ void TrackstersMergeProducer::fillDescriptions(edm::ConfigurationDescriptions &d
   desc.add<double>("pt_sigma_high", 2.);
   desc.add<double>("pt_sigma_low", 2.);
   desc.add<double>("halo_max_distance2", 4.);
+  desc.add<double>("track_min_pt", 1.);
+  desc.add<double>("track_min_eta", 1.48);
+  desc.add<double>("track_max_eta", 3.);
+  desc.add<int>("track_max_missing_outerhits", 5);
   desc.add<double>("cosangle_align", 0.9945);
   desc.add<double>("e_over_h_threshold", 1.);
   desc.add<double>("pt_neutral_threshold", 2.);
