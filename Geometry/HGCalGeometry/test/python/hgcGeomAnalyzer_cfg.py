@@ -10,13 +10,17 @@ options.parseArguments()
 
 fileName = "geom_output_"+options.geom
 
-process = cms.Process("demo",eras.Phase2C8)
+process = cms.Process("demo",eras.Phase2C11)
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-if options.geom == 'v10':
-    process.load('Configuration.Geometry.GeometryExtended2026D41Reco_cff')
-elif options.geom == 'v11':
-    process.load('Configuration.Geometry.GeometryExtended2026D46Reco_cff')
+if options.geom == 'v11':
+    process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
+elif options.geom == 'v12':
+    process.load('Configuration.Geometry.GeometryExtended2026D68Reco_cff')
+elif options.geom == 'v13':
+    process.load('Configuration.Geometry.GeometryExtended202670Reco_cff')
+elif options.geom == 'v14':
+    process.load('Configuration.Geometry.GeometryExtended2026D71Reco_cff')
 else:
     raise Exception('UNKNOWN GEOMETRY!')
 

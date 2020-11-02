@@ -34,8 +34,8 @@ _barrel_MTDDigitizer = cms.PSet(
         SigmaClock                 = cms.double(0.015), # [ns]
         CorrelationCoefficient     = cms.double(1.),
         SmearTimeForOOTtails       = cms.bool(True),
-        Npe_to_pC                  = cms.double(0.016), # [pC] 
-        Npe_to_V                   = cms.double(0.0064),# [V] 
+        Npe_to_pC                  = cms.double(0.016), # [pC]
+        Npe_to_V                   = cms.double(0.0064),# [V]
 
         # n bits for the ADC 
         adcNbits          = cms.uint32(10),
@@ -84,6 +84,9 @@ _endcap_MTDDigitizer = cms.PSet(
         )
 )
 
+from Configuration.Eras.Modifier_phase2_etlV4_cff import phase2_etlV4
+phase2_etlV4.toModify(_endcap_MTDDigitizer.DeviceSimulation, meVPerMIP = 0.001 )
+
 from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
 for _m in [_barrel_MTDDigitizer, _endcap_MTDDigitizer]:
     premix_stage1.toModify(_m, premixStage1 = True)
@@ -97,4 +100,3 @@ mtdDigitizer = cms.PSet(
     barrelDigitizer = _barrel_MTDDigitizer,
     endcapDigitizer = _endcap_MTDDigitizer
 )
-

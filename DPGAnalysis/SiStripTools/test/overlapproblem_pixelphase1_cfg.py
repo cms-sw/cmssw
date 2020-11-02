@@ -31,7 +31,7 @@ process.source = cms.Source("PoolSource",
                             inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*")
                             )
 
-process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
 #process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.Geometry.GeometryExtended2017Reco_cff")
 #process.load("Configuration.Geometry.GeometryExtendedPhaseIPixelReco_cff")

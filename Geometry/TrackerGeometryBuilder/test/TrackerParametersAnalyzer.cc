@@ -19,7 +19,7 @@ public:
 };
 
 void TrackerParametersAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::LogInfo("TrackerParametersAnalyzer") << "Here I am";
+  edm::LogVerbatim("TrackerParametersAnalyzer") << "Here I am";
 
   edm::ESHandle<PTrackerParameters> ptp;
   iSetup.get<PTrackerParametersRcd>().get(ptp);

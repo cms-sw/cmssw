@@ -67,6 +67,8 @@ public:
   void fillHits(edm::PCaloHitContainer&, const std::string&) override;
   void reset() override;
 
+  bool isItFineCalo(const G4VTouchable* touch);
+
 protected:
   virtual double getEnergyDeposit(const G4Step* step);
   virtual double EnergyCorrected(const G4Step& step, const G4Track*);
@@ -142,6 +144,13 @@ protected:
   bool forceSave;
 
 private:
+  struct Detector {
+    Detector() {}
+    std::string name;
+    G4LogicalVolume* lv;
+    int level;
+  };
+
   const SimTrackManager* m_trackManager;
 
   std::unique_ptr<CaloSlaveSD> slave;
@@ -170,6 +179,7 @@ private:
   std::map<CaloHitID, CaloG4Hit*> hitMap;
   std::map<int, TrackWithHistory*> tkMap;
   std::vector<std::unique_ptr<CaloG4Hit>> reusehit;
+  std::vector<Detector> fineDetectors_;
 };
 
 #endif  // SimG4CMS_CaloSD_h

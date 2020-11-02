@@ -60,6 +60,8 @@ namespace edm {
         typename T::GlobalCache const* dummy = nullptr;
         m_global = impl::makeGlobal<T>(iPSet, dummy);
       }
+      EDAnalyzerAdaptor(const EDAnalyzerAdaptor&) = delete;                   // stop default
+      const EDAnalyzerAdaptor& operator=(const EDAnalyzerAdaptor&) = delete;  // stop default
       ~EDAnalyzerAdaptor() override {}
 
       static void fillDescriptions(ConfigurationDescriptions& descriptions) { T::fillDescriptions(descriptions); }
@@ -210,10 +212,6 @@ namespace edm {
           MyGlobalLuminosityBlock::endLuminosityBlock(lb, c, &lc);
         }
       }
-
-      EDAnalyzerAdaptor(const EDAnalyzerAdaptor&) = delete;  // stop default
-
-      const EDAnalyzerAdaptor& operator=(const EDAnalyzerAdaptor&) = delete;  // stop default
 
       // ---------- member data --------------------------------
       typename impl::choose_unique_ptr<typename T::GlobalCache>::type m_global;

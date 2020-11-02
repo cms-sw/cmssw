@@ -19,7 +19,7 @@ filteredLayerClustersHAD = _filteredLayerClustersProducer.clone(
 # CA - PATTERN RECOGNITION
 
 ticlTrackstersHAD = _trackstersProducer.clone(
-    filtered_mask = cms.InputTag("filteredLayerClustersHAD", "HAD"),
+    filtered_mask = "filteredLayerClustersHAD:HAD",
     original_mask = 'ticlTrackstersEM',
     seeding_regions = "ticlSeedingGlobal",
     # For the moment we mask everything w/o requirements since we are last

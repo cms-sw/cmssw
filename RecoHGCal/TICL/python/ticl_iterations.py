@@ -39,7 +39,7 @@ def TICL_iterations_withReco(process):
   )
 
   process.trackstersTrk = trackstersProducer.clone(
-    filtered_mask = cms.InputTag("filteredLayerClustersTrk", "Trk"),
+    filtered_mask = "filteredLayerClustersTrk:Trk",
     seeding_regions = "ticlSeedingTrk",
     missing_layers = 3,
     min_clusters_per_ntuplet = 5,
@@ -64,7 +64,7 @@ def TICL_iterations_withReco(process):
   )
 
   process.trackstersMIP = trackstersProducer.clone(
-      filtered_mask = cms.InputTag("filteredLayerClustersMIP", "MIP"),
+      filtered_mask = "filteredLayerClustersMIP:MIP",
       seeding_regions = "ticlSeedingGlobal",
       missing_layers = 3,
       min_clusters_per_ntuplet = 15,
@@ -89,7 +89,7 @@ def TICL_iterations_withReco(process):
   process.trackstersEM = trackstersProducer.clone(
       max_out_in_hops = 4,
       original_mask = "trackstersMIP",
-      filtered_mask = cms.InputTag("filteredLayerClusters", "algo8"),
+      filtered_mask = "filteredLayerClusters:algo8",
       seeding_regions = "ticlSeedingGlobal",
       missing_layers = 1,
       min_clusters_per_ntuplet = 10,
@@ -103,7 +103,7 @@ def TICL_iterations_withReco(process):
 
 
   process.trackstersHAD = trackstersProducer.clone(
-      filtered_mask = cms.InputTag("filteredLayerClusters", "algo8"),
+      filtered_mask = "filteredLayerClusters:algo8",
       seeding_regions = "ticlSeedingGlobal",
       missing_layers = 2,
       min_clusters_per_ntuplet = 10,
@@ -144,9 +144,8 @@ def TICL_iterations_withReco(process):
   process.hgcalValidation.insert(-1, process.ticlPFValidation)
   
   if getattr(process,'hgcalValidator'):
-    process.hgcalValidator.label_lcl = cms.InputTag("hgcalLayerClusters")
-    process.hgcalValidator.label_mcl = cms.VInputTag(cms.InputTag("multiClustersFromTrackstersEM", "MultiClustersFromTracksterByCA"), cms.InputTag("multiClustersFromTrackstersHAD", "MultiClustersFromTracksterByCA"))
-
+    process.hgcalValidator.label_lcl = "hgcalLayerClusters"
+    process.hgcalValidator.label_mcl = ["multiClustersFromTrackstersEM:MultiClustersFromTracksterByCA", "multiClustersFromTrackstersHAD:MultiClustersFromTracksterByCA"]
     process.hgcalValidator.domulticlustersPlots = True
     
   return process
@@ -171,7 +170,7 @@ def TICL_iterations(process):
   )
 
   process.trackstersMIP = trackstersProducer.clone(
-      filtered_mask = cms.InputTag("filteredLayerClustersMIP", "MIP"),
+      filtered_mask = "filteredLayerClustersMIP:MIP",
       seeding_regions = "ticlSeedingGlobal",
       missing_layers = 3,
       min_clusters_per_ntuplet = 15,
@@ -192,7 +191,7 @@ def TICL_iterations(process):
 
   process.tracksters = trackstersProducer.clone(
       original_mask = "trackstersMIP",
-      filtered_mask = cms.InputTag("filteredLayerClusters", "algo8"),
+      filtered_mask = "filteredLayerClusters:algo8",
       seeding_regions = "ticlSeedingGlobal",
       missing_layers = 2,
       min_clusters_per_ntuplet = 15,

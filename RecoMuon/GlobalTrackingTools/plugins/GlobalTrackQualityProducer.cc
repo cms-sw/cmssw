@@ -28,6 +28,7 @@
 GlobalTrackQualityProducer::GlobalTrackQualityProducer(const edm::ParameterSet& iConfig)
     : inputCollection_(iConfig.getParameter<edm::InputTag>("InputCollection")),
       inputLinksCollection_(iConfig.getParameter<edm::InputTag>("InputLinksCollection")),
+      tTopoToken_(esConsumes()),
       theService(nullptr),
       theGlbRefitter(nullptr),
       theGlbMatcher(nullptr) {
@@ -81,9 +82,7 @@ void GlobalTrackQualityProducer::produce(edm::Event& iEvent, const edm::EventSet
   iEvent.getByToken(linkCollectionToken, linkCollectionHandle);
 
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHand;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
-  const TrackerTopology* tTopo = tTopoHand.product();
+  const TrackerTopology* tTopo = &iSetup.getData(tTopoToken_);
 
   // reserve some space
   std::vector<reco::MuonQuality> valuesQual;

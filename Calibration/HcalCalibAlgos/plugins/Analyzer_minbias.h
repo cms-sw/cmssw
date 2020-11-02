@@ -17,6 +17,8 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "FWCore/Common/interface/TriggerNames.h"
+#include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
+#include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
@@ -145,6 +147,8 @@ namespace cms {
     //
     edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> tok_gtRec_;
     edm::EDGetTokenT<HBHERecHitCollection> tok_hbheNorm_;
+
+    edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_respCorr_;
 
     bool theRecalib;
   };

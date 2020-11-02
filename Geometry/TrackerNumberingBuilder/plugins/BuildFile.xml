@@ -5,6 +5,7 @@
 <use name="Geometry/Records"/>
 <use name="DataFormats/DetId"/>
 <use name="DataFormats/TrackerCommon"/>
+<use name="dd4hep"/>
 <library file="*.cc" name="GeometryTrackerNumberingBuilderPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>

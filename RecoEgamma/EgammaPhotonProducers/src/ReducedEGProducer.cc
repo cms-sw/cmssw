@@ -99,7 +99,7 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config)
       relinkGsfElectronSel_(config.getParameter<std::string>("relinkGsfElectrons")),
       hcalHitSel_(config.getParameter<edm::ParameterSet>("hcalHitSel"), consumesCollector()) {
   const edm::InputTag& aTag = config.getParameter<edm::InputTag>("ootPhotons");
-  caloTopology_ = esConsumes<CaloTopology, CaloTopologyRecord>();
+  caloTopology_ = esConsumes();
   if (not aTag.label().empty())
     ootPhotonT_ = consumes<reco::PhotonCollection>(aTag);
 

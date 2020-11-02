@@ -189,7 +189,7 @@ void PGeometricDetBuilder::putOne(const GeometricDet* gd, PGeometricDet* pgd, in
     item._params9 = 0;
     item._params10 = 0;
   }
-  item._geographicalID = gd->geographicalID();
+  item._geographicalID = gd->geographicalId();
   item._radLength = gd->radLength();
   item._xi = gd->xi();
   item._pixROCRows = gd->pixROCRows();

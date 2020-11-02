@@ -12,6 +12,7 @@ Forward declarations of types in the EDM.
 
 namespace edm {
   class PrincipalGetAdapter;
+  class ConfigurationDescriptions;
   class ConsumesCollector;
   class DelayedReader;
   class EDAnalyzer;
@@ -34,6 +35,7 @@ namespace edm {
   class OutputModule;
   struct OutputModuleDescription;
   class ParameterSet;
+  class ParameterSetDescription;
   class Principal;
   class PrincipalCache;
   class PrincipalGetAdapter;

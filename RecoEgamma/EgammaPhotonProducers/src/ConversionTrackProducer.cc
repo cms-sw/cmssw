@@ -45,7 +45,7 @@ ConversionTrackProducer::ConversionTrackProducer(edm::ParameterSet const& conf)
     kfTrajectories = consumes<TrajTrackAssociationCollection>(thetp);
     gsfTrajectories = consumes<TrajGsfTrackAssociationCollection>(thetp);
   }
-  magFieldToken = esConsumes<MagneticField, IdealMagneticFieldRecord>();
+  magFieldToken = esConsumes();
   produces<reco::ConversionTrackCollection>();
 }
 

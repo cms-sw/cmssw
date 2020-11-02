@@ -26,9 +26,6 @@
 #include "Geometry/Records/interface/GEMRecoGeometryRcd.h"
 #include "Geometry/Records/interface/ME0RecoGeometryRcd.h"
 
-#include "CondFormats/GeometryObjects/interface/PGeometricDetExtra.h"
-#include "Geometry/Records/interface/PGeometricDetExtraRcd.h"
-
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
 #include "Geometry/Records/interface/PTrackerParametersRcd.h"
 
@@ -43,7 +40,6 @@
 
 REGISTER_PLUGIN(GeometryFileRcd, FileBlob);
 REGISTER_PLUGIN(IdealGeometryRecord, PGeometricDet);
-REGISTER_PLUGIN(PGeometricDetExtraRcd, PGeometricDetExtra);
 REGISTER_PLUGIN(PTrackerParametersRcd, PTrackerParameters);
 REGISTER_PLUGIN(PEcalBarrelRcd, PCaloGeometry);
 REGISTER_PLUGIN(PEcalEndcapRcd, PCaloGeometry);

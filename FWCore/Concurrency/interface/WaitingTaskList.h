@@ -106,6 +106,8 @@ namespace edm {
        * The value is only useful for optimization as the object can resize itself.
        */
     explicit WaitingTaskList(unsigned int iInitialSize = 2);
+    WaitingTaskList(const WaitingTaskList&) = delete;                   // stop default
+    const WaitingTaskList& operator=(const WaitingTaskList&) = delete;  // stop default
     ~WaitingTaskList() = default;
 
     // ---------- member functions ---------------------------
@@ -143,9 +145,6 @@ namespace edm {
     void reset();
 
   private:
-    WaitingTaskList(const WaitingTaskList&) = delete;                   // stop default
-    const WaitingTaskList& operator=(const WaitingTaskList&) = delete;  // stop default
-
     /**Handles spawning the tasks,
        * safe to call from multiple threads
        */

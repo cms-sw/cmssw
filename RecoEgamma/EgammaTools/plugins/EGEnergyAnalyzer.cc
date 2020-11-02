@@ -57,9 +57,11 @@ private:
   EGEnergyCorrector cordb;
 
   edm::EDGetTokenT<EcalRecHitCollection> ebRHToken_, eeRHToken_;
+  const EcalClusterLazyTools::ESGetTokens ecalClusterToolsESGetTokens_;
 };
 
-EGEnergyAnalyzer::EGEnergyAnalyzer(const edm::ParameterSet& iConfig) {
+EGEnergyAnalyzer::EGEnergyAnalyzer(const edm::ParameterSet& iConfig)
+    : ecalClusterToolsESGetTokens_{consumesCollector()} {
   ebRHToken_ = consumes<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEB"));
   eeRHToken_ = consumes<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEE"));
 }
@@ -91,7 +93,7 @@ void EGEnergyAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   Handle<reco::PhotonCollection> hPhotonProduct;
   iEvent.getByLabel("photons", hPhotonProduct);
 
-  EcalClusterLazyTools lazyTools(iEvent, iSetup, ebRHToken_, eeRHToken_);
+  EcalClusterLazyTools lazyTools(iEvent, ecalClusterToolsESGetTokens_.get(iSetup), ebRHToken_, eeRHToken_);
 
   Handle<reco::VertexCollection> hVertexProduct;
   iEvent.getByLabel("offlinePrimaryVerticesWithBS", hVertexProduct);

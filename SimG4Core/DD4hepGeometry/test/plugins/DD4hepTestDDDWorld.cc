@@ -3,6 +3,7 @@
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "DetectorDescription/DDCMS/interface/DDVectorRegistry.h"
 #include "Geometry/Records/interface/DDVectorRegistryRcd.h"
@@ -27,6 +28,7 @@ using namespace std;
 using namespace cms;
 using namespace edm;
 using namespace dd4hep;
+using geant_units::operators::convertCmToMm;
 
 namespace {
   bool sortByName(const std::pair<G4LogicalVolume*, const dd4hep::SpecPar*>& p1,
@@ -106,14 +108,14 @@ void DD4hepTestDDDWorld::initialize(const dd4hep::sim::Geant4GeometryMaps::Volum
   LogVerbatim("Geometry").log([&](auto& log) {
     for (auto const& it : vmap) {
       for (auto const& fit : specs_) {
-        for (auto const& sit : fit->spars) {
+        for (auto const& sit : fit.second->spars) {
           log << sit.first << " =  " << sit.second[0] << "\n";
         }
-        for (auto const& pit : fit->paths) {
+        for (auto const& pit : fit.second->paths) {
           log << dd4hep::dd::realTopName(pit) << "\n";
           log << "   compare equal to " << dd4hep::dd::noNamespace(it.first.name()) << " ... ";
           if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first.name()), dd4hep::dd::realTopName(pit))) {
-            vec_.emplace_back(std::make_pair<G4LogicalVolume*, const dd4hep::SpecPar*>(&*it.second, &*fit));
+            vec_.emplace_back(std::make_pair<G4LogicalVolume*, const dd4hep::SpecPar*>(&*it.second, &*fit.second));
             log << "   are equal!\n";
           } else
             log << "   nope.\n";
@@ -160,18 +162,20 @@ void DD4hepTestDDDWorld::update() {
     // you must have four of them: e+ e- gamma proton
     //
     auto gammacutStr = it.second->strValue("ProdCutsForGamma");
-    double gammacut = dd4hep::_toDouble({gammacutStr.data(), gammacutStr.size()});
+
+    // Geant4 expects mm units. DD4hep returns cm, so must convert to mm.
+    double gammacut = convertCmToMm(dd4hep::_toDouble({gammacutStr.data(), gammacutStr.size()}));
 
     auto electroncutStr = it.second->strValue("ProdCutsForElectrons");
-    double electroncut = dd4hep::_toDouble({electroncutStr.data(), electroncutStr.size()});
+    double electroncut = convertCmToMm(dd4hep::_toDouble({electroncutStr.data(), electroncutStr.size()}));
 
     auto positroncutStr = it.second->strValue("ProdCutsForPositrons");
-    double positroncut = dd4hep::_toDouble({positroncutStr.data(), positroncutStr.size()});
+    double positroncut = convertCmToMm(dd4hep::_toDouble({positroncutStr.data(), positroncutStr.size()}));
 
     double protoncut = 0.0;
     auto protoncutStr = it.second->strValue("ProdCutsForProtons");
     if (it.second->hasValue("ProdCutsForProtons")) {
-      protoncut = dd4hep::_toDouble({protoncutStr.data(), protoncutStr.size()});
+      protoncut = convertCmToMm(dd4hep::_toDouble({protoncutStr.data(), protoncutStr.size()}));
     } else {
       protoncut = electroncut;
     }

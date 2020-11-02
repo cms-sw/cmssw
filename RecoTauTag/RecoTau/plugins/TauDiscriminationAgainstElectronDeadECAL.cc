@@ -29,7 +29,7 @@ public:
       : TauDiscriminationProducerBase<TauType, TauDiscriminator>::TauDiscriminationProducerBase(cfg),
         moduleLabel_(cfg.getParameter<std::string>("@module_label")),
         verbosity_(cfg.getParameter<int>("verbosity")),
-        antiElectronDeadECAL_(cfg) {}
+        antiElectronDeadECAL_(cfg, edm::EDConsumerBase::consumesCollector()) {}
   ~TauDiscriminationAgainstElectronDeadECAL() override {}
 
   void beginEvent(const edm::Event& evt, const edm::EventSetup& es) override { antiElectronDeadECAL_.beginEvent(es); }

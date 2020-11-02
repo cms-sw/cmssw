@@ -12,6 +12,13 @@ ctppsRPAlignmentCorrectionsDataESSourceXML.RealFiles = [alignmentFile]
 ctppsDirectProtonSimulation.timeResolutionDiamonds45 = "2 * ( (x<10)*(-0.0086*(x-10) + 0.100) + (x>=10)*(0.100) )"
 ctppsDirectProtonSimulation.timeResolutionDiamonds56 = "2 * ( (x<8) *(-0.0100*(x-8)  + 0.100) + (x>=8) *(-0.0027*(x-8) + 0.100) )"
 
-# xangle distribution
-def UseCrossingAngleDistribution(process, f):
-  UseCrossingAngleHistgoram(process, f, "h_xangle_2018_TS1_TS2")
+# xangle/beta* options
+def UseDefaultXangleBetaStar(process):
+  UseCrossingAngle(140, process)
+
+def UseDefaultXangleBetaStarDistribution(process):
+  UseXangleBetaStarHistogram(process, default_xangle_beta_star_file, "2018_TS1_TS2/h2_betaStar_vs_xangle")
+
+# defaults
+def SetDefaults(process):
+  UseDefaultXangleBetaStarDistribution(process)

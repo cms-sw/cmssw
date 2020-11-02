@@ -30,7 +30,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 #-----------------------------
 # Magnetic Field
 #-----------------------------
-process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 
 #-------------------------------------------------
 # Geometry

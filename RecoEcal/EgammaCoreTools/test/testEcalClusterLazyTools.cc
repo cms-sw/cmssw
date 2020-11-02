@@ -45,15 +45,16 @@ private:
   const edm::EDGetTokenT<reco::BasicClusterCollection> endcapClusterToken_;
   const edm::EDGetTokenT<EcalRecHitCollection> barrelRecHitToken_;
   const edm::EDGetTokenT<EcalRecHitCollection> endcapRecHitToken_;
+
+  LazyTools::ESGetTokens esGetTokens_;
 };
 
 testEcalClusterLazyTools::testEcalClusterLazyTools(const edm::ParameterSet& ps)
-    : barrelClusterToken_(
-          consumes<reco::BasicClusterCollection>(ps.getParameter<edm::InputTag>("barrelClusterCollection"))),
-      endcapClusterToken_(
-          consumes<reco::BasicClusterCollection>(ps.getParameter<edm::InputTag>("endcapClusterCollection"))),
-      barrelRecHitToken_(consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("barrelRecHitCollection"))),
-      endcapRecHitToken_(consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("endcapRecHitCollection"))) {}
+    : barrelClusterToken_(consumes(ps.getParameter<edm::InputTag>("barrelClusterCollection"))),
+      endcapClusterToken_(consumes(ps.getParameter<edm::InputTag>("endcapClusterCollection"))),
+      barrelRecHitToken_(consumes(ps.getParameter<edm::InputTag>("barrelRecHitCollection"))),
+      endcapRecHitToken_(consumes(ps.getParameter<edm::InputTag>("endcapRecHitCollection"))),
+      esGetTokens_{consumesCollector()} {}
 
 void testEcalClusterLazyTools::analyze(const edm::Event& ev, const edm::EventSetup& es) {
   edm::Handle<reco::BasicClusterCollection> pEBClusters;
@@ -64,7 +65,7 @@ void testEcalClusterLazyTools::analyze(const edm::Event& ev, const edm::EventSet
   ev.getByToken(endcapClusterToken_, pEEClusters);
   const reco::BasicClusterCollection* eeClusters = pEEClusters.product();
 
-  LazyTools lazyTools(ev, es, barrelRecHitToken_, endcapRecHitToken_);
+  LazyTools lazyTools(ev, esGetTokens_.get(es), barrelRecHitToken_, endcapRecHitToken_);
 
   std::cout << "========== BARREL ==========" << std::endl;
   for (auto const& clus : *ebClusters) {

@@ -9,10 +9,10 @@ import RecoHI.HiJetAlgos.particleTowerProducer_cfi as _mod
 PFTowers = _mod.particleTowerProducer.clone(useHF = True)
 
 #dummy sequence to speed-up reconstruction in pp_on_AA era
-pfNoPileUpJMEHI = cms.EDFilter('GenericPFCandidateSelector',
-                                src = cms.InputTag('particleFlow'),
-                                cut = cms.string("pt>9999")
-                                )
+pfEmptyCollection = cms.EDFilter('GenericPFCandidateSelector',
+                                 src = cms.InputTag('particleFlow'),
+                                 cut = cms.string("pt<0")
+                             )
 
 ak5PFJets = cms.EDProducer(
     "FastjetJetProducer",
@@ -120,5 +120,5 @@ hiRecoPFJetsTask = cms.Task(
     )
 hiRecoPFJets = cms.Sequence(hiRecoPFJetsTask)
 
-
-
+from Configuration.ProcessModifiers.run2_miniAOD_pp_on_AA_103X_cff import run2_miniAOD_pp_on_AA_103X
+run2_miniAOD_pp_on_AA_103X.toModify(akCs4PFJets,src = 'cleanedParticleFlow')

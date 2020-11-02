@@ -1,0 +1,30 @@
+<use   name="boost"/>
+<use   name="root"/>
+<use   name="classlib"/>
+<use   name="clhep"/>
+<use   name="SimDataFormats/TrackingHit"/>
+<use   name="SimDataFormats/TrackerDigiSimLink"/>
+<use   name="SimDataFormats/CrossingFrame"/>
+<use   name="DataFormats/SiPixelDigi"/>
+<use   name="DataFormats/SiPixelDetId"/>
+<use   name="DataFormats/DetId"/>
+<use   name="Geometry/Records"/>
+<use   name="Geometry/CommonDetUnit"/>
+<use   name="Geometry/TrackerGeometryBuilder"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="CommonTools/UtilAlgos"/>
+<use   name="DQMServices/Core"/>
+<use   name="DataFormats/Common"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="DataFormats/TrackerRecHit2D"/>
+<use   name="DataFormats/Phase2TrackerCluster"/>
+<use   name="DataFormats/ParticleFlowCandidate"/>
+<use   name="DataFormats/ParticleFlowReco"/>
+<use   name="RecoLocalTracker/SiPhase2VectorHitBuilder"/>
+<library   file="VectorHitsBuilderValidation.cc" name="VectorHitsBuilderValidation">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="ClustersValidationTGraph.cc" name="ClustersValidationTGraph">
+  <flags   EDM_PLUGIN="1"/>
+</library>
