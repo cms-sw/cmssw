@@ -99,8 +99,9 @@ APVShotsFilter::APVShotsFilter(const edm::ParameterSet& iConfig)
       _zs(iConfig.getUntrackedParameter<bool>("zeroSuppressed", true)),
       _nevents(0),
       _useCabling(iConfig.getUntrackedParameter<bool>("useCabling", true)),
-      _detCablingWatcher(this, &APVShotsFilter::updateDetCabling),
-      _detCablingToken(esConsumes()) {
+      _detCablingWatcher(_useCabling ? decltype(_detCablingWatcher){this, &APVShotsFilter::updateDetCabling}
+                                     : decltype(_detCablingWatcher){}),
+      _detCablingToken(_useCabling ? decltype(_detCablingToken){esConsumes()} : _detCablingToken) {
   //now do what ever initialization is needed
   edm::InputTag digicollection = iConfig.getParameter<edm::InputTag>("digiCollection");
   edm::InputTag historyProduct = iConfig.getParameter<edm::InputTag>("historyProduct");

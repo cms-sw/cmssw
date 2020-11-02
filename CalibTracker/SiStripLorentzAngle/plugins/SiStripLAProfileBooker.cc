@@ -57,7 +57,9 @@ SiStripLAProfileBooker::SiStripLAProfileBooker(edm::ParameterSet const& conf)
       tTopoToken_(esConsumes<edm::Transition::BeginRun>()),
       tkGeomToken_(esConsumes<edm::Transition::BeginRun>()),
       magFieldToken_(esConsumes<edm::Transition::BeginRun>()),
-      detCablingToken_(esConsumes<edm::Transition::BeginRun>()) {}
+      detCablingToken_(conf_.getParameter<bool>("UseStripCablingDB")
+                           ? decltype(detCablingToken_){esConsumes<edm::Transition::BeginRun>()}
+                           : detCablingToken_) {}
 
 //BeginRun
 

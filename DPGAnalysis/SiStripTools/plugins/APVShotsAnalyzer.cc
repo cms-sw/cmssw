@@ -144,8 +144,9 @@ APVShotsAnalyzer::APVShotsAnalyzer(const edm::ParameterSet& iConfig)
       _apvphasecollToken(consumes<APVCyclePhaseCollection>(iConfig.getParameter<edm::InputTag>("apvPhaseCollection"))),
       _tkDetMapToken(esConsumes()),
       _useCabling(iConfig.getUntrackedParameter<bool>("useCabling", true)),
-      _detCablingWatcher(this, &APVShotsAnalyzer::updateDetCabling),
-      _detCablingToken(esConsumes()),
+      _detCablingWatcher(_useCabling ? decltype(_detCablingWatcher){this, &APVShotsAnalyzer::updateDetCabling}
+                                     : decltype(_detCablingWatcher){}),
+      _detCablingToken(_useCabling ? decltype(_detCablingToken){esConsumes()} : _detCablingToken),
       _phasepart(iConfig.getUntrackedParameter<std::string>("phasePartition", "None")),
       _zs(iConfig.getUntrackedParameter<bool>("zeroSuppressed", true)),
       _suffix(iConfig.getParameter<std::string>("mapSuffix")),
