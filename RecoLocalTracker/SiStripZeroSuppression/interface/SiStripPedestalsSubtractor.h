@@ -20,7 +20,7 @@ public:
   void init(const edm::EventSetup&);
 
 private:
-  SiStripPedestalsSubtractor(bool mode, edm::ConsumesCollector&& iC)
+  SiStripPedestalsSubtractor(bool mode, edm::ConsumesCollector iC)
       : pedestalsToken_(iC.esConsumes<SiStripPedestals, SiStripPedestalsRcd>()), fedmode_(mode) {}
   edm::ESGetToken<SiStripPedestals, SiStripPedestalsRcd> pedestalsToken_;
   edm::ESWatcher<SiStripPedestalsRcd> pedestalsWatcher_;

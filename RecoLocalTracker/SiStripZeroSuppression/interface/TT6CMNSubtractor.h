@@ -21,7 +21,7 @@ private:
   template <typename T>
   void subtract_(uint32_t detId, uint16_t firstAPV, std::vector<T>& digis);
 
-  TT6CMNSubtractor(double in, edm::ConsumesCollector&& iC)
+  TT6CMNSubtractor(double in, edm::ConsumesCollector iC)
       : cut_to_avoid_signal_(in),
         noiseToken_(iC.esConsumes<SiStripNoises, SiStripNoisesRcd>()),
         qualityToken_(iC.esConsumes<SiStripQuality, SiStripQualityRcd>()) {}

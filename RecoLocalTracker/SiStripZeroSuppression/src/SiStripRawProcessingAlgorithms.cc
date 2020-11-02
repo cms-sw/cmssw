@@ -11,7 +11,7 @@
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripRawProcessingFactory.h"
 #include <memory>
 
-SiStripRawProcessingAlgorithms::SiStripRawProcessingAlgorithms(edm::ConsumesCollector&& iC,
+SiStripRawProcessingAlgorithms::SiStripRawProcessingAlgorithms(edm::ConsumesCollector iC,
                                                                std::unique_ptr<SiStripPedestalsSubtractor> ped,
                                                                std::unique_ptr<SiStripCommonModeNoiseSubtractor> cmn,
                                                                std::unique_ptr<SiStripFedZeroSuppression> zs,

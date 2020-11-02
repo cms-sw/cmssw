@@ -26,7 +26,7 @@ class SiStripAPVRestorer {
   friend class SiStripRawProcessingFactory;
 
 protected:
-  SiStripAPVRestorer(const edm::ParameterSet& conf, edm::ConsumesCollector&&);
+  SiStripAPVRestorer(const edm::ParameterSet& conf, edm::ConsumesCollector);
 
 public:
   virtual ~SiStripAPVRestorer(){};

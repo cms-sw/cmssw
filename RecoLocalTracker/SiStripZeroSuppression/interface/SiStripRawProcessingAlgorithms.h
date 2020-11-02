@@ -63,7 +63,7 @@ private:
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
   const TrackerGeometry* trGeo;
 
-  SiStripRawProcessingAlgorithms(edm::ConsumesCollector&& iC,
+  SiStripRawProcessingAlgorithms(edm::ConsumesCollector iC,
                                  std::unique_ptr<SiStripPedestalsSubtractor> ped,
                                  std::unique_ptr<SiStripCommonModeNoiseSubtractor> cmn,
                                  std::unique_ptr<SiStripFedZeroSuppression> zs,
