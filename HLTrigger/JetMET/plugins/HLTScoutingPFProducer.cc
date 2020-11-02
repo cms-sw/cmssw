@@ -263,7 +263,7 @@ void HLTScoutingPFProducer::fillDescriptions(edm::ConfigurationDescriptions &des
   desc.add<double>("pfJetEtaCut", 3.0);
   desc.add<double>("pfCandidatePtCut", 0.6);
   desc.add<double>("pfCandidateEtaCut", 5.0);
-  desc.add<int>("mantissaPrecision", 10);//default float16, change to 23 for float32
+  desc.add<int>("mantissaPrecision", 10);  //default float16, change to 23 for float32
   desc.add<bool>("doJetTags", true);
   desc.add<bool>("doCandidates", true);
   desc.add<bool>("doMet", true);

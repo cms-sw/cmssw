@@ -23,11 +23,11 @@ public:
                    int charge,
                    float ecalIso,
                    float hcalIso,
-                   float trackIso, 
-		   float r9, 
-                   float sMin, 
-	           float sMaj,
-		   std::vector<float> energyMatrix)
+                   float trackIso,
+                   float r9,
+                   float sMin,
+                   float sMaj,
+                   std::vector<float> energyMatrix)
       : pt_(pt),
         eta_(eta),
         phi_(phi),
@@ -43,7 +43,10 @@ public:
         charge_(charge),
         ecalIso_(ecalIso),
         hcalIso_(hcalIso),
-        trackIso_(trackIso), r9_(r9), sMin_(sMin), sMaj_(sMaj),
+        trackIso_(trackIso),
+        r9_(r9),
+        sMin_(sMin),
+        sMaj_(sMaj),
         energyMatrix_(std::move(energyMatrix)) {}
   //default constructor
   ScoutingElectron()
@@ -62,8 +65,8 @@ public:
         charge_(0),
         ecalIso_(0),
         hcalIso_(0),
-    	trackIso_(0),
-	r9_(0),
+        trackIso_(0),
+        r9_(0),
         sMin_(0),
         sMaj_(0),
         energyMatrix_(0) {}

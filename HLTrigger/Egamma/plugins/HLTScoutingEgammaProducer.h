@@ -51,7 +51,6 @@ Description: Producer for ScoutingElectron and ScoutingPhoton
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/Math/interface/libminifloat.h"
 
-
 class HLTScoutingEgammaProducer : public edm::global::EDProducer<> {
   typedef edm::AssociationMap<edm::OneToValue<std::vector<reco::RecoEcalCandidate>, float, unsigned int> >
       RecoEcalCandMap;
@@ -78,7 +77,6 @@ private:
   const edm::EDGetTokenT<RecoEcalCandMap> EleGsfTrackIsoMap_;
   const edm::EDGetTokenT<RecoEcalCandMap> HcalPFClusterIsoMap_;
 
-  
   //const EcalClusterLazyTools::ESGetTokens ecalClusterToolsESGetTokens_;
 
   const double egammaPtCut;
@@ -89,8 +87,6 @@ private:
 
   const edm::EDGetTokenT<EcalRecHitCollection> ecalRechitEB_;
   const edm::EDGetTokenT<EcalRecHitCollection> ecalRechitEE_;
-
-
 };
 
 #endif
