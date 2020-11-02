@@ -120,7 +120,7 @@ nanoSequenceOnlyFullSim = cms.Sequence(triggerObjectTables + l1bits)
 
 nanoSequence = cms.Sequence(nanoSequenceCommon + nanoSequenceOnlyFullSim)
 
-nanoSequenceFS = cms.Sequence(genParticleSequence + genVertexTable + particleLevelSequence + nanoSequenceCommon + jetMC + muonMC + electronMC + photonMC + tauMC + metMC + ttbarCatMCProducers +  globalTablesMC + btagWeightTable + genWeightsTable + genVertexTable + genParticleTables + particleLevelTables + lheInfoTable  + ttbarCategoryTable )
+nanoSequenceFS = cms.Sequence(genParticleSequence + genVertexTables + particleLevelSequence + nanoSequenceCommon + jetMC + muonMC + electronMC + photonMC + tauMC + metMC + ttbarCatMCProducers +  globalTablesMC + btagWeightTable + genWeightsTable + genVertexTable + genParticleTables + particleLevelTables + lheInfoTable  + ttbarCategoryTable )
 
 nanoSequenceMC = nanoSequenceFS.copy()
 nanoSequenceMC.insert(nanoSequenceFS.index(nanoSequenceCommon)+1,nanoSequenceOnlyFullSim)

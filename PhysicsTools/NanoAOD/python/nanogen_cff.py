@@ -32,7 +32,7 @@ nanogenSequence = cms.Sequence(
     genVisTauTable+
     genTable+
     genParticleTables+
-    genVertexTable+
+    genVertexTables+
     tautagger+
     rivetProducerHTXS+
     particleLevelTables+
