@@ -62,8 +62,8 @@ private:
 
 EGEnergyAnalyzer::EGEnergyAnalyzer(const edm::ParameterSet& iConfig)
     : ecalClusterToolsESGetTokens_{consumesCollector()} {
-  ebRHToken_ = consumes<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEB"));
-  eeRHToken_ = consumes<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEE"));
+  ebRHToken_ = consumes(edm::InputTag("reducedEcalRecHitsEB"));
+  eeRHToken_ = consumes(edm::InputTag("reducedEcalRecHitsEE"));
 }
 
 EGEnergyAnalyzer::~EGEnergyAnalyzer() {

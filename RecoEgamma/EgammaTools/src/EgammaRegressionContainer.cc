@@ -26,10 +26,10 @@ edm::ParameterSetDescription EgammaRegressionContainer::makePSetDescription() {
   desc.add<double>("rangeMaxHighEt", 3.0);
   desc.add<double>("lowEtHighEtBoundary", 50.);
   desc.add<bool>("forceHighEnergyTrainingIfSaturated", false);
-  desc.add<std::string>("ebLowEtForestName", "electron_eb_ECALTRK_lowpt");
-  desc.add<std::string>("ebHighEtForestName", "electron_eb_ECALTRK");
-  desc.add<std::string>("eeLowEtForestName", "electron_ee_ECALTRK_lowpt");
-  desc.add<std::string>("eeHighEtForestName", "electron_ee_ECALTRK");
+  desc.add<edm::ESInputTag>("ebLowEtForestName", edm::ESInputTag{"", "electron_eb_ECALTRK_lowpt"});
+  desc.add<edm::ESInputTag>("ebHighEtForestName", edm::ESInputTag{"", "electron_eb_ECALTRK"});
+  desc.add<edm::ESInputTag>("eeLowEtForestName", edm::ESInputTag{"", "electron_ee_ECALTRK_lowpt"});
+  desc.add<edm::ESInputTag>("eeHighEtForestName", edm::ESInputTag{"", "electron_ee_ECALTRK"});
   return desc;
 }
 

@@ -12,7 +12,7 @@ namespace {
   template <typename T, typename U, typename V>
   inline void make_consumes(const T& tag, edm::EDGetTokenT<U>& tok, V& sume) {
     if (!(empty_tag == tag))
-      tok = sume.template consumes<U>(tag);
+      tok = sume.template consumes(tag);
   }
 }  // namespace
 
@@ -76,7 +76,7 @@ EGFull5x5ShowerShapeModifierFromValueMaps::EGFull5x5ShowerShapeModifierFromValue
                                                                                      edm::ConsumesCollector& cc)
     : ModifyObjectValueBase(conf) {
   if (conf.exists("electron_config")) {
-    const edm::ParameterSet& electrons = conf.getParameter<edm::ParameterSet>("electron_config");
+    auto const& electrons = conf.getParameterSet("electron_config");
     if (electrons.exists("electronSrc"))
       make_consumes(electrons.getParameter<edm::InputTag>("electronSrc"), e_conf.tok_electron_src, cc);
     if (electrons.exists("sigmaEtaEta"))
@@ -103,7 +103,7 @@ EGFull5x5ShowerShapeModifierFromValueMaps::EGFull5x5ShowerShapeModifierFromValue
       make_consumes(electrons.getParameter<edm::InputTag>("hcalDepth2OverEcalBc"), e_conf.tok_hcalDepth2OverEcalBc, cc);
   }
   if (conf.exists("photon_config")) {
-    const edm::ParameterSet& photons = conf.getParameter<edm::ParameterSet>("photon_config");
+    auto const& photons = conf.getParameterSet("photon_config");
     if (photons.exists("photonSrc"))
       make_consumes(photons.getParameter<edm::InputTag>("photonSrc"), ph_conf.tok_photon_src, cc);
     if (photons.exists("sigmaEtaEta"))
@@ -151,8 +151,7 @@ void EGFull5x5ShowerShapeModifierFromValueMaps::setEvent(const edm::Event& evt) 
   ele_idx = pho_idx = 0;
 
   if (!e_conf.tok_electron_src.isUninitialized()) {
-    edm::Handle<edm::View<pat::Electron>> eles;
-    evt.getByToken(e_conf.tok_electron_src, eles);
+    auto eles = evt.getHandle(e_conf.tok_electron_src);
 
     eles_by_oop.resize(eles->size());
     std::copy(eles->ptrs().begin(), eles->ptrs().end(), eles_by_oop.begin());
@@ -171,8 +170,7 @@ void EGFull5x5ShowerShapeModifierFromValueMaps::setEvent(const edm::Event& evt) 
   get_product(evt, e_conf.tok_hcalDepth2OverEcalBc, ele_vmaps);
 
   if (!ph_conf.tok_photon_src.isUninitialized()) {
-    edm::Handle<edm::View<pat::Photon>> phos;
-    evt.getByToken(ph_conf.tok_photon_src, phos);
+    auto phos = evt.getHandle(ph_conf.tok_photon_src);
 
     phos_by_oop.resize(phos->size());
     std::copy(phos->ptrs().begin(), phos->ptrs().end(), phos_by_oop.begin());

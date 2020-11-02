@@ -87,8 +87,8 @@ private:
 };
 
 EGEtScaleSysModifier::EGEtScaleSysModifier(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
-    : ModifyObjectValueBase(conf), epCombTool_{conf.getParameter<edm::ParameterSet>("epCombConfig"), std::move(cc)} {
-  const edm::ParameterSet funcPSet = conf.getParameter<edm::ParameterSet>("uncertFunc");
+    : ModifyObjectValueBase(conf), epCombTool_{conf.getParameterSet("epCombConfig"), std::move(cc)} {
+  const edm::ParameterSet& funcPSet = conf.getParameterSet("uncertFunc");
   const std::string& funcName = funcPSet.getParameter<std::string>("name");
   if (funcName == "UncertFuncV1") {
     uncertFunc_ = std::make_unique<UncertFuncV1>(funcPSet);

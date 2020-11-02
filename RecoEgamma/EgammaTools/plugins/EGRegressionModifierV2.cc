@@ -32,8 +32,9 @@ private:
   EGRegressionModifierCondTokens phoCondTokens_;
 
   float rhoValue_;
-  edm::EDGetTokenT<double> rhoToken_;
-  edm::ESHandle<CaloGeometry> caloGeometry_;
+  const edm::EDGetTokenT<double> rhoToken_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
+  CaloGeometry const* caloGeometry_ = nullptr;
 
   std::vector<const GBRForestD*> phoForestsMean_;
   std::vector<const GBRForestD*> phoForestsSigma_;
@@ -53,10 +54,11 @@ DEFINE_EDM_PLUGIN(ModifyObjectValueFactory, EGRegressionModifierV2, "EGRegressio
 
 EGRegressionModifierV2::EGRegressionModifierV2(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
     : ModifyObjectValueBase(conf),
-      eleCondTokens_{conf.getParameter<edm::ParameterSet>("electron_config"), "regressionKey", "uncertaintyKey", cc},
-      phoCondTokens_{conf.getParameter<edm::ParameterSet>("photon_config"), "regressionKey", "uncertaintyKey", cc},
+      eleCondTokens_{conf.getParameterSet("electron_config"), "regressionKey", "uncertaintyKey", cc},
+      phoCondTokens_{conf.getParameterSet("photon_config"), "regressionKey", "uncertaintyKey", cc},
 
-      rhoToken_(cc.consumes<double>(conf.getParameter<edm::InputTag>("rhoCollection"))),
+      rhoToken_(cc.consumes(conf.getParameter<edm::InputTag>("rhoCollection"))),
+      caloGeometryToken_(cc.esConsumes()),
       lowEnergyEcalOnlyThr_(conf.getParameter<double>("lowEnergy_ECALonlyThr")),
       lowEnergyEcalTrackThr_(conf.getParameter<double>("lowEnergy_ECALTRKThr")),
       highEnergyEcalTrackThr_(conf.getParameter<double>("highEnergy_ECALTRKThr")),
@@ -73,11 +75,7 @@ EGRegressionModifierV2::EGRegressionModifierV2(const edm::ParameterSet& conf, ed
   phoForestsSigma_.reserve(ncor);
 }
 
-void EGRegressionModifierV2::setEvent(const edm::Event& evt) {
-  edm::Handle<double> rhoH;
-  evt.getByToken(rhoToken_, rhoH);
-  rhoValue_ = *rhoH;
-}
+void EGRegressionModifierV2::setEvent(const edm::Event& evt) { rhoValue_ = evt.get(rhoToken_); }
 
 void EGRegressionModifierV2::setEventContent(const edm::EventSetup& evs) {
   phoForestsMean_ = retrieveGBRForests(evs, phoCondTokens_.mean);
@@ -86,7 +84,7 @@ void EGRegressionModifierV2::setEventContent(const edm::EventSetup& evs) {
   eleForestsMean_ = retrieveGBRForests(evs, eleCondTokens_.mean);
   eleForestsSigma_ = retrieveGBRForests(evs, eleCondTokens_.sigma);
 
-  evs.get<CaloGeometryRecord>().get(caloGeometry_);
+  caloGeometry_ = &evs.getData(caloGeometryToken_);
 }
 
 void EGRegressionModifierV2::modifyObject(reco::GsfElectron& ele) const {

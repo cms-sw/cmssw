@@ -86,11 +86,11 @@ namespace {
 
 template <typename T>
 CalibratedElectronProducerT<T>::CalibratedElectronProducerT(const edm::ParameterSet& conf)
-    : electronToken_(consumes<edm::View<T>>(conf.getParameter<edm::InputTag>("src"))),
-      epCombinationTool_{conf.getParameter<edm::ParameterSet>("epCombConfig"), consumesCollector()},
+    : electronToken_(consumes(conf.getParameter<edm::InputTag>("src"))),
+      epCombinationTool_{conf.getParameterSet("epCombConfig"), consumesCollector()},
       energyCorrector_(epCombinationTool_, conf.getParameter<std::string>("correctionFile")),
-      recHitCollectionEBToken_(consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("recHitCollectionEB"))),
-      recHitCollectionEEToken_(consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("recHitCollectionEE"))),
+      recHitCollectionEBToken_(consumes(conf.getParameter<edm::InputTag>("recHitCollectionEB"))),
+      recHitCollectionEEToken_(consumes(conf.getParameter<edm::InputTag>("recHitCollectionEE"))),
       produceCalibratedObjs_(conf.getParameter<bool>("produceCalibratedObjs")) {
   energyCorrector_.setMinEt(conf.getParameter<double>("minEtToCalibrate"));
 
@@ -132,14 +132,10 @@ template <typename T>
 void CalibratedElectronProducerT<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   epCombinationTool_.setEventContent(iSetup);
 
-  edm::Handle<edm::View<T>> inHandle;
-  iEvent.getByToken(electronToken_, inHandle);
+  auto inHandle = iEvent.getHandle(electronToken_);
 
-  edm::Handle<EcalRecHitCollection> recHitCollectionEBHandle;
-  edm::Handle<EcalRecHitCollection> recHitCollectionEEHandle;
-
-  iEvent.getByToken(recHitCollectionEBToken_, recHitCollectionEBHandle);
-  iEvent.getByToken(recHitCollectionEEToken_, recHitCollectionEEHandle);
+  auto recHitCollectionEBHandle = iEvent.getHandle(recHitCollectionEBToken_);
+  auto recHitCollectionEEHandle = iEvent.getHandle(recHitCollectionEEToken_);
 
   std::unique_ptr<std::vector<T>> out = std::make_unique<std::vector<T>>();
 
