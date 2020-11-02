@@ -9,8 +9,8 @@ genVertexTable = cms.EDProducer("SimpleXYZPointFlatTableProducer",
     singleton = cms.bool(True), 
     extension = cms.bool(False), 
     variables = cms.PSet(
-         x  = Var("X", float, doc="gen vertex x", precision=8),
-         y = Var("Y", float, doc="gen vertex y", precision=8),
-         z = Var("Z", float, doc="gen vertex z", precision=8),
+         x  = Var("X", float, doc="gen vertex x", precision=10),
+         y = Var("Y", float, doc="gen vertex y", precision=10),
+         z = Var("Z", float, doc="gen vertex z", precision=16),
     ) 
 )
