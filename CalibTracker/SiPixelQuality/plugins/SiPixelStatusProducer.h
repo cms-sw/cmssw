@@ -7,7 +7,6 @@
  *          reference : https://twiki.cern.ch/twiki/bin/view/CMSPublic/FWMultithreadedFrameworkStreamModuleInterface
  *________________________________________________________________**/
 
-
 // C++ standard
 #include <cstring>
 #include <fstream>
@@ -50,62 +49,48 @@
 // SiPixelDetectorStatus
 #include "CalibTracker/SiPixelQuality/interface/SiPixelDetectorStatus.h"
 
-
 /* Cache to pertain SiPixelTopoFinder */
 class SiPixelTopoCache {
-
 public:
-
-  SiPixelTopoCache(edm::ParameterSet const& iPSet) {};
+  SiPixelTopoCache(edm::ParameterSet const& iPSet){};
 
   std::shared_ptr<SiPixelTopoFinder> getSiPixelTopoFinder(edm::EventSetup const& iSetup) const {
-
-
     std::shared_ptr<SiPixelTopoFinder> returnValue;
 
     m_queue.pushAndWait([&]() {
+      if (!this->siPixelFedCablingMapWatcher_.check(iSetup) && !this->trackerDIGIGeoWatcher_.check(iSetup) &&
+          !this->trackerTopoWatcher_.check(iSetup)) {
+        /*the condition hasn't changed so we can just use our old value*/
+        returnValue = m_mostRecentSiPixelTopoFinder_;
+      } else {
+        edm::ESHandle<TrackerGeometry> tkGeoHandle;
+        iSetup.get<TrackerDigiGeometryRecord>().get(tkGeoHandle);
+        const TrackerGeometry* trackerGeometry = tkGeoHandle.product();
 
-       if(!this->siPixelFedCablingMapWatcher_.check(iSetup)
-          && !this->trackerDIGIGeoWatcher_.check(iSetup)
-          && !this->trackerTopoWatcher_.check(iSetup)) {
-          /*the condition hasn't changed so we can just use our old value*/
-          returnValue = m_mostRecentSiPixelTopoFinder_;
-       }
-       else {
+        edm::ESHandle<TrackerTopology> tkTopoHandle;
+        iSetup.get<TrackerTopologyRcd>().get(tkTopoHandle);
+        const TrackerTopology* trackerTopology = tkTopoHandle.product();
 
-          edm::ESHandle<TrackerGeometry> tkGeoHandle;
-          iSetup.get<TrackerDigiGeometryRecord>().get(tkGeoHandle);
-          const TrackerGeometry* trackerGeometry = tkGeoHandle.product();
+        edm::ESHandle<SiPixelFedCablingMap> cMapHandle;
+        iSetup.get<SiPixelFedCablingMapRcd>().get(cMapHandle);
+        const SiPixelFedCablingMap* cablingMap = cMapHandle.product();
 
-          edm::ESHandle<TrackerTopology> tkTopoHandle;
-          iSetup.get<TrackerTopologyRcd>().get(tkTopoHandle);
-          const TrackerTopology* trackerTopology = tkTopoHandle.product();
+        /*the condition has changed so we need to update*/
+        //const TrackerGeometry* trackerGeometry = &iSetup.getData(trackerGeometryToken);
+        //const TrackerTopology* trackerTopology = &iSetup.getData(trackerTopologyToken);
+        //const SiPixelFedCablingMap* cablingMap = &iSetup.getData(siPixelFedCablingMapToken);
 
-          edm::ESHandle<SiPixelFedCablingMap> cMapHandle;
-          iSetup.get<SiPixelFedCablingMapRcd>().get(cMapHandle);
-          const SiPixelFedCablingMap* cablingMap = cMapHandle.product();
+        returnValue = m_holder.makeOrGet([this]() { return new SiPixelTopoFinder(); });
+        returnValue->init(trackerGeometry, trackerTopology, cablingMap);
 
-
-          /*the condition has changed so we need to update*/
-          //const TrackerGeometry* trackerGeometry = &iSetup.getData(trackerGeometryToken);
-          //const TrackerTopology* trackerTopology = &iSetup.getData(trackerTopologyToken);
-          //const SiPixelFedCablingMap* cablingMap = &iSetup.getData(siPixelFedCablingMapToken);
-
-          returnValue = m_holder.makeOrGet( [this]() { return new SiPixelTopoFinder();});
-          returnValue->init(trackerGeometry, trackerTopology, cablingMap);
-
-          m_mostRecentSiPixelTopoFinder_ = returnValue;
-        }
-
-    });//m_queue
-
+        m_mostRecentSiPixelTopoFinder_ = returnValue;
+      }
+    });  //m_queue
 
     return returnValue;
-
   }
 
 private:
-
   mutable edm::ReusableObjectHolder<SiPixelTopoFinder> m_holder;
   mutable edm::SerialTaskQueue m_queue;
 
@@ -119,132 +104,121 @@ private:
 
   /* SiPixelTopoFinder */
   mutable std::shared_ptr<SiPixelTopoFinder> m_mostRecentSiPixelTopoFinder_;
-
 };
 
 /*|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
 
-class SiPixelStatusProducer : 
+class SiPixelStatusProducer :
 
-      public edm::stream::EDProducer<edm::GlobalCache<SiPixelTopoCache>,
-                                     edm::RunCache<SiPixelTopoFinder>,
-                                     edm::LuminosityBlockSummaryCache<std::vector<SiPixelDetectorStatus>>, 
-                                     edm::EndLuminosityBlockProducer,
-                                     edm::Accumulator> {
+    public edm::stream::EDProducer<edm::GlobalCache<SiPixelTopoCache>,
+                                   edm::RunCache<SiPixelTopoFinder>,
+                                   edm::LuminosityBlockSummaryCache<std::vector<SiPixelDetectorStatus>>,
+                                   edm::EndLuminosityBlockProducer,
+                                   edm::Accumulator> {
 public:
+  SiPixelStatusProducer(edm::ParameterSet const& iPSet, SiPixelTopoCache const*);
+  ~SiPixelStatusProducer() override;
 
-   SiPixelStatusProducer(edm::ParameterSet const& iPSet, SiPixelTopoCache const*);
-   ~SiPixelStatusProducer() override;
+  /* module description */
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    {
+      edm::ParameterSetDescription psd0;
+      psd0.addUntracked<edm::InputTag>("pixelClusterLabel", edm::InputTag("siPixelClusters", "", "RECO"));
+      psd0.add<std::vector<edm::InputTag>>("badPixelFEDChannelCollections",
+                                           {
+                                               edm::InputTag("siPixelDigis"),
+                                           });
+      desc.add<edm::ParameterSetDescription>("SiPixelStatusProducerParameters", psd0);
+    }
+    descriptions.add("siPixelStatusProducer", desc);
+  }
 
-   /* module description */
-   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  /*|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
 
-               edm::ParameterSetDescription desc;
-               {
-                 edm::ParameterSetDescription psd0;
-                 psd0.addUntracked<edm::InputTag>("pixelClusterLabel", edm::InputTag("siPixelClusters", "", "RECO"));
-                 psd0.add<std::vector<edm::InputTag>>("badPixelFEDChannelCollections",{edm::InputTag("siPixelDigis"),});
-                 desc.add<edm::ParameterSetDescription>("SiPixelStatusProducerParameters", psd0);
-               }
-               descriptions.add("siPixelStatusProducer", desc);
-   }
+  /* For each instance of the module*/
+  void beginRun(edm::Run const&, edm::EventSetup const&) final;
 
+  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) final;
+  void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) final;
 
-   /*|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
+  void accumulate(edm::Event const& iEvent, edm::EventSetup const& iSetup) final;
 
-   /* For each instance of the module*/
-   void beginRun(edm::Run const&, edm::EventSetup const&) final; 
+  void endLuminosityBlockSummary(edm::LuminosityBlock const& iLumi,
+                                 edm::EventSetup const&,
+                                 std::vector<SiPixelDetectorStatus>* siPixelDetectorStatusVtr) const final;  //override;
 
-   void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) final;
-   void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) final;
+  /* For global or runCache */
 
-   void accumulate(edm::Event const& iEvent, edm::EventSetup const& iSetup) final;
+  static std::unique_ptr<SiPixelTopoCache> initializeGlobalCache(edm::ParameterSet const& iPSet) {
+    edm::LogInfo("SiPixelStatusProducer") << "Init global Cache " << std::endl;
+    return std::make_unique<SiPixelTopoCache>(iPSet);
+  }
 
-   void endLuminosityBlockSummary(edm::LuminosityBlock const& iLumi, edm::EventSetup const&, 
-                                  std::vector<SiPixelDetectorStatus>* siPixelDetectorStatusVtr) const final;//override;
+  static std::shared_ptr<SiPixelTopoFinder> globalBeginRun(edm::Run const& iRun,
+                                                           edm::EventSetup const& iSetup,
+                                                           GlobalCache const* iCache) {
+    edm::LogInfo("SiPixelStatusProducer") << "Global beginRun " << std::endl;
+    return iCache->getSiPixelTopoFinder(iSetup);
+  }
 
+  static void globalEndRun(edm::Run const& iRun, edm::EventSetup const&, RunContext const* iContext) {
+    /* Do nothing */
+  }
 
-   /* For global or runCache */
+  static void globalEndJob(SiPixelTopoCache const*) { /* Do nothing */
+  }
 
-   static std::unique_ptr<SiPixelTopoCache> initializeGlobalCache(edm::ParameterSet const& iPSet) {
-          edm::LogInfo("SiPixelStatusProducer") << "Init global Cache " << std::endl;
-          return std::make_unique<SiPixelTopoCache>(iPSet);
-   }
+  static std::shared_ptr<std::vector<SiPixelDetectorStatus>> globalBeginLuminosityBlockSummary(
+      edm::LuminosityBlock const&, edm::EventSetup const&, LuminosityBlockContext const*) {
+    return std::make_shared<std::vector<SiPixelDetectorStatus>>();
+  }
 
-   static std::shared_ptr<SiPixelTopoFinder> globalBeginRun(edm::Run const& iRun, edm::EventSetup const& iSetup,
-                                                            GlobalCache const* iCache) {
+  static void globalEndLuminosityBlockSummary(edm::LuminosityBlock const&,
+                                              edm::EventSetup const&,
+                                              LuminosityBlockContext const* iContext,
+                                              std::vector<SiPixelDetectorStatus>*) {
+    /* Do nothing */
+  }
 
-          edm::LogInfo("SiPixelStatusProducer") << "Global beginRun " << std::endl;
-          return iCache->getSiPixelTopoFinder(iSetup);
+  static void globalEndLuminosityBlockProduce(edm::LuminosityBlock& iLumi,
+                                              edm::EventSetup const&,
+                                              LuminosityBlockContext const* iContext,
+                                              std::vector<SiPixelDetectorStatus> const* siPixelDetectorStatusVtr) {
+    edm::LogInfo("SiPixelStatusProducer") << "Global endlumi producer " << std::endl;
 
-   }
+    // only save result for non-zero event lumi block
+    if (!siPixelDetectorStatusVtr->empty()) {
+      int lumi = iLumi.luminosityBlock();
+      int run = iLumi.run();
 
+      SiPixelDetectorStatus siPixelDetectorStatus = SiPixelDetectorStatus();
+      for (unsigned int instance = 0; instance < siPixelDetectorStatusVtr->size(); instance++) {
+        siPixelDetectorStatus.updateDetectorStatus((*siPixelDetectorStatusVtr)[instance]);
+      }
 
-   static void globalEndRun(edm::Run const& iRun, edm::EventSetup const&, RunContext const* iContext) {
-               /* Do nothing */
-   }
+      siPixelDetectorStatus.setRunRange(run, run);
+      siPixelDetectorStatus.setLSRange(lumi, lumi);
 
-   static void globalEndJob(SiPixelTopoCache const*) {
-               /* Do nothing */
-   }
+      if (debug_) {
+        std::string outTxt = Form("SiPixelDetectorStatus_Run%d_Lumi%d.txt", run, lumi);
+        std::ofstream outFile;
+        outFile.open(outTxt.c_str(), std::ios::app);
+        siPixelDetectorStatus.dumpToFile(outFile);
+        outFile.close();
+      }
 
+      /* save result */
+      auto result = std::make_unique<SiPixelDetectorStatus>();
+      *result = siPixelDetectorStatus;
 
-
-   static std::shared_ptr<std::vector<SiPixelDetectorStatus>> globalBeginLuminosityBlockSummary(edm::LuminosityBlock const&,
-                                                                                  edm::EventSetup const&,
-                                                                                  LuminosityBlockContext const*){
-                        return std::make_shared<std::vector<SiPixelDetectorStatus>>();
-   }
-
-   static void globalEndLuminosityBlockSummary(edm::LuminosityBlock const&,
-                                               edm::EventSetup const&,
-                                               LuminosityBlockContext const* iContext,
-                                               std::vector<SiPixelDetectorStatus>*) {
-               /* Do nothing */
-
-   }
-
-   static void globalEndLuminosityBlockProduce(edm::LuminosityBlock& iLumi,
-                                               edm::EventSetup const&,
-                                               LuminosityBlockContext const* iContext,
-                                               std::vector<SiPixelDetectorStatus> const* siPixelDetectorStatusVtr) {
-
-               edm::LogInfo("SiPixelStatusProducer") << "Global endlumi producer " << std::endl;
-
-               // only save result for non-zero event lumi block              
-               if ( !siPixelDetectorStatusVtr->empty() ){
-  	           int lumi = iLumi.luminosityBlock();
-                   int run  = iLumi.run();
-
-                   SiPixelDetectorStatus siPixelDetectorStatus = SiPixelDetectorStatus();
-                   for (unsigned int instance = 0; instance < siPixelDetectorStatusVtr->size(); instance++){
-                       siPixelDetectorStatus.updateDetectorStatus((*siPixelDetectorStatusVtr)[instance]);
-                   }
-
-                   siPixelDetectorStatus.setRunRange(run,run);
-                   siPixelDetectorStatus.setLSRange(lumi,lumi);
-
-                   if(debug_){
-                      std::string outTxt = Form("SiPixelDetectorStatus_Run%d_Lumi%d.txt", run,lumi);
-                      std::ofstream outFile;
-                      outFile.open(outTxt.c_str(), std::ios::app);
-                      siPixelDetectorStatus.dumpToFile(outFile);
-                      outFile.close();
-                   }
-
-  	           /* save result */
-                   auto result = std::make_unique<SiPixelDetectorStatus>();
-                   *result = siPixelDetectorStatus;
-
-                   iLumi.put(std::move(result), std::string("siPixelStatus"));
-                   edm::LogInfo("SiPixelStatusProducer") <<" lumi-based data stored for run "<< run <<" lumi "<< lumi << std::endl;
-
-               }
-
-   }                           
+      iLumi.put(std::move(result), std::string("siPixelStatus"));
+      edm::LogInfo("SiPixelStatusProducer")
+          << " lumi-based data stored for run " << run << " lumi " << lumi << std::endl;
+    }
+  }
 
 private:
-
   virtual int indexROC(int irow, int icol, int nROCcolumns) final;
 
   /* ParameterSet */
@@ -288,8 +262,6 @@ private:
 
   // Producer production (output collection)
   SiPixelDetectorStatus fDet_;
-
-
 };
 
 #endif

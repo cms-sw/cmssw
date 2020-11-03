@@ -43,14 +43,15 @@ void SiPixelModuleStatus::setDetId(int detid) { fDetid_ = detid; }
 // ----------------------------------------------------------------------
 void SiPixelModuleStatus::setNrocs(int nRoc) { fNrocs_ = nRoc; }
 
-
 // ----------------------------------------------------------------------
 void SiPixelModuleStatus::updateDIGI(int iroc, unsigned int nhit) {
-  if (iroc < fNrocs_) fRocs_[iroc].updateDIGI(nhit);
+  if (iroc < fNrocs_)
+    fRocs_[iroc].updateDIGI(nhit);
 }
 // ----------------------------------------------------------------------
 void SiPixelModuleStatus::updateFEDerror25(int iroc, bool fedError25) {
-  if (iroc < fNrocs_) fRocs_[iroc].updateFEDerror25(fedError25);
+  if (iroc < fNrocs_)
+    fRocs_[iroc].updateFEDerror25(fedError25);
 }
 
 // ----------------------------------------------------------------------
@@ -69,7 +70,7 @@ unsigned int SiPixelModuleStatus::digiOccMOD() {
 // ----------------------------------------------------------------------
 double SiPixelModuleStatus::perRocDigiOcc() {
   unsigned int ave(0);
-  for  (int iroc = 0; iroc < fNrocs_; ++iroc) {
+  for (int iroc = 0; iroc < fNrocs_; ++iroc) {
     unsigned int inc = digiOccROC(iroc);
     ave += inc;
   }
@@ -89,14 +90,14 @@ double SiPixelModuleStatus::perRocDigiOccVar() {
   return TMath::Sqrt(fModSigma);
 }
 
-
 // ----------------------------------------------------------------------
 // Return the address not the value of ROC status
 SiPixelRocStatus* SiPixelModuleStatus::getRoc(int iroc) { return (iroc < fNrocs_ ? &fRocs_[iroc] : nullptr); }
 
 // ----------------------------------------------------------------------
 void SiPixelModuleStatus::updateModuleDIGI(int iroc, unsigned int nhits) {
-  if (iroc<fNrocs_) fRocs_[iroc].updateDIGI(nhits);
+  if (iroc < fNrocs_)
+    fRocs_[iroc].updateDIGI(nhits);
 }
 // ----------------------------------------------------------------------
 void SiPixelModuleStatus::updateModuleStatus(SiPixelModuleStatus newData) {
@@ -106,14 +107,13 @@ void SiPixelModuleStatus::updateModuleStatus(SiPixelModuleStatus newData) {
   }
 
   if (isSameModule) {
-    for (int iroc = 0; iroc < fNrocs_; ++iroc) { // loop over rocs
+    for (int iroc = 0; iroc < fNrocs_; ++iroc) {  // loop over rocs
       //update occupancy
       fRocs_[iroc].updateDIGI(newData.digiOccROC(iroc));
       //update FEDerror25
       fRocs_[iroc].updateFEDerror25(newData.fedError25(iroc));
 
-    } // loop over rocs
+    }  // loop over rocs
 
   }  // if same module
-
 }

@@ -27,9 +27,7 @@
 // Header file
 #include "CalibTracker/SiPixelQuality/plugins/SiPixelStatusProducer.h"
 
-
-SiPixelStatusProducer::SiPixelStatusProducer(const edm::ParameterSet& iConfig,  SiPixelTopoCache const*){
-
+SiPixelStatusProducer::SiPixelStatusProducer(const edm::ParameterSet& iConfig, SiPixelTopoCache const*) {
   /* badPixelFEDChannelCollections */
   std::vector<edm::InputTag> badPixelFEDChannelCollectionLabels =
       iConfig.getParameter<edm::ParameterSet>("SiPixelStatusProducerParameters")
@@ -53,14 +51,13 @@ SiPixelStatusProducer::~SiPixelStatusProducer() {}
 //--------------------------------------------------------------------------------------------------
 
 void SiPixelStatusProducer::beginRun(edm::Run const&, edm::EventSetup const&) {
-
-   /*Is it good to pass the objects stored in runCache to set class private members values  *
+  /*Is it good to pass the objects stored in runCache to set class private members values  *
      or just call runCahche every time in the calss function?*/
 
   edm::LogInfo("SiPixelStatusProducer") << "beginRun: update the std::map for pixel geo/topo " << std::endl;
   /* update the std::map for pixel geo/topo */
   /* vector of all <int> detIds */
-  fDetIds_ = runCache()->getDetIds();//getDetIds();
+  fDetIds_ = runCache()->getDetIds();  //getDetIds();
   /* ROC size (number of row, number of columns for each det id) */
   fSensors_ = runCache()->getSensors();
   /* the roc layout on a module */
@@ -69,24 +66,22 @@ void SiPixelStatusProducer::beginRun(edm::Run const&, edm::EventSetup const&) {
   fFedIds_ = runCache()->getFedIds();
   /* map the index ROC to rocId */
   fRocIds_ = runCache()->getRocIds();
-
 }
 
-
 void SiPixelStatusProducer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
-     edm::LogInfo("SiPixelStatusProducer") << "beginlumi instance" << std::endl;
+  edm::LogInfo("SiPixelStatusProducer") << "beginlumi instance" << std::endl;
 
-     /* initialize fDet_ with a set of modules(detIds) and clean the fFEDerror25_ */
-     fDet_ = SiPixelDetectorStatus();
-     for (unsigned int itDetId = 0; itDetId < fDetIds_.size(); ++itDetId) {
-          int detid = fDetIds_[itDetId];
-          int nrocs = fSensorLayout_[detid].first * fSensorLayout_[detid].second;
+  /* initialize fDet_ with a set of modules(detIds) and clean the fFEDerror25_ */
+  fDet_ = SiPixelDetectorStatus();
+  for (unsigned int itDetId = 0; itDetId < fDetIds_.size(); ++itDetId) {
+    int detid = fDetIds_[itDetId];
+    int nrocs = fSensorLayout_[detid].first * fSensorLayout_[detid].second;
 
-          fDet_.addModule(detid, nrocs);
-     }
+    fDet_.addModule(detid, nrocs);
+  }
 
-     fFEDerror25_.clear();
-     ftotalevents_ = 0;
+  fFEDerror25_.clear();
+  ftotalevents_ = 0;
 }
 
 void SiPixelStatusProducer::accumulate(edm::Event const& iEvent, edm::EventSetup const&) {
@@ -109,8 +104,8 @@ void SiPixelStatusProducer::accumulate(edm::Event const& iEvent, edm::EventSetup
   iEvent.getByToken(fSiPixelClusterToken_, hClusterColl);
 
   if (hClusterColl.isValid()) {
-    for (const auto& clusters : *hClusterColl) {  /*loop over different clusters in a clusters vector (module)*/
-      for (const auto& clu : clusters) {          /*loop over cluster in a given detId (module)*/
+    for (const auto& clusters : *hClusterColl) { /*loop over different clusters in a clusters vector (module)*/
+      for (const auto& clu : clusters) {         /*loop over cluster in a given detId (module)*/
         int detid = clusters.detId();
         int rowsperroc = fSensors_[detid].first;
         int colsperroc = fSensors_[detid].second;
@@ -121,33 +116,33 @@ void SiPixelStatusProducer::accumulate(edm::Event const& iEvent, edm::EventSetup
         int roc(-1);
         std::map<int, int> rocIds_detid;
         if (fRocIds_.find(detid) != fRocIds_.end()) {
-           rocIds_detid = fRocIds_[detid];
+          rocIds_detid = fRocIds_[detid];
         }
 
         /* A module is made with a few ROCs
            Need to convert global row/column (on a module) to local row/column (on a ROC) */
         const std::vector<SiPixelCluster::Pixel>& pixvector = clu.pixels();
         for (unsigned int i = 0; i < pixvector.size(); ++i) {
-          int mr0 = pixvector[i].x;  /* constant column direction is along x-axis */
-          int mc0 = pixvector[i].y;  /* constant row direction is along y-axis */
+          int mr0 = pixvector[i].x; /* constant column direction is along x-axis */
+          int mc0 = pixvector[i].y; /* constant row direction is along y-axis */
 
           int irow = mr0 / rowsperroc;
           int icol = mc0 / colsperroc;
 
           int key = indexROC(irow, icol, nROCcolumns);
           if (rocIds_detid.find(key) != rocIds_detid.end()) {
-              roc = rocIds_detid[key];
+            roc = rocIds_detid[key];
           }
 
           fDet_.fillDIGI(detid, roc);
 
-        }  /* loop over pixels in a cluster */
+        } /* loop over pixels in a cluster */
 
-      }  /* loop over cluster in a detId (module) */
+      } /* loop over cluster in a detId (module) */
 
-    }  /* loop over detId-grouped clusters in cluster detId-grouped clusters-vector* */
+    } /* loop over detId-grouped clusters in cluster detId-grouped clusters-vector* */
 
-  }  /* hClusterColl.isValid() */
+  } /* hClusterColl.isValid() */
   else {
     edm::LogWarning("SiPixelStatusProducer")
         << " edmNew::DetSetVector<SiPixelCluster> " << fPixelClusterLabel_ << " is NOT Valid!" << std::endl;
@@ -160,7 +155,6 @@ void SiPixelStatusProducer::accumulate(edm::Event const& iEvent, edm::EventSetup
 
   /* look over different resouces of tokens */
   for (const edm::EDGetTokenT<PixelFEDChannelCollection>& tk : theBadPixelFEDChannelsTokens_) {
-
     if (!iEvent.getByToken(tk, pixelFEDChannelCollectionHandle)) {
       edm::LogWarning("SiPixelStatusProducer")
           << " PixelFEDChannelCollection with index " << tk.index() << " does NOT exist!" << std::endl;
@@ -188,14 +182,13 @@ void SiPixelStatusProducer::accumulate(edm::Event const& iEvent, edm::EventSetup
         } else
           tmpFEDerror25[detid].push_back(ch);
 
-      }  /* loop over different PixelFED in a PixelFED vector (different channel for a module) */
+      } /* loop over different PixelFED in a PixelFED vector (different channel for a module) */
 
-    }  /* loop over different (different DetId) PixelFED vectors in PixelFEDChannelCollection */
+    } /* loop over different (different DetId) PixelFED vectors in PixelFEDChannelCollection */
 
     /* Compare the current FEDerror list with the first event's FEDerror list
  *        and save the common channels */
     if (!tmpFEDerror25.empty() && !fFEDerror25_.empty()) {
-
       std::map<int, std::vector<PixelFEDChannel>>::iterator itFEDerror25;
       for (itFEDerror25 = fFEDerror25_.begin(); itFEDerror25 != fFEDerror25_.end(); itFEDerror25++) {
         int detid = itFEDerror25->first;
@@ -209,7 +202,7 @@ void SiPixelStatusProducer::accumulate(edm::Event const& iEvent, edm::EventSetup
             /* loop over the current FEDerror25 channels, save the common FED channels */
             for (unsigned int ich_tmp = 0; ich_tmp < chs_tmp.size(); ich_tmp++) {
               PixelFEDChannel ch_tmp = chs_tmp[ich_tmp];
-              if ((ch.fed == ch_tmp.fed) && (ch.link == ch_tmp.link)) {  /* the same FED channel */
+              if ((ch.fed == ch_tmp.fed) && (ch.link == ch_tmp.link)) { /* the same FED channel */
                 chs_common.push_back(ch);
                 break;
               }
@@ -217,21 +210,21 @@ void SiPixelStatusProducer::accumulate(edm::Event const& iEvent, edm::EventSetup
           }
           /* remove the full module from FEDerror25 list if no common channels are left */
           if (chs_common.empty())
-             fFEDerror25_.erase(itFEDerror25);
+            fFEDerror25_.erase(itFEDerror25);
           /* otherwise replace with the common channels */
           else {
             fFEDerror25_[detid].clear();
             fFEDerror25_[detid] = chs_common;
           }
-        } else {  /* remove the full module from FEDerror25 list if the module doesn't appear in the current event's FEDerror25 list */
+        } else { /* remove the full module from FEDerror25 list if the module doesn't appear in the current event's FEDerror25 list */
           fFEDerror25_.erase(itFEDerror25);
         }
 
-      }  /* loop over modules that have FEDerror25 in the first event in the lumi section */
+      } /* loop over modules that have FEDerror25 in the first event in the lumi section */
 
-    }  /* non-empty FEDerror lists */
+    } /* non-empty FEDerror lists */
 
-  }  /* look over different resouces of takens */
+  } /* look over different resouces of takens */
 
   /* Caveat
      no per-event collection put into iEvent
@@ -240,40 +233,37 @@ void SiPixelStatusProducer::accumulate(edm::Event const& iEvent, edm::EventSetup
      Accumulate() is NOT available for releases BEFORE CMSSW_10_1_X */
 }
 
-
 void SiPixelStatusProducer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
-
   /* set total number of events through ftotalevents_ */
   fDet_.setNevents(ftotalevents_);
 
-  if( ftotalevents_>0 ) {
+  if (ftotalevents_ > 0) {
     /* Add FEDerror25 information into SiPixelDetectorStatus fDet_ for FED channels stored in fFEDerror25_ */
-    if (!fFEDerror25_.empty()) { // non-empty FEDerror25
-       std::map<int, std::vector<PixelFEDChannel>>::iterator itFEDerror25;
-       for (itFEDerror25 = fFEDerror25_.begin(); itFEDerror25 != fFEDerror25_.end(); itFEDerror25++) { // loop over detIds
-            int detid = itFEDerror25->first;
-            std::vector<PixelFEDChannel> chs = itFEDerror25->second;
-            for (unsigned int ich = 0; ich < chs.size(); ich++) {
-              fDet_.fillFEDerror25(detid, chs[ich]);
-            }
-       } // loop over detIds
-    } // if non-empty FEDerror25
+    if (!fFEDerror25_.empty()) {  // non-empty FEDerror25
+      std::map<int, std::vector<PixelFEDChannel>>::iterator itFEDerror25;
+      for (itFEDerror25 = fFEDerror25_.begin(); itFEDerror25 != fFEDerror25_.end();
+           itFEDerror25++) {  // loop over detIds
+        int detid = itFEDerror25->first;
+        std::vector<PixelFEDChannel> chs = itFEDerror25->second;
+        for (unsigned int ich = 0; ich < chs.size(); ich++) {
+          fDet_.fillFEDerror25(detid, chs[ich]);
+        }
+      }  // loop over detIds
+    }    // if non-empty FEDerror25
 
-  } // only for non-zero events
+  }  // only for non-zero events
 }
 
+void SiPixelStatusProducer::endLuminosityBlockSummary(
+    edm::LuminosityBlock const& iLumi,
+    edm::EventSetup const&,
+    std::vector<SiPixelDetectorStatus>* siPixelDetectorStatusVtr) const {
+  /*add the Stream's partial information to the full information*/
 
-
-void SiPixelStatusProducer::endLuminosityBlockSummary(edm::LuminosityBlock const& iLumi, edm::EventSetup const&, 
-                                  std::vector<SiPixelDetectorStatus>* siPixelDetectorStatusVtr) const{
-      /*add the Stream's partial information to the full information*/
-
-      /* only save for the lumi sections with NON-ZERO events */
-      if ( ftotalevents_ > 0 )
-         siPixelDetectorStatusVtr->push_back(fDet_);
-      
+  /* only save for the lumi sections with NON-ZERO events */
+  if (ftotalevents_ > 0)
+    siPixelDetectorStatusVtr->push_back(fDet_);
 }
-
 
 /* helper function */
 int SiPixelStatusProducer::indexROC(int irow, int icol, int nROCcolumns) {

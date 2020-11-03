@@ -9,7 +9,7 @@
 // ----------------------------------------------------------------------
 class SiPixelModuleStatus {
 public:
-  SiPixelModuleStatus(int det = 0, int nrocs = 16); // default for Phase-1
+  SiPixelModuleStatus(int det = 0, int nrocs = 16);  // default for Phase-1
   ~SiPixelModuleStatus();
 
   /// fill digi
@@ -51,7 +51,6 @@ public:
 private:
   int fDetid_, fNrocs_;
   std::vector<SiPixelRocStatus> fRocs_;
-
 };
 
 #endif
