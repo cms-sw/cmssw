@@ -55,7 +55,7 @@ void EG8XObjectUpdateModifier::setEvent(const edm::Event& iEvent) {
 }
 
 void EG8XObjectUpdateModifier::setEventContent(const edm::EventSetup& iSetup) {
-  caloTopo_ = &iSetup.getData<CaloTopology, CaloTopologyRecord>(caloTopoToken_);
+  caloTopo_ = &iSetup.getData(caloTopoToken_);
 }
 
 void EG8XObjectUpdateModifier::modifyObject(reco::GsfElectron& ele) const {

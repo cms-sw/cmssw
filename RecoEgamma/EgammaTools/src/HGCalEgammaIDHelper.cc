@@ -22,20 +22,14 @@ HGCalEgammaIDHelper::HGCalEgammaIDHelper(const edm::ParameterSet& iConfig, edm::
 }
 
 void HGCalEgammaIDHelper::eventInit(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::Handle<HGCRecHitCollection> recHitHandleEE;
-  iEvent.getByToken(recHitsEE_, recHitHandleEE);
-  edm::Handle<HGCRecHitCollection> recHitHandleFH;
-  iEvent.getByToken(recHitsFH_, recHitHandleFH);
-  edm::Handle<HGCRecHitCollection> recHitHandleBH;
-  iEvent.getByToken(recHitsBH_, recHitHandleBH);
-  edm::Handle<std::unordered_map<DetId, const HGCRecHit*>> hitMapHandle;
-  iEvent.getByToken(hitMap_, hitMapHandle);
+  auto recHitHandleEE = iEvent.getHandle(recHitsEE_);
+  auto recHitHandleFH = iEvent.getHandle(recHitsFH_);
+  auto recHitHandleBH = iEvent.getHandle(recHitsBH_);
 
-  edm::ESHandle<CaloGeometry> geom = iSetup.getHandle(caloGeometry_);
-  recHitTools_.setGeometry(*geom);
+  recHitTools_.setGeometry(iSetup.getData(caloGeometry_));
   pcaHelper_.setRecHitTools(&recHitTools_);
   isoHelper_.setRecHitTools(&recHitTools_);
-  pcaHelper_.setHitMap(hitMapHandle.product());
+  pcaHelper_.setHitMap(&iEvent.get(hitMap_));
   isoHelper_.setRecHits(recHitHandleEE, recHitHandleFH, recHitHandleBH);
 }
 
