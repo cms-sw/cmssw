@@ -12,11 +12,14 @@ hgcalLayerClusters = hgcalLayerClusters_.clone()
 
 hgcalLayerClusters.timeOffset = hgceeDigitizer.tofDelay
 hgcalLayerClusters.plugin.dEdXweights = cms.vdouble(dEdX.weights)
+#With the introduction of 7 regional factors (6 for silicon plus 1 for scintillator),
+#we extend fcPerMip (along with noises below) so that it is guaranteed that they have 6 entries.
 hgcalLayerClusters.plugin.fcPerMip = cms.vdouble(HGCalUncalibRecHit.HGCEEConfig.fCPerMIP + HGCalUncalibRecHit.HGCHEFConfig.fCPerMIP)
 hgcalLayerClusters.plugin.thicknessCorrection = cms.vdouble(HGCalRecHit.thicknessCorrection)
 hgcalLayerClusters.plugin.sciThicknessCorrection = HGCalRecHit.sciThicknessCorrection
 hgcalLayerClusters.plugin.deltasi_index_regemfac = HGCalRecHit.deltasi_index_regemfac
 hgcalLayerClusters.plugin.fcPerEle = cms.double(fC_per_ele)
+#Extending noises as fcPerMip, see comment above.
 hgcalLayerClusters.plugin.noises = cms.vdouble(HGCAL_noises.values + HGCAL_noises.values)
 hgcalLayerClusters.plugin.noiseMip = hgchebackDigitizer.digiCfg.noise
 
