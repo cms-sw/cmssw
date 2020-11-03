@@ -48,7 +48,10 @@ public:
                float trk_lambda_dsz_cov,
                float trk_phi_dxy_cov,
                float trk_phi_dsz_cov,
-               float trk_dxy_dsz_cov)
+               float trk_dxy_dsz_cov,
+               float trk_vx,
+               float trk_vy,
+               float trk_vz)
       : pt_(pt),
         eta_(eta),
         phi_(phi),
@@ -89,7 +92,10 @@ public:
         trk_lambda_dsz_cov_(trk_lambda_dsz_cov),
         trk_phi_dxy_cov_(trk_phi_dxy_cov),
         trk_phi_dsz_cov_(trk_phi_dsz_cov),
-        trk_dxy_dsz_cov_(trk_dxy_dsz_cov) {}
+        trk_dxy_dsz_cov_(trk_dxy_dsz_cov),
+        trk_vx_(trk_vx),
+        trk_vy_(trk_vy),
+        trk_vz_(trk_vz) {}
   //default constructor
   ScoutingMuon()
       : pt_(0),
@@ -132,7 +138,10 @@ public:
         trk_lambda_dsz_cov_(0),
         trk_phi_dxy_cov_(0),
         trk_phi_dsz_cov_(0),
-        trk_dxy_dsz_cov_(0) {}
+        trk_dxy_dsz_cov_(0),
+        trk_vx_(0),
+        trk_vy_(0),
+        trk_vz_(0) {}
 
   //accessor functions
   float pt() const { return pt_; }
@@ -179,6 +188,9 @@ public:
   float trk_phi_dxy_cov() const { return trk_phi_dxy_cov_; }
   float trk_phi_dsz_cov() const { return trk_phi_dsz_cov_; }
   float trk_dxy_dsz_cov() const { return trk_dxy_dsz_cov_; }
+  float trk_vx() const { return trk_vx_; }
+  float trk_vy() const { return trk_vy_; }
+  float trk_vz() const { return trk_vz_; }
 
 private:
   float pt_;
@@ -222,6 +234,9 @@ private:
   float trk_phi_dxy_cov_;
   float trk_phi_dsz_cov_;
   float trk_dxy_dsz_cov_;
+  float trk_vx_;
+  float trk_vy_;
+  float trk_vz_;
 };
 
 typedef std::vector<ScoutingMuon> ScoutingMuonCollection;
