@@ -33,9 +33,8 @@ void EcalEGL::fillGeom(EcalEndcapGeometry* geom,
   unsigned int ioff = (vv.size() > maxSize) ? (vv.size() - maxSize) : 0;
   pv.reserve(size);
   for (unsigned int i(0); i != size; ++i) {
-    unsigned int ii = ioff + i;
-    const CCGFloat factor(1 == i || 2 == i || 6 == i || 10 == i ? 1 : scale);
-    pv.emplace_back(factor * vv[ii]);
+    const CCGFloat factor(1 == i || 2 == i || 6 == i || 10 == i ? 1 : static_cast<CCGFloat>(scale));
+    pv.emplace_back(factor * vv[i + ioff]);
   }
 
   std::vector<GlobalPoint> corners(8);
@@ -69,7 +68,7 @@ void EcalEGL::fillNamedParams(const DDFilteredView& _fv, EcalEndcapGeometry* geo
 
       // this parameter can only appear once
       assert(fvec.size() == 1);
-      geom->setNumberOfCrystalPerModule((int)fvec[0]);
+      geom->setNumberOfCrystalPerModule(static_cast<int>(fvec[0]));
     } else
       continue;
 
@@ -80,7 +79,7 @@ void EcalEGL::fillNamedParams(const DDFilteredView& _fv, EcalEndcapGeometry* geo
 
       // there can only be one such value
       assert(fmvec.size() == 1);
-      geom->setNumberOfModules((int)fmvec[0]);
+      geom->setNumberOfModules(static_cast<int>(fmvec[0]));
     }
 
     break;
@@ -96,10 +95,10 @@ void EcalEGL::fillNamedParams(const cms::DDFilteredView& fv, EcalEndcapGeometry*
   //ncrys
   std::vector<double> tempD = fv.get<std::vector<double> >(specName, "ncrys");
   assert(tempD.size() == 1);
-  geom->setNumberOfCrystalPerModule((int)tempD[0]);
+  geom->setNumberOfCrystalPerModule(static_cast<int>(tempD[0]));
 
   //nmods
   tempD = fv.get<std::vector<double> >(specName, "nmods");
   assert(tempD.size() == 1);
-  geom->setNumberOfModules((int)tempD[0]);
+  geom->setNumberOfModules(static_cast<int>(tempD[0]));
 }
