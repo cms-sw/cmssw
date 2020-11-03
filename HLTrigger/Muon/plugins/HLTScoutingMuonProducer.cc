@@ -33,6 +33,7 @@ HLTScoutingMuonProducer::HLTScoutingMuonProducer(const edm::ParameterSet& iConfi
       muonPtCut(iConfig.getParameter<double>("muonPtCut")),
       muonEtaCut(iConfig.getParameter<double>("muonEtaCut")),
       minVtxProbCut(iConfig.getParameter<double>("minVtxProbCut")),
+      MuonCollection_(consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("InputMuons"))),
       linkToken_(consumes<reco::MuonTrackLinksCollection>(iConfig.getParameter<edm::InputTag>("InputLinks"))) {
   //register products
   produces<ScoutingMuonCollection>();
@@ -133,6 +134,10 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event& iEvent, edm
   float minDR2 = 1e-06;
   int index = 0;
 
+  // Get Muon
+  Handle<reco::MuonCollection> MuonCollection;
+  iEvent.getByToken(MuonCollection_, MuonCollection);
+
   // Read Links collection:
   edm::Handle<reco::MuonTrackLinksCollection> links;
   iEvent.getByToken(linkToken_, links);
@@ -157,9 +162,25 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event& iEvent, edm
         dPt = dPt / track->pt();
 
       if (dR2 < 0.02 * 0.02 and dPt < 0.001) {
-        const reco::TrackRef staTrack = link.standAloneTrack();
-        validmuhit = staTrack->hitPattern().numberOfValidMuonHits();
-        matchedsta = staTrack->hitPattern().muonStationsWithValidHits();
+	if(link.standAloneTrack().isNonnull()){
+	  validmuhit = link.standAloneTrack()->hitPattern().numberOfValidMuonHits();
+	  matchedsta = link.standAloneTrack()->hitPattern().muonStationsWithValidHits();
+	}
+      }
+    }
+
+    int validRecoMuhit = 0;
+    int matchedRecoMustations = 0;
+    for (auto const& recoMu : *MuonCollection) {
+      float dR2 = deltaR2(muon.eta(), muon.phi(), recoMu.eta(), recoMu.phi());
+      float dPt = std::abs(muon.pt() - recoMu.pt());
+      if (muon.pt() != 0)
+        dPt = dPt / muon.pt();
+
+      if (dR2 < 0.02 * 0.02 and dPt < 0.001) {
+	if(recoMu.globalTrack().isNonnull())
+	  validRecoMuhit = recoMu.globalTrack()->hitPattern().numberOfValidMuonHits();
+        matchedRecoMustations = recoMu.numberOfMatchedStations();
       }
     }
 
@@ -199,8 +220,10 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event& iEvent, edm
                            track->dxy(),
                            track->dz(),
                            validmuhit,
+                           validRecoMuhit,
                            track->hitPattern().numberOfValidPixelHits(),
                            matchedsta,
+                           matchedRecoMustations,
                            track->hitPattern().trackerLayersWithMeasurement(),
                            2,  // Global muon
                            track->hitPattern().numberOfValidStripHits(),
@@ -250,6 +273,7 @@ void HLTScoutingMuonProducer::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<double>("muonPtCut", 3.0);
   desc.add<double>("muonEtaCut", 2.4);
   desc.add<double>("minVtxProbCut", 0.001);
+  desc.add<edm::InputTag>("InputMuons", edm::InputTag("hltIterL3Muons"));
   desc.add<edm::InputTag>("InputLinks", edm::InputTag("hltL3MuonsIterL3Links"));
 
   descriptions.add("hltScoutingMuonProducer", desc);
