@@ -387,8 +387,14 @@ std::pair<int, int> HGCalWaferMask::getTypeMode(const double& xpos,
   static const int base = 10;
   double rin2 = rin * rin;
   double rout2 = rout * rout;
-  double dx0[corners] = {0.0, delX, delX, 0.0, -delX, -delX};
-  double dy0[corners] = {-delY, -0.5 * delY, 0.5 * delY, delY, 0.5 * delY, -0.5 * delY};
+  double dx0[corners] = {
+      0.0, HGCalTypes::c10 * delX, HGCalTypes::c10 * delX, 0.0, -HGCalTypes::c10 * delX, -HGCalTypes::c10 * delX};
+  double dy0[corners] = {-HGCalTypes::c10 * delY,
+                         -HGCalTypes::c50 * delY,
+                         HGCalTypes::c50 * delY,
+                         HGCalTypes::c10 * delY,
+                         HGCalTypes::c50 * delY,
+                         -HGCalTypes::c50 * delY};
   double xc[corners], yc[corners];
   for (int k = 0; k < corners; ++k) {
     xc[k] = xpos + dx0[k];
@@ -408,18 +414,62 @@ std::pair<int, int> HGCalWaferMask::getTypeMode(const double& xpos,
   static const int ipat5[corners] = {101111, 110111, 111011, 111101, 111110, 11111};
   static const int ipat4[corners] = {100111, 110011, 111001, 111100, 11110, 1111};
   static const int ipat3[corners] = {100011, 110001, 111000, 11100, 1110, 111};
-  double dx1[corners] = {0.5 * delX, delX, 0.5 * delX, -0.5 * delX, -delX, -0.5 * delX};
-  double dy1[corners] = {-0.75 * delY, 0.0, 0.75 * delY, 0.75 * delY, 0.0, -0.75 * delY};
-  double dx2[corners] = {0.5 * delX, -0.5 * delX, -delX, -0.5 * delX, 0.5 * delX, delX};
-  double dy2[corners] = {0.75 * delY, 0.75 * delY, 0.0, -0.75 * delY, -0.75 * delY, 0.0};
-  double dx3[corners] = {0.225 * delX, delX, 0.775 * delX, -0.225 * delX, -delX, -0.775 * delX};
-  double dy3[corners] = {-0.8875 * delY, -0.275 * delY, 0.6125 * delY, 0.8875 * delY, 0.275 * delY, -0.6125 * delY};
-  double dx4[corners] = {0.225 * delX, -0.775 * delX, -delX, -0.225 * delX, 0.775 * delX, delX};
-  double dy4[corners] = {0.8875 * delY, 0.6125 * delY, -0.275 * delY, -0.8875 * delY, -0.6125 * delY, 0.275 * delY};
-  double dx5[corners] = {-0.5 * delX, -delX, -0.5 * delX, 0.5 * delX, delX, 0.5 * delX};
-  double dy5[corners] = {0.75 * delY, 0.0, -0.75 * delY, -0.75 * delY, 0.0, 0.75 * delY};
-  double dx6[corners] = {-0.775 * delX, -delX, -0.225 * delX, 0.775 * delX, delX, 0.225 * delX};
-  double dy6[corners] = {0.6125 * delY, -0.275 * delY, -0.8875 * delY, -0.6125 * delY, 0.275 * delY, 0.8875 * delY};
+  double dx1[corners] = {HGCalTypes::c50 * delX,
+                         HGCalTypes::c10 * delX,
+                         HGCalTypes::c50 * delX,
+                         -HGCalTypes::c50 * delX,
+                         -HGCalTypes::c10 * delX,
+                         -HGCalTypes::c50 * delX};
+  double dy1[corners] = {
+      -HGCalTypes::c75 * delY, 0.0, HGCalTypes::c75 * delY, HGCalTypes::c75 * delY, 0.0, -HGCalTypes::c75 * delY};
+  double dx2[corners] = {HGCalTypes::c50 * delX,
+                         -HGCalTypes::c50 * delX,
+                         -HGCalTypes::c10 * delX,
+                         -HGCalTypes::c50 * delX,
+                         HGCalTypes::c50 * delX,
+                         HGCalTypes::c10 * delX};
+  double dy2[corners] = {
+      HGCalTypes::c75 * delY, HGCalTypes::c75 * delY, 0.0, -HGCalTypes::c75 * delY, -HGCalTypes::c75 * delY, 0.0};
+  double dx3[corners] = {
+      HGCalTypes::c22 * delX, delX, HGCalTypes::c77 * delX, -HGCalTypes::c22 * delX, -delX, -HGCalTypes::c77 * delX};
+  double dy3[corners] = {-HGCalTypes::c88 * delY,
+                         -HGCalTypes::c27 * delY,
+                         HGCalTypes::c61 * delY,
+                         HGCalTypes::c88 * delY,
+                         HGCalTypes::c27 * delY,
+                         -HGCalTypes::c61 * delY};
+  double dx4[corners] = {HGCalTypes::c22 * delX,
+                         -HGCalTypes::c77 * delX,
+                         -delX,
+                         -HGCalTypes::c22 * delX,
+                         HGCalTypes::c77 * delX,
+                         HGCalTypes::c10 * delX};
+  double dy4[corners] = {HGCalTypes::c88 * delY,
+                         HGCalTypes::c61 * delY,
+                         -HGCalTypes::c27 * delY,
+                         -HGCalTypes::c88 * delY,
+                         -HGCalTypes::c61 * delY,
+                         HGCalTypes::c27 * delY};
+  double dx5[corners] = {-HGCalTypes::c50 * delX,
+                         -HGCalTypes::c10 * delX,
+                         -HGCalTypes::c50 * delX,
+                         HGCalTypes::c50 * delX,
+                         HGCalTypes::c10 * delX,
+                         HGCalTypes::c50 * delX};
+  double dy5[corners] = {
+      HGCalTypes::c75 * delY, 0.0, -HGCalTypes::c75 * delY, -HGCalTypes::c75 * delY, 0.0, HGCalTypes::c75 * delY};
+  double dx6[corners] = {-HGCalTypes::c77 * delX,
+                         -HGCalTypes::c10 * delX,
+                         -HGCalTypes::c22 * delX,
+                         HGCalTypes::c77 * delX,
+                         HGCalTypes::c10 * delX,
+                         HGCalTypes::c22 * delX};
+  double dy6[corners] = {HGCalTypes::c61 * delY,
+                         -HGCalTypes::c27 * delY,
+                         -HGCalTypes::c88 * delY,
+                         -HGCalTypes::c61 * delY,
+                         HGCalTypes::c27 * delY,
+                         HGCalTypes::c88 * delY};
 
   if (ncor == HGCalGeomTools::k_allCorners) {
   } else if (ncor == HGCalGeomTools::k_fiveCorners) {
@@ -496,34 +546,46 @@ bool HGCalWaferMask::goodTypeMode(
   static const int corner2 = 2 * HGCalTypes::WaferCornerMax;
   static const int base = 10;
   static const int base2 = 100;
-  double dx0[corners] = {0.0, delX, delX, 0.0, -delX, -delX};
-  double dy0[corners] = {-delY, -0.5 * delY, 0.5 * delY, delY, 0.5 * delY, -0.5 * delY};
-  double dx1[corners] = {0.5 * delX, delX, 0.5 * delX, -0.5 * delX, -delX, -0.5 * delX};
-  double dy1[corners] = {-0.75 * delY, 0.0, 0.75 * delY, 0.75 * delY, 0.0, -0.75 * delY};
-  double dx2[corner2] = {0.225 * delX,
-                         0.775 * delX,
-                         delX,
-                         delX,
-                         0.775 * delX,
-                         0.225 * delX,
-                         -0.225 * delX,
-                         -0.775 * delX,
-                         -delX,
-                         -delX,
-                         -0.775 * delX,
-                         -0.225 * delX};
-  double dy2[corner2] = {-0.8875 * delY,
-                         -0.6125 * delY,
-                         -0.275 * delY,
-                         0.275 * delY,
-                         0.6125 * delY,
-                         0.8875 * delY,
-                         0.8875 * delY,
-                         0.6125 * delY,
-                         0.275 * delY,
-                         -0.275 * delY,
-                         -0.6125 * delY,
-                         -0.8875 * delY};
+  double dx0[corners] = {
+      0.0, HGCalTypes::c10 * delX, HGCalTypes::c10 * delX, 0.0, -HGCalTypes::c10 * delX, -HGCalTypes::c10 * delX};
+  double dy0[corners] = {-HGCalTypes::c10 * delY,
+                         -HGCalTypes::c50 * delY,
+                         HGCalTypes::c50 * delY,
+                         HGCalTypes::c10 * delY,
+                         HGCalTypes::c50 * delY,
+                         -HGCalTypes::c50 * delY};
+  double dx1[corners] = {HGCalTypes::c50 * delX,
+                         HGCalTypes::c10 * delX,
+                         HGCalTypes::c50 * delX,
+                         -HGCalTypes::c50 * delX,
+                         -HGCalTypes::c10 * delX,
+                         -HGCalTypes::c50 * delX};
+  double dy1[corners] = {
+      -HGCalTypes::c75 * delY, 0.0, HGCalTypes::c75 * delY, HGCalTypes::c75 * delY, 0.0, -HGCalTypes::c75 * delY};
+  double dx2[corner2] = {HGCalTypes::c22 * delX,
+                         HGCalTypes::c77 * delX,
+                         HGCalTypes::c10 * delX,
+                         HGCalTypes::c10 * delX,
+                         HGCalTypes::c77 * delX,
+                         HGCalTypes::c22 * delX,
+                         -HGCalTypes::c22 * delX,
+                         -HGCalTypes::c77 * delX,
+                         -HGCalTypes::c10 * delX,
+                         -HGCalTypes::c10 * delX,
+                         -HGCalTypes::c77 * delX,
+                         -HGCalTypes::c22 * delX};
+  double dy2[corner2] = {-HGCalTypes::c88 * delY,
+                         -HGCalTypes::c61 * delY,
+                         -HGCalTypes::c27 * delY,
+                         HGCalTypes::c27 * delY,
+                         HGCalTypes::c61 * delY,
+                         HGCalTypes::c88 * delY,
+                         HGCalTypes::c88 * delY,
+                         HGCalTypes::c61 * delY,
+                         HGCalTypes::c27 * delY,
+                         -HGCalTypes::c27 * delY,
+                         -HGCalTypes::c61 * delY,
+                         -HGCalTypes::c88 * delY};
   bool ok(true);
   int ncf(-1);
   switch (part) {

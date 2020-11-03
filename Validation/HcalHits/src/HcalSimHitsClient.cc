@@ -8,19 +8,18 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
 HcalSimHitsClient::HcalSimHitsClient(const edm::ParameterSet &iConfig) {
   dirName_ = iConfig.getParameter<std::string>("DQMDirName");
   verbose_ = iConfig.getUntrackedParameter<bool>("Verbosity", false);
+  tok_HRNDC_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>();
 }
 
 HcalSimHitsClient::~HcalSimHitsClient() {}
 
 void HcalSimHitsClient::beginRun(edm::Run const &run, edm::EventSetup const &c) {
-  edm::ESHandle<HcalDDDRecConstants> pHRNDC;
-  c.get<HcalRecNumberingRecord>().get(pHRNDC);
-  hcons = &(*pHRNDC);
+  const auto &pHRNDC = c.getData(tok_HRNDC_);
+  hcons = &pHRNDC;
   maxDepthHB_ = hcons->getMaxDepth(0);
   maxDepthHE_ = hcons->getMaxDepth(1);
   maxDepthHF_ = hcons->getMaxDepth(2);

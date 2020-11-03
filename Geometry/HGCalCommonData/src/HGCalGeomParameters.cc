@@ -1627,6 +1627,8 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
                 int orient = (itr->second).orient;
                 bool ok = HGCalWaferMask::goodTypeMode(
                     xpos0, ypos0, r1, R1, php.rMinLayHex_[i], php.rMaxLayHex_[i], part, orient, false);
+                if (ok)
+                  corner0 = std::make_pair(part, (HGCalWaferMask::k_OffsetRotation + orient));
 #ifdef EDM_ML_DEBUG
                 edm::LogVerbatim("HGCalGeom")
                     << "Layer:u:v " << i << ":" << lay << ":" << u << ":" << v << " Part " << corner0.first << ":"
