@@ -115,6 +115,10 @@ private:
   // ----------member data ---------------------------
   bool PRINT;
   edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> tPixelDigi;
+
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoToken;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken;
+
 #ifdef USE_SIM_LINKS
   edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink>> tPixelDigiSimLink;
 #endif
@@ -172,6 +176,10 @@ PixelDigisTest::PixelDigisTest(const edm::ParameterSet &iConfig) {
   PRINT = iConfig.getUntrackedParameter<bool>("Verbosity", false);
   src_ = iConfig.getParameter<edm::InputTag>("src");
   tPixelDigi = consumes<edm::DetSetVector<PixelDigi>>(src_);
+
+  trackerTopoToken = esConsumes<TrackerTopology, TrackerTopologyRcd>();
+  trackerGeomToken = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
+
 #ifdef USE_SIM_LINKS
   tPixelDigiSimLink = consumes<edm::DetSetVector<PixelDigiSimLink>>(src_);
 #endif
@@ -322,8 +330,7 @@ void PixelDigisTest::beginJob() {
 // ------------ method called to produce the data  ------------
 void PixelDigisTest::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopo;
-  iSetup.get<TrackerTopologyRcd>().get(tTopo);
+  edm::ESHandle<TrackerTopology> tTopo = iSetup.getHandle(trackerTopoToken);
 
   using namespace edm;
   if (PRINT)
@@ -394,8 +401,7 @@ void PixelDigisTest::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
 #endif
 
   // Get event setup (to get global transformation)
-  edm::ESHandle<TrackerGeometry> geom;
-  iSetup.get<TrackerDigiGeometryRecord>().get(geom);
+  edm::ESHandle<TrackerGeometry> geom = iSetup.getHandle(trackerGeomToken);
   const TrackerGeometry &theTracker(*geom);
 
   int numberOfDetUnits = 0;
