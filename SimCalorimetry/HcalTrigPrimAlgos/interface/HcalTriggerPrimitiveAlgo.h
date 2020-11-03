@@ -32,6 +32,8 @@ public:
                            uint32_t ZS_threshold,
                            int numberOfSamples,
                            int numberOfPresamples,
+                           int numberOfFilterPresamplesHBQIE11,
+                           int numberOfFilterPresamplesHEQIE11,
                            int numberOfSamplesHF,
                            int numberOfPresamplesHF,
                            bool useTDCInMinBiasBits,
@@ -75,6 +77,7 @@ public:
                         const HcalElectronicsMap* emap,
                         HcalTrigPrimDigiCollection& result);
   void setPeakFinderAlgorithm(int algo);
+  void setWeightsQIE11(const edm::ParameterSet& weightsQIE11);
   void setNCTScaleShift(int);
   void setRCTScaleShift(int);
 
@@ -121,6 +124,7 @@ private:
   double theThreshold;
   bool peakfind_;
   std::vector<double> weights_;
+  std::map<int, std::vector<double>> weightsQIE11_;
   int latency_;
   uint32_t FG_threshold_;
   std::vector<uint32_t> FG_HF_thresholds_;
@@ -128,6 +132,8 @@ private:
   int ZS_threshold_I_;
   int numberOfSamples_;
   int numberOfPresamples_;
+  int numberOfFilterPresamplesHBQIE11_;
+  int numberOfFilterPresamplesHEQIE11_;
   int numberOfSamplesHF_;
   int numberOfPresamplesHF_;
   bool useTDCInMinBiasBits_;

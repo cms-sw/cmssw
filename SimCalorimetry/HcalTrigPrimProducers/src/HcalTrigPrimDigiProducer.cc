@@ -23,6 +23,8 @@ HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
                ps.getParameter<uint32_t>("ZS_threshold"),
                ps.getParameter<int>("numberOfSamples"),
                ps.getParameter<int>("numberOfPresamples"),
+               ps.getParameter<int>("numberOfFilterPresamplesHBQIE11"),
+               ps.getParameter<int>("numberOfFilterPresamplesHEQIE11"),
                ps.getParameter<int>("numberOfSamplesHF"),
                ps.getParameter<int>("numberOfPresamplesHF"),
                ps.getParameter<bool>("useTDCInMinBiasBits"),
@@ -43,6 +45,7 @@ HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
     theAlgo_.overrideParameters(pset);
   }
   theAlgo_.setUpgradeFlags(upgrades[0], upgrades[1], upgrades[2]);
+  theAlgo_.setWeightsQIE11(ps.getUntrackedParameter<edm::ParameterSet>("weightsQIE11"));
 
   HFEMB_ = false;
   if (ps.exists("LSConfig")) {

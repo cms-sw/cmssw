@@ -58,6 +58,8 @@ private:
   edm::ESGetToken<HcalTimeSlew, HcalTimeSlewRecord> delayToken_;
   edm::ESGetToken<HcalDbService, HcalDbRecord> serviceToken_;
   bool read_FGLut_, read_Ascii_, read_XML_, LUTGenerationMode_, linearLUTs_;
+  bool contain1TSHB_, contain1TSHE_;
+  double containPhaseNSHB_, containPhaseNSHE_;
   double linearLSB_QIE8_, linearLSB_QIE11Overlap_, linearLSB_QIE11_;
   int maskBit_;
   std::vector<uint32_t> FG_HF_thresholds_;
@@ -80,6 +82,10 @@ HcalTPGCoderULUT::HcalTPGCoderULUT(const edm::ParameterSet& iConfig) {
   read_XML_ = iConfig.getParameter<bool>("read_XML_LUTs");
   read_FGLut_ = iConfig.getParameter<bool>("read_FG_LUTs");
   fgfile_ = iConfig.getParameter<edm::FileInPath>("FGLUTs");
+  contain1TSHB_ = iConfig.getParameter<bool>("contain1TSHB");
+  contain1TSHE_ = iConfig.getParameter<bool>("contain1TSHE");
+  containPhaseNSHB_ = iConfig.getParameter<double>("containPhaseNSHB");
+  containPhaseNSHE_ = iConfig.getParameter<double>("containPhaseNSHE");
 
   //the following line is needed to tell the framework what
   // data is being produced
@@ -105,6 +111,11 @@ HcalTPGCoderULUT::HcalTPGCoderULUT(const edm::ParameterSet& iConfig) {
 void HcalTPGCoderULUT::buildCoder(const HcalTopology* topo, const HcalTimeSlew* delay, HcaluLUTTPGCoder* theCoder) {
   using namespace edm::es;
   theCoder->init(topo, delay);
+  theCoder->set1TSContainHB(contain1TSHB_);
+  theCoder->set1TSContainHE(contain1TSHE_);
+  theCoder->setContainPhaseHB(containPhaseNSHB_);
+  theCoder->setContainPhaseHE(containPhaseNSHE_);
+
   if (read_Ascii_ || read_XML_) {
     edm::LogInfo("HCAL") << "Using ASCII/XML LUTs" << ifilename_.fullPath() << " for HcalTPGCoderULUT initialization";
     if (read_Ascii_) {
