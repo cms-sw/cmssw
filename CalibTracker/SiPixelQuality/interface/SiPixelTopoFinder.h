@@ -13,16 +13,14 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 
-
 class SiPixelTopoFinder {
-
 public:
   SiPixelTopoFinder();
   ~SiPixelTopoFinder();
 
   void init(const TrackerGeometry* trackerGeometry,
-              const TrackerTopology* trackerTopology,
-              const SiPixelFedCablingMap* siPixelFedCablingMap);
+            const TrackerTopology* trackerTopology,
+            const SiPixelFedCablingMap* siPixelFedCablingMap);
 
   std::vector<int> getDetIds() const { return fDetIds_; }
 
@@ -35,7 +33,6 @@ public:
   std::map<int, std::map<int, int>> getRocIds() const { return fRocIds_; }
 
 private:
-
   // initialize with nullptr
   int phase_ = -1;
 
@@ -55,8 +52,14 @@ private:
   std::map<int, std::map<int, int>> fRocIds_;
 
   // conversion between online(local, per-ROC) row/column and offline(global, per-Module) row/column
-  void onlineRocColRow(const DetId& detId, const SiPixelFedCablingMap* cablingMap, int fedId,
-                       int offlineRow, int offlineCol, int& roc, int& row, int& col);
+  void onlineRocColRow(const DetId& detId,
+                       const SiPixelFedCablingMap* cablingMap,
+                       int fedId,
+                       int offlineRow,
+                       int offlineCol,
+                       int& roc,
+                       int& row,
+                       int& col);
 
   int indexROC(int irow, int icol, int nROCcolumns);
 
@@ -64,7 +67,6 @@ private:
   int quadrant(const DetId& detid);
   int side(const DetId& detid);
   int half(const DetId& detid);
-
 };
 
 #endif

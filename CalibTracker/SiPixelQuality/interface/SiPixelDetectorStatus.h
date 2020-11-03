@@ -37,7 +37,6 @@ public:
   // fill FEDerror25 info
   void fillFEDerror25(int detid, PixelFEDChannel ch);
 
-
   // detector status : std:map - collection of module status
   std::map<int, SiPixelModuleStatus> getDetectorStatus() { return fModules_; }
   // list of ROCs with FEDerror25
@@ -54,7 +53,6 @@ public:
   double perRocDigiOcc();
   double perRocDigiOccVar();
 
-
   // set the time stamps
   void setRunRange(int run0, int run1) {
     fRun0_ = run0;
@@ -62,9 +60,11 @@ public:
   }
   std::pair<int, int> getRunRange() { return std::make_pair(fRun0_, fRun1_); }
   //////////////////////////////////////////////////////////////////////////////////
-  void setLSRange(int ls0, int ls1) { fLS0_ = ls0; fLS1_ = ls1; }
+  void setLSRange(int ls0, int ls1) {
+    fLS0_ = ls0;
+    fLS1_ = ls1;
+  }
   std::pair<int, int> getLSRange() { return std::make_pair(fLS0_, fLS1_); }
-
 
   // provide for iterating over the entire detector
   std::map<int, SiPixelModuleStatus>::iterator begin();
@@ -72,7 +72,6 @@ public:
   std::map<int, SiPixelModuleStatus>::iterator end();
 
 private:
-
   std::map<int, SiPixelModuleStatus> fModules_;
 
   // first and last lumisection seen in this instance

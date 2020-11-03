@@ -21,7 +21,6 @@ public:
 private:
   unsigned int fDC_;
   bool isFEDerror25_;
-
 };
 
 #endif
