@@ -152,8 +152,8 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event& iEvent, edm
     if (track.isNull() || !track.isAvailable())
       continue;
 
-    int validmuhit = 0;
-    int matchedsta = 0;
+    int validStandAloneMuonHits = 0;
+    int matchedStandAloneMuonStations = 0;
     for (auto const& link : *links) {
       const reco::Track& trackerTrack = *link.trackerTrack();
       float dR2 = deltaR2(track->eta(), track->phi(), trackerTrack.eta(), trackerTrack.phi());
@@ -163,15 +163,23 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event& iEvent, edm
 
       if (dR2 < 0.02 * 0.02 and dPt < 0.001) {
 	if(link.standAloneTrack().isNonnull()){
-	  validmuhit = link.standAloneTrack()->hitPattern().numberOfValidMuonHits();
-	  matchedsta = link.standAloneTrack()->hitPattern().muonStationsWithValidHits();
+	  validStandAloneMuonHits = link.standAloneTrack()->hitPattern().numberOfValidMuonHits();
+	  matchedStandAloneMuonStations = link.standAloneTrack()->hitPattern().muonStationsWithValidHits();
 	}
       }
     }
 
     unsigned int recoMuonType = 2; // Global muon
-    int validRecoMuonHit = 0;
-    int matchedRecoMuonStations = 0;
+    float normalizedChi2 = 999.0;
+    int nRecoMuonValidMuonHits = 0;
+    int nRecoMuonChambers = 0;
+    int nRecoMuonChambersCSCorDT = 0;
+    int nRecoMuonMatches = 0;
+    int nRecoMuonMatchedStations = 0;
+    unsigned int nRecoMuonExpectedMatchedStations = 0;
+    unsigned int recoMuonStationMask = 0;
+    int nRecoMuonMatchedRPCLayers = 0;
+    unsigned int recoMuonRPClayerMask = 0;
     for (auto const& recoMu : *MuonCollection) {
       float dR2 = deltaR2(muon.eta(), muon.phi(), recoMu.eta(), recoMu.phi());
       float dPt = std::abs(muon.pt() - recoMu.pt());
@@ -179,10 +187,19 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event& iEvent, edm
         dPt = dPt / muon.pt();
 
       if (dR2 < 0.02 * 0.02 and dPt < 0.001) {
-	if(recoMu.globalTrack().isNonnull())
-	  validRecoMuhit = recoMu.globalTrack()->hitPattern().numberOfValidMuonHits();
-        matchedRecoMustations = recoMu.numberOfMatchedStations();
+	if(recoMu.globalTrack().isNonnull()){
+	  normalizedChi2  = recoMu.globalTrack()->normalizedChi2();
+	  nRecoMuonValidMuonHits = recoMu.globalTrack()->hitPattern().numberOfValidMuonHits();
+	}
         recoMuonType = recoMu.type();
+        nRecoMuonChambers = recoMu.numberOfChambers();
+        nRecoMuonChambersCSCorDT = recoMu.numberOfChambersCSCorDT();
+        nRecoMuonMatches = recoMu.numberOfMatches();
+        nRecoMuonMatchedStations = recoMu.numberOfMatchedStations();
+        nRecoMuonExpectedMatchedStations = recoMu.expectedNnumberOfMatchedStations();
+        recoMuonStationMask = recoMu.stationMask();
+        nRecoMuonMatchedRPCLayers = recoMu.numberOfMatchedRPCLayers();
+        recoMuonRPClayerMask = recoMu.RPClayerMask();
       }
     }
 
@@ -214,17 +231,26 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event& iEvent, edm
                            muon.phi(),
                            muon.mass(),
                            recoMuonType,
+                           track->charge(),
+                           normalizedChi2,
                            ecalisopf,
                            hcalisopf,
                            (*TrackIsoMap)[muonRef],
-                           validmuhit,
-                           validRecoMuonHit,
-                           matchedsta,
-                           matchedRecoMuonStations,
+                           validStandAloneMuonHits,
+                           matchedStandAloneMuonStations,
+                           nRecoMuonValidMuonHits,
+                           nRecoMuonChambers,
+                           nRecoMuonChambersCSCorDT,
+                           nRecoMuonMatches,
+                           nRecoMuonMatchedStations,
+                           nRecoMuonExpectedMatchedStations,
+                           recoMuonStationMask,
+                           nRecoMuonMatchedRPCLayers,
+                           recoMuonRPClayerMask,
                            track->hitPattern().numberOfValidPixelHits(),
-                           track->hitPattern().trackerLayersWithMeasurement(),
                            track->hitPattern().numberOfValidStripHits(),
-                           track->charge(),
+                           track->hitPattern().pixelLayersWithMeasurement(),
+                           track->hitPattern().trackerLayersWithMeasurement(),
                            track->chi2(),
                            track->ndof(),
                            track->dxy(),
