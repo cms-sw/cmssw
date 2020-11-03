@@ -13,17 +13,19 @@ public:
                float phi,
                float m,
                unsigned int type,
+               int charge,
+               float normalizedChi2,
                float ecalIso,
                float hcalIso,
                float trackIso,
-               int nValidMuonHits,
+               int nValidStandAloneMuonHits,
+               int nStandAloneMuonMatchedStations,
                int nValidRecoMuonHits,
-               int nMatchedStations,
                int nRecoMuonMatchedStations,
                int nValidPixelHits,
-               int nTrackerLayersWithMeasurement,
                int nValidStripHits,
-               int trk_charge,
+               int nPixelLayersWithMeasurement,
+               int nTrackerLayersWithMeasurement,
                float trk_chi2,
                float trk_ndof,
                float trk_dxy,
@@ -59,17 +61,19 @@ public:
         phi_(phi),
         m_(m),
         type_(type),
+        charge_(charge),
+        normalizedChi2_(normalizedChi2),
         ecalIso_(ecalIso),
         hcalIso_(hcalIso),
         trackIso_(trackIso),
-        nValidMuonHits_(nValidMuonHits),
+        nValidStandAloneMuonHits_(nValidStandAloneMuonHits),
+        nStandAloneMuonMatchedStations_(nStandAloneMuonMatchedStations),
         nValidRecoMuonHits_(nValidRecoMuonHits),
-        nMatchedStations_(nMatchedStations),
-        nRecoMuonMatchedStations_(nMatchedStations),
+
         nValidPixelHits_(nValidPixelHits),
-        nTrackerLayersWithMeasurement_(nTrackerLayersWithMeasurement),
         nValidStripHits_(nValidStripHits),
-        trk_charge_(trk_charge),
+        nPixelLayersWithMeasurement_(nPixelLayersWithMeasurement),
+        nTrackerLayersWithMeasurement_(nTrackerLayersWithMeasurement),
         trk_chi2_(trk_chi2),
         trk_ndof_(trk_ndof),
         trk_dxy_(trk_dxy),
@@ -107,17 +111,26 @@ public:
         phi_(0),
         m_(0),
         type_(0),
+        charge_(0),
+        normalizedChi2_(0),
         ecalIso_(0),
         hcalIso_(0),
         trackIso_(0),
-        nValidMuonHits_(0),
+        nValidStandAloneMuonHits_(0),
+        nStandAloneMuonMatchedStations_(0),
         nValidRecoMuonHits_(0),
-        nMatchedStations_(0),
+        nRecoMuonChambers_(0),
+        nRecoMuonChambersCSCorDT_(0),
+        nRecoMuonMatches_(0),
         nRecoMuonMatchedStations_(0),
+        nRecoMuonExpectedMatchedStations_(0),
+        recoMuonStationMask_(0),
+        nRecoMuonMatchedRPCLayers_(0),
+        recoMuonRPClayerMask_(0),
         nValidPixelHits_(0),
-        nTrackerLayersWithMeasurement_(0),
         nValidStripHits_(0),
-        trk_charge_(0),
+        nPixelLayersWithMeasurement_(0),
+        nTrackerLayersWithMeasurement_(0),
         trk_chi2_(0),
         trk_ndof_(0),
         trk_dxy_(0),
@@ -157,17 +170,26 @@ public:
   unsigned int type() const { return type_; }
   bool isGlobalMuon() const { return type_ & 1 << 1; }
   bool isTrackerMuon() const { return type_ & 1 << 2; }
+  int charge() const { return charge_; }
+  float normalizedChi2() const { return normalizedChi2_; }
   float ecalIso() const { return ecalIso_; }
   float hcalIso() const { return hcalIso_; }
   float trackIso() const { return trackIso_; }
-  int nValidMuonHits() const { return nValidMuonHits_; }
+  int nValidStandAloneMuonHits() const { return nValidStandAloneMuonHits_; }
+  int nStandAloneMuonMatchedStations() const { return nStandAloneMuonMatchedStations_; }
   int nValidRecoMuonHits() const { return nValidRecoMuonHits_; }
-  int nMatchedStations() const { return nMatchedStations_; }
+  int nRecoMuonChambers() const { return nRecoMuonChambers_; }
+  int nRecoMuonChambersCSCorDT() const { return nRecoMuonChambersCSCorDT_; }
+  int nRecoMuonMatches() const { return nRecoMuonMatches_; }
   int nRecoMuonMatchedStations() const { return nRecoMuonMatchedStations_; }
+  unsigned int nRecoMuonExpectedMatchedStations() const { return nRecoMuonExpectedMatchedStations_; }
+  unsigned int recoMuonStationMask() const { return recoMuonStationMask_; }
+  int nRecoMuonMatchedRPCLayers() const { return nRecoMuonMatchedRPCLayers_; }
+  unsigned int recoMuonRPClayerMask() const { return recoMuonRPClayerMask_; }
   int nValidPixelHits() const { return nValidPixelHits_; }
-  int nTrackerLayersWithMeasurement() const { return nTrackerLayersWithMeasurement_; }
   int nValidStripHits() const { return nValidStripHits_; }
-  int trk_charge() const { return trk_charge_; }
+  int nPixelLayersWithMeasurement() const { return nPixelLayersWithMeasurement_; }
+  int nTrackerLayersWithMeasurement() const { return nTrackerLayersWithMeasurement_; }
   float trk_chi2() const { return trk_chi2_; }
   float trk_ndof() const { return trk_ndof_; }
   float trk_dxy() const { return trk_dxy_; }
@@ -206,17 +228,26 @@ private:
   float phi_;
   float m_;
   unsigned int type_;
+  int charge_;
+  float normalizedChi2_;
   float ecalIso_;
   float hcalIso_;
   float trackIso_;
-  int nValidMuonHits_;
+  int nValidStandAloneMuonHits_;
+  int nStandAloneMatchedStations_;
   int nValidRecoMuonHits_;
-  int nMatchedStations_;
+  int nRecoMuonChambers_;
+  int nRecoMuonChambersCSCorDT_;
+  int nRecoMuonMatches_;
   int nRecoMuonMatchedStations_;
+  unsigned int nRecoMuonExpectedMatchedStations_;
+  unsigned int recoMuonStationMask_;
+  int nRecoMuonMatchedRPCLayers_;
+  unsigned int recoMuonRPClayerMask_;
   int nValidPixelHits_;
-  int nTrackerLayersWithMeasurement_;
   int nValidStripHits_;
-  int trk_charge_;
+  int nPixelLayersWithMeasurement_;
+  int nTrackerLayersWithMeasurement_;
   float trk_chi2_;
   float trk_ndof_;
   float trk_dxy_;
