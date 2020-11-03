@@ -1,5 +1,23 @@
-#include "OnlineDB/CSCCondDB/interface/CSCChamberTimeCorrectionsReadTest.h"
-#include <string>
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "OnlineDB/CSCCondDB/interface/CSCCableRead.h"
+
+class CSCChamberTimeCorrectionsReadTest : public edm::EDAnalyzer {
+public:
+  explicit CSCChamberTimeCorrectionsReadTest(const edm::ParameterSet&);
+  ~CSCChamberTimeCorrectionsReadTest() override;
+
+private:
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(CSCChamberTimeCorrectionsReadTest);
 
 CSCChamberTimeCorrectionsReadTest::CSCChamberTimeCorrectionsReadTest(const edm::ParameterSet &) {}
 CSCChamberTimeCorrectionsReadTest::~CSCChamberTimeCorrectionsReadTest() {}

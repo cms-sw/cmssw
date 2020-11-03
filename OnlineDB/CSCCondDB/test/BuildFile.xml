@@ -1,7 +1,7 @@
 <use name="CondCore/PopCon"/>
 <use name="CondFormats/CSCObjects"/>
-<use name="OnlineDB/Oracle"/>
+<use name="OnlineDB/CSCCondDB"/>
 <lib name="occi"/>
-<library name="OnlineDBCSCCondDB_TestPlugins" file="../src/CSCMap1.cc,../src/CSCCableRead.cc,stubs/*.cc">
+<library name="OnlineDBCSCCondDB_TestPlugins" file="stubs/*.cc">
   <flags EDM_PLUGIN="1"/>
 </library>
