@@ -112,8 +112,9 @@ APVCyclePhaseProducerFromL1TS::APVCyclePhaseProducerFromL1TS(const edm::Paramete
       _confObjectToken((!m_ignoreDB)
                            ? decltype(_confObjectToken){esConsumes<edm::Transition::BeginRun>(edm::ESInputTag{
                                  "", iConfig.getUntrackedParameter<std::string>("recordLabel", "apvphaseoffsets")})}
-                           : _confObjectToken),
-      _tTopoToken((!m_ignoreDB) ? decltype(_tTopoToken){esConsumes<edm::Transition::BeginRun>()} : _tTopoToken),
+                           : decltype(_confObjectToken){}),
+      _tTopoToken((!m_ignoreDB) ? decltype(_tTopoToken){esConsumes<edm::Transition::BeginRun>()}
+                                : decltype(_tTopoToken){}),
       _defpartnames(iConfig.getParameter<std::vector<std::string> >("defaultPartitionNames")),
       _defphases(iConfig.getParameter<std::vector<int> >("defaultPhases")),
       _useEC0(iConfig.getUntrackedParameter<bool>("useEC0", false)),

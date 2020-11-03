@@ -59,7 +59,7 @@ SiStripLAProfileBooker::SiStripLAProfileBooker(edm::ParameterSet const& conf)
       magFieldToken_(esConsumes<edm::Transition::BeginRun>()),
       detCablingToken_(conf_.getParameter<bool>("UseStripCablingDB")
                            ? decltype(detCablingToken_){esConsumes<edm::Transition::BeginRun>()}
-                           : detCablingToken_) {}
+                           : decltype(detCablingToken_){}) {}
 
 //BeginRun
 
