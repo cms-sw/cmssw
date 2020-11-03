@@ -21,8 +21,10 @@ public:
                float dxy,
                float dz,
                int nValidMuonHits,
+               int nValidRecoMuonHits,
                int nValidPixelHits,
                int nMatchedStations,
+               int nRecoMuonMatchedStations,
                int nTrackerLayersWithMeasurement,
                int type,
                int nValidStripHits,
@@ -65,8 +67,10 @@ public:
         dxy_(dxy),
         dz_(dz),
         nValidMuonHits_(nValidMuonHits),
+        nValidRecoMuonHits_(nValidRecoMuonHits),
         nValidPixelHits_(nValidPixelHits),
         nMatchedStations_(nMatchedStations),
+        nRecoMuonMatchedStations_(nMatchedStations),
         nTrackerLayersWithMeasurement_(nTrackerLayersWithMeasurement),
         type_(type),
         nValidStripHits_(nValidStripHits),
@@ -111,8 +115,10 @@ public:
         dxy_(0),
         dz_(0),
         nValidMuonHits_(0),
+        nValidRecoMuonHits_(0),
         nValidPixelHits_(0),
         nMatchedStations_(0),
+        nRecoMuonMatchedStations_(0),
         nTrackerLayersWithMeasurement_(0),
         type_(0),
         nValidStripHits_(0),
@@ -157,8 +163,10 @@ public:
   float dxy() const { return dxy_; }
   float dz() const { return dz_; }
   int nValidMuonHits() const { return nValidMuonHits_; }
+  int nValidRecoMuonHits() const { return nValidRecoMuonHits_; }
   int nValidPixelHits() const { return nValidPixelHits_; }
   int nMatchedStations() const { return nMatchedStations_; }
+  int nRecoMuonMatchedStations() const { return nRecoMuonMatchedStations_; }
   int nTrackerLayersWithMeasurement() const { return nTrackerLayersWithMeasurement_; }
   int type() const { return type_; }
   bool isGlobalMuon() const { return type_ & 1 << 1; }
@@ -206,8 +214,10 @@ private:
   float dxy_;
   float dz_;
   int nValidMuonHits_;
+  int nValidRecoMuonHits_;
   int nValidPixelHits_;
   int nMatchedStations_;
+  int nRecoMuonMatchedStations_;
   int nTrackerLayersWithMeasurement_;
   int type_;
   int nValidStripHits_;

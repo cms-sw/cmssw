@@ -72,6 +72,7 @@ private:
   const double muonEtaCut;
   const double minVtxProbCut;
 
+  const edm::EDGetTokenT<reco::MuonCollection> MuonCollection_;
   const edm::EDGetTokenT<reco::MuonTrackLinksCollection> linkToken_;
 };
 
