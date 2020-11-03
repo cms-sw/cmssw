@@ -62,6 +62,7 @@ private:
   const edm::EDGetTokenT<reco::VertexCollection> displacedvertexCollection_;
   const edm::EDGetTokenT<reco::MuonCollection> MuonCollection_;
   const edm::EDGetTokenT<reco::MuonTrackLinksCollection> linkToken_;
+  const edm::EDGetTokenT<reco::TrackCollection> TrackCollection_;
   const edm::EDGetTokenT<RecoChargedCandMap> EcalPFClusterIsoMap_;
   const edm::EDGetTokenT<RecoChargedCandMap> HcalPFClusterIsoMap_;
   const edm::EDGetTokenT<edm::ValueMap<double>> TrackIsoMap_;
