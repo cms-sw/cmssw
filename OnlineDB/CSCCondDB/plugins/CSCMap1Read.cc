@@ -1,5 +1,27 @@
-#include "OnlineDB/CSCCondDB/interface/CSCMap1Read.h"
-#include <string>
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "OnlineDB/CSCCondDB/interface/CSCMap1.h"
+
+//
+// class declaration
+//
+
+class CSCMap1Read : public edm::EDAnalyzer {
+public:
+  explicit CSCMap1Read(const edm::ParameterSet&);
+  ~CSCMap1Read() override;
+
+private:
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(CSCMap1Read);
 
 CSCMap1Read::CSCMap1Read(const edm::ParameterSet &) {}
 CSCMap1Read::~CSCMap1Read() {}
