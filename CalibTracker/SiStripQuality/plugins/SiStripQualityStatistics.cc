@@ -39,7 +39,7 @@ SiStripQualityStatistics::SiStripQualityStatistics(const edm::ParameterSet& iCon
       tkDetMapToken_(esConsumes<edm::Transition::EndRun>()),
       stripQualityToken_(esConsumes<edm::Transition::EndRun>()),
       fedCablingToken_(addBadCompFromFedErr_ ? decltype(fedCablingToken_){esConsumes<edm::Transition::EndRun>()}
-                                             : fedCablingToken_) {
+                                             : decltype(fedCablingToken_){}) {
   reader = new SiStripDetInfoFileReader(
       iConfig
           .getUntrackedParameter<edm::FileInPath>("file",

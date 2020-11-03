@@ -72,7 +72,7 @@ SingleMultiplicity<T>::SingleMultiplicity(const edm::ParameterSet& iConfig, edm:
       m_qualityToken(m_useQuality
                          ? decltype(m_qualityToken){iC.esConsumes<SiStripQuality, SiStripQualityRcd>(
                                edm::ESInputTag{"", iConfig.getUntrackedParameter<std::string>("qualityLabel", "")})}
-                         : m_qualityToken),
+                         : decltype(m_qualityToken){}),
       m_mult(0),
       m_collection(iC.consumes<T>(iConfig.getParameter<edm::InputTag>("collectionName"))) {}
 template <class T>
@@ -82,7 +82,7 @@ SingleMultiplicity<T>::SingleMultiplicity(const edm::ParameterSet& iConfig, edm:
       m_qualityToken(m_useQuality
                          ? decltype(m_qualityToken){iC.esConsumes<SiStripQuality, SiStripQualityRcd>(
                                edm::ESInputTag(iConfig.getUntrackedParameter<std::string>("qualityLabel", "")))}
-                         : m_qualityToken),
+                         : decltype(m_qualityToken){}),
       m_mult(0),
       m_collection(iC.consumes<T>(iConfig.getParameter<edm::InputTag>("collectionName"))) {}
 
