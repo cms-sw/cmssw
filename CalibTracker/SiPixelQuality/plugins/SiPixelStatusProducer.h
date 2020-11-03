@@ -246,7 +246,7 @@ private:
   virtual int indexROC(int irow, int icol, int nROCcolumns) final;
 
   /* ParameterSet */
-  static const bool debug_ = true;
+  static const bool debug_ = false;
 
   edm::InputTag fPixelClusterLabel_;
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> fSiPixelClusterToken_;
