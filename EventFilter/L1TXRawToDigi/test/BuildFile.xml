@@ -1,7 +1,3 @@
-<use name="FWCore/Framework"/>
-<use name="FWCore/ParameterSet"/>
-<use name="FWCore/PluginManager"/>
-<use name="FWCore/MessageLogger"/>
-<use name="DataFormats/FEDRawData"/>
 <bin name="testUCTUnpacker" file="testUCTUnpacker.cpp">
+  <use name="EventFilter/L1TXRawToDigi"/>
 </bin>
