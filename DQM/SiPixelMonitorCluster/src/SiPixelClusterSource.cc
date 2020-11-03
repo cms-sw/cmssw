@@ -21,6 +21,7 @@
 // Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 // DQM Framework
 #include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
