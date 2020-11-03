@@ -23,7 +23,7 @@ namespace l1t {
       virtual EtSumBxCollection* getEtSums(const unsigned int copy) { return nullptr; }
       virtual JetBxCollection* getJets(const unsigned int copy) { return nullptr; }
       virtual TauBxCollection* getTaus(const unsigned int copy) { return nullptr; }
-      
+
       virtual EcalTrigPrimDigiCollection* getEcalDigisBx(const unsigned int copy) { return nullptr; };
     };
   }  // namespace stage2
