@@ -45,6 +45,7 @@ private:
   int maxDepthHB_, maxDepthHE_;
   int maxDepthHO_, maxDepthHF_;
   int maxDepth_;
+  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_HRNDC_;
 
   int iphi_bins;
   float iphi_min, iphi_max;
