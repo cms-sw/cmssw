@@ -138,7 +138,7 @@ namespace {
                           const edm::EDGetTokenT<edm::ValueMap<float>>& tok,
                           std::unordered_map<unsigned, edm::Handle<edm::ValueMap<float>>>& map) {
     if (!tok.isUninitialized())
-      evt.getByToken(tok, map[tok.index()]);
+      map[tok.index()] = evt.getHandle(tok);
   }
 }  // namespace
 
