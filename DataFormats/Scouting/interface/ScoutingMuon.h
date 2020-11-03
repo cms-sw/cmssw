@@ -2,6 +2,7 @@
 #define DataFormats_ScoutingMuon_h
 
 #include <vector>
+#include "DataFormats/TrackReco/interface/Track.h"
 
 // Class for holding muon information, for use in data scouting
 // IMPORTANT: the content of this class should be changed only in backwards compatible ways!
@@ -55,6 +56,7 @@ public:
                float trk_vx,
                float trk_vy,
                float trk_vz,
+	       reco::HitPattern trk_hitPattern,
                float std::vector<int> vtxIndx)
       : pt_(pt),
         eta_(eta),
@@ -103,6 +105,7 @@ public:
         trk_vx_(trk_vx),
         trk_vy_(trk_vy),
         trk_vz_(trk_vz),
+        trk_hitPattern_(trk_hitPattern),
         vtxIndx_(std::move(vtxIndx)) {}
   //default constructor
   ScoutingMuon()
@@ -160,6 +163,7 @@ public:
         trk_vx_(0),
         trk_vy_(0),
         trk_vz_(0),
+        trk_hitPattern_(reco::HitPattern()),
         vtxIndx_(0) {}
 
   //accessor functions
@@ -220,6 +224,7 @@ public:
   float trk_vx() const { return trk_vx_; }
   float trk_vy() const { return trk_vy_; }
   float trk_vz() const { return trk_vz_; }
+  reco::HitPattern trk_hitPattern() const { return trk_hitPattern_; }
   std::vector<int> vtxIndx() const { return vtxIndx_; }
 
 private:
@@ -277,6 +282,7 @@ private:
   float trk_vx_;
   float trk_vy_;
   float trk_vz_;
+  reco::HitPattern trk_hitPattern_;
   std::vector<int> vtxIndx_;
 };
 

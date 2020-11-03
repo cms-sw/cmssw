@@ -280,6 +280,7 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event& iEvent, edm
                            track->vx(),
                            track->vy(),
                            track->vz(),
+                           track->hitPattern(),
                            vtxInd);
     vtxInd.clear();
   }
