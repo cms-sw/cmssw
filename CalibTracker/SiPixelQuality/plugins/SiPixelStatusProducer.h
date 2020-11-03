@@ -80,7 +80,7 @@ public:
         //const TrackerTopology* trackerTopology = &iSetup.getData(trackerTopologyToken);
         //const SiPixelFedCablingMap* cablingMap = &iSetup.getData(siPixelFedCablingMapToken);
 
-        returnValue = m_holder.makeOrGet([this]() { return new SiPixelTopoFinder(); });
+        returnValue = m_holder.makeOrGet([]() { return new SiPixelTopoFinder(); });
         returnValue->init(trackerGeometry, trackerTopology, cablingMap);
 
         m_mostRecentSiPixelTopoFinder_ = returnValue;
