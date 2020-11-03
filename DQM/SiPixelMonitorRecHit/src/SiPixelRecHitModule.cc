@@ -24,12 +24,6 @@
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Event.h"
-
-#include "FWCore/Framework/interface/EventSetup.h"
 // Constructors
 //
 SiPixelRecHitModule::SiPixelRecHitModule() : id_(0) {}

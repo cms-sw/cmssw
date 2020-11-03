@@ -11,8 +11,6 @@
 #include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
 namespace {
 

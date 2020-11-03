@@ -28,25 +28,10 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-
 #include "DQM/SiPixelMonitorRawData/interface/SiPixelRawDataErrorModule.h"
-
 #include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
-
-#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <cstdint>
 
 class SiPixelRawDataErrorSource : public DQMOneLumiEDAnalyzer<> {
