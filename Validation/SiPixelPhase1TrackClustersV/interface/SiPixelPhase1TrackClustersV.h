@@ -11,9 +11,6 @@
 
 #include "DQM/SiPixelPhase1Common/interface/SiPixelPhase1Base.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 class SiPixelPhase1TrackClustersV : public SiPixelPhase1Base {
   enum {
@@ -28,9 +25,6 @@ public:
 
 private:
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> clustersToken_;
-  edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
-
-  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
 };
 
 #endif
