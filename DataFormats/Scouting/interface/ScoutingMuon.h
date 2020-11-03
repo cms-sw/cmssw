@@ -26,7 +26,7 @@ public:
                int nMatchedStations,
                int nRecoMuonMatchedStations,
                int nTrackerLayersWithMeasurement,
-               int type,
+               unsigned int type,
                int nValidStripHits,
                float trk_qoverp,
                float trk_lambda,
@@ -168,7 +168,7 @@ public:
   int nMatchedStations() const { return nMatchedStations_; }
   int nRecoMuonMatchedStations() const { return nRecoMuonMatchedStations_; }
   int nTrackerLayersWithMeasurement() const { return nTrackerLayersWithMeasurement_; }
-  int type() const { return type_; }
+  unsigned int type() const { return type_; }
   bool isGlobalMuon() const { return type_ & 1 << 1; }
   bool isTrackerMuon() const { return type_ & 1 << 2; }
   int nValidStripHits() const { return nValidStripHits_; }
@@ -219,7 +219,7 @@ private:
   int nMatchedStations_;
   int nRecoMuonMatchedStations_;
   int nTrackerLayersWithMeasurement_;
-  int type_;
+  unsigned int type_;
   int nValidStripHits_;
   float trk_qoverp_;
   float trk_lambda_;

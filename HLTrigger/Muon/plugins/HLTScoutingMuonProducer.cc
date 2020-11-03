@@ -169,8 +169,9 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event& iEvent, edm
       }
     }
 
-    int validRecoMuhit = 0;
-    int matchedRecoMustations = 0;
+    unsigned int recoMuonType = 2; // Global muon
+    int validRecoMuonHit = 0;
+    int matchedRecoMuonStations = 0;
     for (auto const& recoMu : *MuonCollection) {
       float dR2 = deltaR2(muon.eta(), muon.phi(), recoMu.eta(), recoMu.phi());
       float dPt = std::abs(muon.pt() - recoMu.pt());
@@ -181,6 +182,7 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event& iEvent, edm
 	if(recoMu.globalTrack().isNonnull())
 	  validRecoMuhit = recoMu.globalTrack()->hitPattern().numberOfValidMuonHits();
         matchedRecoMustations = recoMu.numberOfMatchedStations();
+        recoMuonType = recoMu.type();
       }
     }
 
@@ -220,12 +222,12 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event& iEvent, edm
                            track->dxy(),
                            track->dz(),
                            validmuhit,
-                           validRecoMuhit,
+                           validRecoMuonHit,
                            track->hitPattern().numberOfValidPixelHits(),
                            matchedsta,
-                           matchedRecoMustations,
+                           matchedRecoMuonStations,
                            track->hitPattern().trackerLayersWithMeasurement(),
-                           2,  // Global muon
+                           recoMuonType,
                            track->hitPattern().numberOfValidStripHits(),
                            track->qoverp(),
                            track->lambda(),
