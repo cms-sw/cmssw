@@ -10,8 +10,10 @@
 
 // C++ standard
 #include <cstring>
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <memory>
+
 #include <string>
 // // CMS FW
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -132,7 +134,7 @@ class SiPixelStatusProducer :
 public:
 
    SiPixelStatusProducer(edm::ParameterSet const& iPSet, SiPixelTopoCache const*);
-   ~SiPixelStatusProducer();
+   ~SiPixelStatusProducer() override;
 
    /* module description */
    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -166,7 +168,7 @@ public:
 
    static std::unique_ptr<SiPixelTopoCache> initializeGlobalCache(edm::ParameterSet const& iPSet) {
           edm::LogInfo("SiPixelStatusProducer") << "Init global Cache " << std::endl;
-          return std::unique_ptr<SiPixelTopoCache>(new SiPixelTopoCache(iPSet));
+          return std::make_unique<SiPixelTopoCache>(iPSet);
    }
 
    static std::shared_ptr<SiPixelTopoFinder> globalBeginRun(edm::Run const& iRun, edm::EventSetup const& iSetup,
@@ -210,7 +212,7 @@ public:
                edm::LogInfo("SiPixelStatusProducer") << "Global endlumi producer " << std::endl;
 
                // only save result for non-zero event lumi block              
-               if ( siPixelDetectorStatusVtr->size() > 0 ){
+               if ( !siPixelDetectorStatusVtr->empty() ){
   	           int lumi = iLumi.luminosityBlock();
                    int run  = iLumi.run();
 
