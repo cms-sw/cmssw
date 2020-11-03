@@ -28,6 +28,17 @@ float recHitE(const DetId id, const EcalRecHitCollection& recHits) {
   return 0;
 }
 
+float recHitT(const DetId id, const EcalRecHitCollection& recHits) {
+  if (id == DetId(0)) {
+    return 0;
+  } else {
+    EcalRecHitCollection::const_iterator it = recHits.find(id);
+    if (it != recHits.end())
+      return (*it).time();
+  }
+  return 0;
+}
+
 //
 // constructors and destructor
 //
@@ -50,6 +61,7 @@ HLTScoutingEgammaProducer::HLTScoutingEgammaProducer(const edm::ParameterSet& iC
       egammaEtaCut(iConfig.getParameter<double>("egammaEtaCut")),
       egammaHoverECut(iConfig.getParameter<double>("egammaHoverECut")),
       mantissaPrecision(iConfig.getParameter<int>("mantissaPrecision")),
+      saveRecHitTiming(iConfig.getParameter<bool>("saveRecHitTiming")),
       rechitMatrixSize(iConfig.getParameter<int>("rechitMatrixSize")),  //(2n+1)^2
       ecalRechitEB_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ecalRechitEB"))),
       ecalRechitEE_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ecalRechitEE"))) {
@@ -198,15 +210,26 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
 
     std::vector<DetId> mDetIds = EcalClusterTools::matrixDetId((topology), (*SCseed).seed(), rechitMatrixSize);
     std::vector<float> mEnergies;
+    std::vector<float> mTimes;
 
     int detSize = mDetIds.size();
 
+    if (!saveRecHitTiming)
+      mTimes.push_back(0.);
+
     for (int i = 0; i < pow(2 * rechitMatrixSize + 1, 2); i++) {
-      if (i >= detSize)
+      if (i >= detSize) {
         mEnergies.push_back(MiniFloatConverter::reduceMantissaToNbitsRounding(0., mantissaPrecision));
-      else
+
+        if (saveRecHitTiming)
+          mTimes.push_back(MiniFloatConverter::reduceMantissaToNbitsRounding(0., mantissaPrecision));
+      } else {
         mEnergies.push_back(
             MiniFloatConverter::reduceMantissaToNbitsRounding(recHitE(mDetIds.at(i), *rechits), mantissaPrecision));
+        if (saveRecHitTiming)
+          mTimes.push_back(
+              MiniFloatConverter::reduceMantissaToNbitsRounding(recHitT(mDetIds.at(i), *rechits), mantissaPrecision));
+      }
     }
 
     float d0 = 0.0;
@@ -236,8 +259,9 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
                                (*R9Map)[candidateRef],
                                sMin,
                                sMaj,
-                               mEnergies);  //read for(ieta){for(iphi){}}
-    } else {                                // Candidate is a scouting electron
+                               mEnergies,
+                               mTimes);  //read for(ieta){for(iphi){}}
+    } else {                             // Candidate is a scouting electron
       outElectrons->emplace_back(candidate.pt(),
                                  candidate.eta(),
                                  candidate.phi(),
@@ -257,7 +281,8 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
                                  (*R9Map)[candidateRef],
                                  sMin,
                                  sMaj,
-                                 mEnergies);  //read for(ieta){for(iphi){}}
+                                 mEnergies,
+                                 mTimes);  //read for(ieta){for(iphi){}}
     }
   }
 
@@ -284,8 +309,9 @@ void HLTScoutingEgammaProducer::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<double>("egammaPtCut", 4.0);
   desc.add<double>("egammaEtaCut", 2.5);
   desc.add<double>("egammaHoverECut", 1.0);
+  desc.add<bool>("saveRecHitTiming", false);
   desc.add<int>("mantissaPrecision", 10);  // default float16, switch to 23 for float32 precision
-  desc.add<int>("rechitMatrixSize", 1);
+  desc.add<int>("rechitMatrixSize", 0);
   desc.add<edm::InputTag>("ecalRechitEB", edm::InputTag("hltEcalRecHit:EcalRecHitsEB"));
   desc.add<edm::InputTag>("ecalRechitEE", edm::InputTag("hltEcalRecHit:EcalRecHitsEE"));
   descriptions.add("hltScoutingEgammaProducer", desc);

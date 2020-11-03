@@ -83,6 +83,7 @@ private:
   const double egammaEtaCut;
   const double egammaHoverECut;
   const int mantissaPrecision;
+  const bool saveRecHitTiming;
   const int rechitMatrixSize;
 
   const edm::EDGetTokenT<EcalRecHitCollection> ecalRechitEB_;
