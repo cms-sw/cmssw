@@ -219,7 +219,7 @@ void TICLTrackstersValidation::dqmBeginRun(edm::Run const& run,
 void TICLTrackstersValidation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   std::vector<edm::InputTag> source_vector{edm::InputTag("ticlTrackstersTrk"),
-                                           edm::InputTag("ticlTrackstersMIP"),
+                                           edm::InputTag("ticlTrackstersTrkEM"),
                                            edm::InputTag("ticlTrackstersEM"),
                                            edm::InputTag("ticlTrackstersHAD"),
                                            edm::InputTag("ticlTrackstersMerge")};
