@@ -3,7 +3,6 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/Utilities"/>
-<use name="DataFormats/SiPixelDetId"/>
 <use name="DataFormats/TrackerRecHit2D"/>
 <use name="Geometry/CommonDetUnit"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
