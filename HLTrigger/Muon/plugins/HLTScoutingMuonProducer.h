@@ -27,9 +27,6 @@ Description: Producer for ScoutingMuon
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/EDMException.h"
-
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/Common/interface/getRef.h"
 #include "DataFormats/Common/interface/ValueMap.h"
@@ -46,6 +43,7 @@ Description: Producer for ScoutingMuon
 #include "DataFormats/Scouting/interface/ScoutingVertex.h"
 
 #include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 class HLTScoutingMuonProducer : public edm::global::EDProducer<> {
@@ -62,17 +60,17 @@ private:
   void produce(edm::StreamID sid, edm::Event& iEvent, edm::EventSetup const& setup) const final;
 
   const edm::EDGetTokenT<reco::RecoChargedCandidateCollection> ChargedCandidateCollection_;
+  const edm::EDGetTokenT<reco::VertexCollection> displacedvertexCollection_;
+  const edm::EDGetTokenT<reco::MuonCollection> MuonCollection_;
+  const edm::EDGetTokenT<reco::MuonTrackLinksCollection> linkToken_;
   const edm::EDGetTokenT<reco::TrackCollection> TrackCollection_;
   const edm::EDGetTokenT<RecoChargedCandMap> EcalPFClusterIsoMap_;
   const edm::EDGetTokenT<RecoChargedCandMap> HcalPFClusterIsoMap_;
   const edm::EDGetTokenT<edm::ValueMap<double>> TrackIsoMap_;
-  const edm::EDGetTokenT<reco::VertexCollection> displacedvertexCollection_;
 
   const double muonPtCut;
   const double muonEtaCut;
   const double minVtxProbCut;
-
-  const edm::EDGetTokenT<reco::MuonTrackLinksCollection> linkToken_;
 };
 
 #endif

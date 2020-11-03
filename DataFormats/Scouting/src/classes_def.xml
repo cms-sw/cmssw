@@ -18,10 +18,11 @@
       <version ClassVersion="2" checksum="1190461538"/>
       <version ClassVersion="3" checksum="213189975"/>
   </class>
-  <class name="ScoutingMuon" ClassVersion="4">
+  <class name="ScoutingMuon" ClassVersion="5">
      <version ClassVersion="2" checksum="9151"/>
      <version ClassVersion="3" checksum="3167554832"/>
      <version ClassVersion="4" checksum="2090828742"/>
+     <version ClassVersion="5" checksum="2821723317"/>
   </class>
   <class name="ScoutingPhoton" ClassVersion="3">
       <version ClassVersion="2" checksum="2797410539"/>
