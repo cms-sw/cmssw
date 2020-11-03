@@ -14,8 +14,8 @@
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 
-#include "EventFilter/L1TXRawToDigi/plugins/UCTDAQRawData.h"
-#include "EventFilter/L1TXRawToDigi/plugins/UCTAMCRawData.h"
+#include "EventFilter/L1TXRawToDigi/interface/UCTDAQRawData.h"
+#include "EventFilter/L1TXRawToDigi/interface/UCTAMCRawData.h"
 
 L1TStage2CaloLayer1::L1TStage2CaloLayer1(const edm::ParameterSet& ps)
     : ecalTPSourceRecd_(consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("ecalTPSourceRecd"))),
