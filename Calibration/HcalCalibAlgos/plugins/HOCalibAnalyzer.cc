@@ -1159,17 +1159,10 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
       int iring2 = iring + 2;
 
-      int tmprout = int((iphi + 1) / 3.) + 1;
-      int tmproutmx = routmx;
-      if (iring == 0) {
-        tmprout = int((iphi + 1) / 2.) + 1;
-        if (tmprout > routmx)
-          tmprout = 1;
-      } else {
-        if (tmprout > rout12mx)
-          tmprout = 1;
-        tmproutmx = rout12mx;
-      }
+      int tmprout = (iring == 0) ? int((iphi + 1) / 2.) + 1 : int((iphi + 1) / 3.) + 1;
+      int tmproutmx = (iring == 0) ? routmx : rout12mx;
+      if (tmprout > tmproutmx)
+        tmprout = 1;
 
       // CRUZET1
       if (m_cosmic) {
@@ -1449,9 +1442,6 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
       int tmpeta1 = (ieta > 0) ? ieta - 1 : -ieta + 14;
 
-      //Histogram filling for noise study: phi shift according to DTChamberAnalysis
-      int tmpphi1 = iphi - 1;  //(iphi+6 <=nphimx) ? iphi+5 : iphi+5-nphimx;
-
       int iselect2 = 0;
       if (hosig[4] != -100) {
         if (m_cosmic) {
@@ -1466,22 +1456,11 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       //      edm::LogInfo("HOCalib") <<"cosmic "<<hosig[4]<<" "<<caloen[3]<<" "<<int(iselect2)<<" "<<int(m_cosmic);
 
       if (iselect2 == 1) {
-        int tmpphi2 = iphi - 1;
-        tmpphi2 = (iphi + 6 <= nphimx) ? iphi + 5 : iphi + 5 - nphimx;
+        int tmpphi2 = (iphi + 6 <= nphimx) ? iphi + 5 : iphi + 5 - nphimx;
 
-        int tmpsect2 = int((tmpphi2 + 2) / 6.) + 1;
-        if (tmpsect2 > 12)
-          tmpsect2 = 1;
-
-        int tmprout2 = int((tmpphi2 + 2) / 3.) + 1;
-        if (iring == 0) {
-          tmprout2 = int((tmpphi2 + 2) / 2.) + 1;
-          if (tmprout2 > routmx)
-            tmprout2 = 1;
-        } else {
-          if (tmprout2 > rout12mx)
-            tmprout2 = 1;
-        }
+        int tmprout2 = (iring == 0) ? int((tmpphi2 + 2) / 2.) + 1 : int((tmpphi2 + 2) / 3.) + 1;
+        if (tmprout2 > tmproutmx)
+          tmprout2 = 1;
 
         if (cro_ssg[tmpeta1][tmpphi2].size() < 4000) {
           if (hocro > alow && hocro < ahigh) {
@@ -1511,7 +1490,8 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
           }
         }
 
-        tmpphi1 = iphi - 1;
+        //Histogram filling for noise study: phi shift according to DTChamberAnalysis
+        int tmpphi1 = iphi - 1;
 
         if (sig_reg[tmpeta1][tmpphi1].size() < 4000) {
           if (hosig[4] > -50 && hosig[4] < 15) {
@@ -2409,12 +2389,6 @@ void HOCalibAnalyzer::endJob() {
             file_out << "parserr" << iijj << " " << kl << " " << ij + 1 << " " << parserr[0] << " " << parserr[1] << " "
                      << parserr[2] << " " << parserr[3] << " " << parserr[4] << " " << parserr[5] << " " << parserr[6]
                      << std::endl;
-
-            double diff = fitres[4] - fitres[1];
-            if (diff <= 0)
-              diff = 0.000001;
-            double error = parserr[4] * parserr[4] + parer[2] * parer[2];
-            error = pow(error, 0.5);
 
             int ieta = (jk < 15) ? (15 + jk) : (29 - jk);
             int ifl = nphimx * ieta + ij;
