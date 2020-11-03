@@ -27,6 +27,7 @@ allLabel = 'all'
 
 collection_choices = [layerClustersGeneralLabel]
 collection_choices.extend([simClustersGeneralLabel]+[multiclustersGeneralLabel]+[trackstersGeneralLabel]+[hitValidationLabel]+[hitCalibrationLabel]+[allLabel]+[caloParticlesLabel])
+collections = ["hgcalMultiClusters","ticlMultiClustersFromTrackstersMerge","ticlMultiClustersFromTrackstersTrk","ticlMultiClustersFromTrackstersTrkEM","ticlMultiClustersFromTrackstersEM","ticlMultiClustersFromTrackstersHAD","ticlMultiClustersFromTrackstersDummy"]
 
 def main(opts):
 
