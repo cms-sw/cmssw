@@ -62,6 +62,17 @@ public:
   static constexpr int32_t WaferCornerMax = 6;
   static constexpr int32_t WaferSizeMax = 7;
 
+  static constexpr double c00 = 0.0;
+  static constexpr double c22 = 0.225;
+  static constexpr double c25 = 0.25;
+  static constexpr double c27 = 0.275;
+  static constexpr double c50 = 0.5;
+  static constexpr double c61 = 0.6125;
+  static constexpr double c75 = 0.75;
+  static constexpr double c77 = 0.775;
+  static constexpr double c88 = 0.8875;
+  static constexpr double c10 = 1.0;
+
   enum TileType { TileFine = 0, TileCoarseCast = 1, TileCoarseMould = 2 };
 
   enum TileSiPMType { SiPMUnknown = 0, SiPMSmall = 2, SiPMLarge = 4 };
