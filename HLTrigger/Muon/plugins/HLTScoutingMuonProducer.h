@@ -43,6 +43,7 @@ Description: Producer for ScoutingMuon
 #include "DataFormats/Scouting/interface/ScoutingVertex.h"
 
 #include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 class HLTScoutingMuonProducer : public edm::global::EDProducer<> {

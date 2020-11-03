@@ -22,7 +22,14 @@ public:
                int nValidStandAloneMuonHits,
                int nStandAloneMuonMatchedStations,
                int nValidRecoMuonHits,
+               int nRecoMuonChambers,
+               int nRecoMuonChambersCSCorDT,
+               int nRecoMuonMatches,
                int nRecoMuonMatchedStations,
+               unsigned int nRecoMuonExpectedMatchedStations,
+               unsigned int recoMuonStationMask,
+               int nRecoMuonMatchedRPCLayers,
+               unsigned int recoMuonRPClayerMask,
                int nValidPixelHits,
                int nValidStripHits,
                int nPixelLayersWithMeasurement,
@@ -57,7 +64,7 @@ public:
                float trk_vy,
                float trk_vz,
 	       reco::HitPattern trk_hitPattern,
-               float std::vector<int> vtxIndx)
+               std::vector<int> vtxIndx)
       : pt_(pt),
         eta_(eta),
         phi_(phi),
@@ -71,7 +78,14 @@ public:
         nValidStandAloneMuonHits_(nValidStandAloneMuonHits),
         nStandAloneMuonMatchedStations_(nStandAloneMuonMatchedStations),
         nValidRecoMuonHits_(nValidRecoMuonHits),
-
+        nRecoMuonChambers_(nRecoMuonChambers),
+        nRecoMuonChambersCSCorDT_(nRecoMuonChambersCSCorDT),
+        nRecoMuonMatches_(nRecoMuonMatches),
+        nRecoMuonMatchedStations_(nRecoMuonMatchedStations),
+        nRecoMuonExpectedMatchedStations_(nRecoMuonExpectedMatchedStations),
+        recoMuonStationMask_(recoMuonStationMask),
+        nRecoMuonMatchedRPCLayers_(nRecoMuonMatchedRPCLayers),
+        recoMuonRPClayerMask_(recoMuonRPClayerMask),
         nValidPixelHits_(nValidPixelHits),
         nValidStripHits_(nValidStripHits),
         nPixelLayersWithMeasurement_(nPixelLayersWithMeasurement),
@@ -239,7 +253,7 @@ private:
   float hcalIso_;
   float trackIso_;
   int nValidStandAloneMuonHits_;
-  int nStandAloneMatchedStations_;
+  int nStandAloneMuonMatchedStations_;
   int nValidRecoMuonHits_;
   int nRecoMuonChambers_;
   int nRecoMuonChambersCSCorDT_;
