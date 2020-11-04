@@ -401,6 +401,7 @@ electronTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         lostHits = Var("gsfTrack.hitPattern.numberOfLostHits('MISSING_INNER_HITS')","uint8",doc="number of missing inner hits"),
         isPFcand = Var("pfCandidateRef().isNonnull()",bool,doc="electron is PF candidate"),
         seedGain = Var("userInt('seedGain')","uint8",doc="Gain of the seed crystal"),
+        jetNDauCharged = Var("?userCand('jetForLepJetVar').isNonnull()?userFloat('jetNDauChargedMVASel'):0", "uint8", doc="number of charged daughters of the closest jet"),
     ),
     externalVariables = cms.PSet(
         mvaTTH = ExtVar(cms.InputTag("electronMVATTH"),float, doc="TTH MVA lepton ID score",precision=14),
