@@ -63,7 +63,7 @@ public:
                float trk_vx,
                float trk_vy,
                float trk_vz,
-	       reco::HitPattern trk_hitPattern,
+               reco::HitPattern trk_hitPattern,
                std::vector<int> vtxIndx)
       : pt_(pt),
         eta_(eta),
