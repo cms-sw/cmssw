@@ -12,7 +12,7 @@ class EcalDataFrame_Ph2 {
 public:
   EcalDataFrame_Ph2() {}
   EcalDataFrame_Ph2(edm::DataFrame const& iframe) : m_data(iframe) {}
-  
+
   virtual ~EcalDataFrame_Ph2() {}
   DetId id() const { return m_data.id(); }
 
