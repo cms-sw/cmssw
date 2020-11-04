@@ -14,9 +14,10 @@
       <version ClassVersion="2"  checksum="2969738609"/>
       <version ClassVersion="3" checksum="4008726838"/>
   </class>
-  <class name="ScoutingElectron" ClassVersion="3">
+  <class name="ScoutingElectron" ClassVersion="4">
       <version ClassVersion="2" checksum="1190461538"/>
       <version ClassVersion="3" checksum="213189975"/>
+      <version ClassVersion="4" checksum="1208587038"/>
   </class>
   <class name="ScoutingMuon" ClassVersion="5">
      <version ClassVersion="2" checksum="9151"/>
@@ -24,9 +25,10 @@
      <version ClassVersion="4" checksum="2090828742"/>
      <version ClassVersion="5" checksum="2821723317"/>
   </class>
-  <class name="ScoutingPhoton" ClassVersion="3">
+  <class name="ScoutingPhoton" ClassVersion="4">
       <version ClassVersion="2" checksum="2797410539"/>
       <version ClassVersion="3" checksum="876375717"/>
+      <version ClassVersion="4" checksum="2351045916"/>
   </class>
   <class name="ScoutingTrack" ClassVersion="3">
       <version ClassVersion="2" checksum="1342928770"/>
