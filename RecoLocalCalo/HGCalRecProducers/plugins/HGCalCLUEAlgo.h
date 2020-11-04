@@ -128,7 +128,7 @@ public:
 private:
   // To compute the cluster position
   std::vector<double> thresholdW0_;
-  double positionDeltaRho2_;
+  const double positionDeltaRho2_;
 
   // The two parameters used to identify clusters
   std::vector<double> vecDeltas_;
