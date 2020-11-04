@@ -9,9 +9,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
-// Muon geom
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
-
 // Alignment
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
@@ -46,12 +43,9 @@ void MuonAlignment::init() {
 MuonAlignment::MuonAlignment(const edm::EventSetup& iSetup) {
   init();
 
-  edm::ESHandle<DTGeometry> dtGeometry;
-  edm::ESHandle<CSCGeometry> cscGeometry;
-  edm::ESHandle<GEMGeometry> gemGeometry;
-  iSetup.get<MuonGeometryRecord>().get(dtGeometry);
-  iSetup.get<MuonGeometryRecord>().get(cscGeometry);
-  iSetup.get<MuonGeometryRecord>().get(gemGeometry);
+  edm::ESHandle<DTGeometry> dtGeometry = iSetup.getHandle(esTokenDT_);
+  edm::ESHandle<CSCGeometry> cscGeometry = iSetup.getHandle(esTokenCSC_);
+  edm::ESHandle<GEMGeometry> gemGeometry = iSetup.getHandle(esTokenGEM_);
 
   theAlignableMuon = new AlignableMuon(&(*dtGeometry), &(*cscGeometry), &(*gemGeometry));
   theAlignableNavigator = new AlignableNavigator(theAlignableMuon);

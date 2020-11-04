@@ -56,7 +56,10 @@ private:
   std::string theDTAlignRecordName, theDTErrorRecordName;
   std::string theCSCAlignRecordName, theCSCErrorRecordName;
   std::string theGEMAlignRecordName, theGEMErrorRecordName;
-  std::string theIdealGeometryLabel;
+
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> esTokenDT_;
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> esTokenCSC_;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> esTokenGEM_;
 
   Alignments* dt_Alignments;
   AlignmentErrorsExtended* dt_AlignmentErrorsExtended;
@@ -76,7 +79,9 @@ MuonMisalignedProducer::MuonMisalignedProducer(const edm::ParameterSet& p)
       theCSCErrorRecordName("CSCAlignmentErrorExtendedRcd"),
       theGEMAlignRecordName("GEMAlignmentRcd"),
       theGEMErrorRecordName("GEMAlignmentErrorExtendedRcd"),
-      theIdealGeometryLabel("idealForMuonMisalignedProducer") {}
+      esTokenDT_(esConsumes(edm::ESInputTag("", "idealForMuonMisalignedProducer"))),
+      esTokenCSC_(esConsumes(edm::ESInputTag("", "idealForMuonMisalignedProducer"))),
+      esTokenGEM_(esConsumes(edm::ESInputTag("", "idealForMuonMisalignedProducer"))) {}
 
 //__________________________________________________________________________________________________
 MuonMisalignedProducer::~MuonMisalignedProducer() {}
@@ -85,12 +90,9 @@ MuonMisalignedProducer::~MuonMisalignedProducer() {}
 void MuonMisalignedProducer::analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {
   edm::LogInfo("MisalignedMuon") << "Producer called";
   // Create the Muon geometry from ideal geometry
-  edm::ESHandle<DTGeometry> theDTGeometry;
-  edm::ESHandle<CSCGeometry> theCSCGeometry;
-  edm::ESHandle<GEMGeometry> theGEMGeometry;
-  eventSetup.get<MuonGeometryRecord>().get(theIdealGeometryLabel, theDTGeometry);
-  eventSetup.get<MuonGeometryRecord>().get(theIdealGeometryLabel, theCSCGeometry);
-  eventSetup.get<MuonGeometryRecord>().get(theIdealGeometryLabel, theGEMGeometry);
+  edm::ESHandle<DTGeometry> theDTGeometry = eventSetup.getHandle(esTokenDT_);
+  edm::ESHandle<CSCGeometry> theCSCGeometry = eventSetup.getHandle(esTokenCSC_);
+  edm::ESHandle<GEMGeometry> theGEMGeometry = eventSetup.getHandle(esTokenGEM_);
 
   // Create the alignable hierarchy
   AlignableMuon* theAlignableMuon = new AlignableMuon(&(*theDTGeometry), &(*theCSCGeometry), &(*theGEMGeometry));

@@ -70,18 +70,21 @@ void GeometryAligner::applyAlignments(const C* geometry,
   const AlignTransform::Rotation inverseGlobalRotation = globalRotation.inverse();
 
   // Parallel loop on alignments, alignment errors and geomdets
+  std::vector<AlignTransform>::const_iterator iAlign = alignments->m_align.begin();
   std::vector<AlignTransformErrorExtended>::const_iterator iAlignError = alignmentErrors->m_alignError.begin();
   //copy  geometry->theMap to a real map to order it....
   std::map<unsigned int, GeomDet const*> theMap;
   std::copy(geometry->theMap.begin(), geometry->theMap.end(), std::inserter(theMap, theMap.begin()));
   unsigned int nAPE = 0;
-  for (auto iAlign = alignments->m_align.begin(); iAlign != alignments->m_align.end(); ++iAlign, ++iAlignError) {
+  for (auto iPair = theMap.begin(); iPair != theMap.end(); ++iPair, ++iAlign, ++iAlignError) {
     // Check DetIds
-    if (theMap.find((*iAlign).rawId()) == theMap.end())
-      throw cms::Exception("GeometryMismatch") << "Can't find rawId=" << (*iAlign).rawId();
+    if ((*iPair).first != (*iAlign).rawId())
+      throw cms::Exception("GeometryMismatch") << "DetId mismatch between geometry (rawId=" << (*iPair).first
+                                               << ") and alignments (rawId=" << (*iAlign).rawId();
 
-    if (theMap.find((*iAlignError).rawId()) == theMap.end())
-      throw cms::Exception("GeometryMismatch") << "Can't find rawId=" << (*iAlignError).rawId();
+    if ((*iPair).first != (*iAlignError).rawId())
+      throw cms::Exception("GeometryMismatch") << "DetId mismatch between geometry (rawId=" << (*iPair).first
+                                               << ") and alignment errors (rawId=" << (*iAlignError).rawId();
 
     // Apply global correction
     CLHEP::Hep3Vector positionHep = globalRotation * CLHEP::Hep3Vector((*iAlign).translation()) + globalShift;
@@ -98,7 +101,7 @@ void GeometryAligner::applyAlignments(const C* geometry,
                                    rotationHep.zx(),
                                    rotationHep.zy(),
                                    rotationHep.zz());
-    GeomDet* iGeomDet = const_cast<GeomDet*>(theMap[(*iAlign).rawId()]);
+    GeomDet* iGeomDet = const_cast<GeomDet*>((*iPair).second);
     this->setGeomDetPosition(*iGeomDet, position, rotation);
 
     // Alignment Position Error only if non-zero to save memory
