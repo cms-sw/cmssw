@@ -252,7 +252,7 @@ def nanoAOD_activateVID(process):
         modifier.toModify(process.egmPhotonIDs, physicsObjectSrc = "slimmedPhotonsTo106X")
     return process
 
-def nanoAOD_addDeepInfoAK8(process, addDeepBTag, addDeepBoostedJet, addDeepDoubleX, addParticleNet, jecPayload):
+def nanoAOD_addDeepInfoAK8(process, addDeepBTag, addDeepBoostedJet, addDeepDoubleX, addDeepDoubleXV2, addParticleNet, jecPayload):
     _btagDiscriminators=[]
     if addDeepBTag:
         print("Updating process to run DeepCSV btag to AK8 jets")
@@ -265,12 +265,19 @@ def nanoAOD_addDeepInfoAK8(process, addDeepBTag, addDeepBoostedJet, addDeepDoubl
         print("Updating process to run ParticleNet before it's included in MiniAOD")
         from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetJetTagsAll as pfParticleNetJetTagsAll
         _btagDiscriminators += pfParticleNetJetTagsAll
-    if addDeepDoubleX: 
+    if addDeepDoubleX:
         print("Updating process to run DeepDoubleX on datasets before 104X")
         _btagDiscriminators += ['pfDeepDoubleBvLJetTags:probHbb', \
             'pfDeepDoubleCvLJetTags:probHcc', \
             'pfDeepDoubleCvBJetTags:probHcc', \
             'pfMassIndependentDeepDoubleBvLJetTags:probHbb', 'pfMassIndependentDeepDoubleCvLJetTags:probHcc', 'pfMassIndependentDeepDoubleCvBJetTags:probHcc']
+    if addDeepDoubleXV2:
+        print("Updating process to run DeepDoubleXv2 on datasets before 11X")
+        _btagDiscriminators += [
+            'pfMassIndependentDeepDoubleBvLV2JetTags:probHbb',
+            'pfMassIndependentDeepDoubleCvLV2JetTags:probHcc',
+            'pfMassIndependentDeepDoubleCvBV2JetTags:probHcc'
+            ]
     if len(_btagDiscriminators)==0: return process
     print("Will recalculate the following discriminators on AK8 jets: "+", ".join(_btagDiscriminators))
     updateJetCollection(
@@ -317,27 +324,37 @@ def nanoAOD_customizeCommon(process):
         nanoAOD_addDeepBTag_switch = cms.untracked.bool(False),
         nanoAOD_addDeepBoostedJet_switch = cms.untracked.bool(True),
         nanoAOD_addDeepDoubleX_switch = cms.untracked.bool(True),
+        nanoAOD_addDeepDoubleXV2_switch = cms.untracked.bool(True),
         nanoAOD_addParticleNet_switch = cms.untracked.bool(True),
         jecPayload = cms.untracked.string('AK8PFPuppi')
         )
-    # deepAK8 should not run on 80X, that contains ak8PFJetsCHS jets
+    # Don't run on old mini due to compatibility
+    # 80X contains ak8PFJetsCHS jets instead of puppi
     run2_miniAOD_80XLegacy.toModify(nanoAOD_addDeepInfoAK8_switch,
                                     nanoAOD_addDeepBTag_switch = True,
                                     nanoAOD_addDeepBoostedJet_switch = False,
                                     nanoAOD_addDeepDoubleX_switch = False,
+                                    nanoAOD_addDeepDoubleXV2_switch = False,
                                     nanoAOD_addParticleNet_switch = False,
                                     jecPayload = 'AK8PFchs')
-    # for Re-MiniAOD: no need to re-run DeepAK8, DeepDoubleX and ParticleNet
+    # Don't rerun where already present
     run2_miniAOD_devel.toModify(
         nanoAOD_addDeepInfoAK8_switch,
         nanoAOD_addDeepBoostedJet_switch = False,
         nanoAOD_addDeepDoubleX_switch = False,
+        nanoAOD_addDeepDoubleXV2_switch = False,
         nanoAOD_addParticleNet_switch = False,
         )
+    run2_nanoAOD_106Xv1.toModify(
+         nanoAOD_addDeepInfoAK8_switch,
+         nanoAOD_addDeepBoostedJet_switch = False,
+         nanoAOD_addDeepDoubleX_switch = False,
+         )
     process = nanoAOD_addDeepInfoAK8(process,
                                      addDeepBTag=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepBTag_switch,
                                      addDeepBoostedJet=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepBoostedJet_switch,
                                      addDeepDoubleX=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepDoubleX_switch,
+                                     addDeepDoubleXV2=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepDoubleXV2_switch,
                                      addParticleNet=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addParticleNet_switch,
                                      jecPayload=nanoAOD_addDeepInfoAK8_switch.jecPayload)
     addTauIds_switch = cms.PSet(
