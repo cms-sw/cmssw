@@ -16,7 +16,7 @@ def _addNoFlow(module):
         if not tmp[ind-1] in _noflowSeen:
             module.noFlowDists.append(tmp[ind-1])
 
-_defaultSubdirs = ["Tracking/Track/*", "Tracking/TrackTPPtLess09/*", "Tracking/TrackFromPV/*", "Tracking/TrackFromPVAllTP/*", "Tracking/TrackAllTPEffic/*", "Tracking/TrackBuilding/*","Tracking/TrackConversion/*", "Tracking/TrackGsf/*"]
+_defaultSubdirs = ["Tracking/Track/*", "Tracking/TrackTPPtLess09/*", "Tracking/TrackFromPV/*", "Tracking/TrackFromPVAllTP/*", "Tracking/TrackAllTPEffic/*", "Tracking/TrackBuilding/*","Tracking/TrackConversion/*", "Tracking/TrackGsf/*", "Tracking/TrackTPDisplaced"]
 _defaultSubdirsSummary = [e.replace("/*","") for e in _defaultSubdirs]
 
 postProcessorTrack = DQMEDHarvester("DQMGenericClient",

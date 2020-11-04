@@ -1375,6 +1375,7 @@ _appendTrackingPlots("TrackBuilding", "building", _seedingBuildingPlots, buildin
 _appendTrackingPlots("TrackConversion", "conversion", _simBasedPlots+_recoBasedPlots, onlyForConversion=True, rawSummary=True, highPuritySummary=False)
 _appendTrackingPlots("TrackGsf", "gsf", _simBasedPlots+_recoBasedPlots, onlyForElectron=True, rawSummary=True, highPuritySummary=False)
 _appendTrackingPlots("TrackBHadron", "bhadron", _simBasedPlots+_recoBasedPlots, onlyForBHadron=True)
+_appendTrackingPlots("TrackTPDisplaced", "tpDisplaced", _simBasedPlots+_recoBasedPlots)
 # Pixel tracks
 _common = dict(purpose=PlotPurpose.Pixel, page="pixel")
 plotter.append("pixelTrack", _trackingFolders("PixelTrack"), TrackingPlotFolder(*(_simBasedPlots+_recoBasedPlots), **_common))
