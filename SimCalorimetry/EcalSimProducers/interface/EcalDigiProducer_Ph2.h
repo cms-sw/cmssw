@@ -76,7 +76,6 @@ private:
   edm::ESGetToken<EcalADCToGeVConstant, EcalADCToGeVConstantRcd> agcToken_;
   edm::ESGetToken<EcalIntercalibConstants, EcalIntercalibConstantsRcd> icalToken_;
 
-
   void accumulateCaloHits(HitsHandle const& ebHandle, int bunchCrossing);
 
   void checkGeometry(const edm::EventSetup& eventSetup);
