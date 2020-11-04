@@ -48,8 +48,7 @@ public:
         nonAgedNoises_(ps.getParameter<std::vector<double>>("noises")),
         noiseMip_(ps.getParameter<edm::ParameterSet>("noiseMip").getParameter<double>("noise_MIP")),
         use2x2_(ps.getParameter<bool>("use2x2")),
-        initialized_(false)
-        {}
+        initialized_(false) {}
 
   ~HGCalCLUEAlgoT() override {}
 
