@@ -171,8 +171,8 @@ highBetaStar_2018.toModify(pixelPairStepTrackingRegionsSeedLayersB,RegionPSet = 
 ))
 #include commented lines from above in pp_on_XY eras; global seeds (A) are not used in this era b/c timing
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-(pp_on_XeXe_2017 | pp_on_AA_2018).toModify(pixelPairStepTrackingRegionsSeedLayersB, layerList = [
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+(pp_on_XeXe_2017 | pp_on_AA).toModify(pixelPairStepTrackingRegionsSeedLayersB, layerList = [
       'BPix1+BPix2', 'BPix1+BPix3', 'BPix1+BPix4', 'BPix2+BPix3', 'BPix2+BPix4','BPix3+BPix4',
       'BPix1+FPix1_pos'    , 'BPix1+FPix1_neg',
       'BPix1+FPix2_pos'    , 'BPix1+FPix2_neg',
@@ -201,7 +201,7 @@ _pixelPairStepSeedsMerged = _globalCombinedSeeds.clone(
 (trackingPhase1 & ~fastSim).toReplaceWith(pixelPairStepSeeds, _pixelPairStepSeedsMerged)
 
 #only use region B for pp_on_XY era for timing reasons
-(pp_on_XeXe_2017 | pp_on_AA_2018).toReplaceWith(pixelPairStepSeeds, pixelPairStepSeedsB)
+(pp_on_XeXe_2017 | pp_on_AA).toReplaceWith(pixelPairStepSeeds, pixelPairStepSeedsB)
 
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
@@ -346,7 +346,7 @@ trackdnn.toReplaceWith(pixelPairStep, TrackLwtnnClassifier.clone(
 ))
 
 highBetaStar_2018.toModify(pixelPairStep,qualityCuts = [-0.95,0.0,0.3])
-pp_on_AA_2018.toModify(pixelPairStep, qualityCuts = [-0.2, 0.0, 0.98])
+pp_on_AA.toModify(pixelPairStep, qualityCuts = [-0.2, 0.0, 0.98])
 fastSim.toModify(pixelPairStep, vertices = 'firstStepPrimaryVerticesBeforeMixing')
 
 # For LowPU and Phase2PU140
@@ -447,7 +447,7 @@ _PixelPairStepTask_Phase1.replace(pixelPairStepSeeds,cms.Task(
 trackingPhase1.toReplaceWith(PixelPairStepTask, _PixelPairStepTask_Phase1)
 
 _PixelPairStepTask_pp_on_AA.replace(pixelPairStepHitDoublets, cms.Task(pixelPairStepTrackingRegionsSeedLayersB,pixelPairStepHitDoubletsB))
-(pp_on_XeXe_2017 | pp_on_AA_2018).toReplaceWith(PixelPairStepTask, _PixelPairStepTask_pp_on_AA)
+(pp_on_XeXe_2017 | pp_on_AA).toReplaceWith(PixelPairStepTask, _PixelPairStepTask_pp_on_AA)
 
 #fastSim
 import FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi

@@ -153,9 +153,8 @@ _pp_on_AA_extraCommands = [
     'keep *_hiEvtPlaneFlat_*_*',
     'keep QIE10DataFrameHcalDataFrameContainer_hcalDigis_ZDC_*',
 ]
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
-(pp_on_AA_2018 | pp_on_PbPb_run3).toModify(MicroEventContent, outputCommands = MicroEventContent.outputCommands + _pp_on_AA_extraCommands)
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toModify(MicroEventContent, outputCommands = MicroEventContent.outputCommands + _pp_on_AA_extraCommands)
 
 MicroEventContentMC = cms.PSet(
     outputCommands = cms.untracked.vstring(MicroEventContent.outputCommands)

@@ -5,7 +5,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Modifier_run2_HCAL_2018_cff import run2_HCAL_2018
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 
 from SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cfi import *
 from CalibCalorimetry.CaloTPG.CaloTPGTranscoder_cfi import *
@@ -31,5 +31,5 @@ HcalTrigTowerGeometryESProducer = cms.ESProducer("HcalTrigTowerGeometryESProduce
 
 run2_HCAL_2018.toModify(CaloTPGTranscoder, linearLUTs=cms.bool(True))
 run2_HCAL_2018.toModify(HcalTPGCoderULUT, linearLUTs=cms.bool(True))
-pp_on_AA_2018.toModify(CaloTPGTranscoder, FG_HF_thresholds = cms.vuint32(15, 19))
-pp_on_AA_2018.toModify(HcalTPGCoderULUT, FG_HF_thresholds = cms.vuint32(15, 19))
+pp_on_AA.toModify(CaloTPGTranscoder, FG_HF_thresholds = cms.vuint32(15, 19))
+pp_on_AA.toModify(HcalTPGCoderULUT, FG_HF_thresholds = cms.vuint32(15, 19))

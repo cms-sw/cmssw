@@ -241,7 +241,7 @@ phase2_muon.toReplaceWith( globalValidation, _phase2_globalValidation )
 from Configuration.Eras.Modifier_phase2_GE0_cff import phase2_GE0
 phase2_GE0.toReplaceWith( globalValidation, _phase2_ge0_globalValidation )
 phase2_GE0.toReplaceWith( globalPrevalidationMuons, globalPrevalidationMuons.copyAndExclude([me0SimValid]) )
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-pp_on_AA_2018.toReplaceWith(globalValidation, globalValidation.copyAndExclude([pfTauRunDQMValidation]))
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toReplaceWith(globalValidation, globalValidation.copyAndExclude([pfTauRunDQMValidation]))
 from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
 phase2_timing_layer.toReplaceWith(globalValidationMTD, cms.Sequence(mtdSimValid+mtdDigiValid+mtdRecoValid))

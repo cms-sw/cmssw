@@ -232,9 +232,9 @@ _run3_GEM_DQMOfflineMuon += gemSources
 run3_GEM.toReplaceWith(DQMOfflineMuon, _run3_GEM_DQMOfflineMuon)
 
 #Taus not created in pp conditions for HI
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 _DQMOfflineTAU = cms.Sequence()
-pp_on_AA_2018.toReplaceWith(DQMOfflineTAU, _DQMOfflineTAU)
+pp_on_AA.toReplaceWith(DQMOfflineTAU, _DQMOfflineTAU)
 
 
 # miniAOD DQM validation
