@@ -16,8 +16,8 @@
 #include <Utilities/General/interface/precomputed_value_sort.h>
 #include "DataFormats/GeometrySurface/interface/GeometricSorting.h"
 
-#include "GeneralBinFinderInPhi.h"
-#include "PhiBorderFinder.h"
+#include "TrackingTools/DetLayers/interface/GeneralBinFinderInPhi.h"
+#include "TrackingTools/DetLayers/interface/PhiBorderFinder.h"
 
 #include <algorithm>
 #include <iostream>
