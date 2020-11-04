@@ -161,14 +161,14 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event& iEvent, edm
         dPt = dPt / track->pt();
 
       if (dR2 < 0.02 * 0.02 and dPt < 0.001) {
-	if(link.standAloneTrack().isNonnull()){
-	  validStandAloneMuonHits = link.standAloneTrack()->hitPattern().numberOfValidMuonHits();
-	  matchedStandAloneMuonStations = link.standAloneTrack()->hitPattern().muonStationsWithValidHits();
-	}
+        if (link.standAloneTrack().isNonnull()) {
+          validStandAloneMuonHits = link.standAloneTrack()->hitPattern().numberOfValidMuonHits();
+          matchedStandAloneMuonStations = link.standAloneTrack()->hitPattern().muonStationsWithValidHits();
+        }
       }
     }
 
-    unsigned int recoMuonType = 2; // Global muon
+    unsigned int recoMuonType = 2;  // Global muon
     float normalizedChi2 = 999.0;
     int nRecoMuonValidMuonHits = 0;
     int nRecoMuonChambers = 0;
@@ -186,10 +186,10 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event& iEvent, edm
         dPt = dPt / muon.pt();
 
       if (dR2 < 0.02 * 0.02 and dPt < 0.001) {
-	if(recoMu.globalTrack().isNonnull()){
-	  normalizedChi2  = recoMu.globalTrack()->normalizedChi2();
-	  nRecoMuonValidMuonHits = recoMu.globalTrack()->hitPattern().numberOfValidMuonHits();
-	}
+        if (recoMu.globalTrack().isNonnull()) {
+          normalizedChi2 = recoMu.globalTrack()->normalizedChi2();
+          nRecoMuonValidMuonHits = recoMu.globalTrack()->hitPattern().numberOfValidMuonHits();
+        }
         recoMuonType = recoMu.type();
         nRecoMuonChambers = recoMu.numberOfChambers();
         nRecoMuonChambersCSCorDT = recoMu.numberOfChambersCSCorDT();
@@ -304,7 +304,8 @@ void HLTScoutingMuonProducer::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<edm::InputTag>("Tracks", edm::InputTag("hltPixelTracks"));
   desc.add<edm::InputTag>("EcalPFClusterIsoMap", edm::InputTag("hltMuonEcalMFPFClusterIsoForMuonsNoVtx"));
   desc.add<edm::InputTag>("HcalPFClusterIsoMap", edm::InputTag("hltMuonHcalPFClusterIsoForMuonsNoVtx"));
-  desc.add<edm::InputTag>("TrackIsoMap", edm::InputTag("hltMuonTkRelIsolationCut0p09MapNoVtx:combinedRelativeIsoDeposits"));
+  desc.add<edm::InputTag>("TrackIsoMap",
+                          edm::InputTag("hltMuonTkRelIsolationCut0p09MapNoVtx:combinedRelativeIsoDeposits"));
   desc.add<double>("muonPtCut", 3.0);
   desc.add<double>("muonEtaCut", 2.4);
   desc.add<double>("minVtxProbCut", 0.001);
