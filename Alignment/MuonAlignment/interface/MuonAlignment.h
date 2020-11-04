@@ -13,9 +13,10 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
-#include <FWCore/Framework/interface/Frameworkfwd.h>
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
 #include "Alignment/MuonAlignment/interface/MuonAlignmentInputMethod.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 class MuonAlignment {
 public:
@@ -64,6 +65,10 @@ private:
   std::string theGEMAlignRecordName, theGEMErrorRecordName;
   std::string theDTSurveyRecordName, theDTSurveyErrorRecordName;
   std::string theCSCSurveyRecordName, theCSCSurveyErrorRecordName;
+
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> esTokenDT_;
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> esTokenCSC_;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> esTokenGEM_;
 
   align::Scalars displacements;
 
