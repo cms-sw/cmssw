@@ -19,10 +19,10 @@ namespace reco {
       constexpr float p11 = 0.147742;
       constexpr float p12 = -0.0191235;
 
-      constexpr float w00 = -0.00571429;
-      constexpr float w01 = -0.002;
-      constexpr float w10 = 0.0135714;
-      constexpr float w11 = 0.001;
+      constexpr float w00 = -0.00681785;
+      constexpr float w01 = -0.00239516;
+      constexpr float w10 = 0.000699995;
+      constexpr float w11 = -0.00554331;
 
       const float sineta0 = std::sin(maxEta);
       const float eta0xsineta0 = maxEta * sineta0;
@@ -67,26 +67,26 @@ namespace reco {
 
     bool inDynamicDPhiWindow(
         const float seedEta, const float seedPhi, const float ClustE, const float ClusEta, const float ClusPhi) {
-      // from Rishi's fits 06 June 2013 in log base 10
-      constexpr double yoffsetEB = 7.151e-02;
-      constexpr double scaleEB = 5.656e-01;
-      constexpr double xoffsetEB = 2.931e-01;
-      constexpr double widthEB = 2.976e-01;
+      // Parameters from the analysis by L. Zygala [https://indico.cern.ch/event/949294/contributions/3988389/attachments/2091573/3514649/2020_08_26_Clustering.pdf]
+      constexpr double yoffsetEB = 0.0280506;
+      constexpr double scaleEB = 0.946048;
+      constexpr double xoffsetEB = -0.101172;
+      constexpr double widthEB = 0.432767;
 
-      constexpr double yoffsetEE_0 = 5.058e-02;
-      constexpr double scaleEE_0 = 7.131e-01;
-      constexpr double xoffsetEE_0 = 1.668e-02;
-      constexpr double widthEE_0 = 4.114e-01;
+      constexpr double yoffsetEE_0 = 0.0497038;
+      constexpr double scaleEE_0 = 0.975707;
+      constexpr double xoffsetEE_0 = -0.18149;
+      constexpr double widthEE_0 = 0.431729;
 
-      constexpr double yoffsetEE_1 = -9.913e-02;
-      constexpr double scaleEE_1 = 4.404e+01;
-      constexpr double xoffsetEE_1 = -5.326e+00;
-      constexpr double widthEE_1 = 1.184e+00;
+      constexpr double yoffsetEE_1 = 0.05643;
+      constexpr double scaleEE_1 = 1.60429;
+      constexpr double xoffsetEE_1 = -0.642352;
+      constexpr double widthEE_1 = 0.458106;
 
-      constexpr double yoffsetEE_2 = -6.346e-01;
-      constexpr double scaleEE_2 = 1.317e+01;
-      constexpr double xoffsetEE_2 = -7.037e+00;
-      constexpr double widthEE_2 = 2.836e+00;
+      constexpr double yoffsetEE_2 = 0.0928887;
+      constexpr double scaleEE_2 = 1.22321;
+      constexpr double xoffsetEE_2 = -0.260256;
+      constexpr double widthEE_2 = 0.345852;
 
       const double absSeedEta = std::abs(seedEta);
       const int etaBin = ((int)(absSeedEta >= 1.479) + (int)(absSeedEta >= 1.75) + (int)(absSeedEta >= 2.0));
