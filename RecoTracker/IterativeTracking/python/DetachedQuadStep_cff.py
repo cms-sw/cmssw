@@ -37,9 +37,9 @@ trackingPhase2PU140.toReplaceWith(detachedQuadStepTrackingRegions, _globalTracki
 )))
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
-(pp_on_XeXe_2017 | pp_on_AA_2018).toReplaceWith(detachedQuadStepTrackingRegions, 
+(pp_on_XeXe_2017 | pp_on_AA).toReplaceWith(detachedQuadStepTrackingRegions, 
                 _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
                     fixedError   = 3.75,
                     ptMin        = 0.9,
@@ -130,8 +130,7 @@ trackingPhase2PU140.toModify(detachedQuadStepTrajectoryFilter,
     filters = detachedQuadStepTrajectoryFilter.filters.value()+[cms.PSet(refToPSet_ = cms.string('ClusterShapeTrajectoryFilter'))]
 )
 
-for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
-    e.toModify(detachedQuadStepTrajectoryFilterBase, minPt=0.9)
+(pp_on_XeXe_2017 | pp_on_AA).toModify(detachedQuadStepTrajectoryFilterBase, minPt=0.9)
 
 import RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cfi
 detachedQuadStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cfi.Chi2ChargeMeasurementEstimator.clone(
@@ -220,7 +219,7 @@ trackdnn.toReplaceWith(detachedQuadStep, TrackLwtnnClassifier.clone(
 ))
 
 highBetaStar_2018.toModify(detachedQuadStep,qualityCuts = [-0.7,0.0,0.5])
-pp_on_AA_2018.toModify(detachedQuadStep, 
+pp_on_AA.toModify(detachedQuadStep, 
         mva         = dict(GBRForestLabel = 'HIMVASelectorDetachedQuadStep_Phase1'),
         qualityCuts = [-0.2, 0.2, 0.5],
 )

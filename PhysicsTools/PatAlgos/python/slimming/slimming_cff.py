@@ -63,29 +63,27 @@ slimmingTask = cms.Task(
     oniaPhotonCandidates
 )
 
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
-(pp_on_AA_2018 | pp_on_PbPb_run3).toReplaceWith(slimmingTask, slimmingTask.copyAndExclude([slimmedOOTPhotons]))
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toReplaceWith(slimmingTask, slimmingTask.copyAndExclude([slimmedOOTPhotons]))
 from PhysicsTools.PatAlgos.slimming.hiPixelTracks_cfi import hiPixelTracks
 from RecoHI.HiEvtPlaneAlgos.HiEvtPlane_cfi import hiEvtPlane
 from RecoHI.HiEvtPlaneAlgos.hiEvtPlaneFlat_cfi import hiEvtPlaneFlat
-(pp_on_AA_2018 | pp_on_PbPb_run3).toReplaceWith(slimmingTask, cms.Task(slimmingTask.copy(), hiPixelTracks,
-hiEvtPlane, hiEvtPlaneFlat))
+pp_on_AA.toReplaceWith(slimmingTask, cms.Task(slimmingTask.copy(), hiPixelTracks, hiEvtPlane, hiEvtPlaneFlat))
 
-from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
 from PhysicsTools.PatAlgos.packedCandidateMuonID_cfi import packedCandidateMuonID
 from PhysicsTools.PatAlgos.packedPFCandidateTrackChi2_cfi import packedPFCandidateTrackChi2
 from RecoHI.HiCentralityAlgos.CentralityBin_cfi import centralityBin
 from RecoHI.HiCentralityAlgos.hiHFfilters_cfi import hiHFfilters
 lostTrackChi2 = packedPFCandidateTrackChi2.clone(candidates = "lostTracks", doLostTracks = True)
-(pp_on_AA_2018 | pp_on_PbPb_run3).toReplaceWith(
-    slimmingTask,
+
+pp_on_AA.toReplaceWith(
+    slimmingTask, 
     cms.Task(slimmingTask.copy(), packedCandidateMuonID, packedPFCandidateTrackChi2, lostTrackChi2, centralityBin, hiHFfilters))
 from Configuration.ProcessModifiers.run2_miniAOD_pp_on_AA_103X_cff import run2_miniAOD_pp_on_AA_103X
 run2_miniAOD_pp_on_AA_103X.toReplaceWith(slimmingTask,cms.Task(primaryVertexAssociationCleaned,slimmingTask.copy()))
 
 from RecoHI.HiTracking.miniAODVertexRecovery_cff import offlinePrimaryVerticesRecovery, offlineSlimmedPrimaryVerticesRecovery
-pp_on_AA_2018.toReplaceWith(
+pp_on_AA.toReplaceWith(
     slimmingTask,
     cms.Task(slimmingTask.copy(), offlinePrimaryVerticesRecovery, offlineSlimmedPrimaryVerticesRecovery))
 
