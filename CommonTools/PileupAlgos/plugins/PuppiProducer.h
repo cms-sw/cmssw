@@ -68,6 +68,8 @@ private:
   double fEtaMaxCharged;
   double fPtMaxPhotons;
   double fEtaMaxPhotons;
+  uint fNumOfPUVtxsForCharged;
+  double fDZCutForChargedFromPUVtxs;
   bool fUseExistingWeights;
   bool fClonePackedCands;
   int fVtxNdofCut;

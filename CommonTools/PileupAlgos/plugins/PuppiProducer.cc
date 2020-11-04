@@ -31,6 +31,8 @@ PuppiProducer::PuppiProducer(const edm::ParameterSet& iConfig) {
   fEtaMaxCharged = iConfig.getParameter<double>("EtaMaxCharged");
   fPtMaxPhotons = iConfig.getParameter<double>("PtMaxPhotons");
   fEtaMaxPhotons = iConfig.getParameter<double>("EtaMaxPhotons");
+  fNumOfPUVtxsForCharged = iConfig.getParameter<uint>("NumOfPUVtxsForCharged");
+  fDZCutForChargedFromPUVtxs = iConfig.getParameter<double>("DeltaZCutForChargedFromPUVtxs");
   fUseExistingWeights = iConfig.getParameter<bool>("useExistingWeights");
   fClonePackedCands = iConfig.getParameter<bool>("clonePackedCands");
   fVtxNdofCut = iConfig.getParameter<int>("vtxNdofCut");
@@ -96,8 +98,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       const reco::Vertex* closestVtx = nullptr;
       double pDZ = -9999;
       double pD0 = -9999;
-      int pVtxId = -9999;
-      bool lFirst = true;
+      uint pVtxId = 0;
       bool isLepton = ((std::abs(pReco.pdgId) == 11) || (std::abs(pReco.pdgId) == 13));
       const pat::PackedCandidate* lPack = dynamic_cast<const pat::PackedCandidate*>(&aPF);
       if (lPack == nullptr) {
@@ -105,6 +106,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
         double curdz = 9999;
         int closestVtxForUnassociateds = -9999;
         const reco::TrackRef aTrackRef = pPF->trackRef();
+        bool lFirst = true;
         for (auto const& aV : *pvCol) {
           if (lFirst) {
             if (aTrackRef.isNonnull()) {
@@ -156,10 +158,12 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
             pReco.id = 3;
           else if (tmpFromPV == 0) {
             pReco.id = 2;
-          }  // 0 is associated to PU vertex
-          else if (tmpFromPV == 3) {
+            if (fNumOfPUVtxsForCharged > 0 and (pVtxId <= fNumOfPUVtxsForCharged) and
+                (std::abs(pDZ) < fDZCutForChargedFromPUVtxs))
+              pReco.id = 1;
+          } else if (tmpFromPV == 3)
             pReco.id = 1;
-          } else if (tmpFromPV == 1 || tmpFromPV == 2) {
+          else if (tmpFromPV == 1 || tmpFromPV == 2) {
             pReco.id = 0;
             if ((fPtMaxCharged > 0) and (pReco.pt > fPtMaxCharged))
               pReco.id = 1;
@@ -184,12 +188,20 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
           pReco.id = 0;
         }
         if (std::abs(pReco.charge) > 0) {
-          if (fPuppiNoLep && isLepton)
+          if (fPuppiNoLep && isLepton) {
             pReco.id = 3;
-          else if (lPack->fromPV() == 0) {
+          } else if (lPack->fromPV() == 0) {
             pReco.id = 2;
-          }  // 0 is associated to PU vertex
-          else if (lPack->fromPV() == (pat::PackedCandidate::PVUsedInFit)) {
+            if ((fNumOfPUVtxsForCharged > 0) and (std::abs(pDZ) < fDZCutForChargedFromPUVtxs)) {
+              for (size_t puVtx_idx = 1; puVtx_idx <= fNumOfPUVtxsForCharged && puVtx_idx < pvCol->size();
+                   ++puVtx_idx) {
+                if (lPack->fromPV(puVtx_idx) >= 2) {
+                  pReco.id = 1;
+                  break;
+                }
+              }
+            }
+          } else if (lPack->fromPV() == (pat::PackedCandidate::PVUsedInFit)) {
             pReco.id = 1;
           } else if (lPack->fromPV() == (pat::PackedCandidate::PVTight) ||
                      lPack->fromPV() == (pat::PackedCandidate::PVLoose)) {
@@ -372,6 +384,8 @@ void PuppiProducer::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<double>("EtaMaxPhotons", 2.5);
   desc.add<double>("PtMaxNeutrals", 200.);
   desc.add<double>("PtMaxNeutralsStartSlope", 0.);
+  desc.add<uint>("NumOfPUVtxsForCharged", 0);
+  desc.add<double>("DeltaZCutForChargedFromPUVtxs", 0.2);
   desc.add<bool>("useExistingWeights", false);
   desc.add<bool>("clonePackedCands", false);
   desc.add<int>("vtxNdofCut", 4);
