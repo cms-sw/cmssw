@@ -16,6 +16,8 @@ genWeightsTable = cms.EDProducer("GenWeightsTableProducer",
         cms.PSet( name = cms.string("NNPDF30_nlo_nf_4_pdfas"), lhaid = cms.uint32(292000) ), # some FXFX 80X samples have only this (e.g. WWTo1L1Nu2Q, WWTo4Q)
         cms.PSet( name = cms.string("NNPDF30_nlo_nf_5_pdfas"), lhaid = cms.uint32(292200) ), # some FXFX 80X samples have only this (e.g. DYJetsToLL_Pt, WJetsToLNu_Pt, DYJetsToNuNu_Pt)
         cms.PSet( name = cms.string("PDF4LHC15_nnlo_30_pdfas"), lhaid = cms.uint32(91400) ),
+        cms.PSet( name = cms.string("PDF4LHC15_nlo_30_pdfas"), lhaid = cms.uint32(90400) ),
+        cms.PSet( name = cms.string("PDF4LHC15_nlo_30"), lhaid = cms.uint32(90900) ),
     ),
     namedWeightIDs = cms.vstring(),
     namedWeightLabels = cms.vstring(),
