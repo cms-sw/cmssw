@@ -2,6 +2,7 @@
 #define DIGIECAL_ECALDIGICOLLECTION_H
 
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
+#include "DataFormats/EcalDigi/interface/EBDataFrame_Ph2.h"
 #include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "DataFormats/EcalDigi/interface/ESDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalTimeDigi.h"
@@ -32,7 +33,7 @@ public:
 class EBDigiCollectionPh2 : public EcalDigiCollectionPh2 {
 public:
   typedef edm::DataFrameContainer::size_type size_type;
-  typedef EBDataFrame Digi;
+  typedef EcalDataFrame_Ph2 Digi;
   typedef Digi::key_type DetId;
 
   EBDigiCollectionPh2(size_type istride = MAXSAMPLES) : EcalDigiCollectionPh2(istride, EcalBarrel) {}
