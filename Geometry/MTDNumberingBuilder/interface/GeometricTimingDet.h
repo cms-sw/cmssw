@@ -46,7 +46,7 @@ public:
   //
   // more can be added; please add at the end!
   //
-  typedef enum GTDEnumType {
+  using GeometricTimingEnumType = enum GTDEnumType {
     unknown = 100,
     MTD = 0,
     BTL = 1,
@@ -60,7 +60,7 @@ public:
     ETLRing = 9,
     ETLModule = 10,
     ETLSensor = 11
-  } GeometricTimingEnumType;
+  };
 
   /**
    * Constructors to be used when looping over DD
