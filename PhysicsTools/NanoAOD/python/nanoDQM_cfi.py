@@ -390,6 +390,31 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('rawFactor', 'rawFactor', 20, -0.5, 0.5, '1 - Factor to get back to raw pT'),
             )
         ),
+        LHEPart = cms.PSet(
+            sels = cms.PSet(),
+            plots = cms.VPSet(
+                Count1D('_size', 20, 0, 20, 'LHE particles'),
+                Plot1D('eta', 'eta', 20, -30000, 30000, 'eta'),
+                Plot1D('pdgId', 'pdgId', 20, -6000, 6000, 'PDG id'),
+                Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'phi'),
+                Plot1D('pt', 'pt', 20, 0, 200, 'pt'),
+            )
+        ),
+        LHEPdfWeight = cms.PSet(
+            sels = cms.PSet(),
+            plots = cms.VPSet(
+                Count1D('_size', 1000, 0, 2000, 'LHE PDF weights'),
+                Plot1D('', '', 100, 0, 2, 'all weights'),
+            )
+        ),
+        LHEScaleWeight = cms.PSet(
+            sels = cms.PSet(),
+            plots = cms.VPSet(
+                Count1D('_size', 20, 0, 20, 'LHE scale weights'),
+                Plot1D('', '', 100, 0, 2, 'all weights'),
+            )
+        ),
+
         MET = cms.PSet(
             sels = cms.PSet(),
             plots = cms.VPSet(
