@@ -13,8 +13,8 @@
 #include <TrackingTools/DetLayers/interface/MeasurementEstimator.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
-#include "RBorderFinder.h"
-#include "GeneralBinFinderInR.h"
+#include "TrackingTools/DetLayers/interface/RBorderFinder.h"
+#include "TrackingTools/DetLayers/interface/GeneralBinFinderInR.h"
 
 #include <algorithm>
 #include <iostream>
