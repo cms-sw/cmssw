@@ -37,10 +37,9 @@ patCandidatesTask = cms.Task(
 
 _patCandidatesTask = patCandidatesTask.copy()
 _patCandidatesTask.remove(makePatOOTPhotonsTask)
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
-(pp_on_AA_2018 | pp_on_PbPb_run3).toReplaceWith(patCandidatesTask, _patCandidatesTask) 
-(pp_on_AA_2018 | pp_on_PbPb_run3).toModify(patCandidateSummary.candidates, func = lambda list: list.remove(cms.InputTag("patOOTPhotons")) )
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toReplaceWith(patCandidatesTask, _patCandidatesTask) 
+pp_on_AA.toModify(patCandidateSummary.candidates, func = lambda list: list.remove(cms.InputTag("patOOTPhotons")) )
 
 patCandidates = cms.Sequence(patCandidateSummary, patCandidatesTask)
 

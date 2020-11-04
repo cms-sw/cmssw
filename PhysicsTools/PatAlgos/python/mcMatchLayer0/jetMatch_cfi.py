@@ -27,12 +27,11 @@ patJetGenJetMatch = cms.EDProducer("GenJetMatcher",  # cut on deltaR; pick best 
     resolveByMatchQuality = cms.bool(False),         # False = just match input in order; True = pick lowest deltaR pair first
 )
 
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
-(pp_on_AA_2018 | pp_on_PbPb_run3).toModify(patJetGenJetMatch,
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toModify(patJetGenJetMatch,
                                            maxDeltaR = 0.4,
                                            resolveByMatchQuality = True,
                                            src = "akCs4PFJets",
                                        )
 
-(pp_on_AA_2018 | pp_on_PbPb_run3).toModify(patJetPartonMatch, src = "akCs4PFJets")
+pp_on_AA.toModify(patJetPartonMatch, src = "akCs4PFJets")

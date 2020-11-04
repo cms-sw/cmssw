@@ -95,7 +95,7 @@ highBetaStar_2018.toModify(_mixedTripletStepTrackingRegionsCommon,RegionPSet = d
 mixedTripletStepTrackingRegionsA = _mixedTripletStepTrackingRegionsCommon.clone()
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
 _mixedTripletStepTrackingRegionsCommon_pp_on_HI = _globalTrackingRegionWithVertices.clone(
                 RegionPSet=dict(
@@ -110,7 +110,7 @@ _mixedTripletStepTrackingRegionsCommon_pp_on_HI = _globalTrackingRegionWithVerti
                     scalingEndNPix         = 35000
                 )
 )
-(pp_on_XeXe_2017 | pp_on_AA_2018).toReplaceWith(mixedTripletStepTrackingRegionsA,_mixedTripletStepTrackingRegionsCommon_pp_on_HI)
+(pp_on_XeXe_2017 | pp_on_AA).toReplaceWith(mixedTripletStepTrackingRegionsA,_mixedTripletStepTrackingRegionsCommon_pp_on_HI)
 
 
 # seeding
@@ -182,7 +182,7 @@ trackingPhase1.toModify(mixedTripletStepSeedLayersB, layerList = ['BPix3+BPix4+T
 
 # TrackingRegion
 mixedTripletStepTrackingRegionsB = _mixedTripletStepTrackingRegionsCommon.clone(RegionPSet = dict(ptMin=0.6, originHalfLength=10.0))
-(pp_on_XeXe_2017 | pp_on_AA_2018).toReplaceWith(mixedTripletStepTrackingRegionsB, 
+(pp_on_XeXe_2017 | pp_on_AA).toReplaceWith(mixedTripletStepTrackingRegionsB, 
                 _mixedTripletStepTrackingRegionsCommon_pp_on_HI.clone(RegionPSet=dict(
                     fixedError = 2.5,
                     ptMin      = 0.6,)
@@ -228,8 +228,7 @@ trackingLowPU.toReplaceWith(mixedTripletStepTrajectoryFilter, _mixedTripletStepT
     maxLostHits = 0,
 ))
 
-for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
-    e.toModify(mixedTripletStepTrajectoryFilter, minPt=0.4)
+(pp_on_XeXe_2017 | pp_on_AA).toModify(mixedTripletStepTrajectoryFilter, minPt=0.4)
 
 # Propagator taking into account momentum uncertainty in multiple scattering calculation.
 import TrackingTools.MaterialEffects.MaterialPropagatorParabolicMf_cff
@@ -239,7 +238,7 @@ mixedTripletStepPropagator = TrackingTools.MaterialEffects.MaterialPropagator_cf
     ComponentName = 'mixedTripletStepPropagator',
     ptMin         = 0.1
 )
-for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
+for e in [pp_on_XeXe_2017, pp_on_AA]:
     e.toModify(mixedTripletStepPropagator, ptMin=0.4)
 highBetaStar_2018.toModify(mixedTripletStepPropagator,ptMin = 0.05)
 
@@ -249,7 +248,7 @@ mixedTripletStepPropagatorOpposite = TrackingTools.MaterialEffects.OppositeMater
     ComponentName = 'mixedTripletStepPropagatorOpposite',
     ptMin         = 0.1
 )
-for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
+for e in [pp_on_XeXe_2017, pp_on_AA]:
     e.toModify(mixedTripletStepPropagatorOpposite, ptMin=0.4)
 highBetaStar_2018.toModify(mixedTripletStepPropagatorOpposite,ptMin = 0.05)
 
@@ -354,7 +353,7 @@ trackdnn.toReplaceWith(mixedTripletStep, TrackLwtnnClassifier.clone(
 (trackdnn & fastSim).toModify(mixedTripletStep,vertices = 'firstStepPrimaryVerticesBeforeMixing')
 
 highBetaStar_2018.toModify(mixedTripletStep,qualityCuts = [-0.7,0.0,0.5])
-pp_on_AA_2018.toModify(mixedTripletStep, qualityCuts = [-0.5,0.0,0.9])
+pp_on_AA.toModify(mixedTripletStep, qualityCuts = [-0.5,0.0,0.9])
 
 # For LowPU
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi

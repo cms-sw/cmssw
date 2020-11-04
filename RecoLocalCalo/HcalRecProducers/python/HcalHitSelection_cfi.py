@@ -19,5 +19,5 @@ slimmedHcalRecHits = reducedHcalRecHits.clone(
           interestingDetIds = ()
        )
 
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-pp_on_AA_2018.toModify(reducedHcalRecHits.interestingDetIds, func = lambda list: list.remove(cms.InputTag("interestingOotEgammaIsoHCALDetId")) )
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toModify(reducedHcalRecHits.interestingDetIds, func = lambda list: list.remove(cms.InputTag("interestingOotEgammaIsoHCALDetId")) )

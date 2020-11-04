@@ -142,9 +142,9 @@ trackingLowPU.toModify(pixelLessStepTrackingRegions, RegionPSet = dict(
 ))
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 from RecoTracker.IterativeTracking.MixedTripletStep_cff import _mixedTripletStepTrackingRegionsCommon_pp_on_HI
-(pp_on_XeXe_2017 | pp_on_AA_2018).toReplaceWith(pixelLessStepTrackingRegions, 
+(pp_on_XeXe_2017 | pp_on_AA).toReplaceWith(pixelLessStepTrackingRegions, 
                 _mixedTripletStepTrackingRegionsCommon_pp_on_HI.clone(RegionPSet=dict(
                     ptMinScaling4BigEvts = False,
                     fixedError           = 3.0,
@@ -238,8 +238,7 @@ pixelLessStepTrajectoryFilter = _pixelLessStepTrajectoryFilterBase.clone(
     seedPairPenalty = 1,
 )
 trackingLowPU.toReplaceWith(pixelLessStepTrajectoryFilter, _pixelLessStepTrajectoryFilterBase)
-for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
-    e.toModify(pixelLessStepTrajectoryFilter, minPt=2.0)
+(pp_on_XeXe_2017 | pp_on_AA).toModify(pixelLessStepTrajectoryFilter, minPt=2.0)
 
 vectorHits.toReplaceWith(pixelLessStepTrajectoryFilter, _pixelLessStepTrajectoryFilterBase)
 vectorHits.toModify(pixelLessStepTrajectoryFilter, minimumNumberOfHits = 4, maxLostHits = 1)
@@ -353,7 +352,7 @@ trackdnn.toReplaceWith(pixelLessStep, TrackLwtnnClassifier.clone(
 ))
 (trackdnn & fastSim).toModify(pixelLessStep,vertices = 'firstStepPrimaryVerticesBeforeMixing')
 
-pp_on_AA_2018.toModify(pixelLessStep, qualityCuts = [-0.4,0.0,0.8])
+pp_on_AA.toModify(pixelLessStep, qualityCuts = [-0.4,0.0,0.8])
 
 # For LowPU
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
