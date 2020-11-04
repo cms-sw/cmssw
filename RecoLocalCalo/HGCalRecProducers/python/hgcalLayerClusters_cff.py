@@ -29,6 +29,7 @@ hgcalLayerClustersHFNose = hgcalLayerClusters_.clone(
     nHitsTime = cms.uint32(3),
     plugin = dict(
         dEdXweights = dEdX.weightsNose,
+        maxNumberOfThickIndices = cms.uint32(3),
         fcPerMip = HGCalUncalibRecHit.HGCHFNoseConfig.fCPerMIP,
         thicknessCorrection = HGCalRecHit.thicknessNoseCorrection,
         fcPerEle = fC_per_ele,
