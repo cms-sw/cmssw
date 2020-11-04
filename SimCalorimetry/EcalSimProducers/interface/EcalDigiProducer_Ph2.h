@@ -13,6 +13,13 @@
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EBHitResponse.h"
 #include <vector>
+#include "CondFormats/DataRecord/interface/EcalLiteDTUPedestalsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalLiteDTUPedestals.h"
+#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
+#include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
+#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
+#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 
 class APDSimParameters;
 class CaloHitResponse;
@@ -63,6 +70,13 @@ private:
   virtual void cacheEBDigis(const EBDigiCollectionPh2* ebDigiPtr) const {}
 
   typedef edm::Handle<std::vector<PCaloHit> > HitsHandle;
+
+  edm::ESGetToken<EcalLiteDTUPedestalsMap, EcalLiteDTUPedestalsRcd> pedestalToken_;
+  edm::ESGetToken<EcalLaserDbService, EcalLaserDbRecord> laserToken_;
+  edm::ESGetToken<EcalADCToGeVConstant, EcalADCToGeVConstantRcd> agcToken_;
+  edm::ESGetToken<EcalIntercalibConstants, EcalIntercalibConstantsRcd> icalToken_;
+
+
   void accumulateCaloHits(HitsHandle const& ebHandle, int bunchCrossing);
 
   void checkGeometry(const edm::EventSetup& eventSetup);

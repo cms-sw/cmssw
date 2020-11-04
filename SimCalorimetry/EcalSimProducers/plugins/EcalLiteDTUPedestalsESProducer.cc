@@ -21,7 +21,9 @@ public:
   typedef std::unique_ptr<EcalLiteDTUPedestalsMap> ReturnType;
 
   ReturnType produce(const EcalLiteDTUPedestalsRcd& iRecord);
-
+  //Add 2 nov 2020:
+  edm::ESGetToken<EcalLiteDTUPedestalsMap, EcalLiteDTUPedestalsRcd> pedestalToken_;
+  ///////////////////////////////
 private:
   double meanPedestalsGain10_;
   double rmsPedestalsGain10_;
@@ -37,7 +39,8 @@ EcalLiteDTUPedestalsESProducer::EcalLiteDTUPedestalsESProducer(const edm::Parame
   rmsPedestalsGain10_ = p.getParameter<double>("RMSPedestalsGain10");
   meanPedestalsGain1_ = p.getParameter<double>("MeanPedestalsGain1");
   rmsPedestalsGain1_ = p.getParameter<double>("RMSPedestalsGain1");
-  setWhatProduced(this);
+  auto cc = setWhatProduced(this);
+  pedestalToken_ = cc.consumes<EcalLiteDTUPedestalsMap>();
 }
 ////
 EcalLiteDTUPedestalsESProducer::ReturnType EcalLiteDTUPedestalsESProducer::produce(
