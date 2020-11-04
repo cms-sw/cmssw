@@ -34,6 +34,7 @@ public:
             (HGCalClusteringAlgoBase::VerbosityLevel)ps.getUntrackedParameter<unsigned int>("verbosity", 3),
             reco::CaloCluster::undefined),
         thresholdW0_(ps.getParameter<std::vector<double>>("thresholdW0")),
+        positionDeltaRho_(ps.getParameter<double>("positionDeltaRho")),
         vecDeltas_(ps.getParameter<std::vector<double>>("deltac")),
         kappa_(ps.getParameter<double>("kappa")),
         ecut_(ps.getParameter<double>("ecut")),
@@ -89,6 +90,7 @@ public:
 
   static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
     iDesc.add<std::vector<double>>("thresholdW0", {2.9, 2.9, 2.9});
+    iDesc.add<double>("positionDeltaRho", 1.3);
     iDesc.add<std::vector<double>>("deltac",
                                    {
                                        1.3,
@@ -126,6 +128,7 @@ public:
 private:
   // To compute the cluster position
   std::vector<double> thresholdW0_;
+  double positionDeltaRho_;
 
   // The two parameters used to identify clusters
   std::vector<double> vecDeltas_;
