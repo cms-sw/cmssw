@@ -3,7 +3,6 @@
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
-#include "DataFormats/EcalDigi/interface/EcalDataFrame_Ph2.h"
 #include <iosfwd>
 
 /** \class EBDataFrame
