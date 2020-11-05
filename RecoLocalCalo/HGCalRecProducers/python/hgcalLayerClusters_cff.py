@@ -8,20 +8,22 @@ from RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi import HGCalUncalibR
 
 from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import fC_per_ele, HGCAL_noises, hgceeDigitizer, hgchebackDigitizer, hfnoseDigitizer
 
-hgcalLayerClusters = hgcalLayerClusters_.clone()
-
-hgcalLayerClusters.timeOffset = hgceeDigitizer.tofDelay
-hgcalLayerClusters.plugin.dEdXweights = dEdX.weights
-#With the introduction of 7 regional factors (6 for silicon plus 1 for scintillator),
-#we extend fcPerMip (along with noises below) so that it is guaranteed that they have 6 entries.
-hgcalLayerClusters.plugin.fcPerMip = HGCalUncalibRecHit.HGCEEConfig.fCPerMIP + HGCalUncalibRecHit.HGCHEFConfig.fCPerMIP
-hgcalLayerClusters.plugin.thicknessCorrection = HGCalRecHit.thicknessCorrection
-hgcalLayerClusters.plugin.sciThicknessCorrection = HGCalRecHit.sciThicknessCorrection
-hgcalLayerClusters.plugin.deltasi_index_regemfac = HGCalRecHit.deltasi_index_regemfac
-hgcalLayerClusters.plugin.fcPerEle = fC_per_ele
-#Extending noises as fcPerMip, see comment above.
-hgcalLayerClusters.plugin.noises = HGCAL_noises.values + HGCAL_noises.values
-hgcalLayerClusters.plugin.noiseMip = hgchebackDigitizer.digiCfg.noise
+hgcalLayerClusters = hgcalLayerClusters_.clone(
+    timeOffset = hgceeDigitizer.tofDelay,
+    plugin = dict(
+        dEdXweights = dEdX.weights,
+        #With the introduction of 7 regional factors (6 for silicon plus 1 for scintillator),
+        #we extend fcPerMip (along with noises below) so that it is guaranteed that they have 6 entries.
+        fcPerMip = HGCalUncalibRecHit.HGCEEConfig.fCPerMIP + HGCalUncalibRecHit.HGCHEFConfig.fCPerMIP,
+        thicknessCorrection = HGCalRecHit.thicknessCorrection,
+        sciThicknessCorrection = HGCalRecHit.sciThicknessCorrection,
+        deltasi_index_regemfac = HGCalRecHit.deltasi_index_regemfac,
+        fcPerEle = fC_per_ele,
+        #Extending noises as fcPerMip, see comment above.
+        noises = HGCAL_noises.values + HGCAL_noises.values,
+        noiseMip = hgchebackDigitizer.digiCfg.noise
+    )
+)
 
 hgcalLayerClustersHFNose = hgcalLayerClusters_.clone(
     detector = 'HFNose',
