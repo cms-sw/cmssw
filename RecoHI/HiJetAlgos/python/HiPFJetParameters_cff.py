@@ -9,7 +9,6 @@ HiPFJetDefaults = RecoJets.JetProducers.PFJetParameters_cfi.PFJetParameters.clon
     doPVCorrection = False,
     jetPtMin       = 10,
     Ghost_EtaMax   = 6.5,
-    # this parameter is missing from PFJetParameters for some reason
     Rho_EtaMax     = 4.5
 )
 

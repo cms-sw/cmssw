@@ -51,9 +51,9 @@ ak4PFJetsForFlow = akPu5PFJets.clone(
    Rho_EtaMax   = 4.4,
    doRhoFastjet = False,
    jetPtMin     = 15.0,
-   nSigmaPU     = cms.double(1.0),
+   nSigmaPU     = 1.0,
    rParam       = 0.4,
-   radiusPU     = cms.double(0.5),
+   radiusPU     = 0.5,
    src          = "hiPFCandCleanerforJets",
 )
 
