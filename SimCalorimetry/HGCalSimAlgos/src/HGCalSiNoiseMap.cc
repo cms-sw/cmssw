@@ -130,24 +130,7 @@ const typename HGCalSiNoiseMap<T>::SiCellOpCharacteristicsCore HGCalSiNoiseMap<T
   if (!activateCachedOp_)
     return getSiCellOpCharacteristics(cellId, gain, aimMIPtoADC).core;
 
-  //re-use from cache
-  HGCSiliconDetId cellId_(cellId.rawId());
-  HGCSiliconDetId posCellId(cellId_.subdet(),
-                            1,
-                            cellId_.type(),
-                            cellId_.layer(),
-                            cellId_.waferU(),
-                            cellId_.waferV(),
-                            cellId_.cellU(),
-                            cellId_.cellV());
-  uint32_t key = posCellId.rawId();
-
-  if (cellId.det() == DetId::Forward && cellId.subdetId() == ForwardSubdetector::HFNose) {
-    HFNoseDetId cellId_(cellId.rawId());
-    HFNoseDetId posCellId(
-        1, cellId_.type(), cellId_.layer(), cellId_.waferU(), cellId_.waferV(), cellId_.cellU(), cellId_.cellV());
-    key = posCellId.rawId();
-  }
+  uint32_t key = cellId.rawId();
 
   return siopCache_[key];
 }
