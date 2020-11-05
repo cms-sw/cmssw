@@ -175,7 +175,7 @@ GEMEtaPartition* GEMGeometryBuilderFromCondDB::buildEtaPartition(const RecoIdeal
   pars.emplace_back(nstrip);
   pars.emplace_back(npad);
   //pars.emplace_back(dphi);
-  pars.emplace_back(0.17715); //temporary input for PR
+  pars.emplace_back(0.17715);  //temporary input for PR
 
   RCPBoundPlane surf(boundPlane(rgeo, gid, detId));
   GEMEtaPartitionSpecs* e_p_specs = new GEMEtaPartitionSpecs(GeomDetEnumerators::GEM, name, pars);
