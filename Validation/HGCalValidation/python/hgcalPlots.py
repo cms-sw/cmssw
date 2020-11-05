@@ -1555,6 +1555,18 @@ _Energy_HE_Scintillator_1 = PlotGroup("Energy_Time_1_HE_Scintillator", [Plot("en
                                                                         xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
                                                                         ], ncols=4)
 
+_Energy_EE = PlotGroup("Energy_EE", [Plot("energy_layer_{:02d}".format(i), title="Energy_EE", 
+                                             xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
+                                             ], ncols=4)
+
+_Energy_HE_Silicon = PlotGroup("Energy_HE_Silicon", [Plot("energy_layer_{:02d}".format(i), title="Energy_HE_Silicon", 
+                                                             xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
+                                                             ], ncols=4)
+
+_Energy_HE_Scintillator = PlotGroup("Energy_HE_Scintillator", [Plot("energy_layer_{:02d}".format(i), title="Energy_HE_Scintillator", 
+                                                                               xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
+                                                                               ], ncols=4)
+
 _RecHits_EtaPhi_EE_zplus=[]
 for i in range(EE_min,EE_max+1):
     _RecHits_EtaPhi_EE_zplus.append(PlotOnSideGroup("RecHits_EtaPhi_EE_zplus_layer_{:02d}".format(i), Plot("EtaPhi_Plus_layer_{:02d}".format(i), title="RecHits_EtaPhi_EE_zplus", xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_etaphi), ncols=1))
@@ -1645,28 +1657,28 @@ for i in range(HEScintillator_min,HEScintillator_max+1):
 
 _common = {"stat": True, "drawStyle": "hist", "staty": 0.65, "ymin": 0.1, "ylog": True}
 
-_DigiHits_TOA_EE = PlotGroup("DigiHits_TOA_EE", [
-                                                 Plot("TOA_layer_{:02d}".format(i), title="DigiHits_TOA_EE", xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
+_DigiHits_TOA_EE = PlotGroup("TOA_EE", [
+                                                 Plot("TOA_layer_{:02d}".format(i), title="TOA_EE", xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
                                                  ], ncols=4)
 
-_DigiHits_TOA_HE_Silicon = PlotGroup("DigiHits_TOA_HE_Silicon", [
-                                                                 Plot("TOA_layer_{:02d}".format(i), title="DigiHits_TOA_HE_Silicon", xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
+_DigiHits_TOA_HE_Silicon = PlotGroup("TOA_HE_Silicon", [
+                                                                 Plot("TOA_layer_{:02d}".format(i), title="TOA_HE_Silicon", xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
                                                                  ], ncols=4)
 
-_DigiHits_TOA_HE_Scintillator = PlotGroup("DigiHits_TOA_HE_Scintillator", [
-                                                                           Plot("TOA_layer_{:02d}".format(i), title="DigiHits_TOA_HE_Scintillator", xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
+_DigiHits_TOA_HE_Scintillator = PlotGroup("TOA_HE_Scintillator", [
+                                                                           Plot("TOA_layer_{:02d}".format(i), title="TOA_HE_Scintillator", xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
                                                                            ], ncols=4)
 
-_DigiHits_TOT_EE = PlotGroup("DigiHits_TOT_EE", [
-                                                 Plot("TOT_layer_{:02d}".format(i), title="DigiHits_TOT_EE", xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
+_DigiHits_TOT_EE = PlotGroup("TOT_EE", [
+                                                 Plot("TOT_layer_{:02d}".format(i), title="TOT_EE", xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
                                                  ], ncols=4)
 
-_DigiHits_TOT_HE_Silicon = PlotGroup("DigiHits_TOT_HE_Silicon", [
-                                                                 Plot("TOT_layer_{:02d}".format(i), title="DigiHits_TOT_HE_Silicon", xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
+_DigiHits_TOT_HE_Silicon = PlotGroup("TOT_HE_Silicon", [
+                                                                 Plot("TOT_layer_{:02d}".format(i), title="TOT_HE_Silicon", xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
                                                                  ], ncols=4)
 
-_DigiHits_TOT_HE_Scintillator = PlotGroup("DigiHits_TOT_HE_Scintillator", [
-                                                                           Plot("TOT_layer_{:02d}".format(i), title="DigiHits_TOT_HE_Scintillator", xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
+_DigiHits_TOT_HE_Scintillator = PlotGroup("TOT_HE_Scintillator", [
+                                                                           Plot("TOT_layer_{:02d}".format(i), title="TOT_HE_Scintillator", xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
                                                                            ], ncols=4)
 
 #===================================================================================================================
@@ -2264,19 +2276,6 @@ def append_hgcalMultiClustersPlots(collection = 'ticlMultiClustersFromTracksters
 def _hgcalHitFolders(dirName="HGCalSimHitsV/HGCalEESensitive"):
     return "DQMData/Run 1/HGCAL/Run summary/"+dirName
 
-_hitsCommonPlots_EE = [
-  _Occupancy_EE_zplus,
-  _Occupancy_EE_zminus, 
-]
-_hitsCommonPlots_HE_Sil = [
-  _Occupancy_HE_Silicon_zplus,
-  _Occupancy_HE_Silicon_zminus,
-]
-_hitsCommonPlots_HE_Sci = [
-  _Occupancy_HE_Scintillator_zplus,
-  _Occupancy_HE_Scintillator_zminus  
-]
-
 hgcalHitPlotter = Plotter()
 hitsLabel = 'Hits'
 simHitsLabel = 'Simulated Hits'
@@ -2290,8 +2289,33 @@ hgcalHitPlotter.append("SimHits_Validation", [
                                                             ))
 
 def append_hgcalHitsPlots(collection = "HGCalSimHitsV", name_collection = "Simulated Hits"):
+  _hitsCommonPlots_EE = [
+    _Occupancy_EE_zplus,
+    _Occupancy_EE_zminus, 
+  ]
+  _hitsCommonPlots_HE_Sil = [
+    _Occupancy_HE_Silicon_zplus,
+    _Occupancy_HE_Silicon_zminus,
+  ]
+  _hitsCommonPlots_HE_Sci = [
+    _Occupancy_HE_Scintillator_zplus,
+    _Occupancy_HE_Scintillator_zminus,
+  ]
+
   regions = ["HGCalEESensitive", "HGCalHESiliconSensitive", "HGCalHEScintillatorSensitive"]
   setPlots = [_hitsCommonPlots_EE, _hitsCommonPlots_HE_Sil, _hitsCommonPlots_HE_Sci]
+  if "SimHits" in collection :
+    _hitsCommonPlots_EE.append(_Energy_EE_0)
+    _hitsCommonPlots_EE.append(_Energy_EE_1)
+    _hitsCommonPlots_HE_Sil.append(_Energy_HE_Silicon_0)
+    _hitsCommonPlots_HE_Sil.append( _Energy_HE_Silicon_1)
+    _hitsCommonPlots_HE_Sil.append(_Energy_HE_Scintillator_0)
+    _hitsCommonPlots_HE_Sil.append(_Energy_HE_Scintillator_1)
+  if "RecHits" in collection :
+    _hitsCommonPlots_EE.append(_Energy_EE)
+    _hitsCommonPlots_HE_Sil.append(_Energy_HE_Silicon)
+    _hitsCommonPlots_HE_Sil.append(_Energy_HE_Scintillator)
+
   for reg, setPlot in zip(regions, setPlots):
     dirName = collection+"/"+reg
     print(dirName)
