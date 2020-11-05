@@ -64,10 +64,10 @@ namespace edm {
       void triggerFJRmessageSummary(std::map<std::string, double>& sm);
 
       // --- handle details of configuring via a ParameterSet:
-      void configure_errorlog();
-      void configure_ordinary_destinations();  // Change Log 3
-      void configure_statistics();             // Change Log 3
-      void configure_dest(std::shared_ptr<ELdestination> dest_ctrl, String const& filename);
+      void configure_errorlog(PSet&);
+      void configure_ordinary_destinations(PSet const&);  // Change Log 3
+      void configure_statistics(PSet const&);             // Change Log 3
+      void configure_dest(PSet const&, std::shared_ptr<ELdestination> dest_ctrl, String const& filename);
 
       template <class T>  // ChangeLog 11
       T getAparameter(PSet const& p, std::string const& id, T const& def) {
@@ -93,7 +93,6 @@ namespace edm {
       edm::propagate_const<std::shared_ptr<ELadministrator>> admin_p;
       std::shared_ptr<ELdestination> early_dest;
       std::vector<edm::propagate_const<std::shared_ptr<std::ofstream>>> file_ps;
-      edm::propagate_const<std::shared_ptr<PSet>> job_pset_p;
       std::map<String, edm::propagate_const<std::ostream*>> stream_ps;
       std::vector<String> ordinary_destination_filenames;
       std::vector<std::shared_ptr<ELstatistics>> statisticsDestControls;
