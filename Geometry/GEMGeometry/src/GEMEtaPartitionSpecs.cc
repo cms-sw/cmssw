@@ -13,7 +13,6 @@ GEMEtaPartitionSpecs::GEMEtaPartitionSpecs(SubDetector rss, const std::string& n
     float r0 = h * (B + b) / (B - b);
     float striplength = h * 2;
     float strips = _p[3];
-    //float dphi = convertDegToRad(_p[5]);
     float dphi = _p[5];
     float phiPitch = dphi / strips;
 
