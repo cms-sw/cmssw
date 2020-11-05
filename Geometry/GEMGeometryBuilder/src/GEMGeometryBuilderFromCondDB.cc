@@ -166,7 +166,7 @@ GEMEtaPartition* GEMGeometryBuilderFromCondDB::buildEtaPartition(const RecoIdeal
   float ti = convertMmToCm(*(shapeStart + 3));
   float nstrip = *(shapeStart + 4);
   float npad = *(shapeStart + 5);
-  float dphi = *(shapeStart + 6);
+  //float dphi = *(shapeStart + 6);
 
   std::vector<float> pars;
   pars.emplace_back(be);
