@@ -13,12 +13,12 @@ process.load("FWCore.MessageService.test.Services_cff")
 
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('u25_only'),
-    statistics = cms.untracked.vstring('u25_only'),
     categories = cms.untracked.vstring('preEventProcessing', 
         'FwkTest'),
     u25_only = cms.untracked.PSet(
         threshold = cms.untracked.string('INFO'),
         noTimeStamps = cms.untracked.bool(True),
+        enableStatistics = cms.untracked.bool(True),
         FwkTest = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),

@@ -22,10 +22,15 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(0)
         )
     ),
-    statistics = cms.untracked.vstring('u3_statistics'),
-    categories = cms.untracked.vstring('preEventProcessing', 
+    u3_statistics = cms.untracked.PSet(
+        enableStatistics = cms.untracked.bool(True),
+        default = cms.untracked.PSet(
+          limit = cms.untracked.int32(0)
+        )
+    ),
+    categories = cms.untracked.vstring('preEventProcessing',
         'FwkTest'),
-    destinations = cms.untracked.vstring('u3_infos')
+    destinations = cms.untracked.vstring('u3_infos', 'u3_statistics')
 )
 
 process.maxEvents = cms.untracked.PSet(

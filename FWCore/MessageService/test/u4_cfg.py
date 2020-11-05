@@ -13,23 +13,29 @@ process.load("FWCore.MessageService.test.Services_cff")
 
 process.MessageLogger = cms.Service("MessageLogger",
     u4_statistics = cms.untracked.PSet(
-        threshold = cms.untracked.string('WARNING')
+        threshold = cms.untracked.string('WARNING'),
+        default = cms.untracked.PSet(
+          limit = cms.untracked.int32(0)
+        ),
+        enableStatistics = cms.untracked.bool(True)
     ),
-    statistics = cms.untracked.vstring('u4_statistics', 
-        'anotherStats', 
-        'u4_errors'),
     u4_errors = cms.untracked.PSet(
         threshold = cms.untracked.string('ERROR'),
         noTimeStamps = cms.untracked.bool(True),
         preEventProcessing = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
-        )
+        ),
+        enableStatistics = cms.untracked.bool(True)
     ),
     anotherStats = cms.untracked.PSet(
-        output = cms.untracked.string('u4_another')
+        output = cms.untracked.string('u4_another'),
+        enableStatistics = cms.untracked.bool(True),
+        default = cms.untracked.PSet(
+          limit = cms.untracked.int32(0)
+        )
     ),
     categories = cms.untracked.vstring('preEventProcessing'),
-    destinations = cms.untracked.vstring('u4_errors')
+    destinations = cms.untracked.vstring('u4_errors', 'u4_statistics', 'anotherStats')
 )
 
 process.maxEvents = cms.untracked.PSet(

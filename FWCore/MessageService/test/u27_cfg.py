@@ -14,7 +14,6 @@ process.options = FWCore.Framework.test.cmsExceptionsFatal_cff.options
 process.load("FWCore.MessageService.test.Services_cff")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    statistics = cms.untracked.vstring('u27_infos'),
     messageSummaryToJobReport = cms.untracked.bool(True),
     default = cms.untracked.PSet(
         FwkTest = cms.untracked.PSet(
@@ -24,6 +23,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     u27_infos = cms.untracked.PSet(
         threshold = cms.untracked.string('INFO'),
         noTimeStamps = cms.untracked.bool(True),
+        enableStatistics = cms.untracked.bool(True),
         FwkTest = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),

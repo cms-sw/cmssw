@@ -16,10 +16,9 @@ process.load("FWCore.MessageService.test.Services_cff")
 process.MessageLogger = cms.Service("MessageLogger",
     categories = cms.untracked.vstring('preEventProcessing'),
     destinations = cms.untracked.vstring('cerr'),
-    statistics = cms.untracked.vstring('cerr_stats'),
-    cerr_stats = cms.untracked.PSet(
-        threshold = cms.untracked.string('WARNING'),
-        output = cms.untracked.string('cerr')
+    cerr = cms.untracked.PSet(
+        statisticsThreshold = cms.untracked.string('WARNING'),
+        enableStatistics = cms.untracked.bool(True)
     ),
     u28_output = cms.untracked.PSet(
         threshold = cms.untracked.string('INFO'),
