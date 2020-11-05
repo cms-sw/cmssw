@@ -11,7 +11,6 @@ process.options = FWCore.Framework.test.cmsExceptionsFatal_cff.options
 
 process.MessageLogger = cms.Service("MessageLogger",
    destinations = cms.untracked.vstring('u33d_all'),
-    statistics = cms.untracked.vstring('u33d_all'),
     categories = cms.untracked.vstring('cat_A'), 
     suppressInfo = cms.untracked.vstring('ssm_2a'), 
     debugModules = cms.untracked.vstring('ssm_1b'), 
@@ -21,6 +20,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         default = cms.untracked.PSet(
                     limit = cms.untracked.int32(-1)
         ),
+        enableStatistics = cms.untracked.bool(True)
     ),
 )
 

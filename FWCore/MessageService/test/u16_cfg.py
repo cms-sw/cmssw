@@ -12,13 +12,14 @@ process.options = FWCore.Framework.test.cmsExceptionsFatal_cff.options
 process.load("FWCore.MessageService.test.Services_cff")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    # put stats into u16_errors.mmlog and another file
-    statistics = cms.untracked.vstring('u16_statistics', 
-        'u16_errors'),
     # produce file u16_statistics.mslog
     u16_statistics = cms.untracked.PSet(
         threshold = cms.untracked.string('WARNING'),
-        extension = cms.untracked.string('mslog')
+        extension = cms.untracked.string('mslog'),
+        enableStatistics = cms.untracked.bool(True),
+        default = cms.untracked.PSet(
+          limit = cms.untracked.int32(0)
+        )
     ),
     default = cms.untracked.PSet(
         FwkTest = cms.untracked.PSet(
@@ -29,7 +30,8 @@ process.MessageLogger = cms.Service("MessageLogger",
     u16_errors = cms.untracked.PSet(
         threshold = cms.untracked.string('ERROR'),
         noTimeStamps = cms.untracked.bool(True),
-        extension = cms.untracked.string('mmlog')
+        extension = cms.untracked.string('mmlog'),
+        enableStatistics = cms.untracked.bool(True)
     ),
     # produce file u16_altWarnings.log
     u16_warnings = cms.untracked.PSet(
@@ -70,7 +72,8 @@ process.MessageLogger = cms.Service("MessageLogger",
         'u16_errors', 
         'u16_infos', 
         'u16_debugs', 
-        'u16_default')
+        'u16_default',
+        'u16_statistics')
 )
 
 process.maxEvents = cms.untracked.PSet(

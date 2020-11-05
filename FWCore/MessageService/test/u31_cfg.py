@@ -14,7 +14,6 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(0)
         )
     ),
-    statistics = cms.untracked.vstring('u31_infos'),
     u31_infos = cms.untracked.PSet(
         threshold = cms.untracked.string('INFO'),
         noTimeStamps = cms.untracked.bool(True),
@@ -23,7 +22,8 @@ process.MessageLogger = cms.Service("MessageLogger",
         ),
         preEventProcessing = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
-        )
+        ),
+        enableStatistics = cms.untracked.bool(True)
     ),
     categories = cms.untracked.vstring('preEventProcessing', 
         'FwkTest', 

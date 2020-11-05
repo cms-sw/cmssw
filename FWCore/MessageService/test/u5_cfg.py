@@ -12,9 +12,6 @@ process.options = FWCore.Framework.test.cmsExceptionsFatal_cff.options
 process.load("FWCore.MessageService.test.Services_cff")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    statistics = cms.untracked.vstring('u5_default', 
-        'u5_reset', 
-        'u5_noreset'),
     u5_errors = cms.untracked.PSet(
         threshold = cms.untracked.string('ERROR'),
         noTimeStamps = cms.untracked.bool(True),
@@ -23,13 +20,27 @@ process.MessageLogger = cms.Service("MessageLogger",
         )
     ),
     categories = cms.untracked.vstring('preEventProcessing'),
+    u5_default = cms.untracked.PSet(
+        enableStatistics = cms.untracked.bool(True),
+        default = cms.untracked.PSet(
+          limit = cms.untracked.int32(0)
+        )
+    ),
     u5_noreset = cms.untracked.PSet(
-        reset = cms.untracked.bool(False)
+        resetStatistics = cms.untracked.bool(False),
+        enableStatistics = cms.untracked.bool(True),
+        default = cms.untracked.PSet(
+          limit = cms.untracked.int32(0)
+        )
     ),
     u5_reset = cms.untracked.PSet(
-        reset = cms.untracked.bool(True)
+        resetStatistics = cms.untracked.bool(True),
+        enableStatistics = cms.untracked.bool(True),
+        default = cms.untracked.PSet(
+          limit = cms.untracked.int32(0)
+        )
     ),
-    destinations = cms.untracked.vstring('u5_errors')
+    destinations = cms.untracked.vstring('u5_errors', 'u5_reset', 'u5_noreset', 'u5_default')
 )
 
 process.maxEvents = cms.untracked.PSet(

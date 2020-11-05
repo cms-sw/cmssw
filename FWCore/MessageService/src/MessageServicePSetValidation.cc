@@ -349,6 +349,12 @@ namespace edm {
         return false;
       if (word == "optionalPSet")
         return false;
+      if (word == "enableStatistics")
+        return false;
+      if (word == "statisticsThreshold")
+        return false;
+      if (word == "resetStatistics")
+        return false;
       return true;
     }  // keywordCheck
 
@@ -460,12 +466,19 @@ namespace edm {
       // General parameters
 
       check<bool>(pset, psetName, "placeholder");
+      {
+        std::string thresh = check<std::string>(pset, "psetName", "statisticsThreshold");
+        if (!thresh.empty())
+          validateThreshold(thresh, psetName);
+      }
       std::string thresh = check<std::string>(pset, "psetName", "threshold");
       if (!thresh.empty())
         validateThreshold(thresh, psetName);
       check<bool>(pset, psetName, "noLineBreaks");
       check<int>(pset, psetName, "lineLength");
       check<bool>(pset, psetName, "noTimeStamps");
+      check<bool>(pset, psetName, "enableStatistics");
+      check<bool>(pset, psetName, "resetStatistics");
       std::string s = check<std::string>(pset, "psetName", "filename");
       if ((s == "cerr") || (s == "cout")) {
         flaws << psetName << " PSet: \n" << s << " is not allowed as a value of filename \n";
@@ -485,8 +498,11 @@ namespace edm {
       okbool.push_back("optionalPSet");
       okbool.push_back("noLineBreaks");
       okbool.push_back("noTimeStamps");
+      okbool.push_back("enableStatistics");
+      okbool.push_back("resetStatistics");
       noneExcept<bool>(pset, psetName, "bool", okbool);
       vString okstring;
+      okstring.push_back("statisticsThreshold");
       okstring.push_back("threshold");
       okstring.push_back("output");
       okstring.push_back("filename");

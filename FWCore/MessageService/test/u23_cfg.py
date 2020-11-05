@@ -16,10 +16,10 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(0)
         )
     ),
-    statistics = cms.untracked.vstring('u23_infos'),
     u23_infos = cms.untracked.PSet(
         threshold = cms.untracked.string('INFO'),
         noTimeStamps = cms.untracked.bool(True),
+        enableStatistics = cms.untracked.bool(True),
         FwkTest = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),

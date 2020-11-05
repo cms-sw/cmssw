@@ -215,6 +215,22 @@ namespace edm {
       configure_statistics();             // Change Log 16
     }                                     // ThreadSafeLogMessageLoggerScribe::configure_errorlog()
 
+    namespace {
+      void setGlobalThresholds(ELseverityLevel threshold_sev) {
+        if (threshold_sev <= ELseverityLevel::ELsev_success) {
+          edm::MessageDrop::debugAlwaysSuppressed = false;
+        }
+        if (threshold_sev <= ELseverityLevel::ELsev_info) {
+          edm::MessageDrop::infoAlwaysSuppressed = false;
+        }
+        if (threshold_sev <= ELseverityLevel::ELsev_fwkInfo) {
+          edm::MessageDrop::fwkInfoAlwaysSuppressed = false;
+        }
+        if (threshold_sev <= ELseverityLevel::ELsev_warning) {
+          edm::MessageDrop::warningAlwaysSuppressed = false;
+        }
+      }
+    }  // namespace
     void ThreadSafeLogMessageLoggerScribe::configure_dest(std::shared_ptr<ELdestination> dest_ctrl,
                                                           String const& filename) {
       static const int NO_VALUE_SET = -45654;  // change log 2
@@ -302,18 +318,7 @@ namespace edm {
       ELseverityLevel threshold_sev(dest_threshold);
       dest_ctrl->setThreshold(threshold_sev);
       // change log 37
-      if (threshold_sev <= ELseverityLevel::ELsev_success) {
-        edm::MessageDrop::debugAlwaysSuppressed = false;
-      }
-      if (threshold_sev <= ELseverityLevel::ELsev_info) {
-        edm::MessageDrop::infoAlwaysSuppressed = false;
-      }
-      if (threshold_sev <= ELseverityLevel::ELsev_fwkInfo) {
-        edm::MessageDrop::fwkInfoAlwaysSuppressed = false;
-      }
-      if (threshold_sev <= ELseverityLevel::ELsev_warning) {
-        edm::MessageDrop::warningAlwaysSuppressed = false;
-      }
+      setGlobalThresholds(threshold_sev);
 
       // establish this destination's limit/interval/timespan for each category:
       for (vString::const_iterator id_it = categories.begin(); id_it != categories.end(); ++id_it) {
@@ -562,6 +567,13 @@ namespace edm {
         if (destinations.empty()) {
           statistics = messageLoggerDefaults->statistics;
           no_statistics_configured = statistics.empty();
+        } else {
+          for (auto const& dest : destinations) {
+            PSet stat_pset = getAparameter<PSet>(*job_pset_p, dest, empty_PSet);
+            if (getAparameter<bool>(stat_pset, "enableStatistics", false)) {
+              statistics.push_back(dest);
+            }
+          }
         }
       }
 
@@ -656,11 +668,23 @@ namespace edm {
           auto stat = std::make_shared<ELstatistics>(*os_p);
           admin_p->attach(stat);
           statisticsDestControls.push_back(stat);
-          bool reset = getAparameter<bool>(stat_pset, "reset", false);
+          bool reset = getAparameter<bool>(stat_pset, "resetStatistics", false);
+          if(not reset) {
+            //check for old syntax
+            reset = getAparameter<bool>(stat_pset, "reset", false);
+          }
           statisticsResets.push_back(reset);
 
           // now configure this destination:
           configure_dest(stat, psetname);
+
+          String dest_threshold = getAparameter<String>(stat_pset, "statisticsThreshold", empty_String);
+          if (dest_threshold != empty_String) {
+            ELseverityLevel threshold_sev(dest_threshold);
+            stat->setThreshold(threshold_sev);
+
+            setGlobalThresholds(threshold_sev);
+          }
 
           // and suppress the desire to do an extra termination summary just because
           // of end-of-job info messages
