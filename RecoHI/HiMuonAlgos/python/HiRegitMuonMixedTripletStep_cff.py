@@ -21,7 +21,7 @@ hiRegitMuMixedTripletStepTrackingRegionsA = HiTrackingRegionFactoryFromSTAMuonsE
         Pt_min        = 1.3,
         DeltaR        = 0.5, # default = 0.2
         DeltaZ        = 0.5, # this give you the length
-        Rescale_Dz    = 4., # max(DeltaZ_Region,Rescale_Dz*vtx->zError())
+        Rescale_Dz    = 4.,  # max(DeltaZ_Region,Rescale_Dz*vtx->zError())
     )
 )
 hiRegitMuMixedTripletStepTrackingRegionsB = hiRegitMuMixedTripletStepTrackingRegionsA.clone(
@@ -33,11 +33,6 @@ from RecoTracker.IterativeTracking.MixedTripletStep_cff import *
 
 # NEW CLUSTERS (remove previously used clusters)
 hiRegitMuMixedTripletStepClusters = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepClusters.clone(
-    #oldClusterRemovalInfo = cms.InputTag("hiRegitMuPixelPairStepClusters"),
-    #trajectories          = cms.InputTag("hiRegitMuPixelPairStepTracks"),
-    #overrideTrkQuals      = cms.InputTag('hiRegitMuPixelPairStepSelector','hiRegitMuPixelPairStep'),
-    #trackClassifier       = cms.InputTag(''),
-    #TrackQuality          = cms.string('tight')
     oldClusterRemovalInfo = "hiRegitMuPixelPairStepClusters",
     trajectories          = "hiRegitMuPixelPairStepTracks",
     overrideTrkQuals      = 'hiRegitMuPixelPairStepSelector:hiRegitMuPixelPairStep',
@@ -118,10 +113,9 @@ hiRegitMuMixedTripletStepTrackCandidates = RecoTracker.IterativeTracking.MixedTr
 
 # fitting: feed new-names
 hiRegitMuMixedTripletStepTracks  = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepTracks.clone(
-    AlgorithmName = cms.string('hiRegitMuMixedTripletStep'),
-    src                 = 'hiRegitMuMixedTripletStepTrackCandidates',
+    AlgorithmName = 'hiRegitMuMixedTripletStep',
+    src           = 'hiRegitMuMixedTripletStepTrackCandidates',
 )
-
 
 # TRACK SELECTION AND QUALITY FLAG SETTING.
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
