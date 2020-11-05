@@ -626,6 +626,7 @@ for _eraName, _postfix, _era in _relevantEras:
 
 # for displaced tracks, make sure to get all the TPs (relax tip and lip)
 trackingParticlesDisplaced = _trackingParticleRefSelector.clone(
+    signalOnly = cms.bool(False),
     tip = 1e5,
     lip = 1e5,
     minRapidity = -10,
@@ -636,9 +637,9 @@ trackingParticlesDisplaced = _trackingParticleRefSelector.clone(
 ###need to do?
 #_taskForEachEra(_addSelectorsBySrc, modDict=globals(),
 #                    args=[["_generalTracksHp"]],
-#                    plainArgs=["EtaGreater2p7", "generalTracksEtaGreater2p7"],
-#                    names="_selectorsEtaGreater2p7", task="_tracksValidationSelectorsEtaGreater2p7",
-#                    modifyTask=lambda task: task.add(generalTracksEtaGreater2p7))
+#                    plainArgs=["Displaced", "generalTracksDisplaced"],
+#                    names="_selectorsDisplaced", task="_tracksValidationSelectorsDisplaced",
+#                    modifyTask=lambda task: task.add(generalTracksDisplaced))
 
 # for displaced tracks
 trackValidatorTPDisplaced = trackValidator.clone(
@@ -658,10 +659,17 @@ trackValidatorTPDisplaced = trackValidator.clone(
         TpSelectorForEfficiencyVsVTXR = dict(ptMin=0.005, tip=1e5, lip=1e5),
         TpSelectorForEfficiencyVsVTXZ = dict(ptMin=0.005, tip=1e5, lip=1e5),
         generalTpSelector             = dict(ptMin=0.005, tip=1e5, lip=1e5),
+        minDxy = -60,
+        maxDxy =  60,
+        nintDxy = 60,
+        minDz  = -60,
+        maxDz  =  60,
+        nintDz =  60,
     ),
+    lipTP = 1e5,
+    tipTP = 1e5,
     doSimPlots = True,       # ####same as in trackValidator, no need to repeat here
     doRecoTrackPlots = True, # ####fake rates are same as in trackValidator, no need to repeat here
-    doResolutionPlotsForLabels = ["disabled"] # resolutions are same as in trackValidator, no need to repeat here
 )
 for _eraName, _postfix, _era in _relevantEras:
     _setForEra(trackValidatorTPDisplaced, _eraName, _era,
