@@ -38,7 +38,6 @@ namespace edm {
         : admin_p(new ELadministrator()),
           early_dest(admin_p->attach(std::make_shared<ELoutput>(std::cerr, false))),
           file_ps(),
-          job_pset_p(),
           clean_slate_configuration(true),
           active(true),
           purge_mode(false)  // changeLog 32
@@ -104,9 +103,10 @@ namespace edm {
           break;
         }
         case MessageLoggerQ::CONFIGURE: {  // changelog 17
-          job_pset_p =
-              std::shared_ptr<PSet>(static_cast<PSet*>(operand));  // propagate_const<T> has no reset() function
-          configure_errorlog();
+          auto job_pset_p =
+              std::unique_ptr<PSet>(static_cast<PSet*>(operand));  // propagate_const<T> has no reset() function
+          //validate(*job_pset_p);
+          configure_errorlog(*job_pset_p);
           break;
         }
         case MessageLoggerQ::SUMMARIZE: {
@@ -189,14 +189,14 @@ namespace edm {
       }
     }
 
-    void ThreadSafeLogMessageLoggerScribe::configure_errorlog() {
+    void ThreadSafeLogMessageLoggerScribe::configure_errorlog(PSet& job_pset) {
       vString empty_vString;
       String empty_String;
       PSet empty_PSet;
 
       // The following is present to test pre-configuration message handling:
       String preconfiguration_message =
-          getAparameter<String>(*job_pset_p, "generate_preconfiguration_message", empty_String);
+          getAparameter<String>(job_pset, "generate_preconfiguration_message", empty_String);
       if (preconfiguration_message != empty_String) {
         // To test a preconfiguration message without first going thru the
         // configuration we are about to do, we issue the message (so it sits
@@ -210,9 +210,9 @@ namespace edm {
         LogWarning("multiLogConfig") << "The message logger has been configured multiple times";
         clean_slate_configuration = false;  // Change Log 22
       }
-      m_waitingThreshold = getAparameter<unsigned int>(*job_pset_p, "waiting_threshold", 100);
-      configure_ordinary_destinations();  // Change Log 16
-      configure_statistics();             // Change Log 16
+      m_waitingThreshold = getAparameter<unsigned int>(job_pset, "waiting_threshold", 100);
+      configure_ordinary_destinations(job_pset);  // Change Log 16
+      configure_statistics(job_pset);             // Change Log 16
     }                                     // ThreadSafeLogMessageLoggerScribe::configure_errorlog()
 
     namespace {
@@ -231,7 +231,8 @@ namespace edm {
         }
       }
     }  // namespace
-    void ThreadSafeLogMessageLoggerScribe::configure_dest(std::shared_ptr<ELdestination> dest_ctrl,
+    void ThreadSafeLogMessageLoggerScribe::configure_dest(PSet const& job_pset,
+                                                          std::shared_ptr<ELdestination> dest_ctrl,
                                                           String const& filename) {
       static const int NO_VALUE_SET = -45654;  // change log 2
       vString empty_vString;
@@ -247,7 +248,7 @@ namespace edm {
       vString const severities = {{"WARNING", "INFO", "FWKINFO", "ERROR", "DEBUG"}};
 
       // grab list of categories
-      vString categories = getAparameter<vString>(*job_pset_p, "categories", empty_vString);
+      vString categories = getAparameter<vString>(job_pset, "categories", empty_vString);
 
       // grab list of hardwired categories (hardcats) -- these are to be added
       // to the list of categories -- change log 24
@@ -258,12 +259,12 @@ namespace edm {
       }  // no longer need hardcats
 
       // grab default threshold common to all destinations
-      String default_threshold = getAparameter<String>(*job_pset_p, "threshold", empty_String);
+      String default_threshold = getAparameter<String>(job_pset, "threshold", empty_String);
       // change log 3a
       // change log 24
 
       // grab default limit/interval/timespan common to all destinations/categories:
-      PSet default_pset = getAparameter<PSet>(*job_pset_p, "default", empty_PSet);
+      PSet default_pset = getAparameter<PSet>(job_pset, "default", empty_PSet);
       int default_limit = getAparameter<int>(default_pset, "limit", COMMON_DEFAULT_LIMIT);
       int default_interval = getAparameter<int>(default_pset, "reportEvery", COMMON_DEFAULT_INTERVAL);
       // change log 6, 10
@@ -274,7 +275,7 @@ namespace edm {
       // change log 34
 
       // grab all of this destination's parameters:
-      PSet dest_pset = getAparameter<PSet>(*job_pset_p, filename, empty_PSet);
+      PSet dest_pset = getAparameter<PSet>(job_pset, filename, empty_PSet);
 
       // See if this is just a placeholder			// change log 9
       bool is_placeholder = getAparameter<bool>(dest_pset, "placeholder", false);
@@ -428,7 +429,7 @@ namespace edm {
 
     }  // ThreadSafeLogMessageLoggerScribe::configure_dest()
 
-    void ThreadSafeLogMessageLoggerScribe::configure_ordinary_destinations()  // Changelog 16
+    void ThreadSafeLogMessageLoggerScribe::configure_ordinary_destinations(PSet const& job_pset)  // Changelog 16
     {
       vString empty_vString;
       String empty_String;
@@ -441,7 +442,7 @@ namespace edm {
       MessageDrop::warningAlwaysSuppressed = true;
 
       // grab list of destinations:
-      vString destinations = getAparameter<vString>(*job_pset_p, "destinations", empty_vString);
+      vString destinations = getAparameter<vString>(job_pset, "destinations", empty_vString);
 
       // Use the default list of destinations if and only if the grabbed list is
       // empty						 	// change log 24
@@ -459,7 +460,7 @@ namespace edm {
         String psetname = filename;
 
         // check that this destination is not just a placeholder // change log 11
-        PSet dest_pset = getAparameter<PSet>(*job_pset_p, psetname, empty_PSet);
+        PSet dest_pset = getAparameter<PSet>(job_pset, psetname, empty_PSet);
         bool is_placeholder = getAparameter<bool>(dest_pset, "placeholder", false);
         if (is_placeholder)
           continue;
@@ -542,19 +543,19 @@ namespace edm {
         }
 
         // now configure this destination:
-        configure_dest(dest_ctrl, psetname);
+        configure_dest(job_pset, dest_ctrl, psetname);
 
       }  // for [it = destinations.begin() to end()]
 
     }  // configure_ordinary_destinations
 
-    void ThreadSafeLogMessageLoggerScribe::configure_statistics() {
+    void ThreadSafeLogMessageLoggerScribe::configure_statistics(PSet const& job_pset) {
       vString empty_vString;
       String empty_String;
       PSet empty_PSet;
 
       // grab list of statistics destinations:
-      vString statistics = getAparameter<vString>(*job_pset_p, "statistics", empty_vString);
+      vString statistics = getAparameter<vString>(job_pset, "statistics", empty_vString);
 
       bool no_statistics_configured = statistics.empty();  // change log 24
 
@@ -563,13 +564,13 @@ namespace edm {
         // but only if there is also no list of ordinary destinations.
         // (If a cfg specifies destinations, and no statistics, assume that
         // is what the user wants.)
-        vString destinations = getAparameter<vString>(*job_pset_p, "destinations", empty_vString);
+        vString destinations = getAparameter<vString>(job_pset, "destinations", empty_vString);
         if (destinations.empty()) {
           statistics = messageLoggerDefaults->statistics;
           no_statistics_configured = statistics.empty();
         } else {
           for (auto const& dest : destinations) {
-            PSet stat_pset = getAparameter<PSet>(*job_pset_p, dest, empty_PSet);
+            PSet stat_pset = getAparameter<PSet>(job_pset, dest, empty_PSet);
             if (getAparameter<bool>(stat_pset, "enableStatistics", false)) {
               statistics.push_back(dest);
             }
@@ -583,7 +584,7 @@ namespace edm {
         const String& psetname = statname;
 
         // check that this destination is not just a placeholder // change log 20
-        PSet stat_pset = getAparameter<PSet>(*job_pset_p, psetname, empty_PSet);
+        PSet stat_pset = getAparameter<PSet>(job_pset, psetname, empty_PSet);
         bool is_placeholder = getAparameter<bool>(stat_pset, "placeholder", false);
         if (is_placeholder)
           continue;
@@ -676,7 +677,7 @@ namespace edm {
           statisticsResets.push_back(reset);
 
           // now configure this destination:
-          configure_dest(stat, psetname);
+          configure_dest(job_pset, stat, psetname);
 
           String dest_threshold = getAparameter<String>(stat_pset, "statisticsThreshold", empty_String);
           if (dest_threshold != empty_String) {
