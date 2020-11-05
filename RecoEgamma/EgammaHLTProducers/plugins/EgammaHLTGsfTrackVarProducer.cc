@@ -86,8 +86,8 @@ EgammaHLTGsfTrackVarProducer::EgammaHLTGsfTrackVarProducer(const edm::ParameterS
       oneOverESeedMinusOneOverPMapPutToken_{produces<reco::RecoEcalCandidateIsolationMap>("OneOESeedMinusOneOP")},
       missingHitsMapPutToken_{
           produces<reco::RecoEcalCandidateIsolationMap>("MissingHits").setBranchAlias("missinghits")},
-      validHitsMapPutToken_{produces<reco::RecoEcalCandidateIsolationMap>("Chi2").setBranchAlias("chi2")},
-      chi2MapPutToken_{produces<reco::RecoEcalCandidateIsolationMap>("ValidHits").setBranchAlias("validhits")} {}
+      validHitsMapPutToken_{produces<reco::RecoEcalCandidateIsolationMap>("ValidHits").setBranchAlias("validhits")},
+      chi2MapPutToken_{produces<reco::RecoEcalCandidateIsolationMap>("Chi2").setBranchAlias("chi2")} {}
 
 void EgammaHLTGsfTrackVarProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -197,11 +197,12 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::StreamID, edm::Event& iEvent, co
           missingHitsValue = gsfTracks[trkNr]->missingInnerHits();
         }
 
-        if (gsfTracks[trkNr]->numberOfValidHits() < validHitsValue) {
+	//we are saving the best value, and highest value of validHits is the best
+        if (gsfTracks[trkNr]->numberOfValidHits() > validHitsValue) {
           validHitsValue = gsfTracks[trkNr]->numberOfValidHits();
         }
 
-        if (gsfTracks[trkNr]->numberOfValidHits() < chi2Value) {
+        if (gsfTracks[trkNr]->normalizedChi2() < chi2Value) {
           chi2Value = gsfTracks[trkNr]->normalizedChi2();
         }
 
