@@ -108,7 +108,7 @@ void LocalTrackFitter::fitAndRemoveOutliers(HitCollection &selection,
 
   try {
     ATViAI = ATViA.Invert();
-  } catch (...) {
+  } catch (cms::Exception &e) {
     failed = true;
     return;
   }
