@@ -31,7 +31,7 @@ private:
 };
 
 CSCRecoIdealDBLoader::CSCRecoIdealDBLoader(const edm::ParameterSet& iC) {
-  fromDD4Hep_ = iC.getParameter<bool>("fromDD4Hep");
+  fromDD4Hep_ = iC.getUntrackedParameter<bool>("fromDD4Hep", false);
 }
 
 void CSCRecoIdealDBLoader::beginRun(const edm::Run&, edm::EventSetup const& es) {
