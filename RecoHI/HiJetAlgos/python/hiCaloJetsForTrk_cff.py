@@ -5,11 +5,11 @@ from RecoHI.HiJetAlgos.HiRecoJets_cff import akPu4CaloJets
 from JetMETCorrections.Configuration.DefaultJEC_cff import *
 
 
-hiCaloTowerForTrk = calotowermaker.clone(hbheInput=cms.InputTag('hbheprereco'))
-akPu4CaloJetsForTrk = akPu4CaloJets.clone( srcPVs = cms.InputTag('hiSelectedPixelVertex'), src= cms.InputTag('hiCaloTowerForTrk'))
+hiCaloTowerForTrk  = calotowermaker.clone( hbheInput = 'hbheprereco')
+akPu4CaloJetsForTrk = akPu4CaloJets.clone( srcPVs = 'hiSelectedPixelVertex', src = 'hiCaloTowerForTrk')
 
 akPu4CaloJetsCorrected  = ak4CaloJetsL2L3.clone(
-    src = cms.InputTag("akPu4CaloJetsForTrk")
+    src = "akPu4CaloJetsForTrk"
 )
 
 akPu4CaloJetsSelected = cms.EDFilter( "LargestEtCaloJetSelector",
