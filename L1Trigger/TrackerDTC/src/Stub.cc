@@ -76,7 +76,8 @@ namespace trackerDTC {
     }
 
     // stub r w.r.t. chosenRofPhi in cm
-    r_ = digi(r_ - setup.chosenRofPhi(), setup.baseR());
+    static const double chosenRofPhi = hybrid_ ? setup.hybridChosenRofPhi() : setup.chosenRofPhi();
+    r_ = digi(r_ - chosenRofPhi, setup.baseR());
 
     // radial (cylindrical) component of sensor separation
     const double dr = sm->sep() / (sm->cos() - sm->sin() * z_ / d_);
@@ -119,7 +120,7 @@ namespace trackerDTC {
       return;
 
     // stub r w.r.t. an offset in cm
-    r_ -= sm->offsetR() - setup.chosenRofPhi();
+    r_ -= sm->offsetR() - chosenRofPhi;
     // stub z w.r.t. an offset in cm
     z_ -= sm->offsetZ();
     if (sm->type() == SensorModule::Disk2S) {
