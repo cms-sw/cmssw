@@ -111,11 +111,8 @@ void HGCalSiNoiseMap<T>::setGeometry(const CaloSubdetectorGeometry *hgcGeom, Gai
 
   const auto &validDetIds = geom()->getValidDetIds();
   for (const auto &did : validDetIds) {
-    //use only positive side detIds
     unsigned int rawId(did.rawId());
     T hgcDetId(rawId);
-    if (hgcDetId.zside() != 1)
-      continue;
 
     //compute and store in cache
     siopCache_.emplace(rawId, getSiCellOpCharacteristicsCore(hgcDetId));
@@ -132,7 +129,7 @@ const typename HGCalSiNoiseMap<T>::SiCellOpCharacteristicsCore HGCalSiNoiseMap<T
 
   uint32_t key = cellId.rawId();
 
-  return siopCache_[key];
+  return siopCache_.at(key);
 }
 
 //
