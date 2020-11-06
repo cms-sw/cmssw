@@ -51,16 +51,16 @@ namespace hcal {
     };
 
     struct OutputDataGPU {
-      DigiCollection<Flavor01, ::calo::common::DevStoragePolicy> digisF01HE;
+      DigiCollection<Flavor1, ::calo::common::DevStoragePolicy> digisF01HE;
       DigiCollection<Flavor5, ::calo::common::DevStoragePolicy> digisF5HB;
       DigiCollection<Flavor3, ::calo::common::DevStoragePolicy> digisF3HB;
 
       void allocate(ConfigurationParameters const &config, cudaStream_t cudaStream) {
         digisF01HE.data = cms::cuda::make_device_unique<uint16_t[]>(
-            config.maxChannelsF01HE * compute_stride<Flavor01>(config.nsamplesF01HE), cudaStream);
+            config.maxChannelsF01HE * compute_stride<Flavor1>(config.nsamplesF01HE), cudaStream);
         //cudaCheck(
         //    cudaMalloc((void **)&digisF01HE.data,
-        //               config.maxChannelsF01HE * sizeof(uint16_t) * compute_stride<Flavor01>(config.nsamplesF01HE)));
+        //               config.maxChannelsF01HE * sizeof(uint16_t) * compute_stride<Flavor1>(config.nsamplesF01HE)));
         digisF01HE.ids = cms::cuda::make_device_unique<uint32_t[]>(config.maxChannelsF01HE, cudaStream);
         //cudaCheck(cudaMalloc((void **)&digisF01HE.ids, sizeof(uint32_t) * config.maxChannelsF01HE));
 

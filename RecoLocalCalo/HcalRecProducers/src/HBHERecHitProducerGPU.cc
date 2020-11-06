@@ -1,46 +1,13 @@
-#include "CondFormats/DataRecord/interface/HcalGainWidthsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalGainsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalLUTCorrsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalQIEDataRcd.h"
-#include "CondFormats/DataRecord/interface/HcalQIETypesRcd.h"
-#include "CondFormats/DataRecord/interface/HcalRecoParamsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalSiPMCharacteristicsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalSiPMParametersRcd.h"
-#include "CondFormats/DataRecord/interface/HcalTimeCorrsRcd.h"
-#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCombinedRecordsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalConvertedEffectivePedestalWidthsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalConvertedEffectivePedestalsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalConvertedPedestalWidthsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalConvertedPedestalsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalGainWidthsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalGainsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalLUTCorrsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalPedestalWidthsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalQIECodersGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalQIETypesGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalRecoParamsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalRecoParamsWithPulseShapesGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalRespCorrsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalSiPMCharacteristicsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalSiPMParametersGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalTimeCorrsGPU.h"
 
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalMahiPulseOffsetsGPU.h"
-#include "HcalMahiPulseOffsetsGPURecord.h"
-
-#include "MahiGPU.h"
+#include "SimpleAlgoGPU.h"
 
 class HBHERecHitProducerGPU : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
@@ -52,7 +19,7 @@ private:
   void acquire(edm::Event const&, edm::EventSetup const&, edm::WaitingTaskWithArenaHolder) override;
   void produce(edm::Event&, edm::EventSetup const&) override;
 
-  using IProductTypef01 = cms::cuda::Product<hcal::DigiCollection<hcal::Flavor01, calo::common::DevStoragePolicy>>;
+  using IProductTypef01 = cms::cuda::Product<hcal::DigiCollection<hcal::Flavor1, calo::common::DevStoragePolicy>>;
   edm::EDGetTokenT<IProductTypef01> digisTokenF01HE_;
 
   using IProductTypef5 = cms::cuda::Product<hcal::DigiCollection<hcal::Flavor5, calo::common::DevStoragePolicy>>;
@@ -65,8 +32,8 @@ private:
   using OProductType = cms::cuda::Product<RecHitType>;
   edm::EDPutTokenT<OProductType> rechitsM0Token_;
 
-  hcal::mahi::ConfigParameters configParameters_;
-  hcal::mahi::OutputDataGPU outputGPU_;
+  hcal::reconstruction::ConfigParameters configParameters_;
+  hcal::reconstruction::OutputDataGPU outputGPU_;
   cms::cuda::ContextState cudaState_;
 };
 
@@ -149,7 +116,7 @@ void HBHERecHitProducerGPU::acquire(edm::Event const& event,
   auto const& f5HBDigis = ctx.get(f5HBProduct);
   auto const& f3HBDigis = ctx.get(f3HBProduct);
 
-  hcal::mahi::InputDataGPU inputGPU{f01HEDigis, f5HBDigis, f3HBDigis};
+  hcal::reconstruction::InputDataGPU inputGPU{f01HEDigis, f5HBDigis, f3HBDigis};
 
   // conditions
   edm::ESHandle<HcalRecoParamsWithPulseShapesGPU> recoParamsHandle;
@@ -220,7 +187,7 @@ void HBHERecHitProducerGPU::acquire(edm::Event const& event,
   auto const& pulseOffsetsProduct = pulseOffsetsHandle->getProduct(ctx.stream());
 
   // bundle up conditions
-  hcal::mahi::ConditionsProducts conditions{gainWidthsProduct,
+  hcal::reconstruction::ConditionsProducts conditions{gainWidthsProduct,
                                             gainsProduct,
                                             lutCorrsProduct,
                                             pedestalWidthsProduct,
@@ -241,7 +208,7 @@ void HBHERecHitProducerGPU::acquire(edm::Event const& event,
                                             pulseOffsetsHandle->getValues()};
 
   // scratch mem on device
-  hcal::mahi::ScratchDataGPU scratchGPU = {
+  hcal::reconstruction::ScratchDataGPU scratchGPU = {
       cms::cuda::make_device_unique<float[]>(configParameters_.maxChannels * configParameters_.maxTimeSamples,
                                              ctx.stream()),
       cms::cuda::make_device_unique<float[]>(configParameters_.maxChannels * configParameters_.maxTimeSamples,
@@ -261,7 +228,7 @@ void HBHERecHitProducerGPU::acquire(edm::Event const& event,
   // output dev mem
   outputGPU_.allocate(configParameters_, ctx.stream());
 
-  hcal::mahi::entryPoint(inputGPU, outputGPU_, conditions, scratchGPU, configParameters_, ctx.stream());
+  hcal::reconstruction::entryPoint(inputGPU, outputGPU_, conditions, scratchGPU, configParameters_, ctx.stream());
 
 #ifdef HCAL_MAHI_CPUDEBUG
   auto end = std::chrono::high_resolution_clock::now();

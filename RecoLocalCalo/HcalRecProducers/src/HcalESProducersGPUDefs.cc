@@ -26,21 +26,19 @@
 #include "CondFormats/DataRecord/interface/HcalSiPMParametersRcd.h"
 #include "CondFormats/DataRecord/interface/HcalSiPMCharacteristicsRcd.h"
 
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalRecoParamsGPU.h"
+#include "CondFormats/HcalObjects/interface/HcalRecoParamsGPU.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalRecoParamsWithPulseShapesGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalPedestalsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalGainsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalLUTCorrsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalRespCorrsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalTimeCorrsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalPedestalWidthsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalGainWidthsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalQIECodersGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalQIETypesGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalSiPMParametersGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalSiPMCharacteristicsGPU.h"
-
-#include <iostream>
+#include "CondFormats/HcalObjects/interface/HcalPedestalsGPU.h"
+#include "CondFormats/HcalObjects/interface/HcalGainsGPU.h"
+#include "CondFormats/HcalObjects/interface/HcalLUTCorrsGPU.h"
+#include "CondFormats/HcalObjects/interface/HcalRespCorrsGPU.h"
+#include "CondFormats/HcalObjects/interface/HcalTimeCorrsGPU.h"
+#include "CondFormats/HcalObjects/interface/HcalPedestalWidthsGPU.h"
+#include "CondFormats/HcalObjects/interface/HcalGainWidthsGPU.h"
+#include "CondFormats/HcalObjects/interface/HcalQIECodersGPU.h"
+#include "CondFormats/HcalObjects/interface/HcalQIETypesGPU.h"
+#include "CondFormats/HcalObjects/interface/HcalSiPMParametersGPU.h"
+#include "CondFormats/HcalObjects/interface/HcalSiPMCharacteristicsGPU.h"
 
 using HcalRecoParamsGPUESProducer = HcalESProducerGPU<HcalRecoParamsRcd, HcalRecoParamsGPU, HcalRecoParams>;
 
@@ -86,11 +84,11 @@ DEFINE_FWK_EVENTSETUP_MODULE(HcalQIETypesGPUESProducer);
 DEFINE_FWK_EVENTSETUP_MODULE(HcalSiPMParametersGPUESProducer);
 DEFINE_FWK_EVENTSETUP_MODULE(HcalSiPMCharacteristicsGPUESProducer);
 
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCombinedRecordsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalConvertedPedestalsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalConvertedEffectivePedestalsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalConvertedPedestalWidthsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalConvertedEffectivePedestalWidthsGPU.h"
+#include "CondFormats/HcalObjects/interface/HcalCombinedRecordsGPU.h"
+#include "CondFormats/HcalObjects/interface/HcalConvertedPedestalsGPU.h"
+#include "CondFormats/HcalObjects/interface/HcalConvertedEffectivePedestalsGPU.h"
+#include "CondFormats/HcalObjects/interface/HcalConvertedPedestalWidthsGPU.h"
+#include "CondFormats/HcalObjects/interface/HcalConvertedEffectivePedestalWidthsGPU.h"
 
 using HcalConvertedPedestalsGPUESProducer = HcalESProducerGPUWithDependencies<HcalConvertedPedestalsRcd,
                                                                               HcalConvertedPedestalsGPU,

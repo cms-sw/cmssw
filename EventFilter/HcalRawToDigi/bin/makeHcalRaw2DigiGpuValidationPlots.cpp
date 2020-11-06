@@ -71,7 +71,7 @@ int main(int argc, char* argv[]) {
 
   // branches to use
   using Collectionf01 =
-      hcal::DigiCollection<hcal::Flavor01, calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>>;
+      hcal::DigiCollection<hcal::Flavor1, calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>>;
   using Collectionf5 =
       hcal::DigiCollection<hcal::Flavor5, calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>>;
   using Collectionf3 =
@@ -134,7 +134,7 @@ int main(int argc, char* argv[]) {
       "f5HBDigis_RECO.",
       &wgpuf5hb);
   rt->SetBranchAddress(
-      "hcalFlavor01calocommonCUDAHostAllocatorAliascalocommonVecStoragePolicyhcalDigiCollection_hcalCPUDigisProducer_"
+      "hcalFlavor1calocommonCUDAHostAllocatorAliascalocommonVecStoragePolicyhcalDigiCollection_hcalCPUDigisProducer_"
       "f01HEDigis_RECO.",
       &wgpuf01he);
   rt->SetBranchAddress(
@@ -194,7 +194,7 @@ int main(int argc, char* argv[]) {
         assert(*iter2idgpu == cpuid);
 
         auto const ptrdiff = iter2idgpu - idsgpu.begin();
-        auto const nsamples_gpu = hcal::compute_nsamples<hcal::Flavor01>(f01HEProduct.stride);
+        auto const nsamples_gpu = hcal::compute_nsamples<hcal::Flavor1>(f01HEProduct.stride);
         auto const nsamples_cpu = qie11Filteredf01.samples();
         assert(static_cast<uint32_t>(nsamples_cpu) == nsamples_gpu);
 
@@ -203,11 +203,11 @@ int main(int argc, char* argv[]) {
         uint16_t const* df_start = datagpu.data() + offset;
         for (uint32_t sample = 0u; sample < nsamples_gpu; sample++) {
           auto const cpuadc = cpudf[sample].adc();
-          auto const gpuadc = hcal::adc_for_sample<hcal::Flavor01>(df_start, sample);
+          auto const gpuadc = hcal::adc_for_sample<hcal::Flavor1>(df_start, sample);
           auto const cputdc = cpudf[sample].tdc();
-          auto const gputdc = hcal::tdc_for_sample<hcal::Flavor01>(df_start, sample);
+          auto const gputdc = hcal::tdc_for_sample<hcal::Flavor1>(df_start, sample);
           auto const cpucapid = cpudf[sample].capid();
-          auto const gpucapid = hcal::capid_for_sample<hcal::Flavor01>(df_start, sample);
+          auto const gpucapid = hcal::capid_for_sample<hcal::Flavor1>(df_start, sample);
 
           hADCf01HEGPU->Fill(gpuadc);
           hADCf01HECPU->Fill(cpuadc);
@@ -306,7 +306,7 @@ int main(int argc, char* argv[]) {
           auto const cpuadc = cpudf.sample(sample).adc();
           auto const gpuadc = hcal::adc_for_sample<hcal::Flavor5>(df_start, sample);
           auto const cpucapid = cpudf.sample(sample).capid();
-          auto const gpucapid = hcal::capid_for_sample<hcal::Flavor01>(df_start, sample);
+          auto const gpucapid = hcal::capid_for_sample<hcal::Flavor1>(df_start, sample);
 
           hADCf5HBGPU->Fill(gpuadc);
           hADCf5HBCPU->Fill(cpuadc);
