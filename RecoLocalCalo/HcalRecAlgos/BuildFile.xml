@@ -10,7 +10,6 @@
 <use name="CalibCalorimetry/HcalAlgos"/>
 <use name="CalibFormats/CaloObjects"/>
 <use name="CalibFormats/HcalObjects"/>
-<use name="CondFormats/DataRecord"/>
 <use name="DataFormats/HcalDigi"/>
 <use name="DataFormats/HcalRecHit"/>
 <use name="DataFormats/TrackReco"/>

@@ -316,7 +316,7 @@ namespace hcal {
               uint32_t const nwords = channel_end - channel_header_word;
 
               // filter out this digi if nwords does not equal expected
-              auto const expected_words = compute_stride<Flavor01>(nsamplesF01HE);
+              auto const expected_words = compute_stride<Flavor1>(nsamplesF01HE);
               if (nwords != expected_words)
                 break;
 

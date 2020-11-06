@@ -2,10 +2,6 @@
 #define RecoLocalCalo_HcalRecProducers_src_KernelHelpers_h
 
 #include "DeclsForKernels.h"
-#include "DataFormats/HcalRecHit/interface/HcalSpecialTimes.h"
-
-// nvcc not able to parse this guy (whatever is inlcuded from it)....
-//#include "RecoLocalCalo/HcalRecAlgos/interface/PulseShapeFunctor.h"
 
 namespace hcal {
   namespace reconstruction {
@@ -107,6 +103,9 @@ namespace hcal {
       return (center - qieOffsets[index]) / qieSlopes[index];
     }
 
+    // this is from
+    //  https://github.com/cms-sw/cmssw/blob/master/RecoLocalCalo/HcalRecProducers/src/HBHEPhase1Reconstructor.cc#L140
+
     __forceinline__ __device__ float compute_diff_charge_gain(int const qieType,
                                                               uint8_t adc,
                                                               uint8_t const capid,
@@ -145,8 +144,7 @@ namespace hcal {
     }
 
     // FIXME remove duplication...
-    // this is from PulesFunctor. nvcc was complaining... if included that header...
-    //constexpr int maxSamples = 10;
+    // this is from RecoLocalCalo/HcalRecAlgos/interface/PulseShapeFunctor.h nvcc was complaining... if included that header...
     constexpr int maxPSshapeBin = 256;
     constexpr int nsPerBX = 25;
     constexpr float iniTimeShift = 92.5f;
@@ -162,11 +160,8 @@ namespace hcal {
                                                                float const* accVarLenIdxZeroVec,
                                                                float const* diffVarItvlIdxZeroVec) {
       // constants
-      constexpr float pulse_height = 1.0f;
       constexpr float slew = 0.f;
       constexpr auto ns_per_bx = nsPerBX;
-      //constexpr auto num_ns = nsPerBX * maxSamples;
-      //constexpr auto num_bx = num_ns / ns_per_bx;
 
       // FIXME: clean up all the rounding... this is coming from original cpu version
       float const i_start_float =
@@ -218,7 +213,6 @@ namespace hcal {
         int const bin_idx = distTo25ns_start + 1 + (sample_over10ts - its_start - 1) * ns_per_bx + bin_0_start;
         value = acc25nsVec[bin_idx] + factor * diff25nsItvlVec[bin_idx];
       }
-      value *= pulse_height;
       return value;
     }
 

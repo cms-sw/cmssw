@@ -1,7 +1,7 @@
 #ifndef EventFilter_HcalRawToDigi_interface_DecodeGPU_h
 #define EventFilter_HcalRawToDigi_interface_DecodeGPU_h
 
-#include "EventFilter/HcalRawToDigi/plugins/DeclsForKernels.h"
+#include "DeclsForKernels.h"
 
 namespace hcal {
   namespace raw {
