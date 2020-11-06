@@ -43,6 +43,9 @@ void PFClusterFromHGCalMultiCluster::buildClusters(const edm::Handle<reco::PFRec
       }
     }
 
+    if (mcl.hitsAndFractions().empty()) {
+      continue;
+    }
     DetId seed;
     double energy = 0.0, highest_energy = 0.0;
     output.emplace_back();
