@@ -4,6 +4,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/Common/interface/DataFrame.h"
 #include "CondFormats/EcalObjects/interface/EcalConstants.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
 
 /** \class EcalDataFrame_Ph2
       
