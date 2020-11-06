@@ -33,6 +33,14 @@ public:
     return phiBin;
   }
 
+  std::array<int, 4> searchBoxEtaPhi(float etaMin, float etaMax, float phiMin, float phiMax) const {
+    int etaBinMin = etaBin(etaMin);
+    int etaBinMax = etaBin(etaMax);
+    int phiBinMin = phiBin(phiMin);
+    int phiBinMax = phiBin(phiMax);
+    return std::array<int, 4>({{etaBinMin, etaBinMax, phiBinMin, phiBinMax}});
+  }
+
   int globalBin(int etaBin, int phiBin) const { return phiBin + etaBin * T::nPhiBins; }
 
   int globalBin(double eta, double phi) const { return phiBin(phi) + etaBin(eta) * T::nPhiBins; }
