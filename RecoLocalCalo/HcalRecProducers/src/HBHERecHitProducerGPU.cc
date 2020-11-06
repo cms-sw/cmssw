@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "HeterogeneousCore/CUDACore/interface/JobConfigurationGPURecord.h"
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 
@@ -183,7 +184,7 @@ void HBHERecHitProducerGPU::acquire(edm::Event const& event,
   auto const& sipmCharacteristicsProduct = sipmCharacteristicsHandle->getProduct(ctx.stream());
 
   edm::ESHandle<HcalMahiPulseOffsetsGPU> pulseOffsetsHandle;
-  setup.get<HcalMahiPulseOffsetsGPURecord>().get(pulseOffsetsHandle);
+  setup.get<JobConfigurationGPURecord>().get(pulseOffsetsHandle);
   auto const& pulseOffsetsProduct = pulseOffsetsHandle->getProduct(ctx.stream());
 
   // bundle up conditions
