@@ -42,9 +42,8 @@ PFTICLProducer::PFTICLProducer(const edm::ParameterSet& conf)
       srcTrackTime_(consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeValueMap"))),
       srcTrackTimeError_(consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeErrorMap"))),
       srcTrackTimeQuality_(useTimingQuality_
-                           ? consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeQualityMap"))
-                           : edm::EDGetTokenT<edm::ValueMap<float>>())
- {
+                               ? consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeQualityMap"))
+                               : edm::EDGetTokenT<edm::ValueMap<float>>()) {
   produces<reco::PFCandidateCollection>();
 }
 
@@ -125,7 +124,7 @@ void PFTICLProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSet
     auto time = ticl_cand.time();
     auto timeE = ticl_cand.timeError();
 
-    if (candidate.charge()) { // Check MTD timing availability
+    if (candidate.charge()) {  // Check MTD timing availability
       const bool assocQuality = (*trackTimeQualH)[candidate.trackRef()] > timingQualityThreshold_;
       if (assocQuality) {
         const auto timeHGC = time;
@@ -133,11 +132,11 @@ void PFTICLProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSet
         const auto timeMTD = (*trackTimeH)[candidate.trackRef()];
         const auto timeEMTD = (*trackTimeErrH)[candidate.trackRef()];
 
-        if (useTimingAverage_ && (timeEMTD>0 && timeEHGC>0)) {
+        if (useTimingAverage_ && (timeEMTD > 0 && timeEHGC > 0)) {
           // Compute weighted average between HGCAL and MTD timing
-          timeE = sqrt(1 / (pow(timeEHGC,-2) + pow(timeEMTD,-2)));
-          time = (timeHGC/pow(timeEHGC,2) + timeMTD/pow(timeEMTD,2)) * pow(timeE,2);
-        } else if (timeEMTD>0 && timeEHGC<0) {
+          timeE = sqrt(1 / (pow(timeEHGC, -2) + pow(timeEMTD, -2)));
+          time = (timeHGC / pow(timeEHGC, 2) + timeMTD / pow(timeEMTD, 2)) * pow(timeE, 2);
+        } else if (timeEMTD > 0 && timeEHGC < 0) {
           // Passthrough MTD timing if HGCAL is not available
           timeE = timeEMTD;
           time = timeMTD;
