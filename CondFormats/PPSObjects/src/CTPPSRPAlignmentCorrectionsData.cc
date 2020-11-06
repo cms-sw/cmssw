@@ -47,19 +47,18 @@ CTPPSRPAlignmentCorrectionData CTPPSRPAlignmentCorrectionsData::getSensorCorrect
 
 CTPPSRPAlignmentCorrectionData CTPPSRPAlignmentCorrectionsData::getFullSensorCorrection(unsigned int id,
                                                                                         bool useRPErrors) const {
+  // by default empty correction
   CTPPSRPAlignmentCorrectionData align_corr;
 
-  // try to get alignment correction of the full RP
+  // if found, add sensor correction (with its uncertainty)
+  auto sIt = sensors_.find(id);
+  if (sIt != sensors_.end())
+    align_corr.add(sIt->second, true);
+
+  // if found, add RP correction (depending on the flag, with or without its uncertainty)
   auto rpIt = rps_.find(CTPPSDetId(id).rpId());
   if (rpIt != rps_.end())
-    align_corr = rpIt->second;
-
-  // try to get sensor alignment correction
-  auto sIt = sensors_.find(id);
-
-  // merge the corrections
-  if (sIt != sensors_.end())
-    align_corr.add(sIt->second, useRPErrors);
+    align_corr.add(rpIt->second, useRPErrors);
 
   return align_corr;
 }
