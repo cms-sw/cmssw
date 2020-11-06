@@ -73,7 +73,6 @@ akPu3CaloJets = akPu5CaloJets.clone(rParam = 0.3, puPtMin = 6)
 akPu4CaloJets = akPu5CaloJets.clone(rParam = 0.4, puPtMin = 8)
 akPu6CaloJets = akPu5CaloJets.clone(rParam = 0.6, puPtMin = 12)
 akPu7CaloJets = akPu5CaloJets.clone(rParam = 0.7, puPtMin = 14)
-akPu7CaloJets.radiusPU = 0.7
 
 ak5CaloJets = cms.EDProducer(
     "FastjetJetProducer",
