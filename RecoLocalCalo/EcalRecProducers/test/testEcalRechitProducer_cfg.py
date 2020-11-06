@@ -79,7 +79,7 @@ process.load("RecoLocalCalo.EcalRecProducers.ecalMultifitParametersGPUESProducer
 
 #
 #
-#   No "EcalRecHitParametersGPURecord" record found in the EventSetup.n
+#   No "JobConfigurationGPURecord" record found in the EventSetup.n
 #    #--->
 #
 process.load("RecoLocalCalo.EcalRecProducers.ecalRecHitParametersGPUESProducer_cfi")

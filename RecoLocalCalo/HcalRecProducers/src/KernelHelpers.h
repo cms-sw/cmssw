@@ -1,6 +1,8 @@
 #ifndef RecoLocalCalo_HcalRecProducers_src_KernelHelpers_h
 #define RecoLocalCalo_HcalRecProducers_src_KernelHelpers_h
 
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalConstants.h"
+
 #include "DeclsForKernels.h"
 
 namespace hcal {
@@ -143,12 +145,6 @@ namespace hcal {
       }
     }
 
-    // FIXME remove duplication...
-    // this is from RecoLocalCalo/HcalRecAlgos/interface/PulseShapeFunctor.h nvcc was complaining... if included that header...
-    constexpr int maxPSshapeBin = 256;
-    constexpr int nsPerBX = 25;
-    constexpr float iniTimeShift = 92.5f;
-
     // TODO: remove what's not needed
     __forceinline__ __device__ float compute_pulse_shape_value(float const pulse_time,
                                                                int const sample,
@@ -161,13 +157,14 @@ namespace hcal {
                                                                float const* diffVarItvlIdxZeroVec) {
       // constants
       constexpr float slew = 0.f;
-      constexpr auto ns_per_bx = nsPerBX;
+      constexpr auto ns_per_bx = hcal::constants::nsPerBX;
 
       // FIXME: clean up all the rounding... this is coming from original cpu version
-      float const i_start_float =
-          -iniTimeShift - pulse_time - slew > 0.f ? 0.f : std::abs(-iniTimeShift - pulse_time - slew) + 1.f;
+      float const i_start_float = -hcal::constants::iniTimeShift - pulse_time - slew > 0.f
+                                      ? 0.f
+                                      : std::abs(-hcal::constants::iniTimeShift - pulse_time - slew) + 1.f;
       int i_start = static_cast<int>(i_start_float);
-      float offset_start = static_cast<float>(i_start) - iniTimeShift - pulse_time - slew;
+      float offset_start = static_cast<float>(i_start) - hcal::constants::iniTimeShift - pulse_time - slew;
       // FIXME: do we need a check for nan???
 #ifdef HCAL_MAHI_GPUDEBUG
       if (shift == 0)
@@ -189,7 +186,7 @@ namespace hcal {
       auto const bin_start_up = static_cast<float>(bin_start) + 0.5f;
       int const bin_0_start = offset_start < bin_start_up ? bin_start - 1 : bin_start;
       int const its_start = i_start / ns_per_bx;
-      int const distTo25ns_start = nsPerBX - 1 - i_start % ns_per_bx;
+      int const distTo25ns_start = hcal::constants::nsPerBX - 1 - i_start % ns_per_bx;
       auto const factor = offset_start - static_cast<float>(bin_0_start) - 0.5;
 
 #ifdef HCAL_MAHI_GPUDEBUG

@@ -17,21 +17,21 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "HeterogeneousCore/CUDACore/interface/JobConfigurationGPURecord.h"
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalGainRatiosGPU.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalMultifitParametersGPU.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalPedestalsGPU.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalPulseCovariancesGPU.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalPulseShapesGPU.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSamplesCorrelationGPU.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalTimeBiasCorrectionsGPU.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalTimeCalibConstantsGPU.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalMultifitParametersGPU.h"
 
 #include "Common.h"
 #include "DeclsForKernels.h"
 #include "EcalUncalibRecHitMultiFitAlgo_gpu_new.h"
-#include "EcalMultifitParametersGPURecord.h"
 
 class EcalUncalibRecHitProducerGPU : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
@@ -59,7 +59,7 @@ private:
   const edm::ESGetToken<EcalTimeCalibConstantsGPU, EcalTimeCalibConstantsRcd> timeCalibConstantsToken_;
   const edm::ESGetToken<EcalSampleMask, EcalSampleMaskRcd> sampleMaskToken_;
   const edm::ESGetToken<EcalTimeOffsetConstant, EcalTimeOffsetConstantRcd> timeOffsetConstantToken_;
-  const edm::ESGetToken<EcalMultifitParametersGPU, EcalMultifitParametersGPURecord> multifitParametersToken_;
+  const edm::ESGetToken<EcalMultifitParametersGPU, JobConfigurationGPURecord> multifitParametersToken_;
 
   // configuration parameters
   ecal::multifit::ConfigurationParameters configParameters_;
@@ -122,7 +122,7 @@ EcalUncalibRecHitProducerGPU::EcalUncalibRecHitProducerGPU(const edm::ParameterS
       timeCalibConstantsToken_{esConsumes<EcalTimeCalibConstantsGPU, EcalTimeCalibConstantsRcd>()},
       sampleMaskToken_{esConsumes<EcalSampleMask, EcalSampleMaskRcd>()},
       timeOffsetConstantToken_{esConsumes<EcalTimeOffsetConstant, EcalTimeOffsetConstantRcd>()},
-      multifitParametersToken_{esConsumes<EcalMultifitParametersGPU, EcalMultifitParametersGPURecord>()} {
+      multifitParametersToken_{esConsumes<EcalMultifitParametersGPU, JobConfigurationGPURecord>()} {
   std::pair<double, double> EBtimeFitLimits, EEtimeFitLimits;
   EBtimeFitLimits.first = ps.getParameter<double>("EBtimeFitLimits_Lower");
   EBtimeFitLimits.second = ps.getParameter<double>("EBtimeFitLimits_Upper");

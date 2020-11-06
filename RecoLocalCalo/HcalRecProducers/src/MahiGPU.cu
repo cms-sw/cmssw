@@ -468,15 +468,13 @@ namespace hcal {
               : hcal::reconstruction::did2linearIndexHE(id, maxDepthHE, maxPhiHE, firstHERing, lastHERing, nEtaHE) +
                     offsetForHashes;
       auto const recoPulseShapeId = recoPulseShapeIds[hashedId];
-      auto const* acc25nsVec = acc25nsVecValues + recoPulseShapeId * hcal::reconstruction::maxPSshapeBin;
-      auto const* diff25nsItvlVec = diff25nsItvlVecValues + recoPulseShapeId * hcal::reconstruction::maxPSshapeBin;
-      auto const* accVarLenIdxMinusOneVec =
-          accVarLenIdxMinusOneVecValues + recoPulseShapeId * hcal::reconstruction::nsPerBX;
+      auto const* acc25nsVec = acc25nsVecValues + recoPulseShapeId * hcal::constants::maxPSshapeBin;
+      auto const* diff25nsItvlVec = diff25nsItvlVecValues + recoPulseShapeId * hcal::constants::maxPSshapeBin;
+      auto const* accVarLenIdxMinusOneVec = accVarLenIdxMinusOneVecValues + recoPulseShapeId * hcal::constants::nsPerBX;
       auto const* diffVarItvlIdxMinusOneVec =
-          diffVarItvlIdxMinusOneVecValues + recoPulseShapeId * hcal::reconstruction::nsPerBX;
-      auto const* accVarLenIdxZeroVec = accVarLenIdxZeroVecValues + recoPulseShapeId * hcal::reconstruction::nsPerBX;
-      auto const* diffVarItvlIdxZeroVec =
-          diffVarItvlIdxZeroVecValues + recoPulseShapeId * hcal::reconstruction::nsPerBX;
+          diffVarItvlIdxMinusOneVecValues + recoPulseShapeId * hcal::constants::nsPerBX;
+      auto const* accVarLenIdxZeroVec = accVarLenIdxZeroVecValues + recoPulseShapeId * hcal::constants::nsPerBX;
+      auto const* diffVarItvlIdxZeroVec = diffVarItvlIdxZeroVecValues + recoPulseShapeId * hcal::constants::nsPerBX;
 
       // offset output arrays
       auto* pulseMatrix = pulseMatrices + nsamples * npulses * gch;
@@ -718,7 +716,6 @@ namespace hcal {
       // can be relaxed if needed - minor updates are needed in that case!
       static_assert(NPULSES == NSAMPLES);
 
-
       // indices
       auto const gch = threadIdx.x + blockIdx.x * blockDim.x;
       auto const nchannelsf015 = nchannelsf01HE + nchannelsf5HB;
@@ -813,7 +810,6 @@ namespace hcal {
         printf("\n");
       }
 #endif
-
 
       int npassive = 0;
       float chi2 = 0, previous_chi2 = 0.f, chi2_2itersback = 0.f;
@@ -947,7 +943,7 @@ namespace hcal {
 
         // run fast nnls
         calo::multifit::fnnls(
-			      AtA, Atb, resultAmplitudesVector, npassive, pulseOffsets, matrixLForFnnls, nnlsThresh, nMaxItersNNLS, 10, 10);
+            AtA, Atb, resultAmplitudesVector, npassive, pulseOffsets, matrixLForFnnls, nnlsThresh, nMaxItersNNLS, 10, 10);
 
 #ifdef HCAL_MAHI_GPUDEBUG
         printf("result Amplitudes\n");
@@ -1065,8 +1061,8 @@ namespace hcal {
       */
     }
 
-  }
-}
+  }  // namespace mahi
+}  // namespace hcal
 
 namespace hcal {
   namespace reconstruction {
@@ -1225,7 +1221,7 @@ namespace hcal {
         uint32_t threadsPerBlock = configParameters.kernelMinimizeThreads[0];
         uint32_t blocks = threadsPerBlock > totalChannels ? 1 : (totalChannels + threadsPerBlock - 1) / threadsPerBlock;
         auto const nbytesShared = 2 * threadsPerBlock * calo::multifit::MapSymM<float, 8>::total * sizeof(float);
-	hcal::mahi::kernel_minimize<8, 8><<<blocks, threadsPerBlock, nbytesShared, cudaStream>>>(
+        hcal::mahi::kernel_minimize<8, 8><<<blocks, threadsPerBlock, nbytesShared, cudaStream>>>(
             outputGPU.recHits.energy.get(),
             outputGPU.recHits.chi2.get(),
             scratch.amplitudes.get(),
@@ -1266,5 +1262,5 @@ namespace hcal {
       }
     }
 
-  }  // namespace mahi
+  }  // namespace reconstruction
 }  // namespace hcal
