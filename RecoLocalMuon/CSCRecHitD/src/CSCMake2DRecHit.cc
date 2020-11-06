@@ -156,7 +156,7 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id,
   float stripWidth = -99.f;
   // If at the edge, then used 1 strip cluster only
   if (centerStrip == 1 || centerStrip == specs_->nStrips() || nStrip < 2) {
-    lp0 = (layergeom_->possibleRecHitPosition( float(centerStrip) - 0.5, wilo, wihi )).first;
+    lp0 = (layergeom_->possibleRecHitPosition( float(centerStrip) - 0.5, wglo, wghi )).first;
     ymiddle = lp0.y();
     positionWithinTheStrip = 0.f;
     stripWidth = layergeom_->stripPitch(lp0);
