@@ -87,10 +87,12 @@ void HLTDisplacedmumuVtxProducer::produce(edm::StreamID, edm::Event& iEvent, con
 
   // get the objects passing the previous filter
   Handle<TriggerFilterObjectWithRefs> previousCands;
-  if(matchToPrevious_) iEvent.getByToken(previousCandToken_, previousCands);
+  if (matchToPrevious_)
+    iEvent.getByToken(previousCandToken_, previousCands);
 
   vector<RecoChargedCandidateRef> vPrevCands;
-  if(matchToPrevious_) previousCands->getObjects(TriggerMuon, vPrevCands);
+  if (matchToPrevious_)
+    previousCands->getObjects(TriggerMuon, vPrevCands);
 
   for (cand1 = mucands->begin(); cand1 != mucands->end(); cand1++) {
     TrackRef tk1 = cand1->get<TrackRef>();
