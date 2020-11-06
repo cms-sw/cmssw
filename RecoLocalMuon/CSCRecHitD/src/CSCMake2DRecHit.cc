@@ -146,17 +146,15 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id,
   float ymiddle;
 
   // First wire of first wiregroup in cluster
-  wglo = layergeom_->middleWireOfGroup(wglo) + 0.5 
-    - 0.5 * layergeom_->numberOfWiresPerGroup(wglo);
-
+  wglo = layergeom_->middleWireOfGroup(wglo) + 0.5 - 0.5 * layergeom_->numberOfWiresPerGroup(wglo);
+  
   // Last wire in last wiregroup of cluster (OK if only 1 wiregroup too)
-  wghi = layergeom_->middleWireOfGroup(wghi) - 0.5 
-    + 0.5 * layergeom_->numberOfWiresPerGroup(wghi);
+  wghi = layergeom_->middleWireOfGroup(wghi) - 0.5 + 0.5 * layergeom_->numberOfWiresPerGroup(wghi);
   
   float stripWidth = -99.f;
   // If at the edge, then used 1 strip cluster only
   if (centerStrip == 1 || centerStrip == specs_->nStrips() || nStrip < 2) {
-    lp0 = (layergeom_->possibleRecHitPosition( float(centerStrip) - 0.5, wglo, wghi )).first;
+    lp0 = (layergeom_->possibleRecHitPosition(float(centerStrip) - 0.5, wglo, wghi)).first;
     ymiddle = lp0.y();
     positionWithinTheStrip = 0.f;
     stripWidth = layergeom_->stripPitch(lp0);
@@ -164,7 +162,7 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id,
     quality = 2;
   } else {
     // If not at the edge, used cluster of size ClusterSize:
-    LocalPoint lp11 = (layergeom_->possibleRecHitPosition( float(centerStrip) - 0.5, wglo, wghi )).first;
+    LocalPoint lp11 = (layergeom_->possibleRecHitPosition(float(centerStrip) - 0.5, wglo, wghi)).first;
     ymiddle = lp11.y();
     stripWidth = layergeom_->stripPitch(lp11);
 
@@ -181,7 +179,7 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id,
                                positionWithinTheStrip,
                                sigmaWithinTheStrip,
                                quality);
-    lp0 = LocalPoint( xWithinChamber, ymiddle );
+    lp0 = LocalPoint(xWithinChamber, ymiddle);
   }
 
   // compute the errors in local x and y
