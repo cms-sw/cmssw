@@ -1,0 +1,4 @@
+<bin name="ppsTrackBasedAligAnalRes" file="ppsTrackBasedAligAnalRes.cc">
+  <use name="root"/>
+  <use name="CondFormats/PPSObjects"/>
+</bin>

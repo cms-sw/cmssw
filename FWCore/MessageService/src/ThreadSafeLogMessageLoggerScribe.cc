@@ -13,7 +13,6 @@
 #include "FWCore/MessageService/src/ELadministrator.h"
 #include "FWCore/MessageService/src/ELoutput.h"
 #include "FWCore/MessageService/src/ELstatistics.h"
-#include "FWCore/MessageService/src/ThreadQueue.h"
 
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
