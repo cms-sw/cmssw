@@ -471,59 +471,67 @@ void CSCHitFromStripOnly::findMaxima(const CSCDetId& id) {
       }
        
       bool additional_maxima_found = false;
-      // search for additional maxima if: 
-	  // - hit is closer than 3 strips from the edge
-	  // - enough consecutive strips with signal
-	  // - strip charge distribution looks abnormal
-      
-      if ( i > 2 && i < (thePulseHeightMap.size()-3) && numberOfConsecutiveStrips > 3){
-	//try to look for additional maxima at the left side from the main maxima
+      // search for additional maxima if:
+      // - hit is closer than 3 strips from the edge
+      // - enough consecutive strips with signal
+      // - strip charge distribution looks abnormal
 
-if(((thePulseHeightMap[i+1].phmax() >= thePulseHeightMap[i-1].phmax() &&
-	    thePulseHeightMap[i+1].phmax() >= thePulseHeightMap[i-2].phmax() &&
-	    thePulseHeightMap[i+2].phmax() <= thePulseHeightMap[i-2].phmax())|| 
-	   (thePulseHeightMap[i+1].phmax() <= thePulseHeightMap[i-1].phmax() &&
-	    thePulseHeightMap[i+1].phmax() <= thePulseHeightMap[i-2].phmax())) && 
-	   thePulseHeightMap[i-1].phmax() >= thePulseHeightMap[i-2].phmax() &&//to avoid close maxima delimitation (this is already present in the code)
-	   thePulseHeightMap[i-2].phmax() > 20){//no need in a small charge maxima (might need adjustment)
+      if (i > 2 && i < (thePulseHeightMap.size() - 3) && numberOfConsecutiveStrips > 3) {
+        //try to look for additional maxima at the left side from the main maxima
 
-	  additional_maxima_found = true;
-	  theMaxima.push_back(i-2);//insert left maxima first
-	  theConsecutiveStrips.push_back(numberOfConsecutiveStrips);//insert the same number of cosecutive strips, because they belong to both maximas
-	  theMaxima.push_back(i);//insert main maxima
-	  theConsecutiveStrips.push_back(numberOfConsecutiveStrips);//insert the same number of cosecutive strips, because they belong to both maximas
-	  
-	}//looking for additional maxima on the left
-	
-	//try to look for additional maxima at the right side from the main maxima
-if(((thePulseHeightMap[i+1].phmax() >= thePulseHeightMap[i-1].phmax() &&
-	    thePulseHeightMap[i+2].phmax() >= thePulseHeightMap[i-1].phmax()) || 
-	   (thePulseHeightMap[i+1].phmax() <= thePulseHeightMap[i-1].phmax() &&
-	    thePulseHeightMap[i+2].phmax() <= thePulseHeightMap[i-1].phmax() &&
-	    thePulseHeightMap[i+2].phmax() >= thePulseHeightMap[i-2].phmax())) && 
-	   thePulseHeightMap[i+1].phmax() >= thePulseHeightMap[i+2].phmax() &&//to avoid close maxima delimitation (this is already present in the code)
-	   thePulseHeightMap[i+2].phmax() > 20){//no need in a small charge maxima (might need adjustment)
-	
-	  additional_maxima_found = true;
-	  theMaxima.push_back(i);//insert main maxima first
-	  theConsecutiveStrips.push_back(numberOfConsecutiveStrips);//insert the same number of cosecutive strips, because they belong to both maximas
-	  theMaxima.push_back(i+2);//insert right maxima
-	  theConsecutiveStrips.push_back(numberOfConsecutiveStrips);//insert the same number of cosecutive strips, because they belong to both maximas
-	  
-	}//looking for additional maxima on the right
-    
-	//if nothing additional found fill the maxima
-	if(!additional_maxima_found){
-	  theMaxima.push_back(i);
-	  theConsecutiveStrips.push_back(numberOfConsecutiveStrips);
-	}
-  }else{//not the case for looking for the additional maxima
-    theMaxima.push_back(i);
-    theConsecutiveStrips.push_back(numberOfConsecutiveStrips);
-  }
-    }//if maximafound
-  }//all pulses
-}//find maxima procedure
+        if (((thePulseHeightMap[i + 1].phmax() >= thePulseHeightMap[i - 1].phmax() &&
+              thePulseHeightMap[i + 1].phmax() >= thePulseHeightMap[i - 2].phmax() &&
+              thePulseHeightMap[i + 2].phmax() <= thePulseHeightMap[i - 2].phmax()) ||
+             (thePulseHeightMap[i + 1].phmax() <= thePulseHeightMap[i - 1].phmax() &&
+              thePulseHeightMap[i + 1].phmax() <= thePulseHeightMap[i - 2].phmax())) &&
+            thePulseHeightMap[i - 1].phmax() >=
+                thePulseHeightMap[i - 2]
+                    .phmax() &&  //to avoid close maxima delimitation (this is already present in the code)
+            thePulseHeightMap[i - 2].phmax() > 20) {  //no need in a small charge maxima (might need adjustment)
+
+          additional_maxima_found = true;
+          theMaxima.push_back(i - 2);  //insert left maxima first
+          theConsecutiveStrips.push_back(
+              numberOfConsecutiveStrips);  //insert the same number of cosecutive strips, because they belong to both maximas
+          theMaxima.push_back(i);          //insert main maxima
+          theConsecutiveStrips.push_back(
+              numberOfConsecutiveStrips);  //insert the same number of cosecutive strips, because they belong to both maximas
+
+        }  //looking for additional maxima on the left
+
+        //try to look for additional maxima at the right side from the main maxima
+        if (((thePulseHeightMap[i + 1].phmax() >= thePulseHeightMap[i - 1].phmax() &&
+              thePulseHeightMap[i + 2].phmax() >= thePulseHeightMap[i - 1].phmax()) ||
+             (thePulseHeightMap[i + 1].phmax() <= thePulseHeightMap[i - 1].phmax() &&
+              thePulseHeightMap[i + 2].phmax() <= thePulseHeightMap[i - 1].phmax() &&
+              thePulseHeightMap[i + 2].phmax() >= thePulseHeightMap[i - 2].phmax())) &&
+            thePulseHeightMap[i + 1].phmax() >=
+                thePulseHeightMap[i + 2]
+                    .phmax() &&  //to avoid close maxima delimitation (this is already present in the code)
+            thePulseHeightMap[i + 2].phmax() > 20) {  //no need in a small charge maxima (might need adjustment)
+
+          additional_maxima_found = true;
+          theMaxima.push_back(i);  //insert main maxima first
+          theConsecutiveStrips.push_back(
+              numberOfConsecutiveStrips);  //insert the same number of cosecutive strips, because they belong to both maximas
+          theMaxima.push_back(i + 2);  //insert right maxima
+          theConsecutiveStrips.push_back(
+              numberOfConsecutiveStrips);  //insert the same number of cosecutive strips, because they belong to both maximas
+
+        }  //looking for additional maxima on the right
+
+        //if nothing additional found fill the maxima
+        if (!additional_maxima_found) {
+          theMaxima.push_back(i);
+          theConsecutiveStrips.push_back(numberOfConsecutiveStrips);
+        }
+      } else {  //not the case for looking for the additional maxima
+        theMaxima.push_back(i);
+        theConsecutiveStrips.push_back(numberOfConsecutiveStrips);
+      }
+    }  //if maximafound
+  }    //all pulses
+}  //find maxima procedure
 
 bool CSCHitFromStripOnly::isPeakOK(int iStrip, float heightCluster) {
   int i = iStrip;
