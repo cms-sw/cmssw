@@ -20,7 +20,12 @@ public:
   TICLCandidate() : LeafCandidate(), time_(0.f), timeError_(-1.f), rawEnergy_(0.f), idProbabilities_{} {}
 
   TICLCandidate(const edm::Ptr<ticl::Trackster>& trackster)
-      : LeafCandidate(), time_(trackster->time()), timeError_(trackster->timeError()), rawEnergy_(0.f), tracksters_({trackster}), idProbabilities_{} {}
+      : LeafCandidate(),
+        time_(trackster->time()),
+        timeError_(trackster->timeError()),
+        rawEnergy_(0.f),
+        tracksters_({trackster}),
+        idProbabilities_{} {}
 
   inline float time() const { return time_; }
   inline float timeError() const { return timeError_; }
