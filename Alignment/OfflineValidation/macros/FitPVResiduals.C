@@ -367,7 +367,8 @@ std::array<float, nPtBins_ + 1> mypT_bins = {{0.5,  0.6, 0.7, 0.8, 0.9, 1.0, 1.1
 
 // inline function
 int check(const double a[], int n) {
-  while (--n > 0 && a[n] == a[0])
+  //while (--n > 0 && a[n] == a[0])    // exact match
+  while (--n > 0 && (a[n]-a[0])<0.01)  // merged input files, protection agains numerical precision
     ;
   return n != 0;
 }
