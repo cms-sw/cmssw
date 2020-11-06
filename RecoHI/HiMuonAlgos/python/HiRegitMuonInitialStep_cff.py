@@ -41,20 +41,20 @@ trackingPhase1.toModify(hiRegitMuInitialStepHitDoublets, layerPairs = [0])
 hiRegitMuInitialStepHitTriplets = RecoTracker.IterativeTracking.InitialStep_cff.initialStepHitTriplets.clone(
     doublets = "hiRegitMuInitialStepHitDoublets"
 )
-hiRegitMuInitialStepSeeds     = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeeds.clone(
+hiRegitMuInitialStepSeeds = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeeds.clone(
     seedingHitSets = "hiRegitMuInitialStepHitTriplets"
 )
 
 
 # building: feed the new-named seeds
-hiRegitMuInitialStepTrajectoryFilterBase = RecoTracker.IterativeTracking.InitialStep_cff.initialStepTrajectoryFilterBase.clone()
-hiRegitMuInitialStepTrajectoryFilterBase.minPt = 2.5 # after each new hit, apply pT cut for traj w/ at least minHitsMinPt = cms.int32(3),
-
-hiRegitMuInitialStepTrajectoryFilter = RecoTracker.IterativeTracking.InitialStep_cff.initialStepTrajectoryFilter.clone()
-hiRegitMuInitialStepTrajectoryFilter.filters = cms.VPSet(
+hiRegitMuInitialStepTrajectoryFilterBase = RecoTracker.IterativeTracking.InitialStep_cff.initialStepTrajectoryFilterBase.clone(
+    minPt = 2.5 # after each new hit, apply pT cut for traj w/ at least minHitsMinPt = cms.int32(3),
+)
+hiRegitMuInitialStepTrajectoryFilter = RecoTracker.IterativeTracking.InitialStep_cff.initialStepTrajectoryFilter.clone(
+    filters = cms.VPSet(
       cms.PSet( refToPSet_ = cms.string('hiRegitMuInitialStepTrajectoryFilterBase')),
       cms.PSet( refToPSet_ = cms.string('initialStepTrajectoryFilterShape')))
-
+)
 
 hiRegitMuInitialStepTrajectoryBuilder = RecoTracker.IterativeTracking.InitialStep_cff.initialStepTrajectoryBuilder.clone(
     trajectoryFilter = cms.PSet(
@@ -63,70 +63,70 @@ hiRegitMuInitialStepTrajectoryBuilder = RecoTracker.IterativeTracking.InitialSte
 )
 
 # track candidates
-hiRegitMuInitialStepTrackCandidates        =  RecoTracker.IterativeTracking.InitialStep_cff.initialStepTrackCandidates.clone(
-    src               = cms.InputTag('hiRegitMuInitialStepSeeds'),
+hiRegitMuInitialStepTrackCandidates = RecoTracker.IterativeTracking.InitialStep_cff.initialStepTrackCandidates.clone(
+    src               = 'hiRegitMuInitialStepSeeds',
     TrajectoryBuilderPSet = cms.PSet(
        refToPSet_ = cms.string('hiRegitMuInitialStepTrajectoryBuilder')
        ),
-    maxNSeeds         = cms.uint32(1000000)
-    )
+    maxNSeeds         = 1000000
+)
 
 # fitting: feed new-names
-hiRegitMuInitialStepTracks                 = RecoTracker.IterativeTracking.InitialStep_cff.initialStepTracks.clone(
-    AlgorithmName = cms.string('hiRegitMuInitialStep'),
-    src                 = 'hiRegitMuInitialStepTrackCandidates'
+hiRegitMuInitialStepTracks = RecoTracker.IterativeTracking.InitialStep_cff.initialStepTracks.clone(
+    AlgorithmName = 'hiRegitMuInitialStep',
+    src           = 'hiRegitMuInitialStepTrackCandidates'
 )
 
 
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 import RecoHI.HiTracking.hiMultiTrackSelector_cfi
 hiRegitMuInitialStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackSelector.clone(
-    src                 ='hiRegitMuInitialStepTracks',
-    vertices            = cms.InputTag("hiSelectedPixelVertex"),
-    useAnyMVA = cms.bool(True),
-    GBRForestLabel = cms.string('HIMVASelectorIter4'),
-    GBRForestVars = cms.vstring(['chi2perdofperlayer', 'dxyperdxyerror', 'dzperdzerror', 'nhits', 'nlayers', 'eta']),
-    trackSelectors= cms.VPSet(
+    src            ='hiRegitMuInitialStepTracks',
+    vertices       = "hiSelectedPixelVertex",
+    useAnyMVA      = True,
+    GBRForestLabel = 'HIMVASelectorIter4',
+    GBRForestVars  = ['chi2perdofperlayer', 'dxyperdxyerror', 'dzperdzerror', 'nhits', 'nlayers', 'eta'],
+    trackSelectors = cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
            name = 'hiRegitMuInitialStepLoose',
-           min_nhits = cms.uint32(8)
+           min_nhits = 8
             ), #end of pset
         RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
             name = 'hiRegitMuInitialStepTight',
             preFilterName = 'hiRegitMuInitialStepLoose',
-            min_nhits = cms.uint32(8),
-            useMVA = cms.bool(True),
-            minMVA = cms.double(-0.38)
+            min_nhits = 8,
+            useMVA = True,
+            minMVA = -0.38
             ),
         RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
             name = 'hiRegitMuInitialStep',
             preFilterName = 'hiRegitMuInitialStepTight',
-            min_nhits = cms.uint32(8),
-            useMVA = cms.bool(True),
-            minMVA = cms.double(-0.77)
+            min_nhits = 8,
+            useMVA = True,
+            minMVA = -0.77
             ),
         ) #end of vpset
     )
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
-trackingPhase1.toModify(hiRegitMuInitialStepSelector, useAnyMVA = cms.bool(False))
+trackingPhase1.toModify(hiRegitMuInitialStepSelector, useAnyMVA = False)
 trackingPhase1.toModify(hiRegitMuInitialStepSelector, trackSelectors= cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
            name = 'hiRegitMuInitialStepLoose',
-           min_nhits = cms.uint32(8)
+           min_nhits = 8
             ), #end of pset
         RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
             name = 'hiRegitMuInitialStepTight',
             preFilterName = 'hiRegitMuInitialStepLoose',
-            min_nhits = cms.uint32(8),
-            useMVA = cms.bool(False),
-            minMVA = cms.double(-0.38)
+            min_nhits = 8,
+            useMVA = False,
+            minMVA = -0.38
             ),
         RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
             name = 'hiRegitMuInitialStep',
             preFilterName = 'hiRegitMuInitialStepTight',
-            min_nhits = cms.uint32(8),
-            useMVA = cms.bool(False),
-            minMVA = cms.double(-0.77)
+            min_nhits = 8,
+            useMVA = False,
+            minMVA = -0.77
             ),
         )
 )
