@@ -43,7 +43,8 @@ def main(opts):
 
     if opts.collection==layerClustersGeneralLabel:
 	hgclayclus = [hgcalPlots.hgcalLayerClustersPlotter]
-	val.doPlots(hgclayclus, plotterDrawArgs=drawArgs)
+	hgcalPlots.append_hgcalLayerClustersPlots("hgcalLayerClusters", "Layer Clusters")
+        val.doPlots(hgclayclus, plotterDrawArgs=drawArgs)
     elif (opts.collection in trackstersIters) or (opts.collection == multiclustersGeneralLabel):
         tracksterCollection = opts.collection.replace("ticlMultiClustersFromTracksters","ticlTracksters")
         hgcmulticlus = [hgcalPlots.hgcalMultiClustersPlotter]
@@ -51,11 +52,15 @@ def main(opts):
         val.doPlots(hgcmulticlus, plotterDrawArgs=drawArgs)
     elif opts.collection==hitValidationLabel:
     	hgchit = [hgcalPlots.hgcalHitPlotter]
+        hgcalPlots.append_hgcalHitsPlots('HGCalSimHitsV', "Simulated Hits")
+        hgcalPlots.append_hgcalHitsPlots('HGCalRecHitsV', "Reconstruced Hits")
+        hgcalPlots.append_hgcalDigisPlots('HGCalDigisV', "Digis")
     	val.doPlots(hgchit, plotterDrawArgs=drawArgs)   
     elif opts.collection==hitCalibrationLabel:
         hgchitcalib = [hgcalPlots.hgcalHitCalibPlotter]
         val.doPlots(hgchitcalib, plotterDrawArgs=drawArgs)
     else :
+
         #hits
     	hgchit = [hgcalPlots.hgcalHitPlotter]
         hgcalPlots.append_hgcalHitsPlots('HGCalSimHitsV', "Simulated Hits")
@@ -67,22 +72,17 @@ def main(opts):
         hgchitcalib = [hgcalPlots.hgcalHitCalibPlotter]
         val.doPlots(hgchitcalib, plotterDrawArgs=drawArgs)
 
+ 	#layer clusters 
+	hgclayclus = [hgcalPlots.hgcalLayerClustersPlotter]
+	hgcalPlots.append_hgcalLayerClustersPlots("hgcalLayerClusters", "Layer Clusters")
+	val.doPlots(hgclayclus, plotterDrawArgs=drawArgs)
+
         #multiclusters
         hgcmulticlus = [hgcalPlots.hgcalMultiClustersPlotter]
         for i_iter in trackstersIters :
             tracksterCollection = i_iter.replace("ticlMultiClustersFromTracksters","ticlTracksters")
             hgcalPlots.append_hgcalMultiClustersPlots(i_iter, tracksterCollection)
         val.doPlots(hgcmulticlus, plotterDrawArgs=drawArgs)
-
-	#hgclayclus = [hgcalPlots.hgcalLayerClustersPlotter]
-	#val.doPlots(hgclayclus, plotterDrawArgs=drawArgs)
-
-
-#        #In case of all you have to keep a specific order in one to one 
-#        #correspondance between subdirprefix and collections and validation names
-#	#layer clusters 
-#	hgclayclus = [hgcalPlots.hgcalLayerClustersPlotter]
-#	val.doPlots(hgclayclus, plotterDrawArgs=drawArgs)
 
     if opts.no_html:
         print("Plots created into directory '%s'." % opts.outputDir)
