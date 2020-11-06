@@ -10,27 +10,43 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalConvertedEffectivePedestalWidthsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalConvertedEffectivePedestalsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalConvertedPedestalWidthsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalConvertedPedestalsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalGainWidthsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalGainsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalLUTCorrsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalQIECodersGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalQIETypesGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalRecoParamsWithPulseShapesGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalRespCorrsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalSiPMCharacteristicsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalSiPMParametersGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalTimeCorrsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalMahiPulseOffsetsGPU.h"
-
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
 
+#include "CondFormats/HcalObjects/interface/HcalGainWidthsGPU.h"
+#include "CondFormats/HcalObjects/interface/HcalGainsGPU.h"
+#include "CondFormats/HcalObjects/interface/HcalLUTCorrsGPU.h"
+#include "CondFormats/HcalObjects/interface/HcalQIECodersGPU.h"
+#include "CondFormats/HcalObjects/interface/HcalQIETypesGPU.h"
+#include "CondFormats/HcalObjects/interface/HcalRecoParamsGPU.h"
+#include "CondFormats/HcalObjects/interface/HcalRespCorrsGPU.h"
+#include "CondFormats/HcalObjects/interface/HcalSiPMCharacteristicsGPU.h"
+#include "CondFormats/HcalObjects/interface/HcalSiPMParametersGPU.h"
+#include "CondFormats/HcalObjects/interface/HcalTimeCorrsGPU.h"
+
+#include "CondFormats/DataRecord/interface/HcalGainWidthsRcd.h"
+#include "CondFormats/DataRecord/interface/HcalGainsRcd.h"
+#include "CondFormats/DataRecord/interface/HcalLUTCorrsRcd.h"
+#include "CondFormats/DataRecord/interface/HcalQIEDataRcd.h"
+#include "CondFormats/DataRecord/interface/HcalQIETypesRcd.h"
+#include "CondFormats/DataRecord/interface/HcalRecoParamsRcd.h"
+#include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
+#include "CondFormats/DataRecord/interface/HcalSiPMCharacteristicsRcd.h"
+#include "CondFormats/DataRecord/interface/HcalSiPMParametersRcd.h"
+#include "CondFormats/DataRecord/interface/HcalTimeCorrsRcd.h"
+
+#include "CondFormats/HcalObjects/interface/HcalCombinedRecordsGPU.h"
+#include "CondFormats/HcalObjects/interface/HcalConvertedEffectivePedestalWidthsGPU.h"
+#include "CondFormats/HcalObjects/interface/HcalConvertedEffectivePedestalsGPU.h"
+//#include "CondFormats/HcalObjects/interface/HcalConvertedPedestalWidthsGPU.h"
+//#include "CondFormats/HcalObjects/interface/HcalConvertedPedestalsGPU.h"
+
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalRecoParamsWithPulseShapesGPU.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalMahiPulseOffsetsGPU.h"
+#include "HcalMahiPulseOffsetsGPURecord.h"
+
 namespace hcal {
-  namespace mahi {
+  namespace reconstruction {
 
     struct ConditionsProducts {
       HcalGainWidthsGPU::Product const& gainWidths;
@@ -99,12 +115,12 @@ namespace hcal {
     };
 
     struct InputDataGPU {
-      DigiCollection<Flavor01, ::calo::common::DevStoragePolicy> const& f01HEDigis;
+      DigiCollection<Flavor1, ::calo::common::DevStoragePolicy> const& f01HEDigis;
       DigiCollection<Flavor5, ::calo::common::DevStoragePolicy> const& f5HBDigis;
       DigiCollection<Flavor3, ::calo::common::DevStoragePolicy> const& f3HBDigis;
     };
 
   }  // namespace mahi
-}  // namespace hcal
+}  // namespace reconstruction
 
 #endif  // RecoLocalCalo_HcalRecProducers_src_DeclsForKernels_h

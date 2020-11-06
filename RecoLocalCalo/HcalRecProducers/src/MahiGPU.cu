@@ -1,12 +1,12 @@
 #include <Eigen/Dense>
 
-#include "DataFormats/HcalRecHit/interface/HcalSpecialTimes.h"
 #include "DataFormats/CaloRecHit/interface/MultifitComputations.h"
 
 // nvcc not able to parse this guy (whatever is inlcuded from it)....
 //#include "RecoLocalCalo/HcalRecAlgos/interface/PulseShapeFunctor.h"
 
-#include "MahiGPU.h"
+#include "SimpleAlgoGPU.h"
+#include "KernelHelpers.h"
 
 #ifdef HCAL_MAHI_GPUDEBUG
 #define DETID_TO_DEBUG 1125647428
@@ -14,6 +14,13 @@
 
 namespace hcal {
   namespace mahi {
+
+    // TODO: provide constants from configuration
+    // from RecoLocalCalo/HcalRecProducers/python/HBHEMahiParameters_cfi.py
+    constexpr int nMaxItersMin = 50;
+    constexpr int nMaxItersNNLS = 500;
+    constexpr double nnlsThresh = 1e-11;
+    constexpr float deltaChi2Threashold = 1e-3;
 
     // Assume: same number of samples for HB and HE
     // TODO: add/validate restrict (will increase #registers in use by the kernel)
@@ -120,7 +127,7 @@ namespace hcal {
 
       // get event input quantities
       auto const stride = gch < nchannelsf01HE ? stridef01HE : (gch < nchannelsf015 ? stridef5HB : stridef3HB);
-      auto const nsamples = gch < nchannelsf01HE ? compute_nsamples<Flavor01>(stride)
+      auto const nsamples = gch < nchannelsf01HE ? compute_nsamples<Flavor1>(stride)
                                                  : (gch < nchannelsf015 ? compute_nsamples<Flavor5>(stride)
                                                                         : compute_nsamples<Flavor3>(stride));
 
@@ -134,12 +141,12 @@ namespace hcal {
       auto const did = HcalDetId{id};
       auto const adc =
           gch < nchannelsf01HE
-              ? adc_for_sample<Flavor01>(dataf01HE + stride * gch, sample)
+              ? adc_for_sample<Flavor1>(dataf01HE + stride * gch, sample)
               : (gch < nchannelsf015 ? adc_for_sample<Flavor5>(dataf5HB + stride * (gch - nchannelsf01HE), sample)
                                      : adc_for_sample<Flavor3>(dataf3HB + stride * (gch - nchannelsf015), sample));
       auto const capid =
           gch < nchannelsf01HE
-              ? capid_for_sample<Flavor01>(dataf01HE + stride * gch, sample)
+              ? capid_for_sample<Flavor1>(dataf01HE + stride * gch, sample)
               : (gch < nchannelsf015 ? capid_for_sample<Flavor5>(dataf5HB + stride * (gch - nchannelsf01HE), sample)
                                      : capid_for_sample<Flavor3>(dataf3HB + stride * (gch - nchannelsf015), sample));
 
@@ -198,7 +205,7 @@ namespace hcal {
         // NOTE: assume that soi is high only for a single guy!
         //   which must be the case. cpu version does not check for that
         //   if that is not the case, we will see that with cuda mmecheck
-        auto const soibit = soibit_for_sample<Flavor01>(dataf01HE + stride * gch, sample);
+        auto const soibit = soibit_for_sample<Flavor1>(dataf01HE + stride * gch, sample);
         if (soibit == 1)
           soiSamples[gch] = sampleWithinWindow;
       } else if (gch >= nchannelsf015) {
@@ -252,7 +259,7 @@ namespace hcal {
         rawCharge = (charge - pedestal) * factor + pedestal;
 #ifdef COMPUTE_TDC_TIME
         if (gch < nchannelsf01HE)
-          tdcTime = HcalSpecialTimes::getTDCTime(tdc_for_sample<Flavor01>(dataf01HE + stride * gch, sample));
+          tdcTime = HcalSpecialTimes::getTDCTime(tdc_for_sample<Flavor1>(dataf01HE + stride * gch, sample));
         else if (gch >= nchannelsf015)
           tdcTime =
               HcalSpecialTimes::getTDCTime(tdc_for_sample<Flavor3>(dataf3HB + stride * (gch - nchannelsf015), sample));
@@ -711,6 +718,7 @@ namespace hcal {
       // can be relaxed if needed - minor updates are needed in that case!
       static_assert(NPULSES == NSAMPLES);
 
+
       // indices
       auto const gch = threadIdx.x + blockIdx.x * blockDim.x;
       auto const nchannelsf015 = nchannelsf01HE + nchannelsf5HB;
@@ -765,8 +773,6 @@ namespace hcal {
       // TODO: provide this properly
       int const soi = soiSamples[gch];
       */
-      constexpr float deltaChi2Threashold = 1e-3;
-
       calo::multifit::ColumnVector<NPULSES, int> pulseOffsets;
 #pragma unroll
       for (int i = 0; i < NPULSES; ++i)
@@ -808,10 +814,10 @@ namespace hcal {
       }
 #endif
 
+
       int npassive = 0;
       float chi2 = 0, previous_chi2 = 0.f, chi2_2itersback = 0.f;
-      // TOOD: provide constants from configuration
-      for (int iter = 1; iter < 50; iter++) {
+      for (int iter = 1; iter < nMaxItersMin; iter++) {
         //float covarianceMatrixStorage[MapSymM<float, NSAMPLES>::total];
         // NOTE: only works when NSAMPLES == NPULSES
         // if does not hold -> slightly rearrange shared mem to still reuse
@@ -940,9 +946,8 @@ namespace hcal {
         calo::multifit::MapSymM<float, NPULSES> matrixLForFnnls{shrMatrixLFnnlsStorage};
 
         // run fast nnls
-        // FIXME: provide values from config
         calo::multifit::fnnls(
-            AtA, Atb, resultAmplitudesVector, npassive, pulseOffsets, matrixLForFnnls, 1e-11, 500, 10, 10);
+			      AtA, Atb, resultAmplitudesVector, npassive, pulseOffsets, matrixLForFnnls, nnlsThresh, nMaxItersNNLS, 10, 10);
 
 #ifdef HCAL_MAHI_GPUDEBUG
         printf("result Amplitudes\n");
@@ -1060,6 +1065,12 @@ namespace hcal {
       */
     }
 
+  }
+}
+
+namespace hcal {
+  namespace reconstruction {
+
     void entryPoint(InputDataGPU const& inputGPU,
                     OutputDataGPU& outputGPU,
                     ConditionsProducts const& conditions,
@@ -1076,7 +1087,7 @@ namespace hcal {
       // TODO: this can be lifted by implementing a separate kernel
       // similar to the default one, but properly handling the diff in #sample
       // or modifying existing one
-      auto const f01nsamples = compute_nsamples<Flavor01>(inputGPU.f01HEDigis.stride);
+      auto const f01nsamples = compute_nsamples<Flavor1>(inputGPU.f01HEDigis.stride);
       auto const f5nsamples = compute_nsamples<Flavor5>(inputGPU.f5HBDigis.stride);
       auto const f3nsamples = compute_nsamples<Flavor3>(inputGPU.f3HBDigis.stride);
       int constexpr windowSize = 8;
@@ -1093,7 +1104,7 @@ namespace hcal {
                        : (totalChannels + threadsPerBlock.y - 1) / threadsPerBlock.y;
       int nbytesShared =
           ((2 * windowSize + 2) * sizeof(float) + sizeof(uint64_t)) * configParameters.kprep1dChannelsPerBlock;
-      kernel_prep1d_sameNumberOfSamples<<<blocks, threadsPerBlock, nbytesShared, cudaStream>>>(
+      hcal::mahi::kernel_prep1d_sameNumberOfSamples<<<blocks, threadsPerBlock, nbytesShared, cudaStream>>>(
           scratch.amplitudes.get(),
           scratch.noiseTerms.get(),
           outputGPU.recHits.energy.get(),
@@ -1166,7 +1177,7 @@ namespace hcal {
       std::cout << "blocks: " << blocks2 << std::endl;
 #endif
 
-      kernel_prep_pulseMatrices_sameNumberOfSamples<<<blocks2, threadsPerBlock2, 0, cudaStream>>>(
+      hcal::mahi::kernel_prep_pulseMatrices_sameNumberOfSamples<<<blocks2, threadsPerBlock2, 0, cudaStream>>>(
           scratch.pulseMatrices.get(),
           scratch.pulseMatricesM.get(),
           scratch.pulseMatricesP.get(),
@@ -1214,7 +1225,7 @@ namespace hcal {
         uint32_t threadsPerBlock = configParameters.kernelMinimizeThreads[0];
         uint32_t blocks = threadsPerBlock > totalChannels ? 1 : (totalChannels + threadsPerBlock - 1) / threadsPerBlock;
         auto const nbytesShared = 2 * threadsPerBlock * calo::multifit::MapSymM<float, 8>::total * sizeof(float);
-        kernel_minimize<8, 8><<<blocks, threadsPerBlock, nbytesShared, cudaStream>>>(
+	hcal::mahi::kernel_minimize<8, 8><<<blocks, threadsPerBlock, nbytesShared, cudaStream>>>(
             outputGPU.recHits.energy.get(),
             outputGPU.recHits.chi2.get(),
             scratch.amplitudes.get(),

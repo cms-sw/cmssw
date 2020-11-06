@@ -29,8 +29,8 @@ private:
 
   // type aliases
   using HostCollectionf01 =
-      hcal::DigiCollection<hcal::Flavor01, calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>>;
-  using DeviceCollectionf01 = hcal::DigiCollection<hcal::Flavor01, calo::common::DevStoragePolicy>;
+      hcal::DigiCollection<hcal::Flavor1, calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>>;
+  using DeviceCollectionf01 = hcal::DigiCollection<hcal::Flavor1, calo::common::DevStoragePolicy>;
   using HostCollectionf5 =
       hcal::DigiCollection<hcal::Flavor5, calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>>;
   using DeviceCollectionf5 = hcal::DigiCollection<hcal::Flavor5, calo::common::DevStoragePolicy>;
@@ -92,7 +92,7 @@ HcalDigisProducerGPU::HcalDigisProducerGPU(const edm::ParameterSet& ps)
 
   // this is a preallocation for the max statically known number of time samples
   // actual stride/nsamples will be inferred from data
-  hf01_.stride = hcal::compute_stride<hcal::Flavor01>(QIE11DigiCollection::MAXSAMPLES);
+  hf01_.stride = hcal::compute_stride<hcal::Flavor1>(QIE11DigiCollection::MAXSAMPLES);
   hf5_.stride = hcal::compute_stride<hcal::Flavor5>(HBHEDataFrame::MAXSAMPLES);
   hf3_.stride = hcal::compute_stride<hcal::Flavor3>(QIE11DigiCollection::MAXSAMPLES);
 
@@ -137,7 +137,7 @@ void HcalDigisProducerGPU::acquire(edm::Event const& event,
 
   if (not qie11Digis->empty()) {
     auto const nsamples = qie11Digis->samples();
-    auto const stride01 = hcal::compute_stride<hcal::Flavor01>(nsamples);
+    auto const stride01 = hcal::compute_stride<hcal::Flavor1>(nsamples);
     auto const stride3 = hcal::compute_stride<hcal::Flavor3>(nsamples);
 
     hf01_.stride = stride01;
@@ -181,10 +181,10 @@ void HcalDigisProducerGPU::acquire(edm::Event const& event,
         continue;
       auto const id = digi.detid().rawId();
       hf01_.ids.push_back(id);
-      for (int hw = 0; hw < hcal::Flavor01::HEADER_WORDS; hw++)
+      for (int hw = 0; hw < hcal::Flavor1::HEADER_WORDS; hw++)
         hf01_.data.push_back((*qie11Digis)[i][hw]);
       for (int sample = 0; sample < digi.samples(); sample++) {
-        hf01_.data.push_back((*qie11Digis)[i][hcal::Flavor01::HEADER_WORDS + sample]);
+        hf01_.data.push_back((*qie11Digis)[i][hcal::Flavor1::HEADER_WORDS + sample]);
       }
     } else if (digi.flavor() == 3) {
       if (digi.detid().subdetId() != HcalBarrel)

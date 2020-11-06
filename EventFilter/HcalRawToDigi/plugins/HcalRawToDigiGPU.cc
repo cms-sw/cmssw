@@ -30,7 +30,7 @@ private:
 
 private:
   edm::EDGetTokenT<FEDRawDataCollection> rawDataToken_;
-  using ProductTypef01 = cms::cuda::Product<hcal::DigiCollection<hcal::Flavor01, calo::common::DevStoragePolicy>>;
+  using ProductTypef01 = cms::cuda::Product<hcal::DigiCollection<hcal::Flavor1, calo::common::DevStoragePolicy>>;
   edm::EDPutTokenT<ProductTypef01> digisF01HEToken_;
   using ProductTypef5 = cms::cuda::Product<hcal::DigiCollection<hcal::Flavor5, calo::common::DevStoragePolicy>>;
   edm::EDPutTokenT<ProductTypef5> digisF5HBToken_;
@@ -185,7 +185,7 @@ void HcalRawToDigiGPU::produce(edm::Event& event, edm::EventSetup const& setup) 
   outputGPU_.digisF01HE.size = nchannelsF01HE;
   outputGPU_.digisF5HB.size = nchannelsF5HB;
   outputGPU_.digisF3HB.size = nchannelsF3HB;
-  outputGPU_.digisF01HE.stride = hcal::compute_stride<hcal::Flavor01>(config_.nsamplesF01HE);
+  outputGPU_.digisF01HE.stride = hcal::compute_stride<hcal::Flavor1>(config_.nsamplesF01HE);
   outputGPU_.digisF5HB.stride = hcal::compute_stride<hcal::Flavor5>(config_.nsamplesF5HB);
   outputGPU_.digisF3HB.stride = hcal::compute_stride<hcal::Flavor3>(config_.nsamplesF3HB);
 
