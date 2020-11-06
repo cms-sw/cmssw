@@ -6,18 +6,16 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESProductHost.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/ReusableObjectHolder.h"
 #include "FWCore/Utilities/interface/typelookup.h"
-
+#include "HeterogeneousCore/CUDACore/interface/JobConfigurationGPURecord.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalMultifitParametersGPU.h"
-#include "EcalMultifitParametersGPURecord.h"
-
-#include "FWCore/Framework/interface/SourceFactory.h"
 
 class EcalMultifitParametersGPUESProducer : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
@@ -25,7 +23,7 @@ public:
   ~EcalMultifitParametersGPUESProducer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
-  std::unique_ptr<EcalMultifitParametersGPU> produce(EcalMultifitParametersGPURecord const&);
+  std::unique_ptr<EcalMultifitParametersGPU> produce(JobConfigurationGPURecord const&);
 
 protected:
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
@@ -38,7 +36,7 @@ private:
 
 EcalMultifitParametersGPUESProducer::EcalMultifitParametersGPUESProducer(edm::ParameterSet const& pset) : pset_{pset} {
   setWhatProduced(this);
-  findingRecord<EcalMultifitParametersGPURecord>();
+  findingRecord<JobConfigurationGPURecord>();
 }
 
 void EcalMultifitParametersGPUESProducer::setIntervalFor(const edm::eventsetup::EventSetupRecordKey& iKey,
@@ -74,7 +72,7 @@ void EcalMultifitParametersGPUESProducer::fillDescriptions(edm::ConfigurationDes
 }
 
 std::unique_ptr<EcalMultifitParametersGPU> EcalMultifitParametersGPUESProducer::produce(
-    EcalMultifitParametersGPURecord const&) {
+    JobConfigurationGPURecord const&) {
   return std::make_unique<EcalMultifitParametersGPU>(pset_);
 }
 
