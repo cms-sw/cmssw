@@ -36,7 +36,7 @@ PFTICLProducer::PFTICLProducer(const edm::ParameterSet& conf)
 
 void PFTICLProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("ticlCandidateSrc", edm::InputTag("ticlCandidateFromTracksters"));
+  desc.add<edm::InputTag>("ticlCandidateSrc", edm::InputTag("ticlTrackstersMerge"));
   descriptions.add("pfTICLProducer", desc);
 }
 
@@ -52,6 +52,15 @@ void PFTICLProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSet
     const auto abs_pdg_id = std::abs(ticl_cand.pdgId());
     const auto charge = ticl_cand.charge();
     const auto& four_mom = ticl_cand.p4();
+    double ecal_energy = 0.;
+
+    for (const auto& t : ticl_cand.tracksters()) {
+      double ecal_energy_fraction = t->raw_em_pt() / t->raw_pt();
+      ecal_energy += t->raw_energy() * ecal_energy_fraction;
+    }
+    double hcal_energy = ticl_cand.rawEnergy() - ecal_energy;
+    // fix for floating point rounding could go slightly below 0
+    hcal_energy = hcal_energy < 0 ? 0 : hcal_energy;
 
     reco::PFCandidate::ParticleType part_type;
     switch (abs_pdg_id) {
@@ -78,6 +87,8 @@ void PFTICLProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSet
     candidates->emplace_back(charge, four_mom, part_type);
 
     auto& candidate = candidates->back();
+    candidate.setEcalEnergy(ecal_energy, ecal_energy);
+    candidate.setHcalEnergy(hcal_energy, hcal_energy);
     if (candidate.charge()) {  // otherwise PFCandidate throws
       // Construct edm::Ref from edm::Ptr. As of now, assumes type to be reco::Track. To be extended (either via
       // dynamic type checking or configuration) if additional track types are needed.

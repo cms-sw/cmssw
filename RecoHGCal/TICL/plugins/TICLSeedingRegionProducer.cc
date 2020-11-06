@@ -59,7 +59,7 @@ void TICLSeedingRegionProducer::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
   desc.add<std::string>("cutTk",
                         "1.48 < abs(eta) < 3.0 && pt > 1. && quality(\"highPurity\") && "
-                        "hitPattern().numberOfLostHits(\"MISSING_OUTER_HITS\") < 10");
+                        "hitPattern().numberOfLostHits(\"MISSING_OUTER_HITS\") < 5");
   desc.add<std::string>("propagator", "PropagatorWithMaterial");
   desc.add<int>("algoId", 1);
   descriptions.add("ticlSeedingRegionProducer", desc);
