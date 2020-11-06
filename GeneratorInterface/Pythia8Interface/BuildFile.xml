@@ -10,6 +10,7 @@
 <use name="vincia"/>
 <use name="hepmc"/>
 <use name="clhep"/>
+<use name="root"/>
 <export>
   <lib   name="1"/>
 </export>
