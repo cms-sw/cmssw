@@ -32,6 +32,18 @@ public:
 
   void setTime(float time) { time_ = time; };
   void setTimeError(float timeError) { timeError_ = timeError; }
+  void computeTime() {
+    auto time = 0;
+    auto timeErr = 0;
+    for (const auto tr : tracksters_) {
+      time += tr->time() / pow(tr->timeError(), 2);
+      timeErr += pow(tr->timeError(), -2);
+    }
+    timeErr = sqrt(1 / timeErr);
+
+    setTime(time * pow(timeErr, 2));
+    setTimeError(timeErr);
+  }
 
   inline const edm::Ptr<reco::Track> trackPtr() const { return trackPtr_; }
   void setTrackPtr(const edm::Ptr<reco::Track>& trackPtr) { trackPtr_ = trackPtr; }
@@ -42,7 +54,9 @@ public:
   inline const std::vector<edm::Ptr<ticl::Trackster> > tracksters() const { return tracksters_; };
 
   void setTracksters(const std::vector<edm::Ptr<ticl::Trackster> >& tracksters) { tracksters_ = tracksters; }
-  void addTrackster(const edm::Ptr<ticl::Trackster>& trackster) { tracksters_.push_back(trackster); }
+  void addTrackster(const edm::Ptr<ticl::Trackster>& trackster) { tracksters_.push_back(trackster);
+    computeTime();
+  }
   // convenience method to return the ID probability for a certain particle type
   inline float id_probability(ParticleType type) const {
     // probabilities are stored in the same order as defined in the ParticleType enum
