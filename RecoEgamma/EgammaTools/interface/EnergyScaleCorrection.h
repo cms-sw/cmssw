@@ -10,6 +10,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <map>
 #include <cmath>
 #include <string>
 #include <bitset>
@@ -193,8 +194,8 @@ private:
 
   //data members
   FileFormat smearingType_;
-  std::vector<std::pair<CorrectionCategory, ScaleCorrection> > scales_;
-  std::vector<std::pair<CorrectionCategory, SmearCorrection> > smearings_;
+  std::map<CorrectionCategory, ScaleCorrection> scales_;
+  std::map<CorrectionCategory, SmearCorrection> smearings_;
 
   template <typename T1, typename T2>
   class Sorter {
