@@ -528,6 +528,11 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
     }
   }
 
+  // Compute timing
+  for (auto &cand : *resultCandidates) {
+    cand.computeTime();
+  }
+
   evt.put(std::move(resultCandidates));
 }
 
