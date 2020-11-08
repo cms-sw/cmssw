@@ -136,13 +136,10 @@ void PFTICLProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSet
           // Compute weighted average between HGCAL and MTD timing
           timeE = sqrt(1 / (pow(timeEHGC, -2) + pow(timeEMTD, -2)));
           time = (timeHGC / pow(timeEHGC, 2) + timeMTD / pow(timeEMTD, 2)) * pow(timeE, 2);
-        } else if (timeEMTD > 0 && timeEHGC < 0) {
-          // Passthrough MTD timing if HGCAL is not available
-          timeE = timeEMTD;
+        } else if (timeEMTD > 0) {  // Ignore HGCal timing until it will be TOF corrected
           time = timeMTD;
+          timeE = timeEMTD;
         }
-        time = timeMTD;
-        timeE = timeEMTD;
       }
     }
     candidate.setTime(time, timeE);
