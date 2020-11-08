@@ -35,7 +35,7 @@ public:
   void computeTime() {
     auto time = 0.;
     auto timeErr = 0.;
-    for (const auto tr : tracksters_) {
+    for (const auto& tr : tracksters_) {
       time += tr->time() / pow(tr->timeError(), 2);
       timeErr += pow(tr->timeError(), -2);
     }
