@@ -33,8 +33,8 @@ public:
   void setTime(float time) { time_ = time; };
   void setTimeError(float timeError) { timeError_ = timeError; }
   void computeTime() {
-    auto time = 0;
-    auto timeErr = 0;
+    auto time = 0.;
+    auto timeErr = 0.;
     for (const auto tr : tracksters_) {
       time += tr->time() / pow(tr->timeError(), 2);
       timeErr += pow(tr->timeError(), -2);
