@@ -125,9 +125,6 @@ if __name__ == "__main__":
 
     opts = parser.parse_args()
 
-#    if opts.collection == "all" and len(opts.outputDir)==1:
-#	raise RuntimeError("need to assign names for all directories")
-
     for f in opts.files:
         if not os.path.exists(f):
             parser.error("DQM file %s does not exist" % f)
