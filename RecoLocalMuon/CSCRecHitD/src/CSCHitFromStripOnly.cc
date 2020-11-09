@@ -468,8 +468,8 @@ void CSCHitFromStripOnly::findMaxima(const CSCDetId& id) {
         if (!signalPresent) {
           break;
         }
-      }        
-      
+      }
+
       bool additional_maxima_found = false;
       // search for additional maxima if:
       // - hit is closer than 3 strips from the edge
