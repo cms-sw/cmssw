@@ -1,7 +1,6 @@
 #include "TkStackMeasurementDet.h"
 
 #include "TrackingTools/MeasurementDet/interface/MeasurementDetException.h"
-#include "RecoLocalTracker/SiPhase2VectorHitBuilder/interface/VectorHitBuilderAlgorithm.h"
 
 using namespace std;
 

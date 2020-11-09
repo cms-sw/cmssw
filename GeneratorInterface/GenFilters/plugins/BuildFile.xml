@@ -3,7 +3,6 @@
   <use name="FWCore/Framework"/>
   <use name="FWCore/Utilities"/>
   <use name="SimDataFormats/GeneratorProducts"/>
-  <use name="GeneratorInterface/Pythia6Interface"/>
   <use name="GeneratorInterface/Core"/>
   <use name="SimGeneral/HepPDTRecord"/>
   <use name="DataFormats/GeometryVector"/>
@@ -25,6 +24,7 @@
   <use name="heppdt"/>
   <use name="clhep"/>
   <use name="rootcore"/>
+  <use name="pythia6"/>
   <use name="pythia8"/>
   <flags EDM_PLUGIN="1"/>
 </library>
