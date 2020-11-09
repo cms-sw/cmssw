@@ -5,12 +5,11 @@
 
 class TfGraphDefWrapper {
 public:
-  TfGraphDefWrapper(const std::unique_ptr<tensorflow::GraphDef>);
-  const std::unique_ptr<tensorflow::GraphDef> getGraphDef() const;
+  TfGraphDefWrapper(tensorflow::GraphDef*);
+  tensorflow::GraphDef* getGraphDef() const;
 
 private:
-  const std::unique_ptr<tensorflow::GraphDef> graphDef_;
-  //tensorflow::GraphDef* graphDef_;
+  tensorflow::GraphDef* graphDef_;
 };
 
 #endif

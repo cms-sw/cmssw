@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:    RecoTracker/FinalTrackSelectors/test/TFGraphDefProducer
+// Package:    RecoTracker/FinalTrackSelectors
 // Class:      TFGraphDefProducer
 //
 /**\class TFGraphDefProducer
@@ -56,7 +56,7 @@ std::unique_ptr<TfGraphDefWrapper> TfGraphDefProducer::produce(const TfGraphReco
 void TfGraphDefProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("ComponentName", "tfGraphDef");
-  desc.add<edm::FileInPath>("FileName",edm::FileInPath());
+  desc.add<edm::FileInPath>("FileName");
   descriptions.add("tfGraphDefProducer", desc);
 }
 
