@@ -2,6 +2,8 @@
 
 #include "DataFormats/CaloRecHit/interface/MultifitComputations.h"
 
+// needed to compile with USER_CXXFLAGS="-DCOMPUTE_TDC_TIME"
+#include "DataFormats/HcalRecHit/interface/HcalSpecialTimes.h"
 // TODO reuse some of the HCAL constats from
 //#include "RecoLocalCalo/HcalRecAlgos/interface/HcalConstants.h"
 // ?
@@ -22,6 +24,46 @@ namespace hcal {
     constexpr int nMaxItersNNLS = 500;
     constexpr double nnlsThresh = 1e-11;
     constexpr float deltaChi2Threashold = 1e-3;
+
+    // from RecoLocalCalo/HcalRecProducers/src/HBHEPhase1Reconstructor.cc
+    __forceinline__ __device__ float get_raw_charge(double const charge,
+                                                    double const pedestal,
+                                                    float const* shrChargeMinusPedestal,
+                                                    float const* parLin1Values,
+                                                    float const* parLin2Values,
+                                                    float const* parLin3Values,
+                                                    int32_t const nsamplesForCompute,
+                                                    int32_t const soi,
+                                                    int const sipmQTSShift,
+                                                    int const sipmQNTStoSum,
+                                                    int const sipmType,
+                                                    float const fcByPE,
+                                                    bool const isqie11) {
+      float rawCharge;
+
+      if (!isqie11)
+        rawCharge = charge;
+      else {
+        auto const parLin1 = parLin1Values[sipmType - 1];
+        auto const parLin2 = parLin2Values[sipmType - 1];
+        auto const parLin3 = parLin3Values[sipmType - 1];
+
+        int const first = std::max(soi + sipmQTSShift, 0);
+        int const last = std::min(soi + sipmQNTStoSum, nsamplesForCompute);
+        float sipmq = 0.0f;
+        for (auto ts = first; ts < last; ts++)
+          sipmq += shrChargeMinusPedestal[threadIdx.y * nsamplesForCompute + ts];
+        auto const effectivePixelsFired = sipmq / fcByPE;
+        auto const factor =
+            hcal::reconstruction::compute_reco_correction_factor(parLin1, parLin2, parLin3, effectivePixelsFired);
+        rawCharge = (charge - pedestal) * factor + pedestal;
+
+#ifdef HCAL_MAHI_GPUDEBUG
+        printf("first = %d last = %d sipmQ = %f factor = %f rawCharge = %f\n", first, last, sipmq, factor, rawCharge);
+#endif
+      }
+      return rawCharge;
+    }
 
     // Assume: same number of samples for HB and HE
     // TODO: add/validate restrict (will increase #registers in use by the kernel)
@@ -133,7 +175,7 @@ namespace hcal {
                                                                         : compute_nsamples<Flavor3>(stride));
 
 #ifdef HCAL_MAHI_GPUDEBUG
-      assert(nsamples == nsamplesForCompute || nsamples - startingSample == nsampelsForCompute);
+      assert(nsamples == nsamplesForCompute || nsamples - startingSample == nsamplesForCompute);
 #endif
 
       auto const id = gch < nchannelsf01HE
@@ -230,46 +272,35 @@ namespace hcal {
       // NOTE: this branch will be divergent only for a single warp that
       // sits on the boundary when flavor 01 channels end and flavor 5 start
       //
-      float rawCharge;
-#ifdef COMPUTE_TDC_TIME
-      float tdcTime;
-#endif  // COMPUTE_TDC_TIME
+      float const rawCharge = get_raw_charge(charge,
+                                             pedestal,
+                                             shrChargeMinusPedestal,
+                                             parLin1Values,
+                                             parLin2Values,
+                                             parLin3Values,
+                                             nsamplesForCompute,
+                                             soi,
+                                             sipmQTSShift,
+                                             sipmQNTStoSum,
+                                             sipmType,
+                                             fcByPE,
+                                             gch < nchannelsf01HE || gch >= nchannelsf015);
+
       auto const dfc = hcal::reconstruction::compute_diff_charge_gain(
           qieType, adc, capid, qieOffsets, qieSlopes, gch < nchannelsf01HE || gch >= nchannelsf015);
-      if (gch >= nchannelsf01HE && gch < nchannelsf015) {
-        // flavor 5
-        rawCharge = charge;
-#ifdef COMPUTE_TDC_TIME
-        tdcTime = HcalSpecialTimes::UNKNOWN_T_NOTDC;
-#endif  // COMPUTE_TDC_TIME
-      } else {
-        // flavor 0 or 1 or 3
-        // conditions needed for sipms
-        auto const parLin1 = parLin1Values[sipmType - 1];
-        auto const parLin2 = parLin2Values[sipmType - 1];
-        auto const parLin3 = parLin3Values[sipmType - 1];
 
-        int const first = std::max(soi + sipmQTSShift, 0);
-        int const last = std::min(soi + sipmQNTStoSum, nsamplesForCompute);
-        float sipmq = 0.0f;
-        for (auto ts = first; ts < last; ts++)
-          sipmq += shrChargeMinusPedestal[threadIdx.y * nsamplesForCompute + ts];
-        auto const effectivePixelsFired = sipmq / fcByPE;
-        auto const factor =
-            hcal::reconstruction::compute_reco_correction_factor(parLin1, parLin2, parLin3, effectivePixelsFired);
-        rawCharge = (charge - pedestal) * factor + pedestal;
 #ifdef COMPUTE_TDC_TIME
+      float tdcTime;
+      if (gch >= nchannelsf01HE && gch < nchannelsf015) {
+        tdcTime = HcalSpecialTimes::UNKNOWN_T_NOTDC;
+      } else {
         if (gch < nchannelsf01HE)
           tdcTime = HcalSpecialTimes::getTDCTime(tdc_for_sample<Flavor1>(dataf01HE + stride * gch, sample));
         else if (gch >= nchannelsf015)
           tdcTime =
               HcalSpecialTimes::getTDCTime(tdc_for_sample<Flavor3>(dataf3HB + stride * (gch - nchannelsf015), sample));
-#endif  // COMPUTE_TDC_TIME
-
-#ifdef HCAL_MAHI_GPUDEBUG
-        printf("first = %d last = %d sipmQ = %f factor = %f rawCharge = %f\n", first, last, sipmq, factor, rawCharge);
-#endif
       }
+#endif  // COMPUTE_TDC_TIME
 
       // compute method 0 quantities
       // TODO: need to apply containment
@@ -358,7 +389,7 @@ namespace hcal {
         // FIXME: KNOWN ISSUE: observed a problem when rawCharge and pedestal
         // are basically equal and generate -0.00000...
         // needs to be treated properly
-        if (!(shrEnergyM0TotalAccum[lch] > 0 && energym0_per_ts_gain0 >= ts4Thresh)) {
+        if (!(shrEnergyM0TotalAccum[lch] > 0 && energym0_per_ts_gain0 > ts4Thresh)) {
           // do not need to run mahi minimization
           //outputEnergy[gch] = 0; energy already inited to 0
           outputChi2[gch] = -9999.f;
@@ -378,8 +409,8 @@ namespace hcal {
       //
       auto const amplitude = rawCharge - pedestalToUseForMethod0;
       auto const noiseADC = (1. / std::sqrt(12)) * dfc;
-      auto const noisePhoto = amplitude > pedestalWidth ? std::sqrt(amplitude * fcByPE) : 0.f;
-      auto const noiseTerm = noiseADC * noiseADC + noisePhoto * noisePhoto + pedestalWidth * pedestalWidth;
+      auto const noisePhotoSq = amplitude > pedestalWidth ? (amplitude * fcByPE) : 0.f;
+      auto const noiseTerm = noiseADC * noiseADC + noisePhotoSq + pedestalWidth * pedestalWidth;
 
 #ifdef HCAL_MAHI_GPUDEBUG
       printf(
@@ -396,7 +427,7 @@ namespace hcal {
           sample,
           noiseADC,
           sample,
-          noisePhoto);
+          noisePhotoSq);
 #endif
 
       // store to global memory
@@ -640,7 +671,7 @@ namespace hcal {
           continue;
 
 #ifdef HCAL_MAHI_GPUDEBUG
-        printf("pulse cov array for ibx = %d and offset %d\n", ipulse, offset);
+        printf("pulse cov array for ibx = %d\n", ipulse);
 #endif
 
         // preload a column
@@ -949,84 +980,7 @@ namespace hcal {
           printf("resultAmplitudes(%d) = %f\n", i, resultAmplitudesVector(i));
 #endif
 
-        // replace pulseMatrixView * result - inputs
-        // NOTE:
-        float accum[NSAMPLES];
-        Eigen::Map<calo::multifit::ColumnVector<NSAMPLES>> mapAccum{accum};
-        {
-          float results[NPULSES];
-
-// preload results and permute according to the pulse offsets
-#pragma unroll
-          for (int counter = 0; counter < NPULSES; counter++) {
-            results[counter] = resultAmplitudesVector[counter];
-          }
-
-// load accum
-#pragma unroll
-          for (int counter = 0; counter < NSAMPLES; counter++)
-            accum[counter] = -inputAmplitudesView(counter);
-
-          // iterate
-          for (int icol = 0; icol < NPULSES; icol++) {
-            float pm_col[NSAMPLES];
-
-// preload a column of pulse matrix
-#pragma unroll
-            for (int counter = 0; counter < NSAMPLES; counter++)
-              pm_col[counter] = __ldg(&glbPulseMatrixView.coeffRef(counter, icol));
-
-// accum
-#pragma unroll
-            for (int counter = 0; counter < NSAMPLES; counter++)
-              accum[counter] += results[icol] * pm_col[counter];
-          }
-        }
-
-        // compute chi2 and check that there is no rotation
-        //chi2 = matrixDecomposition
-        //    .matrixL()
-        //    . solve(mapAccum)
-        //            .solve(pulseMatrixView * resultAmplitudesVector - inputAmplitudesView)
-        //    .squaredNorm();
-        {
-          float reg_b_tmp[NSAMPLES];
-          float reg_L[NSAMPLES];
-          float accumSum = 0;
-
-// preload a column and load column 0 of cholesky
-#pragma unroll
-          for (int i = 0; i < NSAMPLES; i++) {
-            reg_b_tmp[i] = mapAccum(i);
-            reg_L[i] = matrixL(i, 0);
-          }
-
-          // compute x0 and store it
-          auto x_prev = reg_b_tmp[0] / reg_L[0];
-          accumSum += x_prev * x_prev;
-
-// iterate
-#pragma unroll
-          for (int iL = 1; iL < NSAMPLES; iL++) {
-// update accum
-#pragma unroll
-            for (int counter = iL; counter < NSAMPLES; counter++)
-              reg_b_tmp[counter] -= x_prev * reg_L[counter];
-
-// load the next column of cholesky
-#pragma unroll
-            for (int counter = iL; counter < NSAMPLES; counter++)
-              reg_L[counter] = matrixL(counter, iL);
-
-            // compute the next x for M(iL, icol)
-            x_prev = reg_b_tmp[iL] / reg_L[iL];
-
-            // store the result value
-            accumSum += x_prev * x_prev;
-          }
-
-          chi2 = accumSum;
-        }
+        calo::multifit::calculateChiSq(matrixL, glbPulseMatrixView, resultAmplitudesVector, inputAmplitudesView, chi2);
 
         auto const deltaChi2 = std::abs(chi2 - previous_chi2);
         if (chi2 == chi2_2itersback && chi2 < previous_chi2)
