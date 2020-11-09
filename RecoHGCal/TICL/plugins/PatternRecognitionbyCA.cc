@@ -181,10 +181,6 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
       //if a seeding region does not lead to any trackster
       tmp.setSeed(input.regions[0].collectionID, seedIndices[tracksterId]);
 
-      std::pair<float, float> timeTrackster(-99., -1.);
-      hgcalsimclustertime::ComputeClusterTime timeEstimator;
-      timeTrackster = timeEstimator.fixSizeHighestDensity(times, timeErrors);
-      tmp.setTimeAndError(timeTrackster.first, timeTrackster.second);
       std::copy(std::begin(effective_cluster_idx), std::end(effective_cluster_idx), std::back_inserter(tmp.vertices()));
       tmpTracksters.push_back(tmp);
     }

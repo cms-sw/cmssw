@@ -3,6 +3,7 @@
 #include "TPrincipal.h"
 
 #include <iostream>
+#include <set>
 
 #include <Eigen/Core>
 #include <Eigen/Dense>
@@ -43,6 +44,7 @@ void ticl::assignPCAtoTracksters(std::vector<Trackster> &tracksters,
 
     std::vector<float> times;
     std::vector<float> timeErrors;
+    std::set<uint32_t> usedLC;
 
     for (size_t i = 0; i < N; ++i) {
       auto fraction = 1.f / trackster.vertex_multiplicity(i);
@@ -58,18 +60,21 @@ void ticl::assignPCAtoTracksters(std::vector<Trackster> &tracksters,
         barycenter[j] += point[j];
 
       // Also compute timing
-      float timeE = layerClustersTime.get(trackster.vertices(i)).second;
-      if (timeE > -1.) {
-	times.push_back(layerClustersTime.get(trackster.vertices(i)).first);
-	timeErrors.push_back(1. / pow(timeE, 2));
+      auto before = usedLC.size();
+      usedLC.insert(trackster.vertices(i));
+      if(before + 1 == usedLC.size()){
+	float timeE = layerClustersTime.get(trackster.vertices(i)).second;
+	if (timeE > -1.) {
+	  times.push_back(layerClustersTime.get(trackster.vertices(i)).first);
+	  timeErrors.push_back(1. / pow(timeE, 2));
+	}
       }
     }
     if (energyWeight && trackster.raw_energy())
       barycenter /= trackster.raw_energy();
 
-    std::pair<float, float> timeTrackster(-99., -1.);
     hgcalsimclustertime::ComputeClusterTime timeEstimator;
-    timeTrackster = timeEstimator.fixSizeHighestDensity(times, timeErrors);
+    std::pair<float, float> timeTrackster = timeEstimator.fixSizeHighestDensity(times, timeErrors);
 
     // Compute the Covariance Matrix and the sum of the squared weights, used
     // to compute the correct normalization.
