@@ -9,19 +9,20 @@ from Validation.RecoTrack.plotting.validation import SimpleValidation, SimpleSam
 import Validation.HGCalValidation.hgcalPlots as hgcalPlots
 import Validation.RecoTrack.plotting.plotting as plotting
 
-layerClustersGeneralLabel = 'hgcalLayerClusters'
 trackstersIters = ["ticlMultiClustersFromTrackstersMerge", "ticlMultiClustersFromTrackstersMIP",
                    "ticlMultiClustersFromTrackstersTrk","ticlMultiClustersFromTrackstersTrkEM",
                    "ticlMultiClustersFromTrackstersEM", "ticlMultiClustersFromTrackstersHAD",
                    "ticlMultiClustersFromTrackstersDummy"]
+
+layerClustersGeneralLabel = 'hgcalLayerClusters'
 multiclustersGeneralLabel = 'hgcalMultiClusters'
+trackstersGeneralLabel = 'allTiclMultiClusters'
 hitValidationLabel = 'hitValidation'
 hitCalibrationLabel = 'hitCalibration'
 allLabel = 'all'
 
 collection_choices = [layerClustersGeneralLabel]
-collection_choices.extend(trackstersIters)
-collection_choices.extend([multiclustersGeneralLabel]+[hitValidationLabel]+[hitCalibrationLabel]+[allLabel])
+collection_choices.extend([multiclustersGeneralLabel]+[trackstersGeneralLabel]+[hitValidationLabel]+[hitCalibrationLabel]+[allLabel])
 
 def main(opts):
 
@@ -45,10 +46,15 @@ def main(opts):
 	hgclayclus = [hgcalPlots.hgcalLayerClustersPlotter]
 	hgcalPlots.append_hgcalLayerClustersPlots("hgcalLayerClusters", "Layer Clusters")
         val.doPlots(hgclayclus, plotterDrawArgs=drawArgs)
-    elif (opts.collection in trackstersIters) or (opts.collection == multiclustersGeneralLabel):
-        tracksterCollection = opts.collection.replace("ticlMultiClustersFromTracksters","ticlTracksters")
+    elif opts.collection == multiclustersGeneralLabel:
         hgcmulticlus = [hgcalPlots.hgcalMultiClustersPlotter]
-        hgcalPlots.append_hgcalMultiClustersPlots(opts.collection, tracksterCollection)
+        hgcalPlots.append_hgcalMultiClustersPlots(multiclustersGeneralLabel, "MultiClusters")
+        val.doPlots(hgcmulticlus, plotterDrawArgs=drawArgs)
+    elif (opts.collection == trackstersGeneralLabel) :
+        hgcmulticlus = [hgcalPlots.hgcalMultiClustersPlotter]
+        for i_iter in trackstersIters :
+            tracksterCollection = i_iter.replace("ticlMultiClustersFromTracksters","ticlTracksters")
+            hgcalPlots.append_hgcalMultiClustersPlots(i_iter, tracksterCollection)
         val.doPlots(hgcmulticlus, plotterDrawArgs=drawArgs)
     elif opts.collection==hitValidationLabel:
     	hgchit = [hgcalPlots.hgcalHitPlotter]
