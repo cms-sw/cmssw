@@ -625,16 +625,21 @@ for _eraName, _postfix, _era in _relevantEras:
 
 
 # for displaced tracks, make sure to get all the TPs (relax tip and lip)
-trackingParticlesDisplaced = _trackingParticleRefSelector.clone(
-    signalOnly = cms.bool(False),
-    tip = 1e5,
-    lip = 1e5,
-    minRapidity = -10,
-    maxRapidity = 10,
-    ptMin = 0,
-)
+#trackingParticlesDisplaced = _trackingParticleRefSelector.clone(
+#    signalOnly = cms.bool(False),
+#    tip = 1e5,
+#    lip = 1e5,
+#    minRapidity = -10,
+#    maxRapidity = 10,
+#    ptMin = 0,
+#)
 
-###need to do?
+# select displaced tracks
+#generalTracksDisplaced = cutsRecoTracks_cfi.cutsRecoTracks.clone(
+#    tip = 1e5,
+#    lip = 1e5,
+#)
+
 #_taskForEachEra(_addSelectorsBySrc, modDict=globals(),
 #                    args=[["_generalTracksHp"]],
 #                    plainArgs=["Displaced", "generalTracksDisplaced"],
@@ -642,23 +647,30 @@ trackingParticlesDisplaced = _trackingParticleRefSelector.clone(
 #                    modifyTask=lambda task: task.add(generalTracksDisplaced))
 
 # for displaced tracks
-trackValidatorTPDisplaced = trackValidator.clone(
-    dirName = "Tracking/TrackTPDisplaced/",
-    label_tp_effic = "trackingParticlesDisplaced",
-    label_tp_fake  = "trackingParticlesDisplaced",
-    label_tp_effic_refvector = True,
-    label_tp_fake_refvector  = True,
+trackValidatorDisplaced = trackValidator.clone(
+    dirName = "Tracking/TrackDisplaced/",
+    #label_tp_effic = "trackingParticlesDisplaced",
+    #label_tp_fake  = "trackingParticlesDisplaced",
+    #label_tp_effic_refvector = True,
+    #label_tp_fake_refvector  = True,
+    ptMaxTP = 1e5,
     dodEdxPlots = False,
-    minRapidityTP = -10,
-    maxRapidityTP = 10,
+    #minRapidityTP = -10,
+    #maxRapidityTP = 10,
     invertRapidityCutTP = False,
     histoProducerAlgoBlock = dict(
-        TpSelectorForEfficiencyVsPt   = dict(ptMin=0.005, tip=1e5, lip=1e5), # enough to set min pT here
-        TpSelectorForEfficiencyVsEta  = dict(ptMin=0.005, tip=1e5, lip=1e5), # enough to set min pT here
-        TpSelectorForEfficiencyVsPhi  = dict(ptMin=0.005, tip=1e5, lip=1e5),
-        TpSelectorForEfficiencyVsVTXR = dict(ptMin=0.005, tip=1e5, lip=1e5),
-        TpSelectorForEfficiencyVsVTXZ = dict(ptMin=0.005, tip=1e5, lip=1e5),
-        generalTpSelector             = dict(ptMin=0.005, tip=1e5, lip=1e5),
+        TpSelectorForEfficiencyVsPt   = dict(ptMin=0.005, signalOnly=False, tip=1e5, lip=1e5), # enough to set min pT here
+        TpSelectorForEfficiencyVsEta  = dict(ptMin=0.005, signalOnly=False, tip=1e5, lip=1e5), # enough to set min pT here
+        TpSelectorForEfficiencyVsPhi  = dict(ptMin=0.005, signalOnly=False, tip=1e5, lip=1e5),
+        TpSelectorForEfficiencyVsVTXR = dict(ptMin=0.005, signalOnly=False, tip=1e5, lip=1e5),
+        TpSelectorForEfficiencyVsVTXZ = dict(ptMin=0.005, signalOnly=False, tip=1e5, lip=1e5),
+        #generalTpSelector             = dict(ptMin=0.005, signalOnly=False, tip=1e5, lip=1e5),
+        #GpSelectorForEfficiencyVsPt   = dict(ptMin=0.005, tip=1e5, lip=1e5), # enough to set min pT here
+        #GpSelectorForEfficiencyVsEta  = dict(ptMin=0.005, tip=1e5, lip=1e5), # enough to set min pT here
+        #GpSelectorForEfficiencyVsPhi  = dict(ptMin=0.005, tip=1e5, lip=1e5),
+        #GpSelectorForEfficiencyVsVTXR = dict(ptMin=0.005, tip=1e5, lip=1e5),
+        #GpSelectorForEfficiencyVsVTXZ = dict(ptMin=0.005, tip=1e5, lip=1e5),
+        #generalGpSelector             = dict(ptMin=0.005, tip=1e5, lip=1e5),
         minDxy = -60,
         maxDxy =  60,
         nintDxy = 60,
@@ -666,14 +678,20 @@ trackValidatorTPDisplaced = trackValidator.clone(
         maxDz  =  60,
         nintDz =  60,
     ),
+    signalOnlyTP = False,
     lipTP = 1e5,
     tipTP = 1e5,
-    doSimPlots = True,       # ####same as in trackValidator, no need to repeat here
-    doRecoTrackPlots = True, # ####fake rates are same as in trackValidator, no need to repeat here
+    #doSimPlots = True,       # ####same as in trackValidator, no need to repeat here
+    #doRecoTrackPlots = True, # ####fake rates are same as in trackValidator, no need to repeat here
+    #associators = ["trackAssociatorByChi2"], #uncomment for byChi2 assoc. for jetcore studies (2/5)
+    #UseAssociators = True,
 )
-for _eraName, _postfix, _era in _relevantEras:
-    _setForEra(trackValidatorTPDisplaced, _eraName, _era,
-    )
+#for _eraName, _postfix, _era in _relevantEras:
+#    _setForEra(trackValidatorTPDisplaced, _eraName, _era,
+#               label = ["generalTracksDisplaced"] + locals()["_selectorsDisplaced"+_postfix] +
+#                       locals()["_selectorsByAlgo"+_postfix] + locals()["_selectorsByAlgoHp"+_postfix],
+#               doResolutionPlotsForLabels = ["generalTracksDisplaced"] + locals()["_selectorsDisplaced"+_postfix]
+#    )
 
 
 
@@ -685,7 +703,9 @@ tracksValidationSelectors = cms.Task(
     tracksValidationSelectorsByOriginalAlgo,
     cutsRecoTracksBtvLike,
     ak4JetTracksAssociatorExplicitAll,
-    cutsRecoTracksAK4PFJets
+    cutsRecoTracksAK4PFJets,
+    #generalTracksDisplaced,
+    #cutsRecoTracksDisplacedHp,
 )
 phase2_tracker.toModify(tracksValidationSelectors, lambda x: x.add(generalTracksEtaGreater2p7))
 phase2_tracker.toModify(tracksValidationSelectors, lambda x: x.add(cutsRecoTracksEtaGreater2p7Hp))
@@ -733,7 +753,7 @@ tracksPreValidation = cms.Task(
     trackingParticlesSignal,
     trackingParticlesElectron,
     trackingParticlesConversion,
-    trackingParticlesDisplaced
+    #trackingParticlesDisplaced
 )
 fastSim.toReplaceWith(tracksPreValidation, tracksPreValidation.copyAndExclude([
     trackingParticlesElectron,
@@ -752,7 +772,7 @@ tracksValidation = cms.Sequence(
     trackValidatorBuildingPreSplitting +
     trackValidatorConversion +
     trackValidatorGsfTracks +
-    trackValidatorTPDisplaced,
+    trackValidatorDisplaced,
     tracksPreValidation
 )
 
