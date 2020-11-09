@@ -1667,26 +1667,6 @@ _PhotonsFromMultiCl_Closest_EoverCPenergy = PlotGroup("PhotonsFromMultiCl", [
 hgcalLayerClustersPlotter = Plotter()
 layerClustersLabel = 'Layer Clusters'
 
-#We follow Chris categories in folders
-# [A] calculated "energy density" for cells in a) 120um, b) 200um, c) 300um, d) scint
-# (one entry per rechit, in the appropriate histo)
-hgcalLayerClustersPlotter.append("CellsEnergyDensityPerThickness", [
-        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-        ], PlotFolder(
-        _cellsenedens_thick,
-        loopSubFolders=False,
-        purpose=PlotPurpose.Timing, page=layerClustersLabel, section="General"
-        ))
-
-# [B] number of layer clusters per event in a) 120um, b) 200um, c) 300um, d) scint
-# (one entry per event in each of the four histos)
-hgcalLayerClustersPlotter.append("TotalNumberofLayerClustersPerThickness", [
-        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-        ], PlotFolder(
-        _totclusternum_thick,
-        loopSubFolders=False,
-        purpose=PlotPurpose.Timing, page=layerClustersLabel, section="General"
-        ))
 
 
 # [E] For each layer cluster:
@@ -1854,31 +1834,24 @@ hgcalLayerClustersPlotter.append("CellsDistanceToSeedAndMaxCellPerLayerPerThickn
         purpose=PlotPurpose.Timing, page="CellsDistanceToSeedAndMaxCellPerLayerPerThickness_zplus"
         ))
 
-# [G] Miscellaneous plots:
-# longdepthbarycentre: The longitudinal depth barycentre. One entry per event.
-# mixedhitscluster: Number of clusters per event with hits in different thicknesses.
-# num_reco_cluster_eta: Number of reco clusters vs eta
-
-hgcalLayerClustersPlotter.append("Miscellaneous", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-            ], PlotFolder(
-            _num_reco_cluster_eta,
-            _energyclustered,
-            _mixedhitsclusters,
-            _longdepthbarycentre,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page=layerClustersLabel, section="General"
-            ))
-
-# [H] SelectedCaloParticles plots
-hgcalLayerClustersPlotter.append("SelectedCaloParticles_Photons", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/SelectedCaloParticles/22",
-            ], PlotFolder(
-            _SelectedCaloParticles,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page=layerClustersLabel, section="General"
-            ))
-
+lc_general = [
+  # [A] calculated "energy density" for cells in a) 120um, b) 200um, c) 300um, d) scint
+  # (one entry per rechit, in the appropriate histo)
+  _cellsenedens_thick,
+  # [B] number of layer clusters per event in a) 120um, b) 200um, c) 300um, d) scint
+  # (one entry per event in each of the four histos)
+  _totclusternum_thick,
+  # [G] Miscellaneous plots:
+  # longdepthbarycentre: The longitudinal depth barycentre. One entry per event.
+  # mixedhitscluster: Number of clusters per event with hits in different thicknesses.
+  # num_reco_cluster_eta: Number of reco clusters vs eta
+  _num_reco_cluster_eta,
+  _energyclustered,
+  _mixedhitsclusters,
+  _longdepthbarycentre,
+  # [H] SelectedCaloParticles plots
+  _SelectedCaloParticles,
+]
 lc_zminus = [
   # [C] number of layer clusters per layer (one entry per event in each histo)
   _totclusternum_layer_EE_zminus,
@@ -1960,8 +1933,8 @@ lc_zplus = [
 ]
 
 def append_hgcalLayerClustersPlots(collection = "hgcalLayerClusters", name_collection = layerClustersLabel):
-  regions = ["zminus", "zplus"]
-  setPlots = [lc_zminus, lc_zplus]
+  regions = ["General", "zminus", "zplus"]
+  setPlots = [lc_general, lc_zminus, lc_zplus]
   for reg, setPlot in zip(regions, setPlots):
     print(_hgcalFolders(collection))
     hgcalLayerClustersPlotter.append(collection+"_"+reg, [
