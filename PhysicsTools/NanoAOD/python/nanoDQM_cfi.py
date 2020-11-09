@@ -302,10 +302,10 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
         GenVtx = cms.PSet(
             sels = cms.PSet(),
             plots = cms.VPSet(
-                Plot1D('x', 'x', 20, -10, 10, 'x'),
-                Plot1D('y', 'y', 20, -10, 10, 'y'),
-                Plot1D('z', 'z', 20, -10, 10, 'z'),
-                Plot1D('t0', 't0', 20, -10, 10, 't0'),
+                Plot1D('x', 'x', 20, -1, 1, 'x'),
+                Plot1D('y', 'y', 20, -1, 1, 'y'),
+                Plot1D('z', 'z', 30, -15, 15, 'z'),
+                Plot1D('t0', 't0', 20, -1, 1, 't0'),
             )
         ),
         GenVisTau = cms.PSet(
