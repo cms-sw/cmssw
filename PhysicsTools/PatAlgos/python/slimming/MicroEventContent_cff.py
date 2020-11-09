@@ -148,6 +148,7 @@ _pp_on_AA_extraCommands = [
     'keep recoCentrality_hiCentrality_*_*',
     'keep int_centralityBin_*_*',
     'keep recoHFFilterInfo_hiHFfilters_*_*',
+    'keep recoClusterCompatibility_hiClusterCompatibility_*_*',
     'keep *_offlineSlimmedPrimaryVerticesRecovery_*_*',
     'keep *_hiEvtPlane_*_*',
     'keep *_hiEvtPlaneFlat_*_*',
