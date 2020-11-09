@@ -141,14 +141,14 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id,
   int quality = -1;
   LocalPoint lp0(0., 0.);
   int wglo = wg_left;
-  int wghi = wg_right;  
+  int wghi = wg_right;
   float ymiddle;
 
   // First wire of first wiregroup in cluster
-  wglo = layergeom_->middleWireOfGroup(wglo) + 0.5 - 0.5 * layergeom_->numberOfWiresPerGroup(wglo);  
+  wglo = layergeom_->middleWireOfGroup(wglo) + 0.5 - 0.5 * layergeom_->numberOfWiresPerGroup(wglo);
   // Last wire in last wiregroup of cluster (OK if only 1 wiregroup too)
   wghi = layergeom_->middleWireOfGroup(wghi) - 0.5 + 0.5 * layergeom_->numberOfWiresPerGroup(wghi);
-  
+
   float stripWidth = -99.f;
   // If at the edge, then used 1 strip cluster only
   if (centerStrip == 1 || centerStrip == specs_->nStrips() || nStrip < 2) {
