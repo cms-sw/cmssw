@@ -16,7 +16,7 @@ Min_Long_Energy= cms.double(10),#makes a cut based on energy deposited in short 
 simHcalTriggerPrimitiveDigis = cms.EDProducer("HcalTrigPrimDigiProducer",
     peakFilter = cms.bool(True),
     weights = cms.vdouble(1.0, 1.0), ##hardware algo        
-    weightsQIE11 = cms.untracked.PSet(**dict([
+    weightsQIE11 = cms.PSet(**dict([
         ("ieta1",  cms.untracked.vdouble(1.0, 1.0)),
         ("ieta2",  cms.untracked.vdouble(1.0, 1.0)),
         ("ieta3",  cms.untracked.vdouble(1.0, 1.0)),
