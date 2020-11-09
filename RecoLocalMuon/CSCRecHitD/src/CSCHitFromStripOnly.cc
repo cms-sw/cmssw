@@ -475,8 +475,8 @@ void CSCHitFromStripOnly::findMaxima(const CSCDetId& id) {
       // - hit is closer than 3 strips from the edge
       // - enough consecutive strips with signal
       // - strip charge distribution looks abnormal
-
-      if (i > 2 && i  +3 < thePulseHeightMap.size() && numberOfConsecutiveStrips > 3) {
+        
+      if (i > 2 && i + 3 < thePulseHeightMap.size() && numberOfConsecutiveStrips > 3) {
         //try to look for additional maxima at the left side from the main maxima
 
         if (((thePulseHeightMap[i + 1].phmax() >= thePulseHeightMap[i - 1].phmax() &&
