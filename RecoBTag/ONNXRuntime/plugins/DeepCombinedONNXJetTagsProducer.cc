@@ -15,6 +15,8 @@
 
 #include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 
+#include "RecoBTag/ONNXRuntime/interface/tensor_fillers.h"
+
 using namespace cms::Ort;
 
 class DeepCombinedONNXJetTagsProducer : public edm::stream::EDProducer<edm::GlobalCache<ONNXRuntime>> {
@@ -39,6 +41,9 @@ private:
   std::vector<std::string> flav_names_;
   std::vector<std::string> input_names_;
   std::vector<std::string> output_names_;
+
+  const double min_jet_pt_;
+  const double max_jet_eta_;
 
   enum InputIndexes {
     kGlobal = 0,
@@ -90,7 +95,9 @@ DeepCombinedONNXJetTagsProducer::DeepCombinedONNXJetTagsProducer(const edm::Para
     : src_(consumes<TagInfoCollection>(iConfig.getParameter<edm::InputTag>("src"))),
       flav_names_(iConfig.getParameter<std::vector<std::string>>("flav_names")),
       input_names_(iConfig.getParameter<std::vector<std::string>>("input_names")),
-      output_names_(iConfig.getParameter<std::vector<std::string>>("output_names")) {
+      output_names_(iConfig.getParameter<std::vector<std::string>>("output_names")),
+      min_jet_pt_(iConfig.getParameter<double>("min_jet_pt")),
+      max_jet_eta_(iConfig.getParameter<double>("max_jet_eta")) {
   // get output names from flav_names
   for (const auto& flav_name : flav_names_) {
     produces<JetTagCollection>(flav_name);
@@ -126,6 +133,8 @@ void DeepCombinedONNXJetTagsProducer::fillDescriptions(edm::ConfigurationDescrip
                             edm::FileInPath("RecoBTag/Combined/data/DeepVertex/phase1_deepvertexcombined.onnx"));
   desc.add<std::vector<std::string>>("output_names", {"dense_13"});
   desc.add<std::vector<std::string>>("flav_names", std::vector<std::string>{"probb", "probc", "probuds", "probg"});
+  desc.add<double>("min_jet_pt", 15.0);
+  desc.add<double>("max_jet_eta", 2.5);
 
   descriptions.add("pfDeepCombinedJetTags", desc);
 }
@@ -140,8 +149,22 @@ void DeepCombinedONNXJetTagsProducer::produce(edm::Event& iEvent, const edm::Eve
   edm::Handle<TagInfoCollection> tag_infos;
   iEvent.getByToken(src_, tag_infos);
 
+  data_.clear();
+
   std::vector<std::unique_ptr<JetTagCollection>> output_tags;
   if (!tag_infos->empty()) {
+    unsigned int good_taginfo_count = 0;
+    for (unsigned jet_n = 0; jet_n < tag_infos->size(); ++jet_n) {
+      const auto& jet_ref = (*tag_infos)[jet_n].jet();
+      if (jet_ref->pt() > min_jet_pt_ && std::fabs(jet_ref->eta()) < max_jet_eta_)
+        good_taginfo_count++;
+    }
+
+    // init data storage w correct size
+    for (const auto& len : input_sizes_) {
+      data_.emplace_back(good_taginfo_count * len, 0);
+    }
+
     // initialize output collection
     auto jet_ref = tag_infos->begin()->jet();
     auto ref2prod = edm::makeRefToBaseProdFrom(jet_ref, iEvent);
@@ -149,28 +172,32 @@ void DeepCombinedONNXJetTagsProducer::produce(edm::Event& iEvent, const edm::Eve
       output_tags.emplace_back(std::make_unique<JetTagCollection>(ref2prod));
     }
 
-    // init data storage
-    data_.clear();
-    for (const auto& len : input_sizes_) {
-      data_.emplace_back(tag_infos->size() * len, 0);
-    }
     // convert inputs
+    unsigned int inputs_done_count = 0;
     for (unsigned jet_n = 0; jet_n < tag_infos->size(); ++jet_n) {
-      const auto& taginfo = (*tag_infos)[jet_n];
-      make_inputs(jet_n, taginfo);
+      const auto& jet_ref = (*tag_infos)[jet_n].jet();
+      if (jet_ref->pt() > min_jet_pt_ && std::fabs(jet_ref->eta()) < max_jet_eta_) {
+        const auto& taginfo = (*tag_infos)[jet_n];
+        make_inputs(inputs_done_count, taginfo);
+        inputs_done_count++;
+      }
     }
 
     // run prediction
-    const auto outputs = globalCache()->run(input_names_, data_, {}, output_names_, tag_infos->size())[0];
-    assert(outputs.size() == flav_names_.size() * tag_infos->size());
+    assert(inputs_done_count == good_taginfo_count);
+    const auto outputs = globalCache()->run(input_names_, data_, {}, output_names_, good_taginfo_count)[0];
+    assert(outputs.size() == flav_names_.size() * good_taginfo_count);
 
     // get the outputs
     unsigned i_output = 0;
     for (unsigned jet_n = 0; jet_n < tag_infos->size(); ++jet_n) {
       const auto& jet_ref = (*tag_infos)[jet_n].jet();
       for (std::size_t flav_n = 0; flav_n < flav_names_.size(); flav_n++) {
-        (*(output_tags[flav_n]))[jet_ref] = outputs[i_output];
-        ++i_output;
+        if (jet_ref->pt() > min_jet_pt_ && std::fabs(jet_ref->eta()) < max_jet_eta_) {
+          (*(output_tags[flav_n]))[jet_ref] = outputs[i_output];
+          ++i_output;
+        } else
+          (*(output_tags[flav_n]))[jet_ref] = -2;
       }
     }
   } else {
@@ -286,10 +313,7 @@ void DeepCombinedONNXJetTagsProducer::make_inputs(unsigned i_jet, const reco::De
   offset = i_jet * input_sizes_[kGlobal1];
   ptr = &data_[kGlobal1][offset];
   start = ptr;
-  *ptr = jet_features.pt;
-  *(++ptr) = jet_features.eta;
-  *(++ptr) = jet_features.phi;
-  *(++ptr) = jet_features.mass;
+  jet4vec_tensor_filler(ptr, jet_features);
   assert(start + n_features_global1_ - 1 == ptr);
 
   // seeds
@@ -299,27 +323,7 @@ void DeepCombinedONNXJetTagsProducer::make_inputs(unsigned i_jet, const reco::De
     const auto& seed_features = features.seed_features[seed_n];
     ptr = &data_[kSeedingTracks][offset + seed_n * n_features_seed_];
     start = ptr;
-    *ptr = seed_features.pt;
-    *(++ptr) = seed_features.eta;
-    *(++ptr) = seed_features.phi;
-    *(++ptr) = seed_features.mass;
-    *(++ptr) = seed_features.dz;
-    *(++ptr) = seed_features.dxy;
-    *(++ptr) = seed_features.ip3D;
-    *(++ptr) = seed_features.sip3D;
-    *(++ptr) = seed_features.ip2D;
-    *(++ptr) = seed_features.sip2D;
-    *(++ptr) = seed_features.signedIp3D;
-    *(++ptr) = seed_features.signedSip3D;
-    *(++ptr) = seed_features.signedIp2D;
-    *(++ptr) = seed_features.signedSip2D;
-    *(++ptr) = seed_features.trackProbability3D;
-    *(++ptr) = seed_features.trackProbability2D;
-    *(++ptr) = seed_features.chi2reduced;
-    *(++ptr) = seed_features.nPixelHits;
-    *(++ptr) = seed_features.nHits;
-    *(++ptr) = seed_features.jetAxisDistance;
-    *(++ptr) = seed_features.jetAxisDlength;
+    seedTrack_tensor_filler(ptr, seed_features);
     assert(start + n_features_seed_ - 1 == ptr);
   }
 
@@ -331,42 +335,7 @@ void DeepCombinedONNXJetTagsProducer::make_inputs(unsigned i_jet, const reco::De
     for (std::size_t neighbour_n = 0; neighbour_n < max_neighbour_n; neighbour_n++) {
       ptr = &data_[kNeighbourTracks + seed_n][offset + neighbour_n * n_features_neighbor_];
       start = ptr;
-      *ptr = neighbourTracks_features[neighbour_n].pt;
-      *(++ptr) = neighbourTracks_features[neighbour_n].eta;
-      *(++ptr) = neighbourTracks_features[neighbour_n].phi;
-      *(++ptr) = neighbourTracks_features[neighbour_n].dz;
-      *(++ptr) = neighbourTracks_features[neighbour_n].dxy;
-      *(++ptr) = neighbourTracks_features[neighbour_n].mass;
-      *(++ptr) = neighbourTracks_features[neighbour_n].ip3D;
-      *(++ptr) = neighbourTracks_features[neighbour_n].sip3D;
-      *(++ptr) = neighbourTracks_features[neighbour_n].ip2D;
-      *(++ptr) = neighbourTracks_features[neighbour_n].sip2D;
-      *(++ptr) = neighbourTracks_features[neighbour_n].distPCA;
-      *(++ptr) = neighbourTracks_features[neighbour_n].dsigPCA;
-      *(++ptr) = neighbourTracks_features[neighbour_n].x_PCAonSeed;
-      *(++ptr) = neighbourTracks_features[neighbour_n].y_PCAonSeed;
-      *(++ptr) = neighbourTracks_features[neighbour_n].z_PCAonSeed;
-      *(++ptr) = neighbourTracks_features[neighbour_n].xerr_PCAonSeed;
-      *(++ptr) = neighbourTracks_features[neighbour_n].yerr_PCAonSeed;
-      *(++ptr) = neighbourTracks_features[neighbour_n].zerr_PCAonSeed;
-      *(++ptr) = neighbourTracks_features[neighbour_n].x_PCAonTrack;
-      *(++ptr) = neighbourTracks_features[neighbour_n].y_PCAonTrack;
-      *(++ptr) = neighbourTracks_features[neighbour_n].z_PCAonTrack;
-      *(++ptr) = neighbourTracks_features[neighbour_n].xerr_PCAonTrack;
-      *(++ptr) = neighbourTracks_features[neighbour_n].yerr_PCAonTrack;
-      *(++ptr) = neighbourTracks_features[neighbour_n].zerr_PCAonTrack;
-      *(++ptr) = neighbourTracks_features[neighbour_n].dotprodTrack;
-      *(++ptr) = neighbourTracks_features[neighbour_n].dotprodSeed;
-      *(++ptr) = neighbourTracks_features[neighbour_n].dotprodTrackSeed2D;
-      *(++ptr) = neighbourTracks_features[neighbour_n].dotprodTrackSeed3D;
-      *(++ptr) = neighbourTracks_features[neighbour_n].dotprodTrackSeedVectors2D;
-      *(++ptr) = neighbourTracks_features[neighbour_n].dotprodTrackSeedVectors3D;
-      *(++ptr) = neighbourTracks_features[neighbour_n].pvd_PCAonSeed;
-      *(++ptr) = neighbourTracks_features[neighbour_n].pvd_PCAonTrack;
-      *(++ptr) = neighbourTracks_features[neighbour_n].dist_PCAjetAxis;
-      *(++ptr) = neighbourTracks_features[neighbour_n].dotprod_PCAjetMomenta;
-      *(++ptr) = neighbourTracks_features[neighbour_n].deta_PCAjetDirs;
-      *(++ptr) = neighbourTracks_features[neighbour_n].dphi_PCAjetDirs;
+      neighbourTrack_tensor_filler(ptr, neighbourTracks_features[neighbour_n]);
       assert(start + n_features_neighbor_ - 1 == ptr);
     }
   }
