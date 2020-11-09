@@ -5,7 +5,6 @@
 #include "TkPhase2OTMeasurementDet.h"
 
 #include "Geometry/CommonDetUnit/interface/StackGeomDet.h"
-#include "RecoLocalTracker/SiPhase2VectorHitBuilder/interface/VectorHitBuilderAlgorithm.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 
 #include "FWCore/Utilities/interface/Visibility.h"

@@ -10,7 +10,6 @@
 <use name="DataFormats/HcalDetId"/>
 <use name="DataFormats/PatCandidates"/>
 <use name="CondFormats/HcalObjects"/>
-<use name="CondFormats/DataRecord"/>
 <use name="RecoLocalCalo/EcalRecAlgos"/>
 <use name="CommonTools/Statistics"/>
 <export>
