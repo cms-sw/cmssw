@@ -252,213 +252,213 @@ _common_distance["ymin"] = 1e-3
 _common_distance["ymax"] = 10000
 _common_distance["ylog"] = True
 
-_distancetomaxcell_perthickperlayer_120_EE_zminus = PlotGroup("distancetomaxcell_perthickperlayer_120_EE_zminus", [
+_distancetomaxcell_perthickperlayer_120_EE_zminus = PlotGroup("distancetomaxcell_perthickperlayer_120_EE", [
   Plot("distancetomaxcell_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
 ], ncols=7)
 
-_distancetomaxcell_perthickperlayer_120_FH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_120_FH_zminus", [
+_distancetomaxcell_perthickperlayer_120_FH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_120_FH", [
   Plot("distancetomaxcell_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
 ], ncols=7)
 
-_distancetomaxcell_perthickperlayer_120_BH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_120_BH_zminus", [
+_distancetomaxcell_perthickperlayer_120_BH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_120_BH", [
   Plot("distancetomaxcell_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
 ], ncols=7)
 
 #200 um
-_distancetomaxcell_perthickperlayer_200_EE_zminus = PlotGroup("distancetomaxcell_perthickperlayer_200_EE_zminus", [
+_distancetomaxcell_perthickperlayer_200_EE_zminus = PlotGroup("distancetomaxcell_perthickperlayer_200_EE", [
   Plot("distancetomaxcell_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
 ], ncols=7)
 
-_distancetomaxcell_perthickperlayer_200_FH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_200_FH_zminus", [
+_distancetomaxcell_perthickperlayer_200_FH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_200_FH", [
   Plot("distancetomaxcell_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
 ], ncols=7)
 
-_distancetomaxcell_perthickperlayer_200_BH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_200_BH_zminus", [
+_distancetomaxcell_perthickperlayer_200_BH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_200_BH", [
   Plot("distancetomaxcell_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
 ], ncols=7)
 
 #300 um
-_distancetomaxcell_perthickperlayer_300_EE_zminus = PlotGroup("distancetomaxcell_perthickperlayer_300_EE_zminus", [
+_distancetomaxcell_perthickperlayer_300_EE_zminus = PlotGroup("distancetomaxcell_perthickperlayer_300_EE", [
   Plot("distancetomaxcell_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
 ], ncols=7)
 
-_distancetomaxcell_perthickperlayer_300_FH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_300_FH_zminus", [
+_distancetomaxcell_perthickperlayer_300_FH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_300_FH", [
   Plot("distancetomaxcell_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
 ], ncols=7)
 
-_distancetomaxcell_perthickperlayer_300_BH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_300_BH_zminus", [
+_distancetomaxcell_perthickperlayer_300_BH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_300_BH", [
   Plot("distancetomaxcell_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
 ], ncols=7)
 
 #scint um
-_distancetomaxcell_perthickperlayer_scint_EE_zminus = PlotGroup("distancetomaxcell_perthickperlayer_-1_EE_zminus", [
+_distancetomaxcell_perthickperlayer_scint_EE_zminus = PlotGroup("distancetomaxcell_perthickperlayer_Sci_EE", [
   Plot("distancetomaxcell_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
 ], ncols=7)
 
-_distancetomaxcell_perthickperlayer_scint_FH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_-1_FH_zminus", [
+_distancetomaxcell_perthickperlayer_scint_FH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_Sci_FH", [
   Plot("distancetomaxcell_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
 ], ncols=7)
 
-_distancetomaxcell_perthickperlayer_scint_BH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_-1_BH_zminus", [
+_distancetomaxcell_perthickperlayer_scint_BH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_Sci_BH", [
   Plot("distancetomaxcell_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
 ], ncols=7)
 
 #----------------------------------------------------------------------------------------------------------------
 #120 um
-_distancebetseedandmaxcell_perthickperlayer_120_EE_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_120_EE_zminus", [
+_distancebetseedandmaxcell_perthickperlayer_120_EE_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_120_EE", [
   Plot("distancebetseedandmaxcell_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
 ], ncols=7)
 
-_distancebetseedandmaxcell_perthickperlayer_120_FH_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_120_FH_zminus", [
+_distancebetseedandmaxcell_perthickperlayer_120_FH_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_120_FH", [
   Plot("distancebetseedandmaxcell_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
 ], ncols=7)
 
-_distancebetseedandmaxcell_perthickperlayer_120_BH_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_120_BH_zminus", [
+_distancebetseedandmaxcell_perthickperlayer_120_BH_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_120_BH", [
   Plot("distancebetseedandmaxcell_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
 ], ncols=7)
 
 #200 um
-_distancebetseedandmaxcell_perthickperlayer_200_EE_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_200_EE_zminus", [
+_distancebetseedandmaxcell_perthickperlayer_200_EE_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_200_EE", [
   Plot("distancebetseedandmaxcell_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
 ], ncols=7)
 
-_distancebetseedandmaxcell_perthickperlayer_200_FH_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_200_FH_zminus", [
+_distancebetseedandmaxcell_perthickperlayer_200_FH_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_200_FH", [
   Plot("distancebetseedandmaxcell_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
 ], ncols=7)
 
-_distancebetseedandmaxcell_perthickperlayer_200_BH_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_200_BH_zminus", [
+_distancebetseedandmaxcell_perthickperlayer_200_BH_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_200_BH", [
   Plot("distancebetseedandmaxcell_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
 ], ncols=7)
 
 #300 um
-_distancebetseedandmaxcell_perthickperlayer_300_EE_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_300_EE_zminus", [
+_distancebetseedandmaxcell_perthickperlayer_300_EE_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_300_EE", [
   Plot("distancebetseedandmaxcell_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
 ], ncols=7)
 
-_distancebetseedandmaxcell_perthickperlayer_300_FH_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_300_FH_zminus", [
+_distancebetseedandmaxcell_perthickperlayer_300_FH_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_300_FH", [
   Plot("distancebetseedandmaxcell_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
 ], ncols=7)
 
-_distancebetseedandmaxcell_perthickperlayer_300_BH_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_300_BH_zminus", [
+_distancebetseedandmaxcell_perthickperlayer_300_BH_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_300_BH", [
   Plot("distancebetseedandmaxcell_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
 ], ncols=7)
 
 #scint um
-_distancebetseedandmaxcell_perthickperlayer_scint_EE_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_-1_EE_zminus", [
+_distancebetseedandmaxcell_perthickperlayer_scint_EE_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_Sci_EE", [
   Plot("distancebetseedandmaxcell_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
 ], ncols=7)
 
-_distancebetseedandmaxcell_perthickperlayer_scint_FH_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_-1_FH_zminus", [
+_distancebetseedandmaxcell_perthickperlayer_scint_FH_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_Sci_FH", [
   Plot("distancebetseedandmaxcell_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
 ], ncols=7)
 
-_distancebetseedandmaxcell_perthickperlayer_scint_BH_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_-1_BH_zminus", [
+_distancebetseedandmaxcell_perthickperlayer_scint_BH_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_Sci_BH", [
   Plot("distancebetseedandmaxcell_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
 ], ncols=7)
 
 #----------------------------------------------------------------------------------------------------------------
 #120 um
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_EE_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_EE_zminus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_EE_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_EE", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
 ], ncols=7)
 
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_FH_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_FH_zminus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_FH_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_FH", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
 ], ncols=7)
 
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_BH_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_BH_zminus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_BH_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_BH", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
 ], ncols=7)
 
 #200 um
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_EE_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_EE_zminus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_EE_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_EE", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
 ], ncols=7)
 
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_FH_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_FH_zminus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_FH_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_FH", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
 ], ncols=7)
 
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_BH_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_BH_zminus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_BH_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_BH", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
 ], ncols=7)
 
 #300 um
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_EE_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_EE_zminus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_EE_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_EE", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
 ], ncols=7)
 
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_FH_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_FH_zminus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_FH_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_FH", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
 ], ncols=7)
 
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_BH_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_BH_zminus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_BH_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_BH", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
 ], ncols=7)
 
 #scint um
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_EE_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_-1_EE_zminus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_EE_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_Sci_EE", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
 ], ncols=7)
 
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_FH_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_-1_FH_zminus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_FH_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_Sci_FH", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
 ], ncols=7)
 
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_BH_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_-1_BH_zminus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_BH_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_Sci_BH", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
 ], ncols=7)
 
 #----------------------------------------------------------------------------------------------------------------
 #120 um
-_distancetoseedcell_perthickperlayer_120_EE_zminus = PlotGroup("distancetoseedcell_perthickperlayer_120_EE_zminus", [
+_distancetoseedcell_perthickperlayer_120_EE_zminus = PlotGroup("distancetoseedcell_perthickperlayer_120_EE", [
   Plot("distancetoseedcell_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
 ], ncols=7)
 
-_distancetoseedcell_perthickperlayer_120_FH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_120_FH_zminus", [
+_distancetoseedcell_perthickperlayer_120_FH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_120_FH", [
   Plot("distancetoseedcell_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
 ], ncols=7)
 
-_distancetoseedcell_perthickperlayer_120_BH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_120_BH_zminus", [
+_distancetoseedcell_perthickperlayer_120_BH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_120_BH", [
   Plot("distancetoseedcell_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
 ], ncols=7)
 
 #200 um
-_distancetoseedcell_perthickperlayer_200_EE_zminus = PlotGroup("distancetoseedcell_perthickperlayer_200_EE_zminus", [
+_distancetoseedcell_perthickperlayer_200_EE_zminus = PlotGroup("distancetoseedcell_perthickperlayer_200_EE", [
   Plot("distancetoseedcell_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
 ], ncols=7)
 
-_distancetoseedcell_perthickperlayer_200_FH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_200_FH_zminus", [
+_distancetoseedcell_perthickperlayer_200_FH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_200_FH", [
   Plot("distancetoseedcell_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
 ], ncols=7)
 
-_distancetoseedcell_perthickperlayer_200_BH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_200_BH_zminus", [
+_distancetoseedcell_perthickperlayer_200_BH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_200_BH", [
   Plot("distancetoseedcell_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
 ], ncols=7)
 
 #300 um
-_distancetoseedcell_perthickperlayer_300_EE_zminus = PlotGroup("distancetoseedcell_perthickperlayer_300_EE_zminus", [
+_distancetoseedcell_perthickperlayer_300_EE_zminus = PlotGroup("distancetoseedcell_perthickperlayer_300_EE", [
   Plot("distancetoseedcell_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
 ], ncols=7)
 
-_distancetoseedcell_perthickperlayer_300_FH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_300_FH_zminus", [
+_distancetoseedcell_perthickperlayer_300_FH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_300_FH", [
   Plot("distancetoseedcell_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
 ], ncols=7)
 
-_distancetoseedcell_perthickperlayer_300_BH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_300_BH_zminus", [
+_distancetoseedcell_perthickperlayer_300_BH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_300_BH", [
   Plot("distancetoseedcell_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
 ], ncols=7)
 
 #scint um
-_distancetoseedcell_perthickperlayer_scint_EE_zminus = PlotGroup("distancetoseedcell_perthickperlayer_-1_EE_zminus", [
+_distancetoseedcell_perthickperlayer_scint_EE_zminus = PlotGroup("distancetoseedcell_perthickperlayer_Sci_EE", [
   Plot("distancetoseedcell_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
 ], ncols=7)
 
-_distancetoseedcell_perthickperlayer_scint_FH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_-1_FH_zminus", [
+_distancetoseedcell_perthickperlayer_scint_FH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_Sci_FH", [
   Plot("distancetoseedcell_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
 ], ncols=7)
 
-_distancetoseedcell_perthickperlayer_scint_BH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_-1_BH_zminus", [
+_distancetoseedcell_perthickperlayer_scint_BH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_Sci_BH", [
   Plot("distancetoseedcell_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
 ], ncols=7)
 
@@ -467,107 +467,107 @@ _distancetoseedcell_perthickperlayer_scint_BH_zminus = PlotGroup("distancetoseed
 #We need points for the weighted plots
 _common = {"stat": True, "drawStyle": "EP", "staty": 0.65 }
 #120 um
-_distancetomaxcell_perthickperlayer_eneweighted_120_EE_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_120_EE_zminus", [
+_distancetomaxcell_perthickperlayer_eneweighted_120_EE_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_120_EE", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
 ], ncols=7)
 
-_distancetomaxcell_perthickperlayer_eneweighted_120_FH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_120_FH_zminus", [
+_distancetomaxcell_perthickperlayer_eneweighted_120_FH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_120_FH", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
 ], ncols=7)
 
-_distancetomaxcell_perthickperlayer_eneweighted_120_BH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_120_BH_zminus", [
+_distancetomaxcell_perthickperlayer_eneweighted_120_BH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_120_BH", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
 ], ncols=7)
 
 #200 um
-_distancetomaxcell_perthickperlayer_eneweighted_200_EE_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_200_EE_zminus", [
+_distancetomaxcell_perthickperlayer_eneweighted_200_EE_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_200_EE", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
 ], ncols=7)
 
-_distancetomaxcell_perthickperlayer_eneweighted_200_FH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_200_FH_zminus", [
+_distancetomaxcell_perthickperlayer_eneweighted_200_FH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_200_FH", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
 ], ncols=7)
 
-_distancetomaxcell_perthickperlayer_eneweighted_200_BH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_200_BH_zminus", [
+_distancetomaxcell_perthickperlayer_eneweighted_200_BH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_200_BH", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
 ], ncols=7)
 
 #300 um
-_distancetomaxcell_perthickperlayer_eneweighted_300_EE_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_300_EE_zminus", [
+_distancetomaxcell_perthickperlayer_eneweighted_300_EE_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_300_EE", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
 ], ncols=7)
 
-_distancetomaxcell_perthickperlayer_eneweighted_300_FH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_300_FH_zminus", [
+_distancetomaxcell_perthickperlayer_eneweighted_300_FH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_300_FH", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
 ], ncols=7)
 
-_distancetomaxcell_perthickperlayer_eneweighted_300_BH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_300_BH_zminus", [
+_distancetomaxcell_perthickperlayer_eneweighted_300_BH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_300_BH", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
 ], ncols=7)
 #scint um
-_distancetomaxcell_perthickperlayer_eneweighted_scint_EE_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_-1_EE_zminus", [
+_distancetomaxcell_perthickperlayer_eneweighted_scint_EE_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_Sci_EE", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
 ], ncols=7)
 
-_distancetomaxcell_perthickperlayer_eneweighted_scint_FH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_-1_FH_zminus", [
+_distancetomaxcell_perthickperlayer_eneweighted_scint_FH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_Sci_FH", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
 ], ncols=7)
 
-_distancetomaxcell_perthickperlayer_eneweighted_scint_BH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_-1_BH_zminus", [
+_distancetomaxcell_perthickperlayer_eneweighted_scint_BH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_Sci_BH", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
 ], ncols=7)
 
 
 #----------------------------------------------------------------------------------------------------------------
 #120 um
-_distancetoseedcell_perthickperlayer_eneweighted_120_EE_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_120_EE_zminus", [
+_distancetoseedcell_perthickperlayer_eneweighted_120_EE_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_120_EE", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
 ], ncols=7)
 
-_distancetoseedcell_perthickperlayer_eneweighted_120_FH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_120_FH_zminus", [
+_distancetoseedcell_perthickperlayer_eneweighted_120_FH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_120_FH", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
 ], ncols=7)
 
-_distancetoseedcell_perthickperlayer_eneweighted_120_BH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_120_BH_zminus", [
+_distancetoseedcell_perthickperlayer_eneweighted_120_BH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_120_BH", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
 ], ncols=7)
 
 #200 um
-_distancetoseedcell_perthickperlayer_eneweighted_200_EE_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_200_EE_zminus", [
+_distancetoseedcell_perthickperlayer_eneweighted_200_EE_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_200_EE", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
 ], ncols=7)
 
-_distancetoseedcell_perthickperlayer_eneweighted_200_FH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_200_FH_zminus", [
+_distancetoseedcell_perthickperlayer_eneweighted_200_FH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_200_FH", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
 ], ncols=7)
 
-_distancetoseedcell_perthickperlayer_eneweighted_200_BH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_200_BH_zminus", [
+_distancetoseedcell_perthickperlayer_eneweighted_200_BH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_200_BH", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
 ], ncols=7)
 
 #300 um
-_distancetoseedcell_perthickperlayer_eneweighted_300_EE_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_300_EE_zminus", [
+_distancetoseedcell_perthickperlayer_eneweighted_300_EE_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_300_EE", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
 ], ncols=7)
 
-_distancetoseedcell_perthickperlayer_eneweighted_300_FH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_300_FH_zminus", [
+_distancetoseedcell_perthickperlayer_eneweighted_300_FH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_300_FH", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
 ], ncols=7)
 
-_distancetoseedcell_perthickperlayer_eneweighted_300_BH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_300_BH_zminus", [
+_distancetoseedcell_perthickperlayer_eneweighted_300_BH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_300_BH", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
 ], ncols=7)
 
 #scint um
-_distancetoseedcell_perthickperlayer_eneweighted_scint_EE_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_-1_EE_zminus", [
+_distancetoseedcell_perthickperlayer_eneweighted_scint_EE_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_Sci_EE", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
 ], ncols=7)
 
-_distancetoseedcell_perthickperlayer_eneweighted_scint_FH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_-1_FH_zminus", [
+_distancetoseedcell_perthickperlayer_eneweighted_scint_FH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_Sci_FH", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
 ], ncols=7)
 
-_distancetoseedcell_perthickperlayer_eneweighted_scint_BH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_-1_BH_zminus", [
+_distancetoseedcell_perthickperlayer_eneweighted_scint_BH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_Sci_BH", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
 ], ncols=7)
 
@@ -662,214 +662,214 @@ _common_distance["ymin"] = 1e-3
 _common_distance["ymax"] = 10000
 _common_distance["ylog"] = True
 
-_distancetomaxcell_perthickperlayer_120_EE_zplus = PlotGroup("distancetomaxcell_perthickperlayer_120_EE_zplus", [
+_distancetomaxcell_perthickperlayer_120_EE_zplus = PlotGroup("distancetomaxcell_perthickperlayer_120_EE", [
   Plot("distancetomaxcell_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
 ], ncols=7)
 
-_distancetomaxcell_perthickperlayer_120_FH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_120_FH_zplus", [
+_distancetomaxcell_perthickperlayer_120_FH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_120_FH", [
   Plot("distancetomaxcell_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
 ], ncols=7)
 
-_distancetomaxcell_perthickperlayer_120_BH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_120_BH_zplus", [
+_distancetomaxcell_perthickperlayer_120_BH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_120_BH", [
   Plot("distancetomaxcell_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
 ], ncols=7)
 
 #200 um
-_distancetomaxcell_perthickperlayer_200_EE_zplus = PlotGroup("distancetomaxcell_perthickperlayer_200_EE_zplus", [
+_distancetomaxcell_perthickperlayer_200_EE_zplus = PlotGroup("distancetomaxcell_perthickperlayer_200_EE", [
   Plot("distancetomaxcell_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
 ], ncols=7)
 
-_distancetomaxcell_perthickperlayer_200_FH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_200_FH_zplus", [
+_distancetomaxcell_perthickperlayer_200_FH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_200_FH", [
   Plot("distancetomaxcell_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
 ], ncols=7)
 
-_distancetomaxcell_perthickperlayer_200_BH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_200_BH_zplus", [
+_distancetomaxcell_perthickperlayer_200_BH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_200_BH", [
   Plot("distancetomaxcell_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
 ], ncols=7)
 
 #300 um
-_distancetomaxcell_perthickperlayer_300_EE_zplus = PlotGroup("distancetomaxcell_perthickperlayer_300_EE_zplus", [
+_distancetomaxcell_perthickperlayer_300_EE_zplus = PlotGroup("distancetomaxcell_perthickperlayer_300_EE", [
   Plot("distancetomaxcell_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
 ], ncols=7)
 
-_distancetomaxcell_perthickperlayer_300_FH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_300_FH_zplus", [
+_distancetomaxcell_perthickperlayer_300_FH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_300_FH", [
   Plot("distancetomaxcell_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
 ], ncols=7)
 
-_distancetomaxcell_perthickperlayer_300_BH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_300_BH_zplus", [
+_distancetomaxcell_perthickperlayer_300_BH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_300_BH", [
   Plot("distancetomaxcell_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
 ], ncols=7)
 
 #scint um
-_distancetomaxcell_perthickperlayer_scint_EE_zplus = PlotGroup("distancetomaxcell_perthickperlayer_-1_EE_zplus", [
+_distancetomaxcell_perthickperlayer_scint_EE_zplus = PlotGroup("distancetomaxcell_perthickperlayer_Sci_EE", [
   Plot("distancetomaxcell_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
 ], ncols=7)
 
-_distancetomaxcell_perthickperlayer_scint_FH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_-1_FH_zplus", [
+_distancetomaxcell_perthickperlayer_scint_FH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_Sci_FH", [
   Plot("distancetomaxcell_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
 ], ncols=7)
 
-_distancetomaxcell_perthickperlayer_scint_BH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_-1_BH_zplus", [
+_distancetomaxcell_perthickperlayer_scint_BH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_Sci_BH", [
   Plot("distancetomaxcell_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
 ], ncols=7)
 
 #----------------------------------------------------------------------------------------------------------------
 #120 um
-_distancebetseedandmaxcell_perthickperlayer_120_EE_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_120_EE_zplus", [
+_distancebetseedandmaxcell_perthickperlayer_120_EE_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_120_EE", [
   Plot("distancebetseedandmaxcell_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
 ], ncols=7)
 
-_distancebetseedandmaxcell_perthickperlayer_120_FH_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_120_FH_zplus", [
+_distancebetseedandmaxcell_perthickperlayer_120_FH_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_120_FH", [
   Plot("distancebetseedandmaxcell_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
 ], ncols=7)
 
-_distancebetseedandmaxcell_perthickperlayer_120_BH_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_120_BH_zplus", [
+_distancebetseedandmaxcell_perthickperlayer_120_BH_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_120_BH", [
   Plot("distancebetseedandmaxcell_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
 ], ncols=7)
 
 #200 um
-_distancebetseedandmaxcell_perthickperlayer_200_EE_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_200_EE_zplus", [
+_distancebetseedandmaxcell_perthickperlayer_200_EE_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_200_EE", [
   Plot("distancebetseedandmaxcell_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
 ], ncols=7)
 
-_distancebetseedandmaxcell_perthickperlayer_200_FH_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_200_FH_zplus", [
+_distancebetseedandmaxcell_perthickperlayer_200_FH_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_200_FH", [
   Plot("distancebetseedandmaxcell_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
 ], ncols=7)
 
-_distancebetseedandmaxcell_perthickperlayer_200_BH_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_200_BH_zplus", [
+_distancebetseedandmaxcell_perthickperlayer_200_BH_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_200_BH", [
   Plot("distancebetseedandmaxcell_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
 ], ncols=7)
 
 #300 um
-_distancebetseedandmaxcell_perthickperlayer_300_EE_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_300_EE_zplus", [
+_distancebetseedandmaxcell_perthickperlayer_300_EE_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_300_EE", [
   Plot("distancebetseedandmaxcell_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
 ], ncols=7)
 
-_distancebetseedandmaxcell_perthickperlayer_300_FH_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_300_FH_zplus", [
+_distancebetseedandmaxcell_perthickperlayer_300_FH_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_300_FH", [
   Plot("distancebetseedandmaxcell_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
 ], ncols=7)
 
-_distancebetseedandmaxcell_perthickperlayer_300_BH_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_300_BH_zplus", [
+_distancebetseedandmaxcell_perthickperlayer_300_BH_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_300_BH", [
   Plot("distancebetseedandmaxcell_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
 ], ncols=7)
 
 #scint um
-_distancebetseedandmaxcell_perthickperlayer_scint_EE_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_-1_EE_zplus", [
+_distancebetseedandmaxcell_perthickperlayer_scint_EE_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_Sci_EE", [
   Plot("distancebetseedandmaxcell_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
 ], ncols=7)
 
-_distancebetseedandmaxcell_perthickperlayer_scint_FH_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_-1_FH_zplus", [
+_distancebetseedandmaxcell_perthickperlayer_scint_FH_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_Sci_FH", [
   Plot("distancebetseedandmaxcell_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
 ], ncols=7)
 
-_distancebetseedandmaxcell_perthickperlayer_scint_BH_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_-1_BH_zplus", [
+_distancebetseedandmaxcell_perthickperlayer_scint_BH_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_Sci_BH", [
   Plot("distancebetseedandmaxcell_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
 ], ncols=7)
 
 #----------------------------------------------------------------------------------------------------------------
 #120 um
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_EE_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_EE_zplus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_EE_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_EE", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
 ], ncols=7)
 
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_FH_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_FH_zplus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_FH_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_FH", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
 ], ncols=7)
 
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_BH_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_BH_zplus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_BH_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_BH", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
 ], ncols=7)
 
 #200 um
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_EE_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_EE_zplus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_EE_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_EE", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
 ], ncols=7)
 
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_FH_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_FH_zplus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_FH_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_FH", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
 ], ncols=7)
 
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_BH_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_BH_zplus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_BH_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_BH", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
 ], ncols=7)
 
 #300 um
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_EE_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_EE_zplus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_EE_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_EE", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
 ], ncols=7)
 
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_FH_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_FH_zplus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_FH_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_FH", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
 ], ncols=7)
 
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_BH_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_BH_zplus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_BH_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_BH", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
 ], ncols=7)
 
 #scint um
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_EE_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_-1_EE_zplus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_EE_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_Sci_EE", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
 ], ncols=7)
 
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_FH_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_-1_FH_zplus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_FH_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_Sci_FH", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
 ], ncols=7)
 
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_BH_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_-1_BH_zplus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_BH_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_Sci_BH", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
 ], ncols=7)
 
 
 #----------------------------------------------------------------------------------------------------------------
 #120 um
-_distancetoseedcell_perthickperlayer_120_EE_zplus = PlotGroup("distancetoseedcell_perthickperlayer_120_EE_zplus", [
+_distancetoseedcell_perthickperlayer_120_EE_zplus = PlotGroup("distancetoseedcell_perthickperlayer_120_EE", [
   Plot("distancetoseedcell_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
 ], ncols=7)
 
-_distancetoseedcell_perthickperlayer_120_FH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_120_FH_zplus", [
+_distancetoseedcell_perthickperlayer_120_FH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_120_FH", [
   Plot("distancetoseedcell_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
 ], ncols=7)
 
-_distancetoseedcell_perthickperlayer_120_BH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_120_BH_zplus", [
+_distancetoseedcell_perthickperlayer_120_BH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_120_BH", [
   Plot("distancetoseedcell_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
 ], ncols=7)
 
 #200 um
-_distancetoseedcell_perthickperlayer_200_EE_zplus = PlotGroup("distancetoseedcell_perthickperlayer_200_EE_zplus", [
+_distancetoseedcell_perthickperlayer_200_EE_zplus = PlotGroup("distancetoseedcell_perthickperlayer_200_EE", [
   Plot("distancetoseedcell_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
 ], ncols=7)
 
-_distancetoseedcell_perthickperlayer_200_FH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_200_FH_zplus", [
+_distancetoseedcell_perthickperlayer_200_FH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_200_FH", [
   Plot("distancetoseedcell_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
 ], ncols=7)
 
-_distancetoseedcell_perthickperlayer_200_BH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_200_BH_zplus", [
+_distancetoseedcell_perthickperlayer_200_BH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_200_BH", [
   Plot("distancetoseedcell_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
 ], ncols=7)
 
 #300 um
-_distancetoseedcell_perthickperlayer_300_EE_zplus = PlotGroup("distancetoseedcell_perthickperlayer_300_EE_zplus", [
+_distancetoseedcell_perthickperlayer_300_EE_zplus = PlotGroup("distancetoseedcell_perthickperlayer_300_EE", [
   Plot("distancetoseedcell_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
 ], ncols=7)
 
-_distancetoseedcell_perthickperlayer_300_FH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_300_FH_zplus", [
+_distancetoseedcell_perthickperlayer_300_FH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_300_FH", [
   Plot("distancetoseedcell_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
 ], ncols=7)
 
-_distancetoseedcell_perthickperlayer_300_BH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_300_BH_zplus", [
+_distancetoseedcell_perthickperlayer_300_BH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_300_BH", [
   Plot("distancetoseedcell_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
 ], ncols=7)
 
 #scint um
-_distancetoseedcell_perthickperlayer_scint_EE_zplus = PlotGroup("distancetoseedcell_perthickperlayer_-1_EE_zplus", [
+_distancetoseedcell_perthickperlayer_scint_EE_zplus = PlotGroup("distancetoseedcell_perthickperlayer_Sci_EE", [
   Plot("distancetoseedcell_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
 ], ncols=7)
 
-_distancetoseedcell_perthickperlayer_scint_FH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_-1_FH_zplus", [
+_distancetoseedcell_perthickperlayer_scint_FH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_Sci_FH", [
   Plot("distancetoseedcell_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
 ], ncols=7)
 
-_distancetoseedcell_perthickperlayer_scint_BH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_-1_BH_zplus", [
+_distancetoseedcell_perthickperlayer_scint_BH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_Sci_BH", [
   Plot("distancetoseedcell_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
 ], ncols=7)
 
@@ -879,106 +879,106 @@ _distancetoseedcell_perthickperlayer_scint_BH_zplus = PlotGroup("distancetoseedc
 _common = {"stat": True, "drawStyle": "EP", "staty": 0.65 }
 
 #120 um
-_distancetomaxcell_perthickperlayer_eneweighted_120_EE_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_120_EE_zplus", [
+_distancetomaxcell_perthickperlayer_eneweighted_120_EE_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_120_EE", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_120_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
 ], ncols=7)
 
-_distancetomaxcell_perthickperlayer_eneweighted_120_FH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_120_FH_zplus", [
+_distancetomaxcell_perthickperlayer_eneweighted_120_FH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_120_FH", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
 ], ncols=7)
 
-_distancetomaxcell_perthickperlayer_eneweighted_120_BH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_120_BH_zplus", [
+_distancetomaxcell_perthickperlayer_eneweighted_120_BH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_120_BH", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
 ], ncols=7)
 
 #200 um
-_distancetomaxcell_perthickperlayer_eneweighted_200_EE_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_200_EE_zplus", [
+_distancetomaxcell_perthickperlayer_eneweighted_200_EE_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_200_EE", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_200_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
 ], ncols=7)
-_distancetomaxcell_perthickperlayer_eneweighted_200_FH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_200_FH_zplus", [
+_distancetomaxcell_perthickperlayer_eneweighted_200_FH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_200_FH", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
 ], ncols=7)
 
-_distancetomaxcell_perthickperlayer_eneweighted_200_BH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_200_BH_zplus", [
+_distancetomaxcell_perthickperlayer_eneweighted_200_BH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_200_BH", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
 ], ncols=7)
 
 #300 um
-_distancetomaxcell_perthickperlayer_eneweighted_300_EE_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_300_EE_zplus", [
+_distancetomaxcell_perthickperlayer_eneweighted_300_EE_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_300_EE", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_300_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
 ], ncols=7)
 
-_distancetomaxcell_perthickperlayer_eneweighted_300_FH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_300_FH_zplus", [
+_distancetomaxcell_perthickperlayer_eneweighted_300_FH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_300_FH", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
 ], ncols=7)
 
-_distancetomaxcell_perthickperlayer_eneweighted_300_BH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_300_BH_zplus", [
+_distancetomaxcell_perthickperlayer_eneweighted_300_BH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_300_BH", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
 ], ncols=7)
 
 #scint um
-_distancetomaxcell_perthickperlayer_eneweighted_scint_EE_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_-1_EE_zplus", [
+_distancetomaxcell_perthickperlayer_eneweighted_scint_EE_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_Sci_EE", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_-1_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
 ], ncols=7)
 
-_distancetomaxcell_perthickperlayer_eneweighted_scint_FH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_-1_FH_zplus", [
+_distancetomaxcell_perthickperlayer_eneweighted_scint_FH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_Sci_FH", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
 ], ncols=7)
 
-_distancetomaxcell_perthickperlayer_eneweighted_scint_BH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_-1_BH_zplus", [
+_distancetomaxcell_perthickperlayer_eneweighted_scint_BH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_Sci_BH", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
 ], ncols=7)
 
 #----------------------------------------------------------------------------------------------------------------
 #120 um
-_distancetoseedcell_perthickperlayer_eneweighted_120_EE_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_120_EE_zplus", [
+_distancetoseedcell_perthickperlayer_eneweighted_120_EE_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_120_EE", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_120_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
 ], ncols=7)
 
-_distancetoseedcell_perthickperlayer_eneweighted_120_FH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_120_FH_zplus", [
+_distancetoseedcell_perthickperlayer_eneweighted_120_FH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_120_FH", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
 ], ncols=7)
 
-_distancetoseedcell_perthickperlayer_eneweighted_120_BH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_120_BH_zplus", [
+_distancetoseedcell_perthickperlayer_eneweighted_120_BH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_120_BH", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
 ], ncols=7)
 
 #200 um
-_distancetoseedcell_perthickperlayer_eneweighted_200_EE_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_200_EE_zplus", [
+_distancetoseedcell_perthickperlayer_eneweighted_200_EE_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_200_EE", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_200_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
 ], ncols=7)
 
-_distancetoseedcell_perthickperlayer_eneweighted_200_FH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_200_FH_zplus", [
+_distancetoseedcell_perthickperlayer_eneweighted_200_FH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_200_FH", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
 ], ncols=7)
 
-_distancetoseedcell_perthickperlayer_eneweighted_200_BH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_200_BH_zplus", [
+_distancetoseedcell_perthickperlayer_eneweighted_200_BH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_200_BH", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
 ], ncols=7)
 
 #300 um
-_distancetoseedcell_perthickperlayer_eneweighted_300_EE_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_300_EE_zplus", [
+_distancetoseedcell_perthickperlayer_eneweighted_300_EE_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_300_EE", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_300_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
 ], ncols=7)
 
-_distancetoseedcell_perthickperlayer_eneweighted_300_FH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_300_FH_zplus", [
+_distancetoseedcell_perthickperlayer_eneweighted_300_FH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_300_FH", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
 ], ncols=7)
 
-_distancetoseedcell_perthickperlayer_eneweighted_300_BH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_300_BH_zplus", [
+_distancetoseedcell_perthickperlayer_eneweighted_300_BH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_300_BH", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
 ], ncols=7)
 
 #scint um
-_distancetoseedcell_perthickperlayer_eneweighted_scint_EE_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_-1_EE_zplus", [
+_distancetoseedcell_perthickperlayer_eneweighted_scint_EE_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_Sci_EE", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_-1_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
 ], ncols=7)
 
-_distancetoseedcell_perthickperlayer_eneweighted_scint_FH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_-1_FH_zplus", [
+_distancetoseedcell_perthickperlayer_eneweighted_scint_FH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_Sci_FH", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
 ], ncols=7)
 
-_distancetoseedcell_perthickperlayer_eneweighted_scint_BH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_-1_BH_zplus", [
+_distancetoseedcell_perthickperlayer_eneweighted_scint_BH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_Sci_BH", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
 ], ncols=7)
 #Just in case we add some plots below to be on the safe side.
@@ -1001,7 +1001,7 @@ _common_score = {"title": "Score CaloParticle to LayerClusters in z-",
 _common_score.update(_legend_common)
 _score_caloparticle_to_layerclusters_zminus = PlotGroup("score_caloparticle_to_layercluster", [
         Plot("Score_caloparticle2layercl_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_score) for i in range(0,maxlayerzm)
-        ], ncols=8 )
+        ], ncols=10 )
 
 _common_score = {"title": "Score LayerCluster to CaloParticles in z-",
                  "stat": False,
@@ -1062,49 +1062,57 @@ _cell_association_table_zminus = PlotGroup("cellAssociation_table", [
 
 _bin_count = 0
 _xbinlabels = [ "L{:02d}".format(i+1) for i in range(0,maxlayerzm) ]
-_common_eff = {"stat": False, "legend": False}
-_effplots_zminus = [Plot("effic_eta_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(0,maxlayerzm)]
-_effplots_zminus.extend([Plot("effic_phi_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(0,maxlayerzm)])
-_common_eff = {"stat": False, "legend": False, "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
+_common_eff = {"stat": False, "legend": False, "ymin": 0.0, "ymax": 1.1}
+_effplots_zminus_eta = [Plot("effic_eta_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(0,maxlayerzm)]
+_effplots_zminus_phi = [Plot("effic_phi_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(0,maxlayerzm)]
+_common_eff = {"stat": False, "legend": False, "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v", "ymin": 0.0, "ymax": 1.1}
 _common_eff["xmin"] = _bin_count
 _common_eff["xmax"] = maxlayerzm
 _bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
-_effplots_zminus.extend([Plot("globalEfficiencies", xtitle="Global Efficiencies in z-", **_common_eff)])
-_efficiencies_zminus = PlotGroup("Efficiencies", _effplots_zminus, ncols=8)
+_effplots_zminus = [Plot("globalEfficiencies", xtitle="Global Efficiencies in z-", **_common_eff)]
+_efficiencies_zminus_eta = PlotGroup("Efficiencies_vs_eta", _effplots_zminus_eta, ncols=10)
+_efficiencies_zminus_phi = PlotGroup("Efficiencies_vs_phi", _effplots_zminus_phi, ncols=10)
+_efficiencies_zminus     = PlotGroup("Efficiencies_global", _effplots_zminus, ncols=1)
 
-_common_dup = {"stat": False, "legend": False}
-_dupplots_zminus = [Plot("duplicate_eta_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(0,maxlayerzm)]
-_dupplots_zminus.extend([Plot("duplicate_phi_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(0,maxlayerzm)])
-_common_dup = {"stat": False, "legend": False, "title": "Global Duplicates in z-", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
+_common_dup = {"stat": False, "legend": False, "ymin":0.0, "ymax":1.1}
+_dupplots_zminus_eta = [Plot("duplicate_eta_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(0,maxlayerzm)]
+_dupplots_zminus_phi = [Plot("duplicate_phi_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(0,maxlayerzm)]
+_common_dup = {"stat": False, "legend": False, "title": "Global Duplicates in z-", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v", "ymin": 0.0, "ymax": 1.1}
 _common_dup["xmin"] = _bin_count
 _common_dup["xmax"] = _common_dup["xmin"] + maxlayerzm
 _bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
-_dupplots_zminus.extend([Plot("globalEfficiencies", xtitle="Global Duplicates in z-", **_common_dup)])
-_duplicates_zminus = PlotGroup("Duplicates", _dupplots_zminus, ncols=8)
+_dupplots_zminus = [Plot("globalEfficiencies", xtitle="Global Duplicates in z-", **_common_dup)]
+_duplicates_zminus_eta = PlotGroup("Duplicates_vs_eta", _dupplots_zminus_eta, ncols=10)
+_duplicates_zminus_phi = PlotGroup("Duplicates_vs_phi", _dupplots_zminus_phi, ncols=10)
+_duplicates_zminus     = PlotGroup("Duplicates_global", _dupplots_zminus, ncols=1)
 
-_common_fake = {"stat": False, "legend": False}
-_fakeplots_zminus = [Plot("fake_eta_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(0,maxlayerzm)]
-_fakeplots_zminus.extend([Plot("fake_phi_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(0,maxlayerzm)])
-_common_fake = {"stat": False, "legend": False, "title": "Global Fake Rates in z-", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
+_common_fake = {"stat": False, "legend": False, "ymin":0.0, "ymax":1.1}
+_fakeplots_zminus_eta = [Plot("fake_eta_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(0,maxlayerzm)]
+_fakeplots_zminus_phi = [Plot("fake_phi_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(0,maxlayerzm)]
+_common_fake = {"stat": False, "legend": False, "title": "Global Fake Rates in z-", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v", "ymin": 0.0, "ymax": 1.1}
 _common_fake["xmin"] = _bin_count
 _common_fake["xmax"] = _common_fake["xmin"] + maxlayerzm
 _bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
 _common_fake["xbinlabels"] = [ "L{:02d}".format(i+1) for i in range(0,maxlayerzm) ]
 _common_fake["xbinlabelsize"] = 10.
-_fakeplots_zminus.extend([Plot("globalEfficiencies", xtitle="Global Fake Rate in z-", **_common_fake)])
-_fakes_zminus = PlotGroup("FakeRate", _fakeplots_zminus, ncols=8)
+_fakeplots_zminus = [Plot("globalEfficiencies", xtitle="Global Fake Rate in z-", **_common_fake)]
+_fakes_zminus_eta = PlotGroup("FakeRate_vs_eta", _fakeplots_zminus_eta, ncols=10)
+_fakes_zminus_phi = PlotGroup("FakeRate_vs_phi", _fakeplots_zminus_phi, ncols=10)
+_fakes_zminus     = PlotGroup("FakeRate_global", _fakeplots_zminus, ncols=1)
 
-_common_merge = {"stat": False, "legend": False}
-_mergeplots_zminus = [Plot("merge_eta_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(0,maxlayerzm)]
-_mergeplots_zminus.extend([Plot("merge_phi_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(0,maxlayerzm)])
-_common_merge = {"stat": False, "legend": False, "title": "Global Merge Rates in z-", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
+_common_merge = {"stat": False, "legend": False, "ymin":0.0, "ymax":1.1}
+_mergeplots_zminus_eta = [Plot("merge_eta_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(0,maxlayerzm)]
+_mergeplots_zminus_phi = [Plot("merge_phi_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(0,maxlayerzm)]
+_common_merge = {"stat": False, "legend": False, "title": "Global Merge Rates in z-", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v", "ymin": 0.0, "ymax": 1.1}
 _common_merge["xmin"] = _bin_count
 _common_merge["xmax"] = _common_merge["xmin"] + maxlayerzm
 _bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
 _common_merge["xbinlabels"] = [ "L{:02d}".format(i+1) for i in range(0,maxlayerzm) ]
 _common_merge["xbinlabelsize"] = 10.
-_mergeplots_zminus.extend([Plot("globalEfficiencies", xtitle="Global merge Rate in z-", **_common_merge)])
-_merges_zminus = PlotGroup("MergeRate", _mergeplots_zminus, ncols=8)
+_mergeplots_zminus = [Plot("globalEfficiencies", xtitle="Global merge Rate in z-", **_common_merge)]
+_merges_zminus_eta = PlotGroup("MergeRate_vs_eta", _mergeplots_zminus_eta, ncols=10)
+_merges_zminus_phi = PlotGroup("MergeRate_vs_phi", _mergeplots_zminus_phi, ncols=10)
+_merges_zminus     = PlotGroup("MergeRate_global", _mergeplots_zminus, ncols=1)
 
 
 _common_energy_score = dict(removeEmptyBins=False, xbinlabelsize=10,
@@ -1150,7 +1158,7 @@ _common_score = {"title": "Score CaloParticle to LayerClusters in z+",
 _common_score.update(_legend_common)
 _score_caloparticle_to_layerclusters_zplus = PlotGroup("score_caloparticle_to_layercluster", [
         Plot("Score_caloparticle2layercl_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_score) for i in range(maxlayerzm,maxlayerzp)
-        ], ncols=8 )
+        ], ncols=10 )
 
 _common_score = {"title": "Score LayerCluster to CaloParticles in z+",
                  "stat": False,
@@ -1211,46 +1219,53 @@ _cell_association_table_zplus = PlotGroup("cellAssociation_table", [
 
 
 _bin_count = 50
-_common_eff = {"stat": False, "legend": False}
-_effplots_zplus = [Plot("effic_eta_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(maxlayerzm,maxlayerzp)]
-_effplots_zplus.extend([Plot("effic_phi_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(maxlayerzm,maxlayerzp)])
-_common_eff = {"stat": False, "legend": False, "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
+_common_eff = {"stat": False, "legend": False, "ymin":0.0, "ymax":1.1}
+_effplots_zplus_eta = [Plot("effic_eta_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(maxlayerzm,maxlayerzp)]
+_effplots_zplus_phi = [Plot("effic_phi_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(maxlayerzm,maxlayerzp)]
+_common_eff = {"stat": False, "legend": False, "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "d", "ymin": 0.0, "ymax": 1.1}
 _common_eff["xmin"] = _bin_count
 _common_eff["xmax"] = _common_eff["xmin"] + maxlayerzm
 _bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
-_effplots_zplus.extend([Plot("globalEfficiencies", xtitle="Global Efficiencies in z+", **_common_eff)])
-_efficiencies_zplus = PlotGroup("Efficiencies", _effplots_zplus, ncols=8)
+_effplots_zplus = [Plot("globalEfficiencies", xtitle="Global Efficiencies in z+", **_common_eff)]
+_efficiencies_zplus_eta = PlotGroup("Efficiencies_vs_eta", _effplots_zplus_eta, ncols=10)
+_efficiencies_zplus_phi = PlotGroup("Efficiencies_vs_phi", _effplots_zplus_phi, ncols=10)
+_efficiencies_zplus = PlotGroup("Efficiencies_global", _effplots_zplus, ncols=1)
 
-
-_common_dup = {"stat": False, "legend": False}
-_dupplots_zplus = [Plot("duplicate_eta_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(maxlayerzm,maxlayerzp)]
-_dupplots_zplus.extend([Plot("duplicate_phi_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(maxlayerzm,maxlayerzp)])
-_common_dup = {"stat": False, "legend": False, "title": "Global Duplicates in z+", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
+_common_dup = {"stat": False, "legend": False, "ymin": 0.0, "ymax": 1.1}
+_dupplots_zplus_eta = [Plot("duplicate_eta_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(maxlayerzm,maxlayerzp)]
+_dupplots_zplus_phi = [Plot("duplicate_phi_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(maxlayerzm,maxlayerzp)]
+_common_dup = {"stat": False, "legend": False, "title": "Global Duplicates in z+", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "d", "ymin": 0.0, "ymax": 1.1}
 _common_dup["xmin"] = _bin_count
 _common_dup["xmax"] = _common_dup["xmin"] + maxlayerzm
 _bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
-_dupplots_zplus.extend([Plot("globalEfficiencies", xtitle="Global Duplicates in z+", **_common_dup)])
-_duplicates_zplus = PlotGroup("Duplicates", _dupplots_zplus, ncols=8)
+_dupplots_zplus = [Plot("globalEfficiencies", xtitle="Global Duplicates in z+", **_common_dup)]
+_duplicates_zplus_eta = PlotGroup("Duplicates_vs_eta", _dupplots_zplus_eta, ncols=10)
+_duplicates_zplus_phi = PlotGroup("Duplicates_vs_phi", _dupplots_zplus_phi, ncols=10)
+_duplicates_zplus = PlotGroup("Duplicates_global", _dupplots_zplus, ncols=1)
 
-_common_fake = {"stat": False, "legend": False}
-_fakeplots_zplus = [Plot("fake_eta_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(maxlayerzm,maxlayerzp)]
-_fakeplots_zplus.extend([Plot("fake_phi_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(maxlayerzm,maxlayerzp)])
-_common_fake = {"stat": False, "legend": False, "title": "Global Fake Rates in z+", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
+_common_fake = {"stat": False, "legend": False, "ymin": 0.0, "ymax": 1.1}
+_fakeplots_zplus_eta = [Plot("fake_eta_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(maxlayerzm,maxlayerzp)]
+_fakeplots_zplus_phi = [Plot("fake_phi_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(maxlayerzm,maxlayerzp)]
+_common_fake = {"stat": False, "legend": False, "title": "Global Fake Rates in z+", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "d", "ymin": 0.0, "ymax": 1.1}
 _common_fake["xmin"] = _bin_count
 _common_fake["xmax"] = _common_fake["xmin"] + maxlayerzm
 _bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
-_fakeplots_zplus.extend([Plot("globalEfficiencies", xtitle="Global Fake Rate in z+", **_common_fake)])
-_fakes_zplus = PlotGroup("FakeRate", _fakeplots_zplus, ncols=8)
+_fakeplots_zplus = [Plot("globalEfficiencies", xtitle="Global Fake Rate in z+", **_common_fake)]
+_fakes_zplus_eta = PlotGroup("FakeRate_vs_eta", _fakeplots_zplus_eta, ncols=10)
+_fakes_zplus_phi = PlotGroup("FakeRate_vs_phi", _fakeplots_zplus_phi, ncols=10)
+_fakes_zplus = PlotGroup("FakeRate_global", _fakeplots_zplus, ncols=1)
 
-_common_merge = {"stat": False, "legend": False}
-_mergeplots_zplus = [Plot("merge_eta_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(maxlayerzm,maxlayerzp)]
-_mergeplots_zplus.extend([Plot("merge_phi_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(maxlayerzm,maxlayerzp)])
-_common_merge = {"stat": False, "legend": False, "title": "Global Merge Rates in z+", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
+_common_merge = {"stat": False, "legend": False, "ymin": 0.0, "ymax": 1.1}
+_mergeplots_zplus_eta = [Plot("merge_eta_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(maxlayerzm,maxlayerzp)]
+_mergeplots_zplus_phi = [Plot("merge_phi_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(maxlayerzm,maxlayerzp)]
+_common_merge = {"stat": False, "legend": False, "title": "Global Merge Rates in z+", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "d", "ymin": 0.0, "ymax": 1.1}
 _common_merge["xmin"] = _bin_count
 _common_merge["xmax"] = _common_merge["xmin"] + maxlayerzm
 _bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
-_mergeplots_zplus.extend([Plot("globalEfficiencies", xtitle="Global merge Rate in z+", **_common_merge)])
-_merges_zplus = PlotGroup("MergeRate", _mergeplots_zplus, ncols=8)
+_mergeplots_zplus = [Plot("globalEfficiencies", xtitle="Global merge Rate in z+", **_common_merge)]
+_merges_zplus_eta = PlotGroup("MergeRate_vs_eta", _mergeplots_zplus_eta, ncols=10)
+_merges_zplus_phi = PlotGroup("MergeRate_vs_phi", _mergeplots_zplus_phi, ncols=10)
+_merges_zplus = PlotGroup("MergeRate_global", _mergeplots_zplus, ncols=1)
 
 
 #--------------------------------------------------------------------------------------------
@@ -1329,26 +1344,26 @@ _cell_association_table = PlotGroup("cellAssociation_table", [
         Plot("cellAssociation_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_assoc) for i in range(0,maxlayerzm)
         ], ncols=8 )
 
-_common_eff = {"stat": False, "legend": False, "xbinlabelsize": 14, "xbinlabeloption": "d"}
+_common_eff = {"stat": False, "legend": False, "xbinlabelsize": 14, "xbinlabeloption": "d", "ymin": 0.0, "ymax": 1.1}
 _effplots = [Plot("effic_eta", xtitle="", **_common_eff)]
 _effplots.extend([Plot("effic_phi", xtitle="", **_common_eff)])
 _effplots.extend([Plot("globalEfficiencies", xtitle="", **_common_eff)])
 _efficiencies = PlotGroup("Efficiencies", _effplots, ncols=3)
 
 
-_common_dup = {"stat": False, "legend": False, "xbinlabelsize": 14, "xbinlabeloption": "d"}
+_common_dup = {"stat": False, "legend": False, "xbinlabelsize": 14, "xbinlabeloption": "d", "ymin": 0.0, "ymax": 1.1}
 _dupplots = [Plot("duplicate_eta", xtitle="", **_common_dup)]
 _dupplots.extend([Plot("duplicate_phi", xtitle="", **_common_dup)])
 _dupplots.extend([Plot("globalEfficiencies", xtitle="", **_common_dup)])
 _duplicates = PlotGroup("Duplicates", _dupplots, ncols=3)
 
-_common_fake = {"stat": False, "legend": False, "xbinlabelsize": 14, "xbinlabeloption": "d"}
+_common_fake = {"stat": False, "legend": False, "xbinlabelsize": 14, "xbinlabeloption": "d", "ymin": 0.0, "ymax": 1.1}
 _fakeplots = [Plot("fake_eta", xtitle="", **_common_fake)]
 _fakeplots.extend([Plot("fake_phi", xtitle="", **_common_fake)])
 _fakeplots.extend([Plot("globalEfficiencies", xtitle="", **_common_fake)])
 _fakes = PlotGroup("FakeRate", _fakeplots, ncols=3)
 
-_common_merge = {"stat": False, "legend": False, "xbinlabelsize": 14, "xbinlabeloption": "d"}
+_common_merge = {"stat": False, "legend": False, "xbinlabelsize": 14, "xbinlabeloption": "d", "ymin": 0.0, "ymax": 1.1}
 _mergeplots = [Plot("merge_eta", xtitle="", **_common_merge)]
 _mergeplots.extend([Plot("merge_phi", xtitle="", **_common_merge)])
 _mergeplots.extend([Plot("globalEfficiencies", xtitle="", **_common_merge)])
@@ -1667,173 +1682,6 @@ _PhotonsFromMultiCl_Closest_EoverCPenergy = PlotGroup("PhotonsFromMultiCl", [
 hgcalLayerClustersPlotter = Plotter()
 layerClustersLabel = 'Layer Clusters'
 
-
-
-# [E] For each layer cluster:
-# distance of cells from a) seed cell, b) max cell; and c), d): same with entries weighted by cell energy
-# separate histos in each layer for 120um Si, 200/300um Si, Scint
-# NB: not all combinations exist; e.g. no 120um Si in layers with scint.
-# (One entry in each of the four appropriate histos per cell in a layer cluster)
-# z-
-hgcalLayerClustersPlotter.append("CellsDistanceToSeedAndMaxCellPerLayerPerThickness_zminus", [
-        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-        ], PlotFolder(
-        _distancetomaxcell_perthickperlayer_120_EE_zminus,
-        _distancetomaxcell_perthickperlayer_120_FH_zminus,
-        _distancetomaxcell_perthickperlayer_120_BH_zminus,
-        _distancetomaxcell_perthickperlayer_200_EE_zminus,
-        _distancetomaxcell_perthickperlayer_200_FH_zminus,
-        _distancetomaxcell_perthickperlayer_200_BH_zminus,
-        _distancetomaxcell_perthickperlayer_300_EE_zminus,
-        _distancetomaxcell_perthickperlayer_300_FH_zminus,
-        _distancetomaxcell_perthickperlayer_300_BH_zminus,
-        _distancetomaxcell_perthickperlayer_scint_EE_zminus,
-        _distancetomaxcell_perthickperlayer_scint_FH_zminus,
-        _distancetomaxcell_perthickperlayer_scint_BH_zminus,
-        _distancetoseedcell_perthickperlayer_120_EE_zminus,
-        _distancetoseedcell_perthickperlayer_120_FH_zminus,
-        _distancetoseedcell_perthickperlayer_120_BH_zminus,
-        _distancetoseedcell_perthickperlayer_200_EE_zminus,
-        _distancetoseedcell_perthickperlayer_200_FH_zminus,
-        _distancetoseedcell_perthickperlayer_200_BH_zminus,
-        _distancetoseedcell_perthickperlayer_300_EE_zminus,
-        _distancetoseedcell_perthickperlayer_300_FH_zminus,
-        _distancetoseedcell_perthickperlayer_300_BH_zminus,
-        _distancetoseedcell_perthickperlayer_scint_EE_zminus,
-        _distancetoseedcell_perthickperlayer_scint_FH_zminus,
-        _distancetoseedcell_perthickperlayer_scint_BH_zminus,
-        _distancetomaxcell_perthickperlayer_eneweighted_120_EE_zminus,
-        _distancetomaxcell_perthickperlayer_eneweighted_120_FH_zminus,
-        _distancetomaxcell_perthickperlayer_eneweighted_120_BH_zminus,
-        _distancetomaxcell_perthickperlayer_eneweighted_200_EE_zminus,
-        _distancetomaxcell_perthickperlayer_eneweighted_200_FH_zminus,
-        _distancetomaxcell_perthickperlayer_eneweighted_200_BH_zminus,
-        _distancetomaxcell_perthickperlayer_eneweighted_300_EE_zminus,
-        _distancetomaxcell_perthickperlayer_eneweighted_300_FH_zminus,
-        _distancetomaxcell_perthickperlayer_eneweighted_300_BH_zminus,
-        _distancetomaxcell_perthickperlayer_eneweighted_scint_EE_zminus,
-        _distancetomaxcell_perthickperlayer_eneweighted_scint_FH_zminus,
-        _distancetomaxcell_perthickperlayer_eneweighted_scint_BH_zminus,
-        _distancetoseedcell_perthickperlayer_eneweighted_120_EE_zminus,
-        _distancetoseedcell_perthickperlayer_eneweighted_120_FH_zminus,
-        _distancetoseedcell_perthickperlayer_eneweighted_120_BH_zminus,
-        _distancetoseedcell_perthickperlayer_eneweighted_200_EE_zminus,
-        _distancetoseedcell_perthickperlayer_eneweighted_200_FH_zminus,
-        _distancetoseedcell_perthickperlayer_eneweighted_200_BH_zminus,
-        _distancetoseedcell_perthickperlayer_eneweighted_300_EE_zminus,
-        _distancetoseedcell_perthickperlayer_eneweighted_300_FH_zminus,
-        _distancetoseedcell_perthickperlayer_eneweighted_300_BH_zminus,
-        _distancetoseedcell_perthickperlayer_eneweighted_scint_EE_zminus,
-        _distancetoseedcell_perthickperlayer_eneweighted_scint_FH_zminus,
-        _distancetoseedcell_perthickperlayer_eneweighted_scint_BH_zminus,
-        _distancebetseedandmaxcell_perthickperlayer_120_EE_zminus,
-        _distancebetseedandmaxcell_perthickperlayer_120_FH_zminus,
-        _distancebetseedandmaxcell_perthickperlayer_120_BH_zminus,
-        _distancebetseedandmaxcell_perthickperlayer_200_EE_zminus,
-        _distancebetseedandmaxcell_perthickperlayer_200_FH_zminus,
-        _distancebetseedandmaxcell_perthickperlayer_200_BH_zminus,
-        _distancebetseedandmaxcell_perthickperlayer_300_EE_zminus,
-        _distancebetseedandmaxcell_perthickperlayer_300_FH_zminus,
-        _distancebetseedandmaxcell_perthickperlayer_300_BH_zminus,
-        _distancebetseedandmaxcell_perthickperlayer_scint_EE_zminus,
-        _distancebetseedandmaxcell_perthickperlayer_scint_FH_zminus,
-        _distancebetseedandmaxcell_perthickperlayer_scint_BH_zminus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_EE_zminus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_FH_zminus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_BH_zminus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_EE_zminus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_FH_zminus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_BH_zminus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_EE_zminus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_FH_zminus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_BH_zminus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_EE_zminus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_FH_zminus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_BH_zminus,
-        loopSubFolders=False,
-        purpose=PlotPurpose.Timing, page="CellsDistanceToSeedAndMaxCellPerLayerPerThickness_zminus"
-        ))
-
-# z+
-hgcalLayerClustersPlotter.append("CellsDistanceToSeedAndMaxCellPerLayerPerThickness_zplus", [
-        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-        ], PlotFolder(
-        _distancetomaxcell_perthickperlayer_120_EE_zplus,
-        _distancetomaxcell_perthickperlayer_120_FH_zplus,
-        _distancetomaxcell_perthickperlayer_120_BH_zplus,
-        _distancetomaxcell_perthickperlayer_200_EE_zplus,
-        _distancetomaxcell_perthickperlayer_200_FH_zplus,
-        _distancetomaxcell_perthickperlayer_200_BH_zplus,
-        _distancetomaxcell_perthickperlayer_300_EE_zplus,
-        _distancetomaxcell_perthickperlayer_300_FH_zplus,
-        _distancetomaxcell_perthickperlayer_300_BH_zplus,
-        _distancetomaxcell_perthickperlayer_scint_EE_zplus,
-        _distancetomaxcell_perthickperlayer_scint_FH_zplus,
-        _distancetomaxcell_perthickperlayer_scint_BH_zplus,
-        _distancetoseedcell_perthickperlayer_120_EE_zplus,
-        _distancetoseedcell_perthickperlayer_120_FH_zplus,
-        _distancetoseedcell_perthickperlayer_120_BH_zplus,
-        _distancetoseedcell_perthickperlayer_200_EE_zplus,
-        _distancetoseedcell_perthickperlayer_200_FH_zplus,
-        _distancetoseedcell_perthickperlayer_200_BH_zplus,
-        _distancetoseedcell_perthickperlayer_300_EE_zplus,
-        _distancetoseedcell_perthickperlayer_300_FH_zplus,
-        _distancetoseedcell_perthickperlayer_300_BH_zplus,
-        _distancetoseedcell_perthickperlayer_scint_EE_zplus,
-        _distancetoseedcell_perthickperlayer_scint_FH_zplus,
-        _distancetoseedcell_perthickperlayer_scint_BH_zplus,
-        _distancetomaxcell_perthickperlayer_eneweighted_120_EE_zplus,
-        _distancetomaxcell_perthickperlayer_eneweighted_120_FH_zplus,
-        _distancetomaxcell_perthickperlayer_eneweighted_120_BH_zplus,
-        _distancetomaxcell_perthickperlayer_eneweighted_200_EE_zplus,
-        _distancetomaxcell_perthickperlayer_eneweighted_200_FH_zplus,
-        _distancetomaxcell_perthickperlayer_eneweighted_200_BH_zplus,
-        _distancetomaxcell_perthickperlayer_eneweighted_300_EE_zplus,
-        _distancetomaxcell_perthickperlayer_eneweighted_300_FH_zplus,
-        _distancetomaxcell_perthickperlayer_eneweighted_300_BH_zplus,
-        _distancetomaxcell_perthickperlayer_eneweighted_scint_EE_zplus,
-        _distancetomaxcell_perthickperlayer_eneweighted_scint_FH_zplus,
-        _distancetomaxcell_perthickperlayer_eneweighted_scint_BH_zplus,
-        _distancetoseedcell_perthickperlayer_eneweighted_120_EE_zplus,
-        _distancetoseedcell_perthickperlayer_eneweighted_120_FH_zplus,
-        _distancetoseedcell_perthickperlayer_eneweighted_120_BH_zplus,
-        _distancetoseedcell_perthickperlayer_eneweighted_200_EE_zplus,
-        _distancetoseedcell_perthickperlayer_eneweighted_200_FH_zplus,
-        _distancetoseedcell_perthickperlayer_eneweighted_200_BH_zplus,
-        _distancetoseedcell_perthickperlayer_eneweighted_300_EE_zplus,
-        _distancetoseedcell_perthickperlayer_eneweighted_300_FH_zplus,
-        _distancetoseedcell_perthickperlayer_eneweighted_300_BH_zplus,
-        _distancetoseedcell_perthickperlayer_eneweighted_scint_EE_zplus,
-        _distancetoseedcell_perthickperlayer_eneweighted_scint_FH_zplus,
-        _distancetoseedcell_perthickperlayer_eneweighted_scint_BH_zplus,
-        _distancebetseedandmaxcell_perthickperlayer_120_EE_zplus,
-        _distancebetseedandmaxcell_perthickperlayer_120_FH_zplus,
-        _distancebetseedandmaxcell_perthickperlayer_120_BH_zplus,
-        _distancebetseedandmaxcell_perthickperlayer_200_EE_zplus,
-        _distancebetseedandmaxcell_perthickperlayer_200_FH_zplus,
-        _distancebetseedandmaxcell_perthickperlayer_200_BH_zplus,
-        _distancebetseedandmaxcell_perthickperlayer_300_EE_zplus,
-        _distancebetseedandmaxcell_perthickperlayer_300_FH_zplus,
-        _distancebetseedandmaxcell_perthickperlayer_300_BH_zplus,
-        _distancebetseedandmaxcell_perthickperlayer_scint_EE_zplus,
-        _distancebetseedandmaxcell_perthickperlayer_scint_FH_zplus,
-        _distancebetseedandmaxcell_perthickperlayer_scint_BH_zplus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_EE_zplus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_FH_zplus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_BH_zplus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_EE_zplus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_FH_zplus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_BH_zplus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_EE_zplus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_FH_zplus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_BH_zplus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_EE_zplus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_FH_zplus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_BH_zplus,
-        loopSubFolders=False,
-        purpose=PlotPurpose.Timing, page="CellsDistanceToSeedAndMaxCellPerLayerPerThickness_zplus"
-        ))
-
 lc_general = [
   # [A] calculated "energy density" for cells in a) 120um, b) 200um, c) 300um, d) scint
   # (one entry per rechit, in the appropriate histo)
@@ -1873,6 +1721,83 @@ lc_zminus = [
   _cellsnum_perthick_perlayer_scint_EE_zminus,
   _cellsnum_perthick_perlayer_scint_FH_zminus,
   _cellsnum_perthick_perlayer_scint_BH_zminus,
+  # [E] For each layer cluster:
+  # distance of cells from a) seed cell, b) max cell; and c), d): same with entries weighted by cell energy
+  # separate histos in each layer for 120um Si, 200/300um Si, Scint
+  # NB: not all combinations exist; e.g. no 120um Si in layers with scint.
+  # (One entry in each of the four appropriate histos per cell in a layer cluster)
+  _distancetomaxcell_perthickperlayer_120_EE_zminus,
+  _distancetomaxcell_perthickperlayer_120_FH_zminus,
+  _distancetomaxcell_perthickperlayer_120_BH_zminus,
+  _distancetomaxcell_perthickperlayer_200_EE_zminus,
+  _distancetomaxcell_perthickperlayer_200_FH_zminus,
+  _distancetomaxcell_perthickperlayer_200_BH_zminus,
+  _distancetomaxcell_perthickperlayer_300_EE_zminus,
+  _distancetomaxcell_perthickperlayer_300_FH_zminus,
+  _distancetomaxcell_perthickperlayer_300_BH_zminus,
+  _distancetomaxcell_perthickperlayer_scint_EE_zminus,
+  _distancetomaxcell_perthickperlayer_scint_FH_zminus,
+  _distancetomaxcell_perthickperlayer_scint_BH_zminus,
+  _distancetoseedcell_perthickperlayer_120_EE_zminus,
+  _distancetoseedcell_perthickperlayer_120_FH_zminus,
+  _distancetoseedcell_perthickperlayer_120_BH_zminus,
+  _distancetoseedcell_perthickperlayer_200_EE_zminus,
+  _distancetoseedcell_perthickperlayer_200_FH_zminus,
+  _distancetoseedcell_perthickperlayer_200_BH_zminus,
+  _distancetoseedcell_perthickperlayer_300_EE_zminus,
+  _distancetoseedcell_perthickperlayer_300_FH_zminus,
+  _distancetoseedcell_perthickperlayer_300_BH_zminus,
+  _distancetoseedcell_perthickperlayer_scint_EE_zminus,
+  _distancetoseedcell_perthickperlayer_scint_FH_zminus,
+  _distancetoseedcell_perthickperlayer_scint_BH_zminus,
+  _distancetomaxcell_perthickperlayer_eneweighted_120_EE_zminus,
+  _distancetomaxcell_perthickperlayer_eneweighted_120_FH_zminus,
+  _distancetomaxcell_perthickperlayer_eneweighted_120_BH_zminus,
+  _distancetomaxcell_perthickperlayer_eneweighted_200_EE_zminus,
+  _distancetomaxcell_perthickperlayer_eneweighted_200_FH_zminus,
+  _distancetomaxcell_perthickperlayer_eneweighted_200_BH_zminus,
+  _distancetomaxcell_perthickperlayer_eneweighted_300_EE_zminus,
+  _distancetomaxcell_perthickperlayer_eneweighted_300_FH_zminus,
+  _distancetomaxcell_perthickperlayer_eneweighted_300_BH_zminus,
+  _distancetomaxcell_perthickperlayer_eneweighted_scint_EE_zminus,
+  _distancetomaxcell_perthickperlayer_eneweighted_scint_FH_zminus,
+  _distancetomaxcell_perthickperlayer_eneweighted_scint_BH_zminus,
+  _distancetoseedcell_perthickperlayer_eneweighted_120_EE_zminus,
+  _distancetoseedcell_perthickperlayer_eneweighted_120_FH_zminus,
+  _distancetoseedcell_perthickperlayer_eneweighted_120_BH_zminus,
+  _distancetoseedcell_perthickperlayer_eneweighted_200_EE_zminus,
+  _distancetoseedcell_perthickperlayer_eneweighted_200_FH_zminus,
+  _distancetoseedcell_perthickperlayer_eneweighted_200_BH_zminus,
+  _distancetoseedcell_perthickperlayer_eneweighted_300_EE_zminus,
+  _distancetoseedcell_perthickperlayer_eneweighted_300_FH_zminus,
+  _distancetoseedcell_perthickperlayer_eneweighted_300_BH_zminus,
+  _distancetoseedcell_perthickperlayer_eneweighted_scint_EE_zminus,
+  _distancetoseedcell_perthickperlayer_eneweighted_scint_FH_zminus,
+  _distancetoseedcell_perthickperlayer_eneweighted_scint_BH_zminus,
+  _distancebetseedandmaxcell_perthickperlayer_120_EE_zminus,
+  _distancebetseedandmaxcell_perthickperlayer_120_FH_zminus,
+  _distancebetseedandmaxcell_perthickperlayer_120_BH_zminus,
+  _distancebetseedandmaxcell_perthickperlayer_200_EE_zminus,
+  _distancebetseedandmaxcell_perthickperlayer_200_FH_zminus,
+  _distancebetseedandmaxcell_perthickperlayer_200_BH_zminus,
+  _distancebetseedandmaxcell_perthickperlayer_300_EE_zminus,
+  _distancebetseedandmaxcell_perthickperlayer_300_FH_zminus,
+  _distancebetseedandmaxcell_perthickperlayer_300_BH_zminus,
+  _distancebetseedandmaxcell_perthickperlayer_scint_EE_zminus,
+  _distancebetseedandmaxcell_perthickperlayer_scint_FH_zminus,
+  _distancebetseedandmaxcell_perthickperlayer_scint_BH_zminus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_EE_zminus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_FH_zminus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_BH_zminus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_EE_zminus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_FH_zminus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_BH_zminus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_EE_zminus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_FH_zminus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_BH_zminus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_EE_zminus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_FH_zminus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_BH_zminus,
   # [F] Looking at the fraction of true energy that has been clustered; by layer and overall
   _energyclustered_perlayer_EE_zminus,
   _energyclustered_perlayer_FH_zminus,
@@ -1889,12 +1814,20 @@ lc_zminus = [
   _cell_association_table_zminus,
   # [M] Efficiency Plots
   _efficiencies_zminus,
+  _efficiencies_zminus_eta,
+  _efficiencies_zminus_phi,
   # [L] Duplicate Plots
   _duplicates_zminus,
+  _duplicates_zminus_eta,
+  _duplicates_zminus_phi,
   # [M] Fake Rate Plots
   _fakes_zminus,
+  _fakes_zminus_eta,
+  _fakes_zminus_phi,
   # [N] Merge Rate Plots
   _merges_zminus,
+  _merges_zminus_eta,
+  _merges_zminus_phi,
   # [O] Energy vs Score 2D plots CP to LC
   _energyscore_cp2lc_zminus,
   # [P] Energy vs Score 2D plots LC to CP
@@ -1916,6 +1849,78 @@ lc_zplus = [
   _cellsnum_perthick_perlayer_scint_EE_zplus,
   _cellsnum_perthick_perlayer_scint_FH_zplus,
   _cellsnum_perthick_perlayer_scint_BH_zplus,
+  _distancetomaxcell_perthickperlayer_120_EE_zplus,
+  _distancetomaxcell_perthickperlayer_120_FH_zplus,
+  _distancetomaxcell_perthickperlayer_120_BH_zplus,
+  _distancetomaxcell_perthickperlayer_200_EE_zplus,
+  _distancetomaxcell_perthickperlayer_200_FH_zplus,
+  _distancetomaxcell_perthickperlayer_200_BH_zplus,
+  _distancetomaxcell_perthickperlayer_300_EE_zplus,
+  _distancetomaxcell_perthickperlayer_300_FH_zplus,
+  _distancetomaxcell_perthickperlayer_300_BH_zplus,
+  _distancetomaxcell_perthickperlayer_scint_EE_zplus,
+  _distancetomaxcell_perthickperlayer_scint_FH_zplus,
+  _distancetomaxcell_perthickperlayer_scint_BH_zplus,
+  _distancetoseedcell_perthickperlayer_120_EE_zplus,
+  _distancetoseedcell_perthickperlayer_120_FH_zplus,
+  _distancetoseedcell_perthickperlayer_120_BH_zplus,
+  _distancetoseedcell_perthickperlayer_200_EE_zplus,
+  _distancetoseedcell_perthickperlayer_200_FH_zplus,
+  _distancetoseedcell_perthickperlayer_200_BH_zplus,
+  _distancetoseedcell_perthickperlayer_300_EE_zplus,
+  _distancetoseedcell_perthickperlayer_300_FH_zplus,
+  _distancetoseedcell_perthickperlayer_300_BH_zplus,
+  _distancetoseedcell_perthickperlayer_scint_EE_zplus,
+  _distancetoseedcell_perthickperlayer_scint_FH_zplus,
+  _distancetoseedcell_perthickperlayer_scint_BH_zplus,
+  _distancetomaxcell_perthickperlayer_eneweighted_120_EE_zplus,
+  _distancetomaxcell_perthickperlayer_eneweighted_120_FH_zplus,
+  _distancetomaxcell_perthickperlayer_eneweighted_120_BH_zplus,
+  _distancetomaxcell_perthickperlayer_eneweighted_200_EE_zplus,
+  _distancetomaxcell_perthickperlayer_eneweighted_200_FH_zplus,
+  _distancetomaxcell_perthickperlayer_eneweighted_200_BH_zplus,
+  _distancetomaxcell_perthickperlayer_eneweighted_300_EE_zplus,
+  _distancetomaxcell_perthickperlayer_eneweighted_300_FH_zplus,
+  _distancetomaxcell_perthickperlayer_eneweighted_300_BH_zplus,
+  _distancetomaxcell_perthickperlayer_eneweighted_scint_EE_zplus,
+  _distancetomaxcell_perthickperlayer_eneweighted_scint_FH_zplus,
+  _distancetomaxcell_perthickperlayer_eneweighted_scint_BH_zplus,
+  _distancetoseedcell_perthickperlayer_eneweighted_120_EE_zplus,
+  _distancetoseedcell_perthickperlayer_eneweighted_120_FH_zplus,
+  _distancetoseedcell_perthickperlayer_eneweighted_120_BH_zplus,
+  _distancetoseedcell_perthickperlayer_eneweighted_200_EE_zplus,
+  _distancetoseedcell_perthickperlayer_eneweighted_200_FH_zplus,
+  _distancetoseedcell_perthickperlayer_eneweighted_200_BH_zplus,
+  _distancetoseedcell_perthickperlayer_eneweighted_300_EE_zplus,
+  _distancetoseedcell_perthickperlayer_eneweighted_300_FH_zplus,
+  _distancetoseedcell_perthickperlayer_eneweighted_300_BH_zplus,
+  _distancetoseedcell_perthickperlayer_eneweighted_scint_EE_zplus,
+  _distancetoseedcell_perthickperlayer_eneweighted_scint_FH_zplus,
+  _distancetoseedcell_perthickperlayer_eneweighted_scint_BH_zplus,
+  _distancebetseedandmaxcell_perthickperlayer_120_EE_zplus,
+  _distancebetseedandmaxcell_perthickperlayer_120_FH_zplus,
+  _distancebetseedandmaxcell_perthickperlayer_120_BH_zplus,
+  _distancebetseedandmaxcell_perthickperlayer_200_EE_zplus,
+  _distancebetseedandmaxcell_perthickperlayer_200_FH_zplus,
+  _distancebetseedandmaxcell_perthickperlayer_200_BH_zplus,
+  _distancebetseedandmaxcell_perthickperlayer_300_EE_zplus,
+  _distancebetseedandmaxcell_perthickperlayer_300_FH_zplus,
+  _distancebetseedandmaxcell_perthickperlayer_300_BH_zplus,
+  _distancebetseedandmaxcell_perthickperlayer_scint_EE_zplus,
+  _distancebetseedandmaxcell_perthickperlayer_scint_FH_zplus,
+  _distancebetseedandmaxcell_perthickperlayer_scint_BH_zplus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_EE_zplus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_FH_zplus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_BH_zplus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_EE_zplus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_FH_zplus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_BH_zplus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_EE_zplus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_FH_zplus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_BH_zplus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_EE_zplus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_FH_zplus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_BH_zplus,
   _energyclustered_perlayer_EE_zplus,
   _energyclustered_perlayer_FH_zplus,
   _energyclustered_perlayer_BH_zplus,
@@ -1924,10 +1929,22 @@ lc_zplus = [
   _sharedEnergy_caloparticle_to_layercluster_zplus,
   _sharedEnergy_layercluster_to_caloparticle_zplus,
   _cell_association_table_zplus,
+  # Efficiency Plots
   _efficiencies_zplus,
+  _efficiencies_zplus_eta,
+  _efficiencies_zplus_phi,
+  # Duplicate Plots
   _duplicates_zplus,
+  _duplicates_zplus_eta,
+  _duplicates_zplus_phi,
+  # Fake Rate Plots
   _fakes_zplus,
+  _fakes_zplus_eta,
+  _fakes_zplus_phi,
+  # Merge Rate Plots
   _merges_zplus,
+  _merges_zplus_eta,
+  _merges_zplus_phi,
   _energyscore_cp2lc_zplus,
   _energyscore_lc2cp_zplus
 ]
