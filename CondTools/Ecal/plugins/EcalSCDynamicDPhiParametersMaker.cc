@@ -47,8 +47,7 @@ private:
 };
 
 EcalSCDynamicDPhiParametersMaker::EcalSCDynamicDPhiParametersMaker(const edm::ParameterSet& iConfig)
-    : parametersToken_(esConsumes<EcalSCDynamicDPhiParameters, EcalSCDynamicDPhiParametersRcd>()) {
-}
+    : parametersToken_(esConsumes<EcalSCDynamicDPhiParameters, EcalSCDynamicDPhiParametersRcd>()) {}
 
 void EcalSCDynamicDPhiParametersMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::ESHandle<EcalSCDynamicDPhiParameters> esParamsHandle_ = iSetup.getHandle(parametersToken_);
@@ -58,7 +57,7 @@ void EcalSCDynamicDPhiParametersMaker::analyze(const edm::Event& iEvent, const e
     poolDbService->writeOne(esParamsHandle_.product(), poolDbService->currentTime(), "EcalSCDynamicDPhiParametersRcd");
   } else {
     throw cms::Exception("PoolDBService") << "No PoolDBService available.";
-  }  
+  }
 }
 
 void EcalSCDynamicDPhiParametersMaker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -67,4 +66,3 @@ void EcalSCDynamicDPhiParametersMaker::fillDescriptions(edm::ConfigurationDescri
 }
 
 DEFINE_FWK_MODULE(EcalSCDynamicDPhiParametersMaker);
-

@@ -53,9 +53,12 @@ void MustacheSCParametersHelper::addParabolaParameters(const EcalMustacheSCParam
 }
 
 void MustacheSCParametersHelper::sortParabolaParametersCollection() {
-  std::sort(parabolaParametersCollection_.begin(), parabolaParametersCollection_.end(), [](const EcalMustacheSCParameters::ParabolaParameters &p1, const EcalMustacheSCParameters::ParabolaParameters &p2) {
-    const auto p1Mins = std::make_pair(p1.log10EMin, p1.etaMin);
-    const auto p2Mins = std::make_pair(p2.log10EMin, p2.etaMin);
-    return p1Mins > p2Mins;
-  });
+  std::sort(parabolaParametersCollection_.begin(),
+            parabolaParametersCollection_.end(),
+            [](const EcalMustacheSCParameters::ParabolaParameters &p1,
+               const EcalMustacheSCParameters::ParabolaParameters &p2) {
+              const auto p1Mins = std::make_pair(p1.log10EMin, p1.etaMin);
+              const auto p2Mins = std::make_pair(p2.log10EMin, p2.etaMin);
+              return p1Mins > p2Mins;
+            });
 }
