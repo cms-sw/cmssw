@@ -47,8 +47,7 @@ private:
 };
 
 EcalMustacheSCParametersMaker::EcalMustacheSCParametersMaker(const edm::ParameterSet& iConfig)
-    : parametersToken_(esConsumes<EcalMustacheSCParameters, EcalMustacheSCParametersRcd>()) {
-}
+    : parametersToken_(esConsumes<EcalMustacheSCParameters, EcalMustacheSCParametersRcd>()) {}
 
 void EcalMustacheSCParametersMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::ESHandle<EcalMustacheSCParameters> esParamsHandle_ = iSetup.getHandle(parametersToken_);
@@ -58,7 +57,7 @@ void EcalMustacheSCParametersMaker::analyze(const edm::Event& iEvent, const edm:
     poolDbService->writeOne(esParamsHandle_.product(), poolDbService->currentTime(), "EcalMustacheSCParametersRcd");
   } else {
     throw cms::Exception("PoolDBService") << "No PoolDBService available.";
-  }  
+  }
 }
 
 void EcalMustacheSCParametersMaker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -67,4 +66,3 @@ void EcalMustacheSCParametersMaker::fillDescriptions(edm::ConfigurationDescripti
 }
 
 DEFINE_FWK_MODULE(EcalMustacheSCParametersMaker);
-
