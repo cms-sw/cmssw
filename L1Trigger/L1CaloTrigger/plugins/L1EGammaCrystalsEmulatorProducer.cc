@@ -344,7 +344,7 @@ L1EGCrystalClusterEmulatorProducer::L1EGCrystalClusterEmulatorProducer(const edm
       calib_(iConfig.getParameter<edm::ParameterSet>("calib")) {
   produces<l1tp2::CaloCrystalClusterCollection>();
   produces<BXVector<l1t::EGamma> >();
-  produces<l1tp2::CaloTowerCollection>();
+  produces<l1tp2::CaloTowerCollection>("L1CaloTowerCollection");
 }
 
 L1EGCrystalClusterEmulatorProducer::~L1EGCrystalClusterEmulatorProducer() {}
@@ -1173,7 +1173,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
 
   iEvent.put(std::move(L1EGXtalClusters));
   iEvent.put(std::move(L1EGammas));
-  iEvent.put(std::move(L1CaloTowers));
+  iEvent.put(std::move(L1CaloTowers),"L1CaloTowerCollection");
 }
 
 bool L1EGCrystalClusterEmulatorProducer::passes_iso(float pt, float iso) {
