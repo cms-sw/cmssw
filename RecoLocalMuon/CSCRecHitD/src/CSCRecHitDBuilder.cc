@@ -133,7 +133,7 @@ void CSCRecHitDBuilder::build(const CSCStripDigiCollection* stripdc,
           isInFiducial = true;
         } else {
           isInFiducial = make2DHits_->isHitInFiducial(layer, rechit);
-        }        
+        }
         if (isInFiducial) {
           hitsInLayer.push_back(rechit);
           hits_in_layer++;
