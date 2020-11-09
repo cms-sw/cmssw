@@ -5,15 +5,6 @@
  *
  * Module that reads survey info from DB and prints them out.
  *
- * Usage:
- *   module comparator = TrackerGeometryCompare {
- *
- *   lots of stuff  
- *
- *   }
- *   path p = { comparator }
- *
- *
  *  $Date: 2012/12/02 22:13:12 $
  *  $Revision: 1.14 $
  *  \author Nhan Tran
@@ -24,7 +15,7 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
@@ -37,6 +28,9 @@
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 //***************************************************
 
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+
 #include <algorithm>
 #include <string>
 #include "TTree.h"
@@ -45,7 +39,7 @@
 class AlignTransform;
 class TrackerTopology;
 
-class TrackerGeometryCompare : public edm::EDAnalyzer {
+class TrackerGeometryCompare : public edm::one::EDAnalyzer<> {
 public:
   typedef AlignTransform SurveyValue;
   typedef Alignments SurveyValues;
@@ -90,6 +84,14 @@ private:
   void setCommonTrackerSystem();
   void diffCommonTrackerSystem(Alignable* refAli, Alignable* curAli);
   bool passIdCut(uint32_t);
+
+  const edm::ESGetToken<DDCompactView, IdealGeometryRecord> cpvTokenDDD_;
+  const edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> cpvTokenDD4Hep_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
+  const edm::ESGetToken<GeometricDet, IdealGeometryRecord> geomDetToken_;
+  const edm::ESGetToken<PTrackerParameters, PTrackerParametersRcd> ptpToken_;
+  const edm::ESGetToken<SiPixelQuality, SiPixelQualityRcd> pixQualityToken_;
+  const edm::ESGetToken<SiStripQuality, SiStripQualityRcd> stripQualityToken_;
 
   AlignableTracker* referenceTracker;
   AlignableTracker* dummyTracker;

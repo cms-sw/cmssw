@@ -19,11 +19,10 @@
 
 // framework include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -65,7 +64,7 @@
 // class decleration
 //
 
-class EopTreeWriter : public edm::EDAnalyzer {
+class EopTreeWriter : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit EopTreeWriter(const edm::ParameterSet&);
   ~EopTreeWriter() override;
@@ -101,6 +100,7 @@ private:
 //
 EopTreeWriter::EopTreeWriter(const edm::ParameterSet& iConfig)
     : src_(iConfig.getParameter<edm::InputTag>("src")), geometryToken_(esConsumes()) {
+  usesResource(TFileService::kSharedResource);
   //now do what ever initialization is needed
 
   // TrackAssociator parameters

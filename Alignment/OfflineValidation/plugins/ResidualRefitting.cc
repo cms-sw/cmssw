@@ -35,8 +35,11 @@
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 ResidualRefitting::ResidualRefitting(const edm::ParameterSet& cfg)
-    : outputFileName_(cfg.getUntrackedParameter<std::string>("histoutputFile")),
-      PropagatorSource_(cfg.getParameter<std::string>("propagator")),
+    : magFieldToken_(esConsumes()),
+      topoToken_(esConsumes()),
+      trackingGeometryToken_(esConsumes()),
+      propagatorToken_(esConsumes(edm::ESInputTag(cfg.getParameter<std::string>("propagator")))),
+      outputFileName_(cfg.getUntrackedParameter<std::string>("histoutputFile")),
       muons_(cfg.getParameter<edm::InputTag>("muons")),
       muonsRemake_(cfg.getParameter<edm::InputTag>("muonsRemake")),  //This Feels Misalignment
       muonsNoStation1_(cfg.getParameter<edm::InputTag>("muonsNoStation1")),
@@ -138,13 +141,9 @@ void ResidualRefitting::analyze(const edm::Event& event, const edm::EventSetup& 
 	event.getByLabel(muonsNoTOBLayer6_, muonsNoTOBLayer6Coll);
 */
   //magnetic field information
-  edm::ESHandle<MagneticField> field;
-  edm::ESHandle<GlobalTrackingGeometry> globalTrackingGeometry;
-  eventSetup.get<IdealMagneticFieldRecord>().get(field);
-  eventSetup.get<GlobalTrackingGeometryRecord>().get(globalTrackingGeometry);
-  eventSetup.get<TrackingComponentsRecord>().get(PropagatorSource_, thePropagator);
-  theField = &*field;
-
+  theField = &eventSetup.getData(magFieldToken_);
+  edm::ESHandle<GlobalTrackingGeometry> globalTrackingGeometry = eventSetup.getHandle(trackingGeometryToken_);
+  thePropagator = eventSetup.getHandle(propagatorToken_);
   theService->update(eventSetup);
 
   //Zero storage
@@ -269,9 +268,7 @@ void ResidualRefitting::CollectTrackHits(edm::Handle<reco::TrackCollection> trac
                                          ResidualRefitting::storage_trackExtrap& trackExtrap,
                                          const edm::EventSetup& eventSetup) {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  eventSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const TrackerTopology* const tTopo = &eventSetup.getData(topoToken_);
 
   int iMuonHit = 0;
   int iTrackHit = 0;
