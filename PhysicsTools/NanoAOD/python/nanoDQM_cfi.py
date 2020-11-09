@@ -299,6 +299,15 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('statusFlags', 'statusFlags', 32768, 0, 32768, 'gen status flags stored bitwise, bits are: 0 : isPrompt, 1 : isDecayedLeptonHadron, 2 : isTauDecayProduct, 3 : isPromptTauDecayProduct, 4 : isDirectTauDecayProduct, 5 : isDirectPromptTauDecayProduct, 6 : isDirectHadronDecayProduct, 7 : isHardProcess, 8 : fromHardProcess, 9 : isHardProcessTauDecayProduct, 10 : isDirectHardProcessTauDecayProduct, 11 : fromHardProcessBeforeFSR, 12 : isFirstCopy, 13 : isLastCopy, 14 : isLastCopyBeforeFSR, '),
             )
         ),
+        GenVtx = cms.PSet(
+            sels = cms.PSet(),
+            plots = cms.VPSet(
+                Plot1D('x', 'x', 20, -10, 10, 'x'),
+                Plot1D('y', 'y', 20, -10, 10, 'y'),
+                Plot1D('z', 'z', 20, -10, 10, 'z'),
+                Plot1D('t0', 't0', 20, -10, 10, 't0'),
+            )
+        ),
         GenVisTau = cms.PSet(
             sels = cms.PSet(),
             plots = cms.VPSet(
