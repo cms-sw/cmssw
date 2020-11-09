@@ -398,7 +398,6 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
             auto thisPt = tracksterTotalRawPt + trackstersMergedHandle->at(otherTracksterIdx).raw_pt() - t.raw_pt();
             closestTrackster = std::abs(thisPt - track.pt()) < minPtDiff ? otherTracksterIdx : closestTrackster;
           }
-          tracksterTotalRawPt += trackstersMergedHandle->at(closestTrackster).raw_pt() - t.raw_pt();
           usedTrackstersMerged[closestTrackster] = true;
 
           if (foundCompatibleTRK) {
