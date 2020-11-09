@@ -376,7 +376,7 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
   HcalDetId detId(samples.id());
 
   // Get the |ieta| for current sample
-  unsigned int theIeta = detId.ietaAbs();
+  std::string theIeta = "ieta" + to_string(detId.ietaAbs());
 
   unsigned int dgSamples = samples.size();
   unsigned int dgPresamples = samples.presamples();
@@ -858,7 +858,7 @@ void HcalTriggerPrimitiveAlgo::setWeightsQIE11(const edm::ParameterSet& weightsQ
   // Names are just abs(ieta) for HBHE
   std::vector<std::string> ietaStrs = weightsQIE11.getParameterNames();
   for (auto& ietaStr : ietaStrs) {
-    weightsQIE11_[std::stoi(ietaStr)] = weightsQIE11.getUntrackedParameter<std::vector<double>>(ietaStr);
+    weightsQIE11_[ietaStr] = weightsQIE11.getUntrackedParameter<std::vector<double>>(ietaStr);
   }
 }
 
