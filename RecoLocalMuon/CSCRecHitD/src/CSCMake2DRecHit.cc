@@ -141,8 +141,7 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id,
   int quality = -1;
   LocalPoint lp0(0., 0.);
   int wglo = wg_left;
-  int wghi = wg_right;
-  
+  int wghi = wg_right;  
   float ymiddle;
 
   // First wire of first wiregroup in cluster
