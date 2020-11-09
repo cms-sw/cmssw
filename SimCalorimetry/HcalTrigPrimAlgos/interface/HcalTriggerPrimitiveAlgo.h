@@ -124,7 +124,7 @@ private:
   double theThreshold;
   bool peakfind_;
   std::vector<double> weights_;
-  std::map<int, std::vector<double>> weightsQIE11_;
+  std::map<std::string, std::vector<double>> weightsQIE11_;
   int latency_;
   uint32_t FG_threshold_;
   std::vector<uint32_t> FG_HF_thresholds_;
