@@ -33,9 +33,8 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -58,7 +57,7 @@
 // class decleration
 //
 
-class CosmicSplitterValidation : public edm::EDAnalyzer {
+class CosmicSplitterValidation : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit CosmicSplitterValidation(const edm::ParameterSet&);
   ~CosmicSplitterValidation() override;
@@ -414,6 +413,7 @@ CosmicSplitterValidation::CosmicSplitterValidation(const edm::ParameterSet& iCon
       phiErr_orm_(0),
       ptErr_orm_(0),
       qoverptErr_orm_(0) {
+  usesResource(TFileService::kSharedResource);
   edm::ConsumesCollector&& iC = consumesCollector();
   splitTracksToken_ = iC.consumes<std::vector<reco::Track>>(splitTracks_);
   originalTracksToken_ = iC.consumes<std::vector<reco::Track>>(originalTracks_);

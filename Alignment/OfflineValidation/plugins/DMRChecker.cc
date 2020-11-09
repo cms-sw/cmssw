@@ -494,11 +494,10 @@ private:
     event.getByToken(theTrackCollectionToken, trackCollection);
 
     // magnetic field setup
-    edm::ESHandle<MagneticField> magneticField_ = setup.getHandle(magFieldToken_);
-    float B_ = magneticField_.product()->inTesla(GlobalPoint(0, 0, 0)).mag();
+    const MagneticField *magneticField_ = &setup.getData(magFieldToken_);
+    float B_ = magneticField_->inTesla(GlobalPoint(0, 0, 0)).mag();
 
-    edm::ESHandle<RunInfo> runInfo = setup.getHandle(runInfoToken_);
-    const RunInfo *summary = runInfo.product();
+    const RunInfo *summary = &setup.getData(runInfoToken_);
     time_t start_time = summary->m_start_time_ll;
     ctime(&start_time);
     time_t end_time = summary->m_stop_time_ll;
@@ -511,15 +510,14 @@ private:
       << " end_time "   << end_time   << "( " << summary->m_stop_time_str  <<" )" << std::endl;
     */
 
-    double seconds = difftime(end_time, start_time) / 1.0e+6;
+    double seconds = difftime(end_time, start_time) / 1.0e+6;  // convert from micros-seconds
     //edm::LogVerbatim("DMRChecker")<<" diff: "<< seconds << "s" << std::endl;
     timeMap_[event.run()] = seconds;
 
     // topology setup
-    edm::ESHandle<TrackerTopology> tTopoHandle = setup.getHandle(topoToken_);
-    const TrackerTopology *const tTopo = tTopoHandle.product();
+    const TrackerTopology *const tTopo = &setup.getData(topoToken_);
 
-    edm::ESHandle<SiStripLatency> apvlat = setup.getHandle(latencyToken_);
+    const SiStripLatency *apvlat = &setup.getData(latencyToken_);
     if (apvlat->singleReadOutMode() == 1) {
       mode = 1;  // peak mode
     } else if (apvlat->singleReadOutMode() == 0) {
@@ -530,8 +528,7 @@ private:
     conditionsMap_[event.run()].second = B_;
 
     // geometry setup
-    edm::ESHandle<TrackerGeometry> geometry = setup.getHandle(geomToken_);
-    const TrackerGeometry *theGeometry = &(*geometry);
+    const TrackerGeometry *theGeometry = &setup.getData(geomToken_);
 
     if (firstEvent_) {
       if (theGeometry->isThere(GeomDetEnumerators::P2PXB) || theGeometry->isThere(GeomDetEnumerators::P2PXEC)) {
@@ -620,7 +617,7 @@ private:
           // fill DMRs and DrNRs
           if (subid == StripSubdetector::TIB) {
             uOrientation = deltaPhi(gUDirection.barePhi(), gPModule.barePhi()) >= 0. ? +1.F : -1.F;
-            vOrientation = gVDirection.z() - gPModule.z() >= 0 ? +1.F : -1.F;
+            //vOrientation = gVDirection.z() - gPModule.z() >= 0 ? +1.F : -1.F; // not used for Strips
 
             // if the detid has never occcurred yet, set the local orientations
             if (resDetailsTIB_.find(detid_db) == resDetailsTIB_.end()) {
@@ -637,7 +634,7 @@ private:
 
           } else if (subid == StripSubdetector::TOB) {
             uOrientation = deltaPhi(gUDirection.barePhi(), gPModule.barePhi()) >= 0. ? +1.F : -1.F;
-            vOrientation = gVDirection.z() - gPModule.z() >= 0 ? +1.F : -1.F;
+            //vOrientation = gVDirection.z() - gPModule.z() >= 0 ? +1.F : -1.F; // not used for Strips
 
             hTOBResXPrime->Fill(uOrientation * resX * 10000);
             hTOBResXPull->Fill(pullX);
@@ -654,7 +651,7 @@ private:
 
           } else if (subid == StripSubdetector::TID) {
             uOrientation = deltaPhi(gUDirection.barePhi(), gPModule.barePhi()) >= 0. ? +1.F : -1.F;
-            vOrientation = gVDirection.perp() - gPModule.perp() >= 0. ? +1.F : -1.F;
+            //vOrientation = gVDirection.perp() - gPModule.perp() >= 0. ? +1.F : -1.F; // not used for Strips
 
             hTIDResXPrime->Fill(uOrientation * resX * 10000);
             hTIDResXPull->Fill(pullX);
@@ -664,7 +661,7 @@ private:
 
           } else if (subid == StripSubdetector::TEC) {
             uOrientation = deltaPhi(gUDirection.barePhi(), gPModule.barePhi()) >= 0. ? +1.F : -1.F;
-            vOrientation = gVDirection.perp() - gPModule.perp() >= 0. ? +1.F : -1.F;
+            //vOrientation = gVDirection.perp() - gPModule.perp() >= 0. ? +1.F : -1.F; // not used for Strips
 
             hTECResXPrime->Fill(uOrientation * resX * 10000);
             hTECResXPull->Fill(pullX);
@@ -1874,11 +1871,9 @@ private:
       }
 
       unsigned int side = -1;
-      unsigned int plane = i;
-
       if (detType.find("FPix") != std::string::npos) {
         side = (i - 1) / 3 + 1;
-        plane = (i - 1) % 3 + 1;
+        unsigned int plane = (i - 1) % 3 + 1;
 
         std::string theSide = "";
         if (side == 1) {
