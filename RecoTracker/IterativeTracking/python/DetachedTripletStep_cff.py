@@ -8,7 +8,7 @@ from FastSimulation.Tracking.SeedingMigration import _hitSetProducerToFactoryPSe
 
 #for dnn classifier
 from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
-from dnnQualityCuts import qualityCutDictionary
+from RecoTracker.IterativeTracking.dnnQualityCuts import qualityCutDictionary
 
 ###############################################
 # Low pT and detached tracks from pixel triplets

@@ -1,5 +1,5 @@
-#ifndef TfGraphRecord_TfGraphRecord_h
-#define TfGraphRecord_TfGraphRecord_h
+#ifndef TrackingTools_Records_TfGraphRecord_TfGraphRecord_h
+#define TrackingTools_Records_TfGraphRecord_TfGraphRecord_h
 // -*- C++ -*-
 //
 // Package:     TrackingTools/Records

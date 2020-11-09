@@ -5,7 +5,7 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
 #for dnn classifier
 from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
-from dnnQualityCuts import qualityCutDictionary
+from RecoTracker.IterativeTracking.dnnQualityCuts import qualityCutDictionary
 
 ##########################################################################
 # Large impact parameter tracking using TIB/TID/TEC stereo layer seeding #
@@ -348,8 +348,8 @@ trackingPhase1.toReplaceWith(pixelLessStep, pixelLessStepClassifier1.clone(
 from RecoTracker.FinalTrackSelectors.TrackTfClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionTf_cfi import *
 trackdnn.toReplaceWith(pixelLessStep, TrackTfClassifier.clone(
-     src = 'pixelLessStepTracks',
-     qualityCuts = qualityCutDictionary['PixelLessStep']
+    src = 'pixelLessStepTracks',
+    qualityCuts = qualityCutDictionary['PixelLessStep']
 ))
 
 (trackdnn & fastSim).toModify(pixelLessStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
