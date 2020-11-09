@@ -1,16 +1,17 @@
 /** \class EgammaHLTGsfTrackVarProducer
  *
  *  \author Roberto Covarelli (CERN)
- * 
+ *
  * $Id: EgammaHLTGsfTrackVarProducer.cc,v 1.1 2012/01/23 12:56:38 sharper Exp $
  *
  */
 
-//this class is designed to calculate dEtaIn,dPhiIn gsf track - supercluster pairs
-//it can take as input std::vector<Electron> which the gsf track-sc is already done
-//or it can run over the std::vector<GsfTrack> directly in which case it will pick the smallest dEta,dPhi
-//the dEta, dPhi do not have to be from the same track
-//it can optionally set dEta, dPhi to 0 based on the number of tracks found
+// this class is designed to calculate dEtaIn,dPhiIn gsf track - supercluster
+// pairs it can take as input std::vector<Electron> which the gsf track-sc is
+// already done or it can run over the std::vector<GsfTrack> directly in which
+// case it will pick the smallest dEta,dPhi the dEta, dPhi do not have to be
+// from the same track it can optionally set dEta, dPhi to 0 based on the number
+// of tracks found
 
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronIsolationAssociation.h"
@@ -20,9 +21,9 @@
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -86,8 +87,8 @@ EgammaHLTGsfTrackVarProducer::EgammaHLTGsfTrackVarProducer(const edm::ParameterS
       oneOverESeedMinusOneOverPMapPutToken_{produces<reco::RecoEcalCandidateIsolationMap>("OneOESeedMinusOneOP")},
       missingHitsMapPutToken_{
           produces<reco::RecoEcalCandidateIsolationMap>("MissingHits").setBranchAlias("missinghits")},
-      validHitsMapPutToken_{produces<reco::RecoEcalCandidateIsolationMap>("Chi2").setBranchAlias("chi2")},
-      chi2MapPutToken_{produces<reco::RecoEcalCandidateIsolationMap>("ValidHits").setBranchAlias("validhits")} {}
+      validHitsMapPutToken_{produces<reco::RecoEcalCandidateIsolationMap>("ValidHits").setBranchAlias("validhits")},
+      chi2MapPutToken_{produces<reco::RecoEcalCandidateIsolationMap>("Chi2").setBranchAlias("chi2")} {}
 
 void EgammaHLTGsfTrackVarProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -125,7 +126,8 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::StreamID, edm::Event& iEvent, co
     reco::RecoEcalCandidateRef recoEcalCandRef(recoEcalCandHandle, iRecoEcalCand);
 
     const reco::SuperClusterRef scRef = recoEcalCandRef->superCluster();
-    //the idea is that we can take the tracks from properly associated electrons or just take all gsf tracks with that sc as a seed
+    // the idea is that we can take the tracks from properly associated
+    // electrons or just take all gsf tracks with that sc as a seed
     std::vector<const reco::GsfTrack*> gsfTracks;
     if (auto electronHandle = iEvent.getHandle(electronToken_)) {
       for (auto const& ele : *electronHandle) {
@@ -153,7 +155,7 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::StreamID, edm::Event& iEvent, co
 
     const int nrTracks = gsfTracks.size();
     const bool rmCutsDueToNrTracks = nrTracks <= lowerTrackNrToRemoveCut_ || nrTracks >= upperTrackNrToRemoveCut_;
-    //to use the default values, we require at least one track...
+    // to use the default values, we require at least one track...
     const bool useDefaultValues = std::abs(recoEcalCandRef->eta()) < 1.479
                                       ? useDefaultValuesForBarrel_ && nrTracks >= 1
                                       : useDefaultValuesForEndcap_ && nrTracks >= 1;
@@ -197,16 +199,18 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::StreamID, edm::Event& iEvent, co
           missingHitsValue = gsfTracks[trkNr]->missingInnerHits();
         }
 
-        if (gsfTracks[trkNr]->numberOfValidHits() < validHitsValue) {
+        // we are saving the best value, and highest value of validHits is the
+        // best
+        if (gsfTracks[trkNr]->numberOfValidHits() > validHitsValue) {
           validHitsValue = gsfTracks[trkNr]->numberOfValidHits();
         }
 
-        if (gsfTracks[trkNr]->numberOfValidHits() < chi2Value) {
+        if (gsfTracks[trkNr]->normalizedChi2() < chi2Value) {
           chi2Value = gsfTracks[trkNr]->normalizedChi2();
         }
 
         if (std::abs(scAtVtx.dEta()) < dEtaInValue) {
-          //we are allowing them to come from different tracks
+          // we are allowing them to come from different tracks
           dEtaInValue = std::abs(scAtVtx.dEta());
         }
 
@@ -215,7 +219,7 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::StreamID, edm::Event& iEvent, co
         }
 
         if (std::abs(scAtVtx.dPhi()) < dPhiInValue) {
-          //we are allowing them to come from different tracks
+          // we are allowing them to come from different tracks
           dPhiInValue = std::abs(scAtVtx.dPhi());
         }
       }
