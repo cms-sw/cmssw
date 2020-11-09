@@ -909,8 +909,8 @@ public:
         std::stringstream pdfDoc;
         pdfDoc << "LHE pdf variation weights (w_var / w_nominal) for LHA IDs ";
         bool found = false;
-        for (uint32_t lhaid : preferredPDFLHAIDs_) {
-          for (const auto& pw : pdfSetWeightIDs) {
+        for (const auto& pw : pdfSetWeightIDs) {
+          for (uint32_t lhaid : preferredPDFLHAIDs_) {
             if (pw.lhaIDs.first != lhaid && pw.lhaIDs.first != (lhaid + 1))
               continue;  // sometimes the first weight is not saved if that PDF is the nominal one for the sample
             if (pw.wids.size() == 1)
