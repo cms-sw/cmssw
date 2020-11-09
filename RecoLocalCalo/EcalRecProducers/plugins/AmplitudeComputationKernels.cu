@@ -187,7 +187,8 @@ namespace ecal {
         // inits
         //SampleDecompLLT covariance_decomposition;
         //SampleMatrix inverse_cov;
-        SampleVector::Scalar chi2 = 0, chi2_now = 0;
+        //        SampleVector::Scalar chi2 = 0, chi2_now = 0;
+        float chi2 = 0, chi2_now = 0;
 
         // loop until ocnverge
         while (true) {
@@ -291,62 +292,7 @@ namespace ecal {
                                 16,
                                 2);
 
-          {
-            DataType accum[NSAMPLES];
-// load accum
-#pragma unroll
-            for (int counter = 0; counter < NSAMPLES; counter++)
-              accum[counter] = -samples[idx](counter);
-
-            // iterate
-            for (int icol = 0; icol < NPULSES; icol++) {
-              DataType pm_col[NSAMPLES];
-
-// preload a column of pulse matrix
-#pragma unroll
-              for (int counter = 0; counter < NSAMPLES; counter++)
-                pm_col[counter] = __ldg(&pulse_matrix[idx].coeffRef(counter, icol));
-
-// accum
-#pragma unroll
-              for (int counter = 0; counter < NSAMPLES; counter++)
-                accum[counter] += resultAmplitudes[icol] * pm_col[counter];
-            }
-
-            DataType reg_L[NSAMPLES];
-            DataType accumSum = 0;
-
-// preload a column and load column 0 of cholesky
-#pragma unroll
-            for (int i = 0; i < NSAMPLES; i++)
-              reg_L[i] = matrixL(i, 0);
-
-            // compute x0 and store it
-            auto x_prev = accum[0] / reg_L[0];
-            accumSum += x_prev * x_prev;
-
-// iterate
-#pragma unroll
-            for (int iL = 1; iL < NSAMPLES; iL++) {
-// update accum
-#pragma unroll
-              for (int counter = iL; counter < NSAMPLES; counter++)
-                accum[counter] -= x_prev * reg_L[counter];
-
-// load the next column of cholesky
-#pragma unroll
-              for (int counter = iL; counter < NSAMPLES; counter++)
-                reg_L[counter] = matrixL(counter, iL);
-
-              // compute the next x for M(iL, icol)
-              x_prev = accum[iL] / reg_L[iL];
-
-              // store teh result value
-              accumSum += x_prev * x_prev;
-            }
-
-            chi2_now = accumSum;
-          }
+          calo::multifit::calculateChiSq(matrixL, pulse_matrix[idx], resultAmplitudes, samples[idx], chi2_now);
 
           auto deltachi2 = chi2_now - chi2;
           chi2 = chi2_now;
