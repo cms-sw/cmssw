@@ -1,5 +1,5 @@
 #include "RecoTracker/FinalTrackSelectors/interface/TfGraphDefWrapper.h"
 
-TfGraphDefWrapper::TfGraphDefWrapper(tensorflow::GraphDef* graph) { graphDef_ = graph; }
+TfGraphDefWrapper::TfGraphDefWrapper(const std::unique_ptr<tensorflow::GraphDef> graph) { graphDef_ = graph; }
 
-tensorflow::GraphDef* TfGraphDefWrapper::GetGraphDef() const { return graphDef_; }
+const std::unique_ptr<tensorflow::GraphDef> TfGraphDefWrapper::getGraphDef() const { return graphDef_; }

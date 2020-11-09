@@ -4,7 +4,7 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
 #for dnn classifier
 from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
-from dnnQualityCuts import qualityCutDictionary
+from RecoTracker.IterativeTracking.dnnQualityCuts import qualityCutDictionary
 
 ### STEP 0 ###
 

@@ -18,14 +18,15 @@ struct TfDnnCache {
 };
 
 namespace {
-  struct tfDnn {
-    tfDnn(const edm::ParameterSet& cfg)
+  struct TfDnn {
+    TfDnn(const edm::ParameterSet& cfg)
         : tfDnnLabel_(cfg.getParameter<std::string>("tfDnnLabel"))
 
     {}
-    TfDnnCache* cache_ = new TfDnnCache();
+    //TfDnnCache* cache_ = new TfDnnCache();
+    TfDnnCache* cache_;
 
-    ~tfDnn() {
+    ~TfDnn() {
       if (cache_->session_) {
         tensorflow::closeSession(cache_->session_);
         delete cache_;
@@ -44,7 +45,7 @@ namespace {
       if (!cache_->session_) {
         edm::ESHandle<TfGraphDefWrapper> tfDnnHandle;
         es.get<TfGraphRecord>().get(tfDnnLabel_, tfDnnHandle);
-        tensorflow::GraphDef* graphDef_ = tfDnnHandle.product()->GetGraphDef();
+        tensorflow::GraphDef* graphDef_ = tfDnnHandle.product()->getGraphDef();
         cache_->session_ = tensorflow::createSession(
             graphDef_, 1);  //The integer controls how many threads are used for running inference
       }
@@ -111,11 +112,11 @@ namespace {
       return output;
     }
 
-    std::string tfDnnLabel_;
+    const std::string tfDnnLabel_;
     tensorflow::Session* session_;
   };
 
-  using TrackTfClassifier = TrackMVAClassifier<tfDnn>;
+  using TrackTfClassifier = TrackMVAClassifier<TfDnn>;
 }  // namespace
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"

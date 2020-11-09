@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 #for dnn classifier
 from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
-from dnnQualityCuts import qualityCutDictionary
+from RecoTracker.IterativeTracking.dnnQualityCuts import qualityCutDictionary
 
 # This step runs over all clusters
 
