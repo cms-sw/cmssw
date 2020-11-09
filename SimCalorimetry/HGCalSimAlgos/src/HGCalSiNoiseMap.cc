@@ -129,7 +129,7 @@ const typename HGCalSiNoiseMap<T>::SiCellOpCharacteristicsCore HGCalSiNoiseMap<T
 
   uint32_t key = cellId.rawId();
 
-  return siopCache_.at(key);
+  return siopCache_[key];
 }
 
 //
