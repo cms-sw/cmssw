@@ -80,7 +80,7 @@ public:
   ~PFEGCandidateTreeMaker() {}
 
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   edm::Service<TFileService> _fs;
