@@ -86,8 +86,8 @@ EgammaHLTGsfTrackVarProducer::EgammaHLTGsfTrackVarProducer(const edm::ParameterS
       oneOverESeedMinusOneOverPMapPutToken_{produces<reco::RecoEcalCandidateIsolationMap>("OneOESeedMinusOneOP")},
       missingHitsMapPutToken_{
           produces<reco::RecoEcalCandidateIsolationMap>("MissingHits").setBranchAlias("missinghits")},
-      validHitsMapPutToken_{produces<reco::RecoEcalCandidateIsolationMap>("Chi2").setBranchAlias("chi2")},
-      chi2MapPutToken_{produces<reco::RecoEcalCandidateIsolationMap>("ValidHits").setBranchAlias("validhits")} {}
+      validHitsMapPutToken_{produces<reco::RecoEcalCandidateIsolationMap>("ValidHits").setBranchAlias("validhits")},
+      chi2MapPutToken_{produces<reco::RecoEcalCandidateIsolationMap>("Chi2").setBranchAlias("chi2")} {}
 
 void EgammaHLTGsfTrackVarProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -197,11 +197,11 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::StreamID, edm::Event& iEvent, co
           missingHitsValue = gsfTracks[trkNr]->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
         }
 
-        if (gsfTracks[trkNr]->numberOfValidHits() < validHitsValue) {
+        if (gsfTracks[trkNr]->numberOfValidHits() > validHitsValue) {
           validHitsValue = gsfTracks[trkNr]->numberOfValidHits();
         }
 
-        if (gsfTracks[trkNr]->numberOfValidHits() < chi2Value) {
+        if (gsfTracks[trkNr]->normalizedChi2() < chi2Value) {
           chi2Value = gsfTracks[trkNr]->normalizedChi2();
         }
 
