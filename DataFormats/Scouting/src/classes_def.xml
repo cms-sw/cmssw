@@ -25,6 +25,30 @@
      <version ClassVersion="4" checksum="2090828742"/>
      <version ClassVersion="5" checksum="2821723317"/>
   </class>
+  <ioread sourceClass = "ScoutingMuon" version="[-4]" targetClass="ScoutingMuon" source ="float chi2_" target="trk_chi2_">
+    <![CDATA[trk_chi2_=onfile.chi2_;]]>
+  </ioread>
+  <ioread sourceClass = "ScoutingMuon" version="[-4]" targetClass="ScoutingMuon" source ="float ndof_" target="trk_ndof_">
+    <![CDATA[trk_ndof_=onfile.ndof_;]]>
+  </ioread>
+  <ioread sourceClass = "ScoutingMuon" version="[-4]" targetClass="ScoutingMuon" source ="float dxy_" target="trk_dxy_">
+    <![CDATA[trk_dxy_=onfile.dxy_;]]>
+  </ioread>
+  <ioread sourceClass = "ScoutingMuon" version="[-4]" targetClass="ScoutingMuon" source ="float dz_" target="trk_dz_">
+    <![CDATA[trk_dz_=onfile.dz_;]]>
+  </ioread>
+  <ioread sourceClass = "ScoutingMuon" version="[-4]" targetClass="ScoutingMuon" source ="float dxyError_" target="trk_dxyError_">
+    <![CDATA[trk_dxyError_=onfile.dxyError_;]]>
+  </ioread>
+  <ioread sourceClass = "ScoutingMuon" version="[-4]" targetClass="ScoutingMuon" source ="float dzError_" target="trk_dzError_">
+    <![CDATA[trk_dzError_=onfile.dzError_;]]>
+  </ioread>
+  <ioread sourceClass = "ScoutingMuon" version="[-4]" targetClass="ScoutingMuon" source ="int nValidMuonHits_" target="nValidStandAloneMuonHits_">
+    <![CDATA[nValidStandAloneMuonHits_=onfile.nValidMuonHits_;]]>
+  </ioread>
+  <ioread sourceClass = "ScoutingMuon" version="[-4]" targetClass="ScoutingMuon" source ="int nMatchedStations_" target="nStandAloneMuonMatchedStations_">
+    <![CDATA[nStandAloneMuonMatchedStations_=onfile.nMatchedStations_;]]>
+  </ioread>
   <class name="ScoutingPhoton" ClassVersion="4">
       <version ClassVersion="2" checksum="2797410539"/>
       <version ClassVersion="3" checksum="876375717"/>
