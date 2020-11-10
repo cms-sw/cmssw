@@ -10,7 +10,7 @@
 namespace ticl {
   void assignPCAtoTracksters(std::vector<Trackster> &,
                              const std::vector<reco::CaloCluster> &,
-			     const edm::ValueMap<std::pair<float, float>> &,
+                             const edm::ValueMap<std::pair<float, float>> &,
                              double,
                              bool energyWeight = true);
 }
