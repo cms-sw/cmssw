@@ -2,8 +2,10 @@
 #define SimG4Core_TrackWithHistory_H
 
 #include "G4Track.hh"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4Allocator.hh"
 
@@ -42,6 +44,27 @@ public:
   void setGenParticleID(int i) { genParticleID_ = i; }
   bool storeTrack() const { return storeTrack_; }
   bool saved() const { return saved_; }
+
+  // Boundary crossing variables
+  void setCrossedBoundaryPosMom(int id, const math::XYZVectorD position, const math::XYZTLorentzVectorD momentum){
+    crossedBoundary_ = true;
+    idAtBoundary_ = id;
+    positionAtBoundary_ = position;
+    momentumAtBoundary_ = momentum;
+    }
+  bool crossedBoundary() const { return crossedBoundary_; }
+  math::XYZVectorD getPositionAtBoundary() const {
+    assertCrossedBoundary();
+    return positionAtBoundary_;
+    }
+  math::XYZTLorentzVectorD getMomentumAtBoundary() const {
+    assertCrossedBoundary();
+    return momentumAtBoundary_;
+    }
+  int getIDAtBoundary() const {
+    assertCrossedBoundary();
+    return idAtBoundary_;
+    }
   /** Internal consistency check (optional).
      *  Method called at PostUserTrackingAction time, to check
      *  if the information is consistent with that provided
@@ -64,7 +87,21 @@ private:
   double weight_;
   bool storeTrack_;
   bool saved_;
+
+  bool isPrimary_;
+  bool crossedBoundary_;
+  int idAtBoundary_;
+  math::XYZVectorD positionAtBoundary_;
+  math::XYZTLorentzVectorD momentumAtBoundary_;
+
   int extractGenID(const G4Track *gt) const;
+
+  void assertCrossedBoundary() const {
+    if (!crossedBoundary_){
+      throw cms::Exception("Unknown", "TrackWithHistory")
+        << "Assert crossed boundary failed for track " << trackID_;
+      }
+    }
 };
 
 extern G4ThreadLocal G4Allocator<TrackWithHistory> *fpTrackWithHistoryAllocator;
