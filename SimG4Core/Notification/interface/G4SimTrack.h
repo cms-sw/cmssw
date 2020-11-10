@@ -23,8 +23,7 @@ public:
         parentMomentum_(math::XYZVectorD(0., 0., 0.)),
         tkSurfacePosition_(math::XYZVectorD(0., 0., 0.)),
         tkSurfaceMomentum_(math::XYZTLorentzVectorD(0., 0., 0., 0.)),
-        crossedBoundary_(false)
-        {}
+        crossedBoundary_(false) {}
 
   G4SimTrack(int iid, int ipart, const math::XYZVectorD& ip, double ie, int iv, int ig, const math::XYZVectorD& ipmom)
       : id_(iid),
@@ -36,8 +35,7 @@ public:
         parentMomentum_(ipmom),
         tkSurfacePosition_(math::XYZVectorD(0., 0., 0.)),
         tkSurfaceMomentum_(math::XYZTLorentzVectorD(0., 0., 0., 0.)),
-        crossedBoundary_(false)
-        {}
+        crossedBoundary_(false) {}
 
   G4SimTrack(int iid,
              int ipart,
@@ -57,8 +55,7 @@ public:
         parentMomentum_(ipmom),
         tkSurfacePosition_(tkpos),
         tkSurfaceMomentum_(tkmom),
-        crossedBoundary_(false)
-        {}
+        crossedBoundary_(false) {}
 
   ~G4SimTrack() {}
 
@@ -77,27 +74,27 @@ public:
   // is stored, else = -1)
   int parentID() const { return parentID_; }
 
-  void copyCrossedBoundaryVars(const TrackWithHistory* track){
-    if (track->crossedBoundary()){
+  void copyCrossedBoundaryVars(const TrackWithHistory* track) {
+    if (track->crossedBoundary()) {
       crossedBoundary_ = track->crossedBoundary();
       idAtBoundary_ = track->getIDAtBoundary();
       positionAtBoundary_ = track->getPositionAtBoundary();
       momentumAtBoundary_ = track->getMomentumAtBoundary();
-      }
     }
+  }
   bool crossedBoundary() const { return crossedBoundary_; }
   math::XYZVectorD getPositionAtBoundary() const {
     assertCrossedBoundary();
     return positionAtBoundary_;
-    }
+  }
   math::XYZTLorentzVectorD getMomentumAtBoundary() const {
     assertCrossedBoundary();
     return momentumAtBoundary_;
-    }
+  }
   int getIDAtBoundary() const {
     assertCrossedBoundary();
     return idAtBoundary_;
-    }
+  }
 
 private:
   int id_;
@@ -115,11 +112,10 @@ private:
   math::XYZVectorD positionAtBoundary_;
   math::XYZTLorentzVectorD momentumAtBoundary_;
   void assertCrossedBoundary() const {
-    if (!crossedBoundary_){
-      throw cms::Exception("Unknown", "G4SimTrack")
-        << "Assert crossed boundary failed for track " << id_;
-      }
+    if (!crossedBoundary_) {
+      throw cms::Exception("Unknown", "G4SimTrack") << "Assert crossed boundary failed for track " << id_;
     }
+  }
 };
 
 #endif

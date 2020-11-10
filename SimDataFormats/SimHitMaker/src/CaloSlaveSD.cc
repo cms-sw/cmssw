@@ -33,7 +33,8 @@ bool CaloSlaveSD::processHits(uint32_t unitID, double eDepEM, double eDepHad, do
   return true;
 }
 
-bool CaloSlaveSD::processHits(uint32_t unitID, double eDepEM, double eDepHad, double tSlice, int tkID, int fineTkId, uint16_t depth) {
+bool CaloSlaveSD::processHits(
+    uint32_t unitID, double eDepEM, double eDepHad, double tSlice, int tkID, int fineTkId, uint16_t depth) {
   PCaloHit aCal = PCaloHit(unitID, eDepEM, eDepHad, tSlice, tkID, fineTkId, depth);
   LogDebug("HitBuildInfo") << " Sent Hit " << aCal << " to ROU " << name_;
   hits_.push_back(aCal);

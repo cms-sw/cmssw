@@ -58,34 +58,30 @@ public:
   void setCaloSurfaceParticleP(double p) { caloSurfaceParticleP_ = p; }
 
   // Boundary crossing variables
-  void setCrossedBoundary(const G4Track* track){
+  void setCrossedBoundary(const G4Track *track) {
     crossedBoundary_ = true;
     idAtBoundary_ = track->GetTrackID();
-    positionAtBoundary_ = math::XYZVectorD(
-      track->GetPosition().x() / CLHEP::cm,
-      track->GetPosition().y() / CLHEP::cm,
-      track->GetPosition().z() / CLHEP::cm
-      );
-    momentumAtBoundary_ = math::XYZTLorentzVectorD(
-      track->GetMomentum().x() / CLHEP::GeV,
-      track->GetMomentum().y() / CLHEP::GeV,
-      track->GetMomentum().z() / CLHEP::GeV,
-      track->GetKineticEnergy() / CLHEP::GeV
-      );
-    }
+    positionAtBoundary_ = math::XYZVectorD(track->GetPosition().x() / CLHEP::cm,
+                                           track->GetPosition().y() / CLHEP::cm,
+                                           track->GetPosition().z() / CLHEP::cm);
+    momentumAtBoundary_ = math::XYZTLorentzVectorD(track->GetMomentum().x() / CLHEP::GeV,
+                                                   track->GetMomentum().y() / CLHEP::GeV,
+                                                   track->GetMomentum().z() / CLHEP::GeV,
+                                                   track->GetKineticEnergy() / CLHEP::GeV);
+  }
   bool crossedBoundary() const { return crossedBoundary_; }
   math::XYZVectorD getPositionAtBoundary() const {
     assertCrossedBoundary();
     return positionAtBoundary_;
-    }
+  }
   math::XYZTLorentzVectorD getMomentumAtBoundary() const {
     assertCrossedBoundary();
     return momentumAtBoundary_;
-    }
+  }
   int getIDAtBoundary() const {
     assertCrossedBoundary();
     return idAtBoundary_;
-    }
+  }
 
   // Generator information
   int genParticlePID() const { return genParticlePID_; }
@@ -103,7 +99,6 @@ public:
   int getCastorHitPID() const { return castorHitPID_; }
 
   void Print() const override;
-
 
 private:
   bool storeTrack_;
@@ -128,13 +123,11 @@ private:
   int castorHitPID_;
 
   void assertCrossedBoundary() const {
-    if (!crossedBoundary_){
+    if (!crossedBoundary_) {
       throw cms::Exception("Unknown", "TrackInformation")
-        << "Assert crossed boundary failed for track "
-        << getIDonCaloSurface()
-        ;
-      }
+          << "Assert crossed boundary failed for track " << getIDonCaloSurface();
     }
+  }
 
   // Restrict construction to friends
   TrackInformation()
@@ -155,8 +148,7 @@ private:
         genParticleP_(0),
         caloSurfaceParticleP_(0),
         hasCastorHit_(false),
-        castorHitPID_(0)
-        {}
+        castorHitPID_(0) {}
   friend class NewTrackAction;
 };
 

@@ -47,31 +47,29 @@ public:
 
   inline void setVertexIndex(const int v) { ivert = v; }
 
-  void setCrossedBoundaryVars(
-    bool crossedBoundary,
-    int idAtBoundary,
-    math::XYZVectorD positionAtBoundary,
-    math::XYZTLorentzVectorD momentumAtBoundary
-    ){
+  void setCrossedBoundaryVars(bool crossedBoundary,
+                              int idAtBoundary,
+                              math::XYZVectorD positionAtBoundary,
+                              math::XYZTLorentzVectorD momentumAtBoundary) {
     crossedBoundary_ = crossedBoundary;
     idAtBoundary_ = idAtBoundary;
     positionAtBoundary_ = positionAtBoundary;
     momentumAtBoundary_ = momentumAtBoundary;
-    }
+  }
 
   bool crossedBoundary() const { return crossedBoundary_; }
   math::XYZVectorD getPositionAtBoundary() const {
     assertCrossedBoundary();
     return positionAtBoundary_;
-    }
+  }
   math::XYZTLorentzVectorD getMomentumAtBoundary() const {
     assertCrossedBoundary();
     return momentumAtBoundary_;
-    }
+  }
   int getIDAtBoundary() const {
     assertCrossedBoundary();
     return idAtBoundary_;
-    }
+  }
 
 private:
   int ivert;
@@ -84,13 +82,12 @@ private:
   int idAtBoundary_;
   math::XYZVectorD positionAtBoundary_;
   math::XYZTLorentzVectorD momentumAtBoundary_;
-  
+
   void assertCrossedBoundary() const {
-    if (!crossedBoundary_){
-      throw cms::Exception("Unknown", "SimTrack")
-        << "Assert crossed boundary failed for track " << trackId();
-      }
+    if (!crossedBoundary_) {
+      throw cms::Exception("Unknown", "SimTrack") << "Assert crossed boundary failed for track " << trackId();
     }
+  }
 };
 
 #include <iosfwd>
