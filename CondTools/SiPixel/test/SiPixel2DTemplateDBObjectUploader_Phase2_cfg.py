@@ -68,16 +68,16 @@ options.register('useVectorIndices',
 options.parseArguments()
 
 if options.numerator==False and options.denominator==False :
-	print 'ERROR: Neither numerator nor denominator option was selected. Please rerun with numerator/denominator=True options.'
+	print('ERROR: Neither numerator nor denominator option was selected. Please rerun with numerator/denominator=True options.')
 	quit()
 if options.numerator==True and options.denominator==True :
-	print 'ERROR: Both numerator and denominator options are true. Please rerun with only one of numerator/denominator=True.'
+	print('ERROR: Both numerator and denominator options are true. Please rerun with only one of numerator/denominator=True.')
 	quit()
 
 MagFieldValue = 10.*options.MagField #code needs it in deciTesla
-print '\nMagField = %f deciTesla \n'%(MagFieldValue)
+print('\nMagField = %f deciTesla \n'%(MagFieldValue))
 version = options.Version
-print'\nVersion = %s \n'%(version)
+print('\nVersion = %s \n'%(version))
 magfieldstrsplit = str(options.MagField).split('.')
 MagFieldString = magfieldstrsplit[0]
 if len(magfieldstrsplit)>1 :
@@ -200,7 +200,7 @@ if options.Append!=None :
 #output SQLite filename
 sqlitefilename = 'sqlite_file:'+template_base+'.db'
 
-print '\nUploading %s with record SiPixel2DTemplateDBObjectRcd in file %s\n' % (template_base,sqlitefilename)
+print('\nUploading %s with record SiPixel2DTemplateDBObjectRcd in file %s\n' % (template_base,sqlitefilename))
 
 process.source = cms.Source("EmptyIOVSource",
 		timetype = cms.string('runnumber'),
