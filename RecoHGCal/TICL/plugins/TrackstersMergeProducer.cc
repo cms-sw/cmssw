@@ -538,15 +538,20 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
 void TrackstersMergeProducer::computeTime(std::vector<TICLCandidate> &resultCandidates) {
   for (auto &cand : resultCandidates) {
     auto time = 0.;
-    auto timeErr = 0.;
-    for (const auto& tr : cand.tracksters()) {
-      time += tr->time() / pow(tr->timeError(), 2);
-      timeErr += pow(tr->timeError(), -2);
+    auto timeErr = -1.;
+    for (const auto &tr : cand.tracksters()) {
+      if (tr->timeError() > 0) {
+        auto invTimeESq = pow(tr->timeError(), -2);
+        time += tr->time() * invTimeESq;
+        timeErr += invTimeESq;
+      }
     }
-    timeErr = sqrt(1 / timeErr);
+    if (timeErr > 0) {
+      timeErr = 1. / timeErr;
 
-    cand.setTime(time * pow(timeErr, 2));
-    cand.setTimeError(timeErr);
+      cand.setTime(time * timeErr);
+      cand.setTimeError(sqrt(timeErr));
+    }
   }
 }
 
