@@ -23,6 +23,7 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
+#include "CondCore/DBOutputService/interface/OnlineDBOutputService.h"
 #include <fstream>
 #include "TRandom3.h"
 
@@ -70,7 +71,9 @@ private:
   const double dzMin_;
   const double dzMax_;
   std::string monitorName_;
-  std::string recordName_;  // output BeamSpotOnline Record name
+  std::string recordName_;                                              // output BeamSpotOnline Record name
+  edm::Service<cond::service::OnlineDBOutputService> onlineDbService_;  // DB service
+  int DBloggerReturn_;                                                  // DB logger return value
 
   int fitNLumi_;
   int fitPVNLumi_;
