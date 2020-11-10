@@ -218,7 +218,7 @@ def nanoAOD_recalibrateMETs(process,isData):
         from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
         from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask, addToProcessAndTask
         task = getPatAlgosToolsTask(process)
-        addToProcessAndTask('ak4PuppiJets', ak4PFJets.clone (src = 'puppi', doAreaFastjet = True, jetPtMin = 15.), process, task)
+        addToProcessAndTask('ak4PuppiJets', ak4PFJets.clone (src = 'puppi', doAreaFastjet = True, jetPtMin = 10.), process, task)
         from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
         addJetCollection(process,
                             labelName = 'Puppi',
