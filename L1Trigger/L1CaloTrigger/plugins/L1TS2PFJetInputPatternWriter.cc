@@ -50,7 +50,6 @@ constexpr float eta_first_region_boundary = 0.75;
 constexpr float eta_second_region_boundary = 1.5;
 constexpr float phi_region_boundary = 0.7;
 
-
 class L1TS2PFJetInputPatternWriter : public edm::one::EDAnalyzer<> {
 public:
   explicit L1TS2PFJetInputPatternWriter(const edm::ParameterSet&);
@@ -156,7 +155,8 @@ void L1TS2PFJetInputPatternWriter::analyze(const edm::Event& iEvent, const edm::
     // select first two "small" regions for current fw
     if (pfc.eta() >= 0 && pfc.eta() < eta_first_region_boundary && pfc.phi() >= 0 && pfc.phi() < phi_region_boundary)
       pfPartsA.push_back(pfc);
-    if (pfc.eta() >= eta_first_region_boundary && pfc.eta() < eta_second_region_boundary && pfc.phi() >= 0 && pfc.phi() < phi_region_boundary)
+    if (pfc.eta() >= eta_first_region_boundary && pfc.eta() < eta_second_region_boundary && pfc.phi() >= 0 &&
+        pfc.phi() < phi_region_boundary)
       pfPartsB.push_back(pfc);
   }
 
@@ -200,7 +200,8 @@ void L1TS2PFJetInputPatternWriter::analyze(const edm::Event& iEvent, const edm::
           if (iLink < 24 && pfPartsB.size() > iLink) {
             data |= ((uint64_t)floor(pfPartsB.at(iLink).pt() / ptLSB_) & 0xffff);
             data |= ((uint64_t)floor(pfPartsB.at(iLink).phi() / phiLSB_) & 0x3ff) << bit_shift_phi;
-            data |= ((uint64_t)floor((pfPartsB.at(iLink).eta() - eta_first_region_boundary) / etaLSB_) & 0x3ff) << bit_shift_eta;
+            data |= ((uint64_t)floor((pfPartsB.at(iLink).eta() - eta_first_region_boundary) / etaLSB_) & 0x3ff)
+                    << bit_shift_eta;
           }
         }
         // add data to output
@@ -294,7 +295,7 @@ void L1TS2PFJetInputPatternWriter::fillDescriptions(edm::ConfigurationDescriptio
   edm::ParameterSetDescription desc;
   desc.addUntracked<unsigned int>("nPayloadFrames", 40);
   desc.addUntracked<unsigned int>("nHeaderFrames", 1);
-  desc.add<edm::InputTag>("inputCollectionTag", edm::InputTag("l1pfCandidates","Puppi","IN"));
+  desc.add<edm::InputTag>("inputCollectionTag", edm::InputTag("l1pfCandidates", "Puppi", "IN"));
   desc.addUntracked<std::string>("filename", "pattern.txt");
   desc.addUntracked<unsigned int>("nChanPerQuad", 4);
   desc.addUntracked<unsigned int>("nClearFrames", 13);

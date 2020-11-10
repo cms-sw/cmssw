@@ -144,17 +144,18 @@ void Phase1L1TJetCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& 
     if (newCandidate->pt() < 0) {
       LogDebug("Phase1L1TJetCalibrator") << "######################" << std::endl;
       LogDebug("Phase1L1TJetCalibrator") << "PRE-CALIBRATION " << std::endl;
-      LogDebug("Phase1L1TJetCalibrator") << "\t Jet properties (pt, eta, phi, pile-up): " << candidate.pt() << "\t" << candidate.eta() << "\t"
-      LogDebug("Phase1L1TJetCalibrator") << candidate.phi() << "\t" << candidate.pileup() << std::endl;
+      LogDebug("Phase1L1TJetCalibrator") << "\t Jet properties (pt, eta, phi, pile-up): " << candidate.pt() << "\t"
+                                         << candidate.eta() << "\t" LogDebug("Phase1L1TJetCalibrator")
+                                         << candidate.phi() << "\t" << candidate.pileup() << std::endl;
       LogDebug("Phase1L1TJetCalibrator") << "CALIBRATION " << std::endl;
-      LogDebug("Phase1L1TJetCalibrator") << "\t Using eta - pt - factor " << *etaBin << " - " << *ptBin << " - " << l1tCalibrationFactor
-      LogDebug("Phase1L1TJetCalibrator") << std::endl;
+      LogDebug("Phase1L1TJetCalibrator") << "\t Using eta - pt - factor " << *etaBin << " - " << *ptBin << " - "
+                                         << l1tCalibrationFactor LogDebug("Phase1L1TJetCalibrator") << std::endl;
       LogDebug("Phase1L1TJetCalibrator") << "POST-CALIBRATION " << std::endl;
-      LogDebug("Phase1L1TJetCalibrator") << "\t Jet properties (pt, eta, phi, pile-up): " << newCandidate->pt() << "\t" << newCandidate->eta()
-                << "\t" << newCandidate->phi() << "\t" << newCandidate->pileup() << std::endl;
+      LogDebug("Phase1L1TJetCalibrator") << "\t Jet properties (pt, eta, phi, pile-up): " << newCandidate->pt() << "\t"
+                                         << newCandidate->eta() << "\t" << newCandidate->phi() << "\t"
+                                         << newCandidate->pileup() << std::endl;
     }
 #endif
-
   }
 
   // finally, sort the collection by pt
