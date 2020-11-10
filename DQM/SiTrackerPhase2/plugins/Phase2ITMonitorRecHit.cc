@@ -9,6 +9,8 @@
 // Date: July 2020
 //
 // system include files
+#ifndef DQM_SiTrackerPhase2_Phase2ITMonitorRecHit_h
+#define DQM_SiTrackerPhase2_Phase2ITMonitorRecHit_h
 #include <memory>
 #include <map>
 #include <vector>
@@ -43,7 +45,6 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQM/SiTrackerPhase2/interface/TrackerPhase2DQMUtil.h"
 
 class Phase2ITMonitorRecHit : public DQMEDAnalyzer {
 public:
@@ -86,6 +87,8 @@ private:
   };
   std::map<std::string, RecHitME> layerMEs_;
 };
+#endif
+#include "DQM/SiTrackerPhase2/interface/TrackerPhase2DQMUtil.h"
 
 Phase2ITMonitorRecHit::Phase2ITMonitorRecHit(const edm::ParameterSet& iConfig)
     : config_(iConfig),
