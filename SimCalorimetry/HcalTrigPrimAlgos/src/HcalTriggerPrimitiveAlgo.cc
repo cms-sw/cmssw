@@ -376,7 +376,7 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
   HcalDetId detId(samples.id());
 
   // Get the |ieta| for current sample
-  unsigned int theIeta = detId.ietaAbs();
+  int theIeta = detId.ietaAbs();
 
   unsigned int dgSamples = samples.size();
   unsigned int dgPresamples = samples.presamples();
@@ -385,6 +385,9 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
   unsigned int tpPresamples = numberOfPresamples_;
 
   unsigned int filterSamples = weightsQIE11_[theIeta].size();
+  unsigned int filterPresamples = theIeta > theTrigTowerGeometry->topology().lastHBRing()
+                                      ? numberOfFilterPresamplesHEQIE11_
+                                      : numberOfFilterPresamplesHBQIE11_;
 
   unsigned int shift = dgPresamples - tpPresamples;
 
@@ -432,9 +435,8 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
 
   for (unsigned int ibin = 0; ibin < tpSamples; ++ibin) {
     // ibin - index for output TP
-    // idx - index for samples + shift - tpPresamples
-    // Subtract tpPresamples one more time to get SOI in the right position
-    int idx = ibin + shift;
+    // idx - index for samples + shift - filterPresamples
+    int idx = ibin + shift - filterPresamples;
 
     // When idx is <= 0 peakfind would compare out-of-bounds of the vector. Avoid this ambiguity
     if (idx <= 0) {
