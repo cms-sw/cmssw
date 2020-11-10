@@ -24,7 +24,7 @@ public:
 
 private:
   // parameters
-  const bool useTimingQuality_, useTimingAverage_;
+  const bool useTimingAverage_;
   const float timingQualityThreshold_;
 
   // inputs
@@ -35,15 +35,12 @@ private:
 DEFINE_FWK_MODULE(PFTICLProducer);
 
 PFTICLProducer::PFTICLProducer(const edm::ParameterSet& conf)
-    : useTimingQuality_(conf.existsAs<edm::InputTag>("trackTimeQualityMap")),
-      useTimingAverage_(conf.existsAs<bool>("useTimingAverage") ? conf.getParameter<bool>("useTimingAverage") : false),
-      timingQualityThreshold_(useTimingQuality_ ? conf.getParameter<double>("timingQualityThreshold") : -99.),
+    : useTimingAverage_(conf.getParameter<bool>("useTimingAverage")),
+      timingQualityThreshold_(conf.getParameter<double>("timingQualityThreshold")),
       ticl_candidates_(consumes<edm::View<TICLCandidate>>(conf.getParameter<edm::InputTag>("ticlCandidateSrc"))),
       srcTrackTime_(consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeValueMap"))),
       srcTrackTimeError_(consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeErrorMap"))),
-      srcTrackTimeQuality_(useTimingQuality_
-                               ? consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeQualityMap"))
-                               : edm::EDGetTokenT<edm::ValueMap<float>>()) {
+      srcTrackTimeQuality_(consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeQualityMap"))) {
   produces<reco::PFCandidateCollection>();
 }
 
@@ -66,9 +63,7 @@ void PFTICLProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSet
   edm::Handle<edm::ValueMap<float>> trackTimeH, trackTimeErrH, trackTimeQualH;
   evt.getByToken(srcTrackTime_, trackTimeH);
   evt.getByToken(srcTrackTimeError_, trackTimeErrH);
-  if (useTimingQuality_) {
-    evt.getByToken(srcTrackTimeQuality_, trackTimeQualH);
-  }
+  evt.getByToken(srcTrackTimeQuality_, trackTimeQualH);
 
   auto candidates = std::make_unique<reco::PFCandidateCollection>();
 
@@ -134,8 +129,11 @@ void PFTICLProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSet
 
         if (useTimingAverage_ && (timeEMTD > 0 && timeEHGC > 0)) {
           // Compute weighted average between HGCAL and MTD timing
-          timeE = sqrt(1 / (pow(timeEHGC, -2) + pow(timeEMTD, -2)));
-          time = (timeHGC / pow(timeEHGC, 2) + timeMTD / pow(timeEMTD, 2)) * pow(timeE, 2);
+          const auto invTimeESqHGC = pow(timeEHGC, -2);
+          const auto invTimeESqMTD = pow(timeEMTD, -2);
+          timeE = (invTimeESqHGC * invTimeESqMTD) / (invTimeESqHGC + invTimeESqMTD);
+          time = (timeHGC * invTimeESqHGC + timeMTD * invTimeESqMTD)  * timeE;
+          timeE = sqrt(timeE);
         } else if (timeEMTD > 0) {  // Ignore HGCal timing until it will be TOF corrected
           time = timeMTD;
           timeE = timeEMTD;
