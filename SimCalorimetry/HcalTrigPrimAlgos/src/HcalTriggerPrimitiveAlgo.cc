@@ -859,7 +859,8 @@ void HcalTriggerPrimitiveAlgo::setWeightsQIE11(const edm::ParameterSet& weightsQ
   std::vector<std::string> ietaStrs = weightsQIE11.getParameterNames();
   for (auto& ietaStr : ietaStrs) {
     // Strip off "ieta" part of key and just use integer value in map
-    weightsQIE11_[std::stoi(ietaStr.substr(4))] = weightsQIE11.getUntrackedParameter<std::vector<double>>(ietaStr);
+    auto const& v = weightsQIE11.getParameter<std::vector<double>>(ietaStr);
+    weightsQIE11_[std::stoi(ietaStr.substr(4))] = {{v[0], v[1]}};
   }
 }
 
