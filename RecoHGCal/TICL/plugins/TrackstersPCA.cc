@@ -10,7 +10,7 @@
 
 void ticl::assignPCAtoTracksters(std::vector<Trackster> &tracksters,
                                  const std::vector<reco::CaloCluster> &layerClusters,
-				 const edm::ValueMap<std::pair<float, float>> &layerClustersTime,
+                                 const edm::ValueMap<std::pair<float, float>> &layerClustersTime,
                                  double z_limit_em,
                                  bool energyWeight) {
   LogDebug("TrackstersPCA_Eigen") << "------- Eigen -------" << std::endl;
@@ -62,12 +62,12 @@ void ticl::assignPCAtoTracksters(std::vector<Trackster> &tracksters,
       // Also compute timing
       auto before = usedLC.size();
       usedLC.insert(trackster.vertices(i));
-      if(before + 1 == usedLC.size()){
-	float timeE = layerClustersTime.get(trackster.vertices(i)).second;
-	if (timeE > -1.) {
-	  times.push_back(layerClustersTime.get(trackster.vertices(i)).first);
-	  timeErrors.push_back(1. / pow(timeE, 2));
-	}
+      if (before + 1 == usedLC.size()) {
+        float timeE = layerClustersTime.get(trackster.vertices(i)).second;
+        if (timeE > -1.) {
+          times.push_back(layerClustersTime.get(trackster.vertices(i)).first);
+          timeErrors.push_back(1. / pow(timeE, 2));
+        }
       }
     }
     if (energyWeight && trackster.raw_energy())

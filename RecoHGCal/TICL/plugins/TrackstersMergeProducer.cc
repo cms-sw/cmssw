@@ -88,7 +88,8 @@ TrackstersMergeProducer::TrackstersMergeProducer(const edm::ParameterSet &ps, co
       trackstershad_token_(consumes<std::vector<Trackster>>(ps.getParameter<edm::InputTag>("trackstershad"))),
       seedingTrk_token_(consumes<std::vector<TICLSeedingRegion>>(ps.getParameter<edm::InputTag>("seedingTrk"))),
       clusters_token_(consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_clusters"))),
-      clustersTime_token_(consumes<edm::ValueMap<std::pair<float, float>>>(ps.getParameter<edm::InputTag>("layer_clustersTime"))),
+      clustersTime_token_(
+          consumes<edm::ValueMap<std::pair<float, float>>>(ps.getParameter<edm::InputTag>("layer_clustersTime"))),
       tracks_token_(consumes<std::vector<reco::Track>>(ps.getParameter<edm::InputTag>("tracks"))),
       geometry_token_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
       optimiseAcrossTracksters_(ps.getParameter<bool>("optimiseAcrossTracksters")),
@@ -192,7 +193,7 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
 
   edm::Handle<edm::ValueMap<std::pair<float, float>>> clustersTime_h;
   evt.getByToken(clustersTime_token_, clustersTime_h);
-  const auto& layerClustersTimes = *clustersTime_h;
+  const auto &layerClustersTimes = *clustersTime_h;
 
   edm::Handle<std::vector<Trackster>> trackstersem_h;
   evt.getByToken(trackstersem_token_, trackstersem_h);
@@ -263,7 +264,10 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
     iterMergedTracksters.push_back(TracksterIterIndex::HAD);
   }
 
-  assignPCAtoTracksters(*resultTrackstersMerged, layerClusters, layerClustersTimes, rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z());
+  assignPCAtoTracksters(*resultTrackstersMerged,
+                        layerClusters,
+                        layerClustersTimes,
+                        rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z());
   energyRegressionAndID(layerClusters, *resultTrackstersMerged);
 
   printTrackstersDebug(*resultTrackstersMerged, "TrackstersMergeProducer");
