@@ -7,12 +7,12 @@
 #include <TFile.h>
 #include <TH1D.h>
 #include <TH2D.h>
-#include <TTree.h>
 #include <TPaveStats.h>
+#include <TTree.h>
 
+#include "CUDADataFormats/HcalDigi/interface/DigiCollection.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-#include "CUDADataFormats/HcalDigi/interface/DigiCollection.h"
 
 #define CREATE_HIST_1D(varname, nbins, first, last) auto varname = new TH1D(#varname, #varname, nbins, first, last)
 
@@ -102,27 +102,6 @@ int main(int argc, char* argv[]) {
   CREATE_HIST_2D(hADCf5HBGPUvsCPU, 128, 0, 128);
   CREATE_HIST_2D(hTDCf01HEGPUvsCPU, 64, 0, 64);
   CREATE_HIST_2D(hTDCf3HBGPUvsCPU, 4, 0, 4);
-
-  /*
-    auto hADCEBGPU = new TH1D("hADCEBGPU", "hADCEBGPU", nbins, 0, last);
-    auto hADCEBCPU = new TH1D("hADCEBCPU", "hADCEBCPU", nbins, 0, last);
-    auto hADCEEGPU = new TH1D("hADCEEGPU", "hADCEEGPU", nbins, 0, last);
-    auto hADCEECPU = new TH1D("hADCEECPU", "hADCEECPU", nbins, 0, last);
-
-    auto hGainEBGPU = new TH1D("hGainEBGPU", "hGainEBGPU", 4, 0, 4);
-    auto hGainEBCPU = new TH1D("hGainEBCPU", "hGainEBCPU", 4, 0, 4);
-    auto hGainEEGPU = new TH1D("hGainEEGPU", "hGainEEGPU", 4, 0, 4);
-    auto hGainEECPU = new TH1D("hGainEECPU", "hGainEECPU", 4, 0, 4);
-
-    auto hADCEBGPUvsCPU = new TH2D("hADCEBGPUvsCPU", "hADCEBGPUvsCPU",
-        nbins, 0, last, nbins, 0, last);
-    auto hADCEEGPUvsCPU = new TH2D("hADCEEGPUvsCPU", "hADCEEGPUvsCPU",
-        nbins, 0, last, nbins, 0, last);
-    auto hGainEBGPUvsCPU = new TH2D("hGainEBGPUvsCPU", "hGainEBGPUvsCPU",
-        4, 0, 4, 4, 0, 4);
-    auto hGainEEGPUvsCPU = new TH2D("hGainEEGPUvsCPU", "hGainEEGPUvsCPU",
-        4, 0, 4, 4, 0, 4);
-        */
 
   // prep input
   TFile rfin{inFileName.c_str()};
@@ -313,7 +292,7 @@ int main(int argc, char* argv[]) {
           hADCf5HBGPUvsCPU->Fill(cpuadc, gpuadc);
 
           // the must for us at RAW Decoding stage
-          assert(static_cast<hcal::Flavor5::adc_type>(cpuadc) == gpuadc);
+          assert(static_cast<uint8_t>(cpuadc) == gpuadc);
           assert(static_cast<uint8_t>(cpucapid) == gpucapid);
         }
       }

@@ -2,8 +2,9 @@
 
 #include "DataFormats/CaloRecHit/interface/MultifitComputations.h"
 
-// nvcc not able to parse this guy (whatever is inlcuded from it)....
-//#include "RecoLocalCalo/HcalRecAlgos/interface/PulseShapeFunctor.h"
+// TODO reuse some of the HCAL constats from
+//#include "RecoLocalCalo/HcalRecAlgos/interface/HcalConstants.h"
+// ?
 
 #include "SimpleAlgoGPU.h"
 #include "KernelHelpers.h"
@@ -737,9 +738,6 @@ namespace hcal {
       auto const id = gch < nchannelsf01HE
                           ? idsf01HE[gch]
                           : (gch < nchannelsf015 ? idsf5HB[gch - nchannelsf01HE] : idsf3HB[gch - nchannelsf015]);
-      //auto const id = gch >= nchannelsf01HE
-      //    ? idsf5HB[gch - nchannelsf01HE]
-      //    : idsf01HE[gch];
       auto const did = DetId{id};
       auto const hashedId =
           did.subdetId() == HcalBarrel

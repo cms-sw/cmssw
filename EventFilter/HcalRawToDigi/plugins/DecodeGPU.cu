@@ -164,12 +164,10 @@ namespace hcal {
 
       // get to the payload
       auto const* payload64 = buffer + 2 + namc + amcoffset;
-      //amcoffset += amcSize;
 
 #ifdef HCAL_RAWDECODE_GPUDEBUG
       // uhtr header v1 1st 64 bits
       auto const payload64_w0 = payload64[0];
-      //uint32_t const data_length64 = payload64_w0 & 0xfffff;
 #endif
       // uhtr n bytes comes from amcSize, according to the cpu version!
       uint32_t const data_length64 = amcSize;
@@ -211,12 +209,11 @@ namespace hcal {
       // skip uhtr header words
       auto const channelDataSize = data_length64 - 2;        // 2 uhtr header v1 words
       auto const* channelDataBuffer64Start = payload64 + 2;  // 2 uhtr header v2 wds
-      //auto const* channelDataBuffer64End = channelDataBuffer64Start + channelDataSize;
       auto const* ptr = reinterpret_cast<uint16_t const*>(channelDataBuffer64Start);
       auto const* end = ptr + sizeof(uint64_t) / sizeof(uint16_t) * (channelDataSize - 1);
       auto const t_rank = thread_group.thread_rank();
 
-      // iterate thru the channel data
+      // iterate through the channel data
       while (ptr != end) {
         // this is the starting point for this thread group for this iteration
         // with respect to this pointer every thread will move forward afterwards
@@ -237,8 +234,7 @@ namespace hcal {
           if (is_channel_header_word(ptr))
             ++ptr;
           else {
-            // go to the next channel and do not consider this guy as a
-            // channel
+            // go to the next channel and do not consider this guy as a channel
             while (ptr != end)
               if (!is_channel_header_word(ptr))
                 ++ptr;
@@ -261,18 +257,7 @@ namespace hcal {
         printf("ptr - start_ptr = %d counter = %d rank = %d\n", static_cast<int>(ptr - start_ptr), counter, t_rank);
 #endif
 
-        // assume that if all is valid, ptr points
-        // to the header word of the channel to be decoded
-        // skip to the next channel header word if above assumption
-        // does not hold
-        //uint8_t const fw_lastbit = (*ptr >> 15) & 0x1;
-        //if (fw_lastbit != 1) {
-        //    ptr++;
-        //    continue;
-        //}
-
-        // when the end is near, channels will land outside of the [start_ptr, end)
-        // region
+        // when the end is near, channels will land outside of the [start_ptr, end) region
         if (ptr != end) {
           // for all of the flavors, these 2 guys have the same bit layout
           uint8_t const flavor = (ptr[0] >> 12) & 0x7;
@@ -469,9 +454,6 @@ namespace hcal {
               uint32_t const nwords = channel_end - channel_header_word;
 
               // filter out this digi if nwords does not equal expected
-              //uint32_t const expected_words =
-              //    nsamplesF5HB * Flavor5::WORDS_PER_SAMPLE +
-              //    Flavor5::HEADER_WORDS;
               auto const expected_words = compute_stride<Flavor5>(nsamplesF5HB);
               if (nwords != expected_words)
                 break;
@@ -497,16 +479,14 @@ namespace hcal {
               HcalElectronicsId eid{uhtrcrate, uhtrslot, fiber, fchannel, false};
               auto const did = DetId{eid2did[eid.linearIndex()]};
 
-              /*
-                if (eid.rawId() >= HcalElectronicsId::maxLinearIndex) {
+              /* uncomment to check the linear index validity
+              if (eid.rawId() >= HcalElectronicsId::maxLinearIndex) {
 #ifdef HCAL_RAWDECODE_GPUDEBUG
-                    printf("*** rawid = %u has no known det id***\n",
-                        eid.rawId());
+                  printf("*** rawid = %u has no known det id***\n", eid.rawId());
 #endif
-                    break;
-                }
-                */
-              //auto const did = DetId{eid2did[eid.rawId()]};
+                  break;
+              }
+              */
 
 #ifdef HCAL_RAWDECODE_GPUDEBUG
               printf("erawId = %u linearIndex = %u drawid = %u\n", eid.rawId(), eid.linearIndex(), did.rawId());

@@ -7,44 +7,34 @@ namespace hcal {
 
   // FLAVOR_HE_QIE11 = 1; Phase1 upgrade
   struct Flavor1 {
-    using adc_type = uint8_t;
-    using tdc_type = uint8_t;
-    using soibit_type = uint8_t;
-
     static constexpr int WORDS_PER_SAMPLE = 1;
     static constexpr int SAMPLES_PER_WORD = 1;
     static constexpr int HEADER_WORDS = 1;
 
-    static constexpr adc_type adc(uint16_t const* const sample_start) { return (*sample_start & 0xff); }
-    static constexpr tdc_type tdc(uint16_t const* const sample_start) { return (*sample_start >> 8) & 0x3f; }
-    static constexpr soibit_type soibit(uint16_t const* const sample_start) { return (*sample_start >> 14) & 0x1; }
+    static constexpr uint8_t adc(uint16_t const* const sample_start) { return (*sample_start & 0xff); }
+    static constexpr uint8_t tdc(uint16_t const* const sample_start) { return (*sample_start >> 8) & 0x3f; }
+    static constexpr uint8_t soibit(uint16_t const* const sample_start) { return (*sample_start >> 14) & 0x1; }
   };
 
   // FLAVOR_HB_QIE11 = 3; Phase1 upgrade
   struct Flavor3 {
-    using adc_type = uint8_t;
-    using tdc_type = uint8_t;
-    using soibit_type = uint8_t;
-
     static constexpr int WORDS_PER_SAMPLE = 1;
     static constexpr int SAMPLES_PER_WORD = 1;
     static constexpr int HEADER_WORDS = 1;
 
-    static constexpr adc_type adc(uint16_t const* const sample_start) { return (*sample_start & 0xff); }
-    static constexpr tdc_type tdc(uint16_t const* const sample_start) { return ((*sample_start >> 8) & 0x3); }
-    static constexpr soibit_type soibit(uint16_t const* const sample_start) { return ((*sample_start >> 14) & 0x1); }
+    static constexpr uint8_t adc(uint16_t const* const sample_start) { return (*sample_start & 0xff); }
+    static constexpr uint8_t tdc(uint16_t const* const sample_start) { return ((*sample_start >> 8) & 0x3); }
+    static constexpr uint8_t soibit(uint16_t const* const sample_start) { return ((*sample_start >> 14) & 0x1); }
     static constexpr uint8_t capid(uint16_t const* const sample_start) { return ((*sample_start >> 10) & 0x3); }
   };
 
   // FLAVOR_HB_QIE10 = 5; Phase0
   struct Flavor5 {
-    using adc_type = uint8_t;
-
     static constexpr float WORDS_PER_SAMPLE = 0.5;
     static constexpr int SAMPLES_PER_WORD = 2;
     static constexpr int HEADER_WORDS = 1;
 
-    static constexpr adc_type adc(uint16_t const* const sample_start, uint8_t const shifter) {
+    static constexpr uint8_t adc(uint16_t const* const sample_start, uint8_t const shifter) {
       return ((*sample_start >> shifter * 8) & 0x7f);
     }
   };
@@ -61,22 +51,22 @@ namespace hcal {
   }
 
   template <typename Flavor>
-  constexpr typename Flavor::soibit_type soibit_for_sample(uint16_t const* const dfstart, uint32_t const sample) {
+  constexpr uint8_t soibit_for_sample(uint16_t const* const dfstart, uint32_t const sample) {
     return Flavor::soibit(dfstart + Flavor::HEADER_WORDS + sample * Flavor::WORDS_PER_SAMPLE);
   }
 
   template <typename Flavor>
-  constexpr typename Flavor::adc_type adc_for_sample(uint16_t const* const dfstart, uint32_t const sample) {
+  constexpr uint8_t adc_for_sample(uint16_t const* const dfstart, uint32_t const sample) {
     return Flavor::adc(dfstart + Flavor::HEADER_WORDS + sample * Flavor::WORDS_PER_SAMPLE);
   }
 
   template <typename Flavor>
-  constexpr typename Flavor::tdc_type tdc_for_sample(uint16_t const* const dfstart, uint32_t const sample) {
+  constexpr uint8_t tdc_for_sample(uint16_t const* const dfstart, uint32_t const sample) {
     return Flavor::tdc(dfstart + Flavor::HEADER_WORDS + sample * Flavor::WORDS_PER_SAMPLE);
   }
 
   template <>
-  constexpr Flavor5::adc_type adc_for_sample<Flavor5>(uint16_t const* const dfstart, uint32_t const sample) {
+  constexpr uint8_t adc_for_sample<Flavor5>(uint16_t const* const dfstart, uint32_t const sample) {
     // avoid using WORDS_PER_SAMPLE and simply shift
     return Flavor5::adc(dfstart + Flavor5::HEADER_WORDS + (sample >> 1), sample % 2);
   }
@@ -88,12 +78,10 @@ namespace hcal {
 
   template <typename Flavor>
   constexpr uint32_t compute_nsamples(uint32_t const nwords) {
-    return (nwords - Flavor::HEADER_WORDS) / Flavor::WORDS_PER_SAMPLE;
-  }
-
-  template <>
-  constexpr uint32_t compute_nsamples<Flavor5>(uint32_t const nwords) {
-    return (nwords - Flavor5::HEADER_WORDS) * Flavor5::SAMPLES_PER_WORD;
+    if constexpr (Flavor::SAMPLES_PER_WORD >= 1)
+      return (nwords - Flavor::HEADER_WORDS) * Flavor::SAMPLES_PER_WORD;
+    else
+      return (nwords - Flavor::HEADER_WORDS) / Flavor::WORDS_PER_SAMPLE;
   }
 
   //
@@ -138,12 +126,7 @@ namespace hcal {
   template <typename StoragePolicy>
   struct DigiCollection<Flavor5, StoragePolicy> : public DigiCollectionBase<StoragePolicy> {
     DigiCollection() = default;
-    //DigiCollection(
-    //        uint32_t *ids, uint16_t *data, uint8_t *presamples,
-    //        uint32_t ndigis, uint32_t stride)
-    //    : DigiCollectionBase(ids, data, ndigis, stride)
-    //    , npresamples{npresamples}
-    //{}
+
     DigiCollection(DigiCollection const&) = default;
     DigiCollection& operator=(DigiCollection const&) = default;
 
