@@ -26,6 +26,10 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQM/SiPixelMonitorCluster/interface/SiPixelClusterModule.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include <cstdint>
 
 class SiPixelClusterSource : public DQMEDAnalyzer {
@@ -96,6 +100,11 @@ private:
   // define Token(-s)
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> srcToken_;
   edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> digisrcToken_;
+
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoTokenBeginRun_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomTokenBeginRun_;
 };
 
 #endif
