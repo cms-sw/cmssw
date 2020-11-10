@@ -1,6 +1,4 @@
-#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
-#include "CondFormats/RunInfo/interface/RunInfo.h"
-#include "CondFormats/RunInfo/interface/RunSummary.h"
+
 #include "DQM/SiPixelMonitorClient/interface/SiPixelDaqInfo.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
@@ -23,6 +21,7 @@ SiPixelDaqInfo::SiPixelDaqInfo(const edm::ParameterSet &ps) {
 
   // set Token(-s)
   daqSourceToken_ = consumes<FEDRawDataCollection>(ps.getUntrackedParameter<string>("daqSource", "source"));
+  runInfoToken_ = esConsumes<RunInfo, RunInfoRcd, edm::Transition::EndLuminosityBlock>();
 }
 
 SiPixelDaqInfo::~SiPixelDaqInfo() {}
@@ -42,10 +41,8 @@ void SiPixelDaqInfo::dqmEndLuminosityBlock(DQMStore::IBooker &iBooker,
     firstLumi = false;
   }
 
-  if (auto runInfoRec = iSetup.tryToGet<RunInfoRcd>()) {
+  if ( edm::ESHandle<RunInfo> sumFED = iSetup.getHandle(runInfoToken_) ) {
     // get fed summary information
-    ESHandle<RunInfo> sumFED;
-    runInfoRec->get(sumFED);
     vector<int> FedsInIds = sumFED->m_fed_in;
 
     int FedCount = 0;

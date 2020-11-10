@@ -96,6 +96,7 @@ SiPixelEDAClient::SiPixelEDAClient(const edm::ParameterSet &ps) {
   sipixelDataQuality_ = new SiPixelDataQuality(offlineXMLfile_);
 
   inputSourceToken_ = consumes<FEDRawDataCollection>(ps.getUntrackedParameter<string>("inputSource", "source"));
+  cablingMapToken_ = esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd, edm::Transition::EndLuminosityBlock>();
   // cout<<"...leaving  SiPixelEDAClient::SiPixelEDAClient. "<<endl;
 }
 
@@ -202,7 +203,7 @@ void SiPixelEDAClient::dqmEndLuminosityBlock(DQMStore::IBooker &iBooker,
           nFEDs_ += mefed->getBinContent(i + 1);
       }
     }
-    eSetup.get<SiPixelFedCablingMapRcd>().get(theCablingMap);
+    theCablingMap = eSetup.getHandle(cablingMapToken_);
 
     firstLumi = false;
   }
