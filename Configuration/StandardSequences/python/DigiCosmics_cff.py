@@ -21,6 +21,10 @@ from SimCalorimetry.Configuration.SimCalorimetry_cff import *
 #
 from SimMuon.Configuration.SimMuon_cff import *
 #
+# PPS Digis
+# returns sequence "ctppsDigi"
+from SimPPS.Configuration.SimPPS_cff import *
+
 # include TrackingParticle Producer
 # NOTA BENE: it MUST be run here at the moment, since it depends 
 # of the availability of the CrossingFrame in the Event
@@ -51,7 +55,7 @@ simHcalDigis.HElevel = cms.int32(-10000)
 simHcalDigis.HOlevel   = cms.int32(-10000)
 simHcalDigis.HFlevel   = cms.int32(-10000)
 
-doAllDigiTask = cms.Task(calDigiTask, muonDigiTask)
+doAllDigiTask = cms.Task(calDigiTask, muonDigiTask ,ctppsDigiTask)
 pdigiTask = cms.Task(cms.TaskPlaceholder("randomEngineStateProducer"), cms.TaskPlaceholder("mix"), doAllDigiTask)
 
 doAllDigi = cms.Sequence(doAllDigiTask)
