@@ -26,8 +26,8 @@ public:
   class TokenHandlePair {
   public:
     TokenHandlePair(const edm::ParameterSet& conf, const std::string& name, edm::ConsumesCollector& cc)
-        : token_(cc.consumes<T>(conf.getParameter<edm::InputTag>(name))) {}
-    void setHandle(const edm::Event& iEvent) { iEvent.getByToken(token_, handle_); }
+        : token_(cc.consumes(conf.getParameter<edm::InputTag>(name))) {}
+    void setHandle(const edm::Event& iEvent) { handle_ = iEvent.getHandle(token_); }
     const edm::Handle<T>& handle() const { return handle_; }
 
   private:
@@ -39,7 +39,6 @@ public:
   ~EG9X105XObjectUpdateModifier() override {}
 
   void setEvent(const edm::Event&) final;
-  void setEventContent(const edm::EventSetup&) final;
 
   void modifyObject(reco::GsfElectron& ele) const final;
   void modifyObject(reco::Photon& pho) const final;
@@ -119,8 +118,6 @@ void EG9X105XObjectUpdateModifier::setEvent(const edm::Event& iEvent) {
   if (updateChargedHadPFPVIso_)
     phoChargedHadPFPVIso_.setHandle(iEvent);
 }
-
-void EG9X105XObjectUpdateModifier::setEventContent(const edm::EventSetup& iSetup) {}
 
 void EG9X105XObjectUpdateModifier::modifyObject(reco::GsfElectron& ele) const {
   edm::Ptr<reco::GsfElectron> ptrForVM = getPtrForValueMap(ele, eleCollVMsAreKeyedTo_.handle());
