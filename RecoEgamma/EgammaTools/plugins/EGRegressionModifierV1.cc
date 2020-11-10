@@ -30,18 +30,13 @@ public:
   void modifyObject(pat::Photon& pho) const final { modifyObject(static_cast<reco::Photon&>(pho)); }
 
 private:
-  struct CondNames {
-    std::vector<std::string> mean50ns;
-    std::vector<std::string> sigma50ns;
-    std::vector<std::string> mean25ns;
-    std::vector<std::string> sigma25ns;
-  };
+  EGRegressionModifierCondTokens eleCond50nsTokens_;
+  EGRegressionModifierCondTokens phoCond50nsTokens_;
+  EGRegressionModifierCondTokens eleCond25nsTokens_;
+  EGRegressionModifierCondTokens phoCond25nsTokens_;
 
-  CondNames eleCondNames_;
-  CondNames phoCondNames_;
-
-  std::string condNamesWeight50ns_;
-  std::string condNamesWeight25ns_;
+  edm::ESGetToken<GBRForest, GBRWrapperRcd> condNamesWeight50nsToken_;
+  edm::ESGetToken<GBRForest, GBRWrapperRcd> condNamesWeight25nsToken_;
 
   const bool autoDetectBunchSpacing_;
   int bunchspacing_;
@@ -50,8 +45,8 @@ private:
   edm::EDGetTokenT<double> rhoToken_;
   int nVtx_;
   edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
-  edm::Handle<reco::VertexCollection> vtxH_;
-  edm::ESHandle<CaloGeometry> caloGeomH_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
+  CaloGeometry const* caloGeom_;
   const bool applyExtraHighEnergyProtection_;
 
   std::vector<const GBRForestD*> phoForestsMean_;
@@ -65,57 +60,44 @@ DEFINE_EDM_PLUGIN(ModifyObjectValueFactory, EGRegressionModifierV1, "EGRegressio
 
 EGRegressionModifierV1::EGRegressionModifierV1(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
     : ModifyObjectValueBase(conf),
+      eleCond50nsTokens_{conf.getParameterSet("electron_config"), "regressionKey_50ns", "uncertaintyKey_50ns", cc},
+      phoCond50nsTokens_{conf.getParameterSet("photon_config"), "regressionKey_50ns", "uncertaintyKey_50ns", cc},
+      eleCond25nsTokens_{conf.getParameterSet("electron_config"), "regressionKey_25ns", "uncertaintyKey_25ns", cc},
+      phoCond25nsTokens_{conf.getParameterSet("photon_config"), "regressionKey_25ns", "uncertaintyKey_25ns", cc},
       autoDetectBunchSpacing_(conf.getParameter<bool>("autoDetectBunchSpacing")),
       bunchspacing_(autoDetectBunchSpacing_ ? 450 : conf.getParameter<int>("manualBunchSpacing")),
-      rhoToken_(cc.consumes<double>(conf.getParameter<edm::InputTag>("rhoCollection"))),
-      vtxToken_(cc.consumes<reco::VertexCollection>(conf.getParameter<edm::InputTag>("vertexCollection"))),
+      rhoToken_(cc.consumes(conf.getParameter<edm::InputTag>("rhoCollection"))),
+      vtxToken_(cc.consumes(conf.getParameter<edm::InputTag>("vertexCollection"))),
+      caloGeomToken_{cc.esConsumes()},
       applyExtraHighEnergyProtection_(conf.getParameter<bool>("applyExtraHighEnergyProtection")) {
   if (autoDetectBunchSpacing_)
-    bunchSpacingToken_ = cc.consumes<unsigned int>(conf.getParameter<edm::InputTag>("bunchSpacingTag"));
+    bunchSpacingToken_ = cc.consumes(conf.getParameter<edm::InputTag>("bunchSpacingTag"));
 
-  const edm::ParameterSet& electrons = conf.getParameter<edm::ParameterSet>("electron_config");
-  eleCondNames_ = CondNames{.mean50ns = electrons.getParameter<std::vector<std::string>>("regressionKey_50ns"),
-                            .sigma50ns = electrons.getParameter<std::vector<std::string>>("uncertaintyKey_50ns"),
-                            .mean25ns = electrons.getParameter<std::vector<std::string>>("regressionKey_25ns"),
-                            .sigma25ns = electrons.getParameter<std::vector<std::string>>("uncertaintyKey_25ns")};
-  condNamesWeight50ns_ = electrons.getParameter<std::string>("combinationKey_50ns");
-  condNamesWeight25ns_ = electrons.getParameter<std::string>("combinationKey_25ns");
-
-  const edm::ParameterSet& photons = conf.getParameter<edm::ParameterSet>("photon_config");
-  phoCondNames_ = CondNames{.mean50ns = photons.getParameter<std::vector<std::string>>("regressionKey_50ns"),
-                            .sigma50ns = photons.getParameter<std::vector<std::string>>("uncertaintyKey_50ns"),
-                            .mean25ns = photons.getParameter<std::vector<std::string>>("regressionKey_25ns"),
-                            .sigma25ns = photons.getParameter<std::vector<std::string>>("uncertaintyKey_25ns")};
+  auto const& electrons = conf.getParameterSet("electron_config");
+  condNamesWeight50nsToken_ = cc.esConsumes(electrons.getParameter<edm::ESInputTag>("combinationKey_50ns"));
+  condNamesWeight25nsToken_ = cc.esConsumes(electrons.getParameter<edm::ESInputTag>("combinationKey_25ns"));
 }
 
 void EGRegressionModifierV1::setEvent(const edm::Event& evt) {
   if (autoDetectBunchSpacing_) {
-    edm::Handle<unsigned int> bunchSpacingH;
-    evt.getByToken(bunchSpacingToken_, bunchSpacingH);
-    bunchspacing_ = *bunchSpacingH;
+    bunchspacing_ = evt.get(bunchSpacingToken_);
   }
-
-  edm::Handle<double> rhoH;
-  evt.getByToken(rhoToken_, rhoH);
-  rhoValue_ = *rhoH;
-
-  evt.getByToken(vtxToken_, vtxH_);
-  nVtx_ = vtxH_->size();
+  rhoValue_ = evt.get(rhoToken_);
+  nVtx_ = evt.get(vtxToken_).size();
 }
 
 void EGRegressionModifierV1::setEventContent(const edm::EventSetup& evs) {
-  evs.get<CaloGeometryRecord>().get(caloGeomH_);
+  caloGeom_ = &evs.getData(caloGeomToken_);
 
-  phoForestsMean_ = retrieveGBRForests(evs, (bunchspacing_ == 25) ? phoCondNames_.mean25ns : phoCondNames_.mean50ns);
-  phoForestsSigma_ = retrieveGBRForests(evs, (bunchspacing_ == 25) ? phoCondNames_.sigma25ns : phoCondNames_.sigma50ns);
+  phoForestsMean_ = retrieveGBRForests(evs, (bunchspacing_ == 25) ? phoCond25nsTokens_.mean : phoCond50nsTokens_.mean);
+  phoForestsSigma_ =
+      retrieveGBRForests(evs, (bunchspacing_ == 25) ? phoCond25nsTokens_.sigma : phoCond50nsTokens_.sigma);
 
-  eleForestsMean_ = retrieveGBRForests(evs, (bunchspacing_ == 25) ? eleCondNames_.mean25ns : eleCondNames_.mean50ns);
-  eleForestsSigma_ = retrieveGBRForests(evs, (bunchspacing_ == 25) ? eleCondNames_.sigma25ns : eleCondNames_.sigma50ns);
+  eleForestsMean_ = retrieveGBRForests(evs, (bunchspacing_ == 25) ? eleCond25nsTokens_.mean : eleCond50nsTokens_.mean);
+  eleForestsSigma_ =
+      retrieveGBRForests(evs, (bunchspacing_ == 25) ? eleCond25nsTokens_.sigma : eleCond50nsTokens_.sigma);
 
-  edm::ESHandle<GBRForest> forestEH;
-  const std::string ep_condnames_weight = (bunchspacing_ == 25) ? condNamesWeight25ns_ : condNamesWeight50ns_;
-  evs.get<GBRWrapperRcd>().get(ep_condnames_weight, forestEH);
-  epForest_ = forestEH.product();
+  epForest_ = &evs.getData((bunchspacing_ == 25) ? condNamesWeight25nsToken_ : condNamesWeight50nsToken_);
 }
 
 void EGRegressionModifierV1::modifyObject(reco::GsfElectron& ele) const {
@@ -207,9 +189,9 @@ void EGRegressionModifierV1::modifyObject(reco::GsfElectron& ele) const {
   float cryPhi;
   float cryEta;
   if (ele.isEB())
-    egammaTools::localEcalClusterCoordsEB(*theseed, *caloGeomH_, cryEta, cryPhi, iEta, iPhi, dummy, dummy);
+    egammaTools::localEcalClusterCoordsEB(*theseed, *caloGeom_, cryEta, cryPhi, iEta, iPhi, dummy, dummy);
   else
-    egammaTools::localEcalClusterCoordsEE(*theseed, *caloGeomH_, cryEta, cryPhi, iEta, iPhi, dummy, dummy);
+    egammaTools::localEcalClusterCoordsEE(*theseed, *caloGeom_, cryEta, cryPhi, iEta, iPhi, dummy, dummy);
 
   if (isEB) {
     eval[29] = cryEta;

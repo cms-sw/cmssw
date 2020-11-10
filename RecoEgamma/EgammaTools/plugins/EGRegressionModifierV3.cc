@@ -22,7 +22,7 @@
 class EGRegressionModifierV3 : public ModifyObjectValueBase {
 public:
   struct EleRegs {
-    EleRegs(const edm::ParameterSet& iConfig);
+    EleRegs(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc);
     void setEventContent(const edm::EventSetup& iSetup);
     EgammaRegressionContainer ecalOnlyMean;
     EgammaRegressionContainer ecalOnlySigma;
@@ -30,7 +30,7 @@ public:
   };
 
   struct PhoRegs {
-    PhoRegs(const edm::ParameterSet& iConfig);
+    PhoRegs(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc);
     void setEventContent(const edm::EventSetup& iSetup);
     EgammaRegressionContainer ecalOnlyMean;
     EgammaRegressionContainer ecalOnlySigma;
@@ -71,25 +71,21 @@ DEFINE_EDM_PLUGIN(ModifyObjectValueFactory, EGRegressionModifierV3, "EGRegressio
 EGRegressionModifierV3::EGRegressionModifierV3(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
     : ModifyObjectValueBase(conf),
       rhoValue_(0.),
-      rhoToken_(cc.consumes<double>(conf.getParameter<edm::InputTag>("rhoTag"))),
+      rhoToken_(cc.consumes(conf.getParameter<edm::InputTag>("rhoTag"))),
       useClosestToCentreSeedCrysDef_(conf.getParameter<bool>("useClosestToCentreSeedCrysDef")),
       maxRawEnergyForLowPtEBSigma_(conf.getParameter<double>("maxRawEnergyForLowPtEBSigma")),
       maxRawEnergyForLowPtEESigma_(conf.getParameter<double>("maxRawEnergyForLowPtEESigma")) {
   if (conf.exists("eleRegs")) {
-    eleRegs_ = std::make_unique<EleRegs>(conf.getParameter<edm::ParameterSet>("eleRegs"));
+    eleRegs_ = std::make_unique<EleRegs>(conf.getParameterSet("eleRegs"), cc);
   }
   if (conf.exists("phoRegs")) {
-    phoRegs_ = std::make_unique<PhoRegs>(conf.getParameter<edm::ParameterSet>("phoRegs"));
+    phoRegs_ = std::make_unique<PhoRegs>(conf.getParameterSet("phoRegs"), cc);
   }
 }
 
 EGRegressionModifierV3::~EGRegressionModifierV3() {}
 
-void EGRegressionModifierV3::setEvent(const edm::Event& evt) {
-  edm::Handle<double> rhoHandle;
-  evt.getByToken(rhoToken_, rhoHandle);
-  rhoValue_ = *rhoHandle;
-}
+void EGRegressionModifierV3::setEvent(const edm::Event& evt) { rhoValue_ = evt.get(rhoToken_); }
 
 void EGRegressionModifierV3::setEventContent(const edm::EventSetup& iSetup) {
   if (eleRegs_)
@@ -358,10 +354,10 @@ void EGRegressionModifierV3::getSeedCrysCoord(const reco::CaloCluster& clus, int
   }
 }
 
-EGRegressionModifierV3::EleRegs::EleRegs(const edm::ParameterSet& iConfig)
-    : ecalOnlyMean(iConfig.getParameter<edm::ParameterSet>("ecalOnlyMean")),
-      ecalOnlySigma(iConfig.getParameter<edm::ParameterSet>("ecalOnlySigma")),
-      epComb(iConfig.getParameter<edm::ParameterSet>("epComb")) {}
+EGRegressionModifierV3::EleRegs::EleRegs(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
+    : ecalOnlyMean(iConfig.getParameterSet("ecalOnlyMean"), cc),
+      ecalOnlySigma(iConfig.getParameterSet("ecalOnlySigma"), cc),
+      epComb(iConfig.getParameterSet("epComb"), std::move(cc)) {}
 
 void EGRegressionModifierV3::EleRegs::setEventContent(const edm::EventSetup& iSetup) {
   ecalOnlyMean.setEventContent(iSetup);
@@ -369,9 +365,9 @@ void EGRegressionModifierV3::EleRegs::setEventContent(const edm::EventSetup& iSe
   epComb.setEventContent(iSetup);
 }
 
-EGRegressionModifierV3::PhoRegs::PhoRegs(const edm::ParameterSet& iConfig)
-    : ecalOnlyMean(iConfig.getParameter<edm::ParameterSet>("ecalOnlyMean")),
-      ecalOnlySigma(iConfig.getParameter<edm::ParameterSet>("ecalOnlySigma")) {}
+EGRegressionModifierV3::PhoRegs::PhoRegs(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
+    : ecalOnlyMean(iConfig.getParameterSet("ecalOnlyMean"), cc),
+      ecalOnlySigma(iConfig.getParameterSet("ecalOnlySigma"), cc) {}
 
 void EGRegressionModifierV3::PhoRegs::setEventContent(const edm::EventSetup& iSetup) {
   ecalOnlyMean.setEventContent(iSetup);
