@@ -352,16 +352,19 @@ void RegionMapper::putEgObjects(edm::Event &iEvent,
         hwQual = egptr->hwQual();
       }
 
-      l1t::TkEm tkem(reco::Candidate::LorentzVector(mom), reg, egidxer.iso, egidxer.iso);
+      l1t::TkEm tkem(reco::Candidate::LorentzVector(mom), reg, egidxer.iso, egidxer.isoPV);
       tkem.setHwQual(hwQual);
+      tkem.setPFIsol(egidxer.pfIso);
+      tkem.setPFIsolPV(egidxer.pfIsoPV);
       tkems->push_back(tkem);
 
       if (egidxer.tkIdx == -1)
         continue;
       const auto &tk = r.track[egidxer.tkIdx];
 
-      l1t::TkElectron tkele(reco::Candidate::LorentzVector(mom), reg, edm::refToPtr(tk.src->track()), egidxer.iso);
+      l1t::TkElectron tkele(reco::Candidate::LorentzVector(mom), reg, edm::refToPtr(tk.src->track()), egidxer.isoDZ);
       tkele.setHwQual(hwQual);
+      tkele.setPFIsol(egidxer.pfIsoDZ);
       tkeles->push_back(tkele);
     }
   }
