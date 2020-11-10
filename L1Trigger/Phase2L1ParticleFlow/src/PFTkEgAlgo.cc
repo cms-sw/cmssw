@@ -17,6 +17,7 @@ namespace {
 PFTkEGAlgo::PFTkEGAlgo(const edm::ParameterSet &pset)
     : debug_(pset.getUntrackedParameter<int>("debug")),
       doBremRecovery_(pset.getParameter<bool>("doBremRecovery")),
+      doTkIsolation_(pset.getParameter<bool>("doTkIsolation")),
       filterHwQuality_(pset.getParameter<bool>("filterHwQuality")),
       caloHwQual_(pset.getParameter<int>("caloHwQual")),
       dEtaMaxBrem_(pset.getParameter<double>("dEtaMaxBrem")),
@@ -27,9 +28,22 @@ PFTkEGAlgo::PFTkEGAlgo(const edm::ParameterSet &pset)
       caloEtMin_(pset.getParameter<double>("caloEtMin")),
       trkQualityPtMin_(pset.getParameter<double>("trkQualityPtMin")),
       trkQualityChi2_(pset.getParameter<double>("trkQualityChi2")),
-      writeEgSta_(pset.getParameter<bool>("writeEgSta")) {}
+      writeEgSta_(pset.getParameter<bool>("writeEgSta")),
+      tkIsoParametersTkEm_(pset.getParameter<edm::ParameterSet>("tkIsoParametersTkEm")),
+      tkIsoParametersTkEle_(pset.getParameter<edm::ParameterSet>("tkIsoParametersTkEle")),
+      pfIsoParametersTkEm_(pset.getParameter<edm::ParameterSet>("pfIsoParametersTkEm")),
+      pfIsoParametersTkEle_(pset.getParameter<edm::ParameterSet>("pfIsoParametersTkEle")) {}
 
 PFTkEGAlgo::~PFTkEGAlgo() {}
+
+PFTkEGAlgo::IsoParameters::IsoParameters(const edm::ParameterSet &pset)
+    : tkQualityPtMin(pset.getParameter<double>("tkQualityPtMin")),
+      dZ(pset.getParameter<double>("dZ")),
+      dRMin(pset.getParameter<double>("dRMin")),
+      dRMax(pset.getParameter<double>("dRMax")),
+      tkQualityChi2Max(pset.getParameter<double>("tkQualityChi2Max")),
+      dRMin2(dRMin * dRMin),
+      dRMax2(dRMax * dRMax) {}
 
 void PFTkEGAlgo::initRegion(Region &r) const {
   // FIXME: assume imput is sorted already
@@ -52,9 +66,7 @@ void PFTkEGAlgo::runTkEG(Region &r) const {
   std::vector<int> emCalo2tk(r.emcalo.size(), -1);
   link_emCalo2tk(r, emCalo2tk);
 
-  //FIXME: compute tk based iso
-
-  // add tk electron to region;
+  // add EG objects to region;
   eg_algo(r, emCalo2emCalo, emCalo2tk);
 }
 
@@ -65,6 +77,7 @@ void PFTkEGAlgo::eg_algo(Region &r, const std::vector<int> &emCalo2emCalo, const
       continue;
 
     int itk = emCalo2tk[ic];
+
     // 1. create EG objects before brem recovery
     addEgObjsToPF(r.egobjs, ic, calo.hwFlags, calo.floatPt(), itk);
 
@@ -86,6 +99,7 @@ void PFTkEGAlgo::eg_algo(Region &r, const std::vector<int> &emCalo2emCalo, const
     }
 
     // 2. create EG objects with brem recovery
+    // FIXME: duplicating the object is suboptimal but this is done for keeping things as before...
     addEgObjsToPF(r.egobjs, ic, calo.hwFlags + 1, ptBremReco, itk);
   }
 }
@@ -94,9 +108,8 @@ l1tpf_impl::EgObjectIndexer &PFTkEGAlgo::addEgObjsToPF(std::vector<l1tpf_impl::E
                                                        const int calo_idx,
                                                        const int hwQual,
                                                        const float ptCorr,
-                                                       const int tk_idx,
-                                                       const float iso) const {
-  egobjs.emplace_back(l1tpf_impl::EgObjectIndexer{calo_idx, hwQual, ptCorr, tk_idx, iso});
+                                                       const int tk_idx) const {
+  egobjs.emplace_back(l1tpf_impl::EgObjectIndexer{calo_idx, hwQual, ptCorr, tk_idx});
   return egobjs.back();
 }
 
@@ -119,7 +132,7 @@ void PFTkEGAlgo::link_emCalo2emCalo(Region &r, std::vector<int> &emCalo2emCalo) 
         continue;
 
       if (fabs(otherCalo.floatEta() - calo.floatEta()) < dEtaMaxBrem_ &&
-          fabs(deltaPhi(otherCalo.floatPhi(), calo.floatPhi())) < dEtaMaxBrem_) {
+          fabs(deltaPhi(otherCalo.floatPhi(), calo.floatPhi())) < dPhiMaxBrem_) {
         emCalo2emCalo[jc] = ic;
       }
     }
@@ -127,7 +140,6 @@ void PFTkEGAlgo::link_emCalo2emCalo(Region &r, std::vector<int> &emCalo2emCalo) 
 }
 
 void PFTkEGAlgo::link_emCalo2tk(Region &r, std::vector<int> &emCalo2tk) const {
-  // track to calo matching (first iteration, with a lower bound on the calo pt; there may be another one later)
   for (int ic = 0, nc = r.emcalo.size(); ic < nc; ++ic) {
     auto &calo = r.emcalo[ic];
 
@@ -159,10 +171,10 @@ void PFTkEGAlgo::link_emCalo2tk(Region &r, std::vector<int> &emCalo2tk) const {
         continue;
 
       float d_phi = deltaPhi(tk.floatPhi(), calo.floatPhi());
-      float d_eta = fabs(tk.floatEta() - calo.floatEta());
+      float d_eta = tk.floatEta() - calo.floatEta();  // We only use it squared
 
       if (debug_ > 0)
-        std::cout << " deta: " << d_eta << " dphi: " << d_phi
+        std::cout << " deta: " << fabs(d_eta) << " dphi: " << d_phi
                   << " ell: " << ((d_phi / dPhiMax) * (d_phi / dPhiMax)) + ((d_eta / dEtaMax) * (d_eta / dEtaMax))
                   << std::endl;
       // std::cout << "Global abs eta: " << r.globalAbsEta(calo.floatEta())
@@ -181,4 +193,14 @@ void PFTkEGAlgo::link_emCalo2tk(Region &r, std::vector<int> &emCalo2tk) const {
       }
     }
   }
+}
+
+void PFTkEGAlgo::runTkIso(Region &r, const float z0) const {
+  compute_isolation_tkEle(r, r.track, tkIsoParametersTkEle_, z0, false);
+  compute_isolation_tkEm(r, r.track, tkIsoParametersTkEm_, z0, false);
+}
+
+void PFTkEGAlgo::runPFIso(Region &r, const float z0) const {
+  compute_isolation_tkEle(r, r.pf, pfIsoParametersTkEle_, z0, true);
+  compute_isolation_tkEm(r, r.pf, pfIsoParametersTkEm_, z0, true);
 }

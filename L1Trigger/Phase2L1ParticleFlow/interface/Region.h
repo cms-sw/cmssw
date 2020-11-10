@@ -6,15 +6,34 @@
 
 namespace l1tpf_impl {
 
+  // FIXME: this is temporary, to be substituted with proper EG objects
   struct EgObjectIndexer {
-    EgObjectIndexer(int emCaloIdx, int hwQual, float ptcorr, int tkIdx = -1, float iso = -1)
-        : emCaloIdx(emCaloIdx), hwQual(hwQual), tkIdx(tkIdx), ptcorr(ptcorr), iso(iso) {}
+    EgObjectIndexer(int emCaloIdx,
+                    int hwQual,
+                    float ptcorr,
+                    int tkIdx = -1)
+        : emCaloIdx(emCaloIdx),
+          hwQual(hwQual),
+          tkIdx(tkIdx),
+          ptcorr(ptcorr),
+          iso(-1),
+          isoPV(-1),
+          isoDZ(-1),
+          pfIso(-1),
+          pfIsoPV(-1),
+          pfIsoDZ(-1) {}
 
     int emCaloIdx;
     int hwQual;
     int tkIdx;
     float ptcorr;
-    float iso;
+    float iso; // iso using all tks
+    float isoPV; // iso using tks compatible with PV
+    float isoDZ; // iso using tks compatible with mathed Tk (for TkElectrons only)
+    float pfIso; // iso using all PF cands
+    float pfIsoPV; // iso using PF cands compatible with PV
+    float pfIsoDZ; // iso using PF cands compatible with mathed Tk (for TkElectrons only)
+
   };
 
   struct Region : public InputRegion {

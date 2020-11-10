@@ -54,7 +54,7 @@ private:
 
   bool hasTracks_;
   edm::EDGetTokenT<l1t::PFTrackCollection> tkCands_;
-  float trkPt_, trkMaxChi2_;
+  float trkPt_, trkMaxChi2_, trkPtNoChi2_;
   unsigned trkMinStubs_;
   l1tpf_impl::PUAlgoBase::VertexAlgo vtxAlgo_;
   edm::EDGetTokenT<std::vector<l1t::TkPrimaryVertex>> extTkVtx_;
@@ -101,6 +101,7 @@ L1TPFProducer::L1TPFProducer(const edm::ParameterSet& iConfig)
                           : edm::EDGetTokenT<l1t::PFTrackCollection>()),
       trkPt_(iConfig.getParameter<double>("trkPtCut")),
       trkMaxChi2_(iConfig.getParameter<double>("trkMaxChi2")),
+      trkPtNoChi2_(iConfig.getParameter<double>("trkPtNoChi2")),
       trkMinStubs_(iConfig.getParameter<unsigned>("trkMinStubs")),
       muCands_(consumes<l1t::MuonBxCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
       tkMuCands_(consumes<l1t::TkMuonCollection>(iConfig.getParameter<edm::InputTag>("tkMuons"))),
@@ -243,7 +244,8 @@ void L1TPFProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       // adding objects to PF
       if (debugR_ > 0 && deltaR(tk.eta(), tk.phi(), debugEta_, debugPhi_) > debugR_)
         continue;
-      if (tk.pt() > trkPt_ && tk.nStubs() >= trkMinStubs_ && tk.normalizedChi2() < trkMaxChi2_) {
+      if ((tk.pt() > trkPt_ && tk.nStubs() >= trkMinStubs_ && tk.normalizedChi2() < trkMaxChi2_) ||
+          (tk.pt() > trkPtNoChi2_)) {
         l1regions_.addTrack(tk, l1t::PFTrackRef(htracks, itk));
       }
     }
@@ -359,8 +361,11 @@ void L1TPFProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Then run PF in each region
   for (auto& l1region : l1regions_.regions()) {
     l1pfalgo_->runPF(l1region);
-    l1pualgo_->runChargedPV(l1region, z0);
     l1tkegalgo_->runTkEG(l1region);
+    l1pualgo_->runChargedPV(l1region, z0);
+    // this is a separate step since the z0 from vertex might come at different latency
+    l1tkegalgo_->runTkIso(l1region, z0);
+    l1tkegalgo_->runPFIso(l1region, z0);
   }
   // save PF into the event
   iEvent.put(l1regions_.fetch(false), "PF");
