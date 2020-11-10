@@ -36,20 +36,6 @@ class KernelConstantData {
   HGCConstantVectorData vdata_;
 };
 
-template <typename TYPE_IN, typename TYPE_OUT>
-  class KernelModifiableData {
- public:
- KernelModifiableData(TYPE_IN *h_in, TYPE_IN *d_1, TYPE_IN *d_2, TYPE_OUT *d_out, TYPE_OUT *h_out):
-  nhits_(0), stride_(0), h_in_(h_in), d_1_(d_1), d_2_(d_2), d_out_(d_out), h_out_(h_out) {}
-
-  unsigned nhits_; //number of hits in the input event collection being processed
-  unsigned stride_; //modified number of hits so that warp (32 threads) boundary alignment is guaranteed
-  TYPE_IN *h_in_; //host input data SoA
-  TYPE_IN *d_1_, *d_2_; //device SoAs that handle all the processing steps applied to the input data. The pointers may be reused (ans swapped)
-  TYPE_OUT *d_out_; //device SoA that stores the conversion of the hits to the new collection format
-  TYPE_OUT *h_out_; //host SoA which receives the converted output collection from the GPU
-};
-
 class KernelManagerHGCalRecHit {
  public:
   KernelManagerHGCalRecHit();
