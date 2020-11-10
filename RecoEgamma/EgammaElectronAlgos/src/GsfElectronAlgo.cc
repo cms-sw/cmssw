@@ -392,7 +392,7 @@ GsfElectronAlgo::GsfElectronAlgo(const Tokens& input,
       superClusterErrorFunction_{
           std::forward<std::unique_ptr<EcalClusterFunctionBaseClass>>(superClusterErrorFunction)},
       crackCorrectionFunction_{std::forward<std::unique_ptr<EcalClusterFunctionBaseClass>>(crackCorrectionFunction)},
-      regHelper_{reg}
+      regHelper_{reg, cfg_.strategy.useEcalRegression, cfg_.strategy.useCombinationRegression, cc}
 
 {}
 
@@ -962,7 +962,7 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
   // ecal energy
   if (cfg_.strategy.useEcalRegression)  // new
   {
-    regHelper_.applyEcalRegression(ele, eventData.vertices, eventData.barrelRecHits, eventData.endcapRecHits);
+    regHelper_.applyEcalRegression(ele, *eventData.vertices, *eventData.barrelRecHits, *eventData.endcapRecHits);
   } else  // original implementation
   {
     if (!EcalTools::isHGCalDet((DetId::Detector)region)) {
