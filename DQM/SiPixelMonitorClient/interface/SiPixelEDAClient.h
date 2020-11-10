@@ -74,6 +74,8 @@ private:
 
   edm::EDGetTokenT<FEDRawDataCollection> inputSourceToken_;
   edm::ESHandle<SiPixelFedCablingMap> theCablingMap;
+
+  edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> cablingMapToken_;
 };
 
 #endif

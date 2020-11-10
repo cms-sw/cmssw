@@ -9,6 +9,8 @@
 // DQM
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 
+#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
+#include "CondFormats/RunInfo/interface/RunInfo.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 class SiPixelDaqInfo : public DQMEDHarvester {
@@ -41,6 +43,7 @@ private:
 
   // define Token(-s)
   edm::EDGetTokenT<FEDRawDataCollection> daqSourceToken_;
+  edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
 };
 
 #endif
