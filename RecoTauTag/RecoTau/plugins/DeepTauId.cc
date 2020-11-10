@@ -2024,7 +2024,7 @@ private:
             std::abs(candFunc::getTauDxy(muon_cand, default_value)) / muon_cand.dxyError(), 4.575f, 42.36f);
         get(dnn::pfCand_muon_dz) = getValueNorm(candFunc::getTauDz(muon_cand, default_value), -0.0117f, 4.097f);
         get(dnn::pfCand_muon_dz_sig) = getValueNorm(
-            std::abs(candFunc::getTauDz(muon_cand, default_value)) / candFunc::getTauDz(muon_cand, default_value),
+            std::abs(candFunc::getTauDz(muon_cand, default_value)) / candFunc::getTauDzError(muon_cand, default_value),
             80.37f,
             343.3f);
         get(dnn::pfCand_muon_track_chi2_ndof) = getValueNorm(
