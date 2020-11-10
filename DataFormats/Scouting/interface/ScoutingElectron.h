@@ -23,7 +23,12 @@ public:
                    int charge,
                    float ecalIso,
                    float hcalIso,
-                   float trackIso)
+                   float trackIso,
+                   float r9,
+                   float sMin,
+                   float sMaj,
+                   std::vector<float> energyMatrix,
+                   std::vector<float> timingMatrix)
       : pt_(pt),
         eta_(eta),
         phi_(phi),
@@ -39,7 +44,12 @@ public:
         charge_(charge),
         ecalIso_(ecalIso),
         hcalIso_(hcalIso),
-        trackIso_(trackIso) {}
+        trackIso_(trackIso),
+        r9_(r9),
+        sMin_(sMin),
+        sMaj_(sMaj),
+        energyMatrix_(std::move(energyMatrix)),
+        timingMatrix_(std::move(timingMatrix)) {}
   //default constructor
   ScoutingElectron()
       : pt_(0),
@@ -57,7 +67,12 @@ public:
         charge_(0),
         ecalIso_(0),
         hcalIso_(0),
-        trackIso_(0) {}
+        trackIso_(0),
+        r9_(0),
+        sMin_(0),
+        sMaj_(0),
+        energyMatrix_(0),
+        timingMatrix_(0) {}
 
   //accessor functions
   float pt() const { return pt_; }
@@ -76,6 +91,11 @@ public:
   float ecalIso() const { return ecalIso_; }
   float hcalIso() const { return hcalIso_; }
   float trackIso() const { return trackIso_; }
+  float r9() const { return r9_; }
+  float sMin() const { return sMin_; }
+  float sMaj() const { return sMaj_; }
+  std::vector<float> energyMatrix() const { return energyMatrix_; }
+  std::vector<float> timingMatrix() const { return timingMatrix_; }
 
 private:
   float pt_;
@@ -94,6 +114,11 @@ private:
   float ecalIso_;
   float hcalIso_;
   float trackIso_;
+  float r9_;
+  float sMin_;
+  float sMaj_;
+  std::vector<float> energyMatrix_;
+  std::vector<float> timingMatrix_;
 };
 
 typedef std::vector<ScoutingElectron> ScoutingElectronCollection;

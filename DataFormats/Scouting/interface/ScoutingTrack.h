@@ -26,7 +26,21 @@ public:
                 float tk_lambda_Error,
                 float tk_phi_Error,
                 float tk_dsz,
-                float tk_dsz_Error)
+                float tk_dsz_Error,
+                float tk_qoverp_lambda_cov,
+                float tk_qoverp_phi_cov,
+                float tk_qoverp_dxy_cov,
+                float tk_qoverp_dsz_cov,
+                float tk_lambda_phi_cov,
+                float tk_lambda_dxy_cov,
+                float tk_lambda_dsz_cov,
+                float tk_phi_dxy_cov,
+                float tk_phi_dsz_cov,
+                float tk_dxy_dsz_cov,
+                int tk_vtxInd,
+                float tk_vx,
+                float tk_vy,
+                float tk_vz)
       : tk_pt_(tk_pt),
         tk_eta_(tk_eta),
         tk_phi_(tk_phi),
@@ -46,7 +60,21 @@ public:
         tk_lambda_Error_(tk_lambda_Error),
         tk_phi_Error_(tk_phi_Error),
         tk_dsz_(tk_dsz),
-        tk_dsz_Error_(tk_dsz_Error) {}
+        tk_dsz_Error_(tk_dsz_Error),
+        tk_qoverp_lambda_cov_(tk_qoverp_lambda_cov),
+        tk_qoverp_phi_cov_(tk_qoverp_phi_cov),
+        tk_qoverp_dxy_cov_(tk_qoverp_dxy_cov),
+        tk_qoverp_dsz_cov_(tk_qoverp_dsz_cov),
+        tk_lambda_phi_cov_(tk_lambda_phi_cov),
+        tk_lambda_dxy_cov_(tk_lambda_dxy_cov),
+        tk_lambda_dsz_cov_(tk_lambda_dsz_cov),
+        tk_phi_dxy_cov_(tk_phi_dxy_cov),
+        tk_phi_dsz_cov_(tk_phi_dsz_cov),
+        tk_dxy_dsz_cov_(tk_dxy_dsz_cov),
+        tk_vtxInd_(tk_vtxInd),
+        tk_vx_(tk_vx),
+        tk_vy_(tk_vy),
+        tk_vz_(tk_vz) {}
   //default constructor
   ScoutingTrack()
       : tk_pt_(0),
@@ -68,7 +96,21 @@ public:
         tk_lambda_Error_(0),
         tk_phi_Error_(0),
         tk_dsz_(0),
-        tk_dsz_Error_(0) {}
+        tk_dsz_Error_(0),
+        tk_qoverp_lambda_cov_(0),
+        tk_qoverp_phi_cov_(0),
+        tk_qoverp_dxy_cov_(0),
+        tk_qoverp_dsz_cov_(0),
+        tk_lambda_phi_cov_(0),
+        tk_lambda_dxy_cov_(0),
+        tk_lambda_dsz_cov_(0),
+        tk_phi_dxy_cov_(0),
+        tk_phi_dsz_cov_(0),
+        tk_dxy_dsz_cov_(0),
+        tk_vtxInd_(0),
+        tk_vx_(0),
+        tk_vy_(0),
+        tk_vz_(0) {}
 
   //accessor functions
   float tk_pt() const { return tk_pt_; }
@@ -91,6 +133,21 @@ public:
   float tk_phi_Error() const { return tk_phi_Error_; }
   float tk_dsz() const { return tk_dsz_; }
   float tk_dsz_Error() const { return tk_dsz_Error_; }
+  //add off-diagonal covariance matrix parameter, the above "Error" variables correspond to the diagonal, enum for Cov matrix (qoverp, lambda, phi, dxy, dsz), see https://github.com/cms-sw/cmssw/blob/CMSSW_11_2_X/DataFormats/TrackReco/src/TrackBase.cc for details
+  float tk_qoverp_lambda_cov() const { return tk_qoverp_lambda_cov_; }
+  float tk_qoverp_phi_cov() const { return tk_qoverp_phi_cov_; }
+  float tk_qoverp_dxy_cov() const { return tk_qoverp_dxy_cov_; }
+  float tk_qoverp_dsz_cov() const { return tk_qoverp_dsz_cov_; }
+  float tk_lambda_phi_cov() const { return tk_lambda_phi_cov_; }
+  float tk_lambda_dxy_cov() const { return tk_lambda_dxy_cov_; }
+  float tk_lambda_dsz_cov() const { return tk_lambda_dsz_cov_; }
+  float tk_phi_dxy_cov() const { return tk_phi_dxy_cov_; }
+  float tk_phi_dsz_cov() const { return tk_phi_dsz_cov_; }
+  float tk_dxy_dsz_cov() const { return tk_dxy_dsz_cov_; }
+  int tk_vtxInd() const { return tk_vtxInd_; }
+  float tk_vx() const { return tk_vx_; }
+  float tk_vy() const { return tk_vy_; }
+  float tk_vz() const { return tk_vz_; }
 
 private:
   float tk_pt_;
@@ -113,6 +170,20 @@ private:
   float tk_phi_Error_;
   float tk_dsz_;
   float tk_dsz_Error_;
+  float tk_qoverp_lambda_cov_;
+  float tk_qoverp_phi_cov_;
+  float tk_qoverp_dxy_cov_;
+  float tk_qoverp_dsz_cov_;
+  float tk_lambda_phi_cov_;
+  float tk_lambda_dxy_cov_;
+  float tk_lambda_dsz_cov_;
+  float tk_phi_dxy_cov_;
+  float tk_phi_dsz_cov_;
+  float tk_dxy_dsz_cov_;
+  int tk_vtxInd_;
+  float tk_vx_;
+  float tk_vy_;
+  float tk_vz_;
 };
 
 typedef std::vector<ScoutingTrack> ScoutingTrackCollection;
