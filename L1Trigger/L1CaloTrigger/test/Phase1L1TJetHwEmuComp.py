@@ -192,14 +192,8 @@ axs[0,0].set(ylim=(0,ymaxPt +(0.05*ymaxPt)))
 axs[0,1].set(ylim=(0,ymaxEta+(0.05*ymaxEta)))
 axs[0,2].set(ylim=(0,ymaxPhi+(0.05*ymaxPhi)))
 
-
-#axs[0,0].set_title("Histogrammed PF Jet FW vs EMU: pT, ttbar, 3900 events")  
-#axs[0,1].set_title("Histogrammed PF Jet FW vs EMU: Eta, ttbar, 3900 events")  
-#axs[0,2].set_title("Histogrammed PF Jet FW vs EMU: Phi, ttbar, 3900 events") 
-
 axs[0,0].set(xlabel="Jet $p_T$ (GeV)")
 axs[0,1].set(xlabel="Jet $\eta$")
 axs[0,2].set(xlabel="Jet $\phi$")
 
 plt.savefig('ttbarPU200_3900.pdf', bbox_inches='tight')
-#plt.show()

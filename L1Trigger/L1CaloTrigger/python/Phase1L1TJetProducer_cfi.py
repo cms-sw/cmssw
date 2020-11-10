@@ -14,19 +14,12 @@ caloEtaSegmentation = cms.vdouble(
   3.0, 3.083, 3.167, 3.25, 3.333, 3.417, 3.5, 3.583, 3.667, 3.75, 3.833, 3.917, 
   4.0, 4.083, 4.167, 4.25, 4.333, 4.417, 4.5, 4.583, 4.667, 4.75, 4.833, 4.917, 5.0)
 
-#caloEtaSegmentation = cms.vdouble(
-#    0.0, 0.0833, 0.1666, 0.2499, 0.3332, 0.4165, 0.4998, 0.5831, 0.6664, 0.7497, 
-#    0.833, 0.9163, 0.9996, 1.0829, 1.1662, 1.2495, 1.3328, 1.4161, 1.5)
-
 Phase1L1TJetProducer = cms.EDProducer('Phase1L1TJetProducer',
   inputCollectionTag = cms.InputTag("l1pfCandidates", "Puppi"),
   etaBinning = caloEtaSegmentation,
   nBinsPhi = cms.uint32(72),
   phiLow = cms.double(-pi),
   phiUp = cms.double(pi),
-  #  nBinsPhi = cms.uint32(8),
-  #  phiLow = cms.double(0),
-  #  phiUp = cms.double(0.7),
   jetIEtaSize = cms.uint32(7),
   jetIPhiSize = cms.uint32(7),
   seedPtThreshold = cms.double(5), # GeV
