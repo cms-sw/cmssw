@@ -27,6 +27,7 @@ public:
   void produce(edm::Event &, const edm::EventSetup &) override;
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
   void energyRegressionAndID(const std::vector<reco::CaloCluster> &layerClusters, std::vector<Trackster> &result) const;
+  void computeTime(std::vector<TICLCandidate> &resultCandidates);
 
   // static methods for handling the global cache
   static std::unique_ptr<TrackstersCache> initializeGlobalCache(const edm::ParameterSet &);
@@ -529,11 +530,24 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
   }
 
   // Compute timing
-  for (auto &cand : *resultCandidates) {
-    cand.computeTime();
-  }
+  computeTime(*resultCandidates);
 
   evt.put(std::move(resultCandidates));
+}
+
+void TrackstersMergeProducer::computeTime(std::vector<TICLCandidate> &resultCandidates) {
+  for (auto &cand : resultCandidates) {
+    auto time = 0.;
+    auto timeErr = 0.;
+    for (const auto& tr : cand.tracksters()) {
+      time += tr->time() / pow(tr->timeError(), 2);
+      timeErr += pow(tr->timeError(), -2);
+    }
+    timeErr = sqrt(1 / timeErr);
+
+    cand.setTime(time * pow(timeErr, 2));
+    cand.setTimeError(timeErr);
+  }
 }
 
 void TrackstersMergeProducer::energyRegressionAndID(const std::vector<reco::CaloCluster> &layerClusters,
