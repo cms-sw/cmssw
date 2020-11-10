@@ -51,8 +51,6 @@ constexpr int x_scroll_max = 4;
 constexpr int y_scroll_min = 0;
 constexpr int y_scroll_max = 3;
 
-
-
 class Phase1L1TJetProducer : public edm::one::EDProducer<> {
 public:
   explicit Phase1L1TJetProducer(const edm::ParameterSet&);
@@ -67,7 +65,7 @@ private:
   const std::vector<std::tuple<int, int>> findSeeds(float seedThreshold);
 
   const std::vector<reco::CaloJet> _buildJetsFromSeedsWithPUSubtraction(const std::vector<std::tuple<int, int>>& seeds,
-                                                                  bool killZeroPt);
+                                                                        bool killZeroPt);
   const std::vector<reco::CaloJet> _buildJetsFromSeeds(const std::vector<std::tuple<int, int>>& seeds);
 
   const void subtract9x9Pileup(reco::CaloJet& jet);
@@ -151,7 +149,8 @@ void Phase1L1TJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   fillCaloGrid<>(*(caloGrid_), *inputCollectionHandle);
 
   const auto& seedsVector = findSeeds(seedPtThreshold_);  // seedPtThreshold = 6
-  auto l1jetVector = puSubtraction_ ? _buildJetsFromSeedsWithPUSubtraction(seedsVector, vetoZeroPt_) : _buildJetsFromSeeds(seedsVector);
+  auto l1jetVector = puSubtraction_ ? _buildJetsFromSeedsWithPUSubtraction(seedsVector, vetoZeroPt_)
+                                    : _buildJetsFromSeeds(seedsVector);
 
   // sort by pt
   std::sort(l1jetVector.begin(), l1jetVector.end(), [](const reco::CaloJet& jet1, const reco::CaloJet& jet2) {
@@ -239,19 +238,15 @@ const std::vector<std::tuple<int, int>> Phase1L1TJetProducer::findSeeds(float se
             continue;
           if (phiIndex > 0) {
             if (phiIndex > -etaIndex) {
-              isLocalMaximum =
-                  ((isLocalMaximum) && (centralPt > getTowerEnergy(iEta + etaIndex, iPhi + phiIndex)));
+              isLocalMaximum = ((isLocalMaximum) && (centralPt > getTowerEnergy(iEta + etaIndex, iPhi + phiIndex)));
             } else {
-              isLocalMaximum =
-                  ((isLocalMaximum) && (centralPt >= getTowerEnergy(iEta + etaIndex, iPhi + phiIndex)));
+              isLocalMaximum = ((isLocalMaximum) && (centralPt >= getTowerEnergy(iEta + etaIndex, iPhi + phiIndex)));
             }
           } else {
             if (phiIndex >= -etaIndex) {
-              isLocalMaximum =
-                  ((isLocalMaximum) && (centralPt > getTowerEnergy(iEta + etaIndex, iPhi + phiIndex)));
+              isLocalMaximum = ((isLocalMaximum) && (centralPt > getTowerEnergy(iEta + etaIndex, iPhi + phiIndex)));
             } else {
-              isLocalMaximum =
-                  ((isLocalMaximum) && (centralPt >= getTowerEnergy(iEta + etaIndex, iPhi + phiIndex)));
+              isLocalMaximum = ((isLocalMaximum) && (centralPt >= getTowerEnergy(iEta + etaIndex, iPhi + phiIndex)));
             }
           }
         }
@@ -306,7 +301,8 @@ const std::vector<reco::CaloJet> Phase1L1TJetProducer::_buildJetsFromSeedsWithPU
   return jets;
 }
 
-const std::vector<reco::CaloJet> Phase1L1TJetProducer::_buildJetsFromSeeds(const std::vector<std::tuple<int, int>>& seeds) {
+const std::vector<reco::CaloJet> Phase1L1TJetProducer::_buildJetsFromSeeds(
+    const std::vector<std::tuple<int, int>>& seeds) {
   // For each seed take a grid centered on the seed of the size specified by the user
   // Sum the pf in the grid, that will be the pt of the l1t jet. Eta and phi of the jet is taken from the seed.
   std::vector<reco::CaloJet> jets;
