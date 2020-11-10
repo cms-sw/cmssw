@@ -12,6 +12,12 @@ PCaloHit::PCaloHit(unsigned int id, float eEM, float eHad, float t, int i, uint1
   myEMFraction = (myEnergy <= 0. ? 1. : eEM / myEnergy);
 }
 
+PCaloHit::PCaloHit(unsigned int id, float eEM, float eHad, float t, int i, int iFine, uint16_t d)
+    : myTime(t), myItra(i), myFineItra(iFine), detId(id), myDepth(d) {
+  myEnergy = eEM + eHad;
+  myEMFraction = (myEnergy <= 0. ? 1. : eEM / myEnergy);
+}
+
 std::ostream& operator<<(std::ostream& o, const PCaloHit& hit) {
   o << "0x" << std::hex << hit.id() << std::dec << ": Energy (EM) " << hit.energyEM() << " GeV "
     << ": Energy (Had) " << hit.energyHad() << " GeV "

@@ -86,7 +86,7 @@ void EcalSimpleProducer::produce(edm::Event &evt, const edm::EventSetup &) {
         double em = simHitFormula_->Eval(iEta0, iPhi0, ievt - 1);
         double eh = 0.;
         double t = 0.;
-        const PCaloHit hit(EBDetId(iEta1, iPhi).rawId(), em, eh, t, 0);
+        const PCaloHit hit(EBDetId(iEta1, iPhi).rawId(), em, eh, t, 0, 0, 0);
         hits->push_back(hit);
       }
     }

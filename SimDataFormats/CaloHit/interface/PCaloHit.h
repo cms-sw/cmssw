@@ -14,6 +14,7 @@ public:
       : myEnergy(e), myEMFraction(emFraction), myTime(t), myItra(i), detId(id), myDepth(d) {}
   PCaloHit(float eEM, float eHad, float t, int i = 0, uint16_t d = 0);
   PCaloHit(unsigned int id, float eEM, float eHad, float t, int i = 0, uint16_t d = 0);
+  PCaloHit(unsigned int id, float eEM, float eHad, float t, int i = 0, int iFine = 0, uint16_t d = 0);
 
   //Names
   static const char *name() { return "Hit"; }
@@ -31,6 +32,7 @@ public:
 
   //Geant track number
   int geantTrackId() const { return myItra; }
+  int geantFineTrackId() const { return myFineItra; }
 
   //DetId where the Hit is recorded
   void setID(unsigned int id) { detId = id; }
@@ -67,6 +69,7 @@ protected:
   float myEMFraction;
   float myTime;
   int myItra;
+  int myFineItra;
   unsigned int detId;
   uint16_t myDepth;
   EncodedEventId theEventId;
