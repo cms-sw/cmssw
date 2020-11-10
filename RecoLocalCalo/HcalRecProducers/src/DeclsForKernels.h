@@ -76,10 +76,6 @@ namespace hcal {
       float timeSigmaSiPM, timeSigmaHPD;
       float ts4Thresh;
 
-      std::vector<int> pulseOffsets;
-      // FIXME remove pulseOffsets - they come from esproduce now
-      //int* pulseOffsetsDevice = nullptr;
-
       std::array<uint32_t, 3> kernelMinimizeThreads;
 
       // FIXME:
@@ -113,7 +109,7 @@ namespace hcal {
       DigiCollection<Flavor3, ::calo::common::DevStoragePolicy> const& f3HBDigis;
     };
 
-  }  // namespace mahi
-}  // namespace reconstruction
+  }  // namespace reconstruction
+}  // namespace hcal
 
 #endif  // RecoLocalCalo_HcalRecProducers_src_DeclsForKernels_h
