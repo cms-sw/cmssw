@@ -46,25 +46,25 @@ public:
   bool saved() const { return saved_; }
 
   // Boundary crossing variables
-  void setCrossedBoundaryPosMom(int id, const math::XYZVectorD position, const math::XYZTLorentzVectorD momentum){
+  void setCrossedBoundaryPosMom(int id, const math::XYZVectorD position, const math::XYZTLorentzVectorD momentum) {
     crossedBoundary_ = true;
     idAtBoundary_ = id;
     positionAtBoundary_ = position;
     momentumAtBoundary_ = momentum;
-    }
+  }
   bool crossedBoundary() const { return crossedBoundary_; }
   math::XYZVectorD getPositionAtBoundary() const {
     assertCrossedBoundary();
     return positionAtBoundary_;
-    }
+  }
   math::XYZTLorentzVectorD getMomentumAtBoundary() const {
     assertCrossedBoundary();
     return momentumAtBoundary_;
-    }
+  }
   int getIDAtBoundary() const {
     assertCrossedBoundary();
     return idAtBoundary_;
-    }
+  }
   /** Internal consistency check (optional).
      *  Method called at PostUserTrackingAction time, to check
      *  if the information is consistent with that provided
@@ -97,11 +97,10 @@ private:
   int extractGenID(const G4Track *gt) const;
 
   void assertCrossedBoundary() const {
-    if (!crossedBoundary_){
-      throw cms::Exception("Unknown", "TrackWithHistory")
-        << "Assert crossed boundary failed for track " << trackID_;
-      }
+    if (!crossedBoundary_) {
+      throw cms::Exception("Unknown", "TrackWithHistory") << "Assert crossed boundary failed for track " << trackID_;
     }
+  }
 };
 
 extern G4ThreadLocal G4Allocator<TrackWithHistory> *fpTrackWithHistoryAllocator;

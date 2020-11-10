@@ -36,8 +36,7 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
   doFineCalo_ = m_p.getParameter<bool>("DoFineCalo");
 
   edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: Initailised with TestBeam = " << testBeam_ << " Emin = " << eMin_
-                              << " Flags " << putHistory_
-                              << " (History), " << doFineCalo_ << " (Special Calorimeter)";
+                              << " Flags " << putHistory_ << " (History), " << doFineCalo_ << " (Special Calorimeter)";
 
   // Get pointer to CaloSimulationParameters
   edm::ESHandle<CaloSimulationParameters> csps;
@@ -188,57 +187,48 @@ void CaloTrkProcessing::update(const G4Step* aStep) {
     // Boundary-crossing logic
     int prestepLV = isItCalo(aStep->GetPreStepPoint()->GetTouchable(), fineDetectors_);
     int poststepLV = isItCalo(aStep->GetPostStepPoint()->GetTouchable(), fineDetectors_);
-    if (
-      prestepLV < 0 && poststepLV >= 0
-      // Allow back-scattering and filter it out later; ensure consistency during the SIM step
-      // && std::abs(theTrack->GetStep()->GetPreStepPoint()->GetPosition().z()) < std::abs(theTrack->GetPosition().z())
-      ) {
-      edm::LogVerbatim("DoFineCalo")
-        << "Entered fine volume " << poststepLV << ":"
-        << " Track " << id
-        << " pdgid=" << theTrack->GetDefinition()->GetPDGEncoding()
-        << " prestepLV=" << prestepLV
-        << " poststepLV=" << poststepLV
-        << " GetKineticEnergy[GeV]=" << theTrack->GetKineticEnergy() / CLHEP::GeV
-        << " GetVertexKineticEnergy[GeV]=" << theTrack->GetVertexKineticEnergy() / CLHEP::GeV
-        << " prestepPosition[cm]=("
-          << theTrack->GetStep()->GetPreStepPoint()->GetPosition().x() / CLHEP::cm << ","
-          << theTrack->GetStep()->GetPreStepPoint()->GetPosition().y() / CLHEP::cm << ","
-          << theTrack->GetStep()->GetPreStepPoint()->GetPosition().z() / CLHEP::cm << ")"
-        << " poststepPosition[cm]=("
-          << theTrack->GetStep()->GetPostStepPoint()->GetPosition().x() / CLHEP::cm << ","
-          << theTrack->GetStep()->GetPostStepPoint()->GetPosition().y() / CLHEP::cm << ","
-          << theTrack->GetStep()->GetPostStepPoint()->GetPosition().z() / CLHEP::cm << ")"
-        << " position[cm]=("
-          << theTrack->GetPosition().x() / CLHEP::cm << ","
-          << theTrack->GetPosition().y() / CLHEP::cm << ","
-          << theTrack->GetPosition().z() / CLHEP::cm << ")"
-        << " vertex_position[cm]=("
-          << theTrack->GetVertexPosition().x() / CLHEP::cm << ","
-          << theTrack->GetVertexPosition().y() / CLHEP::cm << ","
-          << theTrack->GetVertexPosition().z() / CLHEP::cm << ")"
-        ;
+    if (prestepLV < 0 && poststepLV >= 0
+        // Allow back-scattering and filter it out later; ensure consistency during the SIM step
+        // && std::abs(theTrack->GetStep()->GetPreStepPoint()->GetPosition().z()) < std::abs(theTrack->GetPosition().z())
+    ) {
+      edm::LogVerbatim("DoFineCalo") << "Entered fine volume " << poststepLV << ":"
+                                     << " Track " << id << " pdgid=" << theTrack->GetDefinition()->GetPDGEncoding()
+                                     << " prestepLV=" << prestepLV << " poststepLV=" << poststepLV
+                                     << " GetKineticEnergy[GeV]=" << theTrack->GetKineticEnergy() / CLHEP::GeV
+                                     << " GetVertexKineticEnergy[GeV]="
+                                     << theTrack->GetVertexKineticEnergy() / CLHEP::GeV << " prestepPosition[cm]=("
+                                     << theTrack->GetStep()->GetPreStepPoint()->GetPosition().x() / CLHEP::cm << ","
+                                     << theTrack->GetStep()->GetPreStepPoint()->GetPosition().y() / CLHEP::cm << ","
+                                     << theTrack->GetStep()->GetPreStepPoint()->GetPosition().z() / CLHEP::cm << ")"
+                                     << " poststepPosition[cm]=("
+                                     << theTrack->GetStep()->GetPostStepPoint()->GetPosition().x() / CLHEP::cm << ","
+                                     << theTrack->GetStep()->GetPostStepPoint()->GetPosition().y() / CLHEP::cm << ","
+                                     << theTrack->GetStep()->GetPostStepPoint()->GetPosition().z() / CLHEP::cm << ")"
+                                     << " position[cm]=(" << theTrack->GetPosition().x() / CLHEP::cm << ","
+                                     << theTrack->GetPosition().y() / CLHEP::cm << ","
+                                     << theTrack->GetPosition().z() / CLHEP::cm << ")"
+                                     << " vertex_position[cm]=(" << theTrack->GetVertexPosition().x() / CLHEP::cm << ","
+                                     << theTrack->GetVertexPosition().y() / CLHEP::cm << ","
+                                     << theTrack->GetVertexPosition().z() / CLHEP::cm << ")";
       trkInfo->setCrossedBoundary(theTrack);
-      }
-#ifdef EDM_ML_DEBUG
-    else if ( prestepLV >= 0 && poststepLV < 0 ){
-      edm::LogVerbatim("DoFineCalo")
-        << "Exited fine volume " << prestepLV << ":"
-        << " Track " << id
-        << " GetKineticEnergy[GeV]=" << theTrack->GetKineticEnergy() / CLHEP::GeV
-        << " GetVertexKineticEnergy[GeV]=" << theTrack->GetVertexKineticEnergy() / CLHEP::GeV
-        << " prestepPosition[cm]=("
-          << theTrack->GetStep()->GetPreStepPoint()->GetPosition().x() / CLHEP::cm << ","
-          << theTrack->GetStep()->GetPreStepPoint()->GetPosition().y() / CLHEP::cm << ","
-          << theTrack->GetStep()->GetPreStepPoint()->GetPosition().z() / CLHEP::cm << ")"
-        << " poststepPosition[cm]=("
-          << theTrack->GetStep()->GetPostStepPoint()->GetPosition().x() / CLHEP::cm << ","
-          << theTrack->GetStep()->GetPostStepPoint()->GetPosition().y() / CLHEP::cm << ","
-          << theTrack->GetStep()->GetPostStepPoint()->GetPosition().z() / CLHEP::cm << ")"
-        ;
-      }
-#endif
     }
+#ifdef EDM_ML_DEBUG
+    else if (prestepLV >= 0 && poststepLV < 0) {
+      edm::LogVerbatim("DoFineCalo") << "Exited fine volume " << prestepLV << ":"
+                                     << " Track " << id
+                                     << " GetKineticEnergy[GeV]=" << theTrack->GetKineticEnergy() / CLHEP::GeV
+                                     << " GetVertexKineticEnergy[GeV]="
+                                     << theTrack->GetVertexKineticEnergy() / CLHEP::GeV << " prestepPosition[cm]=("
+                                     << theTrack->GetStep()->GetPreStepPoint()->GetPosition().x() / CLHEP::cm << ","
+                                     << theTrack->GetStep()->GetPreStepPoint()->GetPosition().y() / CLHEP::cm << ","
+                                     << theTrack->GetStep()->GetPreStepPoint()->GetPosition().z() / CLHEP::cm << ")"
+                                     << " poststepPosition[cm]=("
+                                     << theTrack->GetStep()->GetPostStepPoint()->GetPosition().x() / CLHEP::cm << ","
+                                     << theTrack->GetStep()->GetPostStepPoint()->GetPosition().y() / CLHEP::cm << ","
+                                     << theTrack->GetStep()->GetPostStepPoint()->GetPosition().z() / CLHEP::cm << ")";
+    }
+#endif
+  }
 
   if (testBeam_) {
     if (trkInfo->getIDonCaloSurface() == 0) {

@@ -37,7 +37,7 @@ public:
   }
 
   bool trackExists(unsigned int id) const { return m_trackManager->trackExists(id); }
-  TrackWithHistory * getTrackByID(unsigned int id) const { return m_trackManager->getTrackByID(id); }
+  TrackWithHistory* getTrackByID(unsigned int id) const { return m_trackManager->getTrackByID(id); }
 
   void addTkCaloStateInfo(uint32_t t, const std::pair<math::XYZVectorD, math::XYZTLorentzVectorD>& p);
 

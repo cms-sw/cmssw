@@ -104,10 +104,9 @@ public:
   TrackWithHistory* getTrackByID(unsigned int trackID) const {
     bool trackFound = false;
     TrackWithHistory* track;
-    if (m_trksForThisEvent == nullptr){
-      throw cms::Exception("Unknown", "SimTrackManager")
-        << "m_trksForThisEvent is a nullptr, cannot get any track!";
-      }
+    if (m_trksForThisEvent == nullptr) {
+      throw cms::Exception("Unknown", "SimTrackManager") << "m_trksForThisEvent is a nullptr, cannot get any track!";
+    }
     for (unsigned int itr = 0; itr < (*m_trksForThisEvent).size(); ++itr) {
       if ((*m_trksForThisEvent)[itr]->trackID() == trackID) {
         track = (*m_trksForThisEvent)[itr];
@@ -115,13 +114,12 @@ public:
         break;
       }
     }
-    if (!trackFound){
+    if (!trackFound) {
       throw cms::Exception("Unknown", "SimTrackManager")
-          << "Attempted to get track " << trackID
-          << " from SimTrackManager, but it's not in m_trksForThisEvent ("
+          << "Attempted to get track " << trackID << " from SimTrackManager, but it's not in m_trksForThisEvent ("
           << (*m_trksForThisEvent).size() << " tracks in m_trksForThisEvent)"
           << "\n";
-      }
+    }
     return track;
   }
   void setLHCTransportLink(const edm::LHCTransportLinkContainer* thisLHCTlink) { theLHCTlink = thisLHCTlink; }

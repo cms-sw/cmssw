@@ -27,9 +27,9 @@ public:
   inline const G4Track* geant4Track() const { return g4Track_; }
   inline G4TrackingManager* getTrackManager() { return fpTrackingManager; }
 
-  inline void addPrimary(unsigned int id){ primaryIDs_.insert(id); }
-  inline bool isPrimary(unsigned int id){ return (primaryIDs_.count(id) > 0); }
-  inline void clearPrimaries(){ primaryIDs_.clear(); }
+  inline void addPrimary(unsigned int id) { primaryIDs_.insert(id); }
+  inline bool isPrimary(unsigned int id) { return (primaryIDs_.count(id) > 0); }
+  inline void clearPrimaries() { primaryIDs_.clear(); }
 
   SimActivityRegistry::BeginOfTrackSignal m_beginOfTrackSignal;
   SimActivityRegistry::EndOfTrackSignal m_endOfTrackSignal;
