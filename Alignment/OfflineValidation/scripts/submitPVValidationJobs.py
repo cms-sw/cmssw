@@ -30,7 +30,7 @@ from optparse import OptionParser
 from subprocess import Popen, PIPE
 import collections
 import warnings
-import os, shlex, shutil, getpass
+import shutil
 import multiprocessing
 from enum import Enum
 
@@ -961,10 +961,6 @@ def main():
                     myRuns.append(str(runboundary[iConf]))
 
                 myLumiDB = getLuminosity(HOME,myRuns[0],myRuns[-1],True,opts.verbose)
-                
-                #inputFiles.append(mylist)
-                #myRuns.append(str(runboundary[iConf]))
-                #myLumiDB = getLuminosity(HOME,myRuns[0],myRuns[-1],True,opts.verbose)
 
         else:
             #pass
