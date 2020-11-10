@@ -118,6 +118,7 @@ EcalDigiProducer_Ph2::EcalDigiProducer_Ph2(const edm::ParameterSet& params, edm:
   laserToken_ = iC.esConsumes<EcalLaserDbService, EcalLaserDbRecord>();
   agcToken_ = iC.esConsumes<EcalADCToGeVConstant, EcalADCToGeVConstantRcd>();
   icalToken_ = iC.esConsumes<EcalIntercalibConstants, EcalIntercalibConstantsRcd>();
+  geom_token_ = iC.esConsumes<CaloGeometry, CaloGeometryRecord>();
 
   const std::vector<double> ebCorMatG10Ph2 = params.getParameter<std::vector<double>>("EBCorrNoiseMatrixG10Ph2");
   const std::vector<double> ebCorMatG01Ph2 = params.getParameter<std::vector<double>>("EBCorrNoiseMatrixG01Ph2");
@@ -306,9 +307,7 @@ void EcalDigiProducer_Ph2::checkCalibrations(const edm::Event& event, const edm:
 
 void EcalDigiProducer_Ph2::checkGeometry(const edm::EventSetup& eventSetup) {
   // TODO find a way to avoid doing this every event
-  edm::ESHandle<CaloGeometry> hGeometry;
-  eventSetup.get<CaloGeometryRecord>().get(hGeometry);
-
+  edm::ESHandle<CaloGeometry> hGeometry = eventSetup.getHandle(geom_token_);
   const CaloGeometry* pGeometry = &*hGeometry;
 
   if (pGeometry != m_Geometry) {

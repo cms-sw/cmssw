@@ -20,6 +20,8 @@
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 class APDSimParameters;
 class CaloHitResponse;
@@ -75,7 +77,7 @@ private:
   edm::ESGetToken<EcalLaserDbService, EcalLaserDbRecord> laserToken_;
   edm::ESGetToken<EcalADCToGeVConstant, EcalADCToGeVConstantRcd> agcToken_;
   edm::ESGetToken<EcalIntercalibConstants, EcalIntercalibConstantsRcd> icalToken_;
-
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geom_token_;
   void accumulateCaloHits(HitsHandle const& ebHandle, int bunchCrossing);
 
   void checkGeometry(const edm::EventSetup& eventSetup);
