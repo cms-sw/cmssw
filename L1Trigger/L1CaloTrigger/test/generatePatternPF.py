@@ -57,21 +57,6 @@ options.register('debug',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.bool,
                  "Enable debug data")
-#options.register('doMP',
-#                 True,
-#                 VarParsing.VarParsing.multiplicity.singleton,
-#                 VarParsing.VarParsing.varType.bool,
-#                 "Generate MP pattern")
-#options.register('doDemux',
-#                 True,
-#                 VarParsing.VarParsing.multiplicity.singleton,
-#                 VarParsing.VarParsing.varType.bool,
-#                 "Read demux data")
-#options.register('nMP',
-#                 1,
-#                 VarParsing.VarParsing.multiplicity.singleton,
-#                 VarParsing.VarParsing.varType.int,
-#                 "Number of MPs")
 
 options.parseArguments()
 
@@ -82,11 +67,7 @@ fileList = FileUtils.loadListFromFile('ttbar.list')
 readFiles = cms.untracked.vstring(*fileList)
 
 # make output directory if it doesn't already exist
-try:
-    os.stat(options.outDir)
-except:
-    print('Output directory does not exist. Creating directory: ' + options.outDir)
-    os.mkdir(options.outDir)
+if not os.path.isdir(options.outDir): os.mkdir(options.outDir)
 
 process = cms.Process('L1Emulator')
 
@@ -104,9 +85,6 @@ process.maxEvents = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     fileNames = readFiles,
-#                            fileNames = cms.untracked.vstring(options.inputFiles)
-#        '/store/relval/CMSSW_7_4_0/RelValSingleElectronPt35_UP15/GEN-SIM-DIGI-RAW-HLTDEBUG/MCRUN2_74_V7_GENSIM_7_1_15-v1/00000/1E628CEB-7ADD-E411-ACF3-0025905A609E.root'
-#        )
 )
 
 process.options = cms.untracked.PSet(
@@ -148,7 +126,6 @@ if (options.dump):
     )
 
 if (options.debug):
-#    process.MessageLogger.debugModules = cms.untracked.vstring('L1TRawToDigi:caloStage2Digis', 'MP7BufferDumpToRaw:stage2MPRaw', 'MP7BufferDumpToRaw:stage2DemuxRaw')
     process.MessageLogger.debugModules = cms.untracked.vstring('*')
     process.MessageLogger.cerr.threshold = cms.untracked.string('DEBUG')
 
