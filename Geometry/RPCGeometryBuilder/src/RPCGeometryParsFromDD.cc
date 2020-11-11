@@ -24,6 +24,7 @@
 #include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
 #include "DataFormats/Math/interface/CMSUnits.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace cms_units::operators;
 
@@ -70,6 +71,7 @@ void RPCGeometryParsFromDD::buildGeometry(DDFilteredView& fview,
     // Get the The Rpc det Id
     RPCNumberingScheme rpcnum(muonConstants);
     const int detid = rpcnum.baseNumberToUnitNumber(mbn);
+
     RPCDetId rpcid(detid);
 
     DDValue numbOfStrips("nStrips");
@@ -87,6 +89,11 @@ void RPCGeometryParsFromDD::buildGeometry(DDFilteredView& fview,
     const std::vector<double> dpar = fview.logicalPart().solid().parameters();
 
     const std::string name = fview.logicalPart().name().name();
+
+    edm::LogVerbatim("RPCGeometryParsFromDD")
+        << " (1) "
+        << "detid: " << detid << " name: " << name << " number of Strips: " << nStrips;
+
     const std::vector<std::string> strpars = {name};
     const DDTranslation& tran = fview.translation();
 
@@ -95,18 +102,30 @@ void RPCGeometryParsFromDD::buildGeometry(DDFilteredView& fview,
     rota.GetComponents(x, y, z);
     std::vector<double> pars;
     if (dpar.size() == 3) {
-      const double width = dpar[0];
-      const double length = dpar[1];
-      const double thickness = dpar[2];
+      const double width = geant_units::operators::convertMmToCm(dpar[0]);
+      const double length = geant_units::operators::convertMmToCm(dpar[1]);
+      const double thickness = geant_units::operators::convertMmToCm(dpar[2]);
+      edm::LogVerbatim("RPCGeometryParsFromDD")
+          << " (2) dpar.size() == 3, width: " << width << " length: " << length << " thickness: " << thickness;
       pars = {width, length, thickness, numbOfStrips.doubles()[0]};
     } else {
-      pars = {
-          dpar[4] /*b/2*/, dpar[8] /*B/2*/, dpar[0] /*h/2*/, 0.4, numbOfStrips.doubles()[0] /*h/2*/
-      };
+      const double dpar4 = geant_units::operators::convertMmToCm(dpar[4]);
+      const double dpar8 = geant_units::operators::convertMmToCm(dpar[8]);
+      const double dpar0 = geant_units::operators::convertMmToCm(dpar[0]);
+      pars = {dpar4, dpar8, dpar0, 0.4, numbOfStrips.doubles()[0]};
+      edm::LogVerbatim("RPCGeometryParsFromDD")
+          << " (3), else, dpar[4]: " << dpar4 << " dpar[8]: " << dpar8 << " dpar[0]: " << dpar0;
     }
-
-    const std::vector<double> vtra = {tran.x(), tran.y(), tran.z()};
+    const std::vector<double> vtra = {geant_units::operators::convertMmToCm(tran.x()),
+                                      geant_units::operators::convertMmToCm(tran.y()),
+                                      geant_units::operators::convertMmToCm(tran.z())};
+    edm::LogVerbatim("RPCGeometryParsFromDD") << " (4), tran.x() " << geant_units::operators::convertMmToCm(tran.x())
+                                              << " tran.y(): " << geant_units::operators::convertMmToCm(tran.y())
+                                              << " tran.z(): " << geant_units::operators::convertMmToCm(tran.z());
     const std::vector<double> vrot = {x.X(), x.Y(), x.Z(), y.X(), y.Y(), y.Z(), z.X(), z.Y(), z.Z()};
+    edm::LogVerbatim("RPCGeometryParsFromDD")
+        << " (5), x.X(), x.Y(), x.Z(), y.X(), y.Y(), y.Z(), z.X(), z.Y(), z.Z() " << x.X() << ", " << x.Y() << ", "
+        << x.Z() << ", " << y.X() << ", " << y.Y() << ", " << y.Z() << ", " << z.X() << ", " << z.Y() << ", " << z.Z();
     rgeo.insert(rpcid.rawId(), vtra, vrot, pars, strpars);
   }
 }
@@ -116,20 +135,23 @@ void RPCGeometryParsFromDD::buildGeometry(DDFilteredView& fview,
 void RPCGeometryParsFromDD::buildGeometry(cms::DDFilteredView& fview,
                                           const MuonGeometryConstants& muonConstants,
                                           RecoIdealGeometry& rgeo) {
-  
   while (fview.firstChild()) {
     MuonGeometryNumbering mdddnum(muonConstants);
     RPCNumberingScheme rpcnum(muonConstants);
     int rawidCh = rpcnum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fview.history()));
     RPCDetId rpcid = RPCDetId(rawidCh);
-    
+
     auto nStrips = fview.get<double>("nStrips");
-    
+
     std::vector<double> dpar = fview.parameters();
-    
+
     std::string_view name = fview.name();
+
+    edm::LogVerbatim("RPCGeometryParsFromDD")
+        << " (1), detid: " << rawidCh << " name: " << std::string(name) << " number of Strips: " << nStrips;
+
     const std::vector<std::string> strpars = {std::string(name)};
-       
+
     std::vector<double> tran(3);
     tran[0] = static_cast<double>(fview.translation().X());
     tran[1] = static_cast<double>(fview.translation().Y());
@@ -139,23 +161,25 @@ void RPCGeometryParsFromDD::buildGeometry(cms::DDFilteredView& fview,
     fview.rot(rota);
     DD3Vector x, y, z;
     rota.GetComponents(x, y, z);
-    const std::vector<double>  rot = {x.X(),
-				      x.Y(),
-				      x.Z(),
-				      y.X(),
-				      y.Y(),
-				      y.Z(),
-				      z.X(),
-				      z.Y(),
-				      z.Z()};
-    
+    const std::vector<double> rot = {x.X(), x.Y(), x.Z(), y.X(), y.Y(), y.Z(), z.X(), z.Y(), z.Z()};
+
     if (dd4hep::isA<dd4hep::Box>(fview.solid())) {
       const std::vector<double> pars = {dpar[0], dpar[1], dpar[2], double(nStrips)};
-      rgeo.insert(rpcid, tran, rot, pars, strpars);   
+      edm::LogVerbatim("RPCGeometryParsFromDD")
+          << " (2), dd4hep::Box, width: " << dpar[0] << " length: " << dpar[1] << " thickness: " << dpar[2];
+      rgeo.insert(rpcid, tran, rot, pars, strpars);
     } else {
       const double ti = 0.4;
       const std::vector<double> pars = {dpar[0], dpar[1], dpar[3], ti, double(nStrips)};
-      rgeo.insert(rpcid, tran, rot, pars, strpars);   
+      edm::LogVerbatim("RPCGeometryParsFromDD")
+          << " (3), else, dpar[0] (i.e. dpar[4] for DD): " << dpar[0] << " dpar[1] (i.e. dpar[8] for DD): " << dpar[1]
+          << " dpar[3] (i.e. dpar[0] for DD): " << dpar[3];
+      rgeo.insert(rpcid, tran, rot, pars, strpars);
     }
+    edm::LogVerbatim("RPCGeometryParsFromDD")
+        << " (4), tran.x(): " << tran[0] << " tran.y(): " << tran[1] << " tran.z(): " << tran[2];
+    edm::LogVerbatim("RPCGeometryParsFromDD")
+        << " (5), x.X(), x.Y(), x.Z(), y.X(), y.Y(), y.Z(), z.X(), z.Y(), z.Z(): " << x.X() << ", " << x.Y() << ", "
+        << x.Z() << ", " << y.X() << ", " << y.Y() << ", " << y.Z() << ", " << z.X() << ", " << z.Y() << ", " << z.Z();
   }
 }
