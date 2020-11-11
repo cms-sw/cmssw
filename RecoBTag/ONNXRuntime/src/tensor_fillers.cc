@@ -2,6 +2,72 @@
 
 namespace btagbtvdeep {
 
+  void jet_tensor_filler(float*& ptr, const btagbtvdeep::DeepFlavourFeatures& features) {
+    // jet variables
+    const auto& jet_features = features.jet_features;
+    *ptr = jet_features.pt;
+    *(++ptr) = jet_features.eta;
+    // number of elements in different collections
+    *(++ptr) = features.c_pf_features.size();
+    *(++ptr) = features.n_pf_features.size();
+    *(++ptr) = features.sv_features.size();
+    *(++ptr) = features.npv;
+    // variables from ShallowTagInfo
+    const auto& tag_info_features = features.tag_info_features;
+    *(++ptr) = tag_info_features.trackSumJetEtRatio;
+    *(++ptr) = tag_info_features.trackSumJetDeltaR;
+    *(++ptr) = tag_info_features.vertexCategory;
+    *(++ptr) = tag_info_features.trackSip2dValAboveCharm;
+    *(++ptr) = tag_info_features.trackSip2dSigAboveCharm;
+    *(++ptr) = tag_info_features.trackSip3dValAboveCharm;
+    *(++ptr) = tag_info_features.trackSip3dSigAboveCharm;
+    *(++ptr) = tag_info_features.jetNSelectedTracks;
+    *(++ptr) = tag_info_features.jetNTracksEtaRel;
+  }
+
+  void cpf_tensor_filler(float*& ptr, const btagbtvdeep::ChargedCandidateFeatures& c_pf_features) {
+    *ptr = c_pf_features.btagPf_trackEtaRel;
+    *(++ptr) = c_pf_features.btagPf_trackPtRel;
+    *(++ptr) = c_pf_features.btagPf_trackPPar;
+    *(++ptr) = c_pf_features.btagPf_trackDeltaR;
+    *(++ptr) = c_pf_features.btagPf_trackPParRatio;
+    *(++ptr) = c_pf_features.btagPf_trackSip2dVal;
+    *(++ptr) = c_pf_features.btagPf_trackSip2dSig;
+    *(++ptr) = c_pf_features.btagPf_trackSip3dVal;
+    *(++ptr) = c_pf_features.btagPf_trackSip3dSig;
+    *(++ptr) = c_pf_features.btagPf_trackJetDistVal;
+    *(++ptr) = c_pf_features.ptrel;
+    *(++ptr) = c_pf_features.drminsv;
+    *(++ptr) = c_pf_features.vtx_ass;
+    *(++ptr) = c_pf_features.puppiw;
+    *(++ptr) = c_pf_features.chi2;
+    *(++ptr) = c_pf_features.quality;
+  }
+
+  void npf_tensor_filler(float*& ptr, const btagbtvdeep::NeutralCandidateFeatures& n_pf_features) {
+    *ptr = n_pf_features.ptrel;
+    *(++ptr) = n_pf_features.deltaR;
+    *(++ptr) = n_pf_features.isGamma;
+    *(++ptr) = n_pf_features.hadFrac;
+    *(++ptr) = n_pf_features.drminsv;
+    *(++ptr) = n_pf_features.puppiw;
+  }
+
+  void sv_tensor_filler(float*& ptr, const btagbtvdeep::SecondaryVertexFeatures& sv_features) {
+    *ptr = sv_features.pt;
+    *(++ptr) = sv_features.deltaR;
+    *(++ptr) = sv_features.mass;
+    *(++ptr) = sv_features.ntracks;
+    *(++ptr) = sv_features.chi2;
+    *(++ptr) = sv_features.normchi2;
+    *(++ptr) = sv_features.dxy;
+    *(++ptr) = sv_features.dxysig;
+    *(++ptr) = sv_features.d3d;
+    *(++ptr) = sv_features.d3dsig;
+    *(++ptr) = sv_features.costhetasvpv;
+    *(++ptr) = sv_features.enratio;
+  }
+
   void jet4vec_tensor_filler(float*& ptr, const btagbtvdeep::JetFeatures& jet_features) {
     *ptr = jet_features.pt;
     *(++ptr) = jet_features.eta;

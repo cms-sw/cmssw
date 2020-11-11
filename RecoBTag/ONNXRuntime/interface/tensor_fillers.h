@@ -5,6 +5,14 @@
 
 namespace btagbtvdeep {
 
+  void jet_tensor_filler(float*& ptr, const btagbtvdeep::DeepFlavourFeatures& features);
+
+  void cpf_tensor_filler(float*& ptr, const btagbtvdeep::ChargedCandidateFeatures& c_pf_features);
+
+  void npf_tensor_filler(float*& ptr, const btagbtvdeep::NeutralCandidateFeatures& n_pf_features);
+
+  void sv_tensor_filler(float*& ptr, const btagbtvdeep::SecondaryVertexFeatures& sv_features);
+
   void jet4vec_tensor_filler(float*& ptr, const btagbtvdeep::JetFeatures& jet_features);
 
   void seedTrack_tensor_filler(float*& ptr, const btagbtvdeep::SeedingTrackFeatures& seed_features);
