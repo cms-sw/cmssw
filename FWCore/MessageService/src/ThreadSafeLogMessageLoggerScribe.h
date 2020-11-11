@@ -51,10 +51,25 @@ namespace edm {
       // changeLog 9
 
     private:
+      struct ConfigurableDefaults {
+        static constexpr int NO_VALUE_SET = -45654;
+        static constexpr int COMMON_DEFAULT_LIMIT = NO_VALUE_SET;
+        static constexpr int COMMON_DEFAULT_INTERVAL = NO_VALUE_SET;
+        static constexpr int COMMON_DEFAULT_TIMESPAN = NO_VALUE_SET;
+
+        std::string threshold_;
+        int limit_;
+        int reportEvery_;
+        int timespan_;
+        int lineLength_;
+        bool noLineBreaks_;
+        bool noTimeStamps_;
+      };
+
+      static ConfigurableDefaults parseDefaults(edm::ParameterSet const& job_pset);
+
       // --- convenience typedefs
-      typedef std::string String;
-      typedef std::vector<String> vString;
-      typedef ParameterSet PSet;
+      using vString = std::vector<std::string>;
 
       // --- log one consumed message
       void log(ErrorObj* errorobj_p);
@@ -64,13 +79,24 @@ namespace edm {
       void triggerFJRmessageSummary(std::map<std::string, double>& sm);
 
       // --- handle details of configuring via a ParameterSet:
-      void configure_errorlog(PSet&);
-      void configure_ordinary_destinations(PSet const&);  // Change Log 3
-      void configure_statistics(PSet const&);             // Change Log 3
-      void configure_dest(PSet const&, std::shared_ptr<ELdestination> dest_ctrl, String const& filename);
+      void configure_errorlog(edm::ParameterSet&);
+      void configure_errorlog_new(edm::ParameterSet&);
+      std::vector<std::string> configure_ordinary_destinations(edm::ParameterSet const&,
+                                                               ConfigurableDefaults const& defaults,
+                                                               vString const& categories);
+      void configure_statistics(edm::ParameterSet const&,
+                                ConfigurableDefaults const& defaults,
+                                vString const& categories,
+                                std::vector<std::string> const& destination_names);
+      void configure_dest(edm::ParameterSet const& job_pset,
+                          ConfigurableDefaults const&,
+                          vString const& categories,
+                          std::shared_ptr<ELdestination> dest_ctrl,
+                          edm::ParameterSet const& dest_pset,
+                          std::string const& filename);
 
-      template <class T>  // ChangeLog 11
-      T getAparameter(PSet const& p, std::string const& id, T const& def) {
+      template <class T>
+      static T getAparameter(edm::ParameterSet const& p, std::string const& id, T const& def) {
         T t = def;
         try {
           t = p.template getUntrackedParameter<T>(id, def);
@@ -88,13 +114,15 @@ namespace edm {
 
       // --- other helpers
       void parseCategories(std::string const& s, std::vector<std::string>& cats);
+      std::string destinationFileName(edm::ParameterSet const&, std::string const&) const;
+      std::shared_ptr<ELdestination> makeDestinationCtrl(std::string const& filename);
 
+      void validate(edm::ParameterSet&) const;
       // --- data:
       edm::propagate_const<std::shared_ptr<ELadministrator>> admin_p;
       std::shared_ptr<ELdestination> early_dest;
       std::vector<edm::propagate_const<std::shared_ptr<std::ofstream>>> file_ps;
-      std::map<String, edm::propagate_const<std::ostream*>> stream_ps;
-      std::vector<String> ordinary_destination_filenames;
+      std::map<std::string, edm::propagate_const<std::ostream*>> stream_ps;
       std::vector<std::shared_ptr<ELstatistics>> statisticsDestControls;
       std::vector<bool> statisticsResets;
       bool clean_slate_configuration;
