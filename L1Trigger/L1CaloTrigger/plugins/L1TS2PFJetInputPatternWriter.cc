@@ -49,6 +49,11 @@ constexpr unsigned int framesPerFile = 1015;
 constexpr float eta_first_region_boundary = 0.75;
 constexpr float eta_second_region_boundary = 1.5;
 constexpr float phi_region_boundary = 0.7;
+constexpr unsigned int hash_bitmask_16 = 0xffff;  // (2^16)-1
+constexpr unsigned int hash_bitmask_10 = 0x3ff;   // (2^10)-1
+constexpr float ptLSB = 0.25;
+constexpr float etaLSB = 0.0043633231;
+constexpr float phiLSB = 0.0043633231;
 
 class L1TS2PFJetInputPatternWriter : public edm::one::EDAnalyzer<> {
 public:
@@ -77,9 +82,6 @@ private:
   unsigned nFrame_;
   unsigned nFrameFile_;
   unsigned nEvents_;
-  float ptLSB_;
-  float phiLSB_;
-  float etaLSB_;
 
   // data arranged by link and frame
   std::vector<std::vector<uint64_t>> data_;
@@ -114,10 +116,6 @@ L1TS2PFJetInputPatternWriter::L1TS2PFJetInputPatternWriter(const edm::ParameterS
   //now do what ever initialization is needed
 
   // register what you consume and keep token for later access:
-
-  ptLSB_ = 0.25;
-  etaLSB_ = 0.0043633231;
-  phiLSB_ = 0.0043633231;
 
   nFrame_ = 0;
   nFrameFile_ = 0;
@@ -191,16 +189,16 @@ void L1TS2PFJetInputPatternWriter::analyze(const edm::Event& iEvent, const edm::
 
         if ((nFrameFile_ % n_latency_clocks) == mod_13_1) {
           if (iLink < 24 && pfPartsA.size() > iLink) {
-            data |= ((uint64_t)floor(pfPartsA.at(iLink).pt() / ptLSB_) & 0xffff);
-            data |= ((uint64_t)floor(pfPartsA.at(iLink).phi() / phiLSB_) & 0x3ff) << bit_shift_phi;
-            data |= ((uint64_t)floor(pfPartsA.at(iLink).eta() / etaLSB_) & 0x3ff) << bit_shift_eta;
+            data |= ((uint64_t)floor(pfPartsA.at(iLink).pt() / ptLSB) & hash_bitmask_16);
+            data |= ((uint64_t)floor(pfPartsA.at(iLink).phi() / phiLSB) & hash_bitmask_10) << bit_shift_phi;
+            data |= ((uint64_t)floor(pfPartsA.at(iLink).eta() / etaLSB) & hash_bitmask_10) << bit_shift_eta;
           }
         }
         if ((nFrameFile_ % n_latency_clocks) == mod_13_2) {
           if (iLink < 24 && pfPartsB.size() > iLink) {
-            data |= ((uint64_t)floor(pfPartsB.at(iLink).pt() / ptLSB_) & 0xffff);
-            data |= ((uint64_t)floor(pfPartsB.at(iLink).phi() / phiLSB_) & 0x3ff) << bit_shift_phi;
-            data |= ((uint64_t)floor((pfPartsB.at(iLink).eta() - eta_first_region_boundary) / etaLSB_) & 0x3ff)
+            data |= ((uint64_t)floor(pfPartsB.at(iLink).pt() / ptLSB) & hash_bitmask_16);
+            data |= ((uint64_t)floor(pfPartsB.at(iLink).phi() / phiLSB) & hash_bitmask_10) << bit_shift_phi;
+            data |= ((uint64_t)floor((pfPartsB.at(iLink).eta() - eta_first_region_boundary) / etaLSB) & hash_bitmask_10)
                     << bit_shift_eta;
           }
         }
