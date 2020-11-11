@@ -203,7 +203,7 @@ void SiPixelEDAClient::dqmEndLuminosityBlock(DQMStore::IBooker &iBooker,
           nFEDs_ += mefed->getBinContent(i + 1);
       }
     }
-    theCablingMap = eSetup.getHandle(cablingMapToken_);
+    theCablingMap = *(eSetup.getHandle(cablingMapToken_).product());
 
     firstLumi = false;
   }
@@ -235,11 +235,11 @@ void SiPixelEDAClient::dqmEndLuminosityBlock(DQMStore::IBooker &iBooker,
     init = true;
     iBooker.cd();
     iGetter.cd();
-    sipixelDataQuality_->fillGlobalQualityPlot(iBooker, iGetter, init, theCablingMap, nFEDs_, Tier0Flag_, nLumiSecs_);
+    sipixelDataQuality_->fillGlobalQualityPlot(iBooker, iGetter, init, &theCablingMap, nFEDs_, Tier0Flag_, nLumiSecs_);
     init = true;
     if (noiseRate_ >= 0.)
       sipixelInformationExtractor_->findNoisyPixels(
-          iBooker, iGetter, init, noiseRate_, noiseRateDenominator_, theCablingMap);
+          iBooker, iGetter, init, noiseRate_, noiseRateDenominator_, &theCablingMap);
   }
 
   // cout<<"...leaving SiPixelEDAClient::endLuminosityBlock. "<<endl;
@@ -274,10 +274,10 @@ void SiPixelEDAClient::dqmEndJob(DQMStore::IBooker &iBooker, DQMStore::IGetter &
     iBooker.cd();
     iGetter.cd();
 
-    sipixelDataQuality_->fillGlobalQualityPlot(iBooker, iGetter, init, theCablingMap, nFEDs_, Tier0Flag_, nLumiSecs_);
+    sipixelDataQuality_->fillGlobalQualityPlot(iBooker, iGetter, init, &theCablingMap, nFEDs_, Tier0Flag_, nLumiSecs_);
     init = true;
     if (noiseRate_ >= 0.)
       sipixelInformationExtractor_->findNoisyPixels(
-          iBooker, iGetter, init, noiseRate_, noiseRateDenominator_, theCablingMap);
+          iBooker, iGetter, init, noiseRate_, noiseRateDenominator_, &theCablingMap);
   }
 }
