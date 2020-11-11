@@ -212,7 +212,6 @@ def nanoAOD_recalibrateMETs(process,isData):
         table.variables.muonSubtrFactor = Var("1-userFloat('muonSubtrRawPt')/(pt()*jecFactor('Uncorrected'))",float,doc="1-(muon-subtracted raw pt)/(raw pt)",precision=6)
     process.metTables += process.corrT1METJetTable
 #    makePuppiesFromMiniAOD(process,True) # call this before in the global customizer otherwise it would reset photon IDs in VID
-    runMetCorAndUncFromMiniAOD(process,isData=isData,metType="Puppi",postfix="Puppi",jetFlavor="AK4PFPuppi")
     nanoAOD_PuppiV15_switch = cms.PSet(
             recoMetFromPFCs = cms.untracked.bool(False),
             reclusterJets = cms.untracked.bool(False),
