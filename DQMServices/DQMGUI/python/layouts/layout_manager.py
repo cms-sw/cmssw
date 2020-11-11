@@ -1,7 +1,7 @@
 from collections import namedtuple
 
 
-def register_layout(source, destination, name='default'):
+def register_layout(source, destination, name='default', description=None, overlay=None):
     LayoutManager.add_layout(Layout(source, destination, name))
 
 
@@ -28,4 +28,4 @@ class LayoutManager:
 
 
 # Name has a default value
-Layout = namedtuple('Layout', ['source', 'destination', 'name'], defaults=['default'])
+Layout = namedtuple('Layout', ['source', 'destination', 'name', 'description', 'overlay'], defaults=['default'])
