@@ -16,6 +16,7 @@
 #include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 
 #include "RecoBTag/ONNXRuntime/interface/tensor_fillers.h"
+#include "RecoBTag/ONNXRuntime/interface/tensor_configs.h"
 
 using namespace cms::Ort;
 
@@ -46,11 +47,11 @@ private:
   const double max_jet_eta_;
 
   enum InputIndexes { kGlobal = 0, kSeedingTracks = 1, kNeighbourTracks = 2 };
-  constexpr static unsigned n_features_global_ = 4;
-  constexpr static unsigned n_seed_ = 10;
-  constexpr static unsigned n_features_seed_ = 21;
-  constexpr static unsigned n_neighbor_ = 20;
-  constexpr static unsigned n_features_neighbor_ = 36;
+  const static unsigned n_features_global_ = deepvertex::n_features_global;
+  const static unsigned n_seed_ = deepvertex::n_seed;
+  const static unsigned n_features_seed_ = deepvertex::n_features_seed;
+  const static unsigned n_neighbor_ = deepvertex::n_neighbor;
+  const static unsigned n_features_neighbor_ = deepvertex::n_features_neighbor;
 
   const static std::vector<unsigned> input_sizes_;
 
@@ -128,11 +129,14 @@ void DeepVertexONNXJetTagsProducer::produce(edm::Event& iEvent, const edm::Event
 
   std::vector<std::unique_ptr<JetTagCollection>> output_tags;
   if (!tag_infos->empty()) {
-    unsigned int good_taginfo_count = 0;
+    unsigned good_taginfo_count = 0;
+    std::vector<bool> good_taginfo_jets(tag_infos->size(), false);
     for (unsigned jet_n = 0; jet_n < tag_infos->size(); ++jet_n) {
       const auto& jet_ref = (*tag_infos)[jet_n].jet();
-      if (jet_ref->pt() > min_jet_pt_ && std::fabs(jet_ref->eta()) < max_jet_eta_)
+      if (jet_ref->pt() > min_jet_pt_ && std::fabs(jet_ref->eta()) < max_jet_eta_) {
         good_taginfo_count++;
+        good_taginfo_jets[jet_n] = true;
+      }
     }
 
     // init data storage w correct size
@@ -148,10 +152,9 @@ void DeepVertexONNXJetTagsProducer::produce(edm::Event& iEvent, const edm::Event
     }
 
     // convert inputs
-    unsigned int inputs_done_count = 0;
+    unsigned inputs_done_count = 0;
     for (unsigned jet_n = 0; jet_n < tag_infos->size(); ++jet_n) {
-      const auto& jet_ref = (*tag_infos)[jet_n].jet();
-      if (jet_ref->pt() > min_jet_pt_ && std::fabs(jet_ref->eta()) < max_jet_eta_) {
+      if (good_taginfo_jets[jet_n]) {
         const auto& taginfo = (*tag_infos)[jet_n];
         make_inputs(inputs_done_count, taginfo);
         inputs_done_count++;
@@ -168,11 +171,12 @@ void DeepVertexONNXJetTagsProducer::produce(edm::Event& iEvent, const edm::Event
     for (unsigned jet_n = 0; jet_n < tag_infos->size(); ++jet_n) {
       const auto& jet_ref = (*tag_infos)[jet_n].jet();
       for (std::size_t flav_n = 0; flav_n < flav_names_.size(); flav_n++) {
-        if (jet_ref->pt() > min_jet_pt_ && std::fabs(jet_ref->eta()) < max_jet_eta_) {
+        if (good_taginfo_jets[jet_n]) {
           (*(output_tags[flav_n]))[jet_ref] = outputs[i_output];
           ++i_output;
-        } else
+        } else {
           (*(output_tags[flav_n]))[jet_ref] = -2;
+        }
       }
     }
   } else {
@@ -194,11 +198,10 @@ void DeepVertexONNXJetTagsProducer::make_inputs(unsigned i_jet, const reco::Deep
   const float* start = nullptr;
   unsigned offset = 0;
 
-  // jet and other global features
-  offset = i_jet * input_sizes_[kGlobal];
-  ptr = &data_[kGlobal][offset];
   // jet variables
+  offset = i_jet * input_sizes_[kGlobal];
   const auto& jet_features = features.jet_features;
+  ptr = &data_[kGlobal][offset];
   start = ptr;
   jet4vec_tensor_filler(ptr, jet_features);
   assert(start + n_features_global_ - 1 == ptr);
