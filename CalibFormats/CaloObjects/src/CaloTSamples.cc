@@ -1,6 +1,6 @@
 #include "CalibFormats/CaloObjects/interface/CaloTSamplesBase.icc"
 #include "CalibFormats/CaloObjects/interface/CaloTSamples.icc"
-#include "CondFormats/EcalObjects/interface/EcalConstants.h"
+#include "DataFormats/EcalDigi/interface/EcalConstants.h"
 
 template class CaloTSamplesBase<float>;
 

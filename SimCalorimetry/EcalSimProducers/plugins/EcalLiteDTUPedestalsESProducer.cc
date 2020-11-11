@@ -8,7 +8,7 @@
 #include "CondFormats/DataRecord/interface/EcalLiteDTUPedestalsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalLiteDTUPedestals.h"
 #include "CondFormats/EcalObjects/src/classes.h"
-#include "CondFormats/EcalObjects/interface/EcalConstants.h"
+#include "DataFormats/EcalDigi/interface/EcalConstants.h"
 
 //
 // class declaration

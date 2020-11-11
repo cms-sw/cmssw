@@ -8,7 +8,7 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
-#include "CondFormats/EcalObjects/interface/EcalConstants.h"
+#include "DataFormats/EcalDigi/interface/EcalConstants.h"
 
 #include <unordered_map>
 #include <vector>

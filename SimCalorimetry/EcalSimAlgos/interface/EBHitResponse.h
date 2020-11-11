@@ -4,7 +4,7 @@
 #include "CalibFormats/CaloObjects/interface/CaloTSamples.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalHitResponse.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
-#include "CondFormats/EcalObjects/interface/EcalConstants.h"
+#include "DataFormats/EcalDigi/interface/EcalConstants.h"
 
 class APDSimParameters;
 

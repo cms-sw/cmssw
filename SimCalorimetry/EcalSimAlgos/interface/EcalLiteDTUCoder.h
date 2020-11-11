@@ -6,7 +6,7 @@
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
 #include "CondFormats/EcalObjects/interface/EcalCATIAGainRatios.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalCorrelatedNoiseMatrix.h"
-#include "CondFormats/EcalObjects/interface/EcalConstants.h"
+#include "DataFormats/EcalDigi/interface/EcalConstants.h"
 
 template <typename M>
 class CorrelatedNoisifier;

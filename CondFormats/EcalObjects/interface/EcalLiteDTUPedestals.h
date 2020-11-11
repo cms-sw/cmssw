@@ -3,7 +3,7 @@
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include "CondFormats/EcalObjects/interface/EcalCondObjectContainer.h"
-#include "CondFormats/EcalObjects/interface/EcalConstants.h"
+#include "DataFormats/EcalDigi/interface/EcalConstants.h"
 
 class EcalLiteDTUPedestals {
 public:
