@@ -220,7 +220,8 @@ namespace tnp {
 
     mutable float mPVx_, mPVy_, mPVz_, mBSx_, mBSy_, mBSz_;
     mutable float rho_;
-    mutable float mMET_, mSumET_, mMETSign_, mtcMET_, mtcSumET_, mtcMETSign_, mpfMET_, mpfSumET_, mpfMETSign_, mpfPhi_, lhe_ht_;
+    mutable float mMET_, mSumET_, mMETSign_, mtcMET_, mtcSumET_, mtcMETSign_, mpfMET_, mpfSumET_, mpfMETSign_, mpfPhi_,
+        lhe_ht_;
   };
 
 }  // namespace tnp

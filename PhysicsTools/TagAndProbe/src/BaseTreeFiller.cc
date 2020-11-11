@@ -53,7 +53,7 @@ tnp::BaseTreeFiller::BaseTreeFiller(const char *name, const edm::ParameterSet &i
     tree_->Branch("weight", &weight_, "weight/F");
     tree_->Branch("totWeight", &totWeight_, "totWeight/F");
   }
-  
+
   LHEinfo_ = iConfig.existsAs<edm::InputTag>("LHEWeightSrc");
   if (LHEinfo_) {
     _LHECollection = iC.consumes<LHEEventProduct>(iConfig.getParameter<edm::InputTag>("LHEWeightSrc"));
@@ -203,7 +203,7 @@ void tnp::BaseTreeFiller::init(const edm::Event &iEvent) const {
     it->init(iEvent);
   }
   for (int i = 0; i < 5; i++) {
-    psWeight_[i] = 1.; // init
+    psWeight_[i] = 1.;  // init
   }
   if (weightMode_ == External) {
     // edm::Handle<double> weight;
@@ -224,21 +224,21 @@ void tnp::BaseTreeFiller::init(const edm::Event &iEvent) const {
   }
 
   for (unsigned int i = 0; i < 9; i++) {
-    lheWeight_ [i] = 1.; // init
+    lheWeight_[i] = 1.;  // init
   }
   lhe_ht_ = 0.;
   if (LHEinfo_ and !_LHECollection.isUninitialized()) {
     edm::Handle<LHEEventProduct> lheEventHandle;
     iEvent.getByToken(_LHECollection, lheEventHandle);
     for (unsigned int i = 0; i < 9; i++) {
-      lheWeight_ [i] = lheEventHandle->weights().at(i).wgt / lheEventHandle->originalXWGTUP();
+      lheWeight_[i] = lheEventHandle->weights().at(i).wgt / lheEventHandle->originalXWGTUP();
     }
     for (int i = 0; i < lheEventHandle->hepeup().NUP; i++) {
       int id = lheEventHandle->hepeup().IDUP[i];
       int st = lheEventHandle->hepeup().ISTUP[i];
 
       // calculate HT at LHE level
-      if( ( abs(id) < 6 || id == 21 )  && st > 0 ) {
+      if ((abs(id) < 6 || id == 21) && st > 0) {
         lhe_ht_ += sqrt(pow(lheEventHandle->hepeup().PUP[i][0], 2) + pow(lheEventHandle->hepeup().PUP[i][1], 2));
       }
     }
