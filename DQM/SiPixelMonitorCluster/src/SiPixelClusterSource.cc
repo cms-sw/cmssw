@@ -22,6 +22,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 // DQM Framework
 #include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -339,7 +340,7 @@ void SiPixelClusterSource::buildStructure(const edm::EventSetup &iSetup) {
           int layer = PixelBarrelName(DetId(id), pTT, isUpgrade).layerName();
           if (layer > noOfLayers)
             noOfLayers = layer;
-          SiPixelClusterModule *theModule = new SiPixelClusterModule(id, ncols, nrows);
+          SiPixelClusterModule *theModule = new SiPixelClusterModule(consumesCollector(), id, ncols, nrows);
           thePixelStructure.insert(pair<uint32_t, SiPixelClusterModule *>(id, theModule));
         } else if (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
           LogDebug("PixelDQM") << " ---> Adding Endcap Module " << detId.rawId() << endl;
@@ -369,7 +370,7 @@ void SiPixelClusterSource::buildStructure(const edm::EventSetup &iSetup) {
           mask = false;
           if (isPIB && mask)
             continue;
-          SiPixelClusterModule *theModule = new SiPixelClusterModule(id, ncols, nrows);
+          SiPixelClusterModule *theModule = new SiPixelClusterModule(consumesCollector(), id, ncols, nrows);
           thePixelStructure.insert(pair<uint32_t, SiPixelClusterModule *>(id, theModule));
         }
       }
