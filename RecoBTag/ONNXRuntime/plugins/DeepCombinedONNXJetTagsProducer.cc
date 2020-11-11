@@ -16,6 +16,7 @@
 #include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 
 #include "RecoBTag/ONNXRuntime/interface/tensor_fillers.h"
+#include "RecoBTag/ONNXRuntime/interface/tensor_configs.h"
 
 using namespace cms::Ort;
 
@@ -54,18 +55,18 @@ private:
     kSeedingTracks = 5,
     kNeighbourTracks = 6
   };
-  constexpr static unsigned n_features_global_ = 15;
-  constexpr static unsigned n_cpf_ = 25;
-  constexpr static unsigned n_features_cpf_ = 16;
-  constexpr static unsigned n_npf_ = 25;
-  constexpr static unsigned n_features_npf_ = 6;
-  constexpr static unsigned n_sv_ = 4;
-  constexpr static unsigned n_features_sv_ = 12;
-  constexpr static unsigned n_features_global1_ = 4;
-  constexpr static unsigned n_seed_ = 10;
-  constexpr static unsigned n_features_seed_ = 21;
-  constexpr static unsigned n_neighbor_ = 20;
-  constexpr static unsigned n_features_neighbor_ = 36;
+  const static unsigned n_features_global_ = deepflavour::n_features_global;
+  const static unsigned n_cpf_ = deepflavour::n_cpf;
+  const static unsigned n_features_cpf_ = deepflavour::n_features_cpf;
+  const static unsigned n_npf_ = deepflavour::n_npf;
+  const static unsigned n_features_npf_ = deepflavour::n_features_npf;
+  const static unsigned n_sv_ = deepflavour::n_sv;
+  const static unsigned n_features_sv_ = deepflavour::n_features_sv;
+  const static unsigned n_features_global1_ = deepvertex::n_features_global;
+  const static unsigned n_seed_ = deepvertex::n_seed;
+  const static unsigned n_features_seed_ = deepvertex::n_features_seed;
+  const static unsigned n_neighbor_ = deepvertex::n_neighbor;
+  const static unsigned n_features_neighbor_ = deepvertex::n_features_neighbor;
 
   const static std::vector<unsigned> input_sizes_;
 
@@ -153,11 +154,14 @@ void DeepCombinedONNXJetTagsProducer::produce(edm::Event& iEvent, const edm::Eve
 
   std::vector<std::unique_ptr<JetTagCollection>> output_tags;
   if (!tag_infos->empty()) {
-    unsigned int good_taginfo_count = 0;
+    unsigned good_taginfo_count = 0;
+    std::vector<bool> good_taginfo_jets(tag_infos->size(), false);
     for (unsigned jet_n = 0; jet_n < tag_infos->size(); ++jet_n) {
       const auto& jet_ref = (*tag_infos)[jet_n].jet();
-      if (jet_ref->pt() > min_jet_pt_ && std::fabs(jet_ref->eta()) < max_jet_eta_)
+      if (jet_ref->pt() > min_jet_pt_ && std::fabs(jet_ref->eta()) < max_jet_eta_) {
         good_taginfo_count++;
+        good_taginfo_jets[jet_n] = true;
+      }
     }
 
     // init data storage w correct size
@@ -173,10 +177,9 @@ void DeepCombinedONNXJetTagsProducer::produce(edm::Event& iEvent, const edm::Eve
     }
 
     // convert inputs
-    unsigned int inputs_done_count = 0;
+    unsigned inputs_done_count = 0;
     for (unsigned jet_n = 0; jet_n < tag_infos->size(); ++jet_n) {
-      const auto& jet_ref = (*tag_infos)[jet_n].jet();
-      if (jet_ref->pt() > min_jet_pt_ && std::fabs(jet_ref->eta()) < max_jet_eta_) {
+      if (good_taginfo_jets[jet_n]) {
         const auto& taginfo = (*tag_infos)[jet_n];
         make_inputs(inputs_done_count, taginfo);
         inputs_done_count++;
@@ -193,11 +196,12 @@ void DeepCombinedONNXJetTagsProducer::produce(edm::Event& iEvent, const edm::Eve
     for (unsigned jet_n = 0; jet_n < tag_infos->size(); ++jet_n) {
       const auto& jet_ref = (*tag_infos)[jet_n].jet();
       for (std::size_t flav_n = 0; flav_n < flav_names_.size(); flav_n++) {
-        if (jet_ref->pt() > min_jet_pt_ && std::fabs(jet_ref->eta()) < max_jet_eta_) {
+        if (good_taginfo_jets[jet_n]) {
           (*(output_tags[flav_n]))[jet_ref] = outputs[i_output];
           ++i_output;
-        } else
+        } else {
           (*(output_tags[flav_n]))[jet_ref] = -2;
+        }
       }
     }
   } else {
@@ -222,27 +226,8 @@ void DeepCombinedONNXJetTagsProducer::make_inputs(unsigned i_jet, const reco::De
   // jet and other global features
   offset = i_jet * input_sizes_[kGlobal];
   ptr = &data_[kGlobal][offset];
-  // jet variables
-  const auto& jet_features = features.jet_features;
   start = ptr;
-  *ptr = jet_features.pt;
-  *(++ptr) = jet_features.eta;
-  // number of elements in different collections
-  *(++ptr) = features.c_pf_features.size();
-  *(++ptr) = features.n_pf_features.size();
-  *(++ptr) = features.sv_features.size();
-  *(++ptr) = features.npv;
-  // variables from ShallowTagInfo
-  const auto& tag_info_features = features.tag_info_features;
-  *(++ptr) = tag_info_features.trackSumJetEtRatio;
-  *(++ptr) = tag_info_features.trackSumJetDeltaR;
-  *(++ptr) = tag_info_features.vertexCategory;
-  *(++ptr) = tag_info_features.trackSip2dValAboveCharm;
-  *(++ptr) = tag_info_features.trackSip2dSigAboveCharm;
-  *(++ptr) = tag_info_features.trackSip3dValAboveCharm;
-  *(++ptr) = tag_info_features.trackSip3dSigAboveCharm;
-  *(++ptr) = tag_info_features.jetNSelectedTracks;
-  *(++ptr) = tag_info_features.jetNTracksEtaRel;
+  jet_tensor_filler(ptr, features);
   assert(start + n_features_global_ - 1 == ptr);
 
   // c_pf candidates
@@ -252,22 +237,7 @@ void DeepCombinedONNXJetTagsProducer::make_inputs(unsigned i_jet, const reco::De
     const auto& c_pf_features = features.c_pf_features[c_pf_n];
     ptr = &data_[kChargedCandidates][offset + c_pf_n * n_features_cpf_];
     start = ptr;
-    *ptr = c_pf_features.btagPf_trackEtaRel;
-    *(++ptr) = c_pf_features.btagPf_trackPtRel;
-    *(++ptr) = c_pf_features.btagPf_trackPPar;
-    *(++ptr) = c_pf_features.btagPf_trackDeltaR;
-    *(++ptr) = c_pf_features.btagPf_trackPParRatio;
-    *(++ptr) = c_pf_features.btagPf_trackSip2dVal;
-    *(++ptr) = c_pf_features.btagPf_trackSip2dSig;
-    *(++ptr) = c_pf_features.btagPf_trackSip3dVal;
-    *(++ptr) = c_pf_features.btagPf_trackSip3dSig;
-    *(++ptr) = c_pf_features.btagPf_trackJetDistVal;
-    *(++ptr) = c_pf_features.ptrel;
-    *(++ptr) = c_pf_features.drminsv;
-    *(++ptr) = c_pf_features.vtx_ass;
-    *(++ptr) = c_pf_features.puppiw;
-    *(++ptr) = c_pf_features.chi2;
-    *(++ptr) = c_pf_features.quality;
+    cpf_tensor_filler(ptr, c_pf_features);
     assert(start + n_features_cpf_ - 1 == ptr);
   }
 
@@ -278,12 +248,7 @@ void DeepCombinedONNXJetTagsProducer::make_inputs(unsigned i_jet, const reco::De
     const auto& n_pf_features = features.n_pf_features[n_pf_n];
     ptr = &data_[kNeutralCandidates][offset + n_pf_n * n_features_npf_];
     start = ptr;
-    *ptr = n_pf_features.ptrel;
-    *(++ptr) = n_pf_features.deltaR;
-    *(++ptr) = n_pf_features.isGamma;
-    *(++ptr) = n_pf_features.hadFrac;
-    *(++ptr) = n_pf_features.drminsv;
-    *(++ptr) = n_pf_features.puppiw;
+    npf_tensor_filler(ptr, n_pf_features);
     assert(start + n_features_npf_ - 1 == ptr);
   }
 
@@ -294,23 +259,13 @@ void DeepCombinedONNXJetTagsProducer::make_inputs(unsigned i_jet, const reco::De
     const auto& sv_features = features.sv_features[sv_n];
     ptr = &data_[kVertices][offset + sv_n * n_features_sv_];
     start = ptr;
-    *ptr = sv_features.pt;
-    *(++ptr) = sv_features.deltaR;
-    *(++ptr) = sv_features.mass;
-    *(++ptr) = sv_features.ntracks;
-    *(++ptr) = sv_features.chi2;
-    *(++ptr) = sv_features.normchi2;
-    *(++ptr) = sv_features.dxy;
-    *(++ptr) = sv_features.dxysig;
-    *(++ptr) = sv_features.d3d;
-    *(++ptr) = sv_features.d3dsig;
-    *(++ptr) = sv_features.costhetasvpv;
-    *(++ptr) = sv_features.enratio;
+    sv_tensor_filler(ptr, sv_features);
     assert(start + n_features_sv_ - 1 == ptr);
   }
 
-  // jet and other global features
+  // jet variables
   offset = i_jet * input_sizes_[kGlobal1];
+  const auto& jet_features = features.jet_features;
   ptr = &data_[kGlobal1][offset];
   start = ptr;
   jet4vec_tensor_filler(ptr, jet_features);
