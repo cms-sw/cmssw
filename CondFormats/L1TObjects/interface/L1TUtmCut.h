@@ -7,37 +7,22 @@
  * Created:     8 Nov 2015
  */
 
-/** @todo nope */
-
 #ifndef tmEventSetup_L1TUtmCut_hh
 #define tmEventSetup_L1TUtmCut_hh
 
-/*====================================================================*
- * declarations
- *====================================================================*/
-/*-----------------------------------------------------------------*
- * headers
- *-----------------------------------------------------------------*/
-#include <string>
+#include "CondFormats/L1TObjects/interface/L1TUtmCutValue.h"
 #include "CondFormats/Serialization/interface/Serializable.h"
 
-#include "CondFormats/L1TObjects/interface/L1TUtmCutValue.h"
-
-/*-----------------------------------------------------------------*
- * constants
- *-----------------------------------------------------------------*/
-/* nope */
+#include <string>
 
 /**
  *  This class implements data structure for Cut
  */
 class L1TUtmCut {
 public:
-  // ctor
   L1TUtmCut() : name_(), object_type_(), cut_type_(), minimum_(), maximum_(), data_(), key_(), version(0){};
 
-  // dtor
-  virtual ~L1TUtmCut(){};
+  virtual ~L1TUtmCut() = default;
 
   /** set cut name */
   void setName(const std::string& name) { name_ = name; };
@@ -114,11 +99,10 @@ protected:
   int cut_type_;           /**< type of cut */
   L1TUtmCutValue minimum_; /**< minimum value of cut range */
   L1TUtmCutValue maximum_; /**< maximum value of cut range */
-  std::string data_;       /**< data for charge/quality/isolation/charge correlation */
+  std::string data_;       /**< data for charge/quality/isolation/charge correlation/impact parameter */
   std::string key_;        /**< key for accessing a scale */
   unsigned int version;
   COND_SERIALIZABLE;
 };
 
 #endif  // tmEventSetup_L1TUtmCut_hh
-/* eof */
