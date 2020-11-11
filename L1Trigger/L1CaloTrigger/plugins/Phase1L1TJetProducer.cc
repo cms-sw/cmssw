@@ -45,6 +45,8 @@ Description: Produces jets with a phase-1 like sliding window algorithm using a 
 
 #include "TH2F.h"
 
+#include <cmath>
+
 #include <algorithm>
 constexpr int x_scroll_min = -4;
 constexpr int x_scroll_max = 4;
@@ -62,18 +64,18 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   /// Finds the seeds in the caloGrid, seeds are saved in a vector that contain the index in the TH2F of each seed
-  const std::vector<std::tuple<int, int>> findSeeds(float seedThreshold);
+  std::vector<std::tuple<int, int>> findSeeds(float seedThreshold) const;
 
-  const std::vector<reco::CaloJet> _buildJetsFromSeedsWithPUSubtraction(const std::vector<std::tuple<int, int>>& seeds,
-                                                                        bool killZeroPt);
-  const std::vector<reco::CaloJet> _buildJetsFromSeeds(const std::vector<std::tuple<int, int>>& seeds);
+  std::vector<reco::CaloJet> _buildJetsFromSeedsWithPUSubtraction(const std::vector<std::tuple<int, int>>& seeds,
+                                                                  bool killZeroPt) const;
+  std::vector<reco::CaloJet> _buildJetsFromSeeds(const std::vector<std::tuple<int, int>>& seeds) const;
 
-  const void subtract9x9Pileup(reco::CaloJet& jet);
+  void subtract9x9Pileup(reco::CaloJet& jet) const;
 
   /// Get the energy of a certain tower while correctly handling phi periodicity in case of overflow
-  const float getTowerEnergy(int iEta, int iPhi);
+  float getTowerEnergy(int iEta, int iPhi) const;
 
-  const reco::CaloJet buildJetFromSeed(const std::tuple<int, int>& seed);
+  reco::CaloJet buildJetFromSeed(const std::tuple<int, int>& seed) const;
 
   // <3 handy method to fill the calogrid with whatever type
   template <class Container>
@@ -121,7 +123,7 @@ Phase1L1TJetProducer::Phase1L1TJetProducer(const edm::ParameterSet& iConfig)
 
 Phase1L1TJetProducer::~Phase1L1TJetProducer() {}
 
-const float Phase1L1TJetProducer::getTowerEnergy(int iEta, int iPhi) {
+float Phase1L1TJetProducer::getTowerEnergy(int iEta, int iPhi) const {
   // We return the pt of a certain bin in the calo grid, taking account of the phi periodicity when overflowing (e.g. phi > phiSize), and returning 0 for the eta out of bounds
 
   int nBinsEta = caloGrid_->GetNbinsX();
@@ -163,7 +165,7 @@ void Phase1L1TJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   return;
 }
 
-const void Phase1L1TJetProducer::subtract9x9Pileup(reco::CaloJet& jet) {
+void Phase1L1TJetProducer::subtract9x9Pileup(reco::CaloJet& jet) const {
   // these variables host the total pt in each sideband and the total pileup contribution
   float topBandPt = 0;
   float leftBandPt = 0;
@@ -210,7 +212,7 @@ const void Phase1L1TJetProducer::subtract9x9Pileup(reco::CaloJet& jet) {
   return;
 }
 
-const std::vector<std::tuple<int, int>> Phase1L1TJetProducer::findSeeds(float seedThreshold) {
+std::vector<std::tuple<int, int>> Phase1L1TJetProducer::findSeeds(float seedThreshold) const {
   int nBinsX = caloGrid_->GetNbinsX();
   int nBinsY = caloGrid_->GetNbinsY();
 
@@ -260,7 +262,7 @@ const std::vector<std::tuple<int, int>> Phase1L1TJetProducer::findSeeds(float se
   return seeds;
 }
 
-const reco::CaloJet Phase1L1TJetProducer::buildJetFromSeed(const std::tuple<int, int>& seed) {
+reco::CaloJet Phase1L1TJetProducer::buildJetFromSeed(const std::tuple<int, int>& seed) const {
   int iEta = std::get<0>(seed);
   int iPhi = std::get<1>(seed);
 
@@ -285,8 +287,8 @@ const reco::CaloJet Phase1L1TJetProducer::buildJetFromSeed(const std::tuple<int,
   return jet;
 }
 
-const std::vector<reco::CaloJet> Phase1L1TJetProducer::_buildJetsFromSeedsWithPUSubtraction(
-    const std::vector<std::tuple<int, int>>& seeds, bool killZeroPt) {
+std::vector<reco::CaloJet> Phase1L1TJetProducer::_buildJetsFromSeedsWithPUSubtraction(
+    const std::vector<std::tuple<int, int>>& seeds, bool killZeroPt) const {
   // For each seed take a grid centered on the seed of the size specified by the user
   // Sum the pf in the grid, that will be the pt of the l1t jet. Eta and phi of the jet is taken from the seed.
   std::vector<reco::CaloJet> jets;
@@ -301,8 +303,8 @@ const std::vector<reco::CaloJet> Phase1L1TJetProducer::_buildJetsFromSeedsWithPU
   return jets;
 }
 
-const std::vector<reco::CaloJet> Phase1L1TJetProducer::_buildJetsFromSeeds(
-    const std::vector<std::tuple<int, int>>& seeds) {
+std::vector<reco::CaloJet> Phase1L1TJetProducer::_buildJetsFromSeeds(
+    const std::vector<std::tuple<int, int>>& seeds) const {
   // For each seed take a grid centered on the seed of the size specified by the user
   // Sum the pf in the grid, that will be the pt of the l1t jet. Eta and phi of the jet is taken from the seed.
   std::vector<reco::CaloJet> jets;
@@ -321,15 +323,22 @@ void Phase1L1TJetProducer::fillCaloGrid(TH2F& caloGrid, const Container& trigger
                   static_cast<float>(primitiveIterator.phi()),
                   static_cast<float>(primitiveIterator.pt()));
   }
-  return;
 }
 
 void Phase1L1TJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.add<edm::InputTag>("inputCollectionTag", edm::InputTag("l1pfCandidates", "Puppi"));
+  desc.add<std::vector<double>>("etaBinning");
+  desc.add<unsigned int>("nBinsPhi", 72);
+  desc.add<double>("phiLow", -M_PI);
+  desc.add<double>("phiUp", M_PI);
+  desc.add<unsigned int>("jetIEtaSize", 7);
+  desc.add<unsigned int>("jetIPhiSize", 7);
+  desc.add<double>("seedPtThreshold", 5);
+  desc.add<bool>("puSubtraction", false);
+  desc.add<string>("outputCollectionName", "UncalibratedPhase1L1TJetFromPfCandidates");
+  desc.add<bool>("vetoZeroPt", true);
+  descriptions.add("Phase1L1TJetProducer", desc);
 }
 
 DEFINE_FWK_MODULE(Phase1L1TJetProducer);
