@@ -15,7 +15,7 @@ process.source = cms.Source("EmptyIOVSource",
                             )
 
 process.RPCGeometryWriter = cms.EDAnalyzer("RPCRecoIdealDBLoader",
-                                           fromDD4Hep = cms.untracked.bool(True))
+                                           fromDD4Hep = cms.untracked.bool(False))
 
 process.CondDB.timetype = cms.untracked.string('runnumber')
 process.CondDB.connect = cms.string('sqlite_file:myfile.db')

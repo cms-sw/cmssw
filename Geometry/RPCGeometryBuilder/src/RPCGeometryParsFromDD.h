@@ -16,10 +16,10 @@
 
 class DDCompactView;
 class DDFilteredView;
-namespace cms { // DD4Hep
-   class DDFilteredView;
-   class DDCompactView;
-}
+namespace cms {  // DD4Hep
+  class DDFilteredView;
+  class DDCompactView;
+}  // namespace cms
 class RPCDetId;
 class RPCRoll;
 class MuonGeometryConstants;
@@ -34,6 +34,7 @@ public:
   void build(const DDCompactView* cview, const MuonGeometryConstants& muonConstants, RecoIdealGeometry& rgeo);
   // DD4Hep
   void build(const cms::DDCompactView* cview, const MuonGeometryConstants& muonConstants, RecoIdealGeometry& rgeo);
+
 private:
   // DD
   void buildGeometry(DDFilteredView& fview, const MuonGeometryConstants& muonConstants, RecoIdealGeometry& rgeo);
