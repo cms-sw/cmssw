@@ -3,7 +3,7 @@
 
 #include <iosfwd>
 #include <cstdint>
-#include "CondFormats/EcalObjects/interface/EcalConstants.h"
+#include "DataFormats/EcalDigi/interface/EcalConstants.h"
 
 namespace ecalLiteDTU {
   typedef uint16_t sample_type;
