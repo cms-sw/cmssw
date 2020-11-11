@@ -2870,7 +2870,8 @@ void PlotPropertyHist(const char* infile,
   std::string xtitl1 = "i#eta";
   std::string name2[5] = {"p0", "p1", "p2", "p3", "p4"};
   std::string xtitl2 = "p (GeV)";
-  std::string title1[5] = {"All Tracks", "Good Quality Tracks", "Selected Tracks", "Isolated Good Tracks", "Isolated MIP Tracks in ECAL"};
+  std::string title1[5] = {"Tracks with p=40:60 GeV", "Good Quality Tracks with p=40:60 GeV", "Selected Tracks with p=40:60 GeV", "Isolated Tracks with p=40:60 GeV", "Isolated Tracks with p=40:60 GeV and MIPS in ECAL"};
+  std::string title2[5] = {"All Tracks", "Good Quality Tracks", "Selected Tracks", "Isolated Tracks", "Isolated Tracks with MIPS in ECAL"};
   std::string ytitle = "Tracks";
 
   gStyle->SetCanvasBorderMode(0);
@@ -3011,9 +3012,15 @@ void PlotPropertyHist(const char* infile,
 	TPaveText* txt1 = new TPaveText(xmi, ymi, xmx, ymx, "blNDC");
 	txt1->SetFillColor(0);
 	if (text == "") {
-          sprintf(txt, "%s", title1[j].c_str());
+	  if (k == 0)
+	    sprintf(txt, "%s", title1[j].c_str());
+	  else
+	    sprintf(txt, "%s", title2[j].c_str());
 	} else {
-          sprintf(txt, "%s (%s)", title1[j].c_str(), text.c_str());
+	  if (k == 0)
+	    sprintf(txt, "%s (%s)", title1[j].c_str(), text.c_str());
+	  else
+	    sprintf(txt, "%s (%s)", title2[j].c_str(), text.c_str());
 	}
 	txt1->AddText(txt);
 	txt1->Draw("same");
