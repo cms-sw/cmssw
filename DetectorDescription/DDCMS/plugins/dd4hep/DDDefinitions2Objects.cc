@@ -2058,7 +2058,7 @@ static long load_dddefinition(Detector& det, xml_h element) {
 
     string fname = xml::DocumentHandler::system_path(element);
     bool open_geometry = dddef.hasChild(DD_CMU(open_geometry)) ? dddef.child(DD_CMU(open_geometry)) : true;
-    bool close_geometry = dddef.hasChild(DD_CMU(close_geometry)) ? dddef.hasChild(DD_CMU(close_geometry)) : false;
+    bool close_geometry = dddef.hasChild(DD_CMU(close_geometry)) ? dddef.hasChild(DD_CMU(close_geometry)) : true;
 
     xml_coll_t(dddef, _U(debug)).for_each(Converter<debug>(det, &context));
 
