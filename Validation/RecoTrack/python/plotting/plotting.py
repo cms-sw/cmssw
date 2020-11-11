@@ -2491,7 +2491,6 @@ class PlotGroup(object):
     def _save(self, canvas, saveFormat, prefix=None, postfix=None, single=False, directory=""):
         # Save the canvas to file and clear
         name = self._name
-        print('in _save, the directory+name is: ', directory+'/'+name)
         if not os.path.exists(directory+'/'+name):
             os.makedirs(directory+'/'+name)
         if prefix is not None:
