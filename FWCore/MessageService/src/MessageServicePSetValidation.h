@@ -109,8 +109,8 @@ namespace edm {
           return val;
         } catch (cms::Exception& e) {
           flaws_ << psetName << " PSet: \n"
-                << parameterLabel << " is declared but causes an exception when processed: \n"
-                << e.what() << "\n";
+                 << parameterLabel << " is declared but causes an exception when processed: \n"
+                 << e.what() << "\n";
           return val;
         }
       }  // check()
@@ -133,8 +133,8 @@ namespace edm {
         vString::const_iterator end = x.end();
         for (vString::const_iterator i = x.begin(); i != end; ++i) {
           flaws_ << psetName << " PSet: \n"
-                << (*i) << " is used as a " << type << "\n"
-                << "Usage of " << type << " is not recognized here\n";
+                 << (*i) << " is used as a " << type << "\n"
+                 << "Usage of " << type << " is not recognized here\n";
         }
         x = pset.template getParameterNamesForType<T>(true);
         end = x.end();
@@ -142,9 +142,9 @@ namespace edm {
           if ((*i) == "@service_type")
             continue;
           flaws_ << psetName << " PSet: \n"
-                << (*i) << " is used as a tracked " << type << "\n"
-                << "Tracked parameters not allowed here, "
-                << " and even untracked it would not be recognized\n";
+                 << (*i) << " is used as a tracked " << type << "\n"
+                 << "Tracked parameters not allowed here, "
+                 << " and even untracked it would not be recognized\n";
         }
       }  // noneExcept()
 
@@ -159,8 +159,8 @@ namespace edm {
           std::string val = (*i);
           if (val != ok) {
             flaws_ << psetName << " PSet: \n"
-                  << val << " is used as a " << type << "\n"
-                  << "This usage is not recognized in this type of PSet\n";
+                   << val << " is used as a " << type << "\n"
+                   << "This usage is not recognized in this type of PSet\n";
           }
         }
         x = pset.template getParameterNamesForType<T>(true);
@@ -169,8 +169,8 @@ namespace edm {
           if ((*i) == "@service_type")
             continue;
           flaws_ << psetName << " PSet: \n"
-                << (*i) << " is used as a tracked " << type << "\n"
-                << "Tracked parameters not allowed here\n";
+                 << (*i) << " is used as a tracked " << type << "\n"
+                 << "Tracked parameters not allowed here\n";
         }
       }  // noneExcept(okValue)
 
@@ -183,8 +183,8 @@ namespace edm {
           std::string val = (*i);
           if ((val != ok1) && (val != ok2)) {
             flaws_ << psetName << " PSet: \n"
-                  << val << " is used as a " << type << "\n"
-                  << "This usage is not recognized in this type of PSet\n";
+                   << val << " is used as a " << type << "\n"
+                   << "This usage is not recognized in this type of PSet\n";
           }
         }
         x = pset.template getParameterNamesForType<T>(true);
@@ -193,8 +193,8 @@ namespace edm {
           if ((*i) == "@service_type")
             continue;
           flaws_ << psetName << " PSet: \n"
-                << (*i) << " is used as a tracked " << type << "\n"
-                << "Tracked parameters not allowed here\n";
+                 << (*i) << " is used as a tracked " << type << "\n"
+                 << "Tracked parameters not allowed here\n";
         }
       }  // noneExcept(okValue1, okValue2)
 
@@ -214,8 +214,8 @@ namespace edm {
           }
           if (!found) {
             flaws_ << psetName << " PSet: \n"
-                  << *i << " is used as a " << type << "\n"
-                  << "This usage is not recognized in this type of PSet\n";
+                   << *i << " is used as a " << type << "\n"
+                   << "This usage is not recognized in this type of PSet\n";
           }
         }
         x = pset.template getParameterNamesForType<T>(true);
@@ -224,8 +224,8 @@ namespace edm {
           if ((*i) == "@service_type")
             continue;
           flaws_ << psetName << " PSet: \n"
-                << (*i) << " is used as a tracked " << type << "\n"
-                << "Tracked parameters not allowed here\n";
+                 << (*i) << " is used as a tracked " << type << "\n"
+                 << "Tracked parameters not allowed here\n";
         }
       }  // noneExcept(vok)
 
@@ -238,16 +238,16 @@ namespace edm {
         vString::const_iterator end = x.end();
         for (vString::const_iterator i = x.begin(); i != end; ++i) {
           flaws_ << categoryName << " category PSet nested in " << psetName << " PSet: \n"
-                << (*i) << " is used as a " << type << "\n"
-                << "Usage of " << type << " is not recognized here\n";
+                 << (*i) << " is used as a " << type << "\n"
+                 << "Usage of " << type << " is not recognized here\n";
         }
         x = pset.template getParameterNamesForType<T>(true);
         end = x.end();
         for (vString::const_iterator i = x.begin(); i != end; ++i) {
           flaws_ << categoryName << " category PSet nested in " << psetName << " PSet: \n"
-                << (*i) << " is used as a tracked " << type << "\n"
-                << "Tracked parameters not allowed here, "
-                << " and even untracked it would not be recognized\n";
+                 << (*i) << " is used as a tracked " << type << "\n"
+                 << "Tracked parameters not allowed here, "
+                 << " and even untracked it would not be recognized\n";
         }
       }  // catNone()
 
