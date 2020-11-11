@@ -15,9 +15,9 @@ HGCScintillatorDetId::HGCScintillatorDetId(int type, int layer, int radius, int 
   int itrig = trigger ? 1 : 0;
   int radiusAbs = std::abs(radius);
   id_ |= (((type & kHGCalTypeMask) << kHGCalTypeOffset) | ((zside & kHGCalZsideMask) << kHGCalZsideOffset) |
-	  ((sipm & kHGCalSiPMMask) << kHGCalSiPMOffset) |
-          ((itrig & kHGCalTriggerMask) << kHGCalTriggerOffset) | ((layer & kHGCalLayerMask) << kHGCalLayerOffset) |
-          ((radiusAbs & kHGCalRadiusMask) << kHGCalRadiusOffset) | ((phi & kHGCalPhiMask) << kHGCalPhiOffset));
+          ((sipm & kHGCalSiPMMask) << kHGCalSiPMOffset) | ((itrig & kHGCalTriggerMask) << kHGCalTriggerOffset) |
+          ((layer & kHGCalLayerMask) << kHGCalLayerOffset) | ((radiusAbs & kHGCalRadiusMask) << kHGCalRadiusOffset) |
+          ((phi & kHGCalPhiMask) << kHGCalPhiOffset));
 }
 
 HGCScintillatorDetId::HGCScintillatorDetId(const DetId& gen) {
@@ -112,6 +112,7 @@ HGCScintillatorDetId HGCScintillatorDetId::triggerCell() const {
 
 std::ostream& operator<<(std::ostream& s, const HGCScintillatorDetId& id) {
   return s << " HGCScintillatorDetId::EE:HE= " << id.isEE() << ":" << id.isHE() << " trigger= " << id.trigger()
-           << " type= " << id.type() << " SiPM= " << id.sipm() << " layer= " << id.layer() << " radius= " << id.iradius() << ":"
-           << id.iradiusTrigger() << " phi= " << id.iphi() << ":" << id.iphiTrigger();
+           << " type= " << id.type() << " SiPM= " << id.sipm() << " layer= " << id.layer()
+           << " radius= " << id.iradius() << ":" << id.iradiusTrigger() << " phi= " << id.iphi() << ":"
+           << id.iphiTrigger();
 }
