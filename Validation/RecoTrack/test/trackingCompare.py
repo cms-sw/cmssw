@@ -73,7 +73,7 @@ limitSubFolders = {
     "":                limit,  # The default set (signal TrackingParticles for efficiency, all TrackingParticles for fakes)
     "tpPtLess09":      limit,  # Efficiency for TrackingParticles with pT < 0.9 GeV
     "tpEtaGreater2p7": limit,  # Efficiency for TrackingParticles with |eta| > 2.7 (phase 2)
-    "tpDisplaced":     limit,  # Efficiency for TrackingParticles with no tip or lip cuts
+    "displaced":       limit,  # Efficiency for TrackingParticles with no tip or lip cuts
     "allTPEffic":      ignore, # Efficiency with all TrackingParticles
     "bhadron":         limit,  # Efficiency with B-hadron TrackingParticles
     "fromPV":          limit,  # Tracks from PV, signal TrackingParticles for efficiency and fakes
