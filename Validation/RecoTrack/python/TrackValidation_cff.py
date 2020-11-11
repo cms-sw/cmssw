@@ -633,6 +633,33 @@ for _eraName, _postfix, _era in _relevantEras:
     )
 
 
+# for displaced tracks
+trackValidatorDisplaced = trackValidator.clone(
+    dirName = "Tracking/TrackDisplaced/",
+    label = [x for x in trackValidator.label.value() if ("Pt09" not in x) and ("BtvLike" not in x) and ("AK4PFJets" not in x)],
+    ptMaxTP = 1e5,
+    dodEdxPlots = False,
+    invertRapidityCutTP = False,
+    histoProducerAlgoBlock = dict(
+        TpSelectorForEfficiencyVsPt   = dict(ptMin=0.005, signalOnly=False, tip=1e5, lip=1e5), # enough to set min pT here
+        TpSelectorForEfficiencyVsEta  = dict(ptMin=0.005, signalOnly=False, tip=1e5, lip=1e5), # enough to set min pT here
+        TpSelectorForEfficiencyVsPhi  = dict(ptMin=0.005, signalOnly=False, tip=1e5, lip=1e5),
+        TpSelectorForEfficiencyVsVTXR = dict(ptMin=0.005, signalOnly=False, tip=1e5, lip=1e5),
+        TpSelectorForEfficiencyVsVTXZ = dict(ptMin=0.005, signalOnly=False, tip=1e5, lip=1e5),
+        generalTpSelector             = dict(ptMin=0.005, signalOnly=False, tip=1e5, lip=1e5),
+        minDxy = -60,
+        maxDxy =  60,
+        nintDxy = 60,
+        minDz  = -60,
+        maxDz  =  60,
+        nintDz =  60,
+    ),
+    signalOnlyTP = False,
+    lipTP = 1e5,
+    tipTP = 1e5,
+)
+
+
 # the track selectors
 tracksValidationSelectors = cms.Task(
     tracksValidationSelectorsByAlgo,
@@ -704,7 +731,8 @@ tracksValidation = cms.Sequence(
     trackValidatorBuilding +
     trackValidatorBuildingPreSplitting +
     trackValidatorConversion +
-    trackValidatorGsfTracks,
+    trackValidatorGsfTracks +
+    trackValidatorDisplaced,
     tracksPreValidation
 )
 
