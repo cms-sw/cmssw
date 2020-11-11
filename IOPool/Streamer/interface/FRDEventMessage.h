@@ -125,9 +125,14 @@ struct FRDEventHeader_V1 {
 
 const uint16 FRDEVENT_MASK_ISGENDATA = 1;
 
-const size_t FRDHeaderMaxVersion = 6;
-const std::array<uint32,FRDHeaderMaxVersion+1> FRDHeaderVersionSize = {
-    0, 2 * sizeof(uint32), (4 + 1024) * sizeof(uint32), 7 * sizeof(uint32), 8 * sizeof(uint32), 6 * sizeof(uint32), 6 * sizeof(uint32)};
+constexpr size_t FRDHeaderMaxVersion = 6;
+constexpr std::array<uint32, FRDHeaderMaxVersion + 1> FRDHeaderVersionSize = {0,
+                                                                              2 * sizeof(uint32),
+                                                                              (4 + 1024) * sizeof(uint32),
+                                                                              7 * sizeof(uint32),
+                                                                              8 * sizeof(uint32),
+                                                                              6 * sizeof(uint32),
+                                                                              6 * sizeof(uint32)};
 
 class FRDEventMsgView {
 public:
