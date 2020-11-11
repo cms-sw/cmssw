@@ -5,7 +5,7 @@ import os
 import argparse
 from time import time
 
-from Validation.RecoTrack.plotting.validation import SimpleValidation, SimpleSample
+from Validation.RecoTrack.plotting.validation import SeparateValidation, SimpleValidation, SimpleSample
 import Validation.HGCalValidation.hgcalPlots as hgcalPlots
 import Validation.RecoTrack.plotting.plotting as plotting
 
@@ -40,6 +40,8 @@ def main(opts):
     sample = SimpleSample(opts.subdirprefix[0], opts.html_sample, filenames)
   
     val = SimpleValidation([sample], opts.outputDir[0])
+    if opts.separate:
+        val = SeparateValidation([sample], opts.outputDir[0])
     htmlReport = val.createHtmlReport(validationName=opts.html_validation_name[0])   
 
     if opts.collection==layerClustersGeneralLabel:

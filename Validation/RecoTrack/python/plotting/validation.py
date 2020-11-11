@@ -1306,6 +1306,8 @@ class SimpleValidation:
         return map(lambda n: n.replace(newdir, newsubdir), fileList)
 
 class SeparateValidation:
+    #Similar to the SimpleValidation
+    #To be used only if `--separate` option is on
     def __init__(self, samples, newdir):
         self._samples = samples
         self._newdir = newdir
@@ -1345,49 +1347,51 @@ class SeparateValidation:
             self._openFiles = []
 
     def _doPlotsForPlotter(self, plotter, sample, limitSubFoldersOnlyTo=None):
-        print('... in _doPlotsForPlotter')
         plotterInstance = plotter.readDirs(*self._openFiles)
         for plotterFolder, dqmSubFolder in plotterInstance.iterFolders(limitSubFoldersOnlyTo=limitSubFoldersOnlyTo):
             if sample is not None and not _processPlotsForSample(plotterFolder, sample):
                 continue
             plotFiles = self._doPlots(plotterFolder, dqmSubFolder)
-            print('    plotFiles:', plotFiles)
             if len(plotFiles) > 0:
                 self._htmlReport.addPlots(plotterFolder, dqmSubFolder, plotFiles)
 
     def _doPlots(self, plotterFolder, dqmSubFolder):
-        print('..... in _doPlots')
         plotterFolder.create(self._openFiles, self._labels, dqmSubFolder)
         newsubdir = self._subdirprefix+plotterFolder.getSelectionName(dqmSubFolder)
         newdir = os.path.join(self._newdir, newsubdir)
-        print('      ', newsubdir)
-        print('      ', newdir)
         if not os.path.exists(newdir):
             os.makedirs(newdir)
-        fileList = plotterFolder.draw(directory=newdir, separate=True, **self._plotterDrawArgs)
-        print('      ', fileList)
-#        for pg in plotterFolder.getPlotGroups():
-        print('     PlotterFolder name ', plotterFolder.getName())
+        fileList = plotterFolder.draw(directory=newdir, **self._plotterDrawArgs)
 
-        for tableCreator in plotterFolder.getTableCreators():
-            self._htmlReport.addTable(tableCreator.create(self._openFiles, self._labels, dqmSubFolder))
-
+        # check if plots are produced
         if len(fileList) == 0:
             return fileList
 
+        # check if there are duplicated plot
         dups = _findDuplicates(fileList)
         if len(dups) > 0:
             print("Plotter produced multiple files with names", ", ".join(dups))
             print("Typically this is a naming problem in the plotter configuration")
             sys.exit(1)
 
-        if self._plotterDrawArgs.get("separate", False):
-            if not os.path.exists("%s/res"%newdir):
-              os.makedirs("%s/res"%newdir)
+        linkList = []
+        for f in fileList:
+            if f[:f.rfind("/")] not in linkList :
+                if str(f[:f.rfind("/")]) != str(newdir) :
+                    linkList.append(f[:f.rfind("/")])
+        sorted(linkList)
+
+        for tableCreator in plotterFolder.getTableCreators():
+            self._htmlReport.addTable(tableCreator.create(self._openFiles, self._labels, dqmSubFolder))
+
+
+        for link in linkList :
+            if not os.path.exists("%s/res"%link):
+              os.makedirs("%s/res"%link)
             downloadables = ["index.php", "res/jquery-ui.js", "res/jquery.js", "res/style.css", "res/style.js", "res/theme.css"]
             for d in downloadables:
-                if not os.path.exists("%s/%s" % (newdir,d)):
-                    urllib.urlretrieve("https://raw.githubusercontent.com/musella/php-plots/master/%s"%d, "%s/%s"%(newdir,d))
+                if not os.path.exists("%s/%s" % (link,d)):
+                    urllib.urlretrieve("https://raw.githubusercontent.com/rovere/php-plots/master/%s"%d, "%s/%s"%(link,d))
 
         print("Created separated plots in %s" % newdir)
-        return map(lambda n: n.replace(newdir, newsubdir), fileList)
+        return map(lambda n: n.replace(newdir, newsubdir), linkList)
