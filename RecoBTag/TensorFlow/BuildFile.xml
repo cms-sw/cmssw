@@ -1,5 +1,0 @@
-<use name="DataFormats/BTauReco"/>
-<use name="PhysicsTools/TensorFlow"/>
-<export>
-  <lib name="1"/>
-</export>
