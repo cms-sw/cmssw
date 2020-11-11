@@ -30,7 +30,7 @@
 
 #include <algorithm>
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 using namespace geant_units::operators;
 
@@ -262,7 +262,7 @@ uint16_t ECalSD::getDepth(const G4Step* aStep) {
   const G4LogicalVolume* lv = hitPoint->GetTouchable()->GetVolume(0)->GetLogicalVolume();
 
   auto ite = xtalLMap.find(lv);
-  crystalLength = (ite == xtalLMap.end()) ? 230.0 : std::abs(ite->second);
+  crystalLength = (ite == xtalLMap.end()) ? 230._mm : std::abs(ite->second);
   crystalDepth = (ite == xtalLMap.end()) ? 0.0 : (std::abs(0.5 * (ite->second) + currentLocalPoint.z()));
   depth = any(useDepth1, lv) ? 1 : (any(useDepth2, lv) ? 2 : 0);
   uint16_t depth1(0), depth2(0);
@@ -274,9 +274,13 @@ uint16_t ECalSD::getDepth(const G4Step* aStep) {
     depth2 = getLayerIDForTimeSim();
     depth |= ((depth2 & PCaloHit::kEcalDepthMask) << PCaloHit::kEcalDepthOffset);
   }
+  edm::LogVerbatim("EcalSim") << "ECalSD::Volume " << lv->GetName() << " DetId " << std::hex << setDetUnitId(aStep)
+                              << std::dec << " Global " << (hitPoint->GetPosition()).rho() << ":"
+                              << (hitPoint->GetPosition()).z() << " Local Z " << currentLocalPoint.z();
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("EcalSim") << "ECalSD::Depth " << std::hex << depth1 << ":" << depth2 << ":" << depth << std::dec
-                              << " L " << (ite == xtalLMap.end()) << ":" << ite->second;
+                              << " L " << (ite == xtalLMap.end()) << ":" << ite->second << " local "
+                              << currentLocalPoint << " Crystal length " << crystalLength << ":" << crystalDepth;
 #endif
   return depth;
 }
@@ -436,11 +440,16 @@ double ECalSD::curve_LY(const G4LogicalVolume* lv) {
         weight = 1.0 + slopeLY - dapd * 0.01 * slopeLY;
     } else {
       edm::LogWarning("EcalSim") << "ECalSD: light coll curve : wrong distance "
-                                 << "to APD " << dapd << " crlength = " << crystalLength
+                                 << "to APD " << dapd << " crlength = " << crystalLength << ":" << crystalDepth
                                  << " crystal name = " << lv->GetName() << " " << dd4hep::dd::noNamespace(lv->GetName())
                                  << " z of localPoint = " << currentLocalPoint.z() << " take weight = " << weight;
     }
   }
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("EcalSim") << "ECalSD: light coll curve : crlength = " << crystalLength << " Depth " << crystalDepth
+                              << " crystal name = " << lv->GetName() << " " << dd4hep::dd::noNamespace(lv->GetName())
+                              << " z of localPoint = " << currentLocalPoint.z() << " take weight = " << weight;
+#endif
   return weight;
 }
 
