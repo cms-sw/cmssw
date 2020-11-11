@@ -9,12 +9,13 @@ HGCScintillatorDetId::HGCScintillatorDetId() : DetId() {}
 
 HGCScintillatorDetId::HGCScintillatorDetId(uint32_t rawid) : DetId(rawid) {}
 
-HGCScintillatorDetId::HGCScintillatorDetId(int type, int layer, int radius, int phi, bool trigger)
+HGCScintillatorDetId::HGCScintillatorDetId(int type, int layer, int radius, int phi, bool trigger, int sipm)
     : DetId(HGCalHSc, ForwardEmpty) {
   int zside = (radius < 0) ? 1 : 0;
   int itrig = trigger ? 1 : 0;
   int radiusAbs = std::abs(radius);
   id_ |= (((type & kHGCalTypeMask) << kHGCalTypeOffset) | ((zside & kHGCalZsideMask) << kHGCalZsideOffset) |
+	  ((sipm & kHGCalSiPMMask) << kHGCalSiPMOffset) |
           ((itrig & kHGCalTriggerMask) << kHGCalTriggerOffset) | ((layer & kHGCalLayerMask) << kHGCalLayerOffset) |
           ((radiusAbs & kHGCalRadiusMask) << kHGCalRadiusOffset) | ((phi & kHGCalPhiMask) << kHGCalPhiOffset));
 }
@@ -68,6 +69,16 @@ int HGCScintillatorDetId::iphiTrigger() const {
     return iphi();
 }
 
+void HGCScintillatorDetId::setType(int type) {
+  id_ &= kHGCalTypeMask0;
+  id_ |= ((type & kHGCalTypeMask) << kHGCalTypeOffset);
+}
+
+void HGCScintillatorDetId::setSiPM(int sipm) {
+  id_ &= kHGCalSiPMMask0;
+  id_ |= ((sipm & kHGCalSiPMMask) << kHGCalSiPMOffset);
+}
+
 std::vector<HGCScintillatorDetId> HGCScintillatorDetId::detectorCells() const {
   std::vector<HGCScintillatorDetId> cells;
   int irad = iradiusAbs();
@@ -101,6 +112,6 @@ HGCScintillatorDetId HGCScintillatorDetId::triggerCell() const {
 
 std::ostream& operator<<(std::ostream& s, const HGCScintillatorDetId& id) {
   return s << " HGCScintillatorDetId::EE:HE= " << id.isEE() << ":" << id.isHE() << " trigger= " << id.trigger()
-           << " type= " << id.type() << " layer= " << id.layer() << " radius= " << id.iradius() << ":"
+           << " type= " << id.type() << " SiPM= " << id.sipm() << " layer= " << id.layer() << " radius= " << id.iradius() << ":"
            << id.iradiusTrigger() << " phi= " << id.iphi() << ":" << id.iphiTrigger();
 }
