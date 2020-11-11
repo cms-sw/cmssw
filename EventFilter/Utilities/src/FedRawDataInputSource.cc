@@ -484,7 +484,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
 
       if (detectedFRDversion_ == 0) {
         detectedFRDversion_ = *((uint16_t*)dataPosition);
-        if (detectedFRDversion_ > 6)
+        if (detectedFRDversion_ > FRDHeaderMaxVersion)
           throw cms::Exception("FedRawDataInputSource::getNextEvent")
               << "Unknown FRD version -: " << detectedFRDversion_;
         assert(detectedFRDversion_ >= 1);
@@ -1341,7 +1341,7 @@ void FedRawDataInputSource::readWorker(unsigned int tid) {
     if (detectedFRDversion_ == 0 && chunk->offset_ == 0) {
       detectedFRDversion_ = *((uint16_t*)(chunk->buf_ + file->rawHeaderSize_));
     }
-    assert(detectedFRDversion_ <= 6);
+    assert(detectedFRDversion_ <= FRDHeaderMaxVersion);
     chunk->readComplete_ =
         true;  //this is atomic to secure the sequential buffer fill before becoming available for processing)
     file->chunks_[chunk->fileIndex_] = chunk;  //put the completed chunk in the file chunk vector at predetermined index
