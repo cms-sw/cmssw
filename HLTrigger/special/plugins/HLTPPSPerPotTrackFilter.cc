@@ -128,6 +128,9 @@ HLTPPSPerPotTrackFilter::HLTPPSPerPotTrackFilter(const edm::ParameterSet& iConfi
 }
 
 bool HLTPPSPerPotTrackFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
+  // Helper tool to count valid tracks
+  const auto valid_trks = [](const auto& trk) { return trk.isValid(); };
+
   // First filter on pixels (2017+) selection
   if (!pixel_filter_.empty()) {
     edm::Handle<edm::DetSetVector<CTPPSPixelLocalTrack>> pixelTracks;
@@ -138,11 +141,7 @@ bool HLTPPSPerPotTrackFilter::filter(edm::StreamID, edm::Event& iEvent, const ed
         continue;
       const auto& fltr = pixel_filter_.at(rpv.id);
 
-      unsigned short ntrks = 0;
-      for (const auto& track : rpv)
-        if (track.isValid())
-          ntrks++;
-
+      const auto ntrks = std::count_if(rpv.begin(), rpv.end(), valid_trks);
       if (fltr.minTracks > 0 && ntrks < fltr.minTracks)
         return false;
       if (fltr.maxTracks > 0 && ntrks > fltr.maxTracks)
@@ -160,11 +159,7 @@ bool HLTPPSPerPotTrackFilter::filter(edm::StreamID, edm::Event& iEvent, const ed
         continue;
       const auto& fltr = strip_filter_.at(rpv.id);
 
-      unsigned short ntrks = 0;
-      for (const auto& track : rpv)
-        if (track.isValid())
-          ntrks++;
-
+      const auto ntrks = std::count_if(rpv.begin(), rpv.end(), valid_trks);
       if (fltr.minTracks > 0 && ntrks < fltr.minTracks)
         return false;
       if (fltr.maxTracks > 0 && ntrks > fltr.maxTracks)
@@ -182,11 +177,7 @@ bool HLTPPSPerPotTrackFilter::filter(edm::StreamID, edm::Event& iEvent, const ed
         continue;
       const auto& fltr = diam_filter_.at(rpv.id);
 
-      unsigned short ntrks = 0;
-      for (const auto& track : rpv)
-        if (track.isValid())
-          ntrks++;
-
+      const auto ntrks = std::count_if(rpv.begin(), rpv.end(), valid_trks);
       if (fltr.minTracks > 0 && ntrks < fltr.minTracks)
         return false;
       if (fltr.maxTracks > 0 && ntrks > fltr.maxTracks)
