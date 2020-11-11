@@ -107,6 +107,8 @@ namespace edm {
     EventProcessor(EventProcessor const&) = delete;             // Disallow copying and moving
     EventProcessor& operator=(EventProcessor const&) = delete;  // Disallow copying and moving
 
+    void taskCleanup();
+
     /**This should be called before the first call to 'run'
        If this is not called in time, it will automatically be called
        the first time 'run' is called
