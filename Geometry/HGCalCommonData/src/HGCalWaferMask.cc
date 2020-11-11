@@ -297,7 +297,8 @@ bool HGCalWaferMask::goodCell(int u, int v, int n, int type, int rotn) {
     case (HGCalTypes::WaferSemi2): {  //WaferSemi2
       switch (rotn) {
         case (HGCalTypes::WaferCorner0): {
-          good = ((u + v) < (3 * n2));
+          int n3 = (n + 1) / 3;
+          good = ((u + v) < (4 * n3));
           break;
         }
         case (HGCalTypes::WaferCorner1): {
@@ -310,7 +311,7 @@ bool HGCalWaferMask::goodCell(int u, int v, int n, int type, int rotn) {
           break;
         }
         case (HGCalTypes::WaferCorner3): {
-          good = ((u + v) > (5 * n2 - 1));
+          good = ((u + v) >= (5 * n2));
           break;
         }
         case (HGCalTypes::WaferCorner4): {
@@ -318,7 +319,7 @@ bool HGCalWaferMask::goodCell(int u, int v, int n, int type, int rotn) {
           break;
         }
         default: {
-          int u2 = ((u + 1) / 2);
+          int u2 = ((n == 8) ? ((u + 1) / 2) : (u / 2));
           good = ((v - u2) < n4);
           break;
         }
