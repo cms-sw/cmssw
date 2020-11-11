@@ -10,7 +10,8 @@ status=0
 rm -f u20_cerr.log FrameworkJobReport.xml
 
 cmsRun -e -p $LOCAL_TEST_DIR/u20_cfg.py 2> u20_cerr.log || exit $?
- 
+sed -n '/Disabling gnu++: clang has no __float128 support on this target!/!p' u20_cerr.log > tmpf && mv tmpf u20_cerr.log # remove clang output
+
 for file in u20_cerr.log FrameworkJobReport.xml   
 do
   sed $SED_OPT -f $LOCAL_TEST_DIR/filter-timestamps.sed $file
