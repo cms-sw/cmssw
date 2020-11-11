@@ -41,9 +41,10 @@ void SiPixelDaqInfo::dqmEndLuminosityBlock(DQMStore::IBooker &iBooker,
     firstLumi = false;
   }
 
-  if ( edm::ESHandle<RunInfo> sumFED = iSetup.getHandle(runInfoToken_) ) {
+  if (auto runInfoRec = iSetup.tryToGet<RunInfoRcd>()) {
     // get fed summary information
-    vector<int> FedsInIds = sumFED->m_fed_in;
+    const RunInfo& sumFED = runInfoRec->get(runInfoToken_);
+    vector<int> FedsInIds = sumFED.m_fed_in;
 
     int FedCount = 0;
     int FedCountBarrel = 0;
