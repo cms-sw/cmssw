@@ -252,7 +252,7 @@ const std::vector<std::tuple<int, int>> Phase1L1TJetProducer::findSeeds(float se
         }
       }
       if (isLocalMaximum) {
-        seeds.emplace_back(std::make_tuple(iEta, iPhi));
+        seeds.emplace_back(iEta, iPhi);
       }
     }
   }
@@ -316,9 +316,10 @@ const std::vector<reco::CaloJet> Phase1L1TJetProducer::_buildJetsFromSeeds(
 template <class Container>
 void Phase1L1TJetProducer::fillCaloGrid(TH2F& caloGrid, const Container& triggerPrimitives) {
   //Filling the calo grid with the primitives
-  for (auto primitiveIterator = triggerPrimitives.begin(); primitiveIterator != triggerPrimitives.end();
-       primitiveIterator++) {
-    caloGrid.Fill((float)primitiveIterator->eta(), (float)primitiveIterator->phi(), (float)primitiveIterator->pt());
+  for (const auto& primitiveIterator : triggerPrimitives) {
+    caloGrid.Fill(static_cast<float>(primitiveIterator.eta()),
+                  static_cast<float>(primitiveIterator.phi()),
+                  static_cast<float>(primitiveIterator.pt()));
   }
   return;
 }
