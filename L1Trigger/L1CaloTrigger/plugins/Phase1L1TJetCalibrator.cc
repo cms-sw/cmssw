@@ -166,13 +166,20 @@ void Phase1L1TJetCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& 
   iEvent.put(std::move(calibratedCollectionPtr), outputCollectionName_);
 }
 
-// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void Phase1L1TJetCalibrator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.add<edm::InputTag>("inputCollectionTag",
+                          edm::InputTag("Phase1L1TJetProducer", "UncalibratedPhase1L1TJetFromPfCandidates"));
+  desc.add<std::vector<double>>("absEtaBinning");
+  std::vector<edm::ParameterSet> vDefaults;
+  edm::ParameterSetDescription validator;
+  validator.add<double>("etaMax");
+  validator.add<double>("etaMin");
+  validator.add<std::vector<double>>("l1tCalibrationFactors");
+  validator.add<std::vector<double>>("l1tPtBins");
+  desc.addVPSet("calibration", validator, vDefaults);
+  desc.add<std::string>("outputCollectionName", "Phase1L1TJetFromPfCandidates");
+  descriptions.add("Phase1L1TJetCalibrator", desc);
 }
 
 //define this as a plug-in
