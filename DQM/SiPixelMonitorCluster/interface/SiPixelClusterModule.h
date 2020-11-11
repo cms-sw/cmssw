@@ -19,10 +19,12 @@
 //
 //  Updated by: Lukas Wehrli
 //  for pixel offline DQM
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include <cstdint>
@@ -37,7 +39,7 @@ public:
   /// Constructor with raw DetId
   SiPixelClusterModule(const uint32_t &id);
   /// Constructor with raw DetId and sensor size
-  SiPixelClusterModule(const uint32_t &id, const int &ncols, const int &nrows);
+  SiPixelClusterModule(edm::ConsumesCollector&& iCC, const uint32_t &id, const int &ncols, const int &nrows);
   /// Destructor
   ~SiPixelClusterModule();
 
@@ -73,6 +75,7 @@ public:
            bool isUpgrade = false);
 
 private:
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoTokenBeginRun_;
   const TrackerTopology *pTT;
   uint32_t id_;
   int ncols_;

@@ -46,8 +46,11 @@ SiPixelClusterModule::SiPixelClusterModule() : id_(0), ncols_(416), nrows_(160) 
 ///
 SiPixelClusterModule::SiPixelClusterModule(const uint32_t &id) : id_(id), ncols_(416), nrows_(160) {}
 ///
-SiPixelClusterModule::SiPixelClusterModule(const uint32_t &id, const int &ncols, const int &nrows)
-    : id_(id), ncols_(ncols), nrows_(nrows) {}
+SiPixelClusterModule::SiPixelClusterModule(edm::ConsumesCollector&& iCC, const uint32_t &id, const int &ncols, const int &nrows)
+    : id_(id), ncols_(ncols), nrows_(nrows) {
+
+  trackerTopoTokenBeginRun_ = iCC.esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>();
+}
 //
 // Destructor
 //
@@ -62,8 +65,7 @@ void SiPixelClusterModule::book(const edm::ParameterSet &iConfig,
                                 bool twoD,
                                 bool reducedSet,
                                 bool isUpgrade) {
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopoTokenBeginRun_);
   pTT = tTopoHandle.product();
 
   bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
