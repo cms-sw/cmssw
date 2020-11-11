@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 // Usage:
-// .L CalibPlotPropertyies.C+g
+// .L CalibPlotProperties.C+g
 //  CalibPlotProperties c1(fname, dirname, dupFileName, prefix, corrFileName,
 //	                   rcorFileName, puCorr, flag, dataMC, truncateFlag, 
 //                         useGen, scale, useScale, etalo, etahi, runlo, runhi, 
@@ -475,7 +475,7 @@ void CalibPlotProperties::Init(TChain *tree, const char* dupFileName) {
     for (int k=0; k<CalibPlots::ntitles; ++k) {
       sprintf (name, "%sp%d", prefix_.c_str(), k);
       sprintf (title,"Momentum for %s", CalibPlots::getTitle(k).c_str());
-      h_p[k] = new TH1D(name, title, 100, 10.0, 110.0);
+      h_p[k] = new TH1D(name, title, 150, 0.0, 150.0);
       sprintf (name, "%seta%d", prefix_.c_str(), k);
       sprintf (title,"#eta for %s", CalibPlots::getTitle(k).c_str());
       h_eta[k] = new TH1D(name, title, 60, -30.0, 30.0);
@@ -622,7 +622,7 @@ void CalibPlotProperties::Init(TChain *tree, const char* dupFileName) {
       h_evlist3.push_back(new TH1F(name,title,1000,0,100));
       h_evlist3[i]->Sumw2();
     }
-    h_etaE = new TH2F("heta","",50,-25,25,100,0,100);
+    h_etaE = new TH2F("heta","",60,-30,30,100,0,100);
   }
 }
 
