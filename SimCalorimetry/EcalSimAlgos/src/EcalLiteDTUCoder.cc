@@ -4,8 +4,6 @@
 #include "DataFormats/EcalDigi/interface/EcalLiteDTUSample.h"
 #include "DataFormats/EcalDigi/interface/EcalDataFrame_Ph2.h"
 
-#include "CondFormats/EcalObjects/interface/EcalConstants.h"
-
 #include <iostream>
 
 EcalLiteDTUCoder::EcalLiteDTUCoder(bool addNoise,
