@@ -59,7 +59,7 @@ public:
                        bool init,
                        float noiseRate,
                        int noiseRateDenominator,
-                       edm::ESHandle<SiPixelFedCablingMap> theCablingMap);
+                       const SiPixelFedCablingMap* theCablingMap);
 
 private:
   void getItemList(const std::multimap<std::string, std::string> &req_map,
