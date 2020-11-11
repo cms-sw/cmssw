@@ -110,8 +110,10 @@ void testScint(int layer) {
       for (int zp = 0; zp < 2; ++zp) {
         int radius = (2 * zp - 1) * ring;
         HGCScintillatorDetId id(type, layer, radius, phi, false, sipm);
-        std::cout << "Input " << type << ":" << layer << ":" << radius << ":" << phi << ":" << sipm << " ID " << std::hex << id << std::dec;
-        if ((id.iradius() != radius) || (id.iphi() != phi) || (id.layer() != layer) || (id.type() != type) || (id.sipm() != sipm))
+        std::cout << "Input " << type << ":" << layer << ":" << radius << ":" << phi << ":" << sipm << " ID "
+                  << std::hex << id << std::dec;
+        if ((id.iradius() != radius) || (id.iphi() != phi) || (id.layer() != layer) || (id.type() != type) ||
+            (id.sipm() != sipm))
           std::cout << " ***** ERROR *****" << std::endl;
         else
           std::cout << std::endl;
