@@ -2,7 +2,6 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "RecoLocalCalo/HGCalRecProducers/interface/ComputeClusterTime.h"
 #include "TrackstersPCA.h"
-#include "TPrincipal.h"
 
 #include <iostream>
 #include <set>

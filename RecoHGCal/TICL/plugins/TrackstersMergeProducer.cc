@@ -38,7 +38,7 @@ private:
 
   void energyRegressionAndID(const std::vector<reco::CaloCluster> &layerClusters, std::vector<Trackster> &result) const;
   void printTrackstersDebug(const std::vector<Trackster> &, const char *label) const;
-  void computeTime(std::vector<TICLCandidate> &resultCandidates) const;
+  void assignTimeToCandidates(std::vector<TICLCandidate> &resultCandidates) const;
   void dumpTrackster(const Trackster &) const;
 
   const edm::EDGetTokenT<std::vector<Trackster>> tracksterstrkem_token_;
@@ -540,7 +540,7 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
   }
 
   // Compute timing
-  computeTime(*resultCandidates);
+  assignTimeToCandidates(*resultCandidates);
 
   evt.put(std::move(resultCandidates));
 }
@@ -686,7 +686,7 @@ void TrackstersMergeProducer::energyRegressionAndID(const std::vector<reco::Calo
   }
 }
 
-void TrackstersMergeProducer::computeTime(std::vector<TICLCandidate> &resultCandidates) const {
+void TrackstersMergeProducer::assignTimeToCandidates(std::vector<TICLCandidate> &resultCandidates) const {
   for (auto &cand : resultCandidates) {
     if (cand.tracksters().size() > 1) {  // For single-trackster candidates the timing is already set
       float time = 0.f;
