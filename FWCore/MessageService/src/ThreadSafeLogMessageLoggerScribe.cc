@@ -325,7 +325,7 @@ namespace edm {
 
       auto const& files = job_pset.getUntrackedParameter<edm::ParameterSet>("files");
       for (auto const& name : files.getParameterNamesForType<edm::ParameterSet>(false)) {
-        auto const& dest_pset = job_pset.getUntrackedParameter<edm::ParameterSet>(name);
+        auto const& dest_pset = files.getUntrackedParameter<edm::ParameterSet>(name);
         auto const actual_filename = destinationFileName(dest_pset, name);
 
         auto dest_ctrl = makeDestinationCtrl(actual_filename);
@@ -589,9 +589,7 @@ namespace edm {
       } else {
         // change log 5
         int lineLen = getAparameter<int>(dest_pset, "lineLength", defaults.lineLength_);
-        if (lineLen != 80) {
-          dest_ctrl->setLineLength(lineLen);
-        }
+        dest_ctrl->setLineLength(lineLen);
       }
 
       // if indicated, suppress time stamps in this destination's output
@@ -883,11 +881,11 @@ namespace edm {
         category.addOptionalUntracked<int>("timespan");
 
         edm::ParameterSetDescription destination_base;
-        destination_base.addUntracked<bool>("noLineBreaks", false);
-        destination_base.addUntracked<bool>("noTimeStamps", false);
-        destination_base.addUntracked<int>("lineLength", -1);
-        destination_base.addUntracked<std::string>("threshold", "INFO");
-        destination_base.addUntracked<std::string>("statisticsThreshold", "INFO");
+        destination_base.addOptionalUntracked<bool>("noLineBreaks");
+        destination_base.addOptionalUntracked<bool>("noTimeStamps");
+        destination_base.addOptionalUntracked<int>("lineLength");
+        destination_base.addOptionalUntracked<std::string>("threshold");
+        destination_base.addOptionalUntracked<std::string>("statisticsThreshold");
 
         /*
     destination_base.addUntracked<edm::ParameterSetDescription>("DEBUG",category);
@@ -912,7 +910,7 @@ namespace edm {
           default_pset.addOptionalUntracked<int>("timespan");
           default_pset.addUntracked<bool>("noLineBreaks", false);
           default_pset.addUntracked<bool>("noTimeStamps", false);
-          default_pset.addUntracked<int>("lineLength", -1);
+          default_pset.addUntracked<int>("lineLength", 80);
           default_pset.addUntracked<std::string>("threshold", "INFO");
           default_pset.addUntracked<std::string>("statisticsThreshold", "INFO");
 
