@@ -2245,8 +2245,6 @@ static long load_dddefinition(Detector& det, xml_h element) {
 
       // Can not deal with reflections without closed geometry
       det.manager().CloseGeometry();
-      // Convert reflections via TGeo reflection factory
-      det.manager().ConvertReflections();
 
       det.endDocument();
     }
