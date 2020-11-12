@@ -22,15 +22,12 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 // DQM Framework
 #include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 // Geometry
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 // DataFormats
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
@@ -71,6 +68,10 @@ SiPixelDigiSource::SiPixelDigiSource(const edm::ParameterSet& iConfig)
       noOfDisks(0) {
   //set Token(-s)
   srcToken_ = consumes<edm::DetSetVector<PixelDigi> >(conf_.getParameter<edm::InputTag>("src"));
+
+  trackerTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
+  trackerTopoTokenBeginRun_ = esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>();
+  trackerGeomTokenBeginRun_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>();
 
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
 
@@ -317,8 +318,7 @@ void SiPixelDigiSource::bookHistograms(DQMStore::IBooker& iBooker, edm::Run cons
 // Method called for every event
 //------------------------------------------------------------------
 void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopoToken_);
   const TrackerTopology* pTT = tTopoHandle.product();
 
   // get input data
@@ -344,7 +344,7 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
   for (struct_iter = thePixelStructure.begin(); struct_iter != thePixelStructure.end(); struct_iter++) {
     int numberOfDigisMod = (*struct_iter)
                                .second->fill(*input,
-                                             iSetup,
+                                             pTT,
                                              meNDigisCOMBBarrel_,
                                              meNDigisCHANBarrel_,
                                              meNDigisCHANBarrelLs_,
@@ -1096,13 +1096,11 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 // Build data structure
 //------------------------------------------------------------------
 void SiPixelDigiSource::buildStructure(const edm::EventSetup& iSetup) {
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopoTokenBeginRun_);
   const TrackerTopology* pTT = tTopoHandle.product();
 
   LogInfo("PixelDQM") << " SiPixelDigiSource::buildStructure";
-  edm::ESHandle<TrackerGeometry> pDD;
-  iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
+  edm::ESHandle<TrackerGeometry> pDD = iSetup.getHandle(trackerGeomTokenBeginRun_);
 
   LogVerbatim("PixelDQM") << " *** Geometry node for TrackerGeom is  " << &(*pDD) << std::endl;
   LogVerbatim("PixelDQM") << " *** I have " << pDD->dets().size() << " detectors" << std::endl;
@@ -1124,13 +1122,13 @@ void SiPixelDigiSource::buildStructure(const edm::EventSetup& iSetup) {
         int layer = PixelBarrelName(DetId(id), pTT, isUpgrade).layerName();
         if (layer > noOfLayers)
           noOfLayers = layer;
-        SiPixelDigiModule* theModule = new SiPixelDigiModule(id, ncols, nrows);
+        SiPixelDigiModule* theModule = new SiPixelDigiModule(consumesCollector(), id, ncols, nrows);
         thePixelStructure.insert(pair<uint32_t, SiPixelDigiModule*>(id, theModule));
 
       } else if ((detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) && (!isUpgrade)) {
         LogDebug("PixelDQM") << " ---> Adding Endcap Module " << detId.rawId() << endl;
         uint32_t id = detId();
-        SiPixelDigiModule* theModule = new SiPixelDigiModule(id, ncols, nrows);
+        SiPixelDigiModule* theModule = new SiPixelDigiModule(consumesCollector(), id, ncols, nrows);
 
         PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId(id), pTT, isUpgrade).halfCylinder();
         int disk = PixelEndcapName(DetId(id), pTT, isUpgrade).diskName();
@@ -1164,7 +1162,7 @@ void SiPixelDigiSource::buildStructure(const edm::EventSetup& iSetup) {
       } else if ((detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) && (isUpgrade)) {
         LogDebug("PixelDQM") << " ---> Adding Endcap Module " << detId.rawId() << endl;
         uint32_t id = detId();
-        SiPixelDigiModule* theModule = new SiPixelDigiModule(id, ncols, nrows);
+        SiPixelDigiModule* theModule = new SiPixelDigiModule(consumesCollector(), id, ncols, nrows);
 
         PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId(id), pTT, isUpgrade).halfCylinder();
         int disk = PixelEndcapName(DetId(id), pTT, isUpgrade).diskName();
