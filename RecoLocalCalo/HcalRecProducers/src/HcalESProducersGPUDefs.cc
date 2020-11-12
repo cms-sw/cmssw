@@ -10,6 +10,11 @@
 #include "CondFormats/DataRecord/interface/HcalSiPMCharacteristicsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalSiPMParametersRcd.h"
 #include "CondFormats/DataRecord/interface/HcalTimeCorrsRcd.h"
+#include "CondFormats/HcalObjects/interface/HcalCombinedRecordsGPU.h"
+#include "CondFormats/HcalObjects/interface/HcalConvertedEffectivePedestalWidthsGPU.h"
+#include "CondFormats/HcalObjects/interface/HcalConvertedEffectivePedestalsGPU.h"
+#include "CondFormats/HcalObjects/interface/HcalConvertedPedestalWidthsGPU.h"
+#include "CondFormats/HcalObjects/interface/HcalConvertedPedestalsGPU.h"
 #include "CondFormats/HcalObjects/interface/HcalGainWidths.h"
 #include "CondFormats/HcalObjects/interface/HcalGainWidthsGPU.h"
 #include "CondFormats/HcalObjects/interface/HcalGains.h"
@@ -34,39 +39,67 @@
 #include "CondFormats/HcalObjects/interface/HcalSiPMParametersGPU.h"
 #include "CondFormats/HcalObjects/interface/HcalTimeCorrs.h"
 #include "CondFormats/HcalObjects/interface/HcalTimeCorrsGPU.h"
+#include "HeterogeneousCore/CUDACore/interface/ConvertingESProducerT.h"
+#include "HeterogeneousCore/CUDACore/interface/ConvertingESProducerWithDependenciesT.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalRecoParamsWithPulseShapesGPU.h"
 
-#include "HcalESProducerGPU.h"
-
-using HcalRecoParamsGPUESProducer = HcalESProducerGPU<HcalRecoParamsRcd, HcalRecoParamsGPU, HcalRecoParams>;
+using HcalRecoParamsGPUESProducer = ConvertingESProducerT<HcalRecoParamsRcd, HcalRecoParamsGPU, HcalRecoParams>;
 
 using HcalRecoParamsWithPulseShapesGPUESProducer =
-    HcalESProducerGPU<HcalRecoParamsRcd, HcalRecoParamsWithPulseShapesGPU, HcalRecoParams>;
+    ConvertingESProducerT<HcalRecoParamsRcd, HcalRecoParamsWithPulseShapesGPU, HcalRecoParams>;
 
-using HcalPedestalsGPUESProducer = HcalESProducerGPU<HcalPedestalsRcd, HcalPedestalsGPU, HcalPedestals>;
+using HcalPedestalsGPUESProducer = ConvertingESProducerT<HcalPedestalsRcd, HcalPedestalsGPU, HcalPedestals>;
 
-using HcalGainsGPUESProducer = HcalESProducerGPU<HcalGainsRcd, HcalGainsGPU, HcalGains>;
+using HcalGainsGPUESProducer = ConvertingESProducerT<HcalGainsRcd, HcalGainsGPU, HcalGains>;
 
-using HcalLUTCorrsGPUESProducer = HcalESProducerGPU<HcalLUTCorrsRcd, HcalLUTCorrsGPU, HcalLUTCorrs>;
+using HcalLUTCorrsGPUESProducer = ConvertingESProducerT<HcalLUTCorrsRcd, HcalLUTCorrsGPU, HcalLUTCorrs>;
 
-using HcalRespCorrsGPUESProducer = HcalESProducerGPU<HcalRespCorrsRcd, HcalRespCorrsGPU, HcalRespCorrs>;
+using HcalRespCorrsGPUESProducer = ConvertingESProducerT<HcalRespCorrsRcd, HcalRespCorrsGPU, HcalRespCorrs>;
 
-using HcalTimeCorrsGPUESProducer = HcalESProducerGPU<HcalTimeCorrsRcd, HcalTimeCorrsGPU, HcalTimeCorrs>;
+using HcalTimeCorrsGPUESProducer = ConvertingESProducerT<HcalTimeCorrsRcd, HcalTimeCorrsGPU, HcalTimeCorrs>;
 
 using HcalPedestalWidthsGPUESProducer =
-    HcalESProducerGPU<HcalPedestalWidthsRcd, HcalPedestalWidthsGPU, HcalPedestalWidths>;
+    ConvertingESProducerT<HcalPedestalWidthsRcd, HcalPedestalWidthsGPU, HcalPedestalWidths>;
 
-using HcalGainWidthsGPUESProducer = HcalESProducerGPU<HcalGainWidthsRcd, HcalGainWidthsGPU, HcalGainWidths>;
+using HcalGainWidthsGPUESProducer = ConvertingESProducerT<HcalGainWidthsRcd, HcalGainWidthsGPU, HcalGainWidths>;
 
-using HcalQIECodersGPUESProducer = HcalESProducerGPU<HcalQIEDataRcd, HcalQIECodersGPU, HcalQIEData>;
+using HcalQIECodersGPUESProducer = ConvertingESProducerT<HcalQIEDataRcd, HcalQIECodersGPU, HcalQIEData>;
 
-using HcalQIETypesGPUESProducer = HcalESProducerGPU<HcalQIETypesRcd, HcalQIETypesGPU, HcalQIETypes>;
+using HcalQIETypesGPUESProducer = ConvertingESProducerT<HcalQIETypesRcd, HcalQIETypesGPU, HcalQIETypes>;
 
 using HcalSiPMParametersGPUESProducer =
-    HcalESProducerGPU<HcalSiPMParametersRcd, HcalSiPMParametersGPU, HcalSiPMParameters>;
+    ConvertingESProducerT<HcalSiPMParametersRcd, HcalSiPMParametersGPU, HcalSiPMParameters>;
 
 using HcalSiPMCharacteristicsGPUESProducer =
-    HcalESProducerGPU<HcalSiPMCharacteristicsRcd, HcalSiPMCharacteristicsGPU, HcalSiPMCharacteristics>;
+    ConvertingESProducerT<HcalSiPMCharacteristicsRcd, HcalSiPMCharacteristicsGPU, HcalSiPMCharacteristics>;
+
+using HcalConvertedPedestalsGPUESProducer = ConvertingESProducerWithDependenciesT<HcalConvertedPedestalsRcd,
+                                                                                  HcalConvertedPedestalsGPU,
+                                                                                  HcalPedestals,
+                                                                                  HcalQIEData,
+                                                                                  HcalQIETypes>;
+
+using HcalConvertedEffectivePedestalsGPUESProducer =
+    ConvertingESProducerWithDependenciesT<HcalConvertedEffectivePedestalsRcd,
+                                          HcalConvertedEffectivePedestalsGPU,
+                                          HcalPedestals,
+                                          HcalQIEData,
+                                          HcalQIETypes>;
+
+using HcalConvertedPedestalWidthsGPUESProducer = ConvertingESProducerWithDependenciesT<HcalConvertedPedestalWidthsRcd,
+                                                                                       HcalConvertedPedestalWidthsGPU,
+                                                                                       HcalPedestals,
+                                                                                       HcalPedestalWidths,
+                                                                                       HcalQIEData,
+                                                                                       HcalQIETypes>;
+
+using HcalConvertedEffectivePedestalWidthsGPUESProducer =
+    ConvertingESProducerWithDependenciesT<HcalConvertedEffectivePedestalWidthsRcd,
+                                          HcalConvertedEffectivePedestalWidthsGPU,
+                                          HcalPedestals,
+                                          HcalPedestalWidths,
+                                          HcalQIEData,
+                                          HcalQIETypes>;
 
 DEFINE_FWK_EVENTSETUP_MODULE(HcalRecoParamsGPUESProducer);
 DEFINE_FWK_EVENTSETUP_MODULE(HcalRecoParamsWithPulseShapesGPUESProducer);
@@ -81,41 +114,6 @@ DEFINE_FWK_EVENTSETUP_MODULE(HcalQIECodersGPUESProducer);
 DEFINE_FWK_EVENTSETUP_MODULE(HcalQIETypesGPUESProducer);
 DEFINE_FWK_EVENTSETUP_MODULE(HcalSiPMParametersGPUESProducer);
 DEFINE_FWK_EVENTSETUP_MODULE(HcalSiPMCharacteristicsGPUESProducer);
-
-#include "CondFormats/HcalObjects/interface/HcalCombinedRecordsGPU.h"
-#include "CondFormats/HcalObjects/interface/HcalConvertedPedestalsGPU.h"
-#include "CondFormats/HcalObjects/interface/HcalConvertedEffectivePedestalsGPU.h"
-#include "CondFormats/HcalObjects/interface/HcalConvertedPedestalWidthsGPU.h"
-#include "CondFormats/HcalObjects/interface/HcalConvertedEffectivePedestalWidthsGPU.h"
-
-using HcalConvertedPedestalsGPUESProducer = HcalESProducerGPUWithDependencies<HcalConvertedPedestalsRcd,
-                                                                              HcalConvertedPedestalsGPU,
-                                                                              HcalPedestals,
-                                                                              HcalQIEData,
-                                                                              HcalQIETypes>;
-
-using HcalConvertedEffectivePedestalsGPUESProducer =
-    HcalESProducerGPUWithDependencies<HcalConvertedEffectivePedestalsRcd,
-                                      HcalConvertedEffectivePedestalsGPU,
-                                      HcalPedestals,
-                                      HcalQIEData,
-                                      HcalQIETypes>;
-
-using HcalConvertedPedestalWidthsGPUESProducer = HcalESProducerGPUWithDependencies<HcalConvertedPedestalWidthsRcd,
-                                                                                   HcalConvertedPedestalWidthsGPU,
-                                                                                   HcalPedestals,
-                                                                                   HcalPedestalWidths,
-                                                                                   HcalQIEData,
-                                                                                   HcalQIETypes>;
-
-using HcalConvertedEffectivePedestalWidthsGPUESProducer =
-    HcalESProducerGPUWithDependencies<HcalConvertedEffectivePedestalWidthsRcd,
-                                      HcalConvertedEffectivePedestalWidthsGPU,
-                                      HcalPedestals,
-                                      HcalPedestalWidths,
-                                      HcalQIEData,
-                                      HcalQIETypes>;
-
 DEFINE_FWK_EVENTSETUP_MODULE(HcalConvertedPedestalsGPUESProducer);
 DEFINE_FWK_EVENTSETUP_MODULE(HcalConvertedEffectivePedestalsGPUESProducer);
 DEFINE_FWK_EVENTSETUP_MODULE(HcalConvertedPedestalWidthsGPUESProducer);
