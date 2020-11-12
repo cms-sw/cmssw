@@ -11,6 +11,8 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
+#include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
+
 #include "DataFormats/HGCalReco/interface/TICLCandidate.h"
 
 class PFTICLProducer : public edm::global::EDProducer<> {
@@ -30,6 +32,9 @@ private:
   // inputs
   const edm::EDGetTokenT<edm::View<TICLCandidate>> ticl_candidates_;
   const edm::EDGetTokenT<edm::ValueMap<float>> srcTrackTime_, srcTrackTimeError_, srcTrackTimeQuality_;
+  const edm::EDGetTokenT<reco::MuonCollection> muons_;
+  // For PFMuonAlgo
+  std::unique_ptr<PFMuonAlgo> pfmu_;
 };
 
 DEFINE_FWK_MODULE(PFTICLProducer);
@@ -40,8 +45,13 @@ PFTICLProducer::PFTICLProducer(const edm::ParameterSet& conf)
       ticl_candidates_(consumes<edm::View<TICLCandidate>>(conf.getParameter<edm::InputTag>("ticlCandidateSrc"))),
       srcTrackTime_(consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeValueMap"))),
       srcTrackTimeError_(consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeErrorMap"))),
-      srcTrackTimeQuality_(consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeQualityMap"))) {
+      srcTrackTimeQuality_(consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeQualityMap"))),
+      muons_(consumes<reco::MuonCollection>(conf.getParameter<edm::InputTag>("muonSrc"))) {
   produces<reco::PFCandidateCollection>();
+  // For PFMuonAlgo
+  const edm::ParameterSet pfMuonAlgoParams = conf.getParameter<edm::ParameterSet>("PFMuonAlgoParameters");
+  bool postMuonCleaning = conf.getParameter<bool>("postMuonCleaning");
+  pfmu_ = std::make_unique<PFMuonAlgo>(pfMuonAlgoParams, postMuonCleaning);
 }
 
 void PFTICLProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -52,6 +62,13 @@ void PFTICLProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<edm::InputTag>("trackTimeQualityMap", edm::InputTag("mtdTrackQualityMVA:mtdQualMVA"));
   desc.add<double>("timingQualityThreshold", 0.5);
   desc.add<bool>("useTimingAverage", false);
+  // For PFMuonAlgo
+  desc.add<edm::InputTag>("muonSrc", edm::InputTag("muons1stStep"));
+  desc.add<bool>("postMuonCleaning", false);
+  edm::ParameterSetDescription psd_PFMuonAlgo;
+  PFMuonAlgo::fillPSetDescription(psd_PFMuonAlgo);
+  desc.add<edm::ParameterSetDescription>("PFMuonAlgoParameters", psd_PFMuonAlgo);
+  //
   descriptions.add("pfTICLProducer", desc);
 }
 
@@ -64,6 +81,7 @@ void PFTICLProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSet
   evt.getByToken(srcTrackTime_, trackTimeH);
   evt.getByToken(srcTrackTimeError_, trackTimeErrH);
   evt.getByToken(srcTrackTimeQuality_, trackTimeQualH);
+  const auto muons = evt.getHandle(muons_);
 
   auto candidates = std::make_unique<reco::PFCandidateCollection>();
 
@@ -111,8 +129,23 @@ void PFTICLProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSet
     if (candidate.charge()) {  // otherwise PFCandidate throws
       // Construct edm::Ref from edm::Ptr. As of now, assumes type to be reco::Track. To be extended (either via
       // dynamic type checking or configuration) if additional track types are needed.
-      reco::TrackRef ref(ticl_cand.trackPtr().id(), int(ticl_cand.trackPtr().key()), &evt.productGetter());
-      candidate.setTrackRef(ref);
+      reco::TrackRef trackref(ticl_cand.trackPtr().id(), int(ticl_cand.trackPtr().key()), &evt.productGetter());
+      candidate.setTrackRef(trackref);
+      //
+      // Utilize PFMuonAlgo
+      const int muId = PFMuonAlgo::muAssocToTrack(trackref, muons);
+      if (muId != -1) {
+        // assign muonref to TICL PF candidates
+        reco::MuonRef muonref = reco::MuonRef(muons, muId);
+        bool allowLoose = false;
+        if (part_type == reco::PFCandidate::mu)
+          allowLoose = true;
+        // Redefine pfmuon candidate kinematics and add muonref
+        pfmu_->reconstructMuon(candidate, muonref, allowLoose);
+        std::cout << candidate << std::endl;
+        PFMuonAlgo::printMuonProperties(muonref);
+      }
+      // PFMuonAlgo ends
     }
 
     // HGCAL timing as default values

@@ -80,6 +80,8 @@ public:
                                                                double maxDPtOPt = 1e+9,
                                                                bool includeSA = false);
 
+  static int muAssocToTrack(const reco::TrackRef& trackref, const edm::Handle<reco::MuonCollection>& muonh);
+
 private:
   //Give the track with the smallest Dpt/Pt
   MuonTrackTypePair getTrackWithSmallestError(const std::vector<MuonTrackTypePair>&);

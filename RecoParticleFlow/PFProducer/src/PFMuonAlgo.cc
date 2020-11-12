@@ -476,6 +476,13 @@ void PFMuonAlgo::printMuonProperties(const reco::MuonRef& muonRef) {
   return;
 }
 
+int PFMuonAlgo::muAssocToTrack(const reco::TrackRef& trackref, const edm::Handle<reco::MuonCollection>& muonh) {
+  auto muon = std::find_if(muonh->cbegin(), muonh->cend(), [&](const reco::Muon& m) {
+    return (m.track().isNonnull() && m.track() == trackref);
+  });
+  return (muon != muonh->cend() ? std::distance(muonh->cbegin(), muon) : -1);
+}
+
 std::vector<reco::Muon::MuonTrackTypePair> PFMuonAlgo::muonTracks(const reco::MuonRef& muon,
                                                                   double maxDPtOPt,
                                                                   bool includeSA) {
