@@ -36,8 +36,8 @@ HLTScoutingMuonProducer::HLTScoutingMuonProducer(const edm::ParameterSet& iConfi
       muonEtaCut(iConfig.getParameter<double>("muonEtaCut")),
       minVtxProbCut(iConfig.getParameter<double>("minVtxProbCut")) {
   //register products
-  produces<ScoutingMuonCollection>();
-  produces<ScoutingVertexCollection>("displacedVtx");
+  produces<Run3ScoutingMuonCollection>();
+  produces<Run3ScoutingVertexCollection>("displacedVtx");
 }
 
 HLTScoutingMuonProducer::~HLTScoutingMuonProducer() = default;
@@ -46,8 +46,8 @@ HLTScoutingMuonProducer::~HLTScoutingMuonProducer() = default;
 void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event& iEvent, edm::EventSetup const& setup) const {
   using namespace edm;
 
-  std::unique_ptr<ScoutingMuonCollection> outMuons(new ScoutingMuonCollection());
-  std::unique_ptr<ScoutingVertexCollection> dispVertices(new ScoutingVertexCollection());
+  std::unique_ptr<Run3ScoutingMuonCollection> outMuons(new Run3ScoutingMuonCollection());
+  std::unique_ptr<Run3ScoutingVertexCollection> dispVertices(new Run3ScoutingVertexCollection());
 
   // Get RecoChargedCandidate
   Handle<reco::RecoChargedCandidateCollection> ChargedCandidateCollection;
