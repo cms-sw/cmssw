@@ -1,12 +1,9 @@
-#include "EcalRawESProducerGPU.h"
-
 #include "CondFormats/DataRecord/interface/EcalMappingElectronicsRcd.h"
-
 #include "EventFilter/EcalRawToDigi/interface/ElectronicsMappingGPU.h"
-
-#include <iostream>
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "HeterogeneousCore/CUDACore/interface/ConvertingESProducerT.h"
 
 using EcalElectronicsMappingGPUESProducer =
-    EcalRawESProducerGPU<ecal::raw::ElectronicsMappingGPU, EcalMappingElectronics, EcalMappingElectronicsRcd>;
+    ConvertingESProducerT<EcalMappingElectronicsRcd, ecal::raw::ElectronicsMappingGPU, EcalMappingElectronics>;
 
 DEFINE_FWK_EVENTSETUP_MODULE(EcalElectronicsMappingGPUESProducer);
