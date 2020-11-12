@@ -203,7 +203,8 @@ void SiPixelEDAClient::dqmEndLuminosityBlock(DQMStore::IBooker &iBooker,
           nFEDs_ += mefed->getBinContent(i + 1);
       }
     }
-    theCablingMap = *(eSetup.getHandle(cablingMapToken_).product());
+    // copy is intentional to allow using the SiPixelFedCablingMap in dqmEndJob() where accessing EventSetup products is not allowed
+    theCablingMap = eSetup.getData(cablingMapToken_);
 
     firstLumi = false;
   }
