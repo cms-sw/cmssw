@@ -7,7 +7,7 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/SubProcessParentageHelper.h"
 
-#include "FWCore/Framework/interface/CommonParams.h"
+#include "FWCore/Framework/src/CommonParams.h"
 #include "FWCore/Framework/interface/EDLooperBase.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
@@ -27,7 +27,8 @@
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Framework/interface/ScheduleInfo.h"
-#include "FWCore/Framework/interface/SubProcess.h"
+#include "FWCore/Framework/interface/ScheduleItems.h"
+#include "FWCore/Framework/src/SubProcess.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
 #include "FWCore/Framework/src/Breakpoints.h"
@@ -633,8 +634,6 @@ namespace edm {
 
   bool EventProcessor::endPathsEnabled() const { return schedule_->endPathsEnabled(); }
 
-  void EventProcessor::getTriggerReport(TriggerReport& rep) const { schedule_->getTriggerReport(rep); }
-
   void EventProcessor::clearCounters() { schedule_->clearCounters(); }
 
   namespace {
@@ -1020,13 +1019,11 @@ namespace edm {
 
       using Traits = OccurrenceTraits<RunPrincipal, BranchActionStreamBegin>;
 
+      RunTransitionInfo transitionInfo(runPrincipal, es);
       beginStreamsTransitionAsync<Traits>(streamLoopWaitTask.get(),
                                           *schedule_,
                                           preallocations_.numberOfStreams(),
-                                          runPrincipal,
-                                          ts,
-                                          es,
-                                          nullptr,
+                                          transitionInfo,
                                           serviceToken_,
                                           subProcesses_);
 
@@ -1090,13 +1087,11 @@ namespace edm {
 
       using Traits = OccurrenceTraits<RunPrincipal, BranchActionStreamEnd>;
 
+      RunTransitionInfo transitionInfo(runPrincipal, es);
       endStreamsTransitionAsync<Traits>(WaitingTaskHolder(streamLoopWaitTask.get()),
                                         *schedule_,
                                         preallocations_.numberOfStreams(),
-                                        runPrincipal,
-                                        ts,
-                                        es,
-                                        nullptr,
+                                        transitionInfo,
                                         serviceToken_,
                                         subProcesses_,
                                         cleaningUpAfterException);
@@ -1202,11 +1197,9 @@ namespace edm {
             rng->preBeginLumi(lb);
           }
 
-          IOVSyncValue ts(EventID(lumiPrincipal.run(), lumiPrincipal.luminosityBlock(), 0), lumiPrincipal.beginTime());
-
           //Task to start the stream beginLumis
           auto beginStreamsTask = make_waiting_task(
-              tbb::task::allocate_root(), [this, holder = iHolder, status, ts](std::exception_ptr const* iPtr) mutable {
+              tbb::task::allocate_root(), [this, holder = iHolder, status](std::exception_ptr const* iPtr) mutable {
                 if (iPtr) {
                   status->resetResources();
                   holder.doneWaiting(*iPtr);
@@ -1229,7 +1222,7 @@ namespace edm {
                   using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin>;
 
                   for (unsigned int i = 0; i < preallocations_.numberOfStreams(); ++i) {
-                    streamQueues_[i].push([this, i, status, holder, ts, &es]() mutable {
+                    streamQueues_[i].push([this, i, status, holder, &es]() mutable {
                       streamQueues_[i].pause();
 
                       auto eventTask =
@@ -1253,15 +1246,9 @@ namespace edm {
                       streamLumiStatus_[i] = std::move(status);
                       ++streamLumiActive_;
                       event.setLuminosityBlockPrincipal(lp);
-                      beginStreamTransitionAsync<Traits>(WaitingTaskHolder{eventTask},
-                                                         *schedule_,
-                                                         i,
-                                                         *lp,
-                                                         ts,
-                                                         es,
-                                                         eventSetupImpls,
-                                                         serviceToken_,
-                                                         subProcesses_);
+                      LumiTransitionInfo transitionInfo(*lp, es, eventSetupImpls);
+                      beginStreamTransitionAsync<Traits>(
+                          WaitingTaskHolder{eventTask}, *schedule_, i, transitionInfo, serviceToken_, subProcesses_);
                     });
                   }
                 }
@@ -1351,11 +1338,11 @@ namespace edm {
     unsigned int streamIndex = 0;
     for (; streamIndex < preallocations_.numberOfStreams() - 1; ++streamIndex) {
       tbb::task::enqueue(*edm::make_functor_task(tbb::task::allocate_root(), [this, streamIndex, h = iHolder]() {
-        handleNextEventForStreamAsync(std::move(h), streamIndex);
+        handleNextEventForStreamAsync(h, streamIndex);
       }));
     }
     tbb::task::spawn(*edm::make_functor_task(tbb::task::allocate_root(), [this, streamIndex, h = std::move(iHolder)]() {
-      handleNextEventForStreamAsync(std::move(h), streamIndex);
+      handleNextEventForStreamAsync(h, streamIndex);
     }));
   }
 
@@ -1492,13 +1479,11 @@ namespace edm {
       IOVSyncValue ts(EventID(lumiPrincipal.run(), lumiPrincipal.luminosityBlock(), EventID::maxEventNumber()),
                       lumiPrincipal.endTime());
       using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd>;
+      LumiTransitionInfo transitionInfo(lumiPrincipal, es, eventSetupImpls);
       endStreamTransitionAsync<Traits>(std::move(lumiDoneTask),
                                        *schedule_,
                                        iStreamIndex,
-                                       lumiPrincipal,
-                                       ts,
-                                       es,
-                                       eventSetupImpls,
+                                       transitionInfo,
                                        serviceToken_,
                                        subProcesses_,
                                        cleaningUpAfterException);
@@ -1859,7 +1844,8 @@ namespace edm {
     }
 
     EventSetupImpl const& es = streamLumiStatus_[iStreamIndex]->eventSetupImpl(esp_->subProcessIndex());
-    schedule_->processOneEventAsync(std::move(afterProcessTask), iStreamIndex, *pep, es, serviceToken_);
+    EventTransitionInfo info(*pep, es);
+    schedule_->processOneEventAsync(std::move(afterProcessTask), iStreamIndex, info, serviceToken_);
   }
 
   void EventProcessor::processEventWithLooper(EventPrincipal& iPrincipal, unsigned int iStreamIndex) {

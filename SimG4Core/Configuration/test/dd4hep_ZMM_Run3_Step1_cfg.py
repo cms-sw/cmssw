@@ -19,6 +19,17 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.Geometry.GeometryDD4hepExtended2021_cff') # there w
 
+
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.categories.append('EcalGeom')
+#    process.MessageLogger.categories.append('MuonSim')
+#    process.MessageLogger.categories.append('CaloSim')
+#    process.MessageLogger.categories.append('EcalSim')
+#    process.MessageLogger.categories.append('HcalSim')
+#    process.MessageLogger.categories.append('SimG4CoreApplication')
+#    process.MessageLogger.categories.append("TrackerGeometryBuilder");
+#    process.MessageLogger.categories.append("TrackerSimInfoNumbering");
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10),
     output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
@@ -72,7 +83,7 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
         dataTier = cms.untracked.string('GEN-SIM'),
         filterName = cms.untracked.string('')
     ),
-    fileName = cms.untracked.string('file:step1_ZMM.root'),
+    fileName = cms.untracked.string('file:step1_ZMM_dd4hep.root'),
     outputCommands = process.FEVTDEBUGEventContent.outputCommands,
     splitLevel = cms.untracked.int32(0)
 )

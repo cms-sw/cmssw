@@ -1,8 +1,8 @@
 #include "FTFPCMS_BERT_HP_EML.h"
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsXS.h"
-#include "SimG4Core/PhysicsLists/interface/CMSThermalNeutrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "G4ThermalNeutrons.hh"
 #include "G4DecayPhysics.hh"
 #include "G4EmExtraPhysics.hh"
 #include "G4IonPhysics.hh"
@@ -60,7 +60,7 @@ FTFPCMS_BERT_HP_EML::FTFPCMS_BERT_HP_EML(const edm::ParameterSet& p) : PhysicsLi
       RegisterPhysics(ncut);
     }
     if (thermal) {
-      RegisterPhysics(new CMSThermalNeutrons(ver));
+      RegisterPhysics(new G4ThermalNeutrons(ver));
     }
   }
 }

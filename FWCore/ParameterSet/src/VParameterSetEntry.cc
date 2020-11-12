@@ -1,6 +1,6 @@
 #include "FWCore/ParameterSet/interface/VParameterSetEntry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/split.h"
+#include "FWCore/ParameterSet/src/split.h"
 #include "FWCore/Utilities/interface/Digest.h"
 
 #include <cassert>

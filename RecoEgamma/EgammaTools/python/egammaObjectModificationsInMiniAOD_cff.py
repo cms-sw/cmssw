@@ -169,6 +169,5 @@ run2_miniAOD_80XLegacy.toModify(egamma9X105XUpdateModifier,allowGsfTrackForConvs
 run2_miniAOD_80XLegacy.toModify(egamma_modifications,appendEgamma8XLegacyAppendableModifiers)
 run2_miniAOD_80XLegacy.toModify(egamma_modifications,prependEgamma8XObjectUpdateModifier)
 
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
-(pp_on_AA_2018 | pp_on_PbPb_run3).toModify(egamma_modifications, appendEgammaHIPhotonIsolationModifier)
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toModify(egamma_modifications, appendEgammaHIPhotonIsolationModifier)

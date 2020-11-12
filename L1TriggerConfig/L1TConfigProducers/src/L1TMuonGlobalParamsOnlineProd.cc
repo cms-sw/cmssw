@@ -14,8 +14,8 @@
 
 class L1TMuonGlobalParamsOnlineProd : public L1ConfigOnlineProdBaseExt<L1TMuonGlobalParamsO2ORcd, L1TMuonGlobalParams> {
 private:
-  bool transactionSafe;
-  edm::ESGetToken<L1TMuonGlobalParams, L1TMuonGlobalParamsRcd> baseSettings_token;
+  const bool transactionSafe;
+  const edm::ESGetToken<L1TMuonGlobalParams, L1TMuonGlobalParamsRcd> baseSettings_token;
 
 public:
   std::unique_ptr<const L1TMuonGlobalParams> newObject(const std::string &objectKey,
@@ -26,10 +26,9 @@ public:
 };
 
 L1TMuonGlobalParamsOnlineProd::L1TMuonGlobalParamsOnlineProd(const edm::ParameterSet &iConfig)
-    : L1ConfigOnlineProdBaseExt<L1TMuonGlobalParamsO2ORcd, L1TMuonGlobalParams>(iConfig) {
-  wrappedSetWhatProduced(iConfig).setConsumes(baseSettings_token);
-  transactionSafe = iConfig.getParameter<bool>("transactionSafe");
-}
+    : L1ConfigOnlineProdBaseExt<L1TMuonGlobalParamsO2ORcd, L1TMuonGlobalParams>(iConfig),
+      transactionSafe(iConfig.getParameter<bool>("transactionSafe")),
+      baseSettings_token(wrappedSetWhatProduced(iConfig).consumes()) {}
 
 std::unique_ptr<const L1TMuonGlobalParams> L1TMuonGlobalParamsOnlineProd::newObject(
     const std::string &objectKey, const L1TMuonGlobalParamsO2ORcd &record) {

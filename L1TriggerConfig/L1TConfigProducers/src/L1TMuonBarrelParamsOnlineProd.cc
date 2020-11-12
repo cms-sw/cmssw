@@ -15,8 +15,8 @@ using namespace XERCES_CPP_NAMESPACE;
 
 class L1TMuonBarrelParamsOnlineProd : public L1ConfigOnlineProdBaseExt<L1TMuonBarrelParamsO2ORcd, L1TMuonBarrelParams> {
 private:
-  bool transactionSafe;
-  edm::ESGetToken<L1TMuonBarrelParams, L1TMuonBarrelParamsRcd> baseSettings_token;
+  const bool transactionSafe;
+  const edm::ESGetToken<L1TMuonBarrelParams, L1TMuonBarrelParamsRcd> baseSettings_token;
 
 public:
   std::unique_ptr<const L1TMuonBarrelParams> newObject(const std::string& objectKey,
@@ -27,10 +27,9 @@ public:
 };
 
 L1TMuonBarrelParamsOnlineProd::L1TMuonBarrelParamsOnlineProd(const edm::ParameterSet& iConfig)
-    : L1ConfigOnlineProdBaseExt<L1TMuonBarrelParamsO2ORcd, L1TMuonBarrelParams>(iConfig) {
-  wrappedSetWhatProduced(iConfig).setConsumes(baseSettings_token);
-  transactionSafe = iConfig.getParameter<bool>("transactionSafe");
-}
+    : L1ConfigOnlineProdBaseExt<L1TMuonBarrelParamsO2ORcd, L1TMuonBarrelParams>(iConfig),
+      transactionSafe(iConfig.getParameter<bool>("transactionSafe")),
+      baseSettings_token(wrappedSetWhatProduced(iConfig).consumes()) {}
 
 std::unique_ptr<const L1TMuonBarrelParams> L1TMuonBarrelParamsOnlineProd::newObject(
     const std::string& objectKey, const L1TMuonBarrelParamsO2ORcd& record) {

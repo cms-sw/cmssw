@@ -24,8 +24,7 @@ namespace ecaldqm {
         bxBinEdges_{{1, 271, 541, 892, 1162, 1432, 1783, 2053, 2323, 2674, 2944, 3214, 3446, 3490, 3491, 3565}},
         bxBin_(0.),
         towerReadouts_(),
-        lhcStatusInfoCollectionTag_(),
-        lhcStatusSet_(false) {}
+        lhcStatusInfoCollectionTag_() {}
 
   void TrigPrimTask::setParams(edm::ParameterSet const& _params) {
     runOnEmul_ = _params.getUntrackedParameter<bool>("runOnEmul");
@@ -54,29 +53,28 @@ namespace ecaldqm {
     _es.get<EcalTPGStripStatusRcd>().get(StripStatusRcd);
   }
 
-  void TrigPrimTask::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
-    // Reset by LS plots at beginning of every LS
-    MEs_.at("EtSummaryByLumi").reset();
-    MEs_.at("TTFlags4ByLumi").reset();
-    MEs_.at("LHCStatusByLumi").reset(-1);
-
-    // Reset lhcStatusSet_ to false at the beginning of each LS; when LHC status is set in some event this variable will be set to true
-    lhcStatusSet_ = false;
-  }
-
-  void TrigPrimTask::beginEvent(edm::Event const& _evt, edm::EventSetup const& _es) {
+  void TrigPrimTask::beginEvent(edm::Event const& _evt,
+                                edm::EventSetup const& _es,
+                                bool const& ByLumiResetSwitch,
+                                bool& lhcStatusSet) {
     using namespace std;
 
     towerReadouts_.clear();
 
-    if (!lhcStatusSet_) {
+    if (ByLumiResetSwitch) {
+      MEs_.at("EtSummaryByLumi").reset();
+      MEs_.at("TTFlags4ByLumi").reset();
+      MEs_.at("LHCStatusByLumi").reset(-1);
+    }
+
+    if (!lhcStatusSet) {
       // Update LHC status once each LS
       MESet& meLHCStatusByLumi(static_cast<MESet&>(MEs_.at("LHCStatusByLumi")));
       edm::Handle<TCDSRecord> tcdsData;
       _evt.getByToken(lhcStatusInfoRecordToken_, tcdsData);
       if (tcdsData.isValid()) {
         meLHCStatusByLumi.fill(double(tcdsData->getBST().getBeamMode()));
-        lhcStatusSet_ = true;
+        lhcStatusSet = true;
       }
     }
 

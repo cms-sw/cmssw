@@ -20,19 +20,17 @@ namespace ecaldqm {
 
   void RawDataTask::beginRun(edm::Run const& _run, edm::EventSetup const&) { runNumber_ = _run.run(); }
 
-  void RawDataTask::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
-    // Reset by LS plots at beginning of every LS
-    MEs_.at("DesyncByLumi").reset();
-    MEs_.at("FEByLumi").reset();
-    MEs_.at("FEStatusErrMapByLumi").reset();
-  }
-
-  void RawDataTask::beginEvent(edm::Event const& _evt, edm::EventSetup const&) {
+  void RawDataTask::beginEvent(edm::Event const& _evt, edm::EventSetup const&, bool const& ByLumiResetSwitch, bool&) {
     orbit_ = _evt.orbitNumber() & 0xffffffff;
     bx_ = _evt.bunchCrossing() & 0xfff;
     triggerType_ = _evt.experimentType() & 0xf;
     l1A_ = 0;
     feL1Offset_ = _evt.isRealData() ? 1 : 0;
+    if (ByLumiResetSwitch) {
+      MEs_.at("DesyncByLumi").reset();
+      MEs_.at("FEByLumi").reset();
+      MEs_.at("FEStatusErrMapByLumi").reset();
+    }
   }
 
   void RawDataTask::runOnSource(FEDRawDataCollection const& _fedRaw) {

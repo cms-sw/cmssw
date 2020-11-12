@@ -18,6 +18,7 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackerRecHit2D/interface/ClusterRemovalInfo.h"
+#include "DataFormats/TrackerRecHit2D/interface/VectorHit.h"
 
 #include "TrackingTools/PatternTools/interface/TrackCollectionTokens.h"
 
@@ -190,6 +191,22 @@ namespace {
           collectedPixels[cluster.key()] = true;
         else if (cluster.isPhase2())
           collectedPhase2OTs[cluster.key()] = true;
+
+        // Phase 2 OT is defined as Pixel detector (for now)
+        const auto& hitType = typeid(hit);
+        if (hitType == typeid(VectorHit)) {
+          auto const& vectorHit = reinterpret_cast<VectorHit const&>(hit);
+          auto const& lowCluster = vectorHit.lowerClusterRef();
+          auto const& uppCluster = vectorHit.upperClusterRef();
+          LogTrace("TrackClusterRemoverPhase2")
+              << "masking a VHit with lowCluster key: " << lowCluster.key() << " and upper key: " << uppCluster.key();
+          if (lowCluster.isPhase2())
+            collectedPhase2OTs[lowCluster.key()] = true;
+          if (uppCluster.isPhase2())
+            collectedPhase2OTs[uppCluster.key()] = true;
+        } else {
+          LogTrace("TrackClusterRemoverPhase2") << "it is not a VHit.";
+        }
       }
     }
 

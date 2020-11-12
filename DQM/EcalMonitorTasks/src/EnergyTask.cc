@@ -26,9 +26,10 @@ namespace ecaldqm {
     return false;
   }
 
-  void EnergyTask::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
-    // Reset by LS plots at beginning of every LS
-    MEs_.at("HitMapAllByLumi").reset();
+  void EnergyTask::beginEvent(edm::Event const& _evt, edm::EventSetup const& _es, bool const& ByLumiResetSwitch, bool&) {
+    if (ByLumiResetSwitch) {
+      MEs_.at("HitMapAllByLumi").reset();
+    }
   }
 
   void EnergyTask::runOnRecHits(EcalRecHitCollection const& _hits) {

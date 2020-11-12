@@ -50,7 +50,7 @@ GsfElectronCoreEcalDrivenProducer::GsfElectronCoreEcalDrivenProducer(const edm::
       ctfTracksToken_(consumes<reco::TrackCollection>(config.getParameter<edm::InputTag>("ctfTracks"))),
       putToken_(produces<reco::GsfElectronCoreCollection>()) {}
 
-void GsfElectronCoreEcalDrivenProducer::produce(edm::StreamID, edm::Event& event, const edm::EventSetup& setup) const {
+void GsfElectronCoreEcalDrivenProducer::produce(edm::StreamID, edm::Event& event, const edm::EventSetup&) const {
   auto gsfTracksHandle = event.getHandle(gsfTracksToken_);
   auto ctfTracksHandle = event.getHandle(ctfTracksToken_);
 

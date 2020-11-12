@@ -59,6 +59,10 @@ std::vector<GEMCoPadDigi> GEMCoPadProcessor::run(const GEMPadDigiCollection* in_
       // now let's correlate the pads in two layers of this partition
       const auto& pads_range = (*det_range).second;
       for (auto p = pads_range.first; p != pads_range.second; ++p) {
+        // ignore 16-partition GE2/1 pads
+        if (id.isGE21() and p->nPartitions() == GEMPadDigi::GE21SplitStrip)
+          continue;
+
         // only consider valid pads
         if (!p->isValid())
           continue;
@@ -99,6 +103,10 @@ void GEMCoPadProcessor::declusterize(const GEMPadDigiClusterCollection* in_clust
     const GEMDetId& id = (*detUnitIt).first;
     const auto& range = (*detUnitIt).second;
     for (auto digiIt = range.first; digiIt != range.second; ++digiIt) {
+      // ignore 16-partition GE2/1 pads
+      if (id.isGE21() and digiIt->nPartitions() == GEMPadDigiCluster::GE21SplitStrip)
+        continue;
+
       // only consider valid clusters
       if (!digiIt->isValid())
         continue;

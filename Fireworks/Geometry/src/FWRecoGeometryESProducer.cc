@@ -103,14 +103,14 @@ FWRecoGeometryESProducer::FWRecoGeometryESProducer(const edm::ParameterSet& pset
   m_timing = pset.getUntrackedParameter<bool>("Timing", false);
   auto cc = setWhatProduced(this);
   if (m_tracker or m_muon) {
-    cc.setConsumes(m_trackingGeomToken);
+    m_trackingGeomToken = cc.consumes();
   }
   if (m_timing) {
-    cc.setConsumes(m_ftlBarrelGeomToken, edm::ESInputTag{"", "FastTimeBarrel"})
-        .setConsumes(m_ftlEndcapGeomToken, edm::ESInputTag{"", "SFBX"});
+    m_ftlBarrelGeomToken = cc.consumes(edm::ESInputTag{"", "FastTimeBarrel"});
+    m_ftlEndcapGeomToken = cc.consumes(edm::ESInputTag{"", "SFBX"});
   }
   if (m_calo) {
-    cc.setConsumes(m_caloGeomToken);
+    m_caloGeomToken = cc.consumes();
   }
 }
 

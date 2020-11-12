@@ -107,3 +107,9 @@ void GEMGeometry::add(const GEMChamber* chamber) {
   theDetIds.emplace_back(chamber->geographicalId());
   theMap.insert(std::make_pair((chamber->geographicalId()).rawId(), chamber));
 }
+
+bool GEMGeometry::hasME0() const { return station(1, 0) != nullptr and station(-1, 0) != nullptr; }
+
+bool GEMGeometry::hasGE11() const { return station(1, 1) != nullptr and station(-1, 1) != nullptr; }
+
+bool GEMGeometry::hasGE21() const { return station(1, 2) != nullptr and station(-1, 2) != nullptr; }

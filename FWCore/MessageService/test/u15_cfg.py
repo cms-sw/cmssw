@@ -21,7 +21,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         preEventProcessing = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        FwkJob = cms.untracked.PSet(
+        FwkTest = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         )
     ),
@@ -35,13 +35,13 @@ process.MessageLogger = cms.Service("MessageLogger",
         preEventProcessing = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        FwkJob = cms.untracked.PSet(
+        FwkTest = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         )
     ),
     categories = cms.untracked.vstring('preEventProcessing', 
         'FwkReport', 
-        'FwkJob'),
+        'FwkTest'),
     destinations = cms.untracked.vstring('u15_infos', 
         'u15_debugs')
 )

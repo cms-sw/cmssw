@@ -1488,12 +1488,14 @@ PFEGammaAlgo::EgammaObjects PFEGammaAlgo::fillPFCandidates(const std::list<PFEGa
       cand.setCharge(RO.primaryKFs[0]->trackRef()->charge());
       xtra.setKfTrackRef(RO.primaryKFs[0]->trackRef());
       cand.setTrackRef(RO.primaryKFs[0]->trackRef());
+      cand.setVertex(RO.primaryKFs[0]->trackRef()->vertex());
       cand.addElementInBlock(_currentblock, RO.primaryKFs[0]->index());
     }
     if (!RO.primaryGSFs.empty()) {
       cand.setCharge(RO.primaryGSFs[0]->GsftrackRef()->chargeMode());
       xtra.setGsfTrackRef(RO.primaryGSFs[0]->GsftrackRef());
       cand.setGsfTrackRef(RO.primaryGSFs[0]->GsftrackRef());
+      cand.setVertex(RO.primaryGSFs[0]->GsftrackRef()->vertex());
       cand.addElementInBlock(_currentblock, RO.primaryGSFs[0]->index());
     }
     if (RO.parentSC) {

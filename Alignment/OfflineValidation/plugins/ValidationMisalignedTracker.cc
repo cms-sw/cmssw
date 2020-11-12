@@ -31,15 +31,12 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 //
 // constructors and destructor
 //
-ValidationMisalignedTracker::ValidationMisalignedTracker(const edm::ParameterSet& iConfig) {
+ValidationMisalignedTracker::ValidationMisalignedTracker(const edm::ParameterSet& iConfig)
+    : geomToken_(esConsumes()), magFieldToken_(esConsumes()) {
   //now do what ever initialization is needed
   mzmu = 0., recmzmu = 0., ptzmu = 0., recptzmu = 0., etazmu = 0., recetazmu = 0., thetazmu = 0., recthetazmu = 0.,
   phizmu = 0., recphizmu = 0.;
@@ -292,8 +289,7 @@ void ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::E
   //
   // Retrieve tracker geometry from event setup
   //
-  edm::ESHandle<TrackerGeometry> trackerGeometry;
-  iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometry);
+  const TrackerGeometry* trackerGeometry = &iSetup.getData(geomToken_);
   auto testGeomDet = trackerGeometry->detsTOB().front();
   std::cout << testGeomDet->position() << std::endl;
 
@@ -385,14 +381,13 @@ void ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::E
 
         const SimTrack* simulatedTrack = &(*tp->g4Track_begin());
 
-        edm::ESHandle<MagneticField> theMF;
-        iSetup.get<IdealMagneticFieldRecord>().get(theMF);
+        const MagneticField* theMF = &iSetup.getData(magFieldToken_);
         FreeTrajectoryState ftsAtProduction(
             GlobalPoint(tp->vertex().x(), tp->vertex().y(), tp->vertex().z()),
             GlobalVector(
                 simulatedTrack->momentum().x(), simulatedTrack->momentum().y(), simulatedTrack->momentum().z()),
             TrackCharge(tp->charge()),
-            theMF.product());
+            theMF);
         TSCPBuilderNoMaterial tscpBuilder;
         TrajectoryStateClosestToPoint tsAtClosestApproach =
             tscpBuilder(ftsAtProduction, GlobalPoint(0, 0, 0));  //as in TrackProducerAlgorithm
@@ -688,14 +683,13 @@ void ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::E
             TrackingParticleRef tpr = tp.begin()->first;
             const SimTrack* fakeassocTrack = &(*tpr->g4Track_begin());
 
-            edm::ESHandle<MagneticField> theMF;
-            iSetup.get<IdealMagneticFieldRecord>().get(theMF);
+            const MagneticField* theMF = &iSetup.getData(magFieldToken_);
             FreeTrajectoryState ftsAtProduction(
                 GlobalPoint(tpr->vertex().x(), tpr->vertex().y(), tpr->vertex().z()),
                 GlobalVector(
                     fakeassocTrack->momentum().x(), fakeassocTrack->momentum().y(), fakeassocTrack->momentum().z()),
                 TrackCharge(tpr->charge()),
-                theMF.product());
+                theMF);
             TSCPBuilderNoMaterial tscpBuilder;
             TrajectoryStateClosestToPoint tsAtClosestApproach =
                 tscpBuilder(ftsAtProduction, GlobalPoint(0, 0, 0));  //as in TrackProducerAlgorithm

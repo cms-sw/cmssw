@@ -45,7 +45,9 @@ private:
 };
 
 SiStripBackPlaneCorrectionFakeESSource::SiStripBackPlaneCorrectionFakeESSource(const edm::ParameterSet& iConfig) {
-  setWhatProduced(this).setConsumes(m_tTopoToken).setConsumes(m_geomDetToken);
+  auto cc = setWhatProduced(this);
+  m_tTopoToken = cc.consumes();
+  m_geomDetToken = cc.consumes();
   findingRecord<SiStripBackPlaneCorrectionRcd>();
 
   m_valuePerModuleGeometry = iConfig.getParameter<std::vector<double>>("BackPlaneCorrection_PerModuleGeometry");

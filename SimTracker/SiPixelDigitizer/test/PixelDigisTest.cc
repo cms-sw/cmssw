@@ -47,7 +47,7 @@
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
 
 // data formats
 #include "DataFormats/Common/interface/DetSetVector.h"

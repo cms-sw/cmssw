@@ -2,7 +2,7 @@
 <use name="DataFormats/Math"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Reflection"/>
-<use name="FWCore/SOA"/>
+<use name="FWCore/SOA" source_only="1"/>
 <use name="FWCore/Utilities"/>
 <use name="FWCore/MessageLogger"/>
 <use name="boost"/>

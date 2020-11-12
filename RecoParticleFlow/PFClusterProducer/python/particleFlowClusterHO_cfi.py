@@ -49,7 +49,7 @@ _positionCalcHO_cross_nodepth = cms.PSet(
 )
 
 _positionCalcHO_all_nodepth = _positionCalcHO_cross_nodepth.clone(
-    posCalcNCrystals = cms.int32(-1)
+    posCalcNCrystals = -1
 )
 
 #pf clusters

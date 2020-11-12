@@ -2,7 +2,6 @@
 </export>
 <library name="PhysicsToolsPatAlgos_plugins" file="*.cc">
   <use name="PhysicsTools/PatAlgos"/>
-  <use name="PhysicsTools/TensorFlow"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/MessageLogger"/>
@@ -20,9 +19,7 @@
   <use name="CondFormats/JetMETObjects"/>
   <use name="CondFormats/HcalObjects"/>
   <use name="CondFormats/DataRecord"/>
-  <use name="CommonTools/CandAlgos"/>
   <use name="CommonTools/Egamma"/>
-  <use name="CommonTools/MVAUtils"/>
   <use name="JetMETCorrections/Objects"/>
   <use name="JetMETCorrections/JetCorrector"/>
   <use name="TrackingTools/TransientTrack"/>

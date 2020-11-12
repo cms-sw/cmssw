@@ -12,5 +12,5 @@ pfCombinedCvsLJetTags  = cms.EDProducer(
 )
 
 pfCombinedCvsBJetTags = pfCombinedCvsLJetTags.clone(
-   jetTagComputer = cms.string('charmTagsComputerCvsB')
+   jetTagComputer = 'charmTagsComputerCvsB'
    )

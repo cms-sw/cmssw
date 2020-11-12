@@ -10,7 +10,6 @@
 <use name="DataFormats/RecoCandidate"/>
 <use name="DataFormats/Candidate"/>
 <use name="DataFormats/VertexReco"/>
-<use name="RecoMuon/MuonIdentification"/>
 <use name="TrackingTools/IPTools"/>
 <use name="TrackingTools/TransientTrack"/>
 <use name="Geometry/TrackerGeometryBuilder"/>

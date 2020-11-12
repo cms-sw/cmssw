@@ -1,13 +1,13 @@
 # hltGetConfiguration --full --data /dev/CMSSW_11_2_0/Fake2 --type Fake2 --unprescale --process HLTFake2 --globaltag auto:run2_hlt_Fake2 --input file:RelVal_Raw_Fake2_DATA.root
 
-# /dev/CMSSW_11_2_0/Fake2/V5 (CMSSW_11_2_0_pre5)
+# /dev/CMSSW_11_2_0/Fake2/V6 (CMSSW_11_2_0_pre7)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFake2" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_11_2_0/Fake2/V5')
+  tableName = cms.string('/dev/CMSSW_11_2_0/Fake2/V6')
 )
 
 process.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -259,6 +259,7 @@ process.hltGtStage2Digis = cms.EDProducer( "L1TRawToDigi",
 process.hltGtStage2ObjectMap = cms.EDProducer( "L1TGlobalProducer",
     L1DataBxInEvent = cms.int32( 5 ),
     AlgorithmTriggersUnmasked = cms.bool( True ),
+    RequireMenuToMatchAlgoBlkInput = cms.bool( True ),
     EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
     BstLengthBytes = cms.int32( -1 ),
     MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
@@ -272,12 +273,12 @@ process.hltGtStage2ObjectMap = cms.EDProducer( "L1TGlobalProducer",
     PrescaleCSVFile = cms.string( "prescale_L1TGlobal.csv" ),
     PrintL1Menu = cms.untracked.bool( False ),
     ExtInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    AlgoBlkInputTag = cms.InputTag( "hltGtStage2Digis" ),
+    TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
     PrescaleSet = cms.uint32( 1 ),
     EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
     ProduceL1GtObjectMapRecord = cms.bool( True ),
     GetPrescaleColumnFromData = cms.bool( False ),
-    TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' )
+    AlgoBlkInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltScalersRawToDigi = cms.EDProducer( "ScalersRawToDigi",
     scalersInputTag = cms.InputTag( "rawDataCollector" )

@@ -15,7 +15,7 @@
   </debug>
   
   <open_geometry/>
-  <close_geometry/>
+  <!--close_geometry/-->
 
   <ConstantsSection label="" eval="true">
     <Constant name="world_x" value="5*m"/>

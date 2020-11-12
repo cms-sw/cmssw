@@ -1,13 +1,12 @@
 #include "DD4hep/DetFactoryHelper.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace dd4hep;
 using namespace cms;
 
-static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e, SensitiveDetector& /* sens */) {
+static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e) {
   cms::DDNamespace ns(ctxt, e, true);
   DDAlgoArguments args(ctxt, e);
   int startCopyNo = args.find("StartCopyNo") ? args.value<int>("StartCopyNo") : 1;

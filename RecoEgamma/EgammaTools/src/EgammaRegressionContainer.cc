@@ -4,24 +4,19 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "CondFormats/DataRecord/interface/GBRDWrapperRcd.h"
-#include "CondFormats/EgammaObjects/interface/GBRForestD.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
-EgammaRegressionContainer::EgammaRegressionContainer(const edm::ParameterSet& iConfig)
+EgammaRegressionContainer::EgammaRegressionContainer(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
     : outputTransformerLowEt_(iConfig.getParameter<double>("rangeMinLowEt"),
                               iConfig.getParameter<double>("rangeMaxLowEt")),
       outputTransformerHighEt_(iConfig.getParameter<double>("rangeMinHighEt"),
                                iConfig.getParameter<double>("rangeMaxHighEt")),
       forceHighEnergyTrainingIfSaturated_(iConfig.getParameter<bool>("forceHighEnergyTrainingIfSaturated")),
       lowEtHighEtBoundary_(iConfig.getParameter<double>("lowEtHighEtBoundary")),
-      ebLowEtForestName_(iConfig.getParameter<std::string>("ebLowEtForestName")),
-      ebHighEtForestName_(iConfig.getParameter<std::string>("ebHighEtForestName")),
-      eeLowEtForestName_(iConfig.getParameter<std::string>("eeLowEtForestName")),
-      eeHighEtForestName_(iConfig.getParameter<std::string>("eeHighEtForestName")),
-      ebLowEtForest_(nullptr),
-      ebHighEtForest_(nullptr),
-      eeLowEtForest_(nullptr),
-      eeHighEtForest_(nullptr) {}
+      ebLowEtForestToken_{cc.esConsumes(iConfig.getParameter<edm::ESInputTag>("ebLowEtForestName"))},
+      ebHighEtForestToken_{cc.esConsumes(iConfig.getParameter<edm::ESInputTag>("ebHighEtForestName"))},
+      eeLowEtForestToken_{cc.esConsumes(iConfig.getParameter<edm::ESInputTag>("eeLowEtForestName"))},
+      eeHighEtForestToken_{cc.esConsumes(iConfig.getParameter<edm::ESInputTag>("eeHighEtForestName"))} {}
 
 edm::ParameterSetDescription EgammaRegressionContainer::makePSetDescription() {
   edm::ParameterSetDescription desc;
@@ -31,26 +26,18 @@ edm::ParameterSetDescription EgammaRegressionContainer::makePSetDescription() {
   desc.add<double>("rangeMaxHighEt", 3.0);
   desc.add<double>("lowEtHighEtBoundary", 50.);
   desc.add<bool>("forceHighEnergyTrainingIfSaturated", false);
-  desc.add<std::string>("ebLowEtForestName", "electron_eb_ECALTRK_lowpt");
-  desc.add<std::string>("ebHighEtForestName", "electron_eb_ECALTRK");
-  desc.add<std::string>("eeLowEtForestName", "electron_ee_ECALTRK_lowpt");
-  desc.add<std::string>("eeHighEtForestName", "electron_ee_ECALTRK");
+  desc.add<edm::ESInputTag>("ebLowEtForestName", edm::ESInputTag{"", "electron_eb_ECALTRK_lowpt"});
+  desc.add<edm::ESInputTag>("ebHighEtForestName", edm::ESInputTag{"", "electron_eb_ECALTRK"});
+  desc.add<edm::ESInputTag>("eeLowEtForestName", edm::ESInputTag{"", "electron_ee_ECALTRK_lowpt"});
+  desc.add<edm::ESInputTag>("eeHighEtForestName", edm::ESInputTag{"", "electron_ee_ECALTRK"});
   return desc;
 }
 
-namespace {
-  const GBRForestD* getForest(const edm::EventSetup& iSetup, const std::string& name) {
-    edm::ESHandle<GBRForestD> handle;
-    iSetup.get<GBRDWrapperRcd>().get(name, handle);
-    return handle.product();
-  }
-}  // namespace
-
 void EgammaRegressionContainer::setEventContent(const edm::EventSetup& iSetup) {
-  ebLowEtForest_ = getForest(iSetup, ebLowEtForestName_);
-  ebHighEtForest_ = getForest(iSetup, ebHighEtForestName_);
-  eeLowEtForest_ = getForest(iSetup, eeLowEtForestName_);
-  eeHighEtForest_ = getForest(iSetup, eeHighEtForestName_);
+  ebLowEtForest_ = &iSetup.getData(ebLowEtForestToken_);
+  ebHighEtForest_ = &iSetup.getData(ebHighEtForestToken_);
+  eeLowEtForest_ = &iSetup.getData(eeLowEtForestToken_);
+  eeHighEtForest_ = &iSetup.getData(eeHighEtForestToken_);
 }
 
 float EgammaRegressionContainer::operator()(const float et,

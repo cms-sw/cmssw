@@ -1,5 +1,4 @@
 <library file="DummyLHEAnalyzer.cc">
-  <use name="PhysicsTools/HepMCCandAlgos"/>
   <use name="SimDataFormats/GeneratorProducts"/>
   <use name="FWCore/Framework"/>
   <flags EDM_PLUGIN="1"/>
@@ -15,3 +14,5 @@
   <use name="SimDataFormats/GeneratorProducts"/>
   <use name="catch2"/>
 </bin>
+
+<test name="test_cmsLHEtoEOSManager" command="test_cmsLHEtoEOSManager.sh"/>

@@ -28,11 +28,13 @@ public:
 private:
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopToken_;
+  bool usePhase2Stacks_;
 };
 
 using namespace edm;
 
-TrackerRecoGeometryESProducer::TrackerRecoGeometryESProducer(const edm::ParameterSet &p) {
+TrackerRecoGeometryESProducer::TrackerRecoGeometryESProducer(const edm::ParameterSet &p)
+    : usePhase2Stacks_(p.getParameter<bool>("usePhase2Stacks")) {
   auto c = setWhatProduced(this);
 
   // 08-Oct-2007 - Patrick Janot
@@ -41,8 +43,8 @@ TrackerRecoGeometryESProducer::TrackerRecoGeometryESProducer(const edm::Paramete
   // aligned and a misaligned geometry in the same job.
   // The default parameter ("") makes this change transparent to the user
   // See FastSimulation/Configuration/data/ for examples of cfi's.
-  c.setConsumes(geomToken_, edm::ESInputTag("", p.getUntrackedParameter<std::string>("trackerGeometryLabel")));
-  c.setConsumes(tTopToken_);
+  tTopToken_ = c.consumes();
+  geomToken_ = c.consumes(edm::ESInputTag("", p.getUntrackedParameter<std::string>("trackerGeometryLabel")));
 }
 
 std::unique_ptr<GeometricSearchTracker> TrackerRecoGeometryESProducer::produce(
@@ -50,12 +52,14 @@ std::unique_ptr<GeometricSearchTracker> TrackerRecoGeometryESProducer::produce(
   TrackerGeometry const &tG = iRecord.get(geomToken_);
 
   GeometricSearchTrackerBuilder builder;
-  return std::unique_ptr<GeometricSearchTracker>(builder.build(tG.trackerDet(), &tG, &iRecord.get(tTopToken_)));
+  return std::unique_ptr<GeometricSearchTracker>(
+      builder.build(tG.trackerDet(), &tG, &iRecord.get(tTopToken_), usePhase2Stacks_));
 }
 
 void TrackerRecoGeometryESProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
 
+  desc.add<bool>("usePhase2Stacks", false);
   desc.addUntracked<std::string>("trackerGeometryLabel", "");
   descriptions.addDefault(desc);
 }

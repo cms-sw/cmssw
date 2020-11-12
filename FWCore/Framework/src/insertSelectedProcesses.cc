@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/insertSelectedProcesses.h"
+#include "FWCore/Framework/src/insertSelectedProcesses.h"
 
 #include "DataFormats/Common/interface/WrapperBase.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"

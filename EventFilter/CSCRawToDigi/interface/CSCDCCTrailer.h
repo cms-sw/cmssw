@@ -1,7 +1,7 @@
 // Authors Rick W and Alex T 9/24/94
 //
-#ifndef CSCDCCTrailer_h
-#define CSCDCCTrailer_h
+#ifndef EventFilter_CSCRawToDigi_CSCDCCTrailer_h
+#define EventFilter_CSCRawToDigi_CSCDCCTrailer_h
 
 #include <iostream>
 #include <cstdint>

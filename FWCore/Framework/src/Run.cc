@@ -1,12 +1,16 @@
 #include "FWCore/Framework/interface/Run.h"
 
 #include "FWCore/Framework/interface/RunPrincipal.h"
+#include "FWCore/Framework/src/TransitionInfoTypes.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 namespace edm {
 
   std::string const Run::emptyString_;
+
+  Run::Run(RunTransitionInfo const& info, ModuleDescription const& md, ModuleCallingContext const* mcc, bool isAtEnd)
+      : Run(info.principal(), md, mcc, isAtEnd) {}
 
   Run::Run(RunPrincipal const& rp,
            ModuleDescription const& md,

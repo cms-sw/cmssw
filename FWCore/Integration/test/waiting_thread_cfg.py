@@ -21,7 +21,7 @@ process.busy1 = cms.EDProducer("BusyWaitIntProducer",ivalue = cms.int32(1), iter
 process.busy2 = cms.EDProducer("BusyWaitIntProducer",ivalue = cms.int32(2), iterations = cms.uint32(10*1000*1000))
 
 process.tester = cms.EDAnalyzer("IntTestAnalyzer",
-                                moduleLabel = cms.untracked.string("waiter"),
+                                moduleLabel = cms.untracked.InputTag("waiter"),
                                 valueMustMatch = cms.untracked.int32(5))
 
 process.task = cms.Task(process.busy1, process.busy2, process.waiter)

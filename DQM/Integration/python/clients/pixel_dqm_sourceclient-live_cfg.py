@@ -34,13 +34,16 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 if (unitTest):
     process.load("DQM.Integration.config.unittestinputsource_cfi")
+    from DQM.Integration.config.unittestinputsource_cfi import options
 
 elif (live):
     process.load("DQM.Integration.config.inputsource_cfi")
+    from DQM.Integration.config.inputsource_cfi import options
 
 # for testing in lxplus
 elif(offlineTesting):
     process.load("DQM.Integration.config.fileinputsource_cfi")
+    from DQM.Integration.config.fileinputsource_cfi import options
 
 #-----------------------------
 # DQM Environment
@@ -56,13 +59,16 @@ process.load("DQM.Integration.config.environment_cfi")
 
 process.dqmEnv.subSystemFolder = TAG
 process.dqmSaver.tag = TAG
+process.dqmSaver.runNumber = options.runNumber
+process.dqmSaverPB.tag = TAG
+process.dqmSaverPB.runNumber = options.runNumber
 
 
 #-----------------------------
 # Magnetic Field
 #-----------------------------
 
-process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 
 #-------------------------------------------------
 # GEOMETRY
@@ -110,7 +116,6 @@ if (process.runType.getRunType() == process.runType.hi_run):
 else :
     process.siPixelDigis.InputLabel   = cms.InputTag("rawDataCollector")
     process.siStripDigis.InputLabel   = cms.InputTag("rawDataCollector")
-
 
 ## Collision Reconstruction
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
@@ -160,7 +165,7 @@ process.hltHighLevel.throw =  cms.bool(False)
 # Scheduling
 #--------------------------
 
-process.DQMmodules = cms.Sequence(process.dqmEnv* process.dqmSaver)
+process.DQMmodules = cms.Sequence(process.dqmEnv* process.dqmSaver*process.dqmSaverPB)
 
 process.RecoForDQM_LocalReco = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.gtDigis*process.trackerlocalreco)
 
@@ -180,6 +185,7 @@ if (process.runType.getRunType() == process.runType.cosmic_run or process.runTyp
                          ##### TRIGGER SELECTION #####
                          process.hltHighLevel*
                          process.scalersRawToDigi*
+                         process.tcdsDigis*
                          process.APVPhases*
                          process.consecutiveHEs*
                          process.hltTriggerTypeFilter*
@@ -225,6 +231,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     process.p = cms.Path(
       process.hltHighLevel #trigger selection
      *process.scalersRawToDigi
+     *process.tcdsDigis
      *process.APVPhases
      *process.consecutiveHEs
      *process.Reco

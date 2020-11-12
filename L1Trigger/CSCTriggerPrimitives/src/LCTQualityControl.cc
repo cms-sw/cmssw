@@ -222,16 +222,19 @@ void LCTQualityControl::checkMultiplicityBX(const std::vector<CSCCorrelatedLCTDi
 }
 
 int LCTQualityControl::getSlopePhase1(int pattern) const {
-  int slopeList[CSCConstants::NUM_CLCT_PATTERNS] = {0, 0, 8, -8, 6, -6, 4, -4, 2, -2, 0};
+  // PID 2 is actually a left-bending pattern with a negative slope
+  // PID 3 is actually a right-bending pattern with a positive slope
+  int slopeList[CSCConstants::NUM_CLCT_PATTERNS] = {0, 0, -8, 8, -6, 6, -4, 4, -2, 2, 0};
   return slopeList[pattern];
 }
 
 std::pair<int, int> LCTQualityControl::get_csc_clct_min_max_slope(bool isRun3, bool runCCLUT) const {
   int min_slope, max_slope;
   // Run-3 case with CCLUT
+  // 5-bit number (includes the L/R bending)
   if (runCCLUT) {
     min_slope = 0;
-    max_slope = 15;
+    max_slope = 31;
   }
   // Run-1 or Run-2 case
   // Run-3 case without CCLUT

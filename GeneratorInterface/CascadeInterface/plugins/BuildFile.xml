@@ -5,7 +5,6 @@
   <use name="pydata"/>
 </architecture>
 <library file="Cascade2GeneratorFilter.cc,Cascade2Hadronizer.cc" name="GeneratorInterfaceCascadeInterfacePlugin">
-  <use name="GeneratorInterface/PartonShowerVeto"/>
   <use name="GeneratorInterface/ExternalDecays"/>
   <use name="GeneratorInterface/CascadeInterface"/>
   <use name="GeneratorInterface/Pythia6Interface"/>

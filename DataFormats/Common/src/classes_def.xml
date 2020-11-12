@@ -97,9 +97,13 @@
    <field name="m_getter" transient="true"/>
    <field name="m_dataSize" transient="true"/>
 </class>
-<class name="edmNew::dstvdetails::DetSetVectorTrans::Item" ClassVersion="10">
- <version ClassVersion="10" checksum="1062438024"/>
+<class name="edmNew::dstvdetails::DetSetVectorTrans::Item" ClassVersion="11">
+   <version ClassVersion="10" checksum="1062438024"/>
+   <version ClassVersion="11" checksum="3545691837"/>
 </class>
+<ioread sourceClass="edmNew::dstvdetails::DetSetVectorTrans::Item" version="[1-10]" targetClass="edmNew::dstvdetails::DetSetVectorTrans::Item" source="int offset" target="offset">
+<![CDATA[offset=onfile.offset;]]>
+</ioread>
 <class name="std::vector<edmNew::dstvdetails::DetSetVectorTrans::Item>"/>
 
 

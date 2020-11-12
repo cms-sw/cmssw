@@ -15,6 +15,7 @@
 #include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
 
 #include <algorithm>
+#include <iterator>
 #include <functional>
 #include <numeric>
 
@@ -492,12 +493,23 @@ bool HGCalDDDConstants::isValidHex8(int layer, int modU, int modV, bool fullAndP
 #endif
   if (itr == hgpar_->typesInLayers_.end())
     return false;
-  auto jtr = waferIn_.find(indx);
+
+  if (fullAndPart_) {
+    auto ktr = hgpar_->waferInfoMap_.find(indx);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants::isValidHex8:WaferIn " << jtr->first << ":" << jtr->second;
+    edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants::isValidHex8:WaferInfoMap " << layer << ":" << modU << ":"
+                                  << modV << ":" << indx << " Test " << (ktr != hgpar_->waferInfoMap_.end());
 #endif
-  if (!(jtr->second))
-    return false;
+    if (ktr == hgpar_->waferInfoMap_.end())
+      return false;
+  } else {
+    auto jtr = waferIn_.find(indx);
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants::isValidHex8:WaferIn " << jtr->first << ":" << jtr->second;
+#endif
+    if (!(jtr->second))
+      return false;
+  }
 
   if (fullAndPart || fullAndPart_) {
     auto ktr = hgpar_->waferTypes_.find(indx);
@@ -1336,6 +1348,9 @@ std::pair<int, int> HGCalDDDConstants::waferTypeRotation(
           type = (itr->second).first;
           rotn = ((itr->second).second - HGCalWaferMask::k_OffsetRotation);
         }
+      } else {
+        type = HGCalTypes::WaferFull;
+        rotn = HGCalTypes::WaferCorner0;
       }
     }
   }
@@ -1482,6 +1497,26 @@ std::pair<int, float> HGCalDDDConstants::getIndex(int lay, bool reco) const {
   return std::make_pair(indx, cell);
 }
 
+int HGCalDDDConstants::layerFromIndex(int index, bool reco) const {
+  int ll(-1);
+  if (waferHexagon6() && reco) {
+    ll = static_cast<int>(std::find(hgpar_->depthLayerF_.begin(), hgpar_->depthLayerF_.end(), index) -
+                          hgpar_->depthLayerF_.begin());
+    if (ll == static_cast<int>(hgpar_->depthLayerF_.size()))
+      ll = -1;
+  } else {
+    ll = static_cast<int>(std::find(hgpar_->layerIndex_.begin(), hgpar_->layerIndex_.end(), index) -
+                          hgpar_->layerIndex_.begin());
+    if (ll == static_cast<int>(hgpar_->layerIndex_.size()))
+      ll = -1;
+  }
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "LayerFromIndex for " << index << ":" << reco << ":" << waferHexagon6() << " is"
+                                << ll << ":" << (ll + hgpar_->firstLayer_);
+#endif
+  return ((ll < 0) ? ll : (ll + hgpar_->firstLayer_));
+}
+
 bool HGCalDDDConstants::isValidCell(int lay, int wafer, int cell) const {
   // Calculate the position of the cell
   // Works for options HGCalHexagon/HGCalHexagonFull
@@ -1544,19 +1579,47 @@ bool HGCalDDDConstants::isValidCell8(int lay, int waferU, int waferV, int cellU,
                                 << cellV << " Position " << x << ":" << y << ":" << rr << " Compare Limits "
                                 << hgpar_->rMinLayHex_[ll] << ":" << hgpar_->rMaxLayHex_[ll] << " Flag " << result;
 #endif
+  if (result && (mode_ == HGCalGeometryMode::Hexagon8File)) {
+    int N = (type == 0) ? hgpar_->nCellsFine_ : hgpar_->nCellsCoarse_;
+    auto partn = waferTypeRotation(lay, waferU, waferV, false, false);
+    result = HGCalWaferMask::goodCell(cellU, cellV, N, partn.first, partn.second);
+    edm::LogVerbatim("HGCalGeom") << "Input " << lay << ":" << waferU << ":" << waferV << ":" << cellU << ":" << cellV
+                                  << " N " << N << " part " << partn.first << ":" << partn.second << " Result "
+                                  << result;
+  }
   return result;
+}
+
+int32_t HGCalDDDConstants::waferIndex(int wafer, int index) const {
+  int layer = layerFromIndex(index, true);
+  int waferU = HGCalWaferIndex::waferU(hgpar_->waferCopy_[wafer]);
+  int waferV = HGCalWaferIndex::waferV(hgpar_->waferCopy_[wafer]);
+  int indx = HGCalWaferIndex::waferIndex(layer, waferU, waferV);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "WaferIndex for " << wafer << ":" << index << " (" << layer << ":" << waferU << ":"
+                                << waferV << ") " << indx;
+#endif
+  return indx;
 }
 
 bool HGCalDDDConstants::waferInLayerTest(int wafer, int lay, bool full) const {
   bool flag = (waferHexagon6()) ? true : false;
-  std::pair<int, int> corner = HGCalGeomTools::waferCorner(hgpar_->waferPosX_[wafer],
-                                                           hgpar_->waferPosY_[wafer],
-                                                           rmax_,
-                                                           hexside_,
-                                                           hgpar_->rMinLayHex_[lay],
-                                                           hgpar_->rMaxLayHex_[lay],
-                                                           flag);
+  double xpos = hgpar_->waferPosX_[wafer] + hgpar_->xLayerHex_[lay];
+  double ypos = hgpar_->waferPosY_[wafer] + hgpar_->yLayerHex_[lay];
+  std::pair<int, int> corner = HGCalGeomTools::waferCorner(
+      xpos, ypos, rmax_, hexside_, hgpar_->rMinLayHex_[lay], hgpar_->rMaxLayHex_[lay], flag);
   bool in = (full ? (corner.first > 0) : (corner.first == (int)(HGCalParameters::k_CornerSize)));
+  if (in && fullAndPart_) {
+    int indx = waferIndex(wafer, lay);
+    in = (hgpar_->waferInfoMap_.find(indx) != hgpar_->waferInfoMap_.end());
+#ifdef EDM_ML_DEBUG
+    if (!in)
+      edm::LogVerbatim("HGCalGeom") << "WaferInLayerTest: Layer " << lay << " wafer " << wafer << " index " << indx
+                                    << "( " << HGCalWaferIndex::waferLayer(indx) << ", "
+                                    << HGCalWaferIndex::waferU(indx) << ", " << HGCalWaferIndex::waferV(indx) << ") in "
+                                    << in;
+#endif
+  }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "WaferInLayerTest: Layer " << lay << " wafer " << wafer << " R-limits "
                                 << hgpar_->rMinLayHex_[lay] << ":" << hgpar_->rMaxLayHex_[lay] << " Corners "

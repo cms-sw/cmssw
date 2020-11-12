@@ -8,8 +8,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include <ostream>
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
+#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
 
 #include "CalibTracker/SiPixelConnectivity/interface/PixelToFEDAssociate.h"
 #include "CalibTracker/SiPixelConnectivity/interface/TRange.h"

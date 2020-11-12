@@ -26,14 +26,13 @@
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
 #include "FWCore/Framework/src/EventSetupsController.h"
 #include "FWCore/Framework/interface/NoRecordException.h"
-#include "FWCore/Framework/interface/print_eventsetup_record_dependencies.h"
+#include "FWCore/Framework/test/print_eventsetup_record_dependencies.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
+#include "FWCore/Concurrency/interface/ThreadsController.h"
 
 #include "cppunit/extensions/HelperMacros.h"
-
-#include "tbb/task_scheduler_init.h"
 
 #include <memory>
 #include <string>
@@ -77,7 +76,7 @@ class testdependentrecord : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() { m_scheduler = std::make_unique<tbb::task_scheduler_init>(1); }
+  void setUp() { m_scheduler = std::make_unique<edm::ThreadsController>(1); }
   void tearDown() {}
 
   void dependentConstructorTest();
@@ -100,7 +99,7 @@ public:
   void extendIOVTest();
 
 private:
-  edm::propagate_const<std::unique_ptr<tbb::task_scheduler_init>> m_scheduler;
+  edm::propagate_const<std::unique_ptr<edm::ThreadsController>> m_scheduler;
 
 };  //Cppunit class declaration over
 

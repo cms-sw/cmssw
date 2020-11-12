@@ -37,6 +37,7 @@ namespace edm {
      and iKind should be edm::ProductType **/
     TypeToGet(TypeID const& iID, KindOfType iKind) : m_type(iID), m_kind(iKind) {}
 
+    TypeToGet() = delete;
     // ---------- const member functions ---------------------
     TypeID const& type() const { return m_type; }
     KindOfType kind() const { return m_kind; }
@@ -67,8 +68,6 @@ namespace edm {
     static KindOfType kindOfTypeFor(edm::View<T>*) {
       return ELEMENT_TYPE;
     }
-
-    TypeToGet() = delete;
 
     // ---------- member data --------------------------------
     TypeID m_type;

@@ -124,8 +124,8 @@ process.load("CommonTools.UtilAlgos.TFileService_cfi")
 #process.MessageLogger.categories.append('L1TCaloEvents')
 
 if (options.dumpRaw):
-    process.MessageLogger.infos.placeholder = cms.untracked.bool(False)
-    process.MessageLogger.infos.INFO = cms.untracked.PSet(limit = cms.untracked.int32(0))
+    process.MessageLogger.destinations.append('infos')
+    process.MessageLogger.infos = cms.untracked.PSet(INFO = cms.untracked.PSet(limit = cms.untracked.int32(0)))
 
 if (options.debug):
 #    process.MessageLogger.debugModules = cms.untracked.vstring('L1TRawToDigi:caloStage2Digis', 'MP7BufferDumpToRaw:stage2MPRaw', 'MP7BufferDumpToRaw:stage2DemuxRaw')

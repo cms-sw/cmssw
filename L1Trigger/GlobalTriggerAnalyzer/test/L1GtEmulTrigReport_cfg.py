@@ -221,7 +221,6 @@ process.MessageLogger.destinations = ['L1GtEmulTrigReport_errors',
                                       'L1GtEmulTrigReport'
                                       ]
 process.MessageLogger.statistics = []
-process.MessageLogger.fwkJobReports = []
 
 process.MessageLogger.L1GtEmulTrigReport_errors = cms.untracked.PSet( 
         threshold = cms.untracked.string('ERROR'),

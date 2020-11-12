@@ -2,7 +2,7 @@
  *  \author A. Tumanov - Rice
  */
 
-#include "EventFilter/CSCRawToDigi/src/CSCDigiToRaw.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCDigiToRaw.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"

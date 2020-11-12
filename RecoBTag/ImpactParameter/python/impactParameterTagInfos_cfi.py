@@ -16,3 +16,9 @@ impactParameterTagInfos = cms.EDProducer("TrackIPProducer",
     jetDirectionUsingGhostTrack = cms.bool(False),
     useTrackQuality = cms.bool(False)
 )
+
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toModify(impactParameterTagInfos, 
+                  jetTracks = "ak5JetTracksAssociatorAtVertex",
+                  computeGhostTrack = False)
+

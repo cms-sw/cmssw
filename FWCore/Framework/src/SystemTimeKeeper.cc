@@ -21,7 +21,7 @@
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Common/interface/HLTPathStatus.h"
-#include "FWCore/Framework/interface/TriggerTimingReport.h"
+#include "FWCore/Framework/src/TriggerTimingReport.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "SystemTimeKeeper.h"

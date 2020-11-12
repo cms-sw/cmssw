@@ -180,6 +180,7 @@ PAYLOAD_2XML_MODULE(pluginUtilities_payload2xml) {
   PAYLOAD_2XML_CLASS(L1RPCHwConfig);
   PAYLOAD_2XML_CLASS(L1TGlobalParameters);
   PAYLOAD_2XML_CLASS(L1TGlobalPrescalesVetos);
+  PAYLOAD_2XML_CLASS(L1TGlobalPrescalesVetosFract);
   PAYLOAD_2XML_CLASS(L1TMuonBarrelParams);
   PAYLOAD_2XML_CLASS(L1TMuonEndCapForest);
   PAYLOAD_2XML_CLASS(L1TMuonEndCapParams);
@@ -204,7 +205,6 @@ PAYLOAD_2XML_MODULE(pluginUtilities_payload2xml) {
   PAYLOAD_2XML_CLASS(OOTPileupCorrectionBuffer);
   PAYLOAD_2XML_CLASS(PCaloGeometry);
   PAYLOAD_2XML_CLASS(PGeometricDet);
-  PAYLOAD_2XML_CLASS(PGeometricDetExtra);
   PAYLOAD_2XML_CLASS(PHGCalParameters);
   PAYLOAD_2XML_CLASS(PTrackerParameters);
   PAYLOAD_2XML_CLASS(PerformancePayloadFromBinnedTFormula);

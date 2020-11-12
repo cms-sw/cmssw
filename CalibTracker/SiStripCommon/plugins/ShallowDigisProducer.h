@@ -1,13 +1,13 @@
 #ifndef SHALLOW_DIGIS_PRODUCER
 #define SHALLOW_DIGIS_PRODUCER
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 class SiStripNoises;
 
-class ShallowDigisProducer : public edm::EDProducer {
+class ShallowDigisProducer : public edm::stream::EDProducer<> {
 public:
   explicit ShallowDigisProducer(const edm::ParameterSet &);
 

@@ -26,9 +26,19 @@ PatternRecognitionbyCA<TILES>::PatternRecognitionbyCA(const edm::ParameterSet &c
       max_out_in_hops_(conf.getParameter<int>("max_out_in_hops")),
       min_cos_theta_(conf.getParameter<double>("min_cos_theta")),
       min_cos_pointing_(conf.getParameter<double>("min_cos_pointing")),
+      root_doublet_max_distance_from_seed_squared_(
+          conf.getParameter<double>("root_doublet_max_distance_from_seed_squared")),
       etaLimitIncreaseWindow_(conf.getParameter<double>("etaLimitIncreaseWindow")),
-      missing_layers_(conf.getParameter<int>("missing_layers")),
-      min_clusters_per_ntuplet_(conf.getParameter<int>("min_clusters_per_ntuplet")),
+      skip_layers_(conf.getParameter<int>("skip_layers")),
+      max_missing_layers_in_trackster_(conf.getParameter<int>("max_missing_layers_in_trackster")),
+      check_missing_layers_(max_missing_layers_in_trackster_ < 100),
+      shower_start_max_layer_(conf.getParameter<int>("shower_start_max_layer")),
+      min_layers_per_trackster_(conf.getParameter<int>("min_layers_per_trackster")),
+      filter_on_categories_(conf.getParameter<std::vector<int>>("filter_on_categories")),
+      pid_threshold_(conf.getParameter<double>("pid_threshold")),
+      energy_em_over_total_threshold_(conf.getParameter<double>("energy_em_over_total_threshold")),
+      max_longitudinal_sigmaPCA_(conf.getParameter<double>("max_longitudinal_sigmaPCA")),
+      min_clusters_per_ntuplet_(min_layers_per_trackster_),
       max_delta_time_(conf.getParameter<double>("max_delta_time")),
       eidInputName_(conf.getParameter<std::string>("eid_input_name")),
       eidOutputNameEnergy_(conf.getParameter<std::string>("eid_output_name_energy")),
@@ -88,17 +98,24 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
                                     1,
                                     min_cos_theta_,
                                     min_cos_pointing_,
+                                    root_doublet_max_distance_from_seed_squared_,
                                     etaLimitIncreaseWindow_,
-                                    missing_layers_,
+                                    skip_layers_,
                                     rhtools_.lastLayer(type),
                                     max_delta_time_);
 
   theGraph_->findNtuplets(foundNtuplets, seedIndices, min_clusters_per_ntuplet_, out_in_dfs_, max_out_in_hops_);
   //#ifdef FP_DEBUG
   const auto &doublets = theGraph_->getAllDoublets();
-  int tracksterId = 0;
+  int tracksterId = -1;
+
+  // container for holding tracksters before selection
+  std::vector<Trackster> tmpTracksters;
+  tmpTracksters.reserve(foundNtuplets.size());
 
   for (auto const &ntuplet : foundNtuplets) {
+    tracksterId++;
+
     std::set<unsigned int> effective_cluster_idx;
     std::pair<std::set<unsigned int>::iterator, bool> retVal;
 
@@ -137,29 +154,102 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
                                        << input.layerClusters[outerCluster].z() << " " << tracksterId << std::endl;
       }
     }
+    unsigned showerMinLayerId = 99999;
+    std::vector<unsigned int> uniqueLayerIds;
+    uniqueLayerIds.reserve(effective_cluster_idx.size());
+    std::vector<std::pair<unsigned int, unsigned int>> lcIdAndLayer;
+    lcIdAndLayer.reserve(effective_cluster_idx.size());
     for (auto const i : effective_cluster_idx) {
-      layer_cluster_usage[i]++;
-      if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Basic)
-        LogDebug("HGCPatternRecoByCA") << "LayerID: " << i << " count: " << (int)layer_cluster_usage[i] << std::endl;
+      auto const &haf = input.layerClusters[i].hitsAndFractions();
+      auto layerId = rhtools_.getLayerWithOffset(haf[0].first);
+      showerMinLayerId = std::min(layerId, showerMinLayerId);
+      uniqueLayerIds.push_back(layerId);
+      lcIdAndLayer.emplace_back(i, layerId);
     }
-    // Put back indices, in the form of a Trackster, into the results vector
-    Trackster tmp;
-    tmp.vertices().reserve(effective_cluster_idx.size());
-    tmp.vertex_multiplicity().resize(effective_cluster_idx.size(), 0);
-    //regions and seedIndices can have different size
-    //if a seeding region does not lead to any trackster
-    tmp.setSeed(input.regions[0].collectionID, seedIndices[tracksterId]);
-    if (isRegionalIter) {
-      seedToTracksterAssociation[tmp.seedIndex()].push_back(tracksterId);
+    std::sort(uniqueLayerIds.begin(), uniqueLayerIds.end());
+    uniqueLayerIds.erase(std::unique(uniqueLayerIds.begin(), uniqueLayerIds.end()), uniqueLayerIds.end());
+    unsigned int numberOfLayersInTrackster = uniqueLayerIds.size();
+    if (check_missing_layers_) {
+      int numberOfMissingLayers = 0;
+      unsigned int j = showerMinLayerId;
+      unsigned int indexInVec = 0;
+      for (const auto &layer : uniqueLayerIds) {
+        if (layer != j) {
+          numberOfMissingLayers++;
+          j++;
+          if (numberOfMissingLayers > max_missing_layers_in_trackster_) {
+            numberOfLayersInTrackster = indexInVec;
+            for (auto &llpair : lcIdAndLayer) {
+              if (llpair.second >= layer) {
+                effective_cluster_idx.erase(llpair.first);
+              }
+            }
+            break;
+          }
+        }
+        indexInVec++;
+        j++;
+      }
     }
 
-    std::pair<float, float> timeTrackster(-99., -1.);
-    hgcalsimclustertime::ComputeClusterTime timeEstimator;
-    timeTrackster = timeEstimator.fixSizeHighestDensity(times, timeErrors);
-    tmp.setTimeAndError(timeTrackster.first, timeTrackster.second);
-    std::copy(std::begin(effective_cluster_idx), std::end(effective_cluster_idx), std::back_inserter(tmp.vertices()));
-    result.push_back(tmp);
-    tracksterId++;
+    if ((numberOfLayersInTrackster >= min_layers_per_trackster_) and (showerMinLayerId <= shower_start_max_layer_)) {
+      // Put back indices, in the form of a Trackster, into the results vector
+      Trackster tmp;
+      tmp.vertices().reserve(effective_cluster_idx.size());
+      tmp.vertex_multiplicity().resize(effective_cluster_idx.size(), 1);
+      //regions and seedIndices can have different size
+      //if a seeding region does not lead to any trackster
+      tmp.setSeed(input.regions[0].collectionID, seedIndices[tracksterId]);
+
+      std::pair<float, float> timeTrackster(-99., -1.);
+      hgcalsimclustertime::ComputeClusterTime timeEstimator;
+      timeTrackster = timeEstimator.fixSizeHighestDensity(times, timeErrors);
+      tmp.setTimeAndError(timeTrackster.first, timeTrackster.second);
+      std::copy(std::begin(effective_cluster_idx), std::end(effective_cluster_idx), std::back_inserter(tmp.vertices()));
+      tmpTracksters.push_back(tmp);
+    }
+  }
+  ticl::assignPCAtoTracksters(
+      tmpTracksters, input.layerClusters, rhtools_.getPositionLayer(rhtools_.lastLayerEE(type)).z());
+
+  // run energy regression and ID
+  energyRegressionAndID(input.layerClusters, tmpTracksters);
+  // Filter results based on PID criteria or EM/Total energy ratio.
+  // We want to **keep** tracksters whose cumulative
+  // probability summed up over the selected categories
+  // is greater than the chosen threshold. Therefore
+  // the filtering function should **discard** all
+  // tracksters **below** the threshold.
+  auto filter_on_pids = [&](Trackster &t) -> bool {
+    auto cumulative_prob = 0.;
+    for (auto index : filter_on_categories_) {
+      cumulative_prob += t.id_probabilities(index);
+    }
+    return (cumulative_prob <= pid_threshold_) &&
+           (t.raw_em_energy() < energy_em_over_total_threshold_ * t.raw_energy());
+  };
+
+  std::vector<unsigned int> selectedTrackstersIds;
+  for (unsigned i = 0; i < tmpTracksters.size(); ++i) {
+    if (!filter_on_pids(tmpTracksters[i]) and tmpTracksters[i].sigmasPCA()[0] < max_longitudinal_sigmaPCA_) {
+      selectedTrackstersIds.push_back(i);
+    }
+  }
+
+  result.reserve(selectedTrackstersIds.size());
+
+  for (unsigned i = 0; i < selectedTrackstersIds.size(); ++i) {
+    const auto &t = tmpTracksters[selectedTrackstersIds[i]];
+    for (auto const lcId : t.vertices()) {
+      layer_cluster_usage[lcId]++;
+      if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Basic)
+        LogDebug("HGCPatternRecoByCA") << "LayerID: " << lcId << " count: " << (int)layer_cluster_usage[lcId]
+                                       << std::endl;
+    }
+    if (isRegionalIter) {
+      seedToTracksterAssociation[t.seedIndex()].push_back(i);
+    }
+    result.push_back(t);
   }
 
   for (auto &trackster : result) {
@@ -171,7 +261,6 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
                                        << " count: " << (int)trackster.vertex_multiplicity(i) << std::endl;
     }
   }
-
   // Now decide if the tracksters from the track-based iterations have to be merged
   if (oneTracksterPerTrackSeed_) {
     std::vector<Trackster> tmp;
@@ -180,7 +269,6 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
   }
 
   ticl::assignPCAtoTracksters(result, input.layerClusters, rhtools_.getPositionLayer(rhtools_.lastLayerEE(type)).z());
-
   // run energy regression and ID
   energyRegressionAndID(input.layerClusters, result);
 

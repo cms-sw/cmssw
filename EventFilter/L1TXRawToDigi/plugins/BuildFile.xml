@@ -1,6 +1,7 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/MessageLogger"/>
+<use name="EventFilter/L1TXRawToDigi"/>
 <use name="EventFilter/Utilities"/>
 <use name="DataFormats/FEDRawData"/>
 <use name="DataFormats/HcalDigi"/>

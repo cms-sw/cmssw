@@ -221,6 +221,43 @@ BeamFitter::~BeamFitter() {
   delete MyPVFitter;
 }
 
+void BeamFitter::fillDescription(edm::ParameterSetDescription &iDesc) {
+  edm::ParameterSetDescription beamFitter;
+
+  beamFitter.addUntracked<bool>("Debug");
+  beamFitter.addUntracked<edm::InputTag>("TrackCollection");
+  iDesc.addUntracked<edm::InputTag>("primaryVertex", edm::InputTag("offlinePrimaryVertices"));
+  iDesc.addUntracked<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpot"));
+  beamFitter.addUntracked<bool>("WriteAscii");
+  beamFitter.addUntracked<std::string>("AsciiFileName");
+  beamFitter.addUntracked<bool>("AppendRunToFileName");
+  beamFitter.addUntracked<bool>("WriteDIPAscii");
+  // Specify whether we want to write the DIP file even if the fit is failed.
+  beamFitter.addUntracked<bool>("WriteDIPOnBadFit", true);
+  beamFitter.addUntracked<std::string>("DIPFileName");
+  beamFitter.addUntracked<bool>("SaveNtuple");
+  beamFitter.addUntracked<bool>("SaveFitResults");
+  beamFitter.addUntracked<bool>("SavePVVertices");
+  beamFitter.addUntracked<bool>("IsMuonCollection");
+
+  beamFitter.addUntracked<double>("MinimumPt");
+  beamFitter.addUntracked<double>("MaximumEta");
+  beamFitter.addUntracked<double>("MaximumImpactParameter");
+  beamFitter.addUntracked<double>("MaximumZ");
+  beamFitter.addUntracked<int>("MinimumTotalLayers");
+  beamFitter.addUntracked<int>("MinimumPixelLayers");
+  beamFitter.addUntracked<double>("MaximumNormChi2");
+  beamFitter.addUntracked<std::vector<std::string> >("TrackAlgorithm");
+  beamFitter.addUntracked<std::vector<std::string> >("TrackQuality");
+  beamFitter.addUntracked<int>("MinimumInputTracks");
+  beamFitter.addUntracked<double>("FractionOfFittedTrks");
+  beamFitter.addUntracked<double>("InputBeamWidth", -1.);
+
+  beamFitter.addUntracked<std::string>("OutputFileName", "");
+
+  iDesc.add<edm::ParameterSetDescription>("BeamFitter", beamFitter);
+}
+
 void BeamFitter::readEvent(const edm::Event &iEvent) {
   frun = iEvent.id().run();
   const edm::TimeValue_t ftimestamp = iEvent.time().value();

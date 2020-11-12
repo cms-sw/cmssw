@@ -131,7 +131,7 @@ std::unique_ptr<DetGeomDesc> CTPPSGeometryESModule::applyAlignments(const DetGeo
   bufferIdealGeo.emplace_back(&idealDetRoot);
 
   std::deque<DetGeomDesc*> bufferAlignedGeo;
-  DetGeomDesc* alignedDetRoot = new DetGeomDesc(idealDetRoot);
+  DetGeomDesc* alignedDetRoot = new DetGeomDesc(idealDetRoot, DetGeomDesc::cmWithoutChildren);
   bufferAlignedGeo.emplace_back(alignedDetRoot);
 
   while (!bufferIdealGeo.empty()) {
@@ -172,7 +172,7 @@ std::unique_ptr<DetGeomDesc> CTPPSGeometryESModule::applyAlignments(const DetGeo
       bufferIdealGeo.emplace_back(idealDetChild);
 
       // create new node with the same information as in idealDetChild and add it as a child of alignedDet
-      DetGeomDesc* alignedDetChild = new DetGeomDesc(*idealDetChild);
+      DetGeomDesc* alignedDetChild = new DetGeomDesc(*idealDetChild, DetGeomDesc::cmWithoutChildren);
       alignedDet->addComponent(alignedDetChild);
 
       bufferAlignedGeo.emplace_back(alignedDetChild);

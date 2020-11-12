@@ -2,6 +2,9 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtFullLeptonicEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtFullLepEvtPartons.h"
 
+#include "printParticle.h"
+using ttevent::printParticle;
+
 // print info via MessageLogger
 void TtFullLeptonicEvent::print(const int verbosity) const {
   if (verbosity % 10 <= 0)

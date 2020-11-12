@@ -5,7 +5,6 @@
 #include "SimG4CMS/Calo/interface/CaloHitID.h"
 
 // FastSimulation headers
-#include "CommonTools/BaseParticlePropagator/interface/RawParticle.h"
 #include "FastSimulation/Calorimetry/interface/HCALResponse.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FastSimulation/Utilities/interface/FamosDebug.h"

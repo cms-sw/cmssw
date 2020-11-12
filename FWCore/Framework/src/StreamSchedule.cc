@@ -3,10 +3,10 @@
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "FWCore/Framework/interface/OutputModuleDescription.h"
+#include "FWCore/Framework/src/OutputModuleDescription.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
-#include "FWCore/Framework/interface/TriggerReport.h"
-#include "FWCore/Framework/interface/TriggerTimingReport.h"
+#include "FWCore/Framework/src/TriggerReport.h"
+#include "FWCore/Framework/src/TriggerTimingReport.h"
 #include "FWCore/Framework/src/Factory.h"
 #include "FWCore/Framework/src/OutputModuleCommunicator.h"
 #include "FWCore/Framework/src/TriggerResultInserter.h"
@@ -38,6 +38,7 @@
 #include <exception>
 
 namespace edm {
+
   namespace {
 
     // Function template to transform each element in the input range to
@@ -559,10 +560,11 @@ namespace edm {
 
   void StreamSchedule::processOneEventAsync(
       WaitingTaskHolder iTask,
-      EventPrincipal& ep,
-      EventSetupImpl const& es,
+      EventTransitionInfo& info,
       ServiceToken const& serviceToken,
       std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>>& pathStatusInserters) {
+    EventPrincipal& ep = info.principal();
+
     // Caught exception is propagated via WaitingTaskHolder
     CMS_SA_ALLOW try {
       this->resetAll();
@@ -580,7 +582,7 @@ namespace edm {
         pathStatusInserters[empty_trig_path]->setPathStatus(streamID_, hltPathStatus);
         std::exception_ptr except = pathStatusInserterWorkers_[empty_trig_path]
                                         ->runModuleDirectly<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>>(
-                                            ep, es, streamID_, ParentContext(&streamContext_), &streamContext_);
+                                            info, streamID_, ParentContext(&streamContext_), &streamContext_);
         if (except) {
           iTask.doneWaiting(except);
           return;
@@ -589,15 +591,15 @@ namespace edm {
       for (int empty_end_path : empty_end_paths_) {
         std::exception_ptr except = endPathStatusInserterWorkers_[empty_end_path]
                                         ->runModuleDirectly<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>>(
-                                            ep, es, streamID_, ParentContext(&streamContext_), &streamContext_);
+                                            info, streamID_, ParentContext(&streamContext_), &streamContext_);
         if (except) {
           iTask.doneWaiting(except);
           return;
         }
       }
 
-      // This call takes care of the unscheduled processing.
-      workerManager_.setupOnDemandSystem(ep, es);
+      workerManager_.setupResolvers(ep);
+      workerManager_.setupOnDemandSystem(info);
 
       ++total_events_;
 
@@ -624,18 +626,18 @@ namespace edm {
       // run under that condition.
       WaitingTaskHolder allPathsHolder(allPathsDone);
 
-      auto pathsDone = make_waiting_task(
-          tbb::task::allocate_root(),
-          [allPathsHolder, pathErrorPtr, &ep, &es, this, serviceToken](std::exception_ptr const* iPtr) mutable {
-            ServiceRegistry::Operate operate(serviceToken);
+      auto pathsDone = make_waiting_task(tbb::task::allocate_root(),
+                                         [allPathsHolder, pathErrorPtr, transitionInfo = info, this, serviceToken](
+                                             std::exception_ptr const* iPtr) mutable {
+                                           ServiceRegistry::Operate operate(serviceToken);
 
-            if (iPtr) {
-              //this is used to prioritize this error over one
-              // that happens in EndPath or Accumulate
-              pathErrorPtr->store(new std::exception_ptr(*iPtr));
-            }
-            finishedPaths(*pathErrorPtr, std::move(allPathsHolder), ep, es);
-          });
+                                           if (iPtr) {
+                                             //this is used to prioritize this error over one
+                                             // that happens in EndPath or Accumulate
+                                             pathErrorPtr->store(new std::exception_ptr(*iPtr));
+                                           }
+                                           finishedPaths(*pathErrorPtr, std::move(allPathsHolder), transitionInfo);
+                                         });
 
       //The holder guarantees that if the paths finish before the loop ends
       // that we do not start too soon. It also guarantees that the task will
@@ -644,16 +646,16 @@ namespace edm {
 
       //start end paths first so on single threaded the paths will run first
       for (auto it = end_paths_.rbegin(), itEnd = end_paths_.rend(); it != itEnd; ++it) {
-        it->processOneOccurrenceAsync(allPathsDone, ep, es, serviceToken, streamID_, &streamContext_);
+        it->processOneOccurrenceAsync(allPathsDone, info, serviceToken, streamID_, &streamContext_);
       }
 
       for (auto it = trig_paths_.rbegin(), itEnd = trig_paths_.rend(); it != itEnd; ++it) {
-        it->processOneOccurrenceAsync(pathsDone, ep, es, serviceToken, streamID_, &streamContext_);
+        it->processOneOccurrenceAsync(pathsDone, info, serviceToken, streamID_, &streamContext_);
       }
 
       ParentContext parentContext(&streamContext_);
       workerManager_.processAccumulatorsAsync<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>>(
-          allPathsDone, ep, es, serviceToken, streamID_, parentContext, &streamContext_);
+          allPathsDone, info, serviceToken, streamID_, parentContext, &streamContext_);
     } catch (...) {
       iTask.doneWaiting(std::current_exception());
     }
@@ -661,8 +663,7 @@ namespace edm {
 
   void StreamSchedule::finishedPaths(std::atomic<std::exception_ptr*>& iExcept,
                                      WaitingTaskHolder iWait,
-                                     EventPrincipal& ep,
-                                     EventSetupImpl const& es) {
+                                     EventTransitionInfo& info) {
     if (iExcept) {
       // Caught exception is propagated via WaitingTaskHolder
       CMS_SA_ALLOW try { std::rethrow_exception(*(iExcept.load())); } catch (cms::Exception& e) {
@@ -692,12 +693,12 @@ namespace edm {
         ParentContext parentContext(&streamContext_);
         using Traits = OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>;
 
-        results_inserter_->doWork<Traits>(ep, es, streamID_, parentContext, &streamContext_);
+        results_inserter_->doWork<Traits>(info, streamID_, parentContext, &streamContext_);
       } catch (cms::Exception& ex) {
         if (not iExcept) {
           if (ex.context().empty()) {
             std::ostringstream ost;
-            ost << "Processing Event " << ep.id();
+            ost << "Processing Event " << info.principal().id();
             ex.addContext(ost.str());
           }
           iExcept.store(new std::exception_ptr(std::current_exception()));

@@ -1,5 +1,5 @@
-#ifndef CSCCFEBTimeSlice_h
-#define CSCCFEBTimeSlice_h
+#ifndef EventFilter_CSCRawToDigi_CSCCFEBTimeSlice_h
+#define EventFilter_CSCRawToDigi_CSCCFEBTimeSlice_h
 
 /**
  CFEB Data Stream 

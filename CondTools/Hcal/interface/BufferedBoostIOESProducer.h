@@ -34,14 +34,14 @@ class BufferedBoostIOESProducer : public edm::ESProducer {
 public:
   typedef std::unique_ptr<DataType> ReturnType;
 
-  inline BufferedBoostIOESProducer(const edm::ParameterSet&) { setWhatProduced(this).setConsumes(token_); }
+  inline BufferedBoostIOESProducer(const edm::ParameterSet&) : token_(setWhatProduced(this).consumes()) {}
 
   inline ~BufferedBoostIOESProducer() override {}
 
   ReturnType produce(const MyRecord&);
 
 private:
-  edm::ESGetToken<OOTPileupCorrectionBuffer, MyRecord> token_;
+  const edm::ESGetToken<OOTPileupCorrectionBuffer, MyRecord> token_;
 };
 
 template <class DataType, class MyRecord>

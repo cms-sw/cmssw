@@ -23,6 +23,7 @@ trackerlocalreco = cms.Sequence(trackerlocalrecoTask)
 
 from RecoLocalTracker.SiPhase2Clusterizer.phase2TrackerClusterizer_cfi import *
 from RecoLocalTracker.Phase2TrackerRecHits.Phase2StripCPEGeometricESProducer_cfi import *
+from RecoLocalTracker.SiPhase2VectorHitBuilder.siPhase2RecHitMatcher_cfi import *
 
 _pixeltrackerlocalrecoTask_phase2 = pixeltrackerlocalrecoTask.copy()
 _pixeltrackerlocalrecoTask_phase2.add(siPhase2Clusters)

@@ -22,7 +22,7 @@ from RecoEgamma.EgammaIsolationAlgos.particleBasedIsoProducer_cff import *
 from RecoParticleFlow.PFProducer.chargedHadronPFTrackIsolation_cfi import *
 
 from RecoJets.JetProducers.fixedGridRhoProducerFastjet_cfi import *
-fixedGridRhoFastjetAllTmp = fixedGridRhoFastjetAll.clone(pfCandidatesTag = cms.InputTag("particleFlowTmp"))
+fixedGridRhoFastjetAllTmp = fixedGridRhoFastjetAll.clone(pfCandidatesTag = "particleFlowTmp")
 
 particleFlowTmpTask = cms.Task(particleFlowTmp)
 particleFlowTmpSeq = cms.Sequence(particleFlowTmpTask)
@@ -68,9 +68,9 @@ phase2_hgcal.toReplaceWith( particleFlowTmp, _phase2_hgcal_particleFlowTmp )
 phase2_hgcal.toReplaceWith( particleFlowRecoTask, _phase2_hgcal_particleFlowRecoTask )
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 
-for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
+for e in [pp_on_XeXe_2017, pp_on_AA]:
     e.toModify(particleFlowDisplacedVertexCandidate,
                tracksSelectorParameters = dict(pt_min = 999999.0,
                                                nChi2_max = 0.0,

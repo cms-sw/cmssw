@@ -24,7 +24,9 @@ private:
 };
 
 TkDetMapESProducer::TkDetMapESProducer(const edm::ParameterSet&) {
-  setWhatProduced(this).setConsumes(tTopoToken_).setConsumes(geomDetToken_);
+  auto cc = setWhatProduced(this);
+  tTopoToken_ = cc.consumes();
+  geomDetToken_ = cc.consumes();
 }
 
 namespace {

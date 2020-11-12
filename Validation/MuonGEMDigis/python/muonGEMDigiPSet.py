@@ -13,6 +13,7 @@ muonGEMDigiPSet = cms.PSet(
         minBX = cms.int32(-1),
         maxBX = cms.int32(1),
         matchDeltaStrip = cms.int32(1),
+        matchToSimLink = cms.bool(True)
     ),
     gemUnpackedStripDigi = cms.PSet(
         verbose = cms.int32(0),

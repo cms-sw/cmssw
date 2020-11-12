@@ -21,6 +21,7 @@
 #include "RecoVertex/KinematicFit/interface/TwoTrackMassKinematicConstraint.h"
 #include <TH1.h>
 #include <TFile.h>
+#include <TMath.h>
 
 #include <set>
 #include <string>

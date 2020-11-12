@@ -33,6 +33,7 @@ public:
                                                        TrajectoryStateOnSurface const& tsos) const override;
   std::unique_ptr<Phase2TrackerRecHit1D> operator()(Phase2TrackerRecHit1D const& hit,
                                                     TrajectoryStateOnSurface const& tsos) const override;
+  std::unique_ptr<VectorHit> operator()(VectorHit const& hit, TrajectoryStateOnSurface const& tsos) const override;
 
   using TkCloner::makeShared;
   TrackingRecHit::ConstRecHitPointer makeShared(SiPixelRecHit const& hit,
@@ -47,7 +48,8 @@ public:
                                                 TrajectoryStateOnSurface const& tsos) const override;
   TrackingRecHit::ConstRecHitPointer makeShared(Phase2TrackerRecHit1D const& hit,
                                                 TrajectoryStateOnSurface const& tsos) const override;
-
+  TrackingRecHit::ConstRecHitPointer makeShared(VectorHit const& hit,
+                                                TrajectoryStateOnSurface const& tsos) const override;
   // project either mono or stero hit...
   std::unique_ptr<ProjectedSiStripRecHit2D> project(SiStripMatchedRecHit2D const& hit,
                                                     bool mono,

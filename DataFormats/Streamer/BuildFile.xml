@@ -1,5 +1,4 @@
 <use name="DataFormats/Provenance"/>
-<use name="DataFormats/StdDictionaries"/>
 <export>
   <lib name="1"/>
 </export>
