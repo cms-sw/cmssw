@@ -687,11 +687,13 @@ std::pair<float, float> HGCalDDDConstants::locateCell(const HGCScintillatorDetId
   int lay(id.layer()), iphi(id.iphi()), ir(id.iradiusAbs());
   double phi = (iphi - 0.5) * hgpar_->scintCellSize(lay);
   int type = (id.type() > 0) ? 1 : 0;
-  double r = (((ir + 1) < static_cast<int>(hgpar_->radiusLayer_[type].size())) ?
-	      (0.5 * (hgpar_->radiusLayer_[type][ir] + hgpar_->radiusLayer_[type][ir - 1])) :
-	      (1.5 * hgpar_->radiusLayer_[type][ir] - 0.5 * hgpar_->radiusLayer_[type][ir - 1]));
-  if (debug) 
-    edm::LogVerbatim("HGCalGeom") << "LocateCell lay:ir:iphi:type " << lay << ":" << ir << ":" << iphi << ":" << type << " r:phi " << r << ":" << convertRadToDeg(phi) << " x:y " << (r * cos(phi) * id.zside()) << ":" << (r * sin(phi));
+  double r = (((ir + 1) < static_cast<int>(hgpar_->radiusLayer_[type].size()))
+                  ? (0.5 * (hgpar_->radiusLayer_[type][ir] + hgpar_->radiusLayer_[type][ir - 1]))
+                  : (1.5 * hgpar_->radiusLayer_[type][ir] - 0.5 * hgpar_->radiusLayer_[type][ir - 1]));
+  if (debug)
+    edm::LogVerbatim("HGCalGeom") << "LocateCell lay:ir:iphi:type " << lay << ":" << ir << ":" << iphi << ":" << type
+                                  << " r:phi " << r << ":" << convertRadToDeg(phi) << " x:y "
+                                  << (r * cos(phi) * id.zside()) << ":" << (r * sin(phi));
   return std::make_pair(r * cos(phi) * id.zside(), r * sin(phi));
 }
 
