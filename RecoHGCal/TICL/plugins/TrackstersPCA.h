@@ -3,8 +3,6 @@
 
 #include "DataFormats/HGCalReco/interface/Trackster.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
-#include "DataFormats/Common/interface/ValueMap.h"
-#include "RecoLocalCalo/HGCalRecProducers/interface/ComputeClusterTime.h"
 #include <vector>
 
 namespace ticl {
