@@ -113,15 +113,15 @@ void RPCGeometryParsFromDD::buildGeometry(DDFilteredView& fview,
       edm::LogVerbatim("RPCGeometryParsFromDD")
           << " (3), else, dpar[4]: " << dpar4 << " dpar[8]: " << dpar8 << " dpar[0]: " << dpar0;
     }
-   
+
     const std::vector<double> vtra = {geant_units::operators::convertMmToCm(tran.x()),
                                       geant_units::operators::convertMmToCm(tran.y()),
                                       geant_units::operators::convertMmToCm(tran.z())};
-    
+
     edm::LogVerbatim("RPCGeometryParsFromDD") << " (4), tran.x() " << geant_units::operators::convertMmToCm(tran.x())
                                               << " tran.y(): " << geant_units::operators::convertMmToCm(tran.y())
                                               << " tran.z(): " << geant_units::operators::convertMmToCm(tran.z());
-   
+
     const std::vector<double> vrot = {x.X(), x.Y(), x.Z(), y.X(), y.Y(), y.Z(), z.X(), z.Y(), z.Z()};
     edm::LogVerbatim("RPCGeometryParsFromDD")
         << " (5), x.X(), x.Y(), x.Z(), y.X(), y.Y(), y.Z(), z.X(), z.Y(), z.Z() " << x.X() << ", " << x.Y() << ", "
