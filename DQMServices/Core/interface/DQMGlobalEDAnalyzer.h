@@ -10,7 +10,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 template <typename H, typename... Args>
-class DQMGlobalEDAnalyzer
+class DQMGlobalEDAnalyzerBase
     : public edm::global::EDProducer<edm::RunCache<H>,
                                      // DQMGlobalEDAnalyzer are fundamentally unable to produce histograms for any
                                      // other scope than MonitorElement::Scope::RUN.
@@ -22,7 +22,7 @@ public:
   typedef dqm::reco::MonitorElement MonitorElement;
 
   // framework calls in the order of invocation
-  DQMGlobalEDAnalyzer() {
+  DQMGlobalEDAnalyzerBase() {
     // for whatever reason we need the explicit `template` keyword here.
     runToken_ = this->template produces<DQMToken, edm::Transition::EndRun>("DQMGenerationRecoRun");
     dqmstore_ = edm::Service<DQMStore>().operator->();
@@ -55,13 +55,6 @@ public:
     dqmAnalyze(event, setup, h);
   }
 
-  void globalEndRunProduce(edm::Run& run, edm::EventSetup const& setup) const final {
-    auto const& h = *this->runCache(run.index());
-    dqmEndRun(run, setup, h);
-    dqmstore_->leaveLumi(run.run(), /* lumi */ 0, meId(run));
-    run.emplace(runToken_);
-  }
-
   // Subsystems could safely override this, but any changes to MEs would not be
   // noticeable since the product was made already.
   void globalEndRun(edm::Run const&, edm::EventSetup const&) const final{};
@@ -71,12 +64,41 @@ public:
   virtual void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&, H&) const = 0;
   // TODO: rename this analyze() for consistency.
   virtual void dqmAnalyze(edm::Event const&, edm::EventSetup const&, H const&) const = 0;
-  virtual void dqmEndRun(edm::Run const&, edm::EventSetup const&, H const&) const {}
 
-private:
+protected:
   DQMStore* dqmstore_;
   edm::EDPutTokenT<DQMToken> runToken_;
   uint64_t meId(edm::Run const& run) const { return (((uint64_t)run.run()) << 32) + this->moduleDescription().id(); }
+};
+
+// Case without RunSummaryCache
+template <typename H, typename... Args>
+class DQMGlobalEDAnalyzer : public DQMGlobalEDAnalyzerBase<H, Args...> {
+public:
+  void globalEndRunProduce(edm::Run& run, edm::EventSetup const& setup) const final {
+    auto const& h = *this->runCache(run.index());
+    dqmEndRun(run, setup, h);
+    this->dqmstore_->leaveLumi(run.run(), /* lumi */ 0, this->meId(run));
+    run.emplace(this->runToken_);
+  }
+
+  virtual void dqmEndRun(edm::Run const&, edm::EventSetup const&, H const&) const {}
+};
+
+// Case with RunSummaryCache, must be the second template argument
+template <typename H,    // type for RunCache
+          typename RSC,  // type for RunSummaryCache
+          typename... Args>
+class DQMGlobalRunSummaryEDAnalyzer : public DQMGlobalEDAnalyzerBase<H, edm::RunSummaryCache<RSC>, Args...> {
+public:
+  void globalEndRunProduce(edm::Run& run, edm::EventSetup const& setup, RSC const* runSummaryCache) const final {
+    auto const& h = *this->runCache(run.index());
+    dqmEndRun(run, setup, h, *runSummaryCache);
+    this->dqmstore_->leaveLumi(run.run(), /* lumi */ 0, this->meId(run));
+    run.emplace(this->runToken_);
+  }
+
+  virtual void dqmEndRun(edm::Run const&, edm::EventSetup const&, H const&, RSC const&) const {}
 };
 
 #endif  // DQMServices_Core_DQMGlobalEDAnalyzer_h
