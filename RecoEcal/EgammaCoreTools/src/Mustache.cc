@@ -5,7 +5,7 @@ using namespace std;
 
 namespace reco {
   namespace MustacheKernel {
-    bool inMustache(const std::shared_ptr<MustacheSCParametersHelper>& params,
+    bool inMustache(const MustacheSCParametersHelper* params,
                     const float maxEta,
                     const float maxPhi,
                     const float ClustE,
@@ -60,7 +60,7 @@ namespace reco {
       return (deta < upper_cut && deta > lower_cut);
     }
 
-    bool inDynamicDPhiWindow(const std::shared_ptr<SCDynamicDPhiParametersHelper>& params,
+    bool inDynamicDPhiWindow(const SCDynamicDPhiParametersHelper* params,
                              const float seedEta,
                              const float seedPhi,
                              const float ClustE,
@@ -81,7 +81,7 @@ namespace reco {
     }
   }  // namespace MustacheKernel
 
-  Mustache::Mustache(const std::shared_ptr<MustacheSCParametersHelper>& mustache_params_helper)
+  Mustache::Mustache(const MustacheSCParametersHelper* mustache_params_helper)
       : mustache_params_helper_(mustache_params_helper) {}
 
   void Mustache::MustacheID(const reco::SuperCluster& sc, int& nclusters, float& EoutsideMustache) {
