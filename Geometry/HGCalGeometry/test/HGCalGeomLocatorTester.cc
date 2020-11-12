@@ -97,14 +97,14 @@ void HGCalGeomLocaterTester::doTestScintillator(const HGCalGeometry* geom, DetId
       double dx = global.x() - tilexy.first;
       double dy = global.y() - tilexy.second;
       std::cout << " position (" << global.x() << ", " << global.y() << ", " << global.z() << ") tileXY ("
-		<< tilexy.first << ", " << tilexy.second << ") Delta (" << dx << ", " << dy << ")";
+                << tilexy.first << ", " << tilexy.second << ") Delta (" << dx << ", " << dy << ")";
       if ((std::abs(dx) > tol) || (std::abs(dy) > tol)) {
-	std::cout << "***** ERROR *****" << std::endl;
-	++bad;
-	geom->topology().dddConstants().locateCell(id, true);
+        std::cout << "***** ERROR *****" << std::endl;
+        ++bad;
+        geom->topology().dddConstants().locateCell(id, true);
       } else {
-	std::cout << std::endl;
-	++good;
+        std::cout << std::endl;
+        ++good;
       }
     }
   }
