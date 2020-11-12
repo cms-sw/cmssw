@@ -59,6 +59,10 @@ void SeedingRegionByTracks::makeRegions(const edm::Event &ev,
       result.emplace_back(tsos.globalPosition(), tsos.globalMomentum(), iSide, i, trkId);
     }
   }
+  // sorting seeding region by descending momentum
+  std::sort(result.begin(), result.end(), [](const TICLSeedingRegion &a, const TICLSeedingRegion &b) {
+    return a.directionAtOrigin.perp2() > b.directionAtOrigin.perp2();
+  });
 }
 
 void SeedingRegionByTracks::buildFirstLayers() {

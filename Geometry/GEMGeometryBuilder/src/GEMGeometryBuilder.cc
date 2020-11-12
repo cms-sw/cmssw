@@ -328,7 +328,7 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
     edm::LogVerbatim("Geometry") << fv.name() << " with " << history.tags.size() << " Levels and ID " << detId
                                  << " Mask " << std::hex << GEMDetId::chamberIdMask << std::dec << " and "
                                  << GEMDetId(((detId.rawId()) & GEMDetId::chamberIdMask)) << " Levels " << theRingLevel
-                                 << ":" << theSectorLevel << ":" << history.tags.size() << ":" << fv.copyNos().size();
+                                 << ":" << theSectorLevel << ":" << history.tags.size() << ":" << fv.level();
     for (unsigned int k = 0; k < history.tags.size(); ++k)
       edm::LogVerbatim("Geometry") << "[" << k << "] Tag " << history.tags[k] << " Offset " << history.offsets[k]
                                    << " copy " << history.copyNos[k];
@@ -352,7 +352,7 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
         theGeometry.add(etaPart);
       }
     } else {
-      if (fv.copyNos().size() == levelChamb) {
+      if (fv.level() == levelChamb) {
         if (detId.layer() == 1) {
           GEMSuperChamber* gemSuperChamber = buildSuperChamber(fv, detId);
           superChambers.emplace_back(gemSuperChamber);

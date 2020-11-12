@@ -23,13 +23,13 @@ public:
   std::unique_ptr<SiStripHashedDetId> produce(const SiStripHashedDetIdRcd&);
 
 private:
-  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
 };
 
 // -----------------------------------------------------------------------------
 //
-SiStripHashedDetIdESModule::SiStripHashedDetIdESModule(const edm::ParameterSet& pset) {
-  setWhatProduced(this, &SiStripHashedDetIdESModule::produce).setConsumes(geomToken_);
+SiStripHashedDetIdESModule::SiStripHashedDetIdESModule(const edm::ParameterSet& pset)
+    : geomToken_(setWhatProduced(this, &SiStripHashedDetIdESModule::produce).consumes()) {
   edm::LogVerbatim("HashedDetId") << "[SiStripHashedDetIdESSourceFromGeom::" << __func__ << "]"
                                   << " Constructing object...";
 }

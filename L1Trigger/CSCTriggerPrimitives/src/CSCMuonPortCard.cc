@@ -1,5 +1,5 @@
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCMuonPortCard.h"
-#include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
+#include "DataFormats/L1TMuon/interface/CSCConstants.h"
 #include <algorithm>
 
 CSCMuonPortCard::CSCMuonPortCard() {}

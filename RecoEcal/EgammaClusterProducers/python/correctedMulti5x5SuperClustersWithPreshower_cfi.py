@@ -34,5 +34,6 @@ correctedMulti5x5SuperClustersWithPreshower = cms.EDProducer("EgammaSCCorrection
 )
 
 
-uncleanedOnlyCorrectedMulti5x5SuperClustersWithPreshower = correctedMulti5x5SuperClustersWithPreshower.clone()
-uncleanedOnlyCorrectedMulti5x5SuperClustersWithPreshower.rawSuperClusterProducer = cms.InputTag("uncleanedOnlyMulti5x5SuperClustersWithPreshower")
+uncleanedOnlyCorrectedMulti5x5SuperClustersWithPreshower = correctedMulti5x5SuperClustersWithPreshower.clone(
+    rawSuperClusterProducer = "uncleanedOnlyMulti5x5SuperClustersWithPreshower"
+)

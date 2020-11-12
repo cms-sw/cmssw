@@ -5,7 +5,9 @@
 #include "SimG4CMS/Calo/interface/HGCalNumberingScheme.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
+#include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
+#include "Geometry/HGCalCommonData/interface/HGCalWaferIndex.h"
 #include <iostream>
 
 //#define EDM_ML_DEBUG
@@ -36,8 +38,7 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
                              << HGCalGeometryMode::Hexagon8File << ":" << HGCalGeometryMode::Trapezoid << ":"
                              << HGCalGeometryMode::TrapezoidFile;
 #endif
-  if ((mode_ == HGCalGeometryMode::Hexagon8Full) || (mode_ == HGCalGeometryMode::Hexagon8) ||
-      (mode_ == HGCalGeometryMode::Hexagon8File)) {
+  if (hgcons_.waferHexagon8()) {
     int cellU(0), cellV(0), waferType(-1), waferU(0), waferV(0);
     if (cell >= 0) {
       waferType = HGCalTypes::getUnpackedType(module);
@@ -50,6 +51,19 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
       hgcons_.waferFromPosition(xx, pos.y(), layer, waferU, waferV, cellU, cellV, waferType, wt);
     }
     if (waferType >= 0) {
+      if (mode_ == HGCalGeometryMode::Hexagon8File) {
+        int type = hgcons_.waferType(layer, waferU, waferV, true);
+        if (type != waferType) {
+#ifdef EDM_ML_DEBUG
+          edm::LogVerbatim("HGCSim") << "HGCalNumberingScheme:: " << name_ << " Layer|u|v|Index|module|cell " << layer
+                                     << ":" << waferU << ":" << waferV << ":"
+                                     << HGCalWaferIndex::waferIndex(layer, waferU, waferV, false) << ":" << module
+                                     << ":" << cell << " has a type mismatch " << waferType << ":" << type;
+#endif
+          if (type != HGCSiliconDetId::HGCalCoarseThick)
+            waferType = type;
+        }
+      }
       index = HGCSiliconDetId(det_, iz, waferType, layer, waferU, waferV, cellU, cellV).rawId();
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCSim") << "OK WaferType " << waferType << " Wafer " << waferU << ":" << waferV << " Cell "
@@ -59,7 +73,7 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
                                  << waferV;
 #endif
     }
-  } else if ((mode_ == HGCalGeometryMode::Trapezoid) || (mode_ == HGCalGeometryMode::TrapezoidFile)) {
+  } else if (hgcons_.tileTrapezoid()) {
     std::array<int, 3> id = hgcons_.assignCellTrap(pos.x(), pos.y(), pos.z(), layer, false);
     if (id[2] >= 0) {
       index = HGCScintillatorDetId(id[2], layer, iz * id[0], id[1]).rawId();

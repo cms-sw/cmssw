@@ -1,6 +1,6 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader.h"
-#include "EventFilter/CSCRawToDigi/src/cscPackerCompare.h"
+#include "EventFilter/CSCRawToDigi/interface/cscPackerCompare.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader2006.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader2007.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader2007_rev0x50c3.h"

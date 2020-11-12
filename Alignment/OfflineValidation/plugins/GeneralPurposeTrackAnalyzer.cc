@@ -316,24 +316,26 @@ private:
       edm::LogInfo("GeneralPurposeTrackAnalyzer") << "Reconstructed " << tC.size() << " tracks" << std::endl;
     }
     //int iCounter=0;
+
     edm::Handle<edm::TriggerResults> hltresults;
     event.getByToken(hltresultsToken, hltresults);
+    if (hltresults.isValid()) {
+      const edm::TriggerNames &triggerNames_ = event.triggerNames(*hltresults);
+      int ntrigs = hltresults->size();
+      //const vector<std::string> &triggernames = triggerNames_.triggerNames();
 
-    const edm::TriggerNames &triggerNames_ = event.triggerNames(*hltresults);
-    int ntrigs = hltresults->size();
-    //const vector<std::string> &triggernames = triggerNames_.triggerNames();
-
-    for (int itrig = 0; itrig != ntrigs; ++itrig) {
-      const std::string &trigName = triggerNames_.triggerName(itrig);
-      bool accept = hltresults->accept(itrig);
-      if (accept == 1) {
-        if (DEBUG) {
-          edm::LogInfo("GeneralPurposeTrackAnalyzer")
-              << trigName << " " << accept << " ,track size: " << tC.size() << std::endl;
+      for (int itrig = 0; itrig != ntrigs; ++itrig) {
+        const std::string &trigName = triggerNames_.triggerName(itrig);
+        bool accept = hltresults->accept(itrig);
+        if (accept == 1) {
+          if (DEBUG) {
+            edm::LogInfo("GeneralPurposeTrackAnalyzer")
+                << trigName << " " << accept << " ,track size: " << tC.size() << std::endl;
+          }
+          triggerMap_[trigName].first += 1;
+          triggerMap_[trigName].second += tC.size();
+          // triggerInfo.push_back(pair <std::string, int> (trigName, accept));
         }
-        triggerMap_[trigName].first += 1;
-        triggerMap_[trigName].second += tC.size();
-        // triggerInfo.push_back(pair <std::string, int> (trigName, accept));
       }
     }
 
@@ -400,6 +402,7 @@ private:
           }
         }
       }
+
       hHit2D->Fill(nHit2D);
       hHit->Fill(track->numberOfValidHits());
       hnhpxb->Fill(track->hitPattern().numberOfValidPixelBarrelHits());
@@ -631,7 +634,7 @@ private:
       event.getByLabel("offlinePrimaryVertices", vertexHandle);
       double mindxy = 100.;
       double dz = 100;
-      if (vertexHandle.isValid()) {
+      if (vertexHandle.isValid() && !isCosmics_) {
         for (auto pvtx = vertexHandle->cbegin(); pvtx != vertexHandle->cend(); ++pvtx) {
           math::XYZPoint mypoint(pvtx->x(), pvtx->y(), pvtx->z());
           if (abs(mindxy) > abs(track->dxy(mypoint))) {
@@ -652,6 +655,10 @@ private:
         hdxyPV->Fill(100);
         hd0PV->Fill(100);
         hdzPV->Fill(100);
+
+        hd0vsphi->Fill(track->phi(), -track->dxy());
+        hd0vseta->Fill(track->eta(), -track->dxy());
+        hd0vspt->Fill(track->pt(), -track->dxy());
       }
 
       if (DEBUG) {

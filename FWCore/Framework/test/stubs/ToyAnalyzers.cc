@@ -46,26 +46,33 @@ namespace edmtest {
 
   //--------------------------------------------------------------------
   //
-  class IntTestAnalyzer : public edm::EDAnalyzer {
+  class IntTestAnalyzer : public edm::global::EDAnalyzer<> {
   public:
     IntTestAnalyzer(edm::ParameterSet const& iPSet)
         : value_(iPSet.getUntrackedParameter<int>("valueMustMatch")),
-          moduleLabel_(iPSet.getUntrackedParameter<std::string>("moduleLabel"), "") {
-      consumes<IntProduct>(moduleLabel_);
+          token_(consumes(iPSet.getUntrackedParameter<edm::InputTag>("moduleLabel"))) {}
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.addUntracked<int>("valueMustMatch");
+      desc.addUntracked<edm::InputTag>("moduleLabel");
+      descriptions.addDefault(desc);
     }
 
-    void analyze(edm::Event const& iEvent, edm::EventSetup const&) {
-      edm::Handle<IntProduct> handle;
-      iEvent.getByLabel(moduleLabel_, handle);
-      if (handle->value != value_) {
-        throw cms::Exception("ValueMissMatch") << "The value for \"" << moduleLabel_ << "\" is " << handle->value
-                                               << " but it was supposed to be " << value_;
+    void analyze(edm::StreamID, edm::Event const& iEvent, edm::EventSetup const&) const {
+      auto const& prod = iEvent.get(token_);
+      if (prod.value != value_) {
+        edm::ProductLabels labels;
+        labelsForToken(token_, labels);
+        throw cms::Exception("ValueMismatch")
+            << "The value for \"" << labels.module << ":" << labels.productInstance << ":" << labels.process << "\" is "
+            << prod.value << " but it was supposed to be " << value_;
       }
     }
 
   private:
-    int value_;
-    edm::InputTag moduleLabel_;
+    int const value_;
+    edm::EDGetTokenT<IntProduct> const token_;
   };
 
   //--------------------------------------------------------------------
@@ -208,6 +215,41 @@ namespace edmtest {
 
   //--------------------------------------------------------------------
   //
+  // Consumes View<Simple>
+  //
+  class SimpleViewAnalyzer : public edm::global::EDAnalyzer<> {
+  public:
+    explicit SimpleViewAnalyzer(edm::ParameterSet const& p)
+        : token_(consumes(p.getUntrackedParameter<edm::InputTag>("label"))),
+          size_(p.getUntrackedParameter<unsigned int>("sizeMustMatch")),
+          checkSize_(p.getUntrackedParameter<bool>("checkSize")) {}
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.addUntracked<bool>("checkSize", true);
+      desc.addUntracked<unsigned int>("sizeMustMatch");
+      desc.addUntracked<edm::InputTag>("label");
+      descriptions.addDefault(desc);
+    }
+
+    void analyze(edm::StreamID, edm::Event const& e, edm::EventSetup const&) const {
+      if (checkSize_) {
+        auto const& prod = e.get(token_);
+        if (prod.size() != size_) {
+          throw cms::Exception("SizeMismatch")
+              << "Product size " << prod.size() << " differs from expectation " << size_;
+        }
+      }
+    }
+
+  private:
+    edm::EDGetTokenT<edm::View<Simple>> const token_;
+    unsigned int const size_;
+    bool const checkSize_;
+  };
+
+  //--------------------------------------------------------------------
+  //
   class DSVAnalyzer : public edm::EDAnalyzer {
   public:
     DSVAnalyzer(edm::ParameterSet const&) {}
@@ -281,6 +323,7 @@ using edmtest::IntTestAnalyzer;
 using edmtest::MultipleIntsAnalyzer;
 using edmtest::NonAnalyzer;
 using edmtest::SCSimpleAnalyzer;
+using edmtest::SimpleViewAnalyzer;
 DEFINE_FWK_MODULE(NonAnalyzer);
 DEFINE_FWK_MODULE(IntTestAnalyzer);
 DEFINE_FWK_MODULE(MultipleIntsAnalyzer);
@@ -289,4 +332,5 @@ DEFINE_FWK_MODULE(edmtest::IntFromRunConsumingAnalyzer);
 DEFINE_FWK_MODULE(ConsumingStreamAnalyzer);
 DEFINE_FWK_MODULE(ConsumingOneSharedResourceAnalyzer);
 DEFINE_FWK_MODULE(SCSimpleAnalyzer);
+DEFINE_FWK_MODULE(SimpleViewAnalyzer);
 DEFINE_FWK_MODULE(DSVAnalyzer);

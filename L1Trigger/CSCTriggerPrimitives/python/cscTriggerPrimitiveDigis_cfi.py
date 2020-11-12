@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from L1Trigger.CSCCommonTrigger.CSCCommonTrigger_cfi import *
+from L1Trigger.CSCTriggerPrimitives.CSCCommonTrigger_cfi import *
 # Default parameters for CSCTriggerPrimitives generator
 # =====================================================
 cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
@@ -29,11 +29,11 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
     savePreTriggers = cms.bool(False),
 
     positionLUTFiles = cms.vstring(
-        "L1Trigger/CSCTriggerPrimitives/data/CSCComparatorCodePosOffsetLUT_pat0_ideal_v1.txt",
-        "L1Trigger/CSCTriggerPrimitives/data/CSCComparatorCodePosOffsetLUT_pat1_ideal_v1.txt",
-        "L1Trigger/CSCTriggerPrimitives/data/CSCComparatorCodePosOffsetLUT_pat2_ideal_v1.txt",
-        "L1Trigger/CSCTriggerPrimitives/data/CSCComparatorCodePosOffsetLUT_pat3_ideal_v1.txt",
-        "L1Trigger/CSCTriggerPrimitives/data/CSCComparatorCodePosOffsetLUT_pat4_ideal_v1.txt"
+        "L1Trigger/CSCTriggerPrimitives/data/CSCComparatorCodePosOffsetLUT_pat0_v1.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/CSCComparatorCodePosOffsetLUT_pat1_v1.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/CSCComparatorCodePosOffsetLUT_pat2_v1.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/CSCComparatorCodePosOffsetLUT_pat3_v1.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/CSCComparatorCodePosOffsetLUT_pat4_v1.txt"
     ),
 
     slopeLUTFiles = cms.vstring(
@@ -42,6 +42,14 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         "L1Trigger/CSCTriggerPrimitives/data/CSCComparatorCodeSlopeLUT_pat2_v1.txt",
         "L1Trigger/CSCTriggerPrimitives/data/CSCComparatorCodeSlopeLUT_pat3_v1.txt",
         "L1Trigger/CSCTriggerPrimitives/data/CSCComparatorCodeSlopeLUT_pat4_v1.txt"
+    ),
+
+    patternConversionLUTFiles = cms.vstring(
+        "L1Trigger/CSCTriggerPrimitives/data/CSCComparatorCodePatternConversionLUT_pat0_v1.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/CSCComparatorCodePatternConversionLUT_pat1_v1.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/CSCComparatorCodePatternConversionLUT_pat2_v1.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/CSCComparatorCodePatternConversionLUT_pat3_v1.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/CSCComparatorCodePatternConversionLUT_pat4_v1.txt"
     ),
 
     # Parameters common for all boards
@@ -181,8 +189,6 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         useRun3Patterns = cms.bool(False),
 
         useComparatorCodes = cms.bool(False),
-        nBitsPositionCC = cms.uint32(10),
-        nBitsSlopeCC = cms.uint32(4)
     ),
 
     # Parameters for CLCT processors: SLHC studies
@@ -224,9 +230,6 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         useRun3Patterns = cms.bool(False),
 
         useComparatorCodes = cms.bool(False),
-
-        nBitsPositionCC = cms.uint32(10),
-        nBitsSlopeCC = cms.uint32(4)
     ),
 
     tmbParam = cms.PSet(

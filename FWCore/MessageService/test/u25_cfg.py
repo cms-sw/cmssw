@@ -15,11 +15,11 @@ process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('u25_only'),
     statistics = cms.untracked.vstring('u25_only'),
     categories = cms.untracked.vstring('preEventProcessing', 
-        'FwkJob'),
+        'FwkTest'),
     u25_only = cms.untracked.PSet(
         threshold = cms.untracked.string('INFO'),
         noTimeStamps = cms.untracked.bool(True),
-        FwkJob = cms.untracked.PSet(
+        FwkTest = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         preEventProcessing = cms.untracked.PSet(

@@ -6,7 +6,7 @@ using namespace std;
 using namespace dd4hep;
 using namespace cms;
 
-static long algorithm(Detector&, cms::DDParsingContext& ctxt, xml_h e, SensitiveDetector&) {
+static long algorithm(Detector&, cms::DDParsingContext& ctxt, xml_h e) {
   cms::DDNamespace ns(ctxt, e, true);
   DDAlgoArguments args(ctxt, e);
   vector<string> materials = args.vecStr("MaterialNames");

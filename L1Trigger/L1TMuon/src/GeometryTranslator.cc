@@ -12,8 +12,8 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "L1Trigger/DTUtilities/interface/DTTrigGeom.h"
-#include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
-#include "L1Trigger/CSCCommonTrigger/interface/CSCPatternLUT.h"
+#include "DataFormats/L1TMuon/interface/CSCConstants.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCPatternBank.h"
 
 #include "L1Trigger/L1TMuon/interface/MuonTriggerPrimitive.h"
 
@@ -27,19 +27,19 @@ GeometryTranslator::~GeometryTranslator() {}
 
 double GeometryTranslator::calculateGlobalEta(const TriggerPrimitive& tp) const {
   switch (tp.subsystem()) {
-    case TriggerPrimitive::kDT:
+    case L1TMuon::kDT:
       return calcDTSpecificEta(tp);
       break;
-    case TriggerPrimitive::kCSC:
+    case L1TMuon::kCSC:
       return calcCSCSpecificEta(tp);
       break;
-    case TriggerPrimitive::kRPC:
+    case L1TMuon::kRPC:
       return calcRPCSpecificEta(tp);
       break;
-    case TriggerPrimitive::kGEM:
+    case L1TMuon::kGEM:
       return calcGEMSpecificEta(tp);
       break;
-    case TriggerPrimitive::kME0:
+    case L1TMuon::kME0:
       return calcME0SpecificEta(tp);
       break;
     default:
@@ -50,19 +50,19 @@ double GeometryTranslator::calculateGlobalEta(const TriggerPrimitive& tp) const 
 
 double GeometryTranslator::calculateGlobalPhi(const TriggerPrimitive& tp) const {
   switch (tp.subsystem()) {
-    case TriggerPrimitive::kDT:
+    case L1TMuon::kDT:
       return calcDTSpecificPhi(tp);
       break;
-    case TriggerPrimitive::kCSC:
+    case L1TMuon::kCSC:
       return calcCSCSpecificPhi(tp);
       break;
-    case TriggerPrimitive::kRPC:
+    case L1TMuon::kRPC:
       return calcRPCSpecificPhi(tp);
       break;
-    case TriggerPrimitive::kGEM:
+    case L1TMuon::kGEM:
       return calcGEMSpecificPhi(tp);
       break;
-    case TriggerPrimitive::kME0:
+    case L1TMuon::kME0:
       return calcME0SpecificPhi(tp);
       break;
     default:
@@ -73,19 +73,19 @@ double GeometryTranslator::calculateGlobalPhi(const TriggerPrimitive& tp) const 
 
 double GeometryTranslator::calculateBendAngle(const TriggerPrimitive& tp) const {
   switch (tp.subsystem()) {
-    case TriggerPrimitive::kDT:
+    case L1TMuon::kDT:
       return calcDTSpecificBend(tp);
       break;
-    case TriggerPrimitive::kCSC:
+    case L1TMuon::kCSC:
       return calcCSCSpecificBend(tp);
       break;
-    case TriggerPrimitive::kRPC:
+    case L1TMuon::kRPC:
       return calcRPCSpecificBend(tp);
       break;
-    case TriggerPrimitive::kGEM:
+    case L1TMuon::kGEM:
       return calcGEMSpecificBend(tp);
       break;
-    case TriggerPrimitive::kME0:
+    case L1TMuon::kME0:
       return calcME0SpecificBend(tp);
       break;
     default:
@@ -96,19 +96,19 @@ double GeometryTranslator::calculateBendAngle(const TriggerPrimitive& tp) const 
 
 GlobalPoint GeometryTranslator::getGlobalPoint(const TriggerPrimitive& tp) const {
   switch (tp.subsystem()) {
-    case TriggerPrimitive::kDT:
+    case L1TMuon::kDT:
       return calcDTSpecificPoint(tp);
       break;
-    case TriggerPrimitive::kCSC:
+    case L1TMuon::kCSC:
       return getCSCSpecificPoint(tp);
       break;
-    case TriggerPrimitive::kRPC:
+    case L1TMuon::kRPC:
       return getRPCSpecificPoint(tp);
       break;
-    case TriggerPrimitive::kGEM:
+    case L1TMuon::kGEM:
       return getGEMSpecificPoint(tp);
       break;
-    case TriggerPrimitive::kME0:
+    case L1TMuon::kME0:
       return getME0SpecificPoint(tp);
       break;
     default:
@@ -247,7 +247,7 @@ GlobalPoint GeometryTranslator::getCSCSpecificPoint(const TriggerPrimitive& tp) 
   double offset = 0.0;
   switch (1) {
     case 1:
-      offset = CSCPatternLUT::get2007Position(pattern);
+      offset = CSCPatternBank::getLegacyPosition(pattern);
   }
   const unsigned halfstrip_offs = static_cast<unsigned>(0.5 + halfstrip + offset);
   const unsigned strip = halfstrip_offs / 2 + 1;  // geom starts from 1

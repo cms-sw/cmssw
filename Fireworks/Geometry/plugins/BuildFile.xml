@@ -23,7 +23,6 @@
 <library file="DumpSimGeometry.cc" name="FireworksGeometryDumpSimGeometryPlugin">
   <use name="Fireworks/Geometry"/>
   <use name="FWCore/Framework"/>
-  <use name="FWCore/PluginManager"/>
   <use name="FWCore/ParameterSet"/>
   <use name="rootgeom"/>
   <flags EDM_PLUGIN="1"/>
@@ -31,7 +30,6 @@
 
 <library file="MFProducer.cc" name="FireworksGeometryMFProducerPlugin">
   <use name="FWCore/Framework"/>
-  <use name="FWCore/PluginManager"/>
   <use name="FWCore/ParameterSet"/>
   <use name="clhep"/>
   <use name="MagneticField/Engine"/>
@@ -46,7 +44,6 @@
   <use name="rootgeom"/>
   <use name="rootcore"/>
   <use name="FWCore/Framework"/>
-  <use name="FWCore/PluginManager"/>
   <use name="FWCore/ParameterSet"/>
   <use name="Geometry/CaloGeometry"/>
   <use name="Geometry/DTGeometry"/>
@@ -63,7 +60,6 @@
   <use name="rootgeom"/>
   <use name="rootcore"/>
   <use name="FWCore/Framework"/>
-  <use name="FWCore/PluginManager"/>
   <use name="FWCore/ParameterSet"/>
   <use name="Geometry/CaloGeometry"/>
   <use name="Geometry/DTGeometry"/>

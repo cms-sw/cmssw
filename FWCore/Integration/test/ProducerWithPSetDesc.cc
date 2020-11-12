@@ -4,7 +4,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/getFixedSizeArray.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterDescriptionBase.h"
 #include "FWCore/ParameterSet/interface/ParameterDescription.h"
@@ -80,10 +79,10 @@ namespace edmtest {
     vint = ps.getParameter<std::vector<int>>("vint3");
     assert(vint[0] == 2147483647);
     assert(vint[1] == -2147483647);
-    std::array<int, 2> testArray = edm::getFixedSizeArray<int, 2>(ps, std::string("vint3"));
+    std::array<int, 2> testArray = ps.getParameter<std::array<int, 2>>(std::string("vint3"));
     assert(testArray[0] == 2147483647);
     assert(testArray[1] == -2147483647);
-    std::array<int, 2> testArray1 = edm::getFixedSizeArray<int, 2>(ps, "vint3");
+    std::array<int, 2> testArray1 = ps.getParameter<std::array<int, 2>>("vint3");
     assert(testArray1[0] == 2147483647);
     assert(testArray1[1] == -2147483647);
     vint = ps.getParameter<std::vector<int>>("vint4");

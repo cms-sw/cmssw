@@ -9,8 +9,8 @@
 #include <iomanip>  // dump for JK
 #include <iostream>
 #include <cstdio>
-#include "EventFilter/CSCRawToDigi/src/bitset_append.h"
-#include "EventFilter/CSCRawToDigi/src/cscPackerCompare.h"
+#include "EventFilter/CSCRawToDigi/interface/bitset_append.h"
+#include "EventFilter/CSCRawToDigi/interface/cscPackerCompare.h"
 
 #ifdef LOCAL_UNPACK
 bool CSCTMBData::debug = false;

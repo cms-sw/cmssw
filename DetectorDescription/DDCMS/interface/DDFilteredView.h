@@ -1,5 +1,5 @@
-#ifndef DETECTOR_DESCRIPTION_DD_FILTERED_VIEW_H
-#define DETECTOR_DESCRIPTION_DD_FILTERED_VIEW_H
+#ifndef DetectorDescription_DDCMS_DDFilteredView_h
+#define DetectorDescription_DDCMS_DDFilteredView_h
 
 // -*- C++ -*-
 //
@@ -20,10 +20,12 @@
 //
 #include "DetectorDescription/DDCMS/interface/DDSolidShapes.h"
 #include "DetectorDescription/DDCMS/interface/ExpandedNodes.h"
+#include "DetectorDescription/DDCMS/interface/DDVectorRegistry.h"
 #include <DD4hep/Filter.h>
 #include <DD4hep/SpecParRegistry.h>
 #include <DD4hep/Volumes.h>
 #include <memory>
+#include <tuple>
 #include <vector>
 
 namespace cms {
@@ -49,7 +51,6 @@ namespace cms {
   using DDSpecPar = dd4hep::SpecPar;
   using DDSpecParRefs = dd4hep::SpecParRefs;
   using DDSpecParRegistry = dd4hep::SpecParRegistry;
-  using DDVectorsMap = dd4hep::VectorsMap;
   using Iterator = TGeoIterator;
   using Node = TGeoNode;
   using Translation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
@@ -111,6 +112,7 @@ namespace cms {
 
     //! set the current node to the first child
     bool firstChild();
+    bool nextChild();
 
     //! set the current node to the child in path
     std::vector<std::vector<Node*>> children(const std::string& path);
@@ -136,43 +138,14 @@ namespace cms {
     //! set current node to the parent node in the filtered tree
     void up();
 
-    // Get shape pointer of current node.
-    // Caller must check that current node matches desired type
-    // before calling this function.
-
-    template <class Shape>
-    const Shape* getShapePtr() const {
-      Volume currVol = node_->GetVolume();
-      return (dynamic_cast<Shape*>(currVol->GetShape()));
-    }
-
     // Shape of current node
-
-    template <class Shape>
-    bool isA() const {
-      return dd4hep::isA<Shape>(solid());
-    }
-
-    bool isABox() const { return isA<dd4hep::Box>(); }
-
-    bool isAConeSeg() const { return isA<dd4hep::ConeSegment>(); }
-
-    bool isAPseudoTrap() const { return isA<dd4hep::PseudoTrap>(); }
-
-    bool isATrapezoid() const { return isA<dd4hep::Trap>(); }
-
-    bool isATruncTube() const { return isA<dd4hep::TruncatedTube>(); }
-
-    bool isATubeSeg() const { return isA<dd4hep::Tube>(); }
-
-    bool isASubtraction() const {
-      return (isA<dd4hep::SubtractionSolid>() and not isA<dd4hep::TruncatedTube>() and not isA<dd4hep::PseudoTrap>());
-    }
-
     dd4hep::Solid solid() const;
 
     // Name of current node
     std::string_view name() const;
+
+    // Name of current node with namespace
+    std::string_view fullName() const;
 
     // Copy number of current node
     unsigned short copyNum() const;
@@ -190,7 +163,41 @@ namespace cms {
 
     //! extract attribute value
     template <typename T>
-    T get(const std::string&) const;
+    T get(const std::string&);
+
+    //! extract attribute value for current Node
+    //  keep the maespace for comparison
+    //  assume there are no regular expressions
+    template <typename T>
+    std::vector<T> getValuesNS(const std::string& key) {
+      DDSpecParRefs refs;
+      registry_->filter(refs, key);
+
+      std::string path = this->path();
+      for (const auto& specPar : refs) {
+        for (const auto& part : specPar.second->paths) {
+          bool flag(true);
+          std::size_t from = 0;
+          for (auto name : dd4hep::dd::split(part, "/")) {
+            auto const& to = path.find(name, from);
+            if (to == std::string::npos) {
+              flag = false;
+              break;
+            } else {
+              from = to;
+            }
+          }
+          if (flag) {
+            return specPar.second->value<std::vector<T>>(key);
+          }
+        }
+      }
+      return std::vector<T>();
+    }
+
+    //! extract another value from the same SpecPar
+    //  call get<double> first to find a relevant one
+    double getNextValue(const std::string&) const;
 
     //! extract attribute value in SpecPar
     template <typename T>
@@ -207,18 +214,55 @@ namespace cms {
     //  the current position in the DDFilteredView
     nav_type navPos() const;
 
+    //! get Iterator level
+    const int level() const;
+
+    //! transversed the DDFilteredView according
+    //  to the given stack of sibling numbers
+    bool goTo(const nav_type&);
+
     //! print Filter paths and selections
     void printFilter() const;
+
+    //! find a current Node SpecPar that has at least
+    //  one of the attributes
+    template <class T, class... Ts>
+    void findSpecPar(T const& first, Ts const&... rest) {
+      currentSpecPar_ = find(first);
+      if constexpr (sizeof...(rest) > 0) {
+        // this line will only be instantiated if there are further
+        // arguments. if rest... is empty, there will be no call to
+        // findSpecPar(next).
+        if (currentSpecPar_ == nullptr)
+          findSpecPar(rest...);
+      }
+    }
 
   private:
     bool accept(std::string_view);
     int nodeCopyNo(const std::string_view) const;
-    std::vector<std::pair<std::string_view, int>> toNodeNames(const std::string&);
-    bool match(const std::string&, const std::vector<std::pair<std::string_view, int>>&) const;
-    const TClass* getShape() const;
+    std::vector<std::pair<std::string, int>> toNodeNames(const std::string&);
+    bool match(const std::string&, const std::vector<std::pair<std::string, int>>&) const;
 
     //! set the current node to the first sibling
     bool firstSibling();
+
+    //! find a SpecPar in the registry by key
+    //  doesn't really belong here, but allows
+    //  speeding up avoiding the same search over
+    //  the registry
+    const DDSpecPar* find(const std::string&) const;
+    void filter(DDSpecParRefs&, const std::string&) const;
+    std::string_view front(const std::string_view) const;
+    std::string_view back(const std::string_view) const;
+
+    //! helper functions
+    std::string_view nodeNameAt(int) const;
+    const int nodeCopyNoAt(int) const;
+    bool compareEqualName(const std::string_view, const std::string_view) const;
+    std::tuple<std::string_view, std::string_view> alignNamespaces(std::string_view, std::string_view) const;
+    bool compareEqualCopyNumber(const std::string_view, int) const;
+    bool matchPath(const std::string_view) const;
 
     ExpandedNodes nodes_;
     std::vector<Iterator> it_;
@@ -227,8 +271,12 @@ namespace cms {
     Node* node_ = nullptr;
     const DDSpecParRegistry* registry_;
     DDSpecParRefs refs_;
+    const DDSpecPar* currentSpecPar_ = nullptr;
     int startLevel_;
   };
 }  // namespace cms
+
+//stream geoHistory
+std::ostream& operator<<(std::ostream& os, const std::vector<const cms::Node*>& hst);
 
 #endif

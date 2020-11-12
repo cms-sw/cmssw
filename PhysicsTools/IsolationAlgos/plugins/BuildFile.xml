@@ -6,5 +6,6 @@
   <use name="DataFormats/PatCandidates"/>
   <use name="DataFormats/TauReco"/>
   <use name="DataFormats/TrackReco"/>
+  <use name="FWCore/MessageLogger"/>
   <use name="PhysicsTools/IsolationAlgos"/>
 </library>

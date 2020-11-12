@@ -1,5 +1,3 @@
 <use name="CalibTracker/StandaloneTrackerTopology"/>
 <use name="CalibTracker/SiPixelESProducers"/>
-<use name="CondCore/ESSources"/>
 <use name="CondFormats/SiPixelObjects"/>
-<use name="CondFormats/DataRecord"/>

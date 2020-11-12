@@ -24,18 +24,16 @@ class JetCorrector;
 template <class Corrector>
 class JetCorrectionESProducer : public edm::ESProducer {
 private:
-  edm::ParameterSet mParameterSet;
-  std::string mLevel;
-  edm::ESGetToken<JetCorrectorParametersCollection, JetCorrectionsRecord> mToken;
+  const edm::ParameterSet mParameterSet;
+  const std::string mLevel;
+  const edm::ESGetToken<JetCorrectorParametersCollection, JetCorrectionsRecord> mToken;
 
 public:
-  JetCorrectionESProducer(edm::ParameterSet const& fConfig) : mParameterSet(fConfig) {
-    std::string label = fConfig.getParameter<std::string>("@module_label");
-    mLevel = fConfig.getParameter<std::string>("level");
-    auto algo = fConfig.getParameter<std::string>("algorithm");
-
-    setWhatProduced(this, label).setConsumes(mToken, edm::ESInputTag{"", algo});
-  }
+  JetCorrectionESProducer(edm::ParameterSet const& fConfig)
+      : mParameterSet(fConfig),
+        mLevel(fConfig.getParameter<std::string>("level")),
+        mToken(setWhatProduced(this, fConfig.getParameter<std::string>("@module_label"))
+                   .consumes(edm::ESInputTag{"", fConfig.getParameter<std::string>("algorithm")})) {}
 
   ~JetCorrectionESProducer() override {}
 

@@ -53,15 +53,15 @@ PFCandidate::PFCandidate()
   std::fill(hcalDepthEnergyFractions_.begin(), hcalDepthEnergyFractions_.end(), 0.f);
 }
 
+const math::XYZPoint& PFCandidate::vertex() const { return vertexLegacy(vertexType_); }
+
 PFCandidate::PFCandidate(const PFCandidatePtr& sourcePtr) : PFCandidate(*sourcePtr) {
   sourcePtr_ = sourcePtr;
   hcalDepthEnergyFractions_ = sourcePtr->hcalDepthEnergyFractions_;  // GP not sure it's needed
 }
 
 PFCandidate::PFCandidate(Charge charge, const LorentzVector& p4, ParticleType partId)
-    :
-
-      CompositeCandidate(charge, p4),
+    : CompositeCandidate(charge, p4),
       elementsInBlocks_(nullptr),
       ecalERatio_(1.),
       hcalERatio_(1.),
@@ -594,16 +594,16 @@ void PFCandidate::setPFPhotonExtraRef(const reco::PFCandidatePhotonExtraRef& iRe
 }
 
 void PFCandidate::setPFEGammaExtraRef(const reco::PFCandidateEGammaExtraRef& iRef) {
-  //std::cout << " before storeRefInfo " << kRefPFEGammaExtraMask << " " <<  kRefPFEGammaExtraBit << " " <<  iRef.isNonnull() << " " <<  iRef.key() <<  " " << std::endl;
   storeRefInfo(
       kRefPFEGammaExtraMask, kRefPFEGammaExtraBit, iRef.isNonnull(), iRef.refCore(), iRef.key(), iRef.productGetter());
 }
 
-const math::XYZPoint& PFCandidate::vertex() const {
-  switch (vertexType_) {
+const math::XYZPoint& PFCandidate::vertexLegacy(PFCandidate::PFVertexType vertexType) const {
+  switch (vertexType) {
     case kCandVertex:
       return LeafCandidate::vertex();
       break;
+    //the following cases will only be called for legacy AOD which does not have an embedded vertex
     case kTrkVertex:
       return trackRef()->vertex();
       break;

@@ -15,7 +15,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     u3_infos = cms.untracked.PSet(
         threshold = cms.untracked.string('INFO'),
         noTimeStamps = cms.untracked.bool(True),
-        FwkJob = cms.untracked.PSet(
+        FwkTest = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         preEventProcessing = cms.untracked.PSet(
@@ -24,7 +24,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     ),
     statistics = cms.untracked.vstring('u3_statistics'),
     categories = cms.untracked.vstring('preEventProcessing', 
-        'FwkJob'),
+        'FwkTest'),
     destinations = cms.untracked.vstring('u3_infos')
 )
 

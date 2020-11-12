@@ -1,5 +1,5 @@
-#ifndef CSCDDUTrailer_h
-#define CSCDDUTrailer_h
+#ifndef EventFilter_CSCRawToDigi_CSCDDUTrailer_h
+#define EventFilter_CSCRawToDigi_CSCDDUTrailer_h
 
 #include <iostream>
 #include <cstdint>

@@ -20,12 +20,17 @@
  */
 
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentProducerBase.h"
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/ProcessBlock.h"
 #include "FWCore/Framework/interface/Run.h"
+#include "DataFormats/Alignment/interface/AlignmentToken.h"
 
-class AlignmentProducerAsAnalyzer
-    : public AlignmentProducerBase,
-      public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks, edm::one::SharedResources> {
+class AlignmentProducerAsAnalyzer : public AlignmentProducerBase,
+                                    public edm::one::EDProducer<edm::EndProcessBlockProducer,
+                                                                edm::one::WatchLuminosityBlocks,
+                                                                edm::one::WatchRuns,
+                                                                edm::one::SharedResources,
+                                                                edm::Accumulator> {
   //========================== PUBLIC METHODS ==================================
 public:  //====================================================================
   /// Constructor
@@ -45,10 +50,12 @@ public:  //====================================================================
 
   void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
   void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
+  void endProcessBlockProduce(edm::ProcessBlock& processBlock) override;
 
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void accumulate(const edm::Event&, const edm::EventSetup&) override;
 
 private:
+  edm::EDPutTokenT<AlignmentToken> token_;
   bool getTrajTrackAssociationCollection(const edm::Event&, edm::Handle<TrajTrackAssociationCollection>&) override;
   bool getBeamSpot(const edm::Event&, edm::Handle<reco::BeamSpot>&) override;
   bool getTkFittedLasBeamCollection(const edm::Run&, edm::Handle<TkFittedLasBeamCollection>&) override;

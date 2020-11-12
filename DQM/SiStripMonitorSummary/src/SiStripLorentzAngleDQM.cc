@@ -1,7 +1,7 @@
 #include "DQM/SiStripMonitorSummary/interface/SiStripLorentzAngleDQM.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
+#include "DataFormats/TrackerCommon/interface/SiStripSubStructure.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "TCanvas.h"
 

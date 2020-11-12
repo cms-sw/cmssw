@@ -49,22 +49,11 @@ process.MessageLogger = cms.Service("MessageLogger",
         Root_NoDictionary = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        FwkJob = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
         FwkSummary = cms.untracked.PSet(
             reportEvery = cms.untracked.int32(1),
             limit = cms.untracked.int32(10000000)
         ),
         threshold = cms.untracked.string('DEBUG')
-    ),
-    FrameworkJobReport = cms.untracked.PSet(
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        FwkJob = cms.untracked.PSet(
-            limit = cms.untracked.int32(10000000)
-        )
     ),
     suppressWarning = cms.untracked.vstring(),
     statistics = cms.untracked.vstring('cerr_stats'),
@@ -85,11 +74,10 @@ process.MessageLogger = cms.Service("MessageLogger",
         'cout', 
         'cerr'),
     debugModules = cms.untracked.vstring('bscTrigger'),
-    categories = cms.untracked.vstring('BscSim','FwkJob', 
+    categories = cms.untracked.vstring('BscSim',
         'FwkReport', 
         'FwkSummary', 
-        'Root_NoDictionary'),
-    fwkJobReports = cms.untracked.vstring('FrameworkJobReport')
+        'Root_NoDictionary')
 )
 # import of standard configurations
 process.load('Configuration/StandardSequences/Services_cff')

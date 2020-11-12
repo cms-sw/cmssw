@@ -4,6 +4,7 @@
 <use name="RecoHI/HiJetAlgos"/>
 <use name="DataFormats/JetReco"/>
 <use name="CondFormats/DataRecord"/>
+<use name="CondFormats/HIObjects"/>
 <use name="CondCore/DBOutputService"/>
 <flags EDM_PLUGIN="1"/>
 <library file="*.cc" name="HiJetAlgosPlugins">

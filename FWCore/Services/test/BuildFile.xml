@@ -1,13 +1,11 @@
 <library file="StuckAnalyzer.cc" name="StuckAnalyzer">
   <flags EDM_PLUGIN="1"/>
-  <use name="FWCore/PluginManager"/>
   <use name="FWCore/Framework"/>
 </library>
 
 <library file="SiteLocalConfigServiceTester.cc" name="SiteLocalConfigUnitTestClient">
   <flags EDM_PLUGIN="1"/>
   <use name="FWCore/Services"/>
-  <use name="FWCore/PluginManager"/>
   <use name="FWCore/Framework"/>
 </library>
 

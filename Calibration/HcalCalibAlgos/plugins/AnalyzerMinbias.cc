@@ -59,6 +59,8 @@
 #include "TH2.h"
 #include "TTree.h"
 
+//#define EDM_ML_DEBUG
+
 namespace HcalMinbias {}
 
 // constructors and destructor
@@ -114,6 +116,7 @@ private:
   edm::EDGetTokenT<HORecHitCollection> tok_horecoMB_, tok_horecoNoise_;
   edm::EDGetTokenT<HBHERecHitCollection> tok_hbheNormal_;
   edm::EDGetTokenT<L1GlobalTriggerObjectMapRecord> tok_hltL1GtMap_;
+  edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_respCorr_;
 };
 
 AnalyzerMinbias::AnalyzerMinbias(const edm::ParameterSet& iConfig) {
@@ -135,6 +138,8 @@ AnalyzerMinbias::AnalyzerMinbias(const edm::ParameterSet& iConfig) {
 
   tok_hbheNormal_ = consumes<HBHERecHitCollection>(edm::InputTag("hbhereco"));
   tok_hltL1GtMap_ = consumes<L1GlobalTriggerObjectMapRecord>(edm::InputTag("hltL1GtObjectMap"));
+
+  tok_respCorr_ = esConsumes<HcalRespCorrs, HcalRespCorrsRcd>();
 }
 
 AnalyzerMinbias::~AnalyzerMinbias() {}
@@ -186,7 +191,9 @@ void AnalyzerMinbias::beginJob() {
 void AnalyzerMinbias::endJob() {
   int ii = 0;
   for (std::map<std::pair<int, HcalDetId>, myInfo>::const_iterator itr = myMap_.begin(); itr != myMap_.end(); ++itr) {
-    LogDebug("AnalyzerMB") << "Fired trigger bit number " << itr->first.first;
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("AnalyzerMB") << "Fired trigger bit number " << itr->first.first;
+#endif
     myInfo info = itr->second;
     if (info.theMB0 > 0) {
       mom0_MB = info.theMB0;
@@ -208,20 +215,22 @@ void AnalyzerMinbias::endJob() {
       depth = itr->first.second.depth();
       ieta = itr->first.second.ieta();
       iphi = itr->first.second.iphi();
-
-      LogDebug("AnalyzerMB") << " Result=  " << trigbit << " " << mysubd << " " << ieta << " " << iphi << " mom0  "
-                             << mom0_MB << " mom1 " << mom1_MB << " mom2 " << mom2_MB << " mom3 " << mom3_MB << " mom4 "
-                             << mom4_MB << " mom0_Noise " << mom0_Noise << " mom1_Noise " << mom1_Noise
-                             << " mom2_Noise " << mom2_Noise << " mom3_Noise " << mom3_Noise << " mom4_Noise "
-                             << mom4_Noise << " mom0_Diff " << mom0_Diff << " mom1_Diff " << mom1_Diff << " mom2_Diff "
-                             << mom2_Diff;
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("AnalyzerMB") << " Result=  " << trigbit << " " << mysubd << " " << ieta << " " << iphi
+                                     << " mom0  " << mom0_MB << " mom1 " << mom1_MB << " mom2 " << mom2_MB << " mom3 "
+                                     << mom3_MB << " mom4 " << mom4_MB << " mom0_Noise " << mom0_Noise << " mom1_Noise "
+                                     << mom1_Noise << " mom2_Noise " << mom2_Noise << " mom3_Noise " << mom3_Noise
+                                     << " mom4_Noise " << mom4_Noise << " mom0_Diff " << mom0_Diff << " mom1_Diff "
+                                     << mom1_Diff << " mom2_Diff " << mom2_Diff;
+#endif
       myTree->Fill();
       ii++;
     }
   }
   cells = ii;
-  LogDebug("AnalyzerMB") << "cells"
-                         << " " << cells;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("AnalyzerMB") << "cells " << cells;
+#endif
   hOutputFile->Write();
   hOutputFile->cd();
   myTree->Write();
@@ -242,17 +251,15 @@ void AnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   rnnum = (float)iEvent.run();
   const HcalRespCorrs* myRecalib = nullptr;
   if (theRecalib_) {
-    edm::ESHandle<HcalRespCorrs> recalibCorrs;
-    iSetup.get<HcalRespCorrsRcd>().get("recalibrate", recalibCorrs);
-    myRecalib = recalibCorrs.product();
+    myRecalib = &iSetup.getData(tok_respCorr_);
   }  // theRecalib
 
   edm::Handle<HBHERecHitCollection> hbheNormal;
   iEvent.getByToken(tok_hbheNormal_, hbheNormal);
   if (!hbheNormal.isValid()) {
-    edm::LogInfo("AnalyzerMB") << " hbheNormal failed";
+    edm::LogVerbatim("AnalyzerMB") << " hbheNormal failed";
   } else {
-    edm::LogInfo("AnalyzerMB") << " The size of the normal collection " << hbheNormal->size();
+    edm::LogVerbatim("AnalyzerMB") << " The size of the normal collection " << hbheNormal->size();
   }
 
   edm::Handle<HBHERecHitCollection> hbheNS;
@@ -262,7 +269,7 @@ void AnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     return;
   }
   const HBHERecHitCollection HithbheNS = *(hbheNS.product());
-  edm::LogInfo("AnalyzerMB") << "HBHE NS size of collection " << HithbheNS.size();
+  edm::LogVerbatim("AnalyzerMB") << "HBHE NS size of collection " << HithbheNS.size();
   if (runNZS_ && HithbheNS.size() != 5184) {
     edm::LogWarning("AnalyzerMB") << "HBHE NS problem " << rnnum << " size " << HithbheNS.size();
     return;
@@ -275,7 +282,7 @@ void AnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     return;
   }
   const HBHERecHitCollection HithbheMB = *(hbheMB.product());
-  edm::LogInfo("AnalyzerMB") << "HBHE MB size of collection " << HithbheMB.size();
+  edm::LogVerbatim("AnalyzerMB") << "HBHE MB size of collection " << HithbheMB.size();
   if (runNZS_ && HithbheMB.size() != 5184) {
     edm::LogWarning("AnalyzerMB") << "HBHE problem " << rnnum << " size " << HithbheMB.size();
     return;
@@ -288,7 +295,7 @@ void AnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     return;
   }
   const HFRecHitCollection HithfNS = *(hfNS.product());
-  edm::LogInfo("AnalyzerMB") << "HF NS size of collection " << HithfNS.size();
+  edm::LogVerbatim("AnalyzerMB") << "HF NS size of collection " << HithfNS.size();
   if (runNZS_ && HithfNS.size() != 1728) {
     edm::LogWarning("AnalyzerMB") << "HF NS problem " << rnnum << " size " << HithfNS.size();
     return;
@@ -301,7 +308,7 @@ void AnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     return;
   }
   const HFRecHitCollection HithfMB = *(hfMB.product());
-  edm::LogInfo("AnalyzerMB") << "HF MB size of collection " << HithfMB.size();
+  edm::LogVerbatim("AnalyzerMB") << "HF MB size of collection " << HithfMB.size();
   if (runNZS_ && HithfMB.size() != 1728) {
     edm::LogWarning("AnalyzerMB") << "HF problem " << rnnum << " size " << HithfMB.size();
     return;
@@ -325,11 +332,13 @@ void AnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup& i
           analyzeHcal(myRecalib, HithbheNS, HithbheMB, HithfNS, HithfMB, algoBit, fill);
           fill = false;
           std::string algoNameStr = (*itMap).algoName();
-          LogDebug("AnalyzerMB") << "Trigger[" << ii << "] " << algoNameStr << " bit " << algoBit << " entered";
+#ifdef EDM_ML_DEBUG
+          edm::LogVerbatim("AnalyzerMB") << "Trigger[" << ii << "] " << algoNameStr << " bit " << algoBit << " entered";
+#endif
         }
       }
       if (!ok)
-        edm::LogInfo("AnalyzerMB") << "No passed L1 Triggers";
+        edm::LogVerbatim("AnalyzerMB") << "No passed L1 Triggers";
     }
   }
 }

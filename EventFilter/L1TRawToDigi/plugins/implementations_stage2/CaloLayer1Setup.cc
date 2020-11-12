@@ -55,6 +55,9 @@ namespace l1t {
       prod.produces<EcalTrigPrimDigiCollection>();
       prod.produces<HcalTrigPrimDigiCollection>();
       prod.produces<L1CaloRegionCollection>();
+      for (int i = 0; i < 5; ++i) {
+        prod.produces<EcalTrigPrimDigiCollection>("EcalDigisBx" + std::to_string(i + 1));
+      }
     }
 
     std::unique_ptr<UnpackerCollections> CaloLayer1Setup::getCollections(edm::Event& e) {

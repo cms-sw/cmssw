@@ -39,7 +39,7 @@ void DDCMSDetector::analyze(const Event&, const EventSetup& iEventSetup) {
 
   LogVerbatim("Geometry") << "Iterate over the detectors:\n";
   LogVerbatim("Geometry").log([&](auto& log) {
-    for (auto const& it : det->detectors()) {
+    for (auto const& it : det->description()->detectors()) {
       dd4hep::DetElement det(it.second);
       log << it.first << ": " << det.path();
     }

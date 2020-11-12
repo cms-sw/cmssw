@@ -63,10 +63,6 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
     pid_thresh_pretrig = 0;
   }
 
-  nbits_position_cc_ = clctParams_.getParameter<unsigned int>("nBitsPositionCC");
-
-  nbits_slope_cc_ = clctParams_.getParameter<unsigned int>("nBitsSlopeCC");
-
   // Check and print configuration parameters.
   checkConfigParameters();
   if ((infoV > 0) && !config_dumped) {
@@ -93,10 +89,12 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
   if (use_comparator_codes_) {
     positionLUTFiles_ = conf.getParameter<std::vector<std::string>>("positionLUTFiles");
     slopeLUTFiles_ = conf.getParameter<std::vector<std::string>>("slopeLUTFiles");
+    patternConversionLUTFiles_ = conf.getParameter<std::vector<std::string>>("patternConversionLUTFiles");
 
     for (int i = 0; i < 5; ++i) {
       lutpos_[i] = std::make_unique<CSCComparatorCodeLUT>(positionLUTFiles_[i]);
       lutslope_[i] = std::make_unique<CSCComparatorCodeLUT>(slopeLUTFiles_[i]);
+      lutpatconv_[i] = std::make_unique<CSCComparatorCodeLUT>(patternConversionLUTFiles_[i]);
     }
   }
 
@@ -1310,49 +1308,47 @@ int CSCCathodeLCTProcessor::calculateComparatorCode(const std::array<std::array<
   return id;
 }
 
-void CSCCathodeLCTProcessor::calculatePositionCC(float offset,
-                                                 uint16_t& halfstrip,
-                                                 bool& quartstrip,
-                                                 bool& eightstrip) const {
-  // offset is too small, no bits are are set!
-  if (std::abs(offset) < 0.125)
-    return;
-
-  const float fhalfstrip = halfstrip + offset;
-  halfstrip = int(std::floor(fhalfstrip));
-
-  const float delta(std::abs(fhalfstrip - halfstrip));
-  if (delta >= 0.125 and delta < 0.375) {
-    quartstrip = false;
-    eightstrip = true;
-  } else if (delta >= 0.375 and delta < 0.625) {
-    quartstrip = true;
-    eightstrip = false;
-  } else if (delta >= 0.625 and delta < 0.875) {
-    quartstrip = true;
-    eightstrip = true;
-  }
-}
-
-int CSCCathodeLCTProcessor::calculateSlopeCC(float slope, int nBits) const {
-  int returnValue;
-  double minSlope = 0;
-  double maxSlope = 2.0;
-  int range = pow(2, nBits);
-  double deltaSlope = (maxSlope - minSlope) / range;
-
-  // in what follows we use the absolute value
-
-  // max value is 15
-  if (std::abs(slope) >= 1) {
-    returnValue = pow(2, nBits) - 1;
-  }
-  // discretize the slope between 0 and 15
-  else {
-    returnValue = std::min(std::floor(std::abs(slope) / deltaSlope), pow(2, nBits) - 1);
-  }
-
-  return returnValue;
+void CSCCathodeLCTProcessor::assignPositionCC(const unsigned offset,
+                                              std::tuple<uint16_t, bool, bool>& returnValue) const {
+  /*
+    | Value | Half-Strip Offset  | Delta Half-Strip  | Quarter-Strip Bit  | Eighth-Strip Bit |
+    |-------|--------------------|-------------------|--------------------|------------------|
+    |   0   |   -7/4             |   -2              |   0                |   1              |
+    |   1   |   -3/2             |   -2              |   1                |   0              |
+    |   2   |   -5/4             |   -2              |   1                |   1              |
+    |   3   |   -1               |   -1              |   0                |   0              |
+    |   4   |   -3/4             |   -1              |   0                |   1              |
+    |   5   |   -1/2             |   -1              |   1                |   0              |
+    |   6   |   -1/4             |   -1              |   1                |   1              |
+    |   7   |   0                |   0               |   0                |   0              |
+    |   8   |   1/4              |   0               |   0                |   1              |
+    |   9   |   1/2              |   0               |   1                |   0              |
+    |   10  |   3/4              |   0               |   1                |   1              |
+    |   11  |   1                |   1               |   0                |   0              |
+    |   12  |   5/4              |   1               |   0                |   1              |
+    |   13  |   3/2              |   1               |   1                |   0              |
+    |   14  |   7/4              |   1               |   1                |   1              |
+    |   15  |   2                |   2               |   0                |   0              |
+   */
+  std::vector<std::tuple<uint16_t, bool, bool>> my_tuple = {
+      {-2, false, true},
+      {-2, true, false},
+      {-2, true, true},
+      {-1, false, false},
+      {-1, false, true},
+      {-1, true, false},
+      {-1, true, true},
+      {0, false, false},
+      {0, false, true},
+      {0, true, false},
+      {0, true, true},
+      {1, false, false},
+      {1, false, true},
+      {1, true, false},
+      {1, true, true},
+      {2, false, false},
+  };
+  returnValue = my_tuple[offset];
 }
 
 void CSCCathodeLCTProcessor::runCCLUT(CSCCLCTDigi& digi) const {
@@ -1406,34 +1402,35 @@ void CSCCathodeLCTProcessor::runCCLUT(CSCCLCTDigi& digi) const {
   // set the Run-3 pattern
   digi.setRun3Pattern(pattern);
 
-  // position offset is in strips -> *2 to get to half-strips!
-  const float positionCC(2 * lutpos_[pattern]->lookup(comparatorCode));
-  const float slopeCC(lutslope_[pattern]->lookup(comparatorCode));
+  // look-up the unsigned values
+  const unsigned positionCC(lutpos_[pattern]->lookup(comparatorCode));
+  const unsigned slopeCC(lutslope_[pattern]->lookup(comparatorCode));
+  unsigned run2PatternCC(lutpatconv_[pattern]->lookup(comparatorCode));
 
-  // if the slope is negative, set bending to 1
-  if (slopeCC < 0)
-    digi.setBend(1);
-  else
-    digi.setBend(0);
+  // if the slope is negative, set bending to 0
+  const bool slopeCCSign((slopeCC >> 4) & 0x1);
+  const unsigned slopeCCValue(slopeCC & 0xf);
+  digi.setBend(slopeCCSign);
 
   // calculate the new position
   uint16_t halfstrip = digi.getKeyStrip();
-  bool quartstrip = false;
-  bool eightstrip = false;
-  calculatePositionCC(positionCC, halfstrip, quartstrip, eightstrip);
+  std::tuple<uint16_t, bool, bool> halfstripoffset;
+  assignPositionCC(positionCC, halfstripoffset);
+  halfstrip += std::get<0>(halfstripoffset);
 
   // store the new 1/2, 1/4 and 1/8 strip positions
   digi.setStrip(halfstrip - digi.getCFEB() * 32);
-  digi.setQuartStrip(quartstrip);
-  digi.setEightStrip(eightstrip);
+  digi.setQuartStrip(std::get<1>(halfstripoffset));
+  digi.setEightStrip(std::get<2>(halfstripoffset));
 
   // store the bending angle value in the pattern data member
-  const unsigned slope(calculateSlopeCC(slopeCC, nbits_slope_cc_));
-  digi.setSlope(slope);
+  digi.setSlope(slopeCCValue);
 
   // set the quasi Run-2 pattern - to accommodate integration with EMTF/OMTF
-  const unsigned run2Pattern(convertSlopeToRun2Pattern(slope, digi.getBend()));
-  digi.setPattern(run2Pattern);
+  if (run2PatternCC == 0) {
+    run2PatternCC = convertSlopeToRun2Pattern(slopeCC);
+  }
+  digi.setPattern(run2PatternCC);
 
   // now print out the new CLCT for debugging
   if (infoV > 2) {
@@ -1450,12 +1447,8 @@ void CSCCathodeLCTProcessor::runCCLUT(CSCCLCTDigi& digi) const {
   }
 }
 
-unsigned CSCCathodeLCTProcessor::convertSlopeToRun2Pattern(unsigned slope, unsigned bend) const {
-  const int pslopeList[16] = {10, 10, 8, 8, 8, 8, 6, 6, 6, 6, 4, 4, 4, 2, 2, 2};
-  const int nslopeList[16] = {10, 10, 9, 9, 9, 9, 7, 7, 7, 7, 5, 5, 5, 3, 3, 3};
-  if (bend == 0) {
-    return pslopeList[slope];
-  } else {
-    return nslopeList[slope];
-  }
+unsigned CSCCathodeLCTProcessor::convertSlopeToRun2Pattern(const unsigned slope) const {
+  const unsigned slopeList[32] = {2,  2,  2, 4, 4, 4, 6, 6, 6, 6, 8, 8, 8, 8, 10, 10,
+                                  10, 10, 9, 9, 9, 9, 7, 7, 7, 7, 5, 5, 5, 3, 3,  3};
+  return slopeList[slope];
 }

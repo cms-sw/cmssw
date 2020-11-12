@@ -30,9 +30,9 @@ using namespace edm::shared_memory;
 namespace externalgen {
 
   struct StreamCache {
-    StreamCache(const std::string& iConfig, int id, bool verbose)
+    StreamCache(const std::string& iConfig, int id, bool verbose, unsigned int waitTime)
         : id_{id},
-          channel_("extGen", id_),
+          channel_("extGen", id_, waitTime),
           readBuffer_{channel_.sharedMemoryName(), channel_.fromWorkerBufferInfo()},
           writeBuffer_{std::string("Rand") + channel_.sharedMemoryName(), channel_.toWorkerBufferInfo()},
           deserializer_{readBuffer_},
@@ -204,6 +204,7 @@ private:
 
   std::string const config_;
   bool const verbose_;
+  unsigned int waitTime_;
 
   //This is set at beginStream and used for globalBeginRun
   //The framework guarantees that non of those can happen concurrently
@@ -223,7 +224,8 @@ ExternalGeneratorFilter::ExternalGeneratorFilter(edm::ParameterSet const& iPSet)
       lumiHeaderToken_{produces<GenLumiInfoHeader, edm::Transition::BeginLuminosityBlock>()},
       lumiInfoToken_{produces<GenLumiInfoProduct, edm::Transition::EndLuminosityBlock>()},
       config_{iPSet.getUntrackedParameter<std::string>("@python_config")},
-      verbose_{iPSet.getUntrackedParameter<bool>("_external_process_verbose_")} {}
+      verbose_{iPSet.getUntrackedParameter<bool>("_external_process_verbose_")},
+      waitTime_{iPSet.getUntrackedParameter<unsigned int>("_external_process_waitTime_")} {}
 
 std::unique_ptr<externalgen::StreamCache> ExternalGeneratorFilter::beginStream(edm::StreamID iID) const {
   auto const label = moduleDescription().moduleLabel();
@@ -239,7 +241,7 @@ process = TestProcess()
 process.add_(cms.Service("InitRootHandlers", UnloadRootSigHandler=cms.untracked.bool(True)))
   )_";
 
-  auto cache = std::make_unique<externalgen::StreamCache>(config, iID.value(), verbose_);
+  auto cache = std::make_unique<externalgen::StreamCache>(config, iID.value(), verbose_, waitTime_);
   if (iID.value() == 0) {
     stream0Cache_ = cache.get();
 

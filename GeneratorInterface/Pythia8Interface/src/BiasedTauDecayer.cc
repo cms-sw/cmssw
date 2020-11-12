@@ -8,11 +8,9 @@ using namespace Pythia8;
 // leptonic decays
 //
 
-BiasedTauDecayer::BiasedTauDecayer(const Info* infoPtr,
-                                   Settings* settingsPtr,
-                                   ParticleData* particleDataPtr,
-                                   Rndm* rndmPtr) {
+BiasedTauDecayer::BiasedTauDecayer(Info* infoPtr, Settings* settingsPtr) {
   decayer = TauDecays();
+  decayer.initInfoPtr(*infoPtr);
   decayer.init();
   filter_ = settingsPtr->flag("BiasedTauDecayer:filter");
   eDecays_ = settingsPtr->flag("BiasedTauDecayer:eDecays");

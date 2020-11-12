@@ -1,7 +1,6 @@
 <use name="Geometry/DTGeometry"/>
 <use name="Geometry/Records"/>
 <use name="FWCore/Framework"/>
-<use name="CondFormats/DataRecord"/>
 <flags EDM_PLUGIN="1"/>
 <library file="DTGeometryAnalyzer.cc" name="testDTGeometry">
 </library>

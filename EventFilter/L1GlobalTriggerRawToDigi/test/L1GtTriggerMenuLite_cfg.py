@@ -59,10 +59,10 @@ process.MessageLogger.debugModules = ['l1GtTriggerMenuLite']
 process.MessageLogger.categories.append('L1GtTriggerMenuLiteProducer')
 
 process.MessageLogger.cerr.default.limit = 0
-process.MessageLogger.cerr.FwkJob.limit = 0
 process.MessageLogger.cerr.FwkReport.limit = 0
 process.MessageLogger.cerr.FwkSummary.limit = 0
 
+process.MessageLogger.destinations.extend('debugs', 'warnings', 'errors')
 process.MessageLogger.debugs = cms.untracked.PSet( 
         threshold = cms.untracked.string('DEBUG'),
         DEBUG = cms.untracked.PSet( limit = cms.untracked.int32(0) ),

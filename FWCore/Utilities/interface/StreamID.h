@@ -30,6 +30,7 @@ namespace edm {
   class StreamID {
   public:
     ~StreamID() = default;
+    StreamID() = delete;
     StreamID(const StreamID&) = default;
     StreamID& operator=(const StreamID&) = default;
 
@@ -48,8 +49,6 @@ namespace edm {
     friend class Schedule;
     friend class EventPrincipal;
     explicit StreamID(unsigned int iValue) : value_(iValue) {}
-
-    StreamID() = delete;
 
     // ---------- member data --------------------------------
     unsigned int value_;

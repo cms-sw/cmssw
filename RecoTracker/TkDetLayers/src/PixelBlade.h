@@ -1,7 +1,7 @@
 #ifndef TkDetLayers_PixelBlade_h
 #define TkDetLayers_PixelBlade_h
 
-#include "BoundDiskSector.h"
+#include "DataFormats/GeometrySurface/interface/BoundDiskSector.h"
 #include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
 
 #include "TrackingTools/DetLayers/interface/PeriodicBinFinderInZ.h"

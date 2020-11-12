@@ -15,10 +15,13 @@ if 'unitTest=True' in sys.argv:
 #----------------------------
 if unitTest == True:
     process.load("DQM.Integration.config.unittestinputsource_cfi")
+    from DQM.Integration.config.unittestinputsource_cfi import options
 else:
     process.load("DQM.Integration.config.inputsource_cfi")
+    from DQM.Integration.config.inputsource_cfi import options
 # Use this to run locally (for testing purposes)
 #process.load("DQM.Integration.config.fileinputsource_cfi")
+#from DQM.Integration.config.fileinputsource_cfi import options
 
 
 #----------------------------
@@ -34,7 +37,9 @@ process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter", SelectedTrig
 process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = "BeamPixel"
 process.dqmSaver.tag = "BeamPixel"
-
+process.dqmSaver.runNumber = options.runNumber
+process.dqmSaverPB.tag = 'BeamPixel'
+process.dqmSaverPB.runNumber = options.runNumber
 
 #----------------------------
 # Conditions
@@ -58,7 +63,7 @@ process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 #----------------------------
 # Define Sequences
 #----------------------------
-process.dqmModules  = cms.Sequence(process.dqmEnv + process.dqmSaver)
+process.dqmModules  = cms.Sequence(process.dqmEnv + process.dqmSaver + process.dqmSaverPB)
 process.physTrigger = cms.Sequence(process.hltTriggerTypeFilter)
 
 

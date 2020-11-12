@@ -51,7 +51,7 @@ kt6PFJetsForRhoComputationVoronoiMet = dummy.clone(
 
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByHPSSelection_cfi import hpsSelectionDiscriminator
 hpsPFTauDiscriminationByDecayModeFinding = hpsSelectionDiscriminator.clone(
-        PFTauProducer = cms.InputTag('hpsPFTauProducer')
+        PFTauProducer = 'hpsPFTauProducer'
             )
 
 from RecoTauTag.RecoTau.TauDiscriminatorTools import requireLeadTrack

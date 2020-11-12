@@ -45,6 +45,10 @@ void CSCGEMMotherboard::retrieveGEMPads(const GEMPadDigiCollection* gemPads, uns
       GEMDetId roll_id(roll->id());
       auto pads_in_det = gemPads->get(roll_id);
       for (auto pad = pads_in_det.first; pad != pads_in_det.second; ++pad) {
+        // ignore 16-partition GE2/1 pads
+        if (roll->isGE21() and pad->nPartitions() == GEMPadDigi::GE21SplitStrip)
+          continue;
+
         // ignore invalid pads
         if (!pad->isValid())
           continue;
@@ -63,6 +67,11 @@ void CSCGEMMotherboard::retrieveGEMCoPads() {
   coPads_.clear();
   for (const auto& copad : gemCoPadV) {
     GEMDetId detId(theRegion, 1, theStation, 0, theChamber, 0);
+
+    // ignore 16-partition GE2/1 pads
+    if (detId.isGE21() and copad.first().nPartitions() == GEMPadDigi::GE21SplitStrip)
+      continue;
+
     // only consider matches with same BX
     coPads_[CSCConstants::LCT_CENTRAL_BX + copad.bx(1)].emplace_back(detId.rawId(), copad);
   }

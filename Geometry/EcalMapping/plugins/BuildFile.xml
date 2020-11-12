@@ -1,6 +1,5 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/PluginManager"/>
-<use name="FWCore/ParameterSet"/>
 <use name="Geometry/EcalMapping"/>
 <use name="CondFormats/EcalObjects"/>
 <use name="CondFormats/DataRecord"/>

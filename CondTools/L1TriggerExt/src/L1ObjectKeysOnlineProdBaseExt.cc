@@ -5,18 +5,12 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 L1ObjectKeysOnlineProdBaseExt::L1ObjectKeysOnlineProdBaseExt(const edm::ParameterSet& iConfig)
-    : m_omdsReader(iConfig.getParameter<std::string>("onlineDB"),
-                   iConfig.getParameter<std::string>("onlineAuthentication")) {
-  //the following line is needed to tell the framework what
-  // data is being produced
-
-  // The subsystemLabel is used by L1TriggerKeyOnlineProdExt to identify the
-  // L1TriggerKeysExt to concatenate.
-  setWhatProduced(this, iConfig.getParameter<std::string>("subsystemLabel"))
-      .setConsumes(L1TriggerKeyExt_token, edm::ESInputTag{"", "SubsystemKeysOnly"});
-
-  //now do what ever other initialization is needed
-}
+    // The subsystemLabel is used by L1TriggerKeyOnlineProdExt to identify the
+    // L1TriggerKeysExt to concatenate.
+    : L1TriggerKeyExt_token(setWhatProduced(this, iConfig.getParameter<std::string>("subsystemLabel"))
+                                .consumes(edm::ESInputTag{"", "SubsystemKeysOnly"})),
+      m_omdsReader(iConfig.getParameter<std::string>("onlineDB"),
+                   iConfig.getParameter<std::string>("onlineAuthentication")) {}
 
 L1ObjectKeysOnlineProdBaseExt::~L1ObjectKeysOnlineProdBaseExt() {
   // do anything here that needs to be done at desctruction time

@@ -8,6 +8,7 @@
 
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
+#include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/interface/EventProcessor.h"
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
@@ -48,6 +49,9 @@ public:
 private:
   std::shared_ptr<edm::BranchDescription> intBranch_;
   std::shared_ptr<edm::BranchDescription> floatBranch_;
+  std::shared_ptr<edm::BranchDescription> intVecBranch_;
+  std::shared_ptr<edm::BranchDescription> simpleVecBranch_;
+  std::shared_ptr<edm::BranchDescription> simpleDerivedVecBranch_;
 };
 
 ///registration of the test so that the runner can find it
@@ -87,7 +91,7 @@ namespace {
   };
 }  // namespace
 
-testProductRegistry::testProductRegistry() : intBranch_(), floatBranch_() {}
+testProductRegistry::testProductRegistry() {}
 
 void testProductRegistry::setUp() {
   edm::ParameterSet dummyProcessPset;
@@ -97,11 +101,42 @@ void testProductRegistry::setUp() {
 
   edm::ParameterSet pset;
   pset.registerIt();
-  intBranch_.reset(new edm::BranchDescription(
-      edm::InEvent, "labeli", "PROD", "int", "int", "int", "", pset.id(), edm::TypeWithDict(typeid(int))));
+  intBranch_ = std::make_shared<edm::BranchDescription>(
+      edm::InEvent, "labeli", "PROD", "int", "int", "int", "", pset.id(), edm::TypeWithDict(typeid(int)));
 
-  floatBranch_.reset(new edm::BranchDescription(
-      edm::InEvent, "labelf", "PROD", "float", "float", "float", "", pset.id(), edm::TypeWithDict(typeid(float))));
+  floatBranch_ = std::make_shared<edm::BranchDescription>(
+      edm::InEvent, "labelf", "PROD", "float", "float", "float", "", pset.id(), edm::TypeWithDict(typeid(float)));
+
+  intVecBranch_ = std::make_shared<edm::BranchDescription>(edm::InEvent,
+                                                           "labelvi",
+                                                           "PROD",
+                                                           "std::vector<int>",
+                                                           "ints",
+                                                           "vint",
+                                                           "",
+                                                           pset.id(),
+                                                           edm::TypeWithDict(typeid(std::vector<int>)));
+
+  simpleVecBranch_ =
+      std::make_shared<edm::BranchDescription>(edm::InEvent,
+                                               "labelovsimple",
+                                               "PROD",
+                                               "edm::OwnVector<edmtest::Simple>",
+                                               "edmtestSimplesOwned",
+                                               "ovsimple",
+                                               "",
+                                               pset.id(),
+                                               edm::TypeWithDict(typeid(edm::OwnVector<edmtest::Simple>)));
+  simpleDerivedVecBranch_ =
+      std::make_shared<edm::BranchDescription>(edm::InEvent,
+                                               "labelovsimplederived",
+                                               "PROD",
+                                               "edm::OwnVector<edmtest::SimpleDerived>",
+                                               "edmtestSimpleDerivedsOwned",
+                                               "ovsimplederived",
+                                               "",
+                                               pset.id(),
+                                               edm::TypeWithDict(typeid(edm::OwnVector<edmtest::SimpleDerived>)));
 }
 
 namespace {
@@ -215,8 +250,51 @@ void testProductRegistry::testAddAlias() {
   reg.addProduct(*floatBranch_);
   reg.addLabelAlias(*floatBranch_, "aliasf", "instanceAlias");
 
-  reg.setFrozen(false);
-  std::vector<std::pair<std::string, std::string> > const& v = reg.aliasToOriginal();
-  CPPUNIT_ASSERT(v.at(0).first == "aliasf" && v.at(0).second == "labelf" && v.at(1).first == "aliasi" &&
-                 v.at(1).second == "labeli");
+  reg.addProduct(*intVecBranch_);
+  reg.addLabelAlias(*intVecBranch_, "aliasvi", "instanceAlias");
+
+  reg.addProduct(*simpleVecBranch_);
+  reg.addLabelAlias(*simpleVecBranch_, "aliasovsimple", "instanceAlias");
+
+  reg.addProduct(*simpleDerivedVecBranch_);
+  reg.addLabelAlias(*simpleDerivedVecBranch_, "aliasovsimple", "instanceAlias");
+
+  std::set<edm::TypeID> productTypesConsumed{intBranch_->unwrappedTypeID(),
+                                             floatBranch_->unwrappedTypeID(),
+                                             intVecBranch_->unwrappedTypeID(),
+                                             simpleVecBranch_->unwrappedTypeID(),
+                                             simpleDerivedVecBranch_->unwrappedTypeID()};
+  std::set<edm::TypeID> elementTypesConsumed{intBranch_->unwrappedTypeID(), edm::TypeID(typeid(edmtest::Simple))};
+  reg.setFrozen(productTypesConsumed, elementTypesConsumed, "TEST");
+  {
+    auto notFound = reg.aliasToModules(edm::PRODUCT_TYPE, intBranch_->unwrappedTypeID(), "alias", "instance");
+    CPPUNIT_ASSERT(notFound.empty());
+  }
+  {
+    auto found = reg.aliasToModules(edm::PRODUCT_TYPE, intBranch_->unwrappedTypeID(), "aliasi", "instanceAlias");
+    CPPUNIT_ASSERT(found.size() == 1);
+    CPPUNIT_ASSERT(found[0] == "labeli");
+  }
+  {
+    auto found = reg.aliasToModules(edm::PRODUCT_TYPE, floatBranch_->unwrappedTypeID(), "aliasf", "instanceAlias");
+    CPPUNIT_ASSERT(found.size() == 1);
+    CPPUNIT_ASSERT(found[0] == "labelf");
+  }
+  {
+    auto found = reg.aliasToModules(edm::PRODUCT_TYPE, intVecBranch_->unwrappedTypeID(), "aliasvi", "instanceAlias");
+    CPPUNIT_ASSERT(found.size() == 1);
+    CPPUNIT_ASSERT(found[0] == "labelvi");
+  }
+  {
+    auto found = reg.aliasToModules(edm::ELEMENT_TYPE, intBranch_->unwrappedTypeID(), "aliasvi", "instanceAlias");
+    CPPUNIT_ASSERT(found.size() == 1);
+    CPPUNIT_ASSERT(found[0] == "labelvi");
+  }
+  {
+    auto found =
+        reg.aliasToModules(edm::ELEMENT_TYPE, edm::TypeID(typeid(edmtest::Simple)), "aliasovsimple", "instanceAlias");
+    CPPUNIT_ASSERT(found.size() == 2);
+    CPPUNIT_ASSERT(std::find(found.begin(), found.end(), "labelovsimple") != found.end());
+    CPPUNIT_ASSERT(std::find(found.begin(), found.end(), "labelovsimplederived") != found.end());
+  }
 }

@@ -39,6 +39,8 @@ namespace edm {
   class LimitedTaskQueue {
   public:
     LimitedTaskQueue(unsigned int iLimit) : m_queues{iLimit} {}
+    LimitedTaskQueue(const LimitedTaskQueue&) = delete;
+    const LimitedTaskQueue& operator=(const LimitedTaskQueue&) = delete;
 
     // ---------- member functions ---------------------------
 
@@ -116,9 +118,6 @@ namespace edm {
     unsigned int concurrencyLimit() const { return m_queues.size(); }
 
   private:
-    LimitedTaskQueue(const LimitedTaskQueue&) = delete;
-    const LimitedTaskQueue& operator=(const LimitedTaskQueue&) = delete;
-
     // ---------- member data --------------------------------
     std::vector<SerialTaskQueue> m_queues;
   };

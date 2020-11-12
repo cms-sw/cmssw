@@ -10,8 +10,8 @@ _electronSeedsTaskFromMultiCl = electronSeedsTask.copy()
 _electronSeedsTaskFromMultiCl.add(cms.Task(ecalDrivenElectronSeedsFromMultiCl,electronMergedSeedsFromMultiCl))
 _electronSeedsFromMultiCl = cms.Sequence(_electronSeedsTaskFromMultiCl)
 
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-pp_on_AA_2018.toReplaceWith(electronSeedsTask, electronSeedsTask.copyAndExclude([trackerDrivenElectronSeeds]))
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toReplaceWith(electronSeedsTask, electronSeedsTask.copyAndExclude([trackerDrivenElectronSeeds]))
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toReplaceWith(

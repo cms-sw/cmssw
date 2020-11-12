@@ -30,6 +30,7 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -1080,7 +1081,7 @@ statmode::fitParams SplitVertexResolution::fitResiduals(TH1* hist, bool singleTi
   float mean = hist->GetMean();
   float sigma = hist->GetRMS();
 
-  if (TMath::IsNaN(mean) || TMath::IsNaN(sigma)) {
+  if (edm::isNotFinite(mean) || edm::isNotFinite(sigma)) {
     mean = 0;
     //sigma= - hist->GetXaxis()->GetBinLowEdge(1) + hist->GetXaxis()->GetBinLowEdge(hist->GetNbinsX()+1);
     sigma = -minHist + maxHist;

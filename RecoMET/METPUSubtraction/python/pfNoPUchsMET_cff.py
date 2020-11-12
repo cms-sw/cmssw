@@ -19,22 +19,22 @@ puJetIdForPFNoPUchsMEt = pileupJetId.clone(
         full_53x_chs,
         cutbased
         ),
-    label = cms.string("fullId"),
-    produceJetIds = cms.bool(True),
-    runMvas = cms.bool(True),
-    jets = cms.InputTag("calibratedAK4PFchsJetsForPFNoPUchsMEt"),
-    applyJec = cms.bool(False),
-    inputIsCorrected = cms.bool(True),                                     
+    label            = "fullId",
+    produceJetIds    = True,
+    runMvas          = True,
+    jets             = "calibratedAK4PFchsJetsForPFNoPUchsMEt",
+    applyJec         = False,
+    inputIsCorrected = True,                                     
 )
 pfNoPUchsMEtSequence += puJetIdForPFNoPUchsMEt
 
 from JetMETCorrections.Type1MET.pfMETCorrectionType0_cfi import *
 pfNoPUchsMEtSequence += type0PFMEtCorrection
 pfCandidateToVertexAssociationForPFNoPUchsMEt = pfCandidateToVertexAssociation.clone(
-    MaxNumberOfAssociations = cms.int32(1),	
-    doReassociation = cms.bool(False),
-    FinalAssociation = cms.untracked.int32(1),			    
-    nTrackWeight = cms.double(0.)
+    MaxNumberOfAssociations = 1,	
+    doReassociation         = False,
+    FinalAssociation        = 1,			    
+    nTrackWeight            = 0.
 )
 pfNoPUchsMEtSequence += pfCandidateToVertexAssociationForPFNoPUchsMEt
 pfMETcorrType0ForPFNoPUchsMEt = pfMETcorrType0.clone(

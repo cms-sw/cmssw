@@ -465,6 +465,8 @@ DetId HGCalGeometry::getClosestCell(const GlobalPoint& r) const {
   if ((cellIndex < m_cellVec.size() && m_det != DetId::HGCalHSc) ||
       (cellIndex < m_cellVec2.size() && m_det == DetId::HGCalHSc)) {
     HGCalTopology::DecodedDetId id = m_topology.decode(m_validGeomIds[cellIndex]);
+    if (id.det == 0)
+      id.det = static_cast<int>(m_topology.detector());
     HepGeom::Point3D<float> local;
     if (r.z() > 0) {
       local = HepGeom::Point3D<float>(r.x(), r.y(), 0);
@@ -496,9 +498,9 @@ DetId HGCalGeometry::getClosestCell(const GlobalPoint& r) const {
       id.iCell2 = kxy[4];
     }
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "getClosestCell: local " << local << " Id " << id.zSide << ":" << id.iLay << ":"
-                                  << id.iSec1 << ":" << id.iSec2 << ":" << id.iType << ":" << id.iCell1 << ":"
-                                  << id.iCell2;
+    edm::LogVerbatim("HGCalGeom") << "getClosestCell: local " << local << " Id " << id.det << ":" << id.zSide << ":"
+                                  << id.iLay << ":" << id.iSec1 << ":" << id.iSec2 << ":" << id.iType << ":"
+                                  << id.iCell1 << ":" << id.iCell2;
 #endif
 
     //check if returned cell is valid

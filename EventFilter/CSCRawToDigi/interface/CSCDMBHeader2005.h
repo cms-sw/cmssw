@@ -1,5 +1,5 @@
-#ifndef CSCDMBHeader2005_h
-#define CSCDMBHeader2005_h
+#ifndef EventFilter_CSCRawToDigi_CSCDMBHeader2005_h
+#define EventFilter_CSCRawToDigi_CSCDMBHeader2005_h
 
 #include <cassert>
 #include <iosfwd>

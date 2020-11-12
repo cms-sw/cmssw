@@ -12,4 +12,4 @@ hiFJRhoProducer = cms.EDProducer('HiFJRhoProducer',
 )
 
 from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
-pA_2016.toModify(hiFJRhoProducer, etaRanges = cms.vdouble(-5., -3., -2., -1.5, -1., 1., 1.5, 2., 3., 5.))
+pA_2016.toModify(hiFJRhoProducer, etaRanges = [-5., -3., -2., -1.5, -1., 1., 1.5, 2., 3., 5.])

@@ -19,4 +19,6 @@ dqmSaver = cms.EDAnalyzer("DQMFileSaverPB",
     fakeFilterUnitMode = cms.untracked.bool(False),
     # Label of the stream
     streamLabel = cms.untracked.string("streamDQMHistograms"),
+
+    runNumber = cms.untracked.int32(111),
 )

@@ -41,7 +41,7 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
                               << ":" << eMinFine_ << ":" << eMinFinePhoton_ << " MeV and Flags " << putHistory_
                               << " (History), " << doFineCalo_ << " (Special Calorimeter)";
 
-  // Get pointers to HcalDDDConstant and HcalSimulationParameters
+  // Get pointer to CaloSimulationParameters
   edm::ESHandle<CaloSimulationParameters> csps;
   es.get<HcalParametersRcd>().get(csps);
   if (csps.isValid()) {
@@ -148,8 +148,8 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
       }
     }
   } else {
-    edm::LogError("HcalSim") << "CaloTrkProcessing: Cannot find CaloSimulationParameters";
-    throw cms::Exception("Unknown", "CaloSD") << "Cannot find CaloSimulationParameters\n";
+    edm::LogError("CaloSim") << "CaloTrkProcessing: Cannot find CaloSimulationParameters";
+    throw cms::Exception("Unknown", "CaloTrkProcessing") << "Cannot find CaloSimulationParameters\n";
   }
 
   edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: with " << detectors_.size() << " calorimetric volumes";

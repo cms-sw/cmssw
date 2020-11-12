@@ -4,14 +4,20 @@
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
-#include "CondFormats/L1TObjects/interface/L1MuCSCTFConfiguration.h"
-#include "CondFormats/DataRecord/interface/L1MuCSCTFConfigurationRcd.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include <cstdlib>
 #include <sstream>
 #include <strings.h>
 
 const std::string CSCTFSectorProcessor::FPGAs[5] = {"F1", "F2", "F3", "F4", "F5"};
+
+CSCTFSectorProcessor::Tokens CSCTFSectorProcessor::consumes(const edm::ParameterSet& pset, edm::ConsumesCollector iC) {
+  Tokens tok;
+  if (not pset.getParameter<bool>("initializeFromPSet")) {
+    tok.ptLUT = CSCTFPtLUT::consumes(iC);
+    tok.config = iC.esConsumes();
+  }
+  return tok;
+}
 
 CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
                                            const unsigned& sector,
@@ -179,7 +185,7 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
   firmSP_Map.insert(std::pair<int, int>(20140515, 20140515));
 }
 
-void CSCTFSectorProcessor::initialize(const edm::EventSetup& c) {
+void CSCTFSectorProcessor::initialize(const edm::EventSetup& c, const Tokens& tokens) {
   initFail_ = false;
   if (!initializeFromPSet) {
     // Only pT lut can be initialized from EventSetup, all front LUTs are initialized locally from their parametrizations
@@ -187,13 +193,12 @@ void CSCTFSectorProcessor::initialize(const edm::EventSetup& c) {
                                      << "SP:" << (m_endcap - 1) * 6 + (m_sector - 1);
     LogDebug("CSCTFSectorProcessor") << "Initializing pT LUT from EventSetup";
 
-    ptLUT_ = new CSCTFPtLUT(c);
+    ptLUT_ = new CSCTFPtLUT(c, tokens.ptLUT);
 
     // Extract from EventSetup alternative (to the one, used in constructor) ParameterSet
-    edm::ESHandle<L1MuCSCTFConfiguration> config;
-    c.get<L1MuCSCTFConfigurationRcd>().get(config);
+    const L1MuCSCTFConfiguration& config = c.getData(tokens.config);
     // And initialize only those parameters, which left uninitialized during construction
-    readParameters(config.product()->parameters((m_endcap - 1) * 6 + (m_sector - 1)));
+    readParameters(config.parameters((m_endcap - 1) * 6 + (m_sector - 1)));
   }
 
   // ---------------------------------------------------------------------------

@@ -60,9 +60,10 @@ public:
   /// \param[in] isRun2 Switch between legacy run 2-like geometry and 2021+ scenarii
   DetGeomDesc(const cms::DDFilteredView& fv, const bool isRun2);
 
-  DetGeomDesc(const DetGeomDesc&);
-  DetGeomDesc& operator=(const DetGeomDesc&);
   virtual ~DetGeomDesc();
+
+  enum CopyMode { cmWithChildren, cmWithoutChildren };
+  DetGeomDesc(const DetGeomDesc& ref, CopyMode cm = cmWithChildren);
 
   // general info
   const std::string& name() const { return m_name; }

@@ -22,6 +22,8 @@
 #include <string>
 #include <utility>
 #include <memory>
+#include "tbb/global_control.h"
+#include "tbb/task_arena.h"
 
 // user include files
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
@@ -199,35 +201,43 @@ namespace edm {
 This simulates a problem happening early in the job which causes processing not to proceed.
    */
       void testBeginAndEndJobOnly() {
-        beginJob();
-        endJob();
+        arena_.execute([this]() {
+          beginJob();
+          endJob();
+        });
       }
 
       void testWithNoRuns() {
-        beginJob();
-        beginProcessBlock();
-        endProcessBlock();
-        endJob();
+        arena_.execute([this]() {
+          beginJob();
+          beginProcessBlock();
+          endProcessBlock();
+          endJob();
+        });
       }
 
       void testRunWithNoLuminosityBlocks() {
-        beginJob();
-        beginProcessBlock();
-        beginRun();
-        endRun();
-        endProcessBlock();
-        endJob();
+        arena_.execute([this]() {
+          beginJob();
+          beginProcessBlock();
+          beginRun();
+          endRun();
+          endProcessBlock();
+          endJob();
+        });
       }
 
       void testLuminosityBlockWithNoEvents() {
-        beginJob();
-        beginProcessBlock();
-        beginRun();
-        beginLuminosityBlock();
-        endLuminosityBlock();
-        endRun();
-        endProcessBlock();
-        endJob();
+        arena_.execute([this]() {
+          beginJob();
+          beginProcessBlock();
+          beginRun();
+          beginLuminosityBlock();
+          endLuminosityBlock();
+          endRun();
+          endProcessBlock();
+          endJob();
+        });
       }
       void setRunNumber(edm::RunNumber_t);
       void setLuminosityBlockNumber(edm::LuminosityBlockNumber_t);
@@ -313,6 +323,8 @@ This simulates a problem happening early in the job which causes processing not 
       void endJob();
 
       // ---------- member data --------------------------------
+      tbb::global_control globalControl_;
+      tbb::task_arena arena_;
       std::string labelOfTestModule_;
       std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
       std::shared_ptr<ProductRegistry> preg_;

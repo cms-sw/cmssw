@@ -24,6 +24,9 @@ process.MessageLogger = cms.Service(
         INFO = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
             ),
+        FWKINFO = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+            ),
         GeometricTimingDetAnalyzer = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
             ),
@@ -34,6 +37,9 @@ process.MessageLogger = cms.Service(
         ),
     mtdNumberingDDD = cms.untracked.PSet(
         INFO = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+            ),
+        FWKINFO = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
             ),
         noLineBreaks = cms.untracked.bool(True),

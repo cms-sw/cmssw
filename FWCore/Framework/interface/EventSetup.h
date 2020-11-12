@@ -59,6 +59,13 @@ namespace edm {
     friend class edm::PileUp;
 
   public:
+    template <typename T>
+    explicit EventSetup(T const& info,
+                        unsigned int iTransitionID,
+                        ESProxyIndex const* iGetTokenIndices,
+                        bool iRequireToken)
+        : EventSetup(info.eventSetupImpl(), iTransitionID, iGetTokenIndices, iRequireToken) {}
+
     explicit EventSetup(EventSetupImpl const& iSetup,
                         unsigned int iTransitionID,
                         ESProxyIndex const* iGetTokenIndices,

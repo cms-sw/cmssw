@@ -10,7 +10,10 @@ process.tester = cms.EDAnalyzer("SiteLocalConfigServiceTester",
                             sourceReadHint=cms.untracked.string("read-ahead-buffered"),
                             sourceTTreeCacheSize=cms.untracked.uint32(10000),
                             sourceNativeProtocols=cms.untracked.vstring("dcache","file"),
-                            sourceValuesSet=cms.untracked.bool(True)
+                            sourceValuesSet=cms.untracked.bool(True),
+                            expectedUseLocalConnectString = cms.untracked.bool(True),
+                            expectedLocalConnectPrefix = cms.untracked.string("Test:Prefix"),
+                            expectedLocalConnectSuffix = cms.untracked.string("Test.Suffix")
 )
 
 process.o = cms.EndPath(process.tester)

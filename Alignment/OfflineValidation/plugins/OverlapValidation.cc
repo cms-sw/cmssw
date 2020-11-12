@@ -25,8 +25,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -101,6 +102,11 @@ private:
   int layerFromId(const DetId&, const TrackerTopology* const tTopo) const;
 
   // ----------member data ---------------------------
+
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
+
   edm::ParameterSet config_;
   edm::InputTag trajectoryTag_;
   SiStripDetInfoFileReader* reader;
@@ -180,7 +186,10 @@ using std::vector;
 // constructors and destructor
 //
 OverlapValidation::OverlapValidation(const edm::ParameterSet& iConfig)
-    : config_(iConfig),
+    : geomToken_(esConsumes()),
+      magFieldToken_(esConsumes()),
+      topoToken_(esConsumes()),
+      config_(iConfig),
       rootTree_(nullptr),
       FileInPath_("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"),
       addExtraBranches_(false),
@@ -277,20 +286,15 @@ void OverlapValidation::analyze(const edm::Event& iEvent, const edm::EventSetup&
   //
   // mag field & search tracker
   //
-  edm::ESHandle<MagneticField> magFieldHandle;
-  iSetup.get<IdealMagneticFieldRecord>().get(magFieldHandle);
-  magField_ = magFieldHandle.product();
+  const MagneticField* magField_ = &iSetup.getData(magFieldToken_);
   //
   // propagator
   //
   AnalyticalPropagator propagator(magField_, anyDirection);
   //
   // geometry
-
   //
-  edm::ESHandle<TrackerGeometry> geometryHandle;
-  iSetup.get<TrackerDigiGeometryRecord>().get(geometryHandle);
-  trackerGeometry_ = geometryHandle.product();
+  trackerGeometry_ = &iSetup.getData(geomToken_);
   //
   // make associator for SimHits
   //
@@ -314,9 +318,7 @@ void OverlapValidation::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   //
   // loop over trajectories from refit
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const TrackerTopology* const tTopo = &iSetup.getData(topoToken_);
   for (const auto& trajectory : *trajectoryCollection)
     analyze(trajectory, propagator, *associator, tTopo);
 

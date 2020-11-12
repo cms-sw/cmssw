@@ -37,7 +37,8 @@ public:
     usesResource("Rivet");
     _prodMode = cfg.getParameter<string>("ProductionMode");
     m_HiggsProdMode = HTXS::UNKNOWN;
-
+    _HTXS = nullptr;
+    _analysisHandler = nullptr;
     produces<HTXS::HiggsClassification>("HiggsClassification").setBranchAlias("HiggsClassification");
   }
 

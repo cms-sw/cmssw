@@ -33,7 +33,12 @@ namespace hcaldqm {
 
     uint32_t hash_ieta(HcalDetId const &did) { return utilities::hash(HcalDetId(HcalBarrel, did.ieta(), 1, 1)); }
 
-    uint32_t hash_depth(HcalDetId const &did) { return utilities::hash(HcalDetId(HcalBarrel, 1, 1, did.depth())); }
+    uint32_t hash_depth(HcalDetId const &did) {
+      if (did.subdet() == HcalOuter)
+        return 9;  // key of map, can be any uint32_t valure that is not a raw hcal detid
+      else
+        return utilities::hash(HcalDetId(HcalBarrel, 1, 1, did.depth()));
+    }
 
     uint32_t hash_HFPMiphi(HcalDetId const &did) {
       return utilities::hash(HcalDetId(HcalForward, did.ieta() > 0 ? 1 : -1, did.iphi(), 1));
@@ -169,13 +174,19 @@ namespace hcaldqm {
 
     std::string name_depth(HcalDetId const &did) {
       char name[10];
-      sprintf(name, "depth%d", did.depth());
+      if (did.subdet() == HcalOuter)
+        sprintf(name, "depthHO");
+      else
+        sprintf(name, "depth%d", did.depth());
       return std::string(name);
     }
 
     uint32_t hash_depth(std::string const &name) {
       int depth = std::stoi(name.substr(5, name.length() - 5), nullptr);
-      return HcalDetId(HcalBarrel, 1, 1, depth).rawId();
+      if (name.find("HO") != std::string::npos)
+        return 9;  // must match the value in method hash_depth(& digi)
+      else
+        return HcalDetId(HcalBarrel, 1, 1, depth).rawId();
     }
 
     std::string name_HFPMiphi(HcalDetId const &did) {

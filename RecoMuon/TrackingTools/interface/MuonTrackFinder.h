@@ -12,17 +12,12 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "RecoMuon/TrackingTools/interface/MuonCandidate.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 
 #include <vector>
-
-namespace edm {
-  class ParameterSet;
-  class Event;
-  class EventSetup;
-}  // namespace edm
-class TrackerTopology;
 
 class MuonTrajectoryBuilder;
 class MuonTrajectoryCleaner;
@@ -37,12 +32,14 @@ public:
 public:
   /// Constructor, with default cleaner. For the STA reconstruction the trackLoader must have the propagator.
   MuonTrackFinder(std::unique_ptr<MuonTrajectoryBuilder> ConcreteMuonTrajectoryBuilder,
-                  std::unique_ptr<MuonTrackLoader> trackLoader);
+                  std::unique_ptr<MuonTrackLoader> trackLoader,
+                  edm::ConsumesCollector iC);
 
   /// Constructor, with user-defined cleaner. For the STA reconstruction the trackLoader must have the propagator.
   MuonTrackFinder(std::unique_ptr<MuonTrajectoryBuilder> ConcreteMuonTrajectoryBuilder,
                   std::unique_ptr<MuonTrackLoader> trackLoader,
-                  std::unique_ptr<MuonTrajectoryCleaner> cleaner);
+                  std::unique_ptr<MuonTrajectoryCleaner> cleaner,
+                  edm::ConsumesCollector iC);
 
   /// destructor
   virtual ~MuonTrackFinder();
@@ -68,6 +65,8 @@ private:
   void load(CandidateContainer&, edm::Event&, const TrackerTopology& ttopo);
 
 private:
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> theTtopoToken;
+
   std::unique_ptr<MuonTrajectoryBuilder> theTrajBuilder;
 
   std::unique_ptr<MuonTrajectoryCleaner> theTrajCleaner;

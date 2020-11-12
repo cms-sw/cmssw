@@ -12,7 +12,6 @@
   <use name="DataFormats/Math"/>
   <use name="DataFormats/MuonReco"/>
   <use name="DataFormats/EgammaCandidates"/>
-  <use name="RecoEgamma/EgammaTools"/>
   <use name="DataFormats/RecoCandidate"/>
   <use name="DataFormats/Candidate"/>
   <use name="DataFormats/Common"/>

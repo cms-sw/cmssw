@@ -5,7 +5,6 @@
   <use name="FWCore/ParameterSet"/>
   <use name="DataFormats/VertexReco"/>
   <use name="Geometry/TrackerGeometryBuilder"/>
-  <use name="DataFormats/SiPixelDetId"/>
   <use name="DataFormats/TrackerRecHit2D"/>
   <use name="HLTrigger/HLTcore"/>
   <use name="CondFormats/RunInfo"/>
