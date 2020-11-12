@@ -8,7 +8,7 @@
 //
 /**\class HLTScoutingMuonProducer HLTScoutingMuonProducer.h HLTScoutingMuonProducer.h
 
-Description: Producer for ScoutingMuon
+Description: Producer for Run3ScoutingMuon
 
 */
 //
@@ -39,8 +39,8 @@ Description: Producer for ScoutingMuon
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-#include "DataFormats/Scouting/interface/ScoutingMuon.h"
-#include "DataFormats/Scouting/interface/ScoutingVertex.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingMuon.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingVertex.h"
 
 #include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
