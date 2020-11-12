@@ -626,6 +626,8 @@ def miniAOD_customizeData(process):
     process.load("RecoPPS.Local.ctppsLocalTrackLiteProducer_cff")
     process.load("RecoPPS.ProtonReconstruction.ctppsProtons_cff")
     process.load("Geometry.VeryForwardGeometry.geometryRPFromDB_cfi")
+    process.load('L1Trigger.L1TGlobal.simGtExtFakeProd_cfi')
+    process.simGtExtFakeProd.tcdsRecordLabel = cms.InputTag("tcdsDigis","tcdsRecord")
     task = getPatAlgosToolsTask(process)
     from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
     ctpps_2016.toModify(task, func=lambda t: t.add(process.ctppsLocalTrackLiteProducer))
