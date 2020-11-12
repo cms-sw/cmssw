@@ -15,11 +15,10 @@ namespace edm {
   class ParameterWildcardWithSpecifics : public ParameterWildcardBase {
   public:
     ParameterWildcardWithSpecifics(std::string_view,
-                                    WildcardValidationCriteria criteria,
-                                    bool isTracked,
-                                    ParameterSetDescription const& desc,
-                                    std::map<std::string,ParameterSetDescription> exceptions);
-
+                                   WildcardValidationCriteria criteria,
+                                   bool isTracked,
+                                   ParameterSetDescription const& desc,
+                                   std::map<std::string, ParameterSetDescription> exceptions);
 
     ParameterDescriptionNode* clone() const override;
 
@@ -33,9 +32,9 @@ namespace edm {
     bool exists_(ParameterSet const& pset) const override;
 
     void validatePSetVector(std::string const& parameterName, ParameterSet& pset) const;
-    
+
     void validateDescription(std::string const& parameterName, ParameterSet& pset) const;
-    
+
     ParameterSetDescription wildcardDesc_;
     std::map<std::string, ParameterSetDescription> exceptions_;
   };
