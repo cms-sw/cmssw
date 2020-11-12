@@ -29,6 +29,9 @@ detector segment (detID)
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include <cstdint>
 
 class SiPixelRecHitModule {
@@ -39,7 +42,7 @@ public:
   /// Default constructor
   SiPixelRecHitModule();
   /// Constructor with raw DetId
-  SiPixelRecHitModule(const uint32_t &id);
+  SiPixelRecHitModule(edm::ConsumesCollector&& iCC, const uint32_t &id);
   /// Destructor
   ~SiPixelRecHitModule();
 
@@ -79,6 +82,7 @@ public:
              bool ringon = false);
 
 private:
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoTokenBeginRun_;
   uint32_t id_;
   MonitorElement *meXYPos_;
   MonitorElement *meXYPos_px_;

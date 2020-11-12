@@ -26,14 +26,12 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 // DQM Framework
 #include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 // Geometry
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 // DataFormats
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
@@ -52,6 +50,8 @@ using namespace edm;
 SiPixelRecHitSource::SiPixelRecHitSource(const edm::ParameterSet &iConfig)
     : conf_(iConfig),
       src_(consumes<SiPixelRecHitCollection>(conf_.getParameter<edm::InputTag>("src"))),
+      trackerTopoTokenBeginRun_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()),
+      trackerGeomTokenBeginRun_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
       saveFile(conf_.getUntrackedParameter<bool>("saveFile", false)),
       isPIB(conf_.getUntrackedParameter<bool>("isPIB", false)),
       slowDown(conf_.getUntrackedParameter<bool>("slowDown", false)),
@@ -177,12 +177,9 @@ void SiPixelRecHitSource::analyze(const edm::Event &iEvent, const edm::EventSetu
 void SiPixelRecHitSource::buildStructure(const edm::EventSetup &iSetup) {
   LogInfo("PixelDQM") << " SiPixelRecHitSource::buildStructure";
 
-  edm::ESHandle<TrackerGeometry> pDD;
-  edm::ESHandle<TrackerTopology> tTopoHandle;
+  edm::ESHandle<TrackerGeometry> pDD = iSetup.getHandle(trackerGeomTokenBeginRun_);
 
-  iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-
+  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopoTokenBeginRun_);
   const TrackerTopology *pTT = tTopoHandle.product();
 
   LogVerbatim("PixelDQM") << " *** Geometry node for TrackerGeom is  " << &(*pDD) << std::endl;
@@ -201,7 +198,7 @@ void SiPixelRecHitSource::buildStructure(const edm::EventSetup &iSetup) {
           if (isPIB)
             continue;
           LogDebug("PixelDQM") << " ---> Adding Barrel Module " << detId.rawId() << endl;
-          SiPixelRecHitModule *theModule = new SiPixelRecHitModule(id);
+          SiPixelRecHitModule *theModule = new SiPixelRecHitModule(consumesCollector(), id);
           thePixelStructure.insert(pair<uint32_t, SiPixelRecHitModule *>(id, theModule));
 
         } else if ((detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap))) {
@@ -231,7 +228,7 @@ void SiPixelRecHitSource::buildStructure(const edm::EventSetup &iSetup) {
           if (isPIB && mask)
             continue;
 
-          SiPixelRecHitModule *theModule = new SiPixelRecHitModule(id);
+          SiPixelRecHitModule *theModule = new SiPixelRecHitModule(consumesCollector(), id);
           thePixelStructure.insert(pair<uint32_t, SiPixelRecHitModule *>(id, theModule));
         }
       }
