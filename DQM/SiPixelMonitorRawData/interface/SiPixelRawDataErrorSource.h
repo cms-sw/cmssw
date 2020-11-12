@@ -32,6 +32,10 @@
 #include "DQM/SiPixelMonitorRawData/interface/SiPixelRawDataErrorModule.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include <cstdint>
 
 class SiPixelRawDataErrorSource : public DQMOneLumiEDAnalyzer<> {
@@ -52,6 +56,8 @@ private:
   edm::ParameterSet conf_;
   edm::EDGetTokenT<edm::DetSetVector<SiPixelRawDataError>> src_;
   edm::EDGetTokenT<FEDRawDataCollection> inputSourceToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoTokenBeginRun_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomTokenBeginRun_;
   std::string topFolderName_;
   bool saveFile;
   bool isPIB;
