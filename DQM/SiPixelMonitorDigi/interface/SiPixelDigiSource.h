@@ -21,6 +21,10 @@
 #include <memory>
 
 // user include files
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiModule.h"
 
@@ -223,6 +227,9 @@ private:
 
   //define Token(-s)
   edm::EDGetTokenT<edm::DetSetVector<PixelDigi> > srcToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoTokenBeginRun_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomTokenBeginRun_;
   int noOfLayers;
   int noOfDisks;
 };

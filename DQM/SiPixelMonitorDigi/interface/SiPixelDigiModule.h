@@ -23,6 +23,9 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include <cstdint>
 
 class SiPixelDigiModule {
@@ -35,7 +38,7 @@ public:
   /// Constructor with raw DetId
   SiPixelDigiModule(const uint32_t& id);
   /// Constructor with raw DetId and sensor size
-  SiPixelDigiModule(const uint32_t& id, const int& ncols, const int& nrows);
+  SiPixelDigiModule(edm::ConsumesCollector&& iCC, const uint32_t& id, const int& ncols, const int& nrows);
   /// Destructor
   ~SiPixelDigiModule();
 
@@ -58,7 +61,7 @@ public:
   //           bool twoD=true, bool reducedSet=false, bool twoDimModOn = true, bool twoDimOnlyLayDisk = false,
   //           int &nDigisA, int &nDigisB);
   int fill(const edm::DetSetVector<PixelDigi>& input,
-           const edm::EventSetup& iSetup,
+           const TrackerTopology* pTT,
            MonitorElement* combBarrel,
            MonitorElement* chanBarrel,
            std::vector<MonitorElement*>& chanBarrelL,
@@ -81,6 +84,7 @@ public:
   resetRocMap();  // This is to move the rocmap reset from the Source to the Module where the map is booked. Necessary for multithread safety.
   std::pair<int, int> getZeroLoEffROCs();  // Moved from Souce.cc. Gets number of zero and low eff ROCs from each module.
 private:
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoTokenBeginRun_;
   uint32_t id_;
   int ncols_;
   int nrows_;
