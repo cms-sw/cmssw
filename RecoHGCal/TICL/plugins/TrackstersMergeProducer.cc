@@ -26,8 +26,6 @@ public:
   ~TrackstersMergeProducer() override{};
   void produce(edm::Event &, const edm::EventSetup &) override;
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
-  void energyRegressionAndID(const std::vector<reco::CaloCluster> &layerClusters, std::vector<Trackster> &result) const;
-  void computeTime(std::vector<TICLCandidate> &resultCandidates);
 
   // static methods for handling the global cache
   static std::unique_ptr<TrackstersCache> initializeGlobalCache(const edm::ParameterSet &);
@@ -38,7 +36,9 @@ private:
 
   void fillTile(TICLTracksterTiles &, const std::vector<Trackster> &, TracksterIterIndex);
 
+  void energyRegressionAndID(const std::vector<reco::CaloCluster> &layerClusters, std::vector<Trackster> &result) const;
   void printTrackstersDebug(const std::vector<Trackster> &, const char *label) const;
+  void computeTime(std::vector<TICLCandidate> &resultCandidates) const;
   void dumpTrackster(const Trackster &) const;
 
   const edm::EDGetTokenT<std::vector<Trackster>> tracksterstrkem_token_;
@@ -545,28 +545,6 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
   evt.put(std::move(resultCandidates));
 }
 
-void TrackstersMergeProducer::computeTime(std::vector<TICLCandidate> &resultCandidates) {
-  for (auto &cand : resultCandidates) {
-    if (cand.tracksters().size() > 1) {  // For single-trackster candidates the timing is already set
-      auto time = 0.;
-      auto timeErr = 0.;
-      for (const auto &tr : cand.tracksters()) {
-        if (tr->timeError() > 0) {
-          auto invTimeESq = pow(tr->timeError(), -2);
-          time += tr->time() * invTimeESq;
-          timeErr += invTimeESq;
-        }
-      }
-      if (timeErr > 0) {
-        timeErr = 1. / timeErr;
-
-        cand.setTime(time * timeErr);
-        cand.setTimeError(sqrt(timeErr));
-      }
-    }
-  }
-}
-
 void TrackstersMergeProducer::energyRegressionAndID(const std::vector<reco::CaloCluster> &layerClusters,
                                                     std::vector<Trackster> &tracksters) const {
   // Energy regression and particle identification strategy:
@@ -704,6 +682,28 @@ void TrackstersMergeProducer::energyRegressionAndID(const std::vector<reco::Calo
     for (const int &i : tracksterIndices) {
       tracksters[i].setProbabilities(probs);
       probs += tracksters[i].id_probabilities().size();
+    }
+  }
+}
+
+void TrackstersMergeProducer::computeTime(std::vector<TICLCandidate> &resultCandidates) const {
+  for (auto &cand : resultCandidates) {
+    if (cand.tracksters().size() > 1) {  // For single-trackster candidates the timing is already set
+      float time = 0.f;
+      float timeErr = 0.f;
+      for (const auto &tr : cand.tracksters()) {
+        if (tr->timeError() > 0) {
+          auto invTimeESq = pow(tr->timeError(), -2);
+          time += tr->time() * invTimeESq;
+          timeErr += invTimeESq;
+        }
+      }
+      if (timeErr > 0) {
+        timeErr = 1. / timeErr;
+
+        cand.setTime(time * timeErr);
+        cand.setTimeError(sqrt(timeErr));
+      }
     }
   }
 }

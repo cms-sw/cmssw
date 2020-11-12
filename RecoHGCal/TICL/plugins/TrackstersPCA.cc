@@ -1,4 +1,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "RecoLocalCalo/HGCalRecProducers/interface/ComputeClusterTime.h"
 #include "TrackstersPCA.h"
 #include "TPrincipal.h"
 
@@ -62,7 +64,7 @@ void ticl::assignPCAtoTracksters(std::vector<Trackster> &tracksters,
       // Also compute timing
       if ((usedLC.insert(trackster.vertices(i))).second) {
         float timeE = layerClustersTime.get(trackster.vertices(i)).second;
-        if (timeE > -1.) {
+        if (timeE > 0.f) {
           times.push_back(layerClustersTime.get(trackster.vertices(i)).first);
           timeErrors.push_back(1. / pow(timeE, 2));
         }
