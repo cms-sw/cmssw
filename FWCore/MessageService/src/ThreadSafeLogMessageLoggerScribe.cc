@@ -38,14 +38,14 @@ namespace edm {
   namespace service {
 
     ThreadSafeLogMessageLoggerScribe::ThreadSafeLogMessageLoggerScribe()
-        : admin_p(new ELadministrator()),
-          early_dest(admin_p->attach(std::make_shared<ELoutput>(std::cerr, false))),
-          file_ps(),
-          clean_slate_configuration(true),
-          active(true),
-          purge_mode(false)  // changeLog 32
+        : m_admin_p(new ELadministrator()),
+          m_early_dest(m_admin_p->attach(std::make_shared<ELoutput>(std::cerr, false))),
+          m_file_ps(),
+          m_clean_slate_configuration(true),
+          m_active(true),
+          m_purge_mode(false)
           ,
-          count(false)  // changeLog 32
+          m_count(0)
           ,
           m_messageBeingSent(false),
           m_waitingThreshold(100),
@@ -56,18 +56,18 @@ namespace edm {
       ErrorObj* errorobj_p = nullptr;
       std::vector<std::string> categories;
       while (m_waitingMessages.try_pop(errorobj_p)) {
-        if (not purge_mode) {
+        if (not m_purge_mode) {
           categories.clear();
           parseCategories(errorobj_p->xid().id, categories);
           for (unsigned int icat = 0; icat < categories.size(); ++icat) {
             errorobj_p->setID(categories[icat]);
-            admin_p->log(*errorobj_p);  // route the message text
+            m_admin_p->log(*errorobj_p);  // route the message text
           }
         }
         delete errorobj_p;
       }
 
-      admin_p->finish();
+      m_admin_p->finish();
     }
 
     void ThreadSafeLogMessageLoggerScribe::runCommand(  // changeLog 32
@@ -84,24 +84,24 @@ namespace edm {
         case MessageLoggerQ::LOG_A_MESSAGE: {
           ErrorObj* errorobj_p = static_cast<ErrorObj*>(operand);
           try {
-            if (active && !purge_mode) {
+            if (m_active && !m_purge_mode) {
               log(errorobj_p);
             }
           } catch (cms::Exception& e) {
-            ++count;
-            std::cerr << "ThreadSafeLogMessageLoggerScribe caught " << count << " cms::Exceptions, text = \n"
+            ++m_count;
+            std::cerr << "ThreadSafeLogMessageLoggerScribe caught " << m_count << " cms::Exceptions, text = \n"
                       << e.what() << "\n";
 
-            if (count > 25) {
+            if (m_count > 25) {
               cerr << "MessageLogger will no longer be processing "
                    << "messages due to errors (entering purge mode).\n";
-              purge_mode = true;
+              m_purge_mode = true;
             }
           } catch (...) {
             std::cerr << "ThreadSafeLogMessageLoggerScribe caught an unknown exception and "
                       << "will no longer be processing "
                       << "messages. (entering purge mode)\n";
-            purge_mode = true;
+            m_purge_mode = true;
           }
           break;
         }
@@ -129,8 +129,8 @@ namespace edm {
         case MessageLoggerQ::JOBMODE: {  // change log 24
           std::string* jobMode_p = static_cast<std::string*>(operand);
           JobMode jm = MessageLoggerDefaults::mode(*jobMode_p);
-          messageLoggerDefaults = value_ptr<MessageLoggerDefaults>(new MessageLoggerDefaults(jm));
-          // Note - since messageLoggerDefaults is a value_ptr,
+          m_messageLoggerDefaults = value_ptr<MessageLoggerDefaults>(new MessageLoggerDefaults(jm));
+          // Note - since m_messageLoggerDefaults is a value_ptr,
           //        there is no concern about deleting here.
           delete jobMode_p;  // dispose of the message text
                              // which will have been new-ed
@@ -139,7 +139,7 @@ namespace edm {
         }
         case MessageLoggerQ::SHUT_UP: {
           assert(operand == nullptr);
-          active = false;
+          m_active = false;
           break;
         }
         case MessageLoggerQ::FLUSH_LOG_Q: {  // changelog 26
@@ -168,17 +168,17 @@ namespace edm {
         parseCategories(errorobj_p->xid().id, categories);
         for (unsigned int icat = 0; icat < categories.size(); ++icat) {
           errorobj_p->setID(categories[icat]);
-          admin_p->log(*errorobj_p);  // route the message text
+          m_admin_p->log(*errorobj_p);  // route the message text
         }
         //process any waiting messages
         errorobj_p = nullptr;
-        while (not purge_mode and m_waitingMessages.try_pop(errorobj_p)) {
+        while (not m_purge_mode and m_waitingMessages.try_pop(errorobj_p)) {
           obj.reset(errorobj_p);
           categories.clear();
           parseCategories(errorobj_p->xid().id, categories);
           for (unsigned int icat = 0; icat < categories.size(); ++icat) {
             errorobj_p->setID(categories[icat]);
-            admin_p->log(*errorobj_p);  // route the message text
+            m_admin_p->log(*errorobj_p);  // route the message text
           }
         }
         m_messageBeingSent.store(false);
@@ -250,7 +250,7 @@ namespace edm {
       std::string filename = psetname;
       std::string filename_default = getAparameter<std::string>(dest_pset, "output", empty_String);
       if (filename_default == empty_String) {
-        filename_default = messageLoggerDefaults->output(psetname);  // change log 31
+        filename_default = m_messageLoggerDefaults->output(psetname);  // change log 31
         if (filename_default == empty_String) {
           filename_default = filename;
         }
@@ -290,13 +290,13 @@ namespace edm {
           // configuration we are about to do, we issue the message (so it sits
           // on the queue), then copy the processing that the LOG_A_MESSAGE case
           // does.  We suppress the timestamp to allow for automated unit testing.
-          early_dest->suppressTime();
+          m_early_dest->suppressTime();
           LogError("preconfiguration") << preconfiguration_message;
         }
       }
-      if (!stream_ps.empty()) {
+      if (!m_stream_ps.empty()) {
         LogWarning("multiLogConfig") << "The message logger has been configured multiple times";
-        clean_slate_configuration = false;  // Change Log 22
+        m_clean_slate_configuration = false;  // Change Log 22
       }
       m_waitingThreshold = job_pset.getUntrackedParameter<unsigned int>("waiting_threshold");
 
@@ -309,7 +309,7 @@ namespace edm {
       MessageDrop::fwkInfoAlwaysSuppressed = true;
       MessageDrop::warningAlwaysSuppressed = true;
 
-      early_dest->setThreshold(ELhighestSeverity);
+      m_early_dest->setThreshold(ELhighestSeverity);
 
       auto cout_dest = job_pset.getUntrackedParameter<edm::ParameterSet>("cout");
       if (cout_dest.getUntrackedParameter<bool>("enable")) {
@@ -350,13 +350,13 @@ namespace edm {
         // configuration we are about to do, we issue the message (so it sits
         // on the queue), then copy the processing that the LOG_A_MESSAGE case
         // does.  We suppress the timestamp to allow for automated unit testing.
-        early_dest->suppressTime();
+        m_early_dest->suppressTime();
         LogError("preconfiguration") << preconfiguration_message;
       }
 
-      if (!stream_ps.empty()) {
+      if (!m_stream_ps.empty()) {
         LogWarning("multiLogConfig") << "The message logger has been configured multiple times";
-        clean_slate_configuration = false;  // Change Log 22
+        m_clean_slate_configuration = false;  // Change Log 22
       }
       m_waitingThreshold = getAparameter<unsigned int>(job_pset, "waiting_threshold", 100);
       auto defaults = parseDefaults(job_pset);
@@ -365,7 +365,7 @@ namespace edm {
       // grab list of hardwired categories (hardcats) -- these are to be added
       // to the list of categories -- change log 24
       {
-        std::vector<std::string> hardcats = messageLoggerDefaults->categories;
+        std::vector<std::string> hardcats = m_messageLoggerDefaults->categories;
         // combine the lists, not caring about possible duplicates (for now)
         copy_all(hardcats, std::back_inserter(categories));
       }  // no longer need hardcats
@@ -377,17 +377,17 @@ namespace edm {
     std::shared_ptr<ELdestination> ThreadSafeLogMessageLoggerScribe::makeDestinationCtrl(std::string const& filename) {
       std::shared_ptr<ELdestination> dest_ctrl;
       if (filename == "cout") {
-        dest_ctrl = admin_p->attach(std::make_shared<ELoutput>(std::cout));
-        stream_ps["cout"] = &std::cout;
+        dest_ctrl = m_admin_p->attach(std::make_shared<ELoutput>(std::cout));
+        m_stream_ps["cout"] = &std::cout;
       } else if (filename == "cerr") {
-        early_dest->setThreshold(ELzeroSeverity);
-        dest_ctrl = early_dest;
-        stream_ps["cerr"] = &std::cerr;
+        m_early_dest->setThreshold(ELzeroSeverity);
+        dest_ctrl = m_early_dest;
+        m_stream_ps["cerr"] = &std::cerr;
       } else {
         auto os_sp = std::make_shared<std::ofstream>(filename.c_str());
-        file_ps.push_back(os_sp);
-        dest_ctrl = admin_p->attach(std::make_shared<ELoutput>(*os_sp));
-        stream_ps[filename] = os_sp.get();
+        m_file_ps.push_back(os_sp);
+        dest_ctrl = m_admin_p->attach(std::make_shared<ELoutput>(*os_sp));
+        m_stream_ps[filename] = os_sp.get();
       }
       return dest_ctrl;
     }
@@ -488,7 +488,7 @@ namespace edm {
         dest_threshold = defaults.threshold_;
       }
       if (dest_threshold == empty_String) {
-        dest_threshold = messageLoggerDefaults->threshold(filename);
+        dest_threshold = m_messageLoggerDefaults->threshold(filename);
       }
       if (dest_threshold == empty_String)
         dest_threshold = COMMON_DEFAULT_THRESHOLD;
@@ -522,13 +522,13 @@ namespace edm {
 
         const std::string& category = msgID;
         if (limit == defaults.NO_VALUE_SET) {  // change log 24
-          limit = messageLoggerDefaults->limit(filename, category);
+          limit = m_messageLoggerDefaults->limit(filename, category);
         }
         if (interval == defaults.NO_VALUE_SET) {  // change log 24
-          interval = messageLoggerDefaults->reportEvery(filename, category);
+          interval = m_messageLoggerDefaults->reportEvery(filename, category);
         }
         if (timespan == defaults.NO_VALUE_SET) {  // change log 24
-          timespan = messageLoggerDefaults->timespan(filename, category);
+          timespan = m_messageLoggerDefaults->timespan(filename, category);
         }
 
         if (limit != defaults.NO_VALUE_SET) {
@@ -556,7 +556,7 @@ namespace edm {
         // change log 5
         int limit = getAparameter<int>(sev_pset, "limit", defaults.NO_VALUE_SET);
         if (limit == defaults.NO_VALUE_SET) {  // change log 24
-          limit = messageLoggerDefaults->sev_limit(filename, sevID);
+          limit = m_messageLoggerDefaults->sev_limit(filename, sevID);
         }
         if (limit != defaults.NO_VALUE_SET) {
           if (limit < 0)
@@ -565,14 +565,14 @@ namespace edm {
         }
         int interval = getAparameter<int>(sev_pset, "reportEvery", defaults.NO_VALUE_SET);
         if (interval == defaults.NO_VALUE_SET) {  // change log 24
-          interval = messageLoggerDefaults->sev_reportEvery(filename, sevID);
+          interval = m_messageLoggerDefaults->sev_reportEvery(filename, sevID);
         }
         if (interval != defaults.NO_VALUE_SET)
           dest_ctrl->setInterval(severity, interval);
         // change log 2
         int timespan = getAparameter<int>(sev_pset, "timespan", defaults.NO_VALUE_SET);
         if (timespan == defaults.NO_VALUE_SET) {  // change log 24
-          timespan = messageLoggerDefaults->sev_timespan(filename, sevID);
+          timespan = m_messageLoggerDefaults->sev_timespan(filename, sevID);
         }
         if (timespan != defaults.NO_VALUE_SET) {
           if (timespan < 0)
@@ -618,12 +618,12 @@ namespace edm {
       // Use the default list of destinations if and only if the grabbed list is
       // empty						 	// change log 24
       if (destinations.empty()) {
-        destinations = messageLoggerDefaults->destinations;
+        destinations = m_messageLoggerDefaults->destinations;
       }
 
       // dial down the early destination if other dest's are supplied:
       if (!destinations.empty())
-        early_dest->setThreshold(ELhighestSeverity);
+        m_early_dest->setThreshold(ELhighestSeverity);
 
       // establish each destination:
       std::vector<std::string> ordinary_destination_filenames;
@@ -650,8 +650,8 @@ namespace edm {
         auto const actual_filename = destinationFileName(dest_pset, psetname);
 
         // Check that this is not a duplicate name			// change log 18
-        if (stream_ps.find(actual_filename) != stream_ps.end()) {
-          if (clean_slate_configuration) {    // change log 22
+        if (m_stream_ps.find(actual_filename) != m_stream_ps.end()) {
+          if (m_clean_slate_configuration) {    // change log 22
                                               //        throw edm::Exception ( edm::errors::Configuration )
             LogError("duplicateDestination")  // change log 35
                 << "Duplicate name for a MessageLogger Destination: " << actual_filename << "\n"
@@ -697,7 +697,7 @@ namespace edm {
         // is what the user wants.)
         vString destinations = getAparameter<vString>(job_pset, "destinations", empty_vString);
         if (destinations.empty()) {
-          statistics = messageLoggerDefaults->statistics;
+          statistics = m_messageLoggerDefaults->statistics;
           no_statistics_configured = statistics.empty();
         } else {
           for (auto const& dest : destinations) {
@@ -723,7 +723,7 @@ namespace edm {
         // Determine the destination file name
         std::string filename = getAparameter<std::string>(stat_pset, "output", empty_String);
         if (filename == empty_String) {
-          filename = messageLoggerDefaults->output(psetname);  // change log 31
+          filename = m_messageLoggerDefaults->output(psetname);  // change log 31
           if (filename == empty_String) {
             filename = statname;
           }
@@ -759,8 +759,8 @@ namespace edm {
         // Check that this is not a duplicate name -
         // unless it is an ordinary destination (which stats can share)
         if (!search_all(ordinary_destination_filenames, actual_filename)) {
-          if (stream_ps.find(actual_filename) != stream_ps.end()) {
-            if (clean_slate_configuration) {  // change log 22
+          if (m_stream_ps.find(actual_filename) != m_stream_ps.end()) {
+            if (m_clean_slate_configuration) {  // change log 22
               throw edm::Exception(edm::errors::Configuration)
                   << "Duplicate name for a MessageLogger Statistics Destination: " << actual_filename << "\n";
             } else {
@@ -779,33 +779,33 @@ namespace edm {
         // it is matches a destination.  (shange log 24)
         bool statistics_destination_is_real = !no_statistics_configured;
         std::ostream* os_p;
-        if (stream_ps.find(actual_filename) == stream_ps.end()) {
+        if (m_stream_ps.find(actual_filename) == m_stream_ps.end()) {
           if (actual_filename == "cout") {
             os_p = &std::cout;
           } else if (actual_filename == "cerr") {
             os_p = &std::cerr;
           } else {
             auto os_sp = std::make_shared<std::ofstream>(actual_filename.c_str());
-            file_ps.push_back(os_sp);
+            m_file_ps.push_back(os_sp);
             os_p = os_sp.get();
           }
-          stream_ps[actual_filename] = os_p;
+          m_stream_ps[actual_filename] = os_p;
         } else {
           statistics_destination_is_real = true;  // change log 24
-          os_p = stream_ps[actual_filename];
+          os_p = m_stream_ps[actual_filename];
         }
 
         if (statistics_destination_is_real) {  // change log 24
                                                // attach the statistics destination, keeping a control handle to it:
           auto stat = std::make_shared<ELstatistics>(*os_p);
-          admin_p->attach(stat);
-          statisticsDestControls.push_back(stat);
+          m_admin_p->attach(stat);
+          m_statisticsDestControls.push_back(stat);
           bool reset = getAparameter<bool>(stat_pset, "resetStatistics", false);
           if (not reset) {
             //check for old syntax
             reset = getAparameter<bool>(stat_pset, "reset", false);
           }
-          statisticsResets.push_back(reset);
+          m_statisticsResets.push_back(reset);
 
           // now configure this destination:
           edm::ParameterSet dest_pset = getAparameter<edm::ParameterSet>(job_pset, psetname, empty_PSet);
@@ -844,20 +844,20 @@ namespace edm {
     }
 
     void ThreadSafeLogMessageLoggerScribe::triggerStatisticsSummaries() {
-      assert(statisticsDestControls.size() == statisticsResets.size());
-      for (unsigned int i = 0; i != statisticsDestControls.size(); ++i) {
-        statisticsDestControls[i]->summary(m_tooManyWaitingMessagesCount.load());
-        if (statisticsResets[i])
-          statisticsDestControls[i]->wipe();
+      assert(m_statisticsDestControls.size() == m_statisticsResets.size());
+      for (unsigned int i = 0; i != m_statisticsDestControls.size(); ++i) {
+        m_statisticsDestControls[i]->summary(m_tooManyWaitingMessagesCount.load());
+        if (m_statisticsResets[i])
+          m_statisticsDestControls[i]->wipe();
       }
     }
 
     void ThreadSafeLogMessageLoggerScribe::triggerFJRmessageSummary(std::map<std::string, double>& sm)  // ChangeLog 29
     {
-      if (statisticsDestControls.empty()) {
+      if (m_statisticsDestControls.empty()) {
         sm["NoStatisticsDestinationsConfigured"] = 0.0;
       } else {
-        statisticsDestControls[0]->summaryForJobReport(sm);
+        m_statisticsDestControls[0]->summaryForJobReport(sm);
       }
     }
 
