@@ -119,17 +119,17 @@ namespace edm {
 
       void validate(edm::ParameterSet&) const;
       // --- data:
-      edm::propagate_const<std::shared_ptr<ELadministrator>> admin_p;
-      std::shared_ptr<ELdestination> early_dest;
-      std::vector<edm::propagate_const<std::shared_ptr<std::ofstream>>> file_ps;
-      std::map<std::string, edm::propagate_const<std::ostream*>> stream_ps;
-      std::vector<std::shared_ptr<ELstatistics>> statisticsDestControls;
-      std::vector<bool> statisticsResets;
-      bool clean_slate_configuration;
-      value_ptr<MessageLoggerDefaults> messageLoggerDefaults;
-      bool active;
-      std::atomic<bool> purge_mode;  // changeLog 9
-      std::atomic<int> count;        // changeLog 9
+      edm::propagate_const<std::shared_ptr<ELadministrator>> m_admin_p;
+      std::shared_ptr<ELdestination> m_early_dest;
+      std::vector<edm::propagate_const<std::shared_ptr<std::ofstream>>> m_file_ps;
+      std::map<std::string, edm::propagate_const<std::ostream*>> m_stream_ps;
+      std::vector<std::shared_ptr<ELstatistics>> m_statisticsDestControls;
+      std::vector<bool> m_statisticsResets;
+      bool m_clean_slate_configuration;
+      value_ptr<MessageLoggerDefaults> m_messageLoggerDefaults;
+      bool m_active;
+      std::atomic<bool> m_purge_mode;
+      std::atomic<int> m_count;
       std::atomic<bool> m_messageBeingSent;
       tbb::concurrent_queue<ErrorObj*> m_waitingMessages;
       size_t m_waitingThreshold;
