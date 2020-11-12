@@ -66,7 +66,7 @@ def fileUpload(uploadPath,lheList, checkSumList, reallyDoIt, force=False):
         addFile = True
         additionalOption = ''  
         theCommand = defaultEOSfeCommand+' '+newFileName
-        exeFullList = subprocess.Popen(["/bin/sh","-c",theCommand], stdout=subprocess.PIPE)
+        exeFullList = subprocess.Popen(["/bin/sh","-c",theCommand], stdout=subprocess.PIPE, universal_newlines=True)
         result = exeFullList.stdout.readlines()
         if [line for line in result if ("flags:" in line.lower()) and ("isreadable" in line.lower())] and (not force):
             addFile = False
@@ -86,7 +86,7 @@ def fileUpload(uploadPath,lheList, checkSumList, reallyDoIt, force=False):
                 exeRealUpload = subprocess.Popen(["/bin/sh","-c",inUploadScript])
                 exeRealUpload.communicate()
                 eosCheckSumCommand = defaultEOSchecksumCommand + uploadPath + '/' + str(realFileName) + ' | awk \'{print $2}\' | cut -d= -f2'
-                exeEosCheckSum = subprocess.Popen(eosCheckSumCommand ,shell=True, stdout=subprocess.PIPE)
+                exeEosCheckSum = subprocess.Popen(eosCheckSumCommand ,shell=True, stdout=subprocess.PIPE, universal_newlines=True)
                 EosCheckSum = exeEosCheckSum.stdout.read()
                 assert exeEosCheckSum.wait() == 0
                # print 'checksum: eos = ' + EosCheckSum + 'orig file = ' + checkSumList[index] + '\n'
@@ -134,11 +134,13 @@ if __name__ == '__main__':
     parser.add_option('-u', '--update', 
                       help='Update the article <Id>' ,
                       default=0,
+                      type=int,
                       dest='artIdUp')                      
 
     parser.add_option('-l', '--list', 
                       help='List the files in article <Id>' ,
                       default=0,
+                      type=int,
                       dest='artIdLi')                     
     
     parser.add_option('-d', '--dry-run',
@@ -222,7 +224,7 @@ if __name__ == '__main__':
                 theCheckIntegrityCommand = 'xmllint -noout '+f
                 exeCheckIntegrity = subprocess.Popen(["/bin/sh","-c", theCheckIntegrityCommand])
                 intCode = exeCheckIntegrity.wait()
-                if(intCode is not 0):
+                if(intCode != 0):
                     raise Exception('Input file '+f+ ' is corrupted')
             if reallyDoIt and options.compress:
               print("Compressing file",f)
@@ -236,8 +238,8 @@ if __name__ == '__main__':
           theList = theCompressedFilesList
         for f in theList:
             try:
-                exeCheckSum = subprocess.Popen(["/afs/cern.ch/cms/caf/bin/cms_adler32",f], stdout=subprocess.PIPE)
-                getCheckSum = subprocess.Popen(["awk", "{print $1}"], stdin=exeCheckSum.stdout, stdout=subprocess.PIPE)
+                exeCheckSum = subprocess.Popen(["/afs/cern.ch/cms/caf/bin/cms_adler32",f], stdout=subprocess.PIPE, universal_newlines=True)
+                getCheckSum = subprocess.Popen(["awk", "{print $1}"], stdin=exeCheckSum.stdout, stdout=subprocess.PIPE, universal_newlines=True)
                 exeCheckSum.stdout.close()
                 output,err = getCheckSum.communicate()
                 theCheckSumList.append(output.strip())
