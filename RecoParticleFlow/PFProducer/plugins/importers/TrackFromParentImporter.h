@@ -14,10 +14,10 @@ namespace pflow {
     public:
       static bool check_importable(const typename Collection::value_type&) { return true; }
       static const std::vector<reco::PFRecTrackRef>& get_track_refs(const typename Collection::value_type&) {
-        return _empty;
+        return empty_;
       }
       static void set_element_info(reco::PFBlockElement*, const typename edm::Ref<Collection>&) {}
-      static const std::vector<reco::PFRecTrackRef> _empty;
+      static const std::vector<reco::PFRecTrackRef> empty_;
     };
   }  // namespace noop
   namespace importers {
@@ -26,21 +26,50 @@ namespace pflow {
     public:
       TrackFromParentImporter(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
           : BlockElementImporterBase(conf, sumes),
-            _src(sumes.consumes<Collection>(conf.getParameter<edm::InputTag>("source"))) {}
+            src_(sumes.consumes<Collection>(conf.getParameter<edm::InputTag>("source"))),
+            vetoEndcap_(conf.getParameter<bool>("vetoEndcap")) {
+        if (vetoEndcap_) {
+          vetoEndcapSrc_ =
+              sumes.consumes<reco::PFRecTrackCollection>(conf.getParameter<edm::InputTag>("vetoEndcapSource"));
+          srcTag_ = conf.getParameter<edm::InputTag>("source");
+        }
+      }
 
       void importToBlock(const edm::Event&, ElementList&) const override;
 
     private:
-      edm::EDGetTokenT<Collection> _src;
+      edm::EDGetTokenT<Collection> src_;
+      edm::InputTag srcTag_;
+      const bool vetoEndcap_;
+      edm::EDGetTokenT<reco::PFRecTrackCollection> vetoEndcapSrc_;
     };
 
     template <class Collection, class Adaptor>
     void TrackFromParentImporter<Collection, Adaptor>::importToBlock(
         const edm::Event& e, BlockElementImporterBase::ElementList& elems) const {
       typedef BlockElementImporterBase::ElementList::value_type ElementType;
-      auto pfparents = e.getHandle(_src);
+      auto pfparents = e.getHandle(src_);
+      //
+      // Store tracks to be vetoed
+
+      std::unordered_set<unsigned> vetoed;
+      edm::ProductID prodIdForVeto;
+      if (vetoEndcap_) {
+        auto pftrackForVetoesH = e.getHandle(vetoEndcapSrc_);
+        const auto& vetoes = *pftrackForVetoesH;
+        for (unsigned i = 0; i < vetoes.size(); ++i) {
+          if (i == 0)
+            prodIdForVeto = vetoes[i].trackRef().id();
+          else if (vetoes[i].trackRef().id() != prodIdForVeto)
+            throw cms::Exception("ProductIDMismatch") << "Multiple ProductID in the veto list. "
+                                                      << vetoes[i].trackRef().id() << " " << prodIdForVeto << std::endl;
+          vetoed.insert(vetoes[i].trackRef().key());
+        }
+      }
+      //
       elems.reserve(elems.size() + 2 * pfparents->size());
-      // setup our elements so that all the SCs are grouped together
+      //
+      // setup our elements so that all the tracks from this importer are grouped together
       auto TKs_end = std::partition(
           elems.begin(), elems.end(), [](const ElementType& a) { return a->type() == reco::PFBlockElement::TRACK; });
       // insert tracks into the element list, updating tracks that exist already
@@ -53,6 +82,16 @@ namespace pflow {
           parentRef = edm::Ref<Collection>(pfparents, std::distance(bpar, pfparent));
           const auto& pftracks = Adaptor::get_track_refs(*pfparent);
           for (const auto& pftrack : pftracks) {
+            if (vetoEndcap_                                      // vetoEndcap
+                && vetoed.count(pftrack->trackRef().key()) != 0  // found a track key in a veto list
+                &&
+                prodIdForVeto ==
+                    pftrack->trackRef()
+                        .id()  // check if the productID is the same as that for the veto list otherwise the key-based check won't work
+            )
+              continue;
+            //
+            // Now try to update an entry in pfblock or import
             auto tk_elem = std::find_if(
                 elems.begin(), TKs_end, [&](const ElementType& a) { return (a->trackRef() == pftrack->trackRef()); });
             if (tk_elem != TKs_end) {  // if found flag the track, otherwise import
@@ -63,11 +102,12 @@ namespace pflow {
               TKs_end = elems.insert(TKs_end, ElementType(trkElem));
               ++TKs_end;
             }
-          }
-        }
-      }  // loop on tracking coming from common parent
+          }  // daughter track loop ends
+        }    // end of importable check
+      }      // loop on tracking coming from common parent
       elems.shrink_to_fit();
-    }
+    }  // end of importToBlock
+
   }  // namespace importers
 }  // namespace pflow
 #endif
