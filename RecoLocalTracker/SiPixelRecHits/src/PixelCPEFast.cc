@@ -311,6 +311,7 @@ PixelCPEFast::GPUData::~GPUData() {
     cudaFree((void*)h_paramsOnGPU.m_commonParams);
     cudaFree((void*)h_paramsOnGPU.m_detParams);
     cudaFree((void*)h_paramsOnGPU.m_averageGeometry);
+    cudaFree((void*)h_paramsOnGPU.m_layerGeometry);
     cudaFree(d_paramsOnGPU);
   }
 }
