@@ -84,8 +84,8 @@ namespace {
   bool isClustered(const CalibClusterPtr& x,
                    const CalibClusterPtr seed,
                    const PFECALSuperClusterAlgo::clustering_type type,
-                   const std::shared_ptr<reco::MustacheSCParametersHelper>& mustache_params_helper,
-                   const std::shared_ptr<reco::SCDynamicDPhiParametersHelper>& dynamic_dphi_params_helper,
+                   const reco::MustacheSCParametersHelper* mustache_params_helper,
+                   const reco::SCDynamicDPhiParametersHelper* dynamic_dphi_params_helper,
                    const bool dyn_dphi,
                    const double etawidthSuperCluster,
                    const double phiwidthSuperCluster) {
@@ -156,11 +156,12 @@ void PFECALSuperClusterAlgo::update(const edm::EventSetup& setup) {
 
 void PFECALSuperClusterAlgo::updateSCParams(const edm::EventSetup& setup) {
   edm::ESHandle<EcalMustacheSCParameters> ecalMustacheSCParamsHandle_ = setup.getHandle(ecalMustacheSCParametersToken_);
-  mustacheSCParamsHelper_ = std::make_shared<reco::MustacheSCParametersHelper>(*ecalMustacheSCParamsHandle_.product());
+  mustacheSCParamsHelper_ =
+      static_cast<const reco::MustacheSCParametersHelper*>(ecalMustacheSCParamsHandle_.product());
   edm::ESHandle<EcalSCDynamicDPhiParameters> ecalSCDynamicDPhiParamsHandle_ =
       setup.getHandle(ecalSCDynamicDPhiParametersToken_);
   scDynamicDPhiParamsHelper_ =
-      std::make_shared<reco::SCDynamicDPhiParametersHelper>(*ecalSCDynamicDPhiParamsHandle_.product());
+      static_cast<const reco::SCDynamicDPhiParametersHelper*>(ecalSCDynamicDPhiParamsHandle_.product());
 }
 
 void PFECALSuperClusterAlgo::loadAndSortPFClusters(const edm::Event& iEvent) {

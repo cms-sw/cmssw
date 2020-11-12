@@ -134,8 +134,8 @@ private:
 
   const reco::BeamSpot* beamSpot_;
   const ESChannelStatus* channelStatus_;
-  std::shared_ptr<reco::MustacheSCParametersHelper> mustacheSCParamsHelper_;
-  std::shared_ptr<reco::SCDynamicDPhiParametersHelper> scDynamicDPhiParamsHelper_;
+  const reco::MustacheSCParametersHelper* mustacheSCParamsHelper_;
+  const reco::SCDynamicDPhiParametersHelper* scDynamicDPhiParamsHelper_;
 
   CalibratedClusterPtrVector _clustersEB;
   CalibratedClusterPtrVector _clustersEE;
