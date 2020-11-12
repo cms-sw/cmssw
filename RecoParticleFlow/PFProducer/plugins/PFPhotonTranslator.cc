@@ -138,7 +138,7 @@ private:
 
   // Mustache SC parameters
   edm::ESGetToken<EcalMustacheSCParameters, EcalMustacheSCParametersRcd> ecalMustacheSCParametersToken_;
-  std::shared_ptr<reco::MustacheSCParametersHelper> mustacheSCParamsHelper_;
+  const reco::MustacheSCParametersHelper *mustacheSCParamsHelper_;
 
   bool emptyIsOk_;
 };
@@ -201,7 +201,8 @@ PFPhotonTranslator::~PFPhotonTranslator() {}
 void PFPhotonTranslator::beginRun(const edm::Run &, const edm::EventSetup &iSetup) {
   edm::ESHandle<EcalMustacheSCParameters> ecalMustacheSCParamsHandle_ =
       iSetup.getHandle(ecalMustacheSCParametersToken_);
-  mustacheSCParamsHelper_ = std::make_shared<reco::MustacheSCParametersHelper>(*ecalMustacheSCParamsHandle_.product());
+  mustacheSCParamsHelper_ =
+      static_cast<const reco::MustacheSCParametersHelper *>(ecalMustacheSCParamsHandle_.product());
 }
 
 void PFPhotonTranslator::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {

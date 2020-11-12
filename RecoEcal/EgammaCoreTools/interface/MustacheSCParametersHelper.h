@@ -10,7 +10,7 @@ namespace reco {
   public:
     MustacheSCParametersHelper(const EcalMustacheSCParameters &params);
     MustacheSCParametersHelper(const edm::ParameterSet &iConfig);
-    ~MustacheSCParametersHelper(){};
+    ~MustacheSCParametersHelper() override{};
 
     float sqrtLogClustETuning() const;
     void setSqrtLogClustETuning(const float sqrtLogClustETuning);

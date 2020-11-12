@@ -9,7 +9,7 @@
 class EcalSCDynamicDPhiParameters {
 public:
   EcalSCDynamicDPhiParameters(){};
-  ~EcalSCDynamicDPhiParameters(){};
+  virtual ~EcalSCDynamicDPhiParameters() = default;
 
   struct DynamicDPhiParameters {
     double eMin;

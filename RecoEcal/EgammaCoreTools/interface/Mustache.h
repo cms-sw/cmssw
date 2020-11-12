@@ -10,13 +10,13 @@
 
 namespace reco {
   namespace MustacheKernel {
-    bool inMustache(const std::shared_ptr<MustacheSCParametersHelper>& params,
+    bool inMustache(const MustacheSCParametersHelper* params,
                     const float maxEta,
                     const float maxPhi,
                     const float ClustE,
                     const float ClusEta,
                     const float ClusPhi);
-    bool inDynamicDPhiWindow(const std::shared_ptr<SCDynamicDPhiParametersHelper>& params,
+    bool inDynamicDPhiWindow(const SCDynamicDPhiParametersHelper* params,
                              const float seedEta,
                              const float seedPhi,
                              const float ClustE,
@@ -27,7 +27,7 @@ namespace reco {
 
   class Mustache {
   public:
-    Mustache(const std::shared_ptr<MustacheSCParametersHelper>& mustache_params_helper);
+    Mustache(const MustacheSCParametersHelper* mustache_params_helper);
 
     void MustacheID(const CaloClusterPtrVector& clusters, int& nclusters, float& EoutsideMustache);
     void MustacheID(const std::vector<const CaloCluster*>&, int& nclusers, float& EoutsideMustache);
@@ -59,7 +59,7 @@ namespace reco {
     float LowestClusterEInMustache_;
     int excluded_;
     int included_;
-    const std::shared_ptr<MustacheSCParametersHelper> mustache_params_helper_;
+    const MustacheSCParametersHelper* mustache_params_helper_;
   };
 
 }  // namespace reco
