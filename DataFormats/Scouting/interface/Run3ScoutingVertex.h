@@ -9,15 +9,15 @@ class Run3ScoutingVertex {
 public:
   //constructor with values for all data fields
   Run3ScoutingVertex(float x,
-                 float y,
-                 float z,
-                 float zError,
-                 float xError,
-                 float yError,
-                 int tracksSize,
-                 float chi2,
-                 int ndof,
-                 bool isValidVtx)
+                     float y,
+                     float z,
+                     float zError,
+                     float xError,
+                     float yError,
+                     int tracksSize,
+                     float chi2,
+                     int ndof,
+                     bool isValidVtx)
       : x_(x),
         y_(y),
         z_(z),
