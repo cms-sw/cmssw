@@ -14,6 +14,7 @@
 #include <string>
 #include <vector>
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
@@ -80,6 +81,7 @@ public:
   std::pair<float, float> locateCell(
       int lay, int waferU, int waferV, int cellU, int cellV, bool reco, bool all, bool debug = false) const;
   std::pair<float, float> locateCell(const HGCSiliconDetId&, bool debug = false) const;
+  std::pair<float, float> locateCell(const HGCScintillatorDetId&, bool debug = false) const;
   std::pair<float, float> locateCellHex(int cell, int wafer, bool reco) const;
   std::pair<float, float> locateCellTrap(int lay, int ieta, int iphi, bool reco) const;
   int levelTop(int ind = 0) const { return hgpar_->levelT_[ind]; }
