@@ -6,6 +6,14 @@ process.load('Configuration.StandardSequences.GeometryExtended_cff')
 process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
 process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
 process.load('Configuration.StandardSequences.DD4hep_GeometrySim_cff')
+process.load('FWCore.MessageService.MessageLogger_cfi')
+
+process.MessageLogger = cms.Service("MessageLogger",
+    destinations = cms.untracked.vstring('myLog'),
+    myLog = cms.untracked.PSet(
+        threshold = cms.untracked.string('INFO'),
+    )
+)
 
 process.source = cms.Source("EmptyIOVSource",
                             lastValue = cms.uint64(1),
