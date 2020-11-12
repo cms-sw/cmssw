@@ -9,20 +9,20 @@ class Run3ScoutingPhoton {
 public:
   //constructor with values for all data fields
   Run3ScoutingPhoton(float pt,
-                 float eta,
-                 float phi,
-                 float m,
-                 float sigmaIetaIeta,
-                 float hOverE,
-                 float ecalIso,
-                 float hcalIso,
-                 float trkIso,
-                 float r9,
-                 float sMin,
-                 float sMaj,
-		     unsigned int seedId,
-                 std::vector<float> energyMatrix,
-                 std::vector<float> timingMatrix)
+                     float eta,
+                     float phi,
+                     float m,
+                     float sigmaIetaIeta,
+                     float hOverE,
+                     float ecalIso,
+                     float hcalIso,
+                     float trkIso,
+                     float r9,
+                     float sMin,
+                     float sMaj,
+                     unsigned int seedId,
+                     std::vector<float> energyMatrix,
+                     std::vector<float> timingMatrix)
       : pt_(pt),
         eta_(eta),
         phi_(phi),
@@ -35,7 +35,7 @@ public:
         r9_(r9),
         sMin_(sMin),
         sMaj_(sMaj),
-    seedId_(seedId),
+        seedId_(seedId),
         energyMatrix_(std::move(energyMatrix)),
         timingMatrix_(std::move(timingMatrix)) {}
   //default constructor
@@ -52,7 +52,7 @@ public:
         r9_(0),
         sMin_(0),
         sMaj_(0),
-	seedId_(0),
+        seedId_(0),
         energyMatrix_(0),
         timingMatrix_(0) {}
 
