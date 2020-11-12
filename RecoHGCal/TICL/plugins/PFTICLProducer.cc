@@ -11,9 +11,9 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
-#include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
-
 #include "DataFormats/HGCalReco/interface/TICLCandidate.h"
+
+#include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
 
 class PFTICLProducer : public edm::global::EDProducer<> {
 public:
@@ -136,14 +136,10 @@ void PFTICLProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSet
       const int muId = PFMuonAlgo::muAssocToTrack(trackref, muons);
       if (muId != -1) {
         // assign muonref to TICL PF candidates
-        reco::MuonRef muonref = reco::MuonRef(muons, muId);
-        bool allowLoose = false;
-        if (part_type == reco::PFCandidate::mu)
-          allowLoose = true;
+        const reco::MuonRef muonref = reco::MuonRef(muons, muId);
+        const bool allowLoose = part_type == reco::PFCandidate::mu ? true : false;
         // Redefine pfmuon candidate kinematics and add muonref
         pfmu_->reconstructMuon(candidate, muonref, allowLoose);
-        std::cout << candidate << std::endl;
-        PFMuonAlgo::printMuonProperties(muonref);
       }
       // PFMuonAlgo ends
     }
