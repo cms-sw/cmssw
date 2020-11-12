@@ -1834,9 +1834,11 @@ lc_zminus = [
   _energyscore_lc2cp_zminus
 ]
 lc_zplus = [
+  # number of layer clusters per layer (one entry per event in each histo)
   _totclusternum_layer_EE_zplus,
   _totclusternum_layer_FH_zplus,
   _totclusternum_layer_BH_zplus,
+  # number of cells in layer cluster, by layer - separate histos in each layer for 120um Si, 200/300um Si, Scint
   _cellsnum_perthick_perlayer_120_EE_zplus,
   _cellsnum_perthick_perlayer_120_FH_zplus,
   _cellsnum_perthick_perlayer_120_BH_zplus,
@@ -1849,6 +1851,7 @@ lc_zplus = [
   _cellsnum_perthick_perlayer_scint_EE_zplus,
   _cellsnum_perthick_perlayer_scint_FH_zplus,
   _cellsnum_perthick_perlayer_scint_BH_zplus,
+  # distance of cells from a) seed cell, b) max cell; and c), d): same with entries weighted by cell energy
   _distancetomaxcell_perthickperlayer_120_EE_zplus,
   _distancetomaxcell_perthickperlayer_120_FH_zplus,
   _distancetomaxcell_perthickperlayer_120_BH_zplus,
@@ -1921,13 +1924,19 @@ lc_zplus = [
   _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_EE_zplus,
   _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_FH_zplus,
   _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_BH_zplus,
+  # Looking at the fraction of true energy that has been clustered; by layer and overall
   _energyclustered_perlayer_EE_zplus,
   _energyclustered_perlayer_FH_zplus,
   _energyclustered_perlayer_BH_zplus,
+  # Score of CaloParticles wrt Layer Clusters
   _score_caloparticle_to_layerclusters_zplus,
+  # Score of LayerClusters wrt CaloParticles
   _score_layercluster_to_caloparticles_zplus,
+  # Shared Energy between CaloParticle and LayerClusters
   _sharedEnergy_caloparticle_to_layercluster_zplus,
+  # Shared Energy between LayerClusters and CaloParticle
   _sharedEnergy_layercluster_to_caloparticle_zplus,
+  # Cell Association per Layer
   _cell_association_table_zplus,
   # Efficiency Plots
   _efficiencies_zplus,
