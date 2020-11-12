@@ -9,7 +9,7 @@
 class EcalMustacheSCParameters {
 public:
   EcalMustacheSCParameters(){};
-  ~EcalMustacheSCParameters(){};
+  virtual ~EcalMustacheSCParameters() = default;
 
   struct ParabolaParameters {
     double log10EMin;

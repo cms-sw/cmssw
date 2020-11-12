@@ -101,9 +101,9 @@ private:
 
   // SC parameters
   edm::ESGetToken<EcalMustacheSCParameters, EcalMustacheSCParametersRcd> ecalMustacheSCParametersToken_;
-  std::shared_ptr<reco::MustacheSCParametersHelper> mustacheSCParamsHelper_;
+  const reco::MustacheSCParametersHelper* mustacheSCParamsHelper_;
   edm::ESGetToken<EcalSCDynamicDPhiParameters, EcalSCDynamicDPhiParametersRcd> ecalSCDynamicDPhiParametersToken_;
-  std::shared_ptr<reco::SCDynamicDPhiParametersHelper> scDynamicDPhiParamsHelper_;
+  const reco::SCDynamicDPhiParametersHelper* scDynamicDPhiParamsHelper_;
 
   // the tree
   void setTreeArraysForSize(const size_t N_ECAL, const size_t N_PS);
@@ -124,11 +124,12 @@ private:
 void PFSuperClusterTreeMaker::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
   edm::ESHandle<EcalMustacheSCParameters> ecalMustacheSCParamsHandle_ =
       iSetup.getHandle(ecalMustacheSCParametersToken_);
-  mustacheSCParamsHelper_ = std::make_shared<reco::MustacheSCParametersHelper>(*ecalMustacheSCParamsHandle_.product());
+  mustacheSCParamsHelper_ =
+      static_cast<const reco::MustacheSCParametersHelper*>(ecalMustacheSCParamsHandle_.product());
   edm::ESHandle<EcalSCDynamicDPhiParameters> ecalSCDynamicDPhiParametersHandle_ =
       iSetup.getHandle(ecalSCDynamicDPhiParametersToken_);
   scDynamicDPhiParamsHelper_ =
-      std::make_shared<reco::SCDynamicDPhiParametersHelper>(*ecalSCDynamicDPhiParametersHandle_.product());
+      static_cast<const reco::SCDynamicDPhiParametersHelper*>(ecalSCDynamicDPhiParametersHandle_.product());
 }
 
 void PFSuperClusterTreeMaker::analyze(const edm::Event& e, const edm::EventSetup& es) {
