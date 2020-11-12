@@ -1379,11 +1379,9 @@ class SeparateValidation:
             if f[:f.rfind("/")] not in linkList :
                 if str(f[:f.rfind("/")]) != str(newdir) :
                     linkList.append(f[:f.rfind("/")])
-        sorted(linkList)
 
         for tableCreator in plotterFolder.getTableCreators():
             self._htmlReport.addTable(tableCreator.create(self._openFiles, self._labels, dqmSubFolder))
-
 
         for link in linkList :
             if not os.path.exists("%s/res"%link):
