@@ -42,8 +42,8 @@ namespace reco {
           eta0xsineta0 * (parabola_params.pLow[0] * eta0xsineta0 + parabola_params.pLow[1]) + parabola_params.pLow[2];
 
       //solving for the curviness given the width of this particular point
-      const float a_upper = (1 / (4 * curv_up)) - std::abs(b_upper);
-      const float a_lower = (1 / (4 * curv_low)) - std::abs(b_lower);
+      const float a_upper = (1. / (4. * curv_up)) - std::abs(b_upper);
+      const float a_lower = (1. / (4. * curv_low)) - std::abs(b_lower);
 
       const double dphi = TVector2::Phi_mpi_pi(ClusPhi - maxPhi);
       const double dphi2 = dphi * dphi;
@@ -73,7 +73,7 @@ namespace reco {
       const auto dynamicDPhiParams = params->dynamicDPhiParameters(ClustE, absSeedEta);
       auto maxdphi =
           dynamicDPhiParams.yoffset +
-          dynamicDPhiParams.scale / (1 + std::exp((logClustEt - dynamicDPhiParams.xoffset) / dynamicDPhiParams.width));
+          dynamicDPhiParams.scale / (1. + std::exp((logClustEt - dynamicDPhiParams.xoffset) / dynamicDPhiParams.width));
       maxdphi = std::min(maxdphi, dynamicDPhiParams.cutoff);
       maxdphi = std::max(maxdphi, dynamicDPhiParams.saturation);
 
