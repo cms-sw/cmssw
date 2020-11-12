@@ -1,11 +1,10 @@
-#include <iostream>
-
 #include "CondFormats/DataRecord/interface/HcalElectronicsMapRcd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "HeterogeneousCore/CUDACore/interface/ConvertingESProducerT.h"
 
 #include "ElectronicsMappingGPU.h"
-#include "HcalRawESProducerGPU.h"
 
 using HcalElectronicsMappingGPUESProducer =
-    HcalRawESProducerGPU<hcal::raw::ElectronicsMappingGPU, HcalElectronicsMap, HcalElectronicsMapRcd>;
+    ConvertingESProducerT<HcalElectronicsMapRcd, hcal::raw::ElectronicsMappingGPU, HcalElectronicsMap>;
 
 DEFINE_FWK_EVENTSETUP_MODULE(HcalElectronicsMappingGPUESProducer);
