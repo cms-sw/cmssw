@@ -23,8 +23,6 @@ ALCARECOSiPixelCalZeroBiasDCSFilter = DPGAnalysis.Skims.skim_detstatus_cfi.dcsst
 
 # SiPixelStatus producer
 from CalibTracker.SiPixelQuality.SiPixelStatusProducer_cfi import *
-# fit as function of lumi sections
-siPixelStatusProducer.SiPixelStatusProducerParameters.resetEveryNLumi = 1
 
 # Sequence #
 seqALCARECOSiPixelCalZeroBias = cms.Sequence(ALCARECOSiPixelCalZeroBiasHLT*ALCARECOSiPixelCalZeroBiasDCSFilter*siPixelStatusProducer)
