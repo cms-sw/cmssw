@@ -36,9 +36,25 @@ namespace edm {
     }
 
     EventSetupRecordIOVQueue::~EventSetupRecordIOVQueue() {
+      if (!endIOVCalled_) {
+        // This part will normally only be executed in tests
+        // Normally (in cmsRun) this is done by explicitly
+        // calling endIOV. This is necessary because in cmsRun
+        // we want the task ending the IOV to run inside the
+        // functor passed to arena::execute.
+        { WaitingTaskHolder tmp{std::move(endIOVTaskHolder_)}; }
+        waitForIOVsInFlight_->decrement_ref_count();
+        waitForIOVsInFlight_->wait_for_all();
+      }
+    }
+
+    void EventSetupRecordIOVQueue::endIOV() {
+      // The most recently opened IOV is held opened.
+      // This forces it to end.
       { WaitingTaskHolder tmp{std::move(endIOVTaskHolder_)}; }
       waitForIOVsInFlight_->decrement_ref_count();
       waitForIOVsInFlight_->wait_for_all();
+      endIOVCalled_ = true;
     }
 
     void EventSetupRecordIOVQueue::setNewIntervalForAnySubProcess() {

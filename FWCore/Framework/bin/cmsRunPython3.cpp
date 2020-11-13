@@ -85,10 +85,20 @@ namespace {
     void on() { callEndJob_ = true; }
     void off() { callEndJob_ = false; }
     edm::EventProcessor* operator->() { return ep_.get(); }
+    edm::EventProcessor* get() { return ep_.get(); }
 
   private:
     std::unique_ptr<edm::EventProcessor> ep_;
     bool callEndJob_;
+  };
+
+  class TaskCleanupSentry {
+  public:
+    TaskCleanupSentry(edm::EventProcessor* ep) : ep_(ep) {}
+    ~TaskCleanupSentry() { ep_->taskCleanup(); }
+
+  private:
+    edm::EventProcessor* ep_;
   };
 
 }  // namespace
@@ -286,6 +296,7 @@ int main(int argc, char* argv[]) {
         EventProcessorWithSentry procTmp(
             std::make_unique<edm::EventProcessor>(processDesc, jobReportToken, edm::serviceregistry::kTokenOverrides));
         proc = std::move(procTmp);
+        TaskCleanupSentry sentry{proc.get()};
 
         alwaysAddContext = false;
         context = "Calling beginJob";
