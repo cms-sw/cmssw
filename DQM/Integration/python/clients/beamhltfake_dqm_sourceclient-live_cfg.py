@@ -47,6 +47,9 @@ process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",
 process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'FakeBeamMonitor'
 process.dqmSaver.tag           = 'FakeBeamMonitor'
+process.dqmSaver.runNumber     = options.runNumber
+process.dqmSaverPB.tag         = 'FakeBeamMonitor'
+process.dqmSaverPB.runNumber   = options.runNumber
 
 #-----------------------------
 # BeamMonitor
@@ -60,7 +63,7 @@ process.dqmBeamMonitor = process.dqmFakeBeamMonitor.clone()
 # Condition for P5 cluster
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 process.dqmcommon = cms.Sequence(process.dqmEnv
-                               * process.dqmSaver)
+                               * process.dqmSaver * process.dqmSaverPB)
 
 process.monitor = cms.Sequence(process.dqmBeamMonitor)
 
@@ -83,7 +86,7 @@ if unitTest == False:
 
       DBParameters = cms.PSet(
                               messageLevel = cms.untracked.int32(0),
-                              authenticationPath = cms.untracked.string('')
+                              authenticationPath = cms.untracked.string('.')
                               ),
 
       # Upload to CondDB
@@ -94,6 +97,8 @@ if unitTest == False:
       lastLumiUrl = cms.untracked.string('http://ru-c2e14-11-01.cms:11100/urn:xdaq-application:lid=52/getLatestLumiSection'),
       writeTransactionDelay = cms.untracked.uint32(options.transDelay),
       autoCommit = cms.untracked.bool(True),
+      saveLogsOnDB = cms.untracked.bool(True),
+      jobName = cms.untracked.string("BeamSpotOnlineHLTTest"), # name of the DB log record
       toPut = cms.VPSet(cms.PSet(
           record = cms.string(BSOnlineRecordName),
           tag = cms.string('BeamSpotOnlineTestHLT'),
@@ -106,7 +111,7 @@ else:
   process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
     DBParameters = cms.PSet(
                             messageLevel = cms.untracked.int32(0),
-                            authenticationPath = cms.untracked.string('')
+                            authenticationPath = cms.untracked.string('.')
                             ),
 
     # Upload to CondDB

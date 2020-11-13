@@ -356,7 +356,7 @@ process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
 
     DBParameters = cms.PSet(
                             messageLevel = cms.untracked.int32(0),
-                            authenticationPath = cms.untracked.string('')
+                            authenticationPath = cms.untracked.string('.')
                            ),
 
     # Upload to CondDB
@@ -367,6 +367,8 @@ process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
     lastLumiFile = cms.untracked.string(''),
     writeTransactionDelay = cms.untracked.uint32(options.transDelay),
     autoCommit = cms.untracked.bool(True),
+    saveLogsOnDB = cms.untracked.bool(True),
+    jobName = cms.untracked.string("BeamSpotOnlineLegacyTest"), # name of the DB log record
     toPut = cms.VPSet(cms.PSet(
         record = cms.string(BSOnlineRecordName),
         tag = cms.string('BSOnlineLegacy_tag'),
