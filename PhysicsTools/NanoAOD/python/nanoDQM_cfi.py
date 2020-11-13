@@ -305,12 +305,7 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('x', 'x', 50, -0.5, 0.5, 'Gen vertex x position'),
                 Plot1D('y', 'y', 50, -0.5, 0.5, 'Gen vertex y position'),
                 Plot1D('z', 'z', 30, -15, 15, 'Gen vertex z position'),
-            )
-        ),
-        GenVtx_t0 = cms.PSet(
-            sels = cms.PSet(),
-            plots = cms.VPSet(
-                Plot1D('', 't0', 40, -1, 1, 'Gen Vertex time (t0)'),
+                Plot1D('t0', 't0', 20, -1, 1, 'Gen vertex time (t0)'),
             )
         ),
         GenVisTau = cms.PSet(
