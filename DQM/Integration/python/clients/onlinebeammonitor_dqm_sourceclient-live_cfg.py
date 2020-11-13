@@ -145,9 +145,9 @@ else:
 process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'TrackingHLTBeamspotStream'
 process.dqmSaver.tag           = 'TrackingHLTBeamspotStream'
-#process.dqmSaver.runNumber     = options.runNumber
-#process.dqmSaverPB.tag         = 'TrackingHLTBeamspotStream'
-#process.dqmSaverPB.runNumber   = options.runNumber
+process.dqmSaver.runNumber     = options.runNumber
+process.dqmSaverPB.tag         = 'TrackingHLTBeamspotStream'
+process.dqmSaverPB.runNumber   = options.runNumber
 
 #-----------------------------
 # BeamMonitor
@@ -167,7 +167,7 @@ process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 
 
 process.dqmcommon = cms.Sequence(process.dqmEnv
-                               * process.dqmSaver)
+                               * process.dqmSaver * process.dqmSaverPB)
 
 process.monitor = cms.Sequence(process.dqmOnlineBeamMonitor)
 
