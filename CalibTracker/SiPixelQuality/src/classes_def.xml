@@ -1,15 +1,15 @@
 <lcgdict>
-   <class name="SiPixelRocStatus" ClassVersion="8">
-    <version ClassVersion="8" checksum="4171659340"/>
+   <class name="SiPixelRocStatus" ClassVersion="9">
+    <version ClassVersion="9" checksum="3300278911"/>
    </class>
    <class name="std::vector<SiPixelRocStatus>"/>
-   <class name="SiPixelModuleStatus" ClassVersion="7">
-    <version ClassVersion="7" checksum="4251883507"/>
+   <class name="SiPixelModuleStatus" ClassVersion="8">
+    <version ClassVersion="8" checksum="1925804520"/>
    </class>
    <class name="std::pair<int, SiPixelModuleStatus>"/>
    <class name="std::map<int, SiPixelModuleStatus>"/>
-   <class name="SiPixelDetectorStatus" ClassVersion="9">
-    <version ClassVersion="9" checksum="525778380"/>
+   <class name="SiPixelDetectorStatus" ClassVersion="10">
+    <version ClassVersion="10" checksum="1337720643"/>
    </class>
    <class name="edm::Wrapper<SiPixelDetectorStatus>"/>
 </lcgdict>
