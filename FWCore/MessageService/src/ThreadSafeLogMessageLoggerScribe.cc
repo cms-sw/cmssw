@@ -653,7 +653,7 @@ namespace edm {
       std::vector<std::string> ordinary_destination_filenames;
       for (vString::const_iterator it = destinations.begin(); it != destinations.end(); ++it) {
         std::string filename = *it;
-        std::string psetname = filename;
+        const std::string& psetname = filename;
 
         // check that this destination is not just a placeholder // change log 11
         edm::ParameterSet dest_pset = getAparameter<edm::ParameterSet>(job_pset, psetname, empty_PSet);
