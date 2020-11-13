@@ -52,6 +52,9 @@ process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",
 process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'FakeBeamMonitor'
 process.dqmSaver.tag           = 'FakeBeamMonitor'
+process.dqmSaver.runNumber     = options.runNumber
+process.dqmSaverPB.tag         = 'FakeBeamMonitor'
+process.dqmSaverPB.runNumber   = options.runNumber
 
 
 #---------------
@@ -81,7 +84,7 @@ process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 #-----------------
 
 process.dqmcommon = cms.Sequence(process.dqmEnv
-                               * process.dqmSaver)
+                               * process.dqmSaver * process.dqmSaverPB)
 
 #
 process.monitor = cms.Sequence(process.dqmFakeBeamMonitor
@@ -142,6 +145,8 @@ if unitTest == False:
         writeTransactionDelay = cms.untracked.uint32(options.transDelay),
         latency = cms.untracked.uint32(2),
         autoCommit = cms.untracked.bool(True),
+        saveLogsOnDB = cms.untracked.bool(True),
+        jobName = cms.untracked.string("BeamSpotOnlineLegacyTest"), # name of the DB log record
         toPut = cms.VPSet(cms.PSet(
             record = cms.string(BSOnlineRecordName),
             tag = cms.string('BeamSpotOnlineTestLegacy'),
