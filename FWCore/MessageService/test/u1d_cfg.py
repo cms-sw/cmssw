@@ -15,51 +15,49 @@ process.options = FWCore.Framework.test.cmsExceptionsFatal_cff.options
 process.load("FWCore.MessageService.test.Services_cff")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    u1d_infos = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO'),
-        noTimeStamps = cms.untracked.bool(True),
-        FwkTest = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        preEventProcessing = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        )
+    cerr = cms.untracked.PSet(
+      enable = cms.untracked.bool(False)
     ),
-    u1d_warnings = cms.untracked.PSet(
-        threshold = cms.untracked.string('WARNING'),
-        noTimeStamps = cms.untracked.bool(True)
+    files = cms.untracked.PSet(
+      u1d_infos = cms.untracked.PSet(
+          threshold = cms.untracked.string('INFO'),
+          noTimeStamps = cms.untracked.bool(True),
+          FwkTest = cms.untracked.PSet(
+              limit = cms.untracked.int32(0)
+          ),
+          preEventProcessing = cms.untracked.PSet(
+              limit = cms.untracked.int32(0)
+          )
+      ),
+      u1d_warnings = cms.untracked.PSet(
+          threshold = cms.untracked.string('WARNING'),
+          noTimeStamps = cms.untracked.bool(True)
+      ),
+      u1d_debugs = cms.untracked.PSet(
+          threshold = cms.untracked.string('DEBUG'),
+          noTimeStamps = cms.untracked.bool(True),
+          FwkTest = cms.untracked.PSet(
+              limit = cms.untracked.int32(0)
+          ),
+          preEventProcessing = cms.untracked.PSet(
+              limit = cms.untracked.int32(0)
+          )
+      ),
+      u1d_default = cms.untracked.PSet(
+          noTimeStamps = cms.untracked.bool(True),
+          FwkTest = cms.untracked.PSet(
+              limit = cms.untracked.int32(0)
+          ),
+          preEventProcessing = cms.untracked.PSet(
+              limit = cms.untracked.int32(0)
+          )
+      ),
+      u1d_errors = cms.untracked.PSet(
+          threshold = cms.untracked.string('ERROR'),
+          noTimeStamps = cms.untracked.bool(True)
+      )
     ),
-    u1d_debugs = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG'),
-        noTimeStamps = cms.untracked.bool(True),
-        FwkTest = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        preEventProcessing = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        )
-    ),
-    u1d_default = cms.untracked.PSet(
-        noTimeStamps = cms.untracked.bool(True),
-        FwkTest = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        preEventProcessing = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        )
-    ),
-    u1d_errors = cms.untracked.PSet(
-        threshold = cms.untracked.string('ERROR'),
-        noTimeStamps = cms.untracked.bool(True)
-    ),
-    debugModules = cms.untracked.vstring('*'),
-    categories = cms.untracked.vstring('preEventProcessing', 
-        'FwkTest'),
-    destinations = cms.untracked.vstring('u1d_warnings', 
-        'u1d_errors', 
-        'u1d_infos', 
-        'u1d_debugs', 
-        'u1d_default')
+    debugModules = cms.untracked.vstring('*')
 )
 
 process.maxEvents = cms.untracked.PSet(

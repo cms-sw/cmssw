@@ -14,18 +14,9 @@ process.options = FWCore.Framework.test.cmsExceptionsFatal_cff.options
 process.load("FWCore.MessageService.test.Services_cff")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    categories = cms.untracked.vstring('preEventProcessing'),
-    destinations = cms.untracked.vstring('cerr'),
     cerr = cms.untracked.PSet(
         statisticsThreshold = cms.untracked.string('WARNING'),
         enableStatistics = cms.untracked.bool(True)
-    ),
-    u28_output = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO'),
-        noTimeStamps = cms.untracked.bool(True),
-        preEventProcessing = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        )
     )
 )
 
