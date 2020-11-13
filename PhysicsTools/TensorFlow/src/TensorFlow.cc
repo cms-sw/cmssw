@@ -140,7 +140,7 @@ namespace tensorflow {
 
     // create a tensor to store the variable file
     Tensor varFileTensor(DT_STRING, TensorShape({}));
-    varFileTensor.scalar<std::string>()() = varFile;
+    varFileTensor.scalar<tensorflow::tstring>()() = varFile;
 
     // run the restore op
     status = session->Run({{varFileTensorName, varFileTensor}}, {}, {restoreOpName}, nullptr);
