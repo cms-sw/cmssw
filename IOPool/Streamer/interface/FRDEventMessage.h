@@ -69,6 +69,8 @@
 
 #include "IOPool/Streamer/interface/MsgTools.h"
 
+#include <array>
+
 struct FRDEventHeader_V6 {
   uint16 version_;
   uint16 flags_;
@@ -123,8 +125,14 @@ struct FRDEventHeader_V1 {
 
 const uint16 FRDEVENT_MASK_ISGENDATA = 1;
 
-const uint32 FRDHeaderVersionSize[6] = {
-    0, 2 * sizeof(uint32), (4 + 1024) * sizeof(uint32), 7 * sizeof(uint32), 8 * sizeof(uint32), 6 * sizeof(uint32)};
+constexpr size_t FRDHeaderMaxVersion = 6;
+constexpr std::array<uint32, FRDHeaderMaxVersion + 1> FRDHeaderVersionSize{{0,
+                                                                            2 * sizeof(uint32),
+                                                                            (4 + 1024) * sizeof(uint32),
+                                                                            7 * sizeof(uint32),
+                                                                            8 * sizeof(uint32),
+                                                                            6 * sizeof(uint32),
+                                                                            6 * sizeof(uint32)}};
 
 class FRDEventMsgView {
 public:
