@@ -15,10 +15,10 @@
 
 #include <utility>
 
-//#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementVector.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
 #include <cstdint>
@@ -33,7 +33,7 @@ public:
   typedef dqm::reco::MonitorElement MonitorElement;
 
   SiPixelHitEfficiencyModule();
-  SiPixelHitEfficiencyModule(const uint32_t);
+  SiPixelHitEfficiencyModule(edm::ConsumesCollector&& iCC, const uint32_t);
   ~SiPixelHitEfficiencyModule();
 
   void book(
@@ -58,6 +58,7 @@ public:
   std::pair<double, double> eff(double nValid, double nMissing);
 
 private:
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoTokenBeginRun_;
   uint32_t id_;
   bool bBookTracks;
   bool debug_;

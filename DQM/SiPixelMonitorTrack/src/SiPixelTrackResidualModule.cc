@@ -15,13 +15,6 @@
 
 #include "DQM/SiPixelCommon/interface/SiPixelHistogramId.h"
 #include "DQM/SiPixelMonitorTrack/interface/SiPixelTrackResidualModule.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 // Data Formats
 #include "DataFormats/DetId/interface/DetId.h"
@@ -36,7 +29,10 @@ using namespace edm;
 
 SiPixelTrackResidualModule::SiPixelTrackResidualModule() : id_(0) { bBookTracks = true; }
 
-SiPixelTrackResidualModule::SiPixelTrackResidualModule(uint32_t id) : id_(id) { bBookTracks = true; }
+SiPixelTrackResidualModule::SiPixelTrackResidualModule(edm::ConsumesCollector&& iCC, uint32_t id) : id_(id) {
+  bBookTracks = true;
+  trackerTopoTokenBeginRun_ = iCC.esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>();
+}
 
 SiPixelTrackResidualModule::~SiPixelTrackResidualModule() {}
 
@@ -46,8 +42,7 @@ void SiPixelTrackResidualModule::book(const edm::ParameterSet &iConfig,
                                       bool reducedSet,
                                       int type,
                                       bool isUpgrade) {
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopoTokenBeginRun_);
   const TrackerTopology *pTT = tTopoHandle.product();
 
   bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
