@@ -3471,7 +3471,10 @@ for step in upgradeStepDict.keys():
                         #however, there can be a conflict of beam spots but this is lost in the dataset name
                         #so please be careful
                         s=frag[:-4]+'_'+key
-                        if 'FastSim' not in k and s+'INPUT' not in steps and s in baseDataSetReleaseBetter and defaultDataSets[key] != '': # exclude upgradeKeys without input dataset
+                        # exclude upgradeKeys without input dataset, and special WFs that disable reuse
+                        istep = step+preventReuseKeyword
+                        if 'FastSim' not in k and s+'INPUT' not in steps and s in baseDataSetReleaseBetter and defaultDataSets[key] != '' and \
+                           (istep not in upgradeStepDict or key not in upgradeStepDict[istep] or upgradeStepDict[istep][key] is not None):
                             steps[k+'INPUT']={'INPUT':InputInfo(dataSet='/RelVal'+info.dataset+'/%s/GEN-SIM'%(baseDataSetReleaseBetter[s],),location='STD')}
    else:
         for key in [key for year in upgradeKeys for key in upgradeKeys[year]]:
