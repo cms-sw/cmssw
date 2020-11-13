@@ -50,7 +50,6 @@ namespace edm {
       void runCommand(MessageLoggerQ::OpCode opcode, void* operand) override;
       // changeLog 9
 
-    private:
       struct ConfigurableDefaults {
         static constexpr int NO_VALUE_SET = -45654;
         static constexpr int COMMON_DEFAULT_LIMIT = NO_VALUE_SET;
@@ -66,6 +65,7 @@ namespace edm {
         bool noTimeStamps_;
       };
 
+    private:
       static ConfigurableDefaults parseDefaults(edm::ParameterSet const& job_pset);
 
       // --- convenience typedefs
@@ -88,6 +88,12 @@ namespace edm {
                                 ConfigurableDefaults const& defaults,
                                 vString const& categories,
                                 std::vector<std::string> const& destination_names);
+      void configure_statistics_dest(edm::ParameterSet const& job_pset,
+                                     ConfigurableDefaults const& defaults,
+                                     vString const& categories,
+                                     edm::ParameterSet const& stat_pset,
+                                     std::string const& psetname,
+                                     std::string const& filename);
       void configure_dest(edm::ParameterSet const& job_pset,
                           ConfigurableDefaults const&,
                           vString const& categories,
