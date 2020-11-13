@@ -48,16 +48,27 @@ updateJetCollection(
    svSource = cms.InputTag('slimmedSecondaryVertices'),
    jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
    btagDiscriminators = [
-       'pfDeepVertexJetTags:probb',
+      'pfCombinedSecondaryVertexV2BJetTags',
+      'pfDeepCSVJetTags:probudsg', 
+      'pfDeepCSVJetTags:probb', 
+      'pfDeepCSVJetTags:probc', 
+      'pfDeepCSVJetTags:probbb', 
+      'pfDeepFlavourJetTags:probb',
+      'pfDeepFlavourJetTags:probbb',
+      'pfDeepFlavourJetTags:problepb',
+      'pfDeepFlavourJetTags:probc',
+      'pfDeepFlavourJetTags:probuds',
+      'pfDeepFlavourJetTags:probg',
+      'pfDeepVertexJetTags:probb',
+      'pfDeepCombinedJetTags:probb',
+
       ]
    )
 
 from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValTTbarPileUpMINIAODSIM
 
 process.source.fileNames = filesRelValTTbarPileUpMINIAODSIM
-process.source.fileNames = cms.untracked.vstring(
-    '/store/mc/RunIIFall17MiniAODv2/TTToHadronic_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/PU2017_12Apr2018_new_pmx_94X_mc2017_realistic_v14-v2/60000/FCC2AFA9-4BBB-E811-B35F-0CC47AFB7D48.root'
-    #'file:/scratch/lgiannini/bTAG_test_CMSSW/CMSSW_10_1_0_pre3/src/RecoBTag/DeepFlavour/test/0055C65C-E558-E811-AB0E-008CFA582BF4.root')
+process.source.fileNames = cms.untracked.vstring('/store/mc/RunIIFall17MiniAODv2/TTToHadronic_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/PU2017_12Apr2018_new_pmx_94X_mc2017_realistic_v14-v2/60000/FCC2AFA9-4BBB-E811-B35F-0CC47AFB7D48.root')
 
 process.maxEvents.input = 10
 
@@ -67,10 +78,9 @@ process.out.outputCommands.append('keep *_selectedUpdatedPatJets*_*_*')
 process.out.outputCommands.append('keep *_pfDeepCSVTagInfos*_*_*')
 process.out.outputCommands.append('keep *_pfDeepFlavourTagInfos*_*_*')
 process.out.outputCommands.append('keep *_pfDeepFlavourJetTags*_*_*')
-process.out.outputCommands.append('keep *_pfDeepVertexJetTags*_*_*')
 process.out.outputCommands.append('keep *_updatedPatJets*_*_*')
 
-process.out.fileName = 'test_deep_vertex_MINIAODSIM_myCfg.root'
+process.out.fileName = 'test_deep_vertexcomb_MINIAODSIM.root'
 
 #                                         ##
 #   process.options.wantSummary = False   ##  (to suppress the long output at the end of the job)
