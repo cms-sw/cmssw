@@ -516,7 +516,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             configtools.cloneProcessingSnippet(process, getattr(process,"producePatPFMETCorrections"), postfix, noClones = noClonesTmp, addToTask = True)
             addToProcessAndTask(_myPatMet,  getattr(process,'patPFMet').clone(), process, task)
             getattr(process, _myPatMet).metSource = cms.InputTag("pfMet"+postfix)
-            getattr(process, _myPatMet).srcPFCands = copy.copy(self.getvalue("pfCandCollection"))
+            #getattr(process, _myPatMet).srcPFCands = copy.copy(self.getvalue("pfCandCollection"))
+            getattr(process, _myPatMet).srcPFCands = "puppiForMET" if self.getvalue("Puppi") else copy.copy(self.getvalue("pfCandCollection"))
         if metType == "PF":
             from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
             run2_miniAOD_UL.toModify(getattr(process, _myPatMet), srcLeptons = \
@@ -638,7 +639,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if "T1" in correctionLevel:
             _myPatMet = "pat"+metType+"Met"+postfix
             getattr(process, _myPatMet).computeMETSignificance = cms.bool(self.getvalue("computeMETSignificance"))
-            getattr(process, _myPatMet).srcPFCands = copy.copy(self.getvalue("pfCandCollection"))
+            #getattr(process, _myPatMet).srcPFCands = copy.copy(self.getvalue("pfCandCollection"))
+            getattr(process, _myPatMet).srcPFCands = "puppiForMET" if self.getvalue("Puppi") else copy.copy(self.getvalue("pfCandCollection"))
             from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
             run2_miniAOD_UL.toModify(getattr(process, _myPatMet), srcLeptons = \
               cms.VInputTag(copy.copy(self.getvalue("electronCollection")) if self.getvalue("onMiniAOD") else
@@ -662,7 +664,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if not self._parameters["onMiniAOD"].value and not postfix=="NoHF":
             _myPatMet = "patMETs"+postfix
             getattr(process, _myPatMet).computeMETSignificance = cms.bool(self.getvalue("computeMETSignificance"))
-            getattr(process, _myPatMet).srcPFCands=copy.copy(self.getvalue("pfCandCollection"))
+            #getattr(process, _myPatMet).srcPFCands=copy.copy(self.getvalue("pfCandCollection"))
+            getattr(process, _myPatMet).srcPFCands= "puppiForMET" if self.getvalue("Puppi") else copy.copy(self.getvalue("pfCandCollection"))
             from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
             run2_miniAOD_UL.toModify(getattr(process, _myPatMet), srcLeptons = \
               cms.VInputTag(copy.copy(self.getvalue("electronCollection")) if self.getvalue("onMiniAOD") else
@@ -836,7 +839,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
             #Jet projection ==
             pfCandsNoJets = cms.EDProducer("CandPtrProjector",
-                                           src = pfCandCollection,
+                                           #src = pfCandCollection,
+                                           src = cms.InputTag("puppiForMET") if self.getvalue("Puppi") else copy.copy(self.getvalue("pfCandCollection")),
                                            veto = copy.copy(jetCollection),
                                            useDeltaRforFootprint = cms.bool(False)
                                            )
@@ -1647,7 +1651,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             #puppi
             if self._parameters["Puppi"].value:
                 getattr(process, jetColName).src = cms.InputTag("puppi")
-                getattr(process, jetColName).applyWeights = True
 
             patMetModuleSequence += getattr(process, jetColName)
 
