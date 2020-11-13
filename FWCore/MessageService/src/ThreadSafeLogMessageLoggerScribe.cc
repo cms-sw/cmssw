@@ -43,10 +43,8 @@ namespace edm {
           m_file_ps(),
           m_clean_slate_configuration(true),
           m_active(true),
-          m_purge_mode(false)
-          ,
-          m_count(0)
-          ,
+          m_purge_mode(false),
+          m_count(0),
           m_messageBeingSent(false),
           m_waitingThreshold(100),
           m_tooManyWaitingMessagesCount(0) {}
@@ -212,16 +210,18 @@ namespace edm {
         return std::set<std::string>(psets.begin(), psets.end());
       }
       std::vector<std::string> findAllCategories(edm::ParameterSet const& pset) {
+        std::set<std::string> categories;
+
         auto psets = pset.getParameterNamesForType<edm::ParameterSet>(false);
         auto itFound = std::find(psets.begin(), psets.end(), "default");
         if (itFound != psets.end()) {
+          categories = findCategoriesInDestination(pset.getUntrackedParameter<edm::ParameterSet>("default"));
           psets.erase(itFound);
         }
 
-        std::set<std::string> categories;
         itFound = std::find(psets.begin(), psets.end(), "cout");
         if (itFound != psets.end()) {
-          categories = findCategoriesInDestination(pset.getUntrackedParameter<edm::ParameterSet>("cout"));
+          categories.merge(findCategoriesInDestination(pset.getUntrackedParameter<edm::ParameterSet>("cout")));
           psets.erase(itFound);
         }
 
@@ -328,8 +328,32 @@ namespace edm {
         auto const& dest_pset = files.getUntrackedParameter<edm::ParameterSet>(name);
         auto const actual_filename = destinationFileName(dest_pset, name);
 
+        // Check that this is not a duplicate name
+        if (m_stream_ps.find(actual_filename) != m_stream_ps.end()) {
+          if (m_clean_slate_configuration) {
+            throw cms::Exception("DuplicateDestination")
+                << "Duplicate name for a MessageLogger Destination: " << actual_filename << "\n"
+                << "Please modify the configuration to use unique file names.";
+          } else {
+            LogWarning("duplicateDestination")
+                << "Duplicate name for a MessageLogger Destination: " << actual_filename << "\n"
+                << "Only original configuration instructions are used";
+            continue;
+          }
+        }
+
         auto dest_ctrl = makeDestinationCtrl(actual_filename);
         configure_dest(job_pset, defaults, categories, dest_ctrl, dest_pset, name);
+      }
+      //NOTE: statistics destinations MUST BE last in the list else they can be fooled into
+      // thinking a message has been ignored just because a later destination which uses it
+      // falls later in the list.
+      for (auto const& name : files.getParameterNamesForType<edm::ParameterSet>(false)) {
+        auto const& dest_pset = files.getUntrackedParameter<edm::ParameterSet>(name);
+        auto const actual_filename = destinationFileName(dest_pset, name);
+        if (getAparameter<bool>(dest_pset, "enableStatistics", false)) {
+          configure_statistics_dest(job_pset, defaults, categories, dest_pset, name, actual_filename);
+        }
       }
     }
 
@@ -651,7 +675,7 @@ namespace edm {
 
         // Check that this is not a duplicate name			// change log 18
         if (m_stream_ps.find(actual_filename) != m_stream_ps.end()) {
-          if (m_clean_slate_configuration) {    // change log 22
+          if (m_clean_slate_configuration) {  // change log 22
                                               //        throw edm::Exception ( edm::errors::Configuration )
             LogError("duplicateDestination")  // change log 35
                 << "Duplicate name for a MessageLogger Destination: " << actual_filename << "\n"
@@ -676,6 +700,40 @@ namespace edm {
 
       return ordinary_destination_filenames;
     }  // configure_ordinary_destinations
+
+    void ThreadSafeLogMessageLoggerScribe::configure_statistics_dest(edm::ParameterSet const& job_pset,
+                                                                     ConfigurableDefaults const& defaults,
+                                                                     vString const& categories,
+                                                                     edm::ParameterSet const& stat_pset,
+                                                                     std::string const& psetname,
+                                                                     std::string const& filename) {
+      auto os_p = m_stream_ps[filename];
+
+      auto stat = std::make_shared<ELstatistics>(*os_p);
+      m_admin_p->attach(stat);
+      m_statisticsDestControls.push_back(stat);
+      bool reset = getAparameter<bool>(stat_pset, "resetStatistics", false);
+      if (not reset) {
+        //check for old syntax
+        reset = getAparameter<bool>(stat_pset, "reset", false);
+      }
+      m_statisticsResets.push_back(reset);
+
+      // now configure this destination:
+      configure_dest(job_pset, defaults, categories, stat, stat_pset, psetname);
+
+      std::string dest_threshold = getAparameter<std::string>(stat_pset, "statisticsThreshold", std::string());
+      if (not dest_threshold.empty()) {
+        ELseverityLevel threshold_sev(dest_threshold);
+        stat->setThreshold(threshold_sev);
+
+        setGlobalThresholds(threshold_sev);
+      }
+
+      // and suppress the desire to do an extra termination summary just because
+      // of end-of-job info messages
+      stat->noTerminationSummary();
+    }
 
     void ThreadSafeLogMessageLoggerScribe::configure_statistics(edm::ParameterSet const& job_pset,
                                                                 ConfigurableDefaults const& defaults,
@@ -710,10 +768,7 @@ namespace edm {
       }
 
       // establish each statistics destination:
-      for (vString::const_iterator it = statistics.begin(); it != statistics.end(); ++it) {
-        std::string statname = *it;
-        const std::string& psetname = statname;
-
+      for (auto const& psetname : statistics) {
         // check that this destination is not just a placeholder // change log 20
         edm::ParameterSet stat_pset = getAparameter<edm::ParameterSet>(job_pset, psetname, empty_PSet);
         bool is_placeholder = getAparameter<bool>(stat_pset, "placeholder", false);
@@ -725,7 +780,7 @@ namespace edm {
         if (filename == empty_String) {
           filename = m_messageLoggerDefaults->output(psetname);  // change log 31
           if (filename == empty_String) {
-            filename = statname;
+            filename = psetname;
           }
         }
 
@@ -792,36 +847,12 @@ namespace edm {
           m_stream_ps[actual_filename] = os_p;
         } else {
           statistics_destination_is_real = true;  // change log 24
-          os_p = m_stream_ps[actual_filename];
         }
 
         if (statistics_destination_is_real) {  // change log 24
                                                // attach the statistics destination, keeping a control handle to it:
-          auto stat = std::make_shared<ELstatistics>(*os_p);
-          m_admin_p->attach(stat);
-          m_statisticsDestControls.push_back(stat);
-          bool reset = getAparameter<bool>(stat_pset, "resetStatistics", false);
-          if (not reset) {
-            //check for old syntax
-            reset = getAparameter<bool>(stat_pset, "reset", false);
-          }
-          m_statisticsResets.push_back(reset);
 
-          // now configure this destination:
-          edm::ParameterSet dest_pset = getAparameter<edm::ParameterSet>(job_pset, psetname, empty_PSet);
-          configure_dest(job_pset, defaults, categories, stat, dest_pset, psetname);
-
-          std::string dest_threshold = getAparameter<std::string>(stat_pset, "statisticsThreshold", empty_String);
-          if (dest_threshold != empty_String) {
-            ELseverityLevel threshold_sev(dest_threshold);
-            stat->setThreshold(threshold_sev);
-
-            setGlobalThresholds(threshold_sev);
-          }
-
-          // and suppress the desire to do an extra termination summary just because
-          // of end-of-job info messages
-          stat->noTerminationSummary();
+          configure_statistics_dest(job_pset, defaults, categories, stat_pset, psetname, actual_filename);
         }
 
       }  // for [it = statistics.begin() to end()]
@@ -877,7 +908,10 @@ namespace edm {
 
         edm::ParameterSetDescription category;
         category.addUntracked<int>("reportEvery", 1);
-        category.addUntracked<int>("limit", -1);
+        category.addUntracked<int>("limit", ThreadSafeLogMessageLoggerScribe::ConfigurableDefaults::NO_VALUE_SET)
+            ->setComment(
+                "Set a limit on the number of messages of this category. The default value is used to denote no "
+                "limit.");
         category.addOptionalUntracked<int>("timespan");
 
         edm::ParameterSetDescription destination_base;
@@ -902,26 +936,30 @@ namespace edm {
 
         edm::ParameterSetDescription destination_noStats(destination_base);
         destination_noStats.addUntracked<bool>("enableStatistics", false);
+        destination_noStats.addUntracked<bool>("resetStatistics", false);
 
         {
           edm::ParameterSetDescription default_pset;
           default_pset.addUntracked<int>("reportEvery", 1);
-          default_pset.addUntracked<int>("limit", -1);
+          default_pset.addUntracked<int>("limit", ThreadSafeLogMessageLoggerScribe::ConfigurableDefaults::NO_VALUE_SET)
+              ->setComment(
+                  "Set a limit on the number of messages of this category. The default value is used to denote no "
+                  "limit.");
           default_pset.addOptionalUntracked<int>("timespan");
           default_pset.addUntracked<bool>("noLineBreaks", false);
           default_pset.addUntracked<bool>("noTimeStamps", false);
           default_pset.addUntracked<int>("lineLength", 80);
           default_pset.addUntracked<std::string>("threshold", "INFO");
           default_pset.addUntracked<std::string>("statisticsThreshold", "INFO");
+          default_pset.addNode(catnode);
 
           edm::ParameterSetDescription cerr_destination(destination_base);
           cerr_destination.addUntracked<bool>("enableStatistics", true);
+          cerr_destination.addUntracked<bool>("resetStatistics", false);
           cerr_destination.addUntracked<bool>("enable", true);
-          //topDesc.addUntracked<edm::ParameterSetDescription>("cerr",cerr_destination);
 
           edm::ParameterSetDescription cout_destination(destination_noStats);
           cout_destination.addUntracked<bool>("enable", false);
-          //topDesc.addUntracked<edm::ParameterSetDescription>("cout",cout_destination);
 
           edm::ParameterSetDescription fileDestination(destination_noStats);
 
