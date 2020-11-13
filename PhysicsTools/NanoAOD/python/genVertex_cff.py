@@ -16,8 +16,10 @@ genVertexTable = cms.EDProducer("SimpleXYZPointFlatTableProducer",
 )
 
 genVertexT0Table = cms.EDProducer("GlobalVariablesTableProducer",
+    name = cms.string("GenVtx"),
+    extension = cms.bool(True), 
     variables = cms.PSet(
-        GenVtx_t0 = ExtVar( cms.InputTag("genParticles:t0"), "float", doc = "gen vertex t0", precision=12),
+        t0 = ExtVar( cms.InputTag("genParticles:t0"), "float", doc = "gen vertex t0", precision=12),
     )
 )
 
