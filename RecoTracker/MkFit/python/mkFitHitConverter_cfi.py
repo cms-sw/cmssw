@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoTracker.MkFit.mkFitInputConverterDefault_cfi import mkFitInputConverterDefault as _mkFitInputConverterDefault
+from RecoTracker.MkFit.mkFitHitConverterDefault_cfi import mkFitHitConverterDefault as _mkFitHitConverterDefault
 from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
 
-mkFitInputConverter = _mkFitInputConverterDefault.clone(
+mkFitHitConverter = _mkFitHitConverterDefault.clone(
     minGoodStripCharge = cms.PSet(
         refToPSet_ = cms.string('SiStripClusterChargeCutLoose'))
 )
