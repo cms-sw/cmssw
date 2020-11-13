@@ -516,7 +516,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             configtools.cloneProcessingSnippet(process, getattr(process,"producePatPFMETCorrections"), postfix, noClones = noClonesTmp, addToTask = True)
             addToProcessAndTask(_myPatMet,  getattr(process,'patPFMet').clone(), process, task)
             getattr(process, _myPatMet).metSource = cms.InputTag("pfMet"+postfix)
-            #getattr(process, _myPatMet).srcPFCands = copy.copy(self.getvalue("pfCandCollection"))
             getattr(process, _myPatMet).srcPFCands = "puppiForMET" if self.getvalue("Puppi") else copy.copy(self.getvalue("pfCandCollection"))
         if metType == "PF":
             from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
@@ -632,14 +631,13 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         #Txy parameter tuning
         if "Txy" in correctionLevel:
             self.tuneTxyParameters(process, corScheme, postfix)
-            getattr(process, "patPFMetTxyCorr"+postfix).srcPFlow = self._parameters["pfCandCollection"].value
+            getattr(process, "patPFMetTxyCorr"+postfix).srcPFlow = "puppiForMET" if self.getvalue("Puppi") else self._parameters["pfCandCollection"].value
 
 
         #Enable MET significance if the type1 MET is computed
         if "T1" in correctionLevel:
             _myPatMet = "pat"+metType+"Met"+postfix
             getattr(process, _myPatMet).computeMETSignificance = cms.bool(self.getvalue("computeMETSignificance"))
-            #getattr(process, _myPatMet).srcPFCands = copy.copy(self.getvalue("pfCandCollection"))
             getattr(process, _myPatMet).srcPFCands = "puppiForMET" if self.getvalue("Puppi") else copy.copy(self.getvalue("pfCandCollection"))
             from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
             run2_miniAOD_UL.toModify(getattr(process, _myPatMet), srcLeptons = \
@@ -664,7 +662,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if not self._parameters["onMiniAOD"].value and not postfix=="NoHF":
             _myPatMet = "patMETs"+postfix
             getattr(process, _myPatMet).computeMETSignificance = cms.bool(self.getvalue("computeMETSignificance"))
-            #getattr(process, _myPatMet).srcPFCands=copy.copy(self.getvalue("pfCandCollection"))
             getattr(process, _myPatMet).srcPFCands= "puppiForMET" if self.getvalue("Puppi") else copy.copy(self.getvalue("pfCandCollection"))
             from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
             run2_miniAOD_UL.toModify(getattr(process, _myPatMet), srcLeptons = \
@@ -839,7 +836,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
             #Jet projection ==
             pfCandsNoJets = cms.EDProducer("CandPtrProjector",
-                                           #src = pfCandCollection,
                                            src = cms.InputTag("puppiForMET") if self.getvalue("Puppi") else copy.copy(self.getvalue("pfCandCollection")),
                                            veto = copy.copy(jetCollection),
                                            useDeltaRforFootprint = cms.bool(False)
@@ -1217,6 +1213,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             #MM: FIXME MVA
             #if  "MVA" in metModName and identifier == "Jet": #dummy fix
             #    modName = "uncorrectedshiftedPat"+preId+identifier+varType+mod+postfix
+            if (identifier=="Photon" or identifier=="Unclustered") and self.getvalue("Puppi"):
+                shiftedCollModules[mod].srcWeights = cms.InputTag("puppiForMet")
             if not hasattr(process, modName):
                 addToProcessAndTask(modName, shiftedCollModules[mod], process, task)
                 metUncSequence += getattr(process, modName)
@@ -1228,6 +1226,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             if "PF" in metModName:
                 #create the MET shifts and add them to the sequence
                 shiftedMETCorrModule = self.createShiftedMETModule(process, objectCollection, modName)
+                if (identifier=="Photon" or identifier=="Unclustered") and self.getvalue("Puppi"):
+                    shiftedMETCorrModule.srcWeights = cms.InputTag("puppiForMet")
                 modMETShiftName = "shiftedPatMETCorr"+preId+identifier+varType+mod+postfix
                 if not hasattr(process, modMETShiftName):
                     addToProcessAndTask(modMETShiftName, shiftedMETCorrModule, process, task)
@@ -1482,7 +1482,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             #raw MET
             from RecoMET.METProducers.PFMET_cfi import pfMet
             addToProcessAndTask("pfMet"+postfix, pfMet.clone(), process, task)
-            getattr(process, "pfMet"+postfix).src = pfCandCollection
+            getattr(process, "pfMet"+postfix).src = "puppiForMET" if self.getvalue("Puppi") else pfCandCollection
             getattr(process, "pfMet"+postfix).calculateSignificance = False
             patMetModuleSequence += getattr(process, "pfMet"+postfix)
 
