@@ -2,7 +2,6 @@
 #include "EventFilter/L1TRawToDigi/plugins/PackingSetupFactory.h"
 #include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
 
-#include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/MuonPacker.h"
 #include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/MuonUnpacker.h"
 #include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/EGammaUnpacker.h"
 #include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/EtSumUnpacker.h"
@@ -32,17 +31,15 @@ namespace l1t {
 
       if (fed == 1404) {
         // Use board id 1 for packing
-        auto gt_muon_packer =
-            static_pointer_cast<l1t::stage2::GTMuonPacker>(PackerFactory::get()->make("stage2::GTMuonPacker"));
-        gt_muon_packer->setFed(fed);
-        gt_muon_packer->setFwVersion(fw);
-        res[{1, 1}] = {gt_muon_packer,
-                       PackerFactory::get()->make("stage2::GTEGammaPacker"),
-                       PackerFactory::get()->make("stage2::GTEtSumPacker"),
-                       PackerFactory::get()->make("stage2::GTJetPacker"),
-                       PackerFactory::get()->make("stage2::GTTauPacker"),
-                       PackerFactory::get()->make("stage2::GlobalAlgBlkPacker"),
-                       PackerFactory::get()->make("stage2::GlobalExtBlkPacker")};
+        res[{1, 1}] = {
+
+            PackerFactory::get()->make("stage2::GTMuonPacker"),
+            PackerFactory::get()->make("stage2::GTEGammaPacker"),
+            PackerFactory::get()->make("stage2::GTEtSumPacker"),
+            PackerFactory::get()->make("stage2::GTJetPacker"),
+            PackerFactory::get()->make("stage2::GTTauPacker"),
+            PackerFactory::get()->make("stage2::GlobalAlgBlkPacker"),
+            PackerFactory::get()->make("stage2::GlobalExtBlkPacker")};
       }
 
       return res;

@@ -75,12 +75,8 @@ def L1TReEmulFromRAW2015(process):
         srcCSC = "csctfDigis"
     )
     stage2L1Trigger.toModify(process.simBmtfDigis,
-       DTDigi_Source         = "simTwinMuxDigis",
-       DTDigi_Theta_Source   = "dttfDigis"
-    )
-    stage2L1Trigger.toModify(process.simKBmtfStubs,
-        srcPhi     = "simTwinMuxDigis",
-        srcTheta   = "dttfDigis"
+        DTDigi_Source         = "simTwinMuxDigis",
+        DTDigi_Theta_Source   = "dttfDigis"
     )
     stage2L1Trigger.toModify(process.simEmtfDigis,
         CSCInput = "csctfDigis",
@@ -145,13 +141,8 @@ def L1TReEmulFromRAW2016(process):
     )
     # BMTF
     stage2L1Trigger.toModify(process.simBmtfDigis,
-       DTDigi_Source         = "simTwinMuxDigis",
-       DTDigi_Theta_Source   = "bmtfDigis"
-    )
-    # KBMTF
-    stage2L1Trigger.toModify(process.simKBmtfStubs,
-       srcPhi       = 'simTwinMuxDigis',
-       srcTheta     = 'bmtfDigis'
+        DTDigi_Source       = 'simTwinMuxDigis',
+        DTDigi_Theta_Source = 'bmtfDigis'
     )
     # OMTF
     stage2L1Trigger.toModify(process.simOmtfDigis,
@@ -299,11 +290,6 @@ def L1TReEmulFromRAWsimTP(process):
     stage2L1Trigger.toModify(process.simBmtfDigis,
         DTDigi_Source         = 'simTwinMuxDigis',
         DTDigi_Theta_Source   = 'simDtTriggerPrimitiveDigis'
-    )
-    # KBMTF
-    stage2L1Trigger.toModify(process.simKBmtfStubs,
-        srcPhi     = "simTwinMuxDigis",
-        srcTheta   = "simDtTriggerPrimitiveDigis"
     )
     # OMTF
     stage2L1Trigger.toModify(process.simOmtfDigis,
