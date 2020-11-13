@@ -2,7 +2,8 @@
 #define RecoTracker_MkFit_classes_h
 
 #include "DataFormats/Common/interface/Wrapper.h"
-#include "RecoTracker/MkFit/interface/MkFitInputWrapper.h"
+#include "RecoTracker/MkFit/interface/MkFitHitWrapper.h"
+#include "RecoTracker/MkFit/interface/MkFitSeedWrapper.h"
 #include "RecoTracker/MkFit/interface/MkFitOutputWrapper.h"
 
 #endif

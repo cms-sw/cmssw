@@ -28,7 +28,8 @@
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/MaterialEffects/src/PropagatorWithMaterial.cc"
 
-#include "RecoTracker/MkFit/interface/MkFitInputWrapper.h"
+#include "RecoTracker/MkFit/interface/MkFitHitWrapper.h"
+#include "RecoTracker/MkFit/interface/MkFitSeedWrapper.h"
 #include "RecoTracker/MkFit/interface/MkFitOutputWrapper.h"
 #include "RecoTracker/MkFit/interface/MkFitGeometry.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
@@ -84,7 +85,8 @@ private:
                                                                             const Propagator& propagatorAlong,
                                                                             const Propagator& propagatorOpposite) const;
 
-  edm::EDGetTokenT<MkFitInputWrapper> hitsSeedsToken_;
+  const edm::EDGetTokenT<MkFitHitWrapper> mkfitHitToken_;
+  const edm::EDGetTokenT<MkFitSeedWrapper> mkfitSeedToken_;
   edm::EDGetTokenT<MkFitOutputWrapper> tracksToken_;
   edm::EDGetTokenT<edm::View<TrajectorySeed>> seedToken_;
   edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorAlongToken_;
@@ -101,7 +103,8 @@ private:
 };
 
 MkFitOutputConverter::MkFitOutputConverter(edm::ParameterSet const& iConfig)
-    : hitsSeedsToken_{consumes<MkFitInputWrapper>(iConfig.getParameter<edm::InputTag>("hitsSeeds"))},
+    : mkfitHitToken_{consumes<MkFitHitWrapper>(iConfig.getParameter<edm::InputTag>("mkfitHits"))},
+      mkfitSeedToken_{consumes<MkFitSeedWrapper>(iConfig.getParameter<edm::InputTag>("mkfitSeeds"))},
       tracksToken_{consumes<MkFitOutputWrapper>(iConfig.getParameter<edm::InputTag>("tracks"))},
       seedToken_{consumes<edm::View<TrajectorySeed>>(iConfig.getParameter<edm::InputTag>("seeds"))},
       propagatorAlongToken_{
@@ -119,7 +122,8 @@ MkFitOutputConverter::MkFitOutputConverter(edm::ParameterSet const& iConfig)
 void MkFitOutputConverter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
-  desc.add("hitsSeeds", edm::InputTag{"mkFitInputConverter"});
+  desc.add("mkfitHits", edm::InputTag{"mkFitHitConverter"});
+  desc.add("mkfitSeeds", edm::InputTag{"mkFitSeedConverter"});
   desc.add("tracks", edm::InputTag{"mkFitProducer"});
   desc.add("seeds", edm::InputTag{"initialStepSeeds"});
   desc.add("ttrhBuilder", edm::ESInputTag{"", "WithTrackAngle"});
@@ -133,7 +137,8 @@ void MkFitOutputConverter::fillDescriptions(edm::ConfigurationDescriptions& desc
 
 void MkFitOutputConverter::produce(edm::StreamID iID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   const auto& seeds = iEvent.get(seedToken_);
-  const auto& hitsSeeds = iEvent.get(hitsSeedsToken_);
+  const auto& mkfitHits = iEvent.get(mkfitHitToken_);
+  const auto& mkfitSeeds = iEvent.get(mkfitSeedToken_);
 
   const auto& ttrhBuilder = iSetup.getData(ttrhBuilderToken_);
   const auto* tkBuilder = dynamic_cast<TkTransientTrackingRecHitBuilder const*>(&ttrhBuilder);
@@ -145,14 +150,14 @@ void MkFitOutputConverter::produce(edm::StreamID iID, edm::Event& iEvent, const 
   // Convert mkfit presentation back to CMSSW
   iEvent.emplace(putTrackCandidateToken_,
                  convertCandidates(iEvent.get(tracksToken_),
-                                   hitsSeeds.hitIndexMap(),
+                                   mkfitHits.hitIndexMap(),
                                    seeds,
                                    iSetup.getData(mfToken_),
                                    iSetup.getData(propagatorAlongToken_),
                                    iSetup.getData(propagatorOppositeToken_),
                                    tkBuilder->cloner(),
                                    mkFitGeom.detLayers(),
-                                   hitsSeeds.seeds()));
+                                   mkfitSeeds.seeds()));
 
   // TODO: SeedStopInfo is currently unfilled
   iEvent.emplace(putSeedStopInfoToken_, seeds.size());

@@ -18,10 +18,7 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
-#include "RecoTracker/MkFit/interface/MkFitInputWrapper.h"
+#include "RecoTracker/MkFit/interface/MkFitHitWrapper.h"
 #include "RecoTracker/MkFit/interface/MkFitGeometry.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 
@@ -31,13 +28,12 @@
 
 // mkFit includes
 #include "Hit.h"
-#include "Track.h"
 #include "LayerNumberConverter.h"
 
-class MkFitInputConverter : public edm::global::EDProducer<> {
+class MkFitHitConverter : public edm::global::EDProducer<> {
 public:
-  explicit MkFitInputConverter(edm::ParameterSet const& iConfig);
-  ~MkFitInputConverter() override = default;
+  explicit MkFitHitConverter(edm::ParameterSet const& iConfig);
+  ~MkFitHitConverter() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -62,11 +58,6 @@ private:
   void setDetails(mkfit::Hit& mhit, const SiPixelCluster& cluster, const int shortId, std::nullptr_t) const;
   void setDetails(mkfit::Hit& mhit, const SiStripCluster& cluster, const int shortId, float charge) const;
 
-  mkfit::TrackVec convertSeeds(const edm::View<TrajectorySeed>& seeds,
-                               const MkFitHitIndexMap& hitIndexMap,
-                               const TransientTrackingRecHitBuilder& ttrhBuilder,
-                               const MagneticField& mf) const;
-
   using SVector3 = ROOT::Math::SVector<float, 3>;
   using SMatrixSym33 = ROOT::Math::SMatrix<float, 3, 3, ROOT::Math::MatRepSym<float, 3>>;
   using SMatrixSym66 = ROOT::Math::SMatrix<float, 6, 6, ROOT::Math::MatRepSym<float, 6>>;
@@ -74,48 +65,43 @@ private:
   edm::EDGetTokenT<SiPixelRecHitCollection> pixelRecHitToken_;
   edm::EDGetTokenT<SiStripRecHit2DCollection> stripRphiRecHitToken_;
   edm::EDGetTokenT<SiStripRecHit2DCollection> stripStereoRecHitToken_;
-  edm::EDGetTokenT<edm::View<TrajectorySeed>> seedToken_;
   edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> ttrhBuilderToken_;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> ttopoToken_;
-  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> mfToken_;
   edm::ESGetToken<MkFitGeometry, TrackerRecoGeometryRecord> mkFitGeomToken_;
-  edm::EDPutTokenT<MkFitInputWrapper> putToken_;
+  edm::EDPutTokenT<MkFitHitWrapper> putToken_;
   const float minGoodStripCharge_;
 };
 
-MkFitInputConverter::MkFitInputConverter(edm::ParameterSet const& iConfig)
+MkFitHitConverter::MkFitHitConverter(edm::ParameterSet const& iConfig)
     : pixelRecHitToken_{consumes<SiPixelRecHitCollection>(iConfig.getParameter<edm::InputTag>("pixelRecHits"))},
       stripRphiRecHitToken_{
           consumes<SiStripRecHit2DCollection>(iConfig.getParameter<edm::InputTag>("stripRphiRecHits"))},
       stripStereoRecHitToken_{
           consumes<SiStripRecHit2DCollection>(iConfig.getParameter<edm::InputTag>("stripStereoRecHits"))},
-      seedToken_{consumes<edm::View<TrajectorySeed>>(iConfig.getParameter<edm::InputTag>("seeds"))},
       ttrhBuilderToken_{esConsumes<TransientTrackingRecHitBuilder, TransientRecHitRecord>(
           iConfig.getParameter<edm::ESInputTag>("ttrhBuilder"))},
       ttopoToken_{esConsumes<TrackerTopology, TrackerTopologyRcd>()},
-      mfToken_{esConsumes<MagneticField, IdealMagneticFieldRecord>()},
       mkFitGeomToken_{esConsumes<MkFitGeometry, TrackerRecoGeometryRecord>()},
-      putToken_{produces<MkFitInputWrapper>()},
+      putToken_{produces<MkFitHitWrapper>()},
       minGoodStripCharge_{static_cast<float>(
           iConfig.getParameter<edm::ParameterSet>("minGoodStripCharge").getParameter<double>("value"))} {}
 
-void MkFitInputConverter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void MkFitHitConverter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
   desc.add("pixelRecHits", edm::InputTag{"siPixelRecHits"});
   desc.add("stripRphiRecHits", edm::InputTag{"siStripMatchedRecHits", "rphiRecHit"});
   desc.add("stripStereoRecHits", edm::InputTag{"siStripMatchedRecHits", "stereoRecHit"});
-  desc.add("seeds", edm::InputTag{"initialStepSeeds"});
   desc.add("ttrhBuilder", edm::ESInputTag{"", "WithTrackAngle"});
 
   edm::ParameterSetDescription descCCC;
   descCCC.add<double>("value");
   desc.add("minGoodStripCharge", descCCC);
 
-  descriptions.add("mkFitInputConverterDefault", desc);
+  descriptions.add("mkFitHitConverterDefault", desc);
 }
 
-void MkFitInputConverter::produce(edm::StreamID iID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
+void MkFitHitConverter::produce(edm::StreamID iID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   // Then import hits
   const auto& ttrhBuilder = iSetup.getData(ttrhBuilderToken_);
   const auto& ttopo = iSetup.getData(ttopoToken_);
@@ -129,37 +115,34 @@ void MkFitInputConverter::produce(edm::StreamID iID, edm::Event& iEvent, const e
   convertHits(iEvent.get(stripStereoRecHitToken_), mkFitHits, hitIndexMap, totalHits, ttopo, ttrhBuilder, mkFitGeom);
   convertHits(iEvent.get(pixelRecHitToken_), mkFitHits, hitIndexMap, totalHits, ttopo, ttrhBuilder, mkFitGeom);
 
-  // Then import seeds
-  auto mkFitSeeds = convertSeeds(iEvent.get(seedToken_), hitIndexMap, ttrhBuilder, iSetup.getData(mfToken_));
-
-  iEvent.emplace(putToken_, std::move(hitIndexMap), std::move(mkFitHits), std::move(mkFitSeeds));
+  iEvent.emplace(putToken_, std::move(hitIndexMap), std::move(mkFitHits));
 }
 
-float MkFitInputConverter::clusterCharge(const SiStripRecHit2D& hit, DetId hitId) const {
+float MkFitHitConverter::clusterCharge(const SiStripRecHit2D& hit, DetId hitId) const {
   return siStripClusterTools::chargePerCM(hitId, hit.firstClusterRef().stripCluster());
 }
-std::nullptr_t MkFitInputConverter::clusterCharge(const SiPixelRecHit& hit, DetId hitId) const { return nullptr; }
+std::nullptr_t MkFitHitConverter::clusterCharge(const SiPixelRecHit& hit, DetId hitId) const { return nullptr; }
 
-bool MkFitInputConverter::passCCC(float charge) const { return charge > minGoodStripCharge_; }
+bool MkFitHitConverter::passCCC(float charge) const { return charge > minGoodStripCharge_; }
 
-bool MkFitInputConverter::passCCC(std::nullptr_t) const { return true; }
+bool MkFitHitConverter::passCCC(std::nullptr_t) const { return true; }
 
-void MkFitInputConverter::setDetails(mkfit::Hit& mhit, const SiPixelCluster& cluster, int shortId, std::nullptr_t) const {
+void MkFitHitConverter::setDetails(mkfit::Hit& mhit, const SiPixelCluster& cluster, int shortId, std::nullptr_t) const {
   mhit.setupAsPixel(shortId, cluster.sizeX(), cluster.sizeY());
 }
 
-void MkFitInputConverter::setDetails(mkfit::Hit& mhit, const SiStripCluster& cluster, int shortId, float charge) const {
+void MkFitHitConverter::setDetails(mkfit::Hit& mhit, const SiStripCluster& cluster, int shortId, float charge) const {
   mhit.setupAsStrip(shortId, charge, cluster.amplitudes().size());
 }
 
 template <typename HitCollection>
-void MkFitInputConverter::convertHits(const HitCollection& hits,
-                                      std::vector<mkfit::HitVec>& mkFitHits,
-                                      MkFitHitIndexMap& hitIndexMap,
-                                      int& totalHits,
-                                      const TrackerTopology& ttopo,
-                                      const TransientTrackingRecHitBuilder& ttrhBuilder,
-                                      const MkFitGeometry& mkFitGeom) const {
+void MkFitHitConverter::convertHits(const HitCollection& hits,
+                                    std::vector<mkfit::HitVec>& mkFitHits,
+                                    MkFitHitIndexMap& hitIndexMap,
+                                    int& totalHits,
+                                    const TrackerTopology& ttopo,
+                                    const TransientTrackingRecHitBuilder& ttrhBuilder,
+                                    const MkFitGeometry& mkFitGeom) const {
   if (hits.empty())
     return;
   auto isPlusSide = [&ttopo](const DetId& detid) {
@@ -202,9 +185,9 @@ void MkFitInputConverter::convertHits(const HitCollection& hits,
       err.At(0, 2) = gerr.czx();
       err.At(1, 2) = gerr.czy();
 
-      LogTrace("MkFitInputConverter") << "Adding hit detid " << detid.rawId() << " subdet " << subdet << " layer "
-                                      << layer << " isStereo " << isStereo << " zplus " << isPlusSide(detid) << " ilay "
-                                      << ilay;
+      LogTrace("MkFitHitConverter") << "Adding hit detid " << detid.rawId() << " subdet " << subdet << " layer "
+                                    << layer << " isStereo " << isStereo << " zplus " << isPlusSide(detid) << " ilay "
+                                    << ilay;
 
       hitIndexMap.insert(hit.firstClusterRef().id(),
                          hit.firstClusterRef().index(),
@@ -217,48 +200,4 @@ void MkFitInputConverter::convertHits(const HitCollection& hits,
   }
 }
 
-mkfit::TrackVec MkFitInputConverter::convertSeeds(const edm::View<TrajectorySeed>& seeds,
-                                                  const MkFitHitIndexMap& hitIndexMap,
-                                                  const TransientTrackingRecHitBuilder& ttrhBuilder,
-                                                  const MagneticField& mf) const {
-  mkfit::TrackVec ret;
-  ret.reserve(seeds.size());
-  int index = 0;
-  for (const auto& seed : seeds) {
-    auto const& hitRange = seed.recHits();
-    const auto lastRecHit = ttrhBuilder.build(&*(hitRange.end() - 1));
-    const auto tsos = trajectoryStateTransform::transientState(seed.startingState(), lastRecHit->surface(), &mf);
-    const auto& stateGlobal = tsos.globalParameters();
-    const auto& gpos = stateGlobal.position();
-    const auto& gmom = stateGlobal.momentum();
-    SVector3 pos(gpos.x(), gpos.y(), gpos.z());
-    SVector3 mom(gmom.x(), gmom.y(), gmom.z());
-
-    const auto cartError = tsos.cartesianError();  // returns a temporary, so can't chain with the following line
-    const auto& cov = cartError.matrix();
-    SMatrixSym66 err;
-    for (int i = 0; i < 6; ++i) {
-      for (int j = i; j < 6; ++j) {
-        err.At(i, j) = cov[i][j];
-      }
-    }
-
-    mkfit::TrackState state(tsos.charge(), pos, mom, err);
-    state.convertFromCartesianToCCS();
-    ret.emplace_back(state, 0, index, 0, nullptr);
-
-    // Add hits
-    for (auto const& recHit : hitRange) {
-      if (not trackerHitRTTI::isFromDet(recHit)) {
-        throw cms::Exception("Assert") << "Encountered a seed with a hit which is not trackerHitRTTI::isFromDet()";
-      }
-      const auto& clusterRef = static_cast<const BaseTrackerRecHit&>(recHit).firstClusterRef();
-      const auto& mkFitHit = hitIndexMap.mkFitHit(clusterRef.id(), clusterRef.index());
-      ret.back().addHitIdx(mkFitHit.index(), mkFitHit.layer(), 0);  // per-hit chi2 is not known
-    }
-    ++index;
-  }
-  return ret;
-}
-
-DEFINE_FWK_MODULE(MkFitInputConverter);
+DEFINE_FWK_MODULE(MkFitHitConverter);
