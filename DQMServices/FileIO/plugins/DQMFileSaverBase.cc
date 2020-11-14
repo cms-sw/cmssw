@@ -8,6 +8,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
+#include "DataFormats/Histograms/interface/DQMToken.h"
 
 #include "DQMFileSaverBase.h"
 
@@ -37,6 +38,12 @@ DQMFileSaverBase::DQMFileSaverBase(const edm::ParameterSet &ps) {
 
   std::unique_lock<std::mutex> lck(initial_fp_lock_);
   initial_fp_ = fp;
+
+  runNumber_ = ps.getUntrackedParameter<int>("runNumber", 111);
+
+  // This makes sure a file saver runs in a very end
+  consumesMany<DQMToken, edm::InLumi>();
+  consumesMany<DQMToken, edm::InRun>();
 }
 
 DQMFileSaverBase::~DQMFileSaverBase() = default;
@@ -65,7 +72,7 @@ void DQMFileSaverBase::globalEndLuminosityBlock(const edm::LuminosityBlock &iLS,
   lck.unlock();
 
   fp.lumi_ = ilumi;
-  fp.run_ = irun;
+  fp.run_ = runNumber_ == 111 ? irun : runNumber_;
 
   this->saveLumi(fp);
 }
@@ -75,7 +82,7 @@ void DQMFileSaverBase::globalEndRun(const edm::Run &iRun, const edm::EventSetup 
   FileParameters fp = initial_fp_;
   lck.unlock();
 
-  fp.run_ = iRun.id().run();
+  fp.run_ = runNumber_ == 111 ? iRun.id().run() : runNumber_;
 
   // empty
   this->saveRun(fp);
@@ -140,4 +147,7 @@ void DQMFileSaverBase::fillDescription(edm::ParameterSetDescription &desc) {
       ->setComment("saveReference_, passed to the DQMStore");
 
   desc.addUntracked<std::string>("path", "./")->setComment("Output path prefix.");
+
+  desc.addUntracked<int>("runNumber", 111)
+      ->setComment("Run number passed in the configuration. Will appear in output file names.");
 }

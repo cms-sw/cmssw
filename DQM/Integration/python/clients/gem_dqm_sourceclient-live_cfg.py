@@ -11,14 +11,19 @@ if 'unitTest=True' in sys.argv:
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 
+if unitTest:
+  process.load("DQM.Integration.config.unittestinputsource_cfi")
+  from DQM.Integration.config.unittestinputsource_cfi import options
+else:
+  process.load("DQM.Integration.config.inputsource_cfi")
+  from DQM.Integration.config.inputsource_cfi import options
+  
 process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = "GEM"
 process.dqmSaver.tag = "GEM"
-
-if unitTest:
-  process.load("DQM.Integration.config.unittestinputsource_cfi")
-else:
-  process.load("DQM.Integration.config.inputsource_cfi")
+process.dqmSaver.runNumber = options.runNumber
+process.dqmSaverPB.tag = "GEM"
+process.dqmSaverPB.runNumber = options.runNumber
 
 process.load("DQMServices.Components.DQMProvInfo_cfi")
 
@@ -41,7 +46,8 @@ process.path = cms.Path(
 
 process.end_path = cms.EndPath(
   process.dqmEnv +
-  process.dqmSaver
+  process.dqmSaver +
+  process.dqmSaverPB
 )
 
 process.schedule = cms.Schedule(

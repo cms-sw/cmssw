@@ -34,13 +34,16 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 if (unitTest):
     process.load("DQM.Integration.config.unittestinputsource_cfi")
+    from DQM.Integration.config.unittestinputsource_cfi import options
 
 elif (live):
     process.load("DQM.Integration.config.inputsource_cfi")
+    from DQM.Integration.config.inputsource_cfi import options
 
 # for testing in lxplus
 elif(offlineTesting):
     process.load("DQM.Integration.config.fileinputsource_cfi")
+    from DQM.Integration.config.fileinputsource_cfi import options
 
 #-----------------------------
 # DQM Environment
@@ -56,6 +59,9 @@ process.load("DQM.Integration.config.environment_cfi")
 
 process.dqmEnv.subSystemFolder = TAG
 process.dqmSaver.tag = TAG
+process.dqmSaver.runNumber = options.runNumber
+process.dqmSaverPB.tag = TAG
+process.dqmSaverPB.runNumber = options.runNumber
 
 
 #-----------------------------
@@ -160,7 +166,7 @@ process.hltHighLevel.throw =  cms.bool(False)
 # Scheduling
 #--------------------------
 
-process.DQMmodules = cms.Sequence(process.dqmEnv* process.dqmSaver)
+process.DQMmodules = cms.Sequence(process.dqmEnv* process.dqmSaver*process.dqmSaverPB)
 
 process.RecoForDQM_LocalReco = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.gtDigis*process.trackerlocalreco)
 

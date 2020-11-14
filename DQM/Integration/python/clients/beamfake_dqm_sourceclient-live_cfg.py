@@ -52,6 +52,9 @@ process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",
 process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'FakeBeamMonitor'
 process.dqmSaver.tag           = 'FakeBeamMonitor'
+process.dqmSaver.runNumber     = options.runNumber
+process.dqmSaverPB.tag         = 'FakeBeamMonitor'
+process.dqmSaverPB.runNumber   = options.runNumber
 
 
 #---------------
@@ -81,7 +84,7 @@ process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 #-----------------
 
 process.dqmcommon = cms.Sequence(process.dqmEnv
-                               * process.dqmSaver)
+                               * process.dqmSaver*process.dqmSaverPB)
 
 #
 process.monitor = cms.Sequence(process.dqmFakeBeamMonitor
