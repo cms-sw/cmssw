@@ -43,6 +43,13 @@
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
+#include "DataFormats/L1TCorrelator/interface/TkMuon.h"
+#include "DataFormats/L1TCorrelator/interface/TkMuonFwd.h"
+#include "DataFormats/L1TCorrelator/interface/TkElectron.h"
+#include "DataFormats/L1TCorrelator/interface/TkElectronFwd.h"
+#include "DataFormats/L1TCorrelator/interface/TkEm.h"
+#include "DataFormats/L1TCorrelator/interface/TkEmFwd.h"
+#include "DataFormats/L1TParticleFlow/interface/PFJet.h"
 
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
@@ -73,8 +80,12 @@ namespace trigger {
   typedef std::vector<l1extra::L1HFRingsRef> VRl1hfrings;        //deprecate
 
   typedef l1t::MuonVectorRef VRl1tmuon;
+  typedef l1t::TkMuonVectorRef VRl1tkmuon;
   typedef l1t::EGammaVectorRef VRl1tegamma;
+  typedef l1t::TkElectronVectorRef VRl1tkele;
+  typedef l1t::TkEmVectorRef VRl1tkem;
   typedef l1t::JetVectorRef VRl1tjet;
+  typedef l1t::PFJetVectorRef VRl1tpfjet;
   typedef l1t::TauVectorRef VRl1ttau;
   typedef l1t::EtSumVectorRef VRl1tetsum;
 
@@ -116,10 +127,18 @@ namespace trigger {
 
     Vids l1tmuonIds_;
     VRl1tmuon l1tmuonRefs_;
+    Vids l1tkmuonIds_;
+    VRl1tkmuon l1tkmuonRefs_;
     Vids l1tegammaIds_;
     VRl1tegamma l1tegammaRefs_;
+    Vids l1tkeleIds_;
+    VRl1tkele l1tkeleRefs_;
+    Vids l1tkemIds_;
+    VRl1tkem l1tkemRefs_;
     Vids l1tjetIds_;
     VRl1tjet l1tjetRefs_;
+    Vids l1tpfjetIds_;
+    VRl1tpfjet l1tpfjetRefs_;
     Vids l1ttauIds_;
     VRl1ttau l1ttauRefs_;
     Vids l1tetsumIds_;
@@ -166,10 +185,18 @@ namespace trigger {
 
           l1tmuonIds_(),
           l1tmuonRefs_(),
+          l1tkmuonIds_(),
+          l1tkmuonRefs_(),
           l1tegammaIds_(),
           l1tegammaRefs_(),
+          l1tkeleIds_(),
+          l1tkeleRefs_(),
+          l1tkemIds_(),
+          l1tkemRefs_(),
           l1tjetIds_(),
           l1tjetRefs_(),
+          l1tpfjetIds_(),
+          l1tpfjetRefs_(),
           l1ttauIds_(),
           l1ttauRefs_(),
           l1tetsumIds_(),
@@ -214,10 +241,18 @@ namespace trigger {
 
       std::swap(l1tmuonIds_, other.l1tmuonIds_);
       std::swap(l1tmuonRefs_, other.l1tmuonRefs_);
+      std::swap(l1tkmuonIds_, other.l1tkmuonIds_);
+      std::swap(l1tkmuonRefs_, other.l1tkmuonRefs_);
       std::swap(l1tegammaIds_, other.l1tegammaIds_);
       std::swap(l1tegammaRefs_, other.l1tegammaRefs_);
+      std::swap(l1tkeleIds_, other.l1tkeleIds_);
+      std::swap(l1tkeleRefs_, other.l1tkeleRefs_);
+      std::swap(l1tkemIds_, other.l1tkemIds_);
+      std::swap(l1tkemRefs_, other.l1tkemRefs_);
       std::swap(l1tjetIds_, other.l1tjetIds_);
       std::swap(l1tjetRefs_, other.l1tjetRefs_);
+      std::swap(l1tpfjetIds_, other.l1tpfjetIds_);
+      std::swap(l1tpfjetRefs_, other.l1tpfjetRefs_);
       std::swap(l1ttauIds_, other.l1ttauIds_);
       std::swap(l1ttauRefs_, other.l1ttauRefs_);
       std::swap(l1tetsumIds_, other.l1tetsumIds_);
@@ -289,13 +324,29 @@ namespace trigger {
       l1tmuonIds_.push_back(id);
       l1tmuonRefs_.push_back(ref);
     }
+     void addObject(int id, const l1t::TkMuonRef& ref) {
+      l1tkmuonIds_.push_back(id);
+      l1tkmuonRefs_.push_back(ref);
+    }
     void addObject(int id, const l1t::EGammaRef& ref) {
       l1tegammaIds_.push_back(id);
       l1tegammaRefs_.push_back(ref);
     }
+    void addObject(int id, const l1t::TkElectronRef& ref) {
+      l1tkeleIds_.push_back(id);
+      l1tkeleRefs_.push_back(ref);
+    }
+    void addObject(int id, const l1t::TkEmRef& ref) {
+      l1tkemIds_.push_back(id);
+      l1tkemRefs_.push_back(ref);
+    }
     void addObject(int id, const l1t::JetRef& ref) {
       l1tjetIds_.push_back(id);
       l1tjetRefs_.push_back(ref);
+    }
+    void addObject(int id, const l1t::PFJetRef& ref) {
+      l1tpfjetIds_.push_back(id);
+      l1tpfjetRefs_.push_back(ref);
     }
     void addObject(int id, const l1t::TauRef& ref) {
       l1ttauIds_.push_back(id);
@@ -398,17 +449,41 @@ namespace trigger {
       l1tmuonRefs_.insert(l1tmuonRefs_.end(), refs.begin(), refs.end());
       return l1tmuonIds_.size();
     }
+     size_type addObjects(const Vids& ids, const VRl1tkmuon& refs) {
+      assert(ids.size() == refs.size());
+      l1tkmuonIds_.insert(l1tkmuonIds_.end(), ids.begin(), ids.end());
+      l1tkmuonRefs_.insert(l1tkmuonRefs_.end(), refs.begin(), refs.end());
+      return l1tkmuonIds_.size();
+    }
     size_type addObjects(const Vids& ids, const VRl1tegamma& refs) {
       assert(ids.size() == refs.size());
       l1tegammaIds_.insert(l1tegammaIds_.end(), ids.begin(), ids.end());
       l1tegammaRefs_.insert(l1tegammaRefs_.end(), refs.begin(), refs.end());
       return l1tegammaIds_.size();
     }
+    size_type addObjects(const Vids& ids, const VRl1tkele& refs) {
+      assert(ids.size() == refs.size());
+      l1tkeleIds_.insert(l1tkeleIds_.end(), ids.begin(), ids.end());
+      l1tkeleRefs_.insert(l1tkeleRefs_.end(), refs.begin(), refs.end());
+      return l1tkeleIds_.size();
+    }
+    size_type addObjects(const Vids& ids, const VRl1tkem& refs) {
+      assert(ids.size() == refs.size());
+      l1tkemIds_.insert(l1tkemIds_.end(), ids.begin(), ids.end());
+      l1tkemRefs_.insert(l1tkemRefs_.end(), refs.begin(), refs.end());
+      return l1tkemIds_.size();
+    }
     size_type addObjects(const Vids& ids, const VRl1tjet& refs) {
       assert(ids.size() == refs.size());
       l1tjetIds_.insert(l1tjetIds_.end(), ids.begin(), ids.end());
       l1tjetRefs_.insert(l1tjetRefs_.end(), refs.begin(), refs.end());
       return l1tjetIds_.size();
+    }
+    size_type addObjects(const Vids& ids, const VRl1tpfjet& refs) {
+      assert(ids.size() == refs.size());
+      l1tpfjetIds_.insert(l1tpfjetIds_.end(), ids.begin(), ids.end());
+      l1tpfjetRefs_.insert(l1tpfjetRefs_.end(), refs.begin(), refs.end());
+      return l1tpfjetIds_.size();
     }
     size_type addObjects(const Vids& ids, const VRl1ttau& refs) {
       assert(ids.size() == refs.size());
@@ -939,6 +1014,41 @@ namespace trigger {
       return;
     }
 
+    void getObjects(Vids& ids, VRl1tkmuon& refs) const { getObjects(ids, refs, 0, l1tkmuonIds_.size()); }
+    void getObjects(Vids& ids, VRl1tkmuon& refs, size_type begin, size_type end) const {
+      assert(begin <= end);
+      assert(end <= l1tkmuonIds_.size());
+      const size_type n(end - begin);
+      ids.resize(n);
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i = begin; i != end; ++i) {
+        ids[j] = l1tkmuonIds_[i];
+        refs[j] = l1tkmuonRefs_[i];
+        ++j;
+      }
+    }
+    void getObjects(int id, VRl1tkmuon& refs) const { getObjects(id, refs, 0, l1tkmuonIds_.size()); }
+    void getObjects(int id, VRl1tkmuon& refs, size_type begin, size_type end) const {
+      assert(begin <= end);
+      assert(end <= l1tkmuonIds_.size());
+      size_type n(0);
+      for (size_type i = begin; i != end; ++i) {
+        if (id == l1tkmuonIds_[i]) {
+          ++n;
+        }
+      }
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i = begin; i != end; ++i) {
+        if (id == l1tkmuonIds_[i]) {
+          refs[j] = l1tkmuonRefs_[i];
+          ++j;
+        }
+      }
+      return;
+    }
+
     void getObjects(Vids& ids, VRl1tegamma& refs) const { getObjects(ids, refs, 0, l1tegammaIds_.size()); }
     void getObjects(Vids& ids, VRl1tegamma& refs, size_type begin, size_type end) const {
       assert(begin <= end);
@@ -973,6 +1083,75 @@ namespace trigger {
       }
       return;
     }
+    void getObjects(Vids& ids, VRl1tkele& refs) const { getObjects(ids, refs, 0, l1tkeleIds_.size()); }
+    void getObjects(Vids& ids, VRl1tkele& refs, size_type begin, size_type end) const {
+      assert(begin <= end);
+      assert(end <= l1tkeleIds_.size());
+      const size_type n(end - begin);
+      ids.resize(n);
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i = begin; i != end; ++i) {
+        ids[j] = l1tkeleIds_[i];
+        refs[j] = l1tkeleRefs_[i];
+        ++j;
+      }
+    }
+    void getObjects(int id, VRl1tkele& refs) const { getObjects(id, refs, 0, l1tkeleIds_.size()); }
+    void getObjects(int id, VRl1tkele& refs, size_type begin, size_type end) const {
+      assert(begin <= end);
+      assert(end <= l1tkeleIds_.size());
+      size_type n(0);
+      for (size_type i = begin; i != end; ++i) {
+        if (id == l1tkeleIds_[i]) {
+          ++n;
+        }
+      }
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i = begin; i != end; ++i) {
+        if (id == l1tkeleIds_[i]) {
+          refs[j] = l1tkeleRefs_[i];
+          ++j;
+        }
+      }
+      return;
+    }
+    void getObjects(Vids& ids, VRl1tkem& refs) const { getObjects(ids, refs, 0, l1tkemIds_.size()); }
+    void getObjects(Vids& ids, VRl1tkem& refs, size_type begin, size_type end) const {
+      assert(begin <= end);
+      assert(end <= l1tkemIds_.size());
+      const size_type n(end - begin);
+      ids.resize(n);
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i = begin; i != end; ++i) {
+        ids[j] = l1tkemIds_[i];
+        refs[j] = l1tkemRefs_[i];
+        ++j;
+      }
+    }
+    void getObjects(int id, VRl1tkem& refs) const { getObjects(id, refs, 0, l1tkemIds_.size()); }
+    void getObjects(int id, VRl1tkem& refs, size_type begin, size_type end) const {
+      assert(begin <= end);
+      assert(end <= l1tkemIds_.size());
+      size_type n(0);
+      for (size_type i = begin; i != end; ++i) {
+        if (id == l1tkemIds_[i]) {
+          ++n;
+        }
+      }
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i = begin; i != end; ++i) {
+        if (id == l1tkemIds_[i]) {
+          refs[j] = l1tkemRefs_[i];
+          ++j;
+        }
+      }
+      return;
+    }
+
 
     void getObjects(Vids& ids, VRl1tjet& refs) const { getObjects(ids, refs, 0, l1tjetIds_.size()); }
     void getObjects(Vids& ids, VRl1tjet& refs, size_type begin, size_type end) const {
@@ -1008,6 +1187,42 @@ namespace trigger {
       }
       return;
     }
+
+    void getObjects(Vids& ids, VRl1tpfjet& refs) const { getObjects(ids, refs, 0, l1tpfjetIds_.size()); }
+    void getObjects(Vids& ids, VRl1tpfjet& refs, size_type begin, size_type end) const {
+      assert(begin <= end);
+      assert(end <= l1tpfjetIds_.size());
+      const size_type n(end - begin);
+      ids.resize(n);
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i = begin; i != end; ++i) {
+        ids[j] = l1tpfjetIds_[i];
+        refs[j] = l1tpfjetRefs_[i];
+        ++j;
+      }
+    }
+    void getObjects(int id, VRl1tpfjet& refs) const { getObjects(id, refs, 0, l1tpfjetIds_.size()); }
+    void getObjects(int id, VRl1tpfjet& refs, size_type begin, size_type end) const {
+      assert(begin <= end);
+      assert(end <= l1tpfjetIds_.size());
+      size_type n(0);
+      for (size_type i = begin; i != end; ++i) {
+        if (id == l1tpfjetIds_[i]) {
+          ++n;
+        }
+      }
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i = begin; i != end; ++i) {
+        if (id == l1tpfjetIds_[i]) {
+          refs[j] = l1tpfjetRefs_[i];
+          ++j;
+        }
+      }
+      return;
+    }
+
 
     void getObjects(Vids& ids, VRl1ttau& refs) const { getObjects(ids, refs, 0, l1ttauIds_.size()); }
     void getObjects(Vids& ids, VRl1ttau& refs, size_type begin, size_type end) const {
@@ -1253,13 +1468,29 @@ namespace trigger {
     const Vids& l1tmuonIds() const { return l1tmuonIds_; }
     const VRl1tmuon& l1tmuonRefs() const { return l1tmuonRefs_; }
 
+    size_type l1tkmuonSize() const { return l1tkmuonIds_.size(); }
+    const Vids& l1tkmuonIds() const { return l1tkmuonIds_; }
+    const VRl1tkmuon& l1tkmuonRefs() const { return l1tkmuonRefs_; }
+
     size_type l1tegammaSize() const { return l1tegammaIds_.size(); }
     const Vids& l1tegammaIds() const { return l1tegammaIds_; }
     const VRl1tegamma& l1tegammaRefs() const { return l1tegammaRefs_; }
 
+    size_type l1tkeleSize() const { return l1tkeleIds_.size(); }
+    const Vids& l1tkeleIds() const { return l1tkeleIds_; }
+    const VRl1tkele& l1tkeleRefs() const { return l1tkeleRefs_; }
+
+    size_type l1tkemSize() const { return l1tkemIds_.size(); }
+    const Vids& l1tkemIds() const { return l1tkemIds_; }
+    const VRl1tkem& l1tkemRefs() const { return l1tkemRefs_; }
+
     size_type l1tjetSize() const { return l1tjetIds_.size(); }
     const Vids& l1tjetIds() const { return l1tjetIds_; }
     const VRl1tjet& l1tjetRefs() const { return l1tjetRefs_; }
+
+    size_type l1tpfjetSize() const { return l1tpfjetIds_.size(); }
+    const Vids& l1tpfjetIds() const { return l1tpfjetIds_; }
+    const VRl1tpfjet& l1tpfjetRefs() const { return l1tpfjetRefs_; }
 
     size_type l1ttauSize() const { return l1ttauIds_.size(); }
     const Vids& l1ttauIds() const { return l1ttauIds_; }
