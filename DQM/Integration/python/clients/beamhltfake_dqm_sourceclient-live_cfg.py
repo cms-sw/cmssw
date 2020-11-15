@@ -72,7 +72,7 @@ process.monitor = cms.Sequence(process.dqmBeamMonitor)
 from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
 
-process.dqmBeamMonitor.monitorName = 'TrackingHLTBeamspotStream'
+process.dqmBeamMonitor.monitorName = 'FakeBeamMonitor'
 process.dqmBeamMonitor.OnlineMode = True              
 process.dqmBeamMonitor.recordName = BSOnlineRecordName
 
