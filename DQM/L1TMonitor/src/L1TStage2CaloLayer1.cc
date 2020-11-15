@@ -34,36 +34,6 @@ L1TStage2CaloLayer1::L1TStage2CaloLayer1(const edm::ParameterSet& ps)
 
 L1TStage2CaloLayer1::~L1TStage2CaloLayer1() {}
 
-//utility function for updating the link event and max error mapping
-//input: event, one of the error maps, and the corresponding type of errors per event
-//output: none, but changes the error map if the number of errors is greater than the one stored
-//for the current luminosity block
-void L1TStage2CaloLayer1::updateMaxErrorMapping(const edm::Event& event,
-                                                const std::unique_ptr<std::map<std::string, int>>& theMap,
-                                                const int nErrors) const {
-  std::string lumiBlock = std::to_string(event.id().luminosityBlock());
-  if (theMap->find(lumiBlock) != theMap->end()) {
-    //this is not the first event with errors per lumi-block, insert it only if the number of errors is larger than before
-    if (nErrors > theMap->find(lumiBlock)->second) {
-      (*theMap)[lumiBlock] = nErrors;
-    }
-  }
-  //this is the first event with errors in the lumi block, so we just insert it
-  else {
-    (*theMap)[lumiBlock] = nErrors;
-  }
-}
-
-//utility function for reading the error maps back into the monitoring elements
-//input: the error map, and the corresponding monitoring element to fill
-//output: none, but fills the monitoring element.
-void L1TStage2CaloLayer1::readBackMaxErrorMapping(const std::unique_ptr<std::map<std::string, int>>& theMap,
-                                                  dqm::reco::MonitorElement* monitorElement) const {
-  for (auto iter = theMap->begin(); iter != theMap->end(); ++iter) {
-    monitorElement->Fill(stoi(iter->first), iter->second);
-  }
-}
-
 void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
                                      const edm::EventSetup& es,
                                      const CaloL1Information::monitoringDataHolder& eventMonitors) const {
@@ -201,7 +171,7 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
       if (not EetAgreement) {
         eventMonitors.ecalOccEtDiscrepancy_->Fill(ieta, iphi);
         eventMonitors.ecalTPRawEtDiffNoMatch_->Fill(recdTp.compressedEt() - sentTp.compressedEt());
-        updateMismatch(event, 0, eventMonitors);
+        updateMismatch(event, 0, streamCache(event.streamID())->streamMismatchList);
 
         if (sentTp.compressedEt() == 0)
           eventMonitors.ecalOccRecdNotSent_->Fill(ieta, iphi);
@@ -213,13 +183,16 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
       if (not EfbAgreement) {
         // occ for fine grain mismatch
         eventMonitors.ecalOccFgDiscrepancy_->Fill(ieta, iphi);
-        updateMismatch(event, 1, eventMonitors);
+        updateMismatch(event, 1, streamCache(event.streamID())->streamMismatchList);
       }
     }
   }
 
-  updateMaxErrorMapping(event, eventMonitors.maxEvtLinkErrorsMapECAL, nEcalLinkErrors);
-  updateMaxErrorMapping(event, eventMonitors.maxEvtMismatchMapECAL, nEcalMismatch);
+  if (nEcalLinkErrors > streamCache(event.streamID())->streamNumMaxEvtLinkErrorsECAL)
+    streamCache(event.streamID())->streamNumMaxEvtLinkErrorsECAL = nEcalLinkErrors;
+
+  if (nEcalMismatch > streamCache(event.streamID())->streamNumMaxEvtMismatchECAL)
+    streamCache(event.streamID())->streamNumMaxEvtMismatchECAL = nEcalMismatch;
 
   edm::Handle<HcalTrigPrimDigiCollection> hcalTPsSent;
   event.getByToken(hcalTPSourceSent_, hcalTPsSent);
@@ -327,7 +300,7 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
         }
         eventMonitors.hcalOccEtDiscrepancy_->Fill(ieta, iphi);
         eventMonitors.hcalTPRawEtDiffNoMatch_->Fill(recdTp.SOI_compressedEt() - sentTp.SOI_compressedEt());
-        updateMismatch(event, 2, eventMonitors);
+        updateMismatch(event, 2, streamCache(event.streamID())->streamMismatchList);
 
         // Handle HCal discrepancy debug
         if (sentTp.SOI_compressedEt() == 0)
@@ -340,49 +313,47 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
       if (not Hfb1Agreement) {
         // Handle fine grain discrepancies
         eventMonitors.hcalOccFbDiscrepancy_->Fill(ieta, iphi);
-        updateMismatch(event, 3, eventMonitors);
+        updateMismatch(event, 3, streamCache(event.streamID())->streamMismatchList);
       }
       if (not Hfb2Agreement) {
         // Handle fine grain discrepancies
         eventMonitors.hcalOccFb2Discrepancy_->Fill(ieta, iphi);
-        updateMismatch(event, 3, eventMonitors);
+        updateMismatch(event, 3, streamCache(event.streamID())->streamMismatchList);
       }
     }
   }
 
-  updateMaxErrorMapping(event, eventMonitors.maxEvtLinkErrorsMapHCAL, nHcalLinkErrors);
-  updateMaxErrorMapping(event, eventMonitors.maxEvtMismatchMapHCAL, nHcalMismatch);
+  if (nHcalLinkErrors > streamCache(event.streamID())->streamNumMaxEvtLinkErrorsHCAL)
+    streamCache(event.streamID())->streamNumMaxEvtLinkErrorsHCAL = nHcalLinkErrors;
+  if (nHcalMismatch > streamCache(event.streamID())->streamNumMaxEvtMismatchHCAL)
+    streamCache(event.streamID())->streamNumMaxEvtMismatchHCAL = nHcalMismatch;
 
-  //fill inclusive link error and mismatch maps based on whether HCAL or ECAL had more this event
-  if (nEcalLinkErrors >= nHcalLinkErrors)
-    updateMaxErrorMapping(event, eventMonitors.maxEvtLinkErrorsMap, nEcalLinkErrors);
-  else
-    updateMaxErrorMapping(event, eventMonitors.maxEvtLinkErrorsMap, nHcalLinkErrors);
+  //fill inclusive link error and mismatch cache values based on whether HCAL or ECAL had more this event
+  if (nEcalLinkErrors >= nHcalLinkErrors && nEcalLinkErrors > streamCache(event.streamID())->streamNumMaxEvtLinkErrors)
+    streamCache(event.streamID())->streamNumMaxEvtLinkErrors = nEcalLinkErrors;
+  else if (nEcalLinkErrors < nHcalLinkErrors &&
+           nHcalLinkErrors > streamCache(event.streamID())->streamNumMaxEvtLinkErrors)
+    streamCache(event.streamID())->streamNumMaxEvtLinkErrors = nHcalLinkErrors;
 
-  if (nEcalMismatch >= nHcalMismatch)
-    updateMaxErrorMapping(event, eventMonitors.maxEvtMismatchMap, nEcalMismatch);
-  else
-    updateMaxErrorMapping(event, eventMonitors.maxEvtMismatchMap, nHcalMismatch);
+  if (nEcalMismatch >= nHcalMismatch && nEcalMismatch > streamCache(event.streamID())->streamNumMaxEvtMismatch)
+    streamCache(event.streamID())->streamNumMaxEvtMismatch = nEcalMismatch;
+  else if (nEcalMismatch < nHcalMismatch && nHcalMismatch > streamCache(event.streamID())->streamNumMaxEvtMismatch)
+    streamCache(event.streamID())->streamNumMaxEvtMismatch = nHcalMismatch;
 }
 
-//This is now redefined slightly.
-//It will update the last 20 histograms in a processed order.
-//should be unchanged for an online usage
-//but offline is not guranteed anything in structured Run-Lumi-Event order. It will be handled in processed order.
-void L1TStage2CaloLayer1::updateMismatch(const edm::Event& e,
-                                         int mismatchType,
-                                         const CaloL1Information::monitoringDataHolder& eventMonitors) const {
-  auto id = e.id();
-  std::string eventString{std::to_string(id.run()) + ":" + std::to_string(id.luminosityBlock()) + ":" +
-                          std::to_string(id.event())};
-  if (eventMonitors.last20MismatchArray_->at(*eventMonitors.lastMismatchIndex_).first == eventString) {
-    // same event
-    eventMonitors.last20MismatchArray_->at(*eventMonitors.lastMismatchIndex_).second |= 1 << mismatchType;
-  } else {
-    // New event, advance
-    *eventMonitors.lastMismatchIndex_ = (*(eventMonitors.lastMismatchIndex_) + 1) % 20;
-    eventMonitors.last20MismatchArray_->at(*(eventMonitors.lastMismatchIndex_)) = {eventString, 1 << mismatchType};
-  }
+//push the mismatch type and identifying information onto the back of the stream-based vector
+//will maintain the vector's size at 20
+void L1TStage2CaloLayer1::updateMismatch(
+    const edm::Event& e,
+    int mismatchType,
+    std::vector<std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>>& streamMismatches) const {
+  std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int> mismatchToInsert = {
+      e.getRun().id(), e.getLuminosityBlock().id(), e.id(), mismatchType};
+  streamMismatches.push_back(mismatchToInsert);
+  //This 20 is potentially a non-obvious constant "magic number"
+  //this matches the mismatchd detail histogram, but should be upgraded to not use the constant in this manner.
+  if (streamMismatches.size() > 20)
+    streamMismatches.erase(streamMismatches.begin());
 }
 
 void L1TStage2CaloLayer1::dqmBeginRun(const edm::Run&,
@@ -391,49 +362,8 @@ void L1TStage2CaloLayer1::dqmBeginRun(const edm::Run&,
 
 void L1TStage2CaloLayer1::dqmEndRun(const edm::Run& run,
                                     const edm::EventSetup& es,
-                                    const CaloL1Information::monitoringDataHolder& eventMonitors) const {
-  //auto id = static_cast<double>(lumi.id().luminosityBlock());  // uint64_t
-
-  //read back of last 20 mismatches array
-  // Ugly way to loop backwards through the last 20 mismatches
-  auto h = eventMonitors.last20Mismatches_;
-  for (size_t ibin = 1, imatch = *(eventMonitors.lastMismatchIndex_); ibin <= 20; ibin++, imatch = (imatch + 19) % 20) {
-    h->getBinContent(1, 1);
-    h->setBinLabel(ibin, eventMonitors.last20MismatchArray_->at(imatch).first, /* axis */ 2);
-    for (int itype = 0; itype < h->getNbinsX(); ++itype) {
-      int binContent = (eventMonitors.last20MismatchArray_->at(imatch).second >> itype) & 1;
-      eventMonitors.last20Mismatches_->setBinContent(itype + 1, ibin, binContent);
-    }
-  }
-
-  //read back of stored luminosity block maps
-  //This potentially adds several linear time complexities (linear in number of luminosity blocks)
-  readBackMaxErrorMapping(eventMonitors.maxEvtLinkErrorsMapECAL, eventMonitors.maxEvtLinkErrorsByLumiECAL_);
-  readBackMaxErrorMapping(eventMonitors.maxEvtMismatchMapECAL, eventMonitors.maxEvtMismatchByLumiECAL_);
-  readBackMaxErrorMapping(eventMonitors.maxEvtLinkErrorsMapHCAL, eventMonitors.maxEvtMismatchByLumiHCAL_);
-  readBackMaxErrorMapping(eventMonitors.maxEvtMismatchMapHCAL, eventMonitors.maxEvtMismatchByLumiHCAL_);
-  readBackMaxErrorMapping(eventMonitors.maxEvtLinkErrorsMap, eventMonitors.maxEvtLinkErrorsByLumi_);
-  readBackMaxErrorMapping(eventMonitors.maxEvtMismatchMap, eventMonitors.maxEvtMismatchByLumi_);
-
-  auto ecalLinkErrorsEndLumi = stoi(eventMonitors.maxEvtLinkErrorsMapECAL->rbegin()->first);
-  auto ecalMismatchEndLumi = stoi(eventMonitors.maxEvtMismatchMapECAL->rbegin()->first);
-  auto hcalLinkErrorsEndLumi = stoi(eventMonitors.maxEvtLinkErrorsMapHCAL->rbegin()->first);
-  auto hcalMismatchEndLumi = stoi(eventMonitors.maxEvtMismatchMapHCAL->rbegin()->first);
-  auto linkErrorsEndLumi = stoi(eventMonitors.maxEvtLinkErrorsMap->rbegin()->first);
-  auto mismatchEndLumi = stoi(eventMonitors.maxEvtMismatchMap->rbegin()->first);
-
-  // Simple way to embed current lumi to auto-scale axis limits in render plugin
-  eventMonitors.ecalLinkErrorByLumi_->setBinContent(0, ecalLinkErrorsEndLumi);
-  eventMonitors.ecalMismatchByLumi_->setBinContent(0, ecalMismatchEndLumi);
-  eventMonitors.hcalLinkErrorByLumi_->setBinContent(0, hcalLinkErrorsEndLumi);
-  eventMonitors.hcalMismatchByLumi_->setBinContent(0, hcalMismatchEndLumi);
-  eventMonitors.maxEvtLinkErrorsByLumiECAL_->setBinContent(0, ecalLinkErrorsEndLumi);
-  eventMonitors.maxEvtLinkErrorsByLumiHCAL_->setBinContent(0, hcalLinkErrorsEndLumi);
-  eventMonitors.maxEvtLinkErrorsByLumi_->setBinContent(0, linkErrorsEndLumi);
-  eventMonitors.maxEvtMismatchByLumiECAL_->setBinContent(0, ecalMismatchEndLumi);
-  eventMonitors.maxEvtMismatchByLumiHCAL_->setBinContent(0, hcalMismatchEndLumi);
-  eventMonitors.maxEvtMismatchByLumi_->setBinContent(0, mismatchEndLumi);
-}
+                                    const CaloL1Information::monitoringDataHolder& runMonitors,
+                                    const CaloL1Information::perRunSummaryMonitoringInformation&) const {}
 
 void L1TStage2CaloLayer1::bookHistograms(DQMStore::IBooker& ibooker,
                                          const edm::Run& run,
@@ -541,10 +471,6 @@ void L1TStage2CaloLayer1::bookHistograms(DQMStore::IBooker& ibooker,
   eventMonitors.last20Mismatches_->setBinLabel(2, "Ecal TP Fine Grain Bit Mismatch");
   eventMonitors.last20Mismatches_->setBinLabel(3, "Hcal TP Et Mismatch");
   eventMonitors.last20Mismatches_->setBinLabel(4, "Hcal TP Feature Bit Mismatch");
-  for (size_t i = 0; i < eventMonitors.last20MismatchArray_->size(); ++i)
-    (*eventMonitors.last20MismatchArray_)[i] = {"-" + std::to_string(i), 0};
-  for (size_t i = 1; i <= 20; ++i)
-    eventMonitors.last20Mismatches_->setBinLabel(i, "-" + std::to_string(i), /* axis */ 2);
 
   const int nLumis = 2000;
   eventMonitors.ecalLinkErrorByLumi_ = ibooker.book1D(
@@ -610,4 +536,220 @@ void L1TStage2CaloLayer1::bookHistograms(DQMStore::IBooker& ibooker,
       ibooker.book1D("l1idErrors", "l1id mismatch between AMC13 and CTP Cards;Layer1 Phi;Counts", 18, -.5, 17.5);
   eventMonitors.orbitErrors_ =
       ibooker.book1D("orbitErrors", "orbit mismatch between AMC13 and CTP Cards;Layer1 Phi;Counts", 18, -.5, 17.5);
+}
+
+void L1TStage2CaloLayer1::streamEndLuminosityBlockSummary(
+    edm::StreamID theStreamID,
+    edm::LuminosityBlock const& theLumiBlock,
+    edm::EventSetup const& theEventSetup,
+    CaloL1Information::perLumiBlockMonitoringInformation* lumiMonitoringInformation) const {
+  auto theStreamCache = streamCache(theStreamID);
+
+  lumiMonitoringInformation->lumiNumMaxEvtLinkErrorsECAL =
+      std::max(lumiMonitoringInformation->lumiNumMaxEvtLinkErrorsECAL, theStreamCache->streamNumMaxEvtLinkErrorsECAL);
+  lumiMonitoringInformation->lumiNumMaxEvtLinkErrorsHCAL =
+      std::max(lumiMonitoringInformation->lumiNumMaxEvtLinkErrorsHCAL, theStreamCache->streamNumMaxEvtLinkErrorsHCAL);
+  lumiMonitoringInformation->lumiNumMaxEvtLinkErrors =
+      std::max(lumiMonitoringInformation->lumiNumMaxEvtLinkErrors, theStreamCache->streamNumMaxEvtLinkErrors);
+
+  lumiMonitoringInformation->lumiNumMaxEvtMismatchECAL =
+      std::max(lumiMonitoringInformation->lumiNumMaxEvtMismatchECAL, theStreamCache->streamNumMaxEvtMismatchECAL);
+  lumiMonitoringInformation->lumiNumMaxEvtMismatchHCAL =
+      std::max(lumiMonitoringInformation->lumiNumMaxEvtMismatchHCAL, theStreamCache->streamNumMaxEvtMismatchHCAL);
+  lumiMonitoringInformation->lumiNumMaxEvtMismatch =
+      std::max(lumiMonitoringInformation->lumiNumMaxEvtMismatch, theStreamCache->streamNumMaxEvtMismatch);
+
+  //reset the stream cache here, since we are done with the luminosity block in this stream
+  //We don't want the stream to be comparing to previous values in the next lumi-block
+  theStreamCache->streamNumMaxEvtLinkErrorsECAL = 0;
+  theStreamCache->streamNumMaxEvtLinkErrorsHCAL = 0;
+  theStreamCache->streamNumMaxEvtLinkErrors = 0;
+
+  theStreamCache->streamNumMaxEvtMismatchECAL = 0;
+  theStreamCache->streamNumMaxEvtMismatchHCAL = 0;
+  theStreamCache->streamNumMaxEvtMismatch = 0;
+}
+
+void L1TStage2CaloLayer1::globalEndLuminosityBlockSummary(
+    edm::LuminosityBlock const& theLumiBlock,
+    edm::EventSetup const& theEventSetup,
+    CaloL1Information::perLumiBlockMonitoringInformation* lumiMonitoringInformation) const {
+  auto theRunCache = runCache(theLumiBlock.getRun().index());
+  //read the cache out to the relevant Luminosity histogram bin
+  theRunCache->maxEvtLinkErrorsByLumiECAL_->Fill(theLumiBlock.luminosityBlock(),
+                                                 lumiMonitoringInformation->lumiNumMaxEvtLinkErrorsECAL);
+  theRunCache->maxEvtLinkErrorsByLumiHCAL_->Fill(theLumiBlock.luminosityBlock(),
+                                                 lumiMonitoringInformation->lumiNumMaxEvtLinkErrorsHCAL);
+  theRunCache->maxEvtLinkErrorsByLumi_->Fill(theLumiBlock.luminosityBlock(),
+                                             lumiMonitoringInformation->lumiNumMaxEvtLinkErrors);
+
+  theRunCache->maxEvtMismatchByLumiECAL_->Fill(theLumiBlock.luminosityBlock(),
+                                               lumiMonitoringInformation->lumiNumMaxEvtMismatchECAL);
+  theRunCache->maxEvtMismatchByLumiHCAL_->Fill(theLumiBlock.luminosityBlock(),
+                                               lumiMonitoringInformation->lumiNumMaxEvtMismatchHCAL);
+  theRunCache->maxEvtMismatchByLumi_->Fill(theLumiBlock.luminosityBlock(),
+                                           lumiMonitoringInformation->lumiNumMaxEvtMismatch);
+
+  // Simple way to embed current lumi to auto-scale axis limits in render plugin
+  theRunCache->ecalLinkErrorByLumi_->setBinContent(0, theLumiBlock.luminosityBlock());
+  theRunCache->ecalMismatchByLumi_->setBinContent(0, theLumiBlock.luminosityBlock());
+  theRunCache->hcalLinkErrorByLumi_->setBinContent(0, theLumiBlock.luminosityBlock());
+  theRunCache->hcalMismatchByLumi_->setBinContent(0, theLumiBlock.luminosityBlock());
+  theRunCache->maxEvtLinkErrorsByLumiECAL_->setBinContent(0, theLumiBlock.luminosityBlock());
+  theRunCache->maxEvtLinkErrorsByLumiHCAL_->setBinContent(0, theLumiBlock.luminosityBlock());
+  theRunCache->maxEvtLinkErrorsByLumi_->setBinContent(0, theLumiBlock.luminosityBlock());
+  theRunCache->maxEvtMismatchByLumiECAL_->setBinContent(0, theLumiBlock.luminosityBlock());
+  theRunCache->maxEvtMismatchByLumiHCAL_->setBinContent(0, theLumiBlock.luminosityBlock());
+  theRunCache->maxEvtMismatchByLumi_->setBinContent(0, theLumiBlock.luminosityBlock());
+}
+
+//returns true if the new candidate mismatch is from a later mismatch than the higher order mismatch, as based on Run, Lumisection, and event number
+//false otherwise
+bool L1TStage2CaloLayer1::isLaterMismatch(
+    std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>& candidateMismatch,
+    std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>& higherOrderMismatch) const {
+  //check the run. If the run ID of the candidate mismatch is less than the run ID of the higher order mismatch, it is earlier,
+  if (std::get<0>(candidateMismatch) < std::get<0>(higherOrderMismatch))
+    return false;
+  //if it is greater, then it is a later mismatch
+  else if (std::get<0>(candidateMismatch) > std::get<0>(higherOrderMismatch))
+    return true;
+  //if it is even, then we need to repeat this comparison on the luminosity block
+  else {
+    if (std::get<1>(candidateMismatch) < std::get<1>(higherOrderMismatch))
+      return false;  //if the lumi block is less, it is an earlier mismatch
+    else if (std::get<1>(candidateMismatch) > std::get<1>(higherOrderMismatch))
+      return true;  // if the lumi block is greater, than it is a later mismatch
+    // if these are equivalent, then we repeat the comparison on the event
+    else {
+      if (std::get<2>(candidateMismatch) < std::get<2>(higherOrderMismatch))
+        return false;
+      else
+        return true;  //in the case of even events here, we consider the event later.
+    }
+  }
+  //default return, should never be called.
+  return false;
+}
+
+//binary search like algorithm for trying to find the appropriate place to put our new mismatch
+//will find an interger we add to the iterator to get the proper location to find the insertion location
+//will return -1 if the mismatch should not be inserted into the list
+int L1TStage2CaloLayer1::findAppropriateInsertionIndex(
+    std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int> candidateMismatch,
+    std::vector<std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>> higherOrderList,
+    int lowerIndexToSearch,
+    int upperIndexToSearch) const {
+  //Start by getting the spot in the the vector to start searching
+  int searchLocation = ((upperIndexToSearch + lowerIndexToSearch) / 2) -
+                       1;  //-1 handles zero indexing implied by vector.begin() being valid, but vector.end() not
+  auto searchIterator = higherOrderList.begin() + searchLocation;
+  //Multiple possible cases:
+  //case one. Greater than the search element
+  if (this->isLaterMismatch(candidateMismatch, *searchIterator)) {
+    //subcase one, there exists a mismatch to its right,
+    if (searchIterator + 1 != higherOrderList.end()) {
+      //subsubcase one, the candidate is earlier than the one to the right, insert this element between these two
+      if (not this->isLaterMismatch(candidateMismatch, *(searchIterator + 1))) {
+        return searchLocation + 1;  //vector insert inserts *before* the position, so we return +1
+      }
+      //subsubcase two, the candidate is later than it, in this case we refine the search area.
+      else {
+        return this->findAppropriateInsertionIndex(
+            candidateMismatch, higherOrderList, searchLocation, upperIndexToSearch);
+      }
+    }
+    //subcase two, there exists no mismatch to it's right (end of the vector), in which case this is the latest mismatch
+    else {
+      return searchLocation +
+             1;  //vector insert inserts *before* the position, so we return +1 (should be synonymous with .end())
+    }
+  }
+  //case two. we are earlier than the current mismatch
+  else {
+    //subcase one, these exists a mismatch to its left,
+    if (searchIterator != higherOrderList.begin()) {
+      //subsubcase one, the candidate mismatch is earlier than the one to the left. in this case we refine the search area
+      if (not this->isLaterMismatch(candidateMismatch, *(searchIterator - 1))) {
+        return this->findAppropriateInsertionIndex(
+            candidateMismatch, higherOrderList, lowerIndexToSearch, searchLocation);
+      }
+      //subsubcase two the candidate is later than than the one to it's left, in which case, we insert the element between these two.
+      else {
+        return searchLocation;  //vector insert inserts *before* the position, so we return without addition here.
+      }
+    }
+    //subcase two, there exists no mismatch to its left (beginning of vector), in which case this is the is earlier than all mismatches on the list.
+    else {
+      //subsubcase one. It is possible we still insert this if the capacity of the vector is below 20.
+      //this should probably be rewritten to have the capacity reserved before-hand so that 20 is not potentially a hard coded magic number
+      //defined by what we know to be true about a non-obvious data type elsewhere.
+      if (higherOrderList.size() < 20) {
+        return searchLocation;
+      }
+      //subsubcase two. The size is 20 or above, and we are earlier than all of them. This should not be inserted into the list.
+      else {
+        return -1;
+      }
+    }
+  }
+  //default return. Should never be called
+  return -1;
+}
+
+//will shuffle the candidate mismatch list into the higher order mismatch list.
+void L1TStage2CaloLayer1::collateMismatchLists(
+    std::vector<std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>>& candidateMismatchList,
+    std::vector<std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>>& higherOrderMismatchList) const {
+  //okay now we loop over our candidate mismatches
+  for (auto candidateIterator = candidateMismatchList.begin(); candidateIterator != higherOrderMismatchList.end();
+       ++candidateIterator) {
+    int insertionIndex = this->findAppropriateInsertionIndex(
+        *candidateIterator, higherOrderMismatchList, 0, higherOrderMismatchList.size());
+    if (insertionIndex < 0)
+      continue;  //if we didn't find anywhere to put this mismatch, we move on
+    auto insertionIterator = higherOrderMismatchList.begin() + insertionIndex;
+    higherOrderMismatchList.insert(insertionIterator, *candidateIterator);
+    //now if we have more than 20 mismatches in the list, we erase the earliest one (the beginning)
+    //this should probably be rewritten to have the capacity reserved before-hand so that 20 is not potentially a hard coded magic number
+    //defined by what we know to be true about a non-obvious data type elsewhere.
+    if (higherOrderMismatchList.size() > 20)
+      higherOrderMismatchList.erase(higherOrderMismatchList.begin());
+  }
+}
+
+void L1TStage2CaloLayer1::streamEndRunSummary(
+    edm::StreamID theStreamID,
+    edm::Run const& theRun,
+    edm::EventSetup const& theEventSetup,
+    CaloL1Information::perRunSummaryMonitoringInformation* theRunSummaryMonitoringInformation) const {
+  auto theStreamCache = streamCache(theStreamID);
+
+  if (theRunSummaryMonitoringInformation->runMismatchList.empty())
+    theRunSummaryMonitoringInformation->runMismatchList = theStreamCache->streamMismatchList;
+  else
+    this->collateMismatchLists(theStreamCache->streamMismatchList, theRunSummaryMonitoringInformation->runMismatchList);
+
+  //clear the stream cache so that the next run does not try to compare to this.
+  theStreamCache->streamMismatchList.clear();
+}
+
+void L1TStage2CaloLayer1::globalEndRunSummary(
+    edm::Run const& theRun,
+    edm::EventSetup const& theEventSetup,
+    CaloL1Information::perRunSummaryMonitoringInformation* theRunSummaryInformation) const {
+  //The mismatch vector should be properly ordered and sized by other functions, so all we need to do is read it into a monitoring element.
+  auto theRunCache = runCache(theRun.index());
+  //loop over the accepted mismatch list in the run, and based on the run/lumi/event create the bin label, the mismatch type will define which bin gets content.
+  int ibin = 1;
+  for (auto mismatchIterator = theRunSummaryInformation->runMismatchList.begin();
+       mismatchIterator != theRunSummaryInformation->runMismatchList.end();
+       ++mismatchIterator) {
+    std::string binLabel = std::to_string(std::get<0>(*mismatchIterator).run()) + ":" +
+                           std::to_string(std::get<1>(*mismatchIterator).luminosityBlock()) + ":" +
+                           std::to_string(std::get<2>(*mismatchIterator).event());
+    theRunCache->last20Mismatches_->setBinLabel(ibin, binLabel, 2);
+    theRunCache->last20Mismatches_->setBinContent(std::get<3>(*mismatchIterator) + 1, ibin, 1);
+    ++ibin;
+  }
 }

@@ -155,30 +155,50 @@ namespace CaloL1Information {
 
     dqm::reco::MonitorElement *last20Mismatches_;
 
-    //these maps store the maximum number of evt and link mismatches per lumi section.
-    //they are read back at the end of runs
-    //Made std::unique_ptr's for better memory management
-    std::unique_ptr<std::map<std::string, int>> maxEvtLinkErrorsMapECAL{std::make_unique<std::map<std::string, int>>()};
-    std::unique_ptr<std::map<std::string, int>> maxEvtLinkErrorsMapHCAL{std::make_unique<std::map<std::string, int>>()};
-    std::unique_ptr<std::map<std::string, int>> maxEvtLinkErrorsMap{std::make_unique<std::map<std::string, int>>()};
+    std::vector<std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>> runMismatchList;
+  };
 
-    std::unique_ptr<std::map<std::string, int>> maxEvtMismatchMapECAL{std::make_unique<std::map<std::string, int>>()};
-    std::unique_ptr<std::map<std::string, int>> maxEvtMismatchMapHCAL{std::make_unique<std::map<std::string, int>>()};
-    std::unique_ptr<std::map<std::string, int>> maxEvtMismatchMap{std::make_unique<std::map<std::string, int>>()};
+  struct perStreamMonitoringDataHolder {
+    int streamNumMaxEvtLinkErrorsECAL{0};
+    int streamNumMaxEvtLinkErrorsHCAL{0};
+    int streamNumMaxEvtLinkErrors{0};
 
-    std::unique_ptr<std::array<std::pair<std::string, int>, 20>> last20MismatchArray_{
-        std::make_unique<std::array<std::pair<std::string, int>, 20>>()};
-    std::unique_ptr<size_t> lastMismatchIndex_{std::make_unique<size_t>()};
+    int streamNumMaxEvtMismatchECAL{0};
+    int streamNumMaxEvtMismatchHCAL{0};
+    int streamNumMaxEvtMismatch{0};
+    std::vector<std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>> streamMismatchList;
+  };
+
+  struct perLumiBlockMonitoringInformation {
+    int lumiNumMaxEvtLinkErrorsECAL{0};
+    int lumiNumMaxEvtLinkErrorsHCAL{0};
+    int lumiNumMaxEvtLinkErrors{0};
+
+    int lumiNumMaxEvtMismatchECAL{0};
+    int lumiNumMaxEvtMismatchHCAL{0};
+    int lumiNumMaxEvtMismatch{0};
+
+    std::vector<std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>> lumiMismatchList;
+  };
+
+  struct perRunSummaryMonitoringInformation {
+    std::vector<std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>> runMismatchList;
   };
 
 }  // namespace CaloL1Information
 
-class L1TStage2CaloLayer1 : public DQMGlobalEDAnalyzer<CaloL1Information::monitoringDataHolder> {
+class L1TStage2CaloLayer1
+    : public DQMGlobalRunSummaryEDAnalyzer<
+          CaloL1Information::monitoringDataHolder,
+          CaloL1Information::perRunSummaryMonitoringInformation,
+          edm::StreamCache<CaloL1Information::perStreamMonitoringDataHolder>,
+          edm::LuminosityBlockSummaryCache<CaloL1Information::perLumiBlockMonitoringInformation>> {
 public:
   L1TStage2CaloLayer1(const edm::ParameterSet &ps);
   ~L1TStage2CaloLayer1() override;
 
 protected:
+  //DQM module implemented functionality
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &, CaloL1Information::monitoringDataHolder &) const override;
   void bookHistograms(DQMStore::IBooker &ibooker,
                       const edm::Run &,
@@ -189,15 +209,60 @@ protected:
                   CaloL1Information::monitoringDataHolder const &) const override;
   void dqmEndRun(edm::Run const &,
                  edm::EventSetup const &,
-                 CaloL1Information::monitoringDataHolder const &) const override;
+                 CaloL1Information::monitoringDataHolder const &,
+                 CaloL1Information::perRunSummaryMonitoringInformation const &) const override;
+  //stream functionality
+  std::unique_ptr<CaloL1Information::perStreamMonitoringDataHolder> beginStream(edm::StreamID) const override {
+    return std::make_unique<CaloL1Information::perStreamMonitoringDataHolder>();
+  };
+  void streamEndLuminosityBlock(edm::StreamID, edm::LuminosityBlock const &, edm::EventSetup const &) const override{};
+
+  //lumi summary functionality
+  void streamEndLuminosityBlockSummary(edm::StreamID,
+                                       edm::LuminosityBlock const &,
+                                       edm::EventSetup const &,
+                                       CaloL1Information::perLumiBlockMonitoringInformation *) const override;
+
+  std::shared_ptr<CaloL1Information::perLumiBlockMonitoringInformation> globalBeginLuminosityBlockSummary(
+      edm::LuminosityBlock const &, edm::EventSetup const &) const override {
+    return std::make_unique<CaloL1Information::perLumiBlockMonitoringInformation>();
+  };
+
+  void globalEndLuminosityBlockSummary(edm::LuminosityBlock const &,
+                                       edm::EventSetup const &,
+                                       CaloL1Information::perLumiBlockMonitoringInformation *) const override;
+
+  //run summary functionality.
+  std::shared_ptr<CaloL1Information::perRunSummaryMonitoringInformation> globalBeginRunSummary(
+      edm::Run const &, edm::EventSetup const &) const override {
+    return std::make_unique<CaloL1Information::perRunSummaryMonitoringInformation>();
+  };
+
+  void streamEndRunSummary(edm::StreamID,
+                           edm::Run const &,
+                           edm::EventSetup const &,
+                           CaloL1Information::perRunSummaryMonitoringInformation *) const override;
+
+  void globalEndRunSummary(edm::Run const &,
+                           edm::EventSetup const &,
+                           CaloL1Information::perRunSummaryMonitoringInformation *) const override;
 
 private:
-  void updateMismatch(const edm::Event &e,
-                      int mismatchType,
-                      const CaloL1Information::monitoringDataHolder &eventMonitors) const;
-  void updateMaxErrorMapping(const edm::Event &, const std::unique_ptr<std::map<std::string, int>> &, const int) const;
-  void readBackMaxErrorMapping(const std::unique_ptr<std::map<std::string, int>> &theMap,
-                               dqm::reco::MonitorElement *monitorElement) const;
+  void updateMismatch(
+      const edm::Event &e,
+      int mismatchType,
+      std::vector<std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>> &streamMismatches) const;
+
+  void collateMismatchLists(std::vector<std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>> &,
+                            std::vector<std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>> &) const;
+
+  bool isLaterMismatch(std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int> &candidateMismatch,
+                       std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int> &higherOrderMismatch) const;
+
+  int findAppropriateInsertionIndex(std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>,
+                                    std::vector<std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>>,
+                                    int lowerIndexToSearch,
+                                    int upperIndexToSearch) const;
   // Input and config info
   edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalTPSourceRecd_;
   std::string ecalTPSourceRecdLabel_;
