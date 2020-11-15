@@ -27,6 +27,7 @@ namespace trigger {
     /// L1 - using cases as defined in enum L1GtObject, file:
     /// DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 
+
     TriggerL1Mu = -81,
     TriggerL1NoIsoEG = -82,  // legacy and stage1
     TriggerL1IsoEG = -83,    // legacy and stage1
@@ -60,9 +61,19 @@ namespace trigger {
     TriggerL1AsymHt = -111,
     TriggerL1AsymEtHF = -112,
     TriggerL1AsymHtHF = -113,
+    /// This has all to be decided for Phase-2. Here is Thiago's proposal.
+    TriggerL1TkMu = -114,
+    TriggerL1TkEle = -115,
+    TriggerL1PFJet = -116,
+    TriggerL1TkEm = -117, // used for photons
+    TriggerL1PFMET = -118,
+    TriggerL1PFETT = -119,
+    TriggerL1PFHT  = -120,
+    TriggerL1PFMHT = -121,
+    TriggerL1PFTrack = -122,
+    TriggerL1Vertex = -123, 
 
     /// HLT
-
     TriggerPhoton = +81,
     TriggerElectron = +82,
     TriggerMuon = +83,
