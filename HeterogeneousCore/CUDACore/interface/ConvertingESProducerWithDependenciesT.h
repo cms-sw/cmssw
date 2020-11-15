@@ -12,6 +12,14 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/typelookup.h"
 
+/* class template: ConvertingESProducerWithDependenciesT
+ * 
+ * This class template can be used to simplify the implementation of any ESProducer that reads
+ * multiple conditions data from one or more records record and pushes derived conditions data
+ * to a combined dependent record.
+ * The current use case is to convert and copy the calibrations from the CPU to the GPUs.
+ */
+
 namespace detail {
   // simple implementation of a type zipper over 2 tuples
   // here, the main requirement is the default constructor for Gen template
