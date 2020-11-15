@@ -253,16 +253,16 @@ private:
       int mismatchType,
       std::vector<std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>> &streamMismatches) const;
 
-  void collateMismatchLists(std::vector<std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>> &,
+  void mergeMismatchVectors(std::vector<std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>> &,
                             std::vector<std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>> &) const;
 
   bool isLaterMismatch(std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int> &candidateMismatch,
                        std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int> &higherOrderMismatch) const;
 
-  int findAppropriateInsertionIndex(std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>,
-                                    std::vector<std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>>,
-                                    int lowerIndexToSearch,
-                                    int upperIndexToSearch) const;
+  int findIndex(std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>,
+                std::vector<std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>>,
+                int lowerIndexToSearch,
+                int upperIndexToSearch) const;
   // Input and config info
   edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalTPSourceRecd_;
   std::string ecalTPSourceRecdLabel_;

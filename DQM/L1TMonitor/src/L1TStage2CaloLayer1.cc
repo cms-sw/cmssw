@@ -635,7 +635,7 @@ bool L1TStage2CaloLayer1::isLaterMismatch(
 //binary search like algorithm for trying to find the appropriate place to put our new mismatch
 //will find an interger we add to the iterator to get the proper location to find the insertion location
 //will return -1 if the mismatch should not be inserted into the list
-int L1TStage2CaloLayer1::findAppropriateInsertionIndex(
+int L1TStage2CaloLayer1::findIndex(
     std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int> candidateMismatch,
     std::vector<std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>> higherOrderList,
     int lowerIndexToSearch,
@@ -655,8 +655,7 @@ int L1TStage2CaloLayer1::findAppropriateInsertionIndex(
       }
       //subsubcase two, the candidate is later than it, in this case we refine the search area.
       else {
-        return this->findAppropriateInsertionIndex(
-            candidateMismatch, higherOrderList, searchLocation, upperIndexToSearch);
+        return this->findIndex(candidateMismatch, higherOrderList, searchLocation, upperIndexToSearch);
       }
     }
     //subcase two, there exists no mismatch to it's right (end of the vector), in which case this is the latest mismatch
@@ -671,8 +670,7 @@ int L1TStage2CaloLayer1::findAppropriateInsertionIndex(
     if (searchIterator != higherOrderList.begin()) {
       //subsubcase one, the candidate mismatch is earlier than the one to the left. in this case we refine the search area
       if (not this->isLaterMismatch(candidateMismatch, *(searchIterator - 1))) {
-        return this->findAppropriateInsertionIndex(
-            candidateMismatch, higherOrderList, lowerIndexToSearch, searchLocation);
+        return this->findIndex(candidateMismatch, higherOrderList, lowerIndexToSearch, searchLocation);
       }
       //subsubcase two the candidate is later than than the one to it's left, in which case, we insert the element between these two.
       else {
@@ -698,14 +696,14 @@ int L1TStage2CaloLayer1::findAppropriateInsertionIndex(
 }
 
 //will shuffle the candidate mismatch list into the higher order mismatch list.
-void L1TStage2CaloLayer1::collateMismatchLists(
+void L1TStage2CaloLayer1::mergeMismatchVectors(
     std::vector<std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>>& candidateMismatchList,
     std::vector<std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>>& higherOrderMismatchList) const {
   //okay now we loop over our candidate mismatches
   for (auto candidateIterator = candidateMismatchList.begin(); candidateIterator != higherOrderMismatchList.end();
        ++candidateIterator) {
-    int insertionIndex = this->findAppropriateInsertionIndex(
-        *candidateIterator, higherOrderMismatchList, 0, higherOrderMismatchList.size());
+    int insertionIndex =
+        this->findIndex(*candidateIterator, higherOrderMismatchList, 0, higherOrderMismatchList.size());
     if (insertionIndex < 0)
       continue;  //if we didn't find anywhere to put this mismatch, we move on
     auto insertionIterator = higherOrderMismatchList.begin() + insertionIndex;
@@ -728,7 +726,7 @@ void L1TStage2CaloLayer1::streamEndRunSummary(
   if (theRunSummaryMonitoringInformation->runMismatchList.empty())
     theRunSummaryMonitoringInformation->runMismatchList = theStreamCache->streamMismatchList;
   else
-    this->collateMismatchLists(theStreamCache->streamMismatchList, theRunSummaryMonitoringInformation->runMismatchList);
+    this->mergeMismatchVectors(theStreamCache->streamMismatchList, theRunSummaryMonitoringInformation->runMismatchList);
 
   //clear the stream cache so that the next run does not try to compare to this.
   theStreamCache->streamMismatchList.clear();
