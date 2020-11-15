@@ -57,6 +57,9 @@ process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",
 process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'BeamMonitor'
 process.dqmSaver.tag           = 'BeamMonitor'
+process.dqmSaver.runNumber     = options.runNumber
+process.dqmSaverPB.tag         = 'BeamMonitor'
+process.dqmSaverPB.runNumber   = options.runNumber
 
 process.dqmEnvPixelLess = process.dqmEnv.clone()
 process.dqmEnvPixelLess.subSystemFolder = 'BeamMonitor_PixelLess'
@@ -228,7 +231,7 @@ process.dqmTKStatus = cms.EDAnalyzer("TKStatus",
 
 #
 process.dqmcommon = cms.Sequence(process.dqmEnv
-                               * process.dqmSaver)
+                               * process.dqmSaver * process.dqmSaverPB)
 
 #
 process.monitor = cms.Sequence(process.dqmBeamMonitor

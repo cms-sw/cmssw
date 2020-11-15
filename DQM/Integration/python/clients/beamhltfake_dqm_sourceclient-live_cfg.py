@@ -47,6 +47,9 @@ process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",
 process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'FakeBeamMonitor'
 process.dqmSaver.tag           = 'FakeBeamMonitor'
+process.dqmSaver.runNumber     = options.runNumber
+process.dqmSaverPB.tag         = 'FakeBeamMonitor'
+process.dqmSaverPB.runNumber   = options.runNumber
 
 #-----------------------------
 # BeamMonitor
@@ -60,7 +63,7 @@ process.dqmBeamMonitor = process.dqmFakeBeamMonitor.clone()
 # Condition for P5 cluster
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 process.dqmcommon = cms.Sequence(process.dqmEnv
-                               * process.dqmSaver)
+                               * process.dqmSaver * process.dqmSaverPB)
 
 process.monitor = cms.Sequence(process.dqmBeamMonitor)
 
@@ -69,7 +72,7 @@ process.monitor = cms.Sequence(process.dqmBeamMonitor)
 from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
 
-process.dqmBeamMonitor.monitorName = 'TrackingHLTBeamspotStream'
+process.dqmBeamMonitor.monitorName = 'FakeBeamMonitor'
 process.dqmBeamMonitor.OnlineMode = True              
 process.dqmBeamMonitor.recordName = BSOnlineRecordName
 
