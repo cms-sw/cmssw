@@ -51,6 +51,7 @@ private:
 
   void getBaseNumber(const G4Step *);
   double getBirkL3(const G4Step *);
+  bool isXtal(const G4LogicalVolume *);
 
   // initialised before run
   const EcalSimulationParameters *ecalSimParameters_;
