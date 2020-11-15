@@ -22,13 +22,16 @@ offlineTesting=not live
 
 if (unitTest):
     process.load("DQM.Integration.config.unittestinputsource_cfi")
+    from DQM.Integration.config.unittestinputsource_cfi import options
 
 elif (live):
     process.load("DQM.Integration.config.inputsource_cfi")
+    from DQM.Integration.config.inputsource_cfi import options
 
 # for testing in lxplus
 elif(offlineTesting):
     process.load("DQM.Integration.config.fileinputsource_cfi")
+    from DQM.Integration.config.fileinputsource_cfi import options
     
  
 print("Running with run type = ", process.runType.getRunType())
@@ -53,9 +56,13 @@ process.dqmEnv.subSystemFolder = 'Muons'
 process.dqmSaver.tag = 'Muons'
 ##?? process.dqmSaver.backupLumiCount = 30
 
-process.dqmSaver.path = '.'
+# process.dqmSaver.path = '.'
+process.dqmSaver.runNumber = options.runNumber
+process.dqmSaverPB.tag = 'Muons'
+# process.dqmSaverPB.path = './pb'
+process.dqmSaverPB.runNumber = options.runNumber
 
-process.dqmmodules = cms.Sequence(process.dqmEnv + process.dqmSaver)   
+process.dqmmodules = cms.Sequence(process.dqmEnv + process.dqmSaver + process.dqmSaverPB)
 
 # Imports
 
