@@ -274,10 +274,12 @@ uint16_t ECalSD::getDepth(const G4Step* aStep) {
     depth2 = getLayerIDForTimeSim();
     depth |= ((depth2 & PCaloHit::kEcalDepthMask) << PCaloHit::kEcalDepthOffset);
   }
-  edm::LogVerbatim("EcalSim") << "ECalSD::Volume " << lv->GetName() << " DetId " << std::hex << setDetUnitId(aStep)
-                              << std::dec << " Global " << (hitPoint->GetPosition()).rho() << ":"
-                              << (hitPoint->GetPosition()).z() << " Local Z " << currentLocalPoint.z();
 #ifdef EDM_ML_DEBUG
+  if (isXtal(lv))
+    edm::LogVerbatim("EcalSimX") << "ECalSD::Volume " << lv->GetName() << " DetId " << std::hex << setDetUnitId(aStep)
+                                 << std::dec << " Global " << (hitPoint->GetPosition()).rho() << ":"
+                                 << (hitPoint->GetPosition()).z() << " Local Z " << currentLocalPoint.z() << " Depth "
+                                 << crystalDepth;
   edm::LogVerbatim("EcalSim") << "ECalSD::Depth " << std::hex << depth1 << ":" << depth2 << ":" << depth << std::dec
                               << " L " << (ite == xtalLMap.end()) << ":" << ite->second << " local "
                               << currentLocalPoint << " Crystal length " << crystalLength << ":" << crystalDepth;
@@ -352,17 +354,17 @@ void ECalSD::initMap() {
       if (strncmp(lvname.c_str(), depth1Name.c_str(), 4) == 0) {
         if (!any(useDepth1, lv)) {
           useDepth1.push_back(lv);
-#ifdef EDM_ML_DEBUG
+          //#ifdef EDM_ML_DEBUG
           edm::LogVerbatim("EcalSim") << "ECalSD::initMap Logical Volume " << lvname << " in Depth 1 volume list";
-#endif
+          //#endif
         }
         const G4LogicalVolume* lvr = nameMap[lvname + "_refl"];
         if (lvr != nullptr && !any(useDepth1, lvr)) {
           useDepth1.push_back(lvr);
-#ifdef EDM_ML_DEBUG
+          //#ifdef EDM_ML_DEBUG
           edm::LogVerbatim("EcalSim") << "ECalSD::initMap Logical Volume " << lvname << "_refl"
                                       << " in Depth 1 volume list";
-#endif
+          //#endif
         }
       }
     }
@@ -370,9 +372,9 @@ void ECalSD::initMap() {
       if (strncmp(lvname.c_str(), depth2Name.c_str(), 4) == 0) {
         if (!any(useDepth2, lv)) {
           useDepth2.push_back(lv);
-#ifdef EDM_ML_DEBUG
+          //#ifdef EDM_ML_DEBUG
           edm::LogVerbatim("EcalSim") << "ECalSD::initMap Logical Volume " << lvname << " in Depth 2 volume list";
-#endif
+          //#endif
         }
         const G4LogicalVolume* lvr = nameMap[lvname + "_refl"];
         if (lvr != nullptr && !any(useDepth2, lvr)) {
@@ -398,18 +400,18 @@ void ECalSD::initMap() {
       } else {
         if (!any(noWeight, lv)) {
           noWeight.push_back(lv);
-#ifdef EDM_ML_DEBUG
+          //#ifdef EDM_ML_DEBUG
           edm::LogVerbatim("EcalSim") << "ECalSD::initMap Logical Volume " << lvname << " Material " << matname
                                       << " in noWeight list";
-#endif
+          //#endif
         }
         lv = nameMap[lvname];
         if (lv != nullptr && !any(noWeight, lv)) {
           noWeight.push_back(lv);
-#ifdef EDM_ML_DEBUG
+          //#ifdef EDM_ML_DEBUG
           edm::LogVerbatim("EcalSim") << "ECalSD::initMap Logical Volume " << lvname << " Material " << matname
                                       << " in noWeight list";
-#endif
+          //#endif
         }
       }
     }
@@ -497,3 +499,5 @@ double ECalSD::getBirkL3(const G4Step* aStep) {
   }
   return weight;
 }
+
+bool ECalSD::isXtal(const G4LogicalVolume* lv) { return (xtalLMap.find(lv) != xtalLMap.end()); }

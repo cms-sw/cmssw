@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Run3_dd4hep_cff import Run3_dd4hep
+from Configuration.Eras.Era_Run3_cff import Run3
 
-process = cms.Process('SIM',Run3_dd4hep)
+process = cms.Process('SIM',Run3)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -17,12 +17,10 @@ process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load('Configuration.Geometry.GeometryDD4hepExtended2021_cff')
-
+process.load('Configuration.Geometry.GeometryExtended2021_cff')
 
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('EcalGeom')
-    process.MessageLogger.categories.append('EcalSim')
+    process.MessageLogger.categories.append('EcalSimX')
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10),
@@ -76,7 +74,7 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
         dataTier = cms.untracked.string('GEN-SIM'),
         filterName = cms.untracked.string('')
     ),
-    fileName = cms.untracked.string('file:step1_dd4hep.root'),
+    fileName = cms.untracked.string('file:step1_ddd.root'),
     outputCommands = process.FEVTDEBUGEventContent.outputCommands,
     splitLevel = cms.untracked.int32(0)
 )
