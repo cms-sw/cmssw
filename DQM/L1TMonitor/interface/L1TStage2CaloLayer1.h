@@ -257,7 +257,7 @@ private:
                             std::vector<std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>> &) const;
 
   bool isLaterMismatch(std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int> &candidateMismatch,
-                       std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int> &higherOrderMismatch) const;
+                       std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int> &comparisonMismatch) const;
 
   int findIndex(std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>,
                 std::vector<std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>>,
