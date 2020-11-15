@@ -64,10 +64,10 @@ process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",
 # DQM Live Environment
 #-----------------------------
 process.load("DQM.Integration.config.environment_cfi")
-process.dqmEnv.subSystemFolder = 'TrackingHLTBeamspotStream'
-process.dqmSaver.tag           = 'TrackingHLTBeamspotStream'
+process.dqmEnv.subSystemFolder = 'BeamMonitor'
+process.dqmSaver.tag           = 'BeamMonitor'
 process.dqmSaver.runNumber     = options.runNumber
-process.dqmSaverPB.tag         = 'TrackingHLTBeamspotStream'
+process.dqmSaverPB.tag         = 'BeamMonitor'
 process.dqmSaverPB.runNumber   = options.runNumber
 
 #-----------------------------
@@ -121,7 +121,7 @@ if (process.runType.getRunType() == process.runType.pp_run or
 
     process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 
-    process.dqmBeamMonitor.monitorName = 'TrackingHLTBeamspotStream'
+    process.dqmBeamMonitor.monitorName = 'BeamMonitor'
 
     process.dqmBeamMonitor.OnlineMode = True              
     process.dqmBeamMonitor.recordName = BSOnlineRecordName
