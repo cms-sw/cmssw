@@ -351,7 +351,7 @@ void L1TStage2CaloLayer1::updateMismatch(
       e.getRun().id(), e.getLuminosityBlock().id(), e.id(), mismatchType};
   streamMismatches.push_back(mismatchToInsert);
   //This 20 is potentially a non-obvious constant "magic number"
-  //this matches the mismatchd detail histogram, but should be upgraded to not use the constant in this manner.
+  //this matches the mismatch detail histogram, but should be upgraded to not use the constant in this manner.
   if (streamMismatches.size() > 20)
     streamMismatches.erase(streamMismatches.begin());
 }
@@ -603,26 +603,27 @@ void L1TStage2CaloLayer1::globalEndLuminosityBlockSummary(
   theRunCache->maxEvtMismatchByLumi_->setBinContent(0, theLumiBlock.luminosityBlock());
 }
 
-//returns true if the new candidate mismatch is from a later mismatch than the higher order mismatch, as based on Run, Lumisection, and event number
+//returns true if the new candidate mismatch is from a later mismatch than the comparison mismatch
+// based on Run, Lumisection, and event number
 //false otherwise
 bool L1TStage2CaloLayer1::isLaterMismatch(
     std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>& candidateMismatch,
-    std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>& higherOrderMismatch) const {
-  //check the run. If the run ID of the candidate mismatch is less than the run ID of the higher order mismatch, it is earlier,
-  if (std::get<0>(candidateMismatch) < std::get<0>(higherOrderMismatch))
+    std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>& comparisonMismatch) const {
+  //check the run. If the run ID of the candidate mismatch is less than the run ID of the comparison mismatch, it is earlier,
+  if (std::get<0>(candidateMismatch) < std::get<0>(comparisonMismatch))
     return false;
   //if it is greater, then it is a later mismatch
-  else if (std::get<0>(candidateMismatch) > std::get<0>(higherOrderMismatch))
+  else if (std::get<0>(candidateMismatch) > std::get<0>(comparisonMismatch))
     return true;
   //if it is even, then we need to repeat this comparison on the luminosity block
   else {
-    if (std::get<1>(candidateMismatch) < std::get<1>(higherOrderMismatch))
+    if (std::get<1>(candidateMismatch) < std::get<1>(comparisonMismatch))
       return false;  //if the lumi block is less, it is an earlier mismatch
-    else if (std::get<1>(candidateMismatch) > std::get<1>(higherOrderMismatch))
+    else if (std::get<1>(candidateMismatch) > std::get<1>(comparisonMismatch))
       return true;  // if the lumi block is greater, than it is a later mismatch
     // if these are equivalent, then we repeat the comparison on the event
     else {
-      if (std::get<2>(candidateMismatch) < std::get<2>(higherOrderMismatch))
+      if (std::get<2>(candidateMismatch) < std::get<2>(comparisonMismatch))
         return false;
       else
         return true;  //in the case of even events here, we consider the event later.
@@ -637,25 +638,25 @@ bool L1TStage2CaloLayer1::isLaterMismatch(
 //will return -1 if the mismatch should not be inserted into the list
 int L1TStage2CaloLayer1::findIndex(
     std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int> candidateMismatch,
-    std::vector<std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>> higherOrderList,
+    std::vector<std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>> comparisonList,
     int lowerIndexToSearch,
     int upperIndexToSearch) const {
   //Start by getting the spot in the the vector to start searching
   int searchLocation = ((upperIndexToSearch + lowerIndexToSearch) / 2) -
                        1;  //-1 handles zero indexing implied by vector.begin() being valid, but vector.end() not
-  auto searchIterator = higherOrderList.begin() + searchLocation;
+  auto searchIterator = comparisonList.begin() + searchLocation;
   //Multiple possible cases:
   //case one. Greater than the search element
   if (this->isLaterMismatch(candidateMismatch, *searchIterator)) {
     //subcase one, there exists a mismatch to its right,
-    if (searchIterator + 1 != higherOrderList.end()) {
+    if (searchIterator + 1 != comparisonList.end()) {
       //subsubcase one, the candidate is earlier than the one to the right, insert this element between these two
       if (not this->isLaterMismatch(candidateMismatch, *(searchIterator + 1))) {
         return searchLocation + 1;  //vector insert inserts *before* the position, so we return +1
       }
       //subsubcase two, the candidate is later than it, in this case we refine the search area.
       else {
-        return this->findIndex(candidateMismatch, higherOrderList, searchLocation, upperIndexToSearch);
+        return this->findIndex(candidateMismatch, comparisonList, searchLocation, upperIndexToSearch);
       }
     }
     //subcase two, there exists no mismatch to it's right (end of the vector), in which case this is the latest mismatch
@@ -667,10 +668,10 @@ int L1TStage2CaloLayer1::findIndex(
   //case two. we are earlier than the current mismatch
   else {
     //subcase one, these exists a mismatch to its left,
-    if (searchIterator != higherOrderList.begin()) {
+    if (searchIterator != comparisonList.begin()) {
       //subsubcase one, the candidate mismatch is earlier than the one to the left. in this case we refine the search area
       if (not this->isLaterMismatch(candidateMismatch, *(searchIterator - 1))) {
-        return this->findIndex(candidateMismatch, higherOrderList, lowerIndexToSearch, searchLocation);
+        return this->findIndex(candidateMismatch, comparisonList, lowerIndexToSearch, searchLocation);
       }
       //subsubcase two the candidate is later than than the one to it's left, in which case, we insert the element between these two.
       else {
@@ -682,7 +683,7 @@ int L1TStage2CaloLayer1::findIndex(
       //subsubcase one. It is possible we still insert this if the capacity of the vector is below 20.
       //this should probably be rewritten to have the capacity reserved before-hand so that 20 is not potentially a hard coded magic number
       //defined by what we know to be true about a non-obvious data type elsewhere.
-      if (higherOrderList.size() < 20) {
+      if (comparisonList.size() < 20) {
         return searchLocation;
       }
       //subsubcase two. The size is 20 or above, and we are earlier than all of them. This should not be inserted into the list.
@@ -695,24 +696,23 @@ int L1TStage2CaloLayer1::findIndex(
   return -1;
 }
 
-//will shuffle the candidate mismatch list into the higher order mismatch list.
+//will shuffle the candidate mismatch list into the comparison mismatch list.
 void L1TStage2CaloLayer1::mergeMismatchVectors(
     std::vector<std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>>& candidateMismatchList,
-    std::vector<std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>>& higherOrderMismatchList) const {
+    std::vector<std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>>& comparisonMismatchList) const {
   //okay now we loop over our candidate mismatches
-  for (auto candidateIterator = candidateMismatchList.begin(); candidateIterator != higherOrderMismatchList.end();
+  for (auto candidateIterator = candidateMismatchList.begin(); candidateIterator != comparisonMismatchList.end();
        ++candidateIterator) {
-    int insertionIndex =
-        this->findIndex(*candidateIterator, higherOrderMismatchList, 0, higherOrderMismatchList.size());
+    int insertionIndex = this->findIndex(*candidateIterator, comparisonMismatchList, 0, comparisonMismatchList.size());
     if (insertionIndex < 0)
       continue;  //if we didn't find anywhere to put this mismatch, we move on
-    auto insertionIterator = higherOrderMismatchList.begin() + insertionIndex;
-    higherOrderMismatchList.insert(insertionIterator, *candidateIterator);
+    auto insertionIterator = comparisonMismatchList.begin() + insertionIndex;
+    comparisonMismatchList.insert(insertionIterator, *candidateIterator);
     //now if we have more than 20 mismatches in the list, we erase the earliest one (the beginning)
     //this should probably be rewritten to have the capacity reserved before-hand so that 20 is not potentially a hard coded magic number
     //defined by what we know to be true about a non-obvious data type elsewhere.
-    if (higherOrderMismatchList.size() > 20)
-      higherOrderMismatchList.erase(higherOrderMismatchList.begin());
+    if (comparisonMismatchList.size() > 20)
+      comparisonMismatchList.erase(comparisonMismatchList.begin());
   }
 }
 
@@ -728,7 +728,7 @@ void L1TStage2CaloLayer1::streamEndRunSummary(
   else
     this->mergeMismatchVectors(theStreamCache->streamMismatchList, theRunSummaryMonitoringInformation->runMismatchList);
 
-  //clear the stream cache so that the next run does not try to compare to this.
+  //clear the stream cache so that the next run does not try to compare to the current one.
   theStreamCache->streamMismatchList.clear();
 }
 
