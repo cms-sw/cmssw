@@ -77,8 +77,7 @@ void EcalRecHitParametersGPUESProducer::fillDescriptions(edm::ConfigurationDescr
   desc.addWithDefaultLabel(d);
 }
 
-std::unique_ptr<EcalRecHitParametersGPU> EcalRecHitParametersGPUESProducer::produce(
-    JobConfigurationGPURecord const&) {
+std::unique_ptr<EcalRecHitParametersGPU> EcalRecHitParametersGPUESProducer::produce(JobConfigurationGPURecord const&) {
   return std::make_unique<EcalRecHitParametersGPU>(pset_);
 }
 
