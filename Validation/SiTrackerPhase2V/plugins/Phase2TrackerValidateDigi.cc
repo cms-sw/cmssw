@@ -667,10 +667,13 @@ void Phase2TrackerValidateDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
     std::stringstream folder_name;
 
     //For endCap: P-type sensors are present only upto ring 10 for discs 1&2 (TEDD-1) and upto ring 7 for discs 3,4&5 (TEDD-2)
-    bool isPStypeModForTEDD_1 = (!pixelFlag_ && layer > 100 && tTopo->tidWheel(det_id) < 3 && tTopo->tidRing(det_id) <= 10) ? true : false;
-    bool isPStypeModForTEDD_2 = (!pixelFlag_ && layer > 100 && tTopo->tidWheel(det_id) >= 3 && tTopo->tidRing(det_id) <= 7) ? true : false;
+    bool isPStypeModForTEDD_1 =
+        (!pixelFlag_ && layer > 100 && tTopo->tidWheel(det_id) < 3 && tTopo->tidRing(det_id) <= 10) ? true : false;
+    bool isPStypeModForTEDD_2 =
+        (!pixelFlag_ && layer > 100 && tTopo->tidWheel(det_id) >= 3 && tTopo->tidRing(det_id) <= 7) ? true : false;
 
-    bool isPtypeSensor = (flag || (layer < 4 || (layer > 6 && (isPStypeModForTEDD_1 || isPStypeModForTEDD_2)))) ? true : false;
+    bool isPtypeSensor =
+        (flag || (layer < 4 || (layer > 6 && (isPStypeModForTEDD_1 || isPStypeModForTEDD_2)))) ? true : false;
 
     ibooker.cd();
     ibooker.setCurrentFolder(top_folder + "/DigiMonitor/" + key);
@@ -1069,8 +1072,10 @@ void Phase2TrackerValidateDigi::fillHitsPerTrack() {
 */
 #include "DQM/SiTrackerPhase2/interface/TrackerPhase2DQMUtil.h"
 std::string Phase2TrackerValidateDigi::getHistoId(uint32_t det_id, const TrackerTopology* tTopo, bool flag) {
-  if(flag) return phase2tkutil::getITHistoId(det_id, tTopo);
-  else return phase2tkutil::getOTHistoId(det_id, tTopo);
+  if (flag)
+    return phase2tkutil::getITHistoId(det_id, tTopo);
+  else
+    return phase2tkutil::getOTHistoId(det_id, tTopo);
   /*
   int layer;
   std::string Disc;

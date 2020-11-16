@@ -51,7 +51,7 @@
 
 class Phase2OTValidateCluster : public DQMEDAnalyzer {
 public:
-  typedef std::map<unsigned int, std::vector<PSimHit> > SimHitsMap;
+  typedef std::map<unsigned int, std::vector<PSimHit>> SimHitsMap;
   typedef std::map<unsigned int, SimTrack> SimTracksMap;
 
   explicit Phase2OTValidateCluster(const edm::ParameterSet&);
@@ -60,31 +60,32 @@ public:
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
   void dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-private:
 
+private:
   struct ClusterMEs {
-    MonitorElement* deltaX_S=nullptr;
-    MonitorElement* deltaX_P=nullptr;
-    MonitorElement* deltaY_S=nullptr;
-    MonitorElement* deltaY_P=nullptr;
-    MonitorElement* deltaX_P_primary=nullptr;
-    MonitorElement* deltaY_P_primary=nullptr;
-    MonitorElement* deltaX_S_primary=nullptr;
-    MonitorElement* deltaY_S_primary=nullptr;
+    MonitorElement* deltaX_S = nullptr;
+    MonitorElement* deltaX_P = nullptr;
+    MonitorElement* deltaY_S = nullptr;
+    MonitorElement* deltaY_P = nullptr;
+    MonitorElement* deltaX_P_primary = nullptr;
+    MonitorElement* deltaY_P_primary = nullptr;
+    MonitorElement* deltaX_S_primary = nullptr;
+    MonitorElement* deltaY_S_primary = nullptr;
   };
 
   void fillOTHistos(const edm::Event& iEvent,
-		    const std::vector<edm::Handle<edm::PSimHitContainer>>& simHits,
+                    const std::vector<edm::Handle<edm::PSimHitContainer>>& simHits,
                     const std::map<unsigned int, SimTrack>& simTracks);
   void bookLayerHistos(DQMStore::IBooker& ibooker, uint32_t det_it, const std::string& subdir);
-  std::vector<unsigned int> getSimTrackId( const edm::Handle<edm::DetSetVector<PixelDigiSimLink> >& pixelSimLinks, 
-					   const DetId& detId, unsigned int channel);
+  std::vector<unsigned int> getSimTrackId(const edm::Handle<edm::DetSetVector<PixelDigiSimLink>>& pixelSimLinks,
+                                          const DetId& detId,
+                                          unsigned int channel);
 
   std::map<std::string, ClusterMEs> layerMEs_;
 
   edm::ParameterSet config_;
   double simtrackminpt_;
-  std::vector<edm::EDGetTokenT<edm::PSimHitContainer> > simHitTokens_;
+  std::vector<edm::EDGetTokenT<edm::PSimHitContainer>> simHitTokens_;
   edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink>> simOTLinksToken_;
   edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink>> simITLinksToken_;
   edm::EDGetTokenT<edm::SimTrackContainer> simTracksToken_;
@@ -94,7 +95,6 @@ private:
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
   const TrackerGeometry* tkGeom_ = nullptr;
   const TrackerTopology* tTopo_ = nullptr;
-
 };
 #endif
 #include "Validation/SiTrackerPhase2V/interface/TrackerPhase2ValidationUtil.h"
@@ -107,18 +107,19 @@ private:
 Phase2OTValidateCluster::Phase2OTValidateCluster(const edm::ParameterSet& iConfig)
     : config_(iConfig),
       simtrackminpt_(config_.getParameter<double>("SimTrackMinPt")),
-      simOTLinksToken_(consumes<edm::DetSetVector<PixelDigiSimLink>>(config_.getParameter<edm::InputTag>("OuterTrackerDigiSimLinkSource"))),
+      simOTLinksToken_(consumes<edm::DetSetVector<PixelDigiSimLink>>(
+          config_.getParameter<edm::InputTag>("OuterTrackerDigiSimLinkSource"))),
       simTracksToken_(consumes<edm::SimTrackContainer>(config_.getParameter<edm::InputTag>("simtracks"))),
-      clustersToken_(consumes<Phase2TrackerCluster1DCollectionNew>(config_.getParameter<edm::InputTag>("ClusterSource"))),
-  pSimHitSrc_(config_.getParameter<std::vector<edm::InputTag> >("PSimHitSource")),
-  geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
-  topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>())
-{
+      clustersToken_(
+          consumes<Phase2TrackerCluster1DCollectionNew>(config_.getParameter<edm::InputTag>("ClusterSource"))),
+      pSimHitSrc_(config_.getParameter<std::vector<edm::InputTag>>("PSimHitSource")),
+      geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
+      topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()) {
   edm::LogInfo("Phase2OTValidateCluster") << ">>> Construct Phase2OTValidateCluster ";
   for (const auto& itag : pSimHitSrc_)
-        simHitTokens_.push_back(consumes<edm::PSimHitContainer>(itag));
+    simHitTokens_.push_back(consumes<edm::PSimHitContainer>(itag));
 }
-    
+
 Phase2OTValidateCluster::~Phase2OTValidateCluster() {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
@@ -137,7 +138,6 @@ void Phase2OTValidateCluster::dqmBeginRun(const edm::Run& iRun, const edm::Event
 // -- Analyze
 //
 void Phase2OTValidateCluster::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  
   // Getting simHits
   std::vector<edm::Handle<edm::PSimHitContainer>> simHits;
   for (const auto& itoken : simHitTokens_) {
@@ -161,38 +161,38 @@ void Phase2OTValidateCluster::analyze(const edm::Event& iEvent, const edm::Event
   }
   fillOTHistos(iEvent, simHits, simTracks);
 }
-  
-void Phase2OTValidateCluster::fillOTHistos(const edm::Event& iEvent,
-					   const std::vector<edm::Handle<edm::PSimHitContainer>>& simHits,
-                                           const std::map<unsigned int, SimTrack>& simTracks){
 
+void Phase2OTValidateCluster::fillOTHistos(const edm::Event& iEvent,
+                                           const std::vector<edm::Handle<edm::PSimHitContainer>>& simHits,
+                                           const std::map<unsigned int, SimTrack>& simTracks) {
   // Getting the clusters
   edm::Handle<Phase2TrackerCluster1DCollectionNew> clusterHandle;
   iEvent.getByToken(clustersToken_, clusterHandle);
 
   // Getting PixelDigiSimLinks
-  edm::Handle<edm::DetSetVector<PixelDigiSimLink> > pixelSimLinksHandle;
+  edm::Handle<edm::DetSetVector<PixelDigiSimLink>> pixelSimLinksHandle;
   iEvent.getByToken(simOTLinksToken_, pixelSimLinksHandle);
 
   // Number of clusters
   std::map<std::string, unsigned int> nPrimarySimHits[3];
   std::map<std::string, unsigned int> nOtherSimHits[3];
-  for(const auto& DSVItr: *clusterHandle){
+  for (const auto& DSVItr : *clusterHandle) {
     // Getting the id of detector unit
     uint32_t rawid = DSVItr.detId();
     DetId detId(rawid);
     const GeomDetUnit* geomDetUnit(tkGeom_->idToDetUnit(detId));
-    if(!geomDetUnit) continue;
+    if (!geomDetUnit)
+      continue;
     TrackerGeometry::ModuleType mType = tkGeom_->getDetectorType(detId);
 
     std::string folderkey = phase2tkutil::getOTHistoId(detId, tTopo_);
-    for(const auto& clusterItr : DSVItr){
+    for (const auto& clusterItr : DSVItr) {
       MeasurementPoint mpCluster(clusterItr.center(), clusterItr.column() + 0.5);
       Local3DPoint localPosCluster = geomDetUnit->topology().localPosition(mpCluster);
 
       // Get simTracks from the cluster
       std::vector<unsigned int> clusterSimTrackIds;
-      for(unsigned int i(0); i < clusterItr.size(); ++i){
+      for (unsigned int i(0); i < clusterItr.size(); ++i) {
         unsigned int channel(Phase2TrackerDigi::pixelToChannel(clusterItr.firstRow() + i, clusterItr.column()));
         std::vector<unsigned int> simTrackIds(getSimTrackId(pixelSimLinksHandle, detId, channel));
         for (auto it : simTrackIds) {
@@ -210,9 +210,9 @@ void Phase2OTValidateCluster::fillOTHistos(const edm::Event& iEvent,
       const PSimHit* closestSimHit = nullptr;
       float minx = 10000.;
       // Get the SimHit
-      for(auto psimhitCont : simHits) {
-	for(auto simhitIt : *psimhitCont) {
-         if (rawid == simhitIt.detUnitId()) {
+      for (const auto& psimhitCont : simHits) {
+        for (const auto& simhitIt : *psimhitCont) {
+          if (rawid == simhitIt.detUnitId()) {
             auto it = std::lower_bound(clusterSimTrackIds.begin(), clusterSimTrackIds.end(), simhitIt.trackId());
             if (it != clusterSimTrackIds.end() && *it == simhitIt.trackId()) {
               if (!closestSimHit || fabs(simhitIt.localPosition().x() - localPosCluster.x()) < minx) {
@@ -221,15 +221,15 @@ void Phase2OTValidateCluster::fillOTHistos(const edm::Event& iEvent,
               }
             }
           }
-        }//end loop over PSimhitcontainers
-      }//end loop over simHits
-      
+        }  //end loop over PSimhitcontainers
+      }    //end loop over simHits
+
       if (!closestSimHit)
         continue;
       // only look at simhits from highpT tracks
       auto simTrackIt(simTracks.find(closestSimHit->trackId()));
       if (simTrackIt == simTracks.end())
-         continue;
+        continue;
 
       Local3DPoint localPosSimHit(closestSimHit->localPosition());
       const float deltaX = localPosCluster.x() - localPosSimHit.x();
@@ -239,19 +239,19 @@ void Phase2OTValidateCluster::fillOTHistos(const edm::Event& iEvent,
         continue;
 
       ClusterMEs& local_mes = layerMEs_.at(folderkey);
-      if(mType == TrackerGeometry::ModuleType::Ph2PSP){
+      if (mType == TrackerGeometry::ModuleType::Ph2PSP) {
         local_mes.deltaX_P->Fill(deltaX);
         local_mes.deltaY_P->Fill(deltaY);
-      } else if(mType == TrackerGeometry::ModuleType::Ph2PSS || mType == TrackerGeometry::ModuleType::Ph2SS) {
+      } else if (mType == TrackerGeometry::ModuleType::Ph2PSS || mType == TrackerGeometry::ModuleType::Ph2SS) {
         local_mes.deltaX_S->Fill(deltaX);
         local_mes.deltaY_S->Fill(deltaY);
       }
-         // Primary particles only
-      if(phase2tkutil::isPrimary(simTrackIt->second, closestSimHit)) {
-        if(mType == TrackerGeometry::ModuleType::Ph2PSP){
+      // Primary particles only
+      if (phase2tkutil::isPrimary(simTrackIt->second, closestSimHit)) {
+        if (mType == TrackerGeometry::ModuleType::Ph2PSP) {
           local_mes.deltaX_P_primary->Fill(deltaX);
           local_mes.deltaY_P_primary->Fill(deltaY);
-        }else if(mType == TrackerGeometry::ModuleType::Ph2PSS || mType == TrackerGeometry::ModuleType::Ph2SS){
+        } else if (mType == TrackerGeometry::ModuleType::Ph2PSS || mType == TrackerGeometry::ModuleType::Ph2SS) {
           local_mes.deltaX_S_primary->Fill(deltaX);
           local_mes.deltaY_S_primary->Fill(deltaY);
         }
@@ -263,9 +263,9 @@ void Phase2OTValidateCluster::fillOTHistos(const edm::Event& iEvent,
 //
 // -- Book Histograms
 //
-void Phase2OTValidateCluster::bookHistograms(DQMStore::IBooker& ibooker, 
-                                                  edm::Run const& iRun, 
-                                                  edm::EventSetup const& iSetup){
+void Phase2OTValidateCluster::bookHistograms(DQMStore::IBooker& ibooker,
+                                             edm::Run const& iRun,
+                                             edm::EventSetup const& iSetup) {
   std::string top_folder = config_.getParameter<std::string>("TopFolderName");
   edm::LogInfo("Phase2OTValidateCluster") << " Booking Histograms in: " << top_folder;
 
@@ -274,83 +274,80 @@ void Phase2OTValidateCluster::bookHistograms(DQMStore::IBooker& ibooker,
     for (auto const& det_u : tkGeom_->detUnits()) {
       //Always check TrackerNumberingBuilder before changing this part
       if ((det_u->subDetector() == GeomDetEnumerators::SubDetector::P2PXB ||
-            det_u->subDetector() == GeomDetEnumerators::SubDetector::P2PXEC))
-        continue;//continue if Pixel
+           det_u->subDetector() == GeomDetEnumerators::SubDetector::P2PXEC))
+        continue;  //continue if Pixel
       uint32_t detId_raw = det_u->geographicalId().rawId();
       bookLayerHistos(ibooker, detId_raw, top_folder);
-    }    
+    }
   }
 }
 
 //////////////////Layer Histo/////////////////////////////////
-void Phase2OTValidateCluster::bookLayerHistos(DQMStore::IBooker& ibooker,
-					      uint32_t det_id,
-                                              const std::string& subdir) {
+void Phase2OTValidateCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_t det_id, const std::string& subdir) {
   std::string folderName = phase2tkutil::getOTHistoId(det_id, tTopo_);
-  if(folderName.empty()){
+  if (folderName.empty()) {
     edm::LogInfo("Phase2OTValidateCluster") << ">>>> Invalid histo_id ";
     return;
   }
 
-  if(layerMEs_.find(folderName) == layerMEs_.end()){
+  if (layerMEs_.find(folderName) == layerMEs_.end()) {
     ibooker.cd();
-    ibooker.setCurrentFolder(subdir+'/'+folderName);
+    ibooker.setCurrentFolder(subdir + '/' + folderName);
     edm::LogInfo("Phase2TrackerValidateDigi") << " Booking Histograms in: " << subdir + '/' + folderName;
     std::ostringstream HistoName;
     ClusterMEs local_mes;
 
-    if(tkGeom_->getDetectorType(det_id) == TrackerGeometry::ModuleType::Ph2PSP) {
+    if (tkGeom_->getDetectorType(det_id) == TrackerGeometry::ModuleType::Ph2PSP) {
       HistoName.str("");
       HistoName << "Delta_X_Pixel";
-      local_mes.deltaX_P = 
-	phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_X_Pixel"), HistoName.str(), ibooker);
+      local_mes.deltaX_P = phase2tkutil::book1DFromPSet(
+          config_.getParameter<edm::ParameterSet>("Delta_X_Pixel"), HistoName.str(), ibooker);
 
       HistoName.str("");
       HistoName << "Delta_Y_Pixel";
-      local_mes.deltaY_P = 
-      phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_Y_Pixel"), HistoName.str(), ibooker);
+      local_mes.deltaY_P = phase2tkutil::book1DFromPSet(
+          config_.getParameter<edm::ParameterSet>("Delta_Y_Pixel"), HistoName.str(), ibooker);
 
       // Puting primary digis in a subfolder
-      ibooker.setCurrentFolder(subdir +'/'+folderName + "/PrimarySimHits"); 
+      ibooker.setCurrentFolder(subdir + '/' + folderName + "/PrimarySimHits");
       HistoName.str("");
       HistoName << "Delta_X_Pixel_Primary";
-      local_mes.deltaX_P_primary = 
-	phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_X_Pixel_Primary"), HistoName.str(), ibooker);
+      local_mes.deltaX_P_primary = phase2tkutil::book1DFromPSet(
+          config_.getParameter<edm::ParameterSet>("Delta_X_Pixel_Primary"), HistoName.str(), ibooker);
 
       HistoName.str("");
       HistoName << "Delta_Y_Pixel_Primary";
-      local_mes.deltaY_P_primary = 
-	phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_Y_Pixel_Primary"), HistoName.str(), ibooker);
+      local_mes.deltaY_P_primary = phase2tkutil::book1DFromPSet(
+          config_.getParameter<edm::ParameterSet>("Delta_Y_Pixel_Primary"), HistoName.str(), ibooker);
     }
     HistoName.str("");
     HistoName << "Delta_X_Strip";
-    local_mes.deltaX_S = 
-      phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_X_Strip"), HistoName.str(), ibooker);
+    local_mes.deltaX_S = phase2tkutil::book1DFromPSet(
+        config_.getParameter<edm::ParameterSet>("Delta_X_Strip"), HistoName.str(), ibooker);
 
     HistoName.str("");
     HistoName << "Delta_Y_Strip";
-    local_mes.deltaY_S = 
-      phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_Y_Strip"), HistoName.str(), ibooker);
+    local_mes.deltaY_S = phase2tkutil::book1DFromPSet(
+        config_.getParameter<edm::ParameterSet>("Delta_Y_Strip"), HistoName.str(), ibooker);
 
     // Puting primary digis in a subfolder
-    ibooker.setCurrentFolder(subdir +'/'+folderName + "/PrimarySimHits");
+    ibooker.setCurrentFolder(subdir + '/' + folderName + "/PrimarySimHits");
     HistoName.str("");
     HistoName << "Delta_X_Strip_Primary";
-    local_mes.deltaX_S_primary = 
-      phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_X_Strip_Primary"), HistoName.str(), ibooker);
+    local_mes.deltaX_S_primary = phase2tkutil::book1DFromPSet(
+        config_.getParameter<edm::ParameterSet>("Delta_X_Strip_Primary"), HistoName.str(), ibooker);
 
     HistoName.str("");
     HistoName << "Delta_Y_Strip_Primary";
-    local_mes.deltaY_S_primary = 
-      phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_Y_Strip_Primary"), HistoName.str(), ibooker);
+    local_mes.deltaY_S_primary = phase2tkutil::book1DFromPSet(
+        config_.getParameter<edm::ParameterSet>("Delta_Y_Strip_Primary"), HistoName.str(), ibooker);
 
     layerMEs_.emplace(folderName, local_mes);
   }
 }
 
-std::vector<unsigned int> 
-Phase2OTValidateCluster::getSimTrackId(const edm::Handle<edm::DetSetVector<PixelDigiSimLink> >& pixelSimLinks, 
-				       const DetId& detId, unsigned int channel) {
+std::vector<unsigned int> Phase2OTValidateCluster::getSimTrackId(
+    const edm::Handle<edm::DetSetVector<PixelDigiSimLink>>& pixelSimLinks, const DetId& detId, unsigned int channel) {
   std::vector<unsigned int> retvec;
   edm::DetSetVector<PixelDigiSimLink>::const_iterator DSViter(pixelSimLinks->find(detId));
   if (DSViter == pixelSimLinks->end())
@@ -363,8 +360,7 @@ Phase2OTValidateCluster::getSimTrackId(const edm::Handle<edm::DetSetVector<Pixel
   return retvec;
 }
 
-void
-Phase2OTValidateCluster::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void Phase2OTValidateCluster::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   //for macro-pixel sensors
   std::string mptag = "macro-pixel sensor";
@@ -372,7 +368,7 @@ Phase2OTValidateCluster::fillDescriptions(edm::ConfigurationDescriptions& descri
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_X_Pixel");
-    psd0.add<std::string>("title", "#Delta X "+mptag+";Cluster resolution X dimension");
+    psd0.add<std::string>("title", "#Delta X " + mptag + ";Cluster resolution X dimension");
     psd0.add<bool>("switch", true);
     psd0.add<double>("xmax", 5.0);
     psd0.add<double>("xmin", -5.0);
@@ -382,7 +378,7 @@ Phase2OTValidateCluster::fillDescriptions(edm::ConfigurationDescriptions& descri
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_Y_Pixel");
-    psd0.add<std::string>("title", "#Delta Y "+mptag+";Cluster resolution Y dimension");
+    psd0.add<std::string>("title", "#Delta Y " + mptag + ";Cluster resolution Y dimension");
     psd0.add<double>("xmin", -5.0);
     psd0.add<bool>("switch", true);
     psd0.add<double>("xmax", 5.0);
@@ -392,7 +388,7 @@ Phase2OTValidateCluster::fillDescriptions(edm::ConfigurationDescriptions& descri
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_X_Pixel_Primary");
-    psd0.add<std::string>("title", "#Delta X "+mptag+";cluster resolution X dimension");
+    psd0.add<std::string>("title", "#Delta X " + mptag + ";cluster resolution X dimension");
     psd0.add<double>("xmin", -5.0);
     psd0.add<bool>("switch", true);
     psd0.add<double>("xmax", 5.0);
@@ -402,7 +398,7 @@ Phase2OTValidateCluster::fillDescriptions(edm::ConfigurationDescriptions& descri
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_Y_Pixel_Primary");
-    psd0.add<std::string>("title", "#Delta Y "+mptag+";cluster resolution Y dimension");
+    psd0.add<std::string>("title", "#Delta Y " + mptag + ";cluster resolution Y dimension");
     psd0.add<double>("xmin", -5.0);
     psd0.add<bool>("switch", true);
     psd0.add<double>("xmax", 5.0);
@@ -414,7 +410,7 @@ Phase2OTValidateCluster::fillDescriptions(edm::ConfigurationDescriptions& descri
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_X_Strip");
-    psd0.add<std::string>("title", "#Delta X "+striptag+";Cluster resolution X dimension");
+    psd0.add<std::string>("title", "#Delta X " + striptag + ";Cluster resolution X dimension");
     psd0.add<double>("xmin", -5.0);
     psd0.add<bool>("switch", true);
     psd0.add<double>("xmax", 5.0);
@@ -424,7 +420,7 @@ Phase2OTValidateCluster::fillDescriptions(edm::ConfigurationDescriptions& descri
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_Y_Strip");
-    psd0.add<std::string>("title", "#Delta Y "+striptag+";Cluster resolution Y dimension");
+    psd0.add<std::string>("title", "#Delta Y " + striptag + ";Cluster resolution Y dimension");
     psd0.add<double>("xmin", -5.0);
     psd0.add<bool>("switch", true);
     psd0.add<double>("xmax", 5.0);
@@ -434,7 +430,7 @@ Phase2OTValidateCluster::fillDescriptions(edm::ConfigurationDescriptions& descri
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_X_Strip_Primary");
-    psd0.add<std::string>("title", "#Delta X "+striptag+";Cluster resolution X dimension");
+    psd0.add<std::string>("title", "#Delta X " + striptag + ";Cluster resolution X dimension");
     psd0.add<double>("xmin", -5.0);
     psd0.add<bool>("switch", true);
     psd0.add<double>("xmax", 5.0);
@@ -444,7 +440,7 @@ Phase2OTValidateCluster::fillDescriptions(edm::ConfigurationDescriptions& descri
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_Y_Strip");
-    psd0.add<std::string>("title", "#Delta Y "+striptag+";Cluster resolution Y dimension");
+    psd0.add<std::string>("title", "#Delta Y " + striptag + ";Cluster resolution Y dimension");
     psd0.add<double>("xmin", -5.0);
     psd0.add<bool>("switch", true);
     psd0.add<double>("xmax", 5.0);
@@ -453,25 +449,24 @@ Phase2OTValidateCluster::fillDescriptions(edm::ConfigurationDescriptions& descri
   }
   desc.add<std::string>("TopFolderName", "TrackerPhase2OTClusterV");
   desc.add<edm::InputTag>("ClusterSource", edm::InputTag("siPhase2Clusters"));
-  desc.add<edm::InputTag>("OuterTrackerDigiSimLinkSource", edm::InputTag("simSiPixelDigis","Tracker"));
+  desc.add<edm::InputTag>("OuterTrackerDigiSimLinkSource", edm::InputTag("simSiPixelDigis", "Tracker"));
   desc.add<edm::InputTag>("simtracks", edm::InputTag("g4SimHits"));
   desc.add<double>("SimTrackMinPt", 0.0);
-  desc.add<std::vector<edm::InputTag>>("PSimHitSource", 
-    {   
-        edm::InputTag("g4SimHits:TrackerHitsTIBLowTof"), 
-	edm::InputTag("g4SimHits:TrackerHitsTIBHighTof"),
-	edm::InputTag("g4SimHits:TrackerHitsTIDLowTof"), 
-	edm::InputTag("g4SimHits:TrackerHitsTIDHighTof"),
-	edm::InputTag("g4SimHits:TrackerHitsTOBLowTof"), 
-	edm::InputTag("g4SimHits:TrackerHitsTOBHighTof"), 
-	edm::InputTag("g4SimHits:TrackerHitsTECLowTof"),
-	edm::InputTag("g4SimHits:TrackerHitsTECHighTof"),
-	edm::InputTag("g4SimHits:TrackerHitsPixelBarrelLowTof"),
-	edm::InputTag("g4SimHits:TrackerHitsPixelBarrelHighTof"),
-        edm::InputTag("g4SimHits:TrackerHitsPixelEndcapLowTof"),
-        edm::InputTag("g4SimHits:TrackerHitsPixelEndcapHighTof"),
-    });
+  desc.add<std::vector<edm::InputTag>>("PSimHitSource",
+                                       {
+                                           edm::InputTag("g4SimHits:TrackerHitsTIBLowTof"),
+                                           edm::InputTag("g4SimHits:TrackerHitsTIBHighTof"),
+                                           edm::InputTag("g4SimHits:TrackerHitsTIDLowTof"),
+                                           edm::InputTag("g4SimHits:TrackerHitsTIDHighTof"),
+                                           edm::InputTag("g4SimHits:TrackerHitsTOBLowTof"),
+                                           edm::InputTag("g4SimHits:TrackerHitsTOBHighTof"),
+                                           edm::InputTag("g4SimHits:TrackerHitsTECLowTof"),
+                                           edm::InputTag("g4SimHits:TrackerHitsTECHighTof"),
+                                           edm::InputTag("g4SimHits:TrackerHitsPixelBarrelLowTof"),
+                                           edm::InputTag("g4SimHits:TrackerHitsPixelBarrelHighTof"),
+                                           edm::InputTag("g4SimHits:TrackerHitsPixelEndcapLowTof"),
+                                           edm::InputTag("g4SimHits:TrackerHitsPixelEndcapHighTof"),
+                                       });
   descriptions.add("Phase2OTValidateCluster", desc);
-
 }
 DEFINE_FWK_MODULE(Phase2OTValidateCluster);
