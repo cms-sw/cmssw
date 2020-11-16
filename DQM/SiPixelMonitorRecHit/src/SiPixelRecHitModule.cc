@@ -18,13 +18,11 @@
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
-
 // Constructors
 //
 SiPixelRecHitModule::SiPixelRecHitModule() : id_(0) {}
 ///
-SiPixelRecHitModule::SiPixelRecHitModule(edm::ConsumesCollector&& iCC, const uint32_t &id) : id_(id) {
-
+SiPixelRecHitModule::SiPixelRecHitModule(edm::ConsumesCollector &&iCC, const uint32_t &id) : id_(id) {
   trackerTopoTokenBeginRun_ = iCC.esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>();
 }
 
