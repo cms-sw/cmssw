@@ -825,6 +825,10 @@ trackValidatorGsfTracksStandalone = trackValidatorGsfTracks.clone(
     cores = "highPtJets"
 )
 
+trackValidatorDisplacedStandalone = trackValidatorDisplaced.clone(
+    cores = "highPtJets"
+)
+
 # sequences
 tracksPreValidationStandalone = tracksPreValidation.copy()
 tracksPreValidationStandalone.add(trackingParticlesBHadron)
@@ -848,7 +852,8 @@ _trackValidatorsBase = cms.Sequence(
     trackValidatorAllTPEfficStandalone +
     trackValidatorConversionStandalone +
     trackValidatorGsfTracksStandalone +
-    trackValidatorBHadronStandalone
+    trackValidatorBHadronStandalone +
+    trackValidatorDisplacedStandalone
 )
 
 _trackValidatorsBasePhase2 = _trackValidatorsBase.copy()
@@ -875,6 +880,11 @@ tracksValidationSeedSelectorsTrackingOnly.add(tracksValidationSeedSelectorsPreSp
 
 # MTV instances
 trackValidatorTrackingOnly = trackValidatorStandalone.clone(
+    label = [ x for x in trackValidatorStandalone.label if x != "cutsRecoTracksAK4PFJets"],
+    cores = "highPtJetsForTrk"
+ )
+
+trackValidatorDisplacedTrackingOnly = trackValidatorDisplacedStandalone.clone(
     label = [ x for x in trackValidatorStandalone.label if x != "cutsRecoTracksAK4PFJets"],
     cores = "highPtJetsForTrk"
  )
@@ -927,6 +937,7 @@ tracksPreValidationTrackingOnly.replace(highPtJets,highPtJetsForTrk)
 
 trackValidatorsTrackingOnly = _trackValidatorsBase.copy()
 trackValidatorsTrackingOnly.replace(trackValidatorStandalone, trackValidatorTrackingOnly)
+trackValidatorsTrackingOnly.replace(trackValidatorDisplacedStandalone, trackValidatorDisplacedTrackingOnly)
 trackValidatorsTrackingOnly.replace(trackValidatorTPPtLess09Standalone,trackValidatorTPPtLess09TrackingOnly)
 trackValidatorsTrackingOnly.replace(trackValidatorFromPVStandalone,trackValidatorFromPVTrackingOnly)
 trackValidatorsTrackingOnly.replace(trackValidatorFromPVAllTPStandalone,trackValidatorFromPVAllTPTrackingOnly)
