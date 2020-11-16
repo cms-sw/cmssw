@@ -72,8 +72,7 @@
 #include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
-#include <Geometry/CommonTopologies/interface/RectangularStripTopology.h>
-#include <Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h>
+#include <Geometry/CommonTopologies/interface/GEMStripTopology.h>
 
 //
 // class declaration
