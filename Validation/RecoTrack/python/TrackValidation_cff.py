@@ -641,12 +641,12 @@ trackValidatorDisplaced = trackValidator.clone(
     dodEdxPlots = False,
     invertRapidityCutTP = False,
     histoProducerAlgoBlock = dict(
-        TpSelectorForEfficiencyVsPt   = dict(ptMin=0.005, signalOnly=False, tip=1e5, lip=1e5), # enough to set min pT here
-        TpSelectorForEfficiencyVsEta  = dict(ptMin=0.005, signalOnly=False, tip=1e5, lip=1e5), # enough to set min pT here
-        TpSelectorForEfficiencyVsPhi  = dict(ptMin=0.005, signalOnly=False, tip=1e5, lip=1e5),
-        TpSelectorForEfficiencyVsVTXR = dict(ptMin=0.005, signalOnly=False, tip=1e5, lip=1e5),
-        TpSelectorForEfficiencyVsVTXZ = dict(ptMin=0.005, signalOnly=False, tip=1e5, lip=1e5),
-        generalTpSelector             = dict(ptMin=0.005, signalOnly=False, tip=1e5, lip=1e5),
+        TpSelectorForEfficiencyVsPt   = dict(ptMin=0.005, signalOnly=True, tip=1e5, lip=1e5), # enough to set min pT here
+        TpSelectorForEfficiencyVsEta  = dict(ptMin=0.005, signalOnly=True, tip=1e5, lip=1e5), # enough to set min pT here
+        TpSelectorForEfficiencyVsPhi  = dict(ptMin=0.005, signalOnly=True, tip=1e5, lip=1e5),
+        TpSelectorForEfficiencyVsVTXR = dict(ptMin=0.005, signalOnly=True, tip=1e5, lip=1e5),
+        TpSelectorForEfficiencyVsVTXZ = dict(ptMin=0.005, signalOnly=True, tip=1e5, lip=1e5),
+        generalTpSelector             = dict(ptMin=0.005, signalOnly=True, tip=1e5, lip=1e5),
         minDxy = -60,
         maxDxy =  60,
         nintDxy = 60,
@@ -654,7 +654,7 @@ trackValidatorDisplaced = trackValidator.clone(
         maxDz  =  60,
         nintDz =  60,
     ),
-    signalOnlyTP = False,
+    signalOnlyTP = True,
     lipTP = 1e5,
     tipTP = 1e5,
 )
