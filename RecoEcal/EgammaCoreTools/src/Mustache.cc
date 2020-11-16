@@ -5,7 +5,7 @@ using namespace std;
 
 namespace reco {
   namespace MustacheKernel {
-    bool inMustache(const MustacheSCParametersHelper* params,
+    bool inMustache(const EcalMustacheSCParameters* params,
                     const float maxEta,
                     const float maxPhi,
                     const float ClustE,
@@ -60,7 +60,7 @@ namespace reco {
       return (deta < upper_cut && deta > lower_cut);
     }
 
-    bool inDynamicDPhiWindow(const SCDynamicDPhiParametersHelper* params,
+    bool inDynamicDPhiWindow(const EcalSCDynamicDPhiParameters* params,
                              const float seedEta,
                              const float seedPhi,
                              const float ClustE,
@@ -81,8 +81,8 @@ namespace reco {
     }
   }  // namespace MustacheKernel
 
-  Mustache::Mustache(const MustacheSCParametersHelper* mustache_params_helper)
-      : mustache_params_helper_(mustache_params_helper) {}
+  Mustache::Mustache(const EcalMustacheSCParameters* mustache_params)
+      : mustache_params_(mustache_params) {}
 
   void Mustache::MustacheID(const reco::SuperCluster& sc, int& nclusters, float& EoutsideMustache) {
     MustacheID(sc.clustersBegin(), sc.clustersEnd(), nclusters, EoutsideMustache);
@@ -130,7 +130,7 @@ namespace reco {
     icl = begin;
     for (; icl != end; ++icl) {
       inMust = MustacheKernel::inMustache(
-          mustache_params_helper_, eta0, phi0, (*icl)->energy(), (*icl)->eta(), (*icl)->phi());
+          mustache_params_, eta0, phi0, (*icl)->energy(), (*icl)->eta(), (*icl)->phi());
 
       nclusters += (int)!inMust;
       EoutsideMustache += (!inMust) * ((*icl)->energy());
@@ -162,7 +162,7 @@ namespace reco {
 
     for (unsigned int k = 0; k < ncl; k++) {
       bool inMust = MustacheKernel::inMustache(
-          mustache_params_helper_, eta0, phi0, (clusters[k]).energy(), (clusters[k]).eta(), (clusters[k]).phi());
+          mustache_params_, eta0, phi0, (clusters[k]).energy(), (clusters[k]).eta(), (clusters[k]).phi());
       //return indices of Clusters outside the Mustache
       if (!(inMust)) {
         outsideMust.push_back(k);

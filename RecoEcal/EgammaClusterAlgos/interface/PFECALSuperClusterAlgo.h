@@ -34,10 +34,8 @@
 
 #include "CondFormats/EcalObjects/interface/EcalMustacheSCParameters.h"
 #include "CondFormats/DataRecord/interface/EcalMustacheSCParametersRcd.h"
-#include "RecoEcal/EgammaCoreTools/interface/MustacheSCParametersHelper.h"
 #include "CondFormats/EcalObjects/interface/EcalSCDynamicDPhiParameters.h"
 #include "CondFormats/DataRecord/interface/EcalSCDynamicDPhiParametersRcd.h"
-#include "RecoEcal/EgammaCoreTools/interface/SCDynamicDPhiParametersHelper.h"
 
 #include <vector>
 #include <memory>
@@ -134,8 +132,8 @@ private:
 
   const reco::BeamSpot* beamSpot_;
   const ESChannelStatus* channelStatus_;
-  const reco::MustacheSCParametersHelper* mustacheSCParamsHelper_;
-  const reco::SCDynamicDPhiParametersHelper* scDynamicDPhiParamsHelper_;
+  const EcalMustacheSCParameters* mustacheSCParams_;
+  const EcalSCDynamicDPhiParameters* scDynamicDPhiParams_;
 
   CalibratedClusterPtrVector _clustersEB;
   CalibratedClusterPtrVector _clustersEE;
