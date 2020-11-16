@@ -30,7 +30,7 @@ using namespace std;
 
 SiPixelHitEfficiencyModule::SiPixelHitEfficiencyModule() : id_(0) { bBookTracks = true; }
 
-SiPixelHitEfficiencyModule::SiPixelHitEfficiencyModule(edm::ConsumesCollector&& iCC, uint32_t id) : id_(id) {
+SiPixelHitEfficiencyModule::SiPixelHitEfficiencyModule(edm::ConsumesCollector &&iCC, uint32_t id) : id_(id) {
   bBookTracks = true;
   trackerTopoTokenBeginRun_ = iCC.esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>();
 }
