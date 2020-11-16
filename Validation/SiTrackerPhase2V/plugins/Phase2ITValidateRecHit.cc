@@ -131,7 +131,7 @@ void Phase2ITValidateRecHit::analyze(const edm::Event& iEvent, const edm::EventS
   std::map<unsigned int, SimTrack> selectedSimTrackMap;
   for (const auto& simTrackIt : *simTracks) {
     if (simTrackIt.momentum().pt() > simtrackminpt_) {
-      selectedSimTrackMap.insert(std::make_pair(simTrackIt.trackId(), simTrackIt));
+      selectedSimTrackMap.emplace(simTrackIt.trackId(), simTrackIt);
     }
   }
   TrackerHitAssociator associateRecHit(iEvent, trackerHitAssociatorConfig_);
@@ -288,7 +288,7 @@ void Phase2ITValidateRecHit::bookLayerHistos(DQMStore::IBooker& ibooker, unsigne
     histoName.str("");
     histoName << "Delta_Y_vs_Eta";
     local_histos.deltaY_eta = phase2tkutil::bookProfile1DFromPSet(
-        config_.getParameter<edm::ParameterSet>("DeltaX_eta"), histoName.str(), ibooker);
+        config_.getParameter<edm::ParameterSet>("DeltaY_eta"), histoName.str(), ibooker);
     histoName.str("");
     histoName << "Pull_X_vs_Eta";
     local_histos.pullX_eta = phase2tkutil::bookProfile1DFromPSet(

@@ -1067,7 +1067,11 @@ void Phase2TrackerValidateDigi::fillHitsPerTrack() {
   }
 }
 */
+#include "DQM/SiTrackerPhase2/interface/TrackerPhase2DQMUtil.h"
 std::string Phase2TrackerValidateDigi::getHistoId(uint32_t det_id, const TrackerTopology* tTopo, bool flag) {
+  if(flag) return phase2tkutil::getITHistoId(det_id, tTopo);
+  else return phase2tkutil::getOTHistoId(det_id, tTopo);
+  /*
   int layer;
   std::string Disc;
   std::ostringstream fname1;
@@ -1099,6 +1103,7 @@ std::string Phase2TrackerValidateDigi::getHistoId(uint32_t det_id, const Tracker
     fname1 << "Ring" << ring;
   }
   return fname1.str();
+  */
 }
 
 //define this as a plug-in
