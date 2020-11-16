@@ -24,7 +24,7 @@ public:
     COND_SERIALIZABLE;
   };
 
-  DynamicDPhiParameters dynamicDPhiParameters(double clustE, double absSeedEta) const;
+  const DynamicDPhiParameters* dynamicDPhiParameters(double clustE, double absSeedEta) const;
 
   // print parameters to stream:
   void print(std::ostream&) const;

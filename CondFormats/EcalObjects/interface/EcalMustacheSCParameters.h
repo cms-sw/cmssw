@@ -26,7 +26,7 @@ public:
 
   float sqrtLogClustETuning() const;
 
-  ParabolaParameters parabolaParameters(float log10ClustE, float absSeedEta) const;
+  const ParabolaParameters* parabolaParameters(float log10ClustE, float absSeedEta) const;
 
   // print parameters to stream:
   void print(std::ostream&) const;
