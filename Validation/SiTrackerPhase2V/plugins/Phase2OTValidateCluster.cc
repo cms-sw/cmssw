@@ -344,7 +344,7 @@ void Phase2OTValidateCluster::bookLayerHistos(DQMStore::IBooker& ibooker,
     local_mes.deltaY_S_primary = 
       phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_Y_Strip_Primary"), HistoName.str(), ibooker);
 
-    layerMEs_.insert(std::make_pair(folderName, local_mes));
+    layerMEs_.emplace(folderName, local_mes);
   }
 }
 

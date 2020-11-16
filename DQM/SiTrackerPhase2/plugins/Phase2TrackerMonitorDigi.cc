@@ -718,7 +718,11 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
   }
 }
 
+#include "DQM/SiTrackerPhase2/interface/TrackerPhase2DQMUtil.h"
 std::string Phase2TrackerMonitorDigi::getHistoId(uint32_t det_id, const TrackerTopology* tTopo, bool flag) {
+  if(flag) return phase2tkutil::getITHistoId(det_id, tTopo);
+  else return phase2tkutil::getOTHistoId(det_id, tTopo);
+  /*
   int layer;
   std::string Disc;
   std::ostringstream fname1;
@@ -750,6 +754,7 @@ std::string Phase2TrackerMonitorDigi::getHistoId(uint32_t det_id, const TrackerT
     fname1 << "Ring" << ring;
   }
   return fname1.str();
+  */
 }
 
 void Phase2TrackerMonitorDigi::fillDigiClusters(DigiMEs& mes, std::vector<Ph2DigiCluster>& digi_clusters) {
