@@ -49,7 +49,7 @@ process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 process.load("Configuration.StandardSequences.EndOfProcess_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
-process.siPixelDigis.InputLabel = cms.InputTag("hltFEDSelectorLumiPixels")
+process.siPixelDigis.cpu.InputLabel = cms.InputTag("hltFEDSelectorLumiPixels")
 
 process.reconstruction_step = cms.Sequence(
     process.siPixelDigis +

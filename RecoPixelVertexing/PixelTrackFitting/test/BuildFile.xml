@@ -1,8 +1,80 @@
-<use name="boost"/>
-<use name="root"/>
-<use name="DataFormats/TrackReco"/>
-<use name="FWCore/Framework"/>
-<use name="FWCore/ParameterSet"/>
 <library file="PixelTrackTest.cc" name="PixelTrackTest">
+  <use name="boost"/>
+  <use name="root"/>
+  <use name="DataFormats/Common"/>
+  <use name="DataFormats/TrackReco"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/ParameterSet"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<bin file="testRiemannFit.cpp">
+  <use name="cuda"/>
+  <use name="eigen"/>
+  <flags CXXFLAGS="-g"/>
+</bin>
+
+<bin file="testRiemannFit.cpp" name="testBrokenLineFit">
+  <use name="cuda"/>
+  <use name="eigen"/>
+  <flags CXXFLAGS="-g -DUSE_BL"/>
+</bin>
+
+<bin file="testRiemannFit.cpp" name="testRiemannFitDump">
+  <use name="cuda"/>
+  <use name="eigen"/>
+  <flags CXXFLAGS="-g -DRFIT_DEBUG"/>
+</bin>
+
+<bin file="testEigenGPU.cu" name="testRiemannFitGPU_t">
+  <use name="HeterogeneousCore/CUDAUtilities"/>
+  <use name="cuda"/>
+  <use name="eigen"/>
+  <flags CXXFLAGS="-g"/>
+</bin>
+
+<bin file="testEigenGPU.cu" name="testBrokenLineFitGPU_t">
+  <use name="HeterogeneousCore/CUDAUtilities"/>
+  <use name="cuda"/>
+  <use name="eigen"/>
+  <flags CXXFLAGS="-g -DUSE_BL"/>
+</bin>
+
+<bin file="testEigenGPUNoFit.cu" name="testEigenGPUNoFit_t">
+  <use name="cuda"/>
+  <use name="eigen"/>
+  <use name="HeterogeneousCore/CUDAUtilities"/>
+  <flags CXXFLAGS="-g"/>
+</bin>
+
+<bin file="PixelTrackRiemannFit.cc">
+  <use name="cuda"/>
+  <use name="eigen"/>
+  <use name="root"/>
+  <flags CXXFLAGS="-DEIGEN_NO_DEBUG"/>
+</bin>
+
+<bin file="PixelTrackRiemannFit.cc" name="PixelTrackBrokenLineFit">
+  <use name="cuda"/>
+  <use name="eigen"/>
+  <use name="root"/>
+  <flags CXXFLAGS="-DEIGEN_NO_DEBUG -DUSE_BL"/>
+</bin>
+
+<bin file="PixelTrackRiemannFit.cc" name="PixelTrackRiemannFit_Debug">
+  <use name="cuda"/>
+  <use name="eigen"/>
+  <use name="root"/>
+  <flags CXXFLAGS="-g"/>
+</bin>
+
+<bin file="testEigenJacobian.cpp">  
+  <use name="cuda"/>
+  <use name="eigen"/>
+  <use name="DataFormats/GeometrySurface"/>
+  <use name="MagneticField/Engine"/>
+  <use name="TrackingTools/AnalyticalJacobians"/>
+  <use name="TrackingTools/TrajectoryParametrization"/>
+  <flags CXXFLAGS="-g"/>
+</bin>

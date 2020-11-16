@@ -264,9 +264,9 @@ void MahiFit::updatePulseShape(const float itQ,
       t0 += hcalTimeSlewDelay_->delay(float(itQ), slewFlavor_);
   }
 
-  std::array<double, HcalConst::maxSamples> pulseN;
-  std::array<double, HcalConst::maxSamples> pulseM;
-  std::array<double, HcalConst::maxSamples> pulseP;
+  std::array<double, hcal::constants::maxSamples> pulseN;
+  std::array<double, hcal::constants::maxSamples> pulseM;
+  std::array<double, hcal::constants::maxSamples> pulseP;
 
   const float xx = t0;
   const float xxm = -nnlsWork_.dt + t0;
@@ -499,7 +499,7 @@ void MahiFit::resetPulseShapeTemplate(const int pulseShapeId,
     // only the pulse shape itself from PulseShapeFunctor is used for Mahi
     // the uncertainty terms calculated inside PulseShapeFunctor are used for Method 2 only
     auto p = std::make_shared<FitterFuncs::PulseShapeFunctor>(
-        ps.getShape(pulseShapeId), false, false, false, 1, 0, 0, HcalConst::maxSamples);
+        ps.getShape(pulseShapeId), false, false, false, 1, 0, 0, hcal::constants::maxSamples);
     knownPulseShapes_.emplace_back(pulseShapeId, p);
     psfPtr_ = &*p;
   }

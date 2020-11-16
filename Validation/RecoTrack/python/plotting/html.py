@@ -62,8 +62,14 @@ def _allToHP(s):
     return s.replace("All", "High purity")
 def _allToBTV(s):
     return s.replace("All", "BTV-like")
+def _allPtCut(s):
+    return s.replace("All tracks", "Tracks pT &gt; 0.9 GeV")
 def _ptCut(s):
     return s.replace("Tracks", "Tracks pT &gt; 0.9 GeV").replace("tracks", "tracks pT &gt; 0.9 GeV")
+def _allToPixel(s):
+    return s.replace("All", "Pixel")
+def _toPixel(s):
+    return s.replace("Tracks", "Pixel tracks")
 _trackQualityNameOrder = collections.OrderedDict([
     ("seeding_seeds", "Seeds"),
     ("seeding_seedsa", "Seeds A"),
@@ -74,8 +80,8 @@ _trackQualityNameOrder = collections.OrderedDict([
     ("building_", "Built tracks"),
     ("", _allName),
     ("highPurity", _allToHP(_allName)),
-    ("Pt09", "Tracks pT &gt; 0.9 GeV"),
-    ("highPurityPt09", "High purity tracks pT &gt; 0.9 GeV"),
+    ("Pt09", _allPtCut(_allName)),
+    ("highPurityPt09", _ptCut(_allToHP(_allName))),
     ("ByOriginalAlgo", _toOriAlgo(_allName)),
     ("highPurityByOriginalAlgo", _toOriAlgo(_toHP(_allName))),
     ("ByAlgoMask", _toAlgoMask(_allName)),
@@ -113,6 +119,15 @@ _trackQualityNameOrder = collections.OrderedDict([
     ("bhadron_ByAlgoMask", _toAlgoMask(_bhadronName)),
     ("bhadron_highPurityByAlgoMask", _toAlgoMask(_allToHP(_bhadronName))),
     ("bhadron_btvLike", _allToBTV(_bhadronName)),
+    # Pixel tracks
+    ("pixel_", _allToPixel(_allName)),
+    ("pixel_Pt09", _ptCut(_allToPixel(_allName))),
+    ("pixelFromPV_", _toPixel(_fromPVName)),
+    ("pixelFromPV_Pt09", _ptCut(_toPixel(_fromPVName))),
+    ("pixelFromPVAllTP_", _toPixel(_fromPVAllTPName)),
+    ("pixelFromPVAllTP_Pt09", _ptCut(_toPixel(_fromPVAllTPName))),
+    ("pixelbhadron_", _allToPixel(_bhadronName)),
+    ("pixelbhadron_Pt09", _ptCut(_allToPixel(_bhadronName))),
 ])
 
 _trackAlgoName = {
@@ -127,6 +142,7 @@ _trackAlgoName = {
     "iter7" : "Iterative Step 7",
     "iter9" : "Iterative Step 9",
     "iter10": "Iterative Step 10",
+    "pixel": "Pixel tracks",
 }
 
 _trackAlgoOrder = [
@@ -161,6 +177,7 @@ _trackAlgoOrder = [
     'iter7',
     'iter9',
     'iter10',
+    "pixel",
 ]
 
 _pageNameMap = {
@@ -178,10 +195,10 @@ _sectionNameMapOrder = collections.OrderedDict([
     # These are for the summary page
     ("seeding_seeds", "Seeds"),
     ("building", "Built tracks"),
-    ("", "All tracks"),
-    ("Pt09", "All tracks (pT&gt;0.9 GeV)"),
-    ("highPurity", "High purity tracks"),
-    ("highPurityPt09", "High purity tracks (pT&gt;0.9 GeV)"),
+    ("", _allName),
+    ("Pt09", _allPtCut(_allName)),
+    ("highPurity", _allToHP(_allName)),
+    ("highPurityPt09", _ptCut(_allToHP(_allName))),
     ("tpPtLess09", _tpPtLess09Name),
     ("tpPtLess09_highPurity", _allToHP(_tpPtLess09Name)),
     ("tpEtaGreater2p7", _tpEtaGreater2p7Name),
@@ -199,7 +216,14 @@ _sectionNameMapOrder = collections.OrderedDict([
     ("bhadron", _bhadronName),
     ("bhadron_highPurity", _allToHP(_bhadronName)),
     # Pixel tracks
-    ("pixel", "Pixel tracks"),
+    ("pixel", _allToPixel(_allName)),
+    ("pixelPt09", _ptCut(_allToPixel(_allName))),
+    ("pixelFromPV", _toPixel(_fromPVName)),
+    ("pixelFromPVPt09", _ptCut(_toPixel(_fromPVName))),
+    ("pixelFromPVAllTP", _toPixel(_fromPVAllTPName)),
+    ("pixelFromPVAllTPPt09", _ptCut(_toPixel(_fromPVAllTPName))),
+    ("pixelbhadron", _allToPixel(_bhadronName)),
+    ("pixelbhadronPt09", _ptCut(_allToPixel(_bhadronName))),
     # These are for vertices
     ("genvertex", "Gen vertices"),
     ("pixelVertices", "Pixel vertices"),
@@ -223,6 +247,7 @@ _fromPVAllTPPtLegend = "Tracks (pT &gt; 0.9 GeV) from reco PV, fake rate numerat
 _fromPVAllTP2Legend = "Tracks from reco PV (another method), fake rate numerator contains all TrackingParticles (separates fake tracks from pileup tracks)"
 _fromPVAllTPPt2Legend = "Tracks (pT &gt; 0.9 GeV) from reco PV (another method), fake rate numerator contains all TrackingParticles (separates fake tracks from pileup tracks)"
 _bhadronLegend = "All tracks, efficiency denominator contains only TrackingParticles from B-hadron decays"
+_bhadronPtLegend = "Tracks (pT &gt; 0.9 GeV), efficiency denominator contains only TrackingParticles from B-hadron decays"
 
 def _sectionNameLegend():
     return {
@@ -248,6 +273,12 @@ def _sectionNameLegend():
         "bhadron_": _bhadronLegend,
         "bhadron_highPurity": _allToHP(_bhadronLegend),
         "bhadron_btvLike": _bhadronLegend.replace("All tracks", _btvLegend),
+        "pixelFromPV_": _fromPVLegend,
+        "pixelFromPV_Pt09": _fromPVPtLegend,
+        "pixelFromPVAllTP_": _fromPVAllTPLegend,
+        "pixelFromPVAllTP_Pt09": _fromPVAllTPPtLegend,
+        "pixelbhadron_": _bhadronLegend,
+        "pixelbhadron_Pt09": _bhadronPtLegend,
     }
 
 class Table:
@@ -691,7 +722,7 @@ class IndexSection:
         self._timingPage = PageSet(*params)
         self._pfPages = PageSet(*params)
         self._hltPages = PageSet(*params, dqmSubFolderTranslatedToSectionName=lambda algoQuality: algoQuality[0])
-        self._pixelPages = PageSet(*params, dqmSubFolderTranslatedToSectionName=lambda algoQuality: algoQuality[0])
+        self._pixelPages = TrackingPageSet(*params)
         self._otherPages = PageSet(*params)
 
         self._purposePageMap = {

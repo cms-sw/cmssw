@@ -1,0 +1,13 @@
+#ifndef CondFormats_HcalObjects_interface_HcalCombinedRecord_h
+#define CondFormats_HcalObjects_interface_HcalCombinedRecord_h
+
+#include "FWCore/Framework/interface/DependentRecordImplementation.h"
+
+template <typename... Sources>
+class HcalCombinedRecord : public edm::eventsetup::DependentRecordImplementation<HcalCombinedRecord<Sources...>,
+                                                                                 edm::mpl::Vector<Sources...>> {
+public:
+  using DependencyRecords = std::tuple<Sources...>;
+};
+
+#endif  // RecoLocalCalo_HcalRecAlgos_interface_HcalCombinedRecord_h
