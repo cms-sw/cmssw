@@ -1305,28 +1305,28 @@ _common_shared= {"title": "Shared Energy CaloParticle To Multi Cluster ",
                  "stat": False,
                  "legend": True,
                  "xmin": 0,
-                 "xmax": 2.0,
+                 "xmax": 1.0,
                }
 _common_shared.update(_legend_common)
 _shared_plots = [ Plot("SharedEnergy_caloparticle2multicl", **_common_shared) ]
 _common_shared["xmin"] = -4.0
 _common_shared["xmax"] = 4.0
-_shared_plots.extend([Plot("SharedEnergy_caloparticle2multicl_vs_eta", **_common_shared)])
-_shared_plots.extend([Plot("SharedEnergy_caloparticle2multicl_vs_phi", **_common_shared)])
+_shared_plots.extend([Plot("SharedEnergy_caloparticle2multicl_vs_eta", xtitle="CaloParticle #eta", **_common_shared)])
+_shared_plots.extend([Plot("SharedEnergy_caloparticle2multicl_vs_phi", xtitle="CaloParticle #phi", **_common_shared)])
 _sharedEnergy_caloparticle_to_multicluster = PlotGroup("SharedEnergy_CaloParticleToMultiCluster", _shared_plots, ncols=3)
 
 _common_shared= {"title": "Shared Energy Multi Cluster To CaloParticle ",
                  "stat": False,
                  "legend": True,
                  "xmin": 0,
-                 "xmax": 2.0,
+                 "xmax": 1.0,
                 }
 _common_shared.update(_legend_common)
 _shared_plots2 = [Plot("SharedEnergy_multicluster2caloparticle", **_common_shared)]
 _common_shared["xmin"] = -4.0
 _common_shared["xmax"] = 4.0
-_shared_plots2.extend([Plot("SharedEnergy_multicl2caloparticle_vs_eta", **_common_shared)])
-_shared_plots2.extend([Plot("SharedEnergy_multicl2caloparticle_vs_phi", **_common_shared)])
+_shared_plots2.extend([Plot("SharedEnergy_multicl2caloparticle_vs_eta", xtitle="MultiCluster #eta", **_common_shared)])
+_shared_plots2.extend([Plot("SharedEnergy_multicl2caloparticle_vs_phi", xtitle="MultiCluster #phi", **_common_shared)])
 _sharedEnergy_multicluster_to_caloparticle = PlotGroup("SharedEnergy_MultiClusterToCaloParticle", _shared_plots2, ncols=3)
 
 
