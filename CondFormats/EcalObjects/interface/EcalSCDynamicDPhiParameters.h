@@ -24,6 +24,8 @@ public:
     COND_SERIALIZABLE;
   };
 
+  DynamicDPhiParameters dynamicDPhiParameters(double clustE, double absSeedEta) const;
+
   // print parameters to stream:
   void print(std::ostream&) const;
   friend std::ostream& operator<<(std::ostream& out, const EcalSCDynamicDPhiParameters& params) {
@@ -32,7 +34,7 @@ public:
   }
 
 protected:
-  // collection is expected to be sorted in descending DynamicDPhiParameters.etaMax and ascending DynamicDPhiParameters.minEt
+  // collection is expected to be sorted in descending DynamicDPhiParameters.etaMax and descending DynamicDPhiParameters.eMin
   std::vector<DynamicDPhiParameters> dynamicDPhiParametersCollection_;
 
   COND_SERIALIZABLE;

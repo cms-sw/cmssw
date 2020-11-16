@@ -29,23 +29,8 @@ MustacheSCParametersHelper::MustacheSCParametersHelper(const edm::ParameterSet &
   }
 }
 
-float MustacheSCParametersHelper::sqrtLogClustETuning() const { return sqrtLogClustETuning_; }
-
 void MustacheSCParametersHelper::setSqrtLogClustETuning(const float sqrtLogClustETuning) {
   sqrtLogClustETuning_ = sqrtLogClustETuning;
-}
-
-EcalMustacheSCParameters::ParabolaParameters MustacheSCParametersHelper::parabolaParameters(float log10ClustE,
-                                                                                            float absSeedEta) const {
-  // assume the collection is sorted in descending ParabolaParameters.etaMin and descending ParabolaParameters.minEt
-  for (const auto &parabolaParams : parabolaParametersCollection_) {
-    if (log10ClustE < parabolaParams.log10EMin || absSeedEta < parabolaParams.etaMin) {
-      continue;
-    } else {
-      return parabolaParams;
-    }
-  }
-  return EcalMustacheSCParameters::ParabolaParameters();
 }
 
 void MustacheSCParametersHelper::addParabolaParameters(const EcalMustacheSCParameters::ParabolaParameters &params) {
