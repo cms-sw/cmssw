@@ -135,10 +135,10 @@ process.BeamSpotDBSource = cms.ESSource("PoolDBESSource",
 
 )
 process.BeamSpotESProducer = cms.ESProducer("OnlineBeamSpotESProducer")
-if unitTest == True:
-  process.BeamSpotDBSource.connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS') 
-else:
-  process.BeamSpotDBSource.connect = cms.string('oracle://cms_orcon_prod/CMS_CONDITIONS') 
+#if unitTest == True:
+process.BeamSpotDBSource.connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
+#else:
+#  process.BeamSpotDBSource.connect = cms.string('oracle://cms_orcon_prod/CMS_CONDITIONS')
 #-----------------------------
 # DQM Live Environment
 #-----------------------------
