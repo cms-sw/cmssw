@@ -27,9 +27,11 @@ SiPixelDigiModule::SiPixelDigiModule() : id_(0), ncols_(416), nrows_(160) {}
 ///
 SiPixelDigiModule::SiPixelDigiModule(const uint32_t& id) : id_(id), ncols_(416), nrows_(160) {}
 ///
-SiPixelDigiModule::SiPixelDigiModule(edm::ConsumesCollector&& iCC, const uint32_t& id, const int& ncols, const int& nrows)
+SiPixelDigiModule::SiPixelDigiModule(edm::ConsumesCollector&& iCC,
+                                     const uint32_t& id,
+                                     const int& ncols,
+                                     const int& nrows)
     : id_(id), ncols_(ncols), nrows_(nrows) {
-
   trackerTopoTokenBeginRun_ = iCC.esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>();
 }
 //
@@ -340,7 +342,6 @@ int SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input,
                             int& nDigisA,
                             int& nDigisB,
                             bool isUpgrade) {
-
   bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
   bool isHalfModule = false;
