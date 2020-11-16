@@ -60,7 +60,7 @@ void ticl::assignPCAtoTracksters(std::vector<Trackster> &tracksters,
       for (size_t j = 0; j < 3; ++j)
         barycenter[j] += point[j];
 
-      // Also compute timing
+      // Add timing from layerClusters not already used
       if ((usedLC.insert(trackster.vertices(i))).second) {
         float timeE = layerClustersTime.get(trackster.vertices(i)).second;
         if (timeE > 0.f) {
