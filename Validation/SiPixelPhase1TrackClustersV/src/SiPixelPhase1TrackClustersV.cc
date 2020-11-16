@@ -10,7 +10,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "Validation/SiPixelPhase1TrackClustersV/interface/SiPixelPhase1TrackClustersV.h"
 
-
 SiPixelPhase1TrackClustersV::SiPixelPhase1TrackClustersV(const edm::ParameterSet &iConfig)
     : SiPixelPhase1Base(iConfig) {
   clustersToken_ = consumes<edmNew::DetSetVector<SiPixelCluster>>(iConfig.getParameter<edm::InputTag>("clusters"));
