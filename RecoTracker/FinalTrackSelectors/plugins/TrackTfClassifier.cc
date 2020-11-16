@@ -41,13 +41,9 @@ namespace {
     void beginStream() {}
 
     void initEvent(const edm::EventSetup& es) {
-	std::cout<<"flag1"<<std::endl;
       if (!cache_->session_) {
-	std::cout<<"flag2"<<std::endl;
         edm::ESHandle<TfGraphDefWrapper> tfDnnHandle;
-	std::cout<<"flag3"<<std::endl;
         es.get<TfGraphRecord>().get(tfDnnLabel_, tfDnnHandle);
-	std::cout<<"flag4"<<std::endl;
         tensorflow::GraphDef* graphDef_ = tfDnnHandle.product()->getGraphDef();
         cache_->session_ = tensorflow::createSession(
             graphDef_, 1);  //The integer controls how many threads are used for running inference
