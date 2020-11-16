@@ -2,21 +2,14 @@
 
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
-#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
-#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 #include <cmath>
 
 void IteratedMedianCMNSubtractor::init(const edm::EventSetup& es) {
-  uint32_t n_cache_id = es.get<SiStripNoisesRcd>().cacheIdentifier();
-  uint32_t q_cache_id = es.get<SiStripQualityRcd>().cacheIdentifier();
-
-  if (n_cache_id != noise_cache_id) {
-    es.get<SiStripNoisesRcd>().get(noiseHandle);
-    noise_cache_id = n_cache_id;
+  if (noiseWatcher_.check(es)) {
+    noiseHandle = &es.getData(noiseToken_);
   }
-  if (q_cache_id != quality_cache_id) {
-    es.get<SiStripQualityRcd>().get(qualityHandle);
-    quality_cache_id = q_cache_id;
+  if (qualityWatcher_.check(es)) {
+    qualityHandle = &es.getData(qualityToken_);
   }
 }
 

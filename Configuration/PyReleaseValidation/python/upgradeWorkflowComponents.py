@@ -30,34 +30,30 @@ upgradeKeys[2017] = [
 upgradeKeys[2026] = [
     '2026D49',
     '2026D49PU',
-    '2026D51',
-    '2026D51PU',
-    '2026D53',
-    '2026D53PU',
-    '2026D54',
-    '2026D54PU',
-    '2026D56',
-    '2026D56PU',
-    '2026D57',
-    '2026D57PU',
-    '2026D58',
-    '2026D58PU',
-    '2026D59',
-    '2026D59PU',
     '2026D60',
     '2026D60PU',
-    '2026D61',
-    '2026D61PU',
-    '2026D62',
-    '2026D62PU',
-    '2026D63',
-    '2026D63PU',
     '2026D64',
     '2026D64PU',
     '2026D65',
     '2026D65PU',
     '2026D66',
     '2026D66PU',
+    '2026D67',
+    '2026D67PU',
+    '2026D68',
+    '2026D68PU',
+    '2026D69',
+    '2026D69PU',
+    '2026D70',
+    '2026D70PU',
+    '2026D71',
+    '2026D71PU',
+    '2026D72',
+    '2026D72PU',
+    '2026D73',
+    '2026D73PU',
+    '2026D74',
+    '2026D74PU',
 ]
 
 # pre-generation of WF numbers
@@ -67,7 +63,7 @@ numWFStart={
 }
 numWFSkip=200
 # temporary measure to keep other WF numbers the same
-numWFConflict = [[20000,23200],[24000,24400],[25000,26000],[26200,26600],[50000,51000]]
+numWFConflict = [[20000,23200],[23600,28200],[28600,29800],[50000,51000]]
 numWFAll={
     2017: [],
     2026: []
@@ -305,6 +301,23 @@ upgradeWFs['trackingMkFit'] = UpgradeWorkflow_trackingMkFit(
 upgradeWFs['trackingMkFit'].step3 = {
     '--procModifiers': 'trackingMkFit'
 }
+
+# Vector Hits workflows
+class UpgradeWorkflow_vectorHits(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        stepDict[stepName][k] = merge([{'--procModifiers': 'vectorHits'}, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return fragment=="TTbar_14TeV" and '2026' in key
+upgradeWFs['vectorHits'] = UpgradeWorkflow_vectorHits(
+    steps = [
+        'RecoGlobal',
+    ],
+    PU = [
+        'RecoGlobal',
+    ],
+    suffix = '_vectorHits',
+    offset = 0.9,
+)
 
 # Patatrack workflows
 class UpgradeWorkflowPatatrack(UpgradeWorkflow):
@@ -833,15 +846,26 @@ upgradeWFs['PMXS1S2PR'] = UpgradeWorkflowAdjustPU(
 
 class UpgradeWorkflow_DD4hep(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
-        stepDict[stepName][k] = merge([{'--geometry': 'DD4hepExtended2021', '--era': 'Run3_dd4hep'}, stepDict[step][k]])
+        if 'Run3' in stepDict[step][k]['--era']:
+            stepDict[stepName][k] = merge([{'--geometry': 'DD4hepExtended2021', '--procModifiers': 'dd4hep'}, stepDict[step][k]])
+        elif 'Phase2' in stepDict[step][k]['--era']:
+            dd4hepGeom="DD4hep"
+            dd4hepGeom+=stepDict[step][k]['--geometry']
+            stepDict[stepName][k] = merge([{'--geometry' : dd4hepGeom, '--procModifiers': 'dd4hep'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return (fragment=='TTbar_13' or fragment=='ZMM_13' or fragment=='SingleMuPt10') and '2021' in key
+        return ((fragment=='TTbar_13' or fragment=='ZMM_13' or fragment=='SingleMuPt10') and '2021' in key) \
+            or ((fragment=='TTbar_14TeV' or fragment=='ZMM_14' or fragment=='SingleMuPt10') and '2026' in key)
 upgradeWFs['DD4hep'] = UpgradeWorkflow_DD4hep(
     steps = [
         'GenSim',
+        'GenSimHLBeamSpot',
+        'GenSimHLBeamSpot14',
         'Digi',
+        'DigiTrigger',
         'Reco',
+        'RecoGlobal',
         'HARVEST',
+        'HARVESTGlobal',
         'ALCA',
     ],
     PU = [],
@@ -927,7 +951,8 @@ upgradeProperties[2017] = {
 # standard PU sequences
 for key in list(upgradeProperties[2017].keys()):
     upgradeProperties[2017][key+'PU'] = deepcopy(upgradeProperties[2017][key])
-    upgradeProperties[2017][key+'PU']['ScenToRun'] = ['GenSim','DigiPU','RecoFakeHLTPU','HARVESTFakeHLTPU'] + \
+    upgradeProperties[2017][key+'PU']['ScenToRun'] = ['GenSim','DigiPU'] + \
+                                                     (['RecoPU','HARVESTPU'] if '202' in key else ['RecoFakeHLTPU','HARVESTFakeHLTPU']) + \
                                                      (['Nano'] if 'Design' not in key else [])
 
 upgradeProperties[2026] = {
@@ -938,82 +963,11 @@ upgradeProperties[2026] = {
         'Era' : 'Phase2C9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
-    '2026D51' : {
-        'Geom' : 'Extended2026D51',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T15',
-        'Era' : 'Phase2C9',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
-    },
-    '2026D53' : {
-        'Geom' : 'Extended2026D53',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T15',
-        'Era' : 'Phase2C9',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
-    },
-    '2026D54' : {
-        'Geom' : 'Extended2026D54',                   # N.B.: Geometry with 3D pixels in the Inner Tracker.
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T19',           # This symbolic GT has no pixel template / GenError informations.
-        'ProcessModifier': 'phase2_PixelCPEGeneric',  # This modifier removes all need for IT template information. DO NOT USE for standard planar sensors.
-        'Era' : 'Phase2C9',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
-    },
-    '2026D56' : {
-        'Geom' : 'Extended2026D56',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T20',
-        'Era' : 'Phase2C9',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
-    },
-    '2026D57' : {
-        'Geom' : 'Extended2026D57',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T17',
-        'Era' : 'Phase2C11',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
-    },
-    '2026D58' : {
-        'Geom' : 'Extended2026D58',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T17',
-        'Era' : 'Phase2C12',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
-    },
-    '2026D59' : {
-        'Geom' : 'Extended2026D59',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T17',
-        'Era' : 'Phase2C11',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
-    },
     '2026D60' : {
         'Geom' : 'Extended2026D60',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T15',
         'Era' : 'Phase2C10',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
-    },
-    '2026D61' : {
-        'Geom' : 'Extended2026D61',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T17',
-        'Era' : 'Phase2C9',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
-    },
-    '2026D62' : {
-        'Geom' : 'Extended2026D62',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T17',
-        'Era' : 'Phase2C11',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
-    },
-    '2026D63' : {
-        'Geom' : 'Extended2026D63',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T21',
-        'Era' : 'Phase2C11',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
     '2026D64' : {
@@ -1036,6 +990,62 @@ upgradeProperties[2026] = {
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T21',
         'Era' : 'Phase2C11',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D67' : {
+        'Geom' : 'Extended2026D67',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T21',
+        'Era' : 'Phase2C11M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D68' : {
+        'Geom' : 'Extended2026D68',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T21',
+        'Era' : 'Phase2C11',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D69' : {
+        'Geom' : 'Extended2026D69',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T21',
+        'Era' : 'Phase2C12',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D70' : {
+        'Geom' : 'Extended2026D70',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T21',
+        'Era' : 'Phase2C11',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D71' : {
+        'Geom' : 'Extended2026D71',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T21',
+        'Era' : 'Phase2C11',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D72' : {
+        'Geom' : 'Extended2026D72',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T21',
+        'Era' : 'Phase2C11_etlV4',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D73' : {
+        'Geom' : 'Extended2026D73',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T21',
+        'Era' : 'Phase2C11_etlV4',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D74' : {
+        'Geom' : 'Extended2026D74',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T21',
+        'Era' : 'Phase2C11M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
 }
@@ -1143,7 +1153,7 @@ upgradeFragments = OrderedDict([
     ('HSCPstop_M_200_TuneCUETP8M1_13TeV_pythia8_cff', UpgradeFragment(Kby(9,50),'HSCPstop_M_200_13')),
     ('RSGravitonToGammaGamma_kMpl01_M_3000_TuneCUETP8M1_13TeV_pythia8_cfi', UpgradeFragment(Kby(9,50),'RSGravitonToGaGa_13')),
     ('WprimeToENu_M-2000_TuneCUETP8M1_13TeV-pythia8_cff', UpgradeFragment(Kby(9,50),'WpToENu_M-2000_13')),
-    ('DisplacedSUSY_stopToBottom_M_300_1000mm_TuneCUETP8M1_13TeV_pythia8_cff', UpgradeFragment(Kby(9,50),'DisplacedSUSY_stopToB_M_300_1000mm_13')),
+    ('DisplacedSUSY_stopToBottom_M_800_500mm_TuneCP5_13TeV_pythia8_cff', UpgradeFragment(Kby(9,50),'DisplacedSUSY_stopToB_M_800_500mm_13')),
     ('TenE_E_0_200_pythia8_cfi', UpgradeFragment(Kby(9,100),'TenE_0_200')),
     ('FlatRandomPtAndDxyGunProducer_cfi', UpgradeFragment(Kby(9,100),'DisplacedMuonsDxy_0_500')),
     ('TenTau_E_15_500_pythia8_cfi', UpgradeFragment(Kby(9,100),'TenTau_15_500')),
@@ -1183,5 +1193,5 @@ upgradeFragments = OrderedDict([
     ('Upsilon1SToMuMu_forSTEAM_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(9,50),'Upsilon1SToMuMu_14')),
     ('TenTau_E_15_500_Eta3p1_pythia8_cfi', UpgradeFragment(Kby(9,100),'TenTau_15_500_Eta3p1')),
     ('QCD_Pt_1800_2400_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(9,50), 'QCD_Pt_1800_2400_14')),
+    ('DisplacedSUSY_stopToBottom_M_800_500mm_TuneCP5_14TeV_pythia8_cff', UpgradeFragment(Kby(9,50),'DisplacedSUSY_stopToB_M_800_500mm_14')),
 ])
-

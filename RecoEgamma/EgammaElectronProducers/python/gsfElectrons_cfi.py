@@ -24,10 +24,15 @@ ecalDrivenGsfElectrons = gsfElectronProducer.clone(
     trkIsolHEEP04Cfg = trkIsol04CfgV2,
 )
 
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-pp_on_AA_2018.toModify(ecalDrivenGsfElectrons.preselection, minSCEtBarrel = 15.0)
-pp_on_AA_2018.toModify(ecalDrivenGsfElectrons.preselection, minSCEtEndcaps = 15.0)
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toModify(ecalDrivenGsfElectrons.preselection, minSCEtBarrel = 15.0)
+pp_on_AA.toModify(ecalDrivenGsfElectrons.preselection, minSCEtEndcaps = 15.0)
 
 ecalDrivenGsfElectronsFromMultiCl = ecalDrivenGsfElectrons.clone(
-  gsfElectronCoresTag = "ecalDrivenGsfElectronCoresFromMultiCl",
+    gsfElectronCoresTag = "ecalDrivenGsfElectronCoresFromMultiCl",
+    useGsfPfRecTracks = False,
+    useDefaultEnergyCorrection = False,
+    ambClustersOverlapStrategy = 0,
+    applyAmbResolution = True,
+    ignoreNotPreselected = False,
 )

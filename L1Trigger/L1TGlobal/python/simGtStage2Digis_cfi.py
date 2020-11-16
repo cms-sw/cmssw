@@ -17,6 +17,7 @@ simGtStage2Digis = cms.EDProducer("L1TGlobalProducer",
     AlgorithmTriggersUnmasked = cms.bool(True),    
     AlgorithmTriggersUnprescaled = cms.bool(True),
     GetPrescaleColumnFromData = cms.bool(False),
+    RequireMenuToMatchAlgoBlkInput = cms.bool(False),
     AlgoBlkInputTag = cms.InputTag("gtStage2Digis")
     # deprecated in Mike's version of producer:                              
     #ProduceL1GtDaqRecord = cms.bool(True),

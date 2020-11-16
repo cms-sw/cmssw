@@ -86,7 +86,7 @@ std::unique_ptr<SiStripBadStrip> SiStripQualityHotStripIdentifierRoot::getNewObj
         theIdentifier->extractBadStrips(
             qobj,
             ClusterPositionHistoMap,
-            SiStripQuality_);  //here I insert SiStripQuality as input and get qobj as output
+            SiStripQuality_.product());  //here I insert SiStripQuality as input and get qobj as output
 
         //----------
 

@@ -328,6 +328,18 @@ namespace edm {
       return a;
     }
   };
+  // read an std::vector<std::pair<std::string, T>> from std::vector<PSet>
+  template <typename T>
+  struct ParameterTypeTraits<std::vector<std::pair<std::string, T>>> {
+    using GetType = std::vector<edm::ParameterSet>;
+    static auto convert(std::vector<edm::ParameterSet> vpset, std::string const& iName) {
+      std::vector<std::pair<std::string, T>> ret(vpset.size());
+      std::transform(vpset.begin(), vpset.end(), ret.begin(), [](edm::ParameterSet const& pset) {
+        return std::pair(pset.getParameter<std::string>("key"), pset.getParameter<T>("value"));
+      });
+      return ret;
+    }
+  };
   // ----------------------------------------------------------------------
 
   template <>

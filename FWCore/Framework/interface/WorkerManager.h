@@ -22,6 +22,7 @@
 #include <vector>
 
 namespace edm {
+  class EventTransitionInfo;
   class ExceptionCollector;
   class StreamID;
   class StreamContext;
@@ -49,31 +50,29 @@ namespace edm {
                                  std::vector<std::string>& shouldBeUsedLabels);
 
     template <typename T, typename U>
-    void processOneOccurrence(typename T::MyPrincipal& principal,
-                              EventSetupImpl const& eventSetup,
-                              StreamID streamID,
+    void processOneOccurrence(typename T::TransitionInfoType&,
+                              StreamID,
                               typename T::Context const* topContext,
                               U const* context,
                               bool cleaningUpAfterException = false);
     template <typename T, typename U>
-    void processOneOccurrenceAsync(WaitingTask* task,
-                                   typename T::MyPrincipal& principal,
-                                   EventSetupImpl const& eventSetup,
-                                   ServiceToken const& token,
-                                   StreamID streamID,
+    void processOneOccurrenceAsync(WaitingTask*,
+                                   typename T::TransitionInfoType&,
+                                   ServiceToken const&,
+                                   StreamID,
                                    typename T::Context const* topContext,
                                    U const* context);
 
     template <typename T>
-    void processAccumulatorsAsync(WaitingTask* task,
-                                  typename T::MyPrincipal const& ep,
-                                  EventSetupImpl const& es,
-                                  ServiceToken const& token,
-                                  StreamID streamID,
-                                  ParentContext const& parentContext,
-                                  typename T::Context const* context);
+    void processAccumulatorsAsync(WaitingTask*,
+                                  typename T::TransitionInfoType const&,
+                                  ServiceToken const&,
+                                  StreamID,
+                                  ParentContext const&,
+                                  typename T::Context const*);
 
-    void setupOnDemandSystem(Principal& principal, EventSetupImpl const& es);
+    void setupResolvers(Principal& principal);
+    void setupOnDemandSystem(EventTransitionInfo const&);
 
     void beginJob(ProductRegistry const& iRegistry, eventsetup::ESRecordsToProxyIndices const&);
     void endJob();
@@ -105,8 +104,7 @@ namespace edm {
   };
 
   template <typename T, typename U>
-  void WorkerManager::processOneOccurrence(typename T::MyPrincipal& ep,
-                                           EventSetupImpl const& es,
+  void WorkerManager::processOneOccurrence(typename T::TransitionInfoType& info,
                                            StreamID streamID,
                                            typename T::Context const* topContext,
                                            U const* context,
@@ -116,7 +114,7 @@ namespace edm {
     auto waitTask = make_empty_waiting_task();
     waitTask->increment_ref_count();
     processOneOccurrenceAsync<T, U>(
-        waitTask.get(), ep, es, ServiceRegistry::instance().presentToken(), streamID, topContext, context);
+        waitTask.get(), info, ServiceRegistry::instance().presentToken(), streamID, topContext, context);
     waitTask->wait_for_all();
     if (waitTask->exceptionPtr() != nullptr) {
       try {
@@ -135,25 +133,23 @@ namespace edm {
 
   template <typename T, typename U>
   void WorkerManager::processOneOccurrenceAsync(WaitingTask* task,
-                                                typename T::MyPrincipal& ep,
-                                                EventSetupImpl const& es,
+                                                typename T::TransitionInfoType& info,
                                                 ServiceToken const& token,
                                                 StreamID streamID,
                                                 typename T::Context const* topContext,
                                                 U const* context) {
     //make sure the unscheduled items see this run or lumi transition
-    unscheduled_.runNowAsync<T, U>(task, ep, es, token, streamID, topContext, context);
+    unscheduled_.runNowAsync<T, U>(task, info, token, streamID, topContext, context);
   }
 
   template <typename T>
   void WorkerManager::processAccumulatorsAsync(WaitingTask* task,
-                                               typename T::MyPrincipal const& ep,
-                                               EventSetupImpl const& es,
+                                               typename T::TransitionInfoType const& info,
                                                ServiceToken const& token,
                                                StreamID streamID,
                                                ParentContext const& parentContext,
                                                typename T::Context const* context) {
-    unscheduled_.runAccumulatorsAsync<T>(task, ep, es, token, streamID, parentContext, context);
+    unscheduled_.runAccumulatorsAsync<T>(task, info, token, streamID, parentContext, context);
   }
 }  // namespace edm
 

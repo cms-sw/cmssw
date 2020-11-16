@@ -2,6 +2,7 @@
 #include "DbConnectionString.h"
 #include "SessionImpl.h"
 #include "IOVSchema.h"
+#include "CoralMsgReporter.h"
 //
 #include "CondCore/CondDB/interface/CoralServiceManager.h"
 #include "CondCore/CondDB/interface/Auth.h"
@@ -72,6 +73,11 @@ namespace cond {
       coralConfig.disableConnectionSharing();
       // message streaming
       coral::MessageStream::setMsgVerbosity(m_messageLevel);
+      if (m_msgReporter.get() != nullptr) {
+        m_msgReporter->setOutputLevel(m_messageLevel);
+        coral::MessageStream::installMsgReporter(static_cast<coral::IMsgReporter*>(m_msgReporter.get()));
+      }
+      // authentication
       std::string authServiceName("CORAL/Services/EnvironmentAuthenticationService");
       std::string authPath = m_authPath;
       // authentication
@@ -164,6 +170,10 @@ namespace cond {
     }
 
     void ConnectionPool::setMessageVerbosity(coral::MsgLevel level) { m_messageLevel = level; }
+
+    void ConnectionPool::setLogDestination(Logger& logger) {
+      m_msgReporter = std::make_unique<CoralMsgReporter>(logger);
+    }
 
   }  // namespace persistency
 }  // namespace cond

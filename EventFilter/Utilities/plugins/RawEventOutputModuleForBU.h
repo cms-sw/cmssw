@@ -21,7 +21,6 @@
 #include <memory>
 #include <vector>
 
-class FRDEventMsgView;
 template <class Consumer>
 class RawEventOutputModuleForBU : public edm::one::OutputModule<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
   typedef unsigned int uint32;
@@ -70,7 +69,7 @@ RawEventOutputModuleForBU<Consumer>::RawEventOutputModuleForBU(edm::ParameterSet
       instance_(ps.getUntrackedParameter<std::string>("ProductInstance", "")),
       token_(consumes<FEDRawDataCollection>(edm::InputTag(label_, instance_))),
       numEventsPerFile_(ps.getUntrackedParameter<unsigned int>("numEventsPerFile", 100)),
-      frdVersion_(ps.getUntrackedParameter<unsigned int>("frdVersion", 3)),
+      frdVersion_(ps.getUntrackedParameter<unsigned int>("frdVersion", 6)),
       totsize(0LL),
       writtensize(0LL),
       writtenSizeLast(0LL),
@@ -97,6 +96,7 @@ void RawEventOutputModuleForBU<Consumer>::write(edm::EventForOutput const& e) {
   e.getByToken(token_, fedBuffers);
 
   // determine the expected size of the FRDEvent IN BYTES !!!!!
+  assert(frdVersion_ <= FRDHeaderMaxVersion);
   int headerSize = FRDHeaderVersionSize[frdVersion_];
   int expectedSize = headerSize;
   int nFeds = frdVersion_ < 3 ? 1024 : FEDNumbering::lastFEDId() + 1;
@@ -111,7 +111,16 @@ void RawEventOutputModuleForBU<Consumer>::write(edm::EventForOutput const& e) {
   std::unique_ptr<std::vector<unsigned char>> workBuffer(
       std::make_unique<std::vector<unsigned char>>(expectedSize + 256));
   uint32* bufPtr = (uint32*)(workBuffer.get()->data());
-  *bufPtr++ = (uint32)frdVersion_;  // version number
+  if (frdVersion_ <= 5) {
+    *bufPtr++ = (uint32)frdVersion_;  // version number only
+  } else {
+    uint16 flags = 0;
+    if (!e.eventAuxiliary().isRealData())
+      flags |= FRDEVENT_MASK_ISGENDATA;
+    *(uint16*)bufPtr = (uint16)(frdVersion_ & 0xffff);
+    *((uint16*)bufPtr + 1) = flags;
+    bufPtr++;
+  }
   *bufPtr++ = (uint32)e.id().run();
   *bufPtr++ = (uint32)e.luminosityBlock();
   *bufPtr++ = (uint32)e.id().event();

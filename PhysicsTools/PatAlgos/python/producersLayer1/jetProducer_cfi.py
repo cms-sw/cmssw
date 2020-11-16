@@ -99,4 +99,26 @@ _patJets = cms.EDProducer("PATJetProducer",
     resolutions     = cms.PSet()
 )
 
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toModify(_patJets, 
+                                           jetSource = "akCs4PFJets",
+                                           genJetMatch = "patJetGenJetMatch",
+                                           genPartonMatch = "patJetPartonMatch",
+                                           JetFlavourInfoSource = "patJetFlavourAssociation",
+                                           JetPartonMapSource = "patJetFlavourAssociationLegacy",
+                                           jetCorrFactorsSource = ["patJetCorrFactors"],
+                                           trackAssociationSource = "ak5JetTracksAssociatorAtVertex",
+                                           useLegacyJetMCFlavour = True,
+                                           discriminatorSources = [
+                                               "simpleSecondaryVertexHighEffBJetTags",
+                                               "simpleSecondaryVertexHighPurBJetTags",
+                                               "combinedSecondaryVertexV2BJetTags",
+                                               "jetBProbabilityBJetTags",
+                                               "jetProbabilityBJetTags",
+                                               "trackCountingHighEffBJetTags",
+                                               "trackCountingHighPurBJetTags",
+                                           ],
+                                           addJetCharge = False,
+)
+
 patJets = _patJets.clone()

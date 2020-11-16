@@ -80,6 +80,9 @@ private:
   std::vector<edm::EDGetTokenT<std::map<unsigned int, int> > > m_multiplicityMapTokens;
   std::vector<edm::EDGetTokenT<std::map<unsigned int, int> > > m_occupancyMapTokens;
   edm::FileInPath m_fp;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> m_tkGeomToken;
+  edm::ESGetToken<SiStripQuality, SiStripQualityRcd> m_stripQualityToken;
+  edm::ESGetToken<SiPixelQuality, SiPixelQualityRcd> m_pixelQualityToken;
 
   RunHistogramManager m_rhm;
   std::map<unsigned int, DetIdSelector> m_wantedsubdets;
@@ -125,6 +128,9 @@ OccupancyPlots::OccupancyPlots(const edm::ParameterSet& iConfig)
           [this](edm::InputTag const& tag) { return consumes<std::map<unsigned int, int> >(tag); })),
       m_fp(iConfig.getUntrackedParameter<edm::FileInPath>(
           "file", edm::FileInPath("CalibTracker/SiPixelESProducers/data/PixelSkimmedGeometry.txt"))),
+      m_tkGeomToken(esConsumes<edm::Transition::EndRun>()),
+      m_stripQualityToken(esConsumes<edm::Transition::EndRun>()),
+      m_pixelQualityToken(esConsumes<edm::Transition::EndRun>()),
       m_rhm(consumesCollector()),
       m_wantedsubdets() {
   //now do what ever initialization is needed
@@ -207,25 +213,22 @@ void OccupancyPlots::beginJob() {}
 void OccupancyPlots::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) { m_rhm.beginRun(iRun); }
 
 void OccupancyPlots::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  //  edm::ESHandle<GlobalTrackingGeometry> trkgeo;
-  //  iSetup.get<GlobalTrackingGeometryRecord>().get("",trkgeo);
-  edm::ESHandle<TrackerGeometry> trkgeo;
-  iSetup.get<TrackerDigiGeometryRecord>().get("", trkgeo);
+  const auto& trkgeo = iSetup.getData(m_tkGeomToken);
 
   // Test new TrackerGeometry features
   LogDebug("IsThereTest") << "Test of TrackerGeometry::isThere";
-  LogTrace("IsThereTest") << " is there PixelBarrel: " << trkgeo->isThere(GeomDetEnumerators::PixelBarrel);
-  LogTrace("IsThereTest") << " is there PixelEndcap: " << trkgeo->isThere(GeomDetEnumerators::PixelEndcap);
-  LogTrace("IsThereTest") << " is there P1PXB: " << trkgeo->isThere(GeomDetEnumerators::P1PXB);
-  LogTrace("IsThereTest") << " is there P1PXEC: " << trkgeo->isThere(GeomDetEnumerators::P1PXEC);
-  LogTrace("IsThereTest") << " is there P2PXB: " << trkgeo->isThere(GeomDetEnumerators::P2PXB);
-  LogTrace("IsThereTest") << " is there P2PXEC: " << trkgeo->isThere(GeomDetEnumerators::P2PXEC);
-  LogTrace("IsThereTest") << " is there TIB: " << trkgeo->isThere(GeomDetEnumerators::TIB);
-  LogTrace("IsThereTest") << " is there TID: " << trkgeo->isThere(GeomDetEnumerators::TID);
-  LogTrace("IsThereTest") << " is there TOB: " << trkgeo->isThere(GeomDetEnumerators::TOB);
-  LogTrace("IsThereTest") << " is there TEC: " << trkgeo->isThere(GeomDetEnumerators::TEC);
-  LogTrace("IsThereTest") << " is there P2OTB: " << trkgeo->isThere(GeomDetEnumerators::P2OTB);
-  LogTrace("IsThereTest") << " is there P2OTEC: " << trkgeo->isThere(GeomDetEnumerators::P2OTEC);
+  LogTrace("IsThereTest") << " is there PixelBarrel: " << trkgeo.isThere(GeomDetEnumerators::PixelBarrel);
+  LogTrace("IsThereTest") << " is there PixelEndcap: " << trkgeo.isThere(GeomDetEnumerators::PixelEndcap);
+  LogTrace("IsThereTest") << " is there P1PXB: " << trkgeo.isThere(GeomDetEnumerators::P1PXB);
+  LogTrace("IsThereTest") << " is there P1PXEC: " << trkgeo.isThere(GeomDetEnumerators::P1PXEC);
+  LogTrace("IsThereTest") << " is there P2PXB: " << trkgeo.isThere(GeomDetEnumerators::P2PXB);
+  LogTrace("IsThereTest") << " is there P2PXEC: " << trkgeo.isThere(GeomDetEnumerators::P2PXEC);
+  LogTrace("IsThereTest") << " is there TIB: " << trkgeo.isThere(GeomDetEnumerators::TIB);
+  LogTrace("IsThereTest") << " is there TID: " << trkgeo.isThere(GeomDetEnumerators::TID);
+  LogTrace("IsThereTest") << " is there TOB: " << trkgeo.isThere(GeomDetEnumerators::TOB);
+  LogTrace("IsThereTest") << " is there TEC: " << trkgeo.isThere(GeomDetEnumerators::TEC);
+  LogTrace("IsThereTest") << " is there P2OTB: " << trkgeo.isThere(GeomDetEnumerators::P2OTB);
+  LogTrace("IsThereTest") << " is there P2OTEC: " << trkgeo.isThere(GeomDetEnumerators::P2OTEC);
 
   const Local2DPoint center(0., 0.);
   const Local3DPoint locz(0., 0., 1.);
@@ -233,7 +236,7 @@ void OccupancyPlots::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
   const Local3DPoint locy(0., 1., 0.);
   const GlobalPoint origin(0., 0., 0.);
 
-  TrackingGeometry::DetIdContainer detunits = trkgeo->detUnitIds();
+  TrackingGeometry::DetIdContainer detunits = trkgeo.detUnitIds();
 
   for (TrackingGeometry::DetIdContainer::const_iterator det = detunits.begin(); det != detunits.end(); ++det) {
     if (det->det() != DetId::Tracker)
@@ -241,10 +244,10 @@ void OccupancyPlots::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 
     edm::LogInfo("DetIdFromGeometry") << det->rawId();
 
-    GlobalPoint position = trkgeo->idToDet(*det)->toGlobal(center);
-    GlobalPoint zpos = trkgeo->idToDet(*det)->toGlobal(locz);
-    GlobalPoint xpos = trkgeo->idToDet(*det)->toGlobal(locx);
-    GlobalPoint ypos = trkgeo->idToDet(*det)->toGlobal(locy);
+    GlobalPoint position = trkgeo.idToDet(*det)->toGlobal(center);
+    GlobalPoint zpos = trkgeo.idToDet(*det)->toGlobal(locz);
+    GlobalPoint xpos = trkgeo.idToDet(*det)->toGlobal(locx);
+    GlobalPoint ypos = trkgeo.idToDet(*det)->toGlobal(locy);
     GlobalVector posvect = position - origin;
     GlobalVector dz = zpos - position;
     GlobalVector dx = xpos - position;
@@ -303,10 +306,9 @@ void OccupancyPlots::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
   if (m_nchannels_real && *m_nchannels_real)
     (*m_nchannels_real)->Reset();
 
-  edm::ESHandle<SiStripQuality> quality;
-  iSetup.get<SiStripQualityRcd>().get("", quality);
+  const auto& stripQuality = iSetup.getData(m_stripQualityToken);
 
-  for (const auto det : trkgeo->detUnits()) {
+  for (const auto det : trkgeo.detUnits()) {
     const StripGeomDetUnit* stripDet = dynamic_cast<const StripGeomDetUnit*>(det);
     if (stripDet != nullptr) {
       const DetId detid = stripDet->geographicalId();
@@ -315,7 +317,7 @@ void OccupancyPlots::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
       //     int nchannreal = stripDet->specificTopology().nstrips();
       int nchannreal = 0;
       for (int strip = 0; strip < nchannideal; ++strip) {
-        if (!quality->IsStripBad(detid, strip))
+        if (!stripQuality.IsStripBad(detid, strip))
           ++nchannreal;
       }
 
@@ -332,8 +334,7 @@ void OccupancyPlots::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
     }
   }
 
-  edm::ESHandle<SiPixelQuality> pxlquality;
-  iSetup.get<SiPixelQualityRcd>().get("", pxlquality);
+  const auto& pxlquality = iSetup.getData(m_pixelQualityToken);
 
   SiPixelDetInfoFileReader pxlreader(m_fp.fullPath());
 
@@ -342,13 +343,13 @@ void OccupancyPlots::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
   for (std::vector<uint32_t>::const_iterator detid = pxldetids.begin(); detid != pxldetids.end(); ++detid) {
     int nchannideal = pxlreader.getDetUnitDimensions(*detid).first * pxlreader.getDetUnitDimensions(*detid).second;
     int nchannreal = 0;
-    if (!pxlquality->IsModuleBad(*detid)) {
+    if (!pxlquality.IsModuleBad(*detid)) {
       nchannreal = pxlreader.getDetUnitDimensions(*detid).first * pxlreader.getDetUnitDimensions(*detid).second;
     }
     /*
      int nchannreal = 0;
      for(int strip = 0; strip < nchannideal; ++strip) {
-       if(!quality->IsStripBad(*detid,strip)) ++nchannreal;
+       if(!stripquality.IsStripBad(*detid,strip)) ++nchannreal;
      }
      */
 

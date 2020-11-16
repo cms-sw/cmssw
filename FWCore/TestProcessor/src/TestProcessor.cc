@@ -23,6 +23,7 @@
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/Framework/interface/PathsAndConsumesOfModules.h"
+#include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
 #include "FWCore/Framework/src/EventSetupsController.h"
 #include "FWCore/Framework/src/globalTransitionAsync.h"
@@ -52,13 +53,6 @@
 namespace edm {
   namespace test {
 
-    //
-    // constants, enums and typedefs
-    //
-
-    //
-    // static data member definitions
-    //
     namespace {
 
       bool oneTimeInitializationImpl() {
@@ -387,6 +381,7 @@ namespace edm {
         if (beginJobCalled_) {
           endJob();
         }
+        espController_->endIOVs();
       });
     }
 
@@ -455,9 +450,10 @@ namespace edm {
 
       auto const& es = esp_->eventSetupImpl();
 
+      RunTransitionInfo transitionInfo(runPrincipal, es);
+
       std::vector<edm::SubProcess> emptyList;
       {
-        RunTransitionInfo transitionInfo(runPrincipal, es);
         using Traits = OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin>;
         auto globalWaitTask = make_empty_waiting_task();
         globalWaitTask->increment_ref_count();
@@ -473,15 +469,11 @@ namespace edm {
         auto streamLoopWaitTask = make_empty_waiting_task();
         streamLoopWaitTask->increment_ref_count();
 
-        typedef OccurrenceTraits<RunPrincipal, BranchActionStreamBegin> Traits;
-
+        using Traits = OccurrenceTraits<RunPrincipal, BranchActionStreamBegin>;
         beginStreamsTransitionAsync<Traits>(streamLoopWaitTask.get(),
                                             *schedule_,
                                             preallocations_.numberOfStreams(),
-                                            runPrincipal,
-                                            ts,
-                                            es,
-                                            nullptr,
+                                            transitionInfo,
                                             serviceToken_,
                                             emptyList);
 
@@ -507,9 +499,10 @@ namespace edm {
 
       auto const& es = esp_->eventSetupImpl();
 
+      LumiTransitionInfo transitionInfo(*lumiPrincipal_, es, nullptr);
+
       std::vector<edm::SubProcess> emptyList;
       {
-        LumiTransitionInfo transitionInfo(*lumiPrincipal_, es, nullptr);
         using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin>;
         auto globalWaitTask = make_empty_waiting_task();
         globalWaitTask->increment_ref_count();
@@ -525,15 +518,12 @@ namespace edm {
         auto streamLoopWaitTask = make_empty_waiting_task();
         streamLoopWaitTask->increment_ref_count();
 
-        typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin> Traits;
+        using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin>;
 
         beginStreamsTransitionAsync<Traits>(streamLoopWaitTask.get(),
                                             *schedule_,
                                             preallocations_.numberOfStreams(),
-                                            *lumiPrincipal_,
-                                            ts,
-                                            es,
-                                            nullptr,
+                                            transitionInfo,
                                             serviceToken_,
                                             emptyList);
 
@@ -573,8 +563,8 @@ namespace edm {
       auto waitTask = make_empty_waiting_task();
       waitTask->increment_ref_count();
 
-      schedule_->processOneEventAsync(
-          edm::WaitingTaskHolder(waitTask.get()), 0, *pep, esp_->eventSetupImpl(), serviceToken_);
+      EventTransitionInfo info(*pep, esp_->eventSetupImpl());
+      schedule_->processOneEventAsync(edm::WaitingTaskHolder(waitTask.get()), 0, info, serviceToken_);
 
       waitTask->wait_for_all();
       if (waitTask->exceptionPtr() != nullptr) {
@@ -594,6 +584,8 @@ namespace edm {
 
         auto const& es = esp_->eventSetupImpl();
 
+        LumiTransitionInfo transitionInfo(*lumiPrincipal, es, nullptr);
+
         std::vector<edm::SubProcess> emptyList;
 
         //To wait, the ref count has to be 1+#streams
@@ -606,10 +598,7 @@ namespace edm {
           endStreamsTransitionAsync<Traits>(WaitingTaskHolder(streamLoopWaitTask.get()),
                                             *schedule_,
                                             preallocations_.numberOfStreams(),
-                                            *lumiPrincipal,
-                                            ts,
-                                            es,
-                                            nullptr,
+                                            transitionInfo,
                                             serviceToken_,
                                             emptyList,
                                             false);
@@ -623,7 +612,6 @@ namespace edm {
           auto globalWaitTask = make_empty_waiting_task();
           globalWaitTask->increment_ref_count();
 
-          LumiTransitionInfo transitionInfo(*lumiPrincipal, es, nullptr);
           using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd>;
           endGlobalTransitionAsync<Traits>(
               WaitingTaskHolder(globalWaitTask.get()), *schedule_, transitionInfo, serviceToken_, emptyList, false);
@@ -651,6 +639,8 @@ namespace edm {
 
         auto const& es = esp_->eventSetupImpl();
 
+        RunTransitionInfo transitionInfo(runPrincipal, es);
+
         std::vector<edm::SubProcess> emptyList;
 
         //To wait, the ref count has to be 1+#streams
@@ -663,10 +653,7 @@ namespace edm {
           endStreamsTransitionAsync<Traits>(WaitingTaskHolder(streamLoopWaitTask.get()),
                                             *schedule_,
                                             preallocations_.numberOfStreams(),
-                                            runPrincipal,
-                                            ts,
-                                            es,
-                                            nullptr,
+                                            transitionInfo,
                                             serviceToken_,
                                             emptyList,
                                             false);
@@ -680,7 +667,6 @@ namespace edm {
           auto globalWaitTask = make_empty_waiting_task();
           globalWaitTask->increment_ref_count();
 
-          RunTransitionInfo transitionInfo(runPrincipal, es);
           using Traits = OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd>;
           endGlobalTransitionAsync<Traits>(
               WaitingTaskHolder(globalWaitTask.get()), *schedule_, transitionInfo, serviceToken_, emptyList, false);

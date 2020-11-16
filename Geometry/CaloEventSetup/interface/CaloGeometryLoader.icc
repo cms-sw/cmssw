@@ -5,6 +5,7 @@
 #include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
@@ -19,11 +20,13 @@
 #include "DetectorDescription/Core/interface/DDScope.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
 
+#include "DD4hep/Filter.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 #include <boost/algorithm/string/predicate.hpp>
 
 #include <vector>
+//#define EDM_ML_DEBUG
 
 template <class T>
 typename CaloGeometryLoader<T>::PtrType CaloGeometryLoader<T>::load(const DDCompactView* cpv,
@@ -130,7 +133,10 @@ void CaloGeometryLoader<T>::makeGeometry(const cms::DDCompactView* cpv,
 
   unsigned int counter(0);
   while (fv.firstChild()) {
-    if (boost::starts_with(fv.name(), "EA")) {
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("EcalGeom") << "Do child " << fv.name();
+#endif
+    if (boost::starts_with(dd4hep::dd::noNamespace(fv.name()), "EA")) {
       continue;
     }
     ++counter;
@@ -196,28 +202,39 @@ unsigned int CaloGeometryLoader<T>::getDetIdForDD4HepNode(const cms::DDFilteredV
   // get the parents and grandparents of this node
 
   const std::string path(fv.path());
-  auto psize = fv.copyNos().size();
+  auto psize = fv.level();
 
   EcalBaseNumber baseNumber;
   baseNumber.setSize(psize);
 
-  size_t n = path.find("/") + 1;
-  edm::LogVerbatim("CaloGeometryBuilder") << path << " n " << n;
-  size_t start = n;
+  size_t n = path.find('/') + 1;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("EcalGeom") << path << " n " << n;
+#endif
+  size_t start = n, startold = n;
   std::string det(""), num("");
+  bool done(false);
   for (size_t i = n; i <= path.size(); ++i) {
     if (i == path.size() || path[i] == '/') {
       num = path.substr(start, i - start);
-      start = i + 1;
+      startold = start = i + 1;
       baseNumber.addLevel(det, std::stoi(num));
+      done = true;
     } else if (path[i] == ':') {
-      start = i + 1;
+      startold = start = i + 1;
     } else if (path[i] == '_') {
-      det = path.substr(start, i - start);
+      det = done ? path.substr(start, i - start) : path.substr(startold, i - startold);
       start = i + 1;
+      done = false;
     }
   }
-
+  baseNumber.reverse();
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("EcalGeom") << "Base number with " << baseNumber.getLevels() << " levels";
+  for (int k = 0; k < baseNumber.getLevels(); ++k)
+    edm::LogVerbatim("EcalGeom") << "[" << k << "] " << baseNumber.getLevelName(k) << ":"
+                                 << baseNumber.getCopyNumber(k);
+#endif
   return m_scheme.getUnitID(baseNumber);
 }
 

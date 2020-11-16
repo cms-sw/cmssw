@@ -21,33 +21,31 @@
 // system include files
 
 // user include files
+#include "FWCore/Framework/src/TransitionInfoTypes.h"
 #include "FWCore/Utilities/interface/Signal.h"
 
 // forward declarations
 
 namespace edm {
-  class EventSetupImpl;
   class ModuleCallingContext;
   class StreamContext;
 
   class UnscheduledAuxiliary {
   public:
-    UnscheduledAuxiliary() : m_eventSetup(nullptr) {}
-
     // ---------- const member functions ---------------------
-    EventSetupImpl const* eventSetup() const { return m_eventSetup; }
+    EventTransitionInfo const& eventTransitionInfo() const { return m_eventTransitionInfo; }
 
     // ---------- static member functions --------------------
 
     // ---------- member functions ---------------------------
-    void setEventSetup(EventSetupImpl const* iSetup) { m_eventSetup = iSetup; }
+    void setEventTransitionInfo(EventTransitionInfo const& info) { m_eventTransitionInfo = info; }
 
     signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> preModuleDelayedGetSignal_;
     signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> postModuleDelayedGetSignal_;
 
   private:
     // ---------- member data --------------------------------
-    EventSetupImpl const* m_eventSetup;
+    EventTransitionInfo m_eventTransitionInfo;
   };
 }  // namespace edm
 

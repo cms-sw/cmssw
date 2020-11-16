@@ -58,9 +58,10 @@ public:
   // Constructor from DD4Hep DDFilteredView
   DetGeomDesc(const cms::DDFilteredView& fv);
 
-  DetGeomDesc(const DetGeomDesc&);
-  DetGeomDesc& operator=(const DetGeomDesc&);
   virtual ~DetGeomDesc();
+
+  enum CopyMode { cmWithChildren, cmWithoutChildren };
+  DetGeomDesc(const DetGeomDesc& ref, CopyMode cm = cmWithChildren);
 
   // general info
   const std::string& name() const { return m_name; }

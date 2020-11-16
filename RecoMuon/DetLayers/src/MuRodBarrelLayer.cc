@@ -8,14 +8,13 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
+#include "TrackingTools/DetLayers/interface/GeneralBinFinderInPhi.h"
+#include "TrackingTools/DetLayers/interface/PhiBorderFinder.h"
 #include "Utilities/BinningTools/interface/PeriodicBinFinderInPhi.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <Utilities/General/interface/precomputed_value_sort.h>
+#include "Utilities/General/interface/precomputed_value_sort.h"
 #include "DataFormats/GeometrySurface/interface/GeometricSorting.h"
-
-#include "GeneralBinFinderInPhi.h"
-#include "PhiBorderFinder.h"
 
 #include <algorithm>
 #include <iostream>

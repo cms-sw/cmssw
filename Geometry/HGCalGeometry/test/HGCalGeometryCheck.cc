@@ -54,11 +54,11 @@ private:
 
 HGCalGeometryCheck::HGCalGeometryCheck(const edm::ParameterSet& iC)
     : nameDetectors_(iC.getParameter<std::vector<std::string>>("detectorNames")),
-      geomTokens_{
-          edm::vector_transform(nameDetectors_,
-                                [this](const std::string& name) {
-                                  return esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", name});
-                                })},
+      geomTokens_{edm::vector_transform(
+          nameDetectors_,
+          [this](const std::string& name) {
+            return esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name});
+          })},
       rmin_(iC.getUntrackedParameter<double>("rMin", 0.0)),
       rmax_(iC.getUntrackedParameter<double>("rMax", 300.0)),
       zmin_(iC.getUntrackedParameter<double>("zMin", 300.0)),
@@ -111,7 +111,9 @@ void HGCalGeometryCheck::beginRun(const edm::Run&, const edm::EventSetup& iSetup
 
       auto zz = geom->topology().dddConstants().waferZ(lay, true);
       auto rr = geom->topology().dddConstants().rangeR(zz, true);
-      edm::LogVerbatim("HGCalGeom") << "Layer " << lay << " R " << rr.first << ":" << rr.second << " Z " << zz;
+      auto rr0 = geom->topology().dddConstants().rangeRLayer(lay, true);
+      edm::LogVerbatim("HGCalGeom") << "Layer " << lay << " R " << rr.first << ":" << rr.second << " (" << rr0.first
+                                    << ":" << rr0.second << ") Z " << zz;
       double r = rr.first;
       while (r <= rr.second) {
         h_RZ_[0]->Fill(zz, r);
@@ -120,6 +122,7 @@ void HGCalGeometryCheck::beginRun(const edm::Run&, const edm::EventSetup& iSetup
           double phi = 2 * k * M_PI / 100.0;
           GlobalPoint global1(r * cos(phi), r * sin(phi), zz);
           DetId id = geom->getClosestCell(global1);
+
           if (ifNose_) {
             HFNoseDetId detId = HFNoseDetId(id);
             h_Mod_.back()->Fill(detId.waferU());

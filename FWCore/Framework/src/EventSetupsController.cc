@@ -33,6 +33,12 @@ namespace edm {
 
     EventSetupsController::EventSetupsController() {}
 
+    void EventSetupsController::endIOVs() {
+      for (auto& eventSetupRecordIOVQueue : eventSetupRecordIOVQueues_) {
+        eventSetupRecordIOVQueue->endIOV();
+      }
+    }
+
     std::shared_ptr<EventSetupProvider> EventSetupsController::makeProvider(ParameterSet& iPSet,
                                                                             ActivityRegistry* activityRegistry,
                                                                             ParameterSet const* eventSetupPset) {

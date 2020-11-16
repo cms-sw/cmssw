@@ -34,7 +34,6 @@ namespace edm {
   class ModuleCallingContext;
   class PreallocationConfiguration;
   class ActivityRegistry;
-  class ProductRegistry;
   class ThinnedAssociationsHelper;
   class WaitingTask;
 
@@ -74,11 +73,10 @@ namespace edm {
       virtual SerialTaskQueue* globalLuminosityBlocksQueue();
 
     private:
-      bool doEvent(EventPrincipal const& ep, EventSetupImpl const& c, ActivityRegistry*, ModuleCallingContext const*);
+      bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
       //For now this is a placeholder
-      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask* iTask,
-                                                    ModuleCallingContext const& iModuleCallingContext,
-                                                    Principal const& iPrincipal) const {}
+      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask*, ModuleCallingContext const&, Principal const&) const {
+      }
 
       void doPreallocate(PreallocationConfiguration const&);
       virtual void preallocLumis(unsigned int);
@@ -88,14 +86,10 @@ namespace edm {
       void doBeginProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*);
       void doAccessInputProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*);
       void doEndProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*);
-      void doBeginRun(RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const*);
-      void doEndRun(RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const*);
-      void doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                  EventSetupImpl const& c,
-                                  ModuleCallingContext const*);
-      void doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                EventSetupImpl const& c,
-                                ModuleCallingContext const*);
+      void doBeginRun(RunTransitionInfo const&, ModuleCallingContext const*);
+      void doEndRun(RunTransitionInfo const&, ModuleCallingContext const*);
+      void doBeginLuminosityBlock(LumiTransitionInfo const&, ModuleCallingContext const*);
+      void doEndLuminosityBlock(LumiTransitionInfo const&, ModuleCallingContext const*);
 
       //For now, the following are just dummy implemenations with no ability for users to override
       void doRespondToOpenInputFile(FileBlock const& fb);

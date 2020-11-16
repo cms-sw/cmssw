@@ -13,6 +13,8 @@ _endcapAlgo = cms.PSet(
     calibrationConstant = cms.double(0.085), # MeV/MIP
 )
 
+from Configuration.Eras.Modifier_phase2_etlV4_cff import phase2_etlV4
+phase2_etlV4.toModify(_endcapAlgo, thresholdToKeep = 0.005, calibrationConstant = 0.001 )
 
 mtdRecHits = cms.EDProducer(
     "MTDRecHitProducer",

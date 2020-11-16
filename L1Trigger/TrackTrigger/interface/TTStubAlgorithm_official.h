@@ -145,7 +145,9 @@ public:
       setTiltedCut.push_back(iPSet->getParameter<std::vector<double>>("TiltedCut"));
     }
 
-    setWhatProduced(this).setConsumes(mGeomToken).setConsumes(mTopoToken);
+    auto cc = setWhatProduced(this);
+    mGeomToken = cc.consumes();
+    mTopoToken = cc.consumes();
   }
 
   /// Destructor

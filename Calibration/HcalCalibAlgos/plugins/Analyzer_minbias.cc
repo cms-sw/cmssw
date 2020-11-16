@@ -59,6 +59,8 @@ namespace cms {
     tok_gtRec_ = consumes<L1GlobalTriggerReadoutRecord>(edm::InputTag("gtDigisAlCaMB"));
     tok_hbheNorm_ = consumes<HBHERecHitCollection>(edm::InputTag("hbhereco"));
 
+    tok_respCorr_ = esConsumes<HcalRespCorrs, HcalRespCorrsRcd>();
+
     theRecalib = iConfig.getParameter<bool>("Recalib");
 
     //
@@ -78,8 +80,8 @@ namespace cms {
     // (e.g. close files, deallocate resources etc.)
   }
 
-  void Analyzer_minbias::beginRun(const edm::Run& r, const edm::EventSetup& iSetup) { nevent_run = 0; }
-  void Analyzer_minbias::endRun(const edm::Run& r, const edm::EventSetup& iSetup) {
+  void Analyzer_minbias::beginRun(const edm::Run&, const edm::EventSetup&) { nevent_run = 0; }
+  void Analyzer_minbias::endRun(const edm::Run& r, const edm::EventSetup&) {
     edm::LogInfo("AnalyzerMB") << " Runnumber " << r.run() << " Nevents  " << nevent_run;
   }
 
@@ -415,11 +417,7 @@ namespace cms {
 
     const HcalRespCorrs* myRecalib = nullptr;
     if (theRecalib) {
-      // Radek:
-      edm::ESHandle<HcalRespCorrs> recalibCorrs;
-      iSetup.get<HcalRespCorrsRcd>().get("recalibrate", recalibCorrs);
-      myRecalib = recalibCorrs.product();
-      // end
+      myRecalib = &iSetup.getData(tok_respCorr_);
     }  // theRecalib
 
     // Noise part for HB HE

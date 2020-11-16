@@ -114,6 +114,8 @@ private:
   edm::EDGetTokenT<edm::ValueMap<float>> phoPFECALClusIsolationToken_;
   edm::EDGetTokenT<edm::ValueMap<float>> phoPFHCALClusIsolationToken_;
 
+  const EcalClusterLazyTools::ESGetTokens ecalClusterESGetTokens_;
+
   std::string conversionProducer_;
   std::string conversionCollection_;
   std::string valueMapPFCandPhoton_;

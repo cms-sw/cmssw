@@ -9,261 +9,158 @@
 //      might use is to check the relative level of two severities
 //      using operator<() or the like.
 //
-// 29-Jun-1998 mf       Created file.
-// 26-Aug-1998 WEB      Made ELseverityLevel object less weighty.
-// 16-Jun-1999 mf       Added constructor from string, plus two lists
-//                      of names to match.  Also added default constructor,
-//                      more streamlined than default lev on original.
-// 23-Jun-1999 mf       Modifications to properly handle pre-main order
-//                      of initialization issues:
-//                              Instantiation ofthe 14 const ELseverity &'s
-//                              Instantiation of objectsInitialized as false
-//                              Constructor of ELinitializeGlobalSeverityObjects
-//                              Removed guarantor function in favor of the
-//                              constructor.
-// 30-Jun-1999 mf       Modifications to eliminate propblems with order of
-//                      globals initializations:
-//                              Constructor from lev calls translate()
-//                              Constructor from string uses translate()
-//                              translate() method
-//                              List of strings for names in side getname() etc.
-//                              Immediate initilization of ELsevLevGlobals
-//                              Mods involving ELinitializeGlobalSeverityObjects
-// 12-Jun-2000 web      Final fix to global static initialization problem
-// 27-Jun-2000 web      Fix order-of-static-destruction problem
-// 24-Aug-2000 web      Fix defective C++ switch generation
-// 13-Jun-2007 mf       Change (requested by CMS) the name Severe to System
-//			(since that his how MessageLogger uses that level)
-// 21-Apr-2009 mf	Change the symbol for ELsev_success (which is used
-//                      by CMS for LogDebug) from -! to -d.
 // ----------------------------------------------------------------------
 
+#include <cassert>
 #include <ostream>
 
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
 #include "FWCore/MessageLogger/interface/ELmap.h"
 
-// Possible Traces
-// #define ELsevConTRACE
-
-namespace edm {
+namespace {
 
   // ----------------------------------------------------------------------
   // Helper to construct the string->ELsev_ map on demand:
   // ----------------------------------------------------------------------
 
-  typedef std::map<ELstring const, ELseverityLevel::ELsev_> ELmap;
+  typedef std::map<std::string const, edm::ELseverityLevel::ELsev_, std::less<>> ELmap;
 
-  static ELmap const& loadMap() {
-    static const ELmap m = {{ELzeroSeverity.getSymbol(), ELseverityLevel::ELsev_zeroSeverity},
-                            {ELzeroSeverity.getName(), ELseverityLevel::ELsev_zeroSeverity},
-                            {ELzeroSeverity.getInputStr(), ELseverityLevel::ELsev_zeroSeverity},
-                            {ELzeroSeverity.getVarName(), ELseverityLevel::ELsev_zeroSeverity},
-                            {ELdebug.getSymbol(), ELseverityLevel::ELsev_success},
-                            {ELdebug.getName(), ELseverityLevel::ELsev_success},
-                            {ELdebug.getInputStr(), ELseverityLevel::ELsev_success},
-                            {ELdebug.getVarName(), ELseverityLevel::ELsev_success},
-                            {ELinfo.getSymbol(), ELseverityLevel::ELsev_info},
-                            {ELinfo.getName(), ELseverityLevel::ELsev_info},
-                            {ELinfo.getInputStr(), ELseverityLevel::ELsev_info},
-                            {ELinfo.getVarName(), ELseverityLevel::ELsev_info},
-                            {ELwarning.getSymbol(), ELseverityLevel::ELsev_warning},
-                            {ELwarning.getName(), ELseverityLevel::ELsev_warning},
-                            {ELwarning.getInputStr(), ELseverityLevel::ELsev_warning},
-                            {ELwarning.getVarName(), ELseverityLevel::ELsev_warning},
-                            {ELerror.getSymbol(), ELseverityLevel::ELsev_error},
-                            {ELerror.getName(), ELseverityLevel::ELsev_error},
-                            {ELerror.getInputStr(), ELseverityLevel::ELsev_error},
-                            {ELerror.getVarName(), ELseverityLevel::ELsev_error},
-                            {ELunspecified.getSymbol(), ELseverityLevel::ELsev_unspecified},
-                            {ELunspecified.getName(), ELseverityLevel::ELsev_unspecified},
-                            {ELunspecified.getInputStr(), ELseverityLevel::ELsev_unspecified},
-                            {ELunspecified.getVarName(), ELseverityLevel::ELsev_unspecified},
-                            {ELsevere.getSymbol(), ELseverityLevel::ELsev_severe},
-                            {ELsevere.getName(), ELseverityLevel::ELsev_severe},
-                            {ELsevere.getInputStr(), ELseverityLevel::ELsev_severe},
-                            {ELsevere.getVarName(), ELseverityLevel::ELsev_severe},
-                            {ELhighestSeverity.getSymbol(), ELseverityLevel::ELsev_highestSeverity},
-                            {ELhighestSeverity.getName(), ELseverityLevel::ELsev_highestSeverity},
-                            {ELhighestSeverity.getInputStr(), ELseverityLevel::ELsev_highestSeverity},
-                            {ELhighestSeverity.getVarName(), ELseverityLevel::ELsev_highestSeverity}};
+  ELmap const& loadMap() {
+    static const ELmap m = {{edm::ELzeroSeverity.getSymbol(), edm::ELseverityLevel::ELsev_zeroSeverity},
+                            {edm::ELzeroSeverity.getName(), edm::ELseverityLevel::ELsev_zeroSeverity},
+                            {edm::ELzeroSeverity.getInputStr(), edm::ELseverityLevel::ELsev_zeroSeverity},
+                            {edm::ELzeroSeverity.getVarName(), edm::ELseverityLevel::ELsev_zeroSeverity},
+                            {edm::ELdebug.getSymbol(), edm::ELseverityLevel::ELsev_success},
+                            {edm::ELdebug.getName(), edm::ELseverityLevel::ELsev_success},
+                            {edm::ELdebug.getInputStr(), edm::ELseverityLevel::ELsev_success},
+                            {edm::ELdebug.getVarName(), edm::ELseverityLevel::ELsev_success},
+                            {edm::ELinfo.getSymbol(), edm::ELseverityLevel::ELsev_info},
+                            {edm::ELinfo.getName(), edm::ELseverityLevel::ELsev_info},
+                            {edm::ELinfo.getInputStr(), edm::ELseverityLevel::ELsev_info},
+                            {edm::ELinfo.getVarName(), edm::ELseverityLevel::ELsev_info},
+                            {edm::ELfwkInfo.getSymbol(), edm::ELseverityLevel::ELsev_fwkInfo},
+                            {edm::ELfwkInfo.getName(), edm::ELseverityLevel::ELsev_fwkInfo},
+                            {edm::ELfwkInfo.getInputStr(), edm::ELseverityLevel::ELsev_fwkInfo},
+                            {edm::ELfwkInfo.getVarName(), edm::ELseverityLevel::ELsev_fwkInfo},
+                            {edm::ELwarning.getSymbol(), edm::ELseverityLevel::ELsev_warning},
+                            {edm::ELwarning.getName(), edm::ELseverityLevel::ELsev_warning},
+                            {edm::ELwarning.getInputStr(), edm::ELseverityLevel::ELsev_warning},
+                            {edm::ELwarning.getVarName(), edm::ELseverityLevel::ELsev_warning},
+                            {edm::ELerror.getSymbol(), edm::ELseverityLevel::ELsev_error},
+                            {edm::ELerror.getName(), edm::ELseverityLevel::ELsev_error},
+                            {edm::ELerror.getInputStr(), edm::ELseverityLevel::ELsev_error},
+                            {edm::ELerror.getVarName(), edm::ELseverityLevel::ELsev_error},
+                            {edm::ELunspecified.getSymbol(), edm::ELseverityLevel::ELsev_unspecified},
+                            {edm::ELunspecified.getName(), edm::ELseverityLevel::ELsev_unspecified},
+                            {edm::ELunspecified.getInputStr(), edm::ELseverityLevel::ELsev_unspecified},
+                            {edm::ELunspecified.getVarName(), edm::ELseverityLevel::ELsev_unspecified},
+                            {edm::ELsevere.getSymbol(), edm::ELseverityLevel::ELsev_severe},
+                            {edm::ELsevere.getName(), edm::ELseverityLevel::ELsev_severe},
+                            {edm::ELsevere.getInputStr(), edm::ELseverityLevel::ELsev_severe},
+                            {edm::ELsevere.getVarName(), edm::ELseverityLevel::ELsev_severe},
+                            {edm::ELhighestSeverity.getSymbol(), edm::ELseverityLevel::ELsev_highestSeverity},
+                            {edm::ELhighestSeverity.getName(), edm::ELseverityLevel::ELsev_highestSeverity},
+                            {edm::ELhighestSeverity.getInputStr(), edm::ELseverityLevel::ELsev_highestSeverity},
+                            {edm::ELhighestSeverity.getVarName(), edm::ELseverityLevel::ELsev_highestSeverity}};
 
     return m;
   }
+}  // namespace
 
+namespace edm {
   // ----------------------------------------------------------------------
   // Birth/death:
   // ----------------------------------------------------------------------
 
-  ELseverityLevel::ELseverityLevel(enum ELsev_ lev) : myLevel(lev) {
-#ifdef ELsevConTRACE
-    std::cerr << "--- ELseverityLevel " << lev << " (" << getName() << ")\n" << std::flush;
-#endif
-  }
-
-  ELseverityLevel::ELseverityLevel(ELstring const& s) {
+  ELseverityLevel::ELseverityLevel(std::string_view s) {
     static ELmap const& m = loadMap();
 
     ELmap::const_iterator i = m.find(s);
     myLevel = (i == m.end()) ? ELsev_unspecified : i->second;
   }
 
-  ELseverityLevel::~ELseverityLevel() { ; }
-
-  // ----------------------------------------------------------------------
-  // Comparator:
-  // ----------------------------------------------------------------------
-
-  int ELseverityLevel::cmp(ELseverityLevel const& e) const { return myLevel - e.myLevel; }
-
   // ----------------------------------------------------------------------
   // Accessors:
   // ----------------------------------------------------------------------
 
-  int ELseverityLevel::getLevel() const { return myLevel; }
+  const std::string& ELseverityLevel::getSymbol() const {
+    static const auto symbols = []() {
+      std::array<std::string, nLevels> ret;
+      ret[ELsev_noValueAssigned] = "0";
+      ret[ELsev_zeroSeverity] = "--";
+      ret[ELsev_success] = "-d";
+      ret[ELsev_info] = "-i";
+      ret[ELsev_fwkInfo] = "-f";
+      ret[ELsev_warning] = "-w";
+      ret[ELsev_error] = "-e";
+      ret[ELsev_unspecified] = "??";
+      ret[ELsev_severe] = "-s";
+      ret[ELsev_highestSeverity] = "!!";
+      return ret;
+    }();
 
-  const ELstring ELseverityLevel::getSymbol() const {
-    ELstring result;
-
-    switch (myLevel) {
-      default:
-        result = "0";
-        break;
-      case ELsev_zeroSeverity:
-        result = "--";
-        break;
-      case ELsev_success:
-        result = "-d";
-        break;  // 4/21/09 mf
-      case ELsev_info:
-        result = "-i";
-        break;
-      case ELsev_warning:
-        result = "-w";
-        break;
-      case ELsev_error:
-        result = "-e";
-        break;
-      case ELsev_unspecified:
-        result = "??";
-        break;
-      case ELsev_severe:
-        result = "-s";
-        break;
-      case ELsev_highestSeverity:
-        result = "!!";
-        break;
-    };  // switch
-
-    return result;
+    assert(myLevel < nLevels);
+    return symbols[myLevel];
   }
 
-  const ELstring ELseverityLevel::getName() const {
-    ELstring result;
+  const std::string& ELseverityLevel::getName() const {
+    static const auto names = []() {
+      std::array<std::string, nLevels> ret;
+      ret[ELsev_noValueAssigned] = "?no value?";
+      ret[ELsev_zeroSeverity] = "--";
+      ret[ELsev_success] = "Debug";
+      ret[ELsev_info] = "Info";
+      ret[ELsev_fwkInfo] = "FwkInfo";
+      ret[ELsev_warning] = "Warning";
+      ret[ELsev_error] = "Error";
+      ret[ELsev_unspecified] = "??";
+      ret[ELsev_severe] = "System";
+      ret[ELsev_highestSeverity] = "!!";
+      return ret;
+    }();
 
-    switch (myLevel) {
-      default:
-        result = "?no value?";
-        break;
-      case ELsev_zeroSeverity:
-        result = "--";
-        break;
-      case ELsev_success:
-        result = "Debug";
-        break;  // 4/21/09 mf
-      case ELsev_info:
-        result = "Info";
-        break;
-      case ELsev_warning:
-        result = "Warning";
-        break;
-      case ELsev_error:
-        result = "Error";
-        break;
-      case ELsev_unspecified:
-        result = "??";
-        break;
-      case ELsev_severe:
-        result = "System";
-        break;  // 6/13/07 mf
-      case ELsev_highestSeverity:
-        result = "!!";
-        break;
-    };  // switch
-
-    return result;
+    assert(myLevel < nLevels);
+    return names[myLevel];
   }
 
-  const ELstring ELseverityLevel::getInputStr() const {
-    ELstring result;
+  const std::string& ELseverityLevel::getInputStr() const {
+    static const auto inputs = []() {
+      std::array<std::string, nLevels> ret;
+      ret[ELsev_noValueAssigned] = "?no value?";
+      ret[ELsev_zeroSeverity] = "ZERO";
+      ret[ELsev_success] = "DEBUG";
+      ret[ELsev_info] = "INFO";
+      ret[ELsev_fwkInfo] = "FWKINFO";
+      ret[ELsev_warning] = "WARNING";
+      ret[ELsev_error] = "ERROR";
+      ret[ELsev_unspecified] = "UNSPECIFIED";
+      ret[ELsev_severe] = "SYSTEM";
+      ret[ELsev_highestSeverity] = "HIGHEST";
+      return ret;
+    }();
 
-    switch (myLevel) {
-      default:
-        result = "?no value?";
-        break;
-      case ELsev_zeroSeverity:
-        result = "ZERO";
-        break;
-      case ELsev_success:
-        result = "DEBUG";
-        break;
-      case ELsev_info:
-        result = "INFO";
-        break;
-      case ELsev_warning:
-        result = "WARNING";
-        break;
-      case ELsev_error:
-        result = "ERROR";
-        break;
-      case ELsev_unspecified:
-        result = "UNSPECIFIED";
-        break;
-      case ELsev_severe:
-        result = "SYSTEM";
-        break;  // 6/13/07 mf
-      case ELsev_highestSeverity:
-        result = "HIGHEST";
-        break;
-    };  // switch
-
-    return result;
+    assert(myLevel < nLevels);
+    return inputs[myLevel];
   }
 
-  const ELstring ELseverityLevel::getVarName() const {
-    ELstring result;
+  const std::string& ELseverityLevel::getVarName() const {
+    static const auto varNames = []() {
+      std::array<std::string, nLevels> ret;
+      ret[ELsev_noValueAssigned] = "?no value?";
+      ret[ELsev_zeroSeverity] = "ELzeroSeverity   ";
+      ret[ELsev_success] = "ELdebug          ";
+      ret[ELsev_info] = "ELinfo           ";
+      ret[ELsev_fwkInfo] = "ELfwkInfo        ";
+      ret[ELsev_warning] = "ELwarning        ";
+      ret[ELsev_error] = "ELerror          ";
+      ret[ELsev_unspecified] = "ELunspecified    ";
+      ret[ELsev_severe] = "ELsystem         ";
+      ret[ELsev_highestSeverity] = "ELhighestSeverity";
+      return ret;
+    }();
 
-    switch (myLevel) {
-      default:
-        result = "?no value?       ";
-        break;
-      case ELsev_zeroSeverity:
-        result = "ELzeroSeverity   ";
-        break;
-      case ELsev_success:
-        result = "ELdebug          ";
-        break;  // 4/21/09
-      case ELsev_info:
-        result = "ELinfo           ";
-        break;
-      case ELsev_warning:
-        result = "ELwarning        ";
-        break;
-      case ELsev_error:
-        result = "ELerror          ";
-        break;
-      case ELsev_unspecified:
-        result = "ELunspecified    ";
-        break;
-      case ELsev_severe:
-        result = "ELsystem         ";
-        break;  // 6/13/07
-      case ELsev_highestSeverity:
-        result = "ELhighestSeverity";
-        break;
-    };  // switch
-
-    return result;
+    assert(myLevel < nLevels);
+    return varNames[myLevel];
   }
 
   // ----------------------------------------------------------------------
@@ -271,60 +168,5 @@ namespace edm {
   // ----------------------------------------------------------------------
 
   std::ostream& operator<<(std::ostream& os, const ELseverityLevel& sev) { return os << " -" << sev.getName() << "- "; }
-
-  // ----------------------------------------------------------------------
-  // Declare the globally available severity objects,
-  // one generator function and one proxy per non-default ELsev_:
-  // ----------------------------------------------------------------------
-
-  ELseverityLevel const ELzeroSeverityGen() {
-    static ELseverityLevel const e(ELseverityLevel::ELsev_zeroSeverity);
-    return e;
-  }
-  ELslProxy<ELzeroSeverityGen> const ELzeroSeverity;
-
-  ELseverityLevel const ELdebugGen() {
-    static ELseverityLevel const e(ELseverityLevel::ELsev_success);
-    return e;
-  }
-  ELslProxy<ELdebugGen> const ELdebug;
-
-  ELseverityLevel const ELinfoGen() {
-    static ELseverityLevel const e(ELseverityLevel::ELsev_info);
-    return e;
-  }
-  ELslProxy<ELinfoGen> const ELinfo;
-
-  ELseverityLevel const ELwarningGen() {
-    static ELseverityLevel const e(ELseverityLevel::ELsev_warning);
-    return e;
-  }
-  ELslProxy<ELwarningGen> const ELwarning;
-
-  ELseverityLevel const ELerrorGen() {
-    static ELseverityLevel const e(ELseverityLevel::ELsev_error);
-    return e;
-  }
-  ELslProxy<ELerrorGen> const ELerror;
-
-  ELseverityLevel const ELunspecifiedGen() {
-    static ELseverityLevel const e(ELseverityLevel::ELsev_unspecified);
-    return e;
-  }
-  ELslProxy<ELunspecifiedGen> const ELunspecified;
-
-  ELseverityLevel const ELsevereGen() {
-    static ELseverityLevel const e(ELseverityLevel::ELsev_severe);
-    return e;
-  }
-  ELslProxy<ELsevereGen> const ELsevere;
-
-  ELseverityLevel const ELhighestSeverityGen() {
-    static ELseverityLevel const e(ELseverityLevel::ELsev_highestSeverity);
-    return e;
-  }
-  ELslProxy<ELhighestSeverityGen> const ELhighestSeverity;
-
-  // ----------------------------------------------------------------------
 
 }  // end of namespace edm  */

@@ -178,6 +178,7 @@ private:
   bool m_isDebugEnabled;
 
   bool m_getPrescaleColumnFromData;
+  bool m_requireMenuToMatchAlgoBlkInput;
   edm::InputTag m_algoblkInputTag;
   edm::EDGetToken m_algoblkInputToken;
 

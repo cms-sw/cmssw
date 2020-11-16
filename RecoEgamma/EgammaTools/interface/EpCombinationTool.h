@@ -11,6 +11,7 @@ namespace edm {
   class ParameterSet;
   class ParameterSetDescription;
   class EventSetup;
+  class ConsumesCollector;
 }  // namespace edm
 namespace reco {
   class GsfElectron;
@@ -18,7 +19,7 @@ namespace reco {
 
 class EpCombinationTool {
 public:
-  EpCombinationTool(const edm::ParameterSet& iConfig);
+  EpCombinationTool(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& cc);
   ~EpCombinationTool() {}
 
   static edm::ParameterSetDescription makePSetDescription();

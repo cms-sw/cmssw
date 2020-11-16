@@ -1,7 +1,6 @@
 #include <L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverLUT.h>
 #include <L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverMiniLUT.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCPatternLUT.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCFrontRearLUT.h>
+#include <L1Trigger/CSCTriggerPrimitives/interface/CSCPatternBank.h>
 #include <DataFormats/L1CSCTrackFinder/interface/CSCBitWidths.h>
 #include <DataFormats/L1CSCTrackFinder/interface/CSCTFConstants.h>
 #include <DataFormats/L1TMuon/interface/CSCConstants.h>
@@ -143,7 +142,7 @@ lclphidat CSCSectorReceiverLUT::calcLocalPhi(const lclphiadd& theadd) const {
 
   double patternOffset;
 
-  patternOffset = CSCPatternLUT::get2007Position((theadd.pattern_type << 3) + theadd.clct_pattern);
+  patternOffset = CSCPatternBank::getLegacyPosition((theadd.pattern_type << 3) + theadd.clct_pattern);
 
   // The phiL value stored is for the center of the half-/di-strip.
   if (theadd.strip < 2 * CSCConstants::MAX_NUM_STRIPS)

@@ -8,7 +8,7 @@ StripByStripTestDriver::StripByStripTestDriver(const edm::ParameterSet& conf)
     : inputTag(conf.getParameter<edm::InputTag>("DigiProducer")),
       hlt(conf.getParameter<bool>("HLT"))  //,
 /*hltFactory(0)*/ {
-  algorithm = StripClusterizerAlgorithmFactory::create(conf);
+  algorithm = StripClusterizerAlgorithmFactory::create(consumesCollector(), conf);
 
   produces<output_t>("");
 }

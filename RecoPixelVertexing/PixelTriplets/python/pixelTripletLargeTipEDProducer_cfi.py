@@ -8,6 +8,6 @@ trackingPhase2PU140.toModify(pixelTripletLargeTipEDProducer, maxElement=0)
 
 from Configuration.Eras.Modifier_peripheralPbPb_cff import peripheralPbPb
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-for e in [peripheralPbPb, pp_on_XeXe_2017, pp_on_AA_2018]:
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+for e in [peripheralPbPb, pp_on_XeXe_2017, pp_on_AA]:
     e.toModify(pixelTripletLargeTipEDProducer, maxElement = 1000000)

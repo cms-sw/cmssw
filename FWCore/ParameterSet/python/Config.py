@@ -1990,7 +1990,9 @@ if __name__=="__main__":
 
         def testProcessDumpPython(self):
             self.assertEqual(Process("test").dumpPython(),
-"""import FWCore.ParameterSet.Config as cms\n\nprocess = cms.Process("test")
+"""import FWCore.ParameterSet.Config as cms
+
+process = cms.Process("test")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.optional.untracked.int32,
@@ -2011,7 +2013,7 @@ process.options = cms.untracked.PSet(
     emptyRunLumiMode = cms.obsolete.untracked.string,
     eventSetup = cms.untracked.PSet(
         forceNumberOfConcurrentIOVs = cms.untracked.PSet(
-
+            allowAnyLabel_=cms.required.untracked.uint32
         ),
         numberOfConcurrentIOVs = cms.untracked.uint32(1)
     ),

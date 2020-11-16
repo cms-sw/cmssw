@@ -1,6 +1,6 @@
 
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -34,17 +34,11 @@
 #include <iostream>
 #include "TProfile.h"
 
-using namespace edm;
-using namespace std;
-using namespace reco;
-
-class HcalCorrPFCalculation : public edm::EDAnalyzer {
+class HcalCorrPFCalculation : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   HcalCorrPFCalculation(edm::ParameterSet const& conf);
-  ~HcalCorrPFCalculation() override;
   void analyze(edm::Event const& ev, edm::EventSetup const& c) override;
   void beginJob() override;
-  void endJob() override;
 
 private:
   double RecalibFactor(HcalDetId id);
@@ -114,6 +108,7 @@ private:
 };
 
 HcalCorrPFCalculation::HcalCorrPFCalculation(edm::ParameterSet const& iConfig) {
+  usesResource(TFileService::kSharedResource);
   tok_hbhe_ = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheRecHitCollectionTag"));
   tok_hf_ = consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfRecHitCollectionTag"));
   tok_ho_ = consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoRecHitCollectionTag"));
@@ -159,8 +154,6 @@ double HcalCorrPFCalculation::RecalibFactor(HcalDetId id) {
   return factor;
 }
 
-HcalCorrPFCalculation::~HcalCorrPFCalculation() {}
-
 void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const& c) {
   AddRecalib = kFALSE;
 
@@ -174,10 +167,10 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
     pfRecalib = pfCorrs.product();
 
     AddRecalib = kTRUE;
-    // LogMessage("CalibConstants")<<"   OK ";
+    // edm::LogVerbatim("CalibConstants")<<"   OK ";
 
   } catch (const cms::Exception& e) {
-    LogWarning("CalibConstants") << "   Not Found!! ";
+    edm::LogWarning("CalibConstants") << "   Not Found!! ";
   }
 
   edm::Handle<HBHERecHitCollection> hbhe;
@@ -768,8 +761,6 @@ void HcalCorrPFCalculation::beginJob() {
   // pfTree->Branch("trkQual", &trkQual, "trkQual/");
   // pfTree->Branch("numLayers", &numLayers, "numLayers/I");
 }
-
-void HcalCorrPFCalculation::endJob() {}
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 

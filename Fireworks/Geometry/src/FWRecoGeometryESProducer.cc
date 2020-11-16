@@ -33,6 +33,7 @@
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
+#include "Geometry/CommonTopologies/interface/GEMStripTopology.h"
 
 #include "TNamed.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"

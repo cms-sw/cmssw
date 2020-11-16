@@ -15,9 +15,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Event.h"
 
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
@@ -47,7 +44,9 @@
 
 /// Constructor
 MuonAlignmentAnalyzer::MuonAlignmentAnalyzer(const edm::ParameterSet &pset)
-    : hGBNmuons(nullptr),
+    : magFieldToken_(esConsumes()),
+      trackingGeometryToken_(esConsumes()),
+      hGBNmuons(nullptr),
       hSANmuons(nullptr),
       hSimNmuons(nullptr),
       hGBNmuons_Barrel(nullptr),
@@ -194,6 +193,8 @@ MuonAlignmentAnalyzer::MuonAlignmentAnalyzer(const edm::ParameterSet &pset)
       hprofGlobalPhiCSC(nullptr),
       hprofGlobalThetaCSC(nullptr),
       hprofGlobalRCSC(nullptr) {
+  usesResource(TFileService::kSharedResource);
+
   theSTAMuonTag = pset.getParameter<edm::InputTag>("StandAloneTrackCollectionTag");
   theGLBMuonTag = pset.getParameter<edm::InputTag>("GlobalMuonTrackCollectionTag");
 
@@ -1992,11 +1993,8 @@ void MuonAlignmentAnalyzer::analyze(const edm::Event &event, const edm::EventSet
   // ############    Residual plots ###################
 
   if (doResplots) {
-    edm::ESHandle<MagneticField> theMGField;
-    eventSetup.get<IdealMagneticFieldRecord>().get(theMGField);
-
-    edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
-    eventSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
+    const MagneticField *theMGField = &eventSetup.getData(magFieldToken_);
+    edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry = eventSetup.getHandle(trackingGeometryToken_);
 
     // Get the RecTrack collection from the event
     edm::Handle<reco::TrackCollection> staTracks;
@@ -2029,13 +2027,13 @@ void MuonAlignmentAnalyzer::analyze(const edm::Event &event, const edm::EventSet
       std::cout << "<MuonAlignmentAnalyzer>" << geomDet->toGlobal((*segmentCSC).localPosition()) << std::endl;
       }
 */
-    thePropagator = new SteppingHelixPropagator(&*theMGField, alongMomentum);
+    thePropagator = new SteppingHelixPropagator(theMGField, alongMomentum);
 
     reco::TrackCollection::const_iterator staTrack;
     for (staTrack = staTracks->begin(); staTrack != staTracks->end(); ++staTrack) {
       int countPoints = 0;
 
-      reco::TransientTrack track(*staTrack, &*theMGField, theTrackingGeometry);
+      reco::TransientTrack track(*staTrack, theMGField, theTrackingGeometry);
 
       if (staTrack->numberOfValidHits() > (min1DTrackRecHitSize - 1)) {
         RecHitVector my4DTrack = this->doMatching(
@@ -2246,8 +2244,7 @@ void MuonAlignmentAnalyzer::analyze(const edm::Event &event, const edm::EventSet
                 } else {
                   residualGlobalRPhi = 0, residualGlobalPhi = 0, residualGlobalR = 0, residualGlobalTheta = 0,
                   residualGlobalZ = 0;
-                  residualLocalX = 0, residualLocalPhi = 0, residualLocalY = 0, residualLocalTheta = 0,
-                  residualLocalY = 0;
+                  residualLocalX = 0, residualLocalPhi = 0, residualLocalY = 0, residualLocalTheta = 0;
                 }
                 // Fill individual chamber histograms
                 if (newDetector) {

@@ -72,19 +72,19 @@ ElectronSeedProducer::ElectronSeedProducer(const edm::ParameterSet& conf)
   auto theconsumes = consumesCollector();
 
   // new beamSpot tag
-  beamSpotTag_ = consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("beamSpot"));
+  beamSpotTag_ = consumes(conf.getParameter<edm::InputTag>("beamSpot"));
 
   // for H/E
   applyHOverECut_ = conf.getParameter<bool>("applyHOverECut");
   if (applyHOverECut_) {
-    ElectronHcalHelper::Configuration hcalCfg;
+    ElectronHcalHelper::Configuration hcalCfg{};
     hcalCfg.hOverEConeSize = conf.getParameter<double>("hOverEConeSize");
     if (hcalCfg.hOverEConeSize > 0) {
       hcalCfg.useTowers = true;
-      hcalCfg.hcalTowers = consumes<CaloTowerCollection>(conf.getParameter<edm::InputTag>("hcalTowers"));
+      hcalCfg.hcalTowers = consumes(conf.getParameter<edm::InputTag>("hcalTowers"));
       hcalCfg.hOverEPtMin = conf.getParameter<double>("hOverEPtMin");
     }
-    hcalHelper_ = std::make_unique<ElectronHcalHelper>(hcalCfg);
+    hcalHelper_ = std::make_unique<ElectronHcalHelper>(hcalCfg, consumesCollector());
 
     allowHGCal_ = conf.getParameter<bool>("allowHGCal");
     if (allowHGCal_) {
@@ -100,10 +100,10 @@ ElectronSeedProducer::ElectronSeedProducer(const edm::ParameterSet& conf)
   esg_tokens.token_bs = beamSpotTag_;
   esg_tokens.token_vtx = mayConsume<reco::VertexCollection>(conf.getParameter<edm::InputTag>("vertices"));
 
-  matcher_ = std::make_unique<ElectronSeedGenerator>(conf, esg_tokens);
+  matcher_ = std::make_unique<ElectronSeedGenerator>(conf, esg_tokens, consumesCollector());
 
-  superClusters_[0] = consumes<reco::SuperClusterCollection>(conf.getParameter<edm::InputTag>("barrelSuperClusters"));
-  superClusters_[1] = consumes<reco::SuperClusterCollection>(conf.getParameter<edm::InputTag>("endcapSuperClusters"));
+  superClusters_[0] = consumes(conf.getParameter<edm::InputTag>("barrelSuperClusters"));
+  superClusters_[1] = consumes(conf.getParameter<edm::InputTag>("endcapSuperClusters"));
 
   //register your products
   produces<ElectronSeedCollection>();
@@ -116,8 +116,7 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
   std::unique_ptr<TrajectorySeedCollection> initialSeedCollectionPtr = nullptr;  //created on the fly
 
   if (hcalHelper_) {
-    hcalHelper_->checkSetup(iSetup);
-    hcalHelper_->readEvent(e);
+    hcalHelper_->beginEvent(e, iSetup);
     if (allowHGCal_) {
       hgcClusterTools_->getEventSetup(iSetup);
       hgcClusterTools_->getEvent(e);
@@ -138,7 +137,7 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
   // loop over barrel + endcap
   for (unsigned int i = 0; i < 2; i++) {
     auto clusterRefs = filterClusters(beamSportPosition, e.getHandle(superClusters_[i]));
-    matcher_->run(e, iSetup, clusterRefs, initialSeedCollections, *seeds);
+    matcher_->run(e, clusterRefs, initialSeedCollections, *seeds);
   }
 
   // store the accumulated result

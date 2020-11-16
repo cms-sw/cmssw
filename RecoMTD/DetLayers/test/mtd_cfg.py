@@ -12,6 +12,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.statistics.append("debugs")
 process.MessageLogger.categories.append("MTDLayerDump")
 process.MessageLogger.categories.append("MTDDetLayers")
+process.MessageLogger.destinations.append('debugs')
 process.MessageLogger.debugModules = cms.untracked.vstring("*")
 process.MessageLogger.debugs = cms.untracked.PSet(
     threshold = cms.untracked.string('DEBUG'),

@@ -20,7 +20,6 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
@@ -48,10 +47,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/TrackReco/interface/DeDxHit.h"
-#include "DataFormats/TrackReco/interface/TrackDeDxHits.h"
-
-#include <ext/hash_map>
 
 class ShallowGainCalibration : public edm::stream::EDProducer<> {
 public:
@@ -69,22 +64,10 @@ private:
   std::string Prefix;
 
   void produce(edm::Event&, const edm::EventSetup&) override;
-  //  virtual void beginJob(EventSetup const&);
-  //  virtual void beginRun(Run&, EventSetup const&);
-  bool IsFarFromBorder(TrajectoryStateOnSurface* trajState, const uint32_t detid, const edm::EventSetup* iSetup);
+  bool isFarFromBorder(TrajectoryStateOnSurface* trajState, const uint32_t detid, const edm::EventSetup* iSetup);
   double thickness(DetId id);
 
   const TrackerGeometry* m_tracker;
   std::map<DetId, double> m_thicknessMap;
-
-  /*
-  struct stAPVGain{int DetId; int APVId; double PreviousGain;};
-  class isEqual{
-      public:
-              template <class T> bool operator () (const T& PseudoDetId1, const T& PseudoDetId2) { return PseudoDetId1==PseudoDetId2; }
-  };
-  std::vector<stAPVGain*> APVsCollOrdered;
-  hash_map<unsigned int, stAPVGain*,  hash<unsigned int>, isEqual > APVsColl;
-*/
 };
 #endif

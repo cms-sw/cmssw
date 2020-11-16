@@ -11,7 +11,9 @@ GEMDigiMatcher::GEMDigiMatcher(const edm::ParameterSet& pset, edm::ConsumesColle
   const auto& gemDigi = pset.getParameterSet("gemStripDigi");
   minBXDigi_ = gemDigi.getParameter<int>("minBX");
   maxBXDigi_ = gemDigi.getParameter<int>("maxBX");
+  matchDeltaStrip_ = gemDigi.getParameter<int>("matchDeltaStrip");
   verboseDigi_ = gemDigi.getParameter<int>("verbose");
+  matchToSimLink_ = gemDigi.getParameter<bool>("matchToSimLink");
 
   const auto& gemPad = pset.getParameterSet("gemPadDigi");
   minBXPad_ = gemPad.getParameter<int>("minBX");
@@ -31,7 +33,9 @@ GEMDigiMatcher::GEMDigiMatcher(const edm::ParameterSet& pset, edm::ConsumesColle
   // make a new simhits matcher
   muonSimHitMatcher_.reset(new GEMSimHitMatcher(pset, std::move(iC)));
 
-  gemSimLinkToken_ = iC.consumes<edm::DetSetVector<GEMDigiSimLink>>(gemSimLink.getParameter<edm::InputTag>("inputTag"));
+  if (matchToSimLink_)
+    gemSimLinkToken_ =
+        iC.consumes<edm::DetSetVector<GEMDigiSimLink>>(gemSimLink.getParameter<edm::InputTag>("inputTag"));
   gemDigiToken_ = iC.consumes<GEMDigiCollection>(gemDigi.getParameter<edm::InputTag>("inputTag"));
   gemPadToken_ = iC.consumes<GEMPadDigiCollection>(gemPad.getParameter<edm::InputTag>("inputTag"));
   gemClusterToken_ = iC.consumes<GEMPadDigiClusterCollection>(gemCluster.getParameter<edm::InputTag>("inputTag"));
@@ -43,7 +47,8 @@ GEMDigiMatcher::GEMDigiMatcher(const edm::ParameterSet& pset, edm::ConsumesColle
 void GEMDigiMatcher::init(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   muonSimHitMatcher_->init(iEvent, iSetup);
 
-  iEvent.getByToken(gemSimLinkToken_, gemDigisSLH_);
+  if (matchToSimLink_)
+    iEvent.getByToken(gemSimLinkToken_, gemDigisSLH_);
   iEvent.getByToken(gemDigiToken_, gemDigisH_);
   iEvent.getByToken(gemPadToken_, gemPadsH_);
   iEvent.getByToken(gemClusterToken_, gemClustersH_);
@@ -71,7 +76,8 @@ void GEMDigiMatcher::match(const SimTrack& t, const SimVertex& v) {
     return;
 
   // now match the digis
-  matchDigisSLToSimTrack(gemDigisSL);
+  if (matchToSimLink_)
+    matchDigisSLToSimTrack(gemDigisSL);
   matchDigisToSimTrack(gemDigis);
   matchPadsToSimTrack(gemPads);
   matchClustersToSimTrack(gemClusters);
@@ -131,10 +137,12 @@ void GEMDigiMatcher::matchDigisToSimTrack(const GEMDigiCollection& digis) {
     edm::LogInfo("GEMDigiMatcher") << "Matching simtrack to GEM digis" << endl;
   for (auto id : muonSimHitMatcher_->detIds()) {
     GEMDetId p_id(id);
-
+    const auto& hit_strips = muonSimHitMatcher_->hitStripsInDetId(id, matchDeltaStrip_);
     const auto& digis_in_det = digis.get(p_id);
 
     for (auto d = digis_in_det.first; d != digis_in_det.second; ++d) {
+      bool isMatched = false;
+
       // check that the digi is within BX range
       if (d->bx() < minBXDigi_ || d->bx() > maxBXDigi_)
         continue;
@@ -142,21 +150,33 @@ void GEMDigiMatcher::matchDigisToSimTrack(const GEMDigiCollection& digis) {
       if (verboseDigi_)
         edm::LogInfo("GEMDigiMatcher") << "GEMDigi " << p_id << " " << *d << endl;
 
-      // check that the digi matches to at least one GEMDigiSimLink
-      for (const auto& sl : detid_to_simLinks_[p_id.rawId()]) {
-        if (sl.getStrip() == d->strip() and sl.getBx() == d->bx()) {
-          detid_to_digis_[p_id.rawId()].push_back(*d);
-          chamber_to_digis_[p_id.chamberId().rawId()].push_back(*d);
-          superchamber_to_digis_[p_id.superChamberId().rawId()].push_back(*d);
-          if (verboseDigi_)
-            edm::LogInfo("GEMDigiMatcher") << "...was matched!" << endl;
-          break;
+      // GEN-SIM-DIGI-RAW monte carlo
+      if (matchToSimLink_) {
+        // check that the digi matches to at least one GEMDigiSimLink
+        for (const auto& sl : detid_to_simLinks_[p_id.rawId()]) {
+          if (sl.getStrip() == d->strip() and sl.getBx() == d->bx()) {
+            isMatched = true;
+            break;
+          }
         }
+      }
+      // GEN-SIM-RAW monte carlo
+      else {
+        // check that it matches a strip that was hit by SimHits from our track
+        if (hit_strips.find(d->strip()) != hit_strips.end()) {
+          isMatched = true;
+        }
+      }
+      if (isMatched) {
+        detid_to_digis_[p_id.rawId()].push_back(*d);
+        chamber_to_digis_[p_id.chamberId().rawId()].push_back(*d);
+        superchamber_to_digis_[p_id.superChamberId().rawId()].push_back(*d);
+        if (verboseDigi_)
+          edm::LogInfo("GEMDigiMatcher") << "...was matched!" << endl;
       }
     }
   }
 }
-
 void GEMDigiMatcher::matchPadsToSimTrack(const GEMPadDigiCollection& pads) {
   const auto& det_ids = muonSimHitMatcher_->detIds();
   for (const auto& id : det_ids) {

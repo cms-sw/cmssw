@@ -23,7 +23,6 @@
 
 #include "FWCore/MessageService/src/ELdestination.h"
 
-#include "FWCore/MessageLogger/interface/ELstring.h"
 #include "FWCore/MessageLogger/interface/ELextendedID.h"
 
 #include <memory>
@@ -47,7 +46,7 @@ namespace edm {
       //
       ELoutput();
       ELoutput(std::ostream& os, bool emitAtStart = false);  // 6/11/07 mf
-      ELoutput(const ELstring& fileName, bool emitAtStart = false);
+      ELoutput(const std::string& fileName, bool emitAtStart = false);
       ELoutput(const ELoutput& orig);
       ~ELoutput() override;
 
@@ -64,7 +63,7 @@ namespace edm {
       // ---  Internal Methods -- Users should not invoke these:
       //
     protected:
-      void emitToken(const ELstring& s, bool nl = false);
+      void emitToken(std::string_view s, bool nl = false);
 
       void suppressTime() override;
       void includeTime() override;
@@ -86,7 +85,7 @@ namespace edm {
       void attachEpilogue() override;
 
       void changeFile(std::ostream& os) override;
-      void changeFile(const ELstring& filename) override;
+      void changeFile(const std::string& filename) override;
       void flush() override;
 
     protected:

@@ -35,6 +35,7 @@ ak4PFJetsCS = ak4PFJets.clone(
     doAreaFastjet = True,
     jetPtMin = 100.0
 )
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-pp_on_AA_2018.toModify(ak4PFJets,src = "pfNoPileUpJMEHI", inputEtMin = 9999)
-pp_on_AA_2018.toModify(ak4PFJetsCHS,src = "pfNoPileUpJMEHI", inputEtMin = 9999)
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toModify(ak4PFJets, src = "pfEmptyCollection")
+pp_on_AA.toModify(ak4PFJetsCHS, src = "pfEmptyCollection")
+pp_on_AA.toModify(ak4PFJetsPuppi, src = "pfEmptyCollection") 

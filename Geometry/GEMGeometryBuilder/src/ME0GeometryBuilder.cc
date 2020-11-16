@@ -388,17 +388,17 @@ ME0Geometry* ME0GeometryBuilder::buildGeometry(cms::DDFilteredView& fv, const Mu
                                     << " Mask " << std::hex << ME0DetId::chamberIdMask_ << ":" << ME0DetId::layerIdMask_
                                     << std::dec << " and " << ME0DetId(((detId.rawId()) & ME0DetId::chamberIdMask_))
                                     << ":" << ME0DetId(((detId.rawId()) & ME0DetId::layerIdMask_)) << " Sector Level "
-                                    << theSectorLevel << ":" << history.tags.size() << ":" << fv.copyNos().size();
+                                    << theSectorLevel << ":" << history.tags.size() << ":" << fv.level();
     for (unsigned int k = 0; k < history.tags.size(); ++k)
       edm::LogVerbatim("ME0Geometry") << "[" << k << "] Tag " << history.tags[k] << " Offset " << history.offsets[k]
                                       << " copy " << history.copyNos[k];
 #endif
 
-    if (fv.copyNos().size() == levelChamber) {
+    if (fv.level() == levelChamber) {
       // build chamber
       ME0Chamber* me0Chamber = buildChamber(fv, detId);
       chambers.emplace_back(me0Chamber);
-    } else if (fv.copyNos().size() == levelLayer) {
+    } else if (fv.level() == levelLayer) {
       // build layer
       ME0Layer* me0Layer = buildLayer(fv, detId);
       layers.emplace_back(me0Layer);

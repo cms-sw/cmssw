@@ -2,12 +2,14 @@
 #define DETECTOR_DESCRIPTION_DD_VECTOR_REGISTRY_H
 
 #include <string>
-#include "tbb/concurrent_unordered_map.h"
-#include "tbb/concurrent_vector.h"
+#include <unordered_map>
+#include <vector>
 
 namespace cms {
+  using DDVectorsMap = std::unordered_map<std::string, std::vector<double>>;
+
   struct DDVectorRegistry {
-    tbb::concurrent_unordered_map<std::string, tbb::concurrent_vector<double> > vectors;
+    DDVectorsMap vectors;
   };
 }  // namespace cms
 

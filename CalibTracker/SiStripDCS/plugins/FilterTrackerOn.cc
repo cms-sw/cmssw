@@ -1,26 +1,22 @@
 #include "CalibTracker/SiStripDCS/plugins/FilterTrackerOn.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
-#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 
 #include <iostream>
 #include <algorithm>
 
 FilterTrackerOn::FilterTrackerOn(const edm::ParameterSet& iConfig)
-    : minModulesWithHVoff_(iConfig.getParameter<int>("MinModulesWithHVoff")) {}
+    : minModulesWithHVoff_(iConfig.getParameter<int>("MinModulesWithHVoff")), detVOffToken_(esConsumes()) {}
 
 FilterTrackerOn::~FilterTrackerOn() {}
 
 bool FilterTrackerOn::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  ESHandle<SiStripDetVOff> detVOff;
-  iSetup.get<SiStripDetVOffRcd>().get(detVOff);
+  const auto& detVOff = iSetup.getData(detVOffToken_);
 
-  // std::cout << "detVOff->getHVoffCounts() = " << detVOff->getHVoffCounts() << " < " << minModulesWithHVoff_;
-  if (detVOff->getHVoffCounts() > minModulesWithHVoff_) {
+  // std::cout << "detVOff.getHVoffCounts() = " << detVOff.getHVoffCounts() << " < " << minModulesWithHVoff_;
+  if (detVOff.getHVoffCounts() > minModulesWithHVoff_) {
     // std::cout << " skipping event" << std::endl;
     return false;
   }

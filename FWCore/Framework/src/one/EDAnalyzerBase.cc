@@ -22,6 +22,7 @@
 #include "FWCore/Framework/src/edmodule_mightGet_config.h"
 #include "FWCore/Framework/src/EventSignalsSentry.h"
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Framework/src/TransitionInfoTypes.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -49,15 +50,15 @@ namespace edm {
       callWhenNewProductsRegistered_ = func;
     }
 
-    bool EDAnalyzerBase::doEvent(EventPrincipal const& ep,
-                                 EventSetupImpl const& ci,
+    bool EDAnalyzerBase::doEvent(EventTransitionInfo const& info,
                                  ActivityRegistry* act,
                                  ModuleCallingContext const* mcc) {
-      Event e(ep, moduleDescription_, mcc);
+      Event e(info, moduleDescription_, mcc);
       e.setConsumer(this);
       e.setSharedResourcesAcquirer(&resourcesAcquirer_);
       EventSignalsSentry sentry(act, mcc);
-      const EventSetup c{ci, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), false};
+      const EventSetup c{
+          info, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), false};
       this->analyze(e, c);
       return true;
     }
@@ -104,44 +105,40 @@ namespace edm {
       this->doEndProcessBlock_(constProcessBlock);
     }
 
-    void EDAnalyzerBase::doBeginRun(RunPrincipal const& rp, EventSetupImpl const& ci, ModuleCallingContext const* mcc) {
-      Run r(rp, moduleDescription_, mcc, false);
+    void EDAnalyzerBase::doBeginRun(RunTransitionInfo const& info, ModuleCallingContext const* mcc) {
+      Run r(info, moduleDescription_, mcc, false);
       r.setConsumer(this);
       Run const& cnstR = r;
       const EventSetup c{
-          ci, static_cast<unsigned int>(Transition::BeginRun), esGetTokenIndices(Transition::BeginRun), false};
+          info, static_cast<unsigned int>(Transition::BeginRun), esGetTokenIndices(Transition::BeginRun), false};
       this->doBeginRun_(cnstR, c);
     }
 
-    void EDAnalyzerBase::doEndRun(RunPrincipal const& rp, EventSetupImpl const& ci, ModuleCallingContext const* mcc) {
-      Run r(rp, moduleDescription_, mcc, true);
+    void EDAnalyzerBase::doEndRun(RunTransitionInfo const& info, ModuleCallingContext const* mcc) {
+      Run r(info, moduleDescription_, mcc, true);
       r.setConsumer(this);
       Run const& cnstR = r;
       const EventSetup c{
-          ci, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), false};
+          info, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), false};
       this->doEndRun_(cnstR, c);
     }
 
-    void EDAnalyzerBase::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                                EventSetupImpl const& ci,
-                                                ModuleCallingContext const* mcc) {
-      LuminosityBlock lb(lbp, moduleDescription_, mcc, false);
+    void EDAnalyzerBase::doBeginLuminosityBlock(LumiTransitionInfo const& info, ModuleCallingContext const* mcc) {
+      LuminosityBlock lb(info, moduleDescription_, mcc, false);
       lb.setConsumer(this);
       LuminosityBlock const& cnstLb = lb;
-      const EventSetup c{ci,
+      const EventSetup c{info,
                          static_cast<unsigned int>(Transition::BeginLuminosityBlock),
                          esGetTokenIndices(Transition::BeginLuminosityBlock),
                          false};
       this->doBeginLuminosityBlock_(cnstLb, c);
     }
 
-    void EDAnalyzerBase::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                              EventSetupImpl const& ci,
-                                              ModuleCallingContext const* mcc) {
-      LuminosityBlock lb(lbp, moduleDescription_, mcc, true);
+    void EDAnalyzerBase::doEndLuminosityBlock(LumiTransitionInfo const& info, ModuleCallingContext const* mcc) {
+      LuminosityBlock lb(info, moduleDescription_, mcc, true);
       lb.setConsumer(this);
       LuminosityBlock const& cnstLb = lb;
-      const EventSetup c{ci,
+      const EventSetup c{info,
                          static_cast<unsigned int>(Transition::EndLuminosityBlock),
                          esGetTokenIndices(Transition::EndLuminosityBlock),
                          false};

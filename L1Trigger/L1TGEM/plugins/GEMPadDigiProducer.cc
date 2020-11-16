@@ -38,6 +38,7 @@ private:
   void buildPads(const GEMDigiCollection& digis, GEMPadDigiCollection& out_pads) const;
   void buildPads16GE21(const GEMDigiCollection& digis, GEMPadDigiCollection& out_pads) const;
   void checkValid(const GEMPadDigi& pad, const GEMDetId& id) const;
+  void checkGeometry() const;
 
   /// Name of input digi Collection
   edm::EDGetTokenT<GEMDigiCollection> digi_token_;
@@ -75,6 +76,8 @@ void GEMPadDigiProducer::beginRun(const edm::Run& run, const edm::EventSetup& ev
     use16GE21_ = (geometry_->chamber(GEMDetId(1, 1, 2, 1, 1, 0))->nEtaPartitions() ==
                   GEMPadDigi::NumberPartitions::GE21SplitStrip);
   }
+
+  checkGeometry();
 }
 
 void GEMPadDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
@@ -94,27 +97,6 @@ void GEMPadDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetu
 }
 
 void GEMPadDigiProducer::buildPads(const GEMDigiCollection& det_digis, GEMPadDigiCollection& out_pads) const {
-  // check that ME0 has 8-eta partitions
-  if (geometry_->hasME0()) {
-    if (geometry_->chamber(GEMDetId(1, 1, 0, 1, 1, 0))->nEtaPartitions() != GEMPadDigi::NumberPartitions::ME0) {
-      edm::LogError("GEMPadDigiProducer") << "ME0 geometry appears corrupted";
-    }
-  }
-
-  // check that GE1/1 has 8-eta partitions
-  if (geometry_->hasGE11()) {
-    if (geometry_->chamber(GEMDetId(1, 1, 1, 1, 1, 0))->nEtaPartitions() != GEMPadDigi::NumberPartitions::GE11) {
-      edm::LogError("GEMPadDigiProducer") << "GE1/1 geometry appears corrupted";
-    }
-  }
-
-  // check that GE2/1 has 8-eta partitions
-  if (geometry_->hasGE21()) {
-    if (geometry_->chamber(GEMDetId(1, 1, 2, 1, 1, 0))->nEtaPartitions() != GEMPadDigi::NumberPartitions::GE21) {
-      edm::LogError("GEMPadDigiProducer") << "GE2/1 geometry (8 partition) appears corrupted";
-    }
-  }
-
   for (const auto& p : geometry_->etaPartitions()) {
     // when using the GE2/1 geometry with 16 eta partitions
     // ->ignore GE2/1
@@ -154,14 +136,6 @@ void GEMPadDigiProducer::buildPads(const GEMDigiCollection& det_digis, GEMPadDig
 }
 
 void GEMPadDigiProducer::buildPads16GE21(const GEMDigiCollection& det_digis, GEMPadDigiCollection& out_pads) const {
-  // check that GE2/1 has 16-eta partitions
-  if (geometry_->hasGE21()) {
-    if (geometry_->chamber(GEMDetId(1, 1, 2, 1, 1, 0))->nEtaPartitions() !=
-        GEMPadDigi::NumberPartitions::GE21SplitStrip) {
-      edm::LogError("GEMPadDigiProducer") << "GE2/1 geometry (16 partition) appears corrupted";
-    }
-  }
-
   for (const auto& p : geometry_->etaPartitions()) {
     // when using the GE2/1 geometry with 16 eta partitions
     // ->ignore GE1/1
@@ -207,6 +181,37 @@ void GEMPadDigiProducer::checkValid(const GEMPadDigi& pad, const GEMDetId& id) c
   // in principle, invalid pads can appear in the CMS raw data
   if (!pad.isValid()) {
     edm::LogWarning("GEMPadDigiProducer") << "Invalid " << pad << " in " << id;
+  }
+}
+
+void GEMPadDigiProducer::checkGeometry() const {
+  // check that ME0 has 8-eta partitions
+  if (geometry_->hasME0()) {
+    if (geometry_->chamber(GEMDetId(1, 1, 0, 1, 1, 0))->nEtaPartitions() != GEMPadDigi::NumberPartitions::ME0) {
+      edm::LogError("GEMPadDigiProducer") << "ME0 geometry appears corrupted";
+    }
+  }
+
+  // check that GE1/1 has 8-eta partitions
+  if (geometry_->hasGE11()) {
+    if (geometry_->chamber(GEMDetId(1, 1, 1, 1, 1, 0))->nEtaPartitions() != GEMPadDigi::NumberPartitions::GE11) {
+      edm::LogError("GEMPadDigiProducer") << "GE1/1 geometry appears corrupted";
+    }
+  }
+
+  if (geometry_->hasGE21()) {
+    if (!use16GE21_) {
+      // check that GE2/1 has 8-eta partitions
+      if (geometry_->chamber(GEMDetId(1, 1, 2, 1, 1, 0))->nEtaPartitions() != GEMPadDigi::NumberPartitions::GE21) {
+        edm::LogError("GEMPadDigiProducer") << "GE2/1 geometry (8 partition) appears corrupted";
+      }
+    } else {
+      // check that GE2/1 has 16-eta partitions
+      if (geometry_->chamber(GEMDetId(1, 1, 2, 1, 1, 0))->nEtaPartitions() !=
+          GEMPadDigi::NumberPartitions::GE21SplitStrip) {
+        edm::LogError("GEMPadDigiProducer") << "GE2/1 geometry (16 partition) appears corrupted";
+      }
+    }
   }
 }
 

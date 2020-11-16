@@ -16,7 +16,6 @@ process.MessageLogger = cms.Service("MessageLogger",
         noTimeStamps = cms.untracked.bool(True)
     ),
     destinations = cms.untracked.vstring('u10_warnings'),
-    fwkJobReports = cms.untracked.vstring('u10_job_report')
 )
 
 process.maxEvents = cms.untracked.PSet(

@@ -126,14 +126,17 @@ namespace edm {
     }
   }
 
-  void WorkerManager::setupOnDemandSystem(Principal& ep, EventSetupImpl const& es) {
+  void WorkerManager::setupResolvers(Principal& ep) {
     this->resetAll();
-    unscheduled_.setEventSetup(es);
     if (&ep != lastSetupEventPrincipal_) {
       UnscheduledConfigurator config(allWorkers_.begin(), allWorkers_.end(), &(unscheduled_.auxiliary()));
       ep.setupUnscheduled(config);
       lastSetupEventPrincipal_ = &ep;
     }
+  }
+
+  void WorkerManager::setupOnDemandSystem(EventTransitionInfo const& info) {
+    unscheduled_.setEventTransitionInfo(info);
   }
 
 }  // namespace edm

@@ -27,8 +27,8 @@
 EleIsoDetIdCollectionProducer::EleIsoDetIdCollectionProducer(const edm::ParameterSet& iConfig)
     : recHitsToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitsLabel"))),
       emObjectToken_(consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("emObjectLabel"))),
-      caloGeometryToken_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
-      sevLvToken_(esConsumes<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd>()),
+      caloGeometryToken_(esConsumes()),
+      sevLvToken_(esConsumes()),
       recHitsLabel_(iConfig.getParameter<edm::InputTag>("recHitsLabel")),
       emObjectLabel_(iConfig.getParameter<edm::InputTag>("emObjectLabel")),
       energyCut_(iConfig.getParameter<double>("energyCut")),

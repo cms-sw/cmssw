@@ -51,11 +51,6 @@ namespace edm {
       void prefetchAsync(
           WaitingTask*, EventSetupRecordImpl const&, DataKey const&, EventSetupImpl const*, ServiceToken const&) const;
 
-      void doGet(EventSetupRecordImpl const&,
-                 DataKey const&,
-                 bool iTransiently,
-                 ActivityRegistry const*,
-                 EventSetupImpl const*) const;
       void const* get(EventSetupRecordImpl const&,
                       DataKey const&,
                       bool iTransiently,

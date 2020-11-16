@@ -21,7 +21,7 @@ hiRegitMuPixelPairStepTrackingRegions = HiTrackingRegionFactoryFromSTAMuonsEDPro
         Pt_min          = 1.0,
         DeltaR          = 0.01, # default = 0.2
         DeltaZ          = 0.09, # this give you the length
-        Rescale_Dz      = 0. # max(DeltaZ_Region,Rescale_Dz*vtx->zError())
+        Rescale_Dz      = 0.    # max(DeltaZ_Region,Rescale_Dz*vtx->zError())
     )
 )
 
@@ -30,26 +30,25 @@ from RecoTracker.IterativeTracking.PixelPairStep_cff import *
 
 # NEW CLUSTERS (remove previously used clusters)
 hiRegitMuPixelPairStepClusters = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepClusters.clone(
-    trajectories          = cms.InputTag("hiRegitMuInitialStepTracks"),
-		overrideTrkQuals      = cms.InputTag('hiRegitMuInitialStepSelector','hiRegitMuInitialStep'),
-                trackClassifier       = cms.InputTag(''),
-		oldClusterRemovalInfo = cms.InputTag(""),
-		TrackQuality          = cms.string('tight')
+    trajectories          = "hiRegitMuInitialStepTracks",
+    overrideTrkQuals      = 'hiRegitMuInitialStepSelector:hiRegitMuInitialStep',
+    trackClassifier       = '',
+    oldClusterRemovalInfo = "",
+    TrackQuality          = 'tight'
 )
 
 
 # SEEDING LAYERS
-hiRegitMuPixelPairStepSeedLayers =  RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepSeedLayers.clone()
-hiRegitMuPixelPairStepSeedLayers.BPix.skipClusters = cms.InputTag('hiRegitMuPixelPairStepClusters')
-hiRegitMuPixelPairStepSeedLayers.FPix.skipClusters = cms.InputTag('hiRegitMuPixelPairStepClusters')
-
-
+hiRegitMuPixelPairStepSeedLayers =  RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepSeedLayers.clone(
+    BPix = dict(skipClusters = 'hiRegitMuPixelPairStepClusters'),
+    FPix = dict(skipClusters = 'hiRegitMuPixelPairStepClusters')
+)
 
 # seeding
 hiRegitMuPixelPairStepHitDoublets = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepHitDoublets.clone(
-    seedingLayers = "hiRegitMuPixelPairStepSeedLayers",
+    seedingLayers   = "hiRegitMuPixelPairStepSeedLayers",
     trackingRegions = "hiRegitMuPixelPairStepTrackingRegions",
-    clusterCheck = "hiRegitMuClusterCheck",
+    clusterCheck    = "hiRegitMuClusterCheck",
 )
 
 hiRegitMuPixelPairStepSeeds     = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepSeedsA.clone(
@@ -58,16 +57,16 @@ hiRegitMuPixelPairStepSeeds     = RecoTracker.IterativeTracking.PixelPairStep_cf
 
 
 # building: feed the new-named seeds
-hiRegitMuPixelPairStepTrajectoryFilterBase = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTrajectoryFilterBase.clone()
-hiRegitMuPixelPairStepTrajectoryFilterBase.minPt                = 0.8
-hiRegitMuPixelPairStepTrajectoryFilterBase.minimumNumberOfHits  = 6
-hiRegitMuPixelPairStepTrajectoryFilterBase.minHitsMinPt         = 4
-
-hiRegitMuPixelPairStepTrajectoryFilter = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTrajectoryFilter.clone()
-hiRegitMuPixelPairStepTrajectoryFilter.filters = cms.VPSet(
+hiRegitMuPixelPairStepTrajectoryFilterBase = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTrajectoryFilterBase.clone(
+    minPt                = 0.8,
+    minimumNumberOfHits  = 6,
+    minHitsMinPt         = 4
+)
+hiRegitMuPixelPairStepTrajectoryFilter = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTrajectoryFilter.clone(
+    filters = cms.VPSet(
       cms.PSet( refToPSet_ = cms.string('hiRegitMuPixelPairStepTrajectoryFilterBase')),
       cms.PSet( refToPSet_ = cms.string('pixelPairStepTrajectoryFilterShape')))
-
+)
 
 hiRegitMuPixelPairStepTrajectoryBuilder = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTrajectoryBuilder.clone(
     trajectoryFilter = cms.PSet(
@@ -77,70 +76,70 @@ hiRegitMuPixelPairStepTrajectoryBuilder = RecoTracker.IterativeTracking.PixelPai
 )
 
 # trackign candidate
-hiRegitMuPixelPairStepTrackCandidates        =  RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTrackCandidates.clone(
-    src               = cms.InputTag('hiRegitMuPixelPairStepSeeds'),
+hiRegitMuPixelPairStepTrackCandidates = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTrackCandidates.clone(
+    src               = 'hiRegitMuPixelPairStepSeeds',
     TrajectoryBuilder = 'hiRegitMuPixelPairStepTrajectoryBuilder',
-    clustersToSkip = cms.InputTag("hiRegitMuPixelPairStepClusters"),
-    maxNSeeds         = cms.uint32(1000000)
-    )
+    clustersToSkip    = "hiRegitMuPixelPairStepClusters",
+    maxNSeeds         = 1000000
+)
 
 # fitting: feed new-names
-hiRegitMuPixelPairStepTracks                 = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTracks.clone(
-    AlgorithmName = cms.string('hiRegitMuPixelPairStep'),
-    src                 = 'hiRegitMuPixelPairStepTrackCandidates',
-    clustersToSkip       = cms.InputTag('hiRegitMuPixelPairStepClusters'),
+hiRegitMuPixelPairStepTracks = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTracks.clone(
+    AlgorithmName   = 'hiRegitMuPixelPairStep',
+    src             = 'hiRegitMuPixelPairStepTrackCandidates',
+    clustersToSkip  = cms.InputTag('hiRegitMuPixelPairStepClusters'),
 )
 
 
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 import RecoHI.HiTracking.hiMultiTrackSelector_cfi
 hiRegitMuPixelPairStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackSelector.clone(
-    src                 ='hiRegitMuPixelPairStepTracks',
-    vertices            = cms.InputTag("hiSelectedPixelVertex"),
-    useAnyMVA = cms.bool(True),
-    GBRForestLabel = cms.string('HIMVASelectorIter6'),
-    GBRForestVars = cms.vstring(['chi2perdofperlayer', 'dxyperdxyerror', 'dzperdzerror', 'nhits', 'nlayers', 'eta']),
-    trackSelectors= cms.VPSet(
+    src            ='hiRegitMuPixelPairStepTracks',
+    vertices       = "hiSelectedPixelVertex",
+    useAnyMVA      = True,
+    GBRForestLabel = 'HIMVASelectorIter6',
+    GBRForestVars  = ['chi2perdofperlayer', 'dxyperdxyerror', 'dzperdzerror', 'nhits', 'nlayers', 'eta'],
+    trackSelectors = cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
-           name = 'hiRegitMuPixelPairStepLoose',
-           min_nhits = cms.uint32(8)
-            ), #end of pset
+            name      = 'hiRegitMuPixelPairStepLoose',
+            min_nhits = 8
+            ), 
         RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
-            name = 'hiRegitMuPixelPairStepTight',
+            name          = 'hiRegitMuPixelPairStepTight',
             preFilterName = 'hiRegitMuPixelPairStepLoose',
-            min_nhits = cms.uint32(8),
-            useMVA = cms.bool(True),
-            minMVA = cms.double(-0.58)
+            min_nhits     = 8,
+            useMVA        = True,
+            minMVA        = -0.58
             ),
         RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
-            name = 'hiRegitMuPixelPairStep',
+            name          = 'hiRegitMuPixelPairStep',
             preFilterName = 'hiRegitMuPixelPairStepTight',
-            min_nhits = cms.uint32(8),
-            useMVA = cms.bool(True),
-            minMVA = cms.double(0.77)
+            min_nhits     = 8,
+            useMVA        = True,
+            minMVA        = 0.77
             ),
         ) #end of vpset
 )
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
-trackingPhase1.toModify(hiRegitMuPixelPairStepSelector, useAnyMVA = cms.bool(False))
+trackingPhase1.toModify(hiRegitMuPixelPairStepSelector, useAnyMVA = False)
 trackingPhase1.toModify(hiRegitMuPixelPairStepSelector, trackSelectors= cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
-           name = 'hiRegitMuPixelPairStepLoose',
-           min_nhits = cms.uint32(8)
-            ), #end of pset
+           name      = 'hiRegitMuPixelPairStepLoose',
+           min_nhits = 8
+            ), 
         RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
-            name = 'hiRegitMuPixelPairStepTight',
+            name          = 'hiRegitMuPixelPairStepTight',
             preFilterName = 'hiRegitMuPixelPairStepLoose',
-            min_nhits = cms.uint32(8),
-            useMVA = cms.bool(False),
-            minMVA = cms.double(-0.58)
+            min_nhits     = 8,
+            useMVA        = False,
+            minMVA        = -0.58
             ),
         RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
-            name = 'hiRegitMuPixelPairStep',
+            name          = 'hiRegitMuPixelPairStep',
             preFilterName = 'hiRegitMuPixelPairStepTight',
-            min_nhits = cms.uint32(8),
-            useMVA = cms.bool(False),
-            minMVA = cms.double(0.77)
+            min_nhits     = 8,
+            useMVA        = False,
+            minMVA        = 0.77
             ),
         ) #end of vpset
 )

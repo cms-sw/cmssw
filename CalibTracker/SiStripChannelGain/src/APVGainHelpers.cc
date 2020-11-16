@@ -2,6 +2,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 
 /** Brief Extract from the DetId the subdetector type.
  * Return an integer which is associated to the subdetector type. The integer
@@ -66,6 +67,48 @@ int APVGain::subdetectorSide(const std::string& tag) {
   return 0;
 }
 
+/** Brief Extract the sensor thickness from the Det Id
+ * Return and integer whose coding is
+ *   0 - no thickness can be determined
+ *   1 - for thin sensors
+ *   2 - for thick sensors
+ */
+int APVGain::thickness(uint32_t det_id) {
+  if (APVGain::subdetectorId(det_id) >= SiStripDetId::TIB) {
+    SiStripDetId siStripDetId(det_id);
+    if (siStripDetId.subdetId() == SiStripDetId::TOB) {
+      return 2;  // so it is TOB (thick)
+    }
+    if (siStripDetId.moduleGeometry() == SiStripModuleGeometry::W5 ||
+        siStripDetId.moduleGeometry() == SiStripModuleGeometry::W6 ||
+        siStripDetId.moduleGeometry() == SiStripModuleGeometry::W7) {
+      return 2;  // so it is TEC ring 5-7 (thick)
+    }
+    return 1;  // so it is TEC ring 1-4 or TIB or TID (thin)
+  } else {
+    return 0;
+  }
+}
+
+/** Brief Extract the thickness from a char * descriptor
+ * Return and integer whose coding is
+ *   0 - no thicnkness can be determined
+ *   1 - for thin sensors
+ *   2 - for thick sensors
+ *
+ *   The char * descriptor is expected to have either "thin" or "thick"
+ *   string to specify the thickness. If no sign spec is found 0 is returned.
+ */
+int APVGain::thickness(const std::string& tag) {
+  std::size_t thin = tag.find("thin");
+  std::size_t thick = tag.find("thick");
+  if (thin != std::string::npos)
+    return 1;
+  if (thick != std::string::npos)
+    return 2;
+  return 0;
+}
+
 /** Brief Extract the detector plane position from a DetId.
  * Return an integer that represent the detector plane where the module sits.
  * For the barrel detectors (TIB and TOB) the detector plane is the layer, e.g.
@@ -109,6 +152,7 @@ std::vector<APVGain::MonitorElement*> APVGain::FetchMonitor(std::vector<APVGain:
                                                             uint32_t det_id,
                                                             const TrackerTopology* topo) {
   std::vector<MonitorElement*> found = std::vector<MonitorElement*>();
+  int sThick = APVGain::thickness(det_id);
   int sId = APVGain::subdetectorId(det_id);
   int sPlane = APVGain::subdetectorPlane(det_id, topo);
   int sSide = APVGain::subdetectorSide(det_id, topo);
@@ -118,13 +162,15 @@ std::vector<APVGain::MonitorElement*> APVGain::FetchMonitor(std::vector<APVGain:
 
   while (it != histos.end()) {
     std::string tag = (*it).getMonitor()->getName();
+    int subdetectorThickness = (*it).getThickness();
     int subdetectorId = (*it).getSubdetectorId();
     int subdetectorSide = (*it).getSubdetectorSide();
     int subdetectorPlane = (*it).getSubdetectorPlane();
 
     bool match = (subdetectorId == 0 || subdetectorId == sId) &&
                  (subdetectorPlane == 0 || subdetectorPlane == sPlane) &&
-                 (subdetectorSide == 0 || subdetectorSide == sSide);
+                 (subdetectorSide == 0 || subdetectorSide == sSide) &&
+                 (subdetectorThickness == 0 || subdetectorThickness == sThick);
 
     if (match) {
       found.emplace_back((*it).getMonitor());
@@ -143,18 +189,21 @@ std::vector<unsigned int> APVGain::FetchIndices(std::map<unsigned int, APVloc> t
                                                 const TrackerTopology* topo) {
   std::vector<unsigned int> found_indices = std::vector<unsigned int>();
 
+  int sThick = APVGain::thickness(det_id);
   int sId = APVGain::subdetectorId(det_id);
   int sPlane = APVGain::subdetectorPlane(det_id, topo);
   int sSide = APVGain::subdetectorSide(det_id, topo);
 
   for (auto& element : theMap) {
+    int subdetectorThickness = element.second.m_thickness;
     int subdetectorId = element.second.m_subdetectorId;
     int subdetectorSide = element.second.m_subdetectorSide;
     int subdetectorPlane = element.second.m_subdetectorPlane;
 
     bool match = (subdetectorId == 0 || subdetectorId == sId) &&
                  (subdetectorPlane == 0 || subdetectorPlane == sPlane) &&
-                 (subdetectorSide == 0 || subdetectorSide == sSide);
+                 (subdetectorSide == 0 || subdetectorSide == sSide) &&
+                 (subdetectorThickness == 0 || subdetectorThickness == sThick);
 
     if (match) {
       found_indices.push_back(element.first);

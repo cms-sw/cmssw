@@ -45,7 +45,7 @@ LowPtGsfElectronSeedValueMapsProducer::LowPtGsfElectronSeedValueMapsProducer(con
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void LowPtGsfElectronSeedValueMapsProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
+void LowPtGsfElectronSeedValueMapsProducer::produce(edm::Event& event, const edm::EventSetup&) {
   // Retrieve GsfTracks from Event
   edm::Handle<reco::GsfTrackCollection> gsfTracks;
   event.getByToken(gsfTracks_, gsfTracks);

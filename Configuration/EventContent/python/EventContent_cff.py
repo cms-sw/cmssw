@@ -219,7 +219,7 @@ from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
 from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 from RecoLocalFastTime.Configuration.RecoLocalFastTime_EventContent_cff import *
 from RecoMTD.Configuration.RecoMTD_EventContent_cff import *
 
@@ -503,7 +503,7 @@ run2_GEM_2017.toModify(FEVTEventContent,
     outputCommands = FEVTEventContent.outputCommands + ['keep *_muonGEMDigis_*_*'])
 run3_GEM.toModify(FEVTEventContent, 
     outputCommands = FEVTEventContent.outputCommands + ['keep *_muonGEMDigis_*_*'])
-pp_on_AA_2018.toModify(FEVTEventContent, 
+pp_on_AA.toModify(FEVTEventContent, 
     outputCommands = FEVTEventContent.outputCommands + ['keep FEDRawDataCollection_rawDataRepacker_*_*'])
 phase2_timing_layer.toModify(FEVTEventContent, 
     outputCommands = FEVTEventContent.outputCommands + RecoLocalFastTimeFEVT.outputCommands)
