@@ -92,17 +92,15 @@ namespace {
     const double dphi = std::abs(TVector2::Phi_mpi_pi(seed->phi() - x->phi()));
     const bool passes_dphi =
         ((!dyn_dphi && dphi < phiwidthSuperCluster) ||
-         (dyn_dphi &&
-          reco::MustacheKernel::inDynamicDPhiWindow(
-              dynamic_dphi_params, seed->eta(), seed->phi(), x->energy_nocalib(), x->eta(), x->phi())));
+         (dyn_dphi && reco::MustacheKernel::inDynamicDPhiWindow(
+                          dynamic_dphi_params, seed->eta(), seed->phi(), x->energy_nocalib(), x->eta(), x->phi())));
 
     if (type == PFECALSuperClusterAlgo::kBOX) {
       return (std::abs(seed->eta() - x->eta()) < etawidthSuperCluster && passes_dphi);
     }
     if (type == PFECALSuperClusterAlgo::kMustache) {
-      return (passes_dphi &&
-              reco::MustacheKernel::inMustache(
-                  mustache_params, seed->eta(), seed->phi(), x->energy_nocalib(), x->eta(), x->phi()));
+      return (passes_dphi && reco::MustacheKernel::inMustache(
+                                 mustache_params, seed->eta(), seed->phi(), x->energy_nocalib(), x->eta(), x->phi()));
     }
     return false;
   }

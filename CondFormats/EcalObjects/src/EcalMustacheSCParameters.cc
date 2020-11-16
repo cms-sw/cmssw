@@ -2,10 +2,10 @@
 
 float EcalMustacheSCParameters::sqrtLogClustETuning() const { return sqrtLogClustETuning_; }
 
-const EcalMustacheSCParameters::ParabolaParameters* EcalMustacheSCParameters::parabolaParameters(float log10ClustE,
-                                                                                          float absSeedEta) const {
+const EcalMustacheSCParameters::ParabolaParameters* EcalMustacheSCParameters::parabolaParameters(
+    float log10ClustE, float absSeedEta) const {
   // assume the collection is sorted in descending ParabolaParameters.etaMin and descending ParabolaParameters.log10EMin
-  for (const auto &parabolaParams : parabolaParametersCollection_) {
+  for (const auto& parabolaParams : parabolaParametersCollection_) {
     if (log10ClustE < parabolaParams.log10EMin || absSeedEta < parabolaParams.etaMin) {
       continue;
     } else {

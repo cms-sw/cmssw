@@ -41,8 +41,8 @@ namespace reco {
       //slice -0.1 < log10(Et) < 0.1
       const float curv_up =
           eta0xsineta0 * (parabola_params->pUp[0] * eta0xsineta0 + parabola_params->pUp[1]) + parabola_params->pUp[2];
-      const float curv_low =
-          eta0xsineta0 * (parabola_params->pLow[0] * eta0xsineta0 + parabola_params->pLow[1]) + parabola_params->pLow[2];
+      const float curv_low = eta0xsineta0 * (parabola_params->pLow[0] * eta0xsineta0 + parabola_params->pLow[1]) +
+                             parabola_params->pLow[2];
 
       //solving for the curviness given the width of this particular point
       const float a_upper = (1. / (4. * curv_up)) - std::abs(b_upper);
@@ -78,9 +78,9 @@ namespace reco {
         return false;
       }
 
-      auto maxdphi =
-          dynamicDPhiParams->yoffset +
-          dynamicDPhiParams->scale / (1. + std::exp((logClustEt - dynamicDPhiParams->xoffset) / dynamicDPhiParams->width));
+      auto maxdphi = dynamicDPhiParams->yoffset +
+                     dynamicDPhiParams->scale /
+                         (1. + std::exp((logClustEt - dynamicDPhiParams->xoffset) / dynamicDPhiParams->width));
       maxdphi = std::min(maxdphi, dynamicDPhiParams->cutoff);
       maxdphi = std::max(maxdphi, dynamicDPhiParams->saturation);
 
@@ -88,8 +88,7 @@ namespace reco {
     }
   }  // namespace MustacheKernel
 
-  Mustache::Mustache(const EcalMustacheSCParameters* mustache_params)
-      : mustache_params_(mustache_params) {}
+  Mustache::Mustache(const EcalMustacheSCParameters* mustache_params) : mustache_params_(mustache_params) {}
 
   void Mustache::MustacheID(const reco::SuperCluster& sc, int& nclusters, float& EoutsideMustache) {
     MustacheID(sc.clustersBegin(), sc.clustersEnd(), nclusters, EoutsideMustache);
@@ -136,8 +135,7 @@ namespace reco {
     bool inMust = false;
     icl = begin;
     for (; icl != end; ++icl) {
-      inMust = MustacheKernel::inMustache(
-          mustache_params_, eta0, phi0, (*icl)->energy(), (*icl)->eta(), (*icl)->phi());
+      inMust = MustacheKernel::inMustache(mustache_params_, eta0, phi0, (*icl)->energy(), (*icl)->eta(), (*icl)->phi());
 
       nclusters += (int)!inMust;
       EoutsideMustache += (!inMust) * ((*icl)->energy());
