@@ -14,7 +14,7 @@ std::string phase2tkutil::getITHistoId(uint32_t det_id, const TrackerTopology* t
     int side = tTopo->pxfSide(det_id);
     fname1 << "EndCap_Side" << side << "/";
     int disc = tTopo->pxfDisk(det_id);
-    Disc = (disc < 9) ? "EPix" : "FPix";
+    Disc = (disc < 9) ? "FPix" : "EPix";
     fname1 << Disc << "/";
     int ring = tTopo->pxfBlade(det_id);
     fname1 << "Ring" << ring;
