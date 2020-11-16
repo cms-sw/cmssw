@@ -45,7 +45,7 @@ class ProtonProducer : public edm::global::EDProducer<> {
 public:
   ProtonProducer(edm::ParameterSet const &ps)
       : tokenRecoProtonsMultiRP_(
-	    mayConsume<reco::ForwardProtonCollection>(ps.getParameter<edm::InputTag>("tagRecoProtonsMulti"))) {
+            mayConsume<reco::ForwardProtonCollection>(ps.getParameter<edm::InputTag>("tagRecoProtonsMulti"))) {
     produces<edm::ValueMap<int>>("arm");
     produces<nanoaod::FlatTable>("ppsTrackTable");
   }
@@ -69,18 +69,18 @@ public:
       multiRP_arm.push_back((proton.pz() < 0.) ? 1 : 0);
 
       for (const auto &ref : proton.contributingLocalTracks()) {
-	multiRPProtonIdx.push_back(p_idx);
-	CTPPSDetId rpId(ref->rpId());
-	unsigned int rpDecId = rpId.arm() * 100 + rpId.station() * 10 + rpId.rp();
-	decRPId.push_back(rpDecId);
-	rpType.push_back(rpId.subdetId());
-	trackX.push_back(ref->x());
-	trackY.push_back(ref->y());
-	trackTime.push_back(ref->time());
-	trackTimeUnc.push_back(ref->timeUnc());
+        multiRPProtonIdx.push_back(p_idx);
+        CTPPSDetId rpId(ref->rpId());
+        unsigned int rpDecId = rpId.arm() * 100 + rpId.station() * 10 + rpId.rp();
+        decRPId.push_back(rpDecId);
+        rpType.push_back(rpId.subdetId());
+        trackX.push_back(ref->x());
+        trackY.push_back(ref->y());
+        trackTime.push_back(ref->time());
+        trackTimeUnc.push_back(ref->timeUnc());
       }
     }
-  
+
     // update proton tables
     std::unique_ptr<edm::ValueMap<int>> multiRP_armV(new edm::ValueMap<int>());
     edm::ValueMap<int>::Filler fillermultiArm(*multiRP_armV);
