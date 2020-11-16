@@ -53,13 +53,14 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 private:
   struct ClusterMEs {   
-    MonitorElement* nclustersLayer_P=nullptr;
-    MonitorElement* nclustersLayer_S=nullptr;
+    MonitorElement* nClusters_P=nullptr;
     MonitorElement* ClusterSize_P=nullptr;
-    MonitorElement* ClusterSize_S=nullptr;
     MonitorElement* XYGlobalPositionMap_P=nullptr;
-    MonitorElement* XYGlobalPositionMap_S=nullptr;
     MonitorElement* XYLocalPositionMap_P=nullptr;
+
+    MonitorElement* nClusters_S=nullptr;
+    MonitorElement* ClusterSize_S=nullptr;
+    MonitorElement* XYGlobalPositionMap_S=nullptr;
     MonitorElement* XYLocalPositionMap_S=nullptr;
   };
   MonitorElement* numberClusters_;
@@ -132,12 +133,14 @@ void Phase2OTMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
     TrackerGeometry::ModuleType mType = tkGeom_->getDetectorType(detId);
     // initialize the nhit counters if they don't exist for this layer
     //the check on the detId is needed to avoid checking at the filling stage
-    if (nClustersCounter_P.find(folderkey) == nClustersCounter_P.end() && mType == TrackerGeometry::ModuleType::Ph2PSP) {
-      nClustersCounter_P.emplace(folderkey, 0);
-    }
-    if (nClustersCounter_S.find(folderkey) == nClustersCounter_S.end() && 
-	(mType == TrackerGeometry::ModuleType::Ph2PSS || mType == TrackerGeometry::ModuleType::Ph2SS)) {
-      nClustersCounter_S.emplace(folderkey, 0);
+    if(mType == TrackerGeometry::ModuleType::Ph2PSP) {
+      if (nClustersCounter_P.find(folderkey) == nClustersCounter_P.end() )
+	nClustersCounter_P.emplace(folderkey, 0);
+      else nClustersCounter_P.at(folderkey) += DSVItr.size();
+    } else if(mType == TrackerGeometry::ModuleType::Ph2PSS || mType == TrackerGeometry::ModuleType::Ph2SS) {
+      if (nClustersCounter_S.find(folderkey) == nClustersCounter_S.end())  
+	nClustersCounter_S.emplace(folderkey, 0);
+      else nClustersCounter_S.at(folderkey) += DSVItr.size();
     }
     nclus+=DSVItr.size();
 
@@ -149,42 +152,37 @@ void Phase2OTMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
       double gy = globalPosCluster.y() * 10.;
       double gz = globalPosCluster.z() * 10.;
       double gr = globalPosCluster.perp() * 10.;
-
       if (layerMEs_.find(folderkey) == layerMEs_.end())  continue;
       ClusterMEs& local_mes = layerMEs_[folderkey];
       if (mType == TrackerGeometry::ModuleType::Ph2PSP) {
 	globalXY_P_->Fill(gx, gy);
 	globalRZ_P_->Fill(gz, gr);
 
-	nClustersCounter_P[folderkey]++;
         local_mes.ClusterSize_P->Fill(clusterItr.size());
-        local_mes.XYGlobalPositionMap_P->Fill(gz, gr);
+        local_mes.XYGlobalPositionMap_P->Fill(gx, gy);
         local_mes.XYLocalPositionMap_P->Fill(localPosCluster.x(), localPosCluster.y());
-      }else if (mType == TrackerGeometry::ModuleType::Ph2PSS || mType == TrackerGeometry::ModuleType::Ph2SS) {
+      } else if (mType == TrackerGeometry::ModuleType::Ph2PSS || mType == TrackerGeometry::ModuleType::Ph2SS) {
 	globalXY_S_->Fill(gx, gy);
 	globalRZ_S_->Fill(gz, gr);
-	
-        nClustersCounter_S[folderkey]++;
-        local_mes.ClusterSize_S->Fill(clusterItr.size());
-        local_mes.XYGlobalPositionMap_S->Fill(gz, gr);
-        local_mes.XYLocalPositionMap_S->Fill(localPosCluster.x(), localPosCluster.y());
-      }
 
+	local_mes.ClusterSize_S->Fill(clusterItr.size());
+	local_mes.XYGlobalPositionMap_S->Fill(gx, gy);
+	local_mes.XYLocalPositionMap_S->Fill(localPosCluster.x(), localPosCluster.y());
+      }
     }
 
   }
-  
   for (auto it : nClustersCounter_P) {
     if (layerMEs_.find(it.first) == layerMEs_.end()) continue;
-    if(layerMEs_[it.first].nclustersLayer_P != nullptr) //this check should not be required though
-      layerMEs_[it.first].nclustersLayer_P->Fill(it.second);
+    if(layerMEs_[it.first].nClusters_P != nullptr) //this check should not be required though
+      layerMEs_[it.first].nClusters_P->Fill(it.second);
   }
   for (auto it : nClustersCounter_S) {
     if (layerMEs_.find(it.first) == layerMEs_.end()) continue;
-    if(layerMEs_[it.first].nclustersLayer_S != nullptr)//this check should not be required though 
-      layerMEs_[it.first].nclustersLayer_S->Fill(it.second);
+    if(layerMEs_[it.first].nClusters_S != nullptr)//this check should not be required though 
+      layerMEs_[it.first].nClusters_S->Fill(it.second);
   }
-  numberClusters_->Fill(nclus);      
+  numberClusters_->Fill(nclus);     
 }
 
 //
@@ -249,29 +247,37 @@ void Phase2OTMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker,
     edm::LogInfo("Phase2OTMonitorCluster") << ">>>> Invalid histo_id ";
     return;
   }
-
   if(layerMEs_.find(folderName) == layerMEs_.end()){
     ibooker.cd();
     ibooker.setCurrentFolder(subdir + "/" + folderName);
     edm::LogInfo("Phase2OTMonitorCluster") << " Booking Histograms in: " << subdir + "/" + folderName;
     std::ostringstream HistoName;
-    TrackerGeometry::ModuleType mType = tkGeom_->getDetectorType(det_id);
-
     ClusterMEs local_mes;
     HistoName.str("");
+    TrackerGeometry::ModuleType mType = tkGeom_->getDetectorType(det_id);
     if(mType == TrackerGeometry::ModuleType::Ph2PSP) {
-      local_mes.nclustersLayer_P=phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("NClustersLayer_P"), HistoName.str(), ibooker);
-      local_mes.ClusterSize_P=phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("ClusterSize_P"), HistoName.str(), ibooker);
-      local_mes.XYGlobalPositionMap_P=phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalPositionXY_perlayer_P"), HistoName.str(), ibooker);
-      local_mes.XYLocalPositionMap_P=phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("LocalPositionXY_P"), HistoName.str(), ibooker);
-    } else {//PSS or 2S
-      local_mes.nclustersLayer_S=phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("NClustersLayer_S"), HistoName.str(), ibooker);
-      local_mes.ClusterSize_S=phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("ClusterSize_S"), HistoName.str(), ibooker);;
-      local_mes.XYGlobalPositionMap_P=phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalPositionXY_perlayer_S"), HistoName.str(), ibooker);
-      local_mes.XYLocalPositionMap_S=phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("LocalPositionXY_S"), HistoName.str(), ibooker);
-    }
+      local_mes.nClusters_P=
+	phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("NClustersLayer_P"), HistoName.str(), ibooker);
+      local_mes.ClusterSize_P=
+	phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("ClusterSize_P"), HistoName.str(), ibooker);
+      local_mes.XYGlobalPositionMap_P=
+	phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalPositionXY_perlayer_P"), HistoName.str(), ibooker);
+      local_mes.XYLocalPositionMap_P=
+	phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("LocalPositionXY_P"), HistoName.str(), ibooker);
+    } //else if (mType == TrackerGeometry::ModuleType::Ph2PSS || mType == TrackerGeometry::ModuleType::Ph2SS) {//PSS or 2S
+      local_mes.nClusters_S=
+	phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("NClustersLayer_S"), "#clusters Stype", ibooker);
+      local_mes.ClusterSize_S=
+	phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("ClusterSize_S"), HistoName.str(), ibooker);;
+      local_mes.XYGlobalPositionMap_S=
+	phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalPositionXY_perlayer_S"), HistoName.str(), ibooker);
+      local_mes.XYLocalPositionMap_S=
+	phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("LocalPositionXY_S"), HistoName.str(), ibooker);
+      //}
+
+    layerMEs_.emplace(folderName, local_mes);
     
-  }
+  }//if block layerME find
 
 }
 
