@@ -671,7 +671,7 @@ baseDataSetRelease=[
     'CMSSW_10_6_0-106X_mc2017_realistic_v3-v1',         # 21 - GEN-SIM inputs for LHE-GEN-SIM 2017 workflows
     'CMSSW_10_6_0-106X_upgrade2018_realistic_v4-v1',            # 22 - GEN-SIM inputs for LHE-GEN-SIM 2018 workflows
     'CMSSW_11_2_0_pre8-112X_mcRun3_2021_realistic_HI_v11-v1',    #23 - Run3 HI GEN-SIM for mixing
-    'CMSSW_11_1_0_pre2-PU25ns_111X_upgrade2018_realistic_RunDep_premix_v1-v1', # 24 - 2018 Run-Dependent premix library
+    'CMSSW_11_2_0_pre8-PU_112X_upgrade2018_realistic_v4-v1', # 24 - 2018 Run-Dependent premix library
     ]
 
 # note: INPUT commands to be added once GEN-SIM w/ 13TeV+PostLS1Geo will be available
