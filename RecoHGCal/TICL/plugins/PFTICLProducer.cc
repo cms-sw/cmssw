@@ -119,7 +119,11 @@ void PFTICLProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSet
     auto time = ticl_cand.time();
     auto timeE = ticl_cand.timeError();
 
-    if (candidate.charge()) {  // Check MTD timing availability
+    if (candidate.charge()) {
+      // Ignore HGCAL timing until it will be TOF corrected
+      time = -1.;
+      timeE = -99.;
+      // Check MTD timing availability
       const bool assocQuality = (*trackTimeQualH)[candidate.trackRef()] > timingQualityThreshold_;
       if (assocQuality) {
         const auto timeHGC = time;
