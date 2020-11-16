@@ -33,7 +33,7 @@ public:
   typedef dqm::reco::MonitorElement MonitorElement;
 
   SiPixelTrackResidualModule();
-  SiPixelTrackResidualModule(edm::ConsumesCollector&& iCC, const uint32_t);
+  SiPixelTrackResidualModule(edm::ConsumesCollector &&iCC, const uint32_t);
   ~SiPixelTrackResidualModule();
 
   void book(const edm::ParameterSet &,

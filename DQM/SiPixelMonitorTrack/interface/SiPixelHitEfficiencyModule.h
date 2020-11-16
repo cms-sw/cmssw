@@ -33,7 +33,7 @@ public:
   typedef dqm::reco::MonitorElement MonitorElement;
 
   SiPixelHitEfficiencyModule();
-  SiPixelHitEfficiencyModule(edm::ConsumesCollector&& iCC, const uint32_t);
+  SiPixelHitEfficiencyModule(edm::ConsumesCollector &&iCC, const uint32_t);
   ~SiPixelHitEfficiencyModule();
 
   void book(

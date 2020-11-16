@@ -47,7 +47,6 @@
 #include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
 #include "DQM/SiPixelMonitorTrack/interface/SiPixelHitEfficiencySource.h"
 
-
 using namespace std;
 using namespace edm;
 
@@ -78,9 +77,11 @@ SiPixelHitEfficiencySource::SiPixelHitEfficiencySource(const edm::ParameterSet &
   trackerTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
   trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
   measurementTrackerToken_ = esConsumes<MeasurementTracker, CkfComponentsRecord>();
-  chi2MeasurementEstimatorBaseToken_ = esConsumes<Chi2MeasurementEstimatorBase, TrackingComponentsRecord>(edm::ESInputTag("", "Chi2"));
+  chi2MeasurementEstimatorBaseToken_ =
+      esConsumes<Chi2MeasurementEstimatorBase, TrackingComponentsRecord>(edm::ESInputTag("", "Chi2"));
   propagatorToken_ = esConsumes<Propagator, TrackingComponentsRecord>(edm::ESInputTag("", "PropagatorWithMaterial"));
-  pixelClusterParameterEstimatorToken_ = esConsumes<PixelClusterParameterEstimator, TkPixelCPERecord>(edm::ESInputTag("", "PixelCPEGeneric"));
+  pixelClusterParameterEstimatorToken_ =
+      esConsumes<PixelClusterParameterEstimator, TkPixelCPERecord>(edm::ESInputTag("", "PixelCPEGeneric"));
   trackerGeomTokenBeginRun_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>();
 
   firstRun = true;
@@ -161,14 +162,16 @@ void SiPixelHitEfficiencySource::dqmBeginRun(const edm::Run &r, edm::EventSetup 
   // TrackerGeometry
   for (TrackerGeometry::DetContainer::const_iterator pxb = TG->detsPXB().begin(); pxb != TG->detsPXB().end(); pxb++) {
     if (dynamic_cast<PixelGeomDetUnit const *>((*pxb)) != nullptr) {
-      SiPixelHitEfficiencyModule *module = new SiPixelHitEfficiencyModule(consumesCollector(), (*pxb)->geographicalId().rawId());
+      SiPixelHitEfficiencyModule *module =
+          new SiPixelHitEfficiencyModule(consumesCollector(), (*pxb)->geographicalId().rawId());
       theSiPixelStructure.insert(
           pair<uint32_t, SiPixelHitEfficiencyModule *>((*pxb)->geographicalId().rawId(), module));
     }
   }
   for (TrackerGeometry::DetContainer::const_iterator pxf = TG->detsPXF().begin(); pxf != TG->detsPXF().end(); pxf++) {
     if (dynamic_cast<PixelGeomDetUnit const *>((*pxf)) != nullptr) {
-      SiPixelHitEfficiencyModule *module = new SiPixelHitEfficiencyModule(consumesCollector(), (*pxf)->geographicalId().rawId());
+      SiPixelHitEfficiencyModule *module =
+          new SiPixelHitEfficiencyModule(consumesCollector(), (*pxf)->geographicalId().rawId());
       theSiPixelStructure.insert(
           pair<uint32_t, SiPixelHitEfficiencyModule *>((*pxf)->geographicalId().rawId(), module));
     }
@@ -722,7 +725,8 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event &iEvent, const edm::Ev
           float dx_cl[2];
           float dy_cl[2];
           dx_cl[0] = dx_cl[1] = dy_cl[0] = dy_cl[1] = -9999.;
-          edm::ESHandle<PixelClusterParameterEstimator> cpEstimator = iSetup.getHandle(pixelClusterParameterEstimatorToken_);
+          edm::ESHandle<PixelClusterParameterEstimator> cpEstimator =
+              iSetup.getHandle(pixelClusterParameterEstimatorToken_);
           if (cpEstimator.isValid()) {
             const PixelClusterParameterEstimator &cpe(*cpEstimator);
             edm::ESHandle<TrackerGeometry> tracker = iSetup.getHandle(trackerGeomToken_);

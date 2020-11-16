@@ -82,8 +82,10 @@ SiPixelTrackResidualSource::SiPixelTrackResidualSource(const edm::ParameterSet &
 
   trackerTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
   trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
-  transientTrackBuilderToken_ = esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"));
-  transientTrackingRecHitBuilderToken_ = esConsumes<TransientTrackingRecHitBuilder, TransientRecHitRecord>(edm::ESInputTag("", ttrhbuilder_));
+  transientTrackBuilderToken_ =
+      esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"));
+  transientTrackingRecHitBuilderToken_ =
+      esConsumes<TransientTrackingRecHitBuilder, TransientRecHitRecord>(edm::ESInputTag("", ttrhbuilder_));
   trackerTopoTokenBeginRun_ = esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>();
   trackerGeomTokenBeginRun_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>();
 
@@ -121,7 +123,8 @@ void SiPixelTrackResidualSource::dqmBeginRun(const edm::Run &r, edm::EventSetup 
   // TrackerGeometry
   for (TrackerGeometry::DetContainer::const_iterator pxb = TG->detsPXB().begin(); pxb != TG->detsPXB().end(); pxb++) {
     if (dynamic_cast<PixelGeomDetUnit const *>((*pxb)) != nullptr) {
-      SiPixelTrackResidualModule *module = new SiPixelTrackResidualModule(consumesCollector(), (*pxb)->geographicalId().rawId());
+      SiPixelTrackResidualModule *module =
+          new SiPixelTrackResidualModule(consumesCollector(), (*pxb)->geographicalId().rawId());
       theSiPixelStructure.insert(
           pair<uint32_t, SiPixelTrackResidualModule *>((*pxb)->geographicalId().rawId(), module));
       // int DBlayer = PixelBarrelNameWrapper(pSet_,
@@ -133,7 +136,8 @@ void SiPixelTrackResidualSource::dqmBeginRun(const edm::Run &r, edm::EventSetup 
   }
   for (TrackerGeometry::DetContainer::const_iterator pxf = TG->detsPXF().begin(); pxf != TG->detsPXF().end(); pxf++) {
     if (dynamic_cast<PixelGeomDetUnit const *>((*pxf)) != nullptr) {
-      SiPixelTrackResidualModule *module = new SiPixelTrackResidualModule(consumesCollector(), (*pxf)->geographicalId().rawId());
+      SiPixelTrackResidualModule *module =
+          new SiPixelTrackResidualModule(consumesCollector(), (*pxf)->geographicalId().rawId());
       theSiPixelStructure.insert(
           pair<uint32_t, SiPixelTrackResidualModule *>((*pxf)->geographicalId().rawId(), module));
       int DBdisk;
@@ -894,7 +898,8 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent, const edm::Ev
 
   // get the TransienTrackingRecHitBuilder needed for extracting the global
   // position of the hits in the pixel
-  edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder = iSetup.getHandle(transientTrackingRecHitBuilderToken_);
+  edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder =
+      iSetup.getHandle(transientTrackingRecHitBuilderToken_);
 
   // check that tracks are valid
   if (TracksForRes.failedToGet())
