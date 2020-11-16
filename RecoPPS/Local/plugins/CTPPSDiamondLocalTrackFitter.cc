@@ -53,23 +53,25 @@ void CTPPSDiamondLocalTrackFitter::produce(edm::Event& iEvent, const edm::EventS
   edm::Handle<edm::DetSetVector<CTPPSDiamondRecHit> > recHits;
   iEvent.getByToken(recHitsToken_, recHits);
 
+  // clear all hits possibly inherited from previous event
+  for (auto& algo_vs_id : trk_algo_)
+    algo_vs_id.second->clear();
+
   // feed hits to the track producers
   for (const auto& vec : *recHits) {
     const CTPPSDiamondDetId raw_detid(vec.detId()), detid(raw_detid.arm(), raw_detid.station(), raw_detid.rp());
     // if algorithm is not found, build it
     if (trk_algo_.count(detid) == 0)
       trk_algo_[detid] = std::make_unique<CTPPSDiamondTrackRecognition>(trk_algo_params_);
-    // clear all hits possibly inherited from previous event
-    trk_algo_[detid]->clear();
     for (const auto& hit : vec)
       // skip hits without a leading edge
       if (hit.ootIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING)
         trk_algo_[detid]->addHit(hit);
   }
 
+  // build the tracks for all stations
   for (auto& algo_vs_id : trk_algo_) {
     auto& tracks = pOut->find_or_insert(algo_vs_id.first);
-    // build the tracks for all stations
     algo_vs_id.second->produceTracks(tracks);
   }
 
