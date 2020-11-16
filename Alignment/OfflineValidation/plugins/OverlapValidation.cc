@@ -119,6 +119,7 @@ private:
 
   TTree* rootTree_;
   edm::FileInPath FileInPath_;
+  const int compressionSettings_;
   const bool addExtraBranches_;
   const int minHitsCut_;
   const float chi2ProbCut_;
@@ -192,6 +193,7 @@ OverlapValidation::OverlapValidation(const edm::ParameterSet& iConfig)
       config_(iConfig),
       rootTree_(nullptr),
       FileInPath_("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"),
+      compressionSettings_(iConfig.getUntrackedParameter<int>("compressionSettings", -1)),
       addExtraBranches_(false),
       minHitsCut_(6),
       chi2ProbCut_(0.001) {
@@ -218,6 +220,10 @@ OverlapValidation::OverlapValidation(const edm::ParameterSet& iConfig)
   //
   // root output
   //
+  if (compressionSettings_ > 0) {
+    fs->file().SetCompressionSettings(compressionSettings_);
+  }
+
   rootTree_ = fs->make<TTree>("Overlaps", "Overlaps");
   if (addExtraBranches_) {
     rootTree_->Branch("hitCounts", hitCounts_, "found/s:lost/s");
