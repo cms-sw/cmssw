@@ -1,16 +1,16 @@
 #include "CondFormats/EcalObjects/interface/EcalSCDynamicDPhiParameters.h"
 
-EcalSCDynamicDPhiParameters::DynamicDPhiParameters EcalSCDynamicDPhiParameters::dynamicDPhiParameters(
+const EcalSCDynamicDPhiParameters::DynamicDPhiParameters* EcalSCDynamicDPhiParameters::dynamicDPhiParameters(
     double clustE, double absSeedEta) const {
   // assume the collection is sorted in descending DynamicDPhiParams.etaMin and descending DynamicDPhiParams.eMin
   for (const auto &dynamicDPhiParams : dynamicDPhiParametersCollection_) {
     if (clustE < dynamicDPhiParams.eMin || absSeedEta < dynamicDPhiParams.etaMin) {
       continue;
     } else {
-      return dynamicDPhiParams;
+      return &dynamicDPhiParams;
     }
   }
-  return EcalSCDynamicDPhiParameters::DynamicDPhiParameters();
+  return nullptr;
 }
 
 void EcalSCDynamicDPhiParameters::print(std::ostream& out) const {
