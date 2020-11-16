@@ -25,5 +25,17 @@
       <PartSelector path="//GHA2.."/>
       <Parameter name="nPads" value="384"/>
     </SpecPar>
+    <SpecPar name="dPhiGE11" eval="true">
+      <PartSelector path="//GHA1.."/>
+      <Parameter name="dPhi" value="10.15*deg"/>
+    </SpecPar>
+    <SpecPar name="dPhiGE21" eval="true">
+      <PartSelector path="//GHA2.."/>
+      <Parameter name="dPhi" value="20.30*deg"/>
+    </SpecPar>
+    <SpecPar name="dPhiME0" eval="true">
+      <PartSelector path="//GHA0.."/>
+      <Parameter name="dPhi" value="20.22*deg"/>
+    </SpecPar>
   </SpecParSection>
 </DDDefinition>
