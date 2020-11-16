@@ -42,7 +42,7 @@ public:
   /// Default constructor
   SiPixelRecHitModule();
   /// Constructor with raw DetId
-  SiPixelRecHitModule(edm::ConsumesCollector&& iCC, const uint32_t &id);
+  SiPixelRecHitModule(edm::ConsumesCollector &&iCC, const uint32_t &id);
   /// Destructor
   ~SiPixelRecHitModule();
 
