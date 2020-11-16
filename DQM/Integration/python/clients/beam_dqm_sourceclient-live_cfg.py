@@ -381,6 +381,7 @@ process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
 if not live or noDB:
     process.OnlineDBOutputService.connect = cms.string('sqlite_file:BeamSpotOnlineLegacy.db')
     process.OnlineDBOutputService.preLoadConnectionString = cms.untracked.string('sqlite_file:BeamSpotOnlineLegacy.db')
+    process.OnlineDBOutputService.saveLogsOnDB = cms.untracked.bool(False)
 
 #---------
 # Final path
