@@ -1213,8 +1213,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             #MM: FIXME MVA
             #if  "MVA" in metModName and identifier == "Jet": #dummy fix
             #    modName = "uncorrectedshiftedPat"+preId+identifier+varType+mod+postfix
-            if (identifier=="Photon" or identifier=="Unclustered") and self.getvalue("Puppi"):
-                shiftedCollModules[mod].srcWeights = cms.InputTag("puppiForMet")
             if not hasattr(process, modName):
                 addToProcessAndTask(modName, shiftedCollModules[mod], process, task)
                 metUncSequence += getattr(process, modName)
@@ -1226,8 +1224,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             if "PF" in metModName:
                 #create the MET shifts and add them to the sequence
                 shiftedMETCorrModule = self.createShiftedMETModule(process, objectCollection, modName)
-                if (identifier=="Photon" or identifier=="Unclustered") and self.getvalue("Puppi"):
-                    shiftedMETCorrModule.srcWeights = cms.InputTag("puppiForMet")
                 modMETShiftName = "shiftedPatMETCorr"+preId+identifier+varType+mod+postfix
                 if not hasattr(process, modMETShiftName):
                     addToProcessAndTask(modMETShiftName, shiftedMETCorrModule, process, task)
@@ -1482,7 +1478,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             #raw MET
             from RecoMET.METProducers.PFMET_cfi import pfMet
             addToProcessAndTask("pfMet"+postfix, pfMet.clone(), process, task)
-            getattr(process, "pfMet"+postfix).src = "puppiForMET" if self.getvalue("Puppi") else pfCandCollection
+            getattr(process, "pfMet"+postfix).src = pfCandCollection
             getattr(process, "pfMet"+postfix).calculateSignificance = False
             patMetModuleSequence += getattr(process, "pfMet"+postfix)
 
