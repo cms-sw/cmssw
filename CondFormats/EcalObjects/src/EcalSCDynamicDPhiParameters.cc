@@ -3,7 +3,7 @@
 const EcalSCDynamicDPhiParameters::DynamicDPhiParameters* EcalSCDynamicDPhiParameters::dynamicDPhiParameters(
     double clustE, double absSeedEta) const {
   // assume the collection is sorted in descending DynamicDPhiParams.etaMin and descending DynamicDPhiParams.eMin
-  for (const auto &dynamicDPhiParams : dynamicDPhiParametersCollection_) {
+  for (const auto& dynamicDPhiParams : dynamicDPhiParametersCollection_) {
     if (clustE < dynamicDPhiParams.eMin || absSeedEta < dynamicDPhiParams.etaMin) {
       continue;
     } else {
