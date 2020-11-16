@@ -185,6 +185,7 @@ if (process.runType.getRunType() == process.runType.pp_run or
     if unitTest or noDB:
       process.OnlineDBOutputService.connect = cms.string('sqlite_file:BeamSpotOnlineHLT.db')
       process.OnlineDBOutputService.preLoadConnectionString = cms.untracked.string('sqlite_file:BeamSpotOnlineHLT.db')
+      process.OnlineDBOutputService.saveLogsOnDB = cms.untracked.bool(False)
 
     process.p = cms.Path( process.hltTriggerTypeFilter
                         * process.dqmcommon
