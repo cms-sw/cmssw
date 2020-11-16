@@ -348,7 +348,7 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore::IBooker &iBooker,
                                                   bool init,
                                                   float noiseRate_,
                                                   int noiseRateDenominator_,
-                                                  const SiPixelFedCablingMap* theCablingMap) {
+                                                  const SiPixelFedCablingMap *theCablingMap) {
   if (init) {
     endOfModules_ = false;
     nevents_ = noiseRateDenominator_;
