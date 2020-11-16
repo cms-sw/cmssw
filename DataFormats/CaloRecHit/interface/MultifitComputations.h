@@ -317,7 +317,7 @@ namespace calo {
           // preload a column of pulse matrix
 #pragma unroll
           for (int counter = 0; counter < NSAMPLES; counter++)
-#ifdef __CUDA_ARCH__ 
+#ifdef __CUDA_ARCH__
             pm_col[counter] = __ldg(&pulseMatrixView.coeffRef(counter, icol));
 #else
             pm_col[counter] = pulseMatrixView.coeffRef(counter, icol);
