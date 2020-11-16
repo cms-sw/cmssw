@@ -885,7 +885,6 @@ trackValidatorTrackingOnly = trackValidatorStandalone.clone(
  )
 
 trackValidatorDisplacedTrackingOnly = trackValidatorDisplacedStandalone.clone(
-    label = [ x for x in trackValidatorStandalone.label if x != "cutsRecoTracksAK4PFJets"],
     cores = "highPtJetsForTrk"
  )
 
