@@ -1130,7 +1130,7 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         float totalPtPUcorr = -1;
         l1tp2::CaloJet caloJet(caloJetObj.jetCluster, calibratedPt, hovere, ECalIsolation, totalPtPUcorr);
         caloJet.setExperimentalParams(params);
-        caloJet.associated_l1EGs() = caloJetObj.associated_l1EGs_;
+        caloJet.setAssociated_l1EGs(caloJetObj.associated_l1EGs_);
 
         // Only store jets passing ET threshold
         if (params["jet_pt_calibration"] >= EtMinForCollection)
