@@ -172,7 +172,7 @@ if (process.runType.getRunType() == process.runType.pp_run or
         writeTransactionDelay = cms.untracked.uint32(options.transDelay),
         autoCommit = cms.untracked.bool(True),
         saveLogsOnDB = cms.untracked.bool(True),
-        jobName = cms.untracked.string("BeamSpotOnlineLegacyTest"), # name of the DB log record
+        jobName = cms.untracked.string("BeamSpotOnlineHLTTest"), # name of the DB log record
         toPut = cms.VPSet(cms.PSet(
             record = cms.string(BSOnlineRecordName),
             tag = cms.string('BSOnlineHLT_tag'),
