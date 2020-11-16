@@ -600,7 +600,6 @@ namespace trigger {
       TriggerRefsCollections::getObjects(id, l1tkem, begin, end);
     }
 
-
     void getObjects(size_type filter, Vids& ids, VRl1tjet& l1tjet) const {
       const size_type begin(l1tjetSlice(filter).first);
       const size_type end(l1tjetSlice(filter).second);

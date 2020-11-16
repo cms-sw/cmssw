@@ -324,7 +324,7 @@ namespace trigger {
       l1tmuonIds_.push_back(id);
       l1tmuonRefs_.push_back(ref);
     }
-     void addObject(int id, const l1t::TkMuonRef& ref) {
+    void addObject(int id, const l1t::TkMuonRef& ref) {
       l1tkmuonIds_.push_back(id);
       l1tkmuonRefs_.push_back(ref);
     }
@@ -449,7 +449,7 @@ namespace trigger {
       l1tmuonRefs_.insert(l1tmuonRefs_.end(), refs.begin(), refs.end());
       return l1tmuonIds_.size();
     }
-     size_type addObjects(const Vids& ids, const VRl1tkmuon& refs) {
+    size_type addObjects(const Vids& ids, const VRl1tkmuon& refs) {
       assert(ids.size() == refs.size());
       l1tkmuonIds_.insert(l1tkmuonIds_.end(), ids.begin(), ids.end());
       l1tkmuonRefs_.insert(l1tkmuonRefs_.end(), refs.begin(), refs.end());
@@ -1152,7 +1152,6 @@ namespace trigger {
       return;
     }
 
-
     void getObjects(Vids& ids, VRl1tjet& refs) const { getObjects(ids, refs, 0, l1tjetIds_.size()); }
     void getObjects(Vids& ids, VRl1tjet& refs, size_type begin, size_type end) const {
       assert(begin <= end);
@@ -1222,7 +1221,6 @@ namespace trigger {
       }
       return;
     }
-
 
     void getObjects(Vids& ids, VRl1ttau& refs) const { getObjects(ids, refs, 0, l1ttauIds_.size()); }
     void getObjects(Vids& ids, VRl1ttau& refs, size_type begin, size_type end) const {
