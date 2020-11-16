@@ -70,6 +70,7 @@ PrimaryVertexValidation::PrimaryVertexValidation(const edm::ParameterSet& iConfi
       ttkToken_(esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"))),
       topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>()),
       runInfoToken_(esConsumes<RunInfo, RunInfoRcd>()),
+      compressionSettings_(iConfig.getUntrackedParameter<int>("compressionSettings", -1)),
       storeNtuple_(iConfig.getParameter<bool>("storeNtuple")),
       lightNtupleSwitch_(iConfig.getParameter<bool>("isLightNtuple")),
       useTracksFromRecoVtx_(iConfig.getParameter<bool>("useTracksFromRecoVtx")),
@@ -1168,6 +1169,9 @@ void PrimaryVertexValidation::beginJob() {
 
   // Define TTree for output
   Nevt_ = 0;
+  if (compressionSettings_ > 0) {
+    fs->file().SetCompressionSettings(compressionSettings_);
+  }
 
   //  rootFile_ = new TFile(filename_.c_str(),"recreate");
   rootTree_ = fs->make<TTree>("tree", "PV Validation tree");
@@ -3596,6 +3600,7 @@ void PrimaryVertexValidation::fillDescriptions(edm::ConfigurationDescriptions& d
 
   // PV Validation specific
 
+  desc.addUntracked<int>("compressionSettings", -1);
   desc.add<bool>("storeNtuple", false);
   desc.add<bool>("isLightNtuple", true);
   desc.add<bool>("useTracksFromRecoVtx", false);
