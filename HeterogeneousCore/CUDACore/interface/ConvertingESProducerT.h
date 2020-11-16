@@ -9,6 +9,13 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/typelookup.h"
 
+/* class template: ConvertingESProducerT
+ * 
+ * This class template can be used to simplify the implementation of any ESProducer that reads
+ * conditions data from a record and pushes derived conditions data to the same record.
+ * The current use case is to convert and copy the calibrations from the CPU to the GPUs.
+ */
+
 template <typename Record, typename Target, typename Source>
 class ConvertingESProducerT : public edm::ESProducer {
 public:
