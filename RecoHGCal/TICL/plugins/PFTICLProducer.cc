@@ -121,8 +121,8 @@ void PFTICLProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSet
 
     if (candidate.charge()) {
       // Ignore HGCAL timing until it will be TOF corrected
-      time = -1.;
-      timeE = -99.;
+      time = -99.;
+      timeE = -1.;
       // Check MTD timing availability
       const bool assocQuality = (*trackTimeQualH)[candidate.trackRef()] > timingQualityThreshold_;
       if (assocQuality) {
