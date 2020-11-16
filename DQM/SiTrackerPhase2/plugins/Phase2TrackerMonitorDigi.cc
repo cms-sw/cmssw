@@ -442,10 +442,13 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
     std::stringstream folder_name;
 
     //For endCap: P-type sensors are present only upto ring 10 for discs 1&2 (TEDD-1) and upto ring 7 for discs 3,4&5 (TEDD-2)
-    bool isPStypeModForTEDD_1 = (!pixelFlag_ && layer > 100 && tTopo->tidWheel(det_id) < 3 && tTopo->tidRing(det_id) <= 10) ? true : false;
-    bool isPStypeModForTEDD_2 = (!pixelFlag_ && layer > 100 && tTopo->tidWheel(det_id) >= 3 && tTopo->tidRing(det_id) <= 7) ? true : false;
+    bool isPStypeModForTEDD_1 =
+        (!pixelFlag_ && layer > 100 && tTopo->tidWheel(det_id) < 3 && tTopo->tidRing(det_id) <= 10) ? true : false;
+    bool isPStypeModForTEDD_2 =
+        (!pixelFlag_ && layer > 100 && tTopo->tidWheel(det_id) >= 3 && tTopo->tidRing(det_id) <= 7) ? true : false;
 
-    bool isPtypeSensor = (pixelFlag_ || (layer < 4 || (layer > 6 && (isPStypeModForTEDD_1 || isPStypeModForTEDD_2)))) ? true : false;
+    bool isPtypeSensor =
+        (pixelFlag_ || (layer < 4 || (layer > 6 && (isPStypeModForTEDD_1 || isPStypeModForTEDD_2)))) ? true : false;
 
     ibooker.cd();
     ibooker.setCurrentFolder(top_folder + "/DigiMonitor/" + key);
@@ -542,7 +545,7 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
       }
     }
     // For outer tracker modules (S-type histograms)
-    else { 
+    else {
       Parameters = config_.getParameter<edm::ParameterSet>("DigiOccupancySH");
       HistoName.str("");
       HistoName << "DigiOccupancyS";
@@ -604,24 +607,24 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
       // Only for the S-type sensor of PS module
       // FracOfOverThresholdBits is only available for S-type sensor of PS module
       if (isPStypeModForTEDD_1 || isPStypeModForTEDD_2) {
-	HistoName.str("");
-	HistoName << "FractionOfOverThresholdDigis";
-	local_mes.FractionOfOvTBits = ibooker.book1D(HistoName.str(), HistoName.str(), 11, -0.05, 1.05);
-	
-	Parameters = config_.getParameter<edm::ParameterSet>("NumberOfDigisPerDetH");
-	HistoName.str("");
-	HistoName << "FractionOfOverThresholdDigisVaEta";
-	if (Parameters.getParameter<bool>("switch") && EtaParameters.getParameter<bool>("switch"))
-	  local_mes.FractionOfOvTBitsVsEta = ibooker.bookProfile(HistoName.str(),
-								 HistoName.str(),
-								 EtaParameters.getParameter<int32_t>("Nbins"),
-								 EtaParameters.getParameter<double>("xmin"),
-								 EtaParameters.getParameter<double>("xmax"),
-								 Parameters.getParameter<double>("xmin"),
-								 Parameters.getParameter<double>("xmax"),
-								 "");
-	else
-	  local_mes.FractionOfOvTBitsVsEta = nullptr;
+        HistoName.str("");
+        HistoName << "FractionOfOverThresholdDigis";
+        local_mes.FractionOfOvTBits = ibooker.book1D(HistoName.str(), HistoName.str(), 11, -0.05, 1.05);
+
+        Parameters = config_.getParameter<edm::ParameterSet>("NumberOfDigisPerDetH");
+        HistoName.str("");
+        HistoName << "FractionOfOverThresholdDigisVaEta";
+        if (Parameters.getParameter<bool>("switch") && EtaParameters.getParameter<bool>("switch"))
+          local_mes.FractionOfOvTBitsVsEta = ibooker.bookProfile(HistoName.str(),
+                                                                 HistoName.str(),
+                                                                 EtaParameters.getParameter<int32_t>("Nbins"),
+                                                                 EtaParameters.getParameter<double>("xmin"),
+                                                                 EtaParameters.getParameter<double>("xmax"),
+                                                                 Parameters.getParameter<double>("xmin"),
+                                                                 Parameters.getParameter<double>("xmax"),
+                                                                 "");
+        else
+          local_mes.FractionOfOvTBitsVsEta = nullptr;
       }
     }
 
@@ -686,7 +689,6 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
       }
     }
 
-
     // Plots for Standalone clusters (Can be switched on from configs)
     if (clsFlag_) {
       Parameters = config_.getParameter<edm::ParameterSet>("NumberOfClustersPerDetH");
@@ -720,8 +722,10 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
 
 #include "DQM/SiTrackerPhase2/interface/TrackerPhase2DQMUtil.h"
 std::string Phase2TrackerMonitorDigi::getHistoId(uint32_t det_id, const TrackerTopology* tTopo, bool flag) {
-  if(flag) return phase2tkutil::getITHistoId(det_id, tTopo);
-  else return phase2tkutil::getOTHistoId(det_id, tTopo);
+  if (flag)
+    return phase2tkutil::getITHistoId(det_id, tTopo);
+  else
+    return phase2tkutil::getOTHistoId(det_id, tTopo);
   /*
   int layer;
   std::string Disc;

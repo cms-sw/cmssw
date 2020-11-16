@@ -15,7 +15,9 @@ namespace phase2tkutil {
   typedef dqm::reco::MonitorElement MonitorElement;
   typedef dqm::reco::DQMStore DQMStore;
 
-  MonitorElement* book1DFromPSet(const edm::ParameterSet& hpars, const std::string& hname, DQMStore::IBooker& ibooker); /*{
+  MonitorElement* book1DFromPSet(const edm::ParameterSet& hpars,
+                                 const std::string& hname,
+                                 DQMStore::IBooker& ibooker); /*{
     MonitorElement* temp = nullptr;
     if (hpars.getParameter<bool>("switch")) {
       temp = ibooker.book1D(hpars.getParameter<std::string>("name"),
@@ -27,7 +29,9 @@ namespace phase2tkutil {
     return temp;
   }
 														       */
-  MonitorElement* book2DFromPSet(const edm::ParameterSet& hpars, const std::string& hname, DQMStore::IBooker& ibooker); /*{
+  MonitorElement* book2DFromPSet(const edm::ParameterSet& hpars,
+                                 const std::string& hname,
+                                 DQMStore::IBooker& ibooker); /*{
     MonitorElement* temp = nullptr;
     if (hpars.getParameter<bool>("switch")) {
       temp = ibooker.book2D(hpars.getParameter<std::string>("name"),
