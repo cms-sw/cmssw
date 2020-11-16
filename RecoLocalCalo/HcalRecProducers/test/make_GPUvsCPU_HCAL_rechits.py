@@ -11,16 +11,26 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('HeterogeneousCore.CUDAServices.CUDAService_cfi')
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = '101X_dataRun2_HLT_frozen_v10'
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_hlt_relval', '')
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1000)
 )
 
-### load data using the DAQ source (Run2 data)
-import sys, os, inspect
-sys.path.append(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))))
-process.load('sourceFromRaw_cff')
+#-----------------------------------------
+# INPUT
+#-----------------------------------------
+
+process.source = cms.Source("PoolSource",
+  fileNames = cms.untracked.vstring('/store/data/Run2018D/EphemeralHLTPhysics1/RAW/v1/000/323/775/00000/A27DFA33-8FCB-BE42-A2D2-1A396EEE2B6E.root')
+)
+
+process.hltGetRaw = cms.EDAnalyzer( "HLTGetRaw",
+    RawDataCollection = cms.InputTag( "rawDataCollector" )
+)
+
+process.input = cms.Path( process.hltGetRaw )
 
 #-----------------------------------------
 # CMSSW/Hcal non-DQM Related Module import
@@ -47,26 +57,26 @@ process.hcalCPURecHitsProducer.recHitsM0LabelOut = cms.string("")
 #-----------------------------------------
 
 ## the one below is taken directly from the DB, regard M0
-#process.hbheprereco.algorithm.__setattr__('correctForPhaseContainment', cms.bool(False))
+#process.hbheprereco.algorithm.correctForPhaseContainment = cms.bool(False)
 
 ## do always 8 pulse
-process.hbheprereco.algorithm.__setattr__('chiSqSwitch', cms.double(-1))
+process.hbheprereco.algorithm.chiSqSwitch = cms.double(-1)
 
 ## to match hard coded setting (will be fixed on CPU)
-process.hbheprereco.algorithm.__setattr__('nMaxItersMin',cms.int32(50))
+process.hbheprereco.algorithm.nMaxItersMin = cms.int32(50)
 
 #-----------------------------------------
 # Final Custmization for Run3
 #-----------------------------------------
 
 # we will not run arrival Time at HLT
-process.hbheprereco.algorithm.__setattr__('calculateArrivalTime',cms.bool(False))
+process.hbheprereco.algorithm.calculateArrivalTime = cms.bool(False)
 
 ## we do not need this
-process.hbheprereco.algorithm.__setattr__('applyLegacyHBMCorrection', cms.bool(False))
+process.hbheprereco.algorithm.applyLegacyHBMCorrection = cms.bool(False)
 
-# we only runMahi at HLT
-process.hbheprereco.algorithm.__setattr__('useM3',cms.bool(False))
+# we only run Mahi at HLT
+process.hbheprereco.algorithm.useM3 = cms.bool(False)
 
 # we will not have the HPD noise flags in Run3, as will be all siPM
 process.hbheprereco.setLegacyFlagsQIE8 = cms.bool(False)
@@ -75,17 +85,11 @@ process.hbheprereco.setNoiseFlagsQIE8 = cms.bool(False)
 process.hbheprereco.setPulseShapeFlagsQIE8 = cms.bool(False)
 
 # for testing M0 only
-##process.hbheprereco.algorithm.__setattr__('useMahi',cms.bool(False))
+##process.hbheprereco.algorithm.useMahi = cms.bool(False)
 
 #-----------------------------------------
 # OUTPUT
 #-----------------------------------------
-
-process.out = cms.OutputModule(
-    "PoolOutputModule",
-###    fileName = cms.untracked.string("test_bothCPUGPU_DEFAULT.root")
-    fileName = cms.untracked.string("test_bothCPUGPU_NEW.root")
-)
 
 #process.out = cms.OutputModule("AsciiOutputModule",
 #    outputCommands = cms.untracked.vstring(
@@ -94,12 +98,11 @@ process.out = cms.OutputModule(
 #    verbosity = cms.untracked.uint32(0)
 #)
 
-process.hltGetRaw = cms.EDAnalyzer( "HLTGetRaw",
-    RawDataCollection = cms.InputTag( "rawDataCollector" )
+process.out = cms.OutputModule("PoolOutputModule",
+    fileName = cms.untracked.string("GPUvsCPU_HCAL_rechits.root")
 )
 
-process.input = cms.Path( process.hltGetRaw )
-
+#---------------
 
 process.finalize = cms.EndPath(process.out)
 
@@ -147,7 +150,3 @@ process.options = cms.untracked.PSet(
 # report CUDAService messages
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
 process.MessageLogger.categories.append("CUDAService")
-
-#dumpFile  = open("dump.py", "w")
-#dumpFile.write(process.dumpPython())
-#dumpFile.close()                                                                                                                                                                   
