@@ -39,7 +39,7 @@ public:
   /// Constructor with raw DetId
   SiPixelClusterModule(const uint32_t &id);
   /// Constructor with raw DetId and sensor size
-  SiPixelClusterModule(edm::ConsumesCollector&& iCC, const uint32_t &id, const int &ncols, const int &nrows);
+  SiPixelClusterModule(edm::ConsumesCollector &&iCC, const uint32_t &id, const int &ncols, const int &nrows);
   /// Destructor
   ~SiPixelClusterModule();
 
