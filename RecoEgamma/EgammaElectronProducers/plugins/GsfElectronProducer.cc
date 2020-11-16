@@ -131,12 +131,14 @@ void GsfElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<bool>("checkHcalStatus", true);
 
   // steering
+  desc.add<bool>("useDefaultEnergyCorrection", true);
   desc.add<bool>("useCombinationRegression", false);
   desc.add<bool>("ecalDrivenEcalEnergyFromClassBasedParameterization", true);
   desc.add<bool>("ecalDrivenEcalErrorFromClassBasedParameterization", true);
   desc.add<bool>("applyPreselection", false);
   desc.add<bool>("useEcalRegression", false);
   desc.add<bool>("applyAmbResolution", false);
+  desc.add<bool>("ignoreNotPreselected", true);
   desc.add<bool>("useGsfPfRecTracks", true);
   desc.add<bool>("pureTrackerDrivenEcalErrorFromSimpleParameterization", true);
   desc.add<unsigned int>("ambSortingStrategy", 1);
@@ -279,28 +281,26 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const Gsf
     : cutsCfg_{makeCutsConfiguration(cfg.getParameter<edm::ParameterSet>("preselection"))},
       ecalSeedingParametersChecked_(false),
       electronPutToken_(produces<GsfElectronCollection>()),
-      gsfPfRecTracksTag_(consumes<reco::GsfPFRecTrackCollection>(cfg.getParameter<edm::InputTag>("gsfPfRecTracksTag"))),
+      gsfPfRecTracksTag_(consumes(cfg.getParameter<edm::InputTag>("gsfPfRecTracksTag"))),
       useGsfPfRecTracks_(cfg.getParameter<bool>("useGsfPfRecTracks")),
       resetMvaValuesUsingPFCandidates_(cfg.getParameter<bool>("resetMvaValuesUsingPFCandidates")) {
   if (resetMvaValuesUsingPFCandidates_) {
-    egmPFCandidateCollection_ =
-        consumes<reco::PFCandidateCollection>(cfg.getParameter<edm::InputTag>("egmPFCandidatesTag"));
+    egmPFCandidateCollection_ = consumes(cfg.getParameter<edm::InputTag>("egmPFCandidatesTag"));
   }
 
-  inputCfg_.gsfElectronCores =
-      consumes<reco::GsfElectronCoreCollection>(cfg.getParameter<edm::InputTag>("gsfElectronCoresTag"));
-  inputCfg_.hcalTowersTag = consumes<CaloTowerCollection>(cfg.getParameter<edm::InputTag>("hcalTowers"));
-  inputCfg_.barrelRecHitCollection =
-      consumes<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("barrelRecHitCollectionTag"));
-  inputCfg_.endcapRecHitCollection =
-      consumes<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("endcapRecHitCollectionTag"));
-  inputCfg_.ctfTracks = consumes<reco::TrackCollection>(cfg.getParameter<edm::InputTag>("ctfTracksTag"));
+  inputCfg_.gsfElectronCores = consumes(cfg.getParameter<edm::InputTag>("gsfElectronCoresTag"));
+  inputCfg_.hcalTowersTag = consumes(cfg.getParameter<edm::InputTag>("hcalTowers"));
+  inputCfg_.barrelRecHitCollection = consumes(cfg.getParameter<edm::InputTag>("barrelRecHitCollectionTag"));
+  inputCfg_.endcapRecHitCollection = consumes(cfg.getParameter<edm::InputTag>("endcapRecHitCollectionTag"));
+  inputCfg_.ctfTracks = consumes(cfg.getParameter<edm::InputTag>("ctfTracksTag"));
   // used to check config consistency with seeding
-  inputCfg_.seedsTag = consumes<reco::ElectronSeedCollection>(cfg.getParameter<edm::InputTag>("seedsTag"));
-  inputCfg_.beamSpotTag = consumes<reco::BeamSpot>(cfg.getParameter<edm::InputTag>("beamSpotTag"));
-  inputCfg_.vtxCollectionTag = consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vtxTag"));
+  inputCfg_.seedsTag = consumes(cfg.getParameter<edm::InputTag>("seedsTag"));
+  inputCfg_.beamSpotTag = consumes(cfg.getParameter<edm::InputTag>("beamSpotTag"));
+  inputCfg_.vtxCollectionTag = consumes(cfg.getParameter<edm::InputTag>("vtxTag"));
   if (cfg.getParameter<bool>("fillConvVtxFitProb"))
-    inputCfg_.conversions = consumes<reco::ConversionCollection>(cfg.getParameter<edm::InputTag>("conversionsTag"));
+    inputCfg_.conversions = consumes(cfg.getParameter<edm::InputTag>("conversionsTag"));
+
+  strategyCfg_.useDefaultEnergyCorrection = cfg.getParameter<bool>("useDefaultEnergyCorrection");
 
   strategyCfg_.applyPreselection = cfg.getParameter<bool>("applyPreselection");
   strategyCfg_.ecalDrivenEcalEnergyFromClassBasedParameterization =
@@ -310,6 +310,7 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const Gsf
   strategyCfg_.pureTrackerDrivenEcalErrorFromSimpleParameterization =
       cfg.getParameter<bool>("pureTrackerDrivenEcalErrorFromSimpleParameterization");
   strategyCfg_.applyAmbResolution = cfg.getParameter<bool>("applyAmbResolution");
+  strategyCfg_.ignoreNotPreselected = cfg.getParameter<bool>("ignoreNotPreselected");
   strategyCfg_.ambSortingStrategy = cfg.getParameter<unsigned>("ambSortingStrategy");
   strategyCfg_.ambClustersOverlapStrategy = cfg.getParameter<unsigned>("ambClustersOverlapStrategy");
   strategyCfg_.ctfTracksCheck = cfg.getParameter<bool>("ctfTracksCheck");
@@ -325,7 +326,7 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const Gsf
   if (hcalCfg_.hOverEConeSize > 0) {
     hcalCfg_.useTowers = true;
     hcalCfg_.checkHcalStatus = cfg.getParameter<bool>("checkHcalStatus");
-    hcalCfg_.hcalTowers = consumes<CaloTowerCollection>(cfg.getParameter<edm::InputTag>("hcalTowers"));
+    hcalCfg_.hcalTowers = consumes(cfg.getParameter<edm::InputTag>("hcalTowers"));
     hcalCfg_.hOverEPtMin = psetPreselection.getParameter<double>("hOverEPtMin");
   }
 
@@ -568,7 +569,7 @@ void GsfElectronProducer::produce(edm::Event& event, const edm::EventSetup& setu
     logElectrons(electrons, event, "GsfElectronAlgo Info (after preselection)");
   }
   // ambiguity
-  setAmbiguityData(electrons, event);
+  setAmbiguityData(electrons, event, strategyCfg_.ignoreNotPreselected);
   if (strategyCfg_.applyAmbResolution) {
     electrons.erase(std::remove_if(electrons.begin(), electrons.end(), std::mem_fn(&reco::GsfElectron::ambiguous)),
                     electrons.end());

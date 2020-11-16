@@ -39,7 +39,9 @@
 //
 // ----------------------------------------------------------------------
 
+#include <algorithm>
 #include <atomic>
+#include <cctype>
 
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
@@ -55,6 +57,13 @@
 // #define ErrorObj_SUB_TRACE
 
 // ----------------------------------------------------------------------
+
+namespace {
+  bool eq_nocase(std::string_view a, std::string_view b) {
+    return std::equal(
+        a.begin(), a.end(), b.begin(), b.end(), [](char x, char y) { return std::toupper(x) == std::toupper(y); });
+  }
+}  // namespace
 
 namespace edm {
 
@@ -131,20 +140,19 @@ namespace edm {
 
   int ErrorObj::serial() const { return mySerial; }
   const ELextendedID& ErrorObj::xid() const { return myXid; }
-  const ELstring& ErrorObj::idOverflow() const { return myIdOverflow; }
+  const std::string& ErrorObj::idOverflow() const { return myIdOverflow; }
   time_t ErrorObj::timestamp() const { return myTimestamp; }
   const ELlist_string& ErrorObj::items() const { return myItems; }
   bool ErrorObj::reactedTo() const { return myReactedTo; }
   bool ErrorObj::is_verbatim() const { return verbatim; }
 
-  ELstring ErrorObj::context() const { return myContext; }
+  const std::string& ErrorObj::context() const { return myContext; }
 
-  ELstring ErrorObj::fullText() const {
-    ELstring result;
-    for (ELlist_string::const_iterator it = myItems.begin(); it != myItems.end(); ++it)
-      result += *it;
+  std::string ErrorObj::fullText() const {
+    std::string result;
+    for (auto const& it : myItems)
+      result += it;
     return result;
-
   }  // fullText()
 
   // ----------------------------------------------------------------------
@@ -157,16 +165,16 @@ namespace edm {
   }
 
   void ErrorObj::setID(std::string_view id) {
-    myXid.id = ELstring(id, 0, maxIDlength);
+    myXid.id = id.substr(0, maxIDlength);
     if (id.length() > maxIDlength)
-      myIdOverflow = ELstring(id, maxIDlength, id.length() - maxIDlength);
+      myIdOverflow = id.substr(maxIDlength, id.length() - maxIDlength);
   }
 
-  void ErrorObj::setModule(const ELstring& module) { myXid.module = module; }
+  void ErrorObj::setModule(std::string_view module) { myXid.module = module; }
 
-  void ErrorObj::setContext(const std::string_view& c) { myContext = c; }
+  void ErrorObj::setContext(std::string_view c) { myContext = c; }
 
-  void ErrorObj::setSubroutine(const ELstring& subroutine) {
+  void ErrorObj::setSubroutine(std::string_view subroutine) {
 #ifdef ErrorObj_SUB_TRACE
     std::cerr << "=:=:=: ErrorObj::setSubroutine(" << subroutine << ")\n";
 #endif
@@ -179,7 +187,7 @@ namespace edm {
   static int subN = 0;
 #endif
 
-  ErrorObj& ErrorObj::emitToken(const ELstring& s) {
+  ErrorObj& ErrorObj::emitToken(std::string_view s) {
 #ifdef ErrorObj_EMIT_TRACE
     std::cerr << "=:=:=: ErrorObj::emitToken( " << s << " )\n";
 #endif
@@ -197,7 +205,7 @@ namespace edm {
 #endif
       setSubroutine(s.substr(5));
     } else {
-      myItems.push_back(s);
+      myItems.emplace_back(s);
     }
 
     return *this;

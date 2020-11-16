@@ -134,6 +134,7 @@ namespace edm {
       unsigned int numberOfMatches() const { return numberOfMatches_; }
       bool isFullyResolved(unsigned int i) const;
       char const* moduleLabel(unsigned int i) const;
+      char const* productInstanceName(unsigned int i) const;
       char const* processName(unsigned int i) const;
 
     private:

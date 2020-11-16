@@ -34,6 +34,14 @@ LogInfo     was used to send cat_B
 %MSG
 LogVerbatim was used to send cat_A
 LogVerbatim was used to send cat_B
+%MSG-f cat_A: 
+LogFwkInfo  was used to send cat_A
+%MSG
+%MSG-f cat_B: 
+LogFwkInfo  was used to send cat_B
+%MSG
+LogFwkVerbatim was used to send cat_A
+LogFwkVerbatim was used to send cat_B
 %MSG-w cat_A: 
 LogWarning  was used to send cat_A
 %MSG
@@ -59,6 +67,39 @@ LogInfo     was used to send cat_B
 %MSG
 LogVerbatim was used to send cat_A
 LogVerbatim was used to send cat_B
+%MSG-f cat_A: 
+LogFwkInfo  was used to send cat_A
+%MSG
+%MSG-f cat_B: 
+LogFwkInfo  was used to send cat_B
+%MSG
+LogFwkVerbatim was used to send cat_A
+LogFwkVerbatim was used to send cat_B
+%MSG-w cat_A: 
+LogWarning  was used to send cat_A
+%MSG
+%MSG-w cat_B: 
+LogWarning  was used to send cat_B
+%MSG
+LogPrint    was used to send cat_A
+LogPrint    was used to send cat_B
+%MSG-e cat_A: 
+LogError    was used to send cat_A
+%MSG
+%MSG-e cat_B: 
+LogError    was used to send cat_B
+%MSG
+LogProblem  was used to send cat_A
+LogProblem  was used to send cat_B
+threshold FWKINFO
+%MSG-f cat_A: 
+LogFwkInfo  was used to send cat_A
+%MSG
+%MSG-f cat_B: 
+LogFwkInfo  was used to send cat_B
+%MSG
+LogFwkVerbatim was used to send cat_A
+LogFwkVerbatim was used to send cat_B
 %MSG-w cat_A: 
 LogWarning  was used to send cat_A
 %MSG

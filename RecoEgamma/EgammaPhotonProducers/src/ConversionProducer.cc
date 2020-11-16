@@ -97,10 +97,9 @@ ConversionProducer::ConversionProducer(const edm::ParameterSet& iConfig)
 
   vertexProducer_ = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("primaryVertexProducer"));
 
-  transientTrackBuilder_ =
-      esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"));
-  trackerGeometry_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
-  magneticField_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
+  transientTrackBuilder_ = esConsumes(edm::ESInputTag("", "TransientTrackBuilder"));
+  trackerGeometry_ = esConsumes();
+  magneticField_ = esConsumes();
 
   //Track-cluster matching eta and phi cuts
   dEtaTkBC_ = iConfig.getParameter<double>("dEtaTrackBC");  //TODO research on cut endcap/barrel

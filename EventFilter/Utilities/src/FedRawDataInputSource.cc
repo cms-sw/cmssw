@@ -483,8 +483,8 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
       readNextChunkIntoBuffer(currentFile_.get());
 
       if (detectedFRDversion_ == 0) {
-        detectedFRDversion_ = *((uint32*)dataPosition);
-        if (detectedFRDversion_ > 5)
+        detectedFRDversion_ = *((uint16_t*)dataPosition);
+        if (detectedFRDversion_ > FRDHeaderMaxVersion)
           throw cms::Exception("FedRawDataInputSource::getNextEvent")
               << "Unknown FRD version -: " << detectedFRDversion_;
         assert(detectedFRDversion_ >= 1);
@@ -622,7 +622,7 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal) {
 
   if (useL1EventID_) {
     eventID_ = edm::EventID(eventRunNumber_, currentLumiSection_, L1EventID_);
-    edm::EventAuxiliary aux(eventID_, processGUID(), tstamp, true, edm::EventAuxiliary::PhysicsTrigger);
+    edm::EventAuxiliary aux(eventID_, processGUID(), tstamp, event_->isRealData(), edm::EventAuxiliary::PhysicsTrigger);
     aux.setProcessHistoryID(processHistoryID_);
     makeEvent(eventPrincipal, aux);
   } else if (tcds_pointer_ == nullptr) {
@@ -631,7 +631,7 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal) {
           << "No TCDS or GTP FED in event with FEDHeader EID -: " << L1EventID_;
     }
     eventID_ = edm::EventID(eventRunNumber_, currentLumiSection_, GTPEventID_);
-    edm::EventAuxiliary aux(eventID_, processGUID(), tstamp, true, edm::EventAuxiliary::PhysicsTrigger);
+    edm::EventAuxiliary aux(eventID_, processGUID(), tstamp, event_->isRealData(), edm::EventAuxiliary::PhysicsTrigger);
     aux.setProcessHistoryID(processHistoryID_);
     makeEvent(eventPrincipal, aux);
   } else {
@@ -641,6 +641,7 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal) {
         evf::evtn::makeEventAuxiliary(tcds,
                                       eventRunNumber_,
                                       currentLumiSection_,
+                                      event_->isRealData(),
                                       static_cast<edm::EventAuxiliary::ExperimentType>(fedHeader.triggerType()),
                                       processGUID(),
                                       !fileListLoopMode_);
@@ -1338,9 +1339,9 @@ void FedRawDataInputSource::readWorker(unsigned int tid) {
 
     //detect FRD event version. Skip file Header if it exists
     if (detectedFRDversion_ == 0 && chunk->offset_ == 0) {
-      detectedFRDversion_ = *((uint32*)(chunk->buf_ + file->rawHeaderSize_));
+      detectedFRDversion_ = *((uint16_t*)(chunk->buf_ + file->rawHeaderSize_));
     }
-    assert(detectedFRDversion_ <= 5);
+    assert(detectedFRDversion_ <= FRDHeaderMaxVersion);
     chunk->readComplete_ =
         true;  //this is atomic to secure the sequential buffer fill before becoming available for processing)
     file->chunks_[chunk->fileIndex_] = chunk;  //put the completed chunk in the file chunk vector at predetermined index

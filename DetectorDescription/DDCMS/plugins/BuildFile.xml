@@ -1,5 +1,4 @@
 <use name="FWCore/Framework"/>
-<use name="FWCore/PluginManager"/>
 <use name="FWCore/ParameterSet"/>
 <use name="dd4hep"/>
 <use name="DetectorDescription/DDCMS"/>

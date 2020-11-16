@@ -26,6 +26,9 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+
 namespace edm {
   class ParameterSet;
   class Event;
@@ -73,6 +76,8 @@ namespace cms {
 
     edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
     edm::EDGetTokenT<HBHERecHitCollection> tok_hbheProd_;
+
+    edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
   };
 }  // end namespace cms
 #endif

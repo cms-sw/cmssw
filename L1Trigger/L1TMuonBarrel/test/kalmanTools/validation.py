@@ -1,9 +1,9 @@
 from __future__ import print_function
 import ROOT,itertools,math      #
-from array import array         # 
+from array import array         #
 from DataFormats.FWLite import Events, Handle
 ROOT.FWLiteEnabler.enable()
-# 
+#
 
 
 
@@ -64,7 +64,7 @@ def fetchKMTF(event,etaMax,collection):
             mu = kbmtf.at(bx,j)
             kbmtfMuons[bx].append(mu)
 #        kbmtfMuons[bx]=sorted(kbmtfMuons[bx],key=lambda x: x.hwPt(),reverse=True)
-    return kbmtfMuons        
+    return kbmtfMuons
 
 def curvResidual(a,b):
     return (a.charge()/a.pt()-b.charge()/b.pt())*b.pt()/b.charge()
@@ -96,7 +96,7 @@ def deltaR2( e1, p1, e2, p2):
     return de*de + dp*dp
 
 
-def log(event,counter,mystubs,kmtf,bmtf):   
+def log(event,counter,mystubs,kmtf,bmtf):
     print("--------EVENT"+str(counter)+"------------")
     print('RUN={run} LUMI={lumi} EVENT={event}'.format(run=event.eventAuxiliary().id().run(),lumi=event.eventAuxiliary().id().luminosityBlock(),event=event.eventAuxiliary().id().event()))
     print("-----------------------------")
@@ -106,10 +106,10 @@ def log(event,counter,mystubs,kmtf,bmtf):
         print('wheel={w} sector={sc} station={st} high/low={ts} phi={phi} phiB={phiB} qual={qual} BX={BX}'.format(w=stub.whNum(),sc=stub.scNum(),st=stub.stNum(),ts=stub.Ts2Tag(),phi=stub.phi(),phiB=stub.phiB(),qual=stub.code(),BX=stub.bxNum()))
     print('EMU:')
     for g in bmtf :
-        print("EMU sector={sector} pt={pt} eta={eta} phi={phi} qual={qual} dxy={dxy} pt2={pt2} hasFineEta={HF}".format(sector=g.processor(), pt=g.hwPt(),eta=g.hwEta(),phi=g.hwPhi(),qual=g.hwQual(),dxy=g.hwDXY(),pt2=g.hwPt2(),HF=g.hwHF()))
+        print("EMU sector={sector} pt={pt} eta={eta} phi={phi} qual={qual} dxy={dxy} pt2={pt2} hasFineEta={HF}".format(sector=g.processor(), pt=g.hwPt(),eta=g.hwEta(),phi=g.hwPhi(),qual=g.hwQual(),dxy=g.hwDXY(),pt2=g.hwPtUnconstrained(),HF=g.hwHF()))
     print('DATA:')
     for g in kmtf :
-        print("DATA sector={sector} pt={pt} eta={eta} phi={phi} qual={qual} dxy={dxy} pt2={pt2} hasFineEta={HF}".format(sector=g.processor(),pt=g.hwPt(),eta=g.hwEta(),phi=g.hwPhi(),qual=g.hwQual(),dxy=g.hwDXY(),pt2=g.hwPt2(),HF=g.hwHF()))
+        print("DATA sector={sector} pt={pt} eta={eta} phi={phi} qual={qual} dxy={dxy} pt2={pt2} hasFineEta={HF}".format(sector=g.processor(),pt=g.hwPt(),eta=g.hwEta(),phi=g.hwPhi(),qual=g.hwQual(),dxy=g.hwDXY(),pt2=g.hwPtUnconstrained(),HF=g.hwHF()))
     print("-----------------------------")
     print("-----------------------------")
     print("c + enter to continue")
@@ -185,7 +185,7 @@ def fill(info,mu):
         info['HF1'].Fill(mu[0].hwHF())
         info['qual1'].Fill(mu[0].hwQual())
         info['dxy1'].Fill(mu[0].hwDXY())
-        info['ptSTA1'].Fill(mu[0].hwPt2())
+        info['ptSTA1'].Fill(mu[0].hwPtUnconstrained())
     else:
         info['pt1'].Fill(0)
         info['eta1'].Fill(0)
@@ -202,7 +202,7 @@ def fill(info,mu):
         info['HF2'].Fill(mu[1].hwHF())
         info['qual2'].Fill(mu[1].hwQual())
         info['dxy2'].Fill(mu[1].hwDXY())
-        info['ptSTA2'].Fill(mu[1].hwPt2())
+        info['ptSTA2'].Fill(mu[1].hwPtUnconstrained())
     else:
         info['pt2'].Fill(0)
         info['eta2'].Fill(0)
@@ -219,7 +219,7 @@ def fill(info,mu):
         info['HF3'].Fill(mu[2].hwHF())
         info['qual3'].Fill(mu[2].hwQual())
         info['dxy3'].Fill(mu[2].hwDXY())
-        info['ptSTA3'].Fill(mu[2].hwPt2())
+        info['ptSTA3'].Fill(mu[2].hwPtUnconstrained())
     else:
         info['pt3'].Fill(0)
         info['eta3'].Fill(0)
@@ -248,14 +248,14 @@ for event in events:
     stubs=fetchStubsOLD(event,True)
     unpacker=fetchKMTF(event,100.0,'bmtfDigis:kBMTF')
     emulator=fetchKMTF(event,100.0,'simKBmtfDigis:BMTF')
-    
-    
+
+
     for processor in range(0,12):
         for bx in BUNCHES:
             emu=filter(lambda x: x.processor()==processor,emulator[bx])
             data=filter(lambda x: x.processor()==processor,unpacker[bx])
             if (len(emu)+len(data))>0:
-                
+
                 fill(histos['emu'],emu)
                 fill(histos['fw'],data)
 #                if len(emu)!=0 and len(data)==0:
@@ -287,16 +287,10 @@ for h in histonames:
     l.AddEntry(histos['fw'][h],"data","p")
     l.Draw()
     c.Write("plot_"+h)
-    
 
-    
-    
 
-        
+
+
+
+
 f.Close()
-
-
-
-
-
-

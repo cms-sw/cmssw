@@ -186,15 +186,15 @@ _pp_on_AA_reducedEcalRecHitsTask.remove(interestingEcalDetIdOOTPFEB)
 _pp_on_AA_reducedEcalRecHitsTask.remove(interestingEcalDetIdOOTPFEE)
 _pp_on_AA_reducedEcalRecHitsTask.remove(interestingEcalDetIdOOTPFES)
 
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-pp_on_AA_2018.toReplaceWith(reducedEcalRecHitsTask, _pp_on_AA_reducedEcalRecHitsTask)
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toReplaceWith(reducedEcalRecHitsTask, _pp_on_AA_reducedEcalRecHitsTask)
 
-pp_on_AA_2018.toModify(reducedEcalRecHitsEB.interestingDetIdCollections, func = lambda list: list.remove(cms.InputTag("interestingEcalDetIdOOTPFEB")) )
-pp_on_AA_2018.toModify(reducedEcalRecHitsEB.interestingDetIdCollections, func = lambda list: list.remove(cms.InputTag("interestingOotGamIsoDetIdEB")) )
-pp_on_AA_2018.toModify(reducedEcalRecHitsEE.interestingDetIdCollections, func = lambda list: list.remove(cms.InputTag("interestingEcalDetIdOOTPFEE")) )
-pp_on_AA_2018.toModify(reducedEcalRecHitsEE.interestingDetIdCollections, func = lambda list: list.remove(cms.InputTag("interestingOotGamIsoDetIdEE")) )
-pp_on_AA_2018.toModify(reducedEcalRecHitsES.interestingDetIds, func = lambda list: list.remove(cms.InputTag("interestingEcalDetIdOOTPFES")) )
-pp_on_AA_2018.toModify(reducedEcalRecHitsES.interestingDetIdsNotToClean, func = lambda list: list.remove(cms.InputTag("interestingOotEgammaIsoESDetId")) )
+pp_on_AA.toModify(reducedEcalRecHitsEB.interestingDetIdCollections, func = lambda list: list.remove(cms.InputTag("interestingEcalDetIdOOTPFEB")) )
+pp_on_AA.toModify(reducedEcalRecHitsEB.interestingDetIdCollections, func = lambda list: list.remove(cms.InputTag("interestingOotGamIsoDetIdEB")) )
+pp_on_AA.toModify(reducedEcalRecHitsEE.interestingDetIdCollections, func = lambda list: list.remove(cms.InputTag("interestingEcalDetIdOOTPFEE")) )
+pp_on_AA.toModify(reducedEcalRecHitsEE.interestingDetIdCollections, func = lambda list: list.remove(cms.InputTag("interestingOotGamIsoDetIdEE")) )
+pp_on_AA.toModify(reducedEcalRecHitsES.interestingDetIds, func = lambda list: list.remove(cms.InputTag("interestingEcalDetIdOOTPFES")) )
+pp_on_AA.toModify(reducedEcalRecHitsES.interestingDetIdsNotToClean, func = lambda list: list.remove(cms.InputTag("interestingOotEgammaIsoESDetId")) )
 
 from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
 egamma_lowPt_exclusive.toModify(reducedEcalRecHitsES,

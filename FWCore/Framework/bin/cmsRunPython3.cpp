@@ -50,7 +50,6 @@ static char const* const kEnableJobreportCommandOpt = "enablejobreport,e";
 static const char* const kEnableJobreportOpt = "enablejobreport";
 static char const* const kJobModeCommandOpt = "mode,m";
 static char const* const kJobModeOpt = "mode";
-static char const* const kMultiThreadMessageLoggerOpt = "multithreadML,t";
 static char const* const kNumberOfThreadsCommandOpt = "numThreads,n";
 static char const* const kNumberOfThreadsOpt = "numThreads";
 static char const* const kSizeOfStackForThreadCommandOpt = "sizeOfStackForThreadsInKB,s";
@@ -86,10 +85,20 @@ namespace {
     void on() { callEndJob_ = true; }
     void off() { callEndJob_ = false; }
     edm::EventProcessor* operator->() { return ep_.get(); }
+    edm::EventProcessor* get() { return ep_.get(); }
 
   private:
     std::unique_ptr<edm::EventProcessor> ep_;
     bool callEndJob_;
+  };
+
+  class TaskCleanupSentry {
+  public:
+    TaskCleanupSentry(edm::EventProcessor* ep) : ep_(ep) {}
+    ~TaskCleanupSentry() { ep_->taskCleanup(); }
+
+  private:
+    edm::EventProcessor* ep_;
   };
 
 }  // namespace
@@ -129,28 +138,10 @@ int main(int argc, char* argv[]) {
       context = "Initializing plug-in manager";
       edmplugin::PluginManager::configure(edmplugin::standard::config());
 
-      // Decide whether to use the multi-thread or single-thread message logger
-      //    (Just walk the command-line arguments, since the boost parser will
-      //    be run below and can lead to error messages which should be sent via
-      //    the message logger)
-      context = "Initializing either multi-threaded or single-threaded message logger";
-      bool multiThreadML = false;
-      for (int i = 0; i < argc; ++i) {
-        if ((std::strncmp(argv[i], "-t", 20) == 0) || (std::strncmp(argv[i], "--multithreadML", 20) == 0)) {
-          multiThreadML = true;
-          break;
-        }
-      }
-
+      context = "Initializing message logger";
       // Load the message service plug-in
-
-      if (multiThreadML) {
-        theMessageServicePresence = std::shared_ptr<edm::Presence>(
-            edm::PresenceFactory::get()->makePresence("MessageServicePresence").release());
-      } else {
-        theMessageServicePresence = std::shared_ptr<edm::Presence>(
-            edm::PresenceFactory::get()->makePresence("SingleThreadMSPresence").release());
-      }
+      theMessageServicePresence =
+          std::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->makePresence("SingleThreadMSPresence").release());
 
       context = "Processing command line arguments";
       std::string descString(argv[0]);
@@ -173,9 +164,7 @@ int main(int argc, char* argv[]) {
           "Number of threads to use in job (0 is use all CPUs)")(
           kSizeOfStackForThreadCommandOpt,
           boost::program_options::value<unsigned int>(),
-          "Size of stack in KB to use for extra threads (0 is use system default size)")(
-          kMultiThreadMessageLoggerOpt, "MessageLogger handles multiple threads - default is single-thread")(
-          kStrictOpt, "strict parsing");
+          "Size of stack in KB to use for extra threads (0 is use system default size)")(kStrictOpt, "strict parsing");
 
       // anything at the end will be ignored, and sent to python
       boost::program_options::positional_options_description p;
@@ -307,6 +296,7 @@ int main(int argc, char* argv[]) {
         EventProcessorWithSentry procTmp(
             std::make_unique<edm::EventProcessor>(processDesc, jobReportToken, edm::serviceregistry::kTokenOverrides));
         proc = std::move(procTmp);
+        TaskCleanupSentry sentry{proc.get()};
 
         alwaysAddContext = false;
         context = "Calling beginJob";

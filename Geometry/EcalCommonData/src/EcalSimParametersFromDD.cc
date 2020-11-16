@@ -159,14 +159,14 @@ bool EcalSimParametersFromDD::build(const cms::DDCompactView* cpv,
   mypar.filter(refs, attribute, name);
   fv.mergedSpecifics(refs);
   while (fv.firstChild()) {
-    const std::string name{fv.name().data(), fv.name().size()};
+    const std::string name{dd4hep::dd::noNamespace(fv.name()).data(), dd4hep::dd::noNamespace(fv.name()).size()};
     const std::string matName{dd4hep::dd::noNamespace(fv.materialName()).data(),
                               dd4hep::dd::noNamespace(fv.materialName()).size()};
     if (std::find(php.lvNames_.begin(), php.lvNames_.end(), name) == php.lvNames_.end()) {
       php.matNames_.emplace_back(matName);
       php.lvNames_.emplace_back(name);
       const std::vector<double>& paras = fv.parameters();
-      double dz = (fv.isATrapezoid()) ? convertCmToMm(2 * paras[0]) : 0.0;
+      double dz = (dd4hep::isA<dd4hep::Trap>(fv.solid())) ? convertCmToMm(2 * paras[0]) : 0.0;
       php.dzs_.emplace_back(dz);
     }
   };

@@ -59,6 +59,8 @@ private:
 
   //          IOV                 TAG                #HV, #LV
   std::map<cond::Time_t, std::map<std::string, std::pair<int, int>>> iovMap;
+
+  edm::ESGetToken<GeometricDet, IdealGeometryRecord> geomDetToken_;
 };
 
 SiStripDetVOffTrendPlotter::SiStripDetVOffTrendPlotter(const edm::ParameterSet &iConfig)
@@ -71,7 +73,8 @@ SiStripDetVOffTrendPlotter::SiStripDetVOffTrendPlotter(const edm::ParameterSet &
       m_outputPlot(iConfig.getUntrackedParameter<std::string>("outputPlot", "")),
       m_outputRootFile(iConfig.getUntrackedParameter<std::string>("outputRootFile", "")),
       m_outputCSV(iConfig.getUntrackedParameter<std::string>("outputCSV", "")),
-      fout(nullptr) {
+      fout(nullptr),
+      geomDetToken_(esConsumes()) {
   m_connectionPool.setParameters(iConfig.getParameter<edm::ParameterSet>("DBParameters"));
   m_connectionPool.configure();
   if (!m_outputRootFile.empty())
@@ -85,9 +88,7 @@ SiStripDetVOffTrendPlotter::~SiStripDetVOffTrendPlotter() {
 
 void SiStripDetVOffTrendPlotter::analyze(const edm::Event &evt, const edm::EventSetup &evtSetup) {
   // get total number of modules
-  edm::ESHandle<GeometricDet> geomDetHandle;
-  evtSetup.get<IdealGeometryRecord>().get(geomDetHandle);
-  const auto num_modules = TrackerGeometryUtils::getSiStripDetIds(*geomDetHandle).size();
+  const auto num_modules = TrackerGeometryUtils::getSiStripDetIds(evtSetup.getData(geomDetToken_)).size();
 
   // get start and end time for DB query
   boost::posix_time::ptime p_start, p_end;

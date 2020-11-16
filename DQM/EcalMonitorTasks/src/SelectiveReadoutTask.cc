@@ -59,7 +59,7 @@ namespace ecaldqm {
     }
   }
 
-  void SelectiveReadoutTask::beginEvent(edm::Event const&, edm::EventSetup const&) {
+  void SelectiveReadoutTask::beginEvent(edm::Event const&, edm::EventSetup const&, bool const&, bool&) {
     flags_.assign(nRU, -1);
     suppressed_.clear();
   }

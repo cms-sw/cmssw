@@ -27,7 +27,6 @@
 
 #include "FWCore/MessageLogger/interface/ELextendedID.h"
 #include "FWCore/MessageLogger/interface/ELmap.h"
-#include "FWCore/MessageLogger/interface/ELstring.h"
 #include "FWCore/MessageService/src/ELdestination.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
@@ -69,9 +68,6 @@ namespace edm {
 
       bool log(const edm::ErrorObj& msg) override;
 
-      // output( const ELstring & item, const ELseverityLevel & sev )
-      // from base class
-
       // ----- Methods invoked by the MessageLoggerScribe, bypassing destControl
       //
     public:
@@ -89,9 +85,6 @@ namespace edm {
 
       std::map<ELextendedID, StatsCount> statisticsMap() const;
 
-      // summarization( const ELstring & sumLines, const ELstring & sumLines )
-      // from base class
-
     protected:
       int tableLimit;
       ELmap_stats stats;
@@ -101,7 +94,7 @@ namespace edm {
       bool printAtTermination;
 
       CMS_THREAD_SAFE static std::set<std::string> groupedCategories;  // 8/16/07 mf
-      static ELstring formSummary(ELmap_stats& stats);                 // 8/16/07 mf
+      static std::string formSummary(ELmap_stats& stats);              // 8/16/07 mf
 
       // ----  Helper methods specific to MessageLogger applicaton
       //
@@ -109,7 +102,7 @@ namespace edm {
       std::string dualLogName(std::string const& s);
       ELstatistics& operator=(const ELstatistics& orig) = delete;  // verboten
 
-      void summary(std::ostream& os, const ELstring& title);
+      void summary(std::ostream& os, std::string_view title);
 
     };  // ELstatistics
 

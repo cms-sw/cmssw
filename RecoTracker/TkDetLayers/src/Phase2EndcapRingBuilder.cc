@@ -31,7 +31,7 @@ Phase2EndcapRing* Phase2EndcapRingBuilder::build(const GeometricDet* aPhase2Endc
     for (vector<const GeometricDet*>::const_iterator compGeometricDets = allGeometricDets.begin();
          compGeometricDets != allGeometricDets.end();
          compGeometricDets++) {
-      const GeomDet* theGeomDet = theGeomDetGeometry->idToDet((*compGeometricDets)->geographicalID());
+      const GeomDet* theGeomDet = theGeomDetGeometry->idToDet((*compGeometricDets)->geographicalId());
 
       if (fabs((*compGeometricDets)->positionBounds().z()) < fabs(meanZ))
         frontGeomDets.push_back(theGeomDet);
@@ -78,7 +78,7 @@ Phase2EndcapRing* Phase2EndcapRingBuilder::build(const GeometricDet* aPhase2Endc
     for (vector<const GeometricDet*>::const_iterator it = allGeometricDets.begin(); it != allGeometricDets.end();
          it++) {
       compGeometricDets = (*it)->components();
-      const GeomDet* theGeomDet = theGeomDetGeometry->idToDet(compGeometricDets[0]->geographicalID());
+      const GeomDet* theGeomDet = theGeomDetGeometry->idToDet(compGeometricDets[0]->geographicalId());
 
       if (fabs(compGeometricDets[0]->positionBounds().z()) < fabs(meanZ))
         frontGeomDets.push_back(theGeomDet);
@@ -86,7 +86,7 @@ Phase2EndcapRing* Phase2EndcapRingBuilder::build(const GeometricDet* aPhase2Endc
       if (fabs(compGeometricDets[0]->positionBounds().z()) > fabs(meanZ))
         backGeomDets.push_back(theGeomDet);
 
-      const GeomDet* theGeomDetBrother = theGeomDetGeometry->idToDet(compGeometricDets[1]->geographicalID());
+      const GeomDet* theGeomDetBrother = theGeomDetGeometry->idToDet(compGeometricDets[1]->geographicalId());
 
       if (fabs(compGeometricDets[1]->positionBounds().z()) < fabs(meanZBrothers))
         frontGeomDetBrothers.push_back(theGeomDetBrother);

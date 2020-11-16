@@ -18,3 +18,9 @@ REGISTER_PLUGIN(L1TGlobalParametersRcd, L1TGlobalParameters);
 #include "CondFormats/DataRecord/interface/L1TGlobalPrescalesVetosO2ORcd.h"
 REGISTER_PLUGIN(L1TGlobalPrescalesVetosRcd, L1TGlobalPrescalesVetos);
 REGISTER_PLUGIN(L1TGlobalPrescalesVetosO2ORcd, L1TGlobalPrescalesVetos);
+
+#include "CondFormats/L1TObjects/interface/L1TGlobalPrescalesVetosFract.h"
+#include "CondFormats/DataRecord/interface/L1TGlobalPrescalesVetosFractRcd.h"
+#include "CondFormats/DataRecord/interface/L1TGlobalPrescalesVetosFractO2ORcd.h"
+REGISTER_PLUGIN(L1TGlobalPrescalesVetosFractRcd, L1TGlobalPrescalesVetosFract);
+REGISTER_PLUGIN(L1TGlobalPrescalesVetosFractO2ORcd, L1TGlobalPrescalesVetosFract);

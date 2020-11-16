@@ -743,7 +743,7 @@ class TkAlMap:
     def clean_up(self):
         if not self.is_cleaned:
             print('TkAlMap: deleting temporary file "'+self.tmp_file_name+'"')
-            self.tmp_file.Delete()
+            self.tmp_file.Close()
             os.remove(self.tmp_file_name)
             self.is_cleaned = True
 

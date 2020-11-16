@@ -114,6 +114,8 @@ private:
   const edm::EDGetTokenT<edm::View<reco::Candidate>> pfCandsToken_;
   const edm::EDGetToken particleBasedIsolationToken_;
 
+  const EcalClusterLazyTools::ESGetTokens ecalClusterToolsESGetTokens_;
+
   const bool isAOD_;
 };
 
@@ -158,14 +160,15 @@ const unsigned char PT_MIN_THRESH = 0x8;
 
 PhotonIDValueMapProducer::PhotonIDValueMapProducer(const edm::ParameterSet& cfg)
     : usesES_(!cfg.getParameter<edm::InputTag>("esReducedRecHitCollection").label().empty()),
-      src_(consumes<edm::View<reco::Photon>>(cfg.getParameter<edm::InputTag>("src"))),
-      ebRecHits_(consumes<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("ebReducedRecHitCollection"))),
-      eeRecHits_(consumes<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("eeReducedRecHitCollection"))),
-      esRecHits_(consumes<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("esReducedRecHitCollection"))),
-      vtxToken_(consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vertices"))),
-      pfCandsToken_(consumes<edm::View<reco::Candidate>>(cfg.getParameter<edm::InputTag>("pfCandidates"))),
+      src_(consumes(cfg.getParameter<edm::InputTag>("src"))),
+      ebRecHits_(consumes(cfg.getParameter<edm::InputTag>("ebReducedRecHitCollection"))),
+      eeRecHits_(consumes(cfg.getParameter<edm::InputTag>("eeReducedRecHitCollection"))),
+      esRecHits_(consumes(cfg.getParameter<edm::InputTag>("esReducedRecHitCollection"))),
+      vtxToken_(consumes(cfg.getParameter<edm::InputTag>("vertices"))),
+      pfCandsToken_(consumes(cfg.getParameter<edm::InputTag>("pfCandidates"))),
       particleBasedIsolationToken_(mayConsume<edm::ValueMap<std::vector<reco::PFCandidateRef>>>(
           cfg.getParameter<edm::InputTag>("particleBasedIsolation")) /* ...only for AOD... */),
+      ecalClusterToolsESGetTokens_{consumesCollector()},
       isAOD_(cfg.getParameter<bool>("isAOD")) {
   // Declare producibles
   for (int i = 0; i < nVars_; ++i)
@@ -190,8 +193,10 @@ void PhotonIDValueMapProducer::produce(edm::StreamID, edm::Event& iEvent, const 
   }
 
   // Configure Lazy Tools, which will compute 5x5 quantities
-  auto lazyToolnoZS = usesES_ ? noZS::EcalClusterLazyTools(iEvent, iSetup, ebRecHits_, eeRecHits_, esRecHits_)
-                              : noZS::EcalClusterLazyTools(iEvent, iSetup, ebRecHits_, eeRecHits_);
+  auto const& ecalClusterToolsESData = ecalClusterToolsESGetTokens_.get(iSetup);
+  auto lazyToolnoZS =
+      usesES_ ? noZS::EcalClusterLazyTools(iEvent, ecalClusterToolsESData, ebRecHits_, eeRecHits_, esRecHits_)
+              : noZS::EcalClusterLazyTools(iEvent, ecalClusterToolsESData, ebRecHits_, eeRecHits_);
 
   // Get PV
   if (vertices->empty())

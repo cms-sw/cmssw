@@ -8,7 +8,7 @@ using namespace dd4hep;
 using namespace cms;
 using namespace cms_units::operators;
 
-static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e, SensitiveDetector& /* sens */) {
+static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e) {
   cms::DDNamespace ns(ctxt, e, true);
   DDAlgoArguments args(ctxt, e);
   Volume mother = ns.volume(args.parentName());
@@ -164,7 +164,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     tag = "Stereo";
   //usefull constants
   const double topFrameEndZ = 0.5 * (-waferPosition + fullHeight) + pitchHeight + hybridHeight - topFrameHeight;
-  string idName = ns.prepend(ns.realName(mother.name()));
+  string idName = ns.noNamespace(mother.name());
   edm::LogVerbatim("TECGeom") << "idName: " << idName << " parent " << mother.name() << " namespace " << ns.name();
   Solid solid;
 

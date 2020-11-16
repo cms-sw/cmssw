@@ -33,9 +33,8 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -58,7 +57,7 @@
 // class decleration
 //
 
-class CosmicSplitterValidation : public edm::EDAnalyzer {
+class CosmicSplitterValidation : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit CosmicSplitterValidation(const edm::ParameterSet&);
   ~CosmicSplitterValidation() override;
@@ -70,6 +69,7 @@ private:
 
   bool is_gold_muon(const edm::Event& e);
 
+  const int compressionSettings_;
   edm::InputTag splitTracks_;
   edm::InputTag splitGlobalMuons_;
   edm::InputTag originalTracks_;
@@ -198,7 +198,8 @@ private:
 // constructors and destructor
 //
 CosmicSplitterValidation::CosmicSplitterValidation(const edm::ParameterSet& iConfig)
-    : splitTracks_(iConfig.getParameter<edm::InputTag>("splitTracks")),
+    : compressionSettings_(iConfig.getUntrackedParameter<int>("compressionSettings", -1)),
+      splitTracks_(iConfig.getParameter<edm::InputTag>("splitTracks")),
       splitGlobalMuons_(iConfig.getParameter<edm::InputTag>("splitGlobalMuons")),
       originalTracks_(iConfig.getParameter<edm::InputTag>("originalTracks")),
       originalGlobalMuons_(iConfig.getParameter<edm::InputTag>("originalGlobalMuons")),
@@ -414,6 +415,7 @@ CosmicSplitterValidation::CosmicSplitterValidation(const edm::ParameterSet& iCon
       phiErr_orm_(0),
       ptErr_orm_(0),
       qoverptErr_orm_(0) {
+  usesResource(TFileService::kSharedResource);
   edm::ConsumesCollector&& iC = consumesCollector();
   splitTracksToken_ = iC.consumes<std::vector<reco::Track>>(splitTracks_);
   originalTracksToken_ = iC.consumes<std::vector<reco::Track>>(originalTracks_);
@@ -830,6 +832,10 @@ void CosmicSplitterValidation::analyze(const edm::Event& iEvent, const edm::Even
 // ------------ method called once each job just before starting event loop  ------------
 void CosmicSplitterValidation::beginJob() {
   edm::LogInfo("beginJob") << "Begin Job" << std::endl;
+
+  if (compressionSettings_ > 0) {
+    tfile->file().SetCompressionSettings(compressionSettings_);
+  }
 
   splitterTree_ = tfile->make<TTree>("splitterTree", "splitterTree");
 

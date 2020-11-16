@@ -74,7 +74,7 @@ namespace ecaldqm {
     _dependencies.push_back(Dependency(kEESuperCluster, kEERecHit));
   }
 
-  void ClusterTask::beginEvent(edm::Event const& _evt, edm::EventSetup const& _es) {
+  void ClusterTask::beginEvent(edm::Event const& _evt, edm::EventSetup const& _es, bool const&, bool&) {
     if (!doExtra_)
       return;
 

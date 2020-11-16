@@ -30,21 +30,18 @@ namespace pat {
     }
     ~ModifiedObjectProducer() override {}
 
-    void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup& evs) final {
-      modifier_->setEventContent(evs);
-    }
-
     void produce(edm::Event& evt, const edm::EventSetup& evs) final {
-      edm::Handle<edm::View<T> > input;
+      modifier_->setEventContent(evs);
+
       auto output = std::make_unique<Collection>();
 
-      evt.getByToken(src_, input);
+      auto input = evt.getHandle(src_);
       output->reserve(input->size());
 
       modifier_->setEvent(evt);
 
-      for (auto itr = input->begin(); itr != input->end(); ++itr) {
-        output->push_back(*itr);
+      for (auto const& itr : *input) {
+        output->push_back(itr);
         T& obj = output->back();
         modifier_->modify(obj);
       }

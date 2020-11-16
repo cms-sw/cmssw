@@ -24,12 +24,18 @@ process.MessageLogger = cms.Service(
         INFO = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
             ),
+        FWKINFO = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+            ),
         MTDDigiGeometryAnalyzer = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
             ),
         noLineBreaks = cms.untracked.bool(True)
         ),
     mtdGeometryDD4hep = cms.untracked.PSet(
+        FWKINFO = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+            ),
         INFO = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
             ),

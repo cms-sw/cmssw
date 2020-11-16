@@ -53,8 +53,10 @@ phase2_GEM.toModify(gemEfficiencyAnalyzerTight, etaNbins=cms.untracked.int32(15)
 phase2_GEM.toModify(gemEfficiencyAnalyzerSTA, etaNbins=cms.untracked.int32(15), etaHigh=cms.untracked.double(3.0))
 
 
-gemEfficiencyAnalyzerSeq = cms.Sequence(
+gemEfficiencyAnalyzerTightSeq = cms.Sequence(
     cms.ignore(gemOfflineDQMTightGlbMuons) *
+    gemEfficiencyAnalyzerTight)
+
+gemEfficiencyAnalyzerSTASeq = cms.Sequence(
     cms.ignore(gemOfflineDQMStaMuons) *
-    gemEfficiencyAnalyzerTight *
     gemEfficiencyAnalyzerSTA)

@@ -51,6 +51,12 @@ namespace edm::eventsetup {
     }
 
     ESRecordIndex recordIndexFor(EventSetupRecordKey const& iRK) const noexcept;
+
+    std::pair<std::vector<DataKey>::const_iterator, std::vector<DataKey>::const_iterator> keysForRecord(
+        EventSetupRecordKey const& iRK) const noexcept;
+    ///The sorted list of keys
+    std::vector<EventSetupRecordKey> recordKeys() const noexcept { return recordKeys_; }
+
     // ---------- member functions ---------------------------
     ///This should be called for all records in the list passed to the constructor and
     /// in the same order as the list.

@@ -146,6 +146,11 @@
       <rChild name="testLogicalParts:trunctubs2"/>
       <Translation z="-28.9*m" y="5.9*m" x="0."/>
     </PosPart>
+    <PosPart copyNumber="1333">
+      <rParent name="testLogicalParts:MotherOfAllBoxes"/>
+      <rChild name="testLogicalParts:V_1101"/>
+      <rReflectionRotation name="testRotations:ReflectionY"/>
+    </PosPart>
     <PosPart copyNumber="13">
       <rParent name="testLogicalParts:MotherOfAllBoxes"/>
       <rChild name="testLogicalParts:V_1101"/>

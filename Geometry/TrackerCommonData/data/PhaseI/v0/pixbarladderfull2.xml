@@ -1,0 +1,420 @@
+<?xml version="1.0"?>
+<DDDefinition>
+
+<ConstantsSection label="pixbarladderfull2.xml" eval="true">
+ <Constant name="zero"              value="0.0*fm"/>
+
+<!-- 
+ <Constant name="CFStripThick"      value="0.25*mm"/>
+ <Constant name="CFStripWidth"      value="26.00*mm"/>
+ <Constant name="CFHoleWidth"       value="11.00*mm"/>
+ <Constant name="CFHoleDz"          value="22.00*mm"/>
+ <Constant name="CFHoles"           value="16"/>
+ <Constant name="CFHoleStep"        value="33.00*mm"/>
+-->
+ <Constant name="CFStripThick"      value="0.5*mm"/>
+ <Constant name="CFStripWidth"      value="24.5*mm"/>
+ <Constant name="CFHoleWidth"       value="10.8*mm"/>
+ <Constant name="CFHoleDz"          value="11.8*mm"/>
+ <Constant name="CFHoles"           value="32"/>
+ <Constant name="CFHoleStep"        value="16.8*mm"/>
+ <Constant name="VirtualBaseWidth"  value="21.8*mm"/>
+ <Constant name="BaseWidth"         value="5*mm"/>
+ <Constant name="BaseX"             value="[VirtualBaseWidth]/2-[BaseWidth]/2"/>
+ <Constant name="ROChipWidth"       value="21.16*mm"/>
+ <Constant name="SensorWidth"       value="18.60*mm"/>
+ <Constant name="CableWidth"        value="1.5*mm"/>
+ <Constant name="HybridWidth"       value="18.80*mm"/>
+ <Constant name="CapacitorStripX"   value="8.25*mm"/>
+ <Constant name="ActiveWidth"       value="[SensorWidth]-
+           2*[pixbarladder:SensorEdge]"/>
+ <Constant name="LadderWidth"       value="[CFStripWidth]"/>
+ <Constant name="LadderThick"       value="[CFStripThick]+
+           [pixbarladder:Module23Thick]+[pixbarladder:CableBoxThick]"/>
+ <Constant name="CableBoxY"         value="([LadderThick]-
+           [pixbarladder:CableBoxThick])/2"/>
+ <Constant name="ModuleBoxY"        value="[CableBoxY]-
+           ([pixbarladder:CableBoxThick]+[pixbarladder:Module23Thick])/2"/>
+ <Constant name="CFStripY"          value="[ModuleBoxY]-
+           ([pixbarladder:Module23Thick]+[CFStripThick])/2"/>
+ <Constant name="BaseY"             value="-([pixbarladder:Module23Thick]-
+           [pixbarladder:BaseThick])/2"/>
+ <Constant name="ROChipY"           value="[BaseY]+
+           ([pixbarladder:BaseThick]+[pixbarladder:ROChipThick123])/2"/>
+ <Constant name="SensorY"           value="[ROChipY]+
+           ([pixbarladder:ROChipThick123]+[pixbarladder:SensorThick])/2"/>
+ <Constant name="HybridY"           value="[SensorY]+
+           ([pixbarladder:SensorThick]+[pixbarladder:HybridThick])/2"/>
+ <Constant name="CapacitorY"        value="[HybridY]+
+           ([pixbarladder:HybridThick]+[pixbarladder:CapacitorThick])/2"/>
+ <Constant name="CapacitorStripY"   value="[HybridY]+
+           ([pixbarladder:HybridThick]+[pixbarladder:CapacitorStripThick])/2"/>
+ <Constant name="TBMchipY"   value="[HybridY]+
+           ([pixbarladder:HybridThick]+[pixbarladder:TBMchipThick])/2"/>
+ <Constant name="ModuleCapY"   value="[CapacitorStripY]+
+           ([pixbarladder:CapacitorStripThick]+[pixbarladder:ModuleCapThick])/2"/> 
+ <Constant name="CFHoleZ"           value="-([CFHoles]-1)*[CFHoleStep]/2"/>
+</ConstantsSection>
+
+<SolidSection label="pixbarladderfull2.xml">
+ <Box name="PixelBarrelLadderFull"       dx="[pixbarladderfull2:LadderWidth]/2"
+      dy="[pixbarladderfull2:LadderThick]/2" dz="[pixbarladder:ExternalLength]/2"/>
+ <Box name="PixelBarrelModuleBoxFull"    dx="[pixbarladderfull2:LadderWidth]/2"
+      dy="[pixbarladder:Module23Thick]/2"     dz="[pixbarladder:Length]/2"/>
+ <Box name="PixelBarrelCFStripFull"      dx="[pixbarladderfull2:CFStripWidth]/2"
+      dy="[pixbarladderfull2:CFStripThick]/2" dz="[pixbarladder:Length]/2"/>
+ <Box name="PixelBarrelCableBoxFull"     dx="[pixbarladderfull2:LadderWidth]/2"
+      dy="[pixbarladder:CableBoxThick]/2"   dz="[pixbarladder:ExternalLength]/2"/>
+ <Box name="PixelBarrelModuleFull"       dx="[pixbarladderfull2:LadderWidth]/2"
+      dy="[pixbarladder:Module23Thick]/2"     dz="[pixbarladder:ModuleDz]/2"/>
+ <Box name="PixelBarrelBaseFull"         dx="[pixbarladderfull2:BaseWidth]/2"
+      dy="[pixbarladder:BaseThick]/2"       dz="[pixbarladder:SensorDz]/2"/>
+ <Box name="PixelBarrelROChipFull"       dx="[pixbarladderfull2:ROChipWidth]/2"
+      dy="[pixbarladder:ROChipThick123]/2"     dz="[pixbarladder:ActiveDz]/2"/>
+ <Box name="PixelBarrelSensorFull"       dx="[pixbarladderfull2:SensorWidth]/2"
+      dy="[pixbarladder:SensorThick]/2"     dz="[pixbarladder:SensorDz]/2"/>
+ <Box name="PixelBarrelActiveFull"       dx="[pixbarladderfull2:ActiveWidth]/2"
+      dy="[pixbarladder:ActiveDz]/2"        dz="[pixbarladder:SensorThick]/2"/>
+ <Box name="PixelBarrelHybridFull"       dx="[pixbarladderfull2:HybridWidth]/2"
+      dy="[pixbarladder:HybridThick]/2"     dz="[pixbarladder:HybridDz]/2"/>
+ <Tubs name="PixelBarrelCableBoundle1" rMin="[zero]"    rMax="[pixbarladder:CableBoundleDiameter]/2"
+       dz="[pixbarladder:Cable1Dz]/2"          startPhi="0*deg"        deltaPhi="360*deg"/>
+ <Tubs name="PixelBarrelCableBoundle2" rMin="[zero]"    rMax="[pixbarladder:CableBoundleDiameter]/2"
+       dz="[pixbarladder:Cable2Dz]/2"          startPhi="0*deg"        deltaPhi="360*deg"/>
+ <Tubs name="PixelBarrelCableBoundle3" rMin="[zero]"    rMax="[pixbarladder:CableBoundleDiameter]/2"
+       dz="[pixbarladder:Cable3Dz]/2"          startPhi="0*deg"        deltaPhi="360*deg"/>
+ <Tubs name="PixelBarrelCableBoundle4" rMin="[zero]"    rMax="[pixbarladder:CableBoundleDiameter]/2"
+       dz="[pixbarladder:Cable4Dz]/2"          startPhi="0*deg"        deltaPhi="360*deg"/>
+ <Box name="PixelBarrelCFStripHoleFull"  dx="[pixbarladderfull2:CFHoleWidth]/2"
+      dy="[pixbarladderfull2:CFStripThick]/2" 
+      dz="[pixbarladderfull2:CFHoleDz]/2"/>
+<!--
+ <Box name="PixelBarrelCapacitorFull" dx="[pixbarladder:CapacitorDx]/2"
+      dy="[pixbarladder:CapacitorThick]/2" dz="[pixbarladder:CapacitorDz]/2"/>
+-->
+ <Box name="PixelBarrelCapacitorStripFull" dx="[pixbarladder:CapacitorStripDx]/2"
+      dy="[pixbarladder:CapacitorStripThick]/2" dz="[pixbarladder:CapacitorStripDz]/2"/>
+ <Box name="PixelBarrelTBMFull" dx="[pixbarladder:TBMchipDx]/2"
+      dy="[pixbarladder:TBMchipThick]/2" dz="[pixbarladder:TBMchipDz]/2"/>
+ <Box name="PixelBarrelModuleCapFull"       dx="[pixbarladderfull2:HybridWidth]/2"
+      dy="[pixbarladder:ModuleCapThick]/2"     dz="[pixbarladder:HybridDz]/2"/>
+</SolidSection>
+
+<LogicalPartSection label="pixbarladderfull2.xml">
+ <LogicalPart name="PixelBarrelLadderFull2" category="unspecified">
+  <rSolid name="pixbarladderfull2:PixelBarrelLadderFull"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+ <LogicalPart name="PixelBarrelModuleBoxFull" category="unspecified">
+  <rSolid name="pixbarladderfull2:PixelBarrelModuleBoxFull"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+<!--
+ <LogicalPart name="PixelBarrelCFStripFull" category="unspecified">
+  <rSolid name="pixbarladderfull2:PixelBarrelCFStripFull"/>
+  <rMaterial name="materials:Carbon_fibre_str_Upgrade2"/>
+ </LogicalPart>
+-->
+ <LogicalPart name="PixelBarrelCFStripFull" category="unspecified">
+  <rSolid name="pixbarladderfull2:PixelBarrelCFStripFull"/>
+  <rMaterial name="pixbarmaterial:CFK_Layer3"/>
+ </LogicalPart>
+ <LogicalPart name="PixelBarrelCableBoxFull" category="unspecified">
+  <rSolid name="pixbarladderfull2:PixelBarrelCableBoxFull"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+ <LogicalPart name="PixelBarrelModuleFullMinus" category="unspecified">
+  <rSolid name="pixbarladderfull2:PixelBarrelModuleFull"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+ <LogicalPart name="PixelBarrelModuleFullPlus" category="unspecified">
+  <rSolid name="pixbarladderfull2:PixelBarrelModuleFull"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+ <LogicalPart name="PixelBarrelBaseFull" category="unspecified">
+  <rSolid name="pixbarladderfull2:PixelBarrelBaseFull"/>
+  <rMaterial name="pixbarmaterial:Pix_Bar_Baseplate_Full_Upgrade"/>
+ </LogicalPart>
+ <LogicalPart name="PixelBarrelROChipFull" category="unspecified">
+  <rSolid name="pixbarladderfull2:PixelBarrelROChipFull"/>
+  <rMaterial name="materials:Silicon"/>
+ </LogicalPart>
+ <LogicalPart name="PixelBarrelSensorFull" category="unspecified">
+  <rSolid name="pixbarladderfull2:PixelBarrelSensorFull"/>
+  <rMaterial name="materials:Silicon"/>
+ </LogicalPart>
+ <LogicalPart name="PixelBarrelActiveFull2" category="unspecified">
+  <rSolid name="pixbarladderfull2:PixelBarrelActiveFull"/>
+  <rMaterial name="materials:Silicon"/>
+ </LogicalPart>
+ <LogicalPart name="PixelBarrelHybridFull" category="unspecified">
+  <rSolid name="pixbarladderfull2:PixelBarrelHybridFull"/>
+  <rMaterial name="pixbarmaterial:Pix_Bar_Hybrid_Full"/>
+ </LogicalPart>
+ <LogicalPart name="PixelBarrelCableBoundle1" category="unspecified">
+  <rSolid name="pixbarladderfull2:PixelBarrelCableBoundle1"/>
+  <rMaterial name="pixbarmaterial:Pix_Bar_Cable_Layer234_Upgrade"/>
+ </LogicalPart>
+ <LogicalPart name="PixelBarrelCableBoundle2" category="unspecified">
+  <rSolid name="pixbarladderfull2:PixelBarrelCableBoundle2"/>
+  <rMaterial name="pixbarmaterial:Pix_Bar_Cable_Layer234_Upgrade"/>
+ </LogicalPart>
+ <LogicalPart name="PixelBarrelCableBoundle3" category="unspecified">
+  <rSolid name="pixbarladderfull2:PixelBarrelCableBoundle3"/>
+  <rMaterial name="pixbarmaterial:Pix_Bar_Cable_Layer234_Upgrade"/>
+ </LogicalPart>
+ <LogicalPart name="PixelBarrelCableBoundle4" category="unspecified">
+  <rSolid name="pixbarladderfull2:PixelBarrelCableBoundle4"/>
+  <rMaterial name="pixbarmaterial:Pix_Bar_Cable_Layer234_Upgrade"/>
+ </LogicalPart>
+ <LogicalPart name="PixelBarrelCFStripHoleFull" category="unspecified">
+  <rSolid name="pixbarladderfull2:PixelBarrelCFStripHoleFull"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+<!--
+ <LogicalPart name="PixelBarrelCapacitorFull" category="unspecified">
+  <rSolid name="pixbarladderfull2:PixelBarrelCapacitorFull"/>
+  <rMaterial name="trackermaterial:T_Barium_Titanate"/>
+ </LogicalPart>
+-->
+ <LogicalPart name="PixelBarrelCapacitorStripFull" category="unspecified">
+  <rSolid name="pixbarladderfull2:PixelBarrelCapacitorStripFull"/>
+  <rMaterial name="pixbarmaterial:Pix_Bar_Capacitor"/>
+ </LogicalPart>
+ <LogicalPart name="PixelBarrelTBMFull" category="unspecified">
+  <rSolid name="pixbarladderfull2:PixelBarrelTBMFull"/>
+  <rMaterial name="materials:Silicon"/>
+ </LogicalPart> 
+ <LogicalPart name="PixelBarrelModuleCapFull" category="unspecified">
+  <rSolid name="pixbarladderfull2:PixelBarrelModuleCapFull"/>
+  <rMaterial name="trackermaterial:T_Kapton"/>
+ </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="pixbarladderfull2.xml">
+ <PosPart copyNumber="1">
+   <rParent name="pixbarladderfull2:PixelBarrelLadderFull2"/>
+   <rChild name="pixbarladderfull2:PixelBarrelCableBoxFull"/>
+  <Translation x="[zero]" y="[CableBoxY]" z="[zero]" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="pixbarladderfull2:PixelBarrelLadderFull2"/>
+   <rChild name="pixbarladderfull2:PixelBarrelModuleBoxFull"/>
+  <Translation x="[zero]" y="[ModuleBoxY]" z="[zero]" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="pixbarladderfull2:PixelBarrelLadderFull2"/>
+   <rChild name="pixbarladderfull2:PixelBarrelCFStripFull"/>
+  <Translation x="[zero]" y="[CFStripY]" z="[zero]" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="pixbarladderfull2:PixelBarrelSensorFull"/>
+   <rChild name="pixbarladderfull2:PixelBarrelActiveFull2"/>
+  <rRotation name="pixbarladder:Z2XY"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="pixbarladderfull2:PixelBarrelModuleFullMinus"/>
+   <rChild name="pixbarladderfull2:PixelBarrelBaseFull"/>
+  <Translation x="[BaseX]" y="[BaseY]" z="[zero]" />
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="pixbarladderfull2:PixelBarrelModuleFullMinus"/>
+   <rChild name="pixbarladderfull2:PixelBarrelBaseFull"/>
+  <Translation x="-[BaseX]" y="[BaseY]" z="[zero]" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="pixbarladderfull2:PixelBarrelModuleFullMinus"/>
+   <rChild name="pixbarladderfull2:PixelBarrelROChipFull"/>
+  <Translation x="[zero]" y="[ROChipY]" z="[zero]" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="pixbarladderfull2:PixelBarrelModuleFullMinus"/>
+   <rChild name="pixbarladderfull2:PixelBarrelSensorFull"/>
+  <Translation x="[zero]" y="[SensorY]" z="[zero]" />
+  <rRotation name="pixbarladder:Y180D"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="pixbarladderfull2:PixelBarrelModuleFullMinus"/>
+   <rChild name="pixbarladderfull2:PixelBarrelHybridFull"/>
+  <Translation x="[zero]" y="[HybridY]" z="[zero]" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="pixbarladderfull2:PixelBarrelModuleFullPlus"/>
+   <rChild name="pixbarladderfull2:PixelBarrelBaseFull"/>
+  <Translation x="[BaseX]" y="[BaseY]" z="[zero]" />
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="pixbarladderfull2:PixelBarrelModuleFullPlus"/>
+   <rChild name="pixbarladderfull2:PixelBarrelBaseFull"/>
+  <Translation x="-[BaseX]" y="[BaseY]" z="[zero]" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="pixbarladderfull2:PixelBarrelModuleFullPlus"/>
+   <rChild name="pixbarladderfull2:PixelBarrelROChipFull"/>
+  <Translation x="[zero]" y="[ROChipY]" z="[zero]" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="pixbarladderfull2:PixelBarrelModuleFullPlus"/>
+   <rChild name="pixbarladderfull2:PixelBarrelSensorFull"/>
+  <Translation x="[zero]" y="[SensorY]" z="[zero]" />
+  <rRotation name="pixbarladder:Y180D"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="pixbarladderfull2:PixelBarrelModuleFullPlus"/>
+   <rChild name="pixbarladderfull2:PixelBarrelHybridFull"/>
+  <Translation x="[zero]" y="[HybridY]" z="[zero]" />
+ </PosPart>
+
+  <PosPart copyNumber="1">
+   <rParent name="pixbarladderfull2:PixelBarrelCableBoxFull"/>
+   <rChild name="pixbarladderfull2:PixelBarrelCableBoundle1"/>
+  <Translation x="[pixbarladder:Cable1BoundleX]" y="[zero]" 
+               z="[pixbarladder:Cable1Z]" />
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="pixbarladderfull2:PixelBarrelCableBoxFull"/>
+   <rChild name="pixbarladderfull2:PixelBarrelCableBoundle1"/>
+  <Translation x="[pixbarladder:Cable1BoundleX]" y="[zero]" 
+               z="-[pixbarladder:Cable1Z]" />
+ </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="pixbarladderfull2:PixelBarrelCableBoxFull"/>
+   <rChild name="pixbarladderfull2:PixelBarrelCableBoundle2"/>
+  <Translation x="[pixbarladder:Cable2BoundleX]" y="[zero]" 
+               z="[pixbarladder:Cable2Z]" />
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="pixbarladderfull2:PixelBarrelCableBoxFull"/>
+   <rChild name="pixbarladderfull2:PixelBarrelCableBoundle2"/>
+  <Translation x="[pixbarladder:Cable2BoundleX]" y="[zero]" 
+               z="-[pixbarladder:Cable2Z]" />
+ </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="pixbarladderfull2:PixelBarrelCableBoxFull"/>
+   <rChild name="pixbarladderfull2:PixelBarrelCableBoundle3"/>
+  <Translation x="[pixbarladder:Cable3BoundleX]" y="[zero]" 
+               z="[pixbarladder:Cable3Z]" />
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="pixbarladderfull2:PixelBarrelCableBoxFull"/>
+   <rChild name="pixbarladderfull2:PixelBarrelCableBoundle3"/>
+  <Translation x="[pixbarladder:Cable3BoundleX]" y="[zero]" 
+               z="-[pixbarladder:Cable3Z]" />
+ </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="pixbarladderfull2:PixelBarrelCableBoxFull"/>
+   <rChild name="pixbarladderfull2:PixelBarrelCableBoundle4"/>
+  <Translation x="[pixbarladder:Cable4BoundleX]" y="[zero]" 
+               z="[pixbarladder:Cable4Z]" />
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="pixbarladderfull2:PixelBarrelCableBoxFull"/>
+   <rChild name="pixbarladderfull2:PixelBarrelCableBoundle4"/>
+  <Translation x="[pixbarladder:Cable4BoundleX]" y="[zero]" 
+               z="-[pixbarladder:Cable4Z]" />
+ </PosPart>
+<!--
+ <PosPart copyNumber="1">
+   <rParent name="pixbarladderfull2:PixelBarrelModuleFullPlus"/>
+   <rChild name="pixbarladderfull2:PixelBarrelCapacitorFull"/>
+  <Translation x="[zero]" y="[pixbarladderfull2:CapacitorY]" 
+               z="[pixbarladder:CapacitorZ]" />
+ </PosPart>
+-->
+ <PosPart copyNumber="1">
+   <rParent name="pixbarladderfull2:PixelBarrelModuleFullPlus"/>
+   <rChild name="pixbarladderfull2:PixelBarrelCapacitorStripFull"/>
+  <Translation x="[pixbarladderfull2:CapacitorStripX]" y="[pixbarladderfull2:CapacitorStripY]" 
+               z="[zero]" />
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="pixbarladderfull2:PixelBarrelModuleFullPlus"/>
+   <rChild name="pixbarladderfull2:PixelBarrelCapacitorStripFull"/>
+  <Translation x="-[pixbarladderfull2:CapacitorStripX]" y="[pixbarladderfull2:CapacitorStripY]" 
+               z="[zero]" />
+ </PosPart>
+<!--
+ <PosPart copyNumber="1">
+   <rParent name="pixbarladderfull2:PixelBarrelModuleFullMinus"/>
+   <rChild name="pixbarladderfull2:PixelBarrelCapacitorFull"/>
+  <Translation x="[zero]" y="[pixbarladderfull2:CapacitorY]" 
+               z="-[pixbarladder:CapacitorZ]" />
+ </PosPart>
+-->
+ <PosPart copyNumber="1">
+   <rParent name="pixbarladderfull2:PixelBarrelModuleFullMinus"/>
+   <rChild name="pixbarladderfull2:PixelBarrelCapacitorStripFull"/>
+  <Translation x="[pixbarladderfull2:CapacitorStripX]" y="[pixbarladderfull2:CapacitorStripY]" 
+               z="[zero]" />
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="pixbarladderfull2:PixelBarrelModuleFullMinus"/>
+   <rChild name="pixbarladderfull2:PixelBarrelCapacitorStripFull"/>
+  <Translation x="-[pixbarladderfull2:CapacitorStripX]" y="[pixbarladderfull2:CapacitorStripY]" 
+               z="[zero]" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="pixbarladderfull2:PixelBarrelModuleFullMinus"/>
+   <rChild name="pixbarladderfull2:PixelBarrelTBMFull"/>
+  <Translation x="[zero]" y="[pixbarladderfull2:TBMchipY]" 
+               z="[zero]" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="pixbarladderfull2:PixelBarrelModuleFullMinus"/>
+   <rChild name="pixbarladderfull2:PixelBarrelModuleCapFull"/>
+  <Translation x="[zero]" y="[pixbarladderfull2:ModuleCapY]" 
+               z="[zero]" />
+ </PosPart> 
+ <PosPart copyNumber="1">
+   <rParent name="pixbarladderfull2:PixelBarrelModuleFullPlus"/>
+   <rChild name="pixbarladderfull2:PixelBarrelTBMFull"/>
+  <Translation x="[zero]" y="[pixbarladderfull2:TBMchipY]" 
+               z="[zero]" />
+ </PosPart> 
+ <PosPart copyNumber="1">
+   <rParent name="pixbarladderfull2:PixelBarrelModuleFullPlus"/>
+   <rChild name="pixbarladderfull2:PixelBarrelModuleCapFull"/>
+  <Translation x="[zero]" y="[pixbarladderfull2:ModuleCapY]" 
+               z="[zero]" />
+ </PosPart>
+</PosPartSection>
+
+<Algorithm name="track:DDTrackerLinear">
+  <rParent name="pixbarladderfull2:PixelBarrelModuleBoxFull"/>
+  <String name="ChildName"    value="pixbarladderfull2:PixelBarrelModuleFullMinus"/>
+  <Numeric name="Number"      value="[pixbarladder:ModulesPerSide]"/>
+  <Numeric name="Theta"       value="0*deg"/>
+  <Numeric name="Phi"         value="0*deg"/>
+  <Numeric name="Offset"      value="[pixbarladder:ModuleZ]" />
+  <Numeric name="Delta"       value="[pixbarladder:ModuleDz]"/>
+  <String name="Rotation"     value="pixbarladder:NULL" />
+  <Vector name="Center" type="numeric" nEntries="3"> 
+    [zero], [zero], [zero] </Vector>
+</Algorithm>
+<Algorithm name="track:DDTrackerLinear">
+  <rParent name="pixbarladderfull2:PixelBarrelModuleBoxFull"/>
+  <String name="ChildName"    value="pixbarladderfull2:PixelBarrelModuleFullPlus"/>
+  <Numeric name="Number"      value="[pixbarladder:ModulesPerSide]"/>
+  <Numeric name="Theta"       value="0*deg"/>
+  <Numeric name="Phi"         value="0*deg"/>
+  <Numeric name="Offset"      value="[pixbarladder:ModuleZ]+[pixbarladder:ModuleDz]*[pixbarladder:ModulesPerSide]" />
+  <Numeric name="Delta"       value="[pixbarladder:ModuleDz]"/>
+  <String name="Rotation"     value="pixbarladder:NULL" />
+  <Vector name="Center" type="numeric" nEntries="3"> 
+    [zero], [zero], [zero] </Vector>
+</Algorithm>
+
+<Algorithm name="track:DDTrackerLinear">
+  <rParent name="pixbarladderfull2:PixelBarrelCFStripFull"/>
+  <String name="ChildName"    value="pixbarladderfull2:PixelBarrelCFStripHoleFull"/>
+  <Numeric name="Number"      value="[CFHoles]"/>
+  <Numeric name="Theta"       value="0*deg"/>
+  <Numeric name="Phi"         value="0*deg"/>
+  <Numeric name="Offset"      value="[CFHoleZ]" />
+  <Numeric name="Delta"       value="[CFHoleStep]"/>
+  <String name="Rotation"     value="pixbarladder:NULL" />
+  <Vector name="Center" type="numeric" nEntries="3"> 
+    [zero], [zero], [zero] </Vector>
+</Algorithm>
+
+</DDDefinition>

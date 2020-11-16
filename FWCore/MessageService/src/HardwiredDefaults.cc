@@ -45,7 +45,6 @@ namespace edm {
     void MessageLoggerDefaults::hardwireGridJobMode() {
       //	std::cerr << " ======= hardwireGridJobMode() \n";
       destinations.push_back("cerr");
-      categories.push_back("FwkJob");
       categories.push_back("FwkReport");
       categories.push_back("FwkSummary");
       categories.push_back("Root_NoDictionary");
@@ -70,23 +69,10 @@ namespace edm {
         FwkSummary.limit = 10000000;  // int32 limit = 10000000
         FwkSummary.reportEvery = 1;   // int32 reportEvery = 1
         cerr.category["FwkSummary"] = FwkSummary;
-        Category FwkJob;   // PSet FwkJob
-        FwkJob.limit = 0;  // int32 limit = 0
-        cerr.category["FwkJob"] = FwkJob;
         Category Root_NoDictionary;   // PSet Root_NoDictionary
         Root_NoDictionary.limit = 0;  // int32 limit = 0
         cerr.category["Root_NoDictionary"] = Root_NoDictionary;
         destination["cerr"] = cerr;
-      }
-      {
-        Destination FrameworkJobReport;  // PSet FrameworkJobReport
-        Category default_for_dest;       // PSet default
-        default_for_dest.limit = 0;      // int32 limit = 0
-        FrameworkJobReport.category["default"] = default_for_dest;
-        Category FwkJob;          // PSet FwkJob
-        FwkJob.limit = 10000000;  // int32 limit = 10000000
-        FrameworkJobReport.category["FwkJob"] = FwkJob;
-        destination["FrameworkJobReport"] = FrameworkJobReport;
       }
       {
         Destination cerr_stats;            // PSet cerr_stats
@@ -100,7 +86,6 @@ namespace edm {
     void MessageLoggerDefaults::hardwireReleaseValidationJobMode() {
       //	std::cerr << " ======= hardwireReleaseValidationJobMode() \n";
       destinations.push_back("cerr");
-      categories.push_back("FwkJob");
       categories.push_back("FwkReport");
       categories.push_back("FwkSummary");
       categories.push_back("Root_NoDictionary");
@@ -125,23 +110,10 @@ namespace edm {
         FwkSummary.limit = 10000000;  // int32 limit = 10000000
         FwkSummary.reportEvery = 1;   // int32 reportEvery = 1
         cerr.category["FwkSummary"] = FwkSummary;
-        Category FwkJob;   // PSet FwkJob
-        FwkJob.limit = 0;  // int32 limit = 0
-        cerr.category["FwkJob"] = FwkJob;
         Category Root_NoDictionary;   // PSet Root_NoDictionary
         Root_NoDictionary.limit = 0;  // int32 limit = 0
         cerr.category["Root_NoDictionary"] = Root_NoDictionary;
         destination["cerr"] = cerr;
-      }
-      {
-        Destination FrameworkJobReport;  // PSet FrameworkJobReport
-        Category default_for_dest;       // PSet default
-        default_for_dest.limit = 0;      // int32 limit = 0
-        FrameworkJobReport.category["default"] = default_for_dest;
-        Category FwkJob;          // PSet FwkJob
-        FwkJob.limit = 10000000;  // int32 limit = 10000000
-        FrameworkJobReport.category["FwkJob"] = FwkJob;
-        destination["FrameworkJobReport"] = FrameworkJobReport;
       }
       {
         Destination cerr_stats;         // PSet cerr_stats
@@ -155,7 +127,6 @@ namespace edm {
     void MessageLoggerDefaults::hardwireAnalysisJobMode() {
       //	std::cerr << " ======= hardwireAnalysisJobMode() \n";
       destinations.push_back("warnings");
-      categories.push_back("FwkJob");
       categories.push_back("FwkReport");
       categories.push_back("FwkSummary");
       categories.push_back("Root_NoDictionary");
@@ -179,9 +150,6 @@ namespace edm {
         Category FwkSummary;          // PSet FwkSummary
         FwkSummary.limit = 10000000;  // int32 limit = 10000000
         warnings.category["FwkSummary"] = FwkSummary;
-        Category FwkJob;   // PSet FwkJob
-        FwkJob.limit = 0;  // int32 limit = 0
-        warnings.category["FwkJob"] = FwkJob;
         Category Root_NoDictionary;   // PSet Root_NoDictionary
         Root_NoDictionary.limit = 0;  // int32 limit = 0
         warnings.category["Root_NoDictionary"] = Root_NoDictionary;

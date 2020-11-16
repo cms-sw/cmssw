@@ -1,8 +1,10 @@
 <use name="DataFormats/GeometrySurface"/>
 <use name="DataFormats/MuonDetId"/>
 <use name="DetectorDescription/Core"/>
+<use name="DetectorDescription/DDCMS"/>
 <use name="Geometry/DTGeometry"/>
 <use name="Geometry/MuonNumbering"/>
+<use name="dd4hep"/>
 <use name="clhep"/>
 <export>
   <lib name="GeometryDTGeometryBuilder"/>

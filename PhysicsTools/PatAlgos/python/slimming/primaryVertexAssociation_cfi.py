@@ -8,3 +8,6 @@ primaryVertexAssociation = sortedPFPrimaryVertices.clone(
   produceNoPileUpCollection = cms.bool(False)
 )
 
+from Configuration.ProcessModifiers.run2_miniAOD_pp_on_AA_103X_cff import run2_miniAOD_pp_on_AA_103X
+run2_miniAOD_pp_on_AA_103X.toModify(primaryVertexAssociation,particles = "cleanedParticleFlow")
+primaryVertexAssociationCleaned = primaryVertexAssociation.clone(particles = "cleanedParticleFlow:removed")

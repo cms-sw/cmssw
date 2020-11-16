@@ -3,16 +3,16 @@
 const CmsMTDStringToEnum::Impl CmsMTDStringToEnum::m_impl;
 
 CmsMTDStringToEnum::Impl::Impl() {
-  _map.emplace("FastTimerRegion", GeometricTimingDet::MTD);
-  _map.emplace("BarrelTimingLayer", GeometricTimingDet::BTL);
-  _map.emplace("Layer1", GeometricTimingDet::BTLLayer);
-  _map.emplace("Layer1Timing", GeometricTimingDet::BTLLayer);
-  _map.emplace("BModule", GeometricTimingDet::BTLModule);
-  _map.emplace("EndcapTimingLayer", GeometricTimingDet::ETL);
-  _map.emplace("Disc1", GeometricTimingDet::ETLDisc);
-  _map.emplace("Disc1Timing", GeometricTimingDet::ETLDisc);
-  _map.emplace("Disc2Timing", GeometricTimingDet::ETLDisc);
-  _map.emplace("EModule", GeometricTimingDet::ETLModule);
+  map_.emplace("FastTimerRegion", GeometricTimingDet::MTD);
+  map_.emplace("BarrelTimingLayer", GeometricTimingDet::BTL);
+  map_.emplace("Layer1", GeometricTimingDet::BTLLayer);
+  map_.emplace("Layer1Timing", GeometricTimingDet::BTLLayer);
+  map_.emplace("BModule", GeometricTimingDet::BTLModule);
+  map_.emplace("EndcapTimingLayer", GeometricTimingDet::ETL);
+  map_.emplace("Disc1", GeometricTimingDet::ETLDisc);
+  map_.emplace("Disc1Timing", GeometricTimingDet::ETLDisc);
+  map_.emplace("Disc2Timing", GeometricTimingDet::ETLDisc);
+  map_.emplace("EModule", GeometricTimingDet::ETLModule);
 }
 
 GeometricTimingDet::GeometricTimingEnumType CmsMTDStringToEnum::type(std::string const& s) const {

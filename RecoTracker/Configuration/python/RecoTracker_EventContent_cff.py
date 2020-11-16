@@ -18,10 +18,10 @@ RecoTrackerAOD = cms.PSet(
     )
 )
 #HI-specific products: needed in AOD, propagate to more inclusive tiers as well
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-pp_on_AA_2018.toModify( RecoTrackerAOD.outputCommands, 
-                        func=lambda outputCommands: outputCommands.extend(['keep recoTracks_hiConformalPixelTracks_*_*'])
-                        )
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toModify( RecoTrackerAOD.outputCommands, 
+                   func=lambda outputCommands: outputCommands.extend(['keep recoTracks_hiConformalPixelTracks_*_*'])
+)
 #RECO content
 RecoTrackerRECO = cms.PSet(
     outputCommands = cms.untracked.vstring(
@@ -38,12 +38,12 @@ RecoTrackerRECO = cms.PSet(
     )
 )
 RecoTrackerRECO.outputCommands.extend(RecoTrackerAOD.outputCommands)
-pp_on_AA_2018.toModify( RecoTrackerRECO.outputCommands, 
-                        func=lambda outputCommands: outputCommands.extend([
-			'keep recoTrackExtras_hiConformalPixelTracks_*_*',
-                        'keep TrackingRecHitsOwned_hiConformalPixelTracks_*_*'
-                                                                           ])
-                        )
+pp_on_AA.toModify( RecoTrackerRECO.outputCommands, 
+                   func=lambda outputCommands: outputCommands.extend([
+                       'keep recoTrackExtras_hiConformalPixelTracks_*_*',
+                       'keep TrackingRecHitsOwned_hiConformalPixelTracks_*_*'
+                   ])
+)
 #Full Event content 
 RecoTrackerFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring()

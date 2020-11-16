@@ -1,11 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-from L1Trigger.CSCCommonTrigger.CSCCommonTrigger_cfi import *
+from L1Trigger.CSCTriggerPrimitives.CSCCommonTrigger_cfi import *
 csctfpacker = cms.EDProducer("CSCTFPacker",
     CSCCommonTrigger,
-    # the above "using" statement is equivalent to settings below:
-    #   int32 MinBX = 3
-    #   int32 MaxBX = 9
     zeroSuppression = cms.bool(True),
     outputFile = cms.string(''),
     lctProducer = cms.InputTag("simCscTriggerPrimitiveDigis","MPCSORTED"),

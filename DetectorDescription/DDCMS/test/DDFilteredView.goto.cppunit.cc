@@ -26,8 +26,10 @@ public:
 
 private:
   void printMe(const cms::DDFilteredView&);
+  double refRadLength_ = 0.03142;
+  double refXi_ = 6.24526e-05;
   std::string fileName_;
-  std::vector<int> refPos_{0, 0, 4, 2, 2, 1};
+  std::vector<int> refPos_{0, 0, 6, 2, 2};
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(testDDFilteredViewGoTo);
@@ -49,11 +51,24 @@ void testDDFilteredViewGoTo::checkFilteredView() {
     if (count == 45) {
       testPos = fview.navPos();
     }
-    if (count == 100) {
+    if (count == 50) {
       break;
     }
     count++;
   }
+
+  // world_volume/OCMS_1/CMSE_1/Tracker_1/PixelBarrel_1/pixbarlayer0:PixelBarrelLayer0_1/PixelBarrelLadderFull0_6/PixelBarrelModuleBoxFull_1/PixelBarrelModuleFullPlus_4/PixelBarrelSensorFull_1/PixelBarrelActiveFull0_1
+  //
+  std::vector<int> activeVol{0, 0, 6, 2, 93, 12, 1, 7, 1, 0};
+  fview.goTo(activeVol);
+  printMe(fview);
+
+  double radLength = fview.get<double>("TrackerRadLength");
+  double xi = fview.getNextValue("TrackerXi");
+  CPPUNIT_ASSERT(radLength == refRadLength_);
+  CPPUNIT_ASSERT(xi == refXi_);
+
+  std::cout << "TrackerRadLength = " << radLength << "\nTrackerXi = " << xi << "\n";
 
   std::cout << "\n==== Let's go to #45\n";
   fview.goTo(testPos);
@@ -70,8 +85,8 @@ void testDDFilteredViewGoTo::checkFilteredView() {
 
   // Start with Tracker
   std::cout << "\n==== Let's go to Tracker\n";
-  fview.goTo({0, 0, 4});
-  CPPUNIT_ASSERT(fview.name() == "Tracker");
+  fview.goTo({0, 0, 6});
+  CPPUNIT_ASSERT(fview.fullName() == "tracker:Tracker");
   printMe(fview);
 
   // Go to the first daughter
@@ -107,7 +122,7 @@ void testDDFilteredViewGoTo::checkFilteredView() {
   printMe(fview);
 
   std::cout << "\n==== Let's do it again, go to Tracker\n";
-  fview.goTo({0, 0, 4});
+  fview.goTo({0, 0, 6});
   CPPUNIT_ASSERT(fview.name() == "Tracker");
   printMe(fview);
 

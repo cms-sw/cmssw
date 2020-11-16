@@ -26,7 +26,7 @@
 // class declaration
 //
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 namespace AlCaIsolatedBunch {
   struct Counters {
@@ -76,8 +76,9 @@ AlCaIsolatedBunchSelector::AlCaIsolatedBunchSelector(const edm::ParameterSet& iC
   // define tokens for access
   tok_trigRes_ = consumes<edm::TriggerResults>(theTriggerResultsLabel_);
 
-  edm::LogInfo("AlCaIsoBunch") << "Input tag for trigger results " << theTriggerResultsLabel_ << " with trigger name "
-                               << trigName_ << " and process " << processName_ << std::endl;
+  edm::LogVerbatim("AlCaIsoBunch") << "Input tag for trigger results " << theTriggerResultsLabel_
+                                   << " with trigger name " << trigName_ << " and process " << processName_
+                                   << std::endl;
 }
 
 AlCaIsolatedBunchSelector::~AlCaIsolatedBunchSelector() {}
@@ -90,9 +91,9 @@ AlCaIsolatedBunchSelector::~AlCaIsolatedBunchSelector() {}
 bool AlCaIsolatedBunchSelector::filter(edm::Event& iEvent, edm::EventSetup const& iSetup) {
   bool accept(false);
   ++nAll_;
-#ifdef DebugLog
-  edm::LogInfo("AlCaIsoBunch") << "Run " << iEvent.id().run() << " Event " << iEvent.id().event() << " Luminosity "
-                               << iEvent.luminosityBlock() << " Bunch " << iEvent.bunchCrossing() << std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("AlCaIsoBunch") << "Run " << iEvent.id().run() << " Event " << iEvent.id().event() << " Luminosity "
+                                   << iEvent.luminosityBlock() << " Bunch " << iEvent.bunchCrossing() << std::endl;
 #endif
   //Step1: Find if the event passes the chosen trigger
   edm::Handle<edm::TriggerResults> triggerResults;
@@ -105,9 +106,9 @@ bool AlCaIsolatedBunchSelector::filter(edm::Event& iEvent, edm::EventSetup const
       if (triggerNames_[iHLT].find(trigName_) != std::string::npos) {
         if (hlt > 0) {
           accept = true;
-#ifdef DebugLog
-          edm::LogInfo("AlCaIsoBunch") << triggerNames_[iHLT] << " has got HLT flag " << hlt << ":" << accept
-                                       << std::endl;
+#ifdef EDM_ML_DEBUG
+          edm::LogVerbatim("AlCaIsoBunch")
+              << triggerNames_[iHLT] << " has got HLT flag " << hlt << ":" << accept << std::endl;
 #endif
           break;
         }
@@ -128,19 +129,19 @@ void AlCaIsolatedBunchSelector::endStream() {
 }
 
 void AlCaIsolatedBunchSelector::globalEndJob(const AlCaIsolatedBunch::Counters* count) {
-  edm::LogInfo("AlCaIsoBunch") << "Selects " << count->nGood_ << " in " << count->nAll_ << " events" << std::endl;
+  edm::LogVerbatim("AlCaIsoBunch") << "Selects " << count->nGood_ << " in " << count->nAll_ << " events" << std::endl;
 }
 
 // ------------ method called when starting to processes a run  ------------
 void AlCaIsolatedBunchSelector::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
   bool changed(false);
-  edm::LogInfo("AlCaIsoBunch") << "Run[" << nRun_ << "] " << iRun.run() << " hltconfig.init "
-                               << hltConfig_.init(iRun, iSetup, processName_, changed) << std::endl;
+  edm::LogVerbatim("AlCaIsoBunch") << "Run[" << nRun_ << "] " << iRun.run() << " hltconfig.init "
+                                   << hltConfig_.init(iRun, iSetup, processName_, changed) << std::endl;
 }
 // ------------ method called when ending the processing of a run  ------------
 void AlCaIsolatedBunchSelector::endRun(edm::Run const& iRun, edm::EventSetup const&) {
   ++nRun_;
-  edm::LogInfo("AlCaIsoBunch") << "endRun[" << nRun_ << "] " << iRun.run() << std::endl;
+  edm::LogVerbatim("AlCaIsoBunch") << "endRun[" << nRun_ << "] " << iRun.run() << std::endl;
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

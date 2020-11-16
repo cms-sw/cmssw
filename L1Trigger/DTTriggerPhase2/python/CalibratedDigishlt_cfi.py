@@ -17,6 +17,7 @@ CalibratedDigis = cms.EDProducer("CalibratedDigis",
         doT0Correction = cms.bool(True),
         debug = cms.untracked.bool(False),
         tTrigLabel = cms.string(''),
+        t0Label = cms.string('')
         ),
                                  tTrigMode = cms.string('DTTTrigSyncFromDB'),
                                  timeOffset = cms.int32(0),
