@@ -11,7 +11,6 @@
 #include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-
 namespace {
 
   class SiPixelPhase1RawData final : public SiPixelPhase1Base {
