@@ -27,19 +27,6 @@ SCDynamicDPhiParametersHelper::SCDynamicDPhiParametersHelper(const edm::Paramete
   }
 }
 
-EcalSCDynamicDPhiParameters::DynamicDPhiParameters SCDynamicDPhiParametersHelper::dynamicDPhiParameters(
-    double clustE, double absSeedEta) const {
-  // assume the collection is sorted in descending DynamicDPhiParams.etaMin and descending DynamicDPhiParams.eMin
-  for (const auto &dynamicDPhiParams : dynamicDPhiParametersCollection_) {
-    if (clustE < dynamicDPhiParams.eMin || absSeedEta < dynamicDPhiParams.etaMin) {
-      continue;
-    } else {
-      return dynamicDPhiParams;
-    }
-  }
-  return EcalSCDynamicDPhiParameters::DynamicDPhiParameters();
-}
-
 void SCDynamicDPhiParametersHelper::addDynamicDPhiParameters(
     const EcalSCDynamicDPhiParameters::DynamicDPhiParameters &params) {
   dynamicDPhiParametersCollection_.emplace_back(params);
