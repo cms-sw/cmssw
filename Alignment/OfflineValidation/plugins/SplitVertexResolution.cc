@@ -105,6 +105,9 @@ private:
   int ievt;
   int itrks;
 
+  // compression settings
+  const int compressionSettings_;
+
   // switch to keep the ntuple
   bool storeNtuple_;
 
@@ -258,7 +261,8 @@ private:
 };
 
 SplitVertexResolution::SplitVertexResolution(const edm::ParameterSet& iConfig)
-    : storeNtuple_(iConfig.getParameter<bool>("storeNtuple")),
+    : compressionSettings_(iConfig.getUntrackedParameter<int>("compressionSettings", -1)),
+      storeNtuple_(iConfig.getParameter<bool>("storeNtuple")),
       intLumi_(iConfig.getUntrackedParameter<double>("intLumi", 0.)),
       debug_(iConfig.getUntrackedParameter<bool>("Debug", false)),
       pvsTag_(iConfig.getParameter<edm::InputTag>("vtxCollection")),
@@ -642,6 +646,10 @@ void SplitVertexResolution::beginRun(edm::Run const& run, edm::EventSetup const&
 void SplitVertexResolution::beginJob() {
   ievt = 0;
   itrks = 0;
+
+  if (compressionSettings_ > 0) {
+    outfile_->file().SetCompressionSettings(compressionSettings_);
+  }
 
   // luminosity histo
   TFileDirectory EventFeatures = outfile_->mkdir("EventFeatures");
