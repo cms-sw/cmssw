@@ -81,9 +81,11 @@ namespace {
     trackerTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
     trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
     propagatorToken_ = esConsumes<Propagator, TrackingComponentsRecord>(edm::ESInputTag("", "PropagatorWithMaterial"));
-    chi2MeasurementEstimatorBaseToken_ = esConsumes<Chi2MeasurementEstimatorBase, TrackingComponentsRecord>(edm::ESInputTag("", "Chi2"));
+    chi2MeasurementEstimatorBaseToken_ =
+        esConsumes<Chi2MeasurementEstimatorBase, TrackingComponentsRecord>(edm::ESInputTag("", "Chi2"));
     measurementTrackerToken_ = esConsumes<MeasurementTracker, CkfComponentsRecord>();
-    pixelClusterParameterEstimatorToken_ = esConsumes<PixelClusterParameterEstimator, TkPixelCPERecord>(edm::ESInputTag("", "PixelCPEGeneric"));
+    pixelClusterParameterEstimatorToken_ =
+        esConsumes<PixelClusterParameterEstimator, TkPixelCPERecord>(edm::ESInputTag("", "PixelCPEGeneric"));
   }
 
   void SiPixelPhase1TrackEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -109,7 +111,8 @@ namespace {
     const_cast<Propagator*>(trackerPropagator_)->setPropagationDirection(oppositeToMomentum);
 
     // Measurement estimator
-    edm::ESHandle<Chi2MeasurementEstimatorBase> chi2MeasurementEstimatorHandle = iSetup.getHandle(chi2MeasurementEstimatorBaseToken_);
+    edm::ESHandle<Chi2MeasurementEstimatorBase> chi2MeasurementEstimatorHandle =
+        iSetup.getHandle(chi2MeasurementEstimatorBaseToken_);
     chi2MeasurementEstimator_ = chi2MeasurementEstimatorHandle.product();
 
     //Tracker

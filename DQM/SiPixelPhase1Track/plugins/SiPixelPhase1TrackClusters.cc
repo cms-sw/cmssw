@@ -101,7 +101,8 @@ namespace {
 
     trackerTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
     trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
-    clusterShapeHitFilterToken_ = esConsumes<ClusterShapeHitFilter, CkfComponentsRecord>(edm::ESInputTag("", "ClusterShapeHitFilter"));
+    clusterShapeHitFilterToken_ =
+        esConsumes<ClusterShapeHitFilter, CkfComponentsRecord>(edm::ESInputTag("", "ClusterShapeHitFilter"));
   }
 
   void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -118,7 +119,7 @@ namespace {
     edm::ESHandle<TrackerGeometry> tracker = iSetup.getHandle(trackerGeomToken_);
     assert(tracker.isValid());
 
-    edm::ESHandle<TrackerTopology> tTopoHandle  = iSetup.getHandle(trackerTopoToken_);
+    edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopoToken_);
     auto const& tkTpl = *tTopoHandle;
 
     edm::ESHandle<ClusterShapeHitFilter> shapeFilterH = iSetup.getHandle(clusterShapeHitFilterToken_);
