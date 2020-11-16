@@ -24,6 +24,10 @@ public:
     COND_SERIALIZABLE;
   };
 
+  float sqrtLogClustETuning() const;
+
+  ParabolaParameters parabolaParameters(float log10ClustE, float absSeedEta) const;
+
   // print parameters to stream:
   void print(std::ostream&) const;
   friend std::ostream& operator<<(std::ostream& out, const EcalMustacheSCParameters& params) {
@@ -34,7 +38,7 @@ public:
 protected:
   float sqrtLogClustETuning_;
 
-  // collection is expected to be sorted in descending ParabolaParameters.etaMax and ascending ParabolaParameters.minEt
+  // collection is expected to be sorted in descending ParabolaParameters.etaMax and descending ParabolaParameters.log10EMin
   std::vector<ParabolaParameters> parabolaParametersCollection_;
 
   COND_SERIALIZABLE;

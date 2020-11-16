@@ -5,18 +5,18 @@
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "RecoEcal/EgammaCoreTools/interface/MustacheSCParametersHelper.h"
-#include "RecoEcal/EgammaCoreTools/interface/SCDynamicDPhiParametersHelper.h"
+#include "CondFormats/EcalObjects/interface/EcalMustacheSCParameters.h"
+#include "CondFormats/EcalObjects/interface/EcalSCDynamicDPhiParameters.h"
 
 namespace reco {
   namespace MustacheKernel {
-    bool inMustache(const MustacheSCParametersHelper* params,
+    bool inMustache(const EcalMustacheSCParameters* params,
                     const float maxEta,
                     const float maxPhi,
                     const float ClustE,
                     const float ClusEta,
                     const float ClusPhi);
-    bool inDynamicDPhiWindow(const SCDynamicDPhiParametersHelper* params,
+    bool inDynamicDPhiWindow(const EcalSCDynamicDPhiParameters* params,
                              const float seedEta,
                              const float seedPhi,
                              const float ClustE,
@@ -27,7 +27,7 @@ namespace reco {
 
   class Mustache {
   public:
-    Mustache(const MustacheSCParametersHelper* mustache_params_helper);
+    Mustache(const EcalMustacheSCParameters* mustache_params);
 
     void MustacheID(const CaloClusterPtrVector& clusters, int& nclusters, float& EoutsideMustache);
     void MustacheID(const std::vector<const CaloCluster*>&, int& nclusers, float& EoutsideMustache);
@@ -59,7 +59,7 @@ namespace reco {
     float LowestClusterEInMustache_;
     int excluded_;
     int included_;
-    const MustacheSCParametersHelper* mustache_params_helper_;
+    const EcalMustacheSCParameters* mustache_params_;
   };
 
 }  // namespace reco

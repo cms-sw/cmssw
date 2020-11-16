@@ -12,10 +12,8 @@ namespace reco {
     MustacheSCParametersHelper(const edm::ParameterSet &iConfig);
     ~MustacheSCParametersHelper() override{};
 
-    float sqrtLogClustETuning() const;
     void setSqrtLogClustETuning(const float sqrtLogClustETuning);
 
-    ParabolaParameters parabolaParameters(float log10ClustE, float absSeedEta) const;
     void addParabolaParameters(const EcalMustacheSCParameters::ParabolaParameters &params);
     void sortParabolaParametersCollection();
   };

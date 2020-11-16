@@ -12,7 +12,6 @@ namespace reco {
     SCDynamicDPhiParametersHelper(const edm::ParameterSet &iConfig);
     ~SCDynamicDPhiParametersHelper() override{};
 
-    DynamicDPhiParameters dynamicDPhiParameters(double clustE, double absSeedEta) const;
     void addDynamicDPhiParameters(const EcalSCDynamicDPhiParameters::DynamicDPhiParameters &params);
     void sortDynamicDPhiParametersCollection();
   };
