@@ -481,6 +481,13 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('y', 'y', 20, -20, 20, 'local track y'),
             )
         ),
+        PSWeight = cms.PSet(
+            sels = cms.PSet(),
+            plots = cms.VPSet(
+                Plot1D('', '', 20, 0, 2, 'All PS weights (w_var / w_nominal)'),
+                Count1D('_size', 46, -0.5, 45.5, 'Number of PS weights'),
+            )
+        ),
         PV = cms.PSet(
             sels = cms.PSet(),
             plots = cms.VPSet(

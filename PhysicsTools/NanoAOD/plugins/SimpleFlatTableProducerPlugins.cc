@@ -15,9 +15,13 @@ typedef SimpleFlatTableProducer<reco::ForwardProton> SimpleProtonTrackFlatTableP
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 typedef SimpleFlatTableProducer<CTPPSLocalTrackLite> SimpleLocalTrackFlatTableProducer;
 
+#include "DataFormats/Math/interface/Point3D.h"
+typedef EventSingletonSimpleFlatTableProducer<math::XYZPointF> SimpleXYZPointFlatTableProducer;
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SimpleCandidateFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleGenEventFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleHTXSFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleProtonTrackFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleLocalTrackFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleXYZPointFlatTableProducer);
