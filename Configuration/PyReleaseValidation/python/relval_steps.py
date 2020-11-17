@@ -3231,10 +3231,10 @@ steps['NanoFullBadHcalMitig']=merge([{'--era' : 'Run2_2018,pf_badHcalMitigation'
 from  Configuration.PyReleaseValidation.upgradeWorkflowComponents import *
 
 # imported from above, only non-empty values should be provided here
-defaultDataSets['2017']='CMSSW_10_6_17_patch1-106X_mc2017_realistic_v7-v'
-defaultDataSets['2017Design']='CMSSW_10_6_17_patch1-106X_mc2017_design_IdealBS_v5-v'
-defaultDataSets['2018']='CMSSW_10_6_17_patch1-106X_upgrade2018_realistic_v11-v'
-defaultDataSets['2018Design']='CMSSW_10_6_17_patch1-106X_upgrade2018_design_v6-v'
+defaultDataSets['2017']='CMSSW_11_2_0_pre8-112X_mc2017_realistic_v3-v'
+defaultDataSets['2017Design']='CMSSW_11_2_0_pre8-112X_mc2017_design_v1-v'
+defaultDataSets['2018']='CMSSW_11_2_0_pre8-112X_upgrade2018_realistic_v4-v'
+defaultDataSets['2018Design']='CMSSW_11_2_0_pre8-112X_upgrade2018_design_v3-v'
 defaultDataSets['2021']='CMSSW_11_2_0_pre8-112X_mcRun3_2021_realistic_v10-v'
 defaultDataSets['2021Design']='CMSSW_11_2_0_pre8-112X_mcRun3_2021_design_v11-v'
 defaultDataSets['2023']='CMSSW_11_2_0_pre8-112X_mcRun3_2023_realistic_v10-v'
