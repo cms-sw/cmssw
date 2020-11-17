@@ -12,10 +12,10 @@ ctppsGeometryESModule = cms.ESProducer("CTPPSGeometryESModule",
 )
 
 from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
-ctpps_2016.toModify(ctppsGeometryESModule, isRun2=cms.untracked.bool(True))
+ctpps_2016.toModify(ctppsGeometryESModule, isRun2=True)
 
 from Configuration.Eras.Modifier_ctpps_2017_cff import ctpps_2017
-ctpps_2017.toModify(ctppsGeometryESModule, isRun2=cms.untracked.bool(True))
+ctpps_2017.toModify(ctppsGeometryESModule, isRun2=True)
 
 from Configuration.Eras.Modifier_ctpps_2018_cff import ctpps_2018
-ctpps_2018.toModify(ctppsGeometryESModule, isRun2=cms.untracked.bool(True))
+ctpps_2018.toModify(ctppsGeometryESModule, isRun2=True)
