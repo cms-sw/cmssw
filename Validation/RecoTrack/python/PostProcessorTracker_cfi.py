@@ -16,7 +16,7 @@ def _addNoFlow(module):
         if not tmp[ind-1] in _noflowSeen:
             module.noFlowDists.append(tmp[ind-1])
 
-_defaultSubdirs = ["Tracking/Track/*", "Tracking/TrackTPPtLess09/*", "Tracking/TrackFromPV/*", "Tracking/TrackFromPVAllTP/*", "Tracking/TrackAllTPEffic/*", "Tracking/TrackBuilding/*","Tracking/TrackConversion/*", "Tracking/TrackGsf/*", "Tracking/TrackDisplaced/*"]
+_defaultSubdirs = ["Tracking/Track/*", "Tracking/TrackTPPtLess09/*", "Tracking/TrackFromPV/*", "Tracking/TrackFromPVAllTP/*", "Tracking/TrackAllTPEffic/*", "Tracking/TrackBuilding/*","Tracking/TrackConversion/*", "Tracking/TrackGsf/*"]
 _defaultSubdirsSummary = [e.replace("/*","") for e in _defaultSubdirs]
 
 postProcessorTrack = DQMEDHarvester("DQMGenericClient",
@@ -330,12 +330,25 @@ postProcessorTrackSequenceStandalone = cms.Sequence(
 
 postProcessorTrackPhase2 = postProcessorTrack.clone()
 postProcessorTrackPhase2.subDirs.extend(["Tracking/TrackTPEtaGreater2p7/*"])
+postProcessorTrackPhase2.subDirs.extend(["Tracking/TrackDisplaced/*"])
 postProcessorTrackSummaryPhase2 = postProcessorTrackSummary.clone()
 postProcessorTrackSummaryPhase2.subDirs.extend(["Tracking/TrackTPEtaGreater2p7/*"])
+postProcessorTrackSummaryPhase2.subDirs.extend(["Tracking/TrackDisplaced/*"])
 
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toReplaceWith(postProcessorTrack,postProcessorTrackPhase2)
 phase2_tracker.toReplaceWith(postProcessorTrackSummary,postProcessorTrackSummaryPhase2)
+
+
+postProcessorTrackRun3 = postProcessorTrack.clone()
+postProcessorTrackRun3.subDirs.extend(["Tracking/TrackDisplaced/*"])
+postProcessorTrackSummaryRun3 = postProcessorTrackSummary.clone()
+postProcessorTrackSummaryRun3.subDirs.extend(["Tracking/TrackDisplaced/*"])
+
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toReplaceWith(postProcessorTrack,postProcessorTrackRun3)
+run3_common.toReplaceWith(postProcessorTrackSummary,postProcessorTrackSummaryRun3)
+
 
 postProcessorTrackTrackingOnly = postProcessorTrack.clone()
 postProcessorTrackTrackingOnly.subDirs.extend(["Tracking/TrackBHadron/*","Tracking/TrackSeeding/*", "Tracking/PixelTrack/*"])
