@@ -113,7 +113,7 @@ else:
   from DQM.Integration.config.inputsource_cfi import options
   # for live online DQM in P5
   # new stream label
-  process.source.streamLabel = cms.untracked.string('streamDQMOnlineBeamspot')
+  #process.source.streamLabel = cms.untracked.string('streamDQMOnlineBeamspot')
 
 #ESProducer
 process.load("CondCore.CondDB.CondDB_cfi")
