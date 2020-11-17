@@ -39,6 +39,6 @@ void SCDynamicDPhiParametersHelper::sortDynamicDPhiParametersCollection() {
                const EcalSCDynamicDPhiParameters::DynamicDPhiParameters &p2) {
               const auto p1Mins = std::make_pair(p1.eMin, p1.etaMin);
               const auto p2Mins = std::make_pair(p2.eMin, p2.etaMin);
-              return p1Mins > p2Mins;
+              return p1Mins < p2Mins;
             });
 }
