@@ -222,8 +222,8 @@ void AnalyzeTuples::getRecord(int type, int record) {
   }
 #ifdef EDM_ML_DEBUG
   int nPhoton = photon.size();
-  edm::LogVerbatim("HFShower") << "HFShowerLibrary::getRecord: Record " << record << " of type " << type << " with " << nPhoton
-                       << " photons";
+  edm::LogVerbatim("HFShower") << "HFShowerLibrary::getRecord: Record " << record << " of type " << type << " with "
+                               << nPhoton << " photons";
   for (int j = 0; j < nPhoton; j++)
     edm::LogVerbatim("HFShower") << "Photon " << j << " " << photon[j];
 #endif
