@@ -123,11 +123,11 @@ void Phase2ITMonitorRecHit::fillITHistos(const edm::Event& iEvent) {
       continue;
     std::string key = phase2tkutil::getITHistoId(detId.rawId(), tTopo_);
     nTotrechitsinevt += DSViter.size();
+    auto counterDet = nrechitLayerMap.find(key);
     if (nrechitLayerMap.find(key) == nrechitLayerMap.end()) {
       nrechitLayerMap.emplace(key, DSViter.size());
-    } else {
-      nrechitLayerMap[key] += DSViter.size();
-    }
+    } else
+      counterDet->second += DSViter.size();
 
     //loop over rechits for a single detId
     for (const auto& rechit : DSViter) {
@@ -413,7 +413,7 @@ void Phase2ITMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Cluster_SizeX");
-    psd0.add<std::string>("title", "Cluster_SizeX; cluster size y;");
+    psd0.add<std::string>("title", "Cluster_SizeX; cluster size x;");
     psd0.add<double>("xmin", -0.5);
     psd0.add<bool>("switch", true);
     psd0.add<double>("xmax", 20.5);

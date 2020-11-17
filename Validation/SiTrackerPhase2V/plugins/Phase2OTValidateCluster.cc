@@ -12,8 +12,8 @@
 // Author: Gabriel Ramirez, Suvankar Roy Chowdhury
 // Date: May 23, 2020
 //
-#ifndef Validation_SiTrackerPhase2V_Phase2OTValidateCluster_h
-#define Validation_SiTrackerPhase2V_Phase2OTValidateCluster_h
+//#ifndef Validation_SiTrackerPhase2V_Phase2OTValidateCluster_h
+//#define Validation_SiTrackerPhase2V_Phase2OTValidateCluster_h
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -96,7 +96,7 @@ private:
   const TrackerGeometry* tkGeom_ = nullptr;
   const TrackerTopology* tTopo_ = nullptr;
 };
-#endif
+//#endif
 #include "Validation/SiTrackerPhase2V/interface/TrackerPhase2ValidationUtil.h"
 #include "DQM/SiTrackerPhase2/interface/TrackerPhase2DQMUtil.h"
 
@@ -235,10 +235,11 @@ void Phase2OTValidateCluster::fillOTHistos(const edm::Event& iEvent,
       const float deltaX = localPosCluster.x() - localPosSimHit.x();
       const float deltaY = localPosCluster.y() - localPosSimHit.y();
 
-      if (layerMEs_.find(folderkey) == layerMEs_.end())
+      auto layerMEit = layerMEs_.find(folderkey);
+      if (layerMEit == layerMEs_.end())
         continue;
 
-      ClusterMEs& local_mes = layerMEs_.at(folderkey);
+      ClusterMEs& local_mes = layerMEit->second;
       if (mType == TrackerGeometry::ModuleType::Ph2PSP) {
         local_mes.deltaX_P->Fill(deltaX);
         local_mes.deltaY_P->Fill(deltaY);
@@ -286,61 +287,57 @@ void Phase2OTValidateCluster::bookHistograms(DQMStore::IBooker& ibooker,
 void Phase2OTValidateCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_t det_id, const std::string& subdir) {
   std::string folderName = phase2tkutil::getOTHistoId(det_id, tTopo_);
   if (folderName.empty()) {
-    edm::LogInfo("Phase2OTValidateCluster") << ">>>> Invalid histo_id ";
+    edm::LogWarning("Phase2OTValidateCluster") << ">>>> Invalid histo_id ";
     return;
   }
 
   if (layerMEs_.find(folderName) == layerMEs_.end()) {
     ibooker.cd();
     edm::LogInfo("Phase2TrackerValidateDigi") << " Booking Histograms in: " << subdir + '/' + folderName;
-    std::ostringstream HistoName;
+    std::string HistoName;
     ClusterMEs local_mes;
     if (tkGeom_->getDetectorType(det_id) == TrackerGeometry::ModuleType::Ph2PSP) {
       ibooker.setCurrentFolder(subdir + '/' + folderName);
-      HistoName.str("");
-      HistoName << "Delta_X_Pixel";
-      local_mes.deltaX_P = phase2tkutil::book1DFromPSet(
-          config_.getParameter<edm::ParameterSet>("Delta_X_Pixel"), HistoName.str(), ibooker);
 
-      HistoName.str("");
-      HistoName << "Delta_Y_Pixel";
-      local_mes.deltaY_P = phase2tkutil::book1DFromPSet(
-          config_.getParameter<edm::ParameterSet>("Delta_Y_Pixel"), HistoName.str(), ibooker);
+      HistoName = "Delta_X_Pixel";
+      local_mes.deltaX_P =
+          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_X_Pixel"), HistoName, ibooker);
+
+      HistoName = "Delta_Y_Pixel";
+      local_mes.deltaY_P =
+          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_Y_Pixel"), HistoName, ibooker);
 
       // Puting primary digis in a subfolder
       ibooker.setCurrentFolder(subdir + '/' + folderName + "/PrimarySimHits");
-      HistoName.str("");
-      HistoName << "Delta_X_Pixel_Primary";
-      local_mes.deltaX_P_primary = phase2tkutil::book1DFromPSet(
-          config_.getParameter<edm::ParameterSet>("Delta_X_Pixel_Primary"), HistoName.str(), ibooker);
 
-      HistoName.str("");
-      HistoName << "Delta_Y_Pixel_Primary";
+      HistoName = "Delta_X_Pixel_Primary";
+      local_mes.deltaX_P_primary = phase2tkutil::book1DFromPSet(
+          config_.getParameter<edm::ParameterSet>("Delta_X_Pixel_Primary"), HistoName, ibooker);
+
+      HistoName = "Delta_Y_Pixel_Primary";
       local_mes.deltaY_P_primary = phase2tkutil::book1DFromPSet(
-          config_.getParameter<edm::ParameterSet>("Delta_Y_Pixel_Primary"), HistoName.str(), ibooker);
+          config_.getParameter<edm::ParameterSet>("Delta_Y_Pixel_Primary"), HistoName, ibooker);
     }
     ibooker.setCurrentFolder(subdir + '/' + folderName);
-    HistoName.str("");
-    HistoName << "Delta_X_Strip";
-    local_mes.deltaX_S = phase2tkutil::book1DFromPSet(
-        config_.getParameter<edm::ParameterSet>("Delta_X_Strip"), HistoName.str(), ibooker);
 
-    HistoName.str("");
-    HistoName << "Delta_Y_Strip";
-    local_mes.deltaY_S = phase2tkutil::book1DFromPSet(
-        config_.getParameter<edm::ParameterSet>("Delta_Y_Strip"), HistoName.str(), ibooker);
+    HistoName = "Delta_X_Strip";
+    local_mes.deltaX_S =
+        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_X_Strip"), HistoName, ibooker);
+
+    HistoName = "Delta_Y_Strip";
+    local_mes.deltaY_S =
+        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_Y_Strip"), HistoName, ibooker);
 
     // Puting primary digis in a subfolder
     ibooker.setCurrentFolder(subdir + '/' + folderName + "/PrimarySimHits");
-    HistoName.str("");
-    HistoName << "Delta_X_Strip_Primary";
-    local_mes.deltaX_S_primary = phase2tkutil::book1DFromPSet(
-        config_.getParameter<edm::ParameterSet>("Delta_X_Strip_Primary"), HistoName.str(), ibooker);
 
-    HistoName.str("");
-    HistoName << "Delta_Y_Strip_Primary";
+    HistoName = "Delta_X_Strip_Primary";
+    local_mes.deltaX_S_primary = phase2tkutil::book1DFromPSet(
+        config_.getParameter<edm::ParameterSet>("Delta_X_Strip_Primary"), HistoName, ibooker);
+
+    HistoName = "Delta_Y_Strip_Primary";
     local_mes.deltaY_S_primary = phase2tkutil::book1DFromPSet(
-        config_.getParameter<edm::ParameterSet>("Delta_Y_Strip_Primary"), HistoName.str(), ibooker);
+        config_.getParameter<edm::ParameterSet>("Delta_Y_Strip_Primary"), HistoName, ibooker);
 
     layerMEs_.emplace(folderName, local_mes);
   }
