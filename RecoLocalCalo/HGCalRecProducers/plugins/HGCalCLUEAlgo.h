@@ -45,10 +45,15 @@ public:
         maxNumberOfThickIndices_(ps.getParameter<unsigned>("maxNumberOfThickIndices")),
         fcPerMip_(ps.getParameter<std::vector<double>>("fcPerMip")),
         fcPerEle_(ps.getParameter<double>("fcPerEle")),
-        nonAgedNoises_(ps.getParameter<std::vector<double>>("noises")),
+        nonAgedNoises_(ps.getParameter<edm::ParameterSet>("noises").getParameter<std::vector<double>>("values")),
         noiseMip_(ps.getParameter<edm::ParameterSet>("noiseMip").getParameter<double>("noise_MIP")),
         use2x2_(ps.getParameter<bool>("use2x2")),
-        initialized_(false) {}
+        initialized_(false) {
+    // repeat same noises for CE-H as well
+    if (!isNose_) {
+      nonAgedNoises_.insert(std::end(nonAgedNoises_), std::begin(nonAgedNoises_), std::end(nonAgedNoises_));
+    }
+  }
 
   ~HGCalCLUEAlgoT() override {}
 
@@ -102,7 +107,9 @@ public:
     iDesc.add<unsigned>("maxNumberOfThickIndices", 6);
     iDesc.add<std::vector<double>>("fcPerMip", {});
     iDesc.add<double>("fcPerEle", 0.0);
-    iDesc.add<std::vector<double>>("noises", {});
+    edm::ParameterSetDescription descNestedNoises;
+    descNestedNoises.add<std::vector<double>>("values", {});
+    iDesc.add<edm::ParameterSetDescription>("noises", descNestedNoises);
     edm::ParameterSetDescription descNestedNoiseMIP;
     descNestedNoiseMIP.add<bool>("scaleByDose", false);
     descNestedNoiseMIP.add<unsigned int>("scaleByDoseAlgo", 0);
