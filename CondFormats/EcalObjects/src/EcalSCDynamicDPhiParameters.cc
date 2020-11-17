@@ -2,15 +2,30 @@
 
 const EcalSCDynamicDPhiParameters::DynamicDPhiParameters* EcalSCDynamicDPhiParameters::dynamicDPhiParameters(
     double clustE, double absSeedEta) const {
-  // assume the collection is sorted in descending DynamicDPhiParams.etaMin and descending DynamicDPhiParams.eMin
-  for (const auto& dynamicDPhiParams : dynamicDPhiParametersCollection_) {
-    if (clustE < dynamicDPhiParams.eMin || absSeedEta < dynamicDPhiParams.etaMin) {
-      continue;
-    } else {
-      return &dynamicDPhiParams;
-    }
+  // assume the collection is lexicographically sorted in ascending DynamicDPhiParams.eMin and ascending DynamicDPhiParams.etaMin
+  // find the matching eMin value
+  auto it1 = std::lower_bound(dynamicDPhiParametersCollection_.begin(),
+                              dynamicDPhiParametersCollection_.end(),
+                              clustE,
+                              [](const EcalSCDynamicDPhiParameters::DynamicDPhiParameters &params,
+                                 const double var) {
+                                return params.eMin < var;
+                              });
+  if (it1 != dynamicDPhiParametersCollection_.begin()) {
+    --it1;
   }
-  return nullptr;
+
+  // find the matching eMin and etaMin entry going only up to the sets matching for clustE
+  const auto vars = std::make_pair(it1->eMin, absSeedEta);
+  auto it2 = std::lower_bound(dynamicDPhiParametersCollection_.begin(),
+                              it1 + 1,
+                              vars,
+                              [](const EcalSCDynamicDPhiParameters::DynamicDPhiParameters &params,
+                                 const std::pair<double, double> vars) {
+                                return params.eMin < vars.first || params.etaMin < vars.second;
+                              });
+
+  return (it2 != dynamicDPhiParametersCollection_.begin()) ? &*(it2 - 1) : nullptr;
 }
 
 void EcalSCDynamicDPhiParameters::print(std::ostream& out) const {
