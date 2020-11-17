@@ -1049,7 +1049,10 @@ C--------------------------------------------
       XLB1(2)=0D0
       XLB2(1)=0D0
       XLB2(2)=0D0
-
+C...  Initialize with zero
+      DO I=1,6
+         XLB(I) = 0.0
+      ENDDO
       IF(N0.EQ.3)THEN
        XLB(3)=XLAMBDA
        XLB(4)=XLB(3)*(XLB(3)/AMC)**(2.D0/25.D0)
