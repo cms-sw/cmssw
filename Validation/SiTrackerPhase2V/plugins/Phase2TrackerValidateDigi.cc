@@ -42,6 +42,7 @@
 
 // DQM Histograming
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQM/SiTrackerPhase2/interface/TrackerPhase2DQMUtil.h"
 
 //
 // constructors
@@ -63,6 +64,8 @@ Phase2TrackerValidateDigi::Phase2TrackerValidateDigi(const edm::ParameterSet& iC
       itPixelDigiSimLinkToken_(consumes<edm::DetSetVector<PixelDigiSimLink> >(itPixelDigiSimLinkSrc_)),
       simTrackToken_(consumes<edm::SimTrackContainer>(simTrackSrc_)),
       simVertexToken_(consumes<edm::SimVertexContainer>(simVertexSrc_)),
+      geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
+      topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()),
       GeVperElectron(3.61E-09),  // 1 electron(3.61eV, 1keV(277e, mod 9/06 d.k.
       cval(30.) {
   for (const auto& itag : pSimHitSrc_)
@@ -86,6 +89,12 @@ Phase2TrackerValidateDigi::~Phase2TrackerValidateDigi() {
 }
 //
 // -- DQM Begin Run
+void Phase2TrackerValidateDigi::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+  edm::ESHandle<TrackerGeometry> geomHandle = iSetup.getHandle(geomToken_);
+  tkGeom_ = &(*geomHandle);
+  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(topoToken_);
+  tTopo_ = tTopoHandle.product();
+}
 //
 // -- Analyze
 //
@@ -107,13 +116,12 @@ void Phase2TrackerValidateDigi::analyze(const edm::Event& iEvent, const edm::Eve
   iEvent.getByToken(simVertexToken_, simVertices);
 
   // Tracker Topology
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle_);
 
   edm::ESWatcher<TrackerDigiGeometryRecord> theTkDigiGeomWatcher;
 
   edm::ESHandle<TrackerGeometry> geomHandle;
   if (theTkDigiGeomWatcher.check(iSetup)) {
-    iSetup.get<TrackerDigiGeometryRecord>().get(geomType_, geomHandle);
+    geomHandle = iSetup.getHandle(geomToken_);
   }
   if (!geomHandle.isValid())
     return;
@@ -164,7 +172,7 @@ void Phase2TrackerValidateDigi::analyze(const edm::Event& iEvent, const edm::Eve
       it.second.nDigis = 0;
       it.second.nHits = 0;
     }
-    fillSimHitInfo(iEvent, (*simTrkItr), geomHandle);
+    fillSimHitInfo(iEvent, (*simTrkItr));
 
     int nHitCutoff = 2;
     if (pixelFlag_)
@@ -190,11 +198,7 @@ void Phase2TrackerValidateDigi::analyze(const edm::Event& iEvent, const edm::Eve
     fillOTBXInfo();
 }
 
-int Phase2TrackerValidateDigi::fillSimHitInfo(const edm::Event& iEvent,
-                                              const SimTrack simTrk,
-                                              const edm::ESHandle<TrackerGeometry> gHandle) {
-  const TrackerTopology* tTopo = tTopoHandle_.product();
-  const TrackerGeometry* tGeom = gHandle.product();
+int Phase2TrackerValidateDigi::fillSimHitInfo(const edm::Event& iEvent, const SimTrack simTrk) {
   int totalHits = 0;
 
   unsigned int id = simTrk.trackId();
@@ -215,12 +219,12 @@ int Phase2TrackerValidateDigi::fillSimHitInfo(const edm::Event& iEvent,
       unsigned int rawid = (*isim).detUnitId();
       int layer;
       if (pixelFlag_)
-        layer = tTopo->getITPixelLayerNumber(rawid);
+        layer = tTopo_->getITPixelLayerNumber(rawid);
       else
-        layer = tTopo->getOTLayerNumber(rawid);
+        layer = tTopo_->getOTLayerNumber(rawid);
       if (layer < 0)
         continue;
-      std::string key = getHistoId(rawid, tTopo, pixelFlag_);
+      std::string key = getHistoId(rawid, pixelFlag_);
       auto pos = layerMEs.find(key);
       if (pos == layerMEs.end())
         continue;
@@ -234,7 +238,7 @@ int Phase2TrackerValidateDigi::fillSimHitInfo(const edm::Event& iEvent,
       if (DetId(detId).det() != DetId::Detector::Tracker)
         continue;
 
-      const GeomDet* geomDet = tGeom->idToDet(detId);
+      const GeomDet* geomDet = tkGeom_->idToDet(detId);
       if (!geomDet)
         continue;
       Global3DPoint pdPos = geomDet->surface().toGlobal(isim->localPosition());
@@ -247,7 +251,7 @@ int Phase2TrackerValidateDigi::fillSimHitInfo(const edm::Event& iEvent,
       if (SimulatedRZPositionMap)
         SimulatedRZPositionMap->Fill(pdPos.z() * 10., std::hypot(pdPos.x(), pdPos.y()) * 10.);
 
-      const TrackerGeomDet* geomDetUnit(tGeom->idToDetUnit(detId));
+      const TrackerGeomDet* geomDetUnit(tkGeom_->idToDetUnit(detId));
       const Phase2TrackerGeomDetUnit* tkDetUnit = dynamic_cast<const Phase2TrackerGeomDetUnit*>(geomDetUnit);
       int nColumns = tkDetUnit->specificTopology().ncolumns();
 
@@ -594,18 +598,10 @@ void Phase2TrackerValidateDigi::bookHistograms(DQMStore::IBooker& ibooker,
     SimulatedTOFZMap = nullptr;
 
   edm::ESWatcher<TrackerDigiGeometryRecord> theTkDigiGeomWatcher;
-
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle_);
-  const TrackerTopology* const tTopo = tTopoHandle_.product();
-
   if (theTkDigiGeomWatcher.check(iSetup)) {
-    edm::ESHandle<TrackerGeometry> geom_handle;
-    iSetup.get<TrackerDigiGeometryRecord>().get(geomType_, geom_handle);
-    const TrackerGeometry* tGeom = geom_handle.product();
-
-    for (auto const& det_u : tGeom->detUnits()) {
+    for (auto const& det_u : tkGeom_->detUnits()) {
       unsigned int detId_raw = det_u->geographicalId().rawId();
-      bookLayerHistos(ibooker, detId_raw, tTopo, pixelFlag_);
+      bookLayerHistos(ibooker, detId_raw, pixelFlag_);
     }
   }
   ibooker.cd();
@@ -647,20 +643,17 @@ void Phase2TrackerValidateDigi::bookHistograms(DQMStore::IBooker& ibooker,
 //
 // -- Book Layer Histograms
 //
-void Phase2TrackerValidateDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
-                                                unsigned int det_id,
-                                                const TrackerTopology* tTopo,
-                                                bool flag) {
+void Phase2TrackerValidateDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsigned int det_id, bool flag) {
   int layer;
   if (flag)
-    layer = tTopo->getITPixelLayerNumber(det_id);
+    layer = tTopo_->getITPixelLayerNumber(det_id);
   else
-    layer = tTopo->getOTLayerNumber(det_id);
+    layer = tTopo_->getOTLayerNumber(det_id);
 
   if (layer < 0)
     return;
 
-  std::string key = getHistoId(det_id, tTopo, flag);
+  std::string key = getHistoId(det_id, flag);
   std::map<std::string, DigiMEs>::iterator pos = layerMEs.find(key);
   if (pos == layerMEs.end()) {
     std::string top_folder = config_.getParameter<std::string>("TopFolderName");
@@ -668,9 +661,9 @@ void Phase2TrackerValidateDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
 
     //For endCap: P-type sensors are present only upto ring 10 for discs 1&2 (TEDD-1) and upto ring 7 for discs 3,4&5 (TEDD-2)
     bool isPStypeModForTEDD_1 =
-        (!pixelFlag_ && layer > 100 && tTopo->tidWheel(det_id) < 3 && tTopo->tidRing(det_id) <= 10) ? true : false;
+        (!pixelFlag_ && layer > 100 && tTopo_->tidWheel(det_id) < 3 && tTopo_->tidRing(det_id) <= 10) ? true : false;
     bool isPStypeModForTEDD_2 =
-        (!pixelFlag_ && layer > 100 && tTopo->tidWheel(det_id) >= 3 && tTopo->tidRing(det_id) <= 7) ? true : false;
+        (!pixelFlag_ && layer > 100 && tTopo_->tidWheel(det_id) >= 3 && tTopo_->tidRing(det_id) <= 7) ? true : false;
 
     bool isPtypeSensor =
         (flag || (layer < 4 || (layer > 6 && (isPStypeModForTEDD_1 || isPStypeModForTEDD_2)))) ? true : false;
@@ -939,18 +932,17 @@ unsigned int Phase2TrackerValidateDigi::getSimTrackId(const edm::DetSetVector<Pi
 }
 void Phase2TrackerValidateDigi::fillOTBXInfo() {
   const edm::DetSetVector<PixelDigiSimLink>* links = otSimLinkHandle_.product();
-  const TrackerTopology* tTopo = tTopoHandle_.product();
   for (typename edm::DetSetVector<PixelDigiSimLink>::const_iterator DSViter = links->begin(); DSViter != links->end();
        DSViter++) {
     unsigned int rawid = DSViter->id;
     DetId detId(rawid);
     if (DetId(detId).det() != DetId::Detector::Tracker)
       continue;
-    int layer = tTopoHandle_->getOTLayerNumber(rawid);
+    int layer = tTopo_->getOTLayerNumber(rawid);
     if (layer < 0)
       continue;
     bool flag_ = false;
-    std::string key = getHistoId(rawid, tTopo, flag_);
+    std::string key = getHistoId(rawid, flag_);
     std::map<std::string, DigiMEs>::iterator pos = layerMEs.find(key);
     if (pos == layerMEs.end())
       continue;
@@ -976,18 +968,17 @@ void Phase2TrackerValidateDigi::fillOTBXInfo() {
 }
 void Phase2TrackerValidateDigi::fillITPixelBXInfo() {
   const edm::DetSetVector<PixelDigiSimLink>* links = itPixelSimLinkHandle_.product();
-  const TrackerTopology* tTopo = tTopoHandle_.product();
   for (typename edm::DetSetVector<PixelDigiSimLink>::const_iterator DSViter = links->begin(); DSViter != links->end();
        DSViter++) {
     unsigned int rawid = DSViter->id;
     DetId detId(rawid);
     if (DetId(detId).det() != DetId::Detector::Tracker)
       continue;
-    int layer = tTopoHandle_->getITPixelLayerNumber(rawid);
+    int layer = tTopo_->getITPixelLayerNumber(rawid);
     if (layer < 0)
       continue;
     bool flag_ = true;
-    std::string key = getHistoId(rawid, tTopo, flag_);
+    std::string key = getHistoId(rawid, flag_);
     std::map<std::string, DigiMEs>::iterator pos = layerMEs.find(key);
     if (pos == layerMEs.end())
       continue;
@@ -1070,45 +1061,11 @@ void Phase2TrackerValidateDigi::fillHitsPerTrack() {
   }
 }
 */
-#include "DQM/SiTrackerPhase2/interface/TrackerPhase2DQMUtil.h"
-std::string Phase2TrackerValidateDigi::getHistoId(uint32_t det_id, const TrackerTopology* tTopo, bool flag) {
+std::string Phase2TrackerValidateDigi::getHistoId(uint32_t det_id, bool flag) {
   if (flag)
-    return phase2tkutil::getITHistoId(det_id, tTopo);
+    return phase2tkutil::getITHistoId(det_id, tTopo_);
   else
-    return phase2tkutil::getOTHistoId(det_id, tTopo);
-  /*
-  int layer;
-  std::string Disc;
-  std::ostringstream fname1;
-
-  if (flag) {
-    layer = tTopo->getITPixelLayerNumber(det_id);
-  } else {
-    layer = tTopo->getOTLayerNumber(det_id);
-  }
-
-  if (layer < 0)
-    return "";
-
-  if (layer < 100) {
-    fname1 << "Barrel/";
-    fname1 << "Layer" << layer;
-    fname1 << "";
-  } else {
-    int side = (flag) ? tTopo->pxfSide(det_id) : tTopo->tidSide(det_id);
-    fname1 << "EndCap_Side" << side << "/";
-    int disc = (flag) ? tTopo->pxfDisk(det_id) : tTopo->tidWheel(det_id);
-    if (flag)
-      Disc = (disc < 9) ? "EPix" : "FPix";
-    else
-      Disc = (disc < 3) ? "TEDD_1" : "TEDD_2";
-    fname1 << Disc << "/";
-
-    int ring = (flag) ? tTopo->pxfBlade(det_id) : tTopo->tidRing(det_id);
-    fname1 << "Ring" << ring;
-  }
-  return fname1.str();
-  */
+    return phase2tkutil::getOTHistoId(det_id, tTopo_);
 }
 
 //define this as a plug-in

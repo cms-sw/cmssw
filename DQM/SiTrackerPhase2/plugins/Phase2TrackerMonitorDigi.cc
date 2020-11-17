@@ -40,6 +40,7 @@
 
 // DQM Histograming
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQM/SiTrackerPhase2/interface/TrackerPhase2DQMUtil.h"
 
 //
 // constructors
@@ -52,7 +53,9 @@ Phase2TrackerMonitorDigi::Phase2TrackerMonitorDigi(const edm::ParameterSet& iCon
       otDigiSrc_(config_.getParameter<edm::InputTag>("OuterTrackerDigiSource")),
       itPixelDigiSrc_(config_.getParameter<edm::InputTag>("InnerPixelDigiSource")),
       otDigiToken_(consumes<edm::DetSetVector<Phase2TrackerDigi>>(otDigiSrc_)),
-      itPixelDigiToken_(consumes<edm::DetSetVector<PixelDigi>>(itPixelDigiSrc_)) {
+      itPixelDigiToken_(consumes<edm::DetSetVector<PixelDigi>>(itPixelDigiSrc_)),
+      geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
+      topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()) {
   edm::LogInfo("Phase2TrackerMonitorDigi") << ">>> Construct Phase2TrackerMonitorDigi ";
 }
 
@@ -63,6 +66,13 @@ Phase2TrackerMonitorDigi::~Phase2TrackerMonitorDigi() {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
   edm::LogInfo("Phase2TrackerMonitorDigi") << ">>> Destroy Phase2TrackerMonitorDigi ";
+}
+
+void Phase2TrackerMonitorDigi::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+  edm::ESHandle<TrackerGeometry> geomHandle = iSetup.getHandle(geomToken_);
+  tkGeom_ = &(*geomHandle);
+  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(topoToken_);
+  tTopo_ = tTopoHandle.product();
 }
 
 // -- Analyze
@@ -78,38 +88,30 @@ void Phase2TrackerMonitorDigi::analyze(const edm::Event& iEvent, const edm::Even
   iEvent.getByToken(otDigiToken_, otDigiHandle);
 
   // Tracker Topology
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle_);
 
   edm::ESWatcher<TrackerDigiGeometryRecord> theTkDigiGeomWatcher;
   if (theTkDigiGeomWatcher.check(iSetup)) {
-    edm::ESHandle<TrackerGeometry> geomHandle;
-    iSetup.get<TrackerDigiGeometryRecord>().get(geomType_, geomHandle);
-
     if (pixelFlag_)
-      fillITPixelDigiHistos(pixDigiHandle, geomHandle);
+      fillITPixelDigiHistos(pixDigiHandle);
     else
-      fillOTDigiHistos(otDigiHandle, geomHandle);
+      fillOTDigiHistos(otDigiHandle);
   }
 }
-void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetSetVector<PixelDigi>> handle,
-                                                     const edm::ESHandle<TrackerGeometry> gHandle) {
+void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetSetVector<PixelDigi>> handle) {
   const edm::DetSetVector<PixelDigi>* digis = handle.product();
-
-  const TrackerTopology* tTopo = tTopoHandle_.product();
-  const TrackerGeometry* tGeom = gHandle.product();
 
   for (typename edm::DetSetVector<PixelDigi>::const_iterator DSViter = digis->begin(); DSViter != digis->end();
        DSViter++) {
     unsigned int rawid = DSViter->id;
     edm::LogInfo("Phase2TrackerMonitorDigi") << " Det Id = " << rawid;
 
-    int layer = tTopo->getITPixelLayerNumber(rawid);
+    int layer = tTopo_->getITPixelLayerNumber(rawid);
 
     if (layer < 0)
       continue;
     const DetId detId(rawid);
 
-    std::string key = getHistoId(rawid, tTopo, pixelFlag_);
+    std::string key = getHistoId(rawid, pixelFlag_);
     std::map<std::string, DigiMEs>::iterator pos = layerMEs.find(key);
 
     if (pos == layerMEs.end())
@@ -118,8 +120,8 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
     if (DetId(detId).det() != DetId::Detector::Tracker)
       continue;
 
-    const GeomDetUnit* gDetUnit = tGeom->idToDetUnit(detId);
-    const GeomDet* geomDet = tGeom->idToDet(detId);
+    const GeomDetUnit* gDetUnit = tkGeom_->idToDetUnit(detId);
+    const GeomDet* geomDet = tkGeom_->idToDet(detId);
 
     const Phase2TrackerGeomDetUnit* tkDetUnit = dynamic_cast<const Phase2TrackerGeomDetUnit*>(gDetUnit);
     int nRows = tkDetUnit->specificTopology().nrows();
@@ -210,22 +212,18 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
     local_mes.nHitDetsPerLayer = 0;
   }
 }
-void Phase2TrackerMonitorDigi::fillOTDigiHistos(const edm::Handle<edm::DetSetVector<Phase2TrackerDigi>> handle,
-                                                const edm::ESHandle<TrackerGeometry> gHandle) {
+void Phase2TrackerMonitorDigi::fillOTDigiHistos(const edm::Handle<edm::DetSetVector<Phase2TrackerDigi>> handle) {
   const edm::DetSetVector<Phase2TrackerDigi>* digis = handle.product();
-
-  const TrackerTopology* tTopo = tTopoHandle_.product();
-  const TrackerGeometry* tGeom = gHandle.product();
 
   for (typename edm::DetSetVector<Phase2TrackerDigi>::const_iterator DSViter = digis->begin(); DSViter != digis->end();
        DSViter++) {
     unsigned int rawid = DSViter->id;
     DetId detId(rawid);
     edm::LogInfo("Phase2TrackerMonitorDigi") << " Det Id = " << rawid;
-    int layer = tTopo->getOTLayerNumber(rawid);
+    int layer = tTopo_->getOTLayerNumber(rawid);
     if (layer < 0)
       continue;
-    std::string key = getHistoId(rawid, tTopo, pixelFlag_);
+    std::string key = getHistoId(rawid, pixelFlag_);
     std::map<std::string, DigiMEs>::iterator pos = layerMEs.find(key);
     if (pos == layerMEs.end())
       continue;
@@ -235,8 +233,8 @@ void Phase2TrackerMonitorDigi::fillOTDigiHistos(const edm::Handle<edm::DetSetVec
     if (DetId(detId).det() != DetId::Detector::Tracker)
       continue;
 
-    const GeomDetUnit* gDetUnit = tGeom->idToDetUnit(detId);
-    const GeomDet* geomDet = tGeom->idToDet(detId);
+    const GeomDetUnit* gDetUnit = tkGeom_->idToDetUnit(detId);
+    const GeomDet* geomDet = tkGeom_->idToDet(detId);
 
     const Phase2TrackerGeomDetUnit* tkDetUnit = dynamic_cast<const Phase2TrackerGeomDetUnit*>(gDetUnit);
     int nRows = tkDetUnit->specificTopology().nrows();
@@ -347,16 +345,10 @@ void Phase2TrackerMonitorDigi::bookHistograms(DQMStore::IBooker& ibooker,
   std::string top_folder = config_.getParameter<std::string>("TopFolderName");
   edm::ESWatcher<TrackerDigiGeometryRecord> theTkDigiGeomWatcher;
 
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle_);
-  const TrackerTopology* const tTopo = tTopoHandle_.product();
-
   if (theTkDigiGeomWatcher.check(iSetup)) {
-    edm::ESHandle<TrackerGeometry> geom_handle;
-    iSetup.get<TrackerDigiGeometryRecord>().get(geomType_, geom_handle);
-    const TrackerGeometry* tGeom = geom_handle.product();
-    for (auto const& det_u : tGeom->detUnits()) {
+    for (auto const& det_u : tkGeom_->detUnits()) {
       unsigned int detId_raw = det_u->geographicalId().rawId();
-      bookLayerHistos(ibooker, detId_raw, tTopo);
+      bookLayerHistos(ibooker, detId_raw);
     }
   }
   ibooker.cd();
@@ -423,18 +415,16 @@ void Phase2TrackerMonitorDigi::bookHistograms(DQMStore::IBooker& ibooker,
 //
 // -- Book Layer Histograms
 //
-void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
-                                               unsigned int det_id,
-                                               const TrackerTopology* tTopo) {
+void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsigned int det_id) {
   int layer;
   if (pixelFlag_)
-    layer = tTopo->getITPixelLayerNumber(det_id);
+    layer = tTopo_->getITPixelLayerNumber(det_id);
   else
-    layer = tTopo->getOTLayerNumber(det_id);
+    layer = tTopo_->getOTLayerNumber(det_id);
 
   if (layer < 0)
     return;
-  std::string key = getHistoId(det_id, tTopo, pixelFlag_);
+  std::string key = getHistoId(det_id, pixelFlag_);
   std::map<std::string, DigiMEs>::iterator pos = layerMEs.find(key);
 
   if (pos == layerMEs.end()) {
@@ -443,9 +433,9 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
 
     //For endCap: P-type sensors are present only upto ring 10 for discs 1&2 (TEDD-1) and upto ring 7 for discs 3,4&5 (TEDD-2)
     bool isPStypeModForTEDD_1 =
-        (!pixelFlag_ && layer > 100 && tTopo->tidWheel(det_id) < 3 && tTopo->tidRing(det_id) <= 10) ? true : false;
+        (!pixelFlag_ && layer > 100 && tTopo_->tidWheel(det_id) < 3 && tTopo_->tidRing(det_id) <= 10) ? true : false;
     bool isPStypeModForTEDD_2 =
-        (!pixelFlag_ && layer > 100 && tTopo->tidWheel(det_id) >= 3 && tTopo->tidRing(det_id) <= 7) ? true : false;
+        (!pixelFlag_ && layer > 100 && tTopo_->tidWheel(det_id) >= 3 && tTopo_->tidRing(det_id) <= 7) ? true : false;
 
     bool isPtypeSensor =
         (pixelFlag_ || (layer < 4 || (layer > 6 && (isPStypeModForTEDD_1 || isPStypeModForTEDD_2)))) ? true : false;
@@ -720,45 +710,11 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
   }
 }
 
-#include "DQM/SiTrackerPhase2/interface/TrackerPhase2DQMUtil.h"
-std::string Phase2TrackerMonitorDigi::getHistoId(uint32_t det_id, const TrackerTopology* tTopo, bool flag) {
+std::string Phase2TrackerMonitorDigi::getHistoId(uint32_t det_id, bool flag) {
   if (flag)
-    return phase2tkutil::getITHistoId(det_id, tTopo);
+    return phase2tkutil::getITHistoId(det_id, tTopo_);
   else
-    return phase2tkutil::getOTHistoId(det_id, tTopo);
-  /*
-  int layer;
-  std::string Disc;
-  std::ostringstream fname1;
-
-  if (flag) {
-    layer = tTopo->getITPixelLayerNumber(det_id);
-  } else {
-    layer = tTopo->getOTLayerNumber(det_id);
-  }
-
-  if (layer < 0)
-    return "";
-
-  if (layer < 100) {
-    fname1 << "Barrel/";
-    fname1 << "Layer" << layer;
-    fname1 << "";
-  } else {
-    int side = (flag) ? tTopo->pxfSide(det_id) : tTopo->tidSide(det_id);
-    fname1 << "EndCap_Side" << side << "/";
-    int disc = (flag) ? tTopo->pxfDisk(det_id) : tTopo->tidWheel(det_id);
-    if (flag)
-      Disc = (disc < 9) ? "EPix" : "FPix";
-    else
-      Disc = (disc < 3) ? "TEDD_1" : "TEDD_2";
-    fname1 << Disc << "/";
-
-    int ring = (flag) ? tTopo->pxfBlade(det_id) : tTopo->tidRing(det_id);
-    fname1 << "Ring" << ring;
-  }
-  return fname1.str();
-  */
+    return phase2tkutil::getOTHistoId(det_id, tTopo_);
 }
 
 void Phase2TrackerMonitorDigi::fillDigiClusters(DigiMEs& mes, std::vector<Ph2DigiCluster>& digi_clusters) {
