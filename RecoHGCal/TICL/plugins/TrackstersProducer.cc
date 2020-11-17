@@ -42,16 +42,18 @@ public:
   static void globalEndJob(TrackstersCache*);
 
 private:
-  std::unique_ptr<PatternRecognitionAlgoBase> myAlgo_;
+  std::string detector_;
+  bool doNose_;
+  std::unique_ptr<PatternRecognitionAlgoBaseT<TICLLayerTiles>> myAlgo_;
+  std::unique_ptr<PatternRecognitionAlgoBaseT<TICLLayerTilesHFNose>> myAlgoHFNose_;
 
   const edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_token_;
   const edm::EDGetTokenT<std::vector<float>> filtered_layerclusters_mask_token_;
   const edm::EDGetTokenT<std::vector<float>> original_layerclusters_mask_token_;
   const edm::EDGetTokenT<edm::ValueMap<std::pair<float, float>>> clustersTime_token_;
-  const edm::EDGetTokenT<TICLLayerTiles> layer_clusters_tiles_token_;
+  edm::EDGetTokenT<TICLLayerTiles> layer_clusters_tiles_token_;
+  edm::EDGetTokenT<TICLLayerTilesHFNose> layer_clusters_tiles_hfnose_token_;
   const edm::EDGetTokenT<std::vector<TICLSeedingRegion>> seeding_regions_token_;
-  const std::vector<int> filter_on_categories_;
-  const double pid_threshold_;
   const std::string itername_;
 };
 DEFINE_FWK_MODULE(TrackstersProducer);
@@ -76,18 +78,24 @@ void TrackstersProducer::globalEndJob(TrackstersCache* cache) {
 }
 
 TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps, const TrackstersCache* cache)
-    : myAlgo_(std::make_unique<PatternRecognitionbyCA>(ps, cache)),
+    : detector_(ps.getParameter<std::string>("detector")),
+      doNose_(detector_ == "HFNose"),
+      myAlgo_(std::make_unique<PatternRecognitionbyCA<TICLLayerTiles>>(ps, cache)),
+      myAlgoHFNose_(std::make_unique<PatternRecognitionbyCA<TICLLayerTilesHFNose>>(ps, cache)),
       clusters_token_(consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_clusters"))),
       filtered_layerclusters_mask_token_(consumes<std::vector<float>>(ps.getParameter<edm::InputTag>("filtered_mask"))),
       original_layerclusters_mask_token_(consumes<std::vector<float>>(ps.getParameter<edm::InputTag>("original_mask"))),
       clustersTime_token_(
           consumes<edm::ValueMap<std::pair<float, float>>>(ps.getParameter<edm::InputTag>("time_layerclusters"))),
-      layer_clusters_tiles_token_(consumes<TICLLayerTiles>(ps.getParameter<edm::InputTag>("layer_clusters_tiles"))),
       seeding_regions_token_(
           consumes<std::vector<TICLSeedingRegion>>(ps.getParameter<edm::InputTag>("seeding_regions"))),
-      filter_on_categories_(ps.getParameter<std::vector<int>>("filter_on_categories")),
-      pid_threshold_(ps.getParameter<double>("pid_threshold")),
       itername_(ps.getParameter<std::string>("itername")) {
+  if (doNose_) {
+    layer_clusters_tiles_hfnose_token_ =
+        consumes<TICLLayerTilesHFNose>(ps.getParameter<edm::InputTag>("layer_clusters_hfnose_tiles"));
+  } else {
+    layer_clusters_tiles_token_ = consumes<TICLLayerTiles>(ps.getParameter<edm::InputTag>("layer_clusters_tiles"));
+  }
   produces<std::vector<Trackster>>();
   produces<std::vector<float>>();  // Mask to be applied at the next iteration
 }
@@ -95,20 +103,27 @@ TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps, const Tracks
 void TrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // hgcalMultiClusters
   edm::ParameterSetDescription desc;
+  desc.add<std::string>("detector", "HGCAL");
   desc.add<edm::InputTag>("layer_clusters", edm::InputTag("hgcalLayerClusters"));
   desc.add<edm::InputTag>("filtered_mask", edm::InputTag("filteredLayerClusters", "iterationLabelGoesHere"));
   desc.add<edm::InputTag>("original_mask", edm::InputTag("hgcalLayerClusters", "InitialLayerClustersMask"));
   desc.add<edm::InputTag>("time_layerclusters", edm::InputTag("hgcalLayerClusters", "timeLayerCluster"));
   desc.add<edm::InputTag>("layer_clusters_tiles", edm::InputTag("ticlLayerTileProducer"));
+  desc.add<edm::InputTag>("layer_clusters_hfnose_tiles", edm::InputTag("ticlLayerTileHFNose"));
   desc.add<edm::InputTag>("seeding_regions", edm::InputTag("ticlSeedingRegionProducer"));
   desc.add<std::vector<int>>("filter_on_categories", {0});
-  desc.add<double>("pid_threshold", 0.);  // make default such that no filtering is applied
+  desc.add<double>("pid_threshold", 0.);                    // make default such that no filtering is applied
+  desc.add<double>("energy_em_over_total_threshold", -1.);  // make default such that no filtering is applied
+  desc.add<double>("max_longitudinal_sigmaPCA", 9999);
+  desc.add<int>("shower_start_max_layer", 9999);  // make default such that no filtering is applied
   desc.add<int>("algo_verbosity", 0);
   desc.add<double>("min_cos_theta", 0.915);
+  desc.add<double>("root_doublet_max_distance_from_seed_squared", 9999);
   desc.add<double>("min_cos_pointing", -1.);
-  desc.add<int>("missing_layers", 0);
+  desc.add<int>("skip_layers", 0);
+  desc.add<int>("max_missing_layers_in_trackster", 9999);
   desc.add<double>("etaLimitIncreaseWindow", 2.1);
-  desc.add<int>("min_clusters_per_ntuplet", 10);
+  desc.add<int>("min_layers_per_trackster", 10);
   desc.add<double>("max_delta_time", 3.);  //nsigma
   desc.add<bool>("out_in_dfs", true);
   desc.add<int>("max_out_in_hops", 10);
@@ -129,27 +144,11 @@ void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   auto result = std::make_unique<std::vector<Trackster>>();
   auto output_mask = std::make_unique<std::vector<float>>();
 
-  edm::Handle<std::vector<reco::CaloCluster>> cluster_h;
-  edm::Handle<std::vector<float>> filtered_layerclusters_mask_h;
-  edm::Handle<std::vector<float>> original_layerclusters_mask_h;
-  edm::Handle<edm::ValueMap<std::pair<float, float>>> time_clusters_h;
-  edm::Handle<TICLLayerTiles> layer_clusters_tiles_h;
-  edm::Handle<std::vector<TICLSeedingRegion>> seeding_regions_h;
-
-  evt.getByToken(clusters_token_, cluster_h);
-  evt.getByToken(filtered_layerclusters_mask_token_, filtered_layerclusters_mask_h);
-  evt.getByToken(original_layerclusters_mask_token_, original_layerclusters_mask_h);
-  evt.getByToken(clustersTime_token_, time_clusters_h);
-  evt.getByToken(layer_clusters_tiles_token_, layer_clusters_tiles_h);
-  evt.getByToken(seeding_regions_token_, seeding_regions_h);
-
-  const auto& layerClusters = *cluster_h;
-  const auto& inputClusterMask = *filtered_layerclusters_mask_h;
-  const auto& layerClustersTimes = *time_clusters_h;
-  const auto& layer_clusters_tiles = *layer_clusters_tiles_h;
-  const auto& seeding_regions = *seeding_regions_h;
-  const ticl::PatternRecognitionAlgoBase::Inputs input(
-      evt, es, layerClusters, inputClusterMask, layerClustersTimes, layer_clusters_tiles, seeding_regions);
+  const std::vector<float>& original_layerclusters_mask = evt.get(original_layerclusters_mask_token_);
+  const auto& layerClusters = evt.get(clusters_token_);
+  const auto& inputClusterMask = evt.get(filtered_layerclusters_mask_token_);
+  const auto& layerClustersTimes = evt.get(clustersTime_token_);
+  const auto& seeding_regions = evt.get(seeding_regions_token_);
 
   std::unordered_map<int, std::vector<int>> seedToTrackstersAssociation;
   // if it's regional iteration and there are seeding regions
@@ -159,31 +158,26 @@ void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
       seedToTrackstersAssociation.emplace(seeding_regions[i].index, 0);
     }
   }
-  myAlgo_->makeTracksters(input, *result, seedToTrackstersAssociation);
 
+  if (doNose_) {
+    const auto& layer_clusters_hfnose_tiles = evt.get(layer_clusters_tiles_hfnose_token_);
+    const typename PatternRecognitionAlgoBaseT<TICLLayerTilesHFNose>::Inputs inputHFNose(
+        evt, es, layerClusters, inputClusterMask, layerClustersTimes, layer_clusters_hfnose_tiles, seeding_regions);
+
+    myAlgoHFNose_->makeTracksters(inputHFNose, *result, seedToTrackstersAssociation);
+
+  } else {
+    const auto& layer_clusters_tiles = evt.get(layer_clusters_tiles_token_);
+    const typename PatternRecognitionAlgoBaseT<TICLLayerTiles>::Inputs input(
+        evt, es, layerClusters, inputClusterMask, layerClustersTimes, layer_clusters_tiles, seeding_regions);
+
+    myAlgo_->makeTracksters(input, *result, seedToTrackstersAssociation);
+  }
   // Now update the global mask and put it into the event
-  output_mask->reserve(original_layerclusters_mask_h->size());
+  output_mask->reserve(original_layerclusters_mask.size());
   // Copy over the previous state
-  std::copy(std::begin(*original_layerclusters_mask_h),
-            std::end(*original_layerclusters_mask_h),
-            std::back_inserter(*output_mask));
-
-  // Filter results based on PID criteria.
-  // We want to **keep** tracksters whose cumulative
-  // probability summed up over the selected categories
-  // is greater than the chosen threshold. Therefore
-  // the filtering function should **discard** all
-  // tracksters **below** the threshold.
-  auto filter_on_pids = [&](Trackster& t) -> bool {
-    auto cumulative_prob = 0.;
-    for (auto index : filter_on_categories_) {
-      cumulative_prob += t.id_probabilities(index);
-    }
-    return cumulative_prob <= pid_threshold_;
-  };
-
-  // Actually filter results and shrink size to fit
-  result->erase(std::remove_if(result->begin(), result->end(), filter_on_pids), result->end());
+  std::copy(
+      std::begin(original_layerclusters_mask), std::end(original_layerclusters_mask), std::back_inserter(*output_mask));
 
   // Mask the used elements, accordingly
   for (auto const& trackster : *result) {

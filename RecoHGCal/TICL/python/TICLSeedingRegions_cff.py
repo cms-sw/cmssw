@@ -12,3 +12,6 @@ ticlSeedingTrk = _ticlSeedingRegionProducer.clone(
   algoId = 1
 )
 
+ticlSeedingGlobalHFNose = _ticlSeedingRegionProducer.clone(
+  algoId = 2
+)

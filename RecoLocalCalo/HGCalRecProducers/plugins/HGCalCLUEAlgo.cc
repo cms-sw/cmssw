@@ -44,8 +44,12 @@ void HGCalCLUEAlgoT<T>::populate(const HGCRecHitCollection& hits) {
     if (dependSensor_) {
       int thickness_index = rhtools_.getSiThickIndex(detid);
       if (thickness_index == -1)
-        thickness_index = 3;
+        thickness_index = maxNumberOfThickIndices_;
+
       double storedThreshold = thresholds_[layerOnSide][thickness_index];
+      if (detid.det() == DetId::HGCalHSi || detid.subdetId() == HGCHEF) {
+        storedThreshold = thresholds_[layerOnSide][thickness_index + deltasi_index_regemfac_];
+      }
       sigmaNoise = v_sigmaNoise_[layerOnSide][thickness_index];
 
       if (hgrh.energy() < storedThreshold)
@@ -507,8 +511,9 @@ void HGCalCLUEAlgoT<T>::computeThreshold() {
   // To support the TDR geometry and also the post-TDR one (v9 onwards), we
   // need to change the logic of the vectors containing signal to noise and
   // thresholds. The first 3 indices will keep on addressing the different
-  // thicknesses of the Silicon detectors, while the last one, number 3 (the
-  // fourth) will address the Scintillators. This change will support both
+  // thicknesses of the Silicon detectors in CE_E , the next 3 indices will address
+  // the thicknesses of the Silicon detectors in CE_H, while the last one, number 6 (the
+  // seventh) will address the Scintillators. This change will support both
   // geometries at the same time.
 
   if (initialized_)
@@ -517,13 +522,13 @@ void HGCalCLUEAlgoT<T>::computeThreshold() {
   initialized_ = true;
 
   std::vector<double> dummy;
-  const unsigned maxNumberOfThickIndices = 3;
-  dummy.resize(maxNumberOfThickIndices + !isNose_, 0);  // +1 to accomodate for the Scintillators
+
+  dummy.resize(maxNumberOfThickIndices_ + !isNose_, 0);  // +1 to accomodate for the Scintillators
   thresholds_.resize(maxlayer_, dummy);
   v_sigmaNoise_.resize(maxlayer_, dummy);
 
   for (unsigned ilayer = 1; ilayer <= maxlayer_; ++ilayer) {
-    for (unsigned ithick = 0; ithick < maxNumberOfThickIndices; ++ithick) {
+    for (unsigned ithick = 0; ithick < maxNumberOfThickIndices_; ++ithick) {
       float sigmaNoise = 0.001f * fcPerEle_ * nonAgedNoises_[ithick] * dEdXweights_[ilayer] /
                          (fcPerMip_[ithick] * thicknessCorrection_[ithick]);
       thresholds_[ilayer - 1][ithick] = sigmaNoise * ecut_;
@@ -535,9 +540,9 @@ void HGCalCLUEAlgoT<T>::computeThreshold() {
     }
 
     if (!isNose_) {
-      float scintillators_sigmaNoise = 0.001f * noiseMip_ * dEdXweights_[ilayer];
-      thresholds_[ilayer - 1][maxNumberOfThickIndices] = ecut_ * scintillators_sigmaNoise;
-      v_sigmaNoise_[ilayer - 1][maxNumberOfThickIndices] = scintillators_sigmaNoise;
+      float scintillators_sigmaNoise = 0.001f * noiseMip_ * dEdXweights_[ilayer] / sciThicknessCorrection_;
+      thresholds_[ilayer - 1][maxNumberOfThickIndices_] = ecut_ * scintillators_sigmaNoise;
+      v_sigmaNoise_[ilayer - 1][maxNumberOfThickIndices_] = scintillators_sigmaNoise;
       LogDebug("HGCalCLUEAlgo") << "ilayer: " << ilayer << " noiseMip: " << noiseMip_
                                 << " scintillators_sigmaNoise: " << scintillators_sigmaNoise << "\n";
     }
