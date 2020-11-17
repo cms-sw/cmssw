@@ -170,6 +170,7 @@ if (process.runType.getRunType() == process.runType.pp_run or
         runNumber = cms.untracked.uint64(options.runNumber),
         lastLumiFile = cms.untracked.string(''),
         writeTransactionDelay = cms.untracked.uint32(options.transDelay),
+        latency = cms.untracked.uint32(2),
         autoCommit = cms.untracked.bool(True),
         saveLogsOnDB = cms.untracked.bool(True),
         jobName = cms.untracked.string("BeamSpotOnlineHLTTest"), # name of the DB log record
