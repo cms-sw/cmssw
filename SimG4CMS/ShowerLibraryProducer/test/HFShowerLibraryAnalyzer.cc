@@ -40,15 +40,15 @@ protected:
 private:
   void bookHistos();
   void getRecord(int, int);
-  void loadEventInfo(TBranch *);
+  void loadEventInfo(TBranch*);
 
-  TFile *hf_;
+  TFile* hf_;
   TBranch *emBranch_, *hadBranch_;
   bool verbose_, newForm_, v3version_;
   int nMomBin_, totEvents_, evtPerBin_;
   float libVers_, listVersion_;
   std::vector<double> pmom_;
-  HFShowerPhotonCollection *photo_;
+  HFShowerPhotonCollection* photo_;
   HFShowerPhotonCollection photon_;
   std::vector<TH1F*> h_x_[2], h_y_[2], h_z_[2], h_t_[2], h_l_[2], h_n_[2];
 };
@@ -78,14 +78,14 @@ HFShowerLibraryAnalyzer::HFShowerLibraryAnalyzer(edm::ParameterSet const& ps)
     if (event) {
       TBranch* evtInfo(nullptr);
       if (!newForm_) {
-	std::string info = branchEvInfo + branchPost;
-	evtInfo = event->GetBranch(info.c_str());
+        std::string info = branchEvInfo + branchPost;
+        evtInfo = event->GetBranch(info.c_str());
       }
       if (evtInfo || newForm_) {
-	loadEventInfo(evtInfo);
+        loadEventInfo(evtInfo);
       } else {
-	edm::LogError("HFShower") << "HFShowerLibrayEventInfo Branch does not exist in Event";
-	throw cms::Exception("Unknown", "HFShowerLibraryAnalyzer") << "Event information absent\n";
+        edm::LogError("HFShower") << "HFShowerLibrayEventInfo Branch does not exist in Event";
+        throw cms::Exception("Unknown", "HFShowerLibraryAnalyzer") << "Event information absent\n";
       }
     } else {
       edm::LogError("HFShower") << "Events Tree does not exist";
@@ -93,11 +93,12 @@ HFShowerLibraryAnalyzer::HFShowerLibraryAnalyzer(edm::ParameterSet const& ps)
     }
 
     std::stringstream ss;
-    ss << "HFShowerLibraryAnalyzer: Library " << libVers_ << " ListVersion " << listVersion_ << " Events Total " << totEvents_ << " and " << evtPerBin_ << " per bin\n";
+    ss << "HFShowerLibraryAnalyzer: Library " << libVers_ << " ListVersion " << listVersion_ << " Events Total "
+       << totEvents_ << " and " << evtPerBin_ << " per bin\n";
     ss << "HFShowerLibraryAnalyzer: Energies (GeV) with " << nMomBin_ << " bins\n";
     for (int i = 0; i < nMomBin_; ++i) {
       if (i / 10 * 10 == i && i > 0) {
-	ss << "\n";
+        ss << "\n";
       }
       ss << "  " << pmom_[i] / CLHEP::GeV;
     }
@@ -113,9 +114,12 @@ HFShowerLibraryAnalyzer::HFShowerLibraryAnalyzer(edm::ParameterSet const& ps)
       hadBranch_->Print();
 
     v3version_ = (emBranch_->GetClassName() == std::string("vector<float>")) ? true : false;
-    edm::LogVerbatim("HFShower") << " HFShowerLibraryAnalyzer:Branch " << emName << " has " << emBranch_->GetEntries() << " entries and Branch " << hadName << " has " << hadBranch_->GetEntries() << " entries\n HFShowerLibraryAnalyzer::No packing information - Assume x, y, z are not in packed form";
+    edm::LogVerbatim("HFShower")
+        << " HFShowerLibraryAnalyzer:Branch " << emName << " has " << emBranch_->GetEntries() << " entries and Branch "
+        << hadName << " has " << hadBranch_->GetEntries()
+        << " entries\n HFShowerLibraryAnalyzer::No packing information - Assume x, y, z are not in packed form";
     photo_ = new HFShowerPhotonCollection;
-    
+
     bookHistos();
   } else {
     edm::LogError("HFShower") << "HFShowerLibrary: opening " << nTree << " failed";
@@ -143,13 +147,14 @@ void HFShowerLibraryAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& d
 void HFShowerLibraryAnalyzer::bookHistos() {
   edm::Service<TFileService> tfile;
   if (!tfile.isAvailable())
-    throw cms::Exception("Unknown", "HFShowerLibraryAnalyzer") << "TFileService unavailable: please add it to config file";
+    throw cms::Exception("Unknown", "HFShowerLibraryAnalyzer")
+        << "TFileService unavailable: please add it to config file";
   char name[20], title[40], titlx[120];
   TH1F* hist;
   for (int i = 0; i < 2; ++i) {
     std::string type = (i == 0) ? "EM" : "Hadron";
     for (int k = 0; k < nMomBin_; ++k) {
-      sprintf(title, "Showers for p = %6.1f GeV", pmom_[k]/CLHEP::GeV);
+      sprintf(title, "Showers for p = %6.1f GeV", pmom_[k] / CLHEP::GeV);
       sprintf(name, "X%d%d", k, i);
       sprintf(titlx, "x coordinate of %s shower (mm)", type.c_str());
       hist = tfile->make<TH1F>(name, title, 200, -500.0, 500.0);
@@ -204,25 +209,25 @@ void HFShowerLibraryAnalyzer::bookHistos() {
   for (int type = 0; type < 2; ++type) {
     for (int k = 0; k < nMomBin_; ++k) {
       for (int j = 0; j < evtPerBin_; ++j) {
-	int irc = k * evtPerBin_ + j + 1;
-	getRecord(type, irc);
-	int nPhoton = (newForm_) ? photo_->size() : photon_.size();
-	h_n_[type][k]->Fill(nPhoton);
-	for (int i = 0; i < nPhoton; i++) {
-	  if (newForm_) {
-	    h_x_[type][k]->Fill((photo_->at(i)).x());
-	    h_y_[type][k]->Fill((photo_->at(i)).y());
-	    h_z_[type][k]->Fill((photo_->at(i)).z());
-	    h_t_[type][k]->Fill((photo_->at(i)).t());
-	    h_l_[type][k]->Fill((photo_->at(i)).lambda());
-	  } else {
-	    h_x_[type][k]->Fill(photon_[i].x());
-	    h_y_[type][k]->Fill(photon_[i].y());
-	    h_z_[type][k]->Fill(photon_[i].z());
-	    h_t_[type][k]->Fill(photon_[i].t());
-	    h_l_[type][k]->Fill(photon_[i].lambda());
-	  }
-	}
+        int irc = k * evtPerBin_ + j + 1;
+        getRecord(type, irc);
+        int nPhoton = (newForm_) ? photo_->size() : photon_.size();
+        h_n_[type][k]->Fill(nPhoton);
+        for (int i = 0; i < nPhoton; i++) {
+          if (newForm_) {
+            h_x_[type][k]->Fill((photo_->at(i)).x());
+            h_y_[type][k]->Fill((photo_->at(i)).y());
+            h_z_[type][k]->Fill((photo_->at(i)).z());
+            h_t_[type][k]->Fill((photo_->at(i)).t());
+            h_l_[type][k]->Fill((photo_->at(i)).lambda());
+          } else {
+            h_x_[type][k]->Fill(photon_[i].x());
+            h_y_[type][k]->Fill(photon_[i].y());
+            h_z_[type][k]->Fill(photon_[i].z());
+            h_t_[type][k]->Fill(photon_[i].t());
+            h_l_[type][k]->Fill(photon_[i].lambda());
+          }
+        }
       }
     }
   }
@@ -277,12 +282,13 @@ void HFShowerLibraryAnalyzer::getRecord(int type, int record) {
   }
   if (verbose_) {
     int nPhoton = (newForm_) ? photo_->size() : photon_.size();
-    edm::LogVerbatim("HFShower") << "getRecord: Record " << record << " of type " << type << " with " << nPhoton << " photons";
+    edm::LogVerbatim("HFShower") << "getRecord: Record " << record << " of type " << type << " with " << nPhoton
+                                 << " photons";
     for (int j = 0; j < nPhoton; j++)
       if (newForm_)
-	edm::LogVerbatim("HFShower") << "Photon " << j << " " << photo_->at(j);
+        edm::LogVerbatim("HFShower") << "Photon " << j << " " << photo_->at(j);
       else
-	edm::LogVerbatim("HFShower") << "Photon " << j << " " << photon_[j];
+        edm::LogVerbatim("HFShower") << "Photon " << j << " " << photon_[j];
   }
 }
 
@@ -291,7 +297,8 @@ void HFShowerLibraryAnalyzer::loadEventInfo(TBranch* branch) {
     std::vector<HFShowerLibraryEventInfo> eventInfoCollection;
     branch->SetAddress(&eventInfoCollection);
     branch->GetEntry(0);
-    edm::LogVerbatim("HFShower") << "HFShowerLibrary::loadEventInfo loads EventInfo Collection of size " << eventInfoCollection.size() << " records";
+    edm::LogVerbatim("HFShower") << "HFShowerLibrary::loadEventInfo loads EventInfo Collection of size "
+                                 << eventInfoCollection.size() << " records";
     totEvents_ = eventInfoCollection[0].totalEvents();
     nMomBin_ = eventInfoCollection[0].numberOfBins();
     evtPerBin_ = eventInfoCollection[0].eventsPerBin();
@@ -313,5 +320,3 @@ void HFShowerLibraryAnalyzer::loadEventInfo(TBranch* branch) {
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(HFShowerLibraryAnalyzer);
-
-
