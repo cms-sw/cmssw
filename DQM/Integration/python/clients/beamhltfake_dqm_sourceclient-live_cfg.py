@@ -57,6 +57,7 @@ process.dqmSaverPB.runNumber   = options.runNumber
 
 
 #---------------
+"""
 # Conditions
 if (live):
     process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
@@ -66,7 +67,7 @@ else:
     process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
     # you may need to set manually the GT in the line below
     process.GlobalTag.globaltag = '100X_upgrade2018_realistic_v10'
-
+"""
 # BeamMonitor
 #-----------------------------
 process.load("DQM.BeamMonitor.FakeBeamMonitor_cff")
@@ -76,7 +77,7 @@ process.dqmBeamMonitor = process.dqmFakeBeamMonitor.clone()
 # Calibration
 #---------------
 # Condition for P5 cluster
-process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
+#process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 process.dqmcommon = cms.Sequence(process.dqmEnv
                                * process.dqmSaver * process.dqmSaverPB)
 
