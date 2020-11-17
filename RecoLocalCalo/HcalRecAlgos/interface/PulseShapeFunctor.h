@@ -59,20 +59,20 @@ namespace FitterFuncs {
     }
 
     // getters
-    inline std::vector<float> const &get_acc25nsVec() const { return acc25nsVec; }
-    inline std::vector<float> const &get_diff25nsItvlVec() const { return diff25nsItvlVec; }
-    inline std::vector<float> const &get_accVarLenIdxZEROVec() const { return accVarLenIdxZEROVec; }
-    inline std::vector<float> const &get_diffVarItvlIdxZEROVec() const { return diffVarItvlIdxZEROVec; }
-    inline std::vector<float> const &get_accVarLenIdxMinusOneVec() const { return accVarLenIdxMinusOneVec; }
-    inline std::vector<float> const &get_diffVarItvlIdxMinusOneVec() const { return diffVarItvlIdxMinusOneVec; }
+    inline std::vector<float> const &acc25nsVec() const { return acc25nsVec_; }
+    inline std::vector<float> const &diff25nsItvlVec() const { return diff25nsItvlVec_; }
+    inline std::vector<float> const &accVarLenIdxZEROVec() const { return accVarLenIdxZEROVec_; }
+    inline std::vector<float> const &diffVarItvlIdxZEROVec() const { return diffVarItvlIdxZEROVec_; }
+    inline std::vector<float> const &accVarLenIdxMinusOneVec() const { return accVarLenIdxMinusOneVec_; }
+    inline std::vector<float> const &diffVarItvlIdxMinusOneVec() const { return diffVarItvlIdxMinusOneVec_; }
 
   private:
     std::array<float, hcal::constants::maxPSshapeBin> pulse_hist;
 
     int cntNANinfit;
-    std::vector<float> acc25nsVec, diff25nsItvlVec;
-    std::vector<float> accVarLenIdxZEROVec, diffVarItvlIdxZEROVec;
-    std::vector<float> accVarLenIdxMinusOneVec, diffVarItvlIdxMinusOneVec;
+    std::vector<float> acc25nsVec_, diff25nsItvlVec_;
+    std::vector<float> accVarLenIdxZEROVec_, diffVarItvlIdxZEROVec_;
+    std::vector<float> accVarLenIdxMinusOneVec_, diffVarItvlIdxMinusOneVec_;
 
     void funcShape(std::array<double, hcal::constants::maxSamples> &ntmpbin,
                    const double pulseTime,
