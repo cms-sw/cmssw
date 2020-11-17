@@ -292,12 +292,11 @@ void Phase2OTValidateCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32
 
   if (layerMEs_.find(folderName) == layerMEs_.end()) {
     ibooker.cd();
-    ibooker.setCurrentFolder(subdir + '/' + folderName);
     edm::LogInfo("Phase2TrackerValidateDigi") << " Booking Histograms in: " << subdir + '/' + folderName;
     std::ostringstream HistoName;
     ClusterMEs local_mes;
-
     if (tkGeom_->getDetectorType(det_id) == TrackerGeometry::ModuleType::Ph2PSP) {
+      ibooker.setCurrentFolder(subdir + '/' + folderName);
       HistoName.str("");
       HistoName << "Delta_X_Pixel";
       local_mes.deltaX_P = phase2tkutil::book1DFromPSet(
@@ -320,6 +319,7 @@ void Phase2OTValidateCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32
       local_mes.deltaY_P_primary = phase2tkutil::book1DFromPSet(
           config_.getParameter<edm::ParameterSet>("Delta_Y_Pixel_Primary"), HistoName.str(), ibooker);
     }
+    ibooker.setCurrentFolder(subdir + '/' + folderName);
     HistoName.str("");
     HistoName << "Delta_X_Strip";
     local_mes.deltaX_S = phase2tkutil::book1DFromPSet(
@@ -439,7 +439,7 @@ void Phase2OTValidateCluster::fillDescriptions(edm::ConfigurationDescriptions& d
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Delta_Y_Strip");
+    psd0.add<std::string>("name", "Delta_Y_Strip_Primary");
     psd0.add<std::string>("title", "#Delta Y " + striptag + ";Cluster resolution Y dimension");
     psd0.add<double>("xmin", -5.0);
     psd0.add<bool>("switch", true);
