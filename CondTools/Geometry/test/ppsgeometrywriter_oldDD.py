@@ -41,7 +41,7 @@ process.load("Geometry.VeryForwardGeometry.geometryRPFromDD_2021_cfi")
 
 # DB writer
 process.ppsGeometryBuilder = cms.EDAnalyzer("PPSGeometryBuilder",
-    isRun2 = cms.untracked.bool(False),
+    isRun2 = cms.bool(False),
     compactViewTag = cms.untracked.string('XMLIdealGeometryESSource_CTPPS')
 )
 
