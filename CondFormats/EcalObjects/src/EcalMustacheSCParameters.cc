@@ -4,15 +4,30 @@ float EcalMustacheSCParameters::sqrtLogClustETuning() const { return sqrtLogClus
 
 const EcalMustacheSCParameters::ParabolaParameters* EcalMustacheSCParameters::parabolaParameters(
     float log10ClustE, float absSeedEta) const {
-  // assume the collection is sorted in descending ParabolaParameters.etaMin and descending ParabolaParameters.log10EMin
-  for (const auto& parabolaParams : parabolaParametersCollection_) {
-    if (log10ClustE < parabolaParams.log10EMin || absSeedEta < parabolaParams.etaMin) {
-      continue;
-    } else {
-      return &parabolaParams;
-    }
+  // assume the collection is lexicographically sorted in ascending ParabolaParameters.log10EMin and ascending ParabolaParameters.etaMin
+  // find the matching log10EMin value
+  auto it1 = std::lower_bound(parabolaParametersCollection_.begin(),
+                              parabolaParametersCollection_.end(),
+                              log10ClustE,
+                              [](const EcalMustacheSCParameters::ParabolaParameters &params,
+                                 const double var) {
+                                return params.log10EMin < var;
+                              });
+  if (it1 != parabolaParametersCollection_.begin()) {
+    --it1;
   }
-  return nullptr;
+
+  // find the matching log10EMin and etaMin entry going only up to the sets matching for log10ClustE
+  const auto vars = std::make_pair(it1->log10EMin, absSeedEta);
+  auto it2 = std::lower_bound(parabolaParametersCollection_.begin(),
+                              it1 + 1,
+                              vars,
+                              [](const EcalMustacheSCParameters::ParabolaParameters &params,
+                                 const std::pair<double, double> vars) {
+                                return params.log10EMin < vars.first || params.etaMin < vars.second;
+                              });
+
+  return (it2 != parabolaParametersCollection_.begin()) ? &*(it2 - 1) : nullptr;
 }
 
 void EcalMustacheSCParameters::print(std::ostream& out) const {
