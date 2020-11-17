@@ -12,10 +12,6 @@
 // Author: Gabriel Ramirez
 // Date: May 23, 2020
 //
-// system include files
-//#define DEBUG
-//#ifndef DQM_SiTrackerPhase2_Phase2OTMonitorCluster_h
-//#define DQM_SiTrackerPhase2_Phase2OTMonitorCluster_h
 #include <memory>
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
@@ -82,12 +78,10 @@ private:
   const TrackerGeometry* tkGeom_ = nullptr;
   const TrackerTopology* tTopo_ = nullptr;
 };
-//#endif
 #include "DQM/SiTrackerPhase2/interface/TrackerPhase2DQMUtil.h"
 //
 // constructors
 //
-
 Phase2OTMonitorCluster::Phase2OTMonitorCluster(const edm::ParameterSet& iConfig)
     : config_(iConfig),
       clustersToken_(consumes<Phase2TrackerCluster1DCollectionNew>(config_.getParameter<edm::InputTag>("clusterSrc"))),
