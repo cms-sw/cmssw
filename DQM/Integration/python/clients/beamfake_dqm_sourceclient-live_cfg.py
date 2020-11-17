@@ -52,9 +52,13 @@ process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",
 process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'FakeBeamMonitor'
 process.dqmSaver.tag           = 'FakeBeamMonitor'
+process.dqmSaver.runNumber     = options.runNumber
+process.dqmSaverPB.tag         = 'FakeBeamMonitor'
+process.dqmSaverPB.runNumber   = options.runNumber
 
 
 #---------------
+"""
 # Conditions
 if (live):
     process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
@@ -63,8 +67,8 @@ else:
     from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
     process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
     # you may need to set manually the GT in the line below
-    process.GlobalTag.globaltag = '100X_upgrade2018_realistic_v10'
-
+    #process.GlobalTag.globaltag = '100X_upgrade2018_realistic_v10'
+"""
 #----------------------------
 # BeamMonitor
 process.load("DQM.BeamMonitor.FakeBeamMonitor_cff")
@@ -72,7 +76,7 @@ process.load("DQM.BeamMonitor.FakeBeamMonitor_cff")
 
 #----------------
 # Setup tracking
-process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
+#process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 #process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 #process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 #process.load("RecoLocalTracker.Configuration.RecoLocalTracker_cff")
@@ -81,7 +85,7 @@ process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 #-----------------
 
 process.dqmcommon = cms.Sequence(process.dqmEnv
-                               * process.dqmSaver)
+                               * process.dqmSaver * process.dqmSaverPB)
 
 #
 process.monitor = cms.Sequence(process.dqmFakeBeamMonitor
@@ -142,6 +146,8 @@ if unitTest == False:
         writeTransactionDelay = cms.untracked.uint32(options.transDelay),
         latency = cms.untracked.uint32(2),
         autoCommit = cms.untracked.bool(True),
+        saveLogsOnDB = cms.untracked.bool(True),
+        jobName = cms.untracked.string("BeamSpotOnlineLegacyTest"), # name of the DB log record
         toPut = cms.VPSet(cms.PSet(
             record = cms.string(BSOnlineRecordName),
             tag = cms.string('BeamSpotOnlineTestLegacy'),
