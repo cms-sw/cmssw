@@ -16,36 +16,36 @@ namespace FitterFuncs {
                                        double iPedMean,
                                        unsigned nSamplesToFit)
       : cntNANinfit(0),
-        acc25nsVec(hcal::constants::maxPSshapeBin),
-        diff25nsItvlVec(hcal::constants::maxPSshapeBin),
-        accVarLenIdxZEROVec(hcal::constants::nsPerBX),
-        diffVarItvlIdxZEROVec(hcal::constants::nsPerBX),
-        accVarLenIdxMinusOneVec(hcal::constants::nsPerBX),
-        diffVarItvlIdxMinusOneVec(hcal::constants::nsPerBX) {
+        acc25nsVec_(hcal::constants::maxPSshapeBin),
+        diff25nsItvlVec_(hcal::constants::maxPSshapeBin),
+        accVarLenIdxZEROVec_(hcal::constants::nsPerBX),
+        diffVarItvlIdxZEROVec_(hcal::constants::nsPerBX),
+        accVarLenIdxMinusOneVec_(hcal::constants::nsPerBX),
+        diffVarItvlIdxMinusOneVec_(hcal::constants::nsPerBX) {
     //The raw pulse
     for (int i = 0; i < hcal::constants::maxPSshapeBin; ++i)
       pulse_hist[i] = pulse(i);
     // Accumulate 25ns for each starting point of 0, 1, 2, 3...
     for (int i = 0; i < hcal::constants::maxPSshapeBin; ++i) {
       for (int j = i; j < i + hcal::constants::nsPerBX; ++j) {  //sum over hcal::constants::nsPerBXns from point i
-        acc25nsVec[i] +=
+        acc25nsVec_[i] +=
             (j < hcal::constants::maxPSshapeBin ? pulse_hist[j] : pulse_hist[hcal::constants::maxPSshapeBin - 1]);
       }
-      diff25nsItvlVec[i] = (i + hcal::constants::nsPerBX < hcal::constants::maxPSshapeBin
-                                ? pulse_hist[i + hcal::constants::nsPerBX] - pulse_hist[i]
-                                : pulse_hist[hcal::constants::maxPSshapeBin - 1] - pulse_hist[i]);
+      diff25nsItvlVec_[i] = (i + hcal::constants::nsPerBX < hcal::constants::maxPSshapeBin
+                                 ? pulse_hist[i + hcal::constants::nsPerBX] - pulse_hist[i]
+                                 : pulse_hist[hcal::constants::maxPSshapeBin - 1] - pulse_hist[i]);
     }
     // Accumulate different ns for starting point of index either 0 or -1
     for (int i = 0; i < hcal::constants::nsPerBX; ++i) {
       if (i == 0) {
-        accVarLenIdxZEROVec[0] = pulse_hist[0];
-        accVarLenIdxMinusOneVec[i] = pulse_hist[0];
+        accVarLenIdxZEROVec_[0] = pulse_hist[0];
+        accVarLenIdxMinusOneVec_[i] = pulse_hist[0];
       } else {
-        accVarLenIdxZEROVec[i] = accVarLenIdxZEROVec[i - 1] + pulse_hist[i];
-        accVarLenIdxMinusOneVec[i] = accVarLenIdxMinusOneVec[i - 1] + pulse_hist[i - 1];
+        accVarLenIdxZEROVec_[i] = accVarLenIdxZEROVec_[i - 1] + pulse_hist[i];
+        accVarLenIdxMinusOneVec_[i] = accVarLenIdxMinusOneVec_[i - 1] + pulse_hist[i - 1];
       }
-      diffVarItvlIdxZEROVec[i] = pulse_hist[i + 1] - pulse_hist[0];
-      diffVarItvlIdxMinusOneVec[i] = pulse_hist[i] - pulse_hist[0];
+      diffVarItvlIdxZEROVec_[i] = pulse_hist[i + 1] - pulse_hist[0];
+      diffVarItvlIdxMinusOneVec_[i] = pulse_hist[i] - pulse_hist[0];
     }
     for (int i = 0; i < hcal::constants::maxSamples; i++) {
       psFit_x[i] = 0;
@@ -103,12 +103,12 @@ namespace FitterFuncs {
       ntmpbin[iTS_start] =
           (bin_0_start == -1
                ?  // Initial bin (I'm assuming this is ok)
-               accVarLenIdxMinusOneVec[distTo25ns_start] + factor * diffVarItvlIdxMinusOneVec[distTo25ns_start]
-               : accVarLenIdxZEROVec[distTo25ns_start] + factor * diffVarItvlIdxZEROVec[distTo25ns_start]);
+               accVarLenIdxMinusOneVec_[distTo25ns_start] + factor * diffVarItvlIdxMinusOneVec_[distTo25ns_start]
+               : accVarLenIdxZEROVec_[distTo25ns_start] + factor * diffVarItvlIdxZEROVec_[distTo25ns_start]);
       //Fill the rest of the bins
       for (int iTS = iTS_start + 1; iTS < hcal::constants::maxSamples; ++iTS) {
         int bin_idx = distTo25ns_start + 1 + (iTS - iTS_start - 1) * ns_per_bx + bin_0_start;
-        ntmpbin[iTS] = acc25nsVec[bin_idx] + factor * diff25nsItvlVec[bin_idx];
+        ntmpbin[iTS] = acc25nsVec_[bin_idx] + factor * diff25nsItvlVec_[bin_idx];
       }
       //Scale the pulse
       if (scalePulse) {
