@@ -731,8 +731,7 @@ tracksValidation = cms.Sequence(
     trackValidatorBuilding +
     trackValidatorBuildingPreSplitting +
     trackValidatorConversion +
-    trackValidatorGsfTracks +
-    trackValidatorDisplaced,
+    trackValidatorGsfTracks,
     tracksPreValidation
 )
 
@@ -749,8 +748,13 @@ tracksValidationPhase2 = tracksValidation.copyAndExclude([
     trackValidatorJetCore
 ])
 tracksValidationPhase2+=trackValidatorTPEtaGreater2p7
+tracksValidationPhase2+=trackValidatorDisplaced
 phase2_tracker.toReplaceWith(tracksValidation, tracksValidationPhase2)
 
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+tracksValidationRun3 = tracksValidation.copy()
+tracksValidationRun3+=trackValidatorDisplaced
+run3_common.toReplaceWith(tracksValidation, tracksValidationRun3)
 
 fastSim.toReplaceWith(tracksValidation, tracksValidation.copyAndExclude([
     trackValidatorBuildingPreSplitting,
@@ -852,13 +856,17 @@ _trackValidatorsBase = cms.Sequence(
     trackValidatorAllTPEfficStandalone +
     trackValidatorConversionStandalone +
     trackValidatorGsfTracksStandalone +
-    trackValidatorBHadronStandalone +
-    trackValidatorDisplacedStandalone
+    trackValidatorBHadronStandalone
 )
 
 _trackValidatorsBasePhase2 = _trackValidatorsBase.copy()
 _trackValidatorsBasePhase2+=trackValidatorTPEtaGreater2p7
+_trackValidatorsBasePhase2+=trackValidatorDisplacedStandalone
 phase2_tracker.toReplaceWith(_trackValidatorsBase, _trackValidatorsBasePhase2)
+
+_trackValidatorsBaseRun3 = _trackValidatorsBase.copy()
+_trackValidatorsBaseRun3+=trackValidatorDisplacedStandalone
+run3_common.toReplaceWith(_trackValidatorsBase, _trackValidatorsBaseRun3)
 
 trackValidatorsStandalone = _trackValidatorsBase.copy()
 fastSim.toModify(trackValidatorsStandalone, lambda x: x.remove(trackValidatorConversionStandalone) )
