@@ -21,7 +21,6 @@
 #include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 
 HcalDigisValidation::HcalDigisValidation(const edm::ParameterSet& iConfig) {
-
   subdet_ = iConfig.getUntrackedParameter<std::string>("subdetector", "all");
   outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile", "");
   //    inputLabel_ = iConfig.getParameter<std::string > ("digiLabel");
@@ -81,7 +80,7 @@ HcalDigisValidation::HcalDigisValidation(const edm::ParameterSet& iConfig) {
 HcalDigisValidation::~HcalDigisValidation() { delete msm_; }
 
 void HcalDigisValidation::dqmBeginRun(const edm::Run& run, const edm::EventSetup& es) {
-  const auto &pHRNDC = es.getData(tok_HRNDC_);
+  const auto& pHRNDC = es.getData(tok_HRNDC_);
   hcons = &pHRNDC;
 
   htopology = new HcalTopology(hcons);
