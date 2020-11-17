@@ -75,7 +75,7 @@ std::pair<TrajectoryStateOnSurface, const GeomDet*> TransientInitialStateEstimat
   TSOS startingState = measvec[actualLast].updatedState();
   startingState.rescaleError(100.);
 
-  std::cout << "DEBUG DEEPCORE: distance first hit" << measvec[0].recHit()->globalPosition().perp() << std::endl;
+  // std::cout << "DEBUG DEEPCORE: distance first hit" << measvec[0].recHit()->globalPosition().perp() << std::endl;
 
   // avoid cloning...
   KFUpdator const aKFUpdator;
@@ -120,7 +120,7 @@ std::pair<TrajectoryStateOnSurface, const GeomDet*> TransientInitialStateEstimat
       << "\n it's field pointer is: " << firstState.magneticField()
       << "\n the pointer from the state of the back fit was: " << firstMeas.updatedState().magneticField();
 
-  std::cout << "DEBUG deepCore: firstState------>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>:\n" << "initial parameters:" << ", inv.Pt=" << firstState.freeState()->parameters().signedInverseTransverseMomentum() <<  ", trans.Curv=" <<firstState.freeState()->transverseCurvature()<< ", p=" << firstState.freeState()->momentum().mag() << ", pt=" << firstState.freeState()->momentum().perp() <<", phi=" <<firstState.freeState()->momentum().phi()  << ", eta="<<firstState.freeState()->momentum().eta() << std::endl;
-  std::cout << firstState << std::endl;
+  // std::cout << "DEBUG deepCore: firstState------>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>:\n" << "initial parameters:" << ", inv.Pt=" << firstState.freeState()->parameters().signedInverseTransverseMomentum() <<  ", trans.Curv=" <<firstState.freeState()->transverseCurvature()<< ", p=" << firstState.freeState()->momentum().mag() << ", pt=" << firstState.freeState()->momentum().perp() <<", phi=" <<firstState.freeState()->momentum().phi()  << ", eta="<<firstState.freeState()->momentum().eta() << std::endl;
+  // std::cout << firstState << std::endl;
   return std::pair<TrajectoryStateOnSurface, const GeomDet*>(std::move(firstState), firstMeas.recHit()->det());
 }
