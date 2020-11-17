@@ -144,19 +144,6 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& 
     std::array<float, 6>& adcPulse = myFEelectronics_->getDefaultADCPulse();
 
     if (scaleByDose_) {
-      if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi) {
-        HGCalSiNoiseMap<HGCSiliconDetId>::SiCellOpCharacteristicsCore siop = scal_.getSiCellOpCharacteristicsCore(id);
-        cce = siop.cce;
-        noiseWidth = siop.noise;
-        HGCalSiNoiseMap<HGCSiliconDetId>::GainRange_t gain((HGCalSiNoiseMap<HGCSiliconDetId>::GainRange_t)siop.gain);
-        lsbADC = scal_.getLSBPerGain()[gain];
-        maxADC = scal_.getMaxADCPerGain()[gain];
-        adcPulse = scal_.adcPulseForGain(gain);
-        gainIdx = siop.gain;
-        if (thresholdFollowsMIP_)
-          thrADC = siop.thrADC;
-      }
-
       if (id.det() == DetId::Forward && id.subdetId() == ForwardSubdetector::HFNose) {
         HGCalSiNoiseMap<HFNoseDetId>::SiCellOpCharacteristicsCore siop = scalHFNose_.getSiCellOpCharacteristicsCore(id);
         cce = siop.cce;
@@ -168,8 +155,18 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& 
         gainIdx = siop.gain;
         if (thresholdFollowsMIP_)
           thrADC = siop.thrADC;
+      } else {
+        HGCalSiNoiseMap<HGCSiliconDetId>::SiCellOpCharacteristicsCore siop = scal_.getSiCellOpCharacteristicsCore(id);
+        cce = siop.cce;
+        noiseWidth = siop.noise;
+        HGCalSiNoiseMap<HGCSiliconDetId>::GainRange_t gain((HGCalSiNoiseMap<HGCSiliconDetId>::GainRange_t)siop.gain);
+        lsbADC = scal_.getLSBPerGain()[gain];
+        maxADC = scal_.getMaxADCPerGain()[gain];
+        adcPulse = scal_.adcPulseForGain(gain);
+        gainIdx = siop.gain;
+        if (thresholdFollowsMIP_)
+          thrADC = siop.thrADC;
       }
-
     } else if (noise_fC_[cell.thickness - 1] != 0) {
       //this is kept for legacy compatibility with the TDR simulation
       //probably should simply be removed in a future iteration
