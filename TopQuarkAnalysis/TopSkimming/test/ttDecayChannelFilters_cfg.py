@@ -4,8 +4,8 @@ process = cms.Process("TEST")
 
 ## add message logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.categories.append('ParticleListDrawer')
-process.MessageLogger.categories.append('TtDecayChannelSelector')
+
+
 process.MessageLogger.cerr.TtDecayChannelSelector = cms.untracked.PSet(
     limit = cms.untracked.int32(-1)
 )

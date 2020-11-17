@@ -19,19 +19,16 @@ options.parseArguments()
 process.load("DPGAnalysis.SiStripTools.processOptions_cff")
 process.load("DPGAnalysis.SiStripTools.MessageLogger_cff")
 
-process.MessageLogger.destinations.extend(cms.vstring("tkdetlayers"))
-process.MessageLogger.categories.extend(cms.vstring("NoCluster","ClusterFound","TkDetLayers","DiskNames",
-                                                    "BuildingPixelForwardLayer","BuildingPhase2OTECRingedLayer",
-                                                    "BuildingPixelBarrel","BuildingPixelBarrelLayer","BuildingPhase2OTBarrelLayer","Phase2OTBarrelRodRadii"))
-process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
+process.MessageLogger.cout.enable = True
 #process.MessageLogger.cout.threshold = cms.untracked.string("INFO")
 process.MessageLogger.cout.threshold = cms.untracked.string("DEBUG")
 process.MessageLogger.debugModules = cms.untracked.vstring("*")
-process.MessageLogger.tkdetlayers = cms.untracked.PSet (
+process.MessageLogger.files = dict(tkdetlayers = cms.untracked.PSet (
     threshold = cms.untracked.string("INFO"),
     default = cms.untracked.PSet(limit = cms.untracked.int32(0)),
     TkDetLayers = cms.untracked.PSet(limit = cms.untracked.int32(100000))
     )
+)
 process.MessageLogger.cout.default = cms.untracked.PSet(
     limit = cms.untracked.int32(0)
     )

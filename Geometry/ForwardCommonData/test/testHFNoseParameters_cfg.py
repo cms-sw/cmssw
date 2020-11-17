@@ -6,8 +6,8 @@ process.load("Geometry.ForwardCommonData.testHFNoseXML_cfi")
 process.load("Geometry.ForwardCommonData.hfnoseParametersInitialization_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
-if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('HGCalGeom')
+
+    
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789

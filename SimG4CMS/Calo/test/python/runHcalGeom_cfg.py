@@ -20,9 +20,9 @@ process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('HCalGeom')
-    process.MessageLogger.categories.append('HcalSim')
+
+    
+    
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1),

@@ -19,9 +19,6 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.Geometry.GeometryExtended2021_cff')
 
-if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('EcalSimX')
-
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100),
     output = cms.optional.untracked.allowed(cms.int32,cms.PSet)

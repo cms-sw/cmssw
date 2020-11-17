@@ -17,10 +17,10 @@ process.DDCompactViewESProducer = cms.ESProducer("DDCompactViewESProducer",
                                                  appendToDataLabel = cms.string('')
 )
 
-if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.categories.append('Geometry')
-    process.MessageLogger.categories.append('ME0NumberingScheme')
-    process.MessageLogger.categories.append('ME0Geometry')
+
+    
+    
+    
 
 process.source = cms.Source('EmptySource')
 

@@ -6,8 +6,8 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.Geometry.GeometryExtended2018Reco_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
-if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.categories.append('Collapse')
+
+    
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring('file:step311.root'),

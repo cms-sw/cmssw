@@ -142,9 +142,9 @@ process.TFileService.fileName = cms.string(options.output)
 
 
 # enable debug message logging for our modules
-process.MessageLogger.categories.append('L1TCaloEvents')
-process.MessageLogger.categories.append('L1TGlobalEvents')
-process.MessageLogger.categories.append('l1t|Global')
+
+
+
 process.MessageLogger.suppressInfo = cms.untracked.vstring('Geometry', 'AfterSource')
 
 # gt analyzer

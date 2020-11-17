@@ -9,8 +9,8 @@ process.maxEvents = cms.untracked.PSet(
     )
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 5
-if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('EcalGeom')
+
+    
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             confGeomXMLFiles = cms.FileInPath('Geometry/EcalCommonData/data/dd4hep/cms-ecal-geometry-dump.xml'),

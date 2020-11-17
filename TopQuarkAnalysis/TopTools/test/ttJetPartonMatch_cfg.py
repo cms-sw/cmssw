@@ -5,7 +5,7 @@ process = cms.Process("TEST")
 ## add message logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'INFO'
-process.MessageLogger.categories.append('JetPartonMatching')
+
 process.MessageLogger.cerr.JetPartonMatching = cms.untracked.PSet(
     limit = cms.untracked.int32(-1)
 )

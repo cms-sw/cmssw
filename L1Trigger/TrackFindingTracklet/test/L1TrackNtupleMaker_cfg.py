@@ -25,8 +25,8 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.MessageLogger.categories.append('Tracklet')
-process.MessageLogger.categories.append('L1track')
+
+
 process.MessageLogger.Tracklet = cms.untracked.PSet(limit = cms.untracked.int32(-1))
 
 if GEOMETRY == "D49": 

@@ -9,8 +9,8 @@ from Configuration.Geometry.GeometryDD4hepExtended2021Reco_cff import *
 process = cms.Process("MaterialAnalyser")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
-if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('TrackingMaterialGroup')
+
+    
 
 process.source = cms.Source("EmptySource")
 

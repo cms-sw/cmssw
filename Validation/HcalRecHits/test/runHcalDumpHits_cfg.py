@@ -15,8 +15,8 @@ from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['phase2_realistic']
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
-if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('HcalValidation')
+
+    
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)

@@ -4,7 +4,7 @@ process = cms.Process( "TEST" )
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('HeterogeneousCore.MPIServices.MPIService_cfi')
-process.MessageLogger.categories.append("MPIService")
+
 
 process.source = cms.Source("EmptySource")
 

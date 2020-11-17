@@ -11,8 +11,8 @@ process = cms.Process("Lumi")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'INFO'
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
-process.MessageLogger.categories.append('HLTrigReport')
-process.MessageLogger.categories.append('L1GtTrigReport')
+
+
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 # -- Database configuration

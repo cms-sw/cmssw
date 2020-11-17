@@ -3,17 +3,17 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("ANA")
 
 process.load('FWCore/MessageService/MessageLogger_cfi')
-process.MessageLogger.categories.append('TriggerSummaryAnalyzerAOD')
-process.MessageLogger.categories.append('TriggerSummaryAnalyzerRAW')
-process.MessageLogger.categories.append('HLTEventAnalyzerAOD')
-process.MessageLogger.categories.append('HLTEventAnalyzerRAW')
-process.MessageLogger.categories.append('L1GtTrigReport')
-process.MessageLogger.categories.append('L1TGlobalSummary')
-process.MessageLogger.categories.append('HLTrigReport')
-process.MessageLogger.categories.append('HLTSummaryFilter')
-process.MessageLogger.categories.append('HLTConfigProvider')
-process.MessageLogger.categories.append('HLTPrescaleProvider')
-process.MessageLogger.categories.append('HLTConfigData')
+
+
+
+
+
+
+
+
+
+
+
 
 # process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 # process.load('Configuration.StandardSequences.CondDBESSource_cff')

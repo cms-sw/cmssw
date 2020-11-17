@@ -76,9 +76,9 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 5
-if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('ValidHGCal')
-    process.MessageLogger.categories.append('HGCalGeom')
+
+    
+    
 
 # Input source
 process.source = cms.Source("EmptySource")

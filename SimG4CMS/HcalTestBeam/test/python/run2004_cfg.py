@@ -16,15 +16,15 @@ process.TFileService = cms.Service("TFileService",
 )
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 5
-if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('HCalGeom')
-    process.MessageLogger.categories.append('EcalGeom')
-    process.MessageLogger.categories.append('HcalSim')
-    process.MessageLogger.categories.append('HcalTBSim')
-    process.MessageLogger.categories.append('EcalSim')
-    process.MessageLogger.categories.append('CaloSim')
-    process.MessageLogger.categories.append('SimHCalData')
-    process.MessageLogger.categories.append('VertexGenerator')
+
+    
+    
+    
+    
+    
+    
+    
+    
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789

@@ -24,8 +24,8 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(50)
 )
 
-if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.categories.append('G4cerr')
+
+    
 
 process.Timing = cms.Service("Timing")
 
