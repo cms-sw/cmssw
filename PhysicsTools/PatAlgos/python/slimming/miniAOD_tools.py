@@ -623,6 +623,7 @@ def miniAOD_customizeData(process):
     process.load('L1Trigger.L1TGlobal.simGtExtFakeProd_cfi')
     process.simGtExtFakeProd.tcdsRecordLabel = cms.InputTag("tcdsDigis","tcdsRecord")
     task = getPatAlgosToolsTask(process)
+    task.add(process.simGtExtFakeProd)
     from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
     from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
     (ctpps_2016 & ~run2_miniAOD_UL).toModify(task, func=lambda t: t.add(process.ctppsLocalTrackLiteProducer, process.ctppsProtons))
