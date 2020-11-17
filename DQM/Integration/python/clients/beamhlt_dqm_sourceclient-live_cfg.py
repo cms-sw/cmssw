@@ -79,7 +79,7 @@ process.load("DQM.BeamMonitor.BeamMonitor_cff")
 # Calibration
 #---------------
 # Condition for P5 cluster
-process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
+#process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 # Condition for lxplus: change and possibly customise the GT
 #from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
 #process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
@@ -170,6 +170,7 @@ if (process.runType.getRunType() == process.runType.pp_run or
         runNumber = cms.untracked.uint64(options.runNumber),
         lastLumiFile = cms.untracked.string(''),
         writeTransactionDelay = cms.untracked.uint32(options.transDelay),
+        latency = cms.untracked.uint32(2),
         autoCommit = cms.untracked.bool(True),
         saveLogsOnDB = cms.untracked.bool(True),
         jobName = cms.untracked.string("BeamSpotOnlineHLTTest"), # name of the DB log record
