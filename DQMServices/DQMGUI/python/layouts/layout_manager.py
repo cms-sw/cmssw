@@ -2,7 +2,7 @@ from collections import namedtuple
 
 
 def register_layout(source, destination, name='default', description='default', overlay='default'):
-    LayoutManager.add_layout(Layout(source, destination, name, descriptio, overlay))
+    LayoutManager.add_layout(Layout(source, destination, name, description, overlay))
 
 
 class LayoutManager:
