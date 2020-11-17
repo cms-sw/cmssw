@@ -1478,7 +1478,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             #raw MET
             from RecoMET.METProducers.PFMET_cfi import pfMet
             addToProcessAndTask("pfMet"+postfix, pfMet.clone(), process, task)
-            getattr(process, "pfMet"+postfix).src = pfCandCollection
+            getattr(process, "pfMet"+postfix).src = "puppiForMET" if self.getvalue("Puppi") else pfCandCollection
             getattr(process, "pfMet"+postfix).calculateSignificance = False
             patMetModuleSequence += getattr(process, "pfMet"+postfix)
 
