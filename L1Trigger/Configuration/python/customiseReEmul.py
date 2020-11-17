@@ -185,12 +185,22 @@ def L1TReEmulFromRAW2016(process):
 
 def L1TReEmulFromRAW(process):
     L1TReEmulFromRAW2016(process)
+    
 
     stage2L1Trigger_2017.toModify(process.simOmtfDigis,
         srcRPC   = 'omtfStage2Digis',
         srcCSC   = 'omtfStage2Digis',
         srcDTPh  = 'omtfStage2Digis',
         srcDTTh  = 'omtfStage2Digis'
+    )
+
+    stage2L1Trigger.toModify(process.simEmtfDigis,
+      CSCInput  = cms.InputTag('emtfStage2Digis'),
+      RPCInput  = cms.InputTag('muonRPCDigis'),
+      CPPFInput = cms.InputTag('emtfStage2Digis'),
+      GEMEnable = cms.bool(False),
+      GEMInput  = cms.InputTag('muonGEMPadDigis'),
+      CPPFEnable = cms.bool(True), # Use CPPF-emulated clustered RPC hits from CPPF as the RPC hits
     )
 
     run3_GEM.toModify(process.simMuonGEMPadDigis,
