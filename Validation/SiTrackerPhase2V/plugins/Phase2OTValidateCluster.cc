@@ -12,8 +12,6 @@
 // Author: Gabriel Ramirez, Suvankar Roy Chowdhury
 // Date: May 23, 2020
 //
-//#ifndef Validation_SiTrackerPhase2V_Phase2OTValidateCluster_h
-//#define Validation_SiTrackerPhase2V_Phase2OTValidateCluster_h
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -96,14 +94,11 @@ private:
   const TrackerGeometry* tkGeom_ = nullptr;
   const TrackerTopology* tTopo_ = nullptr;
 };
-//#endif
 #include "Validation/SiTrackerPhase2V/interface/TrackerPhase2ValidationUtil.h"
 #include "DQM/SiTrackerPhase2/interface/TrackerPhase2DQMUtil.h"
-
 //
 // constructors
 //
-
 Phase2OTValidateCluster::Phase2OTValidateCluster(const edm::ParameterSet& iConfig)
     : config_(iConfig),
       simtrackminpt_(config_.getParameter<double>("SimTrackMinPt")),

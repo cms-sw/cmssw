@@ -7,10 +7,6 @@
 //
 // Author: Shubhi Parolia, Suvankar Roy Chowdhury
 // Date: July 2020
-//
-// system include files
-#ifndef DQM_SiTrackerPhase2_Phase2ITMonitorRecHit_h
-#define DQM_SiTrackerPhase2_Phase2ITMonitorRecHit_h
 #include <memory>
 #include <map>
 #include <vector>
@@ -87,7 +83,6 @@ private:
   };
   std::map<std::string, RecHitME> layerMEs_;
 };
-#endif
 #include "DQM/SiTrackerPhase2/interface/TrackerPhase2DQMUtil.h"
 
 Phase2ITMonitorRecHit::Phase2ITMonitorRecHit(const edm::ParameterSet& iConfig)
