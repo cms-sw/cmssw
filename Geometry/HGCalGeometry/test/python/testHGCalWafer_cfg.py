@@ -5,8 +5,8 @@ process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 process.load("Configuration.Geometry.GeometryExtended2026D71Reco_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
-if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('HGCalGeom')
+
+    
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789

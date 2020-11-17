@@ -7,8 +7,8 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 process.load('Configuration.Geometry.GeometryDD4hepExtended2021Reco_cff')
 
-if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.categories.append('TrackerGeometryBuilder')
+
+    
     
 process.source = cms.Source("EmptySource")
 

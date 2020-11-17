@@ -55,8 +55,8 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 # MESSAGER
-process.MessageLogger.destinations = cms.untracked.vstring('cout')
-process.MessageLogger.cout = cms.untracked.PSet(threshold = cms.untracked.string(threshold))
+process.MessageLogger.cerr.enable = False
+process.MessageLogger.cout = dict(enable = True, threshold = threshold)
 
 # BACK UP DATABASE FILE
 user = getpass.getuser()

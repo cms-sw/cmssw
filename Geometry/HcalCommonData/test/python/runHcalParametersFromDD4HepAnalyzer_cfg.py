@@ -5,9 +5,9 @@ process.load('Geometry.HcalCommonData.hcalParameters_cff')
 process.load('Geometry.HcalCommonData.hcalSimulationParameters_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
-if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('HCalGeom')
-    process.MessageLogger.categories.append('Geometry')
+
+    
+    
 
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(

@@ -9,10 +9,10 @@ process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
 process.load("Geometry.RPCGeometryBuilder.rpcGeometry_cfi")
 process.load("Geometry.RPCGeometryBuilder.rpcGeometryDump_cfi")
 
-if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.categories.append('Geometry')
-    process.MessageLogger.categories.append('RPCNumberingScheme')
-    process.MessageLogger.categories.append('RPCGeometry')
+
+    
+    
+    
 
 process.source = cms.Source('EmptySource')
 

@@ -4,7 +4,7 @@ process = cms.Process("TEST")
 
 ## add message logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.categories.append('ParticleListDrawer')
+
 
 ## define input
 from TopQuarkAnalysis.TopEventProducers.tqafInputFiles_cff import relValTTbar

@@ -17,9 +17,9 @@ process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
 process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
-if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('MaterialBudget')
-#   process.MessageLogger.categories.append('MaterialBudgetFull')
+
+    
+#   
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             confGeomXMLFiles = cms.FileInPath('Validation/Geometry/data/cmsExtendedGeometryNoMuon2021.xml'),

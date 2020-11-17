@@ -6,8 +6,8 @@ process.load("Configuration.Geometry.GeometryExtended2023D28Reco_cff")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("Geometry.CaloTopology.hgcalTopologyTester_cfi")
 
-if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.categories.append('HGCalGeom')
+
+    
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789

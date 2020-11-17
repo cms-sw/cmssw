@@ -15,8 +15,8 @@ from Configuration.AlCa.autoCond import autoCond
 #process.GlobalTag.globaltag='101X_dataRun2_Prompt_v10'
 process.GlobalTag.globaltag='106X_dataRun2_v20'
 #106X_mcRun3_2021_realistic_v3
-if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.categories.append('HcalIsoTrack')
+
+    
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )

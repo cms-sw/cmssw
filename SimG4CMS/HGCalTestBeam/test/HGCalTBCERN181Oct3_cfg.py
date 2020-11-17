@@ -26,12 +26,12 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10)
 )
 
-if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.categories.append('HGCalGeom')
-    process.MessageLogger.categories.append('SimG4CoreGeometry')
-    process.MessageLogger.categories.append('HGCSim')
-    process.MessageLogger.categories.append('HcalSim')
-    process.MessageLogger.categories.append('HcalTB06BeamSD')
+
+    
+    
+    
+    
+    
 
 # Input source
 process.source = cms.Source("EmptySource")

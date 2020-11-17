@@ -5,10 +5,10 @@ process = cms.Process("DumpECDDD")
 process.load("Geometry.EcalCommonData.EcalOnly_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
-if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.categories.append('G4cerr')
-    process.MessageLogger.categories.append('G4cout')
-    process.MessageLogger.categories.append('EcalGeom')
+
+    
+    
+    
 
 process.source = cms.Source("EmptySource")
 

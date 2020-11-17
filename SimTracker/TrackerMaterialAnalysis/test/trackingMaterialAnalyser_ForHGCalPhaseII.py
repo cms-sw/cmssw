@@ -46,24 +46,22 @@ def customizeMessageLogger(process):
     #    label for all defined python modules
     process.MessageLogger.debugModules.extend(['*'])
     # 2. Define destination and its default logging properties
-    destination = 'debugTrackingMaterialAnalyzer'
     how_to_debug = cms.untracked.PSet(threshold = cms.untracked.string("DEBUG"),
                                       DEBUG = cms.untracked.PSet(limit = cms.untracked.int32(0)),
                                       default = cms.untracked.PSet(limit = cms.untracked.int32(0)),
                                       )
     # 3. Attach destination and its logging properties to the main process
-    process.MessageLogger.destinations.extend([destination])
-    process.MessageLogger._Parameterizable__addParameter(destination, how_to_debug)
+    process.MessageLogger.files.debugTrackingMaterialAnalyzer= how_to_debug
     # 4. Define and extend the categories we would like to monitor
     log_debug_categories = ['TrackingMaterialAnalyser', 'MaterialAccountingGroup']
-    process.MessageLogger.categories.extend(log_debug_categories)
+    
 
     # 5. Extend the configuration of the configured destination so that it
     #    will trace all messages coming from the list of specified
     #    categories.
     unlimit_debug = cms.untracked.PSet(limit = cms.untracked.int32(-1))
     for val in log_debug_categories:
-        process.MessageLogger.debugTrackingMaterialAnalyzer._Parameterizable__addParameter(val, unlimit_debug)
+        setattr(process.MessageLogger.files.debugTrackingMaterialAnalyzer,val, unlimit_debug)
 
     return process
 

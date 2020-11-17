@@ -9,10 +9,10 @@ process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
 process.load("Geometry.GEMGeometryBuilder.gemGeometry_cff")
 process.load("Geometry.GEMGeometryBuilder.gemGeometryDump_cfi")
 
-if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.categories.append('Geometry')
-    process.MessageLogger.categories.append('GEMNumberingScheme')
-    process.MessageLogger.categories.append('GEMGeometry')
+
+    
+    
+    
 
 process.source = cms.Source('EmptySource')
 

@@ -32,8 +32,8 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
 #process.MessageLogger.cerr.FwkReport.reportEvery = 100
-#if 'MessageLogger' in process.__dict__:
-#    process.MessageLogger.categories.append('HGCalValid')
+#
+#    
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
