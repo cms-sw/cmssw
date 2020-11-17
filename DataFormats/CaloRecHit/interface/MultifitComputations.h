@@ -283,6 +283,98 @@ namespace calo {
       }
     }
 
+    template <typename MatrixType1, typename MatrixType2, typename MatrixType3, typename MatrixType4>
+    EIGEN_ALWAYS_INLINE EIGEN_DEVICE_FUNC void calculateChiSq(MatrixType1 const& matrixL,
+                                                              MatrixType2 const& pulseMatrixView,
+                                                              MatrixType3 const& resultAmplitudesVector,
+                                                              MatrixType4 const& inputAmplitudesView,
+                                                              float& chi2) {
+      // FIXME: this assumes pulses are on columns and samples on rows
+      constexpr auto NPULSES = MatrixType2::ColsAtCompileTime;
+      constexpr auto NSAMPLES = MatrixType2::RowsAtCompileTime;
+
+      // replace pulseMatrixView * resultAmplitudesVector - inputAmplitudesView
+      // NOTE:
+      float accum[NSAMPLES];
+      {
+        float results[NPULSES];
+
+        // preload results and permute according to the pulse offsets /////////////// ??? this is not done in ECAL
+#pragma unroll
+        for (int counter = 0; counter < NPULSES; counter++) {
+          results[counter] = resultAmplitudesVector[counter];
+        }
+
+        // load accum
+#pragma unroll
+        for (int counter = 0; counter < NSAMPLES; counter++)
+          accum[counter] = -inputAmplitudesView(counter);
+
+        // iterate
+        for (int icol = 0; icol < NPULSES; icol++) {
+          float pm_col[NSAMPLES];
+
+          // preload a column of pulse matrix
+#pragma unroll
+          for (int counter = 0; counter < NSAMPLES; counter++)
+#ifdef __CUDA_ARCH__
+            pm_col[counter] = __ldg(&pulseMatrixView.coeffRef(counter, icol));
+#else
+            pm_col[counter] = pulseMatrixView.coeffRef(counter, icol);
+#endif
+
+            // accum
+#pragma unroll
+          for (int counter = 0; counter < NSAMPLES; counter++)
+            accum[counter] += results[icol] * pm_col[counter];
+        }
+      }
+
+      // compute chi2 and check that there is no rotation
+      // chi2 = matrixDecomposition
+      //    .matrixL()
+      //    . solve(mapAccum)
+      //            .solve(pulseMatrixView * resultAmplitudesVector - inputAmplitudesView)
+      //    .squaredNorm();
+
+      {
+        float reg_L[NSAMPLES];
+        float accumSum = 0;
+
+        // preload a column and load column 0 of cholesky
+#pragma unroll
+        for (int i = 0; i < NSAMPLES; i++) {
+          reg_L[i] = matrixL(i, 0);
+        }
+
+        // compute x0 and store it
+        auto x_prev = accum[0] / reg_L[0];
+        accumSum += x_prev * x_prev;
+
+        // iterate
+#pragma unroll
+        for (int iL = 1; iL < NSAMPLES; iL++) {
+          // update accum
+#pragma unroll
+          for (int counter = iL; counter < NSAMPLES; counter++)
+            accum[counter] -= x_prev * reg_L[counter];
+
+            // load the next column of cholesky
+#pragma unroll
+          for (int counter = iL; counter < NSAMPLES; counter++)
+            reg_L[counter] = matrixL(counter, iL);
+
+          // compute the next x for M(iL, icol)
+          x_prev = accum[iL] / reg_L[iL];
+
+          // store the result value
+          accumSum += x_prev * x_prev;
+        }
+
+        chi2 = accumSum;
+      }
+    }
+
     // TODO: add active bxs
     template <typename MatrixType, typename VectorType>
     EIGEN_DEVICE_FUNC void fnnls(MatrixType const& AtA,
