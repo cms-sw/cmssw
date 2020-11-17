@@ -141,7 +141,7 @@ void TrackFromSeedProducer::produce(edm::StreamID, edm::Event& iEvent, const edm
     //TrajectoryStateOnSurface state = trajectoryStateTransform::transientState( seed.startingState(), lastRecHit->surface(), theMF.product());
     TrajectoryStateOnSurface state;
     if(seed.nHits()==0) { //deepCore seeds (jetCoreDirectSeedGenerator)
-      std::cout << "DEBUG: 0 hit seed " << std::endl;
+      // std::cout << "DEBUG: 0 hit seed " << std::endl;
       const Surface *deepCore_sruface = &geometry_->idToDet(seed.startingState().detId())->specificSurface();
       state = trajectoryStateTransform::transientState( seed.startingState(),  deepCore_sruface, theMF.product());
     }

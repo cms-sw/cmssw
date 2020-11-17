@@ -374,35 +374,12 @@ MTVTrackAssociationByChi2 = trackingParticleRecoTrackAsssociation.clone(
     # UseAssociators = cms.bool(True)
 )
 
-# associatorByHitLoose = SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi.quickTrackAssociatorByHits.clone()
-# associatorByHitLoose = quickTrackAssociatorByHits.clone(
-# 	Cut_RecoToSim = cms.double(0.5),
-# 	Quality_SimToReco = cms.double(0.3),
-# 	Purity_SimToReco = cms.double(0.5),
-#     ThreeHitTracksAreSpecial =cms.bool(False),
-# 	usePixels = cms.bool(False)
-# )
-
-# MTVTrackAssociationByHitsLoose = trackingParticleRecoTrackAsssociation.clone(
-#     associator = cms.InputTag('associatorByHitLoose'),
-# )
-
-# associatorByDeltaR = trackAssociatorByPosition.clone(
-#     QCut = cms.double(0.01),
-#     method = cms.string('momdr'),
-#     ConsiderAllSimHits = cms.bool(False)
-# )
-# MTVTrackAssociationByDeltaR = trackingParticleRecoTrackAsssociation.clone(
-#     associator = cms.InputTag('associatorByDeltaR'),
-#     # UseAssociators = cms.bool(True)
-# )
-
 
 ## MTV instances
 trackValidator = Validation.RecoTrack.MultiTrackValidator_cfi.multiTrackValidator.clone(
     useLogPt = cms.untracked.bool(True),
     dodEdxPlots = True,
-    # associators=cms.untracked.VInputTag('MTVTrackAssociationByChi2'), #uncomment for byChi2 assoc. for jetcore studies (1/5)
+    associators=cms.untracked.VInputTag('MTVTrackAssociationByChi2'), #uncomment for byChi2 assoc. for jetcore studies (1/5)
     doPVAssociationPlots = True
     #,minpT = cms.double(-1)
     #,maxpT = cms.double(3)
@@ -571,12 +548,10 @@ _trackValidatorSeedingBuilding = trackValidator.clone( # common for built tracks
 )
 trackValidatorBuilding = _trackValidatorSeedingBuilding.clone(
     dirName = "Tracking/TrackBuilding/",
-    associators = ["trackAssociatorByChi2"],
-    UseAssociators = True,
     doMVAPlots = True,
     doResolutionPlotsForLabels = ['jetCoreRegionalStepTracks'],
-    # associators = ["trackAssociatorByChi2"], #uncomment for byChi2 assoc. for jetcore studies (2/5)
-    # UseAssociators = True, #uncomment for byChi2 assoc. for jetcore studies (3/5)
+    associators = ["trackAssociatorByChi2"], #uncomment for byChi2 assoc. for jetcore studies (2/5)
+    UseAssociators = True, #uncomment for byChi2 assoc. for jetcore studies (3/5)
 )
 trackValidatorBuildingPreSplitting = trackValidatorBuilding.clone(
     associators = ["quickTrackAssociatorByHitsPreSplitting"],
@@ -703,12 +678,8 @@ phase2_tracker.toModify(tracksValidationSelectors, lambda x: x.add(tracksEtaGrea
 tracksValidationTruth = cms.Task(
     tpClusterProducer,
     tpClusterProducerPreSplitting,
-    # trackAssociatorByChi2, #uncomment for byChi2 assoc. for jetcore studies (4/5)
-    # MTVTrackAssociationByChi2, #uncomment for byChi2 assoc. for jetcore studies (5/5)
-    # associatorByHitLoose,
-    # associatorByDeltaR,
-    # MTVTrackAssociationByHitsLoose,
-    # MTVTrackAssociationByDeltaR,
+    trackAssociatorByChi2, #uncomment for byChi2 assoc. for jetcore studies (4/5)
+    MTVTrackAssociationByChi2, #uncomment for byChi2 assoc. for jetcore studies (5/5)
     quickTrackAssociatorByHits,
     quickTrackAssociatorByHitsPreSplitting,
     trackingParticleRecoTrackAsssociation,
