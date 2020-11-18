@@ -30,6 +30,7 @@ from optparse import OptionParser
 from subprocess import Popen, PIPE
 import collections
 import warnings
+import shutil
 import multiprocessing
 from enum import Enum
 
@@ -55,6 +56,21 @@ def check_proxy():
     except subprocess.CalledProcessError:
         return False
     return True
+
+##############################################
+def forward_proxy(rundir):
+##############################################
+    """Forward proxy to location visible from the batch system.
+    Arguments:
+    - `rundir`: directory for storing the forwarded proxy
+    """
+
+    if not check_proxy():
+        print("Please create proxy via 'voms-proxy-init -voms cms -rfc'.")
+        sys.exit(1)
+
+    local_proxy = subprocess.check_output(["voms-proxy-info", "--path"]).strip()
+    shutil.copyfile(local_proxy, os.path.join(rundir,".user_proxy"))
 
 ##############################################
 def write_HTCondor_submit_file(path, name, nruns, proxy_path=None):
@@ -110,7 +126,7 @@ def getCommandOutput(command):
 ##############################################
 def getFilesForRun(blob):
 ##############################################
-    cmd2 = ' dasgoclient -limit=0 -query \'file run='+blob[0]+' dataset='+blob[1]+'\''
+    cmd2 = ' dasgoclient -limit=0 -query \'file run='+blob[0][0]+' dataset='+blob[0][1]+ (' instance='+blob[1]+'\'' if (blob[1] is not None) else '\'')
     #cmd2 = 'dasgoclient -query \'file run='+blob[0]+' dataset='+blob[1]+'\''
     q = Popen(cmd2 , shell=True, stdout=PIPE, stderr=PIPE)
     out, err = q.communicate()
@@ -174,6 +190,17 @@ def isInJSON(run,jsonfile):
     except:
         warnings.warn('ATTENTION! Impossible to find lumi mask! All runs will be used.')
         return True
+
+#######################################################
+def as_dict(config):
+#######################################################
+    dictionary = {}
+    for section in config.sections():
+        dictionary[section] = {}
+        for option in config.options(section):
+            dictionary[section][option] = config.get(section, option)
+
+    return dictionary
 
 ##############################################
 def to_bool(value):
@@ -465,7 +492,7 @@ class Job:
                         fout.write("          toGet = cms.VPSet(cms.PSet(record = cms.string('"+element+"'), \n")
                         fout.write("                                     tag = cms.string('"+params[1]+"'), \n")
                         if (len(params)>2):
-                            fout.write("                                     label = cms.string('"+params[2]+"') \n")
+                            fout.write("                                     label = cms.untracked.string('"+params[2]+"') \n")
                         fout.write("                                     ) \n")
                         fout.write("                            ) \n")
                         fout.write("          ) \n")
@@ -531,6 +558,7 @@ class Job:
         fout.write("JobName="+job_name+" \n")
         fout.write("echo  \"Job started at \" `date` \n")
         fout.write("CMSSW_DIR="+os.path.join(self.CMSSW_dir,"src")+" \n")
+        fout.write("export X509_USER_PROXY=$CMSSW_DIR/Alignment/OfflineValidation/test/.user_proxy \n")
         fout.write("OUT_DIR="+self.OUTDIR+" \n")
         fout.write("LXBATCH_DIR=$PWD \n") 
         #fout.write("cd "+os.path.join(self.CMSSW_dir,"src")+" \n")
@@ -577,6 +605,9 @@ def main():
         print("Please create proxy via 'voms-proxy-init -voms cms -rfc'.")
         sys.exit(1)
 
+    ## check first there is a valid grid proxy
+    forward_proxy(".")
+
     global CopyRights
     print('\n'+CopyRights)
 
@@ -602,7 +633,7 @@ def main():
     parser.add_option('-e','--end',       help='ending point',          dest='end',        action='store',       default='999999')
     parser.add_option('-v','--verbose',   help='verbose output',        dest='verbose',    action='store_true',  default=False)
     parser.add_option('-u','--unitTest',  help='unit tests?',           dest='isUnitTest', action='store_true',  default=False)
-
+    parser.add_option('-I','--instance',  help='DAS instance to use',   dest='instance',   action='store',       default=None) 
     (opts, args) = parser.parse_args()
 
     now = datetime.datetime.now()
@@ -661,6 +692,13 @@ def main():
         
         config = BetterConfigParser()
         config.read(ConfigFile)
+
+        print("Parsed the following configuration \n\n")
+        inputDict = as_dict(config)
+        pprint.pprint(inputDict)
+
+        if(not bool(inputDict)):
+            raise SystemExit("\n\n ERROR! Could not parse any input file, perhaps you are submitting this from the wrong folder? \n\n")
 
         #print  config.sections()
 
@@ -785,7 +823,7 @@ def main():
     if(doRunBased):
         print(">>>> This is Data!")
         print(">>>> Doing run based selection")
-        cmd = 'dasgoclient -limit=0 -query \'run dataset='+opts.data+'\''
+        cmd = 'dasgoclient -limit=0 -query \'run dataset='+opts.data + (' instance='+opts.instance+'\'' if (opts.instance is not None) else '\'')
         p = Popen(cmd , shell=True, stdout=PIPE, stderr=PIPE)
         out, err = p.communicate()
         #print(out)
@@ -814,9 +852,9 @@ def main():
 
         #print mytuple
 
-        pool = multiprocessing.Pool(processes=20)              # start 10 worker processes
-        
-        count = pool.map(getFilesForRun,mytuple)
+        instances=[opts.instance for entry in mytuple]
+        pool = multiprocessing.Pool(processes=20)  # start 20 worker processes
+        count = pool.map(getFilesForRun,zip(mytuple,instances))
         file_info = dict(zip(listOfRuns, count))
 
         #print file_info
@@ -893,7 +931,7 @@ def main():
         if (to_bool(isMC[iConf]) or (not to_bool(doRunBased))):
             if(to_bool(isMC[iConf])):
                 print("this is MC")
-                cmd = 'dasgoclient -query \'file dataset='+opts.data+'\''
+                cmd = 'dasgoclient -query \'file dataset='+opts.data+ (' instance='+opts.instance+'\'' if (opts.instance is not None) else '\'')
                 s = Popen(cmd , shell=True, stdout=PIPE, stderr=PIPE)
                 out,err = s.communicate()
                 mylist = out.decode().split('\n')
@@ -906,16 +944,22 @@ def main():
                     myRuns.append(str(1))
             else:
                 print("this is DATA (not doing full run-based selection)")
-                cmd = 'dasgoclient -query \'file dataset='+opts.data+' run='+runboundary[iConf]+'\''
+                print(runboundary[iConf])
+                cmd = 'dasgoclient -query \'file dataset='+opts.data+' run='+runboundary[iConf]+ (' instance='+opts.instance+'\'' if (opts.instance is not None) else '\'')
                 #print cmd
                 s = Popen(cmd , shell=True, stdout=PIPE, stderr=PIPE)
                 out,err = s.communicate()
+                #print(out)
                 mylist = out.decode().split('\n')
                 mylist.pop()
                 #print "len(mylist):",len(mylist)
                 print("mylist:",mylist)
-                inputFiles.append(mylist)
-                myRuns.append(str(runboundary[iConf]))
+
+                splitList = split(mylist,10)
+                for files in splitList:
+                    inputFiles.append(files)
+                    myRuns.append(str(runboundary[iConf]))
+
                 myLumiDB = getLuminosity(HOME,myRuns[0],myRuns[-1],True,opts.verbose)
 
         else:
@@ -951,7 +995,11 @@ def main():
             if(to_bool(isMC[iConf])):
                 thejobIndex=jobN
             else:
-                thejobIndex=myRuns[jobN]
+                if(doRunBased):
+                    thejobIndex=myRuns[jobN]
+                else:
+                    thejobIndex=myRuns[jobN]+"_"+str(jobN)
+
                 if (myRuns[jobN]) in myLumiDB:
                     theLumi = myLumiDB[myRuns[jobN]]
                 else:
