@@ -98,7 +98,7 @@ public:
   float sMin() const { return sMin_; }
   float sMaj() const { return sMaj_; }
   unsigned int seedId() const { return seedId_; }
-  std::vector<float> energyMatrix() const { return energyMatrix_; }
+  std::vector<float> const& energyMatrix() const { return energyMatrix_; }
   std::vector<float> timingMatrix() const { return timingMatrix_; }
 
 private:
