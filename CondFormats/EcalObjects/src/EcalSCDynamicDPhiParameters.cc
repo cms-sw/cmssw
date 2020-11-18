@@ -7,8 +7,7 @@ const EcalSCDynamicDPhiParameters::DynamicDPhiParameters* EcalSCDynamicDPhiParam
   auto it1 = std::lower_bound(dynamicDPhiParametersCollection_.begin(),
                               dynamicDPhiParametersCollection_.end(),
                               clustE,
-                              [](const EcalSCDynamicDPhiParameters::DynamicDPhiParameters &params,
-                                 const double var) {
+                              [](const EcalSCDynamicDPhiParameters::DynamicDPhiParameters& params, const double var) {
                                 return params.eMin < var;
                               });
   if (it1 != dynamicDPhiParametersCollection_.begin()) {
@@ -17,13 +16,13 @@ const EcalSCDynamicDPhiParameters::DynamicDPhiParameters* EcalSCDynamicDPhiParam
 
   // find the matching eMin and etaMin entry going only up to the sets matching for clustE
   const auto vars = std::make_pair(it1->eMin, absSeedEta);
-  auto it2 = std::lower_bound(dynamicDPhiParametersCollection_.begin(),
-                              it1 + 1,
-                              vars,
-                              [](const EcalSCDynamicDPhiParameters::DynamicDPhiParameters &params,
-                                 const std::pair<double, double> vars) {
-                                return params.eMin < vars.first || params.etaMin < vars.second;
-                              });
+  auto it2 = std::lower_bound(
+      dynamicDPhiParametersCollection_.begin(),
+      it1 + 1,
+      vars,
+      [](const EcalSCDynamicDPhiParameters::DynamicDPhiParameters& params, const std::pair<double, double> vars) {
+        return params.eMin < vars.first || params.etaMin < vars.second;
+      });
 
   return (it2 != dynamicDPhiParametersCollection_.begin()) ? &*(it2 - 1) : nullptr;
 }

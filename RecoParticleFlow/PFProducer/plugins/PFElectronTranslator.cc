@@ -30,7 +30,6 @@ public:
   explicit PFElectronTranslator(const edm::ParameterSet&);
   ~PFElectronTranslator() override;
 
-  void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   typedef std::vector<edm::Handle<edm::ValueMap<double>>> IsolationValueMaps;
@@ -175,8 +174,7 @@ PFElectronTranslator::PFElectronTranslator(const edm::ParameterSet& iConfig) {
   else
     emptyIsOk_ = false;
 
-  ecalMustacheSCParametersToken_ =
-      esConsumes<EcalMustacheSCParameters, EcalMustacheSCParametersRcd, edm::Transition::BeginRun>();
+  ecalMustacheSCParametersToken_ = esConsumes<EcalMustacheSCParameters, EcalMustacheSCParametersRcd>();
 
   produces<reco::BasicClusterCollection>(PFBasicClusterCollection_);
   produces<reco::PreshowerClusterCollection>(PFPreshowerClusterCollection_);
@@ -189,13 +187,9 @@ PFElectronTranslator::PFElectronTranslator(const edm::ParameterSet& iConfig) {
 
 PFElectronTranslator::~PFElectronTranslator() {}
 
-void PFElectronTranslator::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
-  edm::ESHandle<EcalMustacheSCParameters> ecalMustacheSCParamsHandle_ =
-      iSetup.getHandle(ecalMustacheSCParametersToken_);
-  mustacheSCParams_ = ecalMustacheSCParamsHandle_.product();
-}
-
 void PFElectronTranslator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  mustacheSCParams_ = &iSetup.getData(ecalMustacheSCParametersToken_);
+
   auto gsfElectronCores_p = std::make_unique<reco::GsfElectronCoreCollection>();
 
   auto gsfElectrons_p = std::make_unique<reco::GsfElectronCollection>();

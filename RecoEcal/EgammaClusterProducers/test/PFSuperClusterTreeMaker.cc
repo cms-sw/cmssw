@@ -82,7 +82,6 @@ public:
   PFSuperClusterTreeMaker(const PSet&);
   ~PFSuperClusterTreeMaker() {}
 
-  void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
@@ -119,16 +118,10 @@ private:
   std::shared_ptr<Float_t> psClusterRawEnergy, psClusterEta, psClusterPhi;
 };
 
-void PFSuperClusterTreeMaker::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
-  edm::ESHandle<EcalMustacheSCParameters> ecalMustacheSCParamsHandle_ =
-      iSetup.getHandle(ecalMustacheSCParametersToken_);
-  mustacheSCParams_ = ecalMustacheSCParamsHandle_.product();
-  edm::ESHandle<EcalSCDynamicDPhiParameters> ecalSCDynamicDPhiParametersHandle_ =
-      iSetup.getHandle(ecalSCDynamicDPhiParametersToken_);
-  scDynamicDPhiParams_ = ecalSCDynamicDPhiParametersHandle_.product();
-}
-
 void PFSuperClusterTreeMaker::analyze(const edm::Event& e, const edm::EventSetup& es) {
+  mustacheSCParams_ = &es.getData(ecalMustacheSCParametersToken_);
+  scDynamicDPhiParams_ = &es.getData(ecalSCDynamicDPhiParametersToken_);
+
   edm::Handle<reco::VertexCollection> vtcs;
   e.getByLabel(_vtxsrc, vtcs);
   if (vtcs.isValid())
@@ -304,10 +297,8 @@ void PFSuperClusterTreeMaker::processSuperClusterFillTree(const edm::Event& e, c
 }
 
 PFSuperClusterTreeMaker::PFSuperClusterTreeMaker(const PSet& p) {
-  ecalMustacheSCParametersToken_ =
-      esConsumes<EcalMustacheSCParameters, EcalMustacheSCParametersRcd, edm::Transition::BeginRun>();
-  ecalSCDynamicDPhiParametersToken_ =
-      esConsumes<EcalSCDynamicDPhiParameters, EcalSCDynamicDPhiParametersRcd, edm::Transition::BeginRun>();
+  ecalMustacheSCParametersToken_ = esConsumes<EcalMustacheSCParameters, EcalMustacheSCParametersRcd>();
+  ecalSCDynamicDPhiParametersToken_ = esConsumes<EcalSCDynamicDPhiParameters, EcalSCDynamicDPhiParametersRcd>();
 
   _calib.reset(new PFEnergyCalibration());
   N_ECALClusters = 1;
