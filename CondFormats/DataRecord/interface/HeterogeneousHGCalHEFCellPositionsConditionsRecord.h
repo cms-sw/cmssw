@@ -7,6 +7,7 @@
 #include "FWCore/Utilities/interface/mplVector.h"
 
 class HeterogeneousHGCalHEFCellPositionsConditionsRecord
-    : public edm::eventsetup::DependentRecordImplementation<HeterogeneousHGCalHEFCellPositionsConditionsRecord, edm::mpl::Vector<IdealGeometryRecord>> {};
+    : public edm::eventsetup::DependentRecordImplementation<HeterogeneousHGCalHEFCellPositionsConditionsRecord,
+                                                            edm::mpl::Vector<IdealGeometryRecord>> {};
 
-#endif //CondFormats_DataRecord_HeterogeneousHGCalHEFCellPositionsConditionsRecord_h
+#endif  //CondFormats_DataRecord_HeterogeneousHGCalHEFCellPositionsConditionsRecord_h

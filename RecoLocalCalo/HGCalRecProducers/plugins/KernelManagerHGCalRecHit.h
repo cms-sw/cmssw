@@ -11,7 +11,7 @@
 //#include "Types.h"
 
 #include <vector>
-#include <algorithm> //std::swap  
+#include <algorithm>  //std::swap
 #include <variant>
 #include <cuda.h>
 #include <cuda_runtime.h>
@@ -20,16 +20,18 @@
 extern __constant__ uint32_t calo_rechit_masks[];
 #endif
 
-namespace { //kernel parameters
+namespace {  //kernel parameters
   dim3 nb_rechits_;
   constexpr dim3 nt_rechits_(1024);
-}
+}  // namespace
 
 template <typename T>
 class KernelConstantData {
- public:
- KernelConstantData(T& data, HGCConstantVectorData& vdata): data_(data), vdata_(vdata) {
-    if( ! (std::is_same<T, HGCeeUncalibratedRecHitConstantData>::value or std::is_same<T, HGChefUncalibratedRecHitConstantData>::value or std::is_same<T, HGChebUncalibratedRecHitConstantData>::value ))
+public:
+  KernelConstantData(T& data, HGCConstantVectorData& vdata) : data_(data), vdata_(vdata) {
+    if (!(std::is_same<T, HGCeeUncalibratedRecHitConstantData>::value or
+          std::is_same<T, HGChefUncalibratedRecHitConstantData>::value or
+          std::is_same<T, HGChebUncalibratedRecHitConstantData>::value))
       cms::cuda::LogError("WrongTemplateType") << "The KernelConstantData class does not support this type.";
   }
   T data_;
@@ -37,23 +39,28 @@ class KernelConstantData {
 };
 
 class KernelManagerHGCalRecHit {
- public:
+public:
   KernelManagerHGCalRecHit();
-  KernelManagerHGCalRecHit(KernelModifiableData<HGCUncalibratedRecHitSoA, HGCRecHitSoA>*);
+  KernelManagerHGCalRecHit(HGCUncalibratedRecHitSoA*, HGCUncalibratedRecHitSoA*, HGCRecHitSoA*);
+  KernelManagerHGCalRecHit(HGCRecHitSoA*, HGCRecHitSoA*);
   ~KernelManagerHGCalRecHit();
   void run_kernels(const KernelConstantData<HGCeeUncalibratedRecHitConstantData>*, const cudaStream_t&);
   void run_kernels(const KernelConstantData<HGChefUncalibratedRecHitConstantData>*, const cudaStream_t&);
   void run_kernels(const KernelConstantData<HGChebUncalibratedRecHitConstantData>*, const cudaStream_t&);
+  void transfer_soa_to_host(const cudaStream_t&);
   HGCRecHitSoA* get_output();
 
- private:
-  void transfer_soas_to_device_(const cudaStream_t&);
-  void transfer_soa_to_host_(const cudaStream_t&);
-  void reuse_device_pointers_();
+private:
+  void transfer_soa_to_device_(const cudaStream_t&);
 
-  int nbytes_host_;
-  int nbytes_device_;
-  KernelModifiableData<HGCUncalibratedRecHitSoA, HGCRecHitSoA> *data_;
+  uint32_t nhits_;
+  uint32_t stride_;
+  uint32_t nbytes_host_;
+  uint32_t nbytes_device_;
+  HGCUncalibratedRecHitSoA* h_uncalibSoA_;
+  HGCUncalibratedRecHitSoA* d_uncalibSoA_;
+  HGCRecHitSoA* h_calibSoA_;
+  HGCRecHitSoA* d_calibSoA_;
 };
 
-#endif //RecoLocalCalo_HGCalRecProducers_KernelManagerHGCalRecHit_h
+#endif  //RecoLocalCalo_HGCalRecProducers_KernelManagerHGCalRecHit_h

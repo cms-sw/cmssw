@@ -28,16 +28,16 @@
 #include "CondFormats/DataRecord/interface/HeterogeneousHGCalHEFCellPositionsConditionsRecord.h"
 #include "RecoLocalCalo/HGCalRecProducers/plugins/KernelManagerHGCalCellPositions.h"
 
-class HeterogeneousHGCalHEFCellPositionsFiller: public edm::ESProducer 
-{
- public:
+class HeterogeneousHGCalHEFCellPositionsFiller : public edm::ESProducer {
+public:
   explicit HeterogeneousHGCalHEFCellPositionsFiller(const edm::ParameterSet&);
   ~HeterogeneousHGCalHEFCellPositionsFiller() override;
-  std::unique_ptr<HeterogeneousHGCalHEFCellPositionsConditions> produce(const HeterogeneousHGCalHEFCellPositionsConditionsRecord&);
+  std::unique_ptr<HeterogeneousHGCalHEFCellPositionsConditions> produce(
+      const HeterogeneousHGCalHEFCellPositionsConditionsRecord&);
 
- private:
+private:
   edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> geometryToken_;
-  
+
   //cms::cuda::ContextState ctxState_;
 
   //conditions (geometry, topology, ...)
@@ -51,4 +51,4 @@ class HeterogeneousHGCalHEFCellPositionsFiller: public edm::ESProducer
   const HGCalParameters* params_ = nullptr;
 };
 
-#endif //RecoLocalCalo_HGCalESProducers_HeterogeneousHGCalHEFCellPositionsFiller_h
+#endif  //RecoLocalCalo_HGCalESProducers_HeterogeneousHGCalHEFCellPositionsFiller_h
