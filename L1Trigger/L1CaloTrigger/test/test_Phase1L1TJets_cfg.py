@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from math import pi
 import FWCore.Utilities.FileUtils as FileUtils # ADDED
 
 process = cms.Process("TEST")
