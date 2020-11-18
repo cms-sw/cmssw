@@ -83,7 +83,9 @@ if __name__ == '__main__':
                      10024.0, #2017 ttbar
                      10224.0, #2017 ttbar PU
                      10824.0, #2018 ttbar
+                     11624.911, #2021 DD4hep ttbar
                      11634.0, #2021 ttbar
+                     11642.911, #2021 DD4hep Zmm
                      12434.0, #2023 ttbar
                      23234.0, #2026D49 ttbar (HLT TDR baseline w/ HGCal v11)
                      23434.999, #2026D49 ttbar premixing stage1+stage2, PU50
