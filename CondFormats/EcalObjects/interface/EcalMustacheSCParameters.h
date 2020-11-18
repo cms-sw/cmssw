@@ -38,7 +38,7 @@ public:
 protected:
   float sqrtLogClustETuning_;
 
-  // collection is expected to be sorted in descending ParabolaParameters.etaMax and descending ParabolaParameters.log10EMin
+  // collection is expected to be sorted in ascending ParabolaParameters.log10EMin and ascending ParabolaParameters.etaMax
   std::vector<ParabolaParameters> parabolaParametersCollection_;
 
   COND_SERIALIZABLE;

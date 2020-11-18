@@ -36,7 +36,6 @@ public:
   explicit PFPhotonTranslator(const edm::ParameterSet &);
   ~PFPhotonTranslator() override;
 
-  void beginRun(const edm::Run &, const edm::EventSetup &) override;
   void produce(edm::Event &, const edm::EventSetup &) override;
 
   typedef std::vector<edm::Handle<edm::ValueMap<double> > > IsolationValueMaps;
@@ -184,8 +183,7 @@ PFPhotonTranslator::PFPhotonTranslator(const edm::ParameterSet &iConfig) {
   else
     emptyIsOk_ = false;
 
-  ecalMustacheSCParametersToken_ =
-      esConsumes<EcalMustacheSCParameters, EcalMustacheSCParametersRcd, edm::Transition::BeginRun>();
+  ecalMustacheSCParametersToken_ = esConsumes<EcalMustacheSCParameters, EcalMustacheSCParametersRcd>();
 
   produces<reco::BasicClusterCollection>(PFBasicClusterCollection_);
   produces<reco::PreshowerClusterCollection>(PFPreshowerClusterCollection_);
@@ -197,14 +195,9 @@ PFPhotonTranslator::PFPhotonTranslator(const edm::ParameterSet &iConfig) {
 
 PFPhotonTranslator::~PFPhotonTranslator() {}
 
-void PFPhotonTranslator::beginRun(const edm::Run &, const edm::EventSetup &iSetup) {
-  edm::ESHandle<EcalMustacheSCParameters> ecalMustacheSCParamsHandle_ =
-      iSetup.getHandle(ecalMustacheSCParametersToken_);
-  mustacheSCParams_ = ecalMustacheSCParamsHandle_.product();
-}
-
 void PFPhotonTranslator::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   //cout << "NEW EVENT"<<endl;
+  mustacheSCParams_ = &iSetup.getData(ecalMustacheSCParametersToken_);
 
   auto basicClusters_p = std::make_unique<reco::BasicClusterCollection>();
 
