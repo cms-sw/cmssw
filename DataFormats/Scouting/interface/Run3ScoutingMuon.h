@@ -177,7 +177,6 @@ public:
         trk_vx_(0),
         trk_vy_(0),
         trk_vz_(0),
-        trk_hitPattern_(reco::HitPattern()),
         vtxIndx_(0) {}
 
   //accessor functions

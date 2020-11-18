@@ -4,6 +4,7 @@
 #include <vector>
 
 //class for holding track information, for use in data scouting
+// IMPORTANT: the content of this class should be changed only in backwards compatible ways!
 class Run3ScoutingTrack {
 public:
   //constructor with values for all data fields

@@ -73,9 +73,7 @@ public:
         r9_(0),
         sMin_(0),
         sMaj_(0),
-        seedId_(0),
-        energyMatrix_(0),
-        timingMatrix_(0) {}
+        seedId_(0) {}
 
   //accessor functions
   float pt() const { return pt_; }
