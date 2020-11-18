@@ -34,7 +34,7 @@ public:
   }
 
 protected:
-  // collection is expected to be sorted in descending DynamicDPhiParameters.etaMax and descending DynamicDPhiParameters.eMin
+  // collection is expected to be sorted in ascending DynamicDPhiParameters.eMin and ascending DynamicDPhiParameters.etaMax
   std::vector<DynamicDPhiParameters> dynamicDPhiParametersCollection_;
 
   COND_SERIALIZABLE;

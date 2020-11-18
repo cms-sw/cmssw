@@ -122,10 +122,8 @@ void PFECALSuperClusterAlgo::setTokens(const edm::ParameterSet& iConfig, edm::Co
   esEEInterCalibToken_ =
       cc.esConsumes<ESEEIntercalibConstants, ESEEIntercalibConstantsRcd, edm::Transition::BeginLuminosityBlock>();
   esChannelStatusToken_ = cc.esConsumes<ESChannelStatus, ESChannelStatusRcd, edm::Transition::BeginLuminosityBlock>();
-  ecalMustacheSCParametersToken_ =
-      cc.esConsumes<EcalMustacheSCParameters, EcalMustacheSCParametersRcd, edm::Transition::BeginRun>();
-  ecalSCDynamicDPhiParametersToken_ =
-      cc.esConsumes<EcalSCDynamicDPhiParameters, EcalSCDynamicDPhiParametersRcd, edm::Transition::BeginRun>();
+  ecalMustacheSCParametersToken_ = cc.esConsumes<EcalMustacheSCParameters, EcalMustacheSCParametersRcd>();
+  ecalSCDynamicDPhiParametersToken_ = cc.esConsumes<EcalSCDynamicDPhiParameters, EcalSCDynamicDPhiParametersRcd>();
 
   if (useRegression_) {
     const edm::ParameterSet& regconf = iConfig.getParameter<edm::ParameterSet>("regressionConfig");
@@ -153,11 +151,8 @@ void PFECALSuperClusterAlgo::update(const edm::EventSetup& setup) {
 }
 
 void PFECALSuperClusterAlgo::updateSCParams(const edm::EventSetup& setup) {
-  edm::ESHandle<EcalMustacheSCParameters> ecalMustacheSCParamsHandle_ = setup.getHandle(ecalMustacheSCParametersToken_);
-  mustacheSCParams_ = ecalMustacheSCParamsHandle_.product();
-  edm::ESHandle<EcalSCDynamicDPhiParameters> ecalSCDynamicDPhiParamsHandle_ =
-      setup.getHandle(ecalSCDynamicDPhiParametersToken_);
-  scDynamicDPhiParams_ = ecalSCDynamicDPhiParamsHandle_.product();
+  mustacheSCParams_ = &setup.getData(ecalMustacheSCParametersToken_);
+  scDynamicDPhiParams_ = &setup.getData(ecalSCDynamicDPhiParametersToken_);
 }
 
 void PFECALSuperClusterAlgo::loadAndSortPFClusters(const edm::Event& iEvent) {
