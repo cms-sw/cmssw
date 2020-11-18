@@ -238,7 +238,7 @@ public:
   float trk_vx() const { return trk_vx_; }
   float trk_vy() const { return trk_vy_; }
   float trk_vz() const { return trk_vz_; }
-  reco::HitPattern trk_hitPattern() const { return trk_hitPattern_; }
+  reco::HitPattern const& trk_hitPattern() const { return trk_hitPattern_; }
   std::vector<int> vtxIndx() const { return vtxIndx_; }
 
 private:
