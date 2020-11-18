@@ -21,6 +21,7 @@ public:
   void beginJob() override {}
   void analyze(edm::Event const&, edm::EventSetup const&) override;
   void endJob() override {}
+
 private:
   edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_ddrec_;
   edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
