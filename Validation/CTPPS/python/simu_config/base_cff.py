@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from CalibPPS.ESProducers.CTPPSCompositeESSource_cfi import *
+from CalibPPS.ESProducers.ctppsCompositeESSource_cfi import *
 # load standard files
 from RecoPPS.ProtonReconstruction.ctppsProtons_cff import *
 
