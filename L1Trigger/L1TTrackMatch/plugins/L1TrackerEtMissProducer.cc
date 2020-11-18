@@ -41,40 +41,40 @@ private:
   virtual void endJob() ;
 
   // ----------member data ---------------------------
-  float maxZ0;	// in cm
-  float deltaZ;	// in cm
-  float maxEta;
-  float chi2dofMax;
-  float bendChi2Max;
-  float minPt; // in GeV
-  int nStubsmin;
-  int nPSStubsMin;  // minimum number of stubs in PS modules
-  float maxPt;	    // in GeV
-  int highPtTracks; // saturate or truncate
-  bool displaced; //prompt/displaced tracks
+  float maxZ0_;	// in cm
+  float deltaZ_;	// in cm
+  float maxEta_;
+  float chi2dofMax_;
+  float bendChi2Max_;
+  float minPt_; // in GeV
+  int nStubsmin_;
+  int nPSStubsMin_;  // minimum number of stubs in PS modules
+  float maxPt_;	    // in GeV
+  int highPtTracks_; // saturate or truncate
+  bool displaced_; //prompt/displaced tracks
 
-  const edm::EDGetTokenT< TkPrimaryVertexCollection > pvToken;
-  const edm::EDGetTokenT<std::vector<TTTrack< Ref_Phase2TrackerDigi_ > > > trackToken;
+  const edm::EDGetTokenT< TkPrimaryVertexCollection > pvToken_;
+  const edm::EDGetTokenT<std::vector<TTTrack< Ref_Phase2TrackerDigi_ > > > trackToken_;
 };
 
 //constructor//
 L1TrackerEtMissProducer::L1TrackerEtMissProducer(const edm::ParameterSet& iConfig) :
-pvToken(consumes<TkPrimaryVertexCollection>(iConfig.getParameter<edm::InputTag>("L1VertexInputTag"))),
-trackToken(consumes< std::vector<TTTrack< Ref_Phase2TrackerDigi_> > > (iConfig.getParameter<edm::InputTag>("L1TrackInputTag")))
+pvToken_(consumes<TkPrimaryVertexCollection>(iConfig.getParameter<edm::InputTag>("L1VertexInputTag"))),
+trackToken_(consumes< std::vector<TTTrack< Ref_Phase2TrackerDigi_> > > (iConfig.getParameter<edm::InputTag>("L1TrackInputTag")))
 {
-  maxZ0 = (float)iConfig.getParameter<double>("maxZ0");
-  deltaZ = (float)iConfig.getParameter<double>("deltaZ");
-  chi2dofMax = (float)iConfig.getParameter<double>("chi2dofMax");
-  bendChi2Max = (float)iConfig.getParameter<double>("bendChi2Max");
-  minPt = (float)iConfig.getParameter<double>("minPt");
-  nStubsmin = iConfig.getParameter<int>("nStubsmin");
-  nPSStubsMin = iConfig.getParameter<int>("nPSStubsMin");
-  maxPt = (float)iConfig.getParameter<double>("maxPt");
-  maxEta = (float)iConfig.getParameter<double>("maxEta");
-  highPtTracks = iConfig.getParameter<int>("highPtTracks");
-  displaced = iConfig.getParameter<bool>("displaced");
+  maxZ0_ = (float)iConfig.getParameter<double>("maxZ0");
+  deltaZ_ = (float)iConfig.getParameter<double>("deltaZ");
+  chi2dofMax_ = (float)iConfig.getParameter<double>("chi2dofMax");
+  bendChi2Max_ = (float)iConfig.getParameter<double>("bendChi2Max");
+  minPt_ = (float)iConfig.getParameter<double>("minPt");
+  nStubsmin_ = iConfig.getParameter<int>("nStubsmin");
+  nPSStubsMin_ = iConfig.getParameter<int>("nPSStubsMin");
+  maxPt_ = (float)iConfig.getParameter<double>("maxPt");
+  maxEta_ = (float)iConfig.getParameter<double>("maxEta");
+  highPtTracks_ = iConfig.getParameter<int>("highPtTracks_");
+  displaced_ = iConfig.getParameter<bool>("displaced");
 
-  if (displaced) produces<TkEtMissCollection>("L1TrackerEtMissExtended");
+  if (displaced_) produces<TkEtMissCollection>("L1TrackerEtMissExtended");
   else produces<TkEtMissCollection>("L1TrackerEtMiss");
 }
 
@@ -91,10 +91,10 @@ void L1TrackerEtMissProducer::produce(edm::Event& iEvent, const edm::EventSetup&
   const TrackerTopology* tTopo = tTopoHandle_.product();
 
   edm::Handle<TkPrimaryVertexCollection> L1VertexHandle;
-  iEvent.getByToken(pvToken,L1VertexHandle);
+  iEvent.getByToken(pvToken_,L1VertexHandle);
 
   edm::Handle<L1TTTrackCollectionType> L1TTTrackHandle;
-  iEvent.getByToken(trackToken, L1TTTrackHandle);
+  iEvent.getByToken(trackToken_, L1TTTrackHandle);
   L1TTTrackCollectionType::const_iterator trackIter;
 
   if( !L1VertexHandle.isValid() ) {
@@ -127,15 +127,15 @@ void L1TrackerEtMissProducer::produce(edm::Event& iEvent, const edm::EventSetup&
     std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > >  theStubs = trackIter -> getStubRefs() ;
     int nstubs = (int) theStubs.size();
 
-    if (pt < minPt) continue;
-    if (fabs(z0) > maxZ0) continue;
-    if (fabs(eta) > maxEta) continue;
-    if (chi2dof > chi2dofMax) continue;
-    if (bendChi2 > bendChi2Max) continue;
+    if (pt < minPt_) continue;
+    if (fabs(z0) > maxZ0_) continue;
+    if (fabs(eta) > maxEta_) continue;
+    if (chi2dof > chi2dofMax_) continue;
+    if (bendChi2 > bendChi2Max_) continue;
 
-    if (maxPt > 0 && pt > maxPt) {
-      if (highPtTracks == 0)  continue;	// ignore these very high PT tracks: truncate
-      if (highPtTracks == 1)  pt = maxPt; // saturate
+    if (maxPt_ > 0 && pt > maxPt_) {
+      if (highPtTracks_ == 0)  continue;	// ignore these very high PT tracks: truncate
+      if (highPtTracks_ == 1)  pt = maxPt_; // saturate
     }
 
     int nPS = 0; // number of stubs in PS modules
@@ -147,20 +147,20 @@ void L1TrackerEtMissProducer::produce(edm::Event& iEvent, const edm::EventSetup&
       }
     }
 
-    if (nstubs < nStubsmin) continue;
-    if (nPS < nPSStubsMin) continue;
+    if (nstubs < nStubsmin_) continue;
+    if (nPS < nPSStubsMin_) continue;
 
-    if (!displaced){ // if displaced, deltaZ = 3.0 cm, very loose
+    if (!displaced_){ // if displaced, deltaZ = 3.0 cm, very loose
       // construct deltaZ cut to be based on track eta
-      if      ( fabs(eta)>=0   &&  fabs(eta)<0.7)  deltaZ = 0.4;
-      else if ( fabs(eta)>=0.7 &&  fabs(eta)<1.0)  deltaZ = 0.6;
-      else if ( fabs(eta)>=1.0 &&  fabs(eta)<1.2)  deltaZ = 0.76;
-      else if ( fabs(eta)>=1.2 &&  fabs(eta)<1.6)  deltaZ = 1.0;
-      else if ( fabs(eta)>=1.6 &&  fabs(eta)<2.0)  deltaZ = 1.7;
-      else if ( fabs(eta)>=2.0 &&  fabs(eta)<=2.4) deltaZ = 2.2;
+      if      ( fabs(eta)>=0   &&  fabs(eta)<0.7)  deltaZ_ = 0.4;
+      else if ( fabs(eta)>=0.7 &&  fabs(eta)<1.0)  deltaZ_ = 0.6;
+      else if ( fabs(eta)>=1.0 &&  fabs(eta)<1.2)  deltaZ_ = 0.76;
+      else if ( fabs(eta)>=1.2 &&  fabs(eta)<1.6)  deltaZ_ = 1.0;
+      else if ( fabs(eta)>=1.6 &&  fabs(eta)<2.0)  deltaZ_ = 1.7;
+      else if ( fabs(eta)>=2.0 &&  fabs(eta)<=2.4) deltaZ_ = 2.2;
     }
 
-    if ( fabs(z0 - zVTX) <= deltaZ) {
+    if ( fabs(z0 - zVTX) <= deltaZ_) {
       sumPx += pt*cos(phi);
       sumPy += pt*sin(phi);
       etTot += pt;
@@ -185,7 +185,7 @@ void L1TrackerEtMissProducer::produce(edm::Event& iEvent, const edm::EventSetup&
     ibx )
   );
 
-  if (displaced) iEvent.put( std::move(METCollection), "L1TrackerEtMissExtended");
+  if (displaced_) iEvent.put( std::move(METCollection), "L1TrackerEtMissExtended");
   else iEvent.put( std::move(METCollection), "L1TrackerEtMiss");
 } // end producer
 

@@ -31,35 +31,35 @@ private:
   virtual void endJob() ;
 
   // ----------member data ---------------------------
-  float jet_minPt;           // [GeV]
-  float jet_maxEta;          // [rad]
-  bool doVtxConstrain;       // require vertex constraint
-  bool primaryVtxConstrain;  // use event primary vertex instead of leading jet (if doVtxConstrain)
-  bool useCaloJets;          // Determines whether or not calo jets are used
-  float deltaZ;              // for jets [cm] (if DoTvxConstrain)
-  bool displaced;            // Use prompt/displaced tracks
-  unsigned int minNtracksHighPt;
-  unsigned int minNtracksLowPt;
-  const edm::EDGetTokenT< TkPrimaryVertexCollection > pvToken;
-  const edm::EDGetTokenT< TkJetCollection > jetToken;
+  float jetMinPt_;           // [GeV]
+  float jetMaxEta_;          // [rad]
+  bool doVtxConstrain_;       // require vertex constraint
+  bool primaryVtxConstrain_;  // use event primary vertex instead of leading jet (if doVtxConstrain)
+  bool useCaloJets_;          // Determines whether or not calo jets are used
+  float deltaZ_;              // for jets [cm] (if DoTvxConstrain)
+  bool displaced_;            // Use prompt/displaced tracks
+  unsigned int minNtracksHighPt_;
+  unsigned int minNtracksLowPt_;
+  const edm::EDGetTokenT< TkPrimaryVertexCollection > pvToken_;
+  const edm::EDGetTokenT< TkJetCollection > jetToken_;
 };
 
 L1TkHTMissProducer::L1TkHTMissProducer(const edm::ParameterSet& iConfig) :
-pvToken(consumes<TkPrimaryVertexCollection>(iConfig.getParameter<edm::InputTag>("L1VertexInputTag"))),
-jetToken(consumes<TkJetCollection>(iConfig.getParameter<edm::InputTag>("L1TkJetInputTag")))
+pvToken_(consumes<TkPrimaryVertexCollection>(iConfig.getParameter<edm::InputTag>("L1VertexInputTag"))),
+jetToken_(consumes<TkJetCollection>(iConfig.getParameter<edm::InputTag>("L1TkJetInputTag")))
 {
-  jet_minPt  = (float)iConfig.getParameter<double>("jet_minPt");
-  jet_maxEta = (float)iConfig.getParameter<double>("jet_maxEta");
-  doVtxConstrain = iConfig.getParameter<bool>("doVtxConstrain");
-  useCaloJets = iConfig.getParameter<bool>("useCaloJets");
-  primaryVtxConstrain = iConfig.getParameter<bool>("primaryVtxConstrain");
-  deltaZ = (float)iConfig.getParameter<double>("deltaZ");
-  minNtracksHighPt=iConfig.getParameter<int>("jet_minNtracksHighPt");
-  minNtracksLowPt=iConfig.getParameter<int>("jet_minNtracksLowPt");
-  displaced = iConfig.getParameter<bool>("displaced");
+  jetMinPt_  = (float)iConfig.getParameter<double>("jet_minPt");
+  jetMaxEta_ = (float)iConfig.getParameter<double>("jet_maxEta");
+  doVtxConstrain_ = iConfig.getParameter<bool>("doVtxConstrain");
+  useCaloJets_ = iConfig.getParameter<bool>("useCaloJets");
+  primaryVtxConstrain_ = iConfig.getParameter<bool>("primaryVtxConstrain");
+  deltaZ_ = (float)iConfig.getParameter<double>("deltaZ");
+  minNtracksHighPt_=iConfig.getParameter<int>("jet_minNtracksHighPt");
+  minNtracksLowPt_=iConfig.getParameter<int>("jet_minNtracksLowPt");
+  displaced_ = iConfig.getParameter<bool>("displaced");
 
-  if (useCaloJets) produces<TkHTMissCollection>("TkCaloHTMiss");
-  else if (displaced) produces<TkHTMissCollection>("L1TrackerHTMissExtended");
+  if (useCaloJets_) produces<TkHTMissCollection>("TkCaloHTMiss");
+  else if (displaced_) produces<TkHTMissCollection>("L1TrackerHTMissExtended");
   else produces<TkHTMissCollection>("L1TrackerHTMiss");
 }
 
@@ -71,33 +71,33 @@ void L1TkHTMissProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
   // L1 primary vertex
   edm::Handle<TkPrimaryVertexCollection> L1VertexHandle;
-  iEvent.getByToken(pvToken, L1VertexHandle);
+  iEvent.getByToken(pvToken_, L1VertexHandle);
   std::vector<TkPrimaryVertex>::const_iterator vtxIter;
 
   // L1 track-trigger jets
   edm::Handle<TkJetCollection> L1TkJetsHandle;
-  iEvent.getByToken(jetToken, L1TkJetsHandle);
+  iEvent.getByToken(jetToken_, L1TkJetsHandle);
   std::vector<TkJet>::const_iterator jetIter;
 
-  if ( !L1TkJetsHandle.isValid() && !displaced ) {
+  if ( !L1TkJetsHandle.isValid() && !displaced_ ) {
     LogError("TkHTMissProducer") << "\nWarning: TkJetCollection not found in the event. Exit\n";
     return;
   }
 
-  if ( !L1TkJetsHandle.isValid() && displaced ) {
+  if ( !L1TkJetsHandle.isValid() && displaced_ ) {
     LogError("TkHTMissProducer") << "\nWarning: TkJetExtendedCollection not found in the event. Exit\n";
     return;
   }
 
   // ----------------------------------------------------------------------------------------------
-  // if primaryVtxConstrain, use the primary vertex instead of z position from leading jet
+  // if primaryVtxConstrain_, use the primary vertex instead of z position from leading jet
   // ----------------------------------------------------------------------------------------------
-  float evt_zvtx = 999;
-  bool found_vtx = false;
+  float evtZVtx = 999;
+  bool foundVtx = false;
   edm::Ref< TkPrimaryVertexCollection > L1VtxRef; 	// null reference
 
-  if (useCaloJets){
-    if (doVtxConstrain && primaryVtxConstrain) {
+  if (useCaloJets_){
+    if (doVtxConstrain_ && primaryVtxConstrain_) {
       if( !L1VertexHandle.isValid() ) {
         LogError("L1TkHTMissProducer")<< "\nWarning: TkPrimaryVertexCollection not found in the event. Exit\n";
         return ;
@@ -106,21 +106,21 @@ void L1TkHTMissProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
         std::vector<TkPrimaryVertex>::const_iterator vtxIter = L1VertexHandle->begin();
         // by convention, the first vertex in the collection is the one that should
         // be used by default
-        evt_zvtx = vtxIter->zvertex();
-        found_vtx = true;
+        evtZVtx = vtxIter->zvertex();
+        foundVtx = true;
         int ivtx = 0;
         edm::Ref< TkPrimaryVertexCollection > vtxRef(L1VertexHandle, ivtx);
         L1VtxRef = vtxRef;
       }
-    } //endif primaryVtxConstrain
+    } //endif primaryVtxConstrain_
 
     // ----------------------------------------------------------------------------------------------
     // using z position of leading jet to define "event vertex"
     // ----------------------------------------------------------------------------------------------
     float zvtx_jetpt = -1.0; //pt of jet determining the event vertex
-    float jet_vtxMax = 99.;  //find z position of leading jet that has a z vertex!
+    float jetVtxMax = 99.;  //find z position of leading jet that has a z vertex!
 
-    if (doVtxConstrain && !primaryVtxConstrain) {
+    if (doVtxConstrain_ && !primaryVtxConstrain_) {
       for (jetIter = L1TkJetsHandle->begin(); jetIter != L1TkJetsHandle->end(); ++jetIter) {
         int ibx = jetIter->bx(); // only consider jets from the central BX
         if (ibx != 0) continue;
@@ -128,15 +128,15 @@ void L1TkHTMissProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
         float tmp_jet_vtx = jetIter->jetVtx();
         float tmp_jet_pt  = jetIter->pt();
         float tmp_jet_eta = jetIter->eta();
-        if (tmp_jet_pt < jet_minPt) continue;
-        if (fabs(tmp_jet_eta) > jet_maxEta) continue;
-        if (fabs(tmp_jet_vtx) > jet_vtxMax) continue;
+        if (tmp_jet_pt < jetMinPt_) continue;
+        if (fabs(tmp_jet_eta) > jetMaxEta_) continue;
+        if (fabs(tmp_jet_vtx) > jetVtxMax) continue;
 
         // find vertex position of leading jet
         if (tmp_jet_pt > zvtx_jetpt) {
-          evt_zvtx = tmp_jet_vtx;
+          evtZVtx = tmp_jet_vtx;
           zvtx_jetpt = tmp_jet_pt;
-          found_vtx = true;
+          foundVtx = true;
         }
       } //end loop over jets
     } //endif z position from leading jet
@@ -145,7 +145,7 @@ void L1TkHTMissProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     float sumPy_calo = 0;
     float HT_calo = 0;
 
-    if (doVtxConstrain && !found_vtx) LogWarning("L1TkHTMissProducer")
+    if (doVtxConstrain_ && !foundVtx) LogWarning("L1TkHTMissProducer")
     << "Didn't find any z vertex (based on jet vertices) for this event!\n";
 
     // loop over jets
@@ -157,16 +157,14 @@ void L1TkHTMissProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       float tmp_jet_py = jetIter->py();
       float tmp_jet_et = jetIter->et();
       float tmp_jet_vtx = jetIter->jetVtx();
-      float tmp_jet_pt  = jetIter->pt();
-      float tmp_jet_eta = jetIter->eta();
-      if (tmp_jet_pt < jet_minPt) continue;
-      if (fabs(tmp_jet_eta) > jet_maxEta) continue;
+      if (jetIter->pt() < jetMinPt_) continue;
+      if (fabs(jetIter->eta()) > jetMaxEta_) continue;
 
       // vertex consistency requirement
       bool VtxRequirement = false;
-      if (found_vtx) VtxRequirement = fabs(tmp_jet_vtx - evt_zvtx) < deltaZ;
+      if (foundVtx) VtxRequirement = fabs(tmp_jet_vtx - evtZVtx) < deltaZ_;
 
-      if (!doVtxConstrain || VtxRequirement) {
+      if (!doVtxConstrain_ || VtxRequirement) {
         sumPx_calo += tmp_jet_px;
         sumPy_calo += tmp_jet_py;
         HT_calo += tmp_jet_et;
@@ -179,8 +177,8 @@ void L1TkHTMissProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     edm::RefProd<TkJetCollection> jetCollRef(L1TkJetsHandle);
     TkHTMiss tkHTM(missingEt, HT_calo, jetCollRef, L1VtxRef);
 
-    if (doVtxConstrain && !primaryVtxConstrain) {
-      tkHTM.setVtx(evt_zvtx);
+    if (doVtxConstrain_ && !primaryVtxConstrain_) {
+      tkHTM.setVtx(evtZVtx);
     }
 
     MHTCollection->push_back(tkHTM);
@@ -198,11 +196,10 @@ void L1TkHTMissProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       float tmp_jet_py = jetIter->py();
       float tmp_jet_et = jetIter->et();
       float tmp_jet_pt  = jetIter->pt();
-      float tmp_jet_eta = jetIter->eta();
-      if (tmp_jet_pt < jet_minPt) continue;
-      if (fabs(tmp_jet_eta) > jet_maxEta) continue;
-      if(jetIter->ntracks()<minNtracksLowPt && tmp_jet_et>50)continue;
-      if(jetIter->ntracks()<minNtracksHighPt && tmp_jet_et>100)continue;
+      if (tmp_jet_pt < jetMinPt_) continue;
+      if (fabs(jetIter->eta()) > jetMaxEta_) continue;
+      if(jetIter->ntracks()<minNtracksLowPt_ && tmp_jet_et>50)continue;
+      if(jetIter->ntracks()<minNtracksHighPt_ && tmp_jet_et>100)continue;
       sumPx += tmp_jet_px;
       sumPy += tmp_jet_py;
       HT += tmp_jet_pt;
@@ -215,7 +212,7 @@ void L1TkHTMissProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     TkHTMiss tkHTM(missingEt, HT, jetCollRef, L1VtxRef);
 
     MHTCollection->push_back(tkHTM);
-    if (displaced) iEvent.put( std::move(MHTCollection), "L1TrackerHTMissExtended");
+    if (displaced_) iEvent.put( std::move(MHTCollection), "L1TrackerHTMissExtended");
     else iEvent.put( std::move(MHTCollection), "L1TrackerHTMiss");
   }
 } //end producer
