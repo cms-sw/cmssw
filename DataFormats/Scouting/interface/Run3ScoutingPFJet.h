@@ -53,7 +53,7 @@ public:
         HOEnergy_(HOEnergy),
         csv_(csv),
         mvaDiscriminator_(mvaDiscriminator),
-        constituents_(constituents) {}
+        constituents_(std::move(constituents)) {}
   //default constructor
   Run3ScoutingPFJet()
       : pt_(0),
@@ -77,8 +77,7 @@ public:
         HFEMMultiplicity_(0),
         HOEnergy_(0),
         csv_(0),
-        mvaDiscriminator_(0),
-        constituents_(std::vector<int>()) {}
+        mvaDiscriminator_(0) {}
 
   //accessor functions
   float pt() const { return pt_; }
@@ -103,7 +102,7 @@ public:
   float HOEnergy() const { return HOEnergy_; }
   float csv() const { return csv_; }
   float mvaDiscriminator() const { return mvaDiscriminator_; }
-  std::vector<int> constituents() const { return constituents_; }
+  std::vector<int> constituents() const& { return constituents_; }
 
 private:
   float pt_;
