@@ -348,8 +348,8 @@ void Phase2ITMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
     psd0.add<std::string>("title", ";Cluster charge;");
     psd0.add<double>("xmin", 0.);
     psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 50000.);
-    psd0.add<int>("NxBins", 125);
+    psd0.add<double>("xmax", 100000.);
+    psd0.add<int>("NxBins", 100);
     desc.add<edm::ParameterSetDescription>("ClusterCharge", psd0);
   }
   {
