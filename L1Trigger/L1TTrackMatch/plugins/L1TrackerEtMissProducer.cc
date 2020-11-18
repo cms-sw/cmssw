@@ -71,7 +71,7 @@ trackToken_(consumes< std::vector<TTTrack< Ref_Phase2TrackerDigi_> > > (iConfig.
   nPSStubsMin_ = iConfig.getParameter<int>("nPSStubsMin");
   maxPt_ = (float)iConfig.getParameter<double>("maxPt");
   maxEta_ = (float)iConfig.getParameter<double>("maxEta");
-  highPtTracks_ = iConfig.getParameter<int>("highPtTracks_");
+  highPtTracks_ = iConfig.getParameter<int>("highPtTracks");
   displaced_ = iConfig.getParameter<bool>("displaced");
 
   if (displaced_) produces<TkEtMissCollection>("L1TrackerEtMissExtended");
