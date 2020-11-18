@@ -29,6 +29,6 @@ rpIds = cms.PSet(
 )
 
 #load profiles
-from Validation.CTPPS.simu_config.year_2016_preTS2_cff import profile_2016_preTS2
-from Validation.CTPPS.simu_config.year_2016_postTS2_cff import profile_2016_postTS2
-ctppsCompositeESSource.periods=[profile_2016_postTS2,profile_2016_preTS2]
+from Validation.CTPPS.simu_config.profile_2016_preTS2_cff import profile_2016_preTS2
+from Validation.CTPPS.simu_config.profile_2016_postTS2_cff import profile_2016_postTS2
+ctppsCompositeESSource.periods = [profile_2016_postTS2, profile_2016_preTS2]
