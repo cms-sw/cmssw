@@ -24,12 +24,8 @@ function RunOne()
 
 #----------------------------------------------------------------------------------------------------
 
-RunOne "2016_preTS2" "Run2_2016"
-RunOne "2016_postTS2" "Run2_2016"
+RunOne "2016" "Run2_2016"
 
-RunOne "2017_preTS2" "Run2_2017"
-RunOne "2017_postTS2" "Run2_2017"
+RunOne "2017" "Run2_2017"
 
-RunOne "2018_preTS1" "Run2_2018"
-RunOne "2018_TS1_TS2" "Run2_2018"
-RunOne "2018_postTS2" "Run2_2018"
+RunOne "2018" "Run2_2018"
