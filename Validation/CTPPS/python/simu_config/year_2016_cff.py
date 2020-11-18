@@ -2,13 +2,22 @@ import FWCore.ParameterSet.Config as cms
 
 from Validation.CTPPS.simu_config.base_cff import *
 
-# geometry
+# FIXME: move to the right place
 from Geometry.VeryForwardGeometry.geometryRPFromDD_2017_cfi import * # using 2017 here is OK
 del ctppsGeometryESModule
 
-from CalibPPS.ESProducers.ctppsInterpolatedOpticalFunctionsESSource_cfi import *
-ctppsInterpolatedOpticalFunctionsESSource.lhcInfoLabel = ""
-ctppsInterpolatedOpticalFunctionsESSource.opticsLabel = ""
+# base profile settings for 2016
+profile_base_2016 = profile_base.clone(
+  ctppsLHCInfo = dict(
+    beamEnergy = 6500
+  ),
+
+  xmlIdealGeometry = dict(
+    geomXMLFiles = totemGeomXMLFiles + ctppsDiamondGeomXMLFiles + ctppsUFSDGeomXMLFiles + ctppsPixelGeomXMLFiles +
+      cms.vstring("Geometry/VeryForwardData/data/2016_ctpps_15sigma_margin0/RP_Dist_Beam_Cent.xml"),
+    rootNodeName = cms.string('cms:CMSE')
+  )
+)
 
 # local reconstruction
 ctppsLocalTrackLiteProducer.includeStrips = True
@@ -28,7 +37,7 @@ rpIds = cms.PSet(
   rp_56_F = cms.uint32(103)
 )
 
-# load profiles
+# default list of profiles
 from Validation.CTPPS.simu_config.profile_2016_preTS2_cff import profile_2016_preTS2
 from Validation.CTPPS.simu_config.profile_2016_postTS2_cff import profile_2016_postTS2
 ctppsCompositeESSource.periods = [profile_2016_postTS2, profile_2016_preTS2]
