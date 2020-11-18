@@ -38,9 +38,8 @@ namespace edm {
   namespace service {
 
     ThreadSafeLogMessageLoggerScribe::ThreadSafeLogMessageLoggerScribe()
-        : m_admin_p(new ELadministrator()),
+        : m_admin_p(std::make_shared<ELadministrator>()),
           m_early_dest(m_admin_p->attach(std::make_shared<ELoutput>(std::cerr, false))),
-          m_file_ps(),
           m_clean_slate_configuration(true),
           m_active(true),
           m_purge_mode(false),
@@ -235,7 +234,7 @@ namespace edm {
         for (auto const& name : files.getParameterNamesForType<edm::ParameterSet>(false)) {
           categories.merge(findCategoriesInDestination(files.getUntrackedParameter<edm::ParameterSet>(name)));
         }
-        categories.merge(std::set<std::string>(psets.begin(), psets.end()));
+        categories.insert(psets.begin(), psets.end());
 
         return std::vector<std::string>(categories.begin(), categories.end());
       }
@@ -269,16 +268,12 @@ namespace edm {
       }
 
       // Attach a default extension of .log if there is no extension on a file
-      // change log 18 - this had been done in concert with attaching destination
-
-      std::string actual_filename = filename;  // change log 4
       if ((filename != "cout") && (filename != "cerr")) {
-        const std::string::size_type npos = std::string::npos;
-        if (filename.find('.') == npos) {
-          actual_filename += ".log";
+        if (filename.find('.') == std::string::npos) {
+          filename += ".log";
         }
       }
-      return actual_filename;
+      return filename;
     }
 
     void ThreadSafeLogMessageLoggerScribe::configure_errorlog_new(edm::ParameterSet& job_pset) {
@@ -921,17 +916,8 @@ namespace edm {
         destination_base.addOptionalUntracked<std::string>("threshold");
         destination_base.addOptionalUntracked<std::string>("statisticsThreshold");
 
-        /*
-    destination_base.addUntracked<edm::ParameterSetDescription>("DEBUG",category);
-    destination_base.addUntracked<edm::ParameterSetDescription>("INFO", category);
-    destination_base.addUntracked<edm::ParameterSetDescription>("FWKINFO",category);
-    destination_base.addUntracked<edm::ParameterSetDescription>("WARNING",category);
-    destination_base.addUntracked<edm::ParameterSetDescription>("ERROR",category);
-    */
-
         edm::ParameterWildcard<edm::ParameterSetDescription> catnode("*", edm::RequireZeroOrMore, false, category);
         catnode.setComment("Specialize either a category or any of 'DEBUG', 'INFO', 'FWKINFO', 'WARNING' or 'ERROR'");
-        //destination_base.addWildcardUntracked<edm::ParameterSetDescription>(category);
         destination_base.addNode(catnode);
 
         edm::ParameterSetDescription destination_noStats(destination_base);
