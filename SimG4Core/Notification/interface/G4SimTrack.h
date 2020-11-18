@@ -83,18 +83,9 @@ public:
     }
   }
   bool crossedBoundary() const { return crossedBoundary_; }
-  math::XYZVectorD getPositionAtBoundary() const {
-    assertCrossedBoundary();
-    return positionAtBoundary_;
-  }
-  math::XYZTLorentzVectorD getMomentumAtBoundary() const {
-    assertCrossedBoundary();
-    return momentumAtBoundary_;
-  }
-  int getIDAtBoundary() const {
-    assertCrossedBoundary();
-    return idAtBoundary_;
-  }
+  math::XYZVectorD getPositionAtBoundary() const { return positionAtBoundary_; }
+  math::XYZTLorentzVectorD getMomentumAtBoundary() const { return momentumAtBoundary_; }
+  int getIDAtBoundary() const { return idAtBoundary_; }
 
 private:
   int id_;
@@ -111,11 +102,6 @@ private:
   int idAtBoundary_;
   math::XYZVectorD positionAtBoundary_;
   math::XYZTLorentzVectorD momentumAtBoundary_;
-  void assertCrossedBoundary() const {
-    if (!crossedBoundary_) {
-      throw cms::Exception("Unknown", "G4SimTrack") << "Assert crossed boundary failed for track " << id_;
-    }
-  }
 };
 
 #endif

@@ -101,7 +101,7 @@ public:
     }
     return flag;
   }
-  TrackWithHistory* getTrackByID(unsigned int trackID) const {
+  TrackWithHistory* getTrackByID(unsigned int trackID, bool strict = false) const {
     bool trackFound = false;
     TrackWithHistory* track;
     if (m_trksForThisEvent == nullptr) {
@@ -115,10 +115,13 @@ public:
       }
     }
     if (!trackFound) {
-      throw cms::Exception("Unknown", "SimTrackManager")
-          << "Attempted to get track " << trackID << " from SimTrackManager, but it's not in m_trksForThisEvent ("
-          << (*m_trksForThisEvent).size() << " tracks in m_trksForThisEvent)"
-          << "\n";
+      if (strict) {
+        throw cms::Exception("Unknown", "SimTrackManager")
+            << "Attempted to get track " << trackID << " from SimTrackManager, but it's not in m_trksForThisEvent ("
+            << (*m_trksForThisEvent).size() << " tracks in m_trksForThisEvent)"
+            << "\n";
+      }
+      return nullptr;
     }
     return track;
   }

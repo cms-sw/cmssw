@@ -56,20 +56,10 @@ public:
     positionAtBoundary_ = positionAtBoundary;
     momentumAtBoundary_ = momentumAtBoundary;
   }
-
   bool crossedBoundary() const { return crossedBoundary_; }
-  math::XYZVectorD getPositionAtBoundary() const {
-    assertCrossedBoundary();
-    return positionAtBoundary_;
-  }
-  math::XYZTLorentzVectorD getMomentumAtBoundary() const {
-    assertCrossedBoundary();
-    return momentumAtBoundary_;
-  }
-  int getIDAtBoundary() const {
-    assertCrossedBoundary();
-    return idAtBoundary_;
-  }
+  math::XYZVectorD getPositionAtBoundary() const { return positionAtBoundary_; }
+  math::XYZTLorentzVectorD getMomentumAtBoundary() const { return momentumAtBoundary_; }
+  int getIDAtBoundary() const { return idAtBoundary_; }
 
 private:
   int ivert;
@@ -82,12 +72,6 @@ private:
   int idAtBoundary_;
   math::XYZVectorD positionAtBoundary_;
   math::XYZTLorentzVectorD momentumAtBoundary_;
-
-  void assertCrossedBoundary() const {
-    if (!crossedBoundary_) {
-      throw cms::Exception("Unknown", "SimTrack") << "Assert crossed boundary failed for track " << trackId();
-    }
-  }
 };
 
 #include <iosfwd>
