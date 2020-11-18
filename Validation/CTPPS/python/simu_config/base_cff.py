@@ -95,47 +95,49 @@ ctppsProtons.tagLocalTrackLite = cms.InputTag('ctppsLocalTrackLiteProducer')
 default_xangle_beta_star_file = "CalibPPS/ESProducers/data/xangle_beta_distributions/version1.root"
 
 #----------------------------------------------------------------------------------------------------
-#profile structure
-profile=cms.PSet(
-  L_i=cms.double(1),
-  #LHCInfo
+# profile structure
+profile = cms.PSet(
+  L_i = cms.double(1),
+
+  # LHCInfo
   ctppsLHCInfo = cms.PSet(
-	xangle=cms.double(-1),
-	betaStar=cms.double(-1),
-  	beamEnergy = cms.double(6500),  # GeV
-  	xangleBetaStarHistogramFile=cms.string(default_xangle_beta_star_file),
-  	xangleBetaStarHistogramObject=cms.string("")
+    xangle = cms.double(-1),
+    betaStar = cms.double(-1),
+  	beamEnergy  =  cms.double(6500),  # GeV
+  	xangleBetaStarHistogramFile = cms.string(default_xangle_beta_star_file),
+  	xangleBetaStarHistogramObject = cms.string("")
   ),
 
-  #Optics
+  # optics
   ctppsOpticalFunctions = cms.PSet(
   	opticalFunctions=cms.VPSet(),
   	scoringPlanes=cms.VPSet()
   ),
-  #geometry
-  xmlIdealGeometry=cms.PSet(
-	geomXMLFiles=cms.string(""),
-	rootNodeName=cms.string("")
 
-  ),
-  #alignment
-  ctppsRPAlignmentCorrectionsDataXML=cms.PSet(
-	MeasuredFiles=cms.vstring(),
-	RealFiles=cms.vstring(""),
-	MisalignedFiles=cms.vstring("")
+  # geometry
+  xmlIdealGeometry = cms.PSet(
+    geomXMLFiles = cms.string(""),
+    rootNodeName = cms.string("")
   ),
 
-  #direct simu data
-  ctppsDirectSimuData=cms.PSet(
-	useEmpiricalApertures=cms.bool(False),
-	empiricalAperture45=cms.string(""),
-	empiricalAperture56=cms.string(""),
-	timeResolutionDiamonds45=cms.string("999"),
-	timeResolutionDiamonds56=cms.string("999"),
-	useTimeEfficiencyCheck=cms.bool(False),
-	effTimePath=cms.string(""),
-	effTimeObject45=cms.string(""),
-	effTimeObject56=cms.string("")
+  # alignment
+  ctppsRPAlignmentCorrectionsDataXML = cms.PSet(
+    MeasuredFiles = cms.vstring(),
+    RealFiles = cms.vstring(""),
+    MisalignedFiles = cms.vstring("")
+  ),
+
+  # direct simu data
+  ctppsDirectSimuData = cms.PSet(
+    useEmpiricalApertures = cms.bool(False),
+    empiricalAperture45 = cms.string(""),
+    empiricalAperture56 = cms.string(""),
+    timeResolutionDiamonds45 = cms.string("999"),
+    timeResolutionDiamonds56 = cms.string("999"),
+    useTimeEfficiencyCheck = cms.bool(False),
+    effTimePath = cms.string(""),
+    effTimeObject45 = cms.string(""),
+    effTimeObject56 = cms.string("")
   )
 )
 #----------------------------------------------------------------------------------------------------
