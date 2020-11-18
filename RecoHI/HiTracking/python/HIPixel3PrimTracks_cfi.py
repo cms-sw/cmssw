@@ -15,10 +15,10 @@ hiPixelLayerQuadruplets = _PixelLayerQuadruplets.clone()
 
 # Hit ntuplets
 hiPixel3PrimTracksHitDoublets = _hitPairEDProducer.clone(
-    clusterCheck = "",
-    seedingLayers = "PixelLayerTriplets",
+    clusterCheck    = "",
+    seedingLayers   = "PixelLayerTriplets",
     trackingRegions = "hiTrackingRegionWithVertex",
-    maxElement = 50000000,
+    maxElement      = 50000000,
     produceIntermediateHitDoublets = True,
 )
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
@@ -28,29 +28,29 @@ trackingPhase1.toModify(hiPixel3PrimTracksHitDoublets,
 
 
 hiPixel3PrimTracksHitTriplets = _pixelTripletHLTEDProducer.clone(
-    doublets = "hiPixel3PrimTracksHitDoublets",
+    doublets   = "hiPixel3PrimTracksHitDoublets",
     maxElement = 1000000, # increase threshold for triplets in generation step (default: 100000)
     produceSeedingHitSets = True,
     produceIntermediateHitTriplets = True,
 )
 
 from RecoPixelVertexing.PixelTriplets.caHitQuadrupletEDProducer_cfi import caHitQuadrupletEDProducer as _caHitQuadrupletEDProducer
-hiPixel3PrimTracksHitDoubletsCA = hiPixel3PrimTracksHitDoublets.clone()
-hiPixel3PrimTracksHitDoubletsCA.layerPairs = [0,1,2]
-
+hiPixel3PrimTracksHitDoubletsCA = hiPixel3PrimTracksHitDoublets.clone(
+    layerPairs = [0,1,2]
+)
 hiPixel3PrimTracksHitQuadrupletsCA = _caHitQuadrupletEDProducer.clone(
     doublets = "hiPixel3PrimTracksHitDoubletsCA",
     extraHitRPhitolerance = hiPixel3PrimTracksHitTriplets.extraHitRPhitolerance,
-    SeedComparitorPSet = hiPixel3PrimTracksHitTriplets.SeedComparitorPSet,
+    SeedComparitorPSet    = hiPixel3PrimTracksHitTriplets.SeedComparitorPSet,
     maxChi2 = dict(
         pt1    = 0.7, pt2    = 2,
         value1 = 200, value2 = 50,
     ),
     useBendingCorrection = True,
-    fitFastCircle = True,
+    fitFastCircle        = True,
     fitFastCircleChi2Cut = True,
     CAThetaCut = 0.0012,
-    CAPhiCut = 0.2,
+    CAPhiCut   = 0.2,
 ) 
 
 # Pixel tracks
@@ -71,7 +71,7 @@ hiPixel3PrimTracks = cms.EDProducer("PixelTrackProducer",
     Cleaner = cms.string("trackCleaner")
 )
 trackingPhase1.toModify(hiPixel3PrimTracks,
-    SeedingHitSets = cms.InputTag("hiPixel3PrimTracksHitQuadrupletsCA"),
+    SeedingHitSets = "hiPixel3PrimTracksHitQuadrupletsCA",
 )
 
 hiPixel3PrimTracksTask = cms.Task(

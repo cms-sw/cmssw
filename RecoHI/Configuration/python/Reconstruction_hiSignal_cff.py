@@ -12,7 +12,7 @@ dropAllExceptFinalProducts = cms.PSet()
 #Tracks
 hiSignalGlobalPrimTracks = hiGlobalPrimTracks.clone()
 hiSignalSelectedTracks = hiSelectedTracks.clone()
-hiSelectedTracks.src = cms.InputTag("hiSignalGlobalPrimTracks")
+hiSelectedTracks.src = "hiSignalGlobalPrimTracks"
 heavyIonTrackingTask = cms.Task(hiPixelVerticesTask
                                 ,hiPrimSeedsTask
                                 ,hiPrimTrackCandidates
@@ -38,8 +38,9 @@ runjetsTask = cms.Task(caloTowersRecTask,caloTowers,hiSignalIterativeConePu5Calo
 runjets = cms.Sequence(runjetsTask)
 
 #Muons
-hiSignalGlobalMuons = globalMuons.clone()
-hiSignalGlobalMuons.TrackerCollectionLabel = 'hiSignalGlobalPrimTracks'
+hiSignalGlobalMuons = globalMuons.clone(
+    TrackerCollectionLabel = 'hiSignalGlobalPrimTracks'
+)
 muontrackingTask = cms.Task(standAloneMuonSeedsTask,standAloneMuons,hiSignalGlobalMuons)
 muontracking = cms.Sequence(muontrackingTask)
 
