@@ -1,21 +1,59 @@
 import FWCore.ParameterSet.Config as cms
 
-from CalibPPS.ESProducers.ctppsCompositeESSource_cfi import *
-# load standard files
+# load standard files (on top so as settings can be overwritten below)
 from RecoPPS.ProtonReconstruction.ctppsProtons_cff import *
 
-# undo unapplicable settings
-#del ctppsRPAlignmentCorrectionsDataESSourceXML
-#del esPreferLocalAlignment
+# configuration for composite source of alignment, optics, ...
+from CalibPPS.ESProducers.ctppsCompositeESSource_cfi import *
 
-#ctppsOpticalFunctionsESSource.configuration = cms.VPSet()
-#del ctppsOpticalFunctionsESSource
-#del esPreferLocalOptics
-del ctppsInterpolatedOpticalFunctionsESSource
+profile_base = cms.PSet(
+  L_i = cms.double(1),
 
+  # LHCInfo
+  ctppsLHCInfo = cms.PSet(
+    xangle = cms.double(-1),
+    betaStar = cms.double(-1),
+  	beamEnergy  =  cms.double(0),
+  	xangleBetaStarHistogramFile = cms.string("CalibPPS/ESProducers/data/xangle_beta_distributions/version1.root"),
+  	xangleBetaStarHistogramObject = cms.string("")
+  ),
+
+  # optics
+  ctppsOpticalFunctions = cms.PSet(
+  	opticalFunctions = cms.VPSet(),
+  	scoringPlanes = cms.VPSet()
+  ),
+
+  # geometry
+  xmlIdealGeometry = cms.PSet(
+    geomXMLFiles = cms.string(""),
+    rootNodeName = cms.string("")
+  ),
+
+  # alignment
+  ctppsRPAlignmentCorrectionsDataXML = cms.PSet(
+    MeasuredFiles = cms.vstring(),
+    RealFiles = cms.vstring(""),
+    MisalignedFiles = cms.vstring("")
+  ),
+
+  # direct simu data
+  ctppsDirectSimuData = cms.PSet(
+    useEmpiricalApertures = cms.bool(True),
+    empiricalAperture45 = cms.string(""),
+    empiricalAperture56 = cms.string(""),
+    timeResolutionDiamonds45 = cms.string("999"),
+    timeResolutionDiamonds56 = cms.string("999"),
+    useTimeEfficiencyCheck = cms.bool(False),
+    effTimePath = cms.string(""),
+    effTimeObject45 = cms.string(""),
+    effTimeObject56 = cms.string("")
+  )
+)
 
 # beam parameters as determined by PPS
 ctppsBeamParametersFromLHCInfoESSource = cms.ESProducer("CTPPSBeamParametersFromLHCInfoESSource",
+  lhcInfoLabel = cms.string(""),
 
   #  beam divergence  (rad)
   beamDivX45 = cms.double(30E-6),
@@ -34,8 +72,7 @@ ctppsBeamParametersFromLHCInfoESSource = cms.ESProducer("CTPPSBeamParametersFrom
   #  vertex sigma  (cm)
   vtxStddevX = cms.double(10E-4),
   vtxStddevY = cms.double(10E-4),
-  vtxStddevZ = cms.double(5),
-  lhcInfoLabel=cms.string("")
+  vtxStddevZ = cms.double(5)
 )
 
 # particle-data table
@@ -52,7 +89,7 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
 # default source
 source = cms.Source("EmptySource",
   firstRun = cms.untracked.uint32(1),
-  numberEventsInLuminosityBlock=cms.untracked.uint32(100)
+  numberEventsInLuminosityBlock = cms.untracked.uint32(100)
 )
 
 # particle generator
@@ -91,56 +128,9 @@ ctppsLocalTrackLiteProducer.includeDiamonds = False
 # proton reconstruction
 ctppsProtons.tagLocalTrackLite = cms.InputTag('ctppsLocalTrackLiteProducer')
 
-#xangle/beta*
-default_xangle_beta_star_file = "CalibPPS/ESProducers/data/xangle_beta_distributions/version1.root"
-
 #----------------------------------------------------------------------------------------------------
-# profile structure
-profile = cms.PSet(
-  L_i = cms.double(1),
+# utility functions
 
-  # LHCInfo
-  ctppsLHCInfo = cms.PSet(
-    xangle = cms.double(-1),
-    betaStar = cms.double(-1),
-  	beamEnergy  =  cms.double(6500),  # GeV
-  	xangleBetaStarHistogramFile = cms.string(default_xangle_beta_star_file),
-  	xangleBetaStarHistogramObject = cms.string("")
-  ),
-
-  # optics
-  ctppsOpticalFunctions = cms.PSet(
-  	opticalFunctions=cms.VPSet(),
-  	scoringPlanes=cms.VPSet()
-  ),
-
-  # geometry
-  xmlIdealGeometry = cms.PSet(
-    geomXMLFiles = cms.string(""),
-    rootNodeName = cms.string("")
-  ),
-
-  # alignment
-  ctppsRPAlignmentCorrectionsDataXML = cms.PSet(
-    MeasuredFiles = cms.vstring(),
-    RealFiles = cms.vstring(""),
-    MisalignedFiles = cms.vstring("")
-  ),
-
-  # direct simu data
-  ctppsDirectSimuData = cms.PSet(
-    useEmpiricalApertures = cms.bool(False),
-    empiricalAperture45 = cms.string(""),
-    empiricalAperture56 = cms.string(""),
-    timeResolutionDiamonds45 = cms.string("999"),
-    timeResolutionDiamonds56 = cms.string("999"),
-    useTimeEfficiencyCheck = cms.bool(False),
-    effTimePath = cms.string(""),
-    effTimeObject45 = cms.string(""),
-    effTimeObject56 = cms.string("")
-  )
-)
-#----------------------------------------------------------------------------------------------------
 def SetSmearingLevel1(obj):
   obj.vtxStddevX = 0E-4
   obj.vtxStddevZ = 0
@@ -151,10 +141,7 @@ def SetSmearingLevel1(obj):
   obj.beamDivY56 = 0E-6
 
 def SetLevel1(process):
-  if hasattr(process, "ctppsBeamParametersESSource"):
-    SetSmearingLevel1(process.ctppsBeamParametersESSource)
-  else:
-    SetSmearingLevel1(process.ctppsBeamParametersFromLHCInfoESSource)
+  SetSmearingLevel1(process.ctppsBeamParametersFromLHCInfoESSource)
 
   process.ctppsDirectProtonSimulation.roundToPitch = False
 
@@ -165,30 +152,22 @@ def SetSmearingLevel2(obj):
   obj.beamDivY56 = 0E-6
 
 def SetLevel2(process):
-  if hasattr(process, "ctppsBeamParametersESSource"):
-    SetSmearingLevel2(process.ctppsBeamParametersESSource)
-  else:
-    SetSmearingLevel2(process.ctppsBeamParametersFromLHCInfoESSource)
+  SetSmearingLevel2(process.ctppsBeamParametersFromLHCInfoESSource)
 
   process.ctppsDirectProtonSimulation.roundToPitch = False
-
 
 def SetLevel3(process):
   process.ctppsDirectProtonSimulation.roundToPitch = False
 
-
 def SetLevel4(process):
   pass
-
 
 def SetLowTheta(process):
   process.generator.theta_x_sigma = 0E-6
   process.generator.theta_y_sigma = 0E-6
 
-
 def SetLargeTheta(process):
   pass
-
 
 def UseConstantXangleBetaStar(process, xangle, betaStar):
   for p in ctppsCompositeESSource.periods:
