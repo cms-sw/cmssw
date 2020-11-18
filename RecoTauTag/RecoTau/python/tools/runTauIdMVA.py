@@ -703,7 +703,8 @@ class TauIDEmbedder(object):
                 mem_mapped               = cms.bool(False),
                 version                  = cms.uint32(self.getDeepTauVersion(file_names[0])[1]),
                 debug_level              = cms.int32(0),
-                disable_dxy_pca          = cms.bool(True)
+                disable_dxy_pca          = cms.bool(True),
+                is_online                = cms.bool(False)
             )
 
             self.processDeepProducer('deepTau2017v2p1', tauIDSources, workingPoints_)
