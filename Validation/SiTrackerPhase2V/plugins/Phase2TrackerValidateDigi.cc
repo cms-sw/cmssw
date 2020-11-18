@@ -90,8 +90,15 @@ Phase2TrackerValidateDigi::~Phase2TrackerValidateDigi() {
 //
 // -- DQM Begin Run
 void Phase2TrackerValidateDigi::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  edm::ESHandle<TrackerGeometry> geomHandle = iSetup.getHandle(geomToken_);
+  edm::ESWatcher<TrackerDigiGeometryRecord> theTkDigiGeomWatcher;
+  edm::ESHandle<TrackerGeometry> geomHandle;
+  if (theTkDigiGeomWatcher.check(iSetup)) {
+    geomHandle = iSetup.getHandle(geomToken_);
+  }
+  if (!geomHandle.isValid())
+    return;
   tkGeom_ = &(*geomHandle);
+
   edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(topoToken_);
   tTopo_ = tTopoHandle.product();
 }
@@ -99,7 +106,6 @@ void Phase2TrackerValidateDigi::dqmBeginRun(const edm::Run& iRun, const edm::Eve
 // -- Analyze
 //
 void Phase2TrackerValidateDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  using namespace edm;
 
   // Get digis
   iEvent.getByToken(itPixelDigiToken_, itPixelDigiHandle_);
@@ -114,17 +120,6 @@ void Phase2TrackerValidateDigi::analyze(const edm::Event& iEvent, const edm::Eve
 
   // SimVertex
   iEvent.getByToken(simVertexToken_, simVertices);
-
-  // Tracker Topology
-
-  edm::ESWatcher<TrackerDigiGeometryRecord> theTkDigiGeomWatcher;
-
-  edm::ESHandle<TrackerGeometry> geomHandle;
-  if (theTkDigiGeomWatcher.check(iSetup)) {
-    geomHandle = iSetup.getHandle(geomToken_);
-  }
-  if (!geomHandle.isValid())
-    return;
 
   // Fil # of SIM Vertices@
   nSimVertices->Fill((*simVertices).size());
