@@ -159,15 +159,13 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
 
 PFECALSuperClusterProducer::~PFECALSuperClusterProducer() {}
 
-void PFECALSuperClusterProducer::beginRun(Run const& run, EventSetup const& iE) {
-  superClusterAlgo_.updateSCParams(iE);
-}
-
 void PFECALSuperClusterProducer::beginLuminosityBlock(LuminosityBlock const& iL, EventSetup const& iE) {
   superClusterAlgo_.update(iE);
 }
 
 void PFECALSuperClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  // update SC parameters
+  superClusterAlgo_.updateSCParams(iSetup);
   // do clustering
   superClusterAlgo_.loadAndSortPFClusters(iEvent);
   superClusterAlgo_.run();
