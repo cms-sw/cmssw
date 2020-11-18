@@ -896,6 +896,10 @@ bool Pythia8Hadronizer::residualDecay() {
 void Pythia8Hadronizer::finalizeEvent() {
   bool lhe = lheEvent() != nullptr;
 
+  // protection against empty weight container
+  if ((event()->weights()).empty())
+    (event()->weights()).push_back(1.);
+
   // now create the GenEventInfo product from the GenEvent and fill
   // the missing pieces
   eventInfo() = std::make_unique<GenEventInfoProduct>(event().get());
