@@ -26,12 +26,9 @@ public:
   void reset();
 
   void overwriteTrackID(int trackID) { theTrackID = trackID; }
-  bool hasFineTrackID() const { return hasFineTrackID_; }
-  void setFineTrackID(int fineTrackID) {
-    theFineTrackID = fineTrackID;
-    hasFineTrackID_ = true;
-  }
-  int getFineTrackID() const { return hasFineTrackID_ ? theFineTrackID : theTrackID; }
+  bool hasFineTrackID() const { return theFineTrackID != -1; }
+  void setFineTrackID(int fineTrackID) { theFineTrackID = fineTrackID; }
+  int getFineTrackID() const { return hasFineTrackID() ? theFineTrackID : theTrackID; }
 
   bool operator==(const CaloHitID&) const;
   bool operator<(const CaloHitID&) const;

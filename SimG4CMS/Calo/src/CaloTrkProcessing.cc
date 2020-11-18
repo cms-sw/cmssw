@@ -191,6 +191,7 @@ void CaloTrkProcessing::update(const G4Step* aStep) {
         // Allow back-scattering and filter it out later; ensure consistency during the SIM step
         // && std::abs(theTrack->GetStep()->GetPreStepPoint()->GetPosition().z()) < std::abs(theTrack->GetPosition().z())
     ) {
+#ifdef EDM_ML_DEBUG
       edm::LogVerbatim("DoFineCalo") << "Entered fine volume " << poststepLV << ":"
                                      << " Track " << id << " pdgid=" << theTrack->GetDefinition()->GetPDGEncoding()
                                      << " prestepLV=" << prestepLV << " poststepLV=" << poststepLV
@@ -210,6 +211,7 @@ void CaloTrkProcessing::update(const G4Step* aStep) {
                                      << " vertex_position[cm]=(" << theTrack->GetVertexPosition().x() / CLHEP::cm << ","
                                      << theTrack->GetVertexPosition().y() / CLHEP::cm << ","
                                      << theTrack->GetVertexPosition().z() / CLHEP::cm << ")";
+#endif
       trkInfo->setCrossedBoundary(theTrack);
     }
 #ifdef EDM_ML_DEBUG
