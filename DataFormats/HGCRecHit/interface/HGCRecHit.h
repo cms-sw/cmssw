@@ -67,8 +67,13 @@ public:
 
   HGCRecHit();
   // by default a recHit is greated with no flag
-  HGCRecHit(const DetId& id, float energy, float time, uint32_t flags = 0, uint32_t flagBits = 0,
-	    uint8_t son=0, float timeError=0.f);
+  HGCRecHit(const DetId& id,
+            float energy,
+            float time,
+            uint32_t flags = 0,
+            uint32_t flagBits = 0,
+            uint8_t son = 0,
+            float timeError = 0.f);
   /// get the id
   // For the moment not returning a specific id for subdetector
   DetId id() const { return DetId(detid()); }

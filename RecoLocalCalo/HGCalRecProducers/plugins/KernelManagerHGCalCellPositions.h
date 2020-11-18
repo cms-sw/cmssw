@@ -10,7 +10,7 @@
 #include "CUDADataFormats/HGCal/interface/HGCConditions.h"
 
 #include <vector>
-#include <algorithm> //std::swap  
+#include <algorithm>  //std::swap
 #include <variant>
 #include <cuda.h>
 #include <cuda_runtime.h>
@@ -21,17 +21,17 @@ extern __constant__ uint32_t calo_rechit_masks[];
 #endif
 */
 
-namespace { //kernel parameters
+namespace {  //kernel parameters
   dim3 nb_celpos_;
   constexpr dim3 nt_celpos_(256);
-}
+}  // namespace
 
 class KernelManagerHGCalCellPositions {
- public:
+public:
   KernelManagerHGCalCellPositions(const size_t&);
 
   void fill_positions(const hgcal_conditions::HeterogeneousHEFCellPositionsConditionsESProduct*);
   void test_cell_positions(unsigned, const hgcal_conditions::HeterogeneousHEFCellPositionsConditionsESProduct*);
 };
 
-#endif //RecoLocalCalo_HGCalESProducers_KernelManagerHGCalCellPositions_h
+#endif  //RecoLocalCalo_HGCalESProducers_KernelManagerHGCalCellPositions_h
