@@ -47,7 +47,7 @@ private:
 PPSGeometryBuilder::PPSGeometryBuilder(const edm::ParameterSet& iConfig)
     : fromDD4hep_(iConfig.getUntrackedParameter<bool>("fromDD4hep", false)),
       compactViewTag_(iConfig.getUntrackedParameter<std::string>("compactViewTag", "XMLIdealGeometryESSource_CTPPS")),
-      isRun2_(iConfig.getParameter<bool>("isRun2")),
+      isRun2_(iConfig.getUntrackedParameter<bool>("isRun2", false)),
       ddToken_(esConsumes(edm::ESInputTag("", compactViewTag_))),
       dd4hepToken_(esConsumes(edm::ESInputTag("", compactViewTag_))) {}
 
