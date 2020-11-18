@@ -102,6 +102,12 @@
 //      Defaults eta = 0 (all ieta values), mode = 1 (profile histograms),
 //               drawStatBox = true, save = false
 //
+//             For plotting histograms created by CalibPlotProperties
+//  PlotPropertyHist(infile, prefix, text, etaMax, lumi, ener, dataMC,
+//		     drawStatBox, save)
+//      Defaults etaMax = 25 (draws for eta = 1 .. etaMax), lumi = 0,
+//               ener = 13.0, dataMC = false,  drawStatBox = true, save = false
+//
 //  where:
 //  infile   (std::string)  = Name of the input ROOT file
 //  outfile  (std::string)  = Name of the output ROOT file
@@ -2843,6 +2849,204 @@ void PlotHistCorr(const char* infile,
     if (save) {
       sprintf(name, "%s.pdf", pad->GetName());
       pad->Print(name);
+    }
+  }
+}
+
+void PlotPropertyHist(const char* infile,
+                      std::string prefix,
+                      std::string text,
+                      int etaMax = 25,
+                      double lumi = 0,
+                      double ener = 13.0,
+                      bool dataMC = false,
+                      bool drawStatBox = true,
+                      bool save = false) {
+  std::string name0[3] = {"energyE2", "energyH2", "energyP2"};
+  std::string title0[3] = {"Energy in ECAL", "Energy in HCAL", "Track Momentum"};
+  std::string xtitl0[3] = {"Energy (GeV)", "Energy (GeV)", "p (GeV)"};
+  std::string name1[5] = {"eta02", "eta12", "eta22", "eta32", "eta42"};
+  std::string name10[5] = {"eta0", "eta1", "eta2", "eta3", "eta4"};
+  std::string xtitl1 = "i#eta";
+  std::string name2[5] = {"p0", "p1", "p2", "p3", "p4"};
+  std::string xtitl2 = "p (GeV)";
+  std::string title1[5] = {"Tracks with p=40:60 GeV",
+                           "Good Quality Tracks with p=40:60 GeV",
+                           "Selected Tracks with p=40:60 GeV",
+                           "Isolated Tracks with p=40:60 GeV",
+                           "Isolated Tracks with p=40:60 GeV and MIPS in ECAL"};
+  std::string title2[5] = {
+      "All Tracks", "Good Quality Tracks", "Selected Tracks", "Isolated Tracks", "Isolated Tracks with MIPS in ECAL"};
+  std::string ytitle = "Tracks";
+
+  gStyle->SetCanvasBorderMode(0);
+  gStyle->SetCanvasColor(kWhite);
+  gStyle->SetPadColor(kWhite);
+  gStyle->SetFillColor(kWhite);
+  gStyle->SetOptTitle(0);
+  if (drawStatBox)
+    gStyle->SetOptStat(1110);
+  else
+    gStyle->SetOptStat(0);
+  gStyle->SetOptFit(0);
+
+  TFile* file = new TFile(infile);
+  char name[100], namep[100];
+  for (int k = 1; k <= etaMax; ++k) {
+    for (int j = 0; j < 3; ++j) {
+      sprintf(name, "%s%s%d", prefix.c_str(), name0[j].c_str(), k);
+      TH1D* hist1 = (TH1D*)file->FindObjectAny(name);
+      if (hist1 != nullptr) {
+        TH1D* hist = (TH1D*)(hist1->Clone());
+        double ymin(0.90);
+        sprintf(namep, "c_%s", name);
+        TCanvas* pad = new TCanvas(namep, namep, 700, 500);
+        pad->SetLogy();
+        pad->SetRightMargin(0.10);
+        pad->SetTopMargin(0.10);
+        hist->GetXaxis()->SetTitleSize(0.04);
+        hist->GetXaxis()->SetTitle(xtitl0[j].c_str());
+        hist->GetYaxis()->SetTitle(ytitle.c_str());
+        hist->GetYaxis()->SetLabelOffset(0.005);
+        hist->GetYaxis()->SetTitleSize(0.04);
+        hist->GetYaxis()->SetLabelSize(0.035);
+        hist->GetYaxis()->SetTitleOffset(1.10);
+        hist->SetMarkerStyle(20);
+        hist->Draw();
+        pad->Update();
+        TPaveStats* st1 = (TPaveStats*)hist->GetListOfFunctions()->FindObject("stats");
+        if (st1 != nullptr) {
+          st1->SetY1NDC(0.78);
+          st1->SetY2NDC(0.90);
+          st1->SetX1NDC(0.65);
+          st1->SetX2NDC(0.90);
+        }
+        pad->Update();
+        double ymx(0.96), xmi(0.35), xmx(0.95);
+        char txt[100];
+        if (lumi > 0.1) {
+          ymx = ymin - 0.005;
+          xmi = 0.45;
+          TPaveText* txt0 = new TPaveText(0.65, 0.91, 0.90, 0.96, "blNDC");
+          txt0->SetFillColor(0);
+          sprintf(txt, "%4.1f TeV %5.1f fb^{-1}", ener, lumi);
+          txt0->AddText(txt);
+          txt0->Draw("same");
+        }
+        double ymi = ymx - 0.05;
+        TPaveText* txt1 = new TPaveText(xmi, ymi, xmx, ymx, "blNDC");
+        txt1->SetFillColor(0);
+        if (text == "") {
+          sprintf(txt, "%s", title0[j].c_str());
+        } else {
+          sprintf(txt, "%s (%s)", title0[j].c_str(), text.c_str());
+        }
+        txt1->AddText(txt);
+        txt1->Draw("same");
+        double xmax = (dataMC) ? 0.24 : 0.35;
+        ymi = 0.91;
+        ymx = ymi + 0.05;
+        TPaveText* txt2 = new TPaveText(0.02, ymi, xmax, ymx, "blNDC");
+        txt2->SetFillColor(0);
+        if (dataMC)
+          sprintf(txt, "CMS Preliminary");
+        else
+          sprintf(txt, "CMS Simulation Preliminary");
+        txt2->AddText(txt);
+        txt2->Draw("same");
+        pad->Modified();
+        pad->Update();
+        if (save) {
+          sprintf(name, "%s.pdf", pad->GetName());
+          pad->Print(name);
+        }
+      }
+    }
+  }
+
+  for (int k = 0; k < 3; ++k) {
+    for (int j = 0; j < 5; ++j) {
+      if (k == 0)
+        sprintf(name, "%s%s", prefix.c_str(), name1[j].c_str());
+      else if (k == 1)
+        sprintf(name, "%s%s", prefix.c_str(), name10[j].c_str());
+      else
+        sprintf(name, "%s%s", prefix.c_str(), name2[j].c_str());
+      TH1D* hist1 = (TH1D*)file->FindObjectAny(name);
+      if (hist1 != nullptr) {
+        TH1D* hist = (TH1D*)(hist1->Clone());
+        double ymin(0.90);
+        sprintf(namep, "c_%s", name);
+        TCanvas* pad = new TCanvas(namep, namep, 700, 500);
+        pad->SetLogy();
+        pad->SetRightMargin(0.10);
+        pad->SetTopMargin(0.10);
+        hist->GetXaxis()->SetTitleSize(0.04);
+        if (k <= 1)
+          hist->GetXaxis()->SetTitle(xtitl1.c_str());
+        else
+          hist->GetXaxis()->SetTitle(xtitl2.c_str());
+        hist->GetYaxis()->SetTitle(ytitle.c_str());
+        hist->GetYaxis()->SetLabelOffset(0.005);
+        hist->GetYaxis()->SetTitleSize(0.04);
+        hist->GetYaxis()->SetLabelSize(0.035);
+        hist->GetYaxis()->SetTitleOffset(1.10);
+        hist->SetMarkerStyle(20);
+        hist->Draw();
+        pad->Update();
+        TPaveStats* st1 = (TPaveStats*)hist->GetListOfFunctions()->FindObject("stats");
+        if (st1 != nullptr) {
+          st1->SetY1NDC(0.78);
+          st1->SetY2NDC(0.90);
+          st1->SetX1NDC(0.65);
+          st1->SetX2NDC(0.90);
+        }
+        pad->Update();
+        double ymx(0.96), xmi(0.35), xmx(0.95);
+        char txt[100];
+        if (lumi > 0.1) {
+          ymx = ymin - 0.005;
+          xmi = 0.45;
+          TPaveText* txt0 = new TPaveText(0.65, 0.91, 0.90, 0.96, "blNDC");
+          txt0->SetFillColor(0);
+          sprintf(txt, "%4.1f TeV %5.1f fb^{-1}", ener, lumi);
+          txt0->AddText(txt);
+          txt0->Draw("same");
+        }
+        double ymi = ymx - 0.05;
+        TPaveText* txt1 = new TPaveText(xmi, ymi, xmx, ymx, "blNDC");
+        txt1->SetFillColor(0);
+        if (text == "") {
+          if (k == 0)
+            sprintf(txt, "%s", title1[j].c_str());
+          else
+            sprintf(txt, "%s", title2[j].c_str());
+        } else {
+          if (k == 0)
+            sprintf(txt, "%s (%s)", title1[j].c_str(), text.c_str());
+          else
+            sprintf(txt, "%s (%s)", title2[j].c_str(), text.c_str());
+        }
+        txt1->AddText(txt);
+        txt1->Draw("same");
+        double xmax = (dataMC) ? 0.24 : 0.35;
+        ymi = 0.91;
+        ymx = ymi + 0.05;
+        TPaveText* txt2 = new TPaveText(0.02, ymi, xmax, ymx, "blNDC");
+        txt2->SetFillColor(0);
+        if (dataMC)
+          sprintf(txt, "CMS Preliminary");
+        else
+          sprintf(txt, "CMS Simulation Preliminary");
+        txt2->AddText(txt);
+        txt2->Draw("same");
+        pad->Modified();
+        pad->Update();
+        if (save) {
+          sprintf(name, "%s.pdf", pad->GetName());
+          pad->Print(name);
+        }
+      }
     }
   }
 }
