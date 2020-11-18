@@ -12,14 +12,13 @@ hiLooseMTS = cms.PSet(
     #untracked bool copyTrajectories = true // when doing retracking before
     copyTrajectories = cms.untracked.bool(True),
     copyExtras = cms.untracked.bool(True), ## set to false on AOD
-    qualityBit = cms.string('loose'), ## set to '' or comment out if you dont want to set the
-
-    chi2n_par = cms.double(0.3),                     # version with 1D hits modification
-    chi2n_no1Dmod_par = cms.double(9999.),                     # normalizedChi2 < nLayers * chi2n_par
-    res_par = cms.vdouble(99999., 99999.),            # residual parameterization (re-check in HI)
-    d0_par1 = cms.vdouble(9999., 0.),                 # parameterized nomd0E
+    qualityBit = cms.string('loose'),      ## set to '' or comment out if you dont want to set the
+    chi2n_par = cms.double(0.3),           # version with 1D hits modification
+    chi2n_no1Dmod_par = cms.double(9999.), # normalizedChi2 < nLayers * chi2n_par
+    res_par = cms.vdouble(99999., 99999.), # residual parameterization (re-check in HI)
+    d0_par1 = cms.vdouble(9999., 0.),      # parameterized nomd0E
     dz_par1 = cms.vdouble(9999., 0.),
-    d0_par2 = cms.vdouble(0.4, 4.0),              # d0E from tk.d0Error
+    d0_par2 = cms.vdouble(0.4, 4.0),       # d0E from tk.d0Error
     dz_par2 = cms.vdouble(0.4, 4.0),
     # Boolean indicating if adapted primary vertex compatibility cuts are to be applied.
     applyAdaptedPVCuts = cms.bool(True),
@@ -52,27 +51,27 @@ hiLooseMTS = cms.PSet(
     )
 
 hiTightMTS=hiLooseMTS.clone(
-    preFilterName='hiTrkLoose',
-    min_nhits = cms.uint32(8),
-    max_relpterr = cms.double(0.075),
-    d0_par2 = cms.vdouble(5.0, 0.0),
-    dz_par2 = cms.vdouble(5.0, 0.0),
-    chi2n_no1Dmod_par = cms.double(0.25),
-    name= cms.string('hiTrkTight'),
-    qualityBit = cms.string('tight'), ## set to '' or comment out if you dont want to set the bit
-    keepAllTracks= cms.bool(True)
-    )
+    preFilterName ='hiTrkLoose',
+    min_nhits = 8,
+    max_relpterr = 0.075,
+    d0_par2 = [5.0, 0.0],
+    dz_par2 = [5.0, 0.0],
+    chi2n_no1Dmod_par = 0.25,
+    name = 'hiTrkTight',
+    qualityBit = 'tight', ## set to '' or comment out if you dont want to set the bit
+    keepAllTracks = True
+)
 
 hiHighpurityMTS= hiTightMTS.clone(
-    name= cms.string('hiTrkHighPurity'),
-    preFilterName='hiTrkTight',
-    min_nhits = cms.uint32(8),
-    max_relpterr = cms.double(0.05),
+    name = 'hiTrkHighPurity',
+    preFilterName ='hiTrkTight',
+    min_nhits = 8,
+    max_relpterr = 0.05,
     d0_par2 = [3.0, 0.0],
     dz_par2 = [3.0, 0.0],
-    chi2n_no1Dmod_par = cms.double(0.15),
-    qualityBit = cms.string('highPurity') ## set to '' or comment out if you dont want to set the bit
-    )
+    chi2n_no1Dmod_par = 0.15,
+    qualityBit = 'highPurity' ## set to '' or comment out if you dont want to set the bit
+)
 
 #typical configuration is six selectors... something like this to
 #make cloning easier.
