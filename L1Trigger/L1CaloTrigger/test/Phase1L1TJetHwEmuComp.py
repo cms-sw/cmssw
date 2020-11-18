@@ -24,7 +24,7 @@ nEv = 5000
 nEvNoZ = 0
 
 
-for hwRx in xrange(0,70):
+for hwRx in range(0,70):
     with open("datFull/" + str(hwRx) + "/tx_summary.txt", "r") as inFile:
         frameIt = -1
         for line in inFile:
@@ -35,7 +35,7 @@ for hwRx in xrange(0,70):
                 if hwRx == 0 and frameIt < 33:
                     continue
                 linkData = line.split('1v')
-                for wordIt in xrange(1,25):
+                for wordIt in range(1,25):
                     word = linkData[wordIt].replace(' ','').replace('\n','')
                     if int(word, 16) & 0xffff:
                         jet = word[8:]
@@ -77,7 +77,7 @@ with open("emuout.txt", "r") as inFile:
 
 nDiff = 0
 
-for evIt in xrange(0,nEv):
+for evIt in range(0,nEv):
     if len(hwData[evIt]) != len(emData[evIt]):
         nDiff+=1
         continue
@@ -103,7 +103,7 @@ print("\t\tpT\t" + "eta\t" + "phi\t\t" + "pT\t" + "eta\t" + "phi\t")
 print("=====================================================================================")
 
 
-for evIt in xrange(0,nEv):
+for evIt in range(0,nEv):
     if hwData[evIt][0][0] > 0:
         hwDataNoZ.append(hwData[evIt])
     if emData[evIt][0][0] > 0:
@@ -111,25 +111,25 @@ for evIt in xrange(0,nEv):
     nEvNoZ+=1
 
 
-for evIt in xrange(0,nEv):
+for evIt in range(0,nEv):
     if hwData[evIt][0][0] ==0 and emData[evIt][0][0] == 0:
         continue
     jetCount=0
     jetDiff = len(hwData[evIt]) - len(emData[evIt])
     print("")
     if jetDiff==0:
-        for jetIt in xrange(len(hwData[evIt])):
+        for jetIt in range(len(hwData[evIt])):
             print(str(evIt) + "\t\t" + str(hwData[evIt][jetIt][0]) + "\t" + str(hwData[evIt][jetIt][1])[:4] + "\t" + str(hwData[evIt][jetIt][2])[:4] + "\t\t" +
                   str(emData[evIt][jetIt][0]) + "\t" + str(emData[evIt][jetIt][1])[:4] + "\t" + str(emData[evIt][jetIt][2])[:4])
     if jetDiff>0:
-        for jetIt in xrange(len(hwData[evIt])):
+        for jetIt in range(len(hwData[evIt])):
             jetCount+=1
             if jetCount > len(emData[evIt]):
                 emData[evIt].append([0,0,0])
             print(str(evIt) + "\t\t" + str(hwData[evIt][jetIt][0]) + "\t" + str(hwData[evIt][jetIt][1])[:4] + "\t" + str(hwData[evIt][jetIt][2])[:4]  + "\t\t" +
                   str(emData[evIt][jetIt][0]) + "\t" + str(emData[evIt][jetIt][1])[:4] + "\t" + str(emData[evIt][jetIt][2])[:4])
     if jetDiff<0:
-        for jetIt in xrange(len(emData[evIt])):
+        for jetIt in range(len(emData[evIt])):
             jetCount+=1
             if jetCount > len(hwData[evIt]):
                 hwData[evIt].append([0,0,0])
