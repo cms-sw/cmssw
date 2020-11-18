@@ -106,7 +106,6 @@ void Phase2TrackerValidateDigi::dqmBeginRun(const edm::Run& iRun, const edm::Eve
 // -- Analyze
 //
 void Phase2TrackerValidateDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
   // Get digis
   iEvent.getByToken(itPixelDigiToken_, itPixelDigiHandle_);
   iEvent.getByToken(otDigiToken_, otDigiHandle_);
