@@ -308,6 +308,8 @@ namespace tmtt {
     unsigned int kalmanMaxSkipLayersEasy() const { return kalmanMaxSkipLayersEasy_; }
     // Max #stubs an input track can have to be defined "easy".
     unsigned int kalmanMaxStubsEasy() const { return kalmanMaxStubsEasy_; }
+    // Enable "maybe layer"
+    bool KFUseMaybeLayers() const { return KFUseMaybeLayers_; }
     // Cuts applied to KF states as a function of the last KF tracker layer they had a stub in.
     // (If "4" or "5" in name, cut only applies to 4 or 5 param helix fit).
     const std::vector<double>& kfLayerVsPtToler() const { return kfLayerVsPtToler_; }
@@ -593,6 +595,7 @@ namespace tmtt {
     unsigned int kalmanMaxSkipLayersHard_;
     unsigned int kalmanMaxSkipLayersEasy_;
     unsigned int kalmanMaxStubsEasy_;
+    bool KFUseMaybeLayers_;
 
     std::vector<double> kfLayerVsPtToler_;
     std::vector<double> kfLayerVsD0Cut5_;
