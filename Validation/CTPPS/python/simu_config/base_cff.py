@@ -25,12 +25,6 @@ profile_base = cms.PSet(
   	scoringPlanes = cms.VPSet()
   ),
 
-  # geometry
-  xmlIdealGeometry = cms.PSet(
-    geomXMLFiles = cms.string(""),
-    rootNodeName = cms.string("")
-  ),
-
   # alignment
   ctppsRPAlignmentCorrectionsDataXML = cms.PSet(
     MeasuredFiles = cms.vstring(),
@@ -181,3 +175,4 @@ def UseXangleBetaStarHistogram(process,f, obj):
   for p in ctppsCompositeESSource.periods:
   	p.ctppsLHCInfo.xangleBetaStarHistogramFile = f
   	p.ctppsLHCInfo.xangleBetaStarHistogramObject = obj
+    # FIXME: shouldn't one also set p.ctppsLHCInfo.xangle = -1 ??

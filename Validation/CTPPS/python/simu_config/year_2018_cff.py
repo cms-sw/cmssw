@@ -2,10 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 from Validation.CTPPS.simu_config.base_cff import *
 
-# FIXME: move to the right place
-from Geometry.VeryForwardGeometry.geometryRPFromDD_2018_cfi import *
-del ctppsGeometryESModule
-
 # base profile settings for 2018
 profile_base_2018 = profile_base.clone(
   ctppsLHCInfo = dict(
@@ -31,17 +27,15 @@ profile_base_2018 = profile_base.clone(
     )
   ),
  
-  xmlIdealGeometry = dict(
-    geomXMLFiles = totemGeomXMLFiles + ctppsDiamondGeomXMLFiles + ctppsUFSDGeomXMLFiles + totemTimingGeomXMLFiles + ctppsPixelGeomXMLFiles
-      + cms.vstring("Geometry/VeryForwardData/data/2016_ctpps_15sigma_margin0/RP_Dist_Beam_Cent.xml"),
-    rootNodeName = cms.string('cms:CMSE')
-  ),
-
   ctppsDirectSimuData = dict(
     empiricalAperture45 = cms.string("-(8.44219E-07*[xangle]-0.000100957)+(([xi]<(0.000247185*[xangle]+0.101599))*-(1.40289E-05*[xangle]-0.00727237)+([xi]> = (0.000247185*[xangle]+0.101599))*-(0.000107811*[xangle]-0.0261867))*([xi]-(0.000247185*[xangle]+0.101599))"),
     empiricalAperture56 = cms.string("-(-4.74758E-07*[xangle]+3.0881E-05)+(([xi]<(0.000727859*[xangle]+0.0722653))*-(2.43968E-05*[xangle]-0.0085461)+([xi]> = (0.000727859*[xangle]+0.0722653))*-(7.19216E-05*[xangle]-0.0148267))*([xi]-(0.000727859*[xangle]+0.0722653))")
   )
 )
+
+# geometry
+from Geometry.VeryForwardGeometry.geometryRPFromDD_2018_cfi import *
+del ctppsGeometryESModule # this functionality is replaced by the composite ES source
 
 # local reconstruction
 ctppsLocalTrackLiteProducer.includeStrips = False

@@ -2,10 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 from Validation.CTPPS.simu_config.base_cff import *
 
-# FIXME: move to the right place
-from Geometry.VeryForwardGeometry.geometryRPFromDD_2017_cfi import *
-del ctppsGeometryESModule
-
 # base profile settings for 2017
 profile_base_2017 = profile_base.clone(
   ctppsLHCInfo = dict(
@@ -29,14 +25,12 @@ profile_base_2017 = profile_base.clone(
       cms.PSet( rpId = cms.uint32(2070937600), dirName = cms.string("XRPH_E6R5_B1"), z = cms.double(+21570.0) ),  # RP 116, diamond
       cms.PSet( rpId = cms.uint32(2040004608), dirName = cms.string("XRPH_B6R5_B1"), z = cms.double(+21955.0) ),  # RP 123, pixel
     )
-  ),
-
-  xmlIdealGeometry = dict(
-    geomXMLFiles = totemGeomXMLFiles + ctppsDiamondGeomXMLFiles + ctppsUFSDGeomXMLFiles + ctppsPixelGeomXMLFiles +
-      cms.vstring("Geometry/VeryForwardData/data/2016_ctpps_15sigma_margin0/RP_Dist_Beam_Cent.xml"),
-    rootNodeName = cms.string('cms:CMSE')
   )
 )
+
+# geometry
+from Geometry.VeryForwardGeometry.geometryRPFromDD_2017_cfi import *
+del ctppsGeometryESModule # this functionality is replaced by the composite ES source
 
 # local reconstruction
 ctppsLocalTrackLiteProducer.includeStrips = True
