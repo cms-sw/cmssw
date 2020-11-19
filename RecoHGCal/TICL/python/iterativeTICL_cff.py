@@ -57,11 +57,15 @@ def injectTICLintoPF(process):
       process.particleFlowTmp.src = ['particleFlowTmpBarrel', 'pfTICL']
 
     _insertTrackImportersWithVeto = {}
-    for idx in _findIndicesByModule(process,'GeneralTracksImporter'):
-      print idx
-      _insertTrackImportersWithVeto[idx] = dict(
-          excludeMuonRefFromVeto = cms.bool(False) # tracks with muonref should be handled in (pf)TICL
-      )      
+    _trackImporters = ['GeneralTracksImporter','ConvBremTrackImporter',
+                   'ConversionTrackImporter','NuclearInteractionTrackImporter']
+    for importer in _trackImporters:
+        for idx in _findIndicesByModule(process,importer):
+            _insertTrackImportersWithVeto[idx] = dict(
+                vetoMode = cms.uint32(2), # TICL seeding track list
+                vetoSrc = cms.InputTag("ticlSeedingTrk"),
+                tracksSrc = cms.InputTag("generalTracks")
+            )
     phase2_hgcal.toModify(
       process.particleFlowBlock,
       elementImporters = _insertTrackImportersWithVeto

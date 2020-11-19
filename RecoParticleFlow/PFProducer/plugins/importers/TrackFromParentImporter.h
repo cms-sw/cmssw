@@ -4,6 +4,7 @@
 #include "RecoParticleFlow/PFProducer/interface/BlockElementImporterBase.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
+#include "DataFormats/HGCalReco/interface/TICLSeedingRegion.h"
 
 namespace pflow {
   namespace noop {
@@ -21,7 +22,7 @@ namespace pflow {
     };
   }  // namespace noop
   namespace importers {
-    template <class Collection, class Adaptor = noop::ParentCollectionAdaptor<Collection> >
+    template <class Collection, class Adaptor = noop::ParentCollectionAdaptor<Collection>>
     class TrackFromParentImporter : public BlockElementImporterBase {
     public:
       TrackFromParentImporter(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
@@ -29,10 +30,20 @@ namespace pflow {
             src_(sumes.consumes<Collection>(conf.getParameter<edm::InputTag>("source"))),
             vetoEndcap_(conf.getParameter<bool>("vetoEndcap")) {
         if (vetoEndcap_) {
-          vetoEndcapSrc_ =
-              sumes.consumes<reco::PFRecTrackCollection>(conf.getParameter<edm::InputTag>("vetoEndcapSource"));
-          srcTag_ = conf.getParameter<edm::InputTag>("source");
-        }
+          vetoMode_ = conf.getParameter<unsigned>("vetoMode");
+          switch (vetoMode_) {
+            case 1:
+              hgcalPFTracksSrc_ =
+                  sumes.consumes<reco::PFRecTrackCollection>(conf.getParameter<edm::InputTag>("vetoSrc"));
+              break;
+            case 2:
+              ticlSeedingSrc_ =
+                  sumes.consumes<std::vector<TICLSeedingRegion>>(conf.getParameter<edm::InputTag>("vetoSrc"));
+              tracksSrc_ = sumes.consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("tracksSrc"));
+              break;
+            default:;
+          }  // switch
+        }    // vetoEndcap_
       }
 
       void importToBlock(const edm::Event&, ElementList&) const override;
@@ -41,7 +52,10 @@ namespace pflow {
       edm::EDGetTokenT<Collection> src_;
       edm::InputTag srcTag_;
       const bool vetoEndcap_;
-      edm::EDGetTokenT<reco::PFRecTrackCollection> vetoEndcapSrc_;
+      unsigned int vetoMode_;
+      edm::EDGetTokenT<reco::PFRecTrackCollection> hgcalPFTracksSrc_;
+      edm::EDGetTokenT<std::vector<TICLSeedingRegion>> ticlSeedingSrc_;
+      edm::EDGetTokenT<reco::TrackCollection> tracksSrc_;
     };
 
     template <class Collection, class Adaptor>
@@ -51,19 +65,29 @@ namespace pflow {
       auto pfparents = e.getHandle(src_);
       //
       // Store tracks to be vetoed
-
       std::unordered_set<unsigned> vetoed;
       edm::ProductID prodIdForVeto;
       if (vetoEndcap_) {
-        auto pftrackForVetoesH = e.getHandle(vetoEndcapSrc_);
-        const auto& vetoes = *pftrackForVetoesH;
-        for (unsigned i = 0; i < vetoes.size(); ++i) {
-          if (i == 0)
-            prodIdForVeto = vetoes[i].trackRef().id();
-          else if (vetoes[i].trackRef().id() != prodIdForVeto)
-            throw cms::Exception("ProductIDMismatch") << "Multiple ProductID in the veto list. "
-                                                      << vetoes[i].trackRef().id() << " " << prodIdForVeto << std::endl;
-          vetoed.insert(vetoes[i].trackRef().key());
+        if (vetoMode_ == 1) {
+          auto vetoesH = e.getHandle(hgcalPFTracksSrc_);
+          const auto& vetoes = *vetoesH;
+          for (unsigned i = 0; i < vetoes.size(); ++i) {
+            if (i == 0)
+              prodIdForVeto = vetoes[i].trackRef().id();
+            else
+              assert(vetoes[i].trackRef().id() == prodIdForVeto);
+            vetoed.insert(vetoes[i].trackRef().key());
+          }
+        } else if (vetoMode_ == 2) {
+          auto vetoesH = e.getHandle(ticlSeedingSrc_);
+          const auto& vetoes = *vetoesH;
+          auto tracksH = e.getHandle(tracksSrc_);
+          prodIdForVeto = tracksH.id();
+          for (unsigned i = 0; i < vetoes.size(); ++i) {
+            assert(vetoes[i].collectionID == prodIdForVeto);
+            reco::TrackRef trkref = reco::TrackRef(tracksH, vetoes[i].index);
+            vetoed.insert(trkref.key());
+          }
         }
       }
       //
@@ -82,12 +106,10 @@ namespace pflow {
           parentRef = edm::Ref<Collection>(pfparents, std::distance(bpar, pfparent));
           const auto& pftracks = Adaptor::get_track_refs(*pfparent);
           for (const auto& pftrack : pftracks) {
-            if (vetoEndcap_                                      // vetoEndcap
+            if (vetoEndcap_                                      // vetoEndcap flag
                 && vetoed.count(pftrack->trackRef().key()) != 0  // found a track key in a veto list
-                &&
-                prodIdForVeto ==
-                    pftrack->trackRef()
-                        .id()  // check if the productID is the same as that for the veto list otherwise the key-based check won't work
+                && prodIdForVeto == pftrack->trackRef().id()
+                // check if the productID is the same as that for the veto list otherwise the key-based check won't work
             )
               continue;
             //
@@ -107,7 +129,6 @@ namespace pflow {
       }      // loop on tracking coming from common parent
       elems.shrink_to_fit();
     }  // end of importToBlock
-
-  }  // namespace importers
+  }    // namespace importers
 }  // namespace pflow
 #endif
