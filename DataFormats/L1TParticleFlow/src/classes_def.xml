@@ -32,6 +32,7 @@
   <class name="edm::Wrapper<l1t::PFJetCollection>" />
   <class name="edm::Ref<l1t::PFJetCollection>" />
   <class name="edm::RefVector<l1t::PFJetCollection>" />
+  <class name="std::vector<edm::Ref<std::vector<l1t::PFJet>,l1t::PFJet,edm::refhelper::FindUsingAdvance<std::vector<l1t::PFJet>,l1t::PFJet> > >" />
 
   <class name="l1t::PFTau"  ClassVersion="3">
         <version ClassVersion="3" checksum="1410157160"/>
