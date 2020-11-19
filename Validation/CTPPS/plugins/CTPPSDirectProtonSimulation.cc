@@ -332,7 +332,6 @@ void CTPPSDirectProtonSimulation::processProton(
 
   std::stringstream ssLog;
 
-
   // vectors in CMS convention
   const HepMC::FourVector &vtx_cms = in_vtx->position();  // in mm
   const HepMC::FourVector &mom_cms = in_trk->momentum();
@@ -393,7 +392,7 @@ void CTPPSDirectProtonSimulation::processProton(
     if (th_x_th > th_x_phys) {
       if (verbosity_) {
         ssLog << "stop because of empirical appertures";
-        edm::LogInfo("CTPPSDirectProtonSimulation") << ssLog.str();
+        edm::LogInfo("PPS") << ssLog.str();
       }
 
       return;
@@ -632,7 +631,7 @@ void CTPPSDirectProtonSimulation::processProton(
   }
 
   if (verbosity_)
-    edm::LogInfo("CTPPSDirectProtonSimulation") << ssLog.str();
+    edm::LogInfo("PPS") << ssLog.str();
 }
 
 //----------------------------------------------------------------------------------------------------
