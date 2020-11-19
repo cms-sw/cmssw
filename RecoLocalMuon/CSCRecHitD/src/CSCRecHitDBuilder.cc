@@ -129,7 +129,7 @@ void CSCRecHitDBuilder::build(const CSCStripDigiCollection* stripdc,
         LocalPoint rhitlocal = rechit.localPosition();
         float yreco = rhitlocal.y();
         bool isInFiducial = false;
-        //in me1/1 chambers the strip cut region is at local y = 30 cm, +-5 cm area around it proved to be a suitabla region for omiting the check 
+        //in me1/1 chambers the strip cut region is at local y = 30 cm, +-5 cm area around it proved to be a suitabla region for omiting the check
         if ((sDetId.station() == 1) && (sDetId.ring() == 1 || sDetId.ring() == 4) && (fabs(yreco + 30.) < 5.)) {
           isInFiducial = true;
         } else {
