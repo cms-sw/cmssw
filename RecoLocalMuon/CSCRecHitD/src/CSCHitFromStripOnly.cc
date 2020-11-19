@@ -486,15 +486,16 @@ void CSCHitFromStripOnly::findMaxima(const CSCDetId& id) {
               thePulseHeightMap[i + 1].phmax() <= thePulseHeightMap[i - 2].phmax())) &&
             //to avoid close maxima delimitation (this is already present in the code)
             thePulseHeightMap[i - 1].phmax() >= thePulseHeightMap[i - 2].phmax() &&
-            thePulseHeightMap[i - 2].phmax() > 20) {  //no need in a small charge maxima (might need adjustment)
-
+            //no need in a small charge maxima (might need adjustment)
+            thePulseHeightMap[i - 2].phmax() > 20) {
+            
           additional_maxima_found = true;
           theMaxima.push_back(i - 2);  //insert left maxima first
-           //insert the same number of cosecutive strips, because they belong to both maximas
+          //insert the same number of cosecutive strips, because they belong to both maximas
           theConsecutiveStrips.push_back(numberOfConsecutiveStrips);
           theMaxima.push_back(i);          //insert main maxima
-          theConsecutiveStrips.push_back(
-              numberOfConsecutiveStrips);  //insert the same number of cosecutive strips, because they belong to both maximas
+          //insert the same number of cosecutive strips, because they belong to both maximas
+          theConsecutiveStrips.push_back(numberOfConsecutiveStrips);
 
         }  //looking for additional maxima on the left
 
@@ -504,18 +505,18 @@ void CSCHitFromStripOnly::findMaxima(const CSCDetId& id) {
              (thePulseHeightMap[i + 1].phmax() <= thePulseHeightMap[i - 1].phmax() &&
               thePulseHeightMap[i + 2].phmax() <= thePulseHeightMap[i - 1].phmax() &&
               thePulseHeightMap[i + 2].phmax() >= thePulseHeightMap[i - 2].phmax())) &&
-            thePulseHeightMap[i + 1].phmax() >=
-                thePulseHeightMap[i + 2]
-                    .phmax() &&  //to avoid close maxima delimitation (this is already present in the code)
-            thePulseHeightMap[i + 2].phmax() > 20) {  //no need in a small charge maxima (might need adjustment)
-
+            //to avoid close maxima delimitation (this is already present in the code)
+            thePulseHeightMap[i + 1].phmax() >= thePulseHeightMap[i + 2].phmax() && 
+            //no need in a small charge maxima (might need adjustment)
+            thePulseHeightMap[i + 2].phmax() > 20) {
+            
           additional_maxima_found = true;
           theMaxima.push_back(i);  //insert main maxima first
-          theConsecutiveStrips.push_back(
-              numberOfConsecutiveStrips);  //insert the same number of cosecutive strips, because they belong to both maximas
+          //insert the same number of cosecutive strips, because they belong to both maximas
+          theConsecutiveStrips.push_back(numberOfConsecutiveStrips);
           theMaxima.push_back(i + 2);  //insert right maxima
-          theConsecutiveStrips.push_back(
-              numberOfConsecutiveStrips);  //insert the same number of cosecutive strips, because they belong to both maximas
+          //insert the same number of cosecutive strips, because they belong to both maximas
+          theConsecutiveStrips.push_back(numberOfConsecutiveStrips);
 
         }  //looking for additional maxima on the right
 
