@@ -93,7 +93,6 @@ namespace pflow {
       //
       elems.reserve(elems.size() + 2 * pfparents->size());
       //
-      // setup our elements so that all the tracks from this importer are grouped together
       auto TKs_end = std::partition(
           elems.begin(), elems.end(), [](const ElementType& a) { return a->type() == reco::PFBlockElement::TRACK; });
       // insert tracks into the element list, updating tracks that exist already
