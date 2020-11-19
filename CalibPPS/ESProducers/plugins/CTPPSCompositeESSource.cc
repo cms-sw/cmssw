@@ -155,7 +155,7 @@ CTPPSCompositeESSource::CTPPSCompositeESSource(const edm::ParameterSet &conf)
   for(const auto &profile:conf.getParameter<std::vector<edm::ParameterSet>>("periods")){
     profiles_.push_back(profileData());
     auto& pData=profiles_.back();
-    s+=profile.getParameter<double>("L_i");
+    s+=profile.getParameter<double>("L_int");
 
     auto ctppsRPAlignmentCorrectionsDataXMLpSet=profile.getParameter<edm::ParameterSet>("ctppsRPAlignmentCorrectionsDataXML");
     ctppsRPAlignmentCorrectionsDataXMLpSet.addUntrackedParameter("verbosity",verbosity_);
@@ -176,7 +176,7 @@ CTPPSCompositeESSource::CTPPSCompositeESSource(const edm::ParameterSet &conf)
   double cw = 0.;
   int counter=0;
   for(const auto &profile:conf.getParameter<std::vector<edm::ParameterSet>>("periods")){
-    double w=profile.getParameter<double>("L_i")/s;
+    double w=profile.getParameter<double>("L_int")/s;
     weights_.push_back({cw, cw + w, profiles_[counter]});
     counter++;
     cw+=w;
@@ -309,7 +309,7 @@ void CTPPSCompositeESSource::fillDescriptions(edm::ConfigurationDescriptions &de
 
   edm::ParameterSetDescription desc_profile;
   std::vector<edm::ParameterSet> vp;
-  desc_profile.add<double>("L_i", 0.)->setComment("integrated luminosity");
+  desc_profile.add<double>("L_int", 0.)->setComment("integrated luminosity");
 
   //lhcInfo
   edm::ParameterSetDescription desc_profile_ctppsLHCInfo;
