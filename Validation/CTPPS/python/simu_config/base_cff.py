@@ -5,6 +5,7 @@ from RecoPPS.ProtonReconstruction.ctppsProtons_cff import *
 
 # configuration for composite source of alignment, optics, ...
 from CalibPPS.ESProducers.ctppsCompositeESSource_cfi import *
+ctppsCompositeESSource.generateEveryNEvents = 100
 
 profile_base = cms.PSet(
   L_int = cms.double(1),
