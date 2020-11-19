@@ -142,7 +142,7 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id,
   LocalPoint lp0(0., 0.);
   int wglo = wg_left;
   int wghi = wg_right;
-  
+
   // First wire of first wiregroup in cluster
   wglo = layergeom_->middleWireOfGroup(wglo) + 0.5 - 0.5 * layergeom_->numberOfWiresPerGroup(wglo);
   // Last wire in last wiregroup of cluster (OK if only 1 wiregroup too)
