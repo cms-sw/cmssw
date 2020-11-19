@@ -52,9 +52,15 @@ process.siPixelDigis.Timing = False
 #process.siPixelDigis.UseCablingTree = True 
 
 process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     debugModules = cms.untracked.vstring('siPixelDigis'),
-    destinations = cms.untracked.vstring('r2d'),
-    r2d = cms.untracked.PSet( threshold = cms.untracked.string('WARNING'))
+    files = cms.untracked.PSet(
+        r2d = cms.untracked.PSet(
+            threshold = cms.untracked.string('WARNING')
+        )
+    )
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
