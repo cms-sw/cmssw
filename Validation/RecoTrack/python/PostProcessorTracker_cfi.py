@@ -16,7 +16,7 @@ def _addNoFlow(module):
         if not tmp[ind-1] in _noflowSeen:
             module.noFlowDists.append(tmp[ind-1])
 
-_defaultSubdirs = ["Tracking/Track/*", "Tracking/TrackTPPtLess09/*", "Tracking/TrackFromPV/*", "Tracking/TrackFromPVAllTP/*", "Tracking/TrackAllTPEffic/*", "Tracking/TrackBuilding/*","Tracking/TrackConversion/*", "Tracking/TrackGsf/*", "Tracking/jetCoreRegionalStep/*"]
+_defaultSubdirs = ["Tracking/Track/*", "Tracking/TrackTPPtLess09/*", "Tracking/TrackFromPV/*", "Tracking/TrackFromPVAllTP/*", "Tracking/TrackAllTPEffic/*", "Tracking/TrackBuilding/*","Tracking/TrackConversion/*", "Tracking/TrackGsf/*"]
 _defaultSubdirsSummary = [e.replace("/*","") for e in _defaultSubdirs]
 
 postProcessorTrack = DQMEDHarvester("DQMGenericClient",
@@ -316,6 +316,18 @@ postProcessorTrackSequence = cms.Sequence(
     postProcessorTrackNrecVsNsim+
     postProcessorTrackSummary
 )
+
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+postProcessorTrackRun3 = postProcessorTrack.clone()
+postProcessorTrackRun3.subDirs.extend(["Tracking/JetCore/*"])
+run3_common.toReplaceWith(postProcessorTrack,postProcessorTrackRun3)
+postProcessorTrackSummaryRun3 = postProcessorTrackSummary.clone()
+postProcessorTrackSummaryRun3.subDirs.extend(["Tracking/JetCore/*"])
+run3_common.toReplaceWith(postProcessorTrackSummary,postProcessorTrackSummaryRun3)
+postProcessorTrack2DRun3 = postProcessorTrack2D.clone()
+postProcessorTrack2DRun3.subDirs.extend(["Tracking/JetCore/*"])
+run3_common.toReplaceWith(postProcessorTrack2D,postProcessorTrack2DRun3)
+
 
 fastSim.toModify(postProcessorTrack, subDirs = [e for e in _defaultSubdirs if e not in ["Tracking/TrackGsf/*","Tracking/TrackConversion/*"]])
 fastSim.toModify(postProcessorTrackSummary, subDirs = [e for e in _defaultSubdirsSummary if e not in ["Tracking/TrackGsf","Tracking/TrackConversion"]])

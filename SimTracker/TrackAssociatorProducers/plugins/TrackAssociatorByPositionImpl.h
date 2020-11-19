@@ -70,7 +70,7 @@ public:
 
 private:
   double quality(const TrajectoryStateOnSurface&, const TrajectoryStateOnSurface&) const;
-  
+
   edm::EDProductGetter const* productGetter_;
   const TrackingGeometry* theGeometry;
   const Propagator* thePropagator;
