@@ -699,19 +699,14 @@ namespace tmtt {
     // In cases where identical GP encoded layer ID present in this sector from both barrel & endcap, this array filled considering barrel. The endcap is fixed by subsequent code.
 
     constexpr unsigned layerMap[nEta / 2][nGPlayID + 1] = {
-        {7, 0, 1, 5, 4, 3, 7, 2},  // B1 B2 B3 B4 B5 B6
+        {7, 0, 1, 5, 4, 3, 7, 2},  // B1 B2 B3 B4 B5 B6 -- current FW
         {7, 0, 1, 5, 4, 3, 7, 2},  // B1 B2 B3 B4 B5 B6
         {7, 0, 1, 5, 4, 3, 7, 2},  // B1 B2 B3 B4 B5 B6
         {7, 0, 1, 5, 4, 3, 7, 2},  // B1 B2 B3 B4 B5 B6
         {7, 0, 1, 5, 4, 3, 7, 2},  // B1 B2 B3 B4(/D3) B5(/D2) B6(/D1)
-
-        {7, 0, 1, 3, 4, 2, 5, 2},  // B1 B2 B3(/D5)+B4(/D3) D1 D2 X D4  -- current FW
-        //{ 7,  0,  1,  3,  4,  3,  6,  2 },  // B1 B2 B3(/D5) D1+B4(/D3) D2 X D4   -- for use with "Fix cases" below.
-
-        {7, 0, 1, 2, 3, 4, 5, 6},  // B1 B2+D1 D2 D3 D5 D6
-
-        //{ 7,  0,  7,  1,  2,  3,  4,  5 },  // B1 D1 D2 D3 D4 D5  = current FW (or when Ambiguous function used)
-        {7, 0, 7, 1, 2, 3, 4, 5},  // Avoid effi loss for eta > 2.3 when Ambiguous function not used.
+        {7, 0, 1, 3, 4, 2, 6, 2},  // B1 B2 B3(/D5)+B4(/D3) D1 D2 X D4
+        {7, 0, 1, 1, 2, 3, 4, 5},  // B1 B2+D1 D2 D3 D5 D6
+        {7, 0, 7, 1, 2, 3, 4, 5},  // B1 D1 D2 D3 D4 D5
     };
 
     unsigned int kfEtaReg;  // KF VHDL eta sector def: small in barrel & large in endcap.
@@ -722,6 +717,24 @@ namespace tmtt {
     }
 
     unsigned int kalmanLay = layerMap[kfEtaReg][layerIDreduced];
+      
+    // Fixes to layermap when "maybe layer" used
+    if (settings_->KFUseMaybeLayers()) {
+      switch (kfEtaReg) {
+        case 5: //case 5: B1 B2 (B3+B4)* D1 D2 D3+D4 D5+D6  -- B3 is combined with B4 and is flagged as "maybe layer"
+          if (layerIDreduced == 6) {
+              kalmanLay = 5;
+          }
+          break;
+        case 6:  //case 6: B1* B2* D1 D2 D3 D4 D5 -- B1 and B2 are flagged as "maybe layer"
+          if (layerIDreduced > 2) {
+              kalmanLay++;
+          } 
+          break;
+        default:
+          break;
+          }
+      }
 
     // Fixes to endcap stubs, for cases where identical GP encoded layer ID present in this sector from both barrel & endcap.
 
@@ -811,9 +824,9 @@ namespace tmtt {
       kfEtaReg = iEtaReg - numEtaRegions_ / 2;
     }
 
-    bool ambiguous = ambiguityMap[kfEtaReg][kfLayer];
-
-    //bool ambiguous = false;
+    bool ambiguous = false;
+    if (settings_->KFUseMaybeLayers()) ambiguous = ambiguityMap[kfEtaReg][kfLayer];
+      
     return ambiguous;
   }
 
