@@ -1,5 +1,5 @@
 // -*- C++ -*-
-//bookLayer
+///bookLayer
 // Package:    Phase2ITValidateCluster
 // Class:      Phase2ITValidateCluster
 //
@@ -271,28 +271,23 @@ void Phase2ITValidateCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32
   if (layerMEs_.find(folderName) == layerMEs_.end()) {
     ibooker.cd();
     ibooker.setCurrentFolder(subdir + '/' + folderName);
-    edm::LogWarning("Phase2TrackerValidateDigi") << " Booking Histograms in: " << subdir + '/' + folderName;
-    std::string HistoName;
+    edm::LogInfo("Phase2TrackerValidateDigi") << " Booking Histograms in: " << subdir + '/' + folderName;
     ClusterMEs local_mes;
 
-    HistoName = "Delta_X_Pixel";
     local_mes.deltaX_P =
-        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_X_Pixel"), HistoName, ibooker);
+        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_X_Pixel"), ibooker);
 
-    HistoName = "Delta_Y_Pixel";
     local_mes.deltaY_P =
-        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_Y_Pixel"), HistoName, ibooker);
+        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_Y_Pixel"), ibooker);
 
     // Puting primary digis in a subfolder
     ibooker.setCurrentFolder(subdir + '/' + folderName + "/PrimarySimHits");
 
-    HistoName = "Delta_X_Pixel_Primary";
-    local_mes.deltaX_P_primary = phase2tkutil::book1DFromPSet(
-        config_.getParameter<edm::ParameterSet>("Delta_X_Pixel_Primary"), HistoName, ibooker);
+    local_mes.deltaX_P_primary =
+        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_X_Pixel_Primary"), ibooker);
 
-    HistoName = "Delta_Y_Pixel_Primary";
-    local_mes.deltaY_P_primary = phase2tkutil::book1DFromPSet(
-        config_.getParameter<edm::ParameterSet>("Delta_Y_Pixel_Primary"), HistoName, ibooker);
+    local_mes.deltaY_P_primary =
+        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_Y_Pixel_Primary"), ibooker);
     layerMEs_.emplace(folderName, local_mes);
   }
 }
