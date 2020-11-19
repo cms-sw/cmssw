@@ -3,50 +3,51 @@
 
 // Constructors
 PPSDirectSimulationData::PPSDirectSimulationData():
-    useEmpiricalApertures(0),
-    empiricalAperture45(""),
-    empiricalAperture56(""),
-    timeResolutionDiamonds45(""),
-    timeResolutionDiamonds56(""){}
+    empiricalAperture45_(""),
+    empiricalAperture56_(""),
+
+    timeResolutionDiamonds45_(""),
+    timeResolutionDiamonds56_(""),
+
+    effTimePath_(""),
+    effTimeObject45_(""),
+    effTimeObject56_("")
+{}
 
 // Destructor
 PPSDirectSimulationData::~PPSDirectSimulationData() {}
 
 // Getters
-bool PPSDirectSimulationData::getUseEmpiricalApertures() const{return useEmpiricalApertures;}
-const std::string& PPSDirectSimulationData::getEmpiricalAperture45() const{return empiricalAperture45;}
-const std::string& PPSDirectSimulationData::getEmpiricalAperture56() const{return empiricalAperture56;}
-const std::string& PPSDirectSimulationData::getTimeResolutionDiamonds45() const{return timeResolutionDiamonds45;}
-const std::string& PPSDirectSimulationData::getTimeResolutionDiamonds56() const{return timeResolutionDiamonds56;}
-bool PPSDirectSimulationData::getUseTimeEfficiencyCheck() const{return useTimeEfficiencyCheck;}
-const std::string& PPSDirectSimulationData::getEffTimePath() const{return effTimePath;}
-const std::string& PPSDirectSimulationData::getEffTimeObject45() const{return effTimeObject45;}
-const std::string& PPSDirectSimulationData::getEffTimeObject56() const{return effTimeObject56;}
+const std::string& PPSDirectSimulationData::getEmpiricalAperture45() const{return empiricalAperture45_;}
+const std::string& PPSDirectSimulationData::getEmpiricalAperture56() const{return empiricalAperture56_;}
 
+const std::string& PPSDirectSimulationData::getTimeResolutionDiamonds45() const{return timeResolutionDiamonds45_;}
+const std::string& PPSDirectSimulationData::getTimeResolutionDiamonds56() const{return timeResolutionDiamonds56_;}
+
+const std::string& PPSDirectSimulationData::getEffTimePath() const{return effTimePath_;}
+const std::string& PPSDirectSimulationData::getEffTimeObject45() const{return effTimeObject45_;}
+const std::string& PPSDirectSimulationData::getEffTimeObject56() const{return effTimeObject56_;}
 
 // Setters
-void PPSDirectSimulationData::setUseEmpiricalApertures(bool b){useEmpiricalApertures=b;}
-void PPSDirectSimulationData::setEmpiricalAperture45(std::string s){empiricalAperture45=s;}
-void PPSDirectSimulationData::setEmpiricalAperture56(std::string s){empiricalAperture56=s;}
-void PPSDirectSimulationData::setTimeResolutionDiamonds45(std::string s){timeResolutionDiamonds45=s;}
-void PPSDirectSimulationData::setTimeResolutionDiamonds56(std::string s){timeResolutionDiamonds56=s;}
-void PPSDirectSimulationData::setUseTimeEfficiencyCheck(bool b){useTimeEfficiencyCheck=b;}
-void PPSDirectSimulationData::setEffTimePath(std::string s){effTimePath=s;}
-void PPSDirectSimulationData::setEffTimeObject45(std::string s){effTimeObject45=s;}
-void PPSDirectSimulationData::setEffTimeObject56(std::string s){effTimeObject56=s;}
+void PPSDirectSimulationData::setEmpiricalAperture45(std::string s){empiricalAperture45_=s;}
+void PPSDirectSimulationData::setEmpiricalAperture56(std::string s){empiricalAperture56_=s;}
 
+void PPSDirectSimulationData::setTimeResolutionDiamonds45(std::string s){timeResolutionDiamonds45_=s;}
+void PPSDirectSimulationData::setTimeResolutionDiamonds56(std::string s){timeResolutionDiamonds56_=s;}
 
+void PPSDirectSimulationData::setEffTimePath(std::string s){effTimePath_=s;}
+void PPSDirectSimulationData::setEffTimeObject45(std::string s){effTimeObject45_=s;}
+void PPSDirectSimulationData::setEffTimeObject56(std::string s){effTimeObject56_=s;}
 
 void PPSDirectSimulationData::printInfo(std::stringstream& s) {
-    s << "\n   useEmpiricalApertures = " << useEmpiricalApertures
-    << "\n   empiricalAperture45 = " << empiricalAperture45
-    << "\n   empiricalAperture56 = " << empiricalAperture56
-    << "\n   timeResolutionDiamonds45 = " << timeResolutionDiamonds45
-    << "\n   timeResolutionDiamonds56 = " << timeResolutionDiamonds56
-    << "\n useTimeEfficiencyCheck= "<< useTimeEfficiencyCheck
-    << "\n effTimePath= "<< effTimePath
-    << "\n effTimeObject45= "<< effTimeObject45
-    << "\n effTimeObject56= "<< effTimeObject56
+  s
+    << "\nempiricalAperture45 = " << empiricalAperture45_
+    << "\nempiricalAperture56 = " << empiricalAperture56_
+    << "\ntimeResolutionDiamonds45 = " << timeResolutionDiamonds45_
+    << "\ntimeResolutionDiamonds56 = " << timeResolutionDiamonds56_
+    << "\neffTimePath= "<< effTimePath_
+    << "\neffTimeObject45= "<< effTimeObject45_
+    << "\neffTimeObject56= "<< effTimeObject56_
     << std::endl;
 }
 

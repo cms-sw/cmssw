@@ -4,12 +4,12 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TH2F.h"
+
 class PPSDirectSimulationData {
 public:
-    // Constructor
     PPSDirectSimulationData();
-    // Destructor
     ~PPSDirectSimulationData();
+
     // Getters
     bool getUseEmpiricalApertures() const;
     const std::string& getEmpiricalAperture45() const;
@@ -35,20 +35,19 @@ public:
     void printInfo(std::stringstream &s);
 
 private:
-    bool useEmpiricalApertures;
-    std::string empiricalAperture45;
-    std::string empiricalAperture56;
+    std::string empiricalAperture45_;
+    std::string empiricalAperture56_;
 
-    std::string timeResolutionDiamonds45;
-    std::string timeResolutionDiamonds56;
+    std::string timeResolutionDiamonds45_;
+    std::string timeResolutionDiamonds56_;
 
-    bool useTimeEfficiencyCheck;
-    std::string effTimePath;
-    std::string effTimeObject45;
-    std::string effTimeObject56;
-
+    std::string effTimePath_;
+    std::string effTimeObject45_;
+    std::string effTimeObject56_;
 
     COND_SERIALIZABLE
 };
+
 std::ostream &operator<<(std::ostream &, PPSDirectSimulationData);
+
 #endif
