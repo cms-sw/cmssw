@@ -17,10 +17,15 @@ process.source = cms.Source(
 
 process.testGsfElectronConversionFinder = cms.EDAnalyzer("TestGsfElectronConversionFinder")
 
-process.MessageLogger = cms.Service(
-    "MessageLogger",
-    destinations=cms.untracked.vstring("conversions"),
-    conversions=cms.untracked.PSet(threshold=cms.untracked.string("INFO")),
+process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    files = cms.untracked.PSet(
+        conversions = cms.untracked.PSet(
+            threshold = cms.untracked.string('INFO')
+        )
+    )
 )
 
 process.p = cms.Path(process.testGsfElectronConversionFinder)
