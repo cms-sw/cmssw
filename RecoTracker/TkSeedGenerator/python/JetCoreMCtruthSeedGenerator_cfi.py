@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-JetCorePerfectSeedGenerator = cms.EDProducer("JetCorePerfectSeedGenerator",
+JetCoreMCtruthSeedGenerator = cms.EDProducer("JetCoreMCtruthSeedGenerator",
     vertices=    cms.InputTag("offlinePrimaryVertices"),
     pixelClusters=    cms.InputTag("siPixelClustersPreSplitting"),
     cores= cms.InputTag("jetsForCoreTracking"),

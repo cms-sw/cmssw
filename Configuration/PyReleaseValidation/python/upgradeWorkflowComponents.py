@@ -311,6 +311,25 @@ upgradeWFs['trackingMkFit'].step3 = {
     '--procModifiers': 'trackingMkFit'
 }
 
+#DeepCore seeding for JetCore iteration workflow
+class UpgradeWorkflow_seedingDeepCore(UpgradeWorkflowTracking):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+    def condition_(self, fragment, stepList, key, hasHarvest):
+        return '2021' in key or '2024' in key
+upgradeWFs['seedingDeepCore'] = UpgradeWorkflow_seedingDeepCore(
+    steps = [
+        'Reco',
+        'RecoGlobal',
+    ],
+    PU = [],
+    suffix = '_seedingDeepCore',
+    offset = 0.13,
+)
+upgradeWFs['seedingDeepCore'].step3 = {
+    '--procModifiers': 'seedingDeepCore'
+}
+
 # Vector Hits workflows
 class UpgradeWorkflow_vectorHits(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):

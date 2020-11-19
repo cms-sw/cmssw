@@ -116,7 +116,8 @@ double TrackAssociatorByPositionImpl::quality(const TrajectoryStateOnSurface& tr
 
 RecoToSimCollection TrackAssociatorByPositionImpl::associateRecoToSim(
     const edm::RefToBaseVector<reco::Track>& tCH, const edm::RefVector<TrackingParticleCollection>& tPCH) const {
-  RecoToSimCollection outputCollection(productGetter_);;
+  RecoToSimCollection outputCollection(productGetter_);
+  ;
   //for each reco track find a matching tracking particle
   std::pair<unsigned int, unsigned int> minPair;
   const double dQmin_default = 1542543;
@@ -168,7 +169,8 @@ RecoToSimCollection TrackAssociatorByPositionImpl::associateRecoToSim(
 
 SimToRecoCollection TrackAssociatorByPositionImpl::associateSimToReco(
     const edm::RefToBaseVector<reco::Track>& tCH, const edm::RefVector<TrackingParticleCollection>& tPCH) const {
-  SimToRecoCollection outputCollection(productGetter_);;
+  SimToRecoCollection outputCollection(productGetter_);
+  ;
   //for each tracking particle, find matching tracks.
 
   std::pair<unsigned int, unsigned int> minPair;

@@ -336,8 +336,6 @@ void GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup) {
     for (unsigned int i = 0; i < Tk.size(); ++i) {
       if (useQuality_ && (!(Tk[i].quality(trackQuality_))))
         continue;
-      if(Tk[i].algo() == 11) 
-        continue; //Skip jetcore tracks because the seeds are hitless
 
       reco::PreId myPreId;
       bool GoodPreId = false;
@@ -347,6 +345,10 @@ void GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup) {
       auto tketa = tkmom.eta();
       auto tkpt = std::sqrt(tkmom.perp2());
       auto const& Seed = (*trackRef->seedRef());
+      if (Seed.nHits() == 0) {  //if DeepCore is used in jetCore iteration the seed are hitless, in case skip
+        continue;
+      }
+
       if (!disablePreId_) {
         int ipteta = getBin(Tk[i].eta(), Tk[i].pt());
         int ibin = ipteta * 9;
