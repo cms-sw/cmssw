@@ -484,9 +484,8 @@ void CSCHitFromStripOnly::findMaxima(const CSCDetId& id) {
               thePulseHeightMap[i + 2].phmax() <= thePulseHeightMap[i - 2].phmax()) ||
              (thePulseHeightMap[i + 1].phmax() <= thePulseHeightMap[i - 1].phmax() &&
               thePulseHeightMap[i + 1].phmax() <= thePulseHeightMap[i - 2].phmax())) &&
-            thePulseHeightMap[i - 1].phmax() >=
-                thePulseHeightMap[i - 2]
-                    .phmax() &&  //to avoid close maxima delimitation (this is already present in the code)
+            //to avoid close maxima delimitation (this is already present in the code)
+            thePulseHeightMap[i - 1].phmax() >= thePulseHeightMap[i - 2].phmax() &&
             thePulseHeightMap[i - 2].phmax() > 20) {  //no need in a small charge maxima (might need adjustment)
 
           additional_maxima_found = true;
