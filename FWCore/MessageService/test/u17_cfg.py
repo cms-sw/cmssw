@@ -15,28 +15,28 @@ process.options = FWCore.Framework.test.cmsExceptionsFatal_cff.options
 process.load("FWCore.MessageService.test.Services_cff")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    statistics = cms.untracked.vstring('u17_all'),
-    categories = cms.untracked.vstring('cat_P', 
-        'cat_S', 
-        'FwkTest',
-	'FwkReport'),
-    u17_all = cms.untracked.PSet(
-	threshold = cms.untracked.string('INFO'),
-        noTimeStamps = cms.untracked.bool(True),
-        FwkTest = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        FwkReport = cms.untracked.PSet(
-            limit = cms.untracked.int32(110)
-        ),
-        cat_P = cms.untracked.PSet(
-            limit = cms.untracked.int32(2)
-        ),
-        cat_S = cms.untracked.PSet(
-            limit = cms.untracked.int32(2)
-        )
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
     ),
-    destinations = cms.untracked.vstring('u17_all')
+    files = cms.untracked.PSet(
+        u17_all = cms.untracked.PSet(
+            threshold = cms.untracked.string('INFO'),
+            noTimeStamps = cms.untracked.bool(True),
+            enableStatistics = cms.untracked.bool(True),
+            FwkTest = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            FwkReport = cms.untracked.PSet(
+                limit = cms.untracked.int32(110)
+            ),
+            cat_P = cms.untracked.PSet(
+                limit = cms.untracked.int32(2)
+            ),
+            cat_S = cms.untracked.PSet(
+                limit = cms.untracked.int32(2)
+            )
+        )
+    )
 )
 
 process.maxEvents = cms.untracked.PSet(
