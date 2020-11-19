@@ -91,7 +91,7 @@ void HGCalValidator::bookHistograms(DQMStore::IBooker& ibook,
 
     for (auto const particle : particles_to_monitor_) {
       ibook.setCurrentFolder(dirName_ + "SelectedCaloParticles/" + std::to_string(particle));
-      histoProducerAlgo_->bookCaloParticleHistos(ibook, histograms.histoProducerAlgo, particle);
+      histoProducerAlgo_->bookCaloParticleHistos(ibook, histograms.histoProducerAlgo, particle, totallayers_to_monitor_);
     }
     ibook.cd();
     ibook.setCurrentFolder(dirName_);
@@ -141,7 +141,9 @@ void HGCalValidator::bookHistograms(DQMStore::IBooker& ibook,
 void HGCalValidator::cpParametersAndSelection(const Histograms& histograms,
                                               std::vector<CaloParticle> const& cPeff,
                                               std::vector<SimVertex> const& simVertices,
-                                              std::vector<size_t>& selected_cPeff) const {
+                                              std::vector<size_t>& selected_cPeff, 
+                                              unsigned layers,
+                                              std::unordered_map<DetId, const HGCRecHit*> const& hitMap) const {
   selected_cPeff.reserve(cPeff.size());
 
   size_t j = 0;
@@ -151,7 +153,7 @@ void HGCalValidator::cpParametersAndSelection(const Histograms& histograms,
     if (!doCaloParticleSelection_ || (doCaloParticleSelection_ && cpSelector(caloParticle, simVertices))) {
       selected_cPeff.push_back(j);
       if (doCaloParticlePlots_) {
-        histoProducerAlgo_->fill_caloparticle_histos(histograms.histoProducerAlgo, id, caloParticle, simVertices);
+        histoProducerAlgo_->fill_caloparticle_histos(histograms.histoProducerAlgo, id, caloParticle, simVertices, layers, hitMap);
       }
     }
     ++j;
@@ -163,7 +165,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
                                 const Histograms& histograms) const {
   using namespace reco;
 
-  LogDebug("HGCalValidator") << "\n===================================================="
+  std::cout << "\n===================================================="
                              << "\n"
                              << "Analyzing new event"
                              << "\n"
@@ -214,9 +216,10 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   // ##############################################
   // fill caloparticles histograms
   // ##############################################
-  LogTrace("HGCalValidator") << "\n# of CaloParticles: " << caloParticles.size() << "\n";
+  // HGCRecHit are given to select the SimHits which are also reconstructed
+  std::cout << "\n# of CaloParticles: " << caloParticles.size() << "\n" << std::endl;
   std::vector<size_t> selected_cPeff;
-  cpParametersAndSelection(histograms, caloParticles, simVertices, selected_cPeff);
+  cpParametersAndSelection(histograms, caloParticles, simVertices, selected_cPeff, totallayers_to_monitor_, *hitMap);
 
   //get collections from the event
   //Layer clusters
@@ -277,9 +280,9 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
                                                     totallayers_to_monitor_);
 
       //General Info on multiclusters
-      LogTrace("HGCalValidator") << "\n# of multi clusters with " << label_mcl[wml].process() << ":"
+      std::cout << "\n# of multi clusters with " << label_mcl[wml].process() << ":"
                                  << label_mcl[wml].label() << ":" << label_mcl[wml].instance() << ": "
-                                 << multiClusters.size() << "\n";
+                                 << multiClusters.size() << "\n" << std::endl;
     }
   }  //end of loop over multicluster input labels
 }
