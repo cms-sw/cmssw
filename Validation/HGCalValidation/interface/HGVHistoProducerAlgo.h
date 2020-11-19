@@ -92,6 +92,15 @@ struct HGVHistoProducerAlgoHistograms {
   std::unordered_map<int, dqm::reco::MonitorElement*> h_caloparticle_energy;
   std::unordered_map<int, dqm::reco::MonitorElement*> h_caloparticle_pt;
   std::unordered_map<int, dqm::reco::MonitorElement*> h_caloparticle_phi;
+  std::unordered_map<int, dqm::reco::MonitorElement*> h_caloparticle_nSimClusters;
+  std::unordered_map<int, dqm::reco::MonitorElement*> h_caloparticle_nHitsInSimClusters;
+  std::unordered_map<int, dqm::reco::MonitorElement*> h_caloparticle_firstlayer;
+  std::unordered_map<int, dqm::reco::MonitorElement*> h_caloparticle_lastlayer;
+  std::unordered_map<int, dqm::reco::MonitorElement*> h_caloparticle_layersnum;
+  std::unordered_map<int, dqm::reco::MonitorElement*> h_caloparticle_nHitsInSimClusters_matchedtoRecHit;
+  std::unordered_map<int, dqm::reco::MonitorElement*> h_caloparticle_firstlayer_matchedtoRecHit;
+  std::unordered_map<int, dqm::reco::MonitorElement*> h_caloparticle_lastlayer_matchedtoRecHit;
+  std::unordered_map<int, dqm::reco::MonitorElement*> h_caloparticle_layersnum_matchedtoRecHit;
 
   //For multiclusters
   std::vector<dqm::reco::MonitorElement*> h_score_multicl2caloparticle;
@@ -155,7 +164,7 @@ public:
   using Histograms = HGVHistoProducerAlgoHistograms;
 
   void bookInfo(DQMStore::IBooker& ibook, Histograms& histograms);
-  void bookCaloParticleHistos(DQMStore::IBooker& ibook, Histograms& histograms, int pdgid);
+  void bookCaloParticleHistos(DQMStore::IBooker& ibook, Histograms& histograms, int pdgid, unsigned layers);
 
   void bookClusterHistos(DQMStore::IBooker& ibook,
                          Histograms& histograms,
@@ -186,7 +195,9 @@ public:
   void fill_caloparticle_histos(const Histograms& histograms,
                                 int pdgid,
                                 const CaloParticle& caloparticle,
-                                std::vector<SimVertex> const& simVertices) const;
+                                std::vector<SimVertex> const& simVertices,
+                                unsigned layers,
+                                std::unordered_map<DetId, const HGCRecHit*> const&) const;
   void fill_cluster_histos(const Histograms& histograms, int count, const reco::CaloCluster& cluster) const;
   void fill_generic_cluster_histos(
       const Histograms& histograms,
