@@ -16,22 +16,19 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(0)
         )
     ),
-    statistics = cms.untracked.vstring('u23_infos'),
-    u23_infos = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO'),
-        noTimeStamps = cms.untracked.bool(True),
-        FwkTest = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        preEventProcessing = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        )
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
     ),
-    categories = cms.untracked.vstring('preEventProcessing', 
-        'FwkTest', 
-        'timer', 
-        'trace'),
-    destinations = cms.untracked.vstring('u23_infos')
+    files = cms.untracked.PSet(
+      u23_infos = cms.untracked.PSet(
+          threshold = cms.untracked.string('INFO'),
+          noTimeStamps = cms.untracked.bool(True),
+          enableStatistics = cms.untracked.bool(True),
+          FwkTest = cms.untracked.PSet(
+              limit = cms.untracked.int32(0)
+          )
+      )
+    )
 )
 
 process.maxEvents = cms.untracked.PSet(

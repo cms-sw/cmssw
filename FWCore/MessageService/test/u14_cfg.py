@@ -13,41 +13,31 @@ process.load("FWCore.MessageService.test.Services_cff")
 process.MessageLogger = cms.Service("MessageLogger",
     suppressInfo = cms.untracked.vstring('sendSomeMessages'),
     suppressFwkInfo = cms.untracked.vstring('source'),
-    u14_default = cms.untracked.PSet(
-        noTimeStamps = cms.untracked.bool(True),
-        preEventProcessing = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    files = cms.untracked.PSet(
+        u14_default = cms.untracked.PSet(
+            noTimeStamps = cms.untracked.bool(True)
+        ),
+        u14_errors = cms.untracked.PSet(
+            threshold = cms.untracked.string('ERROR'),
+            noTimeStamps = cms.untracked.bool(True)
+        ),
+        u14_infos = cms.untracked.PSet(
+            threshold = cms.untracked.string('INFO'),
+            noTimeStamps = cms.untracked.bool(True)
+        ),
+        u14_warnings = cms.untracked.PSet(
+            threshold = cms.untracked.string('WARNING'),
+            noTimeStamps = cms.untracked.bool(True)
+        ),
+        u14_debugs = cms.untracked.PSet(
+            threshold = cms.untracked.string('DEBUG'),
+            noTimeStamps = cms.untracked.bool(True)
         )
     ),
-    u14_errors = cms.untracked.PSet(
-        threshold = cms.untracked.string('ERROR'),
-        noTimeStamps = cms.untracked.bool(True)
-    ),
-    u14_infos = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO'),
-        noTimeStamps = cms.untracked.bool(True),
-        preEventProcessing = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        )
-    ),
-    u14_warnings = cms.untracked.PSet(
-        threshold = cms.untracked.string('WARNING'),
-        noTimeStamps = cms.untracked.bool(True)
-    ),
-    u14_debugs = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG'),
-        noTimeStamps = cms.untracked.bool(True),
-        preEventProcessing = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        )
-    ),
-    debugModules = cms.untracked.vstring('*'),
-    categories = cms.untracked.vstring('preEventProcessing'),
-    destinations = cms.untracked.vstring('u14_warnings',
-        'u14_errors', 
-        'u14_infos', 
-        'u14_debugs', 
-        'u14_default')
+    debugModules = cms.untracked.vstring('*')
 )
 
 process.maxEvents = cms.untracked.PSet(
