@@ -57,8 +57,6 @@ namespace reco {
           (std::max((1. / (4. * a_upper)), 0.0) * dphi2 + std::max(b_upper, half_crystal_width)) + half_crystal_width;
       const float lower_cut = (std::max((1. / (4. * a_lower)), 0.0) * dphi2 + std::min(b_lower, -half_crystal_width));
 
-      //if(deta < upper_cut && deta > lower_cut) inMust=true;
-
       const float deta = (1 - 2 * (maxEta < 0)) * (ClusEta - maxEta);  // sign flip deta
       return (deta < upper_cut && deta > lower_cut);
     }
