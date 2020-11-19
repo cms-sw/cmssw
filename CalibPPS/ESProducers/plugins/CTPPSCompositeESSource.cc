@@ -192,21 +192,25 @@ CTPPSCompositeESSource::CTPPSCompositeESSource(const edm::ParameterSet &conf)
   findingRecord<PPSDirectSimulationDataRcd>();
 
 }
+
 //----------------------------------------------------------------------------------------------------
+
 void CTPPSCompositeESSource::buildDirectSimuData(const edm::ParameterSet& profile,profileData& pData){
   const auto& ctppsDirectSimuData=profile.getParameter<edm::ParameterSet>("ctppsDirectSimuData");
-  pData.directSimuData.setUseEmpiricalApertures(ctppsDirectSimuData.getParameter<bool>("useEmpiricalApertures"));
+
   pData.directSimuData.setEmpiricalAperture45(ctppsDirectSimuData.getParameter<std::string>("empiricalAperture45"));
   pData.directSimuData.setEmpiricalAperture56(ctppsDirectSimuData.getParameter<std::string>("empiricalAperture56"));
+
   pData.directSimuData.setTimeResolutionDiamonds45(ctppsDirectSimuData.getParameter<std::string>("timeResolutionDiamonds45"));
   pData.directSimuData.setTimeResolutionDiamonds56(ctppsDirectSimuData.getParameter<std::string>("timeResolutionDiamonds56"));
-  pData.directSimuData.setUseTimeEfficiencyCheck(ctppsDirectSimuData.getParameter<bool>("useTimeEfficiencyCheck"));
+
   pData.directSimuData.setEffTimePath(ctppsDirectSimuData.getParameter<std::string>("effTimePath"));
   pData.directSimuData.setEffTimeObject45(ctppsDirectSimuData.getParameter<std::string>("effTimeObject45"));
   pData.directSimuData.setEffTimeObject56(ctppsDirectSimuData.getParameter<std::string>("effTimeObject56"));
-
 }
+
 //----------------------------------------------------------------------------------------------------
+
 void CTPPSCompositeESSource::buildGeom(const DDCompactView& cpv){
   std::unique_ptr<DetGeomDesc>idealGD= std::move(detgeomdescbuilder::buildDetGeomDescFromCompactView(cpv));
   for(int i=0;i< (int)profiles_.size();i++){
