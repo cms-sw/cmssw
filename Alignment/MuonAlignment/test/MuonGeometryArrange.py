@@ -69,14 +69,15 @@ process.CSCGeometryMuonGeometryArrange2a = cms.ESProducer("CSCGeometryESModule",
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
-     info_txt = cms.untracked.PSet(
-         threshold = cms.untracked.string('INFO')
-     ),
-     cerr = cms.untracked.PSet(
-         threshold = cms.untracked.string('INFO')
-     ),
-     destinations = cms.untracked.vstring('info_txt','cerr')
- )
+    cerr = cms.untracked.PSet(
+        threshold = cms.untracked.string('INFO')
+    ),
+    files = cms.untracked.PSet(
+        info_txt = cms.untracked.PSet(
+            threshold = cms.untracked.string('INFO')
+        )
+    )
+)
  
  
 process.source = cms.Source("EmptySource")
