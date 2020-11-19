@@ -17,10 +17,5 @@ profile_2018_postTS2 = profile_base_2018.clone(
   ctppsDirectSimuData = dict(
     timeResolutionDiamonds45 = "2*((x<16)*(-0.381504+0.255095*x-0.0415622*x^2+0.00275877*x^3-6.47115E-05*x^4)+(x>=16)*0.118)",
     timeResolutionDiamonds56 = "2*((x<16)*(-0.279298+0.219838*x-0.0384257*x^2+0.00268906*x^3-6.60572E-05*x^4)+(x>=16)*0.099)",
-
-    useTimeEfficiencyCheck = False,
-    effTimePath = "",
-    effTimeObject45 = "eff45",
-    effTimeObject56 = "eff56"
   )
 )
