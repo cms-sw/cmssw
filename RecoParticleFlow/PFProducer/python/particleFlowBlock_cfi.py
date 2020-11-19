@@ -74,7 +74,6 @@ particleFlowBlock = cms.EDProducer(
                   source = cms.InputTag("particleFlowClusterHF") ),
         cms.PSet( importerName = cms.string("GenericClusterImporter"),
                   source = cms.InputTag("particleFlowClusterPS") ),
-
         ),
 
     #linking definitions
@@ -169,18 +168,14 @@ def _findIndicesByModule(name):
 # kill tracks in the HGCal
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 _insertTrackImportersWithVeto = {}
-for idx in _findIndicesByModule('GeneralTracksImporter'):
-  _insertTrackImportersWithVeto[idx] = dict(
-    vetoEndcapSource = cms.InputTag('hgcalTrackCollection:TracksInHGCal'),
-    vetoEndcap = cms.bool(True),
-    excludeMuonRefFromVeto = cms.bool(True) # preserve behavior for simPF
-  )
-_trackFromParentImporters = ['ConvBremTrackImporter','ConversionTrackImporter','NuclearInteractionTrackImporter']
-for importer in _trackFromParentImporters:
+_trackImporters = ['GeneralTracksImporter','ConvBremTrackImporter',
+                   'ConversionTrackImporter','NuclearInteractionTrackImporter']
+for importer in _trackImporters:
   for idx in _findIndicesByModule(importer):
     _insertTrackImportersWithVeto[idx] = dict(
       vetoEndcap = cms.bool(True),
-      vetoEndcapSource = cms.InputTag('hgcalTrackCollection:TracksInHGCal')
+      vetoMode = cms.uint32(1), # HGCal-region PFTrack list for simPF
+      vetoSrc = cms.InputTag('hgcalTrackCollection:TracksInHGCal')
     )
 phase2_hgcal.toModify(
     particleFlowBlock,

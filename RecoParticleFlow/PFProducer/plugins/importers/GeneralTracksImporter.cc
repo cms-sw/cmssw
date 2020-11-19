@@ -5,6 +5,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/HGCalReco/interface/TICLSeedingRegion.h"
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
 #include "RecoParticleFlow/PFTracking/interface/PFTrackAlgoTools.h"
 
@@ -16,14 +17,23 @@ public:
         vetoEndcap_(conf.getParameter<bool>("vetoEndcap")),
         muons_(sumes.consumes<reco::MuonCollection>(conf.getParameter<edm::InputTag>("muonSrc"))),
         trackQuality_(reco::TrackBase::qualityByName(conf.getParameter<std::string>("trackQuality"))),
-        DPtovPtCut_(conf.getParameter<std::vector<double> >("DPtOverPtCuts_byTrackAlgo")),
-        NHitCut_(conf.getParameter<std::vector<unsigned> >("NHitCuts_byTrackAlgo")),
+        DPtovPtCut_(conf.getParameter<std::vector<double>>("DPtOverPtCuts_byTrackAlgo")),
+        NHitCut_(conf.getParameter<std::vector<unsigned>>("NHitCuts_byTrackAlgo")),
         useIterTracking_(conf.getParameter<bool>("useIterativeTracking")),
         cleanBadConvBrems_(conf.getParameter<bool>("cleanBadConvertedBrems")),
         muonMaxDPtOPt_(conf.getParameter<double>("muonMaxDPtOPt")) {
     if (vetoEndcap_) {
-      vetoEndcapSrc_ = sumes.consumes<reco::PFRecTrackCollection>(conf.getParameter<edm::InputTag>("vetoEndcapSource"));
-      excludeMuonRefFromVeto_ = conf.getParameter<bool>("excludeMuonRefFromVeto");
+      vetoMode_ = conf.getParameter<unsigned>("vetoMode");
+      switch (vetoMode_) {
+        case 1:
+          hgcalPFTracksSrc_ = sumes.consumes<reco::PFRecTrackCollection>(conf.getParameter<edm::InputTag>("vetoSrc"));
+          break;
+        case 2:
+          ticlSeedingSrc_ = sumes.consumes<std::vector<TICLSeedingRegion>>(conf.getParameter<edm::InputTag>("vetoSrc"));
+          tracksSrc_ = sumes.consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("tracksSrc"));
+          break;
+        default:;
+      }  // switch
     }
   }
 
@@ -38,8 +48,10 @@ private:
   const std::vector<unsigned> NHitCut_;
   const bool useIterTracking_, cleanBadConvBrems_;
   const double muonMaxDPtOPt_;
-  edm::EDGetTokenT<reco::PFRecTrackCollection> vetoEndcapSrc_;
-  bool excludeMuonRefFromVeto_;
+  unsigned int vetoMode_;
+  edm::EDGetTokenT<reco::PFRecTrackCollection> hgcalPFTracksSrc_;
+  edm::EDGetTokenT<std::vector<TICLSeedingRegion>> ticlSeedingSrc_;
+  edm::EDGetTokenT<reco::TrackCollection> tracksSrc_;
 };
 
 DEFINE_EDM_PLUGIN(BlockElementImporterFactory, GeneralTracksImporter, "GeneralTracksImporter");
@@ -47,12 +59,23 @@ DEFINE_EDM_PLUGIN(BlockElementImporterFactory, GeneralTracksImporter, "GeneralTr
 void GeneralTracksImporter::importToBlock(const edm::Event& e, BlockElementImporterBase::ElementList& elems) const {
   typedef BlockElementImporterBase::ElementList::value_type ElementType;
   auto tracks = e.getHandle(src_);
-  auto vetosH = e.getHandle(vetoEndcapSrc_);
-  const auto& vetos = *vetosH;
   std::unordered_set<unsigned> vetoed;
   if (vetoEndcap_) {
-    for (unsigned i = 0; i < vetos.size(); ++i)
-      vetoed.insert(vetos[i].trackRef().key());
+    if (vetoMode_ == 1) {
+      auto vetoesH = e.getHandle(hgcalPFTracksSrc_);
+      const auto& vetoes = *vetoesH;
+      for (unsigned i = 0; i < vetoes.size(); ++i)
+        vetoed.insert(vetoes[i].trackRef().key());
+    } else if (vetoMode_ == 2) {
+      auto vetoesH = e.getHandle(ticlSeedingSrc_);
+      const auto& vetoes = *vetoesH;
+      auto tracksH = e.getHandle(tracksSrc_);
+      for (unsigned i = 0; i < vetoes.size(); ++i) {
+        assert(vetoes[i].collectionID == tracksH.id());
+        reco::TrackRef trkref = reco::TrackRef(tracksH, vetoes[i].index);
+        vetoed.insert(trkref.key());
+      }
+    }
   }
   auto muons = e.getHandle(muons_);
   elems.reserve(elems.size() + tracks->size());
@@ -137,10 +160,9 @@ void GeneralTracksImporter::importToBlock(const edm::Event& e, BlockElementImpor
       if (muId != -1)
         trkElem->setMuonRef(muonref);
       // if _vetoEndcap is false, add this trk automatically.
-      // if _vetoEndcap is true, veto against the hgcal region tracks unless there is muonref is null.
-      // when ticl is used, we want to reconstruct tracks including those with muonref in ticl and exclude them here.
-      if (!vetoEndcap_ || vetoed.count(pftrackref->trackRef().key()) == 0 ||
-          (excludeMuonRefFromVeto_ && muonref.isNonnull())) {
+      // if _vetoEndcap is true, veto against the hgcal region tracks.
+      // when simPF is used, we don't veto tracks with muonref even if they are in the hgcal region.
+      if (!vetoEndcap_ || vetoed.count(pftrackref->trackRef().key()) == 0 || (vetoMode_ == 1 && muonref.isNonnull())) {
         elems.emplace_back(trkElem);
       } else
         delete trkElem;
