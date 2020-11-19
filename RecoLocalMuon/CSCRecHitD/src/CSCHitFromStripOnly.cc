@@ -490,8 +490,8 @@ void CSCHitFromStripOnly::findMaxima(const CSCDetId& id) {
 
           additional_maxima_found = true;
           theMaxima.push_back(i - 2);  //insert left maxima first
-          theConsecutiveStrips.push_back(
-              numberOfConsecutiveStrips);  //insert the same number of cosecutive strips, because they belong to both maximas
+           //insert the same number of cosecutive strips, because they belong to both maximas
+          theConsecutiveStrips.push_back(numberOfConsecutiveStrips);
           theMaxima.push_back(i);          //insert main maxima
           theConsecutiveStrips.push_back(
               numberOfConsecutiveStrips);  //insert the same number of cosecutive strips, because they belong to both maximas
