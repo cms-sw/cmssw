@@ -7,7 +7,7 @@ from RecoPPS.ProtonReconstruction.ctppsProtons_cff import *
 from CalibPPS.ESProducers.ctppsCompositeESSource_cfi import *
 
 profile_base = cms.PSet(
-  L_i = cms.double(1),
+  L_int = cms.double(1),
 
   # LHCInfo
   ctppsLHCInfo = cms.PSet(
