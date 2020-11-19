@@ -5,6 +5,8 @@ from Validation.CTPPS.simu_config.year_2017_cff import *
 alignmentFile = "Validation/CTPPS/alignment/2017_postTS2.xml"
 
 profile_2017_postTS2 = profile_base_2017.clone(
+  L_int = 22.179613387,
+
   ctppsLHCInfo = dict(
     xangleBetaStarHistogramObject = "2017_postTS2/h2_betaStar_vs_xangle"
   ),
