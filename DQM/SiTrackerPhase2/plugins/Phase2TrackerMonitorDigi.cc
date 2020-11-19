@@ -88,7 +88,6 @@ void Phase2TrackerMonitorDigi::analyze(const edm::Event& iEvent, const edm::Even
   iEvent.getByToken(otDigiToken_, otDigiHandle);
 
   // Tracker Topology
-
   edm::ESWatcher<TrackerDigiGeometryRecord> theTkDigiGeomWatcher;
   if (theTkDigiGeomWatcher.check(iSetup)) {
     if (pixelFlag_)

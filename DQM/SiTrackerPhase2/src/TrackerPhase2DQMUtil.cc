@@ -47,9 +47,7 @@ std::string phase2tkutil::getOTHistoId(uint32_t det_id, const TrackerTopology* t
 
 typedef dqm::reco::MonitorElement MonitorElement;
 typedef dqm::reco::DQMStore DQMStore;
-MonitorElement* phase2tkutil::book1DFromPSet(const edm::ParameterSet& hpars,
-                                             const std::string& hname,
-                                             DQMStore::IBooker& ibooker) {
+MonitorElement* phase2tkutil::book1DFromPSet(const edm::ParameterSet& hpars, DQMStore::IBooker& ibooker) {
   MonitorElement* temp = nullptr;
   if (hpars.getParameter<bool>("switch")) {
     temp = ibooker.book1D(hpars.getParameter<std::string>("name"),
@@ -61,9 +59,7 @@ MonitorElement* phase2tkutil::book1DFromPSet(const edm::ParameterSet& hpars,
   return temp;
 }
 
-MonitorElement* phase2tkutil::book2DFromPSet(const edm::ParameterSet& hpars,
-                                             const std::string& hname,
-                                             DQMStore::IBooker& ibooker) {
+MonitorElement* phase2tkutil::book2DFromPSet(const edm::ParameterSet& hpars, DQMStore::IBooker& ibooker) {
   MonitorElement* temp = nullptr;
   if (hpars.getParameter<bool>("switch")) {
     temp = ibooker.book2D(hpars.getParameter<std::string>("name"),
@@ -78,9 +74,7 @@ MonitorElement* phase2tkutil::book2DFromPSet(const edm::ParameterSet& hpars,
   return temp;
 }
 
-MonitorElement* phase2tkutil::bookProfile1DFromPSet(const edm::ParameterSet& hpars,
-                                                    const std::string& hname,
-                                                    DQMStore::IBooker& ibooker) {
+MonitorElement* phase2tkutil::bookProfile1DFromPSet(const edm::ParameterSet& hpars, DQMStore::IBooker& ibooker) {
   MonitorElement* temp = nullptr;
   if (hpars.getParameter<bool>("switch")) {
     temp = ibooker.bookProfile(hpars.getParameter<std::string>("name"),

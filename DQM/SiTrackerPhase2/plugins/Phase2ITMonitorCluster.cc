@@ -53,7 +53,7 @@ private:
     MonitorElement* ClusterSizeX = nullptr;
     MonitorElement* ClusterSizeY = nullptr;
     MonitorElement* ClusterCharge = nullptr;
-    //MonitorElement* XYGlobalPositionMapPixel=nullptr;
+    MonitorElement* XYGlobalPositionMapPixel = nullptr;
     MonitorElement* XYLocalPositionMapPixel = nullptr;
   };
 
@@ -146,7 +146,8 @@ void Phase2ITMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
       if (local_mesIT == layerMEs_.end())
         continue;
       ClusterMEs& local_mes = local_mesIT->second;
-      //local_mes.XYGlobalPositionMapPixel->Fill(globalPosCluster.z(), globalPosCluster.perp());
+      if (local_mes.XYGlobalPositionMapPixel)  //make this optional
+        local_mes.XYGlobalPositionMapPixel->Fill(globalPosCluster.z(), globalPosCluster.perp());
       local_mes.XYLocalPositionMapPixel->Fill(localPosCluster.x(), localPosCluster.y());
       local_mes.ClusterSize->Fill(clusterItr.size());
       local_mes.ClusterSizeX->Fill(clusterItr.sizeX());
@@ -177,26 +178,20 @@ void Phase2ITMonitorCluster::bookHistograms(DQMStore::IBooker& ibooker,
   ibooker.setCurrentFolder(folder_name.str());
 
   edm::LogInfo("Phase2ITMonitorCluster") << " Booking Histograms in: " << folder_name.str();
-  std::string HistoName;
-  HistoName = "NumberClusters";
-  numberClusters_ =
-      phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalNClusters"), HistoName, ibooker);
 
-  HistoName = "Global_ClusterPosition_XY_IT_barrel";
+  numberClusters_ = phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalNClusters"), ibooker);
+
   globalXY_barrel_ =
-      phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalPositionXY_PXB"), HistoName, ibooker);
+      phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalPositionXY_PXB"), ibooker);
 
-  HistoName = "Global_ClusterPosition_RZ_IT_barrel";
   globalRZ_barrel_ =
-      phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalPositionRZ_PXB"), HistoName, ibooker);
+      phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalPositionRZ_PXB"), ibooker);
 
-  HistoName = "Global_ClusterPosition_XY_IT_endcap";
-  globalXY_endcap_ = phase2tkutil::book2DFromPSet(
-      config_.getParameter<edm::ParameterSet>("GlobalPositionXY_PXEC"), HistoName, ibooker);
+  globalXY_endcap_ =
+      phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalPositionXY_PXEC"), ibooker);
 
-  HistoName = "Global_ClusterPosition_RZ_IT_endcap";
-  globalRZ_endcap_ = phase2tkutil::book2DFromPSet(
-      config_.getParameter<edm::ParameterSet>("GlobalPositionRZ_PXEC"), HistoName, ibooker);
+  globalRZ_endcap_ =
+      phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalPositionRZ_PXEC"), ibooker);
 
   //Now book layer wise histos
   edm::ESWatcher<TrackerDigiGeometryRecord> theTkDigiGeomWatcher;
@@ -229,36 +224,28 @@ void Phase2ITMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_
 
     edm::LogInfo("Phase2ITMonitorCluster") << " Booking Histograms in: " << subdir + "/" + folderName;
 
-    std::string histoName;
     ClusterMEs local_mes;
 
-    histoName = "NumberOfClusters";
     local_mes.nClusters =
-        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("NClustersLayer"), histoName, ibooker);
+        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("NClustersLayer"), ibooker);
 
-    histoName = "ClusterSize";
     local_mes.ClusterSize =
-        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("ClusterSize"), histoName, ibooker);
+        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("ClusterSize"), ibooker);
 
-    histoName = "ClusterSizeX";
     local_mes.ClusterSizeX =
-        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("ClusterSizeX"), histoName, ibooker);
+        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("ClusterSizeX"), ibooker);
 
-    histoName = "ClusterSizeY";
     local_mes.ClusterSizeY =
-        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("ClusterSizeY"), histoName, ibooker);
+        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("ClusterSizeY"), ibooker);
 
-    histoName = "ClusterCharge";
     local_mes.ClusterCharge =
-        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("ClusterCharge"), histoName, ibooker);
+        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("ClusterCharge"), ibooker);
 
-    histoName = "ClusterLocalPosXY";
     local_mes.XYLocalPositionMapPixel =
-        phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("LocalPositionXY"), histoName, ibooker);
+        phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("LocalPositionXY"), ibooker);
 
-    histoName = "ClusterSizeY";
-    local_mes.ClusterSizeY =
-        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("ClusterSizeY"), histoName, ibooker);
+    local_mes.XYGlobalPositionMapPixel =
+        phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalPositionXY_perlayer"), ibooker);
 
     layerMEs_.emplace(folderName, local_mes);
   }
@@ -395,6 +382,20 @@ void Phase2ITMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
     psd0.add<double>("ymin", 0.0);
     desc.add<edm::ParameterSetDescription>("LocalPositionXY", psd0);
   }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "GlobalPositionXY_perlayer");
+    psd0.add<std::string>("title", "GlobalClusterPositionXY_perlayer;x [mm];y [mm];");
+    psd0.add<double>("ymax", 300.0);
+    psd0.add<int>("NxBins", 600);
+    psd0.add<int>("NyBins", 600);
+    psd0.add<bool>("switch", false);
+    psd0.add<double>("xmax", 300.0);
+    psd0.add<double>("xmin", -300.0);
+    psd0.add<double>("ymin", -300.0);
+    desc.add<edm::ParameterSetDescription>("GlobalPositionXY_perlayer", psd0);
+  }
+
   desc.add<std::string>("TopFolderName", "TrackerPhase2ITCluster");
   desc.add<edm::InputTag>("InnerPixelClusterSource", edm::InputTag("siPixelClusters"));
   descriptions.add("Phase2ITMonitorCluster", desc);
