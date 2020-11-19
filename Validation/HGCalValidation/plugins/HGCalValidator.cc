@@ -226,7 +226,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
                                 const Histograms& histograms) const {
   using namespace reco;
 
-  LogDebug("HGCalValidator") << "\n===================================================="
+  std::cout << "\n===================================================="
                              << "\n"
                              << "Analyzing new event"
                              << "\n"
@@ -392,7 +392,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
                                                     totallayers_to_monitor_);
 
       //General Info on multiclusters
-      LogTrace("HGCalValidator") << "\n# of multi clusters with " << label_mcl[wml].process() << ":"
+      std::cout << "\n# of multi clusters with " << label_mcl[wml].process() << ":"
                                  << label_mcl[wml].label() << ":" << label_mcl[wml].instance() << ": "
                                  << multiClusters.size() << "\n"
                                  << std::endl;
