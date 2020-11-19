@@ -39,12 +39,12 @@ profile_base = cms.PSet(
 
   # direct simu data
   ctppsDirectSimuData = cms.PSet(
-    useEmpiricalApertures = cms.bool(True),
     empiricalAperture45 = cms.string(""),
     empiricalAperture56 = cms.string(""),
+
     timeResolutionDiamonds45 = cms.string("999"),
     timeResolutionDiamonds56 = cms.string("999"),
-    useTimeEfficiencyCheck = cms.bool(False),
+
     effTimePath = cms.string(""),
     effTimeObject45 = cms.string(""),
     effTimeObject56 = cms.string("")
@@ -109,6 +109,8 @@ ctppsDirectProtonSimulation.roundToPitch = True
 ctppsDirectProtonSimulation.pitchStrips = 66E-3 * 12 / 19 # effective value to reproduce real RP resolution
 ctppsDirectProtonSimulation.pitchPixelsHor = 50E-3
 ctppsDirectProtonSimulation.pitchPixelsVer = 80E-3
+ctppsDirectProtonSimulation.useEmpiricalApertures = True
+ctppsDirectProtonSimulation.useTimingRPEfficiency = False
 ctppsDirectProtonSimulation.produceHitsRelativeToBeam = True
 ctppsDirectProtonSimulation.produceScoringPlaneHits = False
 ctppsDirectProtonSimulation.produceRecHits = True
