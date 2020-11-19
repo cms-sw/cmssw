@@ -1220,8 +1220,20 @@ void HGVHistoProducerAlgo::fill_caloparticle_histos(const Histograms& histograms
                                                     int pdgid,
                                                     const CaloParticle& caloparticle,
                                                     std::vector<SimVertex> const& simVertices,
+<<<<<<< HEAD
                                                     unsigned int layers,
                                                     std::unordered_map<DetId, const HGCRecHit*> const& hitMap) const {
+=======
+                                                    unsigned layers,
+                                                    std::unordered_map<DetId, const HGCRecHit*> const& hitMap) const {
+  for(auto const& hit : hitMap){
+    const auto hitDetId = hit.first;
+    int layerId = recHitTools_->getLayerWithOffset(hitDetId) +
+              layers * ((recHitTools_->zside(hitDetId) + 1) >> 1) - 1;
+    //std::cout << " layerId of HGCRecHit = " << layerId << std::endl;
+  }
+
+>>>>>>> Explore/extend CaloParticle validation
   const auto eta = getEta(caloparticle.eta());
   if (histograms.h_caloparticle_eta.count(pdgid)) {
     histograms.h_caloparticle_eta.at(pdgid)->Fill(eta);
@@ -1252,6 +1264,7 @@ void HGVHistoProducerAlgo::fill_caloparticle_histos(const Histograms& histograms
     int minLayerId_matched = 999;
     int maxLayerId_matched = 0;
 
+<<<<<<< HEAD
     float energy = 0.;
     std::map<int, double> totenergy_layer;
 
@@ -1262,12 +1275,24 @@ void HGVHistoProducerAlgo::fill_caloparticle_histos(const Histograms& histograms
         const auto hitDetId = h_and_f.first;
         int layerId =
             recHitTools_->getLayerWithOffset(hitDetId) + layers * ((recHitTools_->zside(hitDetId) + 1) >> 1) - 1;
+=======
+//    float energy = 0.;
+
+    for (auto const& sc : caloparticle.simClusters()) {
+      simHits += sc->hits_and_fractions().size();
+      for (auto const& h_and_f : sc->hits_and_fractions()) {
+        const auto hitDetId = h_and_f.first;
+        int layerId = recHitTools_->getLayerWithOffset(hitDetId) +
+                  layers * ((recHitTools_->zside(hitDetId) + 1) >> 1) - 1;
+        //std::cout << " layerId of simHit = " << layerId << std::endl;
+>>>>>>> Explore/extend CaloParticle validation
 
         // set to 0 if matched RecHit not found
         int layerId_matched_min = 999;
         int layerId_matched_max = 0;
         std::unordered_map<DetId, const HGCRecHit*>::const_iterator itcheck = hitMap.find(hitDetId);
         if (itcheck != hitMap.end()) {
+<<<<<<< HEAD
           layerId_matched_min = layerId;
           layerId_matched_max = layerId;
           simHits_matched++;
@@ -1285,16 +1310,30 @@ void HGVHistoProducerAlgo::fill_caloparticle_histos(const Histograms& histograms
           if (caloparticle.simClusters().size() == 1)
             histograms.h_caloparticle_nHits_matched_energy_layer_1SimCl.at(pdgid)->Fill(layerId,
                                                                                         hit->energy() * h_and_f.second);
+=======
+          //std::cout << "   matched to RecHit FOUND !" << std::endl;
+          layerId_matched_min = layerId;
+          layerId_matched_max = layerId;
+          simHits_matched++;
+        } else {
+          //std::cout << "   matched to RecHit NOT found !" << std::endl;
+>>>>>>> Explore/extend CaloParticle validation
         }
 
         minLayerId = std::min(minLayerId, layerId);
         maxLayerId = std::max(maxLayerId, layerId);
         minLayerId_matched = std::min(minLayerId_matched, layerId_matched_min);
         maxLayerId_matched = std::max(maxLayerId_matched, layerId_matched_max);
+<<<<<<< HEAD
+=======
+//      //  if (hitmap.count(h_and_f.first))
+//      //    energy += hitmap.at(h_and_f.first)->energy() * h_and_f.second;
+>>>>>>> Explore/extend CaloParticle validation
       }
     }
     histograms.h_caloparticle_firstlayer.at(pdgid)->Fill(minLayerId);
     histograms.h_caloparticle_lastlayer.at(pdgid)->Fill(maxLayerId);
+<<<<<<< HEAD
     histograms.h_caloparticle_layersnum.at(pdgid)->Fill(int(maxLayerId - minLayerId));
 
     histograms.h_caloparticle_firstlayer_matchedtoRecHit.at(pdgid)->Fill(minLayerId_matched);
@@ -1485,6 +1524,20 @@ void HGVHistoProducerAlgo::HGVHistoProducerAlgo::fill_simclusterassosiation_hist
                                layers,
                                scsInLayerClusterMap,
                                lcsInSimClusterMap);
+=======
+    histograms.h_caloparticle_layersnum.at(pdgid)->Fill(int(maxLayerId-minLayerId));
+
+    histograms.h_caloparticle_firstlayer_matchedtoRecHit.at(pdgid)->Fill(minLayerId_matched);
+    histograms.h_caloparticle_lastlayer_matchedtoRecHit.at(pdgid)->Fill(maxLayerId_matched);
+    histograms.h_caloparticle_layersnum_matchedtoRecHit.at(pdgid)->Fill(int(maxLayerId_matched-minLayerId_matched));
+
+    histograms.h_caloparticle_nHitsInSimClusters.at(pdgid)->Fill((float)simHits);
+    histograms.h_caloparticle_nHitsInSimClusters_matchedtoRecHit.at(pdgid)->Fill((float)simHits_matched);
+    //std::cout << "  simHits in sc = " << simHits << std::endl;
+    //std::cout << "  simHits (matched) in sc = " << simHits_matched << std::endl;
+  }
+  
+>>>>>>> Explore/extend CaloParticle validation
 }
 
 void HGVHistoProducerAlgo::fill_cluster_histos(const Histograms& histograms,
@@ -1494,6 +1547,7 @@ void HGVHistoProducerAlgo::fill_cluster_histos(const Histograms& histograms,
   histograms.h_cluster_eta[count]->Fill(eta);
 }
 
+<<<<<<< HEAD
 void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& histograms,
                                                           edm::Handle<reco::CaloClusterCollection> clusterHandle,
                                                           const reco::CaloClusterCollection& clusters,
@@ -1505,7 +1559,22 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
                                                           unsigned int layers,
                                                           const hgcal::RecoToSimCollection& cpsInLayerClusterMap,
                                                           const hgcal::SimToRecoCollection& cPOnLayerMap) const {
+=======
+void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(
+    const Histograms& histograms,
+    edm::Handle<reco::CaloClusterCollection> clusterHandle,
+    const reco::CaloClusterCollection& clusters,
+    edm::Handle<std::vector<CaloParticle>> caloParticleHandle,
+    std::vector<CaloParticle> const& cP,
+    std::vector<size_t> const& cPIndices,
+    std::vector<size_t> const& cPSelectedIndices,
+    std::unordered_map<DetId, const HGCRecHit*> const& hitMap,
+    unsigned layers,
+    const edm::Handle<hgcal::LayerClusterToCaloParticleAssociator>& LCAssocByEnergyScoreHandle) const {
+  std::cout << "HGVHistoProducerAlgo::layerClusters_to_CaloParticles" << std::endl;
+>>>>>>> Explore/extend CaloParticle validation
   auto nLayerClusters = clusters.size();
+  std::cout << "Number Layer Clusters = " << nLayerClusters << std::endl;
 
   std::unordered_map<DetId, std::vector<HGVHistoProducerAlgo::detIdInfoInCluster>> detIdToCaloParticleId_Map;
   std::unordered_map<DetId, std::vector<HGVHistoProducerAlgo::detIdInfoInCluster>> detIdToLayerClusterId_Map;
@@ -1688,6 +1757,7 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
       cPEnergyOnLayer[layerId] = 0;
 
     const SimClusterRefVector& simClusterRefVector = cP[cpId].simClusters();
+    std::cout << "  layers in simClusterRefVector = " << layers << std::endl;
     for (const auto& it_sc : simClusterRefVector) {
       const SimCluster& simCluster = (*(it_sc));
       const auto& hits_and_fractions = simCluster.hits_and_fractions();
@@ -2278,10 +2348,16 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
                                                           std::vector<size_t> const& cPIndices,
                                                           std::vector<size_t> const& cPSelectedIndices,
                                                           std::unordered_map<DetId, const HGCRecHit*> const& hitMap,
+<<<<<<< HEAD
                                                           unsigned int layers) const {
+=======
+                                                          unsigned layers) const {
+  std::cout << "HGVHistoProducerAlgo::multiClusters_to_CaloParticles " << std::endl;
+>>>>>>> Explore/extend CaloParticle validation
   auto nMultiClusters = multiClusters.size();
   //Consider CaloParticles coming from the hard scatterer, excluding the PU contribution.
   auto nCaloParticles = cPIndices.size();
+  std::cout << " nMultiClu = " << nMultiClusters << " , " << " nCaloPart = " << nCaloParticles << std::endl;
 
   std::unordered_map<DetId, std::vector<HGVHistoProducerAlgo::detIdInfoInCluster>> detIdToCaloParticleId_Map;
   std::unordered_map<DetId, std::vector<HGVHistoProducerAlgo::detIdInfoInMultiCluster>> detIdToMultiClusterId_Map;

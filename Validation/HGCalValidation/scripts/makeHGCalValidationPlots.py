@@ -75,10 +75,10 @@ def main(opts):
             hgcalPlots.append_hgcalMultiClustersPlots(i_iter, tracksterCollection)
         val.doPlots(hgcmulticlus, plotterDrawArgs=drawArgs)
         # TICLDebugger plots
-<<<<<<< HEAD
-        tracksterCollection = opts.collection.replace("ticlMultiClustersFromTracksters","ticlTracksters")
-        hgctracksters = [hgcalPlots.create_hgcalTrackstersPlotter(sample.files(), tracksterCollection)]
-        val.doPlots(hgctracksters, plotterDrawArgs=drawArgs)
+        for i_iter in trackstersIters :
+            tracksterCollection = i_iter.replace("ticlMultiClustersFromTracksters","ticlTracksters")
+            hgctracksters = [hgcalPlots.create_hgcalTrackstersPlotter(sample.files(), tracksterCollection, tracksterCollection)]
+            val.doPlots(hgctracksters, plotterDrawArgs=drawArgs)
     elif (opts.collection == caloParticlesLabel):
         particletypes = {"pion-":"-211", "pion+":"211", "pion0": "111",
                          "muon-": "-13", "muon+":"13", 
@@ -91,13 +91,6 @@ def main(opts):
         val.doPlots(hgcaloPart, plotterDrawArgs=drawArgs)
     #hitValidation
     elif (opts.collection == hitValidationLabel):
-=======
-        for i_iter in trackstersIters :
-            tracksterCollection = i_iter.replace("ticlMultiClustersFromTracksters","ticlTracksters")
-            hgctracksters = [hgcalPlots.create_hgcalTrackstersPlotter(sample.files(), tracksterCollection, tracksterCollection)]
-            val.doPlots(hgctracksters, plotterDrawArgs=drawArgs)
-    elif opts.collection==hitValidationLabel:
->>>>>>> Final fixing
     	hgchit = [hgcalPlots.hgcalHitPlotter]
         hgcalPlots.append_hgcalHitsPlots('HGCalSimHitsV', "Simulated Hits")
         hgcalPlots.append_hgcalHitsPlots('HGCalRecHitsV', "Reconstruced Hits")

@@ -2572,6 +2572,43 @@ def create_hgcalTrackstersPlotter(files, collection = 'ticlTrackstersMerge', nam
   return hgcalTrackstersPlotter
 
 #=================================================================================================
+hgcalCaloParticlesPlotter = Plotter()
+def append_hgcalCaloParticlesPlots(files, collection = '-211', name_collection = "pion-"):
+
+  dqmfolder = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/SelectedCaloParticles/" + collection
+  print(dqmfolder)
+#  _common["ymin"] = 0.0
+  templateFile = ROOT.TFile.Open(files[0]) # assuming all files have same structure
+  keys = gDirectory.GetDirectory(dqmfolder,True).GetListOfKeys()
+  key = keys[0]
+  while key:
+    obj = key.ReadObj()
+    name = obj.GetName()
+    fileName = TString(name)
+    fileName.ReplaceAll(" ","_")
+    pg= PlotGroup(fileName.Data(),[
+                  Plot(name,
+                       xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
+                       #drawCommand = "", # may want to customize for TH2 (colz, etc.)
+                       normalizeToNumberOfEvents = True, **_common)
+                  ],
+                  ncols=1) # probably need more ofr cosAngle_Beta_
+
+    hgcalCaloParticlesPlotter.append("CaloParticles_"+name_collection, [
+              dqmfolder
+              ], PlotFolder(
+                pg,
+                loopSubFolders=False,
+                purpose=PlotPurpose.Timing, page="CaloParticles", section=name_collection)
+              )
+
+    key = keys.After(key)
+
+  templateFile.Close()
+
+  return hgcalCaloParticlesPlotter
+
+#=================================================================================================
 # hitValidation
 def _hgcalHitFolders(dirName="HGCalSimHitsV/HGCalEESensitive"):
     return "DQMData/Run 1/HGCAL/Run summary/"+dirName
