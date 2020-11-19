@@ -102,7 +102,7 @@ public:
   float HOEnergy() const { return HOEnergy_; }
   float csv() const { return csv_; }
   float mvaDiscriminator() const { return mvaDiscriminator_; }
-  std::vector<int> constituents() const& { return constituents_; }
+  std::vector<int> const& constituents() const { return constituents_; }
 
 private:
   float pt_;
