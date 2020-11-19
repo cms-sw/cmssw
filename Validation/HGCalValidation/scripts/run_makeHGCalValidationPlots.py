@@ -19,6 +19,8 @@ print(args.sample)
 
 PATHIN = args.folderin+'/'
 
+#singleKaonL_closeBy_hgcalCenter/ singleel_flatEGun_hgcalCenter/    singlephoton_closeBy_hgcalCenter/ singlepi_flatEGun_hgcalCenter/    
+
 def create_command(filesin, folderout, sample, label):
   final_folder = folderout + "/" + sample
   log = label+"_"+sample+'.log'
@@ -35,7 +37,7 @@ if (args.sample == "kaons") or (args.sample == "all") :
   SAMPLES.append('singleKaonL__e300GeV__nopu')
   FILESIN = ""
   for SAMPLE in SAMPLES : 
-    FILESIN += PATHIN+'DQM_V0001_R000000001__step4_'+SAMPLE+'.root '
+    FILESIN += PATHIN+'/singleKaonL_closeBy_hgcalCenter/step4/DQM_V0001_R000000001__step4_'+SAMPLE+'.root '
   command = create_command(FILESIN, args.folderout, "singleKaonL", args.label)
   print(command)
   os.system(command)
@@ -50,7 +52,7 @@ if (args.sample == "photons") or (args.sample == "all") :
   SAMPLES.append('singlephoton__e300GeV__nopu')
   FILESIN = ""
   for SAMPLE in SAMPLES : 
-    FILESIN += PATHIN+'DQM_V0001_R000000001__step4_'+SAMPLE+'.root '
+    FILESIN += PATHIN+'/singlephoton_closeBy_hgcalCenter/step4/DQM_V0001_R000000001__step4_'+SAMPLE+'.root '
   command = create_command(FILESIN, args.folderout, "singlephoton", args.label)
   print(command)
   os.system(command)
@@ -65,7 +67,7 @@ if (args.sample == "pions") or (args.sample == "all") :
   SAMPLES.append('singlepi__e300GeV__nopu')
   FILESIN = ""
   for SAMPLE in SAMPLES : 
-    FILESIN += PATHIN+'DQM_V0001_R000000001__step4_'+SAMPLE+'.root '
+    FILESIN += PATHIN+'/singlepi_flatEGun_hgcalCenter/step4/DQM_V0001_R000000001__step4_'+SAMPLE+'.root '
   command = create_command(FILESIN, args.folderout, "singlepi", args.label)
   print(command)
   os.system(command)
@@ -80,7 +82,7 @@ if (args.sample == "electrons") or (args.sample == "all") :
   SAMPLES.append('singleel__e300GeV__nopu')
   FILESIN = ""
   for SAMPLE in SAMPLES : 
-    FILESIN += PATHIN+'DQM_V0001_R000000001__step4_'+SAMPLE+'.root '
+    FILESIN += PATHIN+'/singleel_flatEGun_hgcalCenter/step4/DQM_V0001_R000000001__step4_'+SAMPLE+'.root '
   command = create_command(FILESIN, args.folderout, "singleel", args.label)
   print(command)
   os.system(command)
