@@ -488,12 +488,11 @@ void CSCHitFromStripOnly::findMaxima(const CSCDetId& id) {
             thePulseHeightMap[i - 1].phmax() >= thePulseHeightMap[i - 2].phmax() &&
             //no need in a small charge maxima (might need adjustment)
             thePulseHeightMap[i - 2].phmax() > 20) {
-            
           additional_maxima_found = true;
           theMaxima.push_back(i - 2);  //insert left maxima first
           //insert the same number of cosecutive strips, because they belong to both maximas
           theConsecutiveStrips.push_back(numberOfConsecutiveStrips);
-          theMaxima.push_back(i);          //insert main maxima
+          theMaxima.push_back(i);  //insert main maxima
           //insert the same number of cosecutive strips, because they belong to both maximas
           theConsecutiveStrips.push_back(numberOfConsecutiveStrips);
 
@@ -506,10 +505,9 @@ void CSCHitFromStripOnly::findMaxima(const CSCDetId& id) {
               thePulseHeightMap[i + 2].phmax() <= thePulseHeightMap[i - 1].phmax() &&
               thePulseHeightMap[i + 2].phmax() >= thePulseHeightMap[i - 2].phmax())) &&
             //to avoid close maxima delimitation (this is already present in the code)
-            thePulseHeightMap[i + 1].phmax() >= thePulseHeightMap[i + 2].phmax() && 
+            thePulseHeightMap[i + 1].phmax() >= thePulseHeightMap[i + 2].phmax() &&
             //no need in a small charge maxima (might need adjustment)
             thePulseHeightMap[i + 2].phmax() > 20) {
-            
           additional_maxima_found = true;
           theMaxima.push_back(i);  //insert main maxima first
           //insert the same number of cosecutive strips, because they belong to both maximas
