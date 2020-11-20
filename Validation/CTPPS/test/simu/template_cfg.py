@@ -18,7 +18,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 # number of events
 process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(int(1E4))
+  input = cms.untracked.int32(int($N_EVENTS))
 )
 
 # LHCInfo plotter
