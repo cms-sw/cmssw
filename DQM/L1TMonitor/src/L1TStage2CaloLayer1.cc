@@ -642,8 +642,7 @@ int L1TStage2CaloLayer1::findIndex(
     int lowerIndexToSearch,
     int upperIndexToSearch) const {
   //Start by getting the spot in the the vector to start searching
-  int searchLocation = ((upperIndexToSearch + lowerIndexToSearch) / 2) -
-                       1;  //-1 handles zero indexing implied by vector.begin() being valid, but vector.end() not
+  int searchLocation = ((upperIndexToSearch + lowerIndexToSearch) / 2);
   auto searchIterator = comparisonList.begin() + searchLocation;
   //Multiple possible cases:
   //case one. Greater than the search element
@@ -656,7 +655,7 @@ int L1TStage2CaloLayer1::findIndex(
       }
       //subsubcase two, the candidate is later than it, in this case we refine the search area.
       else {
-        return this->findIndex(candidateMismatch, comparisonList, searchLocation, upperIndexToSearch);
+        return this->findIndex(candidateMismatch, comparisonList, searchLocation+1, upperIndexToSearch);
       }
     }
     //subcase two, there exists no mismatch to it's right (end of the vector), in which case this is the latest mismatch
@@ -671,7 +670,7 @@ int L1TStage2CaloLayer1::findIndex(
     if (searchIterator != comparisonList.begin()) {
       //subsubcase one, the candidate mismatch is earlier than the one to the left. in this case we refine the search area
       if (not this->isLaterMismatch(candidateMismatch, *(searchIterator - 1))) {
-        return this->findIndex(candidateMismatch, comparisonList, lowerIndexToSearch, searchLocation);
+        return this->findIndex(candidateMismatch, comparisonList, lowerIndexToSearch, searchLocation-1);
       }
       //subsubcase two the candidate is later than than the one to it's left, in which case, we insert the element between these two.
       else {
@@ -700,19 +699,22 @@ int L1TStage2CaloLayer1::findIndex(
 void L1TStage2CaloLayer1::mergeMismatchVectors(
     std::vector<std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>>& candidateMismatchList,
     std::vector<std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>>& comparisonMismatchList) const {
-  //okay now we loop over our candidate mismatches
-  for (auto candidateIterator = candidateMismatchList.begin(); candidateIterator != comparisonMismatchList.end();
+  //okay now we loop over our candidate mismatches  
+  for (auto candidateIterator = candidateMismatchList.begin(); candidateIterator != candidateMismatchList.end();
        ++candidateIterator) {
     int insertionIndex = this->findIndex(*candidateIterator, comparisonMismatchList, 0, comparisonMismatchList.size());
-    if (insertionIndex < 0)
+    if (insertionIndex < 0){
       continue;  //if we didn't find anywhere to put this mismatch, we move on
+    }    
     auto insertionIterator = comparisonMismatchList.begin() + insertionIndex;
     comparisonMismatchList.insert(insertionIterator, *candidateIterator);
     //now if we have more than 20 mismatches in the list, we erase the earliest one (the beginning)
     //this should probably be rewritten to have the capacity reserved before-hand so that 20 is not potentially a hard coded magic number
     //defined by what we know to be true about a non-obvious data type elsewhere.
-    if (comparisonMismatchList.size() > 20)
+    if (comparisonMismatchList.size() > 20){
       comparisonMismatchList.erase(comparisonMismatchList.begin());
+    }
+    
   }
 }
 
