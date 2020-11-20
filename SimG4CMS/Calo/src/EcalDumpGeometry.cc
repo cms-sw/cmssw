@@ -56,7 +56,7 @@ void EcalDumpGeometry::dumpTouch(G4VPhysicalVolume* pv, unsigned int leafDepth) 
   G4ThreeVector globalpoint = fHistory_.GetTopTransform().Inverse().TransformPoint(G4ThreeVector(0, 0, 0));
   G4LogicalVolume* lv = pv->GetLogicalVolume();
 
-  bool flag = ((type_/10)%10 > 0);
+  bool flag = ((type_ / 10) % 10 > 0);
   std::string lvname = (static_cast<std::string>(dd4hep::dd::noNamespace(lv->GetName())));
   std::string namex = lvname.substr(0, 4);
   EcalBaseNumber theBaseNumber;
@@ -78,17 +78,17 @@ void EcalDumpGeometry::dumpTouch(G4VPhysicalVolume* pv, unsigned int leafDepth) 
           ss << " " << ii << " " << name << ":" << fHistory_.GetVolume(ii)->GetCopyNo();
 #endif
         }
-        uint32_t id = (((type_%10) == 0) ? ebNumbering_.getUnitID(theBaseNumber)
-		       : (((type_%10) == 1) ? eeNumbering_.getUnitID(theBaseNumber)
-                                                    : esNumbering_.getUnitID(theBaseNumber)));
+        uint32_t id = (((type_ % 10) == 0) ? ebNumbering_.getUnitID(theBaseNumber)
+                                           : (((type_ % 10) == 1) ? eeNumbering_.getUnitID(theBaseNumber)
+                                                                  : esNumbering_.getUnitID(theBaseNumber)));
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("EcalGeom") << " Field: " << ss.str() << " ID " << std::hex << id << std::dec;
 #endif
-	G4VSolid* solid = (lv->GetSolid());
-	if (((type_/100)%10) != 0)
-	  infoVec_.emplace_back(CaloDetInfo(id, noRefl(lvname), globalpoint, solid, flag));
-	else
-	  infoVec_.emplace_back(CaloDetInfo(id, lvname, globalpoint, solid, flag));
+        G4VSolid* solid = (lv->GetSolid());
+        if (((type_ / 100) % 10) != 0)
+          infoVec_.emplace_back(CaloDetInfo(id, noRefl(lvname), globalpoint, solid, flag));
+        else
+          infoVec_.emplace_back(CaloDetInfo(id, lvname, globalpoint, solid, flag));
       }
       break;
     }

@@ -10,8 +10,8 @@
 HcalDumpGeometry::HcalDumpGeometry(const std::vector<std::string_view>& names,
                                    const HcalNumberingFromDDD* hcn,
                                    bool test,
-				   bool flag)
-  : numberingFromDDD_(hcn), flag_(flag) {
+                                   bool flag)
+    : numberingFromDDD_(hcn), flag_(flag) {
   if (test)
     numberingScheme_.reset(dynamic_cast<HcalNumberingScheme*>(new HcalTestNumberingScheme(false)));
   else
@@ -83,7 +83,7 @@ void HcalDumpGeometry::dumpTouch(G4VPhysicalVolume* pv, unsigned int leafDepth) 
                                      << std::dec;
 #endif
 
-	G4VSolid* solid = lv->GetSolid();
+        G4VSolid* solid = lv->GetSolid();
         infoVec_.emplace_back(CaloDetInfo(id, getNameNoNS(lvname), globalpoint, solid, flag_));
       }
       break;

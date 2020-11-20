@@ -19,7 +19,10 @@
 
 class HcalDumpGeometry {
 public:
-  explicit HcalDumpGeometry(const std::vector<std::string_view> &, const HcalNumberingFromDDD *, bool, bool flag=false);
+  explicit HcalDumpGeometry(const std::vector<std::string_view> &,
+                            const HcalNumberingFromDDD *,
+                            bool,
+                            bool flag = false);
   ~HcalDumpGeometry() = default;
 
   void update();
