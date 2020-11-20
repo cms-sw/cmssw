@@ -8,7 +8,7 @@
 
 class CaloDetInfo {
 public:
-  CaloDetInfo(unsigned int id, const std::string& name, G4ThreeVector pos, const G4VSolid* sol, bool flag=false);
+  CaloDetInfo(unsigned int id, const std::string& name, G4ThreeVector pos, const G4VSolid* sol, bool flag = false);
   CaloDetInfo();
   CaloDetInfo(const CaloDetInfo&);
   ~CaloDetInfo() = default;

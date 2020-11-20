@@ -3,7 +3,7 @@
 #include <iomanip>
 
 CaloDetInfo::CaloDetInfo(unsigned int id, const std::string& name, G4ThreeVector pos, const G4VSolid* solid, bool flag)
-  : id_(id), name_(name), pos_(pos), solid_(solid), flag_(flag) {}
+    : id_(id), name_(name), pos_(pos), solid_(solid), flag_(flag) {}
 
 CaloDetInfo::CaloDetInfo() : id_(0), name_(""), pos_(G4ThreeVector(0, 0, 0)), solid_(nullptr), flag_(false) {}
 
