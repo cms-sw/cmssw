@@ -6,6 +6,10 @@
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 
+namespace reco {
+  class MustacheSCParametersHelper;
+}  // namespace reco
+
 class EcalMustacheSCParameters {
 public:
   EcalMustacheSCParameters(){};
@@ -27,6 +31,9 @@ public:
   float sqrtLogClustETuning() const;
 
   const ParabolaParameters* parabolaParameters(float log10ClustE, float absSeedEta) const;
+
+  // helper class to set parameters
+  friend class reco::MustacheSCParametersHelper;
 
   // print parameters to stream:
   void print(std::ostream&) const;
