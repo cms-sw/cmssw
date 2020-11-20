@@ -21,6 +21,8 @@ class SiStripFedCabling;
 class SiStripDetCabling;
 class TrackingActionExecutor;
 class FEDRawDataCollection;
+class SiStripFedCablingRcd;
+class SiStripDetCablingRcd;
 
 class TrackingAnalyser : public DQMEDHarvester {
 public:
@@ -69,8 +71,11 @@ private:
   std::string outputFileName_;
 
   edm::ParameterSet tkMapPSet_;
-  edm::ESHandle<SiStripFedCabling> fedCabling_;
-  edm::ESHandle<SiStripDetCabling> detCabling_;
+  edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> fedCablingToken_;
+  edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> detCablingToken_;
+  const SiStripFedCabling* fedCabling_ = nullptr;
+  const SiStripDetCabling* detCabling_ = nullptr;
+
   TrackingActionExecutor* actionExecutor_;
 
   unsigned long long m_cacheID_;
