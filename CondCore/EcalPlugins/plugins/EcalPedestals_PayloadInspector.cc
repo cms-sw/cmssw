@@ -399,6 +399,7 @@ namespace {
   public:
     EcalPedestalsDiff() : cond::payloadInspector::PlotImage<EcalPedestals>("ECAL Barrel channel status difference") {
       setSingleIov(false);
+      setTwoTags(true);
     }
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
       uint32_t gainValues[kGains] = {12, 6, 1};
@@ -705,9 +706,8 @@ namespace {
     }
 
     // Histogram2D::fill (virtual) needs be overridden - the implementation should use fillWithValue
-    bool fill() override {
-      auto tag = PlotBase::getTag<0>();
-      for (auto const& iov : tag.iovs) {
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+      for (auto const& iov : iovs) {
         std::shared_ptr<EcalPedestals> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           // looping over the EB channels, via the dense-index, mapped into EBDetId's
@@ -754,9 +754,8 @@ namespace {
       Base::setSingleIov(true);
     }
 
-    bool fill() override {
-      auto tag = PlotBase::getTag<0>();
-      for (auto const& iov : tag.iovs) {
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+      for (auto const& iov : iovs) {
         std::shared_ptr<EcalPedestals> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           // looping over the EB channels, via the dense-index, mapped into EBDetId's
@@ -799,9 +798,8 @@ namespace {
       Base::setSingleIov(true);
     }
 
-    bool fill() override {
-      auto tag = PlotBase::getTag<0>();
-      for (auto const& iov : tag.iovs) {
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+      for (auto const& iov : iovs) {
         std::shared_ptr<EcalPedestals> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           // looping over the EB channels, via the dense-index, mapped into EBDetId's
@@ -845,9 +843,8 @@ namespace {
     }
 
     // Histogram2D::fill (virtual) needs be overridden - the implementation should use fillWithValue
-    bool fill() override {
-      auto tag = PlotBase::getTag<0>();
-      for (auto const& iov : tag.iovs) {
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+      for (auto const& iov : iovs) {
         std::shared_ptr<EcalPedestals> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           if (payload->endcapItems().empty())
@@ -897,9 +894,8 @@ namespace {
       Base::setSingleIov(true);
     }
 
-    bool fill() override {
-      auto tag = PlotBase::getTag<0>();
-      for (auto const& iov : tag.iovs) {
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+      for (auto const& iov : iovs) {
         std::shared_ptr<EcalPedestals> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           if (payload->endcapItems().empty())
@@ -948,9 +944,8 @@ namespace {
       Base::setSingleIov(true);
     }
 
-    bool fill() override {
-      auto tag = PlotBase::getTag<0>();
-      for (auto const& iov : tag.iovs) {
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+      for (auto const& iov : iovs) {
         std::shared_ptr<EcalPedestals> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           if (payload->endcapItems().empty())
@@ -1000,9 +995,8 @@ namespace {
     }
 
     // Histogram2D::fill (virtual) needs be overridden - the implementation should use fillWithValue
-    bool fill() override {
-      auto tag = PlotBase::getTag<0>();
-      for (auto const& iov : tag.iovs) {
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+      for (auto const& iov : iovs) {
         std::shared_ptr<EcalPedestals> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           // looping over the EB channels, via the dense-index, mapped into EBDetId's
@@ -1048,9 +1042,8 @@ namespace {
       Base::setSingleIov(true);
     }
 
-    bool fill() override {
-      auto tag = PlotBase::getTag<0>();
-      for (auto const& iov : tag.iovs) {
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+      for (auto const& iov : iovs) {
         std::shared_ptr<EcalPedestals> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           // looping over the EB channels, via the dense-index, mapped into EBDetId's
@@ -1092,9 +1085,8 @@ namespace {
       Base::setSingleIov(true);
     }
 
-    bool fill() override {
-      auto tag = PlotBase::getTag<0>();
-      for (auto const& iov : tag.iovs) {
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+      for (auto const& iov : iovs) {
         std::shared_ptr<EcalPedestals> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           // looping over the EB channels, via the dense-index, mapped into EBDetId's
@@ -1137,9 +1129,8 @@ namespace {
     }
 
     // Histogram2D::fill (virtual) needs be overridden - the implementation should use fillWithValue
-    bool fill() override {
-      auto tag = PlotBase::getTag<0>();
-      for (auto const& iov : tag.iovs) {
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+      for (auto const& iov : iovs) {
         std::shared_ptr<EcalPedestals> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           if (payload->endcapItems().empty())
@@ -1188,9 +1179,8 @@ namespace {
       Base::setSingleIov(true);
     }
 
-    bool fill() override {
-      auto tag = PlotBase::getTag<0>();
-      for (auto const& iov : tag.iovs) {
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+      for (auto const& iov : iovs) {
         std::shared_ptr<EcalPedestals> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           if (payload->endcapItems().empty())
@@ -1238,9 +1228,8 @@ namespace {
       Base::setSingleIov(true);
     }
 
-    bool fill() override {
-      auto tag = PlotBase::getTag<0>();
-      for (auto const& iov : tag.iovs) {
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+      for (auto const& iov : iovs) {
         std::shared_ptr<EcalPedestals> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           if (payload->endcapItems().empty())
