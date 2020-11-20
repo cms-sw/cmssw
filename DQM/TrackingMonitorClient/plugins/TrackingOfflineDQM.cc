@@ -35,11 +35,11 @@
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 #include "CondFormats/RunInfo/interface/RunSummary.h"
 #include "CondFormats/RunInfo/interface/RunInfo.h"
+
 // Cabling
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
-#include <iostream>
 #include <iomanip>
 #include <cstdio>
 #include <string>
@@ -53,7 +53,10 @@
 * @param roPARAMETER_SET 
 *   Regular Parameter Set that represent read configuration file
 */
-TrackingOfflineDQM::TrackingOfflineDQM(edm::ParameterSet const& pSet) : configPar_(pSet) {
+TrackingOfflineDQM::TrackingOfflineDQM(edm::ParameterSet const& pSet):
+          configPar_(pSet),
+	  runInfoToken_(esConsumes<RunInfo, RunInfoRcd, edm::Transition::BeginRun>())
+ {
   // Action Executor
   actionExecutor_ = new TrackingActionExecutor(pSet);
 
@@ -90,18 +93,16 @@ void TrackingOfflineDQM::beginRun(edm::Run const& run, edm::EventSetup const& eS
 
   int nFEDs = 0;
   int nPixelFEDs = 0;
-
-  if (auto runInfoRec = eSetup.tryToGet<RunInfoRcd>()) {
-    edm::ESHandle<RunInfo> sumFED;
-    runInfoRec->get(sumFED);
-
-    if (sumFED.isValid()) {
+  edm::ESHandle<RunInfo> runInfoRec = eSetup.getHandle(runInfoToken_);
+  if (runInfoRec.isValid()) {
+    sumFED_ = runInfoRec.product();
+    if (sumFED_!=nullptr) {
       const int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
       const int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID;
       const int siPixelFedIdMin = FEDNumbering::MINSiPixelFEDID;
       const int siPixelFedIdMax = FEDNumbering::MAXSiPixelFEDID;
 
-      std::vector<int> FedsInIds = sumFED->m_fed_in;
+      std::vector<int> FedsInIds = sumFED_->m_fed_in;
       for (auto fedID : FedsInIds) {
         if (fedID >= siPixelFedIdMin && fedID <= siPixelFedIdMax) {
           ++nPixelFEDs;

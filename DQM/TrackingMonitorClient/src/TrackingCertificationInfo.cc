@@ -18,7 +18,6 @@
 #include "CondFormats/RunInfo/interface/RunSummary.h"
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 
-#include <iostream>
 #include <iomanip>
 #include <cstdio>
 #include <string>
@@ -33,7 +32,9 @@ TrackingCertificationInfo::TrackingCertificationInfo(edm::ParameterSet const& pS
       trackingLSCertificationBooked_(false),
       nFEDConnected_(0),
       allPixelFEDConnected_(true),
-      m_cacheID_(0) {
+      m_cacheID_(0),
+      runInfoToken_(esConsumes<RunInfo, RunInfoRcd, edm::Transition::BeginRun>()),
+      detCablingToken_(esConsumes<SiStripDetCabling, SiStripDetCablingRcd, edm::Transition::BeginRun>()) {
   // Create MessageSender
   edm::LogInfo("TrackingCertificationInfo") << "TrackingCertificationInfo::Deleting TrackingCertificationInfo ";
 
@@ -99,12 +100,14 @@ void TrackingCertificationInfo::beginRun(edm::Run const& run, edm::EventSetup co
     std::cout << "[TrackingCertificationInfo::beginRun] starting .." << std::endl;
 
   edm::LogInfo("TrackingCertificationInfo") << "TrackingCertificationInfo:: Begining of Run";
+  edm::ESHandle<SiStripDetCabling> detcabHandle = eSetup.getHandle(detCablingToken_);
+  detCabling_ = detcabHandle.product();
+
   unsigned long long cacheID = eSetup.get<SiStripDetCablingRcd>().cacheIdentifier();
   if (m_cacheID_ != cacheID) {
     m_cacheID_ = cacheID;
   }
-  eSetup.get<SiStripDetCablingRcd>().get(detCabling_);
-
+  
   nFEDConnected_ = 0;
   int nPixelFEDConnected_ = 0;
   const int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
@@ -113,12 +116,11 @@ void TrackingCertificationInfo::beginRun(edm::Run const& run, edm::EventSetup co
   const int siPixelFedIdMax = FEDNumbering::MAXSiPixelFEDID;
   const int siPixelFeds = (siPixelFedIdMax - siPixelFedIdMin + 1);
 
-  if (auto runInfoRec = eSetup.tryToGet<RunInfoRcd>()) {
-    edm::ESHandle<RunInfo> sumFED;
-    runInfoRec->get(sumFED);
-
-    if (sumFED.isValid()) {
-      std::vector<int> FedsInIds = sumFED->m_fed_in;
+  edm::ESHandle<RunInfo> runInfoRec = eSetup.getHandle(runInfoToken_);
+  if (runInfoRec.isValid()) {
+    sumFED_ = runInfoRec.product();
+    if (sumFED_!=nullptr) {
+      std::vector<int> FedsInIds = sumFED_->m_fed_in;
       for (auto fedID : FedsInIds) {
         if (fedID >= siPixelFedIdMin && fedID <= siPixelFedIdMax) {
           ++nFEDConnected_;

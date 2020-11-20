@@ -39,7 +39,10 @@
 // -- Constructor
 //
 TrackingAnalyser::TrackingAnalyser(edm::ParameterSet const& ps)
-    : verbose_(ps.getUntrackedParameter<bool>("verbose", false)) {
+  : verbose_(ps.getUntrackedParameter<bool>("verbose", false)),
+    fedCablingToken_(esConsumes<SiStripFedCabling, SiStripFedCablingRcd, edm::Transition::BeginRun>()),
+    detCablingToken_(esConsumes<SiStripDetCabling, SiStripDetCablingRcd, edm::Transition::BeginRun>())
+{
   if (verbose_)
     std::cout << "[TrackingAnalyser::TrackingAnalyser]" << std::endl;
   // Get TkMap ParameterSet
@@ -101,8 +104,10 @@ void TrackingAnalyser::beginRun(edm::Run const& run, edm::EventSetup const& eSet
     m_cacheID_ = cacheID;
     edm::LogInfo("TrackingAnalyser") << "TrackingAnalyser::beginRun: "
                                      << " Change in Cabling, recrated TrackerMap";
-    eSetup.get<SiStripFedCablingRcd>().get(fedCabling_);
-    eSetup.get<SiStripDetCablingRcd>().get(detCabling_);
+    edm::ESHandle<SiStripFedCabling> fedcabHandle = eSetup.getHandle(fedCablingToken_);
+    fedCabling_ = fedcabHandle.product();
+    edm::ESHandle<SiStripDetCabling> detcabHandle = eSetup.getHandle(detCablingToken_);
+    detCabling_ = detcabHandle.product();
   }
 }
 //
