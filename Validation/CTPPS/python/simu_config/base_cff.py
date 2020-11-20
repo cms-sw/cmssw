@@ -171,9 +171,11 @@ def UseConstantXangleBetaStar(process, xangle, betaStar):
     p.ctppsLHCInfo.xangle = xangle
     p.ctppsLHCInfo.betaStar = betaStar
 
-def UseXangleBetaStarHistogram(process,f, obj):
+def UseXangleBetaStarHistogram(process, f="", obj=""):
   for p in ctppsCompositeESSource.periods:
-    p.ctppsLHCInfo.xangleBetaStarHistogramFile = f
-    p.ctppsLHCInfo.xangleBetaStarHistogramObject = obj
-
     p.ctppsLHCInfo.xangle = -1 # negative value indicates to use the xangle/beta* histogram
+
+    if f:
+      p.ctppsLHCInfo.xangleBetaStarHistogramFile = f
+    if obj:
+      p.ctppsLHCInfo.xangleBetaStarHistogramObject = obj
