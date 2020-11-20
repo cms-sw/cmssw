@@ -31,39 +31,14 @@
 
 using namespace edm;
 
-//
-// constants, enums and typedefs
-//
+namespace {
+  std::vector<char> makeEmptyTokenLabels() { return std::vector<char>{'\0'}; }
+}  // namespace
 
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
-//EDConsumerBase::EDConsumerBase()
-//{
-//}
-
-// EDConsumerBase::EDConsumerBase(const EDConsumerBase& rhs)
-// {
-//    // do actual copying here;
-// }
+EDConsumerBase::EDConsumerBase()
+    : m_tokenLabels{makeEmptyTokenLabels()}, frozen_(false), containsCurrentProcessAlias_(false) {}
 
 EDConsumerBase::~EDConsumerBase() noexcept(false) {}
-
-//
-// assignment operators
-//
-// const EDConsumerBase& EDConsumerBase::operator=(const EDConsumerBase& rhs)
-// {
-//   //An exception safe implementation is
-//   EDConsumerBase temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
 
 //
 // member functions
@@ -549,10 +524,10 @@ void EDConsumerBase::convertCurrentProcessAlias(std::string const& processName) 
   if (containsCurrentProcessAlias_) {
     containsCurrentProcessAlias_ = false;
 
-    std::vector<char> newTokenLabels;
+    auto newTokenLabels = makeEmptyTokenLabels();
 
     // first calculate the size of the new vector and reserve memory for it
-    std::vector<char>::size_type newSize = 0;
+    std::vector<char>::size_type newSize = newTokenLabels.size();
     std::string newProcessName;
     for (auto iter = m_tokenInfo.begin<kLabels>(), itEnd = m_tokenInfo.end<kLabels>(); iter != itEnd; ++iter) {
       newProcessName = &m_tokenLabels[iter->m_startOfModuleLabel + iter->m_deltaToProcessName];
@@ -563,7 +538,7 @@ void EDConsumerBase::convertCurrentProcessAlias(std::string const& processName) 
     }
     newTokenLabels.reserve(newSize);
 
-    unsigned int newStartOfModuleLabel = 0;
+    unsigned int newStartOfModuleLabel = newTokenLabels.size();
     for (auto iter = m_tokenInfo.begin<kLabels>(), itEnd = m_tokenInfo.end<kLabels>(); iter != itEnd; ++iter) {
       unsigned int startOfModuleLabel = iter->m_startOfModuleLabel;
       unsigned short deltaToProcessName = iter->m_deltaToProcessName;

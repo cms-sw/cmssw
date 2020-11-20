@@ -1,6 +1,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -213,6 +214,24 @@ namespace edmtest {
                                         << ": Data values = " << dataJ->value();
   }
 
+  class ESTestAnalyzerL : public edm::stream::EDAnalyzer<> {
+  public:
+    explicit ESTestAnalyzerL(edm::ParameterSet const& iConfig)
+        : edToken_(consumes(iConfig.getParameter<edm::InputTag>("src"))), esToken_(esConsumes()) {}
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+  private:
+    edm::EDGetTokenT<IntProduct> edToken_;
+    edm::ESGetToken<ESTestDataJ, ESTestRecordJ> esToken_;
+  };
+
+  void ESTestAnalyzerL::analyze(edm::Event const& ev, edm::EventSetup const& es) {
+    auto const& intData = ev.get(edToken_);
+    auto const& dataJ = es.getData(esToken_);
+    edm::LogAbsolute("ESTestAnalyzerJ") << "ESTestAnalyzerL: process = " << moduleDescription().processName()
+                                        << ": ED value " << intData.value << ": ES value = " << dataJ.value();
+  }
+
 }  // namespace edmtest
 using namespace edmtest;
 DEFINE_FWK_MODULE(ESTestAnalyzerA);
@@ -220,3 +239,4 @@ DEFINE_FWK_MODULE(ESTestAnalyzerB);
 DEFINE_FWK_MODULE(ESTestAnalyzerK);
 DEFINE_FWK_MODULE(ESTestAnalyzerAZ);
 DEFINE_FWK_MODULE(ESTestAnalyzerJ);
+DEFINE_FWK_MODULE(ESTestAnalyzerL);
