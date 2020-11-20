@@ -83,8 +83,16 @@ namespace reco {
         if (signal_pfcand != nullptr) {
           ecal_en_in_signal_pf_cands += signal_pfcand->ecalEnergy();
           hcal_en_in_signal_pf_cands += signal_pfcand->hcalEnergy();
+        } else {
+          // TauReco@MiniAOD: individual ECAL and HCAL energies recovered from fractions
+          const pat::PackedCandidate* signal_pcand = dynamic_cast<const pat::PackedCandidate*>(signal_cand.get());
+          if (signal_pcand != nullptr) {
+            ecal_en_in_signal_pf_cands +=
+                signal_pcand->caloFraction() * signal_pcand->energy() * (1. - signal_pcand->hcalFraction());
+            hcal_en_in_signal_pf_cands +=
+                signal_pcand->caloFraction() * signal_pcand->energy() * signal_pcand->hcalFraction();
+          }
         }
-        // TauReco@MiniAOD: recalculate for PackedCandidate if added to MiniAOD event content
       }
       float total = ecal_en_in_signal_pf_cands + hcal_en_in_signal_pf_cands;
       if (total == 0.) {
