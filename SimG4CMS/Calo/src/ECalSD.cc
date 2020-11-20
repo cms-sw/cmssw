@@ -130,7 +130,9 @@ ECalSD::ECalSD(const std::string& name,
   } else {
     edm::LogWarning("EcalSim") << "ECalSD: ReadoutName not supported";
   }
-
+  int type0 = dumpGeom/1000;
+  type += (10 * type0);
+  
   if (scheme)
     setNumberingScheme(scheme);
 #ifdef EDM_ML_DEBUG
