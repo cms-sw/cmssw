@@ -32,7 +32,6 @@
 
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometryESCommon.h"
 
-
 #include <regex>
 
 /**
@@ -78,7 +77,6 @@ private:
                                          const std::optional<REC>&,
                                          GDTokens<REC> const&,
                                          const char* name);
-
 
   const unsigned int verbosity_;
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> ddToken_;

@@ -48,14 +48,16 @@ protected:
   std::unique_ptr<CTPPSRPAlignmentCorrectionsData> produceReal(const RPRealAlignmentRecord &);
   std::unique_ptr<CTPPSRPAlignmentCorrectionsData> produceMisaligned(const RPMisalignedAlignmentRecord &);
 
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue &, edm::ValidityInterval &) override;
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
+                      const edm::IOVSyncValue &,
+                      edm::ValidityInterval &) override;
 };
 
 //----------------------------------------------------------------------------------------------------
 
-CTPPSRPAlignmentCorrectionsDataESSourceXML::CTPPSRPAlignmentCorrectionsDataESSourceXML(const edm::ParameterSet &pSet){
-  
-  ctppsRPAlignmentCorrectionsDataESSourceXMLCommon=std::make_unique<CTPPSRPAlignmentCorrectionsDataESSourceXMLCommon>(pSet);
+CTPPSRPAlignmentCorrectionsDataESSourceXML::CTPPSRPAlignmentCorrectionsDataESSourceXML(const edm::ParameterSet &pSet) {
+  ctppsRPAlignmentCorrectionsDataESSourceXMLCommon =
+      std::make_unique<CTPPSRPAlignmentCorrectionsDataESSourceXMLCommon>(pSet);
   setWhatProduced(this, &CTPPSRPAlignmentCorrectionsDataESSourceXML::produceMeasured);
   setWhatProduced(this, &CTPPSRPAlignmentCorrectionsDataESSourceXML::produceReal);
   setWhatProduced(this, &CTPPSRPAlignmentCorrectionsDataESSourceXML::produceMisaligned);
@@ -73,7 +75,8 @@ CTPPSRPAlignmentCorrectionsDataESSourceXML::~CTPPSRPAlignmentCorrectionsDataESSo
 
 std::unique_ptr<CTPPSRPAlignmentCorrectionsData> CTPPSRPAlignmentCorrectionsDataESSourceXML::produceMeasured(
     const CTPPSRPAlignmentCorrectionsDataRcd &iRecord) {
-  return std::make_unique<CTPPSRPAlignmentCorrectionsData>(ctppsRPAlignmentCorrectionsDataESSourceXMLCommon->acMeasured);
+  return std::make_unique<CTPPSRPAlignmentCorrectionsData>(
+      ctppsRPAlignmentCorrectionsDataESSourceXMLCommon->acMeasured);
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -87,7 +90,8 @@ std::unique_ptr<CTPPSRPAlignmentCorrectionsData> CTPPSRPAlignmentCorrectionsData
 
 std::unique_ptr<CTPPSRPAlignmentCorrectionsData> CTPPSRPAlignmentCorrectionsDataESSourceXML::produceMisaligned(
     const RPMisalignedAlignmentRecord &iRecord) {
-  return std::make_unique<CTPPSRPAlignmentCorrectionsData>(ctppsRPAlignmentCorrectionsDataESSourceXMLCommon->acMisaligned);
+  return std::make_unique<CTPPSRPAlignmentCorrectionsData>(
+      ctppsRPAlignmentCorrectionsDataESSourceXMLCommon->acMisaligned);
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -100,11 +104,9 @@ void CTPPSRPAlignmentCorrectionsDataESSourceXML::setIntervalFor(const edm::event
     char timeStr[50];
     strftime(timeStr, 50, "%F %T", localtime(&unixTime));
 
-    LogInfo("PPS")
-        << ">> CTPPSRPAlignmentCorrectionsDataESSourceXML::setIntervalFor(" << key.name() << ")";
+    LogInfo("PPS") << ">> CTPPSRPAlignmentCorrectionsDataESSourceXML::setIntervalFor(" << key.name() << ")";
 
-    LogInfo("PPS")
-        << "    event=" << iosv.eventID() << ", UNIX timestamp=" << unixTime << " (" << timeStr << ")";
+    LogInfo("PPS") << "    event=" << iosv.eventID() << ", UNIX timestamp=" << unixTime << " (" << timeStr << ")";
   }
 
   // // determine what sequence and corrections should be used
@@ -152,9 +154,9 @@ void CTPPSRPAlignmentCorrectionsDataESSourceXML::setIntervalFor(const edm::event
       *p_corr = it.second;
 
       if (ctppsRPAlignmentCorrectionsDataESSourceXMLCommon->verbosity) {
-        LogInfo("PPS")
-            << "    setting validity interval [" << CTPPSRPAlignmentCorrectionsMethods::iovValueToString(valInt.first())
-            << ", " << CTPPSRPAlignmentCorrectionsMethods::iovValueToString(valInt.last()) << "]";
+        LogInfo("PPS") << "    setting validity interval ["
+                       << CTPPSRPAlignmentCorrectionsMethods::iovValueToString(valInt.first()) << ", "
+                       << CTPPSRPAlignmentCorrectionsMethods::iovValueToString(valInt.last()) << "]";
       }
 
       return;
@@ -182,10 +184,10 @@ void CTPPSRPAlignmentCorrectionsDataESSourceXML::setIntervalFor(const edm::event
   }
 
   if (ctppsRPAlignmentCorrectionsDataESSourceXMLCommon->verbosity) {
-    LogInfo("PPS")
-        << "    setting validity interval [" << CTPPSRPAlignmentCorrectionsMethods::iovValueToString(valInt.first())
-        << ", " << CTPPSRPAlignmentCorrectionsMethods::iovValueToString(valInt.last())
-        << "] (empty alignment corrections)";
+    LogInfo("PPS") << "    setting validity interval ["
+                   << CTPPSRPAlignmentCorrectionsMethods::iovValueToString(valInt.first()) << ", "
+                   << CTPPSRPAlignmentCorrectionsMethods::iovValueToString(valInt.last())
+                   << "] (empty alignment corrections)";
   }
 }
 
