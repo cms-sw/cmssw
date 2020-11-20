@@ -226,7 +226,9 @@ G4bool CaloSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
     if (!hitExists(aStep)) {
       currentHit = createNewHit(aStep, aStep->GetTrack());
     } else {
+#ifdef EDM_ML_DEBUG
       edm::LogVerbatim("DoFineCalo") << "Not creating new hit, only updating currentHit " << currentHit->getUnitID();
+#endif
     }
     return true;
   }
