@@ -6,10 +6,10 @@ process.load('Geometry.EcalCommonData.ecalSimulationParameters_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 5
-
-    
-    
-    
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.EcalGeom=dict()
+    process.MessageLogger.EcalSim=dict()
+    process.MessageLogger.Geometry=dict()
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             confGeomXMLFiles = cms.FileInPath('Geometry/EcalCommonData/data/dd4hep/cms-ecal-geometry.xml'),

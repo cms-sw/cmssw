@@ -33,8 +33,6 @@ process.source    = cms.Source("PoolSource",
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
-
-
 # module label is something like "muonCSCDigis"...
 process.MessageLogger.debugModules = cms.untracked.vstring("*")
 process.MessageLogger.cerr.enable = False

@@ -7,8 +7,8 @@ process.load('Configuration.Geometry.GeometryExtended2021Reco_cff')
 #process.load('Configuration.Geometry.GeometryExtended2026D41Reco_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
-
-    
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.HcalGeom=dict()
 
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(

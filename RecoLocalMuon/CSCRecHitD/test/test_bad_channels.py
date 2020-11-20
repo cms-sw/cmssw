@@ -17,7 +17,6 @@ process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.EndOfProcess_cff")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
-
 process.MessageLogger.cerr.enable = False
 process.MessageLogger.cout = cms.untracked.PSet(
     enable    = cms.untracked.bool(True),

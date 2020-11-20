@@ -51,7 +51,9 @@ process.DQMStore = cms.Service("DQMStore")
 process.MessageLogger.cerr.enable = False
 process.MessageLogger.debugModules = cms.untracked.vstring('muonCSCDigis')
 ## categories: 'CSCDCCUnpacker|CSCRawToDigi', 'StatusDigis', 'StatusDigi', 'CSCRawToDigi', 'CSCDCCUnpacker', 'EventInfo',
-
+process.MessageLogger.CSCDDUEventData = dict()
+process.MessageLogger.CSCRawToDigi = dict()
+process.MessageLogger.badData = dict()
 process.MessageLogger.cout = cms.untracked.PSet(
       enable = cms.untracked.bool(True),
       INFO = cms.untracked.PSet(

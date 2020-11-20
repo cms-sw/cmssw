@@ -64,7 +64,6 @@ process.csc2DRecHits.stripDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCStrip
 process.cscSegments.algo_type = cms.int32( 2 )
 
 # --- Activate LogVerbatim IN CSCSegment                                                                                         
-
 process.MessageLogger.cerr.enable = False
 process.MessageLogger.cout = cms.untracked.PSet(
     enable    = cms.untracked.bool(True),

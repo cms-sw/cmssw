@@ -71,9 +71,8 @@ process.MessageLogger.cout = cms.untracked.PSet(
 ##################################################################
 ### TO ACTIVATE LogVerbatim IN GEMCSCSegment
 ### --------------------------------------------------------------
-# 
-# 
-# process.MessageLogger.destinations = cms.untracked.vstring("cout")
+# process.MessageLogger.GEMCSCSegment=dict()
+# process.MessageLogger.GEMCSCSegFit=dict()
 # process.MessageLogger.cout = cms.untracked.PSet(
 #     threshold = cms.untracked.string("INFO"),
 #     default   = cms.untracked.PSet( limit = cms.untracked.int32(0)  ),

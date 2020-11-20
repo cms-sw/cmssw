@@ -124,7 +124,6 @@ process.maxEvents = cms.untracked.PSet(
 ### that can be activated independently
 ################################################################
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-## 
 process.MessageLogger.debugModules = cms.untracked.vstring("*")
 process.MessageLogger.cerr.enable = False
 process.MessageLogger.files.junk = dict()

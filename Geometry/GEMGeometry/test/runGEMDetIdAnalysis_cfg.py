@@ -5,8 +5,8 @@ process = cms.Process('PROD',eras.Phase2C4)
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('DataFormats.MuonDetId.gemDetIdAnalyzer_cfi')
 
-
-    
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.GEMAnalysis=dict()
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(

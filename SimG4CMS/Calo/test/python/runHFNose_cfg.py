@@ -21,10 +21,10 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['phase2_realistic']
 
-
-    
-    
-    
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.HGCalGeom=dict()
+    process.MessageLogger.HFNSim=dict()
+    process.MessageLogger.HGCalValidation=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789

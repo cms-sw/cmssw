@@ -257,7 +257,6 @@ process.p = cms.Path(process.l1GtUnpack * process.l1GctHwDigis * process.gtDigis
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.debugModules = ['l1GtPatternGenerator', 'gtDigis']
 
-
 process.MessageLogger.cerr.enable = False
 process.MessageLogger.cerr.default.limit = 0
 process.MessageLogger.cerr.FwkReport.limit = 0

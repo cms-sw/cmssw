@@ -26,7 +26,7 @@ else:
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.files.LogTrackingMaterialAnalysis = dict()
-
+process.MessageLogger.TrackingMaterialAnalysis=dict()
 
 # Add our custom detector grouping to DDD
 process.XMLIdealGeometryESSource.geomXMLFiles.extend(['SimTracker/TrackerMaterialAnalysis/data/trackingMaterialGroups_ForPhaseII.xml'])

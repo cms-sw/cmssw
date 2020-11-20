@@ -9,8 +9,8 @@ process.maxEvents = cms.untracked.PSet(
     )
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 5
-
-    
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.HGCalGeom=dict()
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             confGeomXMLFiles = cms.FileInPath('Geometry/HGCalCommonData/data/dd4hep/cms-test-ddhgcalNoTaperEndcap-algorithm.xml'),

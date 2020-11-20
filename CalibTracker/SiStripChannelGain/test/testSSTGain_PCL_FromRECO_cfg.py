@@ -61,8 +61,8 @@ process.load('Configuration.StandardSequences.Services_cff')
 # Messages
 ###################################################################
 process.load('FWCore.MessageService.MessageLogger_cfi')   
-
 process.MessageLogger.cerr.enable = False
+process.MessageLogger.SiStripGainsPCLWorker=dict()  
 process.MessageLogger.cout = cms.untracked.PSet(
     enable    = cms.untracked.bool(True),
     threshold = cms.untracked.string("DEBUG"),

@@ -75,7 +75,6 @@ process.cscSegments.algo_psets[3].algo_psets[0].useShowering = cms.bool(True)
 process.cscSegments.algo_psets[3].algo_psets[1].useShowering = cms.bool(True)
 
 # --- Activate LogVerbatim IN CSCSegment                                                                                         
-
 process.MessageLogger.cout.enable = False
 process.MessageLogger.cout = cms.untracked.PSet(
     enable    = cms.untracked.bool(True),

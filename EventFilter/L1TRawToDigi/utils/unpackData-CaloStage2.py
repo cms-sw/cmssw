@@ -123,7 +123,6 @@ process.TFileService.fileName = cms.string('l1tCalo_2016_histos.root')
 
 # enable debug message logging for our modules
 
-
 process.MessageLogger.suppressInfo = cms.untracked.vstring('Geometry', 'AfterSource')
 
 if (options.dumpRaw):

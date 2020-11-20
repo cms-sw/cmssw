@@ -13,9 +13,9 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
 process.load("Geometry.GEMGeometryBuilder.gemGeometry_cff")
 
-
-    
-    
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.Geometry=dict()
+    process.MessageLogger.GEMNumberingScheme=dict()
 
 
 process.test = cms.EDAnalyzer("DDTestMuonNumbering")

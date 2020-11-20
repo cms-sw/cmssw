@@ -38,8 +38,6 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 # Activate LogVerbatim output in CSCDigitizer
-##
-
 # Activate LogVerbatim output in CSC Digis and CSCDigiDump
 
 

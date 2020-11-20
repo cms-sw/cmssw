@@ -163,6 +163,6 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.MessageLogger.files.LogTrackingMaterialAnalysis = dict()
-
+process.MessageLogger.TrackingMaterialAnalysis=dict()
 process.path = cms.Path(process.trackingMaterialAnalyser)
 

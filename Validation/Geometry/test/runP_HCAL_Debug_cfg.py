@@ -18,9 +18,9 @@ process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
 process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
-
-    
-#   
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.MaterialBudget=dict()
+#   process.MessageLogger.MaterialBudgetFull=dict()
 
 process.source = cms.Source("EmptySource",
     firstRun        = cms.untracked.uint32(1),

@@ -5,10 +5,10 @@ process = cms.Process("DUMP")
 process.load("Geometry.ForwardCommonData.totemT22021V2XML_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
-
-    
-    
-    
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.G4cerr=dict()
+    process.MessageLogger.G4cout=dict()
+    process.MessageLogger.ForwardGeom=dict()
 
 process.source = cms.Source("EmptySource")
 

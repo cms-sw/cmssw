@@ -110,8 +110,6 @@ else :
 
 # Message Logger
 process.MessageLogger.debugModules = ['l1GtTriggerMenuTester']
-
-
 process.MessageLogger.cerr.enable = False
 
 process.MessageLogger.files.L1GtTriggerMenuTester_errors = cms.untracked.PSet( 

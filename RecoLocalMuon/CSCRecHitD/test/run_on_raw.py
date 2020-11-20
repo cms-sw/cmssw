@@ -51,8 +51,6 @@ process.CSCChannelMapperESProducer = cms.ESProducer("CSCChannelMapperESProducer"
 # LogTrace output goes to cout; all other output to "junk.log"
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-
-##
 # module label is something like "muonCSCDigis"...
 process.MessageLogger.debugModules = cms.untracked.vstring("*")
 process.MessageLogger.cerr.enable = False

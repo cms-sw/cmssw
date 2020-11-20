@@ -21,9 +21,9 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 
-
-    
-    
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.HGCalGeom=dict()
+    process.MessageLogger.HGCSim=dict()
 
 # Input source
 process.source = cms.Source("PoolSource",

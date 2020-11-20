@@ -292,7 +292,7 @@ process.l1GtTrigReport.L1GtRecordInputTag = "simGtStage2Digis"
 process.l1GtTrigReport.PrintVerbosity = 2
 process.report = cms.Path(process.l1GtTrigReport)
 
-
+process.MessageLogger.MuConditon=cms.untracked.PSet()
 
 if useMCtoGT:
     process.gtInput = process.mcL1GTinput.clone()

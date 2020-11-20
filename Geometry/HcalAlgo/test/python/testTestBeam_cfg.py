@@ -9,8 +9,8 @@ process.maxEvents = cms.untracked.PSet(
     )
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 5
-
-    
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.HCalGeom=dict()
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             confGeomXMLFiles = cms.FileInPath('Geometry/HcalAlgo/data/cms-test-ddhcalTestBeam-algorithm.xml'),

@@ -20,8 +20,8 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:mc', '')
 
-
-    
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.HcalValidation=dict()
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(5000)

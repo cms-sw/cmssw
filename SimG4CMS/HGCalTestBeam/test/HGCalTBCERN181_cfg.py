@@ -24,10 +24,10 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10)
 )
 
-
-    
-    
-    
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.HGCSim=dict()
+    process.MessageLogger.HcalSim=dict()
+    process.MessageLogger.HcalTB06BeamSD=dict()
 
 # Input source
 process.source = cms.Source("EmptySource")

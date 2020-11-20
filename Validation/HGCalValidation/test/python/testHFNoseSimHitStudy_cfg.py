@@ -27,10 +27,10 @@ process.maxEvents = cms.untracked.PSet(
     output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
 )
 
-
-    
-    
-    
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.HGCalGeom=dict()
+    process.MessageLogger.HFNSim=dict()
+    process.MessageLogger.HGCalValidation=dict()
 
 
 # Input source

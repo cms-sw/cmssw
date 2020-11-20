@@ -148,9 +148,9 @@ process.TFileService.fileName = cms.string('l1tCalo_2016_histos_'+repr(options.g
 
 
 # enable debug message logging for our modules
-
-
-
+process.MessageLogger.L1TCaloEvents=dict()
+process.MessageLogger.L1TGlobalEvents=dict()
+process.MessageLogger.Global=dict()
 
 process.MessageLogger.suppressInfo = cms.untracked.vstring('Geometry', 'AfterSource')
 

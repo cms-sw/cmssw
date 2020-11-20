@@ -27,8 +27,8 @@ options.parseArguments()
 ## MessageLogger
 ##
 process.load('FWCore.MessageService.MessageLogger_cfi')   
-
 process.MessageLogger.cerr.enable = False
+process.MessageLogger.SiStripChannelGainFromDBMiscalibrator=dict()  
 process.MessageLogger.cout = cms.untracked.PSet(
     enable    = cms.untracked.bool(True),
     enableStatistics = cms.untracked.bool(True),

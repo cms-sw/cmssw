@@ -122,8 +122,8 @@ from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['phase2_realistic']
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 5
-
-    
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.HGCalGeom=dict()
 
 if (options.type == "hgcalSimHitStudy"):
     process.load('Validation.HGCalValidation.hgcSimHitStudy_cfi')

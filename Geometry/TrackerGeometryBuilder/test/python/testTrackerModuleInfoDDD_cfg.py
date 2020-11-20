@@ -28,9 +28,6 @@ process.out = cms.OutputModule("AsciiOutputModule")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.debugModules.append('*')
-
-
-
 process.MessageLogger.cout = cms.untracked.PSet(
         threshold = cms.untracked.string('DEBUG'),
             default = cms.untracked.PSet( limit = cms.untracked.int32(0) ),

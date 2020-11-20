@@ -111,8 +111,8 @@ process.outpath = cms.EndPath(process.o1)
 process.schedule.append(process.outpath)
 
 process.load("FWCore/MessageService/MessageLogger_cfi")
-
-
+process.MessageLogger.L1GtTrigReport=dict()
+process.MessageLogger.HLTrigReport=dict()
 
 # Keep the logging output to a nice level #
 ##process.Timing =  cms.Service("Timing")
