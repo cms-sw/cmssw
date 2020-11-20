@@ -7,7 +7,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "PatternRecognitionbyCA.h"
-#include "RecoLocalCalo/HGCalRecProducers/interface/ComputeClusterTime.h"
 
 #include "TrackstersPCA.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -117,32 +116,13 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
     tracksterId++;
 
     std::set<unsigned int> effective_cluster_idx;
-    std::pair<std::set<unsigned int>::iterator, bool> retVal;
-
-    std::vector<float> times;
-    std::vector<float> timeErrors;
 
     for (auto const &doublet : ntuplet) {
       auto innerCluster = doublets[doublet].innerClusterId();
       auto outerCluster = doublets[doublet].outerClusterId();
 
-      retVal = effective_cluster_idx.insert(innerCluster);
-      if (retVal.second) {
-        float time = input.layerClustersTime.get(innerCluster).first;
-        if (time > -99) {
-          times.push_back(time);
-          timeErrors.push_back(1. / pow(input.layerClustersTime.get(innerCluster).second, 2));
-        }
-      }
-
-      retVal = effective_cluster_idx.insert(outerCluster);
-      if (retVal.second) {
-        float time = input.layerClustersTime.get(outerCluster).first;
-        if (time > -99) {
-          times.push_back(time);
-          timeErrors.push_back(1. / pow(input.layerClustersTime.get(outerCluster).second, 2));
-        }
-      }
+      effective_cluster_idx.insert(innerCluster);
+      effective_cluster_idx.insert(outerCluster);
 
       if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
         LogDebug("HGCPatternRecoByCA") << " New doublet " << doublet << " for trackster: " << result.size()
@@ -201,16 +181,14 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
       //if a seeding region does not lead to any trackster
       tmp.setSeed(input.regions[0].collectionID, seedIndices[tracksterId]);
 
-      std::pair<float, float> timeTrackster(-99., -1.);
-      hgcalsimclustertime::ComputeClusterTime timeEstimator;
-      timeTrackster = timeEstimator.fixSizeHighestDensity(times, timeErrors);
-      tmp.setTimeAndError(timeTrackster.first, timeTrackster.second);
       std::copy(std::begin(effective_cluster_idx), std::end(effective_cluster_idx), std::back_inserter(tmp.vertices()));
       tmpTracksters.push_back(tmp);
     }
   }
-  ticl::assignPCAtoTracksters(
-      tmpTracksters, input.layerClusters, rhtools_.getPositionLayer(rhtools_.lastLayerEE(type)).z());
+  ticl::assignPCAtoTracksters(tmpTracksters,
+                              input.layerClusters,
+                              input.layerClustersTime,
+                              rhtools_.getPositionLayer(rhtools_.lastLayerEE(type)).z());
 
   // run energy regression and ID
   energyRegressionAndID(input.layerClusters, tmpTracksters);
@@ -268,7 +246,9 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
     tmp.swap(result);
   }
 
-  ticl::assignPCAtoTracksters(result, input.layerClusters, rhtools_.getPositionLayer(rhtools_.lastLayerEE(type)).z());
+  ticl::assignPCAtoTracksters(
+      result, input.layerClusters, input.layerClustersTime, rhtools_.getPositionLayer(rhtools_.lastLayerEE(type)).z());
+
   // run energy regression and ID
   energyRegressionAndID(input.layerClusters, result);
 

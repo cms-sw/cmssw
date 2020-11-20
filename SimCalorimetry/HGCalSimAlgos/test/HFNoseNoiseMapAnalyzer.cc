@@ -39,10 +39,10 @@ using namespace std;
 //
 // class declaration
 //
-class HGCSiNoiseMapAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+class HFNoseNoiseMapAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
-  explicit HGCSiNoiseMapAnalyzer(const edm::ParameterSet &);
-  ~HGCSiNoiseMapAnalyzer() override;
+  explicit HFNoseNoiseMapAnalyzer(const edm::ParameterSet &);
+  ~HFNoseNoiseMapAnalyzer() override;
 
 private:
   void beginJob() override {}
@@ -51,7 +51,7 @@ private:
 
   // ----------member data ---------------------------
   edm::Service<TFileService> fs_;
-  std::map<DetId::Detector, std::unique_ptr<HGCalSiNoiseMap<HGCSiliconDetId>>> noiseMaps_;
+  std::map<DetId::Detector, std::unique_ptr<HGCalSiNoiseMap<HFNoseDetId>>> noiseMaps_;
   std::map<std::pair<DetId::Detector, int>, TH1F *> layerN_, layerCCE_, layerNoise_, layerIleak_, layerSN_, layerF_,
       layerGain_, layerMipPeak_;
   std::map<DetId::Detector, TH2F *> detN_, detCCE_, detNoise_, detIleak_, detSN_, detF_, detGain_, detMipPeak_;
@@ -64,12 +64,13 @@ private:
 };
 
 //
-HGCSiNoiseMapAnalyzer::HGCSiNoiseMapAnalyzer(const edm::ParameterSet &iConfig) {
+HFNoseNoiseMapAnalyzer::HFNoseNoiseMapAnalyzer(const edm::ParameterSet &iConfig) {
   usesResource("TFileService");
   fs_->file().cd();
 
   //configure the dose map
-  std::string doseMapURL(iConfig.getParameter<std::string>("doseMap"));
+  //  std::string doseMapURL(iConfig.getParameter<std::string>("doseMap"));
+  std::string doseMapURL("SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka_HFNose_3.7.20.12_Eta2.4.txt");
   unsigned int doseMapAlgo(iConfig.getParameter<unsigned int>("doseMapAlgo"));
   double scaleByDoseFactor(iConfig.getParameter<double>("scaleByDoseFactor"));
   std::vector<double> ileakParam(
@@ -81,35 +82,28 @@ HGCSiNoiseMapAnalyzer::HGCSiNoiseMapAnalyzer(const edm::ParameterSet &iConfig) {
   std::vector<double> cceParamThick(
       iConfig.getParameter<edm::ParameterSet>("cceParams").template getParameter<std::vector<double>>("cceParamThick"));
 
-  noiseMaps_[DetId::HGCalEE] = std::unique_ptr<HGCalSiNoiseMap<HGCSiliconDetId>>(new HGCalSiNoiseMap<HGCSiliconDetId>);
-  noiseMaps_[DetId::HGCalEE]->setDoseMap(doseMapURL, doseMapAlgo);
-  noiseMaps_[DetId::HGCalEE]->setFluenceScaleFactor(scaleByDoseFactor);
-
-  noiseMaps_[DetId::HGCalEE]->setIleakParam(ileakParam);
-  noiseMaps_[DetId::HGCalEE]->setCceParam(cceParamFine, cceParamThin, cceParamThick);
-
-  noiseMaps_[DetId::HGCalHSi] = std::unique_ptr<HGCalSiNoiseMap<HGCSiliconDetId>>(new HGCalSiNoiseMap<HGCSiliconDetId>);
-  noiseMaps_[DetId::HGCalHSi]->setDoseMap(doseMapURL, doseMapAlgo);
-  noiseMaps_[DetId::HGCalHSi]->setFluenceScaleFactor(scaleByDoseFactor);
-  noiseMaps_[DetId::HGCalHSi]->setIleakParam(ileakParam);
-  noiseMaps_[DetId::HGCalHSi]->setCceParam(cceParamFine, cceParamThin, cceParamThick);
+  noiseMaps_[DetId::Forward] = std::unique_ptr<HGCalSiNoiseMap<HFNoseDetId>>(new HGCalSiNoiseMap<HFNoseDetId>);
+  noiseMaps_[DetId::Forward]->setDoseMap(doseMapURL, doseMapAlgo);
+  noiseMaps_[DetId::Forward]->setFluenceScaleFactor(scaleByDoseFactor);
+  noiseMaps_[DetId::Forward]->setIleakParam(ileakParam);
+  noiseMaps_[DetId::Forward]->setCceParam(cceParamFine, cceParamThin, cceParamThick);
 
   aimMIPtoADC_ = iConfig.getParameter<int>("aimMIPtoADC");
   ignoreGainSettings_ = iConfig.getParameter<bool>("ignoreGainSettings");
 }
 
 //
-HGCSiNoiseMapAnalyzer::~HGCSiNoiseMapAnalyzer() {}
+HFNoseNoiseMapAnalyzer::~HFNoseNoiseMapAnalyzer() {}
 
 //
-void HGCSiNoiseMapAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &es) {
+void HFNoseNoiseMapAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &es) {
   //get geometry
   edm::ESHandle<CaloGeometry> geom;
   es.get<CaloGeometryRecord>().get(geom);
 
-  std::vector<DetId::Detector> dets = {DetId::HGCalEE, DetId::HGCalHSi};
+  std::vector<DetId::Detector> dets = {DetId::Forward};
   for (const auto &d : dets) {
-    noiseMaps_[d]->setGeometry(geom->getSubdetectorGeometry(d, ForwardSubdetector::ForwardEmpty));
+    noiseMaps_[d]->setGeometry(geom->getSubdetectorGeometry(d, ForwardSubdetector::HFNose));
     //sub-detector boundaries
     unsigned int nlay = noiseMaps_[d]->ddd()->layers(true);
     std::pair<double, double> ranZ = noiseMaps_[d]->ddd()->rangeZ(true);
@@ -117,12 +111,14 @@ void HGCSiNoiseMapAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSe
     std::pair<double, double> ranR(ranRAtZ.first - plotMargin_, ranRAtZ.second + plotMargin_);
 
     const std::vector<DetId> &detIdVec = noiseMaps_[d]->geom()->getValidDetIds();
+    /*
     cout << "Subdetector:" << d << " has " << detIdVec.size() << " valid cells" << endl
          << "\t" << ranR.first << "<r<" << ranR.second << "\t" << ranZ.first << "<z<" << ranZ.second << endl;
+    */
 
     //start histos
     TString baseName(Form("d%d_", d));
-    TString title(d == DetId::HGCalEE ? "CEE" : "CEH_{Si}");
+    TString title("HFNose");
     Int_t nbinsR(100);
     for (unsigned int ilay = 0; ilay < nlay; ilay++) {
       //this layer histos
@@ -171,15 +167,15 @@ void HGCSiNoiseMapAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSe
 
     //fill histos
     for (const auto &cellId : detIdVec) {
-      HGCSiliconDetId id(cellId.rawId());
+      HFNoseDetId id(cellId.rawId());
       int layer = std::abs(id.layer());
       GlobalPoint pt = noiseMaps_[d]->geom()->getPosition(id);
       double r(pt.perp());
 
-      HGCalSiNoiseMap<HGCSiliconDetId>::GainRange_t gainToSet(HGCalSiNoiseMap<HGCSiliconDetId>::AUTO);
+      HGCalSiNoiseMap<HFNoseDetId>::GainRange_t gainToSet(HGCalSiNoiseMap<HFNoseDetId>::AUTO);
       if (ignoreGainSettings_)
-        gainToSet = HGCalSiNoiseMap<HGCSiliconDetId>::q80fC;
-      HGCalSiNoiseMap<HGCSiliconDetId>::SiCellOpCharacteristics siop =
+        gainToSet = HGCalSiNoiseMap<HFNoseDetId>::q80fC;
+      HGCalSiNoiseMap<HFNoseDetId>::SiCellOpCharacteristics siop =
           noiseMaps_[d]->getSiCellOpCharacteristics(id, gainToSet, aimMIPtoADC_);
 
       //fill histos (layer,radius)
@@ -230,4 +226,4 @@ void HGCSiNoiseMapAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSe
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(HGCSiNoiseMapAnalyzer);
+DEFINE_FWK_MODULE(HFNoseNoiseMapAnalyzer);
