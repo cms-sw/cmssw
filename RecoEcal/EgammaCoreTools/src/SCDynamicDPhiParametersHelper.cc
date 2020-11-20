@@ -7,10 +7,12 @@
 
 using namespace reco;
 
-SCDynamicDPhiParametersHelper::SCDynamicDPhiParametersHelper(const EcalSCDynamicDPhiParameters &params)
-    : EcalSCDynamicDPhiParameters(params) {}
+SCDynamicDPhiParametersHelper::SCDynamicDPhiParametersHelper(EcalSCDynamicDPhiParameters &params)
+    : parameters_(params) {}
 
-SCDynamicDPhiParametersHelper::SCDynamicDPhiParametersHelper(const edm::ParameterSet &iConfig) {
+SCDynamicDPhiParametersHelper::SCDynamicDPhiParametersHelper(EcalSCDynamicDPhiParameters &params,
+                                                             const edm::ParameterSet &iConfig)
+    : parameters_(params) {
   // dynamic dPhi parameters
   const auto dynamicDPhiPSets = iConfig.getParameter<std::vector<edm::ParameterSet>>("dynamicDPhiParameterSets");
   for (const auto &pSet : dynamicDPhiPSets) {
@@ -29,12 +31,12 @@ SCDynamicDPhiParametersHelper::SCDynamicDPhiParametersHelper(const edm::Paramete
 
 void SCDynamicDPhiParametersHelper::addDynamicDPhiParameters(
     const EcalSCDynamicDPhiParameters::DynamicDPhiParameters &params) {
-  dynamicDPhiParametersCollection_.emplace_back(params);
+  parameters_.dynamicDPhiParametersCollection_.emplace_back(params);
 }
 
 void SCDynamicDPhiParametersHelper::sortDynamicDPhiParametersCollection() {
-  std::sort(dynamicDPhiParametersCollection_.begin(),
-            dynamicDPhiParametersCollection_.end(),
+  std::sort(parameters_.dynamicDPhiParametersCollection_.begin(),
+            parameters_.dynamicDPhiParametersCollection_.end(),
             [](const EcalSCDynamicDPhiParameters::DynamicDPhiParameters &p1,
                const EcalSCDynamicDPhiParameters::DynamicDPhiParameters &p2) {
               const auto p1Mins = std::make_pair(p1.eMin, p1.etaMin);

@@ -7,11 +7,12 @@
 
 using namespace reco;
 
-MustacheSCParametersHelper::MustacheSCParametersHelper(const EcalMustacheSCParameters &params)
-    : EcalMustacheSCParameters(params) {}
+MustacheSCParametersHelper::MustacheSCParametersHelper(EcalMustacheSCParameters &params) : parameters_(params) {}
 
-MustacheSCParametersHelper::MustacheSCParametersHelper(const edm::ParameterSet &iConfig) {
-  sqrtLogClustETuning_ = iConfig.getParameter<double>("sqrtLogClustETuning");  //1.1
+MustacheSCParametersHelper::MustacheSCParametersHelper(EcalMustacheSCParameters &params,
+                                                       const edm::ParameterSet &iConfig)
+    : parameters_(params) {
+  setSqrtLogClustETuning(iConfig.getParameter<double>("sqrtLogClustETuning"));
 
   // parabola parameters
   const auto parabolaPSets = iConfig.getParameter<std::vector<edm::ParameterSet>>("parabolaParameterSets");
@@ -30,16 +31,16 @@ MustacheSCParametersHelper::MustacheSCParametersHelper(const edm::ParameterSet &
 }
 
 void MustacheSCParametersHelper::setSqrtLogClustETuning(const float sqrtLogClustETuning) {
-  sqrtLogClustETuning_ = sqrtLogClustETuning;
+  parameters_.sqrtLogClustETuning_ = sqrtLogClustETuning;
 }
 
 void MustacheSCParametersHelper::addParabolaParameters(const EcalMustacheSCParameters::ParabolaParameters &params) {
-  parabolaParametersCollection_.emplace_back(params);
+  parameters_.parabolaParametersCollection_.emplace_back(params);
 }
 
 void MustacheSCParametersHelper::sortParabolaParametersCollection() {
-  std::sort(parabolaParametersCollection_.begin(),
-            parabolaParametersCollection_.end(),
+  std::sort(parameters_.parabolaParametersCollection_.begin(),
+            parameters_.parabolaParametersCollection_.end(),
             [](const EcalMustacheSCParameters::ParabolaParameters &p1,
                const EcalMustacheSCParameters::ParabolaParameters &p2) {
               const auto p1Mins = std::make_pair(p1.log10EMin, p1.etaMin);
