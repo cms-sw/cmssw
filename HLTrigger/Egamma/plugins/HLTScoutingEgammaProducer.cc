@@ -68,7 +68,6 @@ HLTScoutingEgammaProducer::HLTScoutingEgammaProducer(const edm::ParameterSet& iC
   //register products
   produces<Run3ScoutingElectronCollection>();
   produces<Run3ScoutingPhotonCollection>();
-  topologyToken_ = esConsumes();
 }
 
 HLTScoutingEgammaProducer::~HLTScoutingEgammaProducer() = default;
@@ -180,7 +179,11 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
   iEvent.getByToken(ecalRechitEB_, rechitsEB);
   iEvent.getByToken(ecalRechitEE_, rechitsEE);
 
-  const CaloTopology* topology = &setup.getData(topologyToken_);
+  //const CaloTopology* topology = &setup.getData(topologyToken_);
+
+  edm::ESHandle<CaloTopology> pTopology;
+  setup.get<CaloTopologyRecord>().get(pTopology);
+  const CaloTopology* topology = pTopology.product();
 
   // Produce electrons and photons
   int index = 0;
