@@ -22,7 +22,14 @@ SeedingRegionByTracks::SeedingRegionByTracks(const edm::ParameterSet &conf, edm:
           edm::ESInputTag("", detectorName_))),
       bfield_token_(sumes.esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>()),
       propagator_token_(sumes.esConsumes<Propagator, TrackingComponentsRecord, edm::Transition::BeginRun>(
-          edm::ESInputTag("", propName_))) {}
+          edm::ESInputTag("", propName_))),
+      vetoMuon_(conf.getParameter<bool>("vetoMuon")) {
+  if (vetoMuon_) {
+    muons_token_ = sumes.consumes<reco::MuonCollection>(conf.getParameter<edm::InputTag>("muons"));
+    const edm::ParameterSet pfMuonAlgoParams = conf.getParameter<edm::ParameterSet>("PFMuonAlgoParameters");
+    pfmu_ = std::make_unique<PFMuonAlgo>(pfMuonAlgoParams, postMuonCleaning_);
+  }
+}
 
 SeedingRegionByTracks::~SeedingRegionByTracks() {}
 
@@ -45,11 +52,25 @@ void SeedingRegionByTracks::makeRegions(const edm::Event &ev,
   auto bFieldProd = bfield_.product();
   const Propagator &prop = (*propagator_);
 
+  edm::Handle<reco::MuonCollection> muons_h;
+  if (vetoMuon_)
+    muons_h = ev.getHandle(muons_token_);
+
   int nTracks = tracks_h->size();
   for (int i = 0; i < nTracks; ++i) {
     const reco::Track &tk = (*tracks_h)[i];
     if (!cutTk_((tk))) {
       continue;
+    }
+    // if muon-track, exclude it from seeding for now
+    if (vetoMuon_) {
+      reco::TrackRef trackref = reco::TrackRef(tracks_h, i);
+      const int muId = PFMuonAlgo::muAssocToTrack(trackref, muons_h);
+      if (muId != -1) {
+        const reco::MuonRef muonref = reco::MuonRef(muons_h, muId);
+        if (PFMuonAlgo::isMuon(muonref))
+          continue;
+      }
     }
 
     FreeTrajectoryState fts = trajectoryStateTransform::outerFreeState((tk), bFieldProd);
