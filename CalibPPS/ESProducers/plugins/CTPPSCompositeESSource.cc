@@ -64,7 +64,7 @@ private:
   std::string compactViewTag_;
   std::string lhcInfoLabel_;
   std::string opticsLabel_;
-  unsigned int m_generateEveryNEvents_;
+  unsigned int generateEveryNEvents_;
   unsigned int verbosity_;
 
   // ES tokens
@@ -125,7 +125,7 @@ CTPPSCompositeESSource::CTPPSCompositeESSource(const edm::ParameterSet &conf)
     compactViewTag_(conf.getParameter<std::string>("compactViewTag")),
     lhcInfoLabel_(conf.getParameter<std::string>("lhcInfoLabel")),
     opticsLabel_(conf.getParameter<std::string>("opticsLabel")),
-    m_generateEveryNEvents_(conf.getParameter<unsigned int>("generateEveryNEvents")),
+    generateEveryNEvents_(conf.getUntrackedParameter<unsigned int>("generateEveryNEvents")),
     verbosity_(conf.getUntrackedParameter<unsigned int>("verbosity")),
     m_engine_(new CLHEP::HepJamesRandom(conf.getParameter<unsigned int>("seed")))
 {
@@ -176,7 +176,7 @@ void CTPPSCompositeESSource::fillDescriptions(edm::ConfigurationDescriptions &de
   desc.add<std::string>("lhcInfoLabel", "")->setComment("label of the LHCInfo record");
   desc.add<std::string>("opticsLabel", "")->setComment("label of the optics record");
   desc.add<unsigned int>("seed", 1)->setComment("random seed");
-  desc.add<unsigned int>("generateEveryNEvents", 1)->setComment("how often to switch conditions");
+  desc.addUntracked<unsigned int>("generateEveryNEvents", 1)->setComment("how often to switch conditions");
   desc.addUntracked<unsigned int>("verbosity",0);
 
   edm::ParameterSetDescription desc_profile;
@@ -185,7 +185,7 @@ void CTPPSCompositeESSource::fillDescriptions(edm::ConfigurationDescriptions &de
 
   // lhcInfo
   edm::ParameterSetDescription desc_profile_ctppsLHCInfo;
-  desc_profile_ctppsLHCInfo.add<double>("xangle", 0.)->setComment("constant xangle, if negative, the xangle/beta* distribution will be used");
+  desc_profile_ctppsLHCInfo.add<double>("xangle", -1)->setComment("constant xangle, if negative, the xangle/beta* distribution will be used");
   desc_profile_ctppsLHCInfo.add<double>("betaStar", 0.)->setComment("constant beta*");
   desc_profile_ctppsLHCInfo.add<double>("beamEnergy", 0.)->setComment("beam energy");
   desc_profile_ctppsLHCInfo.add<std::string>("xangleBetaStarHistogramFile", "")->setComment("ROOT file with xangle/beta* distribution");
@@ -381,7 +381,7 @@ void CTPPSCompositeESSource::setIntervalFor(const edm::eventsetup::EventSetupRec
                                                       edm::ValidityInterval &oValidity) {
   // determine new IOV
   edm::EventID beginEvent = iosv.eventID();
-  edm::EventID endEvent(beginEvent.run(), beginEvent.luminosityBlock(), beginEvent.event() + m_generateEveryNEvents_);
+  edm::EventID endEvent(beginEvent.run(), beginEvent.luminosityBlock(), beginEvent.event() + generateEveryNEvents_);
   oValidity = edm::ValidityInterval(edm::IOVSyncValue(beginEvent), edm::IOVSyncValue(endEvent));
 
   // randomly pick the next profile

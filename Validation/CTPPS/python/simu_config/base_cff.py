@@ -84,8 +84,7 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
 # default source
 source = cms.Source("EmptySource",
   firstRun = cms.untracked.uint32(1),
-  # FIXME: set from ctppsCompositeESSource.generateEveryNEvents = 100
-  numberEventsInLuminosityBlock = cms.untracked.uint32(100)
+  numberEventsInLuminosityBlock = ctppsCompositeESSource.generateEveryNEvents
 )
 
 # particle generator
@@ -169,11 +168,12 @@ def SetLargeTheta(process):
 
 def UseConstantXangleBetaStar(process, xangle, betaStar):
   for p in ctppsCompositeESSource.periods:
-	  p.ctppsLHCInfo.xangle = xangle
-	  p.ctppsLHCInfo.betaStar = betaStar
+    p.ctppsLHCInfo.xangle = xangle
+    p.ctppsLHCInfo.betaStar = betaStar
 
 def UseXangleBetaStarHistogram(process,f, obj):
   for p in ctppsCompositeESSource.periods:
-  	p.ctppsLHCInfo.xangleBetaStarHistogramFile = f
-  	p.ctppsLHCInfo.xangleBetaStarHistogramObject = obj
-    # FIXME: shouldn't one also set p.ctppsLHCInfo.xangle = -1 ??
+    p.ctppsLHCInfo.xangleBetaStarHistogramFile = f
+    p.ctppsLHCInfo.xangleBetaStarHistogramObject = obj
+
+    p.ctppsLHCInfo.xangle = -1 # negative value indicates to use the xangle/beta* histogram
