@@ -224,7 +224,8 @@ double ECalSD::getEnergyDeposit(const G4Step* aStep) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("EcalSim") << lv->GetName() << " " << dd4hep::dd::noNamespace(lv->GetName())
                               << " Light Collection Efficiency " << weight << ":" << wt1 << " wt2= " << wt2
-                              << " Weighted Energy Deposit " << edep / CLHEP::MeV << " MeV at " << preStepPoint->GetPosition();
+                              << " Weighted Energy Deposit " << edep / CLHEP::MeV << " MeV at "
+                              << preStepPoint->GetPosition();
 #endif
   return edep;
 }

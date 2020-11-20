@@ -227,20 +227,20 @@ void EcalSimHitStudy::beginJob() {
     sPhiPhi_[i]->GetYaxis()->SetTitle("Events");
     sPhiPhi_[i]->Sumw2();
     if (i == 0) {
-      sprintf (title, "%s+", dets[i].c_str());
+      sprintf(title, "%s+", dets[i].c_str());
       poszp_[i] = tfile->make<TH2F>("poszp0", title, 100, 0, 100, 360, 0, 360);
       poszp_[i]->GetXaxis()->SetTitle("i#eta");
       poszp_[i]->GetYaxis()->SetTitle("i#phi");
-      sprintf (title, "%s-", dets[i].c_str());
+      sprintf(title, "%s-", dets[i].c_str());
       poszn_[i] = tfile->make<TH2F>("poszn0", title, 100, 0, 100, 360, 0, 360);
       poszn_[i]->GetXaxis()->SetTitle("i#eta");
       poszn_[i]->GetYaxis()->SetTitle("i#phi");
     } else {
-      sprintf (title, "%s+", dets[i].c_str());
+      sprintf(title, "%s+", dets[i].c_str());
       poszp_[i] = tfile->make<TH2F>("poszp1", title, 100, -200, 200, 100, -200, 200);
       poszp_[i]->GetXaxis()->SetTitle("x (cm)");
       poszp_[i]->GetYaxis()->SetTitle("y (cm)");
-      sprintf (title, "%s-", dets[i].c_str());
+      sprintf(title, "%s-", dets[i].c_str());
       poszn_[i] = tfile->make<TH2F>("poszn1", title, 100, -200, 200, 100, -200, 200);
       poszn_[i]->GetXaxis()->SetTitle("x (cm)");
       poszn_[i]->GetYaxis()->SetTitle("y (cm)");
@@ -279,7 +279,7 @@ void EcalSimHitStudy::analyze(const edm::Event& e, const edm::EventSetup& iS) {
     eneInc_->Fill(eInc);
     etaInc_->Fill(etaInc);
     phiInc_->Fill(phiInc);
-    
+
     if (std::abs(etaInc) < 1.46)
       type = 0;
     else if (std::abs(etaInc) > 1.49 && std::abs(etaInc) < 3.0)
@@ -370,16 +370,16 @@ void EcalSimHitStudy::analyzeHits(std::vector<PCaloHit>& hits, int indx) {
       edepAll_[indx]->Fill((it.second).energy);
       DetId id(it.first);
       if (indx == 0) {
-	if (EBDetId(id).zside() >= 0) 
-	  poszp_[indx]->Fill(EBDetId(id).ietaAbs(), EBDetId(id).iphi());
-	else
-	  poszn_[indx]->Fill(EBDetId(id).ietaAbs(), EBDetId(id).iphi());
+        if (EBDetId(id).zside() >= 0)
+          poszp_[indx]->Fill(EBDetId(id).ietaAbs(), EBDetId(id).iphi());
+        else
+          poszn_[indx]->Fill(EBDetId(id).ietaAbs(), EBDetId(id).iphi());
       } else {
         GlobalPoint gpos = geometry_->getGeometry(id)->getPosition();
-	if (EEDetId(id).zside() >= 0) 
-	  poszp_[indx]->Fill(gpos.x(), gpos.y());
-	else
-	  poszn_[indx]->Fill(gpos.x(), gpos.y());
+        if (EEDetId(id).zside() >= 0)
+          poszp_[indx]->Fill(gpos.x(), gpos.y());
+        else
+          poszn_[indx]->Fill(gpos.x(), gpos.y());
       }
     }
 
