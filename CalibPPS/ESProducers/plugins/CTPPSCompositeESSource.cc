@@ -36,30 +36,23 @@
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
 #include "CondFormats/PPSObjects/interface/CTPPSRPAlignmentCorrectionsDataSequence.h"
 #include "CondFormats/PPSObjects/interface/CTPPSRPAlignmentCorrectionsMethods.h"
-
-// FIXME: what is this?
-#include "CondFormats/AlignmentRecord/interface/CTPPSRPAlignmentCorrectionsDataRcd.h"  // this used to be RPMeasuredAlignmentRecord.h
-
-#include "CondFormats/AlignmentRecord/interface/RPRealAlignmentRecord.h"
-#include "CondFormats/AlignmentRecord/interface/RPMisalignedAlignmentRecord.h"
 #include "CondFormats/PPSObjects/interface/PPSDirectSimulationData.h"
 #include "CondFormats/DataRecord/interface/PPSDirectSimulationDataRcd.h"
+#include "CalibPPS/ESProducers/interface/CTPPSRPAlignmentCorrectionsDataESSourceXMLCommon.h"
+#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometryESCommon.h"
+#include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDescBuilder.h"
+
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/JamesRandom.h"
-#include <cstdio>
+
 #include <memory>
-#include <regex>
 #include <vector>
 #include <string>
 #include <map>
 #include <set>
-#include "TRandom.h"
+
 #include "TFile.h"
-#include "TH1D.h"
 #include "TH2D.h"
-#include "CalibPPS/ESProducers/interface/CTPPSRPAlignmentCorrectionsDataESSourceXMLCommon.h"
-#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometryESCommon.h"
-#include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDescBuilder.h"
 
 //----------------------------------------------------------------------------------------------------
 
@@ -77,31 +70,14 @@ public:
   
 private:
   // config parameters
+  std::string compactViewTag_;
   std::string lhcInfoLabel_;
   std::string opticsLabel_;
   unsigned int m_generateEveryNEvents_;
   unsigned int verbosity_;
 
-  // FIXME: give understandable names
-  edm::ESGetToken<DDCompactView, IdealGeometryRecord> ddToken_, ddToken2_;
-
-  // FIXME: move to the code where needed?
-  struct FileInfo {
-    double m_xangle;
-    std::string m_fileName;
-  };
-
-  // FIXME: move to the code where needed?
-  struct RPInfo {
-    std::string m_dirName;
-    double m_scoringPlaneZ;
-  };
-
-  // FIXME: move to the code where needed?
-  struct Entry {
-    std::vector<FileInfo> m_fileInfo;
-    std::unordered_map<unsigned int, RPInfo> m_rpInfo;
-  };
+  // ES tokens
+  edm::ESGetToken<DDCompactView, IdealGeometryRecord> tokenCompactViewReal_, tokenCompactViewMisaligned_;
 
   template <typename T>
   struct BinData {
@@ -125,7 +101,7 @@ private:
     std::shared_ptr<CTPPSGeometry> realTG;
 
     // alignment
-    std::shared_ptr<CTPPSRPAlignmentCorrectionsData> acMeasured, acReal, acMisaligned;
+    std::shared_ptr<CTPPSRPAlignmentCorrectionsData> acReal, acMisaligned;
 
     // direct simulation configuration
     PPSDirectSimulationData directSimuData;
@@ -135,15 +111,14 @@ private:
   std::vector<BinData<ProfileData>> profile_bins_;
   const ProfileData *currentProfile_;
 
-  // workers
+  // random engine
   std::unique_ptr<CLHEP::HepRandomEngine> m_engine_;
-
-  std::unique_ptr<CTPPSGeometryESCommon> ctppsGeometryESModuleCommon;
 
   // methods to pre-compute profile data
   void buildLHCInfo(const edm::ParameterSet& profile, ProfileData& pData);
   void buildOptics(const edm::ParameterSet& profile, ProfileData& pData);
-  void buildGeom(const DDCompactView& cpv);
+  void buildAlignment(const edm::ParameterSet& profile, ProfileData& pData);
+  void buildGeometry(const DDCompactView& cpv);
   void buildDirectSimuData(const edm::ParameterSet& profile, ProfileData& pData);
 
   // method set IOV (common to all products)
@@ -155,14 +130,12 @@ private:
 //----------------------------------------------------------------------------------------------------
 
 CTPPSCompositeESSource::CTPPSCompositeESSource(const edm::ParameterSet &conf)
-    : lhcInfoLabel_(conf.getParameter<std::string>("lhcInfoLabel")),
-
+    :
+    compactViewTag_(conf.getParameter<std::string>("compactViewTag")),
+    lhcInfoLabel_(conf.getParameter<std::string>("lhcInfoLabel")),
     opticsLabel_(conf.getParameter<std::string>("opticsLabel")),
-
     m_generateEveryNEvents_(conf.getParameter<unsigned int>("generateEveryNEvents")),
-
     verbosity_(conf.getUntrackedParameter<unsigned int>("verbosity")),
-
     m_engine_(new CLHEP::HepJamesRandom(conf.getParameter<unsigned int>("seed")))
 {
   double l_int_sum = 0;
@@ -176,18 +149,9 @@ CTPPSCompositeESSource::CTPPSCompositeESSource(const edm::ParameterSet &conf)
 
     auto& pData = profile_bins_.back().data;
 
-    auto ctppsRPAlignmentCorrectionsDataXMLpSet = cfg.getParameter<edm::ParameterSet>("ctppsRPAlignmentCorrectionsDataXML");
-    ctppsRPAlignmentCorrectionsDataXMLpSet.addUntrackedParameter("verbosity", verbosity_);
-    CTPPSRPAlignmentCorrectionsDataESSourceXMLCommon ctppsRPAlignmentCorrectionsDataESSourceXMLCommon(ctppsRPAlignmentCorrectionsDataXMLpSet);
-
-    if (!ctppsRPAlignmentCorrectionsDataXMLpSet.getParameter<std::vector<std::string> >("MeasuredFiles").empty())
-      pData.acMeasured=std::make_shared<CTPPSRPAlignmentCorrectionsData>(ctppsRPAlignmentCorrectionsDataESSourceXMLCommon.acsMeasured[0].second);
-
-    pData.acReal = std::make_shared<CTPPSRPAlignmentCorrectionsData>(ctppsRPAlignmentCorrectionsDataESSourceXMLCommon.acsReal[0].second);
-    pData.acMisaligned = std::make_shared<CTPPSRPAlignmentCorrectionsData>(ctppsRPAlignmentCorrectionsDataESSourceXMLCommon.acsMisaligned[0].second);
-
     buildLHCInfo(cfg, pData);
     buildOptics(cfg, pData);
+    buildAlignment(cfg, pData);
     buildDirectSimuData(cfg, pData);
   }
 
@@ -201,12 +165,12 @@ CTPPSCompositeESSource::CTPPSCompositeESSource(const edm::ParameterSet &conf)
   // framework registrations
   setWhatProduced(this, &CTPPSCompositeESSource::produceLhcInfo, edm::es::Label(lhcInfoLabel_));
   setWhatProduced(this, &CTPPSCompositeESSource::produceOptics, edm::es::Label(opticsLabel_));
-
-  // FIXME: give names
-  ddToken_ = setWhatProduced(this, &CTPPSCompositeESSource::produceRealTG).consumesFrom<DDCompactView,IdealGeometryRecord>(edm::ESInputTag("","XMLIdealGeometryESSource_CTPPS"));
-  ddToken2_ = setWhatProduced(this, &CTPPSCompositeESSource::produceMisalignedTG).consumesFrom<DDCompactView,IdealGeometryRecord>(edm::ESInputTag("","XMLIdealGeometryESSource_CTPPS"));
-
   setWhatProduced(this, &CTPPSCompositeESSource::produceDirectSimuData);
+
+  tokenCompactViewReal_ = setWhatProduced(this, &CTPPSCompositeESSource::produceRealTG)
+    .consumesFrom<DDCompactView, IdealGeometryRecord>(edm::ESInputTag("", compactViewTag_));
+  tokenCompactViewMisaligned_ = setWhatProduced(this, &CTPPSCompositeESSource::produceMisalignedTG)
+    .consumesFrom<DDCompactView, IdealGeometryRecord>(edm::ESInputTag("", compactViewTag_));
 
   findingRecord<LHCInfoRcd>();
   findingRecord<CTPPSOpticsRcd>();
@@ -217,6 +181,7 @@ CTPPSCompositeESSource::CTPPSCompositeESSource(const edm::ParameterSet &conf)
 
 void CTPPSCompositeESSource::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
+  desc.add<std::string>("compactViewTag", "")->setComment("label of the geometry compact view");
   desc.add<std::string>("lhcInfoLabel", "")->setComment("label of the LHCInfo record");
   desc.add<std::string>("opticsLabel", "")->setComment("label of the optics record");
   desc.add<unsigned int>("seed", 1)->setComment("random seed");
@@ -229,12 +194,12 @@ void CTPPSCompositeESSource::fillDescriptions(edm::ConfigurationDescriptions &de
 
   // lhcInfo
   edm::ParameterSetDescription desc_profile_ctppsLHCInfo;
-  desc_profile_ctppsLHCInfo.add<double>("xangle", 0.)->setComment("constant xangle");
-  desc_profile_ctppsLHCInfo.add<double>("betaStar", 0.)->setComment("constant betaStar");
+  desc_profile_ctppsLHCInfo.add<double>("xangle", 0.)->setComment("constant xangle, if negative, the xangle/beta* distribution will be used");
+  desc_profile_ctppsLHCInfo.add<double>("betaStar", 0.)->setComment("constant beta*");
   desc_profile_ctppsLHCInfo.add<double>("beamEnergy", 0.)->setComment("beam energy");
   desc_profile_ctppsLHCInfo.add<std::string>("xangleBetaStarHistogramFile", "")->setComment("ROOT file with xangle/beta* distribution");
   desc_profile_ctppsLHCInfo.add<std::string>("xangleBetaStarHistogramObject", "")->setComment("xangle distribution object in the ROOT file");
-  desc_profile.add<edm::ParameterSetDescription>("ctppsLHCInfo",desc_profile_ctppsLHCInfo);
+  desc_profile.add<edm::ParameterSetDescription>("ctppsLHCInfo", desc_profile_ctppsLHCInfo);
 
   // optics
   edm::ParameterSetDescription desc_profile_ctppsOpticalFunctions;
@@ -252,12 +217,6 @@ void CTPPSCompositeESSource::fillDescriptions(edm::ConfigurationDescriptions &de
   std::vector<edm::ParameterSet> sp;
   desc_profile_ctppsOpticalFunctions.addVPSet("scoringPlanes", sp_desc, sp)->setComment("list of sensitive planes/detectors stations");
   desc_profile.add<edm::ParameterSetDescription>("ctppsOpticalFunctions",desc_profile_ctppsOpticalFunctions);
-
-  // geometry
-  edm::ParameterSetDescription desc_profile_xmlIdealGeometry;
-  desc_profile_xmlIdealGeometry.add<std::vector<std::string>>("geomXMLFiles");
-  desc_profile_xmlIdealGeometry.add<std::string>("rootNodeName");
-  desc_profile.add<edm::ParameterSetDescription>("xmlIdealGeometry",desc_profile_xmlIdealGeometry);
 
   // alignment
   edm::ParameterSetDescription desc_profile_ctppsRPAlignmentCorrectionsDataXML;
@@ -288,7 +247,7 @@ void CTPPSCompositeESSource::fillDescriptions(edm::ConfigurationDescriptions &de
 //----------------------------------------------------------------------------------------------------
 
 void CTPPSCompositeESSource::buildDirectSimuData(const edm::ParameterSet& profile, ProfileData& pData) {
-  const auto& ctppsDirectSimuData=profile.getParameter<edm::ParameterSet>("ctppsDirectSimuData");
+  const auto& ctppsDirectSimuData = profile.getParameter<edm::ParameterSet>("ctppsDirectSimuData");
 
   pData.directSimuData.setEmpiricalAperture45(ctppsDirectSimuData.getParameter<std::string>("empiricalAperture45"));
   pData.directSimuData.setEmpiricalAperture56(ctppsDirectSimuData.getParameter<std::string>("empiricalAperture56"));
@@ -303,8 +262,11 @@ void CTPPSCompositeESSource::buildDirectSimuData(const edm::ParameterSet& profil
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSCompositeESSource::buildGeom(const DDCompactView& cpv) {
+void CTPPSCompositeESSource::buildGeometry(const DDCompactView& cpv) {
   std::unique_ptr<DetGeomDesc> idealGD = detgeomdescbuilder::buildDetGeomDescFromCompactView(cpv);
+
+  // FIXME: does this run any intialisation of the class ??
+  std::unique_ptr<CTPPSGeometryESCommon> ctppsGeometryESModuleCommon;
 
   for (auto &pb : profile_bins_)
   {
@@ -321,15 +283,28 @@ void CTPPSCompositeESSource::buildGeom(const DDCompactView& cpv) {
 //----------------------------------------------------------------------------------------------------
 
 void CTPPSCompositeESSource::buildOptics(const edm::ParameterSet& profile, ProfileData& pData) {
-  const auto& ctppsOpticalFunctions=profile.getParameter<edm::ParameterSet>("ctppsOpticalFunctions");
+  const auto& ctppsOpticalFunctions = profile.getParameter<edm::ParameterSet>("ctppsOpticalFunctions");
+
+  struct FileInfo {
+    double m_xangle;
+    std::string m_fileName;
+  };
+
   std::vector<FileInfo> fileInfo;
+
   for (const auto &pset : ctppsOpticalFunctions.getParameter<std::vector<edm::ParameterSet>>("opticalFunctions")) {
     const double &xangle = pset.getParameter<double>("xangle");
     const std::string &fileName = pset.getParameter<edm::FileInPath>("fileName").fullPath();
     fileInfo.push_back({xangle, fileName});
   }
 
+  struct RPInfo {
+    std::string m_dirName;
+    double m_scoringPlaneZ;
+  };
+
   std::unordered_map<unsigned int, RPInfo> rpInfo;
+
   for (const auto &pset : ctppsOpticalFunctions.getParameter<std::vector<edm::ParameterSet>>("scoringPlanes")) {
     const unsigned int rpId = pset.getParameter<unsigned int>("rpId");
     const std::string dirName = pset.getParameter<std::string>("dirName");
@@ -338,18 +313,38 @@ void CTPPSCompositeESSource::buildOptics(const edm::ParameterSet& profile, Profi
     rpInfo.emplace(rpId, entry);
   }
 
-  Entry entry({fileInfo, rpInfo});
-
-  for (const auto &fi : entry.m_fileInfo) {
+  for (const auto &fi : fileInfo) {
     std::unordered_map<unsigned int, LHCOpticalFunctionsSet> xa_data;
 
-    for (const auto &rpi : entry.m_rpInfo) {
+    for (const auto &rpi : rpInfo) {
       LHCOpticalFunctionsSet fcn(fi.m_fileName, rpi.second.m_dirName, rpi.second.m_scoringPlaneZ);
       xa_data.emplace(rpi.first, std::move(fcn));
     }
 
     pData.lhcOptical.emplace(fi.m_xangle, xa_data);
   }
+}
+
+//----------------------------------------------------------------------------------------------------
+
+void CTPPSCompositeESSource::buildAlignment(const edm::ParameterSet& cfg, ProfileData& pData)
+{
+    // load alignment data
+    auto ctppsRPAlignmentCorrectionsDataXMLPSet = cfg.getParameter<edm::ParameterSet>("ctppsRPAlignmentCorrectionsDataXML");
+    ctppsRPAlignmentCorrectionsDataXMLPSet.addUntrackedParameter("verbosity", verbosity_);
+
+    CTPPSRPAlignmentCorrectionsDataESSourceXMLCommon ctppsRPAlignmentCorrectionsDataESSourceXMLCommon(ctppsRPAlignmentCorrectionsDataXMLPSet);
+
+    // store the first entry from the alignment sequence (more cannot be done)
+    pData.acReal = std::make_shared<CTPPSRPAlignmentCorrectionsData>(
+      ctppsRPAlignmentCorrectionsDataESSourceXMLCommon.acsReal.empty() ? CTPPSRPAlignmentCorrectionsData()
+        : ctppsRPAlignmentCorrectionsDataESSourceXMLCommon.acsReal[0].second
+    );
+
+    pData.acMisaligned = std::make_shared<CTPPSRPAlignmentCorrectionsData>(
+      ctppsRPAlignmentCorrectionsDataESSourceXMLCommon.acsMisaligned.empty() ? CTPPSRPAlignmentCorrectionsData()
+        : ctppsRPAlignmentCorrectionsDataESSourceXMLCommon.acsMisaligned[0].second
+    );
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -416,8 +411,8 @@ void CTPPSCompositeESSource::setIntervalFor(const edm::eventsetup::EventSetupRec
 
 std::shared_ptr<CTPPSGeometry> CTPPSCompositeESSource::produceRealTG(const VeryForwardRealGeometryRecord& iRecord) {
   if(currentProfile_->realTG == nullptr) {
-    auto const& cpv = iRecord.getRecord<IdealGeometryRecord>().get(ddToken_);
-    buildGeom(cpv);
+    auto const& cpv = iRecord.getRecord<IdealGeometryRecord>().get(tokenCompactViewReal_);
+    buildGeometry(cpv);
   }
 
   return currentProfile_->realTG;
@@ -427,8 +422,8 @@ std::shared_ptr<CTPPSGeometry> CTPPSCompositeESSource::produceRealTG(const VeryF
 
 std::shared_ptr<CTPPSGeometry> CTPPSCompositeESSource::produceMisalignedTG(const VeryForwardMisalignedGeometryRecord& iRecord) {
   if(currentProfile_->misalignedTG == nullptr) {
-    auto const& cpv = iRecord.getRecord<IdealGeometryRecord>().get(ddToken2_);
-    buildGeom(cpv);
+    auto const& cpv = iRecord.getRecord<IdealGeometryRecord>().get(tokenCompactViewMisaligned_);
+    buildGeometry(cpv);
   }
   return currentProfile_->misalignedTG;
 }

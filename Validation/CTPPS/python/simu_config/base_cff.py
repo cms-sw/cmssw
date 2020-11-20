@@ -28,8 +28,8 @@ profile_base = cms.PSet(
   # alignment
   ctppsRPAlignmentCorrectionsDataXML = cms.PSet(
     MeasuredFiles = cms.vstring(),
-    RealFiles = cms.vstring(""),
-    MisalignedFiles = cms.vstring("")
+    RealFiles = cms.vstring(),
+    MisalignedFiles = cms.vstring()
   ),
 
   # direct simu data
@@ -84,6 +84,7 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
 # default source
 source = cms.Source("EmptySource",
   firstRun = cms.untracked.uint32(1),
+  # FIXME: set from ctppsCompositeESSource.generateEveryNEvents = 100
   numberEventsInLuminosityBlock = cms.untracked.uint32(100)
 )
 
