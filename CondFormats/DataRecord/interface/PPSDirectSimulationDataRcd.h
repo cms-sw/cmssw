@@ -4,6 +4,7 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class PPSDirectSimulationDataRcd : public edm::eventsetup::EventSetupRecordImplementation<PPSDirectSimulationDataRcd> {};
+class PPSDirectSimulationDataRcd : public edm::eventsetup::EventSetupRecordImplementation<PPSDirectSimulationDataRcd> {
+};
 
 #endif

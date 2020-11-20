@@ -58,7 +58,7 @@ public:
   std::shared_ptr<CTPPSGeometry> produceRealTG(const VeryForwardRealGeometryRecord &);
   std::shared_ptr<CTPPSGeometry> produceMisalignedTG(const VeryForwardMisalignedGeometryRecord &);
   std::unique_ptr<PPSDirectSimulationData> produceDirectSimuData(const PPSDirectSimulationDataRcd &);
-  
+
 private:
   // config parameters
   std::string compactViewTag_;
@@ -79,7 +79,7 @@ private:
   struct ProfileData {
     // LHCInfo
     double beamEnergy, xangle, betaStar;
-    std::vector<BinData<std::pair<double,double>>> xangleBetaStarBins;
+    std::vector<BinData<std::pair<double, double>>> xangleBetaStarBins;
 
     // optics
     LHCOpticalFunctionsSetCollection lhcOptical;
@@ -106,11 +106,11 @@ private:
   std::unique_ptr<CLHEP::HepRandomEngine> m_engine_;
 
   // methods to pre-compute profile data
-  void buildLHCInfo(const edm::ParameterSet& profile, ProfileData& pData);
-  void buildOptics(const edm::ParameterSet& profile, ProfileData& pData);
-  void buildAlignment(const edm::ParameterSet& profile, ProfileData& pData);
-  void buildGeometry(const DDCompactView& cpv);
-  void buildDirectSimuData(const edm::ParameterSet& profile, ProfileData& pData);
+  void buildLHCInfo(const edm::ParameterSet &profile, ProfileData &pData);
+  void buildOptics(const edm::ParameterSet &profile, ProfileData &pData);
+  void buildAlignment(const edm::ParameterSet &profile, ProfileData &pData);
+  void buildGeometry(const DDCompactView &cpv);
+  void buildDirectSimuData(const edm::ParameterSet &profile, ProfileData &pData);
 
   // method set IOV (common to all products)
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
@@ -121,14 +121,12 @@ private:
 //----------------------------------------------------------------------------------------------------
 
 CTPPSCompositeESSource::CTPPSCompositeESSource(const edm::ParameterSet &conf)
-    :
-    compactViewTag_(conf.getParameter<std::string>("compactViewTag")),
-    lhcInfoLabel_(conf.getParameter<std::string>("lhcInfoLabel")),
-    opticsLabel_(conf.getParameter<std::string>("opticsLabel")),
-    generateEveryNEvents_(conf.getUntrackedParameter<unsigned int>("generateEveryNEvents")),
-    verbosity_(conf.getUntrackedParameter<unsigned int>("verbosity")),
-    m_engine_(new CLHEP::HepJamesRandom(conf.getParameter<unsigned int>("seed")))
-{
+    : compactViewTag_(conf.getParameter<std::string>("compactViewTag")),
+      lhcInfoLabel_(conf.getParameter<std::string>("lhcInfoLabel")),
+      opticsLabel_(conf.getParameter<std::string>("opticsLabel")),
+      generateEveryNEvents_(conf.getUntrackedParameter<unsigned int>("generateEveryNEvents")),
+      verbosity_(conf.getUntrackedParameter<unsigned int>("verbosity")),
+      m_engine_(new CLHEP::HepJamesRandom(conf.getParameter<unsigned int>("seed"))) {
   double l_int_sum = 0;
 
   for (const auto &cfg : conf.getParameter<std::vector<edm::ParameterSet>>("periods")) {
@@ -138,7 +136,7 @@ CTPPSCompositeESSource::CTPPSCompositeESSource(const edm::ParameterSet &conf)
 
     l_int_sum += l_int;
 
-    auto& pData = profile_bins_.back().data;
+    auto &pData = profile_bins_.back().data;
 
     buildLHCInfo(cfg, pData);
     buildOptics(cfg, pData);
@@ -147,8 +145,7 @@ CTPPSCompositeESSource::CTPPSCompositeESSource(const edm::ParameterSet &conf)
   }
 
   // normalise L_int sums to probabilities
-  for (auto &bin : profile_bins_)
-  {
+  for (auto &bin : profile_bins_) {
     bin.min /= l_int_sum;
     bin.max /= l_int_sum;
   }
@@ -159,9 +156,10 @@ CTPPSCompositeESSource::CTPPSCompositeESSource(const edm::ParameterSet &conf)
   setWhatProduced(this, &CTPPSCompositeESSource::produceDirectSimuData);
 
   tokenCompactViewReal_ = setWhatProduced(this, &CTPPSCompositeESSource::produceRealTG)
-    .consumesFrom<DDCompactView, IdealGeometryRecord>(edm::ESInputTag("", compactViewTag_));
-  tokenCompactViewMisaligned_ = setWhatProduced(this, &CTPPSCompositeESSource::produceMisalignedTG)
-    .consumesFrom<DDCompactView, IdealGeometryRecord>(edm::ESInputTag("", compactViewTag_));
+                              .consumesFrom<DDCompactView, IdealGeometryRecord>(edm::ESInputTag("", compactViewTag_));
+  tokenCompactViewMisaligned_ =
+      setWhatProduced(this, &CTPPSCompositeESSource::produceMisalignedTG)
+          .consumesFrom<DDCompactView, IdealGeometryRecord>(edm::ESInputTag("", compactViewTag_));
 
   findingRecord<LHCInfoRcd>();
   findingRecord<CTPPSOpticsRcd>();
@@ -177,7 +175,7 @@ void CTPPSCompositeESSource::fillDescriptions(edm::ConfigurationDescriptions &de
   desc.add<std::string>("opticsLabel", "")->setComment("label of the optics record");
   desc.add<unsigned int>("seed", 1)->setComment("random seed");
   desc.addUntracked<unsigned int>("generateEveryNEvents", 1)->setComment("how often to switch conditions");
-  desc.addUntracked<unsigned int>("verbosity",0);
+  desc.addUntracked<unsigned int>("verbosity", 0);
 
   edm::ParameterSetDescription desc_profile;
   std::vector<edm::ParameterSet> vp;
@@ -185,11 +183,14 @@ void CTPPSCompositeESSource::fillDescriptions(edm::ConfigurationDescriptions &de
 
   // lhcInfo
   edm::ParameterSetDescription desc_profile_ctppsLHCInfo;
-  desc_profile_ctppsLHCInfo.add<double>("xangle", -1)->setComment("constant xangle, if negative, the xangle/beta* distribution will be used");
+  desc_profile_ctppsLHCInfo.add<double>("xangle", -1)
+      ->setComment("constant xangle, if negative, the xangle/beta* distribution will be used");
   desc_profile_ctppsLHCInfo.add<double>("betaStar", 0.)->setComment("constant beta*");
   desc_profile_ctppsLHCInfo.add<double>("beamEnergy", 0.)->setComment("beam energy");
-  desc_profile_ctppsLHCInfo.add<std::string>("xangleBetaStarHistogramFile", "")->setComment("ROOT file with xangle/beta* distribution");
-  desc_profile_ctppsLHCInfo.add<std::string>("xangleBetaStarHistogramObject", "")->setComment("xangle distribution object in the ROOT file");
+  desc_profile_ctppsLHCInfo.add<std::string>("xangleBetaStarHistogramFile", "")
+      ->setComment("ROOT file with xangle/beta* distribution");
+  desc_profile_ctppsLHCInfo.add<std::string>("xangleBetaStarHistogramObject", "")
+      ->setComment("xangle distribution object in the ROOT file");
   desc_profile.add<edm::ParameterSetDescription>("ctppsLHCInfo", desc_profile_ctppsLHCInfo);
 
   // optics
@@ -206,15 +207,17 @@ void CTPPSCompositeESSource::fillDescriptions(edm::ConfigurationDescriptions &de
   sp_desc.add<std::string>("dirName")->setComment("associated path to the optical functions file");
   sp_desc.add<double>("z")->setComment("longitudinal position at scoring plane/detector");
   std::vector<edm::ParameterSet> sp;
-  desc_profile_ctppsOpticalFunctions.addVPSet("scoringPlanes", sp_desc, sp)->setComment("list of sensitive planes/detectors stations");
-  desc_profile.add<edm::ParameterSetDescription>("ctppsOpticalFunctions",desc_profile_ctppsOpticalFunctions);
+  desc_profile_ctppsOpticalFunctions.addVPSet("scoringPlanes", sp_desc, sp)
+      ->setComment("list of sensitive planes/detectors stations");
+  desc_profile.add<edm::ParameterSetDescription>("ctppsOpticalFunctions", desc_profile_ctppsOpticalFunctions);
 
   // alignment
   edm::ParameterSetDescription desc_profile_ctppsRPAlignmentCorrectionsDataXML;
   desc_profile_ctppsRPAlignmentCorrectionsDataXML.add<std::vector<std::string>>("MeasuredFiles");
   desc_profile_ctppsRPAlignmentCorrectionsDataXML.add<std::vector<std::string>>("RealFiles");
   desc_profile_ctppsRPAlignmentCorrectionsDataXML.add<std::vector<std::string>>("MisalignedFiles");
-  desc_profile.add<edm::ParameterSetDescription>("ctppsRPAlignmentCorrectionsDataXML",desc_profile_ctppsRPAlignmentCorrectionsDataXML);
+  desc_profile.add<edm::ParameterSetDescription>("ctppsRPAlignmentCorrectionsDataXML",
+                                                 desc_profile_ctppsRPAlignmentCorrectionsDataXML);
 
   // direct simu config
   edm::ParameterSetDescription desc_profile_ctppsDirectSimuData;
@@ -228,23 +231,25 @@ void CTPPSCompositeESSource::fillDescriptions(edm::ConfigurationDescriptions &de
   desc_profile_ctppsDirectSimuData.add<std::string>("effTimeObject45");
   desc_profile_ctppsDirectSimuData.add<std::string>("effTimeObject56");
 
-  desc_profile.add<edm::ParameterSetDescription>("ctppsDirectSimuData",desc_profile_ctppsDirectSimuData);
+  desc_profile.add<edm::ParameterSetDescription>("ctppsDirectSimuData", desc_profile_ctppsDirectSimuData);
 
-  desc.addVPSet("periods", desc_profile,vp)->setComment("profiles");
+  desc.addVPSet("periods", desc_profile, vp)->setComment("profiles");
 
   descriptions.add("ctppsCompositeESSource", desc);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSCompositeESSource::buildDirectSimuData(const edm::ParameterSet& profile, ProfileData& pData) {
-  const auto& ctppsDirectSimuData = profile.getParameter<edm::ParameterSet>("ctppsDirectSimuData");
+void CTPPSCompositeESSource::buildDirectSimuData(const edm::ParameterSet &profile, ProfileData &pData) {
+  const auto &ctppsDirectSimuData = profile.getParameter<edm::ParameterSet>("ctppsDirectSimuData");
 
   pData.directSimuData.setEmpiricalAperture45(ctppsDirectSimuData.getParameter<std::string>("empiricalAperture45"));
   pData.directSimuData.setEmpiricalAperture56(ctppsDirectSimuData.getParameter<std::string>("empiricalAperture56"));
 
-  pData.directSimuData.setTimeResolutionDiamonds45(ctppsDirectSimuData.getParameter<std::string>("timeResolutionDiamonds45"));
-  pData.directSimuData.setTimeResolutionDiamonds56(ctppsDirectSimuData.getParameter<std::string>("timeResolutionDiamonds56"));
+  pData.directSimuData.setTimeResolutionDiamonds45(
+      ctppsDirectSimuData.getParameter<std::string>("timeResolutionDiamonds45"));
+  pData.directSimuData.setTimeResolutionDiamonds56(
+      ctppsDirectSimuData.getParameter<std::string>("timeResolutionDiamonds56"));
 
   pData.directSimuData.setEffTimePath(ctppsDirectSimuData.getParameter<std::string>("effTimePath"));
   pData.directSimuData.setEffTimeObject45(ctppsDirectSimuData.getParameter<std::string>("effTimeObject45"));
@@ -253,25 +258,24 @@ void CTPPSCompositeESSource::buildDirectSimuData(const edm::ParameterSet& profil
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSCompositeESSource::buildGeometry(const DDCompactView& cpv) {
+void CTPPSCompositeESSource::buildGeometry(const DDCompactView &cpv) {
   std::unique_ptr<DetGeomDesc> idealGD = detgeomdescbuilder::buildDetGeomDescFromCompactView(cpv);
 
-  for (auto &pb : profile_bins_)
-  {
+  for (auto &pb : profile_bins_) {
     auto &p = pb.data;
 
     p.misalignedGD = CTPPSGeometryESCommon::applyAlignments(*(idealGD), p.acMisaligned.get());
-    p.misalignedTG = std::make_shared<CTPPSGeometry>(p.misalignedGD.get(),verbosity_);
+    p.misalignedTG = std::make_shared<CTPPSGeometry>(p.misalignedGD.get(), verbosity_);
 
     p.realGD = CTPPSGeometryESCommon::applyAlignments(*(idealGD), p.acReal.get());
-    p.realTG = std::make_shared<CTPPSGeometry>(p.realGD.get(),verbosity_);
+    p.realTG = std::make_shared<CTPPSGeometry>(p.realGD.get(), verbosity_);
   }
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSCompositeESSource::buildOptics(const edm::ParameterSet& profile, ProfileData& pData) {
-  const auto& ctppsOpticalFunctions = profile.getParameter<edm::ParameterSet>("ctppsOpticalFunctions");
+void CTPPSCompositeESSource::buildOptics(const edm::ParameterSet &profile, ProfileData &pData) {
+  const auto &ctppsOpticalFunctions = profile.getParameter<edm::ParameterSet>("ctppsOpticalFunctions");
 
   struct FileInfo {
     double m_xangle;
@@ -315,30 +319,31 @@ void CTPPSCompositeESSource::buildOptics(const edm::ParameterSet& profile, Profi
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSCompositeESSource::buildAlignment(const edm::ParameterSet& cfg, ProfileData& pData)
-{
-    // load alignment data
-    auto ctppsRPAlignmentCorrectionsDataXMLPSet = cfg.getParameter<edm::ParameterSet>("ctppsRPAlignmentCorrectionsDataXML");
-    ctppsRPAlignmentCorrectionsDataXMLPSet.addUntrackedParameter("verbosity", verbosity_);
+void CTPPSCompositeESSource::buildAlignment(const edm::ParameterSet &cfg, ProfileData &pData) {
+  // load alignment data
+  auto ctppsRPAlignmentCorrectionsDataXMLPSet =
+      cfg.getParameter<edm::ParameterSet>("ctppsRPAlignmentCorrectionsDataXML");
+  ctppsRPAlignmentCorrectionsDataXMLPSet.addUntrackedParameter("verbosity", verbosity_);
 
-    CTPPSRPAlignmentCorrectionsDataESSourceXMLCommon ctppsRPAlignmentCorrectionsDataESSourceXMLCommon(ctppsRPAlignmentCorrectionsDataXMLPSet);
+  CTPPSRPAlignmentCorrectionsDataESSourceXMLCommon ctppsRPAlignmentCorrectionsDataESSourceXMLCommon(
+      ctppsRPAlignmentCorrectionsDataXMLPSet);
 
-    // store the first entry from the alignment sequence (more cannot be done)
-    pData.acReal = std::make_shared<CTPPSRPAlignmentCorrectionsData>(
-      ctppsRPAlignmentCorrectionsDataESSourceXMLCommon.acsReal.empty() ? CTPPSRPAlignmentCorrectionsData()
-        : ctppsRPAlignmentCorrectionsDataESSourceXMLCommon.acsReal[0].second
-    );
+  // store the first entry from the alignment sequence (more cannot be done)
+  pData.acReal = std::make_shared<CTPPSRPAlignmentCorrectionsData>(
+      ctppsRPAlignmentCorrectionsDataESSourceXMLCommon.acsReal.empty()
+          ? CTPPSRPAlignmentCorrectionsData()
+          : ctppsRPAlignmentCorrectionsDataESSourceXMLCommon.acsReal[0].second);
 
-    pData.acMisaligned = std::make_shared<CTPPSRPAlignmentCorrectionsData>(
-      ctppsRPAlignmentCorrectionsDataESSourceXMLCommon.acsMisaligned.empty() ? CTPPSRPAlignmentCorrectionsData()
-        : ctppsRPAlignmentCorrectionsDataESSourceXMLCommon.acsMisaligned[0].second
-    );
+  pData.acMisaligned = std::make_shared<CTPPSRPAlignmentCorrectionsData>(
+      ctppsRPAlignmentCorrectionsDataESSourceXMLCommon.acsMisaligned.empty()
+          ? CTPPSRPAlignmentCorrectionsData()
+          : ctppsRPAlignmentCorrectionsDataESSourceXMLCommon.acsMisaligned[0].second);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSCompositeESSource::buildLHCInfo(const edm::ParameterSet& profile, ProfileData& pData) {
-  const auto& ctppsLHCInfo = profile.getParameter<edm::ParameterSet>("ctppsLHCInfo");
+void CTPPSCompositeESSource::buildLHCInfo(const edm::ParameterSet &profile, ProfileData &pData) {
+  const auto &ctppsLHCInfo = profile.getParameter<edm::ParameterSet>("ctppsLHCInfo");
 
   pData.beamEnergy = ctppsLHCInfo.getParameter<double>("beamEnergy");
   pData.betaStar = ctppsLHCInfo.getParameter<double>("betaStar");
@@ -351,11 +356,14 @@ void CTPPSCompositeESSource::buildLHCInfo(const edm::ParameterSet& profile, Prof
   edm::FileInPath fip(ctppsLHCInfo.getParameter<std::string>("xangleBetaStarHistogramFile").c_str());
   std::unique_ptr<TFile> f_in(TFile::Open(fip.fullPath().c_str()));
   if (!f_in)
-    throw cms::Exception("PPS") << "Cannot open input file '" << ctppsLHCInfo.getParameter<std::string>("xangleBetaStarHistogramFile") << "'.";
+    throw cms::Exception("PPS") << "Cannot open input file '"
+                                << ctppsLHCInfo.getParameter<std::string>("xangleBetaStarHistogramFile") << "'.";
 
-  TH2D* h_xangle_beta_star = (TH2D *)f_in->Get(ctppsLHCInfo.getParameter<std::string>("xangleBetaStarHistogramObject").c_str());
+  TH2D *h_xangle_beta_star =
+      (TH2D *)f_in->Get(ctppsLHCInfo.getParameter<std::string>("xangleBetaStarHistogramObject").c_str());
   if (!h_xangle_beta_star)
-    throw cms::Exception("PPS") << "Cannot load input object '" << ctppsLHCInfo.getParameter<std::string>("xangleBetaStarHistogramObject") << "'.";
+    throw cms::Exception("PPS") << "Cannot load input object '"
+                                << ctppsLHCInfo.getParameter<std::string>("xangleBetaStarHistogramObject") << "'.";
 
   // extract non-empty bins, calculate weights
   double sum = 0.;
@@ -365,10 +373,13 @@ void CTPPSCompositeESSource::buildLHCInfo(const edm::ParameterSet& profile, Prof
   double cw = 0.;
   for (int x = 1; x <= h_xangle_beta_star->GetNbinsX(); ++x)
     for (int y = 1; y <= h_xangle_beta_star->GetNbinsY(); ++y) {
-      const double w = h_xangle_beta_star->GetBinContent(h_xangle_beta_star->GetBin(x,y)) / sum;
+      const double w = h_xangle_beta_star->GetBinContent(h_xangle_beta_star->GetBin(x, y)) / sum;
       if (w > 0.) {
-        pData.xangleBetaStarBins.push_back({cw, cw + w, std::pair<double,double>(
-          h_xangle_beta_star->GetXaxis()->GetBinCenter(x), h_xangle_beta_star->GetYaxis()->GetBinCenter(y))});
+        pData.xangleBetaStarBins.push_back(
+            {cw,
+             cw + w,
+             std::pair<double, double>(h_xangle_beta_star->GetXaxis()->GetBinCenter(x),
+                                       h_xangle_beta_star->GetYaxis()->GetBinCenter(y))});
         cw += w;
       }
     }
@@ -377,8 +388,8 @@ void CTPPSCompositeESSource::buildLHCInfo(const edm::ParameterSet& profile, Prof
 //----------------------------------------------------------------------------------------------------
 
 void CTPPSCompositeESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &key,
-                                                      const edm::IOVSyncValue &iosv,
-                                                      edm::ValidityInterval &oValidity) {
+                                            const edm::IOVSyncValue &iosv,
+                                            edm::ValidityInterval &oValidity) {
   // determine new IOV
   edm::EventID beginEvent = iosv.eventID();
   edm::EventID endEvent(beginEvent.run(), beginEvent.luminosityBlock(), beginEvent.event() + generateEveryNEvents_);
@@ -397,9 +408,9 @@ void CTPPSCompositeESSource::setIntervalFor(const edm::eventsetup::EventSetupRec
 
 //----------------------------------------------------------------------------------------------------
 
-std::shared_ptr<CTPPSGeometry> CTPPSCompositeESSource::produceRealTG(const VeryForwardRealGeometryRecord& iRecord) {
-  if(currentProfile_->realTG == nullptr) {
-    auto const& cpv = iRecord.getRecord<IdealGeometryRecord>().get(tokenCompactViewReal_);
+std::shared_ptr<CTPPSGeometry> CTPPSCompositeESSource::produceRealTG(const VeryForwardRealGeometryRecord &iRecord) {
+  if (currentProfile_->realTG == nullptr) {
+    auto const &cpv = iRecord.getRecord<IdealGeometryRecord>().get(tokenCompactViewReal_);
     buildGeometry(cpv);
   }
 
@@ -408,9 +419,10 @@ std::shared_ptr<CTPPSGeometry> CTPPSCompositeESSource::produceRealTG(const VeryF
 
 //----------------------------------------------------------------------------------------------------
 
-std::shared_ptr<CTPPSGeometry> CTPPSCompositeESSource::produceMisalignedTG(const VeryForwardMisalignedGeometryRecord& iRecord) {
-  if(currentProfile_->misalignedTG == nullptr) {
-    auto const& cpv = iRecord.getRecord<IdealGeometryRecord>().get(tokenCompactViewMisaligned_);
+std::shared_ptr<CTPPSGeometry> CTPPSCompositeESSource::produceMisalignedTG(
+    const VeryForwardMisalignedGeometryRecord &iRecord) {
+  if (currentProfile_->misalignedTG == nullptr) {
+    auto const &cpv = iRecord.getRecord<IdealGeometryRecord>().get(tokenCompactViewMisaligned_);
     buildGeometry(cpv);
   }
   return currentProfile_->misalignedTG;
@@ -418,7 +430,8 @@ std::shared_ptr<CTPPSGeometry> CTPPSCompositeESSource::produceMisalignedTG(const
 
 //----------------------------------------------------------------------------------------------------
 
-std::unique_ptr<PPSDirectSimulationData> CTPPSCompositeESSource::produceDirectSimuData(const PPSDirectSimulationDataRcd &) {
+std::unique_ptr<PPSDirectSimulationData> CTPPSCompositeESSource::produceDirectSimuData(
+    const PPSDirectSimulationDataRcd &) {
   return std::make_unique<PPSDirectSimulationData>(currentProfile_->directSimuData);
 }
 
@@ -450,8 +463,7 @@ std::unique_ptr<LHCInfo> CTPPSCompositeESSource::produceLhcInfo(const LHCInfoRcd
   lhcInfo->setCrossingAngle(xangle);
   lhcInfo->setBetaStar(betaStar);
 
-  edm::LogInfo("PPS")
-    << "new LHCInfo: xangle=" << xangle << ", betaStar=" << betaStar;
+  edm::LogInfo("PPS") << "new LHCInfo: xangle=" << xangle << ", betaStar=" << betaStar;
 
   return lhcInfo;
 }

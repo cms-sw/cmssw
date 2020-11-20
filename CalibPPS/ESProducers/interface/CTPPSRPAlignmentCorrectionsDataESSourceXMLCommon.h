@@ -7,7 +7,7 @@
  ****************************************************************************/
 
 namespace edm {
-    class ParameterSet;
+  class ParameterSet;
 }
 
 #include "CondFormats/PPSObjects/interface/CTPPSRPAlignmentCorrectionsDataSequence.h"
@@ -17,19 +17,21 @@ namespace edm {
 
 class CTPPSRPAlignmentCorrectionsDataESSourceXMLCommon {
 public:
-    CTPPSRPAlignmentCorrectionsDataESSourceXMLCommon(const edm::ParameterSet &p);
-    ~CTPPSRPAlignmentCorrectionsDataESSourceXMLCommon();
+  CTPPSRPAlignmentCorrectionsDataESSourceXMLCommon(const edm::ParameterSet &p);
+  ~CTPPSRPAlignmentCorrectionsDataESSourceXMLCommon();
 
-    CTPPSRPAlignmentCorrectionsDataSequence acsMeasured, acsReal, acsMisaligned;
-    CTPPSRPAlignmentCorrectionsData acMeasured, acReal, acMisaligned;
+  CTPPSRPAlignmentCorrectionsDataSequence acsMeasured, acsReal, acsMisaligned;
+  CTPPSRPAlignmentCorrectionsData acMeasured, acReal, acMisaligned;
 
-    unsigned int verbosity;
+  unsigned int verbosity;
 
-    static edm::EventID previousLS(const edm::EventID &src);
-    static edm::EventID nextLS(const edm::EventID &src);
+  static edm::EventID previousLS(const edm::EventID &src);
+  static edm::EventID nextLS(const edm::EventID &src);
 
 protected:
-    CTPPSRPAlignmentCorrectionsDataSequence Merge(const std::vector<CTPPSRPAlignmentCorrectionsDataSequence> &) const;
+  CTPPSRPAlignmentCorrectionsDataSequence Merge(const std::vector<CTPPSRPAlignmentCorrectionsDataSequence> &) const;
 
-    void PrepareSequence(const std::string &label, CTPPSRPAlignmentCorrectionsDataSequence &seq, const std::vector<std::string> &files) const;
+  void PrepareSequence(const std::string &label,
+                       CTPPSRPAlignmentCorrectionsDataSequence &seq,
+                       const std::vector<std::string> &files) const;
 };
