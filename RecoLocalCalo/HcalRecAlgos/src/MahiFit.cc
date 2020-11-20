@@ -84,7 +84,7 @@ void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
   tstrig *= channelData.tsGain(0);
 
   useTriple = false;
-  if (tstrig >= ts4Thresh_ && tsTOT > 0) {
+  if (tstrig > ts4Thresh_ && tsTOT > 0) {
     //Average pedestal width (for covariance matrix constraint)
     nnlsWork_.pedVal = 0.25f * (channelData.tsPedestalWidth(0) * channelData.tsPedestalWidth(0) +
                                 channelData.tsPedestalWidth(1) * channelData.tsPedestalWidth(1) +
@@ -255,6 +255,10 @@ void MahiFit::updatePulseShape(const float itQ,
                                FullSampleVector& pulseShape,
                                FullSampleVector& pulseDeriv,
                                FullSampleMatrix& pulseCov) const {
+  // set a null pulse shape for negative / or null TS
+  if (itQ <= 0.f)
+    return;
+
   float t0 = meanTime_;
 
   if (applyTimeSlew_) {
@@ -264,9 +268,9 @@ void MahiFit::updatePulseShape(const float itQ,
       t0 += hcalTimeSlewDelay_->delay(float(itQ), slewFlavor_);
   }
 
-  std::array<double, HcalConst::maxSamples> pulseN;
-  std::array<double, HcalConst::maxSamples> pulseM;
-  std::array<double, HcalConst::maxSamples> pulseP;
+  std::array<double, hcal::constants::maxSamples> pulseN;
+  std::array<double, hcal::constants::maxSamples> pulseM;
+  std::array<double, hcal::constants::maxSamples> pulseP;
 
   const float xx = t0;
   const float xxm = -nnlsWork_.dt + t0;
@@ -499,7 +503,7 @@ void MahiFit::resetPulseShapeTemplate(const int pulseShapeId,
     // only the pulse shape itself from PulseShapeFunctor is used for Mahi
     // the uncertainty terms calculated inside PulseShapeFunctor are used for Method 2 only
     auto p = std::make_shared<FitterFuncs::PulseShapeFunctor>(
-        ps.getShape(pulseShapeId), false, false, false, 1, 0, 0, HcalConst::maxSamples);
+        ps.getShape(pulseShapeId), false, false, false, 1, 0, 0, hcal::constants::maxSamples);
     knownPulseShapes_.emplace_back(pulseShapeId, p);
     psfPtr_ = &*p;
   }
