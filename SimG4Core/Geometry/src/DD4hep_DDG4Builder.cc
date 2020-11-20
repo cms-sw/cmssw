@@ -60,7 +60,7 @@ G4VPhysicalVolume *DDG4Builder::BuildGeometry(SensitiveDetectorCatalog &catalog)
     auto reflectedG4LogicalVolumeName = fff + "_refl";
     bool hasReflectedVolumeInStore = false;
     G4LogicalVolumeStore *theStore = G4LogicalVolumeStore::GetInstance();
-    for (auto &lv : *theStore) {
+    for (const auto &lv : *theStore) {
       if (lv->GetName().find(reflectedG4LogicalVolumeName) != std::string::npos) {
         hasReflectedVolumeInStore = true;
       }
