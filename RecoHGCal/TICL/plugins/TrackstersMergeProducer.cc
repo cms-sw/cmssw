@@ -26,7 +26,6 @@ public:
   ~TrackstersMergeProducer() override{};
   void produce(edm::Event &, const edm::EventSetup &) override;
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
-  void energyRegressionAndID(const std::vector<reco::CaloCluster> &layerClusters, std::vector<Trackster> &result) const;
 
   // static methods for handling the global cache
   static std::unique_ptr<TrackstersCache> initializeGlobalCache(const edm::ParameterSet &);
@@ -37,7 +36,9 @@ private:
 
   void fillTile(TICLTracksterTiles &, const std::vector<Trackster> &, TracksterIterIndex);
 
+  void energyRegressionAndID(const std::vector<reco::CaloCluster> &layerClusters, std::vector<Trackster> &result) const;
   void printTrackstersDebug(const std::vector<Trackster> &, const char *label) const;
+  void assignTimeToCandidates(std::vector<TICLCandidate> &resultCandidates) const;
   void dumpTrackster(const Trackster &) const;
 
   const edm::EDGetTokenT<std::vector<Trackster>> tracksterstrkem_token_;
@@ -46,6 +47,7 @@ private:
   const edm::EDGetTokenT<std::vector<Trackster>> trackstershad_token_;
   const edm::EDGetTokenT<std::vector<TICLSeedingRegion>> seedingTrk_token_;
   const edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_token_;
+  const edm::EDGetTokenT<edm::ValueMap<std::pair<float, float>>> clustersTime_token_;
   const edm::EDGetTokenT<std::vector<reco::Track>> tracks_token_;
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometry_token_;
   const bool optimiseAcrossTracksters_;
@@ -86,6 +88,8 @@ TrackstersMergeProducer::TrackstersMergeProducer(const edm::ParameterSet &ps, co
       trackstershad_token_(consumes<std::vector<Trackster>>(ps.getParameter<edm::InputTag>("trackstershad"))),
       seedingTrk_token_(consumes<std::vector<TICLSeedingRegion>>(ps.getParameter<edm::InputTag>("seedingTrk"))),
       clusters_token_(consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_clusters"))),
+      clustersTime_token_(
+          consumes<edm::ValueMap<std::pair<float, float>>>(ps.getParameter<edm::InputTag>("layer_clustersTime"))),
       tracks_token_(consumes<std::vector<reco::Track>>(ps.getParameter<edm::InputTag>("tracks"))),
       geometry_token_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
       optimiseAcrossTracksters_(ps.getParameter<bool>("optimiseAcrossTracksters")),
@@ -187,6 +191,10 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
   evt.getByToken(clusters_token_, cluster_h);
   const auto &layerClusters = *cluster_h;
 
+  edm::Handle<edm::ValueMap<std::pair<float, float>>> clustersTime_h;
+  evt.getByToken(clustersTime_token_, clustersTime_h);
+  const auto &layerClustersTimes = *clustersTime_h;
+
   edm::Handle<std::vector<Trackster>> trackstersem_h;
   evt.getByToken(trackstersem_token_, trackstersem_h);
   const auto &trackstersEM = *trackstersem_h;
@@ -256,7 +264,10 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
     iterMergedTracksters.push_back(TracksterIterIndex::HAD);
   }
 
-  assignPCAtoTracksters(*resultTrackstersMerged, layerClusters, rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z());
+  assignPCAtoTracksters(*resultTrackstersMerged,
+                        layerClusters,
+                        layerClustersTimes,
+                        rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z());
   energyRegressionAndID(layerClusters, *resultTrackstersMerged);
 
   printTrackstersDebug(*resultTrackstersMerged, "TrackstersMergeProducer");
@@ -527,6 +538,9 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
     }
   }
 
+  // Compute timing
+  assignTimeToCandidates(*resultCandidates);
+
   evt.put(std::move(resultCandidates));
 }
 
@@ -671,6 +685,28 @@ void TrackstersMergeProducer::energyRegressionAndID(const std::vector<reco::Calo
   }
 }
 
+void TrackstersMergeProducer::assignTimeToCandidates(std::vector<TICLCandidate> &resultCandidates) const {
+  for (auto &cand : resultCandidates) {
+    if (cand.tracksters().size() > 1) {  // For single-trackster candidates the timing is already set
+      float time = 0.f;
+      float timeErr = 0.f;
+      for (const auto &tr : cand.tracksters()) {
+        if (tr->timeError() > 0) {
+          auto invTimeESq = pow(tr->timeError(), -2);
+          time += tr->time() * invTimeESq;
+          timeErr += invTimeESq;
+        }
+      }
+      if (timeErr > 0) {
+        timeErr = 1. / timeErr;
+
+        cand.setTime(time * timeErr);
+        cand.setTimeError(sqrt(timeErr));
+      }
+    }
+  }
+}
+
 std::unique_ptr<TrackstersCache> TrackstersMergeProducer::initializeGlobalCache(const edm::ParameterSet &params) {
   // this method is supposed to create, initialize and return a TrackstersCache instance
   std::unique_ptr<TrackstersCache> cache = std::make_unique<TrackstersCache>(params);
@@ -725,6 +761,7 @@ void TrackstersMergeProducer::fillDescriptions(edm::ConfigurationDescriptions &d
   desc.add<edm::InputTag>("trackstershad", edm::InputTag("ticlTrackstersHAD"));
   desc.add<edm::InputTag>("seedingTrk", edm::InputTag("ticlSeedingTrk"));
   desc.add<edm::InputTag>("layer_clusters", edm::InputTag("hgcalLayerClusters"));
+  desc.add<edm::InputTag>("layer_clustersTime", edm::InputTag("hgcalLayerClusters", "timeLayerCluster"));
   desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
   desc.add<bool>("optimiseAcrossTracksters", true);
   desc.add<int>("eta_bin_window", 1);
