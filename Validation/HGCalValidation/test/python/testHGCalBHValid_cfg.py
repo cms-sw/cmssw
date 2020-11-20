@@ -48,9 +48,9 @@ process.configurationMetadata = cms.untracked.PSet(
     name = cms.untracked.string('Applications')
 )
 
-
-    
-    
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.ValidHGCal=dict()
+    process.MessageLogger.HcalSim=dict()
 
 # Additional output definition
 process.load('Validation.HGCalValidation.hgcalBHValidation_cfi')

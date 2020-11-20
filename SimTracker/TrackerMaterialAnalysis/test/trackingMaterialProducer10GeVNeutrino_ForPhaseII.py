@@ -9,7 +9,7 @@ process = cms.Process("Geometry")
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.files.debugTrackingMaterialProducer = dict()
-
+process.MessageLogger.TrackingMaterialProducer=dict()
 
 process.load('Configuration.EventContent.EventContent_cff')
 

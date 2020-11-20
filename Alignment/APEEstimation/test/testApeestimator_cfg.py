@@ -40,13 +40,13 @@ process = cms.Process("ApeEstimator")
 ## Message Logger
 ##
 process.load("FWCore.MessageService.MessageLogger_cfi")
-
-
-
-
-
-#
-
+process.MessageLogger.SectorBuilder=dict()
+process.MessageLogger.ResidualErrorBinning=dict()
+process.MessageLogger.HitSelector=dict()
+process.MessageLogger.CalculateAPE=dict()
+process.MessageLogger.ApeEstimator=dict()
+#process.MessageLogger.TrackRefitter=dict()
+process.MessageLogger.AlignmentTrackSelector=dict()
 process.MessageLogger.cerr.INFO.limit = 0
 process.MessageLogger.cerr.default.limit = -1  # Do not use =0, else all error messages (except those listed below) are supressed
 process.MessageLogger.cerr.SectorBuilder = cms.untracked.PSet(limit = cms.untracked.int32(-1))

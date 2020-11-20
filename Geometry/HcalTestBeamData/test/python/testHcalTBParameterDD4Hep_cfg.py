@@ -24,13 +24,13 @@ process.DDCompactViewESProducer = cms.ESProducer("DDCompactViewESProducer",
 )
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 5
-
-    
-    
-    
-    
-    
-    
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.HCalGeom=dict()
+    process.MessageLogger.EcalGeom=dict()
+    process.MessageLogger.HcalSim=dict()
+    process.MessageLogger.HcalTBSim=dict()
+    process.MessageLogger.EcalSim=dict()
+    process.MessageLogger.CaloSim=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789

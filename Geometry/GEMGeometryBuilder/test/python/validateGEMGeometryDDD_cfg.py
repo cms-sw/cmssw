@@ -14,9 +14,9 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
 process.load("Geometry.GEMGeometryBuilder.gemGeometry_cff")
 
-
-    
-    
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.Geometry=dict()
+    process.MessageLogger.GEMNumberingScheme=dict()
 
 #
 # Note: Please, download the geometry file from a location

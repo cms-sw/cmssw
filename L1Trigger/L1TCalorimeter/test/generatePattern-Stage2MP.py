@@ -143,7 +143,7 @@ process.output = cms.OutputModule("PoolOutputModule",
 
 
 # enable debug message logging for our modules
-
+process.MessageLogger.L1TCaloEvents=dict()
 
 process.MessageLogger.suppressInfo = cms.untracked.vstring('Geometry', 'AfterSource')
 

@@ -427,9 +427,6 @@ else :
 # Message Logger
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.debugModules = ['l1GtRecord']
-
-
-
 process.MessageLogger.cerr.default.limit = 0
 process.MessageLogger.cerr.FwkReport.limit = 0
 process.MessageLogger.cerr.FwkSummary.limit = 0

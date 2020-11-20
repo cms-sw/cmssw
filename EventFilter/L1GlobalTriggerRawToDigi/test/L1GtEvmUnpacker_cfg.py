@@ -88,8 +88,6 @@ process.p = cms.Path(process.l1GtEvmUnpack)
 # Message Logger
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.debugModules = ['l1GtEvmUnpack', 'l1GtTrigReport']
-
-
 process.MessageLogger.cerr.enable = False
 
 process.MessageLogger.files.L1GtEvmUnpacker_errors = cms.untracked.PSet( 

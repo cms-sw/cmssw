@@ -157,8 +157,6 @@ else :
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.debugModules = ['l1GtAnalyzer']
 
-
-
 process.MessageLogger.cerr.enable = False
 process.MessageLogger.cerr.default.limit = 0
 process.MessageLogger.cerr.FwkReport.limit = 0

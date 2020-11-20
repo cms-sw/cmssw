@@ -42,10 +42,7 @@ process.simMuonCSCDigis.dumpGasCollisions = cms.untracked.bool(True)
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 # Activate LogVerbatim output in CSCDigitizer
-
-
 # Activate LogVerbatim output in CSC Digis and CSCDigiDump
-##
 
 process.MessageLogger.cerr.enable = False
 process.MessageLogger.cout = cms.untracked.PSet(

@@ -5,10 +5,10 @@ process = cms.Process("DUMP")
 process.load("Geometry.MuonCommonData.testGEMXML_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
-
-    
-    
-    
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.G4cerr=dict()
+    process.MessageLogger.G4cout=dict()
+    process.MessageLogger.MuonGeom=dict()
 
 process.source = cms.Source("EmptySource")
 

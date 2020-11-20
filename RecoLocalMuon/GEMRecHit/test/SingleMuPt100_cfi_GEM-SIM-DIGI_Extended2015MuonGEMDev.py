@@ -69,7 +69,6 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
 ### Code/Configuration with thanks to Tim Cox                     
 ##################################################################
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-
 process.MessageLogger.debugModules = cms.untracked.vstring("*")
 process.MessageLogger.files.junk = dict()
 process.MessageLogger.cerr.enable = False

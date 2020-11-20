@@ -21,7 +21,7 @@ process.source = cms.Source("PoolSource",
 # MessageLogger
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-
+process.MessageLogger.muonAssociatorByHitsHelper = dict()
 process.MessageLogger.cout = cms.untracked.PSet(
     noTimeStamps = cms.untracked.bool(True),
     threshold = cms.untracked.string('INFO'),

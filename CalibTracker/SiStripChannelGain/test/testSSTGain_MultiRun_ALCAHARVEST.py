@@ -18,8 +18,8 @@ process = cms.Process('ALCAHARVEST')
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
-
 process.MessageLogger.cerr.enable = False
+process.MessageLogger.SiStripGainsPCLHarvester=dict()
 process.MessageLogger.cout = cms.untracked.PSet(
     enable    = cms.untracked.bool(True),
     enableStatistics = cms.untracked.bool(True),

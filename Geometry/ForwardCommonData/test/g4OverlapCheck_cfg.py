@@ -5,10 +5,10 @@ process = cms.Process("G4PrintGeometry")
 process.load("Geometry.ForwardCommonData.totemT22021XML_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
-
-    
-    
-    
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.SimG4CoreApplication=dict()
+    process.MessageLogger.G4cout=dict()
+    process.MessageLogger.ForwardGeom=dict()
 
 from SimG4Core.PrintGeomInfo.g4TestGeometry_cfi import *
 process = checkOverlap(process)

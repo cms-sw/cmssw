@@ -92,7 +92,6 @@ process.options = cms.untracked.PSet(
 
 # enable debug message logging for our modules
 process.load('FWCore.MessageService.MessageLogger_cfi')
-
 process.MessageLogger.suppressInfo = cms.untracked.vstring('Geometry', 'AfterSource')
 if (options.dumpRaw or options.dumpDigis):
     process.MessageLogger.files.infos = cms.untracked.PSet(

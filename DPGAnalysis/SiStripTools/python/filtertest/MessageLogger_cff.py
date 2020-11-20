@@ -2,9 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from FWCore.MessageLogger.MessageLogger_cfi import MessageLogger
 
-MessageLogger.categories.append("L1AcceptBunchCrossingNoCollection")
-MessageLogger.categories.append("EventWithHistoryFilterConfiguration")
-
+MessageLogger.EventWithHistoryFilterConfiguration = dict()
 MessageLogger.files.infos = dict(
     threshold = cms.untracked.string("INFO"),
     default = cms.untracked.PSet(

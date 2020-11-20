@@ -25,10 +25,10 @@ process.maxEvents = cms.untracked.PSet(
     output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
 )
 
-
-    
-    
-    
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.G4cout=dict()
+    process.MessageLogger.G4cerr=dict()
+    process.MessageLogger.ParticleGun=dict()
 
 # Input source
 process.source = cms.Source("EmptySource")

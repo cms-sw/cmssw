@@ -34,9 +34,9 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1000)
 )
 
-
-    
-    
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.HGCalGeom=dict()
+    process.MessageLogger.HGCSim=dict()
 
 
 # Input source

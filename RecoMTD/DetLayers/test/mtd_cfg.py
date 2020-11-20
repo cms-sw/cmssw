@@ -9,7 +9,6 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-
 process.MessageLogger.debugModules = cms.untracked.vstring("*")
 process.MessageLogger.files.debugs = cms.untracked.PSet(
     threshold = cms.untracked.string('DEBUG'),

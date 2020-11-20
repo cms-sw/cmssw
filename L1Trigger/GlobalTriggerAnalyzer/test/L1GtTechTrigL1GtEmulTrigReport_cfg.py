@@ -275,7 +275,6 @@ process.p = cms.Path(process.simBscDigis
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.debugModules = ['l1GtEmulDigis', 'l1GtTrigReport']
 
-
 process.MessageLogger.cerr.threshold = 'DEBUG'
 #process.MessageLogger.cerr.threshold = 'INFO'
 #process.MessageLogger.cerr.threshold = 'WARNING'

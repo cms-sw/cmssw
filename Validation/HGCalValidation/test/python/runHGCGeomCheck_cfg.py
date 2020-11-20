@@ -30,9 +30,9 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 5
-
-    
-    
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.HGCalValid=dict()
+    process.MessageLogger.HGCalGeom=dict()
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
 process.source = cms.Source("PoolSource",

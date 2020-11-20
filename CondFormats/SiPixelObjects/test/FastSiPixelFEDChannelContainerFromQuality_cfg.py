@@ -7,9 +7,9 @@ process = cms.Process("summary")
 ## MessageLogger
 ##
 process.load('FWCore.MessageService.MessageLogger_cfi')   
-
-
 process.MessageLogger.cerr.enable = False
+process.MessageLogger.FastSiPixelFEDChannelContainerFromQuality=dict()  
+process.MessageLogger.SiPixelFEDChannelContainer=dict()  
 process.MessageLogger.cout = cms.untracked.PSet(
     threshold = cms.untracked.string("INFO"),
     enableStatistics = cms.untracked.bool(True),

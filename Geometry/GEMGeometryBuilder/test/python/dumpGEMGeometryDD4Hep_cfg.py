@@ -16,10 +16,10 @@ process.DDCompactViewESProducer = cms.ESProducer("DDCompactViewESProducer",
                                                  appendToDataLabel = cms.string('')
 )
 
-
-    
-    
-    
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.Geometry=dict()
+    process.MessageLogger.GEMNumberingScheme=dict()
+    process.MessageLogger.GEMGeometry=dict()
 
 process.source = cms.Source('EmptySource')
 

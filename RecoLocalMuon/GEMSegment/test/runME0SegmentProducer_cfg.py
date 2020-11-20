@@ -46,6 +46,7 @@ process.load('RecoLocalMuon.GEMSegment.me0Segments_cfi')
 ### that can be activated independentl                         
 ###############################################################
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
+
 process.MessageLogger.debugModules = cms.untracked.vstring("*")
 process.MessageLogger.cerr.enable = False
 process.MessageLogger.files.junk = dict()

@@ -44,10 +44,10 @@ else:
 # Messages
 ###################################################################
 process.load('FWCore.MessageService.MessageLogger_cfi')   
-
-
-
 process.MessageLogger.cerr.enable = False
+process.MessageLogger.PrimaryVertexValidation=dict()  
+process.MessageLogger.SplitVertexResolution=dict()
+process.MessageLogger.FilterOutLowPt=dict()  
 process.MessageLogger.cout = cms.untracked.PSet(
     enable = cms.untracked.bool(True),
     threshold = cms.untracked.string("INFO"),

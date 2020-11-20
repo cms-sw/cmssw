@@ -21,8 +21,8 @@ process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
 process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
 
-
-    
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.MaterialBudget=dict()
 
 process.source = cms.Source("EmptySource",
     firstRun        = cms.untracked.uint32(1),

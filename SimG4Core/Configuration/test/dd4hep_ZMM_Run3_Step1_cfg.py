@@ -20,15 +20,15 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.Geometry.GeometryDD4hepExtended2021_cff') # there w
 
 
-
-    
-#    
-#    
-#    
-#    
-#    
-#    
-#    
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.EcalGeom=dict()
+#    process.MessageLogger.MuonSim=dict()
+#    process.MessageLogger.CaloSim=dict()
+#    process.MessageLogger.EcalSim=dict()
+#    process.MessageLogger.HcalSim=dict()
+#    process.MessageLogger.SimG4CoreApplication=dict()
+#    process.MessageLogger.TrackerGeometryBuilder=dict()
+#    process.MessageLogger.TrackerSimInfoNumbering=dict()
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10),

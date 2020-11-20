@@ -9,8 +9,8 @@ process = cms.Process("HcalSimNumberingTest",Run3)
 process.load('Configuration.Geometry.GeometryExtended2021_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
-
-    
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.HcalGeom=dict()
 
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(

@@ -71,7 +71,6 @@ process.cscSegments.algo_psets[2].algo_psets[2].CSCDegmentDebug = cms.untracked.
 
 # --- Activate LogVerbatim IN CSCSegment  
 
-
 process.MessageLogger.cerr.enable = False
 process.MessageLogger.cout = cms.untracked.PSet(
     enable    = cms.untracked.bool(True),

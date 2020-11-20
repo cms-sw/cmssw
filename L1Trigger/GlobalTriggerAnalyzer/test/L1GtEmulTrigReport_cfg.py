@@ -213,8 +213,6 @@ else :
 # Message Logger
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.debugModules = ['l1GtEmulDigis', 'l1GtTrigReport']
-
-
 process.MessageLogger.cerr.enable = False
 
 process.MessageLogger.files.L1GtEmulTrigReport_errors = cms.untracked.PSet( 

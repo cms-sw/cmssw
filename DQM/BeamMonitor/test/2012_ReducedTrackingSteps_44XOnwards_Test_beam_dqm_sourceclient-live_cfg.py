@@ -14,7 +14,7 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 ####---Massage logger Services----####
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.debugModules = ['dqmBeamMonitor']
-
+process.MessageLogger.BeamMonitor = dict()
 process.MessageLogger.cerr.threshold = "INFO"
 
 

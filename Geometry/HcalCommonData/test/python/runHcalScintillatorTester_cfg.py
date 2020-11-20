@@ -9,8 +9,8 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
     )
 
-
-    
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.HCalGeom=dict()
 
 process.hpa = cms.EDAnalyzer("HcalScintillatorTester")
 
