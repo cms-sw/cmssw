@@ -12,6 +12,7 @@
 #include <DD4hep/Filter.h>
 
 #include "G4LogicalVolume.hh"
+#include "G4LogicalVolumeStore.hh"
 #include "G4ReflectionFactory.hh"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -33,8 +34,6 @@ G4VPhysicalVolume *DDG4Builder::BuildGeometry(SensitiveDetectorCatalog &catalog)
   const Detector &detector = *det->description();
   Geant4Converter g4Geo(detector);
   g4Geo.debugMaterials = false;
-  g4Geo.debugReflections = true;
-  g4Geo.debugPlacements = true;
   Geant4GeometryInfo *geometry = g4Geo.create(world).detach();
   map_ = geometry->g4Volumes;
 
@@ -58,28 +57,22 @@ G4VPhysicalVolume *DDG4Builder::BuildGeometry(SensitiveDetectorCatalog &catalog)
     auto fff = it.first->GetName();
     catalog.insert({sClassName.data(), sClassName.size()}, {sROUName.data(), sROUName.size()}, fff);
 
+    auto reflectedG4LogicalVolumeName = fff + "_refl";
+    bool hasReflectedVolumeInStore = false;
+    G4LogicalVolumeStore *theStore = G4LogicalVolumeStore::GetInstance();
+    for (auto &lv : *theStore) {
+      if (lv->GetName().find(reflectedG4LogicalVolumeName) != std::string::npos) {
+        hasReflectedVolumeInStore = true;
+      }
+    }
+    if (hasReflectedVolumeInStore) {
+      catalog.insert(
+          {sClassName.data(), sClassName.size()}, {sROUName.data(), sROUName.size()}, reflectedG4LogicalVolumeName);
+    }
+
     edm::LogVerbatim("SimG4CoreApplication")
         << " DDG4SensitiveConverter: Sensitive " << fff << " Class Name " << sClassName << " ROU Name " << sROUName;
   }
-
-
-
- for (auto const &it : map_) {
-   std::cout << "DDG4Builder::DDG4Builder found " << it.first.name() << std::endl;
-
- }
-
-
-
-
-
-
-
-
-
-
-
-
 
   return geometry->world();
 }
