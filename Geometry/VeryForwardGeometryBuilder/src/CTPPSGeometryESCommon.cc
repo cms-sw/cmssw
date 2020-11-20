@@ -1,12 +1,9 @@
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometryESCommon.h"
+#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSDDDNames.h"
 
+namespace CTPPSGeometryESCommon {
 
-CTPPSGeometryESCommon::CTPPSGeometryESCommon(const edm::ParameterSet& iConfig)
-    : verbosity_(iConfig.getUntrackedParameter<unsigned int>("verbosity")){}
-
-//----------------------------------------------------------------------------------------------------
-
-std::unique_ptr<DetGeomDesc> CTPPSGeometryESCommon::applyAlignments(const DetGeomDesc& idealDetRoot,
+std::unique_ptr<DetGeomDesc> applyAlignments(const DetGeomDesc& idealDetRoot,
                                                                     const CTPPSRPAlignmentCorrectionsData* alignments) {
   std::deque<const DetGeomDesc*> bufferIdealGeo;
   bufferIdealGeo.emplace_back(&idealDetRoot);
@@ -61,3 +58,5 @@ std::unique_ptr<DetGeomDesc> CTPPSGeometryESCommon::applyAlignments(const DetGeo
   }
   return std::unique_ptr<DetGeomDesc>(alignedDetRoot);
 }
+
+} // namespace CTPPSGeometryESCommon

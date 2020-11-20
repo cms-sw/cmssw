@@ -265,17 +265,14 @@ void CTPPSCompositeESSource::buildDirectSimuData(const edm::ParameterSet& profil
 void CTPPSCompositeESSource::buildGeometry(const DDCompactView& cpv) {
   std::unique_ptr<DetGeomDesc> idealGD = detgeomdescbuilder::buildDetGeomDescFromCompactView(cpv);
 
-  // FIXME: does this run any intialisation of the class ??
-  std::unique_ptr<CTPPSGeometryESCommon> ctppsGeometryESModuleCommon;
-
   for (auto &pb : profile_bins_)
   {
     auto &p = pb.data;
 
-    p.misalignedGD = ctppsGeometryESModuleCommon->applyAlignments(*(idealGD), p.acMisaligned.get());
+    p.misalignedGD = CTPPSGeometryESCommon::applyAlignments(*(idealGD), p.acMisaligned.get());
     p.misalignedTG = std::make_shared<CTPPSGeometry>(p.misalignedGD.get(),verbosity_);
 
-    p.realGD = ctppsGeometryESModuleCommon->applyAlignments(*(idealGD), p.acReal.get());
+    p.realGD = CTPPSGeometryESCommon::applyAlignments(*(idealGD), p.acReal.get());
     p.realTG = std::make_shared<CTPPSGeometry>(p.realGD.get(),verbosity_);
   }
 }
