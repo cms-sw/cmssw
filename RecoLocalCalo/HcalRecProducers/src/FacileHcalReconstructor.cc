@@ -52,7 +52,7 @@ public:
         input.push_back(pDetId.depth() == itDepth);
       }
 
-      for (int itIeta = 0; itIeta <= htopo->lastHERing(); itIeta++) {
+      for (int itIeta = 1; itIeta <= htopo->lastHERing(); itIeta++) {
         input.push_back(pDetId.ietaAbs() == itIeta);
       }
 
@@ -69,7 +69,6 @@ public:
 
     const auto& output1 = iOutput.begin()->second;
     const auto& outputs = output1.fromServer<float>();
-
     for (std::size_t iB = 0; iB < hcalIds_.size(); iB++) {
       float rhE = outputs[iB][0];
       if (rhE < 0. or std::isnan(rhE) or std::isinf(rhE))
