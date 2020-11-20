@@ -26,6 +26,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
 
@@ -50,6 +51,7 @@ class TriggerHelper {
   bool errorReplyDcs_;
   bool andOrGt_;
   edm::InputTag gtInputTag_;
+  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> gtInputToken_;
   std::string gtDBKey_;
   std::vector<std::string> gtLogicalExpressions_;
   bool errorReplyGt_;
@@ -119,11 +121,16 @@ private:
 
 template <typename T>
 TriggerHelper::TriggerHelper(const edm::ParameterSet &config, edm::ConsumesCollector &&iC, T &module)
-    : TriggerHelper(config, iC, module) {}
+    : TriggerHelper(config, iC, module) 
+{
+  gtInputTag_ = config.getParameter<edm::InputTag>("gtInputTag");      
+  gtInputToken_ = iC.consumes<L1GlobalTriggerReadoutRecord>(gtInputTag_);
+}
 
 template <typename T>
 TriggerHelper::TriggerHelper(const edm::ParameterSet &config, edm::ConsumesCollector &iC, T &module)
-    : TriggerHelper(config) {
+    : TriggerHelper(config)
+{
   if (onL1_ && (!l1DBKey_.empty() || !l1LogicalExpressions_.empty())) {
     l1Gt_.reset(new L1GtUtils(config, iC, false, module, L1GtUtils::UseEventSetupIn::Event));
   }
