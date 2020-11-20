@@ -1,18 +1,24 @@
 <library name="CalibPPSESProducersPlugins" file="*.cc">
   <flags EDM_PLUGIN="1"/>
+
+  <use name="CalibPPS/ESProducers"/>
+
   <use name="FWCore/Framework"/>
-  <use name="Utilities/Xerces"/>
+  <use name="FWCore/Utilities"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/MessageLogger"/>
+
+  <use name="CondFormats/AlignmentRecord"/>
   <use name="CondFormats/DataRecord"/>
   <use name="CondFormats/PPSObjects"/>
-  <use name="DataFormats/CTPPSDetId"/>
   <use name="CondFormats/RunInfo"/>
-  <use name="FWCore/MessageLogger"/>
-  <use name="clhep"/>
-  <use name="FWCore/ParameterSet"/>
+
+  <use name="DataFormats/CTPPSDetId"/>
+
   <use name="Geometry/Records"/>
-  <use name="CondFormats/Common"/>
-  <use name="CondFormats/GeometryObjects"/>
-  <use name="MagneticField/Records"/>
   <use name="Geometry/VeryForwardGeometryBuilder"/>
-  <use name="CalibPPS/ESProducers"/>
+
+  <use name="Utilities/Xerces"/>
+
+  <use name="clhep"/>
 </library>
