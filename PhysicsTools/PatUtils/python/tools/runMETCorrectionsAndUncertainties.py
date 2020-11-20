@@ -519,8 +519,10 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             getattr(process, _myPatMet).srcPFCands = "puppiForMET" if self.getvalue("Puppi") else copy.copy(self.getvalue("pfCandCollection"))
         if metType == "PF":
             from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
-            run2_miniAOD_UL.toModify(getattr(process, _myPatMet), srcLeptons = \
-              cms.VInputTag(copy.copy(self.getvalue("electronCollection")) if self.getvalue("onMiniAOD") else
+            from Configuration.Eras.Modifier_run2_nanoAOD_106Xv1_cff import run2_nanoAOD_106Xv1
+            for modifier in run2_miniAOD_UL, run2_nanoAOD_106Xv1:
+                modifier.toModify(getattr(process, _myPatMet), srcLeptons = \
+                        cms.VInputTag(copy.copy(self.getvalue("electronCollection")) if self.getvalue("onMiniAOD") else
                               cms.InputTag("pfeGammaToCandidate","electrons"),
                             copy.copy(self.getvalue("muonCollection")),
                             copy.copy(self.getvalue("photonCollection")) if self.getvalue("onMiniAOD") else
