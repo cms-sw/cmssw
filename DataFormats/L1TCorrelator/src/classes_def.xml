@@ -6,7 +6,9 @@
  </class>
  <class name="std::vector<l1t::TkPrimaryVertex>"/>
  <class name="edm::Wrapper<std::vector<l1t::TkPrimaryVertex> >"/>
-  <class name="edm::Ref<std::vector<l1t::TkPrimaryVertex>,l1t::TkPrimaryVertex,edm::refhelper::FindUsingAdvance<std::vector<l1t::TkPrimaryVertex>,l1t::TkPrimaryVertex> >"/>
+ <class name="edm::Ref<std::vector<l1t::TkPrimaryVertex>,l1t::TkPrimaryVertex,edm::refhelper::FindUsingAdvance<std::vector<l1t::TkPrimaryVertex>,l1t::TkPrimaryVertex> >"/>
+ <class name="std::vector<edm::Ref<std::vector<l1t::TkPrimaryVertex>,l1t::TkPrimaryVertex,edm::refhelper::FindUsingAdvance<std::vector<l1t::TkPrimaryVertex>,l1t::TkPrimaryVertex> > >"/>
+
 
   <class name="l1t::TkEtMiss" ClassVersion="3">
    <version ClassVersion="3" checksum="77762919"/>
