@@ -81,7 +81,6 @@ private:
 
 
   const unsigned int verbosity_;
-  std::unique_ptr<CTPPSGeometryESCommon> ctppsGeometryESModuleCommon;
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> ddToken_;
   edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> dd4hepToken_;
   const bool fromDD4hep_;
@@ -102,7 +101,6 @@ CTPPSGeometryESModule::CTPPSGeometryESModule(const edm::ParameterSet& iConfig)
           setWhatProduced(this, &CTPPSGeometryESModule::produceRealTG).consumes<DetGeomDesc>(edm::ESInputTag())},
       dgdMisToken_{
           setWhatProduced(this, &CTPPSGeometryESModule::produceMisalignedTG).consumes<DetGeomDesc>(edm::ESInputTag())} {
-  ctppsGeometryESModuleCommon=std::make_unique<CTPPSGeometryESCommon>(iConfig);
   auto c = setWhatProduced(this, &CTPPSGeometryESModule::produceIdealGD);
 
   if (!fromDD4hep_) {
@@ -165,7 +163,7 @@ std::unique_ptr<DetGeomDesc> CTPPSGeometryESModule::produceGD(IdealGeometryRecor
     }
   }
 
-  return ctppsGeometryESModuleCommon->applyAlignments(idealGD, alignments);
+  return CTPPSGeometryESCommon::applyAlignments(idealGD, alignments);
 }
 
 std::unique_ptr<DetGeomDesc> CTPPSGeometryESModule::produceRealGD(const VeryForwardRealGeometryRecord& iRecord) {
