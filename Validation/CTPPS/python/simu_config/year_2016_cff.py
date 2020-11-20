@@ -11,6 +11,7 @@ profile_base_2016 = profile_base.clone(
 
 # geometry
 from Geometry.VeryForwardGeometry.geometryRPFromDD_2017_cfi import * # using 2017 here is OK
+ctppsCompositeESSource.compactViewTag = ctppsGeometryESModule.compactViewTag
 del ctppsGeometryESModule # this functionality is replaced by the composite ES source
 
 # local reconstruction
