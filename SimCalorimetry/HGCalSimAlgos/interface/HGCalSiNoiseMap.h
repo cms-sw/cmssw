@@ -4,6 +4,7 @@
 #include "SimCalorimetry/HGCalSimAlgos/interface/HGCalRadiationMap.h"
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCFEElectronics.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
+#include "DataFormats/ForwardDetId/interface/HFNoseDetId.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include <string>
 #include <array>
@@ -13,6 +14,7 @@
    @class HGCalSiNoiseMap
    @short derives from HGCalRadiation map to parse fluence parameters, provides Si-specific functions; see DN-19-045
 */
+template <typename T>
 class HGCalSiNoiseMap : public HGCalRadiationMap {
 public:
   enum GainRange_t { q80fC, q160fC, q320fC, AUTO };
@@ -66,13 +68,12 @@ public:
      @short returns the charge collection efficiency and noise
      if gain range is set to auto, it will find the most appropriate gain to put the mip peak close to 10 ADC counts
   */
-  const SiCellOpCharacteristicsCore getSiCellOpCharacteristicsCore(const HGCSiliconDetId &did,
-                                                                   GainRange_t gain,
-                                                                   int aimMIPtoADC);
-  const SiCellOpCharacteristicsCore getSiCellOpCharacteristicsCore(const HGCSiliconDetId &did) {
+  const SiCellOpCharacteristicsCore getSiCellOpCharacteristicsCore(const T &did, GainRange_t gain, int aimMIPtoADC);
+  const SiCellOpCharacteristicsCore getSiCellOpCharacteristicsCore(const T &did) {
     return getSiCellOpCharacteristicsCore(did, defaultGain_, defaultAimMIPtoADC_);
   }
-  SiCellOpCharacteristics getSiCellOpCharacteristics(const HGCSiliconDetId &did,
+
+  SiCellOpCharacteristics getSiCellOpCharacteristics(const T &did,
                                                      GainRange_t gain = GainRange_t::AUTO,
                                                      int aimMIPtoADC = 10);
   SiCellOpCharacteristics getSiCellOpCharacteristics(double &cellCap,
@@ -139,5 +140,8 @@ private:
   //flags used to disable specific components of the Si operation parameters or usage of operation cache
   bool ignoreFluence_, ignoreCCE_, ignoreNoise_, ignoreGainDependentPulse_, activateCachedOp_;
 };
+
+template class HGCalSiNoiseMap<HGCSiliconDetId>;
+template class HGCalSiNoiseMap<HFNoseDetId>;
 
 #endif

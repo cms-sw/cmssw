@@ -1,7 +1,8 @@
 #include "SimCalorimetry/HGCalSimAlgos/interface/HGCalSiNoiseMap.h"
 
 //
-HGCalSiNoiseMap::HGCalSiNoiseMap()
+template <typename T>
+HGCalSiNoiseMap<T>::HGCalSiNoiseMap()
     : defaultGain_(GainRange_t::AUTO),
       defaultAimMIPtoADC_(10),
       encCommonNoiseSub_(sqrt(1.0)),
@@ -57,7 +58,8 @@ HGCalSiNoiseMap::HGCalSiNoiseMap()
 }
 
 //
-void HGCalSiNoiseMap::setDoseMap(const std::string &fullpath, const unsigned int &algo) {
+template <typename T>
+void HGCalSiNoiseMap<T>::setDoseMap(const std::string &fullpath, const unsigned int &algo) {
   //decode bits in the algo word
   ignoreFluence_ = ((algo >> FLUENCE) & 0x1);
   ignoreCCE_ = ((algo >> CCE) & 0x1);
@@ -70,7 +72,8 @@ void HGCalSiNoiseMap::setDoseMap(const std::string &fullpath, const unsigned int
 }
 
 //
-double HGCalSiNoiseMap::getENCpad(double ileak) {
+template <typename T>
+double HGCalSiNoiseMap<T>::getENCpad(double ileak) {
   if (ileak > 45.40)
     return 23.30 * ileak + 1410.04;
   else if (ileak > 38.95)
@@ -90,7 +93,8 @@ double HGCalSiNoiseMap::getENCpad(double ileak) {
 }
 
 //
-void HGCalSiNoiseMap::setGeometry(const CaloSubdetectorGeometry *hgcGeom, GainRange_t gain, int aimMIPtoADC) {
+template <typename T>
+void HGCalSiNoiseMap<T>::setGeometry(const CaloSubdetectorGeometry *hgcGeom, GainRange_t gain, int aimMIPtoADC) {
   //call base class method
   HGCalRadiationMap::setGeometry(hgcGeom);
 
@@ -107,11 +111,8 @@ void HGCalSiNoiseMap::setGeometry(const CaloSubdetectorGeometry *hgcGeom, GainRa
 
   const auto &validDetIds = geom()->getValidDetIds();
   for (const auto &did : validDetIds) {
-    //use only positive side detIds
     unsigned int rawId(did.rawId());
-    HGCSiliconDetId hgcDetId(rawId);
-    if (hgcDetId.zside() != 1)
-      continue;
+    T hgcDetId(rawId);
 
     //compute and store in cache
     siopCache_.emplace(rawId, getSiCellOpCharacteristicsCore(hgcDetId));
@@ -119,39 +120,33 @@ void HGCalSiNoiseMap::setGeometry(const CaloSubdetectorGeometry *hgcGeom, GainRa
 }
 
 //
-const HGCalSiNoiseMap::SiCellOpCharacteristicsCore HGCalSiNoiseMap::getSiCellOpCharacteristicsCore(
-    const HGCSiliconDetId &cellId, GainRange_t gain, int aimMIPtoADC) {
+template <typename T>
+const typename HGCalSiNoiseMap<T>::SiCellOpCharacteristicsCore HGCalSiNoiseMap<T>::getSiCellOpCharacteristicsCore(
+    const T &cellId, GainRange_t gain, int aimMIPtoADC) {
   //re-compute
   if (!activateCachedOp_)
     return getSiCellOpCharacteristics(cellId, gain, aimMIPtoADC).core;
 
-  //re-use from cache
-  HGCSiliconDetId posCellId(cellId.subdet(),
-                            1,
-                            cellId.type(),
-                            cellId.layer(),
-                            cellId.waferU(),
-                            cellId.waferV(),
-                            cellId.cellU(),
-                            cellId.cellV());
-  uint32_t key(posCellId.rawId());
+  uint32_t key = cellId.rawId();
+
   return siopCache_[key];
 }
 
 //
-HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteristics(const HGCSiliconDetId &cellId,
-                                                                                     GainRange_t gain,
-                                                                                     int aimMIPtoADC) {
+template <typename T>
+typename HGCalSiNoiseMap<T>::SiCellOpCharacteristics HGCalSiNoiseMap<T>::getSiCellOpCharacteristics(const T &cellId,
+                                                                                                    GainRange_t gain,
+                                                                                                    int aimMIPtoADC) {
   //decode cell properties
-  int layer(cellId.layer());
+  int layer = cellId.layer();
   unsigned int cellThick = cellId.type();
   double cellCap(cellCapacitance_[cellThick]);
   double cellVol(cellVolume_[cellThick]);
   double mipEqfC(mipEqfC_[cellThick]);
+  std::vector<double> &cceParam = cceParam_[cellThick];
 
   //location of the cell
-  int subdet(cellId.subdet());
-  std::vector<double> &cceParam = cceParam_[cellThick];
+  int subdet = cellId.subdet();
   const auto &xy(
       ddd()->locateCell(cellId.layer(), cellId.waferU(), cellId.waferV(), cellId.cellU(), cellId.cellV(), true, true));
   double radius = sqrt(std::pow(xy.first, 2) + std::pow(xy.second, 2));  //in cm
@@ -161,15 +156,17 @@ HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteris
 }
 
 //
-HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteristics(double &cellCap,
-                                                                                     double &cellVol,
-                                                                                     double &mipEqfC,
-                                                                                     std::vector<double> &cceParam,
-                                                                                     int &subdet,
-                                                                                     int &layer,
-                                                                                     double &radius,
-                                                                                     GainRange_t &gain,
-                                                                                     int &aimMIPtoADC) {
+template <typename T>
+typename HGCalSiNoiseMap<T>::SiCellOpCharacteristics HGCalSiNoiseMap<T>::getSiCellOpCharacteristics(
+    double &cellCap,
+    double &cellVol,
+    double &mipEqfC,
+    std::vector<double> &cceParam,
+    int &subdet,
+    int &layer,
+    double &radius,
+    GainRange_t &gain,
+    int &aimMIPtoADC) {
   SiCellOpCharacteristics siop;
 
   //leakage current and CCE [muA]
