@@ -53,8 +53,7 @@ private:
 EcalSCDynamicDPhiParametersESProducer::EcalSCDynamicDPhiParametersESProducer(const edm::ParameterSet& iConfig) {
   setWhatProduced(this);
 
-  reco::SCDynamicDPhiParametersHelper scDynamicDPhiParams(iConfig);
-  params_ = static_cast<EcalSCDynamicDPhiParameters>(scDynamicDPhiParams);
+  reco::SCDynamicDPhiParametersHelper scDynamicDPhiParams(params_, iConfig);
 }
 
 EcalSCDynamicDPhiParametersESProducer::~EcalSCDynamicDPhiParametersESProducer() {}

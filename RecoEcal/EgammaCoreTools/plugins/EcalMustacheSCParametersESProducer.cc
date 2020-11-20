@@ -53,8 +53,7 @@ private:
 EcalMustacheSCParametersESProducer::EcalMustacheSCParametersESProducer(const edm::ParameterSet& iConfig) {
   setWhatProduced(this);
 
-  reco::MustacheSCParametersHelper mustacheSCParams(iConfig);
-  params_ = static_cast<EcalMustacheSCParameters>(mustacheSCParams);
+  reco::MustacheSCParametersHelper mustacheSCParams(params_, iConfig);
 }
 
 EcalMustacheSCParametersESProducer::~EcalMustacheSCParametersESProducer() {}

@@ -6,6 +6,10 @@
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 
+namespace reco {
+  class SCDynamicDPhiParametersHelper;
+}  // namespace reco
+
 class EcalSCDynamicDPhiParameters {
 public:
   EcalSCDynamicDPhiParameters(){};
@@ -25,6 +29,9 @@ public:
   };
 
   const DynamicDPhiParameters* dynamicDPhiParameters(double clustE, double absSeedEta) const;
+
+  // helper class to set parameters
+  friend class reco::SCDynamicDPhiParametersHelper;
 
   // print parameters to stream:
   void print(std::ostream&) const;

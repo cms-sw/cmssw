@@ -6,14 +6,17 @@
 
 namespace reco {
 
-  class SCDynamicDPhiParametersHelper : public EcalSCDynamicDPhiParameters {
+  class SCDynamicDPhiParametersHelper {
   public:
-    SCDynamicDPhiParametersHelper(const EcalSCDynamicDPhiParameters &params);
-    SCDynamicDPhiParametersHelper(const edm::ParameterSet &iConfig);
-    ~SCDynamicDPhiParametersHelper() override{};
+    SCDynamicDPhiParametersHelper(EcalSCDynamicDPhiParameters &params);
+    SCDynamicDPhiParametersHelper(EcalSCDynamicDPhiParameters &params, const edm::ParameterSet &iConfig);
+    ~SCDynamicDPhiParametersHelper() = default;
 
     void addDynamicDPhiParameters(const EcalSCDynamicDPhiParameters::DynamicDPhiParameters &params);
     void sortDynamicDPhiParametersCollection();
+
+  private:
+    EcalSCDynamicDPhiParameters &parameters_;
   };
 
 }  // namespace reco
