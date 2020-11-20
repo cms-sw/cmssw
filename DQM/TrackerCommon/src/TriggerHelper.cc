@@ -1,13 +1,11 @@
 //
 //
 
-#include "DQM/TrackerCommon/interface/TriggerHelper.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "CondFormats/HLTObjects/interface/AlCaRecoTriggerBits.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "DQM/TrackerCommon/interface/TriggerHelper.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <string>
 #include <vector>
 
@@ -45,7 +43,6 @@ TriggerHelper::TriggerHelper(const edm::ParameterSet &config)
     }
     if (config.exists("andOrGt")) {
       andOrGt_ = config.getParameter<bool>("andOrGt");
-      gtInputTag_ = config.getParameter<edm::InputTag>("gtInputTag");
       gtLogicalExpressions_ = config.getParameter<std::vector<std::string>>("gtStatusBits");
       errorReplyGt_ = config.getParameter<bool>("errorReplyGt");
       if (config.exists("gtDBKey"))
@@ -216,10 +213,10 @@ bool TriggerHelper::acceptGt(const edm::Event &event) {
 
   // Accessing the L1GlobalTriggerReadoutRecord
   edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecord;
-  event.getByLabel(gtInputTag_, gtReadoutRecord);
+  event.getByToken(gtInputToken_, gtReadoutRecord);
   if (!gtReadoutRecord.isValid()) {
-    edm::LogError("TriggerHelper") << "L1GlobalTriggerReadoutRecord product with InputTag \"" << gtInputTag_.encode()
-                                   << "\" not in event ==> decision: " << errorReplyGt_;
+    //edm::LogError("TriggerHelper") << "L1GlobalTriggerReadoutRecord product with InputTag \"" << gtInputTag_.encode()
+    //                               << "\" not in event ==> decision: " << errorReplyGt_;
     return errorReplyGt_;
   }
 
