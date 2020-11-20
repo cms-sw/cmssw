@@ -165,7 +165,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
                                 const Histograms& histograms) const {
   using namespace reco;
 
-  std::cout << "\n===================================================="
+  LogDebug("HGCalValidator") << "\n===================================================="
                              << "\n"
                              << "Analyzing new event"
                              << "\n"
@@ -217,7 +217,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   // fill caloparticles histograms
   // ##############################################
   // HGCRecHit are given to select the SimHits which are also reconstructed
-  std::cout << "\n# of CaloParticles: " << caloParticles.size() << "\n" << std::endl;
+  LogTrace("HGCalValidator") << "\n# of CaloParticles: " << caloParticles.size() << "\n" << std::endl;
   std::vector<size_t> selected_cPeff;
   cpParametersAndSelection(histograms, caloParticles, simVertices, selected_cPeff, totallayers_to_monitor_, *hitMap);
 
@@ -280,7 +280,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
                                                     totallayers_to_monitor_);
 
       //General Info on multiclusters
-      std::cout << "\n# of multi clusters with " << label_mcl[wml].process() << ":"
+      LogTrace("HGCalValidator") << "\n# of multi clusters with " << label_mcl[wml].process() << ":"
                                  << label_mcl[wml].label() << ":" << label_mcl[wml].instance() << ": "
                                  << multiClusters.size() << "\n" << std::endl;
     }
