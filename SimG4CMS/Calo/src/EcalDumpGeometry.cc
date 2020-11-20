@@ -99,7 +99,6 @@ void EcalDumpGeometry::dumpTouch(G4VPhysicalVolume* pv, unsigned int leafDepth) 
           double a2 = (std::abs(solid->GetTanAlpha2()) > 1.e-5) ? solid->GetTanAlpha2() : 0.0;
           pars.emplace_back(a2);
         }
-        //      infoVec_.emplace_back(CaloDetInfo(id, lvname, globalpoint, pars));
         infoVec_.emplace_back(CaloDetInfo(id, noRefl(lvname), globalpoint, pars));
       }
       break;
