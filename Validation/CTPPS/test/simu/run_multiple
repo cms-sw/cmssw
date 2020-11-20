@@ -9,12 +9,14 @@ function RunOne()
 
 	local cfg="simu_${config}_cfg.py"
 	local log="simu_${config}.log"
+	local out_lhcInfo="simu_${config}_lhcInfo.root"
 	local out_tracks="simu_${config}_tracks.root"
 	local out_protons="simu_${config}_protons.root"
 
 	cat "template_cfg.py" | sed "\
 			s|\$ERA|$era|;\
 			s|\$CONFIG|$config|;\
+			s|\$OUT_LHCINFO|$out_lhcInfo|;\
 			s|\$OUT_TRACKS|$out_tracks|;\
 			s|\$OUT_PROTONS|$out_protons|;\
 		" > "$cfg"

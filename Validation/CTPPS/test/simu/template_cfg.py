@@ -21,6 +21,10 @@ process.maxEvents = cms.untracked.PSet(
   input = cms.untracked.int32(int(1E4))
 )
 
+# LHCInfo plotter
+process.load("Validation.CTPPS.ctppsLHCInfoPlotter_cfi")
+process.ctppsLHCInfoPlotter.outputFile = "$OUT_LHCINFO"
+
 # track distribution plotter
 process.ctppsTrackDistributionPlotter = cms.EDAnalyzer("CTPPSTrackDistributionPlotter",
   tagTracks = cms.InputTag("ctppsLocalTrackLiteProducer"),
@@ -59,6 +63,7 @@ process.p = cms.Path(
   * process.reco_local
   * process.ctppsProtons
 
+  * process.ctppsLHCInfoPlotter
   * process.ctppsTrackDistributionPlotter
   * process.ctppsProtonReconstructionPlotter
 )
