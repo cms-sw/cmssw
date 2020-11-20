@@ -15,23 +15,24 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "CondFormats/PPSObjects/interface/CTPPSRPAlignmentCorrectionsDataSequence.h"
-
 #include "CondFormats/PPSObjects/interface/CTPPSRPAlignmentCorrectionsMethods.h"
 
 #include "CondFormats/AlignmentRecord/interface/CTPPSRPAlignmentCorrectionsDataRcd.h"  // this used to be RPMeasuredAlignmentRecord.h
 #include "CondFormats/AlignmentRecord/interface/RPRealAlignmentRecord.h"
 #include "CondFormats/AlignmentRecord/interface/RPMisalignedAlignmentRecord.h"
+
 #include "CalibPPS/ESProducers/interface/CTPPSRPAlignmentCorrectionsDataESSourceXMLCommon.h"
 
 #include <vector>
 #include <string>
 #include <map>
 #include <set>
+
 using namespace std;
 using namespace edm;
+
 /**
  * Loads alignment corrections to EventSetup.
  **/
@@ -40,14 +41,14 @@ public:
   CTPPSRPAlignmentCorrectionsDataESSourceXML(const edm::ParameterSet &p);
   ~CTPPSRPAlignmentCorrectionsDataESSourceXML() override;
 
-
 protected:
+  std::unique_ptr<CTPPSRPAlignmentCorrectionsDataESSourceXMLCommon> ctppsRPAlignmentCorrectionsDataESSourceXMLCommon;
+
   std::unique_ptr<CTPPSRPAlignmentCorrectionsData> produceMeasured(const CTPPSRPAlignmentCorrectionsDataRcd &);
   std::unique_ptr<CTPPSRPAlignmentCorrectionsData> produceReal(const RPRealAlignmentRecord &);
   std::unique_ptr<CTPPSRPAlignmentCorrectionsData> produceMisaligned(const RPMisalignedAlignmentRecord &);
-  std::unique_ptr<CTPPSRPAlignmentCorrectionsDataESSourceXMLCommon> ctppsRPAlignmentCorrectionsDataESSourceXMLCommon;
+
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue &, edm::ValidityInterval &) override;
-  
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -99,10 +100,10 @@ void CTPPSRPAlignmentCorrectionsDataESSourceXML::setIntervalFor(const edm::event
     char timeStr[50];
     strftime(timeStr, 50, "%F %T", localtime(&unixTime));
 
-    LogVerbatim("CTPPSRPAlignmentCorrectionsDataESSourceXML")
+    LogInfo("PPS")
         << ">> CTPPSRPAlignmentCorrectionsDataESSourceXML::setIntervalFor(" << key.name() << ")";
 
-    LogVerbatim("CTPPSRPAlignmentCorrectionsDataESSourceXML")
+    LogInfo("PPS")
         << "    event=" << iosv.eventID() << ", UNIX timestamp=" << unixTime << " (" << timeStr << ")";
   }
 
@@ -151,7 +152,7 @@ void CTPPSRPAlignmentCorrectionsDataESSourceXML::setIntervalFor(const edm::event
       *p_corr = it.second;
 
       if (ctppsRPAlignmentCorrectionsDataESSourceXMLCommon->verbosity) {
-        LogVerbatim("CTPPSRPAlignmentCorrectionsDataESSourceXML")
+        LogInfo("PPS")
             << "    setting validity interval [" << CTPPSRPAlignmentCorrectionsMethods::iovValueToString(valInt.first())
             << ", " << CTPPSRPAlignmentCorrectionsMethods::iovValueToString(valInt.last()) << "]";
       }
@@ -181,7 +182,7 @@ void CTPPSRPAlignmentCorrectionsDataESSourceXML::setIntervalFor(const edm::event
   }
 
   if (ctppsRPAlignmentCorrectionsDataESSourceXMLCommon->verbosity) {
-    LogVerbatim("CTPPSRPAlignmentCorrectionsDataESSourceXML")
+    LogInfo("PPS")
         << "    setting validity interval [" << CTPPSRPAlignmentCorrectionsMethods::iovValueToString(valInt.first())
         << ", " << CTPPSRPAlignmentCorrectionsMethods::iovValueToString(valInt.last())
         << "] (empty alignment corrections)";
