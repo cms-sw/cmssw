@@ -344,7 +344,7 @@ void Phase2ITMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
     psd0.add<double>("ymax", 300.0);
     psd0.add<int>("NxBins", 1500);
     psd0.add<int>("NyBins", 300);
-    psd0.add<bool>("switch", true);
+    psd0.add<bool>("switch", false);
     psd0.add<double>("xmax", 3000.0);
     psd0.add<double>("xmin", -3000.0);
     psd0.add<double>("ymin", 0.0);
@@ -357,7 +357,7 @@ void Phase2ITMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
     psd0.add<double>("ymax", 300.0);
     psd0.add<int>("NxBins", 600);
     psd0.add<int>("NyBins", 600);
-    psd0.add<bool>("switch", true);
+    psd0.add<bool>("switch", false);
     psd0.add<double>("xmax", 300.0);
     psd0.add<double>("xmin", -300.0);
     psd0.add<double>("ymin", -300.0);

@@ -407,8 +407,8 @@ void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
     psd0.add<double>("xmin", -10.0);
     psd0.add<double>("xmax", 10.0);
     psd0.add<int>("NyBins", 50);
-    psd0.add<double>("ymin", -50.0);
-    psd0.add<double>("ymax", 50.0);
+    psd0.add<double>("ymin", -10.0);
+    psd0.add<double>("ymax", 10.0);
     psd0.add<bool>("switch", true);
     desc.add<edm::ParameterSetDescription>("LocalPositionXY_P", psd0);
   }
@@ -420,8 +420,8 @@ void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
     psd0.add<double>("xmin", -10.0);
     psd0.add<double>("xmax", 10.0);
     psd0.add<int>("NyBins", 50);
-    psd0.add<double>("ymin", -50.0);
-    psd0.add<double>("ymax", 50.0);
+    psd0.add<double>("ymin", -10.0);
+    psd0.add<double>("ymax", 10.0);
     psd0.add<bool>("switch", true);
     desc.add<edm::ParameterSetDescription>("LocalPositionXY_S", psd0);
   }
