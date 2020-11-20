@@ -20,6 +20,9 @@ namespace gen {
   class LHEWeightHelper : public WeightHelper {
   public:
     LHEWeightHelper() : WeightHelper(){};
+
+    enum ErrorType { SWAPHEADER, HTMLSTYLE, TRAILINGSTR, UNKNOWN };
+
     void setHeaderLines(std::vector<std::string> headerLines);
     void parseWeights();
     bool isConsistent();
@@ -28,10 +31,14 @@ namespace gen {
 
   private:
     std::vector<std::string> headerLines_;
+    std::string weightgroupKet_ = "</weightgroup>";
     bool failIfInvalidXML_ = false;
     std::string parseGroupName(tinyxml2::XMLElement* el);
     void addGroup(tinyxml2::XMLElement* inner, std::string groupName, int groupIndex, int& weightIndex);
     bool parseLHE(tinyxml2::XMLDocument& xmlDoc);
+    tinyxml2::XMLError tryReplaceHtmlStyle(tinyxml2::XMLDocument& xmlDoc, std::string& fullHeader);
+    tinyxml2::XMLError tryRemoveTrailings(tinyxml2::XMLDocument& xmlDoc, std::string& fullHeader);
+    ErrorType findErrorType(std::string& fullHeader);
   };
 }  // namespace gen
 

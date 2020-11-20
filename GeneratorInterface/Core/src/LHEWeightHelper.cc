@@ -12,34 +12,36 @@ namespace gen {
   bool LHEWeightHelper::parseLHE(tinyxml2::XMLDocument& xmlDoc) {
     parsedWeights_.clear();
 
-    if (!isConsistent() && failIfInvalidXML_) {
-      throw cms::Exception("LHEWeightHelper")
-          << "XML in LHE is not consistent: Most likely, XML tags are out of order.";
-    } else if (!isConsistent()) {
-      swapHeaders();
-    }
-
     std::string fullHeader = boost::algorithm::join(headerLines_, "");
     if (debug_)
       std::cout << "Full header is \n" << fullHeader << std::endl;
     int xmlError = xmlDoc.Parse(fullHeader.c_str());
 
-    // in case of &gt; instead of <
-    if (xmlError != 0 && failIfInvalidXML_) {
-      xmlDoc.PrintError();
-      throw cms::Exception("LHEWeightHelper")
-          << "The LHE header is not valid XML! Weight information was not properly parsed.";
-    } else if (xmlError != 0 && !failIfInvalidXML_) {
-      boost::replace_all(fullHeader, "&lt;", "<");
-      boost::replace_all(fullHeader, "&gt;", ">");
-      xmlError = xmlDoc.Parse(fullHeader.c_str());
-    }
+    while (!isConsistent() || xmlError != 0) {
+      if (failIfInvalidXML_) {
+        xmlDoc.PrintError();
+        throw cms::Exception("LHEWeightHelper")
+            << "The LHE header is not valid XML! Weight information was not properly parsed.";
+      }
 
-    // error persists (how to handle error?)
-    if (xmlError != 0) {
-      std::string error = "Fatal error when parsing the LHE header. The header is not valid XML! Parsing error was ";
-      error += xmlDoc.ErrorStr();
-      throw cms::Exception("LHEWeightHelper") << error;
+      switch (findErrorType(fullHeader)) {
+        case ErrorType::SWAPHEADER:
+          swapHeaders();
+          fullHeader = boost::algorithm::join(headerLines_, "");
+          xmlError = xmlDoc.Parse(fullHeader.c_str());
+          break;
+        case ErrorType::HTMLSTYLE:
+          xmlError = tryReplaceHtmlStyle(xmlDoc, fullHeader);
+          break;
+        case ErrorType::TRAILINGSTR:
+          xmlError = tryRemoveTrailings(xmlDoc, fullHeader);
+          break;
+        case ErrorType::UNKNOWN:
+          std::string error =
+              "Fatal error when parsing the LHE header. The header is not valid XML! Parsing error was ";
+          error += xmlDoc.ErrorStr();
+          throw cms::Exception("LHEWeightHelper") << error;
+      }
     }
 
     return true;
@@ -150,5 +152,35 @@ namespace gen {
         close = -1;
       }
     }
+  }
+
+  tinyxml2::XMLError LHEWeightHelper::tryReplaceHtmlStyle(tinyxml2::XMLDocument& xmlDoc, std::string& fullHeader) {
+    // in case of &gt; instead of <
+    boost::replace_all(fullHeader, "&lt;", "<");
+    boost::replace_all(fullHeader, "&gt;", ">");
+
+    return xmlDoc.Parse(fullHeader.c_str());
+  }
+
+  tinyxml2::XMLError LHEWeightHelper::tryRemoveTrailings(tinyxml2::XMLDocument& xmlDoc, std::string& fullHeader) {
+    // delete extra strings after the last </weightgroup> (occasionally contain '<' or '>')
+    std::size_t theLastKet = fullHeader.rfind(weightgroupKet_) + weightgroupKet_.length();
+    fullHeader = fullHeader.substr(0, theLastKet);
+
+    return xmlDoc.Parse(fullHeader.c_str());
+  }
+
+  LHEWeightHelper::ErrorType LHEWeightHelper::findErrorType(std::string& fullHeader) {
+    if (!isConsistent())
+      return LHEWeightHelper::ErrorType::SWAPHEADER;
+    if (fullHeader.find("&lt;") != std::string::npos || fullHeader.find("&gt;") != std::string::npos)
+      return LHEWeightHelper::ErrorType::HTMLSTYLE;
+
+    std::string trailingCand =
+        fullHeader.substr(fullHeader.rfind(weightgroupKet_) + std::string(weightgroupKet_).length());
+    if (trailingCand.find('<') != std::string::npos || trailingCand.find('>') != std::string::npos)
+      return LHEWeightHelper::ErrorType::TRAILINGSTR;
+
+    return LHEWeightHelper::ErrorType::UNKNOWN;
   }
 }  // namespace gen
