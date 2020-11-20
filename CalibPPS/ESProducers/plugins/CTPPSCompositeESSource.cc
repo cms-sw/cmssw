@@ -6,7 +6,6 @@
 *
 ****************************************************************************/
 
-// FIXME: clean up
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -14,33 +13,25 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/ESProducts.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
+
 #include "CondFormats/RunInfo/interface/LHCInfo.h"
-#include "CondFormats/DataRecord/interface/LHCInfoRcd.h"
 #include "CondFormats/PPSObjects/interface/LHCOpticalFunctionsSetCollection.h"
-#include "CondFormats/DataRecord/interface/CTPPSOpticsRcd.h"
-#include "GeometryReaders/XMLIdealGeometryESSource/interface/GeometryConfiguration.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDesc.h"
-#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
-#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSDDDNames.h"
 #include "CondFormats/PPSObjects/interface/CTPPSRPAlignmentCorrectionsData.h"
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
-#include "DataFormats/CTPPSDetId/interface/TotemTimingDetId.h"
-#include "DataFormats/CTPPSDetId/interface/CTPPSPixelDetId.h"
-#include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
-#include "Geometry/Records/interface/VeryForwardMisalignedGeometryRecord.h"
-#include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
-#include "CondFormats/PPSObjects/interface/CTPPSRPAlignmentCorrectionsDataSequence.h"
-#include "CondFormats/PPSObjects/interface/CTPPSRPAlignmentCorrectionsMethods.h"
 #include "CondFormats/PPSObjects/interface/PPSDirectSimulationData.h"
+
+#include "CondFormats/DataRecord/interface/LHCInfoRcd.h"
+#include "CondFormats/DataRecord/interface/CTPPSOpticsRcd.h"
 #include "CondFormats/DataRecord/interface/PPSDirectSimulationDataRcd.h"
-#include "CalibPPS/ESProducers/interface/CTPPSRPAlignmentCorrectionsDataESSourceXMLCommon.h"
+
+#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometryESCommon.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDescBuilder.h"
+
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/VeryForwardMisalignedGeometryRecord.h"
+#include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
+
+#include "CalibPPS/ESProducers/interface/CTPPSRPAlignmentCorrectionsDataESSourceXMLCommon.h"
 
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/JamesRandom.h"
