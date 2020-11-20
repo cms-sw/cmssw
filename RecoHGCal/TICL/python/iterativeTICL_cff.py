@@ -70,5 +70,5 @@ def injectTICLintoPF(process):
       process.particleFlowBlock,
       elementImporters = _insertTrackImportersWithVeto
     )
-      
+
     return process
