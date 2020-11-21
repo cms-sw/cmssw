@@ -9,8 +9,9 @@
 
 HcalDumpGeometry::HcalDumpGeometry(const std::vector<std::string_view>& names,
                                    const HcalNumberingFromDDD* hcn,
-                                   bool test)
-    : numberingFromDDD_(hcn) {
+                                   bool test,
+                                   bool flag)
+    : numberingFromDDD_(hcn), flag_(flag) {
   if (test)
     numberingScheme_.reset(dynamic_cast<HcalNumberingScheme*>(new HcalTestNumberingScheme(false)));
   else
@@ -45,6 +46,10 @@ void HcalDumpGeometry::update() {
   unsigned int k(0);
   for (const auto& info : infoVec_) {
     edm::LogVerbatim("HCalGeom") << "[" << k << "] " << info;
+    if (info.flag() && (info.solid() != nullptr)) {
+      info.solid()->DumpInfo();
+      G4cout << G4endl;
+    }
     ++k;
   }
 }
@@ -78,27 +83,8 @@ void HcalDumpGeometry::dumpTouch(G4VPhysicalVolume* pv, unsigned int leafDepth) 
                                      << std::dec;
 #endif
 
-        std::vector<double> pars;
-        if ((namex == "HBS") || (namex == "HTS")) {
-          G4Box* solid = static_cast<G4Box*>(lv->GetSolid());
-          pars.emplace_back(solid->GetXHalfLength());
-          pars.emplace_back(solid->GetYHalfLength());
-          pars.emplace_back(solid->GetZHalfLength());
-        } else if ((namex == "HES") || (namex == "HVQ")) {
-          G4Trap* solid = static_cast<G4Trap*>(lv->GetSolid());
-          pars.emplace_back(solid->GetZHalfLength());
-          pars.emplace_back(solid->GetYHalfLength1());
-          pars.emplace_back(solid->GetXHalfLength1());
-          pars.emplace_back(solid->GetXHalfLength2());
-          double a1 = (std::abs(solid->GetTanAlpha1()) > 1.e-5) ? solid->GetTanAlpha1() : 0.0;
-          pars.emplace_back(a1);
-          pars.emplace_back(solid->GetYHalfLength2());
-          pars.emplace_back(solid->GetXHalfLength3());
-          pars.emplace_back(solid->GetXHalfLength4());
-          double a2 = (std::abs(solid->GetTanAlpha2()) > 1.e-5) ? solid->GetTanAlpha2() : 0.0;
-          pars.emplace_back(a2);
-        }
-        infoVec_.emplace_back(CaloDetInfo(id, getNameNoNS(lvname), globalpoint, pars));
+        G4VSolid* solid = lv->GetSolid();
+        infoVec_.emplace_back(CaloDetInfo(id, getNameNoNS(lvname), globalpoint, solid, flag_));
       }
       break;
     }
