@@ -670,8 +670,8 @@ baseDataSetRelease=[
     'CMSSW_10_6_0-PU25ns_106X_upgrade2018_realistic_v4_FastSim-v1',# 20 - fastSim premix library UP18
     'CMSSW_10_6_0-106X_mc2017_realistic_v3-v1',         # 21 - GEN-SIM inputs for LHE-GEN-SIM 2017 workflows
     'CMSSW_10_6_0-106X_upgrade2018_realistic_v4-v1',            # 22 - GEN-SIM inputs for LHE-GEN-SIM 2018 workflows
-    'CMSSW_11_1_0_pre5-111X_mcRun3_2021_realistic_HI_v3-v1',    #23 - Run3 HI GEN-SIM for mixing
-    'CMSSW_11_1_0_pre2-PU25ns_111X_upgrade2018_realistic_RunDep_premix_v1-v1', # 24 - 2018 Run-Dependent premix library
+    'CMSSW_11_2_0_pre8-112X_mcRun3_2021_realistic_HI_v11-v1',    #23 - Run3 HI GEN-SIM for mixing
+    'CMSSW_11_2_0_pre8-PU_112X_upgrade2018_realistic_v4-v1', # 24 - 2018 Run-Dependent premix library
     ]
 
 # note: INPUT commands to be added once GEN-SIM w/ 13TeV+PostLS1Geo will be available
@@ -3231,15 +3231,15 @@ steps['NanoFullBadHcalMitig']=merge([{'--era' : 'Run2_2018,pf_badHcalMitigation'
 from  Configuration.PyReleaseValidation.upgradeWorkflowComponents import *
 
 # imported from above, only non-empty values should be provided here
-defaultDataSets['2017']='CMSSW_10_6_0-106X_mc2017_realistic_v3-v'
-defaultDataSets['2017Design']='CMSSW_10_0_0_pre2-100X_mc2017_design_IdealBS_v1-v'
-defaultDataSets['2018']='CMSSW_10_6_0-106X_upgrade2018_realistic_v4-v'
-defaultDataSets['2018Design']='CMSSW_10_6_0-106X_upgrade2018_design_v3-v'
-defaultDataSets['2021']='CMSSW_10_6_1-106X_mcRun3_2021_realistic_v1_rsb-v'
-defaultDataSets['2021Design']='CMSSW_10_6_0_pre3-105X_postLS2_realistic_v6-v'
-defaultDataSets['2023']='CMSSW_10_6_1-106X_mcRun3_2021_realistic_v1_rsb-v'
-defaultDataSets['2024']='CMSSW_10_6_1-106X_mcRun3_2021_realistic_v1_rsb-v'
-defaultDataSets['2026D49']='CMSSW_11_0_0_pre13-110X_mcRun4_realistic_v2_2026D49noPU-v'
+defaultDataSets['2017']='CMSSW_11_2_0_pre8-112X_mc2017_realistic_v3-v'
+defaultDataSets['2017Design']='CMSSW_11_2_0_pre8-112X_mc2017_design_v1-v'
+defaultDataSets['2018']='CMSSW_11_2_0_pre8-112X_upgrade2018_realistic_v4-v'
+defaultDataSets['2018Design']='CMSSW_11_2_0_pre8-112X_upgrade2018_design_v3-v'
+defaultDataSets['2021']='CMSSW_11_2_0_pre8-112X_mcRun3_2021_realistic_v10-v'
+defaultDataSets['2021Design']='CMSSW_11_2_0_pre8-112X_mcRun3_2021_design_v10-v'
+defaultDataSets['2023']='CMSSW_11_2_0_pre8-112X_mcRun3_2023_realistic_v10-v'
+defaultDataSets['2024']='CMSSW_11_2_0_pre8-112X_mcRun3_2024_realistic_v10-v'
+defaultDataSets['2026D49']='CMSSW_11_2_0_pre8-112X_mcRun4_realistic_v3_2026D49noPU-v'
 
 puDataSets = {}
 for key, value in defaultDataSets.items(): puDataSets[key+'PU'] = value
