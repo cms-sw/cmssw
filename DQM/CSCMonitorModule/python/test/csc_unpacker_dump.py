@@ -29,32 +29,48 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 # initialize MessageLogger and output report
 process.MessageLogger = cms.Service("MessageLogger",
-  destinations = cms.untracked.vstring('detailedInfo'),
-  #destinations = cms.untracked.vstring('detailedInfo_754'),
-  debugModules = cms.untracked.vstring('muonCSCDigis'),
-  categories = cms.untracked.vstring(
-    #'CSCDCCUnpacker|CSCRawToDigi', 'StatusDigis', 'StatusDigi', 'CSCRawToDigi', 'CSCDCCUnpacker', 'EventInfo',
-    'badData'),
-  detailedInfo = cms.untracked.PSet(
-    INFO = cms.untracked.PSet(
-      limit = cms.untracked.int32(0)
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
     ),
-    TRACE = cms.untracked.PSet(limit = cms.untracked.int32(0) ),
-    noTimeStamps = cms.untracked.bool(False),
-    FwkReport = cms.untracked.PSet(
-      reportEvery = cms.untracked.int32(1),
-      limit = cms.untracked.int32(10000000)
-    ),
-    CSCRawToDigi = cms.untracked.PSet(limit = cms.untracked.int32(10000000)),
-    StatusDigi = cms.untracked.PSet(limit = cms.untracked.int32(10000000)),
-    EventInfo = cms.untracked.PSet(limit = cms.untracked.int32(10000000)),
-
-    default = cms.untracked.PSet(limit = cms.untracked.int32(10000000)),
-    Root_NoDictionary = cms.untracked.PSet(limit = cms.untracked.int32(0)),
-    DEBUG = cms.untracked.PSet(limit = cms.untracked.int32(0)),
-    FwkSummary = cms.untracked.PSet(reportEvery = cms.untracked.int32(1), limit = cms.untracked.int32(10000000) ),
-    threshold = cms.untracked.string('DEBUG')
-  )
+    debugModules = cms.untracked.vstring('muonCSCDigis'),
+    files = cms.untracked.PSet(
+        detailedInfo = cms.untracked.PSet(
+            CSCRawToDigi = cms.untracked.PSet(
+                limit = cms.untracked.int32(10000000)
+            ),
+            DEBUG = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            EventInfo = cms.untracked.PSet(
+                limit = cms.untracked.int32(10000000)
+            ),
+            FwkReport = cms.untracked.PSet(
+                limit = cms.untracked.int32(10000000),
+                reportEvery = cms.untracked.int32(1)
+            ),
+            FwkSummary = cms.untracked.PSet(
+                limit = cms.untracked.int32(10000000),
+                reportEvery = cms.untracked.int32(1)
+            ),
+            INFO = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            Root_NoDictionary = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            StatusDigi = cms.untracked.PSet(
+                limit = cms.untracked.int32(10000000)
+            ),
+            TRACE = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            default = cms.untracked.PSet(
+                limit = cms.untracked.int32(10000000)
+            ),
+            noTimeStamps = cms.untracked.bool(False),
+            threshold = cms.untracked.string('DEBUG')
+        )
+    )
 )
 
 #   include
