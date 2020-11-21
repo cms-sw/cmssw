@@ -327,7 +327,7 @@ HCalSD::HCalSD(const std::string& name,
   if (dumpGeom) {
     const HcalNumberingFromDDD* hcn = new HcalNumberingFromDDD(hcalConstants_);
     const auto& lvNames = clg.logicalNames(name);
-    HcalDumpGeometry geom(lvNames, hcn, testNumber);
+    HcalDumpGeometry geom(lvNames, hcn, testNumber, false);
     geom.update();
     delete hcn;
   }
