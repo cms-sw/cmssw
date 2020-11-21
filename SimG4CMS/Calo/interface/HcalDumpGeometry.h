@@ -19,7 +19,10 @@
 
 class HcalDumpGeometry {
 public:
-  explicit HcalDumpGeometry(const std::vector<std::string_view> &, const HcalNumberingFromDDD *, bool);
+  explicit HcalDumpGeometry(const std::vector<std::string_view> &,
+                            const HcalNumberingFromDDD *,
+                            bool,
+                            bool flag = false);
   ~HcalDumpGeometry() = default;
 
   void update();
@@ -31,6 +34,7 @@ private:
   const HcalNumberingFromDDD *numberingFromDDD_;
   std::unique_ptr<HcalNumberingScheme> numberingScheme_;
   std::vector<std::string> names_;
+  const bool flag_;
   G4NavigationHistory fHistory_;
   std::vector<CaloDetInfo> infoVec_;
 };
