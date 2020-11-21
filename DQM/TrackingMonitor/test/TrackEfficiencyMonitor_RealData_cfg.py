@@ -36,11 +36,14 @@ process.load("DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi")
 process.load("DQM.TrackingMonitor.TrackEfficiencyClient_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring('TrackEffMon'),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
         threshold = cms.untracked.string('INFO')
     ),
-    destinations = cms.untracked.vstring('cout')
+    debugModules = cms.untracked.vstring('TrackEffMon')
 )
 
 process.DQMStore = cms.Service("DQMStore",
