@@ -12,6 +12,7 @@
 #include <DD4hep/Filter.h>
 
 #include "G4LogicalVolume.hh"
+#include "G4LogicalVolumeStore.hh"
 #include "G4ReflectionFactory.hh"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -55,6 +56,19 @@ G4VPhysicalVolume *DDG4Builder::BuildGeometry(SensitiveDetectorCatalog &catalog)
     auto sROUName = it.second->strValue("ReadOutName");
     auto fff = it.first->GetName();
     catalog.insert({sClassName.data(), sClassName.size()}, {sROUName.data(), sROUName.size()}, fff);
+
+    auto reflectedG4LogicalVolumeName = fff + "_refl";
+    bool hasReflectedVolumeInStore = false;
+    G4LogicalVolumeStore *theStore = G4LogicalVolumeStore::GetInstance();
+    for (const auto &lv : *theStore) {
+      if (lv->GetName().find(reflectedG4LogicalVolumeName) != std::string::npos) {
+        hasReflectedVolumeInStore = true;
+      }
+    }
+    if (hasReflectedVolumeInStore) {
+      catalog.insert(
+          {sClassName.data(), sClassName.size()}, {sROUName.data(), sROUName.size()}, reflectedG4LogicalVolumeName);
+    }
 
     edm::LogVerbatim("SimG4CoreApplication")
         << " DDG4SensitiveConverter: Sensitive " << fff << " Class Name " << sClassName << " ROU Name " << sROUName;
