@@ -621,20 +621,12 @@ def miniAOD_customizeData(process):
     runOnData( process, outputModules = [] )
     process.load("RecoCTPPS.Configuration.recoCTPPS_cff")
     process.load('L1Trigger.L1TGlobal.simGtExtFakeProd_cfi')
-    process.simGtExtFakeProd.bxFirst = cms.int32(-2)
-    process.simGtExtFakeProd.bxLast = cms.int32(2)
-    process.simGtExtFakeProd.setBptxAND = cms.bool(True)
-    process.simGtExtFakeProd.setBptxPlus = cms.bool(True)
-    process.simGtExtFakeProd.setBptxMinus = cms.bool(True)
-    process.simGtExtFakeProd.setBptxOR = cms.bool(True)
-    process.simGtExtFakeProd.tcdsRecordLabel = cms.InputTag("tcdsDigis","tcdsRecord")
     task = getPatAlgosToolsTask(process)
-    from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
-    run2_miniAOD_UL.toModify(task, func=lambda t: t.add(process.simGtExtFakeProd))
     from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
     from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
     (ctpps_2016 & ~run2_miniAOD_UL).toModify(task, func=lambda t: t.add(process.ctppsLocalTrackLiteProducer, process.ctppsProtons))
     (ctpps_2016 & run2_miniAOD_UL).toModify(task, func=lambda t: t.add(process.recoCTPPSTask))
+    run2_miniAOD_UL.toModify(task, func=lambda t: t.add(process.simGtExt.simGtExtUnpefireable))
 
 def miniAOD_customizeAllData(process):
     miniAOD_customizeCommon(process)
