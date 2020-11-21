@@ -26,26 +26,23 @@ void PFClusterFromHGCalMultiCluster::buildClusters(const edm::Handle<reco::PFRec
   }
 
   int iMultiClus = -1;
-
   for (const auto& mcl : hgcalMultiClusters) {
     iMultiClus++;
-
+    // Skip empty multiclusters
+    if (mcl.hitsAndFractions().empty()) {
+      continue;
+    }
     // Filter using trackster PID
     if (filterByTracksterPID_) {
       float probTotal = 0.0f;
-
       for (int cat : filter_on_categories_) {
         probTotal += tracksters[iMultiClus].id_probabilities(cat);
       }
-
       if (probTotal < pid_threshold_) {
         continue;
       }
     }
 
-    if (mcl.hitsAndFractions().empty()) {
-      continue;
-    }
     DetId seed;
     double energy = 0.0, highest_energy = 0.0;
     output.emplace_back();
