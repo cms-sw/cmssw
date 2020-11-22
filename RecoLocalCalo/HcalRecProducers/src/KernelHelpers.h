@@ -146,6 +146,7 @@ namespace hcal {
     }
 
     // TODO: remove what's not needed
+    // originally from from RecoLocalCalo/HcalRecAlgos/src/PulseShapeFunctor.cc
     __forceinline__ __device__ float compute_pulse_shape_value(float const pulse_time,
                                                                int const sample,
                                                                int const shift,
