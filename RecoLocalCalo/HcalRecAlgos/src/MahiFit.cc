@@ -84,7 +84,7 @@ void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
   tstrig *= channelData.tsGain(0);
 
   useTriple = false;
-  if (tstrig >= ts4Thresh_ && tsTOT > 0) {
+  if (tstrig > ts4Thresh_ && tsTOT > 0) {
     //Average pedestal width (for covariance matrix constraint)
     nnlsWork_.pedVal = 0.25f * (channelData.tsPedestalWidth(0) * channelData.tsPedestalWidth(0) +
                                 channelData.tsPedestalWidth(1) * channelData.tsPedestalWidth(1) +
@@ -255,6 +255,10 @@ void MahiFit::updatePulseShape(const float itQ,
                                FullSampleVector& pulseShape,
                                FullSampleVector& pulseDeriv,
                                FullSampleMatrix& pulseCov) const {
+  // set a null pulse shape for negative / or null TS
+  if (itQ <= 0.f)
+    return;
+
   float t0 = meanTime_;
 
   if (applyTimeSlew_) {
