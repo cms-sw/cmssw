@@ -4,7 +4,7 @@
 // Class:      HLTScoutingTrackProducer
 //
 /**\class HLTScoutingTrackProducer HLTScoutingTrackProducer.cc HLTScoutingTrackProducer.cc
-Description: Producer for Scouting Tracks
+Description: Producer for Run3 Scouting Tracks
 */
 //
 
@@ -25,9 +25,9 @@ Description: Producer for Scouting Tracks
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/Scouting/interface/ScoutingMuon.h"
-#include "DataFormats/Scouting/interface/ScoutingTrack.h"
-#include "DataFormats/Scouting/interface/ScoutingVertex.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingMuon.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingTrack.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingVertex.h"
 #include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/Math/interface/libminifloat.h"
@@ -58,7 +58,7 @@ HLTScoutingTrackProducer::HLTScoutingTrackProducer(const edm::ParameterSet& iCon
       mantissaPrecision(iConfig.getParameter<int>("mantissaPrecision")),
       vtxMinDist(iConfig.getParameter<double>("vtxMinDist")) {
   //register products
-  produces<ScoutingTrackCollection>();
+  produces<Run3ScoutingTrackCollection>();
 }
 
 HLTScoutingTrackProducer::~HLTScoutingTrackProducer() = default;
@@ -67,7 +67,7 @@ HLTScoutingTrackProducer::~HLTScoutingTrackProducer() = default;
 void HLTScoutingTrackProducer::produce(edm::StreamID sid, edm::Event& iEvent, edm::EventSetup const& setup) const {
   using namespace edm;
 
-  std::unique_ptr<ScoutingTrackCollection> outTrack(new ScoutingTrackCollection());
+  std::unique_ptr<Run3ScoutingTrackCollection> outTrack(new Run3ScoutingTrackCollection());
 
   Handle<reco::TrackCollection> otherTrackCollection;
   Handle<reco::VertexCollection> vertexCollection;

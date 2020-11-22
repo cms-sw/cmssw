@@ -1,29 +1,35 @@
-#ifndef DataFormats_ScoutingElectron_h
-#define DataFormats_ScoutingElectron_h
+#ifndef DataFormats_Run3ScoutingElectron_h
+#define DataFormats_Run3ScoutingElectron_h
 
 #include <vector>
 
 // Class for holding electron information, for use in data scouting
 // IMPORTANT: the content of this class should be changed only in backwards compatible ways!
-class ScoutingElectron {
+class Run3ScoutingElectron {
 public:
   //constructor with values for all data fields
-  ScoutingElectron(float pt,
-                   float eta,
-                   float phi,
-                   float m,
-                   float d0,
-                   float dz,
-                   float dEtaIn,
-                   float dPhiIn,
-                   float sigmaIetaIeta,
-                   float hOverE,
-                   float ooEMOop,
-                   int missingHits,
-                   int charge,
-                   float ecalIso,
-                   float hcalIso,
-                   float trackIso)
+  Run3ScoutingElectron(float pt,
+                       float eta,
+                       float phi,
+                       float m,
+                       float d0,
+                       float dz,
+                       float dEtaIn,
+                       float dPhiIn,
+                       float sigmaIetaIeta,
+                       float hOverE,
+                       float ooEMOop,
+                       int missingHits,
+                       int charge,
+                       float ecalIso,
+                       float hcalIso,
+                       float trackIso,
+                       float r9,
+                       float sMin,
+                       float sMaj,
+                       unsigned int seedId,
+                       std::vector<float> energyMatrix,
+                       std::vector<float> timingMatrix)
       : pt_(pt),
         eta_(eta),
         phi_(phi),
@@ -39,9 +45,15 @@ public:
         charge_(charge),
         ecalIso_(ecalIso),
         hcalIso_(hcalIso),
-        trackIso_(trackIso) {}
+        trackIso_(trackIso),
+        r9_(r9),
+        sMin_(sMin),
+        sMaj_(sMaj),
+        seedId_(seedId),
+        energyMatrix_(std::move(energyMatrix)),
+        timingMatrix_(std::move(timingMatrix)) {}
   //default constructor
-  ScoutingElectron()
+  Run3ScoutingElectron()
       : pt_(0),
         eta_(0),
         phi_(0),
@@ -57,7 +69,13 @@ public:
         charge_(0),
         ecalIso_(0),
         hcalIso_(0),
-        trackIso_(0) {}
+        trackIso_(0),
+        r9_(0),
+        sMin_(0),
+        sMaj_(0),
+        seedId_(0),
+        energyMatrix_(0),
+        timingMatrix_(0) {}
 
   //accessor functions
   float pt() const { return pt_; }
@@ -76,6 +94,12 @@ public:
   float ecalIso() const { return ecalIso_; }
   float hcalIso() const { return hcalIso_; }
   float trackIso() const { return trackIso_; }
+  float r9() const { return r9_; }
+  float sMin() const { return sMin_; }
+  float sMaj() const { return sMaj_; }
+  unsigned int seedId() const { return seedId_; }
+  std::vector<float> energyMatrix() const { return energyMatrix_; }
+  std::vector<float> timingMatrix() const { return timingMatrix_; }
 
 private:
   float pt_;
@@ -94,8 +118,14 @@ private:
   float ecalIso_;
   float hcalIso_;
   float trackIso_;
+  float r9_;
+  float sMin_;
+  float sMaj_;
+  unsigned int seedId_;
+  std::vector<float> energyMatrix_;
+  std::vector<float> timingMatrix_;
 };
 
-typedef std::vector<ScoutingElectron> ScoutingElectronCollection;
+typedef std::vector<Run3ScoutingElectron> Run3ScoutingElectronCollection;
 
 #endif
