@@ -76,8 +76,8 @@ HLTScoutingEgammaProducer::~HLTScoutingEgammaProducer() = default;
 void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, edm::EventSetup const& setup) const {
   using namespace edm;
 
-  std::unique_ptr<Run3ScoutingElectronCollection> outElectrons(new Run3ScoutingElectronCollection());
-  std::unique_ptr<Run3ScoutingPhotonCollection> outPhotons(new Run3ScoutingPhotonCollection());
+  auto outElectrons = std::make_unique<Run3ScoutingElectronCollection>();
+  auto outPhotons = std::make_unique<Run3ScoutingPhotonCollection>();
 
   // Get RecoEcalCandidate
   Handle<reco::RecoEcalCandidateCollection> EgammaCandidateCollection;
@@ -179,6 +179,12 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
   iEvent.getByToken(ecalRechitEB_, rechitsEB);
   iEvent.getByToken(ecalRechitEE_, rechitsEE);
 
+  //const CaloTopology* topology = &setup.getData(topologyToken_);
+
+  edm::ESHandle<CaloTopology> pTopology;
+  setup.get<CaloTopologyRecord>().get(pTopology);
+  const CaloTopology* topology = pTopology.product();
+
   // Produce electrons and photons
   int index = 0;
   for (auto& candidate : *EgammaCandidateCollection) {
@@ -191,10 +197,6 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
       continue;
     if (fabs(candidate.eta()) > egammaEtaCut)
       continue;
-
-    edm::ESHandle<CaloTopology> pTopology;
-    setup.get<CaloTopologyRecord>().get(pTopology);
-    const CaloTopology* topology = pTopology.product();
 
     reco::SuperClusterRef scRef = candidate.superCluster();
     if (scRef.isNull() && !scRef.isAvailable())
@@ -316,7 +318,7 @@ void HLTScoutingEgammaProducer::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<double>("egammaEtaCut", 2.5);
   desc.add<double>("egammaHoverECut", 1.0);
   desc.add<bool>("saveRecHitTiming", false);
-  desc.add<int>("mantissaPrecision", 10);  // default float16, switch to 23 for float32 precision
+  desc.add<int>("mantissaPrecision", 10)->setComment("default float16, change to 23 for float32");
   desc.add<int>("rechitMatrixSize", 0);
   desc.add<edm::InputTag>("ecalRechitEB", edm::InputTag("hltEcalRecHit:EcalRecHitsEB"));
   desc.add<edm::InputTag>("ecalRechitEE", edm::InputTag("hltEcalRecHit:EcalRecHitsEE"));

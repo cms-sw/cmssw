@@ -177,7 +177,6 @@ public:
         trk_vx_(0),
         trk_vy_(0),
         trk_vz_(0),
-        trk_hitPattern_(reco::HitPattern()),
         vtxIndx_(0) {}
 
   //accessor functions
@@ -238,8 +237,8 @@ public:
   float trk_vx() const { return trk_vx_; }
   float trk_vy() const { return trk_vy_; }
   float trk_vz() const { return trk_vz_; }
-  reco::HitPattern trk_hitPattern() const { return trk_hitPattern_; }
-  std::vector<int> vtxIndx() const { return vtxIndx_; }
+  reco::HitPattern const& trk_hitPattern() const { return trk_hitPattern_; }
+  std::vector<int> const& vtxIndx() const { return vtxIndx_; }
 
 private:
   float pt_;

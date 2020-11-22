@@ -73,9 +73,7 @@ public:
         r9_(0),
         sMin_(0),
         sMaj_(0),
-        seedId_(0),
-        energyMatrix_(0),
-        timingMatrix_(0) {}
+        seedId_(0) {}
 
   //accessor functions
   float pt() const { return pt_; }
@@ -98,8 +96,8 @@ public:
   float sMin() const { return sMin_; }
   float sMaj() const { return sMaj_; }
   unsigned int seedId() const { return seedId_; }
-  std::vector<float> energyMatrix() const { return energyMatrix_; }
-  std::vector<float> timingMatrix() const { return timingMatrix_; }
+  std::vector<float> const& energyMatrix() const { return energyMatrix_; }
+  std::vector<float> const& timingMatrix() const { return timingMatrix_; }
 
 private:
   float pt_;
