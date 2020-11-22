@@ -18,28 +18,27 @@ process.MessageLogger = cms.Service("MessageLogger",
     ),
     files = cms.untracked.PSet(
         testCutTubsLog = cms.untracked.PSet(
-
+        ),
+        testCutTubsFromPointsAlgo = cms.untracked.PSet(
+            DEBUG = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            ERROR = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            INFO = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            TrackerGeom = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            WARNING = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            enableStatistics = cms.untracked.bool(True),
+            threshold = cms.untracked.string('DEBUG')
         )
     ),
-    testCutTubsFromPointsAlgo = cms.untracked.PSet(
-        DEBUG = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        ERROR = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        TrackerGeom = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        WARNING = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        enableStatistics = cms.untracked.bool(True),
-        threshold = cms.untracked.string('DEBUG')
-    )
 )
 
 
