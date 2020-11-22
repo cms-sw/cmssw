@@ -12,7 +12,7 @@ process.load("FWCore.MessageService.test.Services_cff")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-process.MessageLogger.cerr.enableStatistics = False
+process.MessageLogger.cerr.enable = False
 process.MessageLogger.default = cms.untracked.PSet(
     noTimeStamps = cms.untracked.bool(False),
     FwkTest = cms.untracked.PSet(
