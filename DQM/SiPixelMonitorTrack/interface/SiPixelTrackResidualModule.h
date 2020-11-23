@@ -14,8 +14,6 @@
 #ifndef SiPixelMonitorTrack_SiPixelTrackResidualModule_h
 #define SiPixelMonitorTrack_SiPixelTrackResidualModule_h
 
-// #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementVector.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
@@ -33,11 +31,11 @@ public:
   typedef dqm::reco::MonitorElement MonitorElement;
 
   SiPixelTrackResidualModule();
-  SiPixelTrackResidualModule(edm::ConsumesCollector &&iCC, const uint32_t);
+  SiPixelTrackResidualModule(const uint32_t);
   ~SiPixelTrackResidualModule();
 
   void book(const edm::ParameterSet &,
-            edm::EventSetup const &,
+            const TrackerTopology *,
             DQMStore::IBooker &,
             bool reducedSet = true,
             int type = 0,
@@ -74,7 +72,6 @@ public:
              bool ringon);
 
 private:
-  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoTokenBeginRun_;
   uint32_t id_;
   bool bBookTracks;
 

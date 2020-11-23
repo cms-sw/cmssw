@@ -29,22 +29,16 @@ using namespace edm;
 
 SiPixelTrackResidualModule::SiPixelTrackResidualModule() : id_(0) { bBookTracks = true; }
 
-SiPixelTrackResidualModule::SiPixelTrackResidualModule(edm::ConsumesCollector &&iCC, uint32_t id) : id_(id) {
-  bBookTracks = true;
-  trackerTopoTokenBeginRun_ = iCC.esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>();
-}
+SiPixelTrackResidualModule::SiPixelTrackResidualModule(uint32_t id) : id_(id) { bBookTracks = true; }
 
 SiPixelTrackResidualModule::~SiPixelTrackResidualModule() {}
 
 void SiPixelTrackResidualModule::book(const edm::ParameterSet &iConfig,
-                                      edm::EventSetup const &iSetup,
+                                      const TrackerTopology *pTT,
                                       DQMStore::IBooker &iBooker,
                                       bool reducedSet,
                                       int type,
                                       bool isUpgrade) {
-  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopoTokenBeginRun_);
-  const TrackerTopology *pTT = tTopoHandle.product();
-
   bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
   bool isHalfModule = false;

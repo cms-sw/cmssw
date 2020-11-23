@@ -30,21 +30,15 @@ using namespace std;
 
 SiPixelHitEfficiencyModule::SiPixelHitEfficiencyModule() : id_(0) { bBookTracks = true; }
 
-SiPixelHitEfficiencyModule::SiPixelHitEfficiencyModule(edm::ConsumesCollector &&iCC, uint32_t id) : id_(id) {
-  bBookTracks = true;
-  trackerTopoTokenBeginRun_ = iCC.esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>();
-}
+SiPixelHitEfficiencyModule::SiPixelHitEfficiencyModule(uint32_t id) : id_(id) { bBookTracks = true; }
 
 SiPixelHitEfficiencyModule::~SiPixelHitEfficiencyModule() {}
 
 void SiPixelHitEfficiencyModule::book(const edm::ParameterSet &iConfig,
-                                      edm::EventSetup const &iSetup,
+                                      const TrackerTopology *pTT,
                                       DQMStore::IBooker &iBooker,
                                       int type,
                                       bool isUpgrade) {
-  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopoTokenBeginRun_);
-  const TrackerTopology *pTT = tTopoHandle.product();
-
   bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
   bool isHalfModule = false;
