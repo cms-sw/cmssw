@@ -58,32 +58,33 @@ G4VPhysicalVolume *DDG4Builder::BuildGeometry(SensitiveDetectorCatalog &catalog)
   // ADD ALL SELECTED G4 LOGICAL VOLUMES TO SENSITIVE DETECTORS CATALOGUE
   for (auto const &it : dd4hepVec) {
     // Sensitive detector info
-    const G4String& sensitiveDetectorG4Name = it.first->GetName();
+    const G4String &sensitiveDetectorG4Name = it.first->GetName();
     auto sClassName = it.second->strValue("SensitiveDetector");
     auto sROUName = it.second->strValue("ReadOutName");
-    // Add to catalogue  
+    // Add to catalogue
     catalog.insert({sClassName.data(), sClassName.size()}, {sROUName.data(), sROUName.size()}, sensitiveDetectorG4Name);
 
-    edm::LogVerbatim("SimG4CoreApplication")
-      << " DDG4SensitiveConverter: Sensitive " << sensitiveDetectorG4Name << " Class Name " << sClassName << " ROU Name " << sROUName;
+    edm::LogVerbatim("SimG4CoreApplication") << " DDG4SensitiveConverter: Sensitive " << sensitiveDetectorG4Name
+                                             << " Class Name " << sClassName << " ROU Name " << sROUName;
 
     // Reflected sensors also need to be added to the senstive detectors catalogue!
     // Similar treatment here with DD4hep, as what was done for old DD.
-    const G4String& sensitiveDetectorG4ReflectedName = sensitiveDetectorG4Name + "_refl";
+    const G4String &sensitiveDetectorG4ReflectedName = sensitiveDetectorG4Name + "_refl";
 
-    const G4LogicalVolumeStore* const allG4LogicalVolumes = G4LogicalVolumeStore::GetInstance();
-    const bool hasG4ReflectedVolume = std::find_if(allG4LogicalVolumes->begin(),
-						   allG4LogicalVolumes->end(),
-						   [&](G4LogicalVolume* const aG4LogicalVolume) {
-						     return (aG4LogicalVolume->GetName() == sensitiveDetectorG4ReflectedName); }
-						   ) != allG4LogicalVolumes->end();
+    const G4LogicalVolumeStore *const allG4LogicalVolumes = G4LogicalVolumeStore::GetInstance();
+    const bool hasG4ReflectedVolume =
+        std::find_if(
+            allG4LogicalVolumes->begin(), allG4LogicalVolumes->end(), [&](G4LogicalVolume *const aG4LogicalVolume) {
+              return (aG4LogicalVolume->GetName() == sensitiveDetectorG4ReflectedName);
+            }) != allG4LogicalVolumes->end();
     if (hasG4ReflectedVolume) {
       // Add reflected sensitive detector to catalogue
       catalog.insert(
-		     {sClassName.data(), sClassName.size()}, {sROUName.data(), sROUName.size()}, sensitiveDetectorG4ReflectedName);
+          {sClassName.data(), sClassName.size()}, {sROUName.data(), sROUName.size()}, sensitiveDetectorG4ReflectedName);
 
       edm::LogVerbatim("SimG4CoreApplication")
-	<< " DDG4SensitiveConverter: Sensitive " << sensitiveDetectorG4ReflectedName << " Class Name " << sClassName << " ROU Name " << sROUName;
+          << " DDG4SensitiveConverter: Sensitive " << sensitiveDetectorG4ReflectedName << " Class Name " << sClassName
+          << " ROU Name " << sROUName;
     }
   }
 
