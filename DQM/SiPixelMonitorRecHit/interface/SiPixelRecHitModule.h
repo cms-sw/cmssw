@@ -29,7 +29,6 @@ detector segment (detID)
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include <cstdint>
@@ -42,7 +41,7 @@ public:
   /// Default constructor
   SiPixelRecHitModule();
   /// Constructor with raw DetId
-  SiPixelRecHitModule(edm::ConsumesCollector &&iCC, const uint32_t &id);
+  SiPixelRecHitModule(const uint32_t &id);
   /// Destructor
   ~SiPixelRecHitModule();
 
@@ -51,7 +50,7 @@ public:
   /// Book histograms
   void book(const edm::ParameterSet &iConfig,
             DQMStore::IBooker &iBooker,
-            const edm::EventSetup &iSetup,
+            const TrackerTopology* pTT,
             int type = 0,
             bool twoD = true,
             bool reducedSet = false,
@@ -82,7 +81,6 @@ public:
              bool ringon = false);
 
 private:
-  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoTokenBeginRun_;
   uint32_t id_;
   MonitorElement *meXYPos_;
   MonitorElement *meXYPos_px_;
