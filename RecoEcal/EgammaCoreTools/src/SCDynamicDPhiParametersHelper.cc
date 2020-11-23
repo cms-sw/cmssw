@@ -7,31 +7,32 @@
 
 using namespace reco;
 
-SCDynamicDPhiParametersHelper::SCDynamicDPhiParametersHelper(EcalSCDynamicDPhiParameters &params)
-    : parameters_(params) {}
-
 SCDynamicDPhiParametersHelper::SCDynamicDPhiParametersHelper(EcalSCDynamicDPhiParameters &params,
                                                              const edm::ParameterSet &iConfig)
     : parameters_(params) {
   // dynamic dPhi parameters
+  // clear the vector in case the EcalMustacheSCParameters had been initialised before
+  if (!parameters_.dynamicDPhiParametersCollection_.empty()) {
+    parameters_.dynamicDPhiParametersCollection_.clear();
+  }
   const auto dynamicDPhiPSets = iConfig.getParameter<std::vector<edm::ParameterSet>>("dynamicDPhiParameterSets");
   for (const auto &pSet : dynamicDPhiPSets) {
-    EcalSCDynamicDPhiParameters::DynamicDPhiParameters params({pSet.getParameter<double>("eMin"),
-                                                               pSet.getParameter<double>("etaMin"),
-                                                               pSet.getParameter<double>("yoffset"),
-                                                               pSet.getParameter<double>("scale"),
-                                                               pSet.getParameter<double>("xoffset"),
-                                                               pSet.getParameter<double>("width"),
-                                                               pSet.getParameter<double>("saturation"),
-                                                               pSet.getParameter<double>("cutoff")});
-    addDynamicDPhiParameters(params);
+    EcalSCDynamicDPhiParameters::DynamicDPhiParameters dynDPhiParams({pSet.getParameter<double>("eMin"),
+                                                                      pSet.getParameter<double>("etaMin"),
+                                                                      pSet.getParameter<double>("yoffset"),
+                                                                      pSet.getParameter<double>("scale"),
+                                                                      pSet.getParameter<double>("xoffset"),
+                                                                      pSet.getParameter<double>("width"),
+                                                                      pSet.getParameter<double>("saturation"),
+                                                                      pSet.getParameter<double>("cutoff")});
+    addDynamicDPhiParameters(dynDPhiParams);
     sortDynamicDPhiParametersCollection();
   }
 }
 
 void SCDynamicDPhiParametersHelper::addDynamicDPhiParameters(
-    const EcalSCDynamicDPhiParameters::DynamicDPhiParameters &params) {
-  parameters_.dynamicDPhiParametersCollection_.emplace_back(params);
+    const EcalSCDynamicDPhiParameters::DynamicDPhiParameters &dynDPhiParams) {
+  parameters_.dynamicDPhiParametersCollection_.emplace_back(dynDPhiParams);
 }
 
 void SCDynamicDPhiParametersHelper::sortDynamicDPhiParametersCollection() {

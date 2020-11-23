@@ -8,13 +8,12 @@ namespace reco {
 
   class MustacheSCParametersHelper {
   public:
-    MustacheSCParametersHelper(EcalMustacheSCParameters &params);
     MustacheSCParametersHelper(EcalMustacheSCParameters &params, const edm::ParameterSet &iConfig);
     ~MustacheSCParametersHelper() = default;
 
     void setSqrtLogClustETuning(const float sqrtLogClustETuning);
 
-    void addParabolaParameters(const EcalMustacheSCParameters::ParabolaParameters &params);
+    void addParabolaParameters(const EcalMustacheSCParameters::ParabolaParameters &parabolaParams);
     void sortParabolaParametersCollection();
 
   private:

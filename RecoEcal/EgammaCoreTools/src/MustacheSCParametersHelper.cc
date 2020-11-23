@@ -7,25 +7,27 @@
 
 using namespace reco;
 
-MustacheSCParametersHelper::MustacheSCParametersHelper(EcalMustacheSCParameters &params) : parameters_(params) {}
-
 MustacheSCParametersHelper::MustacheSCParametersHelper(EcalMustacheSCParameters &params,
                                                        const edm::ParameterSet &iConfig)
     : parameters_(params) {
   setSqrtLogClustETuning(iConfig.getParameter<double>("sqrtLogClustETuning"));
 
   // parabola parameters
+  // clear the vector in case the EcalMustacheSCParameters had been initialised before
+  if (!parameters_.parabolaParametersCollection_.empty()) {
+    parameters_.parabolaParametersCollection_.clear();
+  }
   const auto parabolaPSets = iConfig.getParameter<std::vector<edm::ParameterSet>>("parabolaParameterSets");
   for (const auto &pSet : parabolaPSets) {
-    EcalMustacheSCParameters::ParabolaParameters params = {pSet.getParameter<double>("log10EMin"),
-                                                           pSet.getParameter<double>("etaMin"),
-                                                           pSet.getParameter<std::vector<double>>("pUp"),
-                                                           pSet.getParameter<std::vector<double>>("pLow"),
-                                                           pSet.getParameter<std::vector<double>>("w0Up"),
-                                                           pSet.getParameter<std::vector<double>>("w1Up"),
-                                                           pSet.getParameter<std::vector<double>>("w0Low"),
-                                                           pSet.getParameter<std::vector<double>>("w1Low")};
-    addParabolaParameters(params);
+    EcalMustacheSCParameters::ParabolaParameters parabolaParams = {pSet.getParameter<double>("log10EMin"),
+                                                                   pSet.getParameter<double>("etaMin"),
+                                                                   pSet.getParameter<std::vector<double>>("pUp"),
+                                                                   pSet.getParameter<std::vector<double>>("pLow"),
+                                                                   pSet.getParameter<std::vector<double>>("w0Up"),
+                                                                   pSet.getParameter<std::vector<double>>("w1Up"),
+                                                                   pSet.getParameter<std::vector<double>>("w0Low"),
+                                                                   pSet.getParameter<std::vector<double>>("w1Low")};
+    addParabolaParameters(parabolaParams);
     sortParabolaParametersCollection();
   }
 }
@@ -34,8 +36,9 @@ void MustacheSCParametersHelper::setSqrtLogClustETuning(const float sqrtLogClust
   parameters_.sqrtLogClustETuning_ = sqrtLogClustETuning;
 }
 
-void MustacheSCParametersHelper::addParabolaParameters(const EcalMustacheSCParameters::ParabolaParameters &params) {
-  parameters_.parabolaParametersCollection_.emplace_back(params);
+void MustacheSCParametersHelper::addParabolaParameters(
+    const EcalMustacheSCParameters::ParabolaParameters &parabolaParams) {
+  parameters_.parabolaParametersCollection_.emplace_back(parabolaParams);
 }
 
 void MustacheSCParametersHelper::sortParabolaParametersCollection() {

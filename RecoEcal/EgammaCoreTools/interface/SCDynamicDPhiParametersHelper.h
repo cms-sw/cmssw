@@ -8,11 +8,10 @@ namespace reco {
 
   class SCDynamicDPhiParametersHelper {
   public:
-    SCDynamicDPhiParametersHelper(EcalSCDynamicDPhiParameters &params);
     SCDynamicDPhiParametersHelper(EcalSCDynamicDPhiParameters &params, const edm::ParameterSet &iConfig);
     ~SCDynamicDPhiParametersHelper() = default;
 
-    void addDynamicDPhiParameters(const EcalSCDynamicDPhiParameters::DynamicDPhiParameters &params);
+    void addDynamicDPhiParameters(const EcalSCDynamicDPhiParameters::DynamicDPhiParameters &dynDPhiParams);
     void sortDynamicDPhiParametersCollection();
 
   private:
