@@ -19,7 +19,6 @@
 //
 //  Updated by: Lukas Wehrli
 //  for pixel offline DQM
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
@@ -39,7 +38,7 @@ public:
   /// Constructor with raw DetId
   SiPixelClusterModule(const uint32_t &id);
   /// Constructor with raw DetId and sensor size
-  SiPixelClusterModule(edm::ConsumesCollector &&iCC, const uint32_t &id, const int &ncols, const int &nrows);
+  SiPixelClusterModule(const uint32_t &id, const int &ncols, const int &nrows);
   /// Destructor
   ~SiPixelClusterModule();
 
@@ -47,7 +46,7 @@ public:
 
   /// Book histograms
   void book(const edm::ParameterSet &iConfig,
-            const edm::EventSetup &iSetup,
+            const TrackerTopology *pTT,
             DQMStore::IBooker &iBooker,
             int type = 0,
             bool twoD = true,
@@ -55,6 +54,7 @@ public:
             bool isUpgrade = false);
   /// Fill histograms
   int fill(const edmNew::DetSetVector<SiPixelCluster> &input,
+           const TrackerTopology *pTT,
            const TrackerGeometry *tracker,
            int *barrelClusterTotal,
            int *fpixPClusterTotal,
@@ -75,8 +75,6 @@ public:
            bool isUpgrade = false);
 
 private:
-  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoTokenBeginRun_;
-  const TrackerTopology *pTT;
   uint32_t id_;
   int ncols_;
   int nrows_;
