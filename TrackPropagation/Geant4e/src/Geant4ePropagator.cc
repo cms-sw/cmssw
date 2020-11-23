@@ -36,7 +36,10 @@
 
 /** Constructor.
  */
-Geant4ePropagator::Geant4ePropagator(const MagneticField *field, std::string particleName, PropagationDirection dir, double plimit)
+Geant4ePropagator::Geant4ePropagator(const MagneticField *field,
+                                     std::string particleName,
+                                     PropagationDirection dir,
+                                     double plimit)
     : Propagator(dir),
       theField(field),
       theParticleName(particleName),
@@ -159,7 +162,8 @@ bool Geant4ePropagator::configureAnyPropagation(G4ErrorMode &mode,
                                                 Plane const &pDest,
                                                 GlobalPoint const &cmsInitPos,
                                                 GlobalVector const &cmsInitMom) const {
-  if (cmsInitMom.mag() < plimit_) return false;
+  if (cmsInitMom.mag() < plimit_)
+    return false;
   if (pDest.localZ(cmsInitPos) * pDest.localZ(cmsInitMom) < 0) {
     mode = G4ErrorMode_PropForwards;
     LogDebug("Geant4e") << "G4e -  Propagator mode is \'forwards\' indirect "
@@ -180,7 +184,8 @@ bool Geant4ePropagator::configureAnyPropagation(G4ErrorMode &mode,
                                                 Cylinder const &pDest,
                                                 GlobalPoint const &cmsInitPos,
                                                 GlobalVector const &cmsInitMom) const {
-  if (cmsInitMom.mag() < plimit_) return false;
+  if (cmsInitMom.mag() < plimit_)
+    return false;
   //------------------------------------
   // For cylinder assume outside is backwards, inside is along
   // General use for particles from collisions
@@ -204,7 +209,8 @@ bool Geant4ePropagator::configurePropagation(G4ErrorMode &mode,
                                              SurfaceType const &pDest,
                                              GlobalPoint const &cmsInitPos,
                                              GlobalVector const &cmsInitMom) const {
-  if (cmsInitMom.mag() < plimit_) return false;
+  if (cmsInitMom.mag() < plimit_)
+    return false;
   if (propagationDirection() == oppositeToMomentum) {
     mode = G4ErrorMode_PropBackwards;
     LogDebug("Geant4e") << "G4e -  Propagator mode is \'backwards\' " << std::endl;
