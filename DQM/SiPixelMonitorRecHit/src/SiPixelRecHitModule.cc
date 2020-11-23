@@ -22,9 +22,7 @@
 //
 SiPixelRecHitModule::SiPixelRecHitModule() : id_(0) {}
 ///
-SiPixelRecHitModule::SiPixelRecHitModule(edm::ConsumesCollector &&iCC, const uint32_t &id) : id_(id) {
-  trackerTopoTokenBeginRun_ = iCC.esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>();
-}
+SiPixelRecHitModule::SiPixelRecHitModule(const uint32_t &id) : id_(id) {}
 
 //
 // Destructor
@@ -35,14 +33,11 @@ SiPixelRecHitModule::~SiPixelRecHitModule() {}
 //
 void SiPixelRecHitModule::book(const edm::ParameterSet &iConfig,
                                DQMStore::IBooker &iBooker,
-                               const edm::EventSetup &iSetup,
+                               const TrackerTopology* pTT,
                                int type,
                                bool twoD,
                                bool reducedSet,
                                bool isUpgrade) {
-  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopoTokenBeginRun_);
-  const TrackerTopology *pTT = tTopoHandle.product();
-
   bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
   bool isHalfModule = false;
