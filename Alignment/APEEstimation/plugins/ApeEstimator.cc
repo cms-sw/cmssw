@@ -111,7 +111,6 @@
 /////////
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "CondFormats/DataRecord/interface/SiStripLorentzAngleRcd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -181,6 +180,9 @@ private:
 
   // ----------member data ---------------------------
   const edm::ParameterSet parameterSet_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  const edm::ESGetToken<SiStripLorentzAngle, SiStripLorentzAngleDepRcd> lorentzAngleToken_;
+  
   std::map<unsigned int, TrackerSectorStruct> m_tkSector_;
   TrackerDetectorStruct tkDetector_;
   SiStripClusterInfo siStripClusterInfo_;
@@ -204,6 +206,10 @@ private:
   const bool calculateApe_;
 
   unsigned int counter1, counter2, counter3, counter4, counter5, counter6;
+  
+  
+  
+  
 };
 
 //
@@ -218,7 +224,10 @@ private:
 // constructors and destructor
 //
 ApeEstimator::ApeEstimator(const edm::ParameterSet& iConfig)
-    : parameterSet_(iConfig),
+    : 
+      parameterSet_(iConfig),
+      magFieldToken_(esConsumes()),
+      lorentzAngleToken_(esConsumes()),
       siStripClusterInfo_(consumesCollector(), std::string("")),
       tjTagToken_(
           consumes<TrajTrackAssociationCollection>(parameterSet_.getParameter<edm::InputTag>("tjTkAssociationMapTag"))),
@@ -227,7 +236,8 @@ ApeEstimator::ApeEstimator(const edm::ParameterSet& iConfig)
       maxTracksPerEvent_(parameterSet_.getParameter<unsigned int>("maxTracksPerEvent")),
       minGoodHitsPerTrack_(parameterSet_.getParameter<unsigned int>("minGoodHitsPerTrack")),
       analyzerMode_(parameterSet_.getParameter<bool>("analyzerMode")),
-      calculateApe_(parameterSet_.getParameter<bool>("calculateApe")) {
+      calculateApe_(parameterSet_.getParameter<bool>("calculateApe"))
+       {
   counter1 = counter2 = counter3 = counter4 = counter5 = counter6 = 0;
 }
 
@@ -1658,16 +1668,12 @@ TrackStruct::HitParameterStruct ApeEstimator::fillHitVariables(const TrajectoryM
       return hitParams;
     }
 
-    edm::ESHandle<MagneticField> magFieldHandle;
-    iSetup.get<IdealMagneticFieldRecord>().get(magFieldHandle);
 
-    edm::ESHandle<SiStripLorentzAngle> lorentzAngleHandle;
-    iSetup.get<SiStripLorentzAngleDepRcd>().get(lorentzAngleHandle);  //MODIFIED BY LOIC QUERTENMONT
+    const MagneticField *magField = &iSetup.getData(magFieldToken_);
+    const SiStripLorentzAngle *lorentzAngle = &iSetup.getData(lorentzAngleToken_);
 
     const StripGeomDetUnit* stripDet = (const StripGeomDetUnit*)(&detUnit);
-    const MagneticField* magField(magFieldHandle.product());
     LocalVector bField = (stripDet->surface()).toLocal(magField->inTesla(stripDet->surface().position()));
-    const SiStripLorentzAngle* lorentzAngle(lorentzAngleHandle.product());
     float tanLorentzAnglePerTesla = lorentzAngle->getLorentzAngle(stripDet->geographicalId().rawId());
 
     float dirX = -tanLorentzAnglePerTesla * bField.y();
