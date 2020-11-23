@@ -47,6 +47,8 @@ private:
   const edm::EDGetTokenT<CaloTowerCollection> caloTowerProducer_;
   const edm::EDGetTokenT<double> rhoProducer_;
 
+  const edm::ESGetToken<CaloTowerConstituentsMap, CaloGeometryRecord> caloTowerConstituentsMapToken_;
+
   const edm::EDPutTokenT<reco::RecoEcalCandidateIsolationMap> putToken_;
 };
 
@@ -62,11 +64,11 @@ EgammaHLTBcHcalIsolationProducersRegional::EgammaHLTBcHcalIsolationProducersRegi
       rhoMax_(config.getParameter<double>("rhoMax")),
       effectiveAreas_(config.getParameter<std::vector<double> >("effectiveAreas")),
       absEtaLowEdges_(config.getParameter<std::vector<double> >("absEtaLowEdges")),
-      recoEcalCandidateProducer_(
-          consumes<reco::RecoEcalCandidateCollection>(config.getParameter<edm::InputTag>("recoEcalCandidateProducer"))),
-      caloTowerProducer_(consumes<CaloTowerCollection>(config.getParameter<edm::InputTag>("caloTowerProducer"))),
+      recoEcalCandidateProducer_(consumes(config.getParameter<edm::InputTag>("recoEcalCandidateProducer"))),
+      caloTowerProducer_(consumes(config.getParameter<edm::InputTag>("caloTowerProducer"))),
       rhoProducer_(doRhoCorrection_ ? consumes<double>(config.getParameter<edm::InputTag>("rhoProducer"))
                                     : edm::EDGetTokenT<double>()),
+      caloTowerConstituentsMapToken_{esConsumes()},
       putToken_{produces<reco::RecoEcalCandidateIsolationMap>()} {
   if (doRhoCorrection_) {
     if (absEtaLowEdges_.size() != effectiveAreas_.size()) {
@@ -122,8 +124,7 @@ void EgammaHLTBcHcalIsolationProducersRegional::produce(edm::StreamID,
   }
 
   auto const &caloTowers = iEvent.get(caloTowerProducer_);
-  edm::ESHandle<CaloTowerConstituentsMap> ctmaph;
-  iSetup.get<CaloGeometryRecord>().get(ctmaph);
+  auto const &ctmaph = iSetup.getData(caloTowerConstituentsMapToken_);
 
   const EgammaTowerIsolation towerIso1(outerCone_, 0., etMin_, 1, &caloTowers);
   const EgammaTowerIsolation towerIso2(outerCone_, 0., etMin_, 2, &caloTowers);
@@ -136,7 +137,7 @@ void EgammaHLTBcHcalIsolationProducersRegional::produce(edm::StreamID,
     float isol = 0;
 
     auto towersBehindCluster =
-        useSingleTower_ ? egamma::towersOf(*(recoEcalCandRef->superCluster()), *ctmaph) : std::vector<CaloTowerDetId>{};
+        useSingleTower_ ? egamma::towersOf(*(recoEcalCandRef->superCluster()), ctmaph) : std::vector<CaloTowerDetId>{};
 
     if (doEtSum_) {  //calculate hcal isolation excluding the towers behind the cluster which will be used for H for H/E
       const EgammaTowerIsolation isolAlgo(outerCone_, innerCone_, etMin_, depth_, &caloTowers);
