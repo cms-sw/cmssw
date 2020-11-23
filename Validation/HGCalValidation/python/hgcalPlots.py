@@ -2533,11 +2533,18 @@ def append_hgcalCaloParticlesPlots(files, collection = '-211', name_collection =
 
   return hgcalCaloParticlesPlotter
 
-def create_hgcalTrackstersPlotter(files, collection = 'ticlTrackstersMerge', name_collection = "MultiClustersMerge"):
+#=================================================================================================
+list_2D_histos = ["Delta Energy (O-I) vs Layer Number (I)",
+                  "Energy vs Delta Energy", 
+                  "Ingoing links Layer Number", 
+                  "Outgoing links vs Layer Number",
+                  "Raw Energy vs Regressed Energy",
+                  "Relative Delta Energy (O-I)_I vs Layer Number (I)"]
 
+def create_hgcalTrackstersPlotter(files, collection = 'ticlTrackstersMerge', name_collection = "MultiClustersMerge"):
   hgcalTrackstersPlotter = Plotter()
   dqmfolder = "DQMData/Run 1/HGCAL/Run summary/TICLTracksters/" + collection
-  _multiplicity_tracksters_numberOfEventsHistogram = dqmfolder+"/Number of Trackster per Event"
+  #_multiplicity_tracksters_numberOfEventsHistogram = dqmfolder+"/Number of Trackster per Event"
 
   _common["ymin"] = 0.0
   templateFile = ROOT.TFile.Open(files[0]) # assuming all files have same structure
@@ -2548,21 +2555,28 @@ def create_hgcalTrackstersPlotter(files, collection = 'ticlTrackstersMerge', nam
     name = obj.GetName()
     fileName = TString(name)
     fileName.ReplaceAll(" ","_")
-    pg= PlotGroup(fileName.Data(),[
-                  Plot(name,
+    pg= PlotGroup(fileName.Data(),
+                  [Plot(name,
                        xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
-                       #drawCommand = "", # may want to customize for TH2 (colz, etc.)
-                       normalizeToNumberOfEvents = True, **_common)
+                       drawCommand = "COLZ", # may want to customize for TH2 (colz, etc.)
+                       **_common)
                   ],
-                  ncols=1) # probably need more ofr cosAngle_Beta_
+                  ncols=1) # probably need more for cosAngle_Beta_
+    if name in list_2D_histos :
+        pg= PlotOnSideGroup(fileName.Data(),
+                            Plot(name,
+                            xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
+                            drawCommand = "COLZ",
+                            **_common),
+                            ncols=1)
 
     hgcalTrackstersPlotter.append(name_collection+"_TICLDebugger", [
               dqmfolder
               ], PlotFolder(
                 pg,
                 loopSubFolders=False,
-                purpose=PlotPurpose.Timing, page="MultiClusters", section=name_collection,
-                numberOfEventsHistogram=_multiplicity_tracksters_numberOfEventsHistogram)
+                purpose=PlotPurpose.Timing, page="MultiClusters", section=name_collection)
+                #numberOfEventsHistogram=_multiplicity_tracksters_numberOfEventsHistogram)
               )
 
     key = keys.After(key)
