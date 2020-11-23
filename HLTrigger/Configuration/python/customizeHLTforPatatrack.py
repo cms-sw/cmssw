@@ -2,6 +2,7 @@ import copy
 import FWCore.ParameterSet.Config as cms
 from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
 from HLTrigger.Configuration.common import *
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
 
 
 # force the SwitchProducerCUDA choice to pick a specific backend: True for offloading to a gpu, False for running on cpu
@@ -54,6 +55,10 @@ def customiseCommon(process):
         replace_with(process.Status_OnGPU, cms.Path(process.statusOnGPU + process.statusOnGPUFilter))
     else:
         process.Status_OnGPU = cms.Path(process.statusOnGPU + process.statusOnGPUFilter)
+        if 'HLTSchedule' in process.__dict__:
+            process.HLTSchedule.append(process.Status_OnGPU)
+        if process.schedule is not None:
+            process.schedule.append(process.Status_OnGPU)
 
 
     # make the ScoutingCaloMuonOutput endpath compatible with using Tasks in the Scouting paths
@@ -100,7 +105,6 @@ def customisePixelLocalReconstruction(process):
     process.load("CalibTracker.SiPixelESProducers.siPixelGainCalibrationForHLTGPU_cfi")         # this should be used only on GPUs, will crash otherwise
     process.load("RecoLocalTracker.SiPixelClusterizer.siPixelFedCablingMapGPUWrapper_cfi")      # this should be used only on GPUs, will crash otherwise
     process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEFastESProducer_cfi")
-    process.PixelCPEFastESProducer.DoLorentz = True
 
 
     # Modules and EDAliases
@@ -108,14 +112,16 @@ def customisePixelLocalReconstruction(process):
     # referenced in HLTDoLocalPixelTask
 
     # transfer the beamspot to the gpu
-    from RecoVertex.BeamSpotProducer.offlineBeamSpotCUDA_cfi import offlineBeamSpotCUDA as _offlineBeamSpotCUDA
-    process.hltOnlineBeamSpotCUDA = _offlineBeamSpotCUDA.clone(
+    from RecoVertex.BeamSpotProducer.offlineBeamSpotToCUDA_cfi import offlineBeamSpotToCUDA as _offlineBeamSpotToCUDA
+    process.hltOnlineBeamSpotToCUDA = _offlineBeamSpotToCUDA.clone(
         src = "hltOnlineBeamSpot"
     )
 
     # reconstruct the pixel digis and clusters on the gpu
     from RecoLocalTracker.SiPixelClusterizer.siPixelRawToClusterCUDA_cfi import siPixelRawToClusterCUDA as _siPixelRawToClusterCUDA
     process.hltSiPixelClustersCUDA = _siPixelRawToClusterCUDA.clone()
+    # use the pixel channel calibrations scheme for Run 3
+    run3_common.toModify(process.hltSiPixelClustersCUDA, isRun2 = False)
 
     # copy the pixel digis errors to the host
     from EventFilter.SiPixelRawToDigi.siPixelDigiErrorsSoAFromCUDA_cfi import siPixelDigiErrorsSoAFromCUDA as _siPixelDigiErrorsSoAFromCUDA
@@ -175,7 +181,7 @@ def customisePixelLocalReconstruction(process):
     from RecoLocalTracker.SiPixelRecHits.siPixelRecHitCUDA_cfi import siPixelRecHitCUDA as _siPixelRecHitCUDA
     process.hltSiPixelRecHitsCUDA = _siPixelRecHitCUDA.clone(
         src = "hltSiPixelClustersCUDA",
-        beamSpot = "hltOnlineBeamSpotCUDA"
+        beamSpot = "hltOnlineBeamSpotToCUDA"
     )
 
     # SwitchProducer wrapping the legacy pixel rechit producer or the transfer of the pixel rechits to the host and the conversion from SoA
@@ -194,7 +200,7 @@ def customisePixelLocalReconstruction(process):
     # Tasks and Sequences
 
     process.HLTDoLocalPixelTask = cms.Task(
-          process.hltOnlineBeamSpotCUDA,                    # transfer the beamspot to the gpu
+          process.hltOnlineBeamSpotToCUDA,                  # transfer the beamspot to the gpu
           process.hltSiPixelClustersCUDA,                   # reconstruct the pixel digis and clusters on the gpu
           process.hltSiPixelRecHitsCUDA,                    # reconstruct the pixel rechits on the gpu
           process.hltSiPixelDigisSoA,                       # copy the pixel digis (except errors) and clusters to the host
@@ -245,6 +251,8 @@ def customisePixelTrackReconstruction(process):
         pixelRecHitSrc = "hltSiPixelRecHitsCUDA",
         onGPU = True
     )
+    # use quality cuts tuned for Run 2 ideal conditions for all Run 3 workflows
+    run3_common.toModify(process.hltPixelTracksCUDA, idealConditions = True)
 
     # SwitchProducer providing the pixel tracks in SoA format on cpu
     process.hltPixelTracksSoA = SwitchProducerCUDA(
@@ -259,6 +267,8 @@ def customisePixelTrackReconstruction(process):
             src = cms.InputTag("hltPixelTracksCUDA")
         )
     )
+    # use quality cuts tuned for Run 2 ideal conditions for all Run 3 workflows
+    run3_common.toModify(process.hltPixelTracksSoA.cpu, idealConditions = True)
 
     # convert the pixel tracks from SoA to legacy format
     from RecoPixelVertexing.PixelTrackFitting.pixelTrackProducerFromSoA_cfi import pixelTrackProducerFromSoA as _pixelTrackProducerFromSoA
@@ -521,11 +531,6 @@ def customiseEcalLocalReconstruction(process):
         )
     )
 
-    # consume the ECAL rechits
-    process.hltEcalConsumer = cms.EDAnalyzer("GenericConsumer",
-        eventProducts = cms.untracked.vstring( 'hltEcalRecHit' )
-    )
-
     # Tasks and Sequences
 
     process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerTask = cms.Task(
@@ -541,7 +546,6 @@ def customiseEcalLocalReconstruction(process):
         process.hltEcalRecHit)                              # legacy producer
 
     process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence = cms.Sequence(
-        process.hltEcalConsumer,                            # consume the ECAL rechits
         process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerTask)
 
     process.HLTPreshowerTask = cms.Task(
@@ -555,11 +559,9 @@ def customiseEcalLocalReconstruction(process):
         process.HLTPreshowerTask)
 
     process.HLTDoFullUnpackingEgammaEcalSequence = cms.Sequence(
-        process.hltEcalConsumer,                            # consume the ECAL rechits
         process.HLTDoFullUnpackingEgammaEcalTask)
 
     process.HLTDoFullUnpackingEgammaEcalMFSequence = cms.Sequence(
-        process.hltEcalConsumer,                            # consume the ECAL rechits
         process.HLTDoFullUnpackingEgammaEcalTask)
 
 
@@ -648,11 +650,6 @@ def customiseHcalLocalReconstruction(process):
         )
     )
 
-    # consume the HCAL rechits
-    process.hltHbheConsumer = cms.EDAnalyzer("GenericConsumer",
-        eventProducts = cms.untracked.vstring( 'hltHbhereco' )
-    )
-
 
     # Tasks and Sequences
 
@@ -667,7 +664,6 @@ def customiseHcalLocalReconstruction(process):
         process.hltHoreco)                                  # legacy producer
 
     process.HLTDoLocalHcalSequence = cms.Sequence(
-        process.hltHbheConsumer,                            # consume the HCAL rechits
         process.HLTDoLocalHcalTask)
 
     process.HLTStoppedHSCPLocalHcalRecoTask = cms.Task(
@@ -678,7 +674,6 @@ def customiseHcalLocalReconstruction(process):
         process.hltHbhereco)                                # SwitchProducer between the legacy producer and the copy from gpu with conversion
 
     process.HLTStoppedHSCPLocalHcalReco = cms.Sequence(
-        process.hltHbheConsumer,                            # consume the HCAL rechits
         process.HLTStoppedHSCPLocalHcalRecoTask)
 
 
@@ -693,4 +688,95 @@ def customizeHLTforPatatrack(process):
     process = customisePixelTrackReconstruction(process)
     process = customiseEcalLocalReconstruction(process)
     process = customiseHcalLocalReconstruction(process)
+    return process
+
+
+def _addConsumerPath(process):
+    # add to a path all consumers and the tasks that define the producers
+    process.Consumer = cms.Path(
+        process.HLTBeginSequence +
+        process.hltPixelConsumer +
+        process.hltEcalConsumer +
+        process.hltHbheConsumer,
+        process.HLTDoLocalPixelTask,
+        process.HLTRecoPixelTracksTask,
+        process.HLTRecopixelvertexingTask,
+        process.HLTDoFullUnpackingEgammaEcalTask,
+        process.HLTDoLocalHcalTask,
+    )
+
+    if 'HLTSchedule' in process.__dict__:
+        process.HLTSchedule.append(process.Consumer)
+    if process.schedule is not None:
+        process.schedule.append(process.Consumer)
+
+    # done
+    return process
+
+
+def consumeGPUSoAProducts(process):
+    # consume the Pixel tracks and vertices on the GPU in SoA format
+    process.hltPixelConsumer = cms.EDAnalyzer("GenericConsumer",
+        eventProducts = cms.untracked.vstring( 'hltPixelTracksCUDA', 'hltPixelVerticesCUDA' )
+    )
+
+    # consume the ECAL uncalibrated rechits on the GPU in SoA format
+    process.hltEcalConsumer = cms.EDAnalyzer("GenericConsumer",
+        eventProducts = cms.untracked.vstring( 'hltEcalUncalibRecHitGPU' )
+    )
+
+    # consume the HCAL rechits on the GPU in SoA format
+    process.hltHbheConsumer = cms.EDAnalyzer("GenericConsumer",
+        eventProducts = cms.untracked.vstring( 'hltHbherecoGPU' )
+    )
+
+    # add to a path all consumers and the tasks that define the producers
+    process = _addConsumerPath(process)
+
+    # done
+    return process
+
+
+def consumeCPUSoAProducts(process):
+    # consume the Pixel tracks and vertices on the CPU in SoA format
+    process.hltPixelConsumer = cms.EDAnalyzer("GenericConsumer",
+        eventProducts = cms.untracked.vstring( 'hltPixelTracksSoA', 'hltPixelVerticesSoA' )
+    )
+
+    # consume the ECAL uncalibrated rechits on the CPU in SoA format
+    process.hltEcalConsumer = cms.EDAnalyzer("GenericConsumer",
+        eventProducts = cms.untracked.vstring( 'hltEcalUncalibRecHitSoA' )
+    )
+
+    # consume the HCAL rechits on the CPU in legacy format
+    process.hltHbheConsumer = cms.EDAnalyzer("GenericConsumer",
+        eventProducts = cms.untracked.vstring( 'hltHbhereco' )
+    )
+
+    # add to a path all consumers and the tasks that define the producers
+    process = _addConsumerPath(process)
+
+    # done
+    return process
+
+def consumeCPULegacyProducts(process):
+    # consume the Pixel tracks and vertices on the CPU in legacy format
+    process.hltPixelConsumer = cms.EDAnalyzer("GenericConsumer",
+        eventProducts = cms.untracked.vstring( 'hltPixelTracks', 'hltPixelVertices' )
+    )
+
+    # consume the ECAL runcalibrated echits on the CPU in legacy format
+    process.hltEcalConsumer = cms.EDAnalyzer("GenericConsumer",
+        eventProducts = cms.untracked.vstring( 'hltEcalUncalibRecHit' )
+    )
+
+    # consume the HCAL rechits on the CPU in legacy format
+    process.hltHbheConsumer = cms.EDAnalyzer("GenericConsumer",
+        eventProducts = cms.untracked.vstring( 'hltHbhereco' )
+    )
+
+    # add to a path all consumers and the tasks that define the producers
+    process = _addConsumerPath(process)
+
+    # done
     return process
