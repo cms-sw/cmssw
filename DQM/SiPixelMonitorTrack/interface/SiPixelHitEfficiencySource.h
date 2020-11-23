@@ -71,6 +71,7 @@ private:
   edm::ESGetToken<Chi2MeasurementEstimatorBase, TrackingComponentsRecord> chi2MeasurementEstimatorBaseToken_;
   edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorToken_;
   edm::ESGetToken<PixelClusterParameterEstimator, TkPixelCPERecord> pixelClusterParameterEstimatorToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoTokenBeginRun_;
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomTokenBeginRun_;
 
   bool applyEdgeCut_;

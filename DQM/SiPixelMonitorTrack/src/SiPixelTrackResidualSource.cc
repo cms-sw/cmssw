@@ -19,7 +19,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 
@@ -124,7 +123,7 @@ void SiPixelTrackResidualSource::dqmBeginRun(const edm::Run &r, edm::EventSetup 
   for (TrackerGeometry::DetContainer::const_iterator pxb = TG->detsPXB().begin(); pxb != TG->detsPXB().end(); pxb++) {
     if (dynamic_cast<PixelGeomDetUnit const *>((*pxb)) != nullptr) {
       SiPixelTrackResidualModule *module =
-          new SiPixelTrackResidualModule(consumesCollector(), (*pxb)->geographicalId().rawId());
+          new SiPixelTrackResidualModule((*pxb)->geographicalId().rawId());
       theSiPixelStructure.insert(
           pair<uint32_t, SiPixelTrackResidualModule *>((*pxb)->geographicalId().rawId(), module));
       // int DBlayer = PixelBarrelNameWrapper(pSet_,
@@ -137,7 +136,7 @@ void SiPixelTrackResidualSource::dqmBeginRun(const edm::Run &r, edm::EventSetup 
   for (TrackerGeometry::DetContainer::const_iterator pxf = TG->detsPXF().begin(); pxf != TG->detsPXF().end(); pxf++) {
     if (dynamic_cast<PixelGeomDetUnit const *>((*pxf)) != nullptr) {
       SiPixelTrackResidualModule *module =
-          new SiPixelTrackResidualModule(consumesCollector(), (*pxf)->geographicalId().rawId());
+          new SiPixelTrackResidualModule((*pxf)->geographicalId().rawId());
       theSiPixelStructure.insert(
           pair<uint32_t, SiPixelTrackResidualModule *>((*pxf)->geographicalId().rawId(), module));
       int DBdisk;
@@ -155,6 +154,10 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker &iBooker,
   // book residual histograms in theSiPixelFolder - one (x,y) pair of histograms
   // per det
   SiPixelFolderOrganizer theSiPixelFolder(false);
+
+  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopoTokenBeginRun_);
+  const TrackerTopology* pTT = tTopoHandle.product();
+
   std::stringstream nameX, titleX, nameY, titleY;
 
   if (ladOn) {
@@ -180,43 +183,43 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker &iBooker,
        pxd++) {
     if (modOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*pxd).first, 0, isUpgrade))
-        (*pxd).second->book(pSet_, iSetup, iBooker, reducedSet, 0, isUpgrade);
+        (*pxd).second->book(pSet_, pTT, iBooker, reducedSet, 0, isUpgrade);
       else
         throw cms::Exception("LogicError") << "SiPixelTrackResidualSource Folder Creation Failed! ";
     }
     if (ladOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*pxd).first, 1, isUpgrade)) {
-        (*pxd).second->book(pSet_, iSetup, iBooker, reducedSet, 1, isUpgrade);
+        (*pxd).second->book(pSet_, pTT, iBooker, reducedSet, 1, isUpgrade);
       } else
         throw cms::Exception("LogicError") << "SiPixelTrackResidualSource ladder Folder Creation Failed! ";
     }
     if (layOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*pxd).first, 2, isUpgrade))
-        (*pxd).second->book(pSet_, iSetup, iBooker, reducedSet, 2, isUpgrade);
+        (*pxd).second->book(pSet_, pTT, iBooker, reducedSet, 2, isUpgrade);
       else
         throw cms::Exception("LogicError") << "SiPixelTrackResidualSource layer Folder Creation Failed! ";
     }
     if (phiOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*pxd).first, 3, isUpgrade))
-        (*pxd).second->book(pSet_, iSetup, iBooker, reducedSet, 3, isUpgrade);
+        (*pxd).second->book(pSet_, pTT, iBooker, reducedSet, 3, isUpgrade);
       else
         throw cms::Exception("LogicError") << "SiPixelTrackResidualSource phi Folder Creation Failed! ";
     }
     if (bladeOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*pxd).first, 4, isUpgrade))
-        (*pxd).second->book(pSet_, iSetup, iBooker, reducedSet, 4, isUpgrade);
+        (*pxd).second->book(pSet_, pTT, iBooker, reducedSet, 4, isUpgrade);
       else
         throw cms::Exception("LogicError") << "SiPixelTrackResidualSource Blade Folder Creation Failed! ";
     }
     if (diskOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*pxd).first, 5, isUpgrade))
-        (*pxd).second->book(pSet_, iSetup, iBooker, reducedSet, 5, isUpgrade);
+        (*pxd).second->book(pSet_, pTT, iBooker, reducedSet, 5, isUpgrade);
       else
         throw cms::Exception("LogicError") << "SiPixelTrackResidualSource Disk Folder Creation Failed! ";
     }
     if (ringOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*pxd).first, 6, isUpgrade))
-        (*pxd).second->book(pSet_, iSetup, iBooker, reducedSet, 6, isUpgrade);
+        (*pxd).second->book(pSet_, pTT, iBooker, reducedSet, 6, isUpgrade);
       else
         throw cms::Exception("LogicError") << "SiPixelTrackResidualSource Ring Folder Creation Failed! ";
     }

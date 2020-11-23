@@ -19,7 +19,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -82,6 +81,7 @@ SiPixelHitEfficiencySource::SiPixelHitEfficiencySource(const edm::ParameterSet &
   propagatorToken_ = esConsumes<Propagator, TrackingComponentsRecord>(edm::ESInputTag("", "PropagatorWithMaterial"));
   pixelClusterParameterEstimatorToken_ =
       esConsumes<PixelClusterParameterEstimator, TkPixelCPERecord>(edm::ESInputTag("", "PixelCPEGeneric"));
+  trackerTopoTokenBeginRun_ = esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>();
   trackerGeomTokenBeginRun_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>();
 
   firstRun = true;
@@ -163,7 +163,7 @@ void SiPixelHitEfficiencySource::dqmBeginRun(const edm::Run &r, edm::EventSetup 
   for (TrackerGeometry::DetContainer::const_iterator pxb = TG->detsPXB().begin(); pxb != TG->detsPXB().end(); pxb++) {
     if (dynamic_cast<PixelGeomDetUnit const *>((*pxb)) != nullptr) {
       SiPixelHitEfficiencyModule *module =
-          new SiPixelHitEfficiencyModule(consumesCollector(), (*pxb)->geographicalId().rawId());
+          new SiPixelHitEfficiencyModule((*pxb)->geographicalId().rawId());
       theSiPixelStructure.insert(
           pair<uint32_t, SiPixelHitEfficiencyModule *>((*pxb)->geographicalId().rawId(), module));
     }
@@ -171,7 +171,7 @@ void SiPixelHitEfficiencySource::dqmBeginRun(const edm::Run &r, edm::EventSetup 
   for (TrackerGeometry::DetContainer::const_iterator pxf = TG->detsPXF().begin(); pxf != TG->detsPXF().end(); pxf++) {
     if (dynamic_cast<PixelGeomDetUnit const *>((*pxf)) != nullptr) {
       SiPixelHitEfficiencyModule *module =
-          new SiPixelHitEfficiencyModule(consumesCollector(), (*pxf)->geographicalId().rawId());
+          new SiPixelHitEfficiencyModule((*pxf)->geographicalId().rawId());
       theSiPixelStructure.insert(
           pair<uint32_t, SiPixelHitEfficiencyModule *>((*pxf)->geographicalId().rawId(), module));
     }
@@ -185,48 +185,52 @@ void SiPixelHitEfficiencySource::bookHistograms(DQMStore::IBooker &iBooker,
   // book residual histograms in theSiPixelFolder - one (x,y) pair of histograms
   // per det
   SiPixelFolderOrganizer theSiPixelFolder(false);
+
+  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopoTokenBeginRun_);
+  const TrackerTopology* pTT = tTopoHandle.product();
+
   for (std::map<uint32_t, SiPixelHitEfficiencyModule *>::iterator pxd = theSiPixelStructure.begin();
        pxd != theSiPixelStructure.end();
        pxd++) {
     if (modOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*pxd).first, 0, isUpgrade))
-        (*pxd).second->book(pSet_, iSetup, iBooker, 0, isUpgrade);
+        (*pxd).second->book(pSet_, pTT, iBooker, 0, isUpgrade);
       else
         throw cms::Exception("LogicError") << "SiPixelHitEfficiencySource Folder Creation Failed! ";
     }
     if (ladOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*pxd).first, 1, isUpgrade))
-        (*pxd).second->book(pSet_, iSetup, iBooker, 1, isUpgrade);
+        (*pxd).second->book(pSet_, pTT, iBooker, 1, isUpgrade);
       else
         throw cms::Exception("LogicError") << "SiPixelHitEfficiencySource ladder Folder Creation Failed! ";
     }
     if (layOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*pxd).first, 2, isUpgrade))
-        (*pxd).second->book(pSet_, iSetup, iBooker, 2, isUpgrade);
+        (*pxd).second->book(pSet_, pTT, iBooker, 2, isUpgrade);
       else
         throw cms::Exception("LogicError") << "SiPixelHitEfficiencySource layer Folder Creation Failed! ";
     }
     if (phiOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*pxd).first, 3, isUpgrade))
-        (*pxd).second->book(pSet_, iSetup, iBooker, 3, isUpgrade);
+        (*pxd).second->book(pSet_, pTT, iBooker, 3, isUpgrade);
       else
         throw cms::Exception("LogicError") << "SiPixelHitEfficiencySource phi Folder Creation Failed! ";
     }
     if (bladeOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*pxd).first, 4, isUpgrade))
-        (*pxd).second->book(pSet_, iSetup, iBooker, 4, isUpgrade);
+        (*pxd).second->book(pSet_, pTT, iBooker, 4, isUpgrade);
       else
         throw cms::Exception("LogicError") << "SiPixelHitEfficiencySource Blade Folder Creation Failed! ";
     }
     if (diskOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*pxd).first, 5, isUpgrade))
-        (*pxd).second->book(pSet_, iSetup, iBooker, 5, isUpgrade);
+        (*pxd).second->book(pSet_, pTT, iBooker, 5, isUpgrade);
       else
         throw cms::Exception("LogicError") << "SiPixelHitEfficiencySource Disk Folder Creation Failed! ";
     }
     if (ringOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*pxd).first, 6, isUpgrade))
-        (*pxd).second->book(pSet_, iSetup, iBooker, 6, isUpgrade);
+        (*pxd).second->book(pSet_, pTT, iBooker, 6, isUpgrade);
       else
         throw cms::Exception("LogicError") << "SiPixelHitEfficiencySource Ring Folder Creation Failed! ";
     }
