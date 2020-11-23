@@ -22,7 +22,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 // DQM Framework
 #include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -253,6 +252,7 @@ void SiPixelClusterSource::analyze(const edm::Event &iEvent, const edm::EventSet
   for (struct_iter = thePixelStructure.begin(); struct_iter != thePixelStructure.end(); struct_iter++) {
     int numberOfFpixClusters = (*struct_iter)
                                    .second->fill(*input,
+                                                 pTT,
                                                  tracker,
                                                  &nEventsBarrel,
                                                  &nEventsFPIXp,
@@ -340,7 +340,7 @@ void SiPixelClusterSource::buildStructure(const edm::EventSetup &iSetup) {
           int layer = PixelBarrelName(DetId(id), pTT, isUpgrade).layerName();
           if (layer > noOfLayers)
             noOfLayers = layer;
-          SiPixelClusterModule *theModule = new SiPixelClusterModule(consumesCollector(), id, ncols, nrows);
+          SiPixelClusterModule *theModule = new SiPixelClusterModule(id, ncols, nrows);
           thePixelStructure.insert(pair<uint32_t, SiPixelClusterModule *>(id, theModule));
         } else if (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
           LogDebug("PixelDQM") << " ---> Adding Endcap Module " << detId.rawId() << endl;
@@ -370,7 +370,7 @@ void SiPixelClusterSource::buildStructure(const edm::EventSetup &iSetup) {
           mask = false;
           if (isPIB && mask)
             continue;
-          SiPixelClusterModule *theModule = new SiPixelClusterModule(consumesCollector(), id, ncols, nrows);
+          SiPixelClusterModule *theModule = new SiPixelClusterModule(id, ncols, nrows);
           thePixelStructure.insert(pair<uint32_t, SiPixelClusterModule *>(id, theModule));
         }
       }
@@ -396,11 +396,14 @@ void SiPixelClusterSource::bookMEs(DQMStore::IBooker &iBooker, const edm::EventS
 
   SiPixelFolderOrganizer theSiPixelFolder(false);
 
+  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopoTokenBeginRun_);
+  const TrackerTopology* pTT = tTopoHandle.product();
+
   for (struct_iter = thePixelStructure.begin(); struct_iter != thePixelStructure.end(); struct_iter++) {
     /// Create folder tree and book histograms
     if (modOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*struct_iter).first, 0, isUpgrade)) {
-        (*struct_iter).second->book(conf_, iSetup, iBooker, 0, twoDimOn, reducedSet, isUpgrade);
+        (*struct_iter).second->book(conf_, pTT, iBooker, 0, twoDimOn, reducedSet, isUpgrade);
       } else {
         if (!isPIB)
           throw cms::Exception("LogicError") << "[SiPixelClusterSource::bookMEs] Creation of DQM folder "
@@ -409,49 +412,49 @@ void SiPixelClusterSource::bookMEs(DQMStore::IBooker &iBooker, const edm::EventS
     }
     if (ladOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*struct_iter).first, 1, isUpgrade)) {
-        (*struct_iter).second->book(conf_, iSetup, iBooker, 1, twoDimOn, reducedSet, isUpgrade);
+        (*struct_iter).second->book(conf_, pTT, iBooker, 1, twoDimOn, reducedSet, isUpgrade);
       } else {
         LogDebug("PixelDQM") << "PROBLEM WITH LADDER-FOLDER\n";
       }
     }
     if (layOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*struct_iter).first, 2, isUpgrade)) {
-        (*struct_iter).second->book(conf_, iSetup, iBooker, 2, twoDimOn, reducedSet, isUpgrade);
+        (*struct_iter).second->book(conf_, pTT, iBooker, 2, twoDimOn, reducedSet, isUpgrade);
       } else {
         LogDebug("PixelDQM") << "PROBLEM WITH LAYER-FOLDER\n";
       }
     }
     if (phiOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*struct_iter).first, 3, isUpgrade)) {
-        (*struct_iter).second->book(conf_, iSetup, iBooker, 3, twoDimOn, reducedSet, isUpgrade);
+        (*struct_iter).second->book(conf_, pTT, iBooker, 3, twoDimOn, reducedSet, isUpgrade);
       } else {
         LogDebug("PixelDQM") << "PROBLEM WITH PHI-FOLDER\n";
       }
     }
     if (bladeOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*struct_iter).first, 4, isUpgrade)) {
-        (*struct_iter).second->book(conf_, iSetup, iBooker, 4, twoDimOn, reducedSet, isUpgrade);
+        (*struct_iter).second->book(conf_, pTT, iBooker, 4, twoDimOn, reducedSet, isUpgrade);
       } else {
         LogDebug("PixelDQM") << "PROBLEM WITH BLADE-FOLDER\n";
       }
     }
     if (diskOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*struct_iter).first, 5, isUpgrade)) {
-        (*struct_iter).second->book(conf_, iSetup, iBooker, 5, twoDimOn, reducedSet, isUpgrade);
+        (*struct_iter).second->book(conf_, pTT, iBooker, 5, twoDimOn, reducedSet, isUpgrade);
       } else {
         LogDebug("PixelDQM") << "PROBLEM WITH DISK-FOLDER\n";
       }
     }
     if (ringOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*struct_iter).first, 6, isUpgrade)) {
-        (*struct_iter).second->book(conf_, iSetup, iBooker, 6, twoDimOn, reducedSet, isUpgrade);
+        (*struct_iter).second->book(conf_, pTT, iBooker, 6, twoDimOn, reducedSet, isUpgrade);
       } else {
         LogDebug("PixelDQM") << "PROBLEM WITH RING-FOLDER\n";
       }
     }
     if (smileyOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*struct_iter).first, 7, isUpgrade)) {
-        (*struct_iter).second->book(conf_, iSetup, iBooker, 7, twoDimOn, reducedSet, isUpgrade);
+        (*struct_iter).second->book(conf_, pTT, iBooker, 7, twoDimOn, reducedSet, isUpgrade);
       } else {
         LogDebug("PixelDQM") << "PROBLEM WITH BARREL-FOLDER\n";
       }

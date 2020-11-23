@@ -46,13 +46,10 @@ SiPixelClusterModule::SiPixelClusterModule() : id_(0), ncols_(416), nrows_(160) 
 ///
 SiPixelClusterModule::SiPixelClusterModule(const uint32_t &id) : id_(id), ncols_(416), nrows_(160) {}
 ///
-SiPixelClusterModule::SiPixelClusterModule(edm::ConsumesCollector &&iCC,
-                                           const uint32_t &id,
+SiPixelClusterModule::SiPixelClusterModule(const uint32_t &id,
                                            const int &ncols,
                                            const int &nrows)
-    : id_(id), ncols_(ncols), nrows_(nrows) {
-  trackerTopoTokenBeginRun_ = iCC.esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>();
-}
+    : id_(id), ncols_(ncols), nrows_(nrows) {}
 //
 // Destructor
 //
@@ -61,15 +58,12 @@ SiPixelClusterModule::~SiPixelClusterModule() {}
 // Book histograms
 //
 void SiPixelClusterModule::book(const edm::ParameterSet &iConfig,
-                                const edm::EventSetup &iSetup,
+                                const TrackerTopology *pTT,
                                 DQMStore::IBooker &iBooker,
                                 int type,
                                 bool twoD,
                                 bool reducedSet,
                                 bool isUpgrade) {
-  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopoTokenBeginRun_);
-  pTT = tTopoHandle.product();
-
   bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
   bool isHalfModule = false;
@@ -543,6 +537,7 @@ void SiPixelClusterModule::book(const edm::ParameterSet &iConfig,
 // Fill histograms
 //
 int SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster> &input,
+                               const TrackerTopology *pTT,
                                const TrackerGeometry *tracker,
                                int *barrelClusterTotal,
                                int *fpixPClusterTotal,
