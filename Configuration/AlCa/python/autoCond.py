@@ -16,21 +16,21 @@ autoCond = {
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run2
     'run2_design'       :   '106X_mcRun2_design_v7',
     #GlobalTag for MC production with optimistic alignment and calibrations for 2016, prior to VFP change
-    'run2_mc_pre_vfp'   :   '106X_mcRun2_asymptotic_preVFP_v8',
+    'run2_mc_pre_vfp'   :   '106X_mcRun2_asymptotic_preVFP_v9',
     #GlobalTag for MC production with optimistic alignment and calibrations for 2016, after VFP change
-    'run2_mc'           :   '106X_mcRun2_asymptotic_v13',
+    'run2_mc'           :   '106X_mcRun2_asymptotic_v15',
     # GlobalTag for MC production (cosmics) with starup-like alignment and calibrations for Run2, Strip tracker in peak mode
-    'run2_mc_cosmics'   :   '106X_mcRun2cosmics_startup_deco_v7',
+    'run2_mc_cosmics'   :   '106X_mcRun2cosmics_startup_deco_v8',
     # GlobalTag for MC production (Heavy Ions collisions) with optimistic alignment and calibrations for Run2
     'run2_mc_hi'        :   '106X_mcRun2_HeavyIon_v4',
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run2
     'run2_mc_pa'        :   '106X_mcRun2_pA_v5',
     # GlobalTag for Run1 data reprocessing
-    'run1_data'         :   '106X_dataRun2_v31',
+    'run1_data'         :   '106X_dataRun2_v32',
     # GlobalTag for Run2 data reprocessing
-    'run2_data'         :   '106X_dataRun2_v31',
+    'run2_data'         :   '106X_dataRun2_v32',
     # GlobalTag for Run2 data relvals: allows customization to run with fixed L1 menu
-    'run2_data_relval'  :   '106X_dataRun2_relval_v29',
+    'run2_data_relval'  :   '106X_dataRun2_relval_v30',
     # GlobalTag for Run2 data 2018B relvals only: HEM-15-16 fail
     'run2_data_promptlike_HEfail' : '106X_dataRun2_PromptLike_HEfail_v13',
     # GlobalTag for Run2 data 2016H relvals only: Prompt Conditions + fixed L1 menu (to be removed)
@@ -56,15 +56,15 @@ autoCond = {
     # GlobalTag for MC production with perfectly aligned and calibrated detector for full Phase1 2018 (and 0,0,0-centred beamspot)
     'phase1_2018_design'       :  '106X_upgrade2018_design_v6',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector
-    'phase1_2018_realistic'    :  '106X_upgrade2018_realistic_v13',
+    'phase1_2018_realistic'    :  '106X_upgrade2018_realistic_v15',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector for Heavy Ion
     'phase1_2018_realistic_hi' :  '106X_upgrade2018_realistic_HI_v6',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector: HEM-15-16 fail
-    'phase1_2018_realistic_HEfail' :  '106X_upgrade2018_realistic_HEfail_v14',
+    'phase1_2018_realistic_HEfail' :  '106X_upgrade2018_realistic_HEfail_v15',
     # GlobalTag for MC production (cosmics) with realistic conditions for full Phase1 2018 detector,  Strip tracker in DECO mode
-    'phase1_2018_cosmics'      :   '106X_upgrade2018cosmics_realistic_deco_v11',
+    'phase1_2018_cosmics'      :   '106X_upgrade2018cosmics_realistic_deco_v12',
     # GlobalTag for MC production (cosmics) with realistic conditions for full Phase1 2018 detector,  Strip tracker in PEAK mode
-    'phase1_2018_cosmics_peak' :   '106X_upgrade2018cosmics_realistic_peak_v11',
+    'phase1_2018_cosmics_peak' :   '106X_upgrade2018cosmics_realistic_peak_v12',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2021
     'phase1_2021_design'       : '106X_upgrade2021_design_v5', # GT containing design conditions for Phase1 2021
     # GlobalTag for MC production with realistic conditions for Phase1 2021
