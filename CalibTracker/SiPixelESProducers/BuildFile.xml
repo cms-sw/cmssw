@@ -9,6 +9,7 @@
 <use name="MagneticField/VolumeBasedEngine"/>
 <use name="HeterogeneousCore/CUDACore"/>
 <use name="cuda"/>
+<use name="RecoTracker/Record"/>
 <export>
   <lib name="1"/>
 </export>
