@@ -109,7 +109,7 @@ void TICLTrackstersValidation::dqmAnalyze(edm::Event const& iEvent,
       const auto& thisTrackster = trackster_h->at(i);
       histo.energy_->Fill(thisTrackster.regressed_energy());
       histo.raw_energy_->Fill(thisTrackster.raw_energy());
-      histo.raw_energy_vs_energy->Fill(thisTrackster.raw_energy(), thisTrackster.regressed_energy());
+      histo.raw_energy_vs_energy->Fill(thisTrackster.regressed_energy(), thisTrackster.raw_energy());
       for (const auto &edge : thisTrackster.edges()) {
         auto & ic = layerClusters[edge[0]];
         auto & oc = layerClusters[edge[1]];
@@ -189,9 +189,9 @@ void TICLTrackstersValidation::bookHistograms(DQMStore::IBooker& ibook,
     auto& histo = histos[trackster_token.index()];
     ibook.setCurrentFolder(folder_ + "TICLTracksters/" + trackstersCollectionsNames_[labelIndex]);
     histo.number_ = ibook.book1D("Number of Trackster per Event", "Number of Trackster per Event", 250, 0., 250.);
-    histo.raw_energy_ = ibook.book1D("Raw Energy", "Raw Energy", 500, 0., 500.);
-    histo.raw_energy_vs_energy = ibook.book2D("Raw Energy vs Regressed Energy", "Raw vs Regressed Energy", 500, 0., 500., 500, 0., 500);
-    histo.energy_ = ibook.book1D("Regressed Energy", "Energy", 500, 0., 500.);
+    histo.raw_energy_ = ibook.book1D("Raw Energy", "Raw Energy", 250, 0., 500.);
+    histo.raw_energy_vs_energy = ibook.book2D("Raw Energy vs Regressed Energy", "Raw vs Regressed Energy", 250, 0., 500., 500, 0., 500);
+    histo.energy_ = ibook.book1D("Regressed Energy", "Energy", 250, 0., 500.);
     histo.delta_energy_ = ibook.book1D("Delta energy", "Delta Energy (O-I)", 800, -20., 20.);
     histo.delta_energy_relative_ = ibook.book1D("Relative Delta energy", "Relative Delta Energy (O-I)/I", 200, -10., 10.);
     histo.delta_energy_vs_energy_ = ibook.book2D("Energy vs Delta Energy", "Energy (I) vs Delta Energy (O-I)", 800, -20., 20., 200, 0., 20.);
