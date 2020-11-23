@@ -190,7 +190,7 @@ void TICLTrackstersValidation::bookHistograms(DQMStore::IBooker& ibook,
     ibook.setCurrentFolder(folder_ + "TICLTracksters/" + trackstersCollectionsNames_[labelIndex]);
     histo.number_ = ibook.book1D("Number of Trackster per Event", "Number of Trackster per Event", 250, 0., 250.);
     histo.raw_energy_ = ibook.book1D("Raw Energy", "Raw Energy", 250, 0., 500.);
-    histo.raw_energy_vs_energy = ibook.book2D("Raw Energy vs Regressed Energy", "Raw vs Regressed Energy", 250, 0., 500., 500, 0., 500);
+    histo.raw_energy_vs_energy = ibook.book2D("Raw Energy vs Regressed Energy", "Raw vs Regressed Energy;Regressed Energy [GeV];Raw Energy [GeV]", 250, 0., 500., 250, 0., 500);
     histo.energy_ = ibook.book1D("Regressed Energy", "Energy", 250, 0., 500.);
     histo.delta_energy_ = ibook.book1D("Delta energy", "Delta Energy (O-I)", 800, -20., 20.);
     histo.delta_energy_relative_ = ibook.book1D("Relative Delta energy", "Relative Delta Energy (O-I)/I", 200, -10., 10.);
