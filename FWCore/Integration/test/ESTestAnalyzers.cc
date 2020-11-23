@@ -232,6 +232,21 @@ namespace edmtest {
                                         << ": ED value " << intData.value << ": ES value = " << dataJ.value();
   }
 
+  class ESTestAnalyzerIncorrectConsumes : public edm::stream::EDAnalyzer<> {
+  public:
+    explicit ESTestAnalyzerIncorrectConsumes(edm::ParameterSet const& iConfig){};
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+  private:
+    edm::ESGetToken<ESTestDataJ, ESTestRecordJ> esToken_;
+  };
+
+  void ESTestAnalyzerIncorrectConsumes::analyze(edm::Event const& ev, edm::EventSetup const& es) {
+    esToken_ = esConsumes();
+    edm::LogAbsolute("ESTestAnalyzerIncorrectConsumes")
+        << "Succeeded to call esConsumes() in analyze(), should not happen!";
+  }
+
 }  // namespace edmtest
 using namespace edmtest;
 DEFINE_FWK_MODULE(ESTestAnalyzerA);
@@ -240,3 +255,4 @@ DEFINE_FWK_MODULE(ESTestAnalyzerK);
 DEFINE_FWK_MODULE(ESTestAnalyzerAZ);
 DEFINE_FWK_MODULE(ESTestAnalyzerJ);
 DEFINE_FWK_MODULE(ESTestAnalyzerL);
+DEFINE_FWK_MODULE(ESTestAnalyzerIncorrectConsumes);

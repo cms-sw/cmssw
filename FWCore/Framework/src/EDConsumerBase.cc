@@ -168,7 +168,10 @@ void EDConsumerBase::updateLookup(BranchType iBranchType,
 }
 
 void EDConsumerBase::updateLookup(eventsetup::ESRecordsToProxyIndices const& iPI) {
+  // temporarily unfreeze to allow late EventSetup consumes registration
+  frozen_ = false;
   registerLateConsumes(iPI);
+  frozen_ = true;
 
   unsigned int index = 0;
   for (auto it = m_esTokenInfo.begin<kESLookupInfo>(); it != m_esTokenInfo.end<kESLookupInfo>(); ++it, ++index) {
@@ -210,6 +213,10 @@ ESTokenIndex EDConsumerBase::recordESConsumes(Transition iTrans,
                                               eventsetup::EventSetupRecordKey const& iRecord,
                                               eventsetup::heterocontainer::HCTypeTag const& iDataType,
                                               edm::ESInputTag const& iTag) {
+  if (frozen_) {
+    throwESConsumesCallAfterFrozen(iRecord, iDataType, iTag);
+  }
+
   //m_tokenLabels first entry is a null. Since most ES data requests have
   // empty labels we will assume we can reuse the first entry
   unsigned int startOfComponentName = 0;
@@ -390,6 +397,16 @@ void EDConsumerBase::throwConsumesCallAfterFrozen(TypeToGet const& typeToGet, In
                                      << "This must be done in the contructor\n"
                                      << "The product type was: " << typeToGet.type() << "\n"
                                      << "and " << inputTag << "\n";
+}
+
+void EDConsumerBase::throwESConsumesCallAfterFrozen(eventsetup::EventSetupRecordKey const& iRecord,
+                                                    eventsetup::heterocontainer::HCTypeTag const& iDataType,
+                                                    edm::ESInputTag const& iTag) const {
+  throw cms::Exception("LogicError") << "A module declared it consumes an EventSetup product after its constructor.\n"
+                                     << "This must be done in the contructor\n"
+                                     << "The product type was: " << iDataType.name() << " in record "
+                                     << iRecord.type().name() << "\n"
+                                     << "and ESInputTag was " << iTag << "\n";
 }
 
 void EDConsumerBase::throwESConsumesInProcessBlock() const {

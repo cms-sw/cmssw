@@ -245,6 +245,9 @@ namespace edm {
     void throwBranchMismatch(BranchType, EDGetToken) const;
     void throwBadToken(edm::TypeID const& iType, EDGetToken iToken) const;
     void throwConsumesCallAfterFrozen(TypeToGet const&, InputTag const&) const;
+    void throwESConsumesCallAfterFrozen(eventsetup::EventSetupRecordKey const&,
+                                        eventsetup::heterocontainer::HCTypeTag const&,
+                                        edm::ESInputTag const&) const;
     void throwESConsumesInProcessBlock() const;
 
     edm::InputTag const& checkIfEmpty(edm::InputTag const& tag);
