@@ -317,8 +317,13 @@ namespace reco {
                 allTracksSumP += chargedHadronTrack->p();
                 allTracksSumPerr2 += getTrackPerr2(*chargedHadronTrack);
               } else {
-                edm::LogInfo("PFRecoTauEnergyAlgorithmPlugin::operator()")
-                    << "PFRecoTauChargedHadron has no associated reco::Track !!";
+                // don't print warning as it is caused by missing detailed track inforamtion in lostTrack in miniAOD
+                if (!(chargedHadron->algoIs(PFRecoTauChargedHadron::kTrack) &&
+                      chargedHadron->getLostTrackCandidate().isNonnull() &&
+                      chargedHadron->getLostTrackCandidate()->bestTrack() == nullptr)) {
+                  edm::LogInfo("PFRecoTauEnergyAlgorithmPlugin::operator()")
+                      << "PFRecoTauChargedHadron has no associated reco::Track !!";
+                }
                 if (verbosity_) {
                   chargedHadron->print();
                 }
@@ -401,8 +406,13 @@ namespace reco {
                   chargedHadronP4_modified = compChargedHadronP4fromPxPyPz(
                       chargedHadronPx_modified, chargedHadronPy_modified, chargedHadronPz_modified);
                 } else {
-                  edm::LogWarning("PFRecoTauEnergyAlgorithmPlugin::operator()")
-                      << "PFRecoTauChargedHadron has no associated reco::Track !!" << std::endl;
+                  // don't print warning as it is caused by missing detailed track inforamtion in lostTrack in miniAOD
+                  if (!(chargedHadron.algoIs(PFRecoTauChargedHadron::kTrack) &&
+                        chargedHadron.getLostTrackCandidate().isNonnull() &&
+                        chargedHadron.getLostTrackCandidate()->bestTrack() == nullptr)) {
+                    edm::LogWarning("PFRecoTauEnergyAlgorithmPlugin::operator()")
+                        << "PFRecoTauChargedHadron has no associated reco::Track !!" << std::endl;
+                  }
                   if (verbosity_) {
                     chargedHadron.print();
                   }
@@ -466,8 +476,13 @@ namespace reco {
                     chargedHadronP4_modified = compChargedHadronP4fromPxPyPz(
                         chargedHadronPx_modified, chargedHadronPy_modified, chargedHadronPz_modified);
                   } else {
-                    edm::LogInfo("PFRecoTauEnergyAlgorithmPlugin::operator()")
-                        << "PFRecoTauChargedHadron has no associated reco::Track !!";
+                    // don't print warning as it is caused by missing detailed track inforamtion in lostTrack in miniAOD
+                    if (!(chargedHadron.algoIs(PFRecoTauChargedHadron::kTrack) &&
+                          chargedHadron.getLostTrackCandidate().isNonnull() &&
+                          chargedHadron.getLostTrackCandidate()->bestTrack() == nullptr)) {
+                      edm::LogInfo("PFRecoTauEnergyAlgorithmPlugin::operator()")
+                          << "PFRecoTauChargedHadron has no associated reco::Track !!";
+                    }
                     if (verbosity_) {
                       chargedHadron.print();
                     }
