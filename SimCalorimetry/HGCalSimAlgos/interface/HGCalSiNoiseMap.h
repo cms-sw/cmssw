@@ -141,6 +141,8 @@ private:
   bool ignoreFluence_, ignoreCCE_, ignoreNoise_, ignoreGainDependentPulse_, activateCachedOp_;
 };
 
+#include "HGCalSiNoiseMap.icc"
+
 template class HGCalSiNoiseMap<HGCSiliconDetId>;
 template class HGCalSiNoiseMap<HFNoseDetId>;
 
