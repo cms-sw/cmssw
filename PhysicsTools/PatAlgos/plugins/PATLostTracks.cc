@@ -66,6 +66,7 @@ namespace pat {
     const double maxDzErrorForPrimaryAssignment_;
     const double maxDxyForNotReconstructedPrimary_;
     const double maxDxySigForNotReconstructedPrimary_;
+    const bool useLegacySetup_;
   };
 }  // namespace pat
 
@@ -96,7 +97,8 @@ pat::PATLostTracks::PATLostTracks(const edm::ParameterSet& iConfig)
       maxDxyForNotReconstructedPrimary_(iConfig.getParameter<edm::ParameterSet>("pvAssignment")
                                             .getParameter<double>("maxDxyForNotReconstructedPrimary")),
       maxDxySigForNotReconstructedPrimary_(iConfig.getParameter<edm::ParameterSet>("pvAssignment")
-                                               .getParameter<double>("maxDxySigForNotReconstructedPrimary")) {
+                                               .getParameter<double>("maxDxySigForNotReconstructedPrimary")),
+      useLegacySetup_(iConfig.getParameter<bool>("useLegacySetup")) {
   std::vector<std::string> trkQuals(iConfig.getParameter<std::vector<std::string>>("qualsToAutoAccept"));
   std::transform(
       trkQuals.begin(), trkQuals.end(), std::back_inserter(qualsToAutoAccept_), reco::TrackBase::qualityByName);
@@ -285,7 +287,7 @@ void pat::PATLostTracks::addPackedCandidate(std::vector<pat::PackedCandidate>& c
             *trk, covariancePackingSchemas_[1], covarianceVersion_);  // high quality without pixels
       }
     }
-  } else if (trk->pt() > 0.5) {
+  } else if (!useLegacySetup_ && trk->pt() > 0.5) {
     if (trk->hitPattern().numberOfValidPixelHits() > 0) {
       cands.back().setTrackProperties(
           *trk, covariancePackingSchemas_[2], covarianceVersion_);  // low quality with pixels
@@ -299,6 +301,22 @@ void pat::PATLostTracks::addPackedCandidate(std::vector<pat::PackedCandidate>& c
 
 std::pair<int, pat::PackedCandidate::PVAssociationQuality> pat::PATLostTracks::associateTrkToVtx(
     const reco::VertexCollection& vertices, const reco::TrackRef& trk) const {
+  //For legacy setup check only if the track is used in fit of the PV, i.e. vertices[0],
+  //and associate quality if weight > 0.5. Otherwise return invalid vertex index (-1)
+  //and default quality flag (NotReconstructedPrimary = 0)
+  if (useLegacySetup_) {
+    float w = vertices[0].trackWeight(trk);
+    if (w > 0.5) {
+      return std::pair<int, pat::PackedCandidate::PVAssociationQuality>(0, pat::PackedCandidate::UsedInFitTight);
+    } else if (w > 0.) {
+      return std::pair<int, pat::PackedCandidate::PVAssociationQuality>(0,
+                                                                        pat::PackedCandidate::NotReconstructedPrimary);
+    } else {
+      return std::pair<int, pat::PackedCandidate::PVAssociationQuality>(-1,
+                                                                        pat::PackedCandidate::NotReconstructedPrimary);
+    }
+  }
+
   //Inspired by CommonTools/RecoAlgos/interface/PrimaryVertexAssignment.h
   //but without specific association for secondaries in jets and option to use timing
 
