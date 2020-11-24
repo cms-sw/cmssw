@@ -10,7 +10,9 @@
 
 class GlobalVariablesTableProducer : public edm::stream::EDProducer<> {
 public:
-  GlobalVariablesTableProducer(edm::ParameterSet const& params) {
+  GlobalVariablesTableProducer(edm::ParameterSet const& params)
+      : name_(params.existsAs<std::string>("name") ? params.getParameter<std::string>("name") : ""),
+        extension_(params.existsAs<bool>("extension") ? params.getParameter<bool>("extension") : false) {
     edm::ParameterSet const& varsPSet = params.getParameter<edm::ParameterSet>("variables");
     for (const std::string& vname : varsPSet.getParameterNamesForType<edm::ParameterSet>()) {
       const auto& varPSet = varsPSet.getParameter<edm::ParameterSet>(vname);
@@ -39,7 +41,7 @@ public:
   ~GlobalVariablesTableProducer() override {}
 
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override {
-    auto out = std::make_unique<nanoaod::FlatTable>(1, "", true);
+    auto out = std::make_unique<nanoaod::FlatTable>(1, this->name_, true, this->extension_);
 
     for (const auto& var : vars_)
       var->fill(iEvent, *out);
@@ -150,6 +152,8 @@ protected:
   typedef VariableT<edm::View<reco::Candidate>, float, MassSum<float, edm::View<reco::Candidate>>> CandidateSumMassVar;
   typedef VariableT<edm::View<reco::Candidate>, int, Size<edm::View<reco::Candidate>>> CandidateSizeVar;
   std::vector<std::unique_ptr<Variable>> vars_;
+  const std::string name_;
+  const bool extension_;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"

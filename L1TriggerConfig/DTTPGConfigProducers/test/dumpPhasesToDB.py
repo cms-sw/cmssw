@@ -29,18 +29,24 @@ process.dtTPGParamWriter = cms.EDAnalyzer("DTTPGParamsWriter",
 
 # message logger
 process.MessageLogger = cms.Service("MessageLogger",
-                                    debugModules = cms.untracked.vstring('*'),
-                                    destinations = cms.untracked.vstring('cout'),
-                                    categories = cms.untracked.vstring('DTLocalTriggerSynchTest'), 
-                                    cout = cms.untracked.PSet(threshold = cms.untracked.string('DEBUG'),
-                                                              noLineBreaks = cms.untracked.bool(False),
-                                                              DEBUG = cms.untracked.PSet(
-                                                                      limit = cms.untracked.int32(0)),
-                                                              INFO = cms.untracked.PSet(
-                                                                      limit = cms.untracked.int32(0)),
-                                                              DTLocalTriggerSynchTest = cms.untracked.PSet(
-                                                                                   limit = cms.untracked.int32(-1))
-                                                              )
-                                    )
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        DEBUG = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        DTLocalTriggerSynchTest = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
+        INFO = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        enable = cms.untracked.bool(True),
+        noLineBreaks = cms.untracked.bool(False),
+        threshold = cms.untracked.string('DEBUG')
+    ),
+    debugModules = cms.untracked.vstring('*')
+)
 
 process.clientPath = cms.Path(process.dtTPGParamWriter)

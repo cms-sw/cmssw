@@ -69,6 +69,7 @@ private:
 
   bool is_gold_muon(const edm::Event& e);
 
+  const int compressionSettings_;
   edm::InputTag splitTracks_;
   edm::InputTag splitGlobalMuons_;
   edm::InputTag originalTracks_;
@@ -197,7 +198,8 @@ private:
 // constructors and destructor
 //
 CosmicSplitterValidation::CosmicSplitterValidation(const edm::ParameterSet& iConfig)
-    : splitTracks_(iConfig.getParameter<edm::InputTag>("splitTracks")),
+    : compressionSettings_(iConfig.getUntrackedParameter<int>("compressionSettings", -1)),
+      splitTracks_(iConfig.getParameter<edm::InputTag>("splitTracks")),
       splitGlobalMuons_(iConfig.getParameter<edm::InputTag>("splitGlobalMuons")),
       originalTracks_(iConfig.getParameter<edm::InputTag>("originalTracks")),
       originalGlobalMuons_(iConfig.getParameter<edm::InputTag>("originalGlobalMuons")),
@@ -830,6 +832,10 @@ void CosmicSplitterValidation::analyze(const edm::Event& iEvent, const edm::Even
 // ------------ method called once each job just before starting event loop  ------------
 void CosmicSplitterValidation::beginJob() {
   edm::LogInfo("beginJob") << "Begin Job" << std::endl;
+
+  if (compressionSettings_ > 0) {
+    tfile->file().SetCompressionSettings(compressionSettings_);
+  }
 
   splitterTree_ = tfile->make<TTree>("splitterTree", "splitterTree");
 

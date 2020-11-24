@@ -70,7 +70,6 @@ private:
   edm::ESGetToken<GeometricDet, IdealGeometryRecord> m_geomDetToken;
 };
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/TrackerNumberingBuilder/interface/utils.h"
 

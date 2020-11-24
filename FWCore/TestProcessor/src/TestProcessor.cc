@@ -381,6 +381,7 @@ namespace edm {
         if (beginJobCalled_) {
           endJob();
         }
+        espController_->endIOVs();
       });
     }
 

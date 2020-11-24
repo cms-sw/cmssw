@@ -59,7 +59,7 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
   infoV = clctParams_.getParameter<int>("verbosity");
 
   // Do not exclude pattern 0 and 1 when the Run-3 patterns are enabled.
-  if (use_run3_patterns_) {
+  if (runCCLUT_) {
     pid_thresh_pretrig = 0;
   }
 
@@ -80,13 +80,13 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
   }
 
   // which patterns should we use?
-  if (use_run3_patterns_) {
+  if (runCCLUT_) {
     clct_pattern_ = CSCPatternBank::clct_pattern_run3_;
   } else {
     clct_pattern_ = CSCPatternBank::clct_pattern_legacy_;
   }
 
-  if (use_comparator_codes_) {
+  if (runCCLUT_) {
     positionLUTFiles_ = conf.getParameter<std::vector<std::string>>("positionLUTFiles");
     slopeLUTFiles_ = conf.getParameter<std::vector<std::string>>("slopeLUTFiles");
     patternConversionLUTFiles_ = conf.getParameter<std::vector<std::string>>("patternConversionLUTFiles");
@@ -96,11 +96,6 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
       lutslope_[i] = std::make_unique<CSCComparatorCodeLUT>(slopeLUTFiles_[i]);
       lutpatconv_[i] = std::make_unique<CSCComparatorCodeLUT>(patternConversionLUTFiles_[i]);
     }
-  }
-
-  if (use_run3_patterns_ and !use_comparator_codes_) {
-    edm::LogWarning("CSCCathodeLCTProcessor")
-        << "Run-3 patterns enabled without the CCLUT algorithm in " << theCSCName_;
   }
 
   thePreTriggerDigis.clear();
@@ -234,7 +229,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::run(const CSCComparatorDigiColl
       // reconstruct LCTs in this region (3:1 ganged strips); for now, we
       // simply allow for hits in ME1/a and apply standard reconstruction
       // to them.
-      // For SLHC ME1/1 is set to have 4 CFEBs in ME1/b and 3 CFEBs in ME1/a
+      // For Phase2 ME1/1 is set to have 4 CFEBs in ME1/b and 3 CFEBs in ME1/a
       if (isME11_) {
         if (theRing == 4) {
           edm::LogError("CSCCathodeLCTProcessor|SetupError")
@@ -334,7 +329,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::run(const CSCComparatorDigiColl
   // this shift does not affect the readout of the CLCTs
   // emulated CLCTs put in the event should be centered at bin 7 (as in data)
   for (auto& p : tmpV) {
-    p.setBX(p.getBX() + alctClctOffset_);
+    p.setBX(p.getBX() + CSCConstants::ALCT_CLCT_OFFSET);
   }
 
   return tmpV;
@@ -706,7 +701,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
             thisLCT.setHits(compHits);
 
             // do the CCLUT procedures
-            if (use_comparator_codes_) {
+            if (runCCLUT_) {
               runCCLUT(thisLCT);
             }
 
@@ -1261,13 +1256,13 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::getCLCTs(unsigned nMaxCLCTs) co
 // CLCT and ALCT to have the central BX in the same bin
 CSCCLCTDigi CSCCathodeLCTProcessor::getBestCLCT(int bx) const {
   CSCCLCTDigi lct = bestCLCT[bx];
-  lct.setBX(lct.getBX() + alctClctOffset_);
+  lct.setBX(lct.getBX() + CSCConstants::ALCT_CLCT_OFFSET);
   return lct;
 }
 
 CSCCLCTDigi CSCCathodeLCTProcessor::getSecondCLCT(int bx) const {
   CSCCLCTDigi lct = secondCLCT[bx];
-  lct.setBX(lct.getBX() + alctClctOffset_);
+  lct.setBX(lct.getBX() + CSCConstants::ALCT_CLCT_OFFSET);
   return lct;
 }
 

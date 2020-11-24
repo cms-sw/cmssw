@@ -94,16 +94,16 @@ namespace edm {
 
       // access to values set
 
-      std::string threshold(std::string const& dest);
-      std::string output(std::string const& dest);
+      std::string threshold(std::string const& dest) const;
+      std::string output(std::string const& dest) const;
 
-      int limit(std::string const& dest, std::string const& cat);
-      int reportEvery(std::string const& dest, std::string const& cat);
-      int timespan(std::string const& dest, std::string const& cat);
+      int limit(std::string const& dest, std::string const& cat) const;
+      int reportEvery(std::string const& dest, std::string const& cat) const;
+      int timespan(std::string const& dest, std::string const& cat) const;
 
-      int sev_limit(std::string const& dest, std::string const& sev);
-      int sev_reportEvery(std::string const& dest, std::string const& sev);
-      int sev_timespan(std::string const& dest, std::string const& sev);
+      int sev_limit(std::string const& dest, std::string const& sev) const;
+      int sev_reportEvery(std::string const& dest, std::string const& sev) const;
+      int sev_timespan(std::string const& dest, std::string const& sev) const;
 
       // Modes with hardwired defaults
 

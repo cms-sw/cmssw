@@ -1,6 +1,7 @@
 #!/bin/bash -ex
 if [ $(klist | grep 'Default principal' | grep cmsbuild | wc -l) -eq 0 ] ; then
   echo "Only run for cmsbuild user which has the rights to copy LHE files"
+  exit 0
 fi
 CMSEOS_BASE="/eos/cms/store/user/cmsbuild/unittest/lhe"
 export CMSEOS_LHE_ROOT_DIRECTORY="${CMSEOS_BASE}/ref"

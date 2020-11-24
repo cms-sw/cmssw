@@ -64,10 +64,10 @@ process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",
 # DQM Live Environment
 #-----------------------------
 process.load("DQM.Integration.config.environment_cfi")
-process.dqmEnv.subSystemFolder = 'TrackingHLTBeamspotStream'
-process.dqmSaver.tag           = 'TrackingHLTBeamspotStream'
+process.dqmEnv.subSystemFolder = 'BeamMonitor'
+process.dqmSaver.tag           = 'BeamMonitor'
 process.dqmSaver.runNumber     = options.runNumber
-process.dqmSaverPB.tag         = 'TrackingHLTBeamspotStream'
+process.dqmSaverPB.tag         = 'BeamMonitor'
 process.dqmSaverPB.runNumber   = options.runNumber
 
 #-----------------------------
@@ -79,7 +79,7 @@ process.load("DQM.BeamMonitor.BeamMonitor_cff")
 # Calibration
 #---------------
 # Condition for P5 cluster
-process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
+#process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 # Condition for lxplus: change and possibly customise the GT
 #from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
 #process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
@@ -121,7 +121,7 @@ if (process.runType.getRunType() == process.runType.pp_run or
 
     process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 
-    process.dqmBeamMonitor.monitorName = 'TrackingHLTBeamspotStream'
+    process.dqmBeamMonitor.monitorName = 'BeamMonitor'
 
     process.dqmBeamMonitor.OnlineMode = True              
     process.dqmBeamMonitor.recordName = BSOnlineRecordName
@@ -160,7 +160,7 @@ if (process.runType.getRunType() == process.runType.pp_run or
 
         DBParameters = cms.PSet(
                                 messageLevel = cms.untracked.int32(0),
-                                authenticationPath = cms.untracked.string('')
+                                authenticationPath = cms.untracked.string('.')
                                ),
 
         # Upload to CondDB
@@ -170,7 +170,10 @@ if (process.runType.getRunType() == process.runType.pp_run or
         runNumber = cms.untracked.uint64(options.runNumber),
         lastLumiFile = cms.untracked.string(''),
         writeTransactionDelay = cms.untracked.uint32(options.transDelay),
+        latency = cms.untracked.uint32(2),
         autoCommit = cms.untracked.bool(True),
+        saveLogsOnDB = cms.untracked.bool(True),
+        jobName = cms.untracked.string("BeamSpotOnlineHLTTest"), # name of the DB log record
         toPut = cms.VPSet(cms.PSet(
             record = cms.string(BSOnlineRecordName),
             tag = cms.string('BSOnlineHLT_tag'),
@@ -183,6 +186,7 @@ if (process.runType.getRunType() == process.runType.pp_run or
     if unitTest or noDB:
       process.OnlineDBOutputService.connect = cms.string('sqlite_file:BeamSpotOnlineHLT.db')
       process.OnlineDBOutputService.preLoadConnectionString = cms.untracked.string('sqlite_file:BeamSpotOnlineHLT.db')
+      process.OnlineDBOutputService.saveLogsOnDB = cms.untracked.bool(False)
 
     process.p = cms.Path( process.hltTriggerTypeFilter
                         * process.dqmcommon

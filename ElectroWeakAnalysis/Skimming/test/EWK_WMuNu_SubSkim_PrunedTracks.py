@@ -15,14 +15,17 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 # Log information
 process.MessageLogger = cms.Service("MessageLogger",
-      debugModules = cms.untracked.vstring('corMetWMuNus'),
-      cout = cms.untracked.PSet(
-            default = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
-            threshold = cms.untracked.string('ERROR')
-            #threshold = cms.untracked.string('INFO')
-            #threshold = cms.untracked.string('DEBUG')
-      ),
-      destinations = cms.untracked.vstring('cout')
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        default = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('ERROR')
+    ),
+    debugModules = cms.untracked.vstring('corMetWMuNus')
 )
 
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )

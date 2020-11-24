@@ -2,12 +2,15 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ANALYSIS")
 process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
-        )
-    ),
-    destinations = cms.untracked.vstring('cout')
+        ),
+        enable = cms.untracked.bool(True)
+    )
 )
 
 #Before this test run for example Py6EvtGenFilter_cfg.py to produce the file

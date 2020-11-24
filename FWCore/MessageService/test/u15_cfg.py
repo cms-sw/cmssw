@@ -12,38 +12,32 @@ process.options = FWCore.Framework.test.cmsExceptionsFatal_cff.options
 process.load("FWCore.MessageService.test.Services_cff")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    u15_debugs = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG'),
-        noTimeStamps = cms.untracked.bool(True),
-        FwkReport = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        preEventProcessing = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        FwkTest = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        )
-    ),
     debugModules = cms.untracked.vstring('*'),
-    u15_infos = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO'),
-        noTimeStamps = cms.untracked.bool(True),
-        FwkReport = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        preEventProcessing = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        FwkTest = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        )
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
     ),
-    categories = cms.untracked.vstring('preEventProcessing', 
-        'FwkReport', 
-        'FwkTest'),
-    destinations = cms.untracked.vstring('u15_infos', 
-        'u15_debugs')
+    files = cms.untracked.PSet(
+        u15_debugs = cms.untracked.PSet(
+            threshold = cms.untracked.string('DEBUG'),
+            noTimeStamps = cms.untracked.bool(True),
+            FwkReport = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            FwkTest = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            )
+        ),
+        u15_infos = cms.untracked.PSet(
+            threshold = cms.untracked.string('INFO'),
+            noTimeStamps = cms.untracked.bool(True),
+            FwkReport = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            FwkTest = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            )
+        )
+    )
 )
 
 process.maxEvents = cms.untracked.PSet(

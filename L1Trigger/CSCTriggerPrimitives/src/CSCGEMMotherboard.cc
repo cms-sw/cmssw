@@ -12,8 +12,7 @@ CSCGEMMotherboard::CSCGEMMotherboard(unsigned endcap,
       maxDeltaBXPad_(tmbParams_.getParameter<int>("maxDeltaBXPad")),
       maxDeltaBXCoPad_(tmbParams_.getParameter<int>("maxDeltaBXCoPad")),
       promoteALCTGEMpattern_(tmbParams_.getParameter<bool>("promoteALCTGEMpattern")),
-      promoteALCTGEMquality_(tmbParams_.getParameter<bool>("promoteALCTGEMquality")),
-      doLCTGhostBustingWithGEMs_(tmbParams_.getParameter<bool>("doLCTGhostBustingWithGEMs")) {
+      promoteALCTGEMquality_(tmbParams_.getParameter<bool>("promoteALCTGEMquality")) {
   // super chamber has layer=0!
   gemId = GEMDetId(theRegion, 1, theStation, 0, theChamber, 0).rawId();
 
@@ -33,13 +32,25 @@ CSCGEMMotherboard::~CSCGEMMotherboard() {}
 
 void CSCGEMMotherboard::clear() {
   CSCUpgradeMotherboard::clear();
+  gemCoPadV.clear();
+  coPadProcessor->clear();
   pads_.clear();
   coPads_.clear();
 }
 
-void CSCGEMMotherboard::retrieveGEMPads(const GEMPadDigiCollection* gemPads, unsigned id) {
+void CSCGEMMotherboard::processGEMClusters(const GEMPadDigiClusterCollection* gemClusters) {
+  std::unique_ptr<GEMPadDigiCollection> gemPads(new GEMPadDigiCollection());
+  coPadProcessor->declusterize(gemClusters, *gemPads);
+
+  gemCoPadV = coPadProcessor->run(gemPads.get());
+
+  processGEMPads(gemPads.get());
+  processGEMCoPads();
+}
+
+void CSCGEMMotherboard::processGEMPads(const GEMPadDigiCollection* gemPads) {
   pads_.clear();
-  const auto& superChamber(gem_g->superChamber(id));
+  const auto& superChamber(gem_g->superChamber(gemId));
   for (const auto& ch : superChamber->chambers()) {
     for (const auto& roll : ch->etaPartitions()) {
       GEMDetId roll_id(roll->id());
@@ -63,7 +74,7 @@ void CSCGEMMotherboard::retrieveGEMPads(const GEMPadDigiCollection* gemPads, uns
   }
 }
 
-void CSCGEMMotherboard::retrieveGEMCoPads() {
+void CSCGEMMotherboard::processGEMCoPads() {
   coPads_.clear();
   for (const auto& copad : gemCoPadV) {
     GEMDetId detId(theRegion, 1, theStation, 0, theChamber, 0);
@@ -120,7 +131,7 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
   // Determine the case and assign properties depending on the LCT dataformat (old/new)
   if (alct.isValid() and clct.isValid() and gem1.isValid() and not gem2.isValid()) {
     pattern = encodePattern(clct.getPattern());
-    if (use_run3_patterns_) {
+    if (runCCLUT_) {
       quality = static_cast<unsigned int>(findQualityGEMv2(alct, clct, 1));
     } else {
       quality = static_cast<unsigned int>(findQualityGEMv1(alct, clct, 1));
@@ -136,7 +147,7 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
     valid = doesWiregroupCrossStrip(keyWG, keyStrip) ? 1 : 0;
   } else if (alct.isValid() and clct.isValid() and not gem1.isValid() and gem2.isValid()) {
     pattern = encodePattern(clct.getPattern());
-    if (use_run3_patterns_) {
+    if (runCCLUT_) {
       quality = static_cast<unsigned int>(findQualityGEMv2(alct, clct, 2));
     } else {
       quality = static_cast<unsigned int>(findQualityGEMv1(alct, clct, 2));

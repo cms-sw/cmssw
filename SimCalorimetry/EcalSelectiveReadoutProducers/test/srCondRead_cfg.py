@@ -23,9 +23,8 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 #process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
 
 process.MessageLogger = cms.Service("MessageLogger",
-                                      debugModules = cms.untracked.vstring('*'),
-                                      destinations = cms.untracked.vstring('cerr')
-                                    )
+    debugModules = cms.untracked.vstring('*')
+)
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)

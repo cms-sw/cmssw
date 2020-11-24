@@ -51,7 +51,7 @@ private:
 
   // ----------member data ---------------------------
   edm::Service<TFileService> fs_;
-  std::map<DetId::Detector, std::unique_ptr<HGCalSiNoiseMap>> noiseMaps_;
+  std::map<DetId::Detector, std::unique_ptr<HGCalSiNoiseMap<HGCSiliconDetId>>> noiseMaps_;
   std::map<std::pair<DetId::Detector, int>, TH1F *> layerN_, layerCCE_, layerNoise_, layerIleak_, layerSN_, layerF_,
       layerGain_, layerMipPeak_;
   std::map<DetId::Detector, TH2F *> detN_, detCCE_, detNoise_, detIleak_, detSN_, detF_, detGain_, detMipPeak_;
@@ -81,14 +81,14 @@ HGCSiNoiseMapAnalyzer::HGCSiNoiseMapAnalyzer(const edm::ParameterSet &iConfig) {
   std::vector<double> cceParamThick(
       iConfig.getParameter<edm::ParameterSet>("cceParams").template getParameter<std::vector<double>>("cceParamThick"));
 
-  noiseMaps_[DetId::HGCalEE] = std::unique_ptr<HGCalSiNoiseMap>(new HGCalSiNoiseMap);
+  noiseMaps_[DetId::HGCalEE] = std::unique_ptr<HGCalSiNoiseMap<HGCSiliconDetId>>(new HGCalSiNoiseMap<HGCSiliconDetId>);
   noiseMaps_[DetId::HGCalEE]->setDoseMap(doseMapURL, doseMapAlgo);
   noiseMaps_[DetId::HGCalEE]->setFluenceScaleFactor(scaleByDoseFactor);
 
   noiseMaps_[DetId::HGCalEE]->setIleakParam(ileakParam);
   noiseMaps_[DetId::HGCalEE]->setCceParam(cceParamFine, cceParamThin, cceParamThick);
 
-  noiseMaps_[DetId::HGCalHSi] = std::unique_ptr<HGCalSiNoiseMap>(new HGCalSiNoiseMap);
+  noiseMaps_[DetId::HGCalHSi] = std::unique_ptr<HGCalSiNoiseMap<HGCSiliconDetId>>(new HGCalSiNoiseMap<HGCSiliconDetId>);
   noiseMaps_[DetId::HGCalHSi]->setDoseMap(doseMapURL, doseMapAlgo);
   noiseMaps_[DetId::HGCalHSi]->setFluenceScaleFactor(scaleByDoseFactor);
   noiseMaps_[DetId::HGCalHSi]->setIleakParam(ileakParam);
@@ -176,10 +176,10 @@ void HGCSiNoiseMapAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSe
       GlobalPoint pt = noiseMaps_[d]->geom()->getPosition(id);
       double r(pt.perp());
 
-      HGCalSiNoiseMap::GainRange_t gainToSet(HGCalSiNoiseMap::AUTO);
+      HGCalSiNoiseMap<HGCSiliconDetId>::GainRange_t gainToSet(HGCalSiNoiseMap<HGCSiliconDetId>::AUTO);
       if (ignoreGainSettings_)
-        gainToSet = HGCalSiNoiseMap::q80fC;
-      HGCalSiNoiseMap::SiCellOpCharacteristics siop =
+        gainToSet = HGCalSiNoiseMap<HGCSiliconDetId>::q80fC;
+      HGCalSiNoiseMap<HGCSiliconDetId>::SiCellOpCharacteristics siop =
           noiseMaps_[d]->getSiCellOpCharacteristics(id, gainToSet, aimMIPtoADC_);
 
       //fill histos (layer,radius)

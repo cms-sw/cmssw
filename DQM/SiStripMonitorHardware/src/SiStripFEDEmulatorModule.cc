@@ -95,7 +95,8 @@ namespace sistrip {
       : spyReorderedDigisTag_(iConfig.getParameter<edm::InputTag>("SpyReorderedDigisTag")),
         spyVirginRawDigisTag_(iConfig.getParameter<edm::InputTag>("SpyVirginRawDigisTag")),
         byModule_(iConfig.getParameter<bool>("ByModule")),
-        algorithms_(SiStripRawProcessingFactory::create(iConfig.getParameter<edm::ParameterSet>("Algorithms"))) {
+        algorithms_(SiStripRawProcessingFactory::create(iConfig.getParameter<edm::ParameterSet>("Algorithms"),
+                                                        consumesCollector())) {
     spyReorderedDigisToken_ = consumes<edm::DetSetVector<SiStripRawDigi> >(spyReorderedDigisTag_);
     spyVirginRawDigisToken_ = consumes<edm::DetSetVector<SiStripRawDigi> >(spyVirginRawDigisTag_);
 
