@@ -8,7 +8,7 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include <iostream>
@@ -73,9 +73,7 @@ private:
   edm::ParameterSet tkMapPSet_;
   edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> fedCablingToken_;
   edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> detCablingToken_;
-  const SiStripFedCabling* fedCabling_ = nullptr;
-  const SiStripDetCabling* detCabling_ = nullptr;
-
+  edm::ESWatcher<SiStripFedCablingRcd> fedCablingWatcher_;
   TrackingActionExecutor* actionExecutor_;
 
   unsigned long long m_cacheID_;
