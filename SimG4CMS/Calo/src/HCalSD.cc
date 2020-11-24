@@ -30,6 +30,8 @@
 #include "G4PhysicalConstants.hh"
 #include "Randomize.hh"
 
+#include "DD4hep/Filter.h"
+
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -191,10 +193,10 @@ HCalSD::HCalSD(const std::string& name,
     ss0 << "HCalSD: Names to be tested for Volume = HF has " << hfNames.size() << " elements";
 #endif
     for (unsigned int i = 0; i < hfNames.size(); ++i) {
-      G4String namv = static_cast<G4String>(hfNames[i]);
+      G4String namv(static_cast<std::string>(dd4hep::dd::noNamespace(hfNames[i])));
       lv = nullptr;
       for (auto lvol : *lvs) {
-        if (lvol->GetName() == namv) {
+        if (dd4hep::dd::noNamespace(lvol->GetName()) == namv) {
           lv = lvol;
           break;
         }
@@ -225,7 +227,7 @@ HCalSD::HCalSD(const std::string& name,
   for (auto const& namx : matNames) {
     const G4Material* mat = nullptr;
     for (matite = matTab->begin(); matite != matTab->end(); ++matite) {
-      if ((*matite)->GetName() == static_cast<G4String>(namx)) {
+      if (static_cast<std::string>(dd4hep::dd::noNamespace((*matite)->GetName())) == namx) {
         mat = (*matite);
         break;
       }
@@ -341,10 +343,10 @@ void HCalSD::fillLogVolumeVector(const std::string& value,
   std::stringstream ss3;
   ss3 << "HCalSD: " << lvnames.size() << " names to be tested for Volume <" << value << ">:";
   for (unsigned int i = 0; i < lvnames.size(); ++i) {
-    G4String namv = static_cast<G4String>(lvnames[i]);
+    G4String namv(static_cast<std::string>(dd4hep::dd::noNamespace(lvnames[i])));
     lv = nullptr;
     for (auto lvol : *lvs) {
-      if (lvol->GetName() == namv) {
+      if (dd4hep::dd::noNamespace(lvol->GetName()) == namv) {
         lv = lvol;
         break;
       }
@@ -989,7 +991,7 @@ void HCalSD::plotProfile(const G4Step* aStep, const G4ThreeVector& global, doubl
   double depth = -2000;
   int idx = 4;
   for (int n = 0; n < touch->GetHistoryDepth(); ++n) {
-    G4String name = touch->GetVolume(n)->GetName();
+    G4String name(static_cast<std::string>(dd4hep::dd::noNamespace(touch->GetVolume(n)->GetName())));
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HcalSim") << "plotProfile Depth " << n << " Name " << name;
 #endif
