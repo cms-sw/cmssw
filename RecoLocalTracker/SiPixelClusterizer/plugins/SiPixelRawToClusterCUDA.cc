@@ -74,7 +74,6 @@ private:
   const bool isRun2_;
   const bool includeErrors_;
   const bool useQuality_;
-  const bool usePilotBlade_;
 };
 
 SiPixelRawToClusterCUDA::SiPixelRawToClusterCUDA(const edm::ParameterSet& iConfig)
@@ -87,8 +86,7 @@ SiPixelRawToClusterCUDA::SiPixelRawToClusterCUDA(const edm::ParameterSet& iConfi
           edm::ESInputTag("", iConfig.getParameter<std::string>("CablingMapLabel")))),
       isRun2_(iConfig.getParameter<bool>("isRun2")),
       includeErrors_(iConfig.getParameter<bool>("IncludeErrors")),
-      useQuality_(iConfig.getParameter<bool>("UseQualityInfo")),
-      usePilotBlade_(iConfig.getParameter<bool>("UsePilotBlade"))  // Control the usage of pilot-blade data, FED=40
+      useQuality_(iConfig.getParameter<bool>("UseQualityInfo"))
 {
   if (includeErrors_) {
     digiErrorPutToken_ = produces<cms::cuda::Product<SiPixelDigiErrorsCUDA>>();
@@ -98,9 +96,6 @@ SiPixelRawToClusterCUDA::SiPixelRawToClusterCUDA(const edm::ParameterSet& iConfi
   if (!iConfig.getParameter<edm::ParameterSet>("Regions").getParameterNames().empty()) {
     regions_ = std::make_unique<PixelUnpackingRegions>(iConfig, consumesCollector());
   }
-
-  if (usePilotBlade_)
-    edm::LogInfo("SiPixelRawToCluster") << " Use pilot blade data (FED 40)";
 
   edm::Service<CUDAService> cs;
   if (cs->enabled()) {
@@ -113,7 +108,6 @@ void SiPixelRawToClusterCUDA::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<bool>("isRun2", true);
   desc.add<bool>("IncludeErrors", true);
   desc.add<bool>("UseQualityInfo", false);
-  desc.add<bool>("UsePilotBlade", false)->setComment("##  Use pilot blades");
   desc.add<edm::InputTag>("InputLabel", edm::InputTag("rawDataCollector"));
   {
     edm::ParameterSetDescription psd0;
@@ -182,8 +176,6 @@ void SiPixelRawToClusterCUDA::acquire(const edm::Event& iEvent,
   // In CPU algorithm this loop is part of PixelDataFormatter::interpretRawData()
   ErrorChecker errorcheck;
   for (int fedId : fedIds_) {
-    if (!usePilotBlade_ && (fedId == 40))
-      continue;  // skip pilot blade data
     if (regions_ && !regions_->mayUnpackFED(fedId))
       continue;
 
