@@ -46,9 +46,7 @@ SiPixelClusterModule::SiPixelClusterModule() : id_(0), ncols_(416), nrows_(160) 
 ///
 SiPixelClusterModule::SiPixelClusterModule(const uint32_t &id) : id_(id), ncols_(416), nrows_(160) {}
 ///
-SiPixelClusterModule::SiPixelClusterModule(const uint32_t &id,
-                                           const int &ncols,
-                                           const int &nrows)
+SiPixelClusterModule::SiPixelClusterModule(const uint32_t &id, const int &ncols, const int &nrows)
     : id_(id), ncols_(ncols), nrows_(nrows) {}
 //
 // Destructor
