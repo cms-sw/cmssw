@@ -307,11 +307,6 @@ float CSCGEMMotherboard::getPad(const CSCCLCTDigi& clct, enum CSCPart part) cons
   return 0.5 * (mymap.at(keyStrip).first + mymap.at(keyStrip).second);
 }
 
-void CSCGEMMotherboard::setupGeometry() {
-  CSCUpgradeMotherboard::setupGeometry();
-  generator_->setGEMGeometry(gem_g);
-}
-
 int CSCGEMMotherboard::maxPads() const { return gem_g->superChamber(gemId)->chamber(1)->etaPartition(1)->npads(); }
 
 int CSCGEMMotherboard::maxRolls() const { return gem_g->superChamber(gemId)->chamber(1)->nEtaPartitions(); }
