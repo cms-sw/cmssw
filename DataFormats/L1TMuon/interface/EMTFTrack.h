@@ -60,6 +60,8 @@ namespace l1t {
           second_bx(-99),
           pt(-99),
           pt_XML(-99),
+          pt_dxy(-99),
+          dxy(-99),
           zone(-99),
           ph_num(-99),
           ph_q(-99),
@@ -70,6 +72,8 @@ namespace l1t {
           phi_loc(-99),
           phi_glob(-999),
           gmt_pt(-99),
+          gmt_pt_dxy(-99),
+          gmt_dxy(-99),
           gmt_phi(-999),
           gmt_eta(-999),
           gmt_quality(-99),
@@ -135,6 +139,8 @@ namespace l1t {
     void set_second_bx(int bits) { second_bx = bits; }
     void set_pt(float val) { pt = val; }
     void set_pt_XML(float val) { pt_XML = val; }
+    void set_pt_dxy(float val) { pt_dxy = val; }
+    void set_dxy(float val) { dxy = val; }
     void set_zone(int bits) { zone = bits; }
     void set_ph_num(int bits) { ph_num = bits; }
     void set_ph_q(int bits) { ph_q = bits; }
@@ -145,6 +151,8 @@ namespace l1t {
     void set_phi_loc(float val) { phi_loc = val; }
     void set_phi_glob(float val) { phi_glob = val; }
     void set_gmt_pt(int bits) { gmt_pt = bits; }
+    void set_gmt_pt_dxy(int  bits) { gmt_pt_dxy = bits; }
+    void set_gmt_dxy(int  bits) { gmt_dxy = bits; }
     void set_gmt_phi(int bits) { gmt_phi = bits; }
     void set_gmt_eta(int bits) { gmt_eta = bits; }
     void set_gmt_quality(int bits) { gmt_quality = bits; }
@@ -169,6 +177,8 @@ namespace l1t {
     int Second_BX() const { return second_bx; }
     float Pt() const { return pt; }
     float Pt_XML() const { return pt_XML; }
+    float Pt_dxy() const { return pt_dxy; }
+    float Dxy() const { return dxy; }
     int Zone() const { return zone; }
     int Ph_num() const { return ph_num; }
     int Ph_q() const { return ph_q; }
@@ -179,6 +189,8 @@ namespace l1t {
     float Phi_loc() const { return phi_loc; }
     float Phi_glob() const { return phi_glob; }
     int GMT_pt() const { return gmt_pt; }
+    int GMT_pt_dxy() const { return gmt_pt_dxy; }
+    int GMT_dxy() const { return gmt_dxy; }
     int GMT_phi() const { return gmt_phi; }
     int GMT_eta() const { return gmt_eta; }
     int GMT_quality() const { return gmt_quality; }
@@ -209,6 +221,8 @@ namespace l1t {
     int second_bx;      // -3 - +3.
     float pt;           //  0 - 255
     float pt_XML;       //  0 - 999
+    float pt_dxy;       //  0 - 127
+    float dxy;          //  0 -  3
     int zone;           //  0 -  3.
     int ph_num;
     int ph_q;
@@ -219,6 +233,8 @@ namespace l1t {
     float phi_loc;   // -22 - 60  (Range? - AWB 03.03.17)
     float phi_glob;  //  +/-180.
     int gmt_pt;
+    int gmt_pt_dxy;
+    int gmt_dxy;
     int gmt_phi;
     int gmt_eta;
     int gmt_quality;
