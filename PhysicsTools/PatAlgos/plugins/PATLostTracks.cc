@@ -352,10 +352,10 @@ std::pair<int, pat::PackedCandidate::PVAssociationQuality> pat::PATLostTracks::a
     }
   }
   // vertex "closest in Z" with tight cuts (targetting primary particles)
-  const double add_cov = iVtxMinDzDist >= 0 ? vertices[iVtxMinDzDist].covariance(2, 2) : 0.f;
+  const double add_cov = vertices[iVtxMinDzDist].covariance(2, 2);
   const double dzErr = sqrt(trk->dzError() * trk->dzError() + add_cov);
-  if (iVtxMinDzDist >= 0 && (minDz < maxDzForPrimaryAssignment_ && minDz / dzErr < maxDzSigForPrimaryAssignment_ &&
-                             trk->dzError() < maxDzErrorForPrimaryAssignment_)) {
+  if (minDz < maxDzForPrimaryAssignment_ && minDz / dzErr < maxDzSigForPrimaryAssignment_ &&
+      trk->dzError() < maxDzErrorForPrimaryAssignment_) {
     return std::pair<int, pat::PackedCandidate::PVAssociationQuality>(iVtxMinDzDist,
                                                                       pat::PackedCandidate::CompatibilityDz);
   }
