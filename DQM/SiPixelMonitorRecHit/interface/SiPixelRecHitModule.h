@@ -50,7 +50,7 @@ public:
   /// Book histograms
   void book(const edm::ParameterSet &iConfig,
             DQMStore::IBooker &iBooker,
-            const TrackerTopology* pTT,
+            const TrackerTopology *pTT,
             int type = 0,
             bool twoD = true,
             bool reducedSet = false,

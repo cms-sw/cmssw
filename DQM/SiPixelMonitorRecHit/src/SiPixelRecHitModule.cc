@@ -33,7 +33,7 @@ SiPixelRecHitModule::~SiPixelRecHitModule() {}
 //
 void SiPixelRecHitModule::book(const edm::ParameterSet &iConfig,
                                DQMStore::IBooker &iBooker,
-                               const TrackerTopology* pTT,
+                               const TrackerTopology *pTT,
                                int type,
                                bool twoD,
                                bool reducedSet,
