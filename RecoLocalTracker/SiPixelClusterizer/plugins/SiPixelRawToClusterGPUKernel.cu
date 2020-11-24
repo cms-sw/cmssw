@@ -8,29 +8,22 @@
 
 // C++ includes
 #include <cassert>
-#include <chrono>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
-#include <string>
 
 // CUDA includes
-#include <cuda.h>
 #include <cuda_runtime.h>
-#include <thrust/device_vector.h>
-#include <thrust/execution_policy.h>
-#include <thrust/host_vector.h>
-#include <thrust/sort.h>
-#include <thrust/unique.h>
 
 // CMSSW includes
 #include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelROCsStatusAndMapping.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
-#include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelFedCablingMapGPU.h"
 #include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuCalibPixel.h"
 #include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuClusterChargeCut.h"
 #include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuClustering.h"
@@ -68,7 +61,7 @@ namespace pixelgpudetails {
 
   __device__ bool isBarrel(uint32_t rawId) { return (1 == ((rawId >> 25) & 0x7)); }
 
-  __device__ pixelgpudetails::DetIdGPU getRawId(const SiPixelFedCablingMapGPU *cablingMap,
+  __device__ pixelgpudetails::DetIdGPU getRawId(const SiPixelROCsStatusAndMapping *cablingMap,
                                                 uint8_t fed,
                                                 uint32_t link,
                                                 uint32_t roc) {
@@ -198,7 +191,7 @@ namespace pixelgpudetails {
   __device__ bool dcolIsValid(uint32_t dcol, uint32_t pxid) { return ((dcol < 26) & (2 <= pxid) & (pxid < 162)); }
 
   __device__ uint8_t checkROC(
-      uint32_t errorWord, uint8_t fedId, uint32_t link, const SiPixelFedCablingMapGPU *cablingMap, bool debug = false) {
+      uint32_t errorWord, uint8_t fedId, uint32_t link, const SiPixelROCsStatusAndMapping *cablingMap, bool debug = false) {
     uint8_t errorType = (errorWord >> pixelgpudetails::ROC_shift) & pixelgpudetails::ERROR_mask;
     if (errorType < 25)
       return 0;
@@ -276,7 +269,7 @@ namespace pixelgpudetails {
   __device__ uint32_t getErrRawID(uint8_t fedId,
                                   uint32_t errWord,
                                   uint32_t errorType,
-                                  const SiPixelFedCablingMapGPU *cablingMap,
+                                  const SiPixelROCsStatusAndMapping *cablingMap,
                                   bool debug = false) {
     uint32_t rID = 0xffffffff;
 
@@ -351,7 +344,7 @@ namespace pixelgpudetails {
   }
 
   // Kernel to perform Raw to Digi conversion
-  __global__ void RawToDigi_kernel(const SiPixelFedCablingMapGPU *cablingMap,
+  __global__ void RawToDigi_kernel(const SiPixelROCsStatusAndMapping *cablingMap,
                                    const unsigned char *modToUnp,
                                    const uint32_t wordCounter,
                                    const uint32_t *word,
@@ -524,7 +517,7 @@ namespace pixelgpudetails {
 
   // Interface to outside
   void SiPixelRawToClusterGPUKernel::makeClustersAsync(bool isRun2,
-                                                       const SiPixelFedCablingMapGPU *cablingMap,
+                                                       const SiPixelROCsStatusAndMapping *cablingMap,
                                                        const unsigned char *modToUnp,
                                                        const SiPixelGainForHLTonGPU *gains,
                                                        const WordFedAppender &wordFed,
