@@ -96,6 +96,7 @@ void RawEventOutputModuleForBU<Consumer>::write(edm::EventForOutput const& e) {
   e.getByToken(token_, fedBuffers);
 
   // determine the expected size of the FRDEvent IN BYTES !!!!!
+  assert(frdVersion_ <= FRDHeaderMaxVersion);
   int headerSize = FRDHeaderVersionSize[frdVersion_];
   int expectedSize = headerSize;
   int nFeds = frdVersion_ < 3 ? 1024 : FEDNumbering::lastFEDId() + 1;

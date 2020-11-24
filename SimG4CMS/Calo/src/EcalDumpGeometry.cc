@@ -39,6 +39,10 @@ void EcalDumpGeometry::update() {
   unsigned int k(0);
   for (const auto& info : infoVec_) {
     edm::LogVerbatim("EcalGeom") << "[" << k << "] " << info;
+    if (info.flag() && (info.solid() != nullptr)) {
+      info.solid()->DumpInfo();
+      G4cout << G4endl;
+    }
     ++k;
   }
 }
@@ -52,6 +56,7 @@ void EcalDumpGeometry::dumpTouch(G4VPhysicalVolume* pv, unsigned int leafDepth) 
   G4ThreeVector globalpoint = fHistory_.GetTopTransform().Inverse().TransformPoint(G4ThreeVector(0, 0, 0));
   G4LogicalVolume* lv = pv->GetLogicalVolume();
 
+  bool flag = ((type_ / 10) % 10 > 0);
   std::string lvname = (static_cast<std::string>(dd4hep::dd::noNamespace(lv->GetName())));
   std::string namex = lvname.substr(0, 4);
   EcalBaseNumber theBaseNumber;
@@ -73,33 +78,17 @@ void EcalDumpGeometry::dumpTouch(G4VPhysicalVolume* pv, unsigned int leafDepth) 
           ss << " " << ii << " " << name << ":" << fHistory_.GetVolume(ii)->GetCopyNo();
 #endif
         }
-        uint32_t id = ((type_ == 0) ? ebNumbering_.getUnitID(theBaseNumber)
-                                    : ((type_ == 1) ? eeNumbering_.getUnitID(theBaseNumber)
-                                                    : esNumbering_.getUnitID(theBaseNumber)));
+        uint32_t id = (((type_ % 10) == 0) ? ebNumbering_.getUnitID(theBaseNumber)
+                                           : (((type_ % 10) == 1) ? eeNumbering_.getUnitID(theBaseNumber)
+                                                                  : esNumbering_.getUnitID(theBaseNumber)));
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("EcalGeom") << " Field: " << ss.str() << " ID " << std::hex << id << std::dec;
 #endif
-        std::vector<double> pars;
-        if (type_ > 1) {
-          G4Box* solid = static_cast<G4Box*>(lv->GetSolid());
-          pars.emplace_back(solid->GetXHalfLength());
-          pars.emplace_back(solid->GetYHalfLength());
-          pars.emplace_back(solid->GetZHalfLength());
-        } else {
-          G4Trap* solid = static_cast<G4Trap*>(lv->GetSolid());
-          pars.emplace_back(solid->GetZHalfLength());
-          pars.emplace_back(solid->GetYHalfLength1());
-          pars.emplace_back(solid->GetXHalfLength1());
-          pars.emplace_back(solid->GetXHalfLength2());
-          double a1 = (std::abs(solid->GetTanAlpha1()) > 1.e-5) ? solid->GetTanAlpha1() : 0.0;
-          pars.emplace_back(a1);
-          pars.emplace_back(solid->GetYHalfLength2());
-          pars.emplace_back(solid->GetXHalfLength3());
-          pars.emplace_back(solid->GetXHalfLength4());
-          double a2 = (std::abs(solid->GetTanAlpha2()) > 1.e-5) ? solid->GetTanAlpha2() : 0.0;
-          pars.emplace_back(a2);
-        }
-        infoVec_.emplace_back(CaloDetInfo(id, noRefl(lvname), globalpoint, pars));
+        G4VSolid* solid = (lv->GetSolid());
+        if (((type_ / 100) % 10) != 0)
+          infoVec_.emplace_back(CaloDetInfo(id, noRefl(lvname), globalpoint, solid, flag));
+        else
+          infoVec_.emplace_back(CaloDetInfo(id, lvname, globalpoint, solid, flag));
       }
       break;
     }

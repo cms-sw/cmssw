@@ -40,15 +40,23 @@ HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps)
     doseMapFile_ = myCfg_.getParameter<edm::ParameterSet>("noise_fC").template getParameter<std::string>("doseMap");
     scal_.setDoseMap(doseMapFile_, scaleByDoseAlgo);
     scal_.setFluenceScaleFactor(scaleByDoseFactor_);
+    scalHFNose_.setDoseMap(doseMapFile_, scaleByDoseAlgo);
+    scalHFNose_.setFluenceScaleFactor(scaleByDoseFactor_);
   } else {
     noise_fC_.resize(1, 1.f);
   }
   if (myCfg_.existsAs<edm::ParameterSet>("ileakParam")) {
     scal_.setIleakParam(
         myCfg_.getParameter<edm::ParameterSet>("ileakParam").template getParameter<std::vector<double>>("ileakParam"));
+    scalHFNose_.setIleakParam(
+        myCfg_.getParameter<edm::ParameterSet>("ileakParam").template getParameter<std::vector<double>>("ileakParam"));
   }
   if (myCfg_.existsAs<edm::ParameterSet>("cceParams")) {
     scal_.setCceParam(
+        myCfg_.getParameter<edm::ParameterSet>("cceParams").template getParameter<std::vector<double>>("cceParamFine"),
+        myCfg_.getParameter<edm::ParameterSet>("cceParams").template getParameter<std::vector<double>>("cceParamThin"),
+        myCfg_.getParameter<edm::ParameterSet>("cceParams").template getParameter<std::vector<double>>("cceParamThick"));
+    scalHFNose_.setCceParam(
         myCfg_.getParameter<edm::ParameterSet>("cceParams").template getParameter<std::vector<double>>("cceParamFine"),
         myCfg_.getParameter<edm::ParameterSet>("cceParams").template getParameter<std::vector<double>>("cceParamThin"),
         myCfg_.getParameter<edm::ParameterSet>("cceParams").template getParameter<std::vector<double>>("cceParamThick"));
@@ -60,6 +68,7 @@ HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps)
 
   //override the "default ADC pulse" with the one with which was configured the FE electronics class
   scal_.setDefaultADCPulseShape(myFEelectronics_->getDefaultADCPulse());
+  scalHFNose_.setDefaultADCPulseShape(myFEelectronics_->getDefaultADCPulse());
 
   RandNoiseGenerationFlag_ = false;
 }
@@ -82,8 +91,10 @@ void HGCDigitizerBase<DFr>::run(std::unique_ptr<HGCDigitizerBase::DColl>& digiCo
                                 const std::unordered_set<DetId>& validIds,
                                 uint32_t digitizationType,
                                 CLHEP::HepRandomEngine* engine) {
-  if (scaleByDose_)
-    scal_.setGeometry(theGeom, HGCalSiNoiseMap::AUTO, myFEelectronics_->getTargetMipValue());
+  if (scaleByDose_) {
+    scal_.setGeometry(theGeom, HGCalSiNoiseMap<HGCSiliconDetId>::AUTO, myFEelectronics_->getTargetMipValue());
+    scalHFNose_.setGeometry(theGeom, HGCalSiNoiseMap<HFNoseDetId>::AUTO, myFEelectronics_->getTargetMipValue());
+  }
   if (NoiseGeneration_Method_ == true) {
     if (RandNoiseGenerationFlag_ == false) {
       GenerateGaussianNoise(engine, NoiseMean_, NoiseStd_);
@@ -133,17 +144,29 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& 
     std::array<float, 6>& adcPulse = myFEelectronics_->getDefaultADCPulse();
 
     if (scaleByDose_) {
-      HGCSiliconDetId detId(id);
-      HGCalSiNoiseMap::SiCellOpCharacteristicsCore siop = scal_.getSiCellOpCharacteristicsCore(detId);
-      cce = siop.cce;
-      noiseWidth = siop.noise;
-      HGCalSiNoiseMap::GainRange_t gain((HGCalSiNoiseMap::GainRange_t)siop.gain);
-      lsbADC = scal_.getLSBPerGain()[gain];
-      maxADC = scal_.getMaxADCPerGain()[gain];
-      adcPulse = scal_.adcPulseForGain(gain);
-      gainIdx = siop.gain;
-      if (thresholdFollowsMIP_)
-        thrADC = siop.thrADC;
+      if (id.det() == DetId::Forward && id.subdetId() == ForwardSubdetector::HFNose) {
+        HGCalSiNoiseMap<HFNoseDetId>::SiCellOpCharacteristicsCore siop = scalHFNose_.getSiCellOpCharacteristicsCore(id);
+        cce = siop.cce;
+        noiseWidth = siop.noise;
+        HGCalSiNoiseMap<HFNoseDetId>::GainRange_t gain((HGCalSiNoiseMap<HFNoseDetId>::GainRange_t)siop.gain);
+        lsbADC = scalHFNose_.getLSBPerGain()[gain];
+        maxADC = scalHFNose_.getMaxADCPerGain()[gain];
+        adcPulse = scalHFNose_.adcPulseForGain(gain);
+        gainIdx = siop.gain;
+        if (thresholdFollowsMIP_)
+          thrADC = siop.thrADC;
+      } else {
+        HGCalSiNoiseMap<HGCSiliconDetId>::SiCellOpCharacteristicsCore siop = scal_.getSiCellOpCharacteristicsCore(id);
+        cce = siop.cce;
+        noiseWidth = siop.noise;
+        HGCalSiNoiseMap<HGCSiliconDetId>::GainRange_t gain((HGCalSiNoiseMap<HGCSiliconDetId>::GainRange_t)siop.gain);
+        lsbADC = scal_.getLSBPerGain()[gain];
+        maxADC = scal_.getMaxADCPerGain()[gain];
+        adcPulse = scal_.adcPulseForGain(gain);
+        gainIdx = siop.gain;
+        if (thresholdFollowsMIP_)
+          thrADC = siop.thrADC;
+      }
     } else if (noise_fC_[cell.thickness - 1] != 0) {
       //this is kept for legacy compatibility with the TDR simulation
       //probably should simply be removed in a future iteration

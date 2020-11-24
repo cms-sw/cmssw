@@ -10,11 +10,13 @@ process.load("DQMServices.Demo.testonefillrun_cfi")
 process.load("DQMServices.Demo.testonelumi_cfi")
 process.load("DQMServices.Demo.testonelumifilllumi_cfi")
 process.load("DQMServices.Demo.testglobal_cfi")
+process.load("DQMServices.Demo.testglobalrunsummary_cfi")
 process.load("DQMServices.Demo.testlegacy_cfi")
 process.load("DQMServices.Demo.testlegacyfillrun_cfi")
 process.load("DQMServices.Demo.testlegacyfilllumi_cfi")
 process.test_general = cms.Sequence(process.test 
-                                  + process.testglobal)
+                                  + process.testglobal
+                                  + process.testglobalrunsummary)
 process.test_one     = cms.Sequence(process.testone
                                   + process.testonefillrun)
 process.test_legacy  = cms.Sequence(process.testonelumi + process.testonelumifilllumi
@@ -71,7 +73,7 @@ process.options = cms.untracked.PSet(
 if args.nConcurrent > 1:
   process.DQMStore.assertLegacySafe = cms.untracked.bool(False)
 
-for mod in [process.test, process.testglobal, process.testone, process.testonefillrun, process.testonelumi, process.testonelumifilllumi, process.testlegacy, process.testlegacyfillrun, process.testlegacyfilllumi]:
+for mod in [process.test, process.testglobal, process.testglobalrunsummary, process.testone, process.testonefillrun, process.testonelumi, process.testonelumifilllumi, process.testlegacy, process.testlegacyfillrun, process.testlegacyfilllumi]:
   mod.howmany = args.howmany
 
 if args.noone:

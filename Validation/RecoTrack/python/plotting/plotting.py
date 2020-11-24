@@ -2465,7 +2465,7 @@ class PlotGroup(object):
                 legend = self._createLegend(plot, legendLabels, lx1, ly1, lx2, ly2, textSize=0.03,
                                             denomUncertainty=(ratioForThisPlot and plot.drawRatioUncertainty))
 
-            ret.extend(self._save(c, saveFormat, prefix=prefix, postfix="_"+plot.getName(), single=True, directory=directory))
+            ret.extend(self._save(c, saveFormat, prefix=prefix, postfix="/"+plot.getName(), single=True, directory=directory))
         return ret
 
     def _modifyPadForRatio(self, pad):
@@ -2491,6 +2491,8 @@ class PlotGroup(object):
     def _save(self, canvas, saveFormat, prefix=None, postfix=None, single=False, directory=""):
         # Save the canvas to file and clear
         name = self._name
+        if not os.path.exists(directory+'/'+name):
+            os.makedirs(directory+'/'+name)
         if prefix is not None:
             name = prefix+name
         if postfix is not None:

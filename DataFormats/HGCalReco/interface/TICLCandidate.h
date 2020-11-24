@@ -20,7 +20,12 @@ public:
   TICLCandidate() : LeafCandidate(), time_(0.f), timeError_(-1.f), rawEnergy_(0.f), idProbabilities_{} {}
 
   TICLCandidate(const edm::Ptr<ticl::Trackster>& trackster)
-      : LeafCandidate(), time_(0.f), timeError_(-1.f), rawEnergy_(0.f), tracksters_({trackster}), idProbabilities_{} {}
+      : LeafCandidate(),
+        time_(trackster->time()),
+        timeError_(trackster->timeError()),
+        rawEnergy_(0.f),
+        tracksters_({trackster}),
+        idProbabilities_{} {}
 
   inline float time() const { return time_; }
   inline float timeError() const { return timeError_; }
@@ -37,7 +42,11 @@ public:
   inline const std::vector<edm::Ptr<ticl::Trackster> > tracksters() const { return tracksters_; };
 
   void setTracksters(const std::vector<edm::Ptr<ticl::Trackster> >& tracksters) { tracksters_ = tracksters; }
-  void addTrackster(const edm::Ptr<ticl::Trackster>& trackster) { tracksters_.push_back(trackster); }
+  void addTrackster(const edm::Ptr<ticl::Trackster>& trackster) {
+    tracksters_.push_back(trackster);
+    time_ = trackster->time();
+    timeError_ = trackster->timeError();
+  }
   // convenience method to return the ID probability for a certain particle type
   inline float id_probability(ParticleType type) const {
     // probabilities are stored in the same order as defined in the ParticleType enum

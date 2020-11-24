@@ -668,23 +668,33 @@ std::pair<float, float> HGCalDDDConstants::locateCell(const HGCSiliconDetId& id,
   auto xyoff = geomTools_.shiftXY(hgpar_->layerCenter_[lay - 1], (2.0 * r));
   double xpos = xyoff.first + ((-2 * id.waferU() + id.waferV()) * r);
   double ypos = xyoff.second + (1.5 * id.waferV() * R);
-#ifdef EDM_ML_DEBUG
   if (debug)
     edm::LogVerbatim("HGCalGeom") << "LocateCell " << id << " Lay " << lay << " r:R " << r << ":" << R << " N "
                                   << ncells << ":" << n2 << " Off " << xyoff.first << ":" << xyoff.second << " Pos "
                                   << xpos << ":" << ypos;
-#endif
   double R1 = hgpar_->waferSize_ / (3.0 * ncells);
   double r1 = 0.5 * R1 * sqrt3_;
   xpos += ((1.5 * (id.cellV() - ncells) + 1.0) * R1);
   ypos += ((id.cellU() - 0.5 * id.cellV() - n2) * 2 * r1);
-#ifdef EDM_ML_DEBUG
   if (debug)
     edm::LogVerbatim("HGCalGeom") << "LocateCell r1:R1 " << r1 << ":" << R1 << " dx:dy "
                                   << ((1.5 * (id.cellV() - ncells) + 1.0) * R1) << ":"
                                   << ((id.cellU() - 0.5 * id.cellV() - n2) * 2 * r1) << " Pos " << xpos << ":" << ypos;
-#endif
   return std::make_pair(xpos * id.zside(), ypos);
+}
+
+std::pair<float, float> HGCalDDDConstants::locateCell(const HGCScintillatorDetId& id, bool debug) const {
+  int lay(id.layer()), iphi(id.iphi()), ir(id.iradiusAbs());
+  double phi = (iphi - 0.5) * hgpar_->scintCellSize(lay);
+  int type = (id.type() > 0) ? 1 : 0;
+  double r = (((ir + 1) < static_cast<int>(hgpar_->radiusLayer_[type].size()))
+                  ? (0.5 * (hgpar_->radiusLayer_[type][ir] + hgpar_->radiusLayer_[type][ir - 1]))
+                  : (1.5 * hgpar_->radiusLayer_[type][ir] - 0.5 * hgpar_->radiusLayer_[type][ir - 1]));
+  if (debug)
+    edm::LogVerbatim("HGCalGeom") << "LocateCell lay:ir:iphi:type " << lay << ":" << ir << ":" << iphi << ":" << type
+                                  << " r:phi " << r << ":" << convertRadToDeg(phi) << " x:y "
+                                  << (r * cos(phi) * id.zside()) << ":" << (r * sin(phi));
+  return std::make_pair(r * cos(phi) * id.zside(), r * sin(phi));
 }
 
 std::pair<float, float> HGCalDDDConstants::locateCellHex(int cell, int wafer, bool reco) const {

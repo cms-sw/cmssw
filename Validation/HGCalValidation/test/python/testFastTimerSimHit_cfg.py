@@ -24,16 +24,15 @@ from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['run2_mc']
 
 process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('G4cout', 'G4cerr', 'FastTimerSim'),
-#    debugModules = cms.untracked.vstring('*'),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
-#        threshold = cms.untracked.string('DEBUG'),
-        INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
         DEBUG = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
+        ),
+        FastTimerSim = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
         ),
         G4cerr = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
@@ -41,9 +40,10 @@ process.MessageLogger = cms.Service("MessageLogger",
         G4cout = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        FastTimerSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        )
+        INFO = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        enable = cms.untracked.bool(True)
     )
 )
 

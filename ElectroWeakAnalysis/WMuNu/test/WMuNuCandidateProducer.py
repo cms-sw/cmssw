@@ -19,13 +19,17 @@ process.source = cms.Source("PoolSource",
 
 # Debug/info printouts
 process.MessageLogger = cms.Service("MessageLogger",
-      debugModules = cms.untracked.vstring('corMetWMuNus'),
-      cout = cms.untracked.PSet(
-            default = cms.untracked.PSet( limit = cms.untracked.int32(10) ),
-            threshold = cms.untracked.string('INFO')
-            #threshold = cms.untracked.string('DEBUG')
-      ),
-      destinations = cms.untracked.vstring('cout')
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        default = cms.untracked.PSet(
+            limit = cms.untracked.int32(10)
+        ),
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('INFO')
+    ),
+    debugModules = cms.untracked.vstring('corMetWMuNus')
 )
 
 # Output

@@ -15,11 +15,16 @@ process.maxEvents = cms.untracked.PSet(
 
 # Printouts
 process.MessageLogger = cms.Service("MessageLogger",
-      cout = cms.untracked.PSet(
-            default = cms.untracked.PSet(limit = cms.untracked.int32(100)),
-            threshold = cms.untracked.string('INFO')
-      ),
-      destinations = cms.untracked.vstring('cout')
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        default = cms.untracked.PSet(
+            limit = cms.untracked.int32(100)
+        ),
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('INFO')
+    )
 )
 
 # Input files (on disk)

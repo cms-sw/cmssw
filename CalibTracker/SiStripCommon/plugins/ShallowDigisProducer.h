@@ -3,9 +3,9 @@
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-class SiStripNoises;
+#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 
 class ShallowDigisProducer : public edm::stream::EDProducer<> {
 public:
@@ -26,13 +26,13 @@ private:
           noise(new std::vector<float>()) {}
   };
   std::vector<edm::InputTag> inputTags;
-  edm::ESHandle<SiStripNoises> noiseHandle;
+  edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> noisesToken_;
 
   void produce(edm::Event &, const edm::EventSetup &) override;
   template <class T>
   bool findInput(edm::Handle<T> &, const edm::Event &);
   template <class T>
-  void recordDigis(const T &, products &);
+  void recordDigis(const T &, products &, const SiStripNoises &noises);
   void insert(products &, edm::Event &);
 };
 

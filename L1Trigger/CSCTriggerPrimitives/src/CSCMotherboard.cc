@@ -175,8 +175,8 @@ void CSCMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCComparato
         // need to access "full BX" words, which are not readily
         // available.
         bool is_matched = false;
-        const int bx_alct_start = bx_clct - match_trig_window_size / 2 + alctClctOffset_;
-        const int bx_alct_stop = bx_clct + match_trig_window_size / 2 + alctClctOffset_;
+        const int bx_alct_start = bx_clct - match_trig_window_size / 2 + CSCConstants::ALCT_CLCT_OFFSET;
+        const int bx_alct_stop = bx_clct + match_trig_window_size / 2 + CSCConstants::ALCT_CLCT_OFFSET;
 
         for (int bx_alct = bx_alct_start; bx_alct <= bx_alct_stop; bx_alct++) {
           if (bx_alct < 0 || bx_alct >= CSCConstants::MAX_ALCT_TBINS)
@@ -255,8 +255,8 @@ void CSCMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCComparato
         // need to access "full BX" words, which are not readily
         // available.
         bool is_matched = false;
-        const int bx_clct_start = bx_alct - match_trig_window_size / 2 - alctClctOffset_;
-        const int bx_clct_stop = bx_alct + match_trig_window_size / 2 - alctClctOffset_;
+        const int bx_clct_start = bx_alct - match_trig_window_size / 2 - CSCConstants::ALCT_CLCT_OFFSET;
+        const int bx_clct_stop = bx_alct + match_trig_window_size / 2 - CSCConstants::ALCT_CLCT_OFFSET;
 
         for (int bx_clct = bx_clct_start; bx_clct <= bx_clct_stop; bx_clct++) {
           if (bx_clct < 0 || bx_clct >= CSCConstants::MAX_CLCT_TBINS)
@@ -489,10 +489,13 @@ CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
                                                    int trknmb) const {
   // CLCT pattern number
   unsigned int pattern = encodePattern(cLCT.getPattern());
+  if (runCCLUT_) {
+    pattern = cLCT.getSlope();
+  }
 
   // LCT quality number
   unsigned int quality;
-  if (use_run3_patterns_) {
+  if (runCCLUT_) {
     quality = static_cast<unsigned int>(findQualityRun3(aLCT, cLCT));
   } else {
     quality = static_cast<unsigned int>(findQuality(aLCT, cLCT));
@@ -519,12 +522,13 @@ CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
                                theTrigChamber);
   thisLCT.setType(type);
 
-  if (use_run3_patterns_) {
+  if (runCCLUT_) {
     thisLCT.setRun3(true);
-    // in Run-3 we plan to denote the presence of exotic signatures in the chamber
-    if (useHighMultiplicityBits_)
-      thisLCT.setHMT(highMultiplicityBits_);
   }
+
+  // in Run-3 we plan to denote the presence of exotic signatures in the chamber
+  if (useHighMultiplicityBits_)
+    thisLCT.setHMT(highMultiplicityBits_);
 
   // make sure to shift the ALCT BX from 8 to 3 and the CLCT BX from 8 to 7!
   thisLCT.setALCT(getBXShiftedALCT(aLCT));
@@ -698,7 +702,7 @@ CSCALCTDigi CSCMotherboard::getBXShiftedALCT(const CSCALCTDigi& aLCT) const {
 
 CSCCLCTDigi CSCMotherboard::getBXShiftedCLCT(const CSCCLCTDigi& cLCT) const {
   CSCCLCTDigi cLCT_shifted = cLCT;
-  cLCT_shifted.setBX(cLCT_shifted.getBX() - alctClctOffset_);
+  cLCT_shifted.setBX(cLCT_shifted.getBX() - CSCConstants::ALCT_CLCT_OFFSET);
   return cLCT_shifted;
 }
 

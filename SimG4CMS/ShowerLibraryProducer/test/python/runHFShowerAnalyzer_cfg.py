@@ -1,0 +1,69 @@
+import FWCore.ParameterSet.Config as cms
+
+process = cms.Process("HFShowerLib")
+process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+process.load('FWCore.MessageService.MessageLogger_cfi')
+process.load('Configuration.StandardSequences.Generator_cff')
+process.load('IOMC.EventVertexGenerators.VtxSmearedRun3RoundOptics25ns13TeVLowSigmaZ_cfi')
+process.load("Configuration.Geometry.GeometryExtended2021_cff")
+process.load('Configuration.StandardSequences.MagneticField_cff')
+process.load('GeneratorInterface.Core.genFilterSummary_cff')
+process.load('Configuration.StandardSequences.SimIdeal_cff')
+process.load("Configuration.StandardSequences.Services_cff")
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load("SimG4CMS.ShowerLibraryProducer.hfShowerLibaryAnalysis_cfi")
+from Configuration.AlCa.GlobalTag import GlobalTag 
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
+
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.categories.append('HFShower')
+
+process.Timing = cms.Service("Timing")
+
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(1)
+)
+
+process.source = cms.Source("EmptySource")
+
+process.generator = cms.EDProducer("FlatRandomEThetaGunProducer",
+    PGunParameters = cms.PSet(
+        PartID   = cms.vint32(13),
+        MinTheta = cms.double(0.019997),
+        MaxTheta = cms.double(0.019997),
+        MinPhi   = cms.double(3.14500926),
+        MaxPhi   = cms.double(3.14500926),
+        MinE     = cms.double(100.0),
+        MaxE     = cms.double(100.0)
+    ),
+    Verbosity = cms.untracked.int32(0),
+    AddAntiParticle = cms.bool(False),
+    firstRun = cms.untracked.uint32(1)
+)
+
+process.TFileService = cms.Service("TFileService",
+    fileName = cms.string('hfShowerDump.root')
+)
+
+process.genstepfilter.triggerConditions=cms.vstring("generation_step")
+
+# Path and EndPath definitions
+process.generation_step = cms.Path(process.pgen)
+process.simulation_step = cms.Path(process.psim)
+process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
+process.analysis_step = cms.EndPath(process.hfShowerLibaryAnalysis)
+
+# Schedule definition
+process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,process.analysis_step)
+
+#process.hfShowerLibaryAnalysis.Verbosity = True
+
+from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
+associatePatAlgosToolsTask(process)
+# Customisation from command line
+
+# Add early deletion of temporary data products to reduce peak memory need
+from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete
+process = customiseEarlyDelete(process)
+# End adding early deletion
+

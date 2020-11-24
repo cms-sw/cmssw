@@ -51,6 +51,8 @@ protected:
   // is this an ME11 chamber?
   bool isME11_;
   bool isME21_;
+  bool isME31_;
+  bool isME41_;
 
   // CSCDetId for this chamber
   CSCDetId cscId_;
@@ -79,35 +81,25 @@ protected:
   // chamber name, e.g. ME+1/1/9
   std::string theCSCName_;
 
-  /** Flag for SLHC studies. */
-  bool isSLHC_;
-  bool enableAlctSLHC_;
+  /** Flag for Phase2 studies. */
+  bool runPhase2_;
+  bool enableAlctPhase2_;
 
-  /** SLHC: special configuration parameters for ME1a treatment */
+  /** Phase2: special configuration parameters for ME1a treatment */
   bool disableME1a_, gangedME1a_;
 
-  // shift the BX from 7 to 8
-  // the unpacked real data CLCTs have central BX at bin 7
-  // however in simulation the central BX  is bin 8
-  // to make a proper comparison with ALCTs we need
-  // CLCT and ALCT to have the central BX in the same bin
-  // this shift does not affect the readout of the CLCTs
-  // emulated CLCTs put in the event should be centered at bin 7 (as in data)
-  unsigned int alctClctOffset_;
-
-  /** SLHC: run the upgrade for the Phase-II ME1/1 integrated local trigger */
+  /** Phase2: run the upgrade for the Phase-II ME1/1 integrated local trigger */
   bool runME11ILT_;
 
-  /** SLHC: run the upgrade for the Phase-II ME2/1 integrated local trigger */
+  /** Phase2: run the upgrade for the Phase-II ME2/1 integrated local trigger */
   bool runME21ILT_;
 
-  /** SLHC: run the upgrade local trigger (without GEMs) */
+  /** Phase2: run the upgrade local trigger (without GEMs) */
   bool runME11Up_;
   bool runME21Up_;
   bool runME31Up_;
   bool runME41Up_;
 
-  bool use_run3_patterns_;
-  bool use_comparator_codes_;
+  bool runCCLUT_;
 };
 #endif
