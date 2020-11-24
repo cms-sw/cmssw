@@ -1,3 +1,4 @@
+<use name="FastSimulation/Event"/>
 <library name="L1TriggerL1THGCalUtilitiesPlugins_ntuples" file="ntuples/*.cc">
   <use name="L1Trigger/L1THGCal"/>
   <use name="L1Trigger/L1THGCalUtilities"/>
@@ -8,7 +9,6 @@
   <use name="SimDataFormats/PileupSummaryInfo"/>
   <use name="SimDataFormats/GeneratorProducts"/>
   <use name="TrackPropagation/RungeKutta"/>
-  <use name="FastSimulation/Event"/>
   <use name="FastSimulation/CaloGeometryTools"/>
   <use name="MagneticField/Engine"/>
   <use name="MagneticField/Records"/>
