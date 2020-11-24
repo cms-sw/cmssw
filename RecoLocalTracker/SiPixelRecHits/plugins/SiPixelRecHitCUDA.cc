@@ -6,7 +6,6 @@
 #include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigisCUDA.h"
 #include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DCUDA.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -34,6 +33,8 @@ public:
 private:
   void produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 
+  const edm::ESGetToken<PixelClusterParameterEstimator, TkPixelCPERecord> cpeToken_;
+
   // The mess with inputs will be cleaned up when migrating to the new framework
   edm::EDGetTokenT<cms::cuda::Product<BeamSpotCUDA>> tBeamSpot;
   edm::EDGetTokenT<cms::cuda::Product<SiPixelClustersCUDA>> token_;
@@ -41,17 +42,15 @@ private:
 
   edm::EDPutTokenT<cms::cuda::Product<TrackingRecHit2DCUDA>> tokenHit_;
 
-  std::string cpeName_;
-
   pixelgpudetails::PixelRecHitGPUKernel gpuAlgo_;
 };
 
 SiPixelRecHitCUDA::SiPixelRecHitCUDA(const edm::ParameterSet& iConfig)
-    : tBeamSpot(consumes<cms::cuda::Product<BeamSpotCUDA>>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
+    : cpeToken_(esConsumes(edm::ESInputTag("",iConfig.getParameter<std::string>("CPE")))),
+      tBeamSpot(consumes<cms::cuda::Product<BeamSpotCUDA>>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
       token_(consumes<cms::cuda::Product<SiPixelClustersCUDA>>(iConfig.getParameter<edm::InputTag>("src"))),
       tokenDigi_(consumes<cms::cuda::Product<SiPixelDigisCUDA>>(iConfig.getParameter<edm::InputTag>("src"))),
-      tokenHit_(produces<cms::cuda::Product<TrackingRecHit2DCUDA>>()),
-      cpeName_(iConfig.getParameter<std::string>("CPE")) {}
+      tokenHit_(produces<cms::cuda::Product<TrackingRecHit2DCUDA>>()) {}
 
 void SiPixelRecHitCUDA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -63,18 +62,7 @@ void SiPixelRecHitCUDA::fillDescriptions(edm::ConfigurationDescriptions& descrip
 }
 
 void SiPixelRecHitCUDA::produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& es) const {
-  // const TrackerGeometry *geom_ = nullptr;
-  const PixelClusterParameterEstimator* cpe_ = nullptr;
-
-  /*
-  edm::ESHandle<TrackerGeometry> geom;
-  es.get<TrackerDigiGeometryRecord>().get( geom );
-  geom_ = geom.product();
-  */
-
-  edm::ESHandle<PixelClusterParameterEstimator> hCPE;
-  es.get<TkPixelCPERecord>().get(cpeName_, hCPE);
-  cpe_ = dynamic_cast<const PixelCPEBase*>(hCPE.product());
+  const PixelClusterParameterEstimator* cpe_ = dynamic_cast<const PixelCPEBase*>(&es.getData(cpeToken_));
 
   PixelCPEFast const* fcpe = dynamic_cast<const PixelCPEFast*>(cpe_);
   if (!fcpe) {
