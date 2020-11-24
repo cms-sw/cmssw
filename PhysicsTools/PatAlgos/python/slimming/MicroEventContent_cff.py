@@ -67,7 +67,7 @@ MicroEventContent = cms.PSet(
         'keep *_l1extraParticles_*_*',
         'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*',
         # stage 2 L1 trigger
-        'keep GlobalExtBlkBXVector_*_*_*', 
+        'keep GlobalExtBlkBXVector_simGtExtUnprefireable_*_*', 
         'keep *_gtStage2Digis__*', 
         'keep *_gmtStage2Digis_Muon_*',
         'keep *_caloStage2Digis_Jet_*',
