@@ -1278,8 +1278,7 @@ void SiPixelDigiSource::bookMEs(DQMStore::IBooker& iBooker, const edm::EventSetu
     }
     if (layOn || twoDimOnlyLayDisk) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*struct_iter).first, 2, isUpgrade)) {
-        (*struct_iter)
-            .second->book(conf_, pTT, iBooker, 2, twoDimOn, hiRes, reducedSet, twoDimOnlyLayDisk, isUpgrade);
+        (*struct_iter).second->book(conf_, pTT, iBooker, 2, twoDimOn, hiRes, reducedSet, twoDimOnlyLayDisk, isUpgrade);
       } else {
         LogDebug("PixelDQM") << "PROBLEM WITH LAYER-FOLDER\n";
       }
@@ -1301,8 +1300,7 @@ void SiPixelDigiSource::bookMEs(DQMStore::IBooker& iBooker, const edm::EventSetu
     }
     if (diskOn || twoDimOnlyLayDisk) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*struct_iter).first, 5, isUpgrade)) {
-        (*struct_iter)
-            .second->book(conf_, pTT, iBooker, 5, twoDimOn, hiRes, reducedSet, twoDimOnlyLayDisk, isUpgrade);
+        (*struct_iter).second->book(conf_, pTT, iBooker, 5, twoDimOn, hiRes, reducedSet, twoDimOnlyLayDisk, isUpgrade);
       } else {
         LogDebug("PixelDQM") << "PROBLEM WITH DISK-FOLDER\n";
       }
