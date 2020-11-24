@@ -195,13 +195,11 @@ void EgammaHLTPixelMatchVarProducer::fillDescriptions(edm::ConfigurationDescript
   descriptions.add(("hltEgammaHLTPixelMatchVarProducer"), desc);
 }
 
-void EgammaHLTPixelMatchVarProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void EgammaHLTPixelMatchVarProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
   // Get the HLT filtered objects
-  edm::Handle<reco::RecoEcalCandidateCollection> recoEcalCandHandle;
-  iEvent.getByToken(recoEcalCandidateToken_, recoEcalCandHandle);
+  auto recoEcalCandHandle = iEvent.getHandle(recoEcalCandidateToken_);
 
-  edm::Handle<reco::ElectronSeedCollection> pixelSeedsHandle;
-  iEvent.getByToken(pixelSeedsToken_, pixelSeedsHandle);
+  auto pixelSeedsHandle = iEvent.getHandle(pixelSeedsToken_);
 
   if (!recoEcalCandHandle.isValid())
     return;
@@ -214,9 +212,6 @@ void EgammaHLTPixelMatchVarProducer::produce(edm::Event& iEvent, const edm::Even
     iEvent.put(std::move(s2Map), "s2");
     return;
   }
-
-  edm::ESHandle<TrackerTopology> trackerTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(trackerTopoHandle);
 
   auto dPhi1BestS2Map = std::make_unique<reco::RecoEcalCandidateIsolationMap>(recoEcalCandHandle);
   auto dPhi2BestS2Map = std::make_unique<reco::RecoEcalCandidateIsolationMap>(recoEcalCandHandle);
