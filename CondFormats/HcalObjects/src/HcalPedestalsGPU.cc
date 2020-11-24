@@ -1,9 +1,7 @@
-#include "CondFormats/HcalObjects/interface/HcalPedestalsGPU.h"
-
 #include "CondFormats/HcalObjects/interface/HcalPedestals.h"
-
+#include "CondFormats/HcalObjects/interface/HcalPedestalsGPU.h"
 #include "FWCore/Utilities/interface/typelookup.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/copyAsync.h"
 
 // FIXME: add proper getters to conditions
 HcalPedestalsGPU::HcalPedestalsGPU(HcalPedestals const& pedestals)
@@ -49,32 +47,16 @@ HcalPedestalsGPU::HcalPedestalsGPU(HcalPedestals const& pedestals)
   }
 }
 
-HcalPedestalsGPU::Product::~Product() {
-  // deallocation
-  cudaCheck(cudaFree(values));
-  cudaCheck(cudaFree(widths));
-}
-
-HcalPedestalsGPU::Product const& HcalPedestalsGPU::getProduct(cudaStream_t cudaStream) const {
-  auto const& product = product_.dataForCurrentDeviceAsync(
-      cudaStream, [this](HcalPedestalsGPU::Product& product, cudaStream_t cudaStream) {
-        // malloc
-        cudaCheck(cudaMalloc((void**)&product.values, this->values_.size() * sizeof(float)));
-
-        cudaCheck(cudaMalloc((void**)&product.widths, this->widths_.size() * sizeof(float)));
+HcalPedestalsGPU::Product const& HcalPedestalsGPU::getProduct(cudaStream_t stream) const {
+  auto const& product =
+      product_.dataForCurrentDeviceAsync(stream, [this](HcalPedestalsGPU::Product& product, cudaStream_t stream) {
+        // allocate
+        product.values = cms::cuda::make_device_unique<float[]>(values_.size(), stream);
+        product.widths = cms::cuda::make_device_unique<float[]>(widths_.size(), stream);
 
         // transfer
-        cudaCheck(cudaMemcpyAsync(product.values,
-                                  this->values_.data(),
-                                  this->values_.size() * sizeof(float),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
-
-        cudaCheck(cudaMemcpyAsync(product.widths,
-                                  this->widths_.data(),
-                                  this->widths_.size() * sizeof(float),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
+        cms::cuda::copyAsync(product.values, values_, stream);
+        cms::cuda::copyAsync(product.widths, widths_, stream);
       });
 
   return product;

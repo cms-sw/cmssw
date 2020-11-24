@@ -2,6 +2,8 @@
 #define CondFormats_HcalObjects_interface_HcalGainWidthsGPU_h
 
 #include "CondFormats/HcalObjects/interface/HcalGainWidths.h"
+#include "FWCore/Utilities/interface/propagate_const_array.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 
 #ifndef __CUDACC__
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
@@ -11,11 +13,10 @@
 class HcalGainWidthsGPU {
 public:
   struct Product {
-    ~Product();
-    float *value0;
-    float *value1;
-    float *value2;
-    float *value3;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<float[]>> value0;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<float[]>> value1;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<float[]>> value2;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<float[]>> value3;
   };
 
 #ifndef __CUDACC__

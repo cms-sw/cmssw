@@ -1,10 +1,12 @@
 #ifndef CondFormats_HcalObjects_interface_HcalConvertedPedestalWidthsGPU_h
 #define CondFormats_HcalObjects_interface_HcalConvertedPedestalWidthsGPU_h
 
-#include "CondFormats/HcalObjects/interface/HcalPedestals.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestalWidths.h"
+#include "CondFormats/HcalObjects/interface/HcalPedestals.h"
 #include "CondFormats/HcalObjects/interface/HcalQIEData.h"
 #include "CondFormats/HcalObjects/interface/HcalQIETypes.h"
+#include "FWCore/Utilities/interface/propagate_const_array.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 
 #ifndef __CUDACC__
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
@@ -14,8 +16,7 @@
 class HcalConvertedPedestalWidthsGPU {
 public:
   struct Product {
-    ~Product();
-    float* values;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<float[]>> values;
   };
 
 #ifndef __CUDACC__

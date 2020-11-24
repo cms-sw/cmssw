@@ -2,6 +2,8 @@
 #define CondFormats_HcalObjects_interface_HcalQIETypesGPU_h
 
 #include "CondFormats/HcalObjects/interface/HcalQIETypes.h"
+#include "FWCore/Utilities/interface/propagate_const_array.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 
 #ifndef __CUDACC__
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
@@ -11,8 +13,7 @@
 class HcalQIETypesGPU {
 public:
   struct Product {
-    ~Product();
-    int* values;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<int[]>> values;
   };
 
 #ifndef __CUDACC__

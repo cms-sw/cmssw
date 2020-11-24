@@ -1,9 +1,7 @@
-#include "CondFormats/HcalObjects/interface/HcalPedestalWidthsGPU.h"
-
 #include "CondFormats/HcalObjects/interface/HcalPedestalWidths.h"
-
+#include "CondFormats/HcalObjects/interface/HcalPedestalWidthsGPU.h"
 #include "FWCore/Utilities/interface/typelookup.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/copyAsync.h"
 
 // FIXME: add proper getters to conditions
 HcalPedestalWidthsGPU::HcalPedestalWidthsGPU(HcalPedestalWidths const& pedestals)
@@ -71,134 +69,50 @@ HcalPedestalWidthsGPU::HcalPedestalWidthsGPU(HcalPedestalWidths const& pedestals
   }
 }
 
-HcalPedestalWidthsGPU::Product::~Product() {
-  // deallocation
-  cudaCheck(cudaFree(sigma00));
-  cudaCheck(cudaFree(sigma01));
-  cudaCheck(cudaFree(sigma02));
-  cudaCheck(cudaFree(sigma03));
-  cudaCheck(cudaFree(sigma10));
-  cudaCheck(cudaFree(sigma11));
-  cudaCheck(cudaFree(sigma12));
-  cudaCheck(cudaFree(sigma13));
-  cudaCheck(cudaFree(sigma20));
-  cudaCheck(cudaFree(sigma21));
-  cudaCheck(cudaFree(sigma22));
-  cudaCheck(cudaFree(sigma23));
-  cudaCheck(cudaFree(sigma30));
-  cudaCheck(cudaFree(sigma31));
-  cudaCheck(cudaFree(sigma32));
-  cudaCheck(cudaFree(sigma33));
-}
+HcalPedestalWidthsGPU::Product const& HcalPedestalWidthsGPU::getProduct(cudaStream_t stream) const {
+  auto const& product =
+      product_.dataForCurrentDeviceAsync(stream, [this](HcalPedestalWidthsGPU::Product& product, cudaStream_t stream) {
+        // allocate
+        product.sigma00 = cms::cuda::make_device_unique<float[]>(sigma00_.size(), stream);
+        product.sigma01 = cms::cuda::make_device_unique<float[]>(sigma01_.size(), stream);
+        product.sigma02 = cms::cuda::make_device_unique<float[]>(sigma02_.size(), stream);
+        product.sigma03 = cms::cuda::make_device_unique<float[]>(sigma03_.size(), stream);
 
-HcalPedestalWidthsGPU::Product const& HcalPedestalWidthsGPU::getProduct(cudaStream_t cudaStream) const {
-  auto const& product = product_.dataForCurrentDeviceAsync(
-      cudaStream, [this](HcalPedestalWidthsGPU::Product& product, cudaStream_t cudaStream) {
-        // malloc
-        cudaCheck(cudaMalloc((void**)&product.sigma00, this->sigma00_.size() * sizeof(float)));
-        cudaCheck(cudaMalloc((void**)&product.sigma01, this->sigma01_.size() * sizeof(float)));
-        cudaCheck(cudaMalloc((void**)&product.sigma02, this->sigma02_.size() * sizeof(float)));
-        cudaCheck(cudaMalloc((void**)&product.sigma03, this->sigma03_.size() * sizeof(float)));
+        product.sigma10 = cms::cuda::make_device_unique<float[]>(sigma10_.size(), stream);
+        product.sigma11 = cms::cuda::make_device_unique<float[]>(sigma11_.size(), stream);
+        product.sigma12 = cms::cuda::make_device_unique<float[]>(sigma12_.size(), stream);
+        product.sigma13 = cms::cuda::make_device_unique<float[]>(sigma13_.size(), stream);
 
-        cudaCheck(cudaMalloc((void**)&product.sigma10, this->sigma10_.size() * sizeof(float)));
-        cudaCheck(cudaMalloc((void**)&product.sigma11, this->sigma11_.size() * sizeof(float)));
-        cudaCheck(cudaMalloc((void**)&product.sigma12, this->sigma12_.size() * sizeof(float)));
-        cudaCheck(cudaMalloc((void**)&product.sigma13, this->sigma13_.size() * sizeof(float)));
+        product.sigma20 = cms::cuda::make_device_unique<float[]>(sigma20_.size(), stream);
+        product.sigma21 = cms::cuda::make_device_unique<float[]>(sigma21_.size(), stream);
+        product.sigma22 = cms::cuda::make_device_unique<float[]>(sigma22_.size(), stream);
+        product.sigma23 = cms::cuda::make_device_unique<float[]>(sigma23_.size(), stream);
 
-        cudaCheck(cudaMalloc((void**)&product.sigma20, this->sigma20_.size() * sizeof(float)));
-        cudaCheck(cudaMalloc((void**)&product.sigma21, this->sigma21_.size() * sizeof(float)));
-        cudaCheck(cudaMalloc((void**)&product.sigma22, this->sigma22_.size() * sizeof(float)));
-        cudaCheck(cudaMalloc((void**)&product.sigma23, this->sigma23_.size() * sizeof(float)));
-
-        cudaCheck(cudaMalloc((void**)&product.sigma30, this->sigma30_.size() * sizeof(float)));
-        cudaCheck(cudaMalloc((void**)&product.sigma31, this->sigma31_.size() * sizeof(float)));
-        cudaCheck(cudaMalloc((void**)&product.sigma32, this->sigma32_.size() * sizeof(float)));
-        cudaCheck(cudaMalloc((void**)&product.sigma33, this->sigma33_.size() * sizeof(float)));
+        product.sigma30 = cms::cuda::make_device_unique<float[]>(sigma30_.size(), stream);
+        product.sigma31 = cms::cuda::make_device_unique<float[]>(sigma31_.size(), stream);
+        product.sigma32 = cms::cuda::make_device_unique<float[]>(sigma32_.size(), stream);
+        product.sigma33 = cms::cuda::make_device_unique<float[]>(sigma33_.size(), stream);
 
         // transfer
-        cudaCheck(cudaMemcpyAsync(product.sigma00,
-                                  this->sigma00_.data(),
-                                  this->sigma00_.size() * sizeof(float),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
-        cudaCheck(cudaMemcpyAsync(product.sigma01,
-                                  this->sigma01_.data(),
-                                  this->sigma01_.size() * sizeof(float),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
-        cudaCheck(cudaMemcpyAsync(product.sigma02,
-                                  this->sigma02_.data(),
-                                  this->sigma02_.size() * sizeof(float),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
-        cudaCheck(cudaMemcpyAsync(product.sigma03,
-                                  this->sigma03_.data(),
-                                  this->sigma03_.size() * sizeof(float),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
+        cms::cuda::copyAsync(product.sigma00, sigma00_, stream);
+        cms::cuda::copyAsync(product.sigma01, sigma01_, stream);
+        cms::cuda::copyAsync(product.sigma02, sigma02_, stream);
+        cms::cuda::copyAsync(product.sigma03, sigma03_, stream);
 
-        cudaCheck(cudaMemcpyAsync(product.sigma10,
-                                  this->sigma10_.data(),
-                                  this->sigma10_.size() * sizeof(float),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
-        cudaCheck(cudaMemcpyAsync(product.sigma11,
-                                  this->sigma11_.data(),
-                                  this->sigma11_.size() * sizeof(float),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
-        cudaCheck(cudaMemcpyAsync(product.sigma12,
-                                  this->sigma12_.data(),
-                                  this->sigma12_.size() * sizeof(float),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
-        cudaCheck(cudaMemcpyAsync(product.sigma13,
-                                  this->sigma13_.data(),
-                                  this->sigma13_.size() * sizeof(float),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
+        cms::cuda::copyAsync(product.sigma10, sigma10_, stream);
+        cms::cuda::copyAsync(product.sigma11, sigma11_, stream);
+        cms::cuda::copyAsync(product.sigma12, sigma12_, stream);
+        cms::cuda::copyAsync(product.sigma13, sigma13_, stream);
 
-        cudaCheck(cudaMemcpyAsync(product.sigma20,
-                                  this->sigma20_.data(),
-                                  this->sigma20_.size() * sizeof(float),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
-        cudaCheck(cudaMemcpyAsync(product.sigma21,
-                                  this->sigma21_.data(),
-                                  this->sigma21_.size() * sizeof(float),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
-        cudaCheck(cudaMemcpyAsync(product.sigma22,
-                                  this->sigma22_.data(),
-                                  this->sigma22_.size() * sizeof(float),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
-        cudaCheck(cudaMemcpyAsync(product.sigma23,
-                                  this->sigma23_.data(),
-                                  this->sigma23_.size() * sizeof(float),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
+        cms::cuda::copyAsync(product.sigma20, sigma20_, stream);
+        cms::cuda::copyAsync(product.sigma21, sigma21_, stream);
+        cms::cuda::copyAsync(product.sigma22, sigma22_, stream);
+        cms::cuda::copyAsync(product.sigma23, sigma23_, stream);
 
-        cudaCheck(cudaMemcpyAsync(product.sigma30,
-                                  this->sigma30_.data(),
-                                  this->sigma30_.size() * sizeof(float),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
-        cudaCheck(cudaMemcpyAsync(product.sigma31,
-                                  this->sigma31_.data(),
-                                  this->sigma31_.size() * sizeof(float),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
-        cudaCheck(cudaMemcpyAsync(product.sigma32,
-                                  this->sigma32_.data(),
-                                  this->sigma32_.size() * sizeof(float),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
-        cudaCheck(cudaMemcpyAsync(product.sigma33,
-                                  this->sigma33_.data(),
-                                  this->sigma33_.size() * sizeof(float),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
+        cms::cuda::copyAsync(product.sigma30, sigma30_, stream);
+        cms::cuda::copyAsync(product.sigma31, sigma31_, stream);
+        cms::cuda::copyAsync(product.sigma32, sigma32_, stream);
+        cms::cuda::copyAsync(product.sigma33, sigma33_, stream);
       });
 
   return product;

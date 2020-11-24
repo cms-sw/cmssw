@@ -1,9 +1,7 @@
-#include "CondFormats/HcalObjects/interface/HcalRecoParamsGPU.h"
-
 #include "CondFormats/HcalObjects/interface/HcalRecoParams.h"
-
+#include "CondFormats/HcalObjects/interface/HcalRecoParamsGPU.h"
 #include "FWCore/Utilities/interface/typelookup.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/copyAsync.h"
 
 // FIXME: add proper getters to conditions
 HcalRecoParamsGPU::HcalRecoParamsGPU(HcalRecoParams const& recoParams)
@@ -28,30 +26,16 @@ HcalRecoParamsGPU::HcalRecoParamsGPU(HcalRecoParams const& recoParams)
   }
 }
 
-HcalRecoParamsGPU::Product::~Product() {
-  // deallocation
-  cudaCheck(cudaFree(param1));
-  cudaCheck(cudaFree(param2));
-}
-
-HcalRecoParamsGPU::Product const& HcalRecoParamsGPU::getProduct(cudaStream_t cudaStream) const {
-  auto const& product = product_.dataForCurrentDeviceAsync(
-      cudaStream, [this](HcalRecoParamsGPU::Product& product, cudaStream_t cudaStream) {
-        // malloc
-        cudaCheck(cudaMalloc((void**)&product.param1, this->param1_.size() * sizeof(uint32_t)));
-        cudaCheck(cudaMalloc((void**)&product.param2, this->param2_.size() * sizeof(uint32_t)));
+HcalRecoParamsGPU::Product const& HcalRecoParamsGPU::getProduct(cudaStream_t stream) const {
+  auto const& product =
+      product_.dataForCurrentDeviceAsync(stream, [this](HcalRecoParamsGPU::Product& product, cudaStream_t stream) {
+        // allocate
+        product.param1 = cms::cuda::make_device_unique<uint32_t[]>(param1_.size(), stream);
+        product.param2 = cms::cuda::make_device_unique<uint32_t[]>(param2_.size(), stream);
 
         // transfer
-        cudaCheck(cudaMemcpyAsync(product.param1,
-                                  this->param1_.data(),
-                                  this->param1_.size() * sizeof(uint32_t),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
-        cudaCheck(cudaMemcpyAsync(product.param2,
-                                  this->param2_.data(),
-                                  this->param2_.size() * sizeof(uint32_t),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
+        cms::cuda::copyAsync(product.param1, param1_, stream);
+        cms::cuda::copyAsync(product.param2, param2_, stream);
       });
 
   return product;
