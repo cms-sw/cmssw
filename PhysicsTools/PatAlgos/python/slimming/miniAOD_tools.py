@@ -627,19 +627,12 @@ def miniAOD_customizeData(process):
     process.load("RecoPPS.ProtonReconstruction.ctppsProtons_cff")
     process.load("Geometry.VeryForwardGeometry.geometryRPFromDB_cfi")
     process.load('L1Trigger.L1TGlobal.simGtExtFakeProd_cfi')
-    process.simGtExtFakeProd.bxFirst = cms.int32(-2)
-    process.simGtExtFakeProd.bxLast = cms.int32(2)
-    process.simGtExtFakeProd.setBptxAND = cms.bool(True)
-    process.simGtExtFakeProd.setBptxPlus = cms.bool(True)
-    process.simGtExtFakeProd.setBptxMinus = cms.bool(True)
-    process.simGtExtFakeProd.setBptxOR = cms.bool(True)
-    process.simGtExtFakeProd.tcdsRecordLabel = cms.InputTag("tcdsDigis","tcdsRecord")
     task = getPatAlgosToolsTask(process)
-    from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
-    run2_miniAOD_UL.toModify(task, func=lambda t: t.add(process.simGtExtFakeProd))
     from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
     ctpps_2016.toModify(task, func=lambda t: t.add(process.ctppsLocalTrackLiteProducer))
     ctpps_2016.toModify(task, func=lambda t: t.add(process.ctppsProtons))
+    from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
+    run2_miniAOD_UL.toModify(task, func=lambda t: t.add(process.simGtExtUnpefireable))
 
 def miniAOD_customizeAllData(process):
     miniAOD_customizeCommon(process)
