@@ -32,6 +32,7 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include <TH1F.h>
+#include <TH2F.h>
 #include <cmath>
 #include <iostream>
 #include <fstream>
@@ -40,7 +41,7 @@
 #include <string>
 #include <vector>
 
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 
 class EcalSimHitStudy : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
@@ -74,6 +75,7 @@ private:
   TH1F *etot_[ndets_], *etotg_[ndets_], *edepAll_[ndets_];
   TH1F *r1by9_[ndets_], *r1by25_[ndets_], *r9by25_[ndets_];
   TH1F *sEtaEta_[ndets_], *sEtaPhi_[ndets_], *sPhiPhi_[ndets_];
+  TH2F *poszp_[ndets_], *poszn_[ndets_];
 };
 
 EcalSimHitStudy::EcalSimHitStudy(const edm::ParameterSet& ps) {
@@ -134,96 +136,119 @@ void EcalSimHitStudy::beginJob() {
   for (int i = 0; i < ndets_; i++) {
     sprintf(name, "Hit%d", i);
     sprintf(title, "Number of hits in %s", dets[i].c_str());
-    hit_[i] = tfile->make<TH1F>(name, title, 1000, 0., 20000.);
+    hit_[i] = tfile->make<TH1F>(name, dets[i].c_str(), 1000, 0., 20000.);
     hit_[i]->GetXaxis()->SetTitle(title);
     hit_[i]->GetYaxis()->SetTitle("Events");
     hit_[i]->Sumw2();
     sprintf(name, "Time%d", i);
     sprintf(title, "Time of the hit (ns) in %s", dets[i].c_str());
-    time_[i] = tfile->make<TH1F>(name, title, 1000, 0., 1000.);
+    time_[i] = tfile->make<TH1F>(name, dets[i].c_str(), 1000, 0., 1000.);
     time_[i]->GetXaxis()->SetTitle(title);
     time_[i]->GetYaxis()->SetTitle("Hits");
     time_[i]->Sumw2();
     sprintf(name, "TimeAll%d", i);
     sprintf(title, "Hit time (ns) in %s (for first hit in the cell)", dets[i].c_str());
-    timeAll_[i] = tfile->make<TH1F>(name, title, 1000, 0., 1000.);
+    timeAll_[i] = tfile->make<TH1F>(name, dets[i].c_str(), 1000, 0., 1000.);
     timeAll_[i]->GetXaxis()->SetTitle(title);
     timeAll_[i]->GetYaxis()->SetTitle("Hits");
     timeAll_[i]->Sumw2();
     sprintf(name, "Edep%d", i);
     sprintf(title, "Energy deposit (GeV) in %s", dets[i].c_str());
-    edep_[i] = tfile->make<TH1F>(name, title, 5000, 0., maxEnergy_);
+    edep_[i] = tfile->make<TH1F>(name, dets[i].c_str(), 5000, 0., maxEnergy_);
     edep_[i]->GetXaxis()->SetTitle(title);
     edep_[i]->GetYaxis()->SetTitle("Hits");
     edep_[i]->Sumw2();
     sprintf(name, "EdepAll%d", i);
     sprintf(title, "Total Energy deposit in the cell (GeV) in %s", dets[i].c_str());
-    edepAll_[i] = tfile->make<TH1F>(name, title, 5000, 0., maxEnergy_);
+    edepAll_[i] = tfile->make<TH1F>(name, dets[i].c_str(), 5000, 0., maxEnergy_);
     edepAll_[i]->GetXaxis()->SetTitle(title);
     edepAll_[i]->GetYaxis()->SetTitle("Hits");
     edepAll_[i]->Sumw2();
     sprintf(name, "EdepEM%d", i);
     sprintf(title, "Energy deposit (GeV) by EM particles in %s", dets[i].c_str());
-    edepEM_[i] = tfile->make<TH1F>(name, title, 5000, 0., maxEnergy_);
+    edepEM_[i] = tfile->make<TH1F>(name, dets[i].c_str(), 5000, 0., maxEnergy_);
     edepEM_[i]->GetXaxis()->SetTitle(title);
     edepEM_[i]->GetYaxis()->SetTitle("Hits");
     edepEM_[i]->Sumw2();
     sprintf(name, "EdepHad%d", i);
     sprintf(title, "Energy deposit (GeV) by hadrons in %s", dets[i].c_str());
-    edepHad_[i] = tfile->make<TH1F>(name, title, 5000, 0., maxEnergy_);
+    edepHad_[i] = tfile->make<TH1F>(name, dets[i].c_str(), 5000, 0., maxEnergy_);
     edepHad_[i]->GetXaxis()->SetTitle(title);
     edepHad_[i]->GetYaxis()->SetTitle("Hits");
     edepHad_[i]->Sumw2();
     sprintf(name, "Etot%d", i);
     sprintf(title, "Total energy deposit (GeV) in %s", dets[i].c_str());
-    etot_[i] = tfile->make<TH1F>(name, title, 5000, 0., maxEnergy_);
+    etot_[i] = tfile->make<TH1F>(name, dets[i].c_str(), 5000, 0., maxEnergy_);
     etot_[i]->GetXaxis()->SetTitle(title);
     etot_[i]->GetYaxis()->SetTitle("Events");
     etot_[i]->Sumw2();
     sprintf(name, "EtotG%d", i);
     sprintf(title, "Total energy deposit (GeV) in %s (t < 100 ns)", dets[i].c_str());
-    etotg_[i] = tfile->make<TH1F>(name, title, 5000, 0., maxEnergy_);
+    etotg_[i] = tfile->make<TH1F>(name, dets[i].c_str(), 5000, 0., maxEnergy_);
     etotg_[i]->GetXaxis()->SetTitle(title);
     etotg_[i]->GetYaxis()->SetTitle("Events");
     etotg_[i]->Sumw2();
     sprintf(name, "r1by9%d", i);
     sprintf(title, "E1/E9 in %s", dets[i].c_str());
-    r1by9_[i] = tfile->make<TH1F>(name, title, 100, 0.0, 1.0);
+    r1by9_[i] = tfile->make<TH1F>(name, dets[i].c_str(), 100, 0.0, 1.0);
     r1by9_[i]->GetXaxis()->SetTitle(title);
     r1by9_[i]->GetYaxis()->SetTitle("Events");
     r1by9_[i]->Sumw2();
     sprintf(name, "r1by25%d", i);
     sprintf(title, "E1/E25 in %s", dets[i].c_str());
-    r1by25_[i] = tfile->make<TH1F>(name, title, 100, 0.0, 1.0);
+    r1by25_[i] = tfile->make<TH1F>(name, dets[i].c_str(), 100, 0.0, 1.0);
     r1by25_[i]->GetXaxis()->SetTitle(title);
     r1by25_[i]->GetYaxis()->SetTitle("Events");
     r1by25_[i]->Sumw2();
     sprintf(name, "r9by25%d", i);
     sprintf(title, "E9/E25 in %s", dets[i].c_str());
-    r9by25_[i] = tfile->make<TH1F>(name, title, 100, 0.0, 1.0);
+    r9by25_[i] = tfile->make<TH1F>(name, dets[i].c_str(), 100, 0.0, 1.0);
     r9by25_[i]->GetXaxis()->SetTitle(title);
     r9by25_[i]->GetYaxis()->SetTitle("Events");
     r9by25_[i]->Sumw2();
     double ymax = (i == 0) ? 0.0005 : 0.005;
     sprintf(name, "sEtaEta%d", i);
     sprintf(title, "Cov(#eta,#eta) in %s", dets[i].c_str());
-    sEtaEta_[i] = tfile->make<TH1F>(name, title, 1000, 0.0, ymax);
+    sEtaEta_[i] = tfile->make<TH1F>(name, dets[i].c_str(), 1000, 0.0, ymax);
     sEtaEta_[i]->GetXaxis()->SetTitle(title);
     sEtaEta_[i]->GetYaxis()->SetTitle("Events");
     sEtaEta_[i]->Sumw2();
     sprintf(name, "sEtaPhi%d", i);
     sprintf(title, "Cov(#eta,#phi) in %s", dets[i].c_str());
-    sEtaPhi_[i] = tfile->make<TH1F>(name, title, 1000, 0.0, ymax);
+    sEtaPhi_[i] = tfile->make<TH1F>(name, dets[i].c_str(), 1000, 0.0, ymax);
     sEtaPhi_[i]->GetXaxis()->SetTitle(title);
     sEtaPhi_[i]->GetYaxis()->SetTitle("Events");
     sEtaPhi_[i]->Sumw2();
     ymax = (i == 0) ? 0.001 : 0.01;
     sprintf(name, "sPhiPhi%d", i);
     sprintf(title, "Cov(#phi,#phi) in %s", dets[i].c_str());
-    sPhiPhi_[i] = tfile->make<TH1F>(name, title, 1000, 0.0, ymax);
+    sPhiPhi_[i] = tfile->make<TH1F>(name, dets[i].c_str(), 1000, 0.0, ymax);
     sPhiPhi_[i]->GetXaxis()->SetTitle(title);
     sPhiPhi_[i]->GetYaxis()->SetTitle("Events");
     sPhiPhi_[i]->Sumw2();
+    if (i == 0) {
+      sprintf(title, "%s+", dets[i].c_str());
+      poszp_[i] = tfile->make<TH2F>("poszp0", title, 100, 0, 100, 360, 0, 360);
+      poszp_[i]->GetXaxis()->SetTitle("i#eta");
+      poszp_[i]->GetYaxis()->SetTitle("i#phi");
+      sprintf(title, "%s-", dets[i].c_str());
+      poszn_[i] = tfile->make<TH2F>("poszn0", title, 100, 0, 100, 360, 0, 360);
+      poszn_[i]->GetXaxis()->SetTitle("i#eta");
+      poszn_[i]->GetYaxis()->SetTitle("i#phi");
+    } else {
+      sprintf(title, "%s+", dets[i].c_str());
+      poszp_[i] = tfile->make<TH2F>("poszp1", title, 100, -200, 200, 100, -200, 200);
+      poszp_[i]->GetXaxis()->SetTitle("x (cm)");
+      poszp_[i]->GetYaxis()->SetTitle("y (cm)");
+      sprintf(title, "%s-", dets[i].c_str());
+      poszn_[i] = tfile->make<TH2F>("poszn1", title, 100, -200, 200, 100, -200, 200);
+      poszn_[i]->GetXaxis()->SetTitle("x (cm)");
+      poszn_[i]->GetYaxis()->SetTitle("y (cm)");
+    }
+    poszp_[i]->GetYaxis()->SetTitleOffset(1.2);
+    poszp_[i]->Sumw2();
+    poszn_[i]->GetYaxis()->SetTitleOffset(1.2);
+    poszn_[i]->Sumw2();
   }
 }
 
@@ -236,34 +261,37 @@ void EcalSimHitStudy::analyze(const edm::Event& e, const edm::EventSetup& iS) {
   iS.get<CaloGeometryRecord>().get(pG);
   geometry_ = pG.product();
 
+  double eInc = 0, etaInc = 0, phiInc = 0;
+  int type(-1);
   edm::Handle<edm::HepMCProduct> EvtHandle;
   e.getByToken(tok_evt_, EvtHandle);
-  const HepMC::GenEvent* myGenEvent = EvtHandle->GetEvent();
+  if (EvtHandle.isValid()) {
+    const HepMC::GenEvent* myGenEvent = EvtHandle->GetEvent();
 
-  double eInc = 0, etaInc = 0, phiInc = 0;
-  HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();
-  if (p != myGenEvent->particles_end()) {
-    eInc = (*p)->momentum().e();
-    etaInc = (*p)->momentum().eta();
-    phiInc = (*p)->momentum().phi();
+    HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();
+    if (p != myGenEvent->particles_end()) {
+      eInc = (*p)->momentum().e();
+      etaInc = (*p)->momentum().eta();
+      phiInc = (*p)->momentum().phi();
+    }
+    double ptInc = eInc / std::cosh(etaInc);
+    ptInc_->Fill(ptInc);
+    eneInc_->Fill(eInc);
+    etaInc_->Fill(etaInc);
+    phiInc_->Fill(phiInc);
+
+    if (std::abs(etaInc) < 1.46)
+      type = 0;
+    else if (std::abs(etaInc) > 1.49 && std::abs(etaInc) < 3.0)
+      type = 1;
   }
-  double ptInc = eInc / std::cosh(etaInc);
-  ptInc_->Fill(ptInc);
-  eneInc_->Fill(eInc);
-  etaInc_->Fill(etaInc);
-  phiInc_->Fill(phiInc);
 
-  int type(-1);
-  if (std::abs(etaInc) < 1.46)
-    type = 0;
-  else if (std::abs(etaInc) > 1.49 && std::abs(etaInc) < 3.0)
-    type = 1;
-  if (type >= 0) {
-    bool getHits(false);
+  int typeMin = (type < 0) ? 0 : type;
+  int typeMax = (type < 0) ? 1 : type;
+  for (int type = typeMin; type <= typeMax; ++type) {
     edm::Handle<edm::PCaloHitContainer> hitsCalo;
     e.getByToken(toks_calo_[type], hitsCalo);
-    if (hitsCalo.isValid())
-      getHits = true;
+    bool getHits = (hitsCalo.isValid());
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HitStudy") << "EcalSimHitStudy: Input flags Hits " << getHits << " with " << hitsCalo->size()
                                  << " hits";
@@ -340,6 +368,19 @@ void EcalSimHitStudy::analyzeHits(std::vector<PCaloHit>& hits, int indx) {
     for (auto it : hitMap) {
       timeAll_[indx]->Fill((it.second).time);
       edepAll_[indx]->Fill((it.second).energy);
+      DetId id(it.first);
+      if (indx == 0) {
+        if (EBDetId(id).zside() >= 0)
+          poszp_[indx]->Fill(EBDetId(id).ietaAbs(), EBDetId(id).iphi());
+        else
+          poszn_[indx]->Fill(EBDetId(id).ietaAbs(), EBDetId(id).iphi());
+      } else {
+        GlobalPoint gpos = geometry_->getGeometry(id)->getPosition();
+        if (EEDetId(id).zside() >= 0)
+          poszp_[indx]->Fill(gpos.x(), gpos.y());
+        else
+          poszn_[indx]->Fill(gpos.x(), gpos.y());
+      }
     }
 
     math::XYZVector meanPosition(0.0, 0.0, 0.0);
