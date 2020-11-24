@@ -207,7 +207,7 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::StreamID, edm::Event& iEvent, co
         }
 
 	// number of Layers crossed in inner tracker
-        if (gsfTracks[trkNr]->hitPattern().pixelLayersWithMeasurement()  > nLayerITValue) {
+        if (gsfTracks[trkNr]->hitPattern().pixelLayersWithMeasurement() > nLayerITValue) {
           nLayerITValue = gsfTracks[trkNr]->hitPattern().pixelLayersWithMeasurement();
         }
 
