@@ -13,7 +13,7 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/host_noncached_unique_ptr.h"
 #include "DataFormats/SiPixelDigi/interface/PixelErrors.h"
 
-struct SiPixelFedCablingMapGPU;
+struct SiPixelROCsStatusAndMapping;
 class SiPixelGainForHLTonGPU;
 
 namespace pixelgpudetails {
@@ -169,7 +169,7 @@ namespace pixelgpudetails {
     SiPixelRawToClusterGPUKernel& operator=(SiPixelRawToClusterGPUKernel&&) = delete;
 
     void makeClustersAsync(bool isRun2,
-                           const SiPixelFedCablingMapGPU* cablingMap,
+                           const SiPixelROCsStatusAndMapping* cablingMap,
                            const unsigned char* modToUnp,
                            const SiPixelGainForHLTonGPU* gains,
                            const WordFedAppender& wordFed,

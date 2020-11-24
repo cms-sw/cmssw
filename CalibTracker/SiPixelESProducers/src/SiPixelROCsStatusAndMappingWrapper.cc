@@ -8,6 +8,7 @@
 #include <cuda_runtime.h>
 
 // CMSSW includes
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelROCsStatusAndMappingWrapper.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
@@ -17,13 +18,12 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
-#include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelFedCablingMapGPUWrapper.h"
 
-SiPixelFedCablingMapGPUWrapper::SiPixelFedCablingMapGPUWrapper(SiPixelFedCablingMap const& cablingMap,
+SiPixelROCsStatusAndMappingWrapper::SiPixelROCsStatusAndMappingWrapper(SiPixelFedCablingMap const& cablingMap,
                                                                TrackerGeometry const& trackerGeom,
                                                                SiPixelQuality const* badPixelInfo)
     : cablingMap_(&cablingMap), modToUnpDefault(pixelgpudetails::MAX_SIZE), hasQuality_(badPixelInfo != nullptr) {
-  cudaCheck(cudaMallocHost(&cablingMapHost, sizeof(SiPixelFedCablingMapGPU)));
+  cudaCheck(cudaMallocHost(&cablingMapHost, sizeof(SiPixelROCsStatusAndMapping)));
 
   std::vector<unsigned int> const& fedIds = cablingMap.fedIds();
   std::unique_ptr<SiPixelFedCablingTree> const& cabling = cablingMap.cablingTree();
@@ -78,43 +78,43 @@ SiPixelFedCablingMapGPUWrapper::SiPixelFedCablingMapGPUWrapper(SiPixelFedCabling
       */
       auto gdet = trackerGeom.idToDetUnit(cablingMapHost->RawId[i]);
       if (!gdet) {
-        LogDebug("SiPixelFedCablingMapGPU") << " Not found: " << cablingMapHost->RawId[i] << std::endl;
+        LogDebug("SiPixelROCsStatusAndMapping") << " Not found: " << cablingMapHost->RawId[i] << std::endl;
         continue;
       }
       cablingMapHost->moduleId[i] = gdet->index();
     }
-    LogDebug("SiPixelFedCablingMapGPU")
+    LogDebug("SiPixelROCsStatusAndMapping")
         << "----------------------------------------------------------------------------" << std::endl;
-    LogDebug("SiPixelFedCablingMapGPU") << i << std::setw(20) << cablingMapHost->fed[i] << std::setw(20)
+    LogDebug("SiPixelROCsStatusAndMapping") << i << std::setw(20) << cablingMapHost->fed[i] << std::setw(20)
                                         << cablingMapHost->link[i] << std::setw(20) << cablingMapHost->roc[i]
                                         << std::endl;
-    LogDebug("SiPixelFedCablingMapGPU") << i << std::setw(20) << cablingMapHost->RawId[i] << std::setw(20)
+    LogDebug("SiPixelROCsStatusAndMapping") << i << std::setw(20) << cablingMapHost->RawId[i] << std::setw(20)
                                         << cablingMapHost->rocInDet[i] << std::setw(20) << cablingMapHost->moduleId[i]
                                         << std::endl;
-    LogDebug("SiPixelFedCablingMapGPU") << i << std::setw(20) << (bool)cablingMapHost->badRocs[i] << std::setw(20)
+    LogDebug("SiPixelROCsStatusAndMapping") << i << std::setw(20) << (bool)cablingMapHost->badRocs[i] << std::setw(20)
                                         << std::endl;
-    LogDebug("SiPixelFedCablingMapGPU")
+    LogDebug("SiPixelROCsStatusAndMapping")
         << "----------------------------------------------------------------------------" << std::endl;
   }
 
   cablingMapHost->size = index - 1;
 }
 
-SiPixelFedCablingMapGPUWrapper::~SiPixelFedCablingMapGPUWrapper() { cudaCheck(cudaFreeHost(cablingMapHost)); }
+SiPixelROCsStatusAndMappingWrapper::~SiPixelROCsStatusAndMappingWrapper() { cudaCheck(cudaFreeHost(cablingMapHost)); }
 
-const SiPixelFedCablingMapGPU* SiPixelFedCablingMapGPUWrapper::getGPUProductAsync(cudaStream_t cudaStream) const {
+const SiPixelROCsStatusAndMapping* SiPixelROCsStatusAndMappingWrapper::getGPUProductAsync(cudaStream_t cudaStream) const {
   const auto& data = gpuData_.dataForCurrentDeviceAsync(cudaStream, [this](GPUData& data, cudaStream_t stream) {
     // allocate
-    cudaCheck(cudaMalloc(&data.cablingMapDevice, sizeof(SiPixelFedCablingMapGPU)));
+    cudaCheck(cudaMalloc(&data.cablingMapDevice, sizeof(SiPixelROCsStatusAndMapping)));
 
     // transfer
     cudaCheck(cudaMemcpyAsync(
-        data.cablingMapDevice, this->cablingMapHost, sizeof(SiPixelFedCablingMapGPU), cudaMemcpyDefault, stream));
+        data.cablingMapDevice, this->cablingMapHost, sizeof(SiPixelROCsStatusAndMapping), cudaMemcpyDefault, stream));
   });
   return data.cablingMapDevice;
 }
 
-const unsigned char* SiPixelFedCablingMapGPUWrapper::getModToUnpAllAsync(cudaStream_t cudaStream) const {
+const unsigned char* SiPixelROCsStatusAndMappingWrapper::getModToUnpAllAsync(cudaStream_t cudaStream) const {
   const auto& data =
       modToUnp_.dataForCurrentDeviceAsync(cudaStream, [this](ModulesToUnpack& data, cudaStream_t stream) {
         cudaCheck(cudaMalloc((void**)&data.modToUnpDefault, pixelgpudetails::MAX_SIZE_BYTE_BOOL));
@@ -127,7 +127,7 @@ const unsigned char* SiPixelFedCablingMapGPUWrapper::getModToUnpAllAsync(cudaStr
   return data.modToUnpDefault;
 }
 
-cms::cuda::device::unique_ptr<unsigned char[]> SiPixelFedCablingMapGPUWrapper::getModToUnpRegionalAsync(
+cms::cuda::device::unique_ptr<unsigned char[]> SiPixelROCsStatusAndMappingWrapper::getModToUnpRegionalAsync(
     std::set<unsigned int> const& modules, cudaStream_t cudaStream) const {
   auto modToUnpDevice = cms::cuda::make_device_unique<unsigned char[]>(pixelgpudetails::MAX_SIZE, cudaStream);
   auto modToUnpHost = cms::cuda::make_host_unique<unsigned char[]>(pixelgpudetails::MAX_SIZE, cudaStream);
@@ -164,6 +164,6 @@ cms::cuda::device::unique_ptr<unsigned char[]> SiPixelFedCablingMapGPUWrapper::g
   return modToUnpDevice;
 }
 
-SiPixelFedCablingMapGPUWrapper::GPUData::~GPUData() { cudaCheck(cudaFree(cablingMapDevice)); }
+SiPixelROCsStatusAndMappingWrapper::GPUData::~GPUData() { cudaCheck(cudaFree(cablingMapDevice)); }
 
-SiPixelFedCablingMapGPUWrapper::ModulesToUnpack::~ModulesToUnpack() { cudaCheck(cudaFree(modToUnpDefault)); }
+SiPixelROCsStatusAndMappingWrapper::ModulesToUnpack::~ModulesToUnpack() { cudaCheck(cudaFree(modToUnpDefault)); }

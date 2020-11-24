@@ -1,8 +1,15 @@
+// C++ includes
+#include <memory>
+#include <string>
+#include <vector>
+
+// CMSSW includes
 #include "CUDADataFormats/Common/interface/Product.h"
 #include "CUDADataFormats/SiPixelCluster/interface/SiPixelClustersCUDA.h"
-#include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigisCUDA.h"
 #include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigiErrorsCUDA.h"
+#include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigisCUDA.h"
 #include "CalibTracker/Records/interface/SiPixelGainCalibrationForHLTGPURcd.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelROCsStatusAndMappingWrapper.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationForHLTGPU.h"
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
@@ -16,25 +23,21 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
-#include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelFedCablingMapGPUWrapper.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
+// local includes
 #include "SiPixelRawToClusterGPUKernel.h"
-
-#include <memory>
-#include <string>
-#include <vector>
 
 class SiPixelRawToClusterCUDA : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
@@ -58,7 +61,7 @@ private:
   cms::cuda::ContextState ctxState_;
 
   edm::ESWatcher<SiPixelFedCablingMapRcd> recordWatcher_;
-  edm::ESGetToken<SiPixelFedCablingMapGPUWrapper, CkfComponentsRecord> gpuMapToken_;
+  edm::ESGetToken<SiPixelROCsStatusAndMappingWrapper, CkfComponentsRecord> gpuMapToken_;
   edm::ESGetToken<SiPixelGainCalibrationForHLTGPU, SiPixelGainCalibrationForHLTGPURcd> gainsToken_;
   edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> cablingMapToken_;
 
@@ -80,7 +83,7 @@ SiPixelRawToClusterCUDA::SiPixelRawToClusterCUDA(const edm::ParameterSet& iConfi
     : rawGetToken_(consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("InputLabel"))),
       digiPutToken_(produces<cms::cuda::Product<SiPixelDigisCUDA>>()),
       clusterPutToken_(produces<cms::cuda::Product<SiPixelClustersCUDA>>()),
-      gpuMapToken_(esConsumes<SiPixelFedCablingMapGPUWrapper, CkfComponentsRecord>()),
+      gpuMapToken_(esConsumes<SiPixelROCsStatusAndMappingWrapper, CkfComponentsRecord>()),
       gainsToken_(esConsumes<SiPixelGainCalibrationForHLTGPU, SiPixelGainCalibrationForHLTGPURcd>()),
       cablingMapToken_(esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd>(
           edm::ESInputTag("", iConfig.getParameter<std::string>("CablingMapLabel")))),
@@ -130,7 +133,7 @@ void SiPixelRawToClusterCUDA::acquire(const edm::Event& iEvent,
   if (hgpuMap->hasQuality() != useQuality_) {
     throw cms::Exception("LogicError")
         << "UseQuality of the module (" << useQuality_
-        << ") differs the one from SiPixelFedCablingMapGPUWrapper. Please fix your configuration.";
+        << ") differs the one from SiPixelROCsStatusAndMappingWrapper. Please fix your configuration.";
   }
   // get the GPU product already here so that the async transfer can begin
   const auto* gpuMap = hgpuMap->getGPUProductAsync(ctx.stream());

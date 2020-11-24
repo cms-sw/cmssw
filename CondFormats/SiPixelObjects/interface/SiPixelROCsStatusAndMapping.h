@@ -1,5 +1,5 @@
-#ifndef RecoLocalTracker_SiPixelClusterizer_SiPixelFedCablingMapGPU_h
-#define RecoLocalTracker_SiPixelClusterizer_SiPixelFedCablingMapGPU_h
+#ifndef CondFormats_SiPixelObjects_interface_SiPixelROCsStatusAndMapping_h
+#define CondFormats_SiPixelObjects_interface_SiPixelROCsStatusAndMapping_h
 
 namespace pixelgpudetails {
   // Maximum fed for phase1 is 150 but not all of them are filled
@@ -12,7 +12,7 @@ namespace pixelgpudetails {
 }  // namespace pixelgpudetails
 
 // TODO: since this has more information than just cabling map, maybe we should invent a better name?
-struct SiPixelFedCablingMapGPU {
+struct SiPixelROCsStatusAndMapping {
   alignas(128) unsigned int fed[pixelgpudetails::MAX_SIZE];
   alignas(128) unsigned int link[pixelgpudetails::MAX_SIZE];
   alignas(128) unsigned int roc[pixelgpudetails::MAX_SIZE];
@@ -23,4 +23,4 @@ struct SiPixelFedCablingMapGPU {
   alignas(128) unsigned int size = 0;
 };
 
-#endif
+#endif  // CondFormats_SiPixelObjects_interface_SiPixelROCsStatusAndMapping_h

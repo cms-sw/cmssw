@@ -102,8 +102,8 @@ def customisePixelLocalReconstruction(process):
 
     # Event Setup
 
-    process.load("CalibTracker.SiPixelESProducers.siPixelGainCalibrationForHLTGPU_cfi")         # this should be used only on GPUs, will crash otherwise
-    process.load("RecoLocalTracker.SiPixelClusterizer.siPixelFedCablingMapGPUWrapper_cfi")      # this should be used only on GPUs, will crash otherwise
+    process.load("CalibTracker.SiPixelESProducers.siPixelGainCalibrationForHLTGPU_cfi")                 # this should be used only on GPUs, will crash otherwise
+    process.load("CalibTracker.SiPixelESProducers.siPixelROCsStatusAndMappingWrapperESProducer_cfi")    # this should be used only on GPUs, will crash otherwise
     process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEFastESProducer_cfi")
 
 

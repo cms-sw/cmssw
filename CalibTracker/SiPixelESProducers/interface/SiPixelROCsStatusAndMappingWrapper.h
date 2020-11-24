@@ -1,31 +1,31 @@
-#ifndef RecoLocalTracker_SiPixelClusterizer_SiPixelFedCablingMapGPUWrapper_h
-#define RecoLocalTracker_SiPixelClusterizer_SiPixelFedCablingMapGPUWrapper_h
+#ifndef CalibTracker_SiPixelESProducers_interface_SiPixelROCsStatusAndMappingWrapper_h
+#define CalibTracker_SiPixelESProducers_interface_SiPixelROCsStatusAndMappingWrapper_h
 
-#include "HeterogeneousCore/CUDACore/interface/ESProduct.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
-#include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelFedCablingMapGPU.h"
+#include <set>
 
 #include <cuda_runtime.h>
 
-#include <set>
+#include "CondFormats/SiPixelObjects/interface/SiPixelROCsStatusAndMapping.h"
+#include "HeterogeneousCore/CUDACore/interface/ESProduct.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 
 class SiPixelFedCablingMap;
 class TrackerGeometry;
 class SiPixelQuality;
 
 // TODO: since this has more information than just cabling map, maybe we should invent a better name?
-class SiPixelFedCablingMapGPUWrapper {
+class SiPixelROCsStatusAndMappingWrapper {
 public:
-  SiPixelFedCablingMapGPUWrapper(SiPixelFedCablingMap const &cablingMap,
+  SiPixelROCsStatusAndMappingWrapper(SiPixelFedCablingMap const &cablingMap,
                                  TrackerGeometry const &trackerGeom,
                                  SiPixelQuality const *badPixelInfo);
-  ~SiPixelFedCablingMapGPUWrapper();
+  ~SiPixelROCsStatusAndMappingWrapper();
 
   bool hasQuality() const { return hasQuality_; }
 
   // returns pointer to GPU memory
-  const SiPixelFedCablingMapGPU *getGPUProductAsync(cudaStream_t cudaStream) const;
+  const SiPixelROCsStatusAndMapping *getGPUProductAsync(cudaStream_t cudaStream) const;
 
   // returns pointer to GPU memory
   const unsigned char *getModToUnpAllAsync(cudaStream_t cudaStream) const;
@@ -38,11 +38,11 @@ private:
   unsigned int size;
   bool hasQuality_;
 
-  SiPixelFedCablingMapGPU *cablingMapHost = nullptr;  // pointer to struct in CPU
+  SiPixelROCsStatusAndMapping *cablingMapHost = nullptr;  // pointer to struct in CPU
 
   struct GPUData {
     ~GPUData();
-    SiPixelFedCablingMapGPU *cablingMapDevice = nullptr;  // pointer to struct in GPU
+    SiPixelROCsStatusAndMapping *cablingMapDevice = nullptr;  // pointer to struct in GPU
   };
   cms::cuda::ESProduct<GPUData> gpuData_;
 
@@ -53,4 +53,4 @@ private:
   cms::cuda::ESProduct<ModulesToUnpack> modToUnp_;
 };
 
-#endif
+#endif  // CalibTracker_SiPixelESProducers_interface_SiPixelROCsStatusAndMappingWrapper_h
