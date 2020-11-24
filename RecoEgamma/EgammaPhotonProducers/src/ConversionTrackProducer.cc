@@ -9,12 +9,6 @@
 //
 //
 
-//--------------------------------------------------
-//Added by D. Giordano
-// 2011/08/05
-// Reduction of the track sample based on geometric hypothesis for conversion tracks
-//--------------------------------------------------
-
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EgammaTrackReco/interface/ConversionTrack.h"
