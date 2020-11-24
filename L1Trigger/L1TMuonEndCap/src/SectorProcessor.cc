@@ -70,6 +70,7 @@ void SectorProcessor::process_single_bx(int bx,
   auto tp_geom_ = &(setup_->getGeometryTranslator());
   auto pc_lut_ = &(setup_->getSectorProcessorLUT());
   auto pt_assign_engine_ = setup_->getPtAssignmentEngine();
+  auto pt_assign_engine_dxy_ = setup_->getPtAssignmentEngineDxy();
 
   // ___________________________________________________________________________
   // Configure
@@ -150,6 +151,7 @@ void SectorProcessor::process_single_bx(int bx,
 
   PtAssignment pt_assign;
   pt_assign.configure(pt_assign_engine_,
+                      pt_assign_engine_dxy_,
                       verbose_,
                       endcap_,
                       sector_,

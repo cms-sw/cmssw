@@ -64,6 +64,15 @@ namespace emtf {
   template <typename T>
   using zone_array = std::array<T, NUM_ZONES>;
 
+  // NN features and predictions
+  constexpr int NLAYERS = 16;      // 5 (CSC) + 4 (RPC) + 3 (GEM) + 4 (DT)
+  constexpr int NFEATURES = 36;    // NN features
+  constexpr int NPREDICTIONS = 9;  // NN outputs
+
+  using Feature = std::array<float, NFEATURES>;
+  using Prediction = std::array<float, NPREDICTIONS>;
+
+
 }  // namespace emtf
 
 #endif
