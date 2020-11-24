@@ -22,13 +22,15 @@ private:
   // ----------member data ---------------------------
   const bool printdebug_;
   const std::string formatedOutput_;
-  edm::ESGetToken<PixelFEDChannelCollectionMap, SiPixelFEDChannelContainerESProducerRcd> pixelFEDChannelCollectionMapToken_;
+  edm::ESGetToken<PixelFEDChannelCollectionMap, SiPixelFEDChannelContainerESProducerRcd>
+      pixelFEDChannelCollectionMapToken_;
 };
 
 PixelFEDChannelCollectionMapTestReader::PixelFEDChannelCollectionMapTestReader(edm::ParameterSet const& p)
     : printdebug_(p.getUntrackedParameter<bool>("printDebug", true)),
       formatedOutput_(p.getUntrackedParameter<std::string>("outputFile", "")),
-      pixelFEDChannelCollectionMapToken_(esConsumes<PixelFEDChannelCollectionMap, SiPixelFEDChannelContainerESProducerRcd>()) {
+      pixelFEDChannelCollectionMapToken_(
+          esConsumes<PixelFEDChannelCollectionMap, SiPixelFEDChannelContainerESProducerRcd>()) {
   edm::LogInfo("PixelFEDChannelCollectionMapTestReader") << "PixelFEDChannelCollectionMapTestReader" << std::endl;
 }
 
@@ -52,7 +54,8 @@ void PixelFEDChannelCollectionMapTestReader::analyze(const edm::Event& e, const 
   }
 
   //this part gets the handle of the event source and the record (i.e. the Database)
-  edm::ESHandle<PixelFEDChannelCollectionMap> PixelFEDChannelCollectionMapHandle = context.getHandle(pixelFEDChannelCollectionMapToken_);
+  edm::ESHandle<PixelFEDChannelCollectionMap> PixelFEDChannelCollectionMapHandle =
+      context.getHandle(pixelFEDChannelCollectionMapToken_);
   edm::LogInfo("PixelFEDChannelCollectionMapTestReader") << "got eshandle and context" << std::endl;
 
   const PixelFEDChannelCollectionMap* thePixelFEDChannelCollectionMap = PixelFEDChannelCollectionMapHandle.product();
