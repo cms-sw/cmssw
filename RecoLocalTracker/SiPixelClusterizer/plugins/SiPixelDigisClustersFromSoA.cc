@@ -57,6 +57,8 @@ public:
 private:
   void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
+
   edm::EDGetTokenT<SiPixelDigisSoA> digiGetToken_;
 
   edm::EDPutTokenT<edm::DetSetVector<PixelDigi>> digiPutToken_;
@@ -64,7 +66,8 @@ private:
 };
 
 SiPixelDigisClustersFromSoA::SiPixelDigisClustersFromSoA(const edm::ParameterSet& iConfig)
-    : digiGetToken_(consumes<SiPixelDigisSoA>(iConfig.getParameter<edm::InputTag>("src"))),
+    : topoToken_(esConsumes()),
+      digiGetToken_(consumes<SiPixelDigisSoA>(iConfig.getParameter<edm::InputTag>("src"))),
       digiPutToken_(produces<edm::DetSetVector<PixelDigi>>()),
       clusterPutToken_(produces<SiPixelClusterCollectionNew>()) {}
 
@@ -77,10 +80,7 @@ void SiPixelDigisClustersFromSoA::fillDescriptions(edm::ConfigurationDescription
 void SiPixelDigisClustersFromSoA::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   const auto& digis = iEvent.get(digiGetToken_);
   const uint32_t nDigis = digis.size();
-
-  edm::ESHandle<TrackerTopology> trackerTopologyHandle;
-  iSetup.get<TrackerTopologyRcd>().get(trackerTopologyHandle);
-  const auto& ttopo = *trackerTopologyHandle;
+  const auto& ttopo = iSetup.getData(topoToken_);
 
   auto collection = std::make_unique<edm::DetSetVector<PixelDigi>>();
   auto outputClusters = std::make_unique<SiPixelClusterCollectionNew>();
