@@ -1,8 +1,10 @@
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignment.h"
 
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine.h"
+#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngineDxy.h"
 
 void PtAssignment::configure(PtAssignmentEngine* pt_assign_engine,
+                             PtAssignmentEngineDxy* pt_assign_engine_dxy,
                              int verbose,
                              int endcap,
                              int sector,
@@ -16,8 +18,11 @@ void PtAssignment::configure(PtAssignmentEngine* pt_assign_engine,
                              bool promoteMode7,
                              int modeQualVer) {
   emtf_assert(pt_assign_engine != nullptr);
+  emtf_assert(pt_assign_engine_dxy != nullptr);
 
   pt_assign_engine_ = pt_assign_engine;
+
+  pt_assign_engine_dxy_ = pt_assign_engine_dxy;
 
   verbose_ = verbose;
   endcap_ = endcap;
@@ -25,6 +30,8 @@ void PtAssignment::configure(PtAssignmentEngine* pt_assign_engine,
   bx_ = bx;
 
   pt_assign_engine_->configure(verbose_, readPtLUTFile, fixMode15HighPt, bug9BitDPhi, bugMode7CLCT, bugNegPt);
+
+  pt_assign_engine_dxy_->configure(verbose_);
 
   bugGMTPhi_ = bugGMTPhi;
   promoteMode7_ = promoteMode7;
@@ -61,11 +68,17 @@ void PtAssignment::process(EMTFTrackCollection& best_tracks) {
       gmt_eta = (gmt_eta < 0) ? ~(-gmt_eta) : gmt_eta;
     }
 
-    // Assign pT
+    // Assign prompt & displaced pT
     address_t address = 0;
     float xmlpt = 0.;
     float pt = 0.;
     int gmt_pt = 0;
+
+    float pt_dxy = 0.;
+    float dxy = 0.;
+    int gmt_pt_dxy = 0;
+    int gmt_dxy = 0;
+
     if (track.Mode() != 1) {
       address = pt_assign_engine_->calculate_address(track);
       xmlpt = pt_assign_engine_->calculate_pt(address);
@@ -89,6 +102,24 @@ void PtAssignment::process(EMTFTrackCollection& best_tracks) {
     }
 
     pt = (gmt_pt <= 0) ? 0 : (gmt_pt - 1) * 0.5;  // Decode integer pT (result is in 0.5 GeV step)
+
+    // Calculate displaced pT and d0 using NN
+    emtf::Feature feature;
+    emtf::Prediction prediction;
+
+    feature.fill(0);
+    prediction.fill(0);
+
+    pt_assign_engine_dxy_->calculate_pt_dxy(track, feature, prediction);
+
+    pt_dxy = std::abs(1.0/prediction.at(0));
+    dxy = prediction.at(1);
+
+    gmt_pt_dxy = aux().getGMTPtDxy(pt_dxy);
+    gmt_dxy    = aux().getGMTDxy(dxy);
+
+    pt_dxy = aux().getPtFromGMTPtDxy(gmt_pt_dxy);
+
 
     int gmt_quality = 0;
     if (track.Mode() != 1) {
@@ -124,9 +155,13 @@ void PtAssignment::process(EMTFTrackCollection& best_tracks) {
     track.set_PtLUT(tmp_LUT);
     track.set_pt_XML(xmlpt);
     track.set_pt(pt);
+    track.set_pt_dxy(pt_dxy);
+    track.set_dxy(dxy);
     track.set_charge((gmt_charge.second == 1) ? ((gmt_charge.first == 1) ? -1 : +1) : 0);
 
     track.set_gmt_pt(gmt_pt);
+    track.set_gmt_pt_dxy(gmt_pt_dxy);
+    track.set_gmt_dxy(gmt_dxy);
     track.set_gmt_phi(gmt_phi);
     track.set_gmt_eta(gmt_eta);
     track.set_gmt_quality(gmt_quality);
@@ -159,6 +194,10 @@ void PtAssignment::process(EMTFTrackCollection& best_tracks) {
         // Set worst track pT to zero
         best_tracks.at(2).set_pt(0);
         best_tracks.at(2).set_gmt_pt(0);
+
+        // Do we want to do the same for displaced?
+        // best_tracks.at(2).set_pt_dxy(0);
+        // best_tracks.at(2).set_gmt_pt_dxy(0);
       }
     }
   }
