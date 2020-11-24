@@ -1,6 +1,5 @@
 #include "GeantPropagatorESProducer.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
 #include "TrackPropagation/Geant4e/interface/Geant4ePropagator.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -13,30 +12,28 @@
 
 using namespace edm;
 
-GeantPropagatorESProducer::GeantPropagatorESProducer(const edm::ParameterSet &p) {
-  std::string myname = p.getParameter<std::string>("ComponentName");
+GeantPropagatorESProducer::GeantPropagatorESProducer(const edm::ParameterSet &p)
+    : magFieldToken_(setWhatProduced(this, p.getParameter<std::string>("ComponentName"))
+                         .consumesFrom<MagneticField, IdealMagneticFieldRecord>(edm::ESInputTag("", ""))) {
   pset_ = p;
   plimit_ = pset_.getParameter<double>("PropagationPtotLimit");
-  setWhatProduced(this, myname);
 }
 
 GeantPropagatorESProducer::~GeantPropagatorESProducer() {}
 
 std::unique_ptr<Propagator> GeantPropagatorESProducer::produce(const TrackingComponentsRecord &iRecord) {
-  ESHandle<MagneticField> magfield;
-  iRecord.getRecord<IdealMagneticFieldRecord>().get(magfield);
-
   std::string pdir = pset_.getParameter<std::string>("PropagationDirection");
   std::string particleName = pset_.getParameter<std::string>("ParticleName");
 
   PropagationDirection dir = alongMomentum;
 
-  if (pdir == "oppositeToMomentum")
+  if (pdir == "oppositeToMomentum") {
     dir = oppositeToMomentum;
-  else if (pdir == "alongMomentum")
+  } else if (pdir == "alongMomentum") {
     dir = alongMomentum;
-  else if (pdir == "anyDirection")
+  } else if (pdir == "anyDirection") {
     dir = anyDirection;
+  }
 
-  return std::make_unique<Geant4ePropagator>(&(*magfield), particleName, dir, plimit_);
+  return std::make_unique<Geant4ePropagator>(&(iRecord.get(magFieldToken_)), particleName, dir, plimit_);
 }
