@@ -397,7 +397,7 @@ void SiPixelClusterSource::bookMEs(DQMStore::IBooker &iBooker, const edm::EventS
   SiPixelFolderOrganizer theSiPixelFolder(false);
 
   edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopoTokenBeginRun_);
-  const TrackerTopology* pTT = tTopoHandle.product();
+  const TrackerTopology *pTT = tTopoHandle.product();
 
   for (struct_iter = thePixelStructure.begin(); struct_iter != thePixelStructure.end(); struct_iter++) {
     /// Create folder tree and book histograms
