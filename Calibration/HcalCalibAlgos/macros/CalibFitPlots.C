@@ -952,10 +952,14 @@ void PlotHist(const char* infile,
   std::string name1[5] = {"Z0", "Z1", "Z2", "Z3", "Z4"};
   std::string name2[5] = {"L0", "L1", "L2", "L3", "L4"};
   std::string name3[5] = {"V0", "V1", "V2", "V3", "V4"};
-  std::string name4[12] = {"etaB31",
+  std::string name4[16] = {"etaB31",
                            "etaB32",
                            "etaB33",
                            "etaB34",
+                           "etaB21",
+                           "etaB22",
+                           "etaB23",
+                           "etaB24",
                            "etaB11",
                            "etaB12",
                            "etaB13",
@@ -971,10 +975,14 @@ void PlotHist(const char* infile,
                           "Tracks with p = 40:60 GeV",
                           "Tracks with p = 60:100 GeV",
                           "Tracks with p = 20:100 GeV"};
-  std::string title1[12] = {"Tracks with p = 40:60 GeV (Barrel)",
+  std::string title1[16] = {"Tracks with p = 40:60 GeV (Barrel)",
                             "Tracks with p = 40:60 GeV (Transition)",
                             "Tracks with p = 40:60 GeV (Endcap)",
                             "Tracks with p = 40:60 GeV",
+                            "Tracks with p = 30:40 GeV (Barrel)",
+                            "Tracks with p = 30:40 GeV (Transition)",
+                            "Tracks with p = 30:40 GeV (Endcap)",
+                            "Tracks with p = 30:40 GeV",
                             "Tracks with p = 20:30 GeV (Barrel)",
                             "Tracks with p = 20:30 GeV (Transition)",
                             "Tracks with p = 20:30 GeV (Endcap)",
@@ -1007,7 +1015,7 @@ void PlotHist(const char* infile,
   TFile* file = new TFile(infile);
   TLine* line(0);
   char name[100], namep[100];
-  int kmax = (mode == 4) ? 12 : (((mode < 1) && (mode > 5)) ? 6 : 5);
+  int kmax = (mode == 4) ? 16 : (((mode < 1) && (mode > 5)) ? 6 : 5);
   for (int k = 0; k < kmax; ++k) {
     if (mode == 1) {
       sprintf(name, "%s%s", prefix.c_str(), name1[k].c_str());
