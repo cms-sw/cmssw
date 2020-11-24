@@ -69,7 +69,7 @@ namespace edm {
 
   class EDConsumerBase {
   public:
-    EDConsumerBase() : m_tokenLabels{'\0'}, frozen_(false), containsCurrentProcessAlias_(false) {}
+    EDConsumerBase();
     virtual ~EDConsumerBase() noexcept(false);
 
     // disallow copying

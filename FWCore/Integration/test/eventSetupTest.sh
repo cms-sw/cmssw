@@ -30,4 +30,7 @@ cmsRun --parameter-set ${LOCAL_TEST_DIR}/testEventSetupRunLumi_cfg.py || die 'Fa
 echo testConcurrentIOVsESSource_cfg.py
 cmsRun --parameter-set ${LOCAL_TEST_DIR}/testConcurrentIOVsESSource_cfg.py || die 'Failed in testConcurrentIOVsESSource_cfg.py' $?
 
+echo EventSetupTestCurrentProcess_cfg.py
+cmsRun ${LOCAL_TEST_DIR}/EventSetupTestCurrentProcess_cfg.py || die 'Failed in EventSetupTestCurrentProcess_cfg.py' $?
+
 popd
