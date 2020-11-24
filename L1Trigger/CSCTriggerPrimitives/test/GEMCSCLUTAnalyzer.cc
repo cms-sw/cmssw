@@ -35,27 +35,25 @@ public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
-
   /// generate and print LUT
   void generateLUTs(const CSCDetId& id) const;
   void generateLUTsME11(const CSCDetId& id) const;
   void generateLUTsME21(const CSCDetId& id) const;
-  int assignRoll(const std::vector<std::pair<double, double> >&, double eta) const;
+  int assignRoll(const std::vector<std::pair<double, double>>&, double eta) const;
 
-  void gemRollToEtaLimitsLUT(const GEMChamber* gemChamber,
-                             std::vector<std::pair<double, double> >& lut) const;
+  void gemRollToEtaLimitsLUT(const GEMChamber* gemChamber, std::vector<std::pair<double, double>>& lut) const;
 
   // create LUT: WG->(rollMin,rollMax)
-  void cscWgToRollLUT(const std::vector<std::pair<double, double> >&,
-                      const std::vector<std::pair<double, double> >&,
-                      std::vector<std::pair<int, int> >&) const;
+  void cscWgToRollLUT(const std::vector<std::pair<double, double>>&,
+                      const std::vector<std::pair<double, double>>&,
+                      std::vector<std::pair<int, int>>&) const;
 
   // create LUT: WG->(etaMin,etaMax)
-  void cscWgToEtaLimitsLUT(const CSCLayer*, std::vector<std::pair<double, double> >&) const;
+  void cscWgToEtaLimitsLUT(const CSCLayer*, std::vector<std::pair<double, double>>&) const;
 
   // create LUT: ES->pad
   void cscEsToGemPadLUT(
-      const CSCLayer*, const GEMEtaPartition*, int minH, int maxH, std::vector<std::pair<int, int> >&) const;
+      const CSCLayer*, const GEMEtaPartition*, int minH, int maxH, std::vector<std::pair<int, int>>&) const;
 
   // create LUT: pad->ES
   void gemPadToCscEsLUT(const CSCLayer*, const GEMEtaPartition*, std::vector<int>&) const;
@@ -89,16 +87,16 @@ void GEMCSCLUTAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup& set
   // LUTs are made for ME1/1 and ME2/1, for even/odd
 
   // ME+1/1/1 (odd)
-  generateLUTs(CSCDetId(1,1,1,1));
+  generateLUTs(CSCDetId(1, 1, 1, 1));
 
   // ME+1/1/2 (even)
-  generateLUTs(CSCDetId(1,1,1,2));
+  generateLUTs(CSCDetId(1, 1, 1, 2));
 
   // ME+2/1/1 (odd)
-  generateLUTs(CSCDetId(1,2,1,1));
+  generateLUTs(CSCDetId(1, 2, 1, 1));
 
   // ME+2/1/2 (even)
-  generateLUTs(CSCDetId(1,2,1,2));
+  generateLUTs(CSCDetId(1, 2, 1, 2));
 }
 
 void GEMCSCLUTAnalyzer::generateLUTs(const CSCDetId& id) const {
@@ -125,16 +123,16 @@ void GEMCSCLUTAnalyzer::generateLUTsME11(const CSCDetId& id) const {
   const GEMEtaPartition* randRoll(gemChamber_l1->etaPartition(4));
 
   // LUTs
-  std::vector<std::pair<double, double> > gemRollEtaLimits_l1;
-  std::vector<std::pair<double, double> > gemRollEtaLimits_l2;
-  std::vector<std::pair<double, double> > cscWGToEtaLimits;
-  std::vector<std::pair<int, int> > cscWgToGemRoll_l1;
-  std::vector<std::pair<int, int> > cscWgToGemRoll_l2;
-  std::vector<std::pair<int, int> > cscEsToGemPadME1a;
-  std::vector<std::pair<int, int> > cscEsToGemPadME1b;
+  std::vector<std::pair<double, double>> gemRollEtaLimits_l1;
+  std::vector<std::pair<double, double>> gemRollEtaLimits_l2;
+  std::vector<std::pair<double, double>> cscWGToEtaLimits;
+  std::vector<std::pair<int, int>> cscWgToGemRoll_l1;
+  std::vector<std::pair<int, int>> cscWgToGemRoll_l2;
+  std::vector<std::pair<int, int>> cscEsToGemPadME1a;
+  std::vector<std::pair<int, int>> cscEsToGemPadME1b;
   std::vector<int> gemPadToCscEsME1a;
   std::vector<int> gemPadToCscEsME1b;
-  std::vector<std::pair<int, int> > gemRollToCscWg;
+  std::vector<std::pair<int, int>> gemRollToCscWg;
 
   gemRollToEtaLimitsLUT(gemChamber_l1, gemRollEtaLimits_l1);
   gemRollToEtaLimitsLUT(gemChamber_l2, gemRollEtaLimits_l2);
@@ -147,42 +145,49 @@ void GEMCSCLUTAnalyzer::generateLUTsME11(const CSCDetId& id) const {
   gemPadToCscEsLUT(keyLayerME1b, randRoll, gemPadToCscEsME1b);
   gemRollToCscWgLUT(keyLayerME1b, gemChamber_l1, gemRollToCscWg);
 
-  const std::string oddeven(id.chamber()%2==0 ? "_even" : "_odd");
+  const std::string oddeven(id.chamber() % 2 == 0 ? "_even" : "_odd");
 
   std::ofstream ofos;
   // simulation LUTs
   ofos.open("GEMCSCLUT_pad_es_ME1a" + oddeven + ".txt");
-  for (const auto& p : gemPadToCscEsME1a) ofos << p << std::endl;
+  for (const auto& p : gemPadToCscEsME1a)
+    ofos << p << std::endl;
   ofos.close();
 
   ofos.open("GEMCSCLUT_pad_es_ME1b" + oddeven + ".txt");
-  for (const auto& p : gemPadToCscEsME1b) ofos << p << std::endl;
+  for (const auto& p : gemPadToCscEsME1b)
+    ofos << p << std::endl;
   ofos.close();
 
   ofos.open("GEMCSCLUT_roll_min_wg_ME11" + oddeven + ".txt");
-  for (const auto& p : gemRollToCscWg) ofos << p.first << std::endl;
+  for (const auto& p : gemRollToCscWg)
+    ofos << p.first << std::endl;
   ofos.close();
 
   ofos.open("GEMCSCLUT_roll_max_wg_ME11" + oddeven + ".txt");
-  for (const auto& p : gemRollToCscWg) ofos << p.second << std::endl;
+  for (const auto& p : gemRollToCscWg)
+    ofos << p.second << std::endl;
   ofos.close();
-
 
   // firmware LUTs
   ofos.open("GEMCSCLUT_pad_es_ME1a" + oddeven + ".mem");
-  for (const auto& p : gemPadToCscEsME1a) ofos << std::hex << p << std::endl;
+  for (const auto& p : gemPadToCscEsME1a)
+    ofos << std::hex << p << std::endl;
   ofos.close();
 
   ofos.open("GEMCSCLUT_pad_es_ME1b" + oddeven + ".mem");
-  for (const auto& p : gemPadToCscEsME1b) ofos << std::hex << p << std::endl;
+  for (const auto& p : gemPadToCscEsME1b)
+    ofos << std::hex << p << std::endl;
   ofos.close();
 
   ofos.open("GEMCSCLUT_roll_min_wg_ME11" + oddeven + ".mem");
-  for (const auto& p : gemRollToCscWg) ofos << std::hex << p.first << std::endl;
+  for (const auto& p : gemRollToCscWg)
+    ofos << std::hex << p.first << std::endl;
   ofos.close();
 
   ofos.open("GEMCSCLUT_roll_max_wg_ME11" + oddeven + ".mem");
-  for (const auto& p : gemRollToCscWg) ofos << std::hex << p.second << std::endl;
+  for (const auto& p : gemRollToCscWg)
+    ofos << std::hex << p.second << std::endl;
   ofos.close();
 }
 
@@ -198,14 +203,14 @@ void GEMCSCLUTAnalyzer::generateLUTsME21(const CSCDetId& csc_id) const {
   const GEMEtaPartition* randRoll(gemChamber_l1->etaPartition(4));
 
   // LUTs
-  std::vector<std::pair<double, double> > gemRollEtaLimits_l1;
-  std::vector<std::pair<double, double> > gemRollEtaLimits_l2;
-  std::vector<std::pair<double, double> > cscWGToEtaLimits;
-  std::vector<std::pair<int, int> > cscWgToGemRoll_l1;
-  std::vector<std::pair<int, int> > cscWgToGemRoll_l2;
-  std::vector<std::pair<int, int> > cscEsToGemPad;
+  std::vector<std::pair<double, double>> gemRollEtaLimits_l1;
+  std::vector<std::pair<double, double>> gemRollEtaLimits_l2;
+  std::vector<std::pair<double, double>> cscWGToEtaLimits;
+  std::vector<std::pair<int, int>> cscWgToGemRoll_l1;
+  std::vector<std::pair<int, int>> cscWgToGemRoll_l2;
+  std::vector<std::pair<int, int>> cscEsToGemPad;
   std::vector<int> gemPadToCscEs;
-  std::vector<std::pair<int, int> > gemRollToCscWg;
+  std::vector<std::pair<int, int>> gemRollToCscWg;
 
   gemRollToEtaLimitsLUT(gemChamber_l1, gemRollEtaLimits_l1);
   gemRollToEtaLimitsLUT(gemChamber_l2, gemRollEtaLimits_l2);
@@ -216,38 +221,43 @@ void GEMCSCLUTAnalyzer::generateLUTsME21(const CSCDetId& csc_id) const {
   gemPadToCscEsLUT(keyLayer, randRoll, gemPadToCscEs);
   gemRollToCscWgLUT(keyLayer, gemChamber_l1, gemRollToCscWg);
 
-  const std::string oddeven(csc_id.chamber()%2==0 ? "_even" : "_odd");
+  const std::string oddeven(csc_id.chamber() % 2 == 0 ? "_even" : "_odd");
 
   std::ofstream ofos;
   // simulation LUTs
   ofos.open("GEMCSCLUT_pad_es_ME21" + oddeven + ".txt");
-  for (const auto& p : gemPadToCscEs) ofos << p << std::endl;
+  for (const auto& p : gemPadToCscEs)
+    ofos << p << std::endl;
   ofos.close();
 
   ofos.open("GEMCSCLUT_roll_min_wg_ME21" + oddeven + ".txt");
-  for (const auto& p : gemRollToCscWg) ofos << p.first << std::endl;
+  for (const auto& p : gemRollToCscWg)
+    ofos << p.first << std::endl;
   ofos.close();
 
   ofos.open("GEMCSCLUT_roll_max_wg_ME21" + oddeven + ".txt");
-  for (const auto& p : gemRollToCscWg) ofos << p.second << std::endl;
+  for (const auto& p : gemRollToCscWg)
+    ofos << p.second << std::endl;
   ofos.close();
 
   // firmware LUTs
   ofos.open("GEMCSCLUT_pad_es_ME21" + oddeven + ".mem");
-  for (const auto& p : gemPadToCscEs) ofos << std::hex << p << std::endl;
+  for (const auto& p : gemPadToCscEs)
+    ofos << std::hex << p << std::endl;
   ofos.close();
 
   ofos.open("GEMCSCLUT_roll_min_wg_ME21" + oddeven + ".mem");
-  for (const auto& p : gemRollToCscWg) ofos << std::hex << p.first << std::endl;
+  for (const auto& p : gemRollToCscWg)
+    ofos << std::hex << p.first << std::endl;
   ofos.close();
 
   ofos.open("GEMCSCLUT_roll_max_wg_ME21" + oddeven + ".mem");
-  for (const auto& p : gemRollToCscWg) ofos << std::hex << p.second << std::endl;
+  for (const auto& p : gemRollToCscWg)
+    ofos << std::hex << p.second << std::endl;
   ofos.close();
 }
 
-int GEMCSCLUTAnalyzer::assignRoll(const std::vector<std::pair<double, double> >& lut,
-                                                  double eta) const {
+int GEMCSCLUTAnalyzer::assignRoll(const std::vector<std::pair<double, double>>& lut, double eta) const {
   int result = -99;
   int iRoll = 0;
   for (const auto& p : lut) {
@@ -263,7 +273,7 @@ int GEMCSCLUTAnalyzer::assignRoll(const std::vector<std::pair<double, double> >&
 }
 
 void GEMCSCLUTAnalyzer::gemRollToEtaLimitsLUT(const GEMChamber* gemChamber,
-                                                              std::vector<std::pair<double, double> >& lut) const {
+                                              std::vector<std::pair<double, double>>& lut) const {
   for (const auto& roll : gemChamber->etaPartitions()) {
     const float half_striplength(roll->specs()->specificTopology().stripLength() / 2.);
     const LocalPoint lp_top(0., half_striplength, 0.);
@@ -276,9 +286,9 @@ void GEMCSCLUTAnalyzer::gemRollToEtaLimitsLUT(const GEMChamber* gemChamber,
   }
 }
 
-void GEMCSCLUTAnalyzer::cscWgToRollLUT(const std::vector<std::pair<double, double> >& inLUT1,
-                                                       const std::vector<std::pair<double, double> >& inLUT2,
-                                                       std::vector<std::pair<int, int> >& outLUT) const {
+void GEMCSCLUTAnalyzer::cscWgToRollLUT(const std::vector<std::pair<double, double>>& inLUT1,
+                                       const std::vector<std::pair<double, double>>& inLUT2,
+                                       std::vector<std::pair<int, int>>& outLUT) const {
   for (const auto& p : inLUT1) {
     double etaMin(p.first);
     double etaMax(p.second);
@@ -287,7 +297,7 @@ void GEMCSCLUTAnalyzer::cscWgToRollLUT(const std::vector<std::pair<double, doubl
 }
 
 void GEMCSCLUTAnalyzer::cscWgToEtaLimitsLUT(const CSCLayer* keyLayer,
-                                                            std::vector<std::pair<double, double> >& lut) const {
+                                            std::vector<std::pair<double, double>>& lut) const {
   const CSCLayerGeometry* keyLayerGeometry(keyLayer->geometry());
   const int numberOfWG(keyLayerGeometry->numberOfWireGroups());
   for (int i = 0; i < numberOfWG; ++i) {
@@ -302,10 +312,10 @@ void GEMCSCLUTAnalyzer::cscWgToEtaLimitsLUT(const CSCLayer* keyLayer,
 }
 
 void GEMCSCLUTAnalyzer::cscEsToGemPadLUT(const CSCLayer* keyLayer,
-                                                         const GEMEtaPartition* randRoll,
-                                                         int minH,
-                                                         int maxH,
-                                                         std::vector<std::pair<int, int> >& lut) const {
+                                         const GEMEtaPartition* randRoll,
+                                         int minH,
+                                         int maxH,
+                                         std::vector<std::pair<int, int>>& lut) const {
   const CSCLayerGeometry* keyLayerGeometry(keyLayer->geometry());
   auto nStrips(keyLayerGeometry->numberOfStrips());
   for (float i = 0; i < nStrips; i = i + 0.125) {
@@ -318,8 +328,8 @@ void GEMCSCLUTAnalyzer::cscEsToGemPadLUT(const CSCLayer* keyLayer,
 }
 
 void GEMCSCLUTAnalyzer::gemPadToCscEsLUT(const CSCLayer* keyLayer,
-                                                         const GEMEtaPartition* randRoll,
-                                                         std::vector<int>& lut) const {
+                                         const GEMEtaPartition* randRoll,
+                                         std::vector<int>& lut) const {
   const int nGEMPads(randRoll->npads());
   const CSCLayerGeometry* keyLayerGeometry(keyLayer->geometry());
   for (int i = 0; i < nGEMPads; ++i) {
@@ -333,7 +343,7 @@ void GEMCSCLUTAnalyzer::gemPadToCscEsLUT(const CSCLayer* keyLayer,
 
 void GEMCSCLUTAnalyzer::gemRollToCscWgLUT(const CSCLayer* keyLayer,
                                           const GEMChamber* gemChamber,
-                                          std::vector<std::pair<int, int> >& lut) const {
+                                          std::vector<std::pair<int, int>>& lut) const {
   const CSCLayerGeometry* keyLayerGeometry(keyLayer->geometry());
   for (const auto& roll : gemChamber->etaPartitions()) {
     const float half_striplength(roll->specs()->specificTopology().stripLength() / 2.);
