@@ -30,6 +30,8 @@ public:
 private:
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
+  const edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> cablingToken_;
+
   edm::EDGetTokenT<SiPixelDigiErrorsSoA> digiErrorSoAGetToken_;
 
   edm::EDPutTokenT<edm::DetSetVector<SiPixelRawDataError>> errorPutToken_;
@@ -39,7 +41,6 @@ private:
 
   edm::ESWatcher<SiPixelFedCablingMapRcd> cablingWatcher_;
   std::unique_ptr<SiPixelFedCablingTree> cabling_;
-  const std::string cablingMapLabel_;
 
   const std::vector<int> tkerrorlist_;
   const std::vector<int> usererrorlist_;
@@ -48,12 +49,12 @@ private:
 };
 
 SiPixelDigiErrorsFromSoA::SiPixelDigiErrorsFromSoA(const edm::ParameterSet& iConfig)
-    : digiErrorSoAGetToken_{consumes<SiPixelDigiErrorsSoA>(iConfig.getParameter<edm::InputTag>("digiErrorSoASrc"))},
+    : cablingToken_(esConsumes(edm::ESInputTag("",iConfig.getParameter<std::string>("CablingMapLabel")))),
+      digiErrorSoAGetToken_{consumes<SiPixelDigiErrorsSoA>(iConfig.getParameter<edm::InputTag>("digiErrorSoASrc"))},
       errorPutToken_{produces<edm::DetSetVector<SiPixelRawDataError>>()},
       tkErrorPutToken_{produces<DetIdCollection>()},
       userErrorPutToken_{produces<DetIdCollection>("UserErrorModules")},
       disabledChannelPutToken_{produces<edmNew::DetSetVector<PixelFEDChannel>>()},
-      cablingMapLabel_(iConfig.getParameter<std::string>("CablingMapLabel")),
       tkerrorlist_(iConfig.getParameter<std::vector<int>>("ErrorList")),
       usererrorlist_(iConfig.getParameter<std::vector<int>>("UserErrorList")),
       usePhase1_(iConfig.getParameter<bool>("UsePhase1")) {}
@@ -76,8 +77,7 @@ void SiPixelDigiErrorsFromSoA::produce(edm::Event& iEvent, const edm::EventSetup
   // initialize cabling map or update if necessary
   if (cablingWatcher_.check(iSetup)) {
     // cabling map, which maps online address (fed->link->ROC->local pixel) to offline (DetId->global pixel)
-    edm::ESTransientHandle<SiPixelFedCablingMap> cablingMap;
-    iSetup.get<SiPixelFedCablingMapRcd>().get(cablingMapLabel_, cablingMap);
+    const SiPixelFedCablingMap* cablingMap = &iSetup.getData(cablingToken_);
     cabling_ = cablingMap->cablingTree();
     LogDebug("map version:") << cabling_->version();
   }

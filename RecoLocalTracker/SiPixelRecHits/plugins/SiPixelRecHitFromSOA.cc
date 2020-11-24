@@ -7,7 +7,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -37,6 +36,8 @@ private:
                edm::WaitingTaskWithArenaHolder waitingTaskHolder) override;
   void produce(edm::Event& iEvent, edm::EventSetup const& iSetup) override;
 
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
+
   edm::EDGetTokenT<cms::cuda::Product<TrackingRecHit2DCUDA>> tokenHit_;  // CUDA hits
   edm::EDGetTokenT<SiPixelClusterCollectionNew> clusterToken_;           // Legacy Clusters
 
@@ -47,7 +48,8 @@ private:
 };
 
 SiPixelRecHitFromSOA::SiPixelRecHitFromSOA(const edm::ParameterSet& iConfig)
-    : tokenHit_(
+    : geomToken_(esConsumes()),
+      tokenHit_(
           consumes<cms::cuda::Product<TrackingRecHit2DCUDA>>(iConfig.getParameter<edm::InputTag>("pixelRecHitSrc"))),
       clusterToken_(consumes<SiPixelClusterCollectionNew>(iConfig.getParameter<edm::InputTag>("src"))) {
   produces<SiPixelRecHitCollectionNew>();
@@ -98,9 +100,7 @@ void SiPixelRecHitFromSOA::produce(edm::Event& iEvent, edm::EventSetup const& es
   auto xe = yl + m_nHits;
   auto ye = xe + m_nHits;
 
-  edm::ESHandle<TrackerGeometry> geom;
-  es.get<TrackerDigiGeometryRecord>().get(geom);
-  geom = geom.product();
+  const TrackerGeometry* geom = &es.getData(geomToken_);
 
   edm::Handle<SiPixelClusterCollectionNew> hclusters;
   iEvent.getByToken(clusterToken_, hclusters);
