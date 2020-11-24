@@ -31,13 +31,11 @@ private:
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   const edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> cablingToken_;
-
-  edm::EDGetTokenT<SiPixelDigiErrorsSoA> digiErrorSoAGetToken_;
-
-  edm::EDPutTokenT<edm::DetSetVector<SiPixelRawDataError>> errorPutToken_;
-  edm::EDPutTokenT<DetIdCollection> tkErrorPutToken_;
-  edm::EDPutTokenT<DetIdCollection> userErrorPutToken_;
-  edm::EDPutTokenT<edmNew::DetSetVector<PixelFEDChannel>> disabledChannelPutToken_;
+  const edm::EDGetTokenT<SiPixelDigiErrorsSoA> digiErrorSoAGetToken_;
+  const edm::EDPutTokenT<edm::DetSetVector<SiPixelRawDataError>> errorPutToken_;
+  const edm::EDPutTokenT<DetIdCollection> tkErrorPutToken_;
+  const edm::EDPutTokenT<DetIdCollection> userErrorPutToken_;
+  const edm::EDPutTokenT<edmNew::DetSetVector<PixelFEDChannel>> disabledChannelPutToken_;
 
   edm::ESWatcher<SiPixelFedCablingMapRcd> cablingWatcher_;
   std::unique_ptr<SiPixelFedCablingTree> cabling_;
@@ -49,7 +47,7 @@ private:
 };
 
 SiPixelDigiErrorsFromSoA::SiPixelDigiErrorsFromSoA(const edm::ParameterSet& iConfig)
-    : cablingToken_(esConsumes(edm::ESInputTag("",iConfig.getParameter<std::string>("CablingMapLabel")))),
+    : cablingToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("CablingMapLabel")))),
       digiErrorSoAGetToken_{consumes<SiPixelDigiErrorsSoA>(iConfig.getParameter<edm::InputTag>("digiErrorSoASrc"))},
       errorPutToken_{produces<edm::DetSetVector<SiPixelRawDataError>>()},
       tkErrorPutToken_{produces<DetIdCollection>()},
