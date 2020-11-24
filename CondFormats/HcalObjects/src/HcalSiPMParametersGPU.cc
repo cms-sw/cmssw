@@ -1,9 +1,7 @@
-#include "CondFormats/HcalObjects/interface/HcalSiPMParametersGPU.h"
-
 #include "CondFormats/HcalObjects/interface/HcalSiPMParameters.h"
-
+#include "CondFormats/HcalObjects/interface/HcalSiPMParametersGPU.h"
 #include "FWCore/Utilities/interface/typelookup.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/copyAsync.h"
 
 HcalSiPMParametersGPU::HcalSiPMParametersGPU(HcalSiPMParameters const& parameters)
     : totalChannels_{parameters.getAllContainers()[0].second.size() + parameters.getAllContainers()[1].second.size()},
@@ -39,45 +37,22 @@ HcalSiPMParametersGPU::HcalSiPMParametersGPU(HcalSiPMParameters const& parameter
   }
 }
 
-HcalSiPMParametersGPU::Product::~Product() {
-  // deallocation
-  cudaCheck(cudaFree(type));
-  cudaCheck(cudaFree(auxi1));
-  cudaCheck(cudaFree(fcByPE));
-  cudaCheck(cudaFree(darkCurrent));
-  cudaCheck(cudaFree(auxi2));
-}
-
-HcalSiPMParametersGPU::Product const& HcalSiPMParametersGPU::getProduct(cudaStream_t cudaStream) const {
-  auto const& product = product_.dataForCurrentDeviceAsync(
-      cudaStream, [this](HcalSiPMParametersGPU::Product& product, cudaStream_t cudaStream) {
-        // malloc
-        cudaCheck(cudaMalloc((void**)&product.type, this->type_.size() * sizeof(int)));
-        cudaCheck(cudaMalloc((void**)&product.auxi1, this->auxi1_.size() * sizeof(int)));
-        cudaCheck(cudaMalloc((void**)&product.fcByPE, this->fcByPE_.size() * sizeof(float)));
-        cudaCheck(cudaMalloc((void**)&product.darkCurrent, this->darkCurrent_.size() * sizeof(float)));
-        cudaCheck(cudaMalloc((void**)&product.auxi2, this->auxi2_.size() * sizeof(float)));
+HcalSiPMParametersGPU::Product const& HcalSiPMParametersGPU::getProduct(cudaStream_t stream) const {
+  auto const& product =
+      product_.dataForCurrentDeviceAsync(stream, [this](HcalSiPMParametersGPU::Product& product, cudaStream_t stream) {
+        // allocate
+        product.type = cms::cuda::make_device_unique<int[]>(type_.size(), stream);
+        product.auxi1 = cms::cuda::make_device_unique<int[]>(auxi1_.size(), stream);
+        product.fcByPE = cms::cuda::make_device_unique<float[]>(fcByPE_.size(), stream);
+        product.darkCurrent = cms::cuda::make_device_unique<float[]>(darkCurrent_.size(), stream);
+        product.auxi2 = cms::cuda::make_device_unique<float[]>(auxi2_.size(), stream);
 
         // transfer
-        cudaCheck(cudaMemcpyAsync(
-            product.type, this->type_.data(), this->type_.size() * sizeof(int), cudaMemcpyHostToDevice, cudaStream));
-        cudaCheck(cudaMemcpyAsync(
-            product.auxi1, this->auxi1_.data(), this->auxi1_.size() * sizeof(int), cudaMemcpyHostToDevice, cudaStream));
-        cudaCheck(cudaMemcpyAsync(product.fcByPE,
-                                  this->fcByPE_.data(),
-                                  this->fcByPE_.size() * sizeof(float),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
-        cudaCheck(cudaMemcpyAsync(product.darkCurrent,
-                                  this->darkCurrent_.data(),
-                                  this->darkCurrent_.size() * sizeof(float),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
-        cudaCheck(cudaMemcpyAsync(product.auxi2,
-                                  this->auxi2_.data(),
-                                  this->auxi2_.size() * sizeof(float),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
+        cms::cuda::copyAsync(product.type, type_, stream);
+        cms::cuda::copyAsync(product.auxi1, auxi1_, stream);
+        cms::cuda::copyAsync(product.fcByPE, fcByPE_, stream);
+        cms::cuda::copyAsync(product.darkCurrent, darkCurrent_, stream);
+        cms::cuda::copyAsync(product.auxi2, auxi2_, stream);
       });
 
   return product;

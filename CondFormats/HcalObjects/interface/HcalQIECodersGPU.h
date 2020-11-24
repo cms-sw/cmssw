@@ -2,6 +2,8 @@
 #define CondFormats_HcalObjects_interface_HcalQIECodersGPU_h
 
 #include "CondFormats/HcalObjects/interface/HcalQIEData.h"
+#include "FWCore/Utilities/interface/propagate_const_array.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 
 #ifndef __CUDACC__
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
@@ -13,9 +15,8 @@ public:
   static constexpr uint32_t numValuesPerChannel = 16;
 
   struct Product {
-    ~Product();
-    float *offsets;
-    float *slopes;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<float[]>> offsets;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<float[]>> slopes;
   };
 
 #ifndef __CUDACC__

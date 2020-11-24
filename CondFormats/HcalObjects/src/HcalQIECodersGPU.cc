@@ -1,7 +1,6 @@
 #include "CondFormats/HcalObjects/interface/HcalQIECodersGPU.h"
-
 #include "FWCore/Utilities/interface/typelookup.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/copyAsync.h"
 
 HcalQIECodersGPU::HcalQIECodersGPU(HcalQIEData const& qiedata)
     : totalChannels_{qiedata.getAllContainers()[0].second.size() + qiedata.getAllContainers()[1].second.size()},
@@ -34,33 +33,16 @@ HcalQIECodersGPU::HcalQIECodersGPU(HcalQIEData const& qiedata)
   }
 }
 
-HcalQIECodersGPU::Product::~Product() {
-  // deallocation
-  cudaCheck(cudaFree(offsets));
-  cudaCheck(cudaFree(slopes));
-}
-
-HcalQIECodersGPU::Product const& HcalQIECodersGPU::getProduct(cudaStream_t cudaStream) const {
-  auto const& product = product_.dataForCurrentDeviceAsync(
-      cudaStream, [this](HcalQIECodersGPU::Product& product, cudaStream_t cudaStream) {
-        // malloc
-        cudaCheck(cudaMalloc((void**)&product.offsets, this->offsets_.size() * sizeof(float)));
-        cudaCheck(cudaMalloc((void**)&product.slopes, this->slopes_.size() * sizeof(float)));
+HcalQIECodersGPU::Product const& HcalQIECodersGPU::getProduct(cudaStream_t stream) const {
+  auto const& product =
+      product_.dataForCurrentDeviceAsync(stream, [this](HcalQIECodersGPU::Product& product, cudaStream_t stream) {
+        // allocate
+        product.offsets = cms::cuda::make_device_unique<float[]>(offsets_.size(), stream);
+        product.slopes = cms::cuda::make_device_unique<float[]>(slopes_.size(), stream);
 
         // transfer
-        // offset
-        cudaCheck(cudaMemcpyAsync(product.offsets,
-                                  this->offsets_.data(),
-                                  this->offsets_.size() * sizeof(float),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
-
-        // slope
-        cudaCheck(cudaMemcpyAsync(product.slopes,
-                                  this->slopes_.data(),
-                                  this->slopes_.size() * sizeof(float),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
+        cms::cuda::copyAsync(product.offsets, offsets_, stream);
+        cms::cuda::copyAsync(product.slopes, slopes_, stream);
       });
 
   return product;

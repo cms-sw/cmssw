@@ -1,9 +1,7 @@
-#include "CondFormats/HcalObjects/interface/HcalGainWidthsGPU.h"
-
 #include "CondFormats/HcalObjects/interface/HcalGainWidths.h"
-
+#include "CondFormats/HcalObjects/interface/HcalGainWidthsGPU.h"
 #include "FWCore/Utilities/interface/typelookup.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/copyAsync.h"
 
 // FIXME: add proper getters to conditions
 HcalGainWidthsGPU::HcalGainWidthsGPU(HcalGainWidths const& gains)
@@ -34,44 +32,20 @@ HcalGainWidthsGPU::HcalGainWidthsGPU(HcalGainWidths const& gains)
   }
 }
 
-HcalGainWidthsGPU::Product::~Product() {
-  // deallocation
-  cudaCheck(cudaFree(value0));
-  cudaCheck(cudaFree(value1));
-  cudaCheck(cudaFree(value2));
-  cudaCheck(cudaFree(value3));
-}
-
-HcalGainWidthsGPU::Product const& HcalGainWidthsGPU::getProduct(cudaStream_t cudaStream) const {
-  auto const& product = product_.dataForCurrentDeviceAsync(
-      cudaStream, [this](HcalGainWidthsGPU::Product& product, cudaStream_t cudaStream) {
-        // malloc
-        cudaCheck(cudaMalloc((void**)&product.value0, this->value0_.size() * sizeof(float)));
-        cudaCheck(cudaMalloc((void**)&product.value1, this->value1_.size() * sizeof(float)));
-        cudaCheck(cudaMalloc((void**)&product.value2, this->value2_.size() * sizeof(float)));
-        cudaCheck(cudaMalloc((void**)&product.value3, this->value3_.size() * sizeof(float)));
+HcalGainWidthsGPU::Product const& HcalGainWidthsGPU::getProduct(cudaStream_t stream) const {
+  auto const& product =
+      product_.dataForCurrentDeviceAsync(stream, [this](HcalGainWidthsGPU::Product& product, cudaStream_t stream) {
+        // allocate
+        product.value0 = cms::cuda::make_device_unique<float[]>(value0_.size(), stream);
+        product.value1 = cms::cuda::make_device_unique<float[]>(value1_.size(), stream);
+        product.value2 = cms::cuda::make_device_unique<float[]>(value2_.size(), stream);
+        product.value3 = cms::cuda::make_device_unique<float[]>(value3_.size(), stream);
 
         // transfer
-        cudaCheck(cudaMemcpyAsync(product.value0,
-                                  this->value0_.data(),
-                                  this->value0_.size() * sizeof(float),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
-        cudaCheck(cudaMemcpyAsync(product.value1,
-                                  this->value1_.data(),
-                                  this->value1_.size() * sizeof(float),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
-        cudaCheck(cudaMemcpyAsync(product.value2,
-                                  this->value2_.data(),
-                                  this->value2_.size() * sizeof(float),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
-        cudaCheck(cudaMemcpyAsync(product.value3,
-                                  this->value3_.data(),
-                                  this->value3_.size() * sizeof(float),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
+        cms::cuda::copyAsync(product.value0, value0_, stream);
+        cms::cuda::copyAsync(product.value1, value1_, stream);
+        cms::cuda::copyAsync(product.value2, value2_, stream);
+        cms::cuda::copyAsync(product.value3, value3_, stream);
       });
 
   return product;

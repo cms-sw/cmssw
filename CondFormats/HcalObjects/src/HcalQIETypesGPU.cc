@@ -1,9 +1,7 @@
-#include "CondFormats/HcalObjects/interface/HcalQIETypesGPU.h"
-
 #include "CondFormats/HcalObjects/interface/HcalQIETypes.h"
-
+#include "CondFormats/HcalObjects/interface/HcalQIETypesGPU.h"
 #include "FWCore/Utilities/interface/typelookup.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/copyAsync.h"
 
 // FIXME: add proper getters to conditions
 HcalQIETypesGPU::HcalQIETypesGPU(HcalQIETypes const& parameters)
@@ -24,23 +22,14 @@ HcalQIETypesGPU::HcalQIETypesGPU(HcalQIETypes const& parameters)
   }
 }
 
-HcalQIETypesGPU::Product::~Product() {
-  // deallocation
-  cudaCheck(cudaFree(values));
-}
-
-HcalQIETypesGPU::Product const& HcalQIETypesGPU::getProduct(cudaStream_t cudaStream) const {
-  auto const& product = product_.dataForCurrentDeviceAsync(
-      cudaStream, [this](HcalQIETypesGPU::Product& product, cudaStream_t cudaStream) {
-        // malloc
-        cudaCheck(cudaMalloc((void**)&product.values, this->values_.size() * sizeof(int)));
+HcalQIETypesGPU::Product const& HcalQIETypesGPU::getProduct(cudaStream_t stream) const {
+  auto const& product =
+      product_.dataForCurrentDeviceAsync(stream, [this](HcalQIETypesGPU::Product& product, cudaStream_t stream) {
+        // allocate
+        product.values = cms::cuda::make_device_unique<int[]>(values_.size(), stream);
 
         // transfer
-        cudaCheck(cudaMemcpyAsync(product.values,
-                                  this->values_.data(),
-                                  this->values_.size() * sizeof(int),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
+        cms::cuda::copyAsync(product.values, values_, stream);
       });
 
   return product;
