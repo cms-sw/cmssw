@@ -842,7 +842,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
             #Jet projection ==
             pfCandsNoJets = cms.EDProducer("CandPtrProjector",
-                                           src = cms.InputTag("puppiForMET") if self.getvalue("Puppi") else copy.copy(self.getvalue("pfCandCollection")),
+                                           src = cms.InputTag("puppiForMET") if self.getvalue("Puppi") else pfCandCollection,
                                            veto = copy.copy(jetCollection),
                                            useDeltaRforFootprint = cms.bool(False)
                                            )
