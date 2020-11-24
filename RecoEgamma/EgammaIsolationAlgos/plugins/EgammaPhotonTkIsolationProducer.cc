@@ -6,9 +6,6 @@
 //=============================================================================
 //*****************************************************************************
 
-#include "RecoEgamma/EgammaIsolationAlgos/plugins/EgammaPhotonTkIsolationProducer.h"
-
-// Framework
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -20,6 +17,40 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "RecoEgamma/EgammaIsolationAlgos/interface/PhotonTkIsolation.h"
+
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+class EgammaPhotonTkIsolationProducer : public edm::global::EDProducer<> {
+public:
+  explicit EgammaPhotonTkIsolationProducer(const edm::ParameterSet&);
+  ~EgammaPhotonTkIsolationProducer() override;
+
+  void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
+
+private:
+  const edm::InputTag photonProducer_;
+  const edm::InputTag trackProducer_;
+  const edm::InputTag beamspotProducer_;
+
+  const double ptMin_;
+  const double intRadiusBarrel_;
+  const double intRadiusEndcap_;
+  const double stripBarrel_;
+  const double stripEndcap_;
+  const double extRadius_;
+  const double maxVtxDist_;
+  const double drb_;
+
+  const edm::ParameterSet conf_;
+};
+
+DEFINE_FWK_MODULE(EgammaPhotonTkIsolationProducer);
 
 EgammaPhotonTkIsolationProducer::EgammaPhotonTkIsolationProducer(const edm::ParameterSet& config)
     :
