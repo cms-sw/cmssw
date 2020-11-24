@@ -110,6 +110,10 @@ private:
                 double &dz);
 
   // ----------member data:
+  edm::EDGetTokenT<reco::BeamSpot> bsToken_;
+  edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
+  edm::EDGetTokenT<reco::TrackCollection> trackToken_;
+
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoToken_;
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
   edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transientTrackBuilderToken_;
@@ -172,6 +176,9 @@ private:
 // constructor:
 //
 Triplet::Triplet(const edm::ParameterSet &iConfig) {
+  bsToken_ = consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"));
+  vtxToken_ = consumes<reco::VertexCollection>(edm::InputTag("offlinePrimaryVertices"));
+  trackToken_ = consumes<reco::TrackCollection>(edm::InputTag("generalTracks"));
 
   trackerTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
   trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
@@ -407,7 +414,7 @@ void Triplet::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // beam spot:
   //
   edm::Handle<reco::BeamSpot> rbs;
-  iEvent.getByLabel("offlineBeamSpot", rbs);
+  iEvent.getByToken(bsToken_, rbs);
 
   XYZPoint bsP = XYZPoint(0, 0, 0);
   //int ibs = 0;
@@ -439,7 +446,7 @@ void Triplet::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // primary vertices:
   //
   Handle<VertexCollection> vertices;
-  iEvent.getByLabel("offlinePrimaryVertices", vertices);
+  iEvent.getByToken(vtxToken_, vertices);
 
   if (vertices.failedToGet())
     return;
@@ -555,7 +562,7 @@ void Triplet::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   //
   Handle<TrackCollection> tracks;
 
-  iEvent.getByLabel("generalTracks", tracks);
+  iEvent.getByToken(trackToken_, tracks);
 
   if (tracks.failedToGet())
     return;
