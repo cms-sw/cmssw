@@ -76,7 +76,9 @@ namespace tensorflow {
   // given in order to load and initialize the variables, sessionOptions are predefined
   // an error is thrown when metaGraphDef is a nullptr or when the graph has no nodes
   // transfers ownership
-  Session* createSession(const MetaGraphDef* metaGraphDef, const std::string& exportDir, SessionOptions& sessionOptions);
+  Session* createSession(const MetaGraphDef* metaGraphDef,
+                         const std::string& exportDir,
+                         SessionOptions& sessionOptions);
 
   // return a new session that will contain an already loaded meta graph whose exportDir must be given
   // in order to load and initialize the variables, threading options are inferred from nThreads
@@ -85,13 +87,13 @@ namespace tensorflow {
   Session* createSession(const MetaGraphDef* metaGraphDef, const std::string& exportDir, int nThreads = 1);
 
   // return a new session that will contain an already loaded graph def, sessionOptions are predefined
-  // an error is thrown when graphDef is a nullptr or when the grah has no nodes
+  // an error is thrown when graphDef is a nullptr or when the graph has no nodes
   // transfers ownership
   Session* createSession(const GraphDef* graphDef, SessionOptions& sessionOptions);
 
   // return a new session that will contain an already loaded graph def, threading options are
   // inferred from nThreads
-  // an error is thrown when graphDef is a nullptr or when the grah has no nodes
+  // an error is thrown when graphDef is a nullptr or when the graph has no nodes
   // transfers ownership
   Session* createSession(const GraphDef* graphDef, int nThreads = 1);
 

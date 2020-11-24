@@ -104,7 +104,9 @@ namespace tensorflow {
     return createSession(sessionOptions);
   }
 
-  Session* createSession(const MetaGraphDef* metaGraphDef, const std::string& exportDir, SessionOptions& sessionOptions) {
+  Session* createSession(const MetaGraphDef* metaGraphDef,
+                         const std::string& exportDir,
+                         SessionOptions& sessionOptions) {
     // check for valid pointer
     if (metaGraphDef == nullptr) {
       throw cms::Exception("InvalidMetaGraphDef") << "error while creating session: metaGraphDef is nullptr";
