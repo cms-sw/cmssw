@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoHGCal.TICL.TICLSeedingRegions_cff import ticlSeedingGlobal
-from RecoHGCal.TICL.ticlLayerTileProducer_cfi import ticlLayerTileProducer as _ticlLayerTileProducer
+from RecoHGCal.TICL.TICLSeedingRegions_cff import ticlSeedingGlobal, ticlSeedingGlobalHFNose
 from RecoHGCal.TICL.trackstersProducer_cfi import trackstersProducer as _trackstersProducer
 from RecoHGCal.TICL.filteredLayerClustersProducer_cfi import filteredLayerClustersProducer as _filteredLayerClustersProducer
 from RecoHGCal.TICL.multiClustersFromTrackstersProducer_cfi import multiClustersFromTrackstersProducer as _multiClustersFromTrackstersProducer
@@ -15,13 +14,14 @@ filteredLayerClustersMIP = _filteredLayerClustersProducer.clone(
     iteration_label = "MIP"
 )
 
+
 # CA - PATTERN RECOGNITION
 
 ticlTrackstersMIP = _trackstersProducer.clone(
-    filtered_mask = cms.InputTag("filteredLayerClustersMIP", "MIP"),
+    filtered_mask = "filteredLayerClustersMIP:MIP",
     seeding_regions = "ticlSeedingGlobal",
-    missing_layers = 3,
-    min_clusters_per_ntuplet = 10,
+    skip_layers = 3,
+    min_layers_per_trackster = 10,
     min_cos_theta = 0.99, # ~10 degrees
     min_cos_pointing = 0.5,
     out_in_dfs = False,
@@ -40,3 +40,25 @@ ticlMIPStepTask = cms.Task(ticlSeedingGlobal
     ,ticlTrackstersMIP
     ,ticlMultiClustersFromTrackstersMIP)
 
+filteredLayerClustersHFNoseMIP = filteredLayerClustersMIP.clone(
+    LayerClusters = 'hgcalLayerClustersHFNose',
+    LayerClustersInputMask = "hgcalLayerClustersHFNose:InitialLayerClustersMask",
+    iteration_label = "MIPn",
+    algo_number = 9
+)
+
+ticlTrackstersHFNoseMIP = ticlTrackstersMIP.clone(
+    detector = "HFNose",
+    layer_clusters = "hgcalLayerClustersHFNose",
+    layer_clusters_hfnose_tiles = "ticlLayerTileHFNose",
+    original_mask = "hgcalLayerClustersHFNose:InitialLayerClustersMask",
+    filtered_mask = "filteredLayerClustersHFNoseMIP:MIPn",
+    seeding_regions = "ticlSeedingGlobalHFNose",
+    time_layerclusters = "hgcalLayerClustersHFNose:timeLayerCluster",
+    min_layers_per_trackster = 6
+)
+
+ticlHFNoseMIPStepTask = cms.Task(ticlSeedingGlobalHFNose
+                              ,filteredLayerClustersHFNoseMIP
+                              ,ticlTrackstersHFNoseMIP
+)

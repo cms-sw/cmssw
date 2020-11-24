@@ -10,6 +10,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
@@ -30,6 +31,7 @@ public:
 private:
   edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_token_;
   edm::EDGetTokenT<std::vector<float>> clustersMask_token_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometry_token_;
   std::string clusterFilter_;
   std::string iteration_label_;
   std::unique_ptr<const ticl::ClusterFilterBase> theFilter_;
@@ -39,26 +41,32 @@ private:
 DEFINE_FWK_MODULE(FilteredLayerClustersProducer);
 
 FilteredLayerClustersProducer::FilteredLayerClustersProducer(const edm::ParameterSet& ps) {
-  clusters_token_ = consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("HGCLayerClusters"));
+  clusters_token_ = consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("LayerClusters"));
   clustersMask_token_ = consumes<std::vector<float>>(ps.getParameter<edm::InputTag>("LayerClustersInputMask"));
+  caloGeometry_token_ = esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>();
   clusterFilter_ = ps.getParameter<std::string>("clusterFilter");
   theFilter_ = ClusterFilterFactory::get()->create(clusterFilter_, ps);
   iteration_label_ = ps.getParameter<std::string>("iteration_label");
   produces<std::vector<float>>(iteration_label_);
 }
 
-void FilteredLayerClustersProducer::beginRun(edm::Run const&, edm::EventSetup const& es) { rhtools_.getEventSetup(es); }
+void FilteredLayerClustersProducer::beginRun(edm::Run const&, edm::EventSetup const& es) {
+  edm::ESHandle<CaloGeometry> geom = es.getHandle(caloGeometry_token_);
+  rhtools_.setGeometry(*geom);
+}
 
 void FilteredLayerClustersProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // hgcalMultiClusters
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("HGCLayerClusters", edm::InputTag("hgcalLayerClusters"));
+  desc.add<edm::InputTag>("LayerClusters", edm::InputTag("hgcalLayerClusters"));
   desc.add<edm::InputTag>("LayerClustersInputMask", edm::InputTag("hgcalLayerClusters", "InitialLayerClustersMask"));
   desc.add<std::string>("iteration_label", "iterationLabelGoesHere");
   desc.add<std::string>("clusterFilter", "ClusterFilterByAlgoAndSize");
   desc.add<int>("algo_number", 9);
   desc.add<int>("min_cluster_size", 0);
   desc.add<int>("max_cluster_size", 9999);
+  desc.add<int>("min_layerId", 0);
+  desc.add<int>("max_layerId", 9999);
   descriptions.add("filteredLayerClustersProducer", desc);
 }
 

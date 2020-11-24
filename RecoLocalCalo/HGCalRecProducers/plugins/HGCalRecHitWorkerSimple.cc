@@ -1,16 +1,19 @@
 #include "RecoLocalCalo/HGCalRecProducers/plugins/HGCalRecHitWorkerSimple.h"
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
-#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include <memory>
+
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
+#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
+#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoLocalCalo/HGCalRecProducers/interface/ComputeClusterTime.h"
 
 HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet& ps) : HGCalRecHitWorkerBaseClass(ps) {
-  rechitMaker_.reset(new HGCalRecHitSimpleAlgo());
-  tools_.reset(new hgcal::RecHitTools());
+  rechitMaker_ = std::make_unique<HGCalRecHitSimpleAlgo>();
+  tools_ = std::make_unique<hgcal::RecHitTools>();
   constexpr float keV2GeV = 1e-6;
   // HGCee constants
   hgcEE_keV2DIGI_ = ps.getParameter<double>("HGCEE_keV2DIGI");
@@ -56,7 +59,8 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet& ps) : 
     rcorr_.push_back(1.0 / corr);
   }
   // here for scintillator
-  rcorrscint_ = ps.getParameter<double>("sciThicknessCorrection");
+  rcorrscint_ = 1.0 / ps.getParameter<double>("sciThicknessCorrection");
+
   //This is for the index position in CE_H silicon thickness cases
   deltasi_index_regemfac_ = ps.getParameter<int>("deltasi_index_regemfac");
   const auto& rcorrnose = ps.getParameter<std::vector<double> >("thicknessNoseCorrection");
@@ -87,8 +91,10 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet& ps) : 
 }
 
 void HGCalRecHitWorkerSimple::set(const edm::EventSetup& es) {
-  tools_->getEventSetup(es);
-  rechitMaker_->set(es);
+  edm::ESHandle<CaloGeometry> geom;
+  es.get<CaloGeometryRecord>().get(geom);
+  tools_->setGeometry(*geom);
+  rechitMaker_->set(*geom);
   if (hgcEE_isSiFE_) {
     edm::ESHandle<HGCalGeometry> hgceeGeoHandle;
     es.get<IdealGeometryRecord>().get("HGCalEESensitive", hgceeGeoHandle);
@@ -180,7 +186,7 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event& evt,
       break;
     case hgcbh:
       rechitMaker_->setADCToGeVConstant(float(hgchebUncalib2GeV_));
-      sigmaNoiseGeV = 1e-3 * hgcHEB_noise_MIP_ * weights_[layer];
+      sigmaNoiseGeV = 1e-3 * hgcHEB_noise_MIP_ * weights_[layer] * rcorrscint_;
       break;
     case hgchfnose:
       rechitMaker_->setADCToGeVConstant(float(hgchfnoseUncalib2GeV_));

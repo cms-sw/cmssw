@@ -11,9 +11,10 @@
 #include "DataFormats/HGCalReco/interface/TICLSeedingRegion.h"
 #include "HGCDoublet.h"
 
-class HGCGraph {
+template <typename TILES>
+class HGCGraphT {
 public:
-  void makeAndConnectDoublets(const TICLLayerTiles &h,
+  void makeAndConnectDoublets(const TILES &h,
                               const std::vector<TICLSeedingRegion> &regions,
                               int nEtaBins,
                               int nPhiBins,
@@ -24,8 +25,9 @@ public:
                               int deltaIPhi,
                               float minCosThetai,
                               float maxCosPointing,
+                              float root_doublet_max_distance_from_seed_squared,
                               float etaLimitIncreaseWindow,
-                              int missing_layers,
+                              int skip_layers,
                               int maxNumberOfLayers,
                               float maxDeltaTime);
 
