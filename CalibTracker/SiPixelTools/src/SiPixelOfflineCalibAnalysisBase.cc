@@ -43,11 +43,11 @@ SiPixelOfflineCalibAnalysisBase::SiPixelOfflineCalibAnalysisBase(const edm::Para
   folderMaker_ = new SiPixelFolderOrganizer();
   tPixelCalibDigi = consumes<edm::DetSetVector<SiPixelCalibDigi> >(siPixelCalibDigiProducer_);
 
-  calibTokenBeginRun_ = esConsumes<SiPixelCalibConfiguration, SiPixelCalibConfigurationRcd, edm::Transition::BeginRun>();
+  calibTokenBeginRun_ =
+      esConsumes<SiPixelCalibConfiguration, SiPixelCalibConfigurationRcd, edm::Transition::BeginRun>();
   calibToken_ = esConsumes<SiPixelCalibConfiguration, SiPixelCalibConfigurationRcd>();
   trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
   cablingMapToken_ = esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd>();
-
 }
 
 SiPixelOfflineCalibAnalysisBase::SiPixelOfflineCalibAnalysisBase() {
