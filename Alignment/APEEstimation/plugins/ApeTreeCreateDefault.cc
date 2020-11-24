@@ -102,8 +102,7 @@ private:
 // constructors and destructor
 //
 ApeTreeCreateDefault::ApeTreeCreateDefault(const edm::ParameterSet& iConfig)
-    : 
-      alignmentErrorToken_(esConsumes()),
+    : alignmentErrorToken_(esConsumes()),
       resultFile_(iConfig.getParameter<std::string>("resultFile")),
       trackerTreeFile_(iConfig.getParameter<std::string>("trackerTreeFile")),
       sectors_(iConfig.getParameter<std::vector<edm::ParameterSet>>("sectors")) {}
@@ -401,7 +400,7 @@ void ApeTreeCreateDefault::analyze(const edm::Event& iEvent, const edm::EventSet
   // Same procedure as in ApeEstimatorSummary.cc minus reading of baseline tree
 
   // Load APEs from the GT and write them to root files similar to the ones from calculateAPE()
-  const AlignmentErrorsExtended *alignmentErrors = &iSetup.getData(alignmentErrorToken_);
+  const AlignmentErrorsExtended* alignmentErrors = &iSetup.getData(alignmentErrorToken_);
 
   // Set up root file for default APE values
   const std::string defaultFileName(resultFile_);

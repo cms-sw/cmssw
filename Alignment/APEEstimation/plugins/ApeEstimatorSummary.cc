@@ -79,7 +79,6 @@ private:
   // ----------member data ---------------------------
   const edm::ParameterSet parameterSet_;
   const edm::ESGetToken<AlignmentErrorsExtended, TrackerAlignmentErrorExtendedRcd> alignmentErrorToken_;
-  
 
   bool firstEvent = true;
 
@@ -444,7 +443,7 @@ void ApeEstimatorSummary::calculateApe() {
     const std::string& name(i_sector.second.name);
     if (firstIter) {
       a_sectorName[i_sector.first] = new std::string(name);
-    }else{
+    } else {
       const std::string& nameLastIter(*a_sectorName[i_sector.first]);
       if (name != nameLastIter) {
         edm::LogError("CalculateAPE") << "Inconsistent sector definition in iterationFile for sector " << i_sector.first
@@ -454,7 +453,6 @@ void ApeEstimatorSummary::calculateApe() {
                                       << "...APE calculation stopped. Please check sector definitions in config!\n";
         failed = true;
       }
-      
     }
     if (!setBaseline && baselineFile) {
       const std::string& nameBaseline(*a_sectorBaselineName[i_sector.first]);
@@ -468,16 +466,16 @@ void ApeEstimatorSummary::calculateApe() {
       }
     }
   }
-  
-  if (failed){
-    if (firstIter){
-          for (auto& i_sector : m_tkSector_) {
-            delete a_sectorName[i_sector.first];
-          }
+
+  if (failed) {
+    if (firstIter) {
+      for (auto& i_sector : m_tkSector_) {
+        delete a_sectorName[i_sector.first];
+      }
     }
     return;
   }
-  
+
   // Set up text file for writing out APE values per module
   std::ofstream apeOutputFile;
   if (!setBaseline) {
@@ -891,7 +889,6 @@ void ApeEstimatorSummary::calculateApe() {
     for (auto& i_sector : m_tkSector_) {
       delete a_sectorName[i_sector.first];
     }
-    
   }
   iterationFile->Close();
   delete iterationFile;
@@ -910,8 +907,8 @@ void ApeEstimatorSummary::analyze(const edm::Event& iEvent, const edm::EventSetu
     // Set baseline or calculate APE value?
     const bool setBaseline(parameterSet_.getParameter<bool>("setBaseline"));
 
-    const AlignmentErrorsExtended *alignmentErrors = &iSetup.getData(alignmentErrorToken_);
-  
+    const AlignmentErrorsExtended* alignmentErrors = &iSetup.getData(alignmentErrorToken_);
+
     // Read in baseline file for calculation of APE value (if not setting baseline)
     // Has same format as iterationFile
     const std::string baselineFileName(parameterSet_.getParameter<std::string>("BaselineFile"));
@@ -1028,19 +1025,18 @@ void ApeEstimatorSummary::analyze(const edm::Event& iEvent, const edm::EventSetu
         }
       }
     }
-    
-    if (failed){
-      if (firstIter){
-            delete defaultTreeX;
-            delete defaultTreeY;
-            delete sectorNameTree;
-            for (auto& i_sector : m_tkSector_) {
-              delete a_sectorName[i_sector.first];
-            }
+
+    if (failed) {
+      if (firstIter) {
+        delete defaultTreeX;
+        delete defaultTreeY;
+        delete sectorNameTree;
+        for (auto& i_sector : m_tkSector_) {
+          delete a_sectorName[i_sector.first];
+        }
       }
       return;
     }
-    
 
     // Loop over sectors for calculating getting default APE
     for (auto& i_sector : m_tkSector_) {
@@ -1069,15 +1065,15 @@ void ApeEstimatorSummary::analyze(const edm::Event& iEvent, const edm::EventSetu
     defaultTreeX->Write("iterTreeX");
     defaultTreeY->Fill();
     defaultTreeY->Write("iterTreeY");
-    
+
     defaultFile->Close();
     if (baselineFile) {
       baselineFile->Close();
       delete baselineFile;
     }
-    
+
     delete defaultFile;
-    if (firstIter){
+    if (firstIter) {
       for (auto& i_sector : m_tkSector_) {
         delete a_sectorName[i_sector.first];
       }
@@ -1085,7 +1081,6 @@ void ApeEstimatorSummary::analyze(const edm::Event& iEvent, const edm::EventSetu
       delete defaultTreeX;
       delete defaultTreeY;
     }
-    
 
     firstEvent = false;
   }
