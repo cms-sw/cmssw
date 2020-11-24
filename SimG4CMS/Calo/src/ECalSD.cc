@@ -226,7 +226,8 @@ double ECalSD::getEnergyDeposit(const G4Step* aStep) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("EcalSim") << lv->GetName() << " " << dd4hep::dd::noNamespace(lv->GetName())
                               << " Light Collection Efficiency " << weight << ":" << wt1 << " wt2= " << wt2
-                              << " Weighted Energy Deposit " << edep / CLHEP::MeV << " MeV";
+                              << " Weighted Energy Deposit " << edep / CLHEP::MeV << " MeV at "
+                              << preStepPoint->GetPosition();
 #endif
   return edep;
 }
@@ -295,7 +296,7 @@ uint16_t ECalSD::getRadiationLength(const G4StepPoint* hitPoint, const G4Logical
     double radl = hitPoint->GetMaterial()->GetRadlen();
     thisX0 = (uint16_t)floor(scaleRL * crystalDepth / radl);
 #ifdef plotDebug
-    const std::string& lvname = lv->GetName();
+    const std::string& lvname = dd4hep::dd::noNamespace(lv->GetName());
     int k1 = (lvname.find("EFRY") != std::string::npos) ? 2 : 0;
     int k2 = (lvname.find("refl") != std::string::npos) ? 1 : 0;
     int kk = k1 + k2;
@@ -356,17 +357,17 @@ void ECalSD::initMap() {
       if (strncmp(lvname.c_str(), depth1Name.c_str(), 4) == 0) {
         if (!any(useDepth1, lv)) {
           useDepth1.push_back(lv);
-          //#ifdef EDM_ML_DEBUG
+#ifdef EDM_ML_DEBUG
           edm::LogVerbatim("EcalSim") << "ECalSD::initMap Logical Volume " << lvname << " in Depth 1 volume list";
-          //#endif
+#endif
         }
         const G4LogicalVolume* lvr = nameMap[lvname + "_refl"];
         if (lvr != nullptr && !any(useDepth1, lvr)) {
           useDepth1.push_back(lvr);
-          //#ifdef EDM_ML_DEBUG
+#ifdef EDM_ML_DEBUG
           edm::LogVerbatim("EcalSim") << "ECalSD::initMap Logical Volume " << lvname << "_refl"
                                       << " in Depth 1 volume list";
-          //#endif
+#endif
         }
       }
     }
@@ -374,9 +375,9 @@ void ECalSD::initMap() {
       if (strncmp(lvname.c_str(), depth2Name.c_str(), 4) == 0) {
         if (!any(useDepth2, lv)) {
           useDepth2.push_back(lv);
-          //#ifdef EDM_ML_DEBUG
+#ifdef EDM_ML_DEBUG
           edm::LogVerbatim("EcalSim") << "ECalSD::initMap Logical Volume " << lvname << " in Depth 2 volume list";
-          //#endif
+#endif
         }
         const G4LogicalVolume* lvr = nameMap[lvname + "_refl"];
         if (lvr != nullptr && !any(useDepth2, lvr)) {
@@ -402,18 +403,18 @@ void ECalSD::initMap() {
       } else {
         if (!any(noWeight, lv)) {
           noWeight.push_back(lv);
-          //#ifdef EDM_ML_DEBUG
+#ifdef EDM_ML_DEBUG
           edm::LogVerbatim("EcalSim") << "ECalSD::initMap Logical Volume " << lvname << " Material " << matname
                                       << " in noWeight list";
-          //#endif
+#endif
         }
         lv = nameMap[lvname];
         if (lv != nullptr && !any(noWeight, lv)) {
           noWeight.push_back(lv);
-          //#ifdef EDM_ML_DEBUG
+#ifdef EDM_ML_DEBUG
           edm::LogVerbatim("EcalSim") << "ECalSD::initMap Logical Volume " << lvname << " Material " << matname
                                       << " in noWeight list";
-          //#endif
+#endif
         }
       }
     }
@@ -422,9 +423,9 @@ void ECalSD::initMap() {
   edm::LogVerbatim("EcalSim") << "ECalSD: Length Table:";
   int i = 0;
   for (auto ite : xtalLMap) {
-    G4String name("Unknown");
+    std::string name("Unknown");
     if (ite.first != nullptr)
-      name = (ite.first)->GetName();
+      name = dd4hep::dd::noNamespace((ite.first)->GetName());
     edm::LogVerbatim("EcalSim") << " " << i << " " << ite.first << " " << name << " L = " << ite.second;
     ++i;
   }
