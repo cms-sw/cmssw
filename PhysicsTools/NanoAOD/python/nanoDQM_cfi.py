@@ -581,17 +581,26 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 NoPlot('vidNestedWPBitmap'),
             )
         ),
-        Proton = cms.PSet(
+        Proton_multiRP = cms.PSet(
             sels = cms.PSet(),
             plots = cms.VPSet(
                 Count1D('_size', 3, -0.5, 2.5, 'bon'),
-                Plot1D('multiRP_arm', 'multiRP_arm', 2, -0.5, 1.5, '0 = sector45, 1 = sector56'),
-                Plot1D('multiRP_t', 'multiRP_t', 20, -500, -0.003, 'Mandelstam variable t'),
-                Plot1D('multiRP_thetaX', 'multiRP_thetaX', 20, -0.0004, 0.0004, 'scattering angle in the y direction'),
-                Plot1D('multiRP_thetaY', 'multiRP_thetaY', 20, -0.001, 0.001, 'scattering angle in the x direction'),
-                Plot1D('multiRP_time', 'multiRP_time', 20, -1000, -1000, 'time'),
-                Plot1D('multiRP_timeUnc', 'multiRP_timeUnc', 20, 0, 0, 'time uncertainty'),
-                Plot1D('multiRP_xi', 'multiRP_xi', 20, 0, 0.3, 'fractional momentum loss'),
+                Plot1D('arm', 'arm', 2, -0.5, 1.5, '0 = sector45, 1 = sector56'),
+                Plot1D('t', 't', 20, -500, -0.003, 'Mandelstam variable t'),
+                Plot1D('thetaX', 'thetaX', 20, -0.0004, 0.0004, 'scattering angle in the y direction'),
+                Plot1D('thetaY', 'thetaY', 20, -0.001, 0.001, 'scattering angle in the x direction'),
+                Plot1D('time', 'time', 20, -1000, -1000, 'time'),
+                Plot1D('timeUnc', 'timeUnc', 20, 0, 0, 'time uncertainty'),
+                Plot1D('xi', 'xi', 20, 0, 0.3, 'fractional momentum loss'),
+            )
+        ),
+        Proton_singleRP = cms.PSet(
+            sels = cms.PSet(),
+            plots = cms.VPSet(
+                Count1D('_size', 3, -0.5, 2.5, 'bon'),
+                Plot1D('xi', 'xi', 20, 0, 0.3, 'fractional momentum loss'),
+                Plot1D('thetaY', 'thetaY', 20, -0.001, 0.001, 'scattering angle in the x direction'),
+                Plot1D('decRPId', 'decRPId', 20, 0, 200, 'Detector ID'),
             )
         ),
         Pileup = cms.PSet(
