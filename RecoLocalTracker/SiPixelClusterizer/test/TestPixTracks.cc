@@ -186,7 +186,8 @@ TestPixTracks::TestPixTracks(edm::ParameterSet const &conf) {
   hltToken_ = consumes<edm::TriggerResults>(edm::InputTag("TriggerResults", "", "HLT"));
   vtxToken_ = consumes<reco::VertexCollection>(edm::InputTag("offlinePrimaryVertices"));
   srcToken_ = consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("src"));
-  trackAssocToken_ = consumes<TrajTrackAssociationCollection>(edm::InputTag(conf.getParameter<std::string>("trajectoryInput")));
+  trackAssocToken_ =
+      consumes<TrajTrackAssociationCollection>(edm::InputTag(conf.getParameter<std::string>("trajectoryInput")));
   trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
   //if(PRINT) cout<<" Construct "<<endl;
 }

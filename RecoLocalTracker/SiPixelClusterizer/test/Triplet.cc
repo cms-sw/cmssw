@@ -187,7 +187,8 @@ Triplet::Triplet(const edm::ParameterSet &iConfig) {
   transientTrackingRecHitBuilderToken_ =
       esConsumes<TransientTrackingRecHitBuilder, TransientRecHitRecord>(edm::ESInputTag("", "WithTrackAngle"));
 
-  std::cout << "Triplet constructed\n"; }
+  std::cout << "Triplet constructed\n";
+}
 //
 // destructor:
 //
@@ -667,13 +668,11 @@ void Triplet::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   //
   // transient track builder, needs B-field from data base (global tag in .py)
   //
-  edm::ESHandle<TransientTrackBuilder> theB =
-      iSetup.getHandle(transientTrackBuilderToken_);
+  edm::ESHandle<TransientTrackBuilder> theB = iSetup.getHandle(transientTrackBuilderToken_);
   //
   // transient rec hits:
   //
-  edm::ESHandle<TransientTrackingRecHitBuilder> hitBuilder =
-      iSetup.getHandle(transientTrackingRecHitBuilderToken_);
+  edm::ESHandle<TransientTrackingRecHitBuilder> hitBuilder = iSetup.getHandle(transientTrackingRecHitBuilderToken_);
   //
   //
   //
