@@ -7,27 +7,24 @@
  ** 
  ***/
 
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+#include "DataFormats/EgammaTrackReco/interface/TrackCaloClusterAssociation.h"
+#include "DataFormats/EgammaTrackReco/interface/TrackCandidateCaloClusterAssociation.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "RecoTracker/TrackProducer/interface/TrackProducerAlgorithm.h"
+#include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
-#include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-
-#include "DataFormats/EgammaTrackReco/interface/TrackCaloClusterAssociation.h"
-#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
-
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
-#include "RecoTracker/TrackProducer/interface/TrackProducerAlgorithm.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "DataFormats/EgammaTrackReco/interface/TrackCandidateCaloClusterAssociation.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 
 class TrackProducerWithSCAssociation : public TrackProducerBase<reco::Track>, public edm::stream::EDProducer<> {
 public:
