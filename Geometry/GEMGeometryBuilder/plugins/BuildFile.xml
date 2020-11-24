@@ -5,6 +5,7 @@
 <use name="FWCore/ParameterSet"/>
 <use name="Geometry/MuonNumbering"/>
 <use name="Geometry/Records"/>
+<use name="Fireworks/Core"/>
 <library name="GEMGeometryPlugins" file="GEMGeometryESModule.cc">
   <use name="DetectorDescription/Core"/>
   <use name="DetectorDescription/DDCMS"/>
@@ -16,7 +17,6 @@
 </library>
 
 <library name="GEMGeometryValidationPlugins" file="GEMGeometryValidate.cc">
-  <use name="Fireworks/Core"/>
   <use name="Geometry/GEMGeometry"/>
   <use name="rootgeom"/>
   <flags EDM_PLUGIN="1"/>
@@ -33,7 +33,6 @@
 </library>
 
 <library name="ME0GeometryValidationPlugins" file="ME0GeometryValidate.cc">
-  <use name="Fireworks/Core"/>
   <use name="Geometry/GEMGeometry"/>
   <use name="rootgeom"/>
   <flags EDM_PLUGIN="1"/>

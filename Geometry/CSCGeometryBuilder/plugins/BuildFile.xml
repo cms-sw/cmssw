@@ -4,6 +4,7 @@
 <use name="FWCore/ParameterSet"/>
 <use name="Geometry/MuonNumbering"/>
 <use name="Geometry/Records"/>
+<use name="Fireworks/Core"/>
 <library name="CSCGeometryPlugins" file="CSCGeometryESModule.cc">
   <use name="DetectorDescription/Core"/>
   <use name="DetectorDescription/DDCMS"/>
@@ -14,7 +15,6 @@
 </library>
 
 <library name="CSCGeometryValidationPlugins" file="CSCGeometryValidate.cc">
-  <use name="Fireworks/Core"/>
   <use name="Geometry/CSCGeometry"/>
   <use name="rootgeom"/>
   <flags EDM_PLUGIN="1"/>
