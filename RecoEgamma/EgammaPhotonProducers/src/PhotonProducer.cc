@@ -15,8 +15,6 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
-#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
-#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "FWCore/Framework/interface/ESHandle.h"
