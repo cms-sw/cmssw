@@ -210,10 +210,9 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
 
     std::vector<DetId> mDetIds = EcalClusterTools::matrixDetId((topology), (*SCseed).seed(), rechitMatrixSize);
 
-    int size = pow(2 * rechitMatrixSize + 1, 2);
     int detSize = mDetIds.size();
-    std::vector<float> mEnergies(size, 0.);
-    std::vector<float> mTimes(size, 0.);
+    std::vector<float> mEnergies(detSize, 0.);
+    std::vector<float> mTimes(detSize, 0.);
 
     for (int i = 0; i < detSize; i++) {
       mEnergies[i] =
