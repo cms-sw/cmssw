@@ -60,7 +60,7 @@ void CSCPattern::printCode(const unsigned code) const {
 
   std::cout << "Pattern " << id_ << ", Code " << code << " " << std::bitset<12>(code) << std::endl;
   for (unsigned int j = 0; j < CSCConstants::NUM_LAYERS; j++) {
-    int trueCounter = 0;  //for each layer, should only have 3
+    unsigned trueCounter = 0;  //for each layer, should only have 3
     std::cout << "L" << j + 1 << ": ";
     for (unsigned int i = 0; i < CSCConstants::CLCT_PATTERN_WIDTH; i++) {
       if (!pat_[j][i]) {
@@ -104,7 +104,7 @@ int CSCPattern::recoverPatternCCCombination(
 
   // now set the bits in the pattern
   for (unsigned int j = 0; j < CSCConstants::NUM_LAYERS; j++) {
-    int trueCounter = 0;  //for each layer, should only have 3
+    unsigned trueCounter = 0;  //for each layer, should only have 3
     for (unsigned int i = 0; i < CSCConstants::CLCT_PATTERN_WIDTH; i++) {
       // zeros in the pattern envelope, or CC0
       if (!pat_[j][i]) {
