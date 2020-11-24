@@ -50,7 +50,7 @@ singleRPTable = cms.EDProducer("SimpleProtonTrackFlatTableProducer",
     name = cms.string("Proton_singleRP"),
     doc  = cms.string("bon"),
     singleton = cms.bool(False),
-    extension = cms.bool(True),
+    extension = cms.bool(False),
     skipNonExistingSrc = cms.bool(True),
     variables = cms.PSet(
         xi = Var("xi",float,doc="xi or dp/p",precision=12),
