@@ -122,8 +122,7 @@ void SiPixelTrackResidualSource::dqmBeginRun(const edm::Run &r, edm::EventSetup 
   // TrackerGeometry
   for (TrackerGeometry::DetContainer::const_iterator pxb = TG->detsPXB().begin(); pxb != TG->detsPXB().end(); pxb++) {
     if (dynamic_cast<PixelGeomDetUnit const *>((*pxb)) != nullptr) {
-      SiPixelTrackResidualModule *module =
-          new SiPixelTrackResidualModule((*pxb)->geographicalId().rawId());
+      SiPixelTrackResidualModule *module = new SiPixelTrackResidualModule((*pxb)->geographicalId().rawId());
       theSiPixelStructure.insert(
           pair<uint32_t, SiPixelTrackResidualModule *>((*pxb)->geographicalId().rawId(), module));
       // int DBlayer = PixelBarrelNameWrapper(pSet_,
@@ -135,8 +134,7 @@ void SiPixelTrackResidualSource::dqmBeginRun(const edm::Run &r, edm::EventSetup 
   }
   for (TrackerGeometry::DetContainer::const_iterator pxf = TG->detsPXF().begin(); pxf != TG->detsPXF().end(); pxf++) {
     if (dynamic_cast<PixelGeomDetUnit const *>((*pxf)) != nullptr) {
-      SiPixelTrackResidualModule *module =
-          new SiPixelTrackResidualModule((*pxf)->geographicalId().rawId());
+      SiPixelTrackResidualModule *module = new SiPixelTrackResidualModule((*pxf)->geographicalId().rawId());
       theSiPixelStructure.insert(
           pair<uint32_t, SiPixelTrackResidualModule *>((*pxf)->geographicalId().rawId(), module));
       int DBdisk;
@@ -156,7 +154,7 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker &iBooker,
   SiPixelFolderOrganizer theSiPixelFolder(false);
 
   edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopoTokenBeginRun_);
-  const TrackerTopology* pTT = tTopoHandle.product();
+  const TrackerTopology *pTT = tTopoHandle.product();
 
   std::stringstream nameX, titleX, nameY, titleY;
 
