@@ -14,6 +14,7 @@
   <use name="CommonTools/UtilAlgos"/>
   <use name="Geometry/HcalTowerAlgo"/>
   <use name="MagneticField/Records"/>
+  <use name="FastSimulation/CaloGeometryTools"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 
