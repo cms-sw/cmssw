@@ -189,7 +189,7 @@ void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es
   cout << "event number " << event_counter_ << endl;
 
   edm::ESHandle<TrackerGeometry> estracker = es.getHandle(trackerGeomToken_);
-  const TrackerGeometry *tracker = &(*estracker);
+  const TrackerGeometry* tracker = &(*estracker);
 
   std::unique_ptr<TrackerHitAssociator> associate;
   if (simData_)
