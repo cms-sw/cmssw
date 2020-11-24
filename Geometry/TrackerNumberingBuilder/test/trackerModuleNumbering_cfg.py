@@ -17,39 +17,42 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 
-process.MessageLogger = cms.Service(
-    "MessageLogger",
-    statistics = cms.untracked.vstring('cout', 'tkmodulenumbering'),
-    categories = cms.untracked.vstring('Geometry', 'ModuleNumbering'),
+process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG'),
-        noLineBreaks = cms.untracked.bool(True)
-        ),
-    tkmodulenumbering = cms.untracked.PSet(
-        INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-            ),
+        enable = cms.untracked.bool(True),
+        enableStatistics = cms.untracked.bool(True),
         noLineBreaks = cms.untracked.bool(True),
-        DEBUG = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+        threshold = cms.untracked.string('DEBUG')
+    ),
+    files = cms.untracked.PSet(
+        tkmodulenumbering = cms.untracked.PSet(
+            DEBUG = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
             ),
-        WARNING = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+            ERROR = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
             ),
-        ERROR = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+            Geometry = cms.untracked.PSet(
+                limit = cms.untracked.int32(-1)
             ),
-        threshold = cms.untracked.string('INFO'),
-        Geometry = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
+            INFO = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
             ),
-        ModuleNumbering = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-            )
-        ),
-    destinations = cms.untracked.vstring('cout',
-                                         'tkmodulenumbering')
+            ModuleNumbering = cms.untracked.PSet(
+                limit = cms.untracked.int32(-1)
+            ),
+            WARNING = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            enableStatistics = cms.untracked.bool(True),
+            noLineBreaks = cms.untracked.bool(True),
+            threshold = cms.untracked.string('INFO')
+        )
     )
+)
 
 process.prod = cms.EDAnalyzer("ModuleNumbering")
 
