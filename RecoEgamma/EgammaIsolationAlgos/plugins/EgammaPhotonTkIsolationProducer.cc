@@ -6,25 +6,17 @@
 //=============================================================================
 //*****************************************************************************
 
-#include "DataFormats/Common/interface/Handle.h"
-
-#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Candidate/interface/CandAssociation.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-
-#include "RecoEgamma/EgammaIsolationAlgos/interface/PhotonTkIsolation.h"
-
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/global/EDProducer.h"
-
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/PhotonTkIsolation.h"
 
 class EgammaPhotonTkIsolationProducer : public edm::global::EDProducer<> {
 public:
@@ -50,6 +42,7 @@ private:
   const edm::ParameterSet conf_;
 };
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(EgammaPhotonTkIsolationProducer);
 
 EgammaPhotonTkIsolationProducer::EgammaPhotonTkIsolationProducer(const edm::ParameterSet& config)
