@@ -1,9 +1,7 @@
-#include "CondFormats/HcalObjects/interface/HcalRespCorrsGPU.h"
-
 #include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
-
+#include "CondFormats/HcalObjects/interface/HcalRespCorrsGPU.h"
 #include "FWCore/Utilities/interface/typelookup.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/copyAsync.h"
 
 // FIXME: add proper getters to conditions
 HcalRespCorrsGPU::HcalRespCorrsGPU(HcalRespCorrs const& respcorrs)
@@ -24,23 +22,14 @@ HcalRespCorrsGPU::HcalRespCorrsGPU(HcalRespCorrs const& respcorrs)
   }
 }
 
-HcalRespCorrsGPU::Product::~Product() {
-  // deallocation
-  cudaCheck(cudaFree(values));
-}
-
-HcalRespCorrsGPU::Product const& HcalRespCorrsGPU::getProduct(cudaStream_t cudaStream) const {
-  auto const& product = product_.dataForCurrentDeviceAsync(
-      cudaStream, [this](HcalRespCorrsGPU::Product& product, cudaStream_t cudaStream) {
-        // malloc
-        cudaCheck(cudaMalloc((void**)&product.values, this->values_.size() * sizeof(float)));
+HcalRespCorrsGPU::Product const& HcalRespCorrsGPU::getProduct(cudaStream_t stream) const {
+  auto const& product =
+      product_.dataForCurrentDeviceAsync(stream, [this](HcalRespCorrsGPU::Product& product, cudaStream_t stream) {
+        // allocate
+        product.values = cms::cuda::make_device_unique<float[]>(values_.size(), stream);
 
         // transfer
-        cudaCheck(cudaMemcpyAsync(product.values,
-                                  this->values_.data(),
-                                  this->values_.size() * sizeof(float),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
+        cms::cuda::copyAsync(product.values, values_, stream);
       });
 
   return product;

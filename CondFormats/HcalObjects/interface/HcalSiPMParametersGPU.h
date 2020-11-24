@@ -2,6 +2,8 @@
 #define CondFormats_HcalObjects_interface_HcalSiPMParametersGPU_h
 
 #include "CondFormats/HcalObjects/interface/HcalSiPMParameters.h"
+#include "FWCore/Utilities/interface/propagate_const_array.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 
 #ifndef __CUDACC__
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
@@ -11,9 +13,11 @@
 class HcalSiPMParametersGPU {
 public:
   struct Product {
-    ~Product();
-    int *type, *auxi1;
-    float *fcByPE, *darkCurrent, *auxi2;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<int[]>> type;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<int[]>> auxi1;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<float[]>> fcByPE;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<float[]>> darkCurrent;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<float[]>> auxi2;
   };
 
 #ifndef __CUDACC__

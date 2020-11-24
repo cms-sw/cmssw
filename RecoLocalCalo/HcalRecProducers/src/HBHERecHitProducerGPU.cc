@@ -139,7 +139,7 @@ void HBHERecHitProducerGPU::acquire(edm::Event const& event,
   // use only 1 depending on useEffectivePedestals
   edm::ESHandle<HcalConvertedPedestalWidthsGPU> pedestalWidthsHandle;
   edm::ESHandle<HcalConvertedEffectivePedestalWidthsGPU> effectivePedestalWidthsHandle;
-  setup.get<HcalConvertedEffectivePedestalWidthsRcd>().get(effectivePedestalWidthsHandle);
+  setup.get<HcalConvertedPedestalWidthsRcd>().get(effectivePedestalWidthsHandle);
   setup.get<HcalConvertedPedestalWidthsRcd>().get(pedestalWidthsHandle);
   auto const& pedestalWidthsProduct = pedestalWidthsHandle->getProduct(ctx.stream());
   auto const& effectivePedestalWidthsProduct = effectivePedestalWidthsHandle->getProduct(ctx.stream());
@@ -150,7 +150,7 @@ void HBHERecHitProducerGPU::acquire(edm::Event const& event,
 
   edm::ESHandle<HcalConvertedEffectivePedestalsGPU> effectivePedestalsHandle;
   if (configParameters_.useEffectivePedestals)
-    setup.get<HcalConvertedEffectivePedestalsRcd>().get(effectivePedestalsHandle);
+    setup.get<HcalConvertedPedestalsRcd>().get(effectivePedestalsHandle);
   auto const* effectivePedestalsProduct =
       configParameters_.useEffectivePedestals ? &effectivePedestalsHandle->getProduct(ctx.stream()) : nullptr;
 

@@ -1,9 +1,8 @@
-#include "CondFormats/HcalObjects/interface/HcalConvertedPedestalWidthsGPU.h"
-
-#include "FWCore/Utilities/interface/typelookup.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-
 #include <cmath>
+
+#include "CondFormats/HcalObjects/interface/HcalConvertedPedestalWidthsGPU.h"
+#include "FWCore/Utilities/interface/typelookup.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/copyAsync.h"
 
 namespace {
   float convert(
@@ -135,24 +134,14 @@ HcalConvertedPedestalWidthsGPU::HcalConvertedPedestalWidthsGPU(HcalPedestals con
   }
 }
 
-HcalConvertedPedestalWidthsGPU::Product::~Product() {
-  // deallocation
-  cudaCheck(cudaFree(values));
-}
-
-HcalConvertedPedestalWidthsGPU::Product const& HcalConvertedPedestalWidthsGPU::getProduct(
-    cudaStream_t cudaStream) const {
+HcalConvertedPedestalWidthsGPU::Product const& HcalConvertedPedestalWidthsGPU::getProduct(cudaStream_t stream) const {
   auto const& product = product_.dataForCurrentDeviceAsync(
-      cudaStream, [this](HcalConvertedPedestalWidthsGPU::Product& product, cudaStream_t cudaStream) {
-        // malloc
-        cudaCheck(cudaMalloc((void**)&product.values, this->values_.size() * sizeof(float)));
+      stream, [this](HcalConvertedPedestalWidthsGPU::Product& product, cudaStream_t stream) {
+        // allocate
+        product.values = cms::cuda::make_device_unique<float[]>(values_.size(), stream);
 
         // transfer
-        cudaCheck(cudaMemcpyAsync(product.values,
-                                  this->values_.data(),
-                                  this->values_.size() * sizeof(float),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
+        cms::cuda::copyAsync(product.values, values_, stream);
       });
 
   return product;

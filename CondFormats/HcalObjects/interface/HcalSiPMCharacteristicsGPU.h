@@ -2,6 +2,8 @@
 #define CondFormats_HcalObjects_interface_HcalSiPMCharacteristicsGPU_h
 
 #include "CondFormats/HcalObjects/interface/HcalSiPMCharacteristics.h"
+#include "FWCore/Utilities/interface/propagate_const_array.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 
 #ifndef __CUDACC__
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
@@ -11,12 +13,13 @@
 class HcalSiPMCharacteristicsGPU {
 public:
   struct Product {
-    ~Product();
-    int *pixels;
-    float *parLin1, *parLin2, *parLin3;
-    float *crossTalk;
-    int *auxi1;
-    float *auxi2;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<int[]>> pixels;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<float[]>> parLin1;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<float[]>> parLin2;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<float[]>> parLin3;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<float[]>> crossTalk;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<int[]>> auxi1;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<float[]>> auxi2;
   };
 
 #ifndef __CUDACC__

@@ -2,6 +2,8 @@
 #define CondFormats_HcalObjects_interface_HcalGainsGPU_h
 
 #include "CondFormats/HcalObjects/interface/HcalGains.h"
+#include "FWCore/Utilities/interface/propagate_const_array.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 
 #ifndef __CUDACC__
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
@@ -11,8 +13,7 @@
 class HcalGainsGPU {
 public:
   struct Product {
-    ~Product();
-    float* values;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<float[]>> values;
   };
 
 #ifndef __CUDACC__
