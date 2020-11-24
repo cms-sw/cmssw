@@ -16,68 +16,37 @@ process.GlobalTag.globaltag = 'STARTUP_V8::All'
 process.load("L1TriggerOffline.L1Analyzer.bscTrigger_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    suppressInfo = cms.untracked.vstring(),
-    debugs = cms.untracked.PSet(
-        placeholder = cms.untracked.bool(True)
-    ),
-    suppressDebug = cms.untracked.vstring(),
-    cout = cms.untracked.PSet(
-        placeholder = cms.untracked.bool(True)
-    ),
-    warnings = cms.untracked.PSet(
-        placeholder = cms.untracked.bool(True)
-    ),
-    default = cms.untracked.PSet(
-
-    ),
-    errors = cms.untracked.PSet(
-        placeholder = cms.untracked.bool(True)
-    ),
     cerr = cms.untracked.PSet(
-        noTimeStamps = cms.untracked.bool(False),
         BscSim = cms.untracked.PSet(
-            reportEvery = cms.untracked.int32(1),
-            limit = cms.untracked.int32(10000000)
+            limit = cms.untracked.int32(10000000),
+            reportEvery = cms.untracked.int32(1)
         ),
         FwkReport = cms.untracked.PSet(
-            reportEvery = cms.untracked.int32(1),
-            limit = cms.untracked.int32(10000000)
+            limit = cms.untracked.int32(10000000),
+            reportEvery = cms.untracked.int32(1)
+        ),
+        FwkSummary = cms.untracked.PSet(
+            limit = cms.untracked.int32(10000000),
+            reportEvery = cms.untracked.int32(1)
+        ),
+        Root_NoDictionary = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
         ),
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(10000000)
         ),
-        Root_NoDictionary = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        FwkSummary = cms.untracked.PSet(
-            reportEvery = cms.untracked.int32(1),
-            limit = cms.untracked.int32(10000000)
-        ),
-        threshold = cms.untracked.string('DEBUG')
+        noTimeStamps = cms.untracked.bool(False),
+        threshold = cms.untracked.string('DEBUG'),
+        enableStatistics = cms.untracked.bool(True),
+        statisticsThreshold = cms.untracked.string('INFO')
     ),
-    suppressWarning = cms.untracked.vstring(),
-    statistics = cms.untracked.vstring('cerr_stats'),
-    cerr_stats = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO'),
-        output = cms.untracked.string('cerr')
-    ),
-    infos = cms.untracked.PSet(
-        Root_NoDictionary = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        placeholder = cms.untracked.bool(True)
-    ),
-    destinations = cms.untracked.vstring('warnings', 
-        'errors', 
-        'infos', 
-        'debugs', 
-        'cout', 
-        'cerr'),
     debugModules = cms.untracked.vstring('bscTrigger'),
-    categories = cms.untracked.vstring('BscSim',
-        'FwkReport', 
-        'FwkSummary', 
-        'Root_NoDictionary')
+    default = cms.untracked.PSet(
+
+    ),
+    suppressDebug = cms.untracked.vstring(),
+    suppressInfo = cms.untracked.vstring(),
+    suppressWarning = cms.untracked.vstring()
 )
 # import of standard configurations
 process.load('Configuration/StandardSequences/Services_cff')
