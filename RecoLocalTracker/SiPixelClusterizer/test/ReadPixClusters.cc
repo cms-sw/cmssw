@@ -97,6 +97,8 @@ private:
   edm::ParameterSet conf_;
   edm::InputTag src_;
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> tPixelCluster;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
   bool printLocal;
   int countEvents, countAllEvents;
   double sumClusters;
@@ -145,6 +147,8 @@ ReadPixClusters::ReadPixClusters(edm::ParameterSet const &conf)
 
   cout << " Construct " << printLocal << endl;
   tPixelCluster = consumes<edmNew::DetSetVector<SiPixelCluster>>(src_);
+  trackerTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
+  trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
 }
 // Virtual destructor needed.
 ReadPixClusters::~ReadPixClusters() {}
@@ -330,14 +334,12 @@ void ReadPixClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
   using namespace edm;
 
   // Get event setup
-  edm::ESHandle<TrackerGeometry> geom;
-  es.get<TrackerDigiGeometryRecord>().get(geom);
+  edm::ESHandle<TrackerGeometry> geom = es.getHandle(trackerGeomToken_);
   const TrackerGeometry &theTracker(*geom);
 
 #ifdef NEW_ID
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopo;
-  es.get<TrackerTopologyRcd>().get(tTopo);
+  edm::ESHandle<TrackerTopology> tTopo = es.getHandle(trackerTopoToken_);
 #endif
 
   countAllEvents++;

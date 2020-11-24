@@ -127,6 +127,7 @@ public:
 private:
   edm::ParameterSet conf_;
   edm::InputTag src_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
   //const static bool PRINT = false;
   bool PRINT;
   float countTracks, countGoodTracks, countTracksInPix, countPVs, countEvents, countLumi;
@@ -198,6 +199,7 @@ TestWithTracks::TestWithTracks(edm::ParameterSet const &conf)
     : conf_(conf) {
   PRINT = conf.getUntrackedParameter<bool>("Verbosity", false);
   src_ = conf.getParameter<edm::InputTag>("src");
+  trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
   //if(PRINT) cout<<" Construct "<<endl;
 }
 
@@ -593,14 +595,8 @@ void TestWithTracks::analyze(const edm::Event &e, const edm::EventSetup &es) {
   }    // if valid
 #endif
 
-  // -- Does this belong into beginJob()?
-  //ESHandle<TrackerGeometry> TG;
-  //iSetup.get<TrackerDigiGeometryRecord>().get(TG);
-  //const TrackerGeometry* theTrackerGeometry = TG.product();
-  //const TrackerGeometry& theTracker(*theTrackerGeometry);
   // Get event setup
-  edm::ESHandle<TrackerGeometry> geom;
-  es.get<TrackerDigiGeometryRecord>().get(geom);
+  edm::ESHandle<TrackerGeometry> geom = es.getHandle(trackerGeomToken_);
   const TrackerGeometry &theTracker(*geom);
 
   // -- Primary vertices

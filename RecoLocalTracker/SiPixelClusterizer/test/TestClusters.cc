@@ -848,6 +848,8 @@ private:
 
   // Needed for the ByToken method
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > myClus;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
 
   //TFile* hFile;
   TH1D *hdetunit;
@@ -996,6 +998,8 @@ TestClusters::TestClusters(edm::ParameterSet const &conf) : conf_(conf), src_(co
 
   // For the ByToken method
   myClus = consumes<edmNew::DetSetVector<SiPixelCluster> >(conf.getParameter<edm::InputTag>("src"));
+  trackerTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
+  trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
 }
 // Virtual destructor needed.
 TestClusters::~TestClusters() {}
@@ -1861,8 +1865,7 @@ void TestClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
   //static int nsum = 0, lsold=-999, lumiold=0.;
 
   // Get event setup
-  edm::ESHandle<TrackerGeometry> geom;
-  es.get<TrackerDigiGeometryRecord>().get(geom);
+  edm::ESHandle<TrackerGeometry> geom = es.getHandle(trackerGeomToken_);
   const TrackerGeometry &theTracker(*geom);
 
   countAllEvents++;
@@ -2245,8 +2248,7 @@ void TestClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
 
 #ifdef NEW_ID
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopo;
-  es.get<TrackerTopologyRcd>().get(tTopo);
+  edm::ESHandle<TrackerTopology> tTopo = es.getHandle(trackerTopoToken_);
 #endif
 
   //---------------------------------------
