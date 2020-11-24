@@ -331,7 +331,8 @@ void GEMCSCLUTAnalyzer::gemPadToCscEsLUT(const CSCLayer* keyLayer,
                                          const GEMEtaPartition* randRoll,
                                          std::vector<int>& lut) const {
   int offset(0);
-  if (keyLayer->id().ring() == 4) offset = 64;
+  if (keyLayer->id().ring() == 4)
+    offset = 64;
   const int nGEMPads(randRoll->npads());
   const CSCLayerGeometry* keyLayerGeometry(keyLayer->geometry());
   for (int i = 0; i < nGEMPads; ++i) {
