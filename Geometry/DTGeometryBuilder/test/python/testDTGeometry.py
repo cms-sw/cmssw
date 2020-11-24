@@ -12,39 +12,42 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
 
-process.MessageLogger = cms.Service(
-    "MessageLogger",
-    statistics = cms.untracked.vstring('cout', 'dtGeometry'),
-    categories = cms.untracked.vstring('DTGeometryTest', 'Geometry'),
+process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('WARNING'),
-        noLineBreaks = cms.untracked.bool(True)
-        ),
-    dtGeometry = cms.untracked.PSet(
-        INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-            ),
+        enable = cms.untracked.bool(True),
+        enableStatistics = cms.untracked.bool(True),
         noLineBreaks = cms.untracked.bool(True),
-        DEBUG = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+        threshold = cms.untracked.string('WARNING')
+    ),
+    files = cms.untracked.PSet(
+        dtGeometry = cms.untracked.PSet(
+            DEBUG = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
             ),
-        WARNING = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+            DTGeometryTest = cms.untracked.PSet(
+                limit = cms.untracked.int32(-1)
             ),
-        ERROR = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+            ERROR = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
             ),
-        threshold = cms.untracked.string('INFO'),
-        DTGeometryTest = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
+            Geometry = cms.untracked.PSet(
+                limit = cms.untracked.int32(-1)
             ),
-        Geometry = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-            )
-        ),
-    destinations = cms.untracked.vstring('cout',
-                                         'dtGeometry')
+            INFO = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            WARNING = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            enableStatistics = cms.untracked.bool(True),
+            noLineBreaks = cms.untracked.bool(True),
+            threshold = cms.untracked.string('INFO')
+        )
     )
+)
 
 process.DTGeometryESProducer = cms.ESProducer("DTGeometryESProducer",
                                               DDDetector = cms.ESInputTag('',''),

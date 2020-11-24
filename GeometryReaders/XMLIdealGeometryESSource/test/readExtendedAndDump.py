@@ -34,20 +34,28 @@ process.BigXMLWriter = cms.EDAnalyzer("OutputDDToDDL",
                               )
 
 process.MessageLogger = cms.Service("MessageLogger",
-                                    readIdealerrors = cms.untracked.PSet( threshold = cms.untracked.string('ERROR'),
-                                                                          extension = cms.untracked.string('.out')
-                                                                          ),
-                                    readIdealdebug = cms.untracked.PSet( INFO = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
-                                                                         extension = cms.untracked.string('.out'),
-                                                                         noLineBreaks = cms.untracked.bool(True),
-                                                                         DEBUG = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
-                                                                         threshold = cms.untracked.string('DEBUG'),
-                                                                         ),
-                                    # For LogDebug/LogTrace output...
-                                    debugModules = cms.untracked.vstring('*'),
-                                    categories = cms.untracked.vstring('*'),
-                                    destinations = cms.untracked.vstring('readIdealerrors','readIdealdebug')
-                                    )
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    debugModules = cms.untracked.vstring('*'),
+    files = cms.untracked.PSet(
+        readIdealdebug = cms.untracked.PSet(
+            DEBUG = cms.untracked.PSet(
+                limit = cms.untracked.int32(-1)
+            ),
+            INFO = cms.untracked.PSet(
+                limit = cms.untracked.int32(-1)
+            ),
+            extension = cms.untracked.string('.out'),
+            noLineBreaks = cms.untracked.bool(True),
+            threshold = cms.untracked.string('DEBUG')
+        ),
+        readIdealerrors = cms.untracked.PSet(
+            extension = cms.untracked.string('.out'),
+            threshold = cms.untracked.string('ERROR')
+        )
+    )
+)
 
 process.Timing = cms.Service("Timing")
 

@@ -17,6 +17,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include <algorithm>
+
 using namespace cms;
 using namespace dd4hep;
 using namespace dd4hep::sim;
@@ -29,14 +31,16 @@ G4VPhysicalVolume *DDG4Builder::BuildGeometry(SensitiveDetectorCatalog &catalog)
   refFact->SetScalePrecision(100. * refFact->GetScalePrecision());
 
   const cms::DDDetector *det = compactView_->detector();
-
   DetElement world = det->description()->world();
   const Detector &detector = *det->description();
+
+  // GET FULL G4 GEOMETRY
   Geant4Converter g4Geo(detector);
   g4Geo.debugMaterials = false;
   Geant4GeometryInfo *geometry = g4Geo.create(world).detach();
   map_ = geometry->g4Volumes;
 
+  // FIND & STORE ALL G4 LOGICAL VOLUMES DEFINED AS SENSITIVE IN CMSSW XMLS
   std::vector<std::pair<G4LogicalVolume *, const dd4hep::SpecPar *>> dd4hepVec;
   const dd4hep::SpecParRegistry &specPars = det->specpars();
   dd4hep::SpecParRefs specs;
@@ -51,27 +55,37 @@ G4VPhysicalVolume *DDG4Builder::BuildGeometry(SensitiveDetectorCatalog &catalog)
     }
   }
 
+  // ADD ALL SELECTED G4 LOGICAL VOLUMES TO SENSITIVE DETECTORS CATALOGUE
   for (auto const &it : dd4hepVec) {
+    // Sensitive detector info
+    const G4String &sensitiveDetectorG4Name = it.first->GetName();
     auto sClassName = it.second->strValue("SensitiveDetector");
     auto sROUName = it.second->strValue("ReadOutName");
-    auto fff = it.first->GetName();
-    catalog.insert({sClassName.data(), sClassName.size()}, {sROUName.data(), sROUName.size()}, fff);
+    // Add to catalogue
+    catalog.insert({sClassName.data(), sClassName.size()}, {sROUName.data(), sROUName.size()}, sensitiveDetectorG4Name);
 
-    auto reflectedG4LogicalVolumeName = fff + "_refl";
-    bool hasReflectedVolumeInStore = false;
-    G4LogicalVolumeStore *theStore = G4LogicalVolumeStore::GetInstance();
-    for (const auto &lv : *theStore) {
-      if (lv->GetName().find(reflectedG4LogicalVolumeName) != std::string::npos) {
-        hasReflectedVolumeInStore = true;
-      }
-    }
-    if (hasReflectedVolumeInStore) {
+    edm::LogVerbatim("SimG4CoreApplication") << " DDG4SensitiveConverter: Sensitive " << sensitiveDetectorG4Name
+                                             << " Class Name " << sClassName << " ROU Name " << sROUName;
+
+    // Reflected sensors also need to be added to the senstive detectors catalogue!
+    // Similar treatment here with DD4hep, as what was done for old DD.
+    const G4String &sensitiveDetectorG4ReflectedName = sensitiveDetectorG4Name + "_refl";
+
+    const G4LogicalVolumeStore *const allG4LogicalVolumes = G4LogicalVolumeStore::GetInstance();
+    const bool hasG4ReflectedVolume =
+        std::find_if(
+            allG4LogicalVolumes->begin(), allG4LogicalVolumes->end(), [&](G4LogicalVolume *const aG4LogicalVolume) {
+              return (aG4LogicalVolume->GetName() == sensitiveDetectorG4ReflectedName);
+            }) != allG4LogicalVolumes->end();
+    if (hasG4ReflectedVolume) {
+      // Add reflected sensitive detector to catalogue
       catalog.insert(
-          {sClassName.data(), sClassName.size()}, {sROUName.data(), sROUName.size()}, reflectedG4LogicalVolumeName);
-    }
+          {sClassName.data(), sClassName.size()}, {sROUName.data(), sROUName.size()}, sensitiveDetectorG4ReflectedName);
 
-    edm::LogVerbatim("SimG4CoreApplication")
-        << " DDG4SensitiveConverter: Sensitive " << fff << " Class Name " << sClassName << " ROU Name " << sROUName;
+      edm::LogVerbatim("SimG4CoreApplication")
+          << " DDG4SensitiveConverter: Sensitive " << sensitiveDetectorG4ReflectedName << " Class Name " << sClassName
+          << " ROU Name " << sROUName;
+    }
   }
 
   return geometry->world();
