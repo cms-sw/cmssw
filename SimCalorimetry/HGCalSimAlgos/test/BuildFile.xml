@@ -1,13 +1,10 @@
-<environment>
-  <use name="SimCalorimetry/HGCalSimAlgos"/>
-  <use name="CommonTools/UtilAlgos"/>
-  <use name="Geometry/Records"/>
-  <flags EDM_PLUGIN="1"/>
-  <library file="HGCSiNoiseMapAnalyzer.cc" name="HGCSiNoiseMapAnalyzer">
-  <library file="HFNoseNoiseMapAnalyzer.cc" name="HFNoseNoiseMapAnalyzer">
+<use name="SimCalorimetry/HGCalSimAlgos"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="Geometry/Records"/>
+<flags EDM_PLUGIN="1"/>
+<library file="HGCSiNoiseMapAnalyzer.cc" name="HGCSiNoiseMapAnalyzer">
 </library>
-
-  <library file="HGCHEbackSignalScalerAnalyzer.cc" name="HGCHEbackSignalScalerAnalyzer">
+<library file="HFNoseNoiseMapAnalyzer.cc" name="HFNoseNoiseMapAnalyzer">
 </library>
-
-</environment>
+<library file="HGCHEbackSignalScalerAnalyzer.cc" name="HGCHEbackSignalScalerAnalyzer">
+</library>
