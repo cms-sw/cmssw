@@ -6,37 +6,24 @@
 //=============================================================================
 //*****************************************************************************
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandAssociation.h"
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
-
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
-
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
-
-//
-// class declaration
-//
 
 class EgammaEcalRecHitIsolationProducer : public edm::stream::EDProducer<> {
 public:
@@ -75,6 +62,7 @@ private:
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometrytoken_;
 };
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(EgammaEcalRecHitIsolationProducer);
 
 EgammaEcalRecHitIsolationProducer::EgammaEcalRecHitIsolationProducer(const edm::ParameterSet& config) : conf_(config) {

@@ -6,28 +6,16 @@
 //=============================================================================
 //*****************************************************************************
 
-// Framework
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Candidate/interface/CandAssociation.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/Candidate/interface/CandAssociation.h"
-
-#include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"
-
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"
 
 class EgammaElectronTkIsolationProducer : public edm::stream::EDProducer<> {
 public:
@@ -53,6 +41,7 @@ private:
   edm::ParameterSet conf_;
 };
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(EgammaElectronTkIsolationProducer);
 
 EgammaElectronTkIsolationProducer::EgammaElectronTkIsolationProducer(const edm::ParameterSet& config) : conf_(config) {

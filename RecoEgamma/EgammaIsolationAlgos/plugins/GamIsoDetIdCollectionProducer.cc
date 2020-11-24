@@ -13,45 +13,29 @@ Implementation:
  <Notes on implementation>
 */
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
-
+#include "DataFormats/DetId/interface/DetIdCollection.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "RecoCaloTools/Selectors/interface/CaloDualConeSelector.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
-
-#include "DataFormats/DetId/interface/DetIdCollection.h"
-
-#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
-#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
-
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "RecoCaloTools/Selectors/interface/CaloDualConeSelector.h"
 
 class GamIsoDetIdCollectionProducer : public edm::stream::EDProducer<> {
 public:
@@ -83,6 +67,7 @@ private:
   std::vector<int> flagsexclEE_;
 };
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(GamIsoDetIdCollectionProducer);
 
 GamIsoDetIdCollectionProducer::GamIsoDetIdCollectionProducer(const edm::ParameterSet& iConfig)
