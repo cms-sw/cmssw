@@ -4,5 +4,8 @@
  <class name="trigger::HLTPrescaleTableCond">
    <field name ="hltPrescaleTable_" mapping ="blob"/>
  </class>
+<class name="L1TObjScalingConstants" class_version="0"/>
+<class name="L1TObjScalingConstants::Scaling"/>
+<class name="std::vector<L1TObjScalingConstants::Scaling>"/>
 </lcgdict>   
 
