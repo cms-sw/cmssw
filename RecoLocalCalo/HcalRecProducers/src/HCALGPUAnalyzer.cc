@@ -54,14 +54,14 @@ using namespace std;
 class HCALGPUAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit HCALGPUAnalyzer(const edm::ParameterSet &);
-  ~HCALGPUAnalyzer();
+  ~HCALGPUAnalyzer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
-  virtual void beginJob() override;
-  virtual void analyze(const edm::Event &, const edm::EventSetup &) override;
-  virtual void endJob() override;
+  void beginJob() override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void endJob() override;
 
   // ----------member data ---------------------------
   //  void ClearVariables();
@@ -162,11 +162,6 @@ HCALGPUAnalyzer::HCALGPUAnalyzer(const edm::ParameterSet &iConfig) {
   Matched = FileService->make<TH2F>("Matched", "Matched (eta,phi)", 100, -50., 50., 85, 0., 85.);
 
   //now do what ever initialization is needed
-}
-
-HCALGPUAnalyzer::~HCALGPUAnalyzer() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //
