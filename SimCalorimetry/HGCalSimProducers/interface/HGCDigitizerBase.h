@@ -111,7 +111,6 @@ public:
                             hgc::HGCSimHitDataAccumulator& simData,
                             const CaloSubdetectorGeometry* theGeom,
                             const std::unordered_set<DetId>& validIds,
-                            uint32_t digitizerType,
                             CLHEP::HepRandomEngine* engine) {
     throw cms::Exception("HGCDigitizerBaseException") << " Failed to find specialization of runDigitizer";
   }

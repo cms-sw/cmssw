@@ -41,7 +41,6 @@ void HGCHEbackDigitizer::runDigitizer(std::unique_ptr<HGCalDigiCollection>& digi
                                       HGCSimHitDataAccumulator& simData,
                                       const CaloSubdetectorGeometry* theGeom,
                                       const std::unordered_set<DetId>& validIds,
-                                      uint32_t digitizationType,
                                       CLHEP::HepRandomEngine* engine) {
   if (algo_ == 0)
     runEmptyDigitizer(digiColl, simData, theGeom, validIds, engine);
