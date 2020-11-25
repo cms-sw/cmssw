@@ -145,6 +145,8 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
     thisLCT.setGEM1(gem1);
     thisLCT.setType(CSCCorrelatedLCTDigi::ALCTCLCTGEM);
     valid = doesWiregroupCrossStrip(keyWG, keyStrip) ? 1 : 0;
+    // 4-bit slope value derived with the CCLUT algorithm
+    thisLCT.setSlope(clct.getSlope());
   } else if (alct.isValid() and clct.isValid() and not gem1.isValid() and gem2.isValid()) {
     pattern = encodePattern(clct.getPattern());
     if (runCCLUT_) {
@@ -162,6 +164,8 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
     thisLCT.setGEM2(gem2.second());
     thisLCT.setType(CSCCorrelatedLCTDigi::ALCTCLCT2GEM);
     valid = doesWiregroupCrossStrip(keyWG, keyStrip) ? 1 : 0;
+    // 4-bit slope value derived with the CCLUT algorithm
+    thisLCT.setSlope(clct.getSlope());
   } else if (alct.isValid() and gem2.isValid() and not clct.isValid()) {
     //in ME11
     //ME1b: keyWG >15,
@@ -228,6 +232,8 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
     thisLCT.setGEM2(gem2.second());
     thisLCT.setType(CSCCorrelatedLCTDigi::CLCT2GEM);
     valid = true;
+    // 4-bit slope value derived with the CCLUT algorithm
+    thisLCT.setSlope(clct.getSlope());
   }
 
   if (valid == 0)
