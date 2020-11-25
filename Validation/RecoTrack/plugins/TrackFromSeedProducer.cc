@@ -61,6 +61,7 @@ private:
   edm::EDGetTokenT<edm::View<TrajectorySeed> > seedsToken;
   edm::EDGetTokenT<reco::BeamSpot> beamSpotToken;
   std::string tTRHBuilderName;
+  const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> geoToken_;
 };
 
 //
@@ -74,7 +75,8 @@ private:
 //
 // constructors and destructor
 //
-TrackFromSeedProducer::TrackFromSeedProducer(const edm::ParameterSet& iConfig) {
+TrackFromSeedProducer::TrackFromSeedProducer(const edm::ParameterSet& iConfig)
+    : geoToken_(esConsumes<GlobalTrackingGeometry, GlobalTrackingGeometryRecord>()) {
   //register your products
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
@@ -129,8 +131,7 @@ void TrackFromSeedProducer::produce(edm::StreamID, edm::Event& iEvent, const edm
   iSetup.get<TrackerTopologyRcd>().get(httopo);
   const TrackerTopology& ttopo = *httopo;
 
-  edm::ESHandle<GlobalTrackingGeometry> geometry_;
-  iSetup.get<GlobalTrackingGeometryRecord>().get(geometry_);
+  const GlobalTrackingGeometry* const geometry_ = &iSetup.getData(geoToken_);
 
   // create tracks from seeds
   int nfailed = 0;

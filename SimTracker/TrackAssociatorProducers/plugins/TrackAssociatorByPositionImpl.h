@@ -21,12 +21,9 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "DataFormats/Common/interface/EDProductGetter.h"
 
 #include <map>
-
-namespace edm {
-  class EDProductGetter;
-}
 
 //Note that the Association Map is filled with -ch2 and not chi2 because it is ordered using std::greater:
 //the track with the lowest association chi2 will be the first in the output map.
