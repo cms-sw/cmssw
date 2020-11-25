@@ -632,7 +632,7 @@ def miniAOD_customizeData(process):
     ctpps_2016.toModify(task, func=lambda t: t.add(process.ctppsLocalTrackLiteProducer))
     ctpps_2016.toModify(task, func=lambda t: t.add(process.ctppsProtons))
     from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
-    run2_miniAOD_UL.toModify(task, func=lambda t: t.add(process.simGtExtUnpefireable))
+    run2_miniAOD_UL.toModify(task, func=lambda t: t.add(process.simGtExtUnprefireable))
 
 def miniAOD_customizeAllData(process):
     miniAOD_customizeCommon(process)
