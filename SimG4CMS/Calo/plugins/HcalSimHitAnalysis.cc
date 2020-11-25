@@ -70,8 +70,9 @@ HcalSimHitAnalysis::HcalSimHitAnalysis(const edm::ParameterSet& ps) {
   tok_calo_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hcalHits_));
   tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
   tok_HRNDC_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord>();
-						
-  edm::LogVerbatim("HitStudy") << "Module Label: " << g4Label_ << "   Hits: " << hcalHits_ << " testNumber " << testNumber_;
+
+  edm::LogVerbatim("HitStudy") << "Module Label: " << g4Label_ << "   Hits: " << hcalHits_ << " testNumber "
+                               << testNumber_;
 }
 
 void HcalSimHitAnalysis::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -123,7 +124,7 @@ void HcalSimHitAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iS)
   // get hcalGeometry
   const CaloGeometry* geo = &iS.getData(tok_geom_);
   const HcalGeometry* hgeom = static_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal, HcalBarrel));
-  const auto &pHRNDC = iS.getData(tok_HRNDC_);
+  const auto& pHRNDC = iS.getData(tok_HRNDC_);
   const HcalDDDRecConstants* hcons = &pHRNDC;
 
   edm::Handle<edm::PCaloHitContainer> hitsCalo;
@@ -138,32 +139,36 @@ void HcalSimHitAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iS)
     if (!hits.empty()) {
       std::map<HcalDetId, double> hitMap;
       for (auto hit : hits) {
-	double edep = hit.energy();
-	uint32_t id = hit.id();
-	HcalDetId hid = (testNumber_) ? HcalHitRelabeller::relabel(id, hcons) : HcalDetId(id);
-	auto it = hitMap.find(hid);
-	if (it == hitMap.end()) {
-	  hitMap[hid] = edep;
-	} else {
-	  (it->second) += edep;
-	}
+        double edep = hit.energy();
+        uint32_t id = hit.id();
+        HcalDetId hid = (testNumber_) ? HcalHitRelabeller::relabel(id, hcons) : HcalDetId(id);
+        auto it = hitMap.find(hid);
+        if (it == hitMap.end()) {
+          hitMap[hid] = edep;
+        } else {
+          (it->second) += edep;
+        }
       }
 
       for (auto it : hitMap) {
-	HcalDetId id(it.first);
+        HcalDetId id(it.first);
         GlobalPoint gpos = hgeom->getPosition(id);
-	HcalSubdetector subdet = (id).subdet();
-	int indx = ((subdet == HcalBarrel) ? 0 : ((subdet == HcalEndcap) ? 1 : ((subdet == HcalOuter) ? 2 : ((subdet == HcalForward) ? 3 : -1))));
-	if (verbose_)
-	  edm::LogVerbatim("HitStudy") << "HcalSimHitAnalysis: " << id << ":" << it.second << " at " << gpos << " subdet " << subdet << ":" << indx;
-	if (indx >= 0) {
-	  double x = ((indx == 0) || (indx == 2)) ? std::abs(gpos.z()) : gpos.x();
-	  double y = ((indx == 0) || (indx == 2)) ? (gpos.perp()) : gpos.y();
-	  if (id.zside() >= 0) 
-	    poszp_[indx]->Fill(x, y);
-	  else
-	    poszn_[indx]->Fill(x, y);
-	}
+        HcalSubdetector subdet = (id).subdet();
+        int indx =
+            ((subdet == HcalBarrel)
+                 ? 0
+                 : ((subdet == HcalEndcap) ? 1 : ((subdet == HcalOuter) ? 2 : ((subdet == HcalForward) ? 3 : -1))));
+        if (verbose_)
+          edm::LogVerbatim("HitStudy") << "HcalSimHitAnalysis: " << id << ":" << it.second << " at " << gpos
+                                       << " subdet " << subdet << ":" << indx;
+        if (indx >= 0) {
+          double x = ((indx == 0) || (indx == 2)) ? std::abs(gpos.z()) : gpos.x();
+          double y = ((indx == 0) || (indx == 2)) ? (gpos.perp()) : gpos.y();
+          if (id.zside() >= 0)
+            poszp_[indx]->Fill(x, y);
+          else
+            poszn_[indx]->Fill(x, y);
+        }
       }
     }
   }

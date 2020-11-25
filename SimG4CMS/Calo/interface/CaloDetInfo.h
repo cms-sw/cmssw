@@ -8,7 +8,13 @@
 
 class CaloDetInfo {
 public:
-  CaloDetInfo(uint32_t id, uint32_t depth, double rho, const std::string& name, G4ThreeVector pos, const G4VSolid* sol, bool flag = false);
+  CaloDetInfo(uint32_t id,
+              uint32_t depth,
+              double rho,
+              const std::string& name,
+              G4ThreeVector pos,
+              const G4VSolid* sol,
+              bool flag = false);
   CaloDetInfo();
   CaloDetInfo(const CaloDetInfo&);
   ~CaloDetInfo() = default;
@@ -35,23 +41,23 @@ private:
 
 class CaloDetInfoLess {
 public:
-  bool operator()(const CaloDetInfo* a, const CaloDetInfo* b) { 
+  bool operator()(const CaloDetInfo* a, const CaloDetInfo* b) {
     if (a->id() == b->id()) {
       if (a->depth() == b->depth()) {
-	return (a->rho() < b->rho());
+        return (a->rho() < b->rho());
       } else {
-	return (a->depth() < b->depth());
+        return (a->depth() < b->depth());
       }
     } else {
       return (a->id() < b->id());
     }
   }
-  bool operator()(const CaloDetInfo a, const CaloDetInfo b) { 
+  bool operator()(const CaloDetInfo a, const CaloDetInfo b) {
     if (a.id() == b.id()) {
       if (a.depth() == b.depth()) {
-	return (a.rho() < b.rho());
+        return (a.rho() < b.rho());
       } else {
-	return (a.depth() < b.depth());
+        return (a.depth() < b.depth());
       }
     } else {
       return (a.id() < b.id());
