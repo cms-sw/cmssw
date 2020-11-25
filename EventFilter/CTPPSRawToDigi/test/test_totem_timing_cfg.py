@@ -4,8 +4,6 @@ process = cms.Process("CTPPSRawToDigiTestStandardSequence")
 
 # minimum of logs
 process.MessageLogger = cms.Service("MessageLogger",
-    statistics = cms.untracked.vstring(),
-    destinations = cms.untracked.vstring('cerr'),
     cerr = cms.untracked.PSet(
         threshold = cms.untracked.string('WARNING')
     )

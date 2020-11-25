@@ -26,9 +26,15 @@ process.load("EventFilter.SiPixelRawToDigi.SiPixelDigiToRaw_cfi")
 #process.siPixelRawData.InputLabel = 'siPixelDigis'
 
 process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     debugModules = cms.untracked.vstring('siPixelRawData'),
-    destinations = cms.untracked.vstring('d2r'),
-    d2r = cms.untracked.PSet( threshold = cms.untracked.string('DEBUG'))
+    files = cms.untracked.PSet(
+        d2r = cms.untracked.PSet(
+            threshold = cms.untracked.string('DEBUG')
+        )
+    )
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
