@@ -97,15 +97,10 @@ jetCoreRegionalStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.Trajecto
 
 from Configuration.ProcessModifiers.seedingDeepCore_cff import seedingDeepCore
 seedingDeepCore.toModify(jetCoreRegionalStepTrajectoryFilter,
-    maxCCCLostHits = cms.int32(9999),
-    maxConsecLostHits = cms.int32(2),
-    maxLostHits = cms.int32(999),
-    maxLostHitsFraction = cms.double(1.1),
-    maxNumberOfHits = cms.int32(100),
-    minimumNumberOfHits = cms.int32(2),
-    pixelSeedExtension = cms.bool(False),
-    seedExtension = cms.int32(0),
-    strictSeedExtension = cms.bool(False)
+    minimumNumberOfHits = 2,
+    maxConsecLostHits   = 2,
+    maxLostHitsFraction = 1.1,
+    minPt               = 0.9
     )
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
@@ -132,34 +127,25 @@ jetCoreRegionalStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajecto
     maxDPhiForLooperReconstruction = cms.double(2.0),
     maxPtForLooperReconstruction = cms.double(0.7)
     )
+    
 seedingDeepCore.toModify(jetCoreRegionalStepTrajectoryBuilder,
-    maxPtForLooperReconstruction = cms.double(0),
+    maxPtForLooperReconstruction = 0.,
     keepOriginalIfRebuildFails = True,
     lockHits = False,
     requireSeedHitsInRebuild = False,
-    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('jetCoreRegionalStepDeepCoreTrajectoryFilter'))
 )
 
 #customized cleaner for DeepCore
 from TrackingTools.TrajectoryCleaning.TrajectoryCleanerBySharedHits_cfi import trajectoryCleanerBySharedHits
 jetCoreRegionalStepDeepCoreTrajectoryCleaner = trajectoryCleanerBySharedHits.clone(
-    ComponentName = cms.string('jetCoreRegionalStepDeepCoreTrajectoryCleaner'),
-    fractionShared = cms.double(0.45)
+    ComponentName = 'jetCoreRegionalStepDeepCoreTrajectoryCleaner',
+    fractionShared = 0.45
 )
 
-#DeepCore filter
-jetCoreRegionalStepDeepCoreTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone( #blockloose
-    maxConsecLostHits = cms.int32(2),
-    maxLostHitsFraction = cms.double(1.1),
-    minimumNumberOfHits = cms.int32(2)
-)
-
-
-import RecoTracker.TkSeedGenerator.DeepCoreSeedGenerator_cfi
-import RecoTracker.TkSeedGenerator.JetCoreMCtruthSeedGenerator_cfi
+import RecoTracker.TkSeedGenerator.deepCoreSeedGenerator_cfi
+import Validation.RecoTrack.JetCoreMCtruthSeedGenerator_cfi
 seedingDeepCore.toReplaceWith(jetCoreRegionalStepSeeds,
-    RecoTracker.TkSeedGenerator.DeepCoreSeedGenerator_cfi.DeepCoreSeedGenerator.clone(
-    # RecoTracker.TkSeedGenerator.JetCoreMCtruthSeedGenerator_cfi.JetCoreMCtruthSeedGenerator.clone( #MCtruthSeedGenerator
+    RecoTracker.TkSeedGenerator.deepCoreSeedGenerator_cfi.deepCoreSeedGenerator.clone(#to run MCtruthSeedGenerator clone here from Validation.RecoTrack
        vertices="firstStepPrimaryVertices" 
     )
 )
@@ -267,6 +253,7 @@ JetCoreRegionalStepTask = cms.Task(jetsForCoreTracking,
 #                                   jetCoreRegionalStepClassifier1,jetCoreRegionalStepClassifier2,
                                    jetCoreRegionalStep)
 JetCoreRegionalStep = cms.Sequence(JetCoreRegionalStepTask)
+seedingDeepCore.toReplaceWith(JetCoreRegionalStep,JetCoreRegionalStep.copyAndExclude([jetCoreRegionalStepHitDoublets]))
 fastSim.toReplaceWith(JetCoreRegionalStepTask, 
                       cms.Task(jetCoreRegionalStepTracks,
                                    jetCoreRegionalStep))
