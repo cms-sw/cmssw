@@ -21,7 +21,7 @@ lostTracks = cms.EDProducer("PATLostTracks",
     minPtToStoreProps = cms.double(0.95),
     passThroughCut = cms.string("pt>2"),
     pvAssignment = primaryVertexAssociation.assignment,
-    useLegacySetup = cms.bool(False) #When True: check only if track used to fit vertex[0] and do not store track detailed info for Pt between 0.5 and minPtToStoreProps GeV
+    useLegacySetup = cms.bool(True) #When True: check only if track used to fit vertex[0] and do not store track detailed info for Pt between 0.5 and minPtToStoreProps GeV
 )
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 phase1Pixel.toModify(lostTracks, covarianceVersion =1 )
