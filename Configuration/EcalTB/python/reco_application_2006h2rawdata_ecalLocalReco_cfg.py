@@ -8,25 +8,25 @@ process.load("Configuration.EcalTB.readConfigurationH2_2006_v0_cff")
 process.load("RecoTBCalo.EcalTBRecProducers.ecal2006TBH2WeightUncalibRecHit_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO'),
-        INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(10000)
-        ),
-        FwkReport = cms.untracked.PSet(
-            limit = cms.untracked.int32(20)
+        DDLParser = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
         ),
         FwkJob = cms.untracked.PSet(
             limit = cms.untracked.int32(10)
         ),
-        DDLParser = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        )
-    ),
-    categories = cms.untracked.vstring('DDLParser', 
-        'FwkJob', 
-        'FwkReport'),
-    destinations = cms.untracked.vstring('cout')
+        FwkReport = cms.untracked.PSet(
+            limit = cms.untracked.int32(20)
+        ),
+        INFO = cms.untracked.PSet(
+            limit = cms.untracked.int32(10000)
+        ),
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('INFO')
+    )
 )
 
 process.source = cms.Source("PoolSource",
