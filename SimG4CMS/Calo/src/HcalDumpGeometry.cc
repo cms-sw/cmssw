@@ -84,7 +84,7 @@ void HcalDumpGeometry::dumpTouch(G4VPhysicalVolume* pv, unsigned int leafDepth) 
 #endif
 
         G4VSolid* solid = lv->GetSolid();
-        infoVec_.emplace_back(CaloDetInfo(id, getNameNoNS(lvname), globalpoint, solid, flag_));
+        infoVec_.emplace_back(CaloDetInfo(id, 0, 0, getNameNoNS(lvname), globalpoint, solid, flag_));
       }
       break;
     }

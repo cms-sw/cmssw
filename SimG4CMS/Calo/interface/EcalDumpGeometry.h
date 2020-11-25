@@ -21,7 +21,7 @@
 
 class EcalDumpGeometry {
 public:
-  explicit EcalDumpGeometry(const std::vector<std::string_view> &, int);
+  explicit EcalDumpGeometry(const std::vector<std::string_view> &, const std::string &, const std::string &, int);
   ~EcalDumpGeometry() = default;
 
   void update();
@@ -30,6 +30,7 @@ private:
   void dumpTouch(G4VPhysicalVolume *pv, unsigned int leafDepth);
   std::string noRefl(const std::string &name);
 
+  const std::string name1_, name2_;
   EcalBarrelNumberingScheme ebNumbering_;
   EcalEndcapNumberingScheme eeNumbering_;
   EcalPreshowerNumberingScheme esNumbering_;
