@@ -29,7 +29,7 @@ namespace trklet {
       //Comment out to run tracklet-only algorithm
 #ifdef CMSSW_GIT_HASH
 #ifndef USEHYBRID
-#error USEHYBRID is not defined
+#pragma message "USEHYBRID is undefined, so Hybrid L1 tracking disabled."
 #endif
 #endif
     }
