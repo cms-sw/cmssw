@@ -131,8 +131,6 @@ void PFTICLProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSet
       // dynamic type checking or configuration) if additional track types are needed.
       reco::TrackRef trackref(ticl_cand.trackPtr().id(), int(ticl_cand.trackPtr().key()), &evt.productGetter());
       candidate.setTrackRef(trackref);
-      std::cout << "PFTICL trackkey " << ticl_cand.trackPtr().key() << std::endl;
-      //
       // Utilize PFMuonAlgo
       const int muId = PFMuonAlgo::muAssocToTrack(trackref, muons);
       if (muId != -1) {
