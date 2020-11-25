@@ -12,7 +12,7 @@ gtStage2Raw = cms.EDProducer(
     JetInputTag    = cms.InputTag("simCaloStage2Digis"),
     EtSumInputTag  = cms.InputTag("simCaloStage2Digis"),
     FedId = cms.int32(1404),
-    FWId = cms.uint32(0x1120),  # FW w/ displaced muon info.
+    FWId = cms.uint32(0x1130),  # FW w/ displaced muon info.
     lenSlinkHeader = cms.untracked.int32(8),
     lenSlinkTrailer = cms.untracked.int32(8)
 )
@@ -31,5 +31,4 @@ stage2L1Trigger_2018.toModify(gtStage2Raw, FWId = cms.uint32(0x10F2)) # FW w/ ne
 
 ### Era: Run3_2021
 from Configuration.Eras.Modifier_stage2L1Trigger_2021_cff import stage2L1Trigger_2021
-stage2L1Trigger_2021.toModify(gtStage2Raw, FWId = cms.uint32(0x1120)) # FW w/ displaced muon info.
-
+stage2L1Trigger_2021.toModify(gtStage2Raw, FWId = cms.uint32(0x1130)) # FW w/ displaced muon info.

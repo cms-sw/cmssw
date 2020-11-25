@@ -49,18 +49,30 @@ namespace l1t {
     static constexpr unsigned ptUnconstrainedMask_ = 0xFF;
     static constexpr unsigned ptUnconstrainedShift_ = 21;
     static constexpr unsigned ptUnconstrainedIntermedidateShift_ = 0;
-    static constexpr unsigned absEtaMu1Shift_ = 12;   // For Run-3
-    static constexpr unsigned etaMu1SignShift_ = 20;  // For Run-3
-    static constexpr unsigned absEtaMu2Shift_ = 21;   // For Run-3
-    static constexpr unsigned etaMu2SignShift_ = 29;  // For Run-3
+    static constexpr unsigned absEtaMu1Shift_ = 13;   // For Run-3
+    static constexpr unsigned etaMu1SignShift_ = 21;  // For Run-3
+    static constexpr unsigned absEtaMu2Shift_ = 22;   // For Run-3
+    static constexpr unsigned etaMu2SignShift_ = 30;  // For Run-3
 
   private:
     static void fillMuonStableQuantities(Muon& mu, uint32_t raw_data_00_31, uint32_t raw_data_32_63);
     static void fillMuonCoordinates2016(Muon& mu, uint32_t raw_data_00_31, uint32_t raw_data_32_63);
     static void fillMuonCoordinatesFrom2017(Muon& mu, uint32_t raw_data_00_31, uint32_t raw_data_32_63);
-    static void fillMuonQuantitiesRun3(
-        Muon& mu, uint32_t raw_data_spare, uint32_t raw_data_00_31, uint32_t raw_data_32_63, int muInBx);
+    static void fillMuonQuantitiesRun3(Muon& mu,
+                                       uint32_t raw_data_spare,
+                                       uint32_t raw_data_00_31,
+                                       uint32_t raw_data_32_63,
+                                       int muInBx,
+                                       bool wasSpecialMWGR = false);
     static void fillIntermediateMuonQuantitiesRun3(Muon& mu, uint32_t raw_data_00_31, uint32_t raw_data_32_63);
+    static void generatePackedDataWordsRun3(const Muon& mu,
+                                            int abs_eta,
+                                            int abs_eta_at_vtx,
+                                            uint32_t& raw_data_spare,
+                                            uint32_t& raw_data_00_31,
+                                            uint32_t& raw_data_32_63,
+                                            int muInBx,
+                                            bool wasSpecialMWGR = false);
   };
 }  // namespace l1t
 
