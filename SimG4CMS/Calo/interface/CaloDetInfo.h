@@ -8,12 +8,20 @@
 
 class CaloDetInfo {
 public:
-  CaloDetInfo(unsigned int id, const std::string& name, G4ThreeVector pos, const G4VSolid* sol, bool flag = false);
+  CaloDetInfo(uint32_t id,
+              uint32_t depth,
+              double rho,
+              const std::string& name,
+              G4ThreeVector pos,
+              const G4VSolid* sol,
+              bool flag = false);
   CaloDetInfo();
   CaloDetInfo(const CaloDetInfo&);
   ~CaloDetInfo() = default;
 
   uint32_t id() const { return id_; }
+  uint32_t depth() const { return depth_; }
+  double rho() const { return rho_; }
   std::string name() const { return name_; }
   G4ThreeVector pos() const { return pos_; }
   const G4VSolid* solid() const { return solid_; }
@@ -23,6 +31,8 @@ public:
 
 private:
   uint32_t id_;
+  uint32_t depth_;
+  double rho_;
   std::string name_;
   G4ThreeVector pos_;
   const G4VSolid* solid_;
@@ -31,8 +41,28 @@ private:
 
 class CaloDetInfoLess {
 public:
-  bool operator()(const CaloDetInfo* a, const CaloDetInfo* b) { return (a->id() < b->id()); }
-  bool operator()(const CaloDetInfo a, const CaloDetInfo b) { return (a.id() < b.id()); }
+  bool operator()(const CaloDetInfo* a, const CaloDetInfo* b) {
+    if (a->id() == b->id()) {
+      if (a->depth() == b->depth()) {
+        return (a->rho() < b->rho());
+      } else {
+        return (a->depth() < b->depth());
+      }
+    } else {
+      return (a->id() < b->id());
+    }
+  }
+  bool operator()(const CaloDetInfo a, const CaloDetInfo b) {
+    if (a.id() == b.id()) {
+      if (a.depth() == b.depth()) {
+        return (a.rho() < b.rho());
+      } else {
+        return (a.depth() < b.depth());
+      }
+    } else {
+      return (a.id() < b.id());
+    }
+  }
 };
 
 std::ostream& operator<<(std::ostream&, const CaloDetInfo&);

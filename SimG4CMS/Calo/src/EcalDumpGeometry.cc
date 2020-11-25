@@ -11,11 +11,16 @@
 
 //#define EDM_ML_DEBUG
 
-EcalDumpGeometry::EcalDumpGeometry(const std::vector<std::string_view>& names, int type) : type_(type) {
+EcalDumpGeometry::EcalDumpGeometry(const std::vector<std::string_view>& names,
+                                   const std::string& name1,
+                                   const std::string& name2,
+                                   int type)
+    : name1_(name1), name2_(name2), type_(type) {
   std::stringstream ss;
   for (const auto& lvname : names)
     ss << " " << lvname;
-  edm::LogVerbatim("EcalGeom") << " Type: " << type << " with " << names.size() << " LVs: " << ss.str();
+  edm::LogVerbatim("EcalGeom") << " Type: " << type << " Depth Names " << name1_ << ":" << name2_ << " with "
+                               << names.size() << " LVs: " << ss.str();
   for (const auto& name : names) {
     std::string namex = (static_cast<std::string>(dd4hep::dd::noNamespace(name))).substr(0, 4);
     if (std::find(names_.begin(), names_.end(), namex) == names_.end())
@@ -81,14 +86,21 @@ void EcalDumpGeometry::dumpTouch(G4VPhysicalVolume* pv, unsigned int leafDepth) 
         uint32_t id = (((type_ % 10) == 0) ? ebNumbering_.getUnitID(theBaseNumber)
                                            : (((type_ % 10) == 1) ? eeNumbering_.getUnitID(theBaseNumber)
                                                                   : esNumbering_.getUnitID(theBaseNumber)));
+        uint32_t depth(0);
+        if ((!name1_.empty()) && (namex == name1_))
+          depth = 1;
+        if ((!name2_.empty()) && (namex == name2_))
+          depth = 2;
+        double r = globalpoint.rho();
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << " Field: " << ss.str() << " ID " << std::hex << id << std::dec;
+        edm::LogVerbatim("EcalGeom") << " Field: " << ss.str() << " ID " << std::hex << id << std::dec << ":" << depth
+                                     << ":" << r;
 #endif
         G4VSolid* solid = (lv->GetSolid());
         if (((type_ / 100) % 10) != 0)
-          infoVec_.emplace_back(CaloDetInfo(id, noRefl(lvname), globalpoint, solid, flag));
+          infoVec_.emplace_back(CaloDetInfo(id, depth, r, noRefl(lvname), globalpoint, solid, flag));
         else
-          infoVec_.emplace_back(CaloDetInfo(id, lvname, globalpoint, solid, flag));
+          infoVec_.emplace_back(CaloDetInfo(id, depth, r, lvname, globalpoint, solid, flag));
       }
       break;
     }

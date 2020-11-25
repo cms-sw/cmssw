@@ -176,7 +176,7 @@ ECalSD::ECalSD(const std::string& name,
 #endif
   if (dump) {
     const auto& lvNames = clg.logicalNames(name);
-    EcalDumpGeometry geom(lvNames, type);
+    EcalDumpGeometry geom(lvNames, depth1Name, depth2Name, type);
     geom.update();
   }
 }
