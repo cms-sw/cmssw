@@ -28,7 +28,6 @@
 class TfGraphDefProducer : public edm::ESProducer {
 public:
   TfGraphDefProducer(const edm::ParameterSet&);
-
   using ReturnType = std::unique_ptr<TfGraphDefWrapper>;
 
   ReturnType produce(const TfGraphRecord&);
@@ -36,21 +35,19 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  TfGraphDefWrapper wrapper_;
-
+  const std::string filename_;
   // ----------member data ---------------------------
 };
 
 TfGraphDefProducer::TfGraphDefProducer(const edm::ParameterSet& iConfig)
-    : wrapper_(
-          TfGraphDefWrapper(tensorflow::loadGraphDef(iConfig.getParameter<edm::FileInPath>("FileName").fullPath()))) {
+    : filename_(iConfig.getParameter<edm::FileInPath>("FileName").fullPath()) {
   auto componentName = iConfig.getParameter<std::string>("ComponentName");
   setWhatProduced(this, componentName);
 }
 
 // ------------ method called to produce the data  ------------
 std::unique_ptr<TfGraphDefWrapper> TfGraphDefProducer::produce(const TfGraphRecord& iRecord) {
-  return std::make_unique<TfGraphDefWrapper>(wrapper_);
+  return std::make_unique<TfGraphDefWrapper>(tensorflow::loadGraphDef(filename_));
 }
 
 void TfGraphDefProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
