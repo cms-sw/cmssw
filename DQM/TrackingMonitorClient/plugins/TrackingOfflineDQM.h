@@ -77,7 +77,7 @@ private:
   bool allpixelFEDsFound_;
 
   edm::ParameterSet configPar_;
-  edm::ESGetToken <RunInfo, RunInfoRcd> runInfoToken_;
+  edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
   const RunInfo* sumFED_ = nullptr;
 };
 #endif

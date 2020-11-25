@@ -102,7 +102,7 @@ private:
 
   unsigned long long m_cacheID_;
 
-  edm::ESGetToken <RunInfo, RunInfoRcd> runInfoToken_;
+  edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
   const RunInfo* sumFED_ = nullptr;
   edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> detCablingToken_;
   edm::ESWatcher<SiStripDetCablingRcd> fedDetCablingWatcher_;

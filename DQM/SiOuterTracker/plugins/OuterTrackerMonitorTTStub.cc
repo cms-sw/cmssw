@@ -47,14 +47,13 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-
 class OuterTrackerMonitorTTStub : public DQMEDAnalyzer {
 public:
   explicit OuterTrackerMonitorTTStub(const edm::ParameterSet &);
   ~OuterTrackerMonitorTTStub() override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) override;
+  void dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) override;
 
   // TTStub stacks
   // Global position of the stubs
@@ -102,19 +101,19 @@ private:
   std::string topFolderName_;
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
-  const TrackerGeometry* tkGeom_ = nullptr;
-  const TrackerTopology* tTopo_ = nullptr;  
+  const TrackerGeometry *tkGeom_ = nullptr;
+  const TrackerTopology *tTopo_ = nullptr;
 };
 
 // constructors and destructor
-OuterTrackerMonitorTTStub::OuterTrackerMonitorTTStub(const edm::ParameterSet &iConfig) : 
-  conf_(iConfig),
-  geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
-  topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()) { 
+OuterTrackerMonitorTTStub::OuterTrackerMonitorTTStub(const edm::ParameterSet &iConfig)
+    : conf_(iConfig),
+      geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
+      topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()) {
   // now do what ever initialization is needed
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
   tagTTStubsToken_ =
-    consumes<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>>(conf_.getParameter<edm::InputTag>("TTStubs"));
+      consumes<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>>(conf_.getParameter<edm::InputTag>("TTStubs"));
 }
 
 OuterTrackerMonitorTTStub::~OuterTrackerMonitorTTStub() {
@@ -122,7 +121,7 @@ OuterTrackerMonitorTTStub::~OuterTrackerMonitorTTStub() {
   // (e.g. close files, deallocate resources etc.)
 }
 
-void OuterTrackerMonitorTTStub::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+void OuterTrackerMonitorTTStub::dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) {
   edm::ESHandle<TrackerGeometry> geomHandle = iSetup.getHandle(geomToken_);
   tkGeom_ = &(*geomHandle);
   edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(topoToken_);
@@ -179,7 +178,7 @@ void OuterTrackerMonitorTTStub::analyze(const edm::Event &iEvent, const edm::Eve
         Stub_Barrel_W->Fill(tTopo_->layer(detIdStub), rawBend - bendOffset);
         Stub_Barrel_O->Fill(tTopo_->layer(detIdStub), bendOffset);
       } else if (detIdStub.subdetId() == static_cast<int>(StripSubdetector::TID)) {  // Phase 2 Outer Tracker Endcap
-        int disc = tTopo_->layer(detIdStub);                                          // returns wheel
+        int disc = tTopo_->layer(detIdStub);                                         // returns wheel
         int ring = tTopo_->tidRing(detIdStub);
         Stub_Endcap_Disc->Fill(disc);
         Stub_Endcap_Ring->Fill(ring);

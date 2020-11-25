@@ -19,7 +19,7 @@ bool SimpleEventFilter::filter(edm::Event &, edm::EventSetup const &) {
   if (nEvent_ % nInterval_ != 0)
     ret = false;
   //if (verbose_ && !ret)
-  if(!ret)
+  if (!ret)
     edm::LogInfo("SimpleEventFilter") << ">>> filtering event" << nEvent_ << std::endl;
   return ret;
 }

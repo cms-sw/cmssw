@@ -37,9 +37,10 @@ bool DetectorStateFilter::filter(edm::Event &evt, edm::EventSetup const &es) {
         } else
           detectorOn_ = false;
         //if (verbose_)
-	edm::LogInfo("DetectorStatusFilter") << " Total Events " << nEvents_ << " Selected Events " << nSelectedEvents_ << " DCS States : "
-					    << " BPix " << (*dcsStatus)[0].ready(DcsStatus::BPIX) << " FPix "
-					    << (*dcsStatus)[0].ready(DcsStatus::FPIX) << " Detector State " << detectorOn_ << std::endl;
+        edm::LogInfo("DetectorStatusFilter")
+            << " Total Events " << nEvents_ << " Selected Events " << nSelectedEvents_ << " DCS States : "
+            << " BPix " << (*dcsStatus)[0].ready(DcsStatus::BPIX) << " FPix " << (*dcsStatus)[0].ready(DcsStatus::FPIX)
+            << " Detector State " << detectorOn_ << std::endl;
       } else if (detectorType_ == "sistrip" && !dcsStatus->empty()) {
         if ((*dcsStatus)[0].ready(DcsStatus::TIBTID) && (*dcsStatus)[0].ready(DcsStatus::TOB) &&
             (*dcsStatus)[0].ready(DcsStatus::TECp) && (*dcsStatus)[0].ready(DcsStatus::TECm)) {
@@ -48,11 +49,11 @@ bool DetectorStateFilter::filter(edm::Event &evt, edm::EventSetup const &es) {
         } else
           detectorOn_ = false;
         //if (verbose_)
-	edm::LogInfo("DetectorStatusFilter") << " Total Events " << nEvents_ << " Selected Events " << nSelectedEvents_ << " DCS States : "
-					     << " TEC- " << (*dcsStatus)[0].ready(DcsStatus::TECm) << " TEC+ "
-					     << (*dcsStatus)[0].ready(DcsStatus::TECp) << " TIB/TID " << (*dcsStatus)[0].ready(DcsStatus::TIBTID)
-					     << " TOB " << (*dcsStatus)[0].ready(DcsStatus::TOB) << " Detector States " << detectorOn_
-					     << std::endl;
+        edm::LogInfo("DetectorStatusFilter")
+            << " Total Events " << nEvents_ << " Selected Events " << nSelectedEvents_ << " DCS States : "
+            << " TEC- " << (*dcsStatus)[0].ready(DcsStatus::TECm) << " TEC+ " << (*dcsStatus)[0].ready(DcsStatus::TECp)
+            << " TIB/TID " << (*dcsStatus)[0].ready(DcsStatus::TIBTID) << " TOB "
+            << (*dcsStatus)[0].ready(DcsStatus::TOB) << " Detector States " << detectorOn_ << std::endl;
       }
     } else {
       edm::LogError("DetectorStatusFilter") << "ERROR: DcsStatusCollection not found !";
@@ -61,8 +62,8 @@ bool DetectorStateFilter::filter(edm::Event &evt, edm::EventSetup const &es) {
     detectorOn_ = true;
     nSelectedEvents_++;
     //if (verbose_)
-    edm::LogInfo("DetectorStatusFilter") << "Total MC Events " << nEvents_ << " Selected Events " << nSelectedEvents_ << " Detector States "
-					 << detectorOn_ << std::endl;
+    edm::LogInfo("DetectorStatusFilter") << "Total MC Events " << nEvents_ << " Selected Events " << nSelectedEvents_
+                                         << " Detector States " << detectorOn_ << std::endl;
   }
   return detectorOn_;
 }
