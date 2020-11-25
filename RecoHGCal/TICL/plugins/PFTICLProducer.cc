@@ -13,6 +13,8 @@
 
 #include "DataFormats/HGCalReco/interface/TICLCandidate.h"
 
+#include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
+
 class PFTICLProducer : public edm::global::EDProducer<> {
 public:
   PFTICLProducer(const edm::ParameterSet&);
@@ -46,6 +48,10 @@ PFTICLProducer::PFTICLProducer(const edm::ParameterSet& conf)
       srcTrackTimeQuality_(consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeQualityMap"))),
       muons_(consumes<reco::MuonCollection>(conf.getParameter<edm::InputTag>("muonSrc"))) {
   produces<reco::PFCandidateCollection>();
+  // For PFMuonAlgo
+  const edm::ParameterSet pfMuonAlgoParams = conf.getParameter<edm::ParameterSet>("PFMuonAlgoParameters");
+  const bool postMuonCleaning = false;
+  pfmu_ = std::make_unique<PFMuonAlgo>(pfMuonAlgoParams, postMuonCleaning);
 }
 
 void PFTICLProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -123,8 +129,18 @@ void PFTICLProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSet
     if (candidate.charge()) {  // otherwise PFCandidate throws
       // Construct edm::Ref from edm::Ptr. As of now, assumes type to be reco::Track. To be extended (either via
       // dynamic type checking or configuration) if additional track types are needed.
-      reco::TrackRef ref(ticl_cand.trackPtr().id(), int(ticl_cand.trackPtr().key()), &evt.productGetter());
-      candidate.setTrackRef(ref);
+      reco::TrackRef trackref(ticl_cand.trackPtr().id(), int(ticl_cand.trackPtr().key()), &evt.productGetter());
+      candidate.setTrackRef(trackref);
+      std::cout << "PFTICL trackkey " << ticl_cand.trackPtr().key() << std::endl;
+      //
+      // Utilize PFMuonAlgo
+      const int muId = PFMuonAlgo::muAssocToTrack(trackref, muons);
+      if (muId != -1) {
+        const reco::MuonRef muonref = reco::MuonRef(muons, muId);
+        const bool allowLoose = part_type == reco::PFCandidate::mu ? true : false;
+        // Redefine pfmuon candidate kinematics and add muonref
+        pfmu_->reconstructMuon(candidate, muonref, allowLoose);
+      }
     }
 
     // HGCAL timing as default values

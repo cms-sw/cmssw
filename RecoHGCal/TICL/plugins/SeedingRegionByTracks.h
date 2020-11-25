@@ -26,7 +26,6 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
 
 namespace ticl {
   class SeedingRegionByTracks final : public SeedingRegionAlgoBase {
@@ -53,11 +52,6 @@ namespace ticl {
     edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> hdc_token_;
     edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> bfield_token_;
     edm::ESGetToken<Propagator, TrackingComponentsRecord> propagator_token_;
-    // for muon related
-    std::unique_ptr<PFMuonAlgo> pfmu_;
-    edm::EDGetTokenT<reco::MuonCollection> muons_token_;
-    const bool vetoMuon_;
-    const bool postMuonCleaning_ = false;
   };
 }  // namespace ticl
 #endif

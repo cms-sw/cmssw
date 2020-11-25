@@ -62,11 +62,6 @@ void TICLSeedingRegionProducer::fillDescriptions(edm::ConfigurationDescriptions&
                         "hitPattern().numberOfLostHits(\"MISSING_OUTER_HITS\") < 5");
   desc.add<std::string>("propagator", "PropagatorWithMaterial");
   desc.add<int>("algoId", 1);
-  desc.add<bool>("vetoMuon", true);
-  desc.add<edm::InputTag>("muons", edm::InputTag("muons1stStep"));
-  edm::ParameterSetDescription psd_PFMuonAlgo;
-  PFMuonAlgo::fillPSetDescription(psd_PFMuonAlgo);
-  desc.add<edm::ParameterSetDescription>("PFMuonAlgoParameters", psd_PFMuonAlgo);
   descriptions.add("ticlSeedingRegionProducer", desc);
 }
 
