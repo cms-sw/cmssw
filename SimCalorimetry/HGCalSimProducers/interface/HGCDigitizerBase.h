@@ -28,12 +28,6 @@ namespace hgc = hgc_digi;
 namespace hgc_digi_utils {
   using hgc::HGCCellInfo;
 
-  inline void addCellMetadata(HGCCellInfo& info, const HcalGeometry* geom, const DetId& detid) {
-    //base time samples for each DetId, initialized to 0
-    info.size = 1.0;
-    info.thickness = 1.0;
-  }
-
   inline void addCellMetadata(HGCCellInfo& info, const HGCalGeometry* geom, const DetId& detid) {
     const auto& dddConst = geom->topology().dddConstants();
     bool isHalf = (((dddConst.geomMode() == HGCalGeometryMode::Hexagon) ||
