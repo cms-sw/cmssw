@@ -153,7 +153,6 @@ private:
   std::vector<int> nh_TOB;
   std::vector<int> nh_TID;
   std::vector<int> nh_TEC;
-  
 };
 
 //
@@ -219,8 +218,8 @@ void CosmicRateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   edm::ESHandle<MagneticField> magFieldHandle_;
   iSetup.get<IdealMagneticFieldRecord>().get(magFieldHandle_);
-  magField=-9999;
-  magField = magFieldHandle_.product()->inTesla(GlobalPoint(0,0,0)).mag();
+  magField = -9999;
+  magField = magFieldHandle_.product()->inTesla(GlobalPoint(0, 0, 0)).mag();
 
   edm::ESHandle<TrackerTopology> tTopo;
   iSetup.get<TrackerTopologyRcd>().get(tTopo);
@@ -255,7 +254,7 @@ void CosmicRateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     nh_TOB.push_back(itTrack1->hitPattern().numberOfValidStripTOBHits());
     nh_TID.push_back(itTrack1->hitPattern().numberOfValidStripTIDHits());
     nh_TEC.push_back(itTrack1->hitPattern().numberOfValidStripTECHits());
-  
+
     int nhitinBPIX = 0;
     int nhitinFPIX = 0;
     int nhitinPIXEL = 0;
@@ -412,7 +411,7 @@ void CosmicRateAnalyzer::beginJob() {
   treeEvent->Branch("nHitsTID", &nh_TID);
   treeEvent->Branch("nHitsTEC", &nh_TEC);
   treeEvent->Branch("DTtime", &DTtime);
-  treeEvent->Branch("magField",&magField);
+  treeEvent->Branch("magField", &magField);
   treeRun->Branch("run_time", &run_time);
   treeRun->Branch("runnum", &runnum);
   treeRun->Branch("number_of_events", &number_of_events);
