@@ -58,15 +58,13 @@ public:
   void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, CLHEP::HepRandomEngine* hre);
   void accumulate_forPreMix(PileUpEventPrincipal const& e, edm::EventSetup const& c, CLHEP::HepRandomEngine* hre);
 
-  template <typename GEOM>
   void accumulate(edm::Handle<edm::PCaloHitContainer> const& hits,
                   int bxCrossing,
-                  const GEOM* geom,
+                  const HGCalGeometry* geom,
                   CLHEP::HepRandomEngine* hre);
-  template <typename GEOM>
   void accumulate_forPreMix(edm::Handle<edm::PCaloHitContainer> const& hits,
                             int bxCrossing,
-                            const GEOM* geom,
+                            const HGCalGeometry* geom,
                             CLHEP::HepRandomEngine* hre);
 
   void accumulate_forPreMix(const PHGCSimAccumulator& simAccumulator, const bool minbiasFlag);
@@ -78,12 +76,11 @@ public:
 
   /**
    */
-  bool producesEEDigis() { return ((mySubDet_ == ForwardSubdetector::HGCEE) || (myDet_ == DetId::HGCalEE)); }
-  bool producesHEfrontDigis() { return ((mySubDet_ == ForwardSubdetector::HGCHEF) || (myDet_ == DetId::HGCalHSi)); }
-  bool producesHEbackDigis() { return ((mySubDet_ == ForwardSubdetector::HGCHEB) || (myDet_ == DetId::HGCalHSc)); }
+  bool producesEEDigis() { return (myDet_ == DetId::HGCalEE); }
+  bool producesHEfrontDigis() { return (myDet_ == DetId::HGCalHSi); }
+  bool producesHEbackDigis() { return (myDet_ == DetId::HGCalHSc); }
   bool producesHFNoseDigis() { return ((mySubDet_ == ForwardSubdetector::HFNose) && (myDet_ == DetId::Forward)); }
   std::string digiCollection() { return digiCollection_; }
-  int geometryType() { return geometryType_; }
 
   /**
       @short actions at the start/end of run
@@ -95,9 +92,6 @@ private:
   uint32_t getType() const;
   bool getWeight(std::array<float, 3>& tdcForToAOnset, float& keV2fC) const;
   std::string hitCollection_, digiCollection_;
-
-  //geometry type (0 pre-TDR; 1 TDR)
-  int geometryType_;
 
   //digitization type (it's up to the specializations to decide it's meaning)
   int digitizationType_;
@@ -129,7 +123,6 @@ private:
   //geometries
   std::unordered_set<DetId> validIds_;
   const HGCalGeometry* gHGCal_;
-  const HcalGeometry* gHcal_;
 
   //detector and subdetector id
   DetId::Detector myDet_;
