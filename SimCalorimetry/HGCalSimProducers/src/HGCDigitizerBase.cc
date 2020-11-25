@@ -104,7 +104,7 @@ void HGCDigitizerBase<DFr>::run(std::unique_ptr<HGCDigitizerBase::DColl>& digiCo
   if (digitizationType == 0)
     runSimple(digiColl, simData, theGeom, validIds, engine);
   else
-    runDigitizer(digiColl, simData, theGeom, validIds, digitizationType, engine);
+    runDigitizer(digiColl, simData, theGeom, validIds, engine);
 }
 
 template <class DFr>

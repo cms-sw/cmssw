@@ -13,7 +13,6 @@ public:
                     hgc::HGCSimHitDataAccumulator& simData,
                     const CaloSubdetectorGeometry* theGeom,
                     const std::unordered_set<DetId>& validIds,
-                    uint32_t digitizationType,
                     CLHEP::HepRandomEngine* engine) override;
   ~HGCHEbackDigitizer() override;
 
