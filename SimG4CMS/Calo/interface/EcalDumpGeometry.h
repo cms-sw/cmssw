@@ -21,7 +21,7 @@
 
 class EcalDumpGeometry {
 public:
-  explicit EcalDumpGeometry(const std::vector<std::string_view> &, const std::string&, const std::string&, int);
+  explicit EcalDumpGeometry(const std::vector<std::string_view> &, const std::string &, const std::string &, int);
   ~EcalDumpGeometry() = default;
 
   void update();
