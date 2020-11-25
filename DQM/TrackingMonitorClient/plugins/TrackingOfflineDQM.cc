@@ -89,7 +89,7 @@ void TrackingOfflineDQM::beginJob() { edm::LogInfo("BeginJobDone") << "TrackingO
 *  Event Setup object with Geometry, Magnetic Field, etc.
 */
 void TrackingOfflineDQM::beginRun(edm::Run const& run, edm::EventSetup const& eSetup) {
-  edm::LogInfo("BeginRun") << "TrackingOfflineDQM:: Begining of Run";
+  edm::LogInfo("BeginRun") << " Begining of Run";
 
   int nFEDs = 0;
   int nPixelFEDs = 0;
@@ -128,7 +128,7 @@ void TrackingOfflineDQM::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker_,
                                                DQMStore::IGetter& igetter_,
                                                edm::LuminosityBlock const& lumiSeg,
                                                edm::EventSetup const& iSetup) {
-  edm::LogInfo("TrackingOfflineDQM") << "TrackingOfflineDQM::dqmBeginLuminosityBlock";
+  edm::LogInfo("TrackingOfflineDQM") << "dqmBeginLuminosityBlock";
 
   if (globalStatusFilling_ > 0) {
     actionExecutor_->createLSStatus(ibooker_, igetter_);
@@ -146,7 +146,7 @@ void TrackingOfflineDQM::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker_,
  *
 */
 void TrackingOfflineDQM::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::IGetter& igetter_) {
-  edm::LogInfo("TrackingOfflineDQM") << "TrackingOfflineDQM::dqmEndJob";
+  edm::LogInfo("TrackingOfflineDQM") << "dqmEndJob";
 
   if (globalStatusFilling_ > 0) {
     actionExecutor_->createGlobalStatus(ibooker_, igetter_);

@@ -19,6 +19,7 @@
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -104,7 +105,8 @@ private:
   edm::ESGetToken <RunInfo, RunInfoRcd> runInfoToken_;
   const RunInfo* sumFED_ = nullptr;
   edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> detCablingToken_;
-  const SiStripDetCabling* detCabling_ = nullptr;
+  edm::ESWatcher<SiStripDetCablingRcd> fedDetCablingWatcher_;
+  const SiStripDetCabling* detCabling_;
 
   std::vector<std::string> SubDetFolder;
 };
