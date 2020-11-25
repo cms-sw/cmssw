@@ -74,6 +74,8 @@ private:
   edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> fedCablingToken_;
   edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> detCablingToken_;
   edm::ESWatcher<SiStripFedCablingRcd> fedCablingWatcher_;
+  const SiStripFedCabling* fedCabling_;
+  const SiStripDetCabling* detCabling_;
   TrackingActionExecutor* actionExecutor_;
 
   unsigned long long m_cacheID_;

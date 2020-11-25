@@ -42,7 +42,7 @@ TrackingAnalyser::TrackingAnalyser(edm::ParameterSet const& ps)
     fedCablingToken_(esConsumes<SiStripFedCabling, SiStripFedCablingRcd, edm::Transition::BeginRun>()),
     detCablingToken_(esConsumes<SiStripDetCabling, SiStripDetCablingRcd, edm::Transition::BeginRun>())
 {
-  edm::LogInfo("TrackingAnalyser") << " TrackingAnalyser::Creating TrackingAnalyser ";
+  edm::LogInfo("TrackingAnalyser") << "Creating TrackingAnalyser ";
 
   // Get TkMap ParameterSet
   //  tkMapPSet_ = ps.getParameter<edm::ParameterSet>("TkmapParameters");
@@ -82,7 +82,7 @@ TrackingAnalyser::TrackingAnalyser(edm::ParameterSet const& ps)
 // -- Destructor
 //
 TrackingAnalyser::~TrackingAnalyser() {
-  edm::LogInfo("TrackingAnalyser") << "TrackingAnalyser::Deleting TrackingAnalyser ";
+  edm::LogInfo("TrackingAnalyser") << "Deleting TrackingAnalyser ";
 }
 //
 // -- Begin Job
@@ -92,19 +92,16 @@ void TrackingAnalyser::beginJob() { nLumiSecs_ = 0; }
 // -- Begin Run
 //
 void TrackingAnalyser::beginRun(edm::Run const& run, edm::EventSetup const& eSetup) {
-  edm::LogInfo("TrackingAnalyser") << "TrackingAnalyser:: Begining of Run";
+  edm::LogInfo("TrackingAnalyser") << " Begining of Run";
 
   // Check latest Fed cabling and create TrackerMapCreator
-  //unsigned long long cacheID = eSetup.get<SiStripFedCablingRcd>().cacheIdentifier();
-  //if (m_cacheID_ != cacheID) {
-  //  m_cacheID_ = cacheID;
   if(fedCablingWatcher_.check(eSetup)) { //this should check if cabling record has changed
-    edm::LogInfo("TrackingAnalyser") << "TrackingAnalyser::beginRun: "
+    edm::LogInfo("TrackingAnalyser") << "beginRun: "
                                      << " Change in Cabling, recrated TrackerMap";
     edm::ESHandle<SiStripFedCabling> fedcabHandle = eSetup.getHandle(fedCablingToken_);
-    const SiStripFedCabling* fedCabling_ = fedcabHandle.product();
+    fedCabling_ = fedcabHandle.product();
     edm::ESHandle<SiStripDetCabling> detcabHandle = eSetup.getHandle(detCablingToken_);
-    const SiStripDetCabling *detCabling_ = detcabHandle.product();
+    detCabling_ = detcabHandle.product();
   }
 }
 //
@@ -114,7 +111,7 @@ void TrackingAnalyser::dqmBeginLuminosityBlock(DQMStore::IBooker& ibooker_,
                                                DQMStore::IGetter& igetter_,
                                                edm::LuminosityBlock const& lumiSeg,
                                                edm::EventSetup const& eSetup) {
-  edm::LogInfo("TrackingAnalyser") << "TrackingAnalyser:: Begin of LS transition";
+  edm::LogInfo("TrackingAnalyser") << " Begin of LS transition";
 }
 
 //
@@ -124,7 +121,7 @@ void TrackingAnalyser::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker_,
                                              DQMStore::IGetter& igetter_,
                                              edm::LuminosityBlock const& lumiSeg,
                                              edm::EventSetup const& eSetup) {
-  edm::LogInfo("TrackingAnalyser") << "TrackingAnalyser:: End of LS transition, performing the DQM client operation";
+  edm::LogInfo("TrackingAnalyser") << " End of LS transition, performing the DQM client operation";
 
   nLumiSecs_++;
 
@@ -138,10 +135,10 @@ void TrackingAnalyser::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker_,
   checkTrackerFEDsInLS(igetter_, iLS);
   checkTrackerFEDsWdataInLS(igetter_, iLS);
   if (verbose_)
-    edm::LogInfo("TrackingAnalyser") << "[TrackingAnalyser::endLuminosityBlock] trackerFEDsFound_ " << (trackerFEDsFound_ ? "YES" : "NOPE")
+    edm::LogInfo("TrackingAnalyser") << "endLuminosityBlock trackerFEDsFound_ " << (trackerFEDsFound_ ? "YES" : "NOPE")
               << std::endl;
   if (verbose_)
-    edm::LogInfo("TrackingAnalyser") << "[TrackingAnalyser::endLuminosityBlock] trackerFEDsWdataFound_ "
+    edm::LogInfo("TrackingAnalyser") << "endLuminosityBlock trackerFEDsWdataFound_ "
               << (trackerFEDsWdataFound_ ? "YES" : "NOPE") << std::endl;
 
   if (!trackerFEDsFound_) {
@@ -172,7 +169,7 @@ void TrackingAnalyser::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker_,
 // -- End Job
 //
 void TrackingAnalyser::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::IGetter& igetter_) {
-  edm::LogInfo("TrackingAnalyser") << "TrackingAnalyser:: endjob called!";
+  edm::LogInfo("TrackingAnalyser") << " endjob called!";
 
   if (globalStatusFilling_)
     actionExecutor_->createGlobalStatus(ibooker_, igetter_);

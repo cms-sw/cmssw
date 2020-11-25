@@ -266,8 +266,7 @@ StandaloneTrackMonitor::StandaloneTrackMonitor(const edm::ParameterSet& ps)
 }
 
 void StandaloneTrackMonitor::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  edm::ESHandle<TrackerGeometry> geomHandle = iSetup.getHandle(geomToken_);
-  tkGeom_ = &(*geomHandle);
+  tkGeom_ = &(iSetup.getData(geomToken_));
 }
 
 void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker& iBook,
