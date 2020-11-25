@@ -5,7 +5,7 @@
 //
 /**\class HLTScoutingEgammaProducer HLTScoutingEgammaProducer.cc HLTrigger/Egamma/src/HLTScoutingEgammaProducer.cc
 
-Description: Producer for ScoutingElectron and ScoutingPhoton
+Description: Producer for Run3ScoutingElectron and Run3ScoutingPhoton
 
 */
 //
@@ -16,6 +16,29 @@ Description: Producer for ScoutingElectron and ScoutingPhoton
 
 #include "HLTScoutingEgammaProducer.h"
 
+// function to find rechhit associated to detid and return energy
+float recHitE(const DetId id, const EcalRecHitCollection& recHits) {
+  if (id == DetId(0)) {
+    return 0;
+  } else {
+    EcalRecHitCollection::const_iterator it = recHits.find(id);
+    if (it != recHits.end())
+      return (*it).energy();
+  }
+  return 0;
+}
+
+float recHitT(const DetId id, const EcalRecHitCollection& recHits) {
+  if (id == DetId(0)) {
+    return 0;
+  } else {
+    EcalRecHitCollection::const_iterator it = recHits.find(id);
+    if (it != recHits.end())
+      return (*it).time();
+  }
+  return 0;
+}
+
 //
 // constructors and destructor
 //
@@ -25,6 +48,7 @@ HLTScoutingEgammaProducer::HLTScoutingEgammaProducer(const edm::ParameterSet& iC
       EgammaGsfTrackCollection_(
           consumes<reco::GsfTrackCollection>(iConfig.getParameter<edm::InputTag>("EgammaGsfTracks"))),
       SigmaIEtaIEtaMap_(consumes<RecoEcalCandMap>(iConfig.getParameter<edm::InputTag>("SigmaIEtaIEtaMap"))),
+      R9Map_(consumes<RecoEcalCandMap>(iConfig.getParameter<edm::InputTag>("r9Map"))),
       HoverEMap_(consumes<RecoEcalCandMap>(iConfig.getParameter<edm::InputTag>("HoverEMap"))),
       DetaMap_(consumes<RecoEcalCandMap>(iConfig.getParameter<edm::InputTag>("DetaMap"))),
       DphiMap_(consumes<RecoEcalCandMap>(iConfig.getParameter<edm::InputTag>("DphiMap"))),
@@ -35,10 +59,15 @@ HLTScoutingEgammaProducer::HLTScoutingEgammaProducer(const edm::ParameterSet& iC
       HcalPFClusterIsoMap_(consumes<RecoEcalCandMap>(iConfig.getParameter<edm::InputTag>("HcalPFClusterIsoMap"))),
       egammaPtCut(iConfig.getParameter<double>("egammaPtCut")),
       egammaEtaCut(iConfig.getParameter<double>("egammaEtaCut")),
-      egammaHoverECut(iConfig.getParameter<double>("egammaHoverECut")) {
+      egammaHoverECut(iConfig.getParameter<double>("egammaHoverECut")),
+      mantissaPrecision(iConfig.getParameter<int>("mantissaPrecision")),
+      saveRecHitTiming(iConfig.getParameter<bool>("saveRecHitTiming")),
+      rechitMatrixSize(iConfig.getParameter<int>("rechitMatrixSize")),  //(2n+1)^2
+      ecalRechitEB_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ecalRechitEB"))),
+      ecalRechitEE_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ecalRechitEE"))) {
   //register products
-  produces<ScoutingElectronCollection>();
-  produces<ScoutingPhotonCollection>();
+  produces<Run3ScoutingElectronCollection>();
+  produces<Run3ScoutingPhotonCollection>();
 }
 
 HLTScoutingEgammaProducer::~HLTScoutingEgammaProducer() = default;
@@ -47,8 +76,8 @@ HLTScoutingEgammaProducer::~HLTScoutingEgammaProducer() = default;
 void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, edm::EventSetup const& setup) const {
   using namespace edm;
 
-  std::unique_ptr<ScoutingElectronCollection> outElectrons(new ScoutingElectronCollection());
-  std::unique_ptr<ScoutingPhotonCollection> outPhotons(new ScoutingPhotonCollection());
+  auto outElectrons = std::make_unique<Run3ScoutingElectronCollection>();
+  auto outPhotons = std::make_unique<Run3ScoutingPhotonCollection>();
 
   // Get RecoEcalCandidate
   Handle<reco::RecoEcalCandidateCollection> EgammaCandidateCollection;
@@ -69,6 +98,13 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
   // Get SigmaIEtaIEtaMap
   Handle<RecoEcalCandMap> SigmaIEtaIEtaMap;
   if (!iEvent.getByToken(SigmaIEtaIEtaMap_, SigmaIEtaIEtaMap)) {
+    iEvent.put(std::move(outElectrons));
+    iEvent.put(std::move(outPhotons));
+    return;
+  }
+
+  Handle<RecoEcalCandMap> R9Map;
+  if (!iEvent.getByToken(R9Map_, R9Map)) {
     iEvent.put(std::move(outElectrons));
     iEvent.put(std::move(outPhotons));
     return;
@@ -138,6 +174,15 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
     return;
   }
 
+  edm::Handle<EcalRecHitCollection> rechitsEB;
+  edm::Handle<EcalRecHitCollection> rechitsEE;
+  iEvent.getByToken(ecalRechitEB_, rechitsEB);
+  iEvent.getByToken(ecalRechitEE_, rechitsEE);
+
+  edm::ESHandle<CaloTopology> pTopology;
+  setup.get<CaloTopologyRecord>().get(pTopology);
+  const CaloTopology* topology = pTopology.product();
+
   // Produce electrons and photons
   int index = 0;
   for (auto& candidate : *EgammaCandidateCollection) {
@@ -146,8 +191,6 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
     if (candidateRef.isNull() && !candidateRef.isAvailable())
       continue;
 
-    if ((*HoverEMap)[candidateRef] > egammaHoverECut)
-      continue;
     if (candidate.pt() < egammaPtCut)
       continue;
     if (fabs(candidate.eta()) > egammaEtaCut)
@@ -156,6 +199,33 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
     reco::SuperClusterRef scRef = candidate.superCluster();
     if (scRef.isNull() && !scRef.isAvailable())
       continue;
+
+    reco::CaloClusterPtr SCseed = candidate.superCluster()->seed();
+    const EcalRecHitCollection* rechits = (std::abs(scRef->eta()) < 1.479) ? rechitsEB.product() : rechitsEE.product();
+    Cluster2ndMoments moments = EcalClusterTools::cluster2ndMoments(*SCseed, *rechits);
+    float sMin = moments.sMin;
+    float sMaj = moments.sMaj;
+
+    unsigned int seedId = (*SCseed).seed();
+
+    std::vector<DetId> mDetIds = EcalClusterTools::matrixDetId((topology), (*SCseed).seed(), rechitMatrixSize);
+
+    int detSize = mDetIds.size();
+    std::vector<float> mEnergies(detSize, 0.);
+    std::vector<float> mTimes(detSize, 0.);
+
+    for (int i = 0; i < detSize; i++) {
+      mEnergies[i] =
+          MiniFloatConverter::reduceMantissaToNbitsRounding(recHitE(mDetIds.at(i), *rechits), mantissaPrecision);
+      if (saveRecHitTiming)
+        mTimes[i] =
+            MiniFloatConverter::reduceMantissaToNbitsRounding(recHitT(mDetIds.at(i), *rechits), mantissaPrecision);
+    }
+
+    float HoE = 999.;
+    if (candidate.superCluster()->energy() != 0.)
+      HoE = (*HoverEMap)[candidateRef] / candidate.superCluster()->energy();
+
     float d0 = 0.0;
     float dz = 0.0;
     int charge = -999;
@@ -176,10 +246,17 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
                                candidate.phi(),
                                candidate.mass(),
                                (*SigmaIEtaIEtaMap)[candidateRef],
-                               (*HoverEMap)[candidateRef],
+                               HoE,
                                (*EcalPFClusterIsoMap)[candidateRef],
-                               (*HcalPFClusterIsoMap)[candidateRef]);
-    } else {  // Candidate is a scouting electron
+                               (*HcalPFClusterIsoMap)[candidateRef],
+                               0.,
+                               (*R9Map)[candidateRef],
+                               sMin,
+                               sMaj,
+                               seedId,
+                               mEnergies,
+                               mTimes);  //read for(ieta){for(iphi){}}
+    } else {                             // Candidate is a scouting electron
       outElectrons->emplace_back(candidate.pt(),
                                  candidate.eta(),
                                  candidate.phi(),
@@ -189,13 +266,19 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
                                  (*DetaMap)[candidateRef],
                                  (*DphiMap)[candidateRef],
                                  (*SigmaIEtaIEtaMap)[candidateRef],
-                                 (*HoverEMap)[candidateRef],
+                                 HoE,
                                  (*OneOEMinusOneOPMap)[candidateRef],
                                  (*MissingHitsMap)[candidateRef],
                                  charge,
                                  (*EcalPFClusterIsoMap)[candidateRef],
                                  (*HcalPFClusterIsoMap)[candidateRef],
-                                 (*EleGsfTrackIsoMap)[candidateRef]);
+                                 (*EleGsfTrackIsoMap)[candidateRef],
+                                 (*R9Map)[candidateRef],
+                                 sMin,
+                                 sMaj,
+                                 seedId,
+                                 mEnergies,
+                                 mTimes);  //read for(ieta){for(iphi){}}
     }
   }
 
@@ -210,8 +293,9 @@ void HLTScoutingEgammaProducer::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<edm::InputTag>("EgammaCandidates", edm::InputTag("hltEgammaCandidates"));
   desc.add<edm::InputTag>("EgammaGsfTracks", edm::InputTag("hltEgammaGsfTracks"));
   desc.add<edm::InputTag>("SigmaIEtaIEtaMap", edm::InputTag("hltEgammaClusterShape:sigmaIEtaIEta5x5"));
+  desc.add<edm::InputTag>("r9Map", edm::InputTag("hltEgammaR9ID:r95x5"));
   desc.add<edm::InputTag>("HoverEMap", edm::InputTag("hltEgammaHoverE"));
-  desc.add<edm::InputTag>("DetaMap", edm::InputTag("hltEgammaGsfTrackVars:Deta"));
+  desc.add<edm::InputTag>("DetaMap", edm::InputTag("hltEgammaGsfTrackVars:DetaSeed"));
   desc.add<edm::InputTag>("DphiMap", edm::InputTag("hltEgammaGsfTrackVars:Dphi"));
   desc.add<edm::InputTag>("MissingHitsMap", edm::InputTag("hltEgammaGsfTrackVars:MissingHits"));
   desc.add<edm::InputTag>("OneOEMinusOneOPMap", edm::InputTag("hltEgammaGsfTrackVars:OneOESuperMinusOneOP"));
@@ -221,6 +305,11 @@ void HLTScoutingEgammaProducer::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<double>("egammaPtCut", 4.0);
   desc.add<double>("egammaEtaCut", 2.5);
   desc.add<double>("egammaHoverECut", 1.0);
+  desc.add<bool>("saveRecHitTiming", false);
+  desc.add<int>("mantissaPrecision", 10)->setComment("default float16, change to 23 for float32");
+  desc.add<int>("rechitMatrixSize", 10);
+  desc.add<edm::InputTag>("ecalRechitEB", edm::InputTag("hltEcalRecHit:EcalRecHitsEB"));
+  desc.add<edm::InputTag>("ecalRechitEE", edm::InputTag("hltEcalRecHit:EcalRecHitsEE"));
   descriptions.add("hltScoutingEgammaProducer", desc);
 }
 
