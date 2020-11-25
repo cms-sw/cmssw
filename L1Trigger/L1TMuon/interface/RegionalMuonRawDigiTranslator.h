@@ -31,7 +31,7 @@ namespace l1t {
     static constexpr unsigned signShift_ = 0;
     static constexpr unsigned signValidShift_ = 1;
     static constexpr unsigned dxyMask_ = 0x3;
-    static constexpr unsigned dxyShift_ = 18;
+    static constexpr unsigned dxyShift_ = 2;
     static constexpr unsigned ptUnconstrainedMask_ = 0xFF;
     static constexpr unsigned ptUnconstrainedShift_ = 23;
     static constexpr unsigned trackAddressMask_ = 0x1FFFFFFF;
