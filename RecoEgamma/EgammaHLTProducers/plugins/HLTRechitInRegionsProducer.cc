@@ -101,6 +101,9 @@ private:
 
   std::vector<edm::EDGetTokenT<EcalRecHitCollection>> hitTokens;
   std::vector<edm::EDGetTokenT<EcalUncalibratedRecHitCollection>> uncalibHitTokens;
+
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
+  const edm::ESGetToken<L1CaloGeometry, L1CaloGeometryRecord> l1CaloGeometryToken_;
 };
 
 template <typename T1>
@@ -116,7 +119,9 @@ HLTRechitInRegionsProducer<T1>::HLTRechitInRegionsProducer(const edm::ParameterS
       regionEtaMargin_(ps.getParameter<double>("regionEtaMargin")),
       regionPhiMargin_(ps.getParameter<double>("regionPhiMargin")),
       hitLabels(ps.getParameter<std::vector<edm::InputTag>>("ecalhitLabels")),
-      productLabels(ps.getParameter<std::vector<std::string>>("productLabels")) {
+      productLabels(ps.getParameter<std::vector<std::string>>("productLabels")),
+      caloGeometryToken_{esConsumes()},
+      l1CaloGeometryToken_{esConsumes()} {
   if (useUncalib_) {
     for (unsigned int i = 0; i < hitLabels.size(); i++) {
       uncalibHitTokens.push_back(consumes<EcalUncalibratedRecHitCollection>(hitLabels[i]));
@@ -158,11 +163,9 @@ void HLTRechitInRegionsProducer<T1>::fillDescriptions(edm::ConfigurationDescript
 }
 
 template <typename T1>
-void HLTRechitInRegionsProducer<T1>::produce(edm::Event& evt, const edm::EventSetup& es) {
+void HLTRechitInRegionsProducer<T1>::produce(edm::Event& evt, const edm::EventSetup& eventSetup) {
   // get the collection geometry:
-  edm::ESHandle<CaloGeometry> geoHandle;
-  es.get<CaloGeometryRecord>().get(geoHandle);
-  const CaloGeometry& geometry = *geoHandle;
+  auto const& geometry = eventSetup.getData(caloGeometryToken_);
   const CaloSubdetectorGeometry* geometry_p;
   std::unique_ptr<const CaloSubdetectorTopology> topology;
 
@@ -172,20 +175,15 @@ void HLTRechitInRegionsProducer<T1>::produce(edm::Event& evt, const edm::EventSe
     evt.getByToken(l1TokenIsolated_, emIsolColl);
   }
 
-  //Get the L1 EM Particle Collection
-  edm::Handle<T1Collection> emNonIsolColl;
-  evt.getByToken(l1TokenNonIsolated_, emNonIsolColl);
-
   // Get the CaloGeometry
-  edm::ESHandle<L1CaloGeometry> l1CaloGeom;
-  es.get<L1CaloGeometryRecord>().get(l1CaloGeom);
+  auto const& l1CaloGeom = eventSetup.getData(l1CaloGeometryToken_);
 
   std::vector<RectangularEtaPhiRegion> regions;
   if (doIsolated_)
-    getEtaPhiRegions(&regions, *emIsolColl, *l1CaloGeom, true);
+    getEtaPhiRegions(&regions, *emIsolColl, l1CaloGeom, true);
 
   if (!doIsolated_ or (l1LowerThrIgnoreIsolation_ < 64))
-    getEtaPhiRegions(&regions, *emNonIsolColl, *l1CaloGeom, false);
+    getEtaPhiRegions(&regions, evt.get(l1TokenNonIsolated_), l1CaloGeom, false);
 
   if (useUncalib_) {
     edm::Handle<EcalUncalibratedRecHitCollection> urhcH[3];
@@ -203,10 +201,10 @@ void HLTRechitInRegionsProducer<T1>::produce(edm::Event& evt, const edm::EventSe
       if (!uncalibRecHits->empty()) {
         if ((*uncalibRecHits)[0].id().subdetId() == EcalBarrel) {
           geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-          topology = std::make_unique<EcalBarrelTopology>(*geoHandle);
+          topology = std::make_unique<EcalBarrelTopology>(geometry);
         } else if ((*uncalibRecHits)[0].id().subdetId() == EcalEndcap) {
           geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-          topology = std::make_unique<EcalEndcapTopology>(*geoHandle);
+          topology = std::make_unique<EcalEndcapTopology>(geometry);
         } else if ((*uncalibRecHits)[0].id().subdetId() == EcalPreshower) {
           geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
           topology = std::make_unique<EcalPreshowerTopology>();
@@ -248,10 +246,10 @@ void HLTRechitInRegionsProducer<T1>::produce(edm::Event& evt, const edm::EventSe
       if (!recHits->empty()) {
         if ((*recHits)[0].id().subdetId() == EcalBarrel) {
           geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-          topology = std::make_unique<EcalBarrelTopology>(*geoHandle);
+          topology = std::make_unique<EcalBarrelTopology>(geometry);
         } else if ((*recHits)[0].id().subdetId() == EcalEndcap) {
           geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-          topology = std::make_unique<EcalEndcapTopology>(*geoHandle);
+          topology = std::make_unique<EcalEndcapTopology>(geometry);
         } else if ((*recHits)[0].id().subdetId() == EcalPreshower) {
           geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
           topology = std::make_unique<EcalPreshowerTopology>();

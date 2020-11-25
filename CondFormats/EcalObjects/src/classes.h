@@ -1,3 +1,4 @@
+#include <cstdint>
 #include "CondFormats/EcalObjects/interface/EcalCondObjectContainer.h"
 #include "CondFormats/EcalObjects/interface/EcalCondTowerObjectContainer.h"
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
@@ -65,4 +66,6 @@
 #include "CondFormats/EcalObjects/interface/EcalSimPulseShape.h"
 #include "CondFormats/EcalObjects/interface/EcalMustacheSCParameters.h"
 #include "CondFormats/EcalObjects/interface/EcalSCDynamicDPhiParameters.h"
-#include <cstdint>
+//ECAL PH2:
+#include "CondFormats/EcalObjects/interface/EcalLiteDTUPedestals.h"
+#include "CondFormats/EcalObjects/interface/EcalCATIAGainRatios.h"
