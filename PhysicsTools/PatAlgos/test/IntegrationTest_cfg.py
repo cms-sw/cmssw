@@ -22,6 +22,7 @@ process.p = cms.Path(
     process.selectedPatCandidates
     )
 
+process.patLowPtElectrons.addElectronID = False
 process.patLowPtElectrons.electronSource = "gedGsfElectrons"
 process.patLowPtElectrons.genParticleMatch = "electronMatch"
 process.selectedPatLowPtElectrons.cut = "pt>99999."
