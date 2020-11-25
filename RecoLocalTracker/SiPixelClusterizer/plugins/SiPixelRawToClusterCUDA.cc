@@ -86,8 +86,7 @@ SiPixelRawToClusterCUDA::SiPixelRawToClusterCUDA(const edm::ParameterSet& iConfi
           edm::ESInputTag("", iConfig.getParameter<std::string>("CablingMapLabel")))),
       isRun2_(iConfig.getParameter<bool>("isRun2")),
       includeErrors_(iConfig.getParameter<bool>("IncludeErrors")),
-      useQuality_(iConfig.getParameter<bool>("UseQualityInfo"))
-{
+      useQuality_(iConfig.getParameter<bool>("UseQualityInfo")) {
   if (includeErrors_) {
     digiErrorPutToken_ = produces<cms::cuda::Product<SiPixelDigiErrorsCUDA>>();
   }
