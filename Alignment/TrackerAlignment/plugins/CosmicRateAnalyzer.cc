@@ -55,8 +55,6 @@ https://twiki.cern.ch/twiki/bin/view/CMS/TkAlCosmicsRateMonitoring
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -283,7 +281,6 @@ void CosmicRateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
       if (PixelSubdetector::PixelBarrel == subdetId1) {
         ++nhitinBPIX;
         ++nhitinPIXEL;
-        PixelBarrelName pxbId1(detId1);
       }
       ///////////////////////////////////////////////////////////////////////////////////////////////////
       //			Hit information in PixelEndcap                                  	//
