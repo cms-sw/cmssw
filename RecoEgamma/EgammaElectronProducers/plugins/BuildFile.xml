@@ -4,6 +4,7 @@
 <use name="DataFormats/Common"/>
 <use name="DataFormats/EcalRecHit"/>
 <use name="DataFormats/EgammaCandidates"/>
+<use name="DataFormats/PatCandidates"/>
 <use name="DataFormats/EgammaReco"/>
 <use name="DataFormats/GeometryVector"/>
 <use name="DataFormats/GsfTrackReco"/>
