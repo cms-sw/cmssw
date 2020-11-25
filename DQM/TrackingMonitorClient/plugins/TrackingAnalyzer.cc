@@ -38,10 +38,9 @@
 // -- Constructor
 //
 TrackingAnalyser::TrackingAnalyser(edm::ParameterSet const& ps)
-  : verbose_(ps.getUntrackedParameter<bool>("verbose", false)),
-    fedCablingToken_(esConsumes<SiStripFedCabling, SiStripFedCablingRcd, edm::Transition::BeginRun>()),
-    detCablingToken_(esConsumes<SiStripDetCabling, SiStripDetCablingRcd, edm::Transition::BeginRun>())
-{
+    : verbose_(ps.getUntrackedParameter<bool>("verbose", false)),
+      fedCablingToken_(esConsumes<SiStripFedCabling, SiStripFedCablingRcd, edm::Transition::BeginRun>()),
+      detCablingToken_(esConsumes<SiStripDetCabling, SiStripDetCablingRcd, edm::Transition::BeginRun>()) {
   edm::LogInfo("TrackingAnalyser") << "Creating TrackingAnalyser ";
 
   // Get TkMap ParameterSet
@@ -53,7 +52,7 @@ TrackingAnalyser::TrackingAnalyser(edm::ParameterSet const& ps)
 
   if (!fin) {
     edm::LogError("TrackingAnalyzer") << "Input File: loader.html"
-				      << " could not be opened!" << std::endl;
+                                      << " could not be opened!" << std::endl;
     return;
   }
 
@@ -81,9 +80,7 @@ TrackingAnalyser::TrackingAnalyser(edm::ParameterSet const& ps)
 //
 // -- Destructor
 //
-TrackingAnalyser::~TrackingAnalyser() {
-  edm::LogInfo("TrackingAnalyser") << "Deleting TrackingAnalyser ";
-}
+TrackingAnalyser::~TrackingAnalyser() { edm::LogInfo("TrackingAnalyser") << "Deleting TrackingAnalyser "; }
 //
 // -- Begin Job
 //
@@ -95,7 +92,7 @@ void TrackingAnalyser::beginRun(edm::Run const& run, edm::EventSetup const& eSet
   edm::LogInfo("TrackingAnalyser") << " Begining of Run";
 
   // Check latest Fed cabling and create TrackerMapCreator
-  if(fedCablingWatcher_.check(eSetup)) { //this should check if cabling record has changed
+  if (fedCablingWatcher_.check(eSetup)) {  //this should check if cabling record has changed
     edm::LogInfo("TrackingAnalyser") << "beginRun: "
                                      << " Change in Cabling, recrated TrackerMap";
     edm::ESHandle<SiStripFedCabling> fedcabHandle = eSetup.getHandle(fedCablingToken_);
@@ -127,7 +124,7 @@ void TrackingAnalyser::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker_,
 
   if (verbose_)
     edm::LogInfo("TrackingAnalyser") << "[TrackingAnalyser::endLuminosityBlock] globalStatusFilling_ "
-              << (globalStatusFilling_ ? "YES" : "NOPE") << std::endl;
+                                     << (globalStatusFilling_ ? "YES" : "NOPE") << std::endl;
   if (globalStatusFilling_)
     actionExecutor_->createGlobalStatus(ibooker_, igetter_);
 
@@ -136,10 +133,10 @@ void TrackingAnalyser::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker_,
   checkTrackerFEDsWdataInLS(igetter_, iLS);
   if (verbose_)
     edm::LogInfo("TrackingAnalyser") << "endLuminosityBlock trackerFEDsFound_ " << (trackerFEDsFound_ ? "YES" : "NOPE")
-              << std::endl;
+                                     << std::endl;
   if (verbose_)
     edm::LogInfo("TrackingAnalyser") << "endLuminosityBlock trackerFEDsWdataFound_ "
-              << (trackerFEDsWdataFound_ ? "YES" : "NOPE") << std::endl;
+                                     << (trackerFEDsWdataFound_ ? "YES" : "NOPE") << std::endl;
 
   if (!trackerFEDsFound_) {
     actionExecutor_->fillDummyGlobalStatus();
@@ -160,7 +157,8 @@ void TrackingAnalyser::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker_,
   if (verbose_)
     edm::LogInfo("TrackingAnalyser") << "====================================================== " << std::endl;
   if (verbose_)
-    edm::LogInfo("TrackingAnalyser") << " ===> Iteration # " << nLumiSecs_ << " " << lumiSeg.luminosityBlock() << std::endl;
+    edm::LogInfo("TrackingAnalyser") << " ===> Iteration # " << nLumiSecs_ << " " << lumiSeg.luminosityBlock()
+                                     << std::endl;
   if (verbose_)
     edm::LogInfo("TrackingAnalyser") << "====================================================== " << std::endl;
 }
@@ -203,8 +201,8 @@ void TrackingAnalyser::checkTrackerFEDsWdataInLS(DQMStore::IGetter& igetter, dou
   double nFEDinLS = 0.;
   MonitorElement* tmpME = igetter.get(nFEDinfoDir_ + "/" + nFEDinWdataVsLSname_);
   if (verbose_)
-    edm::LogInfo("TrackingAnalyser") << "found " << nFEDinfoDir_ << "/" << nFEDinWdataVsLSname_ << " ? " << (tmpME ? "YES" : "NOPE")
-              << std::endl;
+    edm::LogInfo("TrackingAnalyser") << "found " << nFEDinfoDir_ << "/" << nFEDinWdataVsLSname_ << " ? "
+                                     << (tmpME ? "YES" : "NOPE") << std::endl;
   if (tmpME) {
     TProfile* tmpP = tmpME->getTProfile();
     size_t ibin = tmpP->GetXaxis()->FindBin(iLS);

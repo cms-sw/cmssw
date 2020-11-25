@@ -53,10 +53,8 @@
 * @param roPARAMETER_SET 
 *   Regular Parameter Set that represent read configuration file
 */
-TrackingOfflineDQM::TrackingOfflineDQM(edm::ParameterSet const& pSet):
-          configPar_(pSet),
-	  runInfoToken_(esConsumes<RunInfo, RunInfoRcd, edm::Transition::BeginRun>())
- {
+TrackingOfflineDQM::TrackingOfflineDQM(edm::ParameterSet const& pSet)
+    : configPar_(pSet), runInfoToken_(esConsumes<RunInfo, RunInfoRcd, edm::Transition::BeginRun>()) {
   // Action Executor
   actionExecutor_ = new TrackingActionExecutor(pSet);
 
@@ -96,7 +94,7 @@ void TrackingOfflineDQM::beginRun(edm::Run const& run, edm::EventSetup const& eS
   edm::ESHandle<RunInfo> runInfoRec = eSetup.getHandle(runInfoToken_);
   if (runInfoRec.isValid()) {
     sumFED_ = runInfoRec.product();
-    if (sumFED_!=nullptr) {
+    if (sumFED_ != nullptr) {
       const int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
       const int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID;
       const int siPixelFedIdMin = FEDNumbering::MINSiPixelFEDID;

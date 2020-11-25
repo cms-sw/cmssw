@@ -46,14 +46,13 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-
 class OuterTrackerMonitorTTCluster : public DQMEDAnalyzer {
 public:
   explicit OuterTrackerMonitorTTCluster(const edm::ParameterSet &);
   ~OuterTrackerMonitorTTCluster() override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) override;
+  void dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) override;
   // TTCluster stacks
   MonitorElement *Cluster_IMem_Barrel = nullptr;
   MonitorElement *Cluster_IMem_Endcap_Disc = nullptr;
@@ -81,17 +80,17 @@ private:
   std::string topFolderName_;
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
-  const TrackerGeometry* tkGeom_ = nullptr;
-  const TrackerTopology* tTopo_ = nullptr;
+  const TrackerGeometry *tkGeom_ = nullptr;
+  const TrackerTopology *tTopo_ = nullptr;
 };
 
 //
 // constructors and destructor
 //
-OuterTrackerMonitorTTCluster::OuterTrackerMonitorTTCluster(const edm::ParameterSet &iConfig) : 
-  conf_(iConfig),
-  geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
-  topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()) {
+OuterTrackerMonitorTTCluster::OuterTrackerMonitorTTCluster(const edm::ParameterSet &iConfig)
+    : conf_(iConfig),
+      geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
+      topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()) {
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
   tagTTClustersToken_ = consumes<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>>(
       conf_.getParameter<edm::InputTag>("TTClusters"));
@@ -105,7 +104,7 @@ OuterTrackerMonitorTTCluster::~OuterTrackerMonitorTTCluster() {
 //
 // member functions
 //
-void OuterTrackerMonitorTTCluster::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+void OuterTrackerMonitorTTCluster::dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) {
   edm::ESHandle<TrackerGeometry> geomHandle = iSetup.getHandle(geomToken_);
   tkGeom_ = &(*geomHandle);
   edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(topoToken_);
