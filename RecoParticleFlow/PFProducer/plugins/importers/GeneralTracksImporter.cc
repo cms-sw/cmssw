@@ -32,6 +32,9 @@ public:
           ticlSeedingSrc_ = sumes.consumes<std::vector<TICLSeedingRegion>>(conf.getParameter<edm::InputTag>("vetoSrc"));
           tracksSrc_ = sumes.consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("tracksSrc"));
           break;
+        case 3:
+          vetoSrc_ = sumes.consumes<reco::PFCandidateCollection>(conf.getParameter<edm::InputTag>("vetoSrc"));
+          break;
         default:;
       }  // switch
     }
@@ -52,6 +55,8 @@ private:
   edm::EDGetTokenT<reco::PFRecTrackCollection> hgcalPFTracksSrc_;
   edm::EDGetTokenT<std::vector<TICLSeedingRegion>> ticlSeedingSrc_;
   edm::EDGetTokenT<reco::TrackCollection> tracksSrc_;
+  edm::EDGetTokenT<reco::PFCandidateCollection> vetoSrc_;
+  typedef std::pair<edm::ProductID, unsigned> TrackProdIDKey;
 };
 
 DEFINE_EDM_PLUGIN(BlockElementImporterFactory, GeneralTracksImporter, "GeneralTracksImporter");
@@ -59,13 +64,14 @@ DEFINE_EDM_PLUGIN(BlockElementImporterFactory, GeneralTracksImporter, "GeneralTr
 void GeneralTracksImporter::importToBlock(const edm::Event& e, BlockElementImporterBase::ElementList& elems) const {
   typedef BlockElementImporterBase::ElementList::value_type ElementType;
   auto tracks = e.getHandle(src_);
-  std::unordered_set<unsigned> vetoed;
+  std::vector<TrackProdIDKey> vetoed;
   if (vetoEndcap_) {
     if (vetoMode_ == 1) {
       auto vetoesH = e.getHandle(hgcalPFTracksSrc_);
       const auto& vetoes = *vetoesH;
-      for (unsigned i = 0; i < vetoes.size(); ++i)
-        vetoed.insert(vetoes[i].trackRef().key());
+      for (unsigned i = 0; i < vetoes.size(); ++i) {
+        vetoed.emplace_back(vetoes[i].trackRef().id(), vetoes[i].trackRef().key());
+      }
     } else if (vetoMode_ == 2) {
       auto vetoesH = e.getHandle(ticlSeedingSrc_);
       const auto& vetoes = *vetoesH;
@@ -73,10 +79,19 @@ void GeneralTracksImporter::importToBlock(const edm::Event& e, BlockElementImpor
       for (unsigned i = 0; i < vetoes.size(); ++i) {
         assert(vetoes[i].collectionID == tracksH.id());
         reco::TrackRef trkref = reco::TrackRef(tracksH, vetoes[i].index);
-        vetoed.insert(trkref.key());
+        vetoed.emplace_back(trkref.id(), trkref.key());
+      }
+    } else if (vetoMode_ == 3) {
+      auto vetoesH = e.getHandle(vetoSrc_);
+      const auto& vetoes = *vetoesH;
+      for (unsigned i = 0; i < vetoes.size(); ++i) {
+        if (!vetoes[i].trackRef().isNonnull())
+          continue;
+        vetoed.emplace_back(vetoes[i].trackRef().id(), vetoes[i].trackRef().key());
       }
     }
   }
+  std::sort(vetoed.begin(), vetoed.end());
   auto muons = e.getHandle(muons_);
   elems.reserve(elems.size() + tracks->size());
   std::vector<bool> mask(tracks->size(), true);
@@ -159,13 +174,22 @@ void GeneralTracksImporter::importToBlock(const edm::Event& e, BlockElementImpor
       }
       if (muId != -1)
         trkElem->setMuonRef(muonref);
+      //
       // if _vetoEndcap is false, add this trk automatically.
-      // if _vetoEndcap is true, veto against the hgcal region tracks.
+      // if _vetoEndcap is true, veto against the hgcal region tracks or charged PF candidates.
       // when simPF is used, we don't veto tracks with muonref even if they are in the hgcal region.
-      if (!vetoEndcap_ || vetoed.count(pftrackref->trackRef().key()) == 0 || (vetoMode_ == 1 && muonref.isNonnull())) {
+      //
+      if (!vetoEndcap_)
         elems.emplace_back(trkElem);
-      } else
-        delete trkElem;
+      else {
+        TrackProdIDKey trk = std::make_pair(pftrackref->trackRef().id(), pftrackref->trackRef().key());
+        auto lower = std::lower_bound(vetoed.begin(), vetoed.end(), trk);
+        bool inVetoList = (lower != vetoed.end() && *lower == trk);
+        if (!inVetoList || (vetoMode_ == 1 && muonref.isNonnull())) {
+          elems.emplace_back(trkElem);
+        } else
+          delete trkElem;
+      }
     }
   }
   elems.shrink_to_fit();
