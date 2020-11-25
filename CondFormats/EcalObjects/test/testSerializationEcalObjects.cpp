@@ -158,6 +158,14 @@ int main() {
   testSerialization<std::vector<EcalTimeDependentCorrections::Times>>();
   testSerialization<std::vector<EcalTimeDependentCorrections::Values>>();
   testSerialization<std::vector<EcalXtalGroupId>>();
+  testSerialization<EcalMustacheSCParameters>();
+  testSerialization<EcalMustacheSCParameters::ParabolaParameters>();
+  testSerialization<std::vector<EcalMustacheSCParameters>>();
+  testSerialization<std::vector<EcalMustacheSCParameters::ParabolaParameters>>();
+  testSerialization<EcalSCDynamicDPhiParameters>();
+  testSerialization<EcalSCDynamicDPhiParameters::DynamicDPhiParameters>();
+  testSerialization<std::vector<EcalSCDynamicDPhiParameters>>();
+  testSerialization<std::vector<EcalSCDynamicDPhiParameters::DynamicDPhiParameters>>();
 
   return 0;
 }
