@@ -1,8 +1,8 @@
 #include "RecoTracker/FinalTrackSelectors/interface/TrackMVAClassifier.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
+//#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
@@ -18,12 +18,15 @@ struct TfDnnCache {
 };
 
 namespace {
-  struct TfDnn {
+  class TfDnn {
+  public:
     TfDnn(const edm::ParameterSet& cfg)
         : tfDnnLabel_(cfg.getParameter<std::string>("tfDnnLabel"))
 
-    {}
-    TfDnnCache* cache_ = new TfDnnCache();
+    {
+      cache_ = new TfDnnCache();
+    }
+    TfDnnCache* cache_;
 
     ~TfDnn() {
       if (cache_->session_) {
@@ -54,7 +57,7 @@ namespace {
     float operator()(reco::Track const& trk,
                      reco::BeamSpot const& beamSpot,
                      reco::VertexCollection const& vertices) const {
-      Point bestVertex = getBestVertex(trk, vertices);
+      const auto& bestVertex = getBestVertex(trk, vertices);
 
       tensorflow::Tensor input1(tensorflow::DT_FLOAT, {1, 29});
       tensorflow::Tensor input2(tensorflow::DT_FLOAT, {1, 1});
