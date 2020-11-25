@@ -2,6 +2,7 @@
 #define __TrackFromParentImporter_H__
 
 #include "RecoParticleFlow/PFProducer/interface/BlockElementImporterBase.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "DataFormats/HGCalReco/interface/TICLSeedingRegion.h"
@@ -41,6 +42,9 @@ namespace pflow {
                   sumes.consumes<std::vector<TICLSeedingRegion>>(conf.getParameter<edm::InputTag>("vetoSrc"));
               tracksSrc_ = sumes.consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("tracksSrc"));
               break;
+            case 3:
+              vetoSrc_ = sumes.consumes<reco::PFCandidateCollection>(conf.getParameter<edm::InputTag>("vetoSrc"));
+              break;
             default:;
           }  // switch
         }    // vetoEndcap_
@@ -56,6 +60,8 @@ namespace pflow {
       edm::EDGetTokenT<reco::PFRecTrackCollection> hgcalPFTracksSrc_;
       edm::EDGetTokenT<std::vector<TICLSeedingRegion>> ticlSeedingSrc_;
       edm::EDGetTokenT<reco::TrackCollection> tracksSrc_;
+      edm::EDGetTokenT<reco::PFCandidateCollection> vetoSrc_;
+      typedef std::pair<edm::ProductID, unsigned> TrackProdIDKey;
     };
 
     template <class Collection, class Adaptor>
@@ -65,31 +71,34 @@ namespace pflow {
       auto pfparents = e.getHandle(src_);
       //
       // Store tracks to be vetoed
-      std::unordered_set<unsigned> vetoed;
+      std::vector<TrackProdIDKey> vetoed;
       edm::ProductID prodIdForVeto;
       if (vetoEndcap_) {
         if (vetoMode_ == 1) {
           auto vetoesH = e.getHandle(hgcalPFTracksSrc_);
           const auto& vetoes = *vetoesH;
           for (unsigned i = 0; i < vetoes.size(); ++i) {
-            if (i == 0)
-              prodIdForVeto = vetoes[i].trackRef().id();
-            else
-              assert(vetoes[i].trackRef().id() == prodIdForVeto);
-            vetoed.insert(vetoes[i].trackRef().key());
+            vetoed.emplace_back(vetoes[i].trackRef().id(), vetoes[i].trackRef().key());
           }
         } else if (vetoMode_ == 2) {
           auto vetoesH = e.getHandle(ticlSeedingSrc_);
           const auto& vetoes = *vetoesH;
           auto tracksH = e.getHandle(tracksSrc_);
-          prodIdForVeto = tracksH.id();
           for (unsigned i = 0; i < vetoes.size(); ++i) {
-            assert(vetoes[i].collectionID == prodIdForVeto);
             reco::TrackRef trkref = reco::TrackRef(tracksH, vetoes[i].index);
-            vetoed.insert(trkref.key());
+            vetoed.emplace_back(trkref.id(), trkref.key());
+          }
+        } else if (vetoMode_ == 3) {
+          auto vetoesH = e.getHandle(vetoSrc_);
+          const auto& vetoes = *vetoesH;
+          for (unsigned i = 0; i < vetoes.size(); ++i) {
+            if (!vetoes[i].trackRef().isNonnull())
+              continue;
+            vetoed.emplace_back(vetoes[i].trackRef().id(), vetoes[i].trackRef().key());
           }
         }
       }
+      std::sort(vetoed.begin(), vetoed.end());
       //
       elems.reserve(elems.size() + 2 * pfparents->size());
       //
@@ -105,12 +114,13 @@ namespace pflow {
           parentRef = edm::Ref<Collection>(pfparents, std::distance(bpar, pfparent));
           const auto& pftracks = Adaptor::get_track_refs(*pfparent);
           for (const auto& pftrack : pftracks) {
-            if (vetoEndcap_                                      // vetoEndcap flag
-                && vetoed.count(pftrack->trackRef().key()) != 0  // found a track key in a veto list
-                && prodIdForVeto == pftrack->trackRef().id()
-                // check if the productID is the same as that for the veto list otherwise the key-based check won't work
-            )
-              continue;
+            if (vetoEndcap_) {  // vetoEndcap flag
+              TrackProdIDKey trk = std::make_pair(pftrack->trackRef().id(), pftrack->trackRef().key());
+              auto lower = std::lower_bound(vetoed.begin(), vetoed.end(), trk);
+              bool inVetoList = (lower != vetoed.end() && *lower == trk);
+              if (inVetoList)
+                continue;  // found a track in a veto list
+            }
             //
             // Now try to update an entry in pfblock or import
             auto tk_elem = std::find_if(

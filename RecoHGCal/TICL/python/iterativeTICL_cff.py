@@ -62,9 +62,8 @@ def injectTICLintoPF(process):
     for importer in _trackImporters:
         for idx in _findIndicesByModule(process,importer):
             _insertTrackImportersWithVeto[idx] = dict(
-                vetoMode = cms.uint32(2), # TICL seeding track list
-                vetoSrc = cms.InputTag("ticlSeedingTrk"),
-                tracksSrc = cms.InputTag("generalTracks")
+                vetoMode = cms.uint32(3), # pfTICL candidate list
+                vetoSrc = cms.InputTag("pfTICL")
             )
     phase2_hgcal.toModify(
       process.particleFlowBlock,
