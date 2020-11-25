@@ -276,7 +276,7 @@ void pat::PATLostTracks::addPackedCandidate(std::vector<pat::PackedCandidate>& c
   cands.back().setTrackHighPurity(trk->quality(reco::TrackBase::highPurity));
 
   if (trk->pt() > minPtToStoreProps_ || trkStatus == TrkStatus::VTX) {
-    if (std::abs(id) == 11 || trkStatus == TrkStatus::VTX) {
+    if (useLegacySetup_ || std::abs(id) == 11 || trkStatus == TrkStatus::VTX) {
       cands.back().setTrackProperties(*trk, covariancePackingSchemas_[4], covarianceVersion_);
     } else {
       if (trk->hitPattern().numberOfValidPixelHits() > 0) {
@@ -352,12 +352,13 @@ std::pair<int, pat::PackedCandidate::PVAssociationQuality> pat::PATLostTracks::a
     }
   }
   // vertex "closest in Z" with tight cuts (targetting primary particles)
-  const double add_cov = vertices[iVtxMinDzDist].covariance(2, 2);
-  const double dzErr = sqrt(trk->dzError() * trk->dzError() + add_cov);
-  if (minDz < maxDzForPrimaryAssignment_ && minDz / dzErr < maxDzSigForPrimaryAssignment_ &&
-      trk->dzError() < maxDzErrorForPrimaryAssignment_) {
-    return std::pair<int, pat::PackedCandidate::PVAssociationQuality>(iVtxMinDzDist,
-                                                                      pat::PackedCandidate::CompatibilityDz);
+  if (minDz < maxDzForPrimaryAssignment_) {
+    const double add_cov = vertices[iVtxMinDzDist].covariance(2, 2);
+    const double dzErr = sqrt(trk->dzError() * trk->dzError() + add_cov);
+    if (minDz / dzErr < maxDzSigForPrimaryAssignment_ && trk->dzError() < maxDzErrorForPrimaryAssignment_) {
+      return std::pair<int, pat::PackedCandidate::PVAssociationQuality>(iVtxMinDzDist,
+                                                                        pat::PackedCandidate::CompatibilityDz);
+    }
   }
   // if the track is not compatible with other PVs but is compatible with the BeamSpot, we may simply have not reco'ed the PV!
   //  we still point it to the closest in Z, but flag it as possible orphan-primary
