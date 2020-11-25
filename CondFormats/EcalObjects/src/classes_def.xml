@@ -291,4 +291,14 @@
    <field name = "time_interval" mapping = "blob"/>
 </class>
 
+<class name="EcalMustacheSCParameters">
+   <field name="parabolaParametersCollection_" mapping="blob"/>
+</class>
+<class name="EcalMustacheSCParameters::ParabolaParameters"/>
+
+<class name="EcalSCDynamicDPhiParameters">
+   <field name="dynamicDPhiParametersCollection_" mapping="blob"/>
+</class>
+<class name="EcalSCDynamicDPhiParameters::DynamicDPhiParameters"/>
+
 </lcgdict>
