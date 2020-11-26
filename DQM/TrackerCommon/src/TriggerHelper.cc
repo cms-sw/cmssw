@@ -1,9 +1,8 @@
 //
 //
-
 #include "CondFormats/HLTObjects/interface/AlCaRecoTriggerBits.h"
+#include "CondFormats/DataRecord/interface/AlCaRecoTriggerBitsRcd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
-
 #include "DQM/TrackerCommon/interface/TriggerHelper.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <string>
@@ -437,8 +436,7 @@ bool TriggerHelper::acceptHltLogicalExpression(const edm::Handle<edm::TriggerRes
 
 /// Reads and returns logical expressions from DB
 std::vector<std::string> TriggerHelper::expressionsFromDB(const std::string &key, const edm::EventSetup &setup) {
-  edm::ESHandle<AlCaRecoTriggerBits> logicalExpressions;
-  setup.get<AlCaRecoTriggerBitsRcd>().get(logicalExpressions);
+  const AlCaRecoTriggerBits *logicalExpressions = &(setup.getData(alcaRecotriggerBitsToken_));
   const std::map<std::string, std::string> &expressionMap = logicalExpressions->m_alcarecoToTrig;
   std::map<std::string, std::string>::const_iterator listIter = expressionMap.find(key);
   if (listIter == expressionMap.end()) {

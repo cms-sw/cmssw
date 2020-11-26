@@ -95,10 +95,8 @@ void TrackingAnalyser::beginRun(edm::Run const& run, edm::EventSetup const& eSet
   if (fedCablingWatcher_.check(eSetup)) {  //this should check if cabling record has changed
     edm::LogInfo("TrackingAnalyser") << "beginRun: "
                                      << " Change in Cabling, recrated TrackerMap";
-    edm::ESHandle<SiStripFedCabling> fedcabHandle = eSetup.getHandle(fedCablingToken_);
-    fedCabling_ = fedcabHandle.product();
-    edm::ESHandle<SiStripDetCabling> detcabHandle = eSetup.getHandle(detCablingToken_);
-    detCabling_ = detcabHandle.product();
+    fedCabling_ = &eSetup.getData(fedCablingToken_);
+    detCabling_ = &eSetup.getData(detCablingToken_);
   }
 }
 //
