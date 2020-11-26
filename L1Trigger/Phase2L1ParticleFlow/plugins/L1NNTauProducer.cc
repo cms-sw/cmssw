@@ -70,17 +70,6 @@ void L1NNTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<l1t::PFCandidateCollection> l1PFCandidates;
   iEvent.getByToken(fL1PFToken_, l1PFCandidates);
 
-  l1t::PFCandidateCollection pfChargedHadrons_sort;
-  l1t::PFCandidateCollection pfChargedHadrons_seeds;
-  for (const auto& l1PFCand : *l1PFCandidates)
-    if ((l1PFCand.id() == l1t::PFCandidate::ChargedHadron || l1PFCand.id() == l1t::PFCandidate::Electron) &&
-        std::abs(l1PFCand.eta()) < track_trigger_eta_max)
-      pfChargedHadrons_sort.push_back(l1PFCand);
-
-  std::sort(pfChargedHadrons_sort.begin(), pfChargedHadrons_sort.end(), [](l1t::PFCandidate i, l1t::PFCandidate j) {
-    return (i.pt() > j.pt());
-  });
-
   std::vector<unique_ptr<l1t::PFCandidate>> pfChargedHadrons_sort_v;
   std::vector<unique_ptr<l1t::PFCandidate>> pfChargedHadrons_seeds_v;
   for (const auto& l1PFCand : *l1PFCandidates)
@@ -102,21 +91,21 @@ void L1NNTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     iEvent.put(std::move(lTaus), "L1PFTausNN");
     return;
   }
-  pfChargedHadrons_seeds.push_back(pfChargedHadrons_sort[0]);
-  for (unsigned int i0 = 1; i0 < pfChargedHadrons_sort.size(); i0++) {
+  pfChargedHadrons_seeds_v.push_back(std::move(pfChargedHadrons_sort_v[0]));
+  for (unsigned int i0 = 1; i0 < pfChargedHadrons_sort_v.size(); i0++) {
     bool pMatch = false;
-    for (unsigned int i1 = 0; i1 < pfChargedHadrons_seeds.size(); i1++) {
-      if (reco::deltaR2(pfChargedHadrons_seeds[i1], pfChargedHadrons_sort[i0]) < fConeSize_ * fConeSize_)
+    for (unsigned int i1 = 0; i1 < pfChargedHadrons_seeds_v.size(); i1++) {
+      if (reco::deltaR2(*(pfChargedHadrons_seeds_v[i1]), *(pfChargedHadrons_sort_v[i0])) < fConeSize_ * fConeSize_)
         pMatch = true;
     }
     if (pMatch)
       continue;
-    pfChargedHadrons_seeds.push_back(pfChargedHadrons_sort[i0]);
-    if (int(pfChargedHadrons_seeds.size()) > fMaxTaus_ - 1)
+    pfChargedHadrons_seeds_v.push_back(std::move(pfChargedHadrons_sort_v[i0]));
+    if (int(pfChargedHadrons_seeds_v.size()) > fMaxTaus_ - 1)
       break;
   }
-  for (unsigned int i0 = 0; i0 < pfChargedHadrons_seeds.size(); i0++) {
-    addTau(pfChargedHadrons_seeds[i0], (*l1PFCandidates), lTaus);
+  for (unsigned int i0 = 0; i0 < pfChargedHadrons_seeds_v.size(); i0++) {
+    addTau(*(pfChargedHadrons_seeds_v[i0]), (*l1PFCandidates), lTaus);
   }
   if (lTaus->empty()) {
     PFTau dummy;
