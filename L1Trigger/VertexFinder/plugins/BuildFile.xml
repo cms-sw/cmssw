@@ -1,0 +1,29 @@
+<use name="DataFormats/Common"/>
+<use name="DataFormats/L1TrackTrigger"/>
+<use name="DataFormats/L1Trigger"/>
+<use name="DataFormats/Math"/>
+<use name="DataFormats/Phase2TrackerDigi"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="MagneticField/Engine"/>
+<use name="MagneticField/Records"/>
+<use name="SimDataFormats/EncodedEventId"/>
+<use name="SimDataFormats/Track"/>
+<use name="SimDataFormats/TrackingAnalysis"/>
+<use name="SimGeneral/TrackingAnalysis"/>
+<use name="SimTracker/TrackTriggerAssociation"/>
+<use name="boost"/>
+<use name="roothistmatrix"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="CondFormats/DataRecord"/>
+<use name="L1Trigger/VertexFinder"/>
+<flags CXXFLAGS="-g -Wno-unused-variable"/>
+<library file="*.cc" name="L1TriggerVertexFinderPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
