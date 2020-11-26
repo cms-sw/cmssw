@@ -105,10 +105,8 @@ OuterTrackerMonitorTTCluster::~OuterTrackerMonitorTTCluster() {
 // member functions
 //
 void OuterTrackerMonitorTTCluster::dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) {
-  edm::ESHandle<TrackerGeometry> geomHandle = iSetup.getHandle(geomToken_);
-  tkGeom_ = &(*geomHandle);
-  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(topoToken_);
-  tTopo_ = tTopoHandle.product();
+  tkGeom_ = &(iSetup.getData(geomToken_));
+  tTopo_ = &(iSetup.getData(topoToken_));
 }
 
 // ------------ method called for each event  ------------
