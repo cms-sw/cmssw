@@ -81,6 +81,8 @@ public:
   bool toaModeByEnergy() const { return (myFEelectronics_->toaMode() == HGCFEElectronics<DFr>::WEIGHTEDBYE); }
   float tdcOnset() const { return myFEelectronics_->getTDCOnset(); }
   std::array<float, 3> tdcForToAOnset() const { return myFEelectronics_->getTDCForToAOnset(); }
+  DetId::Detector det() const { return det_; }
+  ForwardSubdetector subdet() const { return subdet_; }
 
   /**
      @short a trivial digitization: sum energies and digitize without noise
@@ -149,6 +151,17 @@ protected:
 
   //if set to true, threshold will be computed based on the expected meap peak/2
   bool thresholdFollowsMIP_;
+
+  // Identify the detector components, i.e. DetIds, that will be managed by
+  // this digitizer. This information will be used to fetch the correct
+  // geometry and the full list of detids for which a digitization is
+  // requested.
+  DetId::Detector det_;
+
+  // Identify the subdetector components that will be managed by this
+  // digitizer. This information will be used to fetch the correct geometry and
+  // the full list of detids for which a digitization is requested.
+  ForwardSubdetector subdet_;
 
   // New NoiseArray Parameters
 

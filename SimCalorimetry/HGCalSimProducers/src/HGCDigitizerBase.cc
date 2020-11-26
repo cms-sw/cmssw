@@ -6,7 +6,9 @@ using namespace hgc_digi;
 using namespace hgc_digi_utils;
 
 HGCDigitizerBase::HGCDigitizerBase(const edm::ParameterSet& ps)
-    : scaleByDose_(false), NoiseMean_(0.0), NoiseStd_(1.0) {
+    : scaleByDose_(false), det_(DetId::Forward),
+      subdet_(ForwardSubdetector::ForwardEmpty), NoiseMean_(0.0),
+      NoiseStd_(1.0) {
   bxTime_ = ps.getParameter<double>("bxTime");
   myCfg_ = ps.getParameter<edm::ParameterSet>("digiCfg");
   NoiseGeneration_Method_ = ps.getParameter<bool>("NoiseGeneration_Method");

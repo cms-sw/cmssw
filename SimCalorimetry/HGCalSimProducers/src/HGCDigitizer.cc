@@ -234,8 +234,6 @@ namespace {
 HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector& iC)
     : simHitAccumulator_(new HGCSimHitDataAccumulator()),
       pusimHitAccumulator_(new HGCPUSimHitDataAccumulator()),
-      myDet_(DetId::Forward),
-      mySubDet_(ForwardSubdetector::ForwardEmpty),
       refSpeed_(0.1 * CLHEP::c_light),  //[CLHEP::c_light]=mm/ns convert to cm/ns
       averageOccupancies_(occupancyGuesses),
       nEvents_(1) {
@@ -267,21 +265,16 @@ HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector& 
   }
 
   if (hitCollection_.find("HitsEE") != std::string::npos) {
-    myDet_ = DetId::HGCalEE;
-    theHGCEEDigitizer_ = std::make_unique<HGCEEDigitizer>(ps);
+    theDigitizer_ = std::make_unique<HGCEEDigitizer>(ps);
   }
   if (hitCollection_.find("HitsHEfront") != std::string::npos) {
-    myDet_ = DetId::HGCalHSi;
-    theHGCHEfrontDigitizer_ = std::make_unique<HGCHEfrontDigitizer>(ps);
+    theDigitizer_ = std::make_unique<HGCHEfrontDigitizer>(ps);
   }
   if (hitCollection_.find("HitsHEback") != std::string::npos) {
-    myDet_ = DetId::HGCalHSc;
-    theHGCHEbackDigitizer_ = std::make_unique<HGCHEbackDigitizer>(ps);
+    theDigitizer_ = std::make_unique<HGCHEbackDigitizer>(ps);
   }
   if (hitCollection_.find("HFNoseHits") != std::string::npos) {
-    mySubDet_ = ForwardSubdetector::HFNose;
-    myDet_ = DetId::Forward;
-    theHFNoseDigitizer_ = std::make_unique<HFNoseDigitizer>(ps);
+    theDigitizer_ = std::make_unique<HFNoseDigitizer>(ps);
   }
 }
 
@@ -324,48 +317,14 @@ void HGCDigitizer::finalizeEvent(edm::Event& e, edm::EventSetup const& es, CLHEP
     e.put(std::move(simRecord), digiCollection());
 
   } else {
-    if (producesEEDigis()) {
-      auto digiResult = std::make_unique<HGCalDigiCollection>();
-
-      theHGCEEDigitizer_->run(digiResult, *simHitAccumulator_, theGeom, validIds_, digitizationType_, hre);
-
-      edm::LogVerbatim("HGCDigitizer") << "HGCDigitizer:: finalize event - produced " << digiResult->size()
-                                       << " EE hits";
+    auto digiResult = std::make_unique<HGCalDigiCollection>();
+    theDigitizer_->run(digiResult, *simHitAccumulator_, theGeom, validIds_, digitizationType_, hre);
+    edm::LogVerbatim("HGCDigitizer") << "HGCDigitizer:: finalize event - produced " << digiResult->size()
+                                       << " hits in det/subdet " << theDigitizer_->det() << "/" << theDigitizer_->subdet();
 #ifdef EDM_ML_DEBUG
-      checkPosition(&(*digiResult));
+    checkPosition(&(*digiResult));
 #endif
-      e.put(std::move(digiResult), digiCollection());
-    }
-    if (producesHEfrontDigis()) {
-      auto digiResult = std::make_unique<HGCalDigiCollection>();
-      theHGCHEfrontDigitizer_->run(digiResult, *simHitAccumulator_, theGeom, validIds_, digitizationType_, hre);
-      edm::LogVerbatim("HGCDigitizer") << "HGCDigitizer:: finalize event - produced " << digiResult->size()
-                                       << " HE silicon hits";
-#ifdef EDM_ML_DEBUG
-      checkPosition(&(*digiResult));
-#endif
-      e.put(std::move(digiResult), digiCollection());
-    }
-    if (producesHEbackDigis()) {
-      auto digiResult = std::make_unique<HGCalDigiCollection>();
-      theHGCHEbackDigitizer_->run(digiResult, *simHitAccumulator_, theGeom, validIds_, digitizationType_, hre);
-      edm::LogVerbatim("HGCDigitizer") << "HGCDigitizer:: finalize event - produced " << digiResult->size()
-                                       << " HE Scintillator hits";
-#ifdef EDM_ML_DEBUG
-      checkPosition(&(*digiResult));
-#endif
-      e.put(std::move(digiResult), digiCollection());
-    }
-    if (producesHFNoseDigis()) {
-      auto digiResult = std::make_unique<HGCalDigiCollection>();
-      theHFNoseDigitizer_->run(digiResult, *simHitAccumulator_, theGeom, validIds_, digitizationType_, hre);
-      edm::LogVerbatim("HGCDigitizer") << "HGCDigitizer:: finalize event - produced " << digiResult->size()
-                                       << " HFNose hits";
-#ifdef EDM_ML_DEBUG
-      checkPosition(&(*digiResult));
-#endif
-      e.put(std::move(digiResult), digiCollection());
-    }
+    e.put(std::move(digiResult), digiCollection());
   }
 
   hgc::HGCSimHitDataAccumulator().swap(*simHitAccumulator_);
@@ -583,9 +542,9 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const& hits,
     return;
 
   //configuration to apply for the computation of time-of-flight
-  std::array<float, 3> tdcForToAOnset{{0.f, 0.f, 0.f}};
-  float keV2fC(0.f);
-  bool weightToAbyEnergy = getWeight(tdcForToAOnset, keV2fC);
+  auto weightToAbyEnergy = theDigitizer_->toaModeByEnergy();
+  auto tdcForToAOnset = theDigitizer_->tdcForToAOnset();
+  auto keV2fC = theDigitizer_->keV2fC();
 
   //create list of tuples (pos in container, RECO DetId, time) to be sorted first
   int nchits = (int)hits->size();
@@ -597,10 +556,6 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const& hits,
     DetId id = simToReco(geom, the_hit.id());
 
     if (verbosity_ > 0) {
-      if (producesEEDigis())
-        edm::LogVerbatim("HGCDigitizer") << "HGCDigitizer::i/p " << std::hex << the_hit.id() << " o/p " << id.rawId()
-                                         << std::dec;
-      else
         edm::LogVerbatim("HGCDigitizer") << "HGCDigitizer::i/p " << std::hex << the_hit.id() << " o/p " << id.rawId()
                                          << std::dec;
     }
@@ -728,9 +683,8 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const& hits,
 }
 void HGCDigitizer::accumulate_forPreMix(const PHGCSimAccumulator& simAccumulator, const bool minbiasFlag) {
   //configuration to apply for the computation of time-of-flight
-  std::array<float, 3> tdcForToAOnset{{0.f, 0.f, 0.f}};
-  float keV2fC(0.f);
-  bool weightToAbyEnergy = getWeight(tdcForToAOnset, keV2fC);
+  auto weightToAbyEnergy = theDigitizer_->toaModeByEnergy();
+  auto tdcForToAOnset = theDigitizer_->tdcForToAOnset();
 
   if (nullptr != gHGCal_) {
     loadSimHitAccumulator_forPreMix(*simHitAccumulator_,
@@ -756,14 +710,8 @@ void HGCDigitizer::beginRun(const edm::EventSetup& es) {
 
   gHGCal_ = nullptr;
 
-  if (producesEEDigis())
-    gHGCal_ = dynamic_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(myDet_, mySubDet_));
-  if (producesHEfrontDigis())
-    gHGCal_ = dynamic_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(myDet_, mySubDet_));
-  if (producesHFNoseDigis())
-    gHGCal_ = dynamic_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(myDet_, mySubDet_));
-  if (producesHEbackDigis())
-    gHGCal_ = dynamic_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(myDet_, mySubDet_));
+  gHGCal_ = dynamic_cast<const HGCalGeometry*>(
+      geom->getSubdetectorGeometry(theDigitizer_->det(), theDigitizer_->subdet()));
 
   int nadded(0);
   //valid ID lists
@@ -791,7 +739,7 @@ void HGCDigitizer::resetSimHitDataAccumulator() {
 
 uint32_t HGCDigitizer::getType() const {
   uint32_t idx = std::numeric_limits<unsigned>::max();
-    switch (myDet_) {
+    switch (theDigitizer_->det()) {
       case DetId::HGCalEE:
         idx = 0;
         break;
@@ -808,35 +756,6 @@ uint32_t HGCDigitizer::getType() const {
         break;
     }
   return idx;
-}
-
-bool HGCDigitizer::getWeight(std::array<float, 3>& tdcForToAOnset, float& keV2fC) const {
-  bool weightToAbyEnergy(false);
-    switch (myDet_) {
-      case DetId::HGCalEE:
-        weightToAbyEnergy = theHGCEEDigitizer_->toaModeByEnergy();
-        tdcForToAOnset = theHGCEEDigitizer_->tdcForToAOnset();
-        keV2fC = theHGCEEDigitizer_->keV2fC();
-        break;
-      case DetId::HGCalHSi:
-        weightToAbyEnergy = theHGCHEfrontDigitizer_->toaModeByEnergy();
-        tdcForToAOnset = theHGCHEfrontDigitizer_->tdcForToAOnset();
-        keV2fC = theHGCHEfrontDigitizer_->keV2fC();
-        break;
-      case DetId::HGCalHSc:
-        weightToAbyEnergy = theHGCHEbackDigitizer_->toaModeByEnergy();
-        tdcForToAOnset = theHGCHEbackDigitizer_->tdcForToAOnset();
-        keV2fC = theHGCHEbackDigitizer_->keV2fC();
-        break;
-      case DetId::Forward:
-        weightToAbyEnergy = theHFNoseDigitizer_->toaModeByEnergy();
-        tdcForToAOnset = theHFNoseDigitizer_->tdcForToAOnset();
-        keV2fC = theHFNoseDigitizer_->keV2fC();
-        break;
-      default:
-        break;
-    }
-  return weightToAbyEnergy;
 }
 
 void HGCDigitizer::checkPosition(const HGCalDigiCollection* digis) const {

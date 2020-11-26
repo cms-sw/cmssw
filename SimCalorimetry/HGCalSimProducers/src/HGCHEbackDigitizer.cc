@@ -26,6 +26,7 @@ HGCHEbackDigitizer::HGCHEbackDigitizer(const edm::ParameterSet& ps) : HGCDigitiz
   thresholdFollowsMIP_ = cfg.getParameter<bool>("thresholdFollowsMIP");
   keV2MIP_ = cfg.getParameter<double>("keV2MIP");
   this->keV2fC_ = 1.0;  //keV2MIP_; // hack for HEB
+  this->det_ = DetId::HGCalHSc;
   nPEperMIP_ = cfg.getParameter<double>("nPEperMIP");
   nTotalPE_ = cfg.getParameter<double>("nTotalPE");
   xTalk_ = cfg.getParameter<double>("xTalk");
