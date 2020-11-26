@@ -31,4 +31,5 @@
     <flags CXXFLAGS="-ffp-contract=off"/>
     <flags CUDA_FLAGS="-fmad=false -ftz=false -prec-div=true -prec-sqrt=true"/>
   </bin>
+
 </iftool>
