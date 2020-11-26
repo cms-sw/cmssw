@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.slimming.primaryVertexAssociation_cfi import primaryVertexAssociation
+from PhysicsTools.PatAlgos.slimming.packedPFCandidates_cfi import packedPFCandidates
 
 lostTracks = cms.EDProducer("PATLostTracks",
     inputCandidates = cms.InputTag("particleFlow"),
@@ -15,7 +16,7 @@ lostTracks = cms.EDProducer("PATLostTracks",
     minHits = cms.uint32(8),
     minPixelHits = cms.uint32(1),
     covarianceVersion = cms.int32(0), #so far: 0 is Phase0, 1 is Phase1
-    covarianceSchema = cms.int32(0), #old miniaod like
+    covariancePackingSchemas = packedPFCandidates.covariancePackingSchemas,
     qualsToAutoAccept = cms.vstring("highPurity"),
     minPtToStoreProps = cms.double(0.95),
     passThroughCut = cms.string("0"),

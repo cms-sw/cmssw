@@ -57,7 +57,7 @@ namespace pat {
     const double minPixelHits_;
     const double minPtToStoreProps_;
     const int covarianceVersion_;
-    const int covarianceSchema_;
+    const std::vector<int> covariancePackingSchemas_;
     std::vector<reco::TrackBase::TrackQuality> qualsToAutoAccept_;
     const edm::EDGetTokenT<reco::MuonCollection> muons_;
     StringCutObjectSelector<reco::Track, false> passThroughCut_;
@@ -86,7 +86,7 @@ pat::PATLostTracks::PATLostTracks(const edm::ParameterSet& iConfig)
       minPixelHits_(iConfig.getParameter<uint32_t>("minPixelHits")),
       minPtToStoreProps_(iConfig.getParameter<double>("minPtToStoreProps")),
       covarianceVersion_(iConfig.getParameter<int>("covarianceVersion")),
-      covarianceSchema_(iConfig.getParameter<int>("covarianceSchema")),
+      covariancePackingSchemas_(iConfig.getParameter<std::vector<int>>("covariancePackingSchemas")),
       muons_(consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
       passThroughCut_(iConfig.getParameter<std::string>("passThroughCut")),
       allowMuonId_(iConfig.getParameter<bool>("allowMuonId")),
@@ -279,8 +279,27 @@ void pat::PATLostTracks::addPackedCandidate(std::vector<pat::PackedCandidate>& c
 
   cands.back().setTrackHighPurity(trk->quality(reco::TrackBase::highPurity));
 
-  if (trk->pt() > minPtToStoreProps_ || trkStatus == TrkStatus::VTX)
-    cands.back().setTrackProperties(*trk, covarianceSchema_, covarianceVersion_);
+  if (trk->pt() > minPtToStoreProps_ || trkStatus == TrkStatus::VTX) {
+    if (useLegacySetup_ || std::abs(id) == 11 || trkStatus == TrkStatus::VTX) {
+      cands.back().setTrackProperties(*trk, covariancePackingSchemas_[4], covarianceVersion_);
+    } else {
+      if (trk->hitPattern().numberOfValidPixelHits() > 0) {
+        cands.back().setTrackProperties(
+            *trk, covariancePackingSchemas_[0], covarianceVersion_);  // high quality with pixels
+      } else {
+        cands.back().setTrackProperties(
+            *trk, covariancePackingSchemas_[1], covarianceVersion_);  // high quality without pixels
+      }
+    }
+  } else if (!useLegacySetup_ && trk->pt() > 0.5) {
+    if (trk->hitPattern().numberOfValidPixelHits() > 0) {
+      cands.back().setTrackProperties(
+          *trk, covariancePackingSchemas_[2], covarianceVersion_);  // low quality with pixels
+    } else {
+      cands.back().setTrackProperties(
+          *trk, covariancePackingSchemas_[3], covarianceVersion_);  // low quality without pixels
+    }
+  }
   cands.back().setAssociationQuality(pvAssocQuality);
 }
 
