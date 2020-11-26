@@ -3,7 +3,9 @@
 using namespace hgc_digi;
 
 //
-HGCHEfrontDigitizer::HGCHEfrontDigitizer(const edm::ParameterSet& ps) : HGCDigitizerBase(ps) {}
+HGCHEfrontDigitizer::HGCHEfrontDigitizer(const edm::ParameterSet& ps) : HGCDigitizerBase(ps) {
+  this->det_ = DetId::HGCalHSi;
+}
 
 //
 void HGCHEfrontDigitizer::runDigitizer(std::unique_ptr<HGCalDigiCollection>& digiColl,

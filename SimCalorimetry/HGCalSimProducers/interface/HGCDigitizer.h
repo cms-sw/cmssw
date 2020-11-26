@@ -74,12 +74,6 @@ public:
   void initializeEvent(edm::Event const& e, edm::EventSetup const& c);
   void finalizeEvent(edm::Event& e, edm::EventSetup const& c, CLHEP::HepRandomEngine* hre);
 
-  /**
-   */
-  bool producesEEDigis() { return (myDet_ == DetId::HGCalEE); }
-  bool producesHEfrontDigis() { return (myDet_ == DetId::HGCalHSi); }
-  bool producesHEbackDigis() { return (myDet_ == DetId::HGCalHSc); }
-  bool producesHFNoseDigis() { return ((mySubDet_ == ForwardSubdetector::HFNose) && (myDet_ == DetId::Forward)); }
   std::string digiCollection() { return digiCollection_; }
 
   /**
@@ -90,7 +84,6 @@ public:
 
 private:
   uint32_t getType() const;
-  bool getWeight(std::array<float, 3>& tdcForToAOnset, float& keV2fC) const;
   std::string hitCollection_, digiCollection_;
 
   //digitization type (it's up to the specializations to decide it's meaning)
@@ -114,19 +107,12 @@ private:
   //debug position
   void checkPosition(const HGCalDigiCollection* digis) const;
 
-  //digitizers
-  std::unique_ptr<HGCEEDigitizer> theHGCEEDigitizer_;
-  std::unique_ptr<HGCHEbackDigitizer> theHGCHEbackDigitizer_;
-  std::unique_ptr<HGCHEfrontDigitizer> theHGCHEfrontDigitizer_;
-  std::unique_ptr<HFNoseDigitizer> theHFNoseDigitizer_;
+  //digitizer
+  std::unique_ptr<HGCDigitizerBase> theDigitizer_;
 
   //geometries
   std::unordered_set<DetId> validIds_;
   const HGCalGeometry* gHGCal_;
-
-  //detector and subdetector id
-  DetId::Detector myDet_;
-  ForwardSubdetector mySubDet_;
 
   //misc switches
   uint32_t verbosity_;

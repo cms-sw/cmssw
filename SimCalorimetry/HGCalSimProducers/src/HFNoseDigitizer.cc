@@ -3,7 +3,10 @@
 using namespace hgc_digi;
 
 //
-HFNoseDigitizer::HFNoseDigitizer(const edm::ParameterSet& ps) : HGCDigitizerBase(ps) {}
+HFNoseDigitizer::HFNoseDigitizer(const edm::ParameterSet& ps) : HGCDigitizerBase(ps) {
+  this->det_ = DetId::Forward;
+  this->subdet_ = ForwardSubdetector::HFNose;
+}
 
 //
 void HFNoseDigitizer::runDigitizer(std::unique_ptr<HGCalDigiCollection>& digiColl,
