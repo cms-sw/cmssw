@@ -88,9 +88,10 @@ void L1NNTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         std::abs(l1PFCand.eta()) < track_trigger_eta_max)
       pfChargedHadrons_sort_v.push_back(std::make_unique<l1t::PFCandidate>(l1PFCand));
 
-  std::sort(pfChargedHadrons_sort_v.begin(), pfChargedHadrons_sort_v.end(), [](std::unique_ptr<l1t::PFCandidate>& i, std::unique_ptr<l1t::PFCandidate>& j) {
-    return (i->pt() > j->pt());
-  });
+  std::sort(
+      pfChargedHadrons_sort_v.begin(),
+      pfChargedHadrons_sort_v.end(),
+      [](std::unique_ptr<l1t::PFCandidate>& i, std::unique_ptr<l1t::PFCandidate>& j) { return (i->pt() > j->pt()); });
 
   auto lTaus = std::make_unique<l1t::PFTauCollection>();
   if (pfChargedHadrons_sort_v.empty()) {
