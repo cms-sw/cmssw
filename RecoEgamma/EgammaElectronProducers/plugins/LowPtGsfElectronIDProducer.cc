@@ -169,7 +169,7 @@ void LowPtGsfElectronIDProducer::fillDescriptions(edm::ConfigurationDescriptions
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("electrons", edm::InputTag("lowPtGsfElectrons"));
   desc.add<edm::InputTag>("unbiased", edm::InputTag("lowPtGsfElectronSeedValueMaps:unbiased"));
-  desc.add<edm::InputTag>("rho", edm::InputTag("fixedGridRhoFastjetAllTmp"));
+  desc.add<edm::InputTag>("rho", edm::InputTag("fixedGridRhoFastjetAll"));
   desc.add<std::vector<std::string> >("ModelNames", {""});
   desc.add<std::vector<std::string> >(
       "ModelWeights", {"RecoEgamma/ElectronIdentification/data/LowPtElectrons/LowPtElectrons_ID_2020Sept15.root"});
