@@ -1,7 +1,6 @@
 #ifndef __L1Trigger_VertexFinder_VertexProducer_h__
 #define __L1Trigger_VertexFinder_VertexProducer_h__
 
-
 #include <map>
 #include <string>
 #include <vector>
@@ -14,13 +13,11 @@
 
 #include "L1Trigger/VertexFinder/interface/AlgoSettings.h"
 
-
 namespace l1tVertexFinder {
-class AlgoSettings;
+  class AlgoSettings;
 }
 
 class VertexProducer : public edm::EDProducer {
-
 public:
   explicit VertexProducer(const edm::ParameterSet&);
   ~VertexProducer() {}

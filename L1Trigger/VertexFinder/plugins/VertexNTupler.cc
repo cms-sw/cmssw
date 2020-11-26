@@ -36,618 +36,630 @@ using namespace std;
 
 namespace l1tVertexFinder {
 
-class VertexNTupler : public edm::EDAnalyzer {
+  class VertexNTupler : public edm::EDAnalyzer {
+  public:
+    explicit VertexNTupler(const edm::ParameterSet&);
+    ~VertexNTupler();
 
-public:
-  explicit VertexNTupler(const edm::ParameterSet&);
-  ~VertexNTupler();
+  private:
+    struct RecoVerticesBranchData {
+      std::vector<unsigned> numTracks;
+      std::vector<std::vector<unsigned>> trackIdxs;
+      std::vector<float> z0;
+      std::vector<float> sumPt;
+    };
 
-private:
-  struct RecoVerticesBranchData {
-    std::vector<unsigned> numTracks;
-    std::vector<std::vector<unsigned>> trackIdxs;
-    std::vector<float> z0;
-    std::vector<float> sumPt;
+    struct RecoTracksBranchData {
+      std::vector<float> pt;
+      std::vector<float> eta;
+      std::vector<float> phi;
+      std::vector<float> z0;
+      std::vector<unsigned> numStubs;
+      std::vector<float> chi2dof;
+      std::vector<int> trueMatchIdx;
+
+      std::vector<int> truthMapMatchIdx;
+      std::vector<float> truthMapIsGenuine;
+      std::vector<float> truthMapIsLooselyGenuine;
+      std::vector<float> truthMapIsCombinatoric;
+      std::vector<float> truthMapIsUnknown;
+    };
+
+    void beginJob() override;
+    void analyze(const edm::Event& evt, const edm::EventSetup& setup);
+    void endJob() override;
+
+    // define types for stub-related classes
+    typedef edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>> DetSetVec;
+    typedef TTStubAssociationMap<Ref_Phase2TrackerDigi_> TTStubAssMap;
+    typedef TTClusterAssociationMap<Ref_Phase2TrackerDigi_> TTClusterAssMap;
+    typedef edm::View<TTTrack<Ref_Phase2TrackerDigi_>> TTTrackCollectionView;
+
+    // references to tags containing information relevant to perofrmance analysis
+    const edm::EDGetTokenT<std::vector<PileupSummaryInfo>> pileupSummaryToken_;
+    const edm::EDGetTokenT<TrackingParticleCollection> tpInputTag;
+    const edm::EDGetTokenT<DetSetVec> stubInputTag;
+    const edm::EDGetTokenT<TTStubAssMap> stubTruthInputTag;
+    const edm::EDGetTokenT<TTClusterAssMap> clusterTruthInputTag;
+    const edm::EDGetTokenT<edm::View<reco::GenParticle>> genParticlesToken_;
+    const edm::EDGetTokenT<std::vector<reco::GenJet>> genJetsToken_;
+    std::map<std::string, edm::EDGetTokenT<TTTrackCollectionView>> l1TracksTokenMap_;
+    std::map<std::string, edm::EDGetTokenT<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>>> l1TracksMapTokenMap_;
+    std::map<std::string, edm::EDGetTokenT<std::vector<l1t::Vertex>>> l1VerticesTokenMap_;
+    std::map<std::string, edm::EDGetTokenT<std::vector<l1t::Vertex>>> l1VerticesExtraTokenMap_;
+    std::vector<edm::EDGetTokenT<std::vector<l1t::Vertex>>> l1VerticesExtraTokens_;
+
+    TTree* outputTree_;
+
+    const bool printResults_;
+
+    // storage class for configuration parameters
+    AnalysisSettings settings_;
+
+    edm::Service<TFileService> fs_;
+    // Histograms for Vertex Reconstruction
+
+    float numTrueInteractions_;
+    int numPileupVertices_;
+
+    std::vector<float> genJetsEnergy_;
+    std::vector<float> genJetsPt_;
+    std::vector<float> genJetsEta_;
+    std::vector<float> genJetsPhi_;
+
+    std::vector<float> trueTracksPt_;
+    std::vector<float> trueTracksEta_;
+    std::vector<float> trueTracksPhi_;
+    std::vector<float> trueTracksZ0_;
+    std::vector<int> trueTracksPdgId_;
+    std::vector<float> trueTracksPhysCollision_;
+    std::vector<float> trueTracksUse_;
+    std::vector<float> trueTracksUseForEff_;
+    std::vector<float> trueTracksUseForAlgEff_;
+    std::vector<float> trueTracksUseForVertexReco_;
+
+    std::vector<float> truePileUpVtxZ0_;
+
+    std::vector<float> genParticlesHardOutgoingEnergy_;
+    std::vector<float> genParticlesHardOutgoingPt_;
+    std::vector<float> genParticlesHardOutgoingEta_;
+    std::vector<float> genParticlesHardOutgoingPhi_;
+    std::vector<int> genParticlesHardOutgoingPdgId_;
+    std::vector<int> genParticlesHardOutgoingStatus_;
+
+    std::map<std::string, RecoTracksBranchData> l1TracksBranchData_;
+    std::map<std::string, RecoVerticesBranchData> l1VerticesBranchData_;
+    std::map<std::string, std::string> l1VerticesInputMap_;
+
+    std::unordered_map<std::string, std::vector<unsigned>> l1Vertices_branchMap_numTracks_;
+    std::unordered_map<std::string, std::vector<float>> l1Vertices_branchMap_z0_;
+    std::unordered_map<std::string, std::vector<float>> l1Vertices_branchMap_z0_etaWeighted_;
+    std::unordered_map<std::string, std::vector<float>> l1Vertices_branchMap_sumPt_;
+
+    std::vector<std::vector<unsigned>> l1Vertices_extra_numTracks_;
+    std::vector<std::vector<float>> l1Vertices_extra_z0_;
+    std::vector<std::vector<float>> l1Vertices_extra_z0_etaWeighted_;
+    std::vector<std::vector<float>> l1Vertices_extra_sumPt_;
   };
 
-  struct RecoTracksBranchData {
-    std::vector<float> pt;
-    std::vector<float> eta;
-    std::vector<float> phi;
-    std::vector<float> z0;
-    std::vector<unsigned> numStubs;
-    std::vector<float> chi2dof;
-    std::vector<int>   trueMatchIdx;
+  VertexNTupler::VertexNTupler(const edm::ParameterSet& iConfig)
+      : pileupSummaryToken_(consumes<std::vector<PileupSummaryInfo>>(edm::InputTag("addPileupInfo"))),
+        tpInputTag(consumes<TrackingParticleCollection>(iConfig.getParameter<edm::InputTag>("tpInputTag"))),
+        stubInputTag(consumes<DetSetVec>(iConfig.getParameter<edm::InputTag>("stubInputTag"))),
+        stubTruthInputTag(consumes<TTStubAssMap>(iConfig.getParameter<edm::InputTag>("stubTruthInputTag"))),
+        clusterTruthInputTag(consumes<TTClusterAssMap>(iConfig.getParameter<edm::InputTag>("clusterTruthInputTag"))),
+        genParticlesToken_(consumes<edm::View<reco::GenParticle>>(edm::InputTag("genParticles"))),
+        genJetsToken_(consumes<std::vector<reco::GenJet>>(edm::InputTag("ak4GenJetsNoNu"))),
+        outputTree_(fs_->make<TTree>("l1VertexReco", "L1 vertex-related info")),
+        printResults_(iConfig.getParameter<bool>("printResults")),
+        settings_(iConfig) {
+    const std::vector<std::string> trackBranchNames(
+        iConfig.getParameter<std::vector<std::string>>("l1TracksBranchNames"));
+    const std::vector<edm::InputTag> trackInputTags(
+        iConfig.getParameter<std::vector<edm::InputTag>>("l1TracksInputTags"));
+    const std::vector<edm::InputTag> trackMapInputTags(
+        iConfig.getParameter<std::vector<edm::InputTag>>("l1TracksTruthMapInputTags"));
 
-    std::vector<int>  truthMapMatchIdx;
-    std::vector<float> truthMapIsGenuine;
-    std::vector<float> truthMapIsLooselyGenuine;
-    std::vector<float> truthMapIsCombinatoric;
-    std::vector<float> truthMapIsUnknown;
-  };
+    if (trackBranchNames.size() != trackInputTags.size())
+      throw cms::Exception("The number of track branch names (" +
+                           boost::lexical_cast<std::string>(trackBranchNames.size()) +
+                           ") specified in the config does not match the number of input tags (" +
+                           boost::lexical_cast<std::string>(trackInputTags.size()) + ")");
+    if (trackBranchNames.size() != trackMapInputTags.size())
+      throw cms::Exception("The number of track branch names (" +
+                           boost::lexical_cast<std::string>(trackBranchNames.size()) +
+                           ") specified in the config does not match the number of track map input tags (" +
+                           boost::lexical_cast<std::string>(trackMapInputTags.size()) + ")");
 
-  void beginJob() override;
-  void analyze(const edm::Event& evt, const edm::EventSetup& setup);
-  void endJob() override;
+    std::vector<std::string>::const_iterator trackBranchNameIt = trackBranchNames.begin();
+    std::vector<edm::InputTag>::const_iterator trackInputTagIt = trackInputTags.begin();
+    std::vector<edm::InputTag>::const_iterator trackMapInputTagIt = trackMapInputTags.begin();
+    for (; trackBranchNameIt != trackBranchNames.end(); trackBranchNameIt++, trackInputTagIt++, trackMapInputTagIt++) {
+      l1TracksTokenMap_[*trackBranchNameIt] = consumes<TTTrackCollectionView>(*trackInputTagIt);
+      l1TracksMapTokenMap_[*trackBranchNameIt] =
+          consumes<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>>(*trackMapInputTagIt);
 
-  // define types for stub-related classes
-  typedef edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>> DetSetVec;
-  typedef TTStubAssociationMap<Ref_Phase2TrackerDigi_> TTStubAssMap;
-  typedef TTClusterAssociationMap<Ref_Phase2TrackerDigi_> TTClusterAssMap;
-  typedef edm::View<TTTrack<Ref_Phase2TrackerDigi_>> TTTrackCollectionView;
+      RecoTracksBranchData& branchData = l1TracksBranchData_[*trackBranchNameIt];
 
-  // references to tags containing information relevant to perofrmance analysis
-  const edm::EDGetTokenT<std::vector<PileupSummaryInfo>> pileupSummaryToken_;
-  const edm::EDGetTokenT<TrackingParticleCollection> tpInputTag;
-  const edm::EDGetTokenT<DetSetVec> stubInputTag;
-  const edm::EDGetTokenT<TTStubAssMap> stubTruthInputTag;
-  const edm::EDGetTokenT<TTClusterAssMap> clusterTruthInputTag;
-  const edm::EDGetTokenT<edm::View<reco::GenParticle>> genParticlesToken_;
-  const edm::EDGetTokenT<std::vector<reco::GenJet>> genJetsToken_;
-  std::map<std::string, edm::EDGetTokenT<TTTrackCollectionView>> l1TracksTokenMap_;
-  std::map<std::string, edm::EDGetTokenT<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>>> l1TracksMapTokenMap_;
-  std::map<std::string, edm::EDGetTokenT<std::vector<l1t::Vertex>>> l1VerticesTokenMap_;
-  std::map<std::string, edm::EDGetTokenT<std::vector<l1t::Vertex>>> l1VerticesExtraTokenMap_;
-  std::vector<edm::EDGetTokenT<std::vector<l1t::Vertex>>> l1VerticesExtraTokens_;
+      outputTree_->Branch(("recoTracks_" + *trackBranchNameIt + "_pt").c_str(), &branchData.pt);
+      outputTree_->Branch(("recoTracks_" + *trackBranchNameIt + "_eta").c_str(), &branchData.eta);
+      outputTree_->Branch(("recoTracks_" + *trackBranchNameIt + "_phi").c_str(), &branchData.phi);
+      outputTree_->Branch(("recoTracks_" + *trackBranchNameIt + "_z0").c_str(), &branchData.z0);
+      outputTree_->Branch(("recoTracks_" + *trackBranchNameIt + "_numStubs").c_str(), &branchData.numStubs);
+      outputTree_->Branch(("recoTracks_" + *trackBranchNameIt + "_chi2dof").c_str(), &branchData.chi2dof);
+      outputTree_->Branch(("recoTracks_" + *trackBranchNameIt + "_trueMatchIdx").c_str(), &branchData.trueMatchIdx);
 
-  TTree* outputTree_;
-
-  const bool printResults_;
-
-  // storage class for configuration parameters
-  AnalysisSettings settings_;
-
-  edm::Service<TFileService> fs_;
-  // Histograms for Vertex Reconstruction
-
-  float numTrueInteractions_;
-  int numPileupVertices_;
-
-  std::vector<float> genJetsEnergy_;
-  std::vector<float> genJetsPt_;
-  std::vector<float> genJetsEta_;
-  std::vector<float> genJetsPhi_;
-
-  std::vector<float> trueTracksPt_;
-  std::vector<float> trueTracksEta_;
-  std::vector<float> trueTracksPhi_;
-  std::vector<float> trueTracksZ0_;
-  std::vector<int>   trueTracksPdgId_;
-  std::vector<float> trueTracksPhysCollision_;
-  std::vector<float> trueTracksUse_;
-  std::vector<float> trueTracksUseForEff_;
-  std::vector<float> trueTracksUseForAlgEff_;
-  std::vector<float> trueTracksUseForVertexReco_;
-
-  std::vector<float> truePileUpVtxZ0_;
-
-  std::vector<float> genParticlesHardOutgoingEnergy_;
-  std::vector<float> genParticlesHardOutgoingPt_;
-  std::vector<float> genParticlesHardOutgoingEta_;
-  std::vector<float> genParticlesHardOutgoingPhi_;
-  std::vector<int>   genParticlesHardOutgoingPdgId_;
-  std::vector<int>   genParticlesHardOutgoingStatus_;
-
-  std::map<std::string, RecoTracksBranchData> l1TracksBranchData_;
-  std::map<std::string, RecoVerticesBranchData> l1VerticesBranchData_;
-  std::map<std::string, std::string> l1VerticesInputMap_;
-
-  std::unordered_map<std::string, std::vector<unsigned>> l1Vertices_branchMap_numTracks_;
-  std::unordered_map<std::string, std::vector<float>> l1Vertices_branchMap_z0_;
-  std::unordered_map<std::string, std::vector<float>> l1Vertices_branchMap_z0_etaWeighted_;
-  std::unordered_map<std::string, std::vector<float>> l1Vertices_branchMap_sumPt_;
-
-  std::vector<std::vector<unsigned>> l1Vertices_extra_numTracks_;
-  std::vector<std::vector<float>> l1Vertices_extra_z0_;
-  std::vector<std::vector<float>> l1Vertices_extra_z0_etaWeighted_;
-  std::vector<std::vector<float>> l1Vertices_extra_sumPt_;
-};
-
-
-VertexNTupler::VertexNTupler(const edm::ParameterSet& iConfig) :
-  pileupSummaryToken_(consumes<std::vector<PileupSummaryInfo>>(edm::InputTag("addPileupInfo"))),
-  tpInputTag(consumes<TrackingParticleCollection>(iConfig.getParameter<edm::InputTag>("tpInputTag"))),
-  stubInputTag(consumes<DetSetVec>(iConfig.getParameter<edm::InputTag>("stubInputTag"))),
-  stubTruthInputTag(consumes<TTStubAssMap>(iConfig.getParameter<edm::InputTag>("stubTruthInputTag"))),
-  clusterTruthInputTag(consumes<TTClusterAssMap>(iConfig.getParameter<edm::InputTag>("clusterTruthInputTag"))),
-  genParticlesToken_(consumes<edm::View<reco::GenParticle>>(edm::InputTag("genParticles"))),
-  genJetsToken_(consumes<std::vector<reco::GenJet>>(edm::InputTag("ak4GenJetsNoNu"))),
-  outputTree_(fs_->make<TTree>("l1VertexReco", "L1 vertex-related info")),
-  printResults_(iConfig.getParameter<bool>("printResults")),
-  settings_(iConfig)
-{
-  const std::vector<std::string> trackBranchNames(iConfig.getParameter<std::vector<std::string>>("l1TracksBranchNames"));
-  const std::vector<edm::InputTag> trackInputTags(iConfig.getParameter<std::vector<edm::InputTag>>("l1TracksInputTags"));
-  const std::vector<edm::InputTag> trackMapInputTags(iConfig.getParameter<std::vector<edm::InputTag>>("l1TracksTruthMapInputTags"));
-
-  if (trackBranchNames.size() != trackInputTags.size())
-    throw cms::Exception("The number of track branch names (" + boost::lexical_cast<std::string>(trackBranchNames.size()) + ") specified in the config does not match the number of input tags (" + boost::lexical_cast<std::string>(trackInputTags.size()) + ")");
-  if (trackBranchNames.size() != trackMapInputTags.size())
-    throw cms::Exception("The number of track branch names (" + boost::lexical_cast<std::string>(trackBranchNames.size()) + ") specified in the config does not match the number of track map input tags (" + boost::lexical_cast<std::string>(trackMapInputTags.size()) + ")");
-
-  std::vector<std::string>::const_iterator trackBranchNameIt = trackBranchNames.begin();
-  std::vector<edm::InputTag>::const_iterator trackInputTagIt = trackInputTags.begin();
-  std::vector<edm::InputTag>::const_iterator trackMapInputTagIt = trackMapInputTags.begin();
-  for (; trackBranchNameIt != trackBranchNames.end(); trackBranchNameIt++, trackInputTagIt++, trackMapInputTagIt++) {
-    l1TracksTokenMap_[*trackBranchNameIt] = consumes<TTTrackCollectionView>(*trackInputTagIt);
-    l1TracksMapTokenMap_[*trackBranchNameIt] = consumes<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>>(*trackMapInputTagIt);
-
-    RecoTracksBranchData& branchData = l1TracksBranchData_[*trackBranchNameIt];
-
-    outputTree_->Branch(("recoTracks_" + *trackBranchNameIt + "_pt").c_str(),  &branchData.pt);
-    outputTree_->Branch(("recoTracks_" + *trackBranchNameIt + "_eta").c_str(), &branchData.eta);
-    outputTree_->Branch(("recoTracks_" + *trackBranchNameIt + "_phi").c_str(), &branchData.phi);
-    outputTree_->Branch(("recoTracks_" + *trackBranchNameIt + "_z0").c_str(),  &branchData.z0);
-    outputTree_->Branch(("recoTracks_" + *trackBranchNameIt + "_numStubs").c_str(), &branchData.numStubs);
-    outputTree_->Branch(("recoTracks_" + *trackBranchNameIt + "_chi2dof").c_str(), &branchData.chi2dof);
-    outputTree_->Branch(("recoTracks_" + *trackBranchNameIt + "_trueMatchIdx").c_str(), &branchData.trueMatchIdx);
-
-    outputTree_->Branch(("recoTracks_" + *trackBranchNameIt + "_truthMap_matchIdx").c_str(), &branchData.truthMapMatchIdx);
-    outputTree_->Branch(("recoTracks_" + *trackBranchNameIt + "_truthMap_isGenuine").c_str(), &branchData.truthMapIsGenuine);
-    outputTree_->Branch(("recoTracks_" + *trackBranchNameIt + "_truthMap_isLooselyGenuine").c_str(), &branchData.truthMapIsLooselyGenuine);
-    outputTree_->Branch(("recoTracks_" + *trackBranchNameIt + "_truthMap_isCombinatoric").c_str(), &branchData.truthMapIsCombinatoric);
-    outputTree_->Branch(("recoTracks_" + *trackBranchNameIt + "_truthMap_isUnknown").c_str(), &branchData.truthMapIsUnknown);
-  }
-
-
-  const std::vector<std::string> vertexBranchNames(iConfig.getParameter<std::vector<std::string>>("l1VertexBranchNames"));
-  const std::vector<edm::InputTag> vertexInputTags(iConfig.getParameter<std::vector<edm::InputTag>>("l1VertexInputTags"));
-  const std::vector<std::string> vertexTrackNames(iConfig.getParameter<std::vector<std::string>>("l1VertexTrackInputs"));
-
-  if (vertexBranchNames.size() != vertexInputTags.size())
-    throw cms::Exception("The number of vertex branch names (" + boost::lexical_cast<std::string>(vertexBranchNames.size()) + ") specified in the config does not match the number of input tags (" + boost::lexical_cast<std::string>(vertexInputTags.size()) + ")");
-  if (vertexBranchNames.size() != vertexTrackNames.size())
-    throw cms::Exception("The number of vertex branch names (" + boost::lexical_cast<std::string>(vertexBranchNames.size()) + ") specified in the config does not match the number of associated input track collection names (" + boost::lexical_cast<std::string>(vertexTrackNames.size()) + ")");
-
-
-  std::vector<std::string>::const_iterator branchNameIt = vertexBranchNames.begin();
-  std::vector<edm::InputTag>::const_iterator inputTagIt = vertexInputTags.begin();
-  std::vector<std::string>::const_iterator l1VertexTrackNameIt = vertexTrackNames.begin();
-  for (; branchNameIt != vertexBranchNames.end(); branchNameIt++, inputTagIt++, l1VertexTrackNameIt++) {
-    l1VerticesTokenMap_[*branchNameIt] = consumes<std::vector<l1t::Vertex>>(*inputTagIt);
-
-    l1VerticesBranchData_[*branchNameIt] = RecoVerticesBranchData();
-    RecoVerticesBranchData& branchData = l1VerticesBranchData_.at(*branchNameIt);
-    l1VerticesInputMap_[*branchNameIt] = *l1VertexTrackNameIt;
-
-    if (l1TracksTokenMap_.count(*l1VertexTrackNameIt) == 0)
-      throw cms::Exception("Invalid track collection name '" + *l1VertexTrackNameIt + "' specified as input to vertex collection '" + *branchNameIt + "'");
-
-    outputTree_->Branch(("recoVertices_" + *branchNameIt + "_numTracks").c_str(), &branchData.numTracks);
-    outputTree_->Branch(("recoVertices_" + *branchNameIt + "_trackIdxs").c_str(), &branchData.trackIdxs);
-    outputTree_->Branch(("recoVertices_" + *branchNameIt + "_z0").c_str(), &branchData.z0);
-    outputTree_->Branch(("recoVertices_" + *branchNameIt + "_sumPt").c_str(), &branchData.sumPt);
-  }
-
-
-  outputTree_->Branch("pileupSummary_trueNumInteractions", &numTrueInteractions_);
-  outputTree_->Branch("pileupSummary_numPileupVertices", &numPileupVertices_);
-
-  outputTree_->Branch("genJets_energy", &genJetsEnergy_);
-  outputTree_->Branch("genJets_pt", &genJetsPt_);
-  outputTree_->Branch("genJets_eta", &genJetsEta_);
-  outputTree_->Branch("genJets_phi", &genJetsPhi_);
-
-  outputTree_->Branch("trueTracks_pt",  &trueTracksPt_);
-  outputTree_->Branch("trueTracks_eta", &trueTracksEta_);
-  outputTree_->Branch("trueTracks_phi", &trueTracksPhi_);
-  outputTree_->Branch("trueTracks_z0",  &trueTracksZ0_);
-  outputTree_->Branch("trueTracks_pdgId",  &trueTracksPdgId_);
-  outputTree_->Branch("trueTracks_physCollision", &trueTracksPhysCollision_);
-  outputTree_->Branch("trueTracks_use",           &trueTracksUse_);
-  outputTree_->Branch("trueTracks_useForEff",     &trueTracksUseForEff_);
-  outputTree_->Branch("trueTracks_useForAlgEff",  &trueTracksUseForAlgEff_);
-  outputTree_->Branch("trueTracks_useForVtxReco", &trueTracksUseForVertexReco_);
-
-  outputTree_->Branch("truePileUpVertices_z0", &truePileUpVtxZ0_);
-
-  outputTree_->Branch("genParticles_hardProcOutgoing_energy", &genParticlesHardOutgoingEnergy_);
-  outputTree_->Branch("genParticles_hardProcOutgoing_pt",     &genParticlesHardOutgoingPt_);
-  outputTree_->Branch("genParticles_hardProcOutgoing_eta",    &genParticlesHardOutgoingEta_);
-  outputTree_->Branch("genParticles_hardProcOutgoing_phi",    &genParticlesHardOutgoingPhi_);
-  outputTree_->Branch("genParticles_hardProcOutgoing_pdgId",  &genParticlesHardOutgoingPdgId_);
-  outputTree_->Branch("genParticles_hardProcOutgoing_status", &genParticlesHardOutgoingStatus_);
-
-
-  const std::vector<edm::InputTag> extraVertexInputTags(iConfig.getParameter<std::vector<edm::InputTag>>("extraL1VertexInputTags"));
-  const std::vector<std::string> extraVertexDescriptions(iConfig.getParameter<std::vector<std::string>>("extraL1VertexDescriptions"));
-  for (const auto& inputTag : extraVertexInputTags)
-    l1VerticesExtraTokens_.push_back(consumes<std::vector<l1t::Vertex>>(inputTag));
-  TObjArray* descriptionArray = new TObjArray();
-  for (const auto& description : extraVertexDescriptions)
-    descriptionArray->Add(new TObjString(description.c_str()));
-  outputTree_->GetUserInfo()->Add(descriptionArray);
-  outputTree_->Branch("vertices_extra_numTracks", &l1Vertices_extra_numTracks_);
-  outputTree_->Branch("vertices_extra_z0", &l1Vertices_extra_z0_);
-  outputTree_->Branch("vertices_extra_z0_etaWeighted", &l1Vertices_extra_z0_etaWeighted_);
-  outputTree_->Branch("vertices_extra_sumPt", &l1Vertices_extra_sumPt_);
-}
-
-
-void VertexNTupler::beginJob()
-{
-}
-
-
-std::vector<std::shared_ptr<const RecoVertexWithTP>> extractVertices(const edm::Handle<std::vector<l1t::Vertex>>& handle, const std::map<const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>>, const L1TrackTruthMatched*>& trackAssocMap, const AnalysisSettings& settings)
-{
-  std::vector<std::shared_ptr<const RecoVertexWithTP>> recoVertices;
-  recoVertices.reserve(handle->size());
-
-  for (unsigned int i = 0; i < handle->size(); ++i) {
-    RecoVertex recoVertexBase = RecoVertex();
-
-    // populate vertex with tracks
-    for (const auto& track : handle->at(i).tracks()) {
-      recoVertexBase.insert(trackAssocMap.at(track));
+      outputTree_->Branch(("recoTracks_" + *trackBranchNameIt + "_truthMap_matchIdx").c_str(),
+                          &branchData.truthMapMatchIdx);
+      outputTree_->Branch(("recoTracks_" + *trackBranchNameIt + "_truthMap_isGenuine").c_str(),
+                          &branchData.truthMapIsGenuine);
+      outputTree_->Branch(("recoTracks_" + *trackBranchNameIt + "_truthMap_isLooselyGenuine").c_str(),
+                          &branchData.truthMapIsLooselyGenuine);
+      outputTree_->Branch(("recoTracks_" + *trackBranchNameIt + "_truthMap_isCombinatoric").c_str(),
+                          &branchData.truthMapIsCombinatoric);
+      outputTree_->Branch(("recoTracks_" + *trackBranchNameIt + "_truthMap_isUnknown").c_str(),
+                          &branchData.truthMapIsUnknown);
     }
 
-    recoVertexBase.setZ(handle->at(i).z0());
-    RecoVertexWithTP* recoVertex = new RecoVertexWithTP(recoVertexBase, trackAssocMap);
-    recoVertex->computeParameters(settings.vx_weightedmean());
-    if (settings.vx_algo() == Algorithm::Kmeans || settings.vx_algo() == Algorithm::HPV)
-      recoVertex->setZ(recoVertexBase.z0());
+    const std::vector<std::string> vertexBranchNames(
+        iConfig.getParameter<std::vector<std::string>>("l1VertexBranchNames"));
+    const std::vector<edm::InputTag> vertexInputTags(
+        iConfig.getParameter<std::vector<edm::InputTag>>("l1VertexInputTags"));
+    const std::vector<std::string> vertexTrackNames(
+        iConfig.getParameter<std::vector<std::string>>("l1VertexTrackInputs"));
 
-    recoVertices.push_back(std::shared_ptr<const RecoVertexWithTP>(recoVertex));
+    if (vertexBranchNames.size() != vertexInputTags.size())
+      throw cms::Exception("The number of vertex branch names (" +
+                           boost::lexical_cast<std::string>(vertexBranchNames.size()) +
+                           ") specified in the config does not match the number of input tags (" +
+                           boost::lexical_cast<std::string>(vertexInputTags.size()) + ")");
+    if (vertexBranchNames.size() != vertexTrackNames.size())
+      throw cms::Exception(
+          "The number of vertex branch names (" + boost::lexical_cast<std::string>(vertexBranchNames.size()) +
+          ") specified in the config does not match the number of associated input track collection names (" +
+          boost::lexical_cast<std::string>(vertexTrackNames.size()) + ")");
+
+    std::vector<std::string>::const_iterator branchNameIt = vertexBranchNames.begin();
+    std::vector<edm::InputTag>::const_iterator inputTagIt = vertexInputTags.begin();
+    std::vector<std::string>::const_iterator l1VertexTrackNameIt = vertexTrackNames.begin();
+    for (; branchNameIt != vertexBranchNames.end(); branchNameIt++, inputTagIt++, l1VertexTrackNameIt++) {
+      l1VerticesTokenMap_[*branchNameIt] = consumes<std::vector<l1t::Vertex>>(*inputTagIt);
+
+      l1VerticesBranchData_[*branchNameIt] = RecoVerticesBranchData();
+      RecoVerticesBranchData& branchData = l1VerticesBranchData_.at(*branchNameIt);
+      l1VerticesInputMap_[*branchNameIt] = *l1VertexTrackNameIt;
+
+      if (l1TracksTokenMap_.count(*l1VertexTrackNameIt) == 0)
+        throw cms::Exception("Invalid track collection name '" + *l1VertexTrackNameIt +
+                             "' specified as input to vertex collection '" + *branchNameIt + "'");
+
+      outputTree_->Branch(("recoVertices_" + *branchNameIt + "_numTracks").c_str(), &branchData.numTracks);
+      outputTree_->Branch(("recoVertices_" + *branchNameIt + "_trackIdxs").c_str(), &branchData.trackIdxs);
+      outputTree_->Branch(("recoVertices_" + *branchNameIt + "_z0").c_str(), &branchData.z0);
+      outputTree_->Branch(("recoVertices_" + *branchNameIt + "_sumPt").c_str(), &branchData.sumPt);
+    }
+
+    outputTree_->Branch("pileupSummary_trueNumInteractions", &numTrueInteractions_);
+    outputTree_->Branch("pileupSummary_numPileupVertices", &numPileupVertices_);
+
+    outputTree_->Branch("genJets_energy", &genJetsEnergy_);
+    outputTree_->Branch("genJets_pt", &genJetsPt_);
+    outputTree_->Branch("genJets_eta", &genJetsEta_);
+    outputTree_->Branch("genJets_phi", &genJetsPhi_);
+
+    outputTree_->Branch("trueTracks_pt", &trueTracksPt_);
+    outputTree_->Branch("trueTracks_eta", &trueTracksEta_);
+    outputTree_->Branch("trueTracks_phi", &trueTracksPhi_);
+    outputTree_->Branch("trueTracks_z0", &trueTracksZ0_);
+    outputTree_->Branch("trueTracks_pdgId", &trueTracksPdgId_);
+    outputTree_->Branch("trueTracks_physCollision", &trueTracksPhysCollision_);
+    outputTree_->Branch("trueTracks_use", &trueTracksUse_);
+    outputTree_->Branch("trueTracks_useForEff", &trueTracksUseForEff_);
+    outputTree_->Branch("trueTracks_useForAlgEff", &trueTracksUseForAlgEff_);
+    outputTree_->Branch("trueTracks_useForVtxReco", &trueTracksUseForVertexReco_);
+
+    outputTree_->Branch("truePileUpVertices_z0", &truePileUpVtxZ0_);
+
+    outputTree_->Branch("genParticles_hardProcOutgoing_energy", &genParticlesHardOutgoingEnergy_);
+    outputTree_->Branch("genParticles_hardProcOutgoing_pt", &genParticlesHardOutgoingPt_);
+    outputTree_->Branch("genParticles_hardProcOutgoing_eta", &genParticlesHardOutgoingEta_);
+    outputTree_->Branch("genParticles_hardProcOutgoing_phi", &genParticlesHardOutgoingPhi_);
+    outputTree_->Branch("genParticles_hardProcOutgoing_pdgId", &genParticlesHardOutgoingPdgId_);
+    outputTree_->Branch("genParticles_hardProcOutgoing_status", &genParticlesHardOutgoingStatus_);
+
+    const std::vector<edm::InputTag> extraVertexInputTags(
+        iConfig.getParameter<std::vector<edm::InputTag>>("extraL1VertexInputTags"));
+    const std::vector<std::string> extraVertexDescriptions(
+        iConfig.getParameter<std::vector<std::string>>("extraL1VertexDescriptions"));
+    for (const auto& inputTag : extraVertexInputTags)
+      l1VerticesExtraTokens_.push_back(consumes<std::vector<l1t::Vertex>>(inputTag));
+    TObjArray* descriptionArray = new TObjArray();
+    for (const auto& description : extraVertexDescriptions)
+      descriptionArray->Add(new TObjString(description.c_str()));
+    outputTree_->GetUserInfo()->Add(descriptionArray);
+    outputTree_->Branch("vertices_extra_numTracks", &l1Vertices_extra_numTracks_);
+    outputTree_->Branch("vertices_extra_z0", &l1Vertices_extra_z0_);
+    outputTree_->Branch("vertices_extra_z0_etaWeighted", &l1Vertices_extra_z0_etaWeighted_);
+    outputTree_->Branch("vertices_extra_sumPt", &l1Vertices_extra_sumPt_);
   }
 
-  return recoVertices;
-}
+  void VertexNTupler::beginJob() {}
 
+  std::vector<std::shared_ptr<const RecoVertexWithTP>> extractVertices(
+      const edm::Handle<std::vector<l1t::Vertex>>& handle,
+      const std::map<const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>>, const L1TrackTruthMatched*>& trackAssocMap,
+      const AnalysisSettings& settings) {
+    std::vector<std::shared_ptr<const RecoVertexWithTP>> recoVertices;
+    recoVertices.reserve(handle->size());
 
+    for (unsigned int i = 0; i < handle->size(); ++i) {
+      RecoVertex recoVertexBase = RecoVertex();
 
-std::ostream& operator<< (std::ostream& out, const reco::GenParticle& particle)
-{
-  const bool positive = (particle.pdgId() < 0);
-  const size_t absId = abs(particle.pdgId());
-  switch (absId) {
-    case 1 :
-      return (out << (positive ? "d" : "anti-d"));
-    case 2 :
-      return (out << (positive ? "u" : "anti-u"));
-    case 3 :
-      return (out << (positive ? "s" : "anti-s"));
-    case 4 :
-      return (out << (positive ? "c" : "anti-c"));
-    case 5 :
-      return (out << (positive ? "b" : "anti-b"));
-    case 6 :
-      return (out << (positive ? "t" : "anti-t"));
-    case 11:
-      return (out << (positive ? "e+" : "e-"));
-    case 12:
-      return (out << (positive ? "nu_e" : "anti-nu_e"));
-    case 13:
-      return (out << (positive ? "mu+" : "mu-"));
-    case 14:
-      return (out << (positive ? "nu_mu" : "anti-nu_mu"));
-    case 15:
-      return (out << (positive ? "tau+" : "tau-"));
-    case 16:
-      return (out << (positive ? "nu_tau" : "anti-nu_tau"));
-    case 21:
-      return (out << "g");
-    case 22:
-      return (out << "photon");
-    case 23:
-      return (out << "Z");
-    case 24:
-      return (out << (positive ? "W-" : "W+"));
-    default:
-      if ( (((absId / 1000) % 10) != 0) and (((absId / 10) % 10) == 0) )
-        return (out << "diquark<" << particle.pdgId() << ">");
-      else
-        return (out << "unknown<" << particle.pdgId() << ">");
+      // populate vertex with tracks
+      for (const auto& track : handle->at(i).tracks()) {
+        recoVertexBase.insert(trackAssocMap.at(track));
+      }
+
+      recoVertexBase.setZ(handle->at(i).z0());
+      RecoVertexWithTP* recoVertex = new RecoVertexWithTP(recoVertexBase, trackAssocMap);
+      recoVertex->computeParameters(settings.vx_weightedmean());
+      if (settings.vx_algo() == Algorithm::Kmeans || settings.vx_algo() == Algorithm::HPV)
+        recoVertex->setZ(recoVertexBase.z0());
+
+      recoVertices.push_back(std::shared_ptr<const RecoVertexWithTP>(recoVertex));
+    }
+
+    return recoVertices;
   }
-}
 
-
-void VertexNTupler::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-  edm::Handle<TTStubAssMap> mcTruthTTStubHandle;
-  edm::Handle<TTClusterAssMap> mcTruthTTClusterHandle;
-  iEvent.getByToken(stubTruthInputTag, mcTruthTTStubHandle);
-  iEvent.getByToken(clusterTruthInputTag, mcTruthTTClusterHandle);
-
-  std::map<std::string, edm::Handle<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>>> truthAssocMapHandles;
-  std::set<edm::Ptr<TrackingParticle>> allMatchedTPs;
-  for (auto& entry : l1TracksMapTokenMap_) {
-    edm::Handle<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>>& assocMapHandle = truthAssocMapHandles[entry.first];
-    iEvent.getByToken(l1TracksMapTokenMap_.at(entry.first), assocMapHandle);
-
-    for (auto& entry2 : assocMapHandle->getTTTrackToTrackingParticleMap()) {
-      allMatchedTPs.insert(entry2.second);
+  std::ostream& operator<<(std::ostream& out, const reco::GenParticle& particle) {
+    const bool positive = (particle.pdgId() < 0);
+    const size_t absId = abs(particle.pdgId());
+    switch (absId) {
+      case 1:
+        return (out << (positive ? "d" : "anti-d"));
+      case 2:
+        return (out << (positive ? "u" : "anti-u"));
+      case 3:
+        return (out << (positive ? "s" : "anti-s"));
+      case 4:
+        return (out << (positive ? "c" : "anti-c"));
+      case 5:
+        return (out << (positive ? "b" : "anti-b"));
+      case 6:
+        return (out << (positive ? "t" : "anti-t"));
+      case 11:
+        return (out << (positive ? "e+" : "e-"));
+      case 12:
+        return (out << (positive ? "nu_e" : "anti-nu_e"));
+      case 13:
+        return (out << (positive ? "mu+" : "mu-"));
+      case 14:
+        return (out << (positive ? "nu_mu" : "anti-nu_mu"));
+      case 15:
+        return (out << (positive ? "tau+" : "tau-"));
+      case 16:
+        return (out << (positive ? "nu_tau" : "anti-nu_tau"));
+      case 21:
+        return (out << "g");
+      case 22:
+        return (out << "photon");
+      case 23:
+        return (out << "Z");
+      case 24:
+        return (out << (positive ? "W-" : "W+"));
+      default:
+        if ((((absId / 1000) % 10) != 0) and (((absId / 10) % 10) == 0))
+          return (out << "diquark<" << particle.pdgId() << ">");
+        else
+          return (out << "unknown<" << particle.pdgId() << ">");
     }
   }
 
-  // Note useful info about MC truth particles and about reconstructed stubs
-  InputData inputData(iEvent, iSetup, settings_, tpInputTag, stubInputTag, stubTruthInputTag, clusterTruthInputTag);
+  void VertexNTupler::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+    edm::Handle<TTStubAssMap> mcTruthTTStubHandle;
+    edm::Handle<TTClusterAssMap> mcTruthTTClusterHandle;
+    iEvent.getByToken(stubTruthInputTag, mcTruthTTStubHandle);
+    iEvent.getByToken(clusterTruthInputTag, mcTruthTTClusterHandle);
 
+    std::map<std::string, edm::Handle<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>>> truthAssocMapHandles;
+    std::set<edm::Ptr<TrackingParticle>> allMatchedTPs;
+    for (auto& entry : l1TracksMapTokenMap_) {
+      edm::Handle<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>>& assocMapHandle = truthAssocMapHandles[entry.first];
+      iEvent.getByToken(l1TracksMapTokenMap_.at(entry.first), assocMapHandle);
 
-  // Get the tracker geometry info needed to unpack the stub info.
-  edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
-  iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometryHandle);
-  edm::ESHandle<TrackerTopology> trackerTopologyHandle;
-  iSetup.get<TrackerTopologyRcd>().get(trackerTopologyHandle);
+      for (auto& entry2 : assocMapHandle->getTTTrackToTrackingParticleMap()) {
+        allMatchedTPs.insert(entry2.second);
+      }
+    }
 
-  std::map<std::string, std::vector<L1TrackTruthMatched>> l1TrackCollections;
+    // Note useful info about MC truth particles and about reconstructed stubs
+    InputData inputData(iEvent, iSetup, settings_, tpInputTag, stubInputTag, stubTruthInputTag, clusterTruthInputTag);
 
-  for (auto& tokenMapEntry : l1TracksTokenMap_) {
-    edm::Handle<TTTrackCollectionView> l1TracksHandle;
-    iEvent.getByToken(tokenMapEntry.second, l1TracksHandle);
+    // Get the tracker geometry info needed to unpack the stub info.
+    edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
+    iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometryHandle);
+    edm::ESHandle<TrackerTopology> trackerTopologyHandle;
+    iSetup.get<TrackerTopologyRcd>().get(trackerTopologyHandle);
 
-    std::vector<L1TrackTruthMatched>& l1Tracks = l1TrackCollections[tokenMapEntry.first];
-    l1Tracks.reserve(l1TracksHandle->size());
-    {
-      map<edm::Ptr<TrackingParticle>, const TP*> translateTP;
-      for (const TP& tp : inputData.getTPs()) {
-        if (tp.use()) {
-          TrackingParticlePtr tpPtr(tp);
-          translateTP[tpPtr] = &tp;
+    std::map<std::string, std::vector<L1TrackTruthMatched>> l1TrackCollections;
+
+    for (auto& tokenMapEntry : l1TracksTokenMap_) {
+      edm::Handle<TTTrackCollectionView> l1TracksHandle;
+      iEvent.getByToken(tokenMapEntry.second, l1TracksHandle);
+
+      std::vector<L1TrackTruthMatched>& l1Tracks = l1TrackCollections[tokenMapEntry.first];
+      l1Tracks.reserve(l1TracksHandle->size());
+      {
+        map<edm::Ptr<TrackingParticle>, const TP*> translateTP;
+        for (const TP& tp : inputData.getTPs()) {
+          if (tp.use()) {
+            TrackingParticlePtr tpPtr(tp);
+            translateTP[tpPtr] = &tp;
+          }
+        }
+
+        for (const auto& track : l1TracksHandle->ptrs())
+          l1Tracks.push_back(L1TrackTruthMatched(track,
+                                                 settings_,
+                                                 trackerGeometryHandle.product(),
+                                                 trackerTopologyHandle.product(),
+                                                 translateTP,
+                                                 mcTruthTTStubHandle,
+                                                 mcTruthTTClusterHandle,
+                                                 inputData.getStubGeoDetIdMap()));
+      }
+    }
+
+    const Vertex& TruePrimaryVertex = inputData.getPrimaryVertex();
+
+    // create a map for associating fat reco tracks with their underlying
+    // TTTrack pointers
+    std::map<std::string, std::map<const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>>, const L1TrackTruthMatched*>>
+        edmL1TrackMaps;
+
+    // get a list of reconstructed tracks with references to their TPs
+    for (const auto& entry : l1TrackCollections) {
+      auto& edmL1Map = edmL1TrackMaps[entry.first];
+      for (const auto& track : entry.second) {
+        edmL1Map.insert(std::pair<const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>>, const L1TrackTruthMatched*>(
+            track.getTTTrackPtr(), &track));
+      }
+    }
+
+    ////////////////////////////////////////////////////////
+
+    // Pile-up summary info
+    edm::Handle<std::vector<PileupSummaryInfo>> pileupHandle;
+    iEvent.getByToken(pileupSummaryToken_, pileupHandle);
+
+    for (auto bxIt = pileupHandle->begin(); bxIt != pileupHandle->end(); bxIt++) {
+      if (bxIt->getBunchCrossing() == 0) {
+        numTrueInteractions_ = bxIt->getTrueNumInteractions();
+        numPileupVertices_ = bxIt->getPU_NumInteractions();
+      }
+    }
+
+    // True track info
+    trueTracksPt_.clear();
+    trueTracksEta_.clear();
+    trueTracksPhi_.clear();
+    trueTracksZ0_.clear();
+    trueTracksPdgId_.clear();
+    trueTracksPhysCollision_.clear();
+    trueTracksUse_.clear();
+    trueTracksUseForEff_.clear();
+    trueTracksUseForAlgEff_.clear();
+    trueTracksUseForVertexReco_.clear();
+
+    std::vector<TP> tpVec(inputData.getTPs());
+    std::set<edm::Ptr<TrackingParticle>> inputDataTPs;
+    for (const auto& tp : tpVec)
+      inputDataTPs.insert(edm::Ptr<TrackingParticle>(tp));
+    for (const auto& tpPtr : allMatchedTPs) {
+      if (inputDataTPs.count(tpPtr) == 0)
+        tpVec.push_back(TP(tpPtr, tpVec.size(), settings_));
+    }
+    for (const TP& track : tpVec) {
+      trueTracksPt_.push_back(track.pt());
+      trueTracksEta_.push_back(track.eta());
+      trueTracksPhi_.push_back(track.phi0());
+      trueTracksZ0_.push_back(track.z0());
+      trueTracksPdgId_.push_back(track.pdgId());
+      trueTracksPhysCollision_.push_back(track.physicsCollision() ? 1.0 : 0.0);
+      trueTracksUse_.push_back(track.use() ? 1.0 : 0.0);
+      trueTracksUseForEff_.push_back(track.useForEff() ? 1.0 : 0.0);
+      trueTracksUseForAlgEff_.push_back(track.useForAlgEff() ? 1.0 : 0.0);
+      trueTracksUseForVertexReco_.push_back(track.useForVertexReco() ? 1.0 : 0.0);
+    }
+
+    // True pile-up vertex info
+    truePileUpVtxZ0_.clear();
+
+    for (const Vertex& vtx : inputData.getPileUpVertices())
+      truePileUpVtxZ0_.push_back(vtx.z0());
+
+    // Gen particles
+    genParticlesHardOutgoingEnergy_.clear();
+    genParticlesHardOutgoingPt_.clear();
+    genParticlesHardOutgoingEta_.clear();
+    genParticlesHardOutgoingPhi_.clear();
+    genParticlesHardOutgoingPdgId_.clear();
+    genParticlesHardOutgoingStatus_.clear();
+
+    edm::Handle<edm::View<reco::GenParticle>> genParticlesH;
+    iEvent.getByToken(genParticlesToken_, genParticlesH);
+    for (const auto& p : *genParticlesH) {
+      genParticlesHardOutgoingEnergy_.push_back(p.energy());
+      genParticlesHardOutgoingPt_.push_back(p.pt());
+      genParticlesHardOutgoingEta_.push_back(p.eta());
+      genParticlesHardOutgoingPhi_.push_back(p.phi());
+      genParticlesHardOutgoingPdgId_.push_back(p.pdgId());
+      genParticlesHardOutgoingStatus_.push_back(p.status());
+    }
+
+    // Gen jet (AK4) branches
+    genJetsEnergy_.clear();
+    genJetsPt_.clear();
+    genJetsEta_.clear();
+    genJetsPhi_.clear();
+
+    edm::Handle<std::vector<reco::GenJet>> genJetsHandle;
+    iEvent.getByToken(genJetsToken_, genJetsHandle);
+    for (const auto& genJet : *genJetsHandle) {
+      genJetsEnergy_.push_back(genJet.energy());
+      genJetsPt_.push_back(genJet.pt());
+      genJetsEta_.push_back(genJet.eta());
+      genJetsPhi_.push_back(genJet.phi());
+    }
+
+    std::map<const edm::Ptr<TrackingParticle>, const TP*> edmTPMap;
+    for (const auto& tp : tpVec) {
+      edmTPMap.insert(std::pair<const edm::Ptr<TrackingParticle>, const TP*>(tp, &tp));
+    }
+
+    for (const auto& entry : l1TrackCollections) {
+      const auto& l1Tracks = entry.second;
+      RecoTracksBranchData& branchData = l1TracksBranchData_.at(entry.first);
+
+      const TTTrackAssociationMap<Ref_Phase2TrackerDigi_>& truthAssocMap = *truthAssocMapHandles.at(entry.first);
+
+      // Reco track branches
+      branchData.pt.clear();
+      branchData.eta.clear();
+      branchData.phi.clear();
+      branchData.z0.clear();
+      branchData.numStubs.clear();
+      branchData.chi2dof.clear();
+      branchData.trueMatchIdx.clear();
+      branchData.truthMapMatchIdx.clear();
+      branchData.truthMapIsGenuine.clear();
+      branchData.truthMapIsLooselyGenuine.clear();
+      branchData.truthMapIsCombinatoric.clear();
+      branchData.truthMapIsUnknown.clear();
+
+      for (const L1TrackTruthMatched& track : l1Tracks) {
+        branchData.pt.push_back(track.pt());
+        branchData.eta.push_back(track.eta());
+        branchData.phi.push_back(track.phi0());
+        branchData.z0.push_back(track.z0());
+        branchData.numStubs.push_back(track.getNumStubs());
+        branchData.chi2dof.push_back(track.chi2dof());
+        if (track.getMatchedTP() != NULL) {
+          bool lFound = (track.getMatchedTP() >= &*inputData.getTPs().begin()) and
+                        (track.getMatchedTP() < &*inputData.getTPs().end());
+          if (lFound) {
+            const size_t lIdx = track.getMatchedTP() - &*inputData.getTPs().begin();
+            branchData.trueMatchIdx.push_back(lIdx);
+          }
+          assert(lFound);
+        } else
+          branchData.trueMatchIdx.push_back(-1);
+
+        edm::Ptr<TrackingParticle> matchedTP = truthAssocMap.findTrackingParticlePtr(track.getTTTrackPtr());
+        if (matchedTP.isNull())
+          branchData.truthMapMatchIdx.push_back(-1);
+        else {
+          const TP* tp = edmTPMap.at(matchedTP);
+          bool lFound = (tp >= &*tpVec.begin()) and (tp < &*tpVec.end());
+          if (lFound) {
+            const size_t lIdx = tp - &*tpVec.begin();
+            branchData.truthMapMatchIdx.push_back(lIdx);
+          }
+          assert(lFound);
+        }
+        branchData.truthMapIsGenuine.push_back(truthAssocMap.isGenuine(track.getTTTrackPtr()) ? 1.0 : 0.0);
+        branchData.truthMapIsLooselyGenuine.push_back(truthAssocMap.isLooselyGenuine(track.getTTTrackPtr()) ? 1.0
+                                                                                                            : 0.0);
+        branchData.truthMapIsCombinatoric.push_back(truthAssocMap.isCombinatoric(track.getTTTrackPtr()) ? 1.0 : 0.0);
+        branchData.truthMapIsUnknown.push_back(truthAssocMap.isUnknown(track.getTTTrackPtr()) ? 1.0 : 0.0);
+      }
+    }
+
+    // Reco vertex branches
+    for (const auto& tokenMapEntry : l1VerticesTokenMap_) {
+      RecoVerticesBranchData& branchData = l1VerticesBranchData_.at(tokenMapEntry.first);
+
+      edm::Handle<std::vector<l1t::Vertex>> handle;
+      iEvent.getByToken(tokenMapEntry.second, handle);
+      std::vector<std::shared_ptr<const RecoVertexWithTP>> recoVertices =
+          extractVertices(handle, edmL1TrackMaps.at(l1VerticesInputMap_.at(tokenMapEntry.first)), settings_);
+
+      branchData.numTracks.clear();
+      branchData.trackIdxs.clear();
+      branchData.z0.clear();
+      branchData.sumPt.clear();
+
+      std::vector<L1TrackTruthMatched>& l1Tracks = l1TrackCollections.at(l1VerticesInputMap_.at(tokenMapEntry.first));
+      for (const std::shared_ptr<const RecoVertexWithTP>& vtx : recoVertices) {
+        branchData.numTracks.push_back(vtx->numTracks());
+        branchData.trackIdxs.push_back(std::vector<unsigned>());
+        for (const L1TrackTruthMatched* track : vtx->tracks())
+          branchData.trackIdxs.back().push_back(track - l1Tracks.data());
+        branchData.z0.push_back(vtx->z0());
+        branchData.sumPt.push_back(vtx->pT());
+      }
+
+      if (printResults_) {
+        std::cout << recoVertices.size() << " '" << tokenMapEntry.first << "' vertices were found ... " << std::endl;
+        for (const auto& vtx : recoVertices) {
+          std::cout << "  * z0 = " << vtx->z0() << "; contains " << vtx->numTracks() << " tracks ..." << std::endl;
+          for (const auto& trackPtr : vtx->tracks())
+            std::cout << "     - z0 = " << trackPtr->z0() << "; pt = " << trackPtr->pt()
+                      << ", eta = " << trackPtr->eta() << ", phi = " << trackPtr->phi0() << std::endl;
         }
       }
-
-      for (const auto& track : l1TracksHandle->ptrs())
-        l1Tracks.push_back(L1TrackTruthMatched(
-          track, settings_, trackerGeometryHandle.product(), trackerTopologyHandle.product(), translateTP, mcTruthTTStubHandle, mcTruthTTClusterHandle, inputData.getStubGeoDetIdMap()));
     }
-  }
 
+    l1Vertices_extra_numTracks_.resize(l1VerticesExtraTokens_.size());
+    l1Vertices_extra_z0_.resize(l1VerticesExtraTokens_.size());
+    l1Vertices_extra_z0_etaWeighted_.resize(l1VerticesExtraTokens_.size());
+    l1Vertices_extra_sumPt_.resize(l1VerticesExtraTokens_.size());
 
-  const Vertex& TruePrimaryVertex = inputData.getPrimaryVertex();
+    for (size_t i = 0; i < l1VerticesExtraTokens_.size(); i++) {
+      edm::Handle<std::vector<l1t::Vertex>> vertexHandle;
+      iEvent.getByToken(l1VerticesExtraTokens_.at(i), vertexHandle);
 
-  // create a map for associating fat reco tracks with their underlying
-  // TTTrack pointers
-  std::map<std::string, std::map<const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>>, const L1TrackTruthMatched*>> edmL1TrackMaps;
+      const std::vector<l1t::Vertex>& vertices = *vertexHandle;
 
-  // get a list of reconstructed tracks with references to their TPs
-  for (const auto& entry : l1TrackCollections) {
-    auto& edmL1Map = edmL1TrackMaps[entry.first];
-    for (const auto& track : entry.second) {
-      edmL1Map.insert(std::pair<const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>>, const L1TrackTruthMatched*>(track.getTTTrackPtr(), &track));
-    }
-  }
+      l1Vertices_extra_numTracks_.at(i).clear();
+      l1Vertices_extra_z0_.at(i).clear();
+      l1Vertices_extra_z0_etaWeighted_.at(i).clear();
+      l1Vertices_extra_sumPt_.at(i).clear();
 
-  ////////////////////////////////////////////////////////
+      for (const auto& vertex : vertices) {
+        l1Vertices_extra_numTracks_.at(i).push_back(vertex.tracks().size());
+        l1Vertices_extra_z0_.at(i).push_back(vertex.z0());
 
-  // Pile-up summary info
-  edm::Handle<std::vector<PileupSummaryInfo>> pileupHandle;
-  iEvent.getByToken(pileupSummaryToken_, pileupHandle);
-
-  for (auto bxIt = pileupHandle->begin(); bxIt != pileupHandle->end(); bxIt++) {
-    if (bxIt->getBunchCrossing() == 0) {
-      numTrueInteractions_ = bxIt->getTrueNumInteractions();
-      numPileupVertices_   = bxIt->getPU_NumInteractions();
-    }
-  }
-
-  // True track info
-  trueTracksPt_.clear();
-  trueTracksEta_.clear();
-  trueTracksPhi_.clear();
-  trueTracksZ0_.clear();
-  trueTracksPdgId_.clear();
-  trueTracksPhysCollision_.clear();
-  trueTracksUse_.clear();
-  trueTracksUseForEff_.clear();
-  trueTracksUseForAlgEff_.clear();
-  trueTracksUseForVertexReco_.clear();
-
-
-  std::vector<TP> tpVec(inputData.getTPs());
-  std::set<edm::Ptr<TrackingParticle>> inputDataTPs;
-  for (const auto& tp : tpVec)
-    inputDataTPs.insert(edm::Ptr<TrackingParticle>(tp));
-  for (const auto& tpPtr : allMatchedTPs) {
-    if (inputDataTPs.count(tpPtr) == 0)
-      tpVec.push_back(TP(tpPtr, tpVec.size(), settings_));
-  }
-  for (const TP& track : tpVec) {
-    trueTracksPt_.push_back(track.pt());
-    trueTracksEta_.push_back(track.eta());
-    trueTracksPhi_.push_back(track.phi0());
-    trueTracksZ0_.push_back(track.z0());
-    trueTracksPdgId_.push_back(track.pdgId());
-    trueTracksPhysCollision_.push_back(track.physicsCollision() ? 1.0 : 0.0);
-    trueTracksUse_.push_back(track.use() ? 1.0 : 0.0);
-    trueTracksUseForEff_.push_back(track.useForEff() ? 1.0 : 0.0);
-    trueTracksUseForAlgEff_.push_back(track.useForAlgEff() ? 1.0 : 0.0);
-    trueTracksUseForVertexReco_.push_back(track.useForVertexReco() ? 1.0 : 0.0);
-  }
-
-  // True pile-up vertex info
-  truePileUpVtxZ0_.clear();
-
-  for (const Vertex& vtx : inputData.getPileUpVertices())
-    truePileUpVtxZ0_.push_back(vtx.z0());
-
-  // Gen particles
-  genParticlesHardOutgoingEnergy_.clear();
-  genParticlesHardOutgoingPt_.clear();
-  genParticlesHardOutgoingEta_.clear();
-  genParticlesHardOutgoingPhi_.clear();
-  genParticlesHardOutgoingPdgId_.clear();
-  genParticlesHardOutgoingStatus_.clear();
-
-  edm::Handle<edm::View<reco::GenParticle>> genParticlesH;
-  iEvent.getByToken(genParticlesToken_, genParticlesH);
-  for (const auto& p : *genParticlesH) {
-    genParticlesHardOutgoingEnergy_.push_back(p.energy());
-    genParticlesHardOutgoingPt_.push_back(p.pt());
-    genParticlesHardOutgoingEta_.push_back(p.eta());
-    genParticlesHardOutgoingPhi_.push_back(p.phi());
-    genParticlesHardOutgoingPdgId_.push_back(p.pdgId());
-    genParticlesHardOutgoingStatus_.push_back(p.status());
-  }
-
-  // Gen jet (AK4) branches  
-  genJetsEnergy_.clear();
-  genJetsPt_.clear();
-  genJetsEta_.clear();
-  genJetsPhi_.clear();
-
-  edm::Handle<std::vector<reco::GenJet>> genJetsHandle;
-  iEvent.getByToken(genJetsToken_, genJetsHandle);
-  for (const auto& genJet : *genJetsHandle) {
-    genJetsEnergy_.push_back(genJet.energy());
-    genJetsPt_.push_back(genJet.pt());
-    genJetsEta_.push_back(genJet.eta());
-    genJetsPhi_.push_back(genJet.phi());
-  }
-
-  std::map<const edm::Ptr<TrackingParticle>, const TP*> edmTPMap;
-  for (const auto& tp : tpVec) {
-    edmTPMap.insert(std::pair<const edm::Ptr<TrackingParticle>, const TP*>(tp, &tp));
-  }
-
-  for (const auto& entry : l1TrackCollections) {
-    const auto& l1Tracks = entry.second;
-    RecoTracksBranchData& branchData = l1TracksBranchData_.at(entry.first);
-
-    const TTTrackAssociationMap<Ref_Phase2TrackerDigi_>& truthAssocMap = *truthAssocMapHandles.at(entry.first);
-
-    // Reco track branches
-    branchData.pt.clear();
-    branchData.eta.clear();
-    branchData.phi.clear();
-    branchData.z0.clear();
-    branchData.numStubs.clear();
-    branchData.chi2dof.clear();
-    branchData.trueMatchIdx.clear();
-    branchData.truthMapMatchIdx.clear();
-    branchData.truthMapIsGenuine.clear();
-    branchData.truthMapIsLooselyGenuine.clear();
-    branchData.truthMapIsCombinatoric.clear();
-    branchData.truthMapIsUnknown.clear();
-
-    for (const L1TrackTruthMatched& track : l1Tracks) {
-      branchData.pt.push_back(track.pt());
-      branchData.eta.push_back(track.eta());
-      branchData.phi.push_back(track.phi0());
-      branchData.z0.push_back(track.z0());
-      branchData.numStubs.push_back(track.getNumStubs());
-      branchData.chi2dof.push_back(track.chi2dof());
-      if (track.getMatchedTP() != NULL) {
-        bool lFound = (track.getMatchedTP() >= &*inputData.getTPs().begin()) and (track.getMatchedTP() < &*inputData.getTPs().end());
-        if (lFound) {
-          const size_t lIdx = track.getMatchedTP() - &*inputData.getTPs().begin();
-          branchData.trueMatchIdx.push_back(lIdx);
+        float sumPt = 0.0;
+        float etaWeightedSumZ0 = 0.0;
+        float etaWeightSum = 0.0;
+        for (const auto& track : vertex.tracks()) {
+          sumPt += track->momentum().transverse();
+          // const float zRes = 0.133616 * track->momentum().eta() * track->momentum().eta() - 0.0522353 * fabs(track->momentum().eta()) + 0.109918;
+          const float zRes = 0.223074 * track->momentum().eta() * track->momentum().eta() -
+                             0.050231 * abs(track->momentum().eta()) + 0.209719;
+          etaWeightedSumZ0 += track->POCA().z() / (zRes * zRes);
+          etaWeightSum += 1.0 / (zRes * zRes);
         }
-        assert (lFound);
-      }
-      else
-        branchData.trueMatchIdx.push_back(-1);
 
-      edm::Ptr<TrackingParticle> matchedTP = truthAssocMap.findTrackingParticlePtr(track.getTTTrackPtr());
-      if (matchedTP.isNull())
-        branchData.truthMapMatchIdx.push_back(-1);
-      else {
-        const TP* tp = edmTPMap.at(matchedTP);
-        bool lFound = (tp >= &*tpVec.begin()) and (tp < &*tpVec.end());
-        if (lFound) {
-          const size_t lIdx = tp - &*tpVec.begin();
-          branchData.truthMapMatchIdx.push_back(lIdx);
-        }
-        assert (lFound);
+        l1Vertices_extra_sumPt_.at(i).push_back(sumPt);
+        l1Vertices_extra_z0_etaWeighted_.at(i).push_back(etaWeightedSumZ0 / etaWeightSum);
       }
-      branchData.truthMapIsGenuine.push_back(truthAssocMap.isGenuine(track.getTTTrackPtr()) ? 1.0 : 0.0);
-      branchData.truthMapIsLooselyGenuine.push_back(truthAssocMap.isLooselyGenuine(track.getTTTrackPtr()) ? 1.0 : 0.0);
-      branchData.truthMapIsCombinatoric.push_back(truthAssocMap.isCombinatoric(track.getTTTrackPtr()) ? 1.0 : 0.0);
-      branchData.truthMapIsUnknown.push_back(truthAssocMap.isUnknown(track.getTTTrackPtr()) ? 1.0 : 0.0);
     }
+
+    outputTree_->Fill();
+    /////////////////////////////
+
+    if (settings_.debug() > 2)
+      cout << "================ End of Event ==============" << endl;
   }
 
-  // Reco vertex branches
-  for (const auto& tokenMapEntry : l1VerticesTokenMap_) {
-    RecoVerticesBranchData& branchData = l1VerticesBranchData_.at(tokenMapEntry.first);
+  void VertexNTupler::endJob() {}
 
-    edm::Handle<std::vector<l1t::Vertex>> handle;
-    iEvent.getByToken(tokenMapEntry.second, handle);
-    std::vector<std::shared_ptr<const RecoVertexWithTP>> recoVertices = extractVertices(handle, edmL1TrackMaps.at(l1VerticesInputMap_.at(tokenMapEntry.first)), settings_);
+  VertexNTupler::~VertexNTupler() {}
 
-    branchData.numTracks.clear();
-    branchData.trackIdxs.clear();
-    branchData.z0.clear();
-    branchData.sumPt.clear();
-
-    std::vector<L1TrackTruthMatched>& l1Tracks = l1TrackCollections.at(l1VerticesInputMap_.at(tokenMapEntry.first));
-    for (const std::shared_ptr<const RecoVertexWithTP>& vtx : recoVertices) {
-      branchData.numTracks.push_back(vtx->numTracks());
-      branchData.trackIdxs.push_back(std::vector<unsigned>());
-      for (const L1TrackTruthMatched* track : vtx->tracks())
-        branchData.trackIdxs.back().push_back(track - l1Tracks.data());
-      branchData.z0.push_back(vtx->z0());
-      branchData.sumPt.push_back(vtx->pT());
-    }
-
-    if (printResults_) {
-      std::cout << recoVertices.size() << " '" << tokenMapEntry.first << "' vertices were found ... " << std::endl;
-      for (const auto& vtx : recoVertices) {
-        std::cout << "  * z0 = " << vtx->z0() << "; contains " << vtx->numTracks() << " tracks ..." << std::endl;
-        for (const auto& trackPtr : vtx->tracks())
-          std::cout << "     - z0 = " << trackPtr->z0() << "; pt = " << trackPtr->pt() << ", eta = " << trackPtr->eta() << ", phi = " << trackPtr->phi0() << std::endl;
-      }
-    }
-  }
-
-
-  l1Vertices_extra_numTracks_.resize(l1VerticesExtraTokens_.size());
-  l1Vertices_extra_z0_.resize(l1VerticesExtraTokens_.size());
-  l1Vertices_extra_z0_etaWeighted_.resize(l1VerticesExtraTokens_.size());
-  l1Vertices_extra_sumPt_.resize(l1VerticesExtraTokens_.size());
-
-  for (size_t i=0; i < l1VerticesExtraTokens_.size(); i++) {
-    edm::Handle<std::vector<l1t::Vertex>> vertexHandle;
-    iEvent.getByToken(l1VerticesExtraTokens_.at(i), vertexHandle);
-
-    const std::vector<l1t::Vertex>& vertices = *vertexHandle;
-
-    l1Vertices_extra_numTracks_.at(i).clear();
-    l1Vertices_extra_z0_.at(i).clear();
-    l1Vertices_extra_z0_etaWeighted_.at(i).clear();
-    l1Vertices_extra_sumPt_.at(i).clear();
-
-    for (const auto& vertex : vertices) {
-      l1Vertices_extra_numTracks_.at(i).push_back(vertex.tracks().size());
-      l1Vertices_extra_z0_.at(i).push_back(vertex.z0());
-
-      float sumPt = 0.0;
-      float etaWeightedSumZ0 = 0.0;
-      float etaWeightSum = 0.0;
-      for (const auto& track : vertex.tracks()) {
-        sumPt += track->momentum().transverse();
-        // const float zRes = 0.133616 * track->momentum().eta() * track->momentum().eta() - 0.0522353 * fabs(track->momentum().eta()) + 0.109918;
-        const float zRes = 0.223074 * track->momentum().eta() * track->momentum().eta() - 0.050231 * abs(track->momentum().eta()) + 0.209719;
-        etaWeightedSumZ0 += track->POCA().z() / (zRes * zRes);
-        etaWeightSum += 1.0 / (zRes * zRes);
-      }
-
-      l1Vertices_extra_sumPt_.at(i).push_back(sumPt);
-      l1Vertices_extra_z0_etaWeighted_.at(i).push_back(etaWeightedSumZ0 / etaWeightSum);
-    }
-  }
-
-
-  outputTree_->Fill();
-  /////////////////////////////
-
-  if (settings_.debug() > 2)
-    cout << "================ End of Event ==============" << endl;
-
-}
-
-
-void VertexNTupler::endJob()
-{
-}
-
-
-VertexNTupler::~VertexNTupler()
-{
-}
-
-
-}
+}  // namespace l1tVertexFinder
 
 using namespace l1tVertexFinder;
 

@@ -12,11 +12,10 @@
 using namespace l1tVertexFinder;
 using namespace std;
 
-VertexProducer::VertexProducer(const edm::ParameterSet& iConfig) :
-  l1TracksToken_(consumes<TTTrackCollectionView>(iConfig.getParameter<edm::InputTag>("l1TracksInputTag"))),
-  outputCollectionName_(iConfig.getParameter<std::string>("l1VertexCollectionName")),
-  settings_(AlgoSettings(iConfig))
-{
+VertexProducer::VertexProducer(const edm::ParameterSet& iConfig)
+    : l1TracksToken_(consumes<TTTrackCollectionView>(iConfig.getParameter<edm::InputTag>("l1TracksInputTag"))),
+      outputCollectionName_(iConfig.getParameter<std::string>("l1VertexCollectionName")),
+      settings_(AlgoSettings(iConfig)) {
   // Get configuration parameters
 
   switch (settings_.vx_algo()) {
@@ -54,13 +53,9 @@ VertexProducer::VertexProducer(const edm::ParameterSet& iConfig) :
   produces<l1t::VertexCollection>(outputCollectionName_);
 }
 
+void VertexProducer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {}
 
-void VertexProducer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
-{
-}
-
-void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<TTTrackCollectionView> l1TracksHandle;
   iEvent.getByToken(l1TracksToken_, l1TracksHandle);
 
@@ -126,8 +121,6 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put(std::move(lProduct), outputCollectionName_);
 }
 
-void VertexProducer::endJob()
-{
-}
+void VertexProducer::endJob() {}
 
 DEFINE_FWK_MODULE(VertexProducer);
