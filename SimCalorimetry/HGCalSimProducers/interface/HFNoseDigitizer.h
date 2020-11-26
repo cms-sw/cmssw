@@ -4,7 +4,7 @@
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCDigitizerBase.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 
-class HFNoseDigitizer : public HGCDigitizerBase<HGCalDataFrame> {
+class HFNoseDigitizer : public HGCDigitizerBase {
 public:
   HFNoseDigitizer(const edm::ParameterSet& ps);
   void runDigitizer(std::unique_ptr<HGCalDigiCollection>& digiColl,

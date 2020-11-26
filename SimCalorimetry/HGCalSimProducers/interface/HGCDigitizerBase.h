@@ -51,11 +51,9 @@ namespace hgc_digi_utils {
 
 }  // namespace hgc_digi_utils
 
-template <class DFr>
 class HGCDigitizerBase {
 public:
-  typedef DFr DigiType;
-
+  typedef HGCalDataFrame DFr;
   typedef edm::SortedCollection<DFr> DColl;
 
   /**
