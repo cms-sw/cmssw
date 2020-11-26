@@ -126,7 +126,7 @@ process.dqmFEDIntegrity.fedFolderName = cms.untracked.string(folder_name)
 # Modules for the FED
 process.FEDModulesPath = cms.Path(
 			                        process.l1tStage2Fed
-			                      + process.siPixelDigis.cpu
+			                      + process.siPixelDigis
                                   + process.SiPixelHLTSource
                                   + process.siStripFEDCheck
 			                      + process.esRawToDigi
