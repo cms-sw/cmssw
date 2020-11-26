@@ -22,4 +22,3 @@ _pixelVertexingCUDATask = cms.Task(pixelTracksTask,pixelVertexCUDA,pixelVertexSo
 
 gpu.toReplaceWith(pixelVertices,_pixelVertexFromSoA)
 gpu.toReplaceWith(recopixelvertexingTask,_pixelVertexingCUDATask)
-
