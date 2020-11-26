@@ -90,12 +90,12 @@ from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import 
 process.siPixelClusterShapeCachePreSplitting = siPixelClusterShapeCache.clone(src = 'siPixelClustersPreSplitting')
 process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEGeneric_cfi")
 process.load("RecoPixelVertexing.Configuration.RecoPixelVertexing_cff")
-process.pixelVertices.TkFilterParameters.minPt = process.pixelTracksTrackingRegions.RegionPSet.ptMin
 process.pixelTracksTrackingRegions.RegionPSet.originRadius     = cms.double(0.4)
 process.pixelTracksTrackingRegions.RegionPSet.originHalfLength = cms.double(15.)
 process.pixelTracksTrackingRegions.RegionPSet.originXPos       = cms.double(0.08)
 process.pixelTracksTrackingRegions.RegionPSet.originYPos       = cms.double(-0.03)
 process.pixelTracksTrackingRegions.RegionPSet.originZPos       = cms.double(0.)
+process.pixelVertices.PtMin = process.pixelTracksTrackingRegions.RegionPSet.ptMin
 
 
 #----------------------------
