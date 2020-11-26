@@ -98,6 +98,10 @@ struct HGVHistoProducerAlgoHistograms {
   std::unordered_map<int, dqm::reco::MonitorElement*> h_caloparticle_lastlayer;
   std::unordered_map<int, dqm::reco::MonitorElement*> h_caloparticle_layersnum;
   std::unordered_map<int, dqm::reco::MonitorElement*> h_caloparticle_nHitsInSimClusters_matchedtoRecHit;
+  std::unordered_map<int, dqm::reco::MonitorElement*> h_caloparticle_nHits_matched_energy;
+  std::unordered_map<int, dqm::reco::MonitorElement*> h_caloparticle_nHits_matched_energy_layer;
+  std::unordered_map<int, dqm::reco::MonitorElement*> h_caloparticle_nHits_matched_energy_layer_1SimCl;
+  std::unordered_map<int, dqm::reco::MonitorElement*> h_caloparticle_sum_energy_layer;
   std::unordered_map<int, dqm::reco::MonitorElement*> h_caloparticle_firstlayer_matchedtoRecHit;
   std::unordered_map<int, dqm::reco::MonitorElement*> h_caloparticle_lastlayer_matchedtoRecHit;
   std::unordered_map<int, dqm::reco::MonitorElement*> h_caloparticle_layersnum_matchedtoRecHit;
