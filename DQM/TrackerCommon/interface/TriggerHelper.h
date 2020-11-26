@@ -18,7 +18,6 @@
   \author   Volker Adler
 */
 
-#include "CondFormats/DataRecord/interface/AlCaRecoTriggerBitsRcd.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/Scalers/interface/DcsStatus.h"
@@ -27,11 +26,14 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
 
 #include <memory>
 
+class AlCaRecoTriggerBits;
+class AlCaRecoTriggerBitsRcd;
 namespace edm {
   class ConsumesCollector;
   class ParameterSet;
@@ -57,6 +59,7 @@ class TriggerHelper {
   bool errorReplyGt_;
   bool andOrL1_;
   std::string l1DBKey_;
+  edm::ESGetToken<AlCaRecoTriggerBits, AlCaRecoTriggerBitsRcd> alcaRecotriggerBitsToken_;
   std::vector<std::string> l1LogicalExpressions_;
   bool errorReplyL1_;
   bool andOrHlt_;
@@ -124,6 +127,7 @@ TriggerHelper::TriggerHelper(const edm::ParameterSet &config, edm::ConsumesColle
     : TriggerHelper(config, iC, module) {
   gtInputTag_ = config.getParameter<edm::InputTag>("gtInputTag");
   gtInputToken_ = iC.consumes<L1GlobalTriggerReadoutRecord>(gtInputTag_);
+  alcaRecotriggerBitsToken_ = iC.esConsumes<AlCaRecoTriggerBits, AlCaRecoTriggerBitsRcd>();
 }
 
 template <typename T>
