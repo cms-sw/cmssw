@@ -1,0 +1,100 @@
+
+import FWCore.ParameterSet.Config as cms
+import FWCore.Utilities.FileUtils as FileUtils
+import FWCore.ParameterSet.VarParsing as VarParsing
+
+
+# PART 1 : PARSE ARGUMENTS
+
+options = VarParsing.VarParsing ('analysis')
+options.register('storeTracks', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool,"Store tracks in NTuple")
+options.register('l1Tracks','TMTrackProducer:TML1TracksKF4ParamsComb', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, 'L1 track collection to use')
+options.parseArguments()
+
+inputFiles = []
+for filePath in options.inputFiles:
+    if filePath.endswith(".root"):
+        inputFiles.append(filePath)
+    else:
+        inputFiles += FileUtils.loadListFromFile(filePath)
+
+if options.l1Tracks.count(':') != 1:
+    raise RuntimeError("Value for 'l1Tracks' command-line argument (= '{}') should contain one colon".format(options.l1Tracks))
+
+l1TracksTag = cms.InputTag(options.l1Tracks.split(':')[0], options.l1Tracks.split(':')[1])
+print "  INPUT TRACK COLLECTION = {0}  {1}".format(*options.l1Tracks.split(':')) 
+
+
+# PART 2: SETUP MAIN CMSSW PROCESS 
+
+process = cms.Process("L1TVertexFinder")
+
+process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D17_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+
+process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(inputFiles) )
+process.TFileService = cms.Service("TFileService", fileName = cms.string(options.outputFile))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
+
+process.load('L1Trigger.VertexFinder.VertexProducer_cff')
+process.load('L1Trigger.VertexFinder.VertexNTupler_cff')
+process.VertexProducer.l1TracksInputTag = l1TracksTag
+process.L1TVertexNTupler.l1TracksInputTag = l1TracksTag
+
+process.VertexProducerFastHisto = process.VertexProducer.clone()
+process.VertexProducerFastHisto.VertexReconstruction.Algorithm = cms.string("FastHisto")
+process.L1TVertexNTupler.l1VertexInputTags.append( cms.InputTag('VertexProducerFastHisto', 'l1vertices') )
+process.L1TVertexNTupler.l1VertexBranchNames.append('fastHisto')
+process.L1TVertexNTupler.l1VertexTrackInputs.append('tmtt')
+
+if process.L1TVertexNTupler.debug == 0:
+    process.MessageLogger.cerr.FwkReport.reportEvery = 50
+process.Timing = cms.Service("Timing", summaryOnly = cms.untracked.bool(True))
+
+# Define extra copies of producer, for comparing performance with different vertex-finding settings
+producerSum = process.VertexProducer + process.VertexProducerFastHisto
+producerNames = []
+extraVertexDescriptions = []
+# UNCOMMENT TO PERFORM SCAN OVER ALGO PARAMETER SPACE 
+# for i in range(1, 9):
+#     dist = float(i) * 0.05
+#     for j in range(6):
+#         minPt = 2.0 + float(j) * 0.2
+#         for k in range(1, 6):
+#             minDensity = k
+#             for l in range(7):
+#                 seedTrackPt = 2.0 + float(l) * 0.5
+
+#                 print
+#                 print "dist       =", dist
+#                 print "minPt      =", minPt
+#                 print "minDensity =", minDensity
+#                 print "seedTrkPt  =", seedTrackPt
+
+#                 producer = process.VertexProducer.clone()
+#                 producer.VertexReconstruction.VertexDistance = cms.double(dist)
+#                 producer.VertexReconstruction.VxMinTrackPt = cms.double(minPt)
+#                 producer.VertexReconstruction.DBSCANMinDensityTracks = cms.uint32(minDensity)
+#                 producer.VertexReconstruction.DBSCANPtThreshold = cms.double(seedTrackPt)
+
+#                 producerName = 'VertexProducerDbscanDist{0}minPt{1}minDensity{2}seedTrackPt{3}'.format(dist, minPt, minDensity, seedTrackPt)
+#                 producerName = producerName.replace(".","p")
+#                 print "producer name =", producerName
+#                 setattr(process, producerName, producer)
+#                 producerNames += [producerName]
+#                 process.L1TVertexNTupler.extraL1VertexDescriptions += ['DBSCAN(dist={0},minPt={1},minDensity={2},seedTrackPt{3})'.format(dist, minPt, minDensity, seedTrackPt)]
+#                 process.L1TVertexNTupler.extraL1VertexInputTags.append( cms.InputTag(producerName, 'l1vertices'))
+#                 producerSum += producer
+
+process.L1TVertexNTupler.vertexProducers = cms.vstring(producerNames)
+
+print 
+print "TOTAL number of producers =", len(producerNames)
+ 
+process.p = cms.Path(producerSum + process.L1TVertexNTupler)
+
