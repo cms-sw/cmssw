@@ -125,8 +125,9 @@ namespace {
     //
     if (reco::details::hasEnding(weightsFileFullPath, ".root")) {
       TFile gbrForestFile(weightsFileFullPath.c_str());
-      // the pointer is free to be taken over
-      return std::unique_ptr<GBRForest>(reinterpret_cast<GBRForest*>(gbrForestFile.Get("gbrForest")));
+      std::unique_ptr<GBRForest> up(gbrForestFile.Get<GBRForest>("gbrForest"));
+      gbrForestFile.Close("nodelete");
+      return up;
     }
 
     //
