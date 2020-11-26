@@ -10,7 +10,6 @@
 #include <RVersion.h>
 #include <cmath>
 #include <tinyxml2.h>
-#include <filesystem>
 
 namespace {
 
