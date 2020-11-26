@@ -2586,6 +2586,11 @@ def create_hgcalTrackstersPlotter(files, collection = 'ticlTrackstersMerge', nam
   return hgcalTrackstersPlotter
 
 #=================================================================================================
+_common_Calo = {"stat": False, "drawStyle": "hist", "staty": 0.65, "ymin": 0.0, "ylog": False}
+list_2D_histos = ["caloparticle_nHits_matched_layer",
+                  "caloparticle_nHits_matched_layer_1SimCl",
+                  "caloparticle_sum_energy_layer"]
+
 hgcalCaloParticlesPlotter = Plotter()
 def append_hgcalCaloParticlesPlots(files, collection = '-211', name_collection = "pion-"):
 
@@ -2603,10 +2608,19 @@ def append_hgcalCaloParticlesPlots(files, collection = '-211', name_collection =
     pg= PlotGroup(fileName.Data(),[
                   Plot(name,
                        xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
-                       #drawCommand = "", # may want to customize for TH2 (colz, etc.)
-                       normalizeToNumberOfEvents = True, **_common)
+                       drawCommand = "", # may want to customize for TH2 (colz, etc.)
+                       normalizeToNumberOfEvents = True, **_common_Calo)
                   ],
-                  ncols=1) # probably need more ofr cosAngle_Beta_
+                  ncols=1)
+
+    if name in list_2D_histos :
+        pg= PlotOnSideGroup(fileName.Data(),
+                      Plot(name,
+                           xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
+                           drawCommand = "COLZ",
+                           normalizeToNumberOfEvents = True, **_common_Calo)
+                      ,
+                      ncols=1)
 
     hgcalCaloParticlesPlotter.append("CaloParticles_"+name_collection, [
               dqmfolder
