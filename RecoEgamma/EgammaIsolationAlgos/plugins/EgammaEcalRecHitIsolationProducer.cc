@@ -1,8 +1,8 @@
 //*****************************************************************************
 // File:      EgammaEcalRecHitIsolationProducer.cc
 // ----------------------------------------------------------------------------
-// OrigAuth:  Matthias Mozer
-// Institute: IIHE-VUB
+// OrigAuth:  Matthias Mozer, adapted from EgammaHcalIsolationProducer by S. Harper
+// Institute: IIHE-VUB, RAL
 //=============================================================================
 //*****************************************************************************
 
@@ -11,6 +11,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ESHandle.h"

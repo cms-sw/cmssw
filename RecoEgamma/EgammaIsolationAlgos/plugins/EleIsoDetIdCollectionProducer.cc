@@ -15,8 +15,6 @@ Implementation:
 
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
 #include "DataFormats/DetId/interface/DetIdCollection.h"
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
