@@ -6,7 +6,7 @@
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "SimCalorimetry/HGCalSimAlgos/interface/HGCalSciNoiseMap.h"
 
-class HGCHEbackDigitizer : public HGCDigitizerBase<HGCalDataFrame> {
+class HGCHEbackDigitizer : public HGCDigitizerBase {
 public:
   HGCHEbackDigitizer(const edm::ParameterSet& ps);
   void runDigitizer(std::unique_ptr<HGCalDigiCollection>& digiColl,

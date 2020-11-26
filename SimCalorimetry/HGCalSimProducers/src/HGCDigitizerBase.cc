@@ -5,8 +5,7 @@
 using namespace hgc_digi;
 using namespace hgc_digi_utils;
 
-template <class DFr>
-HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps)
+HGCDigitizerBase::HGCDigitizerBase(const edm::ParameterSet& ps)
     : scaleByDose_(false), NoiseMean_(0.0), NoiseStd_(1.0) {
   bxTime_ = ps.getParameter<double>("bxTime");
   myCfg_ = ps.getParameter<edm::ParameterSet>("digiCfg");
@@ -73,8 +72,7 @@ HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps)
   RandNoiseGenerationFlag_ = false;
 }
 
-template <class DFr>
-void HGCDigitizerBase<DFr>::GenerateGaussianNoise(CLHEP::HepRandomEngine* engine,
+void HGCDigitizerBase::GenerateGaussianNoise(CLHEP::HepRandomEngine* engine,
                                                   const double NoiseMean,
                                                   const double NoiseStd) {
   for (size_t i = 0; i < NoiseArrayLength_; i++) {
@@ -84,8 +82,7 @@ void HGCDigitizerBase<DFr>::GenerateGaussianNoise(CLHEP::HepRandomEngine* engine
   }
 }
 
-template <class DFr>
-void HGCDigitizerBase<DFr>::run(std::unique_ptr<HGCDigitizerBase::DColl>& digiColl,
+void HGCDigitizerBase::run(std::unique_ptr<HGCDigitizerBase::DColl>& digiColl,
                                 HGCSimHitDataAccumulator& simData,
                                 const CaloSubdetectorGeometry* theGeom,
                                 const std::unordered_set<DetId>& validIds,
@@ -107,8 +104,7 @@ void HGCDigitizerBase<DFr>::run(std::unique_ptr<HGCDigitizerBase::DColl>& digiCo
     runDigitizer(digiColl, simData, theGeom, validIds, engine);
 }
 
-template <class DFr>
-void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& coll,
+void HGCDigitizerBase::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& coll,
                                       HGCSimHitDataAccumulator& simData,
                                       const CaloSubdetectorGeometry* theGeom,
                                       const std::unordered_set<DetId>& validIds,
@@ -211,8 +207,7 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& 
   }
 }
 
-template <class DFr>
-void HGCDigitizerBase<DFr>::updateOutput(std::unique_ptr<HGCDigitizerBase::DColl>& coll, const DFr& rawDataFrame) {
+void HGCDigitizerBase::updateOutput(std::unique_ptr<HGCDigitizerBase::DColl>& coll, const DFr& rawDataFrame) {
   // 9th is the sample of hte intime amplitudes
   int itIdx(9);
   if (rawDataFrame.size() <= itIdx + 2)
@@ -234,6 +229,3 @@ void HGCDigitizerBase<DFr>::updateOutput(std::unique_ptr<HGCDigitizerBase::DColl
   coll->push_back(dataFrame);
 }
 
-// cause the compiler to generate the appropriate code
-#include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
-template class HGCDigitizerBase<HGCalDataFrame>;
