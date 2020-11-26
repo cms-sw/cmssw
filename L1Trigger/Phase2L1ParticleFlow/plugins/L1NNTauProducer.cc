@@ -76,11 +76,24 @@ void L1NNTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if ((l1PFCand.id() == l1t::PFCandidate::ChargedHadron || l1PFCand.id() == l1t::PFCandidate::Electron) &&
         std::abs(l1PFCand.eta()) < track_trigger_eta_max)
       pfChargedHadrons_sort.push_back(l1PFCand);
+
   std::sort(pfChargedHadrons_sort.begin(), pfChargedHadrons_sort.end(), [](l1t::PFCandidate i, l1t::PFCandidate j) {
     return (i.pt() > j.pt());
   });
+
+  std::vector<unique_ptr<l1t::PFCandidate>> pfChargedHadrons_sort_v;
+  std::vector<unique_ptr<l1t::PFCandidate>> pfChargedHadrons_seeds_v;
+  for (const auto& l1PFCand : *l1PFCandidates)
+    if ((l1PFCand.id() == l1t::PFCandidate::ChargedHadron || l1PFCand.id() == l1t::PFCandidate::Electron) &&
+        std::abs(l1PFCand.eta()) < track_trigger_eta_max)
+      pfChargedHadrons_sort_v.push_back(std::make_unique<l1t::PFCandidate>(l1PFCand));
+
+  std::sort(pfChargedHadrons_sort_v.begin(), pfChargedHadrons_sort_v.end(), [](std::unique_ptr<l1t::PFCandidate>& i, std::unique_ptr<l1t::PFCandidate>& j) {
+    return (i->pt() > j->pt());
+  });
+
   auto lTaus = std::make_unique<l1t::PFTauCollection>();
-  if (pfChargedHadrons_sort.empty()) {
+  if (pfChargedHadrons_sort_v.empty()) {
     if (lTaus->empty()) {
       PFTau dummy;
       lTaus->push_back(dummy);
