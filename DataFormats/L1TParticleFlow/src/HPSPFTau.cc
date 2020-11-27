@@ -39,16 +39,16 @@ ostream& operator<<(ostream& os, const l1t::HPSPFTau& l1PFTau) {
     assert(0);
   os << std::endl;
   os << "signalPFCands:" << std::endl;
-  for (auto l1PFCand : l1PFTau.signalAllL1PFCandidates()) {
+  for (const auto& l1PFCand : l1PFTau.signalAllL1PFCandidates()) {
     printPFCand(os, *l1PFCand, l1PFTau.primaryVertex());
   }
   os << "stripPFCands:" << std::endl;
-  for (auto l1PFCand : l1PFTau.stripAllL1PFCandidates()) {
+  for (const auto& l1PFCand : l1PFTau.stripAllL1PFCandidates()) {
     printPFCand(os, *l1PFCand, l1PFTau.primaryVertex());
   }
   os << "strip pT = " << l1PFTau.strip_p4().pt() << std::endl;
   os << "isolationPFCands:" << std::endl;
-  for (auto l1PFCand : l1PFTau.isoAllL1PFCandidates()) {
+  for (const auto& l1PFCand : l1PFTau.isoAllL1PFCandidates()) {
     printPFCand(os, *l1PFCand, l1PFTau.primaryVertex());
   }
   os << "isolation pT-sum: charged = " << l1PFTau.sumChargedIso() << ", neutral = " << l1PFTau.sumNeutralIso()

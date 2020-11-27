@@ -216,6 +216,5 @@ private:
   edm::GetterOfProducts<l1t::PFTauCollection> getL1TPFTauCollection_;
   edm::GetterOfProducts<l1t::HPSPFTauCollection> getL1THPSPFTauCollection_;
   edm::GetterOfProducts<l1t::PFTrackCollection> getL1TPFTrackCollection_;
-
 };
 #endif
