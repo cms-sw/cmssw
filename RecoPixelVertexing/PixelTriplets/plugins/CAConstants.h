@@ -44,7 +44,7 @@ namespace CAConstants {
   constexpr uint32_t maxTuples() { return maxNumberOfTuples(); }
 
   // types
-  using hindex_type = uint16_t;  // FIXME from siPixelRecHitsHeterogeneousProduct
+  using hindex_type = uint32_t;  // FIXME from siPixelRecHitsHeterogeneousProduct
   using tindex_type = uint16_t;  //  for tuples
 
 #ifndef ONLY_PHICUT
