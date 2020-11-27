@@ -123,6 +123,8 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
         ModeQualVer     = cms.int32(2),    # Version 2 contains modified mode-quality mapping for 2018
     ),
 
+    ProtobufFileName = cms.string('/src/L1Trigger/L1TMuonEndCap/data/emtfpp_tf_graphs/model_graph.displ.5.pb'), # Protobuf file name to be used by NN based pT assignment
+
 )
 
 simEmtfDigisData = simEmtfDigisMC.clone(

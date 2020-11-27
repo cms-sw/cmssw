@@ -7,13 +7,12 @@
 #include "helper.h"  // assert_no_abort
 
 
-PtAssignmentEngineDxy::PtAssignmentEngineDxy() {
+PtAssignmentEngineDxy::PtAssignmentEngineDxy(const std::string pbFileNameDxy) {
 
 
   std::string cmssw_base_ = std::getenv("CMSSW_BASE");
 
-
-  pbFileNameDxy_ = "/src/L1Trigger/L1TMuonEndCap/data/emtfpp_tf_graphs/model_graph.displ.5.pb";
+  pbFileNameDxy_ = pbFileNameDxy;
   pbFileNameDxy_ = cmssw_base_ + pbFileNameDxy_;
   inputNameDxy_ = "batch_normalization_1_input";
   outputNamesDxy_ = {"dense_4/BiasAdd"};
@@ -46,8 +45,6 @@ void PtAssignmentEngineDxy::calculate_pt_dxy(const EMTFTrack& track, emtf::Featu
   // This is called for each track instead of for entire track collection as was done in Phase-2 implementation 
   preprocessing_dxy(track, feature);
   call_tensorflow_dxy(feature, prediction);
-  postprocessing_dxy(track, feature, prediction);
-  
   return;
 }
 
@@ -81,15 +78,15 @@ void PtAssignmentEngineDxy::preprocessing_dxy(const EMTFTrack& track, emtf::Feat
 
     EMTFPtLUT data = track.PtLUT();
 
-    const int invalid_dtheta = 127;  // = 127
-    const int invalid_dphi = 8191;   // = 8191
+    const int invalid_dtheta = 127;
+    const int invalid_dphi = 8191;
 
     // // Variables to extract from the PtLUT
     int dPhi_12, dPhi_13, dPhi_14, dPhi_23, dPhi_24, dPhi_34;
     int dTh_12, dTh_13, dTh_14, dTh_23, dTh_24, dTh_34;
-    int FR_1; 
+    int fr_1;
     int bend_1, bend_2, bend_3, bend_4;
-    int RPC_1, RPC_2, RPC_3, RPC_4;
+    int rpc_1, rpc_2, rpc_3, rpc_4;
     int St1_ring2 = data.st1_ring2;
 
     int pat1 = -99, pat2 = -99, pat3 = -99, pat4 = -99;
@@ -111,13 +108,13 @@ void PtAssignmentEngineDxy::preprocessing_dxy(const EMTFTrack& track, emtf::Feat
       pat4 = data.cpattern[3];
 
     // F/R bit
-    FR_1 = data.fr[0];
+    fr_1 = data.fr[0];
     
     // RPC hit in station
-    RPC_1 = (st1 ? (pat1 == 0) : 0);
-    RPC_2 = (st2 ? (pat2 == 0) : 0);
-    RPC_3 = (st3 ? (pat3 == 0) : 0);
-    RPC_4 = (st4 ? (pat4 == 0) : 0);
+    rpc_1 = (st1 ? (pat1 == 0) : 0);
+    rpc_2 = (st2 ? (pat2 == 0) : 0);
+    rpc_3 = (st3 ? (pat3 == 0) : 0);
+    rpc_4 = (st4 ? (pat4 == 0) : 0);
 
     // Calculate bends from patterns
     bend_1 = aux().calcBendFromPattern(pat1, track.Endcap());
@@ -132,10 +129,10 @@ void PtAssignmentEngineDxy::preprocessing_dxy(const EMTFTrack& track, emtf::Feat
     if (bend_4 == -99) bend_4 = 0;
 
     // In the emulator RPCs get assigned abs(bend) = 5. This needs to be 0 for the NN.
-    if (abs(bend_1) == 5 && RPC_1 == 1 ) bend_1 = 0;
-    if (abs(bend_2) == 5 && RPC_2 == 1 ) bend_2 = 0;
-    if (abs(bend_3) == 5 && RPC_3 == 1 ) bend_3 = 0;
-    if (abs(bend_4) == 5 && RPC_4 == 1 ) bend_4 = 0;
+    if (std::abs(bend_1) == 5 && rpc_1 == 1 ) bend_1 = 0;
+    if (std::abs(bend_2) == 5 && rpc_2 == 1 ) bend_2 = 0;
+    if (std::abs(bend_3) == 5 && rpc_3 == 1 ) bend_3 = 0;
+    if (std::abs(bend_4) == 5 && rpc_4 == 1 ) bend_4 = 0;
 
     // Calculate delta phi
     dPhi_12 = (data.delta_ph[0] != invalid_dphi) ? data.delta_ph[0]*(data.sign_ph[0] ? 1 : -1) : 0;
@@ -215,37 +212,33 @@ void PtAssignmentEngineDxy::preprocessing_dxy(const EMTFTrack& track, emtf::Feat
     x_bend_emtf[2] = bend_3;
     x_bend_emtf[3] = bend_4;
 
-    x_fr_emtf[0] = FR_1;
+    x_fr_emtf[0] = fr_1;
     x_trk_theta[0] = track.Theta_fp();
     x_me11ring[0] = St1_ring2;
 
-    x_rpcbit[0] = RPC_1;
-    x_rpcbit[1] = RPC_2;
-    x_rpcbit[2] = RPC_3;
-    x_rpcbit[3] = RPC_4;
+    x_rpcbit[0] = rpc_1;
+    x_rpcbit[1] = rpc_2;
+    x_rpcbit[2] = rpc_3;
+    x_rpcbit[3] = rpc_4;
 
     feature = {{
       x_dphi     [0], x_dphi     [1], x_dphi     [2], x_dphi     [3], x_dphi     [4], x_dphi     [5],
       x_dtheta   [0], x_dtheta   [1], x_dtheta   [2], x_dtheta   [3], x_dtheta   [4], x_dtheta   [5],
       x_bend_emtf[0], x_bend_emtf[1], x_bend_emtf[2], x_bend_emtf[3], x_fr_emtf  [0], x_trk_theta[0],
-      x_me11ring [0], x_rpcbit   [0], x_rpcbit   [1], x_rpcbit   [2], x_rpcbit   [3], 0             ,
-      0             , 0             , 0             , 0             , 0             , 0             ,
-      0             , 0             , 0             , 0             , 0             , 0
-    }};
+      x_me11ring [0], x_rpcbit   [0], x_rpcbit   [1], x_rpcbit   [2], x_rpcbit   [3]                  }};
     return;
   }
 
   void PtAssignmentEngineDxy::call_tensorflow_dxy(const emtf::Feature& feature, emtf::Prediction& prediction) const {
-    const int nfeatures_displ = 23;    // 23 features
-    static tensorflow::Tensor input(tensorflow::DT_FLOAT, { 1, nfeatures_displ });
+    static tensorflow::Tensor input(tensorflow::DT_FLOAT, { 1, emtf::NUM_FEATURES });
     static std::vector<tensorflow::Tensor> outputs;
-    emtf_assert(feature.size() == emtf::NFEATURES);
+    emtf_assert(feature.size() == emtf::NUM_FEATURES);
 
     float* d = input.flat<float>().data();
-    std::copy(feature.begin(), feature.begin() + nfeatures_displ, d);
+    std::copy(feature.begin(), feature.end(), d);
     tensorflow::run(sessionDxy_, { { inputNameDxy_, input } }, outputNamesDxy_, &outputs);
-    assert(outputs.size() == 1);
-    emtf_assert(prediction.size() == emtf::NPREDICTIONS);
+    emtf_assert(outputs.size() == 1);
+    emtf_assert(prediction.size() == emtf::NUM_PREDICTIONS);
 
     const float reg_pt_scale = 100.0;  // a scale factor applied to regression during training
     const float reg_dxy_scale = 1.0;  // a scale factor applied to regression during training
@@ -256,12 +249,5 @@ void PtAssignmentEngineDxy::preprocessing_dxy(const EMTFTrack& track, emtf::Feat
     // Remove scale factor used during training
     prediction.at(0) /= reg_pt_scale;
     prediction.at(1) /= reg_dxy_scale;
-    return;
-  }
-
-  void PtAssignmentEngineDxy::postprocessing_dxy(const EMTFTrack& track, const emtf::Feature& feature, emtf::Prediction& prediction) const {
-    // To be decided:
-    // Demote to 2 Gev?
-    // Scale for efficiency at turn-on?
     return;
   }
