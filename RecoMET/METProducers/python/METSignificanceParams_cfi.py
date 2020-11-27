@@ -4,7 +4,7 @@ METSignificanceParams = cms.PSet(
 
       # jet resolutions
       jetThreshold = cms.double(15),
-      
+
       #jet-lepton matching dR
       dRMatch = cms.double(0.4),
 
@@ -25,7 +25,7 @@ METSignificanceParams_Data=cms.PSet(
 
       # jet resolutions
       jetThreshold = cms.double(15),
-      
+
       #jet-lepton matching dR
       dRMatch = cms.double(0.4),
 
@@ -43,5 +43,6 @@ METSignificanceParams_Data=cms.PSet(
       )
 
 from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
-run2_miniAOD_UL.toModify(METSignificanceParams, useDeltaRforFootprint = True)
-run2_miniAOD_UL.toModify(METSignificanceParams_Data, useDeltaRforFootprint = True)
+from Configuration.Eras.Modifier_run2_nanoAOD_106Xv1_cff import run2_nanoAOD_106Xv1
+(run2_miniAOD_UL|run2_nanoAOD_106Xv1).toModify(METSignificanceParams, useDeltaRforFootprint = True)
+(run2_miniAOD_UL|run2_nanoAOD_106Xv1).toModify(METSignificanceParams_Data, useDeltaRforFootprint = True)
