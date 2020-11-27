@@ -20,8 +20,8 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
 
 SiPixelROCsStatusAndMappingWrapper::SiPixelROCsStatusAndMappingWrapper(SiPixelFedCablingMap const& cablingMap,
-                                                               TrackerGeometry const& trackerGeom,
-                                                               SiPixelQuality const* badPixelInfo)
+                                                                       TrackerGeometry const& trackerGeom,
+                                                                       SiPixelQuality const* badPixelInfo)
     : cablingMap_(&cablingMap), modToUnpDefault(pixelgpudetails::MAX_SIZE), hasQuality_(badPixelInfo != nullptr) {
   cudaCheck(cudaMallocHost(&cablingMapHost, sizeof(SiPixelROCsStatusAndMapping)));
 
@@ -85,14 +85,14 @@ SiPixelROCsStatusAndMappingWrapper::SiPixelROCsStatusAndMappingWrapper(SiPixelFe
     }
     LogDebug("SiPixelROCsStatusAndMapping")
         << "----------------------------------------------------------------------------" << std::endl;
-    LogDebug("SiPixelROCsStatusAndMapping") << i << std::setw(20) << cablingMapHost->fed[i] << std::setw(20)
-                                        << cablingMapHost->link[i] << std::setw(20) << cablingMapHost->roc[i]
-                                        << std::endl;
-    LogDebug("SiPixelROCsStatusAndMapping") << i << std::setw(20) << cablingMapHost->RawId[i] << std::setw(20)
-                                        << cablingMapHost->rocInDet[i] << std::setw(20) << cablingMapHost->moduleId[i]
-                                        << std::endl;
-    LogDebug("SiPixelROCsStatusAndMapping") << i << std::setw(20) << (bool)cablingMapHost->badRocs[i] << std::setw(20)
-                                        << std::endl;
+    LogDebug("SiPixelROCsStatusAndMapping")
+        << i << std::setw(20) << cablingMapHost->fed[i] << std::setw(20) << cablingMapHost->link[i] << std::setw(20)
+        << cablingMapHost->roc[i] << std::endl;
+    LogDebug("SiPixelROCsStatusAndMapping")
+        << i << std::setw(20) << cablingMapHost->RawId[i] << std::setw(20) << cablingMapHost->rocInDet[i]
+        << std::setw(20) << cablingMapHost->moduleId[i] << std::endl;
+    LogDebug("SiPixelROCsStatusAndMapping")
+        << i << std::setw(20) << (bool)cablingMapHost->badRocs[i] << std::setw(20) << std::endl;
     LogDebug("SiPixelROCsStatusAndMapping")
         << "----------------------------------------------------------------------------" << std::endl;
   }
@@ -102,7 +102,8 @@ SiPixelROCsStatusAndMappingWrapper::SiPixelROCsStatusAndMappingWrapper(SiPixelFe
 
 SiPixelROCsStatusAndMappingWrapper::~SiPixelROCsStatusAndMappingWrapper() { cudaCheck(cudaFreeHost(cablingMapHost)); }
 
-const SiPixelROCsStatusAndMapping* SiPixelROCsStatusAndMappingWrapper::getGPUProductAsync(cudaStream_t cudaStream) const {
+const SiPixelROCsStatusAndMapping* SiPixelROCsStatusAndMappingWrapper::getGPUProductAsync(
+    cudaStream_t cudaStream) const {
   const auto& data = gpuData_.dataForCurrentDeviceAsync(cudaStream, [this](GPUData& data, cudaStream_t stream) {
     // allocate
     cudaCheck(cudaMalloc(&data.cablingMapDevice, sizeof(SiPixelROCsStatusAndMapping)));
