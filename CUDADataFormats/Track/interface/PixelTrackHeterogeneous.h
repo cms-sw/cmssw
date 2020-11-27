@@ -16,7 +16,7 @@ public:
   static constexpr int32_t stride() { return S; }
 
   using Quality = trackQuality::Quality;
-  using hindex_type = uint16_t;
+  using hindex_type = uint32_t;
   using HitContainer = cms::cuda::OneToManyAssoc<hindex_type, S, 5 * S>;
 
   // Always check quality is at least loose!

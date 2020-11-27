@@ -125,21 +125,6 @@ void CAHitNtupletGeneratorKernelsGPU::launchKernels(HitsOnCPU const &hh, TkSoA *
     cudaCheck(cudaGetLastError());
   }
 
-  if (m_params.doStats_) {
-    numberOfBlocks = (std::max(nhits, m_params.maxNumberOfDoublets_) + blockSize - 1) / blockSize;
-    kernel_checkOverflows<<<numberOfBlocks, blockSize, 0, cudaStream>>>(tuples_d,
-                                                                        device_tupleMultiplicity_.get(),
-                                                                        device_hitTuple_apc_,
-                                                                        device_theCells_.get(),
-                                                                        device_nCells_,
-                                                                        device_theCellNeighbors_.get(),
-                                                                        device_theCellTracks_.get(),
-                                                                        device_isOuterHitOfCell_.get(),
-                                                                        nhits,
-                                                                        m_params.maxNumberOfDoublets_,
-                                                                        counters_);
-    cudaCheck(cudaGetLastError());
-  }
 #ifdef GPU_DEBUG
   cudaDeviceSynchronize();
   cudaCheck(cudaGetLastError());
@@ -275,6 +260,24 @@ void CAHitNtupletGeneratorKernelsGPU::classifyTuples(HitsOnCPU const &hh, TkSoA 
     numberOfBlocks = (HitToTuple::capacity() + blockSize - 1) / blockSize;
     kernel_tripletCleaner<<<numberOfBlocks, blockSize, 0, cudaStream>>>(
         hh.view(), tuples_d, tracks_d, quality_d, device_hitToTuple_.get());
+    cudaCheck(cudaGetLastError());
+  }
+
+  if (m_params.doStats_) {
+    auto nhits = hh.nHits();
+    numberOfBlocks = (std::max(nhits, m_params.maxNumberOfDoublets_) + blockSize - 1) / blockSize;
+    kernel_checkOverflows<<<numberOfBlocks, blockSize, 0, cudaStream>>>(tuples_d,
+                                                                        device_tupleMultiplicity_.get(),
+                                                                        device_hitToTuple_.get(),
+                                                                        device_hitTuple_apc_,
+                                                                        device_theCells_.get(),
+                                                                        device_nCells_,
+                                                                        device_theCellNeighbors_.get(),
+                                                                        device_theCellTracks_.get(),
+                                                                        device_isOuterHitOfCell_.get(),
+                                                                        nhits,
+                                                                        m_params.maxNumberOfDoublets_,
+                                                                        counters_);
     cudaCheck(cudaGetLastError());
   }
 

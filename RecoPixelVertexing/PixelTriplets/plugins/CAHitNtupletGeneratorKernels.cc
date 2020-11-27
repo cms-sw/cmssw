@@ -134,6 +134,7 @@ void CAHitNtupletGeneratorKernelsCPU::launchKernels(HitsOnCPU const &hh, TkSoA *
   if (m_params.doStats_) {
     kernel_checkOverflows(tuples_d,
                           device_tupleMultiplicity_.get(),
+                          device_hitToTuple_.get(),
                           device_hitTuple_apc_,
                           device_theCells_.get(),
                           device_nCells_,
