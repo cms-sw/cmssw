@@ -28,8 +28,11 @@ EMTFSetup::EMTFSetup(const edm::ParameterSet& iConfig)
     throw cms::Exception("L1TMuonEndCap") << "Cannot recognize the era option: " << era();
   }
 
+  // Get protobuf file name from config
+  auto pbFileNameDxy = iConfig.getParameter<std::string>("ProtobufFileName");
+
   // No era setup for displaced pT assignment engine
-  pt_assign_engine_dxy_ = std::make_unique<PtAssignmentEngineDxy>();
+  pt_assign_engine_dxy_ = std::make_unique<PtAssignmentEngineDxy>(pbFileNameDxy);
 
   emtf_assert(pt_assign_engine_ != nullptr);
   emtf_assert(pt_assign_engine_dxy_ != nullptr);
