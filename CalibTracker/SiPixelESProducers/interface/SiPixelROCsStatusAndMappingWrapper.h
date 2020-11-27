@@ -18,8 +18,8 @@ class SiPixelQuality;
 class SiPixelROCsStatusAndMappingWrapper {
 public:
   SiPixelROCsStatusAndMappingWrapper(SiPixelFedCablingMap const &cablingMap,
-                                 TrackerGeometry const &trackerGeom,
-                                 SiPixelQuality const *badPixelInfo);
+                                     TrackerGeometry const &trackerGeom,
+                                     SiPixelQuality const *badPixelInfo);
   ~SiPixelROCsStatusAndMappingWrapper();
 
   bool hasQuality() const { return hasQuality_; }

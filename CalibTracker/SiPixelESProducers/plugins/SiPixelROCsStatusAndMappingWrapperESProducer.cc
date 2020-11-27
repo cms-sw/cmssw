@@ -26,7 +26,8 @@ private:
   bool useQuality_;
 };
 
-SiPixelROCsStatusAndMappingWrapperESProducer::SiPixelROCsStatusAndMappingWrapperESProducer(const edm::ParameterSet& iConfig)
+SiPixelROCsStatusAndMappingWrapperESProducer::SiPixelROCsStatusAndMappingWrapperESProducer(
+    const edm::ParameterSet& iConfig)
     : useQuality_(iConfig.getParameter<bool>("UseQualityInfo")) {
   auto const& component = iConfig.getParameter<std::string>("ComponentName");
   auto cc = setWhatProduced(this, component);
