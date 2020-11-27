@@ -26,6 +26,7 @@
 <use name="RecoLocalCalo/HGCalRecAlgos"/>
 <use name="roottmva"/>
 <use name="PhysicsTools/TensorFlow"/>
+<flags HEADER_CHECKS="-O2"/>
 <export>
   <lib name="1"/>
 </export>

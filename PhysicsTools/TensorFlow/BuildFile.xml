@@ -1,6 +1,7 @@
 <use name="tensorflow-cc"/>
 <use name="FWCore/Utilities"/>
 <use name="FWCore/MessageLogger"/>
+<flags HEADER_CHECKS="-O2"/>
 <export>
   <lib name="1"/>
 </export>

@@ -16,6 +16,7 @@
 <use name="PhysicsTools/PatUtils"/>
 <use name="PhysicsTools/TensorFlow"/>
 <use name="clhep"/>
+<flags HEADER_CHECKS="-O2"/>
 <export>
   <lib name="1"/>
 </export>
