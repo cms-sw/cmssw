@@ -4,6 +4,12 @@
 #include <cstdint>
 #include <vector>
 
+// The main purpose of this class is to deliver digi and cluster data
+// from an EDProducer that transfers the data from GPU to host to an
+// EDProducer that converts the SoA to legacy data products. The class
+// is independent of any GPU technology, and in prunciple could be
+// produced by host code, and be used for other purposes than
+// conversion-to-legacy as well.
 class SiPixelDigisSoA {
 public:
   SiPixelDigisSoA() = default;
@@ -24,10 +30,10 @@ public:
   const std::vector<int32_t>& clusVector() const { return clus_; }
 
 private:
-  std::vector<uint32_t> pdigi_;
-  std::vector<uint32_t> rawIdArr_;
-  std::vector<uint16_t> adc_;
-  std::vector<int32_t> clus_;
+  std::vector<uint32_t> pdigi_;     // packed digi (row, col, adc) of each pixel
+  std::vector<uint32_t> rawIdArr_;  // DetId of each pixel
+  std::vector<uint16_t> adc_;       // ADC of each pixel
+  std::vector<int32_t> clus_;       // cluster id of each pixel
 };
 
 #endif

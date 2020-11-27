@@ -7,6 +7,4 @@ SiPixelDigisSoA::SiPixelDigisSoA(
     : pdigi_(pdigi, pdigi + nDigis),
       rawIdArr_(rawIdArr, rawIdArr + nDigis),
       adc_(adc, adc + nDigis),
-      clus_(clus, clus + nDigis) {
-  assert(pdigi_.size() == nDigis);
-}
+      clus_(clus, clus + nDigis) {}

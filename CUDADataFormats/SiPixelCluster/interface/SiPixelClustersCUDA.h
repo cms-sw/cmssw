@@ -10,7 +10,7 @@
 class SiPixelClustersCUDA {
 public:
   SiPixelClustersCUDA() = default;
-  explicit SiPixelClustersCUDA(size_t maxClusters, cudaStream_t stream);
+  explicit SiPixelClustersCUDA(size_t maxModules, cudaStream_t stream);
   ~SiPixelClustersCUDA() = default;
 
   SiPixelClustersCUDA(const SiPixelClustersCUDA &) = delete;
@@ -32,23 +32,13 @@ public:
   uint32_t const *moduleId() const { return moduleId_d.get(); }
   uint32_t const *clusModuleStart() const { return clusModuleStart_d.get(); }
 
-  uint32_t const *c_moduleStart() const { return moduleStart_d.get(); }
-  uint32_t const *c_clusInModule() const { return clusInModule_d.get(); }
-  uint32_t const *c_moduleId() const { return moduleId_d.get(); }
-  uint32_t const *c_clusModuleStart() const { return clusModuleStart_d.get(); }
-
   class DeviceConstView {
   public:
-    // DeviceConstView() = default;
-
     __device__ __forceinline__ uint32_t moduleStart(int i) const { return __ldg(moduleStart_ + i); }
     __device__ __forceinline__ uint32_t clusInModule(int i) const { return __ldg(clusInModule_ + i); }
     __device__ __forceinline__ uint32_t moduleId(int i) const { return __ldg(moduleId_ + i); }
     __device__ __forceinline__ uint32_t clusModuleStart(int i) const { return __ldg(clusModuleStart_ + i); }
 
-    friend SiPixelClustersCUDA;
-
-    //   private:
     uint32_t const *moduleStart_;
     uint32_t const *clusInModule_;
     uint32_t const *moduleId_;
@@ -67,7 +57,7 @@ private:
 
   cms::cuda::device::unique_ptr<DeviceConstView> view_d;  // "me" pointer
 
-  uint32_t nClusters_h;
+  uint32_t nClusters_h = 0;
 };
 
 #endif
