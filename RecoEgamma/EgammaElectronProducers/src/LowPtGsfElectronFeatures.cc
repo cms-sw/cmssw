@@ -7,6 +7,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "TVector3.h"
 #include <algorithm>
+#include <iostream> 
 
 namespace lowptgsfeleseed {
 
@@ -239,14 +240,11 @@ namespace lowptgsfeleid {
           float energy = sqrt(mass2 + p2);
           XYZTLorentzVector mom = XYZTLorentzVector(gsf->px(), gsf->py(), gsf->pz(), energy);
           XYZTLorentzVector pos = XYZTLorentzVector(gsf->vx(), gsf->vy(), gsf->vz(), 0.);
-          RawParticle particle(mom, pos);
-          BaseParticlePropagator propagator(particle, 0., 0., field_z);
-          particle.setCharge(gsf->charge());
+	  BaseParticlePropagator propagator(RawParticle(mom,pos,gsf->charge()), 0, 0, field_z);
           propagator.propagateToEcalEntrance(true);   // true only first half loop , false more than one loop
           bool reach_ECAL = propagator.getSuccess();  // 0 does not reach ECAL, 1 yes barrel, 2 yes endcaps
-          GlobalPoint ecal_pos(particle.x(),          // ECAL entry point for track
-                               particle.y(),
-                               particle.z());
+          // ECAL entry point for track
+	  GlobalPoint ecal_pos(propagator.particle().x(), propagator.particle().y(), propagator.particle().z());
 
           // Track-cluster matching for most energetic clusters
           sc_clus1_nxtal = -999;
