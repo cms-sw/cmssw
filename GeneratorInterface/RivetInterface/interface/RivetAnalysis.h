@@ -205,6 +205,22 @@ namespace Rivet {
         _fatjets   = applyProjection<FastJets>(event, "FatJets").jetsByPt(fatjet_cut);
         _neutrinos = applyProjection<FinalState>(event, "Neutrinos").particlesByPt();
         _met       = applyProjection<MissingMomentum>(event, "MET").missingMomentum().p3();
+
+        // check for leptonic decays of tag particles
+        for (auto& jet : _jets) {
+          for (auto& pt : jet.tags()) {
+            for (auto& p : pt.children(isLepton)) {
+              pt.addConstituent(p, false);
+            }
+          }
+        }
+        for (auto& jet : _fatjets) {
+          for (auto& pt : jet.tags()) {
+            for (auto& p : pt.children(isLepton)) {
+              pt.addConstituent(p, false);
+            }
+          }
+        }
       };
 
       // Do nothing here
