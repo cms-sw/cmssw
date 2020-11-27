@@ -16,27 +16,20 @@
 
 class PtAssignmentEngineDxy {
 public:
-  explicit PtAssignmentEngineDxy();
+  explicit PtAssignmentEngineDxy(const std::string pbFileNameDxy);
   virtual ~PtAssignmentEngineDxy();
 
   void configure(
           int verbose
   );
 
-  // void configure_details();
-
   const PtAssignmentEngineAux2017& aux() const;
-
-  // virtual float scale_pt  (const float pt, const int mode = 15) const = 0;
-  // virtual float unscale_pt(const float pt, const int mode = 15) const = 0;
 
   virtual void calculate_pt_dxy(const EMTFTrack& track, emtf::Feature& feature, emtf::Prediction& prediction) const;
 
   virtual void preprocessing_dxy(const EMTFTrack& track, emtf::Feature& feature) const;
 
   virtual void call_tensorflow_dxy(const emtf::Feature& feature, emtf::Prediction& prediction) const;
-
-  virtual void postprocessing_dxy(const EMTFTrack& track, const emtf::Feature& feature, emtf::Prediction& prediction) const;
 
 
 protected:

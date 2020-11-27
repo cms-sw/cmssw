@@ -194,10 +194,6 @@ void PtAssignment::process(EMTFTrackCollection& best_tracks) {
         // Set worst track pT to zero
         best_tracks.at(2).set_pt(0);
         best_tracks.at(2).set_gmt_pt(0);
-
-        // Do we want to do the same for displaced?
-        // best_tracks.at(2).set_pt_dxy(0);
-        // best_tracks.at(2).set_gmt_pt_dxy(0);
       }
     }
   }
