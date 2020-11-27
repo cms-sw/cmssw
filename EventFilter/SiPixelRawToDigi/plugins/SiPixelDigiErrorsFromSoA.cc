@@ -6,7 +6,7 @@
 #include "DataFormats/DetId/interface/DetIdCollection.h"
 #include "DataFormats/SiPixelDetId/interface/PixelFEDChannel.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
-#include "DataFormats/SiPixelDigi/interface/SiPixelDigiErrorsSoA.h"
+#include "DataFormats/SiPixelRawData/interface/SiPixelErrorsSoA.h"
 #include "EventFilter/SiPixelRawToDigi/interface/PixelDataFormatter.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
@@ -31,7 +31,7 @@ private:
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   const edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> cablingToken_;
-  const edm::EDGetTokenT<SiPixelDigiErrorsSoA> digiErrorSoAGetToken_;
+  const edm::EDGetTokenT<SiPixelErrorsSoA> digiErrorSoAGetToken_;
   const edm::EDPutTokenT<edm::DetSetVector<SiPixelRawDataError>> errorPutToken_;
   const edm::EDPutTokenT<DetIdCollection> tkErrorPutToken_;
   const edm::EDPutTokenT<DetIdCollection> userErrorPutToken_;
@@ -48,7 +48,7 @@ private:
 
 SiPixelDigiErrorsFromSoA::SiPixelDigiErrorsFromSoA(const edm::ParameterSet& iConfig)
     : cablingToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("CablingMapLabel")))),
-      digiErrorSoAGetToken_{consumes<SiPixelDigiErrorsSoA>(iConfig.getParameter<edm::InputTag>("digiErrorSoASrc"))},
+      digiErrorSoAGetToken_{consumes<SiPixelErrorsSoA>(iConfig.getParameter<edm::InputTag>("digiErrorSoASrc"))},
       errorPutToken_{produces<edm::DetSetVector<SiPixelRawDataError>>()},
       tkErrorPutToken_{produces<DetIdCollection>()},
       userErrorPutToken_{produces<DetIdCollection>("UserErrorModules")},
@@ -95,7 +95,7 @@ void SiPixelDigiErrorsFromSoA::produce(edm::Event& iEvent, const edm::EventSetup
 
   auto size = digiErrors.size();
   for (auto i = 0U; i < size; i++) {
-    PixelErrorCompact err = digiErrors.error(i);
+    SiPixelErrorCompact err = digiErrors.error(i);
     if (err.errorType != 0) {
       SiPixelRawDataError error(err.word, err.errorType, err.fedId + 1200);
       errors[err.rawId].push_back(error);
