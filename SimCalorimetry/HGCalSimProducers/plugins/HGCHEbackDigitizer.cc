@@ -1,10 +1,9 @@
-#include "SimCalorimetry/HGCalSimProducers/interface/HGCHEbackDigitizer.h"
+#include "HGCHEbackDigitizer.h"
 
 #include "CLHEP/Random/RandPoissonQ.h"
 #include "CLHEP/Random/RandGaussQ.h"
 
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
-#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
 #include "vdt/vdtMath.h"
 
