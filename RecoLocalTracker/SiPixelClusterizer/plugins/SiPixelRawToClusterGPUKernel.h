@@ -11,7 +11,8 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/SimpleVector.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_noncached_unique_ptr.h"
-#include "DataFormats/SiPixelDigi/interface/PixelErrors.h"
+#include "DataFormats/SiPixelRawData/interface/SiPixelErrorCompact.h"
+#include "DataFormats/SiPixelRawData/interface/SiPixelFormatterErrors.h"
 
 struct SiPixelROCsStatusAndMapping;
 class SiPixelGainForHLTonGPU;
@@ -173,7 +174,7 @@ namespace pixelgpudetails {
                            const unsigned char* modToUnp,
                            const SiPixelGainForHLTonGPU* gains,
                            const WordFedAppender& wordFed,
-                           PixelFormatterErrors&& errors,
+                           SiPixelFormatterErrors&& errors,
                            const uint32_t wordCounter,
                            const uint32_t fedCounter,
                            bool useQualityInfo,

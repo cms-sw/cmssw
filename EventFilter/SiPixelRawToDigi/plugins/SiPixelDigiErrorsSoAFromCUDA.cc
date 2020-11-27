@@ -1,6 +1,6 @@
 #include "CUDADataFormats/Common/interface/Product.h"
 #include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigiErrorsCUDA.h"
-#include "DataFormats/SiPixelDigi/interface/SiPixelDigiErrorsSoA.h"
+#include "DataFormats/SiPixelRawData/interface/SiPixelErrorsSoA.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -25,17 +25,17 @@ private:
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   edm::EDGetTokenT<cms::cuda::Product<SiPixelDigiErrorsCUDA>> digiErrorGetToken_;
-  edm::EDPutTokenT<SiPixelDigiErrorsSoA> digiErrorPutToken_;
+  edm::EDPutTokenT<SiPixelErrorsSoA> digiErrorPutToken_;
 
-  cms::cuda::host::unique_ptr<PixelErrorCompact[]> data_;
-  cms::cuda::SimpleVector<PixelErrorCompact> error_;
-  const PixelFormatterErrors* formatterErrors_ = nullptr;
+  cms::cuda::host::unique_ptr<SiPixelErrorCompact[]> data_;
+  cms::cuda::SimpleVector<SiPixelErrorCompact> error_;
+  const SiPixelFormatterErrors* formatterErrors_ = nullptr;
 };
 
 SiPixelDigiErrorsSoAFromCUDA::SiPixelDigiErrorsSoAFromCUDA(const edm::ParameterSet& iConfig)
     : digiErrorGetToken_(
           consumes<cms::cuda::Product<SiPixelDigiErrorsCUDA>>(iConfig.getParameter<edm::InputTag>("src"))),
-      digiErrorPutToken_(produces<SiPixelDigiErrorsSoA>()) {}
+      digiErrorPutToken_(produces<SiPixelErrorsSoA>()) {}
 
 void SiPixelDigiErrorsSoAFromCUDA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -70,7 +70,7 @@ void SiPixelDigiErrorsSoAFromCUDA::produce(edm::Event& iEvent, const edm::EventS
   //   use cudaMallocHost without a GPU...
   iEvent.emplace(digiErrorPutToken_, error_.size(), error_.data(), formatterErrors_);
 
-  error_ = cms::cuda::make_SimpleVector<PixelErrorCompact>(0, nullptr);
+  error_ = cms::cuda::make_SimpleVector<SiPixelErrorCompact>(0, nullptr);
   data_.reset();
   formatterErrors_ = nullptr;
 }

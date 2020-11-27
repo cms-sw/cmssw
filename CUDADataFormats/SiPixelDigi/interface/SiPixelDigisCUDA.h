@@ -42,14 +42,6 @@ public:
   uint32_t const *pdigi() const { return pdigi_d.get(); }
   uint32_t const *rawIdArr() const { return rawIdArr_d.get(); }
 
-  uint16_t const *c_xx() const { return xx_d.get(); }
-  uint16_t const *c_yy() const { return yy_d.get(); }
-  uint16_t const *c_adc() const { return adc_d.get(); }
-  uint16_t const *c_moduleInd() const { return moduleInd_d.get(); }
-  int32_t const *c_clus() const { return clus_d.get(); }
-  uint32_t const *c_pdigi() const { return pdigi_d.get(); }
-  uint32_t const *c_rawIdArr() const { return rawIdArr_d.get(); }
-
   cms::cuda::host::unique_ptr<uint16_t[]> adcToHostAsync(cudaStream_t stream) const;
   cms::cuda::host::unique_ptr<int32_t[]> clusToHostAsync(cudaStream_t stream) const;
   cms::cuda::host::unique_ptr<uint32_t[]> pdigiToHostAsync(cudaStream_t stream) const;
@@ -57,17 +49,12 @@ public:
 
   class DeviceConstView {
   public:
-    // DeviceConstView() = default;
-
     __device__ __forceinline__ uint16_t xx(int i) const { return __ldg(xx_ + i); }
     __device__ __forceinline__ uint16_t yy(int i) const { return __ldg(yy_ + i); }
     __device__ __forceinline__ uint16_t adc(int i) const { return __ldg(adc_ + i); }
     __device__ __forceinline__ uint16_t moduleInd(int i) const { return __ldg(moduleInd_ + i); }
     __device__ __forceinline__ int32_t clus(int i) const { return __ldg(clus_ + i); }
 
-    friend class SiPixelDigisCUDA;
-
-    // private:
     uint16_t const *xx_;
     uint16_t const *yy_;
     uint16_t const *adc_;
@@ -88,8 +75,8 @@ private:
 
   // These are for CPU output; should we (eventually) place them to a
   // separate product?
-  cms::cuda::device::unique_ptr<uint32_t[]> pdigi_d;
-  cms::cuda::device::unique_ptr<uint32_t[]> rawIdArr_d;
+  cms::cuda::device::unique_ptr<uint32_t[]> pdigi_d;     // packed digi (row, col, adc) of each pixel
+  cms::cuda::device::unique_ptr<uint32_t[]> rawIdArr_d;  // DetId of each pixel
 
   uint32_t nModules_h = 0;
   uint32_t nDigis_h = 0;

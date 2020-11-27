@@ -355,7 +355,7 @@ namespace pixelgpudetails {
                                    uint32_t *pdigi,
                                    uint32_t *rawIdArr,
                                    uint16_t *moduleId,
-                                   cms::cuda::SimpleVector<PixelErrorCompact> *err,
+                                   cms::cuda::SimpleVector<SiPixelErrorCompact> *err,
                                    bool useQualityInfo,
                                    bool includeErrors,
                                    bool debug) {
@@ -390,7 +390,7 @@ namespace pixelgpudetails {
       skipROC = (roc < pixelgpudetails::maxROCIndex) ? false : (errorType != 0);
       if (includeErrors and skipROC) {
         uint32_t rID = getErrRawID(fedId, ww, errorType, cablingMap, debug);
-        err->push_back(PixelErrorCompact{rID, ww, errorType, fedId});
+        err->push_back(SiPixelErrorCompact{rID, ww, errorType, fedId});
         continue;
       }
 
@@ -434,7 +434,7 @@ namespace pixelgpudetails {
         if (includeErrors) {
           if (not rocRowColIsValid(row, col)) {
             uint8_t error = conversionError(fedId, 3, debug);  //use the device function and fill the arrays
-            err->push_back(PixelErrorCompact{rawId, ww, error, fedId});
+            err->push_back(SiPixelErrorCompact{rawId, ww, error, fedId});
             if (debug)
               printf("BPIX1  Error status: %i\n", error);
             continue;
@@ -450,7 +450,7 @@ namespace pixelgpudetails {
         localPix.col = col;
         if (includeErrors and not dcolIsValid(dcol, pxid)) {
           uint8_t error = conversionError(fedId, 3, debug);
-          err->push_back(PixelErrorCompact{rawId, ww, error, fedId});
+          err->push_back(SiPixelErrorCompact{rawId, ww, error, fedId});
           if (debug)
             printf("Error status: %i %d %d %d %d\n", error, dcol, pxid, fedId, roc);
           continue;
@@ -521,7 +521,7 @@ namespace pixelgpudetails {
                                                        const unsigned char *modToUnp,
                                                        const SiPixelGainForHLTonGPU *gains,
                                                        const WordFedAppender &wordFed,
-                                                       PixelFormatterErrors &&errors,
+                                                       SiPixelFormatterErrors &&errors,
                                                        const uint32_t wordCounter,
                                                        const uint32_t fedCounter,
                                                        bool useQualityInfo,
@@ -595,8 +595,8 @@ namespace pixelgpudetails {
 
       gpuCalibPixel::calibDigis<<<blocks, threadsPerBlock, 0, stream>>>(isRun2,
                                                                         digis_d.moduleInd(),
-                                                                        digis_d.c_xx(),
-                                                                        digis_d.c_yy(),
+                                                                        digis_d.xx(),
+                                                                        digis_d.yy(),
                                                                         digis_d.adc(),
                                                                         gains,
                                                                         wordCounter,
@@ -615,7 +615,7 @@ namespace pixelgpudetails {
 #endif
 
       countModules<<<blocks, threadsPerBlock, 0, stream>>>(
-          digis_d.c_moduleInd(), clusters_d.moduleStart(), digis_d.clus(), wordCounter);
+          digis_d.moduleInd(), clusters_d.moduleStart(), digis_d.clus(), wordCounter);
       cudaCheck(cudaGetLastError());
 
       // read the number of modules into a data member, used by getProduct())
@@ -627,10 +627,10 @@ namespace pixelgpudetails {
 #ifdef GPU_DEBUG
       std::cout << "CUDA findClus kernel launch with " << blocks << " blocks of " << threadsPerBlock << " threads\n";
 #endif
-      findClus<<<blocks, threadsPerBlock, 0, stream>>>(digis_d.c_moduleInd(),
-                                                       digis_d.c_xx(),
-                                                       digis_d.c_yy(),
-                                                       clusters_d.c_moduleStart(),
+      findClus<<<blocks, threadsPerBlock, 0, stream>>>(digis_d.moduleInd(),
+                                                       digis_d.xx(),
+                                                       digis_d.yy(),
+                                                       clusters_d.moduleStart(),
                                                        clusters_d.clusInModule(),
                                                        clusters_d.moduleId(),
                                                        digis_d.clus(),
@@ -643,10 +643,10 @@ namespace pixelgpudetails {
 
       // apply charge cut
       clusterChargeCut<<<blocks, threadsPerBlock, 0, stream>>>(digis_d.moduleInd(),
-                                                               digis_d.c_adc(),
-                                                               clusters_d.c_moduleStart(),
+                                                               digis_d.adc(),
+                                                               clusters_d.moduleStart(),
                                                                clusters_d.clusInModule(),
-                                                               clusters_d.c_moduleId(),
+                                                               clusters_d.moduleId(),
                                                                digis_d.clus(),
                                                                wordCounter);
       cudaCheck(cudaGetLastError());
@@ -657,7 +657,7 @@ namespace pixelgpudetails {
       // synchronization/ExternalWork
 
       // MUST be ONE block
-      fillHitsModuleStart<<<1, 1024, 0, stream>>>(clusters_d.c_clusInModule(), clusters_d.clusModuleStart());
+      fillHitsModuleStart<<<1, 1024, 0, stream>>>(clusters_d.clusInModule(), clusters_d.clusModuleStart());
 
       // last element holds the number of all clusters
       cudaCheck(cudaMemcpyAsync(&(nModules_Clusters_h[1]),

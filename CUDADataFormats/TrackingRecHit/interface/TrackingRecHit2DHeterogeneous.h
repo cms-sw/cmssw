@@ -84,11 +84,7 @@ TrackingRecHit2DHeterogeneous<Traits>::TrackingRecHit2DHeterogeneous(uint32_t nH
 
   // if empy do not bother
   if (0 == nHits) {
-    if
-#ifndef __CUDACC__
-        constexpr
-#endif
-        (std::is_same<Traits, cms::cudacompat::GPUTraits>::value) {
+    if constexpr (std::is_same<Traits, cms::cudacompat::GPUTraits>::value) {
       cms::cuda::copyAsync(m_view, view, stream);
     } else {
       m_view.reset(view.release());  // NOLINT: std::move() breaks CUDA version
