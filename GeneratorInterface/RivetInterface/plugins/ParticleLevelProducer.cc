@@ -92,7 +92,8 @@ void ParticleLevelProducer::addGenJet(Rivet::Jet jet,
       int iTagMother = iTag;
       for (auto const& d : p.constituents()) {
         ++iTag;
-        tags->push_back(reco::GenParticle(d.charge(), p4(d) * 1e-20, genVertex_, d.pid(), 2, true));
+        int d_status = (d.isStable()) ? 1 : 2;
+        tags->push_back(reco::GenParticle(d.charge(), p4(d) * 1e-20, genVertex_, d.pid(), d_status, true));
         tags->at(iTag).addMother(reco::GenParticleRef(tagsRefHandle, iTagMother));
         tags->at(iTagMother).addDaughter(reco::GenParticleRef(tagsRefHandle, iTag));
         genJet.addDaughter(edm::refToPtr(reco::GenParticleRef(tagsRefHandle, iTag)));
