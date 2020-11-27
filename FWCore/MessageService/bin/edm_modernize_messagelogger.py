@@ -2,6 +2,23 @@ import sys
 
 args = sys.argv
 
+if len(args) == 1:
+    print("file names must be passed as arguments")
+    exit(-1)
+if args[1] == '-h' or args[1] == '--help':
+    print(
+"""python edm_modernize_messagelogger.py [-h/--help] filename [...]
+    
+   Converts explicit constructions of cms.Service("MessageLogger") from old MessageLogger
+   configration syntax to new the new syntax.
+   The script expects a list of files to be modified in place.
+    
+   NOTE: The script is known to miss some corner-cases in the conversion so always check
+   the results of the transformation.
+"""
+    )
+    exit(0)
+
 for arg in args[1:]:
     execfile(arg)
     
