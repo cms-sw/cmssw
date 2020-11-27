@@ -1,10 +1,14 @@
-<use name="EventFilter/EcalRawToDigi"/>
+<use name="cuda"/>
 <use name="root"/>
+<use name="CUDADataFormats/EcalDigi" />
 <use name="CondFormats/DataRecord"/>
-<use name="FWCore/Utilities"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/Scalers"/>
+<use name="EventFilter/EcalRawToDigi"/>
 <use name="FWCore/Framework"/>
-<library file="*.cc" name="EventFilterEcalRawToDigiPlugins">
+<use name="FWCore/Utilities"/>
+<use name="HeterogeneousCore/CUDACore"/>
+<use name="HeterogeneousCore/CUDAUtilities"/>
+<library file="*.cc *.cu" name="EventFilterEcalRawToDigiPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>

@@ -18,3 +18,6 @@ premix_stage2.toModify(tpClusterProducer,
     stripSimLinkSrc = "mixData:StripDigiSimLink",
     phase2OTSimLinkSrc = "mixData:Phase2OTDigiSimLink",
 )
+
+from SimTracker.TrackerHitAssociation.tpClusterProducerCUDADefault_cfi import tpClusterProducerCUDADefault as _tpClusterProducerCUDA
+tpClusterProducerCUDA = _tpClusterProducerCUDA.clone()

@@ -291,7 +291,7 @@ process.muonCSCDigis.InputObjects        = rawDataInputTag
 process.muonDTDigis.inputLabel           = rawDataInputTag
 process.muonRPCDigis.InputLabel          = rawDataInputTag
 process.scalersRawToDigi.scalersInputTag = rawDataInputTag
-process.siPixelDigis.InputLabel          = rawDataInputTag
+process.siPixelDigis.cpu.InputLabel      = rawDataInputTag
 process.siStripDigis.ProductLabel        = rawDataInputTag
 
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
@@ -314,8 +314,7 @@ process.pixelTracksTrackingRegions.RegionPSet.originHalfLength = 12
 process.pixelTracksTrackingRegions.RegionPSet.originXPos =  0.08
 process.pixelTracksTrackingRegions.RegionPSet.originYPos = -0.03
 process.pixelTracksTrackingRegions.RegionPSet.originZPos = 0.
-
-process.pixelVertices.TkFilterParameters.minPt = process.pixelTracksTrackingRegions.RegionPSet.ptMin
+process.pixelVertices.PtMin = process.pixelTracksTrackingRegions.RegionPSet.ptMin
 
 process.tracking_FirstStep = cms.Sequence(
       process.siPixelDigis 
