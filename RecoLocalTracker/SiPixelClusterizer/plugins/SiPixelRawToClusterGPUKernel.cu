@@ -190,8 +190,11 @@ namespace pixelgpudetails {
 
   __device__ bool dcolIsValid(uint32_t dcol, uint32_t pxid) { return ((dcol < 26) & (2 <= pxid) & (pxid < 162)); }
 
-  __device__ uint8_t checkROC(
-      uint32_t errorWord, uint8_t fedId, uint32_t link, const SiPixelROCsStatusAndMapping *cablingMap, bool debug = false) {
+  __device__ uint8_t checkROC(uint32_t errorWord,
+                              uint8_t fedId,
+                              uint32_t link,
+                              const SiPixelROCsStatusAndMapping *cablingMap,
+                              bool debug = false) {
     uint8_t errorType = (errorWord >> pixelgpudetails::ROC_shift) & pixelgpudetails::ERROR_mask;
     if (errorType < 25)
       return 0;
