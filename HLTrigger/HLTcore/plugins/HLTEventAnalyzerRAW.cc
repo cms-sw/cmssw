@@ -398,7 +398,8 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const edm::Event& iEvent,
       if (nL1TTkEMs > 0) {
         LogVerbatim("HLTEventAnalyzerRAW") << "   L1TTkEMs: " << nL1TTkEMs << "  - the objects: # id pt" << endl;
         for (unsigned int i = 0; i != nL1TTkEMs; ++i) {
-          LogVerbatim("HLTEventAnalyzerRAW") << "   " << i << " " << l1ttkemIds_[i] << " " << l1ttkemRefs_[i]->pt() << endl;
+          LogVerbatim("HLTEventAnalyzerRAW")
+              << "   " << i << " " << l1ttkemIds_[i] << " " << l1ttkemRefs_[i]->pt() << endl;
         }
       }
 

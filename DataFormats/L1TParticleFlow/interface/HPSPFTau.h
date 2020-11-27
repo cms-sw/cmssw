@@ -20,7 +20,7 @@ namespace l1t {
     HPSPFTau();
 
     /// destructor
-    ~HPSPFTau();
+    ~HPSPFTau() override;
 
     /// accessor functions for reco level quantities
     bool isChargedPFCandSeeded() const { return seedChargedPFCand_.isNonnull(); }
