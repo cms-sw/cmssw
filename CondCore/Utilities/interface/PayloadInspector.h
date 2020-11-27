@@ -815,6 +815,22 @@ namespace cond {
 
       //
       void init() override {
+        // some protections
+        if ((m_nxbins < 1) || (m_nybins < 1)) {
+          edm::LogError("payloadInspector::Histogram2D()")
+              << " trying to book an histogram with less then 1 bin!" << std::endl;
+        }
+
+        if (m_xmin > m_xmax) {
+          edm::LogError("payloadInspector::Histogram2D()") << " trying to book an histogram with x-minimum " << m_xmin
+                                                           << "> x-maximum" << m_xmax << " !" << std::endl;
+        }
+
+        if (m_ymin > m_ymax) {
+          edm::LogError("payloadInspector::Histogram2D()") << " trying to book an histogram with y-minimum " << m_ymin
+                                                           << "> y-maximum" << m_ymax << " !" << std::endl;
+        }
+
         Base::m_plotData.clear();
         float xbinSize = (m_xmax - m_xmin) / m_nxbins;
         float ybinSize = (m_ymax - m_ymin) / m_nybins;
