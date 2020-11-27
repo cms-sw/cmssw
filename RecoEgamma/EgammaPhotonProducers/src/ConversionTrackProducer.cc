@@ -32,6 +32,9 @@
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 
+#include <string>
+#include <vector>
+
 class ConversionTrackProducer : public edm::stream::EDProducer<> {
   typedef edm::AssociationMap<edm::OneToOne<std::vector<Trajectory>, reco::GsfTrackCollection, unsigned short> >
       TrajGsfTrackAssociationCollection;

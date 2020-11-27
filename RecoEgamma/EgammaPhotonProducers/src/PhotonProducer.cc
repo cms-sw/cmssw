@@ -40,6 +40,8 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
+#include <vector>
+
 // PhotonProducer inherits from EDProducer, so it can be a module:
 class PhotonProducer : public edm::stream::EDProducer<> {
 public:
