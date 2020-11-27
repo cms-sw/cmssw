@@ -64,13 +64,14 @@ namespace trigger {
     TriggerL1TkMu = -114,
     TriggerL1TkEle = -115,
     TriggerL1PFJet = -116,
-    TriggerL1TkEm = -117,  // used for photons
-    TriggerL1PFMET = -118,
-    TriggerL1PFETT = -119,
-    TriggerL1PFHT = -120,
-    TriggerL1PFMHT = -121,
-    TriggerL1PFTrack = -122,
-    TriggerL1Vertex = -123,
+    TriggerL1PFTau = -117,
+    TriggerL1TkEm = -118,  // used for photons
+    TriggerL1PFMET = -119,
+    TriggerL1PFETT = -120,
+    TriggerL1PFHT = -121,
+    TriggerL1PFMHT = -122,
+    TriggerL1PFTrack = -123,
+    TriggerL1Vertex = -124,
 
     /// HLT
     TriggerPhoton = +81,
