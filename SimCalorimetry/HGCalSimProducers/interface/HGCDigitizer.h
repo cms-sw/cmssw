@@ -8,10 +8,7 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
-#include "SimCalorimetry/HGCalSimProducers/interface/HGCEEDigitizer.h"
-#include "SimCalorimetry/HGCalSimProducers/interface/HGCHEfrontDigitizer.h"
-#include "SimCalorimetry/HGCalSimProducers/interface/HGCHEbackDigitizer.h"
-#include "SimCalorimetry/HGCalSimProducers/interface/HFNoseDigitizer.h"
+#include "SimCalorimetry/HGCalSimProducers/interface/HGCDigitizerBase.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 #include "DataFormats/HGCDigi/interface/PHGCSimAccumulator.h"
 #include "FWCore/Framework/interface/ESHandle.h"

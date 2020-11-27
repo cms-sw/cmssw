@@ -1,4 +1,4 @@
-#include "SimCalorimetry/HGCalSimProducers/interface/HFNoseDigitizer.h"
+#include "HFNoseDigitizer.h"
 
 using namespace hgc_digi;
 

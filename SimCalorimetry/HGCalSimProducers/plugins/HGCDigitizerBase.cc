@@ -1,6 +1,5 @@
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCDigitizerBase.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
-#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
 using namespace hgc_digi;
 using namespace hgc_digi_utils;

@@ -1,4 +1,4 @@
-#include "SimCalorimetry/HGCalSimProducers/interface/HGCEEDigitizer.h"
+#include "HGCEEDigitizer.h"
 
 using namespace hgc_digi;
 

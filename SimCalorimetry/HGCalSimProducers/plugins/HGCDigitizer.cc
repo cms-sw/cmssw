@@ -1,13 +1,14 @@
+#include "SimCalorimetry/HGCalSimProducers/interface/HGCDigitizer.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "DataFormats/ForwardDetId/interface/HFNoseDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
-#include "SimCalorimetry/HGCalSimProducers/interface/HGCDigitizer.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+#include "SimCalorimetry/HGCalSimProducers/interface/HGCDigitizerPluginFactory.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -264,18 +265,8 @@ HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector& 
     std::vector<float>().swap(cce_);
   }
 
-  if (hitCollection_.find("HitsEE") != std::string::npos) {
-    theDigitizer_ = std::make_unique<HGCEEDigitizer>(ps);
-  }
-  if (hitCollection_.find("HitsHEfront") != std::string::npos) {
-    theDigitizer_ = std::make_unique<HGCHEfrontDigitizer>(ps);
-  }
-  if (hitCollection_.find("HitsHEback") != std::string::npos) {
-    theDigitizer_ = std::make_unique<HGCHEbackDigitizer>(ps);
-  }
-  if (hitCollection_.find("HFNoseHits") != std::string::npos) {
-    theDigitizer_ = std::make_unique<HFNoseDigitizer>(ps);
-  }
+  auto const & pluginName = ps.getParameter<std::string>("digitizer");
+  theDigitizer_ = HGCDigitizerPluginFactory::get()->create(pluginName, ps);
 }
 
 //
