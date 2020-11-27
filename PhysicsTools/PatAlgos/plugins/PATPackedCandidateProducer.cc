@@ -107,6 +107,7 @@ private:
   const bool storeHcalDepthEndcapOnly_;
 
   const bool storeTiming_;
+  const bool storePfGammaEnFr_;
 
   // for debugging
   float calcDxy(float dx, float dy, float phi) const {
@@ -177,11 +178,12 @@ pat::PATPackedCandidateProducer::PATPackedCandidateProducer(
           "pfCandidateTypesForHcalDepth")),
       storeHcalDepthEndcapOnly_(
           iConfig.getParameter<bool>("storeHcalDepthEndcapOnly")),
-      storeTiming_(iConfig.getParameter<bool>("storeTiming")) {
+      storeTiming_(iConfig.getParameter<bool>("storeTiming")),
+      storePfGammaEnFr_(iConfig.getParameter<bool>("storePfGammaEnFractions")) {
   std::vector<edm::InputTag> sv_tags =
       iConfig.getParameter<std::vector<edm::InputTag>>(
           "secondaryVerticesForWhiteList");
-  for (auto itag : sv_tags) {
+  for (const auto &itag : sv_tags) {
     SVWhiteLists_.push_back(consumes<edm::View<reco::Candidate>>(itag));
   }
 
@@ -419,7 +421,7 @@ void pat::PATPackedCandidateProducer::produce(
     if (abs(cand.pdgId()) == 1 || abs(cand.pdgId()) == 130) {
       outPtrP->back().setHcalFraction(cand.hcalEnergy() /
                                       (cand.ecalEnergy() + cand.hcalEnergy()));
-    } else if (cand.charge() && cand.pt() > 0.5) {
+    } else if ((cand.charge() || (storePfGammaEnFr_ && cand.pdgId() == 22)) && cand.pt() > 0.5) {
       outPtrP->back().setHcalFraction(cand.hcalEnergy() /
                                       (cand.ecalEnergy() + cand.hcalEnergy()));
       outPtrP->back().setCaloFraction((cand.hcalEnergy() + cand.ecalEnergy()) /
