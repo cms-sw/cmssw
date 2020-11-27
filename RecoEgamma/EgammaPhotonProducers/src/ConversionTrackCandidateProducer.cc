@@ -8,6 +8,7 @@
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/View.h"
@@ -16,7 +17,6 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaTrackReco/interface/TrackCandidateCaloClusterAssociation.h"
-#include "DataFormats/EgammaTrackReco/interface/TrackCandidateSuperClusterAssociation.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -50,6 +50,8 @@
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
+
+#include <vector>
 
 // ConversionTrackCandidateProducer inherits from EDProducer, so it can be a module:
 class ConversionTrackCandidateProducer : public edm::stream::EDProducer<> {

@@ -22,6 +22,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include <vector>
+
 // PhotonCoreProducer inherits from EDProducer, so it can be a module:
 class PhotonCoreProducer : public edm::stream::EDProducer<> {
 public:

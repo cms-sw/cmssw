@@ -17,6 +17,7 @@
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtra.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtraFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "FWCore/Framework/interface/ESHandle.h"

@@ -27,6 +27,8 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
+#include <vector>
+
 class ConversionTrackMerger : public edm::stream::EDProducer<> {
 public:
   explicit ConversionTrackMerger(const edm::ParameterSet& conf);
