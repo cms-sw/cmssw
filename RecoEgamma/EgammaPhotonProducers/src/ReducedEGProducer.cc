@@ -1,48 +1,230 @@
-#include <iostream>
-#include <vector>
-#include <memory>
-#include <unordered_set>
-
-// Framework
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
-
-#include "CommonTools/Utils/interface/StringToEnumValue.h"
-
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloTopology/interface/CaloTopology.h"
-
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/EgammaReco/interface/ClusterShape.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonCore.h"
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
-#include "DataFormats/EgammaCandidates/interface/Conversion.h"
-#include "DataFormats/Common/interface/ValueMap.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtra.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtraFwd.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-
-#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
-#include "RecoCaloTools/Selectors/interface/CaloConeSelector.h"
-
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
-
-#include "RecoEgamma/EgammaPhotonProducers/interface/ReducedEGProducer.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
-
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHadTower.h"
+/** \class ReducedEGProducer
+ **  
+ **  Select subset of electrons and photons from input collections and
+ **  produced consistently relinked output collections including
+ **  associated SuperClusters, CaloClusters and ecal RecHits
+ **
+ **  \author J.Bendavid (CERN)
+ **  \edited: K. McDermott(Cornell) : refactored code + out of time photons
+ ***/
 
 #include "CommonTools/Egamma/interface/ConversionTools.h"
+#include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
+#include "CommonTools/Utils/interface/StringToEnumValue.h"
+#include "CondFormats/EcalObjects/interface/EcalFunctionParameters.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/EgammaCandidates/interface/Conversion.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonCore.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
+#include "DataFormats/EgammaReco/interface/ClusterShape.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EGHcalRecHitSelector.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
+
+#include <memory>
+#include <unordered_set>
+#include <vector>
+
+class ReducedEGProducer : public edm::stream::EDProducer<> {
+public:
+  ReducedEGProducer(const edm::ParameterSet& ps);
+  ~ReducedEGProducer() override;
+
+  void beginRun(edm::Run const&, const edm::EventSetup&) final;
+  void produce(edm::Event& evt, const edm::EventSetup& es) final;
+
+private:
+  template <typename T, typename U>
+  void linkCore(const T& core, U& cores, std::map<T, unsigned int>& coreMap);
+
+  void linkSuperCluster(const reco::SuperClusterRef& superCluster,
+                        std::map<reco::SuperClusterRef, unsigned int>& superClusterMap,
+                        reco::SuperClusterCollection& superClusters,
+                        const bool relink,
+                        std::unordered_set<unsigned int>& superClusterFullRelinkMap);
+
+  void linkConversions(const reco::ConversionRefVector& convrefs,
+                       reco::ConversionCollection& conversions,
+                       std::map<reco::ConversionRef, unsigned int>& conversionMap);
+
+  void linkConversionsByTrackRef(const edm::Handle<reco::ConversionCollection>& conversionHandle,
+                                 const reco::GsfElectron& gsfElectron,
+                                 reco::ConversionCollection& conversions,
+                                 std::map<reco::ConversionRef, unsigned int>& conversionMap);
+
+  void linkConversionsByTrackRef(const edm::Handle<reco::ConversionCollection>& conversionHandle,
+                                 const reco::SuperCluster& superCluster,
+                                 reco::ConversionCollection& conversions,
+                                 std::map<reco::ConversionRef, unsigned int>& conversionMap);
+
+  void linkConversion(const reco::ConversionRef& convref,
+                      reco::ConversionCollection& conversions,
+                      std::map<reco::ConversionRef, unsigned int>& conversionMap);
+
+  void linkCaloCluster(const reco::CaloClusterPtr& caloCluster,
+                       reco::CaloClusterCollection& caloClusters,
+                       std::map<reco::CaloClusterPtr, unsigned int>& caloClusterMap);
+
+  void linkCaloClusters(const reco::SuperCluster& superCluster,
+                        reco::CaloClusterCollection& ebeeClusters,
+                        std::map<reco::CaloClusterPtr, unsigned int>& ebeeClusterMap,
+                        std::unordered_set<DetId>& rechitMap,
+                        const edm::Handle<EcalRecHitCollection>& barrelHitHandle,
+                        const edm::Handle<EcalRecHitCollection>& endcapHitHandle,
+                        CaloTopology const& caloTopology,
+                        reco::CaloClusterCollection& esClusters,
+                        std::map<reco::CaloClusterPtr, unsigned int>& esClusterMap);
+
+  void linkHcalHits(const reco::SuperCluster& superClus,
+                    const HBHERecHitCollection& recHits,
+                    std::unordered_set<DetId>& hcalDetIds);
+
+  void relinkCaloClusters(reco::SuperCluster& superCluster,
+                          const std::map<reco::CaloClusterPtr, unsigned int>& ebeeClusterMap,
+                          const std::map<reco::CaloClusterPtr, unsigned int>& esClusterMap,
+                          const edm::OrphanHandle<reco::CaloClusterCollection>& outEBEEClusterHandle,
+                          const edm::OrphanHandle<reco::CaloClusterCollection>& outESClusterHandle);
+
+  template <typename T>
+  void relinkSuperCluster(T& core,
+                          const std::map<reco::SuperClusterRef, unsigned int>& superClusterMap,
+                          const edm::OrphanHandle<reco::SuperClusterCollection>& outSuperClusterHandle);
+
+  void relinkGsfTrack(reco::GsfElectronCore& electroncore,
+                      const std::map<reco::GsfTrackRef, unsigned int>& gsfTrackMap,
+                      const edm::OrphanHandle<reco::GsfTrackCollection>& outGsfTrackHandle);
+
+  void relinkConversions(reco::PhotonCore& photonCore,
+                         const reco::ConversionRefVector& convrefs,
+                         const std::map<reco::ConversionRef, unsigned int>& conversionMap,
+                         const edm::OrphanHandle<reco::ConversionCollection>& outConversionHandle);
+
+  void relinkPhotonCore(reco::Photon& photon,
+                        const std::map<reco::PhotonCoreRef, unsigned int>& photonCoreMap,
+                        const edm::OrphanHandle<reco::PhotonCoreCollection>& outPhotonCoreHandle);
+
+  void relinkGsfElectronCore(reco::GsfElectron& gsfElectron,
+                             const std::map<reco::GsfElectronCoreRef, unsigned int>& gsfElectronCoreMap,
+                             const edm::OrphanHandle<reco::GsfElectronCoreCollection>& outGsfElectronCoreHandle);
+
+  static void calibratePhoton(reco::Photon& photon,
+                              const reco::PhotonRef& oldPhoRef,
+                              const edm::ValueMap<float>& energyMap,
+                              const edm::ValueMap<float>& energyErrMap);
+
+  static void calibrateElectron(reco::GsfElectron& gsfElectron,
+                                const reco::GsfElectronRef& oldEleRef,
+                                const edm::ValueMap<float>& energyMap,
+                                const edm::ValueMap<float>& energyErrMap,
+                                const edm::ValueMap<float>& ecalEnergyMap,
+                                const edm::ValueMap<float>& ecalEnergyErrMap);
+
+  template <typename T>
+  void setToken(edm::EDGetTokenT<T>& token, const edm::ParameterSet& config, const std::string& name) {
+    token = consumes<T>(config.getParameter<edm::InputTag>(name));
+  }
+
+  //tokens for input collections
+  const edm::EDGetTokenT<reco::PhotonCollection> photonT_;
+  edm::EDGetTokenT<reco::PhotonCollection> ootPhotonT_;
+  const edm::EDGetTokenT<reco::GsfElectronCollection> gsfElectronT_;
+  const edm::EDGetTokenT<reco::ConversionCollection> conversionT_;
+  const edm::EDGetTokenT<reco::ConversionCollection> singleConversionT_;
+
+  const edm::EDGetTokenT<EcalRecHitCollection> barrelEcalHits_;
+  const edm::EDGetTokenT<EcalRecHitCollection> endcapEcalHits_;
+  const bool doPreshowerEcalHits_;
+  const edm::EDGetTokenT<EcalRecHitCollection> preshowerEcalHits_;
+  const edm::EDGetTokenT<HBHERecHitCollection> hbheHits_;
+
+  const edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef>>> photonPfCandMapT_;
+  const edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef>>> gsfElectronPfCandMapT_;
+
+  std::vector<edm::EDGetTokenT<edm::ValueMap<bool>>> photonIdTs_;
+  std::vector<edm::EDGetTokenT<edm::ValueMap<float>>> gsfElectronIdTs_;
+
+  std::vector<edm::EDGetTokenT<edm::ValueMap<float>>> photonFloatValueMapTs_;
+  std::vector<edm::EDGetTokenT<edm::ValueMap<float>>> ootPhotonFloatValueMapTs_;
+  std::vector<edm::EDGetTokenT<edm::ValueMap<float>>> gsfElectronFloatValueMapTs_;
+
+  const bool applyPhotonCalibOnData_;
+  const bool applyPhotonCalibOnMC_;
+  const bool applyGsfElectronCalibOnData_;
+  const bool applyGsfElectronCalibOnMC_;
+  edm::EDGetTokenT<edm::ValueMap<float>> photonCalibEnergyT_;
+  edm::EDGetTokenT<edm::ValueMap<float>> photonCalibEnergyErrT_;
+  edm::EDGetTokenT<edm::ValueMap<float>> gsfElectronCalibEnergyT_;
+  edm::EDGetTokenT<edm::ValueMap<float>> gsfElectronCalibEnergyErrT_;
+  edm::EDGetTokenT<edm::ValueMap<float>> gsfElectronCalibEcalEnergyT_;
+  edm::EDGetTokenT<edm::ValueMap<float>> gsfElectronCalibEcalEnergyErrT_;
+
+  edm::ESGetToken<CaloTopology, CaloTopologyRecord> caloTopology_;
+  //names for output collections
+  const std::string outPhotons_;
+  const std::string outPhotonCores_;
+  const std::string outOOTPhotons_;
+  const std::string outOOTPhotonCores_;
+  const std::string outGsfElectrons_;
+  const std::string outGsfElectronCores_;
+  const std::string outGsfTracks_;
+  const std::string outConversions_;
+  const std::string outSingleConversions_;
+  const std::string outSuperClusters_;
+  const std::string outEBEEClusters_;
+  const std::string outESClusters_;
+  const std::string outOOTSuperClusters_;
+  const std::string outOOTEBEEClusters_;
+  const std::string outOOTESClusters_;
+  const std::string outEBRecHits_;
+  const std::string outEERecHits_;
+  const std::string outESRecHits_;
+  const std::string outHBHERecHits_;
+  const std::string outPhotonPfCandMap_;
+  const std::string outGsfElectronPfCandMap_;
+  const std::vector<std::string> outPhotonIds_;
+  const std::vector<std::string> outGsfElectronIds_;
+  const std::vector<std::string> outPhotonFloatValueMaps_;
+  const std::vector<std::string> outOOTPhotonFloatValueMaps_;
+  const std::vector<std::string> outGsfElectronFloatValueMaps_;
+
+  const StringCutObjectSelector<reco::Photon> keepPhotonSel_;
+  const StringCutObjectSelector<reco::Photon> slimRelinkPhotonSel_;
+  const StringCutObjectSelector<reco::Photon> relinkPhotonSel_;
+  const StringCutObjectSelector<reco::Photon> keepOOTPhotonSel_;
+  const StringCutObjectSelector<reco::Photon> slimRelinkOOTPhotonSel_;
+  const StringCutObjectSelector<reco::Photon> relinkOOTPhotonSel_;
+  const StringCutObjectSelector<reco::GsfElectron> keepGsfElectronSel_;
+  const StringCutObjectSelector<reco::GsfElectron> slimRelinkGsfElectronSel_;
+  const StringCutObjectSelector<reco::GsfElectron> relinkGsfElectronSel_;
+
+  EGHcalRecHitSelector hcalHitSel_;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(ReducedEGProducer);
 
 ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config)
     : photonT_(consumes<reco::PhotonCollection>(config.getParameter<edm::InputTag>("photons"))),
       gsfElectronT_(consumes<reco::GsfElectronCollection>(config.getParameter<edm::InputTag>("gsfElectrons"))),
-      gsfTrackT_(consumes<reco::GsfTrackCollection>(config.getParameter<edm::InputTag>("gsfTracks"))),
       conversionT_(consumes<reco::ConversionCollection>(config.getParameter<edm::InputTag>("conversions"))),
       singleConversionT_(consumes<reco::ConversionCollection>(config.getParameter<edm::InputTag>("singleConversions"))),
       barrelEcalHits_(consumes<EcalRecHitCollection>(config.getParameter<edm::InputTag>("barrelEcalHits"))),
@@ -195,43 +377,25 @@ void ReducedEGProducer::beginRun(edm::Run const& run, const edm::EventSetup& iSe
 void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
   //get input collections
 
-  edm::Handle<reco::PhotonCollection> photonHandle;
-  theEvent.getByToken(photonT_, photonHandle);
+  auto photonHandle = theEvent.getHandle(photonT_);
 
   edm::Handle<reco::PhotonCollection> ootPhotonHandle;
   if (!ootPhotonT_.isUninitialized())
     theEvent.getByToken(ootPhotonT_, ootPhotonHandle);
 
-  edm::Handle<reco::GsfElectronCollection> gsfElectronHandle;
-  theEvent.getByToken(gsfElectronT_, gsfElectronHandle);
-
-  edm::Handle<reco::GsfTrackCollection> gsfTrackHandle;
-  theEvent.getByToken(gsfTrackT_, gsfTrackHandle);
-
-  edm::Handle<reco::ConversionCollection> conversionHandle;
-  theEvent.getByToken(conversionT_, conversionHandle);
-
-  edm::Handle<reco::ConversionCollection> singleConversionHandle;
-  theEvent.getByToken(singleConversionT_, singleConversionHandle);
-
-  edm::Handle<EcalRecHitCollection> barrelHitHandle;
-  theEvent.getByToken(barrelEcalHits_, barrelHitHandle);
-
-  edm::Handle<EcalRecHitCollection> endcapHitHandle;
-  theEvent.getByToken(endcapEcalHits_, endcapHitHandle);
+  auto gsfElectronHandle = theEvent.getHandle(gsfElectronT_);
+  auto conversionHandle = theEvent.getHandle(conversionT_);
+  auto singleConversionHandle = theEvent.getHandle(singleConversionT_);
+  auto barrelHitHandle = theEvent.getHandle(barrelEcalHits_);
+  auto endcapHitHandle = theEvent.getHandle(endcapEcalHits_);
 
   edm::Handle<EcalRecHitCollection> preshowerHitHandle;
   if (doPreshowerEcalHits_)
     theEvent.getByToken(preshowerEcalHits_, preshowerHitHandle);
 
-  edm::Handle<HBHERecHitCollection> hbheHitHandle;
-  theEvent.getByToken(hbheHits_, hbheHitHandle);
-
-  edm::Handle<edm::ValueMap<std::vector<reco::PFCandidateRef>>> photonPfCandMapHandle;
-  theEvent.getByToken(photonPfCandMapT_, photonPfCandMapHandle);
-
-  edm::Handle<edm::ValueMap<std::vector<reco::PFCandidateRef>>> gsfElectronPfCandMapHandle;
-  theEvent.getByToken(gsfElectronPfCandMapT_, gsfElectronPfCandMapHandle);
+  auto hbheHitHandle = theEvent.getHandle(hbheHits_);
+  auto photonPfCandMapHandle = theEvent.getHandle(photonPfCandMapT_);
+  auto gsfElectronPfCandMapHandle = theEvent.getHandle(gsfElectronPfCandMapT_);
 
   std::vector<edm::Handle<edm::ValueMap<bool>>> photonIdHandles(photonIdTs_.size());
   int index = 0;  // universal index for range based loops
@@ -282,8 +446,7 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     theEvent.getByToken(photonCalibEnergyErrT_, photonCalibEnergyErrHandle);
   }
 
-  edm::ESHandle<CaloTopology> theCaloTopology = theEventSetup.getHandle(caloTopology_);
-  const CaloTopology* caloTopology = &(*theCaloTopology);
+  auto const& caloTopology = theEventSetup.getData(caloTopology_);
 
   //initialize output collections
   auto photons = std::make_unique<reco::PhotonCollection>();
@@ -908,7 +1071,7 @@ void ReducedEGProducer::linkCaloClusters(const reco::SuperCluster& superCluster,
                                          std::unordered_set<DetId>& rechitMap,
                                          const edm::Handle<EcalRecHitCollection>& barrelHitHandle,
                                          const edm::Handle<EcalRecHitCollection>& endcapHitHandle,
-                                         const CaloTopology* caloTopology,
+                                         CaloTopology const& caloTopology,
                                          reco::CaloClusterCollection& esClusters,
                                          std::map<reco::CaloClusterPtr, unsigned int>& esClusterMap) {
   for (const auto& cluster : superCluster.clusters()) {
@@ -923,7 +1086,7 @@ void ReducedEGProducer::linkCaloClusters(const reco::SuperCluster& superCluster,
     DetId seed = EcalClusterTools::getMaximum(*cluster, rhcol).first;
 
     std::vector<DetId> dets5x5 =
-        caloTopology->getSubdetectorTopology(DetId::Ecal, barrel ? EcalBarrel : EcalEndcap)->getWindow(seed, 5, 5);
+        caloTopology.getSubdetectorTopology(DetId::Ecal, barrel ? EcalBarrel : EcalEndcap)->getWindow(seed, 5, 5);
     for (const auto& detid : dets5x5) {
       rechitMap.insert(detid);
     }
