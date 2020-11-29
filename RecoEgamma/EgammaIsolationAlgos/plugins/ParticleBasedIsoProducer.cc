@@ -1,9 +1,55 @@
-#include "RecoEgamma/EgammaIsolationAlgos/plugins/ParticleBasedIsoProducer.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/PFBlockBasedIsolation.h"
+
+class ParticleBasedIsoProducer : public edm::stream::EDProducer<> {
+public:
+  ParticleBasedIsoProducer(const edm::ParameterSet& conf);
+  ~ParticleBasedIsoProducer() override;
+
+  void beginRun(edm::Run const& r, edm::EventSetup const& es) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
+
+private:
+  edm::ParameterSet conf_;
+  std::string photonCollection_;
+  std::string electronCollection_;
+
+  edm::InputTag photonProducer_;
+  edm::InputTag photonTmpProducer_;
+
+  edm::InputTag electronProducer_;
+  edm::InputTag electronTmpProducer_;
+
+  edm::EDGetTokenT<reco::PhotonCollection> photonProducerT_;
+  edm::EDGetTokenT<reco::PhotonCollection> photonTmpProducerT_;
+  edm::EDGetTokenT<reco::GsfElectronCollection> electronProducerT_;
+  edm::EDGetTokenT<reco::GsfElectronCollection> electronTmpProducerT_;
+  edm::EDGetTokenT<reco::PFCandidateCollection> pfEgammaCandidates_;
+  edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidates_;
+  edm::EDGetTokenT<edm::ValueMap<reco::PhotonRef>> valMapPFCandToPhoton_;
+  edm::EDGetTokenT<edm::ValueMap<reco::GsfElectronRef>> valMapPFCandToEle_;
+
+  std::string valueMapPFCandPhoton_;
+  std::string valueMapPhoPFCandIso_;
+  std::string valueMapPFCandEle_;
+  std::string valueMapElePFCandIso_;
+
+  PFBlockBasedIsolation* thePFBlockBasedIsolation_;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(ParticleBasedIsoProducer);
 
 ParticleBasedIsoProducer::ParticleBasedIsoProducer(const edm::ParameterSet& conf) : conf_(conf) {
   photonTmpProducer_ = conf_.getParameter<edm::InputTag>("photonTmpProducer");

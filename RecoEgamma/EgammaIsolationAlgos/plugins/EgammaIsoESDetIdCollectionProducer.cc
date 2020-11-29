@@ -1,10 +1,65 @@
-#include "RecoEgamma/EgammaIsolationAlgos/plugins/EgammaIsoESDetIdCollectionProducer.h"
+// -*- C++ -*-
+//
+// Package:    EgammaIsoESDetIdCollectionProducer
+// Class:      EgammaIsoESDetIdCollectionProducer
+//
+/**\class EgammaIsoESDetIdCollectionProducer 
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+author: Sam Harper (inspired by InterestingDetIdProducer)
+ 
+Make a collection of detids to be kept in a AOD rechit collection
+These are all the ES DetIds of ES PFClusters associated to all PF clusters within dR of ele/pho/sc
+The aim is to save enough preshower info in the AOD to remake the PF clusters near an ele/pho/sc
+*/
 
-#include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/DetId/interface/DetIdCollection.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+class EgammaIsoESDetIdCollectionProducer : public edm::stream::EDProducer<> {
+public:
+  //! ctor
+  explicit EgammaIsoESDetIdCollectionProducer(const edm::ParameterSet&);
+  void beginRun(edm::Run const&, const edm::EventSetup&) final;
+  //! producer
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+private:
+  void addDetIds(const reco::SuperCluster& superClus,
+                 reco::PFClusterCollection clusters,
+                 const reco::PFCluster::EEtoPSAssociation& eeClusToESMap,
+                 std::vector<DetId>& detIdsToStore);
+
+  // ----------member data ---------------------------
+  edm::EDGetTokenT<reco::PFCluster::EEtoPSAssociation> eeClusToESMapToken_;
+  edm::EDGetTokenT<reco::PFClusterCollection> ecalPFClustersToken_;
+  edm::EDGetTokenT<reco::SuperClusterCollection> superClustersToken_;
+  edm::EDGetTokenT<reco::GsfElectronCollection> elesToken_;
+  edm::EDGetTokenT<reco::PhotonCollection> phosToken_;
+
+  std::string interestingDetIdCollection_;
+
+  float minSCEt_;
+  float minEleEt_;
+  float minPhoEt_;
+
+  float maxDR_;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(EgammaIsoESDetIdCollectionProducer);
 
 EgammaIsoESDetIdCollectionProducer::EgammaIsoESDetIdCollectionProducer(const edm::ParameterSet& iConfig) {
   eeClusToESMapToken_ =

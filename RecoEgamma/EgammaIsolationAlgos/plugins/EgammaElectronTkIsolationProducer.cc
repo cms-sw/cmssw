@@ -6,21 +6,43 @@
 //=============================================================================
 //*****************************************************************************
 
-// Framework
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Candidate/interface/CandAssociation.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/Candidate/interface/CandAssociation.h"
-
-#include "RecoEgamma/EgammaIsolationAlgos/plugins/EgammaElectronTkIsolationProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"
+
+class EgammaElectronTkIsolationProducer : public edm::stream::EDProducer<> {
+public:
+  explicit EgammaElectronTkIsolationProducer(const edm::ParameterSet&);
+  ~EgammaElectronTkIsolationProducer() override;
+
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+private:
+  edm::InputTag electronProducer_;
+  edm::InputTag trackProducer_;
+  edm::InputTag beamspotProducer_;
+
+  double ptMin_;
+  double intRadiusBarrel_;
+  double intRadiusEndcap_;
+  double stripBarrel_;
+  double stripEndcap_;
+  double extRadius_;
+  double maxVtxDist_;
+  double drb_;
+
+  edm::ParameterSet conf_;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(EgammaElectronTkIsolationProducer);
 
 EgammaElectronTkIsolationProducer::EgammaElectronTkIsolationProducer(const edm::ParameterSet& config) : conf_(config) {
   // use configuration file to setup input/output collection names
