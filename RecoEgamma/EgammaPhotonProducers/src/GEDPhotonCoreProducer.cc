@@ -1,6 +1,3 @@
-#include <iostream>
-#include <vector>
-#include <memory>
 /** \class GEDPhotonCoreProducer
  **  
  **
@@ -8,30 +5,50 @@
  **
  ***/
 
-// Framework
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "DataFormats/EgammaReco/interface/ClusterShape.h"
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/RefToPtr.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
-#include "RecoEgamma/EgammaPhotonProducers/interface/GEDPhotonCoreProducer.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonCore.h"
+#include "DataFormats/EgammaReco/interface/ClusterShape.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtra.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtraFwd.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
-#include "DataFormats/Math/interface/Vector3D.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
-#include "DataFormats/GeometryVector/interface/GlobalVector.h"
-#include "DataFormats/Common/interface/RefToPtr.h"
-#include <Math/VectorUtil.h>
-#include <vector>
-#include "TLorentzVector.h"
-#include "TMath.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
+// GEDPhotonCoreProducer inherits from EDProducer, so it can be a module:
+class GEDPhotonCoreProducer : public edm::stream::EDProducer<> {
+public:
+  GEDPhotonCoreProducer(const edm::ParameterSet& ps);
+  ~GEDPhotonCoreProducer() override;
+
+  void produce(edm::Event& evt, const edm::EventSetup& es) override;
+
+private:
+  std::string GEDPhotonCoreCollection_;
+  edm::EDGetTokenT<reco::PFCandidateCollection> pfEgammaCandidates_;
+  edm::EDGetTokenT<reco::ElectronSeedCollection> pixelSeedProducer_;
+
+  double minSCEt_;
+  bool validConversions_;
+  edm::ParameterSet conf_;
+  bool validPixelSeeds_;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(GEDPhotonCoreProducer);
 
 GEDPhotonCoreProducer::GEDPhotonCoreProducer(const edm::ParameterSet& config)
     : conf_(config)

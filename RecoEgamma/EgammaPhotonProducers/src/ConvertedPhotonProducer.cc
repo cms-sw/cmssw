@@ -1,45 +1,125 @@
-#include <iostream>
-#include <vector>
-#include <memory>
+/** \class ConvertedPhotonProducer
+ **  
+ **
+ **  \author Nancy Marinelli, U. of Notre Dame, US
+ **
+ ***/
 
-// Framework
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
-//
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
-
-//
-
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
-#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaTrackReco/interface/TrackCaloClusterAssociation.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-//
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
-//
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionTrackEcalImpactPoint.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionTrackPairFinder.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionVertexFinder.h"
-#include "RecoEgamma/EgammaPhotonProducers/interface/ConvertedPhotonProducer.h"
-//
-#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
-//
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
-#include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
+#include "RecoEgamma/EgammaTools/interface/ConversionLikelihoodCalculator.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
+#include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+
+#include <vector>
+
+class ConvertedPhotonProducer : public edm::stream::EDProducer<> {
+public:
+  ConvertedPhotonProducer(const edm::ParameterSet& ps);
+  ~ConvertedPhotonProducer() override;
+
+  void beginRun(edm::Run const&, const edm::EventSetup& es) final;
+  void produce(edm::Event& evt, const edm::EventSetup& es) override;
+
+private:
+  void buildCollections(
+      edm::EventSetup const& es,
+      const edm::Handle<edm::View<reco::CaloCluster> >& scHandle,
+      const edm::Handle<edm::View<reco::CaloCluster> >& bcHandle,
+      const edm::Handle<CaloTowerCollection>& hcalTowersHandle,
+      const edm::Handle<reco::TrackCollection>& trkHandle,
+      std::map<std::vector<reco::TransientTrack>, reco::CaloClusterPtr, CompareTwoTracksVectors>& allPairs,
+      reco::ConversionCollection& outputConvPhotonCollection);
+  void cleanCollections(const edm::Handle<edm::View<reco::CaloCluster> >& scHandle,
+                        const edm::OrphanHandle<reco::ConversionCollection>& conversionHandle,
+                        reco::ConversionCollection& outputCollection);
+
+  std::vector<reco::ConversionRef> solveAmbiguity(const edm::OrphanHandle<reco::ConversionCollection>& conversionHandle,
+                                                  reco::CaloClusterPtr const& sc);
+
+  float calculateMinApproachDistance(const reco::TrackRef& track1, const reco::TrackRef& track2);
+  void getCircleCenter(const reco::TrackRef& tk, double r, double& x0, double& y0);
+
+  edm::EDGetTokenT<reco::TrackCollection> conversionOITrackProducer_;
+  edm::EDGetTokenT<reco::TrackCollection> conversionIOTrackProducer_;
+
+  edm::EDGetTokenT<reco::TrackCaloClusterPtrAssociation> outInTrackSCAssociationCollection_;
+  edm::EDGetTokenT<reco::TrackCaloClusterPtrAssociation> inOutTrackSCAssociationCollection_;
+
+  edm::EDGetTokenT<reco::TrackCollection> generalTrackProducer_;
+
+  std::string ConvertedPhotonCollection_;
+  std::string CleanedConvertedPhotonCollection_;
+
+  edm::EDGetTokenT<edm::View<reco::CaloCluster> > bcBarrelCollection_;
+  edm::EDGetTokenT<edm::View<reco::CaloCluster> > bcEndcapCollection_;
+  edm::EDGetTokenT<edm::View<reco::CaloCluster> > scHybridBarrelProducer_;
+  edm::EDGetTokenT<edm::View<reco::CaloCluster> > scIslandEndcapProducer_;
+  edm::ParameterSet conf_;
+  edm::EDGetTokenT<CaloTowerCollection> hcalTowers_;
+
+  edm::ESHandle<CaloGeometry> theCaloGeom_;
+  edm::ESHandle<MagneticField> theMF_;
+  edm::ESHandle<TransientTrackBuilder> theTransientTrackBuilder_;
+
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> mFToken_;
+  edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transientTrackToken_;
+
+  ConversionTrackPairFinder* theTrackPairFinder_;
+  ConversionVertexFinder* theVertexFinder_;
+  ConversionTrackEcalImpactPoint* theEcalImpactPositionFinder_;
+  int nEvt_;
+  std::string algoName_;
+
+  double hOverEConeSize_;
+  double maxHOverE_;
+  double minSCEt_;
+  bool recoverOneTrackCase_;
+  double dRForConversionRecovery_;
+  double deltaCotCut_;
+  double minApproachDisCut_;
+  int maxNumOfCandidates_;
+  bool risolveAmbiguity_;
+
+  ConversionLikelihoodCalculator* theLikelihoodCalc_;
+  std::string likelihoodWeights_;
+
+  math::XYZPointF toFConverterP(const math::XYZPoint& val) { return math::XYZPointF(val.x(), val.y(), val.z()); }
+
+  math::XYZVectorF toFConverterV(const math::XYZVector& val) { return math::XYZVectorF(val.x(), val.y(), val.z()); }
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(ConvertedPhotonProducer);
 
 ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config)
     : conf_(config), theTrackPairFinder_(nullptr), theVertexFinder_(nullptr), theLikelihoodCalc_(nullptr) {
