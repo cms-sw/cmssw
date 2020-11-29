@@ -1,63 +1,111 @@
-#include "RecoParticleFlow/PFSimProducer/plugins/PFSimParticleProducer.h"
+/**\class PFSimParticleProducer 
+\brief Producer for PFRecTracks and PFSimParticles
 
-#include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
-#include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
+\todo Remove the PFRecTrack part, which is now handled by PFTracking
+\author Colin Bernet
+\date   April 2007
+*/
 
-#include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
-#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-
-#include "DataFormats/ParticleFlowReco/interface/PFSimParticle.h"
-#include "DataFormats/ParticleFlowReco/interface/PFSimParticleFwd.h"
-
-// include files used for reconstructed tracks
-// #include "DataFormats/TrackReco/interface/Track.h"
-// #include "DataFormats/TrackReco/interface/TrackFwd.h"
-// #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-// #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
-// #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
-// #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
-// #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/GeometryVector/interface/GlobalVector.h"
-#include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
-#include "DataFormats/GeometrySurface/interface/TkRotation.h"
-#include "DataFormats/GeometrySurface/interface/SimpleCylinderBounds.h"
-#include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
-// #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-
-#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-#include "FastSimulation/Event/interface/FSimEvent.h"
-#include "FastSimulation/Event/interface/FSimTrack.h"
-#include "FastSimulation/Event/interface/FSimVertex.h"
-
-#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
-#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
+#include "DataFormats/GeometrySurface/interface/SimpleCylinderBounds.h"
+#include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
+#include "DataFormats/GeometrySurface/interface/TkRotation.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFSimParticle.h"
+#include "DataFormats/ParticleFlowReco/interface/PFSimParticleFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackerRecHit2D/interface/FastTrackerRecHit.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FastSimulation/Event/interface/FSimEvent.h"
+#include "FastSimulation/Event/interface/FSimTrack.h"
+#include "FastSimulation/Event/interface/FSimVertex.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
+#include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
+#include "RecoParticleFlow/PFProducer/interface/PFBlockAlgo.h"
+#include "RecoParticleFlow/PFTracking/interface/PFGeometry.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+#include "SimDataFormats/Track/interface/SimTrack.h"
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
+#include <memory>
 #include <set>
 #include <sstream>
+#include <string>
+
+class PFSimParticleProducer : public edm::stream::EDProducer<> {
+public:
+  explicit PFSimParticleProducer(const edm::ParameterSet&);
+
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+  typedef edm::Handle<reco::PFRecTrackCollection> TrackHandle;
+  void getSimIDs(const TrackHandle& trackh, std::vector<unsigned>& recTrackSimID);
+
+private:
+  /// module label for retrieving input simtrack and simvertex
+  edm::InputTag inputTagSim_;
+  edm::EDGetTokenT<std::vector<SimTrack> > tokenSim_;
+  edm::EDGetTokenT<std::vector<SimVertex> > tokenSimVertices_;
+
+  //MC Truth Matching
+  //modif-beg
+  bool mctruthMatchingInfo_;
+  edm::InputTag inputTagFastSimProducer_;
+  edm::EDGetTokenT<edm::PCaloHitContainer> tokenFastSimProducer_;
+  //modif-end
+
+  edm::InputTag inputTagRecTracks_;
+  edm::EDGetTokenT<reco::PFRecTrackCollection> tokenRecTracks_;
+  edm::InputTag inputTagEcalRecHitsEB_;
+  edm::EDGetTokenT<EcalRecHitCollection> tokenEcalRecHitsEB_;
+  edm::InputTag inputTagEcalRecHitsEE_;
+  edm::EDGetTokenT<EcalRecHitCollection> tokenEcalRecHitsEE_;
+
+  // parameters for retrieving true particles information --
+
+  edm::ParameterSet particleFilter_;
+  std::unique_ptr<FSimEvent> mySimEvent;
+
+  // flags for the various tasks ---------------------------
+
+  /// process particles on/off
+  bool processParticles_;
+
+  /// verbose ?
+  bool verbose_;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(PFSimParticleProducer);
 
 using namespace std;
 using namespace edm;
@@ -92,10 +140,8 @@ PFSimParticleProducer::PFSimParticleProducer(const edm::ParameterSet& iConfig) {
 
   particleFilter_ = iConfig.getParameter<ParameterSet>("ParticleFilter");
 
-  mySimEvent = new FSimEvent(particleFilter_);
+  mySimEvent = std::make_unique<FSimEvent>(particleFilter_);
 }
-
-PFSimParticleProducer::~PFSimParticleProducer() { delete mySimEvent; }
 
 void PFSimParticleProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   // init Particle data table (from Pythia)
