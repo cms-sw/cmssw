@@ -29,7 +29,9 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FastSimulation/Event/interface/FSimEvent.h"
@@ -64,6 +66,8 @@
 class PFSimParticleProducer : public edm::stream::EDProducer<> {
 public:
   explicit PFSimParticleProducer(const edm::ParameterSet&);
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void produce(edm::Event&, const edm::EventSetup&) override;
 
@@ -106,6 +110,29 @@ private:
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PFSimParticleProducer);
+
+void PFSimParticleProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // particleFlowSimParticle
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<edm::InputTag>("fastSimProducer", edm::InputTag("fastSimProducer", "EcalHitsEB"));
+  desc.addUntracked<bool>("MCTruthMatchingInfo", false);
+  desc.add<edm::InputTag>("RecTracks", edm::InputTag("trackerDrivenElectronSeeds"));
+  desc.add<std::string>("Fitter", "KFFittingSmoother");
+  desc.add<edm::InputTag>("ecalRecHitsEE", edm::InputTag("caloRecHits", "EcalRecHitsEE"));
+  desc.add<edm::InputTag>("ecalRecHitsEB", edm::InputTag("caloRecHits", "EcalRecHitsEB"));
+  desc.addUntracked<bool>("process_RecTracks", false);
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.setUnknown();
+    desc.add<edm::ParameterSetDescription>("ParticleFilter", psd0);
+  }
+  desc.add<std::string>("TTRHBuilder", "WithTrackAngle");
+  desc.addUntracked<bool>("process_Particles", true);
+  desc.add<std::string>("Propagator", "PropagatorWithMaterial");
+  desc.add<edm::InputTag>("sim", edm::InputTag("g4SimHits"));
+  desc.addUntracked<bool>("verbose", false);
+  descriptions.add("particleFlowSimParticle", desc);
+}
 
 using namespace std;
 using namespace edm;
