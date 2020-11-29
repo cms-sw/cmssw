@@ -21,7 +21,9 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FastSimulation/ParticlePropagator/interface/MagneticFieldMapRecord.h"
 #include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
 #include "FastSimulation/TrackerSetup/interface/TrackerInteractionGeometry.h"
@@ -52,6 +54,8 @@
 class ConvBremSeedProducer : public edm::EDProducer {
 public:
   explicit ConvBremSeedProducer(const edm::ParameterSet&);
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
@@ -90,6 +94,18 @@ private:
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(ConvBremSeedProducer);
+
+void ConvBremSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // convBremSeeds
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("stereorecHits", edm::InputTag("gsStripRecHits", "stereoRecHit"));
+  desc.add<edm::InputTag>("pixelRecHits", edm::InputTag("gsPixelRecHits"));
+  desc.add<edm::InputTag>("matchedrecHits", edm::InputTag("gsStripRecHits", "matchedRecHit"));
+  desc.add<std::string>("TTRHBuilder", "WithTrackAngle");
+  desc.add<edm::InputTag>("rphirecHits", edm::InputTag("gsStripRecHits", "rphiRecHit"));
+  desc.add<edm::InputTag>("PFClusters", edm::InputTag("particleFlowClusterECAL"));
+  desc.add<edm::InputTag>("PFRecTrackLabel", edm::InputTag("pfTrackElec"));
+}
 
 using namespace edm;
 using namespace std;
