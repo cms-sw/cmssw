@@ -77,10 +77,10 @@ float HeavyIonCSVTagger::discriminator(const TagInfoHelper &tagInfo) const {
   // Loop over input variables
   std::map<std::string, float> inputs;
 
-  bool notTaggable = false;
   std::vector<float> tagValList = vars.getList(reco::btau::trackSip3dSig, false);
   bool noTrack = (tagValList.empty());
-  bool noVertex = (vars.get(reco::btau::vertexCategory, -1.0) == 2);
+  bool vtxChecked = false;
+  float vtxMassVal = 0.;
 
   for (auto &mva_var : variables_) {
     //vectorial tagging variable
@@ -91,17 +91,17 @@ float HeavyIonCSVTagger::discriminator(const TagInfoHelper &tagInfo) const {
     //single value tagging var
     else {
       inputs[mva_var.name] = vars.get(mva_var.id, mva_var.default_value);
+      if (!vtxChecked) {
+        if (mva_var.name == "TagVarCSV_vertexMass") {
+          vtxMassVal = inputs[mva_var.name];
+          vtxChecked = true;
+        }
+      }
     }
   }
 
-  if (noTrack && noVertex)
-    notTaggable = true;
-
-  //get the MVA output
-  float tag = (mvaID_->evaluate(inputs) + 1.) / 2.;
-
-  if (notTaggable)
-    tag = -1;
-
-  return tag;
+  if (vtxMassVal < 0 && noTrack)
+    return -1;
+  else
+    return (mvaID_->evaluate(inputs) + 1.) / 2.;
 }
