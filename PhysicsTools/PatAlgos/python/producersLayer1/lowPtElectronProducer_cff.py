@@ -27,8 +27,6 @@ patLowPtElectrons = patElectrons.clone(
     ),
 
     # Embedding of RECO/AOD items
-
-    # Embedding of RECO/AOD items
     embedTrack                  = True,
     embedGsfElectronCore        = True,
     embedGsfTrack               = True,
@@ -71,10 +69,16 @@ from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_
 
 # Schedule rekeying of seed BDT ValueMaps by reco::GsfElectron for run2_miniAOD_UL and bParking
 from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
+from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
 from Configuration.Eras.Modifier_bParking_cff import bParking
+
 from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronSeedValueMaps_cff import rekeyLowPtGsfElectronSeedValueMaps
 from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronID_cff import lowPtGsfElectronID
+from RecoEgamma.EgammaElectronProducers.lowPtGsfElectrons_cff import lowPtGsfElectrons
+
 _makePatLowPtElectronsTask = makePatLowPtElectronsTask.copy()
 _makePatLowPtElectronsTask.add(rekeyLowPtGsfElectronSeedValueMaps)
 _makePatLowPtElectronsTask.add(lowPtGsfElectronID)
 (bParking | run2_miniAOD_UL).toReplaceWith(makePatLowPtElectronsTask,_makePatLowPtElectronsTask)
+( (bParking & run2_miniAOD_UL) | (~bParking & run2_miniAOD_devel) ).toModify(
+    makePatLowPtElectronsTask, func = lambda t: t.add(lowPtGsfElectrons))
