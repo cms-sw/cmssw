@@ -67,6 +67,7 @@ from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronCores_cff import lowPtGs
 
 # Low pT electrons
 from RecoEgamma.EgammaElectronProducers.lowPtGsfElectrons_cfi import *
+from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronFinalizer_cfi import *
 
 # Low pT Electron value maps
 from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronSeedValueMaps_cff import lowPtGsfElectronSeedValueMaps
@@ -84,6 +85,7 @@ lowPtGsfElectronTask = cms.Task(lowPtGsfElePfTracks,
                                 lowPtGsfElePfGsfTracks,
                                 lowPtGsfElectronSuperClusters,
                                 lowPtGsfElectronCores,
+                                lowPtGsfElectronsPreRegression,
                                 lowPtGsfElectrons,
                                 lowPtGsfElectronSeedValueMaps,
                                 rekeyLowPtGsfElectronSeedValueMaps,
