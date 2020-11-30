@@ -121,9 +121,9 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
         BugGMTPhi       = cms.bool(False), # Some drift in uGMT phi conversion, off by up to a few degrees
         PromoteMode7    = cms.bool(False), # Assign station 2-3-4 tracks with |eta| > 1.6 SingleMu quality
         ModeQualVer     = cms.int32(2),    # Version 2 contains modified mode-quality mapping for 2018
-    ),
 
-    ProtobufFileName = cms.string('/src/L1Trigger/L1TMuonEndCap/data/emtfpp_tf_graphs/model_graph.displ.5.pb'), # Protobuf file name to be used by NN based pT assignment
+        ProtobufFileName = cms.string('model_graph.displ.5.pb'), # Protobuf file name to be used by NN based pT assignment
+    ),
 
 )
 
