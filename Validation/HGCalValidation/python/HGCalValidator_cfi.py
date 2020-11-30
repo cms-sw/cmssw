@@ -47,10 +47,10 @@ hgcalValidator = DQMEDAnalyzer(
     simVertices = cms.InputTag("g4SimHits"),
 
     LayerClustersInputMask = cms.VInputTag(
+        cms.InputTag("ticlTrackstersTrkEM"),
         cms.InputTag("ticlTrackstersEM"),
-        cms.InputTag("ticlTrackstersHAD"),
         cms.InputTag("ticlTrackstersTrk"),
-        cms.InputTag("ticlTrackstersMIP")
+        cms.InputTag("ticlTrackstersHAD")
     ),
 
     #Total number of layers of HGCal that we want to monitor

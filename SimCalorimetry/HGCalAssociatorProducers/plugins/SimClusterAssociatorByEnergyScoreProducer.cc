@@ -63,7 +63,7 @@ void SimClusterAssociatorByEnergyScoreProducer::produce(edm::StreamID,
 
 void SimClusterAssociatorByEnergyScoreProducer::fillDescriptions(edm::ConfigurationDescriptions &cfg) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("LayerClustersInputMask", edm::InputTag("ticlTrackstersEM"));
+  desc.add<edm::InputTag>("LayerClustersInputMask", edm::InputTag("ticlTrackstersTrkEM"));
   desc.add<edm::InputTag>("hitMapTag", edm::InputTag("hgcalRecHitMapProducer"));
   desc.add<bool>("hardScatterOnly", true);
 

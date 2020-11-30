@@ -1319,9 +1319,9 @@ _common_sc_score = {"title": "Score SimCluster to LayerClusters in z-",
                  "ylog": True
                 }
 _common_sc_score.update(_legend_common)
-_score_simcluster_to_layerclusters_zminus = PlotGroup("score_simcluster_to_layercluster_zminus", [
+_score_simcluster_to_layerclusters_zminus = PlotGroup("score_simcluster_to_layercluster", [
         Plot("Score_simcluster2layercl_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_sc_score) for i in range(0,maxlayerzm)
-        ], ncols=8 )
+        ], ncols=10 )
 
 _common_sc_score = {"title": "Score LayerCluster to SimClusters in z-",
                  "stat": False,
@@ -1334,7 +1334,7 @@ _common_sc_score = {"title": "Score LayerCluster to SimClusters in z-",
                  "ylog": True
                 }
 _common_sc_score.update(_legend_common)
-_score_layercluster_to_simclusters_zminus = PlotGroup("score_layercluster_to_simcluster_zminus", [
+_score_layercluster_to_simclusters_zminus = PlotGroup("score_layercluster_to_simcluster", [
         Plot("Score_layercl2simcluster_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_sc_score) for i in range(0,maxlayerzm)
         ], ncols=8 )
 
@@ -1368,48 +1368,56 @@ _sharedEnergy_layercluster_to_simcluster_zminus = PlotGroup("sharedEnergy_layerc
 _bin_count = 0
 _xbinlabels = [ "L{:02d}".format(i+1) for i in range(0,maxlayerzm) ]
 _common_eff = {"stat": False, "legend": False}
-_effplots_sc_zminus = [Plot("effic_eta_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(0,maxlayerzm)]
-_effplots_sc_zminus.extend([Plot("effic_phi_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(0,maxlayerzm)])
+_effplots_sc_zminus_eta = [Plot("effic_eta_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(0,maxlayerzm)]
+_effplots_sc_zminus_phi = [Plot("effic_phi_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(0,maxlayerzm)]
 _common_eff = {"stat": False, "legend": False, "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
 _common_eff["xmin"] = _bin_count
 _common_eff["xmax"] = maxlayerzm
 _bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
-_effplots_sc_zminus.extend([Plot("globalEfficiencies", xtitle="Global Efficiencies in z-", **_common_eff)])
-_efficiencies_sc_zminus = PlotGroup("Efficiencies_zminus", _effplots_sc_zminus, ncols=8)
+_effplots_sc_zminus = [Plot("globalEfficiencies_zminus", xtitle="Global Efficiencies in z-", **_common_eff)]
+_efficiencies_sc_zminus_eta = PlotGroup("Efficiencies_vs_eta_zminus", _effplots_sc_zminus_eta, ncols=10)
+_efficiencies_sc_zminus_phi = PlotGroup("Efficiencies_vs_phi_zminus", _effplots_sc_zminus_phi, ncols=10)
+_efficiencies_sc_zminus     = PlotGroup("Eff_Dup_Fake_Merge_Global_zminus", _effplots_sc_zminus, ncols=4)
 
 _common_dup = {"stat": False, "legend": False}
-_dupplots_sc_zminus = [Plot("duplicate_eta_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(0,maxlayerzm)]
-_dupplots_sc_zminus.extend([Plot("duplicate_phi_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(0,maxlayerzm)])
+_dupplots_sc_zminus_eta = [Plot("duplicate_eta_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(0,maxlayerzm)]
+_dupplots_sc_zminus_phi = [Plot("duplicate_phi_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(0,maxlayerzm)]
 _common_dup = {"stat": False, "legend": False, "title": "Global Duplicates in z-", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
 _common_dup["xmin"] = _bin_count
 _common_dup["xmax"] = _common_dup["xmin"] + maxlayerzm
 _bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
-_dupplots_sc_zminus.extend([Plot("globalEfficiencies", xtitle="Global Duplicates in z-", **_common_dup)])
-_duplicates_sc_zminus = PlotGroup("Duplicates_zminus", _dupplots_sc_zminus, ncols=8)
+_dupplots_sc_zminus = [Plot("globalDublicates_zminus", xtitle="Global Duplicates in z-", **_common_dup)]
+_duplicates_sc_zminus_eta = PlotGroup("Duplicates_vs_eta_zminus", _dupplots_sc_zminus_eta, ncols=10)
+_duplicates_sc_zminus_phi = PlotGroup("Duplicates_vs_phi_zminus", _dupplots_sc_zminus_phi, ncols=10)
+_duplicates_sc_zminus     = PlotGroup("Eff_Dup_Fake_Merge_Global_zminus", _dupplots_sc_zminus, ncols=4)
 
 _common_fake = {"stat": False, "legend": False}
-_fakeplots_sc_zminus = [Plot("fake_eta_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(0,maxlayerzm)]
-_fakeplots_sc_zminus.extend([Plot("fake_phi_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(0,maxlayerzm)])
+_fakeplots_sc_zminus_eta = [Plot("fake_eta_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(0,maxlayerzm)]
+_fakeplots_sc_zminus_phi = [Plot("fake_phi_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(0,maxlayerzm)]
 _common_fake = {"stat": False, "legend": False, "title": "Global Fake Rates in z-", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
 _common_fake["xmin"] = _bin_count
 _common_fake["xmax"] = _common_fake["xmin"] + maxlayerzm
 _bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
 _common_fake["xbinlabels"] = [ "L{:02d}".format(i+1) for i in range(0,maxlayerzm) ]
 _common_fake["xbinlabelsize"] = 10.
-_fakeplots_sc_zminus.extend([Plot("globalEfficiencies", xtitle="Global Fake Rate in z-", **_common_fake)])
-_fakes_sc_zminus = PlotGroup("FakeRate_zminus", _fakeplots_sc_zminus, ncols=8)
+_fakeplots_sc_zminus = [Plot("globalFakes_zminus", xtitle="Global Fake Rate in z-", **_common_fake)]
+_fakes_sc_zminus_eta = PlotGroup("FakeRate_vs_eta_zminus", _fakeplots_sc_zminus_eta, ncols=10)
+_fakes_sc_zminus_phi = PlotGroup("FakeRate_vs_phi_zminus", _fakeplots_sc_zminus_phi, ncols=10)
+_fakes_sc_zminus     = PlotGroup("Eff_Dup_Fake_Merge_Global_zminus", _fakeplots_sc_zminus, ncols=4)
 
 _common_merge = {"stat": False, "legend": False}
-_mergeplots_sc_zminus = [Plot("merge_eta_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(0,maxlayerzm)]
-_mergeplots_sc_zminus.extend([Plot("merge_phi_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(0,maxlayerzm)])
+_mergeplots_sc_zminus_eta = [Plot("merge_eta_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(0,maxlayerzm)]
+_mergeplots_sc_zminus_phi = [Plot("merge_phi_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(0,maxlayerzm)]
 _common_merge = {"stat": False, "legend": False, "title": "Global Merge Rates in z-", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
 _common_merge["xmin"] = _bin_count
 _common_merge["xmax"] = _common_merge["xmin"] + maxlayerzm
 _bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
 _common_merge["xbinlabels"] = [ "L{:02d}".format(i+1) for i in range(0,maxlayerzm) ]
 _common_merge["xbinlabelsize"] = 10.
-_mergeplots_sc_zminus.extend([Plot("globalEfficiencies", xtitle="Global merge Rate in z-", **_common_merge)])
-_merges_sc_zminus = PlotGroup("MergeRate_zminus", _mergeplots_sc_zminus, ncols=8)
+_mergeplots_sc_zminus = [Plot("globalMergeRate_zminus", xtitle="Global merge Rate in z-", **_common_merge)]
+_merges_sc_zminus_eta = PlotGroup("MergeRate_vs_eta_zminus", _mergeplots_sc_zminus_eta, ncols=10)
+_merges_sc_zminus_phi = PlotGroup("MergeRate_vs_phi_zminus", _mergeplots_sc_zminus_phi, ncols=10)
+_merges_sc_zminus     = PlotGroup("Eff_Dup_Fake_Merge_Global_zminus", _mergeplots_sc_zminus, ncols=4)
 
 _common_energy_score = dict(removeEmptyBins=False, xbinlabelsize=10,
     stat=True,
@@ -1453,9 +1461,9 @@ _common_sc_score = {"title": "Score SimCluster to LayerClusters in z+",
                  "ylog": True
                 }
 _common_sc_score.update(_legend_common)
-_score_simcluster_to_layerclusters_zplus = PlotGroup("score_simcluster_to_layercluster_zplus", [
+_score_simcluster_to_layerclusters_zplus = PlotGroup("score_simcluster_to_layercluster", [
         Plot("Score_simcluster2layercl_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_sc_score) for i in range(maxlayerzm,maxlayerzp)
-        ], ncols=8 )
+        ], ncols=10 )
 
 _common_sc_score = {"title": "Score LayerCluster to SimClusters in z+",
                  "stat": False,
@@ -1468,7 +1476,7 @@ _common_sc_score = {"title": "Score LayerCluster to SimClusters in z+",
                  "ylog": True
                 }
 _common_sc_score.update(_legend_common)
-_score_layercluster_to_simclusters_zplus = PlotGroup("score_layercluster_to_simcluster_zplus", [
+_score_layercluster_to_simclusters_zplus = PlotGroup("score_layercluster_to_simcluster", [
         Plot("Score_layercl2simcluster_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_sc_score) for i in range(maxlayerzm,maxlayerzp)
         ], ncols=8 )
 
@@ -1502,68 +1510,52 @@ _sharedEnergy_layercluster_to_simcluster_zplus = PlotGroup("sharedEnergy_layercl
 
 _bin_count = 50
 _common_eff = {"stat": False, "legend": False}
-_effplots_sc_zplus = [Plot("effic_eta_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(maxlayerzm,maxlayerzp)]
-_effplots_sc_zplus.extend([Plot("effic_phi_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(maxlayerzm,maxlayerzp)])
+_effplots_sc_zplus_eta = [Plot("effic_eta_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(maxlayerzm,maxlayerzp)]
+_effplots_sc_zplus_phi = [Plot("effic_phi_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(maxlayerzm,maxlayerzp)]
 _common_eff = {"stat": False, "legend": False, "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
 _common_eff["xmin"] = _bin_count
 _common_eff["xmax"] = _common_eff["xmin"] + maxlayerzm
 _bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
-_effplots_sc_zplus.extend([Plot("globalEfficiencies", xtitle="Global Efficiencies in z+", **_common_eff)])
-_efficiencies_sc_zplus = PlotGroup("Efficiencies_zplus", _effplots_sc_zplus, ncols=8)
-
+_effplots_sc_zplus = [Plot("globalEfficiencies_zplus", xtitle="Global Efficiencies in z+", **_common_eff)]
+_efficiencies_sc_zplus_eta = PlotGroup("Efficiencies_vs_eta_zplus", _effplots_sc_zplus_eta, ncols=10)
+_efficiencies_sc_zplus_phi = PlotGroup("Efficiencies_vs_phi_zplus", _effplots_sc_zplus_phi, ncols=10)
+_efficiencies_sc_zplus = PlotGroup("Eff_Dup_Fake_Merge_Global_zplus", _effplots_sc_zplus, ncols=4)
 
 _common_dup = {"stat": False, "legend": False}
-_dupplots_sc_zplus = [Plot("duplicate_eta_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(maxlayerzm,maxlayerzp)]
-_dupplots_sc_zplus.extend([Plot("duplicate_phi_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(maxlayerzm,maxlayerzp)])
+_dupplots_sc_zplus_eta = [Plot("duplicate_eta_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(maxlayerzm,maxlayerzp)]
+_dupplots_sc_zplus_phi = [Plot("duplicate_phi_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(maxlayerzm,maxlayerzp)]
 _common_dup = {"stat": False, "legend": False, "title": "Global Duplicates in z+", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
 _common_dup["xmin"] = _bin_count
 _common_dup["xmax"] = _common_dup["xmin"] + maxlayerzm
 _bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
-_dupplots_sc_zplus.extend([Plot("globalEfficiencies", xtitle="Global Duplicates in z+", **_common_dup)])
-_duplicates_sc_zplus = PlotGroup("Duplicates_zplus", _dupplots_sc_zplus, ncols=8)
+_dupplots_sc_zplus = [Plot("globalDuplicates_zplus", xtitle="Global Duplicates in z+", **_common_dup)]
+_duplicates_sc_zplus_eta = PlotGroup("Duplicates_vs_eta_zplus", _dupplots_sc_zplus_eta, ncols=10)
+_duplicates_sc_zplus_phi = PlotGroup("Duplicates_vs_phi_zplus", _dupplots_sc_zplus_phi, ncols=10)
+_duplicates_sc_zplus = PlotGroup("Eff_Dup_Fake_Merge_Global_zplus", _dupplots_sc_zplus, ncols=4)
 
 _common_fake = {"stat": False, "legend": False}
-_fakeplots_sc_zplus = [Plot("fake_eta_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(maxlayerzm,maxlayerzp)]
-_fakeplots_sc_zplus.extend([Plot("fake_phi_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(maxlayerzm,maxlayerzp)])
+_fakeplots_sc_zplus_eta = [Plot("fake_eta_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(maxlayerzm,maxlayerzp)]
+_fakeplots_sc_zplus_phi = [Plot("fake_phi_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(maxlayerzm,maxlayerzp)]
 _common_fake = {"stat": False, "legend": False, "title": "Global Fake Rates in z+", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
 _common_fake["xmin"] = _bin_count
 _common_fake["xmax"] = _common_fake["xmin"] + maxlayerzm
 _bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
-_fakeplots_sc_zplus.extend([Plot("globalEfficiencies", xtitle="Global Fake Rate in z+", **_common_fake)])
-_fakes_sc_zplus = PlotGroup("FakeRate_zplus", _fakeplots_sc_zplus, ncols=8)
+_fakeplots_sc_zplus = [Plot("globalFakeRate_zplus", xtitle="Global Fake Rate in z+", **_common_fake)]
+_fakes_sc_zplus_eta = PlotGroup("FakeRate_vs_eta_zplus", _fakeplots_sc_zplus_eta, ncols=10)
+_fakes_sc_zplus_phi = PlotGroup("FakeRate_vs_phi_zplus", _fakeplots_sc_zplus_phi, ncols=10)
+_fakes_sc_zplus = PlotGroup("Eff_Dup_Fake_Merge_Global_zplus", _fakeplots_sc_zplus, ncols=4)
 
 _common_merge = {"stat": False, "legend": False}
-_mergeplots_sc_zplus = [Plot("merge_eta_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(maxlayerzm,maxlayerzp)]
-_mergeplots_sc_zplus.extend([Plot("merge_phi_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(maxlayerzm,maxlayerzp)])
+_mergeplots_sc_zplus_eta = [Plot("merge_eta_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(maxlayerzm,maxlayerzp)]
+_mergeplots_sc_zplus_phi = [Plot("merge_phi_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(maxlayerzm,maxlayerzp)]
 _common_merge = {"stat": False, "legend": False, "title": "Global Merge Rates in z+", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
 _common_merge["xmin"] = _bin_count
 _common_merge["xmax"] = _common_merge["xmin"] + maxlayerzm
 _bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
-_mergeplots_sc_zplus.extend([Plot("globalEfficiencies", xtitle="Global merge Rate in z+", **_common_merge)])
-_merges_sc_zplus = PlotGroup("MergeRate_zplus", _mergeplots_sc_zplus, ncols=8)
-
-
-_common_energy_score = dict(removeEmptyBins=False, xbinlabelsize=10,
-    stat=True,
-    xbinlabeloption="d",
-    ncols=1,
-    ylog=True,
-    xlog=True,
-    xmin=0.001,
-    xmax=1.,
-    ymin=0.01,
-    ymax=1.)
-_energyscore_sc2lc_zplus = []
-for i in range(maxlayerzm,maxlayerzp):
-  _energyscore_sc2lc_zplus.append(PlotOnSideGroup("Energy_vs_Score_Layer{:02d}".format(i), Plot("Energy_vs_Score_simcluster2layer_perlayer{:02d}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score), ncols=1))
-
-_common_energy_score["xlog"]=False
-_common_energy_score["ylog"]=False
-_common_energy_score["xmin"]=-0.1
-_energyscore_lc2sc_zplus = []
-for i in range(maxlayerzm,maxlayerzp):
-  _energyscore_lc2sc_zplus.append(PlotOnSideGroup("Energy_vs_Score_Layer{:02d}".format(i), Plot("Energy_vs_Score_layer2simcluster_perlayer{:02d}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score), ncols=1))
-#_energyclustered =
+_mergeplots_sc_zplus = [Plot("globalMergeRate_zplus", xtitle="Global merge Rate in z+", **_common_merge)]
+_merges_sc_zplus_eta = PlotGroup("MergeRate_vs_eta_zplus", _mergeplots_sc_zplus_eta, ncols=10)
+_merges_sc_zplus_phi = PlotGroup("MergeRate_vs_phi_zplus", _mergeplots_sc_zplus_phi, ncols=10)
+_merges_sc_zplus = PlotGroup("Eff_Dup_Fake_Merge_Global_zplus", _mergeplots_sc_zplus, ncols=4)
 
 #Just in case we add some plots below to be on the safe side.
 _common = {"stat": True, "drawStyle": "hist", "staty": 0.65 }
@@ -2271,7 +2263,7 @@ def append_hgcalLayerClustersPlots(collection = "hgcalLayerClusters", name_colle
                 purpose=PlotPurpose.Timing, page=layerClustersLabel, section=reg))
 
 #=================================================================================================
-def _hgcalsimClustersFolders(lastDirName="ticlTrackstersMIP"):
+def _hgcalsimClustersFolders(lastDirName="ticlTrackstersTrkEM"):
     return "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/simClusters/"+lastDirName
 
 sc_clusterlevel = [
@@ -2316,23 +2308,39 @@ sc_ticltracksters = [
   # Efficiency Plots
   # z-
   _efficiencies_sc_zminus,
+  _duplicates_sc_zminus,
+  _fakes_sc_zminus,
+  _merges_sc_zminus,
+  _efficiencies_sc_zminus_eta,
+  _efficiencies_sc_zminus_phi,
   # z+
   _efficiencies_sc_zplus,
-  # Duplicate Plots
-  # z-
-  _duplicates_sc_zminus,
-  # z+
   _duplicates_sc_zplus,
+  _fakes_sc_zplus,
+  _merges_sc_zplus,
+  _efficiencies_sc_zplus_eta,
+  _efficiencies_sc_zplus_phi,
+   # Duplicate Plots
+  # z-
+  _duplicates_sc_zminus_eta,
+  _duplicates_sc_zminus_phi,
+   # z+
+  _duplicates_sc_zplus_eta,
+  _duplicates_sc_zplus_phi,
   # Fake Rate Plots
   # z-
-  _fakes_sc_zminus,
+  _fakes_sc_zminus_eta,
+  _fakes_sc_zminus_phi,
   # z+
-  _fakes_sc_zplus,
+  _fakes_sc_zplus_eta,
+  _fakes_sc_zplus_phi,
   # Merge Rate Plots
   # z-
-  _merges_sc_zminus,
+  _merges_sc_zminus_eta,
+  _merges_sc_zminus_phi,
   # z+
-  _merges_sc_zplus,
+  _merges_sc_zplus_eta,
+  _merges_sc_zplus_phi,
   # Energy vs Score 2D plots SC to LC
   # z-
   _energyscore_sc2lc_zminus,
@@ -2347,8 +2355,9 @@ sc_ticltracksters = [
 
 hgcalSimClustersPlotter = Plotter()
 
-def append_hgcalSimClustersPlots(collection = 'ticlTrackstersMIP', name_collection = "ticlTrackstersMIP"):
+def append_hgcalSimClustersPlots(collection = 'ticlTrackstersTrkEM', name_collection = "ticlTrackstersTrkEM"):
   if collection == "ClusterLevel":
+      print(_hgcalsimClustersFolders(collection))
       hgcalSimClustersPlotter.append(collection, [
                   _hgcalsimClustersFolders(collection)
                   ], PlotFolder(
@@ -2356,13 +2365,14 @@ def append_hgcalSimClustersPlots(collection = 'ticlTrackstersMIP', name_collecti
                   loopSubFolders=False,
                   purpose=PlotPurpose.Timing, page="SimClusters", section=name_collection))
   else:
+      print(_hgcalsimClustersFolders(collection))
       hgcalSimClustersPlotter.append(collection, [
                   _hgcalsimClustersFolders(collection)
                   ], PlotFolder(
                   *sc_ticltracksters,
                   loopSubFolders=False,
                   purpose=PlotPurpose.Timing, page="SimClusters", section=name_collection))
-    
+
 
 #=================================================================================================
 def _hgcalFolders(lastDirName="hgcalLayerClusters"):

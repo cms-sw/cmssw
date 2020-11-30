@@ -17,16 +17,16 @@ hgcalPFJetValidation = _hgcalPFJetValidation.clone(BenchmarkLabel = 'PFJetValida
     VariablePtBins=[10., 30., 80., 120., 250., 600.],
     DeltaPtOvPtHistoParameter = dict(EROn=True,EREtaMax=3.0, EREtaMin=1.6, slicingOn=True))
 
-scAssocByEnergyScoreProducerticlTrackstersMIP = scAssocByEnergyScoreProducer.clone(
-    LayerClustersInputMask = 'ticlTrackstersMIP',
-)
-
-scAssocByEnergyScoreProducerticlTrackstersTrk = scAssocByEnergyScoreProducer.clone(
-    LayerClustersInputMask = 'ticlTrackstersTrk',
+scAssocByEnergyScoreProducerticlTrackstersTrkEM = scAssocByEnergyScoreProducer.clone(
+    LayerClustersInputMask = 'ticlTrackstersTrkEM',
 )
 
 scAssocByEnergyScoreProducerticlTrackstersEM = scAssocByEnergyScoreProducer.clone(
     LayerClustersInputMask = 'ticlTrackstersEM',
+)
+
+scAssocByEnergyScoreProducerticlTrackstersTrk = scAssocByEnergyScoreProducer.clone(
+    LayerClustersInputMask = 'ticlTrackstersTrk',
 )
 
 scAssocByEnergyScoreProducerticlTrackstersHAD = scAssocByEnergyScoreProducer.clone(
@@ -34,9 +34,9 @@ scAssocByEnergyScoreProducerticlTrackstersHAD = scAssocByEnergyScoreProducer.clo
 )
 
 hgcalAssociators = cms.Task(lcAssocByEnergyScoreProducer,
-                            scAssocByEnergyScoreProducerticlTrackstersMIP,
-                            scAssocByEnergyScoreProducerticlTrackstersTrk,
+                            scAssocByEnergyScoreProducerticlTrackstersTrkEM,
                             scAssocByEnergyScoreProducerticlTrackstersEM,
+                            scAssocByEnergyScoreProducerticlTrackstersTrk,
                             scAssocByEnergyScoreProducerticlTrackstersHAD)
 
 hgcalValidation = cms.Sequence(hgcalSimHitValidationEE

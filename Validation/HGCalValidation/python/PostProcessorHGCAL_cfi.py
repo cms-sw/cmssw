@@ -35,9 +35,9 @@ eff_simclusters.extend(["merge_phi_layer{:02d} 'LayerCluster Merge Rate vs #phi 
 
 postProcessorHGCALsimclusters= DQMEDHarvester('DQMGenericClient',
     subDirs = cms.untracked.vstring(
-        'HGCAL/HGCalValidator/simClusters/ticlTrackstersMIP',
-        'HGCAL/HGCalValidator/simClusters/ticlTrackstersTrk',
+        'HGCAL/HGCalValidator/simClusters/ticlTrackstersTrkEM',
         'HGCAL/HGCalValidator/simClusters/ticlTrackstersEM',
+        'HGCAL/HGCalValidator/simClusters/ticlTrackstersTrk',
         'HGCAL/HGCalValidator/simClusters/ticlTrackstersHAD'
     ),
     efficiency = cms.vstring(eff_simclusters),
