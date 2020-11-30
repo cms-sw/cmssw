@@ -54,13 +54,12 @@ private:
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_magField_;
   const edm::ESGetToken<CaloTowerConstituentsMap, CaloGeometryRecord> tok_ctmap_;
-
 };
 
-CaloPropagationTest::CaloPropagationTest(const edm::ParameterSet&) :
-  tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
-  tok_magField_(esConsumes<MagneticField, IdealMagneticFieldRecord>()),
-  tok_ctmap_(esConsumes<CaloTowerConstituentsMap, CaloGeometryRecord>()) {}
+CaloPropagationTest::CaloPropagationTest(const edm::ParameterSet&)
+    : tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      tok_magField_(esConsumes<MagneticField, IdealMagneticFieldRecord>()),
+      tok_ctmap_(esConsumes<CaloTowerConstituentsMap, CaloGeometryRecord>()) {}
 
 CaloPropagationTest::~CaloPropagationTest() {}
 

@@ -403,7 +403,7 @@ void IsolatedGenParticles::analyze(const edm::Event &iEvent, const edm::EventSet
   const MagneticField *bField = &iSetup.getData(tok_magField_);
 
   // get particle data table
-  const HepPDT::ParticleDataTable* pdt = &iSetup.getData(tok_pdt_);
+  const HepPDT::ParticleDataTable *pdt = &iSetup.getData(tok_pdt_);
 
   // get handle to HEPMCProduct
   edm::Handle<edm::HepMCProduct> hepmc;
@@ -413,9 +413,9 @@ void IsolatedGenParticles::analyze(const edm::Event &iEvent, const edm::EventSet
   else
     iEvent.getByToken(tok_genParticles_, genParticles);
 
-  const CaloGeometry* geo = &iSetup.getData(tok_geom_);
-  const CaloTopology* caloTopology = &iSetup.getData(tok_caloTopology_);
-  const HcalTopology* theHBHETopology = &iSetup.getData(tok_topo_);
+  const CaloGeometry *geo = &iSetup.getData(tok_geom_);
+  const CaloTopology *caloTopology = &iSetup.getData(tok_caloTopology_);
+  const HcalTopology *theHBHETopology = &iSetup.getData(tok_topo_);
 
   //===================== save L1 Trigger information =======================
   // get L1TriggerReadout records
@@ -667,7 +667,7 @@ void IsolatedGenParticles::analyze(const edm::Event &iEvent, const edm::EventSet
     }
   } else {  // loop over gen particles
     std::vector<spr::propagatedGenParticleID> trackIDs =
-      spr::propagateCALO(genParticles, pdt, geo, bField, etaMax_, (verbosity_ > 0));
+        spr::propagateCALO(genParticles, pdt, geo, bField, etaMax_, (verbosity_ > 0));
 
     for (unsigned int indx = 0; indx < trackIDs.size(); ++indx) {
       int charge = trackIDs[indx].charge;
