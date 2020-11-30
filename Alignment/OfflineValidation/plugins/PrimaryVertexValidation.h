@@ -176,7 +176,7 @@ private:
   double pOfProbe_;
   double etaOfProbe_;
   double nHitsOfProbe_;
-  bool isPhase1_;
+  PVValHelper::detectorPhase phase_;
 
   // actual number of histograms
   int nBins_;
@@ -203,12 +203,13 @@ private:
   //=======================
   void SetVarToZero();
 
-  static const int nMaxtracks_ = 1000;
+  static const int nMaxtracks_ = 10000;
   static const int cmToum = 10000;
   static const int nPtBins_ = 48;
 
+  // use the maximum of each of the three phases
   unsigned int nLadders_ = 20;
-  unsigned int nModZ_ = 8;
+  unsigned int nModZ_ = 9;
 
   // pT binning as in paragraph 3.2 of CMS-PAS-TRK-10-005 (https://cds.cern.ch/record/1279383/files/TRK-10-005-pas.pdf)
 
@@ -308,6 +309,7 @@ private:
   TH1F* h_etaMax;
   TH1F* h_nbins;
   TH1F* h_nLadders;
+  TH1F* h_nModZ;
   TH1F* h_pTinfo;
 
   std::map<unsigned int, std::pair<long long, long long> > runNumbersTimesLog_;
