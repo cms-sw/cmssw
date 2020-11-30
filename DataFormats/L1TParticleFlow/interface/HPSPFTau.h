@@ -9,9 +9,6 @@
 
 #include <ostream>
 
-// forward declation needed in order to declare HPSPFTauBuilder class as friend (that has access to private data-members)
-class HPSPFTauBuilder;
-
 namespace l1t {
 
   class HPSPFTau : public reco::LeafCandidate {
