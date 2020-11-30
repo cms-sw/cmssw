@@ -19,6 +19,6 @@ process.HLTDoLocalHcalSequence = cms.Sequence( process.hltHcalDigis + process.hl
 process.HLTStoppedHSCPLocalHcalReco = cms.Sequence( process.hltHcalDigis + process.hltHbherecopre + process.hltHbhereco)
 
 from Configuration.AlCa.GlobalTag import GlobalTag as customiseGlobalTag
-process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = '112X_mcRun3_2021_realistic_v7')
+process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = '112X_mcRun3_2021_realistic_v11')
 
 process.source.fileNames = cms.untracked.vstring("root://cmsxrootd.fnal.gov//store/relval/CMSSW_11_2_0_pre6_ROOT622/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/112X_mcRun3_2021_realistic_v7-v1/20000/FED4709C-569E-0A42-8FF7-20E565ABE999.root")
