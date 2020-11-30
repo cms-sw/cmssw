@@ -12,6 +12,12 @@ using namespace std;
 using namespace cms;
 using namespace edm;
 
+#ifdef HAVE_GEANT4_UNITS
+#define MM_2_CM 1.0
+#else
+#define MM_2_CM 0.1
+#endif
+
 class DDTestSpecParsFilter : public one::EDAnalyzer<> {
 public:
   explicit DDTestSpecParsFilter(const ParameterSet& iConfig)
@@ -59,6 +65,13 @@ void DDTestSpecParsFilter::analyze(const Event&, const EventSetup& iEventSetup) 
         log << kl.first << " = ";
         for (const auto& kil : kl.second) {
           log << kil << " ";
+        }
+        log << "\n ";
+      }
+      for (const auto& kl : t.second->numpars) {
+        log << kl.first << " = ";
+        for (const auto& kil : kl.second) {
+          log << kil / MM_2_CM << " ";
         }
         log << "\n ";
       }
