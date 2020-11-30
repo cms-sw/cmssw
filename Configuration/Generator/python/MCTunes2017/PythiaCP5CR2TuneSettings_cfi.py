@@ -4,7 +4,6 @@ pythia8CP5CR2TuneSettingsBlock = cms.PSet(
     pythia8CP5CR2TuneSettings = cms.vstring(
 	'Tune:pp 14',
 	'Tune:ee 7',
-	'PDF:pSet=20',
 	'MultipartonInteractions:bProfile=2',
 	'MultipartonInteractions:pT0Ref=1.454',
 	'MultipartonInteractions:ecmPow=0.0555',
@@ -22,5 +21,9 @@ pythia8CP5CR2TuneSettingsBlock = cms.PSet(
 	'MultipartonInteractions:alphaSorder=2',
 	'TimeShower:alphaSorder=2',
 	'TimeShower:alphaSvalue=0.118',
+        'SigmaTotal:mode = 0',
+        'SigmaTotal:sigmaEl = 21.89',
+        'SigmaTotal:sigmaTot = 100.309',
+        'PDF:pSet=LHAPDF6:NNPDF31_nnlo_as_0118',
     )
 )
