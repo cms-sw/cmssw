@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 import L1Trigger.L1THGCal.hgcalTowerMapProducer_cfi as hgcalTowerMapProducer_cfi
 
 tower = cms.PSet( ProcessorName  = cms.string('HGCalTowerProcessor'),
+      includeTrigCells = cms.bool(True),
       towermap_parameters = hgcalTowerMapProducer_cfi.towerMap2D_parValues.clone()
                   )
 
