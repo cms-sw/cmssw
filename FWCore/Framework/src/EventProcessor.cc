@@ -641,6 +641,18 @@ namespace edm {
     }
     espController_->finishConfiguration();
     schedule_->beginJob(*preg_, esp_->recordsToProxyIndices());
+    if (looper_) {
+      constexpr bool mustPrefetchMayGet = true;
+      auto const processBlockLookup = preg_->productLookup(InProcess);
+      auto const runLookup = preg_->productLookup(InRun);
+      auto const lumiLookup = preg_->productLookup(InLumi);
+      auto const eventLookup = preg_->productLookup(InEvent);
+      looper_->updateLookup(InProcess, *processBlockLookup, mustPrefetchMayGet);
+      looper_->updateLookup(InRun, *runLookup, mustPrefetchMayGet);
+      looper_->updateLookup(InLumi, *lumiLookup, mustPrefetchMayGet);
+      looper_->updateLookup(InEvent, *eventLookup, mustPrefetchMayGet);
+      looper_->updateLookup(esp_->recordsToProxyIndices());
+    }
     // toerror.succeeded(); // should we add this?
     for_all(subProcesses_, [](auto& subProcess) { subProcess.doBeginJob(); });
     actReg_->postBeginJobSignal_();
