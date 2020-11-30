@@ -205,7 +205,7 @@ void L1TrackQualityPlot(TString type, TString type_dir = "", TString treeName = 
   // ROC = Receiver Operating Characteristic Curve, a plot of True Positive Rate vs False Positive Rate
   // TPR = True Positive Rate or Identification efficiency, fraction of real tracks correctly identified as real
   // FPR = False Positive Rate or Fake Rate, fraction of fake tracks incorrectly identified as real
-  // dt = Decision Threshold or cut on the MVA output, below this identify track as fake, above identify as real 
+  // dt = Decision Threshold or cut on the MVA output, below this identify track as fake, above identify as real
   // -------------------------------------------------------------------------------------------
 
   vector<float> TPR, TPR_mu, TPR_el, TPR_had;
@@ -213,11 +213,11 @@ void L1TrackQualityPlot(TString type, TString type_dir = "", TString treeName = 
   vector<float> dec_thresh;
   int n = 100;  //num of entries on ROC curve
   for (int i = 0; i < n; i++) {
-    float dt = (float)i / (n - 1);  //make sure it starts at (0,0) and ends at (1,1)
-    float TP = 0, TP_mu = 0, TP_el = 0, TP_had = 0; //True Positives
-    float FP = 0;                                   //False Positives
-    float P = 0, P_mu = 0, P_el = 0, P_had = 0;  //Total Positives
-    float N = 0;                                 //Total Negatives
+    float dt = (float)i / (n - 1);                   //make sure it starts at (0,0) and ends at (1,1)
+    float TP = 0, TP_mu = 0, TP_el = 0, TP_had = 0;  //True Positives
+    float FP = 0;                                    //False Positives
+    float P = 0, P_mu = 0, P_el = 0, P_had = 0;      //Total Positives
+    float N = 0;                                     //Total Negatives
     for (int k = 0; k < (int)MVA1s.size(); k++) {
       if (fakes.at(k)) {
         P++;
@@ -574,7 +574,7 @@ void L1TrackQualityPlot(TString type, TString type_dir = "", TString treeName = 
   c.Write("TPR_FPR_vs_dt_had");
   c.SaveAs("MVA_plots/TPR_FPR_vs_dt_had.pdf");
   c.Clear();
-  
+
   TPR_vs_eta->Draw("ap");
   TPR_vs_eta->Write();
   c.SaveAs("MVA_plots/TPR_vs_eta.pdf");
