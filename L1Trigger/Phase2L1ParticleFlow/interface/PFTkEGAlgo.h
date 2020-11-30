@@ -71,13 +71,15 @@ namespace l1tpf_impl {
           if (tk.floatPt() < params.tkQualityPtMin)
             continue;
 
-          float d_phi = deltaPhi(tk.floatPhi(), calo.floatPhi());
-          float d_eta = tk.floatEta() - calo.floatEta();
+          float d_phi = deltaPhi(tk.floatVtxPhi(), calo.floatPhi());
+          // FIXME: we compare Tk eta at vertex against the calo eta....shall we correct for the PV position ?
+          float d_eta = tk.floatVtxEta() - calo.floatEta();
           float dR2 = d_phi * d_phi + d_eta * d_eta;
 
           if (dR2 > params.dRMin2 && dR2 < params.dRMax2) {
             sumPt += tk.floatPt();
-            if (std::abs(tk.floatDZ() - z0) > params.dZ)
+            // PF neutrals are not constrained by PV (since their Z0 is 0 by design)
+            if (tk.intCharge() == 0 || std::abs(tk.floatDZ() - z0) < params.dZ)
               sumPtPV += tk.floatPt();
           }
         }
@@ -101,8 +103,7 @@ namespace l1tpf_impl {
           continue;
 
         const auto &calo = r.emcalo[egidxer.emCaloIdx];
-
-        float dz_ref = r.track[egidxer.tkIdx].floatDZ();
+        const auto &matchedtk = r.track[egidxer.tkIdx];
         float sumPt = 0.;
 
         for (int itk = 0, ntk = objects.size(); itk < ntk; ++itk) {
@@ -111,15 +112,18 @@ namespace l1tpf_impl {
           if (tk.floatPt() < params.tkQualityPtMin)
             continue;
 
-          if (std::abs(tk.floatDZ() - dz_ref) > params.dZ)
+          // we check the DZ only for charged PFParticles for which Z0 is assigned to (0,0,0)
+          if (tk.intCharge() != 0 && std::abs(tk.floatDZ() - matchedtk.floatDZ()) > params.dZ)
             continue;
 
-          float d_phi = deltaPhi(tk.floatPhi(), calo.floatPhi());
-          float d_eta = tk.floatEta() - calo.floatEta();
+
+          float d_phi = deltaPhi(tk.floatVtxPhi(), matchedtk.floatVtxPhi());
+          float d_eta = tk.floatVtxEta() - matchedtk.floatVtxEta();
           float dR2 = d_phi * d_phi + d_eta * d_eta;
 
-          if (dR2 > params.dRMin2 && dR2 < params.dRMax2)
+          if (dR2 > params.dRMin2 && dR2 < params.dRMax2){
             sumPt += tk.floatPt();
+          }
         }
         if (isPF) {
           egidxer.pfIsoDZ = sumPt / egidxer.ptcorr;
