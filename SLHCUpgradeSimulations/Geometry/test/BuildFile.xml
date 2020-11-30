@@ -31,6 +31,13 @@
     <use name="SimTracker/TrackerHitAssociation"/>
     <use name="Geometry/Records"/>
     <use name="Geometry/TrackerGeometryBuilder"/>
+    <use name="TrackingTools/TransientTrack"/>
+    <use name="TrackingTools/TransientTrackingRecHit"/>
+    <use name="TrackingTools/TrajectoryState"/>
+    <use name="TrackingTools/TrackAssociator"/>
+    <use name="TrackingTools/Records"/>
+    <use name="TrackingTools/TrackFitters"/>
+    <use name="RecoTracker/TransientTrackingRecHit"/>
   </library>
 
   <bin name="testPhase2PixelNtuple" file="testPhase2PixelNtuple.cpp">
