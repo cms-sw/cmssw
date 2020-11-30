@@ -52,7 +52,6 @@ namespace l1t {
     const l1t::PFCandidateRefVector& sumPhotons() const { return sumPhotons_; }
     const l1t::PFCandidateRefVector& sumMuons() const { return sumMuons_; }
 
-    //const l1t::VertexRef&            primaryVertex()           const { return primaryVertex_;           }
     const l1t::TkPrimaryVertexRef& primaryVertex() const { return primaryVertex_; }
 
     enum Kind { kUndefined, kOneProng0Pi0, kOneProng1Pi0, kThreeProng0Pi0, kThreeProng1Pi0 };
@@ -112,7 +111,6 @@ namespace l1t {
     l1t::PFCandidateRefVector sumPhotons_;
     l1t::PFCandidateRefVector sumMuons_;
 
-    //l1t::VertexRef primaryVertex_;
     l1t::TkPrimaryVertexRef primaryVertex_;
     Kind tauType_;
 
@@ -139,13 +137,12 @@ namespace l1t {
     bool passVLooseRelIso_;
   };
 
+  void printPFCand(ostream& os, const l1t::PFCandidate& l1PFCand, const l1t::TkPrimaryVertexRef& primaryVertex);
+  void printPFCand(ostream& os, const l1t::PFCandidate& l1PFCand, float primaryVertex_z);
 }  // namespace l1t
 
 /// print to stream
 std::ostream& operator<<(std::ostream& os, const l1t::HPSPFTau& l1PFTau);
 
-//void printPFCand(ostream& os, const l1t::PFCandidate& l1PFCand, const l1t::VertexRef& primaryVertex);
-void printPFCand(ostream& os, const l1t::PFCandidate& l1PFCand, const l1t::TkPrimaryVertexRef& primaryVertex);
-void printPFCand(ostream& os, const l1t::PFCandidate& l1PFCand, float primaryVertex_z);
 
 #endif
