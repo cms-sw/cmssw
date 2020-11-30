@@ -19,24 +19,28 @@ process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    debugModules = cms.untracked.vstring('*'),
+    files = cms.untracked.PSet(
+        memory_t3_infos = cms.untracked.PSet(
+
+        )
+    ),
     o1_infos = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO'),
-        noTimeStamps = cms.untracked.bool(True),
         FwkReport = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        preEventProcessing = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         FwkTest = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
-        )
-    ),
-    debugModules = cms.untracked.vstring('*'),
-    categories = cms.untracked.vstring('preEventProcessing', 
-        'FwkReport', 
-        'FwkTest'),
-    destinations = cms.untracked.vstring('memory_t3_infos')
+        ),
+        noTimeStamps = cms.untracked.bool(True),
+        preEventProcessing = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        threshold = cms.untracked.string('INFO')
+    )
 )
 
 process.maxEvents = cms.untracked.PSet(
