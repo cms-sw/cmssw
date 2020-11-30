@@ -28,7 +28,12 @@ using namespace std;
 using namespace cms;
 using namespace edm;
 using namespace dd4hep;
-using geant_units::operators::convertCmToMm;
+
+#ifdef HAVE_GEANT4_UNITS
+#define MM_2_CM 1.0
+#else
+#define MM_2_CM 0.1
+#endif
 
 namespace {
   bool sortByName(const std::pair<G4LogicalVolume*, const dd4hep::SpecPar*>& p1,
@@ -108,13 +113,17 @@ void DD4hepTestDDDWorld::initialize(const dd4hep::sim::Geant4GeometryMaps::Volum
   LogVerbatim("Geometry").log([&](auto& log) {
     for (auto const& it : vmap) {
       for (auto const& fit : specs_) {
-        for (auto const& sit : fit.second->spars) {
+        for (auto const& sit : fit.second->numpars) {
           log << sit.first << " =  " << sit.second[0] << "\n";
         }
         for (auto const& pit : fit.second->paths) {
-          log << dd4hep::dd::realTopName(pit) << "\n";
-          log << "   compare equal to " << dd4hep::dd::noNamespace(it.first.name()) << " ... ";
-          if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first.name()), dd4hep::dd::realTopName(pit))) {
+          const std::string_view selection = dd4hep::dd::realTopName(pit);
+          const std::string_view name = dd4hep::dd::noNamespace(it.first.name());
+          log << selection << "\n";
+          log << "   compare equal to " << name << " ... ";
+          if (!(dd4hep::dd::isRegex(selection))
+                  ? dd4hep::dd::compareEqual(name, selection)
+                  : regex_match(name.begin(), name.end(), regex(std::string(selection)))) {
             vec_.emplace_back(std::make_pair<G4LogicalVolume*, const dd4hep::SpecPar*>(&*it.second, &*fit.second));
             log << "   are equal!\n";
           } else
@@ -142,7 +151,7 @@ void DD4hepTestDDDWorld::update() {
     log << "DD4hepTestDDDWorld::update()\n";
     for (const auto& t : vec_) {
       log << t.first->GetName() << ":\n";
-      for (const auto& kl : t.second->spars) {
+      for (const auto& kl : t.second->numpars) {
         log << kl.first << " = ";
         for (const auto& kil : kl.second) {
           log << kil << ", ";
@@ -161,24 +170,16 @@ void DD4hepTestDDDWorld::update() {
     // search for production cuts
     // you must have four of them: e+ e- gamma proton
     //
-    auto gammacutStr = it.second->strValue("ProdCutsForGamma");
 
     // Geant4 expects mm units. DD4hep returns cm, so must convert to mm.
-    double gammacut = convertCmToMm(dd4hep::_toDouble({gammacutStr.data(), gammacutStr.size()}));
-
-    auto electroncutStr = it.second->strValue("ProdCutsForElectrons");
-    double electroncut = convertCmToMm(dd4hep::_toDouble({electroncutStr.data(), electroncutStr.size()}));
-
-    auto positroncutStr = it.second->strValue("ProdCutsForPositrons");
-    double positroncut = convertCmToMm(dd4hep::_toDouble({positroncutStr.data(), positroncutStr.size()}));
-
-    double protoncut = 0.0;
-    auto protoncutStr = it.second->strValue("ProdCutsForProtons");
-    if (it.second->hasValue("ProdCutsForProtons")) {
-      protoncut = convertCmToMm(dd4hep::_toDouble({protoncutStr.data(), protoncutStr.size()}));
-    } else {
+    double gammacut = it.second->dblValue("ProdCutsForGamma") / MM_2_CM;
+    double electroncut = it.second->dblValue("ProdCutsForElectrons") / MM_2_CM;
+    double positroncut = it.second->dblValue("ProdCutsForPositrons") / MM_2_CM;
+    double protoncut = it.second->dblValue("ProdCutsForProtons") / MM_2_CM;
+    if (protoncut == 0) {
       protoncut = electroncut;
     }
+
     //
     // For the moment I assume all of the four are set
     //
@@ -189,10 +190,8 @@ void DD4hepTestDDDWorld::update() {
     prodCuts->SetProductionCut(protoncut, idxG4ProtonCut);
     if (verbosity_ > 0) {
       LogVerbatim("Geometry") << "DDG4ProductionCuts : Setting cuts for " << regName
-                              << "\n    Electrons: " << electroncutStr << " (" << electroncut
-                              << ")\n    Positrons: " << positroncutStr << " (" << positroncut
-                              << ")\n    Gamma    : " << gammacutStr << " (" << gammacut
-                              << ")\n    Protons  : " << protoncutStr << " (" << protoncut << ")\n";
+                              << "\n    Electrons: " << electroncut << " mm\n    Positrons: " << positroncut
+                              << " mm\n    Gamma    : " << gammacut << " mm\n    Protons  : " << protoncut << " mm\n";
     }
   }
 }
