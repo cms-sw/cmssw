@@ -864,10 +864,6 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
         tmp_trk_d0 = -tmp_trk_x0 * sin(tmp_trk_phi) + tmp_trk_y0 * cos(tmp_trk_phi);
       }
 
-
-       
-      
-
       float tmp_trk_chi2 = iterL1Track->chi2();
       float tmp_trk_chi2rphi = iterL1Track->chi2XY();
       float tmp_trk_chi2rz = iterL1Track->chi2Z();
