@@ -416,7 +416,7 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const edm::Event& iEvent,
       triggerEventWithRefsHandle_->getObjects(filterIndex, l1tpftauIds_, l1tpftauRefs_);
       const unsigned int nL1TPFTaus(l1tpftauIds_.size());
       if (nL1TPFTaus > 0) {
-        LogVerbatim("HLTEventAnalyzerRAW") << "   PFJets: " << nL1TPFTaus << "  - the objects: # id pt" << endl;
+        LogVerbatim("HLTEventAnalyzerRAW") << "   L1TPFTaus: " << nL1TPFTaus << "  - the objects: # id pt" << endl;
         for (unsigned int i = 0; i != nL1TPFTaus; ++i) {
           LogVerbatim("HLTEventAnalyzerRAW")
               << "   " << i << " " << l1tpftauIds_[i] << " " << l1tpftauRefs_[i]->pt() << endl;
