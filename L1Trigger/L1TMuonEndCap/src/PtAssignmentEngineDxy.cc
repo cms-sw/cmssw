@@ -7,33 +7,42 @@
 #include "helper.h"  // assert_no_abort
 
 
-PtAssignmentEngineDxy::PtAssignmentEngineDxy(const std::string pbFileNameDxy) {
+PtAssignmentEngineDxy::PtAssignmentEngineDxy():
+  graphDefDxy_(nullptr),
+  sessionDxy_(nullptr) {
 
-
-  std::string cmssw_base_ = std::getenv("CMSSW_BASE");
-
-  pbFileNameDxy_ = pbFileNameDxy;
-  pbFileNameDxy_ = cmssw_base_ + pbFileNameDxy_;
-  inputNameDxy_ = "batch_normalization_1_input";
-  outputNamesDxy_ = {"dense_4/BiasAdd"};
-
-  graphDefDxy_ = tensorflow::loadGraphDef(pbFileNameDxy_);
-  emtf_assert(graphDefDxy_ != nullptr);
-  sessionDxy_ = tensorflow::createSession(graphDefDxy_);
-  emtf_assert(sessionDxy_ != nullptr);
 }
 
 PtAssignmentEngineDxy::~PtAssignmentEngineDxy() {
 
-  tensorflow::closeSession(sessionDxy_);
+  if (sessionDxy_ != nullptr) {
+    tensorflow::closeSession(sessionDxy_);
+  }
   delete graphDefDxy_;
 }
 
-void PtAssignmentEngineDxy::configure(
-    int verbose
-) {
+void PtAssignmentEngineDxy::configure(int verbose, const std::string pbFileNameDxy ) {
 
   verbose_          = verbose;
+
+  pbFileNameDxy_ = pbFileNameDxy;
+  std::string pbFilePathDxy_ = "L1Trigger/L1TMuonEndCap/data/emtfpp_tf_graphs/" + pbFileNameDxy_;
+
+  inputNameDxy_ = "batch_normalization_1_input";
+  outputNamesDxy_ = {"dense_4/BiasAdd"};
+
+  if (graphDefDxy_ == nullptr){
+    graphDefDxy_ = tensorflow::loadGraphDef(edm::FileInPath(pbFilePathDxy_).fullPath().c_str());
+  }
+  emtf_assert(graphDefDxy_ != nullptr);
+
+  if (sessionDxy_ == nullptr){
+    sessionDxy_ = tensorflow::createSession(graphDefDxy_);
+  }
+
+  emtf_assert(sessionDxy_ != nullptr);
+
+
 }
 
 const PtAssignmentEngineAux2017& PtAssignmentEngineDxy::aux() const {
