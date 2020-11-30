@@ -8,6 +8,7 @@ DEFINE_EDM_PLUGIN(HGCalConcentratorFactory, HGCalConcentratorProcessorSelection,
 HGCalConcentratorProcessorSelection::HGCalConcentratorProcessorSelection(const edm::ParameterSet& conf)
     : HGCalConcentratorProcessorBase(conf),
       fixedDataSizePerHGCROC_(conf.getParameter<bool>("fixedDataSizePerHGCROC")),
+      allTrigCellsInTrigSums_(conf.getParameter<bool>("allTrigCellsInTrigSums")),
       coarsenTriggerCells_(conf.getParameter<std::vector<unsigned>>("coarsenTriggerCells")),
       selectionType_(kNSubDetectors_) {
   std::vector<std::string> selectionType(conf.getParameter<std::vector<std::string>>("Method"));
@@ -164,7 +165,11 @@ void HGCalConcentratorProcessorSelection::run(const edm::Handle<l1t::HGCalTrigge
 
     // trigger sum
     if (trigSumImpl_) {
-      trigSumImpl_->doSum(module_trigcell.first, trigCellVecNotSelected, trigSumsVecOutput);
+      if (allTrigCellsInTrigSums_) {  // using all TCs
+        trigSumImpl_->doSum(module_trigcell.first, module_trigcell.second, trigSumsVecOutput);
+      } else {  // using only unselected TCs
+        trigSumImpl_->doSum(module_trigcell.first, trigCellVecNotSelected, trigSumsVecOutput);
+      }
     }
 
     for (const auto& trigCell : trigCellVecOutput) {
