@@ -304,18 +304,10 @@ int main(void) {
     h_moduleStart[0] = nModules;
     countModules(h_id.get(), h_moduleStart.get(), h_clus.get(), n);
     memset(h_clusInModule.get(), 0, MaxNumModules * sizeof(uint32_t));
-    gridDim.x = MaxNumModules;  //not needed in the kernel for this specific case;
+    assert(gridDim.x == 1);
     assert(blockIdx.x == 0);
-    for (; blockIdx.x < gridDim.x; ++blockIdx.x)
-      findClus(h_id.get(),
-               h_x.get(),
-               h_y.get(),
-               h_moduleStart.get(),
-               h_clusInModule.get(),
-               h_moduleId.get(),
-               h_clus.get(),
-               n);
-    resetGrid();
+    findClus(
+        h_id.get(), h_x.get(), h_y.get(), h_moduleStart.get(), h_clusInModule.get(), h_moduleId.get(), h_clus.get(), n);
 
     nModules = h_moduleStart[0];
     auto nclus = h_clusInModule.get();
@@ -330,12 +322,10 @@ int main(void) {
     if (ncl != std::accumulate(nclus, nclus + MaxNumModules, 0))
       std::cout << "ERROR!!!!! wrong number of cluster found" << std::endl;
 
-    gridDim.x = MaxNumModules;  // no needed in the kernel for in this specific case
+    assert(gridDim.x == 1);
     assert(blockIdx.x == 0);
-    for (; blockIdx.x < gridDim.x; ++blockIdx.x)
-      clusterChargeCut(
-          h_id.get(), h_adc.get(), h_moduleStart.get(), h_clusInModule.get(), h_moduleId.get(), h_clus.get(), n);
-    resetGrid();
+    clusterChargeCut(
+        h_id.get(), h_adc.get(), h_moduleStart.get(), h_clusInModule.get(), h_moduleId.get(), h_clus.get(), n);
 
 #endif
 
