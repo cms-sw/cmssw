@@ -242,10 +242,10 @@ def nanoAOD_recalibrateMETs(process,isData):
                             muSource =cms.InputTag( 'slimmedMuons'),
                             elSource = cms.InputTag('slimmedElectrons'),
                             genParticles= cms.InputTag('prunedGenParticles'),
-                            getJetMCFlavour= not isData
+                            getJetMCFlavour= False
         )
-        process.patJetsPuppi.addGenPartonMatch = cms.bool(not isData)
-        process.patJetsPuppi.addGenJetMatch = cms.bool(not isData)
+        process.patJetsPuppi.addGenPartonMatch = cms.bool(False)
+        process.patJetsPuppi.addGenJetMatch = cms.bool(False)
     
     runMetCorAndUncFromMiniAOD(process,isData=isData,metType="Puppi",postfix="Puppi",jetFlavor="AK4PFPuppi", recoMetFromPFCs=bool(nanoAOD_PuppiV15_switch.recoMetFromPFCs), reclusterJets=bool(nanoAOD_PuppiV15_switch.reclusterJets))
     process.nanoSequenceCommon.insert(process.nanoSequenceCommon.index(process.jetSequence),cms.Sequence(process.puppiMETSequence+process.fullPatMetSequencePuppi))
