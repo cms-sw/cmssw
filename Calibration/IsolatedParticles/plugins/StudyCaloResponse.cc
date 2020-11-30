@@ -376,8 +376,8 @@ void StudyCaloResponse::analyze(edm::Event const& iEvent, edm::EventSetup const&
               if (verbosity_ % 10 > 0)
                 edm::LogVerbatim("IsoTrack") << newtriggerName;
               if (hlt > 0) {
-		if (!ok)
-		  triggerUse = newtriggerName;
+                if (!ok)
+                  triggerUse = newtriggerName;
                 ok = true;
                 tr_TrigName.push_back(newtriggerName);
               }
@@ -543,11 +543,8 @@ void StudyCaloResponse::analyze(edm::Event const& iEvent, edm::EventSetup const&
               goodGlob = (recMuon->isGlobalMuon() && chiGlobal < 3 &&
                           recMuon->combinedQuality().chi2LocalPosition < 12 && recMuon->combinedQuality().trkKink < 20);
               if (muon::segmentCompatibility(*recMuon) > (goodGlob ? 0.303 : 0.451)) {
-		const reco::Track* pTrack0 = (recMuon->innerTrack()).get();
-                dr = reco::deltaR(pTrack0->eta(),
-				  pTrack0->phi(),
-				  pTrack->eta(),
-				  pTrack->phi());
+                const reco::Track* pTrack0 = (recMuon->innerTrack()).get();
+                dr = reco::deltaR(pTrack0->eta(), pTrack0->phi(), pTrack->eta(), pTrack->phi());
                 if (dr < cutMuon_) {
                   vetoMuon = true;
                   break;
@@ -565,7 +562,7 @@ void StudyCaloResponse::analyze(edm::Event const& iEvent, edm::EventSetup const&
         double maxNearP31x31 =
             spr::chargeIsolationEcal(ntrk, trkCaloDets, geo, caloTopology, 15, 15, ((verbosity_ / 1000) % 10 > 0));
 
-	const EcalSeverityLevelAlgo* sevlv = &iSetup.getData(tok_sevlv_);
+        const EcalSeverityLevelAlgo* sevlv = &iSetup.getData(tok_sevlv_);
 
         edm::Handle<EcalRecHitCollection> barrelRecHitsHandle;
         edm::Handle<EcalRecHitCollection> endcapRecHitsHandle;

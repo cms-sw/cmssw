@@ -297,7 +297,7 @@ void StudyCaloGen::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
   const MagneticField *bField = &iSetup.getData(tok_magField_);
 
   // get particle data table
-  const HepPDT::ParticleDataTable* pdt = &iSetup.getData(tok_pdt_);
+  const HepPDT::ParticleDataTable *pdt = &iSetup.getData(tok_pdt_);
 
   // get handle to HEPMCProduct
   edm::Handle<edm::HepMCProduct> hepmc;
@@ -306,10 +306,10 @@ void StudyCaloGen::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
     iEvent.getByToken(tok_hepmc_, hepmc);
   else
     iEvent.getByToken(tok_genParticles_, genParticles);
-  
-  const CaloGeometry* geo = &iSetup.getData(tok_geom_);
-  const CaloTopology* caloTopology = &iSetup.getData(tok_caloTopology_);
-  const HcalTopology* theHBHETopology = &iSetup.getData(tok_topo_);
+
+  const CaloGeometry *geo = &iSetup.getData(tok_geom_);
+  const CaloTopology *caloTopology = &iSetup.getData(tok_caloTopology_);
+  const HcalTopology *theHBHETopology = &iSetup.getData(tok_topo_);
 
   GlobalPoint posVec, posECAL;
   math::XYZTLorentzVector momVec;
