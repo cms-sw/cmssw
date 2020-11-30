@@ -26,11 +26,9 @@
 using namespace std;
 using namespace hgc_digi;
 
-typedef std::vector<std::pair<float, float>>::iterator itr;
 typedef std::unordered_map<uint32_t, std::vector<std::pair<float, float>>> IdHit_Map;
 typedef std::tuple<float, float, float> hit_timeStamp;
 typedef std::unordered_map<uint32_t, std::vector<hit_timeStamp>> hitRec_container;
-typedef std::vector<hit_timeStamp>::iterator hitRec_itr;
 
 namespace {
 
@@ -170,7 +168,7 @@ namespace {
                 if (findPos == hitRefs_bx0[detId].begin()) {
                   insertedPos = hitRefs_bx0[detId].emplace(insertedPos, p_charge, p_time);
                 } else {
-                  itr prevPos = findPos - 1;
+                  auto prevPos = findPos - 1;
                   if (prevPos->second == p_time) {
                     prevPos->first = prevPos->first + p_charge;
                     insertedPos = prevPos;
@@ -179,7 +177,7 @@ namespace {
                   }
                 }
 
-                for (itr step = insertedPos; step != hitRefs_bx0[detId].end(); ++step) {
+                for (auto step = insertedPos; step != hitRefs_bx0[detId].end(); ++step) {
                   if (step != insertedPos)
                     step->first += p_charge;
                 }
@@ -461,13 +459,13 @@ void HGCDigitizer::accumulate_forPreMix(edm::Handle<edm::PCaloHitContainer> cons
         std::get<1>(PhitRefs_bx0[id].back()) += charge;
       } else {
         //find position to insert new entry preserving time sorting
-        hitRec_itr findPos =
+        auto findPos =
             std::upper_bound(PhitRefs_bx0[id].begin(),
                              PhitRefs_bx0[id].end(),
                              hit_timeStamp(charge, 0.f, tof),
                              [](const auto& i, const auto& j) { return std::get<2>(i) <= std::get<2>(j); });
 
-        hitRec_itr insertedPos = findPos;
+        auto insertedPos = findPos;
 
         if (tof == std::get<2>(*(findPos - 1))) {
           std::get<0>(*(findPos - 1)) += charge;
@@ -482,7 +480,7 @@ void HGCDigitizer::accumulate_forPreMix(edm::Handle<edm::PCaloHitContainer> cons
         //cumulate the charge of new entry for all elements that follow in the sorted list
         //and resize list accounting for cases when the inserted element itself crosses the threshold
 
-        for (hitRec_itr step = insertedPos; step != PhitRefs_bx0[id].end(); ++step) {
+        for (auto step = insertedPos; step != PhitRefs_bx0[id].end(); ++step) {
           if (step != insertedPos)
             std::get<1>(*(step)) += charge;
 
