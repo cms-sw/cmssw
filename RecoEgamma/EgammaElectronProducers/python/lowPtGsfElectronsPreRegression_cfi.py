@@ -5,7 +5,7 @@ from RecoEcal.EgammaClusterProducers.multi5x5BasicClusters_cfi import *
 from RecoEgamma.EgammaIsolationAlgos.electronTrackIsolations_cfi import trkIsol03CfgV1,trkIsol04CfgV1
 from RecoEgamma.EgammaIsolationAlgos.electronTrackIsolations_cfi import trkIsol03CfgV2,trkIsol04CfgV2
 
-lowPtGsfElectrons = cms.EDProducer(
+lowPtGsfElectronsPreRegression = cms.EDProducer(
     "LowPtGsfElectronProducer",
     
     # input collections
@@ -63,8 +63,8 @@ lowPtGsfElectrons = cms.EDProducer(
     )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toModify(lowPtGsfElectrons,ctfTracksTag = cms.InputTag("generalTracksBeforeMixing"))
+fastSim.toModify(lowPtGsfElectronsPreRegression,ctfTracksTag = cms.InputTag("generalTracksBeforeMixing"))
 
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-pp_on_AA_2018.toModify(lowPtGsfElectrons.preselection, minSCEtBarrel = 15.0)
-pp_on_AA_2018.toModify(lowPtGsfElectrons.preselection, minSCEtEndcaps = 15.0)
+pp_on_AA_2018.toModify(lowPtGsfElectronsPreRegression.preselection, minSCEtBarrel = 15.0)
+pp_on_AA_2018.toModify(lowPtGsfElectronsPreRegression.preselection, minSCEtEndcaps = 15.0)
