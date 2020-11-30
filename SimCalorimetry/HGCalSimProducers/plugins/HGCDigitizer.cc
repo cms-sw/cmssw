@@ -408,9 +408,8 @@ void HGCDigitizer::accumulate_forPreMix(edm::Handle<edm::PCaloHitContainer> cons
   if (nullptr == geom)
     return;
 
-  float keV2fC(0.f);
-  //configuration to apply for the computation of time-of-flight
-  std::array<float, 3> tdcForToAOnset{{0.f, 0.f, 0.f}};
+  auto keV2fC = theDigitizer_->keV2fC();
+  auto tdcForToAOnset = theDigitizer_->tdcForToAOnset();
 
   int nchits = (int)hits->size();
   int count_thisbx = 0;
