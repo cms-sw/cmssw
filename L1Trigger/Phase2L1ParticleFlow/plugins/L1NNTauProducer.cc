@@ -28,7 +28,6 @@ private:
   void addTau(const l1t::PFCandidate& iCand,
               const l1t::PFCandidateCollection& iParts,
               std::unique_ptr<PFTauCollection>& outputTaus);
-  float deltaR(const l1t::PFCandidate& iPart1, const l1t::PFCandidate& iPart2);
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   double fSeedPt_;
@@ -144,14 +143,6 @@ void L1NNTauProducer::addTau(const l1t::PFCandidate& iCand,
   math::PtEtaPhiMLorentzVector tempP4(lCand.Pt(), lCand.Eta(), lCand.Phi(), lCand.M());
   l1t::PFTau l1PFTau(tempP4, NN, 0, lId);
   outputTaus->push_back(l1PFTau);
-}
-float L1NNTauProducer::deltaR(const l1t::PFCandidate& iPart1, const l1t::PFCandidate& iPart2) {
-  float delta_r = 20;
-  float pDPhi = fabs(iPart1.phi() - iPart2.phi());
-  if (pDPhi > 2. * M_PI - pDPhi)
-    pDPhi = 2. * M_PI - pDPhi;
-  delta_r = sqrt((iPart1.eta() - iPart2.eta()) * (iPart1.eta() - iPart2.eta()) + pDPhi * pDPhi);
-  return delta_r;
 }
 void L1NNTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // L1NNTauProducer
