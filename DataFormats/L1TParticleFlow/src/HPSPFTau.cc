@@ -56,9 +56,7 @@ ostream& operator<<(ostream& os, const l1t::HPSPFTau& l1PFTau) {
   return os;
 }
 
-//void printPFCand(ostream& os, const l1t::PFCandidate& l1PFCand, const l1t::VertexRef& primaryVertex)
 void printPFCand(ostream& os, const l1t::PFCandidate& l1PFCand, const l1t::TkPrimaryVertexRef& primaryVertex) {
-  //float primaryVertex_z = ( primaryVertex.isNonnull() ) ? primaryVertex->z0() : 0.;
   float primaryVertex_z = (primaryVertex.isNonnull()) ? primaryVertex->zvertex() : 0.;
   printPFCand(os, l1PFCand, primaryVertex_z);
 }
