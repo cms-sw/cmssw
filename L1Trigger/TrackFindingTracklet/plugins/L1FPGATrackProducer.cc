@@ -295,7 +295,7 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig)
   trackQuality_ = iConfig.getParameter<bool>("TrackQuality");
   if (trackQuality_) {
     trackQualityParams = iConfig.getParameter<edm::ParameterSet>("TrackQualityPSet");
-    trackQualityModel.reset(new TrackQuality(trackQualityParams));
+    trackQualityModel = std::make_unique<TrackQuality>(trackQualityParams);
   }
 }
 
