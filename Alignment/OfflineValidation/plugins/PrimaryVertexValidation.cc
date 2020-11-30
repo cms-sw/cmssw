@@ -690,11 +690,11 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
       int nhitinFPIX = hits.numberOfValidPixelEndcapHits();
       for (trackingRecHit_iterator iHit = theTTrack.recHitsBegin(); iHit != theTTrack.recHitsEnd(); ++iHit) {
         if ((*iHit)->isValid()) {
-          //if (this->isHit2D(**iHit)) {
-          //  ++nRecHit2D;
-          // } else {
-          ++nRecHit1D;
-          // }
+          if (this->isHit2D(**iHit, phase_)) {
+            ++nRecHit2D;
+          } else {
+            ++nRecHit1D;
+          }
         }
       }
 
@@ -1157,15 +1157,15 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
 }
 
 // ------------ method called to discriminate 1D from 2D hits  ------------
-bool PrimaryVertexValidation::isHit2D(const TrackingRecHit& hit) const {
+bool PrimaryVertexValidation::isHit2D(const TrackingRecHit& hit, const PVValHelper::detectorPhase& thePhase) const {
   if (hit.dimension() < 2) {
     return false;  // some (muon...) stuff really has RecHit1D
   } else {
     const DetId detId(hit.geographicalId());
     if (detId.det() == DetId::Tracker) {
       if (detId.subdetId() == PixelSubdetector::PixelBarrel || detId.subdetId() == PixelSubdetector::PixelEndcap) {
-        return true;  // pixel is always 2D
-      } else {        // should be SiStrip now
+        return true;                                 // pixel is always 2D
+      } else if (thePhase != PVValHelper::phase2) {  // should be SiStrip now
         if (dynamic_cast<const SiStripRecHit2D*>(&hit))
           return false;  // normal hit
         else if (dynamic_cast<const SiStripMatchedRecHit2D*>(&hit))
@@ -1178,6 +1178,8 @@ bool PrimaryVertexValidation::isHit2D(const TrackingRecHit& hit) const {
                                       << "SiStripMatchedRecHit2D nor ProjectedSiStripRecHit2D.";
           return false;
         }
+      } else {
+        return false;
       }
     } else {  // not tracker??
       edm::LogWarning("DetectorMismatch") << "@SUB=AlignmentTrackSelector::isHit2D"

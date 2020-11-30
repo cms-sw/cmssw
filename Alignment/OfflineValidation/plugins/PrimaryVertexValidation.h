@@ -83,7 +83,7 @@ private:
   void endJob() override;
   bool isBFieldConsistentWithMode(const edm::EventSetup& iSetup) const;
   std::pair<long long, long long> getRunTime(const edm::EventSetup& iSetup) const;
-  bool isHit2D(const TrackingRecHit& hit) const;
+  bool isHit2D(const TrackingRecHit& hit, const PVValHelper::detectorPhase& thePhase) const;
   bool hasFirstLayerPixelHits(const reco::TransientTrack& track);
   std::pair<bool, bool> pixelHitsCheck(const reco::TransientTrack& track);
   Measurement1D getMedian(TH1F* histo);
