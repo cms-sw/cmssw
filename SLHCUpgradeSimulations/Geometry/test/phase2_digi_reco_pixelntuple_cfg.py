@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 
-from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
-process = cms.Process('USER',Phase2C11)
+from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
+process = cms.Process('USER',Phase2C9)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
