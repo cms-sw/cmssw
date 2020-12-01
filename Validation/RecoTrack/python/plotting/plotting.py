@@ -1859,6 +1859,9 @@ class Plot:
             return ratio
         return ratio and self._ratio
 
+    def setName(self, name):
+        self._name = name
+
     def getName(self):
         if self._outname is not None:
             return self._outname
@@ -2531,15 +2534,15 @@ class PlotOnSideGroup(PlotGroup):
 
     def create(self, tdirectoryNEvents, requireAllHistograms=False):
         self._plots = []
-        for element in tdirectoryNEvents:
+        for i, element in enumerate(tdirectoryNEvents):
             pl = self._plot.clone()
             pl.create([element], requireAllHistograms)
+            pl.setName(pl.getName()+"_"+str(i))
             self._plots.append(pl)
 
     def draw(self, *args, **kwargs):
         kargs = copy.copy(kwargs)
         kargs["ratio"] = False
-        kargs["separate"] = False
         return super(PlotOnSideGroup, self).draw(*args, **kargs)
 
 class PlotFolder:
