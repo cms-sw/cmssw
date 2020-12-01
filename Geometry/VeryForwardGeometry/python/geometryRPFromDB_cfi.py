@@ -1,13 +1,14 @@
 import FWCore.ParameterSet.Config as cms
-from Geometry.VeryForwardGeometryBuilder.CTPPSGeometryESModule_cfi import CTPPSGeometryESModule
 
 XMLIdealGeometryESSource_CTPPS = cms.ESProducer("XMLIdealGeometryESProducer",
-                                                rootDDName = cms.string('cms:CMSE'),
-                                                label = cms.string('CTPPS'),
-                                                appendToDataLabel = cms.string('XMLIdealGeometryESSource_CTPPS')
-                                                )
+    rootDDName = cms.string('cms:CMSE'),
+    label = cms.string('CTPPS'),
+    appendToDataLabel = cms.string('XMLIdealGeometryESSource_CTPPS')
+)
 
-ctppsGeometryESModule = CTPPSGeometryESModule.clone(
+ctppsGeometryESModule = cms.ESProducer("CTPPSGeometryESModule",
+    verbosity = cms.untracked.uint32(1),
+    isRun2 = False,
     compactViewTag = cms.string('XMLIdealGeometryESSource_CTPPS')
 )
 
