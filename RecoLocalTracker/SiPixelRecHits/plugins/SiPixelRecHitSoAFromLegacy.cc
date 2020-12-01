@@ -209,8 +209,6 @@ void SiPixelRecHitSoAFromLegacy::produce(edm::StreamID streamID, edm::Event& iEv
     // filled creates view
     SiPixelDigisCUDA::DeviceConstView digiView{xx_.data(), yy_.data(), adc_.data(), moduleInd_.data(), clus_.data()};
     assert(digiView.adc(0) != 0);
-    // not needed...
-    cms::cudacompat::resetGrid();
     // we run on blockId.x==0
     gpuPixelRecHits::getHits(&cpeView, &bsHost, &digiView, ndigi, &clusterView, output->view());
     for (auto h = fc; h < lc; ++h)

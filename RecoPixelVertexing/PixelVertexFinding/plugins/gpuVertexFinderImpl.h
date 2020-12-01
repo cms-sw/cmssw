@@ -109,7 +109,6 @@ namespace gpuVertexFinder {
     loadTracks<<<numberOfBlocks, blockSize, 0, stream>>>(tksoa, soa, ws_d.get(), ptMin);
     cudaCheck(cudaGetLastError());
 #else
-    cms::cudacompat::resetGrid();
     init(soa, ws_d.get());
     loadTracks(tksoa, soa, ws_d.get(), ptMin);
 #endif
@@ -157,10 +156,7 @@ namespace gpuVertexFinder {
     // std::cout << "found " << (*ws_d).nvIntermediate << " vertices " << std::endl;
     fitVertices(soa, ws_d.get(), 50.);
     // one block per vertex!
-    blockIdx.x = 0;
-    gridDim.x = 1;
     splitVertices(soa, ws_d.get(), 9.f);
-    resetGrid();
     fitVertices(soa, ws_d.get(), 5000.);
     sortByPt2(soa, ws_d.get());
 #endif

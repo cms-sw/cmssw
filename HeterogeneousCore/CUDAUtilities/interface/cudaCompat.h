@@ -11,21 +11,26 @@
 #include <cstdint>
 #include <cstring>
 
+// include the CUDA runtime header to define some of the attributes, types and sybols also on the CPU
 #include <cuda_runtime.h>
+
+// make sure function are inlined to avoid multiple definition
+#undef __global__
+#define __global__ inline __attribute__((always_inline))
+
+#undef __forceinline__
+#define __forceinline__ inline __attribute__((always_inline))
 
 namespace cms {
   namespace cudacompat {
 
-#ifndef __CUDA_RUNTIME_H__
-    struct dim3 {
-      uint32_t x, y, z;
-    };
-#endif
+    // run serially with a single thread
+    // 1-dimensional block
     const dim3 threadIdx = {0, 0, 0};
     const dim3 blockDim = {1, 1, 1};
-
-    extern thread_local dim3 blockIdx;
-    extern thread_local dim3 gridDim;
+    // 1-dimensional grid
+    const dim3 blockIdx = {0, 0, 0};
+    const dim3 gridDim = {1, 1, 1};
 
     template <typename T1, typename T2>
     T1 atomicCAS(T1* address, T1 compare, T2 val) {
@@ -78,35 +83,12 @@ namespace cms {
       return *x;
     }
 
-    inline void resetGrid() {
-      blockIdx = {0, 0, 0};
-      gridDim = {1, 1, 1};
-    }
-
   }  // namespace cudacompat
 }  // namespace cms
 
-// some  not needed as done by cuda runtime...
-#ifndef __CUDA_RUNTIME_H__
-#define __host__
-#define __device__
-#define __global__
-#define __shared__
-#define __forceinline__
-#endif
-
-// make sure function are inlined to avoid multiple definition
-#ifndef __CUDA_ARCH__
-#undef __global__
-#define __global__ inline __attribute__((always_inline))
-#undef __forceinline__
-#define __forceinline__ inline __attribute__((always_inline))
-#endif
-
-#ifndef __CUDA_ARCH__
+// make the cudacompat implementation available in the global namespace
 using namespace cms::cudacompat;
-#endif
 
-#endif
+#endif  // __CUDACC__
 
 #endif  // HeterogeneousCore_CUDAUtilities_interface_cudaCompat_h
