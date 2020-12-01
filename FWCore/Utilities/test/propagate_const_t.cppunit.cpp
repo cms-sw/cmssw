@@ -7,6 +7,7 @@ Test program for edm::propagate_const class.
 #include <cppunit/extensions/HelperMacros.h>
 #include <memory>
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 class test_propagate_const : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(test_propagate_const);
@@ -32,9 +33,14 @@ namespace {
 
     int const value() const { return 1; }
   };
+
+  // used to check that edm::propagate_const<T*> works with incomplete types
+  class Incomplete;
+
 }  // namespace
 
 void test_propagate_const::test() {
+  // test for edm::propagate_const<T*>
   {
     ConstChecker checker;
     edm::propagate_const<ConstChecker*> pChecker(&checker);
@@ -52,6 +58,7 @@ void test_propagate_const::test() {
     CPPUNIT_ASSERT(1 == get_underlying_safe(pConstChecker)->value());
   }
 
+  // test for edm::propagate_const<shared_ptr<T>>
   {
     auto checker = std::make_shared<ConstChecker>();
     edm::propagate_const<std::shared_ptr<ConstChecker>> pChecker(checker);
@@ -69,6 +76,7 @@ void test_propagate_const::test() {
     CPPUNIT_ASSERT(1 == get_underlying_safe(pConstChecker)->value());
   }
 
+  // test for edm::propagate_const<unique_ptr<T>>
   {
     auto checker = std::make_unique<ConstChecker>();
     edm::propagate_const<std::unique_ptr<ConstChecker>> pChecker(std::move(checker));
@@ -83,5 +91,13 @@ void test_propagate_const::test() {
     CPPUNIT_ASSERT(1 == pConstChecker.get()->value());
     CPPUNIT_ASSERT(pConstChecker.get()->value() == pConstChecker->value());
     CPPUNIT_ASSERT(pConstChecker.get()->value() == (*pConstChecker).value());
+  }
+
+  // test for edm::propagate_const<T*> with incomplete types
+  {
+    Incomplete* ptr = nullptr;
+    edm::propagate_const<Incomplete*> pIncomplete(ptr);
+
+    CPPUNIT_ASSERT(nullptr == pIncomplete.get());
   }
 }

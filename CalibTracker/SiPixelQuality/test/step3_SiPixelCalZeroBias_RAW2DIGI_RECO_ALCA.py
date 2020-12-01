@@ -6,7 +6,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
-process = cms.Process('ALCAHARVEST',Run2_2017)
+process = cms.Process('RECO',Run2_2017)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -495,13 +495,14 @@ associatePatAlgosToolsTask(process)
 
 #Setup FWK for multithreaded
 process.options.numberOfThreads=cms.untracked.uint32(8)
-process.options.numberOfStreams=cms.untracked.uint32(0)
-process.options.numberOfConcurrentLuminosityBlocks=cms.untracked.uint32(1)
+process.options.numberOfStreams=cms.untracked.uint32(4)
+process.options.numberOfConcurrentLuminosityBlocks=cms.untracked.uint32(2)
 
 
 # Customisation from command line
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+
 #Have logErrorHarvester wait for the same EDProducers to finish as those providing data for the OutputModule
 from FWCore.Modules.logErrorHarvester_cff import customiseLogErrorHarvesterUsingOutputCommands
 process = customiseLogErrorHarvesterUsingOutputCommands(process)

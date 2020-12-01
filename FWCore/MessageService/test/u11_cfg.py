@@ -18,24 +18,8 @@ process.options = FWCore.Framework.test.cmsExceptionsFatal_cff.options
 process.load("FWCore.MessageService.test.Services_cff")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    u11_supercede_specific = cms.untracked.PSet(
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        int4bydefault = cms.untracked.PSet(
-            reportEvery = cms.untracked.int32(10),
-            limit = cms.untracked.int32(-1)
-        ),
-        expect_supercede_specific = cms.untracked.PSet(
-            reportEvery = cms.untracked.int32(1),
-            limit = cms.untracked.int32(-1)
-        ),
-        int25bydefaults = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        int7bycommondefault = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        )
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
     ),
     default = cms.untracked.PSet(
         expect_specific = cms.untracked.PSet(
@@ -70,87 +54,92 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(0)
         )
     ),
-    u11_overall_specific = cms.untracked.PSet(
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+    files = cms.untracked.PSet(
+        u11_supercede_specific = cms.untracked.PSet(
+            default = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            int4bydefault = cms.untracked.PSet(
+                reportEvery = cms.untracked.int32(10),
+                limit = cms.untracked.int32(-1)
+            ),
+            expect_supercede_specific = cms.untracked.PSet(
+                reportEvery = cms.untracked.int32(1),
+                limit = cms.untracked.int32(-1)
+            ),
+            int25bydefaults = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            int7bycommondefault = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            )
         ),
-        int4bydefault = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+        u11_overall_specific = cms.untracked.PSet(
+            default = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            int4bydefault = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            expect_overall_specific = cms.untracked.PSet(
+                reportEvery = cms.untracked.int32(1),
+                limit = cms.untracked.int32(-1)
+            ),
+            int25bydefaults = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            )
         ),
-        expect_overall_specific = cms.untracked.PSet(
-            reportEvery = cms.untracked.int32(1),
-            limit = cms.untracked.int32(-1)
+        u11_non_supercede_common = cms.untracked.PSet(
+            int4bydefault = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            expect_non_supercede_common_specific = cms.untracked.PSet(
+                reportEvery = cms.untracked.int32(1),
+                limit = cms.untracked.int32(-1)
+            ),
+            default = cms.untracked.PSet(
+                reportEvery = cms.untracked.int32(18),
+                limit = cms.untracked.int32(3)
+            ),
+            int25bydefaults = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            )
         ),
-        int25bydefaults = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+        u11_specific = cms.untracked.PSet(
+            int4bydefault = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            expect_specific = cms.untracked.PSet(
+                reportEvery = cms.untracked.int32(1),
+                limit = cms.untracked.int32(-1)
+            ),
+            noTimeStamps = cms.untracked.bool(True),
+            default = cms.untracked.PSet(
+                reportEvery = cms.untracked.int32(30)
+            ),
+            int25bydefaults = cms.untracked.PSet(
+                reportEvery = cms.untracked.int32(12)
+            ),
+            int7bycommondefault = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            )
+        ),
+        u11_overall_unnamed = cms.untracked.PSet(
+            int4bydefault = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            int25bydefaults = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            int7bycommondefault = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            expect_overall_unnamed = cms.untracked.PSet(
+                reportEvery = cms.untracked.int32(1),
+                limit = cms.untracked.int32(-1)
+            )
         )
-    ),
-    u11_non_supercede_common = cms.untracked.PSet(
-        int4bydefault = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        expect_non_supercede_common_specific = cms.untracked.PSet(
-            reportEvery = cms.untracked.int32(1),
-            limit = cms.untracked.int32(-1)
-        ),
-        default = cms.untracked.PSet(
-            reportEvery = cms.untracked.int32(18),
-            limit = cms.untracked.int32(3)
-        ),
-        int25bydefaults = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        )
-    ),
-    u11_specific = cms.untracked.PSet(
-        int4bydefault = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        expect_specific = cms.untracked.PSet(
-            reportEvery = cms.untracked.int32(1),
-            limit = cms.untracked.int32(-1)
-        ),
-        noTimeStamps = cms.untracked.bool(True),
-        default = cms.untracked.PSet(
-            reportEvery = cms.untracked.int32(30)
-        ),
-        int25bydefaults = cms.untracked.PSet(
-            reportEvery = cms.untracked.int32(12)
-        ),
-        int7bycommondefault = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        )
-    ),
-    u11_overall_unnamed = cms.untracked.PSet(
-        int4bydefault = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        int25bydefaults = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        int7bycommondefault = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        expect_overall_unnamed = cms.untracked.PSet(
-            reportEvery = cms.untracked.int32(1),
-            limit = cms.untracked.int32(-1)
-        )
-    ),
-    categories = cms.untracked.vstring('preEventProcessing', 
-        'int4bydefault', 
-        'int7bycommondefault', 
-        'int25bydefaults', 
-        'expect_overall_unnamed', 
-        'expect_overall_specific', 
-        'expect_supercede_specific', 
-        'expect_non_supercede_common_specific', 
-        'expect_specific', 
-        'FwkReport', 
-        'FwkTest'),
-    destinations = cms.untracked.vstring('u11_overall_unnamed', 
-        'u11_overall_specific', 
-        'u11_supercede_specific', 
-        'u11_non_supercede_common', 
-        'u11_specific')
+    )
 )
 
 process.maxEvents = cms.untracked.PSet(

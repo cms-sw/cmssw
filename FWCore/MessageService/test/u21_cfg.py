@@ -15,41 +15,40 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(0)
         )
     ),
-    u21_infos = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO'),
-        noTimeStamps = cms.untracked.bool(True),
-        FwkTest = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    files = cms.untracked.PSet(
+        u21_infos = cms.untracked.PSet(
+            threshold = cms.untracked.string('INFO'),
+            noTimeStamps = cms.untracked.bool(True),
+            FwkTest = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            preEventProcessing = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            )
         ),
-        preEventProcessing = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+        u21_warnings = cms.untracked.PSet(
+            INFO = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            FWKINFO = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            noTimeStamps = cms.untracked.bool(True),
+            importantInfo = cms.untracked.PSet(
+                limit = cms.untracked.int32(-1)
+            ),
+            preEventProcessing = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            FwkTest = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            threshold = cms.untracked.string('INFO')
         )
-    ),
-    categories = cms.untracked.vstring('preEventProcessing', 
-        'FwkTest', 
-        'importantInfo', 
-        'routineInfo'),
-    u21_warnings = cms.untracked.PSet(
-        INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        FWKINFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        noTimeStamps = cms.untracked.bool(True),
-        importantInfo = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        preEventProcessing = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        FwkTest = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        threshold = cms.untracked.string('INFO')
-    ),
-    destinations = cms.untracked.vstring('u21_warnings', 
-        'u21_infos')
+    )
 )
 
 process.maxEvents = cms.untracked.PSet(

@@ -47,17 +47,14 @@ process.siStripDigis.ProductLabel = 'rawDataCollector'
 #process.siPixelClusters.src = 'siPixelDigis'
 
 process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring('SiPixelClusterizer'),
-    destinations = cms.untracked.vstring('cout'),
-#    destinations = cms.untracked.vstring("log","cout"),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
-#       threshold = cms.untracked.string('INFO')
-#       threshold = cms.untracked.string('ERROR')
+        enable = cms.untracked.bool(True),
         threshold = cms.untracked.string('WARNING')
-    )
-#    log = cms.untracked.PSet(
-#        threshold = cms.untracked.string('DEBUG')
-#    )
+    ),
+    debugModules = cms.untracked.vstring('SiPixelClusterizer')
 )
 
 

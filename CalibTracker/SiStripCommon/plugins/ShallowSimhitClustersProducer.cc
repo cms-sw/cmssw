@@ -13,7 +13,7 @@ ShallowSimhitClustersProducer::ShallowSimhitClustersProducer(const edm::Paramete
       geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
       magFieldToken_(esConsumes<MagneticField, IdealMagneticFieldRecord>()),
       laToken_(esConsumes<SiStripLorentzAngle, SiStripLorentzAngleRcd>(
-          edm::ESInputTag(iConfig.getParameter<std::string>("runningMode")))),
+          edm::ESInputTag{"", iConfig.getParameter<std::string>("runningMode")})),
       Prefix(iConfig.getParameter<std::string>("Prefix")),
       runningmode_(iConfig.getParameter<std::string>("runningMode")) {
   std::vector<edm::InputTag> simhits_tags = iConfig.getParameter<std::vector<edm::InputTag>>("InputTags");

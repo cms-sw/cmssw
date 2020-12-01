@@ -47,6 +47,8 @@ namespace edm {
       EventSetupRecordIOVQueue(unsigned int nConcurrentIOVs);
       ~EventSetupRecordIOVQueue();
 
+      void endIOV();
+
       void setNewIntervalForAnySubProcess();
 
       void checkForNewIOVs(WaitingTaskHolder const& taskToStartAfterIOVInit,
@@ -73,6 +75,7 @@ namespace edm {
       unsigned long long cacheIdentifier_;
       WaitingTaskHolder endIOVTaskHolder_;
       WaitingTask* endIOVWaitingTask_ = nullptr;
+      bool endIOVCalled_ = false;
     };
 
   }  // namespace eventsetup

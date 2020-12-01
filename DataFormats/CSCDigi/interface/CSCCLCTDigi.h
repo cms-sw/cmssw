@@ -75,7 +75,7 @@ public:
   void setSlope(const uint16_t slope);
 
   /// slope in number of half-strips/layer
-  float getFractionalSlope(const uint16_t slope = 5) const;
+  float getFractionalSlope(const uint16_t slope = 4) const;
 
   /// return striptype
   uint16_t getStripType() const { return striptype_; }

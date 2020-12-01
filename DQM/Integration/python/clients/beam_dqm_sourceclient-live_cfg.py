@@ -356,7 +356,7 @@ process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
 
     DBParameters = cms.PSet(
                             messageLevel = cms.untracked.int32(0),
-                            authenticationPath = cms.untracked.string('')
+                            authenticationPath = cms.untracked.string('.')
                            ),
 
     # Upload to CondDB
@@ -366,7 +366,10 @@ process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
     runNumber = cms.untracked.uint64(options.runNumber),
     lastLumiFile = cms.untracked.string(''),
     writeTransactionDelay = cms.untracked.uint32(options.transDelay),
+    latency = cms.untracked.uint32(2),
     autoCommit = cms.untracked.bool(True),
+    saveLogsOnDB = cms.untracked.bool(True),
+    jobName = cms.untracked.string("BeamSpotOnlineLegacyTest"), # name of the DB log record
     toPut = cms.VPSet(cms.PSet(
         record = cms.string(BSOnlineRecordName),
         tag = cms.string('BSOnlineLegacy_tag'),
@@ -379,6 +382,7 @@ process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
 if not live or noDB:
     process.OnlineDBOutputService.connect = cms.string('sqlite_file:BeamSpotOnlineLegacy.db')
     process.OnlineDBOutputService.preLoadConnectionString = cms.untracked.string('sqlite_file:BeamSpotOnlineLegacy.db')
+    process.OnlineDBOutputService.saveLogsOnDB = cms.untracked.bool(False)
 
 #---------
 # Final path

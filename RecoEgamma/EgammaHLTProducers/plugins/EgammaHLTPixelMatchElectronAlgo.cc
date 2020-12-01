@@ -20,9 +20,6 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToPoint.h"
 
-#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
@@ -38,7 +35,6 @@
 #include "DataFormats/Math/interface/Point3D.h"
 
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateMode.h"
-#include "TrackingTools/GsfTools/interface/MultiTrajectoryStateTransform.h"
 
 #include "EgammaHLTPixelMatchElectronAlgo.h"
 
@@ -48,36 +44,28 @@ using namespace reco;
 
 EgammaHLTPixelMatchElectronAlgo::EgammaHLTPixelMatchElectronAlgo(const edm::ParameterSet& conf,
                                                                  edm::ConsumesCollector&& iC)
-    : trackProducer_(iC.consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("TrackProducer"))),
-      gsfTrackProducer_(iC.consumes<reco::GsfTrackCollection>(conf.getParameter<edm::InputTag>("GsfTrackProducer"))),
+    : trackProducer_(iC.consumes(conf.getParameter<edm::InputTag>("TrackProducer"))),
+      gsfTrackProducer_(iC.consumes(conf.getParameter<edm::InputTag>("GsfTrackProducer"))),
       useGsfTracks_(conf.getParameter<bool>("UseGsfTracks")),
       bsProducer_(iC.consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("BSProducer"))),
-      mtsTransform_(nullptr),
-      cacheIDTDGeom_(0),
-      cacheIDMagField_(0) {}
+      magneticFieldToken_(iC.esConsumes()),
+      trackerGeometryToken_(iC.esConsumes()) {}
 
-EgammaHLTPixelMatchElectronAlgo::~EgammaHLTPixelMatchElectronAlgo() { delete mtsTransform_; }
-
-void EgammaHLTPixelMatchElectronAlgo::setupES(const edm::EventSetup& es) {
+void EgammaHLTPixelMatchElectronAlgo::setupES(const edm::EventSetup& eventSetup) {
   //services
+  bool updateField = magneticFieldWatcher_.check(eventSetup);
+  bool updateGeometry = trackerGeometryWatcher_.check(eventSetup);
 
-  bool updateField(false);
-  if (cacheIDMagField_ != es.get<IdealMagneticFieldRecord>().cacheIdentifier()) {
-    updateField = true;
-    cacheIDMagField_ = es.get<IdealMagneticFieldRecord>().cacheIdentifier();
-    es.get<IdealMagneticFieldRecord>().get(magField_);
+  if (updateField) {
+    magField_ = eventSetup.getHandle(magneticFieldToken_);
   }
 
   if (useGsfTracks_) {  //only need the geom and mtsTransform if we are doing gsf tracks
-    bool updateGeometry(false);
-    if (cacheIDTDGeom_ != es.get<TrackerDigiGeometryRecord>().cacheIdentifier()) {
-      updateGeometry = true;
-      cacheIDTDGeom_ = es.get<TrackerDigiGeometryRecord>().cacheIdentifier();
-      es.get<TrackerDigiGeometryRecord>().get(trackerGeom_);
+    if (updateGeometry) {
+      trackerGeom_ = eventSetup.getHandle(trackerGeometryToken_);
     }
     if (updateField || updateGeometry || !mtsTransform_) {
-      delete mtsTransform_;
-      mtsTransform_ = new MultiTrajectoryStateTransform(trackerGeom_.product(), magField_.product());
+      mtsTransform_ = std::make_unique<MultiTrajectoryStateTransform>(trackerGeom_.product(), magField_.product());
     }
   }
 }

@@ -22,8 +22,11 @@ void l1t::MuonRawDigiTranslator::fillMuon(Muon& mu,
     fillMuonCoordinates2016(mu, raw_data_00_31, raw_data_32_63);
   } else if ((fed == 1402 && fw < 0x6000000) || (fed == 1404 && fw < 0x1120)) {
     fillMuonCoordinatesFrom2017(mu, raw_data_00_31, raw_data_32_63);
+  } else if ((fed == 1402 && fw == 0x6000001) || (fed == 1404 && fw < 0x1130)) {
+    // We're unpacking data from the November MWGR where the raw eta values were shifted by one bit.
+    fillMuonQuantitiesRun3(mu, raw_data_spare, raw_data_00_31, raw_data_32_63, muInBx, true);
   } else {
-    fillMuonQuantitiesRun3(mu, raw_data_spare, raw_data_00_31, raw_data_32_63, muInBx);
+    fillMuonQuantitiesRun3(mu, raw_data_spare, raw_data_00_31, raw_data_32_63, muInBx, false);
   }
 
   // Fill pT, qual, iso, charge, index bits, coordinates at vtx
@@ -116,14 +119,30 @@ void l1t::MuonRawDigiTranslator::fillMuonCoordinatesFrom2017(Muon& mu,
   mu.setHwDPhiExtra(dPhi);
 }
 
-void l1t::MuonRawDigiTranslator::fillMuonQuantitiesRun3(
-    Muon& mu, uint32_t raw_data_spare, uint32_t raw_data_00_31, uint32_t raw_data_32_63, int muInBx) {
+void l1t::MuonRawDigiTranslator::fillMuonQuantitiesRun3(Muon& mu,
+                                                        uint32_t raw_data_spare,
+                                                        uint32_t raw_data_00_31,
+                                                        uint32_t raw_data_32_63,
+                                                        int muInBx,
+                                                        bool wasSpecialMWGR /*= false*/) {
+  unsigned absEtaMu1Shift{absEtaMu1Shift_};
+  unsigned etaMu1SignShift{etaMu1SignShift_};
+  unsigned absEtaMu2Shift{absEtaMu2Shift_};
+  unsigned etaMu2SignShift{etaMu2SignShift_};
+
+  // Adjust if we're unpacking data from the November 2020 MWGR.
+  if (wasSpecialMWGR) {
+    --absEtaMu1Shift;
+    --etaMu1SignShift;
+    --absEtaMu2Shift;
+    --etaMu2SignShift;
+  }
   // coordinates at the muon system
   // Where to find the raw eta depends on which muon we're looking at
   if (muInBx == 1) {
-    mu.setHwEta(calcHwEta(raw_data_spare, absEtaMu1Shift_, etaMu1SignShift_));
+    mu.setHwEta(calcHwEta(raw_data_spare, absEtaMu1Shift, etaMu1SignShift));
   } else if (muInBx == 2) {
-    mu.setHwEta(calcHwEta(raw_data_spare, absEtaMu2Shift_, etaMu2SignShift_));
+    mu.setHwEta(calcHwEta(raw_data_spare, absEtaMu2Shift, etaMu2SignShift));
   } else {
     edm::LogWarning("L1T") << "Received invalid muon id " << muInBx << ". Cannot fill eta value in the muon system.";
   }
@@ -161,9 +180,9 @@ void l1t::MuonRawDigiTranslator::generatePackedDataWords(const Muon& mu,
                                                          uint32_t& raw_data_spare,
                                                          uint32_t& raw_data_00_31,
                                                          uint32_t& raw_data_32_63,
-                                                         int fedID,
-                                                         int fwID,
-                                                         int muInBx) {
+                                                         const int fedID,
+                                                         const int fwID,
+                                                         const int muInBx) {
   int abs_eta = mu.hwEta();
   if (abs_eta < 0) {
     abs_eta += (1 << (etaSignShift_ - absEtaShift_));
@@ -190,25 +209,48 @@ void l1t::MuonRawDigiTranslator::generatePackedDataWords(const Muon& mu,
                      (mu.tfMuonIndex() & tfMuonIndexMask_) << tfMuonIndexShift_ | (mu.hwIso() & isoMask_) << isoShift_ |
                      (abs_eta & absEtaMask_) << absEtaShift_ | (mu.hwEta() < 0) << etaSignShift_ |
                      (mu.hwPhi() & phiMask_) << phiShift_;
+  } else if ((fedID == 1402 && fwID == 0x6000001) ||
+             (fedID == 1404 && fwID < 0x1130)) {  // This allows us to unpack data taken in the November 2020 MWGR.
+    generatePackedDataWordsRun3(
+        mu, abs_eta, abs_eta_at_vtx, raw_data_spare, raw_data_00_31, raw_data_32_63, muInBx, true);
   } else {
-    int absEtaShiftRun3{0}, etaSignShiftRun3{0};
-    if (muInBx == 1) {
-      absEtaShiftRun3 = absEtaMu1Shift_;
-      etaSignShiftRun3 = etaMu1SignShift_;
-    } else if (muInBx == 2) {
-      absEtaShiftRun3 = absEtaMu2Shift_;
-      etaSignShiftRun3 = etaMu2SignShift_;
-    }
-    raw_data_spare = (abs_eta & absEtaMask_) << absEtaShiftRun3 | (mu.hwEta() < 0) << etaSignShiftRun3;
-    raw_data_00_31 = (mu.hwPt() & ptMask_) << ptShift_ | (mu.hwQual() & qualMask_) << qualShift_ |
-                     (abs_eta_at_vtx & absEtaMask_) << absEtaAtVtxShift_ | (mu.hwEtaAtVtx() < 0) << etaAtVtxSignShift_ |
-                     (mu.hwPhiAtVtx() & phiMask_) << phiAtVtxShift_;
-    raw_data_32_63 = mu.hwCharge() << chargeShift_ | mu.hwChargeValid() << chargeValidShift_ |
-                     (mu.tfMuonIndex() & tfMuonIndexMask_) << tfMuonIndexShift_ | (mu.hwIso() & isoMask_) << isoShift_ |
-                     (mu.hwPhi() & phiMask_) << phiShift_ |
-                     (mu.hwPtUnconstrained() & ptUnconstrainedMask_) << ptUnconstrainedShift_ |
-                     (mu.hwDXY() & dxyMask_) << dxyShift_;
+    generatePackedDataWordsRun3(
+        mu, abs_eta, abs_eta_at_vtx, raw_data_spare, raw_data_00_31, raw_data_32_63, muInBx, false);
   }
+}
+
+void l1t::MuonRawDigiTranslator::generatePackedDataWordsRun3(const Muon& mu,
+                                                             const int abs_eta,
+                                                             const int abs_eta_at_vtx,
+                                                             uint32_t& raw_data_spare,
+                                                             uint32_t& raw_data_00_31,
+                                                             uint32_t& raw_data_32_63,
+                                                             const int muInBx,
+                                                             const bool wasSpecialMWGR /*= false*/) {
+  int absEtaShiftRun3{0}, etaSignShiftRun3{0};
+  if (muInBx == 1) {
+    absEtaShiftRun3 = absEtaMu1Shift_;
+    etaSignShiftRun3 = etaMu1SignShift_;
+  } else if (muInBx == 2) {
+    absEtaShiftRun3 = absEtaMu2Shift_;
+    etaSignShiftRun3 = etaMu2SignShift_;
+  }
+
+  // Adjust if we're packing the November 2020 MWGR
+  if (wasSpecialMWGR) {
+    --absEtaShiftRun3;
+    --etaSignShiftRun3;
+  }
+
+  raw_data_spare = (abs_eta & absEtaMask_) << absEtaShiftRun3 | (mu.hwEta() < 0) << etaSignShiftRun3;
+  raw_data_00_31 = (mu.hwPt() & ptMask_) << ptShift_ | (mu.hwQual() & qualMask_) << qualShift_ |
+                   (abs_eta_at_vtx & absEtaMask_) << absEtaAtVtxShift_ | (mu.hwEtaAtVtx() < 0) << etaAtVtxSignShift_ |
+                   (mu.hwPhiAtVtx() & phiMask_) << phiAtVtxShift_;
+  raw_data_32_63 = mu.hwCharge() << chargeShift_ | mu.hwChargeValid() << chargeValidShift_ |
+                   (mu.tfMuonIndex() & tfMuonIndexMask_) << tfMuonIndexShift_ | (mu.hwIso() & isoMask_) << isoShift_ |
+                   (mu.hwPhi() & phiMask_) << phiShift_ |
+                   (mu.hwPtUnconstrained() & ptUnconstrainedMask_) << ptUnconstrainedShift_ |
+                   (mu.hwDXY() & dxyMask_) << dxyShift_;
 }
 
 void l1t::MuonRawDigiTranslator::generate64bitDataWord(

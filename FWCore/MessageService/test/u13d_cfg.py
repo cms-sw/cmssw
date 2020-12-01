@@ -12,21 +12,24 @@ process.options = FWCore.Framework.test.cmsExceptionsFatal_cff.options
 process.load("FWCore.MessageService.test.Services_cff")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    u13d_infos = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO'),
-        noTimeStamps = cms.untracked.bool(True),
-        FwkReport = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        preEventProcessing = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        FwkTest = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        )
+    cerr = cms.untracked.PSet(
+      enable = cms.untracked.bool(False)
     ),
-    debugModules = cms.untracked.vstring('*'),
-    u13d_debugs = cms.untracked.PSet(
+    files = cms.untracked.PSet(
+      u13d_infos = cms.untracked.PSet(
+          threshold = cms.untracked.string('INFO'),
+          noTimeStamps = cms.untracked.bool(True),
+          FwkReport = cms.untracked.PSet(
+              limit = cms.untracked.int32(0)
+          ),
+          preEventProcessing = cms.untracked.PSet(
+              limit = cms.untracked.int32(0)
+          ),
+          FwkTest = cms.untracked.PSet(
+              limit = cms.untracked.int32(0)
+          )
+      ),
+      u13d_debugs = cms.untracked.PSet(
         threshold = cms.untracked.string('DEBUG'),
         noTimeStamps = cms.untracked.bool(True),
         FwkReport = cms.untracked.PSet(
@@ -38,12 +41,9 @@ process.MessageLogger = cms.Service("MessageLogger",
         FwkTest = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         )
+      )
     ),
-    categories = cms.untracked.vstring('preEventProcessing', 
-        'FwkReport', 
-        'FwkTest'),
-    destinations = cms.untracked.vstring('u13d_infos', 
-        'u13d_debugs')
+    debugModules = cms.untracked.vstring('*'),
 )
 
 process.maxEvents = cms.untracked.PSet(

@@ -530,6 +530,8 @@ namespace edm {
     ParentageRegistry::instance()->clear();
   }
 
+  void EventProcessor::taskCleanup() { espController_->endIOVs(); }
+
   void EventProcessor::beginJob() {
     if (beginJobCalled_)
       return;

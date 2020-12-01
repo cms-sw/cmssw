@@ -8,7 +8,6 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -323,7 +322,13 @@ private:
 private:
   std::vector<stAPVGain*> APVsCollOrdered;
   std::unordered_map<unsigned int, stAPVGain*> APVsColl;
-  const TrackerTopology* tTopo_;
+
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
+  edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
+  edm::ESGetToken<SiStripGain, SiStripGainRcd> gainToken_;
+  edm::ESGetToken<SiStripQuality, SiStripQualityRcd> qualityToken_;
+  const TrackerTopology* tTopo_ = nullptr;
 };
 
 inline int SiStripGainFromCalibTree::statCollectionFromMode(const char* tag) const {
@@ -465,7 +470,11 @@ SiStripGainFromCalibTree::SiStripGainFromCalibTree(const edm::ParameterSet& iCon
       consumes<std::vector<unsigned int>>(edm::InputTag(label, TrackPrefix_ + "hitsvalid" + TrackSuffix_));
   trackalgo_token_ = consumes<std::vector<int>>(edm::InputTag(label, TrackPrefix_ + "algo" + TrackSuffix_));
 
-  tTopo_ = nullptr;
+  tTopoToken_ = esConsumes<edm::Transition::BeginRun>();
+  tkGeomToken_ = esConsumes<edm::Transition::BeginRun>();
+  runInfoToken_ = esConsumes<edm::Transition::BeginRun>();
+  gainToken_ = esConsumes<edm::Transition::BeginRun>();
+  qualityToken_ = esConsumes<edm::Transition::BeginRun>();
 }
 
 void SiStripGainFromCalibTree::bookDQMHistos(const char* dqm_dir, const char* tag) {
@@ -671,13 +680,9 @@ void SiStripGainFromCalibTree::algoBeginJob(const edm::EventSetup& iSetup) {
     this->bookDQMHistos(dqm_dir.c_str(), dqm_tag_[elem].c_str());
   }
 
-  edm::ESHandle<TrackerTopology> TopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(TopoHandle);
-  tTopo_ = TopoHandle.product();
+  tTopo_ = &iSetup.getData(tTopoToken_);
 
-  edm::ESHandle<TrackerGeometry> tkGeom;
-  iSetup.get<TrackerDigiGeometryRecord>().get(tkGeom);
-  auto const& Det = tkGeom->dets();
+  auto const& Det = iSetup.getData(tkGeomToken_).dets();
 
   NPixelDets = 0;
   NStripAPVs = 0;
@@ -791,10 +796,9 @@ void SiStripGainFromCalibTree::algoBeginJob(const edm::EventSetup& iSetup) {
 }
 
 bool SiStripGainFromCalibTree::isBFieldConsistentWithMode(const edm::EventSetup& iSetup) const {
-  edm::ESHandle<RunInfo> runInfo;
-  iSetup.get<RunInfoRcd>().get(runInfo);
+  const auto& runInfo = iSetup.getData(runInfoToken_);
 
-  double average_current = runInfo.product()->m_avg_current;
+  double average_current = runInfo.m_avg_current;
   bool isOn = (average_current > MagFieldCurrentTh);
   bool is0T = (m_calibrationMode.substr(m_calibrationMode.length() - 2) == "0T");
 
@@ -820,16 +824,13 @@ void SiStripGainFromCalibTree::algoBeginRun(const edm::Run& run, const edm::Even
     }
   }
 
-  edm::ESHandle<SiStripGain> gainHandle;
-  iSetup.get<SiStripGainRcd>().get(gainHandle);
+  const auto gainHandle = iSetup.getHandle(gainToken_);
   if (!gainHandle.isValid()) {
     edm::LogError("SiStripGainFromCalibTree") << "gainHandle is not valid\n";
     exit(0);
   }
 
-  edm::ESHandle<SiStripQuality> SiStripQuality_;
-  iSetup.get<SiStripQualityRcd>().get(SiStripQuality_);
-
+  const auto& siStripQuality = iSetup.getData(qualityToken_);
   for (unsigned int a = 0; a < APVsCollOrdered.size(); a++) {
     stAPVGain* APV = APVsCollOrdered[a];
 
@@ -837,7 +838,7 @@ void SiStripGainFromCalibTree::algoBeginRun(const edm::Run& run, const edm::Even
     if (APV->SubDet == PixelSubdetector::PixelBarrel || APV->SubDet == PixelSubdetector::PixelEndcap)
       continue;
 
-    APV->isMasked = SiStripQuality_->IsApvBad(APV->DetId, APV->APVId);
+    APV->isMasked = siStripQuality.IsApvBad(APV->DetId, APV->APVId);
     //      if(!FirstSetOfConstants){
 
     if (gainHandle->getNumberOfTags() != 2) {

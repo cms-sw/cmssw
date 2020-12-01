@@ -13,8 +13,8 @@ CSCGEMMotherboardME21::CSCGEMMotherboardME21(unsigned endcap,
       dropLowQualityALCTsNoGEMs_(tmbParams_.getParameter<bool>("dropLowQualityALCTsNoGEMs")),
       buildLCTfromALCTandGEM_(tmbParams_.getParameter<bool>("buildLCTfromALCTandGEM")),
       buildLCTfromCLCTandGEM_(tmbParams_.getParameter<bool>("buildLCTfromCLCTandGEM")) {
-  if (!isSLHC_) {
-    edm::LogError("CSCGEMMotherboardME21|SetupError") << "+++ TMB constructed while isSLHC is not set! +++\n";
+  if (!runPhase2_) {
+    edm::LogError("CSCGEMMotherboardME21|SetupError") << "+++ TMB constructed while runPhase2 is not set! +++\n";
   }
 
   if (!runME21ILT_) {
@@ -26,8 +26,8 @@ CSCGEMMotherboardME21::CSCGEMMotherboardME21(unsigned endcap,
 }
 
 CSCGEMMotherboardME21::CSCGEMMotherboardME21() : CSCGEMMotherboard() {
-  if (!isSLHC_) {
-    edm::LogError("CSCGEMMotherboardME21|SetupError") << "+++ TMB constructed while isSLHC is not set! +++\n";
+  if (!runPhase2_) {
+    edm::LogError("CSCGEMMotherboardME21|SetupError") << "+++ TMB constructed while runPhase2 is not set! +++\n";
   }
 
   if (!runME21ILT_) {
@@ -40,14 +40,6 @@ CSCGEMMotherboardME21::~CSCGEMMotherboardME21() {}
 void CSCGEMMotherboardME21::run(const CSCWireDigiCollection* wiredc,
                                 const CSCComparatorDigiCollection* compdc,
                                 const GEMPadDigiClusterCollection* gemClusters) {
-  std::unique_ptr<GEMPadDigiCollection> gemPads(new GEMPadDigiCollection());
-  coPadProcessor->declusterize(gemClusters, *gemPads);
-  run(wiredc, compdc, gemPads.get());
-}
-
-void CSCGEMMotherboardME21::run(const CSCWireDigiCollection* wiredc,
-                                const CSCComparatorDigiCollection* compdc,
-                                const GEMPadDigiCollection* gemPads) {
   CSCGEMMotherboard::clear();
   setupGeometry();
   debugLUTs();
@@ -68,7 +60,6 @@ void CSCGEMMotherboardME21::run(const CSCWireDigiCollection* wiredc,
         << "+++ run() called for GEM-CSC integrated trigger without valid GEM geometry! +++ \n";
     return;
   }
-  gemCoPadV = coPadProcessor->run(gemPads);  // run copad processor in GE1/1
 
   if (!(alctProc and clctProc)) {
     edm::LogError("CSCGEMMotherboardME21|SetupError")
@@ -82,36 +73,24 @@ void CSCGEMMotherboardME21::run(const CSCWireDigiCollection* wiredc,
   alctV = alctProc->run(wiredc);  // run anodeLCT
   clctV = clctProc->run(compdc);  // run cathodeLCT
 
+  // retrieve pads and copads in a certain BX window for this CSC
+  processGEMClusters(gemClusters);
+
   // if there are no ALCTs and no CLCTs, it does not make sense to run this TMB
   if (alctV.empty() and clctV.empty())
     return;
 
-  LogTrace("CSCGEMCMotherboardME21") << "ALL ALCTs from ME21 " << std::endl;
-  for (const auto& alct : alctV)
-    if (alct.isValid())
-      LogTrace("CSCGEMCMotherboardME21") << alct << std::endl;
-
-  LogTrace("CSCGEMCMotherboardME21") << "ALL CLCTs from ME21 " << std::endl;
-  for (const auto& clct : clctV)
-    if (clct.isValid())
-      LogTrace("CSCGEMCMotherboardME21") << clct << std::endl;
-
   int used_clct_mask[20];
   for (int c = 0; c < 20; ++c)
     used_clct_mask[c] = 0;
-
-  // retrieve pads and copads in a certain BX window for this CSC
-
-  retrieveGEMPads(gemPads, gemId);
-  retrieveGEMCoPads();
 
   const bool hasCoPads(!coPads_.empty());
 
   // ALCT centric matching
   for (int bx_alct = 0; bx_alct < CSCConstants::MAX_ALCT_TBINS; bx_alct++) {
     if (alctProc->getBestALCT(bx_alct).isValid()) {
-      const int bx_clct_start(bx_alct - match_trig_window_size / 2 - alctClctOffset_);
-      const int bx_clct_stop(bx_alct + match_trig_window_size / 2 - alctClctOffset_);
+      const int bx_clct_start(bx_alct - match_trig_window_size / 2 - CSCConstants::ALCT_CLCT_OFFSET);
+      const int bx_clct_stop(bx_alct + match_trig_window_size / 2 - CSCConstants::ALCT_CLCT_OFFSET);
       const int bx_copad_start(bx_alct - maxDeltaBXCoPad_);
       const int bx_copad_stop(bx_alct + maxDeltaBXCoPad_);
 
@@ -312,8 +291,8 @@ void CSCGEMMotherboardME21::run(const CSCWireDigiCollection* wiredc,
     else {
       auto coPads(coPads_[bx_alct]);
       if (!coPads.empty() and buildLCTfromCLCTandGEM_) {
-        const int bx_clct_start(bx_alct - match_trig_window_size / 2 - alctClctOffset_);
-        const int bx_clct_stop(bx_alct + match_trig_window_size / 2 - alctClctOffset_);
+        const int bx_clct_start(bx_alct - match_trig_window_size / 2 - CSCConstants::ALCT_CLCT_OFFSET);
+        const int bx_clct_stop(bx_alct + match_trig_window_size / 2 - CSCConstants::ALCT_CLCT_OFFSET);
 
         if (debug_matching) {
           LogTrace("CSCGEMMotherboardME21")

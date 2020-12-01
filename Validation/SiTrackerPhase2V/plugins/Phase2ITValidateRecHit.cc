@@ -131,7 +131,7 @@ void Phase2ITValidateRecHit::analyze(const edm::Event& iEvent, const edm::EventS
   std::map<unsigned int, SimTrack> selectedSimTrackMap;
   for (const auto& simTrackIt : *simTracks) {
     if (simTrackIt.momentum().pt() > simtrackminpt_) {
-      selectedSimTrackMap.insert(std::make_pair(simTrackIt.trackId(), simTrackIt));
+      selectedSimTrackMap.emplace(simTrackIt.trackId(), simTrackIt);
     }
   }
   TrackerHitAssociator associateRecHit(iEvent, trackerHitAssociatorConfig_);
@@ -262,63 +262,45 @@ void Phase2ITValidateRecHit::bookLayerHistos(DQMStore::IBooker& ibooker, unsigne
   if (layerMEs_.find(key) == layerMEs_.end()) {
     ibooker.cd();
     RecHitME local_histos;
-    std::ostringstream histoName;
     ibooker.setCurrentFolder(subdir + "/" + key);
     edm::LogInfo("Phase2ITValidateRecHit") << " Booking Histograms in : " << (subdir + "/" + key);
-    histoName.str("");
-    histoName << "Delta_X";
-    local_histos.deltaX =
-        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("DeltaX"), histoName.str(), ibooker);
-    histoName.str("");
-    histoName << "Delta_Y";
-    local_histos.deltaY =
-        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("DeltaY"), histoName.str(), ibooker);
-    histoName.str("");
-    histoName << "Pull_X";
-    local_histos.pullX =
-        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("PullX"), histoName.str(), ibooker);
-    histoName.str("");
-    histoName << "Pull_Y";
-    local_histos.pullY =
-        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("PullY"), histoName.str(), ibooker);
-    histoName.str("");
-    histoName << "Delta_X_vs_Eta";
-    local_histos.deltaX_eta = phase2tkutil::bookProfile1DFromPSet(
-        config_.getParameter<edm::ParameterSet>("DeltaX_eta"), histoName.str(), ibooker);
-    histoName.str("");
-    histoName << "Delta_Y_vs_Eta";
-    local_histos.deltaY_eta = phase2tkutil::bookProfile1DFromPSet(
-        config_.getParameter<edm::ParameterSet>("DeltaX_eta"), histoName.str(), ibooker);
-    histoName.str("");
-    histoName << "Pull_X_vs_Eta";
-    local_histos.pullX_eta = phase2tkutil::bookProfile1DFromPSet(
-        config_.getParameter<edm::ParameterSet>("PullX_eta"), histoName.str(), ibooker);
-    histoName.str("");
-    histoName << "Pull_Y_vs_Eta";
-    local_histos.pullY_eta = phase2tkutil::bookProfile1DFromPSet(
-        config_.getParameter<edm::ParameterSet>("PullY_eta"), histoName.str(), ibooker);
+
+    local_histos.deltaX = phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("DeltaX"), ibooker);
+
+    local_histos.deltaY = phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("DeltaY"), ibooker);
+
+    local_histos.pullX = phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("PullX"), ibooker);
+
+    local_histos.pullY = phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("PullY"), ibooker);
+
+    local_histos.deltaX_eta =
+        phase2tkutil::bookProfile1DFromPSet(config_.getParameter<edm::ParameterSet>("DeltaX_eta"), ibooker);
+
+    local_histos.deltaY_eta =
+        phase2tkutil::bookProfile1DFromPSet(config_.getParameter<edm::ParameterSet>("DeltaY_eta"), ibooker);
+
+    local_histos.pullX_eta =
+        phase2tkutil::bookProfile1DFromPSet(config_.getParameter<edm::ParameterSet>("PullX_eta"), ibooker);
+
+    local_histos.pullY_eta =
+        phase2tkutil::bookProfile1DFromPSet(config_.getParameter<edm::ParameterSet>("PullY_eta"), ibooker);
     ibooker.setCurrentFolder(subdir + "/" + key + "/PrimarySimHits");
     //all histos for Primary particles
-    histoName.str("");
-    histoName << "Number_RecHits_matched_PrimarySimTrack";
-    local_histos.numberRecHitsprimary = phase2tkutil::book1DFromPSet(
-        config_.getParameter<edm::ParameterSet>("nRecHits_primary"), histoName.str(), ibooker);
-    histoName.str("");
-    histoName << "Delta_X_SimHitPrimary";
-    local_histos.deltaX_primary = phase2tkutil::book1DFromPSet(
-        config_.getParameter<edm::ParameterSet>("DeltaX_primary"), histoName.str(), ibooker);
-    histoName.str("");
-    histoName << "Delta_Y_SimHitPrimary";
-    local_histos.deltaY_primary = phase2tkutil::book1DFromPSet(
-        config_.getParameter<edm::ParameterSet>("DeltaY_primary"), histoName.str(), ibooker);
-    histoName.str("");
-    histoName << "Pull_X_SimHitPrimary";
-    local_histos.pullX_primary = phase2tkutil::book1DFromPSet(
-        config_.getParameter<edm::ParameterSet>("PullX_primary"), histoName.str(), ibooker);
-    histoName.str("");
-    histoName << "Pull_Y_SimHitPrimary";
-    local_histos.pullY_primary = phase2tkutil::book1DFromPSet(
-        config_.getParameter<edm::ParameterSet>("PullY_primary"), histoName.str(), ibooker);
+    local_histos.numberRecHitsprimary =
+        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("nRecHits_primary"), ibooker);
+
+    local_histos.deltaX_primary =
+        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("DeltaX_primary"), ibooker);
+
+    local_histos.deltaY_primary =
+        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("DeltaY_primary"), ibooker);
+
+    local_histos.pullX_primary =
+        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("PullX_primary"), ibooker);
+
+    local_histos.pullY_primary =
+        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("PullY_primary"), ibooker);
+
     layerMEs_.emplace(key, local_histos);
   }
 }
