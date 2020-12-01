@@ -358,20 +358,20 @@ namespace reco {
             } else {
               // TauReco@MiniAOD: individual ECAL and HCAL energies recovered from fractions. Info on HO energy is not (yet?) available in miniAOD.
               const pat::PackedCandidate* packedCand = dynamic_cast<const pat::PackedCandidate*>(&*signalCand);
-              if (packedCand) {
-                double ecalEn = packedCand->caloFraction() * packedCand->energy() * (1. - packedCand->hcalFraction());
-                double hcalEn = packedCand->caloFraction() * packedCand->energy() * packedCand->hcalFraction();
-                if (verbosity_) {
-                  std::cout << "calorimeter energy:"
-                            << " ECAL = " << ecalEn << ","
-                            << " HCAL = " << hcalEn << ","
-                            << " HO unknown for PackedCand" << std::endl;
-                }
-                if (edm::isFinite(ecalEn))
-                  allNeutralsSumEn += ecalEn;
-                if (edm::isFinite(hcalEn))
-                  allNeutralsSumEn += hcalEn;
+              assert(packedCand);  // Taus are built either from reco::PFCandidates or pat::PackedCandidates
+              double caloEn = packedCand->caloFraction() * packedCand->energy();
+              double hcalEn = caloEn * packedCand->hcalFraction();
+              double ecalEn = caloEn - hcalEn;
+              if (verbosity_) {
+                std::cout << "calorimeter energy:"
+                          << " ECAL = " << ecalEn << ","
+                          << " HCAL = " << hcalEn << ","
+                          << " HO unknown for PackedCand" << std::endl;
               }
+              if (edm::isFinite(ecalEn))
+                allNeutralsSumEn += ecalEn;
+              if (edm::isFinite(hcalEn))
+                allNeutralsSumEn += hcalEn;
             }
           }
           allNeutralsSumEn += addNeutralsSumP4.energy();

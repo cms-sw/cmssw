@@ -86,12 +86,10 @@ namespace reco {
         } else {
           // TauReco@MiniAOD: individual ECAL and HCAL energies recovered from fractions
           const pat::PackedCandidate* signal_pcand = dynamic_cast<const pat::PackedCandidate*>(signal_cand.get());
-          if (signal_pcand != nullptr) {
-            ecal_en_in_signal_pf_cands +=
-                signal_pcand->caloFraction() * signal_pcand->energy() * (1. - signal_pcand->hcalFraction());
-            hcal_en_in_signal_pf_cands +=
-                signal_pcand->caloFraction() * signal_pcand->energy() * signal_pcand->hcalFraction();
-          }
+          assert(signal_pcand);  // Taus are built either from reco::PFCandidates or pat::PackedCandidates
+          float calo_en = signal_pcand->caloFraction() * signal_pcand->energy();
+          ecal_en_in_signal_pf_cands += calo_en * (1. - signal_pcand->hcalFraction());
+          hcal_en_in_signal_pf_cands += calo_en * signal_pcand->hcalFraction();
         }
       }
       float total = ecal_en_in_signal_pf_cands + hcal_en_in_signal_pf_cands;
