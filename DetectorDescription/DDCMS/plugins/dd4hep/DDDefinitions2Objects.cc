@@ -986,8 +986,10 @@ void Converter<Parameter>::operator()(xml_h element) const {
   string specParName = specPar.attr<string>(_U(name));
   string name = e.nameStr();
   string value = e.attr<string>(DD_CMU(value));
-  bool eval = e.hasAttr(_U(eval)) ? e.attr<bool>(_U(eval))
-                                  : (specParSect.hasAttr(_U(eval)) ? specParSect.attr<bool>(_U(eval)) : false);
+  bool eval = specParSect.hasAttr(_U(eval)) ? specParSect.attr<bool>(_U(eval)) : false;
+  eval = specPar.hasAttr(_U(eval)) ? specPar.attr<bool>(_U(eval)) : eval;
+  eval = e.hasAttr(_U(eval)) ? e.attr<bool>(_U(eval)) : eval;
+
   string type = eval ? "number" : "string";
 
 #ifdef EDM_ML_DEBUG
