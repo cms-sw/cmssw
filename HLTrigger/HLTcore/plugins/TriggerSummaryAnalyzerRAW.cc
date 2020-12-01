@@ -178,11 +178,11 @@ void TriggerSummaryAnalyzerRAW::analyze(edm::StreamID, const edm::Event& iEvent,
       if (nL1TPFTau > 0)
         LogVerbatim("TriggerSummaryAnalyzerRAW") << " L1TPFTau: " << nL1TPFTau;
 
-      const unsigned int nL1THPSPFTau(handle->l1tetsumSlice(iFO).second - handle->l1tetsumSlice(iFO).first);
+      const unsigned int nL1THPSPFTau(handle->l1thpspftauSlice(iFO).second - handle->l1thpspftauSlice(iFO).first);
       if (nL1THPSPFTau > 0)
         LogVerbatim("TriggerSummaryAnalyzerRAW") << " L1THPSPFTau: " << nL1THPSPFTau;
 
-      const unsigned int nL1TPFTrack(handle->l1tetsumSlice(iFO).second - handle->l1tetsumSlice(iFO).first);
+      const unsigned int nL1TPFTrack(handle->l1tpftrackSlice(iFO).second - handle->l1tpftrackSlice(iFO).first);
       if (nL1TPFTrack > 0)
         LogVerbatim("TriggerSummaryAnalyzerRAW") << " L1TPFTrack: " << nL1TPFTrack;
 
