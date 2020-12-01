@@ -266,10 +266,7 @@ int main() {
       cms::cuda::launch(gpuVertexFinder::splitVerticesKernel, {1024, 64}, onGPU_d.get(), ws_d.get(), 9.f);
       cudaCheck(cudaMemcpy(&nv, LOC_WS(nvIntermediate), sizeof(uint32_t), cudaMemcpyDeviceToHost));
 #else
-      gridDim.x = 1;
-      assert(blockIdx.x == 0);
       splitVertices(onGPU_d.get(), ws_d.get(), 9.f);
-      resetGrid();
       nv = ws_d->nvIntermediate;
 #endif
       std::cout << "after split " << nv << std::endl;
