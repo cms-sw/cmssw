@@ -91,6 +91,9 @@ private:
   void ClearInEventLoop();
   void ClearInEndRun();
   // ----------member data ---------------------------
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
+  const edm::ESGetToken<SiStripLatency, SiStripLatencyRcd> latencyToken_;
   edm::EDGetTokenT<reco::TrackCollection> trackTags_;
   edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > clustercollectionToken_;
   edm::EDGetTokenT<reco::MuonCollection> muonTags_;
@@ -167,7 +170,10 @@ private:
 // constructors and destructor
 //
 CosmicRateAnalyzer::CosmicRateAnalyzer(const edm::ParameterSet& iConfig)
-    : trackTags_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracksInputTag"))),
+    : magFieldToken_(esConsumes()),
+      topoToken_(esConsumes()),
+      latencyToken_(esConsumes()),
+      trackTags_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracksInputTag"))),
       clustercollectionToken_(
           consumes<edmNew::DetSetVector<SiStripCluster> >(iConfig.getParameter<edm::InputTag>("tracksInputTag"))),
       muonTags_(consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muonsInputTag"))) {
@@ -216,13 +222,10 @@ void CosmicRateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   edm::Handle<reco::TrackCollection> tracks;
   iEvent.getByToken(trackTags_, tracks);
 
-  edm::ESHandle<MagneticField> magFieldHandle_;
-  iSetup.get<IdealMagneticFieldRecord>().get(magFieldHandle_);
-  magField = -9999;
-  magField = magFieldHandle_.product()->inTesla(GlobalPoint(0, 0, 0)).mag();
-
-  edm::ESHandle<TrackerTopology> tTopo;
-  iSetup.get<TrackerTopologyRcd>().get(tTopo);
+  const TrackerTopology* const tTopo = &iSetup.getData(topoToken_);
+  const MagneticField* magneticField = &iSetup.getData(magFieldToken_);
+  magField = magneticField->inTesla(GlobalPoint(0, 0, 0)).mag();
+  //const SiStripLatency* apvlat = &iSetup.getData(latencyToken_); // unused (for the moment)
 
   edm::Timestamp ts_begin = iEvent.getRun().beginTime();
   double t_begin = stampToReal(ts_begin);
