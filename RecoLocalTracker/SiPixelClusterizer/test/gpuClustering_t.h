@@ -14,7 +14,7 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/launch.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
-#endif
+#endif  // __CUDACC__
 
 #include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuClustering.h"
 #include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuClusterChargeCut.h"
@@ -22,7 +22,7 @@
 int main(void) {
 #ifdef __CUDACC__
   cms::cudatest::requireDevices();
-#endif
+#endif  // __CUDACC__
 
   using namespace gpuClustering;
 
@@ -43,11 +43,11 @@ int main(void) {
   auto d_moduleStart = cms::cuda::make_device_unique<uint32_t[]>(MaxNumModules + 1, nullptr);
   auto d_clusInModule = cms::cuda::make_device_unique<uint32_t[]>(MaxNumModules, nullptr);
   auto d_moduleId = cms::cuda::make_device_unique<uint32_t[]>(MaxNumModules, nullptr);
-#else
+#else  // __CUDACC__
   auto h_moduleStart = std::make_unique<uint32_t[]>(MaxNumModules + 1);
   auto h_clusInModule = std::make_unique<uint32_t[]>(MaxNumModules);
   auto h_moduleId = std::make_unique<uint32_t[]>(MaxNumModules);
-#endif
+#endif  // __CUDACC__
 
   // later random number
   int n = 0;
@@ -240,11 +240,11 @@ int main(void) {
     // size_t size8 = n * sizeof(uint8_t);
 
     cudaCheck(cudaMemcpy(d_moduleStart.get(), &nModules, sizeof(uint32_t), cudaMemcpyHostToDevice));
-
     cudaCheck(cudaMemcpy(d_id.get(), h_id.get(), size16, cudaMemcpyHostToDevice));
     cudaCheck(cudaMemcpy(d_x.get(), h_x.get(), size16, cudaMemcpyHostToDevice));
     cudaCheck(cudaMemcpy(d_y.get(), h_y.get(), size16, cudaMemcpyHostToDevice));
     cudaCheck(cudaMemcpy(d_adc.get(), h_adc.get(), size16, cudaMemcpyHostToDevice));
+
     // Launch CUDA Kernels
     int threadsPerBlock = (kkk == 5) ? 512 : ((kkk == 3) ? 128 : 256);
     int blocksPerGrid = (numElements + threadsPerBlock - 1) / threadsPerBlock;
@@ -296,25 +296,12 @@ int main(void) {
                       n);
 
     cudaDeviceSynchronize();
-#else
-
+#else  // __CUDACC__
     h_moduleStart[0] = nModules;
     countModules(h_id.get(), h_moduleStart.get(), h_clus.get(), n);
     memset(h_clusInModule.get(), 0, MaxNumModules * sizeof(uint32_t));
-#ifdef TODO_FIX_CLUSTERIZER_FOR_ANY_GRID_SIZE
-    // FIXME the findClus kernel should be rewritten to avoid relying on a predefined grid size
-    gridDim.x = MaxNumModules;  //not needed in the kernel for this specific case;
-    assert(blockIdx.x == 0);
-    for (; blockIdx.x < gridDim.x; ++blockIdx.x)
-      findClus(h_id.get(),
-               h_x.get(),
-               h_y.get(),
-               h_moduleStart.get(),
-               h_clusInModule.get(),
-               h_moduleId.get(),
-               h_clus.get(),
-               n);
-#endif  // TODO_FIX_CLUSTERIZER_FOR_ANY_GRID_SIZE
+    findClus(
+        h_id.get(), h_x.get(), h_y.get(), h_moduleStart.get(), h_clusInModule.get(), h_moduleId.get(), h_clus.get(), n);
 
     nModules = h_moduleStart[0];
     auto nclus = h_clusInModule.get();
@@ -329,16 +316,9 @@ int main(void) {
     if (ncl != std::accumulate(nclus, nclus + MaxNumModules, 0))
       std::cout << "ERROR!!!!! wrong number of cluster found" << std::endl;
 
-#ifdef TODO_FIX_CLUSTERIZER_FOR_ANY_GRID_SIZE
-    // FIXME the clusterChargeCut kernel should be rewritten to avoid relying on a predefined grid size
-    gridDim.x = MaxNumModules;  // no needed in the kernel for in this specific case
-    assert(blockIdx.x == 0);
-    for (; blockIdx.x < gridDim.x; ++blockIdx.x)
-      clusterChargeCut(
-          h_id.get(), h_adc.get(), h_moduleStart.get(), h_clusInModule.get(), h_moduleId.get(), h_clus.get(), n);
-#endif  // TODO_FIX_CLUSTERIZER_FOR_ANY_GRID_SIZE
-
-#endif
+    clusterChargeCut(
+        h_id.get(), h_adc.get(), h_moduleStart.get(), h_clusInModule.get(), h_moduleId.get(), h_clus.get(), n);
+#endif  // __CUDACC__
 
     std::cout << "found " << nModules << " Modules active" << std::endl;
 
@@ -347,7 +327,7 @@ int main(void) {
     cudaCheck(cudaMemcpy(h_clus.get(), d_clus.get(), size32, cudaMemcpyDeviceToHost));
     cudaCheck(cudaMemcpy(&nclus, d_clusInModule.get(), MaxNumModules * sizeof(uint32_t), cudaMemcpyDeviceToHost));
     cudaCheck(cudaMemcpy(&moduleId, d_moduleId.get(), nModules * sizeof(uint32_t), cudaMemcpyDeviceToHost));
-#endif
+#endif  // __CUDACC__
 
     std::set<unsigned int> clids;
     for (int i = 0; i < n; ++i) {
