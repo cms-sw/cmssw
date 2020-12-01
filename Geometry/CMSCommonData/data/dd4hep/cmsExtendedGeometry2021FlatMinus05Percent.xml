@@ -5,7 +5,6 @@
 
   <IncludeSection>
     <Include ref='Geometry/CMSCommonData/data/materials/2021/v2/materials.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/zeroMaterial/2021/v1/trackermaterial.xml'/>
     <Include ref='Geometry/CMSCommonData/data/rotations.xml'/>
     <Include ref='Geometry/CMSCommonData/data/extend/v3/cmsextent.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cavernData/2021/v1/cavernData.xml'/>
@@ -25,7 +24,14 @@
     <Include ref='Geometry/CMSCommonData/data/cavern/2021/v1/cavern.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cavernFloor/2017/v1/cavernFloor.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/zeroMaterial/2021/v1/pixfwdMaterials.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/FlatMinus05Percent/2021/trackermaterial.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/FlatMinus05Percent/2021/pixfwdMaterials.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/FlatMinus05Percent/2021/pixbarmaterial.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/FlatMinus05Percent/2021/tibtidcommonmaterial.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/FlatMinus05Percent/2021/tibmaterial.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/FlatMinus05Percent/2021/tidmaterial.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/FlatMinus05Percent/2021/tobmaterial.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/FlatMinus05Percent/2021/tecmaterial.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/pixfwdCommon.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixfwdCylinder.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixfwdDisks.xml'/>
@@ -39,7 +45,6 @@
     <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixfwdbladeInnerZminus.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixfwdbladeOuterZplus.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixfwdbladeOuterZminus.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/zeroMaterial/2021/v1/pixbarmaterial.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixbarladder.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixbarladderfull0.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixbarladderfull1.xml'/>
@@ -53,8 +58,6 @@
     <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixbar.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/Run2/trackerpatchpannel.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/Run2/trackerpixelnose.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/zeroMaterial/2021/v1/tibtidcommonmaterial.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/zeroMaterial/2021/v1/tibmaterial.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tibmodpar.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tibmodule0.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tibmodule0a.xml'/>
@@ -87,7 +90,6 @@
     <Include ref='Geometry/TrackerCommonData/data/tiblayer2.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tiblayer3.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tib.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/zeroMaterial/2021/v1/tidmaterial.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tidmodpar.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tidmodule0.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tidmodule0r.xml'/>
@@ -110,7 +112,6 @@
     <Include ref='Geometry/TrackerCommonData/data/tibtidservices.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tibtidservicesf.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tibtidservicesb.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/zeroMaterial/2021/v1/tobmaterial.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tobmodpar.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tobmodule0.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tobmodule2.xml'/>
@@ -138,7 +139,6 @@
     <Include ref='Geometry/TrackerCommonData/data/tobrod5h.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tobrod5.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/v2/tob.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/zeroMaterial/2021/v1/tecmaterial.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tecmodpar.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tecmodule0.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tecmodule0r.xml'/>
