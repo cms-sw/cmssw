@@ -231,7 +231,8 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       if (index[i] < triggerSize) {
         hltresults.push_back(_Triggers->accept(index[i]));
         if ((verbosity_ % 10) > 2)
-          edm::LogVerbatim("HBHEMuon") << "trigger_info " << triggerSize << " triggerSize " << index[i] << " trigger_index " << hltresults.at(i) << " hltresult ";
+          edm::LogVerbatim("HBHEMuon") << "trigger_info " << triggerSize << " triggerSize " << index[i]
+                                       << " trigger_index " << hltresults.at(i) << " hltresult ";
       } else {
         edm::LogVerbatim("HBHEMuon") << "Requested HLT path \""
                                      << "\" does not exist";
@@ -399,8 +400,8 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
                                                           false);
 
           eEcal = e3x3.first;
-	  if (((verbosity_ / 10) % 10) > 1)
-	    edm::LogVerbatim("HBHEMuon") << "eEcal" << eEcal;
+          if (((verbosity_ / 10) % 10) > 1)
+            edm::LogVerbatim("HBHEMuon") << "eEcal" << eEcal;
         }
 
         if (trackID.okHCAL) {
@@ -423,8 +424,8 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
           int iphi = ((HcalDetId)(closestCell)).iphi();
           int zside = ((HcalDetId)(closestCell)).iphi();
           int depthHE = theHBHETopology->dddConstants()->getMinDepth(1, 16, iphi, zside);
-	  if (((verbosity_ / 10) % 10) > 1)
-	    edm::LogVerbatim("HBHEMuon") << "eHcal " << eHcal;
+          if (((verbosity_ / 10) % 10) > 1)
+            edm::LogVerbatim("HBHEMuon") << "eHcal " << eHcal;
           std::vector<std::pair<double, int> > ehdepth;
           spr::energyHCALCell((HcalDetId)closestCell,
                               hbhe,
@@ -441,8 +442,9 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
                               (((verbosity_ / 1000) % 10) > 0));
           for (unsigned int i = 0; i < ehdepth.size(); ++i) {
             eHcalDepth[ehdepth[i].second - 1] = ehdepth[i].first;
-	    if (((verbosity_ / 10) % 10) > 1)
-	      edm::LogVerbatim("HBHEMuon") << "eHcalDepth " << i << ":" << (ehdepth[i].second - 1) << ":" << eHcalDepth[ehdepth[i].second - 1];
+            if (((verbosity_ / 10) % 10) > 1)
+              edm::LogVerbatim("HBHEMuon")
+                  << "eHcalDepth " << i << ":" << (ehdepth[i].second - 1) << ":" << eHcalDepth[ehdepth[i].second - 1];
           }
 
           eHcal = spr::eHCALmatrix(theHBHETopology,
@@ -460,8 +462,8 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
                                    500.,
                                    useRaw_);
 
-	  if (((verbosity_ / 10) % 10) > 1)
-	    edm::LogVerbatim("HBHEMuon") << "eHcal " << eHcal;
+          if (((verbosity_ / 10) % 10) > 1)
+            edm::LogVerbatim("HBHEMuon") << "eHcal " << eHcal;
           const DetId closestCellCalo(trackID.detIdHCAL);
           iphi = ((HcalDetId)(closestCellCalo)).iphi();
           zside = ((HcalDetId)(closestCellCalo)).iphi();
@@ -482,15 +484,16 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
                               (((verbosity_ / 1000) % 10) > 0));
           for (unsigned int i = 0; i < ehdepthCalo.size(); ++i) {
             eHcalDepthCalo[ehdepthCalo[i].second - 1] = ehdepthCalo[i].first;
-	    if (((verbosity_ / 10) % 10) > 1)
-	      edm::LogVerbatim("HBHEMuon") << "eHcalDepthCalo " << i << ":" << (ehdepth[i].second - 1) << ":" << eHcalDepth[ehdepth[i].second - 1];
+            if (((verbosity_ / 10) % 10) > 1)
+              edm::LogVerbatim("HBHEMuon") << "eHcalDepthCalo " << i << ":" << (ehdepth[i].second - 1) << ":"
+                                           << eHcalDepth[ehdepth[i].second - 1];
           }
 
           HcalDetId hcid0(closestCell.rawId());
           activeL = activeLength(trackID.detIdHCAL);
 
-	  if (((verbosity_ / 10) % 10) > 0)
-	    edm::LogVerbatim("HBHEMuon") << "activeL " << activeL;
+          if (((verbosity_ / 10) % 10) > 0)
+            edm::LogVerbatim("HBHEMuon") << "activeL " << activeL;
           HcalDetId hotCell, hotCellCalo;
           h3x3 = spr::eHCALmatrix(geo, theHBHETopology, closestCell, hbhe, 1, 1, hotCell, false, useRaw_, false);
           h3x3Calo = spr::eHCALmatrix(
@@ -499,8 +502,10 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
           isHot = matchId(closestCell, hotCell);
           isHotCalo = matchId(closestCellCalo, hotCellCalo);
 
-	  if (((verbosity_ / 10) % 10) > 1)
-	    edm::LogVerbatim("HBHEMuon") << "hcal 3X3  < " << h3x3 << ">" << " ClosestCell <" << (HcalDetId)(closestCell) << "> hotCell id < " << hotCell << "> isHot" << isHot;
+          if (((verbosity_ / 10) % 10) > 1)
+            edm::LogVerbatim("HBHEMuon") << "hcal 3X3  < " << h3x3 << ">"
+                                         << " ClosestCell <" << (HcalDetId)(closestCell) << "> hotCell id < " << hotCell
+                                         << "> isHot" << isHot;
           if (hotCell != HcalDetId()) {
             iphi = ((HcalDetId)(hotCell)).iphi();
             zside = ((HcalDetId)(hotCell)).iphi();
@@ -520,8 +525,9 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
                                 false);  //(((verbosity_/1000)%10)>0));
             for (unsigned int i = 0; i < ehdepth.size(); ++i) {
               eHcalDepthHot[ehdepth[i].second - 1] = ehdepth[i].first;
-	      if (((verbosity_ / 10) % 10) > 1)
-		edm::LogVerbatim("HBHEMuon") << "eHcalDepthHot " << i << ":" << (ehdepth[i].second - 1) << ":" << eHcalDepthHot[ehdepth[i].second - 1];
+              if (((verbosity_ / 10) % 10) > 1)
+                edm::LogVerbatim("HBHEMuon") << "eHcalDepthHot " << i << ":" << (ehdepth[i].second - 1) << ":"
+                                             << eHcalDepthHot[ehdepth[i].second - 1];
             }
           }
 
@@ -546,8 +552,9 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
                                 false);
             for (unsigned int i = 0; i < ehdepthCalo.size(); ++i) {
               eHcalDepthHotCalo[ehdepthCalo[i].second - 1] = ehdepthCalo[i].first;
-	      if (((verbosity_ / 10) % 10) > 1)
-		edm::LogVerbatim("HBHEMuon") << "eHcalDepthHotCalo " << i << ":" << (ehdepth[i].second - 1) << ":" << eHcalDepthHot[ehdepth[i].second - 1];
+              if (((verbosity_ / 10) % 10) > 1)
+                edm::LogVerbatim("HBHEMuon") << "eHcalDepthHotCalo " << i << ":" << (ehdepth[i].second - 1) << ":"
+                                             << eHcalDepthHot[ehdepth[i].second - 1];
             }
           }
         }

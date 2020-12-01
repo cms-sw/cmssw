@@ -118,7 +118,9 @@ HcalHBHEMuonSimAnalyzer::HcalHBHEMuonSimAnalyzer(const edm::ParameterSet& iConfi
   else if (maxDepth_ < 1)
     maxDepth_ = 4;
 
-  edm::LogVerbatim("HBHEMuon") << "Labels: " << g4Label_ << ":" << ebLabel_ << ":" << eeLabel_ << ":" << hcLabel_ << "\nVerbosity " << verbosity_ << " MaxDepth " << maxDepth_ << " Maximum Eta " << etaMax_ << " tMin|tMax " << tMinE_ << ":" << tMaxE_ << ":" << tMinH_ << ":" << tMaxH_;
+  edm::LogVerbatim("HBHEMuon") << "Labels: " << g4Label_ << ":" << ebLabel_ << ":" << eeLabel_ << ":" << hcLabel_
+                               << "\nVerbosity " << verbosity_ << " MaxDepth " << maxDepth_ << " Maximum Eta "
+                               << etaMax_ << " tMin|tMax " << tMinE_ << ":" << tMaxE_ << ":" << tMinH_ << ":" << tMaxH_;
 
   tok_ddrec_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>();
   tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
@@ -197,7 +199,13 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
         eHcalDepth[i] = eHcalDepthHot[i] = activeL[i] = activeHotL[i] = -10000;
 
       if ((verbosity_ % 10) > 0)
-        edm::LogVerbatim("HBHEMuon") << "Track Type " << simTrkItr->type() << " Vertex " << simTrkItr->vertIndex() << " Charge " << simTrkItr->charge() << " Momentum " << simTrkItr->momentum().P() << ":" << simTrkItr->momentum().eta() << ":" << simTrkItr->momentum().phi() << " ECAL|HCAL " << trkD.okECAL << ":" << trkD.okHCAL << " Point " << trkD.pointECAL << ":" << trkD.pointHCAL << " Direction " << trkD.directionECAL.eta() << ":" << trkD.directionECAL.phi() << " | " << trkD.directionHCAL.eta() << ":" << trkD.directionHCAL.phi();
+        edm::LogVerbatim("HBHEMuon") << "Track Type " << simTrkItr->type() << " Vertex " << simTrkItr->vertIndex()
+                                     << " Charge " << simTrkItr->charge() << " Momentum " << simTrkItr->momentum().P()
+                                     << ":" << simTrkItr->momentum().eta() << ":" << simTrkItr->momentum().phi()
+                                     << " ECAL|HCAL " << trkD.okECAL << ":" << trkD.okHCAL << " Point "
+                                     << trkD.pointECAL << ":" << trkD.pointHCAL << " Direction "
+                                     << trkD.directionECAL.eta() << ":" << trkD.directionECAL.phi() << " | "
+                                     << trkD.directionHCAL.eta() << ":" << trkD.directionHCAL.phi();
 
       bool propageback(false);
       spr::propagatedTrackDirection trkD_back = spr::propagateHCALBack(thisTrk, SimTk, SimVtx, geo, bField, debug);
@@ -214,7 +222,9 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
         phiGlob_.push_back(tkvx.momentum.phi());
         pMuon_.push_back(tkvx.momentum.mag());
         if ((verbosity_ % 10) > 0)
-          edm::LogVerbatim("HBHEMuon") << "Track at vertex " << tkvx.ok << " position " << tkvx.position << " Momentum " << tkvx.momentum.mag() << ":" << tkvx.momentum.eta() << ":" << tkvx.momentum.phi() << " Charge " << tkvx.charge;
+          edm::LogVerbatim("HBHEMuon") << "Track at vertex " << tkvx.ok << " position " << tkvx.position << " Momentum "
+                                       << tkvx.momentum.mag() << ":" << tkvx.momentum.eta() << ":"
+                                       << tkvx.momentum.phi() << " Charge " << tkvx.charge;
 
         // Energy in ECAL
         DetId isoCell;
@@ -269,7 +279,8 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
         double h3x3 = spr::eHCALmatrix(geo, theHBHETopology, closestCell, calohh, 1, 1, hotCell, debug);
         isHot = matchId(closestCell, hotCell);
         if ((verbosity_ % 10) > 0)
-          edm::LogVerbatim("HBHEMuon") << "hcal 3X3  < " << h3x3 << "> ClosestCell <" << (HcalDetId)(closestCell) << "> hotCell id < " << hotCell << "> isHot" << isHot;
+          edm::LogVerbatim("HBHEMuon") << "hcal 3X3  < " << h3x3 << "> ClosestCell <" << (HcalDetId)(closestCell)
+                                       << "> hotCell id < " << hotCell << "> isHot" << isHot;
 
         if (hotCell != HcalDetId()) {
           subdet = HcalDetId(hotCell).subdet();

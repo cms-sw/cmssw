@@ -176,7 +176,18 @@ IsoTrackCalibration::IsoTrackCalibration(const edm::ParameterSet &iConfig) : nRu
   }
 
   if (verbosity_ >= 0) {
-    edm::LogVerbatim("IsoTrack") << "Parameters read from config file \n" << "\t minPt " << selectionParameters_.minPt << "\t theTrackQuality " << theTrackQuality_ << "\t minQuality " << selectionParameters_.minQuality << "\t maxDxyPV " << selectionParameters_.maxDxyPV << "\t maxDzPV " << selectionParameters_.maxDzPV << "\t maxChi2 " << selectionParameters_.maxChi2 << "\t maxDpOverP " << selectionParameters_.maxDpOverP << "\t minOuterHit " << selectionParameters_.minOuterHit << "\t minLayerCrossed " << selectionParameters_.minLayerCrossed << "\t maxInMiss " << selectionParameters_.maxInMiss << "\t maxOutMiss " << selectionParameters_.maxOutMiss << "\t a_coneR " << a_coneR_ << "\t a_charIsoR " << a_charIsoR_ << "\t a_mipR " << a_mipR_ << "\t isMC " << isMC_ << "\t isQCD " << isQCD_ << "\t isAOD " << isAOD_;
+    edm::LogVerbatim("IsoTrack") << "Parameters read from config file \n"
+                                 << "\t minPt " << selectionParameters_.minPt << "\t theTrackQuality "
+                                 << theTrackQuality_ << "\t minQuality " << selectionParameters_.minQuality
+                                 << "\t maxDxyPV " << selectionParameters_.maxDxyPV << "\t maxDzPV "
+                                 << selectionParameters_.maxDzPV << "\t maxChi2 " << selectionParameters_.maxChi2
+                                 << "\t maxDpOverP " << selectionParameters_.maxDpOverP << "\t minOuterHit "
+                                 << selectionParameters_.minOuterHit << "\t minLayerCrossed "
+                                 << selectionParameters_.minLayerCrossed << "\t maxInMiss "
+                                 << selectionParameters_.maxInMiss << "\t maxOutMiss "
+                                 << selectionParameters_.maxOutMiss << "\t a_coneR " << a_coneR_ << "\t a_charIsoR "
+                                 << a_charIsoR_ << "\t a_mipR " << a_mipR_ << "\t isMC " << isMC_ << "\t isQCD "
+                                 << isQCD_ << "\t isAOD " << isAOD_;
     edm::LogVerbatim("IsoTrack") << trigNames_.size() << " triggers to be studied:";
     for (unsigned int k = 0; k < trigNames_.size(); ++k)
       edm::LogVerbatim("IsoTrack") << "[" << k << "] " << trigNames_[k];
@@ -195,7 +206,9 @@ void IsoTrackCalibration::analyze(const edm::Event &iEvent, const edm::EventSetu
   t_Run = iEvent.id().run();
   t_Event = iEvent.id().event();
   if (verbosity_ % 10 > 0)
-    edm::LogVerbatim("IsoTrack") << "Run " << t_Run << " Event " << t_Event << " Luminosity " << iEvent.luminosityBlock() << " Bunch " << iEvent.bunchCrossing() << " starts ==========";
+    edm::LogVerbatim("IsoTrack") << "Run " << t_Run << " Event " << t_Event << " Luminosity "
+                                 << iEvent.luminosityBlock() << " Bunch " << iEvent.bunchCrossing()
+                                 << " starts ==========";
   //Get magnetic field
   const MagneticField *bField = &iSetup.getData(tok_magField_);
 
@@ -266,7 +279,8 @@ void IsoTrackCalibration::analyze(const edm::Event &iEvent, const edm::EventSetu
               if (triggerNames_[iHLT].find(trigNames_[i]) != std::string::npos) {
                 triggerOK = true;
                 if (verbosity_ % 10 > 0)
-                  edm::LogVerbatim("IsoTrack") << "This is the trigger we are looking for " << triggerNames_[iHLT] << " Flag " << hlt;
+                  edm::LogVerbatim("IsoTrack")
+                      << "This is the trigger we are looking for " << triggerNames_[iHLT] << " Flag " << hlt;
               }
             }
           }
@@ -288,7 +302,8 @@ void IsoTrackCalibration::analyze(const edm::Event &iEvent, const edm::EventSetu
          trkDetItr++, nTracks++) {
       const reco::Track *pTrack = &(*(trkDetItr->trkItr));
       if (verbosity_ % 10 > 0)
-        edm::LogVerbatim("IsoTrack") << "This track : " << nTracks << " (pt/eta/phi/p) :" << pTrack->pt() << "/" << pTrack->eta() << "/" << pTrack->phi() << "/" << pTrack->p();
+        edm::LogVerbatim("IsoTrack") << "This track : " << nTracks << " (pt/eta/phi/p) :" << pTrack->pt() << "/"
+                                     << pTrack->eta() << "/" << pTrack->phi() << "/" << pTrack->p();
 
       t_ieta = 0;
       if (trkDetItr->okHCAL) {
@@ -317,7 +332,8 @@ void IsoTrackCalibration::analyze(const edm::Event &iEvent, const edm::EventSetu
       t_qltyPVFlag = spr::goodTrack(pTrack, leadPV, oneCutParameters, ((verbosity_ / 100) % 10 > 2));
 
       if (verbosity_ % 10 > 0)
-        edm::LogVerbatim("IsoTrack") << "qltyFlag|okECAL|okHCAL : " << qltyFlag << "|" << trkDetItr->okECAL << "/" << trkDetItr->okHCAL;
+        edm::LogVerbatim("IsoTrack") << "qltyFlag|okECAL|okHCAL : " << qltyFlag << "|" << trkDetItr->okECAL << "/"
+                                     << trkDetItr->okHCAL;
       if (qltyFlag && trkDetItr->okECAL && trkDetItr->okHCAL) {
         nselTracks++;
         int nRH_eMipDR(0), nNearTRKs(0);
@@ -392,10 +408,14 @@ void IsoTrackCalibration::analyze(const edm::Event &iEvent, const edm::EventSetu
           t_pt = pTrack->pt();
           t_phi = pTrack->phi();
           if (verbosity_ % 10 > 0) {
-            edm::LogVerbatim("IsoTrack") << "This track : " << nTracks << " (pt/eta/phi/p) :" << pTrack->pt() << "/" << pTrack->eta() << "/" << pTrack->phi() << "/" << t_p;
-            edm::LogVerbatim("IsoTrack") << "e_MIP " << t_eMipDR << " Chg Isolation " << t_hmaxNearP << " eHcal" << t_eHcal << " ieta " << t_ieta << " Quality " << t_qltyMissFlag << ":" << t_qltyPVFlag << ":" << t_selectTk;
+            edm::LogVerbatim("IsoTrack") << "This track : " << nTracks << " (pt/eta/phi/p) :" << pTrack->pt() << "/"
+                                         << pTrack->eta() << "/" << pTrack->phi() << "/" << t_p;
+            edm::LogVerbatim("IsoTrack") << "e_MIP " << t_eMipDR << " Chg Isolation " << t_hmaxNearP << " eHcal"
+                                         << t_eHcal << " ieta " << t_ieta << " Quality " << t_qltyMissFlag << ":"
+                                         << t_qltyPVFlag << ":" << t_selectTk;
             for (unsigned int lll = 0; lll < t_DetIds->size(); lll++) {
-              edm::LogVerbatim("IsoTrack") << "det id is = " << t_DetIds->at(lll) << "   hit enery is  = " << t_HitEnergies->at(lll);
+              edm::LogVerbatim("IsoTrack")
+                  << "det id is = " << t_DetIds->at(lll) << "   hit enery is  = " << t_HitEnergies->at(lll);
             }
           }
           tree->Fill();
