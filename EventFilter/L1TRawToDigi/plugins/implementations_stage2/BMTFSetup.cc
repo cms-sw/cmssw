@@ -22,13 +22,12 @@ namespace l1t {
         std::array<int, 12> board_out = {{1, 7, 2, 8, 3, 9, 4, 10, 5, 11, 6, 12}};  //these are board_ids per amc_no-1
 
         for (unsigned int i = 1; i <= board_out.size(); i++) {
-          if (i % 2 != 0) {  //maybe this check is not needed
-            res[{i, board_out[i - 1]}] = {PackerFactory::get()->make("stage2::BMTFPackerOutput"),
-                                          PackerFactory::get()->make("stage2::BMTFPackerInputs")};
-          } else {
-            res[{i, board_out[i - 1]}] = {PackerFactory::get()->make("stage2::BMTFPackerOutput"),
-                                          PackerFactory::get()->make("stage2::BMTFPackerInputs")};
-          }
+	  auto packer_out = std::make_shared<BMTFPackerOutput>();
+	  auto packer_in  = PackerFactory::get()->make("stage2::BMTFPackerInputs");
+	  if (fw >= 2452619552) { // the 1st Kalman fw ver
+	    packer_out->setKalmanAlgoTrue();
+	  }
+	  res[{i, board_out[i - 1]}] = {packer_out, packer_in};
         }
       }  //if feds
 
