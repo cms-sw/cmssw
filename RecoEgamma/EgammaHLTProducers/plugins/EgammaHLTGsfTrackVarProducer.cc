@@ -65,6 +65,7 @@ private:
   const edm::EDPutTokenT<reco::RecoEcalCandidateIsolationMap> oneOverESeedMinusOneOverPMapPutToken_;
   const edm::EDPutTokenT<reco::RecoEcalCandidateIsolationMap> missingHitsMapPutToken_;
   const edm::EDPutTokenT<reco::RecoEcalCandidateIsolationMap> validHitsMapPutToken_;
+  const edm::EDPutTokenT<reco::RecoEcalCandidateIsolationMap> nLayerITMapPutToken_;
   const edm::EDPutTokenT<reco::RecoEcalCandidateIsolationMap> chi2MapPutToken_;
 };
 
@@ -88,6 +89,7 @@ EgammaHLTGsfTrackVarProducer::EgammaHLTGsfTrackVarProducer(const edm::ParameterS
       missingHitsMapPutToken_{
           produces<reco::RecoEcalCandidateIsolationMap>("MissingHits").setBranchAlias("missinghits")},
       validHitsMapPutToken_{produces<reco::RecoEcalCandidateIsolationMap>("ValidHits").setBranchAlias("validhits")},
+      nLayerITMapPutToken_{produces<reco::RecoEcalCandidateIsolationMap>("NLayerIT").setBranchAlias("nlayerit")},
       chi2MapPutToken_{produces<reco::RecoEcalCandidateIsolationMap>("Chi2").setBranchAlias("chi2")} {}
 
 void EgammaHLTGsfTrackVarProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -120,6 +122,7 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::StreamID, edm::Event& iEvent, co
   reco::RecoEcalCandidateIsolationMap oneOverESeedMinusOneOverPMap(recoEcalCandHandle);
   reco::RecoEcalCandidateIsolationMap missingHitsMap(recoEcalCandHandle);
   reco::RecoEcalCandidateIsolationMap validHitsMap(recoEcalCandHandle);
+  reco::RecoEcalCandidateIsolationMap nLayerITMap(recoEcalCandHandle);
   reco::RecoEcalCandidateIsolationMap chi2Map(recoEcalCandHandle);
 
   for (unsigned int iRecoEcalCand = 0; iRecoEcalCand < recoEcalCandHandle->size(); ++iRecoEcalCand) {
@@ -144,6 +147,7 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::StreamID, edm::Event& iEvent, co
       }
     }
 
+    int nLayerITValue = -1;
     int validHitsValue = 0;
     float chi2Value = 9999999.;
     float missingHitsValue = 9999999;
@@ -161,6 +165,7 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::StreamID, edm::Event& iEvent, co
                                       : useDefaultValuesForEndcap_ && nrTracks >= 1;
 
     if (rmCutsDueToNrTracks || useDefaultValues) {
+      nLayerITValue = 100;
       dEtaInValue = 0;
       dEtaSeedInValue = 0;
       dPhiInValue = 0;
@@ -205,6 +210,10 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::StreamID, edm::Event& iEvent, co
           validHitsValue = gsfTracks[trkNr]->numberOfValidHits();
         }
 
+        if (gsfTracks[trkNr]->hitPattern().pixelLayersWithMeasurement() > nLayerITValue) {
+          nLayerITValue = gsfTracks[trkNr]->hitPattern().pixelLayersWithMeasurement();
+        }
+
         if (gsfTracks[trkNr]->normalizedChi2() < chi2Value) {
           chi2Value = gsfTracks[trkNr]->normalizedChi2();
         }
@@ -232,6 +241,7 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::StreamID, edm::Event& iEvent, co
     oneOverESeedMinusOneOverPMap.insert(recoEcalCandRef, oneOverESeedMinusOneOverPValue);
     missingHitsMap.insert(recoEcalCandRef, missingHitsValue);
     validHitsMap.insert(recoEcalCandRef, validHitsValue);
+    nLayerITMap.insert(recoEcalCandRef, nLayerITValue);
     chi2Map.insert(recoEcalCandRef, chi2Value);
   }
 
@@ -242,6 +252,7 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::StreamID, edm::Event& iEvent, co
   iEvent.emplace(oneOverESeedMinusOneOverPMapPutToken_, oneOverESeedMinusOneOverPMap);
   iEvent.emplace(missingHitsMapPutToken_, missingHitsMap);
   iEvent.emplace(validHitsMapPutToken_, validHitsMap);
+  iEvent.emplace(nLayerITMapPutToken_, nLayerITMap);
   iEvent.emplace(chi2MapPutToken_, chi2Map);
 }
 

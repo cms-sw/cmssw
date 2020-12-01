@@ -130,6 +130,8 @@ ECalSD::ECalSD(const std::string& name,
   } else {
     edm::LogWarning("EcalSim") << "ECalSD: ReadoutName not supported";
   }
+  int type0 = dumpGeom / 1000;
+  type += (10 * type0);
 
   if (scheme)
     setNumberingScheme(scheme);
@@ -174,7 +176,7 @@ ECalSD::ECalSD(const std::string& name,
 #endif
   if (dump) {
     const auto& lvNames = clg.logicalNames(name);
-    EcalDumpGeometry geom(lvNames, type);
+    EcalDumpGeometry geom(lvNames, depth1Name, depth2Name, type);
     geom.update();
   }
 }
@@ -224,7 +226,8 @@ double ECalSD::getEnergyDeposit(const G4Step* aStep) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("EcalSim") << lv->GetName() << " " << dd4hep::dd::noNamespace(lv->GetName())
                               << " Light Collection Efficiency " << weight << ":" << wt1 << " wt2= " << wt2
-                              << " Weighted Energy Deposit " << edep / CLHEP::MeV << " MeV";
+                              << " Weighted Energy Deposit " << edep / CLHEP::MeV << " MeV at "
+                              << preStepPoint->GetPosition();
 #endif
   return edep;
 }
@@ -274,10 +277,12 @@ uint16_t ECalSD::getDepth(const G4Step* aStep) {
     depth2 = getLayerIDForTimeSim();
     depth |= ((depth2 & PCaloHit::kEcalDepthMask) << PCaloHit::kEcalDepthOffset);
   }
-  edm::LogVerbatim("EcalSim") << "ECalSD::Volume " << lv->GetName() << " DetId " << std::hex << setDetUnitId(aStep)
-                              << std::dec << " Global " << (hitPoint->GetPosition()).rho() << ":"
-                              << (hitPoint->GetPosition()).z() << " Local Z " << currentLocalPoint.z();
 #ifdef EDM_ML_DEBUG
+  if (isXtal(lv))
+    edm::LogVerbatim("EcalSimX") << "ECalSD::Volume " << lv->GetName() << " DetId " << std::hex << setDetUnitId(aStep)
+                                 << std::dec << " Global " << (hitPoint->GetPosition()).rho() << ":"
+                                 << (hitPoint->GetPosition()).z() << " Local Z " << currentLocalPoint.z() << " Depth "
+                                 << crystalDepth;
   edm::LogVerbatim("EcalSim") << "ECalSD::Depth " << std::hex << depth1 << ":" << depth2 << ":" << depth << std::dec
                               << " L " << (ite == xtalLMap.end()) << ":" << ite->second << " local "
                               << currentLocalPoint << " Crystal length " << crystalLength << ":" << crystalDepth;
@@ -291,7 +296,7 @@ uint16_t ECalSD::getRadiationLength(const G4StepPoint* hitPoint, const G4Logical
     double radl = hitPoint->GetMaterial()->GetRadlen();
     thisX0 = (uint16_t)floor(scaleRL * crystalDepth / radl);
 #ifdef plotDebug
-    const std::string& lvname = lv->GetName();
+    const std::string& lvname = dd4hep::dd::noNamespace(lv->GetName());
     int k1 = (lvname.find("EFRY") != std::string::npos) ? 2 : 0;
     int k2 = (lvname.find("refl") != std::string::npos) ? 1 : 0;
     int kk = k1 + k2;
@@ -418,9 +423,9 @@ void ECalSD::initMap() {
   edm::LogVerbatim("EcalSim") << "ECalSD: Length Table:";
   int i = 0;
   for (auto ite : xtalLMap) {
-    G4String name("Unknown");
+    std::string name("Unknown");
     if (ite.first != nullptr)
-      name = (ite.first)->GetName();
+      name = dd4hep::dd::noNamespace((ite.first)->GetName());
     edm::LogVerbatim("EcalSim") << " " << i << " " << ite.first << " " << name << " L = " << ite.second;
     ++i;
   }
@@ -497,3 +502,5 @@ double ECalSD::getBirkL3(const G4Step* aStep) {
   }
   return weight;
 }
+
+bool ECalSD::isXtal(const G4LogicalVolume* lv) { return (xtalLMap.find(lv) != xtalLMap.end()); }

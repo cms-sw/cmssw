@@ -72,73 +72,36 @@ process.p = cms.Path(process.electronBenchmarkGeneric)
 
 
 process.MessageLogger = cms.Service("MessageLogger",
-    suppressInfo = cms.untracked.vstring(),
-    debugs = cms.untracked.PSet(
-        placeholder = cms.untracked.bool(True)
-    ),
-    suppressDebug = cms.untracked.vstring(),
-    cout = cms.untracked.PSet(
-        placeholder = cms.untracked.bool(True)
-    ),
-    cerr_stats = cms.untracked.PSet(
-        threshold = cms.untracked.string('WARNING'),
-        output = cms.untracked.string('cerr'),
-        optionalPSet = cms.untracked.bool(True)
-    ),
-    warnings = cms.untracked.PSet(
-        placeholder = cms.untracked.bool(True)
-    ),
-    default = cms.untracked.PSet(
-
-    ),
-    statistics = cms.untracked.vstring('cerr_stats'),
     cerr = cms.untracked.PSet(
+        FwkReport = cms.untracked.PSet(
+            limit = cms.untracked.int32(10000000),
+            reportEvery = cms.untracked.int32(100)
+        ),
+        FwkSummary = cms.untracked.PSet(
+            limit = cms.untracked.int32(10000000),
+            reportEvery = cms.untracked.int32(1)
+        ),
         INFO = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        noTimeStamps = cms.untracked.bool(False),
-        FwkReport = cms.untracked.PSet(
-            reportEvery = cms.untracked.int32(100),
-            optionalPSet = cms.untracked.bool(True),
-            limit = cms.untracked.int32(10000000)
+        Root_NoDictionary = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
         ),
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(10000000)
         ),
-        Root_NoDictionary = cms.untracked.PSet(
-            optionalPSet = cms.untracked.bool(True),
-            limit = cms.untracked.int32(0)
-        ),
+        noTimeStamps = cms.untracked.bool(False),
         threshold = cms.untracked.string('INFO'),
-        FwkSummary = cms.untracked.PSet(
-            reportEvery = cms.untracked.int32(1),
-            optionalPSet = cms.untracked.bool(True),
-            limit = cms.untracked.int32(10000000)
-        ),
-        optionalPSet = cms.untracked.bool(True)
+        enableStatistics = cms.untracked.bool(True),
+        statisticsThreshold = cms.untracked.string('WARNING')
     ),
-    suppressWarning = cms.untracked.vstring(),
-    errors = cms.untracked.PSet(
-        placeholder = cms.untracked.bool(True)
-    ),
-    destinations = cms.untracked.vstring('warnings', 
-        'errors', 
-        'infos', 
-        'debugs', 
-        'cout', 
-        'cerr'),
     debugModules = cms.untracked.vstring(),
-    infos = cms.untracked.PSet(
-        optionalPSet = cms.untracked.bool(True),
-        Root_NoDictionary = cms.untracked.PSet(
-            optionalPSet = cms.untracked.bool(True),
-            limit = cms.untracked.int32(0)
-        ),
-        placeholder = cms.untracked.bool(True)
+    default = cms.untracked.PSet(
+
     ),
-    categories = cms.untracked.vstring('FwkReport', 
-        'FwkSummary', 
-        'Root_NoDictionary')
+    suppressDebug = cms.untracked.vstring(),
+    suppressInfo = cms.untracked.vstring(),
+    suppressWarning = cms.untracked.vstring()
 )
 
 

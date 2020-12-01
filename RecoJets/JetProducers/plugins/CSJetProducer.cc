@@ -176,8 +176,8 @@ void CSJetProducer::fillDescriptionsFromCSJetProducer(edm::ParameterSetDescripti
   desc.add<double>("csRParam", -1.);
   desc.add<double>("csAlpha", 2.);
   desc.add<bool>("useModulatedRho", false);
-  desc.add<double>("minFlowChi2Prob", false);
-  desc.add<double>("maxFlowChi2Prob", false);
+  desc.add<double>("minFlowChi2Prob", 0.05);
+  desc.add<double>("maxFlowChi2Prob", 0.95);
   desc.add<edm::InputTag>("etaMap", {"hiFJRhoProducer", "mapEtaEdges"});
   desc.add<edm::InputTag>("rho", {"hiFJRhoProducer", "mapToRho"});
   desc.add<edm::InputTag>("rhom", {"hiFJRhoProducer", "mapToRhoM"});

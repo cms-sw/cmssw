@@ -1,50 +1,138 @@
-#include <iostream>
-#include <vector>
-#include <memory>
+/** \class ConversionTrackCandidateProducer
+ **  
+ **
+ **  \author Nancy Marinelli, U. of Notre Dame, US
+ **
+ ***/
 
-// Framework
+#include "CommonTools/Utils/interface/StringToEnumValue.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaTrackReco/interface/TrackCandidateCaloClusterAssociation.h"
+#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-//
-#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
-#include "DataFormats/EgammaTrackReco/interface/TrackCandidateSuperClusterAssociation.h"
-#include "DataFormats/EgammaTrackReco/interface/TrackCandidateCaloClusterAssociation.h"
-//
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-//
+#include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-//  Abstract classes for the conversion tracking components
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionSeedFinder.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionTrackFinder.h"
-// Class header file
-#include "RecoEgamma/EgammaPhotonProducers/interface/ConversionTrackCandidateProducer.h"
-//
-#include "RecoTracker/CkfPattern/interface/BaseCkfTrajectoryBuilderFactory.h"
-#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
-#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
-#include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
-#include "RecoEgamma/EgammaPhotonAlgos/interface/OutInConversionSeedFinder.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/InOutConversionSeedFinder.h"
-#include "RecoEgamma/EgammaPhotonAlgos/interface/OutInConversionTrackFinder.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/InOutConversionTrackFinder.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
-
-#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "CommonTools/Utils/interface/StringToEnumValue.h"
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-
+#include "RecoEgamma/EgammaPhotonAlgos/interface/OutInConversionSeedFinder.h"
+#include "RecoEgamma/EgammaPhotonAlgos/interface/OutInConversionTrackFinder.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "RecoTracker/CkfPattern/interface/BaseCkfTrajectoryBuilder.h"
+#include "RecoTracker/CkfPattern/interface/BaseCkfTrajectoryBuilderFactory.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
+#include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
+#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
+#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
+#include "TrackingTools/DetLayers/interface/NavigationSchool.h"
+#include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
+
+#include <vector>
+
+// ConversionTrackCandidateProducer inherits from EDProducer, so it can be a module:
+class ConversionTrackCandidateProducer : public edm::stream::EDProducer<> {
+public:
+  ConversionTrackCandidateProducer(const edm::ParameterSet& ps);
+  ~ConversionTrackCandidateProducer() override;
+
+  void beginRun(edm::Run const&, edm::EventSetup const& es) final;
+  void produce(edm::Event& evt, const edm::EventSetup& es) override;
+
+private:
+  int nEvt_;
+
+  /// Initialize EventSetup objects at each event
+  void setEventSetup(const edm::EventSetup& es);
+
+  std::string OutInTrackCandidateCollection_;
+  std::string InOutTrackCandidateCollection_;
+
+  std::string OutInTrackSuperClusterAssociationCollection_;
+  std::string InOutTrackSuperClusterAssociationCollection_;
+
+  edm::EDGetTokenT<edm::View<reco::CaloCluster> > bcBarrelCollection_;
+  edm::EDGetTokenT<edm::View<reco::CaloCluster> > bcEndcapCollection_;
+  edm::EDGetTokenT<edm::View<reco::CaloCluster> > scHybridBarrelProducer_;
+  edm::EDGetTokenT<edm::View<reco::CaloCluster> > scIslandEndcapProducer_;
+  edm::EDGetTokenT<CaloTowerCollection> hcalTowers_;
+  edm::EDGetTokenT<EcalRecHitCollection> barrelecalCollection_;
+  edm::EDGetTokenT<EcalRecHitCollection> endcapecalCollection_;
+  edm::EDGetTokenT<MeasurementTrackerEvent> measurementTrkEvtToken_;
+
+  double hOverEConeSize_;
+  double maxHOverE_;
+  double minSCEt_;
+  double isoConeR_;
+  double isoInnerConeR_;
+  double isoEtaSlice_;
+  double isoEtMin_;
+  double isoEMin_;
+  bool vetoClusteredHits_;
+  bool useNumXtals_;
+
+  std::vector<int> flagsexclEB_;
+  std::vector<int> flagsexclEE_;
+  std::vector<int> severitiesexclEB_;
+  std::vector<int> severitiesexclEE_;
+
+  double ecalIsoCut_offset_;
+  double ecalIsoCut_slope_;
+
+  edm::ESHandle<CaloGeometry> theCaloGeom_;
+
+  std::unique_ptr<BaseCkfTrajectoryBuilder> theTrajectoryBuilder_;
+
+  std::unique_ptr<OutInConversionSeedFinder> theOutInSeedFinder_;
+  std::unique_ptr<OutInConversionTrackFinder> theOutInTrackFinder_;
+  std::unique_ptr<InOutConversionSeedFinder> theInOutSeedFinder_;
+  std::unique_ptr<InOutConversionTrackFinder> theInOutTrackFinder_;
+
+  std::vector<edm::Ptr<reco::CaloCluster> > caloPtrVecOutIn_;
+  std::vector<edm::Ptr<reco::CaloCluster> > caloPtrVecInOut_;
+
+  std::vector<edm::Ref<reco::SuperClusterCollection> > vecOfSCRefForOutIn;
+  std::vector<edm::Ref<reco::SuperClusterCollection> > vecOfSCRefForInOut;
+
+  void buildCollections(bool detector,
+                        const edm::Handle<edm::View<reco::CaloCluster> >& scHandle,
+                        const edm::Handle<edm::View<reco::CaloCluster> >& bcHandle,
+                        edm::Handle<EcalRecHitCollection> ecalRecHitHandle,
+                        const EcalRecHitCollection& ecalRecHits,
+                        const EcalSeverityLevelAlgo* sevLev,
+                        //edm::ESHandle<EcalChannelStatus>  chStatus,
+                        const edm::Handle<CaloTowerCollection>& hcalTowersHandle,
+                        TrackCandidateCollection& outInTracks,
+                        TrackCandidateCollection& inOutTracks,
+                        std::vector<edm::Ptr<reco::CaloCluster> >& vecRecOI,
+                        std::vector<edm::Ptr<reco::CaloCluster> >& vecRecIO);
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(ConversionTrackCandidateProducer);
 
 namespace {
   auto createBaseCkfTrajectoryBuilder(const edm::ParameterSet& pset, edm::ConsumesCollector&& iC) {

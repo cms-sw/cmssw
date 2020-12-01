@@ -16,25 +16,26 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(0)
         )
     ),
-    # produce SAME file u24.log via warnings config - should be ignored!
-    u24_warnings = cms.untracked.PSet(
-        threshold = cms.untracked.string('WARNING'),
-        noTimeStamps = cms.untracked.bool(True),
-        extension = cms.untracked.string('log'),
-        filename = cms.untracked.string('u24')
-    ),
     debugModules = cms.untracked.vstring('*'),
-    # produce file u24.log
-    u24_errors = cms.untracked.PSet(
-        threshold = cms.untracked.string('ERROR'),
-        noTimeStamps = cms.untracked.bool(True),
-        extension = cms.untracked.string('log'),
-        filename = cms.untracked.string('u24')
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
     ),
-    categories = cms.untracked.vstring('preEventProcessing', 
-        'FwkTest'),
-    destinations = cms.untracked.vstring('u24_warnings', 
-        'u24_errors')
+    files = cms.untracked.PSet(
+        # produce SAME file u24.log via warnings config - should cause exception!
+        u24_warnings = cms.untracked.PSet(
+            threshold = cms.untracked.string('WARNING'),
+            noTimeStamps = cms.untracked.bool(True),
+            extension = cms.untracked.string('log'),
+            filename = cms.untracked.string('u24')
+        ),
+        # produce file u24.log
+        u24_errors = cms.untracked.PSet(
+            threshold = cms.untracked.string('ERROR'),
+            noTimeStamps = cms.untracked.bool(True),
+            extension = cms.untracked.string('log'),
+            filename = cms.untracked.string('u24')
+        )
+    )
 )
 
 process.maxEvents = cms.untracked.PSet(

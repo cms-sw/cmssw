@@ -31,39 +31,14 @@
 
 using namespace edm;
 
-//
-// constants, enums and typedefs
-//
+namespace {
+  std::vector<char> makeEmptyTokenLabels() { return std::vector<char>{'\0'}; }
+}  // namespace
 
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
-//EDConsumerBase::EDConsumerBase()
-//{
-//}
-
-// EDConsumerBase::EDConsumerBase(const EDConsumerBase& rhs)
-// {
-//    // do actual copying here;
-// }
+EDConsumerBase::EDConsumerBase()
+    : m_tokenLabels{makeEmptyTokenLabels()}, frozen_(false), containsCurrentProcessAlias_(false) {}
 
 EDConsumerBase::~EDConsumerBase() noexcept(false) {}
-
-//
-// assignment operators
-//
-// const EDConsumerBase& EDConsumerBase::operator=(const EDConsumerBase& rhs)
-// {
-//   //An exception safe implementation is
-//   EDConsumerBase temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
 
 //
 // member functions
@@ -193,7 +168,10 @@ void EDConsumerBase::updateLookup(BranchType iBranchType,
 }
 
 void EDConsumerBase::updateLookup(eventsetup::ESRecordsToProxyIndices const& iPI) {
+  // temporarily unfreeze to allow late EventSetup consumes registration
+  frozen_ = false;
   registerLateConsumes(iPI);
+  frozen_ = true;
 
   unsigned int index = 0;
   for (auto it = m_esTokenInfo.begin<kESLookupInfo>(); it != m_esTokenInfo.end<kESLookupInfo>(); ++it, ++index) {
@@ -235,6 +213,10 @@ ESTokenIndex EDConsumerBase::recordESConsumes(Transition iTrans,
                                               eventsetup::EventSetupRecordKey const& iRecord,
                                               eventsetup::heterocontainer::HCTypeTag const& iDataType,
                                               edm::ESInputTag const& iTag) {
+  if (frozen_) {
+    throwESConsumesCallAfterFrozen(iRecord, iDataType, iTag);
+  }
+
   //m_tokenLabels first entry is a null. Since most ES data requests have
   // empty labels we will assume we can reuse the first entry
   unsigned int startOfComponentName = 0;
@@ -417,6 +399,16 @@ void EDConsumerBase::throwConsumesCallAfterFrozen(TypeToGet const& typeToGet, In
                                      << "and " << inputTag << "\n";
 }
 
+void EDConsumerBase::throwESConsumesCallAfterFrozen(eventsetup::EventSetupRecordKey const& iRecord,
+                                                    eventsetup::heterocontainer::HCTypeTag const& iDataType,
+                                                    edm::ESInputTag const& iTag) const {
+  throw cms::Exception("LogicError") << "A module declared it consumes an EventSetup product after its constructor.\n"
+                                     << "This must be done in the contructor\n"
+                                     << "The product type was: " << iDataType.name() << " in record "
+                                     << iRecord.type().name() << "\n"
+                                     << "and ESInputTag was " << iTag << "\n";
+}
+
 void EDConsumerBase::throwESConsumesInProcessBlock() const {
   throw cms::Exception("LogicError")
       << "A module declared it consumes an EventSetup product during a ProcessBlock transition.\n"
@@ -549,10 +541,10 @@ void EDConsumerBase::convertCurrentProcessAlias(std::string const& processName) 
   if (containsCurrentProcessAlias_) {
     containsCurrentProcessAlias_ = false;
 
-    std::vector<char> newTokenLabels;
+    auto newTokenLabels = makeEmptyTokenLabels();
 
     // first calculate the size of the new vector and reserve memory for it
-    std::vector<char>::size_type newSize = 0;
+    std::vector<char>::size_type newSize = newTokenLabels.size();
     std::string newProcessName;
     for (auto iter = m_tokenInfo.begin<kLabels>(), itEnd = m_tokenInfo.end<kLabels>(); iter != itEnd; ++iter) {
       newProcessName = &m_tokenLabels[iter->m_startOfModuleLabel + iter->m_deltaToProcessName];
@@ -563,7 +555,7 @@ void EDConsumerBase::convertCurrentProcessAlias(std::string const& processName) 
     }
     newTokenLabels.reserve(newSize);
 
-    unsigned int newStartOfModuleLabel = 0;
+    unsigned int newStartOfModuleLabel = newTokenLabels.size();
     for (auto iter = m_tokenInfo.begin<kLabels>(), itEnd = m_tokenInfo.end<kLabels>(); iter != itEnd; ++iter) {
       unsigned int startOfModuleLabel = iter->m_startOfModuleLabel;
       unsigned short deltaToProcessName = iter->m_deltaToProcessName;

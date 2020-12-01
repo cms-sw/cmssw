@@ -227,14 +227,17 @@ GEMEtaPartition* GEMGeometryBuilder::buildEtaPartition(DDFilteredView& fv, GEMDe
   // EtaPartition specific parameter (nstrips and npads)
   DDValue numbOfStrips("nStrips");
   DDValue numbOfPads("nPads");
+  DDValue delPhi("dPhi");
   std::vector<const DDsvalues_type*> specs(fv.specifics());
   std::vector<const DDsvalues_type*>::iterator is = specs.begin();
-  double nStrips = 0., nPads = 0.;
+  double nStrips = 0., nPads = 0., dPhi = 0.;
   for (; is != specs.end(); is++) {
     if (DDfetch(*is, numbOfStrips))
       nStrips = numbOfStrips.doubles()[0];
     if (DDfetch(*is, numbOfPads))
       nPads = numbOfPads.doubles()[0];
+    if (DDfetch(*is, delPhi))
+      dPhi = delPhi.doubles()[0];
   }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("Geometry") << ((nStrips == 0.) ? ("No nStrips found!!")
@@ -255,6 +258,7 @@ GEMEtaPartition* GEMGeometryBuilder::buildEtaPartition(DDFilteredView& fv, GEMDe
   pars.emplace_back(ap);
   pars.emplace_back(nStrips);
   pars.emplace_back(nPads);
+  pars.emplace_back(dPhi);
 
   bool isOdd = detId.chamber() % 2;
   RCPBoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(be, te, ap, ti), isOdd));
@@ -433,14 +437,15 @@ GEMEtaPartition* GEMGeometryBuilder::buildEtaPartition(cms::DDFilteredView& fv, 
 
   auto nStrips = fv.get<double>("nStrips");
   auto nPads = fv.get<double>("nPads");
-
+  auto dPhi = fv.get<double>("dPhi");
   // EtaPartition specific parameter (size)
 
   std::vector<double> dpar = fv.parameters();
 
   double ti = 0.4;  // half thickness
 
-  const std::vector<float> pars{float(dpar[0]), float(dpar[1]), float(dpar[3]), float(nStrips), float(nPads)};
+  const std::vector<float> pars{
+      float(dpar[0]), float(dpar[1]), float(dpar[3]), float(nStrips), float(nPads), float(dPhi)};
 
   bool isOdd = detId.chamber() % 2;
   RCPBoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(dpar[0], dpar[1], dpar[3], ti), isOdd));

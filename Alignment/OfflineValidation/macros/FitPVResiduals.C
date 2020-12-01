@@ -312,7 +312,14 @@ Double_t tp0Fit(Double_t *x, Double_t *par5);
 std::pair<params::measurement, params::measurement> fitStudentTResiduals(TH1 *hist);
 
 void FillTrendPlot(TH1F *trendPlot, TH1F *residualsPlot[100], params::estimator firPar_, TString var_, Int_t nbins);
-void FillMap(TH2F *trendMap, std::vector<std::vector<TH1F *> > residualsMapPlot, params::estimator fitPar_);
+
+// global (here for the moment)
+Int_t nBins_ = 48;
+void FillMap(TH2F *trendMap,
+             std::vector<std::vector<TH1F *> > residualsMapPlot,
+             params::estimator fitPar_,
+             const int nBinsX = nBins_,
+             const int nBinsY = nBins_);
 
 std::pair<TH2F *, TH2F *> trimTheMap(TH2 *hist);
 
@@ -344,8 +351,6 @@ void setStyle();
 // global variables
 
 std::ofstream outfile("FittedDeltaZ.txt");
-
-Int_t nBins_ = 48;
 Int_t nLadders_ = 20;
 const Int_t nPtBins_ = 48;
 Float_t _boundMin = -0.5;
@@ -367,7 +372,8 @@ std::array<float, nPtBins_ + 1> mypT_bins = {{0.5,  0.6, 0.7, 0.8, 0.9, 1.0, 1.1
 
 // inline function
 int check(const double a[], int n) {
-  while (--n > 0 && a[n] == a[0])
+  //while (--n > 0 && a[n] == a[0])    // exact match
+  while (--n > 0 && (a[n] - a[0]) < 0.01)  // merged input files, protection agains numerical precision
     ;
   return n != 0;
 }
@@ -537,6 +543,13 @@ void FitPVResiduals(TString namesandlabels, bool stdres, bool do2DMaps, TString 
 
   TH1F *dxyNormMapResiduals[nFiles_][nBins_][nBins_];
   TH1F *dzNormMapResiduals[nFiles_][nBins_][nBins_];
+
+  // double-differential residuals L1
+  TH1F *dxyL1MapResiduals[nFiles_][nLadders_][8];
+  TH1F *dzL1MapResiduals[nFiles_][nLadders_][8];
+
+  TH1F *dxyL1NormMapResiduals[nFiles_][nLadders_][8];
+  TH1F *dzL1NormMapResiduals[nFiles_][nLadders_][8];
 
   // dca residuals vs pT
   TH1F *dzNormPtResiduals[nFiles_][nPtBins_];
@@ -752,6 +765,20 @@ void FitPVResiduals(TString namesandlabels, bool stdres, bool do2DMaps, TString 
             (TH1F *)fins[i]->Get(Form("PVValidation/Abs_Long_ladder_Residuals/histo_dz_ladder_plot%i", iLadder));
         dxyLadderResiduals[i][iLadder] = (TH1F *)fins[i]->Get(
             Form("PVValidation/Abs_Transv_ladderNoOverlap_Residuals/histo_dxy_ladder_plot%i", iLadder));
+
+        if (do2DMaps) {
+          for (Int_t iMod = 0; iMod < 8; iMod++) {
+            dxyL1MapResiduals[i][iLadder][iMod] =
+                (TH1F *)fins[i]->Get(Form("PVValidation/Abs_L1Residuals/histo_dxy_ladder%i_module%i", iLadder, iMod));
+            dzL1MapResiduals[i][iLadder][iMod] =
+                (TH1F *)fins[i]->Get(Form("PVValidation/Abs_L1Residuals/histo_dz_ladder%i_module%i", iLadder, iMod));
+
+            dxyL1NormMapResiduals[i][iLadder][iMod] = (TH1F *)fins[i]->Get(
+                Form("PVValidation/Norm_L1Residuals/histo_norm_dxy_ladder%i_module%i", iLadder, iMod));
+            dzL1NormMapResiduals[i][iLadder][iMod] = (TH1F *)fins[i]->Get(
+                Form("PVValidation/Norm_L1Residuals/histo_norm_dz_ladder%i_module%i", iLadder, iMod));
+          }
+        }
       }
 
       for (Int_t iMod = 0; iMod < 8; iMod++) {
@@ -972,6 +999,34 @@ void FitPVResiduals(TString namesandlabels, bool stdres, bool do2DMaps, TString 
   TH2F *t_dzWidthMap[nFiles_];
   TH2F *t_dxyNormWidthMap[nFiles_];
   TH2F *t_dzNormWidthMap[nFiles_];
+
+  // 2D L1 maps
+
+  // bias
+  TH2F *dxyMeanL1Map[nFiles_];
+  TH2F *dzMeanL1Map[nFiles_];
+  TH2F *dxyNormMeanL1Map[nFiles_];
+  TH2F *dzNormMeanL1Map[nFiles_];
+
+  // width
+  TH2F *dxyWidthL1Map[nFiles_];
+  TH2F *dzWidthL1Map[nFiles_];
+  TH2F *dxyNormWidthL1Map[nFiles_];
+  TH2F *dzNormWidthL1Map[nFiles_];
+
+  // trimmed maps
+
+  // bias
+  TH2F *t_dxyMeanL1Map[nFiles_];
+  TH2F *t_dzMeanL1Map[nFiles_];
+  TH2F *t_dxyNormMeanL1Map[nFiles_];
+  TH2F *t_dzNormMeanL1Map[nFiles_];
+
+  // width
+  TH2F *t_dxyWidthL1Map[nFiles_];
+  TH2F *t_dzWidthL1Map[nFiles_];
+  TH2F *t_dxyNormWidthL1Map[nFiles_];
+  TH2F *t_dzNormWidthL1Map[nFiles_];
 
   for (Int_t i = 0; i < nFiles_; i++) {
     // DCA trend plots
@@ -1325,6 +1380,77 @@ void FitPVResiduals(TString namesandlabels, bool stdres, bool do2DMaps, TString 
                  lowedge,
                  highedge);
 
+    // 2D maps L1
+    dxyMeanL1Map[i] = new TH2F(Form("means_dxy_L1Map_%i", i),
+                               "#LT d_{xy} #GT map;module number;ladder number;#LT d_{xy} #GT [#mum]",
+                               8,
+                               -0.5,
+                               7.5,
+                               nLadders_,
+                               -0.5,
+                               nLadders_ - 0.5);
+    dzMeanL1Map[i] = new TH2F(Form("means_dz_L1Map_%i", i),
+                              "#LT d_{z} #GT map;module number;ladder number;#LT d_{z} #GT [#mum]",
+                              8,
+                              -0.5,
+                              7.5,
+                              nLadders_,
+                              -0.5,
+                              nLadders_ - 0.5);
+    dxyNormMeanL1Map[i] =
+        new TH2F(Form("norm_means_dxy_L1Map_%i", i),
+                 "#LT d_{xy}/#sigma_{d_{xy}} #GT map;module number;ladder number;#LT d_{xy}/#sigma_{d_{xy}} #GT",
+                 8,
+                 -0.5,
+                 7.5,
+                 nLadders_,
+                 -0.5,
+                 nLadders_ - 0.5);
+    dzNormMeanL1Map[i] =
+        new TH2F(Form("norm_means_dz_L1Map_%i", i),
+                 "#LT d_{z}/#sigma_{d_{z}} #GT map;module number;ladder number;#LT d_{xy}/#sigma_{d_{z}} #GT",
+                 8,
+                 -0.5,
+                 7.5,
+                 nLadders_,
+                 -0.5,
+                 nLadders_ - 0.5);
+
+    dxyWidthL1Map[i] = new TH2F(Form("widths_dxy_L1Map_%i", i),
+                                "#sigma_{d_{xy}} map;module number;ladder number;#sigma(d_{xy}) [#mum]",
+                                8,
+                                -0.5,
+                                7.5,
+                                nLadders_,
+                                -0.5,
+                                nLadders_ - 0.5);
+    dzWidthL1Map[i] = new TH2F(Form("widths_dz_L1Map_%i", i),
+                               "#sigma_{d_{z}} map;module number;ladder number;#sigma(d_{z}) [#mum]",
+                               8,
+                               -0.5,
+                               7.5,
+                               nLadders_,
+                               -0.5,
+                               nLadders_ - 0.5);
+    dxyNormWidthL1Map[i] =
+        new TH2F(Form("norm_widths_dxy_L1Map_%i", i),
+                 "width(d_{xy}/#sigma_{d_{xy}}) map;module number;ladder number;#sigma(d_{xy}/#sigma_{d_{xy}})",
+                 8,
+                 -0.5,
+                 7.5,
+                 nLadders_,
+                 -0.5,
+                 nLadders_ - 0.5);
+    dzNormWidthL1Map[i] =
+        new TH2F(Form("norm_widths_dz_L1Map_%i", i),
+                 "width(d_{z}/#sigma_{d_{z}}) map;module number;ladder number;#sigma(d_{z}/#sigma_{d_{z}})",
+                 8,
+                 -0.5,
+                 7.5,
+                 nLadders_,
+                 -0.5,
+                 nLadders_ - 0.5);
+
     // DCA absolute
 
     if (isDebugMode) {
@@ -1547,7 +1673,71 @@ void FitPVResiduals(TString namesandlabels, bool stdres, bool do2DMaps, TString 
       MakeNiceMapStyle(t_dxyNormWidthMap[i]);
       MakeNiceMapStyle(t_dzNormMeanMap[i]);
       MakeNiceMapStyle(t_dzNormWidthMap[i]);
-    }
+
+      // clear the vectors of vectors
+      for (Int_t index1 = 0; index1 < nBins_; index1++) {
+        v_dxyAbsMap.clear();
+        v_dzAbsMap.clear();
+        v_dxyNormMap.clear();
+        v_dzNormMap.clear();
+      }
+
+      for (Int_t index1 = 0; index1 < nLadders_; index1++) {
+        std::vector<TH1F *> a_temp_vec_xy;
+        std::vector<TH1F *> n_temp_vec_xy;
+        std::vector<TH1F *> a_temp_vec_z;
+        std::vector<TH1F *> n_temp_vec_z;
+
+        for (Int_t index2 = 0; index2 < 8; index2++) {
+          a_temp_vec_xy.push_back(dxyL1MapResiduals[i][index1][index2]);
+          a_temp_vec_z.push_back(dzL1MapResiduals[i][index1][index2]);
+          n_temp_vec_xy.push_back(dxyL1NormMapResiduals[i][index1][index2]);
+          n_temp_vec_z.push_back(dzL1NormMapResiduals[i][index1][index2]);
+        }
+
+        v_dxyAbsMap.push_back(a_temp_vec_xy);
+        v_dzAbsMap.push_back(a_temp_vec_z);
+        v_dxyNormMap.push_back(n_temp_vec_xy);
+        v_dzNormMap.push_back(n_temp_vec_z);
+      }
+
+      FillMap(dxyMeanL1Map[i], v_dxyAbsMap, params::MEAN, 8, nLadders_);
+      FillMap(dxyWidthL1Map[i], v_dxyAbsMap, params::WIDTH, 8, nLadders_);
+      FillMap(dzMeanL1Map[i], v_dzAbsMap, params::MEAN, 8, nLadders_);
+      FillMap(dzWidthL1Map[i], v_dzAbsMap, params::WIDTH, 8, nLadders_);
+
+      FillMap(dxyNormMeanL1Map[i], v_dxyNormMap, params::MEAN, 8, nLadders_);
+      FillMap(dxyNormWidthL1Map[i], v_dxyNormMap, params::WIDTH, 8, nLadders_);
+      FillMap(dzNormMeanL1Map[i], v_dzNormMap, params::MEAN, 8, nLadders_);
+      FillMap(dzNormWidthL1Map[i], v_dzNormMap, params::WIDTH, 8, nLadders_);
+
+      if (isDebugMode) {
+        timer.Stop();
+        std::cout << "check point 5-" << i << " " << timer.CpuTime() << " " << timer.RealTime() << std::endl;
+        timer.Continue();
+      }
+
+      t_dxyMeanL1Map[i] = trimTheMap(dxyMeanL1Map[i]).first;
+      t_dxyWidthL1Map[i] = trimTheMap(dxyWidthL1Map[i]).first;
+      t_dzMeanL1Map[i] = trimTheMap(dzMeanL1Map[i]).first;
+      t_dzWidthL1Map[i] = trimTheMap(dzWidthL1Map[i]).first;
+
+      t_dxyNormMeanL1Map[i] = trimTheMap(dxyNormMeanL1Map[i]).first;
+      t_dxyNormWidthL1Map[i] = trimTheMap(dxyNormWidthL1Map[i]).first;
+      t_dzNormMeanL1Map[i] = trimTheMap(dzNormMeanL1Map[i]).first;
+      t_dzNormWidthL1Map[i] = trimTheMap(dzNormWidthL1Map[i]).first;
+
+      MakeNiceMapStyle(t_dxyMeanL1Map[i]);
+      MakeNiceMapStyle(t_dxyWidthL1Map[i]);
+      MakeNiceMapStyle(t_dzMeanL1Map[i]);
+      MakeNiceMapStyle(t_dzWidthL1Map[i]);
+
+      MakeNiceMapStyle(t_dxyNormMeanL1Map[i]);
+      MakeNiceMapStyle(t_dxyNormWidthL1Map[i]);
+      MakeNiceMapStyle(t_dzNormMeanL1Map[i]);
+      MakeNiceMapStyle(t_dzNormWidthL1Map[i]);
+
+    }  // if do2DMaps
 
     MakeNiceTrendPlotStyle(dxyRefit[i], colors[i], markers[i]);
     MakeNiceTrendPlotStyle(dzRefit[i], colors[i], markers[i]);
@@ -1901,6 +2091,33 @@ void FitPVResiduals(TString namesandlabels, bool stdres, bool do2DMaps, TString 
     delete dzAbsMap;
     delete dxyNormMap;
     delete dzNormMap;
+
+    // L1 Map
+
+    TCanvas *dxyAbsL1Map = new TCanvas("dxyAbsL1Map", "dxyAbsL1Map", 1200, 500 * nFiles_);
+    arrangeCanvas2D(dxyAbsL1Map, t_dxyMeanL1Map, t_dxyWidthL1Map, nFiles_, LegLabels, theDate);
+    dxyAbsL1Map->SaveAs("dxyAbsL1Map_" + theStrDate + theStrAlignment + ".pdf");
+    dxyAbsL1Map->SaveAs("dxyAbsL1Map_" + theStrDate + theStrAlignment + ".png");
+
+    TCanvas *dzAbsL1Map = new TCanvas("dzAbsL1Map", "dzAbsL1Map", 1200, 500 * nFiles_);
+    arrangeCanvas2D(dzAbsL1Map, t_dzMeanL1Map, t_dzWidthL1Map, nFiles_, LegLabels, theDate);
+    dzAbsL1Map->SaveAs("dzAbsL1Map_" + theStrDate + theStrAlignment + ".pdf");
+    dzAbsL1Map->SaveAs("dzAbsL1Map_" + theStrDate + theStrAlignment + ".png");
+
+    TCanvas *dxyNormL1Map = new TCanvas("dxyNormL1Map", "dxyNormL1Map", 1200, 500 * nFiles_);
+    arrangeCanvas2D(dxyNormL1Map, t_dxyNormMeanL1Map, t_dxyNormWidthL1Map, nFiles_, LegLabels, theDate);
+    dxyNormL1Map->SaveAs("dxyNormL1Map_" + theStrDate + theStrAlignment + ".pdf");
+    dxyNormL1Map->SaveAs("dxyNormL1Map_" + theStrDate + theStrAlignment + ".png");
+
+    TCanvas *dzNormL1Map = new TCanvas("dzNormL1Map", "dzNormL1Map", 1200, 500 * nFiles_);
+    arrangeCanvas2D(dzNormL1Map, t_dzNormMeanL1Map, t_dzNormWidthL1Map, nFiles_, LegLabels, theDate);
+    dzNormL1Map->SaveAs("dzNormL1Map_" + theStrDate + theStrAlignment + ".pdf");
+    dzNormL1Map->SaveAs("dzNormL1Map_" + theStrDate + theStrAlignment + ".png");
+
+    delete dxyAbsL1Map;
+    delete dzAbsL1Map;
+    delete dxyNormL1Map;
+    delete dzNormL1Map;
   }
 
   delete thePlotLimits;
@@ -3270,20 +3487,24 @@ void FillMap_old(TH2F *trendMap, TH1F *residualsMapPlot[48][48], params::estimat
 }
 
 //*************************************************************
-void FillMap(TH2F *trendMap, std::vector<std::vector<TH1F *> > residualsMapPlot, params::estimator fitPar_)
+void FillMap(TH2F *trendMap,
+             std::vector<std::vector<TH1F *> > residualsMapPlot,
+             params::estimator fitPar_,
+             const int nBinsX,
+             const int nBinsY)
 //*************************************************************
 {
-  float phiInterval = (360.) / nBins_;
-  float etaInterval = 5. / nBins_;
+  float phiInterval = (360.) / nBinsY;
+  float etaInterval = 5. / nBinsX;
 
-  for (int i = 0; i < nBins_; ++i) {
+  for (int i = 0; i < nBinsY; ++i) {
     char phipositionString[129];
     float phiposition = (-180 + i * phiInterval) + (phiInterval / 2);
     sprintf(phipositionString, "%.f", phiposition);
 
     trendMap->GetYaxis()->SetBinLabel(i + 1, phipositionString);
 
-    for (int j = 0; j < nBins_; ++j) {
+    for (int j = 0; j < nBinsX; ++j) {
       //std::cout<<"(i,j)="<<i<<","<<j<<std::endl;
 
       char etapositionString[129];
@@ -3525,15 +3746,18 @@ std::pair<TH2F *, TH2F *> trimTheMap(TH2 *hist) {
   l2->SetLineWidth(4);
   l2->Draw("same");
 
-  TH2F *histoTrimmed =
-      new TH2F(Form("%s_trimmed", hist->GetName()),
-               Form("Trimmed %s;%s;%s", hist->GetTitle(), hist->GetXaxis()->GetTitle(), hist->GetYaxis()->GetTitle()),
-               hist->GetNbinsX(),
-               hist->GetXaxis()->GetXmin(),
-               hist->GetXaxis()->GetXmax(),
-               hist->GetNbinsY(),
-               hist->GetYaxis()->GetXmin(),
-               hist->GetYaxis()->GetXmax());
+  TH2F *histoTrimmed = new TH2F(Form("%s_trimmed", hist->GetName()),
+                                Form("Trimmed %s;%s;%s;%s",
+                                     hist->GetTitle(),
+                                     hist->GetXaxis()->GetTitle(),
+                                     hist->GetYaxis()->GetTitle(),
+                                     hist->GetZaxis()->GetTitle()),
+                                hist->GetNbinsX(),
+                                hist->GetXaxis()->GetXmin(),
+                                hist->GetXaxis()->GetXmax(),
+                                hist->GetNbinsY(),
+                                hist->GetYaxis()->GetXmin(),
+                                hist->GetYaxis()->GetXmax());
 
   TH2F *histoMissed = new TH2F(Form("%s_Missed", hist->GetName()),
                                Form("Missed %s", hist->GetTitle()),

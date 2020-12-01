@@ -97,10 +97,19 @@ def switchClusterizerParameters(da):
           print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Running GAP Algorithm!")
           return GapClusterizationParams
 
+# Use compressions settings of TFile
+# see https://root.cern.ch/root/html534/TFile.html#TFile:SetCompressionSettings
+# settings = 100 * algorithm + level
+# level is from 1 (small) to 9 (large compression)
+# algo: 1 (ZLIB), 2 (LMZA)
+# see more about compression & performance: https://root.cern.ch/root/html534/guides/users-guide/InputOutput.html#compression-and-performance
+compressionSettings = 207
+
 ####################################################################
 # Configure the PVValidation Analyzer module
 ####################################################################
 process.PVValidation = cms.EDAnalyzer("PrimaryVertexValidation",
+                                      compressionSettings = cms.untracked.int32(compressionSettings),
                                       TrackCollectionTag = cms.InputTag("FinalTrackRefitter"),
                                       VertexCollectionTag = cms.InputTag(".oO[VertexCollection]Oo."),
                                       Debug = cms.bool(False),

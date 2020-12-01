@@ -23,13 +23,11 @@ process.Tracer = cms.Service('Tracer',
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
-    destinations   = cms.untracked.vstring('cout',
-                                           'cerr'
-    ),
-    categories = cms.untracked.vstring(
-        'Tracer'
+    cerr = cms.untracked.PSet(
+      enableStatistics = cms.untracked.bool(False)
     ),
     cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
         default = cms.untracked.PSet (
             limit = cms.untracked.int32(0)
         ),
