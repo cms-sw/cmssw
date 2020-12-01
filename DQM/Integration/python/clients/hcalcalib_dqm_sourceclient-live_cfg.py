@@ -44,7 +44,7 @@ process.load('DQM.Integration.config.environment_cfi')
 #	Central DQM Customization
 #-------------------------------------
 process.source.streamLabel = cms.untracked.string("streamDQMCalibration")
-process.source.SelectEvents = cms.untracked.vstring("*HcalCalibration*")
+#process.source.SelectEvents = cms.untracked.vstring("*HcalCalibration*")
 process.dqmEnv.subSystemFolder = subsystem
 process.dqmSaver.tag = subsystem
 process.dqmSaver.runNumber = options.runNumber
@@ -238,7 +238,8 @@ process.p = cms.Path(
 					*process.tasksSequence
 					*process.harvestingSequence
                     *process.dqmEnv
-                    *process.dqmSaver)
+                    *process.dqmSaver
+		    *process.dqmSaverPB)
 
 #-------------------------------------
 #	Scheduling
