@@ -5,26 +5,70 @@
 // Institute: IIHE-VUB
 //=============================================================================
 //*****************************************************************************
-//C++ includes
-#include <vector>
-#include <functional>
 
-//ROOT includes
-#include <Math/VectorUtil.h>
-
-//CMSSW includes
-#include "RecoEgamma/EgammaIsolationAlgos/plugins/EgammaHcalExtractor.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
 #include "RecoCaloTools/Selectors/interface/CaloDualConeSelector.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
+
+#include <Math/VectorUtil.h>
+
+#include <vector>
+#include <functional>
+
+namespace egammaisolation {
+
+  class EgammaHcalExtractor : public reco::isodeposit::IsoDepositExtractor {
+  public:
+    EgammaHcalExtractor(const edm::ParameterSet& par, edm::ConsumesCollector&& iC) : EgammaHcalExtractor(par, iC) {}
+    EgammaHcalExtractor(const edm::ParameterSet& par, edm::ConsumesCollector& iC);
+
+    ~EgammaHcalExtractor() override;
+
+    void fillVetos(const edm::Event& ev, const edm::EventSetup& evSetup, const reco::TrackCollection& tracks) override {
+    }
+    reco::IsoDeposit deposit(const edm::Event& ev,
+                             const edm::EventSetup& evSetup,
+                             const reco::Track& track) const override {
+      throw cms::Exception("Configuration Error")
+          << "This extractor " << (typeid(this).name()) << " is not made for tracks";
+    }
+    reco::IsoDeposit deposit(const edm::Event& ev,
+                             const edm::EventSetup& evSetup,
+                             const reco::Candidate& c) const override;
+
+  private:
+    double extRadius_;
+    double intRadius_;
+    double etLow_;
+
+    edm::EDGetTokenT<HBHERecHitCollection> hcalRecHitProducerToken_;
+  };
+}  // namespace egammaisolation
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractorFactory.h"
+DEFINE_EDM_PLUGIN(IsoDepositExtractorFactory, egammaisolation::EgammaHcalExtractor, "EgammaHcalExtractor");
 
 using namespace std;
 

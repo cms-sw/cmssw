@@ -1,22 +1,88 @@
-#include "RecoEgamma/EgammaIsolationAlgos/plugins/EgammaTrackExtractor.h"
-
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
-#include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTrackSelector.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-#include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTrackSelector.h"
+
+#include <string>
+#include <vector>
+
+namespace egammaisolation {
+
+  class EgammaTrackExtractor : public reco::isodeposit::IsoDepositExtractor {
+  public:
+    EgammaTrackExtractor(){};
+    EgammaTrackExtractor(const edm::ParameterSet& par, edm::ConsumesCollector&& iC) : EgammaTrackExtractor(par, iC) {}
+    EgammaTrackExtractor(const edm::ParameterSet& par, edm::ConsumesCollector& iC);
+
+    ~EgammaTrackExtractor() override {}
+
+    void fillVetos(const edm::Event& ev, const edm::EventSetup& evSetup, const reco::TrackCollection& track) override {}
+
+    virtual reco::IsoDeposit::Vetos vetos(const edm::Event& ev,
+                                          const edm::EventSetup& evSetup,
+                                          const reco::Track& track) const;
+
+    reco::IsoDeposit deposit(const edm::Event& ev,
+                             const edm::EventSetup& evSetup,
+                             const reco::Track& muon) const override {
+      edm::LogWarning("EgammaIsolationAlgos|EgammaTrackExtractor")
+          << "This Function is not implemented, bad IsoDeposit Returned";
+      return reco::IsoDeposit(reco::isodeposit::Direction(1, 1));
+    }
+
+    reco::IsoDeposit deposit(const edm::Event& ev,
+                             const edm::EventSetup& evSetup,
+                             const reco::Candidate& muon) const override;
+
+  private:
+    reco::IsoDeposit::Veto veto(const reco::IsoDeposit::Direction& dir) const;
+
+  private:
+    // Parameter set
+    edm::EDGetTokenT<edm::View<reco::Track> > theTrackCollectionToken;  //! Track Collection Label
+    std::string theDepositLabel;                                        //! name for deposit
+    double minCandEt_;                                                  //! minimum candidate et
+    double theDiff_r;                                                   //! transverse distance to vertex
+    double theDiff_z;                                                   //! z distance to vertex
+    double theDR_Max;                                                   //! Maximum cone angle for deposits
+    double theDR_Veto;                                                  //! Veto cone angle
+    std::string theBeamlineOption;                                      //! "NONE", "BeamSpotFromEvent"
+    edm::InputTag barrelEcalHitsTag_;
+    edm::InputTag endcapEcalHitsTag_;
+    edm::EDGetTokenT<reco::BeamSpot> theBeamSpotToken;  //! BeamSpot name
+    unsigned int theNHits_Min;                          //! trk.numberOfValidHits >= theNHits_Min
+    double theChi2Ndof_Max;                             //! trk.normalizedChi2 < theChi2Ndof_Max
+    double theChi2Prob_Min;                             //! ChiSquaredProbability(trk.chi2,trk.ndof) > theChi2Prob_Min
+    double thePt_Min;                                   //! min track pt to include into iso deposit
+    std::vector<double> paramForIsolBarrel_;  //! Barrel requirements to determine if isolated for selective filling
+    std::vector<double> paramForIsolEndcap_;  //! Endcap requirements to determine if isolated for selective filling
+    std::string dzOptionString;
+    int dzOption;
+  };
+
+}  // namespace egammaisolation
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractorFactory.h"
+DEFINE_EDM_PLUGIN(IsoDepositExtractorFactory, egammaisolation::EgammaTrackExtractor, "EgammaTrackExtractor");
 
 using namespace edm;
 using namespace std;
