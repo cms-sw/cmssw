@@ -90,7 +90,9 @@ float HeavyIonCSVTagger::discriminator(const TagInfoHelper &tagInfo) const {
       inputs[mva_var.name] = vars.get(mva_var.id, mva_var.default_value);
       if (noTrack) {
         if (mva_var.name == "TagVarCSV_vertexMass") {
-          if (inputs[mva_var.name] < 0) return -1;
+          if (inputs[mva_var.name] < 0)
+            return -1;
+          noTrack = false;
         }
       }
     }
