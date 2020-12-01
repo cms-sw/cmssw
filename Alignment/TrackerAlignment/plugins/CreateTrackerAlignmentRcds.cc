@@ -85,6 +85,13 @@ private:
   void writeToDB();
 
   // ----------member data ---------------------------
+
+  const edm::ESGetToken<GeometricDet, IdealGeometryRecord> geomDetToken_;
+  const edm::ESGetToken<PTrackerParameters, PTrackerParametersRcd> ptpToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
+  const edm::ESGetToken<Alignments, TrackerAlignmentRcd> aliToken_;
+  const edm::ESGetToken<AlignmentErrorsExtended, TrackerAlignmentErrorExtendedRcd> aliErrorToken_;
+  const edm::ESGetToken<AlignmentSurfaceDeformations, TrackerSurfaceDeformationRcd> aliSurfaceToken_;
   const std::vector<GeomDetEnumerators::SubDetector> skipSubDetectors_;
   const bool alignToGlobalTag_;
   const bool createReferenceRcd_;
@@ -100,7 +107,13 @@ private:
 // constructors and destructor
 //
 CreateIdealTkAlRecords::CreateIdealTkAlRecords(const edm::ParameterSet& iConfig)
-    : skipSubDetectors_(toSubDetectors(iConfig.getUntrackedParameter<std::vector<std::string> >("skipSubDetectors"))),
+    : geomDetToken_(esConsumes()),
+      ptpToken_(esConsumes()),
+      topoToken_(esConsumes()),
+      aliToken_(esConsumes()),
+      aliErrorToken_(esConsumes()),
+      aliSurfaceToken_(esConsumes()),
+      skipSubDetectors_(toSubDetectors(iConfig.getUntrackedParameter<std::vector<std::string> >("skipSubDetectors"))),
       alignToGlobalTag_(iConfig.getUntrackedParameter<bool>("alignToGlobalTag")),
       createReferenceRcd_(iConfig.getUntrackedParameter<bool>("createReferenceRcd")),
       firstEvent_(true) {}
@@ -236,19 +249,13 @@ void CreateIdealTkAlRecords::clearAlignmentInfos() {
 }
 
 std::unique_ptr<TrackerGeometry> CreateIdealTkAlRecords::retrieveGeometry(const edm::EventSetup& iSetup) {
-  edm::ESHandle<GeometricDet> geometricDet;
-  iSetup.get<IdealGeometryRecord>().get(geometricDet);
-
-  edm::ESHandle<PTrackerParameters> ptp;
-  iSetup.get<PTrackerParametersRcd>().get(ptp);
-
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const auto* const tTopo = tTopoHandle.product();
+  const GeometricDet* geometricDet = &iSetup.getData(geomDetToken_);
+  const PTrackerParameters& ptp = iSetup.getData(ptpToken_);
+  const TrackerTopology* tTopo = &iSetup.getData(topoToken_);
 
   TrackerGeomBuilderFromGeometricDet trackerBuilder;
 
-  return std::unique_ptr<TrackerGeometry>{trackerBuilder.build(&(*geometricDet), *ptp, tTopo)};
+  return std::unique_ptr<TrackerGeometry>{trackerBuilder.build(geometricDet, ptp, tTopo)};
 }
 
 void CreateIdealTkAlRecords::addAlignmentInfo(const GeomDet& det) {
@@ -289,12 +296,9 @@ void CreateIdealTkAlRecords::addAlignmentInfo(const GeomDet& det) {
 void CreateIdealTkAlRecords::alignToGT(const edm::EventSetup& iSetup) {
   LogDebug("Alignment") << "Aligning to global tag\n";
 
-  edm::ESHandle<Alignments> alignments;
-  iSetup.get<TrackerAlignmentRcd>().get(alignments);
-  edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
-  iSetup.get<TrackerAlignmentErrorExtendedRcd>().get(alignmentErrors);
-  edm::ESHandle<AlignmentSurfaceDeformations> surfaceDeformations;
-  iSetup.get<TrackerSurfaceDeformationRcd>().get(surfaceDeformations);
+  const Alignments* alignments = &iSetup.getData(aliToken_);
+  const AlignmentErrorsExtended* alignmentErrors = &iSetup.getData(aliErrorToken_);
+  const AlignmentSurfaceDeformations* surfaceDeformations = &iSetup.getData(aliSurfaceToken_);
 
   if (alignments->m_align.size() != alignmentErrors->m_alignError.size())
     throw cms::Exception("GeometryMismatch")
