@@ -1041,9 +1041,9 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
   //===================================================================================
 
   // get handles to calogeometry and calotopology
-  const CaloGeometry* geo = &iSetup.getData(tok_geom_);
-  const CaloTopology* caloTopology = &iSetup.getData(tok_caloTopology_);
-  const HcalTopology* theHBHETopology = &iSetup.getData(tok_topo_);
+  const CaloGeometry *geo = &iSetup.getData(tok_geom_);
+  const CaloTopology *caloTopology = &iSetup.getData(tok_caloTopology_);
+  const HcalTopology *theHBHETopology = &iSetup.getData(tok_topo_);
 
   edm::Handle<EcalRecHitCollection> barrelRecHitsHandle;
   edm::Handle<EcalRecHitCollection> endcapRecHitsHandle;
@@ -1051,8 +1051,8 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
   iEvent.getByToken(tok_EE_, endcapRecHitsHandle);
 
   // Retrieve the good/bad ECAL channels from the DB
-  const EcalChannelStatus* theEcalChStatus = &iSetup.getData(tok_ecalChStatus_);
-  const EcalSeverityLevelAlgo* sevlv = &iSetup.getData(tok_sevlv_);
+  const EcalChannelStatus *theEcalChStatus = &iSetup.getData(tok_ecalChStatus_);
+  const EcalSeverityLevelAlgo *sevlv = &iSetup.getData(tok_sevlv_);
 
   // Retrieve trigger tower map
   const EcalTrigTowerConstituentsMap &ttMap = iSetup.getData(tok_htmap_);

@@ -242,11 +242,11 @@ void IsolatedTracksHcalScale::fillDescriptions(edm::ConfigurationDescriptions &d
 }
 
 void IsolatedTracksHcalScale::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
-  const CaloGeometry* geo = &iSetup.getData(tok_geom_);
-  const MagneticField* bField = &iSetup.getData(tok_magField_);
-  const EcalChannelStatus* theEcalChStatus = &iSetup.getData(tok_ecalChStatus_);
-  const EcalSeverityLevelAlgo* sevlv = &iSetup.getData(tok_sevlv_);
-  const CaloTopology* caloTopology = &iSetup.getData(tok_caloTopology_);
+  const CaloGeometry *geo = &iSetup.getData(tok_geom_);
+  const MagneticField *bField = &iSetup.getData(tok_magField_);
+  const EcalChannelStatus *theEcalChStatus = &iSetup.getData(tok_ecalChStatus_);
+  const EcalSeverityLevelAlgo *sevlv = &iSetup.getData(tok_sevlv_);
+  const CaloTopology *caloTopology = &iSetup.getData(tok_caloTopology_);
 
   clearTreeVectors();
 

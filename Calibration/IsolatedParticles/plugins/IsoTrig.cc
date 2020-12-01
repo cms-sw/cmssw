@@ -1217,7 +1217,8 @@ void IsoTrig::StudyTrkEbyP(edm::Handle<reco::TrackCollection> &trkCollection) {
   } else {
     std::vector<spr::propagatedTrackDirection>::const_iterator trkDetItr;
     std::vector<spr::propagatedTrackDirection> trkCaloDirections1;
-    spr::propagateCALO(trkCollection, geo_, bField_, theTrackQuality_, trkCaloDirections1, ((verbosity_ / 100) % 10 > 2));
+    spr::propagateCALO(
+        trkCollection, geo_, bField_, theTrackQuality_, trkCaloDirections1, ((verbosity_ / 100) % 10 > 2));
     unsigned int nTracks = 0;
     int nRH_eMipDR = 0, nNearTRKs = 0;
     std::vector<bool> selFlags;
@@ -1447,7 +1448,8 @@ void IsoTrig::studyMipCut(edm::Handle<reco::TrackCollection> &trkCollection,
   } else {
     std::vector<spr::propagatedTrackDirection>::const_iterator trkDetItr;
     std::vector<spr::propagatedTrackDirection> trkCaloDirections1;
-    spr::propagateCALO(trkCollection, geo_, bField_, theTrackQuality_, trkCaloDirections1, ((verbosity_ / 100) % 10 > 2));
+    spr::propagateCALO(
+        trkCollection, geo_, bField_, theTrackQuality_, trkCaloDirections1, ((verbosity_ / 100) % 10 > 2));
     if (verbosity_ % 10 > 0)
       edm::LogVerbatim("IsoTrack") << "Number of L2cands:" << L2cands->size() << " to be matched to something out of "
                                    << trkCaloDirections1.size() << " reco tracks";
@@ -1687,7 +1689,8 @@ void IsoTrig::studyIsolation(edm::Handle<reco::TrackCollection> &trkCollection,
                              std::vector<reco::TrackCollection::const_iterator> &goodTks) {
   if (trkCollection.isValid()) {
     std::vector<spr::propagatedTrackDirection> trkCaloDirections;
-    spr::propagateCALO(trkCollection, geo_, bField_, theTrackQuality_, trkCaloDirections, ((verbosity_ / 100) % 10 > 2));
+    spr::propagateCALO(
+        trkCollection, geo_, bField_, theTrackQuality_, trkCaloDirections, ((verbosity_ / 100) % 10 > 2));
 
     std::vector<spr::propagatedTrackDirection>::const_iterator trkDetItr;
     if ((verbosity_ / 1000) % 10 > 1) {
@@ -1955,7 +1958,8 @@ void IsoTrig::getGoodTracks(const edm::Event &iEvent, edm::Handle<reco::TrackCol
   std::vector<int> nGood(4, 0);
   if (trkCollection.isValid()) {
     std::vector<spr::propagatedTrackDirection> trkCaloDirections;
-    spr::propagateCALO(trkCollection, geo_, bField_, theTrackQuality_, trkCaloDirections, ((verbosity_ / 100) % 10 > 2));
+    spr::propagateCALO(
+        trkCollection, geo_, bField_, theTrackQuality_, trkCaloDirections, ((verbosity_ / 100) % 10 > 2));
 
     // get the trigger jet
     edm::Handle<trigger::TriggerFilterObjectWithRefs> l1trigobj;

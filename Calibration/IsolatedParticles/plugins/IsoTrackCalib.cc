@@ -191,15 +191,16 @@ IsoTrackCalib::IsoTrackCalib(const edm::ParameterSet& iConfig)
   tok_L1extFwdJet_ = consumes<l1extra::L1JetParticleCollection>(L1extraFwdJetSource_);
   if (verbosity_ >= 0) {
     edm::LogVerbatim("IsoTrack") << "Parameters read from config file \n"
-				 << "\t minPt " << selectionParameters_.minPt << "\t theTrackQuality " << theTrackQuality_
-				 << "\t minQuality " << selectionParameters_.minQuality << "\t maxDxyPV "
-				 << selectionParameters_.maxDxyPV << "\t maxDzPV " << selectionParameters_.maxDzPV
-				 << "\t maxChi2 " << selectionParameters_.maxChi2 << "\t maxDpOverP "
-				 << selectionParameters_.maxDpOverP << "\t minOuterHit " << selectionParameters_.minOuterHit
-				 << "\t minLayerCrossed " << selectionParameters_.minLayerCrossed << "\t maxInMiss "
-				 << selectionParameters_.maxInMiss << "\t maxOutMiss " << selectionParameters_.maxOutMiss
-				 << "\t a_coneR " << a_coneR_ << "\t a_charIsoR " << a_charIsoR_ << "\t a_mipR " << a_mipR_
-				 << "\t isItAOD " << isItAOD;
+                                 << "\t minPt " << selectionParameters_.minPt << "\t theTrackQuality "
+                                 << theTrackQuality_ << "\t minQuality " << selectionParameters_.minQuality
+                                 << "\t maxDxyPV " << selectionParameters_.maxDxyPV << "\t maxDzPV "
+                                 << selectionParameters_.maxDzPV << "\t maxChi2 " << selectionParameters_.maxChi2
+                                 << "\t maxDpOverP " << selectionParameters_.maxDpOverP << "\t minOuterHit "
+                                 << selectionParameters_.minOuterHit << "\t minLayerCrossed "
+                                 << selectionParameters_.minLayerCrossed << "\t maxInMiss "
+                                 << selectionParameters_.maxInMiss << "\t maxOutMiss "
+                                 << selectionParameters_.maxOutMiss << "\t a_coneR " << a_coneR_ << "\t a_charIsoR "
+                                 << a_charIsoR_ << "\t a_mipR " << a_mipR_ << "\t isItAOD " << isItAOD;
     edm::LogVerbatim("IsoTrack") << l1Names_.size() << " triggers to be studied";
     for (unsigned int k = 0; k < l1Names_.size(); ++k)
       edm::LogVerbatim("IsoTrack") << "[" << k << "]: " << l1Names_[k];
@@ -241,8 +242,9 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   t_Run = iEvent.id().run();
   t_Event = iEvent.id().event();
   if (verbosity_ % 10 > 0)
-    edm::LogVerbatim("IsoTrack") << "Run " << t_Run << " Event " << t_Event << " Luminosity " << iEvent.luminosityBlock()
-                             << " Bunch " << iEvent.bunchCrossing() << " starts ==========";
+    edm::LogVerbatim("IsoTrack") << "Run " << t_Run << " Event " << t_Event << " Luminosity "
+                                 << iEvent.luminosityBlock() << " Bunch " << iEvent.bunchCrossing()
+                                 << " starts ==========";
 
   //Get magnetic field and geometry
   const CaloGeometry* geo = &iSetup.getData(tok_geom_);
@@ -316,8 +318,8 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     double num1_1 = rec_zside * (rec_ieta + 0.2 * (rec_depth - 1));
     if (verbosity_ % 10 > 0)
       edm::LogVerbatim("IsoTrack") << "detid/rechit/ieta/zside/depth/num "
-                               << " = " << rhitItr->id() << "/" << rec_energy << "/" << rec_ieta << "/" << rec_zside
-                               << "/" << rec_depth << "/" << num1_1;
+                                   << " = " << rhitItr->id() << "/" << rec_energy << "/" << rec_ieta << "/" << rec_zside
+                                   << "/" << rec_depth << "/" << num1_1;
     h_iEta->Fill(rec_ieta);
     h_Rechit_E->Fill(rec_energy);
     h_RecHit_iEta->Fill(rec_ieta, rec_energy);
@@ -356,10 +358,10 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   const bool l1Conf = m_l1GtUtils.availableL1Configuration(iErrorCode, l1ConfCode);
   if (!l1Conf) {
     edm::LogVerbatim("IsoTrack") << "\nL1 configuration code:" << l1ConfCode
-                             << "\nNo valid L1 trigger configuration available."
-                             << "\nSee text above for error code interpretation"
-                             << "\nNo return here, in order to test each method"
-                             << ", protected against configuration error.";
+                                 << "\nNo valid L1 trigger configuration available."
+                                 << "\nSee text above for error code interpretation"
+                                 << "\nNo return here, in order to test each method"
+                                 << ", protected against configuration error.";
   }
 
   const AlgorithmMap& algorithmMap = m_l1GtMenu->gtAlgorithmMap();
@@ -380,7 +382,7 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       if (algName.find(l1Names_[i]) != std::string::npos) {
         if (verbosity_ % 10 > 0)
           edm::LogVerbatim("IsoTrack") << "match found"
-                                   << " " << algName << "  " << decision;
+                                       << " " << algName << "  " << decision;
         t_l1bits->at(i) = (decision > 0);
         if (decision > 0)
           l1ok = true;
@@ -415,7 +417,8 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
           phiTriggered = itr->phi();
         }
         if (verbosity_ % 10 > 0)
-          edm::LogVerbatim("IsoTrack") << "cenJ pt     " << itr->pt() << "  eta/phi " << itr->eta() << " " << itr->phi();
+          edm::LogVerbatim("IsoTrack") << "cenJ pt     " << itr->pt() << "  eta/phi " << itr->eta() << " "
+                                       << itr->phi();
       }
       edm::Handle<l1extra::L1JetParticleCollection> l1FwdJetHandle;
       iEvent.getByToken(tok_L1extFwdJet_, l1FwdJetHandle);
@@ -429,7 +432,8 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
           edm::LogVerbatim("IsoTrack") << "forJ pt     " << itr->pt() << " eta/phi " << itr->eta() << " " << itr->phi();
       }
       if (verbosity_ % 10 > 0)
-        edm::LogVerbatim("IsoTrack") << "jets pt/eta/phi = " << ptTriggered << "/" << etaTriggered << "/" << phiTriggered;
+        edm::LogVerbatim("IsoTrack") << "jets pt/eta/phi = " << ptTriggered << "/" << etaTriggered << "/"
+                                     << phiTriggered;
       //////////////////////loop over tracks////////////////////////////////////////
       unsigned int nTracks(0), nselTracks(0);
       for (trkDetItr = trkCaloDirections.begin(), nTracks = 0; trkDetItr != trkCaloDirections.end();
@@ -441,7 +445,7 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
         t_mindR2 = -999;
         if (verbosity_ % 10 > 0)
           edm::LogVerbatim("IsoTrack") << "This track : " << nTracks << " (pt/eta/phi/p) :" << pTrack->pt() << "/"
-                                   << pTrack->eta() << "/" << pTrack->phi() << "/" << pTrack->p();
+                                       << pTrack->eta() << "/" << pTrack->phi() << "/" << pTrack->p();
 
         if (verbosity_ % 10 > 0)
           edm::LogVerbatim("IsoTrack") << "dr values are = " << t_mindR1;
@@ -476,7 +480,7 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
         }
         if (verbosity_ % 10 > 0)
           edm::LogVerbatim("IsoTrack") << "qltyFlag|okECAL|okHCAL : " << qltyFlag << "|" << trkDetItr->okECAL << "/"
-                                   << trkDetItr->okHCAL;
+                                       << trkDetItr->okHCAL;
         t_qltyFlag = (qltyFlag && trkDetItr->okECAL && trkDetItr->okHCAL);
         t_p = pTrack->p();
         h_tketa1[0]->Fill(t_ieta);
@@ -550,13 +554,13 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
           }
           if (verbosity_ % 10 > 0) {
             edm::LogVerbatim("IsoTrack") << "This track : " << nTracks << " (pt/eta/phi/p) :" << pTrack->pt() << "/"
-                                     << pTrack->eta() << "/" << pTrack->phi() << "/" << t_p;
-            edm::LogVerbatim("IsoTrack") << "e_MIP " << t_eMipDR << " Chg Isolation " << t_hmaxNearP << " eHcal" << t_eHcal
-                                     << " ieta " << t_ieta << " Quality " << t_qltyMissFlag << ":" << t_qltyPVFlag
-                                     << ":" << t_selectTk;
+                                         << pTrack->eta() << "/" << pTrack->phi() << "/" << t_p;
+            edm::LogVerbatim("IsoTrack") << "e_MIP " << t_eMipDR << " Chg Isolation " << t_hmaxNearP << " eHcal"
+                                         << t_eHcal << " ieta " << t_ieta << " Quality " << t_qltyMissFlag << ":"
+                                         << t_qltyPVFlag << ":" << t_selectTk;
             for (unsigned int lll = 0; lll < t_DetIds->size(); lll++) {
               edm::LogVerbatim("IsoTrack") << "det id is = " << t_DetIds->at(lll) << "  "
-                                       << " hit enery is  = " << t_HitEnergies->at(lll);
+                                           << " hit enery is  = " << t_HitEnergies->at(lll);
             }
           }
           if (t_p > 20.0 && t_eMipDR < 2.0 && t_hmaxNearP < 10.0) {
@@ -662,7 +666,7 @@ void IsoTrackCalib::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup
   for (itr = l1AlgoMap_.begin(); itr != l1AlgoMap_.end(); itr++) {
     if (verbosity_ % 10 > 0)
       edm::LogVerbatim("IsoTrack") << " ********** " << (itr->first).first << " " << (itr->first).second << " "
-                               << itr->second;
+                                   << itr->second;
   }
 }
 
