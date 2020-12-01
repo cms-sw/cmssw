@@ -26,8 +26,6 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-
 namespace spr {
 
   struct propagatedTrack {
