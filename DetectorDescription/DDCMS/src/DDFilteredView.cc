@@ -841,11 +841,9 @@ double DDFilteredView::getNextValue(const std::string& key) const {
   double result(0.0);
 
   if (currentSpecPar_ != nullptr) {
-    if (currentSpecPar_->hasValue(key)) {
-      auto const& nitem = currentSpecPar_->numpars.find(key);
-      if (nitem != end(currentSpecPar_->numpars)) {
-        result = nitem->second[0];
-      }
+    auto const& nitem = currentSpecPar_->numpars.find(key);
+    if (nitem != end(currentSpecPar_->numpars)) {
+      result = nitem->second[0];
     }
   }
 
