@@ -1,4 +1,5 @@
 #include "DataFormats/L1TParticleFlow/interface/HPSPFTau.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 // default constructor
 l1t::HPSPFTau::HPSPFTau()
@@ -35,8 +36,12 @@ ostream& operator<<(ostream& os, const l1t::HPSPFTau& l1PFTau) {
     os << " chargedPFCand";
   } else if (l1PFTau.isPFJetSeeded()) {
     os << " PFJet";
-  } else
-    assert(0);
+  } else {
+    cms::Exception ex("InconsistentTau");
+    ex.addContext("Calling HPSPFTau::operator <<");
+    ex.addAdditionalInfo("This tau is not seed by either a chargedPFCand or a PFJet!");
+    throw ex;
+  }
   os << std::endl;
   os << "signalPFCands:" << std::endl;
   for (const auto& l1PFCand : l1PFTau.signalAllL1PFCandidates()) {
@@ -56,12 +61,12 @@ ostream& operator<<(ostream& os, const l1t::HPSPFTau& l1PFTau) {
   return os;
 }
 
-void printPFCand(ostream& os, const l1t::PFCandidate& l1PFCand, const l1t::TkPrimaryVertexRef& primaryVertex) {
+void l1t::printPFCand(ostream& os, const l1t::PFCandidate& l1PFCand, const l1t::TkPrimaryVertexRef& primaryVertex) {
   float primaryVertex_z = (primaryVertex.isNonnull()) ? primaryVertex->zvertex() : 0.;
-  printPFCand(os, l1PFCand, primaryVertex_z);
+  l1t::printPFCand(os, l1PFCand, primaryVertex_z);
 }
 
-void printPFCand(ostream& os, const l1t::PFCandidate& l1PFCand, float primaryVertex_z) {
+void l1t::printPFCand(ostream& os, const l1t::PFCandidate& l1PFCand, float primaryVertex_z) {
   std::string type_string;
   if (l1PFCand.id() == l1t::PFCandidate::ChargedHadron)
     type_string = "PFChargedHadron";

@@ -79,8 +79,6 @@ namespace l1t {
     bool passLooseRelIso() const { return passLooseRelIso_; }
     bool passVLooseRelIso() const { return passVLooseRelIso_; }
 
-    friend class ::HPSPFTauBuilder;
-
   private:
     l1t::PFCandidateRef seedChargedPFCand_;
     l1t::PFJetRef seedPFJet_;
@@ -143,6 +141,5 @@ namespace l1t {
 
 /// print to stream
 std::ostream& operator<<(std::ostream& os, const l1t::HPSPFTau& l1PFTau);
-
 
 #endif
