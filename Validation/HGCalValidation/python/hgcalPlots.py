@@ -2562,10 +2562,8 @@ def create_hgcalTrackstersPlotter(files, collection = 'ticlTrackstersMerge', nam
                        **_common)
                   ],
                   ncols=1) # probably need more for cosAngle_Beta_
-    print(name)
-    print(list_2D_histos)
+
     if str(name) in list_2D_histos :
-        print('  is 2D!')
         pg= PlotOnSideGroup(fileName.Data(),
                             Plot(name,
                             xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
