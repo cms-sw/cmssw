@@ -8,7 +8,7 @@
 #include "RecoParticleFlow/PFProducer/interface/MLPFModel.h"
 
 struct MLPFCache {
-  std::atomic<tensorflow::GraphDef*> graph_def;
+  const tensorflow::GraphDef* graph_def;
 };
 
 class MLPFProducer : public edm::stream::EDProducer<edm::GlobalCache<MLPFCache> > {
