@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff import *
-from RecoCTPPS.Configuration.recoCTPPS_cff import *
+from RecoPPS.Configuration.recoCTPPS_cff import *
 from CalibPPS.TimingCalibration.ppsTimingCalibrationPCLWorker_cfi import ppsTimingCalibrationPCLWorker
 
 ALCARECOPPSTimingCalib = ppsTimingCalibrationPCLWorker.clone()
