@@ -10,11 +10,10 @@
 #include <vector>
 
 #ifdef __CUDACC__
-
-#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/launch.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
 #endif
 
 #include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuClustering.h"
@@ -33,7 +32,6 @@ int main(void) {
   auto h_x = std::make_unique<uint16_t[]>(numElements);
   auto h_y = std::make_unique<uint16_t[]>(numElements);
   auto h_adc = std::make_unique<uint16_t[]>(numElements);
-
   auto h_clus = std::make_unique<int[]>(numElements);
 
 #ifdef __CUDACC__
@@ -46,11 +44,9 @@ int main(void) {
   auto d_clusInModule = cms::cuda::make_device_unique<uint32_t[]>(MaxNumModules, nullptr);
   auto d_moduleId = cms::cuda::make_device_unique<uint32_t[]>(MaxNumModules, nullptr);
 #else
-
   auto h_moduleStart = std::make_unique<uint32_t[]>(MaxNumModules + 1);
   auto h_clusInModule = std::make_unique<uint32_t[]>(MaxNumModules);
   auto h_moduleId = std::make_unique<uint32_t[]>(MaxNumModules);
-
 #endif
 
   // later random number
@@ -301,9 +297,12 @@ int main(void) {
 
     cudaDeviceSynchronize();
 #else
+
     h_moduleStart[0] = nModules;
     countModules(h_id.get(), h_moduleStart.get(), h_clus.get(), n);
     memset(h_clusInModule.get(), 0, MaxNumModules * sizeof(uint32_t));
+#ifdef TODO_FIX_CLUSTERIZER_FOR_ANY_GRID_SIZE
+    // FIXME the findClus kernel should be rewritten to avoid relying on a predefined grid size
     gridDim.x = MaxNumModules;  //not needed in the kernel for this specific case;
     assert(blockIdx.x == 0);
     for (; blockIdx.x < gridDim.x; ++blockIdx.x)
@@ -315,7 +314,7 @@ int main(void) {
                h_moduleId.get(),
                h_clus.get(),
                n);
-    resetGrid();
+#endif  // TODO_FIX_CLUSTERIZER_FOR_ANY_GRID_SIZE
 
     nModules = h_moduleStart[0];
     auto nclus = h_clusInModule.get();
@@ -330,12 +329,14 @@ int main(void) {
     if (ncl != std::accumulate(nclus, nclus + MaxNumModules, 0))
       std::cout << "ERROR!!!!! wrong number of cluster found" << std::endl;
 
+#ifdef TODO_FIX_CLUSTERIZER_FOR_ANY_GRID_SIZE
+    // FIXME the clusterChargeCut kernel should be rewritten to avoid relying on a predefined grid size
     gridDim.x = MaxNumModules;  // no needed in the kernel for in this specific case
     assert(blockIdx.x == 0);
     for (; blockIdx.x < gridDim.x; ++blockIdx.x)
       clusterChargeCut(
           h_id.get(), h_adc.get(), h_moduleStart.get(), h_clusInModule.get(), h_moduleId.get(), h_clus.get(), n);
-    resetGrid();
+#endif  // TODO_FIX_CLUSTERIZER_FOR_ANY_GRID_SIZE
 
 #endif
 
