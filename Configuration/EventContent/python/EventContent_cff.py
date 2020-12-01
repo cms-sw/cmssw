@@ -227,7 +227,6 @@ ctpps_2016.toModify(RECOEventContent,
     outputCommands = RECOEventContent.outputCommands + RecoCTPPSRECO.outputCommands)
 phase2_hgcal.toModify(RECOEventContent,
     outputCommands = RECOEventContent.outputCommands + TICL_RECO.outputCommands)
-
 #
 #
 # RAWRECO Data Tier definition
@@ -401,7 +400,6 @@ phase2_timing_layer.toModify(RECOSIMEventContent,
     outputCommands = RECOSIMEventContent.outputCommands + RecoLocalFastTimeRECO.outputCommands)
 phase2_timing_layer.toModify(RECOSIMEventContent, 
     outputCommands = RECOSIMEventContent.outputCommands + RecoMTDRECO.outputCommands)
-
 #
 #
 # GENRAW Data Tier definition
