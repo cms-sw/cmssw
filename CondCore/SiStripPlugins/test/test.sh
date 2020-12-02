@@ -108,4 +108,14 @@ getPayloadData.py \
     --db Prod \
     --test ;
 
-getPayloadData.py --plugin pluginSiStripDetVOff_PayloadInspector --plot plot_SiStripLVOffListOfModules --tag SiStripDetVOff_v3_offline --time_type Time --iovs '{"start_iov": "6850066318803433472", "end_iov": "6850066318803433472"}' --db Prod --test > & out.out &
+######################
+# Test dumping of switched off modules
+######################
+getPayloadData.py \
+    --plugin pluginSiStripDetVOff_PayloadInspector \
+    --plot plot_SiStripLVOffListOfModules \
+    --tag SiStripDetVOff_v3_offline \
+    --time_type Time \
+    --iovs '{"start_iov": "6850066318803433472", "end_iov": "6850066318803433472"}' \
+    --db Prod \
+    --test;
