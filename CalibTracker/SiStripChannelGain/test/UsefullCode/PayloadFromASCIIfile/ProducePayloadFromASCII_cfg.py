@@ -3,8 +3,13 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("APVGAIN")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    cout = cms.untracked.PSet( threshold = cms.untracked.string('INFO')  ), #use ERROR for less printouts
-    destinations = cms.untracked.vstring('cout')
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('INFO')
+    )
 )
 
 

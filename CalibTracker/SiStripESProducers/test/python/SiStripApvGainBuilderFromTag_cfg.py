@@ -2,8 +2,13 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("APVGAINBUILDER")
 process.MessageLogger = cms.Service("MessageLogger",
-    threshold = cms.untracked.string('INFO'),
-    destinations = cms.untracked.vstring('cout')
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True)
+    ),
+    threshold = cms.untracked.string('INFO')
 )
 
 process.source = cms.Source("EmptySource",
