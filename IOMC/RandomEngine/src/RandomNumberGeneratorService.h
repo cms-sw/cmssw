@@ -54,6 +54,9 @@ namespace edm {
       RandomNumberGeneratorService(ParameterSet const& pset, ActivityRegistry& activityRegistry);
       ~RandomNumberGeneratorService() override;
 
+      RandomNumberGeneratorService(RandomNumberGeneratorService const&) = delete;
+      RandomNumberGeneratorService const& operator=(RandomNumberGeneratorService const&) = delete;
+
       /// Use the next 2 functions to get the random number engine.
       /// These are the only functions most modules should call.
 
@@ -160,9 +163,6 @@ namespace edm {
         edm::propagate_const<LabelAndEngine*> labelAndEngine_;
         unsigned int moduleID_;
       };
-
-      RandomNumberGeneratorService(RandomNumberGeneratorService const&) = delete;
-      RandomNumberGeneratorService const& operator=(RandomNumberGeneratorService const&) = delete;
 
       void preModuleStreamCheck(StreamContext const& sc, ModuleCallingContext const& mcc);
       void postModuleStreamCheck(StreamContext const& sc, ModuleCallingContext const& mcc);
