@@ -27,18 +27,15 @@ info['CvB'] = []
 for iev, event in enumerate(events_c):
     event.getByLabel (labelJ, handleJ)
     jets = handleJ.product()
-    print(iev)
+    #print(iev)
     for jet in jets:
-        #if jet.pt() < 300 or jet.pt() > 2000: continue
-        #if jet.mass() < 40 or jet.mass() > 200: continue
+        if jet.pt() < 300 or jet.pt() > 2000: continue
+        if jet.mass() < 40 or jet.mass() > 200: continue
 
         print(jet.pt(), jet.mass(), jet.eta())
-        print("DDB", jet.bDiscriminator("pfDeepDoubleBvLJetTags:probQCD"), jet.bDiscriminator("pfDeepDoubleBvLJetTags:probHbb"))
-        # print("DDB", jet.bDiscriminator("pfMassIndependentDeepDoubleBvLJetTags:probQCD"), jet.bDiscriminator("pfMassIndependentDeepDoubleBvLJetTags:probHbb"))
-        print("DDCvL", jet.bDiscriminator("pfDeepDoubleCvLJetTags:probQCD"), jet.bDiscriminator("pfDeepDoubleCvLJetTags:probHcc"))
-        # print("DDCvL", jet.bDiscriminator("pfMassIndependentDeepDoubleCvLJetTags:probQCD"), jet.bDiscriminator("pfMassIndependentDeepDoubleCvLJetTags:probHcc"))
-        print("DDCvB", jet.bDiscriminator("pfDeepDoubleCvBJetTags:probHbb"), jet.bDiscriminator("pfDeepDoubleCvBJetTags:probHcc") )
-        # print("DDCvB", jet.bDiscriminator("pfMassIndependentDeepDoubleCvBJetTags:probHbb"), jet.bDiscriminator("pfMassIndependentDeepDoubleCvBJetTags:probHcc"))
+        print("DDB", jet.bDiscriminator("pfMassIndependentDeepDoubleBvLV2JetTags:probQCD"), jet.bDiscriminator("pfMassIndependentDeepDoubleBvLV2JetTags:probHbb"))
+        print("DDCvL", jet.bDiscriminator("pfMassIndependentDeepDoubleCvLV2JetTags:probQCD"), jet.bDiscriminator("pfMassIndependentDeepDoubleCvLV2JetTags:probHcc"))
+        print("DDCvB", jet.bDiscriminator("pfMassIndependentDeepDoubleCvBV2JetTags:probHbb"), jet.bDiscriminator("pfMassIndependentDeepDoubleCvBV2JetTags:probHcc"))
         h_probQ_ddb.Fill(jet.bDiscriminator("pfDeepDoubleBvLJetTags:probQCD"))
         h_probH_ddb.Fill(jet.bDiscriminator("pfDeepDoubleBvLJetTags:probHbb"))
         h_probQ_ddc.Fill(jet.bDiscriminator("pfDeepDoubleCvLJetTags:probQCD"))
@@ -54,18 +51,18 @@ for iev, event in enumerate(events_c):
 with open('outputs.pkl', 'wb') as handle:
     pickle.dump(info, handle)
 
-c1a = ROOT.TCanvas()
-h_probH_ddb.Draw("HISTO")
-h_probH_ddb.SetLineColor(632)
-h_probH_ddb.SetLineStyle(10)
-h_probQ_ddb.Draw("SAME")
-c1a.Draw()
-c1a.SaveAs("ProbQ_vc_vb.png")
+# c1a = ROOT.TCanvas()
+# h_probH_ddb.Draw("HISTO")
+# h_probH_ddb.SetLineColor(632)
+# h_probH_ddb.SetLineStyle(10)
+# h_probQ_ddb.Draw("SAME")
+# c1a.Draw()
+# c1a.SaveAs("ProbQ_vc_vb.png")
 
-c1b = ROOT.TCanvas()
-h_probH_ddc.Draw("HISTO")
-h_probH_ddc.SetLineColor(632)
-h_probH_ddc.SetLineStyle(10)
-h_probQ_ddc.Draw("SAME")
-c1b.Draw()
-c1b.SaveAs("ProbH_vc_vb.png")
+# c1b = ROOT.TCanvas()
+# h_probH_ddc.Draw("HISTO")
+# h_probH_ddc.SetLineColor(632)
+# h_probH_ddc.SetLineStyle(10)
+# h_probQ_ddc.Draw("SAME")
+# c1b.Draw()
+# c1b.SaveAs("ProbH_vc_vb.png")
