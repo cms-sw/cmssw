@@ -14,9 +14,26 @@ MEtoEDMConvertPPSTimingCalib = cms.EDProducer('MEtoEDMConverter',
     deleteAfterCopy = cms.untracked.bool(True),
 )
 
+# uncalibrated rechits/tracks
+ctppsDiamondRecHits.applyCalibration = False
+
+# calibrated rechits/tracks
+ctppsDiamondCalibRecHits = ctppsDiamondRecHits.clone(
+    applyCalibration = True
+)
+ctppsDiamondCalibLocalTracks = ctppsDiamondLocalTracks.clone(
+    recHitsTag = cms.InputTag('ctppsDiamondCalibRecHits')
+)
+recoDiamondCalibLocalReconstructionTask = cms.Task(
+    ctppsDiamondCalibRecHits,
+    ctppsDiamondCalibLocalTracks
+)
+recoDiamondCalib = cms.Sequence(recoDiamondCalibLocalReconstructionTask)
+
 seqALCARECOPPSTimingCalib = cms.Sequence(
     ctppsRawToDigi *
     recoCTPPS *
+    recoDiamondCalib *
     ALCARECOPPSTimingCalib *
     MEtoEDMConvertPPSTimingCalib
 )
