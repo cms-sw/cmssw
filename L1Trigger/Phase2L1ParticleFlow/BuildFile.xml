@@ -8,6 +8,8 @@
 
 <use   name="CommonTools/Utils"/>
 <use   name="CommonTools/MVAUtils"/>
+<use   name="PhysicsTools/TensorFlow"/>
+<use   name="tensorflow"/>
 <use   name="roottmva"/>
 <use   name="hls"/>
 <export>
