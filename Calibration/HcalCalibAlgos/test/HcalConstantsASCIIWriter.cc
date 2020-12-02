@@ -26,7 +26,6 @@
 #include <map>
 #include <vector>
 
-using namespace reco;
 //
 // constructors and destructor
 //
