@@ -6,8 +6,6 @@
 #include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
-#include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 using namespace edm;
@@ -21,6 +19,8 @@ namespace cms {
     tok_ho_ = consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInput"));
     tok_hf_ = consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfInput"));
     allowMissingInputs_ = true;
+    tok_resp_ = esConsumes<HcalRespCorrs, HcalRespCorrsRcd>();
+
     //register your products
 
     produces<HBHERecHitCollection>("DiJetsHBHEReRecHitCollection");
@@ -37,9 +37,7 @@ namespace cms {
     auto miniDiJetsHORecHitCollection = std::make_unique<HORecHitCollection>();
     auto miniDiJetsHFRecHitCollection = std::make_unique<HFRecHitCollection>();
 
-    edm::ESHandle<HcalRespCorrs> recalibCorrs;
-    iSetup.get<HcalRespCorrsRcd>().get("recalibrate", recalibCorrs);
-    const HcalRespCorrs* jetRecalib = recalibCorrs.product();
+    const HcalRespCorrs* jetRecalib = &iSetup.getData(tok_resp_);
 
     try {
       edm::Handle<HBHERecHitCollection> hbhe;
