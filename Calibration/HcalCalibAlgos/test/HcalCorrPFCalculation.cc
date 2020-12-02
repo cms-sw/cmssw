@@ -125,7 +125,7 @@ HcalCorrPFCalculation::HcalCorrPFCalculation(edm::ParameterSet const& iConfig) {
   tok_bFieldH_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
   tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
   tok_resp_ = esConsumes<HcalRespCorrs, HcalRespCorrsRcd>();
-  tok_pfcorr_ =  esConsumes<HcalPFCorrs, HcalPFCorrsRcd>();
+  tok_pfcorr_ = esConsumes<HcalPFCorrs, HcalPFCorrsRcd>();
 
   //  outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile", "myfile.root");
 
