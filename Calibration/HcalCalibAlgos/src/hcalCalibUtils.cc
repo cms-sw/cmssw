@@ -40,10 +40,12 @@ void sumDepths(std::vector<TCell>& selectCells) {
 
   // case where depth 1 has zero energy, but higher depths with same (iEta, iPhi) have energy.
   // For iEta<15 there is one depth -> selectCellsHighDepth is empty and we do not get in the loop.
-  for (std::vector<TCell>::iterator i_it2 = selectCellsHighDepth.begin(); i_it2 != selectCellsHighDepth.end(); ++i_it2) {
+  for (std::vector<TCell>::iterator i_it2 = selectCellsHighDepth.begin(); i_it2 != selectCellsHighDepth.end();
+       ++i_it2) {
     // protect against corrupt data
     if (HcalDetId(i_it2->id()).ietaAbs() < 15 && HcalDetId(i_it2->id()).depth() > 1) {
-      edm::LogWarning("HcalCalib") << "ERROR!!! there are no HB cells with depth>1 for iEta<15!\n" << "Check the input data...\nHCalDetId: " << HcalDetId(i_it2->id());
+      edm::LogWarning("HcalCalib") << "ERROR!!! there are no HB cells with depth>1 for iEta<15!\n"
+                                   << "Check the input data...\nHCalDetId: " << HcalDetId(i_it2->id());
       return;
     }
 
@@ -68,7 +70,8 @@ void sumDepths(std::vector<TCell>& selectCells) {
   }
 
   for (std::vector<TCell>::iterator i_it = selectCellsDepth1.begin(); i_it != selectCellsDepth1.end(); ++i_it) {
-    for (std::vector<TCell>::iterator i_it2 = selectCellsHighDepth.begin(); i_it2 != selectCellsHighDepth.end(); ++i_it2) {
+    for (std::vector<TCell>::iterator i_it2 = selectCellsHighDepth.begin(); i_it2 != selectCellsHighDepth.end();
+         ++i_it2) {
       if (HcalDetId(i_it->id()).ieta() == HcalDetId(i_it2->id()).ieta() &&
           HcalDetId(i_it->id()).iphi() == HcalDetId(i_it2->id()).iphi()) {
         i_it->SetE(i_it->e() + i_it2->e());

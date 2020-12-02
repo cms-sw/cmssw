@@ -53,7 +53,7 @@ namespace cms {
       }
     } catch (cms::Exception& e) {  // can't find it!
       if (!allowMissingInputs_) {
-	edm::LogError("HitCalib") << "No HBHE collection ";
+        edm::LogError("HitCalib") << "No HBHE collection ";
         throw e;
       }
     }
