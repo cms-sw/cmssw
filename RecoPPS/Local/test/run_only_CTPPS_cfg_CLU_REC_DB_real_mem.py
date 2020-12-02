@@ -15,8 +15,14 @@ process.maxEvents = cms.untracked.PSet(
         )
 
 process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('rec_info'),
-    rec_info = cms.untracked.PSet( threshold = cms.untracked.string('INFO'))
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    files = cms.untracked.PSet(
+        rec_info = cms.untracked.PSet(
+            threshold = cms.untracked.string('INFO')
+        )
+    )
 )
 process.source = cms.Source("EmptyIOVSource",
     timetype = cms.string('runnumber'),
