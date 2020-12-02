@@ -124,9 +124,7 @@ namespace {
     //
     if (reco::details::hasEnding(weightsFileFullPath, ".root")) {
       TFile gbrForestFile(weightsFileFullPath.c_str());
-      // Use the copy-constructor of GBRForest to copy the GBRForest.
-      // In this way, the ROOT file can be closed.
-      return std::make_unique<GBRForest>(*(GBRForest*)gbrForestFile.Get("gbrForest"));
+      return std::unique_ptr<GBRForest>(reinterpret_cast<GBRForest*>(gbrForestFile.Get("gbrForest")));
     }
 
     //
