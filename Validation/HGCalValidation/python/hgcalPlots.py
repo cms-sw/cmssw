@@ -2541,6 +2541,8 @@ def create_hgcalTrackstersPlotter(files, collection = 'ticlTrackstersMerge', nam
                     "Outgoing links vs Layer Number",
                     "Raw Energy vs Regressed Energy",
                     "Relative Delta Energy (O-I)_I vs Layer Number (I)"]
+  grouped = {"cosAngle Beta": PlotGroup("cosAngle_Beta_per_layer",[],ncols=7), "cosAngle Beta Weighted": PlotGroup("cosAngle_Beta_Weighted_per_layer",[],ncols=7)}
+  groupingFlag = " on Layer "
 
   hgcalTrackstersPlotter = Plotter()
   dqmfolder = "DQMData/Run 1/HGCAL/Run summary/TICLTracksters/" + collection
@@ -2555,32 +2557,48 @@ def create_hgcalTrackstersPlotter(files, collection = 'ticlTrackstersMerge', nam
     name = obj.GetName()
     fileName = TString(name)
     fileName.ReplaceAll(" ","_")
-    pg= PlotGroup(fileName.Data(),
-                  [Plot(name,
-                       xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
-                       drawCommand = "COLZ", # may want to customize for TH2 (colz, etc.)
-                       **_common)
-                  ],
-                  ncols=1) # probably need more for cosAngle_Beta_
 
-    if str(name) in list_2D_histos :
-        pg= PlotOnSideGroup(fileName.Data(),
-                            Plot(name,
-                            xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
-                            drawCommand = "COLZ",
-                            **_common),
-                            ncols=1)
+    if groupingFlag in name:
+        for group in grouped:
+            if group+groupingFlag in name:
+                grouped[group].append(Plot(name,
+                                           xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
+                                           **_common)
+                                     )
+    else:
+        pg = None
+        if str(name) in list_2D_histos :
+            pg = PlotOnSideGroup(fileName.Data(),
+                                 Plot(name,
+                                 xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
+                                 drawCommand = "COLZ",
+                                 **_common),
+                                 ncols=1)
+        else:
+            pg = PlotGroup(fileName.Data(),
+                           [Plot(name,
+                                 xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
+                                 drawCommand = "COLZ", # may want to customize for TH2 (colz, etc.)
+                                 **_common)
+                           ],
+                           ncols=1)
 
-    hgcalTrackstersPlotter.append(name_collection+"_TICLDebugger", [
-              dqmfolder
-              ], PlotFolder(
-                pg,
-                loopSubFolders=False,
-                purpose=PlotPurpose.Timing, page="MultiClusters", section=name_collection)
-                #numberOfEventsHistogram=_multiplicity_tracksters_numberOfEventsHistogram)
-              )
+        hgcalTrackstersPlotter.append(name_collection+"_TICLDebugger",
+            [dqmfolder], PlotFolder(pg,
+                                    loopSubFolders=False,
+                                    purpose=PlotPurpose.Timing, page="MultiClusters", section=name_collection)
+            #numberOfEventsHistogram=_multiplicity_tracksters_numberOfEventsHistogram)
+            )
 
     key = keys.After(key)
+
+  for group in grouped:
+      hgcalTrackstersPlotter.append(name_collection+"_TICLDebugger",
+          [dqmfolder], PlotFolder(grouped[group],
+                                  loopSubFolders=False,
+                                  purpose=PlotPurpose.Timing, page="MultiClusters", section=name_collection)
+          #numberOfEventsHistogram=_multiplicity_tracksters_numberOfEventsHistogram)
+          )
 
   templateFile.Close()
 
