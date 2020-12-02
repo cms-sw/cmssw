@@ -53,7 +53,7 @@ void ETLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
 
     const float toa = std::get<2>(hitRefs[i]) + tofDelay_;
     const PSimHit& hit = hits->at(hitidx);
-    const float charge = convertUnitsTo(0.001_MeV, hit.energyLoss()) * MIPPerMeV_;
+    const float charge = convertGeVToMeV(hit.energyLoss()) * MIPPerMeV_;
 
     // calculate the simhit row and column
     const auto& pentry = hit.entryPoint();
