@@ -3,7 +3,7 @@
 
 /** \class HLTEventAnalyzerRAW
  *
- *  
+ *
  *  This class is an EDAnalyzer analyzing the combined HLT information for RAW
  *
  *
@@ -78,6 +78,22 @@ private:
   trigger::VRl1etmiss l1etmissRefs_;
   trigger::Vids l1hfringsIds_;
   trigger::VRl1hfrings l1hfringsRefs_;
+
+  /* Phase-2 */
+  trigger::Vids l1ttkmuIds_;
+  trigger::VRl1ttkmuon l1ttkmuRefs_;
+  trigger::Vids l1ttkeleIds_;
+  trigger::VRl1ttkele l1ttkeleRefs_;
+  trigger::Vids l1ttkemIds_;
+  trigger::VRl1ttkem l1ttkemRefs_;
+  trigger::Vids l1tpfjetIds_;
+  trigger::VRl1tpfjet l1tpfjetRefs_;
+  trigger::Vids l1tpftauIds_;
+  trigger::VRl1tpftau l1tpftauRefs_;
+  trigger::Vids l1thpspftauIds_;
+  trigger::VRl1thpspftau l1thpspftauRefs_;
+  trigger::Vids l1tpftrackIds_;
+  trigger::VRl1tpftrack l1tpftrackRefs_;
 
   trigger::Vids pfjetIds_;
   trigger::VRpfjet pfjetRefs_;
