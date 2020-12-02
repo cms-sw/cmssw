@@ -8,126 +8,6 @@
 #include "TVector3.h"
 #include <algorithm>
 
-namespace lowptgsfeleseed {
-
-  ////////////////////////////////////////////////////////////////////////////////
-  //
-  std::vector<float> features(const reco::PreId& ecal,
-                              const reco::PreId& hcal,
-                              double rho,
-                              const reco::BeamSpot& spot,
-                              noZS::EcalClusterLazyTools& tools) {
-    float trk_pt_ = -1.;
-    float trk_eta_ = -1.;
-    float trk_phi_ = -1.;
-    float trk_p_ = -1.;
-    float trk_nhits_ = -1.;
-    float trk_high_quality_ = -1.;
-    float trk_chi2red_ = -1.;
-    float rho_ = -1.;
-    float ktf_ecal_cluster_e_ = -1.;
-    float ktf_ecal_cluster_deta_ = -42.;
-    float ktf_ecal_cluster_dphi_ = -42.;
-    float ktf_ecal_cluster_e3x3_ = -1.;
-    float ktf_ecal_cluster_e5x5_ = -1.;
-    float ktf_ecal_cluster_covEtaEta_ = -42.;
-    float ktf_ecal_cluster_covEtaPhi_ = -42.;
-    float ktf_ecal_cluster_covPhiPhi_ = -42.;
-    float ktf_ecal_cluster_r9_ = -0.1;
-    float ktf_ecal_cluster_circularity_ = -0.1;
-    float ktf_hcal_cluster_e_ = -1.;
-    float ktf_hcal_cluster_deta_ = -42.;
-    float ktf_hcal_cluster_dphi_ = -42.;
-    float preid_gsf_dpt_ = -1.;
-    float preid_trk_gsf_chiratio_ = -1.;
-    float preid_gsf_chi2red_ = -1.;
-    float trk_dxy_sig_ = -1.;  // must be last (not used by unbiased model)
-
-    // Tracks
-    const auto& trk = ecal.trackRef();  // reco::TrackRef
-    if (trk.isNonnull()) {
-      trk_pt_ = trk->pt();
-      trk_eta_ = trk->eta();
-      trk_phi_ = trk->phi();
-      trk_p_ = trk->p();
-      trk_nhits_ = static_cast<float>(trk->found());
-      trk_high_quality_ = static_cast<float>(trk->quality(reco::TrackBase::qualityByName("highPurity")));
-      trk_chi2red_ = trk->normalizedChi2();
-      if (trk->dxy(spot) > 0.) {
-        trk_dxy_sig_ = trk->dxyError() / trk->dxy(spot);  //@@ to be consistent with the training based on 94X MC
-      }
-      ktf_ecal_cluster_dphi_ *= trk->charge();  //@@ to be consistent with the training based on 94X MC
-    }
-
-    // Rho
-    rho_ = static_cast<float>(rho);
-
-    // ECAL clusters
-    const auto& ecal_clu = ecal.clusterRef();  // reco::PFClusterRef
-    if (ecal_clu.isNonnull()) {
-      ktf_ecal_cluster_e_ = ecal_clu->energy();
-      ktf_ecal_cluster_deta_ = ecal.geomMatching()[0];
-      ktf_ecal_cluster_dphi_ = ecal.geomMatching()[1];
-      ktf_ecal_cluster_e3x3_ = tools.e3x3(*ecal_clu);
-      ktf_ecal_cluster_e5x5_ = tools.e5x5(*ecal_clu);
-      const auto& covs = tools.localCovariances(*ecal_clu);
-      ktf_ecal_cluster_covEtaEta_ = covs[0];
-      ktf_ecal_cluster_covEtaPhi_ = covs[1];
-      ktf_ecal_cluster_covPhiPhi_ = covs[2];
-      if (ktf_ecal_cluster_e_ > 0.) {
-        ktf_ecal_cluster_r9_ = ktf_ecal_cluster_e3x3_ / ktf_ecal_cluster_e_;
-      }
-      if (ktf_ecal_cluster_e5x5_ > 0.) {
-        ktf_ecal_cluster_circularity_ = 1. - tools.e1x5(*ecal_clu) / ktf_ecal_cluster_e5x5_;
-      } else {
-        ktf_ecal_cluster_circularity_ = -0.1;
-      }
-    }
-
-    // HCAL clusters
-    const auto& hcal_clu = hcal.clusterRef();  // reco::PFClusterRef
-    if (hcal_clu.isNonnull()) {
-      ktf_hcal_cluster_e_ = hcal_clu->energy();
-      ktf_hcal_cluster_deta_ = hcal.geomMatching()[0];
-      ktf_hcal_cluster_dphi_ = hcal.geomMatching()[1];
-    }
-
-    // PreId
-    preid_gsf_dpt_ = ecal.dpt();
-    preid_trk_gsf_chiratio_ = ecal.chi2Ratio();
-    preid_gsf_chi2red_ = ecal.gsfChi2();
-
-    // Set contents of vector
-    std::vector<float> output = {trk_pt_,
-                                 trk_eta_,
-                                 trk_phi_,
-                                 trk_p_,
-                                 trk_nhits_,
-                                 trk_high_quality_,
-                                 trk_chi2red_,
-                                 rho_,
-                                 ktf_ecal_cluster_e_,
-                                 ktf_ecal_cluster_deta_,
-                                 ktf_ecal_cluster_dphi_,
-                                 ktf_ecal_cluster_e3x3_,
-                                 ktf_ecal_cluster_e5x5_,
-                                 ktf_ecal_cluster_covEtaEta_,
-                                 ktf_ecal_cluster_covEtaPhi_,
-                                 ktf_ecal_cluster_covPhiPhi_,
-                                 ktf_ecal_cluster_r9_,
-                                 ktf_ecal_cluster_circularity_,
-                                 ktf_hcal_cluster_e_,
-                                 ktf_hcal_cluster_deta_,
-                                 ktf_hcal_cluster_dphi_,
-                                 preid_gsf_dpt_,
-                                 preid_trk_gsf_chiratio_,
-                                 preid_gsf_chi2red_,
-                                 trk_dxy_sig_};
-    return output;
-  };
-
-}  // namespace lowptgsfeleseed
-
 namespace lowptgsfeleid {
 
   std::vector<float> features_V1(reco::GsfElectron const& ele, float rho, float unbiased, float field_z) {
@@ -239,14 +119,12 @@ namespace lowptgsfeleid {
           float energy = sqrt(mass2 + p2);
           XYZTLorentzVector mom = XYZTLorentzVector(gsf->px(), gsf->py(), gsf->pz(), energy);
           XYZTLorentzVector pos = XYZTLorentzVector(gsf->vx(), gsf->vy(), gsf->vz(), 0.);
-          RawParticle particle(mom, pos);
-          BaseParticlePropagator propagator(particle, 0., 0., field_z);
-          particle.setCharge(gsf->charge());
+	  BaseParticlePropagator propagator(RawParticle(mom, pos, gsf->charge()), 0, 0, field_z);
+
           propagator.propagateToEcalEntrance(true);   // true only first half loop , false more than one loop
           bool reach_ECAL = propagator.getSuccess();  // 0 does not reach ECAL, 1 yes barrel, 2 yes endcaps
-          GlobalPoint ecal_pos(particle.x(),          // ECAL entry point for track
-                               particle.y(),
-                               particle.z());
+          // ECAL entry point for track
+          GlobalPoint ecal_pos(propagator.particle().x(), propagator.particle().y(), propagator.particle().z());
 
           // Track-cluster matching for most energetic clusters
           sc_clus1_nxtal = -999;

@@ -11,16 +11,6 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include <vector>
 
-namespace lowptgsfeleseed {
-
-  std::vector<float> features(const reco::PreId& ecal,
-                              const reco::PreId& hcal,
-                              double rho,
-                              const reco::BeamSpot& spot,
-                              noZS::EcalClusterLazyTools& ecalTools);
-
-}
-
 namespace lowptgsfeleid {
 
   // feature list for new model (2019Sept15)
