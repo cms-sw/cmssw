@@ -24,36 +24,12 @@ namespace l1t {
         for (unsigned int i = 1; i <= board_out.size(); i++) {
 	  auto packer_out = std::make_shared<BMTFPackerOutput>();
 	  auto packer_in  = PackerFactory::get()->make("stage2::BMTFPackerInputs");
-	  if (fw >= 2452619552) { // the 1st Kalman fw ver
+	  if (fw >= 2452619552) { // the 1st Kalman fw-ver value (0x95000160)
 	    packer_out->setKalmanAlgoTrue();
 	  }
 	  res[{i, board_out[i - 1]}] = {packer_out, packer_in};
         }
-      }  //if feds
-
-      /*
-	 if (fed == 1376) {
-	   std::cout << "fed is 1376" << std::endl;
-	   for (int i=1; i <= 12; i = i+2){//itr for amc_no = 1,3,5,7,9,11
-	     res[{i,board_out[i-1]}] = {PackerFactory::get()->make("stage2::BMTFPackerOutput"),
-					PackerFactory::get()->make("stage2::BMTFPackerInputs")};
-	   }
-
-	 }
-	 else if (fed == 1377) {
-	   std::cout << "fed is 1377" << std::endl;
-	   for (int i=2; i <=12; i = i+2){//itr for amc_no = 2,4,6,8,10,12
-	     res[{i,board_out[i-1]}] = {PackerFactory::get()->make("stage2::BMTFPackerOutput"),
-					PackerFactory::get()->make("stage2::BMTFPackerInputs")};
-	   }
-	
-	 }
-	 else{
-	   std::cout << std::endl;
-	   std::cout << "The given fed is not a BMTF fed (1376 or 1377)" << std::endl;
-	   std::cout << std::endl;
-	 }//if feds
-	   */
+      }  //if BMTF feds
 
       return res;
     }  //getPackers
