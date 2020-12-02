@@ -82,6 +82,12 @@ namespace geant_units {
       return (mm3 / 1.e9);
     }
 
+    template <class NumType>
+    inline constexpr NumType convertGeVToMeV(NumType gev)  // GeV -> MeV
+    {
+      return (gev * 1000.);
+    }
+
     // Convert Geant units to desired units
     template <class NumType>
     inline constexpr NumType convertUnitsTo(long double desiredUnits, NumType val) {
