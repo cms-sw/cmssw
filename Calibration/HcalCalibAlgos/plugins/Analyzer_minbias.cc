@@ -321,11 +321,10 @@ namespace cms {
     edm::LogVerbatim("AnalyzerMB") << " Start Analyzer_minbias::analyze " << nevent;
     nevent++;
     nevent_run++;
-    using namespace edm;
 
     float rnnum = (float)iEvent.run();
 
-    std::vector<StableProvenance const*> theProvenance;
+    std::vector<edm::StableProvenance const*> theProvenance;
     iEvent.getAllStableProvenance(theProvenance);
 
     for (auto const& provenance : theProvenance) {

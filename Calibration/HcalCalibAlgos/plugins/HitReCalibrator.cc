@@ -8,10 +8,6 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-using namespace edm;
-using namespace std;
-using namespace reco;
-
 namespace cms {
 
   HitReCalibrator::HitReCalibrator(const edm::ParameterSet& iConfig) {
@@ -57,7 +53,7 @@ namespace cms {
       }
     } catch (cms::Exception& e) {  // can't find it!
       if (!allowMissingInputs_) {
-        cout << "No HBHE collection " << endl;
+	edm::LogError("HitCalib") << "No HBHE collection ";
         throw e;
       }
     }
@@ -80,7 +76,7 @@ namespace cms {
       }
     } catch (cms::Exception& e) {  // can't find it!
       if (!allowMissingInputs_) {
-        cout << " No HO collection " << endl;
+        edm::LogError("HitCalib") << " No HO collection ";
         throw e;
       }
     }

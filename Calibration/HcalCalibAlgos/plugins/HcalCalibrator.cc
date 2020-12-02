@@ -52,20 +52,13 @@ to the actual calibration code in "endJob()".
 
 #include "TFile.h"
 
-using namespace edm;
-//using namespace reco;
-using namespace std;
-
 // constructor
 
 HcalCalibrator::HcalCalibrator(const edm::ParameterSet& conf)
-    :
-
-      mInputFileList(conf.getUntrackedParameter<string>("inputFileList")),
-      //  mOutputFile(conf.getUntrackedParameter<string>("outputFile")),
-
-      mCalibType(conf.getUntrackedParameter<string>("calibType")),
-      mCalibMethod(conf.getUntrackedParameter<string>("calibMethod")),
+    : mInputFileList(conf.getUntrackedParameter<std::string>("inputFileList")),
+      //  mOutputFile(conf.getUntrackedParameter<std::string>("outputFile")),
+      mCalibType(conf.getUntrackedParameter<std::string>("calibType")),
+      mCalibMethod(conf.getUntrackedParameter<std::string>("calibMethod")),
       mMinTargetE(conf.getUntrackedParameter<double>("minTargetE")),
       mMaxTargetE(conf.getUntrackedParameter<double>("maxTargetE")),
       mMinCellE(conf.getUntrackedParameter<double>("minCellE")),
@@ -90,12 +83,10 @@ HcalCalibrator::HcalCalibrator(const edm::ParameterSet& conf)
       mMaxTagJetAbsEta(conf.getUntrackedParameter<double>("maxTagJetAbsEta")),
       mMinTagJetEt(conf.getUntrackedParameter<double>("minTagJetEt")),
       mMinProbeJetAbsEta(conf.getUntrackedParameter<double>("minProbeJetAbsEta")),
-      mPhiSymCorFileName(conf.getUntrackedParameter<string>("phiSymCorFileName")),
+      mPhiSymCorFileName(conf.getUntrackedParameter<std::string>("phiSymCorFileName")),
       mApplyPhiSymCorFlag(conf.getUntrackedParameter<bool>("applyPhiSymCorFlag")),
-      mOutputCorCoefFileName(conf.getUntrackedParameter<string>("outputCorCoefFileName")),
-      mHistoFileName(conf.getUntrackedParameter<string>("histoFileName"))
-
-{
+      mOutputCorCoefFileName(conf.getUntrackedParameter<std::string>("outputCorCoefFileName")),
+      mHistoFileName(conf.getUntrackedParameter<std::string>("histoFileName")) {
   tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
   tok_htopo_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
 }
