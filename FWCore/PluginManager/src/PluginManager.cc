@@ -251,7 +251,7 @@ namespace edmplugin {
             throw;
           }
         }
-        loadables_[p] = ptr;
+        loadables_.emplace(p, ptr);
         justLoaded_(*ptr);
         return *ptr;
       }
