@@ -136,13 +136,11 @@ void LowPtGsfElectronSeedValueMapsProducer::produce(edm::Event& event, const edm
       event.put(std::move(ptr), names_[idx]);
     }
   }
-
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //
-void LowPtGsfElectronSeedValueMapsProducer::fillDescriptions( edm::ConfigurationDescriptions& descriptions )
-{
+void LowPtGsfElectronSeedValueMapsProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("gsfTracks", edm::InputTag("lowPtGsfEleGsfTracks"));
   desc.add<edm::InputTag>("preIdsValueMap", edm::InputTag("lowPtGsfElectronSeeds"));

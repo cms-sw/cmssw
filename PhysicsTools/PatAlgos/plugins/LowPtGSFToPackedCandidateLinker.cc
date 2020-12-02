@@ -25,12 +25,12 @@ typedef std::vector<PackedCandidatePtr> PackedCandidatePtrCollection;
 
 class LowPtGSFToPackedCandidateLinker : public edm::global::EDProducer<> {
 public:
-	explicit LowPtGSFToPackedCandidateLinker(const edm::ParameterSet&);
-	~LowPtGSFToPackedCandidateLinker() override;
-    
-	void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-	static void fillDescriptions(edm::ConfigurationDescriptions&);
-   
+  explicit LowPtGSFToPackedCandidateLinker(const edm::ParameterSet&);
+  ~LowPtGSFToPackedCandidateLinker() override;
+
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
+
 private:
   const edm::EDGetTokenT<reco::PFCandidateCollection> pfcands_;
   const edm::EDGetTokenT<pat::PackedCandidateCollection> packed_;

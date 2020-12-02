@@ -119,7 +119,7 @@ namespace lowptgsfeleid {
           float energy = sqrt(mass2 + p2);
           XYZTLorentzVector mom = XYZTLorentzVector(gsf->px(), gsf->py(), gsf->pz(), energy);
           XYZTLorentzVector pos = XYZTLorentzVector(gsf->vx(), gsf->vy(), gsf->vz(), 0.);
-	  BaseParticlePropagator propagator(RawParticle(mom, pos, gsf->charge()), 0, 0, field_z);
+          BaseParticlePropagator propagator(RawParticle(mom, pos, gsf->charge()), 0, 0, field_z);
 
           propagator.propagateToEcalEntrance(true);   // true only first half loop , false more than one loop
           bool reach_ECAL = propagator.getSuccess();  // 0 does not reach ECAL, 1 yes barrel, 2 yes endcaps
