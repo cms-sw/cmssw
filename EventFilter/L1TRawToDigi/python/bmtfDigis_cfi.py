@@ -6,7 +6,7 @@ bmtfDigis = cms.EDProducer(
     InputLabel = cms.InputTag("rawDataCollector"),
     FedIds = cms.vint32(1376,1377),
     FWId = cms.uint32(1),
-    FWOverride = cms.bool(True),
+    FWOverride = cms.bool(False),
     lenSlinkHeader = cms.untracked.int32(8),
     lenSlinkTrailer = cms.untracked.int32(8),
     lenAMCHeader = cms.untracked.int32(8),
@@ -17,16 +17,16 @@ bmtfDigis = cms.EDProducer(
 
 ## Era: Run2_2016
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
-stage2L1Trigger.toModify(bmtfDigis, FWId = cms.uint32(1))
+stage2L1Trigger.toModify(bmtfDigis, FWId = cms.uint32(2471493984)) # 0x93500160
 
 ## Era: Run2_2017
 from Configuration.Eras.Modifier_stage2L1Trigger_2017_cff import stage2L1Trigger_2017
-stage2L1Trigger_2017.toModify(bmtfDigis, FWId = cms.uint32(1))
+stage2L1Trigger_2017.toModify(bmtfDigis, FWId = cms.uint32(2471493984)) # 0x93500160
 
 ### Era: Run2_2018
 from Configuration.Eras.Modifier_stage2L1Trigger_2018_cff import stage2L1Trigger_2018
-stage2L1Trigger_2018.toModify(bmtfDigis, FWId = cms.uint32(1))
+stage2L1Trigger_2018.toModify(bmtfDigis, FWId = cms.uint32(2471493984)) # 0x93500160
 
 ### Era: Run3_2021
 from Configuration.Eras.Modifier_stage2L1Trigger_2021_cff import stage2L1Trigger_2021
-stage2L1Trigger_2021.toModify(bmtfDigis, FWId = cms.uint32(2499805536))
+stage2L1Trigger_2021.toModify(bmtfDigis, FWId = cms.uint32(2500002144)) # 0x95030160
