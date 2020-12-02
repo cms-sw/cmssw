@@ -47,13 +47,11 @@ to the actual calibration code in "endJob()".
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "TFile.h"
 
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 using namespace edm;
 //using namespace reco;
@@ -98,7 +96,10 @@ HcalCalibrator::HcalCalibrator(const edm::ParameterSet& conf)
       mOutputCorCoefFileName(conf.getUntrackedParameter<string>("outputCorCoefFileName")),
       mHistoFileName(conf.getUntrackedParameter<string>("histoFileName"))
 
-{}
+{
+  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
+  tok_htopo_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
+}
 
 // destructor
 
@@ -107,24 +108,13 @@ HcalCalibrator::~HcalCalibrator() {}
 // ------------ method called to for each event  ------------
 
 void HcalCalibrator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
-  mTheCaloGeometry = pG.product();
-  edm::ESHandle<HcalTopology> pT;
-  iSetup.get<HcalRecNumberingRecord>().get(pT);
-  mTheHcalTopology = pT.product();
+  mTheCaloGeometry = &iSetup.getData(tok_geom_);
+  mTheHcalTopology = &iSetup.getData(tok_htopo_);
 }
 
 // ------------ method called once each job just before starting event loop  ------------
 
 void HcalCalibrator::beginJob() {
-  //  ESHandle<CaloGeometry> theGeometry;
-  //  ESHandle<CaloSubdetectorGeometry> theEndcapGeometry_handle, theBarrelGeometry_handle;
-  //  evtSetup.get<CaloGeometryRecord>().get( theGeometry );
-
-  // edm::ESHandle<CaloGeometry> pG;
-  // evtSetup.get<CaloGeometryRecord>().get(pG);
-  // mTheCaloGeometry = pG.product();
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
