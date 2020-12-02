@@ -69,7 +69,10 @@ void hcalCalib::Begin(TTree* /*tree*/) {
   nEvents = 0;
 
   if (APPLY_PHI_SYM_COR_FLAG && !ReadPhiSymCor()) {
-    edm::LogError("HcalCalib") << "\nERROR: Failed to read the phi symmetry corrections.\n" << "Check if the filename is correct. If the corrections are not needed, set the corresponding flag to \"false\"\n" << "\nThe program will be terminated\n";
+    edm::LogError("HcalCalib") << "\nERROR: Failed to read the phi symmetry corrections.\n"
+                               << "Check if the filename is correct. If the corrections are not needed, set the "
+                                  "corresponding flag to \"false\"\n"
+                               << "\nThe program will be terminated\n";
 
     exit(1);
   }
@@ -349,9 +352,12 @@ Bool_t hcalCalib::Process(Long64_t entry) {
 //void hcalCalib::SlaveTerminate() {}
 
 void hcalCalib::Terminate() {
-  edm::LogVerbatim("HcalCalib") << "\n\nFinished reading the events.\n" << "Number of input objects: " << cellIds.size() << "\nPerforming minimization: depending on selected method can take some time...\n\n";
+  edm::LogVerbatim("HcalCalib") << "\n\nFinished reading the events.\n"
+                                << "Number of input objects: " << cellIds.size()
+                                << "\nPerforming minimization: depending on selected method can take some time...\n\n";
 
-  for (std::vector<std::pair<Int_t, UInt_t> >::iterator it_rp = refIEtaIPhi.begin(); it_rp != refIEtaIPhi.end(); ++it_rp) {
+  for (std::vector<std::pair<Int_t, UInt_t> >::iterator it_rp = refIEtaIPhi.begin(); it_rp != refIEtaIPhi.end();
+       ++it_rp) {
     Float_t weight = (abs(it_rp->first) < 21) ? 1.0 / 72.0 : 1.0 / 36.0;
     h1_numEventsTwrIEta->Fill(it_rp->first, weight);
   }
@@ -592,7 +598,8 @@ Bool_t hcalCalib::ReadPhiSymCor() {
   std::ifstream phiSymFile(PHI_SYM_COR_FILENAME.Data());
 
   if (!phiSymFile) {
-    edm::LogWarning("HcalCalib") << "\nERROR: Can not find file with phi symmetry constants \"" << PHI_SYM_COR_FILENAME.Data() << "\"";
+    edm::LogWarning("HcalCalib") << "\nERROR: Can not find file with phi symmetry constants \""
+                                 << PHI_SYM_COR_FILENAME.Data() << "\"";
     return kFALSE;
   }
 
@@ -625,19 +632,22 @@ Bool_t hcalCalib::ReadPhiSymCor() {
     else if (sdName == "HF")
       sd = HcalForward;
     else {
-      edm::LogWarning("HcalCalib") << "\nInvalid detector name in phi symmetry constants file: " << sdName.Data() << "\nCheck file and rerun!\n";
+      edm::LogWarning("HcalCalib") << "\nInvalid detector name in phi symmetry constants file: " << sdName.Data()
+                                   << "\nCheck file and rerun!\n";
       return kFALSE;
     }
 
     // check if the data is consistent
 
     if (HcalDetId(sd, iEta, iPhi, depth) != HcalDetId(detId)) {
-      edm::LogWarning("HcalCalib") << "\nInconsistent info in phi symmetry file: subdet, iEta, iPhi, depth do not match rawId!\n";
+      edm::LogWarning("HcalCalib")
+          << "\nInconsistent info in phi symmetry file: subdet, iEta, iPhi, depth do not match rawId!\n";
       return kFALSE;
     }
     HcalDetId hId(detId);
     if (!topo_->valid(hId)) {
-      edm::LogWarning("HcalCalib") << "\nInvalid DetId from: iEta=" << iEta << " iPhi=" << iPhi << " depth=" << depth << " subdet=" << sdName.Data() << " detId=" << detId << "\n";
+      edm::LogWarning("HcalCalib") << "\nInvalid DetId from: iEta=" << iEta << " iPhi=" << iPhi << " depth=" << depth
+                                   << " subdet=" << sdName.Data() << " detId=" << detId << "\n";
       return kFALSE;
     }
 
