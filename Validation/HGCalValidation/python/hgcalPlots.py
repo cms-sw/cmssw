@@ -2029,12 +2029,13 @@ def append_hgcalMultiClustersPlots(collection = 'ticlMultiClustersFromTracksters
 
 #=================================================================================================
 _common_Calo = {"stat": False, "drawStyle": "hist", "staty": 0.65, "ymin": 0.0, "ylog": False}
-list_2D_histos = ["caloparticle_nHits_matched_layer",
-                  "caloparticle_nHits_matched_layer_1SimCl",
-                  "caloparticle_sum_energy_layer"]
 
 hgcalCaloParticlesPlotter = Plotter()
 def append_hgcalCaloParticlesPlots(files, collection = '-211', name_collection = "pion-"):
+
+  list_2D_histos = ["caloparticle_nHits_matched_layer",
+                    "caloparticle_nHits_matched_layer_1SimCl",
+                    "caloparticle_sum_energy_layer"]
 
   dqmfolder = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/SelectedCaloParticles/" + collection
   print(dqmfolder)
