@@ -44,4 +44,23 @@ namespace edm {
     }
     return (workerIt->second.get());
   }
+
+  Worker const* WorkerRegistry::get(std::string const& moduleLabel) const {
+    WorkerMap::const_iterator workerIt = m_workerMap.find(moduleLabel);
+    if (workerIt != m_workerMap.end()) {
+      return workerIt->second;
+    }
+    return nullptr;
+  }
+
+  void WorkerRegistry::deleteModule(std::string const& moduleLabel) {
+    WorkerMap::iterator workerIt = m_workerMap.find(moduleLabel);
+    if (workerIt == m_workerMap.end()) {
+      throw cms::Exception("LogicError")
+          << "WorkerRegistry::deleteModule() Trying to delete the module of a Worker with label " << moduleLabel
+          << " but no such Worker exists in the WorkerRegistry. Please contact framework developers.";
+    }
+    workerIt->second->clearModule();
+  }
+
 }  // namespace edm
