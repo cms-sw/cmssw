@@ -1,7 +1,8 @@
+#include "CommonTools/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Common/interface/ValueMap.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Common/interface/View.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -131,10 +132,10 @@ void LowPtGsfElectronIDProducer::produce(edm::StreamID, edm::Event& event, const
       output[iname][iele] = eval(names_[iname], ele, *rho, unbiased, zfield.z());
     }
   }
-  
+
   // Create and put ValueMap in Event
-  for ( unsigned int iname = 0; iname < names_.size(); ++iname ) { 
-    auto ptr = std::make_unique< edm::ValueMap<float> >( edm::ValueMap<float>() );
+  for (unsigned int iname = 0; iname < names_.size(); ++iname) {
+    auto ptr = std::make_unique<edm::ValueMap<float> >(edm::ValueMap<float>());
     edm::ValueMap<float>::Filler filler(*ptr);
     filler.insert(electrons, output[iname].begin(), output[iname].end());
     filler.fill();
@@ -159,17 +160,16 @@ double LowPtGsfElectronIDProducer::eval(
   } else {
     throw cms::Exception("Unknown model name") << "'Name given: '" << name << "'. Check against configuration file.\n";
   }
-  
+  return 0.;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //
-void LowPtGsfElectronIDProducer::fillDescriptions( edm::ConfigurationDescriptions& descriptions )
-{
+void LowPtGsfElectronIDProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("electrons", edm::InputTag("lowPtGsfElectrons"));
   desc.add<edm::InputTag>("unbiased", edm::InputTag("lowPtGsfElectronSeedValueMaps:unbiased"));
-  desc.add<edm::InputTag>("rho", edm::InputTag("fixedGridRhoFastjetAllTmp"));
+  desc.add<edm::InputTag>("rho", edm::InputTag("fixedGridRhoFastjetAll"));
   desc.add<std::vector<std::string> >("ModelNames", {""});
   desc.add<std::vector<std::string> >(
       "ModelWeights", {"RecoEgamma/ElectronIdentification/data/LowPtElectrons/LowPtElectrons_ID_2020Sept15.root"});
