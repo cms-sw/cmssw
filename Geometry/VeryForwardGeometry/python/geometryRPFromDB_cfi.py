@@ -8,7 +8,7 @@ XMLIdealGeometryESSource_CTPPS = cms.ESProducer("XMLIdealGeometryESProducer",
 
 ctppsGeometryESModule = cms.ESProducer("CTPPSGeometryESModule",
     verbosity = cms.untracked.uint32(1),
-    isRun2 = False,
+    isRun2 = cms.bool(False),
     compactViewTag = cms.string('XMLIdealGeometryESSource_CTPPS')
 )
 
