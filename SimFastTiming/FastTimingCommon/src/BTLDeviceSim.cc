@@ -85,7 +85,7 @@ void BTLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
         simHitAccumulator->emplace(mtd_digitizer::MTDCellId(id, row, col), mtd_digitizer::MTDCellInfo()).first;
 
     // --- Get the simHit energy and convert it from MeV to photo-electrons
-    float Npe = convertUnitsTo(0.001_MeV, hit.energyLoss()) * LightYield_ * LightCollEff_ * PDE_;
+    float Npe = convertGeVToMeV(hit.energyLoss()) * LightYield_ * LightCollEff_ * PDE_;
 
     // --- Calculate the light propagation time to the crystal bases (labeled L and R)
     double distR = 0.5 * topo.pitch().first - convertMmToCm(hit.localPosition().x());
