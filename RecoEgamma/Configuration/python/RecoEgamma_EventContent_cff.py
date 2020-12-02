@@ -46,7 +46,8 @@ RecoEgammaAOD = cms.PSet(
         'keep *_lowPtGsfToTrackLinks_*_*',
         'keep recoSuperClusters_lowPtGsfElectronSuperClusters_*_*',
         'keep floatedmValueMap_lowPtGsfElectronSeedValueMaps_*_*',
-        'keep floatedmValueMap_lowPtGsfElectronID_*_*')                                                                 
+        'keep floatedmValueMap_rekeyLowPtGsfElectronSeedValueMaps_*_*',
+        'keep floatedmValueMap_lowPtGsfElectronID_*_*')
 )
 # mods for HGCAL
 _phase2_hgcal_RecoEgamma_tokeep = [ 'keep *_ecalDrivenGsfElectronCores_*_*',

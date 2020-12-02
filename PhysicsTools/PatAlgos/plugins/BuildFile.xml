@@ -9,6 +9,7 @@
   <use name="HLTrigger/HLTcore"/>
   <use name="DataFormats/PatCandidates"/>
   <use name="DataFormats/BTauReco"/>
+  <use name="DataFormats/Common"/>
   <use name="DataFormats/JetReco"/>
   <use name="DataFormats/MuonReco"/>
   <use name="DataFormats/TrackReco"/>
