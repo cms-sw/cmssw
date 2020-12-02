@@ -251,7 +251,7 @@ namespace cms {
               ieta = l;
               iphi = k;
               edm::LogVerbatim("AnalyzerMB") << " Result Plus= " << mysubd << " " << ieta << " " << iphi << " mom0  "
-                                         << mom0_MB << " mom1 " << mom1_MB << " mom2 " << mom2_MB;
+                                             << mom0_MB << " mom1 " << mom1_MB << " mom2 " << mom2_MB;
               myTree->Fill();
               ii++;
             }  // Pl > 0
@@ -274,7 +274,7 @@ namespace cms {
               ieta = -1 * l;
               iphi = k;
               edm::LogVerbatim("AnalyzerMB") << " Result Minus= " << mysubd << " " << ieta << " " << iphi << " mom0  "
-                                         << mom0_MB << " mom1 " << mom1_MB << " mom2 " << mom2_MB;
+                                             << mom0_MB << " mom1 " << mom1_MB << " mom2 " << mom2_MB;
               myTree->Fill();
               ii++;
 
@@ -330,7 +330,8 @@ namespace cms {
 
     for (auto const& provenance : theProvenance) {
       edm::LogVerbatim("AnalyzerMB") << " Print all process/modulelabel/product names " << provenance->processName()
-                                 << " , " << provenance->moduleLabel() << " , " << provenance->productInstanceName();
+                                     << " , " << provenance->moduleLabel() << " , "
+                                     << provenance->productInstanceName();
     }
     /*
       edm::Handle<FEDRawDataCollection> rawdata;  
@@ -547,7 +548,7 @@ namespace cms {
 
         if (energyhit < -2.)
           edm::LogVerbatim("AnalyzerMB") << " Run " << rnnum << " ieta,iphi " << hid.ieta() << " " << hid.iphi()
-                                     << energyhit;
+                                         << energyhit;
 
         // if( hid.ieta() > 0 ) {
         //  hCalo1[hid.iphi()][hid.ieta()]->Fill(energyhit-noise_pl[hid.iphi()][hid.ieta()]);

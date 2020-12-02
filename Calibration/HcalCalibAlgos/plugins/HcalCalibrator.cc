@@ -52,7 +52,6 @@ to the actual calibration code in "endJob()".
 
 #include "TFile.h"
 
-
 using namespace edm;
 //using namespace reco;
 using namespace std;
@@ -114,8 +113,7 @@ void HcalCalibrator::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
 // ------------ method called once each job just before starting event loop  ------------
 
-void HcalCalibrator::beginJob() {
-}
+void HcalCalibrator::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
 
