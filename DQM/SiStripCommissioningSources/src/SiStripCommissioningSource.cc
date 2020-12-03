@@ -1,6 +1,5 @@
 #include "DQM/SiStripCommissioningSources/interface/SiStripCommissioningSource.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
-#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DQM/SiStripCommissioningSources/interface/ApvTimingTask.h"
 #include "DQM/SiStripCommissioningSources/interface/Averages.h"
@@ -24,7 +23,6 @@
 #include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -53,7 +51,7 @@ using namespace sistrip;
 //
 SiStripCommissioningSource::SiStripCommissioningSource(const edm::ParameterSet& pset)
     : dqm_(nullptr),
-      fedCabling_(nullptr),
+      fedCablingToken_(esConsumes<edm::Transition::BeginRun>()),
       fecCabling_(nullptr),
       inputModuleLabel_(pset.getParameter<std::string>("InputModuleLabel")),
       inputModuleLabelAlt_(pset.existsAs<std::string>("InputModuleLabelAlt")
@@ -145,12 +143,11 @@ void SiStripCommissioningSource::beginRun(edm::Run const& run, const edm::EventS
 
   // ---------- FED and FEC cabling ----------
 
-  edm::ESHandle<SiStripFedCabling> fed_cabling;
-  setup.get<SiStripFedCablingRcd>().get(fed_cabling);
-  fedCabling_ = const_cast<SiStripFedCabling*>(fed_cabling.product());
+  const auto& fed_cabling = setup.getData(fedCablingToken_);
+  fedCabling_ = const_cast<SiStripFedCabling*>(&fed_cabling);
   LogDebug(mlDqmSource_) << "[SiStripCommissioningSource::" << __func__ << "]"
                          << "Initialized FED cabling. Number of FEDs is " << fedCabling_->fedIds().size();
-  fecCabling_ = new SiStripFecCabling(*fed_cabling);
+  fecCabling_ = new SiStripFecCabling(fed_cabling);
   if (fecCabling_->crates().empty()) {
     std::stringstream ss;
     ss << "[SiStripCommissioningSource::" << __func__ << "]"
