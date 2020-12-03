@@ -388,7 +388,8 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
     unsigned long long l1GtPfAlgoCacheID = evSetup.get<L1TGlobalPrescalesVetosFractRcd>().cacheIdentifier();
 
     if (m_l1GtPfAlgoCacheID != l1GtPfAlgoCacheID) {
-      edm::ESHandle<L1TGlobalPrescalesVetosFract> l1GtPrescalesFractVetoes = evSetup.getHandle(m_l1GtPrescaleVetosToken);
+      edm::ESHandle<L1TGlobalPrescalesVetosFract> l1GtPrescalesFractVetoes =
+          evSetup.getHandle(m_l1GtPrescaleVetosToken);
       const L1TGlobalPrescalesVetosFract* es = l1GtPrescalesFractVetoes.product();
       m_l1GtPrescalesVetosFract = PrescalesVetosFractHelper::readFromEventSetup(es);
 
