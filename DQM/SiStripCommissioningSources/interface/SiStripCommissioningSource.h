@@ -4,6 +4,7 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
+#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -91,6 +92,7 @@ private:  // ---------- Private methods ----------
   DQMStore* dqm_;
 
   /** */
+  edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> fedCablingToken_;
   SiStripFedCabling* fedCabling_;
 
   /** */
