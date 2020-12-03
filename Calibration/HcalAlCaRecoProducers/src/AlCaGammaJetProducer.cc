@@ -297,7 +297,7 @@ void AlCaGammaJetProducer::produce(edm::StreamID, edm::Event& iEvent, const edm:
       for (int iPho = 0; iPho < int(photon.size()); ++iPho) {
         edm::Ref<reco::PhotonCollection> photonRef(phoHandle, iPho);
         if (!photonRef) {
-	  edm::LogVerbatim("AlCaGammaJet") << "failed ref";
+          edm::LogVerbatim("AlCaGammaJet") << "failed ref";
           miniLoosePhoton.push_back(-1);
           miniTightPhoton.push_back(-1);
         } else {
