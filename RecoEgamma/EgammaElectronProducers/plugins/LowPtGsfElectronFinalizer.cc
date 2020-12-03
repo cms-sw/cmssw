@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
@@ -12,6 +13,8 @@ public:
   explicit LowPtGsfElectronFinalizer(const edm::ParameterSet&);
 
   void produce(edm::Event&, const edm::EventSetup&) override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
   const edm::EDGetTokenT<reco::GsfElectronCollection> previousGsfElectrons_;
@@ -37,7 +40,7 @@ void LowPtGsfElectronFinalizer::produce(edm::Event& event, const edm::EventSetup
   regression_->setEvent(event);
   regression_->setEventContent(setup);
 
-  // Create new modifies electron collection
+  // Create new modified electron collection
   reco::GsfElectronCollection outputElectrons;
   for (auto const& electron : event.get(previousGsfElectrons_)) {
     outputElectrons.emplace_back(electron);
@@ -49,6 +52,15 @@ void LowPtGsfElectronFinalizer::produce(edm::Event& event, const edm::EventSetup
 
   // Emplace modified electrons to event
   event.emplace(putToken_, std::move(outputElectrons));
+}
+
+void LowPtGsfElectronFinalizer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("previousGsfElectronsTag", {});
+  edm::ParameterSetDescription psd;
+  psd.setUnknown();
+  desc.add<edm::ParameterSetDescription>("regressionConfig", psd);
+  descriptions.addDefault(desc);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
