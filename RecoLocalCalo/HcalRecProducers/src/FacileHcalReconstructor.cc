@@ -24,19 +24,18 @@ public:
   }
 
   void acquire(edm::Event const& iEvent, edm::EventSetup const& iSetup, Input& iInput) override {
-    edm::Handle<HBHEChannelInfoCollection> hChannelInfo;
-    iEvent.getByToken(fTokChannelInfo_, hChannelInfo);
+    const auto& hChannelInfo = iEvent.get(fTokChannelInfo_);
 
     const HcalTopology* htopo = &iSetup.getData(htopoToken_);
 
     auto& input1 = iInput.begin()->second;
     auto data1 = std::make_shared<TritonInput<float>>();
-    data1->reserve(hChannelInfo->size());
-    client_.setBatchSize(hChannelInfo->size());
+    data1->reserve(hChannelInfo.size());
+    client_.setBatchSize(hChannelInfo.size());
 
     hcalIds_.clear();
 
-    for (const auto& pChannel : *hChannelInfo) {
+    for (const auto& pChannel : hChannelInfo) {
       std::vector<float> input;
       const HcalDetId pDetId = pChannel.id();
       hcalIds_.push_back(pDetId);
@@ -71,10 +70,10 @@ public:
     const auto& outputs = output1.fromServer<float>();
     for (std::size_t iB = 0; iB < hcalIds_.size(); iB++) {
       float rhE = outputs[iB][0];
-      if (rhE < 0. or std::isnan(rhE) or std::isinf(rhE))
+      if (rhE < 0.f or std::isnan(rhE) or std::isinf(rhE))
         rhE = 0;
 
-      HBHERecHit rh = HBHERecHit(hcalIds_[iB], rhE, 0.f, 0.f);
+      HBHERecHit rh(hcalIds_[iB], rhE, 0.f, 0.f);
       out->push_back(rh);
     }
     iEvent.put(std::move(out));

@@ -10,7 +10,7 @@ sonic_hbheprereco = cms.EDProducer("FacileHcalReconstructor",
         mode = cms.string("Async"),
         modelVersion = cms.string(""),
         verbose = cms.untracked.bool(False),
-        allowedTries = cms.untracked.uint32(5),
+        allowedTries = cms.untracked.uint32(0),
         outputs = cms.untracked.vstring("output"),
     ),
     ChannelInfoName = cms.InputTag("hbhechannelinfo")
