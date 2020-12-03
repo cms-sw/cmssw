@@ -1,27 +1,20 @@
-
-#include "L1Trigger/VertexFinder/interface/InputData.h"
-
-#include <map>
-
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
-#include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
-#include "SimDataFormats/Track/interface/SimTrack.h"
-
-// #include "Geometry/Records/interface/StackedTrackerGeometryRecord.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-
 // TTStubAssociationMap.h forgets to two needed files, so must include them here ...
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
+#include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
+#include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
-
 #include "L1Trigger/VertexFinder/interface/AnalysisSettings.h"
+#include "L1Trigger/VertexFinder/interface/InputData.h"
+
+#include <map>
 
 using namespace std;
 

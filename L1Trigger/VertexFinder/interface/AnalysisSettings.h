@@ -1,12 +1,11 @@
 #ifndef __L1Trigger_VertexFinder_AnalysisSettings_h__
 #define __L1Trigger_VertexFinder_AnalysisSettings_h__
 
-#include <vector>
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
 #include "L1Trigger/VertexFinder/interface/AlgoSettings.h"
+
+#include <vector>
 
 namespace l1tVertexFinder {
 

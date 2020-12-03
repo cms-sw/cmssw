@@ -1,16 +1,17 @@
 import FWCore.ParameterSet.Config as cms
+from L1Trigger.VertexFinder.VertexProducer_cff import VertexProducer
 
 L1TVertexAnalyzer = cms.EDAnalyzer('VertexAnalyzer',
   tpInputTag = cms.InputTag("mix", "MergedTrackTruth"),
   stubInputTag = cms.InputTag("TTStubsFromPhase2TrackerDigis", "StubAccepted"),
   stubTruthInputTag = cms.InputTag("TTStubAssociatorFromPixelDigis", "StubAccepted"),
   clusterTruthInputTag = cms.InputTag("TTClusterAssociatorFromPixelDigis", "ClusterAccepted"),
-  l1TracksInputTag = cms.InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"),
-  l1VerticesInputTag = cms.InputTag("VertexProducer", "l1vertices"),
+  l1TracksInputTag = VertexProducer.l1TracksInputTag,
+  l1VerticesInputTag = cms.InputTag("VertexProducer", VertexProducer.l1VertexCollectionName.value()),
 
   #=== Cuts on MC truth particles (i.e., tracking particles) used for tracking efficiency measurements.
   GenCuts = cms.PSet(
-     GenMinPt         = cms.double(3.0),
+     GenMinPt         = cms.double(2.0),
      GenMaxAbsEta     = cms.double(2.4),
      GenMaxVertR      = cms.double(1.0), # Maximum distance of particle production vertex from centre of CMS.
      GenMaxVertZ      = cms.double(30.0),
@@ -48,32 +49,7 @@ L1TVertexAnalyzer = cms.EDAnalyzer('VertexAnalyzer',
 
 
   # === Vertex Reconstruction configuration
-  VertexReconstruction=cms.PSet(
-        Algorithm = cms.string("DBSCAN"),
-        # Vertex distance
-        VertexDistance = cms.double(.15),
-        # Assumed Vertex Resolution
-        VertexResolution = cms.double(.10),
-        # Distance Type for agglomerative algorithm (0: MaxDistance, 1: MinDistance, 2: MeanDistance, 3: CentralDistance)
-        DistanceType  = cms.uint32(0),
-        # Minimum number of tracks to accept vertex
-        MinTracks   = cms.uint32(2),
-        # Compute the z0 position of the vertex with a mean weighted with track momenta
-        WeightedMean = cms.bool(False),
-        # Chi2 cut for the Adaptive Vertex Reconstruction Algorithm
-        AVR_chi2cut = cms.double(5.),
-        # TDR algorithm assumed vertex width [cm]
-        TP_VertexWidth = cms.double(.15),
-        # Kmeans number of iterations
-        KmeansIterations = cms.uint32(10),
-        # Kmeans number of clusters
-        KmeansNumClusters  = cms.uint32(18),
-        # DBSCAN pt threshold
-        DBSCANPtThreshold = cms.double(4.),
-        # DBSCAN min density tracks
-        DBSCANMinDensityTracks = cms.uint32(2),
-        VxMinTrackPt   = cms.double(2.5)
-    ),
+  VertexReconstruction = VertexProducer.VertexReconstruction,
 
   # Debug printout
   debug  = cms.uint32(0),
