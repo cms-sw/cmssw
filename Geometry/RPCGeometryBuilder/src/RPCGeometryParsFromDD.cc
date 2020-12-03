@@ -22,7 +22,6 @@
 #include <DetectorDescription/DDCMS/interface/DDFilteredView.h>
 #include <DetectorDescription/DDCMS/interface/DDCompactView.h>
 #include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
-//#include "DataFormats/Math/interface/GeantUnits.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 RPCGeometryParsFromDD::RPCGeometryParsFromDD() {}
@@ -114,13 +113,10 @@ void RPCGeometryParsFromDD::buildGeometry(DDFilteredView& fview,
           << " (3), else, dpar[4]: " << dpar4 << " dpar[8]: " << dpar8 << " dpar[0]: " << dpar0;
     }
 
-    const std::vector<double> vtra = {tran.x(),
-                                      tran.y(),
-                                      tran.z()};
+    const std::vector<double> vtra = {tran.x(), tran.y(), tran.z()};
 
-    edm::LogVerbatim("RPCGeometryParsFromDD") << " (4), tran.x() " << tran.x()
-                                              << " tran.y(): " << tran.y()
-                                              << " tran.z(): " << tran.z();
+    edm::LogVerbatim("RPCGeometryParsFromDD")
+        << " (4), tran.x() " << tran.x() << " tran.y(): " << tran.y() << " tran.z(): " << tran.z();
 
     const std::vector<double> vrot = {x.X(), x.Y(), x.Z(), y.X(), y.Y(), y.Z(), z.X(), z.Y(), z.Z()};
     edm::LogVerbatim("RPCGeometryParsFromDD")
@@ -164,16 +160,19 @@ void RPCGeometryParsFromDD::buildGeometry(cms::DDFilteredView& fview,
     const std::vector<double> rot = {x.X(), x.Y(), x.Z(), y.X(), y.Y(), y.Z(), z.X(), z.Y(), z.Z()};
 
     if (dd4hep::isA<dd4hep::Box>(fview.solid())) {
-      const std::vector<double> pars = {dpar[0] / dd4hep::mm, dpar[1] / dd4hep::mm, dpar[2] / dd4hep::mm, double(nStrips)};
+      const std::vector<double> pars = {
+          dpar[0] / dd4hep::mm, dpar[1] / dd4hep::mm, dpar[2] / dd4hep::mm, double(nStrips)};
       edm::LogVerbatim("RPCGeometryParsFromDD")
-	<< " (2), dd4hep::Box, width: " << dpar[0] / dd4hep::mm<< " length: " << dpar[1] / dd4hep::mm<< " thickness: " << dpar[2] / dd4hep::mm;
+          << " (2), dd4hep::Box, width: " << dpar[0] / dd4hep::mm << " length: " << dpar[1] / dd4hep::mm
+          << " thickness: " << dpar[2] / dd4hep::mm;
       rgeo.insert(rpcid, tran, rot, pars, strpars);
     } else {
       const double ti = 0.4;
-      const std::vector<double> pars = {dpar[0] / dd4hep::mm, dpar[1] / dd4hep::mm, dpar[3] / dd4hep::mm, ti, double(nStrips)};
-      edm::LogVerbatim("RPCGeometryParsFromDD")
-	<< " (3), else, dpar[0] (i.e. dpar[4] for DD): " << dpar[0] / dd4hep::mm<< " dpar[1] (i.e. dpar[8] for DD): " << dpar[1] / dd4hep::mm
-	<< " dpar[3] (i.e. dpar[0] for DD): " << dpar[3] / dd4hep::mm;
+      const std::vector<double> pars = {
+          dpar[0] / dd4hep::mm, dpar[1] / dd4hep::mm, dpar[3] / dd4hep::mm, ti, double(nStrips)};
+      edm::LogVerbatim("RPCGeometryParsFromDD") << " (3), else, dpar[0] (i.e. dpar[4] for DD): " << dpar[0] / dd4hep::mm
+                                                << " dpar[1] (i.e. dpar[8] for DD): " << dpar[1] / dd4hep::mm
+                                                << " dpar[3] (i.e. dpar[0] for DD): " << dpar[3] / dd4hep::mm;
       rgeo.insert(rpcid, tran, rot, pars, strpars);
     }
     edm::LogVerbatim("RPCGeometryParsFromDD")
