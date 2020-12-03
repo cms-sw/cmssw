@@ -94,6 +94,14 @@ SiStripCommissioningSource::SiStripCommissioningSource(const edm::ParameterSet& 
                          << " Constructing object...";
   tasks_.clear();
   tasks_.resize(1024, VecOfTasks(96, static_cast<CommissioningTask*>(nullptr)));
+
+  if (task_ == sistrip::NOISE) {
+    noiseToken_ = esConsumes();
+  }
+  if (task_ == sistrip::NOISE || task_ == sistrip::CALIBRATION_SCAN || task_ == sistrip::CALIBRATION_SCAN_DECO ||
+      task_ == sistrip::CALIBRATION || task_ == sistrip::CALIBRATION_DECO) {
+    pedestalToken_ = esConsumes();
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -978,17 +986,17 @@ void SiStripCommissioningSource::createTasks(sistrip::RunType run_type, const ed
           } else if (task_ == sistrip::PEDS_ONLY) {
             tasks_[iconn->fedId()][iconn->fedCh()] = new PedsOnlyTask(dqm(), *iconn);
           } else if (task_ == sistrip::NOISE) {
-            tasks_[iconn->fedId()][iconn->fedCh()] = new NoiseTask(dqm(), *iconn);
+            tasks_[iconn->fedId()][iconn->fedCh()] = new NoiseTask(dqm(), *iconn, pedestalToken_, noiseToken_);
           } else if (task_ == sistrip::PEDS_FULL_NOISE) {
             tasks_[iconn->fedId()][iconn->fedCh()] = new PedsFullNoiseTask(dqm(), *iconn, parameters_);
           } else if (task_ == sistrip::DAQ_SCOPE_MODE) {
             tasks_[iconn->fedId()][iconn->fedCh()] = new DaqScopeModeTask(dqm(), *iconn, parameters_);
           } else if (task_ == sistrip::CALIBRATION_SCAN || task_ == sistrip::CALIBRATION_SCAN_DECO) {
             tasks_[iconn->fedId()][iconn->fedCh()] =
-                new CalibrationScanTask(dqm(), *iconn, task_, filename_.c_str(), run_, setup);
+                new CalibrationScanTask(dqm(), *iconn, task_, filename_.c_str(), run_, setup.getData(pedestalToken_));
           } else if (task_ == sistrip::CALIBRATION || task_ == sistrip::CALIBRATION_DECO) {
             tasks_[iconn->fedId()][iconn->fedCh()] =
-                new CalibrationTask(dqm(), *iconn, task_, filename_.c_str(), run_, setup);
+                new CalibrationTask(dqm(), *iconn, task_, filename_.c_str(), run_, setup.getData(pedestalToken_));
           } else if (task_ == sistrip::UNDEFINED_RUN_TYPE) {
             edm::LogWarning(mlDqmSource_) << "[SiStripCommissioningSource::" << __func__ << "]"
                                           << " Undefined CommissioningTask"
