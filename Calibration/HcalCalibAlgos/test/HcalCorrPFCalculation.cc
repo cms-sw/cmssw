@@ -1,5 +1,3 @@
-
-
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -105,6 +103,11 @@ private:
   edm::EDGetTokenT<EcalRecHitCollection> tok_EB_;
   edm::EDGetTokenT<reco::TrackCollection> tok_tracks_;
   edm::EDGetTokenT<edm::HepMCProduct> tok_gen_;
+
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_bFieldH_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_resp_;
+  edm::ESGetToken<HcalPFCorrs, HcalPFCorrsRcd> tok_pfcorr_;
 };
 
 HcalCorrPFCalculation::HcalCorrPFCalculation(edm::ParameterSet const& iConfig) {
@@ -118,6 +121,11 @@ HcalCorrPFCalculation::HcalCorrPFCalculation(edm::ParameterSet const& iConfig) {
   tok_EB_ = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit", "EcalRecHitsEB"));
   tok_tracks_ = consumes<reco::TrackCollection>(edm::InputTag("generalTracks"));
   tok_gen_ = consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"));
+
+  tok_bFieldH_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
+  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
+  tok_resp_ = esConsumes<HcalRespCorrs, HcalRespCorrsRcd>();
+  tok_pfcorr_ = esConsumes<HcalPFCorrs, HcalPFCorrsRcd>();
 
   //  outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile", "myfile.root");
 
@@ -158,13 +166,8 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
   AddRecalib = kFALSE;
 
   try {
-    edm::ESHandle<HcalRespCorrs> recalibCorrs;
-    c.get<HcalRespCorrsRcd>().get("recalibrate", recalibCorrs);
-    respRecalib = recalibCorrs.product();
-
-    edm::ESHandle<HcalPFCorrs> pfCorrs;
-    c.get<HcalPFCorrsRcd>().get("recalibrate", pfCorrs);
-    pfRecalib = pfCorrs.product();
+    respRecalib = &c.getData(tok_resp_);
+    pfRecalib = &c.getData(tok_pfcorr_);
 
     AddRecalib = kTRUE;
     // edm::LogVerbatim("CalibConstants")<<"   OK ";
@@ -206,9 +209,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
   edm::Handle<reco::TrackCollection> generalTracks;
   ev.getByToken(tok_tracks_, generalTracks);
 
-  edm::ESHandle<CaloGeometry> pG;
-  c.get<CaloGeometryRecord>().get(pG);
-  geo = pG.product();
+  geo = &c.getData(tok_geom_);
 
   gHcal = static_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal, HcalBarrel));
 
@@ -222,9 +223,8 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
   //parameters_.dREcal = taECALCone_;
   //parameters_.dRHcal = taHCALCone_;
 
-  edm::ESHandle<MagneticField> bField;
-  c.get<IdealMagneticFieldRecord>().get(bField);
-  stepPropF = new SteppingHelixPropagator(&*bField, alongMomentum);
+  const MagneticField* bField = &c.getData(tok_bFieldH_);
+  stepPropF = new SteppingHelixPropagator(bField, alongMomentum);
   stepPropF->setMaterialMode(false);
   stepPropF->applyRadX0Correction(true);
 

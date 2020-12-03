@@ -1008,8 +1008,6 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   Nevents++;
 
-  using namespace edm;
-
   float pival = acos(-1.);
   irunold = irun = iEvent.id().run();
   ievt = iEvent.id().event();
