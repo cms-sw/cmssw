@@ -34,14 +34,11 @@ def create_command(filesin, folderout, sample, label):
   command += ' >& '+log+' &'
   return command
 
-#kaons
+energies = ['10','20','50','100','200','300']
+
+# kaons
 if (args.sample == "kaons") or (args.sample == "all") :
-  SAMPLES = []
-  SAMPLES.append('singleKaonL__e10GeV__nopu')
-  SAMPLES.append('singleKaonL__e50GeV__nopu')
-  SAMPLES.append('singleKaonL__e100GeV__nopu')
-  SAMPLES.append('singleKaonL__e200GeV__nopu')
-  SAMPLES.append('singleKaonL__e300GeV__nopu')
+  SAMPLES = ['singleKaonL__e'+en+'GeV__nopu' for en in energies]
   FILESIN = ""
   for SAMPLE in SAMPLES : 
     FILESIN += PATHIN+'/singleKaonL_closeBy_hgcalCenter/step4/DQM_V0001_R000000001__step4_'+SAMPLE+'.root '
@@ -50,14 +47,9 @@ if (args.sample == "kaons") or (args.sample == "all") :
   if not TEST:
     os.system(command)
 
-#photons
+# photons
 if (args.sample == "photons") or (args.sample == "all") :
-  SAMPLES = []
-  SAMPLES.append('singlephoton__e10GeV__nopu')
-  SAMPLES.append('singlephoton__e50GeV__nopu')
-  SAMPLES.append('singlephoton__e100GeV__nopu')
-  SAMPLES.append('singlephoton__e200GeV__nopu')
-  SAMPLES.append('singlephoton__e300GeV__nopu')
+  SAMPLES = ['singlephoton__e'+en+'GeV__nopu' for en in energies]
   FILESIN = ""
   for SAMPLE in SAMPLES : 
     FILESIN += PATHIN+'/singlephoton_closeBy_hgcalCenter/step4/DQM_V0001_R000000001__step4_'+SAMPLE+'.root '
@@ -66,14 +58,9 @@ if (args.sample == "photons") or (args.sample == "all") :
   if not TEST:
     os.system(command)
 
-#pions
+# pions
 if (args.sample == "pions") or (args.sample == "all") :
-  SAMPLES = []
-  SAMPLES.append('singlepi__e10GeV__nopu')
-  SAMPLES.append('singlepi__e50GeV__nopu')
-  SAMPLES.append('singlepi__e100GeV__nopu')
-  SAMPLES.append('singlepi__e200GeV__nopu')
-  SAMPLES.append('singlepi__e300GeV__nopu')
+  SAMPLES = ['singlepi__e'+en+'GeV__nopu' for en in energies]
   FILESIN = ""
   for SAMPLE in SAMPLES : 
     FILESIN += PATHIN+'/singlepi_flatEGun_hgcalCenter/step4/DQM_V0001_R000000001__step4_'+SAMPLE+'.root '
@@ -82,14 +69,9 @@ if (args.sample == "pions") or (args.sample == "all") :
   if not TEST:
     os.system(command)
 
-#electrons
+# electrons
 if (args.sample == "electrons") or (args.sample == "all") :
-  SAMPLES = []
-  SAMPLES.append('singleel__e10GeV__nopu')
-  SAMPLES.append('singleel__e50GeV__nopu')
-  SAMPLES.append('singleel__e100GeV__nopu')
-  SAMPLES.append('singleel__e200GeV__nopu')
-  SAMPLES.append('singleel__e300GeV__nopu')
+  SAMPLES = ['singleel__e'+en+'GeV__nopu' for en in energies]
   FILESIN = ""
   for SAMPLE in SAMPLES : 
     FILESIN += PATHIN+'/singleel_flatEGun_hgcalCenter/step4/DQM_V0001_R000000001__step4_'+SAMPLE+'.root '
