@@ -406,7 +406,8 @@ void l1t::L1TGlobalUtil::eventSetupConsumes(edm::ConsumesCollector& iC, UseEvent
   if (useEventSetupIn == UseEventSetupIn::Event || useEventSetupIn == UseEventSetupIn::RunAndEvent) {
     m_L1TUtmTriggerMenuEventToken = iC.esConsumes<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd>();
     if (!m_readPrescalesFromFile) {
-      m_L1TGlobalPrescalesVetosFractEventToken = iC.esConsumes<L1TGlobalPrescalesVetosFract, L1TGlobalPrescalesVetosFractRcd>();
+      m_L1TGlobalPrescalesVetosFractEventToken =
+          iC.esConsumes<L1TGlobalPrescalesVetosFract, L1TGlobalPrescalesVetosFractRcd>();
     }
   }
 }
