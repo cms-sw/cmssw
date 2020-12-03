@@ -60,6 +60,7 @@
 #include "G4TransportationManager.hh"
 #include "G4Field.hh"
 #include "G4FieldManager.hh"
+#include "G4Timer.hh"
 
 #include <atomic>
 #include <memory>
@@ -246,6 +247,8 @@ void RunManagerMTWorker::initializeTLS() {
 }
 
 void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm::EventSetup& es) {
+  G4Timer timer;
+
   // I guess everything initialized here should be in thread_local storage
   initializeTLS();
   if (m_tls->threadInitialized)
@@ -312,6 +315,9 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
       }
     }
   }
+  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker: magnetic field is created: " << timer;
+  timer.Stop();
+  timer.Start();
 
   // attach sensitive detector
   AttachSD attach;
@@ -324,6 +330,10 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
   edm::LogVerbatim("SimG4CoreApplication")
       << " RunManagerMTWorker: Sensitive Detector building finished; found " << m_tls->sensTkDets.size()
       << " Tk type Producers, and " << m_tls->sensCaloDets.size() << " Calo type producers ";
+
+  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker: SD is created: " << timer;
+  timer.Stop();
+  timer.Start();
 
   // Set the physics list for the worker, share from master
   PhysicsList* physicsList = runManagerMaster->physicsListForWorker();
@@ -364,6 +374,7 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
   initializeUserActions();
 
   edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker::initializeThread done for the thread " << thisID;
+  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker: is initilized: " << timer;
 
   G4StateManager::GetStateManager()->SetNewState(G4State_Idle);
   m_tls->threadInitialized = true;
