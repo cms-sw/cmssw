@@ -20,7 +20,7 @@ namespace {
     {}
 
     ~TfDnn() {
-      if (session_ == nullptr) {
+      if (session_ != nullptr) {
         tensorflow::closeSession(session_);
       }
     }
@@ -34,7 +34,7 @@ namespace {
     void beginStream() {}
 
     void initEvent(const edm::EventSetup& es) {
-      if (session_ != nullptr) {
+      if (session_ == nullptr) {
         edm::ESHandle<TfGraphDefWrapper> tfDnnHandle;
         es.get<TfGraphRecord>().get(tfDnnLabel_, tfDnnHandle);
         const tensorflow::GraphDef* graphDef_ = tfDnnHandle.product()->getGraphDef();
