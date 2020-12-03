@@ -5,12 +5,14 @@
   <use name="DataFormats/EcalRecHit"/>
   <use name="DataFormats/HcalRecHit"/>
   <use name="DataFormats/JetReco"/>
+  <use name="DataFormats/Math"/>
   <use name="DataFormats/L1Trigger"/>
   <use name="DataFormats/L1THGCal"/>
   <use name="DataFormats/METReco"/>
   <use name="DataFormats/TauReco"/>
   <use name="DataFormats/TrackReco"/>
   <use name="Fireworks/Calo"/>
+  <use name="Fireworks/Vertices"/>
   <use name="Fireworks/Core"/>
   <use name="rootinteractive"/>
   <use name="rooteve"/>
