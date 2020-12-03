@@ -28,6 +28,7 @@
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/PatCandidates/interface/PackedGenParticle.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
@@ -64,9 +65,10 @@ public:
 private:
 
   edm::EDGetTokenT<std::vector<pat::Tau> > tauCollection_;
-  edm::EDGetTokenT<edm::View<reco::Candidate> > refCollectionInputTagToken_;
-  edm::EDGetTokenT<reco::VertexCollection> primaryVertexCollectionToken_;
+  edm::EDGetTokenT<edm::View<reco::Candidate>  > refCollectionInputTagToken_;
+  edm::EDGetTokenT<std::vector<reco::Vertex> > primaryVertexCollectionToken_;
   edm::EDGetTokenT<std::vector<reco::GenParticle> > prunedGenToken_;
+  edm::EDGetTokenT<std::vector<reco::GenJet> > genJetsToken_;
   //edm::EDGetTokenT<std::vector<pat::PackedGenParticle> >packedGenToken_;
   
   std::map<std::string, MonitorElement *> ptMap, etaMap, phiMap, massMap, puMap;

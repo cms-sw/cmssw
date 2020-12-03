@@ -37,13 +37,14 @@ TauValidationMiniAOD::TauValidationMiniAOD(const edm::ParameterSet& iConfig) {
   // List of discriminators and their cuts:
   discriminators_ = iConfig.getParameter<std::vector<edm::ParameterSet> >("discriminators");
   // Input primaryVertex collection:
-  edm::InputTag PrimaryVertexCollection_ = edm::InputTag("offlinePrimaryVertices");
-  primaryVertexCollectionToken_ = consumes<VertexCollection>(PrimaryVertexCollection_);
+  edm::InputTag PrimaryVertexCollection_ = edm::InputTag("offlineSlimmedPrimaryVertices");
+  primaryVertexCollectionToken_ = consumes<std::vector<reco::Vertex> >(PrimaryVertexCollection_);
   // Input genetated particle collection:
   edm::InputTag prunedGenCollection_ = edm::InputTag("prunedGenParticles");
   prunedGenToken_ = consumes<std::vector<reco::GenParticle> >(prunedGenCollection_);
   //packedGenToken_ = consumes<std::vector<pat::PackedGenParticle> >(iConfig.getParameter<edm::InputTag>("packed")); 
-
+  edm::InputTag genJetsCollection_ = edm::InputTag("slimmedGenJets");
+  genJetsToken_ = consumes<std::vector<reco::GenJet> >(genJetsCollection_);
 }
 
 TauValidationMiniAOD::~TauValidationMiniAOD() {}
@@ -69,8 +70,9 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker& ibooker,
   MonitorElement *pTOverProng_dm0, *pTOverProng_dm1, *pTOverProng_dm2, *pTOverProng_dm10, *pTOverProng_dm11; 
   
   // temp:
+  std::cout << "\n";
   std::cout << "extensionName_: \n";
-  std::cout<< extensionName_ ; 
+  std::cout<< extensionName_ << "\n "; 
 
   // ---------------------------- Book, Map Summary Histograms -------------------------------
   
@@ -150,7 +152,7 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker& ibooker,
   ntau_vs_dmMap.insert(std::make_pair("", ntau_vs_dm));
 
   // add discriminator labels to summary plots 
-  int j = 0;
+  unsigned j = 0;
   for (const auto& it : discriminators_) {
     string DiscriminatorLabel = it.getParameter<string>("discriminator");
     std::cout << "Current discriminator miniaod: \n";
@@ -161,6 +163,7 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker& ibooker,
     j = j + 1;
   }
 
+  std::cout << "\n";
   // --------------- Book, Map Discriminator/Kinematic Histograms -----------------------  
   
   // pt, eta, phi, mass, pileup
@@ -461,40 +464,53 @@ void TauValidationMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSet
     edm::LogWarning("TauValidationMiniAOD") << " Tau collection not found while running TauValidationMiniAOD.cc ";
     return;
   }
+  std::cout << "n taus: " << taus->size() << std::endl;
 
-  // create a handle to the reference collection
-  typedef edm::View<reco::Candidate> refCandidateCollection;
-  Handle<refCandidateCollection> ReferenceCollection;
-  bool isRef = iEvent.getByToken(refCollectionInputTagToken_, ReferenceCollection);
-  if (!isRef) {
-    edm::LogWarning("TauValidationMiniAOD") << " Reference collection not found while running TauValidationMiniAOD.cc ";
-    return;
-  }
-
-  // create a handle to the primary vertex collection
-  Handle<VertexCollection> pvHandle;
-  bool isPV = iEvent.getByToken(primaryVertexCollectionToken_, pvHandle);
-  if (!isPV) {
-    edm::LogWarning("TauValidationMiniAOD") << " PV collection not found while running TauValidationMiniAOD.cc ";
-  }
   // create a handle to the gen Part collection
   edm::Handle<std::vector<reco::GenParticle>> genParticles;
   iEvent.getByToken(prunedGenToken_, genParticles);
 
+  std::cout << "n genPart: " << genParticles->size() << std::endl;
+  std::cout << "genPart (0) daughters: " << genParticles->at(0).numberOfDaughters() << std::endl;
+
+
+  // create a handle to the reference collection
+  typedef edm::View<reco::Candidate> refCandidateCollection;
+  edm::Handle<refCandidateCollection> ReferenceCollection;
+  bool isRef = iEvent.getByToken(refCollectionInputTagToken_, ReferenceCollection);
+//  if (!isRef) {
+    //std::cerr << ReferenceCollection << std::endl;
+//    std::cerr << "ERROR: Reference collection not found while running TauValidationMiniAOD.cc \n " << std::endl;
+//    return;
+//  }
+
+  edm::Handle<std::vector<reco::GenJet>> genJets;
+  iEvent.getByToken(genJetsToken_, genJets);
+
+  // create a handle to the primary vertex collection
+  Handle<std::vector<reco::Vertex>> pvHandle;
+  bool isPV = iEvent.getByToken(primaryVertexCollectionToken_, pvHandle);
+  if (!isPV) {
+    edm::LogWarning("TauValidationMiniAOD") << " PV collection not found while running TauValidationMiniAOD.cc ";
+  }
   std::vector<const reco::GenParticle*> GenTaus;
   
   // temp
   std::cout << "********* Made it past the PV collection *********\n";
 
   // dR match reference object to tau
-  for (refCandidateCollection::const_iterator RefJet = ReferenceCollection->begin();
-       RefJet != ReferenceCollection->end(); RefJet++) {
-    
+for(std::vector<reco::GenJet>::const_iterator   RefJet = genJets->begin(); RefJet != genJets->end(); RefJet++ ){
+//  for (refCandidateCollection::const_iterator RefJet = ReferenceCollection->begin();
+//       RefJet != ReferenceCollection->end(); RefJet++) {
     float dRmin = 0.15;
-    unsigned matchedTauIndex = -99;
+    int matchedTauIndex;
     float gendRmin = 0.15;
-    unsigned genmatchedTauIndex = -99;
-    
+    int genmatchedTauIndex;
+    matchedTauIndex = -99;
+    genmatchedTauIndex = -99;
+    std::cout << "RefJet PDGID : " << RefJet->pdgId() << "\n";
+    std::cout << "matchedTauIndex ini : " << matchedTauIndex << "\n";
+    std::cout << "genmatchedTauIndex ini :" << genmatchedTauIndex << "\n"; 
     for (unsigned iTau = 0; iTau < taus->size(); iTau++) {
       pat::TauRef tau(taus, iTau);
     
@@ -513,6 +529,7 @@ void TauValidationMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSet
      
       //temp
       std::cout << "***** Matched a tau!!\n";
+      std::cout << "***** Matched a tau index : " << matchedTauIndex << "\n";
 
       pat::TauRef matchedTau(taus, matchedTauIndex);
 
@@ -557,23 +574,31 @@ void TauValidationMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSet
 
       //Fill decay mode migration 2D histograms
       //First do a gen Matching
-      int genindex = 0;
+      unsigned genindex = 0;
       for(std::vector<reco::GenParticle>::const_iterator genParticle = genParticles->begin(); genParticle != genParticles->end(); genParticle++ ){
+	std::cout<< "genpar Pdg Id" << genParticle->pdgId() << "\n";
         if(abs(genParticle->pdgId()) == 15) {
 	  float gendR = deltaR(matchedTau->eta(), matchedTau->phi(), genParticle->eta(), genParticle->phi());
+	  std::cout<< "genindex:"<< genindex << "\n" ;
+	  std::cout<< "genmatchedTauIndex:"<< genmatchedTauIndex << "\n" ;
+	  std::cout<< "gendR" << gendR << "\n"; 
           if (gendR < gendRmin) {
             gendRmin = gendR;
             genmatchedTauIndex = genindex;
+	    
 	  }
       }
 	genindex = genindex + 1;
       }
-
+      int dtrpdgID ; //pdgID for daughter
+      int numChargedHadrons  = 0; 
+      int numNeutralHadrons  = 0; 
+      int numPhotons  = 0; 
+      if(gendRmin < 0.15) {
+      std::cout << "Found matched gen part !!! " << "\n" ;	
+      std::cout << "***** genmatchedTauIndex: " << genmatchedTauIndex; 
+      std::cout << "***** Generated Tau: " << genParticles->at(genmatchedTauIndex).numberOfDaughters(); 
       std::cout << "***** Generated Tau!! : "; 
-      unsigned dtrpdgID ; //pdgID for daughter
-      unsigned numChargedHadrons  = 0; 
-      unsigned numNeutralHadrons  = 0; 
-      unsigned numPhotons  = 0; 
       for (unsigned idtrTau = 0; idtrTau < genParticles->at(genmatchedTauIndex).numberOfDaughters(); idtrTau++) {
 	dtrpdgID = std::abs(genParticles->at(genmatchedTauIndex).daughter(idtrTau)->pdgId());
 	if (dtrpdgID == 22) numPhotons++;
@@ -585,8 +610,9 @@ void TauValidationMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSet
 	     numNeutralHadrons++;
            }	
         }
-      } 
-      unsigned genTau_dm = -999 ;
+       } 
+      }
+      int genTau_dm = -999 ;
       if (numChargedHadrons == 1) {
 	if (numNeutralHadrons != 0) {
 		genTau_dm = -999;  // 1 prong + Other
@@ -630,7 +656,7 @@ void TauValidationMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSet
       dmMigrationMap.find("")->second->Fill(matchedTau->decayMode(), genTau_dm);
 
       // count number of taus passing each discriminator's selection cut
-      int j = 0;
+      unsigned j = 0;
       for (const auto& it : discriminators_) {
         string currentDiscriminator = it.getParameter<string>("discriminator");
         double selectionCut = it.getParameter<double>("selectionCut");

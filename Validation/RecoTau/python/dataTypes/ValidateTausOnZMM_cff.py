@@ -21,6 +21,9 @@ selectMuons = cms.EDProducer(
 
 selectStableMuons = genParticlesForJets.clone(src = cms.InputTag("selectMuons"))
 
+print(8*"*")
+print("Here the EDFilter defined as source it gets muons from gen particles from an ED Producer ")
+print(8*"*")
 kinematicSelectedTauValDenominatorZMM = cms.EDFilter(
    "CandPtrSelector",
    src = cms.InputTag('selectStableMuons'),
