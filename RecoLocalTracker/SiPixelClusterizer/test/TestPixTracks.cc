@@ -117,8 +117,14 @@ public:
   virtual void endJob() override;
 
 private:
-  edm::ParameterSet conf_;
-  edm::InputTag src_;
+  edm::EDGetTokenT<LumiSummary> lumiToken_;
+  edm::EDGetTokenT<edm::ConditionsInLumiBlock> condToken_;
+  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> l1gtrrToken_;
+  edm::EDGetTokenT<edm::TriggerResults> hltToken_;
+  edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
+  edm::EDGetTokenT<reco::TrackCollection> srcToken_;
+  edm::EDGetTokenT<TrajTrackAssociationCollection> trackAssocToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
   //const static bool PRINT = false;
   bool PRINT;
   float countTracks, countGoodTracks, countTracksInPix, countPVs, countEvents, countLumi;
@@ -172,11 +178,17 @@ private:
 };
 /////////////////////////////////////////////////////////////////
 // Contructor,
-TestPixTracks::TestPixTracks(edm::ParameterSet const &conf)
-    //  : conf_(conf), src_(conf.getParameter<edm::InputTag>( "src" )) { }
-    : conf_(conf) {
+TestPixTracks::TestPixTracks(edm::ParameterSet const &conf) {
   PRINT = conf.getUntrackedParameter<bool>("Verbosity", false);
-  src_ = conf.getParameter<edm::InputTag>("src");
+  lumiToken_ = consumes<LumiSummary>(edm::InputTag("lumiProducer"));
+  condToken_ = consumes<edm::ConditionsInLumiBlock>(edm::InputTag("conditionsInEdm"));
+  l1gtrrToken_ = consumes<L1GlobalTriggerReadoutRecord>(edm::InputTag("gtDigis"));
+  hltToken_ = consumes<edm::TriggerResults>(edm::InputTag("TriggerResults", "", "HLT"));
+  vtxToken_ = consumes<reco::VertexCollection>(edm::InputTag("offlinePrimaryVertices"));
+  srcToken_ = consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("src"));
+  trackAssocToken_ =
+      consumes<TrajTrackAssociationCollection>(edm::InputTag(conf.getParameter<std::string>("trajectoryInput")));
+  trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
   //if(PRINT) cout<<" Construct "<<endl;
 }
 
@@ -415,11 +427,11 @@ void TestPixTracks::analyze(const edm::Event &e, const edm::EventSetup &es) {
 
   edm::LuminosityBlock const &iLumi = e.getLuminosityBlock();
   edm::Handle<LumiSummary> lumi;
-  iLumi.getByLabel("lumiProducer", lumi);
+  iLumi.getByToken(lumiToken_, lumi);
   edm::Handle<edm::ConditionsInLumiBlock> cond;
   float intlumi = 0, instlumi = 0;
   int beamint1 = 0, beamint2 = 0;
-  iLumi.getByLabel("conditionsInEdm", cond);
+  iLumi.getByToken(condToken_, cond);
   // This will only work when running on RECO until (if) they fix it in the FW
   // When running on RAW and reconstructing, the LumiSummary will not appear
   // in the event before reaching endLuminosityBlock(). Therefore, it is not
@@ -441,7 +453,7 @@ void TestPixTracks::analyze(const edm::Event &e, const edm::EventSetup &es) {
 #ifdef L1
   // Get L1
   Handle<L1GlobalTriggerReadoutRecord> L1GTRR;
-  e.getByLabel("gtDigis", L1GTRR);
+  e.getByToken(l1gtrrToken_, L1GTRR);
 
   if (L1GTRR.isValid()) {
     //bool l1a = L1GTRR->decision();  // global decission?
@@ -468,7 +480,7 @@ void TestPixTracks::analyze(const edm::Event &e, const edm::EventSetup &es) {
   edm::Handle<edm::TriggerResults> HLTResults;
 
   // Extract the HLT results
-  e.getByLabel(edm::InputTag("TriggerResults", "", "HLT"), HLTResults);
+  e.getByToken(hltToken_, HLTResults);
   if ((HLTResults.isValid() == true) && (HLTResults->size() > 0)) {
     //TrigNames.init(*HLTResults);
     const edm::TriggerNames &TrigNames = e.triggerNames(*HLTResults);
@@ -490,20 +502,14 @@ void TestPixTracks::analyze(const edm::Event &e, const edm::EventSetup &es) {
   }    // if valid
 #endif
 
-  // -- Does this belong into beginJob()?
-  //ESHandle<TrackerGeometry> TG;
-  //iSetup.get<TrackerDigiGeometryRecord>().get(TG);
-  //const TrackerGeometry* theTrackerGeometry = TG.product();
-  //const TrackerGeometry& theTracker(*theTrackerGeometry);
   // Get event setup
-  edm::ESHandle<TrackerGeometry> geom;
-  es.get<TrackerDigiGeometryRecord>().get(geom);
+  edm::ESHandle<TrackerGeometry> geom = es.getHandle(trackerGeomToken_);
   const TrackerGeometry &theTracker(*geom);
 
   // -- Primary vertices
   // ----------------------------------------------------------------------
   edm::Handle<reco::VertexCollection> vertices;
-  e.getByLabel("offlinePrimaryVertices", vertices);
+  e.getByToken(vtxToken_, vertices);
 
   if (PRINT)
     cout << " PV list " << vertices->size() << endl;
@@ -555,7 +561,7 @@ void TestPixTracks::analyze(const edm::Event &e, const edm::EventSetup &es) {
   // e.getByLabel("ctfWithMaterialTracksP5", recTracks);
   // e.getByLabel("splittedTracksP5", recTracks);
   //e.getByLabel("cosmictrackfinderP5", recTracks);
-  e.getByLabel(src_, recTracks);
+  e.getByToken(srcToken_, recTracks);
 
   if (PRINT)
     cout << " Tracks " << recTracks->size() << endl;
@@ -865,7 +871,7 @@ void TestPixTracks::analyze(const edm::Event &e, const edm::EventSetup &es) {
   // Use Trajectories
 
   edm::Handle<TrajTrackAssociationCollection> trajTrackCollectionHandle;
-  e.getByLabel(conf_.getParameter<std::string>("trajectoryInput"), trajTrackCollectionHandle);
+  e.getByToken(trackAssocToken_, trajTrackCollectionHandle);
 
   TrajectoryStateCombiner tsoscomb;
 
