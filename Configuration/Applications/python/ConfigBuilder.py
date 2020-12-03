@@ -86,7 +86,8 @@ defaultOptions.runUnscheduled = False
 defaultOptions.timeoutOutput = False
 defaultOptions.nThreads = '1'
 defaultOptions.nStreams = '0'
-defaultOptions.nConcurrentLumis = '1'
+defaultOptions.nConcurrentLumis = '0'
+defaultOptions.nConcurrentIOVs = '1'
 
 # some helper routines
 def dumpPython(process,name):
@@ -2240,11 +2241,13 @@ class ConfigBuilder(object):
             self.pythonCfgCode +="process.options.numberOfThreads = "+self._options.nThreads+"\n"
             self.pythonCfgCode +="process.options.numberOfStreams = "+self._options.nStreams+"\n"
             self.pythonCfgCode +="process.options.numberOfConcurrentLuminosityBlocks = "+self._options.nConcurrentLumis+"\n"
+            self.pythonCfgCode +="process.options.eventSetup.numberOfConcurrentIOVs = "+self._options.nConcurrentIOVs+"\n"
             if int(self._options.nConcurrentLumis) > 1:
               self.pythonCfgCode +="if hasattr(process, 'DQMStore'): process.DQMStore.assertLegacySafe=cms.untracked.bool(False)\n"
             self.process.options.numberOfThreads = int(self._options.nThreads)
             self.process.options.numberOfStreams = int(self._options.nStreams)
             self.process.options.numberOfConcurrentLuminosityBlocks = int(self._options.nConcurrentLumis)
+            self.process.options.eventSetup.numberOfConcurrentIOVs = int(self._options.nConcurrentIOVs)
         #repacked version
         if self._options.isRepacked:
             self.pythonCfgCode +="\n"
