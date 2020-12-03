@@ -51,7 +51,7 @@ namespace edm {
     std::vector<ModuleDescription const*> const& doModulesOnPath(unsigned int pathIndex) const override;
     std::vector<ModuleDescription const*> const& doModulesOnEndPath(unsigned int endPathIndex) const override;
     std::vector<ModuleDescription const*> const& doModulesWhoseProductsAreConsumedBy(
-        unsigned int moduleID, BranchType branchType = InEvent) const override;
+        unsigned int moduleID, BranchType branchType) const override;
 
     std::vector<ConsumesInfo> doConsumesInfo(unsigned int moduleID) const override;
 
