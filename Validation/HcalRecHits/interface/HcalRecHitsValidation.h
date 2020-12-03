@@ -150,7 +150,7 @@ private:
   MonitorElement *meLog10Chi2profileHB;
   MonitorElement *meLog10Chi2profileHE;
 
-  const CaloGeometry* geometry_;
+  const CaloGeometry *geometry_;
 
   // Filling vectors with essential RecHits data
   std::vector<int> csub;

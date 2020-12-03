@@ -75,9 +75,7 @@ void HcalDumpHits::fillDescriptions(edm::ConfigurationDescriptions& descriptions
   descriptions.add("hcalDumpHits", desc);
 }
 
-void HcalDumpHits::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
-  hcons_ = &iSetup.getData(tok_HRNDC_);
-}
+void HcalDumpHits::beginRun(const edm::Run&, const edm::EventSetup& iSetup) { hcons_ = &iSetup.getData(tok_HRNDC_); }
 
 void HcalDumpHits::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
   // first SimHits
