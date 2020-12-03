@@ -26,7 +26,6 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -86,6 +85,10 @@ private:
   edm::ESHandle<SiPixelCalibConfiguration> calib_;  // keeps track of the calibration constants
   edm::ESHandle<TrackerGeometry> theGeometry_;      // the tracker geometry
   edm::ESHandle<SiPixelFedCablingMap> theCablingMap_;
+
+  edm::ESGetToken<SiPixelCalibConfiguration, SiPixelCalibConfigurationRcd> calibToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
+  edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> cablingMapToken_;
 
   // worker variables
   std::map<pixelstruct, SiPixelCalibDigi>

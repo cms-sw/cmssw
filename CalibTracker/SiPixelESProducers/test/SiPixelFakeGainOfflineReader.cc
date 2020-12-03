@@ -3,12 +3,13 @@
 #include "CalibTracker/SiPixelESProducers/test/SiPixelFakeGainOfflineReader.h"
 
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 namespace cms {
   SiPixelFakeGainOfflineReader::SiPixelFakeGainOfflineReader(const edm::ParameterSet& conf)
       : conf_(conf),
         SiPixelGainCalibrationOfflineService_(conf),
+        trackerGeomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
+        trackerGeomTokenBeginRun_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
         filename_(conf.getParameter<std::string>("fileName")) {}
 
   void SiPixelFakeGainOfflineReader::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -17,13 +18,8 @@ namespace cms {
     fFile->cd();
 
     // Get the Geometry
-    iSetup.get<TrackerDigiGeometryRecord>().get(tkgeom);
+    edm::ESHandle<TrackerGeometry> tkgeom = iSetup.getHandle(trackerGeomToken_);
     edm::LogInfo("SiPixelFakeGainOfflineReader") << " There are " << tkgeom->dets().size() << " detectors" << std::endl;
-
-    // Get the calibrationOffline data
-    //iSetup.get<SiPixelGainCalibrationOfflineRcd>().get(SiPixelGainCalibrationOffline_);
-    //edm::LogInfo("SiPixelFakeGainOfflineReader") << "[SiPixelFakeGainOfflineReader::analyze] End Reading FakeGainOfflineects" << std::endl;
-    //SiPixelGainCalibrationOfflineService_.setESObjects(iSetup);
 
     //  for(TrackerGeometry::DetContainer::const_iterator it = tkgeom->dets().begin(); it != tkgeom->dets().end(); it++){
     //   if( dynamic_cast<PixelGeomDetUnit*>((*it))!=0){
@@ -91,17 +87,14 @@ namespace cms {
       char name[128];
 
       // Get Geometry
-      iSetup.get<TrackerDigiGeometryRecord>().get(tkgeom);
+      edm::ESHandle<TrackerGeometry> tkgeom = iSetup.getHandle(trackerGeomTokenBeginRun_);
 
       // Get the calibrationOffline data
-      //edm::ESHandle<SiPixelGainCalibrationOffline> SiPixelGainCalibrationOffline_;
-      //iSetup.get<SiPixelGainCalibrationOfflineRcd>().get(SiPixelGainCalibrationOffline_);
       SiPixelGainCalibrationOfflineService_.setESObjects(iSetup);
       edm::LogInfo("SiPixelFakeGainOfflineReader")
           << "[SiPixelFakeGainOfflineReader::beginJob] End Reading FakeGainOfflineects" << std::endl;
       // Get the list of DetId's
       std::vector<uint32_t> vdetId_ = SiPixelGainCalibrationOfflineService_.getDetIds();
-      //SiPixelGainCalibrationOffline_->getDetIds(vdetId_);
       // Loop over DetId's
       for (std::vector<uint32_t>::const_iterator detid_iter = vdetId_.begin(); detid_iter != vdetId_.end();
            detid_iter++) {
