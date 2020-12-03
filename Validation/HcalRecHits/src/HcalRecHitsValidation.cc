@@ -256,7 +256,8 @@ void HcalRecHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
 
   //   std::cout << "*** 2" << std::endl;
 
-  geometry_ = &c.getData(tok_Geom_);;
+  geometry_ = &c.getData(tok_Geom_);
+  ;
 
   // Fill working vectors of HCAL RecHits quantities (all of these are drawn)
   fillRecHitsTmp(subdet_, ev);
@@ -538,7 +539,6 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const &ev) {
     // HBHE
     edm::Handle<HBHERecHitCollection> hbhecoll;
     if (ev.getByToken(tok_hbhe_, hbhecoll)) {
-
       for (HBHERecHitCollection::const_iterator j = hbhecoll->begin(); j != hbhecoll->end(); j++) {
         HcalDetId cell(j->id());
         const HcalGeometry *cellGeometry =
