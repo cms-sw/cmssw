@@ -7,7 +7,7 @@ class TfGraphDefWrapper {
 public:
   TfGraphDefWrapper(tensorflow::GraphDef*);
 
-  tensorflow::GraphDef* getGraphDef() const;
+  const tensorflow::GraphDef* getGraphDef() const;
 
 private:
   std::unique_ptr<tensorflow::GraphDef> graphDef_;
