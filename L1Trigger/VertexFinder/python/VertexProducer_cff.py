@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 VertexProducer = cms.EDProducer('VertexProducer',
 
-  l1TracksInputTag = cms.InputTag("TMTrackProducer", "TML1TracksSimpleLR"), # SFLR
+  l1TracksInputTag = cms.InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"),
 
   l1VertexCollectionName = cms.string("l1vertices"),
 
@@ -22,7 +22,9 @@ VertexProducer = cms.EDProducer('VertexProducer',
         WeightedMean = cms.bool(False),
         # Chi2 cut for the Adaptive Vertex Reconstruction Algorithm
         AVR_chi2cut = cms.double(5.),
-        # TDR algorithm assumed vertex half-width [cm]
+        # FastHisto algorithm histogram parameters (min,max,width) [cm]
+        TP_HistogramParameters = cms.vdouble(-14.95, 15.0, 0.1),
+        # FastHisto algorithm assumed vertex half-width [cm]
         TP_VertexWidth = cms.double(.15),
         # Kmeans number of iterations
         KmeansIterations = cms.uint32(10),

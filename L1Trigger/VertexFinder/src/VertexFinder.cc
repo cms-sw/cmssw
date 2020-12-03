@@ -1,7 +1,4 @@
-
 #include "L1Trigger/VertexFinder/interface/VertexFinder.h"
-
-#include "L1Trigger/VertexFinder/interface/AlgoSettings.h"
 
 using namespace std;
 
@@ -415,31 +412,27 @@ namespace l1tVertexFinder {
     }
   }
 
-  void VertexFinder::TDRalgorithm() {
+  void VertexFinder::FastHisto() {
     float vxPt = 0.;
-    RecoVertex tdr_vertex;
+    RecoVertex leading_vertex;
 
-    for (float z = -14.95; z < 15.; z += 0.1) {
+    for (float z = settings_->vx_histogram_min(); z < settings_->vx_histogram_max(); z += settings_->vx_histogram_binwidth()) {
       RecoVertex vertex;
-      FitTrackCollection tracks;
-
       for (const L1Track* track : fitTracks_) {
-        if (fabs(z - track->z0()) < settings_->tdr_vx_width()) {
+        if (fabs(z - track->z0()) < settings_->vx_width()) {
           vertex.insert(track);
-        } else {
-          tracks.push_back(track);
         }
       }
       vertex.computeParameters(settings_->vx_weightedmean());
       vertex.setZ(z);
       if (vertex.pT() > vxPt) {
-        tdr_vertex = vertex;
+        leading_vertex = vertex;
         vxPt = vertex.pT();
       }
     }
 
-    vertices_.emplace_back(tdr_vertex);
-    pv_index_ = 0;  // by default TDR algorithm finds only hard PV
-  }                 // end of TDRalgorithm
+    vertices_.emplace_back(leading_vertex);
+    pv_index_ = 0;  // by default FastHisto algorithm finds only hard PV
+  }                 // end of FastHisto
 
 }  // namespace l1tVertexFinder

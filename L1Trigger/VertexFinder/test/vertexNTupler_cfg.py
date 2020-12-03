@@ -1,4 +1,3 @@
-
 import FWCore.ParameterSet.Config as cms
 import FWCore.Utilities.FileUtils as FileUtils
 import FWCore.ParameterSet.VarParsing as VarParsing
@@ -8,7 +7,7 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 
 options = VarParsing.VarParsing ('analysis')
 options.register('storeTracks', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool,"Store tracks in NTuple")
-options.register('l1Tracks','TMTrackProducer:TML1TracksKF4ParamsComb', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, 'L1 track collection to use')
+options.register('l1Tracks','TTTracksFromTrackletEmulation:Level1TTTracks', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, 'L1 track collection to use')
 options.parseArguments()
 
 inputFiles = []
@@ -29,8 +28,8 @@ print "  INPUT TRACK COLLECTION = {0}  {1}".format(*options.l1Tracks.split(':'))
 
 process = cms.Process("L1TVertexFinder")
 
-process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023D17_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
@@ -42,15 +41,15 @@ process.TFileService = cms.Service("TFileService", fileName = cms.string(options
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 
 process.load('L1Trigger.VertexFinder.VertexProducer_cff')
-process.load('L1Trigger.VertexFinder.VertexNTupler_cff')
 process.VertexProducer.l1TracksInputTag = l1TracksTag
-process.L1TVertexNTupler.l1TracksInputTag = l1TracksTag
-
 process.VertexProducerFastHisto = process.VertexProducer.clone()
 process.VertexProducerFastHisto.VertexReconstruction.Algorithm = cms.string("FastHisto")
+
+process.load('L1Trigger.VertexFinder.VertexNTupler_cff')
+process.L1TVertexNTupler.l1TracksInputTag = l1TracksTag
 process.L1TVertexNTupler.l1VertexInputTags.append( cms.InputTag('VertexProducerFastHisto', 'l1vertices') )
 process.L1TVertexNTupler.l1VertexBranchNames.append('fastHisto')
-process.L1TVertexNTupler.l1VertexTrackInputs.append('tmtt')
+process.L1TVertexNTupler.l1VertexTrackInputs.append('hybrid')
 
 if process.L1TVertexNTupler.debug == 0:
     process.MessageLogger.cerr.FwkReport.reportEvery = 50

@@ -80,7 +80,7 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
   switch (settings_.vx_algo()) {
     case Algorithm::FastHisto:
-      vf.TDRalgorithm();
+      vf.FastHisto();
       break;
     case Algorithm::GapClustering:
       vf.GapClustering();
