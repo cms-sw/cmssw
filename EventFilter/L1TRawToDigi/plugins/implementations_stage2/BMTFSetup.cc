@@ -19,15 +19,13 @@ namespace l1t {
       //res are in format res[amc_no, board_id]
 
       if (fed == 1376 || fed == 1377) {
-        std::array<int, 12> board_out = {{1, 7, 2, 8, 3, 9, 4, 10, 5, 11, 6, 12}};  //these are board_ids per amc_no-1
-
-        for (unsigned int i = 1; i <= board_out.size(); i++) {
+        for (auto board: boardIdPerSlot) {
           auto packer_out = std::make_shared<BMTFPackerOutput>();
           auto packer_in = PackerFactory::get()->make("stage2::BMTFPackerInputs");
-          if (fw >= 2452619552) {  // the 1st Kalman fw-ver value (0x95000160)
+          if (fw >= firstKalmanFwVer) {
             packer_out->setKalmanAlgoTrue();
           }
-          res[{i, board_out[i - 1]}] = {packer_out, packer_in};
+          res[{board.first, board.second}] = {packer_out, packer_in};
         }
       }  //if BMTF feds
 
@@ -39,10 +37,6 @@ namespace l1t {
       prod.produces<RegionalMuonCandBxCollection>("BMTF2");
       prod.produces<L1MuDTChambPhContainer>();
       prod.produces<L1MuDTChambThContainer>();
-
-      // Depricated
-      //prod.produces<L1MuDTChambPhContainer>("PhiDigis");
-      //prod.produces<L1MuDTChambThContainer>("TheDigis");
     }
 
     std::unique_ptr<UnpackerCollections> BMTFSetup::getCollections(edm::Event& e) {
@@ -52,10 +46,9 @@ namespace l1t {
     UnpackerMap BMTFSetup::getUnpackers(int fed, int board, int amc, unsigned int fw) {
       auto inputMuonsOld = UnpackerFactory::get()->make("stage2::BMTFUnpackerInputsOldQual");
       auto inputMuonsNew = UnpackerFactory::get()->make("stage2::BMTFUnpackerInputsNewQual");
-
-      auto outputMuon = std::make_shared<BMTFUnpackerOutput>();        //here is the triggering collection
-      auto outputMuon2 = std::make_shared<BMTFUnpackerOutput>(false);  //here is the secondary
-      if (fw >= 2499805536)                                            //this is in HEX '95000160'
+      auto outputMuon = std::make_shared<BMTFUnpackerOutput>(); // triggering collection
+      auto outputMuon2 = std::make_shared<BMTFUnpackerOutput>(false);  // secondary coll
+      if (fw >= firstKalmanFwVer)
         outputMuon->setKalmanAlgoTrue();
       else
         outputMuon2->setKalmanAlgoTrue();
@@ -67,7 +60,7 @@ namespace l1t {
           if (iL == 12 || iL == 14 || (iL > 26 && iL < 32) || iL == 60 || iL == 62)
             continue;
 
-          if (fw < 2452619552) {
+          if (fw < firstNewInputsFwVer) {
             res[iL] = inputMuonsOld;
           } else {
             res[iL] = inputMuonsNew;
