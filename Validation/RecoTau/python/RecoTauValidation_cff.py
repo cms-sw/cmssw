@@ -1,4 +1,11 @@
 import FWCore.ParameterSet.Config as cms
+from Validation.RecoTau.dataTypes.ValidateTausOnRealData_cff import *
+from Validation.RecoTau.dataTypes.ValidateTausOnRealElectronsData_cff import *
+from Validation.RecoTau.dataTypes.ValidateTausOnRealMuonsData_cff import *
+from Validation.RecoTau.dataTypes.ValidateTausOnZEE_cff import *
+from Validation.RecoTau.dataTypes.ValidateTausOnZMM_cff import *
+from Validation.RecoTau.dataTypes.ValidateTausOnZTT_cff import *
+from Validation.RecoTau.dataTypes.ValidateTausOnQCD_cff import *
 
 from Validation.RecoTau.RecoTauValidationMiniAOD_cfi import *
 tauValidationMiniAODZTT = tauValidationMiniAOD.clone()
@@ -9,6 +16,10 @@ tauValidationMiniAODZEE = tauValidationMiniAODZTT.clone(
   RefCollection = cms.InputTag("kinematicSelectedTauValDenominatorZEE"),
   ExtensionName = cms.string('ZEE')
 )
+print(8*"*")
+print("tauValidationMiniAODZMM")
+print("It gets as ref collection : kinematicSelectedTauValDenominatorZMM")
+print(8*"*")
 tauValidationMiniAODZMM = tauValidationMiniAODZTT.clone(
   RefCollection = cms.InputTag("kinematicSelectedTauValDenominatorZMM"),
   ExtensionName = cms.string('ZMM')
