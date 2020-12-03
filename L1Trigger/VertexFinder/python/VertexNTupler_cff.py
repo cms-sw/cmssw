@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from L1Trigger.VertexFinder.VertexProducer_cff import VertexProducer
 
 L1TVertexNTupler = cms.EDAnalyzer('VertexNTupler',
   tpInputTag = cms.InputTag("mix", "MergedTrackTruth"),
@@ -6,10 +7,10 @@ L1TVertexNTupler = cms.EDAnalyzer('VertexNTupler',
   stubTruthInputTag = cms.InputTag("TTStubAssociatorFromPixelDigis", "StubAccepted"),
   clusterTruthInputTag = cms.InputTag("TTClusterAssociatorFromPixelDigis", "ClusterAccepted"),
 
-  l1TracksInputTags    = cms.VInputTag( cms.InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks") ),
+  l1TracksInputTags    = cms.VInputTag( VertexProducer.l1TracksInputTag ),
   l1TracksTruthMapInputTags = cms.VInputTag( cms.InputTag("TTTrackAssociatorFromPixelDigis", "Level1TTTracks") ),
   l1TracksBranchNames  = cms.vstring('hybrid'),
-  l1VertexInputTags   = cms.VInputTag( cms.InputTag("VertexProducer", "l1vertices") ),
+  l1VertexInputTags   = cms.VInputTag( cms.InputTag("VertexProducer", VertexProducer.l1VertexCollectionName.value()) ),
   l1VertexTrackInputs = cms.vstring('hybrid'),
   l1VertexBranchNames = cms.vstring('dbscan'),
   extraL1VertexInputTags = cms.VInputTag(),
@@ -55,34 +56,7 @@ L1TVertexNTupler = cms.EDAnalyzer('VertexNTupler',
 
 
   # === Vertex Reconstruction configuration
-  VertexReconstruction=cms.PSet(
-        Algorithm = cms.string("DBSCAN"),
-        # Vertex distance
-        VertexDistance = cms.double(.15),
-        # Assumed Vertex Resolution
-        VertexResolution = cms.double(.10),
-        # Distance Type for agglomerative algorithm (0: MaxDistance, 1: MinDistance, 2: MeanDistance, 3: CentralDistance)
-        DistanceType  = cms.uint32(0),
-        # Minimum number of tracks to accept vertex
-        MinTracks   = cms.uint32(2),
-        # Compute the z0 position of the vertex with a mean weighted with track momenta
-        WeightedMean = cms.bool(False),
-        # Chi2 cut for the Adaptive Vertex Reconstruction Algorithm
-        AVR_chi2cut = cms.double(5.),
-        # FastHisto algorithm histogram parameters (min,max,width) [cm]
-        TP_HistogramParameters = cms.vdouble(-14.95, 15.0, 0.1),
-        # FastHisto algorithm assumed vertex width [cm]
-        TP_VertexWidth = cms.double(.15),
-        # Kmeans number of iterations
-        KmeansIterations = cms.uint32(10),
-        # Kmeans number of clusters
-        KmeansNumClusters  = cms.uint32(18),
-        # DBSCAN pt threshold
-        DBSCANPtThreshold = cms.double(4.),
-        # DBSCAN min density tracks
-        DBSCANMinDensityTracks = cms.uint32(2),
-        VxMinTrackPt   = cms.double(2.5)
-    ),
+  VertexReconstruction = VertexProducer.VertexReconstruction,
 
   # Debug printout
   debug  = cms.uint32(0),

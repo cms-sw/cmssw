@@ -7,7 +7,7 @@ VertexProducer = cms.EDProducer('VertexProducer',
   l1VertexCollectionName = cms.string("l1vertices"),
 
   # === Vertex Reconstruction configuration
-  VertexReconstruction=cms.PSet(
+  VertexReconstruction = cms.PSet(
         # Vertex Reconstruction Algorithm
         Algorithm = cms.string("DBSCAN"),
         # Vertex distance
@@ -34,7 +34,8 @@ VertexProducer = cms.EDProducer('VertexProducer',
         DBSCANPtThreshold = cms.double(4.),
         # DBSCAN min density tracks
         DBSCANMinDensityTracks = cms.uint32(2),
-        VxMinTrackPt   = cms.double(2.5)
+        # Minimum pt of tracks used to create vertex
+        VxMinTrackPt = cms.double(2.0)
     ),
   # Debug printout
   debug  = cms.uint32(0)
