@@ -6,11 +6,11 @@ L1TVertexNTupler = cms.EDAnalyzer('VertexNTupler',
   stubTruthInputTag = cms.InputTag("TTStubAssociatorFromPixelDigis", "StubAccepted"),
   clusterTruthInputTag = cms.InputTag("TTClusterAssociatorFromPixelDigis", "ClusterAccepted"),
 
-  l1TracksInputTags    = cms.VInputTag( cms.InputTag("TMTrackProducer", "TML1TracksKF4ParamsComb") ),
-  l1TracksTruthMapInputTags = cms.VInputTag( cms.InputTag("TTAssociatorTMTT", "TML1TracksKF4ParamsComb") ),
-  l1TracksBranchNames  = cms.vstring('tmtt'),
+  l1TracksInputTags    = cms.VInputTag( cms.InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks") ),
+  l1TracksTruthMapInputTags = cms.VInputTag( cms.InputTag("TTTrackAssociatorFromPixelDigis", "Level1TTTracks") ),
+  l1TracksBranchNames  = cms.vstring('hybrid'),
   l1VertexInputTags   = cms.VInputTag( cms.InputTag("VertexProducer", "l1vertices") ),
-  l1VertexTrackInputs = cms.vstring('tmtt'),
+  l1VertexTrackInputs = cms.vstring('hybrid'),
   l1VertexBranchNames = cms.vstring('dbscan'),
   extraL1VertexInputTags = cms.VInputTag(),
   extraL1VertexDescriptions = cms.vstring(),
@@ -69,7 +69,9 @@ L1TVertexNTupler = cms.EDAnalyzer('VertexNTupler',
         WeightedMean = cms.bool(False),
         # Chi2 cut for the Adaptive Vertex Reconstruction Algorithm
         AVR_chi2cut = cms.double(5.),
-        # TDR algorithm assumed vertex width [cm]
+        # FastHisto algorithm histogram parameters (min,max,width) [cm]
+        TP_HistogramParameters = cms.vdouble(-14.95, 15.0, 0.1),
+        # FastHisto algorithm assumed vertex width [cm]
         TP_VertexWidth = cms.double(.15),
         # Kmeans number of iterations
         KmeansIterations = cms.uint32(10),

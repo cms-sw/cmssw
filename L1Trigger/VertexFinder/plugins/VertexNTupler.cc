@@ -42,11 +42,50 @@ namespace l1tVertexFinder {
     ~VertexNTupler();
 
   private:
+    struct GenJetsBranchData {
+      std::vector<float> energy;
+      std::vector<float> pt;
+      std::vector<float> eta;
+      std::vector<float> phi;
+
+      void clear() {
+        energy.clear();
+        pt.clear();
+        eta.clear();
+        phi.clear();
+      }
+    };
+
+    struct GenParticlesBranchData {
+      std::vector<float> energy;
+      std::vector<float> pt;
+      std::vector<float> eta;
+      std::vector<float> phi;
+      std::vector<int> pdgId;
+      std::vector<int> status;
+
+      void clear() {
+        energy.clear();
+        pt.clear();
+        eta.clear();
+        phi.clear();
+        pdgId.clear();
+        status.clear();
+      }
+    };
+
     struct RecoVerticesBranchData {
       std::vector<unsigned> numTracks;
       std::vector<std::vector<unsigned>> trackIdxs;
       std::vector<float> z0;
       std::vector<float> sumPt;
+
+      void clear() {
+        numTracks.clear();
+        trackIdxs.clear();
+        z0.clear();
+        sumPt.clear();
+      }
     };
 
     struct RecoTracksBranchData {
@@ -57,12 +96,52 @@ namespace l1tVertexFinder {
       std::vector<unsigned> numStubs;
       std::vector<float> chi2dof;
       std::vector<int> trueMatchIdx;
-
       std::vector<int> truthMapMatchIdx;
       std::vector<float> truthMapIsGenuine;
       std::vector<float> truthMapIsLooselyGenuine;
       std::vector<float> truthMapIsCombinatoric;
       std::vector<float> truthMapIsUnknown;
+
+      void clear() {
+        pt.clear();
+        eta.clear();
+        phi.clear();
+        z0.clear();
+        numStubs.clear();
+        chi2dof.clear();
+        trueMatchIdx.clear();
+        truthMapMatchIdx.clear();
+        truthMapIsGenuine.clear();
+        truthMapIsLooselyGenuine.clear();
+        truthMapIsCombinatoric.clear();
+        truthMapIsUnknown.clear();
+      }
+    };
+
+    struct TrueTracksBranchData {
+      std::vector<float> pt;
+      std::vector<float> eta;
+      std::vector<float> phi;
+      std::vector<float> z0;
+      std::vector<int> pdgId;
+      std::vector<float> physCollision;
+      std::vector<float> use;
+      std::vector<float> useForEff;
+      std::vector<float> useForAlgEff;
+      std::vector<float> useForVertexReco;
+
+      void clear() {
+        pt.clear();
+        eta.clear();
+        phi.clear();
+        z0.clear();
+        pdgId.clear();
+        physCollision.clear();
+        use.clear();
+        useForEff.clear();
+        useForAlgEff.clear();
+        useForVertexReco.clear();
+      }
     };
 
     void beginJob() override;
@@ -102,30 +181,10 @@ namespace l1tVertexFinder {
     float numTrueInteractions_;
     int numPileupVertices_;
 
-    std::vector<float> genJetsEnergy_;
-    std::vector<float> genJetsPt_;
-    std::vector<float> genJetsEta_;
-    std::vector<float> genJetsPhi_;
-
-    std::vector<float> trueTracksPt_;
-    std::vector<float> trueTracksEta_;
-    std::vector<float> trueTracksPhi_;
-    std::vector<float> trueTracksZ0_;
-    std::vector<int> trueTracksPdgId_;
-    std::vector<float> trueTracksPhysCollision_;
-    std::vector<float> trueTracksUse_;
-    std::vector<float> trueTracksUseForEff_;
-    std::vector<float> trueTracksUseForAlgEff_;
-    std::vector<float> trueTracksUseForVertexReco_;
-
+    GenJetsBranchData genJetsBranchData_;
+    TrueTracksBranchData trueTracksBranchData_;
     std::vector<float> truePileUpVtxZ0_;
-
-    std::vector<float> genParticlesHardOutgoingEnergy_;
-    std::vector<float> genParticlesHardOutgoingPt_;
-    std::vector<float> genParticlesHardOutgoingEta_;
-    std::vector<float> genParticlesHardOutgoingPhi_;
-    std::vector<int> genParticlesHardOutgoingPdgId_;
-    std::vector<int> genParticlesHardOutgoingStatus_;
+    GenParticlesBranchData genParticlesHardOutgoingBranchData_;
 
     std::map<std::string, RecoTracksBranchData> l1TracksBranchData_;
     std::map<std::string, RecoVerticesBranchData> l1VerticesBranchData_;
@@ -242,30 +301,30 @@ namespace l1tVertexFinder {
     outputTree_->Branch("pileupSummary_trueNumInteractions", &numTrueInteractions_);
     outputTree_->Branch("pileupSummary_numPileupVertices", &numPileupVertices_);
 
-    outputTree_->Branch("genJets_energy", &genJetsEnergy_);
-    outputTree_->Branch("genJets_pt", &genJetsPt_);
-    outputTree_->Branch("genJets_eta", &genJetsEta_);
-    outputTree_->Branch("genJets_phi", &genJetsPhi_);
+    outputTree_->Branch("genJets_energy", &genJetsBranchData_.energy);
+    outputTree_->Branch("genJets_pt", &genJetsBranchData_.pt);
+    outputTree_->Branch("genJets_eta", &genJetsBranchData_.eta);
+    outputTree_->Branch("genJets_phi", &genJetsBranchData_.phi);
 
-    outputTree_->Branch("trueTracks_pt", &trueTracksPt_);
-    outputTree_->Branch("trueTracks_eta", &trueTracksEta_);
-    outputTree_->Branch("trueTracks_phi", &trueTracksPhi_);
-    outputTree_->Branch("trueTracks_z0", &trueTracksZ0_);
-    outputTree_->Branch("trueTracks_pdgId", &trueTracksPdgId_);
-    outputTree_->Branch("trueTracks_physCollision", &trueTracksPhysCollision_);
-    outputTree_->Branch("trueTracks_use", &trueTracksUse_);
-    outputTree_->Branch("trueTracks_useForEff", &trueTracksUseForEff_);
-    outputTree_->Branch("trueTracks_useForAlgEff", &trueTracksUseForAlgEff_);
-    outputTree_->Branch("trueTracks_useForVtxReco", &trueTracksUseForVertexReco_);
+    outputTree_->Branch("trueTracks_pt", &trueTracksBranchData_.pt);
+    outputTree_->Branch("trueTracks_eta", &trueTracksBranchData_.eta);
+    outputTree_->Branch("trueTracks_phi", &trueTracksBranchData_.phi);
+    outputTree_->Branch("trueTracks_z0", &trueTracksBranchData_.z0);
+    outputTree_->Branch("trueTracks_pdgId", &trueTracksBranchData_.pdgId);
+    outputTree_->Branch("trueTracks_physCollision", &trueTracksBranchData_.physCollision);
+    outputTree_->Branch("trueTracks_use", &trueTracksBranchData_.use);
+    outputTree_->Branch("trueTracks_useForEff", &trueTracksBranchData_.useForEff);
+    outputTree_->Branch("trueTracks_useForAlgEff", &trueTracksBranchData_.useForAlgEff);
+    outputTree_->Branch("trueTracks_useForVtxReco", &trueTracksBranchData_.useForVertexReco);
 
     outputTree_->Branch("truePileUpVertices_z0", &truePileUpVtxZ0_);
 
-    outputTree_->Branch("genParticles_hardProcOutgoing_energy", &genParticlesHardOutgoingEnergy_);
-    outputTree_->Branch("genParticles_hardProcOutgoing_pt", &genParticlesHardOutgoingPt_);
-    outputTree_->Branch("genParticles_hardProcOutgoing_eta", &genParticlesHardOutgoingEta_);
-    outputTree_->Branch("genParticles_hardProcOutgoing_phi", &genParticlesHardOutgoingPhi_);
-    outputTree_->Branch("genParticles_hardProcOutgoing_pdgId", &genParticlesHardOutgoingPdgId_);
-    outputTree_->Branch("genParticles_hardProcOutgoing_status", &genParticlesHardOutgoingStatus_);
+    outputTree_->Branch("genParticles_hardProcOutgoing_energy", &genParticlesHardOutgoingBranchData_.energy);
+    outputTree_->Branch("genParticles_hardProcOutgoing_pt", &genParticlesHardOutgoingBranchData_.pt);
+    outputTree_->Branch("genParticles_hardProcOutgoing_eta", &genParticlesHardOutgoingBranchData_.eta);
+    outputTree_->Branch("genParticles_hardProcOutgoing_phi", &genParticlesHardOutgoingBranchData_.phi);
+    outputTree_->Branch("genParticles_hardProcOutgoing_pdgId", &genParticlesHardOutgoingBranchData_.pdgId);
+    outputTree_->Branch("genParticles_hardProcOutgoing_status", &genParticlesHardOutgoingBranchData_.status);
 
     const std::vector<edm::InputTag> extraVertexInputTags(
         iConfig.getParameter<std::vector<edm::InputTag>>("extraL1VertexInputTags"));
@@ -441,16 +500,7 @@ namespace l1tVertexFinder {
     }
 
     // True track info
-    trueTracksPt_.clear();
-    trueTracksEta_.clear();
-    trueTracksPhi_.clear();
-    trueTracksZ0_.clear();
-    trueTracksPdgId_.clear();
-    trueTracksPhysCollision_.clear();
-    trueTracksUse_.clear();
-    trueTracksUseForEff_.clear();
-    trueTracksUseForAlgEff_.clear();
-    trueTracksUseForVertexReco_.clear();
+    trueTracksBranchData_.clear();
 
     std::vector<TP> tpVec(inputData.getTPs());
     std::set<edm::Ptr<TrackingParticle>> inputDataTPs;
@@ -461,16 +511,16 @@ namespace l1tVertexFinder {
         tpVec.push_back(TP(tpPtr, tpVec.size(), settings_));
     }
     for (const TP& track : tpVec) {
-      trueTracksPt_.push_back(track.pt());
-      trueTracksEta_.push_back(track.eta());
-      trueTracksPhi_.push_back(track.phi0());
-      trueTracksZ0_.push_back(track.z0());
-      trueTracksPdgId_.push_back(track.pdgId());
-      trueTracksPhysCollision_.push_back(track.physicsCollision() ? 1.0 : 0.0);
-      trueTracksUse_.push_back(track.use() ? 1.0 : 0.0);
-      trueTracksUseForEff_.push_back(track.useForEff() ? 1.0 : 0.0);
-      trueTracksUseForAlgEff_.push_back(track.useForAlgEff() ? 1.0 : 0.0);
-      trueTracksUseForVertexReco_.push_back(track.useForVertexReco() ? 1.0 : 0.0);
+      trueTracksBranchData_.pt.push_back(track.pt());
+      trueTracksBranchData_.eta.push_back(track.eta());
+      trueTracksBranchData_.phi.push_back(track.phi0());
+      trueTracksBranchData_.z0.push_back(track.z0());
+      trueTracksBranchData_.pdgId.push_back(track.pdgId());
+      trueTracksBranchData_.physCollision.push_back(track.physicsCollision() ? 1.0 : 0.0);
+      trueTracksBranchData_.use.push_back(track.use() ? 1.0 : 0.0);
+      trueTracksBranchData_.useForEff.push_back(track.useForEff() ? 1.0 : 0.0);
+      trueTracksBranchData_.useForAlgEff.push_back(track.useForAlgEff() ? 1.0 : 0.0);
+      trueTracksBranchData_.useForVertexReco.push_back(track.useForVertexReco() ? 1.0 : 0.0);
     }
 
     // True pile-up vertex info
@@ -480,37 +530,27 @@ namespace l1tVertexFinder {
       truePileUpVtxZ0_.push_back(vtx.z0());
 
     // Gen particles
-    genParticlesHardOutgoingEnergy_.clear();
-    genParticlesHardOutgoingPt_.clear();
-    genParticlesHardOutgoingEta_.clear();
-    genParticlesHardOutgoingPhi_.clear();
-    genParticlesHardOutgoingPdgId_.clear();
-    genParticlesHardOutgoingStatus_.clear();
-
+    genParticlesHardOutgoingBranchData_.clear();
     edm::Handle<edm::View<reco::GenParticle>> genParticlesH;
     iEvent.getByToken(genParticlesToken_, genParticlesH);
     for (const auto& p : *genParticlesH) {
-      genParticlesHardOutgoingEnergy_.push_back(p.energy());
-      genParticlesHardOutgoingPt_.push_back(p.pt());
-      genParticlesHardOutgoingEta_.push_back(p.eta());
-      genParticlesHardOutgoingPhi_.push_back(p.phi());
-      genParticlesHardOutgoingPdgId_.push_back(p.pdgId());
-      genParticlesHardOutgoingStatus_.push_back(p.status());
+      genParticlesHardOutgoingBranchData_.energy.push_back(p.energy());
+      genParticlesHardOutgoingBranchData_.pt.push_back(p.pt());
+      genParticlesHardOutgoingBranchData_.eta.push_back(p.eta());
+      genParticlesHardOutgoingBranchData_.phi.push_back(p.phi());
+      genParticlesHardOutgoingBranchData_.pdgId.push_back(p.pdgId());
+      genParticlesHardOutgoingBranchData_.status.push_back(p.status());
     }
 
     // Gen jet (AK4) branches
-    genJetsEnergy_.clear();
-    genJetsPt_.clear();
-    genJetsEta_.clear();
-    genJetsPhi_.clear();
-
+    genJetsBranchData_.clear();
     edm::Handle<std::vector<reco::GenJet>> genJetsHandle;
     iEvent.getByToken(genJetsToken_, genJetsHandle);
     for (const auto& genJet : *genJetsHandle) {
-      genJetsEnergy_.push_back(genJet.energy());
-      genJetsPt_.push_back(genJet.pt());
-      genJetsEta_.push_back(genJet.eta());
-      genJetsPhi_.push_back(genJet.phi());
+      genJetsBranchData_.energy.push_back(genJet.energy());
+      genJetsBranchData_.pt.push_back(genJet.pt());
+      genJetsBranchData_.eta.push_back(genJet.eta());
+      genJetsBranchData_.phi.push_back(genJet.phi());
     }
 
     std::map<const edm::Ptr<TrackingParticle>, const TP*> edmTPMap;
@@ -525,19 +565,7 @@ namespace l1tVertexFinder {
       const TTTrackAssociationMap<Ref_Phase2TrackerDigi_>& truthAssocMap = *truthAssocMapHandles.at(entry.first);
 
       // Reco track branches
-      branchData.pt.clear();
-      branchData.eta.clear();
-      branchData.phi.clear();
-      branchData.z0.clear();
-      branchData.numStubs.clear();
-      branchData.chi2dof.clear();
-      branchData.trueMatchIdx.clear();
-      branchData.truthMapMatchIdx.clear();
-      branchData.truthMapIsGenuine.clear();
-      branchData.truthMapIsLooselyGenuine.clear();
-      branchData.truthMapIsCombinatoric.clear();
-      branchData.truthMapIsUnknown.clear();
-
+      branchData.clear();
       for (const L1TrackTruthMatched& track : l1Tracks) {
         branchData.pt.push_back(track.pt());
         branchData.eta.push_back(track.eta());
@@ -585,11 +613,7 @@ namespace l1tVertexFinder {
       std::vector<std::shared_ptr<const RecoVertexWithTP>> recoVertices =
           extractVertices(handle, edmL1TrackMaps.at(l1VerticesInputMap_.at(tokenMapEntry.first)), settings_);
 
-      branchData.numTracks.clear();
-      branchData.trackIdxs.clear();
-      branchData.z0.clear();
-      branchData.sumPt.clear();
-
+      branchData.clear();
       std::vector<L1TrackTruthMatched>& l1Tracks = l1TrackCollections.at(l1VerticesInputMap_.at(tokenMapEntry.first));
       for (const std::shared_ptr<const RecoVertexWithTP>& vtx : recoVertices) {
         branchData.numTracks.push_back(vtx->numTracks());

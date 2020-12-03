@@ -1,13 +1,12 @@
 #ifndef __L1Trigger_VertexFinder_VertexFinder_h__
 #define __L1Trigger_VertexFinder_VertexFinder_h__
 
-#include <vector>
-
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
-
 #include "L1Trigger/VertexFinder/interface/AlgoSettings.h"
 #include "L1Trigger/VertexFinder/interface/RecoVertex.h"
+
+#include <vector>
 
 namespace l1tVertexFinder {
 
@@ -85,8 +84,8 @@ namespace l1tVertexFinder {
     void HPV();
     /// Kmeans Algorithm
     void Kmeans();
-    /// Histogramming algorithmn as in the TDR
-    void TDRalgorithm();
+    /// Histogramming algorithmn
+    void FastHisto();
     /// Sort Vertices in z
     void SortVerticesInZ0() { std::sort(vertices_.begin(), vertices_.end(), SortVertexByZ0()); }
     /// Number of iterations

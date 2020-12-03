@@ -40,8 +40,13 @@ namespace l1tVertexFinder {
     bool vx_weightedmean() const { return vx_weightedmean_; }
     /// Chi2 cut for the Adaptive Vertex Recostruction Algorithm
     float vx_chi2cut() const { return vx_chi2cut_; }
-    /// TDR assumed vertex width
-    float tdr_vx_width() const { return tdr_vx_width_; }
+    /// FastHisto histogram parameters (min, max, width)
+    std::vector<double> vx_histogram_parameters() const { return vx_histogram_parameters_; }
+    double vx_histogram_min() const { return vx_histogram_parameters_.at(0); }
+    double vx_histogram_max() const { return vx_histogram_parameters_.at(1); }
+    double vx_histogram_binwidth() const { return vx_histogram_parameters_.at(2); }
+    /// FastHisto assumed vertex width
+    float vx_width() const { return vx_width_; }
     float vx_dbscan_pt() const { return vx_dbscan_pt_; }
     unsigned int vx_dbscan_mintracks() const { return vx_dbscan_mintracks_; }
 
@@ -76,7 +81,8 @@ namespace l1tVertexFinder {
     unsigned int vx_minTracks_;
     bool vx_weightedmean_;
     float vx_chi2cut_;
-    float tdr_vx_width_;
+    std::vector<double> vx_histogram_parameters_;
+    float vx_width_;
     float vx_TrackMinPt_;
     float vx_dbscan_pt_;
     float vx_dbscan_mintracks_;

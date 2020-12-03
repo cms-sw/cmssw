@@ -5,7 +5,7 @@ L1TVertexAnalyzer = cms.EDAnalyzer('VertexAnalyzer',
   stubInputTag = cms.InputTag("TTStubsFromPhase2TrackerDigis", "StubAccepted"),
   stubTruthInputTag = cms.InputTag("TTStubAssociatorFromPixelDigis", "StubAccepted"),
   clusterTruthInputTag = cms.InputTag("TTClusterAssociatorFromPixelDigis", "ClusterAccepted"),
-  l1TracksInputTag = cms.InputTag("TMTrackProducer", "TML1TracksSimpleLR"), # SFLR
+  l1TracksInputTag = cms.InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"),
   l1VerticesInputTag = cms.InputTag("VertexProducer", "l1vertices"),
 
   #=== Cuts on MC truth particles (i.e., tracking particles) used for tracking efficiency measurements.
