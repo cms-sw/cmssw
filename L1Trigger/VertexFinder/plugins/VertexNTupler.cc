@@ -660,7 +660,7 @@ namespace l1tVertexFinder {
         float etaWeightSum = 0.0;
         for (const auto& track : vertex.tracks()) {
           sumPt += track->momentum().transverse();
-          // const float zRes = 0.133616 * track->momentum().eta() * track->momentum().eta() - 0.0522353 * fabs(track->momentum().eta()) + 0.109918;
+          // const float zRes = 0.133616 * track->momentum().eta() * track->momentum().eta() - 0.0522353 * std::abs(track->momentum().eta()) + 0.109918;
           const float zRes = 0.223074 * track->momentum().eta() * track->momentum().eta() -
                              0.050231 * abs(track->momentum().eta()) + 0.209719;
           etaWeightedSumZ0 += track->POCA().z() / (zRes * zRes);

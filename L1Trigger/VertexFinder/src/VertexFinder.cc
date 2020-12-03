@@ -26,8 +26,8 @@ namespace l1tVertexFinder {
     float distance = 0;
     for (const L1Track* track0 : cluster0.tracks()) {
       for (const L1Track* track1 : cluster1.tracks()) {
-        if (fabs(track0->z0() - track1->z0()) > distance) {
-          distance = fabs(track0->z0() - track1->z0());
+        if (std::abs(track0->z0() - track1->z0()) > distance) {
+          distance = std::abs(track0->z0() - track1->z0());
         }
       }
     }
@@ -39,8 +39,8 @@ namespace l1tVertexFinder {
     float distance = 9999;
     for (const L1Track* track0 : cluster0.tracks()) {
       for (const L1Track* track1 : cluster1.tracks()) {
-        if (fabs(track0->z0() - track1->z0()) < distance) {
-          distance = fabs(track0->z0() - track1->z0());
+        if (std::abs(track0->z0() - track1->z0()) < distance) {
+          distance = std::abs(track0->z0() - track1->z0());
         }
       }
     }
@@ -53,7 +53,7 @@ namespace l1tVertexFinder {
 
     for (const L1Track* track0 : cluster0.tracks()) {
       for (const L1Track* track1 : cluster1.tracks()) {
-        distanceSum += fabs(track0->z0() - track1->z0());
+        distanceSum += std::abs(track0->z0() - track1->z0());
       }
     }
 
@@ -65,7 +65,7 @@ namespace l1tVertexFinder {
     cluster0.computeParameters(settings_->vx_weightedmean());
     cluster1.computeParameters(settings_->vx_weightedmean());
 
-    float distance = fabs(cluster0.z0() - cluster1.z0());
+    float distance = std::abs(cluster0.z0() - cluster1.z0());
     return distance;
   }
 
@@ -144,7 +144,7 @@ namespace l1tVertexFinder {
         continue;
       for (unsigned int k = 0; k < fitTracks_.size(); ++k) {
         iterations_++;
-        if (k != i and fabs(fitTracks_[k]->z0() - fitTracks_[i]->z0()) < settings_->vx_distance()) {
+        if (k != i and std::abs(fitTracks_[k]->z0() - fitTracks_[i]->z0()) < settings_->vx_distance()) {
           neighbourTrackIds.insert(k);
           if (fitTracks_[k]->pt() > settings_->vx_dbscan_pt()) {
             numDensityTracks++;
@@ -164,7 +164,7 @@ namespace l1tVertexFinder {
             std::vector<unsigned int> neighbourTrackIds2;
             for (unsigned int k = 0; k < fitTracks_.size(); ++k) {
               iterations_++;
-              if (fabs(fitTracks_[k]->z0() - fitTracks_[id]->z0()) < settings_->vx_distance()) {
+              if (std::abs(fitTracks_[k]->z0() - fitTracks_[id]->z0()) < settings_->vx_distance()) {
                 neighbourTrackIds2.push_back(k);
               }
             }
@@ -219,9 +219,9 @@ namespace l1tVertexFinder {
         for (FitTrackCollection::iterator it = acceptedTracks.begin(); it < acceptedTracks.end(); ++it) {
           const L1Track* track = *it;
           iterations_++;
-          if (fabs(track->z0() - z0start) > settings_->vx_distance() and fabs(track->z0() - z0start) > oldDistance) {
+          if (std::abs(track->z0() - z0start) > settings_->vx_distance() and std::abs(track->z0() - z0start) > oldDistance) {
             badTrackIt = it;
-            oldDistance = fabs(track->z0() - z0start);
+            oldDistance = std::abs(track->z0() - z0start);
             removing = true;
           }
         }
@@ -279,11 +279,11 @@ namespace l1tVertexFinder {
           for (const L1Track* accTrack : acceptedTracks) {
             iterations_++;
             float Residual = accTrack->z0() - z0vertex;
-            if (fabs(accTrack->eta()) < 1.2)
+            if (std::abs(accTrack->eta()) < 1.2)
               Residual /= 0.1812;  // Assumed z0 resolution
-            else if (fabs(accTrack->eta()) >= 1.2 && fabs(accTrack->eta()) < 1.6)
+            else if (std::abs(accTrack->eta()) >= 1.2 && std::abs(accTrack->eta()) < 1.6)
               Residual /= 0.2912;
-            else if (fabs(accTrack->eta()) >= 1.6 && fabs(accTrack->eta()) < 2.)
+            else if (std::abs(accTrack->eta()) >= 1.6 && std::abs(accTrack->eta()) < 2.)
               Residual /= 0.4628;
             else
               Residual /= 0.65;
@@ -329,7 +329,7 @@ namespace l1tVertexFinder {
           z = track->z0();
           vertex.insert(track);
         } else {
-          if (fabs(track->z0() - z) < settings_->vx_distance())
+          if (std::abs(track->z0() - z) < settings_->vx_distance())
             vertex.insert(track);
         }
       }
@@ -369,9 +369,9 @@ namespace l1tVertexFinder {
         // cout << "iteration "<< iterations << endl;
         // cout << "track z0 "<< track->z0() << endl;
         for (unsigned int id = 0; id < NumberOfClusters; ++id) {
-          if (fabs(track->z0() - vertices_[id].z0()) < distance) {
+          if (std::abs(track->z0() - vertices_[id].z0()) < distance) {
             // cout << "vertex id "<< id << " z0 " << vertices_[id].z0() << endl;
-            distance = fabs(track->z0() - vertices_[id].z0());
+            distance = std::abs(track->z0() - vertices_[id].z0());
             ClusterId = id;
             NA = false;
           }
@@ -405,8 +405,8 @@ namespace l1tVertexFinder {
   void VertexFinder::AssociatePrimaryVertex(double trueZ0) {
     double distance = 999.;
     for (unsigned int id = 0; id < vertices_.size(); ++id) {
-      if (fabs(trueZ0 - vertices_[id].z0()) < distance) {
-        distance = fabs(trueZ0 - vertices_[id].z0());
+      if (std::abs(trueZ0 - vertices_[id].z0()) < distance) {
+        distance = std::abs(trueZ0 - vertices_[id].z0());
         pv_index_ = id;
       }
     }
@@ -419,7 +419,7 @@ namespace l1tVertexFinder {
     for (float z = settings_->vx_histogram_min(); z < settings_->vx_histogram_max(); z += settings_->vx_histogram_binwidth()) {
       RecoVertex vertex;
       for (const L1Track* track : fitTracks_) {
-        if (fabs(z - track->z0()) < settings_->vx_width()) {
+        if (std::abs(z - track->z0()) < settings_->vx_width()) {
           vertex.insert(track);
         }
       }

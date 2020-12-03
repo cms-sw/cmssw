@@ -36,7 +36,7 @@ namespace l1tVertexFinder {
     z_ = pos.z();
 
     if (r_ < settings_->trackerInnerRadius() || r_ > settings_->trackerOuterRadius() ||
-        fabs(z_) > settings_->trackerHalfLength()) {
+        std::abs(z_) > settings_->trackerHalfLength()) {
       throw cms::Exception(
           "Stub: Stub found outside assumed tracker volume. Please update tracker dimensions specified in Settingsm.h!")
           << " r=" << r_ << " z=" << z_ << " " << ttStubRef->getDetId().subdetId() << std::endl;
