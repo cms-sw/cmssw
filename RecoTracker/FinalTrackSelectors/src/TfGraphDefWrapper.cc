@@ -2,4 +2,4 @@
 
 TfGraphDefWrapper::TfGraphDefWrapper(tensorflow::GraphDef* graph) : graphDef_(graph) {}
 
-tensorflow::GraphDef* TfGraphDefWrapper::getGraphDef() const { return graphDef_.get(); }
+const tensorflow::GraphDef* TfGraphDefWrapper::getGraphDef() const { return graphDef_.get(); }

@@ -1,37 +1,28 @@
 #include "RecoTracker/FinalTrackSelectors/interface/TrackMVAClassifier.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
-//#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "getBestVertex.h"
 
 #include "TrackingTools/Records/interface/TfGraphRecord.h"
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 #include "RecoTracker/FinalTrackSelectors/interface/TfGraphDefWrapper.h"
 
-struct TfDnnCache {
-  TfDnnCache() : session_(nullptr) {}
-  tensorflow::Session* session_;
-};
-
 namespace {
   class TfDnn {
   public:
     TfDnn(const edm::ParameterSet& cfg)
-        : tfDnnLabel_(cfg.getParameter<std::string>("tfDnnLabel"))
+        : tfDnnLabel_(cfg.getParameter<std::string>("tfDnnLabel")),
+          session_(NULL)
 
-    {
-      cache_ = new TfDnnCache();
-    }
-    TfDnnCache* cache_;
+    {}
 
     ~TfDnn() {
-      if (cache_->session_) {
-        tensorflow::closeSession(cache_->session_);
-        delete cache_;
+      if (session_) {
+        tensorflow::closeSession(session_);
       }
     }
 
@@ -44,14 +35,13 @@ namespace {
     void beginStream() {}
 
     void initEvent(const edm::EventSetup& es) {
-      if (!cache_->session_) {
+      if (!session_) {
         edm::ESHandle<TfGraphDefWrapper> tfDnnHandle;
         es.get<TfGraphRecord>().get(tfDnnLabel_, tfDnnHandle);
-        tensorflow::GraphDef* graphDef_ = tfDnnHandle.product()->getGraphDef();
-        cache_->session_ = tensorflow::createSession(
-            graphDef_, 1);  //The integer controls how many threads are used for running inference
+        const tensorflow::GraphDef* graphDef_ = tfDnnHandle.product()->getGraphDef();
+        session_ = tensorflow::createSession(graphDef_,
+                                             1);  //The integer controls how many threads are used for running inference
       }
-      session_ = cache_->session_;
     }
 
     float operator()(reco::Track const& trk,
@@ -116,6 +106,7 @@ namespace {
 
     const std::string tfDnnLabel_;
     tensorflow::Session* session_;
+    //session_;
   };
 
   using TrackTfClassifier = TrackMVAClassifier<TfDnn>;
