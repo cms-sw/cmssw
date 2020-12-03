@@ -57,7 +57,7 @@ namespace l1tVertexFinder {
     //  // Can optionally be used to sort stubs by bend.
     //  struct SortStubsInBend {
     //     inline bool operator() (const Stub* stub1, const Stub* stub2) {
-    //        return(fabs(stub1->bend()) < fabs(stub2->bend()));
+    //        return(std::abs(stub1->bend()) < std::abs(stub2->bend()));
     //     }
     //  };
 

@@ -75,7 +75,7 @@ namespace l1tVertexFinder {
 
     met_ = sqrt(metX_ * metX_ + metY_ * metY_);
     z0square /= tracks_.size();
-    z0width_ = sqrt(fabs(z0_ * z0_ - z0square));
+    z0width_ = sqrt(std::abs(z0_ * z0_ - z0square));
   }
 
 }  // namespace l1tVertexFinder

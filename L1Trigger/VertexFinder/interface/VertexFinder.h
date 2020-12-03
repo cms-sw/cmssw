@@ -28,7 +28,7 @@ namespace l1tVertexFinder {
 
     struct SortTracksByPt {
       inline bool operator()(const L1Track* track0, const L1Track* track1) {
-        return (fabs(track0->pt()) > fabs(track1->pt()));
+        return (std::abs(track0->pt()) > std::abs(track1->pt()));
       }
     };
 

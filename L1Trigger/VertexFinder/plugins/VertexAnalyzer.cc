@@ -662,12 +662,12 @@ namespace l1tVertexFinder {
       hisPrimaryVertexTrueZ0_->Fill(TruePrimaryVertex.z0());
 
     float z0res = TruePrimaryVertex.z0() - RecoPrimaryVertex->z0();
-    float pTres = fabs(TruePrimaryVertex.pT() - RecoPrimaryVertex->pT());
+    float pTres = std::abs(TruePrimaryVertex.pT() - RecoPrimaryVertex->pT());
     hisRecoVertexZ0Resolution_->Fill(z0res);
-    hisRecoVertexZ0Separation_->Fill(fabs(z0res));
+    hisRecoVertexZ0Separation_->Fill(std::abs(z0res));
 
     // Vertex has been found
-    if (fabs(z0res) < settings_.vx_resolution()) {
+    if (std::abs(z0res) < settings_.vx_resolution()) {
       float genMet[4] = {50, 100, 200, 300};
       for (unsigned int i = 0; i < 4; ++i) {
         if (RecoPrimaryVertex->met() > genMet[i])
@@ -695,7 +695,7 @@ namespace l1tVertexFinder {
         }
       }
 
-      float METres = fabs(RecoPrimaryVertex->met() - TruePrimaryVertex.met()) / TruePrimaryVertex.met();
+      float METres = std::abs(RecoPrimaryVertex->met() - TruePrimaryVertex.met()) / TruePrimaryVertex.met();
 
       if (settings_.debug() > 2 and METres > 0.2) {
         cout << "** RECO TRACKS in PV**" << endl;
@@ -749,7 +749,7 @@ namespace l1tVertexFinder {
       float fakeRate = float(RecoPrimaryVertex->numTracks() - RecoPrimaryVertex->numTrueTracks()) /
                        float(RecoPrimaryVertex->numTracks());
       hisFakeTracksRateInPV_->Fill(fakeRate);
-      hisRecoPrimaryVertexResolutionVsTrueZ0_->Fill(TruePrimaryVertex.z0(), fabs(z0res));
+      hisRecoPrimaryVertexResolutionVsTrueZ0_->Fill(TruePrimaryVertex.z0(), std::abs(z0res));
 
       for (unsigned int i = 0; i < 4; ++i) {
         float genmet = genMet[i];
@@ -775,10 +775,10 @@ namespace l1tVertexFinder {
       }
     } else {
       hisRecoVertexOffPT_->Fill(RecoPrimaryVertex->pT());
-      hisUnmatchedVertexZ0distance_->Fill(fabs(z0res));
+      hisUnmatchedVertexZ0distance_->Fill(std::abs(z0res));
       if (settings_.debug() > 2) {
         cout << "Vertex Reconstruction Algorithm doesn't find the correct"
-             << " primary vertex (Delta Z = " << fabs(z0res) << ")" << endl;
+             << " primary vertex (Delta Z = " << std::abs(z0res) << ")" << endl;
       }
     }
 
@@ -839,7 +839,7 @@ namespace l1tVertexFinder {
           if (l1track->getMatchedTP() != nullptr) {
             if (tp.index() == l1track->getMatchedTP()->index()) {
               TrackIsReconstructed = true;
-              hisUnmatchZ0distance_->Fill(fabs(l1track->z0() - RecoPrimaryVertex->z0()));
+              hisUnmatchZ0distance_->Fill(std::abs(l1track->z0() - RecoPrimaryVertex->z0()));
               hisUnmatchPt_->Fill(l1track->pt());
               hisUnmatchEta_->Fill(l1track->eta());
               hisUnmatchTruePt_->Fill(tp.pt());
@@ -847,8 +847,8 @@ namespace l1tVertexFinder {
 
               double mindistance = 999.;
               for (const L1TrackTruthMatched* vertexTrack : RecoPrimaryVertex->tracks()) {
-                if (fabs(vertexTrack->z0() - l1track->z0()) < mindistance)
-                  mindistance = fabs(vertexTrack->z0() - l1track->z0());
+                if (std::abs(vertexTrack->z0() - l1track->z0()) < mindistance)
+                  mindistance = std::abs(vertexTrack->z0() - l1track->z0());
               }
               hisUnmatchZ0MinDistance_->Fill(mindistance);
 
@@ -889,8 +889,8 @@ namespace l1tVertexFinder {
         hisRecoPileUpVertexPT_->Fill(recoVertices.at(i)->pT());
         double PUres = 999.;
         for (unsigned int j = 0; j < inputData.getRecoPileUpVertices().size(); ++j) {
-          if (fabs(recoVertices.at(i)->z0() - inputData.getRecoPileUpVertices()[j].z0()) < PUres) {
-            PUres = fabs(recoVertices.at(i)->z0() - inputData.getRecoPileUpVertices()[j].z0());
+          if (std::abs(recoVertices.at(i)->z0() - inputData.getRecoPileUpVertices()[j].z0()) < PUres) {
+            PUres = std::abs(recoVertices.at(i)->z0() - inputData.getRecoPileUpVertices()[j].z0());
           }
         }
         hisRecoPileUpVertexZ0resolution_->Fill(PUres);
