@@ -17,7 +17,7 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -51,7 +51,7 @@
 
 #include <memory>
 
-class ConvBremSeedProducer : public edm::EDProducer {
+class ConvBremSeedProducer : public edm::stream::EDProducer<> {
 public:
   explicit ConvBremSeedProducer(const edm::ParameterSet&);
 
@@ -98,7 +98,6 @@ DEFINE_FWK_MODULE(ConvBremSeedProducer);
 void ConvBremSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // convBremSeeds
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("stereorecHits", edm::InputTag("gsStripRecHits", "stereoRecHit"));
   desc.add<edm::InputTag>("pixelRecHits", edm::InputTag("gsPixelRecHits"));
   desc.add<edm::InputTag>("matchedrecHits", edm::InputTag("gsStripRecHits", "matchedRecHit"));
   desc.add<std::string>("TTRHBuilder", "WithTrackAngle");
@@ -135,8 +134,6 @@ void ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   ///STRIP
   Handle<SiStripRecHit2DCollection> rphirecHits;
   iEvent.getByLabel(conf_.getParameter<InputTag>("rphirecHits"), rphirecHits);
-  Handle<SiStripRecHit2DCollection> stereorecHits;
-  iEvent.getByLabel(conf_.getParameter<InputTag>("stereorecHits"), stereorecHits);
   Handle<SiStripMatchedRecHit2DCollection> matchedrecHits;
   iEvent.getByLabel(conf_.getParameter<InputTag>("matchedrecHits"), matchedrecHits);
 

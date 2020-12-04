@@ -191,21 +191,14 @@ void PFSimParticleProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   //the PCAloHit from FastSim.
 
   typedef std::pair<double, unsigned> hitSimID;
-  typedef std::list<std::pair<double, unsigned> >::iterator ITM;
   std::vector<std::list<hitSimID> > caloHitsEBID(62000);
   std::vector<double> caloHitsEBTotE(62000, 0.0);
 
   if (mctruthMatchingInfo_) {
     //getting the PCAloHit
-    edm::Handle<edm::PCaloHitContainer> pcalohits;
-    //   bool found_phit
-    //     = iEvent.getByLabel("fastSimProducer","EcalHitsEB",
-    // 			pcalohits);
-    //modif-beg
-    bool found_phit = iEvent.getByToken(tokenFastSimProducer_, pcalohits);
-    //modif-end
+    auto pcalohits = iEvent.getHandle(tokenFastSimProducer_);
 
-    if (!found_phit) {
+    if (!pcalohits) {
       ostringstream err;
       err << "could not find pcaloHit "
           << "fastSimProducer:EcalHitsEB";
@@ -319,8 +312,8 @@ void PFSimParticleProducer::produce(Event& iEvent, const EventSetup& iSetup) {
             unsigned rhit_hi = EBDetId(it_rh->id()).hashedIndex();
             EBDetId detid(it_rh->id());
 
-            ITM it_phit = caloHitsEBID[rhit_hi].begin();
-            ITM itend_phit = caloHitsEBID[rhit_hi].end();
+            auto it_phit = caloHitsEBID[rhit_hi].begin();
+            auto itend_phit = caloHitsEBID[rhit_hi].end();
             for (; it_phit != itend_phit; ++it_phit) {
               if (i == it_phit->second) {
                 //Alex (08/10/08) TO BE REMOVED, eliminating
