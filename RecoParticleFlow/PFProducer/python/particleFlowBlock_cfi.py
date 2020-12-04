@@ -174,7 +174,7 @@ for importer in _trackImporters:
   for idx in _findIndicesByModule(importer):
     _insertTrackImportersWithVeto[idx] = dict(
       vetoEndcap = cms.bool(True),
-      vetoMode = cms.uint32(1), # HGCal-region PFTrack list for simPF
+      vetoMode = cms.uint32(0), # HGCal-region PFTrack list for simPF
       vetoSrc = cms.InputTag('hgcalTrackCollection:TracksInHGCal')
     )
 phase2_hgcal.toModify(

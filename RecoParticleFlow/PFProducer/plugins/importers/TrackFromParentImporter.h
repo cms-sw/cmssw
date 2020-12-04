@@ -33,17 +33,18 @@ namespace pflow {
         if (vetoEndcap_) {
           vetoMode_ = conf.getParameter<unsigned>("vetoMode");
           switch (vetoMode_) {
-            case 1:
-              hgcalPFTracksSrc_ =
+            case pfRecTrackCollection:
+              vetoPFTracksSrc_ =
                   sumes.consumes<reco::PFRecTrackCollection>(conf.getParameter<edm::InputTag>("vetoSrc"));
               break;
-            case 2:
-              ticlSeedingSrc_ =
+            case ticlSeedingRegion:
+              vetoTICLSeedingSrc_ =
                   sumes.consumes<std::vector<TICLSeedingRegion>>(conf.getParameter<edm::InputTag>("vetoSrc"));
               tracksSrc_ = sumes.consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("tracksSrc"));
               break;
-            case 3:
-              vetoSrc_ = sumes.consumes<reco::PFCandidateCollection>(conf.getParameter<edm::InputTag>("vetoSrc"));
+            case pfCandidateCollection:
+              vetoPFCandidatesSrc_ =
+                  sumes.consumes<reco::PFCandidateCollection>(conf.getParameter<edm::InputTag>("vetoSrc"));
               break;
             default:;
           }  // switch
@@ -57,11 +58,10 @@ namespace pflow {
       edm::InputTag srcTag_;
       const bool vetoEndcap_;
       unsigned int vetoMode_;
-      edm::EDGetTokenT<reco::PFRecTrackCollection> hgcalPFTracksSrc_;
-      edm::EDGetTokenT<std::vector<TICLSeedingRegion>> ticlSeedingSrc_;
+      edm::EDGetTokenT<reco::PFRecTrackCollection> vetoPFTracksSrc_;
+      edm::EDGetTokenT<std::vector<TICLSeedingRegion>> vetoTICLSeedingSrc_;
       edm::EDGetTokenT<reco::TrackCollection> tracksSrc_;
-      edm::EDGetTokenT<reco::PFCandidateCollection> vetoSrc_;
-      typedef std::pair<edm::ProductID, unsigned> TrackProdIDKey;
+      edm::EDGetTokenT<reco::PFCandidateCollection> vetoPFCandidatesSrc_;
     };
 
     template <class Collection, class Adaptor>
@@ -71,25 +71,26 @@ namespace pflow {
       auto pfparents = e.getHandle(src_);
       //
       // Store tracks to be vetoed
+      typedef std::pair<edm::ProductID, unsigned> TrackProdIDKey;
       std::vector<TrackProdIDKey> vetoed;
       edm::ProductID prodIdForVeto;
       if (vetoEndcap_) {
-        if (vetoMode_ == 1) {
-          auto vetoesH = e.getHandle(hgcalPFTracksSrc_);
+        if (vetoMode_ == pfRecTrackCollection) {
+          auto vetoesH = e.getHandle(vetoPFTracksSrc_);
           const auto& vetoes = *vetoesH;
           for (unsigned i = 0; i < vetoes.size(); ++i) {
             vetoed.emplace_back(vetoes[i].trackRef().id(), vetoes[i].trackRef().key());
           }
-        } else if (vetoMode_ == 2) {
-          auto vetoesH = e.getHandle(ticlSeedingSrc_);
+        } else if (vetoMode_ == ticlSeedingRegion) {
+          auto vetoesH = e.getHandle(vetoTICLSeedingSrc_);
           const auto& vetoes = *vetoesH;
           auto tracksH = e.getHandle(tracksSrc_);
           for (unsigned i = 0; i < vetoes.size(); ++i) {
             reco::TrackRef trkref = reco::TrackRef(tracksH, vetoes[i].index);
             vetoed.emplace_back(trkref.id(), trkref.key());
           }
-        } else if (vetoMode_ == 3) {
-          auto vetoesH = e.getHandle(vetoSrc_);
+        } else if (vetoMode_ == pfCandidateCollection) {
+          auto vetoesH = e.getHandle(vetoPFCandidatesSrc_);
           const auto& vetoes = *vetoesH;
           for (unsigned i = 0; i < vetoes.size(); ++i) {
             if (!vetoes[i].trackRef().isNonnull())
@@ -97,8 +98,8 @@ namespace pflow {
             vetoed.emplace_back(vetoes[i].trackRef().id(), vetoes[i].trackRef().key());
           }
         }
+        std::sort(vetoed.begin(), vetoed.end());
       }
-      std::sort(vetoed.begin(), vetoed.end());
       //
       elems.reserve(elems.size() + 2 * pfparents->size());
       //

@@ -55,6 +55,9 @@ private:
   std::string electronExtraOutputCol_;
   std::string photonExtraOutputCol_;
 
+  bool vetoEndcap_;
+  edm::EDGetTokenT<reco::PFCandidateCollection> inputTagVetoes_;
+
   // NEW EGamma Filters
   edm::EDGetTokenT<edm::ValueMap<reco::GsfElectronRef>> inputTagValueMapGedElectrons_;
   edm::EDGetTokenT<edm::ValueMap<reco::PhotonRef>> inputTagValueMapGedPhotons_;
@@ -120,6 +123,9 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
   //Post cleaning of the muons
   inputTagMuons_ = consumes<reco::MuonCollection>(iConfig.getParameter<InputTag>("muons"));
   postMuonCleaning_ = iConfig.getParameter<bool>("postMuonCleaning");
+  vetoEndcap_ = iConfig.getParameter<bool>("vetoEndcap");
+  if (vetoEndcap_)
+    inputTagVetoes_ = consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("vetoes"));
 
   if (iConfig.existsAs<bool>("useEGammaFilters")) {
     use_EGammaFilters_ = iConfig.getParameter<bool>("useEGammaFilters");
@@ -234,9 +240,14 @@ void PFProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   auto blocks = iEvent.getHandle(inputTagBlocks_);
   assert(blocks.isValid());
 
-  // get the collection of muons
-  if (postMuonCleaning_)
+  // get and set the collection of muons (and collection of vetoes if specified)
+  if (postMuonCleaning_) {
     pfAlgo_.setMuonHandle(iEvent.getHandle(inputTagMuons_));
+    if (vetoEndcap_) {
+      auto& muAlgo = *pfAlgo_.getPFMuonAlgo();
+      muAlgo.setVetoHandle(iEvent.getHandle(inputTagVetoes_));
+    }
+  }
 
   if (use_EGammaFilters_)
     pfAlgo_.setEGammaCollections(iEvent.get(inputTagPFEGammaCandidates_),
@@ -316,6 +327,10 @@ void PFProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   // reco::muons label and Post Muon cleaning
   desc.add<edm::InputTag>("muons", edm::InputTag("muons1stStep"));
   desc.add<bool>("postMuonCleaning", true);
+
+  // vetoEndcap flag and pf candidates for vetoes
+  desc.add<bool>("vetoEndcap", false);
+  desc.add<edm::InputTag>("vetoes", edm::InputTag("pfTICL"));
 
   // Vertices label
   desc.add<edm::InputTag>("vertexCollection", edm::InputTag("offlinePrimaryVertices"));
