@@ -16,7 +16,7 @@ class PFMuonAlgo {
 
 public:
   /// constructor
-  PFMuonAlgo(edm::ParameterSet const&, bool postMuonCleaning);
+  PFMuonAlgo(edm::ParameterSet const&, bool postMuonCleaning = false);
 
   static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
 
@@ -51,6 +51,7 @@ public:
   void setInputsForCleaning(reco::VertexCollection const&);
   void postClean(reco::PFCandidateCollection*);
   void addMissingMuons(edm::Handle<reco::MuonCollection>, reco::PFCandidateCollection* cands);
+  void setVetoHandle(const edm::Handle<reco::PFCandidateCollection>& vetoes) { vetoHandle_ = vetoes; }
 
   std::unique_ptr<reco::PFCandidateCollection> transferCleanedCosmicCandidates() {
     return std::move(pfCosmicsMuonCleanedCandidates_);
@@ -115,6 +116,8 @@ private:
   std::unique_ptr<reco::PFCandidateCollection> pfAddedMuonCandidates_;
 
   std::vector<unsigned int> maskedIndices_;
+
+  edm::Handle<reco::PFCandidateCollection> vetoHandle_;
 
   //////////////////////////////////////////////////////////////////////////////////////
   const reco::VertexCollection* vertices_;
