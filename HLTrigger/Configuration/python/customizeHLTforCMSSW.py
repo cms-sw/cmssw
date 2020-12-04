@@ -204,11 +204,24 @@ def customiseFor2018Input(process):
 
     return process
 
+def customiseFor32291(process):
+    """Improving the boundary between PFAlgo and PFTICL (or simPF) for phase2"""
+
+    # for PFBlockProducer
+    for producer in producers_by_type(process, "PFBlockProducer"):
+        if hasattr(producer,'elementImporters'):
+            for ps in producer.elementImporters.value():
+                if hasattr(ps,'importerName') and (ps.importerName == 'GeneralTracksImporter'):
+                    if not hasattr(ps,'vetoEndcap'):
+                        ps.vetoEndcap = cms.bool( False )
+
+    return process
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
+    process = customiseFor32291(process)
 
     return process
