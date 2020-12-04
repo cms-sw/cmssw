@@ -814,7 +814,7 @@ namespace edm {
   }
 
   void EventProcessor::closeInputFile(bool cleaningUpAfterException) {
-    if (fb_.get() != nullptr) {
+    if (fileBlockValid()) {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
       input_->closeFile(fb_.get(), cleaningUpAfterException);
       sentry.completedSuccessfully();
@@ -823,7 +823,7 @@ namespace edm {
   }
 
   void EventProcessor::openOutputFiles() {
-    if (fb_.get() != nullptr) {
+    if (fileBlockValid()) {
       schedule_->openOutputFiles(*fb_);
       for_all(subProcesses_, [this](auto& subProcess) { subProcess.openOutputFiles(*fb_); });
     }
@@ -831,17 +831,16 @@ namespace edm {
   }
 
   void EventProcessor::closeOutputFiles() {
-    if (fb_.get() != nullptr) {
-      schedule_->closeOutputFiles();
-      for_all(subProcesses_, [](auto& subProcess) { subProcess.closeOutputFiles(); });
-    }
+    schedule_->closeOutputFiles();
+    for_all(subProcesses_, [](auto& subProcess) { subProcess.closeOutputFiles(); });
+
     FDEBUG(1) << "\tcloseOutputFiles\n";
   }
 
   void EventProcessor::respondToOpenInputFile() {
-    for_all(subProcesses_,
-            [this](auto& subProcess) { subProcess.updateBranchIDListHelper(branchIDListHelper_->branchIDLists()); });
-    if (fb_.get() != nullptr) {
+    if (fileBlockValid()) {
+      for_all(subProcesses_,
+              [this](auto& subProcess) { subProcess.updateBranchIDListHelper(branchIDListHelper_->branchIDLists()); });
       schedule_->respondToOpenInputFile(*fb_);
       for_all(subProcesses_, [this](auto& subProcess) { subProcess.respondToOpenInputFile(*fb_); });
     }
@@ -849,7 +848,7 @@ namespace edm {
   }
 
   void EventProcessor::respondToCloseInputFile() {
-    if (fb_.get() != nullptr) {
+    if (fileBlockValid()) {
       schedule_->respondToCloseInputFile(*fb_);
       for_all(subProcesses_, [this](auto& subProcess) { subProcess.respondToCloseInputFile(*fb_); });
     }
