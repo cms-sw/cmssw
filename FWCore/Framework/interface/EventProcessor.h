@@ -364,6 +364,7 @@ namespace edm {
     ExcludedDataMap eventSetupDataToExcludeFromPrefetching_;
 
     bool printDependencies_ = false;
+    bool deleteNonConsumedUnscheduledModules_ = true;
   };  // class EventProcessor
 
   //--------------------------------------------------------------------

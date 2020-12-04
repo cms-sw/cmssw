@@ -93,7 +93,13 @@ namespace edmtest {
 
     class WatchLumiBlocksAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchLuminosityBlocks> {
     public:
-      explicit WatchLumiBlocksAnalyzer(edm::ParameterSet const& p) : trans_(p.getParameter<int>("transitions")) {}
+      explicit WatchLumiBlocksAnalyzer(edm::ParameterSet const& p) : trans_(p.getParameter<int>("transitions")) {
+        // just to create a data dependence
+        auto const& tag = p.getParameter<edm::InputTag>("moduleLabel");
+        if (not tag.label().empty()) {
+          consumes<unsigned int, edm::InLumi>(tag);
+        }
+      }
       const unsigned int trans_;
       bool bl = false;
       bool el = false;

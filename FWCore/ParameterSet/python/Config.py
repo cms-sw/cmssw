@@ -227,6 +227,7 @@ class Process(object):
                               forceEventSetupCacheClearOnNewRun = untracked.bool(False),
                               throwIfIllegalParameter = untracked.bool(True),
                               printDependencies = untracked.bool(False),
+                              deleteNonConsumedUnscheduledModules = untracked.bool(True),
                               sizeOfStackForThreadsInKB = optional.untracked.uint32,
                               Rethrow = untracked.vstring(),
                               SkipEvent = untracked.vstring(),
@@ -2010,6 +2011,7 @@ process.options = cms.untracked.PSet(
     SkipEvent = cms.untracked.vstring(),
     allowUnscheduled = cms.obsolete.untracked.bool,
     canDeleteEarly = cms.untracked.vstring(),
+    deleteNonConsumedUnscheduledModules = cms.untracked.bool(True),
     emptyRunLumiMode = cms.obsolete.untracked.string,
     eventSetup = cms.untracked.PSet(
         forceNumberOfConcurrentIOVs = cms.untracked.PSet(

@@ -1,14 +1,6 @@
 <?xml version="1.0"?>
 <DDDefinition>
  <MaterialSection label="zdcmaterials.xml">
-  <CompositeMaterial name="Air" density="1.29*mg/cm3" symbol=" " method="mixture by weight">
-   <MaterialFraction fraction="0.7">
-    <rMaterial name="materials:Nitrogen"/>
-   </MaterialFraction>
-   <MaterialFraction fraction="0.3">
-    <rMaterial name="materials:Oxygen"/>
-   </MaterialFraction>
-  </CompositeMaterial>o
   <ElementaryMaterial name="Galactic" density="1e-22*mg/cm3" symbol=" " atomicWeight="1.01*g/mole" atomicNumber="1"/>
   <CompositeMaterial name="Luminosity Gas" density="6.5933*mg/cm3" symbol=" " method="mixture by weight">
    <MaterialFraction fraction="0.01">

@@ -210,6 +210,10 @@ public:
   void postModuleConstruction(edm::ModuleDescription const&);
 
   // these signal pair are guaranteed to be called by the same thread
+  void preModuleDestruction(edm::ModuleDescription const&);
+  void postModuleDestruction(edm::ModuleDescription const&);
+
+  // these signal pair are guaranteed to be called by the same thread
   void preModuleBeginJob(edm::ModuleDescription const&);
   void postModuleBeginJob(edm::ModuleDescription const&);
 
@@ -398,6 +402,10 @@ NVProfilerService::NVProfilerService(edm::ParameterSet const& config, edm::Activ
   // these signal pair are guaranteed to be called by the same thread
   registry.watchPreModuleConstruction(this, &NVProfilerService::preModuleConstruction);
   registry.watchPostModuleConstruction(this, &NVProfilerService::postModuleConstruction);
+
+  // these signal pair are guaranteed to be called by the same thread
+  registry.watchPreModuleDestruction(this, &NVProfilerService::preModuleDestruction);
+  registry.watchPostModuleDestruction(this, &NVProfilerService::postModuleDestruction);
 
   // these signal pair are guaranteed to be called by the same thread
   registry.watchPreModuleBeginJob(this, &NVProfilerService::preModuleBeginJob);
@@ -813,6 +821,24 @@ void NVProfilerService::preModuleConstruction(edm::ModuleDescription const& desc
 }
 
 void NVProfilerService::postModuleConstruction(edm::ModuleDescription const& desc) {
+  if (not skipFirstEvent_) {
+    auto mid = desc.id();
+    nvtxDomainRangeEnd(global_domain_, global_modules_[mid]);
+    global_modules_[mid] = nvtxInvalidRangeId;
+  }
+}
+
+void NVProfilerService::preModuleDestruction(edm::ModuleDescription const& desc) {
+  if (not skipFirstEvent_) {
+    auto mid = desc.id();
+    global_modules_.grow_to_at_least(mid + 1);
+    auto const& label = desc.moduleLabel();
+    auto const& msg = label + " destruction";
+    global_modules_[mid] = nvtxDomainRangeStartColor(global_domain_, msg.c_str(), labelColor(label));
+  }
+}
+
+void NVProfilerService::postModuleDestruction(edm::ModuleDescription const& desc) {
   if (not skipFirstEvent_) {
     auto mid = desc.id();
     nvtxDomainRangeEnd(global_domain_, global_modules_[mid]);

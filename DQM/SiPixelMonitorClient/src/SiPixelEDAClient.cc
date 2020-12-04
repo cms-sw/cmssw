@@ -96,6 +96,7 @@ SiPixelEDAClient::SiPixelEDAClient(const edm::ParameterSet &ps) {
   sipixelDataQuality_ = new SiPixelDataQuality(offlineXMLfile_);
 
   inputSourceToken_ = consumes<FEDRawDataCollection>(ps.getUntrackedParameter<string>("inputSource", "source"));
+  cablingMapToken_ = esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd, edm::Transition::EndLuminosityBlock>();
   // cout<<"...leaving  SiPixelEDAClient::SiPixelEDAClient. "<<endl;
 }
 
@@ -202,7 +203,8 @@ void SiPixelEDAClient::dqmEndLuminosityBlock(DQMStore::IBooker &iBooker,
           nFEDs_ += mefed->getBinContent(i + 1);
       }
     }
-    eSetup.get<SiPixelFedCablingMapRcd>().get(theCablingMap);
+    // copy is intentional to allow using the SiPixelFedCablingMap in dqmEndJob() where accessing EventSetup products is not allowed
+    theCablingMap = eSetup.getData(cablingMapToken_);
 
     firstLumi = false;
   }
@@ -234,11 +236,11 @@ void SiPixelEDAClient::dqmEndLuminosityBlock(DQMStore::IBooker &iBooker,
     init = true;
     iBooker.cd();
     iGetter.cd();
-    sipixelDataQuality_->fillGlobalQualityPlot(iBooker, iGetter, init, theCablingMap, nFEDs_, Tier0Flag_, nLumiSecs_);
+    sipixelDataQuality_->fillGlobalQualityPlot(iBooker, iGetter, init, &theCablingMap, nFEDs_, Tier0Flag_, nLumiSecs_);
     init = true;
     if (noiseRate_ >= 0.)
       sipixelInformationExtractor_->findNoisyPixels(
-          iBooker, iGetter, init, noiseRate_, noiseRateDenominator_, theCablingMap);
+          iBooker, iGetter, init, noiseRate_, noiseRateDenominator_, &theCablingMap);
   }
 
   // cout<<"...leaving SiPixelEDAClient::endLuminosityBlock. "<<endl;
@@ -273,10 +275,10 @@ void SiPixelEDAClient::dqmEndJob(DQMStore::IBooker &iBooker, DQMStore::IGetter &
     iBooker.cd();
     iGetter.cd();
 
-    sipixelDataQuality_->fillGlobalQualityPlot(iBooker, iGetter, init, theCablingMap, nFEDs_, Tier0Flag_, nLumiSecs_);
+    sipixelDataQuality_->fillGlobalQualityPlot(iBooker, iGetter, init, &theCablingMap, nFEDs_, Tier0Flag_, nLumiSecs_);
     init = true;
     if (noiseRate_ >= 0.)
       sipixelInformationExtractor_->findNoisyPixels(
-          iBooker, iGetter, init, noiseRate_, noiseRateDenominator_, theCablingMap);
+          iBooker, iGetter, init, noiseRate_, noiseRateDenominator_, &theCablingMap);
   }
 }

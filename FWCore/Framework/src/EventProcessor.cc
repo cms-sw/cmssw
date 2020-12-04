@@ -399,6 +399,8 @@ namespace edm {
     IllegalParameters::setThrowAnException(optionsPset.getUntrackedParameter<bool>("throwIfIllegalParameter"));
 
     printDependencies_ = optionsPset.getUntrackedParameter<bool>("printDependencies");
+    deleteNonConsumedUnscheduledModules_ =
+        optionsPset.getUntrackedParameter<bool>("deleteNonConsumedUnscheduledModules");
 
     // Now do general initialization
     ScheduleItems items;
@@ -433,6 +435,8 @@ namespace edm {
       nStreams = 1;
       nConcurrentLumis = 1;
       nConcurrentRuns = 1;
+      // in presence of looper do not delete modules
+      deleteNonConsumedUnscheduledModules_ = false;
     }
     espController_->setMaxConcurrentIOVs(nStreams, nConcurrentLumis);
 
@@ -550,8 +554,45 @@ namespace edm {
     schedule_->convertCurrentProcessAlias(processConfiguration_->processName());
     pathsAndConsumesOfModules_.initialize(schedule_.get(), preg());
 
-    //NOTE: this may throw
+    std::vector<ModuleProcessName> consumedBySubProcesses;
+    for_all(subProcesses_,
+            [&consumedBySubProcesses, deleteModules = deleteNonConsumedUnscheduledModules_](auto& subProcess) {
+              auto c = subProcess.keepOnlyConsumedUnscheduledModules(deleteModules);
+              if (consumedBySubProcesses.empty()) {
+                consumedBySubProcesses = std::move(c);
+              } else if (not c.empty()) {
+                std::vector<ModuleProcessName> tmp;
+                tmp.reserve(consumedBySubProcesses.size() + c.size());
+                std::merge(consumedBySubProcesses.begin(),
+                           consumedBySubProcesses.end(),
+                           c.begin(),
+                           c.end(),
+                           std::back_inserter(tmp));
+                std::swap(consumedBySubProcesses, tmp);
+              }
+            });
+
+    // Note: all these may throw
     checkForModuleDependencyCorrectness(pathsAndConsumesOfModules_, printDependencies_);
+    if (deleteNonConsumedUnscheduledModules_) {
+      if (auto const unusedModules = nonConsumedUnscheduledModules(pathsAndConsumesOfModules_, consumedBySubProcesses);
+          not unusedModules.empty()) {
+        pathsAndConsumesOfModules_.removeModules(unusedModules);
+
+        edm::LogWarning("DeleteModules").log([&unusedModules](auto& l) {
+          l << "Following modules are not in any Path or EndPath, nor is their output consumed by any other module, "
+               "and "
+               "therefore they are deleted before beginJob transition.";
+          for (auto const& description : unusedModules) {
+            l << "\n " << description->moduleLabel();
+          }
+        });
+        for (auto const& description : unusedModules) {
+          schedule_->deleteModule(description->moduleLabel(), actReg_.get());
+        }
+      }
+    }
+
     actReg_->preBeginJobSignal_(pathsAndConsumesOfModules_, processContext_);
 
     if (preallocations_.numberOfLuminosityBlocks() > 1) {
@@ -1916,7 +1957,7 @@ namespace edm {
           s = std::make_unique<LogSystem>("ModulesSynchingOnLumis");
           (*s) << "The following modules require synchronizing on LuminosityBlock boundaries:";
         }
-        (*s) << "\n  " << worker->description().moduleName() << " " << worker->description().moduleLabel();
+        (*s) << "\n  " << worker->description()->moduleName() << " " << worker->description()->moduleLabel();
       }
     }
   }

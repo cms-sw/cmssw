@@ -186,10 +186,10 @@ namespace analyzer {
     const TransientTrackingRecHitBuilder *RHBuilder;
     const KFTrajectorySmoother *theSmoother;
     const KFTrajectoryFitter *theFitter;
-    const TrackerGeometry *tracker;
-    const MagneticField *magfield;
     TrajectoryStateTransform tsTransform;
     edm::EDGetTokenT<TrajTrackAssociationCollection> t_trajTrack;
+    edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoToken_;
+    edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
   };
 }  // namespace analyzer
 

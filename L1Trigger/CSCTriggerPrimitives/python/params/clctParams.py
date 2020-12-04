@@ -15,9 +15,6 @@ clctPhase1 = cms.PSet(
 
     # BX to start CLCT finding (poor man's dead-time shortening):
     clctStartBxShift  = cms.int32(0),
-
-    useRun3Patterns = cms.bool(False),
-    useComparatorCodes = cms.bool(False),
 )
 
 # Parameters for upgrade CLCT processors

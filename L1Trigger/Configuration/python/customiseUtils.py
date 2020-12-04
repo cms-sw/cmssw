@@ -142,3 +142,9 @@ def L1TGtStage2ComparisonRAWvsEMU(process):
     process.l1tgtstage2comparison = cms.Path(process.l1tComparisonGtStage2RAWvsEMU)
     process.schedule.append(process.l1tgtstage2comparison)
     return process
+
+def L1TStage2SetPrefireVetoBit(process):
+    process.load('L1Trigger.L1TGlobal.simGtExtFakeProd_cfi')
+    process.l1tstage2gtext = cms.Path(process.simGtExtUnprefireable)
+    process.schedule.insert(0,process.l1tstage2gtext)
+    return process

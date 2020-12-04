@@ -402,7 +402,7 @@ void Converter<DDLConstant>::operator()(xml_h element) const {
   DDRegistry* res = _option<DDRegistry>();
   xml_dim_t constant = element;
   xml_dim_t par = constant.parent();
-  bool eval = par.hasAttr(_U(eval)) ? par.attr<bool>(_U(eval)) : false;
+  bool eval = par.hasAttr(_U(eval)) ? par.attr<bool>(_U(eval)) : true;
   string val = constant.valueStr();
   string nam = constant.nameStr();
   string real = ns.prepend(nam);
@@ -986,8 +986,10 @@ void Converter<Parameter>::operator()(xml_h element) const {
   string specParName = specPar.attr<string>(_U(name));
   string name = e.nameStr();
   string value = e.attr<string>(DD_CMU(value));
-  bool eval = e.hasAttr(_U(eval)) ? e.attr<bool>(_U(eval))
-                                  : (specParSect.hasAttr(_U(eval)) ? specParSect.attr<bool>(_U(eval)) : false);
+  bool eval = specParSect.hasAttr(_U(eval)) ? specParSect.attr<bool>(_U(eval)) : false;
+  eval = specPar.hasAttr(_U(eval)) ? specPar.attr<bool>(_U(eval)) : eval;
+  eval = e.hasAttr(_U(eval)) ? e.attr<bool>(_U(eval)) : eval;
+
   string type = eval ? "number" : "string";
 
 #ifdef EDM_ML_DEBUG
@@ -1003,6 +1005,10 @@ void Converter<Parameter>::operator()(xml_h element) const {
 #endif
 
   size_t idx = value.find('[');
+  if (idx == string::npos && type == "number") {
+    registry.specpars[specParName].numpars[name].emplace_back(dd4hep::_toDouble(value));
+    return;
+  }
   if (idx == string::npos || type == "string") {
     registry.specpars[specParName].spars[name].emplace_back(std::move(value));
     return;
