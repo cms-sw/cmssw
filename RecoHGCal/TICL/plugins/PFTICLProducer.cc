@@ -50,8 +50,7 @@ PFTICLProducer::PFTICLProducer(const edm::ParameterSet& conf)
   produces<reco::PFCandidateCollection>();
   // For PFMuonAlgo
   const edm::ParameterSet pfMuonAlgoParams = conf.getParameter<edm::ParameterSet>("PFMuonAlgoParameters");
-  const bool postMuonCleaning = false;
-  pfmu_ = std::make_unique<PFMuonAlgo>(pfMuonAlgoParams, postMuonCleaning);
+  pfmu_ = std::make_unique<PFMuonAlgo>(pfMuonAlgoParams);
 }
 
 void PFTICLProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -64,7 +63,6 @@ void PFTICLProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<bool>("useTimingAverage", false);
   // For PFMuonAlgo
   desc.add<edm::InputTag>("muonSrc", edm::InputTag("muons1stStep"));
-  desc.add<bool>("postMuonCleaning", false);
   edm::ParameterSetDescription psd_PFMuonAlgo;
   PFMuonAlgo::fillPSetDescription(psd_PFMuonAlgo);
   desc.add<edm::ParameterSetDescription>("PFMuonAlgoParameters", psd_PFMuonAlgo);
