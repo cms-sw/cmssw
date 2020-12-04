@@ -4,7 +4,7 @@
 <use name="DataFormats/EcalRecHit"/>
 <use name="DataFormats/EgammaReco"/>
 <use name="CondFormats/EcalObjects"/>
-<use name="CondFormats/EgammaObjects"/>
+<use name="CondFormats/GBRForest"/>
 <use name="CondFormats/DataRecord"/>
 <use name="RecoLocalCalo/EcalRecAlgos"/>
 <use name="Geometry/CaloGeometry"/>

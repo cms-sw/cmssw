@@ -1,6 +1,6 @@
 <use name="CondFormats/HcalObjects"/>
 <use name="CondFormats/EcalObjects"/>
-<use name="CondFormats/EgammaObjects"/>
+<use name="CondFormats/GBRForest"/>
 <use name="CondFormats/DataRecord"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/ParticleFlowReco"/>
