@@ -326,14 +326,14 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
   m_tls->sensCaloDets.swap(sensDets.second);
 
   edm::LogVerbatim("SimG4CoreApplication")
-      << "RunManagerMTWorker: Sensitive Detectors are built in thread " 
-      << thisID << " found " << m_tls->sensTkDets.size()
-      << " Tk type SD, and " << m_tls->sensCaloDets.size() << " Calo type SD";
+      << "RunManagerMTWorker: Sensitive Detectors are built in thread " << thisID << " found "
+      << m_tls->sensTkDets.size() << " Tk type SD, and " << m_tls->sensCaloDets.size() << " Calo type SD";
 
   // Set the physics list for the worker, share from master
   PhysicsList* physicsList = runManagerMaster->physicsListForWorker();
 
-  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker: start initialisation of PhysicsList for the thread " << thisID;
+  edm::LogVerbatim("SimG4CoreApplication")
+      << "RunManagerMTWorker: start initialisation of PhysicsList for the thread " << thisID;
 
   // Geant4 UI commands in PreInit state
   if (!runManagerMaster->G4Commands().empty()) {
@@ -351,7 +351,8 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
 
   const bool kernelInit = m_tls->kernel->RunInitialization();
   if (!kernelInit) {
-    throw edm::Exception(edm::errors::Configuration) << "RunManagerMTWorker: Geant4 kernel initialization failed in thread " << thisID;
+    throw edm::Exception(edm::errors::Configuration)
+        << "RunManagerMTWorker: Geant4 kernel initialization failed in thread " << thisID;
   }
   //tell all interesting parties that we are beginning the job
   BeginOfJob aBeginOfJob(&es);
@@ -372,7 +373,8 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
   m_tls->threadInitialized = true;
 
   timer.Stop();
-  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker::initializeThread done for the thread " << thisID << "  " << timer;
+  edm::LogVerbatim("SimG4CoreApplication")
+      << "RunManagerMTWorker::initializeThread done for the thread " << thisID << "  " << timer;
 }
 
 void RunManagerMTWorker::initializeUserActions() {
