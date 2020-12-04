@@ -223,7 +223,6 @@ def nanoAOD_recalibrateMETs(process,isData):
             reclusterJets = cms.untracked.bool(False),
             )
     run2_nanoAOD_106Xv1.toModify(nanoAOD_PuppiV15_switch,recoMetFromPFCs=True,reclusterJets=True)
-    runMetCorAndUncFromMiniAOD(process,isData=isData,metType="Puppi",postfix="Puppi",jetFlavor="AK4PFPuppi", recoMetFromPFCs=bool(nanoAOD_PuppiV15_switch.recoMetFromPFCs), reclusterJets=bool(nanoAOD_PuppiV15_switch.reclusterJets))
     if nanoAOD_PuppiV15_switch.reclusterJets:
         from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
         from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask, addToProcessAndTask
@@ -242,11 +241,13 @@ def nanoAOD_recalibrateMETs(process,isData):
                             muSource =cms.InputTag( 'slimmedMuons'),
                             elSource = cms.InputTag('slimmedElectrons'),
                             genParticles= cms.InputTag('prunedGenParticles'),
-                            getJetMCFlavour=False
+                            getJetMCFlavour= False
         )
 
         process.patJetsPuppi.addGenPartonMatch = cms.bool(False)
         process.patJetsPuppi.addGenJetMatch = cms.bool(False)
+    
+    runMetCorAndUncFromMiniAOD(process,isData=isData,metType="Puppi",postfix="Puppi",jetFlavor="AK4PFPuppi", recoMetFromPFCs=bool(nanoAOD_PuppiV15_switch.recoMetFromPFCs), reclusterJets=bool(nanoAOD_PuppiV15_switch.reclusterJets))
     process.nanoSequenceCommon.insert(process.nanoSequenceCommon.index(process.jetSequence),cms.Sequence(process.puppiMETSequence+process.fullPatMetSequencePuppi))
     return process
 

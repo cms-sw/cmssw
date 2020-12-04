@@ -23,25 +23,15 @@
 #include <memory>
 
 // user include files
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
 
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 class SiPixelHLTSource : public DQMEDAnalyzer {
 public:
@@ -57,7 +47,7 @@ private:
   edm::ParameterSet conf_;
   edm::EDGetTokenT<FEDRawDataCollection> rawin_;
   edm::EDGetTokenT<edm::DetSetVector<SiPixelRawDataError>> errin_;
-  edm::ESHandle<TrackerGeometry> pDD;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
   bool saveFile;
   bool slowDown;
   std::string dirName_;

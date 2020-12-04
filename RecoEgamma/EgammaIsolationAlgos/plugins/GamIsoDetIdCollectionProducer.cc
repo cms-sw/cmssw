@@ -1,28 +1,71 @@
-#include "RecoEgamma/EgammaIsolationAlgos/plugins/GamIsoDetIdCollectionProducer.h"
+// -*- C++ -*-
+//
+// Package:    GamIsoDetIdCollectionProducer
+// Class:      GamIsoDetIdCollectionProducer
+//
+/**\class GamIsoDetIdCollectionProducer 
+Original author: Matthew LeBourgeois PH/CMG
+Modified from :
+RecoEcal/EgammaClusterProducers/{src,interface}/InterestingDetIdCollectionProducer.{h,cc}
+by Paolo Meridiani PH/CMG
+ 
+Implementation:
+ <Notes on implementation>
+*/
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
-
+#include "DataFormats/DetId/interface/DetIdCollection.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "RecoCaloTools/Selectors/interface/CaloDualConeSelector.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
+#include "RecoCaloTools/Selectors/interface/CaloDualConeSelector.h"
 
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
+class GamIsoDetIdCollectionProducer : public edm::stream::EDProducer<> {
+public:
+  //! ctor
+  explicit GamIsoDetIdCollectionProducer(const edm::ParameterSet&);
+  ~GamIsoDetIdCollectionProducer() override;
+  void beginJob();
+  //! producer
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-#include "DataFormats/DetId/interface/DetIdCollection.h"
+private:
+  // ----------member data ---------------------------
+  edm::EDGetTokenT<EcalRecHitCollection> recHitsToken_;
+  edm::EDGetTokenT<reco::PhotonCollection> emObjectToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
+  edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> sevLvToken_;
+  edm::InputTag recHitsLabel_;
+  edm::InputTag emObjectLabel_;
+  double energyCut_;
+  double etCut_;
+  double etCandCut_;
+  double outerRadius_;
+  double innerRadius_;
+  std::string interestingDetIdCollection_;
 
-#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
-#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+  std::vector<int> severitiesexclEB_;
+  std::vector<int> severitiesexclEE_;
+  std::vector<int> flagsexclEB_;
+  std::vector<int> flagsexclEE_;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(GamIsoDetIdCollectionProducer);
 
 GamIsoDetIdCollectionProducer::GamIsoDetIdCollectionProducer(const edm::ParameterSet& iConfig)
     : recHitsToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitsLabel"))),

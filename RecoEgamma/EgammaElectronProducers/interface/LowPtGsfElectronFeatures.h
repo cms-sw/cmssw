@@ -23,11 +23,29 @@ namespace lowptgsfeleseed {
 
 namespace lowptgsfeleid {
 
-  std::vector<float> features(edm::Ptr<reco::GsfElectron> const& ele, float rho, float unbiased);
+  // feature list for new model (2019Sept15)
+  std::vector<float> features_V1(reco::GsfElectron const& ele, float rho, float unbiased, float field_z);
 
-  std::vector<float> features(edm::Ref<std::vector<reco::GsfElectron> > const& ele, float rho, float unbiased);
+  // feature list for original models (2019Aug07 and earlier)
+  std::vector<float> features_V0(reco::GsfElectron const& ele, float rho, float unbiased);
 
-  std::vector<float> features(edm::Ref<edm::View<reco::GsfElectron> > const& ele, float rho, float unbiased);
+  // Find most energetic clusters
+  void findEnergeticClusters(reco::SuperCluster const&, int&, float&, float&, int&, int&);
+
+  // Track-cluster matching for most energetic clusters
+  void trackClusterMatching(reco::SuperCluster const&,
+                            reco::GsfTrack const&,
+                            bool const&,
+                            GlobalPoint const&,
+                            float&,
+                            float&,
+                            float&,
+                            float&,
+                            float&,
+                            float&,
+                            float&,
+                            float&,
+                            float&);
 
 }  // namespace lowptgsfeleid
 

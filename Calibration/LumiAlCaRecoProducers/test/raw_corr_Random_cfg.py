@@ -77,80 +77,47 @@ process.path1 = cms.Path(process.rawPCCProd+process.corrPCCProd)
 
 #
 process.MessageLogger = cms.Service("MessageLogger",
-    categories = cms.untracked.vstring('FwkJob', 
-        'FwkReport', 
-        'FwkSummary', 
-        'Root_NoDictionary'),
     cerr = cms.untracked.PSet(
         FwkJob = cms.untracked.PSet(
-            limit = cms.untracked.int32(0),
-            optionalPSet = cms.untracked.bool(True)
+            limit = cms.untracked.int32(0)
         ),
         FwkReport = cms.untracked.PSet(
             limit = cms.untracked.int32(10000000),
-            optionalPSet = cms.untracked.bool(True),
             reportEvery = cms.untracked.int32(100000)
         ),
         FwkSummary = cms.untracked.PSet(
             limit = cms.untracked.int32(10000000),
-            optionalPSet = cms.untracked.bool(True),
             reportEvery = cms.untracked.int32(10000)
         ),
         INFO = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         Root_NoDictionary = cms.untracked.PSet(
-            limit = cms.untracked.int32(0),
-            optionalPSet = cms.untracked.bool(True)
+            limit = cms.untracked.int32(0)
         ),
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(10000000)
         ),
         noTimeStamps = cms.untracked.bool(False),
-        optionalPSet = cms.untracked.bool(True),
-        threshold = cms.untracked.string('INFO')
-    ),
-    cerr_stats = cms.untracked.PSet(
-        optionalPSet = cms.untracked.bool(True),
-        output = cms.untracked.string('cerr'),
-        threshold = cms.untracked.string('WARNING')
-    ),
-    cout = cms.untracked.PSet(
-        placeholder = cms.untracked.bool(True)
+        threshold = cms.untracked.string('INFO'),
+        enableStatistics = cms.untracked.bool(True),
+        statisticsThreshold = cms.untracked.string('WARNING')
     ),
     debugModules = cms.untracked.vstring(),
-    debugs = cms.untracked.PSet(
-        placeholder = cms.untracked.bool(True)
-    ),
     default = cms.untracked.PSet(
 
     ),
-    destinations = cms.untracked.vstring('warnings', 
-        'errors', 
-        'infos', 
-        'debugs', 
-        'cout', 
-        'cerr'),
-    errors = cms.untracked.PSet(
-        placeholder = cms.untracked.bool(True)
+    files = cms.untracked.PSet(
+        infos = cms.untracked.PSet(
+            threshold = cms.untracked.string('INFO')
+        ),
+        warnings = cms.untracked.PSet(
+            threshold = cms.untracked.string('WARNING')
+        )
     ),
-    infos = cms.untracked.PSet(
-        #Root_NoDictionary = cms.untracked.PSet(
-        #    limit = cms.untracked.int32(0),
-        #    optionalPSet = cms.untracked.bool(True)
-        #),
-        #optionalPSet = cms.untracked.bool(True),
-        #placeholder = cms.untracked.bool(True)
-        threshold = cms.untracked.string('INFO')
-    ),
-    statistics = cms.untracked.vstring('cerr_stats'),
     suppressDebug = cms.untracked.vstring(),
     suppressInfo = cms.untracked.vstring(),
-    suppressWarning = cms.untracked.vstring(),
-    warnings = cms.untracked.PSet(
-        #placeholder = cms.untracked.bool(True)
-        threshold = cms.untracked.string('WARNING')
-    )
+    suppressWarning = cms.untracked.vstring()
 )
 #added line for additional output summary `
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))

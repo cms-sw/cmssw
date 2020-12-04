@@ -363,7 +363,7 @@ namespace spr {
   }
 
   std::vector<spr::propagatedGenTrackID> propagateCALO(const HepMC::GenEvent* genEvent,
-                                                       edm::ESHandle<ParticleDataTable>& pdt,
+                                                       const ParticleDataTable* pdt,
                                                        const CaloGeometry* geo,
                                                        const MagneticField* bField,
                                                        double etaMax,
@@ -454,7 +454,7 @@ namespace spr {
   }
 
   std::vector<spr::propagatedGenParticleID> propagateCALO(edm::Handle<reco::GenParticleCollection>& genParticles,
-                                                          edm::ESHandle<ParticleDataTable>& pdt,
+                                                          const ParticleDataTable* pdt,
                                                           const CaloGeometry* geo,
                                                           const MagneticField* bField,
                                                           double etaMax,

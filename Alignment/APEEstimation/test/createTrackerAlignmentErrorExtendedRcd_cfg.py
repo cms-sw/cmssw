@@ -118,37 +118,39 @@ process.PoolDBOutputService = cms.Service(
     )
 
      
-process.MessageLogger = cms.Service(
-    "MessageLogger",
-    statistics = cms.untracked.vstring('cout', 'alignment'),
-    categories = cms.untracked.vstring('Alignment'),
+process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG'),
-        noLineBreaks = cms.untracked.bool(True)
-        ),
-    alignment = cms.untracked.PSet(
-        INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-            ),
+        enable = cms.untracked.bool(True),
+        enableStatistics = cms.untracked.bool(True),
         noLineBreaks = cms.untracked.bool(True),
-        DEBUG = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
+        threshold = cms.untracked.string('DEBUG')
+    ),
+    files = cms.untracked.PSet(
+        alignment = cms.untracked.PSet(
+            Alignment = cms.untracked.PSet(
+                limit = cms.untracked.int32(-1)
             ),
-        WARNING = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
+            DEBUG = cms.untracked.PSet(
+                limit = cms.untracked.int32(-1)
             ),
-        ERROR = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
+            ERROR = cms.untracked.PSet(
+                limit = cms.untracked.int32(-1)
             ),
-        threshold = cms.untracked.string('INFO'),
-        Alignment = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-            )
-        ),
-    destinations = cms.untracked.vstring(
-        'cout',  ## .log automatically
-        'alignment')
+            INFO = cms.untracked.PSet(
+                limit = cms.untracked.int32(-1)
+            ),
+            WARNING = cms.untracked.PSet(
+                limit = cms.untracked.int32(-1)
+            ),
+            enableStatistics = cms.untracked.bool(True),
+            noLineBreaks = cms.untracked.bool(True),
+            threshold = cms.untracked.string('INFO')
+        )
     )
+)
 
 
 ### speficy the source

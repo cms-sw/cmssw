@@ -11,9 +11,15 @@ process.source = cms.Source("EmptySource",
     interval = cms.uint32(1)
 )
 
-process.MessageLogger = cms.Service(
-    "MessageLogger",
-    destinations = cms.untracked.vstring("SiStripFEDErrorsDQMReader.log"),
+process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    files = cms.untracked.PSet(
+        SiStripFEDErrorsDQMReader = cms.untracked.PSet(
+
+        )
+    ),
     threshold = cms.untracked.string('INFO')
 )
 

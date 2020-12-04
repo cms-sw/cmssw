@@ -1,6 +1,7 @@
 #include "RecoEgamma/EgammaTools/interface/EGExtraInfoModifierFromValueMaps.h"
 
 #include "DataFormats/EgammaCandidates/interface/HIPhotonIsolation.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
 using EGExtraInfoModifierFromFloatValueMaps = EGExtraInfoModifierFromValueMaps<float>;
 DEFINE_EDM_PLUGIN(ModifyObjectValueFactory,
@@ -45,3 +46,8 @@ using EGExtraInfoModifierFromEGIDValueMaps = EGExtraInfoModifierFromValueMaps<fl
 DEFINE_EDM_PLUGIN(ModifyObjectValueFactory,
                   EGExtraInfoModifierFromEGIDValueMaps,
                   "EGExtraInfoModifierFromEGIDValueMaps");
+
+using EGExtraInfoModifierFromPackedCandPtrValueMaps = EGExtraInfoModifierFromValueMaps<edm::Ptr<pat::PackedCandidate> >;
+DEFINE_EDM_PLUGIN(ModifyObjectValueFactory,
+                  EGExtraInfoModifierFromPackedCandPtrValueMaps,
+                  "EGExtraInfoModifierFromPackedCandPtrValueMaps");
