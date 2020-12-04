@@ -10,16 +10,10 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 SimRunInterface::SimRunInterface(RunManagerMT* runm, bool master)
-    : m_runManagerMT(runm),
-      m_runManagerMTWorker(nullptr),
-      m_SimTrackManager(nullptr),
-      m_isMaster(master) {}
+    : m_runManagerMT(runm), m_runManagerMTWorker(nullptr), m_SimTrackManager(nullptr), m_isMaster(master) {}
 
 SimRunInterface::SimRunInterface(RunManagerMTWorker* runm, bool master)
-    : m_runManagerMT(nullptr),
-      m_runManagerMTWorker(runm),
-      m_SimTrackManager(nullptr),
-      m_isMaster(master) {
+    : m_runManagerMT(nullptr), m_runManagerMTWorker(runm), m_SimTrackManager(nullptr), m_isMaster(master) {
   if (m_runManagerMTWorker) {
     m_SimTrackManager = m_runManagerMTWorker->GetSimTrackManager();
   }

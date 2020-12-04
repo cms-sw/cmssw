@@ -120,7 +120,7 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
 
   timer.Stop();
   G4cout.precision(4);
-  G4cout << "RunManagerMT: geometry is initialized: " << timer <<G4endl;
+  G4cout << "RunManagerMT: geometry is initialized: " << timer << G4endl;
   timer.Start();
 
   m_kernel->SetVerboseLevel(verb);
@@ -253,7 +253,7 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   m_userRunAction->BeginOfRunAction(m_currentRun);
   timer.Stop();
   G4cout.precision(4);
-  G4cout << "RunManagerMT: initG4 done " << timer <<G4endl;
+  G4cout << "RunManagerMT: initG4 done " << timer << G4endl;
 }
 
 void RunManagerMT::initializeUserActions() {
