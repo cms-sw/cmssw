@@ -30,7 +30,7 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include "RecoTauTag/RecoTau/interface/PFRecoTauClusterVariables.h"
 
-#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "CondFormats/GBRForest/interface/GBRForest.h"
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 

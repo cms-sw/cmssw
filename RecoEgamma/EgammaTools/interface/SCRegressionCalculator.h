@@ -2,7 +2,7 @@
 #define __SCREGRESSIONCALCULATOR_H__
 
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
-#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "CondFormats/GBRForest/interface/GBRForest.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"

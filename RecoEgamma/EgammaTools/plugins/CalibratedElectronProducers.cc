@@ -24,7 +24,7 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 
 #include "CondFormats/DataRecord/interface/GBRDWrapperRcd.h"
-#include "CondFormats/EgammaObjects/interface/GBRForestD.h"
+#include "CondFormats/GBRForest/interface/GBRForestD.h"
 #include "RecoEgamma/EgammaTools/interface/EpCombinationTool.h"
 #include "RecoEgamma/EgammaTools/interface/ElectronEnergyCalibrator.h"
 #include "RecoEgamma/EgammaTools/interface/EGEnergySysIndex.h"
