@@ -1,4 +1,4 @@
-#include "CondFormats/EgammaObjects/interface/GBRForestD.h"
+#include "CondFormats/GBRForest/interface/GBRForestD.h"
 
 //_______________________________________________________________________
 GBRForestD::GBRForestD() : fInitialResponse(0.) {}
