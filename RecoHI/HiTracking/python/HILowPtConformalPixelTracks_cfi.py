@@ -70,13 +70,13 @@ hiConformalPixelTracksPhase1TrackingRegions = globalTrackingRegionWithVertices.c
 # Using 4 layers layerlist
 from RecoTracker.IterativeTracking.LowPtQuadStep_cff import lowPtQuadStepSeedLayers
 hiConformalPixelTracksPhase1SeedLayers = lowPtQuadStepSeedLayers.clone(
-    BPix = cms.PSet( 
-	HitProducer = cms.string('siPixelRecHits'),
-        TTRHBuilder = cms.string('WithTrackAngle'),
+    BPix = dict( 
+	HitProducer = 'siPixelRecHits',
+        TTRHBuilder = 'WithTrackAngle',
     ),
-    FPix = cms.PSet( 
-        HitProducer = cms.string('siPixelRecHits'),
-        TTRHBuilder = cms.string('WithTrackAngle'),
+    FPix = dict( 
+        HitProducer = 'siPixelRecHits',
+        TTRHBuilder = 'WithTrackAngle',
     )
 )
 
@@ -94,16 +94,16 @@ hiConformalPixelTracksPhase1HitQuadrupletsCA = lowPtQuadStepHitQuadruplets.clone
     doublets   = "hiConformalPixelTracksPhase1HitDoubletsCA",
     CAPhiCut   = 0.2,
     CAThetaCut = 0.0012,
-    SeedComparitorPSet = cms.PSet( 
-       ComponentName = cms.string('none')
+    SeedComparitorPSet = dict( 
+       ComponentName = 'none'
     ),
     extraHitRPhitolerance = 0.032,
-    maxChi2 = cms.PSet(
-       enabled = cms.bool(True),
-       pt1 = cms.double(0.7),
-       pt2 = cms.double(2),
-       value1 = cms.double(200),
-       value2 = cms.double(50)
+    maxChi2 = dict(
+       enabled = True,
+       pt1     = 0.7,
+       pt2     = 2,
+       value1  = 200,
+       value2  = 50
     )
 )
 

@@ -10,22 +10,22 @@ hiInitialStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackS
     GBRForestLabel = 'HIMVASelectorIter4',
     GBRForestVars  = ['chi2perdofperlayer', 'dxyperdxyerror', 'dzperdzerror', 'nhits', 'nlayers', 'eta'],
     trackSelectors = cms.VPSet(
-    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
-        name   = 'hiInitialStepLoose',
-        useMVA = False
-        ), #end of pset
-    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
-        name          = 'hiInitialStepTight',
-        preFilterName = 'hiInitialStepLoose',
-        useMVA        = True,
-        minMVA        = -0.77
-        ),
-    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
-        name          = 'hiInitialStep',
-        preFilterName = 'hiInitialStepTight',
-        useMVA        = True,
-        minMVA        = -0.77
-        ),
+    	RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
+    	    name   = 'hiInitialStepLoose',
+    	    useMVA = False
+    	    ), #end of pset
+    	RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
+    	    name          = 'hiInitialStepTight',
+    	    preFilterName = 'hiInitialStepLoose',
+    	    useMVA        = True,
+    	    minMVA        = -0.77
+    	    ),
+    	RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
+    	    name          = 'hiInitialStep',
+    	    preFilterName = 'hiInitialStepTight',
+    	    useMVA        = True,
+    	    minMVA        = -0.77
+    	    ),
     ) #end of vpset
 ) #end of clone  
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1

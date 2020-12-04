@@ -38,10 +38,11 @@ hiRegitPixelPairStepSeedLayers =  RecoTracker.IterativeTracking.PixelPairStep_cf
 
 # seeding
 hiRegitPixelPairStepSeeds     = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepSeeds.clone(
-    RegionFactoryPSet = HiTrackingRegionFactoryFromJetsBlock.clone(),
+    RegionFactoryPSet = HiTrackingRegionFactoryFromJetsBlock.clone(
+	RegionPSet = dict(ptMin = 1.2)
+    ),
     ClusterCheckPSet = dict(doClusterCheck = False), # do not check for max number of clusters pixel or strips
     OrderedHitsFactoryPSet = dict(SeedingLayers = 'hiRegitPixelPairStepSeedLayers'),
-    RegionFactoryPSet = dict(RegionPSet = dict(ptMin = 1.2)),
 )
 
 # building: feed the new-named seeds

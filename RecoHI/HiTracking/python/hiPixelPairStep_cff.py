@@ -30,14 +30,14 @@ hiPixelPairSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerPairs_cfi.PixelLay
                  'BPix1+FPix1_pos', 'BPix1+FPix1_neg',
                  'BPix2+FPix1_pos', 'BPix2+FPix1_neg',
                  'FPix1_pos+FPix2_pos', 'FPix1_neg+FPix2_neg'],
-    BPix = cms.PSet(
-        TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
-        HitProducer = cms.string('siPixelRecHits'),
+    BPix = dict(
+        TTRHBuilder  = 'TTRHBuilderWithoutAngle4PixelPairs',
+        HitProducer  = 'siPixelRecHits',
         skipClusters = cms.InputTag('hiPixelPairClusters')
     ),
-    FPix = cms.PSet(
-        TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
-        HitProducer = cms.string('siPixelRecHits'),
+    FPix = dict(
+        TTRHBuilder  = 'TTRHBuilderWithoutAngle4PixelPairs',
+        HitProducer  = 'siPixelRecHits',
         skipClusters = cms.InputTag('hiPixelPairClusters')
     )
 )

@@ -55,8 +55,8 @@ hiSelectedVertexPreSplitting = hiSelectedPixelVertex.clone(
 bestHiVertexPreSplittingTask = cms.Task( hiBestAdaptiveVertexPreSplitting , hiSelectedVertexPreSplitting )
 
 PixelLayerTripletsPreSplitting = PixelLayerTriplets.clone(
-    FPix = dict(HitProducer = cms.string('siPixelRecHitsPreSplitting')),
-    BPix = dict(HitProducer = cms.string('siPixelRecHitsPreSplitting'))
+    FPix = dict(HitProducer = 'siPixelRecHitsPreSplitting'),
+    BPix = dict(HitProducer = 'siPixelRecHitsPreSplitting')
 )
 hiPixelVerticesPreSplittingTask = cms.Task(hiPixelClusterVertexPreSplitting
                                 , PixelLayerTripletsPreSplitting

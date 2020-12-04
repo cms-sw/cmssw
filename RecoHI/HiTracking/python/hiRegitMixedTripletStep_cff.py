@@ -43,12 +43,11 @@ hiRegitMixedTripletStepSeedLayersA =  RecoTracker.IterativeTracking.MixedTriplet
 )
 # SEEDS A
 hiRegitMixedTripletStepSeedsA = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsA.clone(
-    RegionFactoryPSet = HiTrackingRegionFactoryFromJetsBlock.clone(),
+    RegionFactoryPSet = HiTrackingRegionFactoryFromJetsBlock.clone(
+	RegionPSet = dict(ptMin = 1.0)
+    ),
     ClusterCheckPSet = dict(doClusterCheck = False), # do not check for max number of clusters pixel or strips
     OrderedHitsFactoryPSet = dict(SeedingLayers = 'hiRegitMixedTripletStepSeedLayersA'),
-    RegionFactoryPSet = dict(
-	RegionPSet = dict(ptMin = 1.0)
-    )
 )
 # SEEDING LAYERS B
 hiRegitMixedTripletStepSeedLayersB =  RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedLayersB.clone(
@@ -57,12 +56,11 @@ hiRegitMixedTripletStepSeedLayersB =  RecoTracker.IterativeTracking.MixedTriplet
     layerList = ['BPix2+BPix3+TIB1','BPix2+BPix3+TIB2']
 )
 hiRegitMixedTripletStepSeedsB = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsB.clone(
-    RegionFactoryPSet = HiTrackingRegionFactoryFromJetsBlock.clone(),
+    RegionFactoryPSet = HiTrackingRegionFactoryFromJetsBlock.clone(
+	RegionPSet = dict(ptMin = 1.0)
+    ),
     ClusterCheckPSet = dict(doClusterCheck = False), # do not check for max number of clusters pixel or strips
     OrderedHitsFactoryPSet = dict(SeedingLayers = 'hiRegitMixedTripletStepSeedLayersB'),
-    RegionFactoryPSet = dict(
-	RegionPSet = dict(ptMin = 1.0)
-    )
 )
 # combine seeds
 hiRegitMixedTripletStepSeeds = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeeds.clone(
