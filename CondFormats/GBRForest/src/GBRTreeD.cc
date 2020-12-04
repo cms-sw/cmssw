@@ -1,4 +1,4 @@
-#include "CondFormats/EgammaObjects/interface/GBRTreeD.h"
+#include "CondFormats/GBRForest/interface/GBRTreeD.h"
 
 //_______________________________________________________________________
 GBRTreeD::~GBRTreeD() {}
