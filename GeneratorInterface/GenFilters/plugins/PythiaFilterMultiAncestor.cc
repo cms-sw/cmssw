@@ -52,10 +52,8 @@ namespace edm {
 class PythiaFilterMultiAncestor : public edm::global::EDFilter<> {
 public:
   explicit PythiaFilterMultiAncestor(const edm::ParameterSet&);
-  //~PythiaFilterMultiAncestor() override;
 
   bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-  //   bool filter(edm::Event&, const edm::EventSetup&) override;
 
 private:
   bool isAncestor(HepMC::GenParticle* particle, int IDtoMatch) const;
@@ -161,8 +159,6 @@ bool PythiaFilterMultiAncestor::filter(edm::StreamID, edm::Event& iEvent, const 
               accepted = true;
           }
 
-          // HepMC::GenParticle* mother = (*((*p)->production_vertex()->particles_in_const_begin()));
-
           // check the mother's pdgID
           if (status == 0 && *motherID != 0) {
             // if (abs(mother->pdg_id()) == abs(*motherID)) {
@@ -182,7 +178,7 @@ bool PythiaFilterMultiAncestor::filter(edm::StreamID, edm::Event& iEvent, const 
         if (accepted & (!daughterIDs.empty())) {
           // if you got this far it means that the mother was found
           // now let's check the daughters
-          // use a counter, if there's enough daughter  that match the pdg and kinematic
+          // use a counter, if there's enough daughters that match the pdg and kinematic
           // criteria accept the event
           uint good_dau = 0;
           for (HepMC::GenVertex::particle_iterator dau = (*p)->end_vertex()->particles_begin(HepMC::children);
@@ -207,19 +203,6 @@ bool PythiaFilterMultiAncestor::filter(edm::StreamID, edm::Event& iEvent, const 
           if (good_dau < daughterIDs.size())
             accepted = false;
         }
-
-        /*
-	  if (status == 0 && motherID != 0){
-	if (abs(((*p)->mother())->pdg_id()) == abs(motherID)) {
-	accepted = true;
-      }
-      }
-	if (status != 0 && motherID != 0){
-	if ((*p)->status() == status && abs(((*p)->mother())->pdg_id()) == abs(motherID)){
-	accepted = true;
-      }
-      }
-         */
       }
     }
 
