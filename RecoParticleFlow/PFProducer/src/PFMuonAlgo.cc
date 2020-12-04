@@ -736,7 +736,8 @@ void PFMuonAlgo::addMissingMuons(edm::Handle<reco::MuonCollection> muons, reco::
   if (vetoHandle_.isValid()) {
     const auto& vetoes = *vetoHandle_;
     for (unsigned i = 0; i < vetoes.size(); ++i) {
-      if (!vetoes[i].trackRef().isNonnull()) continue;
+      if (!vetoes[i].trackRef().isNonnull())
+        continue;
       vetoed.emplace_back(vetoes[i].trackRef().id(), vetoes[i].trackRef().key());
     }
     std::sort(vetoed.begin(), vetoed.end());
@@ -778,7 +779,8 @@ void PFMuonAlgo::addMissingMuons(edm::Handle<reco::MuonCollection> muons, reco::
       TrackProdIDKey trk = std::make_pair(muonRef->track().id(), muonRef->track().key());
       auto lower = std::lower_bound(vetoed.begin(), vetoed.end(), trk);
       bool inVetoList = (lower != vetoed.end() && *lower == trk);
-      if (inVetoList) used = true;
+      if (inVetoList)
+        used = true;
     }
 
     if (used || hadron || (!muonRef.isNonnull()))
