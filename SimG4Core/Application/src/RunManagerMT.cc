@@ -29,12 +29,12 @@
 
 #include "HepPDT/ParticleDataTable.hh"
 
+#include "G4Timer.hh"
 #include "G4GeometryManager.hh"
 #include "G4StateManager.hh"
 #include "G4ApplicationState.hh"
 #include "G4MTRunManagerKernel.hh"
 #include "G4UImanager.hh"
-#include "G4Timer.hh"
 
 #include "G4EventManager.hh"
 #include "G4Run.hh"
@@ -118,8 +118,9 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   m_world = std::make_unique<DDDWorld>(pDD, pDD4hep, m_catalog, verb, cuts, protonCut);
   G4VPhysicalVolume* world = m_world.get()->GetWorldVolume();
 
-  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT: geometry id initialized: " << timer;
   timer.Stop();
+  G4cout.precision(4);
+  G4cout << "RunManagerMT: geometry is initialized: " << timer <<G4endl;
   timer.Start();
 
   m_kernel->SetVerboseLevel(verb);
@@ -133,7 +134,7 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   unsigned int numLV = lvs->size();
   unsigned int nn = regStore->size();
   edm::LogVerbatim("SimG4CoreApplication")
-      << "###RunManagerMT: " << numPV << " PhysVolumes; " << numLV << " LogVolumes; " << nn << " Regions.";
+      << "RunManagerMT: " << numPV << " physical volumes; " << numLV << " logical volumes; " << nn << " regions.";
 
   if (m_check) {
     m_kernel->SetVerboseLevel(2);
@@ -204,8 +205,9 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
     throw edm::Exception(edm::errors::LogicError, "G4RunManagerKernel initialization failed!");
   }
 
-  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT: physics is initialized: " << timer;
   timer.Stop();
+  G4cout.precision(4);
+  G4cout << "RunManagerMT: physics is initialized: " << timer << G4endl;
   timer.Start();
 
   if (m_StorePhysicsTables) {
@@ -218,18 +220,12 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   }
   G4NuclearLevelData::GetInstance()->UploadNuclearLevelData(84);
 
-  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT: nuclear data are uploaded: " << timer;
-  timer.Stop();
-  timer.Start();
-
   if (verb > 1) {
     m_physicsList->DumpCutValuesTable();
   }
   edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT: Physics is initilized, now initialise user actions";
 
   initializeUserActions();
-  timer.Stop();
-  timer.Start();
 
   // geometry dump
   auto writeFile = m_p.getUntrackedParameter<std::string>("FileNameGDML", "");
@@ -238,9 +234,6 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
     gdml.SetRegionExport(true);
     gdml.SetEnergyCutsExport(true);
     gdml.Write(writeFile, m_world->GetWorldVolume(), true);
-    edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT: gdml is dumped: " << timer;
-    timer.Stop();
-    timer.Start();
   }
 
   // G4Region dump file name
@@ -249,9 +242,6 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   // Geometry checks
   if (m_check || !regionFile.empty()) {
     CMSG4CheckOverlap check(m_g4overlap, regionFile, m_UIsession, world);
-    edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT: overlap is checked: " << timer;
-    timer.Stop();
-    timer.Start();
   }
 
   // If the Geant4 particle table is needed, decomment the lines below
@@ -261,7 +251,9 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   m_stateManager->SetNewState(G4State_GeomClosed);
   m_currentRun = new G4Run();
   m_userRunAction->BeginOfRunAction(m_currentRun);
-  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT:: initG4 done";
+  timer.Stop();
+  G4cout.precision(4);
+  G4cout << "RunManagerMT: initG4 done " << timer <<G4endl;
 }
 
 void RunManagerMT::initializeUserActions() {
