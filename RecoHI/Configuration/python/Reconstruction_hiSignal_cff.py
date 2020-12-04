@@ -11,8 +11,9 @@ dropAllExceptFinalProducts = cms.PSet()
 
 #Tracks
 hiSignalGlobalPrimTracks = hiGlobalPrimTracks.clone()
-hiSignalSelectedTracks = hiSelectedTracks.clone()
-hiSelectedTracks.src = "hiSignalGlobalPrimTracks"
+hiSignalSelectedTracks = hiSelectedTracks.clone(
+    src = "hiSignalGlobalPrimTracks"
+)
 heavyIonTrackingTask = cms.Task(hiPixelVerticesTask
                                 ,hiPrimSeedsTask
                                 ,hiPrimTrackCandidates

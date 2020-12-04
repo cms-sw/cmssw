@@ -39,7 +39,9 @@ from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi 
 import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
 # seeds
 hiRegitLowPtTripletStepSeeds     = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepSeeds.clone(
-    RegionFactoryPSet = HiTrackingRegionFactoryFromJetsBlock.clone(),
+    RegionFactoryPSet = HiTrackingRegionFactoryFromJetsBlock.clone(
+	RegionPSet = dict(ptMin = 0.4)
+    ),
     ClusterCheckPSet = dict(doClusterCheck = False), # do not check for max number of clusters pixel or strips
     OrderedHitsFactoryPSet = dict(
 	SeedingLayers = 'hiRegitLowPtTripletStepSeedLayers',
@@ -47,9 +49,6 @@ hiRegitLowPtTripletStepSeeds     = RecoTracker.IterativeTracking.LowPtTripletSte
 	    SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor.clone()
 	),
     ),
-    RegionFactoryPSet = dict(
-	RegionPSet = dict(ptMin = 0.4)
-    )
 )
 
 # building: feed the new-named seeds

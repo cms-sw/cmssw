@@ -116,9 +116,9 @@ hiHighPtTripletStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.Trajecto
 
 import TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi
 hiHighPtTripletStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone(
-        ComponentName = 'hiHighPtTripletStepChi2Est',
-            nSigma  = 3.0,
-            MaxChi2 = 9.0# 30 for pp
+    ComponentName = 'hiHighPtTripletStepChi2Est',
+    nSigma  = 3.0,
+    MaxChi2 = 9.0# 30 for pp
 )
 
 

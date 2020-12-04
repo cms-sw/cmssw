@@ -34,12 +34,11 @@ hiRegitInitialStepClusters = cms.EDProducer("HITrackClusterRemover",
 
 # seeding
 hiRegitInitialStepSeeds     = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeeds.clone(
-    RegionFactoryPSet = HiTrackingRegionFactoryFromJetsBlock.clone(),
-    ClusterCheckPSet = dict(doClusterCheck = False), # do not check for max number of clusters pixel or strips
-    skipClusters = cms.InputTag('hiRegitInitialStepClusters')
-    RegionFactoryPSet = dict(
+    RegionFactoryPSet = HiTrackingRegionFactoryFromJetsBlock.clone(
 	RegionPSet = dict(ptMin = 1.2)
     ),
+    ClusterCheckPSet = dict(doClusterCheck = False), # do not check for max number of clusters pixel or strips
+    skipClusters = cms.InputTag('hiRegitInitialStepClusters')
 )
 # building: feed the new-named seeds
 hiRegitInitialStepTrajectoryFilter = RecoTracker.IterativeTracking.InitialStep_cff.initialStepTrajectoryFilterBase.clone()
