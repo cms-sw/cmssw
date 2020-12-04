@@ -1,5 +1,6 @@
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "SimFastTiming/FastTimingCommon/interface/ETLDeviceSim.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/ForwardDetId/interface/MTDDetId.h"
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
@@ -23,6 +24,8 @@ void ETLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
                                    const edm::Handle<edm::PSimHitContainer>& hits,
                                    mtd_digitizer::MTDSimHitDataAccumulator* simHitAccumulator,
                                    CLHEP::HepRandomEngine* hre) {
+  using namespace geant_units::operators;
+
   //loop over sorted hits
   const int nchits = hitRefs.size();
   for (int i = 0; i < nchits; ++i) {
@@ -50,13 +53,13 @@ void ETLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
 
     const float toa = std::get<2>(hitRefs[i]) + tofDelay_;
     const PSimHit& hit = hits->at(hitidx);
-    const float charge = 1000.f * hit.energyLoss() * MIPPerMeV_;
+    const float charge = convertGeVToMeV(hit.energyLoss()) * MIPPerMeV_;
 
     // calculate the simhit row and column
     const auto& pentry = hit.entryPoint();
     // ETL is already in module-local coordinates so just scale to cm from mm
-    Local3DPoint simscaled(0.1 * pentry.x(), 0.1 * pentry.y(), 0.1 * pentry.z());
-    const auto& thepixel = topo.pixel(simscaled);  // mm -> cm here is the switch
+    Local3DPoint simscaled(convertMmToCm(pentry.x()), convertMmToCm(pentry.y()), convertMmToCm(pentry.z()));
+    const auto& thepixel = topo.pixel(simscaled);
     const uint8_t row(thepixel.first), col(thepixel.second);
 
     auto simHitIt =
