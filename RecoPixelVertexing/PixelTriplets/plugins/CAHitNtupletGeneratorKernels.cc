@@ -171,7 +171,7 @@ void CAHitNtupletGeneratorKernelsCPU::classifyTuples(HitsOnCPU const &hh, TkSoA 
 
   // fill hit->track "map"
   kernel_countHitInTracks(tuples_d, quality_d, device_hitToTuple_.get());
-  cms::cuda::launchFinalize(device_hitToTuple_.get(), cudaStream);
+  cms::cuda::launchFinalize(hitToTupleView_, cudaStream);
   kernel_fillHitInTracks(tuples_d, quality_d, device_hitToTuple_.get());
 
   // remove duplicates (tracks that share a hit)
