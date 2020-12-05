@@ -15,7 +15,8 @@ namespace {
   class TfDnn {
   public:
     TfDnn(const edm::ParameterSet& cfg)
-        : tfDnnLabel_(cfg.getParameter<std::string>("tfDnnLabel"))
+        : tfDnnLabel_(cfg.getParameter<std::string>("tfDnnLabel")),
+        session_(nullptr)
 
     {}
 
