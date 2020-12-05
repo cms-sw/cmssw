@@ -2,6 +2,8 @@
 // Original Author: Felice Pantaleo, CERN
 //
 
+// #define GPU_DEBUG
+
 #include <array>
 #include <cassert>
 #include <functional>
@@ -174,11 +176,11 @@ PixelTrackHeterogeneous CAHitNtupletGeneratorOnGPU::makeTuplesAsync(TrackingRecH
   PixelTrackHeterogeneous tracks(cms::cuda::make_device_unique<pixelTrack::TrackSoA>(stream));
 
   auto* soa = tracks.get();
+  assert(soa);
 
   CAHitNtupletGeneratorKernelsGPU kernels(m_params);
   kernels.setCounters(m_counters);
-
-  kernels.allocateOnGPU(stream);
+  kernels.allocateOnGPU(hits_d.nHits(), stream);
 
   kernels.buildDoublets(hits_d, stream);
   kernels.launchKernels(hits_d, soa, stream);
@@ -193,6 +195,12 @@ PixelTrackHeterogeneous CAHitNtupletGeneratorOnGPU::makeTuplesAsync(TrackingRecH
   }
   kernels.classifyTuples(hits_d, soa, stream);
 
+#ifdef GPU_DEBUG
+  cudaDeviceSynchronize();
+  cudaCheck(cudaGetLastError());
+  std::cout << "finished building pixel tracks on GPU" << std::endl;
+#endif
+
   return tracks;
 }
 
@@ -204,7 +212,7 @@ PixelTrackHeterogeneous CAHitNtupletGeneratorOnGPU::makeTuples(TrackingRecHit2DC
 
   CAHitNtupletGeneratorKernelsCPU kernels(m_params);
   kernels.setCounters(m_counters);
-  kernels.allocateOnGPU(nullptr);
+  kernels.allocateOnGPU(hits_d.nHits(), nullptr);
 
   kernels.buildDoublets(hits_d, nullptr);
   kernels.launchKernels(hits_d, soa, nullptr);
@@ -224,6 +232,10 @@ PixelTrackHeterogeneous CAHitNtupletGeneratorOnGPU::makeTuples(TrackingRecHit2DC
   }
 
   kernels.classifyTuples(hits_d, soa, nullptr);
+
+#ifdef GPU_DEBUG
+  std::cout << "finished building pixel tracks on CPU" << std::endl;
+#endif
 
   return tracks;
 }
