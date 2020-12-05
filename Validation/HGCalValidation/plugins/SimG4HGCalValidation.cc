@@ -95,8 +95,7 @@ private:
   std::vector<double> hgchitX_, hgchitY_, hgchitZ_;
 };
 
-SimG4HGCalValidation::SimG4HGCalValidation(const edm::ParameterSet& p)
-    : levelT1_(999), levelT2_(999), count_(0) {
+SimG4HGCalValidation::SimG4HGCalValidation(const edm::ParameterSet& p) : levelT1_(999), levelT2_(999), count_(0) {
   edm::ParameterSet m_Anal = p.getParameter<edm::ParameterSet>("SimG4HGCalValidation");
   names_ = m_Anal.getParameter<std::vector<std::string> >("Names");
   types_ = m_Anal.getParameter<std::vector<int> >("Types");
@@ -253,36 +252,36 @@ void SimG4HGCalValidation::update(const G4Step* aStep) {
         unsigned int index(0);
         int layer(0);
         G4ThreeVector hitPoint = aStep->GetPreStepPoint()->GetPosition();
-	// HGCal
-	G4ThreeVector localpos = touchable->GetHistory()->GetTopTransform().TransformPoint(hitPoint);
-	float globalZ = touchable->GetTranslation(0).z();
-	int iz(globalZ > 0 ? 1 : -1);
-	int module(-1), cell(-1);
-	if (types_[type] == 1) {
-	  if (touchable->GetHistoryDepth() == levelT1_) {
-	    layer = touchable->GetReplicaNumber(0);
-	  } else {
-	    layer = touchable->GetReplicaNumber(2);
-	    module = touchable->GetReplicaNumber(1);
-	    cell = touchable->GetReplicaNumber(0);
-	  }
-	  index =
-	    hgcNumbering_[type]->getUnitID((ForwardSubdetector)(subdet_[type]), layer, module, cell, iz, localpos);
-	} else {
-	  if ((touchable->GetHistoryDepth() == levelT1_) || (touchable->GetHistoryDepth() == levelT2_)) {
-	    layer = touchable->GetReplicaNumber(0);
-	  } else {
-	    layer = touchable->GetReplicaNumber(3);
-	    module = touchable->GetReplicaNumber(2);
-	    cell = touchable->GetReplicaNumber(1);
-	  }
-	  double weight(0);
-	  index = hgcalNumbering_[type]->getUnitID(layer, module, cell, iz, hitPoint, weight);
-	}
-	if (verbosity_ > 1)
-	  edm::LogVerbatim("ValidHGCal")
-	    << "HGCal: " << name << " Layer " << layer << " Module " << module << " Cell " << cell;
-	
+        // HGCal
+        G4ThreeVector localpos = touchable->GetHistory()->GetTopTransform().TransformPoint(hitPoint);
+        float globalZ = touchable->GetTranslation(0).z();
+        int iz(globalZ > 0 ? 1 : -1);
+        int module(-1), cell(-1);
+        if (types_[type] == 1) {
+          if (touchable->GetHistoryDepth() == levelT1_) {
+            layer = touchable->GetReplicaNumber(0);
+          } else {
+            layer = touchable->GetReplicaNumber(2);
+            module = touchable->GetReplicaNumber(1);
+            cell = touchable->GetReplicaNumber(0);
+          }
+          index =
+              hgcNumbering_[type]->getUnitID((ForwardSubdetector)(subdet_[type]), layer, module, cell, iz, localpos);
+        } else {
+          if ((touchable->GetHistoryDepth() == levelT1_) || (touchable->GetHistoryDepth() == levelT2_)) {
+            layer = touchable->GetReplicaNumber(0);
+          } else {
+            layer = touchable->GetReplicaNumber(3);
+            module = touchable->GetReplicaNumber(2);
+            cell = touchable->GetReplicaNumber(1);
+          }
+          double weight(0);
+          index = hgcalNumbering_[type]->getUnitID(layer, module, cell, iz, hitPoint, weight);
+        }
+        if (verbosity_ > 1)
+          edm::LogVerbatim("ValidHGCal") << "HGCal: " << name << " Layer " << layer << " Module " << module << " Cell "
+                                         << cell;
+
         double edeposit = aStep->GetTotalEnergyDeposit();
         if (verbosity_ > 0)
           edm::LogVerbatim("ValidHGCal") << "Layer " << layer << " Index " << std::hex << index << std::dec << " Edep "
