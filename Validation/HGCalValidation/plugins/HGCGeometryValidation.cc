@@ -77,10 +77,11 @@ private:
 
 HGCGeometryValidation::HGCGeometryValidation(const edm::ParameterSet &cfg) {
   g4Token_ = consumes<PHGCalValidInfo>(cfg.getParameter<edm::InputTag>("g4Source"));
-  geometrySource_ = cfg.getUntrackedParameter<std::vector<std::string> >("geometrySource");
+  geometrySource_ = cfg.getUntrackedParameter<std::vector<std::string>>("geometrySource");
   verbosity_ = cfg.getUntrackedParameter<int>("verbosity", 0);
-  for (const auto& name : geometrySource_)
-    geomToken_.emplace_back(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name}));
+  for (const auto &name : geometrySource_)
+    geomToken_.emplace_back(
+        esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name}));
 }
 
 HGCGeometryValidation::~HGCGeometryValidation() {}
