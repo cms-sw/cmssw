@@ -72,8 +72,24 @@ from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_
 # Schedule rekeying of seed BDT ValueMaps by reco::GsfElectron for run2_miniAOD_UL
 from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
 from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronSeedValueMaps_cff import rekeyLowPtGsfElectronSeedValueMaps
-from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronID_cfi import lowPtGsfElectronID
+from RecoEgamma.EgammaElectronProducers.defaultLowPtGsfElectronID_cfi import defaultLowPtGsfElectronID
+run2_miniAOD_UL.toModify(
+    defaultLowPtGsfElectronID,
+    rho = "fixedGridRhoFastjetAll",
+    ModelNames = [''],
+    ModelWeights = ["RecoEgamma/ElectronIdentification/data/LowPtElectrons/LowPtElectrons_ID_2020Sept15.root"],
+    ModelThresholds = [-99.],
+    Version = "V1",
+)
+run2_miniAOD_UL.toModify(
+    patLowPtElectrons,
+    electronIDSources = dict(
+        unbiased = cms.InputTag("rekeyLowPtGsfElectronSeedValueMaps:unbiased"),
+        ptbiased = cms.InputTag("rekeyLowPtGsfElectronSeedValueMaps:ptbiased"),
+        ID       = cms.InputTag("defaultLowPtGsfElectronID"),
+    )
+)
 _makePatLowPtElectronsTask = makePatLowPtElectronsTask.copy()
 _makePatLowPtElectronsTask.add(rekeyLowPtGsfElectronSeedValueMaps)
-_makePatLowPtElectronsTask.add(lowPtGsfElectronID)
+_makePatLowPtElectronsTask.add(defaultLowPtGsfElectronID)
 run2_miniAOD_UL.toReplaceWith(makePatLowPtElectronsTask,_makePatLowPtElectronsTask)

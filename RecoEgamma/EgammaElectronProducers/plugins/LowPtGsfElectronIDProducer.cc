@@ -10,7 +10,7 @@
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "CommonTools/MVAUtils/interface/GBRForestTools.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
@@ -20,6 +20,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoEgamma/EgammaElectronProducers/interface/LowPtGsfElectronFeatures.h"
+#include "RecoEgamma/EgammaElectronProducers/interface/LowPtGsfElectronIDHeavyObjectCache.h"
 #include <string>
 #include <vector>
 
@@ -35,9 +36,9 @@ public:
 
 private:
   double eval(
-      const std::string& name, const edm::Ptr<reco::GsfElectron>&, double rho, float unbiased, float field_z) const;
+      const std::string& name, const reco::GsfElectronRef&, double rho, float unbiased, float field_z) const;
 
-  const edm::EDGetTokenT<edm::View<reco::GsfElectron> > electrons_;
+  const edm::EDGetTokenT<reco::GsfElectronCollection> electrons_;
   const edm::EDGetTokenT<double> rho_;
   const edm::EDGetTokenT<edm::ValueMap<float> > unbiased_;
   const std::vector<std::string> names_;
@@ -52,7 +53,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 //
 LowPtGsfElectronIDProducer::LowPtGsfElectronIDProducer(const edm::ParameterSet& conf)
-    : electrons_(consumes<edm::View<reco::GsfElectron> >(conf.getParameter<edm::InputTag>("electrons"))),
+    : electrons_(consumes<reco::GsfElectronCollection>(conf.getParameter<edm::InputTag>("electrons"))),
       rho_(consumes<double>(conf.getParameter<edm::InputTag>("rho"))),
       unbiased_(consumes<edm::ValueMap<float> >(conf.getParameter<edm::InputTag>("unbiased"))),
       names_(conf.getParameter<std::vector<std::string> >("ModelNames")),
@@ -72,7 +73,7 @@ LowPtGsfElectronIDProducer::LowPtGsfElectronIDProducer(const edm::ParameterSet& 
     throw cms::Exception("Incorrect configuration")
         << "'ModelWeights' size (" << models_.size() << ") != 'ModelThresholds' size (" << thresholds_.size() << ").\n";
   }
-  if (version_ != "V0" && version_ != "V1") {
+  if (version_ != "V0" && version_ != "V1" && version_ != "") {
     throw cms::Exception("Incorrect configuration") << "Unknown Version: " << version_ << "\n";
   }
   for (const auto& name : names_) {
@@ -98,7 +99,7 @@ void LowPtGsfElectronIDProducer::produce(edm::StreamID, edm::Event& event, const
   }
 
   // Retrieve GsfElectrons from Event
-  edm::Handle<edm::View<reco::GsfElectron> > electrons;
+  edm::Handle<reco::GsfElectronCollection> electrons;
   event.getByToken(electrons_, electrons);
   if (!electrons.isValid()) {
     std::ostringstream os;
@@ -116,7 +117,7 @@ void LowPtGsfElectronIDProducer::produce(edm::StreamID, edm::Event& event, const
     output.emplace_back(electrons->size(), -999.);
   }
   for (unsigned int iele = 0; iele < electrons->size(); iele++) {
-    edm::Ptr<reco::GsfElectron> ele(electrons, iele);
+    reco::GsfElectronRef ele(electrons, iele);
 
     if (ele->core().isNull()) {
       continue;
@@ -146,12 +147,16 @@ void LowPtGsfElectronIDProducer::produce(edm::StreamID, edm::Event& event, const
 //////////////////////////////////////////////////////////////////////////////////////////
 //
 double LowPtGsfElectronIDProducer::eval(
-    const std::string& name, const edm::Ptr<reco::GsfElectron>& ele, double rho, float unbiased, float field_z) const {
+    const std::string& name, const reco::GsfElectronRef& ele, double rho, float unbiased, float field_z) const {
   auto iter = std::find(names_.begin(), names_.end(), name);
   if (iter != names_.end()) {
     int index = std::distance(names_.begin(), iter);
     std::vector<float> inputs;
-    if (version_ == "V0") {
+    if (version_ == "") { // Original XML model
+      lowptgsfeleid::Features features;
+      features.set(ele,rho);
+      inputs = features.get();
+    } else if (version_ == "V0") {
       inputs = lowptgsfeleid::features_V0(*ele, rho, unbiased);
     } else if (version_ == "V1") {
       inputs = lowptgsfeleid::features_V1(*ele, rho, unbiased, field_z);
@@ -169,16 +174,15 @@ void LowPtGsfElectronIDProducer::fillDescriptions(edm::ConfigurationDescriptions
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("electrons", edm::InputTag("lowPtGsfElectrons"));
   desc.add<edm::InputTag>("unbiased", edm::InputTag("lowPtGsfElectronSeedValueMaps:unbiased"));
-  desc.add<edm::InputTag>("rho", edm::InputTag("fixedGridRhoFastjetAll"));
-  desc.add<std::vector<std::string> >("ModelNames", {""});
-  desc.add<std::vector<std::string> >(
-      "ModelWeights", {"RecoEgamma/ElectronIdentification/data/LowPtElectrons/LowPtElectrons_ID_2020Sept15.root"});
-  desc.add<std::vector<double> >("ModelThresholds", {-99.});
+  desc.add<edm::InputTag>("rho", edm::InputTag("fixedGridRhoFastjetAllTmp"));
+  desc.add<std::vector<std::string> >("ModelNames",std::vector<std::string>());
+  desc.add<std::vector<std::string> >("ModelWeights",std::vector<std::string>());
+  desc.add<std::vector<double> >("ModelThresholds",std::vector<double>());
   desc.add<bool>("PassThrough", false);
   desc.add<double>("MinPtThreshold", 0.5);
   desc.add<double>("MaxPtThreshold", 15.);
-  desc.add<std::string>("Version", "V1");
-  descriptions.add("lowPtGsfElectronID", desc);
+  desc.add<std::string>("Version", "");
+  descriptions.add("defaultLowPtGsfElectronID",desc);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
