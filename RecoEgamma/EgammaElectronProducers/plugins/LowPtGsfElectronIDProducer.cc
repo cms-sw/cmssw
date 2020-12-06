@@ -35,8 +35,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
-  double eval(
-      const std::string& name, const reco::GsfElectronRef&, double rho, float unbiased, float field_z) const;
+  double eval(const std::string& name, const reco::GsfElectronRef&, double rho, float unbiased, float field_z) const;
 
   const edm::EDGetTokenT<reco::GsfElectronCollection> electrons_;
   const edm::EDGetTokenT<double> rho_;
@@ -73,7 +72,7 @@ LowPtGsfElectronIDProducer::LowPtGsfElectronIDProducer(const edm::ParameterSet& 
     throw cms::Exception("Incorrect configuration")
         << "'ModelWeights' size (" << models_.size() << ") != 'ModelThresholds' size (" << thresholds_.size() << ").\n";
   }
-  if (version_ != "V0" && version_ != "V1" && version_ != "") {
+  if (version_ != "V0" && version_ != "V1" && !version_.empty()) {
     throw cms::Exception("Incorrect configuration") << "Unknown Version: " << version_ << "\n";
   }
   for (const auto& name : names_) {
@@ -152,9 +151,9 @@ double LowPtGsfElectronIDProducer::eval(
   if (iter != names_.end()) {
     int index = std::distance(names_.begin(), iter);
     std::vector<float> inputs;
-    if (version_ == "") { // Original XML model
+    if (version_.empty()) {  // Original XML model
       lowptgsfeleid::Features features;
-      features.set(ele,rho);
+      features.set(ele, rho);
       inputs = features.get();
     } else if (version_ == "V0") {
       inputs = lowptgsfeleid::features_V0(*ele, rho, unbiased);
@@ -175,14 +174,14 @@ void LowPtGsfElectronIDProducer::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<edm::InputTag>("electrons", edm::InputTag("lowPtGsfElectrons"));
   desc.add<edm::InputTag>("unbiased", edm::InputTag("lowPtGsfElectronSeedValueMaps:unbiased"));
   desc.add<edm::InputTag>("rho", edm::InputTag("fixedGridRhoFastjetAllTmp"));
-  desc.add<std::vector<std::string> >("ModelNames",std::vector<std::string>());
-  desc.add<std::vector<std::string> >("ModelWeights",std::vector<std::string>());
-  desc.add<std::vector<double> >("ModelThresholds",std::vector<double>());
+  desc.add<std::vector<std::string> >("ModelNames", std::vector<std::string>());
+  desc.add<std::vector<std::string> >("ModelWeights", std::vector<std::string>());
+  desc.add<std::vector<double> >("ModelThresholds", std::vector<double>());
   desc.add<bool>("PassThrough", false);
   desc.add<double>("MinPtThreshold", 0.5);
   desc.add<double>("MaxPtThreshold", 15.);
   desc.add<std::string>("Version", "");
-  descriptions.add("defaultLowPtGsfElectronID",desc);
+  descriptions.add("defaultLowPtGsfElectronID", desc);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
