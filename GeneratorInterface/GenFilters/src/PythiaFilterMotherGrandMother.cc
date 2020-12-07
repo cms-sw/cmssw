@@ -85,7 +85,7 @@ bool PythiaFilterMotherGrandMother::filter(edm::StreamID, edm::Event& iEvent, co
          //std::cout << "found good mother" << std::endl;  
          // find grandmother
          HepMC::GenParticle* grandMother = (*(mother->production_vertex()->particles_in_const_begin()));
-         std::cout << "grandmother id " << grandMother->pdg_id() << std::endl;
+         //std::cout << "grandmother id " << grandMother->pdg_id() << std::endl;
          for (auto grandMotherID : grandMotherIDs){
            if(abs(grandMother->pdg_id()) == abs(grandMotherID)){
              //std::cout << "found good grandmother" << std::endl;
