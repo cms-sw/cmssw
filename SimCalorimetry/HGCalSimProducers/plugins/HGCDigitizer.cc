@@ -263,7 +263,7 @@ HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector& 
     std::vector<float>().swap(cce_);
   }
 
-  auto const & pluginName = ps.getParameter<std::string>("digitizer");
+  auto const& pluginName = ps.getParameter<std::string>("digitizer");
   theDigitizer_ = HGCDigitizerPluginFactory::get()->create(pluginName, ps);
 }
 
@@ -309,7 +309,8 @@ void HGCDigitizer::finalizeEvent(edm::Event& e, edm::EventSetup const& es, CLHEP
     auto digiResult = std::make_unique<HGCalDigiCollection>();
     theDigitizer_->run(digiResult, *simHitAccumulator_, theGeom, validIds_, digitizationType_, hre);
     edm::LogVerbatim("HGCDigitizer") << "HGCDigitizer:: finalize event - produced " << digiResult->size()
-                                       << " hits in det/subdet " << theDigitizer_->det() << "/" << theDigitizer_->subdet();
+                                     << " hits in det/subdet " << theDigitizer_->det() << "/"
+                                     << theDigitizer_->subdet();
 #ifdef EDM_ML_DEBUG
     checkPosition(&(*digiResult));
 #endif
@@ -459,11 +460,10 @@ void HGCDigitizer::accumulate_forPreMix(edm::Handle<edm::PCaloHitContainer> cons
         std::get<1>(PhitRefs_bx0[id].back()) += charge;
       } else {
         //find position to insert new entry preserving time sorting
-        auto findPos =
-            std::upper_bound(PhitRefs_bx0[id].begin(),
-                             PhitRefs_bx0[id].end(),
-                             hit_timeStamp(charge, 0.f, tof),
-                             [](const auto& i, const auto& j) { return std::get<2>(i) <= std::get<2>(j); });
+        auto findPos = std::upper_bound(PhitRefs_bx0[id].begin(),
+                                        PhitRefs_bx0[id].end(),
+                                        hit_timeStamp(charge, 0.f, tof),
+                                        [](const auto& i, const auto& j) { return std::get<2>(i) <= std::get<2>(j); });
 
         auto insertedPos = findPos;
 
@@ -544,8 +544,8 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const& hits,
     DetId id = simToReco(geom, the_hit.id());
 
     if (verbosity_ > 0) {
-        edm::LogVerbatim("HGCDigitizer") << "HGCDigitizer::i/p " << std::hex << the_hit.id() << " o/p " << id.rawId()
-                                         << std::dec;
+      edm::LogVerbatim("HGCDigitizer") << "HGCDigitizer::i/p " << std::hex << the_hit.id() << " o/p " << id.rawId()
+                                       << std::dec;
     }
 
     if (0 != id.rawId()) {
@@ -698,8 +698,8 @@ void HGCDigitizer::beginRun(const edm::EventSetup& es) {
 
   gHGCal_ = nullptr;
 
-  gHGCal_ = dynamic_cast<const HGCalGeometry*>(
-      geom->getSubdetectorGeometry(theDigitizer_->det(), theDigitizer_->subdet()));
+  gHGCal_ =
+      dynamic_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(theDigitizer_->det(), theDigitizer_->subdet()));
 
   int nadded(0);
   //valid ID lists
@@ -727,22 +727,22 @@ void HGCDigitizer::resetSimHitDataAccumulator() {
 
 uint32_t HGCDigitizer::getType() const {
   uint32_t idx = std::numeric_limits<unsigned>::max();
-    switch (theDigitizer_->det()) {
-      case DetId::HGCalEE:
-        idx = 0;
-        break;
-      case DetId::HGCalHSi:
-        idx = 1;
-        break;
-      case DetId::HGCalHSc:
-        idx = 2;
-        break;
-      case DetId::Forward:
-        idx = 3;
-        break;
-      default:
-        break;
-    }
+  switch (theDigitizer_->det()) {
+    case DetId::HGCalEE:
+      idx = 0;
+      break;
+    case DetId::HGCalHSi:
+      idx = 1;
+      break;
+    case DetId::HGCalHSc:
+      idx = 2;
+      break;
+    case DetId::Forward:
+      idx = 3;
+      break;
+    default:
+      break;
+  }
   return idx;
 }
 
@@ -785,4 +785,3 @@ void HGCDigitizer::checkPosition(const HGCalDigiCollection* digis) const {
     }
   }
 }
-
