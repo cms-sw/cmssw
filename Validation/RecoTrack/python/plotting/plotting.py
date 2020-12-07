@@ -2414,16 +2414,6 @@ class PlotGroup(object):
         width = 500
         height = 500
 
-        canvas = _createCanvas(self._name+"Single", width, height)
-        canvasRatio = _createCanvas(self._name+"SingleRatio", width, int(height*self._ratioFactor))
-
-        # from TDRStyle
-        for c in [canvas, canvasRatio]:
-            c.SetTopMargin(0.05)
-            c.SetBottomMargin(0.13)
-            c.SetLeftMargin(0.16)
-            c.SetRightMargin(0.05)
-
         lx1def = 0.6
         lx2def = 0.95
         ly1def = 0.85
@@ -2434,6 +2424,16 @@ class PlotGroup(object):
         for plot in self._plots:
             if plot.isEmpty():
                 continue
+
+            canvas = _createCanvas(self._name+"Single", width, height)
+            canvasRatio = _createCanvas(self._name+"SingleRatio", width, int(height*self._ratioFactor))
+
+            # from TDRStyle
+            for c in [canvas, canvasRatio]:
+                c.SetTopMargin(0.05)
+                c.SetBottomMargin(0.13)
+                c.SetLeftMargin(0.16)
+                c.SetRightMargin(0.05)
 
             ratioForThisPlot = plot.isRatio(ratio)
             c = canvas
