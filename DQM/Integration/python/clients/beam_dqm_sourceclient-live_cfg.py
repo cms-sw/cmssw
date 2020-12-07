@@ -35,12 +35,6 @@ if 'unitTest=True' in sys.argv:
     live=False
     unitTest=True
 
-# Switch to veto the upload of the BeamSpot conditions to the DB
-# when False it performs the upload
-noDB = True
-if 'noDB=False' in sys.argv:
-    noDB=False
-
 #---------------
 # Input sources
 if unitTest:
@@ -359,38 +353,58 @@ process.dqmBeamMonitor.hltResults = cms.InputTag("TriggerResults","","HLT")
 
 #---------
 # Upload BeamSpotOnlineObject (LegacyRcd) to CondDB
-process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
+if unitTest == False:
+    process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
 
-    DBParameters = cms.PSet(
-                            messageLevel = cms.untracked.int32(0),
-                            authenticationPath = cms.untracked.string('.')
-                           ),
+        DBParameters = cms.PSet(
+                                messageLevel = cms.untracked.int32(0),
+                                authenticationPath = cms.untracked.string('.')
+                            ),
 
-    # Upload to CondDB
-    connect = cms.string('oracle://cms_orcoff_prep/CMS_CONDITIONS'),
-    preLoadConnectionString = cms.untracked.string('frontier://FrontierPrep/CMS_CONDITIONS'),
+        # Upload to CondDB
+        connect = cms.string('oracle://cms_orcon_prod/CMS_CONDITIONS'),
+        preLoadConnectionString = cms.untracked.string('frontier://FrontierProd/CMS_CONDITIONS'),
 
-    runNumber = cms.untracked.uint64(options.runNumber),
-    #lastLumiFile = cms.untracked.string('last_lumi.txt'),
-    omsServiceUrl = cms.untracked.string('http://cmsoms-services.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'),
-    writeTransactionDelay = cms.untracked.uint32(options.transDelay),
-    latency = cms.untracked.uint32(2),
-    autoCommit = cms.untracked.bool(True),
-    saveLogsOnDB = cms.untracked.bool(True),
-    jobName = cms.untracked.string(BSOnlineJobName), # name of the DB log record
-    toPut = cms.VPSet(cms.PSet(
-        record = cms.string(BSOnlineRecordName),
-        tag = cms.string(BSOnlineTag),
-        timetype = cms.untracked.string('Lumi'),
-        onlyAppendUpdatePolicy = cms.untracked.bool(True)
-    ))
-)
+        runNumber = cms.untracked.uint64(options.runNumber),
+        #lastLumiFile = cms.untracked.string('last_lumi.txt'),
+        #lastLumiUrl = cms.untracked.string('http://ru-c2e14-11-01.cms:11100/urn:xdaq-application:lid=52/getLatestLumiSection'),
+        omsServiceUrl = cms.untracked.string('http://cmsoms-services.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'),
+        writeTransactionDelay = cms.untracked.uint32(options.transDelay),
+        latency = cms.untracked.uint32(2),
+        autoCommit = cms.untracked.bool(True),
+        saveLogsOnDB = cms.untracked.bool(True),
+        jobName = cms.untracked.string(BSOnlineJobName), # name of the DB log record
+        toPut = cms.VPSet(cms.PSet(
+            record = cms.string(BSOnlineRecordName),
+            tag = cms.string(BSOnlineTag),
+            timetype = cms.untracked.string('Lumi'),
+            onlyAppendUpdatePolicy = cms.untracked.bool(True)
+        ))
+    )
+else:
+    process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
 
-# If not live or noDB: produce a (local) SQLITE file
-if not live or noDB:
-    process.OnlineDBOutputService.connect = cms.string('sqlite_file:BeamSpotOnlineLegacy.db')
-    process.OnlineDBOutputService.preLoadConnectionString = cms.untracked.string('sqlite_file:BeamSpotOnlineLegacy.db')
-    process.OnlineDBOutputService.saveLogsOnDB = cms.untracked.bool(False)
+        DBParameters = cms.PSet(
+                                messageLevel = cms.untracked.int32(0),
+                                authenticationPath = cms.untracked.string('.')
+                            ),
+
+        # Upload to CondDB
+        connect = cms.string('sqlite_file:BeamSpotOnlineLegacy.db'),
+        preLoadConnectionString = cms.untracked.string('sqlite_file:BeamSpotOnlineLegacy.db'),
+        runNumber = cms.untracked.uint64(options.runNumber),
+        lastLumiFile = cms.untracked.string('last_lumi.txt'),
+        #lastLumiUrl = cms.untracked.string('http://ru-c2e14-11-01.cms:11100/urn:xdaq-application:lid=52/getLatestLumiSection'),
+        writeTransactionDelay = cms.untracked.uint32(options.transDelay),
+        latency = cms.untracked.uint32(2),
+        autoCommit = cms.untracked.bool(True),
+        toPut = cms.VPSet(cms.PSet(
+            record = cms.string(BSOnlineRecordName),
+            tag = cms.string(BSOnlineTag),
+            timetype = cms.untracked.string('Lumi'),
+            onlyAppendUpdatePolicy = cms.untracked.bool(True)
+        ))
+    )
 
 #---------
 # Final path
