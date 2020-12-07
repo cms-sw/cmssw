@@ -3,23 +3,35 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "Geometry/GEMGeometryBuilder/src/GEMGeometryParsFromDD.h"
 #include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "Geometry/Records/interface/GEMRecoGeometryRcd.h"
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+
 
 class GEMRecoIdealDBLoader : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
-  GEMRecoIdealDBLoader(const edm::ParameterSet&) {}
+  GEMRecoIdealDBLoader(const edm::ParameterSet&); 
 
   void beginRun(edm::Run const& iEvent, edm::EventSetup const&) override;
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override {}
   void endRun(edm::Run const& iEvent, edm::EventSetup const&) override {}
+
+private:
+  bool fromDD4Hep_;
 };
+
+GEMRecoIdealDBLoader::GEMRecoIdealDBLoader(const edm::ParameterSet& iC) {
+  fromDD4Hep_ = iC.getUntrackedParameter<bool>("fromDD4Hep", false);
+}
 
 void GEMRecoIdealDBLoader::beginRun(const edm::Run&, edm::EventSetup const& es) {
   edm::LogInfo("GEMRecoIdealDBLoader") << "GEMRecoIdealDBLoader::beginRun";
@@ -31,17 +43,24 @@ void GEMRecoIdealDBLoader::beginRun(const edm::Run&, edm::EventSetup const& es) 
   }
 
   if (mydbservice->isNewTagRequest("GEMRecoGeometryRcd")) {
-    edm::ESTransientHandle<DDCompactView> pDD;
+   
     edm::ESHandle<MuonGeometryConstants> pMNDC;
-    es.get<IdealGeometryRecord>().get(pDD);
-    es.get<IdealGeometryRecord>().get(pMNDC);
-
-    const DDCompactView& cpv = *pDD;
     GEMGeometryParsFromDD rpcpd;
-
     RecoIdealGeometry* rig = new RecoIdealGeometry;
-    rpcpd.build(&cpv, *pMNDC, *rig);
 
+    if (fromDD4Hep_) {
+      edm::ESTransientHandle<cms::DDCompactView> pDD;
+      es.get<IdealGeometryRecord>().get(pDD);
+      es.get<IdealGeometryRecord>().get(pMNDC);
+      const cms::DDCompactView& cpv = *pDD;
+      // rpcpd.build(&cpv, *pMNDC, *rig); // to be fixed
+    } else {
+      edm::ESTransientHandle<DDCompactView> pDD;
+      es.get<IdealGeometryRecord>().get(pDD);
+      es.get<IdealGeometryRecord>().get(pMNDC);
+      const DDCompactView& cpv = *pDD;
+      rpcpd.build(&cpv, *pMNDC, *rig);
+    }
     mydbservice->createNewIOV<RecoIdealGeometry>(
         rig, mydbservice->beginOfTime(), mydbservice->endOfTime(), "GEMRecoGeometryRcd");
   } else {
