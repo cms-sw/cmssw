@@ -42,7 +42,7 @@ phase2_hgcal.toReplaceWith(
 )
 
 from SimTracker.TrackAssociation.trackTimeValueMapProducer_cfi import trackTimeValueMapProducer
-gsfTrackTimeValueMapProducer = trackTimeValueMapProducer.clone(trackSrc = cms.InputTag('electronGsfTracks'))
+gsfTrackTimeValueMapProducer = trackTimeValueMapProducer.clone(trackSrc = 'electronGsfTracks')
 
 electronGsfTrackingWithTimingTask = cms.Task(electronGsfTrackingTask.copy(),gsfTrackTimeValueMapProducer)
 electronGsfTrackingWithTiming = cms.Sequence(electronGsfTrackingWithTimingTask)
