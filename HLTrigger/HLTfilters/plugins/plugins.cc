@@ -39,6 +39,14 @@ using namespace trigger;
 #include "HLTSinglet.h"
 #include "HLTSinglet.cc"
 
+#include "L1TkEleFilter.h"
+#include "L1TkEmFilter.h"
+#include "L1TkMuonFilter.h"
+#include "L1PFTauFilter.h"
+#include "L1HPSPFTauFilter.h"
+#include "L1JetFilterT.h"
+#include "L1EnergySumFilterT.h"
+
 // filter for HLT candidates
 typedef HLTSinglet<RecoEcalCandidate> HLT1Photon;
 typedef HLTSinglet<Electron> HLT1Electron;
@@ -61,6 +69,12 @@ typedef HLTSinglet<l1extra::L1EtMissParticle>
 typedef HLTSinglet<l1extra::L1JetParticle>
     HLTLevel1Jet;  // the actual type is ovrridden object-by-object (TriggerL1CenJet, TriggerL1ForJet or TriggerL1TauJet)
 typedef HLTSinglet<l1extra::L1MuonParticle> HLTLevel1Muon;
+
+// filters for Phase-2
+typedef L1JetFilterT<reco::CaloJet> L1JetFilter;
+typedef L1JetFilterT<l1t::PFJet> L1PFJetFilter;
+typedef L1EnergySumFilterT<reco::MET> L1EnergySumFilter;
+typedef L1EnergySumFilterT<reco::PFMET> L1PFEnergySumFilter;
 
 #include "HLTSmartSinglet.h"
 #include "HLTSmartSinglet.cc"
@@ -156,6 +170,18 @@ DEFINE_FWK_MODULE(HLTLevel1EG);
 DEFINE_FWK_MODULE(HLTLevel1MET);
 DEFINE_FWK_MODULE(HLTLevel1Jet);
 DEFINE_FWK_MODULE(HLTLevel1Muon);
+
+// Phase-2
+DEFINE_FWK_MODULE(L1TkEleFilter);
+DEFINE_FWK_MODULE(L1TkEmFilter);
+DEFINE_FWK_MODULE(L1TkMuonFilter);
+DEFINE_FWK_MODULE(L1PFTauFilter);
+DEFINE_FWK_MODULE(L1HPSPFTauFilter);
+DEFINE_FWK_MODULE(L1JetFilter);
+DEFINE_FWK_MODULE(L1PFJetFilter);
+DEFINE_FWK_MODULE(L1EnergySumFilter);
+DEFINE_FWK_MODULE(L1PFEnergySumFilter);
+
 
 DEFINE_FWK_MODULE(HLTGlobalSumsPFMET);
 DEFINE_FWK_MODULE(HLTGlobalSumsCaloMET);
