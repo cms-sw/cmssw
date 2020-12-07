@@ -1424,7 +1424,7 @@ void FakeBeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, 
       onlineDbService_->logger().logError() << "Error is: " << e.what();
       onlineDbService_->logger().logError() << "RESULTS OF DEFAULT FIT WAS:";
       onlineDbService_->logger().logError() << "\n" << bs;
-      DBloggerReturn_ = -1;
+      DBloggerReturn_ = 2;
     }
   }
   edm::LogInfo("FakeBeamMonitor") << "FitAndFill::[PayloadCreation] BeamSpotOnline payload created \n" << std::endl;
