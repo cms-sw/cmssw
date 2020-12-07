@@ -175,7 +175,8 @@ if (process.runType.getRunType() == process.runType.pp_run or
         preLoadConnectionString = cms.untracked.string('frontier://FrontierPrep/CMS_CONDITIONS'),
 
         runNumber = cms.untracked.uint64(options.runNumber),
-        lastLumiFile = cms.untracked.string(''),
+        #lastLumiFile = cms.untracked.string('last_lumi.txt'),
+        omsServiceUrl = cms.untracked.string('http://cmsoms-services.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'),
         writeTransactionDelay = cms.untracked.uint32(options.transDelay),
         latency = cms.untracked.uint32(2),
         autoCommit = cms.untracked.bool(True),
