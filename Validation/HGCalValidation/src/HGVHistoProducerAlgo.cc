@@ -236,7 +236,7 @@ void HGVHistoProducerAlgo::bookCaloParticleHistos(DQMStore::IBooker& ibook, Hist
                    0.,
                    10.);
   histograms.h_caloparticle_sum_energy_layer[pdgid] = 
-      ibook.book2D("Rec-matched Hits Rescaled Sum Energy vs layer",
+      ibook.book2D("Rec-matched Hits Sum Energy vs layer",
                    "Rescaled Sum Energy of Hits in Sim Clusters (matched) vs layer",
                    2 * layers,
                    0.,

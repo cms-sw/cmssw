@@ -2033,9 +2033,9 @@ _common_Calo = {"stat": False, "drawStyle": "hist", "staty": 0.65, "ymin": 0.0, 
 hgcalCaloParticlesPlotter = Plotter()
 def append_hgcalCaloParticlesPlots(files, collection = '-211', name_collection = "pion-"):
 
-  list_2D_histos = ["caloparticle_nHits_matched_layer",
-                    "caloparticle_nHits_matched_layer_1SimCl",
-                    "caloparticle_sum_energy_layer"]
+  list_2D_histos = ["Energy of Rec-matched Hits vs layer",
+                    "Energy of Rec-matched Hits vs layer (1SC)",
+                    "Rec-matched Hits Sum Energy vs layer"]
 
   dqmfolder = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/SelectedCaloParticles/" + collection
   print(dqmfolder)
