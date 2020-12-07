@@ -2,8 +2,9 @@
 #include "L1Trigger/TrackFindingTracklet/interface/Tracklet.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Stub.h"
 #include "L1Trigger/TrackFindingTracklet/interface/L1TStub.h"
-#include <iomanip>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <iomanip>
+#include <filesystem>
 
 using namespace std;
 using namespace trklet;
@@ -39,17 +40,25 @@ void FullMatchMemory::addMatch(Tracklet* tracklet, const Stub* stub) {
 }
 
 void FullMatchMemory::writeMC(bool first) {
+  const string dirM = settings_.memPath() + "Matches/";
+
   std::ostringstream oss;
-  oss << "../data/MemPrints/Matches/FullMatches_" << getName() << "_" << std::setfill('0') << std::setw(2)
-      << (iSector_ + 1) << ".dat";
+  oss << dirM << "FullMatches_" << getName() << "_" << std::setfill('0') << std::setw(2) << (iSector_ + 1) << ".dat";
   auto const& fname = oss.str();
 
   if (first) {
     bx_ = 0;
     event_ = 1;
-    out_.open(fname.c_str());
+
+    if (not std::filesystem::exists(dirM)) {
+      system((string("mkdir -p ") + dirM).c_str());
+    }
+    out_.open(fname);
+    if (out_.fail())
+      throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << fname;
+
   } else
-    out_.open(fname.c_str(), std::ofstream::app);
+    out_.open(fname, std::ofstream::app);
 
   out_ << "BX = " << (bitset<3>)bx_ << " Event : " << event_ << endl;
 

@@ -4,6 +4,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include <filesystem>
+
 using namespace std;
 using namespace trklet;
 
@@ -357,7 +359,15 @@ void TrackDerTable::fillTable() {
   }
 
   if (settings_.writeTable()) {
-    ofstream outL(settings_.tablePath() + "FitDerTableNew_LayerMem.tab");
+    if (not std::filesystem::exists(settings_.tablePath())) {
+      system((string("mkdir -p ") + settings_.tablePath()).c_str());
+    }
+
+    const string fnameL = settings_.tablePath() + "FitDerTableNew_LayerMem.tab";
+    ofstream outL(fnameL);
+    if (outL.fail())
+      throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << fnameL;
+
     for (unsigned int i = 0; i < LayerMem_.size(); i++) {
       FPGAWord tmp;
       int tmp1 = LayerMem_[i];
@@ -369,7 +379,11 @@ void TrackDerTable::fillTable() {
     }
     outL.close();
 
-    ofstream outD(settings_.tablePath() + "FitDerTableNew_DiskMem.tab");
+    const string fnameD = settings_.tablePath() + "FitDerTableNew_DiskMem.tab";
+    ofstream outD(fnameD);
+    if (outD.fail())
+      throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << fnameD;
+
     for (int tmp1 : DiskMem_) {
       if (tmp1 < 0)
         tmp1 = (1 << 7) - 1;
@@ -379,7 +393,11 @@ void TrackDerTable::fillTable() {
     }
     outD.close();
 
-    ofstream outLD(settings_.tablePath() + "FitDerTableNew_LayerDiskMem.tab");
+    const string fnameLD = settings_.tablePath() + "FitDerTableNew_LayerDiskMem.tab";
+    ofstream outLD(fnameLD);
+    if (outLD.fail())
+      throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << fnameLD;
+
     for (int tmp1 : LayerDiskMem_) {
       if (tmp1 < 0)
         tmp1 = (1 << 15) - 1;
@@ -396,52 +414,69 @@ void TrackDerTable::fillTable() {
     const string prefix = settings_.tablePath() + "FitDerTableNew_";
 
     // open files for derivative tables
+
     ofstream outrinvdphi[N_TRKLSEED];
     for (unsigned int i = 0; i < N_TRKLSEED; ++i) {
       const string fname = prefix + "Rinvdphi_" + seedings[i] + ".tab";
-      outrinvdphi[i].open(fname.c_str());
+      outrinvdphi[i].open(fname);
+      if (outrinvdphi[i].fail())
+        throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << fname;
     }
 
     ofstream outrinvdzordr[N_TRKLSEED];
     for (unsigned int i = 0; i < N_TRKLSEED; ++i) {
       const string fname = prefix + "Rinvdzordr_" + seedings[i] + ".tab";
-      outrinvdzordr[i].open(fname.c_str());
+      outrinvdzordr[i].open(fname);
+      if (outrinvdzordr[i].fail())
+        throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << fname;
     }
 
     ofstream outphi0dphi[N_TRKLSEED];
     for (unsigned int i = 0; i < N_TRKLSEED; ++i) {
       const string fname = prefix + "Phi0dphi_" + seedings[i] + ".tab";
-      outphi0dphi[i].open(fname.c_str());
+      outphi0dphi[i].open(fname);
+      if (outphi0dphi[i].fail())
+        throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << fname;
     }
 
     ofstream outphi0dzordr[N_TRKLSEED];
     for (unsigned int i = 0; i < N_TRKLSEED; ++i) {
       const string fname = prefix + "Phi0dzordr_" + seedings[i] + ".tab";
-      outphi0dzordr[i].open(fname.c_str());
+      outphi0dzordr[i].open(fname);
+      if (outphi0dzordr[i].fail())
+        throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << fname;
     }
 
     ofstream outtdphi[N_TRKLSEED];
     for (unsigned int i = 0; i < N_TRKLSEED; ++i) {
       const string fname = prefix + "Tdphi_" + seedings[i] + ".tab";
-      outtdphi[i].open(fname.c_str());
+      outtdphi[i].open(fname);
+      if (outtdphi[i].fail())
+        throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << fname;
     }
 
     ofstream outtdzordr[N_TRKLSEED];
     for (unsigned int i = 0; i < N_TRKLSEED; ++i) {
       const string fname = prefix + "Tdzordr_" + seedings[i] + ".tab";
-      outtdzordr[i].open(fname.c_str());
+      outtdzordr[i].open(fname);
+      if (outtdzordr[i].fail())
+        throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << fname;
     }
 
     ofstream outz0dphi[N_TRKLSEED];
     for (unsigned int i = 0; i < N_TRKLSEED; ++i) {
       const string fname = prefix + "Z0dphi_" + seedings[i] + ".tab";
-      outz0dphi[i].open(fname.c_str());
+      outz0dphi[i].open(fname);
+      if (outz0dphi[i].fail())
+        throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << fname;
     }
 
     ofstream outz0dzordr[N_TRKLSEED];
     for (unsigned int i = 0; i < N_TRKLSEED; ++i) {
       string fname = prefix + "Z0dzordr_" + seedings[i] + ".tab";
-      outz0dzordr[i].open(fname.c_str());
+      outz0dzordr[i].open(fname);
+      if (outz0dzordr[i].fail())
+        throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << fname;
     }
 
     for (auto& der : derivatives_) {

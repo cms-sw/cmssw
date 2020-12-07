@@ -2,6 +2,8 @@
 #include "L1Trigger/TrackFindingTracklet/interface/Settings.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Util.h"
 
+#include <filesystem>
+
 using namespace std;
 using namespace trklet;
 
@@ -31,6 +33,10 @@ void VMRouterPhiCorrTable::init(int layer, int bendbits, int rbits) {
   }
 
   if (settings_.writeTable()) {
+    if (not std::filesystem::exists(settings_.tablePath())) {
+      system((string("mkdir -p ") + settings_.tablePath()).c_str());
+    }
+
     writeVMTable(settings_.tablePath() + "VMPhiCorrL" + std::to_string(layer_) + ".tab", false);
   }
 }

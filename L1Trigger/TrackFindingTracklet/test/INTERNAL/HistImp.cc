@@ -6,29 +6,29 @@ using namespace std;
 using namespace trklet;
 
 HistImp::HistImp() {
-  h_file_ = 0;
-  h_layerresid_phi_L3_L1L2_ = 0;
-  h_layerresid_phi_L3_L1L2_match_ = 0;
-  h_layerresid_phif_L3_L1L2_ = 0;
-  h_layerresid_phif_L3_L1L2_match_ = 0;
-  h_layerresid_z_L3_L1L2_ = 0;
-  h_layerresid_z_L3_L1L2_match_ = 0;
-  h_layerresid_zf_L3_L1L2_ = 0;
-  h_layerresid_zf_L3_L1L2_match_ = 0;
+  h_file_ = nullptr;
+  h_layerresid_phi_L3_L1L2_ = nullptr;
+  h_layerresid_phi_L3_L1L2_match_ = nullptr;
+  h_layerresid_phif_L3_L1L2_ = nullptr;
+  h_layerresid_phif_L3_L1L2_match_ = nullptr;
+  h_layerresid_z_L3_L1L2_ = nullptr;
+  h_layerresid_z_L3_L1L2_match_ = nullptr;
+  h_layerresid_zf_L3_L1L2_ = nullptr;
+  h_layerresid_zf_L3_L1L2_match_ = nullptr;
 
-  h_diskresid_phi_D1_L1L2_ = 0;
-  h_diskresid_phi_D1_L1L2_match_ = 0;
-  h_diskresid_phif_D1_L1L2_ = 0;
-  h_diskresid_phif_D1_L1L2_match_ = 0;
-  h_diskresid_r_D1_L1L2_ = 0;
-  h_diskresid_r_D1_L1L2_match_ = 0;
-  h_diskresid_rf_D1_L1L2_ = 0;
-  h_diskresid_rf_D1_L1L2_match_ = 0;
+  h_diskresid_phi_D1_L1L2_ = nullptr;
+  h_diskresid_phi_D1_L1L2_match_ = nullptr;
+  h_diskresid_phif_D1_L1L2_ = nullptr;
+  h_diskresid_phif_D1_L1L2_match_ = nullptr;
+  h_diskresid_r_D1_L1L2_ = nullptr;
+  h_diskresid_r_D1_L1L2_match_ = nullptr;
+  h_diskresid_rf_D1_L1L2_ = nullptr;
+  h_diskresid_rf_D1_L1L2_match_ = nullptr;
 
-  h_rinv_L1L2_ = 0;
-  h_irinv_L1L2_ = 0;
-  h_rinvres_L1L2_ = 0;
-  h_irinvres_L1L2_ = 0;
+  h_rinv_L1L2_ = nullptr;
+  h_irinv_L1L2_ = nullptr;
+  h_rinvres_L1L2_ = nullptr;
+  h_irinvres_L1L2_ = nullptr;
 }
 
 void HistImp::open() { h_file_ = new TFile("fpgahist.root", "RECREATE"); }
@@ -37,14 +37,14 @@ void HistImp::close() {
   if (h_file_) {
     h_file_->Write();
     h_file_->Close();
-    h_file_ = 0;
+    h_file_ = nullptr;
   }
 }
 
 void HistImp::bookLayerResidual() {
   TH1::AddDirectory(kTRUE);
 
-  assert(h_file_ != 0);
+  assert(h_file_ != nullptr);
   h_file_->cd();
 
   h_layerresid_phi_L3_L1L2_ = new TH1F("L3 phiresid L1L2", "L3 phiresid L1L2", 100, -0.5, 0.5);
@@ -62,7 +62,7 @@ void HistImp::bookLayerResidual() {
 void HistImp::bookDiskResidual() {
   TH1::AddDirectory(kTRUE);
 
-  assert(h_file_ != 0);
+  assert(h_file_ != nullptr);
   h_file_->cd();
 
   h_diskresid_phi_D1_L1L2_ = new TH1F("D1 phiresid L1L2", "D1 phiresid L1L2", 100, -0.5, 0.5);
@@ -80,7 +80,7 @@ void HistImp::bookDiskResidual() {
 void HistImp::bookTrackletParams() {
   TH1::AddDirectory(kTRUE);
 
-  assert(h_file_ != 0);
+  assert(h_file_ != nullptr);
   h_file_->cd();
 
   h_rinv_L1L2_ = new TH1F("Tracklet rinv in L1L2", "Tracklet rinv in L1L2", 140, -0.007, 0.007);
@@ -229,7 +229,7 @@ void HistImp::FillDiskResidual(
 void HistImp::bookSeedEff() {
   TH1::AddDirectory(kTRUE);
 
-  assert(h_file_ != 0);
+  assert(h_file_ != nullptr);
   h_file_->cd();
 
   h_eff_eta_L1L2seed_ =

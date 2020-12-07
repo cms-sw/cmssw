@@ -1,7 +1,8 @@
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletProjectionsMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Tracklet.h"
-#include <iomanip>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <iomanip>
+#include <filesystem>
 
 using namespace std;
 using namespace trklet;
@@ -34,17 +35,22 @@ void TrackletProjectionsMemory::addProj(Tracklet* tracklet) {
 void TrackletProjectionsMemory::clean() { tracklets_.clear(); }
 
 void TrackletProjectionsMemory::writeTPROJ(bool first) {
+  const string dirTP = settings_.memPath() + "TrackletProjections/";
+  if (not std::filesystem::exists(dirTP)) {
+    system((string("mkdir -p ") + dirTP).c_str());
+  }
+
   std::ostringstream oss;
-  oss << "../data/MemPrints/TrackletProjections/TrackletProjections_" << getName() << "_" << std::setfill('0')
-      << std::setw(2) << (iSector_ + 1) << ".dat";
+  oss << dirTP << "TrackletProjections_" << getName() << "_" << std::setfill('0') << std::setw(2) << (iSector_ + 1)
+      << ".dat";
   auto const& fname = oss.str();
 
   if (first) {
     bx_ = 0;
     event_ = 1;
-    out_.open(fname.c_str());
+    out_.open(fname);
   } else
-    out_.open(fname.c_str(), std::ofstream::app);
+    out_.open(fname, std::ofstream::app);
 
   out_ << "BX = " << (bitset<3>)bx_ << " Event : " << event_ << endl;
 

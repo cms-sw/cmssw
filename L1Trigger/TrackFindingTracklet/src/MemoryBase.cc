@@ -4,6 +4,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <set>
+#include <filesystem>
 
 using namespace trklet;
 using namespace std;
@@ -69,8 +70,12 @@ void MemoryBase::findAndReplaceAll(std::string& data, std::string toSearch, std:
   }
 }
 
-void MemoryBase::openFile(bool first, std::string filebase) {
-  std::string fname = filebase;
+void MemoryBase::openFile(bool first, std::string dirName, std::string filebase) {
+  if (not std::filesystem::exists(dirName)) {
+    system((string("mkdir -p ") + dirName).c_str());
+  }
+
+  std::string fname = dirName + filebase;
   fname += getName();
 
   findAndReplaceAll(fname, "PHIa", "PHIaa");
@@ -92,9 +97,12 @@ void MemoryBase::openFile(bool first, std::string filebase) {
   if (first) {
     bx_ = 0;
     event_ = 1;
-    out_.open(fname.c_str());
+    out_.open(fname);
+    if (out_.fail())
+      throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << fname;
+
   } else {
-    out_.open(fname.c_str(), std::ofstream::app);
+    out_.open(fname, std::ofstream::app);
   }
 
   out_ << "BX = " << (bitset<3>)bx_ << " Event : " << event_ << endl;
