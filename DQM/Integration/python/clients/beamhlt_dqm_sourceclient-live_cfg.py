@@ -4,12 +4,19 @@ import FWCore.ParameterSet.Config as cms
 # Define once the BeamSpotOnline record name,
 # will be used both in BeamMonitor setup and in payload creation/upload
 BSOnlineRecordName = 'BeamSpotOnlineHLTObjectsRcd'
+BSOnlineTag = 'BeamSpotOnlineTestHLT'
+BSOnlineJobName = 'BeamSpotOnlineHLTTest'
 
 #from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 #process = cms.Process("BeamMonitor", Run2_2018) # FIMXE
 import sys
 from Configuration.Eras.Era_Run2_2018_pp_on_AA_cff import Run2_2018_pp_on_AA
 process = cms.Process("BeamMonitor", Run2_2018_pp_on_AA)
+
+# Configure tag and jobName if running Playback system
+if "dqm_cmssw/playback" in str(sys.argv[1]):
+  BSOnlineTag = BSOnlineTag + 'Playback'
+  BSOnlineJobName = BSOnlineJobName + 'Playback'
 
 # Message logger
 #process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -173,10 +180,10 @@ if (process.runType.getRunType() == process.runType.pp_run or
         latency = cms.untracked.uint32(2),
         autoCommit = cms.untracked.bool(True),
         saveLogsOnDB = cms.untracked.bool(True),
-        jobName = cms.untracked.string("BeamSpotOnlineHLTTest"), # name of the DB log record
+        jobName = cms.untracked.string(BSOnlineJobName), # name of the DB log record
         toPut = cms.VPSet(cms.PSet(
             record = cms.string(BSOnlineRecordName),
-            tag = cms.string('BSOnlineHLT_tag'),
+            tag = cms.string(BSOnlineTag),
             timetype = cms.untracked.string('Lumi'),
             onlyAppendUpdatePolicy = cms.untracked.bool(True)
         ))

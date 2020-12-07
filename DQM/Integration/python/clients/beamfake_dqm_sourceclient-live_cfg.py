@@ -5,10 +5,17 @@ import time
 # Define here the BeamSpotOnline record name,
 # it will be used both in FakeBeamMonitor setup and in payload creation/upload
 BSOnlineRecordName = 'BeamSpotOnlineLegacyObjectsRcd'
+BSOnlineTag = 'BeamSpotOnlineTestLegacy'
+BSOnlineJobName = 'BeamSpotOnlineLegacyTest'
 
 import sys
 from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 process = cms.Process("FakeBeamMonitor", Run2_2018)
+
+# Configure tag and jobName if running Playback system
+if "dqm_cmssw/playback" in str(sys.argv[1]):
+    BSOnlineTag = BSOnlineTag + 'Playback'
+    BSOnlineJobName = BSOnlineJobName + 'Playback'
 
 #
 process.MessageLogger = cms.Service("MessageLogger",
@@ -147,10 +154,10 @@ if unitTest == False:
         latency = cms.untracked.uint32(2),
         autoCommit = cms.untracked.bool(True),
         saveLogsOnDB = cms.untracked.bool(True),
-        jobName = cms.untracked.string("BeamSpotOnlineLegacyTest"), # name of the DB log record
+        jobName = cms.untracked.string(BSOnlineJobName), # name of the DB log record
         toPut = cms.VPSet(cms.PSet(
             record = cms.string(BSOnlineRecordName),
-            tag = cms.string('BeamSpotOnlineTestLegacy'),
+            tag = cms.string(BSOnlineTag),
             timetype = cms.untracked.string('Lumi'),
             onlyAppendUpdatePolicy = cms.untracked.bool(True)
         ))
@@ -174,7 +181,7 @@ else:
         autoCommit = cms.untracked.bool(True),
         toPut = cms.VPSet(cms.PSet(
             record = cms.string(BSOnlineRecordName),
-            tag = cms.string('BeamSpotOnlineTestLegacy'),
+            tag = cms.string(BSOnlineTag),
             timetype = cms.untracked.string('Lumi'),
             onlyAppendUpdatePolicy = cms.untracked.bool(True)
         ))
