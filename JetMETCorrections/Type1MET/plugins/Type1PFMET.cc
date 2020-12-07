@@ -1,12 +1,73 @@
+/**\class Type1PFMET
+\brief Computes the Type-1 corrections for pfMET. A specific version of the Type1MET class from the JetMETCorrections/Type1MET package.
 
-// user include files
-#include "CommonTools/ParticleFlow/plugins/Type1PFMET.h"
+\todo Unify with the Type1MET class from the JetMETCorrections/Type1MET package
+
+\author Michal Bluj
+\date   February 2009
+*/
 
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/METReco/interface/METFwd.h"
+#include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-//using namespace std;
+#include <memory>
+#include <cstring>
+
+class Type1PFMET : public edm::EDProducer {
+public:
+  explicit Type1PFMET(const edm::ParameterSet&);
+  explicit Type1PFMET();
+  ~Type1PFMET() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  edm::EDGetTokenT<reco::METCollection> tokenUncorMet;
+  edm::EDGetTokenT<reco::PFJetCollection> tokenUncorJets;
+  edm::EDGetTokenT<reco::JetCorrector> correctorToken;
+  double jetPTthreshold;
+  double jetEMfracLimit;
+  double jetMufracLimit;
+  void run(const reco::METCollection& uncorMET,
+           const reco::JetCorrector& corrector,
+           const reco::PFJetCollection& uncorJet,
+           double jetPTthreshold,
+           double jetEMfracLimit,
+           double jetMufracLimit,
+           reco::METCollection* corMET);
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(Type1PFMET);
+
+void Type1PFMET::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // pfType1MET
+  // Type-1 met corrections (AK4PFJets)
+  // remember about including ES producer definition e.g. JetMETCorrections.Configuration.L2L3Corrections_Summer08Redigi_cff
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("inputUncorJetsTag", edm::InputTag("ak4PFJets"));
+  desc.add<double>("jetEMfracLimit", 0.95);  // to remove electron which give rise to jets
+  desc.add<double>("jetMufracLimit", 0.95);  // to remove muon which give rise to jets
+  desc.add<std::string>("metType", "PFMET");
+  desc.add<double>("jetPTthreshold", 20.0);
+  // pfMET should be not corrected for HF 0.7
+  desc.add<edm::InputTag>("inputUncorMetLabel", edm::InputTag("pfMET"));
+  desc.add<edm::InputTag>("corrector", edm::InputTag("ak4PFL2L3Corrector"));
+  descriptions.add("pfType1MET", desc);
+}
 
 using namespace reco;
 
@@ -94,5 +155,3 @@ void Type1PFMET::run(const METCollection& uncorMET,
 
   return;
 }
-
-//  DEFINE_FWK_MODULE(Type1PFMET);  //define this as a plug-in

@@ -281,7 +281,7 @@ ak4JetTracksAssociatorExplicitAll = ak4JTA_cff.ak4JetTracksAssociatorExplicit.cl
     jets = "ak4PFJets"
 )
 from JetMETCorrections.Configuration.JetCorrectors_cff import *
-import CommonTools.RecoAlgos.jetTracksAssociationToTrackRefs_cfi as jetTracksAssociationToTrackRefs_cfi
+import JetMETCorrections.JetCorrector.jetTracksAssociationToTrackRefs_cfi as jetTracksAssociationToTrackRefs_cfi
 cutsRecoTracksAK4PFJets = jetTracksAssociationToTrackRefs_cfi.jetTracksAssociationToTrackRefs.clone(
     association = "ak4JetTracksAssociatorExplicitAll",
     jets = "ak4PFJets",
