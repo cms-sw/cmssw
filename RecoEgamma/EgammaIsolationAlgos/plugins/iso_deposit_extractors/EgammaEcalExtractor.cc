@@ -1,21 +1,83 @@
 //*****************************************************************************
 // File:      EgammaEcalExtractor.cc
 // ----------------------------------------------------------------------------
+// Type:      Class implementation header
+// Package:   EgammaIsolationAlgos/EgammaIsolationAlgos
+// Class:     EgammaEcalExtractor
+// Language:  Standard C++
+// Project:   CMS
 // OrigAuth:  Gilles De Lentdecker
 // Institute: IIHE-ULB
 //=============================================================================
 //*****************************************************************************
 
-//C++ includes
-#include <vector>
-#include <functional>
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
 
-//ROOT includes
 #include <Math/VectorUtil.h>
 
-//CMSSW includes
-#include "RecoEgamma/EgammaIsolationAlgos/plugins/EgammaEcalExtractor.h"
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include <functional>
+#include <vector>
+
+namespace egammaisolation {
+
+  class EgammaEcalExtractor : public reco::isodeposit::IsoDepositExtractor {
+  public:
+    EgammaEcalExtractor(const edm::ParameterSet& par, edm::ConsumesCollector&& iC) : EgammaEcalExtractor(par, iC) {}
+    EgammaEcalExtractor(const edm::ParameterSet& par, edm::ConsumesCollector& iC)
+        : etMin_(par.getParameter<double>("etMin")),
+          conesize_(par.getParameter<double>("extRadius")),
+          scmatch_(par.getParameter<bool>("superClusterMatch")),
+          basicClusterToken_(
+              iC.consumes<reco::BasicClusterCollection>(par.getParameter<edm::InputTag>("basicClusters"))),
+          superClusterToken_(
+              iC.consumes<reco::SuperClusterCollection>(par.getParameter<edm::InputTag>("superClusters"))) {}
+
+    ~EgammaEcalExtractor() override;
+
+    void fillVetos(const edm::Event& ev, const edm::EventSetup& evSetup, const reco::TrackCollection& tracks) override {
+    }
+    reco::IsoDeposit deposit(const edm::Event& ev,
+                             const edm::EventSetup& evSetup,
+                             const reco::Track& track) const override {
+      throw cms::Exception("Configuration Error")
+          << "This extractor " << (typeid(this).name()) << " is not made for tracks";
+    }
+    reco::IsoDeposit deposit(const edm::Event& ev,
+                             const edm::EventSetup& evSetup,
+                             const reco::Candidate& c) const override;
+
+  private:
+    // ---------- member data --------------------------------
+
+    // Parameters of isolation cone geometry.
+    // Photon case
+    double etMin_;
+    double conesize_;
+    bool scmatch_;  // true-> reject basic clusters matched to the superclsuter
+                    // false-> fill all basic clusters
+    edm::EDGetTokenT<reco::BasicClusterCollection> basicClusterToken_;
+    edm::EDGetTokenT<reco::SuperClusterCollection> superClusterToken_;
+  };
+
+}  // namespace egammaisolation
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractorFactory.h"
+DEFINE_EDM_PLUGIN(IsoDepositExtractorFactory, egammaisolation::EgammaEcalExtractor, "EgammaEcalExtractor");
 
 using namespace egammaisolation;
 using namespace reco::isodeposit;

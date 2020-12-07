@@ -1,38 +1,103 @@
 //*****************************************************************************
 // File:      EgammaRecHitExtractor.cc
 // ----------------------------------------------------------------------------
-// OrigAuth:  Matthias Mozer, hacked by Sam Harper (ie the ugly stuff is mine)
+// OrigAuth:  Matthias Mozer, adapted from EgammaHcalExtractor by S. Harper
 // Institute: IIHE-VUB, RAL
 //=============================================================================
 //*****************************************************************************
-//C++ includes
+
+#include "CommonTools/Utils/interface/StringToEnumValue.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
+
+#include <Math/VectorUtil.h>
+
 #include <vector>
 #include <functional>
 
-//ROOT includes
-#include <Math/VectorUtil.h>
+namespace egammaisolation {
 
-//CMSSW includes
-#include "CommonTools/Utils/interface/StringToEnumValue.h"
+  class EgammaRecHitExtractor : public reco::isodeposit::IsoDepositExtractor {
+  public:
+    EgammaRecHitExtractor(const edm::ParameterSet& par, edm::ConsumesCollector&& iC) : EgammaRecHitExtractor(par, iC) {}
+    EgammaRecHitExtractor(const edm::ParameterSet& par, edm::ConsumesCollector& iC);
+    ~EgammaRecHitExtractor() override;
+    void fillVetos(const edm::Event& ev, const edm::EventSetup& evSetup, const reco::TrackCollection& tracks) override {
+    }
+    reco::IsoDeposit deposit(const edm::Event& ev,
+                             const edm::EventSetup& evSetup,
+                             const reco::Track& track) const override {
+      throw cms::Exception("Configuration Error")
+          << "This extractor " << (typeid(this).name()) << " is not made for tracks";
+    }
+    reco::IsoDeposit deposit(const edm::Event& ev,
+                             const edm::EventSetup& evSetup,
+                             const reco::Candidate& c) const override;
 
-#include "RecoEgamma/EgammaIsolationAlgos/plugins/EgammaRecHitExtractor.h"
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/GeometryVector/interface/GlobalVector.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-#include "DataFormats/Math/interface/deltaPhi.h"
-#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
-#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
+  private:
+    void collect(reco::IsoDeposit& deposit,
+                 const reco::SuperClusterRef& sc,
+                 const CaloSubdetectorGeometry* subdet,
+                 const CaloGeometry* caloGeom,
+                 const EcalRecHitCollection& hits,
+                 //const EcalChannelStatus* chStatus,
+                 const EcalSeverityLevelAlgo* sevLevel,
+                 bool barrel) const;
 
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
+    double etMin_;
+    double energyMin_;
+    double extRadius_;
+    double intRadius_;
+    double intStrip_;
+    edm::InputTag barrelEcalHitsTag_;
+    edm::InputTag endcapEcalHitsTag_;
+    edm::EDGetTokenT<EcalRecHitCollection> barrelEcalHitsToken_;
+    edm::EDGetTokenT<EcalRecHitCollection> endcapEcalHitsToken_;
+    bool fakeNegativeDeposit_;
+    bool tryBoth_;
+    bool useEt_;
+    bool vetoClustered_;
+    bool sameTag_;
+    //int   severityLevelCut_;
+    //float severityRecHitThreshold_;
+    //std::string spIdString_;
+    //float spIdThreshold_;
+    //EcalSeverityLevelAlgo::SpikeId spId_;
+    //std::vector<int> v_chstatus_;
+    std::vector<int> severitiesexclEB_;
+    std::vector<int> severitiesexclEE_;
+    std::vector<int> flagsexclEB_;
+    std::vector<int> flagsexclEE_;
+  };
+}  // namespace egammaisolation
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractorFactory.h"
+DEFINE_EDM_PLUGIN(IsoDepositExtractorFactory, egammaisolation::EgammaRecHitExtractor, "EgammaRecHitExtractor");
 
 using namespace std;
 using namespace egammaisolation;
@@ -190,7 +255,7 @@ void EgammaRecHitExtractor::collect(reco::IsoDeposit& deposit,
       if (vetoClustered_) {
         //Loop over basic clusters:
         bool isClustered = false;
-        for (reco::CaloCluster_iterator bcIt = sc->clustersBegin(); bcIt != sc->clustersEnd(); ++bcIt) {
+        for (auto bcIt = sc->clustersBegin(); bcIt != sc->clustersEnd(); ++bcIt) {
           for (rhIt = (*bcIt)->hitsAndFractions().begin(); rhIt != (*bcIt)->hitsAndFractions().end(); ++rhIt) {
             if (rhIt->first == *i)
               isClustered = true;
