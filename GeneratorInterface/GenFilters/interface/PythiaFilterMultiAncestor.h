@@ -1,7 +1,6 @@
 #ifndef PYTHIAFILTERMULTIANCESTOR_h
 #define PYTHIAFILTERMULTIANCESTOR_h
 
-
 // system include files
 #include <memory>
 
@@ -25,17 +24,16 @@ namespace edm {
 }
 
 class PythiaFilterMultiAncestor : public edm::EDFilter {
- public:
+public:
   explicit PythiaFilterMultiAncestor(const edm::ParameterSet&);
   ~PythiaFilterMultiAncestor() override;
 
-
   bool filter(edm::Event&, const edm::EventSetup&) override;
 
- private:
+private:
   // ----------member data ---------------------------
 
-  bool isAncestor(HepMC::GenParticle * particle, int IDtoMatch);
+  bool isAncestor(HepMC::GenParticle* particle, int IDtoMatch);
 
   edm::EDGetTokenT<edm::HepMCProduct> token_;
   int particleID;
