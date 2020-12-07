@@ -7,14 +7,6 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 #include "SiStripCertificationInfo.h"
 
-#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
-#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
-
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-
 #include "DataFormats/Histograms/interface/DQMToken.h"
 
 //Run Info
@@ -32,15 +24,13 @@
 SiStripCertificationInfo::SiStripCertificationInfo(edm::ParameterSet const&) {
   consumes<DQMToken, edm::InRun>(edm::InputTag("siStripOfflineAnalyser", "DQMGenerationSiStripAnalyserRun"));
   consumes<DQMToken, edm::InLumi>(edm::InputTag("siStripOfflineAnalyser", "DQMGenerationSiStripAnalyserLumi"));
+  detCablingToken_ = esConsumes<edm::Transition::BeginRun>();
+  tTopoToken_ = esConsumes<edm::Transition::EndRun>();
 }
 
 void SiStripCertificationInfo::beginRun(edm::Run const& run, edm::EventSetup const& eSetup) {
   edm::LogInfo("SiStripCertificationInfo") << "SiStripCertificationInfo:: Begining of Run";
-  unsigned long long cacheID = eSetup.get<SiStripDetCablingRcd>().cacheIdentifier();
-  if (m_cacheID_ != cacheID) {
-    m_cacheID_ = cacheID;
-  }
-  eSetup.get<SiStripDetCablingRcd>().get(detCabling_);
+  detCabling_ = &eSetup.getData(detCablingToken_);
 
   constexpr int siStripFedIdMin{FEDNumbering::MINSiStripFEDID};
   constexpr int siStripFedIdMax{FEDNumbering::MAXSiStripFEDID};
@@ -180,9 +170,7 @@ void SiStripCertificationInfo::fillSiStripCertificationMEs(DQMStore& dqm_store, 
   }
 
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  eSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const auto tTopo = &eSetup.getData(tTopoToken_);
 
   resetSiStripCertificationMEs(dqm_store);
   std::string mdir = "MechanicalView";
