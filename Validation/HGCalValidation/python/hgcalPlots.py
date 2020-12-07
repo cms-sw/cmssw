@@ -6,7 +6,7 @@ import collections
 
 import six
 import ROOT
-from ROOT import TFile
+from ROOT import TFile, TString
 from ROOT import gDirectory
 ROOT.gROOT.SetBatch(True)
 ROOT.PyConfig.IgnoreCommandLineOptions = True
@@ -2050,7 +2050,7 @@ def append_hgcalCaloParticlesPlots(files, collection = '-211', name_collection =
     pg= PlotGroup(fileName.Data(),[
                   Plot(name,
                        xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
-                       drawCommand = "", # may want to customize for TH2 (colz, etc.)
+                       drawCommand = "",
                        normalizeToNumberOfEvents = True, **_common_Calo)
                   ],
                   ncols=1)
