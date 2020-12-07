@@ -4,7 +4,6 @@
 
 #include <cassert>
 #include <iostream>
-#include <numeric>
 #include <string>
 #include <type_traits>
 #include <vector>
@@ -73,13 +72,7 @@ void ProcessCallGraph::preBeginJob(edm::PathsAndConsumesOfModulesBase const& pat
   boost::get_property(graph, boost::graph_name) = context.processName();
 
   // create graph vertices associated to all modules in the process
-  unsigned int size = 0;
-  if (auto const& allModules = pathsAndConsumes.allModules(); not allModules.empty()) {
-    size = std::accumulate(
-        allModules.begin(), allModules.end(), size, [](unsigned int s, edm::ModuleDescription const* module) {
-          return std::max(s, module->id());
-        });
-  }
+  unsigned int size = pathsAndConsumes.largestModuleID() - boost::num_vertices(graph) + 1;
   for (size_t i = 0; i < size; ++i)
     boost::add_vertex(graph);
 
