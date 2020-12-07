@@ -1,6 +1,7 @@
 #include "L1Trigger/TrackFindingTracklet/interface/VMStubsTEMemory.h"
-#include <iomanip>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <iomanip>
+#include <filesystem>
 
 using namespace std;
 using namespace trklet;
@@ -214,7 +215,8 @@ void VMStubsTEMemory::clean() {
 }
 
 void VMStubsTEMemory::writeStubs(bool first) {
-  openFile(first, "../data/MemPrints/VMStubsTE/VMStubs_");
+  const string dirVM = settings_.memPath() + "VMStubsTE/";
+  openFile(first, dirVM, "VMStubs_");
 
   if (isinner_) {  // inner VM for TE purpose
     for (unsigned int j = 0; j < stubsvm_.size(); j++) {
@@ -276,8 +278,15 @@ void VMStubsTEMemory::setbendtable(std::vector<bool> vmbendtable) {
 }
 
 void VMStubsTEMemory::writeVMBendTable() {
-  ofstream outvmbendcut;
-  outvmbendcut.open(settings_.tablePath() + getName() + "_vmbendcut.tab");
+  if (not std::filesystem::exists(settings_.tablePath())) {
+    system((string("mkdir -p ") + settings_.tablePath()).c_str());
+  }
+
+  const string fname = settings_.tablePath() + getName() + "_vmbendcut.tab";
+  ofstream outvmbendcut(fname);
+  if (outvmbendcut.fail())
+    throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << fname;
+
   outvmbendcut << "{" << endl;
   unsigned int vmbendtableSize = vmbendtable_.size();
   assert(vmbendtableSize == 16 || vmbendtableSize == 8);

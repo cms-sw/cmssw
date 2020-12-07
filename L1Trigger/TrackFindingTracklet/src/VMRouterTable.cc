@@ -1,8 +1,8 @@
 // VMRouterTable: Lookup table used by the VMRouter to route stubs and provide information about which VMStubs are needed by the TrackletEngine
 #include "L1Trigger/TrackFindingTracklet/interface/VMRouterTable.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Settings.h"
-
 #include <algorithm>
+#include <filesystem>
 
 using namespace std;
 using namespace trklet;
@@ -101,6 +101,10 @@ void VMRouterTable::init(unsigned int layerdisk, std::string const& name) {
   }
 
   if (settings_.writeTable()) {
+    if (not std::filesystem::exists(settings_.tablePath())) {
+      system((string("mkdir -p ") + settings_.tablePath()).c_str());
+    }
+
     // write finebin tables
     writeVMTable(settings_.tablePath() + name + "_finebin.tab", vmrtable_);
     // write barrel seed teinner tables (L1L2, L2L3, L3L4, L5L6)
@@ -319,8 +323,10 @@ int VMRouterTable::lookupinnerThird(int zbin, int rbin) {
 }
 
 void VMRouterTable::writeVMTable(std::string const& name, std::vector<int> const& table) {
-  ofstream out;
-  out.open(name.c_str());
+  ofstream out(name);
+  if (out.fail())
+    throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << name;
+
   out << "{" << endl;
   for (unsigned int i = 0; i < table.size(); i++) {
     if (i != 0) {

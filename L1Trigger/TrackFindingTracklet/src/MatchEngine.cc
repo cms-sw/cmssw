@@ -10,6 +10,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include <filesystem>
+
 using namespace std;
 using namespace trklet;
 
@@ -55,12 +57,20 @@ MatchEngine::MatchEngine(string name, Settings const& settings, Globals* global,
     }
 
     if (settings_.writeTable()) {
-      ofstream out;
+      if (not std::filesystem::exists(settings_.tablePath())) {
+        system((string("mkdir -p ") + settings_.tablePath()).c_str());
+      }
+
       char layer = '0' + layer_;
       string fname = "METable_L";
       fname += layer;
       fname += ".tab";
-      out.open(settings_.tablePath() + fname);
+
+      const string full_fname = settings_.tablePath() + fname;
+      ofstream out(full_fname);
+      if (out.fail())
+        throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << full_fname;
+
       out << "{" << endl;
       for (unsigned int i = 0; i < table_.size(); i++) {
         if (i != 0) {

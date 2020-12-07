@@ -1,8 +1,10 @@
 #include "L1Trigger/TrackFindingTracklet/interface/AllProjectionsMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Tracklet.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Settings.h"
-#include <iomanip>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include <iomanip>
+#include <filesystem>
 
 using namespace trklet;
 using namespace std;
@@ -13,17 +15,25 @@ AllProjectionsMemory::AllProjectionsMemory(string name, Settings const& settings
 }
 
 void AllProjectionsMemory::writeAP(bool first) {
+  const string dirTP = settings_.memPath() + "TrackletProjections/";
+
   std::ostringstream oss;
-  oss << "../data/MemPrints/TrackletProjections/AllProj_" << getName() << "_" << std::setfill('0') << std::setw(2)
-      << (iSector_ + 1) << ".dat";
+  oss << dirTP << "AllProj_" << getName() << "_" << std::setfill('0') << std::setw(2) << (iSector_ + 1) << ".dat";
   auto const& fname = oss.str();
 
   if (first) {
     bx_ = 0;
     event_ = 1;
-    out_.open(fname.c_str());
+
+    if (not std::filesystem::exists(dirTP)) {
+      system((string("mkdir -p ") + dirTP).c_str());
+    }
+    out_.open(fname);
+    if (out_.fail())
+      throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << fname;
+
   } else
-    out_.open(fname.c_str(), std::ofstream::app);
+    out_.open(fname, std::ofstream::app);
 
   out_ << "BX = " << (bitset<3>)bx_ << " Event : " << event_ << endl;
 

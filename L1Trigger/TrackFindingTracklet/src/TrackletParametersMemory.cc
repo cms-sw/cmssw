@@ -3,6 +3,7 @@
 #include "L1Trigger/TrackFindingTracklet/interface/Globals.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Tracklet.h"
 #include <iomanip>
+#include <filesystem>
 
 using namespace std;
 using namespace trklet;
@@ -34,17 +35,26 @@ void TrackletParametersMemory::writeMatches(Globals* globals, int& matchesL1, in
 }
 
 void TrackletParametersMemory::writeTPAR(bool first) {
+  const string dirTP = settings_.memPath() + "TrackletParameters/";
+
   std::ostringstream oss;
-  oss << "../data/MemPrints/TrackletParameters/TrackletParameters_" << getName() << "_" << std::setfill('0')
-      << std::setw(2) << (iSector_ + 1) << ".dat";
+  oss << dirTP << "TrackletParameters_" << getName() << "_" << std::setfill('0') << std::setw(2) << (iSector_ + 1)
+      << ".dat";
   auto const& fname = oss.str();
 
   if (first) {
     bx_ = 0;
     event_ = 1;
-    out_.open(fname.c_str());
+
+    if (not std::filesystem::exists(dirTP)) {
+      system((string("mkdir -p ") + dirTP).c_str());
+    }
+    out_.open(fname);
+    if (out_.fail())
+      throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << fname;
+
   } else
-    out_.open(fname.c_str(), std::ofstream::app);
+    out_.open(fname, std::ofstream::app);
 
   out_ << "BX = " << (bitset<3>)bx_ << " Event : " << event_ << endl;
 

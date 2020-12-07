@@ -8,6 +8,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include <filesystem>
+
 using namespace trklet;
 using namespace std;
 
@@ -265,8 +267,15 @@ void TrackletEngine::setVMPhiBin() {
 }
 
 void TrackletEngine::writeTETable() {
-  ofstream outstubptinnercut;
-  outstubptinnercut.open(settings_.tablePath() + getName() + "_stubptinnercut.tab");
+  if (not std::filesystem::exists(settings_.tablePath())) {
+    system((string("mkdir -p ") + settings_.tablePath()).c_str());
+  }
+
+  const string fnameI = settings_.tablePath() + getName() + "_stubptinnercut.tab";
+  ofstream outstubptinnercut(fnameI);
+  if (outstubptinnercut.fail())
+    throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << fnameI;
+
   outstubptinnercut << "{" << endl;
   for (unsigned int i = 0; i < pttableinner_.size(); i++) {
     if (i != 0)
@@ -276,8 +285,11 @@ void TrackletEngine::writeTETable() {
   outstubptinnercut << endl << "};" << endl;
   outstubptinnercut.close();
 
-  ofstream outstubptoutercut;
-  outstubptoutercut.open(settings_.tablePath() + getName() + "_stubptoutercut.tab");
+  const string fnameO = settings_.tablePath() + getName() + "_stubptoutercut.tab";
+  ofstream outstubptoutercut(fnameO);
+  if (outstubptoutercut.fail())
+    throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << fnameI;
+
   outstubptoutercut << "{" << endl;
   for (unsigned int i = 0; i < pttableouter_.size(); i++) {
     if (i != 0)

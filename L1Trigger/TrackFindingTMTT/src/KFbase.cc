@@ -717,24 +717,24 @@ namespace tmtt {
     }
 
     unsigned int kalmanLay = layerMap[kfEtaReg][layerIDreduced];
-      
+
     // Fixes to layermap when "maybe layer" used
     if (settings_->KFUseMaybeLayers()) {
       switch (kfEtaReg) {
-        case 5: //case 5: B1 B2 (B3+B4)* D1 D2 D3+D4 D5+D6  -- B3 is combined with B4 and is flagged as "maybe layer"
+        case 5:  //case 5: B1 B2 (B3+B4)* D1 D2 D3+D4 D5+D6  -- B3 is combined with B4 and is flagged as "maybe layer"
           if (layerIDreduced == 6) {
-              kalmanLay = 5;
+            kalmanLay = 5;
           }
           break;
         case 6:  //case 6: B1* B2* D1 D2 D3 D4 D5 -- B1 and B2 are flagged as "maybe layer"
           if (layerIDreduced > 2) {
-              kalmanLay++;
-          } 
+            kalmanLay++;
+          }
           break;
         default:
           break;
-          }
       }
+    }
 
     // Fixes to endcap stubs, for cases where identical GP encoded layer ID present in this sector from both barrel & endcap.
 
@@ -825,8 +825,9 @@ namespace tmtt {
     }
 
     bool ambiguous = false;
-    if (settings_->KFUseMaybeLayers()) ambiguous = ambiguityMap[kfEtaReg][kfLayer];
-      
+    if (settings_->KFUseMaybeLayers())
+      ambiguous = ambiguityMap[kfEtaReg][kfLayer];
+
     return ambiguous;
   }
 
