@@ -247,7 +247,7 @@ namespace edm {
           not unusedModules.empty()) {
         pathsAndConsumesOfModules_.removeModules(unusedModules);
 
-        edm::LogWarning("DeleteModules").log([&unusedModules, this](auto& l) {
+        edm::LogInfo("DeleteModules").log([&unusedModules, this](auto& l) {
           l << "Following modules are not in any Path or EndPath, nor is their output consumed by any other module, "
                "and "
                "therefore they are deleted from SubProcess "
