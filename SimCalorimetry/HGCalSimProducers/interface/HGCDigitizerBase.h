@@ -85,7 +85,7 @@ public:
   ForwardSubdetector subdet() const { return subdet_; }
 
   /**
-     @short a trivial digitization: sum energies and digitize without noise
+     @short a trivial digitization: sum energies and digitize
    */
   void runSimple(std::unique_ptr<DColl>& coll,
                  hgc::HGCSimHitDataAccumulator& simData,
@@ -105,10 +105,7 @@ public:
                             hgc::HGCSimHitDataAccumulator& simData,
                             const CaloSubdetectorGeometry* theGeom,
                             const std::unordered_set<DetId>& validIds,
-                            CLHEP::HepRandomEngine* engine) {
-    throw cms::Exception("HGCDigitizerBaseException") << " Failed to find specialization of runDigitizer";
-  }
-
+                            CLHEP::HepRandomEngine* engine) = 0;
   /**
      @short DTOR
   */
