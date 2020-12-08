@@ -60,9 +60,20 @@ namespace trigger {
     TriggerL1AsymHt = -111,
     TriggerL1AsymEtHF = -112,
     TriggerL1AsymHtHF = -113,
+    /// This has all to be decided for Phase-2. Here is Thiago's proposal.
+    TriggerL1TkMu = -114,
+    TriggerL1TkEle = -115,
+    TriggerL1PFJet = -116,
+    TriggerL1PFTau = -117,
+    TriggerL1TkEm = -118,  // used for photons
+    TriggerL1PFMET = -119,
+    TriggerL1PFETT = -120,
+    TriggerL1PFHT = -121,
+    TriggerL1PFMHT = -122,
+    TriggerL1PFTrack = -123,
+    TriggerL1Vertex = -124,
 
     /// HLT
-
     TriggerPhoton = +81,
     TriggerElectron = +82,
     TriggerMuon = +83,
