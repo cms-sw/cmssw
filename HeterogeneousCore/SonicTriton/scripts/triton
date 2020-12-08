@@ -1,0 +1,299 @@
+#!/bin/bash
+
+# defaults
+USEDOCKER=""
+GPU=""
+VERBOSE=""
+WTIME=60
+SERVER=triton_server_instance
+RETRIES=3
+REPOS=()
+MODELS=()
+FORCE=""
+CLEANUP=true
+TMPDIR=""
+DRYRUN=""
+
+usage() {
+	ECHO="echo -e"
+	$ECHO "triton [options] [start|stop]"
+	$ECHO
+	$ECHO "Options:"
+	$ECHO "-c          \t don't cleanup temporary dir (for debugging)"
+	$ECHO "-D          \t dry run: print container commands rather than executing them"
+	$ECHO "-d          \t use Docker instead of Singularity"
+	$ECHO "-f          \t force reuse of (possibly) existing container instance"
+	$ECHO "-g          \t use GPU instead of CPU"
+	$ECHO "-M [dir]    \t model repository (can be given more than once)"
+	$ECHO "-m [dir]    \t specific model directory (can be given more than one)"
+	$ECHO "-n [name]   \t name of container instance, also used for default hidden temporary dir (default: ${SERVER})"
+	$ECHO "-r [num]    \t number of retries when starting container (default: ${RETRIES})"
+	$ECHO "-t [dir]    \t non-default hidden temporary dir"
+	$ECHO "-v          \t (verbose) start: activate server debugging info; stop: keep server logs"
+	$ECHO "-w [time]   \t maximum time to wait for server to start (default: ${WTIME} seconds)"
+	$ECHO "-h          \t print this message and exit"
+	$ECHO
+	$ECHO "Operations:"
+	$ECHO "start       \t start server"
+	$ECHO "stop        \t stop server"
+	exit $1
+}
+
+# check shm locations
+SHM=/dev/shm
+if [ -e /run/shm ]; then
+	SHM=/run/shm
+fi
+
+while getopts "cDdfgM:m:n:r:t:vw:h" opt; do
+	case "$opt" in
+		c) CLEANUP=""
+		;;
+		D) DRYRUN=echo
+		;;
+		d) USEDOCKER=true
+		;;
+		f) FORCE=true
+		;;
+		g) GPU=true
+		;;
+		M) REPOS+=("$OPTARG")
+		;;
+		m) MODELS+=("$OPTARG")
+		;;
+		n) SERVER="$OPTARG"
+		;;
+		r) RETRIES="$OPTARG"
+		;;
+		t) TMPDIR="$OPTARG"
+		;;
+		v) VERBOSE="--log-verbose=1 --log-error=1 --log-info=1"
+		;;
+		w) WTIME="$OPTARG"
+		;;
+		h) usage 0
+		;;
+	esac
+done
+
+shift $(($OPTIND - 1))
+OP=$1
+
+if [ "$OP" != start ] && [ "$OP" != stop ]; then
+	usage 1
+fi
+
+if [ "$RETRIES" -le 0 ]; then
+	RETRIES=1
+fi
+
+TOPDIR=$PWD
+if [ -z "$TMPDIR" ]; then
+	TMPDIR="${TOPDIR}/.${SERVER}"
+else
+	TMPDIR=$(readlink -f $TMPDIR)
+fi
+
+DOCKER="sudo docker"
+IMAGE=fastml/triton-torchgeo:20.09-py3-geometric
+LOG="log_${SERVER}.log"
+LIB=lib
+STARTED_INDICATOR="Started GRPCInferenceService"
+EXTRA=""
+
+start_docker(){
+	# mount all model repositories
+	MOUNTARGS=""
+	REPOARGS=""
+	for REPO in ${REPOS[@]}; do
+		MOUNTARGS="$MOUNTARGS -v$REPO:$REPO"
+		REPOARGS="$REPOARGS --model-repository=${REPO}"
+	done
+
+	$DRYRUN $DOCKER run -d --name ${SERVER} \
+		--shm-size=1g --ulimit memlock=-1 --ulimit stack=67108864 \
+		-p8000:8000 -p8001:8001 -p8002:8002 $EXTRA $MOUNTARGS \
+		${IMAGE} tritonserver $REPOARGS $VERBOSE
+}
+
+start_singularity(){
+	# triton server image may need to modify contents of opt/tritonserver/lib/
+	# but cvmfs is read-only
+	# -> make a writable local directory with the same contents
+	if [ -z "$DRYRUN" ]; then
+		mkdir ${LIB}
+		ln -s /cvmfs/unpacked.cern.ch/registry.hub.docker.com/${IMAGE}/opt/tritonserver/lib/* ${LIB}/
+	fi
+
+	# mount all model repositories
+	MOUNTARGS=""
+	REPOARGS=""
+	for REPO in ${REPOS[@]}; do
+		MOUNTARGS="$MOUNTARGS -B $REPO"
+		REPOARGS="$REPOARGS --model-repository=${REPO}"
+	done
+
+	# start instance
+	# need to bind /cvmfs for above symlinks to work inside container
+	$DRYRUN singularity instance start \
+		-B ${SHM}:/run/shm -B ${LIB}:/opt/tritonserver/lib -B /cvmfs $MOUNTARGS $EXTRA \
+		/cvmfs/unpacked.cern.ch/registry.hub.docker.com/${IMAGE} ${SERVER}
+
+	START_EXIT=$?
+	if [ "$START_EXIT" -ne 0 ]; then
+		rm -rf ${LIB}
+		return "$START_EXIT"
+	fi
+
+	# run the actual server
+	if [ -z "$DRYRUN" ]; then
+		REDIR="$LOG"
+	else
+		REDIR=/dev/stdout
+	fi
+	$DRYRUN singularity run instance://${SERVER} \
+		tritonserver $REPOARGS $VERBOSE >& ${REDIR} &
+	[ -z "$DRYRUN" ] || wait
+}
+
+stop_docker(){
+	# keep log (outside of tmp dir)
+	if [ -z "$DRYRUN" ]; then
+		if [ -n "$VERBOSE" ]; then $DOCKER logs ${SERVER} >& "${TOPDIR}/${LOG}"; fi
+	fi
+
+	$DRYRUN $DOCKER stop ${SERVER}
+	$DRYRUN $DOCKER rm ${SERVER}
+}
+
+stop_singularity(){
+	$DRYRUN singularity instance stop ${SERVER}
+
+	# move log out of tmp dir
+	if [ -z "$DRYRUN" ]; then
+		if [ -n "$VERBOSE" ]; then mv "$LOG" "$TOPDIR"; fi
+	fi
+}
+
+test_docker(){
+	# docker logs print to stderr
+	${DOCKER} logs ${SERVER} |& grep "$STARTED_INDICATOR"
+}
+
+test_singularity(){
+	grep "$STARTED_INDICATOR" $LOG
+}
+
+wait_server(){
+	if [ -n "$DRYRUN" ]; then
+		return
+	fi
+
+	COUNT=0
+	while ! $WAIT_COND >& /dev/null; do
+		if [ "$COUNT" -gt "$WTIME" ]; then
+			echo "timed out waiting for server to start"
+			VERBOSE=true $STOP_FN
+			cleanup
+			exit 1
+		else
+			COUNT=$(($COUNT + 1))
+			sleep 1
+		fi
+	done
+
+	echo "server is ready!"
+	exit 0
+}
+
+cleanup(){
+	if [ -z "$DRYRUN" ] && [ -n "$CLEANUP" ]; then
+		cd "$TOPDIR"
+		rm -rf "$TMPDIR"
+	fi
+}
+
+list_models(){
+	# make list of model repositories
+	for MODEL in ${MODELS[@]}; do
+		REPOS+=("$(dirname $MODEL)")
+	done
+	for ((r=0; r < ${#REPOS[@]}; r++)); do
+		# avoid issues w/ multiple levels of symlinks
+		REPOS[$r]=$(readlink -f ${REPOS[$r]})
+	done
+	# make unique list
+	read -a REPOS <<< "$(printf "%s\n" "${REPOS[@]}" | sort -u | tr '\n' ' ')"
+}
+
+if [ -n "$USEDOCKER" ]; then
+	if [ -n "$GPU" ]; then
+		EXTRA="--gpus all"
+	fi
+	START_FN=start_docker
+	WAIT_COND=test_docker
+	STOP_FN=stop_docker
+	PROG_NAME=Docker
+else
+	if [ -n "$GPU" ]; then
+		EXTRA="--nv"
+	fi
+	START_FN=start_singularity
+	WAIT_COND=test_singularity
+	STOP_FN=stop_singularity
+	PROG_NAME=Singularity
+fi
+
+if [ "$OP" == start ]; then
+	# handle cleaning up
+	if [ -n "$FORCE" ]; then
+		$STOP_FN
+		cleanup
+	elif [ -d "$TMPDIR" ]; then
+		echo "Error: this container may already exist (override with -f)"
+		exit 1
+	fi
+
+	list_models
+
+	# make sure everything happens in tmp dir
+	if [ -z "$DRYRUN" ]; then
+		mkdir "$TMPDIR"
+		MKDIR_EXIT=$?
+		if [ "$MKDIR_EXIT" -ne 0 ]; then
+			echo "Could not create temp dir: $TMPDIR"
+			exit "$MKDIR_EXIT"
+		fi
+		cd "$TMPDIR"
+	fi
+
+	START_EXIT=""
+	for ((counter=0; counter < ${RETRIES}; counter++)); do
+		$START_FN
+		START_EXIT=$?
+		if [ "$START_EXIT" -eq 0 ]; then
+			break
+		else
+			echo "Retrying after container issue..."
+			$STOP_FN
+		fi
+	done
+	if [ "$START_EXIT" -ne 0 ]; then
+		echo "Error from $PROG_NAME"
+		exit "$START_EXIT"
+	fi
+	wait_server
+else
+	# check for tmp dir
+	if [ -z "$DRYRUN" ]; then
+		if [ -d "$TMPDIR" ]; then
+			cd "$TMPDIR"
+		else
+			echo "Error: attempt to stop unknown container $SERVER"
+			exit 1
+		fi
+	fi
+
+	$STOP_FN
+	cleanup
+fi

@@ -61,5 +61,31 @@ In a SONIC Triton producer, the basic flow should follow this pattern:
     b. obtain output data as `TritonOutput<T>` using `fromServer()` function of output object(s) (sets output shape(s) if variable dimensions exist)  
     c. fill output products  
 
-Several example producers (running ResNet50 or Graph Attention Network), along with instructions to run a local server,
-can be found in the [test](./test) directory.
+A script [`triton`](./scripts/triton) is provided to launch and manage local servers.
+The script has two operations (`start` and `stop`) and the following options:
+* `-c`: don't cleanup temporary dir (for debugging)
+* `-D`: dry run: print container commands rather than executing them
+* `-d`: use Docker instead of Singularity
+* `-f`: force reuse of (possibly) existing container instance
+* `-g`: use GPU instead of CPU
+* `-M [dir]`: model repository (can be given more than once)
+* `-m [dir]`: specific model directory (can be given more than one)
+* `-n [name]`: name of container instance, also used for hidden temporary dir (default: triton_server_instance)
+* `-r [num]`: number of retries when starting container (default: 3)
+* `-t [dir]`: non-default hidden temporary dir
+* `-v`: (verbose) start: activate server debugging info; stop: keep server logs
+* `-w` [time]`: maximum time to wait for server to start (default: 60 seconds)
+* `-h`: print help message and exit
+
+Additional details and caveats:
+* The `start` and `stop` operations for a given container instance should always be executed in the same directory
+if a relative path is used for the hidden temporary directory (including the default from the container instance name),
+in order to ensure that everything is properly cleaned up.
+* A model repository is a folder that contains multiple model directories, while a model directory contains the files for a specific file.
+(In the example below, `$CMSSW_BASE/src/HeterogeneousCore/SonicTriton/data/models` is a model repository,
+while `$CMSSW_BASE/src/HeterogeneousCore/SonicTriton/data/models/resnet50_netdef` is a model directory.)
+If a model repository is provided, all of the models it contains will be provided to the server.
+* Older versions of Singularity have a short timeout that may cause launching the server to fail the first time the command is executed.
+The `-r` (retry) flag exists to work around this issue.
+
+Several example producers (running ResNet50 or Graph Attention Network) can be found in the [test](./test) directory.
