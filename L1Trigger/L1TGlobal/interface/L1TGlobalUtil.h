@@ -104,7 +104,7 @@ namespace l1t {
     // It is provided only until prescales and masks are available as CondFormats...
     // Most users should simply ignore this method and use the default ctor only!
     // Will look for prescale csv file in L1Trigger/L1TGlobal/data/Luminosity/startup/<filename>
-    void OverridePrescalesAndMasks(std::string filename, double psColumn = 1.);
+    void OverridePrescalesAndMasks(std::string filename, unsigned int psColumn = 1.);
 
     /// initialize the class (mainly reserve)
     void retrieveL1(const edm::Event& iEvent, const edm::EventSetup& evSetup);  // using helper
@@ -167,7 +167,7 @@ namespace l1t {
     inline const std::string& gtTriggerMenuComment() const { return m_l1GtMenu->getComment(); }
 
     // Prescale Column
-    inline double prescaleColumn() const { return m_PreScaleColumn; }
+    inline unsigned int prescaleColumn() const { return m_PreScaleColumn; }
     inline unsigned int numberOfPreScaleColumns() const { return m_numberOfPreScaleColumns; }
 
   private:
@@ -204,7 +204,7 @@ namespace l1t {
 
     //file  and container for prescale factors
     std::string m_preScaleFileName;
-    double m_PreScaleColumn;
+    unsigned int m_PreScaleColumn;
     unsigned int m_numberOfPreScaleColumns;
 
     std::vector<std::vector<double>> m_initialPrescaleFactorsAlgoTrig;
