@@ -372,7 +372,7 @@ upgradeWFs['mlpf'] = UpgradeWorkflow_mlpf(
 class UpgradeWorkflow_trackdnn(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         stepDict[stepName][k] = merge([{'--procModifiers': 'trackdnn'}, stepDict[step][k]])
-	custNew = "RecoTracker/FinalTrackSelectors/customiseForDNN.customiseForDNN"
+        custNew = "RecoTracker/FinalTrackSelectors/customiseForDNN.customiseForDNN"
         if '--customise' in stepDict[stepName][k].keys():
             stepDict[stepName][k]['--customise'] += ","+custNew
         else:
