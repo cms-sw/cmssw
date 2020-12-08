@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 # it will be used both in FakeBeamMonitor setup and in payload creation/upload
 BSOnlineRecordName = 'BeamSpotOnlineHLTObjectsRcd'
 BSOnlineTag = 'BeamSpotOnlineTestHLT'
-BSOnlineJobName = 'BeamSpotOnlineHLTTest'
+BSOnlineJobName = 'BeamSpotOnlineTestHLT'
 
 import sys
 from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
