@@ -90,7 +90,7 @@ int HLTPrescaleProvider::prescaleSet(const edm::Event& iEvent, const edm::EventS
   } else if (l1tType == 2) {
     checkL1TGlobalUtil();
     l1tGlobalUtil_->retrieveL1Event(iEvent, iSetup);
-    return static_cast<double>(l1tGlobalUtil_->prescaleColumn());
+    return static_cast<int>(l1tGlobalUtil_->prescaleColumn());
   } else {
     if (count_[0] < countMax) {
       count_[0] += 1;
