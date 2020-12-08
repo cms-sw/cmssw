@@ -90,9 +90,6 @@ MicroEventContent = cms.PSet(
 	'keep recoTracks_displacedStandAloneMuons__*',
         # L1 prefiring weights
         'keep *_prefiringweight_*_*',
-        # patLowPtElectrons
-        'keep *_slimmedLowPtElectrons_*_*',
-        'keep *_gsfTracksOpenConversions_*_*',
     )
 )
 
@@ -118,6 +115,14 @@ MicroEventContentGEN = cms.PSet(
         'keep *_genParticles_t0_*',
     )
 )
+
+# Only add low pT electrons for run2_miniAOD_UL or bParking era
+from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
+from Configuration.Eras.Modifier_bParking_cff import bParking
+_lowPt_extraCommands = ['keep *_slimmedLowPtElectrons_*_*',
+                        'keep *_gsfTracksOpenConversions_*_*',]
+(bParking | run2_miniAOD_UL).toModify(MicroEventContent,
+                                      outputCommands = MicroEventContent.outputCommands + _lowPt_extraCommands)
 
 # --- Only for 2018 data & MC
 _run2_HCAL_2018_extraCommands = ["keep *_packedPFCandidates_hcalDepthEnergyFractions_*"]
