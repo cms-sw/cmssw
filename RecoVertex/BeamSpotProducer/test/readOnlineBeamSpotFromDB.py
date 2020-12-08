@@ -37,8 +37,8 @@ else:
     process.BeamSpotESProducer = cms.ESProducer("OfflineToTransientBeamSpotESProducer")
 
 
-process.MessageLogger.destinations = cms.untracked.vstring('detailedInfo')
-process.MessageLogger.detailedInfo   = cms.untracked.PSet(threshold = cms.untracked.string('INFO'))
+process.MessageLogger.cerr.enable = False
+process.MessageLogger.files.detailedInfo   = cms.untracked.PSet(threshold = cms.untracked.string('INFO'))
 
 process.source = cms.Source("EmptySource")
 process.source.numberEventsInRun=cms.untracked.uint32(2)

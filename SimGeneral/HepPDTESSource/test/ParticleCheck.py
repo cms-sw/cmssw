@@ -9,22 +9,8 @@ To dump the G4 particle table one needs to:
     edm::LogInfo("SimG4CoreApplication") << "Output of G4ParticleTable DumpTable:";
     G4ParticleTable::GetParticleTable()->DumpTable("ALL");
 2-Edit the Validation/Performance/python/TimeMemoryG4Info.py customise fragment (or you could create your own):
-  a-Add SimG4CoreApplication to the message logger categories:
-    process.MessageLogger.categories=cms.untracked.vstring('FwkJob'
-                                                         ,'FwkReport'
-                                                         ,'FwkSummary'
-                                                         ,'Root_NoDictionary'
-                                                         ,'TimeReport'
-                                                         ,'TimeModule'
-                                                         ,'TimeEvent'
-                                                         ,'MemoryCheck'
-                                                         ,'PhysicsList'
-                                                         ,'G4cout'
-                                                         ,'G4cerr'
-                                                         ,'SimG4CoreApplication'
-                                                         )
-  b-Configure the output (in this case to the file G4msg.log) to include SimG4CoreApplication:
-    process.MessageLogger.G4msg =  cms.untracked.PSet(
+  a-Configure the output (in this case to the file G4msg.log) to include SimG4CoreApplication:
+    process.MessageLogger.files = dict(G4msg =  cms.untracked.PSet(
       noTimeStamps = cms.untracked.bool(True)
       #First eliminate unneeded output
       ,threshold = cms.untracked.string('INFO')
@@ -47,6 +33,7 @@ To dump the G4 particle table one needs to:
       ,G4cerr = cms.untracked.PSet(limit = cms.untracked.int32(-1))
       ,SimG4CoreApplication = cms.untracked.PSet(limit = cms.untracked.int32(-1))
       )
+    )
 3-Run any cmsDriver.py commands that entail simulation, e.g.(in CMSSW_3_1_0_pre4):
   cmsDriver.py MinBias.cfi -n 1 --step GEN,SIM --customise=Validation/Performance/TimeMemoryG4Info.py --eventcontent FEVTDEBUG --conditions FrontierConditions_GlobalTag,IDEAL_30X::All > & ! MinBias.log &
 The resulting file G4msg.log contains the dump of the G4 Particle Table. We run on it, extract the information we are interested in and we store it in 2 dictionaries:

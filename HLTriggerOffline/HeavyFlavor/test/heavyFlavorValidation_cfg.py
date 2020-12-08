@@ -37,7 +37,7 @@ process.maxEvents = cms.untracked.PSet(
 
 #process.load("FWCore.MessageService.MessageLogger_cfi")
 #process.MessageLogger.debugModules = cms.untracked.vstring('heavyFlavorValidation')
-#process.MessageLogger.categories = cms.untracked.vstring('HLTriggerOfflineHeavyFlavor')
+#
 #process.MessageLogger.cerr.threshold = cms.untracked.string('DEBUG')
 #process.MessageLogger.cerr.DEBUG = cms.untracked.PSet( limit = cms.untracked.int32(0) )
 

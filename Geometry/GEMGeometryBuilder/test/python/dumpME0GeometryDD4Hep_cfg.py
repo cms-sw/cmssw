@@ -18,9 +18,9 @@ process.DDCompactViewESProducer = cms.ESProducer("DDCompactViewESProducer",
 )
 
 if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.categories.append('Geometry')
-    process.MessageLogger.categories.append('ME0NumberingScheme')
-    process.MessageLogger.categories.append('ME0Geometry')
+    process.MessageLogger.Geometry=dict()
+    process.MessageLogger.ME0NumberingScheme=dict()
+    process.MessageLogger.ME0Geometry=dict()
 
 process.source = cms.Source('EmptySource')
 

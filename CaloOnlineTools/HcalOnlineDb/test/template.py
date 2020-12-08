@@ -4,7 +4,7 @@ from Configuration.Eras.Era_Run3_cff import Run3
 process = cms.Process("TEST", Run3)
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.categories.append('LUT')
+process.MessageLogger.LUT=dict()
 
 process.source = cms.Source("EmptySource")
 process.source.firstRun = cms.untracked.uint32( __RUN__ )

@@ -18,7 +18,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 2
 if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.categories.append('HGCalValidation')
+    process.MessageLogger.HGCalValidation=dict()
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
