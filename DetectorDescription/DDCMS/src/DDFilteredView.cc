@@ -572,7 +572,7 @@ std::string_view DDFilteredView::get<string_view>(const string& key) {
 
 template <>
 double DDFilteredView::get<double>(const string& key) {
-  double result(0.0);
+  double result(std::nan("0"));
 
   currentSpecPar_ = find(key);
   if (currentSpecPar_ != nullptr) {
