@@ -170,6 +170,21 @@ full_106x_UL17_chs = full_81x_chs.clone(
                          tmvaVariables = trainingVariables_106X_Eta3To5)
     }
 )
+####################################################################################################################
+trainingVariables_106X_Eta0To3 = list(trainingVariables_102X_Eta0To3)
+trainingVariables_106X_Eta3To5 = list(trainingVariables_102X_Eta3To5)
+full_106x_UL18_chs = full_81x_chs.clone(
+    JetIdParams = full_106x_UL18_chs_wp,
+    trainings = {0: dict(tmvaWeights   = "RecoJets/JetProducers/data/pileupJetId_UL18_Eta0p0To2p5_chs_BDT.weights.xml.gz",
+                         tmvaVariables = trainingVariables_106X_Eta0To3),
+                 1: dict(tmvaWeights   = "RecoJets/JetProducers/data/pileupJetId_UL18_Eta2p5To2p75_chs_BDT.weights.xml.gz",
+                         tmvaVariables = trainingVariables_106X_Eta0To3),
+                 2: dict(tmvaWeights   = "RecoJets/JetProducers/data/pileupJetId_UL18_Eta2p75To3p0_chs_BDT.weights.xml.gz",
+                         tmvaVariables = trainingVariables_106X_Eta0To3),
+                 3: dict(tmvaWeights   = "RecoJets/JetProducers/data/pileupJetId_UL18_Eta3p0To5p0_chs_BDT.weights.xml.gz",
+                         tmvaVariables = trainingVariables_106X_Eta3To5)
+    }
+)
 #######################################################################################################################
 full_80x_chs = cms.PSet(
         impactParTkThreshold = cms.double(1.),
