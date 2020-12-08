@@ -5,7 +5,6 @@
 // between Geant4 user actions and CMS SIM
 // infrastructure both for sequentional and MT runs
 
-class RunManager;
 class RunManagerMT;
 class RunManagerMTWorker;
 class SimTrackManager;
@@ -17,8 +16,6 @@ class G4SimEvent;
 
 class SimRunInterface {
 public:
-  SimRunInterface(RunManager* run, bool master);
-
   SimRunInterface(RunManagerMT* run, bool master);
 
   SimRunInterface(RunManagerMTWorker* run, bool master);
@@ -46,7 +43,6 @@ public:
   G4SimEvent* simEvent();
 
 private:
-  RunManager* m_runManager;
   RunManagerMT* m_runManagerMT;
   RunManagerMTWorker* m_runManagerMTWorker;
 

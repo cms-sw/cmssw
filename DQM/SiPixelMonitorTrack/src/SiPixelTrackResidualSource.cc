@@ -17,16 +17,12 @@
 #include <utility>
 #include <vector>
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-//#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameWrapper.h"
 #include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
@@ -34,28 +30,17 @@
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 
-#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
-
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
 #include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
 #include "DQM/SiPixelMonitorTrack/interface/SiPixelTrackResidualSource.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 
 // Claudia new libraries
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 
 using namespace std;
 using namespace edm;
@@ -94,6 +79,15 @@ SiPixelTrackResidualSource::SiPixelTrackResidualSource(const edm::ParameterSet &
   digisrc_ = pSet_.getParameter<edm::InputTag>("digisrc");
   digisrcToken_ = consumes<edm::DetSetVector<PixelDigi>>(pSet_.getParameter<edm::InputTag>("digisrc"));
 
+  trackerTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
+  trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
+  transientTrackBuilderToken_ =
+      esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"));
+  transientTrackingRecHitBuilderToken_ =
+      esConsumes<TransientTrackingRecHitBuilder, TransientRecHitRecord>(edm::ESInputTag("", ttrhbuilder_));
+  trackerTopoTokenBeginRun_ = esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>();
+  trackerGeomTokenBeginRun_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>();
+
   LogInfo("PixelDQM") << "SiPixelTrackResidualSource constructor" << endl;
   LogInfo("PixelDQM") << "Mod/Lad/Lay/Phi " << modOn << "/" << ladOn << "/" << layOn << "/" << phiOn << std::endl;
   LogInfo("PixelDQM") << "Blade/Disk/Ring" << bladeOn << "/" << diskOn << "/" << ringOn << std::endl;
@@ -118,12 +112,10 @@ SiPixelTrackResidualSource::~SiPixelTrackResidualSource() {
 void SiPixelTrackResidualSource::dqmBeginRun(const edm::Run &r, edm::EventSetup const &iSetup) {
   LogInfo("PixelDQM") << "SiPixelTrackResidualSource beginRun()" << endl;
   // retrieve TrackerGeometry for pixel dets
-  edm::ESHandle<TrackerGeometry> TG;
-  iSetup.get<TrackerDigiGeometryRecord>().get(TG);
+  edm::ESHandle<TrackerGeometry> TG = iSetup.getHandle(trackerGeomTokenBeginRun_);
   if (debug_)
     LogVerbatim("PixelDQM") << "TrackerGeometry " << &(*TG) << " size is " << TG->dets().size() << endl;
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopoTokenBeginRun_);
   const TrackerTopology *pTT = tTopoHandle.product();
 
   // build theSiPixelStructure with the pixel barrel and endcap dets from
@@ -160,6 +152,10 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker &iBooker,
   // book residual histograms in theSiPixelFolder - one (x,y) pair of histograms
   // per det
   SiPixelFolderOrganizer theSiPixelFolder(false);
+
+  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopoTokenBeginRun_);
+  const TrackerTopology *pTT = tTopoHandle.product();
+
   std::stringstream nameX, titleX, nameY, titleY;
 
   if (ladOn) {
@@ -185,43 +181,43 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker &iBooker,
        pxd++) {
     if (modOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*pxd).first, 0, isUpgrade))
-        (*pxd).second->book(pSet_, iSetup, iBooker, reducedSet, 0, isUpgrade);
+        (*pxd).second->book(pSet_, pTT, iBooker, reducedSet, 0, isUpgrade);
       else
         throw cms::Exception("LogicError") << "SiPixelTrackResidualSource Folder Creation Failed! ";
     }
     if (ladOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*pxd).first, 1, isUpgrade)) {
-        (*pxd).second->book(pSet_, iSetup, iBooker, reducedSet, 1, isUpgrade);
+        (*pxd).second->book(pSet_, pTT, iBooker, reducedSet, 1, isUpgrade);
       } else
         throw cms::Exception("LogicError") << "SiPixelTrackResidualSource ladder Folder Creation Failed! ";
     }
     if (layOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*pxd).first, 2, isUpgrade))
-        (*pxd).second->book(pSet_, iSetup, iBooker, reducedSet, 2, isUpgrade);
+        (*pxd).second->book(pSet_, pTT, iBooker, reducedSet, 2, isUpgrade);
       else
         throw cms::Exception("LogicError") << "SiPixelTrackResidualSource layer Folder Creation Failed! ";
     }
     if (phiOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*pxd).first, 3, isUpgrade))
-        (*pxd).second->book(pSet_, iSetup, iBooker, reducedSet, 3, isUpgrade);
+        (*pxd).second->book(pSet_, pTT, iBooker, reducedSet, 3, isUpgrade);
       else
         throw cms::Exception("LogicError") << "SiPixelTrackResidualSource phi Folder Creation Failed! ";
     }
     if (bladeOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*pxd).first, 4, isUpgrade))
-        (*pxd).second->book(pSet_, iSetup, iBooker, reducedSet, 4, isUpgrade);
+        (*pxd).second->book(pSet_, pTT, iBooker, reducedSet, 4, isUpgrade);
       else
         throw cms::Exception("LogicError") << "SiPixelTrackResidualSource Blade Folder Creation Failed! ";
     }
     if (diskOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*pxd).first, 5, isUpgrade))
-        (*pxd).second->book(pSet_, iSetup, iBooker, reducedSet, 5, isUpgrade);
+        (*pxd).second->book(pSet_, pTT, iBooker, reducedSet, 5, isUpgrade);
       else
         throw cms::Exception("LogicError") << "SiPixelTrackResidualSource Disk Folder Creation Failed! ";
     }
     if (ringOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*pxd).first, 6, isUpgrade))
-        (*pxd).second->book(pSet_, iSetup, iBooker, reducedSet, 6, isUpgrade);
+        (*pxd).second->book(pSet_, pTT, iBooker, reducedSet, 6, isUpgrade);
       else
         throw cms::Exception("LogicError") << "SiPixelTrackResidualSource Ring Folder Creation Failed! ";
     }
@@ -826,15 +822,13 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker &iBooker,
 
 void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopoToken_);
   const TrackerTopology *tTopo = tTopoHandle.product();
 
   // retrieve TrackerGeometry again and MagneticField for use in transforming
   // a TrackCandidate's P(ersistent)TrajectoryStateoOnDet (PTSoD) to a
   // TrajectoryStateOnSurface (TSoS)
-  ESHandle<TrackerGeometry> TG;
-  iSetup.get<TrackerDigiGeometryRecord>().get(TG);
+  edm::ESHandle<TrackerGeometry> TG = iSetup.getHandle(trackerGeomToken_);
   const TrackerGeometry *theTrackerGeometry = TG.product();
 
   // analytic triplet method to calculate the track residuals in the pixe barrel
@@ -901,28 +895,18 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent, const edm::Ev
   //
   // transient track builder, needs B-field from data base (global tag in .py)
   //
-  edm::ESHandle<TransientTrackBuilder> theB;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", theB);
+  edm::ESHandle<TransientTrackBuilder> theB = iSetup.getHandle(transientTrackBuilderToken_);
 
   // get the TransienTrackingRecHitBuilder needed for extracting the global
   // position of the hits in the pixel
-  edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
-  iSetup.get<TransientRecHitRecord>().get(ttrhbuilder_, theTrackerRecHitBuilder);
+  edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder =
+      iSetup.getHandle(transientTrackingRecHitBuilderToken_);
 
   // check that tracks are valid
   if (TracksForRes.failedToGet())
     return;
   if (!TracksForRes.isValid())
     return;
-
-  // get tracker geometry
-  edm::ESHandle<TrackerGeometry> pDD;
-  iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
-
-  if (!pDD.isValid()) {
-    cout << "Unable to find TrackerDigiGeometry. Return\n";
-    return;
-  }
 
   int kk = -1;
   //----------------------------------------------------------------------------

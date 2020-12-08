@@ -13,8 +13,7 @@ from PhysicsTools.PatAlgos.slimming.slimmedJets_cfi      import *
 from PhysicsTools.PatAlgos.slimming.slimmedCaloJets_cfi  import *
 from PhysicsTools.PatAlgos.slimming.slimmedGenJets_cfi   import *
 from PhysicsTools.PatAlgos.slimming.slimmedElectrons_cfi import *
-from PhysicsTools.PatAlgos.slimming.slimmedLowPtElectrons_cfi import *
-from PhysicsTools.PatAlgos.slimming.lowPtGsfLinks_cfi import *
+from PhysicsTools.PatAlgos.slimming.slimmedLowPtElectrons_cff import *
 from PhysicsTools.PatAlgos.slimming.slimmedTrackExtras_cff import *
 from PhysicsTools.PatAlgos.slimming.slimmedMuons_cfi     import *
 from PhysicsTools.PatAlgos.slimming.slimmedPhotons_cfi   import *
@@ -45,8 +44,7 @@ slimmingTask = cms.Task(
     slimmedGenJets,
     slimmedGenJetsAK8,
     slimmedElectrons,
-    slimmedLowPtElectrons,
-    lowPtGsfLinks,
+    slimmedLowPtElectronsTask,
     slimmedMuonTrackExtras,
     slimmedMuons,
     slimmedPhotons,
@@ -65,6 +63,13 @@ slimmingTask = cms.Task(
 
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 pp_on_AA.toReplaceWith(slimmingTask, slimmingTask.copyAndExclude([slimmedOOTPhotons]))
+
+from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
+from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+_mAOD = (run2_miniAOD_94XFall17 | run2_miniAOD_80XLegacy)
+(pp_on_AA | _mAOD).toReplaceWith(slimmingTask,
+                                 slimmingTask.copyAndExclude([slimmedLowPtElectronsTask]))
+
 from PhysicsTools.PatAlgos.slimming.hiPixelTracks_cfi import hiPixelTracks
 from RecoHI.HiEvtPlaneAlgos.HiEvtPlane_cfi import hiEvtPlane
 from RecoHI.HiEvtPlaneAlgos.hiEvtPlaneFlat_cfi import hiEvtPlaneFlat

@@ -105,8 +105,6 @@ GeometricDet::GeometricDet(cms::DDFilteredView* fv, GeometricEnumType type)
       rot_(fv->rotation()),
       shape_(fv->shape()),
       params_(computeLegacyShapeParameters(shape_, fv->solid())),
-      radLength_(fv->get<double>("TrackerRadLength")),
-      xi_(fv->get<double>("TrackerXi")),
       pixROCRows_(fv->get<double>("PixelROCRows")),
       pixROCCols_(fv->get<double>("PixelROCCols")),
       pixROCx_(fv->get<double>("PixelROC_X")),
@@ -115,7 +113,11 @@ GeometricDet::GeometricDet(cms::DDFilteredView* fv, GeometricEnumType type)
       isLowerSensor_(fv->get<std::string_view>("TrackerLowerDetectors") == strue),
       isUpperSensor_(fv->get<std::string_view>("TrackerUpperDetectors") == strue),
       siliconAPVNum_(fv->get<double>("SiliconAPVNumber")),
-      isFromDD4hep_(true) {}
+      isFromDD4hep_(true) {
+  fv->findSpecPar("TrackerRadLength", "TrackerXi");
+  radLength_ = fv->getNextValue("TrackerRadLength");
+  xi_ = fv->getNextValue("TrackerXi");
+}
 
 /*
   Constructor from persistent version (DB).

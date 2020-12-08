@@ -43,7 +43,7 @@ particleFlowLinksTask = cms.Task( particleFlow, particleFlowPtrs, chargedHadronP
 particleFlowLinks = cms.Sequence(particleFlowLinksTask)
 
 from RecoParticleFlow.PFTracking.hgcalTrackCollection_cfi import *
-from RecoParticleFlow.PFProducer.simPFProducer_cfi import *
+from RecoParticleFlow.PFProducer.simPFProducer_cff import *
 from SimTracker.TrackerHitAssociation.tpClusterProducer_cfi import *
 from SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi import *
 particleFlowTmpBarrel = particleFlowTmp.clone()

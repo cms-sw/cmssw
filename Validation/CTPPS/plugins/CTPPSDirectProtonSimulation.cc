@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "FWCore/Utilities/interface/ESInputTag.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
@@ -34,6 +35,9 @@
 #include "CondFormats/RunInfo/interface/LHCInfo.h"
 #include "CondFormats/DataRecord/interface/LHCInfoRcd.h"
 
+#include "CondFormats/DataRecord/interface/PPSDirectSimulationDataRcd.h"
+#include "CondFormats/PPSObjects/interface/PPSDirectSimulationData.h"
+
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 #include "Geometry/Records/interface/VeryForwardMisalignedGeometryRecord.h"
 #include "Geometry/VeryForwardRPTopology/interface/RPTopology.h"
@@ -52,6 +56,8 @@
 #include "TVectorD.h"
 #include "TF1.h"
 #include "TF2.h"
+#include "TFile.h"
+#include "CLHEP/Random/RandFlat.h"
 
 //----------------------------------------------------------------------------------------------------
 
@@ -85,23 +91,31 @@ private:
 
   // ------------ config file parameters ------------
 
-  /// input
-  std::string lhcInfoLabel_;
-  std::string opticsLabel_;
+  // conditions
+  edm::ESGetToken<LHCInfo, LHCInfoRcd> tokenLHCInfo_;
+  edm::ESGetToken<CTPPSBeamParameters, CTPPSBeamParametersRcd> tokenBeamParameters_;
+  edm::ESGetToken<LHCInterpolatedOpticalFunctionsSetCollection, CTPPSInterpolatedOpticsRcd> tokenOpticalFunctions_;
+  edm::ESGetToken<CTPPSGeometry, VeryForwardMisalignedGeometryRecord> tokenGeometry_;
+  edm::ESGetToken<PPSDirectSimulationData, PPSDirectSimulationDataRcd> tokenDirectSimuData_;
 
+  edm::ESWatcher<PPSDirectSimulationDataRcd> directSimuDataRcdWatcher_;
+
+  // input
   edm::EDGetTokenT<edm::HepMCProduct> hepMCToken_;
 
-  /// flags what output to be produced
+  // flags what output to be produced
   bool produceScoringPlaneHits_;
   bool produceRecHits_;
 
-  /// simulation parameters
-  bool checkApertures_;
-
+  // settings of LHC aperture limitations (high xi)
   bool useEmpiricalApertures_;
-  //aperture parameters
   std::unique_ptr<TF2> empiricalAperture45_;
   std::unique_ptr<TF2> empiricalAperture56_;
+
+  // timing-RP efficiency
+  bool useTimingRPEfficiency_;
+  std::unique_ptr<TH2F> effTimeMap45_;
+  std::unique_ptr<TH2F> effTimeMap56_;
 
   bool produceHitsRelativeToBeam_;
   bool roundToPitch_;
@@ -113,10 +127,9 @@ private:
   double pitchPixelsHor_;
   double pitchPixelsVer_;
 
-  std::unique_ptr<TF1> timeResolutionDiamonds45_,
-      timeResolutionDiamonds56_;  ///< x-dependent time resolution of diamonds (per rec hit) in ns
-
   unsigned int verbosity_;
+
+  std::unique_ptr<TF1> timeResolutionDiamonds45_, timeResolutionDiamonds56_;
 
   // ------------ internal parameters ------------
 
@@ -127,18 +140,19 @@ private:
 //----------------------------------------------------------------------------------------------------
 
 CTPPSDirectProtonSimulation::CTPPSDirectProtonSimulation(const edm::ParameterSet &iConfig)
-    : lhcInfoLabel_(iConfig.getParameter<std::string>("lhcInfoLabel")),
-      opticsLabel_(iConfig.getParameter<std::string>("opticsLabel")),
+    : tokenLHCInfo_(esConsumes(edm::ESInputTag{"", iConfig.getParameter<std::string>("lhcInfoLabel")})),
+      tokenBeamParameters_(esConsumes()),
+      tokenOpticalFunctions_(esConsumes(edm::ESInputTag{"", iConfig.getParameter<std::string>("opticsLabel")})),
+      tokenGeometry_(esConsumes()),
+      tokenDirectSimuData_(esConsumes()),
+
       hepMCToken_(consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("hepMCTag"))),
 
       produceScoringPlaneHits_(iConfig.getParameter<bool>("produceScoringPlaneHits")),
       produceRecHits_(iConfig.getParameter<bool>("produceRecHits")),
 
       useEmpiricalApertures_(iConfig.getParameter<bool>("useEmpiricalApertures")),
-      empiricalAperture45_(
-          new TF2("empiricalAperture45", iConfig.getParameter<std::string>("empiricalAperture45").c_str())),
-      empiricalAperture56_(
-          new TF2("empiricalAperture56", iConfig.getParameter<std::string>("empiricalAperture56").c_str())),
+      useTimingRPEfficiency_(iConfig.getParameter<bool>("useTimingRPEfficiency")),
 
       produceHitsRelativeToBeam_(iConfig.getParameter<bool>("produceHitsRelativeToBeam")),
       roundToPitch_(iConfig.getParameter<bool>("roundToPitch")),
@@ -149,11 +163,6 @@ CTPPSDirectProtonSimulation::CTPPSDirectProtonSimulation(const edm::ParameterSet
 
       pitchPixelsHor_(iConfig.getParameter<double>("pitchPixelsHor")),
       pitchPixelsVer_(iConfig.getParameter<double>("pitchPixelsVer")),
-
-      timeResolutionDiamonds45_(
-          new TF1("timeResolutionDiamonds45", iConfig.getParameter<std::string>("timeResolutionDiamonds45").c_str())),
-      timeResolutionDiamonds56_(
-          new TF1("timeResolutionDiamonds56", iConfig.getParameter<std::string>("timeResolutionDiamonds56").c_str())),
 
       verbosity_(iConfig.getUntrackedParameter<unsigned int>("verbosity", 0)) {
   if (produceScoringPlaneHits_)
@@ -182,16 +191,15 @@ void CTPPSDirectProtonSimulation::fillDescriptions(edm::ConfigurationDescription
 
   desc.add<std::string>("lhcInfoLabel", "")->setComment("label of the LHCInfo record");
   desc.add<std::string>("opticsLabel", "")->setComment("label of the optics records");
+
   desc.add<edm::InputTag>("hepMCTag", edm::InputTag("generator", "unsmeared"));
 
   desc.add<bool>("produceScoringPlaneHits", true);
   desc.add<bool>("produceRecHits", true);
 
-  desc.add<bool>("useEmpiricalApertures", false);
-  desc.add<std::string>("empiricalAperture45", "0")->setComment("2D function of xi and xangle for cutoff on sec 45");
-  desc.add<std::string>("empiricalAperture56", "0")->setComment("2D function of xi and xangle for cutoff on sec 56");
-
-  desc.add<bool>("produceHitsRelativeToBeam", false);
+  desc.add<bool>("useEmpiricalApertures", true);
+  desc.add<bool>("useTimingRPEfficiency", false);
+  desc.add<bool>("produceHitsRelativeToBeam", true);
   desc.add<bool>("roundToPitch", true);
   desc.add<bool>("checkIsHit", true);
   desc.add<double>("pitchStrips", 66.e-3);              // in mm
@@ -199,11 +207,6 @@ void CTPPSDirectProtonSimulation::fillDescriptions(edm::ConfigurationDescription
 
   desc.add<double>("pitchPixelsHor", 100.e-3);
   desc.add<double>("pitchPixelsVer", 150.e-3);
-
-  desc.add<std::string>("timeResolutionDiamonds45", "0.200")
-      ->setComment("time resolution of single diamond sensor in sector 45, in ns");
-  desc.add<std::string>("timeResolutionDiamonds56", "0.200")
-      ->setComment("time resolution of single diamond sensor in sector 56, in ns");
 
   descriptions.add("ctppsDirectProtonSimulation", desc);
 }
@@ -216,17 +219,33 @@ void CTPPSDirectProtonSimulation::produce(edm::Event &iEvent, const edm::EventSe
   iEvent.getByToken(hepMCToken_, hepmc_prod);
 
   // get conditions
-  edm::ESHandle<LHCInfo> hLHCInfo;
-  iSetup.get<LHCInfoRcd>().get(lhcInfoLabel_, hLHCInfo);
+  auto const &lhcInfo = iSetup.getData(tokenLHCInfo_);
+  auto const &beamParameters = iSetup.getData(tokenBeamParameters_);
+  auto const &opticalFunctions = iSetup.getData(tokenOpticalFunctions_);
+  auto const &geometry = iSetup.getData(tokenGeometry_);
+  auto const &directSimuData = iSetup.getData(tokenDirectSimuData_);
 
-  edm::ESHandle<CTPPSBeamParameters> hBeamParameters;
-  iSetup.get<CTPPSBeamParametersRcd>().get(hBeamParameters);
+  if (directSimuDataRcdWatcher_.check(iSetup)) {
+    timeResolutionDiamonds45_ =
+        std::make_unique<TF1>(TF1("timeResolutionDiamonds45", directSimuData.getTimeResolutionDiamonds45().c_str()));
+    timeResolutionDiamonds56_ =
+        std::make_unique<TF1>(TF1("timeResolutionDiamonds56", directSimuData.getTimeResolutionDiamonds56().c_str()));
 
-  edm::ESHandle<LHCInterpolatedOpticalFunctionsSetCollection> hOpticalFunctions;
-  iSetup.get<CTPPSInterpolatedOpticsRcd>().get(opticsLabel_, hOpticalFunctions);
+    empiricalAperture45_ =
+        std::make_unique<TF2>(TF2("empiricalAperture45", directSimuData.getEmpiricalAperture45().c_str()));
+    empiricalAperture56_ =
+        std::make_unique<TF2>(TF2("empiricalAperture56", directSimuData.getEmpiricalAperture56().c_str()));
 
-  edm::ESHandle<CTPPSGeometry> geometry;
-  iSetup.get<VeryForwardMisalignedGeometryRecord>().get(geometry);
+    if (useTimingRPEfficiency_) {
+      edm::FileInPath fip(directSimuData.getEffTimePath().c_str());
+      std::unique_ptr<TFile> f_in(TFile::Open(fip.fullPath().c_str()));
+      effTimeMap45_ = std::unique_ptr<TH2F>((TH2F *)f_in->Get(directSimuData.getEffTimeObject45().c_str()));
+      effTimeMap56_ = std::unique_ptr<TH2F>((TH2F *)f_in->Get(directSimuData.getEffTimeObject56().c_str()));
+      effTimeMap45_->SetDirectory(nullptr);
+      effTimeMap56_->SetDirectory(nullptr);
+      f_in->Close();
+    }
+  }
 
   // prepare outputs
   std::unique_ptr<edm::DetSetVector<TotemRPRecHit>> pStripRecHits(new edm::DetSetVector<TotemRPRecHit>());
@@ -261,10 +280,10 @@ void CTPPSDirectProtonSimulation::produce(edm::Event &iEvent, const edm::EventSe
 
       processProton(vtx,
                     part,
-                    *geometry,
-                    *hLHCInfo,
-                    *hBeamParameters,
-                    *hOpticalFunctions,
+                    geometry,
+                    lhcInfo,
+                    beamParameters,
+                    opticalFunctions,
                     engine,
                     *pTracks,
                     *pStripRecHits,
@@ -372,7 +391,7 @@ void CTPPSDirectProtonSimulation::processProton(
     if (th_x_th > th_x_phys) {
       if (verbosity_) {
         ssLog << "stop because of empirical appertures";
-        edm::LogInfo("CTPPSDirectProtonSimulation") << ssLog.str();
+        edm::LogInfo("PPS") << ssLog.str();
       }
 
       return;
@@ -520,22 +539,28 @@ void CTPPSDirectProtonSimulation::processProton(
       if (detId.subdetId() == CTPPSDetId::sdTimingDiamond) {
         CTPPSDiamondDetId diamondDetId(detIdInt);
 
-        const auto *dg = geometry.sensor(detIdInt);
+        //efficiency
+        if (useTimingRPEfficiency_) {
+          TH2F *effMap = (diamondDetId.arm() == 0) ? effTimeMap45_.get() : effTimeMap56_.get();
+          if (CLHEP::RandFlat::shoot(rndEngine, 0., 1.) > effMap->GetBinContent(effMap->FindBin(h_glo.x(), h_glo.y())))
+            continue;
+        }
 
+        // check acceptance
+        const auto *dg = geometry.sensor(detIdInt);
         const auto &diamondDimensions = dg->getDiamondDimensions();
         const auto x_half_width = diamondDimensions.xHalfWidth;
         const auto y_half_width = diamondDimensions.yHalfWidth;
         const auto z_half_width = diamondDimensions.zHalfWidth;
 
-        const double time_resolution = (diamondDetId.arm() == 0) ? timeResolutionDiamonds45_->Eval(h_glo.x())
-                                                                 : timeResolutionDiamonds56_->Eval(h_glo.x());
-
-        // check acceptance
         if (h_loc.x() < -x_half_width || h_loc.x() > +x_half_width || h_loc.y() < -y_half_width ||
             h_loc.y() > +y_half_width)
           continue;
 
         // timing information
+        const double time_resolution = (diamondDetId.arm() == 0) ? timeResolutionDiamonds45_->Eval(h_glo.x())
+                                                                 : timeResolutionDiamonds56_->Eval(h_glo.x());
+
         const double t0 = time_eff + CLHEP::RandGauss::shoot(rndEngine, 0., time_resolution);
         const double tot = 1.23456;
         const double ch_t_precis = time_resolution;
@@ -602,7 +627,7 @@ void CTPPSDirectProtonSimulation::processProton(
   }
 
   if (verbosity_)
-    edm::LogInfo("CTPPSDirectProtonSimulation") << ssLog.str();
+    edm::LogInfo("PPS") << ssLog.str();
 }
 
 //----------------------------------------------------------------------------------------------------

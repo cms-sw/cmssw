@@ -47,28 +47,18 @@ to the actual calibration code in "endJob()".
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "TFile.h"
 
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-
-using namespace edm;
-//using namespace reco;
-using namespace std;
-
 // constructor
 
 HcalCalibrator::HcalCalibrator(const edm::ParameterSet& conf)
-    :
-
-      mInputFileList(conf.getUntrackedParameter<string>("inputFileList")),
-      //  mOutputFile(conf.getUntrackedParameter<string>("outputFile")),
-
-      mCalibType(conf.getUntrackedParameter<string>("calibType")),
-      mCalibMethod(conf.getUntrackedParameter<string>("calibMethod")),
+    : mInputFileList(conf.getUntrackedParameter<std::string>("inputFileList")),
+      //  mOutputFile(conf.getUntrackedParameter<std::string>("outputFile")),
+      mCalibType(conf.getUntrackedParameter<std::string>("calibType")),
+      mCalibMethod(conf.getUntrackedParameter<std::string>("calibMethod")),
       mMinTargetE(conf.getUntrackedParameter<double>("minTargetE")),
       mMaxTargetE(conf.getUntrackedParameter<double>("maxTargetE")),
       mMinCellE(conf.getUntrackedParameter<double>("minCellE")),
@@ -93,12 +83,13 @@ HcalCalibrator::HcalCalibrator(const edm::ParameterSet& conf)
       mMaxTagJetAbsEta(conf.getUntrackedParameter<double>("maxTagJetAbsEta")),
       mMinTagJetEt(conf.getUntrackedParameter<double>("minTagJetEt")),
       mMinProbeJetAbsEta(conf.getUntrackedParameter<double>("minProbeJetAbsEta")),
-      mPhiSymCorFileName(conf.getUntrackedParameter<string>("phiSymCorFileName")),
+      mPhiSymCorFileName(conf.getUntrackedParameter<std::string>("phiSymCorFileName")),
       mApplyPhiSymCorFlag(conf.getUntrackedParameter<bool>("applyPhiSymCorFlag")),
-      mOutputCorCoefFileName(conf.getUntrackedParameter<string>("outputCorCoefFileName")),
-      mHistoFileName(conf.getUntrackedParameter<string>("histoFileName"))
-
-{}
+      mOutputCorCoefFileName(conf.getUntrackedParameter<std::string>("outputCorCoefFileName")),
+      mHistoFileName(conf.getUntrackedParameter<std::string>("histoFileName")) {
+  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
+  tok_htopo_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
+}
 
 // destructor
 
@@ -107,25 +98,13 @@ HcalCalibrator::~HcalCalibrator() {}
 // ------------ method called to for each event  ------------
 
 void HcalCalibrator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
-  mTheCaloGeometry = pG.product();
-  edm::ESHandle<HcalTopology> pT;
-  iSetup.get<HcalRecNumberingRecord>().get(pT);
-  mTheHcalTopology = pT.product();
+  mTheCaloGeometry = &iSetup.getData(tok_geom_);
+  mTheHcalTopology = &iSetup.getData(tok_htopo_);
 }
 
 // ------------ method called once each job just before starting event loop  ------------
 
-void HcalCalibrator::beginJob() {
-  //  ESHandle<CaloGeometry> theGeometry;
-  //  ESHandle<CaloSubdetectorGeometry> theEndcapGeometry_handle, theBarrelGeometry_handle;
-  //  evtSetup.get<CaloGeometryRecord>().get( theGeometry );
-
-  // edm::ESHandle<CaloGeometry> pG;
-  // evtSetup.get<CaloGeometryRecord>().get(pG);
-  // mTheCaloGeometry = pG.product();
-}
+void HcalCalibrator::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
 

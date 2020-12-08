@@ -137,7 +137,7 @@ void __class__::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //To use, remove the default given above and uncomment below
   //ParameterSetDescription desc;
   //desc.addUntracked<edm::InputTag>("tracks","ctfWithMaterialTracks");
-  //descriptions.addDefault(desc);
+  //descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

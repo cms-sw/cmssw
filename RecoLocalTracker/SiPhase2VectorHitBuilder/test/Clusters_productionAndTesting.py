@@ -74,12 +74,15 @@ process.RECOSIMoutput = cms.OutputModule("PoolOutputModule",
 )
 
 # debug
-process.MessageLogger = cms.Service('MessageLogger',
-        debugModules = cms.untracked.vstring('siPhase2Clusters'),
-        destinations = cms.untracked.vstring('cout'),
-        cout = cms.untracked.PSet(
-                threshold = cms.untracked.string('ERROR')
-        )
+process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('ERROR')
+    ),
+    debugModules = cms.untracked.vstring('siPhase2Clusters')
 )
 
 # Analyzer

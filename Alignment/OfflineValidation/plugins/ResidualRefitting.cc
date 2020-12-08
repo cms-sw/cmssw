@@ -38,7 +38,7 @@ ResidualRefitting::ResidualRefitting(const edm::ParameterSet& cfg)
     : magFieldToken_(esConsumes()),
       topoToken_(esConsumes()),
       trackingGeometryToken_(esConsumes()),
-      propagatorToken_(esConsumes(edm::ESInputTag(cfg.getParameter<std::string>("propagator")))),
+      propagatorToken_(esConsumes(edm::ESInputTag("", cfg.getParameter<std::string>("propagator")))),
       outputFileName_(cfg.getUntrackedParameter<std::string>("histoutputFile")),
       muons_(cfg.getParameter<edm::InputTag>("muons")),
       muonsRemake_(cfg.getParameter<edm::InputTag>("muonsRemake")),  //This Feels Misalignment

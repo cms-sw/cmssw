@@ -34,16 +34,16 @@ autoCond = {
     # GlobalTag for Run2 data relvals: allows customization to run with fixed L1 menu
     'run2_data_relval'  :   '112X_dataRun2_relval_v7',
     # GlobalTag for Run2 HI data
-    'run2_data_promptlike_hi' : '112X_dataRun2_PromptLike_HI_v3',
+    'run2_data_promptlike_hi' : '112X_dataRun2_PromptLike_HI_v5',
     # GlobalTag for Run1 HLT: it points to the online GT
-    'run1_hlt'          :   '101X_dataRun2_HLT_frozen_v10',
+    'run1_hlt'          :   '101X_dataRun2_HLT_frozen_v11',
     # GlobalTag for Run2 HLT: it points to the online GT
-    'run2_hlt'          :   '101X_dataRun2_HLT_frozen_v10',
+    'run2_hlt'          :   '101X_dataRun2_HLT_frozen_v11',
     # GlobalTag for Run2 HLT RelVals: customizations to run with fixed L1 Menu
-    'run2_hlt_relval'      :   '103X_dataRun2_HLT_relval_v9',
-    'run2_hlt_relval_hi'   :   '103X_dataRun2_HLT_relval_HI_v5',
+    'run2_hlt_relval'      :   '103X_dataRun2_HLT_relval_v10',
+    'run2_hlt_relval_hi'   :   '103X_dataRun2_HLT_relval_HI_v6',
     # GlobalTag for Run2 HLT for HI (not 2018 HI): it points to the online GT
-    'run2_hlt_hi'       :   '101X_dataRun2_HLTHI_frozen_v10',
+    'run2_hlt_hi'       :   '101X_dataRun2_HLTHI_frozen_v11',
     # GlobalTag for Run3 data relvals (express GT)
     'run3_data_express'        :   '111X_dataRun3_Express_v4',
     # GlobalTag for Run3 data relvals
@@ -61,7 +61,7 @@ autoCond = {
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector
     'phase1_2018_realistic'    :  '112X_upgrade2018_realistic_v6',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector for Heavy Ion
-    'phase1_2018_realistic_hi' :  '112X_upgrade2018_realistic_HI_v5',
+    'phase1_2018_realistic_hi' :  '112X_upgrade2018_realistic_HI_v6',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector: HEM-15-16 fail
     'phase1_2018_realistic_HEfail' :  '112X_upgrade2018_realistic_HEfail_v6',
     # GlobalTag for MC production (cosmics) with realistic conditions for full Phase1 2018 detector,  Strip tracker in DECO mode
