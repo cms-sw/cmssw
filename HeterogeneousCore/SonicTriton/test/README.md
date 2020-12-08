@@ -13,20 +13,12 @@ First, the relevant data should be downloaded from Nvidia:
 ./fetch_model.sh
 ```
 
-The server can be managed with the `triton` script (using Singularity with CPU by default):
+Launch a local server (using Singularity with CPU by default):
 ```
-./triton start
+triton -M $CMSSW_BASE/src/HeterogeneousCore/SonicTriton/data/models start
 [run test commands]
-./triton stop
+triton stop
 ```
-
-The script has the following options:
-* `-d`: use Docker instead of Singularity
-* `-g`: use GPU instead of CPU
-* `-n`: name of container instance (default: triton_server_instance)
-* `-v`: (verbose) start: activate server debugging info; stop: keep server logs
-* `-w`: maximum time to wait for server to start (default: 60 seconds)
-* `-h`: print help message and exit
 
 ## Test commands
 
