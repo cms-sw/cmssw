@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 # it will be used both in BeamMonitor setup and in payload creation/upload
 BSOnlineRecordName = 'BeamSpotOnlineLegacyObjectsRcd'
 BSOnlineTag = 'BeamSpotOnlineTestLegacy'
-BSOnlineJobName = 'BeamSpotOnlineLegacyTest'
+BSOnlineJobName = 'BeamSpotOnlineTestLegacy'
 
 #from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 #process = cms.Process("BeamMonitor", Run2_2018) FIXME

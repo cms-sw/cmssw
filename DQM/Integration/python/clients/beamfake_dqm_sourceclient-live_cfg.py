@@ -6,7 +6,7 @@ import time
 # it will be used both in FakeBeamMonitor setup and in payload creation/upload
 BSOnlineRecordName = 'BeamSpotOnlineLegacyObjectsRcd'
 BSOnlineTag = 'BeamSpotOnlineTestLegacy'
-BSOnlineJobName = 'BeamSpotOnlineLegacyTest'
+BSOnlineJobName = 'BeamSpotOnlineTestLegacy'
 
 import sys
 from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
