@@ -16,11 +16,12 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 
+#include <array>
+
 class GBRForest;
 
 class EGEnergyCorrector {
 public:
-  EGEnergyCorrector();
   ~EGEnergyCorrector();
 
   void Initialize(const edm::EventSetup &iSetup, std::string regweights, bool weightsFromDB = false);
@@ -48,14 +49,14 @@ public:
                                                        CaloGeometry const &caloGeometry);
 
 protected:
-  const GBRForest *fReadereb;
-  const GBRForest *fReaderebvariance;
-  const GBRForest *fReaderee;
-  const GBRForest *fReadereevariance;
+  const GBRForest *fReadereb = nullptr;
+  const GBRForest *fReaderebvariance = nullptr;
+  const GBRForest *fReaderee = nullptr;
+  const GBRForest *fReadereevariance = nullptr;
 
-  Bool_t fIsInitialized;
-  Bool_t fOwnsForests;
-  Float_t *fVals;
+  bool fIsInitialized = false;
+  bool fOwnsForests = false;
+  std::array<float, 73> fVals;
 };
 
 #endif
