@@ -1172,7 +1172,7 @@ private:
             const ProjectedSiStripRecHit2D *pH = static_cast<const ProjectedSiStripRecHit2D *>(&hit);
             return (countStereoHitAs2D_ && this->isHit2D(pH->originalHit()));  // depends on original...
           } else {
-            edm::LogError("UnkownType") << "@SUB=GeneralPurposeTrackAnalyzer::isHit2D"
+            edm::LogError("UnknownType") << "@SUB=GeneralPurposeTrackAnalyzer::isHit2D"
                                         << "Tracker hit not in pixel, neither SiStripRecHit[12]D nor "
                                         << "SiStripMatchedRecHit2D nor ProjectedSiStripRecHit2D.";
             return false;

@@ -1173,9 +1173,9 @@ bool PrimaryVertexValidation::isHit2D(const TrackingRecHit& hit, const PVValHelp
         else if (dynamic_cast<const ProjectedSiStripRecHit2D*>(&hit))
           return false;  // crazy hit...
         else {
-          edm::LogError("UnkownType") << "@SUB=PrimaryVertexValidation::isHit2D"
-                                      << "Tracker hit not in pixel and neither SiStripRecHit2D nor "
-                                      << "SiStripMatchedRecHit2D nor ProjectedSiStripRecHit2D.";
+          edm::LogError("UnknownType") << "@SUB=AlignmentTrackSelector::isHit2D"
+				       << "Tracker hit not in pixel and neither SiStripRecHit2D nor "
+				       << "SiStripMatchedRecHit2D nor ProjectedSiStripRecHit2D.";
           return false;
         }
       } else {
