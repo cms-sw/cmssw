@@ -18,8 +18,8 @@ process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('MaterialBudget')
-#   process.MessageLogger.categories.append('MaterialBudgetFull')
+    process.MessageLogger.MaterialBudget=dict()
+#   process.MessageLogger.MaterialBudgetFull=dict()
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             confGeomXMLFiles = cms.FileInPath('Validation/Geometry/data/cmsExtendedGeometryNoMuon2021.xml'),

@@ -13,7 +13,7 @@ process.GlobalTag.globaltag=autoCond['run2_mc']
 #process.GlobalTag.globaltag = 'START53_V15::All'
 
 if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.categories.append('HcalIsoTrack')
+    process.MessageLogger.HcalIsoTrack=dict()
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )

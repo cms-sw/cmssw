@@ -6,9 +6,9 @@ process.load("Geometry.MuonCommonData.testGE0XML_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.categories.append('G4cerr')
-    process.MessageLogger.categories.append('G4cout')
-    process.MessageLogger.categories.append('MuonGeom')
+    process.MessageLogger.G4cerr=dict()
+    process.MessageLogger.G4cout=dict()
+    process.MessageLogger.MuonGeom=dict()
 
 process.source = cms.Source("EmptySource")
 

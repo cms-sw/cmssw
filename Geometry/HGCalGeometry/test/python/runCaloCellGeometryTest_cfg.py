@@ -9,8 +9,8 @@ process.load("Configuration.Geometry.GeometryExtended2026D71Reco_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('HGCalGeom')
-    process.MessageLogger.categories.append('CaloGeometryBuilder')
+    process.MessageLogger.HGCalGeom=dict()
+    process.MessageLogger.CaloGeometryBuilder=dict()
 
 
 process.source = cms.Source("EmptySource")

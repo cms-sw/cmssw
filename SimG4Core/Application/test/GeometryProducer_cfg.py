@@ -12,7 +12,8 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("EmptySource")
 
-process.MessageLogger.destinations = cms.untracked.vstring("geomprod.txt")
+process.MessageLogger.cerr.enable = False
+process.MessageLogger.files.geomprod = dict(extension="txt")
 
 common_heavy_suppression = cms.PSet(
     NeutronThreshold = cms.double(30.0),

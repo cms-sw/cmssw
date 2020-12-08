@@ -5,7 +5,7 @@ process = cms.Process("TEST")
 ## configure message logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = cms.untracked.string('INFO')
-process.MessageLogger.categories = cms.untracked.vstring('TEST')
+process.MessageLogger.TEST = dict()
 
 ## define input
 from TopQuarkAnalysis.TopEventProducers.tqafInputFiles_cff import relValTTbar

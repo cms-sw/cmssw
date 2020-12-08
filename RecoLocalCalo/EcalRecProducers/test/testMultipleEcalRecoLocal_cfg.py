@@ -121,7 +121,6 @@ process.outpath = cms.EndPath(process.out)
 #########################
 
 #https://twiki.cern.ch/twiki/bin/viewauth/CMS/FastTimerService
-process.MessageLogger.categories.append('FastReport')
 process.MessageLogger.cerr.FastReport = cms.untracked.PSet( limit = cms.untracked.int32( 10000000 ) )
 
 # remove any instance of the FastTimerService

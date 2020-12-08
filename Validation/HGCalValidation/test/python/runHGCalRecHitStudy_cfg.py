@@ -17,8 +17,8 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 2
-#if 'MessageLogger' in process.__dict__:
-#    process.MessageLogger.categories.append('HGCalValidation')
+#
+#    
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring('file:step3.root')
