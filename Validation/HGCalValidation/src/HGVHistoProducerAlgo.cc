@@ -192,7 +192,10 @@ void HGVHistoProducerAlgo::bookInfo(DQMStore::IBooker& ibook, Histograms& histog
   histograms.maxlayerzp = ibook.bookInt("maxlayerzp");
 }
 
-void HGVHistoProducerAlgo::bookCaloParticleHistos(DQMStore::IBooker& ibook, Histograms& histograms, int pdgid, unsigned layers) {
+void HGVHistoProducerAlgo::bookCaloParticleHistos(DQMStore::IBooker& ibook,
+                                                  Histograms& histograms,
+                                                  int pdgid,
+                                                  unsigned layers) {
   histograms.h_caloparticle_eta[pdgid] =
       ibook.book1D("N of caloparticle vs eta", "N of caloparticle vs eta", nintEta_, minEta_, maxEta_);
   histograms.h_caloparticle_eta_Zorigin[pdgid] =
@@ -201,8 +204,7 @@ void HGVHistoProducerAlgo::bookCaloParticleHistos(DQMStore::IBooker& ibook, Hist
   histograms.h_caloparticle_energy[pdgid] =
       ibook.book1D("Energy", "Energy of caloparticle", nintEne_, minEne_, maxEne_);
   histograms.h_caloparticle_pt[pdgid] = ibook.book1D("Pt", "Pt of caloparticle", nintPt_, minPt_, maxPt_);
-  histograms.h_caloparticle_phi[pdgid] =
-      ibook.book1D("Phi", "Phi of caloparticle", nintPhi_, minPhi_, maxPhi_);
+  histograms.h_caloparticle_phi[pdgid] = ibook.book1D("Phi", "Phi of caloparticle", nintPhi_, minPhi_, maxPhi_);
   histograms.h_caloparticle_selfenergy[pdgid] =
       ibook.book1D("SelfEnergy", "Total Energy of Hits in Sim Clusters (matched)", nintEne_, minEne_, maxEne_);
   histograms.h_caloparticle_energyDifference[pdgid] =
@@ -212,12 +214,12 @@ void HGVHistoProducerAlgo::bookCaloParticleHistos(DQMStore::IBooker& ibook, Hist
       ibook.book1D("Num Sim Clusters", "Num Sim Clusters in caloparticle", 100, 0., 100.);
   histograms.h_caloparticle_nHitsInSimClusters[pdgid] =
       ibook.book1D("Num Hits in Sim Clusters", "Num Hits in Sim Clusters in caloparticle", 1000, 0., 1000.);
-  histograms.h_caloparticle_nHitsInSimClusters_matchedtoRecHit[pdgid] =
-      ibook.book1D("Num Rec-matched Hits in Sim Clusters", "Num Hits in Sim Clusters (matched) in caloparticle", 1000, 0., 1000.);
+  histograms.h_caloparticle_nHitsInSimClusters_matchedtoRecHit[pdgid] = ibook.book1D(
+      "Num Rec-matched Hits in Sim Clusters", "Num Hits in Sim Clusters (matched) in caloparticle", 1000, 0., 1000.);
 
   histograms.h_caloparticle_nHits_matched_energy[pdgid] =
       ibook.book1D("Energy of Rec-matched Hits", "Energy of Hits in Sim Clusters (matched)", 100, 0., 10.);
-  histograms.h_caloparticle_nHits_matched_energy_layer[pdgid] = 
+  histograms.h_caloparticle_nHits_matched_energy_layer[pdgid] =
       ibook.book2D("Energy of Rec-matched Hits vs layer",
                    "Energy of Hits in Sim Clusters (matched) vs layer",
                    2 * layers,
@@ -226,7 +228,7 @@ void HGVHistoProducerAlgo::bookCaloParticleHistos(DQMStore::IBooker& ibook, Hist
                    100,
                    0.,
                    10.);
-  histograms.h_caloparticle_nHits_matched_energy_layer_1SimCl[pdgid] = 
+  histograms.h_caloparticle_nHits_matched_energy_layer_1SimCl[pdgid] =
       ibook.book2D("Energy of Rec-matched Hits vs layer (1SC)",
                    "Energy of Hits only 1 Sim Clusters (matched) vs layer",
                    2 * layers,
@@ -235,27 +237,32 @@ void HGVHistoProducerAlgo::bookCaloParticleHistos(DQMStore::IBooker& ibook, Hist
                    100,
                    0.,
                    10.);
-  histograms.h_caloparticle_sum_energy_layer[pdgid] = 
+  histograms.h_caloparticle_sum_energy_layer[pdgid] =
       ibook.book2D("Rec-matched Hits Sum Energy vs layer",
                    "Rescaled Sum Energy of Hits in Sim Clusters (matched) vs layer",
                    2 * layers,
                    0.,
                    (float)2 * layers,
-                   110, 0., 110.);
+                   110,
+                   0.,
+                   110.);
 
-
-  histograms.h_caloparticle_firstlayer[pdgid] = 
+  histograms.h_caloparticle_firstlayer[pdgid] =
       ibook.book1D("First Layer", "First layer of the caloparticle", 2 * layers, 0., (float)2 * layers);
-  histograms.h_caloparticle_lastlayer[pdgid] = 
+  histograms.h_caloparticle_lastlayer[pdgid] =
       ibook.book1D("Last Layer", "Last layer of the caloparticle", 2 * layers, 0., (float)2 * layers);
   histograms.h_caloparticle_layersnum[pdgid] =
       ibook.book1D("Number of Layers", "Number of layers of the caloparticle", 2 * layers, 0., (float)2 * layers);
-  histograms.h_caloparticle_firstlayer_matchedtoRecHit[pdgid] = 
-      ibook.book1D("First Layer (rec-matched hit)", "First layer of the caloparticle (matched)", 2 * layers, 0., (float)2 * layers);
-  histograms.h_caloparticle_lastlayer_matchedtoRecHit[pdgid] = 
-      ibook.book1D("Last Layer (rec-matched hit)", "Last layer of the caloparticle (matched)", 2 * layers, 0., (float)2 * layers);
+  histograms.h_caloparticle_firstlayer_matchedtoRecHit[pdgid] = ibook.book1D(
+      "First Layer (rec-matched hit)", "First layer of the caloparticle (matched)", 2 * layers, 0., (float)2 * layers);
+  histograms.h_caloparticle_lastlayer_matchedtoRecHit[pdgid] = ibook.book1D(
+      "Last Layer (rec-matched hit)", "Last layer of the caloparticle (matched)", 2 * layers, 0., (float)2 * layers);
   histograms.h_caloparticle_layersnum_matchedtoRecHit[pdgid] =
-      ibook.book1D("Number of Layers (rec-matched hit)", "Number of layers of the caloparticle (matched)", 2 * layers, 0., (float)2 * layers);
+      ibook.book1D("Number of Layers (rec-matched hit)",
+                   "Number of layers of the caloparticle (matched)",
+                   2 * layers,
+                   0.,
+                   (float)2 * layers);
 }
 
 void HGVHistoProducerAlgo::bookClusterHistos(DQMStore::IBooker& ibook,
@@ -836,7 +843,6 @@ void HGVHistoProducerAlgo::fill_caloparticle_histos(const Histograms& histograms
                                                     std::vector<SimVertex> const& simVertices,
                                                     unsigned layers,
                                                     std::unordered_map<DetId, const HGCRecHit*> const& hitMap) const {
-
   const auto eta = getEta(caloparticle.eta());
   if (histograms.h_caloparticle_eta.count(pdgid)) {
     histograms.h_caloparticle_eta.at(pdgid)->Fill(eta);
@@ -875,8 +881,8 @@ void HGVHistoProducerAlgo::fill_caloparticle_histos(const Histograms& histograms
 
       for (auto const& h_and_f : sc->hits_and_fractions()) {
         const auto hitDetId = h_and_f.first;
-        int layerId = recHitTools_->getLayerWithOffset(hitDetId) +
-                  layers * ((recHitTools_->zside(hitDetId) + 1) >> 1) - 1;
+        int layerId =
+            recHitTools_->getLayerWithOffset(hitDetId) + layers * ((recHitTools_->zside(hitDetId) + 1) >> 1) - 1;
 
         // set to 0 if matched RecHit not found
         int layerId_matched_min = 999;
@@ -888,49 +894,48 @@ void HGVHistoProducerAlgo::fill_caloparticle_histos(const Histograms& histograms
           simHits_matched++;
 
           const HGCRecHit* hit = itcheck->second;
-          energy += hit->energy()*h_and_f.second; 
-          histograms.h_caloparticle_nHits_matched_energy.at(pdgid)->Fill(hit->energy()*h_and_f.second); 
-          histograms.h_caloparticle_nHits_matched_energy_layer.at(pdgid)->Fill(layerId, hit->energy()*h_and_f.second); 
+          energy += hit->energy() * h_and_f.second;
+          histograms.h_caloparticle_nHits_matched_energy.at(pdgid)->Fill(hit->energy() * h_and_f.second);
+          histograms.h_caloparticle_nHits_matched_energy_layer.at(pdgid)->Fill(layerId, hit->energy() * h_and_f.second);
 
-          if (totenergy_layer.find(layerId) != totenergy_layer.end()){
-              totenergy_layer[layerId] = totenergy_layer.at(layerId) + hit->energy();
+          if (totenergy_layer.find(layerId) != totenergy_layer.end()) {
+            totenergy_layer[layerId] = totenergy_layer.at(layerId) + hit->energy();
           } else {
-              totenergy_layer.emplace(layerId, hit->energy());
+            totenergy_layer.emplace(layerId, hit->energy());
           }
-          if (caloparticle.simClusters().size() == 1 )
-            histograms.h_caloparticle_nHits_matched_energy_layer_1SimCl.at(pdgid)->Fill(layerId, hit->energy()*h_and_f.second); 
+          if (caloparticle.simClusters().size() == 1)
+            histograms.h_caloparticle_nHits_matched_energy_layer_1SimCl.at(pdgid)->Fill(layerId,
+                                                                                        hit->energy() * h_and_f.second);
         }
 
         minLayerId = std::min(minLayerId, layerId);
         maxLayerId = std::max(maxLayerId, layerId);
         minLayerId_matched = std::min(minLayerId_matched, layerId_matched_min);
         maxLayerId_matched = std::max(maxLayerId_matched, layerId_matched_max);
-
       }
     }
     histograms.h_caloparticle_firstlayer.at(pdgid)->Fill(minLayerId);
     histograms.h_caloparticle_lastlayer.at(pdgid)->Fill(maxLayerId);
-    histograms.h_caloparticle_layersnum.at(pdgid)->Fill(int(maxLayerId-minLayerId));
+    histograms.h_caloparticle_layersnum.at(pdgid)->Fill(int(maxLayerId - minLayerId));
 
     histograms.h_caloparticle_firstlayer_matchedtoRecHit.at(pdgid)->Fill(minLayerId_matched);
     histograms.h_caloparticle_lastlayer_matchedtoRecHit.at(pdgid)->Fill(maxLayerId_matched);
-    histograms.h_caloparticle_layersnum_matchedtoRecHit.at(pdgid)->Fill(int(maxLayerId_matched-minLayerId_matched));
+    histograms.h_caloparticle_layersnum_matchedtoRecHit.at(pdgid)->Fill(int(maxLayerId_matched - minLayerId_matched));
 
     histograms.h_caloparticle_nHitsInSimClusters.at(pdgid)->Fill((float)simHits);
     histograms.h_caloparticle_nHitsInSimClusters_matchedtoRecHit.at(pdgid)->Fill((float)simHits_matched);
     histograms.h_caloparticle_selfenergy.at(pdgid)->Fill((float)energy);
-    histograms.h_caloparticle_energyDifference.at(pdgid)->Fill((float) 1. - energy / caloparticle.energy());
+    histograms.h_caloparticle_energyDifference.at(pdgid)->Fill((float)1. - energy / caloparticle.energy());
 
     //Calculate sum energy per-layer
     auto i = totenergy_layer.begin();
     double sum_energy = 0.0;
-    while( i != totenergy_layer.end() ){
-       sum_energy += i->second;
-       histograms.h_caloparticle_sum_energy_layer.at(pdgid)->Fill(i->first, sum_energy / caloparticle.energy() * 100. );
-       i++;
+    while (i != totenergy_layer.end()) {
+      sum_energy += i->second;
+      histograms.h_caloparticle_sum_energy_layer.at(pdgid)->Fill(i->first, sum_energy / caloparticle.energy() * 100.);
+      i++;
     }
   }
-  
 }
 
 void HGVHistoProducerAlgo::fill_cluster_histos(const Histograms& histograms,
