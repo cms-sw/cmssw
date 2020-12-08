@@ -99,10 +99,7 @@ HGCalGeometry* HGCalGeometryLoader::build(const HGCalTopology& topology) {
           CLHEP::Hep3Vector h3v(xx, w.second, mytr.h3v.z());
           const HepGeom::Transform3D ht3d(mytr.hr, h3v);
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("HGCalGeom") << "HGCalGeometryLoader::rad:phi:type " << irad * zside << ":" << iphi << ":"
-                                        << type << " DetId " << HGCScintillatorDetId(detId) << " " << std::hex
-                                        << detId.rawId() << std::dec << " transf " << ht3d.getTranslation() << " and "
-                                        << ht3d.getRotation();
+          edm::LogVerbatim("HGCalGeom") << "HGCalGeometryLoader::rad:phi:type " << irad * zside << ":" << iphi << ":" << type << " DetId " << HGCScintillatorDetId(detId) << " " << std::hex << detId.rawId() << std::dec << " transf " << ht3d.getTranslation() << " R " << ht3d.getTranslation().perp() << " and " << ht3d.getRotation();
 #endif
           HGCalParameters::hgtrap vol = topology.dddConstants().getModule(md, false, true);
           params[FlatTrd::k_dZ] = vol.dz;
