@@ -2571,7 +2571,7 @@ bool ApeEstimator::isHit2D(const TrackingRecHit& hit) const {
           const ProjectedSiStripRecHit2D* pH = static_cast<const ProjectedSiStripRecHit2D*>(&hit);
           return (this->isHit2D(pH->originalHit()));  // depends on original...
         } else {
-          edm::LogError("UnkownType") << "@SUB=AlignmentTrackSelector::isHit2D"
+          edm::LogError("UnknownType") << "@SUB=AlignmentTrackSelector::isHit2D"
                                       << "Tracker hit not in pixel, neither SiStripRecHit[12]D nor "
                                       << "SiStripMatchedRecHit2D nor ProjectedSiStripRecHit2D.";
           return false;

@@ -231,7 +231,7 @@ bool CalibrationTrackSelector::isHit2D(const TrackingRecHit &hit) const {
         else if (dynamic_cast<const ProjectedSiStripRecHit2D *>(&hit))
           return false;  // crazy hit...
         else {
-          edm::LogError("UnkownType") << "@SUB=CalibrationTrackSelector::isHit2D"
+          edm::LogError("UnknownType") << "@SUB=CalibrationTrackSelector::isHit2D"
                                       << "Tracker hit not in pixel and neither SiStripRecHit2D nor "
                                       << "SiStripMatchedRecHit2D nor ProjectedSiStripRecHit2D.";
           return false;
