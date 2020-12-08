@@ -15,22 +15,7 @@
 using namespace reco;
 
 //--------------------------------------------------------------------------------------------------
-EGEnergyCorrector::EGEnergyCorrector()
-    : fReadereb(nullptr),
-      fReaderebvariance(nullptr),
-      fReaderee(nullptr),
-      fReadereevariance(nullptr),
-      fIsInitialized(kFALSE),
-      fOwnsForests(kFALSE),
-      fVals(nullptr) {
-  // Constructor.
-}
-
-//--------------------------------------------------------------------------------------------------
 EGEnergyCorrector::~EGEnergyCorrector() {
-  if (fVals)
-    delete[] fVals;
-
   if (fOwnsForests) {
     if (fReadereb)
       delete fReadereb;
@@ -45,10 +30,8 @@ EGEnergyCorrector::~EGEnergyCorrector() {
 
 //--------------------------------------------------------------------------------------------------
 void EGEnergyCorrector::Initialize(const edm::EventSetup &iSetup, std::string regweights, bool weightsFromDB) {
-  fIsInitialized = kTRUE;
+  fIsInitialized = true;
 
-  if (fVals)
-    delete[] fVals;
   if (fOwnsForests) {
     if (fReadereb)
       delete fReadereb;
@@ -60,7 +43,7 @@ void EGEnergyCorrector::Initialize(const edm::EventSetup &iSetup, std::string re
       delete fReadereevariance;
   }
 
-  fVals = new Float_t[73];
+  fVals.fill(0.0f);
 
   if (weightsFromDB) {  //weights from event setup
 
@@ -80,7 +63,7 @@ void EGEnergyCorrector::Initialize(const edm::EventSetup &iSetup, std::string re
     fReadereevariance = readereevar.product();
 
   } else {  //weights from root file
-    fOwnsForests = kTRUE;
+    fOwnsForests = true;
 
     TFile *fgbr = TFile::Open(regweights.c_str(), "READ");
     fReadereb = (GBRForest *)fgbr->Get("EBCorrection");
@@ -278,8 +261,8 @@ std::pair<double, double> EGEnergyCorrector::CorrectedEnergyWithError(const Phot
     readervar = fReadereevariance;
   }
 
-  Double_t ecor = reader->GetResponse(fVals) * den;
-  Double_t ecorerr = readervar->GetResponse(fVals) * den * varscale;
+  Double_t ecor = reader->GetResponse(fVals.data()) * den;
+  Double_t ecorerr = readervar->GetResponse(fVals.data()) * den * varscale;
 
   //printf("ecor = %5f, ecorerr = %5f\n",ecor,ecorerr);
 
@@ -470,8 +453,8 @@ std::pair<double, double> EGEnergyCorrector::CorrectedEnergyWithError(const GsfE
     readervar = fReadereevariance;
   }
 
-  Double_t ecor = reader->GetResponse(fVals) * den;
-  Double_t ecorerr = readervar->GetResponse(fVals) * den * varscale;
+  Double_t ecor = reader->GetResponse(fVals.data()) * den;
+  Double_t ecorerr = readervar->GetResponse(fVals.data()) * den * varscale;
 
   //printf("ecor = %5f, ecorerr = %5f\n",ecor,ecorerr);
 
@@ -579,7 +562,7 @@ std::pair<double, double> EGEnergyCorrector::CorrectedEnergyWithErrorV3(const Ph
     readervar = fReadereevariance;
   }
 
-  Double_t ecor = reader->GetResponse(fVals) * den;
+  Double_t ecor = reader->GetResponse(fVals.data()) * den;
 
   //apply shower shape rescaling - for Monte Carlo only, and only for calculation of energy uncertainty
   if (applyRescale) {
@@ -635,7 +618,7 @@ std::pair<double, double> EGEnergyCorrector::CorrectedEnergyWithErrorV3(const Ph
     }
   }
 
-  Double_t ecorerr = readervar->GetResponse(fVals) * den;
+  Double_t ecorerr = readervar->GetResponse(fVals.data()) * den;
 
   //printf("ecor = %5f, ecorerr = %5f\n",ecor,ecorerr);
 
@@ -737,8 +720,8 @@ std::pair<double, double> EGEnergyCorrector::CorrectedEnergyWithErrorV3(const Gs
     readervar = fReadereevariance;
   }
 
-  Double_t ecor = reader->GetResponse(fVals) * den;
-  Double_t ecorerr = readervar->GetResponse(fVals) * den;
+  Double_t ecor = reader->GetResponse(fVals.data()) * den;
+  Double_t ecorerr = readervar->GetResponse(fVals.data()) * den;
 
   //printf("ecor = %5f, ecorerr = %5f\n",ecor,ecorerr);
 
