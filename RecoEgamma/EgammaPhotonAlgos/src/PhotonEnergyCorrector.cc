@@ -144,7 +144,7 @@ void PhotonEnergyCorrector::calculate(edm::Event& evt,
   //
   if ((weightsfromDB_ && !gedRegression_) || (!weightsfromDB_ && !(w_file_ == "none"))) {
     std::pair<double, double> cor =
-        regressionCorrector_->CorrectedEnergyWithError(thePhoton, vtxcol, lazyTools, iSetup);
+        regressionCorrector_->CorrectedEnergyWithError(thePhoton, vtxcol, lazyTools, *theCaloGeom_);
     phoRegr1Energy = cor.first;
     phoRegr1EnergyError = cor.second;
     // store the value in the Photon.h
