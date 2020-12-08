@@ -16,7 +16,6 @@
 #include "PixelThresholdClusterizer.h"
 
 // Geometry
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 
 // Data Formats
@@ -54,6 +53,9 @@ SiPixelClusterProducer::SiPixelClusterProducer(edm::ParameterSet const& conf)
     tPixelClusters = consumes<SiPixelClusterCollectionNew>(conf.getParameter<edm::InputTag>("src"));
   else
     tPixelDigi = consumes<edm::DetSetVector<PixelDigi>>(conf.getParameter<edm::InputTag>("src"));
+
+  trackerTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
+  trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
 
   const auto& payloadType = conf.getParameter<std::string>("payloadType");
   if (payloadType == "HLT")
@@ -102,11 +104,9 @@ void SiPixelClusterProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     e.getByToken(tPixelDigi, inputDigi);
 
   // Step A.2: get event setup
-  edm::ESHandle<TrackerGeometry> geom;
-  es.get<TrackerDigiGeometryRecord>().get(geom);
+  edm::ESHandle<TrackerGeometry> geom = es.getHandle(trackerGeomToken_);
 
-  edm::ESHandle<TrackerTopology> trackerTopologyHandle;
-  es.get<TrackerTopologyRcd>().get(trackerTopologyHandle);
+  edm::ESHandle<TrackerTopology> trackerTopologyHandle = es.getHandle(trackerTopoToken_);
   tTopo_ = trackerTopologyHandle.product();
 
   // Step B: create the final output collection

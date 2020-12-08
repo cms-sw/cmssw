@@ -66,5 +66,6 @@
     <class name="LHCOpticalFunctionsSetCollection"/>
     <class name="LHCInterpolatedOpticalFunctionsSet"/>
     <class name="LHCInterpolatedOpticalFunctionsSetCollection"/>
-</lcgdict>
 
+    <class name="PPSDirectSimulationData"  class_version="0"/>
+</lcgdict>

@@ -89,6 +89,9 @@ MicroEventContent = cms.PSet(
 	'keep recoTracks_displacedStandAloneMuons__*',
         # L1 prefiring weights
         'keep *_prefiringweight_*_*',
+        # patLowPtElectrons
+        'keep *_slimmedLowPtElectrons_*_*',
+        'keep *_gsfTracksOpenConversions_*_*',
     )
 )
 
@@ -114,20 +117,6 @@ MicroEventContentGEN = cms.PSet(
         'keep *_genParticles_t0_*',
     )
 )
-
-# Only add low pT electrons for bParking era
-from Configuration.Eras.Modifier_bParking_cff import bParking
-_bParking_extraCommands = ['keep *_slimmedLowPtElectrons_*_*',
-                           'keep recoGsfElectronCores_lowPtGsfElectronCores_*_*',
-                           'keep recoSuperClusters_lowPtGsfElectronSuperClusters_*_*',
-                           'keep recoCaloClusters_lowPtGsfElectronSuperClusters_*_*',
-                           'keep recoGsfTracks_lowPtGsfEleGsfTracks_*_*',
-                           'keep floatedmValueMap_lowPtGsfElectronSeedValueMaps_*_*',
-                           'keep floatedmValueMap_lowPtGsfElectronID_*_*',
-                           'keep *_lowPtGsfLinks_*_*',
-                           'keep *_gsfTracksOpenConversions_*_*',
-                           ]
-bParking.toModify(MicroEventContent, outputCommands = MicroEventContent.outputCommands + _bParking_extraCommands)
 
 # --- Only for 2018 data & MC
 _run2_HCAL_2018_extraCommands = ["keep *_packedPFCandidates_hcalDepthEnergyFractions_*"]

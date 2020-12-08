@@ -489,9 +489,6 @@ CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
                                                    int trknmb) const {
   // CLCT pattern number
   unsigned int pattern = encodePattern(cLCT.getPattern());
-  if (runCCLUT_) {
-    pattern = cLCT.getSlope();
-  }
 
   // LCT quality number
   unsigned int quality;
@@ -524,6 +521,8 @@ CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
 
   if (runCCLUT_) {
     thisLCT.setRun3(true);
+    // 4-bit slope value derived with the CCLUT algorithm
+    thisLCT.setSlope(cLCT.getSlope());
   }
 
   // in Run-3 we plan to denote the presence of exotic signatures in the chamber

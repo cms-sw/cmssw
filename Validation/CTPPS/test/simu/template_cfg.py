@@ -6,7 +6,6 @@ process = cms.Process('CTPPSTest', $ERA)
 # load config
 import Validation.CTPPS.simu_config.year_$CONFIG_cff as config
 process.load("Validation.CTPPS.simu_config.year_$CONFIG_cff")
-config.UseXangleBetaStarDistribution(process,"../../../../CalibPPS/ESProducers/data/xangle_beta_distributions/version1.root")
 
 # minimal logger settings
 process.MessageLogger = cms.Service("MessageLogger",
@@ -19,8 +18,12 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 # number of events
 process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(1000)
+  input = cms.untracked.int32(int($N_EVENTS))
 )
+
+# LHCInfo plotter
+process.load("Validation.CTPPS.ctppsLHCInfoPlotter_cfi")
+process.ctppsLHCInfoPlotter.outputFile = "$OUT_LHCINFO"
 
 # track distribution plotter
 process.ctppsTrackDistributionPlotter = cms.EDAnalyzer("CTPPSTrackDistributionPlotter",
@@ -60,6 +63,7 @@ process.p = cms.Path(
   * process.reco_local
   * process.ctppsProtons
 
+  * process.ctppsLHCInfoPlotter
   * process.ctppsTrackDistributionPlotter
   * process.ctppsProtonReconstructionPlotter
 )
