@@ -14,9 +14,7 @@
 class TritonImageProducer : public SonicEDProducer<TritonClient> {
 public:
   explicit TritonImageProducer(edm::ParameterSet const& cfg)
-      : SonicEDProducer<TritonClient>(cfg), topN_(cfg.getParameter<unsigned>("topN")) {
-    //for debugging
-    setDebugName("TritonImageProducer");
+      : SonicEDProducer<TritonClient>(cfg, "TritonImageProducer"), topN_(cfg.getParameter<unsigned>("topN")) {
     //load score list
     std::string imageListFile(cfg.getParameter<std::string>("imageList"));
     std::ifstream ifile(imageListFile);
@@ -76,7 +74,7 @@ private:
         if (counter >= topN_)
           break;
       }
-      edm::LogInfo(client_.debugName()) << msg.str();
+      edm::LogInfo(debugName_) << msg.str();
     }
   }
 

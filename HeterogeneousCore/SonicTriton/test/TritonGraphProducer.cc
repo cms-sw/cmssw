@@ -14,10 +14,8 @@
 
 class TritonGraphProducer : public SonicEDProducer<TritonClient> {
 public:
-  explicit TritonGraphProducer(edm::ParameterSet const& cfg) : SonicEDProducer<TritonClient>(cfg) {
-    //for debugging
-    setDebugName("TritonGraphProducer");
-  }
+  explicit TritonGraphProducer(edm::ParameterSet const& cfg)
+      : SonicEDProducer<TritonClient>(cfg, "TritonGraphProducer") {}
   void acquire(edm::Event const& iEvent, edm::EventSetup const& iSetup, Input& iInput) override {
     //get event-based seed for RNG
     unsigned int runNum_uint = static_cast<unsigned int>(iEvent.id().run());
@@ -72,7 +70,7 @@ public:
       }
       msg << "\n";
     }
-    edm::LogInfo(client_.debugName()) << msg.str();
+    edm::LogInfo(debugName_) << msg.str();
   }
   ~TritonGraphProducer() override = default;
 
