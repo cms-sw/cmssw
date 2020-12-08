@@ -47,14 +47,12 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
-// GEDPhotonProducer inherits from EDProducer, so it can be a module:
 class GEDPhotonProducer : public edm::stream::EDProducer<> {
 public:
   GEDPhotonProducer(const edm::ParameterSet& ps);
-  ~GEDPhotonProducer() override;
 
   void beginRun(edm::Run const& r, edm::EventSetup const& es) final;
-  void endRun(edm::Run const&, edm::EventSetup const&) final;
+  void endRun(edm::Run const&, edm::EventSetup const&) final {}
   void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
 private:
@@ -132,7 +130,7 @@ private:
   std::string conversionCollection_;
   std::string valueMapPFCandPhoton_;
 
-  PhotonIsolationCalculator* thePhotonIsolationCalculator_;
+  std::unique_ptr<PhotonIsolationCalculator> thePhotonIsolationCalculator_ = nullptr;
 
   //AA
   //Flags and severities to be excluded from calculations
@@ -163,13 +161,13 @@ private:
   bool validPixelSeeds_;
 
   //MIP
-  PhotonMIPHaloTagger* thePhotonMIPHaloTagger_;
+  std::unique_ptr<PhotonMIPHaloTagger> thePhotonMIPHaloTagger_ = nullptr;
 
   std::vector<double> preselCutValuesBarrel_;
   std::vector<double> preselCutValuesEndcap_;
 
   EcalClusterFunctionBaseClass* energyCorrectionF;
-  PhotonEnergyCorrector* thePhotonEnergyCorrector_;
+  std::unique_ptr<PhotonEnergyCorrector> thePhotonEnergyCorrector_ = nullptr;
   std::string candidateP4type_;
 
   bool checkHcalStatus_;
@@ -266,27 +264,23 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config)
 
   //AA
   //Flags and Severities to be excluded from photon calculations
-  const std::vector<std::string> flagnamesEB =
-      config.getParameter<std::vector<std::string>>("RecHitFlagToBeExcludedEB");
+  const auto flagnamesEB = config.getParameter<std::vector<std::string>>("RecHitFlagToBeExcludedEB");
 
-  const std::vector<std::string> flagnamesEE =
-      config.getParameter<std::vector<std::string>>("RecHitFlagToBeExcludedEE");
+  const auto flagnamesEE = config.getParameter<std::vector<std::string>>("RecHitFlagToBeExcludedEE");
 
   flagsexclEB_ = StringToEnumValue<EcalRecHit::Flags>(flagnamesEB);
 
   flagsexclEE_ = StringToEnumValue<EcalRecHit::Flags>(flagnamesEE);
 
-  const std::vector<std::string> severitynamesEB =
-      config.getParameter<std::vector<std::string>>("RecHitSeverityToBeExcludedEB");
+  const auto severitynamesEB = config.getParameter<std::vector<std::string>>("RecHitSeverityToBeExcludedEB");
 
   severitiesexclEB_ = StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severitynamesEB);
 
-  const std::vector<std::string> severitynamesEE =
-      config.getParameter<std::vector<std::string>>("RecHitSeverityToBeExcludedEE");
+  const auto severitynamesEE = config.getParameter<std::vector<std::string>>("RecHitSeverityToBeExcludedEE");
 
   severitiesexclEE_ = StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severitynamesEE);
 
-  thePhotonEnergyCorrector_ = new PhotonEnergyCorrector(conf_, consumesCollector());
+  thePhotonEnergyCorrector_ = std::make_unique<PhotonEnergyCorrector>(conf_, consumesCollector());
 
   //AA
 
@@ -329,7 +323,7 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config)
 
   //moved from beginRun to here, I dont see how this could cause harm as its just reading in the exactly same parameters each run
   if (!recoStep_.isFinal()) {
-    thePhotonIsolationCalculator_ = new PhotonIsolationCalculator();
+    thePhotonIsolationCalculator_ = std::make_unique<PhotonIsolationCalculator>();
     edm::ParameterSet isolationSumsCalculatorSet = conf_.getParameter<edm::ParameterSet>("isolationSumsCalculatorSet");
     thePhotonIsolationCalculator_->setup(isolationSumsCalculatorSet,
                                          flagsexclEB_,
@@ -337,7 +331,7 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config)
                                          severitiesexclEB_,
                                          severitiesexclEE_,
                                          consumesCollector());
-    thePhotonMIPHaloTagger_ = new PhotonMIPHaloTagger();
+    thePhotonMIPHaloTagger_ = std::make_unique<PhotonMIPHaloTagger>();
     edm::ParameterSet mipVariableSet = conf_.getParameter<edm::ParameterSet>("mipVariableSet");
     thePhotonMIPHaloTagger_->setup(mipVariableSet, consumesCollector());
 
@@ -354,20 +348,11 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config)
     produces<edm::ValueMap<reco::PhotonRef>>(valueMapPFCandPhoton_);
 }
 
-GEDPhotonProducer::~GEDPhotonProducer() {
-  delete thePhotonEnergyCorrector_;
-  delete thePhotonIsolationCalculator_;
-  delete thePhotonMIPHaloTagger_;
-  //delete energyCorrectionF;
-}
-
 void GEDPhotonProducer::beginRun(edm::Run const& r, edm::EventSetup const& theEventSetup) {
   if (!recoStep_.isFinal()) {
     thePhotonEnergyCorrector_->init(theEventSetup);
   }
 }
-
-void GEDPhotonProducer::endRun(edm::Run const& r, edm::EventSetup const& theEventSetup) {}
 
 void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
   using namespace edm;
@@ -428,16 +413,14 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
 
   // Get EcalRecHits
   bool validEcalRecHits = true;
-  Handle<EcalRecHitCollection> barrelHitHandle;
   const EcalRecHitCollection dummyEB;
-  theEvent.getByToken(barrelEcalHits_, barrelHitHandle);
+  auto barrelHitHandle = theEvent.getHandle(barrelEcalHits_);
   if (!barrelHitHandle.isValid()) {
     throw cms::Exception("GEDPhotonProducer") << "Error! Can't get the barrelEcalHits";
   }
   const EcalRecHitCollection& barrelRecHits(validEcalRecHits ? *(barrelHitHandle.product()) : dummyEB);
 
-  Handle<EcalRecHitCollection> endcapHitHandle;
-  theEvent.getByToken(endcapEcalHits_, endcapHitHandle);
+  auto endcapHitHandle = theEvent.getHandle(endcapEcalHits_);
   const EcalRecHitCollection dummyEE;
   if (!endcapHitHandle.isValid()) {
     throw cms::Exception("GEDPhotonProducer") << "Error! Can't get the endcapEcalHits";
@@ -445,8 +428,7 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   const EcalRecHitCollection& endcapRecHits(validEcalRecHits ? *(endcapHitHandle.product()) : dummyEE);
 
   bool validPreshowerRecHits = true;
-  Handle<EcalRecHitCollection> preshowerHitHandle;
-  theEvent.getByToken(preshowerHits_, preshowerHitHandle);
+  auto preshowerHitHandle = theEvent.getHandle(preshowerHits_);
   EcalRecHitCollection preshowerRecHits;
   if (!preshowerHitHandle.isValid()) {
     throw cms::Exception("GEDPhotonProducer") << "Error! Can't get the preshowerEcalHits";
@@ -483,9 +465,7 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   // get Hcal towers collection
   CaloTowerCollection const* hcalTowers = nullptr;
   if (not hcalTowers_.isUninitialized()) {
-    Handle<CaloTowerCollection> hcalTowersHandle;
-    theEvent.getByToken(hcalTowers_, hcalTowersHandle);
-    hcalTowers = &(*hcalTowersHandle);
+    hcalTowers = &theEvent.get(hcalTowers_);
   }
 
   // get the geometry from the event setup:
@@ -509,8 +489,7 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
       throw cms::Exception("GEDPhotonProducer") << "Error! Can't get the product primary Vertex Collection";
     }
   }
-  const reco::VertexCollection& vertexCollection(usePrimaryVertex_ && validVertex ? *(vertexHandle.product())
-                                                                                  : dummyVC);
+  auto const& vertexCollection{usePrimaryVertex_ && validVertex ? *vertexHandle : dummyVC};
 
   //  math::XYZPoint vtx(0.,0.,0.);
   //if (vertexCollection.size()>0) vtx = vertexCollection.begin()->position();
@@ -561,8 +540,7 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   // put the product in the event
   edm::LogInfo("GEDPhotonProducer") << " Put in the event " << iSC << " Photon Candidates \n";
   outputPhotonCollection_p->assign(outputPhotonCollection.begin(), outputPhotonCollection.end());
-  const edm::OrphanHandle<reco::PhotonCollection> photonOrphHandle =
-      theEvent.put(std::move(outputPhotonCollection_p), photonCollection_);
+  const auto photonOrphHandle = theEvent.put(std::move(outputPhotonCollection_p), photonCollection_);
 
   if (!recoStep_.isFinal() && not pfEgammaCandidates_.isUninitialized()) {
     //// Define the value map which associate to each  Egamma-unbiassaed candidate (key-ref) the corresponding PhotonRef
@@ -797,7 +775,6 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     showerShape.effSigmaRR = sigmaRR;
     newCandidate.setShowerShapeVariables(showerShape);
 
-    reco::Photon::SaturationInfo saturationInfo;
     const reco::CaloCluster& seedCluster = *(scRef->seed());
     DetId seedXtalId = seedCluster.seed();
     int nSaturatedXtals = 0;
@@ -815,6 +792,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
         }
       }
     }
+    reco::Photon::SaturationInfo saturationInfo;
     saturationInfo.nSaturatedXtals = nSaturatedXtals;
     saturationInfo.isSeedSaturated = isSeedSaturated;
     newCandidate.setSaturationInfo(saturationInfo);

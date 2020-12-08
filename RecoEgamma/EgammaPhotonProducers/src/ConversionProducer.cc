@@ -144,8 +144,8 @@ private:
 
   //track impact point at ECAL wall, returns validity to access position ew
   bool getTrackImpactPosition(const reco::Track* tk_ref,
-                              const TrackerGeometry* trackerGeom,
-                              const MagneticField* magField,
+                              TrackerGeometry const& trackerGeom,
+                              MagneticField const& magField,
                               math::XYZPointF& ew);
 
   //distance at min approaching point, returns distance
@@ -161,12 +161,12 @@ private:
   //kinematic vertex fitting, return true for valid vertex
   bool checkVertex(const reco::TransientTrack& ttk_l,
                    const reco::TransientTrack& ttk_r,
-                   const MagneticField* magField,
+                   MagneticField const& magField,
                    reco::Vertex& the_vertex);
   bool checkPhi(const edm::RefToBase<reco::Track>& tk_l,
                 const edm::RefToBase<reco::Track>& tk_r,
-                const TrackerGeometry* trackerGeom,
-                const MagneticField* magField,
+                TrackerGeometry const& trackerGeom,
+                MagneticField const& magField,
                 const reco::Vertex& the_vertex);
 
   //check the closest BC, returns true for found a BC
@@ -331,8 +331,7 @@ void ConversionProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       vertexCollection = *(vertexHandle.product());
   }
 
-  edm::ESHandle<TransientTrackBuilder> hTransientTrackBuilder = iSetup.getHandle(transientTrackBuilder_);
-  thettbuilder_ = hTransientTrackBuilder.product();
+  thettbuilder_ = &iSetup.getData(transientTrackBuilder_);
 
   reco::Vertex the_pvtx;
   //because the priamry vertex is sorted by quality, the first one is the best
@@ -418,11 +417,8 @@ void ConversionProducer::buildCollection(edm::Event& iEvent,
                                          const std::multimap<double, reco::CaloClusterPtr>& basicClusterPtrs,
                                          const reco::Vertex& the_pvtx,
                                          reco::ConversionCollection& outputConvPhotonCollection) {
-  edm::ESHandle<TrackerGeometry> trackerGeomHandle = iSetup.getHandle(trackerGeometry_);
-  edm::ESHandle<MagneticField> magFieldHandle = iSetup.getHandle(magneticField_);
-
-  const TrackerGeometry* trackerGeom = trackerGeomHandle.product();
-  const MagneticField* magField = magFieldHandle.product();
+  TrackerGeometry const& trackerGeom = iSetup.getData(trackerGeometry_);
+  MagneticField const& magField = iSetup.getData(magneticField_);
 
   //   std::vector<math::XYZPointF> trackImpactPosition;
   //   trackImpactPosition.reserve(allTracks.size());//track impact position at ECAL
@@ -445,20 +441,18 @@ void ConversionProducer::buildCollection(edm::Event& iEvent,
 
   //2 propagate all tracks into ECAL, record its eta and phi
 
-  for (std::multimap<float, edm::Ptr<reco::ConversionTrack> >::const_iterator tk_ref = allTracks.begin();
-       tk_ref != allTracks.end();
-       ++tk_ref) {
-    const reco::Track* tk = tk_ref->second->trackRef().get();
+  for (auto const& tk_ref : allTracks) {
+    const reco::Track* tk = tk_ref.second->trackRef().get();
 
     //check impact position then match with BC
     math::XYZPointF ew;
     if (getTrackImpactPosition(tk, trackerGeom, magField, ew)) {
-      trackImpactPosition[tk_ref->second] = ew;
+      trackImpactPosition[tk_ref.second] = ew;
 
       reco::CaloClusterPtr closest_bc;  //the closest matching BC to track
 
       if (getMatchedBC(basicClusterPtrs, ew, closest_bc)) {
-        trackMatchedBC[tk_ref->second] = closest_bc;
+        trackMatchedBC[tk_ref.second] = closest_bc;
       }
     }
   }
@@ -466,9 +460,7 @@ void ConversionProducer::buildCollection(edm::Event& iEvent,
   //3. pair up tracks:
   //TODO it is k-Closest pair of point problem
   //std::cout << " allTracks.size() " <<  allTracks.size() << std::endl;
-  for (std::multimap<float, edm::Ptr<reco::ConversionTrack> >::const_iterator ll = allTracks.begin();
-       ll != allTracks.end();
-       ++ll) {
+  for (auto ll = allTracks.begin(); ll != allTracks.end(); ++ll) {
     bool track1HighPurity = true;
     //std::cout << " Loop on allTracks " << std::endl;
     const edm::RefToBase<reco::Track>& left = ll->second->trackRef();
@@ -731,19 +723,19 @@ inline bool ConversionProducer::trackD0Cut(const edm::RefToBase<reco::Track>& re
 }
 
 bool ConversionProducer::getTrackImpactPosition(const reco::Track* tk_ref,
-                                                const TrackerGeometry* trackerGeom,
-                                                const MagneticField* magField,
+                                                TrackerGeometry const& trackerGeom,
+                                                MagneticField const& magField,
                                                 math::XYZPointF& ew) {
-  PropagatorWithMaterial propag(alongMomentum, 0.000511, magField);
+  PropagatorWithMaterial propag(alongMomentum, 0.000511, &magField);
 
   ReferenceCountingPointer<Surface> ecalWall(new BoundCylinder(
       129.f, GlobalPoint(0., 0., 0.), TkRotation<float>(), new SimpleCylinderBounds(129, 129, -320.5, 320.5)));
-  const float epsilon = 0.001;
+  constexpr float epsilon = 0.001;
   Surface::RotationType rot;  // unit rotation matrix
-  const float barrelRadius = 129.f;
-  const float barrelHalfLength = 270.9f;
-  const float endcapRadius = 171.1f;
-  const float endcapZ = 320.5f;
+  constexpr float barrelRadius = 129.f;
+  constexpr float barrelHalfLength = 270.9f;
+  constexpr float endcapRadius = 171.1f;
+  constexpr float endcapZ = 320.5f;
   ReferenceCountingPointer<BoundCylinder> theBarrel_(new BoundCylinder(
       barrelRadius,
       Surface::PositionType(0, 0, 0),
@@ -755,8 +747,7 @@ bool ConversionProducer::getTrackImpactPosition(const reco::Track* tk_ref,
       Surface::PositionType(0, 0, endcapZ), rot, new SimpleDiskBounds(0, endcapRadius, -epsilon, epsilon)));
 
   //const TrajectoryStateOnSurface myTSOS = trajectoryStateTransform::innerStateOnSurface(*(*ref), *trackerGeom, magField);
-  const TrajectoryStateOnSurface myTSOS =
-      trajectoryStateTransform::outerStateOnSurface(*tk_ref, *trackerGeom, magField);
+  const auto myTSOS = trajectoryStateTransform::outerStateOnSurface(*tk_ref, trackerGeom, &magField);
   TrajectoryStateOnSurface stateAtECAL;
   stateAtECAL = propag.propagate(myTSOS, *theBarrel_);
   if (!stateAtECAL.isValid() || (stateAtECAL.isValid() && fabs(stateAtECAL.globalPosition().eta()) > 1.479f)) {
@@ -837,8 +828,8 @@ bool ConversionProducer::getMatchedBC(const std::multimap<double, reco::CaloClus
 //check track open angle of phi at vertex
 bool ConversionProducer::checkPhi(const edm::RefToBase<reco::Track>& tk_l,
                                   const edm::RefToBase<reco::Track>& tk_r,
-                                  const TrackerGeometry* trackerGeom,
-                                  const MagneticField* magField,
+                                  TrackerGeometry const& trackerGeom,
+                                  MagneticField const& magField,
                                   const reco::Vertex& vtx) {
   if (!allowDeltaPhi_)
     return true;
@@ -848,7 +839,7 @@ bool ConversionProducer::checkPhi(const edm::RefToBase<reco::Track>& tk_l,
   if (tk_l->extra().isNonnull() && tk_r->extra().isNonnull()) {
     double iphi1 = tk_l->innerMomentum().phi(), iphi2 = tk_r->innerMomentum().phi();
     if (vtx.isValid()) {
-      PropagatorWithMaterial propag(anyDirection, 0.000511, magField);
+      PropagatorWithMaterial propag(anyDirection, 0.000511, &magField);
 
       double recoPhoR = vtx.position().Rho();
       Surface::RotationType rot;
@@ -861,10 +852,8 @@ bool ConversionProducer::checkPhi(const edm::RefToBase<reco::Track>& tk_l,
       ReferenceCountingPointer<BoundDisk> theDisk_(new BoundDisk(
           Surface::PositionType(0, 0, vtx.position().z()), rot, new SimpleDiskBounds(0, recoPhoR, -0.001, 0.001)));
 
-      const TrajectoryStateOnSurface myTSOS1 =
-          trajectoryStateTransform::innerStateOnSurface(*tk_l, *trackerGeom, magField);
-      const TrajectoryStateOnSurface myTSOS2 =
-          trajectoryStateTransform::innerStateOnSurface(*tk_r, *trackerGeom, magField);
+      const auto myTSOS1 = trajectoryStateTransform::innerStateOnSurface(*tk_l, trackerGeom, &magField);
+      const auto myTSOS2 = trajectoryStateTransform::innerStateOnSurface(*tk_r, trackerGeom, &magField);
       TrajectoryStateOnSurface stateAtVtx1, stateAtVtx2;
       stateAtVtx1 = propag.propagate(myTSOS1, *theBarrel_);
       if (!stateAtVtx1.isValid()) {
@@ -968,7 +957,7 @@ bool ConversionProducer::checkTrackPair(const std::pair<edm::RefToBase<reco::Tra
 //because reco::vertex uses track ref, so have to keep them
 bool ConversionProducer::checkVertex(const reco::TransientTrack& ttk_l,
                                      const reco::TransientTrack& ttk_r,
-                                     const MagneticField* magField,
+                                     MagneticField const& magField,
                                      reco::Vertex& the_vertex) {
   bool found = false;
 
