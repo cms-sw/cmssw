@@ -21,9 +21,9 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('EcalGeom')
-    process.MessageLogger.categories.append('EcalSim')
-    process.MessageLogger.categories.append('G4cout')
+    process.MessageLogger.EcalGeom = dict()
+    process.MessageLogger.EcalSim = dict()
+    process.MessageLogger.G4cout = dict()
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1),

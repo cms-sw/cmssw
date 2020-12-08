@@ -25,8 +25,8 @@ else:
    process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.MessageLogger.destinations.extend(["LogTrackingMaterialAnalysis"])
-process.MessageLogger.categories.append("TrackingMaterialAnalysis")
+process.MessageLogger.files.LogTrackingMaterialAnalysis = dict()
+process.MessageLogger.TrackingMaterialAnalysis=dict()
 
 # Add our custom detector grouping to DDD
 process.XMLIdealGeometryESSource.geomXMLFiles.extend(['SimTracker/TrackerMaterialAnalysis/data/trackingMaterialGroups_ForPhaseII.xml'])

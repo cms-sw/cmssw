@@ -427,15 +427,11 @@ else :
 # Message Logger
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.debugModules = ['l1GtRecord']
-process.MessageLogger.categories.append('L1GlobalTriggerRecord')
-process.MessageLogger.categories.append('L1GtTrigReport')
-
 process.MessageLogger.cerr.default.limit = 0
 process.MessageLogger.cerr.FwkReport.limit = 0
 process.MessageLogger.cerr.FwkSummary.limit = 0
 
-process.MessageLogger.destinations.extend('debugs', 'warnings', 'errors')
-process.MessageLogger.debugs = cms.untracked.PSet( 
+process.MessageLogger.files.debugs = cms.untracked.PSet( 
         threshold = cms.untracked.string('DEBUG'),
         DEBUG = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         INFO = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
@@ -445,7 +441,7 @@ process.MessageLogger.debugs = cms.untracked.PSet(
         L1GtTrigReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
         )
 
-process.MessageLogger.warnings = cms.untracked.PSet( 
+process.MessageLogger.files.warnings = cms.untracked.PSet( 
         threshold = cms.untracked.string('WARNING'),
         WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         ERROR = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
@@ -453,7 +449,7 @@ process.MessageLogger.warnings = cms.untracked.PSet(
         L1GtTrigReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
         )
 
-process.MessageLogger.errors = cms.untracked.PSet( 
+process.MessageLogger.files.errors = cms.untracked.PSet( 
         threshold = cms.untracked.string('ERROR'),
         ERROR = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
         L1GlobalTriggerRecord = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),

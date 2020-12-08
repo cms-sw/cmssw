@@ -32,8 +32,8 @@ if (L1TRKALGO == 'HYBRID_FLOAT'):
 
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.MessageLogger.categories.append('L1track')
-process.MessageLogger.categories.append('Tracklet')
+process.MessageLogger.L1track=dict()
+process.MessageLogger.Tracklet=dict()
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 

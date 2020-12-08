@@ -40,9 +40,9 @@ process.cscSegments.algo_psets[3].algo_psets[1].CSCDebug = cms.untracked.bool(Tr
 
 
 # --- Activate LogVerbatim IN CSCSegment
-process.MessageLogger.categories.append("CSCSegment")
-process.MessageLogger.destinations = cms.untracked.vstring("cout")
+process.MessageLogger.cerr.enable = False
 process.MessageLogger.cout = cms.untracked.PSet(
+    enable    = cms.untracked.bool(True),
     threshold = cms.untracked.string("INFO"),
     default   = cms.untracked.PSet( limit = cms.untracked.int32(0)  ),
     FwkReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
@@ -54,9 +54,9 @@ process.MessageLogger.cout = cms.untracked.PSet(
 ### LogTrace output goes to cout; all other output to "junk.log"
 
 #process.load("FWCore.MessageLogger.MessageLogger_cfi")
-#process.MessageLogger.categories.append("CSCRecHit")
-#process.MessageLogger.categories.append("CSCSegment")
-#process.MessageLogger.categories.append("CSCSegAlgoST")
+#process.MessageLogger.CSCRecHit=dict()
+#process.MessageLogger.CSCSegment=dict()
+#process.MessageLogger.CSCSegAlgoST=dict()
 
 ###  module label is something like "muonCSCDigis"...
 #process.MessageLogger.debugModules = cms.untracked.vstring("*")
