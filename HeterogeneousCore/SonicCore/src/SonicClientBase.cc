@@ -2,8 +2,16 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/allowedValues.h"
 
-SonicClientBase::SonicClientBase(const edm::ParameterSet& params)
-    : allowedTries_(params.getUntrackedParameter<unsigned>("allowedTries", 0)) {
+SonicClientBase::SonicClientBase(const edm::ParameterSet& params,
+                                 const std::string& debugName,
+                                 const std::string& clientName)
+    : allowedTries_(params.getUntrackedParameter<unsigned>("allowedTries", 0)),
+      debugName_(debugName),
+      clientName_(clientName),
+      fullDebugName_(debugName_) {
+  if (!clientName_.empty())
+    fullDebugName_ += ":" + clientName_;
+
   std::string modeName(params.getParameter<std::string>("mode"));
   if (modeName == "Sync")
     mode_ = SonicMode::Sync;
@@ -19,13 +27,6 @@ SonicClientBase::SonicClientBase(const edm::ParameterSet& params)
     dispatcher_ = std::make_unique<SonicDispatcher>(this);
   else if (mode_ == SonicMode::PseudoAsync)
     dispatcher_ = std::make_unique<SonicDispatcherPseudoAsync>(this);
-}
-
-void SonicClientBase::setDebugName(const std::string& debugName) {
-  debugName_ = debugName;
-  fullDebugName_ = debugName_;
-  if (!clientName_.empty())
-    fullDebugName_ += ":" + clientName_;
 }
 
 void SonicClientBase::start(edm::WaitingTaskWithArenaHolder holder) {

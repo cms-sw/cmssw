@@ -20,14 +20,10 @@ namespace nic = ni::client;
 //based on https://github.com/triton-inference-server/server/blob/v2.3.0/src/clients/c++/examples/simple_grpc_async_infer_client.cc
 //and https://github.com/triton-inference-server/server/blob/v2.3.0/src/clients/c++/perf_client/perf_client.cc
 
-TritonClient::TritonClient(const edm::ParameterSet& params)
-    : SonicClient(params),
+TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& debugName)
+    : SonicClient(params, debugName, "TritonClient"),
       verbose_(params.getUntrackedParameter<bool>("verbose")),
       options_(params.getParameter<std::string>("modelName")) {
-  clientName_ = "TritonClient";
-  //will get overwritten later, just used in constructor
-  fullDebugName_ = clientName_;
-
   //connect to the server
   //TODO: add SSL options
   std::string url(params.getUntrackedParameter<std::string>("address") + ":" +

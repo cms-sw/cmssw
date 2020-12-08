@@ -19,12 +19,11 @@ enum class SonicMode { Sync = 1, Async = 2, PseudoAsync = 3 };
 class SonicClientBase {
 public:
   //constructor
-  SonicClientBase(const edm::ParameterSet& params);
+  SonicClientBase(const edm::ParameterSet& params, const std::string& debugName, const std::string& clientName);
 
   //destructor
   virtual ~SonicClientBase() = default;
 
-  void setDebugName(const std::string& debugName);
   const std::string& debugName() const { return debugName_; }
   const std::string& clientName() const { return clientName_; }
   SonicMode mode() const { return mode_; }
@@ -57,7 +56,7 @@ protected:
   std::optional<edm::WaitingTaskWithArenaHolder> holder_;
 
   //for logging/debugging
-  std::string clientName_, debugName_, fullDebugName_;
+  std::string debugName_, clientName_, fullDebugName_;
   std::chrono::time_point<std::chrono::high_resolution_clock> t0_;
 
   friend class SonicDispatcher;

@@ -29,7 +29,7 @@ public:
   };
 
   //constructor
-  TritonClient(const edm::ParameterSet& params);
+  TritonClient(const edm::ParameterSet& params, const std::string& debugName);
 
   //accessors
   unsigned batchSize() const { return batchSize_; }
