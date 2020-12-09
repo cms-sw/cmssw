@@ -83,8 +83,8 @@ public:
     }
   }
   bool crossedBoundary() const { return crossedBoundary_; }
-  math::XYZVectorD getPositionAtBoundary() const { return positionAtBoundary_; }
-  math::XYZTLorentzVectorD getMomentumAtBoundary() const { return momentumAtBoundary_; }
+  const math::XYZVectorD& getPositionAtBoundary() const { return positionAtBoundary_; }
+  const math::XYZTLorentzVectorD& getMomentumAtBoundary() const { return momentumAtBoundary_; }
   int getIDAtBoundary() const { return idAtBoundary_; }
 
 private:

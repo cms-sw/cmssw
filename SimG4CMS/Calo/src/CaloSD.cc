@@ -436,7 +436,7 @@ bool CaloSD::checkHit() {
 
 int CaloSD::getNumberOfHits() { return theHC->entries(); }
 
-std::string CaloSD::printableDecayChain(std::vector<unsigned int> decayChain) {
+const std::string CaloSD::printableDecayChain(std::vector<unsigned int> decayChain) {
   /*
   Takes a vector of ints (representing trackIDs), and returns a formatted string
   for debugging purposes
@@ -512,7 +512,7 @@ void CaloSD::hitBookkeepingFineCalo(const G4Step* step, const G4Track* currentTr
                                      << ", which is an earlier ancestor than current primary " << hitID.trackID()
                                      << "; overwriting it.";
 #endif
-      hitID.overwriteTrackID(recordTrackID);
+      hitID.setTrackID(recordTrackID);
     }
     // Check if this parent fits the boundary-crossing criteria
     if (recordTrackWithHistory->crossedBoundary() && recordTrackWithHistory->getIDAtBoundary() == (int)recordTrackID) {
@@ -551,7 +551,7 @@ void CaloSD::hitBookkeepingFineCalo(const G4Step* step, const G4Track* currentTr
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("DoFineCalo") << "Stored the following bookeeping for hit " << hit->getUnitID()
                                  << " hitID.trackID()=" << hitID.trackID()
-                                 << " hitID.getFineTrackID()=" << hitID.getFineTrackID()
+                                 << " hitID.fineTrackID()=" << hitID.fineTrackID()
                                  << " recordTrackWithHistory->trackID()=" << recordTrackWithHistory->trackID()
                                  << " recordTrackWithHistory->saved()=" << recordTrackWithHistory->saved();
 #endif
@@ -596,7 +596,7 @@ CaloG4Hit* CaloSD::createNewHit(const G4Step* aStep, const G4Track* theTrack) {
   edm::LogVerbatim("DoFineCalo") << "Creating new hit " << aHit->getUnitID() << " using "
                                  << (currentlyInsideFineVolume ? "FINECALO" : "normal CaloSD")
                                  << "; currentID.trackID=" << currentID.trackID()
-                                 << " currentID.getFineTrackID=" << currentID.getFineTrackID()
+                                 << " currentID.fineTrackID=" << currentID.fineTrackID()
                                  << " isItFineCalo(aStep->GetPostStepPoint()->GetTouchable())="
                                  << isItFineCalo(aStep->GetPostStepPoint()->GetTouchable())
                                  << " isItFineCalo(aStep->GetPreStepPoint()->GetTouchable())="
@@ -898,7 +898,7 @@ bool CaloSD::saveHit(CaloG4Hit* aHit) {
   // Do track bookkeeping a little differently for fine tracking
   if (doFineCalo_ && aHit->getID().hasFineTrackID()) {
     tkID = aHit->getTrackID();
-    fineTrackID = aHit->getID().getFineTrackID();
+    fineTrackID = aHit->getID().fineTrackID();
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("DoFineCalo") << "Saving hit " << aHit->getUnitID() << " with trackID=" << tkID
                                    << " fineTrackID=" << fineTrackID;
@@ -1035,8 +1035,6 @@ void CaloSD::cleanHitCollection() {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("CaloSim") << "CaloSD::cleanHitCollection: remove the merged hits in buffer,"
                                 << " new size = " << hitvec.size();
-    // for (unsigned int i = 0; i < hitvec.size(); ++i)
-    //   edm::LogVerbatim("CaloSim") << i << " " << *hitvec[i];
 #endif
     hitvec.swap(*theCollection);
     totalHits = theHC->entries();
