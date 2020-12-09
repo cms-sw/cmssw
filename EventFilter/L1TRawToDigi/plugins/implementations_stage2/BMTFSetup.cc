@@ -19,7 +19,7 @@ namespace l1t {
       //res are in format res[amc_no, board_id]
 
       if (fed == 1376 || fed == 1377) {
-        for (auto board: boardIdPerSlot) {
+        for (auto board : boardIdPerSlot) {
           auto packer_out = std::make_shared<BMTFPackerOutput>();
           auto packer_in = PackerFactory::get()->make("stage2::BMTFPackerInputs");
           if (fw >= firstKalmanFwVer) {
@@ -46,7 +46,7 @@ namespace l1t {
     UnpackerMap BMTFSetup::getUnpackers(int fed, int board, int amc, unsigned int fw) {
       auto inputMuonsOld = UnpackerFactory::get()->make("stage2::BMTFUnpackerInputsOldQual");
       auto inputMuonsNew = UnpackerFactory::get()->make("stage2::BMTFUnpackerInputsNewQual");
-      auto outputMuon = std::make_shared<BMTFUnpackerOutput>(); // triggering collection
+      auto outputMuon = std::make_shared<BMTFUnpackerOutput>();        // triggering collection
       auto outputMuon2 = std::make_shared<BMTFUnpackerOutput>(false);  // secondary coll
       if (fw >= firstKalmanFwVer)
         outputMuon->setKalmanAlgoTrue();

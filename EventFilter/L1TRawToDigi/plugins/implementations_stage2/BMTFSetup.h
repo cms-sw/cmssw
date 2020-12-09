@@ -23,9 +23,20 @@ namespace l1t {
       UnpackerMap getUnpackers(int fed, int board, int amc, unsigned int fw) override;
 
     private:
-      const std::map<int, int> boardIdPerSlot { // {slot, boardId}
-	{1, 1}, {3, 2}, {5, 3}, {7, 4}, {9, 5}, {11, 6}, // Top Crate
-	{2, 7}, {4, 8}, {6, 9}, {8, 10}, {10, 11}, {12, 12} // Bottom Crate
+      const std::map<int, int> boardIdPerSlot{
+          // {slot, boardId}
+          {1, 1},
+          {3, 2},
+          {5, 3},
+          {7, 4},
+          {9, 5},
+          {11, 6},  // Top Crate
+          {2, 7},
+          {4, 8},
+          {6, 9},
+          {8, 10},
+          {10, 11},
+          {12, 12}  // Bottom Crate
       };
       const unsigned int firstNewInputsFwVer = 0x92300120;
       const unsigned int firstKalmanFwVer = 0x95000160;
