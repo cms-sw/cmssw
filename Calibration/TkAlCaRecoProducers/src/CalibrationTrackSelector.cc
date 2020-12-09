@@ -232,8 +232,8 @@ bool CalibrationTrackSelector::isHit2D(const TrackingRecHit &hit) const {
           return false;  // crazy hit...
         else {
           edm::LogError("UnknownType") << "@SUB=CalibrationTrackSelector::isHit2D"
-                                      << "Tracker hit not in pixel and neither SiStripRecHit2D nor "
-                                      << "SiStripMatchedRecHit2D nor ProjectedSiStripRecHit2D.";
+                                       << "Tracker hit not in pixel and neither SiStripRecHit2D nor "
+                                       << "SiStripMatchedRecHit2D nor ProjectedSiStripRecHit2D.";
           return false;
         }
       }

@@ -38,7 +38,7 @@ public:
 
 protected:
 private:
-  const edm::ESGetToken<DropBoxMetadata,DropBoxMetadataRcd> dropBoxToken_;
+  const edm::ESGetToken<DropBoxMetadata, DropBoxMetadataRcd> dropBoxToken_;
   bool readFromDB;
   std::map<std::string, std::map<std::string, std::string>> recordMap;
 };
@@ -47,8 +47,7 @@ using namespace std;
 using namespace edm;
 
 PCLMetadataWriter::PCLMetadataWriter(const edm::ParameterSet &pSet)
-  : dropBoxToken_(esConsumes<DropBoxMetadata,DropBoxMetadataRcd, edm::Transition::EndRun>())
-{
+    : dropBoxToken_(esConsumes<DropBoxMetadata, DropBoxMetadataRcd, edm::Transition::EndRun>()) {
   readFromDB = pSet.getParameter<bool>("readFromDB");
 
   vector<ParameterSet> recordsToMap = pSet.getParameter<vector<ParameterSet>>("recordsToMap");

@@ -19,15 +19,12 @@ ________________________________________________________________**/
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
-#include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 
-AlcaBeamSpotFromDB::AlcaBeamSpotFromDB(const edm::ParameterSet &iConfig) {
+AlcaBeamSpotFromDB::AlcaBeamSpotFromDB(const edm::ParameterSet &iConfig)
+    : beamSpotToken_(esConsumes<BeamSpotObjects, BeamSpotObjectsRcd, edm::Transition::EndLuminosityBlock>()) {
   produces<reco::BeamSpot, edm::Transition::EndLuminosityBlock>("alcaBeamSpot");
 }
 
@@ -39,9 +36,7 @@ void AlcaBeamSpotFromDB::produce(edm::Event &iEvent, const edm::EventSetup &iSet
 //--------------------------------------------------------------------------------------------------
 void AlcaBeamSpotFromDB::endLuminosityBlockProduce(edm::LuminosityBlock &lumiSeg, const edm::EventSetup &iSetup) {
   // read DB object
-  edm::ESHandle<BeamSpotObjects> beamhandle;
-  iSetup.get<BeamSpotObjectsRcd>().get(beamhandle);
-  const BeamSpotObjects *spotDB = beamhandle.product();
+  const BeamSpotObjects *spotDB = &iSetup.getData(beamSpotToken_);
 
   // translate from BeamSpotObjects to reco::BeamSpot
   reco::BeamSpot::Point apoint(spotDB->GetX(), spotDB->GetY(), spotDB->GetZ());
