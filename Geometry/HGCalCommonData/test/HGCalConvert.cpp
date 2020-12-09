@@ -88,7 +88,7 @@ private:
 
 class ConvertScintillator {
 public:
-  ConvertScintillator(int layMin = 36);
+  ConvertScintillator(int layMin = 28);
   void convert(const char*, const char*, int debug = 0);
 
 private:
@@ -356,7 +356,7 @@ void ConvertScintillator::convert(const char* infile, const char* outfile, int d
           int type = static_cast<int>(std::find(types, types + 1, items[9]) - types);
           if (layer > layMin_) {
             tile tl(sipm, hex1, hex2, hex3, hex4, type);
-            int index = tileIndex(layer - layMin_, ring, 0);
+            int index = tileIndex(layer - layMin_, ring + 1, 0);
             module[index] = tl;
             ringR[ring] = std::pair<double, double>(rstart, rend);
             if (layerRing.find(layer) == layerRing.end()) {
