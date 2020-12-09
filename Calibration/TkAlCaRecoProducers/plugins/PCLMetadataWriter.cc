@@ -1,28 +1,54 @@
-
-/*
- *  See header file for a description of this class.
+/** \class PCLMetadataWriter
+ *  No description available.
  *
  *  \author G. Cerminara - CERN
  */
 
-#include "Calibration/TkAlCaRecoProducers/plugins/PCLMetadataWriter.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/Common/interface/DropBoxMetadata.h"
 #include "CondFormats/DataRecord/interface/DropBoxMetadataRcd.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include <string>
+#include <vector>
 #include <iostream>
+
+class PCLMetadataWriter : public edm::EDAnalyzer {
+public:
+  /// Constructor
+  PCLMetadataWriter(const edm::ParameterSet &);
+
+  /// Destructor
+  ~PCLMetadataWriter() override;
+
+  // Operations
+  //   virtual void beginJob            (void);
+  //   virtual void endJob              (void);
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void beginRun(const edm::Run &, const edm::EventSetup &) override;
+  void endRun(const edm::Run &, const edm::EventSetup &) override;
+  //   virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const
+  //   edm::EventSetup&); virtual void endLuminosityBlock  (const
+  //   edm::LuminosityBlock&, const edm::EventSetup&);
+
+protected:
+private:
+  const edm::ESGetToken<DropBoxMetadata,DropBoxMetadataRcd> dropBoxToken_;
+  bool readFromDB;
+  std::map<std::string, std::map<std::string, std::string>> recordMap;
+};
 
 using namespace std;
 using namespace edm;
 
-PCLMetadataWriter::PCLMetadataWriter(const edm::ParameterSet &pSet) {
+PCLMetadataWriter::PCLMetadataWriter(const edm::ParameterSet &pSet)
+  : dropBoxToken_(esConsumes<DropBoxMetadata,DropBoxMetadataRcd, edm::Transition::EndRun>())
+{
   readFromDB = pSet.getParameter<bool>("readFromDB");
 
   vector<ParameterSet> recordsToMap = pSet.getParameter<vector<ParameterSet>>("recordsToMap");
@@ -59,10 +85,7 @@ void PCLMetadataWriter::endRun(const edm::Run &run, const edm::EventSetup &eSetu
 
   if (readFromDB) {
     // Read the objects
-    edm::ESHandle<DropBoxMetadata> mdPayload;
-    eSetup.get<DropBoxMetadataRcd>().get(mdPayload);
-
-    metadata = mdPayload.product();
+    metadata = &eSetup.getData(dropBoxToken_);
   }
 
   // get the PoolDBOutputService
