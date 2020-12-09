@@ -1,7 +1,5 @@
 #include "BMTFPackerOutput.h"
-
 #include <vector>
-//#include <bitset>//debug
 
 // Implementation
 namespace l1t {
@@ -12,8 +10,9 @@ namespace l1t {
       auto muonToken = static_cast<const BMTFTokens*>(toks)->getOutputMuonToken();
 
       Blocks blocks;
-
       const int bmtfBlockID = 123;
+      edm::LogInfo("L1T-BMTFPackerOutput") << "Will use setup:"
+                                           << " isKalman->" << isKalman_;
 
       edm::Handle<RegionalMuonCandBxCollection> muons;
       event.getByToken(muonToken, muons);
