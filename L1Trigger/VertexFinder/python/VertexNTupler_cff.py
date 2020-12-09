@@ -14,7 +14,7 @@ L1TVertexNTupler = cms.EDAnalyzer('VertexNTupler',
   l1TracksBranchNames  = cms.vstring('hybrid'),
   l1VertexInputTags   = cms.VInputTag( cms.InputTag("VertexProducer", VertexProducer.l1VertexCollectionName.value()) ),
   l1VertexTrackInputs = cms.vstring('hybrid'),
-  l1VertexBranchNames = cms.vstring('dbscan'),
+  l1VertexBranchNames = cms.vstring('FastHisto'),
   extraL1VertexInputTags = cms.VInputTag(),
   extraL1VertexDescriptions = cms.vstring(),
 

@@ -23,7 +23,7 @@ namespace l1tVertexFinder {
         vx_windowSize_(vertex_.getParameter<unsigned int>("FH_WindowSize")),
         vx_TrackMinPt_(vertex_.getParameter<double>("VxMinTrackPt")),
         vx_TrackMaxPt_(vertex_.getParameter<double>("VxMaxTrackPt")),
-        vx_TrackMaxPtBehavior_(vertex_.getParameter<double>("VxMaxTrackPtBehavior")),
+        vx_TrackMaxPtBehavior_(vertex_.getParameter<int>("VxMaxTrackPtBehavior")),
         vx_TrackMaxChi2_(vertex_.getParameter<double>("VxMaxTrackChi2")),
         vx_NStubMin_(vertex_.getParameter<unsigned int>("VxMinNStub")),
         vx_NStubPSMin_(vertex_.getParameter<unsigned int>("VxMinNStubPS")),

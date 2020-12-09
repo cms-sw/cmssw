@@ -38,11 +38,6 @@ namespace l1tVertexFinder {
     iEvent.getByToken(tpToken, tpHandle);
 
     unsigned int tpCount = 0;
-    float metY = 0;
-    float metX = 0;
-
-    float metY_pu = 0;
-    float metX_pu = 0;
 
     genPt_ = 0.;
     genPt_PU_ = 0.;
@@ -53,12 +48,8 @@ namespace l1tVertexFinder {
       TP tp(tpPtr, tpCount, settings);
 
       if (tp.physicsCollision()) {
-        metX += tp.pt() * cos(tp.phi0());
-        metY += tp.pt() * sin(tp.phi0());
         genPt_ += tp.pt();
       } else {
-        metX_pu += tp.pt() * cos(tp.phi0());
-        metY_pu += tp.pt() * sin(tp.phi0());
         genPt_PU_ += tp.pt();
       }
 
@@ -69,14 +60,8 @@ namespace l1tVertexFinder {
       }
     }
 
-    // Total Generated MET in the event
-    genMET_ = sqrt(metX * metX + metY * metY);
-    // Total GenMET in PU events
-    genMET_PU_ = sqrt(metX * metX + metY * metY);
-
     if (settings.debug() > 0) {
       edm::LogInfo("InputData") << "InputData::genPt in the event " << genPt_;
-      edm::LogInfo("InputData") << "InputData::genMET in the event = " << genMET_;
     }
 
     // Also create map relating edm::Ptr<TrackingParticle> to TP.
@@ -216,7 +201,7 @@ namespace l1tVertexFinder {
     edm::Handle<edm::HepMCProduct> HepMCEvt;
     iEvent.getByToken(hepMCToken, HepMCEvt);
 
-    edm::Handle<std::vector<reco::GenParticle> > GenParticleHandle;
+    edm::Handle<edm::View<reco::GenParticle> > GenParticleHandle;
     iEvent.getByToken(genParticlesToken, GenParticleHandle);
 
     if (HepMCEvt.isValid()) {

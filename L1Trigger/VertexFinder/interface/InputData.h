@@ -51,10 +51,6 @@ namespace l1tVertexFinder {
 
     const std::map<DetId, DetId>& getStubGeoDetIdMap() const { return stubGeoDetIdMap_; }
 
-    /// Generated MET
-    const float genMET() const { return genMET_; }
-    const float genMET_PU() const { return genMET_PU_; }
-
     const float genPt() const { return genPt_; }
     const float genPt_PU() const { return genPt_PU_; }
 
@@ -69,8 +65,6 @@ namespace l1tVertexFinder {
         vAllStubs_;  // all stubs, even those that would fail any tightened front-end readout electronic cuts specified in section StubCuts of Analyze_Defaults_cfi.py. (Only used to measure
                      // the efficiency of these cuts).
     std::map<DetId, DetId> stubGeoDetIdMap_;
-    float genMET_;
-    float genMET_PU_;
     float genPt_;
     float genPt_PU_;
   };
