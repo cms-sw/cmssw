@@ -1,3 +1,4 @@
+<use name="CommonTools/BaseParticlePropagator"/>
 <use name="CommonTools/MVAUtils"/>
 <use name="CondFormats/EgammaObjects"/>
 <use name="DataFormats/BeamSpot"/>
