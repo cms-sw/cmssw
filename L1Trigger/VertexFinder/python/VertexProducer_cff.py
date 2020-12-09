@@ -22,7 +22,7 @@ VertexProducer = cms.EDProducer('VertexProducer',
         #   0 = unweighted
         #   1 = pT weighted
         #   2 = pT^2 weighted
-        WeightedMean = cms.uint32(0),
+        WeightedMean = cms.uint32(1),
         # Chi2 cut for the Adaptive Vertex Reconstruction Algorithm
         AVR_chi2cut = cms.double(5.),
         # Track-stubs Pt compatibility cut
@@ -36,7 +36,7 @@ VertexProducer = cms.EDProducer('VertexProducer',
         # FastHisto algorithm assumed vertex half-width [cm]
         FH_VertexWidth = cms.double(.15),
         # Window size of the sliding window
-        FH_WindowSize = cms.uint32(1),
+        FH_WindowSize = cms.uint32(3),
         # Kmeans number of iterations
         KmeansIterations = cms.uint32(10),
         # Kmeans number of clusters
@@ -48,12 +48,12 @@ VertexProducer = cms.EDProducer('VertexProducer',
         # Minimum pt of tracks used to create vertex [GeV]
         VxMinTrackPt = cms.double(2.0),
         # Maximum pt of tracks used to create vertex [GeV]
-        VxMaxTrackPt = cms.double(15.0), # change this to 
+        VxMaxTrackPt = cms.double(50.0),
         # When the track pt > VxMaxTrackPt, how should the tracks be considered
         #   -1 = tracks are valid
         #   0 = tracks are mismeasured and ignored/truncated
         #   1 = tracks are mismeasured and saturate at VxMaxTrackPt
-        VxMaxTrackPtBehavior = cms.int32(-1), # change this to 1
+        VxMaxTrackPtBehavior = cms.int32(1),
         # Maximum chi2 of tracks used to create vertex
         VxMaxTrackChi2 = cms.double(100.),
         # Minimum number of stubs associated to a track
