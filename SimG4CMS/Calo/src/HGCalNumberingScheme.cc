@@ -79,13 +79,15 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
       std::pair<int, int> typm = hgcons_.tileType(layer, id[0], 0);
       HGCScintillatorDetId detId(id[2], layer, iz * id[0], id[1]);
       if (typm.first >= 0) {
-	detId.setType(typm.first);
-	detId.setSiPM(typm.second);
+        detId.setType(typm.first);
+        detId.setSiPM(typm.second);
       }
       index = detId.rawId();
 #ifdef EDM_ML_DEBUG
       int lay = layer + hgcons_.getLayerOffset();
-      edm::LogVerbatim("HGCSim") << "Radius/Phi " << id[0] << ":" << id[1] << " Type " << id[2] << ":" << typm.first << " SiPM " << typm.second << ":" << hgcons_.tileSiPM(typm.second) << " Layer " << layer << ":" << lay << " z " << iz << " " << detId;
+      edm::LogVerbatim("HGCSim") << "Radius/Phi " << id[0] << ":" << id[1] << " Type " << id[2] << ":" << typm.first
+                                 << " SiPM " << typm.second << ":" << hgcons_.tileSiPM(typm.second) << " Layer "
+                                 << layer << ":" << lay << " z " << iz << " " << detId;
     } else {
       edm::LogVerbatim("HGCSim") << "Radius/Phi " << id[0] << ":" << id[1] << " Type " << id[2] << " Layer|iz " << layer
                                  << ":" << iz << " ERROR";
