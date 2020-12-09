@@ -572,14 +572,14 @@ std::string_view DDFilteredView::get<string_view>(const string& key) {
 
 template <>
 double DDFilteredView::get<double>(const string& key) {
-  double result(std::nan("0"));
-
   currentSpecPar_ = find(key);
   if (currentSpecPar_ != nullptr) {
-    result = getNextValue(key);
+    return getNextValue(key);
+  } else {
+    throw cms::Exception("DetectorDescription")
+        << "Request for a non-existent numeric parameter " << key << " Please, check that it is defined in XML "
+        << "and has an eval attribute set.";
   }
-
-  return result;
 }
 
 template <>
