@@ -20,6 +20,8 @@ hgcalValidator = DQMEDAnalyzer(
       cms.InputTag("ticlMultiClustersFromTrackstersHAD"),
       cms.InputTag("ticlMultiClustersFromTrackstersMerge")),
 
+    associator = cms.untracked.InputTag("trackingParticleRecoTrackAsssociationProducer"),
+
     #General info on layers etc.
     SaveGeneralInfo = cms.untracked.bool(True),
     #CaloParticle related plots
