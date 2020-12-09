@@ -1,4 +1,6 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/L1Trigger/interface/Vertex.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
@@ -9,6 +11,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -17,6 +20,7 @@
 #include "L1Trigger/VertexFinder/interface/L1TrackTruthMatched.h"
 #include "L1Trigger/VertexFinder/interface/RecoVertexWithTP.h"
 #include "L1Trigger/VertexFinder/interface/selection.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
@@ -156,11 +160,12 @@ namespace l1tVertexFinder {
 
     // references to tags containing information relevant to perofrmance analysis
     const edm::EDGetTokenT<std::vector<PileupSummaryInfo>> pileupSummaryToken_;
-    const edm::EDGetTokenT<TrackingParticleCollection> tpInputTag;
-    const edm::EDGetTokenT<DetSetVec> stubInputTag;
-    const edm::EDGetTokenT<TTStubAssMap> stubTruthInputTag;
-    const edm::EDGetTokenT<TTClusterAssMap> clusterTruthInputTag;
+    const edm::EDGetTokenT<edm::HepMCProduct> hepMCToken_;
     const edm::EDGetTokenT<edm::View<reco::GenParticle>> genParticlesToken_;
+    const edm::EDGetTokenT<TrackingParticleCollection> tpToken_;
+    const edm::EDGetTokenT<DetSetVec> stubToken_;
+    const edm::EDGetTokenT<TTStubAssMap> stubTruthToken_;
+    const edm::EDGetTokenT<TTClusterAssMap> clusterTruthToken_;
     const edm::EDGetTokenT<std::vector<reco::GenJet>> genJetsToken_;
     std::map<std::string, edm::EDGetTokenT<TTTrackCollectionView>> l1TracksTokenMap_;
     std::map<std::string, edm::EDGetTokenT<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>>> l1TracksMapTokenMap_;
@@ -203,12 +208,13 @@ namespace l1tVertexFinder {
 
   VertexNTupler::VertexNTupler(const edm::ParameterSet& iConfig)
       : pileupSummaryToken_(consumes<std::vector<PileupSummaryInfo>>(edm::InputTag("addPileupInfo"))),
-        tpInputTag(consumes<TrackingParticleCollection>(iConfig.getParameter<edm::InputTag>("tpInputTag"))),
-        stubInputTag(consumes<DetSetVec>(iConfig.getParameter<edm::InputTag>("stubInputTag"))),
-        stubTruthInputTag(consumes<TTStubAssMap>(iConfig.getParameter<edm::InputTag>("stubTruthInputTag"))),
-        clusterTruthInputTag(consumes<TTClusterAssMap>(iConfig.getParameter<edm::InputTag>("clusterTruthInputTag"))),
-        genParticlesToken_(consumes<edm::View<reco::GenParticle>>(edm::InputTag("genParticles"))),
-        genJetsToken_(consumes<std::vector<reco::GenJet>>(edm::InputTag("ak4GenJetsNoNu"))),
+        hepMCToken_(consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("hepMCInputTag"))),
+        genParticlesToken_(consumes<edm::View<reco::GenParticle>>(iConfig.getParameter<edm::InputTag>("genParticleInputTag"))),
+        tpToken_(consumes<TrackingParticleCollection>(iConfig.getParameter<edm::InputTag>("tpInputTag"))),
+        stubToken_(consumes<DetSetVec>(iConfig.getParameter<edm::InputTag>("stubInputTag"))),
+        stubTruthToken_(consumes<TTStubAssMap>(iConfig.getParameter<edm::InputTag>("stubTruthInputTag"))),
+        clusterTruthToken_(consumes<TTClusterAssMap>(iConfig.getParameter<edm::InputTag>("clusterTruthInputTag"))),
+        genJetsToken_(consumes<std::vector<reco::GenJet>>(iConfig.getParameter<edm::InputTag>("genJetsInputTag"))),
         outputTree_(fs_->make<TTree>("l1VertexReco", "L1 vertex-related info")),
         printResults_(iConfig.getParameter<bool>("printResults")),
         settings_(iConfig) {
@@ -418,8 +424,8 @@ namespace l1tVertexFinder {
   void VertexNTupler::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     edm::Handle<TTStubAssMap> mcTruthTTStubHandle;
     edm::Handle<TTClusterAssMap> mcTruthTTClusterHandle;
-    iEvent.getByToken(stubTruthInputTag, mcTruthTTStubHandle);
-    iEvent.getByToken(clusterTruthInputTag, mcTruthTTClusterHandle);
+    iEvent.getByToken(stubTruthToken_, mcTruthTTStubHandle);
+    iEvent.getByToken(clusterTruthToken_, mcTruthTTClusterHandle);
 
     std::map<std::string, edm::Handle<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>>> truthAssocMapHandles;
     std::set<edm::Ptr<TrackingParticle>> allMatchedTPs;
@@ -433,7 +439,7 @@ namespace l1tVertexFinder {
     }
 
     // Note useful info about MC truth particles and about reconstructed stubs
-    InputData inputData(iEvent, iSetup, settings_, tpInputTag, stubInputTag, stubTruthInputTag, clusterTruthInputTag);
+    InputData inputData(iEvent, iSetup, settings_, hepMCToken_, genParticlesToken_, tpToken_, stubToken_, stubTruthToken_, clusterTruthToken_);
 
     // Get the tracker geometry info needed to unpack the stub info.
     edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
@@ -625,12 +631,12 @@ namespace l1tVertexFinder {
       }
 
       if (printResults_) {
-        std::cout << recoVertices.size() << " '" << tokenMapEntry.first << "' vertices were found ... " << std::endl;
+        edm::LogInfo("VertexNTupler") << "analyze::" << recoVertices.size() << " '" << tokenMapEntry.first << "' vertices were found ... ";
         for (const auto& vtx : recoVertices) {
-          std::cout << "  * z0 = " << vtx->z0() << "; contains " << vtx->numTracks() << " tracks ..." << std::endl;
+          edm::LogInfo("VertexNTupler") << "analyze::" << "  * z0 = " << vtx->z0() << "; contains " << vtx->numTracks() << " tracks ...";
           for (const auto& trackPtr : vtx->tracks())
-            std::cout << "     - z0 = " << trackPtr->z0() << "; pt = " << trackPtr->pt()
-                      << ", eta = " << trackPtr->eta() << ", phi = " << trackPtr->phi0() << std::endl;
+            edm::LogInfo("VertexNTupler") << "analyze::" << "     - z0 = " << trackPtr->z0() << "; pt = " << trackPtr->pt()
+                      << ", eta = " << trackPtr->eta() << ", phi = " << trackPtr->phi0();
         }
       }
     }
@@ -676,7 +682,7 @@ namespace l1tVertexFinder {
     /////////////////////////////
 
     if (settings_.debug() > 2)
-      cout << "================ End of Event ==============" << endl;
+      edm::LogInfo("VertexNTupler") << "analyze::================ End of Event ==============";
   }
 
   void VertexNTupler::endJob() {}

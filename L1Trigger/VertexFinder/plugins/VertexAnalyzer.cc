@@ -1,13 +1,16 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
+#include "DataFormats/L1Trigger/interface/Vertex.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "DataFormats/L1Trigger/interface/Vertex.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -16,6 +19,7 @@
 #include "L1Trigger/VertexFinder/interface/L1TrackTruthMatched.h"
 #include "L1Trigger/VertexFinder/interface/RecoVertexWithTP.h"
 #include "L1Trigger/VertexFinder/interface/selection.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
@@ -54,6 +58,8 @@ namespace l1tVertexFinder {
     typedef edm::View<TTTrack<Ref_Phase2TrackerDigi_>> TTTrackCollectionView;
 
     // references to tags containing information relevant to perofrmance analysis
+    const edm::EDGetTokenT<edm::HepMCProduct> hepMCInputTag;
+    const edm::EDGetTokenT<edm::View<reco::GenParticle>> genParticleInputTag;
     const edm::EDGetTokenT<TrackingParticleCollection> tpInputTag;
     const edm::EDGetTokenT<DetSetVec> stubInputTag;
     const edm::EDGetTokenT<TTStubAssMap> stubTruthInputTag;
@@ -75,7 +81,6 @@ namespace l1tVertexFinder {
     TH1F* hisRecoVertexZ0Separation_;
     TH1F* hisRecoVertexPTResolution_;
     TH2F* hisNoRecoVsNoTruePileUpVertices_;
-    TH2F* hisRecoVertexMETVsTrueMET_;
     TH2F* hisNoTracksFromPrimaryVertex_;
     TProfile* hisRecoVertexPTResolutionVsTruePt_;
     TH2F* hisNoTrueTracksFromPrimaryVertex_;
@@ -105,12 +110,9 @@ namespace l1tVertexFinder {
     TH1F* hisCorrelatorTPInputTracks_;
     TH1F* hisCorrelatorInputVertices_;
     TH1F* hisCorrelatorTPInputVertices_;
-    TProfile* hisTrkMETvsGenMET_;
-    TProfile* hisRecoTrkMETvsGenMET_;
 
     TH1F* hisRecoPrimaryVertexVsTrueZ0_;
     TH1F* hisPrimaryVertexTrueZ0_;
-    TH1F* hisRecoVertexMET_;
     TH1F* hisRecoVertexPT_;
     TH1F* hisRecoPileUpVertexPT_;
     TH1F* hisRecoVertexOffPT_;
@@ -123,9 +125,6 @@ namespace l1tVertexFinder {
     TH1F* hisGenVertexPt_;
     TH1F* hisGenTkVertexPt_;
 
-    TH1F* hisGenVertexMET_;
-    TH1F* hisGenTkVertexMET_;
-
     TH1F* hisGenVertexTrackPt_;
     TH1F* hisGenVertexNumTracks_;
 
@@ -134,37 +133,21 @@ namespace l1tVertexFinder {
     TH1F* hisRecoGenuineVertexVsGenTkVertexPt_;
 
     TH1F* hisRecoVertexVsGenTkVertexPtForEff_;
-    TH1F* hisRecoVertexVsGenTkVertexMETForEff_;
-
-    TH1F* hisRecoVertexVsGenMET_;
-    TH1F* hisRecoGenuineVertexVsGenMET_;
-    TH1F* hisRecoGenuineVertexVsGenTkMET_;
 
     TH1F* hisPUVertexPt_;
     TH1F* hisPUTkVertexPt_;
     TH1F* hisPUVertexTrackPt_;
     TH1F* hisPUVertexNumTracks_;
 
-    TProfile* hisRecoVertexMETResolution_;
-
-    std::vector<TH1F*> hisMETevents_;
     std::vector<TH1F*> hisPTevents_;
 
-    std::vector<TGraphErrors*> grMET_;
-    std::vector<TH1F*> hisRecoVertexVsGenTkMET_;
-    std::vector<TH1F*> hisRecoVertexVsGenTkVertexPt_;
-
     TEfficiency* PVefficiencyVsTrueZ0_;
-
-    std::vector<unsigned int> noSignalEvents;
-    std::vector<unsigned int> noBackgroundEvents;
-    std::vector<std::vector<unsigned int>> noRecoSignalEvents;
-    std::vector<std::vector<unsigned int>> noRecoBackgroundEvents;
-    unsigned int noEvents;
   };
 
   VertexAnalyzer::VertexAnalyzer(const edm::ParameterSet& iConfig)
-      : tpInputTag(consumes<TrackingParticleCollection>(iConfig.getParameter<edm::InputTag>("tpInputTag"))),
+      : hepMCInputTag(consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("hepMCInputTag"))),
+        genParticleInputTag(consumes<edm::View<reco::GenParticle>>(iConfig.getParameter<edm::InputTag>("genParticleInputTag"))),
+        tpInputTag(consumes<TrackingParticleCollection>(iConfig.getParameter<edm::InputTag>("tpInputTag"))),
         stubInputTag(consumes<DetSetVec>(iConfig.getParameter<edm::InputTag>("stubInputTag"))),
         stubTruthInputTag(consumes<TTStubAssMap>(iConfig.getParameter<edm::InputTag>("stubTruthInputTag"))),
         clusterTruthInputTag(consumes<TTClusterAssMap>(iConfig.getParameter<edm::InputTag>("clusterTruthInputTag"))),
@@ -183,8 +166,6 @@ namespace l1tVertexFinder {
     hisGenTkVertexPt_ = inputDir.make<TH1F>("hisGenTkVertexPt_", "hisGenTkVertexPt_", 100, 0, 500);
     hisGenVertexTrackPt_ = inputDir.make<TH1F>("hisGenVertexTrackPt_", "hisGenVertexTrackPt_", 50, 0, 300);
     hisGenVertexNumTracks_ = inputDir.make<TH1F>("hisGenVertexNumTracks_", "hisGenVertexNumTracks_", 20, 0, 50);
-    hisGenVertexMET_ = inputDir.make<TH1F>("hisGenVertexMET_", "hisGenVertexMET_", 100, 0, 500);
-    hisGenTkVertexMET_ = inputDir.make<TH1F>("hisGenTkVertexMET_", "hisGenTkVertexMET_", 100, 0, 500);
 
     // information about pile-up vertices
     hisPUVertexPt_ = inputDir.make<TH1F>("hisPUVertexPt_", "hisPUVertexPt_", 50, 0, 300);
@@ -197,15 +178,8 @@ namespace l1tVertexFinder {
         inputDir.make<TH1F>("hisRecoVertexVsGenVertexPt_", "hisRecoVertexVsGenVertexPt_", 100, 0, 500);
     hisRecoVertexVsGenTkVertexPtForEff_ =
         inputDir.make<TH1F>("hisRecoVertexVsGenTkVertexPtForEff_", "hisRecoVertexVsGenTkVertexPtForEff_", 100, 0, 500);
-    hisRecoVertexVsGenTkVertexMETForEff_ = inputDir.make<TH1F>(
-        "hisRecoVertexVsGenTkVertexMETForEff_", "hisRecoVertexVsGenTkVertexMETForEff_", 100, 0, 500);
     hisRecoVertexVsNumGenTracks_ =
         inputDir.make<TH1F>("hisRecoVertexVsNumGenTracks_", "hisRecoVertexVsNumGenTracks_", 20, 0, 50);
-    hisRecoVertexVsGenMET_ = inputDir.make<TH1F>("hisRecoVertexVsGenMET_", "hisRecoVertexVsGenMET_", 100, 0, 500);
-    hisRecoGenuineVertexVsGenMET_ =
-        inputDir.make<TH1F>("hisRecoGenuineVertexVsGenMET_", "hisRecoGenuineVertexVsGenMET_", 100, 0, 500);
-    hisRecoGenuineVertexVsGenTkMET_ =
-        inputDir.make<TH1F>("hisRecoGenuineVertexVsGenTkMET_", "hisRecoGenuineVertexVsGenTkMET_", 100, 0, 500);
 
     hisNoRecoVertices_ =
         inputDir.make<TH1F>("hisNoRecoVertices_", "No. reconstructed Vertices; No. reco vertices; Events", 50, 0, 50);
@@ -255,15 +229,6 @@ namespace l1tVertexFinder {
                             100,
                             0,
                             500.);
-    hisRecoVertexMETVsTrueMET_ =
-        inputDir.make<TH2F>("hisRecoVertexMETVsTrueMET_",
-                            "Reconstructed primary vertex MET vs. True MET; MET [GeV]; True MET",
-                            100,
-                            0,
-                            500.,
-                            100,
-                            0,
-                            500.);
     hisNoTracksFromPrimaryVertex_ = inputDir.make<TH2F>(
         "hisNoTracksFromPrimaryVertex_",
         "No. of Tracks from Primary Vertex (Reco vs. Truth); no. Reco Tracks in PV; no. Truth Tracks in PV ",
@@ -303,9 +268,6 @@ namespace l1tVertexFinder {
         100,
         -25.,
         25.);
-    hisRecoVertexMET_ = inputDir.make<TH1F>("hisRecoVertexMET_", "; L1TrkMET (GeV) ; Entries", 50, 0, 200);
-    hisRecoVertexMETResolution_ = inputDir.make<TProfile>(
-        "hisRecoVertexResolutionMET_", "; GenTrkMET (GeV) ; |L1TrkMET - GenMET|/GenMET", 50, 0, 200);
     hisRecoVertexPT_ = inputDir.make<TH1F>("hisRecoVertexPT_", "; #Sigma_{vtx} p_{T} (GeV) ; Entries", 100, 0, 500);
     hisRecoPileUpVertexPT_ =
         inputDir.make<TH1F>("hisRecoPileUpVertexPT_", "; #Sigma_{vtx} p_{T} (GeV) ; Entries", 50, 0, 200);
@@ -388,11 +350,6 @@ namespace l1tVertexFinder {
         0,
         100);
 
-    hisTrkMETvsGenMET_ =
-        inputDir.make<TProfile>("hisTrkMETvsGenMET_", " Generated L1 Track MET vs Generated MET ", 20, 0, 500);
-    hisRecoTrkMETvsGenMET_ =
-        inputDir.make<TProfile>("hisRecoTrkMETvsGenMET_", " Reconstructed L1 Track MET vs Generated MET ", 20, 0, 500);
-
     hisNumVxIterations_ = inputDir.make<TH1F>(
         "hisNumVxIterations_", "Number of Iterations (Vertex Reconstruction); No. Iterations; Entries", 100, 0, 500);
     hisNumVxIterationsPerTrack_ =
@@ -420,66 +377,12 @@ namespace l1tVertexFinder {
                             0,
                             100);
 
-    grMET_.resize(4);
-    hisMETevents_.resize(4);
-    hisPTevents_.resize(4);
-    hisRecoVertexVsGenTkMET_.resize(4);
-    hisRecoVertexVsGenTkVertexPt_.resize(4);
-    float genMet[4] = {50, 100, 200, 300};
-
-    for (unsigned int i = 0; i < 4; ++i) {
-      grMET_[i] = inputDir.make<TGraphErrors>(10);
-      ostringstream title, name;
-
-      name << "hisRecoVertexVsGenTkMET_" << genMet[i];
-
-      hisRecoVertexVsGenTkMET_[i] = inputDir.make<TH1F>(name.str().c_str(), name.str().c_str(), 100, 0, 500);
-
-      name.clear();
-      name.str("");
-      name << "hisRecoVertexVsGenTkVertexPt_" << genMet[i];
-      hisRecoVertexVsGenTkVertexPt_[i] = inputDir.make<TH1F>(name.str().c_str(), name.str().c_str(), 100, 0, 500);
-
-      title << "Signal Efficiency vs. Bkg. rejection ( GenMET > " << genMet[i]
-            << " GeV); Signal Efficiency; Bkg Rejection power";
-      name << "grSignVsBkgEffGenMET" << genMet[i];
-
-      grMET_[i]->SetTitle(title.str().c_str());
-      grMET_[i]->SetName(name.str().c_str());
-      grMET_[i]->SetMarkerStyle(21);
-      grMET_[i]->GetXaxis()->SetRangeUser(0, 1.1);
-      grMET_[i]->GetYaxis()->SetRangeUser(0, 1.1);
-
-      title.clear();
-      title.str("");
-      title << "Signal Efficiency vs. Bkg. rejection ( GenMET > " << genMet[i]
-            << " GeV, Technical Proposal Algo); Signal Efficiency; Bkg Rejection power";
-      name.clear();
-      name.str("");
-      name << "grSignVsBkgEffGenMET" << genMet[i] << "_TP";
-
-      name.clear();
-      name.str("");
-      name << "hisMET" << genMet[i];
-      hisMETevents_[i] = inputDir.make<TH1F>(name.str().c_str(), name.str().c_str(), 42, 0, 42);
-
-      name.clear();
-      name.str("");
-      name << "hisPT" << genMet[i];
-      hisPTevents_[i] = inputDir.make<TH1F>(name.str().c_str(), name.str().c_str(), 22, 0, 22);
-    }
-
-    noSignalEvents.assign(4, 0);
-    noBackgroundEvents.assign(4, 0);
-
     std::vector<unsigned int> emptyVector;
     emptyVector.assign(10, 0);
-
-    noRecoSignalEvents.assign(4, emptyVector);
-    noRecoBackgroundEvents.assign(4, emptyVector);
   }
 
   void VertexAnalyzer::beginJob(){};
+
   void VertexAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     edm::Handle<TTStubAssMap> mcTruthTTStubHandle;
     edm::Handle<TTClusterAssMap> mcTruthTTClusterHandle;
@@ -487,7 +390,7 @@ namespace l1tVertexFinder {
     iEvent.getByToken(clusterTruthInputTag, mcTruthTTClusterHandle);
 
     // Note useful info about MC truth particles and about reconstructed stubs .
-    InputData inputData(iEvent, iSetup, settings_, tpInputTag, stubInputTag, stubTruthInputTag, clusterTruthInputTag);
+    InputData inputData(iEvent, iSetup, settings_, hepMCInputTag, genParticleInputTag, tpInputTag, stubInputTag, stubTruthInputTag, clusterTruthInputTag);
 
     edm::Handle<TTTrackCollectionView> l1TracksHandle;
     iEvent.getByToken(l1TracksToken_, l1TracksHandle);
@@ -546,7 +449,7 @@ namespace l1tVertexFinder {
     unsigned int numVertices = l1VerticesHandle->size();
 
     if (settings_.debug() > 0)
-      cout << "Input Tracks to L1 Correlator " << numInputTracks << endl;
+      edm::LogInfo("VertexAnalyzer") << "analyzer::Input Tracks to L1 Correlator " << numInputTracks;
 
     const size_t primaryVertexIndex =
         (l1VerticesHandle->empty() ? 0
@@ -591,15 +494,12 @@ namespace l1tVertexFinder {
         (l1VerticesHandle->empty() ? new RecoVertexWithTP(-9999.) : recoVertices.at(primaryVertexIndex));
 
     if (settings_.debug() > 2 and numVertices > 0) {
-      cout << "Num Found Vertices " << numVertices << endl;
-      cout << "Reconstructed Primary Vertex z0 " << RecoPrimaryVertex->z0() << " pT " << RecoPrimaryVertex->pT()
-           << endl;
+      edm::LogInfo("VertexAnalyzer") << "analyzer::Num Found Vertices " << numVertices
+        << "\nReconstructed Primary Vertex z0 " << RecoPrimaryVertex->z0() << " pT " << RecoPrimaryVertex->pT();
     }
 
     hisGenVertexPt_->Fill(inputData.genPt());
     hisGenTkVertexPt_->Fill(TruePrimaryVertex.pT());
-    hisGenVertexMET_->Fill(inputData.genMET());
-    hisGenTkVertexMET_->Fill(TruePrimaryVertex.met());
     hisGenVertexNumTracks_->Fill(TruePrimaryVertex.numTracks());
 
     for (const TP& tp : TruePrimaryVertex.tracks()) {
@@ -618,20 +518,15 @@ namespace l1tVertexFinder {
       hisRecoVertexVsGenVertexPt_->Fill(inputData.genPt());
     }
 
-    if (RecoPrimaryVertex->met() > 50.) {
-      hisRecoVertexVsGenMET_->Fill(inputData.genMET());
-    }
-
     if (settings_.debug() > 2) {
-      cout << "** RECO VERTICES ***" << endl;
+      edm::LogInfo("VertexAnalyzer") << "analyzer::** RECO VERTICES **";
       for (RecoVertexWithTP* vertex : recoVertices) {
-        cout << "recovertex z0 " << vertex->z0() << " pt " << vertex->pT() << " highpt " << vertex->hasHighPt()
-             << " numtracks " << vertex->numTracks() << " numTrueTracks " << vertex->numTrueTracks() << endl;
+        edm::LogInfo("VertexAnalyzer") << "analyzer::recovertex z0 " << vertex->z0() << " pt " << vertex->pT() << " highpt " << vertex->hasHighPt()
+            << " numtracks " << vertex->numTracks() << " numTrueTracks " << vertex->numTrueTracks();
       }
-      cout << "True PrimaryVertex z0 " << TruePrimaryVertex.z0() << " pT " << TruePrimaryVertex.pT() << " met "
-           << TruePrimaryVertex.met() << endl;
-      cout << "Reco PrimaryVertex z0 " << RecoPrimaryVertex->z0() << " pT " << RecoPrimaryVertex->pT() << " met "
-           << RecoPrimaryVertex->met() << " nTracks " << RecoPrimaryVertex->numTracks() << endl;
+      edm::LogInfo("VertexAnalyzer") << "analyzer::True PrimaryVertex z0 " << TruePrimaryVertex.z0() << " pT " << TruePrimaryVertex.pT();
+      edm::LogInfo("VertexAnalyzer") << "analyzer::Reco PrimaryVertex z0 " << RecoPrimaryVertex->z0() << " pT " << RecoPrimaryVertex->pT()
+            << " nTracks " << RecoPrimaryVertex->numTracks();
     }
 
     unsigned int TrackRank = 0;
@@ -651,9 +546,6 @@ namespace l1tVertexFinder {
     // hisNumVxIterations_->Fill(vf.NumIterations());
     // hisNumVxIterationsPerTrack_->Fill(vf.IterationsPerTrack());
 
-    hisTrkMETvsGenMET_->Fill(inputData.genMET(), TruePrimaryVertex.met());
-    hisRecoTrkMETvsGenMET_->Fill(inputData.genMET(), RecoPrimaryVertex->met());
-
     hisNoRecoVertices_->Fill(numVertices);
     hisNoPileUpVertices_->Fill(inputData.getRecoPileUpVertices().size());
     hisNoRecoVsNoTruePileUpVertices_->Fill(numVertices, inputData.getRecoPileUpVertices().size());
@@ -668,64 +560,27 @@ namespace l1tVertexFinder {
 
     // Vertex has been found
     if (std::abs(z0res) < settings_.vx_resolution()) {
-      float genMet[4] = {50, 100, 200, 300};
-      for (unsigned int i = 0; i < 4; ++i) {
-        if (RecoPrimaryVertex->met() > genMet[i])
-          hisRecoVertexVsGenTkMET_[i]->Fill(TruePrimaryVertex.met());
-        if (RecoPrimaryVertex->pT() > genMet[i]) {
-          hisRecoVertexVsGenTkVertexPt_[i]->Fill(TruePrimaryVertex.pT());
-        }
-
-        float minThreshold = genMet[i] - 0.5 * genMet[i];
-        float step = genMet[i] / 10.;
-        if (TruePrimaryVertex.pT() > genMet[i]) {
-          hisPTevents_[i]->Fill(0.5);
-          for (unsigned int j = 0; j < 10; ++j) {
-            float cut = minThreshold + step * j;
-            if (RecoPrimaryVertex->pT() > cut)
-              hisPTevents_[i]->Fill(1.5 + j);
-          }
-        } else {
-          hisPTevents_[i]->Fill(11.5);
-          for (unsigned int j = 0; j < 10; ++j) {
-            float cut = minThreshold + step * j;
-            if (RecoPrimaryVertex->pT() < cut)
-              hisPTevents_[i]->Fill(12.5 + j);
-          }
-        }
-      }
-
-      float METres = std::abs(RecoPrimaryVertex->met() - TruePrimaryVertex.met()) / TruePrimaryVertex.met();
-
-      if (settings_.debug() > 2 and METres > 0.2) {
-        cout << "** RECO TRACKS in PV**" << endl;
+      if (settings_.debug() > 2) {
+        edm::LogInfo("VertexAnalyzer") << "analyzer::** RECO TRACKS in PV **";
         for (const L1TrackTruthMatched* track : RecoPrimaryVertex->tracks()) {
           if (track->getMatchedTP() != nullptr)
-            cout << "matched TP " << track->getMatchedTP()->index();
-          cout << " pT " << track->pt() << " phi0 " << track->phi0() << " z0 " << track->z0() << endl;
+            edm::LogInfo("VertexAnalyzer") << "analyzer::matched TP " << track->getMatchedTP()->index();
+          edm::LogInfo("VertexAnalyzer") << "analyzer::pT " << track->pt() << " phi0 " << track->phi0() << " z0 " << track->z0();
         }
 
-        cout << "** TRUE TRACKS in PV**" << endl;
+        edm::LogInfo("VertexAnalyzer") << "analyzer::** TRUE TRACKS in PV **";
         for (TP track : TruePrimaryVertex.tracks()) {
-          cout << "index " << track.index() << " pT " << track.pt() << " phi0 " << track.phi0() << " z0 " << track.z0()
-               << " status " << track.physicsCollision() << endl;
+          edm::LogInfo("VertexAnalyzer") << "analyzer::index " << track.index() << " pT " << track.pt() << " phi0 " << track.phi0() << " z0 " << track.z0()
+               << " status " << track.physicsCollision();
         }
       }
-
-      hisRecoVertexMETResolution_->Fill(TruePrimaryVertex.met(), METres);
 
       if (RecoPrimaryVertex->pT() > 100.) {
         hisRecoGenuineVertexVsGenTkVertexPt_->Fill(TruePrimaryVertex.pT());
       }
 
-      if (RecoPrimaryVertex->met() > 50.) {
-        hisRecoGenuineVertexVsGenMET_->Fill(inputData.genMET());
-        hisRecoGenuineVertexVsGenTkMET_->Fill(TruePrimaryVertex.met());
-      }
-
       hisRecoVertexVsNumGenTracks_->Fill(TruePrimaryVertex.numTracks());
       hisRecoVertexVsGenTkVertexPtForEff_->Fill(TruePrimaryVertex.pT());
-      hisRecoVertexVsGenTkVertexMETForEff_->Fill(TruePrimaryVertex.met());
       hisRecoPrimaryVertexVsTrueZ0_->Fill(TruePrimaryVertex.z0());
 
       // ** Reconstructed Primary Vertex Histos **
@@ -733,8 +588,6 @@ namespace l1tVertexFinder {
       hisRecoVertexPTResolutionVsTruePt_->Fill(TruePrimaryVertex.pT(), pTres / TruePrimaryVertex.pT());
 
       hisRecoVertexPTVsTruePt_->Fill(RecoPrimaryVertex->pT(), TruePrimaryVertex.pT());
-      hisRecoVertexMETVsTrueMET_->Fill(RecoPrimaryVertex->met(), TruePrimaryVertex.met());
-      hisRecoVertexMET_->Fill(RecoPrimaryVertex->met());
       hisNoTracksFromPrimaryVertex_->Fill(RecoPrimaryVertex->numTracks(), TruePrimaryVertex.numTracks());
       hisNoTrueTracksFromPrimaryVertex_->Fill(RecoPrimaryVertex->numTrueTracks(), TruePrimaryVertex.numTracks());
       hisRecoPrimaryVertexZ0width_->Fill(RecoPrimaryVertex->z0width());
@@ -750,55 +603,28 @@ namespace l1tVertexFinder {
                        float(RecoPrimaryVertex->numTracks());
       hisFakeTracksRateInPV_->Fill(fakeRate);
       hisRecoPrimaryVertexResolutionVsTrueZ0_->Fill(TruePrimaryVertex.z0(), std::abs(z0res));
-
-      for (unsigned int i = 0; i < 4; ++i) {
-        float genmet = genMet[i];
-        float met_steps = (genmet - genmet * 0.3) / 10;
-        bool signal = false;
-        if (TruePrimaryVertex.met() > genmet) {
-          noSignalEvents[i]++;
-          signal = true;
-        } else {
-          noBackgroundEvents[i]++;
-        }
-
-        for (unsigned int j = 0; j < 10; ++j) {
-          float cutmet = genmet * 0.3 + j * met_steps;
-
-          if (RecoPrimaryVertex->met() > cutmet) {
-            if (signal)
-              noRecoSignalEvents[i][j]++;
-          } else if (!signal) {
-            noRecoBackgroundEvents[i][j]++;
-          }
-        }
-      }
     } else {
       hisRecoVertexOffPT_->Fill(RecoPrimaryVertex->pT());
       hisUnmatchedVertexZ0distance_->Fill(std::abs(z0res));
       if (settings_.debug() > 2) {
-        cout << "Vertex Reconstruction Algorithm doesn't find the correct"
-             << " primary vertex (Delta Z = " << std::abs(z0res) << ")" << endl;
+        edm::LogInfo("VertexAnalyzer") << "analyzer::Vertex Reconstruction Algorithm doesn't find the correct primary vertex (Delta Z = " << std::abs(z0res) << ")";
       }
     }
 
     if (settings_.debug() > 2) {
       for (const L1TrackTruthMatched* l1track : RecoPrimaryVertex->tracks()) {
         if (l1track->getMatchedTP() == nullptr) {
-          cout << "FAKE track assigned to PV. Track z0: " << l1track->z0() << " track pT " << l1track->pt()
-               << " chi2/ndof " << l1track->chi2dof() << " numstubs " << l1track->getNumStubs() << endl;
+          edm::LogInfo("VertexAnalyzer") << "analyzer::FAKE track assigned to PV. Track z0: " << l1track->z0() << " track pT " << l1track->pt()
+               << " chi2/ndof " << l1track->chi2dof() << " numstubs " << l1track->getNumStubs();
         } else if (l1track->getMatchedTP()->physicsCollision() == 0) {
-          cout << "Pile-Up track assigned to PV. Track z0: " << l1track->z0() << " track pT " << l1track->pt() << endl;
+          edm::LogInfo("VertexAnalyzer") << "analyzer::Pile-Up track assigned to PV. Track z0: " << l1track->z0() << " track pT " << l1track->pt();
         } else {
-          cout << "Physics Collision track assigned to PV."
-               << " Track z0: " << l1track->z0() << " track pT " << l1track->pt() << " numstubs "
-               << l1track->getNumStubs() << endl;
-          ;
-          cout << " (real values) id: " << l1track->getMatchedTP()->index() << " pT " << l1track->getMatchedTP()->pt()
-               << " eta " << l1track->getMatchedTP()->eta() << " d0 " << l1track->getMatchedTP()->d0() << " z0 "
-               << l1track->getMatchedTP()->z0() << " physicsCollision " << l1track->getMatchedTP()->physicsCollision()
-               << " useForEff() " << l1track->getMatchedTP()->useForEff() << " pdg " << l1track->getMatchedTP()->pdgId()
-               << " tip " << l1track->getMatchedTP()->tip() << endl;
+          edm::LogInfo("VertexAnalyzer") << "analyzer::Physics Collision track assigned to PV. Track z0: " << l1track->z0() << " track pT "
+                << l1track->pt() << " numstubs " << l1track->getNumStubs() << "\n (real values) id: " << l1track->getMatchedTP()->index() << " pT " << l1track->getMatchedTP()->pt()
+                << " eta " << l1track->getMatchedTP()->eta() << " d0 " << l1track->getMatchedTP()->d0() << " z0 "
+                << l1track->getMatchedTP()->z0() << " physicsCollision " << l1track->getMatchedTP()->physicsCollision()
+                << " useForEff() " << l1track->getMatchedTP()->useForEff() << " pdg " << l1track->getMatchedTP()->pdgId()
+                << " tip " << l1track->getMatchedTP()->tip();
         }
       }
     }
@@ -820,7 +646,7 @@ namespace l1tVertexFinder {
    * track will sometimes be matched to a given TP).
    */
     if (settings_.debug() > 2)
-      cout << "*** Misassigned primary vertex tracks ***" << endl;
+      edm::LogInfo("VertexAnalyzer") << "analyzer::*** Misassigned primary vertex tracks ***";
     for (const TP& tp : TruePrimaryVertex.tracks()) {
       bool found = false;
       for (const L1TrackTruthMatched* l1track : RecoPrimaryVertex->tracks()) {
@@ -853,9 +679,9 @@ namespace l1tVertexFinder {
               hisUnmatchZ0MinDistance_->Fill(mindistance);
 
               if (settings_.debug() > 1) {
-                cout << "PV Track assigned to wrong vertex. Track z0: " << l1track->z0()
-                     << " PV z0: " << RecoPrimaryVertex->z0() << " tp z0 " << tp.z0() << " track pT " << l1track->pt()
-                     << " tp pT " << tp.pt() << " tp d0 " << tp.d0() << " track eta " << l1track->eta() << endl;
+                edm::LogInfo("VertexAnalyzer") << "analyzer::PV Track assigned to wrong vertex. Track z0: " << l1track->z0()
+                    << " PV z0: " << RecoPrimaryVertex->z0() << " tp z0 " << tp.z0() << " track pT " << l1track->pt()
+                    << " tp pT " << tp.pt() << " tp d0 " << tp.d0() << " track eta " << l1track->eta();
               }
               break;
             }
@@ -907,17 +733,17 @@ namespace l1tVertexFinder {
     }
 
     if (settings_.debug() > 2)
-      cout << "================ End of Event ==============" << endl;
+      edm::LogInfo("VertexAnalyzer") << "analyzer::================ End of Event ==============";
 
     delete RecoPrimaryVertex;
 
     if (printResults_) {
-      std::cout << numVertices << " vertices were found ... " << std::endl;
+      edm::LogInfo("VertexAnalyzer") << "analyzer::" << numVertices << " vertices were found ... ";
       for (const auto& vtx : recoVertices) {
-        std::cout << "  * z0 = " << vtx->z0() << "; contains " << vtx->numTracks() << " tracks ..." << std::endl;
+        edm::LogInfo("VertexAnalyzer") << "analyzer::  * z0 = " << vtx->z0() << "; contains " << vtx->numTracks() << " tracks ...";
         for (const auto& trackPtr : vtx->tracks())
-          std::cout << "     - z0 = " << trackPtr->z0() << "; pt = " << trackPtr->pt() << ", eta = " << trackPtr->eta()
-                    << ", phi = " << trackPtr->phi0() << std::endl;
+          edm::LogInfo("VertexAnalyzer") << "analyzer::     - z0 = " << trackPtr->z0() << "; pt = " << trackPtr->pt() << ", eta = " << trackPtr->eta()
+                    << ", phi = " << trackPtr->phi0();
       }
     }
   }
@@ -930,16 +756,13 @@ namespace l1tVertexFinder {
     PVefficiencyVsTrueZ0_->SetNameTitle("PVefficiencyVsTrueZ0_",
                                         "Primary Vertex Finding Efficiency; true z_{0}; Efficiency");
 
-    cout << "==================== VERTEX RECONSTRUCTION ======================" << endl;
-
-    cout << "Average no. Reconstructed Vertices: " << hisNoRecoVertices_->GetMean() << "("
-         << hisNoRecoVertices_->GetMean() * 100. / (hisNoPileUpVertices_->GetMean() + 1.) << "%)" << endl;
-    cout << "Average ratio of matched tracks in primary vertex " << hisRatioMatchedTracksInPV_->GetMean() * 100 << " % "
-         << endl;
-    cout << "Averate ratio of fake tracks in primary vertex " << hisFakeTracksRateInPV_->GetMean() * 100 << " % "
-         << endl;
-    cout << "Average PV z0 separation " << hisRecoVertexZ0Separation_->GetMean() << " cm " << endl;
-    cout << "PV z0 resolution " << hisRecoVertexZ0Resolution_->GetStdDev() << " cm " << endl;
+    edm::LogInfo("VertexAnalyzer") << "analyzer::==================== VERTEX RECONSTRUCTION ======================\n"
+        << "Average no. Reconstructed Vertices: " << hisNoRecoVertices_->GetMean() << "("
+        << hisNoRecoVertices_->GetMean() * 100. / (hisNoPileUpVertices_->GetMean() + 1.) << "%)\n"
+        << "Average ratio of matched tracks in primary vertex " << hisRatioMatchedTracksInPV_->GetMean() * 100 << " %\n"
+        << "Averate ratio of fake tracks in primary vertex " << hisFakeTracksRateInPV_->GetMean() * 100 << " %\n"
+        << "Average PV z0 separation " << hisRecoVertexZ0Separation_->GetMean() << " cm\n"
+        << "PV z0 resolution " << hisRecoVertexZ0Resolution_->GetStdDev() << " cm ";
 
     float recoPVeff =
         double(hisRecoPrimaryVertexVsTrueZ0_->GetEntries()) / double(hisPrimaryVertexTrueZ0_->GetEntries());
@@ -949,75 +772,7 @@ namespace l1tVertexFinder {
     float recoPVeff_err = sqrt((numRecoPV + 1) * (numRecoPV + 2) / ((numPVs + 2) * (numPVs + 3)) -
                                (numRecoPV + 1) * (numRecoPV + 1) / ((numPVs + 2) * (numPVs + 2)));
 
-    cout << "PrimaryVertex Finding Efficiency = " << recoPVeff << " +/- " << recoPVeff_err << endl;
-
-    if (settings_.debug() == 7)
-      cout << "================= L1TrkMET Trigger =============================" << endl;
-
-    for (unsigned int i = 0; i < 4; ++i) {
-      float genmet = 25. + i * 25.;
-      float met_steps = (genmet - 10.) / 10;
-
-      if (settings_.debug() == 7)
-        cout << "********** GenMET > " << genmet << " GeV << ************" << endl;
-      ostringstream name;
-      name << "GenMET" << genmet << ".txt";
-      float sigEvents = double(noSignalEvents[i]);
-      float bkgEvents = double(noBackgroundEvents[i]);
-
-      hisMETevents_[i]->Fill(0.5, sigEvents);
-      hisMETevents_[i]->Fill(21.5, bkgEvents);
-      hisMETevents_[i]->GetXaxis()->SetBinLabel(1, "Signal Events");
-      hisMETevents_[i]->GetXaxis()->SetBinLabel(22, "Bkg Events");
-
-      for (unsigned int j = 0; j < 10; ++j) {
-        float cutmet = 10. + j * met_steps;
-
-        float efficiency = 0.;
-        float rejection = 0.;
-        float sigma_eff = 0., sigma_rej = 0.;
-
-        float recoEvents = double(noRecoSignalEvents[i][j]);
-
-        if (noSignalEvents[i] > 0) {
-          efficiency = double(noRecoSignalEvents[i][j]) / double(noSignalEvents[i]);
-
-          sigma_eff = sqrt((recoEvents + 1) * (recoEvents + 2) / ((sigEvents + 2) * (sigEvents + 3)) -
-                           (recoEvents + 1) * (recoEvents + 1) / ((sigEvents + 2) * (sigEvents + 2)));
-        }
-
-        float recoBkgEvents = double(noRecoBackgroundEvents[i][j]);
-
-        hisMETevents_[i]->Fill(1.5 + j, recoEvents);
-        hisMETevents_[i]->Fill(22.5 + j, recoBkgEvents);
-
-        ostringstream label;
-        label << "RecoSignals" << cutmet;
-        hisMETevents_[i]->GetXaxis()->SetBinLabel(j + 2, label.str().c_str());
-        label.clear();
-        label.str("");
-        label << "TPSignals" << cutmet;
-        hisMETevents_[i]->GetXaxis()->SetBinLabel(j + 12, label.str().c_str());
-        label.clear();
-        label.str("");
-        label << "RecoBkg" << cutmet;
-        hisMETevents_[i]->GetXaxis()->SetBinLabel(j + 23, label.str().c_str());
-        label.clear();
-        label.str("");
-        label << "TPBkg" << cutmet;
-        hisMETevents_[i]->GetXaxis()->SetBinLabel(j + 33, label.str().c_str());
-
-        if (noBackgroundEvents[i] > 0) {
-          rejection = double(noRecoBackgroundEvents[i][j]) / double(noBackgroundEvents[i]);
-
-          sigma_rej = sqrt((recoBkgEvents + 1) * (recoBkgEvents + 2) / ((bkgEvents + 2) * (bkgEvents + 3)) -
-                           (recoBkgEvents + 1) * (recoBkgEvents + 1) / ((bkgEvents + 2) * (bkgEvents + 2)));
-        }
-
-        grMET_[i]->SetPoint(j, efficiency, rejection);
-        grMET_[i]->SetPointError(j, sigma_eff, sigma_rej);
-      }
-    }
+    edm::LogInfo("VertexAnalyzer") << "analyzer::PrimaryVertex Finding Efficiency = " << recoPVeff << " +/- " << recoPVeff_err;
   };
 
   VertexAnalyzer::~VertexAnalyzer(){};

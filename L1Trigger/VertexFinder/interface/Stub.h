@@ -1,18 +1,16 @@
 #ifndef __L1Trigger_VertexFinder_Stub_h__
 #define __L1Trigger_VertexFinder_Stub_h__
 
-#include <array>
-#include <map>
-#include <set>
-
 #include "DataFormats/L1TrackTrigger/interface/TTStub.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
-
-// TTStubAssociationMap.h forgets to two needed files, so must include them here ...
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
+
+#include <array>
+#include <map>
+#include <set>
 
 class TrackerGeometry;
 

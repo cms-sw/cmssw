@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "L1Trigger/VertexFinder/interface/Stub.h"
 #include "L1Trigger/VertexFinder/interface/TP.h"
@@ -23,10 +24,12 @@ namespace l1tVertexFinder {
     InputData(const edm::Event& iEvent,
               const edm::EventSetup& iSetup,
               const AnalysisSettings& settings,
-              const edm::EDGetTokenT<TrackingParticleCollection> tpInputTag,
-              const edm::EDGetTokenT<DetSetVec> stubInputTag,
-              const edm::EDGetTokenT<TTStubAssMap> stubTruthInputTag,
-              const edm::EDGetTokenT<TTClusterAssMap> clusterTruthInputTag);
+              const edm::EDGetTokenT<edm::HepMCProduct> hepMCToken,
+              const edm::EDGetTokenT<edm::View<reco::GenParticle>> genParticlesToken,
+              const edm::EDGetTokenT<TrackingParticleCollection> tpToken,
+              const edm::EDGetTokenT<DetSetVec> stubToken,
+              const edm::EDGetTokenT<TTStubAssMap> stubTruthToken,
+              const edm::EDGetTokenT<TTClusterAssMap> clusterTruthToken);
 
     // Sort Tracking Particles by vertex z position
     struct SortVertexByZ0 {
@@ -35,9 +38,13 @@ namespace l1tVertexFinder {
 
     // Get tracking particles
     const std::vector<TP>& getTPs() const { return vTPs_; }
-    /// Get Primary vertex information
+    /// Get primary vertex information (vertex from HepMCProduct)
+    const Vertex& getHepMCVertex() const { return hepMCVertex_; }
+    /// Get primary vertex information (vertex from gen particles)
+    const Vertex& getGenVertex() const { return genVertex_; } 
+    /// Get primary vertex information (vertex from tracking particles)
     const Vertex& getPrimaryVertex() const { return vertex_; }
-    /// Get PileUp Vertices information
+    /// Get pile-up vertices information
     const std::vector<Vertex>& getPileUpVertices() const { return vertices_; }
     /// Get reconstructable pile-up vertices information
     const std::vector<Vertex>& getRecoPileUpVertices() const { return recoVertices_; }
@@ -52,23 +59,12 @@ namespace l1tVertexFinder {
     const float genPt_PU() const { return genPt_PU_; }
 
   private:
-    // const edm::EDGetTokenT<TrackingParticleCollection> inputTag;
-
-    //  // Can optionally be used to sort stubs by bend.
-    //  struct SortStubsInBend {
-    //     inline bool operator() (const Stub* stub1, const Stub* stub2) {
-    //        return(std::abs(stub1->bend()) < std::abs(stub2->bend()));
-    //     }
-    //  };
-
-  private:
     std::vector<TP> vTPs_;  // tracking particles
-    Vertex vertex_;
-    std::vector<Vertex> vertices_;
-    std::vector<Vertex> recoVertices_;
-
-    //--- of minor importance ...
-
+    Vertex hepMCVertex_;  // primary vertex from the edm::HepMCProduct
+    Vertex genVertex_;  // primary vertex formed from the gen particles collection
+    Vertex vertex_;  // primary vertex formed from the tracking particles
+    std::vector<Vertex> vertices_;  // pile-up vertices
+    std::vector<Vertex> recoVertices_;  // reconstructable pile-up vertices
     std::vector<Stub>
         vAllStubs_;  // all stubs, even those that would fail any tightened front-end readout electronic cuts specified in section StubCuts of Analyze_Defaults_cfi.py. (Only used to measure
                      // the efficiency of these cuts).

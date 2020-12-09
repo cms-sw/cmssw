@@ -3,9 +3,14 @@
 
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "L1Trigger/VertexFinder/interface/AlgoSettings.h"
 #include "L1Trigger/VertexFinder/interface/RecoVertex.h"
 
+#include <algorithm>
+#include <iterator>
 #include <vector>
 
 namespace l1tVertexFinder {
@@ -47,7 +52,7 @@ namespace l1tVertexFinder {
       if (pv_index_ < vertices_.size())
         return vertices_[pv_index_];
       else {
-        std::cout << "No Primary Vertex has been found." << std::endl;
+        edm::LogWarning("VertexFinder")<<"PrimaryVertex::No Primary Vertex has been found.";
         return RecoVertex();
       }
     }
@@ -84,14 +89,24 @@ namespace l1tVertexFinder {
     void HPV();
     /// Kmeans Algorithm
     void Kmeans();
-    /// Histogramming algorithmn
-    void FastHisto();
+    /// TDR histogramming algorithmn
+    void FastHistoLooseAssociation();
+    /// Histogramming algorithm
+    void FastHisto(const TrackerTopology* tTopo);
     /// Sort Vertices in z
     void SortVerticesInZ0() { std::sort(vertices_.begin(), vertices_.end(), SortVertexByZ0()); }
     /// Number of iterations
     unsigned int NumIterations() const { return iterations_; }
     /// Number of iterations
     unsigned int IterationsPerTrack() const { return double(iterations_) / double(fitTracks_.size()); }
+
+    template<typename ForwardIterator, typename T>
+    void strided_iota(ForwardIterator first, ForwardIterator last, T value, T stride) {
+        while(first != last) {
+            *first++ = value;
+            value += stride;
+        }
+    }
 
   private:
     const AlgoSettings* settings_;

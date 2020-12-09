@@ -1,47 +1,42 @@
-#include "DataFormats/L1Trigger/interface/Vertex.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "L1Trigger/VertexFinder/interface/VertexFinder.h"
-#include "L1Trigger/VertexFinder/interface/RecoVertexWithTP.h"
 #include "L1Trigger/VertexFinder/interface/VertexProducer.h"
-
-#include <iostream>
-#include <set>
-#include <vector>
 
 using namespace l1tVertexFinder;
 using namespace std;
 
 VertexProducer::VertexProducer(const edm::ParameterSet& iConfig)
     : l1TracksToken_(consumes<TTTrackCollectionView>(iConfig.getParameter<edm::InputTag>("l1TracksInputTag"))),
+      trackerTopologyToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>()),
       outputCollectionName_(iConfig.getParameter<std::string>("l1VertexCollectionName")),
       settings_(AlgoSettings(iConfig)) {
   // Get configuration parameters
 
   switch (settings_.vx_algo()) {
     case Algorithm::FastHisto:
-      cout << "L1T vertex producer: Finding vertices using the FastHisto binning algorithm " << endl;
+      edm::LogInfo("VertexProducer") << "VertexProducer::Finding vertices using the FastHisto binning algorithm";
+      break;
+    case Algorithm::FastHistoLooseAssociation:
+      edm::LogInfo("VertexProducer") << "VertexProducer::Finding vertices using the FastHistoLooseAssociation binning algorithm";
       break;
     case Algorithm::GapClustering:
-      cout << "L1T vertex producer: Finding vertices using a gap clustering algorithm " << endl;
+      edm::LogInfo("VertexProducer") << "VertexProducer::Finding vertices using a gap clustering algorithm";
       break;
     case Algorithm::AgglomerativeHierarchical:
-      cout << "L1T vertex producer: Finding vertices using a Simple Merge Clustering algorithm " << endl;
+      edm::LogInfo("VertexProducer") << "VertexProducer::Finding vertices using a Simple Merge Clustering algorithm";
       break;
     case Algorithm::DBSCAN:
-      cout << "L1T vertex producer: Finding vertices using a DBSCAN algorithm " << endl;
+      edm::LogInfo("VertexProducer") << "VertexProducer::Finding vertices using a DBSCAN algorithm";
       break;
     case Algorithm::PVR:
-      cout << "L1T vertex producer: Finding vertices using a PVR algorithm " << endl;
+      edm::LogInfo("VertexProducer") << "VertexProducer::Finding vertices using a PVR algorithm";
       break;
     case Algorithm::AdaptiveVertexReconstruction:
-      cout << "L1T vertex producer: Finding vertices using an AdaptiveVertexReconstruction algorithm " << endl;
+      edm::LogInfo("VertexProducer") << "VertexProducer::Finding vertices using an AdaptiveVertexReconstruction algorithm";
       break;
     case Algorithm::HPV:
-      cout << "L1T vertex producer: Finding vertices using an Highest Pt Vertex algorithm " << endl;
+      edm::LogInfo("VertexProducer") << "VertexProducer::Finding vertices using a Highest Pt Vertex algorithm";
       break;
     case Algorithm::Kmeans:
-      cout << "L1T vertex producer: Finding vertices using a kmeans algorithm" << endl;
+      edm::LogInfo("VertexProducer") << "VertexProducer::Finding vertices using a kmeans algorithm";
       break;
   }
 
@@ -80,7 +75,13 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
   switch (settings_.vx_algo()) {
     case Algorithm::FastHisto:
-      vf.FastHisto();
+      {
+        edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopologyToken_);
+        vf.FastHisto(tTopoHandle.product());
+        break;
+      }
+    case Algorithm::FastHistoLooseAssociation:
+      vf.FastHistoLooseAssociation();
       break;
     case Algorithm::GapClustering:
       vf.GapClustering();

@@ -1,17 +1,25 @@
 #ifndef __L1Trigger_VertexFinder_VertexProducer_h__
 #define __L1Trigger_VertexFinder_VertexProducer_h__
 
+#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
+#include "DataFormats/L1Trigger/interface/Vertex.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "L1Trigger/VertexFinder/interface/AlgoSettings.h"
+#include "L1Trigger/VertexFinder/interface/RecoVertexWithTP.h"
+#include "L1Trigger/VertexFinder/interface/VertexFinder.h"
+
+#include <iostream>
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
-
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
-
-#include "L1Trigger/VertexFinder/interface/AlgoSettings.h"
 
 namespace l1tVertexFinder {
   class AlgoSettings;
@@ -31,6 +39,7 @@ private:
 
 private:
   const edm::EDGetTokenT<TTTrackCollectionView> l1TracksToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyToken_;
   const std::string outputCollectionName_;
 
   l1tVertexFinder::AlgoSettings settings_;

@@ -111,26 +111,6 @@ namespace l1tVertexFinder {
         }
       }
     }
-
-    // Sanity check - is truth info of stub consistent with that of its clusters?
-    // Commented this out, as it throws errors for unknown reason with iErr=1. Apparently, "genuine" stubs can be composed of two clusters that are
-    // not "genuine", providing that one of the TP that contributed to each cluster was the same.
-    /*
-  unsigned int iErr = 0;
-  if (this->genuine()) { // Stub matches truth particle
-    if ( ! ( this->genuineCluster()[0] && (this->assocTPofCluster()[0] == this->assocTPofCluster()[1]) ) ) iErr = 1;
-  } else {
-    if ( ! ( ! this->genuineCluster()[0] || (this->assocTPofCluster()[0] != this->assocTPofCluster()[1]) )  ) iErr = 2;
-  }
-  if (iErr > 0) {
-    cout<<" DEBUGA "<<(this->assocTP() == nullptr)<<endl;
-    cout<<" DEBUGB "<<(this->assocTPofCluster()[0] == nullptr)<<" "<<(this->assocTPofCluster()[1] == nullptr)<<endl;
-    cout<<" DEBUGC "<<this->genuineCluster()[0]<<" "<<this->genuineCluster()[1]<<endl;
-    if (this->assocTPofCluster()[0] != nullptr) cout<<" DEBUGD "<<this->assocTPofCluster()[0]->index()<<endl;
-    if (this->assocTPofCluster()[1] != nullptr) cout<<" DEBUGE "<<this->assocTPofCluster()[1]->index()<<endl;
-    //    throw cms::Exception("Stub: Truth info of stub & its clusters inconsistent!")<<iErr<<endl;
-  }
-  */
   }
 
   //=== Get reduced layer ID (in range 1-7), which can be packed into 3 bits so simplifying the firmware).
@@ -187,9 +167,6 @@ namespace l1tVertexFinder {
         TrackerGeometry::ModuleType::
             Ph2PSP;  // From https://github.com/cms-sw/cmssw/blob/CMSSW_8_1_X/Geometry/TrackerGeometryBuilder/README.md
     barrel_ = detId.subdetId() == StripSubdetector::TOB || detId.subdetId() == StripSubdetector::TIB;
-
-    //  cout<<"DEBUG STUB "<<barrel_<<" "<<psModule_<<"  sep(r,z)=( "<<moduleMaxR_ - moduleMinR_<<" , "<<moduleMaxZ_ - moduleMinZ_<<" )    stub(r,z)=( "<<0.5*(moduleMaxR_ + moduleMinR_) - r_<<" ,
-    //  "<<0.5*(moduleMaxZ_ + moduleMinZ_) - z_<<" )"<<endl;
 
     // Encode layer ID.
     if (barrel_) {

@@ -2,6 +2,8 @@ import FWCore.ParameterSet.Config as cms
 from L1Trigger.VertexFinder.VertexProducer_cff import VertexProducer
 
 L1TVertexNTupler = cms.EDAnalyzer('VertexNTupler',
+  hepMCInputTag = cms.InputTag("generator"),
+  genParticleInputTag = cms.InputTag("genParticles",""),
   tpInputTag = cms.InputTag("mix", "MergedTrackTruth"),
   stubInputTag = cms.InputTag("TTStubsFromPhase2TrackerDigis", "StubAccepted"),
   stubTruthInputTag = cms.InputTag("TTStubAssociatorFromPixelDigis", "StubAccepted"),
@@ -15,6 +17,8 @@ L1TVertexNTupler = cms.EDAnalyzer('VertexNTupler',
   l1VertexBranchNames = cms.vstring('dbscan'),
   extraL1VertexInputTags = cms.VInputTag(),
   extraL1VertexDescriptions = cms.vstring(),
+
+  genJetsInputTag = cms.InputTag("ak4GenJetsNoNu"),
 
   #=== Cuts on MC truth particles (i.e., tracking particles) used for tracking efficiency measurements.
   GenCuts = cms.PSet(
