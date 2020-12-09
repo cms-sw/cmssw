@@ -2,19 +2,19 @@ autoCond = {
 
     ### NEW KEYS ###
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run1
-    'run1_design'       :   '112X_mcRun1_design_v1',
+    'run1_design'       :   '113X_mcRun1_design_v1',
     # GlobalTag for MC production (pp collisions) with realistic alignment and calibrations for Run1
-    'run1_mc'           :   '112X_mcRun1_realistic_v1',
+    'run1_mc'           :   '113X_mcRun1_realistic_v1',
     # GlobalTag for MC production (Heavy Ions collisions) with realistic alignment and calibrations for Run1
-    'run1_mc_hi'        :   '112X_mcRun1_HeavyIon_v1',
+    'run1_mc_hi'        :   '113X_mcRun1_HeavyIon_v1',
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run1
-    'run1_mc_pa'        :   '112X_mcRun1_pA_v2',
+    'run1_mc_pa'        :   '113X_mcRun1_pA_v1',
     # GlobalTag for MC production with pessimistic alignment and calibrations for Run2
-    'run2_mc_50ns'      :   '112X_mcRun2_startup_v1',
+    'run2_mc_50ns'      :   '113X_mcRun2_startup_v1',
     # GlobalTag for MC production (L1 Trigger Stage1) with starup-like alignment and calibrations for Run2, L1 trigger in Stage1 mode
-    'run2_mc_l1stage1'  :   '112X_mcRun2_asymptotic_l1stage1_v1',
+    'run2_mc_l1stage1'  :   '113X_mcRun2_asymptotic_l1stage1_v1',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run2
-    'run2_design'       :   '112X_mcRun2_design_v1',
+    'run2_design'       :   '113X_mcRun2_design_v1',
     #GlobalTag for MC production with optimistic alignment and calibrations for 2016, prior to VFP change
     'run2_mc_pre_vfp'   :   '113X_mcRun2_asymptotic_preVFP_v1',
     #GlobalTag for MC production with optimistic alignment and calibrations for 2016, after VFP change
@@ -22,9 +22,9 @@ autoCond = {
     # GlobalTag for MC production (cosmics) with starup-like alignment and calibrations for Run2, Strip tracker in peak mode
     'run2_mc_cosmics'   :   '113X_mcRun2cosmics_asymptotic_deco_v1',
     # GlobalTag for MC production (Heavy Ions collisions) with optimistic alignment and calibrations for Run2
-    'run2_mc_hi'        :   '112X_mcRun2_HeavyIon_v1',
+    'run2_mc_hi'        :   '113X_mcRun2_HeavyIon_v1',
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run2
-    'run2_mc_pa'        :   '112X_mcRun2_pA_v1',
+    'run2_mc_pa'        :   '113X_mcRun2_pA_v1',
     # GlobalTag for Run1 data reprocessing
     'run1_data'         :   '113X_dataRun2_v1',
     # GlobalTag for Run2 data reprocessing
@@ -81,7 +81,7 @@ autoCond = {
     # GlobalTag for MC production with realistic conditions for Phase1 2024
     'phase1_2024_realistic'    : '113X_mcRun3_2024_realistic_v1', # GT containing realistic conditions for Phase1 2024
     # GlobalTag for MC production with realistic conditions for Phase2
-    'phase2_realistic'         : '112X_mcRun4_realistic_v4'
+    'phase2_realistic'         : '113X_mcRun4_realistic_v1'
 }
 
 aliases = {
