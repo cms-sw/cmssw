@@ -21,9 +21,8 @@ namespace l1t {
             block.getBxBlocks((unsigned int)6, false);  //it returnes 6-32bit bxBlocks originated from the amc13 Block
 
       edm::LogInfo("L1T") << "Will use the setup:"
-                          << " ZS_enabled->" << ZS_enabled
-                          << " isTriggeringAlgo->" << isTriggeringAlgo
-                          << " isKalman->" << isKalman;
+                          << " ZS_enabled->" << ZS_enabled << " isTriggeringAlgo->" << isTriggeringAlgo << " isKalman->"
+                          << isKalman;
 
       RegionalMuonCandBxCollection *res;
       if (isTriggeringAlgo)
