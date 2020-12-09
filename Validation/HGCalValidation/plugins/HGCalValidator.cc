@@ -143,7 +143,7 @@ void HGCalValidator::cpParametersAndSelection(const Histograms& histograms,
                                               std::vector<CaloParticle> const& cPeff,
                                               std::vector<SimVertex> const& simVertices,
                                               std::vector<size_t>& selected_cPeff,
-                                              unsigned layers,
+                                              unsigned int layers,
                                               std::unordered_map<DetId, const HGCRecHit*> const& hitMap) const {
   selected_cPeff.reserve(cPeff.size());
 
