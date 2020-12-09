@@ -95,18 +95,22 @@ namespace {
   /************************************************
     TrackerMap of SiStripBadStrip (bad strip per detid)
   *************************************************/
-  class SiStripBadModuleTrackerMap : public cond::payloadInspector::PlotImage<SiStripBadStrip> {
+  class SiStripBadModuleTrackerMap
+      : public cond::payloadInspector::PlotImage<SiStripBadStrip, cond::payloadInspector::SINGLE_IOV> {
   public:
     SiStripBadModuleTrackerMap()
-        : cond::payloadInspector::PlotImage<SiStripBadStrip>("Tracker Map of SiStrip Bad Strips") {
-      setSingleIov(true);
-    }
+        : cond::payloadInspector::PlotImage<SiStripBadStrip, cond::payloadInspector::SINGLE_IOV>(
+              "Tracker Map of SiStrip Bad Strips") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
+      auto tagname = cond::payloadInspector::PlotBase::getTag<0>().name;
       std::shared_ptr<SiStripBadStrip> payload = fetchPayload(std::get<1>(iov));
 
-      std::string titleMap = "Module with at least a bad Strip (payload : " + std::get<1>(iov) + ")";
+      auto theIOVsince = std::to_string(std::get<0>(iov));
+
+      std::string titleMap = "Modules w/ at least 1 bad Strip, Run: " + theIOVsince + " (tag: " + tagname + ")";
 
       std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripBadStrips");
       tmap->setTitle(titleMap);
@@ -131,21 +135,25 @@ namespace {
   /************************************************
     TrackerMap of SiStripBadStrip (bad strips fraction)
   *************************************************/
-  class SiStripBadStripFractionTrackerMap : public cond::payloadInspector::PlotImage<SiStripBadStrip> {
+  class SiStripBadStripFractionTrackerMap
+      : public cond::payloadInspector::PlotImage<SiStripBadStrip, cond::payloadInspector::SINGLE_IOV> {
   public:
     SiStripBadStripFractionTrackerMap()
-        : cond::payloadInspector::PlotImage<SiStripBadStrip>("Tracker Map of SiStrip Bad Components fraction") {
-      setSingleIov(true);
-    }
+        : cond::payloadInspector::PlotImage<SiStripBadStrip, cond::payloadInspector::SINGLE_IOV>(
+              "Tracker Map of SiStrip Bad Components fraction") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
+      auto tagname = cond::payloadInspector::PlotBase::getTag<0>().name;
       std::shared_ptr<SiStripBadStrip> payload = fetchPayload(std::get<1>(iov));
 
       edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
       SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
 
-      std::string titleMap = "Fraction of bad Strips per module (payload : " + std::get<1>(iov) + ")";
+      auto theIOVsince = std::to_string(std::get<0>(iov));
+
+      std::string titleMap = "Fraction of bad Strips per module, Run: " + theIOVsince + " (tag: " + tagname + ")";
 
       std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripBadStrips");
       tmap->setTitle(titleMap);
