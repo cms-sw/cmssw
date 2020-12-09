@@ -127,7 +127,7 @@ CTPPSCompositeESSource::CTPPSCompositeESSource(const edm::ParameterSet &conf)
       opticsLabel_(conf.getParameter<std::string>("opticsLabel")),
       generateEveryNEvents_(conf.getUntrackedParameter<unsigned int>("generateEveryNEvents")),
       verbosity_(conf.getUntrackedParameter<unsigned int>("verbosity")),
-      isRun2_(conf.getParameter<unsigned int>("isRun2")),
+      isRun2_(conf.getParameter<bool>("isRun2")),
       m_engine_(new CLHEP::HepJamesRandom(conf.getParameter<unsigned int>("seed"))) {
   double l_int_sum = 0;
 
