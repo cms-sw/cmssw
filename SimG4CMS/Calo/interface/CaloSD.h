@@ -84,7 +84,7 @@ protected:
   void resetForNewPrimary(const G4Step*);
   double getAttenuation(const G4Step* aStep, double birk1, double birk2, double birk3) const;
 
-  std::string printableDecayChain(std::vector<unsigned int> decayChain);
+  const std::string printableDecayChain(std::vector<unsigned int> decayChain);
   void hitBookkeepingFineCalo(const G4Step* step, const G4Track* currentTrack, CaloG4Hit* hit);
 
   void update(const BeginOfRun*) override;
