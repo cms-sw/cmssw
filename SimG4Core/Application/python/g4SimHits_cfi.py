@@ -266,7 +266,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     TrackingAction = cms.PSet(
         DetailedTiming = cms.untracked.bool(False),
         CheckTrack = cms.untracked.bool(False),
-        DoFineCalo = cms.untracked.bool(True)
+        DoFineCalo = cms.untracked.bool(False)
     ),
     SteppingAction = cms.PSet(
         common_maximum_time,
@@ -299,7 +299,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         UseResponseTables = cms.vint32(0,0,0,0,0),
         BeamPosition      = cms.double(0.0),
         CorrectTOFBeam    = cms.bool(False),
-        DoFineCalo        = cms.bool(True),
+        DoFineCalo        = cms.bool(False),
         DetailedTiming    = cms.untracked.bool(False),
         UseMap            = cms.untracked.bool(False),
         Verbosity         = cms.untracked.int32(0),
@@ -367,7 +367,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         TestBeam   = cms.bool(False),
         EminTrack  = cms.double(0.01),
         PutHistory = cms.bool(False),
-        DoFineCalo = cms.bool(True),
+        DoFineCalo = cms.bool(False),
     ),
     HFShower = cms.PSet(
         common_UsePMT,
