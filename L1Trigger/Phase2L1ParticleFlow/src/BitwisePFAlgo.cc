@@ -29,7 +29,6 @@ BitwisePFAlgo::BitwisePFAlgo(const edm::ParameterSet &iConfig) : PFAlgoBase(iCon
                                                bitwiseConfig.getParameter<uint32_t>("DR2MAX_TK_CALO"),
                                                bitwiseConfig.getParameter<uint32_t>("TK_MAXINVPT_LOOSE"),
                                                bitwiseConfig.getParameter<uint32_t>("TK_MAXINVPT_TIGHT"));
-    pfalgo3_ref_set_debug(debug_);
   } else if (algo == "pfalgo2hgc") {
     algo_ = AlgoChoice::algo2hgc;
     config_ = std::make_shared<pfalgo_config>(bitwiseConfig.getParameter<uint32_t>("NTRACK"),
@@ -40,7 +39,6 @@ BitwisePFAlgo::BitwisePFAlgo(const edm::ParameterSet &iConfig) : PFAlgoBase(iCon
                                               bitwiseConfig.getParameter<uint32_t>("DR2MAX_TK_CALO"),
                                               bitwiseConfig.getParameter<uint32_t>("TK_MAXINVPT_LOOSE"),
                                               bitwiseConfig.getParameter<uint32_t>("TK_MAXINVPT_TIGHT"));
-    pfalgo2hgc_ref_set_debug(debug_);
   } else {
     throw cms::Exception("Configuration", "Unsupported bitwiseAlgo " + algo);
   }
@@ -157,14 +155,15 @@ void BitwisePFAlgo::runPF(Region &r) const {
                   outch.get(),
                   outpho.get(),
                   outne.get(),
-                  outmu.get());
+                  outmu.get(),
+                  debug_);
 
       fw2dpf::convert(config3->nTRACK, outch.get(), r.track, r.pf);  // FIXME works only with a 1-1 mapping
       fw2dpf::convert(config3->nPHOTON, outpho.get(), r.pf);
       fw2dpf::convert(config3->nSELCALO, outne.get(), r.pf);
     } break;
     case AlgoChoice::algo2hgc: {
-      pfalgo2hgc_ref(*config_, calo.get(), track.get(), mu.get(), outch.get(), outne.get(), outmu.get());
+      pfalgo2hgc_ref(*config_, calo.get(), track.get(), mu.get(), outch.get(), outne.get(), outmu.get(), debug_);
       fw2dpf::convert(config_->nTRACK, outch.get(), r.track, r.pf);  // FIXME works only with a 1-1 mapping
       fw2dpf::convert(config_->nSELCALO, outne.get(), r.pf);
     } break;

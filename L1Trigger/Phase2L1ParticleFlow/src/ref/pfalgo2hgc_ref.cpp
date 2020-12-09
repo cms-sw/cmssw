@@ -12,18 +12,15 @@
 #include <algorithm>
 #include <memory>
 
-int g_pfalgo2hgc_debug_ref_ = 0;
-
-void pfalgo2hgc_ref_set_debug(int debug) { g_pfalgo2hgc_debug_ref_ = debug; }
-
 void pfalgo2hgc_ref(const pfalgo_config &cfg,
                     const HadCaloObj calo[/*cfg.nCALO*/],
                     const TkObj track[/*cfg.nTRACK*/],
                     const MuObj mu[/*cfg.nMU*/],
                     PFChargedObj outch[/*cfg.nTRACK*/],
                     PFNeutralObj outne[/*cfg.nSELCALO*/],
-                    PFChargedObj outmu[/*cfg.nMU*/]) {
-  if (g_pfalgo2hgc_debug_ref_) {
+                    PFChargedObj outmu[/*cfg.nMU*/],
+                    bool debug) {
+  if (debug) {
 #ifdef L1Trigger_Phase2L1ParticleFlow_DiscretePFInputs_MORE
     for (unsigned int i = 0; i < cfg.nTRACK; ++i) {
       if (track[i].hwPt == 0)
@@ -88,7 +85,7 @@ void pfalgo2hgc_ref(const pfalgo_config &cfg,
   ////////////////////////////////////////////////////
   // TK-MU Linking
   std::unique_ptr<bool[]> isMu(new bool[cfg.nTRACK]);
-  pfalgo_mu_ref(cfg, track, mu, &isMu[0], outmu, g_pfalgo2hgc_debug_ref_);
+  pfalgo_mu_ref(cfg, track, mu, &isMu[0], outmu, debug);
 
   ////////////////////////////////////////////////////
   // TK-HAD Linking
@@ -120,7 +117,7 @@ void pfalgo2hgc_ref(const pfalgo_config &cfg,
     if (track[it].hwPt > 0 && !isMu[it]) {
       int ibest = best_match_with_pt_ref<HadCaloObj>(cfg.nCALO, DR2MAX, calo, track[it]);
       if (ibest != -1) {
-        if (g_pfalgo2hgc_debug_ref_)
+        if (debug)
           printf("FW  \t track  %3d pt %7d matched to calo' %3d pt %7d\n",
                  it,
                  int(track[it].hwPt),
@@ -139,7 +136,7 @@ void pfalgo2hgc_ref(const pfalgo_config &cfg,
       pt_t ptdiff = calo[ic].hwPt - calo_sumtk[ic];
       int sigmamult =
           calo_sumtkErr2[ic];  //  + (calo_sumtkErr2[ic] >> 1)); // this multiplies by 1.5 = sqrt(1.5)^2 ~ (1.2)^2
-      if (g_pfalgo2hgc_debug_ref_ && (calo[ic].hwPt > 0)) {
+      if (debug && (calo[ic].hwPt > 0)) {
 #ifdef L1Trigger_Phase2L1ParticleFlow_DiscretePFInputs_MORE
         l1tpf_impl::CaloCluster floatcalo;
         fw2dpf::convert(calo[ic], floatcalo);
@@ -163,7 +160,7 @@ void pfalgo2hgc_ref(const pfalgo_config &cfg,
     } else {
       calo_subpt[ic] = calo[ic].hwPt;
     }
-    if (g_pfalgo2hgc_debug_ref_ && (calo[ic].hwPt > 0))
+    if (debug && (calo[ic].hwPt > 0))
       printf("FW  \t calo'  %3d pt %7d ---> %7d \n", ic, int(calo[ic].hwPt), int(calo_subpt[ic]));
   }
 
