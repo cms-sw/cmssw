@@ -9,7 +9,7 @@ VertexProducer = cms.EDProducer('VertexProducer',
   # === Vertex Reconstruction configuration
   VertexReconstruction = cms.PSet(
         # Vertex Reconstruction Algorithm
-        Algorithm = cms.string("DBSCAN"),
+        Algorithm = cms.string("FastHisto"),
         # Vertex distance [cm]
         VertexDistance = cms.double(.15),
         # Assumed Vertex Resolution [cm]
@@ -36,7 +36,7 @@ VertexProducer = cms.EDProducer('VertexProducer',
         # FastHisto algorithm assumed vertex half-width [cm]
         FH_VertexWidth = cms.double(.15),
         # Window size of the sliding window
-        FH_WindowSize = cms.uint(1),
+        FH_WindowSize = cms.uint32(1),
         # Kmeans number of iterations
         KmeansIterations = cms.uint32(10),
         # Kmeans number of clusters
@@ -48,12 +48,12 @@ VertexProducer = cms.EDProducer('VertexProducer',
         # Minimum pt of tracks used to create vertex [GeV]
         VxMinTrackPt = cms.double(2.0),
         # Maximum pt of tracks used to create vertex [GeV]
-        VxMaxTrackPt = cms.double(50.0),
+        VxMaxTrackPt = cms.double(15.0), # change this to 
         # When the track pt > VxMaxTrackPt, how should the tracks be considered
         #   -1 = tracks are valid
         #   0 = tracks are mismeasured and ignored/truncated
         #   1 = tracks are mismeasured and saturate at VxMaxTrackPt
-        VxMaxTrackPtBehavior = cms.int32(1),
+        VxMaxTrackPtBehavior = cms.int32(-1), # change this to 1
         # Maximum chi2 of tracks used to create vertex
         VxMaxTrackChi2 = cms.double(100.),
         # Minimum number of stubs associated to a track
