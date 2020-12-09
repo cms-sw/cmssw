@@ -108,13 +108,11 @@ public:
   std::pair<int, int> rowColumnWafer(const int wafer) const;
   int sectors() const { return hgpar_->nSectors_; }
   std::pair<int, int> simToReco(int cell, int layer, int mod, bool half) const;
-  int tileSiPM(int sipm) const {
-    return ((sipm > 0) ? HGCalTypes::SiPMSmall : HGCalTypes::SiPMLarge);
-  }
+  int tileSiPM(int sipm) const { return ((sipm > 0) ? HGCalTypes::SiPMSmall : HGCalTypes::SiPMLarge); }
   bool tileTrapezoid() const {
     return ((mode_ == HGCalGeometryMode::Trapezoid) || (mode_ == HGCalGeometryMode::TrapezoidFile));
   }
-  std::pair<int, int>tileType(int layer, int ring, int phi) const {
+  std::pair<int, int> tileType(int layer, int ring, int phi) const {
     int indx = HGCalTileIndex::tileIndex(layer, ring, phi);
     int type(-1), sipm(-1);
     auto itr = hgpar_->tileInfoMap_.find(indx);
