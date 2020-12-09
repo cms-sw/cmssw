@@ -399,6 +399,7 @@ namespace {
   public:
     EcalPedestalsDiff() : cond::payloadInspector::PlotImage<EcalPedestals>("ECAL Barrel channel status difference") {
       setSingleIov(false);
+      setTwoTags(true);
     }
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
       uint32_t gainValues[kGains] = {12, 6, 1};
