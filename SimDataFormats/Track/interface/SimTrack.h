@@ -49,16 +49,16 @@ public:
 
   void setCrossedBoundaryVars(bool crossedBoundary,
                               int idAtBoundary,
-                              math::XYZVectorD positionAtBoundary,
-                              math::XYZTLorentzVectorD momentumAtBoundary) {
+                              math::XYZTLorentzVectorF positionAtBoundary,
+                              math::XYZTLorentzVectorF momentumAtBoundary) {
     crossedBoundary_ = crossedBoundary;
     idAtBoundary_ = idAtBoundary;
     positionAtBoundary_ = positionAtBoundary;
     momentumAtBoundary_ = momentumAtBoundary;
   }
   bool crossedBoundary() const { return crossedBoundary_; }
-  const math::XYZVectorD& getPositionAtBoundary() const { return positionAtBoundary_; }
-  const math::XYZTLorentzVectorD& getMomentumAtBoundary() const { return momentumAtBoundary_; }
+  const math::XYZTLorentzVectorF& getPositionAtBoundary() const { return positionAtBoundary_; }
+  const math::XYZTLorentzVectorF& getMomentumAtBoundary() const { return momentumAtBoundary_; }
   int getIDAtBoundary() const { return idAtBoundary_; }
 
 private:
@@ -70,8 +70,8 @@ private:
 
   bool crossedBoundary_;
   int idAtBoundary_;
-  math::XYZVectorD positionAtBoundary_;
-  math::XYZTLorentzVectorD momentumAtBoundary_;
+  math::XYZTLorentzVectorF positionAtBoundary_;
+  math::XYZTLorentzVectorF momentumAtBoundary_;
 };
 
 #include <iosfwd>
