@@ -262,7 +262,7 @@ void CTPPSCompositeESSource::buildDirectSimuData(const edm::ParameterSet &profil
 //----------------------------------------------------------------------------------------------------
 
 void CTPPSCompositeESSource::buildGeometry(const DDCompactView &cpv) {
-  std::unique_ptr<DetGeomDesc> idealGD = detgeomdescbuilder::buildDetGeomDescFromCompactView(cpv);
+  std::unique_ptr<DetGeomDesc> idealGD = detgeomdescbuilder::buildDetGeomDescFromCompactView(cpv, isRun2_);
 
   for (auto &pb : profile_bins_) {
     auto &p = pb.data;
