@@ -493,8 +493,8 @@ bool AlignmentTrackSelector::isHit2D(const TrackingRecHit& hit) const {
           return (countStereoHitAs2D_ && this->isHit2D(pH->originalHit()));  // depends on original...
         } else {
           edm::LogError("UnknownType") << "@SUB=AlignmentTrackSelector::isHit2D"
-                                      << "Tracker hit not in pixel, neither SiStripRecHit[12]D nor "
-                                      << "SiStripMatchedRecHit2D nor ProjectedSiStripRecHit2D.";
+                                       << "Tracker hit not in pixel, neither SiStripRecHit[12]D nor "
+                                       << "SiStripMatchedRecHit2D nor ProjectedSiStripRecHit2D.";
           return false;
         }
       }
