@@ -34,10 +34,11 @@ profile_base_2018 = profile_base.clone(
 )
 
 # geometry
-from Geometry.VeryForwardGeometry.geometryRPFromDD_2018_cfi import *
-ctppsCompositeESSource.compactViewTag = ctppsGeometryESModule.compactViewTag
-ctppsCompositeESSource.isRun2 = ctppsGeometryESModule.isRun2
-del ctppsGeometryESModule # this functionality is replaced by the composite ES source
+from Geometry.VeryForwardGeometry.geometryRPFromDD_2018_cfi import totemGeomXMLFiles, ctppsDiamondGeomXMLFiles, ctppsUFSDGeomXMLFiles, ctppsPixelGeomXMLFiles
+from Geometry.VeryForwardGeometry.geometryRPFromDD_2018_cfi import XMLIdealGeometryESSource_CTPPS
+from Geometry.VeryForwardGeometry.geometryRPFromDD_2018_cfi import ctppsGeometryESModule as _geom
+ctppsCompositeESSource.compactViewTag = _geom.compactViewTag
+ctppsCompositeESSource.isRun2 = _geom.isRun2
 
 # local reconstruction
 ctppsLocalTrackLiteProducer.includeStrips = False
