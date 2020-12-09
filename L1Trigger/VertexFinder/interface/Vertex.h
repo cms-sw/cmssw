@@ -10,9 +10,15 @@ namespace l1tVertexFinder {
   class Vertex {
   public:
     // Fill useful info about tracking particle.
-    Vertex() {}
+    Vertex() {
+        Vertex(-999.);
+    }
 
-    Vertex(double vz) : vz_(vz) {}
+    Vertex(double vz) : vz_(vz) {
+        z0_ = -999.;
+        z0width_ = -999.;
+        pT_ = -999.;
+    }
 
     ~Vertex() {}
 
@@ -24,25 +30,22 @@ namespace l1tVertexFinder {
     void insert(TP tp) { tracks_.push_back(tp); }
     /// Compute vertex parameters
     void computeParameters();
-    /// Sum ot fitted tracks transverse momentum
+    /// Sum of fitted tracks transverse momentum [GeV]
     double pT() const { return pT_; }
-    /// Vertex z0 position
+    /// Vertex z0 position [cm]
     double z0() const { return z0_; }
-    /// Vertex z0 width
+    /// Vertex z0 width [cm]
     double z0width() const { return z0width_; }
-    /// Vertex z position
+    /// Vertex z position [cm]
     double vz() const { return vz_; }
-    /// Vertec MET
-    double met() const { return met_; }
+    /// Reset/initialize all of the member data
+    void reset();
 
   private:
     double vz_;
     double z0_;
     double z0width_;
     double pT_;
-    double met_;
-    double metX_;
-    double metY_;
 
     std::vector<TP> tracks_;
   };

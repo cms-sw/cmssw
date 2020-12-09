@@ -5,7 +5,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-// TTStubAssociationMap.h forgets to two needed files, so must include them here ...
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
@@ -23,10 +22,12 @@ namespace l1tVertexFinder {
   InputData::InputData(const edm::Event& iEvent,
                        const edm::EventSetup& iSetup,
                        const AnalysisSettings& settings,
-                       const edm::EDGetTokenT<TrackingParticleCollection> tpInputTag,
-                       const edm::EDGetTokenT<DetSetVec> stubInputTag,
-                       const edm::EDGetTokenT<TTStubAssMap> stubTruthInputTag,
-                       const edm::EDGetTokenT<TTClusterAssMap> clusterTruthInputTag) {
+                       const edm::EDGetTokenT<edm::HepMCProduct> hepMCToken,
+                       const edm::EDGetTokenT<edm::View<reco::GenParticle>> genParticlesToken,
+                       const edm::EDGetTokenT<TrackingParticleCollection> tpToken,
+                       const edm::EDGetTokenT<DetSetVec> stubToken,
+                       const edm::EDGetTokenT<TTStubAssMap> stubTruthToken,
+                       const edm::EDGetTokenT<TTClusterAssMap> clusterTruthToken) {
     vTPs_.reserve(2500);
     // FIXME - filling vStubs_ removed during migration to VertexFinder package; not used in migrated code.
     //  vStubs_.reserve(35000);
@@ -34,7 +35,7 @@ namespace l1tVertexFinder {
 
     // Get TrackingParticle info
     edm::Handle<TrackingParticleCollection> tpHandle;
-    iEvent.getByToken(tpInputTag, tpHandle);
+    iEvent.getByToken(tpToken, tpHandle);
 
     unsigned int tpCount = 0;
     float metY = 0;
@@ -64,7 +65,6 @@ namespace l1tVertexFinder {
       // Only bother storing tp if it could be useful for tracking efficiency or fake rate measurements.
       if (tp.use()) {
         vTPs_.push_back(tp);
-        // cout << "tracking particle z0 "<< tp.z0() << " vx "<< tp.vx() << " vy "<< tp.vy() << " vz "<< tp.vz() << " physicsCollision " << tp.physicsCollision() << endl;
         tpCount++;
       }
     }
@@ -75,44 +75,34 @@ namespace l1tVertexFinder {
     genMET_PU_ = sqrt(metX * metX + metY * metY);
 
     if (settings.debug() > 0) {
-      cout << "genPt in the event " << genPt_ << endl;
-      cout << "genMET in the event = " << genMET_ << endl;
+      edm::LogInfo("InputData") << "InputData::genPt in the event " << genPt_;
+      edm::LogInfo("InputData") << "InputData::genMET in the event = " << genMET_;
     }
 
     // Also create map relating edm::Ptr<TrackingParticle> to TP.
-
     map<edm::Ptr<TrackingParticle>, const TP*> translateTP;
-
     for (const TP& tp : vTPs_) {
       TrackingParticlePtr tpPtr(tp);
       translateTP[tpPtr] = &tp;
     }
 
     // Get the tracker geometry info needed to unpack the stub info.
-
     edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
     iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometryHandle);
-
     const TrackerGeometry* trackerGeometry = trackerGeometryHandle.product();
 
     edm::ESHandle<TrackerTopology> trackerTopologyHandle;
     iSetup.get<TrackerTopologyRcd>().get(trackerTopologyHandle);
-
     const TrackerTopology* trackerTopology = trackerTopologyHandle.product();
 
     // Get stub info, by looping over modules and then stubs inside each module.
     // Also get the association map from stubs to tracking particles.
-
     edm::Handle<DetSetVec> ttStubHandle;
     edm::Handle<TTStubAssMap> mcTruthTTStubHandle;
     edm::Handle<TTClusterAssMap> mcTruthTTClusterHandle;
-    // iEvent.getByLabel("TTStubsFromPixelDigis"            , "StubAccepted"    , ttStubHandle           );
-    // iEvent.getByLabel("TTStubAssociatorFromPixelDigis"   , "StubAccepted"    , mcTruthTTStubHandle    );
-    // iEvent.getByLabel("TTClusterAssociatorFromPixelDigis", "ClusterAccepted" , mcTruthTTClusterHandle );
-
-    iEvent.getByToken(stubInputTag, ttStubHandle);
-    iEvent.getByToken(stubTruthInputTag, mcTruthTTStubHandle);
-    iEvent.getByToken(clusterTruthInputTag, mcTruthTTClusterHandle);
+    iEvent.getByToken(stubToken, ttStubHandle);
+    iEvent.getByToken(stubTruthToken, mcTruthTTStubHandle);
+    iEvent.getByToken(clusterTruthToken, mcTruthTTClusterHandle);
 
     std::set<DetId> lStubDetIds;
     for (DetSetVec::const_iterator p_module = ttStubHandle->begin(); p_module != ttStubHandle->end(); p_module++) {
@@ -158,7 +148,8 @@ namespace l1tVertexFinder {
         tpStubMap[tp].push_back(&stub);
       }
     }
-    // std::cout << "Number of stubs read in : " << stubCount << std::endl;
+
+    // Find the various vertices
 
     // FIXME - filling vStubs_ removed during migration to VertexFinder package; not used in migrated code.
     //  // Produced reduced list containing only the subset of stubs that the user has declared will be
@@ -204,14 +195,11 @@ namespace l1tVertexFinder {
     }
 
     if (settings.debug() > 0)
-      cout << vertices_.size() << " pileup vertices in the event, " << recoVertices_.size() << " reconstructable"
-           << endl;
+      edm::LogInfo("InputData") << "InputData::" << vertices_.size() << " pileup vertices in the event, " << recoVertices_.size() << " reconstructable";
 
     vertex_.computeParameters();
-    if (settings.debug() > 2) {
-      cout << "Vertex " << vertex_.z0() << " containing " << vertex_.numTracks() << " total pT " << vertex_.pT()
-           << endl;
-    }
+    if (settings.debug() > 2)
+      edm::LogInfo("InputData") << "InputData::Vertex " << vertex_.z0() << " containing " << vertex_.numTracks() << " total pT " << vertex_.pT();
 
     for (unsigned int i = 0; i < vertices_.size(); ++i) {
       vertices_[i].computeParameters();
@@ -223,6 +211,48 @@ namespace l1tVertexFinder {
 
     std::sort(vertices_.begin(), vertices_.end(), SortVertexByZ0());
     std::sort(recoVertices_.begin(), recoVertices_.end(), SortVertexByZ0());
-  }
+
+    // Form the HepMC and GenParticle based vertices
+    edm::Handle<edm::HepMCProduct> HepMCEvt;
+    iEvent.getByToken(hepMCToken, HepMCEvt);
+
+    edm::Handle<std::vector<reco::GenParticle> > GenParticleHandle;
+    iEvent.getByToken(genParticlesToken, GenParticleHandle);
+
+    if (HepMCEvt.isValid()) {
+      const HepMC::GenEvent* MCEvt = HepMCEvt->GetEvent();
+      for (HepMC::GenEvent::vertex_const_iterator ivertex = MCEvt->vertices_begin(); ivertex != MCEvt->vertices_end();
+           ++ivertex) {
+        bool hasParentVertex = false;
+
+        // Loop over the parents looking to see if they are coming from a production vertex
+        for (HepMC::GenVertex::particle_iterator iparent = (*ivertex)->particles_begin(HepMC::parents);
+             iparent != (*ivertex)->particles_end(HepMC::parents);
+             ++iparent)
+          if ((*iparent)->production_vertex()) {
+            hasParentVertex = true;
+            break;
+          }
+
+        // Reject those vertices with parent vertices
+        if (hasParentVertex)
+          continue;
+        // Get the position of the vertex
+        HepMC::FourVector pos = (*ivertex)->position();
+        const double mm = 0.1; // [mm] --> [cm]
+        hepMCVertex_ = Vertex(pos.z() * mm);
+        break;  // there should be one single primary vertex
+      }         // end loop over gen vertices
+    }
+    if (GenParticleHandle.isValid()) {
+      for (const auto& genpart : *GenParticleHandle) {
+        if ( (genpart.status() != 3) || (genpart.numberOfMothers() == 0) ) // not stable or one of the incoming hadrons
+          continue;
+        genVertex_ = Vertex(genpart.vz());
+        break;
+      }
+    }
+
+  }  // end InputData::InputData
 
 }  // end namespace l1tVertexFinder

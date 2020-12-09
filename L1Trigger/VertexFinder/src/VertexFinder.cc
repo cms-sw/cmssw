@@ -202,7 +202,7 @@ namespace l1tVertexFinder {
         float oldDistance = 0.;
 
         if (settings_->debug() > 2)
-          cout << "acceptedTracks " << acceptedTracks.size() << endl;
+          edm::LogInfo("VertexFinder") << "PVR::AcceptedTracks " << acceptedTracks.size();
 
         float z0start = 0;
         for (const L1Track* track : acceptedTracks) {
@@ -212,7 +212,7 @@ namespace l1tVertexFinder {
 
         z0start /= acceptedTracks.size();
         if (settings_->debug() > 2)
-          cout << "z0 vertex " << z0start << endl;
+          edm::LogInfo("VertexFinder") << "PVR::z0 vertex " << z0start;
         FitTrackCollection::iterator badTrackIt = acceptedTracks.end();
         removing = false;
 
@@ -229,7 +229,7 @@ namespace l1tVertexFinder {
         if (removing) {
           const L1Track* badTrack = *badTrackIt;
           if (settings_->debug() > 2)
-            cout << "removing track " << badTrack->z0() << " at distance " << oldDistance << endl;
+            edm::LogInfo("VertexFinder") << "PVR::Removing track " << badTrack->z0() << " at distance " << oldDistance;
           discardedTracks.push_back(badTrack);
           acceptedTracks.erase(badTrackIt);
         }
@@ -244,7 +244,7 @@ namespace l1tVertexFinder {
         vertices_.push_back(vertex);
       }
       if (settings_->debug() > 2)
-        cout << "discardedTracks size " << discardedTracks.size() << endl;
+        edm::LogInfo("VertexFinder") << "PVR::DiscardedTracks size " << discardedTracks.size();
       acceptedTracks.clear();
       acceptedTracks = discardedTracks;
     }
@@ -366,11 +366,8 @@ namespace l1tVertexFinder {
           distance = settings_->vx_distance();
         unsigned int ClusterId;
         bool NA = true;
-        // cout << "iteration "<< iterations << endl;
-        // cout << "track z0 "<< track->z0() << endl;
         for (unsigned int id = 0; id < NumberOfClusters; ++id) {
           if (std::abs(track->z0() - vertices_[id].z0()) < distance) {
-            // cout << "vertex id "<< id << " z0 " << vertices_[id].z0() << endl;
             distance = std::abs(track->z0() - vertices_[id].z0());
             ClusterId = id;
             NA = false;
@@ -378,10 +375,8 @@ namespace l1tVertexFinder {
         }
         if (!NA) {
           vertices_[ClusterId].insert(track);
-          // cout << "track in cluster "<< ClusterId << endl;
         }
       }
-      // cout << "iteration "<< iterations << endl;
       for (unsigned int i = 0; i < NumberOfClusters; ++i) {
         if (vertices_[i].numTracks() >= settings_->vx_minTracks())
           vertices_[i].computeParameters(settings_->vx_weightedmean());
@@ -412,7 +407,7 @@ namespace l1tVertexFinder {
     }
   }
 
-  void VertexFinder::FastHisto() {
+  void VertexFinder::FastHistoLooseAssociation() {
     float vxPt = 0.;
     RecoVertex leading_vertex;
 
@@ -432,7 +427,110 @@ namespace l1tVertexFinder {
     }
 
     vertices_.emplace_back(leading_vertex);
-    pv_index_ = 0;  // by default FastHisto algorithm finds only hard PV
-  }                 // end of FastHisto
+    pv_index_ = 0;  // by default FastHistoLooseAssociation algorithm finds only hard PV
+  } // end of FastHistoLooseAssociation
 
-}  // namespace l1tVertexFinder
+  void VertexFinder::FastHisto(const TrackerTopology* tTopo) {
+    // Create the histogram
+    int nbins = std::ceil((settings_->vx_histogram_max() - settings_->vx_histogram_min()) / settings_->vx_histogram_binwidth());
+    std::vector<RecoVertex> hist(nbins);
+    std::vector<RecoVertex> sums(nbins-settings_->vx_windowSize());
+    std::vector<float> bounds(nbins+1);
+    strided_iota(std::begin(bounds), std::next(std::begin(bounds), nbins+1), settings_->vx_histogram_min(), settings_->vx_histogram_binwidth());
+
+    // Loop over the tracks and fill the histogram
+    for (const L1Track* track : fitTracks_) {
+      if ( (track->z0() < settings_->vx_histogram_min()) || (track->z0() > settings_->vx_histogram_max()) )
+        continue;
+      if (track->getTTTrackPtr()->chi2() > settings_->vx_TrackMaxChi2())
+        continue;
+      if (track->pt() < settings_->vx_TrackMinPt())
+        continue;
+
+      // Get the number of stubs and the number of stubs in PS layers
+      float nPS = 0., nstubs = 0;
+
+      // Get pointers to stubs associated to the L1 track
+      const auto& theStubs = track->getTTTrackPtr()->getStubRefs();
+
+      int tmp_trk_nstub = (int)theStubs.size();
+      if (tmp_trk_nstub < 0) {
+        edm::LogWarning("VertexFinder") << "FastHisto::Could not retrieve the vector of stubs.";
+        continue;
+      }
+
+      // Loop over the stubs
+      for (const auto& stub : theStubs) {
+        nstubs++;
+        bool isPS = false;
+        DetId detId(stub->getDetId());
+        if (detId.det() == DetId::Detector::Tracker) {
+          if (detId.subdetId() == StripSubdetector::TOB && tTopo->tobLayer(detId) <= 3)
+            isPS = true;
+          else if (detId.subdetId() == StripSubdetector::TID && tTopo->tidRing(detId) <= 9)
+            isPS = true;
+        }
+        if (isPS)
+          nPS++;
+      }  // End loop over stubs
+      if (nstubs < settings_->vx_NStubMin())
+        continue;
+      if (nPS < settings_->vx_NStubPSMin())
+        continue;
+
+      // Quality cuts, may need to be re-optimized
+      int trk_nstub = (int)track->getTTTrackPtr()->getStubRefs().size();
+      float chi2dof = track->getTTTrackPtr()->chi2() / (2 * trk_nstub - 4);
+
+      if (settings_->vx_DoPtComp()) {
+        float trk_consistency = track->getTTTrackPtr()->stubPtConsistency();
+        if (trk_nstub == 4) {
+          if (std::abs(track->eta()) < 2.2 && trk_consistency > 10)
+            continue;
+          else if (std::abs(track->eta()) > 2.2 && chi2dof > 5.0)
+            continue;
+        }
+      }
+      if (settings_->vx_DoTightChi2()) {
+        if (track->pt() > 10.0 && chi2dof > 5.0)
+          continue;
+      }
+
+      // Assign the track to the correct vertex
+      auto upper_bound = std::lower_bound(bounds.begin(), bounds.end(), track->z0());
+      int index = std::distance(bounds.begin(),upper_bound)-1;
+      hist.at(index).insert(track);
+    } // end loop over tracks
+
+    // Compute the sums
+    // sliding windows ... sum_i_i+(w-1) where i in (0,nbins-w) and w is the window size
+    for (unsigned int i = 0; i < sums.size(); i++) {
+      for (unsigned int j = 0; j < settings_->vx_windowSize(); j++) {
+        sums.at(i) += hist.at(i+j);
+      }
+      sums.at(i).computeParameters(settings_->vx_weightedmean(),settings_->vx_TrackMaxPt(),settings_->vx_TrackMaxPtBehavior());
+    }
+
+    // Find the maxima of the sums
+    float sigma_max = -999;
+    int imax = -999;
+    std::vector<int> found;
+    found.reserve(settings_->vx_nvtx());
+    for (unsigned int ivtx = 0; ivtx < settings_->vx_nvtx(); ivtx++) {
+      sigma_max = -999;
+      imax = -999;
+      for (unsigned int i = 0; i < sums.size(); i++) {
+        // Skip this window if it will already be returned
+        if (find(found.begin(), found.end(), i) != found.end()) continue;        
+        if (sums.at(i).pT() > sigma_max) {
+          sigma_max = sums.at(i).pT();
+          imax = i;
+        }
+      }
+      found.push_back(imax);
+      vertices_.emplace_back(sums.at(imax));
+    }
+    pv_index_ = 0; 
+  } // end of FastHisto
+
+} // namespace l1tVertexFinder

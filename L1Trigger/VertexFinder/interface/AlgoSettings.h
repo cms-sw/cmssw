@@ -11,6 +11,7 @@ namespace l1tVertexFinder {
 
   enum class Algorithm {
     FastHisto,
+    FastHistoLooseAssociation,
     GapClustering,
     AgglomerativeHierarchical,
     DBSCAN,
@@ -37,9 +38,11 @@ namespace l1tVertexFinder {
     // Minimum number of tracks to accept vertex
     unsigned int vx_minTracks() const { return vx_minTracks_; }
     // Compute the z0 position of the vertex with a mean weighted with track momenta
-    bool vx_weightedmean() const { return vx_weightedmean_; }
+    unsigned int vx_weightedmean() const { return vx_weightedmean_; }
     /// Chi2 cut for the Adaptive Vertex Recostruction Algorithm
     float vx_chi2cut() const { return vx_chi2cut_; }
+    /// Window size of the sliding window
+    unsigned int vx_windowSize() const { return vx_windowSize_; }
     /// FastHisto histogram parameters (min, max, width)
     std::vector<double> vx_histogram_parameters() const { return vx_histogram_parameters_; }
     double vx_histogram_min() const { return vx_histogram_parameters_.at(0); }
@@ -47,12 +50,22 @@ namespace l1tVertexFinder {
     double vx_histogram_binwidth() const { return vx_histogram_parameters_.at(2); }
     /// FastHisto assumed vertex width
     float vx_width() const { return vx_width_; }
+    /// FastHisto track selection control
+    bool vx_DoPtComp() const { return vx_DoPtComp_; }
+    bool vx_DoTightChi2() const { return vx_DoTightChi2_; }
+    /// Number of vertices to return for FastHisto
+    unsigned int vx_nvtx() const { return vx_nvtx_; }
     float vx_dbscan_pt() const { return vx_dbscan_pt_; }
     unsigned int vx_dbscan_mintracks() const { return vx_dbscan_mintracks_; }
 
     unsigned int vx_kmeans_iterations() const { return vx_kmeans_iterations_; }
     unsigned int vx_kmeans_nclusters() const { return vx_kmeans_nclusters_; }
     float vx_TrackMinPt() const { return vx_TrackMinPt_; }
+    float vx_TrackMaxPt() const { return vx_TrackMaxPt_; }
+    float vx_TrackMaxPtBehavior() const { return vx_TrackMaxPtBehavior_; }
+    float vx_TrackMaxChi2() const { return vx_TrackMaxChi2_; }
+    unsigned int vx_NStubMin() const { return vx_NStubMin_; }
+    unsigned int vx_NStubPSMin() const { return vx_NStubPSMin_; }
 
     //=== Debug printout
     unsigned int debug() const { return debug_; }
@@ -79,11 +92,20 @@ namespace l1tVertexFinder {
     float vx_resolution_;
     unsigned int vx_distanceType_;
     unsigned int vx_minTracks_;
-    bool vx_weightedmean_;
+    unsigned int vx_weightedmean_;
     float vx_chi2cut_;
+    bool vx_DoPtComp_;
+    bool vx_DoTightChi2_;
     std::vector<double> vx_histogram_parameters_;
+    unsigned int vx_nvtx_;
     float vx_width_;
+    unsigned int vx_windowSize_;
     float vx_TrackMinPt_;
+    float vx_TrackMaxPt_;
+    int vx_TrackMaxPtBehavior_;
+    float vx_TrackMaxChi2_;
+    unsigned int vx_NStubMin_;
+    unsigned int vx_NStubPSMin_;
     float vx_dbscan_pt_;
     float vx_dbscan_mintracks_;
     unsigned int vx_kmeans_iterations_;
