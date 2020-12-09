@@ -195,7 +195,7 @@ void HGVHistoProducerAlgo::bookInfo(DQMStore::IBooker& ibook, Histograms& histog
 void HGVHistoProducerAlgo::bookCaloParticleHistos(DQMStore::IBooker& ibook,
                                                   Histograms& histograms,
                                                   int pdgid,
-                                                  unsigned layers) {
+                                                  unsigned int layers) {
   histograms.h_caloparticle_eta[pdgid] =
       ibook.book1D("N of caloparticle vs eta", "N of caloparticle vs eta", nintEta_, minEta_, maxEta_);
   histograms.h_caloparticle_eta_Zorigin[pdgid] =
@@ -267,7 +267,7 @@ void HGVHistoProducerAlgo::bookCaloParticleHistos(DQMStore::IBooker& ibook,
 
 void HGVHistoProducerAlgo::bookClusterHistos(DQMStore::IBooker& ibook,
                                              Histograms& histograms,
-                                             unsigned layers,
+                                             unsigned int layers,
                                              std::vector<int> thicknesses,
                                              std::string pathtomatbudfile) {
   //---------------------------------------------------------------------------------------------------------------------------
@@ -592,7 +592,7 @@ void HGVHistoProducerAlgo::bookClusterHistos(DQMStore::IBooker& ibook,
   //---------------------------------------------------------------------------------------------------------------------------
 }
 
-void HGVHistoProducerAlgo::bookMultiClusterHistos(DQMStore::IBooker& ibook, Histograms& histograms, unsigned layers) {
+void HGVHistoProducerAlgo::bookMultiClusterHistos(DQMStore::IBooker& ibook, Histograms& histograms, unsigned int layers) {
   histograms.h_score_multicl2caloparticle.push_back(ibook.book1D(
       "Score_multicl2caloparticle", "Score of Multi Cluster per CaloParticle", nintScore_, minScore_, maxScore_));
   histograms.h_score_caloparticle2multicl.push_back(ibook.book1D(
@@ -824,7 +824,7 @@ void HGVHistoProducerAlgo::bookMultiClusterHistos(DQMStore::IBooker& ibook, Hist
       "multicluster_layersnum", "Number of layers of the multicluster", 2 * layers, 0., (float)2 * layers));
 }
 
-void HGVHistoProducerAlgo::fill_info_histos(const Histograms& histograms, unsigned layers) const {
+void HGVHistoProducerAlgo::fill_info_histos(const Histograms& histograms, unsigned int layers) const {
   //We will save some info straight from geometry to avoid mistakes from updates
   //----------- TODO ----------------------------------------------------------
   //For now values returned for 'lastLayerFHzp': '104', 'lastLayerFHzm': '52' are not the one expected.
@@ -841,7 +841,7 @@ void HGVHistoProducerAlgo::fill_caloparticle_histos(const Histograms& histograms
                                                     int pdgid,
                                                     const CaloParticle& caloparticle,
                                                     std::vector<SimVertex> const& simVertices,
-                                                    unsigned layers,
+                                                    unsigned int layers,
                                                     std::unordered_map<DetId, const HGCRecHit*> const& hitMap) const {
   const auto eta = getEta(caloparticle.eta());
   if (histograms.h_caloparticle_eta.count(pdgid)) {
@@ -954,7 +954,7 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(
     std::vector<size_t> const& cPIndices,
     std::vector<size_t> const& cPSelectedIndices,
     std::unordered_map<DetId, const HGCRecHit*> const& hitMap,
-    unsigned layers,
+    unsigned int layers,
     const edm::Handle<hgcal::LayerClusterToCaloParticleAssociator>& LCAssocByEnergyScoreHandle) const {
   auto nLayerClusters = clusters.size();
 
@@ -1228,7 +1228,7 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(
     std::vector<size_t> const& cPSelectedIndices,
     std::unordered_map<DetId, const HGCRecHit*> const& hitMap,
     std::map<double, double> cummatbudg,
-    unsigned layers,
+    unsigned int layers,
     std::vector<int> thicknesses,
     edm::Handle<hgcal::LayerClusterToCaloParticleAssociator>& LCAssocByEnergyScoreHandle) const {
   //Each event to be treated as two events: an event in +ve endcap,
@@ -1549,7 +1549,7 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
                                                           std::vector<size_t> const& cPIndices,
                                                           std::vector<size_t> const& cPSelectedIndices,
                                                           std::unordered_map<DetId, const HGCRecHit*> const& hitMap,
-                                                          unsigned layers) const {
+                                                          unsigned int layers) const {
   auto nMultiClusters = multiClusters.size();
   //Consider CaloParticles coming from the hard scatterer, excluding the PU contribution.
   auto nCaloParticles = cPIndices.size();
@@ -2155,7 +2155,7 @@ void HGVHistoProducerAlgo::fill_multi_cluster_histos(const Histograms& histogram
                                                      std::vector<size_t> const& cPIndices,
                                                      std::vector<size_t> const& cPSelectedIndices,
                                                      std::unordered_map<DetId, const HGCRecHit*> const& hitMap,
-                                                     unsigned layers) const {
+                                                     unsigned int layers) const {
   //Each event to be treated as two events:
   //an event in +ve endcap, plus another event in -ve endcap.
 

@@ -170,14 +170,14 @@ public:
   using Histograms = HGVHistoProducerAlgoHistograms;
 
   void bookInfo(DQMStore::IBooker& ibook, Histograms& histograms);
-  void bookCaloParticleHistos(DQMStore::IBooker& ibook, Histograms& histograms, int pdgid, unsigned layers);
+  void bookCaloParticleHistos(DQMStore::IBooker& ibook, Histograms& histograms, int pdgid, unsigned int layers);
 
   void bookClusterHistos(DQMStore::IBooker& ibook,
                          Histograms& histograms,
-                         unsigned layers,
+                         unsigned int layers,
                          std::vector<int> thicknesses,
                          std::string pathtomatbudfile);
-  void bookMultiClusterHistos(DQMStore::IBooker& ibook, Histograms& histograms, unsigned layers);
+  void bookMultiClusterHistos(DQMStore::IBooker& ibook, Histograms& histograms, unsigned int layers);
   void layerClusters_to_CaloParticles(
       const Histograms& histograms,
       edm::Handle<reco::CaloClusterCollection> clusterHandle,
@@ -187,7 +187,7 @@ public:
       std::vector<size_t> const& cPIndices,
       std::vector<size_t> const& cPSelectedIndices,
       std::unordered_map<DetId, const HGCRecHit*> const&,
-      unsigned layers,
+      unsigned int layers,
       const edm::Handle<hgcal::LayerClusterToCaloParticleAssociator>& LCAssocByEnergyScoreHandle) const;
   void multiClusters_to_CaloParticles(const Histograms& histograms,
                                       int count,
@@ -196,13 +196,13 @@ public:
                                       std::vector<size_t> const& cPIndices,
                                       std::vector<size_t> const& cPSelectedIndices,
                                       std::unordered_map<DetId, const HGCRecHit*> const&,
-                                      unsigned layers) const;
-  void fill_info_histos(const Histograms& histograms, unsigned layers) const;
+                                      unsigned int layers) const;
+  void fill_info_histos(const Histograms& histograms, unsigned int layers) const;
   void fill_caloparticle_histos(const Histograms& histograms,
                                 int pdgid,
                                 const CaloParticle& caloparticle,
                                 std::vector<SimVertex> const& simVertices,
-                                unsigned layers,
+                                unsigned int layers,
                                 std::unordered_map<DetId, const HGCRecHit*> const&) const;
   void fill_cluster_histos(const Histograms& histograms, int count, const reco::CaloCluster& cluster) const;
   void fill_generic_cluster_histos(
@@ -217,7 +217,7 @@ public:
       std::vector<size_t> const& cPSelectedIndices,
       std::unordered_map<DetId, const HGCRecHit*> const&,
       std::map<double, double> cummatbudg,
-      unsigned layers,
+      unsigned int layers,
       std::vector<int> thicknesses,
       edm::Handle<hgcal::LayerClusterToCaloParticleAssociator>& LCAssocByEnergyScoreHandle) const;
   void fill_multi_cluster_histos(const Histograms& histograms,
@@ -227,7 +227,7 @@ public:
                                  std::vector<size_t> const& cPIndices,
                                  std::vector<size_t> const& cPSelectedIndices,
                                  std::unordered_map<DetId, const HGCRecHit*> const&,
-                                 unsigned layers) const;
+                                 unsigned int layers) const;
   double distance2(const double x1, const double y1, const double x2, const double y2) const;
   double distance(const double x1, const double y1, const double x2, const double y2) const;
 
