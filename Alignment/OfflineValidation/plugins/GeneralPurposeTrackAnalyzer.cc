@@ -1172,8 +1172,8 @@ private:
             return (countStereoHitAs2D_ && this->isHit2D(pH->originalHit()));  // depends on original...
           } else {
             edm::LogError("UnknownType") << "@SUB=GeneralPurposeTrackAnalyzer::isHit2D"
-                                        << "Tracker hit not in pixel, neither SiStripRecHit[12]D nor "
-                                        << "SiStripMatchedRecHit2D nor ProjectedSiStripRecHit2D.";
+                                         << "Tracker hit not in pixel, neither SiStripRecHit[12]D nor "
+                                         << "SiStripMatchedRecHit2D nor ProjectedSiStripRecHit2D.";
             return false;
           }
         }
