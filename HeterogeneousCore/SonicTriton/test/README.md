@@ -3,22 +3,14 @@
 Test producers `TritonImageProducer` and `TritonGraphProducer` are available.
 They generate arbitrary inputs for inference (with ResNet50 or Graph Attention Network, respectively) and print the resulting output.
 
-To run the tests, a local Triton server can be started using Singularity (default, should not require superuser permission)
-or Docker (may require superuser permission).
-The server can utilize the local CPU (support for AVX instructions required) or a local Nvidia GPU, if one is available.
-The default local server address is `0.0.0.0`.
-
 First, the relevant data should be downloaded from Nvidia:
 ```
 ./fetch_model.sh
 ```
 
-Launch a local server (using Singularity with CPU by default):
-```
-triton -M $CMSSW_BASE/src/HeterogeneousCore/SonicTriton/data/models start
-[run test commands]
-triton stop
-```
+A local Triton server will be launched automatically when the tests run.
+The local server will use Singularity with CPU by default; if a local Nvidia GPU is available, it will be used instead.
+(This behavior can also be controlled manually by modifying [tritonTest_cfg.py](./tritonTest_cfg.py).)
 
 ## Test commands
 
