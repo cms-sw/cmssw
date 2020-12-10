@@ -72,7 +72,7 @@
 // class declaration
 //
 struct DeepCoreCache {
-  mutable tensorflow::GraphDef* graph_def;
+  const tensorflow::GraphDef* graph_def;
 };
 
 class DeepCoreSeedGenerator : public edm::stream::EDProducer<edm::GlobalCache<DeepCoreCache>> {
