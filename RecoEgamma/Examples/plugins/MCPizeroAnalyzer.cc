@@ -1,6 +1,5 @@
 #include <iostream>
 //
-#include "RecoEgamma/Examples/plugins/MCPizeroAnalyzer.h"
 #include "RecoEgamma/EgammaMCTools/interface/PizeroMCTruthFinder.h"
 #include "RecoEgamma/EgammaMCTools/interface/PizeroMCTruth.h"
 #include "RecoEgamma/EgammaMCTools/interface/ElectronMCTruth.h"
@@ -21,7 +20,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 //
@@ -36,6 +34,74 @@
 #include "TVector3.h"
 #include "TProfile.h"
 //
+#include "RecoEgamma/EgammaMCTools/interface/PizeroMCTruthFinder.h"
+
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+
+#include <map>
+#include <vector>
+
+class MCPizeroAnalyzer : public edm::one::EDAnalyzer<> {
+public:
+  //
+  explicit MCPizeroAnalyzer(const edm::ParameterSet&);
+  ~MCPizeroAnalyzer() override;
+
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginJob() override;
+  void endJob() override;
+
+private:
+  float etaTransformation(float a, float b);
+  float phiNormalization(float& a);
+
+  //
+  PizeroMCTruthFinder* thePizeroMCTruthFinder_;
+
+  std::string fOutputFileName_;
+  TFile* fOutputFile_;
+
+  int nEvt_;
+  int nMatched_;
+
+  /// global variable for the MC photon
+  double mcPhi_;
+  double mcEta_;
+
+  std::string HepMCLabel;
+  std::string SimTkLabel;
+  std::string SimVtxLabel;
+  std::string SimHitLabel;
+
+  TH1F* h_MCPizE_;
+  TH1F* h_MCPizEta_;
+  TH1F* h_MCPizUnEta_;
+  TH1F* h_MCPiz1ConEta_;
+  TH1F* h_MCPiz2ConEta_;
+  TH1F* h_MCPizPhi_;
+  TH1F* h_MCPizMass1_;
+  TH1F* h_MCPizMass2_;
+
+  TH1F* h_MCEleE_;
+  TH1F* h_MCEleEta_;
+  TH1F* h_MCElePhi_;
+  TH1F* h_BremFrac_;
+  TH1F* h_BremEnergy_;
+
+  TH2F* h_EleEvsPhoE_;
+
+  TH1F* h_MCPhoE_;
+  TH1F* h_MCPhoEta_;
+  TH1F* h_MCPhoPhi_;
+  TH1F* h_MCConvPhoE_;
+  TH1F* h_MCConvPhoEta_;
+  TH1F* h_MCConvPhoPhi_;
+  TH1F* h_MCConvPhoR_;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(MCPizeroAnalyzer);
 
 using namespace std;
 

@@ -1,6 +1,5 @@
 #include <iostream>
 //
-#include "RecoEgamma/Examples/plugins/MCElectronAnalyzer.h"
 #include "RecoEgamma/EgammaMCTools/interface/ElectronMCTruthFinder.h"
 #include "RecoEgamma/EgammaMCTools/interface/ElectronMCTruth.h"
 //
@@ -20,7 +19,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 //
@@ -34,7 +32,61 @@
 #include "TTree.h"
 #include "TVector3.h"
 #include "TProfile.h"
-//
+
+#include "RecoEgamma/EgammaMCTools/interface/ElectronMCTruthFinder.h"
+
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+
+#include <map>
+#include <vector>
+
+class MCElectronAnalyzer : public edm::one::EDAnalyzer<> {
+public:
+  //
+  explicit MCElectronAnalyzer(const edm::ParameterSet&);
+  ~MCElectronAnalyzer() override;
+
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginJob() override;
+  void endJob() override;
+
+private:
+  float etaTransformation(float a, float b);
+  float phiNormalization(float& a);
+
+  //
+  ElectronMCTruthFinder* theElectronMCTruthFinder_;
+
+  const TrackerGeometry* trackerGeom;
+
+  std::string fOutputFileName_;
+  TFile* fOutputFile_;
+
+  int nEvt_;
+  int nMatched_;
+
+  /// global variable for the MC photon
+  double mcPhi_;
+  double mcEta_;
+
+  std::string HepMCLabel;
+  std::string SimTkLabel;
+  std::string SimVtxLabel;
+  std::string SimHitLabel;
+
+  TH1F* h_MCEleE_;
+  TH1F* h_MCEleEta_;
+  TH1F* h_MCElePhi_;
+  TH1F* h_BremFrac_;
+  TH1F* h_BremEnergy_;
+
+  TProfile* p_BremVsR_;
+  TProfile* p_BremVsEta_;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(MCElectronAnalyzer);
 
 using namespace std;
 
