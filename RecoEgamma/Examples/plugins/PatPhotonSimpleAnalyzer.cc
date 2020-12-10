@@ -18,38 +18,21 @@
 //         Created:  Wed Sep 23 12:00:01 CDT 2008
 //
 
-///////////////////////////////////////////////////////////////////////
-//                        CMSSW includes                             //
-///////////////////////////////////////////////////////////////////////
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/PatCandidates/interface/Photon.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-///////////////////////////////////////////////////////////////////////
-//                      Root include files                           //
-///////////////////////////////////////////////////////////////////////
-#include "TH1.h"
 #include "TFile.h"
+#include "TH1.h"
 #include "TMath.h"
 #include "TTree.h"
 
-// system include files
 #include <memory>
-
-// user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include <string>
-#include "TH1.h"
-#include "TTree.h"
 
-//
-// class declaration
-//
 class PatPhotonSimpleAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit PatPhotonSimpleAnalyzer(const edm::ParameterSet&);
