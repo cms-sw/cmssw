@@ -1,6 +1,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "HeterogeneousCore/SonicTriton/interface/TritonClient.h"
+#include "HeterogeneousCore/SonicTriton/interface/TritonService.h"
 #include "HeterogeneousCore/SonicTriton/interface/triton_utils.h"
 
 #include "grpc_client.h"
@@ -24,10 +26,12 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
     : SonicClient(params, debugName, "TritonClient"),
       verbose_(params.getUntrackedParameter<bool>("verbose")),
       options_(params.getParameter<std::string>("modelName")) {
+  //get appropriate server for this model
+  edm::Service<TritonService> ts;
+  const auto& url = ts->serverAddress(options_.model_name_,params.getUntrackedParameter<std::string>("preferredServer"));
+
   //connect to the server
   //TODO: add SSL options
-  std::string url(params.getUntrackedParameter<std::string>("address") + ":" +
-                  std::to_string(params.getUntrackedParameter<unsigned>("port")));
   triton_utils::throwIfError(nic::InferenceServerGrpcClient::Create(&client_, url, false),
                              "TritonClient(): unable to create inference context");
 
@@ -123,8 +127,8 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
     throw cms::Exception("MissingOutput")
         << "Some requested outputs were not available on the server: " << triton_utils::printColl(s_outputs);
 
-  //check requested batch size and propagate to inputs and outputs
-  setBatchSize(params.getUntrackedParameter<unsigned>("batchSize"));
+  //propagate batch size to inputs and outputs
+  setBatchSize(1);
 
   //print model info
   std::stringstream model_msg;
@@ -337,9 +341,7 @@ void TritonClient::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   descClient.add<std::string>("modelName");
   descClient.add<std::string>("modelVersion", "");
   //server parameters should not affect the physics results
-  descClient.addUntracked<unsigned>("batchSize");
-  descClient.addUntracked<std::string>("address");
-  descClient.addUntracked<unsigned>("port");
+  descClient.addUntracked<std::string>("preferredServer","");
   descClient.addUntracked<unsigned>("timeout");
   descClient.addUntracked<bool>("verbose", false);
   descClient.addUntracked<std::vector<std::string>>("outputs", {});
