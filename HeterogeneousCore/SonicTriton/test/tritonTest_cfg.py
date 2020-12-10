@@ -4,7 +4,7 @@ import os, sys, json
 
 options = VarParsing("analysis")
 options.register("serverName", "default", VarParsing.multiplicity.singleton, VarParsing.varType.string)
-options.register("address", "0.0.0.0", VarParsing.multiplicity.singleton, VarParsing.varType.string)
+options.register("address", "", VarParsing.multiplicity.singleton, VarParsing.varType.string)
 options.register("port", 8001, VarParsing.multiplicity.singleton, VarParsing.varType.int)
 options.register("timeout", 30, VarParsing.multiplicity.singleton, VarParsing.varType.int)
 options.register("params", "", VarParsing.multiplicity.singleton, VarParsing.varType.string)
@@ -32,16 +32,16 @@ models = {
 if options.producer not in models:
     raise ValueError("Unknown producer: "+options.producer)
 
-process = cms.Process('tritonTest')
+from Configuration.ProcessModifiers.enableSonicTriton_cff import enableSonicTriton
+process = cms.Process('tritonTest',enableSonicTriton)
 
-process.load("HeterogeneousCore.SonicTriton.TritonService_cfi")
+process.load("HeterogeneousCore.SonicTriton.TritonService_cff")
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 
 process.source = cms.Source("EmptySource")
 
 process.TritonService.verbose = options.verbose
-process.TritonService.fallback.enable = True
 process.TritonService.fallback.verbose = options.verbose
 if len(options.address)>0:
     process.TritonService.servers.append(

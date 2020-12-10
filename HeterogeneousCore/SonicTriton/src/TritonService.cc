@@ -160,6 +160,8 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
 
   if (verbose_)
     edm::LogInfo("TritonService") << command;
+  else
+    command += " >>/dev/null 2>>/dev/null";
 
   //mark as started before executing in case of ctrl+c while command is running
   startedFallback_ = true;
@@ -188,6 +190,9 @@ TritonService::~TritonService() {
 
   if (verbose_)
     edm::LogInfo("TritonService") << command;
+  else
+    command += " >>/dev/null 2>>/dev/null";
+
   int rv = std::system(command.c_str());
   if (rv != 0)
     edm::LogError("FallbackFailed") << "Stopping the fallback server failed with exit code " << rv;
