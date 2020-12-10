@@ -292,7 +292,7 @@ else
 	if [ -z "$DRYRUN" ]; then
 		if [ -d "$TMPDIR" ]; then
 			cd "$TMPDIR"
-		else
+		elif [ -z "$FORCE" ]; then
 			echo "Error: attempt to stop unknown container $SERVER"
 			exit 1
 		fi
