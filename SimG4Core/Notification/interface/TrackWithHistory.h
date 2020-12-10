@@ -46,7 +46,9 @@ public:
   bool saved() const { return saved_; }
 
   // Boundary crossing variables
-  void setCrossedBoundaryPosMom(int id, const math::XYZTLorentzVectorF position, const math::XYZTLorentzVectorF momentum) {
+  void setCrossedBoundaryPosMom(int id,
+                                const math::XYZTLorentzVectorF position,
+                                const math::XYZTLorentzVectorF momentum) {
     crossedBoundary_ = true;
     idAtBoundary_ = id;
     positionAtBoundary_ = position;
