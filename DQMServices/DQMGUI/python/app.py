@@ -201,9 +201,9 @@ async def render_legacy(request, notOlderThan):
 
     data, error = await service.get_rendered_image([me_description], options, notOlderThan=notOlderThan)
 
-    if data == b'crashed':
+    if data == b'crashed' or error == 2:
         return web.HTTPInternalServerError()
-    elif data == b'error' or error == 2:
+    elif data == b'error':
         return web.HTTPBadRequest()
     return web.Response(body=data, content_type='image/png', status = 200 if error == 0 else 500)
 
@@ -225,9 +225,9 @@ async def render_v1(request, notOlderThan):
 
     data, error = await service.get_rendered_image([me_description], options, notOlderThan=notOlderThan)
 
-    if data == b'crashed':
+    if data == b'crashed' or error == 2:
         return web.HTTPInternalServerError()
-    elif data == b'error' or error == 2:
+    elif data == b'error':
         return web.HTTPBadRequest()
     return web.Response(body=data, content_type='image/png', status = 200 if error == 0 else 500)
 
@@ -250,9 +250,9 @@ async def render_overlay_legacy(request, notOlderThan):
 
     data, error = await service.get_rendered_image(me_descriptions, options, notOlderThan=notOlderThan)
 
-    if data == b'crashed':
+    if data == b'crashed' or error == 2:
         return web.HTTPInternalServerError()
-    elif data == b'error' or error == 2:
+    elif data == b'error':
         return web.HTTPBadRequest()
     return web.Response(body=data, content_type='image/png', status = 200 if error == 0 else 500)
 
@@ -275,9 +275,9 @@ async def render_overlay_v1(request, notOlderThan):
 
     data, error = await service.get_rendered_image(me_descriptions, options, notOlderThan=notOlderThan)
 
-    if data == b'crashed':
+    if data == b'crashed' or error == 2:
         return web.HTTPInternalServerError()
-    elif data == b'error' or error == 2:
+    elif data == b'error':
         return web.HTTPBadRequest()
     return web.Response(body=data, content_type='image/png', status= 200 if error == 0 else 500)
 
@@ -303,9 +303,9 @@ async def jsroot_legacy(request, notOlderThan):
 
     data, error = await service.get_rendered_json([me_description], options, notOlderThan=notOlderThan)
 
-    if data == b'crashed':
+    if data == b'crashed' or error == 2:
         return web.HTTPInternalServerError()
-    elif data == b'error' or error == 2:
+    elif data == b'error':
         return web.HTTPBadRequest()
     return web.json_response(data, status = 200 if error == 0 else 500)
 
@@ -328,9 +328,9 @@ async def jsroot_overlay(request, notOlderThan):
 
     data, error = await service.get_rendered_json(me_descriptions, options, notOlderThan=notOlderThan)
 
-    if data == b'crashed':
+    if data == b'crashed' or error == 2:
         return web.HTTPInternalServerError()
-    elif data == b'error' or error == 2:
+    elif data == b'error':
         return web.HTTPBadRequest()
     return web.json_response(data, status = 200 if error == 0 else 500)
 
