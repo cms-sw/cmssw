@@ -37,7 +37,7 @@ void PuppiContainer::initialize(const std::vector<RecoObj> &iRecoObjects) {
   fRawAlphas.resize(0);
   fAlphaMed.resize(0);
   fAlphaRMS.resize(0);
-  fNPV = 1.;
+  fPUProxy = 1.;
   //Link to the RecoObjects
   fRecoParticles = &iRecoObjects;
   fPFParticles.reserve(iRecoObjects.size());
@@ -71,7 +71,6 @@ void PuppiContainer::initialize(const std::vector<RecoObj> &iRecoObjects) {
     // charged candidates assigned to LV
     if (std::abs(rParticle.id) == 1)
       fPFParticlesForVarChargedPV.push_back(pCand);
-    // if(fNPV < rParticle.vtxId) fNPV = rParticle.vtxId;
   }
 }
 
@@ -304,7 +303,7 @@ std::vector<double> const &PuppiContainer::puppiWeights() {
                                    << " -- id :  " << rParticle.id << " --  NAlgos: " << lNAlgos << std::endl;
     }
     //Basic Cuts
-    if (pWeight * fPFParticles[i0].pt < fPuppiAlgo[pPupId].neutralPt(fNPV) && rParticle.id == 0)
+    if (pWeight * fPFParticles[i0].pt < fPuppiAlgo[pPupId].neutralPt(fPUProxy) && rParticle.id == 0)
       pWeight = 0;  //threshold cut on the neutral Pt
     // Protect high pT photons (important for gamma to hadronic recoil balance)
     if (fPtMaxPhotons > 0 && rParticle.pdgId == 22 && std::abs(fPFParticles[i0].eta) < fEtaMaxPhotons &&
