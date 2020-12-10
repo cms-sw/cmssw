@@ -1,5 +1,7 @@
 # SONIC for Triton Inference Server
 
+## Introduction to Triton
+
 Triton Inference Server ([docs](https://docs.nvidia.com/deeplearning/triton-inference-server/archives/triton_inference_server_1130/user-guide/docs/index.html), [repo](https://github.com/NVIDIA/triton-inference-server))
 is an open-source product from Nvidia that facilitates the use of GPUs as a service to process inference requests.
 
@@ -8,6 +10,8 @@ boolean, unsigned integer (8, 16, 32, or 64 bits), integer (8, 16, 32, or 64 bit
 
 Triton additionally supports inputs and outputs with multiple dimensions, some of which might be variable (denoted by -1).
 Concrete values for variable dimensions must be specified for each call (event).
+
+## Client
 
 Accordingly, the `TritonClient` input and output types are:
 * input: `TritonInputMap = std::unordered_map<std::string, TritonInputData>`
@@ -22,11 +26,8 @@ The model information from the server can be printed by enabling `verbose` outpu
 `TritonClient` takes several parameters:
 * `modelName`: name of model with which to perform inference
 * `modelVersion`: version number of model (default: -1, use latest available version on server)
-* `batchSize`: number of objects sent per request
-  * can also be set on per-event basis using `setBatchSize()`
-  * some models don't support batching
-* `address`: server IP address
-* `port`: server port
+* `modelConfigPath`: path to `config.pbtxt` file for the model (using `edm::FileInPath`)
+* `preferredServer`: name of preferred server (see [Services](#services) below)
 * `timeout`: maximum allowed time for a request
 * `outputs`: optional, specify which output(s) the server should send
 
@@ -38,6 +39,8 @@ Useful `TritonData` accessors include:
 * `byteSize()`: return number of bytes for data type
 * `dname()`: return name of data type
 * `batchSize()`: return current batch size
+* `setBatchSize()`: set a new batch size
+  * some models may not support batching
 
 To update the `TritonData` shape in the variable-dimension case:
 * `setShape(const std::vector<int64_t>& newShape)`: update all (variable) dimensions with values provided in `newShape`
@@ -48,6 +51,22 @@ Here, `T` is a primitive type, and the two aliases listed below are passed to `T
 and returned by `TritonOutputData::fromServer()`, respectively:
 * `TritonInput<T> = std::vector<std::vector<T>>`
 * `TritonOutput<T> = std::vector<edm::Span<const T*>>`
+
+## Modules
+
+SONIC Triton supports producers, filters, and analyzers.
+New modules should inherit from `TritonEDProducer`, `TritonEDFilter`, or `TritonOneEDAnalyzer`.
+These follow essentially the same patterns described in [SonicCore](../SonicCore#for-analyzers).
+
+If an `edm::GlobalCache` of type `T` is needed, there are two changes:
+* The new module should inherit from `TritonEDProducerT<T>` or `TritonEDFilterT<T>`
+* The new module should contain these lines:
+    ```cpp
+    static std::unique_ptr<T> initializeGlobalCache(edm::ParameterSet const& pset) {
+      TritonEDProducerT<T>::initializeGlobalCache(pset);
+      [module-specific code goes here]
+    }
+    ```
 
 In a SONIC Triton producer, the basic flow should follow this pattern:
 1. `acquire()`:  
@@ -60,6 +79,8 @@ In a SONIC Triton producer, the basic flow should follow this pattern:
     a. access output object(s) from `TritonOutputMap`  
     b. obtain output data as `TritonOutput<T>` using `fromServer()` function of output object(s) (sets output shape(s) if variable dimensions exist)  
     c. fill output products  
+
+## Services
 
 A script [`triton`](./scripts/triton) is provided to launch and manage local servers.
 The script has two operations (`start` and `stop`) and the following options:
@@ -74,7 +95,7 @@ The script has two operations (`start` and `stop`) and the following options:
 * `-r [num]`: number of retries when starting container (default: 3)
 * `-t [dir]`: non-default hidden temporary dir
 * `-v`: (verbose) start: activate server debugging info; stop: keep server logs
-* `-w` [time]`: maximum time to wait for server to start (default: 60 seconds)
+* `-w [time]`: maximum time to wait for server to start (default: 60 seconds)
 * `-h`: print help message and exit
 
 Additional details and caveats:
@@ -87,5 +108,14 @@ while `$CMSSW_BASE/src/HeterogeneousCore/SonicTriton/data/models/resnet50_netdef
 If a model repository is provided, all of the models it contains will be provided to the server.
 * Older versions of Singularity have a short timeout that may cause launching the server to fail the first time the command is executed.
 The `-r` (retry) flag exists to work around this issue.
+
+A central `TritonService` is provided to keep track of all available servers and which models they can serve.
+The servers will automatically be assigned to clients at startup.
+If some models are not served by any server, the `TritonService` can launch a fallback server using the `triton` script described above.
+If the process modifiers `enableSonicTriton` or `allSonicTriton` are activated,
+the fallback server will launch automatically if needed and will use a local GPU if one is available.
+If the fallback server uses CPU, clients that use the fallback server will automatically be set to `Sync` mode.
+
+## Examples
 
 Several example producers (running ResNet50 or Graph Attention Network) can be found in the [test](./test) directory.
