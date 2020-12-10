@@ -159,10 +159,10 @@ namespace ecaldqm {
           // Plot contains two bins per dccId. Integer number
           // bins correspond to towerId 69 and half integer
           // number bins correspond to towerId 70.
-          if (iFE+1 == 69)
-            meFEStatusMEM.fill(dccId+0.0, status);
-          else if (iFE+1 == 70)
-            meFEStatusMEM.fill(dccId+0.5, status);
+          if (iFE + 1 == 69)
+            meFEStatusMEM.fill(dccId + 0.0, status);
+          else if (iFE + 1 == 70)
+            meFEStatusMEM.fill(dccId + 0.5, status);
           continue;
         }
 

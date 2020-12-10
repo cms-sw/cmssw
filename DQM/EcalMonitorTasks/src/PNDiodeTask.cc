@@ -58,19 +58,20 @@ namespace ecaldqm {
     // Plot contains two bins per dccId. Integer number
     // bins correspond to towerId 69 and half integer
     // number bins correspond to towerId 70.
-    std::for_each(_ids.begin(), _ids.end(), [&](EcalElectronicsIdCollection::value_type const& id) {
-      if (id.towerId() == 69)
-        meMEMErrors->fill(id.dccId()+0.0, errorType);
-      else if (id.towerId() == 70)
-        meMEMErrors->fill(id.dccId()+0.5, errorType);
-      else{
-        edm::LogWarning("EcalDQM")
-          << "PNDiodeTask::runOnErrors : one of the ids in the electronics ID collection does not "
-          << "correspond to one of the MEM box towerIds (69/70) in lumi number "
-          << timestamp_.iLumi << ", event number "
-          << timestamp_.iEvt;
-      }
-    });
+    std::for_each(_ids.begin(),
+                  _ids.end(),
+                  [&](EcalElectronicsIdCollection::value_type const& id) {
+                    if (id.towerId() == 69)
+                      meMEMErrors->fill(id.dccId() + 0.0, errorType);
+                    else if (id.towerId() == 70)
+                      meMEMErrors->fill(id.dccId() + 0.5, errorType);
+                    else {
+                      edm::LogWarning("EcalDQM")
+                          << "PNDiodeTask::runOnErrors : one of the ids in the electronics ID collection does not "
+                          << "correspond to one of the MEM box towerIds (69/70) in lumi number " << timestamp_.iLumi
+                          << ", event number " << timestamp_.iEvt;
+                    }
+                  });
   }
 
   void PNDiodeTask::runOnPnDigis(EcalPnDiodeDigiCollection const& _digis) {
