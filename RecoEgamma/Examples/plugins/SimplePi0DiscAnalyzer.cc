@@ -17,22 +17,11 @@
 //
 //
 
-#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "DataFormats/EgammaCandidates/interface/Conversion.h"
-#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonPi0DiscriminatorAssociation.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
-#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -42,6 +31,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CLHEP/Units/PhysicalConstants.h"
+
 #include "TMath.h"
 #include "TFile.h"
 #include "TH1F.h"
@@ -193,7 +183,7 @@ void SimplePi0DiscAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
     std::cout << "Photon Id = " << iPho - photons.begin() << " with Et = " << Photon_et << " Eta = " << Photon_eta
               << " Phi = " << Photon_phi << " R9 = " << Photon_r9 << " and conv_id = " << isPhotConv << std::endl;
 
-    SuperClusterRef it_super = localPho.superCluster();  // get the SC related to the Photon candidate
+    auto it_super = localPho.superCluster();  // get the SC related to the Photon candidate
 
     //    hConv_ntracks_->Fill(Ntrk_conv);
 
