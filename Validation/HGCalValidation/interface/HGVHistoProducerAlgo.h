@@ -24,7 +24,7 @@
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalClusteringAlgoBase.h"
 #include "SimDataFormats/Associations/interface/LayerClusterToCaloParticleAssociator.h"
-#include "SimDataFormats/Associations/interface/LayerClusterToSimClusterAssociator.h"
+#include "SimDataFormats/Associations/interface/LayerClusterToSimClusterAssociatorBaseImpl.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -225,7 +225,8 @@ public:
       const std::vector<float> &mask,
       std::unordered_map<DetId, const HGCRecHit*> const&,
       unsigned layers,
-      const edm::Handle<hgcal::LayerClusterToSimClusterAssociator>& SCAssocByEnergyScoreHandle) const;
+      const hgcal::RecoToSimCollectionWithSimClusters& recSimColl,
+      const hgcal::SimToRecoCollectionWithSimClusters& simRecColl) const;
   void multiClusters_to_CaloParticles(const Histograms& histograms,
                                       int count,
                                       const std::vector<reco::HGCalMultiCluster>& multiClusters,
@@ -238,7 +239,7 @@ public:
   void fill_caloparticle_histos(const Histograms& histograms,
                                 int pdgid,
                                 const CaloParticle& caloparticle,
-                                std::vector<SimVertex> const& simVertices) const;  
+                                std::vector<SimVertex> const& simVertices) const;
   void fill_simcluster_histos(const Histograms& histograms,
 			      std::vector<SimCluster> const& simclusters,
 			      unsigned layers,
@@ -254,14 +255,12 @@ public:
 					 const std::vector<float> &mask,
 					 std::unordered_map<DetId, const HGCRecHit*> const& hitMap,
 					 unsigned layers,
-					 edm::Handle<hgcal::LayerClusterToSimClusterAssociator>& SCAssocByEnergyScoreHandle) const ;
-
-
-
+                                         const hgcal::RecoToSimCollectionWithSimClusters& recSimColl,
+                                         const hgcal::SimToRecoCollectionWithSimClusters& simRecColl) const;
   
   void fill_cluster_histos(const Histograms& histograms, int count, const reco::CaloCluster& cluster) const;
   void fill_generic_cluster_histos(
-				   const Histograms& histograms,
+                                   const Histograms& histograms,
 				   int count,
 				   edm::Handle<reco::CaloClusterCollection> clusterHandle,
 				   const reco::CaloClusterCollection& clusters,

@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 from SimCalorimetry.HGCalSimProducers.hgcHitAssociation_cfi import lcAssocByEnergyScoreProducer, scAssocByEnergyScoreProducer
+from SimDataFormats.Associations.LCToSCAsssociation_cfi import layerClusterSimClusterAsssociation as layerClusterSimClusterAsssociationProducer
+
 from Validation.HGCalValidation.simhitValidation_cff    import *
 from Validation.HGCalValidation.digiValidation_cff      import *
 from Validation.HGCalValidation.rechitValidation_cff    import *
@@ -37,7 +39,8 @@ hgcalAssociators = cms.Task(lcAssocByEnergyScoreProducer,
                             scAssocByEnergyScoreProducerticlTrackstersTrkEM,
                             scAssocByEnergyScoreProducerticlTrackstersEM,
                             scAssocByEnergyScoreProducerticlTrackstersTrk,
-                            scAssocByEnergyScoreProducerticlTrackstersHAD)
+                            scAssocByEnergyScoreProducerticlTrackstersHAD,
+                            layerClusterSimClusterAsssociationProducer)
 
 hgcalValidation = cms.Sequence(hgcalSimHitValidationEE
                                + hgcalSimHitValidationHEF

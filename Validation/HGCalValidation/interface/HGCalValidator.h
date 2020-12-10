@@ -60,6 +60,7 @@ public:
 protected:
   edm::InputTag label_lcl;
   std::vector<edm::InputTag> label_mcl;
+  edm::InputTag associator_;
   const bool SaveGeneralInfo_;
   const bool doCaloParticlePlots_;
   const bool doCaloParticleSelection_;
@@ -80,7 +81,8 @@ protected:
   edm::EDGetTokenT<std::unordered_map<DetId, const HGCRecHit*>> hitMap_;
   edm::EDGetTokenT<Density> density_;
   edm::EDGetTokenT<hgcal::LayerClusterToCaloParticleAssociator> LCAssocByEnergyScoreProducer_;
-  std::vector<edm::EDGetTokenT<hgcal::LayerClusterToSimClusterAssociator> > SCAssocByEnergyScoreProducer_;
+  std::vector<edm::EDGetTokenT<hgcal::SimToRecoCollectionWithSimClusters>> associatorMapStRs;
+  std::vector<edm::EDGetTokenT<hgcal::RecoToSimCollectionWithSimClusters>> associatorMapRtSs;
   std::unique_ptr<HGVHistoProducerAlgo> histoProducerAlgo_;
 
 private:

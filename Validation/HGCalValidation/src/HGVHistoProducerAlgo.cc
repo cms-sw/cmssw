@@ -1279,7 +1279,8 @@ void HGVHistoProducerAlgo::HGVHistoProducerAlgo::fill_simclusterassosiation_hist
 									const std::vector<float> &mask,
 									std::unordered_map<DetId, const HGCRecHit*> const& hitMap,
 									unsigned layers,
-									edm::Handle<hgcal::LayerClusterToSimClusterAssociator>& SCAssocByEnergyScoreHandle) const {
+									const hgcal::RecoToSimCollectionWithSimClusters& scsInLayerClusterMap,
+                                                                        const hgcal::SimToRecoCollectionWithSimClusters& lcsInSimClusterMap) const {
 
   //Each event to be treated as two events: an event in +ve endcap,
   //plus another event in -ve endcap. In this spirit there will be
@@ -1299,9 +1300,8 @@ void HGVHistoProducerAlgo::HGVHistoProducerAlgo::fill_simclusterassosiation_hist
 			       mask,
 			       hitMap,
 			       layers,
-			       SCAssocByEnergyScoreHandle);
-  
-  
+			       scsInLayerClusterMap,
+                               lcsInSimClusterMap);
 }
 
 void HGVHistoProducerAlgo::fill_cluster_histos(const Histograms& histograms,
@@ -1311,17 +1311,16 @@ void HGVHistoProducerAlgo::fill_cluster_histos(const Histograms& histograms,
   histograms.h_cluster_eta[count]->Fill(eta);
 }
 
-void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(
-    const Histograms& histograms,
-    edm::Handle<reco::CaloClusterCollection> clusterHandle,
-    const reco::CaloClusterCollection& clusters,
-    edm::Handle<std::vector<CaloParticle>> caloParticleHandle,
-    std::vector<CaloParticle> const& cP,
-    std::vector<size_t> const& cPIndices,
-    std::vector<size_t> const& cPSelectedIndices,
-    std::unordered_map<DetId, const HGCRecHit*> const& hitMap,
-    unsigned layers,
-    const edm::Handle<hgcal::LayerClusterToCaloParticleAssociator>& LCAssocByEnergyScoreHandle) const {
+void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& histograms,
+                                                          edm::Handle<reco::CaloClusterCollection> clusterHandle,
+                                                          const reco::CaloClusterCollection& clusters,
+                                                          edm::Handle<std::vector<CaloParticle>> caloParticleHandle,
+                                                          std::vector<CaloParticle> const& cP,
+                                                          std::vector<size_t> const& cPIndices,
+                                                          std::vector<size_t> const& cPSelectedIndices,
+                                                          std::unordered_map<DetId, const HGCRecHit*> const& hitMap,
+                                                          unsigned layers,
+                                                          const edm::Handle<hgcal::LayerClusterToCaloParticleAssociator>& LCAssocByEnergyScoreHandle) const {
   auto nLayerClusters = clusters.size();
 
   std::unordered_map<DetId, std::vector<HGVHistoProducerAlgo::detIdInfoInCluster>> detIdToCaloParticleId_Map;
@@ -1593,13 +1592,10 @@ void HGVHistoProducerAlgo::layerClusters_to_SimClusters(
     const std::vector<float> &mask,
     std::unordered_map<DetId, const HGCRecHit*> const& hitMap,
     unsigned layers,
-    const edm::Handle<hgcal::LayerClusterToSimClusterAssociator>& SCAssocByEnergyScoreHandle) const {
+    const hgcal::RecoToSimCollectionWithSimClusters& scsInLayerClusterMap,
+    const hgcal::SimToRecoCollectionWithSimClusters& lcsInSimClusterMap) const {
   auto nLayerClusters = clusters.size();
 
-  hgcal::RecoToSimCollectionWithSimClusters scsInLayerClusterMap =
-      SCAssocByEnergyScoreHandle->associateRecoToSim(clusterHandle, simClusterHandle);
-  hgcal::SimToRecoCollectionWithSimClusters lcsInSimClusterMap =
-      SCAssocByEnergyScoreHandle->associateSimToReco(clusterHandle, simClusterHandle);
   // Here we do fill the plots to compute the different metrics linked to
   // reco-level, namely fake-rate an merge-rate. In this loop we should *not*
   // restrict only to the selected simClusters.
