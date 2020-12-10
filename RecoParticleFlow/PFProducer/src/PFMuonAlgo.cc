@@ -735,10 +735,10 @@ void PFMuonAlgo::addMissingMuons(edm::Handle<reco::MuonCollection> muons, reco::
   std::vector<TrackProdIDKey> vetoed;
   if (vetoHandle_.isValid()) {
     const auto& vetoes = *vetoHandle_;
-    for (unsigned i = 0; i < vetoes.size(); ++i) {
-      if (!vetoes[i].trackRef().isNonnull())
+    for (const auto& veto : vetoes) {
+      if (!veto.trackRef().isNonnull())
         continue;
-      vetoed.emplace_back(vetoes[i].trackRef().id(), vetoes[i].trackRef().key());
+      vetoed.emplace_back(veto.trackRef().id(), veto.trackRef().key());
     }
     std::sort(vetoed.begin(), vetoed.end());
   }

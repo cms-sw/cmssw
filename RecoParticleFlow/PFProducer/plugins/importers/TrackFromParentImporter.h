@@ -76,26 +76,24 @@ namespace pflow {
       edm::ProductID prodIdForVeto;
       if (vetoEndcap_) {
         if (vetoMode_ == pfRecTrackCollection) {
-          auto vetoesH = e.getHandle(vetoPFTracksSrc_);
-          const auto& vetoes = *vetoesH;
-          for (unsigned i = 0; i < vetoes.size(); ++i) {
-            vetoed.emplace_back(vetoes[i].trackRef().id(), vetoes[i].trackRef().key());
+          const auto& vetoes = e.get(vetoPFTracksSrc_);
+          for (const auto& veto : vetoes) {
+            vetoed.emplace_back(veto.trackRef().id(), veto.trackRef().key());
           }
         } else if (vetoMode_ == ticlSeedingRegion) {
-          auto vetoesH = e.getHandle(vetoTICLSeedingSrc_);
-          const auto& vetoes = *vetoesH;
+          const auto& vetoes = e.get(vetoTICLSeedingSrc_);
           auto tracksH = e.getHandle(tracksSrc_);
-          for (unsigned i = 0; i < vetoes.size(); ++i) {
-            reco::TrackRef trkref = reco::TrackRef(tracksH, vetoes[i].index);
+          for (const auto& veto : vetoes) {
+            assert(veto.collectionID == tracksH.id());
+            reco::TrackRef trkref = reco::TrackRef(tracksH, veto.index);
             vetoed.emplace_back(trkref.id(), trkref.key());
           }
         } else if (vetoMode_ == pfCandidateCollection) {
-          auto vetoesH = e.getHandle(vetoPFCandidatesSrc_);
-          const auto& vetoes = *vetoesH;
-          for (unsigned i = 0; i < vetoes.size(); ++i) {
-            if (!vetoes[i].trackRef().isNonnull())
+          const auto& vetoes = e.get(vetoPFCandidatesSrc_);
+          for (const auto& veto : vetoes) {
+            if (!veto.trackRef().isNonnull())
               continue;
-            vetoed.emplace_back(vetoes[i].trackRef().id(), vetoes[i].trackRef().key());
+            vetoed.emplace_back(veto.trackRef().id(), veto.trackRef().key());
           }
         }
         std::sort(vetoed.begin(), vetoed.end());
