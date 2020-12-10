@@ -21,11 +21,11 @@ SonicClientBase::SonicClientBase(const edm::ParameterSet& params,
     setMode(SonicMode::PseudoAsync);
   else
     throw cms::Exception("Configuration") << "Unknown mode for SonicClient: " << modeName;
-
 }
 
 void SonicClientBase::setMode(SonicMode mode) {
-  if (mode_==mode) return;
+  if (mode_ == mode)
+    return;
   mode_ = mode;
 
   //get correct dispatcher for mode

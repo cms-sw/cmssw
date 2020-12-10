@@ -13,8 +13,7 @@
 
 class TritonGraphProducer : public TritonEDProducer<> {
 public:
-  explicit TritonGraphProducer(edm::ParameterSet const& cfg)
-      : TritonEDProducer<>(cfg, "TritonGraphProducer") {}
+  explicit TritonGraphProducer(edm::ParameterSet const& cfg) : TritonEDProducer<>(cfg, "TritonGraphProducer") {}
   void acquire(edm::Event const& iEvent, edm::EventSetup const& iSetup, Input& iInput) override {
     //get event-based seed for RNG
     unsigned int runNum_uint = static_cast<unsigned int>(iEvent.id().run());

@@ -29,10 +29,11 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
       options_(params.getParameter<std::string>("modelName")) {
   //get appropriate server for this model
   edm::Service<TritonService> ts;
-  const auto& [url, isFallbackCPU] = ts->serverAddress(options_.model_name_,params.getUntrackedParameter<std::string>("preferredServer"));
+  const auto& [url, isFallbackCPU] =
+      ts->serverAddress(options_.model_name_, params.getUntrackedParameter<std::string>("preferredServer"));
   //enforce sync mode for fallback CPU server to avoid contention
   //todo: could enforce async mode otherwise (unless mode was specified by user?)
-  if(isFallbackCPU)
+  if (isFallbackCPU)
     setMode(SonicMode::Sync);
 
   //connect to the server
@@ -347,7 +348,7 @@ void TritonClient::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   descClient.add<std::string>("modelVersion", "");
   descClient.add<edm::FileInPath>("modelConfigPath");
   //server parameters should not affect the physics results
-  descClient.addUntracked<std::string>("preferredServer","");
+  descClient.addUntracked<std::string>("preferredServer", "");
   descClient.addUntracked<unsigned>("timeout");
   descClient.addUntracked<bool>("verbose", false);
   descClient.addUntracked<std::vector<std::string>>("outputs", {});

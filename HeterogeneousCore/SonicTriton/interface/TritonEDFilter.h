@@ -12,17 +12,19 @@
 template <typename G, typename... Capabilities>
 class TritonEDFilterT : public SonicEDFilter<TritonClient, edm::GlobalCache<G>, Capabilities...> {
 public:
-	TritonEDFilterT(edm::ParameterSet const& cfg, const std::string& debugName) : SonicEDFilter<TritonClient, edm::GlobalCache<G>, Capabilities...>(cfg, debugName) {}
+  TritonEDFilterT(edm::ParameterSet const& cfg, const std::string& debugName)
+      : SonicEDFilter<TritonClient, edm::GlobalCache<G>, Capabilities...>(cfg, debugName) {}
 
-	//use this function to avoid calling TritonService functions Nstreams times
-	static std::unique_ptr<G> initializeGlobalCache(edm::ParameterSet const& pset) {
-		edm::Service<TritonService> ts;
-		const auto& clientPset = pset.getParameterSet("Client");
-		ts->addModel(clientPset.getParameter<std::string>("modelName"), clientPset.getParameter<edm::FileInPath>("modelConfigPath").fullPath());
-		return nullptr;
-	}
+  //use this function to avoid calling TritonService functions Nstreams times
+  static std::unique_ptr<G> initializeGlobalCache(edm::ParameterSet const& pset) {
+    edm::Service<TritonService> ts;
+    const auto& clientPset = pset.getParameterSet("Client");
+    ts->addModel(clientPset.getParameter<std::string>("modelName"),
+                 clientPset.getParameter<edm::FileInPath>("modelConfigPath").fullPath());
+    return nullptr;
+  }
 
-	static void globalEndJob(G*) {}
+  static void globalEndJob(G*) {}
 };
 
 template <typename... Capabilities>
