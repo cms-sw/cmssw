@@ -67,7 +67,7 @@ class RenderingOptions:
         self, width=266, height=200, stats=True, normalize=True, error_bars=False,
         xtype=None, ytype=None, ztype=None,
         xmin=None, xmax=None, ymin=None, ymax=None, zmin=None, zmax=None,
-        ref_labels=[], draw_opts=None, efficiency=False, json=False
+        ref=None, ref_labels=[], draw_opts=None, efficiency=False, json=False
     ):
         self.width = width
         self.height = height
@@ -88,6 +88,7 @@ class RenderingOptions:
         self.ytype = None
         self.ztype = None
 
+        self.ref = ref
         self.ref_labels = ref_labels
 
         if xtype == 'lin' or xtype == 'log':
@@ -118,6 +119,7 @@ class RenderingOptions:
             ymax = cls.__get_float_or_none(dictionary, 'ymax'),
             zmin = cls.__get_float_or_none(dictionary, 'zmin'),
             zmax = cls.__get_float_or_none(dictionary, 'zmax'),
+            ref=dictionary.get('ref', None),
             ref_labels = dictionary.getall('reflabel', []),
         )
 
@@ -142,6 +144,7 @@ class RenderingOptions:
             ymax = cls.__get_float_or_none(dictionary, 'ymax'),
             zmin = cls.__get_float_or_none(dictionary, 'zmin'),
             zmax = cls.__get_float_or_none(dictionary, 'zmax'),
+            ref=dictionary.get('ref', None),
             ref_labels = dictionary.getall('reflabel', []),
         )
 
@@ -192,6 +195,8 @@ class RenderingOptions:
             spec += f'zmin={self.zmin};'
         if self.zmax:
             spec += f'zmax={self.zmax};'
+        if self.ref:
+            spec += f'ref={self.ref};'
         if self.json:
             spec += 'json=True;'
         if self.draw_opts:

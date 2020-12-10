@@ -201,7 +201,7 @@ async def render_legacy(request, notOlderThan):
 
     data, error = await service.get_rendered_image([me_description], options, notOlderThan=notOlderThan)
 
-    if data == b'crashed':
+    if data == b'crashed' or error == 2:
         return web.HTTPInternalServerError()
     elif data == b'error':
         return web.HTTPBadRequest()
@@ -225,7 +225,7 @@ async def render_v1(request, notOlderThan):
 
     data, error = await service.get_rendered_image([me_description], options, notOlderThan=notOlderThan)
 
-    if data == b'crashed':
+    if data == b'crashed' or error == 2:
         return web.HTTPInternalServerError()
     elif data == b'error':
         return web.HTTPBadRequest()
@@ -250,7 +250,7 @@ async def render_overlay_legacy(request, notOlderThan):
 
     data, error = await service.get_rendered_image(me_descriptions, options, notOlderThan=notOlderThan)
 
-    if data == b'crashed':
+    if data == b'crashed' or error == 2:
         return web.HTTPInternalServerError()
     elif data == b'error':
         return web.HTTPBadRequest()
@@ -275,7 +275,7 @@ async def render_overlay_v1(request, notOlderThan):
 
     data, error = await service.get_rendered_image(me_descriptions, options, notOlderThan=notOlderThan)
 
-    if data == b'crashed':
+    if data == b'crashed' or error == 2:
         return web.HTTPInternalServerError()
     elif data == b'error':
         return web.HTTPBadRequest()
@@ -303,7 +303,7 @@ async def jsroot_legacy(request, notOlderThan):
 
     data, error = await service.get_rendered_json([me_description], options, notOlderThan=notOlderThan)
 
-    if data == b'crashed':
+    if data == b'crashed' or error == 2:
         return web.HTTPInternalServerError()
     elif data == b'error':
         return web.HTTPBadRequest()
@@ -328,7 +328,7 @@ async def jsroot_overlay(request, notOlderThan):
 
     data, error = await service.get_rendered_json(me_descriptions, options, notOlderThan=notOlderThan)
 
-    if data == b'crashed':
+    if data == b'crashed' or error == 2:
         return web.HTTPInternalServerError()
     elif data == b'error':
         return web.HTTPBadRequest()
