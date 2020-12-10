@@ -13,8 +13,8 @@ namespace edm {
       T* makeStreamModule(edm::ParameterSet const& iPSet, const TritonDummyCache*) {
         return new T(iPSet);
       }
-    }
-  }
-}
+    }  // namespace impl
+  }    // namespace stream
+}  // namespace edm
 
 #endif

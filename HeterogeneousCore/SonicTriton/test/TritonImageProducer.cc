@@ -13,7 +13,9 @@
 class TritonImageProducer : public TritonEDProducer<> {
 public:
   explicit TritonImageProducer(edm::ParameterSet const& cfg)
-      : TritonEDProducer<>(cfg, "TritonImageProducer"), batchSize_(cfg.getParameter<unsigned>("batchSize")), topN_(cfg.getParameter<unsigned>("topN")) {
+      : TritonEDProducer<>(cfg, "TritonImageProducer"),
+        batchSize_(cfg.getParameter<unsigned>("batchSize")),
+        topN_(cfg.getParameter<unsigned>("topN")) {
     //load score list
     std::string imageListFile(cfg.getParameter<std::string>("imageList"));
     std::ifstream ifile(imageListFile);
@@ -27,7 +29,7 @@ public:
     }
   }
   void acquire(edm::Event const& iEvent, edm::EventSetup const& iSetup, Input& iInput) override {
-	client_->setBatchSize(batchSize_);
+    client_->setBatchSize(batchSize_);
     // create an npix x npix x ncol image w/ arbitrary color value
     // model only has one input, so just pick begin()
     auto& input1 = iInput.begin()->second;
