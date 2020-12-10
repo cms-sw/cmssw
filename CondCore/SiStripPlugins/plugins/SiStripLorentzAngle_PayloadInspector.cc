@@ -15,6 +15,8 @@
 
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 #include "CondCore/SiStripPlugins/interface/SiStripPayloadInspectorHelper.h"
+#include "CondCore/SiStripPlugins/interface/SiStripTkMaps.h"
+
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 
 #include <memory>
@@ -97,6 +99,57 @@ namespace {
       } else {
         tmap->save(true, extrema.first * 0.95, extrema.first * 1.05, fileName);
       }
+
+      return true;
+    }
+  };
+
+  /************************************************
+    SiStripTkMaps of SiStrip Lorentz Angle
+  *************************************************/
+  class SiStripLorentzAngleTkMap
+      : public cond::payloadInspector::PlotImage<SiStripLorentzAngle, cond::payloadInspector::SINGLE_IOV> {
+  public:
+    SiStripLorentzAngleTkMap()
+        : cond::payloadInspector::PlotImage<SiStripLorentzAngle, cond::payloadInspector::SINGLE_IOV>(
+              "Tracker Map SiStrip Lorentz Angle") {}
+
+    bool fill() override {
+      gStyle->SetPalette(kRainBow);
+
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
+      auto tagname = cond::payloadInspector::PlotBase::getTag<0>().name;
+
+      std::shared_ptr<SiStripLorentzAngle> payload = fetchPayload(std::get<1>(iov));
+
+      auto theIOVsince = std::to_string(std::get<0>(iov));
+      std::string titleMap = "SiStrip Lorentz Angle Map, Run: " + theIOVsince + " (tag: " + tagname + ")";
+
+      SiStripTkMaps myMap("COLZA L");
+      myMap.bookMap(titleMap,"SiStrip #mu_{H}=(tan#theta_{L}/B) [1/T]");
+
+      std::map<uint32_t, float> LAMap_ = payload->getLorentzAngles();
+
+      for (const auto &element : LAMap_) {
+        myMap.fill(element.first, element.second);
+      }  // loop over the LA MAP
+
+      std::string fileName(m_imageFileName);
+
+      TCanvas canvas("LA map", "LA map", 3000, 1200);
+      myMap.drawMap(canvas);
+
+      auto ltx = TLatex();
+      ltx.SetTextFont(62);
+      ltx.SetTextSize(0.045);
+      ltx.SetTextAlign(11);
+      ltx.DrawLatexNDC(gPad->GetLeftMargin(),
+		       1 - gPad->GetTopMargin() + 0.02,
+		       titleMap.c_str());
+
+      canvas.SaveAs(fileName.c_str());
+      canvas.SaveAs("test.root");
 
       return true;
     }
@@ -405,6 +458,7 @@ namespace {
 
 PAYLOAD_INSPECTOR_MODULE(SiStripLorentzAngle) {
   PAYLOAD_INSPECTOR_CLASS(SiStripLorentzAngleValue);
+  PAYLOAD_INSPECTOR_CLASS(SiStripLorentzAngleTkMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripLorentzAngle_TrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripLorentzAngleByRegion);
   PAYLOAD_INSPECTOR_CLASS(SiStripLorentzAngleByRegionCompareSingleTag);

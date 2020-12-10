@@ -22,6 +22,7 @@
 
 // needed for the tracker map
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
+#include "CondCore/SiStripPlugins/interface/SiStripTkMaps.h"
 
 // auxilliary functions
 #include "CondCore/SiStripPlugins/interface/SiStripPayloadInspectorHelper.h"
@@ -186,6 +187,78 @@ namespace {
       } else {
         tmap->save(true, extrema.first * 0.95, extrema.first * 1.05, fileName);
       }
+
+      delete reader;
+      return true;
+    }
+  };
+
+  /************************************************
+    TrackerMap of SiStripBadStrip (bad strips fraction)
+  *************************************************/
+  class SiStripBadStripFractionTkMap
+      : public cond::payloadInspector::PlotImage<SiStripBadStrip, cond::payloadInspector::SINGLE_IOV> {
+  public:
+    SiStripBadStripFractionTkMap()
+        : cond::payloadInspector::PlotImage<SiStripBadStrip, cond::payloadInspector::SINGLE_IOV>(
+              "Tracker Map of SiStrip Bad Components fraction") {}
+
+    bool fill() override {
+      gStyle->SetPalette(kRainBow);
+
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
+      auto tagname = cond::payloadInspector::PlotBase::getTag<0>().name;
+      std::shared_ptr<SiStripBadStrip> payload = fetchPayload(std::get<1>(iov));
+
+      edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
+      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+
+      auto theIOVsince = std::to_string(std::get<0>(iov));
+
+      std::string titleMap = "Fraction of bad Strips per module, Run: " + theIOVsince + " (tag: " + tagname + ")";
+
+      SiStripTkMaps myMap("COLZA0 L");
+      myMap.bookMap(titleMap,"");
+
+      SiStripTkMaps ghost("AL");
+      ghost.bookMap(titleMap,"");
+
+      std::vector<uint32_t> detid;
+      payload->getDetIds(detid);
+
+      std::map<uint32_t, int> badStripsPerDetId;
+
+      for (const auto& d : detid) {
+        SiStripBadStrip::Range range = payload->getRange(d);
+        for (std::vector<unsigned int>::const_iterator badStrip = range.first; badStrip != range.second; ++badStrip) {
+          badStripsPerDetId[d] += payload->decode(*badStrip).range;
+          //ss << "DetId="<< d << " Strip=" << payload->decode(*badStrip).firstStrip <<":"<< payload->decode(*badStrip).range << " flag="<< payload->decode(*badStrip).flag << std::endl;
+        }
+        float fraction = badStripsPerDetId[d] / (128. * reader->getNumberOfApvsAndStripLength(d).first);
+        if (fraction > 0.) {
+          myMap.fill(d, fraction);
+        }
+      }  // loop over detIds
+
+      //=========================
+
+      std::string fileName(m_imageFileName);
+
+      //myMap.setZAxisRange(-0.4,1.);
+      TCanvas canvas("Bad Components fraction", "bad components fraction", 3000, 1200);
+      myMap.drawMap(canvas, "");
+      ghost.drawMap(canvas, "same");
+
+      auto ltx = TLatex();
+      ltx.SetTextFont(62);
+      ltx.SetTextSize(0.045);
+      ltx.SetTextAlign(11);
+      ltx.DrawLatexNDC(gPad->GetLeftMargin(),
+		       1 - gPad->GetTopMargin() + 0.02,
+		       titleMap.c_str());
+
+      canvas.SaveAs(fileName.c_str());
 
       delete reader;
       return true;
@@ -1304,6 +1377,7 @@ PAYLOAD_INSPECTOR_MODULE(SiStripBadStrip) {
   PAYLOAD_INSPECTOR_CLASS(SiStripBadStripTest);
   PAYLOAD_INSPECTOR_CLASS(SiStripBadModuleTrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripBadStripFractionTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(SiStripBadStripFractionTkMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripBadStripFractionByRun);
   PAYLOAD_INSPECTOR_CLASS(SiStripBadStripTIBFractionByRun);
   PAYLOAD_INSPECTOR_CLASS(SiStripBadStripTOBFractionByRun);
