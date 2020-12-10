@@ -9,7 +9,6 @@ options.register("timeout", 30, VarParsing.multiplicity.singleton, VarParsing.va
 options.register("params", "", VarParsing.multiplicity.singleton, VarParsing.varType.string)
 options.register("threads", 1, VarParsing.multiplicity.singleton, VarParsing.varType.int)
 options.register("streams", 0, VarParsing.multiplicity.singleton, VarParsing.varType.int)
-options.register("batchSize", 1, VarParsing.multiplicity.singleton, VarParsing.varType.int)
 options.register("producer", "TritonImageProducer", VarParsing.multiplicity.singleton, VarParsing.varType.string)
 options.register("modelName","resnet50_netdef", VarParsing.multiplicity.singleton, VarParsing.varType.string)
 options.register("mode","PseudoAsync", VarParsing.multiplicity.singleton, VarParsing.varType.string)
@@ -38,12 +37,20 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxE
 
 process.source = cms.Source("EmptySource")
 
+process.TritonService = cms.Service("TritonService",
+    servers = cms.untracked.VPSet(
+        cms.PSet(
+            name = cms.untracked.string("local"),
+			address = cms.untracked.string(options.address),
+			port = cms.untracked.uint32(options.port),
+        )
+    )
+)
+
 process.TritonProducer = cms.EDProducer(options.producer,
     Client = cms.PSet(
         mode = cms.string(options.mode),
-        batchSize = cms.untracked.uint32(options.batchSize),
-        address = cms.untracked.string(options.address),
-        port = cms.untracked.uint32(options.port),
+        preferredServer = cms.untracked.string(""),
         timeout = cms.untracked.uint32(options.timeout),
         modelName = cms.string(models[options.producer]),
         modelVersion = cms.string(""),
@@ -52,6 +59,7 @@ process.TritonProducer = cms.EDProducer(options.producer,
     )
 )
 if options.producer=="TritonImageProducer":
+    process.TritonProducer.batchSize = cms.uint32(1)
     process.TritonProducer.topN = cms.uint32(5)
     process.TritonProducer.imageList = cms.string("../data/models/resnet50_netdef/resnet50_labels.txt")
 

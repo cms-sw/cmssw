@@ -14,7 +14,7 @@
 class TritonImageProducer : public SonicEDProducer<TritonClient> {
 public:
   explicit TritonImageProducer(edm::ParameterSet const& cfg)
-      : SonicEDProducer<TritonClient>(cfg, "TritonImageProducer"), topN_(cfg.getParameter<unsigned>("topN")) {
+      : SonicEDProducer<TritonClient>(cfg, "TritonImageProducer"), batchSize_(cfg.getParameter<unsigned>("batchSize")), topN_(cfg.getParameter<unsigned>("topN")) {
     //load score list
     std::string imageListFile(cfg.getParameter<std::string>("imageList"));
     std::ifstream ifile(imageListFile);
@@ -28,12 +28,13 @@ public:
     }
   }
   void acquire(edm::Event const& iEvent, edm::EventSetup const& iSetup, Input& iInput) override {
+	client_->setBatchSize(batchSize_);
     // create an npix x npix x ncol image w/ arbitrary color value
     // model only has one input, so just pick begin()
     auto& input1 = iInput.begin()->second;
     auto data1 = std::make_shared<TritonInput<float>>();
-    data1->reserve(input1.batchSize());
-    for (unsigned i = 0; i < input1.batchSize(); ++i) {
+    data1->reserve(batchSize_);
+    for (unsigned i = 0; i < batchSize_; ++i) {
       data1->emplace_back(input1.sizeDims(), 0.5f);
     }
     // convert to server format
@@ -48,6 +49,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
     TritonClient::fillPSetDescription(desc);
+    desc.add<unsigned>("batchSize", 1);
     desc.add<unsigned>("topN", 5);
     desc.add<std::string>("imageList");
     //to ensure distinct cfi names
@@ -78,6 +80,7 @@ private:
     }
   }
 
+  unsigned batchSize_;
   unsigned topN_;
   std::vector<std::string> imageList_;
 };
