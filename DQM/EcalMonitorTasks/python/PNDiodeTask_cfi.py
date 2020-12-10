@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-statuses = [
+MEMErrorTypes = [
     'TOWERID',
     'BLOCKSIZE',
     'CHID',
@@ -28,7 +28,7 @@ ecalPNDiodeTask = cms.untracked.PSet(
                 high = cms.untracked.double(3.5),
                 nbins = cms.untracked.int32(4),
                 low = cms.untracked.double(-0.5),
-                labels = cms.untracked.vstring(statuses)
+                labels = cms.untracked.vstring(MEMErrorTypes)
             ),
             otype = cms.untracked.string('Ecal'),
             btype = cms.untracked.string('User'),
