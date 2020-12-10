@@ -1,9 +1,9 @@
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/ValueMap.h"
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class ElectronIDAnalyzer : public edm::one::EDAnalyzer<> {

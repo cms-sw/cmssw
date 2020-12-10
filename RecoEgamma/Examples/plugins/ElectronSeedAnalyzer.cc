@@ -9,64 +9,52 @@
 //
 //
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/PerpendicularBoundPlaneBuilder.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
-
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-
-#include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
-#include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
-#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
-
-#include "TrackingTools/TrajectoryState/interface/ftsFromVertexToPoint.h"
-#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
-#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
-#include "DataFormats/GeometryCommonDetAlgo/interface/PerpendicularBoundPlaneBuilder.h"
-#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
-
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
-
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-
+#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
+#include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
+#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "TrackingTools/TrajectoryState/interface/ftsFromVertexToPoint.h"
+
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "HepMC/GenParticle.h"
 #include "HepMC/SimpleVector.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
 
-#include <iostream>
 #include "TFile.h"
 #include "TH1F.h"
 #include "TH1I.h"
 #include "TTree.h"
 
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include <iostream>
 
 class ElectronSeedAnalyzer : public edm::one::EDAnalyzer<> {
 public:
