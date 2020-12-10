@@ -216,7 +216,11 @@ cleanup(){
 list_models(){
 	# make list of model repositories
 	for MODEL in ${MODELS[@]}; do
-		REPOS+=("$(dirname $MODEL)")
+		# check if file was provided rather than directory
+		if [ -f "$MODEL" ]; then
+			MODEL="$(dirname "$MODEL")"
+		fi
+		REPOS+=("$(dirname "$MODEL")")
 	done
 	for ((r=0; r < ${#REPOS[@]}; r++)); do
 		# avoid issues w/ multiple levels of symlinks

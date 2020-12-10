@@ -14,13 +14,19 @@ SonicClientBase::SonicClientBase(const edm::ParameterSet& params,
 
   std::string modeName(params.getParameter<std::string>("mode"));
   if (modeName == "Sync")
-    mode_ = SonicMode::Sync;
+    setMode(SonicMode::Sync);
   else if (modeName == "Async")
-    mode_ = SonicMode::Async;
+    setMode(SonicMode::Async);
   else if (modeName == "PseudoAsync")
-    mode_ = SonicMode::PseudoAsync;
+    setMode(SonicMode::PseudoAsync);
   else
     throw cms::Exception("Configuration") << "Unknown mode for SonicClient: " << modeName;
+
+}
+
+void SonicClientBase::setMode(SonicMode mode) {
+  if (mode_==mode) return;
+  mode_ = mode;
 
   //get correct dispatcher for mode
   if (mode_ == SonicMode::Sync or mode_ == SonicMode::Async)

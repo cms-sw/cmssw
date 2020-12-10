@@ -41,6 +41,8 @@ public:
   static void fillBasePSetDescription(edm::ParameterSetDescription& desc, bool allowRetry = true);
 
 protected:
+  void setMode(SonicMode mode);
+
   virtual void evaluate() = 0;
 
   void start(edm::WaitingTaskWithArenaHolder holder);

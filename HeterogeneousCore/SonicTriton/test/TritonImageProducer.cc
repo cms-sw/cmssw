@@ -1,5 +1,4 @@
-#include "HeterogeneousCore/SonicCore/interface/SonicEDProducer.h"
-#include "HeterogeneousCore/SonicTriton/interface/TritonClient.h"
+#include "HeterogeneousCore/SonicTriton/interface/TritonEDProducer.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -11,10 +10,10 @@
 #include <vector>
 #include <map>
 
-class TritonImageProducer : public SonicEDProducer<TritonClient> {
+class TritonImageProducer : public TritonEDProducer<> {
 public:
   explicit TritonImageProducer(edm::ParameterSet const& cfg)
-      : SonicEDProducer<TritonClient>(cfg, "TritonImageProducer"), batchSize_(cfg.getParameter<unsigned>("batchSize")), topN_(cfg.getParameter<unsigned>("topN")) {
+      : TritonEDProducer<>(cfg, "TritonImageProducer"), batchSize_(cfg.getParameter<unsigned>("batchSize")), topN_(cfg.getParameter<unsigned>("topN")) {
     //load score list
     std::string imageListFile(cfg.getParameter<std::string>("imageList"));
     std::ifstream ifile(imageListFile);

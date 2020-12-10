@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 import os, sys, json
 
 options = VarParsing("analysis")
+options.register("serverName", "default", VarParsing.multiplicity.singleton, VarParsing.varType.string)
 options.register("address", "0.0.0.0", VarParsing.multiplicity.singleton, VarParsing.varType.string)
 options.register("port", 8001, VarParsing.multiplicity.singleton, VarParsing.varType.int)
 options.register("timeout", 30, VarParsing.multiplicity.singleton, VarParsing.varType.int)
@@ -33,19 +34,23 @@ if options.producer not in models:
 
 process = cms.Process('tritonTest')
 
+process.load("HeterogeneousCore.SonicTriton.TritonService_cfi")
+
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 
 process.source = cms.Source("EmptySource")
 
-process.TritonService = cms.Service("TritonService",
-    servers = cms.untracked.VPSet(
+process.TritonService.verbose = options.verbose
+process.TritonService.fallback.enable = True
+process.TritonService.fallback.verbose = options.verbose
+if len(options.address)>0:
+    process.TritonService.servers.append(
         cms.PSet(
-            name = cms.untracked.string("local"),
-			address = cms.untracked.string(options.address),
-			port = cms.untracked.uint32(options.port),
+            name = cms.untracked.string(options.serverName),
+            address = cms.untracked.string(options.address),
+            port = cms.untracked.uint32(options.port),
         )
     )
-)
 
 process.TritonProducer = cms.EDProducer(options.producer,
     Client = cms.PSet(
@@ -54,6 +59,7 @@ process.TritonProducer = cms.EDProducer(options.producer,
         timeout = cms.untracked.uint32(options.timeout),
         modelName = cms.string(models[options.producer]),
         modelVersion = cms.string(""),
+        modelConfigPath = cms.FileInPath("HeterogeneousCore/SonicTriton/data/models/{}/config.pbtxt".format(models[options.producer])),
         verbose = cms.untracked.bool(options.verbose),
         allowedTries = cms.untracked.uint32(0),
     )
@@ -70,7 +76,7 @@ process.p = cms.Path(
 
 process.load('FWCore/MessageService/MessageLogger_cfi')
 process.MessageLogger.cerr.FwkReport.reportEvery = 500
-keep_msgs = [options.producer,options.producer+':TritonClient','TritonClient']
+keep_msgs = [options.producer,options.producer+':TritonClient','TritonClient','TritonService']
 for msg in keep_msgs:
     
     setattr(process.MessageLogger.cerr,msg,
