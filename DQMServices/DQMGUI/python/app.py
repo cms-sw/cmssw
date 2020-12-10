@@ -203,7 +203,7 @@ async def render_legacy(request, notOlderThan):
 
     if data == b'crashed':
         return web.HTTPInternalServerError()
-    elif data == b'error':
+    elif data == b'error' or error == 2:
         return web.HTTPBadRequest()
     return web.Response(body=data, content_type='image/png', status = 200 if error == 0 else 500)
 
@@ -227,7 +227,7 @@ async def render_v1(request, notOlderThan):
 
     if data == b'crashed':
         return web.HTTPInternalServerError()
-    elif data == b'error':
+    elif data == b'error' or error == 2:
         return web.HTTPBadRequest()
     return web.Response(body=data, content_type='image/png', status = 200 if error == 0 else 500)
 
@@ -252,7 +252,7 @@ async def render_overlay_legacy(request, notOlderThan):
 
     if data == b'crashed':
         return web.HTTPInternalServerError()
-    elif data == b'error':
+    elif data == b'error' or error == 2:
         return web.HTTPBadRequest()
     return web.Response(body=data, content_type='image/png', status = 200 if error == 0 else 500)
 
@@ -277,7 +277,7 @@ async def render_overlay_v1(request, notOlderThan):
 
     if data == b'crashed':
         return web.HTTPInternalServerError()
-    elif data == b'error':
+    elif data == b'error' or error == 2:
         return web.HTTPBadRequest()
     return web.Response(body=data, content_type='image/png', status= 200 if error == 0 else 500)
 
@@ -305,7 +305,7 @@ async def jsroot_legacy(request, notOlderThan):
 
     if data == b'crashed':
         return web.HTTPInternalServerError()
-    elif data == b'error':
+    elif data == b'error' or error == 2:
         return web.HTTPBadRequest()
     return web.json_response(data, status = 200 if error == 0 else 500)
 
@@ -330,7 +330,7 @@ async def jsroot_overlay(request, notOlderThan):
 
     if data == b'crashed':
         return web.HTTPInternalServerError()
-    elif data == b'error':
+    elif data == b'error' or error == 2:
         return web.HTTPBadRequest()
     return web.json_response(data, status = 200 if error == 0 else 500)
 

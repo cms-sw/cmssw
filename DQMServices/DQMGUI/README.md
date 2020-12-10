@@ -271,6 +271,28 @@ Overlays multiple (or one) histograms and renders an overlay to a PNG.
 
 Supports `notOlderThan` parameter to bypass the cache.
 
+Other supported parameters:
+
+| Parameter  | Info  |
+|------------|-------|
+| w          | Width of the plot: integer |
+| h          | Height of the plot: integer |
+| stats      | Stat box: `true`/`false` |
+| norm       | Normalization: `true`/`false` |
+| errors     | Error bars: `true`/`false` |
+| drawopts   | ROOT draw options string |
+| xtype      | Linear or log scale: `lin`/`log`. Default is `lin` |
+| ytype      | Linear or log scale: `lin`/`log`. Default is `lin` |
+| ztype      | Linear or log scale: `lin`/`log`. Default is `lin` |
+| xmin       | Min x axis value: integer |
+| xmax       | Max x axis value: integer |
+| ymin       | Min y axis value: integer |
+| ymax       | Max y axis value: integer |
+| zmin       | Min z axis value: integer |
+| zmax       | Max z axis value: integer |
+| ref        | Overlay method: `overlay`, `ratiooverlay` or `stacked`. Default is `overlay`. |
+| reflabel   | Labels to be used in stat box for overlayed plots. You can provide N-1 number of these parameters where N is the number of overlayed plots. |
+
 #### New file registering endpoint
 
 Registers new samples into the database.
