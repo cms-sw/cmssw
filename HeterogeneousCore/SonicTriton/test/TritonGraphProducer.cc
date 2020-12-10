@@ -1,5 +1,4 @@
-#include "HeterogeneousCore/SonicCore/interface/SonicEDProducer.h"
-#include "HeterogeneousCore/SonicTriton/interface/TritonClient.h"
+#include "HeterogeneousCore/SonicTriton/interface/TritonEDProducer.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -12,10 +11,10 @@
 #include <map>
 #include <random>
 
-class TritonGraphProducer : public SonicEDProducer<TritonClient> {
+class TritonGraphProducer : public TritonEDProducer<> {
 public:
   explicit TritonGraphProducer(edm::ParameterSet const& cfg)
-      : SonicEDProducer<TritonClient>(cfg, "TritonGraphProducer") {}
+      : TritonEDProducer<>(cfg, "TritonGraphProducer") {}
   void acquire(edm::Event const& iEvent, edm::EventSetup const& iSetup, Input& iInput) override {
     //get event-based seed for RNG
     unsigned int runNum_uint = static_cast<unsigned int>(iEvent.id().run());
