@@ -80,8 +80,8 @@ void L1TJetFilterT<T>::fillDescriptions(edm::ConfigurationDescriptions& descript
 
 template <class T>
 bool L1TJetFilterT<T>::hltFilter(edm::Event& iEvent,
-                                const edm::EventSetup& iSetup,
-                                trigger::TriggerFilterObjectWithRefs& filterproduct) const {
+                                 const edm::EventSetup& iSetup,
+                                 trigger::TriggerFilterObjectWithRefs& filterproduct) const {
   // All HLT filters must create and fill an HLT filter object,
   // recording any reconstructed physics objects satisfying (or not)
   // this HLT filter, and place it in the Event.

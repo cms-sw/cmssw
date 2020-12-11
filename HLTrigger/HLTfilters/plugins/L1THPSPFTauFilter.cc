@@ -70,8 +70,8 @@ void L1THPSPFTauFilter::fillDescriptions(edm::ConfigurationDescriptions& descrip
 
 // ------------ method called to produce the data  ------------
 bool L1THPSPFTauFilter::hltFilter(edm::Event& iEvent,
-                                 const edm::EventSetup& iSetup,
-                                 trigger::TriggerFilterObjectWithRefs& filterproduct) const {
+                                  const edm::EventSetup& iSetup,
+                                  trigger::TriggerFilterObjectWithRefs& filterproduct) const {
   using namespace std;
   using namespace edm;
   using namespace reco;
