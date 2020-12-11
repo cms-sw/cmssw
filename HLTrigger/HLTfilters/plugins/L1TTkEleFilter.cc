@@ -92,8 +92,8 @@ void L1TTkEleFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptio
 
 // ------------ method called to produce the data  ------------
 bool L1TTkEleFilter::hltFilter(edm::Event& iEvent,
-                              const edm::EventSetup& iSetup,
-                              trigger::TriggerFilterObjectWithRefs& filterproduct) const {
+                               const edm::EventSetup& iSetup,
+                               trigger::TriggerFilterObjectWithRefs& filterproduct) const {
   using namespace std;
   using namespace edm;
   using namespace reco;

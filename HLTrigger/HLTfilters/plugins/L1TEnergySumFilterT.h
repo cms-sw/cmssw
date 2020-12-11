@@ -88,8 +88,8 @@ void L1TEnergySumFilterT<T>::fillDescriptions(edm::ConfigurationDescriptions& de
 
 template <typename T>
 bool L1TEnergySumFilterT<T>::hltFilter(edm::Event& iEvent,
-                                      edm::EventSetup const& iSetup,
-                                      trigger::TriggerFilterObjectWithRefs& filterproduct) const {
+                                       edm::EventSetup const& iSetup,
+                                       trigger::TriggerFilterObjectWithRefs& filterproduct) const {
   // All HLT filters must create and fill an HLT filter object,
   // recording any reconstructed physics objects satisfying (or not)
   // this HLT filter, and place it in the Event.
@@ -111,7 +111,7 @@ bool L1TEnergySumFilterT<T>::hltFilter(edm::Event& iEvent,
     } else if (l1tSumType_ == trigger::TriggerObjectType::TriggerL1PFETT or
                l1tSumType_ == trigger::TriggerObjectType::TriggerL1PFHT) {
       offlinePt = offlineEnergySum(iSum->sumEt());
-    } 
+    }
 
     if (offlinePt >= minPt_) {
       ++nSum;
