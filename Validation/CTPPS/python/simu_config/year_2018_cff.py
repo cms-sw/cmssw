@@ -26,7 +26,7 @@ profile_base_2018 = profile_base.clone(
       cms.PSet( rpId = cms.uint32(2040004608), dirName = cms.string("XRPH_B6R5_B1"), z = cms.double(+21955.0) ),  # RP 123, pixel
     )
   ),
- 
+
   ctppsDirectSimuData = dict(
     empiricalAperture45 = cms.string("-(8.44219E-07*[xangle]-0.000100957)+(([xi]<(0.000247185*[xangle]+0.101599))*-(1.40289E-05*[xangle]-0.00727237)+([xi]> = (0.000247185*[xangle]+0.101599))*-(0.000107811*[xangle]-0.0261867))*([xi]-(0.000247185*[xangle]+0.101599))"),
     empiricalAperture56 = cms.string("-(-4.74758E-07*[xangle]+3.0881E-05)+(([xi]<(0.000727859*[xangle]+0.0722653))*-(2.43968E-05*[xangle]-0.0085461)+([xi]> = (0.000727859*[xangle]+0.0722653))*-(7.19216E-05*[xangle]-0.0148267))*([xi]-(0.000727859*[xangle]+0.0722653))")
@@ -34,9 +34,11 @@ profile_base_2018 = profile_base.clone(
 )
 
 # geometry
-from Geometry.VeryForwardGeometry.geometryRPFromDD_2018_cfi import *
-ctppsCompositeESSource.compactViewTag = ctppsGeometryESModule.compactViewTag
-del ctppsGeometryESModule # this functionality is replaced by the composite ES source
+from Geometry.VeryForwardGeometry.geometryRPFromDD_2018_cfi import totemGeomXMLFiles, ctppsDiamondGeomXMLFiles, ctppsUFSDGeomXMLFiles, ctppsPixelGeomXMLFiles
+from Geometry.VeryForwardGeometry.geometryRPFromDD_2018_cfi import XMLIdealGeometryESSource_CTPPS
+from Geometry.VeryForwardGeometry.geometryRPFromDD_2018_cfi import ctppsGeometryESModule as _geom
+ctppsCompositeESSource.compactViewTag = _geom.compactViewTag
+ctppsCompositeESSource.isRun2 = _geom.isRun2
 
 # local reconstruction
 ctppsLocalTrackLiteProducer.includeStrips = False

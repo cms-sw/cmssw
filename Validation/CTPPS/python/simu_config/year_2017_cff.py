@@ -7,7 +7,7 @@ profile_base_2017 = profile_base.clone(
   ctppsLHCInfo = dict(
     beamEnergy = 6500
   ),
-  
+
   ctppsOpticalFunctions = dict(
     opticalFunctions = cms.VPSet(
       cms.PSet( xangle = cms.double(120), fileName = cms.FileInPath("CalibPPS/ESProducers/data/optical_functions/2017/version5tim/120urad.root") ),
@@ -29,9 +29,11 @@ profile_base_2017 = profile_base.clone(
 )
 
 # geometry
-from Geometry.VeryForwardGeometry.geometryRPFromDD_2017_cfi import *
-ctppsCompositeESSource.compactViewTag = ctppsGeometryESModule.compactViewTag
-del ctppsGeometryESModule # this functionality is replaced by the composite ES source
+from Geometry.VeryForwardGeometry.geometryRPFromDD_2017_cfi import totemGeomXMLFiles, ctppsDiamondGeomXMLFiles, ctppsUFSDGeomXMLFiles, ctppsPixelGeomXMLFiles
+from Geometry.VeryForwardGeometry.geometryRPFromDD_2017_cfi import XMLIdealGeometryESSource_CTPPS
+from Geometry.VeryForwardGeometry.geometryRPFromDD_2017_cfi import ctppsGeometryESModule as _geom
+ctppsCompositeESSource.compactViewTag = _geom.compactViewTag
+ctppsCompositeESSource.isRun2 = _geom.isRun2
 
 # local reconstruction
 ctppsLocalTrackLiteProducer.includeStrips = True
