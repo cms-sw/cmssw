@@ -1,0 +1,12 @@
+<lcgdict>
+  <class name="PFParticle" />
+  <class name="std::vector<PFParticle>" />
+  <class name="edm::Wrapper<std::vector<PFParticle> >" />
+  <class name="edm::RefProd<std::vector<PFParticle> >" />
+  <class name="PFParticleRef" />
+  <class name="edm::Ptr<PFParticle>" />
+  <class name="std::vector<edm::Ptr<PFParticle>>" />
+  <class name="PFParticleRefVector" />
+  <class name="edm::Wrapper<PFParticleRefVector>"/>
+</lcgdict>
+
