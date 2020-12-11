@@ -10,9 +10,9 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
                          maxEventsToPrint = cms.untracked.int32(0),
                          ExternalDecays = cms.PSet(
                          EvtGen130 = cms.untracked.PSet(
-                            #uses latest evt and decay tables from evtgen 1.6
-                            decay_table = cms.string('GeneratorInterface/EvtGenInterface/data/DECAY_2014_NOLONGLIFE.DEC'),
-                            particle_property_file = cms.FileInPath('GeneratorInterface/EvtGenInterface/data/evt_2014.pdl'),
+                            #uses latest evt and decay tables from evtgen
+                            decay_table = cms.string('GeneratorInterface/EvtGenInterface/data/DECAY_NOLONGLIFE.DEC'),
+                            particle_property_file = cms.FileInPath('GeneratorInterface/EvtGenInterface/data/evt.pdl'),
                             convertPythiaCodes = cms.untracked.bool(False),
                             #user_decay_file = cms.vstring('GeneratorInterface/ExternalDecays/data/Bu_Kstarmumu_Kspi.dec'),
                             #content was dump in the embed string below. This should test this feature.
