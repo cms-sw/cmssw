@@ -110,7 +110,7 @@ void TICLTrackstersValidation::dqmAnalyze(edm::Event const& iEvent,
       histo.raw_energy_->Fill(thisTrackster.raw_energy());
       histo.regr_energy_->Fill(thisTrackster.regressed_energy());
       histo.raw_energy_vs_regr_energy_->Fill(thisTrackster.regressed_energy(), thisTrackster.raw_energy());
-      if (thisTrackster.vertices().size() > 0) {
+      if (!thisTrackster.vertices().empty()) {
         histo.raw_energy_1plusLC_->Fill(thisTrackster.raw_energy());
         histo.regr_energy_1plusLC_->Fill(thisTrackster.regressed_energy());
         histo.raw_energy_vs_regr_energy_1plusLC_->Fill(thisTrackster.regressed_energy(), thisTrackster.raw_energy());
