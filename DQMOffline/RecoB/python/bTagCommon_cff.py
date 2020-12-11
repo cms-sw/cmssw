@@ -84,5 +84,26 @@ bTagCommonBlock = cms.PSet(
             discrCut = cms.double(0.28)
         ),
 
+        cms.PSet(
+            bTagGenericAnalysisBlock,
+            label = cms.InputTag("pfDeepFlavourDiscriminatorsJetTags:BvsAll"),
+            folder = cms.string("deepJet_BvsAll"),
+            differentialPlots = cms.bool(True),
+            discrCut = cms.double(-1)
+        ),
+        #cms.PSet(
+            #bTagGenericAnalysisBlock,
+            #label = cms.InputTag("pfDeepFlavourDiscriminatorsJetTags:CvsL"),
+            #folder = cms.string("deepJet_CvsL"),
+            #differentialPlots = cms.bool(True),
+            #discrCut = cms.double(-1)
+        #),
+        #cms.PSet(
+            #bTagGenericAnalysisBlock,
+            #label = cms.InputTag("pfDeepFlavourDiscriminatorsJetTags:CvsB"),
+            #folder = cms.string("deepJet_CvsB"),
+            #differentialPlots = cms.bool(True),
+            #discrCut = cms.double(-1)
+        #),
     )
 )
