@@ -1,5 +1,5 @@
-#ifndef HLTrigger_HLTfilters_L1JetFilterT_h
-#define HLTrigger_HLTfilters_L1JetFilterT_h
+#ifndef HLTrigger_HLTfilters_L1TJetFilterT_h
+#define HLTrigger_HLTfilters_L1TJetFilterT_h
 
 #include <vector>
 #include <cmath>
@@ -15,10 +15,10 @@
 #include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 template <class T>
-class L1JetFilterT : public HLTFilter {
+class L1TJetFilterT : public HLTFilter {
 public:
-  explicit L1JetFilterT(const edm::ParameterSet&);
-  ~L1JetFilterT() override;
+  explicit L1TJetFilterT(const edm::ParameterSet&);
+  ~L1TJetFilterT() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   bool hltFilter(edm::Event&,
                  const edm::EventSetup&,
@@ -42,7 +42,7 @@ private:
 };
 
 template <class T>
-L1JetFilterT<T>::L1JetFilterT(const edm::ParameterSet& iConfig)
+L1TJetFilterT<T>::L1TJetFilterT(const edm::ParameterSet& iConfig)
     : HLTFilter(iConfig),
       l1tJetTag_(iConfig.getParameter<edm::InputTag>("inputTag")),
       l1tJetToken_(consumes<std::vector<T>>(l1tJetTag_)),
@@ -57,10 +57,10 @@ L1JetFilterT<T>::L1JetFilterT(const edm::ParameterSet& iConfig)
 }
 
 template <class T>
-L1JetFilterT<T>::~L1JetFilterT() = default;
+L1TJetFilterT<T>::~L1TJetFilterT() = default;
 
 template <class T>
-void L1JetFilterT<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void L1TJetFilterT<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("inputTag", edm::InputTag("ak4PFL1PuppiCorrected"));
@@ -75,11 +75,11 @@ void L1JetFilterT<T>::fillDescriptions(edm::ConfigurationDescriptions& descripti
   descScalings.add<std::vector<double>>("endcap", {0.0, 1.0, 0.0});
   desc.add<edm::ParameterSetDescription>("Scalings", descScalings);
 
-  descriptions.add(defaultModuleLabel<L1JetFilterT<T>>(), desc);
+  descriptions.add(defaultModuleLabel<L1TJetFilterT<T>>(), desc);
 }
 
 template <class T>
-bool L1JetFilterT<T>::hltFilter(edm::Event& iEvent,
+bool L1TJetFilterT<T>::hltFilter(edm::Event& iEvent,
                                 const edm::EventSetup& iSetup,
                                 trigger::TriggerFilterObjectWithRefs& filterproduct) const {
   // All HLT filters must create and fill an HLT filter object,
@@ -107,7 +107,7 @@ bool L1JetFilterT<T>::hltFilter(edm::Event& iEvent,
 }
 
 template <class T>
-double L1JetFilterT<T>::offlineJetPt(double const pt, double const eta) const {
+double L1TJetFilterT<T>::offlineJetPt(double const pt, double const eta) const {
   if (std::abs(eta) < 1.5)
     return (barrelScalings_.at(0) + pt * barrelScalings_.at(1) + pt * pt * barrelScalings_.at(2));
   else if (std::abs(eta) < 2.4)
@@ -129,4 +129,4 @@ double L1JetFilterT<T>::offlineJetPt(double const pt, double const eta) const {
   */
 }
 
-#endif  // HLTrigger_HLTfilters_L1JetFilterT_h
+#endif  // HLTrigger_HLTfilters_L1TJetFilterT_h

@@ -1,4 +1,4 @@
-/** \class L1TkEleFilter
+/** \class L1TTkEleFilter
  *
  * See header file for documentation
  *
@@ -9,7 +9,7 @@
  *
  */
 
-#include "L1TkEleFilter.h"
+#include "L1TTkEleFilter.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "DataFormats/Common/interface/Handle.h"
@@ -27,7 +27,7 @@
 // constructors and destructor
 //
 
-L1TkEleFilter::L1TkEleFilter(const edm::ParameterSet& iConfig)
+L1TTkEleFilter::L1TTkEleFilter(const edm::ParameterSet& iConfig)
     : HLTFilter(iConfig),
       l1TkEleTag1_(iConfig.getParameter<edm::InputTag>("inputTag1")),
       l1TkEleTag2_(iConfig.getParameter<edm::InputTag>("inputTag2")),
@@ -54,13 +54,13 @@ L1TkEleFilter::L1TkEleFilter(const edm::ParameterSet& iConfig)
         << "Vector of isolation values should have same size of vector of eta bins plus one.";
 }
 
-L1TkEleFilter::~L1TkEleFilter() = default;
+L1TTkEleFilter::~L1TTkEleFilter() = default;
 
 //
 // member functions
 //
 
-void L1TkEleFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void L1TTkEleFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
   makeHLTFilterDescription(desc);
@@ -87,11 +87,11 @@ void L1TkEleFilter::fillDescriptions(edm::ConfigurationDescriptions& description
   descScalings.add<std::vector<double> >("endcap", {0.0, 1.0, 0.0});
   desc.add<edm::ParameterSetDescription>("Scalings", descScalings);
 
-  descriptions.add("L1TkEleFilter", desc);
+  descriptions.add("L1TTkEleFilter", desc);
 }
 
 // ------------ method called to produce the data  ------------
-bool L1TkEleFilter::hltFilter(edm::Event& iEvent,
+bool L1TTkEleFilter::hltFilter(edm::Event& iEvent,
                               const edm::EventSetup& iSetup,
                               trigger::TriggerFilterObjectWithRefs& filterproduct) const {
   using namespace std;
@@ -191,7 +191,7 @@ bool L1TkEleFilter::hltFilter(edm::Event& iEvent,
   return accept;
 }
 
-double L1TkEleFilter::TkEleOfflineEt(double Et, double Eta) const {
+double L1TTkEleFilter::TkEleOfflineEt(double Et, double Eta) const {
   if (std::abs(Eta) < 1.5)
     return (barrelScalings_.at(0) + Et * barrelScalings_.at(1) + Et * Et * barrelScalings_.at(2));
   else

@@ -1,7 +1,7 @@
-#ifndef L1TkMuonFilter_h
-#define L1TkMuonFilter_h
+#ifndef L1TTkMuonFilter_h
+#define L1TTkMuonFilter_h
 
-/** \class L1TkMuonFilter
+/** \class L1TTkMuonFilter
  *
  *
  *  This class is an HLTFilter (-> EDFilter) implementing a very basic
@@ -21,10 +21,10 @@
 // class declaration
 //
 
-class L1TkMuonFilter : public HLTFilter {
+class L1TTkMuonFilter : public HLTFilter {
 public:
-  explicit L1TkMuonFilter(const edm::ParameterSet&);
-  ~L1TkMuonFilter() override;
+  explicit L1TTkMuonFilter(const edm::ParameterSet&);
+  ~L1TTkMuonFilter() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   bool hltFilter(edm::Event&,
                  const edm::EventSetup&,
@@ -47,4 +47,4 @@ private:
   double TkMuonOfflineEt(double Et, double Eta) const;
 };
 
-#endif  //L1TkMuonFilter_h
+#endif  //L1TTkMuonFilter_h

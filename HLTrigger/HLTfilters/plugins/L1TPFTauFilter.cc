@@ -1,4 +1,4 @@
-/** \class L1PFTauFilter
+/** \class L1TPFTauFilter
  *
  * See header file for documentation
  *
@@ -9,7 +9,7 @@
  *
  */
 
-#include "L1PFTauFilter.h"
+#include "L1TPFTauFilter.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "DataFormats/Common/interface/Handle.h"
@@ -26,7 +26,7 @@
 // constructors and destructor
 //
 
-L1PFTauFilter::L1PFTauFilter(const edm::ParameterSet& iConfig)
+L1TPFTauFilter::L1TPFTauFilter(const edm::ParameterSet& iConfig)
     : HLTFilter(iConfig),
       l1PFTauTag_(iConfig.getParameter<edm::InputTag>("inputTag")),
       pfTauToken_(consumes<l1t::PFTauCollection>(l1PFTauTag_)) {
@@ -43,13 +43,13 @@ L1PFTauFilter::L1PFTauFilter(const edm::ParameterSet& iConfig)
   endcapScalings_ = scalings_.getParameter<std::vector<double> >("endcap");
 }
 
-L1PFTauFilter::~L1PFTauFilter() = default;
+L1TPFTauFilter::~L1TPFTauFilter() = default;
 
 //
 // member functions
 //
 
-void L1PFTauFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void L1TPFTauFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
   desc.add<double>("MinPt", -1.0);
@@ -68,11 +68,11 @@ void L1PFTauFilter::fillDescriptions(edm::ConfigurationDescriptions& description
   descScalings.add<std::vector<double> >("endcap", {0.0, 1.0, 0.0});
   desc.add<edm::ParameterSetDescription>("Scalings", descScalings);
 
-  descriptions.add("L1PFTauFilter", desc);
+  descriptions.add("L1TPFTauFilter", desc);
 }
 
 // ------------ method called to produce the data  ------------
-bool L1PFTauFilter::hltFilter(edm::Event& iEvent,
+bool L1TPFTauFilter::hltFilter(edm::Event& iEvent,
                               const edm::EventSetup& iSetup,
                               trigger::TriggerFilterObjectWithRefs& filterproduct) const {
   using namespace std;
@@ -116,7 +116,7 @@ bool L1PFTauFilter::hltFilter(edm::Event& iEvent,
   return accept;
 }
 
-double L1PFTauFilter::PFTauOfflineEt(double Et, double Eta) const {
+double L1TPFTauFilter::PFTauOfflineEt(double Et, double Eta) const {
   if (std::abs(Eta) < 1.5)
     return (barrelScalings_.at(0) + Et * barrelScalings_.at(1) + Et * Et * barrelScalings_.at(2));
   else

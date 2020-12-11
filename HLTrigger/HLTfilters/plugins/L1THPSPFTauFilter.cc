@@ -1,4 +1,4 @@
-/** \class L1HPSPFTauFilter
+/** \class L1THPSPFTauFilter
  *
  * See header file for documentation
  *
@@ -9,7 +9,7 @@
  *
  */
 
-#include "L1HPSPFTauFilter.h"
+#include "L1THPSPFTauFilter.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "DataFormats/Common/interface/Handle.h"
@@ -26,7 +26,7 @@
 // constructors and destructor
 //
 
-L1HPSPFTauFilter::L1HPSPFTauFilter(const edm::ParameterSet& iConfig)
+L1THPSPFTauFilter::L1THPSPFTauFilter(const edm::ParameterSet& iConfig)
     : HLTFilter(iConfig),
       l1HPSPFTauTag_(iConfig.getParameter<edm::InputTag>("inputTag")),
       hpspfTauToken_(consumes<l1t::HPSPFTauCollection>(l1HPSPFTauTag_)) {
@@ -42,13 +42,13 @@ L1HPSPFTauFilter::L1HPSPFTauFilter(const edm::ParameterSet& iConfig)
   endcapScalings_ = scalings_.getParameter<std::vector<double> >("endcap");
 }
 
-L1HPSPFTauFilter::~L1HPSPFTauFilter() = default;
+L1THPSPFTauFilter::~L1THPSPFTauFilter() = default;
 
 //
 // member functions
 //
 
-void L1HPSPFTauFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void L1THPSPFTauFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
   desc.add<double>("MinPt", -1.0);
@@ -65,11 +65,11 @@ void L1HPSPFTauFilter::fillDescriptions(edm::ConfigurationDescriptions& descript
   descScalings.add<std::vector<double> >("endcap", {0.0, 1.0, 0.0});
   desc.add<edm::ParameterSetDescription>("Scalings", descScalings);
 
-  descriptions.add("L1HPSPFTauFilter", desc);
+  descriptions.add("L1THPSPFTauFilter", desc);
 }
 
 // ------------ method called to produce the data  ------------
-bool L1HPSPFTauFilter::hltFilter(edm::Event& iEvent,
+bool L1THPSPFTauFilter::hltFilter(edm::Event& iEvent,
                                  const edm::EventSetup& iSetup,
                                  trigger::TriggerFilterObjectWithRefs& filterproduct) const {
   using namespace std;
@@ -113,7 +113,7 @@ bool L1HPSPFTauFilter::hltFilter(edm::Event& iEvent,
   return accept;
 }
 
-double L1HPSPFTauFilter::HPSPFTauOfflineEt(double Et, double Eta) const {
+double L1THPSPFTauFilter::HPSPFTauOfflineEt(double Et, double Eta) const {
   if (std::abs(Eta) < 1.5)
     return (barrelScalings_.at(0) + Et * barrelScalings_.at(1) + Et * Et * barrelScalings_.at(2));
   else

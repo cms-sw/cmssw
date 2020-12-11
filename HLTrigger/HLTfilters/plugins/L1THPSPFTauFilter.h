@@ -1,7 +1,7 @@
-#ifndef L1HPSPFTauFilter_h
-#define L1HPSPFTauFilter_h
+#ifndef L1THPSPFTauFilter_h
+#define L1THPSPFTauFilter_h
 
-/** \class L1HPSPFTauFilter
+/** \class L1THPSPFTauFilter
  *
  *
  *  This class is an HLTFilter (-> EDFilter) implementing a very basic
@@ -21,10 +21,10 @@
 // class declaration
 //
 
-class L1HPSPFTauFilter : public HLTFilter {
+class L1THPSPFTauFilter : public HLTFilter {
 public:
-  explicit L1HPSPFTauFilter(const edm::ParameterSet&);
-  ~L1HPSPFTauFilter() override;
+  explicit L1THPSPFTauFilter(const edm::ParameterSet&);
+  ~L1THPSPFTauFilter() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   bool hltFilter(edm::Event&,
                  const edm::EventSetup&,
@@ -47,4 +47,4 @@ private:
   double HPSPFTauOfflineEt(double Et, double Eta) const;
 };
 
-#endif  //L1HPSPFTauFilter_h
+#endif  //L1THPSPFTauFilter_h

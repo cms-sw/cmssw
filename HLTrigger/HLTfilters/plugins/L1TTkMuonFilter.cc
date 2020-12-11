@@ -1,4 +1,4 @@
-/** \class L1TkMuonFilter
+/** \class L1TTkMuonFilter
  *
  * See header file for documentation
  *
@@ -9,7 +9,7 @@
  *
  */
 
-#include "L1TkMuonFilter.h"
+#include "L1TTkMuonFilter.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "DataFormats/Common/interface/Handle.h"
@@ -26,7 +26,7 @@
 // constructors and destructor
 //
 
-L1TkMuonFilter::L1TkMuonFilter(const edm::ParameterSet& iConfig)
+L1TTkMuonFilter::L1TTkMuonFilter(const edm::ParameterSet& iConfig)
     : HLTFilter(iConfig),
       l1TkMuonTag_(iConfig.getParameter<edm::InputTag>("inputTag")),
       tkMuonToken_(consumes<TkMuonCollection>(l1TkMuonTag_)) {
@@ -40,13 +40,13 @@ L1TkMuonFilter::L1TkMuonFilter(const edm::ParameterSet& iConfig)
   endcapScalings_ = scalings_.getParameter<std::vector<double> >("endcap");
 }
 
-L1TkMuonFilter::~L1TkMuonFilter() = default;
+L1TTkMuonFilter::~L1TTkMuonFilter() = default;
 
 //
 // member functions
 //
 
-void L1TkMuonFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void L1TTkMuonFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
   desc.add<double>("MinPt", -1.0);
@@ -61,11 +61,11 @@ void L1TkMuonFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   descScalings.add<std::vector<double> >("endcap", {0.0, 1.0, 0.0});
   desc.add<edm::ParameterSetDescription>("Scalings", descScalings);
 
-  descriptions.add("L1TkMuonFilter", desc);
+  descriptions.add("L1TTkMuonFilter", desc);
 }
 
 // ------------ method called to produce the data  ------------
-bool L1TkMuonFilter::hltFilter(edm::Event& iEvent,
+bool L1TTkMuonFilter::hltFilter(edm::Event& iEvent,
                                const edm::EventSetup& iSetup,
                                trigger::TriggerFilterObjectWithRefs& filterproduct) const {
   using namespace std;
@@ -107,7 +107,7 @@ bool L1TkMuonFilter::hltFilter(edm::Event& iEvent,
   return accept;
 }
 
-double L1TkMuonFilter::TkMuonOfflineEt(double Et, double Eta) const {
+double L1TTkMuonFilter::TkMuonOfflineEt(double Et, double Eta) const {
   if (std::abs(Eta) < 0.9)
     return (barrelScalings_.at(0) + Et * barrelScalings_.at(1) + Et * Et * barrelScalings_.at(2));
   else if (std::abs(Eta) < 1.2)

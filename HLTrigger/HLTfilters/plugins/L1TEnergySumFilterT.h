@@ -1,5 +1,5 @@
-#ifndef HLTrigger_HLTfilters_L1EnergySumFilterT_h
-#define HLTrigger_HLTfilters_L1EnergySumFilterT_h
+#ifndef HLTrigger_HLTfilters_L1TEnergySumFilterT_h
+#define HLTrigger_HLTfilters_L1TEnergySumFilterT_h
 
 #include <vector>
 #include <iterator>
@@ -13,10 +13,10 @@
 #include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 template <typename T>
-class L1EnergySumFilterT : public HLTFilter {
+class L1TEnergySumFilterT : public HLTFilter {
 public:
-  explicit L1EnergySumFilterT(const edm::ParameterSet&);
-  ~L1EnergySumFilterT() override;
+  explicit L1TEnergySumFilterT(const edm::ParameterSet&);
+  ~L1TEnergySumFilterT() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   bool hltFilter(edm::Event&,
                  edm::EventSetup const&,
@@ -38,7 +38,7 @@ private:
 };
 
 template <typename T>
-L1EnergySumFilterT<T>::L1EnergySumFilterT(const edm::ParameterSet& iConfig)
+L1TEnergySumFilterT<T>::L1TEnergySumFilterT(const edm::ParameterSet& iConfig)
     : HLTFilter(iConfig),
       l1tSumTag_(iConfig.getParameter<edm::InputTag>("inputTag")),
       l1tSumToken_(consumes<std::vector<T>>(l1tSumTag_)),
@@ -49,10 +49,10 @@ L1EnergySumFilterT<T>::L1EnergySumFilterT(const edm::ParameterSet& iConfig)
 }
 
 template <typename T>
-L1EnergySumFilterT<T>::~L1EnergySumFilterT() = default;
+L1TEnergySumFilterT<T>::~L1TEnergySumFilterT() = default;
 
 template <typename T>
-trigger::TriggerObjectType L1EnergySumFilterT<T>::typeOfL1TSum(std::string const& typeOfSum) const {
+trigger::TriggerObjectType L1TEnergySumFilterT<T>::typeOfL1TSum(std::string const& typeOfSum) const {
   trigger::TriggerObjectType sumEnum;
 
   if (typeOfSum == "MET")
@@ -72,7 +72,7 @@ trigger::TriggerObjectType L1EnergySumFilterT<T>::typeOfL1TSum(std::string const
 }
 
 template <typename T>
-void L1EnergySumFilterT<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void L1TEnergySumFilterT<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("inputTag", edm::InputTag("L1PFEnergySums"));
@@ -83,11 +83,11 @@ void L1EnergySumFilterT<T>::fillDescriptions(edm::ConfigurationDescriptions& des
 
   desc.add<std::string>("TypeOfSum", "HT");
   desc.add<double>("MinPt", -1.);
-  descriptions.add(defaultModuleLabel<L1EnergySumFilterT<T>>(), desc);
+  descriptions.add(defaultModuleLabel<L1TEnergySumFilterT<T>>(), desc);
 }
 
 template <typename T>
-bool L1EnergySumFilterT<T>::hltFilter(edm::Event& iEvent,
+bool L1TEnergySumFilterT<T>::hltFilter(edm::Event& iEvent,
                                       edm::EventSetup const& iSetup,
                                       trigger::TriggerFilterObjectWithRefs& filterproduct) const {
   // All HLT filters must create and fill an HLT filter object,
@@ -127,8 +127,8 @@ bool L1EnergySumFilterT<T>::hltFilter(edm::Event& iEvent,
 }
 
 template <typename T>
-double L1EnergySumFilterT<T>::offlineEnergySum(double const Et) const {
+double L1TEnergySumFilterT<T>::offlineEnergySum(double const Et) const {
   return (theScalings_.at(0) + Et * theScalings_.at(1) + Et * Et * theScalings_.at(2));
 }
 
-#endif  // HLTrigger_HLTfilters_L1EnergySumFilterT_h
+#endif  // HLTrigger_HLTfilters_L1TEnergySumFilterT_h

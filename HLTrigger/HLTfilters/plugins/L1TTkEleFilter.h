@@ -1,7 +1,7 @@
-#ifndef L1TkEleFilter_h
-#define L1TkEleFilter_h
+#ifndef L1TTkEleFilter_h
+#define L1TTkEleFilter_h
 
-/** \class L1TkEleFilter
+/** \class L1TTkEleFilter
  *
  *
  *  This class is an HLTFilter (-> EDFilter) implementing a very basic
@@ -21,10 +21,10 @@
 // class declaration
 //
 
-class L1TkEleFilter : public HLTFilter {
+class L1TTkEleFilter : public HLTFilter {
 public:
-  explicit L1TkEleFilter(const edm::ParameterSet&);
-  ~L1TkEleFilter() override;
+  explicit L1TTkEleFilter(const edm::ParameterSet&);
+  ~L1TTkEleFilter() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   bool hltFilter(edm::Event&,
                  const edm::EventSetup&,
@@ -57,4 +57,4 @@ private:
   double TkEleOfflineEt(double Et, double Eta) const;
 };
 
-#endif  //L1TkEleFilter_h
+#endif  //L1TTkEleFilter_h
