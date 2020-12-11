@@ -150,6 +150,8 @@ bool PythiaFilterMultiAncestor::filter(edm::Event& iEvent, const edm::EventSetup
       }
          */
       }
+      // only need to satisfy the conditions _once_
+      if(accepted) break;
     }
 
   } else {
