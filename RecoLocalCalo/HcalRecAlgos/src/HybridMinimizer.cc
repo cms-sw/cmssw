@@ -169,17 +169,15 @@ namespace PSFitter {
     //    std::cout << " add parameter " << name << "  " <<  val << " step " << step << std::endl;
 
     if (step <= 0) {
-      std::string txtmsg = "Parameter " + name + "  has zero or invalid step size - consider it as constant ";
-      edm::LogInfo("HybridMinimizer::SetVariable") << txtmsg;
+      edm::LogInfo("HybridMinimizer::SetVariable")
+          .format("Parameter {} has zero or invalid step size - consider it as constant", name);
       fState.Add(name, val);
     } else
       fState.Add(name, val, step);
 
     unsigned int minuit2Index = fState.Index(name);
     if (minuit2Index != ivar) {
-      std::string txtmsg("Wrong index used for the variable " + name);
-      edm::LogInfo("HybridMinimizer::SetVariable") << txtmsg;
-      edm::LogInfo("HybridMinimizer::SetVariable") << minuit2Index;
+      edm::LogInfo("HybridMinimizer::SetVariable").format("Wrong index used for the variable {} {}", name, minuit2Index);
       return false;
     }
     fState.RemoveLimits(ivar);
@@ -459,8 +457,7 @@ namespace PSFitter {
         txt = "unknown failure";
         fStatus = 5;
       }
-      std::string msg = "Minimization did NOT converge, " + txt;
-      edm::LogInfo("HybridMinimizer::Minimize") << msg;
+      edm::LogInfo("HybridMinimizer::Minimize").format("Minimization did NOT converge, {}", txt);
     }
 
     if (debugLevel >= 1)
