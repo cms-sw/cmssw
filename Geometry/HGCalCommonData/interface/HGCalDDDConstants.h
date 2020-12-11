@@ -19,6 +19,7 @@
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
+#include "Geometry/HGCalCommonData/interface/HGCalTileIndex.h"
 #include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 
 #include <unordered_map>
@@ -107,8 +108,19 @@ public:
   std::pair<int, int> rowColumnWafer(const int wafer) const;
   int sectors() const { return hgpar_->nSectors_; }
   std::pair<int, int> simToReco(int cell, int layer, int mod, bool half) const;
+  int tileSiPM(int sipm) const { return ((sipm > 0) ? HGCalTypes::SiPMSmall : HGCalTypes::SiPMLarge); }
   bool tileTrapezoid() const {
     return ((mode_ == HGCalGeometryMode::Trapezoid) || (mode_ == HGCalGeometryMode::TrapezoidFile));
+  }
+  std::pair<int, int> tileType(int layer, int ring, int phi) const {
+    int indx = HGCalTileIndex::tileIndex(layer, ring, phi);
+    int type(-1), sipm(-1);
+    auto itr = hgpar_->tileInfoMap_.find(indx);
+    if (itr != hgpar_->tileInfoMap_.end()) {
+      type = 1 + (itr->second).type;
+      sipm = ((itr->second).sipm == HGCalTypes::SiPMLarge) ? 0 : 1;
+    }
+    return std::make_pair(type, sipm);
   }
   unsigned int volumes() const { return hgpar_->moduleLayR_.size(); }
   int waferFromCopy(int copy) const;
