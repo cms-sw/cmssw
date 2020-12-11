@@ -947,18 +947,17 @@ void HGVHistoProducerAlgo::fill_cluster_histos(const Histograms& histograms,
   histograms.h_cluster_eta[count]->Fill(eta);
 }
 
-void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(
-    const Histograms& histograms,
-    edm::Handle<reco::CaloClusterCollection> clusterHandle,
-    const reco::CaloClusterCollection& clusters,
-    edm::Handle<std::vector<CaloParticle>> caloParticleHandle,
-    std::vector<CaloParticle> const& cP,
-    std::vector<size_t> const& cPIndices,
-    std::vector<size_t> const& cPSelectedIndices,
-    std::unordered_map<DetId, const HGCRecHit*> const& hitMap,
-    unsigned int layers,
-    const hgcal::RecoToSimCollection& cpsInLayerClusterMap,
-    const hgcal::SimToRecoCollection& cPOnLayerMap) const {
+void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& histograms,
+                                                          edm::Handle<reco::CaloClusterCollection> clusterHandle,
+                                                          const reco::CaloClusterCollection& clusters,
+                                                          edm::Handle<std::vector<CaloParticle>> caloParticleHandle,
+                                                          std::vector<CaloParticle> const& cP,
+                                                          std::vector<size_t> const& cPIndices,
+                                                          std::vector<size_t> const& cPSelectedIndices,
+                                                          std::unordered_map<DetId, const HGCRecHit*> const& hitMap,
+                                                          unsigned int layers,
+                                                          const hgcal::RecoToSimCollection& cpsInLayerClusterMap,
+                                                          const hgcal::SimToRecoCollection& cPOnLayerMap) const {
   auto nLayerClusters = clusters.size();
 
   std::unordered_map<DetId, std::vector<HGVHistoProducerAlgo::detIdInfoInCluster>> detIdToCaloParticleId_Map;
@@ -1215,22 +1214,21 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(
   }
 }
 
-void HGVHistoProducerAlgo::fill_generic_cluster_histos(
-    const Histograms& histograms,
-    int count,
-    edm::Handle<reco::CaloClusterCollection> clusterHandle,
-    const reco::CaloClusterCollection& clusters,
-    const Density& densities,
-    edm::Handle<std::vector<CaloParticle>> caloParticleHandle,
-    std::vector<CaloParticle> const& cP,
-    std::vector<size_t> const& cPIndices,
-    std::vector<size_t> const& cPSelectedIndices,
-    std::unordered_map<DetId, const HGCRecHit*> const& hitMap,
-    std::map<double, double> cummatbudg,
-    unsigned int layers,
-    std::vector<int> thicknesses,
-    const hgcal::RecoToSimCollection& cpsInLayerClusterMap,
-    const hgcal::SimToRecoCollection& cPOnLayerMap) const {
+void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histograms,
+                                                       int count,
+                                                       edm::Handle<reco::CaloClusterCollection> clusterHandle,
+                                                       const reco::CaloClusterCollection& clusters,
+                                                       const Density& densities,
+                                                       edm::Handle<std::vector<CaloParticle>> caloParticleHandle,
+                                                       std::vector<CaloParticle> const& cP,
+                                                       std::vector<size_t> const& cPIndices,
+                                                       std::vector<size_t> const& cPSelectedIndices,
+                                                       std::unordered_map<DetId, const HGCRecHit*> const& hitMap,
+                                                       std::map<double, double> cummatbudg,
+                                                       unsigned int layers,
+                                                       std::vector<int> thicknesses,
+                                                       const hgcal::RecoToSimCollection& cpsInLayerClusterMap,
+                                                       const hgcal::SimToRecoCollection& cPOnLayerMap) const {
   //Each event to be treated as two events: an event in +ve endcap,
   //plus another event in -ve endcap. In this spirit there will be
   //a layer variable (layerid) that maps the layers in :
