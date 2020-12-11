@@ -32,7 +32,7 @@ private:
   edm::ParameterSet scalings_;
   std::vector<double> theScalings_;
 
-  trigger::TriggerObjectType typeOfL1TSum(std::string const&) const;
+  static trigger::TriggerObjectType typeOfL1TSum(std::string const&);
 
   double offlineEnergySum(double const Et) const;
 };
@@ -52,7 +52,7 @@ template <typename T>
 L1TEnergySumFilterT<T>::~L1TEnergySumFilterT() = default;
 
 template <typename T>
-trigger::TriggerObjectType L1TEnergySumFilterT<T>::typeOfL1TSum(std::string const& typeOfSum) const {
+trigger::TriggerObjectType L1TEnergySumFilterT<T>::typeOfL1TSum(std::string const& typeOfSum) {
   trigger::TriggerObjectType sumEnum;
 
   if (typeOfSum == "MET")
@@ -111,9 +111,7 @@ bool L1TEnergySumFilterT<T>::hltFilter(edm::Event& iEvent,
     } else if (l1tSumType_ == trigger::TriggerObjectType::TriggerL1PFETT or
                l1tSumType_ == trigger::TriggerObjectType::TriggerL1PFHT) {
       offlinePt = offlineEnergySum(iSum->sumEt());
-    } else {
-      throw cms::Exception("Input") << "Invalid trigger::TriggerObjectType enum: " << l1tSumType_;
-    }
+    } 
 
     if (offlinePt >= minPt_) {
       ++nSum;
