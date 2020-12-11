@@ -37,6 +37,7 @@ private:
 
   bool fromDD4hep_;
   std::string compactViewTag_;
+  bool isRun2_;
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> ddToken_;
   edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> dd4hepToken_;
   edm::ESWatcher<IdealGeometryRecord> watcherIdealGeometry_;
@@ -46,6 +47,7 @@ private:
 PPSGeometryBuilder::PPSGeometryBuilder(const edm::ParameterSet& iConfig)
     : fromDD4hep_(iConfig.getUntrackedParameter<bool>("fromDD4hep", false)),
       compactViewTag_(iConfig.getUntrackedParameter<std::string>("compactViewTag", "XMLIdealGeometryESSource_CTPPS")),
+      isRun2_(iConfig.getUntrackedParameter<bool>("isRun2", false)),
       ddToken_(esConsumes(edm::ESInputTag("", compactViewTag_))),
       dd4hepToken_(esConsumes(edm::ESInputTag("", compactViewTag_))) {}
 
@@ -63,7 +65,7 @@ void PPSGeometryBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup
       auto const& myCompactView = iSetup.getData(ddToken_);
 
       // Build geometry
-      geoInfoRoot = detgeomdescbuilder::buildDetGeomDescFromCompactView(myCompactView);
+      geoInfoRoot = detgeomdescbuilder::buildDetGeomDescFromCompactView(myCompactView, isRun2_);
     }
     // DD4hep
     else {
@@ -71,7 +73,7 @@ void PPSGeometryBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup
       auto const& myCompactView = iSetup.getData(dd4hepToken_);
 
       // Build geometry
-      geoInfoRoot = detgeomdescbuilder::buildDetGeomDescFromCompactView(myCompactView);
+      geoInfoRoot = detgeomdescbuilder::buildDetGeomDescFromCompactView(myCompactView, isRun2_);
     }
   }
 

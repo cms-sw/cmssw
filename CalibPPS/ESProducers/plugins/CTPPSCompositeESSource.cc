@@ -66,6 +66,7 @@ private:
   std::string opticsLabel_;
   unsigned int generateEveryNEvents_;
   unsigned int verbosity_;
+  const bool isRun2_;
 
   // ES tokens
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> tokenCompactViewReal_, tokenCompactViewMisaligned_;
@@ -126,6 +127,7 @@ CTPPSCompositeESSource::CTPPSCompositeESSource(const edm::ParameterSet &conf)
       opticsLabel_(conf.getParameter<std::string>("opticsLabel")),
       generateEveryNEvents_(conf.getUntrackedParameter<unsigned int>("generateEveryNEvents")),
       verbosity_(conf.getUntrackedParameter<unsigned int>("verbosity")),
+      isRun2_(conf.getParameter<bool>("isRun2")),
       m_engine_(new CLHEP::HepJamesRandom(conf.getParameter<unsigned int>("seed"))) {
   double l_int_sum = 0;
 
@@ -174,6 +176,7 @@ void CTPPSCompositeESSource::fillDescriptions(edm::ConfigurationDescriptions &de
   desc.add<std::string>("lhcInfoLabel", "")->setComment("label of the LHCInfo record");
   desc.add<std::string>("opticsLabel", "")->setComment("label of the optics record");
   desc.add<unsigned int>("seed", 1)->setComment("random seed");
+  desc.add<bool>("isRun2", false)->setComment("use diamond's run 2 geometry definition?");
   desc.addUntracked<unsigned int>("generateEveryNEvents", 1)->setComment("how often to switch conditions");
   desc.addUntracked<unsigned int>("verbosity", 0);
 
@@ -259,7 +262,7 @@ void CTPPSCompositeESSource::buildDirectSimuData(const edm::ParameterSet &profil
 //----------------------------------------------------------------------------------------------------
 
 void CTPPSCompositeESSource::buildGeometry(const DDCompactView &cpv) {
-  std::unique_ptr<DetGeomDesc> idealGD = detgeomdescbuilder::buildDetGeomDescFromCompactView(cpv);
+  std::unique_ptr<DetGeomDesc> idealGD = detgeomdescbuilder::buildDetGeomDescFromCompactView(cpv, isRun2_);
 
   for (auto &pb : profile_bins_) {
     auto &p = pb.data;

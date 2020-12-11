@@ -9,14 +9,16 @@ profile_base_2016 = profile_base.clone(
   )
 )
 
-# geometry
-from Geometry.VeryForwardGeometry.geometryRPFromDD_2017_cfi import * # using 2017 here is OK
-ctppsCompositeESSource.compactViewTag = ctppsGeometryESModule.compactViewTag
-del ctppsGeometryESModule # this functionality is replaced by the composite ES source
+# geometry (using 2017 here is OK)
+from Geometry.VeryForwardGeometry.geometryRPFromDD_2017_cfi import totemGeomXMLFiles, ctppsDiamondGeomXMLFiles, ctppsUFSDGeomXMLFiles, ctppsPixelGeomXMLFiles
+from Geometry.VeryForwardGeometry.geometryRPFromDD_2017_cfi import XMLIdealGeometryESSource_CTPPS
+from Geometry.VeryForwardGeometry.geometryRPFromDD_2017_cfi import ctppsGeometryESModule as _geom
+ctppsCompositeESSource.compactViewTag = _geom.compactViewTag
+ctppsCompositeESSource.isRun2 = _geom.isRun2
 
 # local reconstruction
 ctppsLocalTrackLiteProducer.includeStrips = True
-ctppsLocalTrackLiteProducer.includePixels = False 
+ctppsLocalTrackLiteProducer.includePixels = False
 
 reco_local = cms.Sequence(
   totemRPUVPatternFinder
