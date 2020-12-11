@@ -719,8 +719,8 @@ namespace edm {
     std::vector<std::string> modulesToUse;
     modulesToUse.reserve(streamSchedules_[0]->allWorkers().size());
     for (auto const& worker : streamSchedules_[0]->allWorkers()) {
-      if (worker->description().moduleLabel() != kTriggerResults) {
-        modulesToUse.push_back(worker->description().moduleLabel());
+      if (worker->description()->moduleLabel() != kTriggerResults) {
+        modulesToUse.push_back(worker->description()->moduleLabel());
       }
     }
     //The unscheduled modules are at the end of the list, but we want them at the front
@@ -752,8 +752,8 @@ namespace edm {
     // reduceParameterSet would fail to find it. Just remove it up front.
     std::set<std::string> usedModuleLabels;
     for (auto const& worker : allWorkers()) {
-      if (worker->description().moduleLabel() != kTriggerResults) {
-        usedModuleLabels.insert(worker->description().moduleLabel());
+      if (worker->description()->moduleLabel() != kTriggerResults) {
+        usedModuleLabels.insert(worker->description()->moduleLabel());
       }
     }
     std::vector<std::string> modulesInConfig(proc_pset.getParameter<std::vector<std::string>>("@all_modules"));
@@ -841,11 +841,13 @@ namespace edm {
       std::transform(workers.begin(),
                      workers.end(),
                      std::back_inserter(modDesc),
-                     [](const Worker* iWorker) -> const ModuleDescription* { return iWorker->descPtr(); });
+                     [](const Worker* iWorker) -> const ModuleDescription* { return iWorker->description(); });
 
       // propagate_const<T> has no reset() function
       summaryTimeKeeper_ = std::make_unique<SystemTimeKeeper>(prealloc.numberOfStreams(), modDesc, tns, processContext);
       auto timeKeeperPtr = summaryTimeKeeper_.get();
+
+      areg->watchPreModuleDestruction(timeKeeperPtr, &SystemTimeKeeper::removeModuleIfExists);
 
       areg->watchPreModuleEvent(timeKeeperPtr, &SystemTimeKeeper::startModuleEvent);
       areg->watchPostModuleEvent(timeKeeperPtr, &SystemTimeKeeper::stopModuleEvent);
@@ -1381,7 +1383,7 @@ namespace edm {
                               eventsetup::ESRecordsToProxyIndices const& iIndices) {
     Worker* found = nullptr;
     for (auto const& worker : allWorkers()) {
-      if (worker->description().moduleLabel() == iLabel) {
+      if (worker->description()->moduleLabel() == iLabel) {
         found = worker;
         break;
       }
@@ -1424,12 +1426,20 @@ namespace edm {
     return true;
   }
 
+  void Schedule::deleteModule(std::string const& iLabel, ActivityRegistry* areg) {
+    globalSchedule_->deleteModule(iLabel);
+    for (auto& stream : streamSchedules_) {
+      stream->deleteModule(iLabel);
+    }
+    moduleRegistry_->deleteModule(iLabel, areg->preModuleDestructionSignal_, areg->postModuleDestructionSignal_);
+  }
+
   std::vector<ModuleDescription const*> Schedule::getAllModuleDescriptions() const {
     std::vector<ModuleDescription const*> result;
     result.reserve(allWorkers().size());
 
     for (auto const& worker : allWorkers()) {
-      ModuleDescription const* p = worker->descPtr();
+      ModuleDescription const* p = worker->description();
       result.push_back(p);
     }
     return result;
@@ -1470,20 +1480,27 @@ namespace edm {
   void Schedule::fillModuleAndConsumesInfo(
       std::vector<ModuleDescription const*>& allModuleDescriptions,
       std::vector<std::pair<unsigned int, unsigned int>>& moduleIDToIndex,
-      std::vector<std::vector<ModuleDescription const*>>& modulesWhoseProductsAreConsumedBy,
+      std::array<std::vector<std::vector<ModuleDescription const*>>, NumBranchTypes>& modulesWhoseProductsAreConsumedBy,
+      std::vector<std::vector<ModuleProcessName>>& modulesInPreviousProcessesWhoseProductsAreConsumedBy,
       ProductRegistry const& preg) const {
     allModuleDescriptions.clear();
     moduleIDToIndex.clear();
-    modulesWhoseProductsAreConsumedBy.clear();
+    for (auto iBranchType = 0U; iBranchType < NumBranchTypes; ++iBranchType) {
+      modulesWhoseProductsAreConsumedBy[iBranchType].clear();
+    }
+    modulesInPreviousProcessesWhoseProductsAreConsumedBy.clear();
 
     allModuleDescriptions.reserve(allWorkers().size());
     moduleIDToIndex.reserve(allWorkers().size());
-    modulesWhoseProductsAreConsumedBy.resize(allWorkers().size());
+    for (auto iBranchType = 0U; iBranchType < NumBranchTypes; ++iBranchType) {
+      modulesWhoseProductsAreConsumedBy[iBranchType].resize(allWorkers().size());
+    }
+    modulesInPreviousProcessesWhoseProductsAreConsumedBy.resize(allWorkers().size());
 
     std::map<std::string, ModuleDescription const*> labelToDesc;
     unsigned int i = 0;
     for (auto const& worker : allWorkers()) {
-      ModuleDescription const* p = worker->descPtr();
+      ModuleDescription const* p = worker->description();
       allModuleDescriptions.push_back(p);
       moduleIDToIndex.push_back(std::pair<unsigned int, unsigned int>(p->id(), i));
       labelToDesc[p->moduleLabel()] = p;
@@ -1493,12 +1510,18 @@ namespace edm {
 
     i = 0;
     for (auto const& worker : allWorkers()) {
-      std::vector<ModuleDescription const*>& modules = modulesWhoseProductsAreConsumedBy.at(i);
+      std::array<std::vector<ModuleDescription const*>*, NumBranchTypes> modules;
+      for (auto iBranchType = 0U; iBranchType < NumBranchTypes; ++iBranchType) {
+        modules[iBranchType] = &modulesWhoseProductsAreConsumedBy[iBranchType].at(i);
+      }
+
+      std::vector<ModuleProcessName>& modulesInPreviousProcesses =
+          modulesInPreviousProcessesWhoseProductsAreConsumedBy.at(i);
       try {
-        worker->modulesWhoseProductsAreConsumed(modules, preg, labelToDesc);
+        worker->modulesWhoseProductsAreConsumed(modules, modulesInPreviousProcesses, preg, labelToDesc);
       } catch (cms::Exception& ex) {
         ex.addContext("Calling Worker::modulesWhoseProductsAreConsumed() for module " +
-                      worker->description().moduleLabel());
+                      worker->description()->moduleLabel());
         throw;
       }
       ++i;

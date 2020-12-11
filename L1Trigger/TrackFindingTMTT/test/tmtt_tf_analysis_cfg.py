@@ -26,7 +26,6 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.categories.append('L1track')
 process.MessageLogger.L1track = cms.untracked.PSet(limit = cms.untracked.int32(-1))
 
 options = VarParsing.VarParsing ('analysis')

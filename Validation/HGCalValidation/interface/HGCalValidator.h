@@ -54,7 +54,9 @@ public:
   void cpParametersAndSelection(const Histograms& histograms,
                                 std::vector<CaloParticle> const& cPeff,
                                 std::vector<SimVertex> const& simVertices,
-                                std::vector<size_t>& selected_cPeff) const;
+                                std::vector<size_t>& selected_cPeff,
+                                unsigned int layers,
+                                std::unordered_map<DetId, const HGCRecHit*> const&) const;
 
 protected:
   edm::InputTag label_lcl;

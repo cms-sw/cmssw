@@ -64,10 +64,9 @@ process.load('FWCore/MessageService/MessageLogger_cfi')
 process.MessageLogger.cerr.FwkReport.reportEvery = 500
 keep_msgs = [options.producer,options.producer+':TritonClient','TritonClient']
 for msg in keep_msgs:
-    process.MessageLogger.categories.append(msg)
+    
     setattr(process.MessageLogger.cerr,msg,
         cms.untracked.PSet(
-            optionalPSet = cms.untracked.bool(True),
             limit = cms.untracked.int32(10000000),
         )
     )

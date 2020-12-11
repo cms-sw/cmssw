@@ -121,11 +121,10 @@ process.options = cms.untracked.PSet(
 process.load("CommonTools.UtilAlgos.TFileService_cfi")
 
 # enable debug message logging for our modules
-#process.MessageLogger.categories.append('L1TCaloEvents')
+#
 
 if (options.dumpRaw):
-    process.MessageLogger.destinations.append('infos')
-    process.MessageLogger.infos = cms.untracked.PSet(INFO = cms.untracked.PSet(limit = cms.untracked.int32(0)))
+    process.MessageLogger.files.infos = cms.untracked.PSet(INFO = cms.untracked.PSet(limit = cms.untracked.int32(0)))
 
 if (options.debug):
 #    process.MessageLogger.debugModules = cms.untracked.vstring('L1TRawToDigi:caloStage2Digis', 'MP7BufferDumpToRaw:stage2MPRaw', 'MP7BufferDumpToRaw:stage2DemuxRaw')

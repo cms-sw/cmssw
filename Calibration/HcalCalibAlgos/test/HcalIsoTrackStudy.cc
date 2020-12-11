@@ -185,6 +185,15 @@ private:
   edm::EDGetTokenT<GenEventInfoProduct> tok_ew_;
   edm::EDGetTokenT<BXVector<GlobalAlgBlk>> tok_alg_;
 
+  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_ddrec_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_bFieldH_;
+  edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> tok_ecalChStatus_;
+  edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> tok_sevlv_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  edm::ESGetToken<CaloTopology, CaloTopologyRecord> tok_caloTopology_;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
+  edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_resp_;
+
   TTree *tree, *tree2;
   unsigned int t_RunNo, t_EventNo;
   int t_Run, t_Event, t_DataType, t_ieta, t_iphi;
@@ -346,6 +355,15 @@ HcalIsoTrackStudy::HcalIsoTrackStudy(const edm::ParameterSet& iConfig)
     edm::LogVerbatim("HcalIsoTrack") << "Trigger[" << k << "] " << trigNames_[k];
   }
 
+  tok_ddrec_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>();
+  tok_bFieldH_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
+  tok_ecalChStatus_ = esConsumes<EcalChannelStatus, EcalChannelStatusRcd>();
+  tok_sevlv_ = esConsumes<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd>();
+  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
+  tok_caloTopology_ = esConsumes<CaloTopology, CaloTopologyRecord>();
+  tok_htopo_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
+  tok_resp_ = esConsumes<HcalRespCorrs, HcalRespCorrsRcd>();
+
   for (int i = 0; i < 10; i++)
     phibins_.push_back(-M_PI + 0.1 * (2 * i + 1) * M_PI);
   for (int i = 0; i < 8; ++i)
@@ -376,34 +394,16 @@ void HcalIsoTrackStudy::analyze(edm::Event const& iEvent, edm::EventSetup const&
                                    << " Luminosity " << iEvent.luminosityBlock() << " Bunch " << iEvent.bunchCrossing();
 #endif
   //Get magnetic field and ECAL channel status
-  edm::ESHandle<MagneticField> bFieldH;
-  iSetup.get<IdealMagneticFieldRecord>().get(bFieldH);
-  const MagneticField* bField = bFieldH.product();
-
-  edm::ESHandle<EcalChannelStatus> ecalChStatus;
-  iSetup.get<EcalChannelStatusRcd>().get(ecalChStatus);
-  const EcalChannelStatus* theEcalChStatus = ecalChStatus.product();
-
-  edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
-  iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
-  const EcalSeverityLevelAlgo* theEcalSevlv = sevlv.product();
+  const MagneticField* bField = &iSetup.getData(tok_bFieldH_);
+  const EcalChannelStatus* theEcalChStatus = &iSetup.getData(tok_ecalChStatus_);
+  const EcalSeverityLevelAlgo* theEcalSevlv = &iSetup.getData(tok_sevlv_);
 
   // get handles to calogeometry and calotopology
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
-  const CaloGeometry* geo = pG.product();
-
-  edm::ESHandle<CaloTopology> theCaloTopology;
-  iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
-  const CaloTopology* caloTopology = theCaloTopology.product();
-
-  edm::ESHandle<HcalTopology> htopo;
-  iSetup.get<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology* theHBHETopology = htopo.product();
-
-  edm::ESHandle<HcalRespCorrs> resp;
-  iSetup.get<HcalRespCorrsRcd>().get(resp);
-  HcalRespCorrs* respCorrs = new HcalRespCorrs(*resp.product());
+  const CaloGeometry* geo = &iSetup.getData(tok_geom_);
+  const CaloTopology* caloTopology = &iSetup.getData(tok_caloTopology_);
+  const HcalTopology* theHBHETopology = &iSetup.getData(tok_htopo_);
+  const HcalRespCorrs resp = iSetup.getData(tok_resp_);
+  HcalRespCorrs* respCorrs = new HcalRespCorrs(resp);
   respCorrs->setTopo(theHBHETopology);
 
   //=== genParticle information
@@ -791,9 +791,7 @@ void HcalIsoTrackStudy::beginJob() {
 
 // ------------ method called when starting to processes a run  ------------
 void HcalIsoTrackStudy::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
-  edm::ESHandle<HcalDDDRecConstants> pHRNDC;
-  iSetup.get<HcalRecNumberingRecord>().get(pHRNDC);
-  hdc_ = pHRNDC.product();
+  hdc_ = &iSetup.getData(tok_ddrec_);
 
   bool changed_(true);
   bool flag = hltConfig_.init(iRun, iSetup, processName_, changed_);

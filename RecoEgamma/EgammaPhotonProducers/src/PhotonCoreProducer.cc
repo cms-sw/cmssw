@@ -1,19 +1,64 @@
-#include <iostream>
-#include <vector>
-#include <memory>
+/** \class PhotonCoreProducer
+ **  
+ **
+ **  \author Nancy Marinelli, U. of Notre Dame, US
+ **
+ ***/
 
-// Framework
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "DataFormats/EgammaReco/interface/ClusterShape.h"
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
-
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonCore.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
+#include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
-#include "RecoCaloTools/Selectors/interface/CaloConeSelector.h"
-#include "RecoEgamma/EgammaPhotonProducers/interface/PhotonCoreProducer.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
+#include <vector>
+
+// PhotonCoreProducer inherits from EDProducer, so it can be a module:
+class PhotonCoreProducer : public edm::stream::EDProducer<> {
+public:
+  PhotonCoreProducer(const edm::ParameterSet& ps);
+  ~PhotonCoreProducer() override;
+
+  void produce(edm::Event& evt, const edm::EventSetup& es) override;
+
+private:
+  void fillPhotonCollection(edm::Event& evt,
+                            edm::EventSetup const& es,
+                            const edm::Handle<reco::SuperClusterCollection>& scHandle,
+                            const edm::Handle<reco::ConversionCollection>& conversionHandle,
+                            const edm::Handle<reco::ElectronSeedCollection>& pixelSeeds,
+                            reco::PhotonCoreCollection& outputCollection,
+                            int& iSC);
+
+  reco::ConversionRef solveAmbiguity(const edm::Handle<reco::ConversionCollection>& conversionHandle,
+                                     reco::SuperClusterRef& sc);
+
+  std::string PhotonCoreCollection_;
+  edm::EDGetTokenT<reco::SuperClusterCollection> scHybridBarrelProducer_;
+  edm::EDGetTokenT<reco::SuperClusterCollection> scIslandEndcapProducer_;
+  edm::EDGetTokenT<reco::ConversionCollection> conversionProducer_;
+  edm::EDGetTokenT<reco::ElectronSeedCollection> pixelSeedProducer_;
+
+  double minSCEt_;
+  bool validConversions_;
+  edm::ParameterSet conf_;
+  bool validPixelSeeds_;
+  bool risolveAmbiguity_;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(PhotonCoreProducer);
 
 PhotonCoreProducer::PhotonCoreProducer(const edm::ParameterSet& config)
     : conf_(config)

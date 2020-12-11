@@ -19,8 +19,6 @@
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 //
 // Constructors
@@ -39,7 +37,7 @@ SiPixelDigiModule::~SiPixelDigiModule() {}
 // Book histograms
 //
 void SiPixelDigiModule::book(const edm::ParameterSet& iConfig,
-                             const edm::EventSetup& iSetup,
+                             const TrackerTopology* pTT,
                              DQMStore::IBooker& iBooker,
                              int type,
                              bool twoD,
@@ -47,11 +45,6 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig,
                              bool reducedSet,
                              bool additInfo,
                              bool isUpgrade) {
-  //isUpgrade = iConfig.getUntrackedParameter<bool>("isUpgrade");
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* pTT = tTopoHandle.product();
-
   bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
   bool isHalfModule = false;
@@ -321,7 +314,7 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig,
 // Fill histograms
 //
 int SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input,
-                            const edm::EventSetup& iSetup,
+                            const TrackerTopology* pTT,
                             MonitorElement* combBarrel,
                             MonitorElement* chanBarrel,
                             std::vector<MonitorElement*>& chanBarrelL,
@@ -340,10 +333,6 @@ int SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input,
                             int& nDigisA,
                             int& nDigisB,
                             bool isUpgrade) {
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* pTT = tTopoHandle.product();
-
   bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
   bool isHalfModule = false;

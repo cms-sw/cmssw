@@ -21,15 +21,13 @@
 // Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 // DQM Framework
 #include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 // Geometry
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 // DataFormats
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
@@ -37,7 +35,6 @@
 #include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 //
 #include <cstdlib>
 #include <string>
@@ -71,6 +68,12 @@ SiPixelClusterSource::SiPixelClusterSource(const edm::ParameterSet &iConfig)
   // set Token(-s)
   srcToken_ = consumes<edmNew::DetSetVector<SiPixelCluster>>(conf_.getParameter<edm::InputTag>("src"));
   digisrcToken_ = consumes<edm::DetSetVector<PixelDigi>>(conf_.getParameter<edm::InputTag>("digisrc"));
+
+  trackerTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
+  trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
+  trackerTopoTokenBeginRun_ = esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>();
+  trackerGeomTokenBeginRun_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>();
+
   firstRun = true;
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
 }
@@ -228,16 +231,14 @@ void SiPixelClusterSource::analyze(const edm::Event &iEvent, const edm::EventSet
   iEvent.getByToken(srcToken_, input);
   auto const &clustColl = *(input.product());
 
-  edm::ESHandle<TrackerGeometry> pDD;
-  iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
+  edm::ESHandle<TrackerGeometry> pDD = iSetup.getHandle(trackerGeomToken_);
   const TrackerGeometry *tracker = &(*pDD);
 
   edm::Handle<edm::DetSetVector<PixelDigi>> digiinput;
   iEvent.getByToken(digisrcToken_, digiinput);
   const edm::DetSetVector<PixelDigi> diginp = *(digiinput.product());
 
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopoToken_);
   const TrackerTopology *pTT = tTopoHandle.product();
 
   int lumiSection = (int)iEvent.luminosityBlock();
@@ -251,6 +252,7 @@ void SiPixelClusterSource::analyze(const edm::Event &iEvent, const edm::EventSet
   for (struct_iter = thePixelStructure.begin(); struct_iter != thePixelStructure.end(); struct_iter++) {
     int numberOfFpixClusters = (*struct_iter)
                                    .second->fill(*input,
+                                                 pTT,
                                                  tracker,
                                                  &nEventsBarrel,
                                                  &nEventsFPIXp,
@@ -311,11 +313,9 @@ void SiPixelClusterSource::analyze(const edm::Event &iEvent, const edm::EventSet
 //------------------------------------------------------------------
 void SiPixelClusterSource::buildStructure(const edm::EventSetup &iSetup) {
   LogInfo("PixelDQM") << " SiPixelClusterSource::buildStructure";
-  edm::ESHandle<TrackerGeometry> pDD;
-  iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
+  edm::ESHandle<TrackerGeometry> pDD = iSetup.getHandle(trackerGeomTokenBeginRun_);
 
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopoTokenBeginRun_);
   const TrackerTopology *pTT = tTopoHandle.product();
 
   LogVerbatim("PixelDQM") << " *** Geometry node for TrackerGeom is  " << &(*pDD) << std::endl;
@@ -396,11 +396,14 @@ void SiPixelClusterSource::bookMEs(DQMStore::IBooker &iBooker, const edm::EventS
 
   SiPixelFolderOrganizer theSiPixelFolder(false);
 
+  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopoTokenBeginRun_);
+  const TrackerTopology *pTT = tTopoHandle.product();
+
   for (struct_iter = thePixelStructure.begin(); struct_iter != thePixelStructure.end(); struct_iter++) {
     /// Create folder tree and book histograms
     if (modOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*struct_iter).first, 0, isUpgrade)) {
-        (*struct_iter).second->book(conf_, iSetup, iBooker, 0, twoDimOn, reducedSet, isUpgrade);
+        (*struct_iter).second->book(conf_, pTT, iBooker, 0, twoDimOn, reducedSet, isUpgrade);
       } else {
         if (!isPIB)
           throw cms::Exception("LogicError") << "[SiPixelClusterSource::bookMEs] Creation of DQM folder "
@@ -409,49 +412,49 @@ void SiPixelClusterSource::bookMEs(DQMStore::IBooker &iBooker, const edm::EventS
     }
     if (ladOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*struct_iter).first, 1, isUpgrade)) {
-        (*struct_iter).second->book(conf_, iSetup, iBooker, 1, twoDimOn, reducedSet, isUpgrade);
+        (*struct_iter).second->book(conf_, pTT, iBooker, 1, twoDimOn, reducedSet, isUpgrade);
       } else {
         LogDebug("PixelDQM") << "PROBLEM WITH LADDER-FOLDER\n";
       }
     }
     if (layOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*struct_iter).first, 2, isUpgrade)) {
-        (*struct_iter).second->book(conf_, iSetup, iBooker, 2, twoDimOn, reducedSet, isUpgrade);
+        (*struct_iter).second->book(conf_, pTT, iBooker, 2, twoDimOn, reducedSet, isUpgrade);
       } else {
         LogDebug("PixelDQM") << "PROBLEM WITH LAYER-FOLDER\n";
       }
     }
     if (phiOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*struct_iter).first, 3, isUpgrade)) {
-        (*struct_iter).second->book(conf_, iSetup, iBooker, 3, twoDimOn, reducedSet, isUpgrade);
+        (*struct_iter).second->book(conf_, pTT, iBooker, 3, twoDimOn, reducedSet, isUpgrade);
       } else {
         LogDebug("PixelDQM") << "PROBLEM WITH PHI-FOLDER\n";
       }
     }
     if (bladeOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*struct_iter).first, 4, isUpgrade)) {
-        (*struct_iter).second->book(conf_, iSetup, iBooker, 4, twoDimOn, reducedSet, isUpgrade);
+        (*struct_iter).second->book(conf_, pTT, iBooker, 4, twoDimOn, reducedSet, isUpgrade);
       } else {
         LogDebug("PixelDQM") << "PROBLEM WITH BLADE-FOLDER\n";
       }
     }
     if (diskOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*struct_iter).first, 5, isUpgrade)) {
-        (*struct_iter).second->book(conf_, iSetup, iBooker, 5, twoDimOn, reducedSet, isUpgrade);
+        (*struct_iter).second->book(conf_, pTT, iBooker, 5, twoDimOn, reducedSet, isUpgrade);
       } else {
         LogDebug("PixelDQM") << "PROBLEM WITH DISK-FOLDER\n";
       }
     }
     if (ringOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*struct_iter).first, 6, isUpgrade)) {
-        (*struct_iter).second->book(conf_, iSetup, iBooker, 6, twoDimOn, reducedSet, isUpgrade);
+        (*struct_iter).second->book(conf_, pTT, iBooker, 6, twoDimOn, reducedSet, isUpgrade);
       } else {
         LogDebug("PixelDQM") << "PROBLEM WITH RING-FOLDER\n";
       }
     }
     if (smileyOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*struct_iter).first, 7, isUpgrade)) {
-        (*struct_iter).second->book(conf_, iSetup, iBooker, 7, twoDimOn, reducedSet, isUpgrade);
+        (*struct_iter).second->book(conf_, pTT, iBooker, 7, twoDimOn, reducedSet, isUpgrade);
       } else {
         LogDebug("PixelDQM") << "PROBLEM WITH BARREL-FOLDER\n";
       }

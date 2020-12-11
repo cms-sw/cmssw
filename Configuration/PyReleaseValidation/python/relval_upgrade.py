@@ -39,7 +39,7 @@ for year in upgradeKeys:
                 if 'HARVEST' in step: hasHarvest = True
 
                 for specialType,specialWF in six.iteritems(upgradeWFs):
-                    if (specialType is not 'baseline') and ( ('PU' in step and step.replace('PU','') in specialWF.PU) or (step in specialWF.steps) ):
+                    if (specialType != 'baseline') and ( ('PU' in step and step.replace('PU','') in specialWF.PU) or (step in specialWF.steps) ):
                         stepList[specialType].append(stepMaker(key,frag[:-4],step,specialWF.suffix))
                         # hack to add an extra step
                         if (specialType == 'ProdLike' or specialType == 'TestOldDigiProdLike') and 'RecoGlobal' in step:

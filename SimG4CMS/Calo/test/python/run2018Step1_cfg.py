@@ -26,9 +26,9 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.categories.append('G4cout')
-    process.MessageLogger.categories.append('G4cerr')
-    process.MessageLogger.categories.append('ParticleGun')
+    process.MessageLogger.G4cout=dict()
+    process.MessageLogger.G4cerr=dict()
+    process.MessageLogger.ParticleGun=dict()
 
 # Input source
 process.source = cms.Source("EmptySource")

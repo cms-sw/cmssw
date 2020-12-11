@@ -55,13 +55,11 @@ process.CSCGeometryESModule.useGangedStripsInME1a = False
 ### that can be activated independentl
 ##################################################################
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.categories.append("GEMCSCSegment")
-process.MessageLogger.categories.append("GEMCSCSegmentBuilder")
-# process.MessageLogger.categories.append("GEMCSCSegAlgoRR")
-# process.MessageLogger.categories.append("GEMCSCSegFit")
 process.MessageLogger.debugModules = cms.untracked.vstring("*")
-process.MessageLogger.destinations = cms.untracked.vstring("cout","junk")
+process.MessageLogger.cerr.enable = False
+process.MessageLogger.files.junk = dict()
 process.MessageLogger.cout = cms.untracked.PSet(
+    enable    = cms.untracked.bool(True),
     threshold = cms.untracked.string("DEBUG"),
     default = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
     FwkReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
@@ -73,9 +71,8 @@ process.MessageLogger.cout = cms.untracked.PSet(
 ##################################################################
 ### TO ACTIVATE LogVerbatim IN GEMCSCSegment
 ### --------------------------------------------------------------
-# process.MessageLogger.categories.append("GEMCSCSegment")
-# process.MessageLogger.categories.append("GEMCSCSegFit")
-# process.MessageLogger.destinations = cms.untracked.vstring("cout")
+# process.MessageLogger.GEMCSCSegment=dict()
+# process.MessageLogger.GEMCSCSegFit=dict()
 # process.MessageLogger.cout = cms.untracked.PSet(
 #     threshold = cms.untracked.string("INFO"),
 #     default   = cms.untracked.PSet( limit = cms.untracked.int32(0)  ),

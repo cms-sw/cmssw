@@ -17,7 +17,6 @@
 #include "DataFormats/SiPixelCluster/interface/SiPixelClusterShapeCache.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -83,6 +82,10 @@ namespace {
     edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
     edm::EDGetTokenT<reco::VertexCollection> offlinePrimaryVerticesToken_;
     edm::EDGetTokenT<SiPixelClusterShapeCache> pixelClusterShapeCacheToken_;
+
+    edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoToken_;
+    edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
+    edm::ESGetToken<ClusterShapeHitFilter, CkfComponentsRecord> clusterShapeHitFilterToken_;
   };
 
   SiPixelPhase1TrackClusters::SiPixelPhase1TrackClusters(const edm::ParameterSet& iConfig)
@@ -95,6 +98,11 @@ namespace {
 
     pixelClusterShapeCacheToken_ =
         consumes<SiPixelClusterShapeCache>(iConfig.getParameter<edm::InputTag>("clusterShapeCache"));
+
+    trackerTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
+    trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
+    clusterShapeHitFilterToken_ =
+        esConsumes<ClusterShapeHitFilter, CkfComponentsRecord>(edm::ESInputTag("", "ClusterShapeHitFilter"));
   }
 
   void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -108,16 +116,13 @@ namespace {
     }
 
     // get geometry
-    edm::ESHandle<TrackerGeometry> tracker;
-    iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
+    edm::ESHandle<TrackerGeometry> tracker = iSetup.getHandle(trackerGeomToken_);
     assert(tracker.isValid());
 
-    edm::ESHandle<TrackerTopology> tTopoHandle;
-    iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+    edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopoToken_);
     auto const& tkTpl = *tTopoHandle;
 
-    edm::ESHandle<ClusterShapeHitFilter> shapeFilterH;
-    iSetup.get<CkfComponentsRecord>().get("ClusterShapeHitFilter", shapeFilterH);
+    edm::ESHandle<ClusterShapeHitFilter> shapeFilterH = iSetup.getHandle(clusterShapeHitFilterToken_);
     auto const& shapeFilter = *shapeFilterH;
 
     edm::Handle<reco::VertexCollection> vertices;

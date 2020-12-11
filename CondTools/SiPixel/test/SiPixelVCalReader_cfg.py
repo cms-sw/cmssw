@@ -55,8 +55,13 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string(outfile)
 )
 process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout'),
-    cout = cms.untracked.PSet(threshold = cms.untracked.string(threshold))
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('WARNING')
+    )
 )
 process.Timing = cms.Service("Timing")
 

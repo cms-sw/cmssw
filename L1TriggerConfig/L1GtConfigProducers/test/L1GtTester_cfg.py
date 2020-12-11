@@ -128,28 +128,22 @@ else :
 # services
 
 # Message Logger
-process.MessageLogger.categories.append('L1GtPrescaleFactorsAndMasksTester')
-process.MessageLogger.destinations = ['L1GtTester_errors', 
-                                      'L1GtTester_warnings', 
-                                      'L1GtTester_info', 
-                                      'L1GtTester_debug'
-                                      ]
-process.MessageLogger.statistics = []
+process.MessageLogger.cerr.enable = False
 
-process.MessageLogger.L1GtTester_errors = cms.untracked.PSet( 
+process.MessageLogger.files.L1GtTester_errors = cms.untracked.PSet( 
         threshold = cms.untracked.string('ERROR'),
         ERROR = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
         L1GtPrescaleFactorsAndMasksTester = cms.untracked.PSet( limit = cms.untracked.int32(-1) ) 
        )
 
-process.MessageLogger.L1GtTester_warnings = cms.untracked.PSet( 
+process.MessageLogger.files.L1GtTester_warnings = cms.untracked.PSet( 
         threshold = cms.untracked.string('WARNING'),
         WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         ERROR = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         L1GtPrescaleFactorsAndMasksTester = cms.untracked.PSet( limit = cms.untracked.int32(-1) ) 
         )
 
-process.MessageLogger.L1GtTester_info = cms.untracked.PSet( 
+process.MessageLogger.files.L1GtTester_info = cms.untracked.PSet( 
         threshold = cms.untracked.string('INFO'),
         INFO = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
@@ -157,7 +151,7 @@ process.MessageLogger.L1GtTester_info = cms.untracked.PSet(
         L1GtPrescaleFactorsAndMasksTester = cms.untracked.PSet( limit = cms.untracked.int32(-1) ) 
         )
 
-process.MessageLogger.L1GtTester_debug = cms.untracked.PSet( 
+process.MessageLogger.files.L1GtTester_debug = cms.untracked.PSet( 
         threshold = cms.untracked.string('DEBUG'),
         DEBUG = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         INFO = cms.untracked.PSet( limit = cms.untracked.int32(0) ),

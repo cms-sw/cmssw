@@ -38,8 +38,6 @@ OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig)
   m_masterThread = std::thread([&]() {
     /////////////////
     // Initialization
-
-    std::shared_ptr<RunManagerMT> runManagerMaster;
     std::unique_ptr<CustomUIsession> uiSession;
 
     // Lock the mutex (i.e. wait until the creating thread has called cv.wait()
@@ -51,10 +49,7 @@ OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig)
     uiSession = std::make_unique<CustomUIsession>();
 
     // Create the master run manager, and share it to the CMSSW thread
-    runManagerMaster = std::make_shared<RunManagerMT>(iConfig);
-    m_runManagerMaster = runManagerMaster;
-
-    edm::LogVerbatim("SimG4CoreApplication") << "OscarMTMasterThread: initialization of RunManagerMT finished";
+    m_runManagerMaster = std::make_shared<RunManagerMT>(iConfig);
 
     /////////////
     // State loop
@@ -76,12 +71,12 @@ OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig)
       if (m_masterThreadState == ThreadState::BeginRun) {
         // Initialize Geant4
         edm::LogVerbatim("OscarMTMasterThread") << "Master thread: Initializing Geant4";
-        runManagerMaster->initG4(m_pDD, m_pDD4hep, m_pTable);
+        m_runManagerMaster->initG4(m_pDD, m_pDD4hep, m_pTable);
         isG4Alive = true;
       } else if (m_masterThreadState == ThreadState::EndRun) {
         // Stop Geant4
         edm::LogVerbatim("OscarMTMasterThread") << "Master thread: Stopping Geant4";
-        runManagerMaster->stopG4();
+        m_runManagerMaster->stopG4();
         isG4Alive = false;
       } else if (m_masterThreadState == ThreadState::Destruct) {
         edm::LogVerbatim("OscarMTMasterThread") << "Master thread: Breaking out of state loop";
@@ -98,11 +93,9 @@ OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig)
     //////////
     // Cleanup
     edm::LogVerbatim("SimG4CoreApplication") << "OscarMTMasterThread: start RunManagerMT destruction";
-    LogDebug("OscarMTMasterThread") << "Master thread: Am I unique owner of runManagerMaster? "
-                                    << runManagerMaster.unique();
 
     // must be done in this thread, segfault otherwise
-    runManagerMaster.reset();
+    m_runManagerMaster.reset();
     G4PhysicalVolumeStore::Clean();
 
     edm::LogVerbatim("OscarMTMasterThread") << "Master thread: Reseted shared_ptr";

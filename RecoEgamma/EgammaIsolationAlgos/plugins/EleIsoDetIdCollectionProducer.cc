@@ -1,28 +1,71 @@
-#include "RecoEgamma/EgammaIsolationAlgos/plugins/EleIsoDetIdCollectionProducer.h"
+// -*- C++ -*-
+//
+// Package:    EleIsoDetIdCollectionProducer
+// Class:      EleIsoDetIdCollectionProducer
+//
+/**\class EleIsoDetIdCollectionProducer 
+Original author: Matthew LeBourgeois PH/CMG
+Modified from :
+RecoEcal/EgammaClusterProducers/{src,interface}/InterestingDetIdCollectionProducer.{h,cc}
+by Paolo Meridiani PH/CMG
+ 
+Implementation:
+ <Notes on implementation>
+*/
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
-
+#include "DataFormats/DetId/interface/DetIdCollection.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "RecoCaloTools/Selectors/interface/CaloDualConeSelector.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "RecoCaloTools/Selectors/interface/CaloDualConeSelector.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
+class EleIsoDetIdCollectionProducer : public edm::stream::EDProducer<> {
+public:
+  //! ctor
+  explicit EleIsoDetIdCollectionProducer(const edm::ParameterSet&);
+  ~EleIsoDetIdCollectionProducer() override;
+  void beginJob();
+  //! producer
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-#include "DataFormats/DetId/interface/DetIdCollection.h"
+private:
+  // ----------member data ---------------------------
+  edm::EDGetToken recHitsToken_;
+  edm::EDGetToken emObjectToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
+  edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> sevLvToken_;
+  edm::InputTag recHitsLabel_;
+  edm::InputTag emObjectLabel_;
+  double energyCut_;
+  double etCut_;
+  double etCandCut_;
+  double outerRadius_;
+  double innerRadius_;
+  std::string interestingDetIdCollection_;
 
-#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
-#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+  std::vector<int> severitiesexclEB_;
+  std::vector<int> severitiesexclEE_;
+  std::vector<int> flagsexclEB_;
+  std::vector<int> flagsexclEE_;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(EleIsoDetIdCollectionProducer);
 
 EleIsoDetIdCollectionProducer::EleIsoDetIdCollectionProducer(const edm::ParameterSet& iConfig)
     : recHitsToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitsLabel"))),
@@ -80,10 +123,6 @@ void EleIsoDetIdCollectionProducer::produce(edm::Event& iEvent, const edm::Event
 
   edm::ESHandle<CaloGeometry> pG = iSetup.getHandle(caloGeometryToken_);
   const CaloGeometry* caloGeom = pG.product();
-
-  //Get the channel status from the db
-  //edm::ESHandle<EcalChannelStatus> chStatus;
-  //iSetup.get<EcalChannelStatusRcd>().get(chStatus);
 
   edm::ESHandle<EcalSeverityLevelAlgo> sevlv = iSetup.getHandle(sevLvToken_);
   const EcalSeverityLevelAlgo* sevLevel = sevlv.product();

@@ -29,6 +29,5 @@ process.printEventNumber = cms.OutputModule("AsciiOutputModule")
 
 process.p = cms.Path(process.printTree1*process.printTree2)
 process.outpath = cms.EndPath(process.printEventNumber)
-process.MessageLogger.destinations = cms.untracked.vstring('cout','cerr')
 
 

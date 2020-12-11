@@ -6,6 +6,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <DD4hep/Filter.h>
+#include <DD4hep/SpecParRegistry.h>
 
 #include "G4ProductionCuts.hh"
 #include "G4RegionStore.hh"
@@ -15,6 +16,12 @@
 #include <algorithm>
 
 using geant_units::operators::convertCmToMm;
+
+#ifdef HAVE_GEANT4_UNITS
+#define MM_2_CM 1.0
+#else
+#define MM_2_CM 0.1
+#endif
 
 namespace {
   /** helper function to compare parts through their name instead of comparing them
@@ -117,7 +124,11 @@ void DDG4ProductionCuts::dd4hepInitialize() {
   for (auto const& it : *dd4hepMap_) {
     for (auto const& fit : specs) {
       for (auto const& pit : fit.second->paths) {
-        if (dd4hep::dd::compareEqualName(dd4hep::dd::realTopName(pit), dd4hep::dd::noNamespace(it.first.name()))) {
+        const std::string_view selection = dd4hep::dd::realTopName(pit);
+        const std::string_view name = dd4hep::dd::noNamespace(it.first.name());
+        if (!(dd4hep::dd::isRegex(selection))
+                ? dd4hep::dd::compareEqual(name, selection)
+                : std::regex_match(name.begin(), name.end(), std::regex(std::string(selection)))) {
           dd4hepVec_.emplace_back(std::make_pair<G4LogicalVolume*, const dd4hep::SpecPar*>(&*it.second, &*fit.second));
         }
       }
@@ -222,52 +233,12 @@ void DDG4ProductionCuts::setProdCuts(const dd4hep::SpecPar* spec, G4Region* regi
     // search for production cuts
     // you must have four of them: e+ e- gamma proton
     //
-    double gammacut = 0.0;
-    double electroncut = 0.0;
-    double positroncut = 0.0;
-    double protoncut = 0.0;
-
-    auto gammacutStr = spec->strValue("ProdCutsForGamma");
-    if (gammacutStr.empty()) {
-      throw cms::Exception(
-          "SimG4CorePhysics",
-          " DDG4ProductionCuts::setProdCuts: Problem with Region tags - no/more than one ProdCutsForGamma.");
-    }
-    // Geant4 expects mm units. DD4hep returns cm, so must convert to mm.
-    gammacut = convertCmToMm(dd4hep::_toDouble({gammacutStr.data(), gammacutStr.size()}));
-
-    auto electroncutStr = spec->strValue("ProdCutsForElectrons");
-    if (electroncutStr.empty()) {
-      throw cms::Exception(
-          "SimG4CorePhysics",
-          " DDG4ProductionCuts::setProdCuts: Problem with Region tags - no/more than one ProdCutsForElectrons.");
-    }
-    electroncut = convertCmToMm(dd4hep::_toDouble({electroncutStr.data(), electroncutStr.size()}));
-
-    auto positroncutStr = spec->strValue("ProdCutsForPositrons");
-    if (positroncutStr.empty()) {
-      throw cms::Exception(
-          "SimG4CorePhysics",
-          " DDG4ProductionCuts::setProdCuts: Problem with Region tags - no/more than one ProdCutsForPositrons.");
-    }
-    positroncut = convertCmToMm(dd4hep::_toDouble({positroncutStr.data(), positroncutStr.size()}));
-
-    if (!spec->hasValue("ProdCutsForProtons")) {
-      // There is no ProdCutsForProtons set in XML,
-      // check if it's a legacy geometry scenario without it
-      if (protonCut_) {
-        protoncut = electroncut;
-      } else {
-        protoncut = 0.;
-      }
-    } else {
-      auto protoncutStr = spec->strValue("ProdCutsForProtons");
-      if (protoncutStr.empty()) {
-        throw cms::Exception(
-            "SimG4CorePhysics",
-            " DDG4ProductionCuts::setProdCuts: Problem with Region tags - more than one ProdCutsForProtons.");
-      }
-      protoncut = convertCmToMm(dd4hep::_toDouble({protoncutStr.data(), protoncutStr.size()}));
+    double gammacut = spec->dblValue("ProdCutsForGamma") / MM_2_CM;
+    double electroncut = spec->dblValue("ProdCutsForElectrons") / MM_2_CM;
+    double positroncut = spec->dblValue("ProdCutsForPositrons") / MM_2_CM;
+    double protoncut = spec->dblValue("ProdCutsForProtons") / MM_2_CM;
+    if (protoncut == 0) {
+      protoncut = electroncut;
     }
 
     prodCuts = new G4ProductionCuts();
