@@ -16,8 +16,6 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
@@ -60,6 +58,7 @@ namespace cms {
     tok_hbheNorm_ = consumes<HBHERecHitCollection>(edm::InputTag("hbhereco"));
 
     tok_respCorr_ = esConsumes<HcalRespCorrs, HcalRespCorrsRcd>();
+    tok_l1gt_ = esConsumes<L1GtTriggerMenu, L1GtTriggerMenuRcd>();
 
     theRecalib = iConfig.getParameter<bool>("Recalib");
 
@@ -82,7 +81,7 @@ namespace cms {
 
   void Analyzer_minbias::beginRun(const edm::Run&, const edm::EventSetup&) { nevent_run = 0; }
   void Analyzer_minbias::endRun(const edm::Run& r, const edm::EventSetup&) {
-    edm::LogInfo("AnalyzerMB") << " Runnumber " << r.run() << " Nevents  " << nevent_run;
+    edm::LogVerbatim("AnalyzerMB") << " Runnumber " << r.run() << " Nevents  " << nevent_run;
   }
 
   void Analyzer_minbias::beginJob() {
@@ -112,7 +111,7 @@ namespace cms {
 
     myTree->Branch("occup", &occup, "occup/F");
 
-    edm::LogInfo("AnalyzerMB") << " Before ordering Histos ";
+    edm::LogVerbatim("AnalyzerMB") << " Before ordering Histos ";
 
     char str0[32];
     char str1[32];
@@ -140,7 +139,7 @@ namespace cms {
 
         sprintf(str10, "vpl%d", k);
         sprintf(str11, "vmin%d", k);
-        //      edm::LogInfo("AnalyzerMB")<<" "<<i<<" "<<j;
+        //      edm::LogVerbatim("AnalyzerMB")<<" "<<i<<" "<<j;
         if (j < 30) {
           // first order moment
           hCalo1[i][j] = fs->make<TH1F>(str0, "h0", 320, -10., 10.);
@@ -152,7 +151,7 @@ namespace cms {
         } else {
           // HF
           // first order moment
-          //   edm::LogInfo("AnalyzerMB")<<" "<<i<<" "<<j<<" "<<k;
+          //   edm::LogVerbatim("AnalyzerMB")<<" "<<i<<" "<<j<<" "<<k;
           if (j < 40) {
             hCalo1[i][j] = fs->make<TH1F>(str0, "h0", 320, -10., 10.);
             hCalo2[i][j] = fs->make<TH1F>(str1, "h1", 320, -10., 10.);
@@ -178,13 +177,13 @@ namespace cms {
     hbheSignalE = fs->make<TH1F>("hbheSignalE", "hbheSignalE", 320, -10., 10.);
     hfSignalE = fs->make<TH1F>("hfSignalE", "hfSignalE", 320, -10., 10.);
 
-    edm::LogInfo("AnalyzerMB") << " After ordering Histos ";
+    edm::LogVerbatim("AnalyzerMB") << " After ordering Histos ";
 
     std::string ccc = "noise_0.dat";
 
     myout_hcal = new std::ofstream(ccc.c_str());
     if (!myout_hcal)
-      edm::LogInfo("AnalyzerMB") << " Output file not open!!! ";
+      edm::LogVerbatim("AnalyzerMB") << " Output file not open!!! ";
 
     //
     for (int i = 0; i < 5; i++) {
@@ -251,8 +250,8 @@ namespace cms {
               depth = j;
               ieta = l;
               iphi = k;
-              edm::LogInfo("AnalyzerMB") << " Result Plus= " << mysubd << " " << ieta << " " << iphi << " mom0  "
-                                         << mom0_MB << " mom1 " << mom1_MB << " mom2 " << mom2_MB;
+              edm::LogVerbatim("AnalyzerMB") << " Result Plus= " << mysubd << " " << ieta << " " << iphi << " mom0  "
+                                             << mom0_MB << " mom1 " << mom1_MB << " mom2 " << mom2_MB;
               myTree->Fill();
               ii++;
             }  // Pl > 0
@@ -274,8 +273,8 @@ namespace cms {
               depth = j;
               ieta = -1 * l;
               iphi = k;
-              edm::LogInfo("AnalyzerMB") << " Result Minus= " << mysubd << " " << ieta << " " << iphi << " mom0  "
-                                         << mom0_MB << " mom1 " << mom1_MB << " mom2 " << mom2_MB;
+              edm::LogVerbatim("AnalyzerMB") << " Result Minus= " << mysubd << " " << ieta << " " << iphi << " mom0  "
+                                             << mom0_MB << " mom1 " << mom1_MB << " mom2 " << mom2_MB;
               myTree->Fill();
               ii++;
 
@@ -285,7 +284,7 @@ namespace cms {
       }        // depth
     }          //subd
 
-    edm::LogInfo("AnalyzerMB") << " Number of cells " << ii;
+    edm::LogVerbatim("AnalyzerMB") << " Number of cells " << ii;
 
     //  hOutputFile->Write();
     //  hOutputFile->cd();
@@ -308,7 +307,7 @@ namespace cms {
     //  hfSignalE->Write() ;
     //  hOutputFile->Close() ;
 
-    edm::LogInfo("AnalyzerMB") << " File is closed ";
+    edm::LogVerbatim("AnalyzerMB") << " File is closed ";
 
     return;
   }
@@ -319,28 +318,28 @@ namespace cms {
 
   // ------------ method called to produce the data  ------------
   void Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-    edm::LogInfo("AnalyzerMB") << " Start Analyzer_minbias::analyze " << nevent;
+    edm::LogVerbatim("AnalyzerMB") << " Start Analyzer_minbias::analyze " << nevent;
     nevent++;
     nevent_run++;
-    using namespace edm;
 
     float rnnum = (float)iEvent.run();
 
-    std::vector<StableProvenance const*> theProvenance;
+    std::vector<edm::StableProvenance const*> theProvenance;
     iEvent.getAllStableProvenance(theProvenance);
 
     for (auto const& provenance : theProvenance) {
-      edm::LogInfo("AnalyzerMB") << " Print all process/modulelabel/product names " << provenance->processName()
-                                 << " , " << provenance->moduleLabel() << " , " << provenance->productInstanceName();
+      edm::LogVerbatim("AnalyzerMB") << " Print all process/modulelabel/product names " << provenance->processName()
+                                     << " , " << provenance->moduleLabel() << " , "
+                                     << provenance->productInstanceName();
     }
     /*
       edm::Handle<FEDRawDataCollection> rawdata;  
       iEvent.getByToken(tok_data_,rawdata);
 
       if (!rawdata.isValid()) {
-      edm::LogInfo("AnalyzerMB")<<" No valid collection ";
+      edm::LogVerbatim("AnalyzerMB")<<" No valid collection ";
       } else {
-      edm::LogInfo("AnalyzerMB")<<" Valid collection ";
+      edm::LogVerbatim("AnalyzerMB")<<" Valid collection ";
       int calibType = -1 ; int numEmptyFEDs = 0 ; 
       std::vector<int> calibTypeCounter(8,0) ; 
       for (int i=FEDNumbering::MINHCALFEDID;
@@ -351,7 +350,7 @@ namespace cms {
 	//      int value = ((const HcalDCCHeader*)(fedData.data()))->getCalibType() ; 
 	//      calibTypeCounter.at(value)++ ; // increment the counter for this calib type
 	}
-	edm::LogInfo("AnalyzerMB")<<" NumFed "<<numEmptyFEDs<<" "<<calibType;
+	edm::LogVerbatim("AnalyzerMB")<<" NumFed "<<numEmptyFEDs<<" "<<calibType;
 	}
     */
     /*
@@ -360,7 +359,7 @@ namespace cms {
       
       for(std::vector<edm::Handle<FEDRawDataCollection> >::const_iterator it = rawdata1.begin();it != rawdata1.end(); it++) {
 
-      edm::LogInfo("AnalyzerMB")<<" Many by Type product name "<< (*it).provenance()->processName()<<
+      edm::LogVerbatim("AnalyzerMB")<<" Many by Type product name "<< (*it).provenance()->processName()<<
       " "<<(*it).provenance()->moduleLabel();
 
       if((*it).provenance()->moduleLabel() == "hltHcalCalibrationRaw") {
@@ -369,28 +368,21 @@ namespace cms {
       for (int i=FEDNumbering::MINHCALFEDID;
         i<=FEDNumbering::MAXHCALFEDID; i++) {
 	const FEDRawData& fedData = (*it)->FEDData(i) ; 
-	edm::LogInfo("AnalyzerMB")<<" FED size "<<fedData.size();
+	edm::LogVerbatim("AnalyzerMB")<<" FED size "<<fedData.size();
 	if ( fedData.size() < 24 ) numEmptyFEDs++ ; 
 	if ( fedData.size() < 24 ) continue ; 
 	int value = ((const HcalDCCHeader*)(fedData.data()))->getCalibType() ; 
-	edm::LogInfo("AnalyzerMB")<<" Value "<<value;
+	edm::LogVerbatim("AnalyzerMB")<<" Value "<<value;
       }
-      edm::LogInfo("AnalyzerMB")<<" Many by Type NumFed "<<numEmptyFEDs<<" "<<calibType;
+      edm::LogVerbatim("AnalyzerMB")<<" Many by Type NumFed "<<numEmptyFEDs<<" "<<calibType;
      }
    }
 
    
     */
 
-    // Geometry
-    //    edm::ESHandle<CaloGeometry> pG;
-    //    iSetup.get<CaloGeometryRecord>().get(pG);
-    // ======
-
     /*
-      edm::ESHandle<L1GtTriggerMenu> menuRcd;
-      iSetup.get<L1GtTriggerMenuRcd>().get(menuRcd) ;
-      const L1GtTriggerMenu* menu = menuRcd.product();
+      const L1GtTriggerMenu* menu = &iSetup.getData(tok_l1gt_);
       const AlgorithmMap& bitMap = menu->gtAlgorithmMap();
 
       edm::Handle<L1GlobalTriggerReadoutRecord> gtRecord;
@@ -402,14 +394,14 @@ namespace cms {
       //       << "\n\n Error: no L1GlobalTriggerReadoutRecord found with input tag "
       //       << m_l1GtReadoutRecord
       //       << "\n Returning empty L1GlobalTriggerRecord.\n\n";
-      edm::LogInfo("AnalyzerMB")<<" No L1 trigger record ";
+      edm::LogVerbatim("AnalyzerMB")<<" No L1 trigger record ";
       } else {
 
       const DecisionWord dWord = gtRecord->decisionWord();
 
       for (CItAlgo itAlgo = bitMap.begin(); itAlgo != bitMap.end(); itAlgo++) {
       bool decision=menu->gtAlgorithmResult(itAlgo->first,dWord);
-      if(decision == 1) edm::LogInfo("AnalyzerMB")<<" Trigger "<<itAlgo->first<<" "<<decision;
+      if(decision == 1) edm::LogVerbatim("AnalyzerMB")<<" Trigger "<<itAlgo->first<<" "<<decision;
       }
       
     }
@@ -441,7 +433,7 @@ namespace cms {
     if (!hbheNormal.isValid()) {
       edm::LogWarning("AnalyzerMB") << " hbheNormal failed ";
     } else {
-      edm::LogInfo("AnalyzerMB") << " The size of the normal collection " << hbheNormal->size();
+      edm::LogVerbatim("AnalyzerMB") << " The size of the normal collection " << hbheNormal->size();
     }
 
     edm::Handle<HBHERecHitCollection> hbheNS;
@@ -454,7 +446,7 @@ namespace cms {
     }
 
     const HBHERecHitCollection HithbheNS = *(hbheNS.product());
-    edm::LogInfo("AnalyzerMB") << " HBHE NS size of collection " << HithbheNS.size();
+    edm::LogVerbatim("AnalyzerMB") << " HBHE NS size of collection " << HithbheNS.size();
     hHBHEsize_vs_run->Fill(rnnum, (float)HithbheNS.size());
 
     if (HithbheNS.size() != 5184) {
@@ -471,7 +463,7 @@ namespace cms {
     }
 
     const HBHERecHitCollection HithbheMB = *(hbheMB.product());
-    edm::LogInfo("AnalyzerMB") << " HBHE MB size of collection " << HithbheMB.size();
+    edm::LogVerbatim("AnalyzerMB") << " HBHE MB size of collection " << HithbheMB.size();
     if (HithbheMB.size() != 5184) {
       edm::LogWarning("AnalyzerMB") << " HBHE problem " << rnnum << " " << HithbheMB.size();
       //   return;
@@ -487,7 +479,7 @@ namespace cms {
     }
 
     const HFRecHitCollection HithfNS = *(hfNS.product());
-    edm::LogInfo("AnalyzerMB") << " HFE NS size of collection " << HithfNS.size();
+    edm::LogVerbatim("AnalyzerMB") << " HFE NS size of collection " << HithfNS.size();
     hHFsize_vs_run->Fill(rnnum, (float)HithfNS.size());
     if (HithfNS.size() != 1728) {
       edm::LogWarning("AnalyzerMB") << " HF problem " << rnnum << " " << HithfNS.size();
@@ -504,7 +496,7 @@ namespace cms {
     }
 
     const HFRecHitCollection HithfMB = *(hfMB.product());
-    edm::LogInfo("AnalyzerMB") << " HF MB size of collection " << HithfMB.size();
+    edm::LogVerbatim("AnalyzerMB") << " HF MB size of collection " << HithfMB.size();
     if (HithfMB.size() != 1728) {
       edm::LogWarning("AnalyzerMB") << " HF problem " << rnnum << " " << HithfMB.size();
       //      return;
@@ -554,8 +546,8 @@ namespace cms {
         hbheNoiseE->Fill(energyhit);
 
         if (energyhit < -2.)
-          edm::LogInfo("AnalyzerMB") << " Run " << rnnum << " ieta,iphi " << hid.ieta() << " " << hid.iphi()
-                                     << energyhit;
+          edm::LogVerbatim("AnalyzerMB") << " Run " << rnnum << " ieta,iphi " << hid.ieta() << " " << hid.iphi()
+                                         << energyhit;
 
         // if( hid.ieta() > 0 ) {
         //  hCalo1[hid.iphi()][hid.ieta()]->Fill(energyhit-noise_pl[hid.iphi()][hid.ieta()]);
@@ -762,7 +754,7 @@ namespace cms {
 
     }  // HF_MB
 
-    edm::LogInfo("AnalyzerMB") << " Event is finished ";
+    edm::LogVerbatim("AnalyzerMB") << " Event is finished ";
   }
 }  // namespace cms
 

@@ -7,11 +7,12 @@ process = cms.Process("summary")
 ## MessageLogger
 ##
 process.load('FWCore.MessageService.MessageLogger_cfi')   
-process.MessageLogger.categories.append("FastSiPixelFEDChannelContainerFromQuality")  
-process.MessageLogger.categories.append("SiPixelFEDChannelContainer")  
-process.MessageLogger.destinations = cms.untracked.vstring("cout")
+process.MessageLogger.cerr.enable = False
+process.MessageLogger.FastSiPixelFEDChannelContainerFromQuality=dict()  
+process.MessageLogger.SiPixelFEDChannelContainer=dict()  
 process.MessageLogger.cout = cms.untracked.PSet(
     threshold = cms.untracked.string("INFO"),
+    enableStatistics = cms.untracked.bool(True),
     default   = cms.untracked.PSet(limit = cms.untracked.int32(0)),                       
     FwkReport = cms.untracked.PSet(limit = cms.untracked.int32(-1),
                                    reportEvery = cms.untracked.int32(1000)
@@ -19,7 +20,6 @@ process.MessageLogger.cout = cms.untracked.PSet(
     FastSiPixelFEDChannelContainerFromQuality = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
     SiPixelFEDChannelContainer           = cms.untracked.PSet( limit = cms.untracked.int32(-1))
     )
-process.MessageLogger.statistics.append('cout')  
   
 ##
 ## Empty Source

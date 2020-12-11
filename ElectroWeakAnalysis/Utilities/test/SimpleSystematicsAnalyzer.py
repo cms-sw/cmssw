@@ -11,8 +11,9 @@ process.maxEvents = cms.untracked.PSet(
 
 # Printouts
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.destinations = ['cout']
+process.MessageLogger.cerr.enable = False
 process.MessageLogger.cout = cms.untracked.PSet(
+      enable = cms.untracked.bool(True),
       threshold = cms.untracked.string('INFO'),
       FwkReport = cms.untracked.PSet(reportEvery=cms.untracked.int32(100))
 )

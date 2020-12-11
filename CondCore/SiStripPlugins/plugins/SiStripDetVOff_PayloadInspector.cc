@@ -150,6 +150,73 @@ namespace {
     test class
   *************************************************/
 
+  namespace SiStripDetVOffPI {
+    enum type { t_LV = 0, t_HV = 1, t_V };
+  }
+
+  template <SiStripDetVOffPI::type my_type>
+  class SiStripDetVOffListOfModules : public cond::payloadInspector::Histogram1DD<SiStripDetVOff> {
+  public:
+    SiStripDetVOffListOfModules()
+        : cond::payloadInspector::Histogram1DD<SiStripDetVOff>(
+              "SiStrip Off modules", "SiStrip Off modules", 15148, 0., 15148., "DetId of VOff module") {
+      Base::setSingleIov(true);
+    }
+
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      for (auto const& iov : tag.iovs) {
+        std::shared_ptr<SiStripDetVOff> payload = Base::fetchPayload(std::get<1>(iov));
+        if (payload.get()) {
+          std::vector<uint32_t> detid;
+          payload->getDetIds(detid);
+          int i = 0;  // count modules
+
+          //std::cout.precision(1);
+
+          for (const auto& d : detid) {
+            switch (my_type) {
+              case SiStripDetVOffPI::t_LV: {
+                if (payload->IsModuleLVOff(d)) {
+                  //std::cout << "is LV: " << i << " " << std::fixed << double(d) << std::endl;
+                  fillWithBinAndValue(i, double(d));
+                }
+                break;
+              }
+              case SiStripDetVOffPI::t_HV: {
+                if (payload->IsModuleHVOff(d)) {
+                  //std::cout << "is HV: " << i << " " << std::fixed << double(d) << std::endl;
+                  fillWithBinAndValue(i, double(d));
+                }
+                break;
+              }
+              case SiStripDetVOffPI::t_V: {
+                if (payload->IsModuleVOff(d)) {
+                  //std::cout << "is V: " << i << " " << std::fixed << double(d) << std::endl;
+                  fillWithBinAndValue(i, double(d));
+                }
+                break;
+              }
+              default:
+                edm::LogError("SiStripDetVOffListOfModules") << "Unrecognized type: " << my_type << std::endl;
+                break;
+            }     // switch
+            i++;  // increase counting of modules
+          }       // loop on detids
+        }         // if gets the payload
+      }           // loop on iovs
+      return true;
+    }  // fill()
+  };
+
+  using SiStripVOffListOfModules = SiStripDetVOffListOfModules<SiStripDetVOffPI::t_V>;
+  using SiStripLVOffListOfModules = SiStripDetVOffListOfModules<SiStripDetVOffPI::t_LV>;
+  using SiStripHVOffListOfModules = SiStripDetVOffListOfModules<SiStripDetVOffPI::t_HV>;
+
+  /************************************************
+    test class
+  *************************************************/
+
   class SiStripDetVOffTest : public cond::payloadInspector::Histogram1D<SiStripDetVOff> {
   public:
     SiStripDetVOffTest()
@@ -389,5 +456,8 @@ PAYLOAD_INSPECTOR_MODULE(SiStripDetVOff) {
   PAYLOAD_INSPECTOR_CLASS(SiStripDetVOff_IsModuleLVOff_TrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripDetVOff_IsModuleHVOff_TrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripDetVOffTest);
+  PAYLOAD_INSPECTOR_CLASS(SiStripVOffListOfModules);
+  PAYLOAD_INSPECTOR_CLASS(SiStripLVOffListOfModules);
+  PAYLOAD_INSPECTOR_CLASS(SiStripHVOffListOfModules);
   PAYLOAD_INSPECTOR_CLASS(SiStripDetVOffByRegion);
 }

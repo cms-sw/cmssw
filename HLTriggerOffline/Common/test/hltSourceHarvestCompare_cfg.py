@@ -37,7 +37,6 @@ process.DQMStore.verbose=0
 process.options = cms.untracked.PSet(
     fileMode = cms.untracked.string('FULLMERGE')
 )
-process.MessageLogger.categories.append('DQMFileSaver')
 process.MessageLogger.cout.DQMFileSaver = cms.untracked.PSet(
        limit = cms.untracked.int32(1000000)
        )

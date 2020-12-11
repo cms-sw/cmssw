@@ -8,29 +8,46 @@
 //
 //
 
-#include <memory>
-#include <string>
-#include <iostream>
-#include <cmath>
+#include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/EgammaTrackReco/interface/ConversionTrack.h"
+#include "DataFormats/EgammaTrackReco/interface/ConversionTrackFwd.h"
+#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackBase.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+
 #include <vector>
 
-#include "RecoEgamma/EgammaPhotonProducers/interface/ConversionTrackMerger.h"
+class ConversionTrackMerger : public edm::stream::EDProducer<> {
+public:
+  explicit ConversionTrackMerger(const edm::ParameterSet& conf);
 
-#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1DCollection.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
+  ~ConversionTrackMerger() override;
 
-#include "FWCore/Framework/interface/ESHandle.h"
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+private:
+  edm::ParameterSet conf_;
 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+  edm::EDGetTokenT<reco::ConversionTrackCollection> trackProducer1;
+  edm::EDGetTokenT<reco::ConversionTrackCollection> trackProducer2;
 
-#include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
+  std::unique_ptr<reco::ConversionTrackCollection> outputTrks;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(ConversionTrackMerger);
 
 ConversionTrackMerger::ConversionTrackMerger(edm::ParameterSet const& conf) : conf_(conf) {
   // retrieve producer name of input TrackCollection(s)

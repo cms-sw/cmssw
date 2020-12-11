@@ -18,11 +18,6 @@ process.XMLGeometryWriter = cms.EDAnalyzer("XMLGeometryBuilder",
                                            ZIP = cms.untracked.bool(True)
                                            )
 
-process.TrackerGeometricDetESModule = cms.ESProducer( "TrackerGeometricDetESModule",
-                                                      fromDDD = cms.bool( True )
-                                                     )
-
-
 process.TrackerGeometryWriter = cms.EDAnalyzer("PGeometricDetBuilder",fromDD4hep=cms.bool( False ))
 process.TrackerParametersWriter = cms.EDAnalyzer("PTrackerParametersDBBuilder", fromDD4hep=cms.bool( False ))
 

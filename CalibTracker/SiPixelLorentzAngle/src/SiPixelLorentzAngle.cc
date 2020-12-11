@@ -9,7 +9,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -63,6 +62,8 @@ SiPixelLorentzAngle::SiPixelLorentzAngle(edm::ParameterSet const& conf)
   max_drift_ = 1000.;   //400.;
 
   t_trajTrack = consumes<TrajTrackAssociationCollection>(conf.getParameter<edm::InputTag>("src"));
+  trackerTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
+  trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
 }
 
 // Virtual destructor needed.
@@ -175,25 +176,20 @@ void SiPixelLorentzAngle::beginJob() {
   hitCounter_ = 0;
   usedHitCounter_ = 0;
   pixelTracksCounter_ = 0;
-  //   edm::ESHandle<TrackerGeometry> estracker; //this block should not be in beginJob()
-  //   c.get<TrackerDigiGeometryRecord>().get(estracker);
-  //   tracker=&(* estracker);
 }
 
 // Functions that gets called by framework every event
 void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es) {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<TrackerTopologyRcd>().get(tTopoHandle);
+  edm::ESHandle<TrackerTopology> tTopoHandle = es.getHandle(trackerTopoToken_);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   event_counter_++;
   // 	if(event_counter_ % 500 == 0) cout << "event number " << event_counter_ << endl;
   cout << "event number " << event_counter_ << endl;
 
-  edm::ESHandle<TrackerGeometry> estracker;
-  es.get<TrackerDigiGeometryRecord>().get(estracker);
-  tracker = &(*estracker);
+  edm::ESHandle<TrackerGeometry> estracker = es.getHandle(trackerGeomToken_);
+  const TrackerGeometry* tracker = &(*estracker);
 
   std::unique_ptr<TrackerHitAssociator> associate;
   if (simData_)

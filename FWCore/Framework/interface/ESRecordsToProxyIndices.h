@@ -47,7 +47,7 @@ namespace edm::eventsetup {
 
     static constexpr ESProxyIndex missingProxyIndex() noexcept { return ESProxyIndex{std::numeric_limits<int>::max()}; }
     static constexpr ESRecordIndex missingRecordIndex() noexcept {
-      return ESRecordIndex{std::numeric_limits<int>::max()};
+      return ESRecordIndex{ESRecordIndex::invalidValue()};
     }
 
     ESRecordIndex recordIndexFor(EventSetupRecordKey const& iRK) const noexcept;

@@ -31,8 +31,6 @@ struct pfalgo3_config : public pfalgo_config {
   ~pfalgo3_config() override {}
 };
 
-void pfalgo3_ref_set_debug(int debug);
-
 void pfalgo3_em_ref(const pfalgo3_config &cfg,
                     const EmCaloObj emcalo[/*cfg.nEMCALO*/],
                     const HadCaloObj hadcalo[/*cfg.nCALO*/],
@@ -40,7 +38,8 @@ void pfalgo3_em_ref(const pfalgo3_config &cfg,
                     const bool isMu[/*cfg.nTRACK*/],
                     bool isEle[/*cfg.nTRACK*/],
                     PFNeutralObj outpho[/*cfg.nPHOTON*/],
-                    HadCaloObj hadcalo_out[/*cfg.nCALO*/]);
+                    HadCaloObj hadcalo_out[/*cfg.nCALO*/],
+                    bool debug);
 void pfalgo3_ref(const pfalgo3_config &cfg,
                  const EmCaloObj emcalo[/*cfg.nEMCALO*/],
                  const HadCaloObj hadcalo[/*cfg.nCALO*/],
@@ -49,7 +48,8 @@ void pfalgo3_ref(const pfalgo3_config &cfg,
                  PFChargedObj outch[/*cfg.nTRACK*/],
                  PFNeutralObj outpho[/*cfg.nPHOTON*/],
                  PFNeutralObj outne[/*cfg.nSELCALO*/],
-                 PFChargedObj outmu[/*cfg.nMU*/]);
+                 PFChargedObj outmu[/*cfg.nMU*/],
+                 bool debug);
 
 void pfalgo3_merge_neutrals_ref(const pfalgo3_config &cfg,
                                 const PFNeutralObj pho[/*cfg.nPHOTON*/],

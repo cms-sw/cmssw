@@ -1,11 +1,8 @@
 #include <iostream>
 
 #include "CalibTracker/SiPixelConnectivity/interface/SiPixelFedCablingMapBuilder.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include <ostream>
 #include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
@@ -30,16 +27,19 @@
 using namespace std;
 using namespace sipixelobjects;
 
-SiPixelFedCablingMapBuilder::SiPixelFedCablingMapBuilder(const string fileName,
+SiPixelFedCablingMapBuilder::SiPixelFedCablingMapBuilder(edm::ConsumesCollector&& iCC,
+                                                         const string fileName,
                                                          const bool phase1)
     : fileName_(fileName)  //, phase1_(phase1) not used anymore
-{}
+{
+  trackerTopoToken_ = iCC.esConsumes<TrackerTopology, TrackerTopologyRcd>();
+  trackerGeomToken_ = iCC.esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
+}
 
 SiPixelFedCablingTree* SiPixelFedCablingMapBuilder::produce(const edm::EventSetup& setup) {
   // Access geometry
   edm::LogInfo("read tracker geometry...");
-  edm::ESHandle<TrackerGeometry> pDD;
-  setup.get<TrackerDigiGeometryRecord>().get(pDD);
+  edm::ESHandle<TrackerGeometry> pDD = setup.getHandle(trackerGeomToken_);
   edm::LogInfo("tracker geometry read") << "There are: " << pDD->dets().size() << " detectors";
 
   // Test new TrackerGeometry features
@@ -86,8 +86,7 @@ SiPixelFedCablingTree* SiPixelFedCablingMapBuilder::produce(const edm::EventSetu
   edm::LogInfo(" version ") << version << endl;
 
   // Access topology
-  edm::ESHandle<TrackerTopology> tTopo;
-  setup.get<TrackerTopologyRcd>().get(tTopo);
+  edm::ESHandle<TrackerTopology> tTopo = setup.getHandle(trackerTopoToken_);
   const TrackerTopology* tt = tTopo.product();
 
   typedef TrackerGeometry::DetContainer::const_iterator ITG;

@@ -422,6 +422,8 @@ class _TypedParameterizable(_Parameterizable):
             args.append(None)
         
         _modifyParametersFromDict(myparams, params, self._Parameterizable__raiseBadSetAttr)
+        if self._Parameterizable__validator is not None:
+            myparams["allowAnyLabel_"] = self._Parameterizable__validator
 
         returnValue.__init__(self.__type,*args,
                              **myparams)
