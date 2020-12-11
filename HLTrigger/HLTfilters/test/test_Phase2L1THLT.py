@@ -10,7 +10,7 @@ process = cms.Process("HLTX")
 # process.GlobalTag.globaltag = "112X_mcRun4_realistic_T15_v2"
 
 process.l1tEle7 = cms.EDFilter(
-    "L1TkEleFilter",
+    "L1TTkEleFilter",
     MinPt=cms.double(7.0),
     MinEta=cms.double(-2.4),
     MaxEta=cms.double(2.4),
@@ -31,7 +31,7 @@ process.l1tEle7 = cms.EDFilter(
 )
 
 process.l1tIsoEle7 = cms.EDFilter(
-    "L1TkEleFilter",
+    "L1TTkEleFilter",
     MinPt=cms.double(7.0),
     MinEta=cms.double(-2.4),
     MaxEta=cms.double(2.4),
@@ -52,7 +52,7 @@ process.l1tIsoEle7 = cms.EDFilter(
 )
 
 process.l1tIsoPho7 = cms.EDFilter(
-    "L1TkEmFilter",
+    "L1TTkEmFilter",
     MinPt=cms.double(7.0),
     MinEta=cms.double(-2.4),
     MaxEta=cms.double(2.4),
@@ -73,7 +73,7 @@ process.l1tIsoPho7 = cms.EDFilter(
 )
 
 process.l1tMuon7 = cms.EDFilter(
-    "L1TkMuonFilter",
+    "L1TTkMuonFilter",
     MinPt=cms.double(7.0),
     MinEta=cms.double(-2.4),
     MaxEta=cms.double(2.4),
@@ -86,7 +86,7 @@ process.l1tMuon7 = cms.EDFilter(
 )
 
 process.l1tDoubleMuon7 = cms.EDFilter(
-    "L1TkMuonFilter",
+    "L1TTkMuonFilter",
     MinN=cms.int32(2),
     MinPt=cms.double(7.0),
     MinEta=cms.double(-2.4),
@@ -119,7 +119,7 @@ process.l1tDoubleMuon7DZ0p33 = cms.EDFilter(
 )
 
 process.l1tPFJet64 = cms.EDFilter(
-    "L1PFJetFilter",
+    "L1TPFJetFilter",
     inputTag=cms.InputTag("ak4PFL1PuppiCorrected"),
     Scalings=cms.PSet(
         barrel=cms.vdouble(11.1254, 1.40627, 0),
@@ -145,7 +145,7 @@ process.L1PFHtMht = cms.EDProducer(
 
 # # We don't have scaling for MHT...
 process.l1tPFMht40 = cms.EDFilter(
-    "L1EnergySumFilter",
+    "L1TEnergySumFilter",
     inputTag=cms.InputTag("L1PFHtMht"),
     Scalings=cms.PSet(
         theScalings=cms.vdouble(0, 1, 0),
@@ -155,7 +155,7 @@ process.l1tPFMht40 = cms.EDFilter(
 )
 
 process.l1tPFHt90 = cms.EDFilter(
-    "L1EnergySumFilter",
+    "L1TEnergySumFilter",
     inputTag=cms.InputTag("L1PFHtMht"),
     Scalings=cms.PSet(
         # theScalings = cms.vdouble(-7.12716,1.03067,0), # PFPhase1HTOfflineEtCut
@@ -166,7 +166,7 @@ process.l1tPFHt90 = cms.EDFilter(
 )
 
 process.l1tPFMet90 = cms.EDFilter(
-    "L1PFEnergySumFilter",
+    "L1TPFEnergySumFilter",
     inputTag=cms.InputTag("l1PFMetPuppi"),
     Scalings=cms.PSet(
         # theScalings = cms.vdouble(-7.24159,1.20973,0), # PuppiMETOfflineEtCut
