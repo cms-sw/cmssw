@@ -123,7 +123,7 @@ SiStripQualityESProducer::SiStripQualityESProducer(const edm::ParameterSet& iCon
   }
 
   if (doRunInfo) {
-    cc.setConsumes(runInfoToken_, edm::ESInputTag{"", runInfoTagName});
+    runInfoToken_ = cc.consumes(edm::ESInputTag{"", runInfoTagName});
   }
 }
 

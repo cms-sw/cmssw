@@ -20,7 +20,8 @@ DTParametrizedDriftAlgo = cms.PSet(
             # Switch on/off the TOF correction from pulses
             doT0Correction = cms.bool(True),
             debug = cms.untracked.bool(False),
-            tTrigLabel = cms.string('')
+            tTrigLabel = cms.string(''),
+            t0Label = cms.string('')
         ),
         maxTime = cms.double(415.0)
     ),

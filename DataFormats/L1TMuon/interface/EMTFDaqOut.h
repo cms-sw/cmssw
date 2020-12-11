@@ -11,6 +11,7 @@
 #include "EMTF/Counters.h"
 #include "EMTF/ME.h"
 #include "EMTF/RPC.h"
+#include "EMTF/GEM.h"
 #include "EMTF/SP.h"
 #include "EMTF/EventTrailer.h"
 #include "EMTF/MTF7Trailer.h"
@@ -32,6 +33,7 @@ namespace l1t {
           hasCounters(false),
           numME(0),
           numRPC(0),
+          numGEM(0),
           numSP(0),
           hasEventTrailer(false),
           hasMTF7Trailer(false),
@@ -78,6 +80,14 @@ namespace l1t {
       RPCCollection.push_back(bits);
       numRPC += 1;
     }
+    void set_GEMCollection(emtf::GEMCollection bits) {
+      GEMCollection = bits;
+      numGEM = GEMCollection.size();
+    }
+    void push_GEM(emtf::GEM bits) {
+      GEMCollection.push_back(bits);
+      numGEM += 1;
+    }
     void set_SPCollection(emtf::SPCollection bits) {
       SPCollection = bits;
       numSP = SPCollection.size();
@@ -108,6 +118,7 @@ namespace l1t {
     int NumSP() const { return numSP; }
     int NumRPC() const { return numRPC; }
     int NumME() const { return numME; }
+    int NumGEM() const { return numGEM; }
     bool HasAMC13Trailer() const { return hasAMC13Trailer; }
     bool HasMTF7Trailer() const { return hasMTF7Trailer; }
     bool HasEventTrailer() const { return hasEventTrailer; }
@@ -117,6 +128,7 @@ namespace l1t {
     emtf::Counters GetCounters() const { return Counters; }
     emtf::MECollection GetMECollection() const { return MECollection; }
     emtf::RPCCollection GetRPCCollection() const { return RPCCollection; }
+    emtf::GEMCollection GetGEMCollection() const { return GEMCollection; }
     emtf::SPCollection GetSPCollection() const { return SPCollection; }
     emtf::EventTrailer GetEventTrailer() const { return EventTrailer; }
     emtf::MTF7Trailer GetMTF7Trailer() const { return MTF7Trailer; }
@@ -127,6 +139,7 @@ namespace l1t {
     const emtf::Counters* PtrCounters() const { return &Counters; }
     const emtf::MECollection* PtrMECollection() const { return &MECollection; }
     const emtf::RPCCollection* PtrRPCCollection() const { return &RPCCollection; }
+    const emtf::GEMCollection* PtrGEMCollection() const { return &GEMCollection; }
     const emtf::SPCollection* PtrSPCollection() const { return &SPCollection; }
     const emtf::EventTrailer* PtrEventTrailer() const { return &EventTrailer; }
     const emtf::MTF7Trailer* PtrMTF7Trailer() const { return &MTF7Trailer; }
@@ -141,6 +154,7 @@ namespace l1t {
     bool hasCounters;
     int numME;
     int numRPC;
+    int numGEM;
     int numSP;
     bool hasEventTrailer;
     bool hasMTF7Trailer;
@@ -151,6 +165,7 @@ namespace l1t {
     emtf::Counters Counters;
     emtf::MECollection MECollection;
     emtf::RPCCollection RPCCollection;
+    emtf::GEMCollection GEMCollection;
     emtf::SPCollection SPCollection;
     emtf::EventTrailer EventTrailer;
     emtf::MTF7Trailer MTF7Trailer;

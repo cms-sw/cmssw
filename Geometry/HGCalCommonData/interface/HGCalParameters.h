@@ -171,6 +171,7 @@ public:
   wafer_map typesInLayers_;
   waferT_map waferTypes_;
   int waferMaskMode_;
+  int waferZSide_;
   waferInfo_map waferInfoMap_;
   tileInfo_map tileInfoMap_;
   std::vector<std::pair<double, double> > tileRingR_;

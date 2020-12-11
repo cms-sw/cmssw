@@ -1,5 +1,5 @@
 
-#include "FWCore/ParameterSet/interface/XORGroupDescription.h"
+#include "FWCore/ParameterSet/src/XORGroupDescription.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/DocFormatHelper.h"
 

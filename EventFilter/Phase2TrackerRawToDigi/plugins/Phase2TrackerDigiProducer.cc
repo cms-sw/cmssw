@@ -1,22 +1,70 @@
-#include "EventFilter/Phase2TrackerRawToDigi/plugins/Phase2TrackerDigiProducer.h"
+#include "CondFormats/DataRecord/interface/Phase2TrackerCablingRcd.h"
+#include "CondFormats/SiStripObjects/interface/Phase2TrackerCabling.h"
 #include "DataFormats/Common/interface/DetSet.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/DetId/interface/DetIdCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/src/fed_header.h"
 #include "DataFormats/FEDRawData/src/fed_trailer.h"
+#include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDBuffer.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDChannel.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDHeader.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDRawChannelUnpacker.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDZSChannelUnpacker.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/utils.h"
-#include "CondFormats/DataRecord/interface/Phase2TrackerCablingRcd.h"
-#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <iostream>
-#include <sstream>
-#include <iomanip>
-#include <ext/algorithm>
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
+namespace Phase2Tracker {
+
+  class Phase2TrackerDigiProducer : public edm::EDProducer {
+  public:
+    /// constructor
+    Phase2TrackerDigiProducer(const edm::ParameterSet& pset);
+    /// default constructor
+    ~Phase2TrackerDigiProducer() override;
+    void beginJob() override;
+    void beginRun(edm::Run const&, edm::EventSetup const&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
+    void endJob() override;
+
+  private:
+    unsigned int runNumber_;
+    edm::EDGetTokenT<FEDRawDataCollection> token_;
+    const Phase2TrackerCabling* cabling_;
+    uint32_t cacheId_;
+    DetIdCollection detids_;
+    class Registry {
+    public:
+      /// constructor
+      Registry(uint32_t aDetid, uint16_t firstStrip, size_t indexInVector, uint16_t numberOfDigis)
+          : detid(aDetid), first(firstStrip), index(indexInVector), length(numberOfDigis) {}
+      /// < operator to sort registries
+      bool operator<(const Registry& other) const {
+        return (detid != other.detid ? detid < other.detid : first < other.first);
+      }
+      /// public data members
+      uint32_t detid;
+      uint16_t first;
+      size_t index;
+      uint16_t length;
+    };
+    std::vector<Registry> proc_work_registry_;
+    std::vector<Phase2TrackerDigi> proc_work_digis_;
+  };
+}  // namespace Phase2Tracker
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+typedef Phase2Tracker::Phase2TrackerDigiProducer Phase2TrackerDigiProducer;
+DEFINE_FWK_MODULE(Phase2TrackerDigiProducer);
 
 using namespace std;
 

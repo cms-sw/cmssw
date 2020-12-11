@@ -6,7 +6,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include <iostream>
 #include <fstream>
 #include <sstream>
 #include <map>

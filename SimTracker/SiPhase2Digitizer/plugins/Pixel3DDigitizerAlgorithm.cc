@@ -53,9 +53,15 @@ void Pixel3DDigitizerAlgorithm::init(const edm::EventSetup& es) {
 Pixel3DDigitizerAlgorithm::Pixel3DDigitizerAlgorithm(const edm::ParameterSet& conf)
     : Phase2TrackerDigitizerAlgorithm(conf.getParameter<edm::ParameterSet>("AlgorithmCommon"),
                                       conf.getParameter<edm::ParameterSet>("Pixel3DDigitizerAlgorithm")),
-      // The size of the column np-junction (XXX: to be included via config)
-      _np_column_radius(5.0_um),
-      _ohm_column_radius(5.0_um) {
+      np_column_radius_(
+          (conf.getParameter<edm::ParameterSet>("Pixel3DDigitizerAlgorithm").getParameter<double>("NPColumnRadius")) *
+          1.0_um),
+      ohm_column_radius_(
+          (conf.getParameter<edm::ParameterSet>("Pixel3DDigitizerAlgorithm").getParameter<double>("OhmicColumnRadius")) *
+          1.0_um),
+      np_column_gap_(
+          (conf.getParameter<edm::ParameterSet>("Pixel3DDigitizerAlgorithm").getParameter<double>("NPColumnGap")) *
+          1.0_um) {
   // XXX - NEEDED?
   pixelFlag_ = true;
 
@@ -80,22 +86,23 @@ bool Pixel3DDigitizerAlgorithm::select_hit(const PSimHit& hit, double tCorr, dou
   return (time >= theTofLowerCut_ && time < theTofUpperCut_);
 }
 
-const bool Pixel3DDigitizerAlgorithm::_is_inside_n_column(const LocalPoint& p) const {
-  return (p.perp() <= _np_column_radius);
+const bool Pixel3DDigitizerAlgorithm::is_inside_n_column_(const LocalPoint& p, const float& sensor_thickness) const {
+  // The insensitive volume of the column: sensor thickness - column gap distance
+  return (p.perp() <= np_column_radius_ && p.z() <= (sensor_thickness - np_column_gap_));
 }
 
-const bool Pixel3DDigitizerAlgorithm::_is_inside_ohmic_column(const LocalPoint& p,
+const bool Pixel3DDigitizerAlgorithm::is_inside_ohmic_column_(const LocalPoint& p,
                                                               const std::pair<float, float>& half_pitch) const {
   // The four corners of the cell
-  return ((p - LocalVector(half_pitch.first, half_pitch.second, 0)).perp() <= _ohm_column_radius) ||
-         ((p - LocalVector(-half_pitch.first, half_pitch.second, 0)).perp() <= _ohm_column_radius) ||
-         ((p - LocalVector(half_pitch.first, -half_pitch.second, 0)).perp() <= _ohm_column_radius) ||
-         ((p - LocalVector(-half_pitch.first, -half_pitch.second, 0)).perp() <= _ohm_column_radius);
+  return ((p - LocalVector(half_pitch.first, half_pitch.second, 0)).perp() <= ohm_column_radius_) ||
+         ((p - LocalVector(-half_pitch.first, half_pitch.second, 0)).perp() <= ohm_column_radius_) ||
+         ((p - LocalVector(half_pitch.first, -half_pitch.second, 0)).perp() <= ohm_column_radius_) ||
+         ((p - LocalVector(-half_pitch.first, -half_pitch.second, 0)).perp() <= ohm_column_radius_);
 }
 
 // Diffusion algorithm: Probably not needed,
 // Assuming the position point is given in the reference system of the proxy
-// cell, centered at the n-column corner.
+// cell, centered at the n-column.
 // The algorithm assumes only 1-axis could produce the charge migration, this assumption
 // could be enough given that the p-columns (5 um radius) are in the corners of the cell
 // (no producing charge in there)
@@ -112,17 +119,17 @@ std::vector<DigitizerUtility::EnergyDepositUnit> Pixel3DDigitizerAlgorithm::diff
   //          With the current sigma, this value is dependent of the thickness,
   //          Note that this formulae is coming from planar sensors, a similar
   //          study with data will be needed to extract the sigma for 3D
-  const float _max_migration_radius = 0.4_um;
+  const float max_migration_radius = 0.4_um;
   // Need to know which axis is the relevant one
   int displ_ind = -1;
   float pitch = 0.0;
 
   // Check the group is near the edge of the pixel, so diffusion will
   // be relevant in order to migrate between pixel cells
-  if (std::abs(pos.x() - hpitches.first) < _max_migration_radius) {
+  if (std::abs(pos.x() - hpitches.first) < max_migration_radius) {
     displ_ind = 0;
     pitch = hpitches.first;
-  } else if (std::abs(pos.y() - hpitches.second) < _max_migration_radius) {
+  } else if (std::abs(pos.y() - hpitches.second) < max_migration_radius) {
     displ_ind = 1;
     pitch = hpitches.second;
   } else {
@@ -135,30 +142,29 @@ std::vector<DigitizerUtility::EnergyDepositUnit> Pixel3DDigitizerAlgorithm::diff
   std::vector<DigitizerUtility::EnergyDepositUnit> migrated_charge;
 
   // FIXME -- DM
-  const float _diffusion_step = 0.1_um;
+  const float diffusion_step = 0.1_um;
 
   // The position while drifting
   std::vector<float> pos_moving({pos.x(), pos.y(), pos.z()});
   // The drifting: drift field and steps
   std::function<std::vector<float>(int)> do_step =
-      [&pos_moving, &u_drift, _diffusion_step](int i) -> std::vector<float> {
+      [&pos_moving, &u_drift, diffusion_step](int i) -> std::vector<float> {
     auto dd = u_drift(pos_moving[0], pos_moving[1]);
-    return std::vector<float>(
-        {i * _diffusion_step * dd.x(), i * _diffusion_step * dd.y(), i * _diffusion_step * dd.z()});
+    return std::vector<float>({i * diffusion_step * dd.x(), i * diffusion_step * dd.y(), i * diffusion_step * dd.z()});
   };
 
   LogDebug("Pixel3DDigitizerAlgorithm::diffusion")
-      << "\nMax. radius from the pixel edge to migrate charge: " << _max_migration_radius * 1.0_um_inv << " [um]"
+      << "\nMax. radius from the pixel edge to migrate charge: " << max_migration_radius * 1.0_um_inv << " [um]"
       << "\nMigration axis: " << displ_ind
       << "\n(super-)Charge distance to the pixel edge: " << (pitch - pos_moving[displ_ind]) * 1.0_um_inv << " [um]";
 
   // FIXME -- Sigma reference, DM?
-  const float _distance0 = 300.0_um;
-  const float _sigma0 = 3.4_um;
+  const float distance0 = 300.0_um;
+  const float sigma0 = 3.4_um;
   // FIXME -- Tolerance, DM?
-  const float _TOL = 1e-6;
+  const float TOL = 1e-6;
   // How many sigmas (probably a configurable, to be decided not now)
-  const float _N_SIGMA = 3.0;
+  const float N_SIGMA = 3.0;
 
   // Start the drift and check every step
   // initial position
@@ -171,7 +177,7 @@ std::vector<DigitizerUtility::EnergyDepositUnit> Pixel3DDigitizerAlgorithm::diff
     std::transform(pos_moving.begin(), pos_moving.end(), do_step(i).begin(), pos_moving.begin(), std::plus<float>());
     distance_edge = std::abs(pos_moving[displ_ind] - pitch);
     // current diffusion value
-    double sigma = std::sqrt(i * _diffusion_step / _distance0) * (_distance0 / thickness) * _sigma0;
+    double sigma = std::sqrt(i * diffusion_step / distance0) * (distance0 / thickness) * sigma0;
     // Get the amount of charge on the neighbor pixel: note the
     // transformation to a Normal
     float migrated_e = current_carriers * (1.0 - std::erf(distance_edge / sigma));
@@ -184,7 +190,7 @@ std::vector<DigitizerUtility::EnergyDepositUnit> Pixel3DDigitizerAlgorithm::diff
     // No charge was migrated (ignore creation time)
     if (i != 0) {
       // At least 1 electron migrated
-      if ((migrated_e - _TOL) < 1.0) {
+      if ((migrated_e - TOL) < 1.0) {
         break;
       }
       // Move the migrated charge
@@ -195,12 +201,12 @@ std::vector<DigitizerUtility::EnergyDepositUnit> Pixel3DDigitizerAlgorithm::diff
       // except the direction of migration
       std::vector<float> newpos(pos_moving);
       // Lest create the new charges around 3 sigmas away
-      newpos[displ_ind] += std::copysign(_N_SIGMA * sigma, newpos[displ_ind]);
+      newpos[displ_ind] += std::copysign(N_SIGMA * sigma, newpos[displ_ind]);
       migrated_charge.push_back(DigitizerUtility::EnergyDepositUnit(migrated_e, newpos[0], newpos[1], newpos[2]));
     }
     // Next step
     ++i;
-  } while (std::abs(distance_edge) < _max_migration_radius);
+  } while (std::abs(distance_edge) < max_migration_radius);
 
   return migrated_charge;
 }
@@ -266,7 +272,7 @@ std::vector<DigitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::drift(
 
   // Radiation damage limit of application
   // (XXX: No sense for 3D, let this be until decided what algorithm to use)
-  const float _RAD_DAMAGE = 0.001;
+  const float RAD_DAMAGE = 0.001;
 
   for (const auto& super_charge : ionization_points) {
     // Extract the pixel cell
@@ -291,7 +297,7 @@ std::vector<DigitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::drift(
     // Changing the reference frame to the proxy pixel cell
     LocalPoint position_at_pc(relative_position_at_pc.first - center_proxy_cell.x(),
                               relative_position_at_pc.second - center_proxy_cell.y(),
-                              super_charge.z());
+                              super_charge.z() - center_proxy_cell.z());
 
     LogDebug("Pixel3DDigitizerAlgorithm::drift")
         << "(super-)Charge\nlocal position: (" << super_charge.x() * 1.0_um_inv << ", " << super_charge.y() * 1.0_um_inv
@@ -304,7 +310,7 @@ std::vector<DigitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::drift(
         << "\nNe=" << super_charge.energy() << " electrons";
 
     // Check if the point is inside any of the column --> no charge was actually created then
-    if (_is_inside_n_column(position_at_pc) || _is_inside_ohmic_column(position_at_pc, half_pitch)) {
+    if (is_inside_n_column_(position_at_pc, thickness) || is_inside_ohmic_column_(position_at_pc, half_pitch)) {
       LogDebug("Pixel3DDigitizerAlgorithm::drift") << "Remove charge,  inside the n-column or p-column!!";
       continue;
     }
@@ -322,7 +328,9 @@ std::vector<DigitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::drift(
         const float pixel_x = current_pixel_int.first + (mc.x() + center_proxy_cell.x()) / pitch.first;
         const float pixel_y = current_pixel_int.second + (mc.y() + center_proxy_cell.y()) / pitch.second;
         const auto lp = pixdet->specificTopology().localPosition(MeasurementPoint(pixel_x, pixel_y));
-        mc.migrate_position(LocalPoint(lp.x(), lp.y(), mc.z()));
+        //Remember: the drift function will move the reference system to the bottom. We need to add what we previously subtract
+        //in order to avoid a double translation when calling the drift function once again below
+        mc.migrate_position(LocalPoint(lp.x(), lp.y(), mc.z() + center_proxy_cell.z()));
       }
       if (!migrated_charges.empty()) {
         LogDebug("Pixel3DDigitizerAlgorithm::drift") << "****************"
@@ -339,14 +347,14 @@ std::vector<DigitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::drift(
     // Perform the drift, and check a potential lost of carriers because
     // they reach the pasivation region (-z < thickness/2)
     // XXX: not doing nothing, the carriers reach the electrode surface,
-    const float drift_distance = position_at_pc.perp() - _np_column_radius;
+    const float drift_distance = position_at_pc.perp() - np_column_radius_;
 
     // Insert a charge loss due to Rad Damage here
     // XXX: ??
     float energyOnCollector = nelectrons;
     // FIXME: is this correct?  Not for 3D...
 
-    if (pseudoRadDamage_ >= _RAD_DAMAGE) {
+    if (pseudoRadDamage_ >= RAD_DAMAGE) {
       const float module_radius = pixdet->surface().position().perp();
       if (module_radius <= pseudoRadDamageRadius_) {
         const float kValue = pseudoRadDamage_ / (module_radius * module_radius);

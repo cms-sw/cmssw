@@ -43,9 +43,12 @@ PixelCPETemplateRecoESProducer::PixelCPETemplateRecoESProducer(const edm::Parame
 
   pset_ = p;
   auto c = setWhatProduced(this, myname);
-  c.setConsumes(magfieldToken_).setConsumes(pDDToken_).setConsumes(hTTToken_).setConsumes(templateDBobjectToken_);
+  magfieldToken_ = c.consumes();
+  pDDToken_ = c.consumes();
+  hTTToken_ = c.consumes();
+  templateDBobjectToken_ = c.consumes();
   if (DoLorentz_) {
-    c.setConsumes(lorentzAngleToken_, edm::ESInputTag("", "fromAlignment"));
+    lorentzAngleToken_ = c.consumes(edm::ESInputTag("", "fromAlignment"));
   }
   //std::cout<<" from ES Producer Templates "<<myname<<" "<<DoLorentz_<<std::endl;  //dk
 }

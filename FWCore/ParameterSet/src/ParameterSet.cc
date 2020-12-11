@@ -11,7 +11,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
-#include "FWCore/ParameterSet/interface/split.h"
+#include "FWCore/ParameterSet/src/split.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/Digest.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -28,6 +28,13 @@
 // ----------------------------------------------------------------------
 
 namespace edm {
+
+  namespace pset::exceptions {
+    void throwWrongNumberOfElements(std::string const& iName, size_t iExpected, size_t iGot) {
+      throw Exception(errors::Configuration) << "The parameter '" << iName << "' should have " << iExpected
+                                             << " elements, but has " << iGot << " elements in the configuration.\n";
+    }
+  }  // namespace pset::exceptions
 
   void ParameterSet::invalidateRegistration(std::string const& nameOfTracked) {
     // We have added a new parameter.  Invalidate the ID.

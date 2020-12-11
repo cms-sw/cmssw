@@ -7,16 +7,17 @@
 
 #include "DataFormats/SiStripCluster/interface/SiStripClusterTools.h"
 
-ThreeThresholdAlgorithm::ThreeThresholdAlgorithm(const std::string& conditionsLabel,
-                                                 float chan,
-                                                 float seed,
-                                                 float cluster,
-                                                 unsigned holes,
-                                                 unsigned bad,
-                                                 unsigned adj,
-                                                 bool removeApvShots,
-                                                 float minGoodCharge)
-    : StripClusterizerAlgorithm(conditionsLabel),
+ThreeThresholdAlgorithm::ThreeThresholdAlgorithm(
+    const edm::ESGetToken<SiStripClusterizerConditions, SiStripClusterizerConditionsRcd>& conditionsToken,
+    float chan,
+    float seed,
+    float cluster,
+    unsigned holes,
+    unsigned bad,
+    unsigned adj,
+    bool removeApvShots,
+    float minGoodCharge)
+    : StripClusterizerAlgorithm(conditionsToken),
       ChannelThreshold(chan),
       SeedThreshold(seed),
       ClusterThresholdSquared(cluster * cluster),

@@ -5,9 +5,9 @@
 <use name="SimDataFormats/GeneratorProducts"/>
 <use name="GeneratorInterface/ExternalDecays"/>
 <use name="f77compiler"/>
-<Flags CPPDEFINES="__SIBYLL__"/>
-<Flags CPPDEFINES="__QGSJET01__"/>
-<Flags CPPDEFINES="__QGSJETII04__"/>
+<flags CPPDEFINES="__SIBYLL__"/>
+<flags CPPDEFINES="__QGSJET01__"/>
+<flags CPPDEFINES="__QGSJETII04__"/>
 <export>
   <lib name="1"/>
 </export>

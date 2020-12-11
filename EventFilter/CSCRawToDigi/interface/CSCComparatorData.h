@@ -1,5 +1,5 @@
-#ifndef CSCComparatorData_h
-#define CSCComparatorData_h
+#ifndef EventFilter_CSCRawToDigi_CSCComparatorData_h
+#define EventFilter_CSCRawToDigi_CSCComparatorData_h
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigi.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include <vector>

@@ -21,7 +21,7 @@ namespace l1t {
       for (auto imu = muons->begin(); imu != muons->end(); imu++) {
         if (imu->processor() + 1 == board_id) {
           uint32_t firstWord(0), lastWord(0);
-          RegionalMuonRawDigiTranslator::generatePackedDataWords(*imu, firstWord, lastWord);
+          RegionalMuonRawDigiTranslator::generatePackedDataWords(*imu, firstWord, lastWord, isKalman_);
           payloadMap_[bmtfBlockID].push_back(firstWord);  //imu->link()*2+1
           payloadMap_[bmtfBlockID].push_back(lastWord);   //imu->link()*2+1
         }
@@ -49,16 +49,6 @@ namespace l1t {
       Block block(bmtfBlockID, payloadMap_[bmtfBlockID]);
 
       blocks.push_back(block);
-
-      /*
-	  //debug from here
-	  std::cout << "block id : " << block.header().getID() << std::endl;
-
-	  std::cout << "payload created : " << std::endl;
-	  for (auto &word : block.payload())  
-	    std::cout << std::bitset<32>(word).to_string() << std::endl;
-	  //debug up to here
-	*/
 
       return blocks;
     }

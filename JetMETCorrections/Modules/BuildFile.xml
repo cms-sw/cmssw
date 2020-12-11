@@ -1,15 +1,10 @@
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/JetMETObjects"/>
-<use name="CondCore/DBOutputService"/>
 <use name="CommonTools/Utils"/>
 <use name="DataFormats/Common"/>
-<use name="DataFormats/JetReco"/>
-<use name="DataFormats/METReco"/>
-<use name="DataFormats/BTauReco"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="JetMETCorrections/Objects"/>
-<use name="JetMETCorrections/Algorithms"/>
 <use name="JetMETCorrections/JetCorrector"/>
 <use name="FWCore/Utilities"/>
 <use name="boost"/>

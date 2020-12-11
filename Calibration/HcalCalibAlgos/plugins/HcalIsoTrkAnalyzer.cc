@@ -28,6 +28,10 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+//Muons
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
 //Triggers
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -112,7 +116,8 @@ private:
                               edm::Handle<HBHERecHitCollection>& hbhe,
                               edm::Handle<CaloTowerCollection>& towerHandle,
                               edm::Handle<reco::GenParticleCollection>& genParticles,
-                              const HcalRespCorrs* respCorrs);
+                              const HcalRespCorrs* respCorrs,
+                              const edm::Handle<reco::MuonCollection>& muonh);
   double dR(math::XYZTLorentzVector&, math::XYZTLorentzVector&);
   double trackP(const reco::Track*, const edm::Handle<reco::GenParticleCollection>&);
   double rhoh(const edm::Handle<CaloTowerCollection>&);
@@ -125,6 +130,7 @@ private:
                    double& eHcal,
                    std::vector<unsigned int>* detIds,
                    std::vector<double>* hitEnergies);
+  bool notaMuon(const reco::Track* pTrack0, const edm::Handle<reco::MuonCollection>& muonh);
 
   l1t::L1TGlobalUtil* l1GtUtils_;
   edm::Service<TFileService> fs;
@@ -168,7 +174,17 @@ private:
   edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
   edm::EDGetTokenT<CaloTowerCollection> tok_cala_;
   edm::EDGetTokenT<GenEventInfoProduct> tok_ew_;
-  edm::EDGetTokenT<BXVector<GlobalAlgBlk>> tok_alg_;
+  edm::EDGetTokenT<BXVector<GlobalAlgBlk> > tok_alg_;
+  edm::EDGetTokenT<reco::MuonCollection> tok_Muon_;
+
+  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_ddrec_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_bFieldH_;
+  edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> tok_ecalChStatus_;
+  edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> tok_sevlv_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  edm::ESGetToken<CaloTopology, CaloTopologyRecord> tok_caloTopology_;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
+  edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_resp_;
 
   TTree *tree, *tree2;
   unsigned int t_RunNo, t_EventNo;
@@ -194,7 +210,7 @@ private:
 };
 
 HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig)
-    : trigNames_(iConfig.getParameter<std::vector<std::string>>("triggers")),
+    : trigNames_(iConfig.getParameter<std::vector<std::string> >("triggers")),
       theTrackQuality_(iConfig.getParameter<std::string>("trackQuality")),
       processName_(iConfig.getParameter<std::string>("processName")),
       l1Filter_(iConfig.getParameter<std::string>("l1Filter")),
@@ -240,8 +256,8 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig)
       labelHBHE_(iConfig.getParameter<std::string>("labelHBHERecHit")),
       labelTower_(iConfig.getParameter<std::string>("labelCaloTower")),
       l1TrigName_(iConfig.getUntrackedParameter<std::string>("l1TrigName", "L1_SingleJet60")),
-      oldID_(iConfig.getUntrackedParameter<std::vector<int>>("oldID")),
-      newDepth_(iConfig.getUntrackedParameter<std::vector<int>>("newDepth")),
+      oldID_(iConfig.getUntrackedParameter<std::vector<int> >("oldID")),
+      newDepth_(iConfig.getUntrackedParameter<std::vector<int> >("newDepth")),
       hep17_(iConfig.getUntrackedParameter<bool>("hep17")),
       nRun_(0),
       nLow_(0),
@@ -276,6 +292,8 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig)
   std::string prdnam = iConfig.getUntrackedParameter<std::string>("producerName", "");
   edm::InputTag algTag = iConfig.getParameter<edm::InputTag>("algInputTag");
   edm::InputTag extTag = iConfig.getParameter<edm::InputTag>("extInputTag");
+  std::string labelMuon = iConfig.getParameter<std::string>("labelMuon");
+
   for (unsigned int k = 0; k < oldID_.size(); ++k) {
     oldDet_.emplace_back((oldID_[k] / 10000) % 10);
     oldEta_.emplace_back((oldID_[k] / 100) % 100);
@@ -291,7 +309,8 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig)
   tok_ew_ = consumes<GenEventInfoProduct>(edm::InputTag("generator"));
   tok_parts_ = consumes<reco::GenParticleCollection>(edm::InputTag("genParticles"));
   tok_cala_ = consumes<CaloTowerCollection>(labelTower_);
-  tok_alg_ = consumes<BXVector<GlobalAlgBlk>>(algTag);
+  tok_alg_ = consumes<BXVector<GlobalAlgBlk> >(algTag);
+  tok_Muon_ = consumes<reco::MuonCollection>(labelMuon);
 
   if (modnam.empty()) {
     tok_recVtx_ = consumes<reco::VertexCollection>(labelRecVtx_);
@@ -301,8 +320,8 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig)
     edm::LogVerbatim("HcalIsoTrack") << "Labels used " << triggerEvent_ << " " << theTriggerResultsLabel_ << " "
                                      << labelBS << " " << labelRecVtx_ << " " << labelGenTrack_ << " "
                                      << edm::InputTag("ecalRecHit", labelEB_) << " "
-                                     << edm::InputTag("ecalRecHit", labelEE_) << " " << labelHBHE_ << " "
-                                     << labelTower_;
+                                     << edm::InputTag("ecalRecHit", labelEE_) << " " << labelHBHE_ << " " << labelTower_
+                                     << " " << labelMuon;
   } else {
     tok_recVtx_ = consumes<reco::VertexCollection>(edm::InputTag(modnam, labelRecVtx_, prdnam));
     tok_EB_ = consumes<EcalRecHitCollection>(edm::InputTag(modnam, labelEB_, prdnam));
@@ -312,8 +331,18 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig)
                                      << labelBS << " " << edm::InputTag(modnam, labelRecVtx_, prdnam) << " "
                                      << labelGenTrack_ << " " << edm::InputTag(modnam, labelEB_, prdnam) << " "
                                      << edm::InputTag(modnam, labelEE_, prdnam) << " "
-                                     << edm::InputTag(modnam, labelHBHE_, prdnam) << " " << labelTower_;
+                                     << edm::InputTag(modnam, labelHBHE_, prdnam) << " " << labelTower_ << " "
+                                     << labelMuon;
   }
+
+  tok_ddrec_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>();
+  tok_bFieldH_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
+  tok_ecalChStatus_ = esConsumes<EcalChannelStatus, EcalChannelStatusRcd>();
+  tok_sevlv_ = esConsumes<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd>();
+  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
+  tok_caloTopology_ = esConsumes<CaloTopology, CaloTopologyRecord>();
+  tok_htopo_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
+  tok_resp_ = esConsumes<HcalRespCorrs, HcalRespCorrsRcd>();
 
   edm::LogVerbatim("HcalIsoTrack")
       << "Parameters read from config file \n"
@@ -374,34 +403,16 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
                                    << " Luminosity " << iEvent.luminosityBlock() << " Bunch " << iEvent.bunchCrossing();
 #endif
   //Get magnetic field and ECAL channel status
-  edm::ESHandle<MagneticField> bFieldH;
-  iSetup.get<IdealMagneticFieldRecord>().get(bFieldH);
-  const MagneticField* bField = bFieldH.product();
-
-  edm::ESHandle<EcalChannelStatus> ecalChStatus;
-  iSetup.get<EcalChannelStatusRcd>().get(ecalChStatus);
-  const EcalChannelStatus* theEcalChStatus = ecalChStatus.product();
-
-  edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
-  iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
-  const EcalSeverityLevelAlgo* theEcalSevlv = sevlv.product();
+  const MagneticField* bField = &iSetup.getData(tok_bFieldH_);
+  const EcalChannelStatus* theEcalChStatus = &iSetup.getData(tok_ecalChStatus_);
+  const EcalSeverityLevelAlgo* theEcalSevlv = &iSetup.getData(tok_sevlv_);
 
   // get handles to calogeometry and calotopology
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
-  const CaloGeometry* geo = pG.product();
-
-  edm::ESHandle<CaloTopology> theCaloTopology;
-  iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
-  const CaloTopology* caloTopology = theCaloTopology.product();
-
-  edm::ESHandle<HcalTopology> htopo;
-  iSetup.get<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology* theHBHETopology = htopo.product();
-
-  edm::ESHandle<HcalRespCorrs> resp;
-  iSetup.get<HcalRespCorrsRcd>().get(resp);
-  HcalRespCorrs* respCorrs = new HcalRespCorrs(*resp.product());
+  const CaloGeometry* geo = &iSetup.getData(tok_geom_);
+  const CaloTopology* caloTopology = &iSetup.getData(tok_caloTopology_);
+  const HcalTopology* theHBHETopology = &iSetup.getData(tok_htopo_);
+  const HcalRespCorrs* resp = &iSetup.getData(tok_resp_);
+  HcalRespCorrs* respCorrs = new HcalRespCorrs(*resp);
   respCorrs->setTopo(theHBHETopology);
 
   //=== genParticle information
@@ -416,6 +427,10 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
     edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelGenTrack_;
     okC = false;
   }
+
+  //Get muon collection
+  edm::Handle<reco::MuonCollection> muonh;
+  iEvent.getByToken(tok_Muon_, muonh);
 
   //event weight for FLAT sample
   t_EventWeight = 1.0;
@@ -502,7 +517,7 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
 
   //L1
   l1GtUtils_->retrieveL1(iEvent, iSetup, tok_alg_);
-  const std::vector<std::pair<std::string, bool>>& finalDecisions = l1GtUtils_->decisionsFinal();
+  const std::vector<std::pair<std::string, bool> >& finalDecisions = l1GtUtils_->decisionsFinal();
   for (const auto& decision : finalDecisions) {
     if (decision.first.find(l1TrigName_) != std::string::npos) {
       t_L1Bit = decision.second;
@@ -562,7 +577,8 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
                          hbhe,
                          caloTower,
                          genParticles,
-                         respCorrs);
+                         respCorrs,
+                         muonh);
     t_TracksSaved = ntksave[0];
     t_TracksLoose = ntksave[1];
     t_TracksTight = ntksave[2];
@@ -670,7 +686,8 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
                                  hbhe,
                                  caloTower,
                                  genParticles,
-                                 respCorrs);
+                                 respCorrs,
+                                 muonh);
               t_TracksSaved += ntksave[0];
               t_TracksLoose += ntksave[1];
               t_TracksTight += ntksave[2];
@@ -771,9 +788,7 @@ void HcalIsoTrkAnalyzer::beginJob() {
 
 // ------------ method called when starting to processes a run  ------------
 void HcalIsoTrkAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
-  edm::ESHandle<HcalDDDRecConstants> pHRNDC;
-  iSetup.get<HcalRecNumberingRecord>().get(pHRNDC);
-  hdc_ = pHRNDC.product();
+  hdc_ = &iSetup.getData(tok_ddrec_);
 
   bool changed_(true);
   bool flag = hltConfig_.init(iRun, iSetup, processName_, changed_);
@@ -781,7 +796,6 @@ void HcalIsoTrkAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& i
                                    << " init flag " << flag << " change flag " << changed_;
   // check if trigger names in (new) config
   if (changed_) {
-    changed_ = false;
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HcalIsoTrack") << "New trigger menu found !!!";
 #endif
@@ -818,7 +832,7 @@ void HcalIsoTrkAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descri
                                    "HLT_PFJet400",
                                    "HLT_PFJet450",
                                    "HLT_PFJet500"};
-  desc.add<std::vector<std::string>>("triggers", trig);
+  desc.add<std::vector<std::string> >("triggers", trig);
   desc.add<std::string>("processName", "HLT");
   desc.add<std::string>("l1Filter", "");
   desc.add<std::string>("l2Filter", "L2Filter");
@@ -872,6 +886,7 @@ void HcalIsoTrkAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<std::string>("labelHBHERecHit", "hbhereco");
   desc.add<std::string>("labelBeamSpot", "offlineBeamSpot");
   desc.add<std::string>("labelCaloTower", "towerMaker");
+  desc.add<std::string>("labelMuon", "muons");
   desc.add<edm::InputTag>("algInputTag", edm::InputTag("gtStage2Digis"));
   desc.add<edm::InputTag>("extInputTag", edm::InputTag("gtStage2Digis"));
   desc.addUntracked<std::string>("moduleName", "");
@@ -888,8 +903,8 @@ void HcalIsoTrkAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.addUntracked<std::string>("l1TrigName", "L1_SingleJet60");
   desc.addUntracked<int>("outMode", 11);
   std::vector<int> dummy;
-  desc.addUntracked<std::vector<int>>("oldID", dummy);
-  desc.addUntracked<std::vector<int>>("newDepth", dummy);
+  desc.addUntracked<std::vector<int> >("oldID", dummy);
+  desc.addUntracked<std::vector<int> >("newDepth", dummy);
   desc.addUntracked<bool>("hep17", false);
   descriptions.add("HcalIsoTrkAnalyzer", desc);
 }
@@ -909,7 +924,8 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
                                                 edm::Handle<HBHERecHitCollection>& hbhe,
                                                 edm::Handle<CaloTowerCollection>& tower,
                                                 edm::Handle<reco::GenParticleCollection>& genParticles,
-                                                const HcalRespCorrs* respCorrs) {
+                                                const HcalRespCorrs* respCorrs,
+                                                const edm::Handle<reco::MuonCollection>& muonh) {
   int nSave(0), nLoose(0), nTight(0);
   //Loop over tracks
   std::vector<spr::propagatedTrackDirection>::const_iterator trkDetItr;
@@ -969,7 +985,8 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
                                      << trkDetItr->okHCAL << " eIsolation " << eIsolation;
 #endif
     t_qltyFlag = (qltyFlag && trkDetItr->okECAL && trkDetItr->okHCAL);
-    if (t_qltyFlag) {
+    bool notMuon = (muonh.isValid()) ? notaMuon(pTrack, muonh) : true;
+    if (t_qltyFlag && notMuon) {
       nselTracks++;
       int nNearTRKs(0);
       ////////////////////////////////-MIP STUFF-//////////////////////////////
@@ -1396,6 +1413,31 @@ void HcalIsoTrkAnalyzer::storeEnergy(int indx,
   for (unsigned int k = 0; k < detIds->size(); ++k)
     edm::LogVerbatim("HcalIsoTrack") << "Hit [" << k << "] " << HcalDetId((*detIds)[k]) << " E " << (*hitEnergies)[k];
 #endif
+}
+
+bool HcalIsoTrkAnalyzer::notaMuon(const reco::Track* pTrack0, const edm::Handle<reco::MuonCollection>& muonh) {
+  bool flag(true);
+  for (reco::MuonCollection::const_iterator recMuon = muonh->begin(); recMuon != muonh->end(); ++recMuon) {
+    if (recMuon->innerTrack().isNonnull()) {
+      const reco::Track* pTrack = (recMuon->innerTrack()).get();
+      bool mediumMuon = (((recMuon->isPFMuon()) && (recMuon->isGlobalMuon() || recMuon->isTrackerMuon())) &&
+                         (recMuon->innerTrack()->validFraction() > 0.49));
+      if (mediumMuon) {
+        double chiGlobal = ((recMuon->globalTrack().isNonnull()) ? recMuon->globalTrack()->normalizedChi2() : 999);
+        bool goodGlob = (recMuon->isGlobalMuon() && chiGlobal < 3 &&
+                         recMuon->combinedQuality().chi2LocalPosition < 12 && recMuon->combinedQuality().trkKink < 20);
+        mediumMuon = muon::segmentCompatibility(*recMuon) > (goodGlob ? 0.303 : 0.451);
+      }
+      if (mediumMuon) {
+        double dR = reco::deltaR(pTrack->eta(), pTrack->phi(), pTrack0->eta(), pTrack0->phi());
+        if (dR < 0.1) {
+          flag = false;
+          break;
+        }
+      }
+    }
+  }
+  return flag;
 }
 
 //define this as a plug-in

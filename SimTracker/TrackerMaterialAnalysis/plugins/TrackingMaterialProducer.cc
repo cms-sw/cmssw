@@ -84,6 +84,7 @@ TrackingMaterialProducer::TrackingMaterialProducer(const edm::ParameterSet& iPSe
   m_txtOutFile = config.getUntrackedParameter<std::string>("txtOutFile");
   m_hgcalzfront = config.getParameter<double>("hgcalzfront");
   m_tracks = nullptr;
+  m_track_volume = nullptr;
 
   produces<std::vector<MaterialAccountingTrack> >();
   output_file_ = new TFile("radLen_vs_eta_fromProducer.root", "RECREATE");
@@ -140,6 +141,7 @@ void TrackingMaterialProducer::update(const BeginOfEvent* event) {
 //-------------------------------------------------------------------------
 void TrackingMaterialProducer::update(const BeginOfTrack* event) {
   m_track.reset();
+  m_track_volume = nullptr;
 
   // prevent secondary tracks from propagating
   G4Track* track = const_cast<G4Track*>((*event)());
@@ -281,12 +283,25 @@ void TrackingMaterialProducer::update(const G4Step* step) {
   }
 
   // update track accounting
-  if (enter_sensitive)
-    m_track.enterDetector(sensitive, position, cosThetaPre);
+  if (enter_sensitive) {
+    if (m_track_volume != nullptr) {
+      edm::LogWarning("TrackingMaterialProducer") << "Entering volume " << sensitive << " while inside volume "
+                                                  << m_track_volume << ". Something is inconsistent";
+      m_track.reset();
+    }
+    m_track_volume = sensitive;
+    m_track.enterDetector(position, cosThetaPre);
+  }
   m_track.step(MaterialAccountingStep(length, radiationLengths, energyLoss, globalPositionIn, globalPositionOut));
-  if (leave_sensitive)
-    m_track.leaveDetector(sensitive, cosThetaPost);
-
+  if (leave_sensitive) {
+    if (m_track_volume != sensitive) {
+      edm::LogWarning("TrackingMaterialProducer") << "Leaving volume " << sensitive << " while inside volume "
+                                                  << m_track_volume << ". Something is inconsistent";
+      m_track.reset();
+    } else
+      m_track.leaveDetector(cosThetaPost);
+    m_track_volume = nullptr;
+  }
   if (sensitive)
     LogInfo("TrackingMaterialProducer") << "Track was near sensitive     volume " << sensitive->GetName() << std::endl;
   else

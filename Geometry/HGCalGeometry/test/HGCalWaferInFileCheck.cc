@@ -74,7 +74,7 @@ void HGCalWaferInFileCheck::analyze(const edm::Event& iEvent, const edm::EventSe
   const HGCalGeometry* geom = &geomR;
   const auto& hgdc = geom->topology().dddConstants();
 
-  std::cout << nameDetector_ << "\nCheck Wafers in file are all valid for " << nameDetector_ << std::endl << std::endl;
+  std::cout << nameDetector_ << "\nCheck Wafers in file are all valid for " << nameDetector_ << "\n\n";
   if (hgdc.waferHexagon8()) {
     DetId::Detector det = (nameSense_ == "HGCalHESiliconSensitive") ? DetId::HGCalHSi : DetId::HGCalEE;
     static std::vector<std::string> types = {"F", "b", "g", "gm", "a", "d", "dm", "c", "X"};
@@ -97,9 +97,7 @@ void HGCalWaferInFileCheck::analyze(const edm::Event& iEvent, const edm::EventSe
         ++bad1;
       }
     }
-    std::cout << "\n\nFinds " << bad1 << " invalid wafers among " << hgdc.waferFileSize() << " wafers in the list"
-              << std::endl
-              << std::endl;
+    std::cout << "\n\nFinds " << bad1 << " invalid wafers among " << hgdc.waferFileSize() << " wafers in the list\n\n";
 
     // See if some of the valid wafers are missing
     auto const& ids = geom->getValidGeomDetIds();
@@ -125,11 +123,10 @@ void HGCalWaferInFileCheck::analyze(const edm::Event& iEvent, const edm::EventSe
       }
     }
     std::cout << "\n\nFinds " << bad2 << " missing wafers among " << all << " valid wafers and " << xtra
-              << " extra ones" << std::endl
-              << std::endl;
+              << " extra ones\n\n";
 
     // Now cross check the content
-    int allG(0), badT(0), badP(0), badR(0), badG(0), badT1(0), badT2(0);
+    int allG(0), badT(0), badP(0), badP2(0), badR(0), badG(0), badT1(0), badT2(0);
     for (unsigned int k = 0; k < hgdc.waferFileSize(); ++k) {
       int indx = hgdc.waferFileIndex(k);
       int type1 = std::get<0>(hgdc.waferFileInfo(k));
@@ -147,6 +144,8 @@ void HGCalWaferInFileCheck::analyze(const edm::Event& iEvent, const edm::EventSe
         bool typeOK = (type1 == type2);
         bool partOK = ((part1 == part2) || ((part1 == HGCalTypes::WaferFull) && (part2 == HGCalTypes::WaferOut)));
         bool rotnOK = ((rotn1 == rotn2) || (part1 == HGCalTypes::WaferFull) || (part2 == HGCalTypes::WaferFull));
+        if (part1 < part2)
+          ++badP2;
         if (!typeOK) {
           ++badT;
           if (type1 == 0)
@@ -166,14 +165,13 @@ void HGCalWaferInFileCheck::analyze(const edm::Event& iEvent, const edm::EventSe
           std::cout << "ID[" << k << "]: (" << (hgdc.getLayerOffset() + layer) << ", " << waferU << ", " << waferV
                     << ", " << type1 << ":" << type2 << ", " << partx1 << ":" << partx2 << ", " << rotn1 << ":" << rotn2
                     << ") at (" << std::setprecision(4) << xy.first << ", " << xy.second << ", "
-                    << hgdc.waferZ(layer, true) << ") failure flag " << typeOK << ":" << partOK << ":" << rotnOK
-                    << std::endl;
+                    << hgdc.waferZ(layer, true) << ") failure flag " << typeOK << ":" << partOK << ":" << rotnOK << ":"
+                    << (part1 >= part2) << std::endl;
         }
       }
     }
-    std::cout << "\n\nFinds " << badG << " (" << badT << "[" << badT1 << ":" << badT2 << "]:" << badP << ":" << badR
-              << ") mismatch among " << allG << " wafers with the same indices" << std::endl
-              << std::endl;
+    std::cout << "\n\nFinds " << badG << " (" << badT << "[" << badT1 << ":" << badT2 << "]:" << badP << ":" << badP2
+              << ":" << badR << ") mismatch among " << allG << " wafers with the same indices\n\n";
   }
 }
 

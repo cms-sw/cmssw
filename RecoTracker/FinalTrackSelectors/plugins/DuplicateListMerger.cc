@@ -78,7 +78,7 @@ namespace {
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/ClusterRemovalRefSetter.h"
+#include "TrackingTools/PatternTools/interface/ClusterRemovalRefSetter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"

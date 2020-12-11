@@ -24,7 +24,7 @@ public:
 
   void clear();
 
-  void addPartToHepMC(HepMC::GenEvent*);
+  void addPartToHepMC(const HepMC::GenEvent*, HepMC::GenEvent*);
 
   void ApplyBeamCorrection(HepMC::GenParticle* p);
   void ApplyBeamCorrection(TLorentzVector& p);

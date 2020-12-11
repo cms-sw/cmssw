@@ -4,7 +4,6 @@
 <use name="DataFormats/RecoCandidate"/>
 <use name="DataFormats/TrackReco"/>
 <use name="DataFormats/L1Trigger"/>
-<use name="FWCore/MessageLogger"/>
 <export>
   <lib name="1"/>
 </export>

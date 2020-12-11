@@ -1,5 +1,5 @@
 
-#include "FWCore/ParameterSet/interface/FillDescriptionFromPSet.h"
+#include "FWCore/ParameterSet/src/FillDescriptionFromPSet.h"
 #include "FWCore/ParameterSet/interface/ParameterDescriptionNode.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

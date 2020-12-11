@@ -56,6 +56,13 @@ int main(int argc, char** argv) {
   histo5.process(connectionString, PI::mk_input(tag, end, end));
   edm::LogPrint("testSiPixelPayloadInspector") << histo5.data() << std::endl;
 
+  std::string f_tagPhase2 = "SiPixelLorentzAngle_phase2_T15_v5_mc";
+  std::string l_tagPhase2 = "SiPixelLorentzAngle_phase2_T19_v1_mc";
+
+  SiPixelLorentzAngleValuesBarrelCompareTwoTags histoPhase2;
+  histoPhase2.process(connectionString, PI::mk_input(f_tagPhase2, 1, 1, l_tagPhase2, 1, 1));
+  edm::LogPrint("testSiPixelPayloadInspector") << histoPhase2.data() << std::endl;
+
   // 2 tags comparisons
 
   std::string tag2 = "SiPixelLorentzAngle_2016_ultralegacymc_v2";

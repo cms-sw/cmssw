@@ -164,6 +164,8 @@ void PFECALSuperClusterProducer::beginLuminosityBlock(LuminosityBlock const& iL,
 }
 
 void PFECALSuperClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  // update SC parameters
+  superClusterAlgo_.updateSCParams(iSetup);
   // do clustering
   superClusterAlgo_.loadAndSortPFClusters(iEvent);
   superClusterAlgo_.run();

@@ -1,10 +1,7 @@
-<use name="DataFormats/GeometrySurface"/>
-<use name="DataFormats/GeometryVector"/>
 <use name="DataFormats/MuonDetId"/>
 <use name="DetectorDescription/Core"/>
 <use name="FWCore/MessageLogger"/>
 <use name="Geometry/CSCGeometry"/>
-<use name="Geometry/CommonDetUnit"/>
 <use name="Geometry/MuonNumbering"/>
 <use name="DetectorDescription/DDCMS"/>
 <use name="dd4hep"/>

@@ -16,6 +16,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "RecoVertex/BeamSpotProducer/interface/BSTrkParameters.h"
@@ -47,6 +48,8 @@ public:
   PVFitter(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iColl);
   PVFitter(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iColl);
   virtual ~PVFitter();
+
+  static void fillDescription(edm::ParameterSetDescription&);
 
   void initialize(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iColl);
   void readEvent(const edm::Event& iEvent);

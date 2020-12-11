@@ -12,7 +12,7 @@ namespace cms {
 
   DDDetector::DDDetector(const std::string& tag, const std::string& fileName, bool bigXML) : m_tag(tag) {
     m_description = &dd4hep::Detector::getInstance(tag);
-    m_description->addExtension<dd4hep::VectorsMap>(&m_vectors);
+    m_description->addExtension<cms::DDVectorsMap>(&m_vectors);
     m_description->addExtension<dd4hep::PartSelectionMap>(&m_partsels);
     m_description->addExtension<dd4hep::SpecParRegistry>(&m_specpars);
     if (bigXML)
@@ -42,16 +42,9 @@ namespace cms {
     return m_description->worldVolume();
   }
 
-  dd4hep::PlacedVolume DDDetector::worldPlacement() const { return world().placement(); }
-
   dd4hep::DetElement DDDetector::world() const {
     assert(m_description);
     return m_description->world();
-  }
-
-  const dd4hep::Detector::HandleMap& DDDetector::detectors() const {
-    assert(m_description);
-    return m_description->detectors();
   }
 
   TGeoManager& DDDetector::manager() const {

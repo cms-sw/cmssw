@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from __future__ import print_function
-import sys
+import sys, os
 
 from Configuration.PyReleaseValidation.MatrixReader import MatrixReader
 from Configuration.PyReleaseValidation.MatrixRunner import MatrixRunner
@@ -73,8 +73,8 @@ if __name__ == '__main__':
                      136.874, #2018C EGamma
                      140.53, #2011 HI data
                      140.56, #2018 HI data
-                     158.0, #2018 HI MC with pp-like reco
                      158.01, #reMiniAOD of 2018 HI MC with pp-like reco
+                     312.0, #2021/Run3 HI MC Pyquen_ZeemumuJets_pt10 with pp-like reco
                      1306.0, #SingleMu Pt1 UP15
                      1325.7, #test NanoAOD from existing MINI
                      1330, #Run2 MC Zmm
@@ -83,6 +83,7 @@ if __name__ == '__main__':
                      10024.0, #2017 ttbar
                      10224.0, #2017 ttbar PU
                      10824.0, #2018 ttbar
+                     11624.911, #2021 DD4hep ttbar
                      11634.0, #2021 ttbar
                      12434.0, #2023 ttbar
                      23234.0, #2026D49 ttbar (HLT TDR baseline w/ HGCal v11)
@@ -281,9 +282,15 @@ if __name__ == '__main__':
                       default=False,
                       action='store_true')
 
+    parser.add_option('--sites',
+                      help='Run DAS query to get data from a specific site (default is T2_CH_CERN). Set it to empty string to search all sites.',
+                      dest='dasSites',
+                      default='T2_CH_CERN',
+                      action='store')
+
     opt,args = parser.parse_args()
+    os.environ["CMSSW_DAS_QUERY_SITES"]=opt.dasSites
     if opt.IBEos:
-      import os
       try:from commands import getstatusoutput as run_cmd
       except:from subprocess import getstatusoutput as run_cmd
 

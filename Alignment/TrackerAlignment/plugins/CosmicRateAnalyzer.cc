@@ -6,9 +6,9 @@
 /**\class CosmicRateAnalyzer CosmicRateAnalyzer.cc CosmicTrackTool/CosmicRateAnalyzer/plugins/CosmicRateAnalyzer.cc
 
  Description :
-  This Analyzer creates tuple, having necessary infromation for cosmic track and event rate calculations.
-Tuple created by this analyzer also have some kinematical information. This tuple is input of some offline
-macros that make rate plots and kinematical plots.
+  This Analyzer creates tuple, having necessary infromation for Cosmic Track Rate and Event Rate calculations.
+  Tuples created by this analyzer also have some kinematic information. This tuple is input to some offline
+  macros that make Rate plots and Kinematical plots.
 
 Implementation : Documentation for running this tool is described in twiki :
 https://twiki.cern.ch/twiki/bin/view/CMS/TkAlCosmicsRateMonitoring
@@ -16,7 +16,7 @@ https://twiki.cern.ch/twiki/bin/view/CMS/TkAlCosmicsRateMonitoring
 */
 // Originally created:  Justyna Magdalena Tomaszewska,,,
 // Revisited by: Ashutosh Bhardwaj and Kirti Ranjan
-// Further Developed by: Sumit Keshri (sumit.keshri@cern.ch)
+// Further Developed by: Sumit Keshri (sumit.keshri@cern.ch) & Saumya (saumya.saumya@cern.ch)
 //
 //         Created:  Sat, 30 May 2015 20:14:35 GMT
 //
@@ -55,10 +55,9 @@ https://twiki.cern.ch/twiki/bin/view/CMS/TkAlCosmicsRateMonitoring
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -92,11 +91,14 @@ private:
   void ClearInEventLoop();
   void ClearInEndRun();
   // ----------member data ---------------------------
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
+  const edm::ESGetToken<SiStripLatency, SiStripLatencyRcd> latencyToken_;
   edm::EDGetTokenT<reco::TrackCollection> trackTags_;
   edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > clustercollectionToken_;
   edm::EDGetTokenT<reco::MuonCollection> muonTags_;
   edm::RunNumber_t lastrunnum;
-  double lastruntime;
+  double lastruntime, magField;
   edm::Service<TFileService> fs;
 
   unsigned int DetectorID;
@@ -148,6 +150,12 @@ private:
   std::vector<double> dz;
   std::vector<double> nvh;
   std::vector<double> DTtime;
+  std::vector<int> nh_BPIX;
+  std::vector<int> nh_FPIX;
+  std::vector<int> nh_TIB;
+  std::vector<int> nh_TOB;
+  std::vector<int> nh_TID;
+  std::vector<int> nh_TEC;
 };
 
 //
@@ -162,7 +170,10 @@ private:
 // constructors and destructor
 //
 CosmicRateAnalyzer::CosmicRateAnalyzer(const edm::ParameterSet& iConfig)
-    : trackTags_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracksInputTag"))),
+    : magFieldToken_(esConsumes()),
+      topoToken_(esConsumes()),
+      latencyToken_(esConsumes()),
+      trackTags_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracksInputTag"))),
       clustercollectionToken_(
           consumes<edmNew::DetSetVector<SiStripCluster> >(iConfig.getParameter<edm::InputTag>("tracksInputTag"))),
       muonTags_(consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muonsInputTag"))) {
@@ -195,6 +206,12 @@ void CosmicRateAnalyzer::ClearInEventLoop() {
   dz.clear();
   nvh.clear();
   DTtime.clear();
+  nh_BPIX.clear();
+  nh_FPIX.clear();
+  nh_TIB.clear();
+  nh_TOB.clear();
+  nh_TID.clear();
+  nh_TEC.clear();
 }
 
 // ------------ method called for each event  ------------
@@ -205,11 +222,10 @@ void CosmicRateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   edm::Handle<reco::TrackCollection> tracks;
   iEvent.getByToken(trackTags_, tracks);
 
-  edm::ESHandle<MagneticField> magfield;
-  iSetup.get<IdealMagneticFieldRecord>().get(magfield);
-
-  edm::ESHandle<TrackerTopology> tTopo;
-  iSetup.get<TrackerTopologyRcd>().get(tTopo);
+  const TrackerTopology* const tTopo = &iSetup.getData(topoToken_);
+  const MagneticField* magneticField = &iSetup.getData(magFieldToken_);
+  magField = magneticField->inTesla(GlobalPoint(0, 0, 0)).mag();
+  //const SiStripLatency* apvlat = &iSetup.getData(latencyToken_); // unused (for the moment)
 
   edm::Timestamp ts_begin = iEvent.getRun().beginTime();
   double t_begin = stampToReal(ts_begin);
@@ -218,9 +234,6 @@ void CosmicRateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   lastruntime = t_end - t_begin;
   lastrunnum = iEvent.getRun().run();
-
-  edm::ESHandle<SiStripLatency> apvlat;
-  iSetup.get<SiStripLatencyRcd>().get(apvlat);
 
   if (!tracks->empty())
     v_ntrk.push_back(tracks->size());
@@ -238,6 +251,12 @@ void CosmicRateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     d0.push_back(itTrack1->d0());
     dz.push_back(itTrack1->dz());
     nvh.push_back(itTrack1->numberOfValidHits());
+    nh_BPIX.push_back(itTrack1->hitPattern().numberOfValidPixelBarrelHits());
+    nh_FPIX.push_back(itTrack1->hitPattern().numberOfValidPixelEndcapHits());
+    nh_TIB.push_back(itTrack1->hitPattern().numberOfValidStripTIBHits());
+    nh_TOB.push_back(itTrack1->hitPattern().numberOfValidStripTOBHits());
+    nh_TID.push_back(itTrack1->hitPattern().numberOfValidStripTIDHits());
+    nh_TEC.push_back(itTrack1->hitPattern().numberOfValidStripTECHits());
 
     int nhitinBPIX = 0;
     int nhitinFPIX = 0;
@@ -264,7 +283,6 @@ void CosmicRateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
       if (PixelSubdetector::PixelBarrel == subdetId1) {
         ++nhitinBPIX;
         ++nhitinPIXEL;
-        PixelBarrelName pxbId1(detId1);
       }
       ///////////////////////////////////////////////////////////////////////////////////////////////////
       //			Hit information in PixelEndcap                                  	//
@@ -389,7 +407,14 @@ void CosmicRateAnalyzer::beginJob() {
   treeEvent->Branch("dz", &dz);
   treeEvent->Branch("nvh", &nvh);
   treeEvent->Branch("ntrk", &ntrk);
+  treeEvent->Branch("nHitsBPIX", &nh_BPIX);
+  treeEvent->Branch("nHitsFPIX", &nh_FPIX);
+  treeEvent->Branch("nHitsTIB", &nh_TIB);
+  treeEvent->Branch("nHitsTOB", &nh_TOB);
+  treeEvent->Branch("nHitsTID", &nh_TID);
+  treeEvent->Branch("nHitsTEC", &nh_TEC);
   treeEvent->Branch("DTtime", &DTtime);
+  treeEvent->Branch("magField", &magField);
   treeRun->Branch("run_time", &run_time);
   treeRun->Branch("runnum", &runnum);
   treeRun->Branch("number_of_events", &number_of_events);

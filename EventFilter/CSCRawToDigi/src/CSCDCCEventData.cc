@@ -10,7 +10,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <cstdio>
-#include "EventFilter/CSCRawToDigi/src/bitset_append.h"
+#include "EventFilter/CSCRawToDigi/interface/bitset_append.h"
 
 #ifdef LOCAL_UNPACK
 bool CSCDCCEventData::debug = false;
@@ -30,7 +30,7 @@ CSCDCCEventData::~CSCDCCEventData() {}
 void CSCDCCEventData::unpack_data(const uint16_t* buf, CSCDCCExaminer* examiner) {
   /*
   for (int i=0;i<20;i++) {
-    printf("%04x %04x %04x %04x\n",buf[i+3],buf[i+2],buf[i+1],buf[i]); 
+    printf("%04x %04x %04x %04x\n",buf[i+3],buf[i+2],buf[i+1],buf[i]);
     i+=3;
   }
 */

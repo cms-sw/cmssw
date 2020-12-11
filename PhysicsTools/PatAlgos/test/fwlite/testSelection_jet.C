@@ -10,50 +10,44 @@ This example creates a histogram of Jet Pt, using Jets with Pt above 30 and ETA 
 #include "TCanvas.h"
 #include "TLegend.h"
 
-
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 #include "DataFormats/PatCandidates/interface/Jet.h"
-#include "PhysicsTools/PatUtils/interface/JetIDSelectionFunctor.h"
+#include "PhysicsTools/SelectorUtils/interface/JetIDSelectionFunctor.h"
 #endif
 
 #include <iostream>
-#include <cmath>      //necessary for absolute function fabs()
+#include <cmath>  //necessary for absolute function fabs()
 
 using namespace std;
 
-void sk_fwlitecuts()
-{
-  JetIDSelectionFunctor jetId( JetIDSelectionFunctor::CRAFT08, JetIDSelectionFunctor::TIGHT );
+void sk_fwlitecuts() {
+  JetIDSelectionFunctor jetId(JetIDSelectionFunctor::CRAFT08, JetIDSelectionFunctor::TIGHT);
 
-
-  TFile  * file = new TFile("PATLayer1_Output.fromAOD_full.root");
-  TH1D * hist_jetPt = new TH1D("hist_jetPt", "Jet p_{T}", 20, 0, 100 );
+  TFile* file = new TFile("PATLayer1_Output.fromAOD_full.root");
+  TH1D* hist_jetPt = new TH1D("hist_jetPt", "Jet p_{T}", 20, 0, 100);
   fwlite::Event ev(file);
 
   //loop through each event
-  for( ev.toBegin();
-         ! ev.atEnd();
-         ++ev) {
+  for (ev.toBegin(); !ev.atEnd(); ++ev) {
     fwlite::Handle<std::vector<pat::Jet> > h_mu;
-    h_mu.getByLabel(ev,"cleanLayer1Jets");
-    if (!h_mu.isValid() ) continue;
-    vector<pat::Jet> const & jets = *h_mu;
+    h_mu.getByLabel(ev, "cleanLayer1Jets");
+    if (!h_mu.isValid())
+      continue;
+    vector<pat::Jet> const& jets = *h_mu;
 
-   //loop through each Jet
-   vector<pat::Jet>::const_iterator iter;
-   for ( iter = jets.begin(); iter != jets.end() ; ++iter) {
-   
-     if ( (iter->pt() > 30 ) && ( fabs(iter->eta() ) < 2.1)  ) {
-       cout << "Passed kin" << endl;
-       if ( jetId( *iter ) ) {
-	 cout << "Passed ID" << endl;
-	 hist_jetPt->Fill( iter->pt() );
-       }
-     }
-       
+    //loop through each Jet
+    vector<pat::Jet>::const_iterator iter;
+    for (iter = jets.begin(); iter != jets.end(); ++iter) {
+      if ((iter->pt() > 30) && (fabs(iter->eta()) < 2.1)) {
+        cout << "Passed kin" << endl;
+        if (jetId(*iter)) {
+          cout << "Passed ID" << endl;
+          hist_jetPt->Fill(iter->pt());
+        }
+      }
 
-   }   //end Jet loop   
-   }   //end event loop
+    }  //end Jet loop
+  }    //end event loop
 
-   hist_jetPt->Draw();   
+  hist_jetPt->Draw();
 }

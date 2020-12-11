@@ -45,6 +45,7 @@
 #include "FWCore/Framework/interface/ValidityInterval.h"
 #include "FWCore/Framework/interface/EventSetupRecordImpl.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Utilities/interface/ESGetTokenGeneric.h"
 #include "FWCore/Utilities/interface/ESInputTag.h"
 #include "FWCore/Utilities/interface/ESIndices.h"
 #include "FWCore/Utilities/interface/Likely.h"
@@ -111,10 +112,9 @@ namespace edm {
 
       template <typename HolderT>
       bool get(char const* iName, HolderT& iHolder) const {
-        if
-          UNLIKELY(requireTokens_) {
-            throwCalledGetWithoutToken(heterocontainer::className<typename HolderT::value_type>(), iName);
-          }
+        if UNLIKELY (requireTokens_) {
+          throwCalledGetWithoutToken(heterocontainer::className<typename HolderT::value_type>(), iName);
+        }
         typename HolderT::value_type const* value = nullptr;
         ComponentDescription const* desc = nullptr;
         std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
@@ -136,10 +136,9 @@ namespace edm {
 
       template <typename HolderT>
       bool get(ESInputTag const& iTag, HolderT& iHolder) const {
-        if
-          UNLIKELY(requireTokens_) {
-            throwCalledGetWithoutToken(heterocontainer::className<typename HolderT::value_type>(), iTag.data().c_str());
-          }
+        if UNLIKELY (requireTokens_) {
+          throwCalledGetWithoutToken(heterocontainer::className<typename HolderT::value_type>(), iTag.data().c_str());
+        }
         typename HolderT::value_type const* value = nullptr;
         ComponentDescription const* desc = nullptr;
         std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
@@ -157,7 +156,7 @@ namespace edm {
       }
 
       ///returns false if no data available for key
-      bool doGet(DataKey const& aKey, bool aGetTransiently = false) const;
+      bool doGet(ESGetTokenGeneric const&, bool aGetTransiently = false) const;
 
       /**returns true only if someone has already requested data for this key
           and the data was retrieved
@@ -207,17 +206,22 @@ namespace edm {
     protected:
       template <template <typename> typename H, typename T, typename R>
       H<T> getHandleImpl(ESGetToken<T, R> const& iToken) const {
-        if
-          UNLIKELY(iToken.transitionID() != transitionID()) { throwWrongTransitionID(); }
-        assert(iToken.isInitialized());
+        if UNLIKELY (not iToken.isInitialized()) {
+          std::rethrow_exception(makeUninitializedTokenException(this->key(), DataKey::makeTypeTag<T>()));
+        }
+        if UNLIKELY (iToken.transitionID() != transitionID()) {
+          throwWrongTransitionID();
+        }
         assert(getTokenIndices_);
         //need to check token has valid index
-        if
-          UNLIKELY(not iToken.hasValidIndex()) { return invalidTokenHandle<H>(iToken); }
+        if UNLIKELY (not iToken.hasValidIndex()) {
+          return invalidTokenHandle<H>(iToken);
+        }
 
         auto proxyIndex = getTokenIndices_[iToken.index().value()];
-        if
-          UNLIKELY(proxyIndex.value() == std::numeric_limits<int>::max()) { return noProxyHandle<H>(iToken); }
+        if UNLIKELY (proxyIndex.value() == std::numeric_limits<int>::max()) {
+          return noProxyHandle<H>(iToken);
+        }
 
         T const* value = nullptr;
         ComponentDescription const* desc = nullptr;
@@ -225,8 +229,9 @@ namespace edm {
 
         impl_->getImplementation(value, proxyIndex, H<T>::transientAccessOnly, desc, whyFailedFactory, eventSetupImpl_);
 
-        if
-          UNLIKELY(not value) { return H<T>(std::move(whyFailedFactory)); }
+        if UNLIKELY (not value) {
+          return H<T>(std::move(whyFailedFactory));
+        }
         return H<T>(value, desc);
       }
 
@@ -251,8 +256,9 @@ namespace edm {
       template <template <typename> typename H, typename T, typename R>
       H<T> invalidTokenHandle(ESGetToken<T, R> const& iToken) const {
         auto const key = this->key();
-        return H<T>{
-            makeESHandleExceptionFactory([key] { return makeInvalidTokenException(key, DataKey::makeTypeTag<T>()); })};
+        return H<T>{makeESHandleExceptionFactory([key, transitionID = iToken.transitionID()] {
+          return makeInvalidTokenException(key, DataKey::makeTypeTag<T>(), transitionID);
+        })};
       }
 
       template <template <typename> typename H, typename T, typename R>
@@ -269,7 +275,8 @@ namespace edm {
                                ComponentDescription const*& iDesc,
                                bool iTransientAccessOnly) const;
 
-      static std::exception_ptr makeInvalidTokenException(EventSetupRecordKey const&, TypeTag const&);
+      static std::exception_ptr makeUninitializedTokenException(EventSetupRecordKey const&, TypeTag const&);
+      static std::exception_ptr makeInvalidTokenException(EventSetupRecordKey const&, TypeTag const&, unsigned int);
       void throwWrongTransitionID() const;
       static void throwCalledGetWithoutToken(const char* iTypeName, const char* iLabel);
       // ---------- member data --------------------------------

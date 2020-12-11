@@ -13,17 +13,20 @@
  */
 
 // Base Class Headers
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "TrackingTools/GeomPropagators/interface/Propagator.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
-#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include <vector>
 
 namespace edm {
@@ -37,7 +40,7 @@ class TH2F;
 typedef std::vector<std::vector<int> > intDVector;
 typedef std::vector<TrackingRecHit *> RecHitVector;
 
-class MuonAlignmentAnalyzer : public edm::EDAnalyzer {
+class MuonAlignmentAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   /// Constructor
   MuonAlignmentAnalyzer(const edm::ParameterSet &pset);
@@ -54,6 +57,8 @@ public:
 
 protected:
 private:
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> trackingGeometryToken_;
   RecHitVector doMatching(const reco::Track &,
                           edm::Handle<DTRecSegment4DCollection> &,
                           edm::Handle<CSCSegmentCollection> &,

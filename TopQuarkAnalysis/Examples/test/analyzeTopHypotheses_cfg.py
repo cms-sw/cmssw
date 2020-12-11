@@ -4,8 +4,8 @@ process = cms.Process("TEST")
 
 ## configure message logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.categories.append('TtSemiLeptonicEvent')
-process.MessageLogger.categories.append('TtSemiLepKinFitter')
+process.MessageLogger.TtSemiLeptonicEvent=dict()
+process.MessageLogger.TtSemiLepKinFitter=dict()
 
 ## define input
 from TopQuarkAnalysis.TopEventProducers.tqafInputFiles_cff import relValTTbar

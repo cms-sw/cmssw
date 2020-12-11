@@ -2,7 +2,6 @@
   <flags NO_TESTRUN="1"/>
   <use name="DataFormats/HLTReco"/>
   <use name="FWCore/FWLite"/>
-  <use name="FWCore/Framework"/>
   <use name="root"/>
 </bin>
 

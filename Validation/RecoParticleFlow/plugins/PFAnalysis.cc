@@ -45,7 +45,7 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "CommonTools/BaseParticlePropagator/interface/BaseParticlePropagator.h"
-#include "FastSimulation/CaloGeometryTools/interface/Transform3DPJ.h"
+#include "Math/Transform3D.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/VolumeGeometry/interface/MagVolumeOutsideValidity.h"
@@ -116,7 +116,7 @@ double detid_compare(const map<uint64_t, double>& rechits,
 
 class PFAnalysis : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
-  typedef ROOT::Math::Transform3DPJ::Point Point;
+  typedef ROOT::Math::Transform3D::Point Point;
 
   PFAnalysis();
   explicit PFAnalysis(const edm::ParameterSet&);

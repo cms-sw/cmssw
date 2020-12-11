@@ -103,16 +103,16 @@ MessageLogger Summary
 
  type     category        sev    module        subroutine        count    total
  ---- -------------------- -- ---------------- ----------------  -----    -----
-    1 FwkReport            -i AfterSource                            2        2
-    2 cat_A                -i UTC_V1:ssm_1a                          2        2
-    3 cat_A                -i UTC_V1:ssm_1b                          2        2
-    4 cat_A                -i UTC_V2:ssm_2b                          2        2
-    5 cat_BPB              -i UTC_V1:ssm_1a@be                       1        1
-    6 cat_BPB              -i UTC_V1:ssm_1b@be                       1        1
-    7 cat_BR               -i UTC_V1:ssm_1a@be                       1        1
-    8 cat_BR               -i UTC_V1:ssm_1b@be                       1        1
-    9 cat_EPB              -i UTC_V1:ssm_1a@en                       1        1
-   10 cat_EPB              -i UTC_V1:ssm_1b@en                       1        1
+    1 cat_A                -i UTC_V1:ssm_1a                          2        2
+    2 cat_A                -i UTC_V1:ssm_1b                          2        2
+    3 cat_A                -i UTC_V2:ssm_2b                          2        2
+    4 cat_BPB              -i UTC_V1:ssm_1a@be                       1        1
+    5 cat_BPB              -i UTC_V1:ssm_1b@be                       1        1
+    6 cat_BR               -i UTC_V1:ssm_1a@be                       1        1
+    7 cat_BR               -i UTC_V1:ssm_1b@be                       1        1
+    8 cat_EPB              -i UTC_V1:ssm_1a@en                       1        1
+    9 cat_EPB              -i UTC_V1:ssm_1b@en                       1        1
+   10 FwkReport            -f AfterSource                            2        2
    11 cat_A                -w UTC_V1:ssm_1a                          2        2
    12 cat_A                -w UTC_V1:ssm_1b                          2        2
    13 cat_A                -w UTC_V2:ssm_2a                          2        2
@@ -128,16 +128,16 @@ MessageLogger Summary
 
  type    category    Examples: run/evt        run/evt          run/evt
  ---- -------------------- ---------------- ---------------- ----------------
-    1 FwkReport            AfterSource      AfterSource      
+    1 cat_A                1/1              1/2              
     2 cat_A                1/1              1/2              
     3 cat_A                1/1              1/2              
-    4 cat_A                1/1              1/2              
+    4 cat_BPB              pre-events                        
     5 cat_BPB              pre-events                        
-    6 cat_BPB              pre-events                        
+    6 cat_BR               Run: 1                            
     7 cat_BR               Run: 1                            
-    8 cat_BR               Run: 1                            
+    8 cat_EPB              post-events                       
     9 cat_EPB              post-events                       
-   10 cat_EPB              post-events                       
+   10 FwkReport            AfterSource      AfterSource      
    11 cat_A                1/1              1/2              
    12 cat_A                1/1              1/2              
    13 cat_A                1/1              1/2              
@@ -153,7 +153,8 @@ MessageLogger Summary
 
 Severity    # Occurrences   Total Occurrences
 --------    -------------   -----------------
-Info                   14                  14
+Info                   12                  12
+FwkInfo                 2                   2
 Warning                12                  12
 Error                   8                   8
 

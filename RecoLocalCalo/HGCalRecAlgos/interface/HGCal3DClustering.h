@@ -10,7 +10,6 @@
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/ClusterTools.h"
-#include "RecoLocalCalo/HGCalRecProducers/interface/HGCalClusteringAlgoBase.h"
 
 #include "CommonTools/RecoAlgos/interface/KDTreeLinkerAlgo.h"
 

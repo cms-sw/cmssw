@@ -7,9 +7,14 @@ process.CondDBCommon.DBParameters.authenticationPath = '.'
 process.CondDBCommon.DBParameters.messageLevel=cms.untracked.int32(1)
 
 process.MessageLogger = cms.Service("MessageLogger",
-                                    cout = cms.untracked.PSet(threshold = cms.untracked.string('INFO')),
-                                    destinations = cms.untracked.vstring('cout')
-                                    )
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('INFO')
+    )
+)
 
 process.source = cms.Source("EmptyIOVSource",
                             lastValue = cms.uint64(1),

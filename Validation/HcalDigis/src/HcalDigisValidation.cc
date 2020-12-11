@@ -16,16 +16,11 @@
 //
 //
 
-#include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
-#include <Validation/HcalDigis/interface/HcalDigisValidation.h>
-#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
-#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
+#include "Validation/HcalDigis/interface/HcalDigisValidation.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 
 HcalDigisValidation::HcalDigisValidation(const edm::ParameterSet& iConfig) {
-  using namespace std;
-
   subdet_ = iConfig.getUntrackedParameter<std::string>("subdetector", "all");
   outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile", "");
   //    inputLabel_ = iConfig.getParameter<std::string > ("digiLabel");
@@ -61,6 +56,13 @@ HcalDigisValidation::HcalDigisValidation(const edm::ParameterSet& iConfig) {
   tok_qie10_hf_ = consumes<QIE10DigiCollection>(QIE10inputTag_);
   tok_qie11_hbhe_ = consumes<QIE11DigiCollection>(QIE11inputTag_);
 
+  tok_HRNDC_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>();
+  tok_Geom_ = esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>();
+  tok_Decoder_ = esConsumes<CaloTPGTranscoder, CaloTPGRecord>();
+  tok_TPGeom_ = esConsumes<HcalTrigTowerGeometry, CaloGeometryRecord>();
+  tok_Topo_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
+  tok_Cond_ = esConsumes<HcalDbService, HcalDbRecord>();
+
   nevent1 = 0;
   nevent2 = 0;
   nevent3 = 0;
@@ -78,9 +80,8 @@ HcalDigisValidation::HcalDigisValidation(const edm::ParameterSet& iConfig) {
 HcalDigisValidation::~HcalDigisValidation() { delete msm_; }
 
 void HcalDigisValidation::dqmBeginRun(const edm::Run& run, const edm::EventSetup& es) {
-  edm::ESHandle<HcalDDDRecConstants> pHRNDC;
-  es.get<HcalRecNumberingRecord>().get(pHRNDC);
-  hcons = &(*pHRNDC);
+  const auto& pHRNDC = es.getData(tok_HRNDC_);
+  hcons = &pHRNDC;
 
   htopology = new HcalTopology(hcons);
 
@@ -92,8 +93,7 @@ void HcalDigisValidation::dqmBeginRun(const edm::Run& run, const edm::EventSetup
   maxDepth_[0] = (maxDepth_[0] > maxDepth_[3] ? maxDepth_[0] : maxDepth_[3]);
   maxDepth_[0] = (maxDepth_[0] > maxDepth_[4] ? maxDepth_[0] : maxDepth_[4]);  // any of HB/HE/HO/HF
 
-  es.get<CaloGeometryRecord>().get(geometry);
-  const CaloGeometry* geo = geometry.product();
+  const CaloGeometry* geo = &es.getData(tok_Geom_);
   const HcalGeometry* gHB = static_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal, HcalBarrel));
   const HcalGeometry* gHE = static_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal, HcalEndcap));
   const HcalGeometry* gHO = static_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal, HcalOuter));
@@ -414,19 +414,12 @@ void HcalDigisValidation::booking(DQMStore::IBooker& ib, const std::string bsubd
 }  //book
 
 void HcalDigisValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  using namespace edm;
-  using namespace std;
-
-  iSetup.get<HcalDbRecord>().get(conditions);
+  conditions = &iSetup.getData(tok_Cond_);
 
   //TP Code
-  ESHandle<CaloTPGTranscoder> decoder;
-  iSetup.get<CaloTPGRecord>().get(decoder);
-
-  ESHandle<HcalTrigTowerGeometry> tp_geometry;
-  iSetup.get<CaloGeometryRecord>().get(tp_geometry);
-
-  iSetup.get<HcalRecNumberingRecord>().get(htopo);
+  const auto& decoder = &iSetup.getData(tok_Decoder_);
+  const auto& tp_geometry = &iSetup.getData(tok_TPGeom_);
+  htopo = &iSetup.getData(tok_Topo_);
 
   //Get all handles
   edm::Handle<HcalTrigPrimDigiCollection> emulTPs;
@@ -618,7 +611,6 @@ void HcalDigisValidation::reco(const edm::Event& iEvent,
   std::string strtmp;
 
   // ======================================================================
-  using namespace edm;
   typename edm::Handle<edm::SortedCollection<Digi> > digiCollection;
   typename edm::SortedCollection<Digi>::const_iterator digiItr;
 
@@ -934,7 +926,6 @@ void HcalDigisValidation::reco(const edm::Event& iEvent,
   std::string strtmp;
 
   // ======================================================================
-  using namespace edm;
   typename edm::Handle<HcalDataFrameContainer<dataFrameType> > digiHandle;
   //typename HcalDataFrameContainer<dataFrameType>::const_iterator digiItr;
 

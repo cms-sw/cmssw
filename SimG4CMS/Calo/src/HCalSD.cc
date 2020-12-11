@@ -5,6 +5,7 @@
 
 #include "SimG4CMS/Calo/interface/HCalSD.h"
 #include "SimG4CMS/Calo/interface/HcalTestNumberingScheme.h"
+#include "SimG4CMS/Calo/interface/HcalDumpGeometry.h"
 #include "SimG4CMS/Calo/interface/HFFibreFiducial.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
@@ -28,6 +29,8 @@
 #include "G4SystemOfUnits.hh"
 #include "G4PhysicalConstants.hh"
 #include "Randomize.hh"
+
+#include "DD4hep/Filter.h"
 
 #include <iostream>
 #include <fstream>
@@ -104,6 +107,7 @@ HCalSD::HCalSD(const std::string& name,
   testNS_ = m_HC.getUntrackedParameter<bool>("TestNS", false);
   edm::ParameterSet m_HF = p.getParameter<edm::ParameterSet>("HFShower");
   applyFidCut = m_HF.getParameter<bool>("ApplyFiducialCut");
+  bool dumpGeom = m_HC.getUntrackedParameter<bool>("DumpGeometry", false);
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalSim") << "***************************************************"
@@ -189,10 +193,10 @@ HCalSD::HCalSD(const std::string& name,
     ss0 << "HCalSD: Names to be tested for Volume = HF has " << hfNames.size() << " elements";
 #endif
     for (unsigned int i = 0; i < hfNames.size(); ++i) {
-      G4String namv = static_cast<G4String>(hfNames[i]);
+      G4String namv(static_cast<std::string>(dd4hep::dd::noNamespace(hfNames[i])));
       lv = nullptr;
       for (auto lvol : *lvs) {
-        if (lvol->GetName() == namv) {
+        if (dd4hep::dd::noNamespace(lvol->GetName()) == namv) {
           lv = lvol;
           break;
         }
@@ -223,7 +227,7 @@ HCalSD::HCalSD(const std::string& name,
   for (auto const& namx : matNames) {
     const G4Material* mat = nullptr;
     for (matite = matTab->begin(); matite != matTab->end(); ++matite) {
-      if ((*matite)->GetName() == static_cast<G4String>(namx)) {
+      if (static_cast<std::string>(dd4hep::dd::noNamespace((*matite)->GetName())) == namx) {
         mat = (*matite);
         break;
       }
@@ -322,6 +326,13 @@ HCalSD::HCalSD(const std::string& name,
     }
   }
 #endif
+  if (dumpGeom) {
+    const HcalNumberingFromDDD* hcn = new HcalNumberingFromDDD(hcalConstants_);
+    const auto& lvNames = clg.logicalNames(name);
+    HcalDumpGeometry geom(lvNames, hcn, testNumber, false);
+    geom.update();
+    delete hcn;
+  }
 }
 
 void HCalSD::fillLogVolumeVector(const std::string& value,
@@ -332,10 +343,10 @@ void HCalSD::fillLogVolumeVector(const std::string& value,
   std::stringstream ss3;
   ss3 << "HCalSD: " << lvnames.size() << " names to be tested for Volume <" << value << ">:";
   for (unsigned int i = 0; i < lvnames.size(); ++i) {
-    G4String namv = static_cast<G4String>(lvnames[i]);
+    G4String namv(static_cast<std::string>(dd4hep::dd::noNamespace(lvnames[i])));
     lv = nullptr;
     for (auto lvol : *lvs) {
-      if (lvol->GetName() == namv) {
+      if (dd4hep::dd::noNamespace(lvol->GetName()) == namv) {
         lv = lvol;
         break;
       }
@@ -621,7 +632,7 @@ bool HCalSD::isItHF(const G4Step* aStep) {
 }
 
 bool HCalSD::isItHF(const G4String& name) {
-  for (auto nam : hfNames)
+  for (const auto& nam : hfNames)
     if (name == static_cast<G4String>(nam)) {
       return true;
     }
@@ -637,7 +648,7 @@ bool HCalSD::isItFibre(const G4LogicalVolume* lv) {
 }
 
 bool HCalSD::isItFibre(const G4String& name) {
-  for (auto nam : fibreNames)
+  for (const auto& nam : fibreNames)
     if (name == static_cast<G4String>(nam)) {
       return true;
     }
@@ -980,7 +991,7 @@ void HCalSD::plotProfile(const G4Step* aStep, const G4ThreeVector& global, doubl
   double depth = -2000;
   int idx = 4;
   for (int n = 0; n < touch->GetHistoryDepth(); ++n) {
-    G4String name = touch->GetVolume(n)->GetName();
+    G4String name(static_cast<std::string>(dd4hep::dd::noNamespace(touch->GetVolume(n)->GetName())));
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HcalSim") << "plotProfile Depth " << n << " Name " << name;
 #endif

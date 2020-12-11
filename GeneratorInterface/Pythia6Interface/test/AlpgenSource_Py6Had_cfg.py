@@ -26,9 +26,9 @@ process.configurationMetadata = cms.untracked.PSet(
 )
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.destinations = ['cerr']
-process.MessageLogger.statistics = []
-process.MessageLogger.fwkJobReports = []
+
+process.MessageLogger.cerr.enableStatistics = False
+
 
 process.generator = cms.EDFilter("Pythia6HadronizerFilter",
     pythiaHepMCVerbosity = cms.untracked.bool(True),

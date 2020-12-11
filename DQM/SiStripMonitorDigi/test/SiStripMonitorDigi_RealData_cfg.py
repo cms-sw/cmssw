@@ -23,11 +23,14 @@ process.maxEvents = cms.untracked.PSet(
 # Message Logger
 #-------------------------------------------------
 process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring('siStripDigis'),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
         threshold = cms.untracked.string('ERROR')
     ),
-    destinations = cms.untracked.vstring('cout')
+    debugModules = cms.untracked.vstring('siStripDigis')
 )
 
 #-------------------------------------------------

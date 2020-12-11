@@ -17,7 +17,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'DEBUG'
-# process.MessageLogger.categories = ['TkDetLayers']
+# 
 process.MessageLogger.debugModules = ['analyzer']
 #process.MessageLogger.cerr.DEBUG = cms.untracked.PSet(
 #    threshold = cms.untracked.string('DEBUG'),

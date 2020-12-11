@@ -17,11 +17,12 @@
 //
 //
 
+#include "FWCore/Framework/interface/MakerMacros.h"
+
 #include "CalibTracker/SiPixelTools/interface/SiPixelOfflineCalibAnalysisBase.h"
 
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetType.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelFrameConverter.h"
 #include "CondFormats/SiPixelObjects/interface/ElectronicIndex.h"
@@ -41,6 +42,12 @@ SiPixelOfflineCalibAnalysisBase::SiPixelOfflineCalibAnalysisBase(const edm::Para
   daqBE_ = &*edm::Service<DQMStore>();
   folderMaker_ = new SiPixelFolderOrganizer();
   tPixelCalibDigi = consumes<edm::DetSetVector<SiPixelCalibDigi> >(siPixelCalibDigiProducer_);
+
+  calibTokenBeginRun_ =
+      esConsumes<SiPixelCalibConfiguration, SiPixelCalibConfigurationRcd, edm::Transition::BeginRun>();
+  calibToken_ = esConsumes<SiPixelCalibConfiguration, SiPixelCalibConfigurationRcd>();
+  trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
+  cablingMapToken_ = esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd>();
 }
 
 SiPixelOfflineCalibAnalysisBase::SiPixelOfflineCalibAnalysisBase() {
@@ -60,9 +67,9 @@ SiPixelOfflineCalibAnalysisBase::~SiPixelOfflineCalibAnalysisBase() {}
 void SiPixelOfflineCalibAnalysisBase::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  iSetup.get<TrackerDigiGeometryRecord>().get(geom_);
-  iSetup.get<SiPixelFedCablingMapRcd>().get(theCablingMap_);
-  iSetup.get<SiPixelCalibConfigurationRcd>().get(calib_);
+  calib_ = iSetup.getHandle(calibToken_);
+  geom_ = iSetup.getHandle(trackerGeomToken_);
+  theCablingMap_ = iSetup.getHandle(cablingMapToken_);
   if (eventCounter_ == 0)
     this->calibrationSetup(iSetup);
   eventCounter_++;
@@ -111,13 +118,11 @@ void SiPixelOfflineCalibAnalysisBase::analyze(const edm::Event& iEvent, const ed
 
 void SiPixelOfflineCalibAnalysisBase::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
   //load the calibration information from the database
-  iSetup.get<SiPixelCalibConfigurationRcd>().get(calib_);
-  iSetup.get<TrackerDigiGeometryRecord>().get(geom_);
-  iSetup.get<SiPixelFedCablingMapRcd>().get(theCablingMap_);
+  edm::ESHandle<SiPixelCalibConfiguration> calib = iSetup.getHandle(calibTokenBeginRun_);
 
-  calibrationMode_ = calib_->getCalibrationMode();
-  nTriggers_ = calib_->getNTriggers();
-  vCalValues_ = calib_->getVCalValues();
+  calibrationMode_ = calib->getCalibrationMode();
+  nTriggers_ = calib->getNTriggers();
+  vCalValues_ = calib->getVCalValues();
   std::cout << "!!!! in beginRun" << std::endl;
   edm::LogInfo("SiPixelOfflineCalibAnalysisBase")
       << "Calibration file loaded. Mode: " << calibrationMode_ << " nTriggers: " << nTriggers_

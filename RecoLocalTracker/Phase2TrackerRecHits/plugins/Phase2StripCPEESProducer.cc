@@ -47,9 +47,9 @@ Phase2StripCPEESProducer::Phase2StripCPEESProducer(const edm::ParameterSet& p) {
   pset_ = p.getParameter<edm::ParameterSet>("parameters");
   auto c = setWhatProduced(this, name);
   if (cpeNum_ != GEOMETRIC) {
-    c.setConsumes(magfieldToken_);
-    c.setConsumes(pDDToken_);
-    c.setConsumes(lorentzAngleToken_);
+    magfieldToken_ = c.consumes();
+    pDDToken_ = c.consumes();
+    lorentzAngleToken_ = c.consumes();
   }
 }
 

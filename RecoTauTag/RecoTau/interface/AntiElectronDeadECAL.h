@@ -34,7 +34,7 @@ class IdealGeometryRecord;
 
 class AntiElectronDeadECAL {
 public:
-  explicit AntiElectronDeadECAL(const edm::ParameterSet&);
+  explicit AntiElectronDeadECAL(const edm::ParameterSet&, edm::ConsumesCollector&&);
   ~AntiElectronDeadECAL();
 
   void beginEvent(const edm::EventSetup&);

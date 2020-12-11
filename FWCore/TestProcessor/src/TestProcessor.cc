@@ -6,7 +6,7 @@
 // Implementation:
 //     [Notes on implementation]
 //
-// Original Author:  root
+// Original Author:  Chris Jones
 //         Created:  Mon, 30 Apr 2018 18:51:08 GMT
 //
 
@@ -23,6 +23,7 @@
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/Framework/interface/PathsAndConsumesOfModules.h"
+#include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
 #include "FWCore/Framework/src/EventSetupsController.h"
 #include "FWCore/Framework/src/globalTransitionAsync.h"
@@ -42,9 +43,9 @@
 
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
 
-#include "DataFormats/Provenance/interface/ParentageRegistry.h"
+#include "FWCore/Concurrency/interface/ThreadsController.h"
 
-#include "tbb/task_scheduler_init.h"
+#include "DataFormats/Provenance/interface/ParentageRegistry.h"
 
 #define xstr(s) str(s)
 #define str(s) #s
@@ -52,19 +53,12 @@
 namespace edm {
   namespace test {
 
-    //
-    // constants, enums and typedefs
-    //
-
-    //
-    // static data member definitions
-    //
     namespace {
 
       bool oneTimeInitializationImpl() {
         edmplugin::PluginManager::configure(edmplugin::standard::config());
 
-        static std::unique_ptr<tbb::task_scheduler_init> tsiPtr = std::make_unique<tbb::task_scheduler_init>(1);
+        static std::unique_ptr<edm::ThreadsController> tsiPtr = std::make_unique<edm::ThreadsController>(1);
 
         // register the empty parentage vector , once and for all
         ParentageRegistry::instance()->insertMapped(Parentage());
@@ -84,7 +78,9 @@ namespace edm {
     // constructors and destructor
     //
     TestProcessor::TestProcessor(Config const& iConfig, ServiceToken iToken)
-        : espController_(std::make_unique<eventsetup::EventSetupsController>()),
+        : globalControl_(tbb::global_control::max_allowed_parallelism, 1),
+          arena_(1),
+          espController_(std::make_unique<eventsetup::EventSetupsController>()),
           historyAppender_(std::make_unique<HistoryAppender>()),
           moduleRegistry_(std::make_shared<ModuleRegistry>()) {
       //Setup various singletons
@@ -214,10 +210,12 @@ namespace edm {
     }
 
     edm::test::Event TestProcessor::testImpl() {
-      setupProcessing();
-      event();
+      bool result = arena_.execute([this]() {
+        setupProcessing();
+        event();
 
-      bool result = schedule_->totalEventsPassed() > 0;
+        return schedule_->totalEventsPassed() > 0;
+      });
       schedule_->clearCounters();
       if (esHelper_) {
         //We want each test to have its own ES data products
@@ -228,21 +226,23 @@ namespace edm {
     }
 
     edm::test::LuminosityBlock TestProcessor::testBeginLuminosityBlockImpl(edm::LuminosityBlockNumber_t iNum) {
-      if (not beginJobCalled_) {
-        beginJob();
-      }
-      if (not beginProcessBlockCalled_) {
-        beginProcessBlock();
-      }
-      if (not beginRunCalled_) {
-        beginRun();
-      }
-      if (beginLumiCalled_) {
-        endLuminosityBlock();
-        assert(lumiNumber_ != iNum);
-      }
-      lumiNumber_ = iNum;
-      beginLuminosityBlock();
+      arena_.execute([this, iNum]() {
+        if (not beginJobCalled_) {
+          beginJob();
+        }
+        if (not beginProcessBlockCalled_) {
+          beginProcessBlock();
+        }
+        if (not beginRunCalled_) {
+          beginRun();
+        }
+        if (beginLumiCalled_) {
+          endLuminosityBlock();
+          assert(lumiNumber_ != iNum);
+        }
+        lumiNumber_ = iNum;
+        beginLuminosityBlock();
+      });
 
       if (esHelper_) {
         //We want each test to have its own ES data products
@@ -253,20 +253,24 @@ namespace edm {
     }
 
     edm::test::LuminosityBlock TestProcessor::testEndLuminosityBlockImpl() {
-      if (not beginJobCalled_) {
-        beginJob();
-      }
-      if (not beginProcessBlockCalled_) {
-        beginProcessBlock();
-      }
-      if (not beginRunCalled_) {
-        beginRun();
-      }
-      if (not beginLumiCalled_) {
-        beginLuminosityBlock();
-      }
-      auto lumi = endLuminosityBlock();
-
+      //using a return value from arena_.execute lead to double delete of shared_ptr
+      // based on valgrind output when exception occurred. Use lambda capture instead.
+      std::shared_ptr<edm::LuminosityBlockPrincipal> lumi;
+      arena_.execute([this, &lumi]() {
+        if (not beginJobCalled_) {
+          beginJob();
+        }
+        if (not beginProcessBlockCalled_) {
+          beginProcessBlock();
+        }
+        if (not beginRunCalled_) {
+          beginRun();
+        }
+        if (not beginLumiCalled_) {
+          beginLuminosityBlock();
+        }
+        lumi = endLuminosityBlock();
+      });
       if (esHelper_) {
         //We want each test to have its own ES data products
         esHelper_->resetAllProxies();
@@ -276,19 +280,20 @@ namespace edm {
     }
 
     edm::test::Run TestProcessor::testBeginRunImpl(edm::RunNumber_t iNum) {
-      if (not beginJobCalled_) {
-        beginJob();
-      }
-      if (not beginProcessBlockCalled_) {
-        beginProcessBlock();
-      }
-      if (beginRunCalled_) {
-        assert(runNumber_ != iNum);
-        endRun();
-      }
-      runNumber_ = iNum;
-      beginRun();
-
+      arena_.execute([this, iNum]() {
+        if (not beginJobCalled_) {
+          beginJob();
+        }
+        if (not beginProcessBlockCalled_) {
+          beginProcessBlock();
+        }
+        if (beginRunCalled_) {
+          assert(runNumber_ != iNum);
+          endRun();
+        }
+        runNumber_ = iNum;
+        beginRun();
+      });
       if (esHelper_) {
         //We want each test to have its own ES data products
         esHelper_->resetAllProxies();
@@ -298,17 +303,21 @@ namespace edm {
           principalCache_.runPrincipalPtr(), labelOfTestModule_, processConfiguration_->processName());
     }
     edm::test::Run TestProcessor::testEndRunImpl() {
-      if (not beginJobCalled_) {
-        beginJob();
-      }
-      if (not beginProcessBlockCalled_) {
-        beginProcessBlock();
-      }
-      if (not beginRunCalled_) {
-        beginRun();
-      }
-      auto rp = endRun();
-
+      //using a return value from arena_.execute lead to double delete of shared_ptr
+      // based on valgrind output when exception occurred. Use lambda capture instead.
+      std::shared_ptr<edm::RunPrincipal> rp;
+      arena_.execute([this, &rp]() {
+        if (not beginJobCalled_) {
+          beginJob();
+        }
+        if (not beginProcessBlockCalled_) {
+          beginProcessBlock();
+        }
+        if (not beginRunCalled_) {
+          beginRun();
+        }
+        rp = endRun();
+      });
       if (esHelper_) {
         //We want each test to have its own ES data products
         esHelper_->resetAllProxies();
@@ -318,21 +327,25 @@ namespace edm {
     }
 
     edm::test::ProcessBlock TestProcessor::testBeginProcessBlockImpl() {
-      if (not beginJobCalled_) {
-        beginJob();
-      }
-      beginProcessBlock();
+      arena_.execute([this]() {
+        if (not beginJobCalled_) {
+          beginJob();
+        }
+        beginProcessBlock();
+      });
       return edm::test::ProcessBlock(
           &principalCache_.processBlockPrincipal(), labelOfTestModule_, processConfiguration_->processName());
     }
     edm::test::ProcessBlock TestProcessor::testEndProcessBlockImpl() {
-      if (not beginJobCalled_) {
-        beginJob();
-      }
-      if (not beginProcessBlockCalled_) {
-        beginProcessBlock();
-      }
-      auto pbp = endProcessBlock();
+      auto pbp = arena_.execute([this]() {
+        if (not beginJobCalled_) {
+          beginJob();
+        }
+        if (not beginProcessBlockCalled_) {
+          beginProcessBlock();
+        }
+        return endProcessBlock();
+      });
       return edm::test::ProcessBlock(pbp, labelOfTestModule_, processConfiguration_->processName());
     }
 
@@ -352,21 +365,24 @@ namespace edm {
     }
 
     void TestProcessor::teardownProcessing() {
-      if (beginLumiCalled_) {
-        endLuminosityBlock();
-        beginLumiCalled_ = false;
-      }
-      if (beginRunCalled_) {
-        endRun();
-        beginRunCalled_ = false;
-      }
-      if (beginProcessBlockCalled_) {
-        endProcessBlock();
-        beginProcessBlockCalled_ = false;
-      }
-      if (beginJobCalled_) {
-        endJob();
-      }
+      arena_.execute([this]() {
+        if (beginLumiCalled_) {
+          endLuminosityBlock();
+          beginLumiCalled_ = false;
+        }
+        if (beginRunCalled_) {
+          endRun();
+          beginRunCalled_ = false;
+        }
+        if (beginProcessBlockCalled_) {
+          endProcessBlock();
+          beginProcessBlockCalled_ = false;
+        }
+        if (beginJobCalled_) {
+          endJob();
+        }
+        espController_->endIOVs();
+      });
     }
 
     void TestProcessor::beginJob() {
@@ -434,9 +450,10 @@ namespace edm {
 
       auto const& es = esp_->eventSetupImpl();
 
+      RunTransitionInfo transitionInfo(runPrincipal, es);
+
       std::vector<edm::SubProcess> emptyList;
       {
-        RunTransitionInfo transitionInfo(runPrincipal, es);
         using Traits = OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin>;
         auto globalWaitTask = make_empty_waiting_task();
         globalWaitTask->increment_ref_count();
@@ -452,15 +469,11 @@ namespace edm {
         auto streamLoopWaitTask = make_empty_waiting_task();
         streamLoopWaitTask->increment_ref_count();
 
-        typedef OccurrenceTraits<RunPrincipal, BranchActionStreamBegin> Traits;
-
+        using Traits = OccurrenceTraits<RunPrincipal, BranchActionStreamBegin>;
         beginStreamsTransitionAsync<Traits>(streamLoopWaitTask.get(),
                                             *schedule_,
                                             preallocations_.numberOfStreams(),
-                                            runPrincipal,
-                                            ts,
-                                            es,
-                                            nullptr,
+                                            transitionInfo,
                                             serviceToken_,
                                             emptyList);
 
@@ -486,9 +499,10 @@ namespace edm {
 
       auto const& es = esp_->eventSetupImpl();
 
+      LumiTransitionInfo transitionInfo(*lumiPrincipal_, es, nullptr);
+
       std::vector<edm::SubProcess> emptyList;
       {
-        LumiTransitionInfo transitionInfo(*lumiPrincipal_, es, nullptr);
         using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin>;
         auto globalWaitTask = make_empty_waiting_task();
         globalWaitTask->increment_ref_count();
@@ -504,15 +518,12 @@ namespace edm {
         auto streamLoopWaitTask = make_empty_waiting_task();
         streamLoopWaitTask->increment_ref_count();
 
-        typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin> Traits;
+        using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin>;
 
         beginStreamsTransitionAsync<Traits>(streamLoopWaitTask.get(),
                                             *schedule_,
                                             preallocations_.numberOfStreams(),
-                                            *lumiPrincipal_,
-                                            ts,
-                                            es,
-                                            nullptr,
+                                            transitionInfo,
                                             serviceToken_,
                                             emptyList);
 
@@ -552,8 +563,8 @@ namespace edm {
       auto waitTask = make_empty_waiting_task();
       waitTask->increment_ref_count();
 
-      schedule_->processOneEventAsync(
-          edm::WaitingTaskHolder(waitTask.get()), 0, *pep, esp_->eventSetupImpl(), serviceToken_);
+      EventTransitionInfo info(*pep, esp_->eventSetupImpl());
+      schedule_->processOneEventAsync(edm::WaitingTaskHolder(waitTask.get()), 0, info, serviceToken_);
 
       waitTask->wait_for_all();
       if (waitTask->exceptionPtr() != nullptr) {
@@ -573,6 +584,8 @@ namespace edm {
 
         auto const& es = esp_->eventSetupImpl();
 
+        LumiTransitionInfo transitionInfo(*lumiPrincipal, es, nullptr);
+
         std::vector<edm::SubProcess> emptyList;
 
         //To wait, the ref count has to be 1+#streams
@@ -585,10 +598,7 @@ namespace edm {
           endStreamsTransitionAsync<Traits>(WaitingTaskHolder(streamLoopWaitTask.get()),
                                             *schedule_,
                                             preallocations_.numberOfStreams(),
-                                            *lumiPrincipal,
-                                            ts,
-                                            es,
-                                            nullptr,
+                                            transitionInfo,
                                             serviceToken_,
                                             emptyList,
                                             false);
@@ -602,7 +612,6 @@ namespace edm {
           auto globalWaitTask = make_empty_waiting_task();
           globalWaitTask->increment_ref_count();
 
-          LumiTransitionInfo transitionInfo(*lumiPrincipal, es, nullptr);
           using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd>;
           endGlobalTransitionAsync<Traits>(
               WaitingTaskHolder(globalWaitTask.get()), *schedule_, transitionInfo, serviceToken_, emptyList, false);
@@ -630,6 +639,8 @@ namespace edm {
 
         auto const& es = esp_->eventSetupImpl();
 
+        RunTransitionInfo transitionInfo(runPrincipal, es);
+
         std::vector<edm::SubProcess> emptyList;
 
         //To wait, the ref count has to be 1+#streams
@@ -642,10 +653,7 @@ namespace edm {
           endStreamsTransitionAsync<Traits>(WaitingTaskHolder(streamLoopWaitTask.get()),
                                             *schedule_,
                                             preallocations_.numberOfStreams(),
-                                            runPrincipal,
-                                            ts,
-                                            es,
-                                            nullptr,
+                                            transitionInfo,
                                             serviceToken_,
                                             emptyList,
                                             false);
@@ -659,7 +667,6 @@ namespace edm {
           auto globalWaitTask = make_empty_waiting_task();
           globalWaitTask->increment_ref_count();
 
-          RunTransitionInfo transitionInfo(runPrincipal, es);
           using Traits = OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd>;
           endGlobalTransitionAsync<Traits>(
               WaitingTaskHolder(globalWaitTask.get()), *schedule_, transitionInfo, serviceToken_, emptyList, false);

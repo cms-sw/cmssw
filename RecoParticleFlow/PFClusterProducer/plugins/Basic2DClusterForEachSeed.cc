@@ -31,7 +31,6 @@ void Basic2DClusterForEachSeed::buildClusters(const edm::Handle<reco::PFRecHitCo
     cluster.setPosition(math::XYZPoint(refhit->position().x(), refhit->position().y(), refhit->position().z()));
     cluster.calculatePositionREP();
     cluster.setDepth(refhit->depth());
-    cluster.calculatePositionREP();
 
     output.push_back(cluster);
 

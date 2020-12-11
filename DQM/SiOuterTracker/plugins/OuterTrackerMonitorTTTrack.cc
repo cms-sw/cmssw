@@ -5,8 +5,6 @@
 // Modified by: Emily MacDonald (emily.kaelyn.macdonald@cern.ch)
 
 // system include files
-#include <fstream>
-#include <iostream>
 #include <memory>
 #include <numeric>
 #include <string>
@@ -14,37 +12,30 @@
 #include <bitset>
 
 // user include files
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/L1TrackTrigger/interface/TTCluster.h"
 #include "DataFormats/L1TrackTrigger/interface/TTStub.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTrack.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-#include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
-#include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
-#include "SimTracker/TrackTriggerAssociation/interface/TTTrackAssociationMap.h"
+
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DataFormats/Common/interface/DetSetVectorNew.h"
-#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/EDGetToken.h"
 
 class OuterTrackerMonitorTTTrack : public DQMEDAnalyzer {
 public:
@@ -52,7 +43,6 @@ public:
   ~OuterTrackerMonitorTTTrack() override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-
   /// Low-quality TTTracks (All tracks)
   MonitorElement *Track_All_N = nullptr;                 // Number of tracks per event
   MonitorElement *Track_All_NStubs = nullptr;            // Number of stubs per track
@@ -121,8 +111,6 @@ OuterTrackerMonitorTTTrack::~OuterTrackerMonitorTTTrack() {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 }
-
-// member functions
 
 // ------------ method called for each event  ------------
 void OuterTrackerMonitorTTTrack::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {

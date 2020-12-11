@@ -41,7 +41,7 @@ public:
   ReturnType produce(const SiStripNoisesRcd&);
 
 private:
-  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> m_tTopoToken;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> m_tTopoToken;
   bool m_stripLengthMode;
   double m_noisePar0;
   SiStripFakeAPVParameters m_noisePar1;
@@ -61,8 +61,8 @@ namespace {  // helper methods
   }
 }  // namespace
 
-SiStripNoisesFakeESSource::SiStripNoisesFakeESSource(const edm::ParameterSet& iConfig) {
-  setWhatProduced(this).setConsumes(m_tTopoToken);
+SiStripNoisesFakeESSource::SiStripNoisesFakeESSource(const edm::ParameterSet& iConfig)
+    : m_tTopoToken(setWhatProduced(this).consumes()) {
   findingRecord<SiStripNoisesRcd>();
 
   m_stripLengthMode = iConfig.getParameter<bool>("StripLengthMode");

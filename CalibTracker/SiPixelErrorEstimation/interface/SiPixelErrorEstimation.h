@@ -77,6 +77,9 @@ private:
   edm::EDGetTokenT<SiPixelRecHitCollection> tPixRecHitCollection;
   edm::EDGetTokenT<edm::SimTrackContainer> tSimTrackContainer;
   edm::EDGetTokenT<reco::TrackCollection> tTrackCollection;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
   std::string outputFile_;
   std::string src_;
   bool checkType_;         // do we check that the simHit associated with recHit is of the expected particle type ?

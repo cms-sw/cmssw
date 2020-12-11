@@ -48,19 +48,19 @@ void testDDFilteredView::setUp() {
                "0.4002930E-03/cm", "0.4009888E-03/cm", "0.3954170E-03/cm", "0.3893599E-03/cm", "0.3839422E-03/cm"};
   refdLongFL_ = {
       227.993, 237.122, 241.701, 256.48, 266.754, 275.988, 276.982, 284.989, 286.307, 290.478, 290.5, 292, 295.5};
-  refsLongFL_ = {"227.9925651*cm",
-                 "237.1215213*cm",
-                 "241.7005445*cm",
-                 "256.47981*cm",
-                 "266.7540042*cm",
-                 "275.987715*cm",
-                 "276.9823529*cm",
-                 "284.9889299*cm",
-                 "286.3065327*cm",
-                 "290.4779412*cm",
-                 "290.5*cm",
-                 "292.0*cm",
-                 "295.5*cm"};
+  refsLongFL_ = {"227.9925651",
+                 "237.1215213",
+                 "241.7005445",
+                 "256.47981",
+                 "266.7540042",
+                 "275.987715",
+                 "276.9823529",
+                 "284.9889299",
+                 "286.3065327",
+                 "290.4779412",
+                 "290.5",
+                 "292.0",
+                 "295.5"};
 }
 
 void testDDFilteredView::checkFilteredView() {
@@ -70,7 +70,7 @@ void testDDFilteredView::checkFilteredView() {
   std::cout << fview.name() << " is a " << cms::dd::name(cms::DDSolidShapeMap, fview.shape()) << "\n";
   std::cout << "Full path to it is " << fview.path() << "\n";
   auto copyNos = fview.copyNos();
-  if (fview.isA<dd4hep::Box>())
+  if (dd4hep::isA<dd4hep::Box>(fview.solid()))
     cout << "It's a Box\n";
   fview.parent();
   std::cout << fview.name() << " is a " << cms::dd::name(cms::DDSolidShapeMap, fview.shape()) << "\n";
@@ -114,7 +114,7 @@ void testDDFilteredView::checkFilteredView() {
   std::vector<std::string> sLongFL = fview.get<std::vector<std::string>>("hf", "LongFL");
   for (auto const& i : sLongFL) {
     std::cout << "LongFL " << i << " == " << refsLongFL_[count] << "\n";
-    CPPUNIT_ASSERT(i.compare(refsLongFL_[count]) == 0);
+    CPPUNIT_ASSERT(abs(std::stod(i) - std::stod(refsLongFL_[count])) < 10e-6);
     count++;
   }
 

@@ -32,6 +32,9 @@ process.testGeoIter = cms.EDAnalyzer("DDTestDumpGeometry",
                                      DDDetector = cms.ESInputTag('','CMS')
                                      )
 
+process.Timing = cms.Service("Timing")
+process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck")
+
 process.p = cms.Path(
     process.test
     +process.testVectors

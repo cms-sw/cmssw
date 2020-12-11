@@ -112,10 +112,14 @@ private:
   std::vector<std::string> productLabels_;
 
   std::vector<edm::EDGetTokenT<RecHitCollectionType>> recHitTokens_;
+
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
+  const edm::ESGetToken<L1CaloGeometry, L1CaloGeometryRecord> l1CaloGeometryToken_;
 };
 
 template <typename RecHitType>
-HLTRecHitInAllL1RegionsProducer<RecHitType>::HLTRecHitInAllL1RegionsProducer(const edm::ParameterSet& para) {
+HLTRecHitInAllL1RegionsProducer<RecHitType>::HLTRecHitInAllL1RegionsProducer(const edm::ParameterSet& para)
+    : caloGeometryToken_{esConsumes()}, l1CaloGeometryToken_{esConsumes()} {
   const std::vector<edm::ParameterSet> l1InputRegions =
       para.getParameter<std::vector<edm::ParameterSet>>("l1InputRegions");
   for (auto& pset : l1InputRegions) {
@@ -200,18 +204,16 @@ void HLTRecHitInAllL1RegionsProducer<RecHitType>::fillDescriptions(edm::Configur
 template <typename RecHitType>
 void HLTRecHitInAllL1RegionsProducer<RecHitType>::produce(edm::Event& event, const edm::EventSetup& setup) {
   // get the collection geometry:
-  edm::ESHandle<CaloGeometry> caloGeomHandle;
-  setup.get<CaloGeometryRecord>().get(caloGeomHandle);
+  auto const& caloGeom = setup.getData(caloGeometryToken_);
 
   // Get the CaloGeometry
-  edm::ESHandle<L1CaloGeometry> l1CaloGeom;
-  setup.get<L1CaloGeometryRecord>().get(l1CaloGeom);
+  auto const& l1CaloGeom = setup.getData(l1CaloGeometryToken_);
 
   std::vector<RectangularEtaPhiRegion> regions;
   std::for_each(l1RegionData_.begin(),
                 l1RegionData_.end(),
                 [&event, &regions, l1CaloGeom](const std::unique_ptr<L1RegionDataBase>& input) {
-                  input->getEtaPhiRegions(event, regions, *l1CaloGeom);
+                  input->getEtaPhiRegions(event, regions, l1CaloGeom);
                 });
 
   for (size_t recHitCollNr = 0; recHitCollNr < recHitTokens_.size(); recHitCollNr++) {
@@ -227,7 +229,7 @@ void HLTRecHitInAllL1RegionsProducer<RecHitType>::produce(edm::Event& event, con
     auto filteredRecHits = std::make_unique<RecHitCollectionType>();
 
     if (!recHits->empty()) {
-      const CaloSubdetectorGeometry* subDetGeom = caloGeomHandle->getSubdetectorGeometry(recHits->front().id());
+      const CaloSubdetectorGeometry* subDetGeom = caloGeom.getSubdetectorGeometry(recHits->front().id());
       if (!regions.empty()) {
         for (const RecHitType& recHit : *recHits) {
           auto this_cell = subDetGeom->getGeometry(recHit.id());

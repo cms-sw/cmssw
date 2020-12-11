@@ -47,6 +47,15 @@
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
 
+#include "DataFormats/L1TCorrelator/interface/TkMuon.h"
+#include "DataFormats/L1TCorrelator/interface/TkElectron.h"
+#include "DataFormats/L1TCorrelator/interface/TkEm.h"
+#include "DataFormats/L1TParticleFlow/interface/PFJet.h"
+#include "DataFormats/L1TParticleFlow/interface/PFTau.h"
+#include "DataFormats/L1TParticleFlow/interface/HPSPFTau.h"
+#include "DataFormats/L1TParticleFlow/interface/HPSPFTauFwd.h"
+#include "DataFormats/L1TParticleFlow/interface/PFTrack.h"
+
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 
@@ -135,6 +144,15 @@ TriggerSummaryProducerAOD::TriggerSummaryProducerAOD(const edm::ParameterSet& ps
   getL1TJetParticleCollection_ = edm::GetterOfProducts<l1t::JetBxCollection>(productMatch, this);
   getL1TTauParticleCollection_ = edm::GetterOfProducts<l1t::TauBxCollection>(productMatch, this);
   getL1TEtSumParticleCollection_ = edm::GetterOfProducts<l1t::EtSumBxCollection>(productMatch, this);
+
+  getL1TTkMuonCollection_ = edm::GetterOfProducts<l1t::TkMuonCollection>(productMatch, this);
+  getL1TTkElectronCollection_ = edm::GetterOfProducts<l1t::TkElectronCollection>(productMatch, this);
+  getL1TTkEmCollection_ = edm::GetterOfProducts<l1t::TkEmCollection>(productMatch, this);
+  getL1TPFJetCollection_ = edm::GetterOfProducts<l1t::PFJetCollection>(productMatch, this);
+  getL1TPFTauCollection_ = edm::GetterOfProducts<l1t::PFTauCollection>(productMatch, this);
+  getL1THPSPFTauCollection_ = edm::GetterOfProducts<l1t::HPSPFTauCollection>(productMatch, this);
+  getL1TPFTrackCollection_ = edm::GetterOfProducts<l1t::PFTrackCollection>(productMatch, this);
+
   getPFJetCollection_ = edm::GetterOfProducts<reco::PFJetCollection>(productMatch, this);
   getPFTauCollection_ = edm::GetterOfProducts<reco::PFTauCollection>(productMatch, this);
   getPFMETCollection_ = edm::GetterOfProducts<reco::PFMETCollection>(productMatch, this);
@@ -159,6 +177,13 @@ TriggerSummaryProducerAOD::TriggerSummaryProducerAOD(const edm::ParameterSet& ps
     getL1TJetParticleCollection_(bd);
     getL1TTauParticleCollection_(bd);
     getL1TEtSumParticleCollection_(bd);
+    getL1TTkMuonCollection_(bd);
+    getL1TTkElectronCollection_(bd);
+    getL1TTkEmCollection_(bd);
+    getL1TPFJetCollection_(bd);
+    getL1TPFTauCollection_(bd);
+    getL1THPSPFTauCollection_(bd);
+    getL1TPFTrackCollection_(bd);
     getPFJetCollection_(bd);
     getPFTauCollection_(bd);
     getPFMETCollection_(bd);
@@ -333,11 +358,26 @@ void TriggerSummaryProducerAOD::produce(edm::StreamID, edm::Event& iEvent, const
   fillTriggerObjectCollections<EtSumBxCollection>(
       toc, offset, tags, keys, iEvent, getL1TEtSumParticleCollection_, collectionTagsEvent);
   ///
-  fillTriggerObjectCollections<PFJetCollection>(
+  fillTriggerObjectCollections<l1t::TkMuonCollection>(
+      toc, offset, tags, keys, iEvent, getL1TTkMuonCollection_, collectionTagsEvent);
+  fillTriggerObjectCollections<l1t::TkElectronCollection>(
+      toc, offset, tags, keys, iEvent, getL1TTkElectronCollection_, collectionTagsEvent);
+  fillTriggerObjectCollections<l1t::TkEmCollection>(
+      toc, offset, tags, keys, iEvent, getL1TTkEmCollection_, collectionTagsEvent);
+  fillTriggerObjectCollections<l1t::PFJetCollection>(
+      toc, offset, tags, keys, iEvent, getL1TPFJetCollection_, collectionTagsEvent);
+  fillTriggerObjectCollections<l1t::PFTauCollection>(
+      toc, offset, tags, keys, iEvent, getL1TPFTauCollection_, collectionTagsEvent);
+  fillTriggerObjectCollections<l1t::HPSPFTauCollection>(
+      toc, offset, tags, keys, iEvent, getL1THPSPFTauCollection_, collectionTagsEvent);
+  fillTriggerObjectCollections<l1t::PFTrackCollection>(
+      toc, offset, tags, keys, iEvent, getL1TPFTrackCollection_, collectionTagsEvent);
+  ///
+  fillTriggerObjectCollections<reco::PFJetCollection>(
       toc, offset, tags, keys, iEvent, getPFJetCollection_, collectionTagsEvent);
-  fillTriggerObjectCollections<PFTauCollection>(
+  fillTriggerObjectCollections<reco::PFTauCollection>(
       toc, offset, tags, keys, iEvent, getPFTauCollection_, collectionTagsEvent);
-  fillTriggerObjectCollections<PFMETCollection>(
+  fillTriggerObjectCollections<reco::PFMETCollection>(
       toc, offset, tags, keys, iEvent, getPFMETCollection_, collectionTagsEvent);
   ///
   const unsigned int nk(tags.size());
@@ -391,6 +431,22 @@ void TriggerSummaryProducerAOD::produce(edm::StreamID, edm::Event& iEvent, const
       fillFilterObjectMembers(iEvent, filterTag, fobs[ifob]->l1ttauIds(), fobs[ifob]->l1ttauRefs(), offset, keys, ids);
       fillFilterObjectMembers(
           iEvent, filterTag, fobs[ifob]->l1tetsumIds(), fobs[ifob]->l1tetsumRefs(), offset, keys, ids);
+      /**/
+      fillFilterObjectMembers(
+          iEvent, filterTag, fobs[ifob]->l1ttkmuonIds(), fobs[ifob]->l1ttkmuonRefs(), offset, keys, ids);
+      fillFilterObjectMembers(
+          iEvent, filterTag, fobs[ifob]->l1ttkeleIds(), fobs[ifob]->l1ttkeleRefs(), offset, keys, ids);
+      fillFilterObjectMembers(
+          iEvent, filterTag, fobs[ifob]->l1ttkemIds(), fobs[ifob]->l1ttkemRefs(), offset, keys, ids);
+      fillFilterObjectMembers(
+          iEvent, filterTag, fobs[ifob]->l1tpfjetIds(), fobs[ifob]->l1tpfjetRefs(), offset, keys, ids);
+      fillFilterObjectMembers(
+          iEvent, filterTag, fobs[ifob]->l1tpftauIds(), fobs[ifob]->l1tpftauRefs(), offset, keys, ids);
+      fillFilterObjectMembers(
+          iEvent, filterTag, fobs[ifob]->l1thpspftauIds(), fobs[ifob]->l1thpspftauRefs(), offset, keys, ids);
+      fillFilterObjectMembers(
+          iEvent, filterTag, fobs[ifob]->l1tpftrackIds(), fobs[ifob]->l1tpftrackRefs(), offset, keys, ids);
+      /**/
       fillFilterObjectMembers(iEvent, filterTag, fobs[ifob]->pfjetIds(), fobs[ifob]->pfjetRefs(), offset, keys, ids);
       fillFilterObjectMembers(iEvent, filterTag, fobs[ifob]->pftauIds(), fobs[ifob]->pftauRefs(), offset, keys, ids);
       fillFilterObjectMembers(iEvent, filterTag, fobs[ifob]->pfmetIds(), fobs[ifob]->pfmetRefs(), offset, keys, ids);

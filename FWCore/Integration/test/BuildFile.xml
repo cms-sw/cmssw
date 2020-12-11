@@ -189,6 +189,7 @@
     <use name="FWCore/TestProcessor"/>
     <use name="DataFormats/Provenance"/>
     <use name="catch2"/>
+    <use name="fmt"/>
   </bin>
 
   <library file="TestPSetAnalyzer.cc" name="TestPSetAnalyzer">
@@ -198,7 +199,7 @@
     <use name="FWCore/Framework"/>
   </library>
 
-  <library file="ThingProducer.cc,ThingAlgorithm.cc,TrackOfThingsProducer.cc,ThinningThingProducer.cc,ThinningTestAnalyzer.cc,WhatsIt.cc,GadgetRcd.cc,AssociationMapProducer.cc,AssociationMapAnalyzer.cc,MissingDictionaryTestProducer.cc,ExistingDictionaryTestModules.cc,WaitingThreadIntProducer.cc, ThingAnalyzer.cc, TableTestModules.cc, AcquireIntProducer.cc, AcquireIntFilter.cc, AcquireIntStreamProducer.cc, AcquireIntStreamFilter.cc, TestGlobalOutput.cc, TestLimitedOutput.cc,PluginUsingProducer.cc,SwitchProducerProvenanceAnalyzer.cc,ProducerUsingCollector.cc" name="SomeTestModules">
+  <library file="ThingProducer.cc,ThingAlgorithm.cc,TrackOfThingsProducer.cc,ThinningThingProducer.cc,SlimmingThingProducer.cc,ThinningTestAnalyzer.cc,ThinnedRefFromTestAnalyzer.cc,DetSetVectorThingProducer.cc,TrackOfDSVThingsProducer.cc,ThinningDSVThingProducer.cc,SlimmingDSVThingProducer.cc,ThinningDSVTestAnalyzer.cc,WhatsIt.cc,GadgetRcd.cc,AssociationMapProducer.cc,AssociationMapAnalyzer.cc,MissingDictionaryTestProducer.cc,ExistingDictionaryTestModules.cc,WaitingThreadIntProducer.cc, ThingAnalyzer.cc, TableTestModules.cc, AcquireIntProducer.cc, AcquireIntFilter.cc, AcquireIntStreamProducer.cc, AcquireIntStreamFilter.cc, TestGlobalOutput.cc, TestLimitedOutput.cc,PluginUsingProducer.cc,SwitchProducerProvenanceAnalyzer.cc,ProducerUsingCollector.cc" name="SomeTestModules">
     <flags EDM_PLUGIN="1"/>
     <lib name="FWCoreIntegrationWaitingServer"/>
     <use name="FWCore/Framework"/>
@@ -291,6 +292,13 @@
     <use name="FWCore/ServiceRegistry"/>
   </library>
 
+  <library file="PathsAndConsumesOfModulesTestService.cc" name="FWCoreIntegrationPathsAndConsumesOfModulesTestService">
+    <flags EDM_PLUGIN="1"/>
+    <use name="DataFormats/Provenance"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="FWCore/ServiceRegistry"/>
+  </library>
+
   <library file="OtherThingAnalyzer.cc,OtherThingRefComparer.cc" name="TestOtherThingAnalyzer">
     <flags EDM_PLUGIN="1"/>
     <use name="DataFormats/Common"/>
@@ -362,11 +370,6 @@
     <flags EDM_PLUGIN="1"/>
     <use name="FWCore/Framework"/>
     <use name="FWCore/ParameterSet"/>
-  </library>
-
-  <library file="WhatsItExtensionCordAnalyzer.cc,WhatsIt.cc,GadgetRcd.cc" name="WhatsItExtensionCordAnalyzer">
-    <flags EDM_PLUGIN="1"/>
-    <use name="FWCore/Framework"/>
   </library>
 
   <library file="WhatsItWatcherAnalyzer.cc,WhatsIt.cc,GadgetRcd.cc" name="WhatsItWatcherAnalyzer">

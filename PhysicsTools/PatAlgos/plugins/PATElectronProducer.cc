@@ -86,6 +86,7 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet& iConfig)
       reducedBarrelRecHitCollectionToken_(mayConsume<EcalRecHitCollection>(reducedBarrelRecHitCollection_)),
       reducedEndcapRecHitCollection_(iConfig.getParameter<edm::InputTag>("reducedEndcapRecHitCollection")),
       reducedEndcapRecHitCollectionToken_(mayConsume<EcalRecHitCollection>(reducedEndcapRecHitCollection_)),
+      ecalClusterToolsESGetTokens_{consumesCollector()},
       // PFCluster Isolation maps
       addPFClusterIso_(iConfig.getParameter<bool>("addPFClusterIso")),
       addPuppiIsolation_(iConfig.getParameter<bool>("addPuppiIsolation")),
@@ -251,8 +252,10 @@ void PATElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   edm::InputTag reducedEBRecHitCollection(string("reducedEcalRecHitsEB"));
   edm::InputTag reducedEERecHitCollection(string("reducedEcalRecHitsEE"));
   //EcalClusterLazyTools lazyTools(iEvent, iSetup, reducedEBRecHitCollection, reducedEERecHitCollection);
-  EcalClusterLazyTools lazyTools(
-      iEvent, iSetup, reducedBarrelRecHitCollectionToken_, reducedEndcapRecHitCollectionToken_);
+  EcalClusterLazyTools lazyTools(iEvent,
+                                 ecalClusterToolsESGetTokens_.get(iSetup),
+                                 reducedBarrelRecHitCollectionToken_,
+                                 reducedEndcapRecHitCollectionToken_);
 
   // for conversion veto selection
   edm::Handle<reco::ConversionCollection> hConversions;

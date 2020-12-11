@@ -3160,7 +3160,7 @@ unsigned PFAlgo::reconstructTrack(const reco::PFBlockElement& elt, bool allowLoo
                                       << ", phi=" << momentum.phi();
   pfCandidates_->push_back(PFCandidate(charge, momentum, particleType));
   //Set vertex and stuff like this
-  pfCandidates_->back().setVertexSource(PFCandidate::kTrkVertex);
+  pfCandidates_->back().setVertex(trackRef->vertex());
   pfCandidates_->back().setTrackRef(trackRef);
   pfCandidates_->back().setPositionAtECALEntrance(eltTrack->positionAtECALEntrance());
   if (muonRef.isNonnull())

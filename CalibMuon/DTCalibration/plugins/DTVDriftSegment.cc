@@ -16,6 +16,8 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "CondFormats/DTObjects/interface/DTMtime.h"
 #include "CondFormats/DataRecord/interface/DTMtimeRcd.h"
+#include "CondFormats/DTObjects/interface/DTRecoConditions.h"
+#include "CondFormats/DataRecord/interface/DTRecoConditionsVdriftRcd.h"
 
 #include "CalibMuon/DTCalibration/interface/DTResidualFitter.h"
 #include "CalibMuon/DTCalibration/interface/DTCalibDBUtils.h"
@@ -32,14 +34,17 @@ using namespace edm;
 namespace dtCalibration {
 
   DTVDriftSegment::DTVDriftSegment(const ParameterSet& pset)
-      : nSigmas_(pset.getUntrackedParameter<unsigned int>("nSigmasFitRange", 1)) {
+      : nSigmas_(pset.getUntrackedParameter<unsigned int>("nSigmasFitRange", 1)),
+        mTimeMap_(nullptr),
+        vDriftMap_(nullptr) {
     string rootFileName = pset.getParameter<string>("rootFileName");
     rootFile_ = new TFile(rootFileName.c_str(), "READ");
 
     bool debug = pset.getUntrackedParameter<bool>("debug", false);
     fitter_ = new DTResidualFitter(debug);
-    //bool debug = pset.getUntrackedParameter<bool>("debug", false);
     //if(debug) fitter_->setVerbosity(1);
+
+    readLegacyVDriftDB = pset.getParameter<bool>("readLegacyVDriftDB");
   }
 
   DTVDriftSegment::~DTVDriftSegment() {
@@ -49,18 +54,34 @@ namespace dtCalibration {
 
   void DTVDriftSegment::setES(const edm::EventSetup& setup) {
     // Get the map of vdrift from the setup
-    ESHandle<DTMtime> mTime;
-    setup.get<DTMtimeRcd>().get(mTime);
-    mTimeMap_ = &*mTime;
+    if (readLegacyVDriftDB) {
+      ESHandle<DTMtime> mTime;
+      setup.get<DTMtimeRcd>().get(mTime);
+      mTimeMap_ = &*mTime;
+    } else {
+      ESHandle<DTRecoConditions> hVdrift;
+      setup.get<DTRecoConditionsVdriftRcd>().get(hVdrift);
+      vDriftMap_ = &*hVdrift;
+      // Consistency check: no parametrization is implemented for the time being
+      int version = vDriftMap_->version();
+      if (version != 1) {
+        throw cms::Exception("Configuration") << "only version 1 is presently supported for VDriftDB";
+      }
+    }
   }
 
   DTVDriftData DTVDriftSegment::compute(DTSuperLayerId const& slId) {
     // Get original value from DB; vdrift is cm/ns , resolution is cm
-    float vDrift = 0., resolution = 0.;
-    int status = mTimeMap_->get(slId, vDrift, resolution, DTVelocityUnits::cm_per_ns);
+    // Note that resolution is irrelevant as it is no longer used anywhere in reconstruction.
 
-    if (status != 0)
-      throw cms::Exception("DTCalibration") << "Could not find vDrift entry in DB for" << slId << endl;
+    float vDrift = 0., resolution = 0.;
+    if (readLegacyVDriftDB) {  // Legacy format
+      int status = mTimeMap_->get(slId, vDrift, resolution, DTVelocityUnits::cm_per_ns);
+      if (status != 0)
+        throw cms::Exception("DTCalibration") << "Could not find vDrift entry in DB for" << slId << endl;
+    } else {  // New DB format
+      vDrift = vDriftMap_->get(DTWireId(slId.rawId()));
+    }
 
     // For RZ superlayers use original value
     if (slId.superLayer() == 2) {

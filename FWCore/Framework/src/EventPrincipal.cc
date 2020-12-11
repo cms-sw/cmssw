@@ -16,7 +16,7 @@
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/Framework/interface/ProductResolverBase.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
-#include "FWCore/Framework/interface/ProductDeletedException.h"
+#include "FWCore/Framework/src/ProductDeletedException.h"
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -323,6 +323,32 @@ namespace edm {
         [this](ProductID const& p) { return getIt(p); },
         foundContainers,
         keys);
+  }
+
+  OptionalThinnedKey EventPrincipal::getThinnedKeyFrom(ProductID const& parentID,
+                                                       unsigned int key,
+                                                       ProductID const& thinnedID) const {
+    BranchID parent = pidToBid(parentID);
+    BranchID thinned = pidToBid(thinnedID);
+
+    try {
+      auto ret = detail::getThinnedKeyFrom_implementation(
+          parentID, parent, key, thinnedID, thinned, *thinnedAssociationsHelper_, [this](BranchID const& branchID) {
+            return getThinnedAssociation(branchID);
+          });
+      if (auto factory = std::get_if<detail::GetThinnedKeyFromExceptionFactory>(&ret)) {
+        return [func = *factory]() {
+          auto ex = func();
+          ex.addContext("Calling EventPrincipal::getThinnedKeyFrom()");
+          return ex;
+        };
+      } else {
+        return ret;
+      }
+    } catch (Exception& ex) {
+      ex.addContext("Calling EventPrincipal::getThinnedKeyFrom()");
+      throw ex;
+    }
   }
 
   Provenance EventPrincipal::getProvenance(ProductID const& pid, ModuleCallingContext const* mcc) const {

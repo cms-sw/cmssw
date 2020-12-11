@@ -141,10 +141,10 @@ void PPSSimTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   }
   edm::LogVerbatim("ProtonTransportEventProcessing") << "produce begin for event " << m_eventsAnalysed;
 
-  evt = new HepMC::GenEvent(*HepMCEvt->GetEvent());
+  evt = new HepMC::GenEvent(HepMCEvt->GetEvent()->signal_process_id(), HepMCEvt->GetEvent()->event_number());
 
-  //theTransporter->clear();
-  theTransporter->process(evt, iSetup, engine);
+  theTransporter->process(HepMCEvt->GetEvent(), iSetup, engine);
+  theTransporter->addPartToHepMC(HepMCEvt->GetEvent(), evt);
 
   if (m_verbosity)
     evt->print();
@@ -178,14 +178,6 @@ void PPSSimTrackProducer::beginStream(edm::StreamID) {}
 void PPSSimTrackProducer::endStream() {}
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-/*
-void PPSSimTrackProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
-  edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
-}
-*/
+/* to be done */
 //define this as a plug-in
 DEFINE_FWK_MODULE(PPSSimTrackProducer);

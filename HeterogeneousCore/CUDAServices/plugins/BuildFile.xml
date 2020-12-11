@@ -1,4 +1,4 @@
-<iftool name="cuda-gcc-support">
+<iftool name="cuda">
   <use name="cuda"/>
   <use name="DataFormats/Common"/>
   <use name="DataFormats/Provenance"/>
@@ -11,6 +11,7 @@
   <use name="FWCore/ServiceRegistry"/>
   <use name="FWCore/Utilities"/>
   <use name="HeterogeneousCore/CUDAServices"/>
+
   <library file="*.cc" name="HeterogeneousCoreCUDAServicesPlugins">
     <flags EDM_PLUGIN="1"/>
   </library>

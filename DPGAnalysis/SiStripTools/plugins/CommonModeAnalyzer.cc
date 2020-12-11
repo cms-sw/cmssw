@@ -28,10 +28,10 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -74,7 +74,7 @@ private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
 
-  void updateDetCabling(const edm::EventSetup& setup);
+  void updateDetCabling(const SiStripDetCablingRcd& iRcd);
 
   // ----------member data ---------------------------
 
@@ -98,8 +98,9 @@ private:
 
   RunHistogramManager m_rhm;
 
-  uint32_t m_cacheIdDet;                  //!< DB cache ID used to establish if the cabling has changed during the run.
-  const SiStripDetCabling* m_detCabling;  //!< The cabling object.
+  edm::ESWatcher<SiStripDetCablingRcd> m_detCablingWatcher;
+  edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> m_detCablingToken;
+  const SiStripDetCabling* m_detCabling = nullptr;  //!< The cabling object.
 };
 
 //
@@ -133,8 +134,8 @@ CommonModeAnalyzer::CommonModeAnalyzer(const edm::ParameterSet& iConfig)
       m_cmvsbxrun(),
       m_cmvsorbitrun(),
       m_rhm(consumesCollector()),
-      m_cacheIdDet(0),
-      m_detCabling(nullptr) {
+      m_detCablingWatcher(this, &CommonModeAnalyzer::updateDetCabling),
+      m_detCablingToken(esConsumes()) {
   //now do what ever initialization is needed
 
   edm::Service<TFileService> tfserv;
@@ -198,7 +199,7 @@ CommonModeAnalyzer::~CommonModeAnalyzer() {
 void CommonModeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  updateDetCabling(iSetup);
+  m_detCablingWatcher.check(iSetup);
 
   m_nevents++;
 
@@ -288,16 +289,9 @@ void CommonModeAnalyzer::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
 void CommonModeAnalyzer::endJob() { edm::LogInfo("EndOfJob") << m_nevents << " analyzed events"; }
-void CommonModeAnalyzer::updateDetCabling(const edm::EventSetup& setup) {
-  uint32_t cache_id = setup.get<SiStripDetCablingRcd>().cacheIdentifier();  //.get( cabling_ );
 
-  if (m_cacheIdDet != cache_id) {  // If the cache ID has changed since the last update...
-    // Update the cabling object
-    edm::ESHandle<SiStripDetCabling> c;
-    setup.get<SiStripDetCablingRcd>().get(c);
-    m_detCabling = c.product();
-    m_cacheIdDet = cache_id;
-  }  // end of new cache ID check
+void CommonModeAnalyzer::updateDetCabling(const SiStripDetCablingRcd& iRcd) {
+  m_detCabling = &iRcd.get(m_detCablingToken);
 }
 
 //define this as a plug-in

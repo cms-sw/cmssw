@@ -77,10 +77,10 @@ namespace {
 
 template <typename T>
 CalibratedPhotonProducerT<T>::CalibratedPhotonProducerT(const edm::ParameterSet& conf)
-    : photonToken_(consumes<edm::View<T>>(conf.getParameter<edm::InputTag>("src"))),
+    : photonToken_(consumes(conf.getParameter<edm::InputTag>("src"))),
       energyCorrector_(conf.getParameter<std::string>("correctionFile")),
-      recHitCollectionEBToken_(consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("recHitCollectionEB"))),
-      recHitCollectionEEToken_(consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("recHitCollectionEE"))),
+      recHitCollectionEBToken_(consumes(conf.getParameter<edm::InputTag>("recHitCollectionEB"))),
+      recHitCollectionEEToken_(consumes(conf.getParameter<edm::InputTag>("recHitCollectionEE"))),
       produceCalibratedObjs_(conf.getParameter<bool>("produceCalibratedObjs")) {
   energyCorrector_.setMinEt(conf.getParameter<double>("minEtToCalibrate"));
 
@@ -119,14 +119,10 @@ void CalibratedPhotonProducerT<T>::fillDescriptions(edm::ConfigurationDescriptio
 
 template <typename T>
 void CalibratedPhotonProducerT<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::Handle<edm::View<T>> inHandle;
-  iEvent.getByToken(photonToken_, inHandle);
+  auto inHandle = iEvent.getHandle(photonToken_);
 
-  edm::Handle<EcalRecHitCollection> recHitCollectionEBHandle;
-  edm::Handle<EcalRecHitCollection> recHitCollectionEEHandle;
-
-  iEvent.getByToken(recHitCollectionEBToken_, recHitCollectionEBHandle);
-  iEvent.getByToken(recHitCollectionEEToken_, recHitCollectionEEHandle);
+  auto recHitCollectionEBHandle = iEvent.getHandle(recHitCollectionEBToken_);
+  auto recHitCollectionEEHandle = iEvent.getHandle(recHitCollectionEEToken_);
 
   std::unique_ptr<std::vector<T>> out = std::make_unique<std::vector<T>>();
 

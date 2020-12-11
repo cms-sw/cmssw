@@ -6,7 +6,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 
 //
@@ -16,6 +16,10 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "TTree.h"
 #include "TFile.h"
@@ -30,7 +34,7 @@
 // class decleration
 //
 
-class ValidationMisalignedTracker : public edm::EDAnalyzer {
+class ValidationMisalignedTracker : public edm::one::EDAnalyzer<> {
 public:
   explicit ValidationMisalignedTracker(const edm::ParameterSet&);
   ~ValidationMisalignedTracker() override;
@@ -40,6 +44,9 @@ private:
   void endJob() override;
 
   // ----------member data ---------------------------
+
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
 
   std::string simobject, trackassociator;
   bool selection_eff, selection_fake, ZmassSelection_;
@@ -88,7 +95,6 @@ private:
   double chi2tmp;
   float fractiontmp;
   bool onlyDiag;
-  edm::ESHandle<MagneticField> theMF;
   std::vector<std::string> associators;
 
   std::vector<edm::InputTag> label;

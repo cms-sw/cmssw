@@ -15,7 +15,6 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 # Message Logger settings
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.destinations = ['cout', 'cerr']
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
 
 # Set the process options -- Display summary at the end, enable unscheduled execution

@@ -10,10 +10,10 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/L1Trigger/interface/Muon.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/Math/interface/angle_units.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/L1TCorrelator/interface/TkMuon.h"
@@ -638,7 +638,7 @@ std::vector<L1TkMuMantraDF::muon_df> L1TkMuonProducer::product_to_muvec(const EM
     result[imu].pt = mu.Pt();
     result[imu].eta = mu.Eta();
     result[imu].theta = L1TkMuMantra::to_mpio2_pio2(L1TkMuMantra::eta_to_theta(mu.Eta()));
-    result[imu].phi = L1TkMuMantra::deg_to_rad(mu.Phi_glob());
+    result[imu].phi = angle_units::operators::convertDegToRad(mu.Phi_glob());
     result[imu].charge = mu.Charge();
   }
   return result;

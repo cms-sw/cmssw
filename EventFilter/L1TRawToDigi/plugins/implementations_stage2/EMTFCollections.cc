@@ -20,7 +20,7 @@ namespace l1t {
         }
       }
       for (const auto& h : *EMTFHits_) {
-        if (has_LCT[h.Sector_idx()] || h.Is_RPC() == 0) {
+        if (has_LCT[h.Sector_idx()] || (h.Is_RPC() == 0 && h.Is_GEM() == 0)) {
           EMTFHits_ZS_->push_back(h);
         }
       }
@@ -30,6 +30,13 @@ namespace l1t {
           EMTFCPPFs_ZS_->push_back(c);
         }
       }
+      // TODO: Do we need something equivalent for GEMs - JS 03.07.20
+      // for (const auto& g : *EMTFGEMPadClusters_) {
+      //   int sect_idx = g.emtf_sector() - 1 + 6 * (g.gemId().region() == -1);
+      //   if (has_LCT[sect_idx]) {
+      //     EMTFGEMPadClusters_ZS_->push_back(g);
+      //   }
+      // }
 
       event_.put(std::move(regionalMuonCands_));
       event_.put(std::move(EMTFDaqOuts_));
@@ -37,6 +44,8 @@ namespace l1t {
       event_.put(std::move(EMTFTracks_));
       event_.put(std::move(EMTFLCTs_));
       event_.put(std::move(EMTFCPPFs_ZS_));
+      event_.put(std::move(EMTFGEMPadClusters_));
+      // event_.put(std::move(EMTFGEMPadClusters_ZS_));
     }
   }  // namespace stage2
 }  // namespace l1t

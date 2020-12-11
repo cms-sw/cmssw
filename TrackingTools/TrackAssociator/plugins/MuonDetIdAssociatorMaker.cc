@@ -39,7 +39,8 @@ MuonDetIdAssociatorMaker::MuonDetIdAssociatorMaker(edm::ParameterSet const& pSet
       includeBadChambers_{pSet.getParameter<bool>("includeBadChambers")},
       includeGEM_{pSet.getParameter<bool>("includeGEM")},
       includeME0_{pSet.getParameter<bool>("includeME0")} {
-  iCollector.setConsumes(geomToken_).setConsumes(badChambersToken_);
+  geomToken_ = iCollector.consumes();
+  badChambersToken_ = iCollector.consumes();
 }
 
 std::unique_ptr<DetIdAssociator> MuonDetIdAssociatorMaker::make(const DetIdAssociatorRecord& iRecord) const {

@@ -1,10 +1,18 @@
 #include "FWCore/Framework/interface/RunForOutput.h"
 
 #include "FWCore/Framework/interface/RunPrincipal.h"
+#include "FWCore/Framework/src/TransitionInfoTypes.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 namespace edm {
+
+  RunForOutput::RunForOutput(RunTransitionInfo const& info,
+                             ModuleDescription const& md,
+                             ModuleCallingContext const* mcc,
+                             bool isAtEnd,
+                             MergeableRunProductMetadata const* mrpm)
+      : RunForOutput(info.principal(), md, mcc, isAtEnd, mrpm) {}
 
   RunForOutput::RunForOutput(RunPrincipal const& rp,
                              ModuleDescription const& md,

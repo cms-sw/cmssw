@@ -26,8 +26,6 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-
 namespace spr {
 
   struct propagatedTrack {
@@ -127,13 +125,13 @@ namespace spr {
                                        const MagneticField* bField,
                                        bool debug = false);
   std::vector<spr::propagatedGenTrackID> propagateCALO(const HepMC::GenEvent* genEvent,
-                                                       edm::ESHandle<ParticleDataTable>& pdt,
+                                                       const ParticleDataTable* pdt,
                                                        const CaloGeometry* geo,
                                                        const MagneticField* bField,
                                                        double etaMax = 3.0,
                                                        bool debug = false);
   std::vector<spr::propagatedGenParticleID> propagateCALO(edm::Handle<reco::GenParticleCollection>& genParticles,
-                                                          edm::ESHandle<ParticleDataTable>& pdt,
+                                                          const ParticleDataTable* pdt,
                                                           const CaloGeometry* geo,
                                                           const MagneticField* bField,
                                                           double etaMax = 3.0,

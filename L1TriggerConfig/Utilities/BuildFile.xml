@@ -1,7 +1,8 @@
 <use name="FWCore/Framework"/>
+<use name="CondCore/CondDB"/>
+<use name="CondCore/DBOutputService"/>
 <use name="CondFormats/L1TObjects"/>
 <use name="CondFormats/DataRecord"/>
-<use name="CondTools/L1Trigger"/>
 <use name="L1Trigger/L1TMuon"/>
 <use name="L1Trigger/L1TMuonEndCap"/>
 <use name="L1Trigger/L1TCalorimeter"/>

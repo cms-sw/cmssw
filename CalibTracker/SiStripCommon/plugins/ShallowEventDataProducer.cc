@@ -1,4 +1,4 @@
-#include "CalibTracker/SiStripCommon/interface/ShallowEventDataProducer.h"
+#include "ShallowEventDataProducer.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

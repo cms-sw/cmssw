@@ -3,7 +3,7 @@
 
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
-#include "DataFormats/TrackReco/interface/TrajectoryStopReasons.h"
+#include "DataFormats/TrackCandidate/interface/TrajectoryStopReasons.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"

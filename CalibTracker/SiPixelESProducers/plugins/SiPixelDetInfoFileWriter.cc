@@ -6,11 +6,8 @@
 
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelDetInfoFileWriter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
@@ -21,6 +18,7 @@ using namespace std;
 SiPixelDetInfoFileWriter::SiPixelDetInfoFileWriter(const edm::ParameterSet &iConfig) {
   edm::LogInfo("SiPixelDetInfoFileWriter::SiPixelDetInfoFileWriter");
 
+  trackerGeomTokenBeginRun_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>();
   filePath_ = iConfig.getUntrackedParameter<std::string>("FilePath", std::string("SiPixelDetInfo.dat"));
 }
 
@@ -32,9 +30,7 @@ void SiPixelDetInfoFileWriter::beginRun(const edm::Run &run, const edm::EventSet
   outputFile_.open(filePath_.c_str());
 
   if (outputFile_.is_open()) {
-    edm::ESHandle<TrackerGeometry> pDD;
-
-    iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
+    edm::ESHandle<TrackerGeometry> pDD = iSetup.getHandle(trackerGeomTokenBeginRun_);
 
     edm::LogInfo("SiPixelDetInfoFileWriter::beginJob - got geometry  ") << std::endl;
     edm::LogInfo("SiPixelDetInfoFileWriter") << " There are " << pDD->detUnits().size() << " detectors" << std::endl;

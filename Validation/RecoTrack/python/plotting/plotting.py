@@ -1859,6 +1859,9 @@ class Plot:
             return ratio
         return ratio and self._ratio
 
+    def setName(self, name):
+        self._name = name
+
     def getName(self):
         if self._outname is not None:
             return self._outname
@@ -2411,16 +2414,6 @@ class PlotGroup(object):
         width = 500
         height = 500
 
-        canvas = _createCanvas(self._name+"Single", width, height)
-        canvasRatio = _createCanvas(self._name+"SingleRatio", width, int(height*self._ratioFactor))
-
-        # from TDRStyle
-        for c in [canvas, canvasRatio]:
-            c.SetTopMargin(0.05)
-            c.SetBottomMargin(0.13)
-            c.SetLeftMargin(0.16)
-            c.SetRightMargin(0.05)
-
         lx1def = 0.6
         lx2def = 0.95
         ly1def = 0.85
@@ -2431,6 +2424,16 @@ class PlotGroup(object):
         for plot in self._plots:
             if plot.isEmpty():
                 continue
+
+            canvas = _createCanvas(self._name+"Single", width, height)
+            canvasRatio = _createCanvas(self._name+"SingleRatio", width, int(height*self._ratioFactor))
+
+            # from TDRStyle
+            for c in [canvas, canvasRatio]:
+                c.SetTopMargin(0.05)
+                c.SetBottomMargin(0.13)
+                c.SetLeftMargin(0.16)
+                c.SetRightMargin(0.05)
 
             ratioForThisPlot = plot.isRatio(ratio)
             c = canvas
@@ -2465,7 +2468,7 @@ class PlotGroup(object):
                 legend = self._createLegend(plot, legendLabels, lx1, ly1, lx2, ly2, textSize=0.03,
                                             denomUncertainty=(ratioForThisPlot and plot.drawRatioUncertainty))
 
-            ret.extend(self._save(c, saveFormat, prefix=prefix, postfix="_"+plot.getName(), single=True, directory=directory))
+            ret.extend(self._save(c, saveFormat, prefix=prefix, postfix="/"+plot.getName(), single=True, directory=directory))
         return ret
 
     def _modifyPadForRatio(self, pad):
@@ -2491,6 +2494,8 @@ class PlotGroup(object):
     def _save(self, canvas, saveFormat, prefix=None, postfix=None, single=False, directory=""):
         # Save the canvas to file and clear
         name = self._name
+        if not os.path.exists(directory+'/'+name):
+            os.makedirs(directory+'/'+name)
         if prefix is not None:
             name = prefix+name
         if postfix is not None:
@@ -2529,15 +2534,15 @@ class PlotOnSideGroup(PlotGroup):
 
     def create(self, tdirectoryNEvents, requireAllHistograms=False):
         self._plots = []
-        for element in tdirectoryNEvents:
+        for i, element in enumerate(tdirectoryNEvents):
             pl = self._plot.clone()
             pl.create([element], requireAllHistograms)
+            pl.setName(pl.getName()+"_"+str(i))
             self._plots.append(pl)
 
     def draw(self, *args, **kwargs):
         kargs = copy.copy(kwargs)
         kargs["ratio"] = False
-        kargs["separate"] = False
         return super(PlotOnSideGroup, self).draw(*args, **kargs)
 
 class PlotFolder:

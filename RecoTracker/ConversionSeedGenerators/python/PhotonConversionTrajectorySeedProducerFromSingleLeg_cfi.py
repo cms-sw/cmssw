@@ -68,15 +68,15 @@ peripheralPbPb.toModify(photonConvTrajSeedFromSingleLeg,
 )
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-(pp_on_XeXe_2017 | pp_on_AA_2018 ).toModify(photonConvTrajSeedFromSingleLeg,
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+(pp_on_XeXe_2017 | pp_on_AA ).toModify(photonConvTrajSeedFromSingleLeg,
                              ClusterCheckPSet = dict(MaxNumberOfPixelClusters = 100000,
                                                      cut = "strip < 1000000 && pixel < 100000 && (strip < 50000 + 10*pixel) && (pixel < 5000 + strip/2.)"
                                                      ),
                              OrderedHitsFactoryPSet = dict(maxElement = 100000)
 )
 from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
-(pp_on_XeXe_2017 | pp_on_AA_2018 ).toModify(photonConvTrajSeedFromSingleLeg,
+(pp_on_XeXe_2017 | pp_on_AA ).toModify(photonConvTrajSeedFromSingleLeg,
                RegionFactoryPSet = dict(ComponentName = 'GlobalTrackingRegionWithVerticesProducer',
                                         RegionPSet = _globalTrackingRegionWithVertices.RegionPSet.clone(
                                                           originRadius = 0,

@@ -4,8 +4,7 @@ process = cms.Process("PROD")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.debugModules = cms.untracked.vstring('*')
-process.MessageLogger.destinations = cms.untracked.vstring('cerr')
-process.MessageLogger.categories.append('resolution')
+process.MessageLogger.resolution=dict()
 process.MessageLogger.cerr =  cms.untracked.PSet(
     FwkReport = cms.untracked.PSet(
         limit = cms.untracked.int32(100),

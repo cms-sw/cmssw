@@ -10,7 +10,7 @@ namespace {
   int controller(int argc, char** argv) {
     using namespace edm::shared_memory;
 
-    ControllerChannel channel("TestChannel", 0);
+    ControllerChannel channel("TestChannel", 0, 60);
 
     //Pipe has to close AFTER we tell the worker to stop
     auto closePipe = [](FILE* iFile) { pclose(iFile); };

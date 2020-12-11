@@ -21,6 +21,10 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
+<library file="OnlineBeamMonitor.cc" name="OnlineBeamMonitor">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
 <library file="BeamMonitorBx.cc" name="BeamMonitorBx">
   <flags EDM_PLUGIN="1"/>
 </library>

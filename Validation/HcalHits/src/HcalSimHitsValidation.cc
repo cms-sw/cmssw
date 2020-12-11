@@ -22,6 +22,7 @@ HcalSimHitsValidation::HcalSimHitsValidation(edm::ParameterSet const &conf) {
   tok_hcal_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hcalHits_));
   tok_ecalEB_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, ebHits_));
   tok_ecalEE_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, eeHits_));
+  tok_HRNDC_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>();
 
   if (!outputFile_.empty()) {
     edm::LogInfo("OutputInfo") << " Hcal SimHit Task histograms will be saved to '" << outputFile_.c_str() << "'";
@@ -35,9 +36,8 @@ HcalSimHitsValidation::HcalSimHitsValidation(edm::ParameterSet const &conf) {
 HcalSimHitsValidation::~HcalSimHitsValidation() {}
 
 void HcalSimHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run, edm::EventSetup const &es) {
-  edm::ESHandle<HcalDDDRecConstants> pHRNDC;
-  es.get<HcalRecNumberingRecord>().get(pHRNDC);
-  hcons = &(*pHRNDC);
+  const auto &pHRNDC = es.getData(tok_HRNDC_);
+  hcons = &pHRNDC;
   maxDepthHB_ = hcons->getMaxDepth(0);
   maxDepthHE_ = hcons->getMaxDepth(1);
   maxDepthHF_ = hcons->getMaxDepth(2);

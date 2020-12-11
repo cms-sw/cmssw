@@ -9,7 +9,6 @@
 #include <boost/algorithm/string.hpp>
 
 // Geometry stuff
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 

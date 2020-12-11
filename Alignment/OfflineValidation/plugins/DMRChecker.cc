@@ -49,6 +49,7 @@
 
 // user system includes
 
+#include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "CommonTools/Utils/interface/TFileDirectory.h"
@@ -155,7 +156,6 @@ public:
         magFieldToken_(esConsumes<MagneticField, IdealMagneticFieldRecord>()),
         topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>()),
         latencyToken_(esConsumes<SiStripLatency, SiStripLatencyRcd>()),
-        isPhase1_(pset.getParameter<bool>("isPhase1")),
         isCosmics_(pset.getParameter<bool>("isCosmics")) {
     usesResource(TFileService::kSharedResource);
 
@@ -197,31 +197,6 @@ public:
 
     // set no rescale
     pixelmap->setNoRescale();
-
-    // initialize the topology first
-    /*
-    const char *path_toTopologyXML = isPhase1_ ? 
-      "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml" :
-      "Geometry/TrackerCommonData/data/trackerParameters.xml";
- 
-    const TrackerTopology m_standaloneTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
-    */
-
-    // initialize PixelRegionContainers
-    PixelDMRS_x_ByLayer = std::make_unique<PixelRegions::PixelRegionContainers>(nullptr, isPhase1_);
-    PixelDMRS_y_ByLayer = std::make_unique<PixelRegions::PixelRegionContainers>(nullptr, isPhase1_);
-
-    // book PixelRegionContainers
-    PixelDMRS_x_ByLayer->bookAll("Barrel Pixel DMRs", "median(x'_{pred}-x'_{hit}) [#mum]", "# modules", 100, -50, 50);
-    PixelDMRS_y_ByLayer->bookAll("Barrel Pixel DMRs", "median(y'_{pred}-y'_{hit}) [#mum]", "# modules", 100, -50, 50);
-
-    /*
-    auto dets = PixelRegions::attachedDets(PixelRegions::PixelId::L1,&m_standaloneTopo,isPhase1_);
-    for(const auto& det : dets){
-      auto myLocalTopo = PixelDMRS_x_ByLayer->getTheTTopo();
-      edm::LogVerbatim("DMRChecker") << myLocalTopo->print(det) << std::endl;
-    }
-    */
   }
 
   static void fillDescriptions(edm::ConfigurationDescriptions &);
@@ -473,14 +448,12 @@ private:
   std::map<unsigned int, TH1D *> endcapDisksResidualsY;
   std::map<unsigned int, TH1D *> endcapDisksPullsY;
 
-  std::string trigNames;
-  int trigCount;
   int ievt;
   int itrks;
   int mode;
   bool firstEvent_;
 
-  const bool isPhase1_;
+  SiPixelPI::phase phase_;
   const bool isCosmics_;
 
   edm::InputTag TkTag_;
@@ -521,11 +494,10 @@ private:
     event.getByToken(theTrackCollectionToken, trackCollection);
 
     // magnetic field setup
-    edm::ESHandle<MagneticField> magneticField_ = setup.getHandle(magFieldToken_);
-    float B_ = magneticField_.product()->inTesla(GlobalPoint(0, 0, 0)).mag();
+    const MagneticField *magneticField_ = &setup.getData(magFieldToken_);
+    float B_ = magneticField_->inTesla(GlobalPoint(0, 0, 0)).mag();
 
-    edm::ESHandle<RunInfo> runInfo = setup.getHandle(runInfoToken_);
-    const RunInfo *summary = runInfo.product();
+    const RunInfo *summary = &setup.getData(runInfoToken_);
     time_t start_time = summary->m_start_time_ll;
     ctime(&start_time);
     time_t end_time = summary->m_stop_time_ll;
@@ -538,20 +510,14 @@ private:
       << " end_time "   << end_time   << "( " << summary->m_stop_time_str  <<" )" << std::endl;
     */
 
-    double seconds = difftime(end_time, start_time) / 1.0e+6;
+    double seconds = difftime(end_time, start_time) / 1.0e+6;  // convert from micros-seconds
     //edm::LogVerbatim("DMRChecker")<<" diff: "<< seconds << "s" << std::endl;
     timeMap_[event.run()] = seconds;
 
     // topology setup
-    edm::ESHandle<TrackerTopology> tTopoHandle = setup.getHandle(topoToken_);
-    const TrackerTopology *const tTopo = tTopoHandle.product();
+    const TrackerTopology *const tTopo = &setup.getData(topoToken_);
 
-    if (!PixelDMRS_x_ByLayer->getTheTopo()) {
-      PixelDMRS_x_ByLayer->setTheTopo(tTopo);
-      PixelDMRS_y_ByLayer->setTheTopo(tTopo);
-    }
-
-    edm::ESHandle<SiStripLatency> apvlat = setup.getHandle(latencyToken_);
+    const SiStripLatency *apvlat = &setup.getData(latencyToken_);
     if (apvlat->singleReadOutMode() == 1) {
       mode = 1;  // peak mode
     } else if (apvlat->singleReadOutMode() == 0) {
@@ -562,8 +528,18 @@ private:
     conditionsMap_[event.run()].second = B_;
 
     // geometry setup
-    edm::ESHandle<TrackerGeometry> geometry = setup.getHandle(geomToken_);
-    const TrackerGeometry *theGeometry = &(*geometry);
+    const TrackerGeometry *theGeometry = &setup.getData(geomToken_);
+
+    if (firstEvent_) {
+      if (theGeometry->isThere(GeomDetEnumerators::P2PXB) || theGeometry->isThere(GeomDetEnumerators::P2PXEC)) {
+        phase_ = SiPixelPI::phase::two;
+      } else if (theGeometry->isThere(GeomDetEnumerators::P1PXB) || theGeometry->isThere(GeomDetEnumerators::P1PXEC)) {
+        phase_ = SiPixelPI::phase::one;
+      } else {
+        phase_ = SiPixelPI::phase::zero;
+      }
+      firstEvent_ = false;
+    }
 
     GlobalPoint zeroPoint(0, 0, 0);
     //edm::LogVerbatim("DMRChecker") << "event#" << ievt << " Event ID = "<< event.id()
@@ -579,17 +555,18 @@ private:
 
     edm::Handle<edm::TriggerResults> hltresults;
     event.getByToken(hltresultsToken, hltresults);
+    if (hltresults.isValid()) {
+      const edm::TriggerNames &triggerNames_ = event.triggerNames(*hltresults);
+      int ntrigs = hltresults->size();
 
-    const edm::TriggerNames &triggerNames_ = event.triggerNames(*hltresults);
-    int ntrigs = hltresults->size();
-
-    for (int itrig = 0; itrig != ntrigs; ++itrig) {
-      const string &trigName = triggerNames_.triggerName(itrig);
-      bool accept = hltresults->accept(itrig);
-      if (accept == 1) {
-        // emd::LogVerbatim("DMRChecker") << trigName << " " << accept << " ,track size: " << tC.size() << endl;
-        triggerMap_[trigName].first += 1;
-        triggerMap_[trigName].second += tC.size();
+      for (int itrig = 0; itrig != ntrigs; ++itrig) {
+        const string &trigName = triggerNames_.triggerName(itrig);
+        bool accept = hltresults->accept(itrig);
+        if (accept == 1) {
+          // emd::LogVerbatim("DMRChecker") << trigName << " " << accept << " ,track size: " << tC.size() << endl;
+          triggerMap_[trigName].first += 1;
+          triggerMap_[trigName].second += tC.size();
+        }
       }
     }
 
@@ -640,7 +617,7 @@ private:
           // fill DMRs and DrNRs
           if (subid == StripSubdetector::TIB) {
             uOrientation = deltaPhi(gUDirection.barePhi(), gPModule.barePhi()) >= 0. ? +1.F : -1.F;
-            vOrientation = gVDirection.z() - gPModule.z() >= 0 ? +1.F : -1.F;
+            //vOrientation = gVDirection.z() - gPModule.z() >= 0 ? +1.F : -1.F; // not used for Strips
 
             // if the detid has never occcurred yet, set the local orientations
             if (resDetailsTIB_.find(detid_db) == resDetailsTIB_.end()) {
@@ -657,7 +634,7 @@ private:
 
           } else if (subid == StripSubdetector::TOB) {
             uOrientation = deltaPhi(gUDirection.barePhi(), gPModule.barePhi()) >= 0. ? +1.F : -1.F;
-            vOrientation = gVDirection.z() - gPModule.z() >= 0 ? +1.F : -1.F;
+            //vOrientation = gVDirection.z() - gPModule.z() >= 0 ? +1.F : -1.F; // not used for Strips
 
             hTOBResXPrime->Fill(uOrientation * resX * 10000);
             hTOBResXPull->Fill(pullX);
@@ -674,7 +651,7 @@ private:
 
           } else if (subid == StripSubdetector::TID) {
             uOrientation = deltaPhi(gUDirection.barePhi(), gPModule.barePhi()) >= 0. ? +1.F : -1.F;
-            vOrientation = gVDirection.perp() - gPModule.perp() >= 0. ? +1.F : -1.F;
+            //vOrientation = gVDirection.perp() - gPModule.perp() >= 0. ? +1.F : -1.F; // not used for Strips
 
             hTIDResXPrime->Fill(uOrientation * resX * 10000);
             hTIDResXPull->Fill(pullX);
@@ -684,7 +661,7 @@ private:
 
           } else if (subid == StripSubdetector::TEC) {
             uOrientation = deltaPhi(gUDirection.barePhi(), gPModule.barePhi()) >= 0. ? +1.F : -1.F;
-            vOrientation = gVDirection.perp() - gPModule.perp() >= 0. ? +1.F : -1.F;
+            //vOrientation = gVDirection.perp() - gPModule.perp() >= 0. ? +1.F : -1.F; // not used for Strips
 
             hTECResXPrime->Fill(uOrientation * resX * 10000);
             hTECResXPull->Fill(pullX);
@@ -698,7 +675,7 @@ private:
 
         if (pixhit) {
           if (pixhit->isValid()) {
-            if (!isPhase1_) {
+            if (phase_ == SiPixelPI::phase::zero) {
               pmap->fill(detid_db, 1);
             }
 
@@ -1527,11 +1504,35 @@ private:
     DRnRTID_ = DRnRs.make<TH1D>("DRnRTID", "DRnR of TID;rms of normalized X-residuals;modules", 100., 0., 3.);
     DRnRTEC_ = DRnRs.make<TH1D>("DRnRTEC", "DRnR of TEC;rms of normalized Y-residuals;modules", 100., 0., 3.);
 
+    // initialize the topology first
+
+    SiPixelPI::PhaseInfo ph_info(phase_);
+    const char *path_toTopologyXML = ph_info.pathToTopoXML();
+    const TrackerTopology standaloneTopo =
+        StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
+
+    // initialize PixelRegionContainers
+    PixelDMRS_x_ByLayer = std::make_unique<PixelRegions::PixelRegionContainers>(&standaloneTopo, ph_info.phase());
+    PixelDMRS_y_ByLayer = std::make_unique<PixelRegions::PixelRegionContainers>(&standaloneTopo, ph_info.phase());
+
+    // book PixelRegionContainers
+    PixelDMRS_x_ByLayer->bookAll("Barrel Pixel DMRs", "median(x'_{pred}-x'_{hit}) [#mum]", "# modules", 100, -50, 50);
+    PixelDMRS_y_ByLayer->bookAll("Barrel Pixel DMRs", "median(y'_{pred}-y'_{hit}) [#mum]", "# modules", 100, -50, 50);
+
+    /*
+    auto dets = PixelRegions::attachedDets(PixelRegions::PixelId::L1,&m_standaloneTopo,isPhase1_);
+    for(const auto& det : dets){
+      auto myLocalTopo = PixelDMRS_x_ByLayer->getTheTTopo();
+      edm::LogVerbatim("DMRChecker") << myLocalTopo->print(det) << std::endl;
+    }
+    */
+
     // pixel
 
     for (auto &bpixid : resDetailsBPixX_) {
       DMRBPixX_->Fill(bpixid.second.runningMeanOfRes_);
-      pixelmap->fillBarrelBin("DMRsX", bpixid.first, bpixid.second.runningMeanOfRes_);
+      if (phase_ == SiPixelPI::phase::one)
+        pixelmap->fillBarrelBin("DMRsX", bpixid.first, bpixid.second.runningMeanOfRes_);
 
       //auto myLocalTopo = PixelDMRS_x_ByLayer->getTheTopo();
       //edm::LogPrint("DMRChecker") << myLocalTopo->print(bpixid.first) << std::endl;
@@ -1553,7 +1554,8 @@ private:
 
     for (auto &bpixid : resDetailsBPixY_) {
       DMRBPixY_->Fill(bpixid.second.runningMeanOfRes_);
-      pixelmap->fillBarrelBin("DMRsY", bpixid.first, bpixid.second.runningMeanOfRes_);
+      if (phase_ == SiPixelPI::phase::one)
+        pixelmap->fillBarrelBin("DMRsY", bpixid.first, bpixid.second.runningMeanOfRes_);
       PixelDMRS_y_ByLayer->fill(bpixid.first, bpixid.second.runningMeanOfRes_);
 
       // split DMR
@@ -1571,7 +1573,8 @@ private:
 
     for (auto &fpixid : resDetailsFPixX_) {
       DMRFPixX_->Fill(fpixid.second.runningMeanOfRes_);
-      pixelmap->fillForwardBin("DMRsX", fpixid.first, fpixid.second.runningMeanOfRes_);
+      if (phase_ == SiPixelPI::phase::one)
+        pixelmap->fillForwardBin("DMRsX", fpixid.first, fpixid.second.runningMeanOfRes_);
       PixelDMRS_x_ByLayer->fill(fpixid.first, fpixid.second.runningMeanOfRes_);
 
       // split DMR
@@ -1589,7 +1592,8 @@ private:
 
     for (auto &fpixid : resDetailsFPixY_) {
       DMRFPixY_->Fill(fpixid.second.runningMeanOfRes_);
-      pixelmap->fillForwardBin("DMRsY", fpixid.first, fpixid.second.runningMeanOfRes_);
+      if (phase_ == SiPixelPI::phase::one)
+        pixelmap->fillForwardBin("DMRsY", fpixid.first, fpixid.second.runningMeanOfRes_);
       PixelDMRS_y_ByLayer->fill(fpixid.first, fpixid.second.runningMeanOfRes_);
 
       // split DMR
@@ -1660,7 +1664,7 @@ private:
     edm::LogPrint("DMRChecker") << "n. of bpix modules " << resDetailsBPixX_.size() << std::endl;
     edm::LogPrint("DMRChecker") << "n. of fpix modules " << resDetailsFPixX_.size() << std::endl;
 
-    if (!isPhase1_) {
+    if (phase_ == SiPixelPI::phase::zero) {
       pmap->save(true, 0, 0, "PixelHitMap.pdf", 600, 800);
       pmap->save(true, 0, 0, "PixelHitMap.png", 500, 750);
     }
@@ -1668,24 +1672,26 @@ private:
     tmap->save(true, 0, 0, "StripHitMap.pdf");
     tmap->save(true, 0, 0, "StripHitMap.png");
 
-    gStyle->SetPalette(kRainBow);
-    pixelmap->beautifyAllHistograms();
+    if (phase_ == SiPixelPI::phase::one) {
+      gStyle->SetPalette(kRainBow);
+      pixelmap->beautifyAllHistograms();
 
-    TCanvas cBX("CanvXBarrel", "CanvXBarrel", 1200, 1000);
-    pixelmap->DrawBarrelMaps("DMRsX", cBX);
-    cBX.SaveAs("pixelBarrelDMR_x.png");
+      TCanvas cBX("CanvXBarrel", "CanvXBarrel", 1200, 1000);
+      pixelmap->DrawBarrelMaps("DMRsX", cBX);
+      cBX.SaveAs("pixelBarrelDMR_x.png");
 
-    TCanvas cFX("CanvXForward", "CanvXForward", 1600, 1000);
-    pixelmap->DrawForwardMaps("DMRsX", cFX);
-    cFX.SaveAs("pixelForwardDMR_x.png");
+      TCanvas cFX("CanvXForward", "CanvXForward", 1600, 1000);
+      pixelmap->DrawForwardMaps("DMRsX", cFX);
+      cFX.SaveAs("pixelForwardDMR_x.png");
 
-    TCanvas cBY("CanvYBarrel", "CanvYBarrel", 1200, 1000);
-    pixelmap->DrawBarrelMaps("DMRsY", cBY);
-    cBY.SaveAs("pixelBarrelDMR_y.png");
+      TCanvas cBY("CanvYBarrel", "CanvYBarrel", 1200, 1000);
+      pixelmap->DrawBarrelMaps("DMRsY", cBY);
+      cBY.SaveAs("pixelBarrelDMR_y.png");
 
-    TCanvas cFY("CanvXForward", "CanvXForward", 1600, 1000);
-    pixelmap->DrawForwardMaps("DMRsY", cFY);
-    cFY.SaveAs("pixelForwardDMR_y.png");
+      TCanvas cFY("CanvXForward", "CanvXForward", 1600, 1000);
+      pixelmap->DrawForwardMaps("DMRsY", cFY);
+      cFY.SaveAs("pixelForwardDMR_y.png");
+    }
 
     // take care now of the 1D histograms
     gStyle->SetOptStat("emr");
@@ -1865,11 +1871,9 @@ private:
       }
 
       unsigned int side = -1;
-      unsigned int plane = i;
-
       if (detType.find("FPix") != std::string::npos) {
         side = (i - 1) / 3 + 1;
-        plane = (i - 1) % 3 + 1;
+        unsigned int plane = (i - 1) % 3 + 1;
 
         std::string theSide = "";
         if (side == 1) {
@@ -1992,7 +1996,6 @@ void DMRChecker::fillDescriptions(edm::ConfigurationDescriptions &descriptions)
   desc.add<edm::InputTag>("BeamSpotTag", edm::InputTag("offlineBeamSpot"));
   desc.add<edm::InputTag>("VerticesTag", edm::InputTag("offlinePrimaryVertices"));
   desc.add<bool>("isCosmics", false);
-  desc.add<bool>("isPhase1", true);
   descriptions.add("DMRChecker", desc);
 }
 

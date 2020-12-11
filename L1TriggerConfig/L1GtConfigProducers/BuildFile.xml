@@ -8,6 +8,4 @@
 <use name="Utilities/Xerces"/>
 <use name="xerces-c"/>
 <use name="stdcxx-fs"/>
-<export>
-  <lib name="1"/>
-</export>
+<flags EDM_PLUGIN="1"/>

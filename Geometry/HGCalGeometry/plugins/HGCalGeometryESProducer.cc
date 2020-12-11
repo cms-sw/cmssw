@@ -27,6 +27,7 @@
 #include "Geometry/CaloTopology/interface/HGCalTopology.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometryLoader.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 //#define EDM_ML_DEBUG
 

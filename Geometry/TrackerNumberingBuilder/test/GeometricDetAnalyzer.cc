@@ -34,8 +34,6 @@
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerDebugNavigator.h"
-
 // CLHEP Dependency
 #include <CLHEP/Vector/ThreeVector.h>
 

@@ -1,6 +1,21 @@
 #!/bin/bash
 
+n_events="1E4"
+if [ -n "$1" ]
+then
+	n_events="$1"
+fi
+
+inputDir="."
+if [ -n "$LOCAL_TEST_DIR" ]
+then
+	inputDir="$LOCAL_TEST_DIR"
+	n_events="1E2"
+fi
+
 #----------------------------------------------------------------------------------------------------
+
+pids=""
 
 function RunOne()
 {
@@ -9,27 +24,39 @@ function RunOne()
 
 	local cfg="simu_${config}_cfg.py"
 	local log="simu_${config}.log"
+	local out_lhcInfo="simu_${config}_lhcInfo.root"
 	local out_tracks="simu_${config}_tracks.root"
 	local out_protons="simu_${config}_protons.root"
 
-	cat "template_cfg.py" | sed "\
+	cat "$inputDir/template_cfg.py" | sed "\
 			s|\$ERA|$era|;\
 			s|\$CONFIG|$config|;\
+			s|\$N_EVENTS|$n_events|;\
+			s|\$OUT_LHCINFO|$out_lhcInfo|;\
 			s|\$OUT_TRACKS|$out_tracks|;\
 			s|\$OUT_PROTONS|$out_protons|;\
 		" > "$cfg"
 
 	cmsRun "$cfg" &> "$log" &
+	pids="$pids $!"
 }
 
 #----------------------------------------------------------------------------------------------------
 
-RunOne "2016_preTS2" "Run2_2016"
-RunOne "2016_postTS2" "Run2_2016"
+RunOne "2016" "Run2_2016"
 
-RunOne "2017_preTS2" "Run2_2017"
-RunOne "2017_postTS2" "Run2_2017"
+RunOne "2017" "Run2_2017"
 
-RunOne "2018_preTS1" "Run2_2018"
-RunOne "2018_TS1_TS2" "Run2_2018"
-RunOne "2018_postTS2" "Run2_2018"
+RunOne "2018" "Run2_2018"
+
+rc=0
+for pid in $pids
+do
+	wait $pid
+	if [ $? -ne 0 ]
+	then
+		rc=1
+	fi
+done
+
+exit $rc

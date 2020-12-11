@@ -75,9 +75,6 @@ process.MessageLogger = cms.Service("MessageLogger",
         trackResidualsTest = cms.untracked.PSet(
             limit = cms.untracked.int32(10000000)
         ),
-        FwkJob = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
         threshold = cms.untracked.string('DEBUG'),
         muRecoAnalyzer = cms.untracked.PSet(
             limit = cms.untracked.int32(10000000)

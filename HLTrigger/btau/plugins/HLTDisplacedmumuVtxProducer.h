@@ -41,6 +41,7 @@ private:
   const edm::EDGetTokenT<reco::RecoChargedCandidateCollection> srcToken_;
   const edm::InputTag previousCandTag_;
   const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> previousCandToken_;
+  const bool matchToPrevious_;
   const double maxEta_;
   const double minPt_;
   const double minPtPair_;

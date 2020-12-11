@@ -1,5 +1,5 @@
-#ifndef CSCAnodeData2007_h
-#define CSCAnodeData2007_h
+#ifndef EventFilter_CSCRawToDigi_CSCAnodeData2007_h
+#define EventFilter_CSCRawToDigi_CSCAnodeData2007_h
 
 #include "EventFilter/CSCRawToDigi/interface/CSCAnodeDataFormat.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"

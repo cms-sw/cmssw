@@ -37,7 +37,6 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
 
   wireDigiProducer_ = conf.getParameter<edm::InputTag>("CSCWireDigiProducer");
   compDigiProducer_ = conf.getParameter<edm::InputTag>("CSCComparatorDigiProducer");
-  gemPadDigiProducer_ = conf.getParameter<edm::InputTag>("GEMPadDigiProducer");
   gemPadDigiClusterProducer_ = conf.getParameter<edm::InputTag>("GEMPadDigiClusterProducer");
 
   checkBadChambers_ = conf.getParameter<bool>("checkBadChambers");
@@ -53,7 +52,6 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
 
   wire_token_ = consumes<CSCWireDigiCollection>(wireDigiProducer_);
   comp_token_ = consumes<CSCComparatorDigiCollection>(compDigiProducer_);
-  gem_pad_token_ = consumes<GEMPadDigiCollection>(gemPadDigiProducer_);
   gem_pad_cluster_token_ = consumes<GEMPadDigiClusterCollection>(gemPadDigiClusterProducer_);
   cscToken_ = esConsumes<CSCGeometry, MuonGeometryRecord>();
   gemToken_ = esConsumes<GEMGeometry, MuonGeometryRecord>();
@@ -122,14 +120,6 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
   ev.getByToken(comp_token_, compDigis);
   ev.getByToken(wire_token_, wireDigis);
 
-  // input GEM pad collection for upgrade scenarios
-  const GEMPadDigiCollection* gemPads = nullptr;
-  if (!gemPadDigiProducer_.label().empty()) {
-    edm::Handle<GEMPadDigiCollection> gemPadDigis;
-    ev.getByToken(gem_pad_token_, gemPadDigis);
-    gemPads = gemPadDigis.product();
-  }
-
   // input GEM pad cluster collection for upgrade scenarios
   const GEMPadDigiClusterCollection* gemPadClusters = nullptr;
   if (!gemPadDigiClusterProducer_.label().empty()) {
@@ -169,7 +159,6 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
     builder_->build(temp,
                     wireDigis.product(),
                     compDigis.product(),
-                    gemPads,
                     gemPadClusters,
                     *oc_alct,
                     *oc_alct_all,

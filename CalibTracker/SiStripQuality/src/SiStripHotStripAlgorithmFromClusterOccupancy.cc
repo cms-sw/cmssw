@@ -23,7 +23,7 @@ SiStripHotStripAlgorithmFromClusterOccupancy::~SiStripHotStripAlgorithmFromClust
 
 void SiStripHotStripAlgorithmFromClusterOccupancy::extractBadStrips(SiStripQuality* OutSiStripQuality,
                                                                     HistoMap& DM,
-                                                                    edm::ESHandle<SiStripQuality>& InSiStripQuality) {
+                                                                    const SiStripQuality* InSiStripQuality) {
   LogTrace("SiStripHotStripAlgorithmFromClusterOccupancy")
       << "[SiStripHotStripAlgorithmFromClusterOccupancy::extractBadStrips] " << std::endl;
 

@@ -40,9 +40,9 @@ private:
 };
 
 SiPixel2DTemplateDBObjectESProducer::SiPixel2DTemplateDBObjectESProducer(const edm::ParameterSet& iConfig) {
-  setWhatProduced(this)
-      .setConsumes(magfieldToken_)
-      .setConsumes(dbToken_, edm::ESInputTag{"", "numerator"});  // The correct default
+  auto cc = setWhatProduced(this);
+  magfieldToken_ = cc.consumes();
+  dbToken_ = cc.consumes(edm::ESInputTag{"", "numerator"});  // The correct default
 }
 
 SiPixel2DTemplateDBObjectESProducer::~SiPixel2DTemplateDBObjectESProducer() {}

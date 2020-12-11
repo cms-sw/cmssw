@@ -296,7 +296,9 @@ _patTauDiscriminationByElectronRejection2015Seq = cms.Sequence(
     +patTauDiscriminationByElectronRejectionMVA62015
 )
 patTauDiscriminationByElectronRejectionSeq = _patTauDiscriminationByElectronRejection2015Seq.copy()
-(~run2_miniAOD_80XLegacy).toReplaceWith(patTauDiscriminationByElectronRejectionSeq,
+for era in [run2_nanoAOD_92X,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,\
+            run2_nanoAOD_94X2016,run2_nanoAOD_102Xv1,run2_nanoAOD_106Xv1]:
+    era.toReplaceWith(patTauDiscriminationByElectronRejectionSeq,
                       _patTauDiscriminationByElectronRejection2018Seq)
 
 
@@ -412,7 +414,9 @@ _tauIDSourcesWithAntiE2015 = cms.PSet(
     _antiETauIDSources2015
 )
 slimmedTausUpdated.tauIDSources=_tauIDSourcesWithAntiE2015
-(~run2_miniAOD_80XLegacy).toModify(slimmedTausUpdated,
+for era in [run2_nanoAOD_92X,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,\
+            run2_nanoAOD_94X2016,run2_nanoAOD_102Xv1,run2_nanoAOD_106Xv1]:
+    era.toModify(slimmedTausUpdated,
                  tauIDSources = _tauIDSourcesWithAntiE2018
     )
 

@@ -5,7 +5,7 @@
 #include "JetMETCorrections/FFTJetObjects/interface/FFTJetLookupTableRcdTypes.h"
 #include "JetMETCorrections/FFTJetObjects/interface/FFTJetLookupTableSequence.h"
 
-#include "CondFormats/External/interface/FFTJet.h"
+#include "CondFormats/JetMETObjects/interface/FFTJet.h"
 
 REGISTER_PLUGIN(FFTBasicJetCorrectorSequenceRcd, FFTBasicJetCorrectorSequence);
 REGISTER_PLUGIN(FFTGenJetCorrectorSequenceRcd, FFTGenJetCorrectorSequence);

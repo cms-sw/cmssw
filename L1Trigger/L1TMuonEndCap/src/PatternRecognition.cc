@@ -1,4 +1,5 @@
 #include "L1Trigger/L1TMuonEndCap/interface/PatternRecognition.h"
+#include "DataFormats/L1TMuon/interface/L1TMuonSubsystems.h"
 
 #include "helper.h"  // to_hex, to_binary
 
@@ -192,7 +193,7 @@ void PatternRecognition::process(const std::deque<EMTFHitCollection>& extended_c
   if (verbose_ > 0) {  // debug
     for (const auto& conv_hits : extended_conv_hits) {
       for (const auto& conv_hit : conv_hits) {
-        if (conv_hit.Subsystem() == TriggerPrimitive::kCSC) {
+        if (conv_hit.Subsystem() == L1TMuon::kCSC) {
           std::cout << "CSC hit st: " << conv_hit.PC_station() << " ch: " << conv_hit.PC_chamber()
                     << " ph: " << conv_hit.Phi_fp() << " th: " << conv_hit.Theta_fp() << " strip: " << conv_hit.Strip()
                     << " wire: " << conv_hit.Wire() << " cpat: " << conv_hit.Pattern()
@@ -204,7 +205,7 @@ void PatternRecognition::process(const std::deque<EMTFHitCollection>& extended_c
 
     for (const auto& conv_hits : extended_conv_hits) {
       for (const auto& conv_hit : conv_hits) {
-        if (conv_hit.Subsystem() == TriggerPrimitive::kRPC) {
+        if (conv_hit.Subsystem() == L1TMuon::kRPC) {
           std::cout << "RPC hit st: " << conv_hit.PC_station() << " ch: " << conv_hit.PC_chamber()
                     << " ph>>2: " << (conv_hit.Phi_fp() >> 2) << " th>>2: " << (conv_hit.Theta_fp() >> 2)
                     << " strip: " << conv_hit.Strip() << " roll: " << conv_hit.Roll() << " cpat: " << conv_hit.Pattern()
@@ -215,7 +216,7 @@ void PatternRecognition::process(const std::deque<EMTFHitCollection>& extended_c
 
     for (const auto& conv_hits : extended_conv_hits) {
       for (const auto& conv_hit : conv_hits) {
-        if (conv_hit.Subsystem() == TriggerPrimitive::kGEM) {
+        if (conv_hit.Subsystem() == L1TMuon::kGEM) {
           std::cout << "GEM hit st: " << conv_hit.PC_station() << " ch: " << conv_hit.PC_chamber()
                     << " ph: " << conv_hit.Phi_fp() << " th: " << conv_hit.Theta_fp() << " strip: " << conv_hit.Strip()
                     << " roll: " << conv_hit.Roll() << " cpat: " << conv_hit.Pattern() << " bx: " << conv_hit.BX()
@@ -284,10 +285,10 @@ bool PatternRecognition::is_zone_empty(int zone,
       emtf_assert(conv_hits_it->PC_segment() <=
                   4);  // With 2 unique LCTs per chamber, 4 possible strip/wire combinations
 
-      if (conv_hits_it->Subsystem() == TriggerPrimitive::kRPC)
+      if (conv_hits_it->Subsystem() == L1TMuon::kRPC)
         continue;  // Don't use RPC hits for pattern formation
 
-      if (conv_hits_it->Subsystem() == TriggerPrimitive::kGEM)
+      if (conv_hits_it->Subsystem() == L1TMuon::kGEM)
         continue;  // Don't use GEM hits for pattern formation
 
       if (conv_hits_it->Zone_code() & (1 << izone)) {  // hit belongs to this zone
@@ -321,10 +322,10 @@ void PatternRecognition::make_zone_image(int zone,
     EMTFHitCollection::const_iterator conv_hits_end = ext_conv_hits_it->end();
 
     for (; conv_hits_it != conv_hits_end; ++conv_hits_it) {
-      if (conv_hits_it->Subsystem() == TriggerPrimitive::kRPC)
+      if (conv_hits_it->Subsystem() == L1TMuon::kRPC)
         continue;  // Don't use RPC hits for pattern formation
 
-      if (conv_hits_it->Subsystem() == TriggerPrimitive::kGEM)
+      if (conv_hits_it->Subsystem() == L1TMuon::kGEM)
         continue;  // Don't use GEM hits for pattern formation
 
       if (conv_hits_it->Zone_code() & (1 << izone)) {  // hit belongs to this zone

@@ -5,12 +5,15 @@ process.load("CondCore.DBCommon.CondDBCommon_cfi")
 process.CondDBCommon.connect = 'sqlite_file:L1RPCHwConfig.db'
 
 process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
-        )
-    ),
-    destinations = cms.untracked.vstring('cout')
+        ),
+        enable = cms.untracked.bool(True)
+    )
 )
 
 process.source = cms.Source("EmptyIOVSource",
