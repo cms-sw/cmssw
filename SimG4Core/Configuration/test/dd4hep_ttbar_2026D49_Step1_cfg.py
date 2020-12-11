@@ -19,6 +19,10 @@ process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.cerr.Geometry=dict()
+    process.MessageLogger.cerr.SimG4CoreApplication=dict()
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10),
     output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
