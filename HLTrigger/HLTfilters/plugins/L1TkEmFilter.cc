@@ -33,26 +33,26 @@ L1TkEmFilter::L1TkEmFilter(const edm::ParameterSet& iConfig)
       l1TkEmTag2_(iConfig.getParameter<edm::InputTag>("inputTag2")),
       tkEmToken1_(consumes<TkEmCollection>(l1TkEmTag1_)),
       tkEmToken2_(consumes<TkEmCollection>(l1TkEmTag2_)) {
-      min_Pt_ = iConfig.getParameter<double>("MinPt");
-min_N_ = iConfig.getParameter<int>("MinN");
-min_Eta_ = iConfig.getParameter<double>("MinEta");
-max_Eta_ = iConfig.getParameter<double>("MaxEta");
-scalings_ = iConfig.getParameter<edm::ParameterSet>("Scalings");
-barrelScalings_ = scalings_.getParameter<std::vector<double> >("barrel");
-endcapScalings_ = scalings_.getParameter<std::vector<double> >("endcap");
-etaBinsForIsolation_ = iConfig.getParameter<std::vector<double> >("EtaBinsForIsolation");
-etaBinsForIsolation_ = iConfig.getParameter<std::vector<double> >("EtaBinsForIsolation");
-trkIsolation_ = iConfig.getParameter<std::vector<double> >("TrkIsolation");
-quality1_ = iConfig.getParameter<int>("Quality1");
-quality2_ = iConfig.getParameter<int>("Quality2");
-qual1IsMask_ = iConfig.getParameter<bool>("Qual1IsMask");
-qual2IsMask_ = iConfig.getParameter<bool>("Qual2IsMask");
-applyQual1_ = iConfig.getParameter<bool>("ApplyQual1");
-applyQual2_ = iConfig.getParameter<bool>("ApplyQual2");
+  min_Pt_ = iConfig.getParameter<double>("MinPt");
+  min_N_ = iConfig.getParameter<int>("MinN");
+  min_Eta_ = iConfig.getParameter<double>("MinEta");
+  max_Eta_ = iConfig.getParameter<double>("MaxEta");
+  scalings_ = iConfig.getParameter<edm::ParameterSet>("Scalings");
+  barrelScalings_ = scalings_.getParameter<std::vector<double> >("barrel");
+  endcapScalings_ = scalings_.getParameter<std::vector<double> >("endcap");
+  etaBinsForIsolation_ = iConfig.getParameter<std::vector<double> >("EtaBinsForIsolation");
+  etaBinsForIsolation_ = iConfig.getParameter<std::vector<double> >("EtaBinsForIsolation");
+  trkIsolation_ = iConfig.getParameter<std::vector<double> >("TrkIsolation");
+  quality1_ = iConfig.getParameter<int>("Quality1");
+  quality2_ = iConfig.getParameter<int>("Quality2");
+  qual1IsMask_ = iConfig.getParameter<bool>("Qual1IsMask");
+  qual2IsMask_ = iConfig.getParameter<bool>("Qual2IsMask");
+  applyQual1_ = iConfig.getParameter<bool>("ApplyQual1");
+  applyQual2_ = iConfig.getParameter<bool>("ApplyQual2");
 
-if (etaBinsForIsolation_.size() != (trkIsolation_.size() + 1))
-  throw cms::Exception("ConfigurationError")
-      << "Vector of isolation values should have same size of vector of eta bins plus one.";
+  if (etaBinsForIsolation_.size() != (trkIsolation_.size() + 1))
+    throw cms::Exception("ConfigurationError")
+        << "Vector of isolation values should have same size of vector of eta bins plus one.";
 }
 
 L1TkEmFilter::~L1TkEmFilter() = default;

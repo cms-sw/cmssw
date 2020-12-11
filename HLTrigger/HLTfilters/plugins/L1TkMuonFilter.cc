@@ -29,8 +29,7 @@
 L1TkMuonFilter::L1TkMuonFilter(const edm::ParameterSet& iConfig)
     : HLTFilter(iConfig),
       l1TkMuonTag_(iConfig.getParameter<edm::InputTag>("inputTag")),
-      tkMuonToken_(consumes<TkMuonCollection>(l1TkMuonTag_))
-{
+      tkMuonToken_(consumes<TkMuonCollection>(l1TkMuonTag_)) {
   min_Pt_ = iConfig.getParameter<double>("MinPt");
   min_N_ = iConfig.getParameter<int>("MinN");
   min_Eta_ = iConfig.getParameter<double>("MinEta");
