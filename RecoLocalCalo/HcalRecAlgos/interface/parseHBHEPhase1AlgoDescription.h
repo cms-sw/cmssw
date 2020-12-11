@@ -3,11 +3,8 @@
 
 #include <memory>
 #include "RecoLocalCalo/HcalRecAlgos/interface/AbsHBHEPhase1Algo.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-
-namespace edm {
-  class ParameterSet;
-}
 
 //
 // Factory function for creating objects of types
@@ -16,7 +13,8 @@ namespace edm {
 // Update the implementation of this function if you need
 // to add a new algorithm to HBHEPhase1Reconstructor.
 //
-std::unique_ptr<AbsHBHEPhase1Algo> parseHBHEPhase1AlgoDescription(const edm::ParameterSet& ps);
+std::unique_ptr<AbsHBHEPhase1Algo> parseHBHEPhase1AlgoDescription(const edm::ParameterSet& ps,
+                                                                  edm::ConsumesCollector iC);
 
 //
 // Parameter descriptions for "parseHBHEPhase1AlgoDescription".

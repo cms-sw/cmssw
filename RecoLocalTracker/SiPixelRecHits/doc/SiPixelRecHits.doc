@@ -24,10 +24,6 @@ read a SiPixelClusterCollection and store a collection of SiPixelRecHits.
 - CPEFromDetPosition
 - EtaCorrection
 - PixelCPEBase
-- PixelCPEInitialESProducer
-- PixelCPEInitial
-- PixelCPEParmErrorESProducer
-- PixelCPEParmError
 - PixelErrorParametrization
 - SiPixelRecHitConverter
 
@@ -35,8 +31,6 @@ read a SiPixelClusterCollection and store a collection of SiPixelRecHits.
 <!-- Describe modules implemented in this package and their parameter set -->
 
 - SiPixelRecHitConverter Base EDProducer
-- PixelCPEInitialESProducer
-- PixelCPEParmErrorESProducer ESProducer for transient RecHits
 
 \subsection tests Unit tests and examples
 <!-- Describe cppunit tests and example configuration files -->

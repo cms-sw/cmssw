@@ -54,9 +54,13 @@ _run3_muonlocalrecoTask.add(gemLocalRecoTask)
 _phase2_muonlocalrecoTask = _run3_muonlocalrecoTask.copy()
 _phase2_muonlocalrecoTask.add(me0LocalRecoTask)
 
+_phase2_ge0_muonlocalrecoTask = _phase2_muonlocalrecoTask.copyAndExclude([me0LocalRecoTask])
+
 from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
 run2_GEM_2017.toReplaceWith( muonlocalrecoTask , _run2_GEM_2017_muonlocalrecoTask )
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toReplaceWith( muonlocalrecoTask , _run3_muonlocalrecoTask )
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_muon.toReplaceWith( muonlocalrecoTask , _phase2_muonlocalrecoTask )
+from Configuration.Eras.Modifier_phase2_GE0_cff import phase2_GE0
+phase2_GE0.toReplaceWith( muonlocalrecoTask , _phase2_ge0_muonlocalrecoTask )

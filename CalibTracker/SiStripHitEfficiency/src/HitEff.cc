@@ -47,8 +47,6 @@
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
-
-#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
@@ -81,6 +79,14 @@ HitEff::HitEff(const edm::ParameterSet& conf)
           consumes<edmNew::DetSetVector<SiStripCluster> >(conf.getParameter<edm::InputTag>("siStripClusters"))),
       digis_token_(consumes<DetIdCollection>(conf.getParameter<edm::InputTag>("siStripDigis"))),
       trackerEvent_token_(consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("trackerEvent"))),
+      topoToken_(esConsumes()),
+      geomToken_(esConsumes()),
+      cpeToken_(esConsumes(edm::ESInputTag("", "StripCPEfromTrackAngle"))),
+      siStripQualityToken_(esConsumes()),
+      magFieldToken_(esConsumes()),
+      measurementTkToken_(esConsumes()),
+      chi2MeasurementEstimatorToken_(esConsumes(edm::ESInputTag("", "Chi2"))),
+      propagatorToken_(esConsumes(edm::ESInputTag("", "PropagatorWithMaterial"))),
       conf_(conf) {
   compSettings = conf_.getUntrackedParameter<int>("CompressionSettings", -1);
   layers = conf_.getParameter<int>("Layer");
@@ -159,10 +165,7 @@ void HitEff::beginJob() {
 
 void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
-
+  const TrackerTopology* tTopo = &es.getData(topoToken_);
   siStripClusterInfo_.initEvent(es);
 
   //  bool DEBUG = false;
@@ -213,48 +216,32 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
   e.getByToken(clusters_token_, theClusters);
 
   //get tracker geometry
-  edm::ESHandle<TrackerGeometry> tracker;
-  es.get<TrackerDigiGeometryRecord>().get(tracker);
+  edm::ESHandle<TrackerGeometry> tracker = es.getHandle(geomToken_);
   const TrackerGeometry* tkgeom = &(*tracker);
 
   //get Cluster Parameter Estimator
   //std::string cpe = conf_.getParameter<std::string>("StripCPE");
-  edm::ESHandle<StripClusterParameterEstimator> parameterestimator;
-  es.get<TkStripCPERecord>().get("StripCPEfromTrackAngle", parameterestimator);
+  edm::ESHandle<StripClusterParameterEstimator> parameterestimator = es.getHandle(cpeToken_);
   const StripClusterParameterEstimator& stripcpe(*parameterestimator);
 
   // get the SiStripQuality records
-  edm::ESHandle<SiStripQuality> SiStripQuality_;
-  //LQ commenting the try/catch that causes problem in 74X calibTree production
-  //  try {
-  //    es.get<SiStripQualityRcd>().get("forCluster",SiStripQuality_);
-  //  }
-  //  catch (...) {
-  es.get<SiStripQualityRcd>().get(SiStripQuality_);
-  //  }
+  edm::ESHandle<SiStripQuality> SiStripQuality_ = es.getHandle(siStripQualityToken_);
 
-  edm::ESHandle<MagneticField> magFieldHandle;
-  es.get<IdealMagneticFieldRecord>().get(magFieldHandle);
-  const MagneticField* magField_ = magFieldHandle.product();
+  const MagneticField* magField_ = &es.getData(magFieldToken_);
 
   // get the list of module IDs with FED-detected errors
   edm::Handle<DetIdCollection> fedErrorIds;
   //e.getByLabel("siStripDigis", fedErrorIds );
   e.getByToken(digis_token_, fedErrorIds);
 
-  ESHandle<MeasurementTracker> measurementTrackerHandle;
-  es.get<CkfComponentsRecord>().get(measurementTrackerHandle);
+  ESHandle<MeasurementTracker> measurementTrackerHandle = es.getHandle(measurementTkToken_);
 
   edm::Handle<MeasurementTrackerEvent> measurementTrackerEvent;
   //e.getByLabel("MeasurementTrackerEvent", measurementTrackerEvent);
   e.getByToken(trackerEvent_token_, measurementTrackerEvent);
 
-  edm::ESHandle<Chi2MeasurementEstimatorBase> est;
-  es.get<TrackingComponentsRecord>().get("Chi2", est);
-
-  edm::ESHandle<Propagator> prop;
-  es.get<TrackingComponentsRecord>().get("PropagatorWithMaterial", prop);
-  const Propagator* thePropagator = prop.product();
+  const MeasurementEstimator* estimator = &es.getData(chi2MeasurementEstimatorToken_);
+  const Propagator* thePropagator = &es.getData(propagatorToken_);
 
   events++;
 
@@ -462,7 +449,6 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
           std::vector<BarrelDetLayer const*> barrelTOBLayers =
               measurementTrackerHandle->geometricSearchTracker()->tobLayers();
           const DetLayer* tob6 = barrelTOBLayers[barrelTOBLayers.size() - 1];
-          const MeasurementEstimator* estimator = est.product();
           const LayerMeasurements layerMeasurements{*measurementTrackerHandle, *measurementTrackerEvent};
           const TrajectoryStateOnSurface tsosTOB5 = itm->updatedState();
           auto tmp = layerMeasurements.measurements(*tob6, tsosTOB5, *thePropagator, *estimator);
@@ -499,8 +485,6 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
           std::vector<const ForwardDetLayer*> negTecLayers =
               measurementTrackerHandle->geometricSearchTracker()->negTecLayers();
           const DetLayer* tec9neg = negTecLayers[negTecLayers.size() - 1];
-
-          const MeasurementEstimator* estimator = est.product();
           const LayerMeasurements layerMeasurements{*measurementTrackerHandle, *measurementTrackerEvent};
           const TrajectoryStateOnSurface tsosTEC9 = itm->updatedState();
 

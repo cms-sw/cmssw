@@ -83,6 +83,7 @@ public:
 private:
   friend class cms::DTGeometryBuilder;
   friend class DTGeometryBuilderFromDDD;
+  friend class DTGeometryBuilderFromDD4Hep;
   friend class DTGeometryBuilderFromCondDB;
 
   friend class GeometryAligner;

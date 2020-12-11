@@ -7,8 +7,7 @@ process.load("Configuration.StandardSequences.Services_cff")
 #process.load("Configuration.StandardSequences.Geometry_cff")
 process.load('Configuration/StandardSequences/GeometryExtended_cff')
 
-#process.load("Configuration.StandardSequences.MagneticField_cff")
-process.load('Configuration/StandardSequences/MagneticField_AutoFromDBCurrent_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 
 # process.load("Configuration.StandardSequences.FakeConditions_cff")
 
@@ -34,11 +33,17 @@ process.load("RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder
 
 
 process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('simul', 
-        'cout'),
-    simul = cms.untracked.PSet(
-        threshold = cms.untracked.string('ERROR')
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
     ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True)
+    ),
+    files = cms.untracked.PSet(
+        simul = cms.untracked.PSet(
+            threshold = cms.untracked.string('ERROR')
+        )
+    )
 )
 
 process.lorentzAngle = cms.EDAnalyzer("SiPixelLorentzAngle",

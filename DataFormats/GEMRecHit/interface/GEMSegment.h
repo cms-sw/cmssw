@@ -40,8 +40,8 @@ public:
              const LocalVector& direction,
              const AlgebraicSymMatrix& errors,
              double chi2,
-             double time,
-             double timeErr);
+             float bx,
+             float deltaPhi);
 
   /// Destructor
   ~GEMSegment() override;
@@ -82,9 +82,10 @@ public:
 
   GEMDetId gemDetId() const { return geographicalId(); }
 
-  float time() const { return theTimeValue; }
-  float timeErr() const { return theTimeUncrt; }
   float bunchX() const { return theBX; }
+
+  float deltaPhi() const { return theDeltaPhi; }
+
   void print() const;
 
 private:
@@ -93,9 +94,8 @@ private:
   LocalVector theLocalDirection;    // in chamber frame - the GeomDet local coordinate system
   AlgebraicSymMatrix theCovMatrix;  // the covariance matrix
   double theChi2;                   // the Chi squared of the segment fit
-  double theTimeValue;              // the best time estimate of the segment
-  double theTimeUncrt;              // the uncertainty on the time estimation
   float theBX;                      // the bunch crossing
+  float theDeltaPhi;                // Difference in segment phi position: outer layer - inner lay
 };
 
 std::ostream& operator<<(std::ostream& os, const GEMSegment& seg);

@@ -16,7 +16,7 @@
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
 #include "FWCore/Framework/interface/DataKey.h"
 #include "FWCore/Framework/interface/DataProxy.h"
-#include "FWCore/Framework/interface/EventSetupProviderMaker.h"
+#include "FWCore/Framework/src/EventSetupProviderMaker.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/ParameterSetIDHolder.h"
@@ -32,6 +32,12 @@ namespace edm {
   namespace eventsetup {
 
     EventSetupsController::EventSetupsController() {}
+
+    void EventSetupsController::endIOVs() {
+      for (auto& eventSetupRecordIOVQueue : eventSetupRecordIOVQueues_) {
+        eventSetupRecordIOVQueue->endIOV();
+      }
+    }
 
     std::shared_ptr<EventSetupProvider> EventSetupsController::makeProvider(ParameterSet& iPSet,
                                                                             ActivityRegistry* activityRegistry,

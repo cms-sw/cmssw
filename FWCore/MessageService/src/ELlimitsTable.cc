@@ -20,7 +20,7 @@
 //
 // ----------------------------------------------------------------------
 
-#include "FWCore/MessageService/interface/ELlimitsTable.h"
+#include "FWCore/MessageService/src/ELlimitsTable.h"
 
 // Posible traces
 //#include <iostream>
@@ -193,7 +193,7 @@ namespace edm {
         (*i).second.n = 0;
     }
 
-    void ELlimitsTable::setLimit(const ELstring& id, int n) {
+    void ELlimitsTable::setLimit(const std::string& id, int n) {
       if (id[0] == '*')
         wildcardLimit = n;
       else
@@ -202,7 +202,7 @@ namespace edm {
 
     void ELlimitsTable::setLimit(const ELseverityLevel& sev, int n) { severityLimits[sev.getLevel()] = n; }
 
-    void ELlimitsTable::setInterval(const ELstring& id, int interval) {
+    void ELlimitsTable::setInterval(const std::string& id, int interval) {
       if (id[0] == '*')
         wildcardInterval = interval;
       else
@@ -213,7 +213,7 @@ namespace edm {
       severityIntervals[sev.getLevel()] = interval;
     }
 
-    void ELlimitsTable::setTimespan(const ELstring& id, int n) {
+    void ELlimitsTable::setTimespan(const std::string& id, int n) {
       if (id[0] == '*')
         wildcardTimespan = n;
       else

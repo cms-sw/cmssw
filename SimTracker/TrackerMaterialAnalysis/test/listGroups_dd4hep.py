@@ -10,7 +10,7 @@ process = cms.Process("MaterialAnalyser")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('TrackingMaterialGroup')
+    process.MessageLogger.TrackingMaterialGroup=dict()
 
 process.source = cms.Source("EmptySource")
 

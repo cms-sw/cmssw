@@ -47,6 +47,8 @@ namespace {
 
   private:
     edm::EDGetTokenT<PixelFEDChannelCollection> pixelFEDChannelCollectionToken_;
+    edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
+    edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> cablingMapToken_;
 
     bool firstEvent_;
     const TrackerGeometry* trackerGeometry_ = nullptr;
@@ -56,6 +58,8 @@ namespace {
   SiPixelPhase1DeadFEDChannels::SiPixelPhase1DeadFEDChannels(const edm::ParameterSet& iConfig)
       : SiPixelPhase1Base(iConfig) {
     pixelFEDChannelCollectionToken_ = consumes<PixelFEDChannelCollection>(edm::InputTag("siPixelDigis"));
+    trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
+    cablingMapToken_ = esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd>();
     firstEvent_ = true;
   };
 
@@ -64,12 +68,10 @@ namespace {
       return;
 
     if (firstEvent_) {
-      edm::ESHandle<TrackerGeometry> tmpTkGeometry;
-      iSetup.get<TrackerDigiGeometryRecord>().get(tmpTkGeometry);
+      edm::ESHandle<TrackerGeometry> tmpTkGeometry = iSetup.getHandle(trackerGeomToken_);
       trackerGeometry_ = &(*tmpTkGeometry);
 
-      edm::ESHandle<SiPixelFedCablingMap> pixelCabling;
-      iSetup.get<SiPixelFedCablingMapRcd>().get(pixelCabling);
+      edm::ESHandle<SiPixelFedCablingMap> pixelCabling = iSetup.getHandle(cablingMapToken_);
       cablingMap = pixelCabling.product();
 
       firstEvent_ = false;

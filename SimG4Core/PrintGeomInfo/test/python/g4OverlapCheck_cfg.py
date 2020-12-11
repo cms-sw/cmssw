@@ -8,6 +8,10 @@ process = cms.Process("G4PrintGeometry")
 process.load('Configuration.Geometry.GeometryExtended2021_cff')
 #process.load('Configuration.Geometry.GeometryExtended2026D17_cff')
 #process.load('Configuration.Geometry.GeometryExtended2026D45_cff')
+process.load('FWCore.MessageService.MessageLogger_cfi')
+
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.HCalGeom=dict()
 
 from SimG4Core.PrintGeomInfo.g4TestGeometry_cfi import *
 process = checkOverlap(process)

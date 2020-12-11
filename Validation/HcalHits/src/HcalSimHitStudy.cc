@@ -14,6 +14,7 @@ HcalSimHitStudy::HcalSimHitStudy(const edm::ParameterSet &ps) {
   checkHit_ = true;
 
   tok_hits_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label, hcalHits));
+  tok_HRNDC_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>();
 
   edm::LogInfo("HcalSim") << "Module Label: " << g4Label << "   Hits: " << hcalHits << " / " << checkHit_
                           << "   Output: " << outFile_;
@@ -22,9 +23,8 @@ HcalSimHitStudy::HcalSimHitStudy(const edm::ParameterSet &ps) {
 HcalSimHitStudy::~HcalSimHitStudy() {}
 
 void HcalSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run, edm::EventSetup const &es) {
-  edm::ESHandle<HcalDDDRecConstants> pHRNDC;
-  es.get<HcalRecNumberingRecord>().get(pHRNDC);
-  hcons = &(*pHRNDC);
+  const auto &pHRNDC = es.getData(tok_HRNDC_);
+  hcons = &pHRNDC;
   maxDepthHB_ = hcons->getMaxDepth(0);
   maxDepthHE_ = hcons->getMaxDepth(1);
   maxDepthHF_ = hcons->getMaxDepth(2);

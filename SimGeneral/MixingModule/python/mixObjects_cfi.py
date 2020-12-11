@@ -262,6 +262,21 @@ phase2_muon.toModify( theMixObjects,
         pcrossingFrames = theMixObjects.mixSH.pcrossingFrames + [ 'MuonME0Hits' ]
     )
 )
+
+from Configuration.Eras.Modifier_phase2_GE0_cff import phase2_GE0
+phase2_GE0.toModify( theMixObjects,
+    mixSH = dict(
+        input = list(filter(lambda x: type(x) == type(cms.InputTag("","")) and x != cms.InputTag("g4SimHits","MuonME0Hits"), theMixObjects.mixSH.input)),
+        subdets = list(filter(lambda x: x != 'MuonME0Hits', theMixObjects.mixSH.subdets)),
+        crossingFrames = list(filter(lambda x: x != 'MuonME0Hits', theMixObjects.mixSH.crossingFrames))
+    )
+)
+(premix_stage1 & phase2_GE0).toModify(theMixObjects,
+    mixSH = dict(
+        pcrossingFrames = list(filter(lambda x: x != 'MuonME0Hits', theMixObjects.mixSH.pcrossingFrames))
+    )
+)
+
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify( theMixObjects,
     mixCH = dict(
@@ -287,5 +302,14 @@ phase2_timing_layer.toModify( theMixObjects,
         input = theMixObjects.mixSH.input + [ cms.InputTag("g4SimHits","FastTimerHitsBarrel"), cms.InputTag("g4SimHits","FastTimerHitsEndcap") ],
         subdets = theMixObjects.mixSH.subdets + [ 'FastTimerHitsBarrel','FastTimerHitsEndcap' ],
         crossingFrames = theMixObjects.mixSH.crossingFrames + [ 'FastTimerHitsBarrel','FastTimerHitsEndcap' ]
+    )
+)
+
+from Configuration.Eras.Modifier_ctpps_2021_cff import ctpps_2021
+ctpps_2021.toModify( theMixObjects,
+    mixSH = dict(
+        input = theMixObjects.mixSH.input + [ cms.InputTag("g4SimHits","TotemHitsRP"),cms.InputTag("g4SimHits","CTPPSPixelHits") ],
+        subdets = theMixObjects.mixSH.subdets + [ 'TotemHitsRP', 'CTPPSPixelHits' ],
+        crossingFrames = theMixObjects.mixSH.crossingFrames + [ 'TotemHitsRP' , 'CTPPSPixelHits']
     )
 )

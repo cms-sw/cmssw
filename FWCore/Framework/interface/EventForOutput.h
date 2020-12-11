@@ -6,7 +6,7 @@
 // Package:     Framework
 // Class  :     EventForOutput
 //
-/**\class EventForOutput EventForOutputForOutput.h FWCore/Framework/interface/EventForOutputForOutput.h
+/**\class edm::EventForOutput
 
 */
 /*----------------------------------------------------------------------
@@ -49,7 +49,8 @@ namespace edm {
 
   class EventForOutput : public OccurrenceForOutput {
   public:
-    EventForOutput(EventPrincipal const& ep, ModuleDescription const& md, ModuleCallingContext const*);
+    EventForOutput(EventTransitionInfo const&, ModuleDescription const&, ModuleCallingContext const*);
+    EventForOutput(EventPrincipal const&, ModuleDescription const&, ModuleCallingContext const*);
     ~EventForOutput() override;
 
     EventAuxiliary const& eventAuxiliary() const { return aux_; }

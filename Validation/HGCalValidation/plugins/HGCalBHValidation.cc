@@ -92,7 +92,7 @@ void HGCalBHValidation::fillDescriptions(edm::ConfigurationDescriptions& descrip
   edm::ParameterSetDescription desc;
   desc.addUntracked<std::string>("ModuleLabel", "g4SimHits");
   desc.addUntracked<std::string>("HitCollection", "HGCHitsHEback");
-  desc.addUntracked<edm::InputTag>("DigiCollection", edm::InputTag("hgcalDigis", "HEback"));
+  desc.addUntracked<edm::InputTag>("DigiCollection", edm::InputTag("simHGCalUnsuppressedDigis", "HEback"));
   desc.addUntracked<int>("Sample", 5);
   desc.addUntracked<int>("GeometryType", 1);
   desc.addUntracked<double>("Threshold", 15.0);
@@ -116,16 +116,16 @@ void HGCalBHValidation::beginRun(edm::Run const&, edm::EventSetup const& es) {
   hsimE1_ = fs_->make<TH1D>("SimHitEn1", "Sim Hit Energy", 1000, 0.0, 1.0);
   hsimE2_ = fs_->make<TH1D>("SimHitEn2", "Sim Hit Energy", 1000, 0.0, 1.0);
   hsimTm_ = fs_->make<TH1D>("SimHitTime", "Sim Hit Time", 1000, 0.0, 500.0);
-  hsimLn_ = fs_->make<TH1D>("SimHitLong", "Sim Hit Long. Profile", 40, 0.0, 20.0);
+  hsimLn_ = fs_->make<TH1D>("SimHitLong", "Sim Hit Long. Profile", 50, 0.0, 25.0);
   hsimOc_ = fs_->make<TH2D>("SimHitOccup", "Sim Hit Occupnacy", 2 * etaMax_ + 1, -etaMax_, etaMax_ + 1, 360, 0, 360);
   hsi2Oc_ = fs_->make<TH2D>("SimHitOccu2", "Sim Hit Occupnacy", 2 * etaMax_ + 1, -etaMax_, etaMax_ + 1, 360, 0, 360);
-  hsi3Oc_ = fs_->make<TH2D>("SimHitOccu3", "Sim Hit Occupnacy", 2 * etaMax_ + 1, -etaMax_, etaMax_ + 1, 40, 0, 20);
+  hsi3Oc_ = fs_->make<TH2D>("SimHitOccu3", "Sim Hit Occupnacy", 2 * etaMax_ + 1, -etaMax_, etaMax_ + 1, 50, 0, 25);
   //Histograms for Digis
   hdigEn_ = fs_->make<TH1D>("DigiEnergy", "Digi ADC Sample", 1000, 0.0, 1000.0);
-  hdigLn_ = fs_->make<TH1D>("DigiLong", "Digi Long. Profile", 40, 0.0, 20.0);
+  hdigLn_ = fs_->make<TH1D>("DigiLong", "Digi Long. Profile", 50, 0.0, 25.0);
   hdigOc_ = fs_->make<TH2D>("DigiOccup", "Digi Occupnacy", 2 * etaMax_ + 1, -etaMax_, etaMax_ + 1, 360, 0, 360);
   hdi2Oc_ = fs_->make<TH2D>("DigiOccu2", "Digi Occupnacy", 2 * etaMax_ + 1, -etaMax_, etaMax_ + 1, 360, 0, 360);
-  hdi3Oc_ = fs_->make<TH2D>("DigiOccu3", "Digi Occupnacy", 2 * etaMax_ + 1, -etaMax_, etaMax_ + 1, 40, 0, 20);
+  hdi3Oc_ = fs_->make<TH2D>("DigiOccu3", "Digi Occupnacy", 2 * etaMax_ + 1, -etaMax_, etaMax_ + 1, 50, 0, 25);
 }
 
 void HGCalBHValidation::analyze(const edm::Event& e, const edm::EventSetup&) {
@@ -144,8 +144,8 @@ void HGCalBHValidation::analyze(const edm::Event& e, const edm::EventSetup&) {
       double energy = it->energy();
       double time = it->time();
       unsigned int id = it->id();
-      int subdet, z, depth, eta, phi, lay;
-      bool hbhe, bh;
+      int subdet(0), z(0), depth(0), eta(0), phi(0), lay(0);
+      bool hbhe(false), bh(false);
       if (geomType_ == 0) {
         HcalTestNumbering::unpackHcalIndex(id, subdet, z, depth, eta, phi, lay);
         if (z == 0)
@@ -160,14 +160,15 @@ void HGCalBHValidation::analyze(const edm::Event& e, const edm::EventSetup&) {
           lay = HGCScintillatorDetId(id).layer();
         }
       }
+      double eta1 = (eta >= 0) ? (eta + 0.1) : (eta - 0.1);
       if (hbhe)
-        hsi2Oc_->Fill((eta + 0.1), (phi - 0.1), energy);
+        hsi2Oc_->Fill(eta1, (phi - 0.1), energy);
       if (bh) {
         hsimE1_->Fill(energy);
         hsimTm_->Fill(time, energy);
-        hsimOc_->Fill((eta + 0.1), (phi - 0.1), energy);
+        hsimOc_->Fill(eta1, (phi - 0.1), energy);
         hsimLn_->Fill(lay, energy);
-        hsi3Oc_->Fill((eta + 0.1), lay, energy);
+        hsi3Oc_->Fill(eta1, lay, energy);
         double ensum(0);
         if (map_try.count(id) != 0)
           ensum = map_try[id];
@@ -248,12 +249,13 @@ void HGCalBHValidation::analyzeDigi(
   if (energy > threshold_) {
     int eta = cell.ieta();
     int phi = cell.iphi();
-    hdi2Oc_->Fill((eta + 0.1), (phi - 0.1));
+    double eta1 = (eta >= 0) ? (eta + 0.1) : (eta - 0.1);
+    hdi2Oc_->Fill(eta1, (phi - 0.1));
     if (bh) {
       hdigEn_->Fill(energy);
-      hdigOc_->Fill((eta + 0.1), (phi - 0.1));
+      hdigOc_->Fill(eta1, (phi - 0.1));
       hdigLn_->Fill(depth);
-      hdi3Oc_->Fill((eta + 0.1), depth);
+      hdi3Oc_->Fill(eta1, depth);
       ++kount;
       edm::LogVerbatim("HGCalValidation")
           << "HGCalBHDigit[" << kount << "] ID " << cell << " E " << energy << ":" << (energy > threshold_);

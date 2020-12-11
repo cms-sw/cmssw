@@ -1,8 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 class ExternalGeneratorFilter(cms.EDFilter):
-    def __init__(self, prod, _external_process_verbose_ = cms.untracked.bool(False)):
+    def __init__(self, prod, _external_process_waitTime_ = cms.untracked.uint32(60), _external_process_verbose_ = cms.untracked.bool(False)):
         self.__dict__['_external_process_verbose_']=_external_process_verbose_
+        self.__dict__['_external_process_waitTime_']=_external_process_waitTime_
         self.__dict__['_prod'] = prod
         super(cms.EDFilter,self).__init__('ExternalGeneratorFilter')
     def __setattr__(self, name, value):
@@ -29,6 +30,7 @@ class ExternalGeneratorFilter(cms.EDFilter):
         newpset.addString(True, "@external_type", self._prod.type_())
         newpset.addString(False,"@python_config", self._prod.dumpPython())
         newpset.addBool(False,"_external_process_verbose_", self._external_process_verbose_.value())
+        newpset.addUInt32(False,"_external_process_waitTime_", self._external_process_waitTime_.value())
         self._prod.insertContentsInto(newpset)
         parameterSet.addPSet(True, self.nameInProcessDesc_(myname), newpset)
     def dumpPython(self, options=cms.PrintOptions()):

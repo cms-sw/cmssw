@@ -25,8 +25,6 @@
 #include "RecoHI/HiEvtPlaneAlgos/interface/HiEvtPlaneList.h"
 #include <vector>
 
-//using namespace hi;
-
 class LoadEPDB {
 public:
   explicit LoadEPDB(const edm::ESHandle<RPFlatParams> flatparmsDB_, HiEvtPlaneFlatten** flat) {
@@ -55,7 +53,6 @@ public:
             } else if (i >= Hbins && i < Hbins + Obins) {
               flat[indx]->setXoffDB(i - Hbins, thisBin->x[j]);
               flat[indx]->setYoffDB(i - Hbins, thisBin->y[j]);
-
             } else if (i >= Hbins + Obins && i < Hbins + 2 * Obins) {
               flat[indx]->setPtDB(i - Hbins - Obins, thisBin->x[j]);
               flat[indx]->setPt2DB(i - Hbins - Obins, thisBin->y[j]);
@@ -73,8 +70,9 @@ public:
         for (int j = 0; j < ncentbins; j++) {
           const RPFlatParams::EP* thisBin = &(flatparmsDB_->m_table[Hbins + 2 * Obins + cbins + j + 1]);
           if (fabs(centbinning - 1.) < 0.01) {
-            for (int i = 0; i < hi::NumEPNames; i++)
+            for (int i = 0; i < hi::NumEPNames; i++) {
               flat[i]->setCentRes1(j, thisBin->x[i], thisBin->y[i]);
+            }
           }
           if (fabs(centbinning - 2.) < 0.01) {
             for (int i = 0; i < hi::NumEPNames; i++)

@@ -48,7 +48,11 @@ _hgcalMultiClusterMapper_HGCal = cms.PSet(
     algoName = cms.string("PFClusterFromHGCalMultiCluster"),
     thresholdsByDetector = cms.VPSet(
     ),
-    clusterSrc = cms.InputTag("hgcalMultiClusters")
+    clusterSrc = cms.InputTag("ticlMultiClustersFromTrackstersMerge"),
+    tracksterSrc = cms.InputTag("ticlTrackstersMerge"),
+    filterByTracksterPID = cms.bool(False),
+    pid_threshold = cms.double(0.8),
+    filter_on_categories = cms.vint32([0, 1]),
 )
 
 particleFlowClusterHGCal = cms.EDProducer(

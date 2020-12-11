@@ -28,7 +28,7 @@ process.zInt = cms.EDProducer("IntProducer", ivalue=cms.int32(26))
 
 process.getOne = cms.EDAnalyzer("IntTestAnalyzer",
     valueMustMatch = cms.untracked.int32(1),
-    moduleLabel = cms.untracked.string('one')
+    moduleLabel = cms.untracked.InputTag('one')
 )
 
 process.p = cms.Path(process.double+process.doubleTwo+process.zInt+process.getOne)

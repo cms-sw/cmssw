@@ -21,7 +21,12 @@ process.l1GmtTriggerSource = cms.EDAnalyzer("L1GmtTriggerSource",
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
-   destinations = cms.untracked.vstring('cout')
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True)
+    )
 )
 
 # path to be run

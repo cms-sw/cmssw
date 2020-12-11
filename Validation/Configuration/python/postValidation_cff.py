@@ -129,9 +129,16 @@ _phase2_postValidation += MuonME0DigisPostProcessors
 _phase2_postValidation += MuonME0SegPostProcessors
 _phase2_postValidation += trackerphase2ValidationHarvesting
 
+_phase2_ge0_postValidation = _run3_postValidation.copy()
+_phase2_ge0_postValidation += hgcalPostProcessor
+_phase2_ge0_postValidation += trackerphase2ValidationHarvesting
+
 from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
 run2_GEM_2017.toReplaceWith( postValidation, _run3_postValidation )
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toReplaceWith( postValidation, _run3_postValidation )
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toReplaceWith( postValidation, _phase2_postValidation )
+from Configuration.Eras.Modifier_phase2_GE0_cff import phase2_GE0
+(phase2_GE0 & phase2_hgcal).toReplaceWith( postValidation, _phase2_ge0_postValidation )
+phase2_GE0.toReplaceWith( postValidation_muons, postValidation_muons.copyAndExclude([MuonME0DigisPostProcessors, MuonME0SegPostProcessors]) )

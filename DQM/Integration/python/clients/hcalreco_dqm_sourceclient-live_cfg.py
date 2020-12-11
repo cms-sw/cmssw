@@ -49,10 +49,13 @@ else:
 	process.load('DQM.Integration.config.FrontierCondition_GT_cfi')
 if unitTest:
 	process.load("DQM.Integration.config.unittestinputsource_cfi")
+	from DQM.Integration.config.unittestinputsource_cfi import options
 elif useFileInput:
 	process.load("DQM.Integration.config.fileinputsource_cfi")
+	from DQM.Integration.config.fileinputsource_cfi import options
 else:
 	process.load('DQM.Integration.config.inputsource_cfi')
+	from DQM.Integration.config.inputsource_cfi import options
 process.load('DQM.Integration.config.environment_cfi')
 
 #-------------------------------------
@@ -60,6 +63,9 @@ process.load('DQM.Integration.config.environment_cfi')
 #-------------------------------------
 process.dqmEnv.subSystemFolder = subsystem
 process.dqmSaver.tag = "HcalReco" # to have a file saved as DQM_V..._HcalReco...
+process.dqmSaver.runNumber = options.runNumber
+process.dqmSaverPB.tag = "HcalReco"
+process.dqmSaverPB.runNumber = options.runNumber
 process = customise(process)
 process.DQMStore.verbose = 0
 if not useFileInput and not unitTest:
@@ -169,6 +175,7 @@ process.recoPath = cms.Path(
 process.dqmPath = cms.Path(
 		process.dqmEnv
 		*process.dqmSaver
+		*process.dqmSaverPB
 )
 
 process.schedule = cms.Schedule(

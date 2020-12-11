@@ -40,7 +40,6 @@
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -70,7 +69,7 @@ public:
     WriteOutputFile_ = WriteOutputFile;
   }
   void setTrackerGeometry(const TrackerGeometry* tkgeom) { TkGeom = tkgeom; }
-  void extractBadStrips(SiStripQuality*, HistoMap&, edm::ESHandle<SiStripQuality>&);
+  void extractBadStrips(SiStripQuality*, HistoMap&, const SiStripQuality*);
 
 private:
   // unsigned long long m_cacheID_;

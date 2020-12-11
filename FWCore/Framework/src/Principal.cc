@@ -9,7 +9,7 @@
 #include "DataFormats/Common/interface/FunctorHandleExceptionFactory.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
-#include "FWCore/Framework/interface/ProductDeletedException.h"
+#include "FWCore/Framework/src/ProductDeletedException.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "ProductResolvers.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -892,6 +892,11 @@ namespace edm {
                                      std::vector<WrapperBase const*>&,
                                      std::vector<unsigned int>&) const {
     assert(false);
+  }
+
+  OptionalThinnedKey Principal::getThinnedKeyFrom(ProductID const&, unsigned int, ProductID const&) const {
+    assert(false);
+    return std::monostate{};
   }
 
   void Principal::putOrMerge(std::unique_ptr<WrapperBase> prod, ProductResolverBase const* phb) const {

@@ -33,9 +33,8 @@ std::vector<GEMCoPadDigi> GEMCoPadProcessor::run(const GEMPadDigiCollection* in_
   for (auto det_range = in_pads->begin(); det_range != in_pads->end(); ++det_range) {
     const GEMDetId& id = (*det_range).first;
 
-    // coincidence pads are not build for ME0
-    // -> ignore hits from station 0
-    if (id.station() == 0)
+    // coincidence pads are not built for ME0
+    if (id.isME0())
       continue;
 
     // same chamber (no restriction on the roll number)
@@ -59,6 +58,10 @@ std::vector<GEMCoPadDigi> GEMCoPadProcessor::run(const GEMPadDigiCollection* in_
       // now let's correlate the pads in two layers of this partition
       const auto& pads_range = (*det_range).second;
       for (auto p = pads_range.first; p != pads_range.second; ++p) {
+        // ignore 16-partition GE2/1 pads
+        if (id.isGE21() and p->nPartitions() == GEMPadDigi::GE21SplitStrip)
+          continue;
+
         // only consider valid pads
         if (!p->isValid())
           continue;
@@ -99,6 +102,18 @@ void GEMCoPadProcessor::declusterize(const GEMPadDigiClusterCollection* in_clust
     const GEMDetId& id = (*detUnitIt).first;
     const auto& range = (*detUnitIt).second;
     for (auto digiIt = range.first; digiIt != range.second; ++digiIt) {
+      // coincidence pads are not built for ME0
+      if (id.isME0())
+        continue;
+
+      // same chamber (no restriction on the roll number)
+      if (id.region() != theRegion or id.station() != theStation or id.chamber() != theChamber)
+        continue;
+
+      // ignore 16-partition GE2/1 pads
+      if (id.isGE21() and digiIt->nPartitions() == GEMPadDigiCluster::GE21SplitStrip)
+        continue;
+
       // only consider valid clusters
       if (!digiIt->isValid())
         continue;

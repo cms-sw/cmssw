@@ -119,3 +119,9 @@ from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_muon.toModify( standAloneMuons, STATrajBuilderParameters = dict(
     FilterParameters = _enableME0Measurement,
     BWFilterParameters = _enableME0Measurement ) )
+
+_disableME0Measurement = dict( EnableME0Measurement = False )
+from Configuration.Eras.Modifier_phase2_GE0_cff import phase2_GE0
+phase2_GE0.toModify( standAloneMuons, STATrajBuilderParameters = dict(
+    FilterParameters = _disableME0Measurement,
+    BWFilterParameters = _disableME0Measurement ) )

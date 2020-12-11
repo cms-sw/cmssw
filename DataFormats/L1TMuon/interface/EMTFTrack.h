@@ -13,6 +13,14 @@
 
 namespace l1t {
 
+  namespace emtf {
+    // Want a scoped enum, not necessarily a strongly-typed enum.
+    // This is because of all the casting that will be required throughout legacy code
+    // (usage will likely rely on implicit integer casting)
+    enum class EMTFCSCStation { ME1 = 0, ME2, ME3, ME4 };
+    enum class EMTFCSCSection { ME1sub1 = 0, ME1sub2, ME2, ME3, ME4 };
+  }  // namespace emtf
+
   struct EMTFPtLUT {
     uint64_t address;
     uint16_t mode;
@@ -41,6 +49,7 @@ namespace l1t {
           mode(-99),
           mode_CSC(0),
           mode_RPC(0),
+          mode_GEM(0),
           mode_neighbor(0),
           mode_inv(-99),
           rank(-99),
@@ -79,6 +88,7 @@ namespace l1t {
       numHits = 0;
       mode_CSC = 0;
       mode_RPC = 0;
+      mode_GEM = 0;
       mode_neighbor = 0;
     }
 
@@ -89,6 +99,8 @@ namespace l1t {
         mode_CSC |= (1 << (4 - hit.Station()));
       if (hit.Is_RPC())
         mode_RPC |= (1 << (4 - hit.Station()));
+      if (hit.Is_GEM())
+        mode_GEM |= (1 << (4 - hit.Station()));
       if (hit.Neighbor())
         mode_neighbor |= (1 << (4 - hit.Station()));
     }
@@ -146,6 +158,7 @@ namespace l1t {
     int Mode() const { return mode; }
     int Mode_CSC() const { return mode_CSC; }
     int Mode_RPC() const { return mode_RPC; }
+    int Mode_GEM() const { return mode_GEM; }
     int Mode_neighbor() const { return mode_neighbor; }
     int Mode_inv() const { return mode_inv; }
     int Rank() const { return rank; }
@@ -179,12 +192,13 @@ namespace l1t {
 
     EMTFPtLUT _PtLUT;
 
-    int endcap;         //    +/-1.  For ME+ and ME-.
-    int sector;         //  1 -  6.
-    int sector_idx;     //  0 - 11.  0 - 5 for ME+, 6 - 11 for ME-.
-    int mode;           //  0 - 15.
-    int mode_CSC;       //  0 - 15, CSC-only
-    int mode_RPC;       //  0 - 15, RPC-only
+    int endcap;      //    +/-1.  For ME+ and ME-.
+    int sector;      //  1 -  6.
+    int sector_idx;  //  0 - 11.  0 - 5 for ME+, 6 - 11 for ME-.
+    int mode;        //  0 - 15.
+    int mode_CSC;    //  0 - 15, CSC-only
+    int mode_RPC;    //  0 - 15, RPC-only
+    int mode_GEM;  //  0 - 15, GEM-only // TODO: verify if needed when including GEM, also start the good habit of documenting these
     int mode_neighbor;  // 0 - 15, only neighbor hits
     int mode_inv;       // 15 -  0.
     int rank;           //  0 - 127  (Range? - AWB 03.03.17)

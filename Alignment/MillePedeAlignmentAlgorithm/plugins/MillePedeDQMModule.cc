@@ -30,8 +30,14 @@
 /*** Thresholds from DB ***/
 #include "CondFormats/DataRecord/interface/AlignPCLThresholdsRcd.h"
 
+/*** Necessary Framework infrastructure ***/
+#include "FWCore/Framework/interface/ProcessBlock.h"
+#include "DataFormats/Alignment/interface/AlignmentToken.h"
+
 MillePedeDQMModule ::MillePedeDQMModule(const edm::ParameterSet& config)
-    : mpReaderConfig_(config.getParameter<edm::ParameterSet>("MillePedeFileReader")) {}
+    : mpReaderConfig_(config.getParameter<edm::ParameterSet>("MillePedeFileReader")) {
+  consumes<AlignmentToken, edm::InProcess>(config.getParameter<edm::InputTag>("alignmentTokenSrc"));
+}
 
 MillePedeDQMModule ::~MillePedeDQMModule() {}
 

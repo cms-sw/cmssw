@@ -52,16 +52,20 @@ MuonSensitiveDetector::MuonSensitiveDetector(const std::string& name,
   ePersistentCutGeV = m_MuonSD.getParameter<double>("EnergyThresholdForPersistency") / CLHEP::GeV;  //Default 1. GeV
   allMuonsPersistent = m_MuonSD.getParameter<bool>("AllMuonsPersistent");
   printHits = m_MuonSD.getParameter<bool>("PrintHits");
-
+  bool dd4hep = p.getParameter<bool>("g4GeometryDD4hepSource");
   //
   // Here simply create 1 MuonSlaveSD for the moment
   //
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("MuonSim") << "create MuonSubDetector " << name;
+  edm::LogVerbatim("MuonSim") << "create MuonSubDetector " << name << " with dd4hep flag " << dd4hep;
 #endif
   detector = new MuonSubDetector(name);
 
   //The constants take time to calculate and are needed by many helpers
+  edm::ESHandle<MuonOffsetMap> mom;
+  es.get<IdealGeometryRecord>().get(mom);
+  const MuonOffsetMap* offmap = (mom.isValid()) ? mom.product() : nullptr;
+  edm::LogVerbatim("MuonSim") << "Finds the offset map at " << offmap;
   edm::ESHandle<MuonGeometryConstants> mdc;
   es.get<IdealGeometryRecord>().get(mdc);
   if (!mdc.isValid())
@@ -72,7 +76,7 @@ MuonSensitiveDetector::MuonSensitiveDetector(const std::string& name,
     theRotation = new MuonEndcapFrameRotation();
     sdet = "Endcap";
   } else if (detector->isRPC()) {
-    theRotation = new MuonRPCFrameRotation(constants);
+    theRotation = new MuonRPCFrameRotation(constants, offmap, dd4hep);
     sdet = "RPC";
   } else if (detector->isGEM()) {
     theRotation = new MuonGEMFrameRotation(constants);
@@ -85,15 +89,14 @@ MuonSensitiveDetector::MuonSensitiveDetector(const std::string& name,
   }
   slaveMuon = new MuonSlaveSD(detector, theManager);
   numbering = new MuonSimHitNumberingScheme(detector, constants);
-  g4numbering = new MuonG4Numbering(constants);
+  g4numbering = new MuonG4Numbering(constants, offmap, dd4hep);
 
   if (printHits) {
     thePrinter = new SimHitPrinter("HitPositionOSCAR.dat");
   }
 
-  edm::LogVerbatim("MuonSensitiveDetector")
-      << " of type " << sdet << " <" << GetName() << "> EnergyThresholdForPersistency(GeV) "
-      << ePersistentCutGeV / CLHEP::GeV << " allMuonsPersistent: " << allMuonsPersistent;
+  edm::LogVerbatim("MuonSim") << " of type " << sdet << " <" << GetName() << "> EnergyThresholdForPersistency(GeV) "
+                              << ePersistentCutGeV / CLHEP::GeV << " allMuonsPersistent: " << allMuonsPersistent;
 
   theG4ProcessTypeEnumerator = new G4ProcessTypeEnumerator;
 }

@@ -23,8 +23,8 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
+#include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
 
 //#define MMDEBUG
 #ifdef MMDEBUG
@@ -36,9 +36,79 @@
 
 namespace SiPixelPI {
 
+  enum phase { zero = 0, one = 1, two = 2 };
+
   // size of the phase-0 pixel detID list
   static const unsigned int phase0size = 1440;
   static const unsigned int phase1size = 1856;
+  static const unsigned int phase2size = 3892;
+
+  //============================================================================
+  // struct to store info useful to construct topology based on the detid list
+  struct PhaseInfo {
+    // construct with det size
+    PhaseInfo(unsigned int size) : m_detsize(size) {}
+    // construct passing the phase
+    PhaseInfo(const phase& thePhase) {
+      switch (thePhase) {
+        case phase::zero:
+          m_detsize = phase0size;
+          break;
+        case phase::one:
+          m_detsize = phase1size;
+          break;
+        case phase::two:
+          m_detsize = phase2size;
+          break;
+        default:
+          m_detsize = 99999;
+          edm::LogError("PhaseInfo") << "undefined phase: " << thePhase;
+      }
+    }
+    virtual ~PhaseInfo() { edm::LogInfo("PhaseInfo") << "PhaseInfo::~PhaseInfo()\n"; }
+    const SiPixelPI::phase phase() const {
+      if (m_detsize == phase0size)
+        return phase::zero;
+      else if (m_detsize == phase1size)
+        return phase::one;
+      else if (m_detsize > phase1size)
+        return phase::two;
+      else {
+        throw cms::Exception("LogicError") << "this detId list size: " << m_detsize << "should not exist!";
+      }
+    }
+
+    const char* pathToTopoXML() {
+      if (m_detsize == phase0size)
+        return "Geometry/TrackerCommonData/data/trackerParameters.xml";
+      else if (m_detsize == phase1size)
+        return "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      else if (m_detsize > phase1size)
+        return "Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml";
+      else {
+        throw cms::Exception("LogicError") << "this detId list size: " << m_detsize << "should not exist!";
+      }
+    }
+
+    const bool isPhase1Comparison(const PhaseInfo& theOtherPhase) const {
+      if (phase() == phase::one || theOtherPhase.phase() == phase::one)
+        return true;
+      else
+        return false;
+    }
+
+    const bool isComparedWithPhase2(const PhaseInfo& theOtherPhase) const {
+      if ((phase() == phase::two && theOtherPhase.phase() != phase::two) ||
+          (phase() != phase::two && theOtherPhase.phase() == phase::two)) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+  private:
+    size_t m_detsize;
+  };
 
   //============================================================================
   std::pair<unsigned int, unsigned int> unpack(cond::Time_t since) {
@@ -589,10 +659,11 @@ namespace SiPixelPI {
     int m_side;
     int m_ring;
     bool m_isInternal;
+    SiPixelPI::phase* m_Phase;
 
   public:
     void init();
-    void fillGeometryInfo(const DetId& detId, const TrackerTopology& tTopo, bool isPhase0);
+    void fillGeometryInfo(const DetId& detId, const TrackerTopology& tTopo, const SiPixelPI::phase& ph);
     SiPixelPI::regions filterThePartition();
     bool sanityCheck();
     void printAll();
@@ -630,16 +701,18 @@ namespace SiPixelPI {
     }
   }
   /*--------------------------------------------------------------------*/
-  void topolInfo::fillGeometryInfo(const DetId& detId, const TrackerTopology& tTopo, bool isPhase0)
+  void topolInfo::fillGeometryInfo(const DetId& detId, const TrackerTopology& tTopo, const SiPixelPI::phase& ph)
   /*--------------------------------------------------------------------*/
   {
+    // set the phase
+    m_Phase = const_cast<SiPixelPI::phase*>(&ph);
     unsigned int subdetId = static_cast<unsigned int>(detId.subdetId());
 
     m_rawid = detId.rawId();
     m_subdetid = subdetId;
     if (subdetId == PixelSubdetector::PixelBarrel) {
       m_layer = tTopo.pxbLayer(detId.rawId());
-      m_isInternal = !SiPixelPI::isBPixOuterLadder(detId, tTopo, isPhase0);
+      m_isInternal = !SiPixelPI::isBPixOuterLadder(detId, tTopo, (ph == SiPixelPI::phase::zero));
     } else if (subdetId == PixelSubdetector::PixelEndcap) {
       m_layer = tTopo.pxfDisk(detId.rawId());
       m_side = tTopo.pxfSide(detId.rawId());
@@ -654,6 +727,10 @@ namespace SiPixelPI {
   /*--------------------------------------------------------------------*/
   {
     SiPixelPI::regions ret = SiPixelPI::NUM_OF_REGIONS;
+
+    if (m_Phase == nullptr) {
+      throw cms::Exception("LogicError") << "Cannot call filterThePartition BEFORE filling the geometry info!";
+    }
 
     // BPix
     if (m_subdetid == 1) {
@@ -687,7 +764,10 @@ namespace SiPixelPI {
           m_side > 1 ? ret = SiPixelPI::FPixpL3 : ret = SiPixelPI::FPixmL3;
           break;
         default:
-          edm::LogWarning("LogicError") << "Unknow FPix disk: " << m_layer;
+          if (*m_Phase < SiPixelPI::phase::two) {
+            // warning message only if the phase2 is < 2
+            edm::LogWarning("LogicError") << "Unknow FPix disk: " << m_layer;
+          }
           break;
       }
     }

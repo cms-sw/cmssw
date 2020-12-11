@@ -1,5 +1,5 @@
-#ifndef CSCTMBTrailer_h
-#define CSCTMBTrailer_h
+#ifndef EventFilter_CSCRawToDigi_CSCTMBTrailer_h
+#define EventFilter_CSCRawToDigi_CSCTMBTrailer_h
 
 #include <cstring>  // bzero
 #include "DataFormats/CSCDigi/interface/CSCTMBStatusDigi.h"

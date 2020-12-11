@@ -11,7 +11,9 @@
 using namespace edm;
 
 TransientTrackBuilderESProducer::TransientTrackBuilderESProducer(const edm::ParameterSet& p) {
-  setWhatProduced(this, p.getParameter<std::string>("ComponentName")).setConsumes(magToken_).setConsumes(geomToken_);
+  auto cc = setWhatProduced(this, p.getParameter<std::string>("ComponentName"));
+  magToken_ = cc.consumes();
+  geomToken_ = cc.consumes();
 }
 
 std::unique_ptr<TransientTrackBuilder> TransientTrackBuilderESProducer::produce(const TransientTrackRecord& iRecord) {

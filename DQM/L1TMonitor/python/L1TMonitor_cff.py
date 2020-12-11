@@ -52,8 +52,8 @@ from DQM.L1TMonitor.L1TDTTF_cfi import *
 # CSCTPG DQM module 
 # not run in L1T - do we need it? FIXME
 
-# CSCTF DQM module 
-from DQM.L1TMonitor.L1TCSCTF_cff import *
+# CSCTF DQM module
+from DQM.L1TMonitor.L1TCSCTF_cfi import *
 
 # RPC DQM module - non-standard name of the module
 from DQM.L1TMonitor.L1TRPCTF_cfi import *

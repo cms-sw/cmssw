@@ -1,5 +1,5 @@
-#ifndef CSCVDMBHeaderFormat_h
-#define CSCVDMBHeaderFormat_h
+#ifndef EventFilter_CSCRawToDigi_CSCVDMBHeaderFormat_h
+#define EventFilter_CSCRawToDigi_CSCVDMBHeaderFormat_h
 
 #include <cassert>
 #include <iosfwd>

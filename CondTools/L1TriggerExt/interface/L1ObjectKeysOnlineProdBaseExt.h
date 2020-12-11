@@ -29,7 +29,7 @@ public:
 
 private:
   // ----------member data ---------------------------
-  edm::ESGetToken<L1TriggerKeyExt, L1TriggerKeyExtRcd> L1TriggerKeyExt_token;
+  const edm::ESGetToken<L1TriggerKeyExt, L1TriggerKeyExtRcd> L1TriggerKeyExt_token;
 
 protected:
   l1t::OMDSReader m_omdsReader;

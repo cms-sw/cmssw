@@ -177,7 +177,7 @@ namespace l1t {
         uint16_t HD1b = payload[1];
         // uint16_t HD1c = payload[2];
         uint16_t HD1d = payload[3];
-        // uint16_t HD2a = payload[4];
+        uint16_t HD2a = payload[4];
         uint16_t HD2b = payload[5];
         uint16_t HD2c = payload[6];
         uint16_t HD2d = payload[7];
@@ -284,6 +284,8 @@ namespace l1t {
         EventHeader_.set_me4(GetHexBits(HD3d, 0, 10));
         EventHeader_.set_cppf(GetHexBits(HD3a, 11, 14, HD3b, 11, 13));
         EventHeader_.set_cppf_crc(GetHexBits(HD3c, 11, 14, HD3d, 11, 13));
+        EventHeader_.set_gem(GetHexBits(HD2a, 0, 6));
+        EventHeader_.set_gem_crc(GetHexBits(HD2a, 7, 11, HD3a, 9, 10));
         // EventHeader_.set_dataword(uint64_t bits)  { dataword = bits;  };
 
       write_Event:

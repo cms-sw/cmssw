@@ -38,4 +38,9 @@
     <use name="FWCore/Utilities"/>
   </bin>
 
+  <bin name="testPhase2SkimmedGeometry" file="testPhase2SkimmedGeometry.cpp">
+    <flags TEST_RUNNER_ARGS="/bin/bash SLHCUpgradeSimulations/Geometry/test phase2_skimmed_geometry.sh "/>
+    <use name="FWCore/Utilities"/>
+  </bin>
+
 </environment>

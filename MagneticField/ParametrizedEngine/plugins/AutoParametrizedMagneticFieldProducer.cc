@@ -47,7 +47,7 @@ AutoParametrizedMagneticFieldProducer::AutoParametrizedMagneticFieldProducer(con
 {
   auto cc = setWhatProduced(this, iConfig.getUntrackedParameter<std::string>("label", ""));
   if (currentOverride_ < 0) {
-    cc.setConsumes(runInfoToken_);
+    runInfoToken_ = cc.consumes();
   }
 }
 

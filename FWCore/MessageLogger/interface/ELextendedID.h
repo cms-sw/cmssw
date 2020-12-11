@@ -12,8 +12,9 @@
 //
 // ----------------------------------------------------------------------
 
-#include "FWCore/MessageLogger/interface/ELstring.h"
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
+
+#include <string>
 
 namespace edm {
 
@@ -25,10 +26,10 @@ namespace edm {
   public:
     // -----  Publicly accessible data members:
     //
-    ELstring id;
+    std::string id;
     ELseverityLevel severity;
-    ELstring module;
-    ELstring subroutine;
+    std::string module;
+    std::string subroutine;
 
     // -----  Comparator:
     //

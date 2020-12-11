@@ -6,7 +6,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('DataFormats.MuonDetId.gemDetIdAnalyzer_cfi')
 
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('GEMAnalysis')
+    process.MessageLogger.GEMAnalysis=dict()
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(

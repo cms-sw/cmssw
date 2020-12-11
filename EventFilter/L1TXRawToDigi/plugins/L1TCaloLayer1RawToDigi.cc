@@ -54,9 +54,9 @@
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
 
-#include "UCTDAQRawData.h"
-#include "UCTAMCRawData.h"
-#include "UCTCTP7RawData.h"
+#include "EventFilter/L1TXRawToDigi/interface/UCTDAQRawData.h"
+#include "EventFilter/L1TXRawToDigi/interface/UCTAMCRawData.h"
+#include "EventFilter/L1TXRawToDigi/interface/UCTCTP7RawData.h"
 
 using namespace edm;
 

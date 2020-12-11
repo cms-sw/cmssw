@@ -419,15 +419,14 @@ namespace reco {
 
     float t0(int n = 0) {
       int i = 0;
-      for (std::vector<MuonChamberMatch>::const_iterator chamber = muMatches_.begin(); chamber != muMatches_.end();
-           ++chamber)
-        for (std::vector<reco::MuonSegmentMatch>::const_iterator segment = chamber->segmentMatches.begin();
-             segment != chamber->segmentMatches.end();
-             ++segment) {
-          if (i == n)
-            return segment->t0;
-          ++i;
+      for (auto& chamber : muMatches_) {
+        int segmentMatchesSize = (int)chamber.segmentMatches.size();
+        if (i + segmentMatchesSize < n) {
+          i += segmentMatchesSize;
+          continue;
         }
+        return chamber.segmentMatches[n - i].t0;
+      }
       return 0;
     }
   };

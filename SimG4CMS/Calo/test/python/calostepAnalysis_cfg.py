@@ -12,7 +12,7 @@ from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['run2_mc']
 
 if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.categories.append('HitStudy')
+    process.MessageLogger.HitStudy=dict()
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(

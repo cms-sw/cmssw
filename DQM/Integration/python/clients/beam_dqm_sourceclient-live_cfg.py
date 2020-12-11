@@ -57,6 +57,9 @@ process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",
 process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'BeamMonitor'
 process.dqmSaver.tag           = 'BeamMonitor'
+process.dqmSaver.runNumber     = options.runNumber
+process.dqmSaverPB.tag         = 'BeamMonitor'
+process.dqmSaverPB.runNumber   = options.runNumber
 
 process.dqmEnvPixelLess = process.dqmEnv.clone()
 process.dqmEnvPixelLess.subSystemFolder = 'BeamMonitor_PixelLess'
@@ -70,7 +73,7 @@ else:
     from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
     process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
     # you may need to set manually the GT in the line below
-    process.GlobalTag.globaltag = '100X_upgrade2018_realistic_v10'
+    #process.GlobalTag.globaltag = '100X_upgrade2018_realistic_v10'
 
 #----------------------------
 # BeamMonitor
@@ -228,7 +231,7 @@ process.dqmTKStatus = cms.EDAnalyzer("TKStatus",
 
 #
 process.dqmcommon = cms.Sequence(process.dqmEnv
-                               * process.dqmSaver)
+                               * process.dqmSaver*process.dqmSaverPB)
 
 #
 process.monitor = cms.Sequence(process.dqmBeamMonitor
@@ -353,7 +356,7 @@ process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
 
     DBParameters = cms.PSet(
                             messageLevel = cms.untracked.int32(0),
-                            authenticationPath = cms.untracked.string('')
+                            authenticationPath = cms.untracked.string('.')
                            ),
 
     # Upload to CondDB
@@ -363,7 +366,10 @@ process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
     runNumber = cms.untracked.uint64(options.runNumber),
     lastLumiFile = cms.untracked.string(''),
     writeTransactionDelay = cms.untracked.uint32(options.transDelay),
+    latency = cms.untracked.uint32(2),
     autoCommit = cms.untracked.bool(True),
+    saveLogsOnDB = cms.untracked.bool(True),
+    jobName = cms.untracked.string("BeamSpotOnlineLegacyTest"), # name of the DB log record
     toPut = cms.VPSet(cms.PSet(
         record = cms.string(BSOnlineRecordName),
         tag = cms.string('BSOnlineLegacy_tag'),
@@ -376,6 +382,7 @@ process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
 if not live or noDB:
     process.OnlineDBOutputService.connect = cms.string('sqlite_file:BeamSpotOnlineLegacy.db')
     process.OnlineDBOutputService.preLoadConnectionString = cms.untracked.string('sqlite_file:BeamSpotOnlineLegacy.db')
+    process.OnlineDBOutputService.saveLogsOnDB = cms.untracked.bool(False)
 
 #---------
 # Final path

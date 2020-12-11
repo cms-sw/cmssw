@@ -23,15 +23,13 @@ ALCARECOSiPixelCalZeroBiasDCSFilter = DPGAnalysis.Skims.skim_detstatus_cfi.dcsst
 
 # SiPixelStatus producer
 from CalibTracker.SiPixelQuality.SiPixelStatusProducer_cfi import *
-# fit as function of lumi sections
-siPixelStatusProducer.SiPixelStatusProducerParameters.resetEveryNLumi = 1
 
 # Sequence #
 seqALCARECOSiPixelCalZeroBias = cms.Sequence(ALCARECOSiPixelCalZeroBiasHLT*ALCARECOSiPixelCalZeroBiasDCSFilter*siPixelStatusProducer)
 
 ## customizations for the pp_on_AA eras
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-(pp_on_XeXe_2017 | pp_on_AA_2018).toModify(ALCARECOSiPixelCalZeroBiasHLT,
-                                           eventSetupPathsKey='SiStripCalZeroBiasHI'
-                                           )
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+(pp_on_XeXe_2017 | pp_on_AA).toModify(ALCARECOSiPixelCalZeroBiasHLT,
+                                      eventSetupPathsKey='SiStripCalZeroBiasHI'
+)

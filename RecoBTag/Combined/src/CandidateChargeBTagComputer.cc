@@ -4,7 +4,7 @@
 
 CandidateChargeBTagComputer::Tokens::Tokens(const edm::ParameterSet& parameters, edm::ESConsumesCollector&& cc) {
   if (parameters.getParameter<bool>("useCondDB")) {
-    cc.setConsumes(gbrForest_, edm::ESInputTag{"", parameters.getParameter<std::string>("gbrForestLabel")});
+    gbrForest_ = cc.consumes(edm::ESInputTag{"", parameters.getParameter<std::string>("gbrForestLabel")});
   }
 }
 

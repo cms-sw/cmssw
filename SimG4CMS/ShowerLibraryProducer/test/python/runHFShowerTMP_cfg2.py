@@ -10,17 +10,17 @@ process.load("SimG4CMS.ShowerLibraryProducer.hcalforwardshower_cfi")
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('FiberSim', 
-        'G4cout', 'G4cerr','FlatThetaGun',                               
-        'HFShower', 'HcalForwardLib'),
-    debugModules = cms.untracked.vstring('*'),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG'),
-        INFO = cms.untracked.PSet(
+        DEBUG = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        DEBUG = cms.untracked.PSet(
+        FiberSim = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        FlatThetaGun = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         G4cerr = cms.untracked.PSet(
@@ -29,19 +29,19 @@ process.MessageLogger = cms.Service("MessageLogger",
         G4cout = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        FlatThetaGun = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
         HFShower = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        FiberSim = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         HcalForwardLib = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
-        )
-    )
+        ),
+        INFO = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('DEBUG')
+    ),
+    debugModules = cms.untracked.vstring('*')
 )
 
 process.load("Configuration.StandardSequences.Services_cff")

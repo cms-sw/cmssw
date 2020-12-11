@@ -50,8 +50,8 @@ trackerDrivenElectronSeeds = cms.EDProducer("GoodSeedProducer",
 )
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+for e in [pp_on_XeXe_2017, pp_on_AA]:
     e.toModify(trackerDrivenElectronSeeds, MinPt = 5.0) 
 
 # tracker driven electron seeds depend on the generalTracks trajectory collection
@@ -59,11 +59,11 @@ for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
 # Therefore we let the seeds depend on the 'before mixing' generalTracks collection
 # TODO: investigate whether the dependence on trajectories can be avoided
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-trackerDrivenElectronSeedsTmp = trackerDrivenElectronSeeds.clone(TkColList = cms.VInputTag(cms.InputTag("generalTracksBeforeMixing")))
+trackerDrivenElectronSeedsTmp = trackerDrivenElectronSeeds.clone(TkColList = ["generalTracksBeforeMixing"])
 import FastSimulation.Tracking.ElectronSeedTrackRefFix_cfi
 _fastSim_trackerDrivenElectronSeeds = FastSimulation.Tracking.ElectronSeedTrackRefFix_cfi.fixedTrackerDrivenElectronSeeds.clone()
-_fastSim_trackerDrivenElectronSeeds.seedCollection.setModuleLabel("trackerDrivenElectronSeedsTmp"),
-_fastSim_trackerDrivenElectronSeeds.idCollection = cms.VInputTag("trackerDrivenElectronSeedsTmp:preid",)
+_fastSim_trackerDrivenElectronSeeds.seedCollection.setModuleLabel("trackerDrivenElectronSeedsTmp")
+_fastSim_trackerDrivenElectronSeeds.idCollection = ["trackerDrivenElectronSeedsTmp:preid",]
 fastSim.toReplaceWith(trackerDrivenElectronSeeds,_fastSim_trackerDrivenElectronSeeds)
 
 from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive

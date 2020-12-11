@@ -5,8 +5,6 @@ import FWCore.ParameterSet.Config as cms
 
 #stripCPE
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
-#pixelCPE
-from RecoLocalTracker.SiPixelRecHits.PixelCPEParmError_cfi import *
 #TransientTrackingBuilder
 #from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi import *
 from RecoTracker.TransientTrackingRecHit.TTRHBuilderWithTemplate_cfi import *

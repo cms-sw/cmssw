@@ -8,15 +8,28 @@ process.source = cms.Source("EmptyIOVSource",
     interval = cms.uint64(11)
 )
 
+process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('DEBUG')
+    )
+)
+
 process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
     DBParameters = cms.PSet(
-        messageLevel = cms.untracked.int32(0),
+        messageLevel = cms.untracked.int32(2),
         authenticationPath = cms.untracked.string('.')
     ),
     #timetype = cms.untracked.string('runnumber'),
+    jobName = cms.untracked.string("TestLumiBasedUpdate"),
+    autoCommit = cms.untracked.bool(True),
     connect = cms.string('sqlite_file:test_lumi.db'),
     preLoadConnectionString = cms.untracked.string('sqlite_file:test_lumi.db'),
-    runNumber = cms.untracked.uint64(120000),
+    #omsServiceUrl = cms.untracked.string('http://cmsoms-services.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'),
+    lastLumiFile = cms.untracked.string('lastLumi.txt'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('PedestalsRcd'),
         tag = cms.string('mytest'),
@@ -26,7 +39,9 @@ process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
 )
 
 process.mytest = cms.EDAnalyzer("LumiBasedUpdateAnalyzer",
-    record = cms.string('PedestalsRcd')
+    record = cms.string('PedestalsRcd'),
+    lastLumiFile = cms.untracked.string('lastLumi.txt')
+    #omsServiceUrl = cms.untracked.string('http://cmsoms-services.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection')
 )
 
 process.p = cms.Path(process.mytest)

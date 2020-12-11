@@ -38,6 +38,8 @@ namespace edm {
                        public virtual EDProducerBase {
     public:
       EDProducer() = default;
+      EDProducer(const EDProducer&) = delete;
+      EDProducer& operator=(const EDProducer&) = delete;
 
       // ---------- const member functions ---------------------
       bool wantsProcessBlocks() const final { return WantsProcessBlockTransitions<T...>::value; }
@@ -66,10 +68,6 @@ namespace edm {
       // ---------- member functions ---------------------------
 
     private:
-      EDProducer(const EDProducer&) = delete;
-
-      const EDProducer& operator=(const EDProducer&) = delete;
-
       // ---------- member data --------------------------------
     };
 

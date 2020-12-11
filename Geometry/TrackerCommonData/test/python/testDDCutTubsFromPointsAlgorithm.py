@@ -6,35 +6,39 @@ process.source = cms.Source("EmptySource")
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
-process.MessageLogger = cms.Service(
-    "MessageLogger",
-    statistics = cms.untracked.vstring('cout', 'testCutTubsFromPointsAlgo'),
-    categories = cms.untracked.vstring('TrackerGeom'),
+process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('WARNING'),
-        noLineBreaks = cms.untracked.bool(True)
+        enable = cms.untracked.bool(True),
+        enableStatistics = cms.untracked.bool(True),
+        noLineBreaks = cms.untracked.bool(True),
+        threshold = cms.untracked.string('WARNING')
+    ),
+    files = cms.untracked.PSet(
+        testCutTubsLog = cms.untracked.PSet(
         ),
-    testCutTubsFromPointsAlgo = cms.untracked.PSet(
-        INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        DEBUG = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        WARNING = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        ERROR = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        threshold = cms.untracked.string('DEBUG'),
-        TrackerGeom = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+        testCutTubsFromPointsAlgo = cms.untracked.PSet(
+            DEBUG = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            ERROR = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            INFO = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            TrackerGeom = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            WARNING = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            enableStatistics = cms.untracked.bool(True),
+            threshold = cms.untracked.string('DEBUG')
         )
     ),
-
-    destinations = cms.untracked.vstring('cout',
-                                         'testCutTubsLog')
 )
 
 

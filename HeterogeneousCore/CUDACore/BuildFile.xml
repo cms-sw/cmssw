@@ -1,4 +1,4 @@
-<iftool name="cuda-gcc-support">
+<iftool name="cuda">
   <use name="FWCore/Concurrency"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/ServiceRegistry"/>

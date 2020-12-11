@@ -1,5 +1,5 @@
-#ifndef CSCRawToDigi_CSCALCTHeader2006_h
-#define CSCRawToDigi_CSCALCTHeader2006_h
+#ifndef EventFilter_CSCRawToDigi_CSCRawToDigi_CSCALCTHeader2006_h
+#define EventFilter_CSCRawToDigi_CSCRawToDigi_CSCALCTHeader2006_h
 
 #include <vector>
 #include <cstring>

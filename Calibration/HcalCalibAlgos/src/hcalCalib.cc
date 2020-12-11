@@ -10,6 +10,7 @@
 
 #include "Calibration/HcalCalibAlgos/interface/hcalCalib.h"
 #include "Calibration/HcalCalibAlgos/interface/hcalCalibUtils.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <TH2.h>
 #include <TStyle.h>
@@ -35,8 +36,6 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-
-using namespace std;
 
 UInt_t nEvents;
 
@@ -70,12 +69,10 @@ void hcalCalib::Begin(TTree* /*tree*/) {
   nEvents = 0;
 
   if (APPLY_PHI_SYM_COR_FLAG && !ReadPhiSymCor()) {
-    cout << "\nERROR: Failed to read the phi symmetry corrections." << endl;
-    cout << "Check if the filename is correct. If the corrections are not needed, set the corresponding flag to "
-            "\"false\"\n"
-         << endl;
-
-    cout << "\nThe program will be terminated\n" << endl;
+    edm::LogError("HcalCalib") << "\nERROR: Failed to read the phi symmetry corrections.\n"
+                               << "Check if the filename is correct. If the corrections are not needed, set the "
+                                  "corresponding flag to \"false\"\n"
+                               << "\nThe program will be terminated\n";
 
     exit(1);
   }
@@ -153,14 +150,14 @@ Bool_t hcalCalib::Process(Long64_t entry) {
   //  fChain->GetTree()->GetEntry(entry);
   GetEntry(entry);
 
-  set<UInt_t> uniqueIds;  // for testing: check if there are duplicate cells   (AA)
+  std::set<UInt_t> uniqueIds;  // for testing: check if there are duplicate cells   (AA)
 
   Bool_t acceptEvent = kTRUE;
 
   ++nEvents;
 
   if (!(nEvents % 100000))
-    cout << "event: " << nEvents << endl;
+    edm::LogVerbatim("HcalCalib") << "event: " << nEvents;
 
   h1_allTrkP->Fill(targetE);
 
@@ -169,7 +166,7 @@ Bool_t hcalCalib::Process(Long64_t entry) {
   ;
 
   // make local copy as the cells may be modified  due to phi/depth sum, phi corrections etc
-  vector<TCell> selectCells;
+  std::vector<TCell> selectCells;
 
   if (cells->GetSize() == 0)
     return kFALSE;
@@ -185,7 +182,7 @@ Bool_t hcalCalib::Process(Long64_t entry) {
 
     if (HcalDetId(thisCell->id()).subdet() != HcalBarrel && HcalDetId(thisCell->id()).subdet() != HcalEndcap &&
         HcalDetId(thisCell->id()).subdet() != HcalForward) {
-      cout << "Unknown or wrong hcal subdetector: " << HcalDetId(thisCell->id()).subdet() << endl;
+      edm::LogWarning("HcalCalib") << "Unknown or wrong hcal subdetector: " << HcalDetId(thisCell->id()).subdet();
     }
 
     // Apply phi symmetry corrections if the flag is set
@@ -197,7 +194,7 @@ Bool_t hcalCalib::Process(Long64_t entry) {
   }
 
   if (selectCells.empty()) {
-    cout << "NO CELLS ABOVE THRESHOLD FOUND FOR TARGET!!!" << endl;
+    edm::LogWarning("HcalCalib") << "NO CELLS ABOVE THRESHOLD FOUND FOR TARGET!!!";
   }
 
   if (SUM_DEPTHS)
@@ -206,7 +203,7 @@ Bool_t hcalCalib::Process(Long64_t entry) {
     sumSmallDepths(selectCells);  // depth 1,2 in twrs 15,16
 
   // most energetic tower (IsoTracks) or centroid of probe jet (DiJets)
-  pair<Int_t, UInt_t> refPos;
+  std::pair<Int_t, UInt_t> refPos;
 
   Int_t dEtaHitRef = 999;
   Int_t dPhiHitRef = 999;
@@ -303,10 +300,10 @@ Bool_t hcalCalib::Process(Long64_t entry) {
     combinePhi(selectCells);
 
   // fill the containers for the minimization prcedures
-  vector<Float_t> energies;
-  vector<UInt_t> ids;
+  std::vector<Float_t> energies;
+  std::vector<UInt_t> ids;
 
-  for (vector<TCell>::iterator i_it = selectCells.begin(); i_it != selectCells.end(); ++i_it) {
+  for (std::vector<TCell>::iterator i_it = selectCells.begin(); i_it != selectCells.end(); ++i_it) {
     // for testing : fill only unique id's
 
     if (uniqueIds.insert(i_it->id()).second) {
@@ -355,11 +352,12 @@ Bool_t hcalCalib::Process(Long64_t entry) {
 //void hcalCalib::SlaveTerminate() {}
 
 void hcalCalib::Terminate() {
-  cout << "\n\nFinished reading the events.\n";
-  cout << "Number of input objects: " << cellIds.size() << endl;
-  cout << "Performing minimization: depending on selected method can take some time...\n\n";
+  edm::LogVerbatim("HcalCalib") << "\n\nFinished reading the events.\n"
+                                << "Number of input objects: " << cellIds.size()
+                                << "\nPerforming minimization: depending on selected method can take some time...\n\n";
 
-  for (vector<pair<Int_t, UInt_t> >::iterator it_rp = refIEtaIPhi.begin(); it_rp != refIEtaIPhi.end(); ++it_rp) {
+  for (std::vector<std::pair<Int_t, UInt_t> >::iterator it_rp = refIEtaIPhi.begin(); it_rp != refIEtaIPhi.end();
+       ++it_rp) {
     Float_t weight = (abs(it_rp->first) < 21) ? 1.0 / 72.0 : 1.0 / 36.0;
     h1_numEventsTwrIEta->Fill(it_rp->first, weight);
   }
@@ -378,9 +376,9 @@ void hcalCalib::Terminate() {
     // for each encountered coef in depth one.
 
     if (!SUM_DEPTHS && SUM_SMALL_DEPTHS) {
-      vector<UInt_t> idForSummedCells;
+      std::vector<UInt_t> idForSummedCells;
 
-      for (map<UInt_t, Float_t>::iterator m_it = solution.begin(); m_it != solution.end(); ++m_it) {
+      for (std::map<UInt_t, Float_t>::iterator m_it = solution.begin(); m_it != solution.end(); ++m_it) {
         if (HcalDetId(m_it->first).ietaAbs() != 15 && HcalDetId(m_it->first).ietaAbs() != 16)
           continue;
         if (HcalDetId(m_it->first).subdet() != HcalBarrel)
@@ -389,7 +387,7 @@ void hcalCalib::Terminate() {
           idForSummedCells.push_back(HcalDetId(m_it->first));
       }
 
-      for (vector<UInt_t>::iterator v_it = idForSummedCells.begin(); v_it != idForSummedCells.end(); ++v_it) {
+      for (std::vector<UInt_t>::iterator v_it = idForSummedCells.begin(); v_it != idForSummedCells.end(); ++v_it) {
         UInt_t addCoefId = HcalDetId(HcalBarrel, HcalDetId(*v_it).ieta(), HcalDetId(*v_it).iphi(), 2);
         solution[addCoefId] = solution[*v_it];
       }
@@ -401,7 +399,7 @@ void hcalCalib::Terminate() {
 
       // loop over the solution from L3 and multiply by the additional factor from
       // the matrix inversion. Set coef outside of the valid calibration region =1.
-      for (map<UInt_t, Float_t>::iterator it_s = solution.begin(); it_s != solution.end(); ++it_s) {
+      for (std::map<UInt_t, Float_t>::iterator it_s = solution.begin(); it_s != solution.end(); ++it_s) {
         Int_t iEtaSol = HcalDetId(it_s->first).ieta();
         if (abs(iEtaSol) < CALIB_ABS_IETA_MIN || abs(iEtaSol) > CALIB_ABS_IETA_MAX)
           it_s->second = 1.0;
@@ -502,7 +500,7 @@ void hcalCalib::Terminate() {
   histoFile->Write();
   histoFile->Close();
 
-  cout << "\n Finished calibration.\n " << endl;
+  edm::LogVerbatim("HcalCalib") << "\n Finished calibration.\n ";
 
 }  // end of Terminate()
 
@@ -510,11 +508,11 @@ void hcalCalib::Terminate() {
 
 void hcalCalib::GetCoefFromMtrxInvOfAve() {
   // these maps are keyed by iEta
-  map<Int_t, Float_t> aveTargetE;
-  map<Int_t, Int_t> nEntries;  // count hits
+  std::map<Int_t, Float_t> aveTargetE;
+  std::map<Int_t, Int_t> nEntries;  // count hits
 
   //  iEtaRef  iEtaCell, energy
-  map<Int_t, map<Int_t, Float_t> > aveHitE;  // add energies in the loop, normalize after that
+  std::map<Int_t, std::map<Int_t, Float_t> > aveHitE;  // add energies in the loop, normalize after that
 
   for (unsigned int i = 0; i < cellEnergies.size(); ++i) {
     Int_t iEtaRef = refIEtaIPhi[i].first;
@@ -536,12 +534,12 @@ void hcalCalib::GetCoefFromMtrxInvOfAve() {
 
   // scale by number of entries to get the averages
   Float_t norm = 1.0;
-  for (map<Int_t, Float_t>::iterator m_it = aveTargetE.begin(); m_it != aveTargetE.end(); ++m_it) {
+  for (std::map<Int_t, Float_t>::iterator m_it = aveTargetE.begin(); m_it != aveTargetE.end(); ++m_it) {
     Int_t iEta = m_it->first;
     norm = (nEntries[iEta] > 0) ? 1.0 / (nEntries[iEta]) : 1.0;
     aveTargetE[iEta] *= norm;
 
-    map<Int_t, Float_t>::iterator n_it = (aveHitE[iEta]).begin();
+    std::map<Int_t, Float_t>::iterator n_it = (aveHitE[iEta]).begin();
 
     Float_t sumRawE = 0;
     for (; n_it != (aveHitE[iEta]).end(); ++n_it) {
@@ -555,7 +553,7 @@ void hcalCalib::GetCoefFromMtrxInvOfAve() {
 
   // conversion from iEta to index for the linear system
   // contains elements only in the valid range for *matrix inversion*
-  vector<Int_t> iEtaList;
+  std::vector<Int_t> iEtaList;
 
   for (Int_t i = -CALIB_ABS_IETA_MAX; i <= CALIB_ABS_IETA_MAX; ++i) {
     if (abs(i) < CALIB_ABS_IETA_MIN)
@@ -576,7 +574,7 @@ void hcalCalib::GetCoefFromMtrxInvOfAve() {
   for (UInt_t i = 0; i < iEtaList.size(); ++i) {
     b(i, 0) = aveTargetE[iEtaList[i]];
 
-    map<Int_t, Float_t>::iterator n_it = aveHitE[iEtaList[i]].begin();
+    std::map<Int_t, Float_t>::iterator n_it = aveHitE[iEtaList[i]].begin();
     for (; n_it != aveHitE[iEtaList[i]].end(); ++n_it) {
       if (fabs(n_it->first) > CALIB_ABS_IETA_MAX || fabs(n_it->first) < CALIB_ABS_IETA_MIN)
         continue;
@@ -600,7 +598,8 @@ Bool_t hcalCalib::ReadPhiSymCor() {
   std::ifstream phiSymFile(PHI_SYM_COR_FILENAME.Data());
 
   if (!phiSymFile) {
-    cout << "\nERROR: Can not find file with phi symmetry constants \"" << PHI_SYM_COR_FILENAME.Data() << "\"" << endl;
+    edm::LogWarning("HcalCalib") << "\nERROR: Can not find file with phi symmetry constants \""
+                                 << PHI_SYM_COR_FILENAME.Data() << "\"";
     return kFALSE;
   }
 
@@ -622,7 +621,7 @@ Bool_t hcalCalib::ReadPhiSymCor() {
       continue;
 
     std::istringstream linestream(line);
-    linestream >> iEta >> iPhi >> depth >> sdName >> value >> hex >> detId;
+    linestream >> iEta >> iPhi >> depth >> sdName >> value >> std::hex >> detId;
 
     if (sdName == "HB")
       sd = HcalBarrel;
@@ -633,22 +632,22 @@ Bool_t hcalCalib::ReadPhiSymCor() {
     else if (sdName == "HF")
       sd = HcalForward;
     else {
-      cout << "\nInvalid detector name in phi symmetry constants file: " << sdName.Data() << endl;
-      cout << "Check file and rerun!\n" << endl;
+      edm::LogWarning("HcalCalib") << "\nInvalid detector name in phi symmetry constants file: " << sdName.Data()
+                                   << "\nCheck file and rerun!\n";
       return kFALSE;
     }
 
     // check if the data is consistent
 
     if (HcalDetId(sd, iEta, iPhi, depth) != HcalDetId(detId)) {
-      cout << "\nInconsistent info in phi symmetry file: subdet, iEta, iPhi, depth do not match rawId!\n" << endl;
+      edm::LogWarning("HcalCalib")
+          << "\nInconsistent info in phi symmetry file: subdet, iEta, iPhi, depth do not match rawId!\n";
       return kFALSE;
     }
     HcalDetId hId(detId);
     if (!topo_->valid(hId)) {
-      cout << "\nInvalid DetId from: iEta=" << iEta << " iPhi=" << iPhi << " depth=" << depth
-           << " subdet=" << sdName.Data() << " detId=" << detId << endl
-           << endl;
+      edm::LogWarning("HcalCalib") << "\nInvalid DetId from: iEta=" << iEta << " iPhi=" << iPhi << " depth=" << depth
+                                   << " subdet=" << sdName.Data() << " detId=" << detId << "\n";
       return kFALSE;
     }
 

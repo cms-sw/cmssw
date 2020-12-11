@@ -29,12 +29,16 @@ public:
 
   inline HcalChannelPropertiesEP(const edm::ParameterSet&) {
     auto cc1 = setWhatProduced(this, &HcalChannelPropertiesEP::produce1);
-    cc1.setConsumes(topoToken_).setConsumes(paramsToken_);
+    topoToken_ = cc1.consumes();
+    paramsToken_ = cc1.consumes();
 
     auto cc2 = setWhatProduced(this, &HcalChannelPropertiesEP::produce2);
     edm::ESInputTag qTag("", "withTopo");
-    cc2.setConsumes(condToken_).setConsumes(myParamsToken_);
-    cc2.setConsumes(sevToken_).setConsumes(qualToken_, qTag).setConsumes(geomToken_);
+    condToken_ = cc2.consumes();
+    myParamsToken_ = cc2.consumes();
+    sevToken_ = cc2.consumes();
+    qualToken_ = cc2.consumes(qTag);
+    geomToken_ = cc2.consumes();
   }
 
   inline ~HcalChannelPropertiesEP() override {}

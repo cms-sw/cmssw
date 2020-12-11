@@ -10,7 +10,10 @@
 //  currently e/gamma also can optionally force saturated electrons
 //  to always be in the high et training
 
+#include "CondFormats/DataRecord/interface/GBRDWrapperRcd.h"
+#include "CondFormats/EgammaObjects/interface/GBRForestD.h"
 #include "RecoEgamma/EgammaTools/interface/EgammaBDTOutputTransformer.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include <string>
 
@@ -18,12 +21,12 @@ namespace edm {
   class ParameterSet;
   class ParameterSetDescription;
   class EventSetup;
+  class ConsumesCollector;
 }  // namespace edm
-class GBRForestD;
 
 class EgammaRegressionContainer {
 public:
-  EgammaRegressionContainer(const edm::ParameterSet& iConfig);
+  EgammaRegressionContainer(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc);
   ~EgammaRegressionContainer() {}
 
   static edm::ParameterSetDescription makePSetDescription();
@@ -40,15 +43,16 @@ private:
 
   bool forceHighEnergyTrainingIfSaturated_;
   const float lowEtHighEtBoundary_;
-  const std::string ebLowEtForestName_;
-  const std::string ebHighEtForestName_;
-  const std::string eeLowEtForestName_;
-  const std::string eeHighEtForestName_;
 
-  const GBRForestD* ebLowEtForest_;   //not owned
-  const GBRForestD* ebHighEtForest_;  //not owned
-  const GBRForestD* eeLowEtForest_;   //not owned
-  const GBRForestD* eeHighEtForest_;  //not owned
+  const edm::ESGetToken<GBRForestD, GBRDWrapperRcd> ebLowEtForestToken_;
+  const edm::ESGetToken<GBRForestD, GBRDWrapperRcd> ebHighEtForestToken_;
+  const edm::ESGetToken<GBRForestD, GBRDWrapperRcd> eeLowEtForestToken_;
+  const edm::ESGetToken<GBRForestD, GBRDWrapperRcd> eeHighEtForestToken_;
+
+  const GBRForestD* ebLowEtForest_ = nullptr;   //not owned
+  const GBRForestD* ebHighEtForest_ = nullptr;  //not owned
+  const GBRForestD* eeLowEtForest_ = nullptr;   //not owned
+  const GBRForestD* eeHighEtForest_ = nullptr;  //not owned
 };
 
 #endif

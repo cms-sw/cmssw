@@ -91,18 +91,6 @@ namespace edm {
       return ESGetToken<Product, Record>{m_transitionID, index, m_consumer->back().productKey_.name().value()};
     }
 
-    template <typename Product, typename Record>
-    ESConsumesCollector& setConsumes(ESGetToken<Product, Record>& token, ESInputTag const& tag) {
-      token = consumesFrom<Product, Record>(tag);
-      return *this;
-    }
-
-    template <typename Product, typename Record>
-    ESConsumesCollector& setConsumes(ESGetToken<Product, Record>& token) {
-      token = consumesFrom<Product, Record>();
-      return *this;
-    }
-
     ESConsumesCollectorAdaptor consumes();
     ESConsumesCollectorWithTagAdaptor consumes(ESInputTag tag);
 
@@ -114,7 +102,7 @@ namespace edm {
     auto registerMayConsume(std::unique_ptr<Collector> iCollector, PTag const& productTag) {
       //NOTE: for now, just treat like standard consumes request for the product needed to
       // do the decision
-      setConsumes(iCollector->token(), productTag.inputTag());
+      iCollector->token() = consumes(productTag.inputTag());
 
       using namespace edm::eventsetup;
       ESTokenIndex index{static_cast<ESTokenIndex::Value_t>(m_consumer->size())};

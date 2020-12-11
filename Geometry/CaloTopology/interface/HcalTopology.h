@@ -289,7 +289,7 @@ private:
   static constexpr unsigned int kchanCalibHF2_ = 1;
   static constexpr unsigned int nCalibHF2_ = nEtaCalibHF_;
   static constexpr unsigned int kOffCalibHOX_ = kOffCalibHF2_ + nCalibHF2_;
-  static constexpr unsigned int nEtaCalibHOX_ = 2, ctypeHX_ = -999;
+  static constexpr unsigned int nEtaCalibHOX_ = 2;
   static constexpr int etaCalibHOX_[nEtaCalibHOX_] = {4, 15};
   static constexpr unsigned int mPhiCalibHOX_[nEtaCalibHOX_] = {2, 1};
   static constexpr unsigned int nPhiCalibHOX_[nEtaCalibHOX_] = {36, 72};

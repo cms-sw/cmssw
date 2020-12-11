@@ -71,17 +71,20 @@ GEMGeometryESModule::GEMGeometryESModule(const edm::ParameterSet& p)
       alignmentsLabel_(p.getParameter<std::string>("alignmentsLabel")) {
   auto cc = setWhatProduced(this);
   if (fromDDD_) {
-    cc.setConsumes(cpvToken_).setConsumes(mdcToken_);
+    cpvToken_ = cc.consumes();
+    mdcToken_ = cc.consumes();
   } else if (fromDD4hep_) {
-    cc.setConsumes(dd4hepcpvToken_).setConsumes(mdcToken_);
+    dd4hepcpvToken_ = cc.consumes();
+    mdcToken_ = cc.consumes();
   } else {
-    cc.setConsumes(riggemToken_);
+    riggemToken_ = cc.consumes();
   }
   if (applyAlignment_) {
-    cc.setConsumes(globalPositionToken_, edm::ESInputTag{"", alignmentsLabel_})
-        .setConsumes(alignmentsToken_, edm::ESInputTag{"", alignmentsLabel_})
-        .setConsumes(alignmentErrorsToken_, edm::ESInputTag{"", alignmentsLabel_});
+    globalPositionToken_ = cc.consumes(edm::ESInputTag{"", alignmentsLabel_});
+    alignmentsToken_ = cc.consumes(edm::ESInputTag{"", alignmentsLabel_});
+    alignmentErrorsToken_ = cc.consumes(edm::ESInputTag{"", alignmentsLabel_});
   }
+  edm::LogVerbatim("GEMGeometry") << "GEMGeometryESModule::initailized with flags " << fromDDD_ << ":" << fromDD4hep_;
 }
 
 void GEMGeometryESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -97,16 +100,19 @@ std::unique_ptr<GEMGeometry> GEMGeometryESModule::produce(const MuonGeometryReco
   auto gemGeometry = std::make_unique<GEMGeometry>();
 
   if (fromDDD_) {
+    edm::LogVerbatim("GEMGeometry") << "GEMGeometryESModule::produce :: GEMGeometryBuilder builder ddd";
     auto cpv = record.getTransientHandle(cpvToken_);
     const auto& mdc = record.get(mdcToken_);
     GEMGeometryBuilder builder;
     builder.build(*gemGeometry, cpv.product(), mdc);
   } else if (fromDD4hep_) {
+    edm::LogVerbatim("GEMGeometry") << "GEMGeometryESModule::produce :: GEMGeometryBuilder builder dd4hep";
     edm::ESTransientHandle<cms::DDCompactView> cpv = record.getTransientHandle(dd4hepcpvToken_);
     const auto& mdc = record.get(mdcToken_);
     GEMGeometryBuilder builder;
     builder.build(*gemGeometry, cpv.product(), mdc);
   } else {
+    edm::LogVerbatim("GEMGeometry") << "GEMGeometryESModule::produce :: GEMGeometryBuilder builder db";
     const auto& riggem = record.get(riggemToken_);
     GEMGeometryBuilderFromCondDB builder;
     builder.build(*gemGeometry, riggem);

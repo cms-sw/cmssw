@@ -1,8 +1,10 @@
 <library name="EgammaEGammaAnalysisToolsTest" file="*.cc">
+  <use name="CommonTools/UtilAlgos"/>
   <use name="DataFormats/Common"/>
   <use name="DataFormats/EgammaReco"/>
   <use name="DataFormats/GsfTrackReco"/>
   <use name="FWCore/Framework"/>
+  <use name="FWCore/ServiceRegistry"/>
   <use name="FWCore/ParameterSet"/>
   <use name="EgammaAnalysis/ElectronTools"/>
   <use name="TrackingTools/Records"/>

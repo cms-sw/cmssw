@@ -158,10 +158,6 @@ namespace cms {
   UNICODE(Vector);
   UNICODE(nEntries);
 
-  UNICODE(VisSection);
-  UNICODE(vismaterial);
-  UNICODE(vis);
-
   UNICODE(debug_constants);
   UNICODE(debug_materials);
   UNICODE(debug_shapes);
@@ -169,7 +165,6 @@ namespace cms {
   UNICODE(debug_placements);
   UNICODE(debug_namespaces);
   UNICODE(debug_rotations);
-  UNICODE(debug_visattr);
   UNICODE(debug_includes);
   UNICODE(debug_algorithms);
   UNICODE(debug_specpars);
@@ -179,7 +174,6 @@ namespace cms {
   UNICODE(close_geometry);
   UNICODE(IncludeSection);
   UNICODE(Include);
-  UNICODE(DisabledAlgo);
 
 }  // namespace cms
 

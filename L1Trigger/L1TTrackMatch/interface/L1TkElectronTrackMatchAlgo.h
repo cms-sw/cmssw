@@ -13,10 +13,16 @@ namespace L1TkElectronTrackMatchAlgo {
                double& dph,
                double& dr,
                double& deta);
+  void doMatchClusterET(BXVector<l1t::EGamma>::const_iterator egIter,
+                        const edm::Ptr<L1TTTrackType>& pTrk,
+                        double& dph,
+                        double& dr,
+                        double& deta);
   void doMatch(const GlobalPoint& epos, const edm::Ptr<L1TTTrackType>& pTrk, double& dph, double& dr, double& deta);
 
   double deltaR(const GlobalPoint& epos, const edm::Ptr<L1TTTrackType>& pTrk);
   double deltaPhi(const GlobalPoint& epos, const edm::Ptr<L1TTTrackType>& pTrk);
+  double deltaPhiClusterET(BXVector<l1t::EGamma>::const_iterator egIter, const edm::Ptr<L1TTTrackType>& pTrk);
   double deltaEta(const GlobalPoint& epos, const edm::Ptr<L1TTTrackType>& pTrk);
   GlobalPoint calorimeterPosition(double phi, double eta, double e);
 

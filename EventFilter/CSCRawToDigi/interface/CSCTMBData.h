@@ -5,8 +5,8 @@
 //_______________________________________
 //
 
-#ifndef CSCTMBData_h
-#define CSCTMBData_h
+#ifndef EventFilter_CSCRawToDigi_CSCTMBData_h
+#define EventFilter_CSCRawToDigi_CSCTMBData_h
 
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCComparatorData.h"

@@ -7,7 +7,7 @@ process = cms.Process("L1AlgoTest",eras.Phase2C4)
 process.load('Configuration.StandardSequences.Services_cff')
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load('Configuration.EventContent.EventContent_cff')
-process.MessageLogger.categories = cms.untracked.vstring('L1EGRateStudies', 'FwkReport')
+process.MessageLogger.L1EGRateStudies = dict()
 process.MessageLogger.cerr.FwkReport = cms.untracked.PSet(
    reportEvery = cms.untracked.int32(1)
 )

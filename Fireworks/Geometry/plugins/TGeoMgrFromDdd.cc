@@ -84,17 +84,14 @@ private:
   std::map<std::string, TGeoMaterial*> nameToMaterial_;
   std::map<std::string, TGeoMedium*> nameToMedium_;
 
-  edm::ESGetToken<DDCompactView, IdealGeometryRecord> viewToken_;
+  const edm::ESGetToken<DDCompactView, IdealGeometryRecord> viewToken_;
 };
 
 TGeoMgrFromDdd::TGeoMgrFromDdd(const edm::ParameterSet& pset)
     : m_level(pset.getUntrackedParameter<int>("level")),
       m_verbose(pset.getUntrackedParameter<bool>("verbose")),
-      m_fullname(pset.getUntrackedParameter<bool>("fullName")) {
-  // The following line is needed to tell the framework what data is
-  // being produced.
-  setWhatProduced(this).setConsumes(viewToken_);
-}
+      m_fullname(pset.getUntrackedParameter<bool>("fullName")),
+      viewToken_(setWhatProduced(this).consumes()) {}
 
 void TGeoMgrFromDdd::fillDescriptions(edm::ConfigurationDescriptions& conf) {
   edm::ParameterSetDescription desc;

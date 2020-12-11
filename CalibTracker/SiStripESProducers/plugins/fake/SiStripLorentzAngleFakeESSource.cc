@@ -70,7 +70,6 @@ private:
   edm::ESGetToken<GeometricDet, IdealGeometryRecord> m_geomDetToken;
 };
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/TrackerNumberingBuilder/interface/utils.h"
 
@@ -113,7 +112,9 @@ namespace {  // helper methods
 }  // namespace
 
 SiStripLorentzAngleFakeESSource::SiStripLorentzAngleFakeESSource(const edm::ParameterSet& iConfig) {
-  setWhatProduced(this).setConsumes(m_tTopoToken).setConsumes(m_geomDetToken);
+  auto cc = setWhatProduced(this);
+  m_tTopoToken = cc.consumes();
+  m_geomDetToken = cc.consumes();
   findingRecord<SiStripLorentzAngleRcd>();
 
   m_TIB_EstimatedValuesMin = iConfig.getParameter<std::vector<double>>("TIB_EstimatedValuesMin");

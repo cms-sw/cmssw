@@ -1,5 +1,5 @@
-#ifndef CSCMonitorInterface_h
-#define CSCMonitorInterface_h
+#ifndef EventFilter_CSCRawToDigi_CSCMonitorInterface_h
+#define EventFilter_CSCRawToDigi_CSCMonitorInterface_h
 
 /** \class CSCMonitorInterface
  *

@@ -17,35 +17,35 @@
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 
 #include "CondTools/L1TriggerExt/interface/L1ConfigOnlineProdBaseExt.h"
-#include "CondFormats/L1TObjects/interface/L1TGlobalPrescalesVetos.h"
-#include "CondFormats/DataRecord/interface/L1TGlobalPrescalesVetosRcd.h"
-#include "CondFormats/DataRecord/interface/L1TGlobalPrescalesVetosO2ORcd.h"
-#include "L1Trigger/L1TGlobal/interface/PrescalesVetosHelper.h"
+#include "CondFormats/L1TObjects/interface/L1TGlobalPrescalesVetosFract.h"
+#include "CondFormats/DataRecord/interface/L1TGlobalPrescalesVetosFractRcd.h"
+#include "CondFormats/DataRecord/interface/L1TGlobalPrescalesVetosFractO2ORcd.h"
+#include "L1Trigger/L1TGlobal/interface/PrescalesVetosFractHelper.h"
 #include "L1Trigger/L1TCommon/interface/TriggerSystem.h"
 #include "L1Trigger/L1TCommon/interface/XmlConfigParser.h"
 #include "OnlineDBqueryHelper.h"
 
 class L1TGlobalPrescalesVetosOnlineProd
-    : public L1ConfigOnlineProdBaseExt<L1TGlobalPrescalesVetosO2ORcd, L1TGlobalPrescalesVetos> {
+    : public L1ConfigOnlineProdBaseExt<L1TGlobalPrescalesVetosFractO2ORcd, L1TGlobalPrescalesVetosFract> {
 private:
   bool transactionSafe;
 
 public:
-  std::unique_ptr<const L1TGlobalPrescalesVetos> newObject(const std::string &objectKey,
-                                                           const L1TGlobalPrescalesVetosO2ORcd &record) override;
+  std::unique_ptr<const L1TGlobalPrescalesVetosFract> newObject(
+      const std::string &objectKey, const L1TGlobalPrescalesVetosFractO2ORcd &record) override;
 
   L1TGlobalPrescalesVetosOnlineProd(const edm::ParameterSet &);
   ~L1TGlobalPrescalesVetosOnlineProd(void) override {}
 };
 
 L1TGlobalPrescalesVetosOnlineProd::L1TGlobalPrescalesVetosOnlineProd(const edm::ParameterSet &iConfig)
-    : L1ConfigOnlineProdBaseExt<L1TGlobalPrescalesVetosO2ORcd, L1TGlobalPrescalesVetos>(iConfig) {
+    : L1ConfigOnlineProdBaseExt<L1TGlobalPrescalesVetosFractO2ORcd, L1TGlobalPrescalesVetosFract>(iConfig) {
   wrappedSetWhatProduced(iConfig);
   transactionSafe = iConfig.getParameter<bool>("transactionSafe");
 }
 
-std::unique_ptr<const L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newObject(
-    const std::string &objectKey, const L1TGlobalPrescalesVetosO2ORcd &record) {
+std::unique_ptr<const L1TGlobalPrescalesVetosFract> L1TGlobalPrescalesVetosOnlineProd::newObject(
+    const std::string &objectKey, const L1TGlobalPrescalesVetosFractO2ORcd &record) {
   edm::LogInfo("L1-O2O: L1TGlobalPrescalesVetosOnlineProd")
       << "Producing L1TGlobalPrescalesVetos with TSC:RS key = " << objectKey;
 
@@ -53,8 +53,9 @@ std::unique_ptr<const L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd
     if (transactionSafe)
       throw std::runtime_error("SummaryForFunctionManager: uGTrs | Faulty  | Empty objectKey");
     else {
-      edm::LogError("L1-O2O: L1TGlobalPrescalesVetosOnlineProd") << "returning empty L1TGlobalPrescalesVetos object";
-      return std::make_unique<const L1TGlobalPrescalesVetos>();
+      edm::LogError("L1-O2O: L1TGlobalPrescalesVetosOnlineProd")
+          << "returning empty L1TGlobalPrescalesVetosFract object";
+      return std::make_unique<const L1TGlobalPrescalesVetosFract>();
     }
   }
 
@@ -81,8 +82,9 @@ std::unique_ptr<const L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd
     if (transactionSafe)
       throw std::runtime_error("SummaryForFunctionManager: uGTrs | Faulty  | Broken key");
     else {
-      edm::LogError("L1-O2O: L1TGlobalPrescalesVetosOnlineProd") << "returning empty L1TGlobalPrescalesVetos object";
-      return std::make_unique<const L1TGlobalPrescalesVetos>();
+      edm::LogError("L1-O2O: L1TGlobalPrescalesVetosOnlineProd")
+          << "returning empty L1TGlobalPrescalesVetosFract object";
+      return std::make_unique<const L1TGlobalPrescalesVetosFract>();
     }
   }
 
@@ -96,8 +98,9 @@ std::unique_ptr<const L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd
     if (transactionSafe)
       throw std::runtime_error("SummaryForFunctionManager: uGTrs | Faulty  | Empty objectKey");
     else {
-      edm::LogError("L1-O2O: L1TGlobalPrescalesVetosOnlineProd") << "returning empty L1TGlobalPrescalesVetos object";
-      return std::make_unique<const L1TGlobalPrescalesVetos>();
+      edm::LogError("L1-O2O: L1TGlobalPrescalesVetosOnlineProd")
+          << "returning empty L1TGlobalPrescalesVetosFract object";
+      return std::make_unique<const L1TGlobalPrescalesVetosFract>();
     }
   }
 
@@ -113,8 +116,9 @@ std::unique_ptr<const L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd
     if (transactionSafe)
       throw std::runtime_error("SummaryForFunctionManager: uGTrs | Faulty  | Broken key");
     else {
-      edm::LogError("L1-O2O: L1TGlobalPrescalesVetosOnlineProd") << "returning empty L1TGlobalPrescalesVetos object";
-      return std::make_unique<const L1TGlobalPrescalesVetos>();
+      edm::LogError("L1-O2O: L1TGlobalPrescalesVetosOnlineProd")
+          << "returning empty L1TGlobalPrescalesVetosFract object";
+      return std::make_unique<const L1TGlobalPrescalesVetosFract>();
     }
   }
 
@@ -156,8 +160,9 @@ std::unique_ptr<const L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd
     if (transactionSafe)
       throw std::runtime_error(std::string("SummaryForFunctionManager: uGTrs | Faulty  | ") + e.what());
     else {
-      edm::LogError("L1-O2O: L1TGlobalPrescalesVetosOnlineProd") << "returning empty L1TGlobalPrescalesVetos object";
-      return std::make_unique<const L1TGlobalPrescalesVetos>();
+      edm::LogError("L1-O2O: L1TGlobalPrescalesVetosOnlineProd")
+          << "returning empty L1TGlobalPrescalesVetosFract object";
+      return std::make_unique<const L1TGlobalPrescalesVetosFract>();
     }
   }
 
@@ -177,7 +182,7 @@ std::unique_ptr<const L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd
 
   //////////////////
 
-  std::vector<std::vector<int>> prescales;
+  std::vector<std::vector<double>> prescales;
   std::vector<unsigned int> triggerMasks;
   std::vector<int> triggerVetoMasks;
   std::map<int, std::vector<int>> triggerAlgoBxMaskAlgoTrig;
@@ -204,9 +209,9 @@ std::unique_ptr<const L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd
     if (nPrescaleSets > 0) {
       // Fill default prescale set
       for (int iSet = 0; iSet < nPrescaleSets; iSet++) {
-        prescales.push_back(std::vector<int>());
+        prescales.push_back(std::vector<double>());
         for (unsigned int iBit = 0; iBit < m_numberPhysTriggers; ++iBit) {
-          int inputDefaultPrescale = 0;  // only prescales that are set in the block below are used
+          double inputDefaultPrescale = 0;  // only prescales that are set in the block below are used
           prescales[iSet].push_back(inputDefaultPrescale);
         }
       }
@@ -215,10 +220,10 @@ std::unique_ptr<const L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd
         if (col.second < 1)
           continue;  // we don't care for the algorithms' indicies in 0th column
         int iSet = col.second - 1;
-        std::vector<unsigned int> prescalesForSet =
-            settings_prescale.at("prescales").getTableColumn<unsigned int>(col.first.c_str());
+        std::vector<double> prescalesForSet =
+            settings_prescale.at("prescales").getTableColumn<double>(col.first.c_str());
         for (unsigned int row = 0; row < prescalesForSet.size(); row++) {
-          unsigned int prescale = prescalesForSet[row];
+          double prescale = prescalesForSet[row];
           std::string algoName = algoNames[row];
           unsigned int algoBit = algoName2bit[algoName];
           prescales[iSet][algoBit] = prescale;
@@ -229,8 +234,9 @@ std::unique_ptr<const L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd
     if (transactionSafe)
       throw std::runtime_error(std::string("SummaryForFunctionManager: uGTrs | Faulty  | ") + e.what());
     else {
-      edm::LogError("L1-O2O: L1TGlobalPrescalesVetosOnlineProd") << "returning empty L1TGlobalPrescalesVetos object";
-      return std::make_unique<const L1TGlobalPrescalesVetos>();
+      edm::LogError("L1-O2O: L1TGlobalPrescalesVetosOnlineProd")
+          << "returning empty L1TGlobalPrescalesVetosFract object";
+      return std::make_unique<const L1TGlobalPrescalesVetosFract>();
     }
   }
 
@@ -282,8 +288,9 @@ std::unique_ptr<const L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd
     if (transactionSafe)
       throw std::runtime_error(std::string("SummaryForFunctionManager: uGTrs | Faulty  | ") + e.what());
     else {
-      edm::LogError("L1-O2O: L1TGlobalPrescalesVetosOnlineProd") << "returning empty L1TGlobalPrescalesVetos object";
-      return std::make_unique<const L1TGlobalPrescalesVetos>();
+      edm::LogError("L1-O2O: L1TGlobalPrescalesVetosOnlineProd")
+          << "returning empty L1TGlobalPrescalesVetosFract object";
+      return std::make_unique<const L1TGlobalPrescalesVetosFract>();
     }
   }
 
@@ -333,8 +340,9 @@ std::unique_ptr<const L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd
     if (transactionSafe)
       throw std::runtime_error(std::string("SummaryForFunctionManager: uGTrs | Faulty  | ") + e.what());
     else {
-      edm::LogError("L1-O2O: L1TGlobalPrescalesVetosOnlineProd") << "returning empty L1TGlobalPrescalesVetos object";
-      return std::make_unique<const L1TGlobalPrescalesVetos>();
+      edm::LogError("L1-O2O: L1TGlobalPrescalesVetosOnlineProd")
+          << "returning empty L1TGlobalPrescalesVetosFract object";
+      return std::make_unique<const L1TGlobalPrescalesVetosFract>();
     }
   }
 
@@ -365,8 +373,9 @@ std::unique_ptr<const L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd
     if (transactionSafe)
       throw std::runtime_error(std::string("SummaryForFunctionManager: uGTrs | Faulty  | ") + e.what());
     else {
-      edm::LogError("L1-O2O: L1TGlobalPrescalesVetosOnlineProd") << "returning empty L1TGlobalPrescalesVetos object";
-      return std::make_unique<const L1TGlobalPrescalesVetos>();
+      edm::LogError("L1-O2O: L1TGlobalPrescalesVetosOnlineProd")
+          << "returning empty L1TGlobalPrescalesVetosFract object";
+      return std::make_unique<const L1TGlobalPrescalesVetosFract>();
     }
   }
 
@@ -640,14 +649,14 @@ std::unique_ptr<const L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd
 
   /////////////
 
-  l1t::PrescalesVetosHelper data_(new L1TGlobalPrescalesVetos());
+  l1t::PrescalesVetosFractHelper data_(new L1TGlobalPrescalesVetosFract());
 
   data_.setBxMaskDefault(m_bx_mask_default);
   data_.setPrescaleFactorTable(prescales);
   data_.setTriggerMaskVeto(triggerVetoMasks);
   data_.setTriggerAlgoBxMask(triggerAlgoBxMaskAlgoTrig);
 
-  auto payload = std::make_unique<const L1TGlobalPrescalesVetos>(*data_.getWriteInstance());
+  auto payload = std::make_unique<const L1TGlobalPrescalesVetosFract>(*data_.getWriteInstance());
 
   edm::LogInfo("L1-O2O: L1TCaloParamsOnlineProd") << "SummaryForFunctionManager: uGTrs | OK      | All looks good";
 

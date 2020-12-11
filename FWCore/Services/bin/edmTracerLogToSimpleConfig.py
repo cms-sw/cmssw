@@ -120,9 +120,9 @@ process.add_(cms.Service("Timing", summaryOnly = cms.untracked.bool(True)))
 # The following two lines reduce the clutter of repeated printouts
 # of the same exception message.
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.destinations = ['cerr']
-process.MessageLogger.statistics = []
-process.MessageLogger.fwkJobReports = []
+
+process.MessageLogger.cerr.enableStatistics = False
+
 process.MessageLogger.cerr.FwkReport.reportEvery = 50000
 process.MessageLogger.cerr.threshold = 'WARNING'
 """)

@@ -17,7 +17,6 @@
 // user include files
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -45,7 +44,9 @@ private:
 };
 
 SiStripBackPlaneCorrectionFakeESSource::SiStripBackPlaneCorrectionFakeESSource(const edm::ParameterSet& iConfig) {
-  setWhatProduced(this).setConsumes(m_tTopoToken).setConsumes(m_geomDetToken);
+  auto cc = setWhatProduced(this);
+  m_tTopoToken = cc.consumes();
+  m_geomDetToken = cc.consumes();
   findingRecord<SiStripBackPlaneCorrectionRcd>();
 
   m_valuePerModuleGeometry = iConfig.getParameter<std::vector<double>>("BackPlaneCorrection_PerModuleGeometry");

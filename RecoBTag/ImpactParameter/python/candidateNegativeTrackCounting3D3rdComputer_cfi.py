@@ -4,5 +4,5 @@ from RecoBTag.ImpactParameter.candidateNegativeTrackCounting3D2ndComputer_cfi im
 
 # negativeTrackCounting3D3rd btag computer
 candidateNegativeTrackCounting3D3rdComputer = candidateNegativeTrackCounting3D2ndComputer.clone(
-    nthTrack = cms.int32(3)
+    nthTrack = 3
 )

@@ -117,6 +117,8 @@ process.RunIntAn= cms.EDAnalyzer("edmtest::stream::RunIntAnalyzer",
 process.LumiIntAn = cms.EDAnalyzer("edmtest::stream::LumiIntAnalyzer",
     transitions = cms.int32(nEvt+2*int(nEvt/nEvtLumi))
     ,cachevalue = cms.int32(nEvtLumi)
+    # needed to avoid deleting TestAccumulator1
+    ,moduleLabel = cms.InputTag("TestAccumulator1")
 )
 
 process.RunSumIntAn = cms.EDAnalyzer("edmtest::stream::RunSummaryIntAnalyzer",

@@ -97,6 +97,57 @@ Nominal_2017_beta30cm = cms.PSet(
         BeamYatIP      = cms.untracked.double(0.),
 )
 
+Nominal_2018_beta30cm = cms.PSet(
+        Beam1Filename = cms.string('SimTransport/PPSProtonTransport/data/LHCB1_Beta0.30_6.5TeV_CR129.8_Nominal_2018.tfs'),
+        Beam2Filename = cms.string('SimTransport/PPSProtonTransport/data/LHCB2_Beta0.30_6.5TeV_CR129.8_Nominal_2018.tfs'),
+        halfCrossingAngleXSector45  = cms.double(129.8), #in mrad / Beam 1
+        halfCrossingAngleYSector45  = cms.double(0.290), #in mrad / Beam 1
+        halfCrossingAngleXSector56  = cms.double(129.8), #in mrad / Beam 2
+        halfCrossingAngleYSector56  = cms.double(0.210), #in mrad / Beam 2
+        BeamEnergyDispersion = cms.double(1.11e-4),     ## beam energy dispersion (GeV); if =0.0 the default(=0.79) is used
+        BeamDivergenceX = cms.double(34.71),     ## x angle dispersion at IP (urad); if =0.0 the default(=30.23) is used
+        BeamDivergenceY = cms.double(34.67),      ## y angle dispersion at IP (urad); if =0.0 the default(=30.23) is used
+        BeamSigmaX  = cms.double(10.40),
+        BeamSigmaY  = cms.double(10.41),
+        BeamEnergy = cms.double(6500.0),
+        BeamXatIP      = cms.untracked.double(0.),  # mm
+        BeamYatIP      = cms.untracked.double(-1.8)
+)
+
+Nominal_2018_beta27cm = cms.PSet(
+        Beam1Filename = cms.string('SimTransport/PPSProtonTransport/data/LHCB1_Beta0.27_6.5TeV_CR130_Nominal_2018.tfs'),
+        Beam2Filename = cms.string('SimTransport/PPSProtonTransport/data/LHCB2_Beta0.27_6.5TeV_CR130_Nominal_2018.tfs'),
+        halfCrossingAngleXSector45  = cms.double(130.0), #in mrad / Beam 1
+        halfCrossingAngleYSector45  = cms.double(0.), #in mrad / Beam 1
+        halfCrossingAngleXSector56  = cms.double(130.0), #in mrad / Beam 2
+        halfCrossingAngleYSector56  = cms.double(0.), #in mrad / Beam 2
+        BeamEnergyDispersion = cms.double(1.11e-4),     ## beam energy dispersion (GeV); if =0.0 the default(=0.79) is used
+        BeamDivergenceX = cms.double(36.56),     ## x angle dispersion at IP (urad); if =0.0 the default(=30.23) is used
+        BeamDivergenceY = cms.double(36.56),      ## y angle dispersion at IP (urad); if =0.0 the default(=30.23) is used
+        BeamSigmaX  = cms.double(9.87),
+        BeamSigmaY  = cms.double(9.87),
+        BeamEnergy = cms.double(6500.0),
+        BeamXatIP      = cms.untracked.double(0.),  # mm
+        BeamYatIP      = cms.untracked.double(-1.8)
+)
+
+Nominal_2018_beta25cm = cms.PSet(
+        Beam1Filename = cms.string('SimTransport/PPSProtonTransport/data/LHCB1_Beta0.25_6.5TeV_CR130_Nominal_2018.tfs'),
+        Beam2Filename = cms.string('SimTransport/PPSProtonTransport/data/LHCB2_Beta0.25_6.5TeV_CR130_Nominal_2018.tfs'),
+        halfCrossingAngleXSector45  = cms.double(130.0), #in mrad / Beam 1
+        halfCrossingAngleYSector45  = cms.double(0.), #in mrad / Beam 1
+        halfCrossingAngleXSector56  = cms.double(130.0), #in mrad / Beam 2
+        halfCrossingAngleYSector56  = cms.double(0.), #in mrad / Beam 2
+        BeamEnergyDispersion = cms.double(1.11e-4),     ## beam energy dispersion (GeV); if =0.0 the default(=0.79) is used
+        BeamDivergenceX = cms.double(37.99),     ## x angle dispersion at IP (urad); if =0.0 the default(=30.23) is used
+        BeamDivergenceY = cms.double(37.98),      ## y angle dispersion at IP (urad); if =0.0 the default(=30.23) is used
+        BeamSigmaX  = cms.double(9.50),
+        BeamSigmaY  = cms.double(9.50),
+        BeamEnergy = cms.double(6500.0),
+        #BeamXatIP      = cms.untracked.double(0.),  # mm
+        #BeamYatIP      = cms.untracked.double(-1.8)
+)
+
 Nominal_RunIII =  cms.PSet(
         #TotemBeamLine = cms.bool(False),
         Beam1Filename = cms.string('SimTransport/PPSProtonTransport/data/LHCB1_Beta0.15_7TeV_CR250_HLLHCv1.4.tfs'),
@@ -111,7 +162,7 @@ Nominal_RunIII =  cms.PSet(
         BeamSigmaX  = cms.double(7.08),
         BeamSigmaY  = cms.double(7.09),
         BeamEnergy = cms.double(7000.0),
-        BeamXatIP      = cms.untracked.double(-750.),
+        BeamXatIP      = cms.untracked.double(-0.750),
         BeamYatIP      = cms.untracked.double(0.),
 )
 
@@ -129,7 +180,7 @@ hector_2017 = cms.PSet(
 
 hector_2018 = cms.PSet(
               baseHectorParameters,
-              Nominal_2017_beta30cm  # CHANGE THIS WHEN THE PROPER ONE GET READY
+              Nominal_2018_beta25cm  # CHANGE THIS WHEN THE PROPER ONE GET READY
 )
 
 hector_2021 = cms.PSet(

@@ -184,6 +184,40 @@ void BareRootProductGetter::getThinnedProducts(edm::ProductID const& pid,
       keys);
 }
 
+edm::OptionalThinnedKey BareRootProductGetter::getThinnedKeyFrom(edm::ProductID const& parentID,
+                                                                 unsigned int key,
+                                                                 edm::ProductID const& thinnedID) const {
+  Long_t eventEntry = branchMap_.getEventTree()->GetReadEntry();
+  edm::BranchID parent = branchMap_.productToBranchID(parentID);
+  if (!parent.isValid())
+    return std::monostate{};
+  edm::BranchID thinned = branchMap_.productToBranchID(thinnedID);
+  if (!thinned.isValid())
+    return std::monostate{};
+  try {
+    auto ret = edm::detail::getThinnedKeyFrom_implementation(
+        parentID,
+        parent,
+        key,
+        thinnedID,
+        thinned,
+        branchMap_.thinnedAssociationsHelper(),
+        [this, eventEntry](edm::BranchID const& branchID) { return getThinnedAssociation(branchID, eventEntry); });
+    if (auto factory = std::get_if<edm::detail::GetThinnedKeyFromExceptionFactory>(&ret)) {
+      return [func = *factory]() {
+        auto ex = func();
+        ex.addContext("Calling BareRootProductGetter::getThinnedKeyFrom()");
+        return ex;
+      };
+    } else {
+      return ret;
+    }
+  } catch (edm::Exception& ex) {
+    ex.addContext("Calling BareRootProductGetter::getThinnedKeyFrom()");
+    throw ex;
+  }
+}
+
 BareRootProductGetter::Buffer* BareRootProductGetter::createNewBuffer(edm::BranchID const& branchID) const {
   //find the branch
   edm::BranchDescription const& bdesc = branchMap_.branchIDToBranch(branchID);

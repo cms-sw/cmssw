@@ -143,16 +143,16 @@ process.output = cms.OutputModule("PoolOutputModule",
 
 
 # enable debug message logging for our modules
-process.MessageLogger.categories.append('L1TCaloEvents')
+process.MessageLogger.L1TCaloEvents=dict()
 
 process.MessageLogger.suppressInfo = cms.untracked.vstring('Geometry', 'AfterSource')
 
 if (options.dump):
-    process.MessageLogger.infos.placeholder = cms.untracked.bool(False)
-    process.MessageLogger.infos.INFO = cms.untracked.PSet(limit = cms.untracked.int32(0))
-    process.MessageLogger.infos.L1TCaloEvents = cms.untracked.PSet(
-      optionalPSet = cms.untracked.bool(True),
-      limit = cms.untracked.int32(10000)
+    process.MessageLogger.files.infos = cms.untracked.PSet(
+        INFO = cms.untracked.PSet(limit = cms.untracked.int32(0)),
+        L1TCaloEvents = cms.untracked.PSet(
+            limit = cms.untracked.int32(10000)
+        )
     )
 
 if (options.debug):

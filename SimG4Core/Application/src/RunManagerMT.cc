@@ -29,6 +29,7 @@
 
 #include "HepPDT/ParticleDataTable.hh"
 
+#include "G4Timer.hh"
 #include "G4GeometryManager.hh"
 #include "G4StateManager.hh"
 #include "G4ApplicationState.hh"
@@ -43,6 +44,7 @@
 #include "G4CascadeInterface.hh"
 #include "G4EmParameters.hh"
 #include "G4HadronicParameters.hh"
+#include "G4NuclearLevelData.hh"
 
 #include "G4GDMLParser.hh"
 #include "G4SystemOfUnits.hh"
@@ -54,6 +56,8 @@
 #include "G4RegionStore.hh"
 
 #include <iostream>
+#include <memory>
+
 #include <sstream>
 #include <fstream>
 #include <memory>
@@ -108,8 +112,16 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
       << "              cutsPerRegion: " << cuts << " cutForProton: " << protonCut << "\n"
       << "              G4 verbosity: " << verb;
 
-  m_world.reset(new DDDWorld(pDD, pDD4hep, m_catalog, verb, cuts, protonCut));
+  G4Timer timer;
+  timer.Start();
+
+  m_world = std::make_unique<DDDWorld>(pDD, pDD4hep, m_catalog, verb, cuts, protonCut);
   G4VPhysicalVolume* world = m_world.get()->GetWorldVolume();
+
+  timer.Stop();
+  G4cout.precision(4);
+  G4cout << "RunManagerMT: geometry is initialized: " << timer << G4endl;
+  timer.Start();
 
   m_kernel->SetVerboseLevel(verb);
   edm::LogVerbatim("SimG4CoreApplication")
@@ -122,7 +134,7 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   unsigned int numLV = lvs->size();
   unsigned int nn = regStore->size();
   edm::LogVerbatim("SimG4CoreApplication")
-      << "###RunManagerMT: " << numPV << " PhysVolumes; " << numLV << " LogVolumes; " << nn << " Regions.";
+      << "RunManagerMT: " << numPV << " physical volumes; " << numLV << " logical volumes; " << nn << " regions.";
 
   if (m_check) {
     m_kernel->SetVerboseLevel(2);
@@ -187,19 +199,16 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   m_kernel->InitializePhysics();
   m_kernel->SetUpDecayChannels();
 
-  // The following line was with the following comment in
-  // G4MTRunManager::InitializePhysics() in 10.00.p01; in practice
-  // needed to initialize certain singletons during the master thread
-  // initialization in order to avoid races later...
-  //
-  //BERTINI, this is needed to create pseudo-particles, to be removed
-  G4CascadeInterface::Initialize();
-
   if (m_kernel->RunInitialization()) {
     m_managerInitialized = true;
   } else {
     throw edm::Exception(edm::errors::LogicError, "G4RunManagerKernel initialization failed!");
   }
+
+  timer.Stop();
+  G4cout.precision(4);
+  G4cout << "RunManagerMT: physics is initialized: " << timer << G4endl;
+  timer.Start();
 
   if (m_StorePhysicsTables) {
     std::ostringstream dir;
@@ -209,6 +218,7 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
       G4UImanager::GetUIpointer()->ApplyCommand(cmd);
     m_physicsList->StorePhysicsTable(m_PhysicsTablesDir);
   }
+  G4NuclearLevelData::GetInstance()->UploadNuclearLevelData(84);
 
   if (verb > 1) {
     m_physicsList->DumpCutValuesTable();
@@ -241,11 +251,13 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   m_stateManager->SetNewState(G4State_GeomClosed);
   m_currentRun = new G4Run();
   m_userRunAction->BeginOfRunAction(m_currentRun);
-  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT:: initG4 done";
+  timer.Stop();
+  G4cout.precision(4);
+  G4cout << "RunManagerMT: initG4 done " << timer << G4endl;
 }
 
 void RunManagerMT::initializeUserActions() {
-  m_runInterface.reset(new SimRunInterface(this, true));
+  m_runInterface = std::make_unique<SimRunInterface>(this, true);
   m_userRunAction = new RunAction(m_pRunAction, m_runInterface.get(), true);
   Connect(m_userRunAction);
 }

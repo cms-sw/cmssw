@@ -181,7 +181,7 @@ highlevelreco = cms.Sequence(highlevelrecoTask)
 
 # AA data with pp reco
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 from RecoHI.HiTracking.HILowPtConformalPixelTracks_cfi import *
 from RecoHI.HiCentralityAlgos.HiCentrality_cfi import hiCentrality
 from RecoHI.HiCentralityAlgos.HiClusterCompatibility_cfi import hiClusterCompatibility
@@ -189,8 +189,8 @@ _highlevelreco_HITask = highlevelrecoTask.copy()
 _highlevelreco_HITask.add(hiConformalPixelTracksTaskPhase1)
 _highlevelreco_HITask.add(hiCentrality)
 _highlevelreco_HITask.add(hiClusterCompatibility)
-(pp_on_XeXe_2017 | pp_on_AA_2018).toReplaceWith(highlevelrecoTask, _highlevelreco_HITask)
-pp_on_AA_2018.toReplaceWith(highlevelrecoTask,highlevelrecoTask.copyAndExclude([PFTauTask]))
+(pp_on_XeXe_2017 | pp_on_AA ).toReplaceWith(highlevelrecoTask, _highlevelreco_HITask)
+pp_on_AA.toReplaceWith(highlevelrecoTask,highlevelrecoTask.copyAndExclude([PFTauTask]))
 
 # not commisoned and not relevant in FastSim (?):
 _fastSim_highlevelrecoTask = highlevelrecoTask.copyAndExclude([muoncosmichighlevelrecoTask])
@@ -209,6 +209,9 @@ reconstructionTask.visit(cms.ModuleNamesFromGlobalsVisitor(globals(),_modulesInR
 logErrorHarvester.includeModules = cms.untracked.vstring(set(_modulesInReconstruction))
 
 reconstruction_trackingOnlyTask = cms.Task(localrecoTask,globalreco_trackingTask)
+#calo parts removed as long as tracking is not running jetCore in phase2
+trackingPhase2PU140.toReplaceWith(reconstruction_trackingOnlyTask,
+                                  reconstruction_trackingOnlyTask.copyAndExclude([hgcalLocalRecoTask,castorreco]))
 reconstruction_trackingOnly = cms.Sequence(reconstruction_trackingOnlyTask)
 reconstruction_pixelTrackingOnlyTask = cms.Task(
     pixeltrackerlocalrecoTask,

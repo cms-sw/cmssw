@@ -32,8 +32,8 @@
 // ----------------------------------------------------------------------
 
 #include <map>
+#include <string>
 
-#include "FWCore/MessageLogger/interface/ELstring.h"
 #include "FWCore/MessageLogger/interface/ELextendedID.h"
 
 namespace edm {
@@ -70,18 +70,18 @@ namespace edm {
     int n;
     int aggregateN;
     bool ignoredFlag;
-    ELstring context1;
-    ELstring context2;
-    ELstring contextLast;
+    std::string context1;
+    std::string context2;
+    std::string contextLast;
 
     StatsCount();
-    void add(const ELstring& context, bool reactedTo);
+    void add(std::string_view context, bool reactedTo);
 
   };  // StatsCount
 
   // ----------------------------------------------------------------------
 
-  typedef std::map<ELstring, LimitAndTimespan> ELmap_limits;
+  typedef std::map<std::string, LimitAndTimespan> ELmap_limits;
 
   typedef std::map<ELextendedID, CountAndLimit> ELmap_counts;
 

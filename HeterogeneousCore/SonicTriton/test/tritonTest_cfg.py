@@ -46,7 +46,7 @@ process.TritonProducer = cms.EDProducer(options.producer,
         port = cms.untracked.uint32(options.port),
         timeout = cms.untracked.uint32(options.timeout),
         modelName = cms.string(models[options.producer]),
-        modelVersion = cms.int32(-1),
+        modelVersion = cms.string(""),
         verbose = cms.untracked.bool(options.verbose),
         allowedTries = cms.untracked.uint32(0),
     )
@@ -64,10 +64,9 @@ process.load('FWCore/MessageService/MessageLogger_cfi')
 process.MessageLogger.cerr.FwkReport.reportEvery = 500
 keep_msgs = [options.producer,options.producer+':TritonClient','TritonClient']
 for msg in keep_msgs:
-    process.MessageLogger.categories.append(msg)
+    
     setattr(process.MessageLogger.cerr,msg,
         cms.untracked.PSet(
-            optionalPSet = cms.untracked.bool(True),
             limit = cms.untracked.int32(10000000),
         )
     )

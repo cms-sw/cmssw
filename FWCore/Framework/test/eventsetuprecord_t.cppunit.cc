@@ -265,19 +265,42 @@ namespace {
 
     ESGetToken<Dummy, DummyRecord> m_token;
   };
+
+  struct DummyDataConsumerGeneric : public EDConsumerBase {
+    explicit DummyDataConsumerGeneric(DataKey const& iKey)
+        : m_token{esConsumes<>(eventsetup::EventSetupRecordKey::makeKey<DummyRecord>(), iKey)} {}
+
+    void prefetch(eventsetup::EventSetupRecordImpl const& iRec) const {
+      auto const& proxies = this->esGetTokenIndicesVector(edm::Transition::Event);
+      for (size_t i = 0; i != proxies.size(); ++i) {
+        auto waitTask = edm::make_empty_waiting_task();
+        waitTask->set_ref_count(2);
+        iRec.prefetchAsync(waitTask.get(), proxies[i], nullptr, edm::ServiceToken{});
+        waitTask->decrement_ref_count();
+        waitTask->wait_for_all();
+        if (waitTask->exceptionPtr()) {
+          std::rethrow_exception(*waitTask->exceptionPtr());
+        }
+      }
+    }
+
+    ESGetTokenGeneric m_token;
+  };
+
 }  // namespace
 
 namespace {
-  struct SetupRecord {
+  template <typename CONSUMER>
+  struct SetupRecordT {
     eventsetup::EventSetupRecordImpl dummyRecordImpl;
-    DummyDataConsumer& consumer;
+    CONSUMER& consumer;
     //we need the DataKeys to stick around since references are being kept to them
     std::vector<std::pair<edm::eventsetup::DataKey, edm::eventsetup::DataProxy*>> proxies;
 
-    SetupRecord(DummyDataConsumer& iConsumer,
-                EventSetupRecordKey const& iKey,
-                ActivityRegistry* iRegistry,
-                std::vector<std::pair<edm::eventsetup::DataKey, edm::eventsetup::DataProxy*>> iProxies)
+    SetupRecordT(CONSUMER& iConsumer,
+                 EventSetupRecordKey const& iKey,
+                 ActivityRegistry* iRegistry,
+                 std::vector<std::pair<edm::eventsetup::DataKey, edm::eventsetup::DataProxy*>> iProxies)
         : dummyRecordImpl(iKey, iRegistry), consumer(iConsumer), proxies(std::move(iProxies)) {
       for (auto const& d : proxies) {
         dummyRecordImpl.add(d.first, d.second);
@@ -299,6 +322,8 @@ namespace {
       return ret;
     }
   };
+  using SetupRecord = SetupRecordT<DummyDataConsumer>;
+  using SetupGenericRecord = SetupRecordT<DummyDataConsumerGeneric>;
 }  // namespace
 
 void testEventsetupRecord::getHandleTest() {
@@ -504,29 +529,42 @@ void testEventsetupRecord::getExepTest() {
 }
 
 void testEventsetupRecord::doGetTest() {
-  eventsetup::EventSetupRecordImpl dummyRecordImpl{dummyRecordKey_, &activityRegistry};
+  const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyProxy::value_type>(), "");
+
+  {
+    DummyDataConsumerGeneric consumer{dummyDataKey};
+
+    SetupGenericRecord sr{consumer, dummyRecordKey_, &activityRegistry, {}};
+
+    DummyRecord dummyRecord = sr.makeRecord();
+
+    CPPUNIT_ASSERT(!dummyRecord.doGet(consumer.m_token));
+  }
 
   FailingDummyProxy dummyProxy;
 
-  const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyProxy::value_type>(), "");
+  {
+    DummyDataConsumerGeneric consumer{dummyDataKey};
 
-  DummyRecord dummyRecord;
-  dummyRecord.setImpl(&dummyRecordImpl, 0, nullptr, nullptr, false);
-  CPPUNIT_ASSERT(!dummyRecord.doGet(dummyDataKey));
+    SetupGenericRecord sr{consumer, dummyRecordKey_, &activityRegistry, {{dummyDataKey, &dummyProxy}}};
 
-  dummyRecordImpl.add(dummyDataKey, &dummyProxy);
-
-  //dummyRecord.doGet(dummyDataKey);
-  CPPUNIT_ASSERT_THROW(dummyRecord.doGet(dummyDataKey), ExceptionType);
-
+    DummyRecord dummyRecord = sr.makeRecord();
+    CPPUNIT_ASSERT_THROW(dummyRecord.doGet(consumer.m_token), ExceptionType);
+  }
   Dummy myDummy;
   WorkingDummyProxy workingProxy(&myDummy);
 
   const DataKey workingDataKey(DataKey::makeTypeTag<WorkingDummyProxy::value_type>(), "working");
 
-  dummyRecordImpl.add(workingDataKey, &workingProxy);
+  {
+    DummyDataConsumerGeneric consumer{workingDataKey};
 
-  CPPUNIT_ASSERT(dummyRecord.doGet(workingDataKey));
+    SetupGenericRecord sr{
+        consumer, dummyRecordKey_, &activityRegistry, {{dummyDataKey, &dummyProxy}, {workingDataKey, &workingProxy}}};
+
+    DummyRecord dummyRecord = sr.makeRecord();
+    CPPUNIT_ASSERT(dummyRecord.doGet(consumer.m_token));
+  }
 }
 
 namespace {
@@ -662,21 +700,30 @@ void testEventsetupRecord::introspectionTest() {
 }
 
 void testEventsetupRecord::doGetExepTest() {
-  eventsetup::EventSetupRecordImpl dummyRecordImpl{dummyRecordKey_, &activityRegistry};
-
-  FailingDummyProxy dummyProxy;
-
   const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyProxy::value_type>(), "");
+  {
+    DummyDataConsumerGeneric consumer{dummyDataKey};
 
-  DummyRecord dummyRecord;
-  dummyRecord.setImpl(&dummyRecordImpl, 0, nullptr, nullptr, false);
-  CPPUNIT_ASSERT(!dummyRecord.doGet(dummyDataKey));
+    SetupGenericRecord sr{consumer, dummyRecordKey_, &activityRegistry, {}};
 
-  dummyRecordImpl.add(dummyDataKey, &dummyProxy);
+    DummyRecord dummyRecord = sr.makeRecord();
 
-  //typedef edm::eventsetup::MakeDataException<DummyRecord,Dummy> ExceptionType;
-  dummyRecord.doGet(dummyDataKey);
-  //CPPUNIT_ASSERT_THROW(dummyRecord.doGet(dummyDataKey), ExceptionType);
+    CPPUNIT_ASSERT(!dummyRecord.doGet(consumer.m_token));
+  }
+
+  {
+    FailingDummyProxy dummyProxy;
+
+    const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyProxy::value_type>(), "");
+
+    DummyDataConsumerGeneric consumer{dummyDataKey};
+
+    SetupGenericRecord sr{consumer, dummyRecordKey_, &activityRegistry, {{dummyDataKey, &dummyProxy}}};
+
+    DummyRecord dummyRecord = sr.makeRecord();
+
+    CPPUNIT_ASSERT(dummyRecord.doGet(consumer.m_token));
+  }
 }
 
 void testEventsetupRecord::proxyResetTest() {
@@ -702,8 +749,6 @@ void testEventsetupRecord::proxyResetTest() {
   //this causes the proxies to actually be placed in the Record
   edm::eventsetup::EventSetupRecordProvider::DataToPreferredProviderMap pref;
   dummyProvider->usePreferred(pref);
-
-  CPPUNIT_ASSERT(dummyRecord.doGet(workingDataKey));
 
   edm::ESHandle<Dummy> hDummy;
   dummyRecord.get(hDummy);

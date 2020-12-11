@@ -32,9 +32,10 @@ SiStripGainsPCLWorker::SiStripGainsPCLWorker(const edm::ParameterSet& iConfig) {
     int id = APVGain::subdetectorId((hnames[i]).first);
     int side = APVGain::subdetectorSide((hnames[i]).first);
     int plane = APVGain::subdetectorPlane((hnames[i]).first);
+    int thick = APVGain::thickness((hnames[i]).first);
     std::string s = hnames[i].first;
 
-    auto loc = APVloc(id, side, plane, s);
+    auto loc = APVloc(thick, id, side, plane, s);
     theTopologyMap.insert(std::make_pair(i, loc));
   }
 
@@ -98,6 +99,11 @@ SiStripGainsPCLWorker::SiStripGainsPCLWorker(const edm::ParameterSet& iConfig) {
   trackhitsvalid_token_ =
       consumes<std::vector<unsigned int>>(edm::InputTag(label, TrackPrefix_ + "hitsvalid" + TrackSuffix_));
   trackalgo_token_ = consumes<std::vector<int>>(edm::InputTag(label, TrackPrefix_ + "algo" + TrackSuffix_));
+
+  tTopoToken_ = esConsumes();
+  tkGeomToken_ = esConsumes<edm::Transition::BeginRun>();
+  gainToken_ = esConsumes<edm::Transition::BeginRun>();
+  qualityToken_ = esConsumes<edm::Transition::BeginRun>();
 }
 
 //********************************************************************************//
@@ -108,20 +114,16 @@ void SiStripGainsPCLWorker::dqmBeginRun(edm::Run const& run,
   static constexpr float defaultGainTick = 690. / 640.;
 
   // fills the APV collections at each begin run
-  edm::ESHandle<TrackerGeometry> tkGeom_;
-  iSetup.get<TrackerDigiGeometryRecord>().get(tkGeom_);
-  const TrackerGeometry* bareTkGeomPtr = &(*tkGeom_);
+  const TrackerGeometry* bareTkGeomPtr = &iSetup.getData(tkGeomToken_);
   checkBookAPVColls(bareTkGeomPtr, histograms);
 
-  edm::ESHandle<SiStripGain> gainHandle;
-  iSetup.get<SiStripGainRcd>().get(gainHandle);
+  const auto gainHandle = iSetup.getHandle(gainToken_);
   if (!gainHandle.isValid()) {
     edm::LogError("SiStripGainPCLWorker") << "gainHandle is not valid\n";
     exit(0);
   }
 
-  edm::ESHandle<SiStripQuality> SiStripQuality_;
-  iSetup.get<SiStripQualityRcd>().get(SiStripQuality_);
+  const auto& siStripQuality = iSetup.getData(qualityToken_);
 
   for (unsigned int a = 0; a < histograms.APVsCollOrdered.size(); a++) {
     std::shared_ptr<stAPVGain> APV = histograms.APVsCollOrdered[a];
@@ -129,7 +131,7 @@ void SiStripGainsPCLWorker::dqmBeginRun(edm::Run const& run,
     if (APV->SubDet == PixelSubdetector::PixelBarrel || APV->SubDet == PixelSubdetector::PixelEndcap)
       continue;
 
-    APV->isMasked = SiStripQuality_->IsApvBad(APV->DetId, APV->APVId);
+    APV->isMasked = siStripQuality.IsApvBad(APV->DetId, APV->APVId);
 
     if (gainHandle->getNumberOfTags() != 2) {
       edm::LogError("SiStripGainPCLWorker") << "NUMBER OF GAIN TAG IS EXPECTED TO BE 2\n";
@@ -167,9 +169,7 @@ void SiStripGainsPCLWorker::dqmAnalyze(edm::Event const& iEvent,
 
   edm::LogInfo("SiStripGainsPCLWorker") << "Processing run " << runnumber << " and event " << eventnumber << std::endl;
 
-  edm::ESHandle<TrackerTopology> TopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(TopoHandle);
-  const TrackerTopology* topo = TopoHandle.product();
+  const TrackerTopology* topo = &iSetup.getData(tTopoToken_);
 
   // *****************************
   // * Event data handles

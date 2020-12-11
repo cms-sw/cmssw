@@ -2,8 +2,6 @@
 <use name="DataFormats/GeometrySurface"/>
 <use name="DataFormats/MuonDetId"/>
 <use name="FWCore/Framework"/>
-<use name="FWCore/ServiceRegistry"/>
-<use name="FWCore/Utilities"/>
 <use name="FastSimulation/MaterialEffects"/>
 <use name="FastSimulation/ParticlePropagator"/>
 <use name="FastSimulation/Utilities"/>

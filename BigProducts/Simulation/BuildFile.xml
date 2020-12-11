@@ -1,4 +1,3 @@
-<use name="SimDataFormats/ValidationFormats"/>
 <use name="SimG4CMS/Calo"/>
 <use name="SimG4CMS/EcalTestBeam"/>
 <use name="SimG4CMS/FP420"/>

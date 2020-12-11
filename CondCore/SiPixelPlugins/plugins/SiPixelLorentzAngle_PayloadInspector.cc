@@ -155,23 +155,15 @@ namespace {
       auto extrema = SiPixelPI::findMinMaxInMap(LAMap_);
 
       TCanvas canvas("Canv", "Canv", isBarrel ? 1400 : 1800, 1200);
-      if (LAMap_.size() > SiPixelPI::phase1size) {
-        SiPixelPI::displayNotSupported(canvas, LAMap_.size());
-        std::string fileName(this->m_imageFileName);
-        canvas.SaveAs(fileName.c_str());
-        return false;
-      }
-
-      canvas.Divide(isBarrel ? 2 : 4, isBarrel ? 2 : 3);
       canvas.cd();
 
-      const char *path_toTopologyXML = (LAMap_.size() == SiPixelPI::phase0size)
-                                           ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
-                                           : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      SiPixelPI::PhaseInfo phaseInfo(LAMap_.size());
+      const char *path_toTopologyXML = phaseInfo.pathToTopoXML();
+
       TrackerTopology tTopo =
           StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
-      auto myPlots = PixelRegions::PixelRegionContainers(&tTopo, (LAMap_.size() == SiPixelPI::phase1size));
+      auto myPlots = PixelRegions::PixelRegionContainers(&tTopo, phaseInfo.phase());
       myPlots.bookAll("SiPixel LA",
                       "SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T]",
                       "#modules",
@@ -195,8 +187,10 @@ namespace {
       legend.SetTextSize(0.025);
       legend.SetLineColor(10);
 
-      unsigned int maxPads = isBarrel ? 4 : 12;
+      unsigned int maxPads = canvas.GetListOfPrimitives()->GetSize();  //= isBarrel ? 4 : 12;
       for (unsigned int c = 1; c <= maxPads; c++) {
+        if (phaseInfo.phase() == SiPixelPI::phase::two && (c == 5 || c == 10))
+          continue;
         canvas.cd(c);
         SiPixelPI::adjustCanvasMargins(canvas.cd(c), 0.06, 0.12, 0.12, 0.05);
         legend.Draw("same");
@@ -210,13 +204,18 @@ namespace {
       ltx.SetTextSize(0.05);
       ltx.SetTextAlign(11);
 
+      int index = 0;
       for (unsigned int c = 1; c <= maxPads; c++) {
-        auto index = isBarrel ? c - 1 : c + 3;
-
+        if (phaseInfo.phase() == SiPixelPI::phase::two && (c == 5 || c == 10))
+          continue;
         canvas.cd(c);
         ltx.DrawLatexNDC(gPad->GetLeftMargin(),
                          1 - gPad->GetTopMargin() + 0.01,
-                         (PixelRegions::IDlabels.at(index) + ", IOV:" + std::to_string(std::get<0>(iov))).c_str());
+                         (PixelRegions::getIDLabels(phaseInfo.phase(), isBarrel)[index] +
+                          ", IOV:" + std::to_string(std::get<0>(iov)))
+                             .c_str());
+
+        index++;
       }
 
       std::string fileName(m_imageFileName);
@@ -238,15 +237,15 @@ namespace {
   public:
     SiPixelLorentzAngleValuesComparisonPerRegion()
         : cond::payloadInspector::PlotImage<SiPixelLorentzAngle, nIOVs, ntags>(
-              Form("SiPixelLorentzAngle Values Comparisons per region %i tags(s)", ntags)) {}
+              Form("SiPixelLorentzAngle Values Comparisons per region %i tag(s)", ntags)) {}
 
     bool fill() override {
       gStyle->SetOptStat("emr");
 
       // trick to deal with the multi-ioved tag and two tag case at the same time
       auto theIOVs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
-      auto tagname1 = cond::payloadInspector::PlotBase::getTag<0>().name;
-      std::string tagname2 = "";
+      auto f_tagname = cond::payloadInspector::PlotBase::getTag<0>().name;
+      std::string l_tagname = "";
       auto firstiov = theIOVs.front();
       std::tuple<cond::Time_t, cond::Hash> lastiov;
 
@@ -255,7 +254,7 @@ namespace {
 
       if (this->m_plotAnnotations.ntags == 2) {
         auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
-        tagname2 = cond::payloadInspector::PlotBase::getTag<1>().name;
+        l_tagname = cond::payloadInspector::PlotBase::getTag<1>().name;
         lastiov = tag2iovs.front();
       } else {
         lastiov = theIOVs.back();
@@ -276,28 +275,25 @@ namespace {
       std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
 
       TCanvas canvas("Canv", "Canv", isBarrel ? 1400 : 1800, 1200);
-      if ((f_LAMap_.size() > SiPixelPI::phase1size) || (l_LAMap_.size() > SiPixelPI::phase1size)) {
+      canvas.cd();
+
+      SiPixelPI::PhaseInfo l_phaseInfo(l_LAMap_.size());
+      SiPixelPI::PhaseInfo f_phaseInfo(f_LAMap_.size());
+
+      if (l_phaseInfo.isComparedWithPhase2(f_phaseInfo)) {
         SiPixelPI::displayNotSupported(canvas, std::max(f_LAMap_.size(), l_LAMap_.size()));
         std::string fileName(this->m_imageFileName);
         canvas.SaveAs(fileName.c_str());
         return false;
       }
 
-      canvas.Divide(isBarrel ? 2 : 4, isBarrel ? 2 : 3);
-      canvas.cd();
-
-      bool is_l_phase0 = (l_LAMap_.size() == SiPixelPI::phase0size);
-      bool is_f_phase0 = (f_LAMap_.size() == SiPixelPI::phase0size);
-
       // deal with last IOV
-
-      const char *path_toTopologyXML = is_l_phase0 ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
-                                                   : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      const char *path_toTopologyXML = l_phaseInfo.pathToTopoXML();
 
       auto l_tTopo =
           StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
-      auto l_myPlots = PixelRegions::PixelRegionContainers(&l_tTopo, !is_l_phase0);
+      auto l_myPlots = PixelRegions::PixelRegionContainers(&l_tTopo, l_phaseInfo.phase());
       l_myPlots.bookAll("SiPixel LA,last",
                         "SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T]",
                         "#modules",
@@ -310,17 +306,15 @@ namespace {
       }
 
       l_myPlots.beautify();
-      l_myPlots.draw(canvas, isBarrel, "bar2", (!is_f_phase0 || !is_l_phase0));
+      l_myPlots.draw(canvas, isBarrel, "bar2", f_phaseInfo.isPhase1Comparison(l_phaseInfo));
 
       // deal with first IOV
-
-      path_toTopologyXML = is_f_phase0 ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
-                                       : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      path_toTopologyXML = f_phaseInfo.pathToTopoXML();
 
       auto f_tTopo =
           StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
-      auto f_myPlots = PixelRegions::PixelRegionContainers(&f_tTopo, !is_f_phase0);
+      auto f_myPlots = PixelRegions::PixelRegionContainers(&f_tTopo, f_phaseInfo.phase());
       f_myPlots.bookAll("SiPixel LA,first",
                         "SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T]",
                         "#modules",
@@ -333,19 +327,19 @@ namespace {
       }
 
       f_myPlots.beautify(kAzure, kBlue);
-      f_myPlots.draw(canvas, isBarrel, "HISTsames", (!is_f_phase0 || !is_l_phase0));
+      f_myPlots.draw(canvas, isBarrel, "HISTsames", f_phaseInfo.isPhase1Comparison(l_phaseInfo));
 
       // rescale the y-axis ranges in order to fit the canvas
       l_myPlots.rescaleMax(f_myPlots);
 
       // done dealing with IOVs
 
-      auto colorTag = isBarrel ? PixelRegions::L1 : PixelRegions::Rm1l;
+      auto colorTag = PixelRegions::L1;  //: PixelRegions::Rm1l;
       std::unique_ptr<TLegend> legend;
       if (this->m_plotAnnotations.ntags == 2) {
         legend = std::make_unique<TLegend>(0.36, 0.86, 0.94, 0.92);
-        legend->AddEntry(l_myPlots.getHistoFromMap(colorTag).get(), ("#color[2]{" + tagname2 + "}").c_str(), "F");
-        legend->AddEntry(f_myPlots.getHistoFromMap(colorTag).get(), ("#color[4]{" + tagname1 + "}").c_str(), "F");
+        legend->AddEntry(l_myPlots.getHistoFromMap(colorTag).get(), ("#color[2]{" + l_tagname + "}").c_str(), "F");
+        legend->AddEntry(f_myPlots.getHistoFromMap(colorTag).get(), ("#color[4]{" + f_tagname + "}").c_str(), "F");
         legend->SetTextSize(0.024);
       } else {
         legend = std::make_unique<TLegend>(0.58, 0.80, 0.90, 0.92);
@@ -355,8 +349,10 @@ namespace {
       }
       legend->SetLineColor(10);
 
-      unsigned int maxPads = isBarrel ? 4 : 12;
+      unsigned int maxPads = canvas.GetListOfPrimitives()->GetSize();  //= isBarrel ? 4 : 12;
       for (unsigned int c = 1; c <= maxPads; c++) {
+        if (l_phaseInfo.phase() == SiPixelPI::phase::two && (c == 5 || c == 10))
+          continue;
         canvas.cd(c);
         SiPixelPI::adjustCanvasMargins(canvas.cd(c), 0.06, 0.12, 0.12, 0.05);
         legend->Draw("same");
@@ -371,14 +367,22 @@ namespace {
       ltx.SetTextSize(0.05);
       ltx.SetTextAlign(11);
 
+      int index = 0;
       for (unsigned int c = 1; c <= maxPads; c++) {
-        auto index = isBarrel ? c - 1 : c + 3;
+        if (l_phaseInfo.phase() == SiPixelPI::phase::two && (c == 5 || c == 10))
+          continue;
         canvas.cd(c);
-        ltx.DrawLatexNDC(gPad->GetLeftMargin(),
-                         1 - gPad->GetTopMargin() + 0.01,
-                         (PixelRegions::IDlabels.at(index) + " : #color[4]{" + std::to_string(std::get<0>(firstiov)) +
-                          "} vs #color[2]{" + std::to_string(std::get<0>(lastiov)) + "}")
-                             .c_str());
+
+        COUT << "c:" << c << " index:" << index << " : "
+             << PixelRegions::getIDLabels(l_phaseInfo.phase(), isBarrel)[index] << "\n";
+
+        ltx.DrawLatexNDC(
+            gPad->GetLeftMargin(),
+            1 - gPad->GetTopMargin() + 0.01,
+            (PixelRegions::getIDLabels(l_phaseInfo.phase(), isBarrel)[index] + " : #color[4]{" +
+             std::to_string(std::get<0>(firstiov)) + "} vs #color[2]{" + std::to_string(std::get<0>(lastiov)) + "}")
+                .c_str());
+        index++;
       }
 
       std::string fileName(this->m_imageFileName);
@@ -520,39 +524,47 @@ namespace {
   /************************************************
    Summary Comparison per region of SiPixelLorentzAngle between 2 IOVs
   *************************************************/
-  class SiPixelLorentzAngleByRegionComparisonBase : public cond::payloadInspector::PlotImage<SiPixelLorentzAngle> {
+  template <cond::payloadInspector::IOVMultiplicity nIOVs, int ntags>
+  class SiPixelLorentzAngleByRegionComparisonBase
+      : public cond::payloadInspector::PlotImage<SiPixelLorentzAngle, nIOVs, ntags> {
   public:
     SiPixelLorentzAngleByRegionComparisonBase()
-        : cond::payloadInspector::PlotImage<SiPixelLorentzAngle>("SiPixelLorentzAngle Comparison by Region") {}
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>> &iovs) override {
+        : cond::payloadInspector::PlotImage<SiPixelLorentzAngle, nIOVs, ntags>(
+              Form("SiPixelLorentzAngle Comparison by Region %i tag(s)", ntags)) {}
+
+    bool fill() override {
       gStyle->SetPaintTextFormat(".3f");
 
-      std::vector<std::tuple<cond::Time_t, cond::Hash>> sorted_iovs = iovs;
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
+      auto f_tagname = cond::payloadInspector::PlotBase::getTag<0>().name;
+      std::string l_tagname = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
 
-      // make absolute sure the IOVs are sortd by since
-      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
-        return std::get<0>(t1) < std::get<0>(t2);
-      });
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
 
-      auto firstiov = sorted_iovs.front();
-      auto lastiov = sorted_iovs.back();
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
+        l_tagname = cond::payloadInspector::PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
 
-      std::shared_ptr<SiPixelLorentzAngle> last_payload = fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiPixelLorentzAngle> last_payload = this->fetchPayload(std::get<1>(lastiov));
       std::map<uint32_t, float> l_LAMap_ = last_payload->getLorentzAngles();
-      std::shared_ptr<SiPixelLorentzAngle> first_payload = fetchPayload(std::get<1>(firstiov));
+      std::shared_ptr<SiPixelLorentzAngle> first_payload = this->fetchPayload(std::get<1>(firstiov));
       std::map<uint32_t, float> f_LAMap_ = first_payload->getLorentzAngles();
 
       std::string lastIOVsince = std::to_string(std::get<0>(lastiov));
       std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
 
-      TCanvas canvas("Comparison", "Comparison", 1600, 800);
-      if (f_LAMap_.size() > SiPixelPI::phase1size || l_LAMap_.size() > SiPixelPI::phase1size) {
-        SiPixelPI::displayNotSupported(canvas, std::max(f_LAMap_.size(), l_LAMap_.size()));
-        std::string fileName(this->m_imageFileName);
-        canvas.SaveAs(fileName.c_str());
-        return false;
-      }
+      SiPixelPI::PhaseInfo l_phaseInfo(l_LAMap_.size());
+      SiPixelPI::PhaseInfo f_phaseInfo(f_LAMap_.size());
 
+      TCanvas canvas("Comparison", "Comparison", 1600, 800);
       std::map<SiPixelPI::regions, std::shared_ptr<TH1F>> FirstLA_spectraByRegion;
       std::map<SiPixelPI::regions, std::shared_ptr<TH1F>> LastLA_spectraByRegion;
       std::shared_ptr<TH1F> summaryFirst;
@@ -586,16 +598,11 @@ namespace {
                                            0,
                                            LastLA_spectraByRegion.size());
 
-      const char *path_toTopologyXML = (f_LAMap_.size() == SiPixelPI::phase0size)
-                                           ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
-                                           : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
-      TrackerTopology f_tTopo =
-          StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
+      // deal with first IOV
+      const char *path_toTopologyXML = f_phaseInfo.pathToTopoXML();
 
-      bool isPhase0(false);
-      if (f_LAMap_.size() == SiPixelPI::phase0size) {
-        isPhase0 = true;
-      }
+      auto f_tTopo =
+          StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
       // -------------------------------------------------------------------
       // loop on the first LA Map
@@ -610,21 +617,19 @@ namespace {
         SiPixelPI::topolInfo t_info_fromXML;
         t_info_fromXML.init();
         DetId detid(it.first);
-        t_info_fromXML.fillGeometryInfo(detid, f_tTopo, isPhase0);
+        t_info_fromXML.fillGeometryInfo(detid, f_tTopo, f_phaseInfo.phase());
 
         SiPixelPI::regions thePart = t_info_fromXML.filterThePartition();
-        FirstLA_spectraByRegion[thePart]->Fill(it.second);
+        if (thePart != SiPixelPI::NUM_OF_REGIONS) {
+          FirstLA_spectraByRegion[thePart]->Fill(it.second);
+        }
       }  // ends loop on the vector of error transforms
 
-      path_toTopologyXML = (l_LAMap_.size() == SiPixelPI::phase0size)
-                               ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
-                               : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
-      TrackerTopology l_tTopo =
-          StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
+      // deal with last IOV
+      path_toTopologyXML = l_phaseInfo.pathToTopoXML();
 
-      if (l_LAMap_.size() == SiPixelPI::phase0size) {
-        isPhase0 = true;
-      }
+      auto l_tTopo =
+          StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
       // -------------------------------------------------------------------
       // loop on the second LA Map
@@ -639,10 +644,12 @@ namespace {
         SiPixelPI::topolInfo t_info_fromXML;
         t_info_fromXML.init();
         DetId detid(it.first);
-        t_info_fromXML.fillGeometryInfo(detid, l_tTopo, isPhase0);
+        t_info_fromXML.fillGeometryInfo(detid, l_tTopo, l_phaseInfo.phase());
 
         SiPixelPI::regions thePart = t_info_fromXML.filterThePartition();
-        LastLA_spectraByRegion[thePart]->Fill(it.second);
+        if (thePart != SiPixelPI::NUM_OF_REGIONS) {
+          LastLA_spectraByRegion[thePart]->Fill(it.second);
+        }
       }  // ends loop on the vector of error transforms
 
       // fill the summary plots
@@ -706,36 +713,37 @@ namespace {
 
       TLegend legend = TLegend(0.52, 0.80, 0.98, 0.9);
       legend.SetHeader("#mu_{H} value comparison", "C");  // option "C" allows to center the header
+      std::string l_tagOrHash, f_tagOrHash;
+      if (this->m_plotAnnotations.ntags == 2) {
+        l_tagOrHash = l_tagname;
+        f_tagOrHash = f_tagname;
+      } else {
+        l_tagOrHash = std::get<1>(lastiov);
+        f_tagOrHash = std::get<1>(firstiov);
+      }
+
       legend.AddEntry(
           summaryLast.get(),
-          ("IOV: #scale[1.2]{" + std::to_string(std::get<0>(lastiov)) + "} | #color[4]{" + std::get<1>(lastiov) + "}")
-              .c_str(),
+          ("IOV: #scale[1.2]{" + std::to_string(std::get<0>(lastiov)) + "} | #color[4]{" + l_tagOrHash + "}").c_str(),
           "F");
       legend.AddEntry(
           summaryFirst.get(),
-          ("IOV: #scale[1.2]{" + std::to_string(std::get<0>(firstiov)) + "} | #color[2]{" + std::get<1>(firstiov) + "}")
-              .c_str(),
+          ("IOV: #scale[1.2]{" + std::to_string(std::get<0>(firstiov)) + "} | #color[2]{" + f_tagOrHash + "}").c_str(),
           "F");
+
       legend.SetTextSize(0.025);
       legend.Draw("same");
 
-      std::string fileName(m_imageFileName);
+      std::string fileName(this->m_imageFileName);
       canvas.SaveAs(fileName.c_str());
       return true;
     }
   };
 
-  class SiPixelLorentzAngleByRegionComparisonSingleTag : public SiPixelLorentzAngleByRegionComparisonBase {
-  public:
-    SiPixelLorentzAngleByRegionComparisonSingleTag() : SiPixelLorentzAngleByRegionComparisonBase() {
-      setSingleIov(false);
-    }
-  };
-
-  class SiPixelLorentzAngleByRegionComparisonTwoTags : public SiPixelLorentzAngleByRegionComparisonBase {
-  public:
-    SiPixelLorentzAngleByRegionComparisonTwoTags() : SiPixelLorentzAngleByRegionComparisonBase() { setTwoTags(true); }
-  };
+  using SiPixelLorentzAngleByRegionComparisonSingleTag =
+      SiPixelLorentzAngleByRegionComparisonBase<cond::payloadInspector::MULTI_IOV, 1>;
+  using SiPixelLorentzAngleByRegionComparisonTwoTags =
+      SiPixelLorentzAngleByRegionComparisonBase<cond::payloadInspector::SINGLE_IOV, 2>;
 
   /************************************************
    occupancy style map BPix

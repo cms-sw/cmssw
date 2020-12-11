@@ -225,16 +225,15 @@ namespace {
         return false;
       }
 
-      canvas.Divide(isBarrel ? 2 : 4, isBarrel ? 2 : 3);
       canvas.cd();
 
-      const char *path_toTopologyXML = (Map_.size() == SiPixelPI::phase0size)
-                                           ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
-                                           : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      SiPixelPI::PhaseInfo phaseInfo(Map_.size());
+      const char *path_toTopologyXML = phaseInfo.pathToTopoXML();
+
       TrackerTopology tTopo =
           StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
-      auto myPlots = PixelRegions::PixelRegionContainers(&tTopo, (Map_.size() == SiPixelPI::phase1size));
+      auto myPlots = PixelRegions::PixelRegionContainers(&tTopo, phaseInfo.phase());
       myPlots.bookAll((myType == SiPixelVCalPI::t_slope) ? "SiPixel VCal slope value" : "SiPixel VCal offset value",
                       (myType == SiPixelVCalPI::t_slope) ? "SiPixel VCal slope value [ADC/VCal units]"
                                                          : "SiPixel VCal offset value [ADC]",
@@ -312,8 +311,8 @@ namespace {
 
       // trick to deal with the multi-ioved tag and two tag case at the same time
       auto theIOVs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
-      auto tagname1 = cond::payloadInspector::PlotBase::getTag<0>().name;
-      std::string tagname2 = "";
+      auto f_tagname = cond::payloadInspector::PlotBase::getTag<0>().name;
+      std::string l_tagname = "";
       auto firstiov = theIOVs.front();
       std::tuple<cond::Time_t, cond::Hash> lastiov;
 
@@ -322,7 +321,7 @@ namespace {
 
       if (this->m_plotAnnotations.ntags == 2) {
         auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
-        tagname2 = cond::payloadInspector::PlotBase::getTag<1>().name;
+        l_tagname = cond::payloadInspector::PlotBase::getTag<1>().name;
         lastiov = tag2iovs.front();
       } else {
         lastiov = theIOVs.back();
@@ -362,19 +361,19 @@ namespace {
         return false;
       }
 
-      canvas.Divide(isBarrel ? 2 : 4, isBarrel ? 2 : 3);
       canvas.cd();
+
+      SiPixelPI::PhaseInfo l_phaseInfo(l_Map_.size());
+      SiPixelPI::PhaseInfo f_phaseInfo(f_Map_.size());
 
       // deal with last IOV
 
-      const char *path_toTopologyXML = (l_Map_.size() == SiPixelPI::phase0size)
-                                           ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
-                                           : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      const char *path_toTopologyXML = l_phaseInfo.pathToTopoXML();
 
       auto l_tTopo =
           StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
-      auto l_myPlots = PixelRegions::PixelRegionContainers(&l_tTopo, (l_Map_.size() == SiPixelPI::phase1size));
+      auto l_myPlots = PixelRegions::PixelRegionContainers(&l_tTopo, l_phaseInfo.phase());
       l_myPlots.bookAll(
           fmt::sprintf("SiPixel VCal %s,last", (myType == SiPixelVCalPI::t_slope ? "slope" : "offset")),
           fmt::sprintf("SiPixel VCal %s", (myType == SiPixelVCalPI::t_slope ? " slope [ADC/VCal]" : " offset [ADC]")),
@@ -392,14 +391,12 @@ namespace {
 
       // deal with first IOV
 
-      path_toTopologyXML = (f_Map_.size() == SiPixelPI::phase0size)
-                               ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
-                               : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      path_toTopologyXML = f_phaseInfo.pathToTopoXML();
 
       auto f_tTopo =
           StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
-      auto f_myPlots = PixelRegions::PixelRegionContainers(&f_tTopo, (f_Map_.size() == SiPixelPI::phase1size));
+      auto f_myPlots = PixelRegions::PixelRegionContainers(&f_tTopo, f_phaseInfo.phase());
       f_myPlots.bookAll(
           fmt::sprintf("SiPixel VCal %s,first", (myType == SiPixelVCalPI::t_slope ? "slope" : "offset")),
           fmt::sprintf("SiPixel VCal %s", (myType == SiPixelVCalPI::t_slope ? " slope [ADC/VCal]" : " offset [ADC]")),
@@ -424,8 +421,8 @@ namespace {
       std::unique_ptr<TLegend> legend;
       if (this->m_plotAnnotations.ntags == 2) {
         legend = std::make_unique<TLegend>(0.36, 0.86, 0.94, 0.92);
-        legend->AddEntry(l_myPlots.getHistoFromMap(colorTag).get(), ("#color[2]{" + tagname2 + "}").c_str(), "F");
-        legend->AddEntry(f_myPlots.getHistoFromMap(colorTag).get(), ("#color[4]{" + tagname1 + "}").c_str(), "F");
+        legend->AddEntry(l_myPlots.getHistoFromMap(colorTag).get(), ("#color[2]{" + l_tagname + "}").c_str(), "F");
+        legend->AddEntry(f_myPlots.getHistoFromMap(colorTag).get(), ("#color[4]{" + f_tagname + "}").c_str(), "F");
         legend->SetTextSize(0.024);
       } else {
         legend = std::make_unique<TLegend>(0.58, 0.80, 0.90, 0.92);

@@ -1,9 +1,7 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
-<use name="FWCore/PluginManager"/>
 <use name="FWCore/MessageLogger"/>
 <use name="DataFormats/FEDRawData"/>
-<use name="CondFormats/SiPixelObjects"/>
 <use name="EventFilter/SiPixelRawToDigi"/>
 <use name="CommonTools/UtilAlgos"/>
 <use name="root"/>

@@ -35,7 +35,6 @@
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 
 #include "TrackerGeometryCompare.h"
 #include "TFile.h"
@@ -49,14 +48,19 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-
 #include <iostream>
 #include <fstream>
 #include <sstream>
 
 TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg)
-    : referenceTracker(nullptr),
+    : cpvTokenDDD_(esConsumes()),
+      cpvTokenDD4Hep_(esConsumes()),
+      topoToken_(esConsumes()),
+      geomDetToken_(esConsumes()),
+      ptpToken_(esConsumes()),
+      pixQualityToken_(esConsumes()),
+      stripQualityToken_(esConsumes()),
+      referenceTracker(nullptr),
       dummyTracker(nullptr),
       currentTracker(nullptr),
       theSurveyIndex(0),
@@ -219,9 +223,7 @@ void TrackerGeometryCompare::endJob() {
 void TrackerGeometryCompare::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
   if (firstEvent_) {
     //Retrieve tracker topology from geometry
-    edm::ESHandle<TrackerTopology> tTopoHandle;
-    iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-    const TrackerTopology* const tTopo = tTopoHandle.product();
+    const TrackerTopology* const tTopo = &iSetup.getData(topoToken_);
 
     //upload the ROOT geometries
     createROOTGeometry(iSetup);
@@ -273,9 +275,7 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup) {
   double inputAlpha1, inputBeta1, inputGamma1, inputAlpha2, inputBeta2, inputGamma2;
 
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const TrackerTopology* const tTopo = &iSetup.getData(topoToken_);
 
   // Fill module IDs from file into a list
   moduleListFile_.open(moduleListName_);
@@ -360,20 +360,17 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup) {
 
   //accessing the initial geometry
   if (!fromDD4hep_) {
-    edm::ESTransientHandle<DDCompactView> cpv;
-    iSetup.get<IdealGeometryRecord>().get(cpv);
+    edm::ESTransientHandle<DDCompactView> cpv = iSetup.getTransientHandle(cpvTokenDDD_);
   } else {
-    edm::ESTransientHandle<cms::DDCompactView> cpv;
-    iSetup.get<IdealGeometryRecord>().get(cpv);
+    edm::ESTransientHandle<cms::DDCompactView> cpv = iSetup.getTransientHandle(cpvTokenDD4Hep_);
   }
-  edm::ESHandle<GeometricDet> theGeometricDet;
-  iSetup.get<IdealGeometryRecord>().get(theGeometricDet);
-  edm::ESHandle<PTrackerParameters> ptp;
-  iSetup.get<PTrackerParametersRcd>().get(ptp);
+
+  const GeometricDet* theGeometricDet = &iSetup.getData(geomDetToken_);
+  const PTrackerParameters* ptp = &iSetup.getData(ptpToken_);
   TrackerGeomBuilderFromGeometricDet trackerBuilder;
 
   //reference tracker
-  TrackerGeometry* theRefTracker = trackerBuilder.build(&*theGeometricDet, *ptp, tTopo);
+  TrackerGeometry* theRefTracker = trackerBuilder.build(theGeometricDet, *ptp, tTopo);
   if (inputFilename1_ != "IDEAL") {
     GeometryAligner aligner1;
     aligner1.applyAlignments<TrackerGeometry>(
@@ -797,10 +794,8 @@ void TrackerGeometryCompare::fillTree(Alignable* refAli,
                                       const TrackerTopology* tTopo,
                                       const edm::EventSetup& iSetup) {
   //Get bad modules
-  edm::ESHandle<SiPixelQuality> SiPixelModules;
-  iSetup.get<SiPixelQualityRcd>().get(SiPixelModules);
-  edm::ESHandle<SiStripQuality> SiStripModules;
-  iSetup.get<SiStripQualityRcd>().get(SiStripModules);
+  const SiPixelQuality* SiPixelModules = &iSetup.getData(pixQualityToken_);
+  const SiStripQuality* SiStripModules = &iSetup.getData(stripQualityToken_);
 
   id_ = refAli->id();
 

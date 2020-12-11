@@ -53,6 +53,8 @@ namespace edm {
       friend class edm::WorkerT;
 
       EDProducerAdaptorBase();
+      EDProducerAdaptorBase(const EDProducerAdaptorBase&) = delete;                   // stop default
+      const EDProducerAdaptorBase& operator=(const EDProducerAdaptorBase&) = delete;  // stop default
 
       // ---------- const member functions ---------------------
 
@@ -66,22 +68,16 @@ namespace edm {
       using ProducingModuleAdaptorBase<EDProducerBase>::commit;
 
     private:
-      EDProducerAdaptorBase(const EDProducerAdaptorBase&) = delete;  // stop default
+      bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
 
-      const EDProducerAdaptorBase& operator=(const EDProducerAdaptorBase&) = delete;  // stop default
-
-      bool doEvent(EventPrincipal const&, EventSetupImpl const&, ActivityRegistry*, ModuleCallingContext const*);
-
-      void doAcquire(EventPrincipal const&,
-                     EventSetupImpl const&,
+      void doAcquire(EventTransitionInfo const&,
                      ActivityRegistry*,
                      ModuleCallingContext const*,
                      WaitingTaskWithArenaHolder&);
 
       //For now this is a placeholder
-      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask* iTask,
-                                                    ModuleCallingContext const& iModuleCallingContext,
-                                                    Principal const& iPrincipal) const {}
+      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask*, ModuleCallingContext const&, Principal const&) const {
+      }
     };
   }  // namespace stream
 }  // namespace edm

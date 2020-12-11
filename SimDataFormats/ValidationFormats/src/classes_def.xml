@@ -170,7 +170,6 @@
   
   <class name="MaterialAccountingTrack" ClassVersion="10">
    <version ClassVersion="10" checksum="3618055651"/>
-    <field name="m_current_volume"  transient="true"/>
     <field name="m_detector"        transient="true"/>
   </class>
   <class name="std::vector<MaterialAccountingTrack>"/>

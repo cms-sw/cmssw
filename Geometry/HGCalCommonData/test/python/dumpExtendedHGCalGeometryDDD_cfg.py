@@ -1,13 +1,16 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
+
+process = cms.Process('SIM',Phase2C9)
 
 process = cms.Process("GEODUMP")
-process.load("Configuration.Geometry.GeometryExtended2026D46_cff")
+process.load("Configuration.Geometry.GeometryExtended2026D49_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.categories.append('G4cerr')
-    process.MessageLogger.categories.append('G4cout')
-    process.MessageLogger.categories.append('HGCalGeom')
+    process.MessageLogger.G4cerr=dict()
+    process.MessageLogger.G4cout=dict()
+    process.MessageLogger.HGCalGeom=dict()
 
 process.source = cms.Source("EmptySource")
 

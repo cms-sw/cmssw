@@ -22,6 +22,9 @@ namespace edm {
 
   class MessageLoggerQ {
   public:
+    MessageLoggerQ(MessageLoggerQ const&) = delete;
+    void operator=(MessageLoggerQ const&) = delete;
+
     // --- enumerate types of messages that can be enqueued:
     enum OpCode   // abbrev's used hereinafter
     { END_THREAD  // END
@@ -78,10 +81,6 @@ namespace edm {
     // ---  place an item onto the queue, or execute the command directly
     static void simpleCommand(OpCode opcode, void* operand);
     static void handshakedCommand(OpCode opcode, void* operand, std::string const& commandMnemonic);
-
-    // --- no copying:
-    MessageLoggerQ(MessageLoggerQ const&) = delete;
-    void operator=(MessageLoggerQ const&) = delete;
 
     // --- data:
     CMS_THREAD_SAFE static std::shared_ptr<edm::service::AbstractMLscribe> mlscribe_ptr;

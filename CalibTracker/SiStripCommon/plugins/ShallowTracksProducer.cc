@@ -1,4 +1,4 @@
-#include "CalibTracker/SiStripCommon/interface/ShallowTracksProducer.h"
+#include "ShallowTracksProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -121,7 +121,7 @@ void ShallowTracksProducer::produce(edm::StreamID, edm::Event& iEvent, const edm
     algo.push_back((int)track.algo());
   }
 
-  iEvent.emplace(numberPut_, std::move(number));
+  iEvent.emplace(numberPut_, number);
   iEvent.emplace(chi2Put_, std::move(chi2));
   iEvent.emplace(ndofPut_, std::move(ndof));
   iEvent.emplace(chi2ndofPut_, std::move(chi2ndof));

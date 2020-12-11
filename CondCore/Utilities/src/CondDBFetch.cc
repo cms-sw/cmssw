@@ -242,7 +242,6 @@ namespace cond {
       FETCH_PAYLOAD_CASE(PCaloGeometry)
       FETCH_PAYLOAD_CASE(HcalParameters)
       FETCH_PAYLOAD_CASE(PGeometricDet)
-      FETCH_PAYLOAD_CASE(PGeometricDetExtra)
       FETCH_PAYLOAD_CASE(PTrackerParameters)
       FETCH_PAYLOAD_CASE(PHGCalParameters)
       //FETCH_PAYLOAD_CASE( PerformancePayload )
@@ -313,6 +312,7 @@ namespace cond {
       FETCH_PAYLOAD_CASE(EcalCondObjectContainer<float>)
       FETCH_PAYLOAD_CASE(MagFieldConfig)
       FETCH_PAYLOAD_CASE(L1TGlobalPrescalesVetos)
+      FETCH_PAYLOAD_CASE(L1TGlobalPrescalesVetosFract)
 
       //
       if (payloadTypeName == "PhysicsTools::Calibration::Histogram3D<double,double,double,double>") {

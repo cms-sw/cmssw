@@ -25,7 +25,7 @@
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
-#include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
+#include "DataFormats/TrackerCommon/interface/SiStripSubStructure.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 
 using namespace std;

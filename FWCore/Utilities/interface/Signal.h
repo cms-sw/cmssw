@@ -40,6 +40,8 @@ namespace edm {
       Signal() = default;
       ~Signal() = default;
       Signal(Signal&&) = default;
+      Signal(const Signal&) = delete;
+      Signal& operator=(const Signal&) = delete;
 
       // ---------- const member functions ---------------------
       template <typename... Args>
@@ -69,10 +71,6 @@ namespace edm {
       }
 
     private:
-      Signal(const Signal&) = delete;  // stop default
-
-      const Signal& operator=(const Signal&) = delete;  // stop default
-
       // ---------- member data --------------------------------
       slot_list_type m_slots;
     };

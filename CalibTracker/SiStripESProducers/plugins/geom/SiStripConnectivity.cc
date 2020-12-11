@@ -18,13 +18,13 @@ public:
 
 private:
   struct FecTokens {
-    FecTokens(edm::ESConsumesCollector&& cc) { cc.setConsumes(fedCabling); }
-    edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> fedCabling;
+    FecTokens(edm::ESConsumesCollector&& cc) : fedCabling(cc.consumes()) {}
+    const edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> fedCabling;
   };
   struct DetTokens {
-    DetTokens(edm::ESConsumesCollector&& cc) { cc.setConsumes(fedCabling).setConsumes(tTopo); }
-    edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> fedCabling;
-    edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopo;
+    DetTokens(edm::ESConsumesCollector&& cc) : fedCabling(cc.consumes()), tTopo(cc.consumes()) {}
+    const edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> fedCabling;
+    const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopo;
   };
   const FecTokens fecTokens_;
   const DetTokens detTokens_;

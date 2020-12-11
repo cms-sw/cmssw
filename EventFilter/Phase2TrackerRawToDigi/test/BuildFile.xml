@@ -1,7 +1,4 @@
 <library file="plugins/*.cc" name="testEventFilterPhase2TrackerRawToDigiPlugins">
-  <use name="CalibTracker/Records"/>
-  <use name="CondFormats/DataRecord"/>
-  <use name="CondFormats/SiStripObjects"/>
   <use name="DataFormats/Common"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>

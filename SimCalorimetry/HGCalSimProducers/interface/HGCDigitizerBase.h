@@ -144,7 +144,8 @@ protected:
   std::string doseMapFile_;
 
   //noise maps (used if scaleByDose=True)
-  HGCalSiNoiseMap scal_;
+  HGCalSiNoiseMap<HGCSiliconDetId> scal_;
+  HGCalSiNoiseMap<HFNoseDetId> scalHFNose_;
 
   //front-end electronics model
   std::unique_ptr<HGCFEElectronics<DFr> > myFEelectronics_;

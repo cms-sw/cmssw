@@ -8,7 +8,6 @@
 #include "DataFormats/HcalDigi/interface/HcalQIESample.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalTTPUnpacker.h"
-#include "EventFilter/HcalRawToDigi/plugins/HcalRawToDigi.h"
 
 //#define DebugLog
 

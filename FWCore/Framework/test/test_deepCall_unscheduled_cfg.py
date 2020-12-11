@@ -23,13 +23,11 @@ process.Tracer = cms.Service('Tracer',
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
-    destinations   = cms.untracked.vstring('cout',
-                                           'cerr'
-    ),
-    categories = cms.untracked.vstring(
-        'Tracer'
+    cerr = cms.untracked.PSet(
+      enableStatistics = cms.untracked.bool(False)
     ),
     cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
         default = cms.untracked.PSet (
             limit = cms.untracked.int32(0)
         ),
@@ -59,7 +57,7 @@ process.result4 = cms.EDProducer("AddIntsProducer",
 
 process.get = cms.EDAnalyzer("IntTestAnalyzer",
     valueMustMatch = cms.untracked.int32(4),
-    moduleLabel = cms.untracked.string('result4')
+    moduleLabel = cms.untracked.InputTag('result4')
 )
 
 process.t = cms.Task(process.one, process.result1, process.result2, process.result4)

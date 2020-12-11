@@ -1,7 +1,5 @@
 <use name="DataFormats/CaloRecHit"/>
 <use name="DataFormats/Common"/>
-<use name="DataFormats/EgammaCandidates "/>
-<use name="DataFormats/EgammaReco "/>
 <use name="DataFormats/MuonReco"/>
 <use name="DataFormats/TrackReco"/>
 <use name="DataFormats/TrajectorySeed"/>
@@ -9,9 +7,16 @@
 <use name="DataFormats/Candidate"/>
 <use name="FWCore/Utilities"/>
 <use name="Geometry/CaloGeometry"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/EgammaCandidates"/>
+<use name="DataFormats/EgammaReco"/>
+<use name="DataFormats/GeometryVector"/>
+<use name="DataFormats/GsfTrackReco"/>
+<use name="DataFormats/Math"/>
+<use name="DataFormats/TrackingRecHit"/>
+<use name="FWCore/MessageLogger"/>
 <use name="rootcore"/>
 <use name="rootmath"/>
-<use name="vdt_headers"/>
 <flags LCG_DICT_HEADER="classes_1.h classes_2.h"/>
 <flags LCG_DICT_XML="classes_def_1.xml classes_def_2.xml"/>
 <export>
