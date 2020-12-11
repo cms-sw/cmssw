@@ -2540,6 +2540,7 @@ def create_hgcalTrackstersPlotter(files, collection = 'ticlTrackstersMerge', nam
                     "Ingoing links Layer Number", 
                     "Outgoing links vs Layer Number",
                     "Raw Energy vs Regressed Energy",
+                    "Raw Energy vs Regressed Energy 1plus LC",
                     "Relative Delta Energy (O-I)_I vs Layer Number (I)"]
   grouped = {"cosAngle Beta": PlotGroup("cosAngle_Beta_per_layer",[],ncols=10), "cosAngle Beta Weighted": PlotGroup("cosAngle_Beta_Weighted_per_layer",[],ncols=10)}
   groupingFlag = " on Layer "
