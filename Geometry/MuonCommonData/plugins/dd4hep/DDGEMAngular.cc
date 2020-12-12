@@ -15,8 +15,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   float startAngle = args.value<float>("startAngle");
   float stepAngle = args.value<float>("stepAngle");
   int invert = args.value<int>("invert");
-  double rPos = args.value<double>("rPosition");
-  double zoffset = args.value<double>("zoffset");
+  double rPos = args.value<double>("rPosition") / dd4hep::mm;
+  double zoffset = args.value<double>("zoffset") / dd4hep::mm;
   int n = args.value<int>("n");
   int startCopyNo = args.value<int>("startCopyNo");
   int incrCopyNo = args.value<int>("incrCopyNo");

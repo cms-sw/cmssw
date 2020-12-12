@@ -14,7 +14,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   int incrCopyNo = args.find("incrCopyNo") ? args.value<int>("incrCopyNo") : 1;
   float startAngle = args.value<float>("startAngle");
   float stepAngle = args.value<float>("stepAngle");
-  float zoffset = args.value<float>("zoffset");
+  float zoffset = args.value<float>("zoffset") / dd4hep::mm;
   std::string rotns = args.value<std::string>("RotNameSpace");
   dd4hep::Volume mother = ns.volume(args.parentName());
   std::string childName = args.value<std::string>("ChildName");
