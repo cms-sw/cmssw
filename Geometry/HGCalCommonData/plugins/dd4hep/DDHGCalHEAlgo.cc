@@ -162,7 +162,13 @@ struct HGCalHEAlgo {
     edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: NameSpace " << ns.name();
 #endif
 
-    waferType_ = std::make_unique<HGCalWaferType>(rad100to200_, rad200to300_, (waferSize_ + waferSepar_), (zMinRadPar_ / dd4hep::mm), choiceType_, nCutRadPar_, fracAreaMin_);
+    waferType_ = std::make_unique<HGCalWaferType>(rad100to200_,
+                                                  rad200to300_,
+                                                  (waferSize_ + waferSepar_),
+                                                  (zMinRadPar_ / dd4hep::mm),
+                                                  choiceType_,
+                                                  nCutRadPar_,
+                                                  fracAreaMin_);
 
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "==>> Constructing DDHGCalHEAlgo...";

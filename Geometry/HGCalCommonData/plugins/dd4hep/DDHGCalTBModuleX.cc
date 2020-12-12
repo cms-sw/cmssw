@@ -216,7 +216,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << names[i] << " of thickness " << layerThick[i]
                                   << " filled with " << materials[i] << " first copy number " << copyNumber[i];
 #endif
-  auto blockThick = args.value<std::vector<double> >("BlockThick");  // Thickness of each section
+  auto blockThick = args.value<std::vector<double> >("BlockThick");          // Thickness of each section
   const auto& inOut = args.value<int>("InOut");                              // Number of inner+outer parts
   const auto& layerFrontIn = args.value<std::vector<int> >("LayerFrontIn");  // First layer index (inner) in block
   const auto& layerBackIn = args.value<std::vector<int> >("LayerBackIn");    // Last layer index (inner) in block
