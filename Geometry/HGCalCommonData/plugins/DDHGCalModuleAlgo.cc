@@ -182,7 +182,9 @@ void DDHGCalModuleAlgo::constructLayers(const DDLogicalPart& module, DDCompactVi
 
       std::string name = "HGCal" + names_[ii] + std::to_string(copy);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "DDHGCalModuleAlgo: Layer " << ly << ":" << ii << " Front " << zi << ", " << routF << " Back " << zo << ", " << rinB << " superlayer thickness " << layerThick_[i];
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalModuleAlgo: Layer " << ly << ":" << ii << " Front " << zi << ", "
+                                    << routF << " Back " << zo << ", " << rinB << " superlayer thickness "
+                                    << layerThick_[i];
 #endif
       DDName matName(DDSplit(materials_[ii]).first, DDSplit(materials_[ii]).second);
       DDMaterial matter(matName);
@@ -223,7 +225,8 @@ void DDHGCalModuleAlgo::constructLayers(const DDLogicalPart& module, DDCompactVi
       cpv.position(glog, module, copy, r1, rot);
       ++copyNumber_[ii];
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "DDHGCalModuleAlgo: " << glog.name() << " number " << copy << " positioned in " << module.name() << " at " << r1 << " with " << rot;
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalModuleAlgo: " << glog.name() << " number " << copy << " positioned in "
+                                    << module.name() << " at " << r1 << " with " << rot;
 #endif
       zz += (0.5 * thick_[ii]);
     }  // End of loop over layers in a block
