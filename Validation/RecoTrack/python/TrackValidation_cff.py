@@ -708,8 +708,8 @@ tracksValidation = cms.Sequence(
     tracksPreValidation
 )
 
-from Configuration.Eras.Modifier_run3_common_cff import run3_common
-run3_common.toReplaceWith(tracksValidation, cms.Sequence(tracksValidation.copy()+trackValidatorJetCore))
+from Configuration.ProcessModifiers.seedingDeepCore_cff import seedingDeepCore
+seedingDeepCore.toReplaceWith(tracksValidation, cms.Sequence(tracksValidation.copy()+trackValidatorJetCore))
 
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 #tracksValidationPhase2 = cms.Sequence(tracksValidation+trackValidatorTPEtaGreater2p7) # it does not work
@@ -911,7 +911,7 @@ trackValidatorsTrackingOnly.replace(trackValidatorConversionStandalone, trackVal
 trackValidatorsTrackingOnly.remove(trackValidatorGsfTracksStandalone)
 trackValidatorsTrackingOnly.replace(trackValidatorBHadronStandalone, trackValidatorBHadronTrackingOnly)
 
-run3_common.toReplaceWith(trackValidatorsTrackingOnly, cms.Sequence(
+seedingDeepCore.toReplaceWith(trackValidatorsTrackingOnly, cms.Sequence(
             trackValidatorsTrackingOnly.copy()+
             trackValidatorJetCore+
             trackValidatorJetCoreSeedingTrackingOnly
