@@ -20,4 +20,18 @@
     <field name="transientMap_" transient="true"/>
   </class>
   <class name="edm::Wrapper<reco::VertexRecoToSimCollection>" />
+
+  <class name="hgcal::SimToRecoCollection" >
+   <field name="transientMap_" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<hgcal::SimToRecoCollection>" />
+  <class name="hgcal::RecoToSimCollection" >
+   <field name="transientMap_" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<hgcal::RecoToSimCollection>" />
+
+  <class name="edm::helpers::KeyVal<edm::RefProd<vector<CaloParticle> >,edm::RefProd<vector<reco::CaloCluster> > >" />
+  <class name="edm::helpers::KeyVal<edm::RefProd<vector<reco::CaloCluster> >,edm::RefProd<vector<CaloParticle> > >" />
+  <class name="map<unsigned int,vector<pair<unsigned int,pair<float,float> > > >" />
+  <class name="vector<pair<unsigned int,pair<float,float> > >" />
 </lcgdict>

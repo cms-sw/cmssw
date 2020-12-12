@@ -23,7 +23,7 @@
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalClusteringAlgoBase.h"
-#include "SimDataFormats/Associations/interface/LayerClusterToCaloParticleAssociator.h"
+#include "SimDataFormats/Associations/interface/LayerClusterToCaloParticleAssociatorBaseImpl.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -178,17 +178,17 @@ public:
                          std::vector<int> thicknesses,
                          std::string pathtomatbudfile);
   void bookMultiClusterHistos(DQMStore::IBooker& ibook, Histograms& histograms, unsigned int layers);
-  void layerClusters_to_CaloParticles(
-      const Histograms& histograms,
-      edm::Handle<reco::CaloClusterCollection> clusterHandle,
-      const reco::CaloClusterCollection& clusters,
-      edm::Handle<std::vector<CaloParticle>> caloParticleHandle,
-      std::vector<CaloParticle> const& cP,
-      std::vector<size_t> const& cPIndices,
-      std::vector<size_t> const& cPSelectedIndices,
-      std::unordered_map<DetId, const HGCRecHit*> const&,
-      unsigned int layers,
-      const edm::Handle<hgcal::LayerClusterToCaloParticleAssociator>& LCAssocByEnergyScoreHandle) const;
+  void layerClusters_to_CaloParticles(const Histograms& histograms,
+                                      edm::Handle<reco::CaloClusterCollection> clusterHandle,
+                                      const reco::CaloClusterCollection& clusters,
+                                      edm::Handle<std::vector<CaloParticle>> caloParticleHandle,
+                                      std::vector<CaloParticle> const& cP,
+                                      std::vector<size_t> const& cPIndices,
+                                      std::vector<size_t> const& cPSelectedIndices,
+                                      std::unordered_map<DetId, const HGCRecHit*> const&,
+                                      unsigned int layers,
+                                      const hgcal::RecoToSimCollection& recSimColl,
+                                      const hgcal::SimToRecoCollection& simRecColl) const;
   void multiClusters_to_CaloParticles(const Histograms& histograms,
                                       int count,
                                       const std::vector<reco::HGCalMultiCluster>& multiClusters,
@@ -205,21 +205,21 @@ public:
                                 unsigned int layers,
                                 std::unordered_map<DetId, const HGCRecHit*> const&) const;
   void fill_cluster_histos(const Histograms& histograms, int count, const reco::CaloCluster& cluster) const;
-  void fill_generic_cluster_histos(
-      const Histograms& histograms,
-      int count,
-      edm::Handle<reco::CaloClusterCollection> clusterHandle,
-      const reco::CaloClusterCollection& clusters,
-      const Density& densities,
-      edm::Handle<std::vector<CaloParticle>> caloParticleHandle,
-      std::vector<CaloParticle> const& cP,
-      std::vector<size_t> const& cPIndices,
-      std::vector<size_t> const& cPSelectedIndices,
-      std::unordered_map<DetId, const HGCRecHit*> const&,
-      std::map<double, double> cummatbudg,
-      unsigned int layers,
-      std::vector<int> thicknesses,
-      edm::Handle<hgcal::LayerClusterToCaloParticleAssociator>& LCAssocByEnergyScoreHandle) const;
+  void fill_generic_cluster_histos(const Histograms& histograms,
+                                   int count,
+                                   edm::Handle<reco::CaloClusterCollection> clusterHandle,
+                                   const reco::CaloClusterCollection& clusters,
+                                   const Density& densities,
+                                   edm::Handle<std::vector<CaloParticle>> caloParticleHandle,
+                                   std::vector<CaloParticle> const& cP,
+                                   std::vector<size_t> const& cPIndices,
+                                   std::vector<size_t> const& cPSelectedIndices,
+                                   std::unordered_map<DetId, const HGCRecHit*> const&,
+                                   std::map<double, double> cummatbudg,
+                                   unsigned int layers,
+                                   std::vector<int> thicknesses,
+                                   const hgcal::RecoToSimCollection& recSimColl,
+                                   const hgcal::SimToRecoCollection& simRecColl) const;
   void fill_multi_cluster_histos(const Histograms& histograms,
                                  int count,
                                  const std::vector<reco::HGCalMultiCluster>& multiClusters,
