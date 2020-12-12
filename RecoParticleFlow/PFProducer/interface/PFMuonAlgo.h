@@ -16,7 +16,7 @@ class PFMuonAlgo {
 
 public:
   /// constructor
-  PFMuonAlgo(edm::ParameterSet const&, bool postMuonCleaning = false);
+  PFMuonAlgo(edm::ParameterSet const&, bool postMuonCleaning);
 
   static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
 
@@ -51,7 +51,7 @@ public:
   void setInputsForCleaning(reco::VertexCollection const&);
   void postClean(reco::PFCandidateCollection*);
   void addMissingMuons(edm::Handle<reco::MuonCollection>, reco::PFCandidateCollection* cands);
-  void setVetoHandle(const edm::Handle<reco::PFCandidateCollection>& vetoes) { vetoHandle_ = vetoes; }
+  void setVetoes(const reco::PFCandidateCollection& vetoes) { vetoes_ = &vetoes; }
 
   std::unique_ptr<reco::PFCandidateCollection> transferCleanedCosmicCandidates() {
     return std::move(pfCosmicsMuonCleanedCandidates_);
@@ -81,7 +81,7 @@ public:
                                                                double maxDPtOPt = 1e+9,
                                                                bool includeSA = false);
 
-  static int muAssocToTrack(const reco::TrackRef& trackref, const edm::Handle<reco::MuonCollection>& muonh);
+  static int muAssocToTrack(const reco::TrackRef& trackref, const reco::MuonCollection& muons);
 
 private:
   //Give the track with the smallest Dpt/Pt
@@ -117,7 +117,7 @@ private:
 
   std::vector<unsigned int> maskedIndices_;
 
-  edm::Handle<reco::PFCandidateCollection> vetoHandle_;
+  const reco::PFCandidateCollection* vetoes_ = nullptr;
 
   //////////////////////////////////////////////////////////////////////////////////////
   const reco::VertexCollection* vertices_;

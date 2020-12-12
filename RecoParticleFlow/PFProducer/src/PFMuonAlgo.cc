@@ -476,11 +476,11 @@ void PFMuonAlgo::printMuonProperties(const reco::MuonRef& muonRef) {
   return;
 }
 
-int PFMuonAlgo::muAssocToTrack(const reco::TrackRef& trackref, const edm::Handle<reco::MuonCollection>& muonh) {
-  auto muon = std::find_if(muonh->cbegin(), muonh->cend(), [&](const reco::Muon& m) {
+int PFMuonAlgo::muAssocToTrack(const reco::TrackRef& trackref, const reco::MuonCollection& muons) {
+  auto muon = std::find_if(muons.cbegin(), muons.cend(), [&](const reco::Muon& m) {
     return (m.track().isNonnull() && m.track() == trackref);
   });
-  return (muon != muonh->cend() ? std::distance(muonh->cbegin(), muon) : -1);
+  return (muon != muons.cend() ? std::distance(muons.cbegin(), muon) : -1);
 }
 
 std::vector<reco::Muon::MuonTrackTypePair> PFMuonAlgo::muonTracks(const reco::MuonRef& muon,
@@ -733,10 +733,9 @@ void PFMuonAlgo::addMissingMuons(edm::Handle<reco::MuonCollection> muons, reco::
   // do not recover muons if they are in the veto list
   typedef std::pair<edm::ProductID, unsigned> TrackProdIDKey;
   std::vector<TrackProdIDKey> vetoed;
-  if (vetoHandle_.isValid()) {
-    const auto& vetoes = *vetoHandle_;
-    for (const auto& veto : vetoes) {
-      if (!veto.trackRef().isNonnull())
+  if (vetoes_) {
+    for (const auto& veto : *vetoes_) {
+      if (veto.trackRef().isNull())
         continue;
       vetoed.emplace_back(veto.trackRef().id(), veto.trackRef().key());
     }

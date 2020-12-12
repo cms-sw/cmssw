@@ -46,7 +46,6 @@ namespace pflow {
               vetoPFCandidatesSrc_ =
                   sumes.consumes<reco::PFCandidateCollection>(conf.getParameter<edm::InputTag>("vetoSrc"));
               break;
-            default:;
           }  // switch
         }    // vetoEndcap_
       }
@@ -75,27 +74,33 @@ namespace pflow {
       std::vector<TrackProdIDKey> vetoed;
       edm::ProductID prodIdForVeto;
       if (vetoEndcap_) {
-        if (vetoMode_ == pfRecTrackCollection) {
-          const auto& vetoes = e.get(vetoPFTracksSrc_);
-          for (const auto& veto : vetoes) {
-            vetoed.emplace_back(veto.trackRef().id(), veto.trackRef().key());
+        switch (vetoMode_) {
+          case pfRecTrackCollection: {
+            const auto& vetoes = e.get(vetoPFTracksSrc_);
+            for (const auto& veto : vetoes) {
+              vetoed.emplace_back(veto.trackRef().id(), veto.trackRef().key());
+            }
+            break;
           }
-        } else if (vetoMode_ == ticlSeedingRegion) {
-          const auto& vetoes = e.get(vetoTICLSeedingSrc_);
-          auto tracksH = e.getHandle(tracksSrc_);
-          for (const auto& veto : vetoes) {
-            assert(veto.collectionID == tracksH.id());
-            reco::TrackRef trkref = reco::TrackRef(tracksH, veto.index);
-            vetoed.emplace_back(trkref.id(), trkref.key());
+          case ticlSeedingRegion: {
+            const auto& vetoes = e.get(vetoTICLSeedingSrc_);
+            auto tracksH = e.getHandle(tracksSrc_);
+            for (const auto& veto : vetoes) {
+              assert(veto.collectionID == tracksH.id());
+              vetoed.emplace_back(tracksH.id(), veto.index);  // track prod id and key
+            }
+            break;
           }
-        } else if (vetoMode_ == pfCandidateCollection) {
-          const auto& vetoes = e.get(vetoPFCandidatesSrc_);
-          for (const auto& veto : vetoes) {
-            if (!veto.trackRef().isNonnull())
-              continue;
-            vetoed.emplace_back(veto.trackRef().id(), veto.trackRef().key());
+          case pfCandidateCollection: {
+            const auto& vetoes = e.get(vetoPFCandidatesSrc_);
+            for (const auto& veto : vetoes) {
+              if (veto.trackRef().isNull())
+                continue;
+              vetoed.emplace_back(veto.trackRef().id(), veto.trackRef().key());
+            }
+            break;
           }
-        }
+        }  // switch
         std::sort(vetoed.begin(), vetoed.end());
       }
       //
