@@ -3,6 +3,7 @@
 #include "FWCore/Utilities/interface/EDPutToken.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/EmptyGroupDescription.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperCluster.h"
@@ -245,7 +246,7 @@ void PFProducer::produce(Event& iEvent, const EventSetup& iSetup) {
     pfAlgo_.setMuonHandle(iEvent.getHandle(inputTagMuons_));
     if (vetoEndcap_) {
       auto& muAlgo = *pfAlgo_.getPFMuonAlgo();
-      muAlgo.setVetoHandle(iEvent.getHandle(inputTagVetoes_));
+      muAlgo.setVetoes(iEvent.get(inputTagVetoes_));
     }
   }
 
@@ -329,8 +330,10 @@ void PFProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   desc.add<bool>("postMuonCleaning", true);
 
   // vetoEndcap flag and pf candidates for vetoes
-  desc.add<bool>("vetoEndcap", false);
-  desc.add<edm::InputTag>("vetoes", edm::InputTag("pfTICL"));
+  edm::ParameterSetDescription emptyDescription;
+  desc.ifValue(edm::ParameterDescription<bool>("vetoEndcap", false, true),
+               true >> edm::ParameterDescription<edm::InputTag>("vetoes", {"pfTICL"}, true) or
+                   false >> edm::EmptyGroupDescription());
 
   // Vertices label
   desc.add<edm::InputTag>("vertexCollection", edm::InputTag("offlinePrimaryVertices"));

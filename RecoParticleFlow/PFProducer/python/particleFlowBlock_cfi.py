@@ -173,7 +173,7 @@ _trackImporters = ['GeneralTracksImporter','ConvBremTrackImporter',
 for importer in _trackImporters:
   for idx in _findIndicesByModule(importer):
     _insertTrackImportersWithVeto[idx] = dict(
-      vetoEndcap = cms.bool(True),
+      vetoEndcap = True,
       vetoMode = cms.uint32(0), # HGCal-region PFTrack list for simPF
       vetoSrc = cms.InputTag('hgcalTrackCollection:TracksInHGCal')
     )

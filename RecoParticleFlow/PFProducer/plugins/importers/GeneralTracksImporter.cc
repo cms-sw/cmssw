@@ -37,7 +37,6 @@ public:
           vetoPFCandidatesSrc_ =
               sumes.consumes<reco::PFCandidateCollection>(conf.getParameter<edm::InputTag>("vetoSrc"));
           break;
-        default:;
       }  // switch
     }
   }
@@ -69,30 +68,36 @@ void GeneralTracksImporter::importToBlock(const edm::Event& e, BlockElementImpor
   typedef std::pair<edm::ProductID, unsigned> TrackProdIDKey;
   std::vector<TrackProdIDKey> vetoed;
   if (vetoEndcap_) {
-    if (vetoMode_ == pfRecTrackCollection) {
-      const auto& vetoes = e.get(vetoPFTracksSrc_);
-      for (const auto& veto : vetoes) {
-        vetoed.emplace_back(veto.trackRef().id(), veto.trackRef().key());
+    switch (vetoMode_) {
+      case pfRecTrackCollection: {
+        const auto& vetoes = e.get(vetoPFTracksSrc_);
+        for (const auto& veto : vetoes)
+          vetoed.emplace_back(veto.trackRef().id(), veto.trackRef().key());
+        break;
       }
-    } else if (vetoMode_ == ticlSeedingRegion) {
-      const auto& vetoes = e.get(vetoTICLSeedingSrc_);
-      auto tracksH = e.getHandle(tracksSrc_);
-      for (const auto& veto : vetoes) {
-        assert(veto.collectionID == tracksH.id());
-        reco::TrackRef trkref = reco::TrackRef(tracksH, veto.index);
-        vetoed.emplace_back(trkref.id(), trkref.key());
+      case ticlSeedingRegion: {
+        const auto& vetoes = e.get(vetoTICLSeedingSrc_);
+        auto tracksH = e.getHandle(tracksSrc_);
+        for (const auto& veto : vetoes) {
+          assert(veto.collectionID == tracksH.id());
+          reco::TrackRef trkref = reco::TrackRef(tracksH, veto.index);
+          vetoed.emplace_back(tracksH.id(), veto.index);  // track prod id and key
+        }
+        break;
       }
-    } else if (vetoMode_ == pfCandidateCollection) {
-      const auto& vetoes = e.get(vetoPFCandidatesSrc_);
-      for (const auto& veto : vetoes) {
-        if (!veto.trackRef().isNonnull())
-          continue;
-        vetoed.emplace_back(veto.trackRef().id(), veto.trackRef().key());
+      case pfCandidateCollection: {
+        const auto& vetoes = e.get(vetoPFCandidatesSrc_);
+        for (const auto& veto : vetoes) {
+          if (veto.trackRef().isNull())
+            continue;
+          vetoed.emplace_back(veto.trackRef().id(), veto.trackRef().key());
+        }
+        break;
       }
-    }
+    }  // switch
     std::sort(vetoed.begin(), vetoed.end());
   }
-  auto muons = e.getHandle(muons_);
+  auto muons = e.get(muons_);
   elems.reserve(elems.size() + tracks->size());
   std::vector<bool> mask(tracks->size(), true);
   reco::MuonRef muonref;
@@ -138,7 +143,7 @@ void GeneralTracksImporter::importToBlock(const edm::Event& e, BlockElementImpor
       // check and update if this track is a muon
       const int muId = PFMuonAlgo::muAssocToTrack((*tk_elem)->trackRef(), muons);
       if (muId != -1) {
-        muonref = reco::MuonRef(muons, muId);
+        muonref = reco::MuonRef(&muons, muId);
         if (PFMuonAlgo::isLooseMuon(muonref) || PFMuonAlgo::isMuon(muonref)) {
           static_cast<reco::PFBlockElementTrack*>(tk_elem->get())->setMuonRef(muonref);
         }
@@ -160,7 +165,7 @@ void GeneralTracksImporter::importToBlock(const edm::Event& e, BlockElementImpor
     const int muId = PFMuonAlgo::muAssocToTrack(pftrackref->trackRef(), muons);
     bool thisIsAPotentialMuon = false;
     if (muId != -1) {
-      muonref = reco::MuonRef(muons, muId);
+      muonref = reco::MuonRef(&muons, muId);
       thisIsAPotentialMuon =
           ((PFMuonAlgo::hasValidTrack(muonref, true, muonMaxDPtOPt_) && PFMuonAlgo::isLooseMuon(muonref)) ||
            (PFMuonAlgo::hasValidTrack(muonref, false, muonMaxDPtOPt_) && PFMuonAlgo::isMuon(muonref)));
@@ -185,7 +190,7 @@ void GeneralTracksImporter::importToBlock(const edm::Event& e, BlockElementImpor
         TrackProdIDKey trk = std::make_pair(pftrackref->trackRef().id(), pftrackref->trackRef().key());
         auto lower = std::lower_bound(vetoed.begin(), vetoed.end(), trk);
         bool inVetoList = (lower != vetoed.end() && *lower == trk);
-        if (!inVetoList || (vetoMode_ == pfCandidateCollection && muonref.isNonnull())) {
+        if (!inVetoList || (vetoMode_ == pfRecTrackCollection && muonref.isNonnull())) {
           elems.emplace_back(trkElem);
         } else
           delete trkElem;

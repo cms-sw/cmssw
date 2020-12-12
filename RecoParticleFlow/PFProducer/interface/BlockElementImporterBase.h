@@ -26,7 +26,7 @@ public:
 
   const std::string& name() const { return _importerName; }
 
-  enum vetoMode { pfRecTrackCollection = 0, ticlSeedingRegion = 1, pfCandidateCollection = 2 };
+  enum VetoMode { pfRecTrackCollection = 0, ticlSeedingRegion = 1, pfCandidateCollection = 2 };
 
 private:
   const std::string _importerName;
