@@ -85,7 +85,7 @@ void DDHGCalModule::initialize(const DDNumericArguments& nArgs,
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalModule: " << wafer_.size() << " wafers";
   for (unsigned int i = 0; i < wafer_.size(); ++i)
-    edm::LogVerbatim("HGCalGeom") << "Wafer_[" << i << "] " << wafer_[i];
+    edm::LogVerbatim("HGCalGeom") << "Wafer[" << i << "] " << wafer_[i];
 #endif
   materials_ = vsArgs["MaterialNames"];
   names_ = vsArgs["VolumeNames"];

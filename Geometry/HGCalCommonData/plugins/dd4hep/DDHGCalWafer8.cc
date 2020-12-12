@@ -17,9 +17,9 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   cms::DDNamespace ns(ctxt, e, true);
   cms::DDAlgoArguments args(ctxt, e);
   std::string motherName = args.parentName();
-  auto waferSize = args.value<double>("WaferSize");
-  auto waferT = args.value<double>("WaferThick");
-  auto waferSepar = args.value<double>("SensorSeparation");
+  auto waferSize = args.value<double>("WaferSize") / dd4hep::mm;
+  auto waferT = args.value<double>("WaferThick") / dd4hep::mm;
+  auto waferSepar = args.value<double>("SensorSeparation") / dd4hep::mm;
   auto nCells = args.value<int>("NCells");
   auto cellType = args.value<int>("CellType");
   auto material = args.value<std::string>("Material");

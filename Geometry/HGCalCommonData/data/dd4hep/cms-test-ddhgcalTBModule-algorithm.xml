@@ -24,8 +24,8 @@
     <Include ref="Geometry/CMSCommonData/data/rotations.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/TB170/cms.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/TB170/hgcal.xml"/>
-    <Include ref="Geometry/HGCalCommonData/data/TB170/hgcalEE.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/hgcalwafer/v7/hgcalwafer.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/TB170/hgcalEE.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/dd4hep/world.xml"/>
   </IncludeSection>
   
