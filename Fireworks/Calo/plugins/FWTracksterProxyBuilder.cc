@@ -23,9 +23,9 @@ private:
 };
 
 void FWTracksterProxyBuilder::build(const ticl::Trackster &iData,
-                                            unsigned int iIndex,
-                                            TEveElement &oItemHolder,
-                                            const FWViewContext *) {
+                                    unsigned int iIndex,
+                                    TEveElement &oItemHolder,
+                                    const FWViewContext *) {
   const ticl::Trackster &trackster = iData;
   const ticl::Trackster::Vector &barycenter = trackster.barycenter();
   const std::array<float, 3> &eigenvalues = trackster.eigenvalues();
@@ -38,7 +38,7 @@ void FWTracksterProxyBuilder::build(const ticl::Trackster &iData,
   eveEllipsoid->SetMainColor(kCyan);
   eveEllipsoid->InitMainTrans();
   eveEllipsoid->RefMainTrans().Move3PF(barycenter.x(), barycenter.y(), barycenter.z());
-  eveEllipsoid->RefMainTrans().SetRotByAnyAngles(theta,phi,0.,"xzy");
+  eveEllipsoid->RefMainTrans().SetRotByAnyAngles(theta, phi, 0., "xzy");
   eveEllipsoid->RefMainTrans().SetScale(eigenvalues[2], eigenvalues[1], eigenvalues[0]);
   setupAddElement(eveEllipsoid, &oItemHolder);
 }
