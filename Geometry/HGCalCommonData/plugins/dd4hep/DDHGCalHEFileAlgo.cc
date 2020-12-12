@@ -45,8 +45,6 @@ struct HGCalHEFileAlgo {
     volumeNames_ = args.value<std::vector<std::string>>("VolumeNames");
     thickness_ = args.value<std::vector<double>>("Thickness");
     copyNumber_.resize(materials_.size(), 1);
-    for (unsigned int i = 0; i < volumeNames_.size(); ++i)
-      thickness_[i] /= dd4hep::mm;
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalHEFileAlgo: " << materials_.size() << " types of volumes";
     for (unsigned int i = 0; i < volumeNames_.size(); ++i)
@@ -56,10 +54,6 @@ struct HGCalHEFileAlgo {
     layerNumbers_ = args.value<std::vector<int>>("Layers");
     layerThick_ = args.value<std::vector<double>>("LayerThick");
     rMixLayer_ = args.value<std::vector<double>>("LayerRmix");
-    for (unsigned int i = 0; i < layerNumbers_.size(); ++i) {
-      layerThick_[i] /= dd4hep::mm;
-      rMixLayer_[i] /= dd4hep::mm;
-    }
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "There are " << layerNumbers_.size() << " blocks";
     for (unsigned int i = 0; i < layerNumbers_.size(); ++i)
@@ -106,8 +100,6 @@ struct HGCalHEFileAlgo {
     layerThickTop_ = args.value<std::vector<double>>("TopLayerThickness");
     layerTypeTop_ = args.value<std::vector<int>>("TopLayerType");
     copyNumberTop_.resize(materialsTop_.size(), 1);
-    for (unsigned int i = 0; i < materialsTop_.size(); ++i)
-      layerThickTop_[i] /= dd4hep::mm;
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalHEFileAlgo: " << materialsTop_.size()
                                   << " types of volumes in the top part";
@@ -125,8 +117,6 @@ struct HGCalHEFileAlgo {
     layerSenseBot_ = args.value<std::vector<int>>("BottomLayerSense");
     layerThickBot_ = args.value<std::vector<double>>("BottomLayerThickness");
     copyNumberBot_.resize(materialsBot_.size(), 1);
-    for (unsigned int i = 0; i < materialsBot_.size(); ++i)
-      layerThickBot_[i] /= dd4hep::mm;
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalHEFileAlgo: " << materialsBot_.size()
                                   << " types of volumes in the bottom part";
@@ -139,15 +129,15 @@ struct HGCalHEFileAlgo {
       edm::LogVerbatim("HGCalGeom") << "Layer [" << i << "] with material type " << layerTypeBot_[i]
                                     << " sensitive class " << layerSenseBot_[i];
 #endif
-    zMinBlock_ = args.value<double>("zMinBlock") / dd4hep::mm;
+    zMinBlock_ = args.value<double>("zMinBlock");
     rad100to200_ = args.value<std::vector<double>>("rad100to200");
     rad200to300_ = args.value<std::vector<double>>("rad200to300");
-    zMinRadPar_ = args.value<double>("zMinForRadPar") / dd4hep::mm;
+    zMinRadPar_ = args.value<double>("zMinForRadPar");
     choiceType_ = args.value<int>("choiceType");
     nCutRadPar_ = args.value<int>("nCornerCut");
     fracAreaMin_ = args.value<double>("fracAreaMin");
-    waferSize_ = args.value<double>("waferSize") / dd4hep::mm;
-    waferSepar_ = args.value<double>("SensorSeparation") / dd4hep::mm;
+    waferSize_ = args.value<double>("waferSize");
+    waferSepar_ = args.value<double>("SensorSeparation");
     sectors_ = args.value<int>("Sectors");
     alpha_ = (1._pi) / sectors_;
     cosAlpha_ = cos(alpha_);
@@ -174,17 +164,9 @@ struct HGCalHEFileAlgo {
     slopeB_ = args.value<std::vector<double>>("SlopeBottom");
     zFrontB_ = args.value<std::vector<double>>("ZFrontBottom");
     rMinFront_ = args.value<std::vector<double>>("RMinFront");
-    for (unsigned int i = 0; i < slopeB_.size(); ++i) {
-      zFrontB_[i] /= dd4hep::mm;
-      rMinFront_[i] /= dd4hep::mm;
-    }
     slopeT_ = args.value<std::vector<double>>("SlopeTop");
     zFrontT_ = args.value<std::vector<double>>("ZFrontTop");
     rMaxFront_ = args.value<std::vector<double>>("RMaxFront");
-    for (unsigned int i = 0; i < slopeT_.size(); ++i) {
-      zFrontT_[i] /= dd4hep::mm;
-      rMaxFront_[i] /= dd4hep::mm;
-    }
 #ifdef EDM_ML_DEBUG
     for (unsigned int i = 0; i < slopeB_.size(); ++i)
       edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] Zmin " << zFrontB_[i] << " Rmin " << rMinFront_[i]

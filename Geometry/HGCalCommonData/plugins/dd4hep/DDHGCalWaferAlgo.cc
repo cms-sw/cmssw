@@ -12,7 +12,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   cms::DDAlgoArguments args(ctxt, e);
 
   // Header section of original DDHGCalWafer.h
-  auto cellSize = args.value<double>("CellSize") / dd4hep::mm;                   // Cell Size
+  auto cellSize = args.value<double>("CellSize");                                // Cell Size
   const auto& cellType = args.value<int>("CellType");                            // Type (1 fine; 2 coarse)
   const auto& childNames = args.value<std::vector<std::string> >("ChildNames");  // Names of children
   const auto& positionX = args.value<std::vector<int> >("PositionX");            // Position in X
