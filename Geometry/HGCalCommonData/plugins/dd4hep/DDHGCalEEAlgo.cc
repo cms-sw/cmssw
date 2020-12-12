@@ -80,8 +80,6 @@ struct HGCalEEAlgo {
     names_ = args.value<std::vector<std::string>>("VolumeNames");
     thick_ = args.value<std::vector<double>>("Thickness");
     copyNumber_.resize(materials_.size(), 1);
-    for (unsigned int i = 0; i < names_.size(); ++i)
-      thick_[i] /= dd4hep::mm;
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo: " << materials_.size() << " types of volumes";
     for (unsigned int i = 0; i < names_.size(); ++i)
@@ -91,8 +89,6 @@ struct HGCalEEAlgo {
 
     layers_ = args.value<std::vector<int>>("Layers");
     layerThick_ = args.value<std::vector<double>>("LayerThick");
-    for (unsigned int i = 0; i < layers_.size(); ++i)
-      layerThick_[i] /= dd4hep::mm;
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "There are " << layers_.size() << " blocks";
     for (unsigned int i = 0; i < layers_.size(); ++i)
@@ -135,16 +131,16 @@ struct HGCalEEAlgo {
       edm::LogVerbatim("HGCalGeom") << "Layer [" << i << "] with material type " << layerType_[i] << " sensitive class "
                                     << layerSense_[i];
 #endif
-    zMinBlock_ = args.value<double>("zMinBlock") / dd4hep::mm;
+    zMinBlock_ = args.value<double>("zMinBlock");
 
     rad100to200_ = args.value<std::vector<double>>("rad100to200");
     rad200to300_ = args.value<std::vector<double>>("rad200to300");
-    zMinRadPar_ = args.value<double>("zMinForRadPar") / dd4hep::mm;
+    zMinRadPar_ = args.value<double>("zMinForRadPar");
     choiceType_ = args.value<int>("choiceType");
     nCutRadPar_ = args.value<int>("nCornerCut");
     fracAreaMin_ = args.value<double>("fracAreaMin");
-    waferSize_ = args.value<double>("waferSize") / dd4hep::mm;
-    waferSepar_ = args.value<double>("SensorSeparation") / dd4hep::mm;
+    waferSize_ = args.value<double>("waferSize");
+    waferSepar_ = args.value<double>("SensorSeparation");
     sectors_ = args.value<int>("Sectors");
     alpha_ = (1._pi) / sectors_;
     cosAlpha_ = cos(alpha_);
@@ -161,17 +157,9 @@ struct HGCalEEAlgo {
     slopeB_ = args.value<std::vector<double>>("SlopeBottom");
     zFrontB_ = args.value<std::vector<double>>("ZFrontBottom");
     rMinFront_ = args.value<std::vector<double>>("RMinFront");
-    for (unsigned int i = 0; i < slopeB_.size(); ++i) {
-      zFrontB_[i] /= dd4hep::mm;
-      rMinFront_[i] /= dd4hep::mm;
-    }
     slopeT_ = args.value<std::vector<double>>("SlopeTop");
     zFrontT_ = args.value<std::vector<double>>("ZFrontTop");
     rMaxFront_ = args.value<std::vector<double>>("RMaxFront");
-    for (unsigned int i = 0; i < slopeT_.size(); ++i) {
-      zFrontT_[i] /= dd4hep::mm;
-      rMaxFront_[i] /= dd4hep::mm;
-    }
 #ifdef EDM_ML_DEBUG
     for (unsigned int i = 0; i < slopeB_.size(); ++i)
       edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] Zmin " << zFrontB_[i] << " Rmin " << rMinFront_[i]
@@ -185,8 +173,7 @@ struct HGCalEEAlgo {
     edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo: NameSpace " << ns.name();
 #endif
 
-    waferType_ = std::make_unique<HGCalWaferType>(
-        rad100to200_, rad200to300_, (waferSize_ + waferSepar_), zMinRadPar_, choiceType_, nCutRadPar_, fracAreaMin_);
+    waferType_ = std::make_unique<HGCalWaferType>(rad100to200_, rad200to300_, (waferSize_ + waferSepar_), (zMinRadPar_ / dd4hep::mm), choiceType_, nCutRadPar_, fracAreaMin_);
 
     ConstructAlgo(ctxt, e);
   }
@@ -381,7 +368,7 @@ struct HGCalEEAlgo {
         }
 #endif
         if (corner.first > 0) {
-          int type = waferType_->getType(xpos, ypos, zpos);
+          int type = waferType_->getType((xpos / dd4hep::mm), (ypos / dd4hep::mm), (zpos / dd4hep::mm));
           int copy = HGCalTypes::packTypeUV(type, u, v);
 #ifdef EDM_ML_DEBUG
           if (iu > ium)

@@ -13,7 +13,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   cms::DDAlgoArguments args(ctxt, e);
   std::string nsName = static_cast<std::string>(ns.name());
   // Header section of original DDHGCalWafer.h
-  double waferSize = args.value<double>("WaferSize") / dd4hep::mm;
+  double waferSize = args.value<double>("WaferSize");
   int cellType = args.value<int>("CellType");
   int nColumns = args.value<int>("NColumns");
   int nBottomY = args.value<int>("NBottomY");

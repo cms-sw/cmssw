@@ -10,9 +10,9 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   cms::DDNamespace ns(ctxt, e, true);
   cms::DDAlgoArguments args(ctxt, e);
   // Header section of original DDHGCalCell.h
-  double waferSize = args.value<double>("WaferSize") / dd4hep::mm;   // size of wafer
-  double waferT = args.value<double>("WaferThick") / dd4hep::mm;     // Thickness of wafer
-  double cellT = args.value<double>("CellThick") / dd4hep::mm;       // Thickness of depletion layer
+  double waferSize = args.value<double>("WaferSize");   // size of wafer
+  double waferT = args.value<double>("WaferThick");     // Thickness of wafer
+  double cellT = args.value<double>("CellThick");       // Thickness of depletion layer
   int nCells = args.value<int>("NCells");                            // Number of cells
   int posSens = args.value<int>("PosSensitive");                     // Position of delpletion layer within wafer
   std::string material = args.value<std::string>("Material");        // Material
