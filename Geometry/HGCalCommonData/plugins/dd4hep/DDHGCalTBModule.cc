@@ -48,8 +48,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << names[i] << " of thickness " << thick[i]
                                   << " filled with " << materials[i] << " first copy number " << copyNumber[i];
 #endif
-  const auto& layers = args.value<std::vector<int> >("Layers");             // Number of layers in a section
-  auto layerThick = args.value<std::vector<double> >("LayerThick");         // Thickness of each section
+  const auto& layers = args.value<std::vector<int> >("Layers");      // Number of layers in a section
+  auto layerThick = args.value<std::vector<double> >("LayerThick");  // Thickness of each section
   for (unsigned int i = 0; i < layers.size(); ++i)
     layerThick[i] /= dd4hep::mm;
 #ifdef EDM_ML_DEBUG
@@ -77,10 +77,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                 << " wafer width " << waferW << " gap among wafers " << waferGap << " absorber width "
                                 << absorbW << " absorber height " << absorbH;
 #endif
-  const auto& slopeB = args.value<std::vector<double> >("SlopeBottom");   // Slope at the lower R
-  const auto& slopeT = args.value<std::vector<double> >("SlopeTop");      // Slopes at the larger R
-  auto zFront = args.value<std::vector<double> >("ZFront");               // Starting Z values for the slopes
-  auto rMaxFront = args.value<std::vector<double> >("RMaxFront");         // Corresponding rMax's
+  const auto& slopeB = args.value<std::vector<double> >("SlopeBottom");  // Slope at the lower R
+  const auto& slopeT = args.value<std::vector<double> >("SlopeTop");     // Slopes at the larger R
+  auto zFront = args.value<std::vector<double> >("ZFront");              // Starting Z values for the slopes
+  auto rMaxFront = args.value<std::vector<double> >("RMaxFront");        // Corresponding rMax's
   for (unsigned int i = 0; i < slopeT.size(); ++i) {
     zFront[i] /= dd4hep::mm;
     rMaxFront[i] /= dd4hep::mm;

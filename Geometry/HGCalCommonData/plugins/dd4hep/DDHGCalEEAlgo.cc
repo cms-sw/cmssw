@@ -136,7 +136,7 @@ struct HGCalEEAlgo {
                                     << layerSense_[i];
 #endif
     zMinBlock_ = args.value<double>("zMinBlock") / dd4hep::mm;
-    
+
     rad100to200_ = args.value<std::vector<double>>("rad100to200");
     rad200to300_ = args.value<std::vector<double>>("rad200to300");
     zMinRadPar_ = args.value<double>("zMinForRadPar") / dd4hep::mm;

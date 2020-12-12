@@ -24,7 +24,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   const auto& tile = args.value<std::string>("TileName");                          // Scintillator tile
   const auto& materials = args.value<std::vector<std::string> >("MaterialNames");  // Materials
   const auto& names = args.value<std::vector<std::string> >("VolumeNames");        // Names
-  auto thick = args.value<std::vector<double> >("Thickness");               // Thickness of the material
+  auto thick = args.value<std::vector<double> >("Thickness");                      // Thickness of the material
   std::vector<int> copyNumber;                                                     // Initial copy numbers
   copyNumber.resize(materials.size(), 1);
 #ifdef EDM_ML_DEBUG
@@ -38,17 +38,18 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                   << " filled with " << materials[i] << " first copy number " << copyNumber[i];
 #endif
   }
-  const auto& layers = args.value<std::vector<int> >("Layers");             // Number of layers in a section
-  auto layerThick = args.value<std::vector<double> >("LayerThick");  // Thickness of each section
-  const auto& layerType = args.value<std::vector<int> >("LayerType");       // Type of the layer
-  const auto& layerSense = args.value<std::vector<int> >("LayerSense");     // Content of a layer (sensitive?)
+  const auto& layers = args.value<std::vector<int> >("Layers");          // Number of layers in a section
+  auto layerThick = args.value<std::vector<double> >("LayerThick");      // Thickness of each section
+  const auto& layerType = args.value<std::vector<int> >("LayerType");    // Type of the layer
+  const auto& layerSense = args.value<std::vector<int> >("LayerSense");  // Content of a layer (sensitive?)
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDAHcalModuleAlgo: " << layers.size() << " blocks";
 #endif
   for (unsigned int i = 0; i < layers.size(); ++i) {
-    layerThick[i]  /= dd4hep::mm;
+    layerThick[i] /= dd4hep::mm;
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] of thickness " << layerThick[i] << " with " << layers[i] << " layers";
+    edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] of thickness " << layerThick[i] << " with " << layers[i]
+                                  << " layers";
 #endif
   }
 #ifdef EDM_ML_DEBUG
@@ -59,7 +60,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 #endif
   auto widths = args.value<std::vector<double> >("Widths");      // Width (passive, active)
   auto heights = args.value<std::vector<double> >("Heights");    // Heights (passive, active)
-  const auto& tileN = args.value<std::vector<int> >("TileN");           // # of tiles (alon x, y)
+  const auto& tileN = args.value<std::vector<int> >("TileN");    // # of tiles (alon x, y)
   auto tileStep = args.value<std::vector<double> >("TileStep");  // Separation between tiles (x, y)
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDAHcalModuleAlgo: " << widths.size() << " sizes for width "
@@ -81,7 +82,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     edm::LogVerbatim("HGCalGeom") << " [" << i << "] " << tileN[i] << ":" << tileStep[i];
 #endif
   }
-  auto zMinBlock = (args.value<double>("zMinBlock"))  / dd4hep::mm;  // Starting z-value of the block
+  auto zMinBlock = (args.value<double>("zMinBlock")) / dd4hep::mm;  // Starting z-value of the block
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalModule: zStart " << zMinBlock << "  NameSpace " << ns.name();
 #endif
