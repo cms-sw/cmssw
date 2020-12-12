@@ -48,7 +48,7 @@ PFTICLProducer::PFTICLProducer(const edm::ParameterSet& conf)
       srcTrackTimeQuality_(consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeQualityMap"))),
       muons_(consumes<reco::MuonCollection>(conf.getParameter<edm::InputTag>("muonSrc"))),
       pfmu_(std::make_unique<PFMuonAlgo>(conf.getParameterSet("pfMuonAlgoParameters"),
-                                         true)) {  // postMuonCleaning = false
+                                         false)) {  // postMuonCleaning = false
   produces<reco::PFCandidateCollection>();
 }
 
