@@ -37,9 +37,11 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 #endif
   const auto& materials = args.value<std::vector<std::string> >("MaterialNames");  // Materials
   const auto& names = args.value<std::vector<std::string> >("VolumeNames");        // Names
-  const auto& thick = args.value<std::vector<double> >("Thickness");               // Thickness of the material
+  auto thick = args.value<std::vector<double> >("Thickness");                      // Thickness of the material
   std::vector<int> copyNumber;                                                     // Initial copy numbers
   copyNumber.resize(materials.size(), 1);
+  for (unsigned int i = 0; i < names.size(); ++i)
+    thick[i] /= dd4hep::mm;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalTBModule: " << materials.size() << " types of volumes";
   for (unsigned int i = 0; i < names.size(); ++i)
@@ -47,7 +49,9 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                   << " filled with " << materials[i] << " first copy number " << copyNumber[i];
 #endif
   const auto& layers = args.value<std::vector<int> >("Layers");             // Number of layers in a section
-  const auto& layerThick = args.value<std::vector<double> >("LayerThick");  // Thickness of each section
+  auto layerThick = args.value<std::vector<double> >("LayerThick");         // Thickness of each section
+  for (unsigned int i = 0; i < layers.size(); ++i)
+    layerThick[i] /= dd4hep::mm;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalTBModule: " << layers.size() << " blocks";
   for (unsigned int i = 0; i < layers.size(); ++i)
@@ -62,12 +66,12 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     edm::LogVerbatim("HGCalGeom") << "Layer [" << i << "] with material type " << layerType[i] << " sensitive class "
                                   << layerSense[i];
 #endif
-  const auto& zMinBlock = args.value<double>("zMinBlock");  // Starting z-value of the block
-  const auto& rMaxFine = args.value<double>("rMaxFine");    // Maximum r-value for fine wafer
-  const auto& waferW = args.value<double>("waferW");        // Width of the wafer
-  const auto& waferGap = args.value<double>("waferGap");    // Gap between 2 wafers
-  const auto& absorbW = args.value<double>("absorberW");    // Width of the absorber
-  const auto& absorbH = args.value<double>("absorberH");    // Height of the absorber
+  auto zMinBlock = args.value<double>("zMinBlock") / dd4hep::mm;  // Starting z-value of the block
+  auto rMaxFine = args.value<double>("rMaxFine") / dd4hep::mm;    // Maximum r-value for fine wafer
+  auto waferW = args.value<double>("waferW") / dd4hep::mm;        // Width of the wafer
+  auto waferGap = args.value<double>("waferGap") / dd4hep::mm;    // Gap between 2 wafers
+  auto absorbW = args.value<double>("absorberW") / dd4hep::mm;    // Width of the absorber
+  auto absorbH = args.value<double>("absorberH") / dd4hep::mm;    // Height of the absorber
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalTBModule: zStart " << zMinBlock << " rFineCoarse " << rMaxFine
                                 << " wafer width " << waferW << " gap among wafers " << waferGap << " absorber width "
@@ -75,8 +79,12 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 #endif
   const auto& slopeB = args.value<std::vector<double> >("SlopeBottom");   // Slope at the lower R
   const auto& slopeT = args.value<std::vector<double> >("SlopeTop");      // Slopes at the larger R
-  const auto& zFront = args.value<std::vector<double> >("ZFront");        // Starting Z values for the slopes
-  const auto& rMaxFront = args.value<std::vector<double> >("RMaxFront");  // Corresponding rMax's
+  auto zFront = args.value<std::vector<double> >("ZFront");               // Starting Z values for the slopes
+  auto rMaxFront = args.value<std::vector<double> >("RMaxFront");         // Corresponding rMax's
+  for (unsigned int i = 0; i < slopeT.size(); ++i) {
+    zFront[i] /= dd4hep::mm;
+    rMaxFront[i] /= dd4hep::mm;
+  }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalTBModule: Bottom slopes " << slopeB[0] << ":" << slopeB[1] << " and "
                                 << slopeT.size() << " slopes for top";
