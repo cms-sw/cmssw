@@ -53,11 +53,11 @@ public:
 
 private:
   /// Data members
-  std::vector<edm::InputTag> TTStubsInputTags;
-  std::vector<edm::InputTag> TTClusterTruthInputTags;
+  std::vector<edm::InputTag> ttStubsInputTags;
+  std::vector<edm::InputTag> ttClusterTruthInputTags;
 
-  std::vector<edm::EDGetTokenT<edmNew::DetSetVector<TTStub<T> > > > TTStubsTokens;
-  std::vector<edm::EDGetTokenT<TTClusterAssociationMap<T> > > TTClusterTruthTokens;
+  std::vector<edm::EDGetTokenT<edmNew::DetSetVector<TTStub<T> > > > ttStubsTokens;
+  std::vector<edm::EDGetTokenT<TTClusterAssociationMap<T> > > ttClusterTruthTokens;
 
   edm::ESHandle<TrackerGeometry> theTrackerGeometry;
   edm::ESHandle<TrackerTopology> theTrackerTopology;
@@ -79,17 +79,17 @@ private:
 /// Constructors
 template <typename T>
 TTStubAssociator<T>::TTStubAssociator(const edm::ParameterSet& iConfig) {
-  TTStubsInputTags = iConfig.getParameter<std::vector<edm::InputTag> >("TTStubs");
-  TTClusterTruthInputTags = iConfig.getParameter<std::vector<edm::InputTag> >("TTClusterTruth");
+  ttStubsInputTags = iConfig.getParameter<std::vector<edm::InputTag> >("TTStubs");
+  ttClusterTruthInputTags = iConfig.getParameter<std::vector<edm::InputTag> >("TTClusterTruth");
 
-  for (auto iTag = TTClusterTruthInputTags.begin(); iTag != TTClusterTruthInputTags.end(); iTag++) {
-    TTClusterTruthTokens.push_back(consumes<TTClusterAssociationMap<T> >(*iTag));
+  for (const auto& iTag : ttClusterTruthInputTags) {
+    ttClusterTruthTokens.push_back(consumes<TTClusterAssociationMap<T> >(iTag));
   }
 
-  for (auto iTag = TTStubsInputTags.begin(); iTag != TTStubsInputTags.end(); iTag++) {
-    TTStubsTokens.push_back(consumes<edmNew::DetSetVector<TTStub<T> > >(*iTag));
+  for (const auto& iTag : ttStubsInputTags) {
+    ttStubsTokens.push_back(consumes<edmNew::DetSetVector<TTStub<T> > >(iTag));
 
-    produces<TTStubAssociationMap<T> >((*iTag).instance());
+    produces<TTStubAssociationMap<T> >(iTag.instance());
   }
 }
 

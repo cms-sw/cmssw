@@ -49,12 +49,12 @@ public:
 
 private:
   /// Data members
-  std::vector<edm::InputTag> TTTracksInputTags;
+  std::vector<edm::InputTag> ttTracksInputTags;
 
-  std::vector<edm::EDGetTokenT<std::vector<TTTrack<T> > > > TTTracksTokens;
+  std::vector<edm::EDGetTokenT<std::vector<TTTrack<T> > > > ttTracksTokens;
 
-  edm::EDGetTokenT<TTStubAssociationMap<T> > TTStubTruthToken;
-  edm::EDGetTokenT<TTClusterAssociationMap<T> > TTClusterTruthToken;
+  edm::EDGetTokenT<TTStubAssociationMap<T> > ttStubTruthToken;
+  edm::EDGetTokenT<TTClusterAssociationMap<T> > ttClusterTruthToken;
 
   bool TTTrackAllowOneFalse2SStub;
 
@@ -75,9 +75,9 @@ private:
 /// Constructors
 template <typename T>
 TTTrackAssociator<T>::TTTrackAssociator(const edm::ParameterSet& iConfig) {
-  TTTracksInputTags = iConfig.getParameter<std::vector<edm::InputTag> >("TTTracks");
-  TTClusterTruthToken = consumes<TTClusterAssociationMap<T> >(iConfig.getParameter<edm::InputTag>("TTClusterTruth"));
-  TTStubTruthToken = consumes<TTStubAssociationMap<T> >(iConfig.getParameter<edm::InputTag>("TTStubTruth"));
+  ttTracksInputTags = iConfig.getParameter<std::vector<edm::InputTag> >("TTTracks");
+  ttClusterTruthToken = consumes<TTClusterAssociationMap<T> >(iConfig.getParameter<edm::InputTag>("TTClusterTruth"));
+  ttStubTruthToken = consumes<TTStubAssociationMap<T> >(iConfig.getParameter<edm::InputTag>("TTStubTruth"));
   TTTrackAllowOneFalse2SStub = iConfig.getParameter<bool>("TTTrackAllowOneFalse2SStub");
   if (TTTrackAllowOneFalse2SStub) {
     edm::LogInfo("TTTrackAssociator< ") << "Allow track if no more than one 2S stub doesn't match truth.";
@@ -85,10 +85,10 @@ TTTrackAssociator<T>::TTTrackAssociator(const edm::ParameterSet& iConfig) {
     edm::LogInfo("TTTrackAssociator< ") << "All 2S stubs must match truth.";
   }
 
-  for (auto iTag = TTTracksInputTags.begin(); iTag != TTTracksInputTags.end(); iTag++) {
-    TTTracksTokens.push_back(consumes<std::vector<TTTrack<T> > >(*iTag));
+  for (const auto& iTag : ttTracksInputTags) {
+    ttTracksTokens.push_back(consumes<std::vector<TTTrack<T> > >(iTag));
 
-    produces<TTTrackAssociationMap<T> >((*iTag).instance());
+    produces<TTTrackAssociationMap<T> >(iTag.instance());
   }
 }
 

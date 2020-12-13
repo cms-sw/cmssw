@@ -53,17 +53,13 @@ public:
 private:
   /// Data members
   edm::Handle<edm::DetSetVector<PixelDigiSimLink> > thePixelDigiSimLinkHandle;
-  edm::Handle<std::vector<TrackingParticle> > TrackingParticleHandle;
+  edm::Handle<std::vector<TrackingParticle> > trackingParticleHandle;
 
-  std::vector<edm::InputTag> TTClustersInputTags;
+  std::vector<edm::InputTag> ttClustersInputTags;
 
   edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink> > digisimLinkToken;
   edm::EDGetTokenT<std::vector<TrackingParticle> > tpToken;
-  //std::vector< edm::EDGetTokenT< edm::DetSetVector< TTCluster< T > > > > TTClustersTokens;
-  std::vector<edm::EDGetTokenT<edmNew::DetSetVector<TTCluster<T> > > > TTClustersTokens;
-
-  //    const StackedTrackerGeometry                           *theStackedTrackers;
-  //unsigned int                                           ADCThreshold;
+  std::vector<edm::EDGetTokenT<edmNew::DetSetVector<TTCluster<T> > > > ttClustersTokens;
 
   edm::ESHandle<TrackerGeometry> theTrackerGeometry;
   edm::ESHandle<TrackerTopology> theTrackerTopology;
@@ -89,12 +85,12 @@ TTClusterAssociator<T>::TTClusterAssociator(const edm::ParameterSet& iConfig) {
       consumes<edm::DetSetVector<PixelDigiSimLink> >(iConfig.getParameter<edm::InputTag>("digiSimLinks"));
   tpToken = consumes<std::vector<TrackingParticle> >(iConfig.getParameter<edm::InputTag>("trackingParts"));
 
-  TTClustersInputTags = iConfig.getParameter<std::vector<edm::InputTag> >("TTClusters");
+  ttClustersInputTags = iConfig.getParameter<std::vector<edm::InputTag> >("TTClusters");
 
-  for (auto iTag = TTClustersInputTags.begin(); iTag != TTClustersInputTags.end(); iTag++) {
-    TTClustersTokens.push_back(consumes<edmNew::DetSetVector<TTCluster<T> > >(*iTag));
+  for (const auto& iTag : ttClustersInputTags) {
+    ttClustersTokens.push_back(consumes<edmNew::DetSetVector<TTCluster<T> > >(iTag));
 
-    produces<TTClusterAssociationMap<T> >((*iTag).instance());
+    produces<TTClusterAssociationMap<T> >(iTag.instance());
   }
 }
 
