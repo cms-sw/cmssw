@@ -56,6 +56,13 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config)
           config.getParameter<edm::InputTag>("photonsPFValMap"))),
       gsfElectronPfCandMapT_(consumes<edm::ValueMap<std::vector<reco::PFCandidateRef>>>(
           config.getParameter<edm::InputTag>("gsfElectronsPFValMap"))),
+      recoHIPhotonIsolationMapInputToken_{
+          config.existsAs<edm::InputTag>("HIPhotonIsolationMapInput")
+              ? consumes<reco::HIPhotonIsolationMap>(config.getParameter<edm::InputTag>("HIPhotonIsolationMapInput"))
+              : edm::EDGetTokenT<reco::HIPhotonIsolationMap>{}},
+      recoHIPhotonIsolationMapOutputName_{!recoHIPhotonIsolationMapInputToken_.isUninitialized()
+                                              ? config.getParameter<std::string>("HIPhotonIsolationMapOutput")
+                                              : std::string{}},
       //calibration flags
       applyPhotonCalibOnData_(config.getParameter<bool>("applyPhotonCalibOnData")),
       applyPhotonCalibOnMC_(config.getParameter<bool>("applyPhotonCalibOnMC")),
@@ -185,6 +192,9 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config)
   }
   for (const std::string& outid : outGsfElectronFloatValueMaps_) {
     produces<edm::ValueMap<float>>(outid);
+  }
+  if (!recoHIPhotonIsolationMapInputToken_.isUninitialized()) {
+    produces<reco::HIPhotonIsolationMap>(recoHIPhotonIsolationMapOutputName_);
   }
 }
 
@@ -338,6 +348,12 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   std::vector<std::vector<float>> ootPhotonFloatValueMapVals(ootPhotonFloatValueMapHandles.size());
   std::vector<std::vector<float>> gsfElectronFloatValueMapVals(gsfElectronFloatValueMapHandles.size());
 
+  // HI photon iso value maps
+  reco::HIPhotonIsolationMap const* recoHIPhotonIsolationMapInputValueMap =
+      !recoHIPhotonIsolationMapInputToken_.isUninitialized() ? &theEvent.get(recoHIPhotonIsolationMapInputToken_)
+                                                             : nullptr;
+  std::vector<reco::HIPhotonIsolation> recoHIPhotonIsolationMapInputVals;
+
   //loop over photons and fill maps
   index = -1;
   for (const auto& photon : *photonHandle) {
@@ -370,6 +386,11 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     subindex = 0;
     for (const auto& photonFloatValueMapHandle : photonFloatValueMapHandles) {
       photonFloatValueMapVals[subindex++].push_back((*photonFloatValueMapHandle)[photonref]);
+    }
+
+    // HI photon isolation
+    if (!recoHIPhotonIsolationMapInputToken_.isUninitialized()) {
+      recoHIPhotonIsolationMapInputVals.push_back((*recoHIPhotonIsolationMapInputValueMap)[photonref]);
     }
 
     //link photon core
@@ -805,6 +826,11 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     for (auto const& vals : ootPhotonFloatValueMapVals) {
       fillMap(outOOTPhotonHandle, vals, theEvent, outOOTPhotonFloatValueMaps_[index++]);
     }
+  }
+
+  // HI photon iso value maps
+  if (!recoHIPhotonIsolationMapInputToken_.isUninitialized()) {
+    fillMap(outPhotonHandle, recoHIPhotonIsolationMapInputVals, theEvent, recoHIPhotonIsolationMapOutputName_);
   }
 
   //electron iso value maps
