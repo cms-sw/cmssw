@@ -8,6 +8,7 @@
 #include "DataFormats/HGCalReco/interface/TICLSeedingRegion.h"
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
 #include "RecoParticleFlow/PFTracking/interface/PFTrackAlgoTools.h"
+#include "DataFormats/Common/interface/getRef.h"
 
 class GeneralTracksImporter : public BlockElementImporterBase {
 public:
@@ -97,7 +98,8 @@ void GeneralTracksImporter::importToBlock(const edm::Event& e, BlockElementImpor
     }  // switch
     std::sort(vetoed.begin(), vetoed.end());
   }
-  auto muons = e.get(muons_);
+  const auto muonH = e.getHandle(muons_);
+  const auto muons = *muonH;
   elems.reserve(elems.size() + tracks->size());
   std::vector<bool> mask(tracks->size(), true);
   reco::MuonRef muonref;
@@ -143,7 +145,7 @@ void GeneralTracksImporter::importToBlock(const edm::Event& e, BlockElementImpor
       // check and update if this track is a muon
       const int muId = PFMuonAlgo::muAssocToTrack((*tk_elem)->trackRef(), muons);
       if (muId != -1) {
-        muonref = reco::MuonRef(&muons, muId);
+        muonref = reco::MuonRef(muonH, muId);
         if (PFMuonAlgo::isLooseMuon(muonref) || PFMuonAlgo::isMuon(muonref)) {
           static_cast<reco::PFBlockElementTrack*>(tk_elem->get())->setMuonRef(muonref);
         }
@@ -165,7 +167,7 @@ void GeneralTracksImporter::importToBlock(const edm::Event& e, BlockElementImpor
     const int muId = PFMuonAlgo::muAssocToTrack(pftrackref->trackRef(), muons);
     bool thisIsAPotentialMuon = false;
     if (muId != -1) {
-      muonref = reco::MuonRef(&muons, muId);
+      muonref = reco::MuonRef(muonH, muId);
       thisIsAPotentialMuon =
           ((PFMuonAlgo::hasValidTrack(muonref, true, muonMaxDPtOPt_) && PFMuonAlgo::isLooseMuon(muonref)) ||
            (PFMuonAlgo::hasValidTrack(muonref, false, muonMaxDPtOPt_) && PFMuonAlgo::isMuon(muonref)));

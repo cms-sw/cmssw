@@ -78,7 +78,8 @@ void PFTICLProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   evt.getByToken(srcTrackTime_, trackTimeH);
   evt.getByToken(srcTrackTimeError_, trackTimeErrH);
   evt.getByToken(srcTrackTimeQuality_, trackTimeQualH);
-  const auto muons = evt.get(muons_);
+  const auto muonH = evt.getHandle(muons_);
+  const auto muons = *muonH;
 
   auto candidates = std::make_unique<reco::PFCandidateCollection>();
 
@@ -131,7 +132,7 @@ void PFTICLProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
       // Utilize PFMuonAlgo
       const int muId = PFMuonAlgo::muAssocToTrack(trackref, muons);
       if (muId != -1) {
-        const reco::MuonRef muonref = reco::MuonRef(&muons, muId);
+        const reco::MuonRef muonref = reco::MuonRef(muonH, muId);
         const bool allowLoose = (part_type == reco::PFCandidate::mu);
         // Redefine pfmuon candidate kinematics and add muonref
         pfmu_->reconstructMuon(candidate, muonref, allowLoose);
