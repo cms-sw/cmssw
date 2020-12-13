@@ -57,11 +57,11 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config)
       gsfElectronPfCandMapT_(consumes<edm::ValueMap<std::vector<reco::PFCandidateRef>>>(
           config.getParameter<edm::InputTag>("gsfElectronsPFValMap"))),
       recoHIPhotonIsolationMapInputToken_{
-          config.existsAs<edm::InputTag>("HIPhotonIsolationMapInput")
-              ? consumes<reco::HIPhotonIsolationMap>(config.getParameter<edm::InputTag>("HIPhotonIsolationMapInput"))
+          !config.getParameter<edm::InputTag>("hiPhotonIsolationMapInput").label().empty()
+              ? consumes<reco::HIPhotonIsolationMap>(config.getParameter<edm::InputTag>("hiPhotonIsolationMapInput"))
               : edm::EDGetTokenT<reco::HIPhotonIsolationMap>{}},
       recoHIPhotonIsolationMapOutputName_{!recoHIPhotonIsolationMapInputToken_.isUninitialized()
-                                              ? config.getParameter<std::string>("HIPhotonIsolationMapOutput")
+                                              ? config.getParameter<std::string>("hiPhotonIsolationMapOutput")
                                               : std::string{}},
       //calibration flags
       applyPhotonCalibOnData_(config.getParameter<bool>("applyPhotonCalibOnData")),
