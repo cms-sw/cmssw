@@ -52,6 +52,14 @@ phase2_common.toModify(reducedEgamma,
         preshowerEcalHits = cms.InputTag(""),
 )
 
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
+(pp_on_AA_2018 | pp_on_PbPb_run3).toModify(
+    reducedEgamma,
+    HIPhotonIsolationMapInput = cms.InputTag("photonIsolationHIProducerppGED"),
+    HIPhotonIsolationMapOutput = cms.string("photonIsolationHIProducerppGED")
+)
+
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 run2_miniAOD_80XLegacy.toModify(
     reducedEgamma, 
