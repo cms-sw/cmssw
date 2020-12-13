@@ -8,7 +8,6 @@
 #include "DataFormats/HGCalReco/interface/TICLSeedingRegion.h"
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
 #include "RecoParticleFlow/PFTracking/interface/PFTrackAlgoTools.h"
-#include "DataFormats/Common/interface/getRef.h"
 
 class GeneralTracksImporter : public BlockElementImporterBase {
 public:
