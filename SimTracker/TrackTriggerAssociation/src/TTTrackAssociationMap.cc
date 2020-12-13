@@ -9,34 +9,33 @@
 
 /// Operations
 template <>
-edm::Ptr<TrackingParticle> TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::findTrackingParticlePtr(
-    edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_> > aTrack) const {
+TrackingParticlePtr TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::findTrackingParticlePtr(
+    TTTrackPtr aTrack) const {
   if (trackToTrackingParticleMap.find(aTrack) != trackToTrackingParticleMap.end()) {
     return trackToTrackingParticleMap.find(aTrack)->second;
   }
 
   /// Default: return NULL
-  edm::Ptr<TrackingParticle>* temp = new edm::Ptr<TrackingParticle>();
+  TrackingParticlePtr* temp = new TrackingParticlePtr();
   return *temp;
 }
 
 template <>
-std::vector<edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_> > > TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::findTTTrackPtrs(
-    edm::Ptr<TrackingParticle> aTrackingParticle) const {
+std::vector<TTTrackPtr> TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::findTTTrackPtrs(
+    TrackingParticlePtr aTrackingParticle) const {
   if (trackingParticleToTrackVectorMap.find(aTrackingParticle) != trackingParticleToTrackVectorMap.end()) {
     return trackingParticleToTrackVectorMap.find(aTrackingParticle)->second;
   }
 
   /// Default: return empty vector
-  std::vector<edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_> > > tempVec;
+  std::vector<TTTrackPtr > tempVec;
   tempVec.clear();
   return tempVec;
 }
 
 /// MC truth
 template <>
-bool TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::isLooselyGenuine(
-    edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_> > aTrack) const {
+bool TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::isLooselyGenuine(TTTrackPtr aTrack) const {
   /// Check if there is a TrackingParticle
   if ((this->findTrackingParticlePtr(aTrack)).isNull())
     return false;
@@ -46,16 +45,14 @@ bool TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::isLooselyGenuine(
 
 /// MC truth
 template <>
-bool TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::isGenuine(edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_> > aTrack) const {
-  /// Check if there is a TrackingParticle
+bool TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::isGenuine(TTTrackPtr aTrack) const {
+  /// Check if there is an associated TrackingParticle
   if ((this->findTrackingParticlePtr(aTrack)).isNull())
     return false;
 
-  /// Get all the stubs from this TrackingParticle
-  std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_> >, TTStub<Ref_Phase2TrackerDigi_> > >
-      TP_Stubs = theStubAssociationMap->findTTStubRefs(this->findTrackingParticlePtr(aTrack));
-  std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_> >, TTStub<Ref_Phase2TrackerDigi_> > >
-      TRK_Stubs = aTrack->getStubRefs();
+  /// Get all the stubs from this track & associated TrackingParticle
+  std::vector<TTStubRef> TRK_Stubs = aTrack->getStubRefs();
+  std::vector<TTStubRef> TP_Stubs = theStubAssociationMap->findTTStubRefs(this->findTrackingParticlePtr(aTrack));
 
   bool one2SStub = false;
   for (unsigned int js = 0; js < TRK_Stubs.size(); js++) {
@@ -78,8 +75,7 @@ bool TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::isGenuine(edm::Ptr<TTTrack<R
 }
 
 template <>
-bool TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::isCombinatoric(
-    edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_> > aTrack) const {
+bool TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::isCombinatoric(TTTrackPtr aTrack) const {
   /// Defined by exclusion
   if (this->isLooselyGenuine(aTrack))
     return false;
@@ -91,12 +87,11 @@ bool TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::isCombinatoric(
 }
 
 template <>
-bool TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::isUnknown(edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_> > aTrack) const {
-  /// UNKNOWN means that more than 2 stubs are unknown
+bool TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::isUnknown(TTTrackPtr aTrack) const {
+  /// UNKNOWN means that >= 2 stubs are unknown
   int unknownstubs = 0;
 
-  std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_> >, TTStub<Ref_Phase2TrackerDigi_> > >
-      theseStubs = aTrack->getStubRefs();
+  std::vector<TTStubRef> theseStubs = aTrack->getStubRefs();
   for (unsigned int i = 0; i < theseStubs.size(); i++) {
     if (theStubAssociationMap->isUnknown(theseStubs.at(i)) == false) {
       ++unknownstubs;
