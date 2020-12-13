@@ -32,6 +32,8 @@ reducedEgamma = cms.EDProducer("ReducedEGProducer",
   photonFloatValueMapOutput = cms.vstring(),
   ootPhotonFloatValueMapSources = cms.VInputTag(),
   ootPhotonFloatValueMapOutput = cms.vstring(),
+  hiPhotonIsolationMapInput = cms.InputTag(""),
+  hiPhotonIsolationMapOutput = cms.string(""),
   gsfElectronFloatValueMapSources = cms.VInputTag(),
   gsfElectronFloatValueMapOutput = cms.vstring(),
   applyPhotonCalibOnData = cms.bool(False),
@@ -56,8 +58,8 @@ from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
 (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(
     reducedEgamma,
-    HIPhotonIsolationMapInput = cms.InputTag("photonIsolationHIProducerppGED"),
-    HIPhotonIsolationMapOutput = cms.string("photonIsolationHIProducerppGED")
+    hiPhotonIsolationMapInput = cms.InputTag("photonIsolationHIProducerppGED"),
+    hiPhotonIsolationMapOutput = cms.string("photonIsolationHIProducerppGED")
 )
 
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
