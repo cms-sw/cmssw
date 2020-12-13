@@ -8,6 +8,7 @@ from PhysicsTools.NanoAOD.lheInfoTable_cfi import *
 from PhysicsTools.NanoAOD.genWeightsTable_cfi import *
 from PhysicsTools.NanoAOD.genVertex_cff import *
 from PhysicsTools.NanoAOD.common_cff import Var,CandVars
+from PhysicsTools.NanoAOD.nano_eras_cff import *
 
 nanoMetadata = cms.EDProducer("UniqueStringProducer",
     strings = cms.PSet(
@@ -63,7 +64,6 @@ def customizeNanoGENFromMini(process):
     process.nanogenSequence.insert(0, process.genParticles2HepMC)
     process.nanogenSequence.insert(0, process.mergedGenParticles)
 
-    from PhysicsTools.NanoAOD.nano_eras_cff import *
     (run2_nanoAOD_92X | run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016 | run2_nanoAOD_94X2016 | \
         run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | \
         run2_nanoAOD_102Xv1).toReplaceWith(nanogenSequence, nanogenSequence.copyAndExclude([genVertexTable, genVertexT0Table]))
