@@ -362,6 +362,7 @@ workflows[136.8562] = ['',['RunZeroBias1_hBStarRP','HLTDR2_2018_hBStar','RECODR2
 ### NANOAOD wf on 2018 prompt reco MINIADD
 workflows[136.8521] = ['',['RunJetHT2018A_nano','NANOEDM2018_102Xv1','HARVESTNANOAOD2018_102Xv1']]
 workflows[136.8522] = ['',['RunJetHT2018A_nanoUL','NANOEDM2018_106Xv1','HARVESTNANOAOD2018_106Xv1']]
+workflows[136.8523] = ['',['RunJetHT2018C_nanoULremini','NANOEDM2018_106Xv2','HARVESTNANOAOD2018_106Xv2']]
 
 ### run 2018B ###
 workflows[136.861] = ['',['RunHLTPhy2018B','HLTDR2_2018','RECODR2_2018reHLT_Offline','HARVEST2018']]
