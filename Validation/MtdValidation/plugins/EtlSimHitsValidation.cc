@@ -220,6 +220,8 @@ void EtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
           weight = -weight;
       }
 
+      // --- Fill the histograms
+
       meHitEnergy_[idet]->Fill((hit.second).energy);
       meHitTime_[idet]->Fill((hit.second).time);
       meHitXlocal_[idet]->Fill((hit.second).x);
