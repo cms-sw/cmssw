@@ -119,7 +119,9 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
   // --- Loop over the ELT RECO hits
 
   unsigned int n_reco_etl[4] = {0, 0, 0, 0};
+
   for (const auto& recHit : *etlRecHitsHandle) {
+    double weight = 1.0;
     ETLDetId detId = recHit.id();
     DetId geoId = detId.geographicalId();
     const MTDGeomDet* thedet = geom->idToDet(geoId);
@@ -144,6 +146,9 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
     }
 
     if (topo2Dis) {
+      if (detId.discSide() == 1) {
+        weight = -weight;
+      }
       if ((detId.zside() == -1) && (detId.nDisc() == 1)) {
         idet = 0;
       } else if ((detId.zside() == -1) && (detId.nDisc() == 2)) {
@@ -162,7 +167,7 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
     meHitEnergy_[idet]->Fill(recHit.energy());
     meHitTime_[idet]->Fill(recHit.time());
 
-    meOccupancy_[idet]->Fill(global_point.x(), global_point.y());
+    meOccupancy_[idet]->Fill(global_point.x(), global_point.y(), weight);
     meHitX_[idet]->Fill(global_point.x());
     meHitY_[idet]->Fill(global_point.y());
     meHitZ_[idet]->Fill(global_point.z());
@@ -191,6 +196,7 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
   // --- Loop over the ETL RECO clusters ---
   for (const auto& DetSetClu : *etlRecCluHandle) {
     for (const auto& cluster : DetSetClu) {
+      double weight = 1.0;
       if (topo1Dis) {
         if (cluster.energy() < hitMinEnergy1Dis_)
           continue;
@@ -225,6 +231,9 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
       }
 
       if (topo2Dis) {
+        if (cluId.discSide() == 1) {
+          weight = -weight;
+        }
         if ((cluId.zside() == -1) && (cluId.nDisc() == 1)) {
           idet = 0;
         } else if ((cluId.zside() == -1) && (cluId.nDisc() == 2)) {
@@ -242,7 +251,7 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
       meCluTime_[idet]->Fill(cluster.time());
       meCluPhi_[idet]->Fill(global_point.phi());
       meCluEta_[idet]->Fill(global_point.eta());
-      meCluOccupancy_[idet]->Fill(global_point.x(), global_point.y());
+      meCluOccupancy_[idet]->Fill(global_point.x(), global_point.y(), weight);
       meCluHits_[idet]->Fill(cluster.size());
     }
   }
@@ -263,13 +272,13 @@ void EtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
       "EtlNhitsZposD1", "Number of ETL RECO hits (+Z, Single(topo1D)/First(topo2D) disk);N_{RECO}", 100, 0., 5000.);
   meNhits_[3] = ibook.book1D("EtlNhitsZposD2", "Number of ETL RECO hits (+Z, Second disk);N_{RECO}", 100, 0., 5000.);
   meHitEnergy_[0] = ibook.book1D(
-      "EtlHitEnergyZnegD1", "ETL RECO hits energy (-Z, Single(topo1D)/First(topo2D) disk);E_{RECO} [MeV]", 100, 0., 3.);
+      "EtlHitEnergyZnegD1", "ETL RECO hits energy (-Z, Single(topo1D)/First(topo2D) disk);E_{RECO} [MeV]", 100, 0., 3);
   meHitEnergy_[1] =
-      ibook.book1D("EtlHitEnergyZnegD2", "ETL RECO hits energy (-Z, Second disk);E_{RECO} [MeV]", 100, 0., 3.);
+      ibook.book1D("EtlHitEnergyZnegD2", "ETL RECO hits energy (-Z, Second disk);E_{RECO} [MeV]", 100, 0., 3);
   meHitEnergy_[2] = ibook.book1D(
-      "EtlHitEnergyZposD1", "ETL RECO hits energy (+Z, Single(topo1D)/First(topo2D) disk);E_{RECO} [MeV]", 100, 0., 3.);
+      "EtlHitEnergyZposD1", "ETL RECO hits energy (+Z, Single(topo1D)/First(topo2D) disk);E_{RECO} [MeV]", 100, 0., 3);
   meHitEnergy_[3] =
-      ibook.book1D("EtlHitEnergyZposD2", "ETL RECO hits energy (+Z, Second disk);E_{RECO} [MeV]", 100, 0., 3.);
+      ibook.book1D("EtlHitEnergyZposD2", "ETL RECO hits energy (+Z, Second disk);E_{RECO} [MeV]", 100, 0., 3);
   meHitTime_[0] = ibook.book1D(
       "EtlHitTimeZnegD1", "ETL RECO hits ToA (-Z, Single(topo1D)/First(topo2D) disk);ToA_{RECO} [ns]", 100, 0., 25.);
   meHitTime_[1] = ibook.book1D("EtlHitTimeZnegD2", "ETL RECO hits ToA (-Z, Second disk);ToA_{RECO} [ns]", 100, 0., 25.);
@@ -325,11 +334,11 @@ void EtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
       "EtlHitYZposD1", "ETL RECO hits Y (+Z, Single(topo1D)/First(topo2D) Disk);Y_{RECO} [cm]", 100, -130., 130.);
   meHitY_[3] = ibook.book1D("EtlHitYZposD2", "ETL RECO hits Y (+Z, Second Disk);Y_{RECO} [cm]", 100, -130., 130.);
   meHitZ_[0] = ibook.book1D(
-      "EtlHitZZnegD1", "ETL RECO hits Z (-Z, Single(topo1D)/First(topo2D) Disk);Z_{RECO} [cm]", 100, -304.2, -303.4);
-  meHitZ_[1] = ibook.book1D("EtlHitZZnegD2", "ETL RECO hits Z (-Z, Second Disk);Z_{RECO} [cm]", 100, -304.2, -303.4);
+      "EtlHitZZnegD1", "ETL RECO hits Z (-Z, Single(topo1D)/First(topo2D) Disk);Z_{RECO} [cm]", 100, -302., -298);
+  meHitZ_[1] = ibook.book1D("EtlHitZZnegD2", "ETL RECO hits Z (-Z, Second Disk);Z_{RECO} [cm]", 100, -304., -300.);
   meHitZ_[2] = ibook.book1D(
-      "EtlHitZZposD1", "ETL RECO hits Z (+Z, Single(topo1D)/First(topo2D) Disk);Z_{RECO} [cm]", 100, 303.4, 304.2);
-  meHitZ_[3] = ibook.book1D("EtlHitZZposD2", "ETL RECO hits Z (+Z, Second Disk);Z_{RECO} [cm]", 100, 303.4, 304.2);
+      "EtlHitZZposD1", "ETL RECO hits Z (+Z, Single(topo1D)/First(topo2D) Disk);Z_{RECO} [cm]", 100, 298., 302.);
+  meHitZ_[3] = ibook.book1D("EtlHitZZposD2", "ETL RECO hits Z (+Z, Second Disk);Z_{RECO} [cm]", 100, 300., 304.);
   meHitPhi_[0] = ibook.book1D(
       "EtlHitPhiZnegD1", "ETL RECO hits #phi (-Z, Single(topo1D)/First(topo2D) Disk);#phi_{RECO} [rad]", 100, -3.2, 3.2);
   meHitPhi_[1] =
@@ -532,7 +541,7 @@ void EtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
   meCluHits_[3] =
       ibook.book1D("EtlCluHitNumberZposD2", "ETL hits per cluster (+Z, Second Disk);Cluster size", 10, 0, 10);
   meCluOccupancy_[0] =
-      ibook.book2D("EtlOccupancyZnegD1",
+      ibook.book2D("EtlCluOccupancyZnegD1",
                    "ETL cluster X vs Y (-Z, Single(topo1D)/First(topo2D) Disk);X_{RECO} [cm]; Y_{RECO} [cm]",
                    100,
                    -150.,
@@ -540,7 +549,7 @@ void EtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
                    100,
                    -150,
                    150);
-  meCluOccupancy_[1] = ibook.book2D("EtlOccupancyZnegD2",
+  meCluOccupancy_[1] = ibook.book2D("EtlCluOccupancyZnegD2",
                                     "ETL cluster X vs Y (-Z, Second Disk);X_{RECO} [cm]; Y_{RECO} [cm]",
                                     100,
                                     -150.,
@@ -549,7 +558,7 @@ void EtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
                                     -150,
                                     150);
   meCluOccupancy_[2] =
-      ibook.book2D("EtlOccupancyZposD1",
+      ibook.book2D("EtlCluOccupancyZposD1",
                    "ETL cluster X vs Y (+Z, Single(topo1D)/First(topo2D) Disk);X_{RECO} [cm]; Y_{RECO} [cm]",
                    100,
                    -150.,
@@ -557,7 +566,7 @@ void EtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
                    100,
                    -150,
                    150);
-  meCluOccupancy_[3] = ibook.book2D("EtlOccupancyZposD2",
+  meCluOccupancy_[3] = ibook.book2D("EtlCluOccupancyZposD2",
                                     "ETL cluster X vs Y (+Z, Second Disk);X_{RECO} [cm]; Y_{RECO} [cm]",
                                     100,
                                     -150.,

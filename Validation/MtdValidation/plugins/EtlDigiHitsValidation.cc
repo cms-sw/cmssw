@@ -109,7 +109,7 @@ void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
   for (const auto& dataFrame : *etlDigiHitsHandle) {
     // --- Get the on-time sample
     int isample = 2;
-
+    double weight = 1.0;
     const auto& sample = dataFrame.sample(isample);
     ETLDetId detId = dataFrame.id();
     DetId geoId = detId.geographicalId();
@@ -138,6 +138,9 @@ void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
     }
 
     if (topo2Dis) {
+      if (detId.discSide() == 1) {
+        weight = -weight;
+      }
       if ((detId.zside() == -1) && (detId.nDisc() == 1)) {
         idet = 0;
       } else if ((detId.zside() == -1) && (detId.nDisc() == 2)) {
@@ -153,7 +156,7 @@ void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
 
     meHitCharge_[idet]->Fill(sample.data());
     meHitTime_[idet]->Fill(sample.toa());
-    meOccupancy_[idet]->Fill(global_point.x(), global_point.y());
+    meOccupancy_[idet]->Fill(global_point.x(), global_point.y(), weight);
 
     meHitX_[idet]->Fill(global_point.x());
     meHitY_[idet]->Fill(global_point.y());
@@ -283,11 +286,11 @@ void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
       "EtlHitYZposD1", "ETL DIGI hits Y (+Z, Single(topo1D)/First(topo2D) disk);Y_{DIGI} [cm]", 100, -130., 130.);
   meHitY_[3] = ibook.book1D("EtlHitYZposD2", "ETL DIGI hits Y (+Z, Second disk);Y_{DIGI} [cm]", 100, -130., 130.);
   meHitZ_[0] = ibook.book1D(
-      "EtlHitZZnegD1", "ETL DIGI hits Z (-Z, Single(topo1D)/First(topo2D) disk);Z_{DIGI} [cm]", 100, -304.2, -303.4);
-  meHitZ_[1] = ibook.book1D("EtlHitZZnegD2", "ETL DIGI hits Z (-Z, Second disk);Z_{DIGI} [cm]", 100, -304.2, -303.4);
+      "EtlHitZZnegD1", "ETL DIGI hits Z (-Z, Single(topo1D)/First(topo2D) disk);Z_{DIGI} [cm]", 100, -302., -298.);
+  meHitZ_[1] = ibook.book1D("EtlHitZZnegD2", "ETL DIGI hits Z (-Z, Second disk);Z_{DIGI} [cm]", 100, -304., -300.);
   meHitZ_[2] = ibook.book1D(
-      "EtlHitZZposD1", "ETL DIGI hits Z (+Z, Single(topo1D)/First(topo2D) disk);Z_{DIGI} [cm]", 100, 303.4, 304.2);
-  meHitZ_[3] = ibook.book1D("EtlHitZZposD2", "ETL DIGI hits Z (+Z, Second disk);Z_{DIGI} [cm]", 100, 303.4, 304.2);
+      "EtlHitZZposD1", "ETL DIGI hits Z (+Z, Single(topo1D)/First(topo2D) disk);Z_{DIGI} [cm]", 100, 298., 302.);
+  meHitZ_[3] = ibook.book1D("EtlHitZZposD2", "ETL DIGI hits Z (+Z, Second disk);Z_{DIGI} [cm]", 100, 300., 304.);
 
   meHitPhi_[0] = ibook.book1D("EtlHitPhiZnegD1",
                               "ETL DIGI hits #phi (-Z, Single(topo1D)/First(topo2D) disk);#phi_{DIGI} [rad]",
