@@ -29,7 +29,6 @@ private:
 
   static constexpr double k_ScaleFromDD4Hep = (1.0 / dd4hep::mm);
   static constexpr double k_ScaleFromDD4HepInv = dd4hep::mm;
-
 };
 
 #endif
