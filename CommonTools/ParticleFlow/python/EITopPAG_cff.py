@@ -28,13 +28,13 @@ from RecoBTag.SecondaryVertex.pfCombinedInclusiveSecondaryVertexV2BJetTags_cfi i
 #### condenses information into the new "particleFlow" collection.            ####
 
 
-pfPileUpEI = pfPileUp.clone( PFCandidates = cms.InputTag('particleFlowPtrs') )
-pfNoPileUpEI = pfNoPileUp.clone( bottomCollection = cms.InputTag('particleFlowPtrs'),
-                                 topCollection = cms.InputTag('pfPileUpEI') )
+pfPileUpEI   = pfPileUp.clone( PFCandidates = 'particleFlowPtrs' )
+pfNoPileUpEI = pfNoPileUp.clone( bottomCollection = 'particleFlowPtrs',
+                                 topCollection = 'pfPileUpEI' )
 
-pfPileUpJMEEI = pfPileUpJME.clone( PFCandidates = cms.InputTag('particleFlowPtrs') )
-pfNoPileUpJMEEI = pfNoPileUpJME.clone( bottomCollection = cms.InputTag('particleFlowPtrs'),
-                                       topCollection = cms.InputTag('pfPileUpJMEEI') )
+pfPileUpJMEEI   = pfPileUpJME.clone( PFCandidates = 'particleFlowPtrs' )
+pfNoPileUpJMEEI = pfNoPileUpJME.clone( bottomCollection = 'particleFlowPtrs',
+                                       topCollection = 'pfPileUpJMEEI' )
 
 
 #### Muons ####
@@ -47,7 +47,7 @@ pfAllMuonsEI = cms.EDFilter(
     makeClones = cms.bool(True)
 )
 
-pfMuonsFromVertexEI = pfMuonsFromVertex.clone( src = cms.InputTag('pfAllMuonsEI') )
+pfMuonsFromVertexEI = pfMuonsFromVertex.clone( src = 'pfAllMuonsEI' )
 
 pfIsolatedMuonsEI = cms.EDFilter(
     "PFCandidateFwdPtrCollectionStringFilter",
@@ -83,7 +83,7 @@ pfAllElectronsEI = cms.EDFilter(
     makeClones = cms.bool(True)
 )
 
-pfElectronsFromVertexEI = pfElectronsFromVertex.clone( src = cms.InputTag('pfAllElectronsEI') )
+pfElectronsFromVertexEI = pfElectronsFromVertex.clone( src = 'pfAllElectronsEI' )
 
 pfIsolatedElectronsEI = cms.EDFilter(
     "PFCandidateFwdPtrCollectionStringFilter",
@@ -110,22 +110,22 @@ pfNoElectronJME.bottomCollection = 'pfNoMuonJME'
 #### Jets ####
 
 pfJetsEI = pfJets.clone()
-pfJetsPtrsEI = pfJetsPtrs.clone(src=cms.InputTag("pfJetsEI"))
+pfJetsPtrsEI = pfJetsPtrs.clone( src = "pfJetsEI" )
 
 pfJetSequenceEI = cms.Sequence( pfJetsEI+ pfJetsPtrsEI )
 
 pfNoJetEI = pfNoJet.clone(
     topCollection = 'pfJetsPtrsEI',
     bottomCollection = 'pfNoElectronJME'
-    )
+)
 
 #### Taus ####
 pfTausEI = pfTaus.clone()
-pfTausPtrsEI = pfTausPtrs.clone(src=cms.InputTag("pfTausEI") )
+pfTausPtrsEI = pfTausPtrs.clone( src = "pfTausEI" )
 pfNoTauEI = pfNoTau.clone(
-    topCollection = cms.InputTag('pfTausPtrsEI'),
-    bottomCollection = cms.InputTag('pfJetsPtrsEI')
-    )
+    topCollection = 'pfTausPtrsEI',
+    bottomCollection = 'pfJetsPtrsEI'
+)
 
 pfTauEISequence = cms.Sequence(
     pfTausPreSequence+
@@ -136,20 +136,20 @@ pfTauEISequence = cms.Sequence(
 
 #### B-tagging ####
 pfImpactParameterTagInfosEI = pfImpactParameterTagInfos.clone(
-    jets = cms.InputTag( 'pfJetsEI' )
-    )
+    jets =  'pfJetsEI'
+)
 pfInclusiveSecondaryVertexFinderTagInfosEI = pfInclusiveSecondaryVertexFinderTagInfos.clone(
-    trackIPTagInfos = cms.InputTag( 'pfImpactParameterTagInfosEI' )
-    )
+    trackIPTagInfos =  'pfImpactParameterTagInfosEI'
+)
 pfCombinedInclusiveSecondaryVertexV2BJetTagsEI = pfCombinedInclusiveSecondaryVertexV2BJetTags.clone(
-    tagInfos = cms.VInputTag(cms.InputTag("pfImpactParameterTagInfosEI"),
-                             cms.InputTag("pfInclusiveSecondaryVertexFinderTagInfosEI"))
-    )
+    tagInfos = ["pfImpactParameterTagInfosEI",
+                "pfInclusiveSecondaryVertexFinderTagInfosEI"]
+)
 
 
 
 #### MET ####
-pfMetEI = pfMET.clone(srcJets=cms.InputTag("pfJetsEI"))
+pfMetEI = pfMET.clone(srcJets="pfJetsEI")
 
 #EITopPAG = cms.Sequence(
 EIsequence = cms.Sequence(
