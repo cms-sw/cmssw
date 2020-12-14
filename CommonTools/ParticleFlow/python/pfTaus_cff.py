@@ -53,14 +53,10 @@ pfTausSelectionDiscriminator = hpsSelectionDiscriminator.clone(
     PFTauProducer = "pfTausCombiner"
 )
 pfTausProducerSansRefs = hpsPFTauProducerSansRefs.clone(
-   src = "pfTausCombiner"
-)
-pfTausProducerSansRefs = cms.EDProducer(
-    "RecoTauCleaner",
-    src = cms.InputTag("pfTausCombiner"),
-    outputSelection = cms.string(""),
-    verbosity = cms.int32(0),
-    cleaners = cms.VPSet(
+    src = "pfTausCombiner",
+    outputSelection = "",
+    verbosity = 0,
+    cleaners = [
         cleaners.unitCharge,
         cms.PSet(
             name = cms.string("leadStripPtLt2_5"),
@@ -77,7 +73,7 @@ pfTausProducerSansRefs = cms.EDProducer(
             src = cms.InputTag("pfTausSelectionDiscriminator"),
         ),
         cleaners.combinedIsolation
-    )
+    ]
 )
 
 #cloning discriminants
