@@ -219,10 +219,10 @@ namespace {
       std::string titleMap = "Fraction of bad Strips per module, Run: " + theIOVsince + " (tag: " + tagname + ")";
 
       SiStripTkMaps myMap("COLZA0 L");
-      myMap.bookMap(titleMap,"");
+      myMap.bookMap(titleMap, "");
 
       SiStripTkMaps ghost("AL");
-      ghost.bookMap(titleMap,"");
+      ghost.bookMap(titleMap, "");
 
       std::vector<uint32_t> detid;
       payload->getDetIds(detid);
@@ -254,9 +254,7 @@ namespace {
       ltx.SetTextFont(62);
       ltx.SetTextSize(0.045);
       ltx.SetTextAlign(11);
-      ltx.DrawLatexNDC(gPad->GetLeftMargin(),
-		       1 - gPad->GetTopMargin() + 0.02,
-		       titleMap.c_str());
+      ltx.DrawLatexNDC(gPad->GetLeftMargin(), 1 - gPad->GetTopMargin() + 0.02, titleMap.c_str());
 
       canvas.SaveAs(fileName.c_str());
 
