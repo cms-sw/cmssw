@@ -50,73 +50,25 @@
 #include "CalibTracker/SiPixelQuality/interface/SiPixelDetectorStatus.h"
 
 /* Cache to pertain SiPixelTopoFinder */
-class SiPixelTopoCache {
+class SiPixelStatusCache {
 public:
-  SiPixelTopoCache(edm::ParameterSet const& iPSet){};
-
-  std::shared_ptr<SiPixelTopoFinder> getSiPixelTopoFinder(edm::EventSetup const& iSetup) const {
-    std::shared_ptr<SiPixelTopoFinder> returnValue;
-
-    m_queue.pushAndWait([&]() {
-      if (!this->siPixelFedCablingMapWatcher_.check(iSetup) && !this->trackerDIGIGeoWatcher_.check(iSetup) &&
-          !this->trackerTopoWatcher_.check(iSetup)) {
-        /*the condition hasn't changed so we can just use our old value*/
-        returnValue = m_mostRecentSiPixelTopoFinder_;
-      } else {
-        edm::ESHandle<TrackerGeometry> tkGeoHandle;
-        iSetup.get<TrackerDigiGeometryRecord>().get(tkGeoHandle);
-        const TrackerGeometry* trackerGeometry = tkGeoHandle.product();
-
-        edm::ESHandle<TrackerTopology> tkTopoHandle;
-        iSetup.get<TrackerTopologyRcd>().get(tkTopoHandle);
-        const TrackerTopology* trackerTopology = tkTopoHandle.product();
-
-        edm::ESHandle<SiPixelFedCablingMap> cMapHandle;
-        iSetup.get<SiPixelFedCablingMapRcd>().get(cMapHandle);
-        const SiPixelFedCablingMap* cablingMap = cMapHandle.product();
-
-        /*the condition has changed so we need to update*/
-        //const TrackerGeometry* trackerGeometry = &iSetup.getData(trackerGeometryToken);
-        //const TrackerTopology* trackerTopology = &iSetup.getData(trackerTopologyToken);
-        //const SiPixelFedCablingMap* cablingMap = &iSetup.getData(siPixelFedCablingMapToken);
-
-        returnValue = m_holder.makeOrGet([]() { return new SiPixelTopoFinder(); });
-        returnValue->init(trackerGeometry, trackerTopology, cablingMap);
-
-        m_mostRecentSiPixelTopoFinder_ = returnValue;
-      }
-    });  //m_queue
-
-    return returnValue;
-  }
-
-private:
-  mutable edm::ReusableObjectHolder<SiPixelTopoFinder> m_holder;
-  mutable edm::SerialTaskQueue m_queue;
-
-  /*  Condition watchers  */
-  /* CablingMaps */
-  mutable edm::ESWatcher<SiPixelFedCablingMapRcd> siPixelFedCablingMapWatcher_;
-  /* TrackerDIGIGeo */
-  mutable edm::ESWatcher<TrackerDigiGeometryRecord> trackerDIGIGeoWatcher_;
-  /* TrackerTopology */
-  mutable edm::ESWatcher<TrackerTopologyRcd> trackerTopoWatcher_;
-
-  /* SiPixelTopoFinder */
-  mutable std::shared_ptr<SiPixelTopoFinder> m_mostRecentSiPixelTopoFinder_;
+  //NOTE: these are only changes in the constructor call
+  mutable edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryToken_;
+  mutable edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyToken_;
+  mutable edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> siPixelFedCablingMapToken_;
 };
 
 /*|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
 
 class SiPixelStatusProducer :
 
-    public edm::stream::EDProducer<edm::GlobalCache<SiPixelTopoCache>,
+    public edm::stream::EDProducer<edm::GlobalCache<SiPixelStatusCache>,
                                    edm::RunCache<SiPixelTopoFinder>,
                                    edm::LuminosityBlockSummaryCache<std::vector<SiPixelDetectorStatus>>,
                                    edm::EndLuminosityBlockProducer,
                                    edm::Accumulator> {
 public:
-  SiPixelStatusProducer(edm::ParameterSet const& iPSet, SiPixelTopoCache const*);
+  SiPixelStatusProducer(edm::ParameterSet const& iPSet, SiPixelStatusCache const*);
   ~SiPixelStatusProducer() override;
 
   /* module description */
@@ -150,23 +102,20 @@ public:
 
   /* For global or runCache */
 
-  static std::unique_ptr<SiPixelTopoCache> initializeGlobalCache(edm::ParameterSet const& iPSet) {
+  static std::unique_ptr<SiPixelStatusCache> initializeGlobalCache(edm::ParameterSet const& iPSet) {
     edm::LogInfo("SiPixelStatusProducer") << "Init global Cache " << std::endl;
-    return std::make_unique<SiPixelTopoCache>(iPSet);
+    return std::make_unique<SiPixelStatusCache>();
   }
 
   static std::shared_ptr<SiPixelTopoFinder> globalBeginRun(edm::Run const& iRun,
                                                            edm::EventSetup const& iSetup,
-                                                           GlobalCache const* iCache) {
-    edm::LogInfo("SiPixelStatusProducer") << "Global beginRun " << std::endl;
-    return iCache->getSiPixelTopoFinder(iSetup);
-  }
+                                                           GlobalCache const* iCache);
 
   static void globalEndRun(edm::Run const& iRun, edm::EventSetup const&, RunContext const* iContext) {
     /* Do nothing */
   }
 
-  static void globalEndJob(SiPixelTopoCache const*) { /* Do nothing */
+  static void globalEndJob(SiPixelStatusCache const*) { /* Do nothing */
   }
 
   static std::shared_ptr<std::vector<SiPixelDetectorStatus>> globalBeginLuminosityBlockSummary(
@@ -227,12 +176,6 @@ private:
   edm::InputTag fPixelClusterLabel_;
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> fSiPixelClusterToken_;
   std::vector<edm::EDGetTokenT<PixelFEDChannelCollection>> theBadPixelFEDChannelsTokens_;
-
-  /*
-  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryToken_;
-  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyToken_;
-  edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> siPixelFedCablingMapToken_;
-  */
 
   /*|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
   /* private data member, one instance per stream */
