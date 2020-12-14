@@ -136,7 +136,10 @@ const double HGCalShowerShapeHelper::getRvar(double cylinderR, double energyNorm
     return 0;
   }
 
-  assert(energyNorm > 0);
+  if (energyNorm <= 0) {
+    edm::LogWarning("HGCalShowerShapeHelper")
+        << "Encountered negative or zero energy for HGCal R-variable denomintor: " << energyNorm << std::endl;
+  }
 
   double cylinderR2 = cylinderR * cylinderR;
 
