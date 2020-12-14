@@ -119,7 +119,6 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
   // --- Loop over the ELT RECO hits
 
   unsigned int n_reco_etl[4] = {0, 0, 0, 0};
-
   for (const auto& recHit : *etlRecHitsHandle) {
     double weight = 1.0;
     ETLDetId detId = recHit.id();
