@@ -28,6 +28,7 @@
 #include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
 #include "DataFormats/Math/interface/CMSUnits.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace cms_units::operators;
 
@@ -91,11 +92,19 @@ std::unique_ptr<RPCGeometry> RPCGeometryBuilder::buildGeometry(DDFilteredView& f
 
     std::vector<double> dpar = fview.logicalPart().solid().parameters();
     std::string name = fview.logicalPart().name().name();
+
+    edm::LogVerbatim("RPCGeometryBuilder")
+        << "(1) "
+        << "detid: " << detid << " name: " << name << " number of Strips: " << nStrips;
+
     DDTranslation tran = fview.translation();
     DDRotationMatrix rota = fview.rotation();
     Surface::PositionType pos(geant_units::operators::convertMmToCm(tran.x()),
                               geant_units::operators::convertMmToCm(tran.y()),
                               geant_units::operators::convertMmToCm(tran.z()));
+    edm::LogVerbatim("RPCGeometryBuilder") << "(2), tran.x() " << geant_units::operators::convertMmToCm(tran.x())
+                                           << " tran.y(): " << geant_units::operators::convertMmToCm(tran.y())
+                                           << " tran.z(): " << geant_units::operators::convertMmToCm(tran.z());
 
     DD3Vector x, y, z;
     rota.GetComponents(x, y, z);
@@ -116,11 +125,15 @@ std::unique_ptr<RPCGeometry> RPCGeometryBuilder::buildGeometry(DDFilteredView& f
       const float width = geant_units::operators::convertMmToCm(dpar[0]);
       const float length = geant_units::operators::convertMmToCm(dpar[1]);
       const float thickness = geant_units::operators::convertMmToCm(dpar[2]);
+
+      // Barrel
+      edm::LogVerbatim("RPCGeometryBuilder")
+          << "(3) dpar.size() == 3, width: " << width << " length: " << length << " thickness: " << thickness;
+
       bounds = new RectangularPlaneBounds(width, length, thickness);
       const std::vector<float> pars = {width, length, float(numbOfStrips.doubles()[0])};
 
       rollspecs = new RPCRollSpecs(GeomDetEnumerators::RPCBarrel, name, pars);
-      LogDebug("RPCGeometryBuilder") << "Barrel " << name << " par " << width << " " << length << " " << thickness;
 
     } else {
       const float be = geant_units::operators::convertMmToCm(dpar[4]);
@@ -134,8 +147,9 @@ std::unique_ptr<RPCGeometry> RPCGeometryBuilder::buildGeometry(DDFilteredView& f
                                        float(geant_units::operators::convertMmToCm(dpar[8])),
                                        float(geant_units::operators::convertMmToCm(dpar[0])),
                                        float(numbOfStrips.doubles()[0])};
-      LogDebug("RPCGeometryBuilder") << "Forward " << name << " par " << dpar[4] << " " << dpar[8] << " " << dpar[3]
-                                     << " " << dpar[0];
+      //Forward
+      edm::LogVerbatim("RPCGeometryBuilder")
+          << "(4), else, dpar[4]: " << be << " dpar[8]: " << te << " dpar[0]: " << ap << " ti: " << ti;
 
       rollspecs = new RPCRollSpecs(GeomDetEnumerators::RPCEndcap, name, pars);
 
@@ -252,13 +266,18 @@ std::unique_ptr<RPCGeometry> RPCGeometryBuilder::buildGeometry(cms::DDFilteredVi
 
     std::string_view name = fview.name();
 
+    edm::LogVerbatim("RPCGeometryBuilder")
+        << "(1), detid: " << rawidCh << " name: " << std::string(name) << " number of Strips: " << nStrips;
+
     const Double_t* tran = fview.trans();
 
     DDRotationMatrix rota;
     fview.rot(rota);
 
-    Surface::PositionType pos(tran[0], tran[1], tran[2]);
-
+    Surface::PositionType pos(tran[0] / dd4hep::cm, tran[1] / dd4hep::cm, tran[2] / dd4hep::cm);
+    edm::LogVerbatim("RPCGeometryBuilder")
+        << "(2), tran.x(): " << tran[0] / dd4hep::cm << " tran.y(): " << tran[1] / dd4hep::cm
+        << " tran.z(): " << tran[2] / dd4hep::cm;
     DD3Vector x, y, z;
     rota.GetComponents(x, y, z);
     Surface::RotationType rot(float(x.X()),
@@ -275,10 +294,12 @@ std::unique_ptr<RPCGeometry> RPCGeometryBuilder::buildGeometry(cms::DDFilteredVi
     Bounds* bounds = nullptr;
 
     if (dd4hep::isA<dd4hep::Box>(fview.solid())) {
-      const float width = dpar[0];
-      const float length = dpar[1];
-      const float thickness = dpar[2];
-
+      const float width = dpar[0] / dd4hep::cm;
+      const float length = dpar[1] / dd4hep::cm;
+      const float thickness = dpar[2] / dd4hep::cm;
+      edm::LogVerbatim("RPCGeometryBuilder")
+          << "(3), dd4hep::Box, width: " << dpar[0] / dd4hep::cm << " length: " << dpar[1] / dd4hep::cm
+          << " thickness: " << dpar[2] / dd4hep::cm;
       bounds = new RectangularPlaneBounds(width, length, thickness);
 
       const std::vector<float> pars = {width, length, float(nStrips)};
@@ -286,14 +307,18 @@ std::unique_ptr<RPCGeometry> RPCGeometryBuilder::buildGeometry(cms::DDFilteredVi
       rollspecs = new RPCRollSpecs(GeomDetEnumerators::RPCBarrel, std::string(name), pars);
 
     } else {
-      const float be = dpar[0];
-      const float te = dpar[1];
-      const float ap = dpar[3];
-      const float ti = 0.4;
+      const float be = dpar[0] / dd4hep::cm;
+      const float te = dpar[1] / dd4hep::cm;
+      const float ap = dpar[3] / dd4hep::cm;
+      const float ti = 0.4 / dd4hep::cm;
 
       bounds = new TrapezoidalPlaneBounds(be, te, ap, ti);
-      const std::vector<float> pars = {float(dpar[0]), float(dpar[1]), float(dpar[3]), float(nStrips)};
-
+      const std::vector<float> pars = {
+          float(dpar[0] / dd4hep::cm), float(dpar[1] / dd4hep::cm), float(dpar[3] / dd4hep::cm), float(nStrips)};
+      edm::LogVerbatim("RPCGeometryBuilder")
+          << "(4), else, dpar[0] (i.e. dpar[4] for DD): " << dpar[0] / dd4hep::cm
+          << " dpar[1] (i.e. dpar[8] for DD): " << dpar[1] / dd4hep::cm
+          << " dpar[3] (i.e. dpar[0] for DD): " << dpar[3] / dd4hep::cm << " ti: " << ti / dd4hep::cm;
       rollspecs = new RPCRollSpecs(GeomDetEnumerators::RPCEndcap, std::string(name), pars);
 
       Basic3DVector<float> newX(1., 0., 0.);
