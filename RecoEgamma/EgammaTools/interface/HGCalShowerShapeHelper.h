@@ -98,19 +98,16 @@ public:
     double sigma2vv;
     double sigma2ww;
 
-    ShowerWidths() {
-      sigma2xx = 0.0;
-      sigma2yy = 0.0;
-      sigma2zz = 0.0;
-
-      sigma2xy = 0.0;
-      sigma2yz = 0.0;
-      sigma2zx = 0.0;
-
-      sigma2uu = 0.0;
-      sigma2vv = 0.0;
-      sigma2ww = 0.0;
-    }
+    ShowerWidths()
+        : sigma2xx(0.0),
+          sigma2yy(0.0),
+          sigma2zz(0.0),
+          sigma2xy(0.0),
+          sigma2yz(0.0),
+          sigma2zx(0.0),
+          sigma2uu(0.0),
+          sigma2vv(0.0),
+          sigma2ww(0.0) {}
   };
 
   void initPerEvent(const edm::EventSetup &iSetup, const std::vector<reco::PFRecHit> &recHits);
