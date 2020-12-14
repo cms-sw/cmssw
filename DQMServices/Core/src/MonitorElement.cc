@@ -907,9 +907,9 @@ namespace dqm::impl {
   void MonitorElement::setStatOverflows(unsigned int value) {
     auto access = this->accessMut();
     if (value == kTRUE)
-      access.value.object_->StatOverflows(TH1::kConsider);
+      access.value.object_->SetStatOverflows(TH1::kConsider);
     else
-      access.value.object_->StatOverflows(value);
+      access.value.object_->SetStatOverflows(TH1::kIgnore);
   }
 
   int64_t MonitorElement::getIntValue() const {
