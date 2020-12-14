@@ -175,7 +175,7 @@ struct HGCalEEAlgo {
 
     waferType_ = std::make_unique<HGCalWaferType>(rad100to200_,
                                                   rad200to300_,
-                                                  (waferSize_ + waferSepar_),
+                                                  ((waferSize_ + waferSepar_) / dd4hep::mm),
                                                   (zMinRadPar_ / dd4hep::mm),
                                                   choiceType_,
                                                   nCutRadPar_,

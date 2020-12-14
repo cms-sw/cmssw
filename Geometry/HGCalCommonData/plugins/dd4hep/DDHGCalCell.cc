@@ -2,7 +2,6 @@
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include <DD4hep/DD4hepUnits.h>
 
 //#define EDM_ML_DEBUG
 
