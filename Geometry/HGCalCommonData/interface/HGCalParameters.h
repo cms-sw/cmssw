@@ -9,6 +9,7 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
+#include "DD4hep/DD4hepUnits.h"
 
 class HGCalParameters {
 public:
@@ -31,10 +32,10 @@ public:
   static constexpr double k_ScaleToDDD = 10.0;
   static constexpr double k_ScaleFromDDDToG4 = 1.0;
   static constexpr double k_ScaleToDDDFromG4 = 1.0;
-  static constexpr double k_ScaleFromDD4Hep = 1.0;
-  static constexpr double k_ScaleToDD4Hep = 1.0;
-  static constexpr double k_ScaleFromDD4HepToG4 = 10.0;
-  static constexpr double k_ScaleToDD4HepFromG4 = 0.1;
+  static constexpr double k_ScaleFromDD4Hep = (1.0 / dd4hep::cm);
+  static constexpr double k_ScaleToDD4Hep = dd4hep::cm;
+  static constexpr double k_ScaleFromDD4HepToG4 = (1.0 / dd4hep::mm);
+  static constexpr double k_ScaleToDD4HepFromG4 = dd4hep::mm;
   static constexpr uint32_t k_CornerSize = 6;
   static constexpr double tol = 1.0e-12;
 
