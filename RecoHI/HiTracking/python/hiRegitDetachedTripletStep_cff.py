@@ -40,14 +40,13 @@ from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi 
 #import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
 # seeding
 hiRegitDetachedTripletStepSeeds     = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepSeeds.clone(
-    RegionFactoryPSet = HiTrackingRegionFactoryFromJetsBlock.clone(),
+    RegionFactoryPSet = HiTrackingRegionFactoryFromJetsBlock.clone(
+    	RegionPSet = dict(ptMin = 1.2)
+    ),
     ClusterCheckPSet = dict(doClusterCheck = False), # do not check for max number of clusters pixel or strips
     OrderedHitsFactoryPSet = dict(
 	SeedingLayers = 'hiRegitDetachedTripletStepSeedLayers'
        #GeneratorPSet = dict(SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor.clone()),
-    ),
-    RegionFactoryPSet = dict(
-	RegionPSet = dict(ptMin = 1.2)
     ),
 )
 # building: feed the new-named seeds
