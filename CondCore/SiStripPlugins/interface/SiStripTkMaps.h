@@ -48,13 +48,13 @@ public:
   ~SiStripTkMaps() {}
 
   //============================================================================
-  void bookMap(const std::string mapTitle,const std::string zAxisTitle) {
+  void bookMap(const std::string mapTitle, const std::string zAxisTitle) {
     double minx = 0xFFFFFF, maxx = -0xFFFFFF, miny = 0xFFFFFF, maxy = -0xFFFFFFF;
     readVertices(minx, maxx, miny, maxy);
 
     // set the titles
-    m_zAxisTitle=zAxisTitle;
-    m_mapTitle=mapTitle;
+    m_zAxisTitle = zAxisTitle;
+    m_mapTitle = mapTitle;
 
     TGaxis::SetMaxDigits(2);
 
@@ -75,22 +75,53 @@ public:
   }
 
   //============================================================================
-  void fill(long rawid, double val) { m_trackerMap->Fill(TString::Format("%ld", rawid), val); }
+  void fill(long rawid, double val) {
+    m_trackerMap->Fill(TString::Format("%ld", rawid), val);
+    m_values.push_back(val);
+  }
 
   //============================================================================
   void drawMap(TCanvas& canvas, std::string option = "") {
     canvas.cd();
-    adjustCanvasMargins(canvas.cd(), 0.07, 0.01, 0.01, 0.10);
+    adjustCanvasMargins(canvas.cd(), 0.08, 0.06, 0.01, 0.06);
 
-    m_trackerMap->SetTitle("");  
+    /*
+    if(!m_values.empty()){
+
+      m_axmax = *std::max_element(m_values.begin(), m_values.end());
+      m_axmin = *std::min_element(m_values.begin(), m_values.end());
+
+      canvas.cd();
+
+      auto color_bar_axis = new TGaxis(gPad->GetUxmin()-0.01,0.03, gPad->GetUxmax()-0.01, 0.03 , m_axmin, m_axmax ,505, "SDH");
+      color_bar_axis->SetName("color_bar_axis");
+      color_bar_axis->Draw();    
+
+    }
+    */
+
+    canvas.Update();
+
+    m_trackerMap->SetTitle("");
     if (!option.empty()) {
       m_trackerMap->Draw(option.c_str());
     } else {
       m_trackerMap->Draw();
     }
 
-    canvas.SetFrameLineColor(0);
+    gPad->Update();
+    TPaletteAxis* palette = (TPaletteAxis*)m_trackerMap->GetListOfFunctions()->FindObject("palette");
+    if (palette != nullptr) {
+      palette->SetLabelSize(0.02);
+      palette->SetX1NDC(0.95);
+      palette->SetX2NDC(0.96);
+      palette->SetY1NDC(0.05);
+      palette->SetY2NDC(0.95);
+      gPad->Modified();
+      gPad->Update();
+    }
 
+    canvas.SetFrameLineColor(0);
   }
 
   //============================================================================
@@ -188,10 +219,12 @@ public:
 
 private:
   Option_t* m_option;
-  std::string m_mapTitle="";
-  std::string m_zAxisTitle="";
+  std::string m_mapTitle = "";
+  std::string m_zAxisTitle = "";
+  double m_axmin, m_axmax;
   std::map<long, std::shared_ptr<TGraph> > m_bins;
   std::vector<unsigned> m_detIdVector;
+  std::vector<double> m_values;
   TrackerTopology m_trackerTopo;
   TH2Poly* m_trackerMap{nullptr};
 };
