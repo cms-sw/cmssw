@@ -38,6 +38,7 @@
 #include "Geometry/MuonNumbering/interface/DTNumberingScheme.h"
 #include "DTGeometryBuilderFromDD4Hep.h"
 #include "DD4hep/Detector.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <memory>
 #include <string>
@@ -49,6 +50,8 @@ using namespace std;
 void DTGeometryBuilderFromDD4Hep::buildGeometry(cms::DDFilteredView& fview,
                                                 DTGeometry& geom,
                                                 const MuonGeometryConstants& num) const {
+  edm::LogVerbatim("DTGeometryBuilder") << "(0) DTGeometryBuilder - DD4Hep ";
+
   bool doChamber = fview.firstChild();
 
   while (doChamber) {
@@ -97,7 +100,11 @@ DTChamber* DTGeometryBuilderFromDD4Hep::buildChamber(cms::DDFilteredView& fview,
   DTChamberId detId(rawid);
   auto const& par = fview.parameters();
 
-  RCPPlane surf(plane(fview, new RectangularPlaneBounds(par[0], par[1], par[2])));
+  RCPPlane surf(
+      plane(fview, new RectangularPlaneBounds(par[0] / dd4hep::cm, par[1] / dd4hep::cm, par[2] / dd4hep::cm)));
+
+  edm::LogVerbatim("DTGeometryBuilder") << "(1) detId: " << rawid << " par[0]: " << par[0] / dd4hep::cm
+                                        << " par[1]: " << par[1] / dd4hep::cm << " par[2]: " << par[2] / dd4hep::cm;
 
   DTChamber* chamber = new DTChamber(detId, surf);
 
@@ -115,7 +122,11 @@ DTSuperLayer* DTGeometryBuilderFromDD4Hep::buildSuperLayer(cms::DDFilteredView& 
 
   auto const& par = fview.parameters();
 
-  RCPPlane surf(plane(fview, new RectangularPlaneBounds(par[0], par[1], par[2])));
+  RCPPlane surf(
+      plane(fview, new RectangularPlaneBounds(par[0] / dd4hep::cm, par[1] / dd4hep::cm, par[2] / dd4hep::cm)));
+
+  edm::LogVerbatim("DTGeometryBuilder") << "(2) detId: " << rawid << " par[0]: " << par[0] / dd4hep::cm
+                                        << " par[1]: " << par[1] / dd4hep::cm << " par[2]: " << par[2] / dd4hep::cm;
 
   DTSuperLayer* slayer = new DTSuperLayer(slId, surf, chamber);
 
@@ -135,13 +146,20 @@ DTLayer* DTGeometryBuilderFromDD4Hep::buildLayer(cms::DDFilteredView& fview,
 
   auto const& par = fview.parameters();
 
-  RCPPlane surf(plane(fview, new RectangularPlaneBounds(par[0], par[1], par[2])));
+  RCPPlane surf(
+      plane(fview, new RectangularPlaneBounds(par[0] / dd4hep::cm, par[1] / dd4hep::cm, par[2] / dd4hep::cm)));
+
+  edm::LogVerbatim("DTGeometryBuilder") << "(3) detId: " << rawid << " par[0]: " << par[0] / dd4hep::cm
+                                        << " par[1]: " << par[1] / dd4hep::cm << " par[2]: " << par[2] / dd4hep::cm;
 
   fview.down();
   bool doWire = fview.sibling();
   int firstWire = fview.volume()->GetNumber();
   auto const& wpar = fview.parameters();
-  float wireLength = wpar[1];
+  float wireLength = wpar[1] / dd4hep::cm;
+
+  edm::LogVerbatim("DTGeometryBuilder") << "(4) detId: " << rawid << " wpar[1]: " << wpar[1] / dd4hep::cm
+                                        << " firstWire: " << firstWire;
 
   int WCounter = 0;
   while (doWire) {
