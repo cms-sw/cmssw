@@ -478,11 +478,11 @@ void TauValidationMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSet
   typedef edm::View<reco::Candidate> refCandidateCollection;
   edm::Handle<refCandidateCollection> ReferenceCollection;
   bool isRef = iEvent.getByToken(refCollectionInputTagToken_, ReferenceCollection);
-//  if (!isRef) {
-    //std::cerr << ReferenceCollection << std::endl;
-//    std::cerr << "ERROR: Reference collection not found while running TauValidationMiniAOD.cc \n " << std::endl;
-//    return;
-//  }
+  if (!isRef) {
+  //std::cerr << ReferenceCollection << std::endl;
+    std::cerr << "ERROR: Reference collection not found while running TauValidationMiniAOD.cc \n " << std::endl;
+    return;
+  }
 
   edm::Handle<std::vector<reco::GenJet>> genJets;
   iEvent.getByToken(genJetsToken_, genJets);
@@ -499,9 +499,9 @@ void TauValidationMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSet
   std::cout << "********* Made it past the PV collection *********\n";
 
   // dR match reference object to tau
-for(std::vector<reco::GenJet>::const_iterator   RefJet = genJets->begin(); RefJet != genJets->end(); RefJet++ ){
-//  for (refCandidateCollection::const_iterator RefJet = ReferenceCollection->begin();
-//       RefJet != ReferenceCollection->end(); RefJet++) {
+//for(std::vector<reco::GenJet>::const_iterator   RefJet = genJets->begin(); RefJet != genJets->end(); RefJet++ ){
+  for (refCandidateCollection::const_iterator RefJet = ReferenceCollection->begin();
+       RefJet != ReferenceCollection->end(); RefJet++) {
     float dRmin = 0.15;
     int matchedTauIndex;
     float gendRmin = 0.15;
