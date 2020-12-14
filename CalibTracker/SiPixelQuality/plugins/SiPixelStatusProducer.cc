@@ -27,7 +27,13 @@
 // Header file
 #include "CalibTracker/SiPixelQuality/plugins/SiPixelStatusProducer.h"
 
-SiPixelStatusProducer::SiPixelStatusProducer(const edm::ParameterSet& iConfig, SiPixelTopoCache const*) {
+SiPixelStatusProducer::SiPixelStatusProducer(const edm::ParameterSet& iConfig, SiPixelStatusCache const* iCache) {
+  //NOTE: Token for all stream replicas are identical and constructors for the replicas are called
+  // sequentially so there is no race condition.
+  iCache->trackerGeometryToken_ = esConsumes<edm::Transition::BeginRun>();
+  iCache->trackerTopologyToken_ = esConsumes<edm::Transition::BeginRun>();
+  iCache->siPixelFedCablingMapToken_ = esConsumes<edm::Transition::BeginRun>();
+
   /* badPixelFEDChannelCollections */
   std::vector<edm::InputTag> badPixelFEDChannelCollectionLabels =
       iConfig.getParameter<edm::ParameterSet>("SiPixelStatusProducerParameters")
@@ -49,6 +55,19 @@ SiPixelStatusProducer::SiPixelStatusProducer(const edm::ParameterSet& iConfig, S
 SiPixelStatusProducer::~SiPixelStatusProducer() {}
 
 //--------------------------------------------------------------------------------------------------
+
+std::shared_ptr<SiPixelTopoFinder> SiPixelStatusProducer::globalBeginRun(edm::Run const& iRun,
+                                                                         edm::EventSetup const& iSetup,
+                                                                         GlobalCache const* iCache) {
+  const TrackerGeometry* trackerGeometry = &iSetup.getData(iCache->trackerGeometryToken_);
+  const TrackerTopology* trackerTopology = &iSetup.getData(iCache->trackerTopologyToken_);
+  const SiPixelFedCablingMap* cablingMap = &iSetup.getData(iCache->siPixelFedCablingMapToken_);
+
+  auto returnValue = std::make_shared<SiPixelTopoFinder>();
+
+  returnValue->init(trackerGeometry, trackerTopology, cablingMap);
+  return returnValue;
+}
 
 void SiPixelStatusProducer::beginRun(edm::Run const&, edm::EventSetup const&) {
   /*Is it good to pass the objects stored in runCache to set class private members values  *
