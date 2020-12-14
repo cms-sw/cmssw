@@ -280,9 +280,7 @@ std::vector<double> GeometricDet::computeLegacyShapeParameters(const cms::DDSoli
   // Box
   if (mySolidShape == cms::DDSolidShape::ddbox) {
     const dd4hep::Box& myBox = dd4hep::Box(mySolid);
-    myOldDDShapeParameters = {(myBox.x()) / dd4hep::mm,
-                              (myBox.y()) / dd4hep::mm,
-                              (myBox.z()) / dd4hep::mm};
+    myOldDDShapeParameters = {(myBox.x()) / dd4hep::mm, (myBox.y()) / dd4hep::mm, (myBox.z()) / dd4hep::mm};
   }
 
   // Trapezoid
@@ -292,10 +290,10 @@ std::vector<double> GeometricDet::computeLegacyShapeParameters(const cms::DDSoli
                               static_cast<double>(angle_units::operators::convertDegToRad(myTrap->GetTheta())),
                               static_cast<double>(angle_units::operators::convertDegToRad(myTrap->GetPhi())),
                               (myTrap->GetH1()) / dd4hep::mm,
-                              (myTrap->GetBl1())/ dd4hep::mm,
-                              (myTrap->GetTl1())/ dd4hep::mm,
+                              (myTrap->GetBl1()) / dd4hep::mm,
+                              (myTrap->GetTl1()) / dd4hep::mm,
                               static_cast<double>(angle_units::operators::convertDegToRad(myTrap->GetAlpha1())),
-                              (myTrap->GetH2())  / dd4hep::mm,
+                              (myTrap->GetH2()) / dd4hep::mm,
                               (myTrap->GetBl2()) / dd4hep::mm,
                               (myTrap->GetTl2()) / dd4hep::mm,
                               static_cast<double>(angle_units::operators::convertDegToRad(myTrap->GetAlpha2()))};
@@ -305,7 +303,7 @@ std::vector<double> GeometricDet::computeLegacyShapeParameters(const cms::DDSoli
   else if (mySolidShape == cms::DDSolidShape::ddtubs) {
     const dd4hep::Tube& myTube = dd4hep::Tube(mySolid);
     myOldDDShapeParameters = {
-        (myTube->GetDz())   / dd4hep::mm,
+        (myTube->GetDz()) / dd4hep::mm,
         (myTube->GetRmin()) / dd4hep::mm,
         (myTube->GetRmax()) / dd4hep::mm,
         static_cast<double>(fmod(angle_units::operators::convertDegToRad(myTube->GetPhi1()), 2. * M_PI) - 2. * M_PI),

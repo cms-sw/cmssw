@@ -91,7 +91,7 @@ GeometricTimingDet::GeometricTimingDet(DDFilteredView* fv, GeometricTimingEnumTy
 }
 
 GeometricTimingDet::GeometricTimingDet(cms::DDFilteredView* fv, GeometricTimingEnumType type)
-  : trans_(fv->translation() / dd4hep::mm),
+    : trans_(fv->translation() / dd4hep::mm),
       rot_(fv->rotation()),
       shape_(fv->shape()),
       ddname_(fv->name()),
