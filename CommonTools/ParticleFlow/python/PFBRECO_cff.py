@@ -75,11 +75,13 @@ from CommonTools.ParticleFlow.ParticleSelectors.pfSelectedPhotons_cfi import *
 pfSelectedPhotonsPFBRECO = pfSelectedPhotons.clone( src = 'pfAllPhotonsPFBRECO' )
 from CommonTools.ParticleFlow.Isolation.pfPhotonIsolationPFBRECO_cff import *
 from CommonTools.ParticleFlow.Isolation.pfIsolatedPhotons_cfi import *
-pfIsolatedPhotonsPFBRECO = pfIsolatedPhotons.clone( src = 'pfSelectedPhotonsPFBRECO',
-                                                    isolationValueMapsCharged = cms.VInputTag( cms.InputTag("phPFIsoValueCharged04PFIdPFBRECO") ),
-                                                    isolationValueMapsNeutral = cms.VInputTag( cms.InputTag("phPFIsoValueNeutral04PFIdPFBRECO"),
-                                                                                               cms.InputTag("phPFIsoValueGamma04PFIdPFBRECO") ),
-                                                    deltaBetaIsolationValueMap = 'phPFIsoValuePU04PFIdPFBRECO' )
+pfIsolatedPhotonsPFBRECO = pfIsolatedPhotons.clone( 
+    src = 'pfSelectedPhotonsPFBRECO',
+    isolationValueMapsCharged = ["phPFIsoValueCharged04PFIdPFBRECO"],
+    isolationValueMapsNeutral = ["phPFIsoValueNeutral04PFIdPFBRECO",
+                                 "phPFIsoValueGamma04PFIdPFBRECO"],
+    deltaBetaIsolationValueMap = 'phPFIsoValuePU04PFIdPFBRECO' 
+)
 pfPhotonPFBRECOSequence = cms.Sequence(
     pfSelectedPhotonsPFBRECO +
     pfPhotonIsolationPFBRECOSequence +
@@ -91,7 +93,7 @@ from CommonTools.ParticleFlow.ParticleSelectors.pfMuonsFromVertex_cfi import *
 pfMuonsFromVertexPFBRECO = pfMuonsFromVertex.clone( src = 'pfAllMuonsPFBRECO' )
 from CommonTools.ParticleFlow.Isolation.pfIsolatedMuons_cfi import *
 pfIsolatedMuonsPFBRECO = pfIsolatedMuons.clone( src = 'pfMuonsFromVertexPFBRECO' )
-pfMuonsPFBRECO = pfIsolatedMuonsPFBRECO.clone(cut = cms.string("pt > 5 & muonRef.isAvailable()"))
+pfMuonsPFBRECO = pfIsolatedMuonsPFBRECO.clone(cut = "pt > 5 & muonRef.isAvailable()")
 pfMuonPFBRECOSequence = cms.Sequence(
     pfAllMuonsPFBRECO +
     pfMuonsFromVertexPFBRECO +
@@ -103,7 +105,7 @@ from CommonTools.ParticleFlow.ParticleSelectors.pfElectronsFromVertex_cfi import
 pfElectronsFromVertexPFBRECO = pfElectronsFromVertex.clone( src = 'pfAllElectronsPFBRECO' )
 from CommonTools.ParticleFlow.Isolation.pfIsolatedElectrons_cfi import *
 pfIsolatedElectronsPFBRECO = pfIsolatedElectrons.clone( src = 'pfElectronsFromVertexPFBRECO' )
-pfElectronsPFBRECO = pfIsolatedElectronsPFBRECO.clone( cut = cms.string(" pt > 5 & gsfElectronRef.isAvailable() & gsfTrackRef.hitPattern().numberOfLostHits('MISSING_INNER_HITS')<2"))
+pfElectronsPFBRECO = pfIsolatedElectronsPFBRECO.clone( cut = " pt > 5 & gsfElectronRef.isAvailable() & gsfTrackRef.hitPattern().numberOfLostHits('MISSING_INNER_HITS')<2")
 pfElectronPFBRECOSequence = cms.Sequence(
     pfAllElectronsPFBRECO +
     pfElectronsFromVertexPFBRECO +

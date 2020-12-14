@@ -5,7 +5,7 @@ from CommonTools.ParticleFlow.ParticleSelectors.pfMuonsFromVertex_cfi import *
 from CommonTools.ParticleFlow.Isolation.pfIsolatedMuons_cfi import *
 
 
-pfMuons = pfIsolatedMuons.clone(cut = cms.string("pt > 5 & muonRef.isAvailable()"))
+pfMuons = pfIsolatedMuons.clone(cut = "pt > 5 & muonRef.isAvailable()")
 
 
 pfMuonSequence = cms.Sequence(

@@ -5,7 +5,7 @@ from CommonTools.ParticleFlow.ParticleSelectors.pfElectronsFromVertex_cfi import
 from CommonTools.ParticleFlow.Isolation.pfIsolatedElectrons_cfi import *
 
 
-pfElectrons = pfIsolatedElectrons.clone( cut = cms.string(" pt > 5 & gsfElectronRef.isAvailable() & gsfTrackRef.hitPattern().numberOfLostHits('MISSING_INNER_HITS')<2"))
+pfElectrons = pfIsolatedElectrons.clone( cut = " pt > 5 & gsfElectronRef.isAvailable() & gsfTrackRef.hitPattern().numberOfLostHits('MISSING_INNER_HITS')<2")
 
 pfElectronSequence = cms.Sequence(
     pfAllElectrons +
