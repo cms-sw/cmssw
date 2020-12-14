@@ -34,7 +34,7 @@ SerialTaskQueue::~SerialTaskQueue() {
 
 bool SerialTaskQueue::resume() {
   if (0 == --m_pauseCount) {
-    tbb::task* t = pickNextTask();
+    auto t = pickNextTask();
     if (nullptr != t) {
       tbb::task::spawn(*t);
     }
@@ -44,66 +44,61 @@ bool SerialTaskQueue::resume() {
 }
 
 void SerialTaskQueue::pushTask(TaskBase* iTask) {
-  tbb::task* t = pushAndGetNextTask(iTask);
+  auto t = pushAndGetNextTask(iTask);
   if (nullptr != t) {
     tbb::task::spawn(*t);
   }
 }
 
-tbb::task* SerialTaskQueue::pushAndGetNextTask(TaskBase* iTask) {
-  tbb::task* returnValue{nullptr};
-  if
-    LIKELY(nullptr != iTask) {
-      m_tasks.push(iTask);
-      returnValue = pickNextTask();
-    }
+SerialTaskQueue::TaskBase* SerialTaskQueue::pushAndGetNextTask(TaskBase* iTask) {
+  TaskBase* returnValue{nullptr};
+  if LIKELY (nullptr != iTask) {
+    m_tasks.push(iTask);
+    returnValue = pickNextTask();
+  }
   return returnValue;
 }
 
-tbb::task* SerialTaskQueue::finishedTask() {
+SerialTaskQueue::TaskBase* SerialTaskQueue::finishedTask() {
   m_taskChosen.store(false);
   return pickNextTask();
 }
 
 SerialTaskQueue::TaskBase* SerialTaskQueue::pickNextTask() {
   bool expect = false;
-  if
-    LIKELY(0 == m_pauseCount and m_taskChosen.compare_exchange_strong(expect, true)) {
-      TaskBase* t = nullptr;
-      if
-        LIKELY(m_tasks.try_pop(t)) { return t; }
-      //no task was actually pulled
-      m_taskChosen.store(false);
-
-      //was a new entry added after we called 'try_pop' but before we did the clear?
-      expect = false;
-      if (not m_tasks.empty() and m_taskChosen.compare_exchange_strong(expect, true)) {
-        t = nullptr;
-        if (m_tasks.try_pop(t)) {
-          return t;
-        }
-        //no task was still pulled since a different thread beat us to it
-        m_taskChosen.store(false);
-      }
+  if LIKELY (0 == m_pauseCount and m_taskChosen.compare_exchange_strong(expect, true)) {
+    TaskBase* t = nullptr;
+    if LIKELY (m_tasks.try_pop(t)) {
+      return t;
     }
+    //no task was actually pulled
+    m_taskChosen.store(false);
+
+    //was a new entry added after we called 'try_pop' but before we did the clear?
+    expect = false;
+    if (not m_tasks.empty() and m_taskChosen.compare_exchange_strong(expect, true)) {
+      t = nullptr;
+      if (m_tasks.try_pop(t)) {
+        return t;
+      }
+      //no task was still pulled since a different thread beat us to it
+      m_taskChosen.store(false);
+    }
+  }
   return nullptr;
 }
 
 void SerialTaskQueue::pushAndWait(tbb::empty_task* iWait, TaskBase* iTask) {
   auto nextTask = pushAndGetNextTask(iTask);
-  if
-    LIKELY(nullptr != nextTask) {
-      if
-        LIKELY(nextTask == iTask) {
-          //spawn and wait for all requires the task to have its parent set
-          iWait->spawn_and_wait_for_all(*nextTask);
-        }
-      else {
-        tbb::task::spawn(*nextTask);
-        iWait->wait_for_all();
-      }
+  if LIKELY (nullptr != nextTask) {
+    if LIKELY (nextTask == iTask) {
+      //spawn and wait for all requires the task to have its parent set
+      iWait->spawn_and_wait_for_all(*nextTask);
+    } else {
+      tbb::task::spawn(*nextTask);
+      iWait->wait_for_all();
     }
-  else {
+  } else {
     //a task must already be running in this queue
     iWait->wait_for_all();
   }
