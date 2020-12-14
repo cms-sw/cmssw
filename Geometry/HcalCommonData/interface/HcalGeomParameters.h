@@ -20,6 +20,7 @@
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "Geometry/HcalCommonData/interface/HcalCellType.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "DD4hep/DD4hepUnits.h"
 
 class HcalParameters;
 
@@ -29,10 +30,10 @@ public:
   static constexpr double k_ScaleToDDD = 10.0;
   static constexpr double k_ScaleFromDDDToG4 = 1.0;
   static constexpr double k_ScaleToDDDFromG4 = 1.0;
-  static constexpr double k_ScaleFromDD4Hep = 1.0;
-  static constexpr double k_ScaleToDD4Hep = 1.0;
-  static constexpr double k_ScaleFromDD4HepToG4 = 10.0;
-  static constexpr double k_ScaleToDD4HepFromG4 = 0.1;
+  static constexpr double k_ScaleFromDD4Hep = (1.0 / dd4hep::cm);
+  static constexpr double k_ScaleToDD4Hep = dd4hep::cm;
+  static constexpr double k_ScaleFromDD4HepToG4 = (1.0 / dd4hep::mm);
+  static constexpr double k_ScaleToDD4HepFromG4 = dd4hep::mm;
 
   HcalGeomParameters() = default;
 
