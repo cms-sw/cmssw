@@ -150,7 +150,7 @@ namespace {
         TCanvas canvas("ByDetId", "ByDetId", sides.second * 800, sides.first * 600);
         canvas.Divide(sides.second, sides.first);
         edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-        SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+	auto reader = std::make_unique<SiStripDetInfoFileReader>(fp_.fullPath());
 
         for (const auto& the_detid : the_detids) {
           edm::LogPrint("SiStripNoisePerDetId") << "DetId:" << the_detid << std::endl;
