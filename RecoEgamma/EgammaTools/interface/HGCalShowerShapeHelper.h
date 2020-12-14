@@ -75,9 +75,13 @@ private:
   std::vector<double> layerEnergies_;
   std::vector<ROOT::Math::XYZVector> layerCentroids_;
 
-  void setPFRecHitPtrMap(const std::vector<reco::PFRecHit> &v_recHit);
+  void setPFRecHitPtrMap(const std::vector<reco::PFRecHit> &recHits);
 
   void setFilteredHitsAndFractions(const std::vector<std::pair<DetId, float> > &hitsAndFracs);
+
+public:
+  static constexpr double kLDWaferCellSize_ = 0.698;
+  static constexpr double kHDWaferCellSize_ = 0.465;
 
   void setLayerWiseStuff();
 
@@ -95,21 +99,20 @@ private:
     double sigma2ww;
 
     ShowerWidths() {
-      sigma2xx = 0;
-      sigma2yy = 0;
-      sigma2zz = 0;
+      sigma2xx = 0.0;
+      sigma2yy = 0.0;
+      sigma2zz = 0.0;
 
-      sigma2xy = 0;
-      sigma2yz = 0;
-      sigma2zx = 0;
+      sigma2xy = 0.0;
+      sigma2yz = 0.0;
+      sigma2zx = 0.0;
 
-      sigma2uu = 0;
-      sigma2vv = 0;
-      sigma2ww = 0;
+      sigma2uu = 0.0;
+      sigma2vv = 0.0;
+      sigma2ww = 0.0;
     }
   };
 
-public:
   void initPerEvent(const edm::EventSetup &iSetup, const std::vector<reco::PFRecHit> &recHits);
 
   void initPerObject(const std::vector<std::pair<DetId, float> > &hitsAndFracs,
@@ -119,13 +122,13 @@ public:
                      int maxLayer = 28,
                      DetId::Detector subDet = DetId::HGCalEE);
 
-  double getCellSize(DetId detId);
+  const double getCellSize(DetId detId);
 
   // Compute Rvar in a cylinder around the layer centroids
-  double getRvar(double cylinderR, double energyNorm, bool useFractions = true, bool useCellSize = true);
+  const double getRvar(double cylinderR, double energyNorm, bool useFractions = true, bool useCellSize = true);
 
   // Compute PCA widths around the layer centroids
-  ShowerWidths getPCAwidths(double cylinderR, bool useFractions = false);
+  const ShowerWidths getPCAWidths(double cylinderR, bool useFractions = false);
 };
 
 #endif

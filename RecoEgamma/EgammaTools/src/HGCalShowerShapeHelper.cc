@@ -1,8 +1,6 @@
 #include "RecoEgamma/EgammaTools/interface/HGCalShowerShapeHelper.h"
 
 void HGCalShowerShapeHelper::initPerEvent(const edm::EventSetup &iSetup, const std::vector<reco::PFRecHit> &pfRecHits) {
-  //recHitTools_.getEventSetup(iSetup);
-
   edm::ESHandle<CaloGeometry> geom;
   iSetup.get<CaloGeometryRecord>().get(geom);
   recHitTools_.setGeometry(*(geom.product()));
@@ -35,7 +33,7 @@ void HGCalShowerShapeHelper::initPerObject(const std::vector<std::pair<DetId, fl
 void HGCalShowerShapeHelper::setPFRecHitPtrMap(const std::vector<reco::PFRecHit> &recHits) {
   pfRecHitPtrMap_.clear();
 
-  for (auto &recHit : recHits) {
+  for (const auto &recHit : recHits) {
     pfRecHitPtrMap_[recHit.detId()] = &recHit;
   }
 }
@@ -90,7 +88,7 @@ void HGCalShowerShapeHelper::setLayerWiseStuff() {
   centroid_.SetXYZ(0, 0, 0);
 
   int iHit = -1;
-  double totalW = 0;
+  double totalW = 0.0;
 
   // Compute the centroid per layer
   for (const auto &hnf : hitsAndFracs_) {
@@ -127,21 +125,13 @@ void HGCalShowerShapeHelper::setLayerWiseStuff() {
   }
 }
 
-double HGCalShowerShapeHelper::getCellSize(DetId detId) {
+const double HGCalShowerShapeHelper::getCellSize(DetId detId) {
   double siThickness = recHitTools_.getSiThickness(detId);
 
-  // HD wafers
-  if (siThickness < 150) {
-    return 0.465;
-  }
-
-  // LD wafers
-  else {
-    return 0.698;
-  }
+  return siThickness < 150 ? kHDWaferCellSize_ : kLDWaferCellSize_;
 }
 
-double HGCalShowerShapeHelper::getRvar(double cylinderR, double energyNorm, bool useFractions, bool useCellSize) {
+const double HGCalShowerShapeHelper::getRvar(double cylinderR, double energyNorm, bool useFractions, bool useCellSize) {
   if (hitsAndFracs_.empty()) {
     return 0;
   }
@@ -152,15 +142,7 @@ double HGCalShowerShapeHelper::getRvar(double cylinderR, double energyNorm, bool
 
   double Rvar = 0;
 
-  std::vector<double>::iterator hitEnergyIter;
-
-  if (useFractions) {
-    hitEnergyIter = hitEnergiesWithFracs_.begin();
-  }
-
-  else {
-    hitEnergyIter = hitEnergies_.begin();
-  }
+  auto hitEnergyIter = useFractions ? hitEnergiesWithFracs_.begin() : hitEnergies_.begin();
 
   hitEnergyIter--;
 
@@ -180,15 +162,13 @@ double HGCalShowerShapeHelper::getRvar(double cylinderR, double energyNorm, bool
 
     // Including the cell size seems to make the variable less sensitive to the HD/LD transition region
     if (useCellSize) {
-      if (sqrt(r2) > cylinderR + getCellSize(hitId)) {
+      if (std::sqrt(r2) > cylinderR + getCellSize(hitId)) {
         continue;
       }
     }
 
-    else {
-      if (r2 > cylinderR2) {
-        continue;
-      }
+    else if (r2 > cylinderR2) {
+      continue;
     }
 
     Rvar += *hitEnergyIter;
@@ -199,7 +179,7 @@ double HGCalShowerShapeHelper::getRvar(double cylinderR, double energyNorm, bool
   return Rvar;
 }
 
-HGCalShowerShapeHelper::ShowerWidths HGCalShowerShapeHelper::getPCAwidths(double cylinderR, bool useFractions) {
+const HGCalShowerShapeHelper::ShowerWidths HGCalShowerShapeHelper::getPCAWidths(double cylinderR, bool useFractions) {
   if (hitsAndFracs_.empty()) {
     return ShowerWidths();
   }
@@ -208,28 +188,19 @@ HGCalShowerShapeHelper::ShowerWidths HGCalShowerShapeHelper::getPCAwidths(double
 
   TMatrixD covMat(3, 3);
 
-  double dxdx = 0;
-  double dydy = 0;
-  double dzdz = 0;
+  double dxdx = 0.0;
+  double dydy = 0.0;
+  double dzdz = 0.0;
 
-  double dxdy = 0;
-  double dydz = 0;
-  double dzdx = 0;
+  double dxdy = 0.0;
+  double dydz = 0.0;
+  double dzdx = 0.0;
 
   double totalW = 0;
 
-  std::vector<double>::iterator hitEnergyIter;
-
-  if (useFractions) {
-    hitEnergyIter = hitEnergiesWithFracs_.begin();
-  }
-
-  else {
-    hitEnergyIter = hitEnergies_.begin();
-  }
+  auto hitEnergyIter = useFractions ? hitEnergiesWithFracs_.begin() : hitEnergies_.begin();
 
   int nHit = 0;
-
   hitEnergyIter--;
 
   for (const auto &hnf : hitsAndFracs_) {
