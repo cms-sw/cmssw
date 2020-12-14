@@ -69,6 +69,7 @@ process.dqmEnvPixelLess.subSystemFolder = 'BeamMonitor_PixelLess'
 # Conditions
 if (live):
     process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
+    process.GlobalTag.DBParameters.authenticationPath = cms.untracked.string('.')
 else:
     process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
     from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
