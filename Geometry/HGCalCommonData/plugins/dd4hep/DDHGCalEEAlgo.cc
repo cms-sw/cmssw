@@ -22,7 +22,7 @@
 #include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 using namespace cms_units::operators;
 
 struct HGCalEEAlgo {
