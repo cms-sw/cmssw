@@ -9,7 +9,7 @@ using namespace edm;
 HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
     : label_lcl(pset.getParameter<edm::InputTag>("label_lcl")),
       label_mcl(pset.getParameter<std::vector<edm::InputTag>>("label_mcl")),
-      associator_(pset.getUntrackedParameter<edm::InputTag>("associator")),
+      associator_(pset.getUntrackedParameter<std::vector<edm::InputTag>>("associator")),
       SaveGeneralInfo_(pset.getUntrackedParameter<bool>("SaveGeneralInfo")),
       doCaloParticlePlots_(pset.getUntrackedParameter<bool>("doCaloParticlePlots")),
       doCaloParticleSelection_(pset.getUntrackedParameter<bool>("doCaloParticleSelection")),
@@ -29,12 +29,12 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
 
   for (auto& itag :label_clustersmask) {
     clustersMaskTokens_.push_back(consumes<std::vector<float>>(itag));
-    auto associator = edm::InputTag("scAssocByEnergyScoreProducer" + itag.label());
-    consumes<hgcal::LayerClusterToSimClusterAssociator>(associator);
-    associatorMapStRs.push_back(consumes<hgcal::SimToRecoCollectionWithSimClusters>(associator));
-    associatorMapRtSs.push_back(consumes<hgcal::RecoToSimCollectionWithSimClusters>(associator));
   }
-  
+  for (auto const& assoc: associator_) {
+    associatorMapStRs.push_back(consumes<hgcal::SimToRecoCollectionWithSimClusters>(assoc));
+    associatorMapRtSs.push_back(consumes<hgcal::RecoToSimCollectionWithSimClusters>(assoc));
+  }
+
   hitMap_ = consumes<std::unordered_map<DetId, const HGCRecHit*>>(edm::InputTag("hgcalRecHitMapProducer"));
 
   density_ = consumes<Density>(edm::InputTag("hgcalLayerClusters"));

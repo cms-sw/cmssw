@@ -21,7 +21,6 @@
 #include "SimDataFormats/Associations/interface/LayerClusterToSimClusterAssociator.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "SimDataFormats/CaloAnalysis/interface/CaloParticleFwd.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 
 #include "FWCore/Utilities/interface/EDGetToken.h"
@@ -72,7 +71,7 @@ void LCToSCAssociatorEDProducer::produce(edm::StreamID, edm::Event &iEvent, cons
   Handle<reco::CaloClusterCollection> LCCollection;
   iEvent.getByToken(LCCollectionToken_, LCCollection);
 
-  // associate LC and CP
+  // associate LC and SC
   LogTrace("AssociatorValidator") << "Calling associateRecoToSim method"
                                   << "\n";
   hgcal::RecoToSimCollectionWithSimClusters recSimColl = theAssociator->associateRecoToSim(LCCollection, SCCollection);

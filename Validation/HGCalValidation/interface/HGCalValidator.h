@@ -60,7 +60,7 @@ public:
 protected:
   edm::InputTag label_lcl;
   std::vector<edm::InputTag> label_mcl;
-  edm::InputTag associator_;
+  std::vector<edm::InputTag> associator_;
   const bool SaveGeneralInfo_;
   const bool doCaloParticlePlots_;
   const bool doCaloParticleSelection_;
