@@ -296,17 +296,6 @@ private:
   TH1F *h_ele_hcalDepth2TowerSumEt_dr04;
 
   TH1F *h_ele_mee_os;
-
-  // OBSOLETE
-  //  TH1F *h_ele_PtoPtmatchingObject_matched; //OBSOLETE ?
-  //  TH1F *h_ele_PtoPtmatchingObject_barrel_matched; //OBSOLETE ?
-  //  TH1F *h_ele_PtoPtmatchingObject_endcaps_matched; //OBSOLETE ?
-  //  TH1F *h_ele_PoPmatchingObject_matched; //OBSOLETE ?
-  //  TH1F *h_ele_PoPmatchingObject_barrel_matched; //OBSOLETE ?
-  //  TH1F *h_ele_PoPmatchingObject_endcaps_matched; //OBSOLETE ?
-  //  TH1F *h_ele_EtaMnEtamatchingObject_matched; //OBSOLETE ?
-  //  TH1F *h_ele_PhiMnPhimatchingObject_matched; //OBSOLETE ?
-  //  TH1F *h_ele_PhiMnPhimatchingObject2_matched; //OBSOLETE ?
 };
 
 using namespace reco;
@@ -694,43 +683,6 @@ void DQMAnalyzer::beginJob() {
   // T&P
   //==================================================
   h_ele_mee_os = new TH1F("h_ele_mee_os", "ele pairs invariant mass, opposite sign", nbinmee, meemin, meemax);
-
-  //==================================================
-  // OBSOLETE
-  //==================================================
-
-  //  h_ele_PtoPtmatchingObject_matched        = new TH1F( "h_ele_PtoPtmatchingObject_matched",        "ele trans momentum / matching SC trans energy", nbinpoptrue,poptruemin,poptruemax);
-  //  h_ele_PtoPtmatchingObject_barrel_matched         = new TH1F( "h_ele_PtoPmatchingObject_barrel_matched",        "ele trans momentum / matching SC trans energy, barrel",nbinpoptrue,poptruemin,poptruemax);
-  //  h_ele_PtoPtmatchingObject_endcaps_matched        = new TH1F( "h_ele_PtoPmatchingObject_endcaps_matched",        "ele trans momentum / matching SC trans energy, endcaps",nbinpoptrue,poptruemin,poptruemax);
-  //  h_ele_PoPmatchingObject_matched        = new TH1F( "h_ele_PoPmatchingObject_matched",        "ele momentum / matching SC energy", nbinpoptrue,poptruemin,poptruemax);
-  //  h_ele_PoPmatchingObject_barrel_matched         = new TH1F( "h_ele_PoPmatchingObject_barrel_matched",        "ele momentum / matching SC energy, barrel",nbinpoptrue,poptruemin,poptruemax);
-  //  h_ele_PoPmatchingObject_endcaps_matched        = new TH1F( "h_ele_PoPmatchingObject_endcaps_matched",        "ele momentum / matching SC energy, endcaps",nbinpoptrue,poptruemin,poptruemax);
-  //  // h_ele_PtoPtmatchingObject_matched        = new TH1F( "h_ele_PtoPtmatchingObject_matched",        "ele trans momentum / matching SC trans energy", nbinpoptrue,poptruemin,poptruemax);
-  //  h_ele_EtaMnEtamatchingObject_matched   = new TH1F( "h_ele_EtaMnEtamatchingObject_matched",   "ele momentum eta - matching SC eta",nbindeta,detamin,detamax);
-  //  h_ele_PhiMnPhimatchingObject_matched   = new TH1F( "h_ele_PhiMnPhimatchingObject_matched",   "ele momentum phi - matching SC phi",nbindphi,dphimin,dphimax);
-  //  h_ele_PhiMnPhimatchingObject2_matched   = new TH1F( "h_ele_PhiMnPhimatchingObject2_matched",   "ele momentum phi - matching SC phi",nbindphimatch2D,dphimatchmin,dphimatchmax);
-
-  //  h_ele_PoPmatchingObject_matched->GetXaxis()-> SetTitle("P/E_{SC}");
-  //  h_ele_PoPmatchingObject_matched->GetYaxis()-> SetTitle("Events");
-  //  h_ele_PoPmatchingObject_barrel_matched->GetXaxis()-> SetTitle("P/E_{SC}");
-  //  h_ele_PoPmatchingObject_barrel_matched->GetYaxis()-> SetTitle("Events");
-  //  h_ele_PoPmatchingObject_endcaps_matched->GetXaxis()-> SetTitle("P/E_{SC}");
-  //  h_ele_PoPmatchingObject_endcaps_matched->GetYaxis()-> SetTitle("Events");
-  //  h_ele_PtoPtmatchingObject_matched->GetXaxis()-> SetTitle("P_{T}/E_{T}^{SC}");
-  //  h_ele_PtoPtmatchingObject_matched->GetYaxis()-> SetTitle("Events");
-  //  h_ele_PtoPtmatchingObject_barrel_matched->GetXaxis()-> SetTitle("P_{T}/E_{T}^{SC}");
-  //  h_ele_PtoPtmatchingObject_barrel_matched->GetYaxis()-> SetTitle("Events");
-  //  h_ele_PtoPtmatchingObject_endcaps_matched->GetXaxis()-> SetTitle("P_{T}/E_{T}^{SC}");
-  //  h_ele_PtoPtmatchingObject_endcaps_matched->GetYaxis()-> SetTitle("Events");
-  //
-  //  h_ele_EtaMnEtamatchingObject_matched->GetXaxis()-> SetTitle("#eta_{rec} - #eta_{SC}");
-  //  h_ele_EtaMnEtamatchingObject_matched->GetYaxis()-> SetTitle("Events");
-  //  h_ele_PhiMnPhimatchingObject_matched->GetXaxis()-> SetTitle("#phi_{rec} - #phi_{SC} (rad)");
-  //  h_ele_PhiMnPhimatchingObject_matched->GetYaxis()-> SetTitle("Events");
-  //  h_ele_EtaMnEtamatchingObject_matched->GetXaxis()-> SetTitle("#eta_{rec} - #eta_{SC}");
-  //  h_ele_EtaMnEtamatchingObject_matched->GetYaxis()-> SetTitle("Events");
-  //  h_ele_PhiMnPhimatchingObject_matched->GetXaxis()-> SetTitle("#phi_{rec} - #phi_{SC} (rad)");
-  //  h_ele_PhiMnPhimatchingObject_matched->GetYaxis()-> SetTitle("Events");
 }
 
 void DQMAnalyzer::endJob() {
@@ -1164,21 +1116,6 @@ void DQMAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetu
       h_ele_matchingObjectAbsEta_matched->Fill(fabs(moIter->eta()));
       h_ele_matchingObjectEta_matched->Fill(moIter->eta());
       h_ele_matchingObjectZ_matched->Fill(moIter->z());
-
-      // OBSOLETE
-      //      // comparison electron vs matching object
-      //      h_ele_EtaMnEtamatchingObject_matched->Fill( bestGsfElectron.eta()-moIter->eta());
-      //
-      //      h_ele_PhiMnPhimatchingObject_matched->Fill( bestGsfElectron.phi()-moIter->phi());
-      //      h_ele_PhiMnPhimatchingObject2_matched->Fill( bestGsfElectron.phi()-moIter->phi());
-      //
-      //      h_ele_PoPmatchingObject_matched->Fill( bestGsfElectron.p()/moIter->energy());
-      //      h_ele_PtoPtmatchingObject_matched->Fill( bestGsfElectron.pt()/moIter->energy()/cosh(moIter->eta()));
-      //
-      //      if (bestGsfElectron.isEB()) h_ele_PoPmatchingObject_barrel_matched->Fill( bestGsfElectron.p()/moIter->energy());
-      //      if (bestGsfElectron.isEE()) h_ele_PoPmatchingObject_endcaps_matched->Fill( bestGsfElectron.p()/moIter->energy());
-      //      if (bestGsfElectron.isEB()) h_ele_PtoPtmatchingObject_barrel_matched->Fill( bestGsfElectron.pt()/moIter->energy()/cosh(moIter->eta()));
-      //      if (bestGsfElectron.isEE()) h_ele_PtoPtmatchingObject_endcaps_matched->Fill( bestGsfElectron.pt()/moIter->energy()/cosh(moIter->eta()));
 
       reco::SuperClusterRef sclRef = bestGsfElectron.superCluster();
 
