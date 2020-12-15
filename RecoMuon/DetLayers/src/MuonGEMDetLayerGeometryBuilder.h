@@ -30,8 +30,6 @@ public:
   static std::pair<std::vector<DetLayer*>, std::vector<DetLayer*> > buildEndcapLayers(const GEMGeometry& geo);
 
 private:
-  //static MuRingForwardLayer* buildLayer0(
-  //  int endcap, int layer, std::vector<int>& chambers, std::vector<int>& rolls, const GEMGeometry& geo);
   static MuRingForwardLayer* buildLayer0(int endcap,
                                          std::vector<int>& rings,
                                          int station,
