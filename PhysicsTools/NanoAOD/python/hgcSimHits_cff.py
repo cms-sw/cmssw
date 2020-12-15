@@ -12,7 +12,7 @@ hgcEESimHitsTable = cms.EDProducer("SimplePCaloHitFlatTableProducer",
         detId = Var('id', 'int', precision=-1, doc='detId'),
         energy = Var('energy', 'float', precision=14, doc='energy'),
         trackId = Var('geantTrackId', 'int', precision=-1, doc='Geant4 track ID'),
-        fineTrackId = Var('geantFineTrackId', 'int', precision=-1, doc='granular Geant4 track ID'),
+        #fineTrackId = Var('geantFineTrackId', 'int', precision=-1, doc='granular Geant4 track ID'),
     )
 )
 

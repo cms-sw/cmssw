@@ -562,13 +562,14 @@ void CaloTruthAccumulator::finalizeEvent(edm::Event &event, edm::EventSetup cons
   event.put(std::move(output_.pHGCHEfrontHitSCAssoc), "simHitHGCHEfrontToSimCluster");
   event.put(std::move(output_.pHGCHEbackHitSCAssoc), "simHitHGCHEbackToSimCluster");
 
-  std::unordered_map<int, int> simClusIdxToCaloParticleIdxMap_;
+  std::unordered_map<int, int> simClusIdxToCaloParticleIdxMap;
 
   // now fill the calo particles
   for (unsigned i = 0; i < output_.pCaloParticles->size(); ++i) {
     auto &cp = (*output_.pCaloParticles)[i];
     for (unsigned j = m_caloParticles.sc_start_[i]; j < m_caloParticles.sc_stop_[i]; ++j) {
       edm::Ref<SimClusterCollection> ref(scHandle, j);
+      simClusIdxToCaloParticleIdxMap[j] = i;
       cp.addSimCluster(ref);
     }
   }
@@ -583,8 +584,8 @@ void CaloTruthAccumulator::finalizeEvent(edm::Event &event, edm::EventSetup cons
   std::vector<int> caloPartIdx;
   for (size_t i = 0; i < scHandle->size(); i++) {
       int matchIdx = -1;
-      if (simClusIdxToCaloParticleIdxMap_.find(i) != simClusIdxToCaloParticleIdxMap_.end())
-          matchIdx = simClusIdxToCaloParticleIdxMap_[i];
+      if (simClusIdxToCaloParticleIdxMap.find(i) != simClusIdxToCaloParticleIdxMap.end())
+          matchIdx = simClusIdxToCaloParticleIdxMap[i];
       caloPartIdx.emplace_back(matchIdx);
   }
   auto assocMap = std::make_unique<edm::Association<CaloParticleCollection>>(cpHandle);
