@@ -66,7 +66,6 @@ private:
 DD4hepTestDDDWorld::DD4hepTestDDDWorld(const ParameterSet& iConfig)
     : tag_(iConfig.getParameter<ESInputTag>("DDDetector")), keywordRegion_("CMSCutsRegion") {
   verbosity_ = iConfig.getUntrackedParameter<int>("Verbosity", 1);
-  verbosity_ = 1;
   kernel_ = new G4MTRunManagerKernel();
 }
 
