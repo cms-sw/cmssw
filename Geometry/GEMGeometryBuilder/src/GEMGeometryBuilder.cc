@@ -400,8 +400,8 @@ GEMSuperChamber* GEMGeometryBuilder::buildSuperChamber(cms::DDFilteredView& fv, 
   const double chgap = 2.105;
 
   dz += (k_ScaleFromDD4Hep * dpar[2]);  // chamber thickness
-  dz *= nch;      // 2 chambers in superchamber
-  dz += chgap;    // gap between chambers
+  dz *= nch;                            // 2 chambers in superchamber
+  dz += chgap;                          // gap between chambers
 
   bool isOdd = detId.chamber() % 2;
   RCPBoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(dx1, dx2, dy, dz), isOdd));
@@ -444,11 +444,19 @@ GEMEtaPartition* GEMGeometryBuilder::buildEtaPartition(cms::DDFilteredView& fv, 
 
   double ti = 0.4;  // half thickness
 
-  const std::vector<float> pars{
-      float(k_ScaleFromDD4Hep * dpar[0]), float(k_ScaleFromDD4Hep * dpar[1]), float(k_ScaleFromDD4Hep * dpar[3]), float(nStrips), float(nPads), float(dPhi)};
+  const std::vector<float> pars{float(k_ScaleFromDD4Hep * dpar[0]),
+                                float(k_ScaleFromDD4Hep * dpar[1]),
+                                float(k_ScaleFromDD4Hep * dpar[3]),
+                                float(nStrips),
+                                float(nPads),
+                                float(dPhi)};
 
   bool isOdd = detId.chamber() % 2;
-  RCPBoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(k_ScaleFromDD4Hep * dpar[0], k_ScaleFromDD4Hep * dpar[1], k_ScaleFromDD4Hep * dpar[3], ti), isOdd));
+  RCPBoundPlane surf(
+      boundPlane(fv,
+                 new TrapezoidalPlaneBounds(
+                     k_ScaleFromDD4Hep * dpar[0], k_ScaleFromDD4Hep * dpar[1], k_ScaleFromDD4Hep * dpar[3], ti),
+                 isOdd));
 
   std::string_view name = fv.name();
 
@@ -463,7 +471,8 @@ GEMGeometryBuilder::RCPBoundPlane GEMGeometryBuilder::boundPlane(const cms::DDFi
                                                                  bool isOddChamber) const {
   // extract the position
   const Double_t* tran = fv.trans();
-  Surface::PositionType posResult(k_ScaleFromDD4Hep * tran[0], k_ScaleFromDD4Hep * tran[1], k_ScaleFromDD4Hep * tran[2]);
+  Surface::PositionType posResult(
+      k_ScaleFromDD4Hep * tran[0], k_ScaleFromDD4Hep * tran[1], k_ScaleFromDD4Hep * tran[2]);
 
   // now the rotation
   DDRotationMatrix rota;

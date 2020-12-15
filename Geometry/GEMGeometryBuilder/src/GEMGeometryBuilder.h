@@ -68,7 +68,6 @@ private:
   // Common
   void buildRegions(GEMGeometry&, const std::vector<GEMSuperChamber*>&);
 
-
   static constexpr double k_ScaleFromDD4Hep = (1.0 / dd4hep::cm);
 };
 

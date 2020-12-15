@@ -492,7 +492,8 @@ ME0GeometryBuilder::ME0BoundPlane ME0GeometryBuilder::boundPlane(const cms::DDFi
                                                                  bool isOddChamber) const {
   // extract the position
   const Double_t* trans = fv.trans();
-  Surface::PositionType posResult(k_ScaleFromDD4Hep * trans[0], k_ScaleFromDD4Hep * trans[1], k_ScaleFromDD4Hep * trans[2]);
+  Surface::PositionType posResult(
+      k_ScaleFromDD4Hep * trans[0], k_ScaleFromDD4Hep * trans[1], k_ScaleFromDD4Hep * trans[2]);
 
   // now the rotation
   DDRotationMatrix rotation;
