@@ -216,10 +216,11 @@ namespace {
 
       auto theIOVsince = std::to_string(std::get<0>(iov));
 
-      std::string titleMap = "Fraction of bad Strips per module, Run: " + theIOVsince + " (tag: " + tagname + ")";
+      std::string titleMap =
+          "Fraction of bad Strips per module, Run: " + theIOVsince + " (tag: #color[2]{" + tagname + "})";
 
       SiStripTkMaps myMap("COLZA0 L");
-      myMap.bookMap(titleMap, "");
+      myMap.bookMap(titleMap, "Fraction of bad Strips per module");
 
       SiStripTkMaps ghost("AL");
       ghost.bookMap(titleMap, "");

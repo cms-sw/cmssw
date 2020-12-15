@@ -115,8 +115,7 @@ namespace {
               "Tracker Map SiStrip Lorentz Angle") {}
 
     bool fill() override {
-      //gStyle->SetPalette(kRainBow);
-      SiStripPI::setPaletteStyle(SiStripPI::BLUERED);
+      SiStripPI::setPaletteStyle(SiStripPI::DEFAULT);
 
       auto tag = PlotBase::getTag<0>();
       auto iov = tag.iovs.front();
@@ -125,7 +124,7 @@ namespace {
       std::shared_ptr<SiStripLorentzAngle> payload = fetchPayload(std::get<1>(iov));
 
       auto theIOVsince = std::to_string(std::get<0>(iov));
-      std::string titleMap = "SiStrip Lorentz Angle Map, Run: " + theIOVsince + " (tag: " + tagname + ")";
+      std::string titleMap = "SiStrip Lorentz Angle Map, Run: " + theIOVsince + " (tag: #color[2]{" + tagname + "})";
 
       SiStripTkMaps myMap("COLZA L");
       myMap.bookMap(titleMap, "SiStrip #mu_{H}=(tan#theta_{L}/B) [1/T]");
