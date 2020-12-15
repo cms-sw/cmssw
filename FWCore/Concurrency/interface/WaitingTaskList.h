@@ -80,6 +80,8 @@
 // forward declarations
 
 namespace edm {
+  class WaitingTaskHolder;
+
   class EmptyWaitingTask : public WaitingTask {
   public:
     EmptyWaitingTask() = default;
@@ -126,6 +128,11 @@ namespace edm {
        * Calls to add() and doneWaiting() can safely be done concurrently.
        */
     void add(WaitingTask*);
+
+    ///Adds task to the waiting list
+    /**Calls to add() and doneWaiting() can safely be done concurrently.
+      */
+    void add(WaitingTaskHolder);
 
     ///Signals that the resource is now available and tasks should be spawned
     /**The owner of the resource calls this function to allow the waiting tasks to
