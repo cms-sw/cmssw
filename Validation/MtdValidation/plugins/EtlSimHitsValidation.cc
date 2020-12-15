@@ -215,9 +215,8 @@ void EtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
           convertMmToCm((hit.second).x), convertMmToCm((hit.second).y), convertMmToCm((hit.second).z));
       const auto& global_point = thedet->toGlobal(local_point);
 
-      if (topo2Dis) {
-        if (detId.discSide() == 1)
-          weight = -weight;
+      if (topo2Dis && (detId.discSide() == 1)) {
+        weight = -weight;
       }
 
       // --- Fill the histograms
