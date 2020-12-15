@@ -12,6 +12,7 @@
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
 #include "DetectorDescription/RegressionTest/interface/DDErrorDetection.h"
+#include "Geometry/HGCalCommonData/interface/HGCalTileIndex.h"
 #include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferIndex.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferMask.h"
@@ -1404,10 +1405,12 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(HGCalParameters& php,
     php.tileInfoMap_[tileIndx[k]] =
         HGCalParameters::tileInfo(tileType[k], tileSiPM[k], tileHEX1[k], tileHEX2[k], tileHEX3[k], tileHEX4[k]);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "Tile[" << k << ":" << tileIndx[k] << "] "
-                                  << " Type " << tileType[k] << " SiPM " << tileSiPM[k] << " HEX " << std::hex
-                                  << tileHEX1[k] << ":" << tileHEX2[k] << ":" << tileHEX3[k] << ":" << tileHEX4[k]
-                                  << std::dec;
+    edm::LogVerbatim("HGCalGeom") << "Tile[" << k << ":" << tileIndx[k] << ":" << std::hex << tileIndx[k] << std::dec
+                                  << ":" << HGCalTileIndex::tileLayer(tileIndx[k]) << ":"
+                                  << HGCalTileIndex::tileRing(tileIndx[k]) << ":"
+                                  << HGCalTileIndex::tilePhi(tileIndx[k]) << "] Type " << tileType[k] << " SiPM "
+                                  << tileSiPM[k] << " HEX " << std::hex << tileHEX1[k] << ":" << tileHEX2[k] << ":"
+                                  << tileHEX3[k] << ":" << tileHEX4[k] << std::dec;
 #endif
   }
 
