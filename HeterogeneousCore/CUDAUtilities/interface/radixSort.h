@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <type_traits>
 
+#include "FWCore/Utilities/interface/CMSUnrollLoop.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 
 template <typename T>
@@ -124,7 +125,7 @@ __device__ __forceinline__ void radixSortImpl(
     if (threadIdx.x < sb) {
       auto x = c[threadIdx.x];
       auto laneId = threadIdx.x & 0x1f;
-#pragma unroll
+      CMS_UNROLL_LOOP
       for (int offset = 1; offset < 32; offset <<= 1) {
         auto y = __shfl_up_sync(0xffffffff, x, offset);
         if (laneId >= offset)
