@@ -26,6 +26,9 @@ private:
   std::vector<std::string> getNames(DDFilteredView& fv);
   std::vector<std::string> getNames(cms::DDFilteredView& fv);
   std::vector<double> getDDDArray(const std::string& str, const DDsvalues_type& sv, int& nmin);
+
+  static constexpr double k_ScaleFromDD4Hep = (1.0 / dd4hep::mm);
+  static constexpr double k_ScaleFromDD4HepInv = dd4hep::mm;
 };
 
 #endif
