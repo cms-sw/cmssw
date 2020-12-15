@@ -86,7 +86,7 @@ DTGeometryBuilderFromDD4Hep::RCPPlane DTGeometryBuilderFromDD4Hep::plane(const c
   const Double_t* rot = fview.rot();
 
   return RCPPlane(
-      new Plane(Surface::PositionType(tr[0], tr[1], tr[2]),
+      new Plane(Surface::PositionType(tr[0] / dd4hep::cm, tr[1] / dd4hep::cm, tr[2] / dd4hep::cm),
                 Surface::RotationType(rot[0], rot[3], rot[6], rot[1], rot[4], rot[7], rot[2], rot[5], rot[8]),
                 bounds));
 }
