@@ -51,15 +51,6 @@ AlcaBeamSpotHarvester::AlcaBeamSpotHarvester(const edm::ParameterSet &iConfig)
       theAlcaBeamSpotManager_(iConfig, consumesCollector()) {}
 
 //--------------------------------------------------------------------------------------------------
-AlcaBeamSpotHarvester::~AlcaBeamSpotHarvester() {}
-
-//--------------------------------------------------------------------------------------------------
-void AlcaBeamSpotHarvester::beginJob() {}
-
-//--------------------------------------------------------------------------------------------------
-void AlcaBeamSpotHarvester::endJob() {}
-
-//--------------------------------------------------------------------------------------------------
 void AlcaBeamSpotHarvester::analyze(const edm::Event &iEvent, const edm::EventSetup &) {
   //  edm::LogInfo("AlcaBeamSpotHarvester")
   //      << "Lumi: " << iEvent.luminosityBlock()

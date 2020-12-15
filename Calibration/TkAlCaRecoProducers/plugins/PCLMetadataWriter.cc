@@ -7,7 +7,7 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/Common/interface/DropBoxMetadata.h"
 #include "CondFormats/DataRecord/interface/DropBoxMetadataRcd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
@@ -18,23 +18,18 @@
 #include <vector>
 #include <iostream>
 
-class PCLMetadataWriter : public edm::EDAnalyzer {
+class PCLMetadataWriter : public edm::one::EDAnalyzer<> {
 public:
   /// Constructor
   PCLMetadataWriter(const edm::ParameterSet &);
 
   /// Destructor
-  ~PCLMetadataWriter() override;
+  ~PCLMetadataWriter() override = default;
 
   // Operations
-  //   virtual void beginJob            (void);
-  //   virtual void endJob              (void);
   void analyze(const edm::Event &, const edm::EventSetup &) override;
-  void beginRun(const edm::Run &, const edm::EventSetup &) override;
-  void endRun(const edm::Run &, const edm::EventSetup &) override;
-  //   virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const
-  //   edm::EventSetup&); virtual void endLuminosityBlock  (const
-  //   edm::LuminosityBlock&, const edm::EventSetup&);
+  void beginRun(const edm::Run &, const edm::EventSetup &);
+  void endRun(const edm::Run &, const edm::EventSetup &);
 
 protected:
 private:
@@ -72,8 +67,6 @@ PCLMetadataWriter::PCLMetadataWriter(const edm::ParameterSet &pSet)
     recordMap[record] = jrInfo;
   }
 }
-
-PCLMetadataWriter::~PCLMetadataWriter() {}
 
 void PCLMetadataWriter::analyze(const edm::Event &event, const edm::EventSetup &eSetup) {}
 
