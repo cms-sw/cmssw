@@ -26,6 +26,7 @@ PATJetUpdater::PATJetUpdater(const edm::ParameterSet& iConfig)
     : useUserData_(iConfig.exists("userData")), printWarning_(iConfig.getParameter<bool>("printWarning")) {
   // initialize configurables
   jetsToken_ = consumes<edm::View<reco::Jet>>(iConfig.getParameter<edm::InputTag>("jetSource"));
+  sort_ = iConfig.getParameter<bool>("sort");
   addJetCorrFactors_ = iConfig.getParameter<bool>("addJetCorrFactors");
   if (addJetCorrFactors_) {
     jetCorrFactorsTokens_ = edm::vector_transform(
@@ -216,7 +217,9 @@ void PATJetUpdater::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   }
 
   // sort jets in pt
-  std::sort(patJets->begin(), patJets->end(), pTComparator_);
+  if (sort_) {
+    std::sort(patJets->begin(), patJets->end(), pTComparator_);
+  }
 
   // put genEvt  in Event
   iEvent.put(std::move(patJets));
@@ -231,6 +234,9 @@ void PATJetUpdater::fillDescriptions(edm::ConfigurationDescriptions& description
 
   // input source
   iDesc.add<edm::InputTag>("jetSource", edm::InputTag("no default"))->setComment("input collection");
+
+  // sort inputs (by pt)
+  iDesc.add<bool>("sort", true);
 
   // tag info
   iDesc.add<bool>("addTagInfos", true);
