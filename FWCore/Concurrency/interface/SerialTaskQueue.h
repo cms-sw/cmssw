@@ -129,18 +129,6 @@ namespace edm {
     template <typename T>
     void pushAndWait(const T& iAction);
 
-    /// asynchronously pushes functor iAction into queue and finds next task to execute
-    /**
-       * This function is useful if you are accessing the SerialTaskQueue for the execute()
-       * method of a TBB task and want to efficiently schedule the next task from the queue.
-       * In that case you can take the return value and return it directly from your execute() method.
-       * The function will return immediately and not wait for iAction to run.
-       * \param[in] iAction Must be a functor that takes no arguments and return no values.
-       * \return Returns either the next task that the user must schedule with TBB or a nullptr.
-       */
-    template <typename T>
-    tbb::task* pushAndGetNextTaskToRun(const T& iAction);
-
   private:
     /** Base class for all tasks held by the SerialTaskQueue */
     class TaskBase : public tbb::task {
@@ -148,7 +136,7 @@ namespace edm {
       TaskBase() : m_queue(nullptr) {}
 
     protected:
-      tbb::task* finishedTask();
+      TaskBase* finishedTask();
 
     private:
       void setQueue(SerialTaskQueue* iQueue) { m_queue = iQueue; }
@@ -162,7 +150,7 @@ namespace edm {
       QueuedTask(const T& iAction) : m_action(iAction) {}
 
     private:
-      tbb::task* execute() override;
+      TaskBase* execute() override;
 
       T m_action;
     };
@@ -170,8 +158,8 @@ namespace edm {
     friend class TaskBase;
 
     void pushTask(TaskBase*);
-    tbb::task* pushAndGetNextTask(TaskBase*);
-    tbb::task* finishedTask();
+    TaskBase* pushAndGetNextTask(TaskBase*);
+    TaskBase* finishedTask();
     //returns nullptr if a task is already being processed
     TaskBase* pickNextTask();
 
@@ -199,17 +187,10 @@ namespace edm {
     pushAndWait(waitTask, pTask);
   }
 
-  template <typename T>
-  tbb::task* SerialTaskQueue::pushAndGetNextTaskToRun(const T& iAction) {
-    QueuedTask<T>* pTask{new (tbb::task::allocate_root()) QueuedTask<T>{iAction}};
-    pTask->setQueue(this);
-    return pushAndGetNextTask(pTask);
-  }
-
-  inline tbb::task* SerialTaskQueue::TaskBase::finishedTask() { return m_queue->finishedTask(); }
+  inline SerialTaskQueue::TaskBase* SerialTaskQueue::TaskBase::finishedTask() { return m_queue->finishedTask(); }
 
   template <typename T>
-  tbb::task* SerialTaskQueue::QueuedTask<T>::execute() {
+  SerialTaskQueue::TaskBase* SerialTaskQueue::QueuedTask<T>::execute() {
     // Exception has to swallowed in order to avoid throwing from execute(). The user of SerialTaskQueue should handle exceptions within m_action().
     CMS_SA_ALLOW try { this->m_action(); } catch (...) {
     }
