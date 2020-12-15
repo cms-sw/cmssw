@@ -22,4 +22,5 @@
 <use name="RecoLocalCalo/HcalRecAlgos"/>
 <use name="SimCalorimetry/CaloSimAlgos"/>
 <use name="SimCalorimetry/HcalSimAlgos"/>
+<flags CXXFLAGS="-Wno-unknown-pragmas" FILE="MahiGPU.cu"/>
 <flags EDM_PLUGIN="1"/>
