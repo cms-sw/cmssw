@@ -1,39 +1,7 @@
-/** \class EcalClusterEnergyUncertainty
-  *  Function that provides uncertainty on supercluster energy measurement
-  *  Available numbers: total effective uncertainty (in GeV)
-  *                     assymetric uncertainties (positive and negative)
-  *
-  *  $Id: EcalClusterEnergyUncertainty.h
-  *  $Date:
-  *  $Revision:
-  *  \author Nicolas Chanon, December 2011
-  */
+#include "RecoEgamma/EgammaElectronAlgos/interface/ecalClusterEnergyUncertaintyElectronSpecific.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
 
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
-#include "CondFormats/EcalObjects/interface/EcalClusterEnergyUncertaintyParameters.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-
-class EcalClusterEnergyUncertaintyObjectSpecific : public EcalClusterFunctionBaseClass {
-public:
-  EcalClusterEnergyUncertaintyObjectSpecific(const edm::ParameterSet &){};
-
-  // check initialization
-  void checkInit() const {}
-
-  // compute the correction
-  float getValue(const reco::SuperCluster &, const int mode) const override;
-  float getValue(const reco::BasicCluster &, const EcalRecHitCollection &) const override { return 0.; };
-
-  // set parameters
-  void init(const edm::EventSetup &es) override {}
-};
-
-float EcalClusterEnergyUncertaintyObjectSpecific::getValue(const reco::SuperCluster &superCluster,
-                                                           const int mode) const {
-  checkInit();
-
-  // mode  = 0 returns electron energy uncertainty
-
+float egamma::ecalClusterEnergyUncertaintyElectronSpecific(reco::SuperCluster const& superCluster) {
   float en = superCluster.energy();
   float eta = fabs(superCluster.eta());
   float et = en / cosh(eta);
@@ -273,8 +241,3 @@ float EcalClusterEnergyUncertaintyObjectSpecific::getValue(const reco::SuperClus
 
   return (uncertainty * en);
 }
-
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
-DEFINE_EDM_PLUGIN(EcalClusterFunctionFactory,
-                  EcalClusterEnergyUncertaintyObjectSpecific,
-                  "EcalClusterEnergyUncertaintyObjectSpecific");
