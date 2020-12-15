@@ -17,13 +17,13 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   cms::DDNamespace ns(ctxt, e, true);
   cms::DDAlgoArguments args(ctxt, e);
   std::string motherName = args.parentName();
-  auto waferSize = args.value<double>("WaferSize");
-  auto waferT = args.value<double>("WaferThick");
-  auto waferSepar = args.value<double>("SensorSeparation");
-  auto nCells = args.value<int>("NCells");
-  auto cellType = args.value<int>("CellType");
-  auto material = args.value<std::string>("Material");
-  auto cellNames = args.value<std::vector<std::string>>("CellNames");
+  const auto& waferSize = args.value<double>("WaferSize");
+  const auto& waferT = args.value<double>("WaferThick");
+  const auto& waferSepar = args.value<double>("SensorSeparation");
+  const auto& nCells = args.value<int>("NCells");
+  const auto& cellType = args.value<int>("CellType");
+  const auto& material = args.value<std::string>("Material");
+  const auto& cellNames = args.value<std::vector<std::string>>("CellNames");
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalWafer8: Wafer 2r " << waferSize << " T " << waferT << " Half Separation "

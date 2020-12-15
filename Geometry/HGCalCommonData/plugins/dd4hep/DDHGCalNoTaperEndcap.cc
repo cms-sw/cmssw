@@ -13,10 +13,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   std::string motherName = args.parentName();
 
   auto const& m_tiltAngle = args.value<double>("tiltAngle");       // Tilt  angle
-  auto m_rMin = args.value<double>("rMin");                        // Inner radius
-  auto m_rMax = args.value<double>("rMax");                        // Outer radius
-  auto m_zoffset = args.value<double>("zoffset");                  // Offset in z
-  auto m_xyoffset = args.value<double>("xyoffset");                // Offset in x or y
+  auto const&m_rMin = args.value<double>("rMin");                  // Inner radius
+  auto const&m_rMax = args.value<double>("rMax");                  // Outer radius
+  auto const&m_zoffset = args.value<double>("zoffset");            // Offset in z
+  auto const&m_xyoffset = args.value<double>("xyoffset");          // Offset in x or y
   auto const& m_startCopyNo = args.value<int>("startCopyNo");      // Start copy Number
   auto const& m_incrCopyNo = args.value<int>("incrCopyNo");        // Increment copy Number
   auto const& m_childName = args.value<std::string>("ChildName");  // Children name
