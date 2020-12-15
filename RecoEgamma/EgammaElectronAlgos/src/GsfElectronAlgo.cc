@@ -23,6 +23,7 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronMomentumCorrector.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronAlgo.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/ecalClusterEnergyUncertaintyElectronSpecific.h"
 #include "CommonTools/Egamma/interface/ConversionTools.h"
 
 #include <Math/Point3D.h>
@@ -370,7 +371,6 @@ GsfElectronAlgo::GsfElectronAlgo(const Tokens& input,
                                  const ElectronHcalHelper::Configuration& hcal,
                                  const IsolationConfiguration& iso,
                                  const EcalRecHitsConfiguration& recHits,
-                                 std::unique_ptr<EcalClusterFunctionBaseClass>&& superClusterErrorFunction,
                                  std::unique_ptr<EcalClusterFunctionBaseClass>&& crackCorrectionFunction,
                                  const RegressionHelper::Configuration& reg,
                                  const edm::ParameterSet& tkIsol03,
@@ -389,8 +389,6 @@ GsfElectronAlgo::GsfElectronAlgo(const Tokens& input,
       trackerGeometryToken_{cc.esConsumes()},
       ecalSeveretyLevelAlgoToken_{cc.esConsumes()},
       hcalHelper_{hcal, std::move(cc)},
-      superClusterErrorFunction_{
-          std::forward<std::unique_ptr<EcalClusterFunctionBaseClass>>(superClusterErrorFunction)},
       crackCorrectionFunction_{std::forward<std::unique_ptr<EcalClusterFunctionBaseClass>>(crackCorrectionFunction)},
       regHelper_{reg, cfg_.strategy.useEcalRegression, cfg_.strategy.useCombinationRegression, cc}
 
@@ -400,9 +398,6 @@ void GsfElectronAlgo::checkSetup(const edm::EventSetup& es) {
   if (cfg_.strategy.useEcalRegression || cfg_.strategy.useCombinationRegression)
     regHelper_.checkSetup(es);
 
-  if (superClusterErrorFunction_) {
-    superClusterErrorFunction_->init(es);
-  }
   if (crackCorrectionFunction_) {
     crackCorrectionFunction_->init(es);
   }
@@ -923,7 +918,7 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
                          saturationInfo);
   auto& ele = electrons.back();
   // Will be overwritten later in the case of the regression
-  ele.setCorrectedEcalEnergyError(superClusterErrorFunction_->getValue(*(ele.superCluster()), 0));
+  ele.setCorrectedEcalEnergyError(egamma::ecalClusterEnergyUncertaintyElectronSpecific(*(ele.superCluster())));
   ele.setP4(GsfElectron::P4_FROM_SUPER_CLUSTER, momentum, 0, true);
 
   //====================================================
