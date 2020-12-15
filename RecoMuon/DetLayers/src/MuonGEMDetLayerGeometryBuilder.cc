@@ -29,7 +29,6 @@ pair<vector<DetLayer*>, vector<DetLayer*> > MuonGEMDetLayerGeometryBuilder::buil
 
     // GE0
     int station0 = 0;
-    //int layer0 = 0;
     for (int layer0 = GEMDetId::minLayerId + 1; layer0 <= GEMDetId::maxLayerId0; ++layer0) {
       vector<int> rolls0, rings0, chambers0;
       for (int ring = GEMDetId::minRingId; ring <= GEMDetId::maxRingId; ++ring)
@@ -86,11 +85,10 @@ MuRingForwardLayer* MuonGEMDetLayerGeometryBuilder::buildLayer0(int endcap,
 
       for (std::vector<int>::iterator chamber = chambers.begin(); chamber < chambers.end(); chamber++) {
         GEMDetId gemId(endcap, (*ring), station, layer, (*chamber), (*roll));
-        //GEMDetId gemId(endcap, layer, (*chamber), (*roll));
         const GeomDet* geomDet = geo.idToDet(gemId);
 
         if (geomDet != nullptr) {
-          //bool isInFront = isFront(gemId);
+          //ME0s do not currently have an arrangement of which are front and which are back, going to always return true
           bool isInFront = true;
           if (isInFront) {
             frontDets.push_back(geomDet);
