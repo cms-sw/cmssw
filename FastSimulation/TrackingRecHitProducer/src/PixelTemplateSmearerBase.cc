@@ -125,11 +125,7 @@ PixelTemplateSmearerBase::PixelTemplateSmearerBase(const std::string& name,
   //    event.  So nothing happens now.
 }
 
-PixelTemplateSmearerBase::~PixelTemplateSmearerBase() {
-  //--- Delete the templates. This is safe even if thePixelTemp_ vector is empty.
-  for (auto x : thePixelTemp_)
-    x.destroy();
-}
+PixelTemplateSmearerBase::~PixelTemplateSmearerBase() {}
 
 //-------------------------------------------------------------------------------
 //   beginRun(); the templates are loaded in TrackingRecHitProducer, and unpacked
