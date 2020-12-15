@@ -58,6 +58,7 @@ public:
 
     TGaxis::SetMaxDigits(2);
 
+    // margin of the box
     static constexpr int margin = 5;
     m_trackerMap =
         new TH2Poly("Tracker Map", m_mapTitle.c_str(), minx - margin, maxx + margin, miny - margin, maxy + margin);
@@ -65,7 +66,8 @@ public:
     m_trackerMap->SetOption(m_option);
     m_trackerMap->SetStats(false);
     m_trackerMap->GetZaxis()->SetLabelSize(0.03);
-    m_trackerMap->GetZaxis()->SetTitleOffset(0.7);
+    m_trackerMap->GetZaxis()->SetTitleOffset(0.5);
+    m_trackerMap->GetZaxis()->SetTitleSize(0.05);
     m_trackerMap->GetZaxis()->SetTitle(m_zAxisTitle.c_str());
     m_trackerMap->GetZaxis()->CenterTitle();
 
@@ -82,23 +84,13 @@ public:
 
   //============================================================================
   void drawMap(TCanvas& canvas, std::string option = "") {
+    static constexpr float tmargin_ = 0.08;
+    static constexpr float bmargin_ = 0.02;
+    static constexpr float lmargin_ = 0.02;
+    static constexpr float rmargin_ = 0.08;
+
     canvas.cd();
-    adjustCanvasMargins(canvas.cd(), 0.08, 0.06, 0.01, 0.06);
-
-    /*
-    if(!m_values.empty()){
-
-      m_axmax = *std::max_element(m_values.begin(), m_values.end());
-      m_axmin = *std::min_element(m_values.begin(), m_values.end());
-
-      canvas.cd();
-
-      auto color_bar_axis = new TGaxis(gPad->GetUxmin()-0.01,0.03, gPad->GetUxmax()-0.01, 0.03 , m_axmin, m_axmax ,505, "SDH");
-      color_bar_axis->SetName("color_bar_axis");
-      color_bar_axis->Draw();    
-
-    }
-    */
+    adjustCanvasMargins(canvas.cd(), tmargin_, bmargin_, lmargin_, rmargin_);
 
     canvas.Update();
 
@@ -113,10 +105,8 @@ public:
     TPaletteAxis* palette = (TPaletteAxis*)m_trackerMap->GetListOfFunctions()->FindObject("palette");
     if (palette != nullptr) {
       palette->SetLabelSize(0.02);
-      palette->SetX1NDC(0.95);
-      palette->SetX2NDC(0.96);
-      palette->SetY1NDC(0.05);
-      palette->SetY2NDC(0.95);
+      palette->SetX1NDC(1 - rmargin_);
+      palette->SetX2NDC(1 - rmargin_ + lmargin_);
       gPad->Modified();
       gPad->Update();
     }
@@ -181,30 +171,25 @@ public:
         } else {
           if (i % 2 == 0) {
             x[ix] = static_cast<TObjString*>(array->At(i))->String().Atof();
-
             if (x[ix] < minx) {
               minx = x[ix];
             }
-
             if (x[ix] > maxx) {
               maxx = x[ix];
             }
-
             ++ix;
           } else {
             y[iy] = static_cast<TObjString*>(array->At(i))->String().Atof();
-
             if (y[iy] < miny) {
               miny = y[iy];
             }
             if (y[iy] > maxy) {
               maxy = y[iy];
             }
-
             ++iy;
-          }
-        }
-      }
+          }  // else
+        }    // else
+      }      // loop on entries
 
       if (isPixel) {
         continue;
