@@ -207,7 +207,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 #endif
   const auto& materials = args.value<std::vector<std::string> >("MaterialNames");  // Material names in each layer
   const auto& names = args.value<std::vector<std::string> >("VolumeNames");        // Names of each layer
-  auto layerThick = args.value<std::vector<double> >("Thickness");                 // Thickness of the material
+  const auto& layerThick = args.value<std::vector<double> >("Thickness");          // Thickness of the material
   std::vector<int> copyNumber;                                                     // Copy numbers (initiated to 1)
   copyNumber.resize(materials.size(), 1);
 #ifdef EDM_ML_DEBUG
@@ -216,7 +216,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << names[i] << " of thickness " << layerThick[i]
                                   << " filled with " << materials[i] << " first copy number " << copyNumber[i];
 #endif
-  auto blockThick = args.value<std::vector<double> >("BlockThick");          // Thickness of each section
+  const auto& blockThick = args.value<std::vector<double> >("BlockThick");   // Thickness of each section
   const auto& inOut = args.value<int>("InOut");                              // Number of inner+outer parts
   const auto& layerFrontIn = args.value<std::vector<int> >("LayerFrontIn");  // First layer index (inner) in block
   const auto& layerBackIn = args.value<std::vector<int> >("LayerBackIn");    // Last layer index (inner) in block
@@ -247,14 +247,14 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     edm::LogVerbatim("HGCalGeom") << "Layer [" << i << "] with material type " << layerType[i] << " sensitive class "
                                   << layerSense[i] << " and " << maxModule[i] << " maximum row/columns";
 #endif
-  auto zMinBlock = args.value<double>("zMinBlock");  // Starting z-value of the block
-  auto rMaxFine = args.value<double>("rMaxFine");    // Maximum r-value for fine wafer
-  auto waferW = args.value<double>("waferW");        // Width of the wafer
-  auto waferGap = args.value<double>("waferGap");    // Gap between 2 wafers
-  auto absorbW = args.value<double>("absorberW");    // Width of the absorber
-  auto absorbH = args.value<double>("absorberH");    // Height of the absorber
-  auto rMax = args.value<double>("rMax");            // Maximum radial extent
-  auto rMaxB = args.value<double>("rMaxB");          // Maximum radial extent of a block
+  const auto& zMinBlock = args.value<double>("zMinBlock");  // Starting z-value of the block
+  const auto& rMaxFine = args.value<double>("rMaxFine");    // Maximum r-value for fine wafer
+  const auto& waferW = args.value<double>("waferW");        // Width of the wafer
+  const auto& waferGap = args.value<double>("waferGap");    // Gap between 2 wafers
+  const auto& absorbW = args.value<double>("absorberW");    // Width of the absorber
+  const auto& absorbH = args.value<double>("absorberH");    // Height of the absorber
+  const auto& rMax = args.value<double>("rMax");            // Maximum radial extent
+  const auto& rMaxB = args.value<double>("rMaxB");          // Maximum radial extent of a block
   double waferTot = waferW + waferGap;
   std::string idName = DDSplit(args.parentName()).first;
 #ifdef EDM_ML_DEBUG

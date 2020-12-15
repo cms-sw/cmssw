@@ -30,7 +30,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   const auto& wafer = args.value<std::vector<std::string> >("WaferName");    // Wafers
   auto materials = args.value<std::vector<std::string> >("MaterialNames");   // Materials
   const auto& names = args.value<std::vector<std::string> >("VolumeNames");  // Names
-  auto thick = args.value<std::vector<double> >("Thickness");                // Thickness of the material
+  const auto& thick = args.value<std::vector<double> >("Thickness");         // Thickness of the material
   std::vector<int> copyNumber;                                               // Initial copy numbers
   for (unsigned int i = 0; i < materials.size(); ++i) {
     if (materials[i] == "materials:M_NEMAFR4plate")
@@ -46,10 +46,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << names[i] << " of thickness " << thick[i]
                                   << " filled with " << materials[i] << " first copy number " << copyNumber[i];
 #endif
-  const auto& layers = args.value<std::vector<int> >("Layers");          // Number of layers in a section
-  auto layerThick = args.value<std::vector<double> >("LayerThick");      // Thickness of each section
-  const auto& layerType = args.value<std::vector<int> >("LayerType");    // Type of the layer
-  const auto& layerSense = args.value<std::vector<int> >("LayerSense");  // Content of a layer (sensitive?)
+  const auto& layers = args.value<std::vector<int> >("Layers");             // Number of layers in a section
+  const auto& layerThick = args.value<std::vector<double> >("LayerThick");  // Thickness of each section
+  const auto& layerType = args.value<std::vector<int> >("LayerType");       // Type of the layer
+  const auto& layerSense = args.value<std::vector<int> >("LayerSense");     // Content of a layer (sensitive?)
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalModuleAlgo: " << layers.size() << " blocks";
   for (unsigned int i = 0; i < layers.size(); ++i)
@@ -72,8 +72,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 #endif
   const auto& slopeB = args.value<std::vector<double> >("SlopeBottom");  // Slope at the lower R
   const auto& slopeT = args.value<std::vector<double> >("SlopeTop");     // Slopes at the larger R
-  auto zFront = args.value<std::vector<double> >("ZFront");              // Starting Z values for the slopes
-  auto rMaxFront = args.value<std::vector<double> >("RMaxFront");        // Corresponding rMax's
+  const auto& zFront = args.value<std::vector<double> >("ZFront");       // Starting Z values for the slopes
+  const auto& rMaxFront = args.value<std::vector<double> >("RMaxFront"); // Corresponding rMax's
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalModuleAlgo: Bottom slopes " << slopeB[0] << ":" << slopeB[1] << " and "
                                 << slopeT.size() << " slopes for top";
