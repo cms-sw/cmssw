@@ -165,16 +165,19 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id,
     //---- Calculate local position within the strip
     float xWithinChamber = lp11.x();
     quality = 0;
-    xMatchGatti_->findXOnStrip(id,
-                               layer_,
-                               sHit,
-                               centerStrip,
-                               xWithinChamber,
-                               stripWidth,
-                               tpeak,
-                               positionWithinTheStrip,
-                               sigmaWithinTheStrip,
-                               quality);
+    //check if strip wire intersect is within the sensitive area of chamber
+    if (layergeom_->inside(lp11)) {
+      xMatchGatti_->findXOnStrip(id,
+                                 layer_,
+                                 sHit,
+                                 centerStrip,
+                                 xWithinChamber,
+                                 stripWidth,
+                                 tpeak,
+                                 positionWithinTheStrip,
+                                 sigmaWithinTheStrip,
+                                 quality);
+    }
     lp0 = LocalPoint(xWithinChamber, ymiddle);
   }
 
