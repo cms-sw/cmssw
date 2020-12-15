@@ -1,16 +1,55 @@
-#include "HGCHEbackDigitizer.h"
+#include "SimCalorimetry/HGCalSimProducers/interface/HGCDigitizerBase.h"
+#include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
+#include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
+#include "SimCalorimetry/HGCalSimAlgos/interface/HGCalSciNoiseMap.h"
+#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
+#include "SimCalorimetry/HGCalSimProducers/interface/HGCDigitizerPluginFactory.h"
 
 #include "CLHEP/Random/RandPoissonQ.h"
 #include "CLHEP/Random/RandGaussQ.h"
-
-#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
-
 #include "vdt/vdtMath.h"
 
 using namespace hgc_digi;
 using namespace hgc_digi_utils;
 
-//
+class HGCHEbackDigitizer : public HGCDigitizerBase {
+public:
+  HGCHEbackDigitizer(const edm::ParameterSet& ps);
+  void runDigitizer(std::unique_ptr<HGCalDigiCollection>& digiColl,
+                    hgc::HGCSimHitDataAccumulator& simData,
+                    const CaloSubdetectorGeometry* theGeom,
+                    const std::unordered_set<DetId>& validIds,
+                    CLHEP::HepRandomEngine* engine) override;
+  ~HGCHEbackDigitizer() override;
+
+private:
+  //calice-like digitization parameters
+  uint32_t algo_;
+  bool scaleByTileArea_, scaleBySipmArea_, scaleByDose_, thresholdFollowsMIP_;
+  float keV2MIP_, noise_MIP_;
+  float nPEperMIP_, nTotalPE_, xTalk_, sdPixels_;
+  std::string doseMapFile_, sipmMapFile_;
+  HGCalSciNoiseMap scal_;
+
+  void runEmptyDigitizer(std::unique_ptr<HGCalDigiCollection>& digiColl,
+                         hgc::HGCSimHitDataAccumulator& simData,
+                         const CaloSubdetectorGeometry* theGeom,
+                         const std::unordered_set<DetId>& validIds,
+                         CLHEP::HepRandomEngine* engine);
+
+  void runRealisticDigitizer(std::unique_ptr<HGCalDigiCollection>& digiColl,
+                             hgc::HGCSimHitDataAccumulator& simData,
+                             const CaloSubdetectorGeometry* theGeom,
+                             const std::unordered_set<DetId>& validIds,
+                             CLHEP::HepRandomEngine* engine);
+
+  void runCaliceLikeDigitizer(std::unique_ptr<HGCalDigiCollection>& digiColl,
+                              hgc::HGCSimHitDataAccumulator& simData,
+                              const CaloSubdetectorGeometry* theGeom,
+                              const std::unordered_set<DetId>& validIds,
+                              CLHEP::HepRandomEngine* engine);
+};
+
 HGCHEbackDigitizer::HGCHEbackDigitizer(const edm::ParameterSet& ps) : HGCDigitizerBase(ps) {
   edm::ParameterSet cfg = ps.getParameter<edm::ParameterSet>("digiCfg");
   algo_ = cfg.getParameter<uint32_t>("algo");
@@ -267,3 +306,5 @@ void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::unique_ptr<HGCalDigiCollect
 
 //
 HGCHEbackDigitizer::~HGCHEbackDigitizer() {}
+
+DEFINE_EDM_PLUGIN(HGCDigitizerPluginFactory, HGCHEbackDigitizer, "HGCHEbackDigitizer");
