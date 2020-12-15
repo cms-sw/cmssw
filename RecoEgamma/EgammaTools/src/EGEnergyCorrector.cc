@@ -4,7 +4,6 @@
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -15,22 +14,7 @@
 using namespace reco;
 
 //--------------------------------------------------------------------------------------------------
-EGEnergyCorrector::EGEnergyCorrector()
-    : fReadereb(nullptr),
-      fReaderebvariance(nullptr),
-      fReaderee(nullptr),
-      fReadereevariance(nullptr),
-      fIsInitialized(kFALSE),
-      fOwnsForests(kFALSE),
-      fVals(nullptr) {
-  // Constructor.
-}
-
-//--------------------------------------------------------------------------------------------------
 EGEnergyCorrector::~EGEnergyCorrector() {
-  if (fVals)
-    delete[] fVals;
-
   if (fOwnsForests) {
     if (fReadereb)
       delete fReadereb;
@@ -45,10 +29,8 @@ EGEnergyCorrector::~EGEnergyCorrector() {
 
 //--------------------------------------------------------------------------------------------------
 void EGEnergyCorrector::Initialize(const edm::EventSetup &iSetup, std::string regweights, bool weightsFromDB) {
-  fIsInitialized = kTRUE;
+  fIsInitialized = true;
 
-  if (fVals)
-    delete[] fVals;
   if (fOwnsForests) {
     if (fReadereb)
       delete fReadereb;
@@ -60,7 +42,7 @@ void EGEnergyCorrector::Initialize(const edm::EventSetup &iSetup, std::string re
       delete fReadereevariance;
   }
 
-  fVals = new Float_t[73];
+  fVals.fill(0.0f);
 
   if (weightsFromDB) {  //weights from event setup
 
@@ -80,7 +62,7 @@ void EGEnergyCorrector::Initialize(const edm::EventSetup &iSetup, std::string re
     fReadereevariance = readereevar.product();
 
   } else {  //weights from root file
-    fOwnsForests = kTRUE;
+    fOwnsForests = true;
 
     TFile *fgbr = TFile::Open(regweights.c_str(), "READ");
     fReadereb = (GBRForest *)fgbr->Get("EBCorrection");
@@ -95,7 +77,7 @@ void EGEnergyCorrector::Initialize(const edm::EventSetup &iSetup, std::string re
 std::pair<double, double> EGEnergyCorrector::CorrectedEnergyWithError(const Photon &p,
                                                                       const reco::VertexCollection &vtxcol,
                                                                       EcalClusterLazyTools &clustertools,
-                                                                      const edm::EventSetup &es) {
+                                                                      CaloGeometry const &caloGeometry) {
   const SuperClusterRef s = p.superCluster();
   const CaloClusterPtr b = s->seed();  //seed  basic cluster
 
@@ -220,9 +202,7 @@ std::pair<double, double> EGEnergyCorrector::CorrectedEnergyWithError(const Phot
     //seed cluster
     float betacry, bphicry, bthetatilt, bphitilt;
     int bieta, biphi;
-    edm::ESHandle<CaloGeometry> caloGeometry;
-    es.get<CaloGeometryRecord>().get(caloGeometry);
-    egammaTools::localEcalClusterCoordsEB(*b, *caloGeometry, betacry, bphicry, bieta, biphi, bthetatilt, bphitilt);
+    egammaTools::localEcalClusterCoordsEB(*b, caloGeometry, betacry, bphicry, bieta, biphi, bthetatilt, bphitilt);
 
     fVals[56] = bieta;      //crystal ieta
     fVals[57] = biphi;      //crystal iphi
@@ -240,7 +220,7 @@ std::pair<double, double> EGEnergyCorrector::CorrectedEnergyWithError(const Phot
     int bc2ieta, bc2iphi;
     if (hasbc2)
       egammaTools::localEcalClusterCoordsEB(
-          *b2, *caloGeometry, bc2etacry, bc2phicry, bc2ieta, bc2iphi, bc2thetatilt, bc2phitilt);
+          *b2, caloGeometry, bc2etacry, bc2phicry, bc2ieta, bc2iphi, bc2thetatilt, bc2phitilt);
 
     fVals[64] = hasbc2 ? bc2ieta : 0.;
     fVals[65] = hasbc2 ? bc2iphi : 0.;
@@ -280,206 +260,12 @@ std::pair<double, double> EGEnergyCorrector::CorrectedEnergyWithError(const Phot
     readervar = fReadereevariance;
   }
 
-  Double_t ecor = reader->GetResponse(fVals) * den;
-  Double_t ecorerr = readervar->GetResponse(fVals) * den * varscale;
+  Double_t ecor = reader->GetResponse(fVals.data()) * den;
+  Double_t ecorerr = readervar->GetResponse(fVals.data()) * den * varscale;
 
   //printf("ecor = %5f, ecorerr = %5f\n",ecor,ecorerr);
 
-  return std::pair<double, double>(ecor, ecorerr);
-}
-
-//--------------------------------------------------------------------------------------------------
-std::pair<double, double> EGEnergyCorrector::CorrectedEnergyWithError(const GsfElectron &e,
-                                                                      const reco::VertexCollection &vtxcol,
-                                                                      EcalClusterLazyTools &clustertools,
-                                                                      const edm::EventSetup &es) {
-  //apply v2 regression to electrons
-  //mostly duplicated from photon function above //TODO, make common underlying function
-
-  //protection, this doesn't work properly on non-egamma-seeded electrons
-  if (!e.ecalDrivenSeed())
-    return std::pair<double, double>(0., 0.);
-
-  const SuperClusterRef s = e.superCluster();
-  const CaloClusterPtr b = s->seed();
-
-  CaloClusterPtr b2;
-  Double_t ebcmax = -99.;
-  for (reco::CaloCluster_iterator bit = s->clustersBegin(); bit != s->clustersEnd(); ++bit) {
-    const CaloClusterPtr bc = *bit;
-    if (bc->energy() > ebcmax && bc != b) {
-      b2 = bc;
-      ebcmax = bc->energy();
-    }
-  }
-
-  CaloClusterPtr bclast;
-  Double_t ebcmin = 1e6;
-  for (reco::CaloCluster_iterator bit = s->clustersBegin(); bit != s->clustersEnd(); ++bit) {
-    const CaloClusterPtr bc = *bit;
-    if (bc->energy() < ebcmin && bc != b) {
-      bclast = bc;
-      ebcmin = bc->energy();
-    }
-  }
-
-  CaloClusterPtr bclast2;
-  ebcmin = 1e6;
-  for (reco::CaloCluster_iterator bit = s->clustersBegin(); bit != s->clustersEnd(); ++bit) {
-    const CaloClusterPtr bc = *bit;
-    if (bc->energy() < ebcmin && bc != b && bc != bclast) {
-      bclast2 = bc;
-      ebcmin = bc->energy();
-    }
-  }
-
-  Bool_t isbarrel = b->hitsAndFractions().at(0).first.subdetId() == EcalBarrel;
-  Bool_t hasbc2 = b2.isNonnull() && b2->energy() > 0.;
-  Bool_t hasbclast = bclast.isNonnull() && bclast->energy() > 0.;
-  Bool_t hasbclast2 = bclast2.isNonnull() && bclast2->energy() > 0.;
-
-  if (isbarrel) {
-    fVals[0] = s->rawEnergy();
-    fVals[1] = clustertools.e3x3(*b) / s->rawEnergy();  //r9
-    fVals[2] = s->eta();
-    fVals[3] = s->phi();
-    fVals[4] = clustertools.e5x5(*b) / s->rawEnergy();
-    fVals[5] = e.hcalOverEcal();
-    fVals[6] = s->etaWidth();
-    fVals[7] = s->phiWidth();
-
-    double bemax = clustertools.eMax(*b);
-    double be2nd = clustertools.e2nd(*b);
-    double betop = clustertools.eTop(*b);
-    double bebottom = clustertools.eBottom(*b);
-    double beleft = clustertools.eLeft(*b);
-    double beright = clustertools.eRight(*b);
-
-    fVals[8] = b->eta() - s->eta();
-    fVals[9] = reco::deltaPhi(b->phi(), s->phi());
-    fVals[10] = b->energy() / s->rawEnergy();
-    fVals[11] = clustertools.e3x3(*b) / b->energy();
-    fVals[12] = clustertools.e5x5(*b) / b->energy();
-    fVals[13] = sqrt(clustertools.localCovariances(*b)[0]);
-    fVals[14] = sqrt(clustertools.localCovariances(*b)[2]);
-    fVals[15] = clustertools.localCovariances(*b)[1];
-    fVals[16] = bemax / b->energy();
-    fVals[17] = log(be2nd / bemax);
-    fVals[18] = log(betop / bemax);
-    fVals[19] = log(bebottom / bemax);
-    fVals[20] = log(beleft / bemax);
-    fVals[21] = log(beright / bemax);
-    fVals[22] = (betop - bebottom) / (betop + bebottom);
-    fVals[23] = (beleft - beright) / (beleft + beright);
-
-    double bc2emax = hasbc2 ? clustertools.eMax(*b2) : 0.;
-    double bc2e2nd = hasbc2 ? clustertools.e2nd(*b2) : 0.;
-    double bc2etop = hasbc2 ? clustertools.eTop(*b2) : 0.;
-    double bc2ebottom = hasbc2 ? clustertools.eBottom(*b2) : 0.;
-    double bc2eleft = hasbc2 ? clustertools.eLeft(*b2) : 0.;
-    double bc2eright = hasbc2 ? clustertools.eRight(*b2) : 0.;
-
-    fVals[24] = hasbc2 ? (b2->eta() - s->eta()) : 0.;
-    fVals[25] = hasbc2 ? reco::deltaPhi(b2->phi(), s->phi()) : 0.;
-    fVals[26] = hasbc2 ? b2->energy() / s->rawEnergy() : 0.;
-    fVals[27] = hasbc2 ? clustertools.e3x3(*b2) / b2->energy() : 0.;
-    fVals[28] = hasbc2 ? clustertools.e5x5(*b2) / b2->energy() : 0.;
-    fVals[29] = hasbc2 ? sqrt(clustertools.localCovariances(*b2)[0]) : 0.;
-    fVals[30] = hasbc2 ? sqrt(clustertools.localCovariances(*b2)[2]) : 0.;
-    fVals[31] = hasbc2 ? clustertools.localCovariances(*b)[1] : 0.;
-    fVals[32] = hasbc2 ? bc2emax / b2->energy() : 0.;
-    fVals[33] = hasbc2 ? log(bc2e2nd / bc2emax) : 0.;
-    fVals[34] = hasbc2 ? log(bc2etop / bc2emax) : 0.;
-    fVals[35] = hasbc2 ? log(bc2ebottom / bc2emax) : 0.;
-    fVals[36] = hasbc2 ? log(bc2eleft / bc2emax) : 0.;
-    fVals[37] = hasbc2 ? log(bc2eright / bc2emax) : 0.;
-    fVals[38] = hasbc2 ? (bc2etop - bc2ebottom) / (bc2etop + bc2ebottom) : 0.;
-    fVals[39] = hasbc2 ? (bc2eleft - bc2eright) / (bc2eleft + bc2eright) : 0.;
-
-    fVals[40] = hasbclast ? (bclast->eta() - s->eta()) : 0.;
-    fVals[41] = hasbclast ? reco::deltaPhi(bclast->phi(), s->phi()) : 0.;
-    fVals[42] = hasbclast ? bclast->energy() / s->rawEnergy() : 0.;
-    fVals[43] = hasbclast ? clustertools.e3x3(*bclast) / bclast->energy() : 0.;
-    fVals[44] = hasbclast ? clustertools.e5x5(*bclast) / bclast->energy() : 0.;
-    fVals[45] = hasbclast ? sqrt(clustertools.localCovariances(*bclast)[0]) : 0.;
-    fVals[46] = hasbclast ? sqrt(clustertools.localCovariances(*bclast)[2]) : 0.;
-    fVals[47] = hasbclast ? clustertools.localCovariances(*bclast)[1] : 0.;
-
-    fVals[48] = hasbclast2 ? (bclast2->eta() - s->eta()) : 0.;
-    fVals[49] = hasbclast2 ? reco::deltaPhi(bclast2->phi(), s->phi()) : 0.;
-    fVals[50] = hasbclast2 ? bclast2->energy() / s->rawEnergy() : 0.;
-    fVals[51] = hasbclast2 ? clustertools.e3x3(*bclast2) / bclast2->energy() : 0.;
-    fVals[52] = hasbclast2 ? clustertools.e5x5(*bclast2) / bclast2->energy() : 0.;
-    fVals[53] = hasbclast2 ? sqrt(clustertools.localCovariances(*bclast2)[0]) : 0.;
-    fVals[54] = hasbclast2 ? sqrt(clustertools.localCovariances(*bclast2)[2]) : 0.;
-    fVals[55] = hasbclast2 ? clustertools.localCovariances(*bclast2)[1] : 0.;
-
-    float betacry, bphicry, bthetatilt, bphitilt;
-    int bieta, biphi;
-    edm::ESHandle<CaloGeometry> caloGeometry;
-    es.get<CaloGeometryRecord>().get(caloGeometry);
-    egammaTools::localEcalClusterCoordsEB(*b, *caloGeometry, betacry, bphicry, bieta, biphi, bthetatilt, bphitilt);
-
-    fVals[56] = bieta;
-    fVals[57] = biphi;
-    fVals[58] = bieta % 5;
-    fVals[59] = biphi % 2;
-    fVals[60] = (TMath::Abs(bieta) <= 25) * (bieta % 25) +
-                (TMath::Abs(bieta) > 25) * ((bieta - 25 * TMath::Abs(bieta) / bieta) % 20);
-    fVals[61] = biphi % 20;
-    fVals[62] = betacry;
-    fVals[63] = bphicry;
-
-    float bc2etacry, bc2phicry, bc2thetatilt, bc2phitilt;
-    int bc2ieta, bc2iphi;
-    if (hasbc2)
-      egammaTools::localEcalClusterCoordsEB(
-          *b2, *caloGeometry, bc2etacry, bc2phicry, bc2ieta, bc2iphi, bc2thetatilt, bc2phitilt);
-
-    fVals[64] = hasbc2 ? bc2ieta : 0.;
-    fVals[65] = hasbc2 ? bc2iphi : 0.;
-    fVals[66] = hasbc2 ? bc2ieta % 5 : 0.;
-    fVals[67] = hasbc2 ? bc2iphi % 2 : 0.;
-    fVals[68] = hasbc2 ? (TMath::Abs(bc2ieta) <= 25) * (bc2ieta % 25) +
-                             (TMath::Abs(bc2ieta) > 25) * ((bc2ieta - 25 * TMath::Abs(bc2ieta) / bc2ieta) % 20)
-                       : 0.;
-    fVals[69] = hasbc2 ? bc2iphi % 20 : 0.;
-    fVals[70] = hasbc2 ? bc2etacry : 0.;
-    fVals[71] = hasbc2 ? bc2phicry : 0.;
-
-    fVals[72] = vtxcol.size();
-
-  } else {
-    fVals[0] = s->rawEnergy();
-    fVals[1] = clustertools.e3x3(*b) / s->rawEnergy();  //r9
-    fVals[2] = s->eta();
-    fVals[3] = s->phi();
-    fVals[4] = clustertools.e5x5(*b) / s->rawEnergy();
-    fVals[5] = s->etaWidth();
-    fVals[6] = s->phiWidth();
-    fVals[7] = vtxcol.size();
-  }
-
-  const Double_t varscale = 1.253;
-  Double_t den;
-  const GBRForest *reader;
-  const GBRForest *readervar;
-  if (isbarrel) {
-    den = s->rawEnergy();
-    reader = fReadereb;
-    readervar = fReaderebvariance;
-  } else {
-    den = s->rawEnergy() + s->preshowerEnergy();
-    reader = fReaderee;
-    readervar = fReadereevariance;
-  }
-
-  Double_t ecor = reader->GetResponse(fVals) * den;
-  Double_t ecorerr = readervar->GetResponse(fVals) * den * varscale;
-
-  //printf("ecor = %5f, ecorerr = %5f\n",ecor,ecorerr);
-
-  return std::pair<double, double>(ecor, ecorerr);
+  return {ecor, ecorerr};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -487,7 +273,7 @@ std::pair<double, double> EGEnergyCorrector::CorrectedEnergyWithErrorV3(const Ph
                                                                         const reco::VertexCollection &vtxcol,
                                                                         double rho,
                                                                         EcalClusterLazyTools &clustertools,
-                                                                        const edm::EventSetup &es,
+                                                                        CaloGeometry const &caloGeometry,
                                                                         bool applyRescale) {
   const SuperClusterRef s = p.superCluster();
   const CaloClusterPtr b = s->seed();  //seed  basic cluster
@@ -547,9 +333,7 @@ std::pair<double, double> EGEnergyCorrector::CorrectedEnergyWithErrorV3(const Ph
     //seed cluster
     float betacry, bphicry, bthetatilt, bphitilt;
     int bieta, biphi;
-    edm::ESHandle<CaloGeometry> caloGeometry;
-    es.get<CaloGeometryRecord>().get(caloGeometry);
-    egammaTools::localEcalClusterCoordsEB(*b, *caloGeometry, betacry, bphicry, bieta, biphi, bthetatilt, bphitilt);
+    egammaTools::localEcalClusterCoordsEB(*b, caloGeometry, betacry, bphicry, bieta, biphi, bthetatilt, bphitilt);
 
     fVals[30] = bieta;      //crystal ieta
     fVals[31] = biphi;      //crystal iphi
@@ -585,7 +369,7 @@ std::pair<double, double> EGEnergyCorrector::CorrectedEnergyWithErrorV3(const Ph
     readervar = fReadereevariance;
   }
 
-  Double_t ecor = reader->GetResponse(fVals) * den;
+  Double_t ecor = reader->GetResponse(fVals.data()) * den;
 
   //apply shower shape rescaling - for Monte Carlo only, and only for calculation of energy uncertainty
   if (applyRescale) {
@@ -641,114 +425,9 @@ std::pair<double, double> EGEnergyCorrector::CorrectedEnergyWithErrorV3(const Ph
     }
   }
 
-  Double_t ecorerr = readervar->GetResponse(fVals) * den;
+  Double_t ecorerr = readervar->GetResponse(fVals.data()) * den;
 
   //printf("ecor = %5f, ecorerr = %5f\n",ecor,ecorerr);
 
-  return std::pair<double, double>(ecor, ecorerr);
-}
-
-//--------------------------------------------------------------------------------------------------
-std::pair<double, double> EGEnergyCorrector::CorrectedEnergyWithErrorV3(const GsfElectron &e,
-                                                                        const reco::VertexCollection &vtxcol,
-                                                                        double rho,
-                                                                        EcalClusterLazyTools &clustertools,
-                                                                        const edm::EventSetup &es) {
-  const SuperClusterRef s = e.superCluster();
-  const CaloClusterPtr b = s->seed();  //seed  basic cluster
-
-  Bool_t isbarrel = b->hitsAndFractions().at(0).first.subdetId() == EcalBarrel;
-
-  //basic supercluster variables
-  fVals[0] = s->rawEnergy();
-  fVals[1] = s->eta();
-  fVals[2] = s->phi();
-  fVals[3] = clustertools.e3x3(*b) / s->rawEnergy();  //r9
-  fVals[4] = clustertools.e5x5(*b) / s->rawEnergy();
-  fVals[5] = s->etaWidth();
-  fVals[6] = s->phiWidth();
-  fVals[7] = s->clustersSize();
-  fVals[8] = e.hcalOverEcalBc();
-  fVals[9] = rho;
-  fVals[10] = vtxcol.size();
-
-  //seed basic cluster variables
-  double bemax = clustertools.eMax(*b);
-  double be2nd = clustertools.e2nd(*b);
-  double betop = clustertools.eTop(*b);
-  double bebottom = clustertools.eBottom(*b);
-  double beleft = clustertools.eLeft(*b);
-  double beright = clustertools.eRight(*b);
-
-  double be2x5max = clustertools.e2x5Max(*b);
-  double be2x5top = clustertools.e2x5Top(*b);
-  double be2x5bottom = clustertools.e2x5Bottom(*b);
-  double be2x5left = clustertools.e2x5Left(*b);
-  double be2x5right = clustertools.e2x5Right(*b);
-
-  fVals[11] = b->eta() - s->eta();
-  fVals[12] = reco::deltaPhi(b->phi(), s->phi());
-  fVals[13] = b->energy() / s->rawEnergy();
-  fVals[14] = clustertools.e3x3(*b) / b->energy();
-  fVals[15] = clustertools.e5x5(*b) / b->energy();
-  fVals[16] = sqrt(clustertools.localCovariances(*b)[0]);  //sigietaieta
-  fVals[17] = sqrt(clustertools.localCovariances(*b)[2]);  //sigiphiiphi
-  fVals[18] = clustertools.localCovariances(*b)[1];        //sigietaiphi
-  fVals[19] = bemax / b->energy();                         //crystal energy ratio gap variables
-  fVals[20] = be2nd / b->energy();
-  fVals[21] = betop / b->energy();
-  fVals[22] = bebottom / b->energy();
-  fVals[23] = beleft / b->energy();
-  fVals[24] = beright / b->energy();
-  fVals[25] = be2x5max / b->energy();  //crystal energy ratio gap variables
-  fVals[26] = be2x5top / b->energy();
-  fVals[27] = be2x5bottom / b->energy();
-  fVals[28] = be2x5left / b->energy();
-  fVals[29] = be2x5right / b->energy();
-
-  if (isbarrel) {
-    //local coordinates and crystal indices (barrel only)
-
-    //seed cluster
-    float betacry, bphicry, bthetatilt, bphitilt;
-    int bieta, biphi;
-    edm::ESHandle<CaloGeometry> caloGeometry;
-    es.get<CaloGeometryRecord>().get(caloGeometry);
-    egammaTools::localEcalClusterCoordsEB(*b, *caloGeometry, betacry, bphicry, bieta, biphi, bthetatilt, bphitilt);
-
-    fVals[30] = bieta;      //crystal ieta
-    fVals[31] = biphi;      //crystal iphi
-    fVals[32] = bieta % 5;  //submodule boundary eta symmetry
-    fVals[33] = biphi % 2;  //submodule boundary phi symmetry
-    fVals[34] = (TMath::Abs(bieta) <= 25) * (bieta % 25) +
-                (TMath::Abs(bieta) > 25) *
-                    ((bieta - 25 * TMath::Abs(bieta) / bieta) % 20);  //module boundary eta approximate symmetry
-    fVals[35] = biphi % 20;                                           //module boundary phi symmetry
-    fVals[36] = betacry;  //local coordinates with respect to closest crystal center at nominal shower depth
-    fVals[37] = bphicry;
-
-  } else {
-    //preshower energy ratio (endcap only)
-    fVals[30] = s->preshowerEnergy() / s->rawEnergy();
-  }
-
-  Double_t den;
-  const GBRForest *reader;
-  const GBRForest *readervar;
-  if (isbarrel) {
-    den = s->rawEnergy();
-    reader = fReadereb;
-    readervar = fReaderebvariance;
-  } else {
-    den = s->rawEnergy() + s->preshowerEnergy();
-    reader = fReaderee;
-    readervar = fReadereevariance;
-  }
-
-  Double_t ecor = reader->GetResponse(fVals) * den;
-  Double_t ecorerr = readervar->GetResponse(fVals) * den;
-
-  //printf("ecor = %5f, ecorerr = %5f\n",ecor,ecorerr);
-
-  return std::pair<double, double>(ecor, ecorerr);
+  return {ecor, ecorerr};
 }
