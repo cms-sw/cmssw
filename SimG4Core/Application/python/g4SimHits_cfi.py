@@ -609,3 +609,11 @@ phase2_timing.toModify( g4SimHits.ECalSD,
 ##
 from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
 dd4hep.toModify( g4SimHits, g4GeometryDD4hepSource = True )
+
+## enable fine calorimeter functionality
+from Configuration.ProcessModifiers.fineCalo_cff import fineCalo
+fineCalo.toModify(g4SimHits,
+    TrackingAction = dict(DoFineCalo = True),
+    CaloSD = dict(DoFineCalo = True),
+    CaloTrkProcessing = dict(DoFineCalo = True),
+)
