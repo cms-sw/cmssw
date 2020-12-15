@@ -4,7 +4,7 @@
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "CondFormats/GeometryObjects/interface/PGeometricTimingDet.h"
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include <DD4hep/DD4hepUnits.h>
 
 #include <cfloat>
@@ -229,7 +229,9 @@ void GeometricTimingDet::deleteComponents() {
 }
 
 GeometricTimingDet::Position GeometricTimingDet::positionBounds() const {
-  Position pos(float(trans_.x() / cm), float(trans_.y() / cm), float(trans_.z() / cm));
+  Position pos(geant_units::operators::convertMmToCm(trans_.x()),
+               geant_units::operators::convertMmToCm(trans_.y()),
+               geant_units::operators::convertMmToCm(trans_.z()));
   return pos;
 }
 
