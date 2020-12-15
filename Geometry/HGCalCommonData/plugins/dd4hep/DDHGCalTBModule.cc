@@ -73,10 +73,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                 << " wafer width " << waferW << " gap among wafers " << waferGap << " absorber width "
                                 << absorbW << " absorber height " << absorbH;
 #endif
-  const auto& slopeB = args.value<std::vector<double> >("SlopeBottom");  // Slope at the lower R
-  const auto& slopeT = args.value<std::vector<double> >("SlopeTop");     // Slopes at the larger R
-  const auto& zFront = args.value<std::vector<double> >("ZFront");       // Starting Z values for the slopes
-  const auto& rMaxFront = args.value<std::vector<double> >("RMaxFront"); // Corresponding rMax's
+  const auto& slopeB = args.value<std::vector<double> >("SlopeBottom");   // Slope at the lower R
+  const auto& slopeT = args.value<std::vector<double> >("SlopeTop");      // Slopes at the larger R
+  const auto& zFront = args.value<std::vector<double> >("ZFront");        // Starting Z values for the slopes
+  const auto& rMaxFront = args.value<std::vector<double> >("RMaxFront");  // Corresponding rMax's
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalTBModule: Bottom slopes " << slopeB[0] << ":" << slopeB[1] << " and "
                                 << slopeT.size() << " slopes for top";

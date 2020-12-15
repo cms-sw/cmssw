@@ -68,10 +68,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   edm::LogVerbatim("HGCalGeom") << "DDHGCalModule: zStart " << zMinBlock << " rFineCoarse " << rMaxFine
                                 << " wafer width " << waferW << " sectors " << sectors;
 #endif
-  const auto& slopeB = args.value<std::vector<double> >("SlopeBottom");  // Slope at the lower R
-  const auto& slopeT = args.value<std::vector<double> >("SlopeTop");     // Slopes at the larger R
-  const auto& zFront = args.value<std::vector<double> >("ZFront");       // Starting Z values for the slopes
-  const auto& rMaxFront = args.value<std::vector<double> >("RMaxFront"); // Corresponding rMax's
+  const auto& slopeB = args.value<std::vector<double> >("SlopeBottom");   // Slope at the lower R
+  const auto& slopeT = args.value<std::vector<double> >("SlopeTop");      // Slopes at the larger R
+  const auto& zFront = args.value<std::vector<double> >("ZFront");        // Starting Z values for the slopes
+  const auto& rMaxFront = args.value<std::vector<double> >("RMaxFront");  // Corresponding rMax's
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalModule: Bottom slopes " << slopeB[0] << ":" << slopeB[1] << " and "
                                 << slopeT.size() << " slopes for top";
