@@ -2,7 +2,7 @@
 <DDDefinition xmlns="http://www.cern.ch/mms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/mms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
 
   <!-- Unit of measurement: mm  -->
-  <ConstantsSection label="etl.xml" eval="true/false">
+  <ConstantsSection label="etl.xml" eval="true">
     <Constant name="ETLthickness" value="([caloBase:Zpos110]-[caloBase:Zpos100])-0.4*mm"/>
     <Constant name="ETLcenter" value="0.5*([caloBase:Zpos110]+[caloBase:Zpos100])"/>
     <Constant name="Disc1center" value="3000.42*mm+0.2*mm"/>
