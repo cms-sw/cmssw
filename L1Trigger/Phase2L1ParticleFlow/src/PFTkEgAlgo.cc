@@ -77,12 +77,12 @@ void PFTkEGAlgo::eg_algo(Region &r, const std::vector<int> &emCalo2emCalo, const
     if (filterHwQuality_ && calo.hwFlags != caloHwQual_)
       continue;
 
-
     int itk = emCalo2tk[ic];
 
     // 1. create EG objects before brem recovery
     addEGIsoToPF(r.egphotons, calo, calo.hwFlags, calo.floatPt());
-    if(itk != -1) addEGIsoEleToPF(r.egeles, calo, r.track[itk], calo.hwFlags, calo.floatPt());
+    if (itk != -1)
+      addEGIsoEleToPF(r.egeles, calo, r.track[itk], calo.hwFlags, calo.floatPt());
     addEgObjsToPF(r, ic, calo.hwFlags, calo.floatPt(), itk);
 
     // check if brem recovery is on
@@ -107,7 +107,6 @@ void PFTkEGAlgo::eg_algo(Region &r, const std::vector<int> &emCalo2emCalo, const
     addEgObjsToPF(r, ic, calo.hwFlags + 1, ptBremReco, itk);
   }
 }
-
 
 EGIsoParticle &PFTkEGAlgo::addEGIsoToPF(std::vector<EGIsoParticle> &egobjs,
                                         const CaloCluster &calo,
@@ -135,39 +134,32 @@ EGIsoEleParticle &PFTkEGAlgo::addEGIsoEleToPF(std::vector<EGIsoEleParticle> &ego
                                               const PropagatedTrack &track,
                                               const int hwQual,
                                               const float ptCorr) const {
-    EGIsoEleParticle egiso;
-    egiso.setFloatPt(ptCorr);
-    egiso.hwEta = calo.hwEta;
-    egiso.hwPhi = calo.hwPhi;
-    egiso.cluster = calo;
+  EGIsoEleParticle egiso;
+  egiso.setFloatPt(ptCorr);
+  egiso.hwEta = calo.hwEta;
+  egiso.hwPhi = calo.hwPhi;
+  egiso.cluster = calo;
 
-    egiso.hwVtxEta = track.hwVtxEta;
-    egiso.hwVtxPhi = track.hwVtxPhi;
-    egiso.hwZ0 = track.hwZ0;
-    egiso.hwCharge = track.hwCharge;
-    egiso.track = track;
+  egiso.hwVtxEta = track.hwVtxEta;
+  egiso.hwVtxPhi = track.hwVtxPhi;
+  egiso.hwZ0 = track.hwZ0;
+  egiso.hwCharge = track.hwCharge;
+  egiso.track = track;
 
-    egiso.hwQual = hwQual;
-    egiso.hwIso = 0;
-    egiso.hwPFIso = 0;
+  egiso.hwQual = hwQual;
+  egiso.hwIso = 0;
+  egiso.hwPFIso = 0;
 
-    egobjs.push_back(egiso);
-    return egobjs.back();
-
+  egobjs.push_back(egiso);
+  return egobjs.back();
 }
 
-
-
-void PFTkEGAlgo::addEgObjsToPF(Region &r,
-                                const int calo_idx,
-                                const int hwQual,
-                                const float ptCorr,
-                                const int tk_idx) const {
-
-  EGIsoParticle &egobj = addEGIsoToPF(r.egphotons, r.emcalo[calo_idx], r.emcalo[calo_idx].hwFlags+1, ptCorr);
-  if(tk_idx != -1) {
+void PFTkEGAlgo::addEgObjsToPF(
+    Region &r, const int calo_idx, const int hwQual, const float ptCorr, const int tk_idx) const {
+  EGIsoParticle &egobj = addEGIsoToPF(r.egphotons, r.emcalo[calo_idx], r.emcalo[calo_idx].hwFlags + 1, ptCorr);
+  if (tk_idx != -1) {
     egobj.ele_idx = r.egeles.size();
-    addEGIsoEleToPF(r.egeles, r.emcalo[calo_idx], r.track[tk_idx], r.emcalo[calo_idx].hwFlags+1, ptCorr);
+    addEGIsoEleToPF(r.egeles, r.emcalo[calo_idx], r.track[tk_idx], r.emcalo[calo_idx].hwFlags + 1, ptCorr);
   } else {
     egobj.ele_idx = -1;
   }

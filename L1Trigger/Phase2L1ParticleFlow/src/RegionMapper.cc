@@ -330,7 +330,6 @@ void RegionMapper::putEgObjects(edm::Event &iEvent,
       if (egphoton.floatPt() < ptMin)
         continue;
 
-
       if (!r.fiducialLocal(egphoton.floatEta(), egphoton.floatPhi()))
         continue;
 
@@ -364,7 +363,8 @@ void RegionMapper::putEgObjects(edm::Event &iEvent,
       auto mom_ele = reco::Candidate::PolarLorentzVector(
           egele.floatPt(), r.globalEta(egele.floatEta()), r.globalPhi(egele.floatPhi()), 0.);
 
-      l1t::TkElectron tkele(reco::Candidate::LorentzVector(mom_ele), reg, edm::refToPtr(egele.track.src->track()), egele.floatIso());
+      l1t::TkElectron tkele(
+          reco::Candidate::LorentzVector(mom_ele), reg, edm::refToPtr(egele.track.src->track()), egele.floatIso());
       tkele.setHwQual(egele.hwQual);
       tkele.setPFIsol(egele.floatPFIso());
       tkeles->push_back(tkele);
