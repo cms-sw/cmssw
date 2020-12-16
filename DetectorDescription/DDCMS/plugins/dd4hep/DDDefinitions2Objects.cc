@@ -1251,8 +1251,8 @@ void Converter<DDLSphere>::operator()(xml_h element) const {
            "DD4CMS",
            "+   Sphere:   r_inner=%8.3f [cm] r_outer=%8.3f [cm]"
            " startPhi=%8.3f [rad] deltaPhi=%8.3f startTheta=%8.3f delteTheta=%8.3f [rad]",
-           rinner,
-           router,
+           rinner / dd4hep::cm,
+           router / dd4hep::cm,
            startPhi,
            deltaPhi,
            startTheta,
@@ -1281,9 +1281,9 @@ void Converter<DDLTorus>::operator()(xml_h element) const {
            "DD4CMS",
            "+   Torus:    r=%10.3f [cm] r_inner=%10.3f [cm] r_outer=%10.3f [cm]"
            " startPhi=%10.3f [rad] deltaPhi=%10.3f [rad]",
-           r,
-           rinner,
-           router,
+           r / dd4hep::cm,
+           rinner / dd4hep::cm,
+           router / dd4hep::cm,
            startPhi,
            deltaPhi);
 
@@ -1311,12 +1311,12 @@ void Converter<DDLPseudoTrap>::operator()(xml_h element) const {
   printout(ns.context()->debug_shapes ? ALWAYS : DEBUG,
            "DD4CMS",
            "+   Pseudotrap:  dz=%8.3f [cm] dx1:%.3f dy1:%.3f dx2=%.3f dy2=%.3f radius:%.3f atMinusZ:%s",
-           dz,
-           dx1,
-           dy1,
-           dx2,
-           dy2,
-           r,
+           dz / dd4hep::cm,
+           dx1 / dd4hep::cm,
+           dy1 / dd4hep::cm,
+           dx2 / dd4hep::cm,
+           dy2 / dd4hep::cm,
+           r / dd4hep::cm,
            yes_no(atMinusZ));
 
 #endif
@@ -1348,15 +1348,15 @@ void Converter<DDLTrapezoid>::operator()(xml_h element) const {
            "DD4CMS",
            "+   Trapezoid:  dz=%10.3f [cm] alp1:%.3f bl1=%.3f tl1=%.3f alp2=%.3f bl2=%.3f tl2=%.3f h2=%.3f phi=%.3f "
            "theta=%.3f",
-           dz,
+           dz / dd4hep::cm,
            alp1,
-           bl1,
-           tl1,
-           h1,
+           bl1 / dd4hep::cm,
+           tl1 / dd4hep::cm,
+           h1 / dd4hep::cm,
            alp2,
-           bl2,
-           tl2,
-           h2,
+           bl2 / dd4hep::cm,
+           tl2 / dd4hep::cm,
+           h2 / dd4hep::cm,
            phi,
            theta);
 
@@ -1382,11 +1382,11 @@ void Converter<DDLTrd1>::operator()(xml_h element) const {
     printout(ns.context()->debug_shapes ? ALWAYS : DEBUG,
              "DD4CMS",
              "+   Trd1:       dz=%8.3f [cm] dx1:%.3f dy1:%.3f dx2:%.3f dy2:%.3f",
-             dz,
-             dx1,
-             dy1,
-             dx2,
-             dy2);
+             dz / dd4hep::cm,
+             dx1 / dd4hep::cm,
+             dy1 / dd4hep::cm,
+             dx2 / dd4hep::cm,
+             dy2 / dd4hep::cm);
 
 #endif
 
@@ -1397,11 +1397,11 @@ void Converter<DDLTrd1>::operator()(xml_h element) const {
     printout(ns.context()->debug_shapes ? ALWAYS : DEBUG,
              "DD4CMS",
              "+   Trd1(which is actually Trd2):       dz=%8.3f [cm] dx1:%.3f dy1:%.3f dx2:%.3f dy2:%.3f",
-             dz,
-             dx1,
-             dy1,
-             dx2,
-             dy2);
+             dz / dd4hep::cm,
+             dx1 / dd4hep::cm,
+             dy1 / dd4hep::cm,
+             dx2 / dd4hep::cm,
+             dy2 / dd4hep::cm);
 
 #endif
 
@@ -1426,11 +1426,11 @@ void Converter<DDLTrd2>::operator()(xml_h element) const {
   printout(ns.context()->debug_shapes ? ALWAYS : DEBUG,
            "DD4CMS",
            "+   Trd1:       dz=%8.3f [cm] dx1:%.3f dy1:%.3f dx2:%.3f dy2:%.3f",
-           dz,
-           dx1,
-           dy1,
-           dx2,
-           dy2);
+           dz / dd4hep::cm,
+           dx1 / dd4hep::cm,
+           dy1 / dd4hep::cm,
+           dx2 / dd4hep::cm,
+           dy2 / dd4hep::cm);
 
 #endif
 
@@ -1455,9 +1455,9 @@ void Converter<DDLTubs>::operator()(xml_h element) const {
            "DD4CMS",
            "+   Tubs:     dz=%8.3f [cm] rmin=%8.3f [cm] rmax=%8.3f [cm]"
            " startPhi=%8.3f [rad] deltaPhi=%8.3f [rad]",
-           dz,
-           rmin,
-           rmax,
+           dz / dd4hep::cm,
+           rmin / dd4hep::cm,
+           rmax / dd4hep::cm,
            startPhi,
            deltaPhi);
 
@@ -1490,9 +1490,9 @@ void Converter<DDLCutTubs>::operator()(xml_h element) const {
            "DD4CMS",
            "+   CutTube:  dz=%8.3f [cm] rmin=%8.3f [cm] rmax=%8.3f [cm]"
            " startPhi=%8.3f [rad] deltaPhi=%8.3f [rad]...",
-           dz,
-           rmin,
-           rmax,
+           dz / dd4hep::cm,
+           rmin / dd4hep::cm,
+           rmax / dd4hep::cm,
            startPhi,
            deltaPhi);
 
@@ -1522,13 +1522,13 @@ void Converter<DDLTruncTubs>::operator()(xml_h element) const {
            "DD4CMS",
            "+   TruncTube:zHalf=%8.3f [cm] rmin=%8.3f [cm] rmax=%8.3f [cm]"
            " startPhi=%8.3f [rad] deltaPhi=%8.3f [rad] atStart=%8.3f [cm] atDelta=%8.3f [cm] inside:%s",
-           zhalf,
-           rmin,
-           rmax,
+           zhalf / dd4hep::cm,
+           rmin / dd4hep::cm,
+           rmax / dd4hep::cm,
            startPhi,
            deltaPhi,
-           cutAtStart,
-           cutAtDelta,
+           cutAtStart / dd4hep::cm,
+           cutAtDelta / dd4hep::cm,
            yes_no(cutInside));
 
 #endif
@@ -1551,9 +1551,9 @@ void Converter<DDLEllipticalTube>::operator()(xml_h element) const {
   printout(ns.context()->debug_shapes ? ALWAYS : DEBUG,
            "DD4CMS",
            "+   EllipticalTube xSemiAxis=%8.3f [cm] ySemiAxis=%8.3f [cm] zHeight=%8.3f [cm]",
-           dx,
-           dy,
-           dz);
+           dx / dd4hep::cm,
+           dy / dd4hep::cm,
+           dz / dd4hep::cm);
 
 #endif
 
@@ -1583,11 +1583,11 @@ void Converter<DDLCone>::operator()(xml_h element) const {
            " rmin1=%8.3f [cm] rmax1=%8.3f [cm]"
            " rmin2=%8.3f [cm] rmax2=%8.3f [cm]"
            " startPhi=%8.3f [rad] deltaPhi=%8.3f [rad]",
-           dz,
-           rmin1,
-           rmax1,
-           rmin2,
-           rmax2,
+           dz / dd4hep::cm,
+           rmin1 / dd4hep::cm,
+           rmax1 / dd4hep::cm,
+           rmin2 / dd4hep::cm,
+           rmax2 / dd4hep::cm,
            startPhi,
            deltaPhi);
 
@@ -1630,9 +1630,9 @@ void Converter<DDLBox>::operator()(xml_h element) const {
   printout(ns.context()->debug_shapes ? ALWAYS : DEBUG,
            "DD4CMS",
            "+   Box:      dx=%10.3f [cm] dy=%10.3f [cm] dz=%10.3f [cm]",
-           dx,
-           dy,
-           dz);
+           dx / dd4hep::cm,
+           dy / dd4hep::cm,
+           dz / dd4hep::cm);
 
 #endif
 
