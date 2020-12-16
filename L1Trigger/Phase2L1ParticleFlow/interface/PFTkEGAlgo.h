@@ -58,9 +58,8 @@ namespace l1tpf_impl {
     template <typename T>
     void compute_isolation_tkEm(
         Region &r, const std::vector<T> &objects, const IsoParameters &params, const float z0, bool isPF) const {
-      for (int ic = 0, nc = r.egobjs.size(); ic < nc; ++ic) {
-        auto &egidxer = r.egobjs[ic];
-        const auto &calo = r.emcalo[egidxer.emCaloIdx];
+      for (int ic = 0, nc = r.egphotons.size(); ic < nc; ++ic) {
+        auto &egphoton = r.egphotons[ic];
 
         float sumPt = 0.;
         float sumPtPV = 0.;
@@ -71,9 +70,9 @@ namespace l1tpf_impl {
           if (tk.floatPt() < params.tkQualityPtMin)
             continue;
 
-          float d_phi = deltaPhi(tk.floatVtxPhi(), calo.floatPhi());
-          // FIXME: we compare Tk eta at vertex against the calo eta....shall we correct for the PV position ?
-          float d_eta = tk.floatVtxEta() - calo.floatEta();
+          // FIXME: we compare Tk at vertex against the calo variable....shall we correct for the PV position ?
+          float d_phi = deltaPhi(tk.floatVtxPhi(), egphoton.floatPhi());
+          float d_eta = tk.floatVtxEta() - egphoton.floatEta();
           float dR2 = d_phi * d_phi + d_eta * d_eta;
 
           if (dR2 > params.dRMin2 && dR2 < params.dRMax2) {
@@ -84,11 +83,11 @@ namespace l1tpf_impl {
           }
         }
         if (isPF) {
-          egidxer.iso = sumPt / egidxer.ptcorr;
-          egidxer.isoPV = sumPt / egidxer.ptcorr;
+          egphoton.setPFIso(sumPt / egphoton.floatPt());
+          egphoton.setPFIsoPV(sumPtPV / egphoton.floatPt());
         } else {
-          egidxer.pfIso = sumPt / egidxer.ptcorr;
-          egidxer.pfIsoPV = sumPt / egidxer.ptcorr;
+          egphoton.setIso(sumPt / egphoton.floatPt());
+          egphoton.setIsoPV(sumPtPV / egphoton.floatPt());
         }
       }
     }
@@ -96,14 +95,9 @@ namespace l1tpf_impl {
     template <typename T>
     void compute_isolation_tkEle(
         Region &r, const std::vector<T> &objects, const IsoParameters &params, const float z0, bool isPF) const {
-      for (int ic = 0, nc = r.egobjs.size(); ic < nc; ++ic) {
-        auto &egidxer = r.egobjs[ic];
+      for (int ic = 0, nc = r.egeles.size(); ic < nc; ++ic) {
+        auto &egele = r.egeles[ic];
 
-        if (egidxer.tkIdx == -1)
-          continue;
-
-        const auto &calo = r.emcalo[egidxer.emCaloIdx];
-        const auto &matchedtk = r.track[egidxer.tkIdx];
         float sumPt = 0.;
 
         for (int itk = 0, ntk = objects.size(); itk < ntk; ++itk) {
@@ -113,12 +107,12 @@ namespace l1tpf_impl {
             continue;
 
           // we check the DZ only for charged PFParticles for which Z0 is assigned to (0,0,0)
-          if (tk.intCharge() != 0 && std::abs(tk.floatDZ() - matchedtk.floatDZ()) > params.dZ)
+          if (tk.intCharge() != 0 && std::abs(tk.floatDZ() - egele.floatDZ()) > params.dZ)
             continue;
 
 
-          float d_phi = deltaPhi(tk.floatVtxPhi(), matchedtk.floatVtxPhi());
-          float d_eta = tk.floatVtxEta() - matchedtk.floatVtxEta();
+          float d_phi = deltaPhi(tk.floatVtxPhi(), egele.floatVtxPhi());
+          float d_eta = tk.floatVtxEta() - egele.floatVtxEta();
           float dR2 = d_phi * d_phi + d_eta * d_eta;
 
           if (dR2 > params.dRMin2 && dR2 < params.dRMax2){
@@ -126,20 +120,32 @@ namespace l1tpf_impl {
           }
         }
         if (isPF) {
-          egidxer.pfIsoDZ = sumPt / egidxer.ptcorr;
+          egele.setPFIso(sumPt / egele.floatPt());
         } else {
-          egidxer.isoDZ = sumPt / egidxer.ptcorr;
+          egele.setIso(sumPt / egele.floatPt());
         }
       }
     }
 
     void eg_algo(Region &r, const std::vector<int> &emCalo2emCalo, const std::vector<int> &emCalo2tk) const;
 
-    l1tpf_impl::EgObjectIndexer &addEgObjsToPF(std::vector<l1tpf_impl::EgObjectIndexer> &egobjs,
-                                               const int calo_idx,
-                                               const int hwQual,
-                                               const float ptCorr = -1,
-                                               const int tk_idx = -1) const;
+    void addEgObjsToPF(Region &r,
+                       const int calo_idx,
+                       const int hwQual,
+                       const float ptCorr,
+                       const int tk_idx = -1) const;
+
+    EGIsoParticle &addEGIsoToPF(std::vector<EGIsoParticle> &egobjs,
+                                const CaloCluster &calo,
+                                const int hwQual,
+                                const float ptCorr) const;
+
+    EGIsoEleParticle &addEGIsoEleToPF(std::vector<EGIsoEleParticle> &egobjs,
+                                      const CaloCluster &calo,
+                                      const PropagatedTrack &track,
+                                      const int hwQual,
+                                      const float ptCorr) const;
+
   };
 
 }  // namespace l1tpf_impl

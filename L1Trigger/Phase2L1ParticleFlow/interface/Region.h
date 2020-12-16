@@ -6,40 +6,11 @@
 
 namespace l1tpf_impl {
 
-  // FIXME: this is temporary, to be substituted with proper EG objects
-  struct EgObjectIndexer {
-    EgObjectIndexer(int emCaloIdx,
-                    int hwQual,
-                    float ptcorr,
-                    int tkIdx = -1)
-        : emCaloIdx(emCaloIdx),
-          hwQual(hwQual),
-          tkIdx(tkIdx),
-          ptcorr(ptcorr),
-          iso(-1),
-          isoPV(-1),
-          isoDZ(-1),
-          pfIso(-1),
-          pfIsoPV(-1),
-          pfIsoDZ(-1) {}
-
-    int emCaloIdx;
-    int hwQual;
-    int tkIdx;
-    float ptcorr;
-    float iso; // iso using all tks
-    float isoPV; // iso using tks compatible with PV
-    float isoDZ; // iso using tks compatible with mathed Tk (for TkElectrons only)
-    float pfIso; // iso using all PF cands
-    float pfIsoPV; // iso using PF cands compatible with PV
-    float pfIsoDZ; // iso using PF cands compatible with mathed Tk (for TkElectrons only)
-
-  };
-
   struct Region : public InputRegion {
     std::vector<PFParticle> pf;
     std::vector<PFParticle> puppi;
-    std::vector<l1tpf_impl::EgObjectIndexer> egobjs;
+    std::vector<EGIsoEleParticle> egeles;
+    std::vector<EGIsoParticle> egphotons;
 
     unsigned int caloOverflow, emcaloOverflow, trackOverflow, muonOverflow, pfOverflow, puppiOverflow;
 
@@ -61,7 +32,8 @@ namespace l1tpf_impl {
         : InputRegion(0.5 * (etamin + etamax), etamin, etamax, phicenter, 0.5 * phiwidth, etaextra, phiextra),
           pf(),
           puppi(),
-          egobjs(),
+          egeles(),
+          egphotons(),
           caloOverflow(),
           emcaloOverflow(),
           trackOverflow(),
@@ -130,7 +102,8 @@ namespace l1tpf_impl {
       muon.clear();
       pf.clear();
       puppi.clear();
-      egobjs.clear();
+      egeles.clear();
+      egphotons.clear();
       caloOverflow = 0;
       emcaloOverflow = 0;
       trackOverflow = 0;
