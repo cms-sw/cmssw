@@ -28,12 +28,15 @@ collection_choices.extend([multiclustersGeneralLabel]+[trackstersGeneralLabel]+[
 def main(opts):
 
     drawArgs={}
+    extendedFlag = False
     if opts.no_ratio:
         drawArgs["ratio"] = False
     if opts.separate:
         drawArgs["separate"] = True
     if opts.png:
         drawArgs["saveFormat"] = ".png"
+    if opts.extended:
+        extendedFlag = True
     if opts.verbose:
         plotting.verbose = True
 
@@ -47,7 +50,7 @@ def main(opts):
 
     if opts.collection==layerClustersGeneralLabel:
 	hgclayclus = [hgcalPlots.hgcalLayerClustersPlotter]
-	hgcalPlots.append_hgcalLayerClustersPlots("hgcalLayerClusters", "Layer Clusters")
+	hgcalPlots.append_hgcalLayerClustersPlots("hgcalLayerClusters", "Layer Clusters", extendedFlag)
         val.doPlots(hgclayclus, plotterDrawArgs=drawArgs)
     elif opts.collection == multiclustersGeneralLabel:
         hgcmulticlus = [hgcalPlots.hgcalMultiClustersPlotter]
@@ -101,7 +104,7 @@ def main(opts):
 
  	#layer clusters 
 	hgclayclus = [hgcalPlots.hgcalLayerClustersPlotter]
-	hgcalPlots.append_hgcalLayerClustersPlots("hgcalLayerClusters", "Layer Clusters")
+	hgcalPlots.append_hgcalLayerClustersPlots("hgcalLayerClusters", "Layer Clusters", extendedFlag)
 	val.doPlots(hgclayclus, plotterDrawArgs=drawArgs)
 
         #multiclusters
@@ -140,10 +143,12 @@ if __name__ == "__main__":
                         help="Sample name for HTML page generation (default 'Sample')")
     parser.add_argument("--html-validation-name", type=str, default=["",""], nargs="+",
                         help="Validation name for HTML page generation (enters to <title> element) (default '')")
-    parser.add_argument("--verbose", action="store_true", default = False,
-                        help="Be verbose")
     parser.add_argument("--collection", choices=collection_choices, default=layerClustersGeneralLabel,
                         help="Choose output plots collections among possible choices")    
+    parser.add_argument("--extended", action="store_true", default = False,
+                        help="Include extended set of plots (e.g. bunch of distributions; default off)")
+    parser.add_argument("--verbose", action="store_true", default = False,
+                        help="Be verbose")
 
     opts = parser.parse_args()
 
