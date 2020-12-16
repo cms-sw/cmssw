@@ -66,7 +66,6 @@ ForwardDetLayer* MuonGEMDetLayerGeometryBuilder::buildLayer(int endcap,
   const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuonGEMDetLayerGeometryBuilder";
   ForwardDetLayer* result = nullptr;
   vector<const ForwardDetRing*> frontRings, backRings;
-  cout << "Station of GEM is " << station << endl;
   for (std::vector<int>::iterator ring = rings.begin(); ring != rings.end(); ring++) {
     for (vector<int>::iterator roll = rolls.begin(); roll != rolls.end(); roll++) {
       vector<const GeomDet*> frontDets, backDets;
@@ -109,13 +108,10 @@ ForwardDetLayer* MuonGEMDetLayerGeometryBuilder::buildLayer(int endcap,
   //    precomputed_value_sort(muDetRods.begin(), muDetRods.end(), geomsort::ExtractZ<GeometricSearchDet,float>());
   if (!backRings.empty() && !frontRings.empty() && station != GEMDetId::minStationId0) {
     result = new MuRingForwardDoubleLayer(frontRings, backRings);
-    cout << "st - " << station << endl;
   } else if (!frontRings.empty() && station == GEMDetId::minStationId0) {
     result = new MuRingForwardLayer(frontRings);
-    cout << "st 0 " << endl;
   } else {
     result = nullptr;
-    cout << "nullptr" << endl;
   }
   if (result != nullptr) {
     LogTrace(metname) << "New MuRingForwardLayer with " << frontRings.size() << " and " << backRings.size()
