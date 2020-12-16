@@ -36,12 +36,9 @@
 
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 
-#include "TMath.h"
 #include "TFile.h"
 #include "TH1F.h"
-#include "TH1I.h"
 #include "TH2F.h"
-#include "TProfile.h"
 #include "TTree.h"
 
 #include <cassert>
@@ -67,7 +64,6 @@ private:
   edm::InputTag matchingObjectCollection_;
   edm::InputTag beamSpot_;
   std::string matchingCondition_;
-  //std::string type_;
   bool readAOD_;
 
   // matching
@@ -220,11 +216,9 @@ private:
   TH1F *h_ele_matchingObjectPhi_matched;
   TH1F *h_ele_matchingObjectZ_matched;
 
-  //TH1F *h_ele_vertexP;
   TH1F *h_ele_vertexPt;
   TH1F *h_ele_Et;
   TH1F *h_ele_vertexEta;
-  //TH1F *h_ele_vertexAbsEta;
   TH1F *h_ele_vertexPhi;
   TH1F *h_ele_vertexX;
   TH1F *h_ele_vertexY;
@@ -245,26 +239,19 @@ private:
   TH2F *h_ele_ambiguousTracksVsPhi;
   TH2F *h_ele_ambiguousTracksVsPt;
   TH1F *h_ele_foundHits;
-  //  TH1F *h_ele_foundHits_barrel;
-  //  TH1F *h_ele_foundHits_endcaps;
   TH2F *h_ele_foundHitsVsEta;
   TH2F *h_ele_foundHitsVsPhi;
   TH2F *h_ele_foundHitsVsPt;
   TH1F *h_ele_lostHits;
-  //  TH1F *h_ele_lostHits_barrel;
-  //  TH1F *h_ele_lostHits_endcaps;
   TH2F *h_ele_lostHitsVsEta;
   TH2F *h_ele_lostHitsVsPhi;
   TH2F *h_ele_lostHitsVsPt;
   TH1F *h_ele_chi2;
-  //  TH1F *h_ele_chi2_barrel_;
-  //  TH1F *h_ele_chi2_endcaps_;
   TH2F *h_ele_chi2VsEta;
   TH2F *h_ele_chi2VsPhi;
   TH2F *h_ele_chi2VsPt;
 
   TH1F *h_ele_EoP;
-  //  TH1F *h_ele_EoPout;
   TH1F *h_ele_EeleOPout;
   TH1F *h_ele_dEtaSc_propVtx;
   TH1F *h_ele_dPhiSc_propVtx;
@@ -272,8 +259,6 @@ private:
   TH1F *h_ele_dPhiCl_propOut;
   TH1F *h_ele_dEtaEleCl_propOut;
   TH1F *h_ele_dPhiEleCl_propOut;
-  //  TH1F *h_ele_dPhiEleCl_propOut_barrel;
-  //  TH1F *h_ele_dPhiEleCl_propOut_endcaps;
   TH1F *h_ele_HoE;
   TH1F *h_ele_outerP;
   TH1F *h_ele_outerP_mode;
@@ -586,7 +571,6 @@ void DQMAnalyzer::beginJob() {
   //==================================================
 
   h_ele_EoP = new TH1F("h_ele_EoP", "ele E/P_{vertex}", nbineop, 0., eopmax);
-  //  h_ele_EoPout         = new TH1F( "h_ele_EoPout",         "ele E/P_{out}",           nbineop,0.,eopmax);
   h_ele_EeleOPout = new TH1F("h_ele_EeleOPout", "ele E_{ele}/P_{out}", nbineop, 0., eopmax);
   h_ele_dEtaSc_propVtx = new TH1F(
       "h_ele_dEtaSc_propVtx", "ele #eta_{sc} - #eta_{tr}, prop from vertex", nbindetamatch, detamatchmin, detamatchmax);
@@ -642,8 +626,6 @@ void DQMAnalyzer::beginJob() {
   h_ele_EoP->GetXaxis()->SetTitle("E/P_{vertex}");
   h_ele_EoP->GetYaxis()->SetTitle("Events");
 
-  //  h_ele_EoPout->GetXaxis()-> SetTitle("E_{seed}/P_{out}");
-  //  h_ele_EoPout->GetYaxis()-> SetTitle("Events");
   h_ele_EeleOPout->GetXaxis()->SetTitle("E_{ele}/P_{out}");
   h_ele_EeleOPout->GetYaxis()->SetTitle("Events");
 
@@ -751,7 +733,6 @@ void DQMAnalyzer::endJob() {
   // matched electrons
   h_ele_charge->Write();
 
-  //h_ele_vertexP->Write();
   h_ele_vertexPt->Write();
   h_ele_vertexEta->Write();
   h_ele_vertexPhi->Write();
@@ -816,7 +797,6 @@ void DQMAnalyzer::endJob() {
 
   // matched electrons, matching
   h_ele_EoP->Write();
-  //  h_ele_EoPout->Write();
   h_ele_EeleOPout->Write();
   h_ele_dEtaSc_propVtx->Write();
   h_ele_dPhiSc_propVtx->Write();
@@ -904,7 +884,6 @@ void DQMAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetu
 
     // electron related distributions
     h_ele_charge->Fill(gsfIter->charge());
-    //h_ele_vertexP->Fill( gsfIter->p() );
     h_ele_vertexPt->Fill(gsfIter->pt());
     h_ele_Et->Fill(gsfIter->superCluster()->energy() / cosh(gsfIter->superCluster()->eta()));
     h_ele_vertexEta->Fill(gsfIter->eta());
@@ -920,8 +899,8 @@ void DQMAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetu
     //    if (!gsfIter->ecalDrivenSeed()&&gsfIter->trackerDrivenSeed())
     //      sclRef = gsfIter->parentSuperCluster() ;
     histSclEn_->Fill(sclRef->energy());
-    double R = TMath::Sqrt(sclRef->x() * sclRef->x() + sclRef->y() * sclRef->y() + sclRef->z() * sclRef->z());
-    double Rt = TMath::Sqrt(sclRef->x() * sclRef->x() + sclRef->y() * sclRef->y());
+    double R = std::sqrt(sclRef->x() * sclRef->x() + sclRef->y() * sclRef->y() + sclRef->z() * sclRef->z());
+    double Rt = std::sqrt(sclRef->x() * sclRef->x() + sclRef->y() * sclRef->y());
     histSclEt_->Fill(sclRef->energy() * (Rt / R));
     histSclEta_->Fill(sclRef->eta());
     histSclPhi_->Fill(sclRef->phi());
@@ -958,20 +937,6 @@ void DQMAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetu
     h_ele_PinMnPout_mode->Fill(gsfIter->trackMomentumAtVtx().R() - gsfIter->trackMomentumOut().R());
     h_ele_outerP_mode->Fill(gsfIter->trackMomentumOut().R());
     h_ele_outerPt_mode->Fill(gsfIter->trackMomentumOut().Rho());
-
-    /*
-    if (!readAOD_) { // track extra does not exist in AOD
-            edm::RefToBase<TrajectorySeed> seed = gsfIter->gsfTrack()->extra()->seedRef();
-      ElectronSeedRef elseed=seed.castTo<ElectronSeedRef>();
-      h_ele_seed_dphi2_-> Fill(elseed->dPhiNeg(1));
-            h_ele_seed_dphi2VsEta_-> Fill(gsfIter->eta(), elseed->dPhiNeg(1));
-            h_ele_seed_dphi2VsPt_-> Fill(gsfIter->pt(), elseed->dPhiNeg(1)) ;
-            h_ele_seed_drz2_-> Fill(elseed->dRZNeg(1));
-            h_ele_seed_drz2VsEta_-> Fill(gsfIter->eta(), elseed->dRZNeg(1));
-            h_ele_seed_drz2VsPt_-> Fill(gsfIter->pt(), elseed->dRZNeg(1));
-            h_ele_seed_subdet2_-> Fill(elseed->subDet(1));
-          }
-    */
 
     // match distributions
     h_ele_EoP->Fill(gsfIter->eSuperClusterOverP());
