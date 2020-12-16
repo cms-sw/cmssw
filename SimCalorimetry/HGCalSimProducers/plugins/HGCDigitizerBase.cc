@@ -1,13 +1,17 @@
+#include <memory>
+
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCDigitizerBase.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
-#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
 using namespace hgc_digi;
 using namespace hgc_digi_utils;
 
-template <class DFr>
-HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps)
-    : scaleByDose_(false), NoiseMean_(0.0), NoiseStd_(1.0) {
+HGCDigitizerBase::HGCDigitizerBase(const edm::ParameterSet& ps)
+    : scaleByDose_(false),
+      det_(DetId::Forward),
+      subdet_(ForwardSubdetector::ForwardEmpty),
+      NoiseMean_(0.0),
+      NoiseStd_(1.0) {
   bxTime_ = ps.getParameter<double>("bxTime");
   myCfg_ = ps.getParameter<edm::ParameterSet>("digiCfg");
   NoiseGeneration_Method_ = ps.getParameter<bool>("NoiseGeneration_Method");
@@ -63,7 +67,7 @@ HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps)
   }
 
   edm::ParameterSet feCfg = myCfg_.getParameter<edm::ParameterSet>("feCfg");
-  myFEelectronics_ = std::unique_ptr<HGCFEElectronics<DFr>>(new HGCFEElectronics<DFr>(feCfg));
+  myFEelectronics_ = std::make_unique<HGCFEElectronics<DFr>>(feCfg);
   myFEelectronics_->SetNoiseValues(noise_fC_);
 
   //override the "default ADC pulse" with the one with which was configured the FE electronics class
@@ -73,10 +77,9 @@ HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps)
   RandNoiseGenerationFlag_ = false;
 }
 
-template <class DFr>
-void HGCDigitizerBase<DFr>::GenerateGaussianNoise(CLHEP::HepRandomEngine* engine,
-                                                  const double NoiseMean,
-                                                  const double NoiseStd) {
+void HGCDigitizerBase::GenerateGaussianNoise(CLHEP::HepRandomEngine* engine,
+                                             const double NoiseMean,
+                                             const double NoiseStd) {
   for (size_t i = 0; i < NoiseArrayLength_; i++) {
     for (size_t j = 0; j < samplesize_; j++) {
       GaussianNoiseArray_[i][j] = CLHEP::RandGaussQ::shoot(engine, NoiseMean, NoiseStd);
@@ -84,13 +87,12 @@ void HGCDigitizerBase<DFr>::GenerateGaussianNoise(CLHEP::HepRandomEngine* engine
   }
 }
 
-template <class DFr>
-void HGCDigitizerBase<DFr>::run(std::unique_ptr<HGCDigitizerBase::DColl>& digiColl,
-                                HGCSimHitDataAccumulator& simData,
-                                const CaloSubdetectorGeometry* theGeom,
-                                const std::unordered_set<DetId>& validIds,
-                                uint32_t digitizationType,
-                                CLHEP::HepRandomEngine* engine) {
+void HGCDigitizerBase::run(std::unique_ptr<HGCDigitizerBase::DColl>& digiColl,
+                           HGCSimHitDataAccumulator& simData,
+                           const CaloSubdetectorGeometry* theGeom,
+                           const std::unordered_set<DetId>& validIds,
+                           uint32_t digitizationType,
+                           CLHEP::HepRandomEngine* engine) {
   if (scaleByDose_) {
     scal_.setGeometry(theGeom, HGCalSiNoiseMap<HGCSiliconDetId>::AUTO, myFEelectronics_->getTargetMipValue());
     scalHFNose_.setGeometry(theGeom, HGCalSiNoiseMap<HFNoseDetId>::AUTO, myFEelectronics_->getTargetMipValue());
@@ -104,15 +106,14 @@ void HGCDigitizerBase<DFr>::run(std::unique_ptr<HGCDigitizerBase::DColl>& digiCo
   if (digitizationType == 0)
     runSimple(digiColl, simData, theGeom, validIds, engine);
   else
-    runDigitizer(digiColl, simData, theGeom, validIds, digitizationType, engine);
+    runDigitizer(digiColl, simData, theGeom, validIds, engine);
 }
 
-template <class DFr>
-void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& coll,
-                                      HGCSimHitDataAccumulator& simData,
-                                      const CaloSubdetectorGeometry* theGeom,
-                                      const std::unordered_set<DetId>& validIds,
-                                      CLHEP::HepRandomEngine* engine) {
+void HGCDigitizerBase::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& coll,
+                                 HGCSimHitDataAccumulator& simData,
+                                 const CaloSubdetectorGeometry* theGeom,
+                                 const std::unordered_set<DetId>& validIds,
+                                 CLHEP::HepRandomEngine* engine) {
   HGCSimHitData chargeColl, toa;
 
   // this represents a cell with no signal charge
@@ -211,8 +212,7 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& 
   }
 }
 
-template <class DFr>
-void HGCDigitizerBase<DFr>::updateOutput(std::unique_ptr<HGCDigitizerBase::DColl>& coll, const DFr& rawDataFrame) {
+void HGCDigitizerBase::updateOutput(std::unique_ptr<HGCDigitizerBase::DColl>& coll, const DFr& rawDataFrame) {
   // 9th is the sample of hte intime amplitudes
   int itIdx(9);
   if (rawDataFrame.size() <= itIdx + 2)
@@ -233,9 +233,3 @@ void HGCDigitizerBase<DFr>::updateOutput(std::unique_ptr<HGCDigitizerBase::DColl
 
   coll->push_back(dataFrame);
 }
-
-// cause the compiler to generate the appropriate code
-#include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
-template class HGCDigitizerBase<HGCEEDataFrame>;
-template class HGCDigitizerBase<HGCBHDataFrame>;
-template class HGCDigitizerBase<HGCalDataFrame>;
