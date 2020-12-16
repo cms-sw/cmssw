@@ -3,7 +3,7 @@
 #include <DataFormats/MuonDetId/interface/GEMDetId.h>
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
 #include <TrackingTools/DetLayers/interface/ForwardDetLayer.h>
-#include "RecoMuon/DetLayers/interface/MuRingForwardLayer.h"
+#include <RecoMuon/DetLayers/interface/MuRingForwardLayer.h>
 #include <RecoMuon/DetLayers/interface/MuRingForwardDoubleLayer.h>
 #include <RecoMuon/DetLayers/interface/MuRodBarrelLayer.h>
 #include <RecoMuon/DetLayers/interface/MuDetRing.h>
@@ -28,33 +28,40 @@ pair<vector<DetLayer*>, vector<DetLayer*> > MuonGEMDetLayerGeometryBuilder::buil
   for (int endcap = -1; endcap <= 1; endcap += 2) {
     int iendcap = (endcap == 1) ? 0 : 1;  // +1: forward, -1: backward
 
-    // GEM
     for (int station = GEMDetId::minStationId0; station <= GEMDetId::maxStationId; ++station) {
-      for (int layer = GEMDetId::minLayerId + 1; layer <= GEMDetId::maxLayerId0; ++layer) {
-        if (station != GEMDetId::minStationId0 && layer > GEMDetId::maxLayerId) break;
+      if (station == GEMDetId::minStationId0) {
+        int layer = 0;
         vector<int> rolls, rings, chambers;
+        rolls.push_back(GEMDetId::minRollId);
         rings.push_back(GEMDetId::minRingId);
         for (int chamber = GEMDetId::minChamberId + 1; chamber <= GEMDetId::maxChamberId; chamber++) {
           chambers.push_back(chamber);
           // ME0 is composed of 18 super-chambers
           if (station == GEMDetId::minStationId0 && chamber == GEMDetId::maxChamberId / 2) break;
         }
-        for (int roll = GEMDetId::minRollId + 1; roll <= GEMDetId::maxRollId; ++roll) {
-          rolls.push_back(roll);
-          // ME0 layer consists of 10 etapartitions
-          if (station == GEMDetId::minStationId0 && roll == 10) break;
-        }
         ForwardDetLayer* ringLayer = buildLayer(endcap, rings, station, layer, chambers, rolls, geo);
         if (ringLayer)
           result[iendcap].push_back(ringLayer);
-      }
+      } else {     
+          for (int layer = GEMDetId::minLayerId + 1; layer <= GEMDetId::maxLayerId; ++layer) {
+            vector<int> rolls, rings, chambers;
+            rings.push_back(GEMDetId::minRingId);
+            for (int chamber = GEMDetId::minChamberId + 1; chamber <= GEMDetId::maxChamberId; chamber++) {
+              chambers.push_back(chamber);
+            }
+            for (int roll = GEMDetId::minRollId + 1; roll <= GEMDetId::maxRollId; ++roll) {
+              rolls.push_back(roll);
+            }
+            ForwardDetLayer* ringLayer = buildLayer(endcap, rings, station, layer, chambers, rolls, geo);
+            if (ringLayer)
+              result[iendcap].push_back(ringLayer);
+          }
+      } 
     }
-
   }
   pair<vector<DetLayer*>, vector<DetLayer*> > res_pair(result[0], result[1]);
   return res_pair;
 }
-
 
 ForwardDetLayer* MuonGEMDetLayerGeometryBuilder::buildLayer(int endcap,
                                                             vector<int>& rings,
@@ -109,11 +116,9 @@ ForwardDetLayer* MuonGEMDetLayerGeometryBuilder::buildLayer(int endcap,
   //    precomputed_value_sort(muDetRods.begin(), muDetRods.end(), geomsort::ExtractZ<GeometricSearchDet,float>());
   if (!backRings.empty() && !frontRings.empty() && station != GEMDetId::minStationId0) {
     result = new MuRingForwardDoubleLayer(frontRings, backRings);
-  }
-  else if (!frontRings.empty() && station == GEMDetId::minStationId0) {
+  } else if (!frontRings.empty() && station == GEMDetId::minStationId0) {
     result = new MuRingForwardLayer(frontRings);
-  }
-  else {
+  } else {
     result = nullptr;
   }
   if (result != nullptr) {
