@@ -1,12 +1,12 @@
 #include <Eigen/Dense>
 
 #include "DataFormats/CaloRecHit/interface/MultifitComputations.h"
-
 // needed to compile with USER_CXXFLAGS="-DCOMPUTE_TDC_TIME"
 #include "DataFormats/HcalRecHit/interface/HcalSpecialTimes.h"
+#include "FWCore/Utilities/interface/CMSUnrollLoop.h"
+
 // TODO reuse some of the HCAL constats from
 //#include "RecoLocalCalo/HcalRecAlgos/interface/HcalConstants.h"
-// ?
 
 #include "SimpleAlgoGPU.h"
 #include "KernelHelpers.h"
@@ -669,7 +669,7 @@ namespace hcal {
         Eigen::Map<const calo::multifit::ColMajorMatrix<NSAMPLES, NPULSES>> const& pulseMatrix,
         Eigen::Map<const calo::multifit::ColMajorMatrix<NSAMPLES, NPULSES>> const& pulseMatrixM,
         Eigen::Map<const calo::multifit::ColMajorMatrix<NSAMPLES, NPULSES>> const& pulseMatrixP) {
-#pragma unroll
+      CMS_UNROLL_LOOP
       for (int ipulse = 0; ipulse < NPULSES; ipulse++) {
         auto const resultAmplitude = resultAmplitudesVector(ipulse);
         if (resultAmplitude == 0)
@@ -681,7 +681,7 @@ namespace hcal {
 
         // preload a column
         float pmcol[NSAMPLES], pmpcol[NSAMPLES], pmmcol[NSAMPLES];
-#pragma unroll
+        CMS_UNROLL_LOOP
         for (int counter = 0; counter < NSAMPLES; counter++) {
           pmcol[counter] = __ldg(&pulseMatrix.coeffRef(counter, ipulse));
           pmpcol[counter] = __ldg(&pulseMatrixP.coeffRef(counter, ipulse));
@@ -689,7 +689,7 @@ namespace hcal {
         }
 
         auto const ampl2 = resultAmplitude * resultAmplitude;
-#pragma unroll
+        CMS_UNROLL_LOOP
         for (int col = 0; col < NSAMPLES; col++) {
           auto const valueP_col = pmpcol[col];
           auto const valueM_col = pmmcol[col];
@@ -701,8 +701,8 @@ namespace hcal {
           auto tmp_value = 0.5 * (tmppcol * tmppcol + tmpmcol * tmpmcol);
           covarianceMatrix(col, col) += ampl2 * tmp_value;
 
-// FIXME: understand if this actually gets unrolled
-#pragma unroll
+          // FIXME: understand if this actually gets unrolled
+          CMS_UNROLL_LOOP
           for (int row = col + 1; row < NSAMPLES; row++) {
             float const valueP_row = pmpcol[row];  //pulseMatrixP(j, ipulseReal);
             float const value_row = pmcol[row];    //pulseMatrix(j, ipulseReal);
@@ -805,7 +805,7 @@ namespace hcal {
       int const soi = soiSamples[gch];
       */
       calo::multifit::ColumnVector<NPULSES, int> pulseOffsets;
-#pragma unroll
+      CMS_UNROLL_LOOP
       for (int i = 0; i < NPULSES; ++i)
         pulseOffsets(i) = i;
       //        pulseOffsets(i) = pulseOffsetValues[i] - pulseOffsetValues[0];
@@ -854,10 +854,10 @@ namespace hcal {
         // shared memory
         float* covarianceMatrixStorage = shrMatrixLFnnlsStorage;
         calo::multifit::MapSymM<float, NSAMPLES> covarianceMatrix{covarianceMatrixStorage};
-#pragma unroll
+        CMS_UNROLL_LOOP
         for (int counter = 0; counter < calo::multifit::MapSymM<float, NSAMPLES>::total; counter++)
           covarianceMatrixStorage[counter] = averagePedestalWidth2;
-#pragma unroll
+        CMS_UNROLL_LOOP
         for (int counter = 0; counter < calo::multifit::MapSymM<float, NSAMPLES>::stride; counter++)
           covarianceMatrix(counter, counter) += __ldg(&noiseTermsView.coeffRef(counter));
 
@@ -907,36 +907,36 @@ namespace hcal {
         //float AtAStorage[MapSymM<float, NPULSES>::total];
         calo::multifit::MapSymM<float, NPULSES> AtA{shrAtAStorage};
         calo::multifit::ColumnVector<NPULSES> Atb;
-#pragma unroll
+        CMS_UNROLL_LOOP
         for (int icol = 0; icol < NPULSES; icol++) {
           float reg_ai[NSAMPLES];
 
-// load column icol
-#pragma unroll
+          // load column icol
+          CMS_UNROLL_LOOP
           for (int counter = 0; counter < NSAMPLES; counter++)
             reg_ai[counter] = A(counter, icol);
 
           // compute diagonal
           float sum = 0.f;
-#pragma unroll
+          CMS_UNROLL_LOOP
           for (int counter = 0; counter < NSAMPLES; counter++)
             sum += reg_ai[counter] * reg_ai[counter];
 
           // store
           AtA(icol, icol) = sum;
 
-// go thru the other columns
-#pragma unroll
+          // go thru the other columns
+          CMS_UNROLL_LOOP
           for (int j = icol + 1; j < NPULSES; j++) {
             // load column j
             float reg_aj[NSAMPLES];
-#pragma unroll
+            CMS_UNROLL_LOOP
             for (int counter = 0; counter < NSAMPLES; counter++)
               reg_aj[counter] = A(counter, j);
 
             // accum
             float sum = 0.f;
-#pragma unroll
+            CMS_UNROLL_LOOP
             for (int counter = 0; counter < NSAMPLES; counter++)
               sum += reg_aj[counter] * reg_ai[counter];
 
@@ -947,7 +947,7 @@ namespace hcal {
 
           // Atb accum
           float sum_atb = 0;
-#pragma unroll
+          CMS_UNROLL_LOOP
           for (int counter = 0; counter < NSAMPLES; counter++)
             sum_atb += reg_ai[counter] * reg_b[counter];
 
@@ -1010,7 +1010,7 @@ namespace hcal {
       auto const idx_for_energy = std::abs(pulseOffsetValues[0]);
       outputEnergy[gch] = (gain * resultAmplitudesVector(idx_for_energy)) * respCorrection;
       /*
-      #pragma unroll
+      CMS_UNROLL_LOOP
       for (int i=0; i<NPULSES; i++)
           if (pulseOffsets[i] == soi)
               // NOTE: gain is a number < 10^-3/4, multiply first to avoid stab issues
