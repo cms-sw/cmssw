@@ -220,8 +220,6 @@ namespace l1tpf_impl {
 #endif
   };
 
-
-
   struct EGParticle {
     int16_t hwPt;
     int16_t hwEta;  // at calo face
@@ -234,14 +232,13 @@ namespace l1tpf_impl {
     // sorting
     bool operator<(const EGParticle &other) const { return hwPt > other.hwPt; }
 
-    #ifdef L1Trigger_Phase2L1ParticleFlow_DiscretePFInputs_MORE
-      static constexpr float ISO_SCALE = 100;
-      void setFloatPt(float pt) { hwPt = round(pt * CaloCluster::PT_SCALE); }
-      float floatPt() const { return float(hwPt) / CaloCluster::PT_SCALE; }
-      float floatEta() const { return float(hwEta) / CaloCluster::ETAPHI_SCALE; }
-      float floatPhi() const { return float(hwPhi) / CaloCluster::ETAPHI_SCALE; }
-    #endif
-
+#ifdef L1Trigger_Phase2L1ParticleFlow_DiscretePFInputs_MORE
+    static constexpr float ISO_SCALE = 100;
+    void setFloatPt(float pt) { hwPt = round(pt * CaloCluster::PT_SCALE); }
+    float floatPt() const { return float(hwPt) / CaloCluster::PT_SCALE; }
+    float floatEta() const { return float(hwEta) / CaloCluster::ETAPHI_SCALE; }
+    float floatPhi() const { return float(hwPhi) / CaloCluster::ETAPHI_SCALE; }
+#endif
   };
 
   struct EGIso {
@@ -249,35 +246,29 @@ namespace l1tpf_impl {
     uint16_t hwIso;
     uint16_t hwPFIso;
 
-    #ifdef L1Trigger_Phase2L1ParticleFlow_DiscretePFInputs_MORE
-      void setIso(float iso, uint16_t &hwIso) {
-        hwIso = round(iso * EGParticle::ISO_SCALE);
-      }
-      void setIso(float iso) { setIso(iso, hwIso);}
-      void setPFIso(float iso) { setIso(iso, hwPFIso);}
+#ifdef L1Trigger_Phase2L1ParticleFlow_DiscretePFInputs_MORE
+    void setIso(float iso, uint16_t &hwIso) { hwIso = round(iso * EGParticle::ISO_SCALE); }
+    void setIso(float iso) { setIso(iso, hwIso); }
+    void setPFIso(float iso) { setIso(iso, hwPFIso); }
 
-      float getFloatIso(uint16_t hwIso) const {
-        return float(hwIso) / EGParticle::ISO_SCALE;
-      }
-      float floatIso() const { return getFloatIso(hwIso); }
-      float floatPFIso() const { return getFloatIso(hwPFIso); }
-    #endif
-
+    float getFloatIso(uint16_t hwIso) const { return float(hwIso) / EGParticle::ISO_SCALE; }
+    float floatIso() const { return getFloatIso(hwIso); }
+    float floatPFIso() const { return getFloatIso(hwPFIso); }
+#endif
   };
 
   struct EGIsoPV : public EGIso {
     uint16_t hwIsoPV;
     uint16_t hwPFIsoPV;
 
-    #ifdef L1Trigger_Phase2L1ParticleFlow_DiscretePFInputs_MORE
-      void setIsoPV(float iso) { setIso(iso, hwIsoPV);}
-      void setPFIsoPV(float iso) { setIso(iso, hwPFIsoPV);}
+#ifdef L1Trigger_Phase2L1ParticleFlow_DiscretePFInputs_MORE
+    void setIsoPV(float iso) { setIso(iso, hwIsoPV); }
+    void setPFIsoPV(float iso) { setIso(iso, hwPFIsoPV); }
 
-      float floatIsoPV() const { return getFloatIso(hwIsoPV); }
-      float floatPFIsoPV() const { return getFloatIso(hwPFIsoPV); }
-    #endif
+    float floatIsoPV() const { return getFloatIso(hwIsoPV); }
+    float floatPFIsoPV() const { return getFloatIso(hwPFIsoPV); }
+#endif
   };
-
 
   struct EGIsoEleParticle : public EGParticle, public EGIso {
     // track parameters for electrons
@@ -287,25 +278,22 @@ namespace l1tpf_impl {
     bool hwCharge;
     PropagatedTrack track;
 
-    #ifdef L1Trigger_Phase2L1ParticleFlow_DiscretePFInputs_MORE
+#ifdef L1Trigger_Phase2L1ParticleFlow_DiscretePFInputs_MORE
 
-      float floatVtxEta() const { return float(hwVtxEta) / CaloCluster::ETAPHI_SCALE; }
-      float floatVtxPhi() const { return float(hwVtxPhi) / CaloCluster::ETAPHI_SCALE; }
-      float floatDZ() const { return float(track.hwZ0) / InputTrack::Z0_SCALE; }
-      int intCharge() const { return hwCharge ? +1 : -1; }
+    float floatVtxEta() const { return float(hwVtxEta) / CaloCluster::ETAPHI_SCALE; }
+    float floatVtxPhi() const { return float(hwVtxPhi) / CaloCluster::ETAPHI_SCALE; }
+    float floatDZ() const { return float(track.hwZ0) / InputTrack::Z0_SCALE; }
+    int intCharge() const { return hwCharge ? +1 : -1; }
 
-    #endif
-
-    };
+#endif
+  };
 
   struct EGIsoParticle : public EGParticle, public EGIsoPV {
-
-    #ifdef L1Trigger_Phase2L1ParticleFlow_DiscretePFInputs_MORE
-      // NOTE: this is needed because of CMSSW requirements
-      // i.e. we need to put the EG object and the TkEm and TkEle ones at the same time to have a valid ref
-      int ele_idx;
-    #endif
-
+#ifdef L1Trigger_Phase2L1ParticleFlow_DiscretePFInputs_MORE
+    // NOTE: this is needed because of CMSSW requirements
+    // i.e. we need to put the EG object and the TkEm and TkEle ones at the same time to have a valid ref
+    int ele_idx;
+#endif
   };
 
   struct InputRegion {

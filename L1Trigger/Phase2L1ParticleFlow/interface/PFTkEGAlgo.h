@@ -110,12 +110,11 @@ namespace l1tpf_impl {
           if (tk.intCharge() != 0 && std::abs(tk.floatDZ() - egele.floatDZ()) > params.dZ)
             continue;
 
-
           float d_phi = deltaPhi(tk.floatVtxPhi(), egele.floatVtxPhi());
           float d_eta = tk.floatVtxEta() - egele.floatVtxEta();
           float dR2 = d_phi * d_phi + d_eta * d_eta;
 
-          if (dR2 > params.dRMin2 && dR2 < params.dRMax2){
+          if (dR2 > params.dRMin2 && dR2 < params.dRMax2) {
             sumPt += tk.floatPt();
           }
         }
@@ -129,11 +128,7 @@ namespace l1tpf_impl {
 
     void eg_algo(Region &r, const std::vector<int> &emCalo2emCalo, const std::vector<int> &emCalo2tk) const;
 
-    void addEgObjsToPF(Region &r,
-                       const int calo_idx,
-                       const int hwQual,
-                       const float ptCorr,
-                       const int tk_idx = -1) const;
+    void addEgObjsToPF(Region &r, const int calo_idx, const int hwQual, const float ptCorr, const int tk_idx = -1) const;
 
     EGIsoParticle &addEGIsoToPF(std::vector<EGIsoParticle> &egobjs,
                                 const CaloCluster &calo,
@@ -145,7 +140,6 @@ namespace l1tpf_impl {
                                       const PropagatedTrack &track,
                                       const int hwQual,
                                       const float ptCorr) const;
-
   };
 
 }  // namespace l1tpf_impl
