@@ -91,7 +91,6 @@ public:
 
     canvas.cd();
     adjustCanvasMargins(canvas.cd(), tmargin_, bmargin_, lmargin_, rmargin_);
-
     canvas.Update();
 
     m_trackerMap->SetTitle("");
@@ -101,17 +100,79 @@ public:
       m_trackerMap->Draw();
     }
 
+    canvas.SetFrameLineColor(0);
     gPad->Update();
     TPaletteAxis* palette = (TPaletteAxis*)m_trackerMap->GetListOfFunctions()->FindObject("palette");
     if (palette != nullptr) {
       palette->SetLabelSize(0.02);
       palette->SetX1NDC(1 - rmargin_);
       palette->SetX2NDC(1 - rmargin_ + lmargin_);
-      gPad->Modified();
-      gPad->Update();
+    }
+  }
+
+  //============================================================================
+  void dressMap(TCanvas& canv) {
+    static constexpr int wH_ = 3000;
+    static constexpr int hH_ = 850;
+    if (canv.GetWindowHeight() != hH_ && canv.GetWindowWidth() != wH_) {
+      std::cout << "resetting the window size!"
+                << "height is:  " << canv.GetWindowHeight() << "width  is:  " << canv.GetWindowWidth() << std::endl;
+      canv.SetWindowSize(wH_, hH_);
     }
 
-    canvas.SetFrameLineColor(0);
+    std::array<std::string, 12> barrelNames = {
+        {"TIB L2", "TIB L1", "TIB L4", "TIB L3", "TOB L2", "TOB L1", "TOB L4", " TOB L3", "TOB L6", "TOB L5"}};
+    std::array<std::string, 4> endcapNames = {{"TID", "TEC", "TID", "TEC"}};
+    std::array<std::string, 24> disknumbering = {{"+1", "+2", "+3", "+1", "+2", "+3", "+4", "+5",
+                                                  "+6", "+7", "+8", "+9", "-1", "-2", "-3", "-1",
+                                                  "-2", "-3", "-4", "-5", "-6", "-7", "-8", "-9"}};
+
+    static constexpr std::array<float, 12> b_coordx = {
+        {0.1, 0.1, 0.26, 0.26, 0.41, 0.41, 0.56, 0.56, 0.725, 0.725, 0.05, 0.17}};
+    static constexpr std::array<float, 12> b_coordy = {
+        {0.70, 0.45, 0.70, 0.45, 0.70, 0.46, 0.70, 0.46, 0.70, 0.46, 0.85, 0.85}};
+
+    static constexpr std::array<float, 4> e_coordx = {{0.01, 0.21, 0.01, 0.21}};
+    static constexpr std::array<float, 4> e_coordy = {{0.89, 0.89, 0.17, 0.17}};
+
+    static constexpr std::array<float, 24> n_coordx = {{0.01,  0.087, 0.165, 0.227, 0.305, 0.383, 0.461, 0.539,
+                                                        0.616, 0.694, 0.772, 0.850, 0.01,  0.087, 0.165, 0.227,
+                                                        0.305, 0.383, 0.461, 0.539, 0.617, 0.695, 0.773, 0.851}};
+
+    static constexpr std::array<float, 24> n_coordy = {{0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85,
+                                                        0.85, 0.85, 0.85, 0.85, 0.13, 0.13, 0.13, 0.13,
+                                                        0.13, 0.13, 0.13, 0.13, 0.13, 0.13, 0.13, 0.13}};
+
+    canv.cd();
+    for (const auto& name : barrelNames | boost::adaptors::indexed(0)) {
+      auto ltx = TLatex();
+      ltx.SetTextFont(62);
+      ltx.SetTextSize(0.035);
+      ltx.SetTextAlign(11);
+      ltx.DrawLatexNDC(b_coordx[name.index()], b_coordy[name.index()], name.value().c_str());
+    }
+
+    for (const auto& name : endcapNames | boost::adaptors::indexed(0)) {
+      auto ltx = TLatex();
+      ltx.SetTextFont(62);
+      ltx.SetTextSize(0.05);
+      ltx.SetTextAlign(11);
+      ltx.DrawLatexNDC(e_coordx[name.index()], e_coordy[name.index()], name.value().c_str());
+    }
+
+    for (const auto& name : disknumbering | boost::adaptors::indexed(0)) {
+      auto ltx = TLatex();
+      ltx.SetTextFont(62);
+      ltx.SetTextSize(0.035);
+      ltx.SetTextAlign(11);
+      ltx.DrawLatexNDC(n_coordx[name.index()], n_coordy[name.index()], name.value().c_str());
+    }
+
+    auto ltx = TLatex();
+    ltx.SetTextFont(62);
+    ltx.SetTextSize(0.045);
+    ltx.SetTextAlign(11);
+    ltx.DrawLatexNDC(gPad->GetLeftMargin(), 1 - gPad->GetTopMargin() + 0.03, m_mapTitle.c_str());
   }
 
   //============================================================================
@@ -195,10 +256,10 @@ public:
         continue;
       }
 
-      m_detIdVector.push_back(detid);
       m_bins[detid] = std::make_shared<TGraph>(ix, x, y);
       m_bins[detid]->SetName(TString::Format("%ld", detid));
       m_bins[detid]->SetTitle(TString::Format("Module ID=%ld", detid));
+      m_detIdVector.push_back(detid);
     }
   }
 

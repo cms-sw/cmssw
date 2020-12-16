@@ -204,7 +204,8 @@ namespace {
               "Tracker Map of SiStrip Bad Components fraction") {}
 
     bool fill() override {
-      gStyle->SetPalette(kRainBow);
+      //SiStripPI::setPaletteStyle(SiStripPI::DEFAULT);
+      gStyle->SetPalette(1);
 
       auto tag = PlotBase::getTag<0>();
       auto iov = tag.iovs.front();
@@ -217,7 +218,7 @@ namespace {
       auto theIOVsince = std::to_string(std::get<0>(iov));
 
       std::string titleMap =
-          "Fraction of bad Strips per module, Run: " + theIOVsince + " (tag: #color[2]{" + tagname + "})";
+          "Fraction of bad Strips per module, Run: " + theIOVsince + " (tag:#color[2]{" + tagname + "})";
 
       SiStripTkMaps myMap("COLZA0 L");
       myMap.bookMap(titleMap, "Fraction of bad Strips per module");
@@ -234,7 +235,6 @@ namespace {
         SiStripBadStrip::Range range = payload->getRange(d);
         for (std::vector<unsigned int>::const_iterator badStrip = range.first; badStrip != range.second; ++badStrip) {
           badStripsPerDetId[d] += payload->decode(*badStrip).range;
-          //ss << "DetId="<< d << " Strip=" << payload->decode(*badStrip).firstStrip <<":"<< payload->decode(*badStrip).range << " flag="<< payload->decode(*badStrip).flag << std::endl;
         }
         float fraction = badStripsPerDetId[d] / (128. * reader->getNumberOfApvsAndStripLength(d).first);
         if (fraction > 0.) {
@@ -245,18 +245,10 @@ namespace {
       //=========================
 
       std::string fileName(m_imageFileName);
-
-      //myMap.setZAxisRange(-0.4,1.);
-      TCanvas canvas("Bad Components fraction", "bad components fraction", 3000, 1200);
+      TCanvas canvas("Bad Components fraction", "bad components fraction");
       myMap.drawMap(canvas, "");
       ghost.drawMap(canvas, "same");
-
-      auto ltx = TLatex();
-      ltx.SetTextFont(62);
-      ltx.SetTextSize(0.045);
-      ltx.SetTextAlign(11);
-      ltx.DrawLatexNDC(gPad->GetLeftMargin(), 1 - gPad->GetTopMargin() + 0.02, titleMap.c_str());
-
+      ghost.dressMap(canvas);
       canvas.SaveAs(fileName.c_str());
 
       delete reader;
