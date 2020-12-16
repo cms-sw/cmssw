@@ -99,7 +99,7 @@ namespace edm {
                                    typename Traits::TransitionInfoType& transitionInfo,
                                    ServiceToken const& token,
                                    std::vector<SubProcess>& iSubProcesses) {
-    const for (unsigned int& i = 0; i < iNStreams; ++i) {
+    for (unsigned int i = 0; i < iNStreams; ++i) {
       beginStreamTransitionAsync<Traits>(iWait, iSchedule, i, transitionInfo, token, iSubProcesses);
     }
   }
