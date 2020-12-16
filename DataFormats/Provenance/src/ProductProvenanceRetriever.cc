@@ -73,7 +73,7 @@ namespace edm {
     setupEntryInfoSet(iReg);
   }
 
-  void ProductProvenanceRetriever::readProvenanceAsync(WaitingTask* task,
+  void ProductProvenanceRetriever::readProvenanceAsync(WaitingTaskHolder task,
                                                        ModuleCallingContext const* moduleCallingContext) const {
     if (provenanceReader_ and nullptr == readEntryInfoSet_.load()) {
       provenanceReader_->readProvenanceAsync(task, moduleCallingContext, transitionIndex_, readEntryInfoSet_);
@@ -128,12 +128,10 @@ namespace edm {
                          entryInfoSet_.end(),
                          entryInfo.branchID(),
                          [](auto const& iEntry, edm::BranchID const& iValue) { return iEntry.branchID() < iValue; });
-    if
-      UNLIKELY(itFound == entryInfoSet_.end() or itFound->branchID() != entryInfo.branchID()) {
-        throw edm::Exception(edm::errors::LogicError)
-            << "ProductProvenanceRetriever::insertIntoSet passed a BranchID " << entryInfo.branchID().id()
-            << " that has not been pre-registered";
-      }
+    if UNLIKELY (itFound == entryInfoSet_.end() or itFound->branchID() != entryInfo.branchID()) {
+      throw edm::Exception(edm::errors::LogicError) << "ProductProvenanceRetriever::insertIntoSet passed a BranchID "
+                                                    << entryInfo.branchID().id() << " that has not been pre-registered";
+    }
     itFound->threadsafe_set(entryInfo.moveParentageID());
   }
 
