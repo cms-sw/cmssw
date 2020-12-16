@@ -70,13 +70,13 @@ hiConformalPixelTracksPhase1TrackingRegions = globalTrackingRegionWithVertices.c
 # Using 4 layers layerlist
 from RecoTracker.IterativeTracking.LowPtQuadStep_cff import lowPtQuadStepSeedLayers
 hiConformalPixelTracksPhase1SeedLayers = lowPtQuadStepSeedLayers.clone(
-    BPix = dict( 
-	HitProducer = 'siPixelRecHits',
-        TTRHBuilder = 'WithTrackAngle',
+    BPix = cms.PSet( 
+	HitProducer = cms.string('siPixelRecHits'),
+        TTRHBuilder = cms.string('WithTrackAngle'),
     ),
-    FPix = dict( 
-        HitProducer = 'siPixelRecHits',
-        TTRHBuilder = 'WithTrackAngle',
+    FPix = cms.PSet( 
+        HitProducer = cms.string('siPixelRecHits'),
+        TTRHBuilder = cms.string('WithTrackAngle'),
     )
 )
 
