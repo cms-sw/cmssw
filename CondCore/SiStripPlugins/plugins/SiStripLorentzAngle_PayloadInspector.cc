@@ -115,7 +115,8 @@ namespace {
               "Tracker Map SiStrip Lorentz Angle") {}
 
     bool fill() override {
-      SiStripPI::setPaletteStyle(SiStripPI::DEFAULT);
+      //SiStripPI::setPaletteStyle(SiStripPI::DEFAULT);
+      gStyle->SetPalette(1);
 
       auto tag = PlotBase::getTag<0>();
       auto iov = tag.iovs.front();
@@ -124,7 +125,7 @@ namespace {
       std::shared_ptr<SiStripLorentzAngle> payload = fetchPayload(std::get<1>(iov));
 
       auto theIOVsince = std::to_string(std::get<0>(iov));
-      std::string titleMap = "SiStrip Lorentz Angle Map, Run: " + theIOVsince + " (tag: #color[2]{" + tagname + "})";
+      std::string titleMap = "SiStrip Lorentz Angle Map, Run: " + theIOVsince + " (tag:#color[2]{" + tagname + "})";
 
       SiStripTkMaps myMap("COLZA L");
       myMap.bookMap(titleMap, "SiStrip #mu_{H}=(tan#theta_{L}/B) [1/T]");
@@ -136,19 +137,14 @@ namespace {
       }  // loop over the LA MAP
 
       std::string fileName(m_imageFileName);
-
-      TCanvas canvas("LA map", "LA map", 3000, 1200);
+      TCanvas canvas("LA map", "LA map");
       myMap.drawMap(canvas, "");
-
-      auto ltx = TLatex();
-      ltx.SetTextFont(62);
-      ltx.SetTextSize(0.045);
-      ltx.SetTextAlign(11);
-      ltx.DrawLatexNDC(gPad->GetLeftMargin(), 1 - gPad->GetTopMargin() + 0.02, titleMap.c_str());
-
+      myMap.dressMap(canvas);
       canvas.SaveAs(fileName.c_str());
-      canvas.SaveAs("test.root");
 
+#ifdef MMDEBUG
+      canvas.SaveAs("test.root");
+#endif
       return true;
     }
   };
