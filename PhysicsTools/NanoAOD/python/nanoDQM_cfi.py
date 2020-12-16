@@ -512,6 +512,19 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('z', 'z', 20, -20, 20, 'Z position of other primary vertices, excluding the main PV'),
             )
         ),
+        PPSLocalTrack = cms.PSet(
+            sels = cms.PSet(),
+            plots = cms.VPSet(
+                Count1D('_size', 26, -0.5, 25.5, 'ppsLocalTrack variables'),
+                Plot1D('decRPId', 'decRPId', 20, 0, 200, 'local track detector dec id'),
+                NoPlot('multiRPProtonIdx'),
+                Plot1D('rpType', 'rpType', 2, 3.5, 5.5, 'strip=3, pixel=4, diamond=5, timing=6'),
+                Plot1D('time', 'time', 20, -2, 2, 'local track time'),
+                Plot1D('timeUnc', 'timeUnc', 20, 0, 0.3, 'local track time uncertainty'),
+                Plot1D('x', 'x', 20, 2, 30, 'local track x'),
+                Plot1D('y', 'y', 20, -20, 20, 'local track y'),
+            )
+        ),
         PSWeight = cms.PSet(
             sels = cms.PSet(),
             plots = cms.VPSet(
@@ -566,6 +579,28 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('seedGain', 'seedGain', 12, 0.5, 12.5, 'Gain of the seed crystal'),
                 Plot1D('sieie', 'sieie', 20, 0, 0.05, 'sigma_IetaIeta of the supercluster, calculated with full 5x5 region'),
                 NoPlot('vidNestedWPBitmap'),
+            )
+        ),
+        Proton_multiRP = cms.PSet(
+            sels = cms.PSet(),
+            plots = cms.VPSet(
+                Count1D('_size', 3, -0.5, 2.5, 'bon'),
+                Plot1D('arm', 'arm', 2, -0.5, 1.5, '0 = sector45, 1 = sector56'),
+                Plot1D('t', 't', 20, -500, -0.003, 'Mandelstam variable t'),
+                Plot1D('thetaX', 'thetaX', 20, -0.0004, 0.0004, 'scattering angle in the y direction'),
+                Plot1D('thetaY', 'thetaY', 20, -0.001, 0.001, 'scattering angle in the x direction'),
+                Plot1D('time', 'time', 20, -1000, -1000, 'time'),
+                Plot1D('timeUnc', 'timeUnc', 20, 0, 0, 'time uncertainty'),
+                Plot1D('xi', 'xi', 20, 0, 0.3, 'fractional momentum loss'),
+            )
+        ),
+        Proton_singleRP = cms.PSet(
+            sels = cms.PSet(),
+            plots = cms.VPSet(
+                Count1D('_size', 3, -0.5, 2.5, 'bon'),
+                Plot1D('xi', 'xi', 20, 0, 0.3, 'fractional momentum loss'),
+                Plot1D('thetaY', 'thetaY', 20, -0.001, 0.001, 'scattering angle in the x direction'),
+                Plot1D('decRPId', 'decRPId', 20, 0, 200, 'Detector ID'),
             )
         ),
         Pileup = cms.PSet(

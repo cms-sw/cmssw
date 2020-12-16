@@ -16,6 +16,12 @@
 <use name="CondFormats/BTauObjects"/>
 <use name="CondFormats/L1TObjects"/>
 <use name="CondTools/BTau"/>
+<use name="DataFormats/CTPPSDetId"/>
+<use name="DataFormats/CTPPSReco"/>
+<use name="DataFormats/ProtonReco"/>
+<use name="CondFormats/RunInfo"/>
+<use name="CondFormats/DataRecord"/>
+<use name="RecoPPS/ProtonReconstruction"/>
 <use name="fastjet"/>
 <use name="fastjet-contrib"/>
 <library file="*.cc" name="PhysicsToolsNanoAODPlugins">
