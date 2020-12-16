@@ -13,6 +13,7 @@ ProductResolver: Class to handle access to a WrapperBase and its related informa
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Utilities/interface/ProductResolverIndex.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 
@@ -28,7 +29,6 @@ namespace edm {
   class SharedResourcesAcquirer;
   class Principal;
   class UnscheduledConfigurator;
-  class WaitingTask;
   class ServiceToken;
 
   class ProductResolverBase {
@@ -66,7 +66,7 @@ namespace edm {
 
     /** oDataFetchedIsValid is allowed to be nullptr in which case no value will be assigned
      */
-    void prefetchAsync(WaitingTask* waitTask,
+    void prefetchAsync(WaitingTaskHolder waitTask,
                        Principal const& principal,
                        bool skipCurrentProcess,
                        ServiceToken const& token,
@@ -176,7 +176,7 @@ namespace edm {
                                        bool skipCurrentProcess,
                                        SharedResourcesAcquirer* sra,
                                        ModuleCallingContext const* mcc) const = 0;
-    virtual void prefetchAsync_(WaitingTask* waitTask,
+    virtual void prefetchAsync_(WaitingTaskHolder waitTask,
                                 Principal const& principal,
                                 bool skipCurrentProcess,
                                 ServiceToken const& token,

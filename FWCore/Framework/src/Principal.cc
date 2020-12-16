@@ -623,7 +623,7 @@ namespace edm {
     return BasicHandle(productData->wrapper(), &(productData->provenance()));
   }
 
-  void Principal::prefetchAsync(WaitingTask* task,
+  void Principal::prefetchAsync(WaitingTaskHolder task,
                                 ProductResolverIndex index,
                                 bool skipCurrentProcess,
                                 ServiceToken const& token,

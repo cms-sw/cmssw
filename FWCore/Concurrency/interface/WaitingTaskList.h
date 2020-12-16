@@ -75,13 +75,12 @@
 
 // user include files
 #include "FWCore/Concurrency/interface/WaitingTask.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // forward declarations
 
 namespace edm {
-  class WaitingTaskHolder;
-
   class EmptyWaitingTask : public WaitingTask {
   public:
     EmptyWaitingTask() = default;
