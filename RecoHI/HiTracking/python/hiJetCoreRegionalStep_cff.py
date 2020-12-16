@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 
 # run only if there are high pT jets
 from RecoJets.JetProducers.TracksForJets_cff import trackRefsForJets
-hiInitialStepTrackRefsForJets = trackRefsForJets.clone(src = cms.InputTag('hiGlobalPrimTracks'))
+hiInitialStepTrackRefsForJets = trackRefsForJets.clone(src = 'hiGlobalPrimTracks')
 
 #change this to import Bkg substracted Heavy Ion jets:
 from RecoHI.HiJetAlgos.hiCaloJetsForTrk_cff import *
@@ -52,7 +52,7 @@ hiJetCoreRegionalStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
     )
 )
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
-trackingPhase1.toModify(hiJetCoreRegionalStepSeedLayers, layerList = cms.vstring('BPix1+BPix2+BPix3',
+trackingPhase1.toModify(hiJetCoreRegionalStepSeedLayers, layerList = ['BPix1+BPix2+BPix3',
     'BPix2+BPix3+BPix4',
     'BPix1+BPix3+BPix4',
     'BPix1+BPix2+BPix4',
@@ -72,36 +72,34 @@ trackingPhase1.toModify(hiJetCoreRegionalStepSeedLayers, layerList = cms.vstring
     'BPix2+BPix3+TIB1',
     'BPix2+BPix4+TIB1',
     'BPix3+BPix4+TIB1',
-    )
+    ]
 )
 
 # SEEDS
 import RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff
-hiJetCoreRegionalStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone()
-hiJetCoreRegionalStepSeeds.RegionFactoryPSet = cms.PSet(
-      ComponentName = cms.string( "TauRegionalPixelSeedGenerator" ),#not so nice to depend on RecoTau...
-      RegionPSet = cms.PSet(
-        precise = cms.bool( True ),
-        useMultipleScattering = cms.bool(False),
-        useFakeVertices       = cms.bool(False),
-        originRadius = cms.double( 0.2 ),
-        ptMin = cms.double( 15. ),
-        originHalfLength = cms.double( 0.2 ),
-        deltaPhiRegion = cms.double( 0.30 ), 
-        deltaEtaRegion = cms.double( 0.30 ), 
-        JetSrc = cms.InputTag( "hiJetsForCoreTracking" ),
-        vertexSrc = cms.InputTag( "hiFirstStepGoodPrimaryVertices" ),
-        measurementTrackerName = cms.InputTag( "MeasurementTrackerEvent" ),
-        howToUseMeasurementTracker = cms.string( "Never" )
-      )
+hiJetCoreRegionalStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone(
+    RegionFactoryPSet = cms.PSet(
+	ComponentName = cms.string( "TauRegionalPixelSeedGenerator" ),#not so nice to depend on RecoTau...
+	RegionPSet = cms.PSet(
+	   precise = cms.bool( True ),
+	   useMultipleScattering = cms.bool(False),
+	   useFakeVertices       = cms.bool(False),
+	   originRadius = cms.double( 0.2 ),
+	   ptMin = cms.double( 15. ),
+	   originHalfLength = cms.double( 0.2 ),
+	   deltaPhiRegion = cms.double( 0.30 ), 
+	   deltaEtaRegion = cms.double( 0.30 ), 
+	   JetSrc = cms.InputTag( "hiJetsForCoreTracking" ),
+	   vertexSrc = cms.InputTag( "hiFirstStepGoodPrimaryVertices" ),
+	   measurementTrackerName = cms.InputTag( "MeasurementTrackerEvent" ),
+	   howToUseMeasurementTracker = cms.string( "Never" )
+	)
+    ),
+    OrderedHitsFactoryPSet = dict(SeedingLayers = 'hiJetCoreRegionalStepSeedLayers'),
+    SeedComparitorPSet     = dict(ComponentName = 'none'),
+    SeedCreatorPSet        = dict(forceKinematicWithRegionDirection = True),
+    ClusterCheckPSet       = dict(doClusterCheck = False)
 )
-hiJetCoreRegionalStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'hiJetCoreRegionalStepSeedLayers'
-hiJetCoreRegionalStepSeeds.SeedComparitorPSet = cms.PSet(
-        ComponentName = cms.string('none'),
-    )
-hiJetCoreRegionalStepSeeds.SeedCreatorPSet.forceKinematicWithRegionDirection = cms.bool( True )
-hiJetCoreRegionalStepSeeds.ClusterCheckPSet.doClusterCheck = cms.bool( False )
-
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
 hiJetCoreRegionalStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
@@ -111,45 +109,45 @@ hiJetCoreRegionalStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.Trajec
 
 import TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi
 hiJetCoreRegionalStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone(
-    ComponentName = cms.string('hiJetCoreRegionalStepChi2Est'),
-    nSigma = cms.double(3.0),
-    MaxChi2 = cms.double(30.0)
+    ComponentName = 'hiJetCoreRegionalStepChi2Est',
+    nSigma  = 3.0,
+    MaxChi2 = 30.0
 )
 
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 hiJetCoreRegionalStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
     MeasurementTrackerName = '',
-    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('hiJetCoreRegionalStepTrajectoryFilter')),
+    trajectoryFilter = dict(refToPSet_ = 'hiJetCoreRegionalStepTrajectoryFilter'),
     maxCand = 50,
-    estimator = cms.string('hiJetCoreRegionalStepChi2Est'),
+    estimator = 'hiJetCoreRegionalStepChi2Est',
     maxDPhiForLooperReconstruction = cms.double(2.0),
     maxPtForLooperReconstruction = cms.double(0.7)
-    )
+)
 
 # MAKING OF TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 hiJetCoreRegionalStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
-    src = cms.InputTag('hiJetCoreRegionalStepSeeds'),
-    maxSeedsBeforeCleaning = cms.uint32(10000),
-    TrajectoryBuilderPSet = cms.PSet( refToPSet_ = cms.string('hiJetCoreRegionalStepTrajectoryBuilder')),
-    NavigationSchool = cms.string('SimpleNavigationSchool'),
+    src = 'hiJetCoreRegionalStepSeeds',
+    maxSeedsBeforeCleaning = 10000,
+    TrajectoryBuilderPSet = dict( refToPSet_ = 'hiJetCoreRegionalStepTrajectoryBuilder'),
+    NavigationSchool = 'SimpleNavigationSchool',
 )
 
 
 # TRACK FITTING
 import RecoTracker.TrackProducer.TrackProducer_cfi
 hiJetCoreRegionalStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
-    AlgorithmName = cms.string('jetCoreRegionalStep'),
+    AlgorithmName = 'jetCoreRegionalStep',
     src = 'hiJetCoreRegionalStepTrackCandidates',
-    Fitter = cms.string('FlexibleKFFittingSmoother')
-    )
+    Fitter = 'FlexibleKFFittingSmoother'
+)
 
 # Final selection
 import RecoHI.HiTracking.hiMultiTrackSelector_cfi
 hiJetCoreRegionalStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackSelector.clone(
-    src='hiJetCoreRegionalStepTracks',
-    vertices = cms.InputTag("hiFirstStepGoodPrimaryVertices"),
+    src = 'hiJetCoreRegionalStepTracks',
+    vertices = "hiFirstStepGoodPrimaryVertices",
     trackSelectors= cms.VPSet(
         RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
             name = 'hiJetCoreRegionalStepLoose',
