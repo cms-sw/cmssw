@@ -203,7 +203,7 @@ GEMChamber* GEMGeometryBuilder::buildChamber(DDFilteredView& fv, GEMDetId detId)
 
   if (!ge0Station) {
     dpar = solid.solidB().parameters();
-    dz += convertMmToCm(dpar[3]);       // chamber thickness
+    dz += convertMmToCm(dpar[3]);  // chamber thickness
   }
 
   bool isOdd = ge0Station ? false : detId.chamber() % 2;
