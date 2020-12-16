@@ -13,16 +13,16 @@ bmtfStage2Raw = cms.EDProducer(
 
 ## Era: Run2_2016
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
-stage2L1Trigger.toModify(bmtfStage2Raw, InputLabel = cms.InputTag("simBmtfDigis", "BMTF"), FWId = cms.uint32(1))
+stage2L1Trigger.toModify(bmtfStage2Raw, InputLabel = cms.InputTag("simBmtfDigis", "BMTF"), FWId = cms.uint32(0x93500160))
 
 ## Era: Run2_2017
 from Configuration.Eras.Modifier_stage2L1Trigger_2017_cff import stage2L1Trigger_2017
-stage2L1Trigger_2017.toModify(bmtfStage2Raw, InputLabel = cms.InputTag("simBmtfDigis", "BMTF"), FWId = cms.uint32(1))
+stage2L1Trigger_2017.toModify(bmtfStage2Raw, InputLabel = cms.InputTag("simBmtfDigis", "BMTF"), FWId = cms.uint32(0x93500160))
 
 ### Era: Run2_2018
 from Configuration.Eras.Modifier_stage2L1Trigger_2018_cff import stage2L1Trigger_2018
-stage2L1Trigger_2018.toModify(bmtfStage2Raw, InputLabel = cms.InputTag("simBmtfDigis", "BMTF"), FWId = cms.uint32(1))
+stage2L1Trigger_2018.toModify(bmtfStage2Raw, InputLabel = cms.InputTag("simBmtfDigis", "BMTF"), FWId = cms.uint32(0x93500160))
 
 ### Era: Run3_2021
 from Configuration.Eras.Modifier_stage2L1Trigger_2021_cff import stage2L1Trigger_2021
-stage2L1Trigger_2021.toModify(bmtfStage2Raw, InputLabel = cms.InputTag("simKBmtfDigis", "BMTF"), FWId = cms.uint32(2499805536))
+stage2L1Trigger_2021.toModify(bmtfStage2Raw, InputLabel = cms.InputTag("simKBmtfDigis", "BMTF"), FWId = cms.uint32(0x95030160))
