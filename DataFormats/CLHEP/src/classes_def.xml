@@ -1,5 +1,6 @@
 <lcgdict>
-  <class name="CLHEP::Hep3Vector" ClassVersion="10">
+  <class name="CLHEP::Hep3Vector" ClassVersion="11">
+   <version ClassVersion="11" checksum="3438801427"/>
    <version ClassVersion="10" checksum="3040806103"/>
   </class>
   <class name="CLHEP::HepEulerAngles" ClassVersion="10">
