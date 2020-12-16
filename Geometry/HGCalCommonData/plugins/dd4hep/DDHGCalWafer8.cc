@@ -14,6 +14,9 @@
 //#define EDM_ML_DEBUG
 
 static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e) {
+#ifdef EDM_ML_DEBUG
+  static constexpr double f2mm = (1.0 / dd4hep::mm);
+#endif
   cms::DDNamespace ns(ctxt, e, true);
   cms::DDAlgoArguments args(ctxt, e);
   std::string motherName = args.parentName();
@@ -26,8 +29,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   const auto& cellNames = args.value<std::vector<std::string>>("CellNames");
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalWafer8: Wafer 2r " << waferSize << " T " << waferT << " Half Separation "
-                                << waferSepar << " Cells/Wafer " << nCells << " Cell Type " << cellType << " Material "
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalWafer8: Wafer 2r " << (f2mm * waferSize) << " T " << (f2mm * waferT) << " Half Separation "
+                                << (f2mm * waferSepar) << " Cells/Wafer " << nCells << " Cell Type " << cellType << " Material "
                                 << material << " Names " << motherName << " NameSpace " << ns.name() << " # of cells "
                                 << cellNames.size();
   for (unsigned int k = 0; k < cellNames.size(); ++k)
@@ -54,11 +57,11 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   ns.addVolumeNS(glog);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalWafer8: " << solid.name() << " extruded polygon made of " << material
-                                << " z|x|y|s (0) " << zw[0] << ":" << zx[0] << ":" << zy[0] << ":" << scale[0]
-                                << " z|x|y|s (1) " << zw[1] << ":" << zx[1] << ":" << zy[1] << ":" << scale[1]
+                                << " z|x|y|s (0) " << (f2mm * zw[0]) << ":" << (f2mm * zx[0]) << ":" << (f2mm * zy[0]) << ":" << scale[0]
+                                << " z|x|y|s (1) " << (f2mm * zw[1]) << ":" << (f2mm * zx[1]) << ":" << (f2mm * zy[1]) << ":" << scale[1]
                                 << " and " << xM.size() << " edges";
   for (unsigned int k = 0; k < xM.size(); ++k)
-    edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << xM[k] << ":" << yM[k];
+    edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << (f2mm * xM[k]) << ":" << (f2mm * yM[k]);
 #endif
 
   dd4hep::Rotation3D rotation;
@@ -104,7 +107,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         glog.placeVolume(ns.volume(cellNames[cell]), copy, dd4hep::Transform3D(rotation, tran));
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalWafer8: " << cellNames[cell] << " number " << copy << " position in "
-                                      << glog.name() << " at " << tran << " with " << rotation;
+                                      << glog.name() << " at (" << (f2mm * xp) << ", " << (f2mm * yp) << ",0)  with " << rotation;
 #endif
       }
     }
