@@ -326,45 +326,47 @@ void RegionMapper::putEgObjects(edm::Event &iEvent,
   edm::Ref<BXVector<l1t::EGamma>>::key_type idx = 0;
 
   for (const Region &r : regions_) {
-    for (const l1tpf_impl::EgObjectIndexer &egidxer : r.egobjs) {
-      if (egidxer.ptcorr < ptMin)
+    for (const auto &egphoton : r.egphotons) {
+      if (egphoton.floatPt() < ptMin)
         continue;
 
-      const auto &calo = r.emcalo[egidxer.emCaloIdx];
 
-      if (!r.fiducialLocal(calo.floatEta(), calo.floatPhi()))
+      if (!r.fiducialLocal(egphoton.floatEta(), egphoton.floatPhi()))
         continue;
 
       edm::Ref<BXVector<l1t::EGamma>> reg;
       auto mom = reco::Candidate::PolarLorentzVector(
-          egidxer.ptcorr, r.globalEta(calo.floatEta()), r.globalPhi(calo.floatPhi()), 0.);
-      int hwQual = -1;
+          egphoton.floatPt(), r.globalEta(egphoton.floatEta()), r.globalPhi(egphoton.floatPhi()), 0.);
       if (writeEgSta) {
         l1t::EGamma eg(mom);
-        eg.setHwQual(egidxer.hwQual);
+        eg.setHwQual(egphoton.hwQual);
         egs->push_back(0, eg);
         reg = edm::Ref<BXVector<l1t::EGamma>>(ref_egs, idx++);
-        hwQual = eg.hwQual();
-
       } else {
-        auto egptr = calo.src->constituentsAndFractions()[0].first;
+        auto egptr = egphoton.cluster.src->constituentsAndFractions()[0].first;
         reg = edm::Ref<BXVector<l1t::EGamma>>(egptr.id(), dynamic_cast<const l1t::EGamma *>(egptr.get()), egptr.key());
-        hwQual = egptr->hwQual();
       }
 
-      l1t::TkEm tkem(reco::Candidate::LorentzVector(mom), reg, egidxer.iso, egidxer.isoPV);
-      tkem.setHwQual(hwQual);
-      tkem.setPFIsol(egidxer.pfIso);
-      tkem.setPFIsolPV(egidxer.pfIsoPV);
+      l1t::TkEm tkem(reco::Candidate::LorentzVector(mom), reg, egphoton.floatIso(), egphoton.floatIsoPV());
+      tkem.setHwQual(egphoton.hwQual);
+      tkem.setPFIsol(egphoton.floatPFIso());
+      tkem.setPFIsolPV(egphoton.floatPFIsoPV());
       tkems->push_back(tkem);
 
-      if (egidxer.tkIdx == -1)
+      if (egphoton.ele_idx == -1)
         continue;
-      const auto &tk = r.track[egidxer.tkIdx];
 
-      l1t::TkElectron tkele(reco::Candidate::LorentzVector(mom), reg, edm::refToPtr(tk.src->track()), egidxer.isoDZ);
-      tkele.setHwQual(hwQual);
-      tkele.setPFIsol(egidxer.pfIsoDZ);
+      const auto &egele = r.egeles[egphoton.ele_idx];
+
+      if (!r.fiducialLocal(egele.floatEta(), egele.floatPhi()))
+        continue;
+
+      auto mom_ele = reco::Candidate::PolarLorentzVector(
+          egele.floatPt(), r.globalEta(egele.floatEta()), r.globalPhi(egele.floatPhi()), 0.);
+
+      l1t::TkElectron tkele(reco::Candidate::LorentzVector(mom_ele), reg, edm::refToPtr(egele.track.src->track()), egele.floatIso());
+      tkele.setHwQual(egele.hwQual);
+      tkele.setPFIsol(egele.floatPFIso());
       tkeles->push_back(tkele);
     }
   }

@@ -46,8 +46,9 @@ PFTkEGAlgo::IsoParameters::IsoParameters(const edm::ParameterSet &pset)
       dRMax2(dRMax * dRMax) {}
 
 void PFTkEGAlgo::initRegion(Region &r) const {
-  // FIXME: assume imput is sorted already
-  r.egobjs.clear();
+  // NOTE: assume imput is sorted already
+  r.egphotons.clear();
+  r.egeles.clear();
 }
 
 void PFTkEGAlgo::runTkEG(Region &r) const {
@@ -76,10 +77,13 @@ void PFTkEGAlgo::eg_algo(Region &r, const std::vector<int> &emCalo2emCalo, const
     if (filterHwQuality_ && calo.hwFlags != caloHwQual_)
       continue;
 
+
     int itk = emCalo2tk[ic];
 
     // 1. create EG objects before brem recovery
-    addEgObjsToPF(r.egobjs, ic, calo.hwFlags, calo.floatPt(), itk);
+    addEGIsoToPF(r.egphotons, calo, calo.hwFlags, calo.floatPt());
+    if(itk != -1) addEGIsoEleToPF(r.egeles, calo, r.track[itk], calo.hwFlags, calo.floatPt());
+    addEgObjsToPF(r, ic, calo.hwFlags, calo.floatPt(), itk);
 
     // check if brem recovery is on
     if (!doBremRecovery_)
@@ -99,18 +103,74 @@ void PFTkEGAlgo::eg_algo(Region &r, const std::vector<int> &emCalo2emCalo, const
     }
 
     // 2. create EG objects with brem recovery
-    // FIXME: duplicating the object is suboptimal but this is done for keeping things as before...
-    addEgObjsToPF(r.egobjs, ic, calo.hwFlags + 1, ptBremReco, itk);
+    // FIXME: duplicating the object is suboptimal but this is done for keeping things as in TDR code...
+    addEgObjsToPF(r, ic, calo.hwFlags + 1, ptBremReco, itk);
   }
 }
 
-l1tpf_impl::EgObjectIndexer &PFTkEGAlgo::addEgObjsToPF(std::vector<l1tpf_impl::EgObjectIndexer> &egobjs,
-                                                       const int calo_idx,
-                                                       const int hwQual,
-                                                       const float ptCorr,
-                                                       const int tk_idx) const {
-  egobjs.emplace_back(l1tpf_impl::EgObjectIndexer{calo_idx, hwQual, ptCorr, tk_idx});
+
+EGIsoParticle &PFTkEGAlgo::addEGIsoToPF(std::vector<EGIsoParticle> &egobjs,
+                                        const CaloCluster &calo,
+                                        const int hwQual,
+                                        const float ptCorr) const {
+  EGIsoParticle egiso;
+  egiso.setFloatPt(ptCorr);
+  egiso.hwEta = calo.hwEta;
+  egiso.hwPhi = calo.hwPhi;
+  egiso.cluster = calo;
+
+  egiso.hwQual = hwQual;
+
+  egiso.hwIso = 0;
+  egiso.hwIsoPV = 0;
+  egiso.hwPFIso = 0;
+  egiso.hwPFIsoPV = 0;
+
+  egobjs.push_back(egiso);
   return egobjs.back();
+}
+
+EGIsoEleParticle &PFTkEGAlgo::addEGIsoEleToPF(std::vector<EGIsoEleParticle> &egobjs,
+                                              const CaloCluster &calo,
+                                              const PropagatedTrack &track,
+                                              const int hwQual,
+                                              const float ptCorr) const {
+    EGIsoEleParticle egiso;
+    egiso.setFloatPt(ptCorr);
+    egiso.hwEta = calo.hwEta;
+    egiso.hwPhi = calo.hwPhi;
+    egiso.cluster = calo;
+
+    egiso.hwVtxEta = track.hwVtxEta;
+    egiso.hwVtxPhi = track.hwVtxPhi;
+    egiso.hwZ0 = track.hwZ0;
+    egiso.hwCharge = track.hwCharge;
+    egiso.track = track;
+
+    egiso.hwQual = hwQual;
+    egiso.hwIso = 0;
+    egiso.hwPFIso = 0;
+
+    egobjs.push_back(egiso);
+    return egobjs.back();
+
+}
+
+
+
+void PFTkEGAlgo::addEgObjsToPF(Region &r,
+                                const int calo_idx,
+                                const int hwQual,
+                                const float ptCorr,
+                                const int tk_idx) const {
+
+  EGIsoParticle &egobj = addEGIsoToPF(r.egphotons, r.emcalo[calo_idx], r.emcalo[calo_idx].hwFlags+1, ptCorr);
+  if(tk_idx != -1) {
+    egobj.ele_idx = r.egeles.size();
+    addEGIsoEleToPF(r.egeles, r.emcalo[calo_idx], r.track[tk_idx], r.emcalo[calo_idx].hwFlags+1, ptCorr);
+  } else {
+    egobj.ele_idx = -1;
+  }
 }
 
 void PFTkEGAlgo::link_emCalo2emCalo(Region &r, std::vector<int> &emCalo2emCalo) const {
