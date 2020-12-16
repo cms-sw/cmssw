@@ -41,21 +41,19 @@ pair<vector<DetLayer*>, vector<DetLayer*> > MuonGEMDetLayerGeometryBuilder::buil
         ForwardDetLayer* ringLayer = buildLayer(endcap, rings, station, layer, chambers, rolls, geo);
         if (ringLayer)
           result[iendcap].push_back(ringLayer);
-      } else {     
+      } else {
         for (int layer = GEMDetId::minLayerId + 1; layer <= GEMDetId::maxLayerId; ++layer) {
           vector<int> rolls, rings, chambers;
           rings.push_back(GEMDetId::minRingId);
-          for (int chamber = GEMDetId::minChamberId + 1; chamber <= GEMDetId::maxChamberId; chamber++) {
+          for (int chamber = GEMDetId::minChamberId + 1; chamber <= GEMDetId::maxChamberId; chamber++) 
             chambers.push_back(chamber);
-          }
-          for (int roll = GEMDetId::minRollId + 1; roll <= GEMDetId::maxRollId; ++roll) {
+          for (int roll = GEMDetId::minRollId + 1; roll <= GEMDetId::maxRollId; ++roll) 
             rolls.push_back(roll);
-          }
           ForwardDetLayer* ringLayer = buildLayer(endcap, rings, station, layer, chambers, rolls, geo);
           if (ringLayer)
             result[iendcap].push_back(ringLayer);
         }
-      } 
+      }
     }
   }
   pair<vector<DetLayer*>, vector<DetLayer*> > res_pair(result[0], result[1]);
