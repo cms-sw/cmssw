@@ -259,13 +259,13 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
         }
         dd4hep::Box mySens(fv.solid());
         spos << "Solid shape name: " << DDSolidShapesName::name(fv.legacyShape(fv.shape())) << "\n";
-        spos << "Box dimensions: " << fround(mySens.x()/dd4hep::mm) << " " << fround(mySens.y()/dd4hep::mm)
-             << " " << fround(mySens.z()/dd4hep::mm) << "\n";
+        spos << "Box dimensions: " << fround(mySens.x() / dd4hep::mm) << " " << fround(mySens.y() / dd4hep::mm) << " "
+             << fround(mySens.z() / dd4hep::mm) << "\n";
 
         DD3Vector x, y, z;
         fv.rotation().GetComponents(x, y, z);
-        spos << "Translation vector components: " << fround(fv.translation().x()/dd4hep::mm) << " "
-             << fround(fv.translation().y()/dd4hep::mm) << " " << fround(fv.translation().z()/dd4hep::mm) << " "
+        spos << "Translation vector components: " << fround(fv.translation().x() / dd4hep::mm) << " "
+             << fround(fv.translation().y() / dd4hep::mm) << " " << fround(fv.translation().z() / dd4hep::mm) << " "
              << "\n";
         spos << "Rotation matrix components: " << fround(x.X()) << " " << fround(x.Y()) << " " << fround(x.Z()) << " "
              << fround(y.X()) << " " << fround(y.Y()) << " " << fround(y.Z()) << " " << fround(z.X()) << " "
@@ -280,23 +280,23 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
             std::sqrt(std::pow(zeroGlobal.X() - cn1Global.X(), 2) + std::pow(zeroGlobal.Y() - cn1Global.Y(), 2) +
                       std::pow(zeroGlobal.Z() - cn1Global.Z(), 2));
 
-        spos << "Center global   = " << fround(zeroGlobal.X()/dd4hep::mm) << fround(zeroGlobal.Y()/dd4hep::mm)
-             << fround(zeroGlobal.Z()/dd4hep::mm) << " r = " << fround(zeroGlobal.Rho()/dd4hep::mm)
+        spos << "Center global   = " << fround(zeroGlobal.X() / dd4hep::mm) << fround(zeroGlobal.Y() / dd4hep::mm)
+             << fround(zeroGlobal.Z() / dd4hep::mm) << " r = " << fround(zeroGlobal.Rho() / dd4hep::mm)
              << " phi = " << fround(convertRadToDeg(zeroGlobal.Phi())) << "\n";
 
-        spos << "Corner 1 local  = " << fround(cn1Local.X()/dd4hep::mm) << fround(cn1Local.Y()/dd4hep::mm)
-             << fround(cn1Local.Z()/dd4hep::mm) << " DeltaR = " << fround(distLocal/dd4hep::mm) << "\n";
+        spos << "Corner 1 local  = " << fround(cn1Local.X() / dd4hep::mm) << fround(cn1Local.Y() / dd4hep::mm)
+             << fround(cn1Local.Z() / dd4hep::mm) << " DeltaR = " << fround(distLocal / dd4hep::mm) << "\n";
 
-        spos << "Corner 1 global = " << fround(cn1Global.X()/dd4hep::mm) << fround(cn1Global.Y()/dd4hep::mm)
-             << fround(cn1Global.Z()/dd4hep::mm) << " DeltaR = " << fround(distGlobal/dd4hep::mm) << "\n";
+        spos << "Corner 1 global = " << fround(cn1Global.X() / dd4hep::mm) << fround(cn1Global.Y() / dd4hep::mm)
+             << fround(cn1Global.Z() / dd4hep::mm) << " DeltaR = " << fround(distGlobal / dd4hep::mm) << "\n";
 
         spos << "\n";
-        if (std::fabs(distGlobal - distLocal)/dd4hep::mm > 1.e-6) {
+        if (std::fabs(distGlobal - distLocal) / dd4hep::mm > 1.e-6) {
           spos << "DIFFERENCE IN DISTANCE \n";
         }
-        sunitt << fround(zeroGlobal.X()/dd4hep::mm) << fround(zeroGlobal.Y()/dd4hep::mm)
-               << fround(zeroGlobal.Z()/dd4hep::mm) << fround(cn1Global.X()/dd4hep::mm)
-               << fround(cn1Global.Y()/dd4hep::mm) << fround(cn1Global.Z()/dd4hep::mm);
+        sunitt << fround(zeroGlobal.X() / dd4hep::mm) << fround(zeroGlobal.Y() / dd4hep::mm)
+               << fround(zeroGlobal.Z() / dd4hep::mm) << fround(cn1Global.X() / dd4hep::mm)
+               << fround(cn1Global.Y() / dd4hep::mm) << fround(cn1Global.Z() / dd4hep::mm);
         edm::LogInfo("DD4hep_TestMTDPosition") << spos.str();
 
         edm::LogVerbatim("MTDUnitTest") << sunitt.str();
