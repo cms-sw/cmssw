@@ -108,7 +108,7 @@ void WaitingTaskList::add(WaitingTaskHolder iTask) {
     // is guaranteed to be in the link list
 
     if (nullptr == oldHead) {
-      newHead->setNextNode(0);
+      newHead->setNextNode(nullptr);
       if (!m_waiting) {
         //if finished waiting right before we did the
         // exchange our task will not be spawned. Also,
