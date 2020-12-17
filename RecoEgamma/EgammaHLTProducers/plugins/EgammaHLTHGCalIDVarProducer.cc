@@ -31,17 +31,15 @@ public:
   public:
     PCAAssocMap(double HGCalShowerShapeHelper::ShowerWidths::*var, const std::string& name) : var_(var), name_(name) {}
 
-    std::unique_ptr<reco::RecoEcalCandidateIsolationMap>& initMap(
-        const edm::Handle<reco::RecoEcalCandidateCollection>& candHandle) {
+    void initMap(const edm::Handle<reco::RecoEcalCandidateCollection>& candHandle) {
       assocMap_ = std::make_unique<reco::RecoEcalCandidateIsolationMap>(candHandle);
-      return assocMap_;
     }
 
     void insert(reco::RecoEcalCandidateRef& ref, const HGCalShowerShapeHelper::ShowerWidths& showerWidths) {
       assocMap_->insert(ref, showerWidths.*var_);
     }
 
-    std::unique_ptr<reco::RecoEcalCandidateIsolationMap>& operator()() { return assocMap_; }
+    std::unique_ptr<reco::RecoEcalCandidateIsolationMap> releaseMap() { return std::move(assocMap_); }
     const std::string& name() const { return name_; }
 
   private:
@@ -126,7 +124,7 @@ void EgammaHLTHGCalIDVarProducer::produce(edm::Event& iEvent, const edm::EventSe
   iEvent.put(std::move(rVarMap), "rVar");
   iEvent.put(std::move(hForHoverEMap), "hForHOverE");
   for (auto& pcaMap : pcaAssocMaps_) {
-    iEvent.put(std::move(pcaMap()), pcaMap.name());
+    iEvent.put(pcaMap.releaseMap(), pcaMap.name());
   }
 }
 
