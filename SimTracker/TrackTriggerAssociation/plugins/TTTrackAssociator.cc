@@ -59,7 +59,7 @@ void TTTrackAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, cons
 
       /// Fill the map associating each TP to a vector of L1 tracks. 
       /// Do this using the association map of the clusters inside each stub,
-      /// rather than the stub association map. (CHECK: Why? This wastes CPU!)
+      /// as stub associator misses stub --> all TP map (FIX).
       for (const TTStubRef& stub : theseStubs) {
         for (unsigned int ic = 0; ic < 2; ic++) {
           std::vector<TrackingParticlePtr> tempTPs =
