@@ -47,16 +47,18 @@ namespace hgcal {
 class SimClusterAssociatorByEnergyScoreImpl : public hgcal::LayerClusterToSimClusterAssociatorBaseImpl {
 public:
   explicit SimClusterAssociatorByEnergyScoreImpl(edm::EDProductGetter const &,
-						 bool,
-						 const std::vector<float> &,
-						 std::shared_ptr<hgcal::RecHitTools>,
-						 const std::unordered_map<DetId, const HGCRecHit *> *&);
+                                                 bool,
+                                                 const std::vector<float> &,
+                                                 std::shared_ptr<hgcal::RecHitTools>,
+                                                 const std::unordered_map<DetId, const HGCRecHit *> *&);
 
-  hgcal::RecoToSimCollectionWithSimClusters associateRecoToSim(const edm::Handle<reco::CaloClusterCollection> &cCH,
-                                                const edm::Handle<SimClusterCollection> &sCCH) const override;
+  hgcal::RecoToSimCollectionWithSimClusters associateRecoToSim(
+      const edm::Handle<reco::CaloClusterCollection> &cCH,
+      const edm::Handle<SimClusterCollection> &sCCH) const override;
 
-  hgcal::SimToRecoCollectionWithSimClusters associateSimToReco(const edm::Handle<reco::CaloClusterCollection> &cCH,
-                                                const edm::Handle<SimClusterCollection> &sCCH) const override;
+  hgcal::SimToRecoCollectionWithSimClusters associateSimToReco(
+      const edm::Handle<reco::CaloClusterCollection> &cCH,
+      const edm::Handle<SimClusterCollection> &sCCH) const override;
 
 private:
   const bool hardScatterOnly_;

@@ -31,10 +31,10 @@ private:
 };
 
 SimClusterAssociatorByEnergyScoreProducer::SimClusterAssociatorByEnergyScoreProducer(const edm::ParameterSet &ps)
-  : clustersMask_(consumes<std::vector<float>>(ps.getParameter<edm::InputTag>("LayerClustersInputMask"))),
-  hitMap_(consumes<std::unordered_map<DetId, const HGCRecHit *>>(ps.getParameter<edm::InputTag>("hitMapTag"))),
-  caloGeometry_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
-  hardScatterOnly_(ps.getParameter<bool>("hardScatterOnly")) {
+    : clustersMask_(consumes<std::vector<float>>(ps.getParameter<edm::InputTag>("LayerClustersInputMask"))),
+      hitMap_(consumes<std::unordered_map<DetId, const HGCRecHit *>>(ps.getParameter<edm::InputTag>("hitMapTag"))),
+      caloGeometry_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      hardScatterOnly_(ps.getParameter<bool>("hardScatterOnly")) {
   rhtools_.reset(new hgcal::RecHitTools());
 
   // Register the product
@@ -44,19 +44,16 @@ SimClusterAssociatorByEnergyScoreProducer::SimClusterAssociatorByEnergyScoreProd
 SimClusterAssociatorByEnergyScoreProducer::~SimClusterAssociatorByEnergyScoreProducer() {}
 
 void SimClusterAssociatorByEnergyScoreProducer::produce(edm::StreamID,
-                                                          edm::Event &iEvent,
-                                                          const edm::EventSetup &es) const {
+                                                        edm::Event &iEvent,
+                                                        const edm::EventSetup &es) const {
   edm::ESHandle<CaloGeometry> geom = es.getHandle(caloGeometry_);
   rhtools_->setGeometry(*geom);
 
-  const auto& inputClusterMask = iEvent.get(clustersMask_);
+  const auto &inputClusterMask = iEvent.get(clustersMask_);
   const std::unordered_map<DetId, const HGCRecHit *> *hitMap = &iEvent.get(hitMap_);
 
-  auto impl = std::make_unique<SimClusterAssociatorByEnergyScoreImpl>(iEvent.productGetter(),
-								      hardScatterOnly_,
-								      inputClusterMask,
-								      rhtools_,
-								      hitMap);
+  auto impl = std::make_unique<SimClusterAssociatorByEnergyScoreImpl>(
+      iEvent.productGetter(), hardScatterOnly_, inputClusterMask, rhtools_, hitMap);
   auto toPut = std::make_unique<hgcal::LayerClusterToSimClusterAssociator>(std::move(impl));
   iEvent.put(std::move(toPut));
 }

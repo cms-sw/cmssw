@@ -24,13 +24,13 @@ namespace hgcal {
     // ---------- const member functions ---------------------
     /// Associate a LayerCluster to SimClusters
     hgcal::RecoToSimCollectionWithSimClusters associateRecoToSim(const edm::Handle<reco::CaloClusterCollection> &cCCH,
-                                                  const edm::Handle<SimClusterCollection> &sCCH) const {
+                                                                 const edm::Handle<SimClusterCollection> &sCCH) const {
       return m_impl->associateRecoToSim(cCCH, sCCH);
     };
 
     /// Associate a SimCluster to LayerClusters
     hgcal::SimToRecoCollectionWithSimClusters associateSimToReco(const edm::Handle<reco::CaloClusterCollection> &cCCH,
-                                                  const edm::Handle<SimClusterCollection> &sCCH) const {
+                                                                 const edm::Handle<SimClusterCollection> &sCCH) const {
       return m_impl->associateSimToReco(cCCH, sCCH);
     }
 

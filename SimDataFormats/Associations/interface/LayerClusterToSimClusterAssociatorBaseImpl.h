@@ -21,8 +21,7 @@ namespace hgcal {
   typedef edm::AssociationMap<
       edm::OneToManyWithQualityGeneric<SimClusterCollection, reco::CaloClusterCollection, std::pair<float, float>>>
       SimToRecoCollectionWithSimClusters;
-  typedef edm::AssociationMap<
-      edm::OneToManyWithQualityGeneric<reco::CaloClusterCollection, SimClusterCollection, float>>
+  typedef edm::AssociationMap<edm::OneToManyWithQualityGeneric<reco::CaloClusterCollection, SimClusterCollection, float>>
       RecoToSimCollectionWithSimClusters;
 
   class LayerClusterToSimClusterAssociatorBaseImpl {
@@ -33,12 +32,12 @@ namespace hgcal {
     virtual ~LayerClusterToSimClusterAssociatorBaseImpl();
 
     /// Associate a LayerCluster to SimClusters
-    virtual hgcal::RecoToSimCollectionWithSimClusters associateRecoToSim(const edm::Handle<reco::CaloClusterCollection> &cCH,
-                                                          const edm::Handle<SimClusterCollection> &sCCH) const;
+    virtual hgcal::RecoToSimCollectionWithSimClusters associateRecoToSim(
+        const edm::Handle<reco::CaloClusterCollection> &cCH, const edm::Handle<SimClusterCollection> &sCCH) const;
 
     /// Associate a SimCluster to LayerClusters
-    virtual hgcal::SimToRecoCollectionWithSimClusters associateSimToReco(const edm::Handle<reco::CaloClusterCollection> &cCH,
-                                                          const edm::Handle<SimClusterCollection> &sCCH) const;
+    virtual hgcal::SimToRecoCollectionWithSimClusters associateSimToReco(
+        const edm::Handle<reco::CaloClusterCollection> &cCH, const edm::Handle<SimClusterCollection> &sCCH) const;
   };
 }  // namespace hgcal
 
