@@ -36,6 +36,8 @@ CSCGeometryParsFromDD::CSCGeometryParsFromDD() : myName("CSCGeometryParsFromDD")
 
 CSCGeometryParsFromDD::~CSCGeometryParsFromDD() {}
 
+//ddd
+
 bool CSCGeometryParsFromDD::build(const DDCompactView* cview,
                                   const MuonGeometryConstants& muonConstants,
                                   RecoIdealGeometry& rig,
@@ -65,6 +67,9 @@ bool CSCGeometryParsFromDD::build(const DDCompactView* cview,
   std::vector<double> gtran(3);
   std::vector<double> grmat(9);
   std::vector<double> trm(9);
+
+  edm::LogVerbatim("CSCGeometryParsFromDD") << "(0) CSCGeometryParsFromDD - DDD ";
+
   while (doSubDets) {
     spec = fv.specifics();
     spit = spec.begin();
@@ -90,6 +95,10 @@ bool CSCGeometryParsFromDD::build(const DDCompactView* cview,
     int jring = detid.ring();
     int jchamber = detid.chamber();
     int jlayer = detid.layer();
+
+    edm::LogVerbatim("CSCGeometryParsFromDD")
+        << "(1) detId: " << id << " jendcap: " << jendcap << " jstation: " << jstation << " jring: " << jring
+        << " jchamber: " << jchamber << " jlayer: " << jlayer;
 
     // Package up the wire group info as it's decoded
     CSCWireGroupPackage wg;
@@ -137,16 +146,21 @@ bool CSCGeometryParsFromDD::build(const DDCompactView* cview,
             }
           } else if (it->second.name() == "WireSpacing") {
             wg.wireSpacing = it->second.doubles()[0];
+            edm::LogVerbatim("CSCGeometryParsFromDD") << "(2) wireSpacing: " << wg.wireSpacing;
           } else if (it->second.name() == "AlignmentPinToFirstWire") {
             wg.alignmentPinToFirstWire = it->second.doubles()[0];
+            edm::LogVerbatim("CSCGeometryParsFromDD") << "(3) alignmentPinToFirstWire: " << wg.alignmentPinToFirstWire;
           } else if (it->second.name() == "TotNumWireGroups") {
             wg.numberOfGroups = int(it->second.doubles()[0]);
           } else if (it->second.name() == "LengthOfFirstWire") {
             wg.narrowWidthOfWirePlane = it->second.doubles()[0];
+            edm::LogVerbatim("CSCGeometryParsFromDD") << "(4) narrowWidthOfWirePlane: " << wg.narrowWidthOfWirePlane;
           } else if (it->second.name() == "LengthOfLastWire") {
             wg.wideWidthOfWirePlane = it->second.doubles()[0];
+            edm::LogVerbatim("CSCGeometryParsFromDD") << "(5) wideWidthOfWirePlane: " << wg.wideWidthOfWirePlane;
           } else if (it->second.name() == "RadialExtentOfWirePlane") {
             wg.lengthOfWirePlane = it->second.doubles()[0];
+            edm::LogVerbatim("CSCGeometryParsFromDD") << "(6) lengthOfWirePlane: " << wg.lengthOfWirePlane;
           }
         }
       }
@@ -200,6 +214,8 @@ bool CSCGeometryParsFromDD::build(const DDCompactView* cview,
     LogTrace(myName) << myName << ": fill fpar...";
     LogTrace(myName) << myName << ": dpars are... " << dpar[4] / cm << ", " << dpar[8] / cm << ", " << dpar[3] / cm
                      << ", " << dpar[0] / cm;
+    edm::LogVerbatim("CSCGeometryParsFromDD") << "(7) dpar[4]: " << dpar[4] / cm << " dpar[8]:  " << dpar[8] / cm
+                                              << " dpar[3]: " << dpar[3] / cm << " dpar[0]: " << dpar[0] / cm;
 
     fpar.emplace_back((dpar[4] / cm));
     fpar.emplace_back((dpar[8] / cm));
@@ -213,6 +229,9 @@ bool CSCGeometryParsFromDD::build(const DDCompactView* cview,
     gtran[2] = (float)1.0 * (fv.translation().Z() / cm);
 
     LogTrace(myName) << myName << ": gtran[0]=" << gtran[0] << ", gtran[1]=" << gtran[1] << ", gtran[2]=" << gtran[2];
+
+    edm::LogVerbatim("CSCGeometryParsFromDD")
+        << "(8) gtran[0]: " << gtran[0] << " gtran[1]: " << gtran[1] << " gtran[2]: " << gtran[2];
 
     LogTrace(myName) << myName << ": fill grmat...";
 
@@ -369,6 +388,9 @@ bool CSCGeometryParsFromDD::build(const cms::DDCompactView* cview,
   std::vector<double> gtran(3);
   std::vector<double> grmat(9);
   std::vector<double> trm(9);
+
+  edm::LogVerbatim("CSCGeometryParsFromDD") << "(0) CSCGeometryParsFromDD - DD4HEP ";
+
   while (fv.firstChild()) {
     MuonGeometryNumbering mbn(muonConstants);
     CSCNumberingScheme cscnum(muonConstants);
@@ -380,6 +402,10 @@ bool CSCGeometryParsFromDD::build(const cms::DDCompactView* cview,
     int jring = detid.ring();
     int jchamber = detid.chamber();
     int jlayer = detid.layer();
+
+    edm::LogVerbatim("CSCGeometryParsFromDD")
+        << "(1) detId: " << id << " jendcap: " << jendcap << " jstation: " << jstation << " jring: " << jring
+        << " jchamber: " << jchamber << " jlayer: " << jlayer;
 
     // Package up the wire group info as it's decoded
     CSCWireGroupPackage wg;
@@ -426,24 +452,31 @@ bool CSCGeometryParsFromDD::build(const cms::DDCompactView* cview,
       }
 
       auto wirespacing = fv.get<double>("WireSpacing");
-      wg.wireSpacing = static_cast<double>(wirespacing);
+      wg.wireSpacing = static_cast<double>(wirespacing / dd4hep::cm);
+      edm::LogVerbatim("CSCGeometryParsFromDD") << "(2) wireSpacing: " << wg.wireSpacing / dd4hep::cm;
 
       auto alignmentpintofirstwire = fv.get<double>("AlignmentPinToFirstWire");
-      wg.alignmentPinToFirstWire = static_cast<double>(alignmentpintofirstwire);
+      wg.alignmentPinToFirstWire = static_cast<double>(alignmentpintofirstwire / dd4hep::cm);
+      edm::LogVerbatim("CSCGeometryParsFromDD")
+          << "(3) alignmentPinToFirstWire: " << wg.alignmentPinToFirstWire / dd4hep::cm;
 
       auto totnumwiregroups = fv.get<double>("TotNumWireGroups");
       wg.numberOfGroups = static_cast<int>(totnumwiregroups);
 
       auto lengthoffirstwire = fv.get<double>("LengthOfFirstWire");
-      wg.narrowWidthOfWirePlane = static_cast<double>(lengthoffirstwire);
+      wg.narrowWidthOfWirePlane = static_cast<double>(lengthoffirstwire / dd4hep::cm);
+      edm::LogVerbatim("CSCGeometryParsFromDD")
+          << "(4) narrowWidthOfWirePlane: " << wg.narrowWidthOfWirePlane / dd4hep::cm;
 
       auto lengthoflastwire = fv.get<double>("LengthOfLastWire");
-      wg.wideWidthOfWirePlane = static_cast<double>(lengthoflastwire);
+      wg.wideWidthOfWirePlane = static_cast<double>(lengthoflastwire / dd4hep::cm);
+      edm::LogVerbatim("CSCGeometryParsFromDD") << "(5) wideWidthOfWirePlane: " << wg.wideWidthOfWirePlane / dd4hep::cm;
 
       auto radialextentofwireplane = fv.get<double>("RadialExtentOfWirePlane");
-      wg.lengthOfWirePlane = static_cast<double>(radialextentofwireplane);
+      wg.lengthOfWirePlane = static_cast<double>(radialextentofwireplane / dd4hep::cm);
+      edm::LogVerbatim("CSCGeometryParsFromDD") << "(6) lengthOfWirePlane: " << wg.lengthOfWirePlane / dd4hep::cm;
 
-      uparvals.emplace_back((wg.wireSpacing) * 10.0);
+      uparvals.emplace_back(wg.wireSpacing / dd4hep::mm);
       uparvals.emplace_back(wg.alignmentPinToFirstWire);
       uparvals.emplace_back(wg.numberOfGroups);
       uparvals.emplace_back(wg.narrowWidthOfWirePlane);
@@ -477,25 +510,36 @@ bool CSCGeometryParsFromDD::build(const cms::DDCompactView* cview,
       std::transform(
           dpar.begin(), dpar.end(), dpar.begin(), [](double i) -> double { return cms_rounding::roundIfNear0(i); });
 
-      fpar.emplace_back((dpar[1]));
-      fpar.emplace_back((dpar[2]));
-      fpar.emplace_back((dpar[3]));
-      fpar.emplace_back((dpar[4]));
+      fpar.emplace_back((dpar[1] / dd4hep::cm));
+      fpar.emplace_back((dpar[2] / dd4hep::cm));
+      fpar.emplace_back((dpar[3] / dd4hep::cm));
+      fpar.emplace_back((dpar[4] / dd4hep::cm));
+      edm::LogVerbatim("CSCGeometryParsFromDD")
+          << "(7) - Subtraction - dpar[1] (ddd dpar[4]): " << dpar[1] / dd4hep::cm
+          << " (ddd dpar[8]):  " << dpar[2] / dd4hep::cm << " dpar[3] (as ddd): " << dpar[3] / dd4hep::cm
+          << " dpar[4] (ddd dpar[0]): " << dpar[4] / dd4hep::cm;
     } else {
       dpar = fv.parameters();
 
       std::transform(
           dpar.begin(), dpar.end(), dpar.begin(), [](double i) -> double { return cms_rounding::roundIfNear0(i); });
 
-      fpar.emplace_back((dpar[0]));
-      fpar.emplace_back((dpar[1]));
-      fpar.emplace_back((dpar[2]));
-      fpar.emplace_back((dpar[3]));
+      fpar.emplace_back((dpar[0] / dd4hep::cm));
+      fpar.emplace_back((dpar[1] / dd4hep::cm));
+      fpar.emplace_back((dpar[2] / dd4hep::cm));
+      fpar.emplace_back((dpar[3] / dd4hep::cm));
+      edm::LogVerbatim("CSCGeometryParsFromDD")
+          << "(7)Bis - Else - dpar[0]: " << dpar[0] / dd4hep::cm << " dpar[1]: " << dpar[1] / dd4hep::cm
+          << " dpar[2]:  " << dpar[2] / dd4hep::cm << " dpar[3]: " << dpar[3] / dd4hep::cm;
     }
 
-    gtran[0] = static_cast<float>(fv.translation().X());
-    gtran[1] = static_cast<float>(fv.translation().Y());
-    gtran[2] = static_cast<float>(fv.translation().Z());
+    gtran[0] = static_cast<float>(fv.translation().X() / dd4hep::cm);
+    gtran[1] = static_cast<float>(fv.translation().Y() / dd4hep::cm);
+    gtran[2] = static_cast<float>(fv.translation().Z() / dd4hep::cm);
+
+    edm::LogVerbatim("CSCGeometryParsFromDD")
+        << "(8) gtran[0]: " << gtran[0] / dd4hep::cm << " gtran[1]: " << gtran[1] / dd4hep::cm
+        << " gtran[2]: " << gtran[2] / dd4hep::cm;
 
     std::transform(
         gtran.begin(), gtran.end(), gtran.begin(), [](double i) -> double { return cms_rounding::roundIfNear0(i); });
