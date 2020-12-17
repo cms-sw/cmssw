@@ -103,7 +103,7 @@ namespace edm {
         auto waitTaskPtr = waitTask.get();
         auto token = ServiceRegistry::instance().presentToken();
         edm::esTaskArena().execute([this, waitTaskPtr, &iRecord, &iKey, iEventSetupImpl, token]() {
-          { prefetchAsync(WaitingTaskHolder(waitTaskPtr), iRecord, iKey, iEventSetupImpl, token); }
+          prefetchAsync(WaitingTaskHolder(waitTaskPtr), iRecord, iKey, iEventSetupImpl, token);
           waitTaskPtr->decrement_ref_count();
           waitTaskPtr->wait_for_all();
         });
