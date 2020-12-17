@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from SimCalorimetry.HGCalSimProducers.hgcHitAssociation_cfi import lcAssocByEnergyScoreProducer, scAssocByEnergyScoreProducer
-from SimDataFormats.Associations.LCToCPAsssociation_cfi import trackingParticleRecoTrackAsssociation as trackingParticleRecoTrackAsssociationProducer
+from SimDataFormats.Associations.LCToCPAsssociation_cfi import layerClusterCaloParticleAsssociation as layerClusterCaloParticleAsssociationProducer
 from SimDataFormats.Associations.LCToSCAsssociation_cfi import layerClusterSimClusterAsssociation as layerClusterSimClusterAsssociationProducer
 
 from Validation.HGCalValidation.simhitValidation_cff    import *
@@ -44,7 +44,7 @@ layerClusterSimClusterAsssociationHAD = layerClusterSimClusterAsssociationProduc
     associator = cms.InputTag('scAssocByEnergyScoreProducerticlTrackstersHAD')
 )
 
-hgcalAssociators = cms.Task(lcAssocByEnergyScoreProducer, trackingParticleRecoTrackAsssociationProducer,
+hgcalAssociators = cms.Task(lcAssocByEnergyScoreProducer, layerClusterCaloParticleAsssociationProducer,
                             scAssocByEnergyScoreProducerticlTrackstersTrkEM, layerClusterSimClusterAsssociationTrkEM,
                             scAssocByEnergyScoreProducerticlTrackstersEM, layerClusterSimClusterAsssociationEM,
                             scAssocByEnergyScoreProducerticlTrackstersTrk, layerClusterSimClusterAsssociationTrk,

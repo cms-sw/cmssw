@@ -20,7 +20,7 @@ hgcalValidator = DQMEDAnalyzer(
       cms.InputTag("ticlMultiClustersFromTrackstersHAD"),
       cms.InputTag("ticlMultiClustersFromTrackstersMerge")),
 
-    associator = cms.untracked.InputTag("trackingParticleRecoTrackAsssociationProducer"),
+    associator = cms.untracked.InputTag("layerClusterCaloParticleAsssociationProducer"),
 
     associatorSim = cms.untracked.VInputTag(
       cms.InputTag("layerClusterSimClusterAsssociationTrkEM"),
