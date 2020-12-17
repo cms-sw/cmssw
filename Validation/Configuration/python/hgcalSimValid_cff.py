@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-from SimCalorimetry.HGCalSimProducers.hgcHitAssociation_cfi import lcAssocByEnergyScoreProducer
+from SimCalorimetry.HGCalSimProducers.hgcHitAssociation_cfi import lcAssocByEnergyScoreProducer, scAssocByEnergyScoreProducer
 from SimDataFormats.Associations.LCToCPAsssociation_cfi import trackingParticleRecoTrackAsssociation as trackingParticleRecoTrackAsssociationProducer
+from SimDataFormats.Associations.LCToSCAsssociation_cfi import layerClusterSimClusterAsssociation as layerClusterSimClusterAsssociationProducer
 
 from Validation.HGCalValidation.simhitValidation_cff    import *
 from Validation.HGCalValidation.digiValidation_cff      import *
@@ -19,7 +20,36 @@ hgcalPFJetValidation = _hgcalPFJetValidation.clone(BenchmarkLabel = 'PFJetValida
     VariablePtBins=[10., 30., 80., 120., 250., 600.],
     DeltaPtOvPtHistoParameter = dict(EROn=True,EREtaMax=3.0, EREtaMin=1.6, slicingOn=True))
 
-hgcalAssociators = cms.Task(lcAssocByEnergyScoreProducer, trackingParticleRecoTrackAsssociationProducer)
+scAssocByEnergyScoreProducerticlTrackstersTrkEM = scAssocByEnergyScoreProducer.clone(
+    LayerClustersInputMask = 'ticlTrackstersTrkEM')
+layerClusterSimClusterAsssociationTrkEM = layerClusterSimClusterAsssociationProducer.clone(
+    associator = cms.InputTag('scAssocByEnergyScoreProducerticlTrackstersTrkEM')
+)
+
+scAssocByEnergyScoreProducerticlTrackstersEM = scAssocByEnergyScoreProducer.clone(
+    LayerClustersInputMask = 'ticlTrackstersEM')
+layerClusterSimClusterAsssociationEM = layerClusterSimClusterAsssociationProducer.clone(
+    associator = cms.InputTag('scAssocByEnergyScoreProducerticlTrackstersEM')
+)
+
+scAssocByEnergyScoreProducerticlTrackstersTrk = scAssocByEnergyScoreProducer.clone(
+    LayerClustersInputMask = 'ticlTrackstersTrk')
+layerClusterSimClusterAsssociationTrk = layerClusterSimClusterAsssociationProducer.clone(
+    associator = cms.InputTag('scAssocByEnergyScoreProducerticlTrackstersTrk')
+)
+
+scAssocByEnergyScoreProducerticlTrackstersHAD = scAssocByEnergyScoreProducer.clone(
+    LayerClustersInputMask = 'ticlTrackstersHAD')
+layerClusterSimClusterAsssociationHAD = layerClusterSimClusterAsssociationProducer.clone(
+    associator = cms.InputTag('scAssocByEnergyScoreProducerticlTrackstersHAD')
+)
+
+hgcalAssociators = cms.Task(lcAssocByEnergyScoreProducer, trackingParticleRecoTrackAsssociationProducer,
+                            scAssocByEnergyScoreProducerticlTrackstersTrkEM, layerClusterSimClusterAsssociationTrkEM,
+                            scAssocByEnergyScoreProducerticlTrackstersEM, layerClusterSimClusterAsssociationEM,
+                            scAssocByEnergyScoreProducerticlTrackstersTrk, layerClusterSimClusterAsssociationTrk,
+                            scAssocByEnergyScoreProducerticlTrackstersHAD, layerClusterSimClusterAsssociationHAD
+                            )
 
 hgcalValidation = cms.Sequence(hgcalSimHitValidationEE
                                + hgcalSimHitValidationHEF

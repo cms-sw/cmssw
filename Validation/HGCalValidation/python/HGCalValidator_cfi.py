@@ -22,12 +22,20 @@ hgcalValidator = DQMEDAnalyzer(
 
     associator = cms.untracked.InputTag("trackingParticleRecoTrackAsssociationProducer"),
 
+    associatorSim = cms.untracked.VInputTag(
+      cms.InputTag("layerClusterSimClusterAsssociationTrkEM"),
+      cms.InputTag("layerClusterSimClusterAsssociationEM"),
+      cms.InputTag("layerClusterSimClusterAsssociationTrk"),
+      cms.InputTag("layerClusterSimClusterAsssociationHAD")),
+
     #General info on layers etc.
     SaveGeneralInfo = cms.untracked.bool(True),
     #CaloParticle related plots
     doCaloParticlePlots = cms.untracked.bool(True),
     #Select caloParticles for efficiency or pass through
     doCaloParticleSelection = cms.untracked.bool(True),
+    #SimCluster related plots
+    dosimclustersPlots = cms.untracked.bool(True),
     #Layer Cluster related plots
     dolayerclustersPlots = cms.untracked.bool(True),
     #Multi Cluster related plots
@@ -41,8 +49,17 @@ hgcalValidator = DQMEDAnalyzer(
     ### sim input configuration ###
     label_cp_effic = cms.InputTag("mix","MergedCaloTruth"),
     label_cp_fake = cms.InputTag("mix","MergedCaloTruth"),
+    #simClusters
+    label_scl = cms.InputTag("mix","MergedCaloTruth"),
 
     simVertices = cms.InputTag("g4SimHits"),
+
+    LayerClustersInputMask = cms.VInputTag(
+        cms.InputTag("ticlTrackstersTrkEM"),
+        cms.InputTag("ticlTrackstersEM"),
+        cms.InputTag("ticlTrackstersTrk"),
+        cms.InputTag("ticlTrackstersHAD")
+    ),
 
     #Total number of layers of HGCal that we want to monitor
     #Could get this also from HGCalImagingAlgo::maxlayer but better to get it from here
