@@ -1,3 +1,5 @@
+#include <DD4hep/DD4hepUnits.h>
+
 #include "DataFormats/Math/interface/GeantUnits.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerNumberingBuilder/interface/TrackerShapeToBounds.h"
@@ -99,7 +101,7 @@ GeometricDet::GeometricDet(cms::DDFilteredView* fv, GeometricEnumType type)
     : ddname_(dd4hep::dd::noNamespace(fv->name())),
       type_(type),
       ddd_(fv->navPos()),  // To remove after DetExtra is removed (not used)
-      trans_(geant_units::operators::convertCmToMm(fv->translation())),
+      trans_((fv->translation()) / dd4hep::mm),
       rho_(trans_.Rho()),
       phi_(trans_.Phi()),
       rot_(fv->rotation()),
@@ -278,24 +280,22 @@ std::vector<double> GeometricDet::computeLegacyShapeParameters(const cms::DDSoli
   // Box
   if (mySolidShape == cms::DDSolidShape::ddbox) {
     const dd4hep::Box& myBox = dd4hep::Box(mySolid);
-    myOldDDShapeParameters = {geant_units::operators::convertCmToMm(myBox.x()),
-                              geant_units::operators::convertCmToMm(myBox.y()),
-                              geant_units::operators::convertCmToMm(myBox.z())};
+    myOldDDShapeParameters = {(myBox.x()) / dd4hep::mm, (myBox.y()) / dd4hep::mm, (myBox.z()) / dd4hep::mm};
   }
 
   // Trapezoid
   else if (mySolidShape == cms::DDSolidShape::ddtrap) {
     const dd4hep::Trap& myTrap = dd4hep::Trap(mySolid);
-    myOldDDShapeParameters = {geant_units::operators::convertCmToMm(myTrap->GetDZ()),
+    myOldDDShapeParameters = {(myTrap->GetDZ()) / dd4hep::mm,
                               static_cast<double>(angle_units::operators::convertDegToRad(myTrap->GetTheta())),
                               static_cast<double>(angle_units::operators::convertDegToRad(myTrap->GetPhi())),
-                              geant_units::operators::convertCmToMm(myTrap->GetH1()),
-                              geant_units::operators::convertCmToMm(myTrap->GetBl1()),
-                              geant_units::operators::convertCmToMm(myTrap->GetTl1()),
+                              (myTrap->GetH1()) / dd4hep::mm,
+                              (myTrap->GetBl1()) / dd4hep::mm,
+                              (myTrap->GetTl1()) / dd4hep::mm,
                               static_cast<double>(angle_units::operators::convertDegToRad(myTrap->GetAlpha1())),
-                              geant_units::operators::convertCmToMm(myTrap->GetH2()),
-                              geant_units::operators::convertCmToMm(myTrap->GetBl2()),
-                              geant_units::operators::convertCmToMm(myTrap->GetTl2()),
+                              (myTrap->GetH2()) / dd4hep::mm,
+                              (myTrap->GetBl2()) / dd4hep::mm,
+                              (myTrap->GetTl2()) / dd4hep::mm,
                               static_cast<double>(angle_units::operators::convertDegToRad(myTrap->GetAlpha2()))};
   }
 
@@ -303,9 +303,9 @@ std::vector<double> GeometricDet::computeLegacyShapeParameters(const cms::DDSoli
   else if (mySolidShape == cms::DDSolidShape::ddtubs) {
     const dd4hep::Tube& myTube = dd4hep::Tube(mySolid);
     myOldDDShapeParameters = {
-        geant_units::operators::convertCmToMm(myTube->GetDz()),
-        geant_units::operators::convertCmToMm(myTube->GetRmin()),
-        geant_units::operators::convertCmToMm(myTube->GetRmax()),
+        (myTube->GetDz()) / dd4hep::mm,
+        (myTube->GetRmin()) / dd4hep::mm,
+        (myTube->GetRmax()) / dd4hep::mm,
         static_cast<double>(fmod(angle_units::operators::convertDegToRad(myTube->GetPhi1()), 2. * M_PI) - 2. * M_PI),
         static_cast<double>(angle_units::operators::convertDegToRad(myTube->GetPhi2() - myTube->GetPhi1()))};
   }
