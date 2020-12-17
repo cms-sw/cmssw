@@ -17,7 +17,7 @@ void HGCalShowerShapeHelper::initPerObject(const std::vector<std::pair<DetId, fl
                                            int minLayer,
                                            int maxLayer,
                                            DetId::Detector subDet) {
-  maxLayer = maxLayer <= 0? recHitTools_.lastLayerEE(): maxLayer;
+  maxLayer = maxLayer <= 0 ? recHitTools_.lastLayerEE() : maxLayer;
 
   // Safety checks
   nLayer_ = maxLayer - minLayer + 1;
