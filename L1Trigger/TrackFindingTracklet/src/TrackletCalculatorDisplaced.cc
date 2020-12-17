@@ -454,7 +454,8 @@ bool TrackletCalculatorDisplaced::LLLSeeding(const Stub* innerFPGAStub,
   double phiderdiskapprox[N_DISK], rderdiskapprox[N_DISK];
 
   //TODO: implement the actual integer calculation
-  approxtracklet(r1,
+  if(settings_.useapprox()){
+    approxtracklet(r1,
                  z1,
                  phi1,
                  r2,
@@ -478,6 +479,28 @@ bool TrackletCalculatorDisplaced::LLLSeeding(const Stub* innerFPGAStub,
                  rprojdiskapprox,
                  phiderdiskapprox,
                  rderdiskapprox);
+  }
+  else{
+    rinvapprox = rinv;
+    phi0approx = phi0;
+    d0approx = d0;
+    tapprox = t;
+    z0approx = z0;
+
+    for (unsigned int i = 0; i < toR_.size(); ++i) {
+      phiprojapprox[i] = phiproj[i];
+      zprojapprox[i] = zproj[i];
+      phiderapprox[i] = phider[i];
+      zderapprox[i] = zder[i];
+    }
+
+    for (unsigned int i = 0; i < toZ_.size(); ++i) {
+      phiprojdiskapprox[i] = phiprojdisk[i];
+      rprojdiskapprox[i] = rprojdisk[i];
+      phiderdiskapprox[i] = phiderdisk[i];
+      rderdiskapprox[i] = rderdisk[i];
+    }
+  }
 
   //store the approcximate results
 
@@ -848,7 +871,8 @@ bool TrackletCalculatorDisplaced::DDLSeeding(const Stub* innerFPGAStub,
   double phiderdiskapprox[N_DISK], rderdiskapprox[N_DISK];
 
   //TODO: implement the actual integer calculation
-  approxtracklet(r1,
+  if(settings_.useapprox()){
+    approxtracklet(r1,
                  z1,
                  phi1,
                  r2,
@@ -872,6 +896,28 @@ bool TrackletCalculatorDisplaced::DDLSeeding(const Stub* innerFPGAStub,
                  rprojdiskapprox,
                  phiderdiskapprox,
                  rderdiskapprox);
+  }
+  else{
+    rinvapprox = rinv;
+    phi0approx = phi0;
+    d0approx = d0;
+    tapprox = t;
+    z0approx = z0;
+
+    for (unsigned int i = 0; i < toR_.size(); ++i) {
+      phiprojapprox[i] = phiproj[i];
+      zprojapprox[i] = zproj[i];
+      phiderapprox[i] = phider[i];
+      zderapprox[i] = zder[i];
+    }
+
+    for (unsigned int i = 0; i < toZ_.size(); ++i) {
+      phiprojdiskapprox[i] = phiprojdisk[i];
+      rprojdiskapprox[i] = rprojdisk[i];
+      phiderdiskapprox[i] = phiderdisk[i];
+      rderdiskapprox[i] = rderdisk[i];
+    }
+  }
 
   //store the approcximate results
   if (settings_.debugTracklet()) {
@@ -1226,7 +1272,8 @@ bool TrackletCalculatorDisplaced::LLDSeeding(const Stub* innerFPGAStub,
   double phiderdiskapprox[N_DISK], rderdiskapprox[N_DISK];
 
   //TODO: implement the actual integer calculation
-  approxtracklet(r1,
+  if(settings_.useapprox()){
+    approxtracklet(r1,
                  z1,
                  phi1,
                  r2,
@@ -1250,6 +1297,28 @@ bool TrackletCalculatorDisplaced::LLDSeeding(const Stub* innerFPGAStub,
                  rprojdiskapprox,
                  phiderdiskapprox,
                  rderdiskapprox);
+  }
+  else{
+    rinvapprox = rinv;
+    phi0approx = phi0;
+    d0approx = d0;
+    tapprox = t;
+    z0approx = z0;
+
+    for (unsigned int i = 0; i < toR_.size(); ++i) {
+      phiprojapprox[i] = phiproj[i];
+      zprojapprox[i] = zproj[i];
+      phiderapprox[i] = phider[i];
+      zderapprox[i] = zder[i];
+    }
+
+    for (unsigned int i = 0; i < toZ_.size(); ++i) {
+      phiprojdiskapprox[i] = phiprojdisk[i];
+      rprojdiskapprox[i] = rprojdisk[i];
+      phiderdiskapprox[i] = phiderdisk[i];
+      rderdiskapprox[i] = rderdisk[i];
+    }
+  }
 
   //store the approcximate results
   if (settings_.debugTracklet()) {
