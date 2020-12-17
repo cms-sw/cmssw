@@ -117,8 +117,12 @@ namespace edm {
 
     auto waitTask = make_empty_waiting_task();
     waitTask->increment_ref_count();
-    processOneOccurrenceAsync<T, U>(
-        waitTask.get(), info, ServiceRegistry::instance().presentToken(), streamID, topContext, context);
+    processOneOccurrenceAsync<T, U>(WaitingTaskHolder(waitTask.get()),
+                                    info,
+                                    ServiceRegistry::instance().presentToken(),
+                                    streamID,
+                                    topContext,
+                                    context);
     waitTask->wait_for_all();
     if (waitTask->exceptionPtr() != nullptr) {
       try {
