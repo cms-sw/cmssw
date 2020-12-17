@@ -57,7 +57,7 @@ float TauNNId::compute(const l1t::PFCandidate &iSeed, l1t::PFCandidateCollection
   }
   std::sort(iParts.begin(), iParts.end(), [](l1t::PFCandidate i, l1t::PFCandidate j) { return (i.pt() > j.pt()); });
   for (unsigned int i0 = 0; i0 < iParts.size(); i0++) {
-    if (i0 > n_particles_max)
+    if (i0 > n_particles_max || i0 >= (unsigned int)fNParticles_)
       break;
     fPt_.get()[i0] = iParts[i0].pt();
     fEta_.get()[i0] = iSeed.eta() - iParts[i0].eta();
