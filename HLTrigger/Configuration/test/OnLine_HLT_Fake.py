@@ -1,13 +1,13 @@
-# hltGetConfiguration --full --data /dev/CMSSW_11_2_0/Fake --type Fake --unprescale --process HLTFake --globaltag auto:run1_hlt_Fake --input file:RelVal_Raw_Fake_DATA.root
+# hltGetConfiguration --full --data /dev/CMSSW_11_3_0/Fake --type Fake --unprescale --process HLTFake --globaltag auto:run1_hlt_Fake --input file:RelVal_Raw_Fake_DATA.root
 
-# /dev/CMSSW_11_2_0/Fake/V7 (CMSSW_11_2_0_pre9)
+# /dev/CMSSW_11_3_0/Fake/V2 (CMSSW_11_3_0_pre1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFake" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_11_2_0/Fake/V7')
+  tableName = cms.string('/dev/CMSSW_11_3_0/Fake/V2')
 )
 
 process.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -83,15 +83,9 @@ process.FastTimerService = cms.Service( "FastTimerService",
 )
 process.MessageLogger = cms.Service( "MessageLogger",
     suppressInfo = cms.untracked.vstring(  ),
-    statistics = cms.untracked.vstring( 'cerr' ),
+    suppressDebug = cms.untracked.vstring(  ),
     suppressFwkInfo = cms.untracked.vstring(  ),
     cout = cms.untracked.PSet(  placeholder = cms.untracked.bool( True ) ),
-    cerr_stats = cms.untracked.PSet( 
-      threshold = cms.untracked.string( "WARNING" ),
-      output = cms.untracked.string( "cerr" ),
-      optionalPSet = cms.untracked.bool( True )
-    ),
-    suppressDebug = cms.untracked.vstring(  ),
     cerr = cms.untracked.PSet( 
       INFO = cms.untracked.PSet(  limit = cms.untracked.int32( 0 ) ),
       noTimeStamps = cms.untracked.bool( False ),
@@ -133,16 +127,6 @@ process.MessageLogger = cms.Service( "MessageLogger",
       'hltBLifetimeRegionalCtfWithMaterialTracksbbPhiL1FastJetFastPV',
       'hltCtfActivityWithMaterialTracks' ),
     debugModules = cms.untracked.vstring(  ),
-    categories = cms.untracked.vstring( 'FwkJob',
-      'FwkReport',
-      'FwkSummary',
-      'Root_NoDictionary' ),
-    destinations = cms.untracked.vstring( 'warnings',
-      'errors',
-      'infos',
-      'debugs',
-      'cout',
-      'cerr' ),
     threshold = cms.untracked.string( "INFO" ),
     suppressError = cms.untracked.vstring( 'hltOnlineBeamSpot',
       'hltL3MuonCandidates',
