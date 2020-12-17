@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/Records/interface/DDSpecParRegistryRcd.h"
+
 #include <DD4hep/SpecParRegistry.h>
 
 #include <iostream>
@@ -11,12 +12,6 @@
 using namespace std;
 using namespace cms;
 using namespace edm;
-
-#ifdef HAVE_GEANT4_UNITS
-#define MM_2_CM 1.0
-#else
-#define MM_2_CM 0.1
-#endif
 
 class DDTestSpecParsFilter : public one::EDAnalyzer<> {
 public:
@@ -71,7 +66,7 @@ void DDTestSpecParsFilter::analyze(const Event&, const EventSetup& iEventSetup) 
       for (const auto& kl : t.second->numpars) {
         log << kl.first << " = ";
         for (const auto& kil : kl.second) {
-          log << kil / MM_2_CM << " ";
+          log << kil << " ";
         }
         log << "\n ";
       }
