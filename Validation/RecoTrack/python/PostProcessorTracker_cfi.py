@@ -138,20 +138,10 @@ postProcessorTrack = DQMEDHarvester("DQMGenericClient",
     "fakerate_vs_dzpvcut 'Fake rate vs. dz(PV)' num_assoc(recoToSim)_dzpvcut num_reco_dzpvcut fake",
     "pileuprate_dzpvcut 'Pileup rate vs. dz(PV)' num_pileup_dzpvcut num_reco_dzpvcut",
 
-    "effic_vs_dzpvcut_pt 'Fraction of true p_{T} carried by recoed TPs from PV vs. dz(PV)' num_assoc(simToReco)_dzpvcut_pt num_simul_dzpvcut_pt",
-    "effic_vs_dzpvcut2_pt 'Fraction of true p_{T} carried by recoed TPs from PV (tracking eff factorized out) vs. dz(PV)' num_assoc(simToReco)_dzpvcut_pt num_simul2_dzpvcut_pt",
-    "fakerate_vs_dzpvcut_pt 'Fraction of fake p_{T} carried by tracks from PV vs. dz(PV)' num_assoc(recoToSim)_dzpvcut_pt num_reco_dzpvcut_pt fake",
-    "pileuprate_dzpvcut_pt 'Fraction of pileup p_{T} carried by tracks from PV vs. dz(PV)' num_pileup_dzpvcut_pt num_reco_dzpvcut_pt",
-
     "effic_vs_dzpvsigcut 'Efficiency vs. dz(PV)/dzError' num_assoc(simToReco)_dzpvsigcut num_simul_dzpvsigcut",
     "effic_vs_dzpvsigcut2 'Efficiency (tracking eff factorized out) vs. dz(PV)/dzError' num_assoc(simToReco)_dzpvsigcut num_simul2_dzpvsigcut",
     "fakerate_vs_dzpvsigcut 'Fake rate vs. dz(PV)/dzError' num_assoc(recoToSim)_dzpvsigcut num_reco_dzpvsigcut fake",
     "pileuprate_dzpvsigcut 'Pileup rate vs. dz(PV)/dzError' num_pileup_dzpvsigcut num_reco_dzpvsigcut",
-
-    "effic_vs_dzpvsigcut_pt 'Fraction of true p_{T} carried by recoed TPs from PV vs. dz(PV)/dzError' num_assoc(simToReco)_dzpvsigcut_pt num_simul_dzpvsigcut_pt",
-    "effic_vs_dzpvsigcut2_pt 'Fraction of true p_{T} carried by recoed TPs from PV (tracking eff factorized out) vs. dz(PV)/dzError' num_assoc(simToReco)_dzpvsigcut_pt num_simul2_dzpvsigcut_pt",
-    "fakerate_vs_dzpvsigcut_pt 'Fraction of fake p_{T} carried by tracks from PV vs. dz(PV)/dzError' num_assoc(recoToSim)_dzpvsigcut_pt num_reco_dzpvsigcut_pt fake",
-    "pileuprate_dzpvsigcut_pt 'Fraction of pileup p_{T} carried by tracks from PV vs. dz(PV)/dzError' num_pileup_dzpvsigcut_pt num_reco_dzpvsigcut_pt",
 
     "effic_vs_simpvz 'Efficiency vs. sim PV z' num_assoc(simToReco)_simpvz num_simul_simpvz",
     "fakerate_vs_simpvz 'Fake rate vs. sim PV z' num_assoc(recoToSim)_simpvz num_reco_simpvz fake",
@@ -210,24 +200,12 @@ postProcessorTrack = DQMEDHarvester("DQMGenericClient",
         "num_simul_dzpvcut",
         "num_simul2_dzpvcut",
         "num_pileup_dzpvcut",
-        "num_reco_dzpvcut_pt",
-        "num_assoc(recoToSim)_dzpvcut_pt",
-        "num_assoc(simToReco)_dzpvcut_pt",
-        "num_simul_dzpvcut_pt",
-        "num_simul2_dzpvcut_pt",
-        "num_pileup_dzpvcut_pt",
         "num_reco_dzpvsigcut",
         "num_assoc(recoToSim)_dzpvsigcut",
         "num_assoc(simToReco)_dzpvsigcut",
         "num_simul_dzpvsigcut",
         "num_simul2_dzpvsigcut",
         "num_pileup_dzpvsigcut",
-        "num_reco_dzpvsigcut_pt",
-        "num_assoc(recoToSim)_dzpvsigcut_pt",
-        "num_assoc(simToReco)_dzpvsigcut_pt",
-        "num_simul_dzpvsigcut_pt",
-        "num_simul2_dzpvsigcut_pt",
-        "num_pileup_dzpvsigcut_pt",
         "num_reco_mva1cut descending",
         "num_reco_mva2cut descending",
         "num_reco_mva2cut_hp descending",
@@ -316,6 +294,18 @@ postProcessorTrackSequence = cms.Sequence(
     postProcessorTrackNrecVsNsim+
     postProcessorTrackSummary
 )
+
+from Configuration.ProcessModifiers.seedingDeepCore_cff import seedingDeepCore
+postProcessorTrackDeepCore = postProcessorTrack.clone()
+postProcessorTrackDeepCore.subDirs.extend(["Tracking/JetCore/*"])
+seedingDeepCore.toReplaceWith(postProcessorTrack,postProcessorTrackDeepCore)
+postProcessorTrackSummaryDeepCore = postProcessorTrackSummary.clone()
+postProcessorTrackSummaryDeepCore.subDirs.extend(["Tracking/JetCore/*"])
+seedingDeepCore.toReplaceWith(postProcessorTrackSummary,postProcessorTrackSummaryDeepCore)
+postProcessorTrack2DDeepCore = postProcessorTrack2D.clone()
+postProcessorTrack2DDeepCore.subDirs.extend(["Tracking/JetCore/*"])
+seedingDeepCore.toReplaceWith(postProcessorTrack2D,postProcessorTrack2DDeepCore)
+
 
 fastSim.toModify(postProcessorTrack, subDirs = [e for e in _defaultSubdirs if e not in ["Tracking/TrackGsf/*","Tracking/TrackConversion/*"]])
 fastSim.toModify(postProcessorTrackSummary, subDirs = [e for e in _defaultSubdirsSummary if e not in ["Tracking/TrackGsf","Tracking/TrackConversion"]])
