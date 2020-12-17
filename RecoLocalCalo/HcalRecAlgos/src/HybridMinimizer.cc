@@ -266,7 +266,7 @@ namespace PSFitter {
       // for Fumili the fit method function interface is required
       const ROOT::Math::FitMethodFunction *fcnfunc = dynamic_cast<const ROOT::Math::FitMethodFunction *>(&func);
       if (!fcnfunc) {
-        edm::LogInfo("HybridMinimizer::SetFunction") << "HybridMinimizer: Wrong Fit method function for Fumili";
+        edm::LogError("HybridMinimizer::SetFunction") << "HybridMinimizer: Wrong Fit method function for Fumili";
         return;
       }
       fMinuitFCN = new ROOT::Minuit2::FumiliFCNAdapter<ROOT::Math::FitMethodFunction>(*fcnfunc, fDim, ErrorDef());
@@ -284,7 +284,7 @@ namespace PSFitter {
       // for Fumili the fit method function interface is required
       const ROOT::Math::FitMethodGradFunction *fcnfunc = dynamic_cast<const ROOT::Math::FitMethodGradFunction *>(&func);
       if (!fcnfunc) {
-        edm::LogInfo("HybridMinimizer::SetFunction") << "HybridMinimizer: Wrong Fit method function for Fumili";
+        edm::LogError("HybridMinimizer::SetFunction") << "HybridMinimizer: Wrong Fit method function for Fumili";
         return;
       }
       fMinuitFCN = new ROOT::Minuit2::FumiliFCNAdapter<ROOT::Math::FitMethodGradFunction>(*fcnfunc, fDim, ErrorDef());
@@ -295,7 +295,7 @@ namespace PSFitter {
     // perform the minimization
     // store a copy of FunctionMinimum
     if (!fMinuitFCN) {
-      edm::LogInfo("HybridMinimizer::Minimize") << "FCN function has not been set";
+      edm::LogError("HybridMinimizer::Minimize") << "FCN function has not been set";
       return false;
     }
 
@@ -326,7 +326,7 @@ namespace PSFitter {
    */
 
     // internal minuit messages
-    //MnPrint::SetLevel(PrintLevel());
+    //MnPrint::SetLevel(PrintLevel()); // MnPrint::SetLevel is not a static method anymore. Using it requires an object to exist
 
     // switch off Minuit2 printing
     int prev_level = (PrintLevel() <= 0) ? TurnOffPrintInfoLevel() : -2;
@@ -672,12 +672,12 @@ namespace PSFitter {
     //       GetMinimizer()->Minimize(*GetFCN(),fState, ROOT::Minuit2::MnStrategy(strategy), MaxFunctionCalls(), Tolerance());
     //    fState = min.UserState();
     if (fMinimum == nullptr) {
-      edm::LogInfo("HybridMinimizer::GetMinosErrors") << "  failed - no function minimum existing";
+      edm::LogError("HybridMinimizer::GetMinosErrors") << "  failed - no function minimum existing";
       return false;
     }
 
     if (!fMinimum->IsValid()) {
-      edm::LogInfo("HybridMinimizer::MINOS") << " failed due to invalid function minimum";
+      edm::LogError("HybridMinimizer::MINOS") << " failed due to invalid function minimum";
       return false;
     }
 
@@ -805,12 +805,12 @@ namespace PSFitter {
     // if the errors  are also zero then scan from min and max of parameter range
 
     if (!fMinuitFCN) {
-      edm::LogInfo("HybridMinimizer::Scan") << " Function must be set before using Scan";
+      edm::LogError("HybridMinimizer::Scan") << " Function must be set before using Scan";
       return false;
     }
 
     if (ipar > fState.MinuitParameters().size()) {
-      edm::LogInfo("HybridMinimizer::Scan") << " Invalid number. Minimizer variables must be set before using Scan";
+      edm::LogError("HybridMinimizer::Scan") << " Invalid number. Minimizer variables must be set before using Scan";
       return false;
     }
 
@@ -833,7 +833,7 @@ namespace PSFitter {
       RestoreGlobalPrintLevel(prev_level);
 
     if (result.size() != nstep) {
-      edm::LogInfo("HybridMinimizer::Scan") << " Invalid result from MnParameterScan";
+      edm::LogError("HybridMinimizer::Scan") << " Invalid result from MnParameterScan";
       return false;
     }
     // sort also the returned points in x
@@ -859,12 +859,12 @@ namespace PSFitter {
     // contour plot for parameter i and j
     // need a valid FunctionMinimum otherwise exits
     if (fMinimum == nullptr) {
-      edm::LogInfo("HybridMinimizer::Contour") << " no function minimum existing. Must minimize function before";
+      edm::LogError("HybridMinimizer::Contour") << " no function minimum existing. Must minimize function before";
       return false;
     }
 
     if (!fMinimum->IsValid()) {
-      edm::LogInfo("HybridMinimizer::Contour") << "Invalid function minimum";
+      edm::LogError("HybridMinimizer::Contour") << "Invalid function minimum";
       return false;
     }
     assert(fMinuitFCN);
@@ -891,7 +891,7 @@ namespace PSFitter {
 
     std::vector<std::pair<double, double> > result = contour(ipar, jpar, npoints);
     if (result.size() != npoints) {
-      edm::LogInfo("HybridMinimizer::Contour") << " Invalid result from MnContours";
+      edm::LogError("HybridMinimizer::Contour") << " Invalid result from MnContours";
       return false;
     }
     for (unsigned int i = 0; i < npoints; ++i) {
@@ -909,7 +909,7 @@ namespace PSFitter {
     // appended in the function minimum
 
     if (!fMinuitFCN) {
-      edm::LogInfo("HybridMinimizer::Hesse") << "FCN function has not been set";
+      edm::LogError("HybridMinimizer::Hesse") << "FCN function has not been set";
       return false;
     }
 
