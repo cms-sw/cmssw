@@ -2,9 +2,24 @@
 #define RecoEgamma_EgammaTools_HGCalShowerShapeHelper_h
 
 // system include files
+#include <algorithm>
+#include <cstdlib>
+#include <iostream>
+#include <map>
 #include <memory>
+#include <string>
+#include <type_traits>
+#include <utility>
+#include <vector>
 
-// user include files
+// external include files
+#include <CLHEP/Vector/LorentzVector.h>
+#include <Math/Point3D.h>
+#include <Math/Point3Dfwd.h>
+#include <TMatrixD.h>
+#include <TVectorD.h>
+
+// CMSSW include files
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/FWLite/interface/ESHandle.h"
@@ -27,23 +42,6 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/InitialClusteringStepBase.h"
-
-#include <CLHEP/Vector/LorentzVector.h>
-
-#include <algorithm>
-#include <cstdlib>
-#include <iostream>
-#include <map>
-#include <string>
-#include <type_traits>
-#include <utility>
-#include <vector>
-
-#include <TMatrixD.h>
-#include <TVectorD.h>
-
-#include <Math/Point3D.h>
-#include <Math/Point3Dfwd.h>
 
 class HGCalShowerShapeHelper {
 private:
@@ -80,8 +78,8 @@ private:
   void setFilteredHitsAndFractions(const std::vector<std::pair<DetId, float> > &hitsAndFracs);
 
 public:
-  static constexpr double kLDWaferCellSize_ = 0.698;
-  static constexpr double kHDWaferCellSize_ = 0.465;
+  static const double kLDWaferCellSize_;
+  static const double kHDWaferCellSize_;
 
   void setLayerWiseStuff();
 
@@ -116,7 +114,7 @@ public:
                      double minHitE = 0,
                      double minHitET = 0,
                      int minLayer = 1,
-                     int maxLayer = 28,
+                     int maxLayer = -1,
                      DetId::Detector subDet = DetId::HGCalEE);
 
   const double getCellSize(DetId detId);
