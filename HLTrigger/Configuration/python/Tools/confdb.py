@@ -541,11 +541,11 @@ if 'PrescaleService' in process.__dict__:
     # request summary informations from the MessageLogger
     self.data += """
 if 'MessageLogger' in %(dict)s:
-    %(process)s.MessageLogger.categories.append('TriggerSummaryProducerAOD')
-    %(process)s.MessageLogger.categories.append('L1GtTrigReport')
-    %(process)s.MessageLogger.categories.append('L1TGlobalSummary')
-    %(process)s.MessageLogger.categories.append('HLTrigReport')
-    %(process)s.MessageLogger.categories.append('FastReport')
+    %(process)s.MessageLogger.TriggerSummaryProducerAOD=dict()
+    %(process)s.MessageLogger.L1GtTrigReport=dict()
+    %(process)s.MessageLogger.L1TGlobalSummary=dict()
+    %(process)s.MessageLogger.HLTrigReport=dict()
+    %(process)s.MessageLogger.FastReport=dict()
 """
 
 

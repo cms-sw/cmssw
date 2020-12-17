@@ -383,11 +383,11 @@ if 'GlobalTag' in process.__dict__:
     process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = 'auto:run2_hlt_Fake2')
 
 if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
-    process.MessageLogger.categories.append('L1GtTrigReport')
-    process.MessageLogger.categories.append('L1TGlobalSummary')
-    process.MessageLogger.categories.append('HLTrigReport')
-    process.MessageLogger.categories.append('FastReport')
+    process.MessageLogger.TriggerSummaryProducerAOD=dict()
+    process.MessageLogger.L1GtTrigReport=dict()
+    process.MessageLogger.L1TGlobalSummary=dict()
+    process.MessageLogger.HLTrigReport=dict()
+    process.MessageLogger.FastReport=dict()
 
 # add specific customizations
 _customInfo = {}
