@@ -49,7 +49,8 @@ ME0Geometry* ME0GeometryBuilderFromCondDB::build(const RecoIdealGeometry& rgeo) 
     strStart = rgeo.strStart(id);
     name = *(strStart);
 
-    Surface::PositionType pos(convertMmToCm(*(tranStart)), convertMmToCm(*(tranStart + 1)), convertMmToCm(*(tranStart + 2)));
+    Surface::PositionType pos(
+        convertMmToCm(*(tranStart)), convertMmToCm(*(tranStart + 1)), convertMmToCm(*(tranStart + 2)));
     Surface::RotationType rot(*(rotStart + 0),
                               *(rotStart + 1),
                               *(rotStart + 2),
