@@ -21,6 +21,8 @@
 #include <string>
 #include <fstream>
 #include <algorithm>
+#include <memory>
+
 
 EcalLaserCondTools::EcalLaserCondTools(const edm::ParameterSet& ps)
     : fout_(nullptr),
@@ -136,7 +138,7 @@ void EcalLaserCondTools::from_hdf_to_db() {
     hsize_t iov_dim[1] = {nCrystals};
     H5::DataSpace p_space(1, iov_dim);
 
-    EcalLaserAPDPNRatios* corrSet = new EcalLaserAPDPNRatios;
+    auto corrSet = std::make_unique<EcalLaserAPDPNRatios>();
     H5::DataSpace filespace;
     for (unsigned int iIov = skipIov_; iIov < nIovs && iIov < unsigned(nIovs_); ++iIov) {
       EcalLaserAPDPNRatios::EcalLaserTimeStamp t;
@@ -185,17 +187,17 @@ void EcalLaserCondTools::from_hdf_to_db() {
 
       try {
         //Write correction set in DB (one IOV):
-        if (db_->isNewTagRequest("EcalLaserAPDPNRatiosRcd")) {
-          if (verb_)
-            std::cout << "First IOV, extending starting time.\n";
-          iovStart = db_->beginOfTime();
-        }
+        //if (db_->isNewTagRequest("EcalLaserAPDPNRatiosRcd")) {
+        //  if (verb_)
+        //    std::cout << "First IOV, extending starting time.\n";
+        //  iovStart = db_->beginOfTime();
+        //}
         timeval t;
         gettimeofday(&t, nullptr);
         if (verb_ > 1)
           std::cout << "[" << timeToString(t.tv_sec) << "] "
                     << "Write IOV " << iIov << " starting from " << timeToString(iovStart >> 32) << "... ";
-        db_->writeOne(corrSet, iovStart, "EcalLaserAPDPNRatiosRcd");
+        db_->writeOne(corrSet.get(), iovStart, "EcalLaserAPDPNRatiosRcd");
       } catch (const cms::Exception& e) {
         if (verb_ > 1)
           std::cout << "Failed. ";
@@ -319,7 +321,7 @@ void EcalLaserCondTools::processIov(CorrReader& r, int t1, int t2[EcalLaserCondT
     return;
   }
 
-  EcalLaserAPDPNRatios* corrSet = new EcalLaserAPDPNRatios;
+  auto corrSet = std::make_unique<EcalLaserAPDPNRatios>();
 
   EcalLaserAPDPNRatios::EcalLaserTimeStamp t;
   iovStart = uint64_t(t1) << 32;
@@ -384,7 +386,7 @@ void EcalLaserCondTools::processIov(CorrReader& r, int t1, int t2[EcalLaserCondT
     if (verb_ > 1)
       std::cout << "[" << timeToString(t.tv_sec) << "] "
                 << "Write IOV " << iIov << " starting from " << timeToString(iovStart >> 32) << "... ";
-    db_->writeOne(corrSet, iovStart, "EcalLaserAPDPNRatiosRcd");
+    db_->writeOne(corrSet.get(), iovStart, "EcalLaserAPDPNRatiosRcd");
   } catch (const cms::Exception& e) {
     std::cout << "Failed.\nException cathed while writting to cond DB" << e.what() << "\n";
   }
