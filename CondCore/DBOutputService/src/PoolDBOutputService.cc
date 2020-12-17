@@ -55,7 +55,7 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet&
   m_session = m_connection.createSession(connectionString, true);
   bool saveLogsOnDb = iConfig.getUntrackedParameter<bool>("saveLogsOnDB", false);
   if (saveLogsOnDb)
-    m_logger.setDbDestination(connectionString, m_connection);
+    m_logger.setDbDestination(connectionString);
   // implicit start
   doStartTransaction();
 
