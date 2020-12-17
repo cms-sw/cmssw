@@ -980,12 +980,9 @@ namespace edm {
         auto ownRunTask = std::make_shared<DestroyTask>(runTask);
         auto selectionTask = make_waiting_task(
             tbb::task::allocate_root(),
-            [ownRunTask, parentContext, info = transitionInfo, token, this](std::exception_ptr const* iExcept) mutable {
-              //NOTE: a non null value of iExcept means the selection succeeded
-              if (!iExcept) {
-                ServiceRegistry::Operate guard(token);
-                prefetchAsync<T>(WaitingTaskHolder(ownRunTask->release()), token, parentContext, info, T::transition_);
-              }
+            [ownRunTask, parentContext, info = transitionInfo, token, this](std::exception_ptr const*) mutable {
+              ServiceRegistry::Operate guard(token);
+              prefetchAsync<T>(WaitingTaskHolder(ownRunTask->release()), token, parentContext, info, T::transition_);
             });
         prePrefetchSelectionAsync(selectionTask, token, streamID, &transitionInfo.principal());
       } else {
