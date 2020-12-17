@@ -5,23 +5,17 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
-
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
-
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
-
 #include "RecoEgamma/EgammaTools/interface/HGCalShowerShapeHelper.h"
 #include "RecoEgamma/EgammaTools/interface/HGCalClusterTools.h"
 
