@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+<DDDefinition>
 
 <ConstantsSection label="hgcal.xml" eval="true">
   <Constant name="WaferSize"             value="167.4408*mm"/>
@@ -13,39 +13,4 @@
   <Constant name="NumberOfCellsCoarse"   value="8"/>
 </ConstantsSection>
 
-<PosPartSection label="hgcal.xml">
-  <PosPart copyNumber="1">
-    <rParent name="cms:CMSE"/>
-    <rChild name="hgcalwafer:HGCalEEWafer0Fine"/>
-    <Translation x="0*fm" y="0*fm" z="-0.5*cm"/>
-  </PosPart>
-  <PosPart copyNumber="1">
-    <rParent name="cms:CMSE"/>
-    <rChild name="hgcalwafer:HGCalEEWafer1Fine"/>
-    <Translation x="0*fm" y="0*fm" z="0.5*cm"/>
-  </PosPart>
-  <PosPart copyNumber="1">
-    <rParent name="cms:CMSE"/>
-    <rChild name="hgcalwafer:HGCalEEWafer0Coarse1"/>
-    <Translation x="0*fm" y="0*fm" z="-1.5*cm"/>
-  </PosPart>
-  <PosPart copyNumber="1">
-    <rParent name="cms:CMSE"/>
-    <rChild name="hgcalwafer:HGCalEEWafer1Coarse1"/>
-    <Translation x="0*fm" y="0*fm" z="-2.5*cm"/>
-  </PosPart>
-  <PosPart copyNumber="1">
-    <rParent name="cms:CMSE"/>
-    <rChild name="hgcalwafer:HGCalEEWafer0Coarse2"/>
-    <Translation x="0*fm" y="0*fm" z="1.5*cm"/>
-  </PosPart>
-  <PosPart copyNumber="1">
-    <rParent name="cms:CMSE"/>
-    <rChild name="hgcalwafer:HGCalEEWafer1Coarse2"/>
-    <Translation x="0*fm" y="0*fm" z="2.5*cm"/>
-  </PosPart>
-</PosPartSection>
-
 </DDDefinition>
-
-
