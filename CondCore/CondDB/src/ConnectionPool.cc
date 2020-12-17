@@ -24,7 +24,6 @@ namespace cond {
     ConnectionPool::ConnectionPool() {
       m_pluginManager = new cond::CoralServiceManager;
       m_msgReporter = new CoralMsgReporter;
-      // ownership is acquired ( instrinsically unsafe, need to change coral )
       coral::MessageStream::installMsgReporter(m_msgReporter);
       configure();
     }
