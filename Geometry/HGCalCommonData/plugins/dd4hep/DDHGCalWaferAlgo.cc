@@ -8,6 +8,9 @@
 using namespace cms_units::operators;
 
 static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e) {
+#ifdef EDM_ML_DEBUG
+  static constexpr double f2mm = (1.0 / dd4hep::mm);
+#endif
   cms::DDNamespace ns(ctxt, e, true);
   cms::DDAlgoArguments args(ctxt, e);
 
@@ -23,8 +26,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   edm::LogVerbatim("HGCalGeom") << childNames.size() << " children: " << childNames[0] << "; " << childNames[1]
                                 << " positioned " << positionX.size() << " times with cell size " << cellSize;
   for (unsigned int k = 0; k < positionX.size(); ++k)
-    edm::LogVerbatim("HGCalGeom") << "[" << k << "] x " << positionX[k] << " y " << positionY[k] << " angle "
-                                  << angles[k] << " detector " << detectorType[k];
+    edm::LogVerbatim("HGCalGeom") << "[" << k << "] x " << (f2mm * positionX[k]) << " y " << (f2mm * positionY[k])
+                                  << " angle " << angles[k] << " detector " << detectorType[k];
 
   std::string idName = args.parentName();  // Name of the "parent" volume.
   edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferAlgo debug: Parent " << idName << " NameSpace " << ns.name();
@@ -53,7 +56,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     mother.placeVolume(ns.volume(name), copy, dd4hep::Transform3D(rotation, tran));
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferAlgo: " << name << " number " << copy << " positioned in " << idName
-                                  << " at " << tran << " with " << rotation;
+                                  << " at (" << (f2mm * xpos) << ", " << (f2mm * ypos) << ", 0) with " << rotation;
 #endif
   }
 
