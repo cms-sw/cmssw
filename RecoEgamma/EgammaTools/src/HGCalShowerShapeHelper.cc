@@ -1,5 +1,8 @@
 #include "RecoEgamma/EgammaTools/interface/HGCalShowerShapeHelper.h"
 
+const double HGCalShowerShapeHelper::kLDWaferCellSize_ = 0.698;
+const double HGCalShowerShapeHelper::kHDWaferCellSize_ = 0.465;
+
 void HGCalShowerShapeHelper::initPerEvent(const edm::EventSetup &iSetup, const std::vector<reco::PFRecHit> &pfRecHits) {
   edm::ESHandle<CaloGeometry> geom;
   iSetup.get<CaloGeometryRecord>().get(geom);
@@ -14,6 +17,8 @@ void HGCalShowerShapeHelper::initPerObject(const std::vector<std::pair<DetId, fl
                                            int minLayer,
                                            int maxLayer,
                                            DetId::Detector subDet) {
+  maxLayer = maxLayer <= 0 ? recHitTools_.lastLayerEE() : maxLayer;
+
   // Safety checks
   nLayer_ = maxLayer - minLayer + 1;
   assert(nLayer_ > 0);
@@ -126,9 +131,7 @@ void HGCalShowerShapeHelper::setLayerWiseStuff() {
 }
 
 const double HGCalShowerShapeHelper::getCellSize(DetId detId) {
-  double siThickness = recHitTools_.getSiThickness(detId);
-
-  return siThickness < 150 ? kHDWaferCellSize_ : kLDWaferCellSize_;
+  return recHitTools_.getSiThickIndex(detId) == 0 ? kHDWaferCellSize_ : kLDWaferCellSize_;
 }
 
 const double HGCalShowerShapeHelper::getRvar(double cylinderR, double energyNorm, bool useFractions, bool useCellSize) {
