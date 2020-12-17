@@ -80,9 +80,6 @@ void PFTkEGAlgo::eg_algo(Region &r, const std::vector<int> &emCalo2emCalo, const
     int itk = emCalo2tk[ic];
 
     // 1. create EG objects before brem recovery
-    addEGIsoToPF(r.egphotons, calo, calo.hwFlags, calo.floatPt());
-    if (itk != -1)
-      addEGIsoEleToPF(r.egeles, calo, r.track[itk], calo.hwFlags, calo.floatPt());
     addEgObjsToPF(r, ic, calo.hwFlags, calo.floatPt(), itk);
 
     // check if brem recovery is on
@@ -124,7 +121,7 @@ EGIsoParticle &PFTkEGAlgo::addEGIsoToPF(std::vector<EGIsoParticle> &egobjs,
   egiso.hwIsoPV = 0;
   egiso.hwPFIso = 0;
   egiso.hwPFIsoPV = 0;
-
+  egiso.ele_idx = -1;
   egobjs.push_back(egiso);
   return egobjs.back();
 }
@@ -160,8 +157,6 @@ void PFTkEGAlgo::addEgObjsToPF(
   if (tk_idx != -1) {
     egobj.ele_idx = r.egeles.size();
     addEGIsoEleToPF(r.egeles, r.emcalo[calo_idx], r.track[tk_idx], r.emcalo[calo_idx].hwFlags + 1, ptCorr);
-  } else {
-    egobj.ele_idx = -1;
   }
 }
 
