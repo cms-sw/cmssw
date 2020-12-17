@@ -294,23 +294,23 @@ void MatchCalculator::execute() {
         edm::LogProblem("Tracklet") << "WARNING dphi and/or dphiapprox too large : " << dphi << " " << dphiapprox
                                     << endl;
       }
-      assert(std::abs(dphi) < 0.2);
-      assert(std::abs(dphiapprox) < 0.2);
 
-      if (settings_.writeMonitorData("Residuals")) {
-        double pt = 0.01 * settings_.c() * settings_.bfield() / std::abs(tracklet->rinv());
+      bool imatch = false;
+      if(std::abs(dphi) < 0.2 && std::abs(dphiapprox) < 0.2){ //Changed the Asserts into if statements
+        if (settings_.writeMonitorData("Residuals")) {
+          double pt = 0.01 * settings_.c() * settings_.bfield() / std::abs(tracklet->rinv());
 
-        globals_->ofstream("layerresiduals.txt")
-            << layerdisk_ + 1 << " " << seedindex << " " << pt << " "
-            << ideltaphi * settings_.kphi1() * settings_.rmean(layerdisk_) << " "
-            << dphiapprox * settings_.rmean(layerdisk_) << " "
-            << phimatchcut_[seedindex] * settings_.kphi1() * settings_.rmean(layerdisk_) << "   "
-            << ideltaz * fact_ * settings_.kz() << " " << dz << " " << zmatchcut_[seedindex] * settings_.kz() << endl;
+          globals_->ofstream("layerresiduals.txt")
+              << layerdisk_ + 1 << " " << seedindex << " " << pt << " "
+              << ideltaphi * settings_.kphi1() * settings_.rmean(layerdisk_) << " "
+              << dphiapprox * settings_.rmean(layerdisk_) << " "
+              << phimatchcut_[seedindex] * settings_.kphi1() * settings_.rmean(layerdisk_) << "   "
+              << ideltaz * fact_ * settings_.kz() << " " << dz << " " << zmatchcut_[seedindex] * settings_.kz() << endl;
+        }
+
+       imatch = (std::abs(ideltaphi) <= (int)phimatchcut_[seedindex]) &&
+                      (std::abs(ideltaz * fact_) <= (int)zmatchcut_[seedindex]);
       }
-
-      bool imatch = (std::abs(ideltaphi) <= (int)phimatchcut_[seedindex]) &&
-                    (std::abs(ideltaz * fact_) <= (int)zmatchcut_[seedindex]);
-
       if (settings_.debugTracklet()) {
         edm::LogVerbatim("Tracklet") << getName() << " imatch = " << imatch << " ideltaphi cut " << ideltaphi << " "
                                      << phimatchcut_[seedindex] << " ideltaz*fact cut " << ideltaz * fact_ << " "
@@ -454,19 +454,27 @@ void MatchCalculator::execute() {
       double drphicut = idrphicut * settings_.kphi() * settings_.kr();
       double drcut = idrcut * settings_.krprojshiftdisk();
 
-      if (settings_.writeMonitorData("Residuals")) {
-        double pt = 0.01 * settings_.c() * settings_.bfield() / std::abs(tracklet->rinv());
+      bool match, imatch;
+      if(std::abs(dphi) < 0.25 && std::abs(dphiapprox) < 0.25){ //Changed the Asserts into if statements
+        if (settings_.writeMonitorData("Residuals")) {
+          double pt = 0.01 * settings_.c() * settings_.bfield() / std::abs(tracklet->rinv());
 
-        globals_->ofstream("diskresiduals.txt")
-            << disk << " " << stub->isPSmodule() << " " << tracklet->layer() << " " << abs(tracklet->disk()) << " "
-            << pt << " " << ideltaphi * settings_.kphi() * stub->r() << " " << drphiapprox << " " << drphicut << " "
-            << ideltar * settings_.krprojshiftdisk() << " " << deltar << " " << drcut << " " << endl;
+          globals_->ofstream("diskresiduals.txt")
+              << disk << " " << stub->isPSmodule() << " " << tracklet->layer() << " " << abs(tracklet->disk()) << " "
+              << pt << " " << ideltaphi * settings_.kphi() * stub->r() << " " << drphiapprox << " " << drphicut << " "
+              << ideltar * settings_.krprojshiftdisk() << " " << deltar << " " << drcut << " " << endl;
+        }
+
+        match = (std::abs(drphi) < drphicut) && (std::abs(deltar) < drcut);
+
+        imatch = (std::abs(ideltaphi * irstub) < idrphicut) && (std::abs(ideltar) < idrcut);
       }
-
-      bool match = (std::abs(drphi) < drphicut) && (std::abs(deltar) < drcut);
-
-      bool imatch = (std::abs(ideltaphi * irstub) < idrphicut) && (std::abs(ideltar) < idrcut);
-
+      else{
+        edm::LogProblem("Tracklet") << "WARNING dphi and/or dphiapprox too large : " << dphi << " " << dphiapprox
+                                    << "dphi " << dphi << " Seed / ISeed " << tracklet->getISeed()<< endl;
+        match = false;
+        imatch = false;
+      }
       if (settings_.debugTracklet()) {
         edm::LogVerbatim("Tracklet") << "imatch match disk: " << imatch << " " << match << " " << std::abs(ideltaphi)
                                      << " " << drphicut / (settings_.kphi() * stub->r()) << " " << std::abs(ideltar)
@@ -479,12 +487,6 @@ void MatchCalculator::execute() {
         if (settings_.debugTracklet()) {
           edm::LogVerbatim("Tracklet") << "MatchCalculator found match in disk " << getName();
         }
-
-        if (std::abs(dphi) >= 0.25) {
-          edm::LogVerbatim("Tracklet") << "dphi " << dphi << " Seed / ISeed " << tracklet->getISeed();
-        }
-        assert(std::abs(dphi) < 0.25);
-        assert(std::abs(dphiapprox) < 0.25);
 
         tracklet->addMatchDisk(disk,
                                ideltaphi,
