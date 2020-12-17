@@ -11925,11 +11925,11 @@ if 'GlobalTag' in process.__dict__:
     process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = 'auto:run3_hlt_PRef')
 
 if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.TriggerSummaryProducerAOD=dict()
-    process.MessageLogger.L1GtTrigReport=dict()
-    process.MessageLogger.L1TGlobalSummary=dict()
-    process.MessageLogger.HLTrigReport=dict()
-    process.MessageLogger.FastReport=dict()
+    process.MessageLogger.TriggerSummaryProducerAOD=cms.untracked.PSet()
+    process.MessageLogger.L1GtTrigReport=cms.untracked.PSet()
+    process.MessageLogger.L1TGlobalSummary=cms.untracked.PSet()
+    process.MessageLogger.HLTrigReport=cms.untracked.PSet()
+    process.MessageLogger.FastReport=cms.untracked.PSet()
 
 # add specific customizations
 _customInfo = {}
