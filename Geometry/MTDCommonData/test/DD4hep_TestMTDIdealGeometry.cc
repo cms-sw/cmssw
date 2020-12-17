@@ -29,7 +29,7 @@
 #include "DataFormats/ForwardDetId/interface/BTLDetId.h"
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
 
-#include "DataFormats/Math/interface/GeantUnits.h"
+#include "DataFormats/Math/interface/angle_units.h"
 #include "DataFormats/Math/interface/Rounding.h"
 #include <DD4hep/DD4hepUnits.h>
 
