@@ -147,7 +147,7 @@ namespace edm {
                                                 typename T::Context const* topContext,
                                                 U const* context) {
     //make sure the unscheduled items see this run or lumi transition
-    unscheduled_.runNowAsync<T, U>(task, info, token, streamID, topContext, context);
+    unscheduled_.runNowAsync<T, U>(std::move(task), info, token, streamID, topContext, context);
   }
 
   template <typename T>
@@ -157,7 +157,7 @@ namespace edm {
                                                StreamID streamID,
                                                ParentContext const& parentContext,
                                                typename T::Context const* context) {
-    unscheduled_.runAccumulatorsAsync<T>(task, info, token, streamID, parentContext, context);
+    unscheduled_.runAccumulatorsAsync<T>(std::move(task), info, token, streamID, parentContext, context);
   }
 }  // namespace edm
 
