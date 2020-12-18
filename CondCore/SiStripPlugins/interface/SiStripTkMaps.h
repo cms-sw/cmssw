@@ -176,7 +176,19 @@ public:
   }
 
   //============================================================================
-  TH2Poly* getTheMap() { return m_trackerMap; }
+  const TH2Poly* getTheMap() { return m_trackerMap; }
+
+  //============================================================================
+  inline const std::string& getTheMapTitle() { return m_mapTitle; }
+
+  //============================================================================
+  inline const std::string& getTheZAxisTitle() { return m_zAxisTitle; }
+
+  //============================================================================
+  inline const std::vector<unsigned int>& getTheFilledIds() { return m_detIdVector; }
+
+  //============================================================================
+  inline const std::vector<double>& getTheFilledValues() { return m_values; }
 
   //============================================================================
   void setZAxisRange(double xmin, double xmax) { m_trackerMap->GetZaxis()->SetRangeUser(xmin, xmax); }
@@ -269,7 +281,7 @@ private:
   std::string m_zAxisTitle = "";
   double m_axmin, m_axmax;
   std::map<long, std::shared_ptr<TGraph> > m_bins;
-  std::vector<unsigned> m_detIdVector;
+  std::vector<unsigned int> m_detIdVector;
   std::vector<double> m_values;
   TrackerTopology m_trackerTopo;
   TH2Poly* m_trackerMap{nullptr};
