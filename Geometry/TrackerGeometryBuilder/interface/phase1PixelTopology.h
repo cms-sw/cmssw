@@ -65,7 +65,7 @@ namespace phase1PixelTopology {
     bool go = true;
     int n = 2;
     while (go) {
-      for (uint8_t i = 1; i < 11; ++i) {
+      for (uint8_t i = 1; i < std::size(layerStart); ++i) {
         if (layerStart[i] % n != 0) {
           go = false;
           break;
@@ -81,18 +81,18 @@ namespace phase1PixelTopology {
   constexpr uint32_t maxModuleStride = findMaxModuleStride();
 
   constexpr uint8_t findLayer(uint32_t detId) {
-    for (uint8_t i = 0; i < 11; ++i)
+    for (uint8_t i = 0; i < std::size(layerStart); ++i)
       if (detId < layerStart[i + 1])
         return i;
-    return 11;
+    return std::size(layerStart);
   }
 
   constexpr uint8_t findLayerFromCompact(uint32_t detId) {
     detId *= maxModuleStride;
-    for (uint8_t i = 0; i < 11; ++i)
+    for (uint8_t i = 0; i < std::size(layerStart); ++i)
       if (detId < layerStart[i + 1])
         return i;
-    return 11;
+    return std::size(layerStart);
   }
 
   constexpr uint32_t layerIndexSize = numberOfModules / maxModuleStride;

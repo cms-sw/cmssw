@@ -4,10 +4,9 @@
 #include <cstdint>
 #include <cstdio>
 
+#include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/prefixScan.h"
-
-#include "gpuClusteringConstants.h"
 
 namespace gpuClustering {
 
@@ -19,44 +18,44 @@ namespace gpuClustering {
       uint32_t const* __restrict__ moduleId,     // module id of each module
       int32_t* __restrict__ clusterId,           // modified: cluster id of each pixel
       uint32_t numElements) {
-    __shared__ int32_t charge[MaxNumClustersPerModules];
-    __shared__ uint8_t ok[MaxNumClustersPerModules];
-    __shared__ uint16_t newclusId[MaxNumClustersPerModules];
+    __shared__ int32_t charge[maxNumClustersPerModules];
+    __shared__ uint8_t ok[maxNumClustersPerModules];
+    __shared__ uint16_t newclusId[maxNumClustersPerModules];
 
     auto firstModule = blockIdx.x;
     auto endModule = moduleStart[0];
     for (auto module = firstModule; module < endModule; module += gridDim.x) {
       auto firstPixel = moduleStart[1 + module];
       auto thisModuleId = id[firstPixel];
-      assert(thisModuleId < MaxNumModules);
+      assert(thisModuleId < maxNumModules);
       assert(thisModuleId == moduleId[module]);
 
       auto nclus = nClustersInModule[thisModuleId];
       if (nclus == 0)
         continue;
 
-      if (threadIdx.x == 0 && nclus > MaxNumClustersPerModules)
+      if (threadIdx.x == 0 && nclus > maxNumClustersPerModules)
         printf("Warning too many clusters in module %d in block %d: %d > %d\n",
                thisModuleId,
                blockIdx.x,
                nclus,
-               MaxNumClustersPerModules);
+               maxNumClustersPerModules);
 
       auto first = firstPixel + threadIdx.x;
 
-      if (nclus > MaxNumClustersPerModules) {
+      if (nclus > maxNumClustersPerModules) {
         // remove excess  FIXME find a way to cut charge first....
         for (auto i = first; i < numElements; i += blockDim.x) {
-          if (id[i] == InvId)
+          if (id[i] == invalidModuleId)
             continue;  // not valid
           if (id[i] != thisModuleId)
             break;  // end of module
-          if (clusterId[i] >= MaxNumClustersPerModules) {
-            id[i] = InvId;
-            clusterId[i] = InvId;
+          if (clusterId[i] >= maxNumClustersPerModules) {
+            id[i] = invalidModuleId;
+            clusterId[i] = invalidModuleId;
           }
         }
-        nclus = MaxNumClustersPerModules;
+        nclus = maxNumClustersPerModules;
       }
 
 #ifdef GPU_DEBUG
@@ -65,14 +64,14 @@ namespace gpuClustering {
           printf("start cluster charge cut for module %d in block %d\n", thisModuleId, blockIdx.x);
 #endif
 
-      assert(nclus <= MaxNumClustersPerModules);
+      assert(nclus <= maxNumClustersPerModules);
       for (auto i = threadIdx.x; i < nclus; i += blockDim.x) {
         charge[i] = 0;
       }
       __syncthreads();
 
       for (auto i = first; i < numElements; i += blockDim.x) {
-        if (id[i] == InvId)
+        if (id[i] == invalidModuleId)
           continue;  // not valid
         if (id[i] != thisModuleId)
           break;  // end of module
@@ -102,19 +101,19 @@ namespace gpuClustering {
       // mark bad cluster again
       for (auto i = threadIdx.x; i < nclus; i += blockDim.x) {
         if (0 == ok[i])
-          newclusId[i] = InvId + 1;
+          newclusId[i] = invalidModuleId + 1;
       }
       __syncthreads();
 
       // reassign id
       for (auto i = first; i < numElements; i += blockDim.x) {
-        if (id[i] == InvId)
+        if (id[i] == invalidModuleId)
           continue;  // not valid
         if (id[i] != thisModuleId)
           break;  // end of module
         clusterId[i] = newclusId[clusterId[i]] - 1;
-        if (clusterId[i] == InvId)
-          id[i] = InvId;
+        if (clusterId[i] == invalidModuleId)
+          id[i] = invalidModuleId;
       }
 
       //done

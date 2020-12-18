@@ -1,11 +1,11 @@
 #ifndef CUDADataFormats_SiPixelDigi_interface_SiPixelDigisCUDA_h
 #define CUDADataFormats_SiPixelDigi_interface_SiPixelDigisCUDA_h
 
+#include <cuda_runtime.h>
+
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCompat.h"
-
-#include <cuda_runtime.h>
 
 class SiPixelDigisCUDA {
 public:
@@ -82,4 +82,4 @@ private:
   uint32_t nDigis_h = 0;
 };
 
-#endif
+#endif  // CUDADataFormats_SiPixelDigi_interface_SiPixelDigisCUDA_h

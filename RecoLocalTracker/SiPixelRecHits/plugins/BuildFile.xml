@@ -1,4 +1,5 @@
 <use name="cuda"/>
+<use name="fmt"/>
 <use name="CUDADataFormats/BeamSpot"/>
 <use name="CUDADataFormats/TrackingRecHit"/>
 <use name="HeterogeneousCore/CUDACore"/>

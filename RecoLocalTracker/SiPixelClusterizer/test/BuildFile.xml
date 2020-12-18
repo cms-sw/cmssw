@@ -16,6 +16,7 @@
 <use name="TrackingTools/TrackFitters"/>
 <use name="TrackingTools/TrajectoryState"/>
 <use name="TrackingTools/TransientTrack"/>
+
 <library file="ReadPixClusters.cc" name="ReadPixClusters">
   <flags EDM_PLUGIN="1"/>
 </library>
@@ -54,4 +55,3 @@
   <use name="HeterogeneousCore/CUDAUtilities"/>
   <flags CXXFLAGS="-g -DGPU_DEBUG"/>
 </bin>
-

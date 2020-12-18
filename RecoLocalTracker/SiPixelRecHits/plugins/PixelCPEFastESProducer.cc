@@ -1,23 +1,20 @@
-#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEFast.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include <memory>
+#include <string>
+
+#include "CondFormats/DataRecord/interface/SiPixelGenErrorDBObjectRcd.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "RecoLocalTracker/Records/interface/TkPixelCPERecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
-
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ModuleFactory.h"
-#include "FWCore/Framework/interface/ESProducer.h"
-
-// new record
-#include "CondFormats/DataRecord/interface/SiPixelGenErrorDBObjectRcd.h"
-
-#include <string>
-#include <memory>
+#include "RecoLocalTracker/Records/interface/TkPixelCPERecord.h"
+#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEFast.h"
 
 class PixelCPEFastESProducer : public edm::ESProducer {
 public:
@@ -34,7 +31,7 @@ private:
   edm::ESGetToken<SiPixelGenErrorDBObject, SiPixelGenErrorDBObjectRcd> genErrorDBObjectToken_;
 
   edm::ParameterSet pset_;
-  bool UseErrorsFromTemplates_;
+  bool useErrorsFromTemplates_;
 };
 
 using namespace edm;
@@ -42,7 +39,7 @@ using namespace edm;
 PixelCPEFastESProducer::PixelCPEFastESProducer(const edm::ParameterSet& p) : pset_(p) {
   auto const& myname = p.getParameter<std::string>("ComponentName");
   auto const& magname = p.getParameter<edm::ESInputTag>("MagneticFieldRecord");
-  UseErrorsFromTemplates_ = p.getParameter<bool>("UseErrorsFromTemplates");
+  useErrorsFromTemplates_ = p.getParameter<bool>("UseErrorsFromTemplates");
 
   auto cc = setWhatProduced(this, myname);
   magfieldToken_ = cc.consumes(magname);
@@ -50,7 +47,7 @@ PixelCPEFastESProducer::PixelCPEFastESProducer(const edm::ParameterSet& p) : pse
   hTTToken_ = cc.consumes();
   lorentzAngleToken_ = cc.consumes(edm::ESInputTag(""));
   lorentzAngleWidthToken_ = cc.consumes(edm::ESInputTag("", "forWidth"));
-  if (UseErrorsFromTemplates_) {
+  if (useErrorsFromTemplates_) {
     genErrorDBObjectToken_ = cc.consumes();
   }
 }
@@ -63,7 +60,7 @@ std::unique_ptr<PixelClusterParameterEstimator> PixelCPEFastESProducer::produce(
   const SiPixelGenErrorDBObject* genErrorDBObjectProduct = nullptr;
 
   // Errors take only from new GenError
-  if (UseErrorsFromTemplates_) {  // do only when generrors are needed
+  if (useErrorsFromTemplates_) {  // do only when generrors are needed
     genErrorDBObjectProduct = &iRecord.get(genErrorDBObjectToken_);
     //} else {
     //std::cout<<" pass an empty GenError pointer"<<std::endl;
@@ -78,23 +75,23 @@ std::unique_ptr<PixelClusterParameterEstimator> PixelCPEFastESProducer::produce(
 }
 
 void PixelCPEFastESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // PixelCPEFastESProducer
   edm::ParameterSetDescription desc;
-  desc.add<bool>("DoLorentz", false);
-  desc.add<double>("lAWidthFPix", 0);
-  desc.add<bool>("useLAAlignmentOffsets", false);
-  desc.add<bool>("LoadTemplatesFromDB", true);
-  desc.add<bool>("UseErrorsFromTemplates", true);
+
+  // from PixelCPEBase
+  PixelCPEBase::fillPSetDescription(desc);
+
+  // used by PixelCPEFast
   desc.add<double>("EdgeClusterErrorX", 50.0);
-  desc.add<edm::ESInputTag>("MagneticFieldRecord", edm::ESInputTag());
-  desc.add<bool>("useLAWidthFromDB", true);
-  desc.add<bool>("TruncatePixelCharge", true);
-  desc.add<int>("ClusterProbComputationFlag", 0);
-  desc.add<double>("lAOffset", 0);
   desc.add<double>("EdgeClusterErrorY", 85.0);
+  desc.add<bool>("UseErrorsFromTemplates", true);
+  desc.add<bool>("TruncatePixelCharge", true);
+
+  // specific to PixelCPEFastESProducer
   desc.add<std::string>("ComponentName", "PixelCPEFast");
-  desc.add<double>("lAWidthBPix", 0);
-  desc.add<bool>("Alpha2Order", true);
+  desc.add<edm::ESInputTag>("MagneticFieldRecord", edm::ESInputTag());
+  desc.add<bool>("useLAAlignmentOffsets", false);
+  desc.add<bool>("DoLorentz", false);
+
   descriptions.add("PixelCPEFastESProducer", desc);
 }
 
