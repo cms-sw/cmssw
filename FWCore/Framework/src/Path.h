@@ -16,6 +16,7 @@
 #include "DataFormats/Common/interface/HLTenums.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/ServiceRegistry/interface/PathContext.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
@@ -36,7 +37,6 @@ namespace edm {
   class EarlyDeleteHelper;
   class StreamContext;
   class StreamID;
-  class WaitingTask;
 
   class Path {
   public:
@@ -61,14 +61,14 @@ namespace edm {
     Path& operator=(Path const&) = delete;
 
     template <typename T>
-    void runAllModulesAsync(WaitingTask*,
+    void runAllModulesAsync(WaitingTaskHolder,
                             typename T::TransitionInfoType const&,
                             ServiceToken const&,
                             StreamID const&,
                             typename T::Context const*);
 
     void processOneOccurrenceAsync(
-        WaitingTask*, EventTransitionInfo const&, ServiceToken const&, StreamID const&, StreamContext const*);
+        WaitingTaskHolder, EventTransitionInfo const&, ServiceToken const&, StreamID const&, StreamContext const*);
 
     int bitPosition() const { return bitpos_; }
     std::string const& name() const { return pathContext_.pathName(); }
@@ -183,7 +183,7 @@ namespace edm {
   }  // namespace
 
   template <typename T>
-  void Path::runAllModulesAsync(WaitingTask* task,
+  void Path::runAllModulesAsync(WaitingTaskHolder task,
                                 typename T::TransitionInfoType const& info,
                                 ServiceToken const& token,
                                 StreamID const& streamID,

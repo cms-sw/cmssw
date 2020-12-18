@@ -11,6 +11,7 @@
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/WorkerRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
@@ -59,7 +60,7 @@ namespace edm {
                               U const* context,
                               bool cleaningUpAfterException = false);
     template <typename T, typename U>
-    void processOneOccurrenceAsync(WaitingTask*,
+    void processOneOccurrenceAsync(WaitingTaskHolder,
                                    typename T::TransitionInfoType&,
                                    ServiceToken const&,
                                    StreamID,
@@ -67,7 +68,7 @@ namespace edm {
                                    U const* context);
 
     template <typename T>
-    void processAccumulatorsAsync(WaitingTask*,
+    void processAccumulatorsAsync(WaitingTaskHolder,
                                   typename T::TransitionInfoType const&,
                                   ServiceToken const&,
                                   StreamID,
@@ -116,8 +117,12 @@ namespace edm {
 
     auto waitTask = make_empty_waiting_task();
     waitTask->increment_ref_count();
-    processOneOccurrenceAsync<T, U>(
-        waitTask.get(), info, ServiceRegistry::instance().presentToken(), streamID, topContext, context);
+    processOneOccurrenceAsync<T, U>(WaitingTaskHolder(waitTask.get()),
+                                    info,
+                                    ServiceRegistry::instance().presentToken(),
+                                    streamID,
+                                    topContext,
+                                    context);
     waitTask->wait_for_all();
     if (waitTask->exceptionPtr() != nullptr) {
       try {
@@ -135,24 +140,24 @@ namespace edm {
   }
 
   template <typename T, typename U>
-  void WorkerManager::processOneOccurrenceAsync(WaitingTask* task,
+  void WorkerManager::processOneOccurrenceAsync(WaitingTaskHolder task,
                                                 typename T::TransitionInfoType& info,
                                                 ServiceToken const& token,
                                                 StreamID streamID,
                                                 typename T::Context const* topContext,
                                                 U const* context) {
     //make sure the unscheduled items see this run or lumi transition
-    unscheduled_.runNowAsync<T, U>(task, info, token, streamID, topContext, context);
+    unscheduled_.runNowAsync<T, U>(std::move(task), info, token, streamID, topContext, context);
   }
 
   template <typename T>
-  void WorkerManager::processAccumulatorsAsync(WaitingTask* task,
+  void WorkerManager::processAccumulatorsAsync(WaitingTaskHolder task,
                                                typename T::TransitionInfoType const& info,
                                                ServiceToken const& token,
                                                StreamID streamID,
                                                ParentContext const& parentContext,
                                                typename T::Context const* context) {
-    unscheduled_.runAccumulatorsAsync<T>(task, info, token, streamID, parentContext, context);
+    unscheduled_.runAccumulatorsAsync<T>(std::move(task), info, token, streamID, parentContext, context);
   }
 }  // namespace edm
 
