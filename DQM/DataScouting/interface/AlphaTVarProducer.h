@@ -8,7 +8,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/METReco/interface/CaloMETFwd.h"
 #include "TLorentzVector.h"
 
 #include <vector>
