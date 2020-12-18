@@ -14,11 +14,11 @@ namespace pixelCPEforGPU {
 
 class TrackingRecHit2DSOAView {
 public:
-  static constexpr uint32_t maxHits() { return gpuClustering::MaxNumClusters; }
+  static constexpr uint32_t maxHits() { return gpuClustering::maxNumClusters; }
   using hindex_type = uint32_t;  // if above is <=2^32
 
   using PhiBinner =
-      cms::cuda::HistoContainer<int16_t, 128, gpuClustering::MaxNumClusters, 8 * sizeof(int16_t), hindex_type, 10>;
+      cms::cuda::HistoContainer<int16_t, 128, gpuClustering::maxNumClusters, 8 * sizeof(int16_t), hindex_type, 10>;
 
   using Hist = PhiBinner;  // FIXME
 
@@ -89,7 +89,8 @@ private:
   uint16_t* m_detInd;
 
   // supporting objects
-  AverageGeometry* m_averageGeometry;  // owned (corrected for beam spot: not sure where to host it otherwise)
+  // m_averageGeometry is corrected for beam spot, not sure where to host it otherwise
+  AverageGeometry* m_averageGeometry;              // owned by TrackingRecHit2DHeterogeneous
   pixelCPEforGPU::ParamsOnGPU const* m_cpeParams;  // forwarded from setup, NOT owned
   uint32_t const* m_hitsModuleStart;               // forwarded from clusters
 

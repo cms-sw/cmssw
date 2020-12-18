@@ -128,7 +128,7 @@ namespace pixelCPEforGPU {
     if (0 == sizeM1)  // size 1
       return 0;
 
-    float W_eff = 0;
+    float w_eff = 0;
     bool simple = true;
     if (1 == sizeM1) {  // size 2
       //--- Width of the clusters minus the edge (first and last) pixels.
@@ -140,14 +140,15 @@ namespace pixelCPEforGPU {
       auto W_pred = theThickness * cot_angle  // geometric correction (in cm)
                     - lorentz_shift;          // (in cm) &&& check fpix!
 
-      W_eff = std::abs(W_pred) - W_inner;
+      w_eff = std::abs(W_pred) - W_inner;
 
       //--- If the observed charge width is inconsistent with the expectations
       //--- based on the track, do *not* use W_pred-W_inner.  Instead, replace
       //--- it with an *average* effective charge width, which is the average
       //--- length of the edge pixels.
-      simple =
-          (W_eff < 0.0f) | (W_eff > pitch);  // this produces "large" regressions for very small numeric differences...
+
+      // this can produce "large" regressions for very small numeric differences
+      simple = (w_eff < 0.0f) | (w_eff > pitch);
     }
 
     if (simple) {
@@ -157,7 +158,7 @@ namespace pixelCPEforGPU {
         sum_of_edge += 1.0f;
       if (last_is_big)
         sum_of_edge += 1.0f;
-      W_eff = pitch * 0.5f * sum_of_edge;  // ave. length of edge pixels (first+last) (cm)
+      w_eff = pitch * 0.5f * sum_of_edge;  // ave. length of edge pixels (first+last) (cm)
     }
 
     //--- Finally, compute the position in this projection
@@ -168,7 +169,7 @@ namespace pixelCPEforGPU {
     if (Qsum == 0)
       Qsum = 1.0f;
 
-    return 0.5f * (Qdiff / Qsum) * W_eff;
+    return 0.5f * (Qdiff / Qsum) * w_eff;
   }
 
   constexpr inline void position(CommonParams const& __restrict__ comParams,

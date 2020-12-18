@@ -4,7 +4,7 @@
 #include "CUDADataFormats/Common/interface/Product.h"
 #include "CUDADataFormats/SiPixelCluster/interface/SiPixelClustersCUDA.h"
 #include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigisCUDA.h"
-#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DCUDA.h"
+#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DHeterogeneous.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -21,7 +21,7 @@
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEFast.h"
 
-#include "PixelRecHits.h"  // TODO : spit product from kernel
+#include "PixelRecHitGPUKernel.h"
 
 class SiPixelRecHitCUDA : public edm::global::EDProducer<> {
 public:
@@ -53,7 +53,7 @@ void SiPixelRecHitCUDA::fillDescriptions(edm::ConfigurationDescriptions& descrip
   edm::ParameterSetDescription desc;
 
   desc.add<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpotCUDA"));
-  desc.add<edm::InputTag>("src", edm::InputTag("siPixelClustersCUDAPreSplitting"));
+  desc.add<edm::InputTag>("src", edm::InputTag("siPixelClustersPreSplittingCUDA"));
   desc.add<std::string>("CPE", "PixelCPEFast");
   descriptions.add("siPixelRecHitCUDA", desc);
 }

@@ -1,5 +1,5 @@
-#ifndef CondFormats_SiPixelObjects_SiPixelGainForHLTonGPU_h
-#define CondFormats_SiPixelObjects_SiPixelGainForHLTonGPU_h
+#ifndef CondFormats_SiPixelObjects_interface_SiPixelGainForHLTonGPU_h
+#define CondFormats_SiPixelObjects_interface_SiPixelGainForHLTonGPU_h
 
 #include <cstdint>
 #include <cstdio>
@@ -16,6 +16,7 @@
 #endif  // __device__
 #endif  // __CUDACC__
 
+#include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 
 struct SiPixelGainForHLTonGPU_DecodingStructure {
@@ -32,8 +33,8 @@ public:
 
   inline __host__ __device__ std::pair<float, float> getPedAndGain(
       uint32_t moduleInd, int col, int row, bool& isDeadColumn, bool& isNoisyColumn) const {
-    auto range = rangeAndCols[moduleInd].first;
-    auto nCols = rangeAndCols[moduleInd].second;
+    auto range = rangeAndCols_[moduleInd].first;
+    auto nCols = rangeAndCols_[moduleInd].second;
 
     // determine what averaged data block we are in (there should be 1 or 2 of these depending on if plaquette is 1 by X or 2 by X
     unsigned int lengthOfColumnData = (range.second - range.first) / nCols;
@@ -46,7 +47,7 @@ public:
     assert(offset < 3088384);
     assert(0 == offset % 2);
 
-    DecodingStructure const* __restrict__ lp = v_pedestals;
+    DecodingStructure const* __restrict__ lp = v_pedestals_;
     auto s = lp[offset / 2];
 
     isDeadColumn = (s.ped & 0xFF) == deadFlag_;
@@ -55,15 +56,14 @@ public:
     return std::make_pair(decodePed(s.ped & 0xFF), decodeGain(s.gain & 0xFF));
   }
 
-  constexpr float decodeGain(unsigned int gain) const { return gain * gainPrecision + minGain_; }
-  constexpr float decodePed(unsigned int ped) const { return ped * pedPrecision + minPed_; }
+  constexpr float decodeGain(unsigned int gain) const { return gain * gainPrecision_ + minGain_; }
+  constexpr float decodePed(unsigned int ped) const { return ped * pedPrecision_ + minPed_; }
 
-  DecodingStructure* v_pedestals;
-  std::pair<Range, int> rangeAndCols[2000];
+  DecodingStructure* v_pedestals_;
+  std::pair<Range, int> rangeAndCols_[gpuClustering::maxNumModules];
 
   float minPed_, maxPed_, minGain_, maxGain_;
-
-  float pedPrecision, gainPrecision;
+  float pedPrecision_, gainPrecision_;
 
   unsigned int numberOfRowsAveragedOver_;  // this is 80!!!!
   unsigned int nBinsToUseForEncoding_;
@@ -71,4 +71,4 @@ public:
   unsigned int noisyFlag_;
 };
 
-#endif  // CondFormats_SiPixelObjects_SiPixelGainForHLTonGPU_h
+#endif  // CondFormats_SiPixelObjects_interface_SiPixelGainForHLTonGPU_h

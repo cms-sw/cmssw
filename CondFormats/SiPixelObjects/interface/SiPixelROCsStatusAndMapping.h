@@ -16,7 +16,7 @@ struct SiPixelROCsStatusAndMapping {
   alignas(128) unsigned int fed[pixelgpudetails::MAX_SIZE];
   alignas(128) unsigned int link[pixelgpudetails::MAX_SIZE];
   alignas(128) unsigned int roc[pixelgpudetails::MAX_SIZE];
-  alignas(128) unsigned int RawId[pixelgpudetails::MAX_SIZE];
+  alignas(128) unsigned int rawId[pixelgpudetails::MAX_SIZE];
   alignas(128) unsigned int rocInDet[pixelgpudetails::MAX_SIZE];
   alignas(128) unsigned int moduleId[pixelgpudetails::MAX_SIZE];
   alignas(128) unsigned char badRocs[pixelgpudetails::MAX_SIZE];

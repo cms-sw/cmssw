@@ -60,4 +60,4 @@ private:
   uint32_t nClusters_h = 0;
 };
 
-#endif
+#endif  // CUDADataFormats_SiPixelCluster_interface_SiPixelClustersCUDA_h

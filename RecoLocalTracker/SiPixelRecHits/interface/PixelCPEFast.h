@@ -66,11 +66,10 @@ private:
                                    int &Q_l_Y,                     //!< output, Q last   in Y
                                    bool truncate);
 
-  bool UseErrorsFromTemplates_;
-  bool TruncatePixelCharge_;
-
-  float EdgeClusterErrorX_;
-  float EdgeClusterErrorY_;
+  const float edgeClusterErrorX_;
+  const float edgeClusterErrorY_;
+  const bool useErrorsFromTemplates_;
+  const bool truncatePixelCharge_;
 
   std::vector<float> xerr_barrel_l1_, yerr_barrel_l1_, xerr_barrel_ln_;
   std::vector<float> yerr_barrel_ln_, xerr_endcap_, yerr_endcap_;
@@ -80,20 +79,18 @@ private:
   //--- DB Error Parametrization object, new light templates
   std::vector<SiPixelGenErrorStore> thePixelGenError_;
 
-  // allocate it with posix malloc to be ocmpatible with cpu wf
+  // allocate this with posix malloc to be compatible with the cpu workflow
   std::vector<pixelCPEforGPU::DetParams> m_detParamsGPU;
-  // std::vector<pixelCPEforGPU::DetParams, cms::cuda::HostAllocator<pixelCPEforGPU::DetParams>> m_detParamsGPU;
   pixelCPEforGPU::CommonParams m_commonParamsGPU;
   pixelCPEforGPU::LayerGeometry m_layerGeometry;
   pixelCPEforGPU::AverageGeometry m_averageGeometry;
-
   pixelCPEforGPU::ParamsOnGPU cpuData_;
 
   struct GPUData {
     ~GPUData();
     // not needed if not used on CPU...
-    pixelCPEforGPU::ParamsOnGPU h_paramsOnGPU;
-    pixelCPEforGPU::ParamsOnGPU *d_paramsOnGPU = nullptr;  // copy of the above on the Device
+    pixelCPEforGPU::ParamsOnGPU paramsOnGPU_h;
+    pixelCPEforGPU::ParamsOnGPU *paramsOnGPU_d = nullptr;  // copy of the above on the Device
   };
   cms::cuda::ESProduct<GPUData> gpuData_;
 

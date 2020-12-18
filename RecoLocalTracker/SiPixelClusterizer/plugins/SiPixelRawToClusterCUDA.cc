@@ -184,7 +184,7 @@ void SiPixelRawToClusterCUDA::acquire(const edm::Event& iEvent,
     // for GPU
     // first 150 index stores the fedId and next 150 will store the
     // start index of word in that fed
-    assert(fedId >= 1200);
+    assert(fedId >= FEDNumbering::MINSiPixeluTCAFEDID);
     fedCounter++;
 
     // get event data for this fed

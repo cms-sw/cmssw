@@ -1,6 +1,3 @@
-#include <iostream>
-
-#include <cuda.h>
 #include <cuda_runtime.h>
 
 #include "CondFormats/SiPixelTransient/interface/SiPixelTemplate.h"
@@ -30,15 +27,13 @@ PixelCPEFast::PixelCPEFast(edm::ParameterSet const& conf,
                            const SiPixelLorentzAngle* lorentzAngle,
                            const SiPixelGenErrorDBObject* genErrorDBObject,
                            const SiPixelLorentzAngle* lorentzAngleWidth)
-    : PixelCPEBase(conf, mag, geom, ttopo, lorentzAngle, genErrorDBObject, nullptr, lorentzAngleWidth, 0) {
-  EdgeClusterErrorX_ = conf.getParameter<double>("EdgeClusterErrorX");
-  EdgeClusterErrorY_ = conf.getParameter<double>("EdgeClusterErrorY");
-
-  UseErrorsFromTemplates_ = conf.getParameter<bool>("UseErrorsFromTemplates");
-  TruncatePixelCharge_ = conf.getParameter<bool>("TruncatePixelCharge");
-
+    : PixelCPEBase(conf, mag, geom, ttopo, lorentzAngle, genErrorDBObject, nullptr, lorentzAngleWidth, 0),
+      edgeClusterErrorX_(conf.getParameter<double>("EdgeClusterErrorX")),
+      edgeClusterErrorY_(conf.getParameter<double>("EdgeClusterErrorY")),
+      useErrorsFromTemplates_(conf.getParameter<bool>("UseErrorsFromTemplates")),
+      truncatePixelCharge_(conf.getParameter<bool>("TruncatePixelCharge")) {
   // Use errors from templates or from GenError
-  if (UseErrorsFromTemplates_) {
+  if (useErrorsFromTemplates_) {
     if (!SiPixelGenError::pushfile(*genErrorDBObject_, thePixelGenError_))
       throw cms::Exception("InvalidCalibrationLoaded")
           << "ERROR: GenErrors not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject version "
@@ -46,7 +41,7 @@ PixelCPEFast::PixelCPEFast(edm::ParameterSet const& conf,
   }
 
   // Rechit errors in case other, more correct, errors are not vailable
-  // This are constants. Maybe there is a more efficienct way to store them.
+  // These are constants. Maybe there is a more efficienct way to store them.
   xerr_barrel_l1_ = {0.00115, 0.00120, 0.00088};
   xerr_barrel_l1_def_ = 0.01030;
   yerr_barrel_l1_ = {0.00375, 0.00230, 0.00250, 0.00250, 0.00230, 0.00230, 0.00210, 0.00210, 0.00240};
@@ -73,37 +68,37 @@ PixelCPEFast::PixelCPEFast(edm::ParameterSet const& conf,
 const pixelCPEforGPU::ParamsOnGPU* PixelCPEFast::getGPUProductAsync(cudaStream_t cudaStream) const {
   const auto& data = gpuData_.dataForCurrentDeviceAsync(cudaStream, [this](GPUData& data, cudaStream_t stream) {
     // and now copy to device...
-    cudaCheck(cudaMalloc((void**)&data.h_paramsOnGPU.m_commonParams, sizeof(pixelCPEforGPU::CommonParams)));
-    cudaCheck(cudaMalloc((void**)&data.h_paramsOnGPU.m_detParams,
+    cudaCheck(cudaMalloc((void**)&data.paramsOnGPU_h.m_commonParams, sizeof(pixelCPEforGPU::CommonParams)));
+    cudaCheck(cudaMalloc((void**)&data.paramsOnGPU_h.m_detParams,
                          this->m_detParamsGPU.size() * sizeof(pixelCPEforGPU::DetParams)));
-    cudaCheck(cudaMalloc((void**)&data.h_paramsOnGPU.m_averageGeometry, sizeof(pixelCPEforGPU::AverageGeometry)));
-    cudaCheck(cudaMalloc((void**)&data.h_paramsOnGPU.m_layerGeometry, sizeof(pixelCPEforGPU::LayerGeometry)));
-    cudaCheck(cudaMalloc((void**)&data.d_paramsOnGPU, sizeof(pixelCPEforGPU::ParamsOnGPU)));
+    cudaCheck(cudaMalloc((void**)&data.paramsOnGPU_h.m_averageGeometry, sizeof(pixelCPEforGPU::AverageGeometry)));
+    cudaCheck(cudaMalloc((void**)&data.paramsOnGPU_h.m_layerGeometry, sizeof(pixelCPEforGPU::LayerGeometry)));
+    cudaCheck(cudaMalloc((void**)&data.paramsOnGPU_d, sizeof(pixelCPEforGPU::ParamsOnGPU)));
 
     cudaCheck(cudaMemcpyAsync(
-        data.d_paramsOnGPU, &data.h_paramsOnGPU, sizeof(pixelCPEforGPU::ParamsOnGPU), cudaMemcpyDefault, stream));
-    cudaCheck(cudaMemcpyAsync((void*)data.h_paramsOnGPU.m_commonParams,
+        data.paramsOnGPU_d, &data.paramsOnGPU_h, sizeof(pixelCPEforGPU::ParamsOnGPU), cudaMemcpyDefault, stream));
+    cudaCheck(cudaMemcpyAsync((void*)data.paramsOnGPU_h.m_commonParams,
                               &this->m_commonParamsGPU,
                               sizeof(pixelCPEforGPU::CommonParams),
                               cudaMemcpyDefault,
                               stream));
-    cudaCheck(cudaMemcpyAsync((void*)data.h_paramsOnGPU.m_averageGeometry,
+    cudaCheck(cudaMemcpyAsync((void*)data.paramsOnGPU_h.m_averageGeometry,
                               &this->m_averageGeometry,
                               sizeof(pixelCPEforGPU::AverageGeometry),
                               cudaMemcpyDefault,
                               stream));
-    cudaCheck(cudaMemcpyAsync((void*)data.h_paramsOnGPU.m_layerGeometry,
+    cudaCheck(cudaMemcpyAsync((void*)data.paramsOnGPU_h.m_layerGeometry,
                               &this->m_layerGeometry,
                               sizeof(pixelCPEforGPU::LayerGeometry),
                               cudaMemcpyDefault,
                               stream));
-    cudaCheck(cudaMemcpyAsync((void*)data.h_paramsOnGPU.m_detParams,
+    cudaCheck(cudaMemcpyAsync((void*)data.paramsOnGPU_h.m_detParams,
                               this->m_detParamsGPU.data(),
                               this->m_detParamsGPU.size() * sizeof(pixelCPEforGPU::DetParams),
                               cudaMemcpyDefault,
                               stream));
   });
-  return data.d_paramsOnGPU;
+  return data.paramsOnGPU_d;
 }
 
 void PixelCPEFast::fillParamsForGpu() {
@@ -112,7 +107,8 @@ void PixelCPEFast::fillParamsForGpu() {
   m_commonParamsGPU.thePitchX = m_DetParams[0].thePitchX;
   m_commonParamsGPU.thePitchY = m_DetParams[0].thePitchY;
 
-  // std::cout << "pitch & thickness " <<  m_commonParamsGPU.thePitchX << ' ' << m_commonParamsGPU.thePitchY << "  " << m_commonParamsGPU.theThicknessB << ' ' << m_commonParamsGPU.theThicknessE << std::endl;
+  LogDebug("PixelCPEFast") << "pitch & thickness " << m_commonParamsGPU.thePitchX << ' ' << m_commonParamsGPU.thePitchY
+                           << "  " << m_commonParamsGPU.theThicknessB << ' ' << m_commonParamsGPU.theThicknessE;
 
   // zero average geometry
   memset(&m_averageGeometry, 0, sizeof(pixelCPEforGPU::AverageGeometry));
@@ -132,30 +128,28 @@ void PixelCPEFast::fillParamsForGpu() {
     assert(p.theDet->index() == int(i));
     assert(m_commonParamsGPU.thePitchY == p.thePitchY);
     assert(m_commonParamsGPU.thePitchX == p.thePitchX);
-    //assert(m_commonParamsGPU.theThickness==p.theThickness);
 
     g.isBarrel = GeomDetEnumerators::isBarrel(p.thePart);
     g.isPosZ = p.theDet->surface().position().z() > 0;
     g.layer = ttopo_.layer(p.theDet->geographicalId());
     g.index = i;  // better be!
     g.rawId = p.theDet->geographicalId();
-
     assert((g.isBarrel ? m_commonParamsGPU.theThicknessB : m_commonParamsGPU.theThicknessE) == p.theThickness);
-
-    //if (m_commonParamsGPU.theThickness!=p.theThickness)
-    //  std::cout << i << (g.isBarrel ? "B " : "E ") << m_commonParamsGPU.theThickness<<"!="<<p.theThickness << std::endl;
 
     auto ladder = ttopo_.pxbLadder(p.theDet->geographicalId());
     if (oldLayer != g.layer) {
       oldLayer = g.layer;
-      // std::cout << "new layer at " << i << (g.isBarrel ? " B  " :  (g.isPosZ ? " E+ " : " E- ")) << g.layer << " starting at " << g.rawId << std::endl;
-      // std::cout << "old layer had " << nl << " ladders" << std::endl;
+      LogDebug("PixelCPEFast") << "new layer at " << i << (g.isBarrel ? " B  " : (g.isPosZ ? " E+ " : " E- "))
+                               << g.layer << " starting at " << g.rawId << '\n'
+                               << "old layer had " << nl << " ladders";
       nl = 0;
     }
     if (oldLadder != ladder) {
       oldLadder = ladder;
-      // std::cout << "new ladder at " << i << (g.isBarrel ? " B  " :  (g.isPosZ ? " E+ " : " E- ")) << ladder << " starting at " << g.rawId << std::endl;
-      // std::cout << "old ladder ave z,r,p mz " << zl/8.f << " " << rl/8.f << " " << pl/8.f  << ' ' << miz << ' ' << mxz << std::endl;
+      LogDebug("PixelCPEFast") << "new ladder at " << i << (g.isBarrel ? " B  " : (g.isPosZ ? " E+ " : " E- "))
+                               << ladder << " starting at " << g.rawId << '\n'
+                               << "old ladder ave z,r,p mz " << zl / 8.f << " " << rl / 8.f << " " << pl / 8.f << ' '
+                               << miz << ' ' << mxz;
       rl = 0;
       zl = 0;
       pl = 0;
@@ -200,16 +194,15 @@ void PixelCPEFast::fillParamsForGpu() {
     if (lape.invalid())
       lape = LocalError();  // zero....
 
-#ifdef DUMP_ERRORS
+#ifdef EDM_ML_DEBUG
     auto m = 10000.f;
     for (float qclus = 15000; qclus < 35000; qclus += 15000) {
       errorFromTemplates(p, cp, qclus);
-
-      std::cout << i << ' ' << qclus << ' ' << cp.pixmx << ' ' << m * cp.sigmax << ' ' << m * cp.sx1 << ' '
-                << m * cp.sx2 << ' ' << m * cp.sigmay << ' ' << m * cp.sy1 << ' ' << m * cp.sy2 << std::endl;
+      LogDebug("PixelCPEFast") << i << ' ' << qclus << ' ' << cp.pixmx << ' ' << m * cp.sigmax << ' ' << m * cp.sx1
+                               << ' ' << m * cp.sx2 << ' ' << m * cp.sigmay << ' ' << m * cp.sy1 << ' ' << m * cp.sy2;
     }
-    std::cout << i << ' ' << m * std::sqrt(lape.xx()) << ' ' << m * std::sqrt(lape.yy()) << std::endl;
-#endif
+    LogDebug("PixelCPEFast") << i << ' ' << m * std::sqrt(lape.xx()) << ' ' << m * std::sqrt(lape.yy());
+#endif  // EDM_ML_DEBUG
 
     errorFromTemplates(p, cp, 20000.f);
     g.pixmx = std::max(0, cp.pixmx);
@@ -220,35 +213,6 @@ void PixelCPEFast::fillParamsForGpu() {
     g.sy[0] = cp.sigmay;
     g.sy[1] = cp.sy1;
     g.sy[2] = cp.sy2;
-
-    /*
-    // from run1??
-    if (i<96) {
-      g.sx[0] = 0.00120;
-      g.sx[1] = 0.00115;
-      g.sx[2] = 0.0050;
-
-      g.sy[0] = 0.00210;
-      g.sy[1] = 0.00375;
-      g.sy[2] = 0.0085;
-    } else if (g.isBarrel) {
-      g.sx[0] = 0.00120;
-      g.sx[1] = 0.00115;
-      g.sx[2] = 0.0050;
-
-      g.sy[0] = 0.00210;
-      g.sy[1] = 0.00375;
-      g.sy[2] = 0.0085;
-   } else {
-      g.sx[0] = 0.0020;
-      g.sx[1] = 0.0020;
-      g.sx[2] = 0.0050;
-
-      g.sy[0] = 0.0021;
-      g.sy[1] = 0.0021;
-      g.sy[2] = 0.0085;
-   }
-   */
 
     for (int i = 0; i < 3; ++i) {
       g.sx[i] = std::sqrt(g.sx[i] * g.sx[i] + lape.xx());
@@ -269,7 +233,7 @@ void PixelCPEFast::fillParamsForGpu() {
     aveGeom.ladderMaxZ[il] = std::max(aveGeom.ladderMaxZ[il], z);
     aveGeom.ladderX[il] += 0.125f * g.frame.x();
     aveGeom.ladderY[il] += 0.125f * g.frame.y();
-    aveGeom.ladderR[il] += 0.125 * sqrt(g.frame.x() * g.frame.x() + g.frame.y() * g.frame.y());
+    aveGeom.ladderR[il] += 0.125f * sqrt(g.frame.x() * g.frame.x() + g.frame.y() * g.frame.y());
   }
   assert(il + 1 == int(phase1PixelTopology::numberOfLaddersInBarrel));
   // add half_module and tollerance
@@ -293,13 +257,16 @@ void PixelCPEFast::fillParamsForGpu() {
   aveGeom.endCapZ[0] -= 1.5f;
   aveGeom.endCapZ[1] += 1.5f;
 
-  /*
-  for (int jl=0, nl=phase1PixelTopology::numberOfLaddersInBarrel; jl<nl; ++jl) {
-    std::cout << jl<<':'<<aveGeom.ladderR[jl] << '/'<< std::sqrt(aveGeom.ladderX[jl]*aveGeom.ladderX[jl]+aveGeom.ladderY[jl]*aveGeom.ladderY[jl]) 
-                   <<','<<aveGeom.ladderZ[jl]<<','<<aveGeom.ladderMinZ[jl]<<','<<aveGeom.ladderMaxZ[jl]<< ' ';
-  } std::cout<< std::endl;
-  std::cout << aveGeom.endCapZ[0] << ' ' << aveGeom.endCapZ[1] << std::endl;
-  */
+#ifdef EDM_ML_DEBUG
+  for (int jl = 0, nl = phase1PixelTopology::numberOfLaddersInBarrel; jl < nl; ++jl) {
+    LogDebug("PixelCPEFast") << jl << ':' << aveGeom.ladderR[jl] << '/'
+                             << std::sqrt(aveGeom.ladderX[jl] * aveGeom.ladderX[jl] +
+                                          aveGeom.ladderY[jl] * aveGeom.ladderY[jl])
+                             << ',' << aveGeom.ladderZ[jl] << ',' << aveGeom.ladderMinZ[jl] << ','
+                             << aveGeom.ladderMaxZ[jl] << '\n';
+  }
+  LogDebug("PixelCPEFast") << aveGeom.endCapZ[0] << ' ' << aveGeom.endCapZ[1];
+#endif  // EDM_ML_DEBUG
 
   // fill Layer and ladders geometry
   memcpy(m_layerGeometry.layerStart, phase1PixelTopology::layerStart, sizeof(phase1PixelTopology::layerStart));
@@ -307,12 +274,12 @@ void PixelCPEFast::fillParamsForGpu() {
 }
 
 PixelCPEFast::GPUData::~GPUData() {
-  if (d_paramsOnGPU != nullptr) {
-    cudaFree((void*)h_paramsOnGPU.m_commonParams);
-    cudaFree((void*)h_paramsOnGPU.m_detParams);
-    cudaFree((void*)h_paramsOnGPU.m_averageGeometry);
-    cudaFree((void*)h_paramsOnGPU.m_layerGeometry);
-    cudaFree(d_paramsOnGPU);
+  if (paramsOnGPU_d != nullptr) {
+    cudaFree((void*)paramsOnGPU_h.m_commonParams);
+    cudaFree((void*)paramsOnGPU_h.m_detParams);
+    cudaFree((void*)paramsOnGPU_h.m_averageGeometry);
+    cudaFree((void*)paramsOnGPU_h.m_layerGeometry);
+    cudaFree(paramsOnGPU_d);
   }
 }
 
@@ -325,7 +292,7 @@ void PixelCPEFast::errorFromTemplates(DetParam const& theDetParam,
                                       float qclus) const {
   float locBz = theDetParam.bz;
   float locBx = theDetParam.bx;
-  //cout << "PixelCPEFast::localPosition(...) : locBz = " << locBz << endl;
+  LogDebug("PixelCPEFast") << "PixelCPEFast::localPosition(...) : locBz = " << locBz;
 
   theClusterParam.pixmx = std::numeric_limits<int>::max();  // max pixel charge for truncation of 2-D cluster
 
@@ -339,9 +306,9 @@ void PixelCPEFast::errorFromTemplates(DetParam const& theDetParam,
   float dummy;
 
   SiPixelGenError gtempl(thePixelGenError_);
-  int gtemplID_ = theDetParam.detTemplateId;
+  int gtemplID = theDetParam.detTemplateId;
 
-  theClusterParam.qBin_ = gtempl.qbin(gtemplID_,
+  theClusterParam.qBin_ = gtempl.qbin(gtemplID,
                                       theClusterParam.cotalpha,
                                       theClusterParam.cotbeta,
                                       locBz,
@@ -381,7 +348,7 @@ LocalPoint PixelCPEFast::localPosition(DetParam const& theDetParam, ClusterParam
 
   assert(!theClusterParam.with_track_angle);
 
-  if (UseErrorsFromTemplates_) {
+  if (useErrorsFromTemplates_) {
     errorFromTemplates(theDetParam, theClusterParam, theClusterParam.theCluster->charge());
   } else {
     theClusterParam.qBin_ = 0;
@@ -391,7 +358,7 @@ LocalPoint PixelCPEFast::localPosition(DetParam const& theDetParam, ClusterParam
   int Q_l_X;  //!< Q of the last   pixel  in X
   int Q_f_Y;  //!< Q of the first  pixel  in Y
   int Q_l_Y;  //!< Q of the last   pixel  in Y
-  collect_edge_charges(theClusterParam, Q_f_X, Q_l_X, Q_f_Y, Q_l_Y, UseErrorsFromTemplates_ && TruncatePixelCharge_);
+  collect_edge_charges(theClusterParam, Q_f_X, Q_l_X, Q_f_Y, Q_l_Y, useErrorsFromTemplates_ && truncatePixelCharge_);
 
   // do GPU like ...
   pixelCPEforGPU::ClusParams cp;
@@ -411,8 +378,8 @@ LocalPoint PixelCPEFast::localPosition(DetParam const& theDetParam, ClusterParam
   auto xPos = cp.xpos[0];
   auto yPos = cp.ypos[0];
 
-  //  std::cout<<" in PixelCPEFast:localPosition - pos = "<<xPos<<" "<<yPos
-  //           << " size "<< cp.maxRow[0]-cp.minRow[0] << ' ' << cp.maxCol[0]-cp.minCol[0] << std::endl; //dk
+  LogDebug("PixelCPEFast") << " in PixelCPEFast:localPosition - pos = " << xPos << " " << yPos << " size "
+                           << cp.maxRow[0] - cp.minRow[0] << ' ' << cp.maxCol[0] - cp.minCol[0];
 
   //--- Now put the two together
   LocalPoint pos_in_local(xPos, yPos);
@@ -476,8 +443,8 @@ LocalError PixelCPEFast::localError(DetParam const& theDetParam, ClusterParam& t
 
   // Default errors are the maximum error used for edge clusters.
   // These are determined by looking at residuals for edge clusters
-  float xerr = EdgeClusterErrorX_ * micronsToCm;
-  float yerr = EdgeClusterErrorY_ * micronsToCm;
+  float xerr = edgeClusterErrorX_ * micronsToCm;
+  float yerr = edgeClusterErrorY_ * micronsToCm;
 
   // Find if cluster is at the module edge.
   int maxPixelCol = theClusterParam.theCluster->maxPixelCol();
@@ -495,7 +462,7 @@ LocalError PixelCPEFast::localError(DetParam const& theDetParam, ClusterParam& t
   bool bigInX = theDetParam.theRecTopol->containsBigPixelInX(minPixelRow, maxPixelRow);
   bool bigInY = theDetParam.theRecTopol->containsBigPixelInY(minPixelCol, maxPixelCol);
 
-  if (UseErrorsFromTemplates_) {
+  if (useErrorsFromTemplates_) {
     //
     // Use template errors
 
@@ -526,8 +493,8 @@ LocalError PixelCPEFast::localError(DetParam const& theDetParam, ClusterParam& t
   } else {  // simple errors
 
     // This are the simple errors, hardcoded in the code
-    //cout << "Track angles are not known " << endl;
-    //cout << "Default angle estimation which assumes track from PV (0,0,0) does not work." << endl;
+    LogDebug("PixelCPEFast") << "Track angles are not known.\n"
+                             << "Default angle estimation which assumes track from PV (0,0,0) does not work.";
 
     if (GeomDetEnumerators::isTrackerPixel(theDetParam.thePart)) {
       if (GeomDetEnumerators::isBarrel(theDetParam.thePart)) {
@@ -583,7 +550,7 @@ LocalError PixelCPEFast::localError(DetParam const& theDetParam, ClusterParam& t
 
   }  // end
 
-  //   std::cout<<" errors  "<<xerr<<" "<<yerr<<std::endl;  //dk
+  LogDebug("PixelCPEFast") << " errors  " << xerr << " " << yerr;
 
   auto xerr_sq = xerr * xerr;
   auto yerr_sq = yerr * yerr;
