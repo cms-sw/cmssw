@@ -1,8 +1,6 @@
 #ifndef SimG4Core_TrackingAction_H
 #define SimG4Core_TrackingAction_H
 
-#include <set>
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimG4Core/Notification/interface/SimActivityRegistry.h"
 #include "SimG4Core/Notification/interface/TrackInformationExtractor.h"

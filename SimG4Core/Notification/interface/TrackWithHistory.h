@@ -2,10 +2,8 @@
 #define SimG4Core_TrackWithHistory_H
 
 #include "G4Track.hh"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4Allocator.hh"
 
@@ -55,8 +53,8 @@ public:
     momentumAtBoundary_ = momentum;
   }
   bool crossedBoundary() const { return crossedBoundary_; }
-  const math::XYZTLorentzVectorF getPositionAtBoundary() const { return positionAtBoundary_; }
-  const math::XYZTLorentzVectorF getMomentumAtBoundary() const { return momentumAtBoundary_; }
+  const math::XYZTLorentzVectorF& getPositionAtBoundary() const { return positionAtBoundary_; }
+  const math::XYZTLorentzVectorF& getMomentumAtBoundary() const { return momentumAtBoundary_; }
   int getIDAtBoundary() const { return idAtBoundary_; }
   /** Internal consistency check (optional).
      *  Method called at PostUserTrackingAction time, to check
