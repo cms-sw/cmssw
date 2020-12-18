@@ -53,8 +53,8 @@ public:
     momentumAtBoundary_ = momentum;
   }
   bool crossedBoundary() const { return crossedBoundary_; }
-  const math::XYZTLorentzVectorF& getPositionAtBoundary() const { return positionAtBoundary_; }
-  const math::XYZTLorentzVectorF& getMomentumAtBoundary() const { return momentumAtBoundary_; }
+  const math::XYZTLorentzVectorF &getPositionAtBoundary() const { return positionAtBoundary_; }
+  const math::XYZTLorentzVectorF &getMomentumAtBoundary() const { return momentumAtBoundary_; }
   int getIDAtBoundary() const { return idAtBoundary_; }
   /** Internal consistency check (optional).
      *  Method called at PostUserTrackingAction time, to check

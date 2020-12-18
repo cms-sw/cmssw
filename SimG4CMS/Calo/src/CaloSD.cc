@@ -912,12 +912,8 @@ bool CaloSD::saveHit(CaloG4Hit* aHit) {
       throw cms::Exception("Unknown", "CaloSD") << "m_trackManager not set, saveHit ok=false!";
     }
     // Take the aHit-information and move it to the actual PCaloHitContainer
-    slave.get()->processHits(aHit->getUnitID(),
-                             aHit->getEM() / CLHEP::GeV,
-                             aHit->getHadr() / CLHEP::GeV,
-                             time,
-                             tkID,
-                             aHit->getDepth());
+    slave.get()->processHits(
+        aHit->getUnitID(), aHit->getEM() / CLHEP::GeV, aHit->getHadr() / CLHEP::GeV, time, tkID, aHit->getDepth());
   }
   // Regular, not-fine way:
   else {
