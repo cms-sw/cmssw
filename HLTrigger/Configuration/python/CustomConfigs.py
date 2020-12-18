@@ -22,10 +22,10 @@ def Base(process):
     process.options.numberOfStreams = cms.untracked.uint32( 0 )
     process.options.sizeOfStackForThreadsInKB = cms.untracked.uint32( 10*1024 )
 
-    process.MessageLogger.TriggerSummaryProducerAOD=dict()
-    process.MessageLogger.L1GtTrigReport=dict()
-    process.MessageLogger.L1TGlobalSummary=dict()
-    process.MessageLogger.HLTrigReport=dict()
+    process.MessageLogger.TriggerSummaryProducerAOD=cms.untracked.PSet()
+    process.MessageLogger.L1GtTrigReport=cms.untracked.PSet()
+    process.MessageLogger.L1TGlobalSummary=cms.untracked.PSet()
+    process.MessageLogger.HLTrigReport=cms.untracked.PSet()
 
 # No longer override - instead use GT config as provided via cmsDriver
 ## override the GlobalTag, connection string and pfnPrefix
