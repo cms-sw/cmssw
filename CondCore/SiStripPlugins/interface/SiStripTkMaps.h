@@ -10,6 +10,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // ROOT includes
+#include "TArrow.h"
 #include "TPaletteAxis.h"
 #include "TGaxis.h"
 #include "TCanvas.h"
@@ -115,8 +116,6 @@ public:
     static constexpr int wH_ = 3000;
     static constexpr int hH_ = 850;
     if (canv.GetWindowHeight() != hH_ && canv.GetWindowWidth() != wH_) {
-      std::cout << "resetting the window size!"
-                << "height is:  " << canv.GetWindowHeight() << "width  is:  " << canv.GetWindowWidth() << std::endl;
       canv.SetWindowSize(wH_, hH_);
     }
 
@@ -173,6 +172,87 @@ public:
     ltx.SetTextSize(0.045);
     ltx.SetTextAlign(11);
     ltx.DrawLatexNDC(gPad->GetLeftMargin(), 1 - gPad->GetTopMargin() + 0.03, m_mapTitle.c_str());
+
+    // barrel axes
+    float phiX1 = 0.09;
+    float phiX2 = 0.23;
+    float phiY1 = 0.24;
+    float phiY2 = phiY1;
+    auto arrowPhi = TArrow();
+    arrowPhi.SetLineColor(kBlue);
+    arrowPhi.SetLineWidth(2);
+    arrowPhi.SetOption("|>");
+    arrowPhi.SetArrowSize(10);
+    arrowPhi.DrawLineNDC(phiX1, phiY1, phiX2, phiY2);
+    //arrowPhi.SetNDC(kTRUE);
+    //arrowPhi.DrawArrow(0.09,0.25,0.23,0.25,0.1,"|>");
+
+    float zX1 = phiX2;
+    float zX2 = zX1;
+    float zY1 = phiY1;
+    float zY2 = 0.45;
+    auto arrowZ = TArrow();
+    arrowZ.SetLineColor(kBlue);
+    arrowZ.SetLineWidth(2);
+    arrowZ.SetOption("|>");
+    arrowZ.SetArrowSize(10);
+    arrowZ.DrawLineNDC(zX1, zY1, zX2, zY2);
+    //arrowZ.SetNDC(kTRUE);
+    //arrowZ.DrawArrow(0.09,0.25,0.09,0.45,0.1,"|>");
+
+    auto textPhi = TLatex();
+    textPhi.SetTextSize(0.04);
+    textPhi.SetTextAlign(11);
+    textPhi.SetTextColor(kBlue);
+    textPhi.DrawLatexNDC(phiX1 - 0.01, phiY1 + 0.01, "#phi");
+
+    auto textZ = TLatex();
+    textZ.SetTextSize(0.04);
+    textZ.SetTextAlign(11);
+    textZ.SetTextColor(kBlue);
+    textZ.DrawLatexNDC(zX1 + 0.005, zY2, "z");
+
+    // endcap axes
+    float xX1 = 0.85;
+    float xX2 = 0.89;
+    float xY1 = 0.83;
+    float xY2 = xY1;
+    auto arrowX = TArrow();
+    arrowX.SetLineColor(kBlue);
+    arrowX.SetLineWidth(2);
+    arrowX.SetOption("|>");
+    arrowX.SetArrowSize(10);
+    arrowX.DrawLineNDC(xX1, xY1, xX2, xY2);
+    //arrowX.SetNDC(kTRUE);
+    //arrowX.DrawArrow(0.09,0.25,0.23,0.25,0.1,"|>");
+
+    float yX1 = xX2;
+    float yX2 = yX1;
+    float yY1 = xY1;
+    float yY2 = 0.95;
+    auto arrowY = TArrow();
+    arrowY.SetLineColor(kBlue);
+    arrowY.SetLineWidth(2);
+    arrowY.SetOption("|>");
+    arrowY.SetArrowSize(10);
+    arrowY.DrawLineNDC(yX1, yY1, yX2, yY2);
+    //arrowY.SetNDC(kTRUE);
+    //arrowY.DrawArrow(0.09,0.25,0.09,0.45,0.1,"|>");
+
+    auto textX = TLatex();
+    textX.SetTextSize(0.04);
+    textX.SetTextAlign(11);
+    textX.SetTextColor(kBlue);
+    textX.DrawLatexNDC(xX1, xY1 - 0.03, "x");
+
+    auto textY = TLatex();
+    textY.SetTextSize(0.04);
+    textY.SetTextAlign(11);
+    textY.SetTextColor(kBlue);
+    textY.DrawLatexNDC(yX1 - 0.01, yY2, "y");
+
+    canv.Modified();
+    canv.Update();  // make sure it's really (re)drawn
   }
 
   //============================================================================
