@@ -5,6 +5,7 @@
   <use name="boost"/>
   <use name="root"/>
   <use name="DataFormats/Common"/>
+  <use name="DataFormats/CaloTowers"/>
   <use name="DataFormats/HcalDetId"/>
   <flags EDM_PLUGIN="1"/>
 </library>
