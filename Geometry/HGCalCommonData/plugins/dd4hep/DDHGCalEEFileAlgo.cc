@@ -114,7 +114,10 @@ struct HGCalEEFileAlgo {
       edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << waferIndex_[k] << " ("
                                     << HGCalWaferIndex::waferLayer(waferIndex_[k]) << ", "
                                     << HGCalWaferIndex::waferU(waferIndex_[k]) << ", "
-                                    << HGCalWaferIndex::waferV(waferIndex_[k]) << ") : (" << HGCalProperty::waferThick(waferProperty_[k]) << ":" << HGCalProperty::waferPartial(waferProperty_[k]) << ":" << HGCalProperty::waferOrient(waferProperty_[k]) << ")";
+                                    << HGCalWaferIndex::waferV(waferIndex_[k]) << ") : ("
+                                    << HGCalProperty::waferThick(waferProperty_[k]) << ":"
+                                    << HGCalProperty::waferPartial(waferProperty_[k]) << ":"
+                                    << HGCalProperty::waferOrient(waferProperty_[k]) << ")";
 #endif
     slopeB_ = args.value<std::vector<double>>("SlopeBottom");
     zFrontB_ = args.value<std::vector<double>>("ZFrontBottom");

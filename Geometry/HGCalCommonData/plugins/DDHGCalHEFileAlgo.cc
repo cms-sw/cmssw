@@ -89,20 +89,20 @@ private:
   std::vector<int> layerSenseBot_;         // Content of bottom layer (sensitive?)
   std::vector<int> layerCenter_;           // Centering of the wafers
 
-  double zMinBlock_;                 // Starting z-value of the block
-  std::vector<int> waferIndex_;      // Wafer index for the types
-  std::vector<int> waferProperty_;   // Wafer property
-  double waferSize_;                 // Width of the wafer
-  double waferSepar_;                // Sensor separation
-  int sectors_;                      // Sectors
-  std::vector<double> slopeB_;       // Slope at the lower R
-  std::vector<double> zFrontB_;      // Starting Z values for the slopes
-  std::vector<double> rMinFront_;    // Corresponding rMin's
-  std::vector<double> slopeT_;       // Slopes at the larger R
-  std::vector<double> zFrontT_;      // Starting Z values for the slopes
-  std::vector<double> rMaxFront_;    // Corresponding rMax's
-  std::string nameSpace_;            // Namespace of this and ALL sub-parts
-  std::unordered_set<int> copies_;   // List of copy #'s
+  double zMinBlock_;                // Starting z-value of the block
+  std::vector<int> waferIndex_;     // Wafer index for the types
+  std::vector<int> waferProperty_;  // Wafer property
+  double waferSize_;                // Width of the wafer
+  double waferSepar_;               // Sensor separation
+  int sectors_;                     // Sectors
+  std::vector<double> slopeB_;      // Slope at the lower R
+  std::vector<double> zFrontB_;     // Starting Z values for the slopes
+  std::vector<double> rMinFront_;   // Corresponding rMin's
+  std::vector<double> slopeT_;      // Slopes at the larger R
+  std::vector<double> zFrontT_;     // Starting Z values for the slopes
+  std::vector<double> rMaxFront_;   // Corresponding rMax's
+  std::string nameSpace_;           // Namespace of this and ALL sub-parts
+  std::unordered_set<int> copies_;  // List of copy #'s
   double alpha_, cosAlpha_;
 };
 
@@ -215,7 +215,9 @@ void DDHGCalHEFileAlgo::initialize(const DDNumericArguments& nArgs,
   alpha_ = (1._pi) / sectors_;
   cosAlpha_ = cos(alpha_);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalHEFileAlgo: zStart " << zMinBlock_ << " wafer width " << waferSize_ << " separations " << waferSepar_ << " sectors " << sectors_ << ":" << convertRadToDeg(alpha_) << ":" << cosAlpha_;
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalHEFileAlgo: zStart " << zMinBlock_ << " wafer width " << waferSize_
+                                << " separations " << waferSepar_ << " sectors " << sectors_ << ":"
+                                << convertRadToDeg(alpha_) << ":" << cosAlpha_;
 #endif
   waferIndex_ = dbl_to_int(vArgs["WaferIndex"]);
   waferProperty_ = dbl_to_int(vArgs["WaferProperties"]);
@@ -225,7 +227,10 @@ void DDHGCalHEFileAlgo::initialize(const DDNumericArguments& nArgs,
     edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << waferIndex_[k] << " ("
                                   << HGCalWaferIndex::waferLayer(waferIndex_[k]) << ", "
                                   << HGCalWaferIndex::waferU(waferIndex_[k]) << ", "
-                                  << HGCalWaferIndex::waferV(waferIndex_[k]) << ") : (" << HGCalProperty::waferThick(waferProperty_[k]) << ":" << HGCalProperty::waferPartial(waferProperty_[k]) << ":" << HGCalProperty::waferOrient(waferProperty_[k]) << ")";
+                                  << HGCalWaferIndex::waferV(waferIndex_[k]) << ") : ("
+                                  << HGCalProperty::waferThick(waferProperty_[k]) << ":"
+                                  << HGCalProperty::waferPartial(waferProperty_[k]) << ":"
+                                  << HGCalProperty::waferOrient(waferProperty_[k]) << ")";
 #endif
   slopeB_ = vArgs["SlopeBottom"];
   zFrontB_ = vArgs["ZFrontBottom"];

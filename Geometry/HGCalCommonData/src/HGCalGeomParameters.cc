@@ -1094,7 +1094,7 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const cms::DDFilteredView& fv,
         } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "WaferPropertiesEE")) {
           for (const auto& i : it.second)
             waferProperties.emplace_back(std::round(i));
-	}
+        }
       }
     } else if (php.waferMaskMode_ == siliconFileHE) {
       for (auto const& it : vmap) {
@@ -1104,7 +1104,7 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const cms::DDFilteredView& fv,
         } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "WaferPropertiesHE")) {
           for (const auto& i : it.second)
             waferProperties.emplace_back(std::round(i));
-	}
+        }
       }
     }
 
@@ -1153,9 +1153,15 @@ void HGCalGeomParameters::loadSpecParsHexagon8(HGCalParameters& php,
   for (unsigned int k = 0; k < waferIndex.size(); ++k) {
     int partial = HGCalProperty::waferPartial(waferProperties[k]);
     int orient = HGCalWaferMask::getRotation(php.waferZSide_, partial, HGCalProperty::waferOrient(waferProperties[k]));
-    php.waferInfoMap_[waferIndex[k]] = HGCalParameters::waferInfo(HGCalProperty::waferThick(waferProperties[k]), partial, orient);
+    php.waferInfoMap_[waferIndex[k]] =
+        HGCalParameters::waferInfo(HGCalProperty::waferThick(waferProperties[k]), partial, orient);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "[" << k << ":" << waferIndex[k] << ":" << HGCalWaferIndex::waferLayer(waferIndex[k]) << ":" << HGCalWaferIndex::waferU(waferIndex[k]) << ":" << HGCalWaferIndex::waferV(waferIndex[k]) << "]  Thickness type " << HGCalProperty::waferThick(waferProperties[k]) << " Partial type " << partial << " Orientation " << HGCalProperty::waferOrient(waferProperties[k]) << ":" << orient;
+    edm::LogVerbatim("HGCalGeom") << "[" << k << ":" << waferIndex[k] << ":"
+                                  << HGCalWaferIndex::waferLayer(waferIndex[k]) << ":"
+                                  << HGCalWaferIndex::waferU(waferIndex[k]) << ":"
+                                  << HGCalWaferIndex::waferV(waferIndex[k]) << "]  Thickness type "
+                                  << HGCalProperty::waferThick(waferProperties[k]) << " Partial type " << partial
+                                  << " Orientation " << HGCalProperty::waferOrient(waferProperties[k]) << ":" << orient;
 #endif
   }
 }
@@ -1373,12 +1379,17 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(HGCalParameters& php,
                                                 const std::vector<int>& tileRingMax) {
   // tile parameters from Katja's file
   for (unsigned int k = 0; k < tileIndx.size(); ++k) {
-    php.tileInfoMap_[tileIndx[k]] = HGCalParameters::tileInfo(HGCalProperty::tileType(tileProperty[k]), HGCalProperty::tileSiPM(tileProperty[k]), tileHEX1[k], tileHEX2[k], tileHEX3[k], tileHEX4[k]);
+    php.tileInfoMap_[tileIndx[k]] = HGCalParameters::tileInfo(HGCalProperty::tileType(tileProperty[k]),
+                                                              HGCalProperty::tileSiPM(tileProperty[k]),
+                                                              tileHEX1[k],
+                                                              tileHEX2[k],
+                                                              tileHEX3[k],
+                                                              tileHEX4[k]);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "Tile[" << k << ":" << tileIndx[k] << "] "
-                                  << " Type " << HGCalProperty::tileType(tileProperty[k]) << " SiPM " << HGCalProperty::tileSiPM(tileProperty[k]) << " HEX " << std::hex
-                                  << tileHEX1[k] << ":" << tileHEX2[k] << ":" << tileHEX3[k] << ":" << tileHEX4[k]
-                                  << std::dec;
+                                  << " Type " << HGCalProperty::tileType(tileProperty[k]) << " SiPM "
+                                  << HGCalProperty::tileSiPM(tileProperty[k]) << " HEX " << std::hex << tileHEX1[k]
+                                  << ":" << tileHEX2[k] << ":" << tileHEX3[k] << ":" << tileHEX4[k] << std::dec;
 #endif
   }
 
