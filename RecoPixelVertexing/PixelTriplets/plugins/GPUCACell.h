@@ -9,7 +9,7 @@
 
 #include <cuda_runtime.h>
 
-#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DCUDA.h"
+#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DHeterogeneous.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/SimpleVector.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/VecArray.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
@@ -293,8 +293,7 @@ public:
     assert(tmpNtuplet.size() <= 4);
 
     bool last = true;
-    for (int j = 0; j < outerNeighbors().size(); ++j) {
-      auto otherCell = outerNeighbors()[j];
+    for (unsigned int otherCell : outerNeighbors()) {
       if (cells[otherCell].theDoubletId < 0)
         continue;  // killed by earlyFishbone
       last = false;

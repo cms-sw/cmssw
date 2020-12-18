@@ -9,8 +9,8 @@ def customizePixelTracksSoAonCPU(process):
   # ensure the same results when running on GPU (which supports only the 'HLT' payload) and CPU
   process.siPixelClustersPreSplitting.cpu.payloadType = cms.string('HLT')
 
-  from RecoLocalTracker.SiPixelRecHits.siPixelRecHitHostSoA_cfi import siPixelRecHitHostSoA
-  process.siPixelRecHitsPreSplitting = siPixelRecHitHostSoA.clone(
+  from RecoLocalTracker.SiPixelRecHits.siPixelRecHitSoAFromLegacy_cfi import siPixelRecHitSoAFromLegacy
+  process.siPixelRecHitsPreSplitting = siPixelRecHitSoAFromLegacy.clone(
     convertToLegacy = True
   )
 
@@ -54,8 +54,8 @@ def customizePixelTracksSoAonCPUForProfiling(process):
   process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
   process = customizePixelTracksSoAonCPU(process)
-  process.siPixelRecHitHostSoA.convertToLegacy = False
+  process.siPixelRecHitSoAFromLegacy.convertToLegacy = False
   
-  process.TkSoA = cms.Path(process.offlineBeamSpot+process.siPixelDigis+process.siPixelClustersPreSplitting+process.siPixelRecHitHostSoA+process.pixelTrackSoA+process.pixelVertexSoA)
+  process.TkSoA = cms.Path(process.offlineBeamSpot + process.siPixelDigis + process.siPixelClustersPreSplitting + process.siPixelRecHitSoAFromLegacy + process.pixelTrackSoA + process.pixelVertexSoA)
   process.schedule = cms.Schedule(process.TkSoA)
   return process
