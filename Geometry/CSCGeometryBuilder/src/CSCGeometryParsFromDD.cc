@@ -21,7 +21,6 @@
 #include "Geometry/CSCGeometry/src/CSCWireGroupPackage.h"
 #include "CondFormats/GeometryObjects/interface/CSCRecoDigiParameters.h"
 #include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
@@ -31,6 +30,7 @@
 
 using namespace std;
 using namespace cms_units::operators;
+using namespace geant_units::operators;
 
 CSCGeometryParsFromDD::CSCGeometryParsFromDD() : myName("CSCGeometryParsFromDD") {}
 
@@ -212,21 +212,22 @@ bool CSCGeometryParsFromDD::build(const DDCompactView* cview,
 
     LogTrace(myName) << myName << ": noOfAnonParams=" << noOfAnonParams;
     LogTrace(myName) << myName << ": fill fpar...";
-    LogTrace(myName) << myName << ": dpars are... " << dpar[4] / cm << ", " << dpar[8] / cm << ", " << dpar[3] / cm
-                     << ", " << dpar[0] / cm;
-    edm::LogVerbatim("CSCGeometryParsFromDD") << "(7) dpar[4]: " << dpar[4] / cm << " dpar[8]:  " << dpar[8] / cm
-                                              << " dpar[3]: " << dpar[3] / cm << " dpar[0]: " << dpar[0] / cm;
+    LogTrace(myName) << myName << ": dpars are... " << convertMmToCm(dpar[4]) << ", " << convertMmToCm(dpar[8]) << ", "
+                     << convertMmToCm(dpar[3]) << ", " << convertMmToCm(dpar[0]);
+    edm::LogVerbatim("CSCGeometryParsFromDD")
+        << "(7) dpar[4]: " << convertMmToCm(dpar[4]) << " dpar[8]:  " << convertMmToCm(dpar[8])
+        << " dpar[3]: " << convertMmToCm(dpar[3]) << " dpar[0]: " << convertMmToCm(dpar[0]);
 
-    fpar.emplace_back((dpar[4] / cm));
-    fpar.emplace_back((dpar[8] / cm));
-    fpar.emplace_back((dpar[3] / cm));
-    fpar.emplace_back((dpar[0] / cm));
+    fpar.emplace_back(convertMmToCm(dpar[4]));
+    fpar.emplace_back(convertMmToCm(dpar[8]));
+    fpar.emplace_back(convertMmToCm(dpar[3]));
+    fpar.emplace_back(convertMmToCm(dpar[0]));
 
     LogTrace(myName) << myName << ": fill gtran...";
 
-    gtran[0] = (float)1.0 * (fv.translation().X() / cm);
-    gtran[1] = (float)1.0 * (fv.translation().Y() / cm);
-    gtran[2] = (float)1.0 * (fv.translation().Z() / cm);
+    gtran[0] = (float)1.0 * (convertMmToCm(fv.translation().X()));
+    gtran[1] = (float)1.0 * (convertMmToCm(fv.translation().Y()));
+    gtran[2] = (float)1.0 * (convertMmToCm(fv.translation().Z()));
 
     LogTrace(myName) << myName << ": gtran[0]=" << gtran[0] << ", gtran[1]=" << gtran[1] << ", gtran[2]=" << gtran[2];
 
@@ -554,10 +555,7 @@ bool CSCGeometryParsFromDD::build(const cms::DDCompactView* cview,
       }
     }
 
-    if (wg.numberOfGroups != 0) {
-      for (size_t i = 0; i < wg.consecutiveGroups.size(); i++) {
-      }
-    } else {
+    if (wg.numberOfGroups == 0) {
       LogTrace(myName) << myName << " wg.numberOfGroups == 0 ";
     }
 
