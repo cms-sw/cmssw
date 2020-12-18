@@ -2,9 +2,9 @@
 
 # ConfDB configurations to use
 TABLES="Fake Fake1 Fake2"
-HLT_Fake="/dev/CMSSW_11_2_0/Fake"
-HLT_Fake1="/dev/CMSSW_11_2_0/Fake1"
-HLT_Fake2="/dev/CMSSW_11_2_0/Fake2"
+HLT_Fake="/dev/CMSSW_11_3_0/Fake"
+HLT_Fake1="/dev/CMSSW_11_3_0/Fake1"
+HLT_Fake2="/dev/CMSSW_11_3_0/Fake2"
 
 # print extra messages ?
 VERBOSE=false
