@@ -239,7 +239,7 @@ void CTPPSPixelDataFormatter::formatRawData(unsigned int lvl1_ID,
     // since raw words are written in the form of 64-bit packets
     // add extra 32-bit word to make number of words even if necessary
     if (words.find(fedId)->second.size() % 2 != 0)
-      words[fedId].push_back(Word32(0));
+      words[fedId].emplace_back(0);
 
     // size in Bytes; create output structure
     size_t dataSize = words.find(fedId)->second.size() * sizeof(Word32);
