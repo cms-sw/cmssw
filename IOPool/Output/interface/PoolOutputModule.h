@@ -143,7 +143,7 @@ namespace edm {
     virtual void doExtrasAfterCloseFile();
 
   private:
-    void preActionBeforeRunEventAsync(WaitingTask* iTask,
+    void preActionBeforeRunEventAsync(WaitingTaskHolder iTask,
                                       ModuleCallingContext const& iModuleCallingContext,
                                       Principal const& iPrincipal) const override;
 

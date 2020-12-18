@@ -12,6 +12,7 @@
 */
 
 #include "FWCore/Framework/src/Worker.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/ServiceRegistry/interface/PlaceInPathContext.h"
 
@@ -19,7 +20,6 @@ namespace edm {
 
   class PathContext;
   class StreamID;
-  class WaitingTask;
   class ServiceToken;
 
   class WorkerInPath {
@@ -29,8 +29,11 @@ namespace edm {
     WorkerInPath(Worker*, FilterAction theAction, unsigned int placeInPath, bool runConcurrently);
 
     template <typename T>
-    void runWorkerAsync(
-        WaitingTask*, typename T::TransitionInfoType const&, ServiceToken const&, StreamID, typename T::Context const*);
+    void runWorkerAsync(WaitingTaskHolder,
+                        typename T::TransitionInfoType const&,
+                        ServiceToken const&,
+                        StreamID,
+                        typename T::Context const*);
 
     bool checkResultsOfRunWorker(bool wasEvent);
 
@@ -101,7 +104,7 @@ namespace edm {
   }
 
   template <typename T>
-  void WorkerInPath::runWorkerAsync(WaitingTask* iTask,
+  void WorkerInPath::runWorkerAsync(WaitingTaskHolder iTask,
                                     typename T::TransitionInfoType const& info,
                                     ServiceToken const& token,
                                     StreamID streamID,

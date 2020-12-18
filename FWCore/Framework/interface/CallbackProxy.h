@@ -27,6 +27,7 @@
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 
 #include "FWCore/Framework/interface/produce_helpers.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
@@ -53,7 +54,7 @@ namespace edm::eventsetup {
       callback_->holdOntoPointer(dummy);
     }
 
-    void prefetchAsyncImpl(WaitingTask* iWaitTask,
+    void prefetchAsyncImpl(WaitingTaskHolder iWaitTask,
                            const EventSetupRecordImpl& iRecord,
                            const DataKey&,
                            EventSetupImpl const* iEventSetupImpl,

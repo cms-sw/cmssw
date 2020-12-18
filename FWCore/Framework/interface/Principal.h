@@ -26,6 +26,7 @@ pointer to a ProductResolver, when queried.
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ProductResolverBase.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
@@ -47,7 +48,6 @@ namespace edm {
   class EDConsumerBase;
   class SharedResourcesAcquirer;
   class InputProductResolver;
-  class WaitingTask;
   class UnscheduledConfigurator;
 
   struct FilledProductPtr {
@@ -126,7 +126,7 @@ namespace edm {
                            SharedResourcesAcquirer* sra,
                            ModuleCallingContext const* mcc) const;
 
-    void prefetchAsync(WaitingTask* waitTask,
+    void prefetchAsync(WaitingTaskHolder waitTask,
                        ProductResolverIndex index,
                        bool skipCurrentProcess,
                        ServiceToken const& token,
