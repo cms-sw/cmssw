@@ -1,6 +1,6 @@
-#include "CAHitNtupletGeneratorKernels.h"
-
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+
+#include "CAHitNtupletGeneratorKernels.h"
 
 template <>
 #ifdef __CUDACC__
@@ -25,11 +25,7 @@ void CAHitNtupletGeneratorKernelsCPU::allocateOnGPU(cudaStream_t stream) {
   device_hitToTuple_apc_ = (cms::cuda::AtomicPairCounter*)device_storage_.get() + 1;
   device_nCells_ = (uint32_t*)(device_storage_.get() + 2);
 
-  if
-#ifndef __CUDACC__
-      constexpr
-#endif
-      (std::is_same<Traits, cms::cudacompat::GPUTraits>::value) {
+  if constexpr (std::is_same<Traits, cms::cudacompat::GPUTraits>::value) {
     cudaCheck(cudaMemsetAsync(device_nCells_, 0, sizeof(uint32_t), stream));
   } else {
     *device_nCells_ = 0;
