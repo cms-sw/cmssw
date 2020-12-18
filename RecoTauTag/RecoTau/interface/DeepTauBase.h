@@ -84,7 +84,7 @@ namespace deep_tau {
 
       std::unique_ptr<TauDiscriminator> get_value(const edm::Handle<TauCollection>& taus,
                                                   const tensorflow::Tensor& pred,
-                                                  const WPList& working_points,
+                                                  const WPList* working_points,
                                                   bool is_online) const;
     };
 
