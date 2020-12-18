@@ -31,13 +31,6 @@ public:
   static std::pair<std::vector<DetLayer*>, std::vector<DetLayer*> > buildEndcapLayers(const GEMGeometry& geo);
 
 private:
-  static ForwardDetLayer* buildLayer(int endcap,
-                                     std::vector<int>& rings,
-                                     int station,
-                                     int layer,
-                                     std::vector<int>& chambers,
-                                     std::vector<int>& rolls,
-                                     const GEMGeometry& geo);
   static bool isFront(const GEMDetId& gemId);
   static MuDetRing* makeDetRing(std::vector<const GeomDet*>& geomDets);
 };
