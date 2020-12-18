@@ -1,12 +1,12 @@
 <use name="boost_serialization"/>
 <use name="cuda"/>
-<use name="DataFormats/Common"/>
-<use name="FWCore/ParameterSet"/>
-<use name="DataFormats/SiPixelCluster"/>
-<use name="CalibTracker/SiPixelESProducers"/>
 <use name="CUDADataFormats/SiPixelCluster"/>
 <use name="CUDADataFormats/SiPixelDigi"/>
+<use name="CalibTracker/SiPixelESProducers"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/SiPixelCluster"/>
 <use name="EventFilter/SiPixelRawToDigi"/>
+<use name="FWCore/ParameterSet"/>
 <use name="HeterogeneousCore/CUDACore"/>
 <use name="RecoLocalTracker/SiPixelClusterizer"/>
 <use name="RecoTracker/Record"/>

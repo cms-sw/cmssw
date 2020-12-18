@@ -1,24 +1,25 @@
+#include <memory>
+
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/DetId/interface/DetIdCollection.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/SiPixelDetId/interface/PixelFEDChannel.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/SiPixelRawData/interface/SiPixelErrorsSoA.h"
 #include "EventFilter/SiPixelRawToDigi/interface/PixelDataFormatter.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include <memory>
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 class SiPixelDigiErrorsFromSoA : public edm::stream::EDProducer<> {
 public:
@@ -60,6 +61,7 @@ SiPixelDigiErrorsFromSoA::SiPixelDigiErrorsFromSoA(const edm::ParameterSet& iCon
 void SiPixelDigiErrorsFromSoA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("digiErrorSoASrc", edm::InputTag("siPixelDigiErrorsSoA"));
+  // the configuration parameters here are named following those in SiPixelRawToDigi
   desc.add<std::string>("CablingMapLabel", "")->setComment("CablingMap label");
   desc.add<bool>("UsePhase1", false)->setComment("##  Use phase1");
   desc.add<std::vector<int>>("ErrorList", std::vector<int>{29})
@@ -97,20 +99,20 @@ void SiPixelDigiErrorsFromSoA::produce(edm::Event& iEvent, const edm::EventSetup
   for (auto i = 0U; i < size; i++) {
     SiPixelErrorCompact err = digiErrors.error(i);
     if (err.errorType != 0) {
-      SiPixelRawDataError error(err.word, err.errorType, err.fedId + 1200);
+      SiPixelRawDataError error(err.word, err.errorType, err.fedId + FEDNumbering::MINSiPixeluTCAFEDID);
       errors[err.rawId].push_back(error);
     }
   }
 
   constexpr uint32_t dummydetid = 0xffffffff;
   typedef PixelDataFormatter::Errors::iterator IE;
-  for (IE is = errors.begin(); is != errors.end(); is++) {
-    uint32_t errordetid = is->first;
+  for (auto& error : errors) {
+    uint32_t errordetid = error.first;
     if (errordetid == dummydetid) {  // errors given dummy detId must be sorted by Fed
       nodeterrors.insert(nodeterrors.end(), errors[errordetid].begin(), errors[errordetid].end());
     } else {
       edm::DetSet<SiPixelRawDataError>& errorDetSet = errorcollection.find_or_insert(errordetid);
-      errorDetSet.data.insert(errorDetSet.data.end(), is->second.begin(), is->second.end());
+      errorDetSet.data.insert(errorDetSet.data.end(), error.second.begin(), error.second.end());
       // Fill detid of the detectors where there is error AND the error number is listed
       // in the configurable error list in the job option cfi.
       // Code needs to be here, because there can be a set of errors for each

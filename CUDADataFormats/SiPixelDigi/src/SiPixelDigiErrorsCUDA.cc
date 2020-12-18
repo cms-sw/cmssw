@@ -1,11 +1,10 @@
-#include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigiErrorsCUDA.h"
+#include <cassert>
 
+#include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigiErrorsCUDA.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/copyAsync.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/copyAsync.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/memsetAsync.h"
-
-#include <cassert>
 
 SiPixelDigiErrorsCUDA::SiPixelDigiErrorsCUDA(size_t maxFedWords, SiPixelFormatterErrors errors, cudaStream_t stream)
     : data_d(cms::cuda::make_device_unique<SiPixelErrorCompact[]>(maxFedWords, stream)),

@@ -1,13 +1,13 @@
 #ifndef CUDADataFormats_SiPixelDigi_interface_SiPixelDigiErrorsCUDA_h
 #define CUDADataFormats_SiPixelDigi_interface_SiPixelDigiErrorsCUDA_h
 
+#include <cuda_runtime.h>
+
 #include "DataFormats/SiPixelRawData/interface/SiPixelErrorCompact.h"
 #include "DataFormats/SiPixelRawData/interface/SiPixelFormatterErrors.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/SimpleVector.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/SimpleVector.h"
-
-#include <cuda_runtime.h>
 
 class SiPixelDigiErrorsCUDA {
 public:
@@ -39,4 +39,4 @@ private:
   SiPixelFormatterErrors formatterErrors_h;
 };
 
-#endif
+#endif  // CUDADataFormats_SiPixelDigi_interface_SiPixelDigiErrorsCUDA_h

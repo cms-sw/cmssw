@@ -20,7 +20,7 @@
 
 #include "CAHitNtupletGeneratorOnGPU.h"
 #include "CUDADataFormats/Track/interface/PixelTrackHeterogeneous.h"
-#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DCUDA.h"
+#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DHeterogeneous.h"
 
 class CAHitNtupletCUDA : public edm::global::EDProducer<> {
 public:
@@ -58,7 +58,7 @@ void CAHitNtupletCUDA::fillDescriptions(edm::ConfigurationDescriptions& descript
   edm::ParameterSetDescription desc;
 
   desc.add<bool>("onGPU", true);
-  desc.add<edm::InputTag>("pixelRecHitSrc", edm::InputTag("siPixelRecHitsCUDAPreSplitting"));
+  desc.add<edm::InputTag>("pixelRecHitSrc", edm::InputTag("siPixelRecHitsPreSplittingCUDA"));
 
   CAHitNtupletGeneratorOnGPU::fillDescriptions(desc);
   auto label = "caHitNtupletCUDA";

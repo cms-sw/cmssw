@@ -4,7 +4,7 @@
 #include <cuda_runtime.h>
 
 #include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigisCUDA.h"
-#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DCUDA.h"
+#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DHeterogeneous.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "SimTracker/TrackerHitAssociation/interface/trackerHitAssociationHeterogeneous.h"
 

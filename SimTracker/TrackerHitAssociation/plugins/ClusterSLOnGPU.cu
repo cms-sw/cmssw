@@ -2,6 +2,7 @@
 #include <limits>
 #include <mutex>
 
+#include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudastdAlgorithm.h"
 #include "RecoLocalTracker/SiPixelClusterizer/plugins/SiPixelRawToClusterGPUKernel.h"
@@ -19,8 +20,9 @@ __global__ void simLink(const SiPixelDigisCUDA::DeviceConstView* dd,
                         TrackingRecHit2DSOAView const* hhp,
                         ClusterSLView sl,
                         uint32_t n) {
-  constexpr uint32_t invTK = 0;     // std::numeric_limits<int32_t>::max();
-  constexpr uint16_t InvId = 9999;  // must be > MaxNumModules
+  constexpr uint32_t invTK = 0;  // std::numeric_limits<int32_t>::max();
+  using gpuClustering::invalidModuleId;
+  using gpuClustering::maxNumModules;
 
   auto const& hh = *hhp;
   auto i = blockIdx.x * blockDim.x + threadIdx.x;
@@ -29,14 +31,14 @@ __global__ void simLink(const SiPixelDigisCUDA::DeviceConstView* dd,
     return;
 
   auto id = dd->moduleInd(i);
-  if (InvId == id)
+  if (invalidModuleId == id)
     return;
-  assert(id < 2000);
+  assert(id < maxNumModules);
 
   auto ch = pixelgpudetails::pixelToChannel(dd->xx(i), dd->yy(i));
   auto first = hh.hitsModuleStart(id);
   auto cl = first + dd->clus(i);
-  assert(cl < 2000 * blockDim.x);
+  assert(cl < maxNumModules * blockDim.x);
 
   const Clus2TP me{{id, ch, 0, 0, 0, 0, 0}};
 

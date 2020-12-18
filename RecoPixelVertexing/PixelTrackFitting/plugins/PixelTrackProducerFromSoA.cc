@@ -47,8 +47,8 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
-  //  using HitModuleStart = std::array<uint32_t,gpuClustering::MaxNumModules + 1>;
-  using HMSstorage = HostProduct<unsigned int[]>;
+  //  using HitModuleStart = std::array<uint32_t, gpuClustering::maxNumModules + 1>;
+  using HMSstorage = HostProduct<uint32_t[]>;
 
 private:
   void produce(edm::StreamID streamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const override;
@@ -77,7 +77,7 @@ void PixelTrackProducerFromSoA::fillDescriptions(edm::ConfigurationDescriptions 
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpot"));
   desc.add<edm::InputTag>("trackSrc", edm::InputTag("pixelTrackSoA"));
-  desc.add<edm::InputTag>("pixelRecHitLegacySrc", edm::InputTag("siPixelRecHitsLegacyPreSplitting"));
+  desc.add<edm::InputTag>("pixelRecHitLegacySrc", edm::InputTag("siPixelRecHitsPreSplittingLegacy"));
   desc.add<int>("minNumberOfHits", 0);
 
   descriptions.addWithDefaultLabel(desc);

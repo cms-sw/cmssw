@@ -69,19 +69,22 @@ public:
   static constexpr unsigned int MAXSPAN = 255;
   static constexpr unsigned int MAXPOS = 2047;
 
+  static constexpr uint16_t invalidClusterId = std::numeric_limits<uint16_t>::max();
+
   /** Construct from a range of digis that form a cluster and from 
    *  a DetID. The range is assumed to be non-empty.
    */
 
-  SiPixelCluster() {}
+  SiPixelCluster() = default;
 
   SiPixelCluster(unsigned int isize,
                  uint16_t const* adcs,
                  uint16_t const* xpos,
                  uint16_t const* ypos,
-                 uint16_t const xmin,
-                 uint16_t const ymin)
-      : thePixelOffset(2 * isize), thePixelADC(adcs, adcs + isize) {
+                 uint16_t xmin,
+                 uint16_t ymin,
+                 uint16_t id = invalidClusterId)
+      : thePixelOffset(2 * isize), thePixelADC(adcs, adcs + isize), theOriginalClusterId(id) {
     uint16_t maxCol = 0;
     uint16_t maxRow = 0;
     for (unsigned int i = 0; i != isize; ++i) {
@@ -203,7 +206,7 @@ private:
   uint8_t thePixelRowSpan = 0;       // Span pixel index in the x direction (low edge).
   uint8_t thePixelColSpan = 0;       // Span pixel index in the y direction (left edge).
 
-  uint16_t theOriginalClusterId = std::numeric_limits<uint16_t>::max();
+  uint16_t theOriginalClusterId = invalidClusterId;
 
   float err_x = -99999.9f;
   float err_y = -99999.9f;

@@ -8,15 +8,15 @@ from CalibTracker.SiPixelESProducers.siPixelGainCalibrationForHLTGPU_cfi import 
 
 siPixelClustersPreSplittingTask = cms.Task(siPixelClustersPreSplitting)
 
-siPixelClustersCUDAPreSplitting = _siPixelRawToClusterCUDA.clone()
+siPixelClustersPreSplittingCUDA = _siPixelRawToClusterCUDA.clone()
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
-run3_common.toModify(siPixelClustersCUDAPreSplitting,
+run3_common.toModify(siPixelClustersPreSplittingCUDA,
   isRun2=False
 )
 
 siPixelDigisClustersPreSplitting = _siPixelDigisClustersFromSoA.clone()
 siPixelClustersPreSplittingTaskCUDA = cms.Task(
-    siPixelClustersCUDAPreSplitting,
+    siPixelClustersPreSplittingCUDA,
     siPixelDigisClustersPreSplitting,
 )
 

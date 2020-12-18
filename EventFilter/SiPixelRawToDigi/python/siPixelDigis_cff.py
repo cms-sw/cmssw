@@ -8,10 +8,10 @@ from EventFilter.SiPixelRawToDigi.siPixelDigiErrorsFromSoA_cfi import siPixelDig
 siPixelDigisTask = cms.Task(siPixelDigis)
 
 siPixelDigisSoA = _siPixelDigisSoAFromCUDA.clone(
-    src = "siPixelClustersCUDAPreSplitting"
+    src = "siPixelClustersPreSplittingCUDA"
 )
 siPixelDigiErrorsSoA = _siPixelDigiErrorsSoAFromCUDA.clone(
-    src = "siPixelClustersCUDAPreSplitting"
+    src = "siPixelClustersPreSplittingCUDA"
 )
 siPixelDigiErrors = _siPixelDigiErrorsFromSoA.clone()
 

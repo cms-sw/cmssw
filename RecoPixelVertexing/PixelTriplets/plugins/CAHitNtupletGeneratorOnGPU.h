@@ -2,7 +2,7 @@
 #define RecoPixelVertexing_PixelTriplets_plugins_CAHitNtupletGeneratorOnGPU_h
 
 #include <cuda_runtime.h>
-#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DCUDA.h"
+#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DHeterogeneous.h"
 #include "CUDADataFormats/Track/interface/PixelTrackHeterogeneous.h"
 
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"

@@ -185,12 +185,12 @@ def customisePixelLocalReconstruction(process):
     )
 
     # SwitchProducer wrapping the legacy pixel rechit producer or the transfer of the pixel rechits to the host and the conversion from SoA
-    from RecoLocalTracker.SiPixelRecHits.siPixelRecHitFromSOA_cfi import siPixelRecHitFromSOA as _siPixelRecHitFromSOA
+    from RecoLocalTracker.SiPixelRecHits.siPixelRecHitFromCUDA_cfi import siPixelRecHitFromCUDA as _siPixelRecHitFromCUDA
     process.hltSiPixelRecHits = SwitchProducerCUDA(
         # legacy producer
         cpu = process.hltSiPixelRecHits,
         # converter to legacy format
-        cuda = _siPixelRecHitFromSOA.clone(
+        cuda = _siPixelRecHitFromCUDA.clone(
             pixelRecHitSrc = "hltSiPixelRecHitsCUDA",
             src = "hltSiPixelClusters"
         )
@@ -237,8 +237,8 @@ def customisePixelTrackReconstruction(process):
     # referenced in process.HLTRecoPixelTracksTask
 
     # cpu only: convert the pixel rechits from legacy to SoA format
-    from RecoLocalTracker.SiPixelRecHits.siPixelRecHitHostSoA_cfi import siPixelRecHitHostSoA as _siPixelRecHitHostSoA
-    process.hltSiPixelRecHitSoA = _siPixelRecHitHostSoA.clone(
+    from RecoLocalTracker.SiPixelRecHits.siPixelRecHitSoAFromLegacy_cfi import siPixelRecHitSoAFromLegacy as _siPixelRecHitSoAFromLegacy
+    process.hltSiPixelRecHitSoA = _siPixelRecHitSoAFromLegacy.clone(
         src = "hltSiPixelClusters",
         beamSpot = "hltOnlineBeamSpot",
         convertToLegacy = True

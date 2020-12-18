@@ -25,7 +25,7 @@ def customizePixelOnlyForProfilingGPUOnly(process):
 # tracks and vertices on the CPU in SoA format, without conversion to legacy format.
 def customizePixelOnlyForProfilingGPUWithHostCopy(process):
 
-  #? process.siPixelRecHitHostSoA.convertToLegacy = False
+  #? process.siPixelRecHitSoAFromLegacy.convertToLegacy = False
 
   process.consumer = cms.EDAnalyzer("GenericConsumer",
       eventProducts = cms.untracked.vstring('pixelTrackSoA', 'pixelVertexSoA')

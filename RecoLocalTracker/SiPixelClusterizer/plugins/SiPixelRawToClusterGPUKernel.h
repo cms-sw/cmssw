@@ -75,7 +75,7 @@ namespace pixelgpudetails {
   const uint32_t OMIT_ERR_mask = ~(~uint32_t(0) << OMIT_ERR_bits);
 
   struct DetIdGPU {
-    uint32_t RawId;
+    uint32_t rawId;
     uint32_t rocInDet;
     uint32_t moduleId;
   };
@@ -205,19 +205,6 @@ namespace pixelgpudetails {
     SiPixelDigisCUDA digis_d;
     SiPixelClustersCUDA clusters_d;
     SiPixelDigiErrorsCUDA digiErrors_d;
-  };
-
-  // see RecoLocalTracker/SiPixelClusterizer
-  // all are runtime const, should be specified in python _cfg.py
-  struct ADCThreshold {
-    const int thePixelThreshold = 1000;      // default Pixel threshold in electrons
-    const int theSeedThreshold = 1000;       // seed thershold in electrons not used in our algo
-    const float theClusterThreshold = 4000;  // cluster threshold in electron
-    const int ConversionFactor = 65;         // adc to electron conversion factor
-
-    const int theStackADC_ = 255;               // the maximum adc count for stack layer
-    const int theFirstStack_ = 5;               // the index of the fits stack layer
-    const double theElectronPerADCGain_ = 600;  // ADC to electron conversion
   };
 
 }  // namespace pixelgpudetails

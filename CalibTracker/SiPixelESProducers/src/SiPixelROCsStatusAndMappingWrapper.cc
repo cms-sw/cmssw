@@ -43,7 +43,7 @@ SiPixelROCsStatusAndMappingWrapper::SiPixelROCsStatusAndMappingWrapper(SiPixelFe
         cablingMapHost->link[index] = link;
         cablingMapHost->roc[index] = roc;
         if (pixelRoc != nullptr) {
-          cablingMapHost->RawId[index] = pixelRoc->rawId();
+          cablingMapHost->rawId[index] = pixelRoc->rawId();
           cablingMapHost->rocInDet[index] = pixelRoc->idInDetUnit();
           modToUnpDefault[index] = false;
           if (badPixelInfo != nullptr)
@@ -51,7 +51,7 @@ SiPixelROCsStatusAndMappingWrapper::SiPixelROCsStatusAndMappingWrapper(SiPixelFe
           else
             cablingMapHost->badRocs[index] = false;
         } else {  // store some dummy number
-          cablingMapHost->RawId[index] = 9999;
+          cablingMapHost->rawId[index] = 9999;
           cablingMapHost->rocInDet[index] = 9999;
           cablingMapHost->badRocs[index] = true;
           modToUnpDefault[index] = true;
@@ -62,7 +62,7 @@ SiPixelROCsStatusAndMappingWrapper::SiPixelROCsStatusAndMappingWrapper(SiPixelFe
   }  // end of FED loop
 
   // Given FedId, Link and idinLnk; use the following formula
-  // to get the RawId and idinDU
+  // to get the rawId and idinDU
   // index = (FedID-1200) * MAX_LINK* MAX_ROC + (Link-1)* MAX_ROC + idinLnk;
   // where, MAX_LINK = 48, MAX_ROC = 8 for Phase1 as mentioned Danek's email
   // FedID varies between 1200 to 1338 (In total 108 FED's)
@@ -70,15 +70,15 @@ SiPixelROCsStatusAndMappingWrapper::SiPixelROCsStatusAndMappingWrapper(SiPixelFe
   // idinLnk varies between 1 to 8
 
   for (int i = 1; i < index; i++) {
-    if (cablingMapHost->RawId[i] == 9999) {
+    if (cablingMapHost->rawId[i] == 9999) {
       cablingMapHost->moduleId[i] = 9999;
     } else {
       /*
-      std::cout << cablingMapHost->RawId[i] << std::endl;
+      std::cout << cablingMapHost->rawId[i] << std::endl;
       */
-      auto gdet = trackerGeom.idToDetUnit(cablingMapHost->RawId[i]);
+      auto gdet = trackerGeom.idToDetUnit(cablingMapHost->rawId[i]);
       if (!gdet) {
-        LogDebug("SiPixelROCsStatusAndMapping") << " Not found: " << cablingMapHost->RawId[i] << std::endl;
+        LogDebug("SiPixelROCsStatusAndMapping") << " Not found: " << cablingMapHost->rawId[i] << std::endl;
         continue;
       }
       cablingMapHost->moduleId[i] = gdet->index();
@@ -89,7 +89,7 @@ SiPixelROCsStatusAndMappingWrapper::SiPixelROCsStatusAndMappingWrapper(SiPixelFe
         << i << std::setw(20) << cablingMapHost->fed[i] << std::setw(20) << cablingMapHost->link[i] << std::setw(20)
         << cablingMapHost->roc[i] << std::endl;
     LogDebug("SiPixelROCsStatusAndMapping")
-        << i << std::setw(20) << cablingMapHost->RawId[i] << std::setw(20) << cablingMapHost->rocInDet[i]
+        << i << std::setw(20) << cablingMapHost->rawId[i] << std::setw(20) << cablingMapHost->rocInDet[i]
         << std::setw(20) << cablingMapHost->moduleId[i] << std::endl;
     LogDebug("SiPixelROCsStatusAndMapping")
         << i << std::setw(20) << (bool)cablingMapHost->badRocs[i] << std::setw(20) << std::endl;
