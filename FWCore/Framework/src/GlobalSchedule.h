@@ -121,6 +121,9 @@ namespace edm {
     /// clone the type of module with label iLabel but configure with iPSet.
     void replaceModule(maker::ModuleHolder* iMod, std::string const& iLabel);
 
+    /// Delete the module with label iLabel
+    void deleteModule(std::string const& iLabel);
+
     /// returns the collection of pointers to workers
     AllWorkers const& allWorkers() const { return workerManagers_[0].allWorkers(); }
 

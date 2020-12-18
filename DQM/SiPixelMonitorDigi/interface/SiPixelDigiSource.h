@@ -21,26 +21,13 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "DQMServices/Core/interface/DQMStore.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
-
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiModule.h"
 
-#include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
-#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
-
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <cstdint>
 
 class SiPixelDigiSource : public DQMOneLumiEDAnalyzer<> {
@@ -240,6 +227,9 @@ private:
 
   //define Token(-s)
   edm::EDGetTokenT<edm::DetSetVector<PixelDigi> > srcToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoTokenBeginRun_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomTokenBeginRun_;
   int noOfLayers;
   int noOfDisks;
 };

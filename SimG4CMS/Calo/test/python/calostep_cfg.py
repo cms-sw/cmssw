@@ -19,10 +19,10 @@ from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['run2_mc']
 
 if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.categories.append('G4cerr')
-    process.MessageLogger.categories.append('Step')
-    process.MessageLogger.categories.append('HCalGeom')
-    process.MessageLogger.categories.append('HcalSim')
+    process.MessageLogger.G4cerr=dict()
+    process.MessageLogger.Step=dict()
+    process.MessageLogger.HCalGeom=dict()
+    process.MessageLogger.HcalSim=dict()
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10000)

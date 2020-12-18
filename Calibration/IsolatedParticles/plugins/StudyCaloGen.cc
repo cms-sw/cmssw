@@ -14,7 +14,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -83,6 +82,12 @@ private:
 
   edm::EDGetTokenT<edm::HepMCProduct> tok_hepmc_;
   edm::EDGetTokenT<reco::GenParticleCollection> tok_genParticles_;
+
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  edm::ESGetToken<CaloTopology, CaloTopologyRecord> tok_caloTopology_;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_topo_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_magField_;
+  edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> tok_pdt_;
 
   bool useHepMC_;
   double a_coneR_, a_charIsoR_, a_neutIsoR_, a_mipR_;
@@ -262,6 +267,12 @@ StudyCaloGen::StudyCaloGen(const edm::ParameterSet &iConfig)
                                << " etaMax " << etaMax_ << "\n a_coneR " << a_coneR_ << " a_charIsoR " << a_charIsoR_
                                << " a_neutIsoR " << a_neutIsoR_ << " a_mipR " << a_mipR_ << " debug " << verbosity_
                                << "\nIsolation Flag " << a_Isolation_ << " with cut " << pCutIsolate_ << " GeV";
+
+  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
+  tok_caloTopology_ = esConsumes<CaloTopology, CaloTopologyRecord>();
+  tok_topo_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
+  tok_magField_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
+  tok_pdt_ = esConsumes<HepPDT::ParticleDataTable, PDTRecord>();
 }
 
 void StudyCaloGen::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
@@ -283,14 +294,10 @@ void StudyCaloGen::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
   clearTreeVectors();
 
   nEventProc++;
-
-  edm::ESHandle<MagneticField> bFieldH;
-  iSetup.get<IdealMagneticFieldRecord>().get(bFieldH);
-  const MagneticField *bField = bFieldH.product();
+  const MagneticField *bField = &iSetup.getData(tok_magField_);
 
   // get particle data table
-  edm::ESHandle<ParticleDataTable> pdt;
-  iSetup.getData(pdt);
+  const HepPDT::ParticleDataTable *pdt = &iSetup.getData(tok_pdt_);
 
   // get handle to HEPMCProduct
   edm::Handle<edm::HepMCProduct> hepmc;
@@ -300,17 +307,9 @@ void StudyCaloGen::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
   else
     iEvent.getByToken(tok_genParticles_, genParticles);
 
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
-  const CaloGeometry *geo = pG.product();
-
-  edm::ESHandle<CaloTopology> theCaloTopology;
-  iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
-  const CaloTopology *caloTopology = theCaloTopology.product();
-
-  edm::ESHandle<HcalTopology> htopo;
-  iSetup.get<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology *theHBHETopology = htopo.product();
+  const CaloGeometry *geo = &iSetup.getData(tok_geom_);
+  const CaloTopology *caloTopology = &iSetup.getData(tok_caloTopology_);
+  const HcalTopology *theHBHETopology = &iSetup.getData(tok_topo_);
 
   GlobalPoint posVec, posECAL;
   math::XYZTLorentzVector momVec;

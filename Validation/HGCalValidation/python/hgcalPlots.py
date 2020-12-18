@@ -6,7 +6,7 @@ import collections
 
 import six
 import ROOT
-from ROOT import TFile
+from ROOT import TFile, TString
 from ROOT import gDirectory
 ROOT.gROOT.SetBatch(True)
 ROOT.PyConfig.IgnoreCommandLineOptions = True
@@ -1061,66 +1061,63 @@ _cell_association_table_zminus = PlotGroup("cellAssociation_table", [
         ], ncols=8 )
 
 _bin_count = 0
-_xbinlabels = [ "L{:02d}".format(i+1) for i in range(0,maxlayerzm) ]
-_common_eff = {"stat": False, "legend": False, "ymin": 0.0, "ymax": 1.1}
+_xbinlabels = [ "{:02d}".format(i+1) for i in range(0,maxlayerzm) ]
+_xtitle = "Layer Numbers in z-"
+_common_eff = {"stat": False, "legend": False, "ymin": 0.0, "ymax": 1.1, "xbinlabeloption": "d"}
 _effplots_zminus_eta = [Plot("effic_eta_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(0,maxlayerzm)]
 _effplots_zminus_phi = [Plot("effic_phi_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(0,maxlayerzm)]
-_common_eff = {"stat": False, "legend": False, "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v", "ymin": 0.0, "ymax": 1.1}
+_common_eff = {"stat": False, "legend": False, "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloption": "v", "ymin": 0.0, "ymax": 1.1}
 _common_eff["xmin"] = _bin_count
 _common_eff["xmax"] = maxlayerzm
 _bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
-_effplots_zminus = [Plot("globalEfficiencies", xtitle="Global Efficiencies in z-", **_common_eff)]
+_effplots_zminus = [Plot("globalEfficiencies", xtitle=_xtitle, ytitle="Efficiency", **_common_eff)]
 _efficiencies_zminus_eta = PlotGroup("Efficiencies_vs_eta", _effplots_zminus_eta, ncols=10)
 _efficiencies_zminus_phi = PlotGroup("Efficiencies_vs_phi", _effplots_zminus_phi, ncols=10)
-_efficiencies_zminus     = PlotGroup("Efficiencies_global", _effplots_zminus, ncols=1)
+_efficiencies_zminus     = PlotGroup("Efficiencies_vs_layer", _effplots_zminus, ncols=1)
 
 _common_dup = {"stat": False, "legend": False, "ymin":0.0, "ymax":1.1}
 _dupplots_zminus_eta = [Plot("duplicate_eta_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(0,maxlayerzm)]
 _dupplots_zminus_phi = [Plot("duplicate_phi_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(0,maxlayerzm)]
-_common_dup = {"stat": False, "legend": False, "title": "Global Duplicates in z-", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v", "ymin": 0.0, "ymax": 1.1}
+_common_dup = {"stat": False, "legend": False, "title": "Global Duplicates in z-", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloption": "v", "ymin": 0.0, "ymax": 1.1}
 _common_dup["xmin"] = _bin_count
 _common_dup["xmax"] = _common_dup["xmin"] + maxlayerzm
 _bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
-_dupplots_zminus = [Plot("globalEfficiencies", xtitle="Global Duplicates in z-", **_common_dup)]
+_dupplots_zminus = [Plot("globalEfficiencies", xtitle=_xtitle, ytitle="Duplicates", **_common_dup)]
 _duplicates_zminus_eta = PlotGroup("Duplicates_vs_eta", _dupplots_zminus_eta, ncols=10)
 _duplicates_zminus_phi = PlotGroup("Duplicates_vs_phi", _dupplots_zminus_phi, ncols=10)
-_duplicates_zminus     = PlotGroup("Duplicates_global", _dupplots_zminus, ncols=1)
+_duplicates_zminus     = PlotGroup("Duplicates_vs_layer", _dupplots_zminus, ncols=1)
 
 _common_fake = {"stat": False, "legend": False, "ymin":0.0, "ymax":1.1}
 _fakeplots_zminus_eta = [Plot("fake_eta_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(0,maxlayerzm)]
 _fakeplots_zminus_phi = [Plot("fake_phi_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(0,maxlayerzm)]
-_common_fake = {"stat": False, "legend": False, "title": "Global Fake Rates in z-", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v", "ymin": 0.0, "ymax": 1.1}
+_common_fake = {"stat": False, "legend": False, "title": "Global Fake Rates in z-", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloption": "v", "ymin": 0.0, "ymax": 1.1}
 _common_fake["xmin"] = _bin_count
 _common_fake["xmax"] = _common_fake["xmin"] + maxlayerzm
 _bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
-_common_fake["xbinlabels"] = [ "L{:02d}".format(i+1) for i in range(0,maxlayerzm) ]
 _common_fake["xbinlabelsize"] = 10.
-_fakeplots_zminus = [Plot("globalEfficiencies", xtitle="Global Fake Rate in z-", **_common_fake)]
+_fakeplots_zminus = [Plot("globalEfficiencies", xtitle=_xtitle, ytitle="Fake Rate", **_common_fake)]
 _fakes_zminus_eta = PlotGroup("FakeRate_vs_eta", _fakeplots_zminus_eta, ncols=10)
 _fakes_zminus_phi = PlotGroup("FakeRate_vs_phi", _fakeplots_zminus_phi, ncols=10)
-_fakes_zminus     = PlotGroup("FakeRate_global", _fakeplots_zminus, ncols=1)
+_fakes_zminus     = PlotGroup("FakeRate_vs_layer", _fakeplots_zminus, ncols=1)
 
 _common_merge = {"stat": False, "legend": False, "ymin":0.0, "ymax":1.1}
 _mergeplots_zminus_eta = [Plot("merge_eta_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(0,maxlayerzm)]
 _mergeplots_zminus_phi = [Plot("merge_phi_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(0,maxlayerzm)]
-_common_merge = {"stat": False, "legend": False, "title": "Global Merge Rates in z-", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v", "ymin": 0.0, "ymax": 1.1}
+_common_merge = {"stat": False, "legend": False, "title": "Global Merge Rates in z-", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloption": "v", "ymin": 0.0, "ymax": 1.1}
 _common_merge["xmin"] = _bin_count
 _common_merge["xmax"] = _common_merge["xmin"] + maxlayerzm
 _bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
-_common_merge["xbinlabels"] = [ "L{:02d}".format(i+1) for i in range(0,maxlayerzm) ]
 _common_merge["xbinlabelsize"] = 10.
-_mergeplots_zminus = [Plot("globalEfficiencies", xtitle="Global merge Rate in z-", **_common_merge)]
+_mergeplots_zminus = [Plot("globalEfficiencies", xtitle=_xtitle, ytitle="Merge Rate", **_common_merge)]
 _merges_zminus_eta = PlotGroup("MergeRate_vs_eta", _mergeplots_zminus_eta, ncols=10)
 _merges_zminus_phi = PlotGroup("MergeRate_vs_phi", _mergeplots_zminus_phi, ncols=10)
-_merges_zminus     = PlotGroup("MergeRate_global", _mergeplots_zminus, ncols=1)
+_merges_zminus     = PlotGroup("MergeRate_vs_layer", _mergeplots_zminus, ncols=1)
 
 
 _common_energy_score = dict(removeEmptyBins=False, xbinlabelsize=10,
     stat=True,
     xbinlabeloption="d",
     ncols=1,
-    ylog=True,
-    xlog=True,
     xmin=0.001,
     xmax=1.,
     ymin=0.01,
@@ -1132,8 +1129,6 @@ _energyscore_cp2lc_zminus = PlotGroup("Energy_vs_Score_CP2LC", [Plot("Energy_vs_
 _energyscore_cp2lc_zplus = PlotGroup("Energy_vs_Score_CP2LC", [Plot("Energy_vs_Score_caloparticle2layer_perlayer{:02d}".format(i), title="Energy_vs_Score_CP2LC", 
                                                      xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score) for i in range(maxlayerzm,maxlayerzp)
                                                      ], ncols=10)
-_common_energy_score["xlog"]=False
-_common_energy_score["ylog"]=False
 _common_energy_score["xmin"]=-0.1
 _energyscore_lc2cp_zminus = PlotGroup("Energy_vs_Score_LC2CP", [Plot("Energy_vs_Score_layer2caloparticle_perlayer{:02d}".format(i), title="Energy_vs_Score_LC2CP", 
                                                      xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score) for i in range(0, maxlayerzm)
@@ -1219,53 +1214,54 @@ _cell_association_table_zplus = PlotGroup("cellAssociation_table", [
 
 
 _bin_count = 50
+_xtitle = "Layer Numbers in z+"
 _common_eff = {"stat": False, "legend": False, "ymin":0.0, "ymax":1.1}
 _effplots_zplus_eta = [Plot("effic_eta_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(maxlayerzm,maxlayerzp)]
 _effplots_zplus_phi = [Plot("effic_phi_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(maxlayerzm,maxlayerzp)]
-_common_eff = {"stat": False, "legend": False, "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "d", "ymin": 0.0, "ymax": 1.1}
+_common_eff = {"stat": False, "legend": False, "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloption": "v", "ymin": 0.0, "ymax": 1.1}
 _common_eff["xmin"] = _bin_count
 _common_eff["xmax"] = _common_eff["xmin"] + maxlayerzm
 _bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
-_effplots_zplus = [Plot("globalEfficiencies", xtitle="Global Efficiencies in z+", **_common_eff)]
+_effplots_zplus = [Plot("globalEfficiencies", xtitle=_xtitle, ytitle="Efficiency", **_common_eff)]
 _efficiencies_zplus_eta = PlotGroup("Efficiencies_vs_eta", _effplots_zplus_eta, ncols=10)
 _efficiencies_zplus_phi = PlotGroup("Efficiencies_vs_phi", _effplots_zplus_phi, ncols=10)
-_efficiencies_zplus = PlotGroup("Efficiencies_global", _effplots_zplus, ncols=1)
+_efficiencies_zplus = PlotGroup("Efficiencies_vs_layer", _effplots_zplus, ncols=1)
 
 _common_dup = {"stat": False, "legend": False, "ymin": 0.0, "ymax": 1.1}
 _dupplots_zplus_eta = [Plot("duplicate_eta_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(maxlayerzm,maxlayerzp)]
 _dupplots_zplus_phi = [Plot("duplicate_phi_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(maxlayerzm,maxlayerzp)]
-_common_dup = {"stat": False, "legend": False, "title": "Global Duplicates in z+", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "d", "ymin": 0.0, "ymax": 1.1}
+_common_dup = {"stat": False, "legend": False, "title": "Global Duplicates in z+", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloption": "v", "ymin": 0.0, "ymax": 1.1}
 _common_dup["xmin"] = _bin_count
 _common_dup["xmax"] = _common_dup["xmin"] + maxlayerzm
 _bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
-_dupplots_zplus = [Plot("globalEfficiencies", xtitle="Global Duplicates in z+", **_common_dup)]
+_dupplots_zplus = [Plot("globalEfficiencies", xtitle=_xtitle, ytitle="Duplicates", **_common_dup)]
 _duplicates_zplus_eta = PlotGroup("Duplicates_vs_eta", _dupplots_zplus_eta, ncols=10)
 _duplicates_zplus_phi = PlotGroup("Duplicates_vs_phi", _dupplots_zplus_phi, ncols=10)
-_duplicates_zplus = PlotGroup("Duplicates_global", _dupplots_zplus, ncols=1)
+_duplicates_zplus = PlotGroup("Duplicates_vs_layer", _dupplots_zplus, ncols=1)
 
 _common_fake = {"stat": False, "legend": False, "ymin": 0.0, "ymax": 1.1}
 _fakeplots_zplus_eta = [Plot("fake_eta_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(maxlayerzm,maxlayerzp)]
 _fakeplots_zplus_phi = [Plot("fake_phi_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(maxlayerzm,maxlayerzp)]
-_common_fake = {"stat": False, "legend": False, "title": "Global Fake Rates in z+", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "d", "ymin": 0.0, "ymax": 1.1}
+_common_fake = {"stat": False, "legend": False, "title": "Global Fake Rates in z+", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloption": "v", "ymin": 0.0, "ymax": 1.1}
 _common_fake["xmin"] = _bin_count
 _common_fake["xmax"] = _common_fake["xmin"] + maxlayerzm
 _bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
-_fakeplots_zplus = [Plot("globalEfficiencies", xtitle="Global Fake Rate in z+", **_common_fake)]
+_fakeplots_zplus = [Plot("globalEfficiencies", xtitle=_xtitle, ytitle="Fake Rate", **_common_fake)]
 _fakes_zplus_eta = PlotGroup("FakeRate_vs_eta", _fakeplots_zplus_eta, ncols=10)
 _fakes_zplus_phi = PlotGroup("FakeRate_vs_phi", _fakeplots_zplus_phi, ncols=10)
-_fakes_zplus = PlotGroup("FakeRate_global", _fakeplots_zplus, ncols=1)
+_fakes_zplus = PlotGroup("FakeRate_vs_layer", _fakeplots_zplus, ncols=1)
 
 _common_merge = {"stat": False, "legend": False, "ymin": 0.0, "ymax": 1.1}
 _mergeplots_zplus_eta = [Plot("merge_eta_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(maxlayerzm,maxlayerzp)]
 _mergeplots_zplus_phi = [Plot("merge_phi_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(maxlayerzm,maxlayerzp)]
-_common_merge = {"stat": False, "legend": False, "title": "Global Merge Rates in z+", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "d", "ymin": 0.0, "ymax": 1.1}
+_common_merge = {"stat": False, "legend": False, "title": "Global Merge Rates in z+", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloption": "v", "ymin": 0.0, "ymax": 1.1}
 _common_merge["xmin"] = _bin_count
 _common_merge["xmax"] = _common_merge["xmin"] + maxlayerzm
 _bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
-_mergeplots_zplus = [Plot("globalEfficiencies", xtitle="Global merge Rate in z+", **_common_merge)]
+_mergeplots_zplus = [Plot("globalEfficiencies", xtitle=_xtitle, ytitle="Merge Rate", **_common_merge)]
 _merges_zplus_eta = PlotGroup("MergeRate_vs_eta", _mergeplots_zplus_eta, ncols=10)
 _merges_zplus_phi = PlotGroup("MergeRate_vs_phi", _mergeplots_zplus_phi, ncols=10)
-_merges_zplus = PlotGroup("MergeRate_global", _mergeplots_zplus, ncols=1)
+_merges_zplus = PlotGroup("MergeRate_vs_layer", _mergeplots_zplus, ncols=1)
 
 
 #--------------------------------------------------------------------------------------------
@@ -1305,28 +1301,28 @@ _common_shared= {"title": "Shared Energy CaloParticle To Multi Cluster ",
                  "stat": False,
                  "legend": True,
                  "xmin": 0,
-                 "xmax": 2.0,
+                 "xmax": 1.0,
                }
 _common_shared.update(_legend_common)
 _shared_plots = [ Plot("SharedEnergy_caloparticle2multicl", **_common_shared) ]
 _common_shared["xmin"] = -4.0
 _common_shared["xmax"] = 4.0
-_shared_plots.extend([Plot("SharedEnergy_caloparticle2multicl_vs_eta", **_common_shared)])
-_shared_plots.extend([Plot("SharedEnergy_caloparticle2multicl_vs_phi", **_common_shared)])
+_shared_plots.extend([Plot("SharedEnergy_caloparticle2multicl_vs_eta", xtitle="CaloParticle #eta", **_common_shared)])
+_shared_plots.extend([Plot("SharedEnergy_caloparticle2multicl_vs_phi", xtitle="CaloParticle #phi", **_common_shared)])
 _sharedEnergy_caloparticle_to_multicluster = PlotGroup("SharedEnergy_CaloParticleToMultiCluster", _shared_plots, ncols=3)
 
 _common_shared= {"title": "Shared Energy Multi Cluster To CaloParticle ",
                  "stat": False,
                  "legend": True,
                  "xmin": 0,
-                 "xmax": 2.0,
+                 "xmax": 1.0,
                 }
 _common_shared.update(_legend_common)
 _shared_plots2 = [Plot("SharedEnergy_multicluster2caloparticle", **_common_shared)]
 _common_shared["xmin"] = -4.0
 _common_shared["xmax"] = 4.0
-_shared_plots2.extend([Plot("SharedEnergy_multicl2caloparticle_vs_eta", **_common_shared)])
-_shared_plots2.extend([Plot("SharedEnergy_multicl2caloparticle_vs_phi", **_common_shared)])
+_shared_plots2.extend([Plot("SharedEnergy_multicl2caloparticle_vs_eta", xtitle="MultiCluster #eta", **_common_shared)])
+_shared_plots2.extend([Plot("SharedEnergy_multicl2caloparticle_vs_phi", xtitle="MultiCluster #phi", **_common_shared)])
 _sharedEnergy_multicluster_to_caloparticle = PlotGroup("SharedEnergy_MultiClusterToCaloParticle", _shared_plots2, ncols=3)
 
 
@@ -1683,13 +1679,13 @@ hgcalLayerClustersPlotter = Plotter()
 layerClustersLabel = 'Layer Clusters'
 
 lc_general = [
-  # [A] calculated "energy density" for cells in a) 120um, b) 200um, c) 300um, d) scint
+  # calculated "energy density" for cells in a) 120um, b) 200um, c) 300um, d) scint
   # (one entry per rechit, in the appropriate histo)
   _cellsenedens_thick,
-  # [B] number of layer clusters per event in a) 120um, b) 200um, c) 300um, d) scint
+  # number of layer clusters per event in a) 120um, b) 200um, c) 300um, d) scint
   # (one entry per event in each of the four histos)
   _totclusternum_thick,
-  # [G] Miscellaneous plots:
+  # Miscellaneous plots:
   # longdepthbarycentre: The longitudinal depth barycentre. One entry per event.
   # mixedhitscluster: Number of clusters per event with hits in different thicknesses.
   # num_reco_cluster_eta: Number of reco clusters vs eta
@@ -1697,15 +1693,15 @@ lc_general = [
   _energyclustered,
   _mixedhitsclusters,
   _longdepthbarycentre,
-  # [H] SelectedCaloParticles plots
+  # SelectedCaloParticles plots
   _SelectedCaloParticles,
 ]
 lc_zminus = [
-  # [C] number of layer clusters per layer (one entry per event in each histo)
+  # number of layer clusters per layer (one entry per event in each histo)
   _totclusternum_layer_EE_zminus,
   _totclusternum_layer_FH_zminus,
   _totclusternum_layer_BH_zminus,
-  # [D] For each layer cluster:
+  # For each layer cluster:
   # number of cells in layer cluster, by layer - separate histos in each layer for 120um Si, 200/300um Si, Scint
   # NB: not all combinations exist; e.g. no 120um Si in layers with scint.
   # (One entry in the appropriate histo per layer cluster).
@@ -1721,7 +1717,43 @@ lc_zminus = [
   _cellsnum_perthick_perlayer_scint_EE_zminus,
   _cellsnum_perthick_perlayer_scint_FH_zminus,
   _cellsnum_perthick_perlayer_scint_BH_zminus,
-  # [E] For each layer cluster:
+  # Looking at the fraction of true energy that has been clustered; by layer and overall
+  _energyclustered_perlayer_EE_zminus,
+  _energyclustered_perlayer_FH_zminus,
+  _energyclustered_perlayer_BH_zminus,
+  # Score of CaloParticles wrt Layer Clusters
+  _score_caloparticle_to_layerclusters_zminus,
+  # Score of LayerClusters wrt CaloParticles
+  _score_layercluster_to_caloparticles_zminus,
+  # Shared Energy between CaloParticle and LayerClusters
+  _sharedEnergy_caloparticle_to_layercluster_zminus,
+  # Shared Energy between LayerClusters and CaloParticle
+  _sharedEnergy_layercluster_to_caloparticle_zminus,
+  # Cell Association per Layer
+  _cell_association_table_zminus,
+  # Efficiency Plots
+  _efficiencies_zminus,
+  _efficiencies_zminus_eta,
+  _efficiencies_zminus_phi,
+  # Duplicate Plots
+  _duplicates_zminus,
+  _duplicates_zminus_eta,
+  _duplicates_zminus_phi,
+  # Fake Rate Plots
+  _fakes_zminus,
+  _fakes_zminus_eta,
+  _fakes_zminus_phi,
+  # Merge Rate Plots
+  _merges_zminus,
+  _merges_zminus_eta,
+  _merges_zminus_phi,
+  # Energy vs Score 2D plots CP to LC
+  _energyscore_cp2lc_zminus,
+  # Energy vs Score 2D plots LC to CP
+  _energyscore_lc2cp_zminus
+]
+lc_zminus_extended = [
+  # For each layer cluster:
   # distance of cells from a) seed cell, b) max cell; and c), d): same with entries weighted by cell energy
   # separate histos in each layer for 120um Si, 200/300um Si, Scint
   # NB: not all combinations exist; e.g. no 120um Si in layers with scint.
@@ -1798,40 +1830,6 @@ lc_zminus = [
   _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_EE_zminus,
   _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_FH_zminus,
   _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_BH_zminus,
-  # [F] Looking at the fraction of true energy that has been clustered; by layer and overall
-  _energyclustered_perlayer_EE_zminus,
-  _energyclustered_perlayer_FH_zminus,
-  _energyclustered_perlayer_BH_zminus,
-  # [I] Score of CaloParticles wrt Layer Clusters
-  _score_caloparticle_to_layerclusters_zminus,
-  # [J] Score of LayerClusters wrt CaloParticles
-  _score_layercluster_to_caloparticles_zminus,
-  # [K] Shared Energy between CaloParticle and LayerClusters
-  _sharedEnergy_caloparticle_to_layercluster_zminus,
-  # [K2] Shared Energy between LayerClusters and CaloParticle
-  _sharedEnergy_layercluster_to_caloparticle_zminus,
-  # [L] Cell Association per Layer
-  _cell_association_table_zminus,
-  # [M] Efficiency Plots
-  _efficiencies_zminus,
-  _efficiencies_zminus_eta,
-  _efficiencies_zminus_phi,
-  # [L] Duplicate Plots
-  _duplicates_zminus,
-  _duplicates_zminus_eta,
-  _duplicates_zminus_phi,
-  # [M] Fake Rate Plots
-  _fakes_zminus,
-  _fakes_zminus_eta,
-  _fakes_zminus_phi,
-  # [N] Merge Rate Plots
-  _merges_zminus,
-  _merges_zminus_eta,
-  _merges_zminus_phi,
-  # [O] Energy vs Score 2D plots CP to LC
-  _energyscore_cp2lc_zminus,
-  # [P] Energy vs Score 2D plots LC to CP
-  _energyscore_lc2cp_zminus
 ]
 lc_zplus = [
   # number of layer clusters per layer (one entry per event in each histo)
@@ -1851,6 +1849,40 @@ lc_zplus = [
   _cellsnum_perthick_perlayer_scint_EE_zplus,
   _cellsnum_perthick_perlayer_scint_FH_zplus,
   _cellsnum_perthick_perlayer_scint_BH_zplus,
+  # Looking at the fraction of true energy that has been clustered; by layer and overall
+  _energyclustered_perlayer_EE_zplus,
+  _energyclustered_perlayer_FH_zplus,
+  _energyclustered_perlayer_BH_zplus,
+  # Score of CaloParticles wrt Layer Clusters
+  _score_caloparticle_to_layerclusters_zplus,
+  # Score of LayerClusters wrt CaloParticles
+  _score_layercluster_to_caloparticles_zplus,
+  # Shared Energy between CaloParticle and LayerClusters
+  _sharedEnergy_caloparticle_to_layercluster_zplus,
+  # Shared Energy between LayerClusters and CaloParticle
+  _sharedEnergy_layercluster_to_caloparticle_zplus,
+  # Cell Association per Layer
+  _cell_association_table_zplus,
+  # Efficiency Plots
+  _efficiencies_zplus,
+  _efficiencies_zplus_eta,
+  _efficiencies_zplus_phi,
+  # Duplicate Plots
+  _duplicates_zplus,
+  _duplicates_zplus_eta,
+  _duplicates_zplus_phi,
+  # Fake Rate Plots
+  _fakes_zplus,
+  _fakes_zplus_eta,
+  _fakes_zplus_phi,
+  # Merge Rate Plots
+  _merges_zplus,
+  _merges_zplus_eta,
+  _merges_zplus_phi,
+  _energyscore_cp2lc_zplus,
+  _energyscore_lc2cp_zplus
+]
+lc_zplus_extended = [
   # distance of cells from a) seed cell, b) max cell; and c), d): same with entries weighted by cell energy
   _distancetomaxcell_perthickperlayer_120_EE_zplus,
   _distancetomaxcell_perthickperlayer_120_FH_zplus,
@@ -1924,45 +1956,19 @@ lc_zplus = [
   _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_EE_zplus,
   _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_FH_zplus,
   _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_BH_zplus,
-  # Looking at the fraction of true energy that has been clustered; by layer and overall
-  _energyclustered_perlayer_EE_zplus,
-  _energyclustered_perlayer_FH_zplus,
-  _energyclustered_perlayer_BH_zplus,
-  # Score of CaloParticles wrt Layer Clusters
-  _score_caloparticle_to_layerclusters_zplus,
-  # Score of LayerClusters wrt CaloParticles
-  _score_layercluster_to_caloparticles_zplus,
-  # Shared Energy between CaloParticle and LayerClusters
-  _sharedEnergy_caloparticle_to_layercluster_zplus,
-  # Shared Energy between LayerClusters and CaloParticle
-  _sharedEnergy_layercluster_to_caloparticle_zplus,
-  # Cell Association per Layer
-  _cell_association_table_zplus,
-  # Efficiency Plots
-  _efficiencies_zplus,
-  _efficiencies_zplus_eta,
-  _efficiencies_zplus_phi,
-  # Duplicate Plots
-  _duplicates_zplus,
-  _duplicates_zplus_eta,
-  _duplicates_zplus_phi,
-  # Fake Rate Plots
-  _fakes_zplus,
-  _fakes_zplus_eta,
-  _fakes_zplus_phi,
-  # Merge Rate Plots
-  _merges_zplus,
-  _merges_zplus_eta,
-  _merges_zplus_phi,
-  _energyscore_cp2lc_zplus,
-  _energyscore_lc2cp_zplus
 ]
 
-def append_hgcalLayerClustersPlots(collection = "hgcalLayerClusters", name_collection = layerClustersLabel):
+def append_hgcalLayerClustersPlots(collection = "hgcalLayerClusters", name_collection = layerClustersLabel, extended = False):
+  print('extended : ',extended)
   regions = ["General", "zminus", "zplus"]
-  setPlots = [lc_general, lc_zminus, lc_zplus]
+  plots_lc_zminus  = lc_zminus
+  plots_lc_zplus   = lc_zplus 
+  plots_lc_general = lc_general
+  if extended :
+    plots_lc_zminus = lc_zminus + lc_zminus_extended
+    plots_lc_zplus = lc_zplus + lc_zplus_extended
+  setPlots = [plots_lc_general, plots_lc_zminus, plots_lc_zplus]
   for reg, setPlot in zip(regions, setPlots):
-    print(_hgcalFolders(collection))
     hgcalLayerClustersPlotter.append(collection+"_"+reg, [
                 _hgcalFolders(collection)
                 ], PlotFolder(
@@ -2031,6 +2037,56 @@ def append_hgcalMultiClustersPlots(collection = 'ticlMultiClustersFromTracksters
   #            numberOfEventsHistogram=_multiplicity_zplus_numberOfEventsHistogram
   #            ))
 
+#=================================================================================================
+_common_Calo = {"stat": False, "drawStyle": "hist", "staty": 0.65, "ymin": 0.0, "ylog": False}
+
+hgcalCaloParticlesPlotter = Plotter()
+def append_hgcalCaloParticlesPlots(files, collection = '-211', name_collection = "pion-"):
+
+  list_2D_histos = ["Energy of Rec-matched Hits vs layer",
+                    "Energy of Rec-matched Hits vs layer (1SC)",
+                    "Rec-matched Hits Sum Energy vs layer"]
+
+  dqmfolder = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/SelectedCaloParticles/" + collection
+  print(dqmfolder)
+  templateFile = ROOT.TFile.Open(files[0]) # assuming all files have same structure
+  keys = gDirectory.GetDirectory(dqmfolder,True).GetListOfKeys()
+  key = keys[0]
+  while key:
+    obj = key.ReadObj()
+    name = obj.GetName()
+    fileName = TString(name)
+    fileName.ReplaceAll(" ","_")
+    pg= PlotGroup(fileName.Data(),[
+                  Plot(name,
+                       xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
+                       drawCommand = "",
+                       normalizeToNumberOfEvents = True, **_common_Calo)
+                  ],
+                  ncols=1)
+
+    if name in list_2D_histos :
+        pg= PlotOnSideGroup(fileName.Data(),
+                      Plot(name,
+                           xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
+                           drawCommand = "COLZ",
+                           normalizeToNumberOfEvents = True, **_common_Calo)
+                      ,
+                      ncols=1)
+
+    hgcalCaloParticlesPlotter.append("CaloParticles_"+name_collection, [
+              dqmfolder
+              ], PlotFolder(
+                pg,
+                loopSubFolders=False,
+                purpose=PlotPurpose.Timing, page="CaloParticles", section=name_collection)
+              )
+
+    key = keys.After(key)
+
+  templateFile.Close()
+
+  return hgcalCaloParticlesPlotter
 
 #=================================================================================================
 # hitValidation

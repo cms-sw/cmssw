@@ -11,14 +11,18 @@ process = cms.Process("Reader")
 
 # Use this to have also debug info (WARNING: the resulting file is > 200MB.
 process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring("*"),
-    DelayReaderSummary = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO')
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
     ),
-    DelayReaderDebug = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG')
-    ),
-    destinations = cms.untracked.vstring('DelayReaderSummary', 'DelayReaderDebug')
+    debugModules = cms.untracked.vstring('*'),
+    files = cms.untracked.PSet(
+        DelayReaderDebug = cms.untracked.PSet(
+            threshold = cms.untracked.string('DEBUG')
+        ),
+        DelayReaderSummary = cms.untracked.PSet(
+            threshold = cms.untracked.string('INFO')
+        )
+    )
 )
 
 # How to use the EmptyIOVSource:

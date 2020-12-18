@@ -217,8 +217,8 @@ void AlCaHcalNoiseProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
         // this fed has data -- lets copy it
         FEDRawData& fedDataProd = outputFEDs->FEDData(j);
         if (fedDataProd.size() != 0) {
-          //	   std::cout << " More than one FEDRawDataCollection with data in FED ";
-          //	   std::cout << j << " Skipping the 2nd\n";
+          edm::LogWarning("HcalNoise") << " More than one FEDRawDataCollection with data in FED " << j
+                                       << " Skipping the 2nd\n";
           continue;
         }
         fedDataProd.resize(size);

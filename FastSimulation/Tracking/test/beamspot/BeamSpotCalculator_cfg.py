@@ -74,7 +74,8 @@ process.outpath = cms.EndPath(process.o1)
 # Keep output to a nice level
 # process.Timing =  cms.Service("Timing")
 process.load("FWCore/MessageService/MessageLogger_cfi")
-process.MessageLogger.destinations = cms.untracked.vstring("pyDetailedInfo.txt")
+process.MessageLogger.cerr.enable = False
+process.MessageLogger.files.pyDetailedInfo=dict(extension="txt")
 
 # Make the job crash in case of missing product
 process.options = cms.untracked.PSet( Rethrow = cms.untracked.vstring('ProductNotFound') )

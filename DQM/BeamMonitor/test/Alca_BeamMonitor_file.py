@@ -39,8 +39,8 @@ process.source = cms.Source("PoolSource",
 
 # initialize MessageLogger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.categories = ["AlcaBeamMonitor"]
-process.MessageLogger.cerr = cms.untracked.PSet(placeholder = cms.untracked.bool(True))
+
+process.MessageLogger.cerr = cms.untracked.PSet(enable = cms.untracked.bool(False))
 process.MessageLogger.cout = cms.untracked.PSet(
     threshold = cms.untracked.string('INFO'),
     default = cms.untracked.PSet(
@@ -51,7 +51,7 @@ process.MessageLogger.cout = cms.untracked.PSet(
 	limit = cms.untracked.int32(0)
     )
 )
-#process.MessageLogger.statistics.append('cout')
+#process.MessageLogger.cout.enableStatistics = cms.untracked.bool(True)
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(2000)
 )

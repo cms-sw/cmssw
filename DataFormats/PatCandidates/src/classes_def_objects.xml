@@ -484,6 +484,8 @@
   <class name="std::vector<edm::Ptr<pat::PackedCandidate> >" />
   <class name="edm::Wrapper<edm::Ptr<pat::PackedCandidate> >" />
   <class name="edm::Wrapper<std::vector<edm::Ptr<pat::PackedCandidate> > >" />
+  <class name="edm::ValueMap<edm::Ptr<pat::PackedCandidate> >" />
+  <class name="edm::Wrapper<edm::ValueMap<edm::Ptr<pat::PackedCandidate> > >" />
 
   <class name="std::vector<edm::Ptr<pat::PackedGenParticle> >" />
   <class name="edm::Wrapper<edm::Ptr<pat::PackedGenParticle> >" />

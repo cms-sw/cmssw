@@ -1,6 +1,7 @@
 #include "FWCore/Framework/interface/PathsAndConsumesOfModules.h"
 
 #include "FWCore/Framework/interface/Schedule.h"
+#include "FWCore/Framework/interface/ModuleProcessName.h"
 #include "FWCore/Framework/src/Worker.h"
 #include "throwIfImproperDependencies.h"
 
@@ -9,7 +10,8 @@
 #include <algorithm>
 namespace edm {
 
-  PathsAndConsumesOfModules::~PathsAndConsumesOfModules() {}
+  PathsAndConsumesOfModules::PathsAndConsumesOfModules() = default;
+  PathsAndConsumesOfModules::~PathsAndConsumesOfModules() = default;
 
   void PathsAndConsumesOfModules::initialize(Schedule const* schedule, std::shared_ptr<ProductRegistry const> preg) {
     schedule_ = schedule;
@@ -41,8 +43,53 @@ namespace edm {
       ++i;
     }
 
-    schedule->fillModuleAndConsumesInfo(
-        allModuleDescriptions_, moduleIDToIndex_, modulesWhoseProductsAreConsumedBy_, *preg);
+    schedule->fillModuleAndConsumesInfo(allModuleDescriptions_,
+                                        moduleIDToIndex_,
+                                        modulesWhoseProductsAreConsumedBy_,
+                                        modulesInPreviousProcessesWhoseProductsAreConsumedBy_,
+                                        *preg);
+  }
+
+  void PathsAndConsumesOfModules::removeModules(std::vector<ModuleDescription const*> const& modules) {
+    // First check that no modules on Paths are removed
+    auto checkPath = [&modules](auto const& paths) {
+      for (auto const& path : paths) {
+        for (auto const& description : path) {
+          if (std::find(modules.begin(), modules.end(), description) != modules.end()) {
+            throw cms::Exception("Assert")
+                << "PathsAndConsumesOfModules::removeModules() is trying to remove a module with label "
+                << description->moduleLabel() << " id " << description->id() << " from a Path, this should not happen.";
+          }
+        }
+      }
+    };
+    checkPath(modulesOnPaths_);
+    checkPath(modulesOnEndPaths_);
+
+    // Remove the modules and adjust the indices in idToIndex map
+    for (auto iModule = 0U; iModule != allModuleDescriptions_.size(); ++iModule) {
+      auto found = std::find(modules.begin(), modules.end(), allModuleDescriptions_[iModule]);
+      if (found != modules.end()) {
+        allModuleDescriptions_.erase(allModuleDescriptions_.begin() + iModule);
+        for (auto iBranchType = 0U; iBranchType != NumBranchTypes; ++iBranchType) {
+          modulesWhoseProductsAreConsumedBy_[iBranchType].erase(
+              modulesWhoseProductsAreConsumedBy_[iBranchType].begin() + iModule);
+        }
+        modulesInPreviousProcessesWhoseProductsAreConsumedBy_.erase(
+            modulesInPreviousProcessesWhoseProductsAreConsumedBy_.begin() + iModule);
+        for (auto& idToIndex : moduleIDToIndex_) {
+          if (idToIndex.second >= iModule) {
+            idToIndex.second--;
+          }
+        }
+        --iModule;
+      }
+    }
+  }
+
+  std::vector<ModuleProcessName> const& PathsAndConsumesOfModules::modulesInPreviousProcessesWhoseProductsAreConsumedBy(
+      unsigned int moduleID) const {
+    return modulesInPreviousProcessesWhoseProductsAreConsumedBy_.at(moduleIndex(moduleID));
   }
 
   ModuleDescription const* PathsAndConsumesOfModules::doModuleDescription(unsigned int moduleID) const {
@@ -51,7 +98,8 @@ namespace edm {
     std::vector<std::pair<unsigned int, unsigned int>>::const_iterator iter =
         std::lower_bound(moduleIDToIndex_.begin(), moduleIDToIndex_.end(), target);
     if (iter == moduleIDToIndex_.end() || iter->first != moduleID) {
-      throw Exception(errors::LogicError) << "PathsAndConsumesOfModules::moduleDescription: Unknown moduleID\n";
+      throw Exception(errors::LogicError)
+          << "PathsAndConsumesOfModules::moduleDescription: Unknown moduleID " << moduleID << "\n";
     }
     return allModuleDescriptions_.at(iter->second);
   }
@@ -66,13 +114,18 @@ namespace edm {
   }
 
   std::vector<ModuleDescription const*> const& PathsAndConsumesOfModules::doModulesWhoseProductsAreConsumedBy(
-      unsigned int moduleID) const {
-    return modulesWhoseProductsAreConsumedBy_.at(moduleIndex(moduleID));
+      unsigned int moduleID, BranchType branchType) const {
+    return modulesWhoseProductsAreConsumedBy_[branchType].at(moduleIndex(moduleID));
   }
 
   std::vector<ConsumesInfo> PathsAndConsumesOfModules::doConsumesInfo(unsigned int moduleID) const {
     Worker const* worker = schedule_->allWorkers().at(moduleIndex(moduleID));
     return worker->consumesInfo();
+  }
+
+  unsigned int PathsAndConsumesOfModules::doLargestModuleID() const {
+    // moduleIDToIndex_ is sorted, so last element has the largest ID
+    return moduleIDToIndex_.empty() ? 0 : moduleIDToIndex_.back().first;
   }
 
   unsigned int PathsAndConsumesOfModules::moduleIndex(unsigned int moduleID) const {
@@ -81,9 +134,95 @@ namespace edm {
     std::vector<std::pair<unsigned int, unsigned int>>::const_iterator iter =
         std::lower_bound(moduleIDToIndex_.begin(), moduleIDToIndex_.end(), target);
     if (iter == moduleIDToIndex_.end() || iter->first != moduleID) {
-      throw Exception(errors::LogicError) << "PathsAndConsumesOfModules::moduleIndex: Unknown moduleID\n";
+      throw Exception(errors::LogicError)
+          << "PathsAndConsumesOfModules::moduleIndex: Unknown moduleID " << moduleID << "\n";
     }
     return iter->second;
+  }
+}  // namespace edm
+
+namespace {
+  // helper function for nonConsumedUnscheduledModules,
+  void findAllConsumedModules(edm::PathsAndConsumesOfModulesBase const& iPnC,
+                              edm::ModuleDescription const* module,
+                              std::unordered_set<unsigned int>& consumedModules) {
+    // If this node of the DAG has been processed already, no need to
+    // reprocess again
+    if (consumedModules.find(module->id()) != consumedModules.end()) {
+      return;
+    }
+    consumedModules.insert(module->id());
+    for (auto iBranchType = 0U; iBranchType != edm::NumBranchTypes; ++iBranchType) {
+      for (auto const& c :
+           iPnC.modulesWhoseProductsAreConsumedBy(module->id(), static_cast<edm::BranchType>(iBranchType))) {
+        findAllConsumedModules(iPnC, c, consumedModules);
+      }
+    }
+  }
+}  // namespace
+
+namespace edm {
+  std::vector<ModuleDescription const*> nonConsumedUnscheduledModules(
+      edm::PathsAndConsumesOfModulesBase const& iPnC, std::vector<ModuleProcessName>& consumedByChildren) {
+    const std::string kTriggerResults("TriggerResults");
+
+    std::vector<std::string> pathNames = iPnC.paths();
+    const unsigned int kFirstEndPathIndex = pathNames.size();
+    pathNames.insert(pathNames.end(), iPnC.endPaths().begin(), iPnC.endPaths().end());
+
+    // The goal is to find modules that are not depended upon by
+    // scheduled modules. To do that, we identify all modules that are
+    // depended upon by scheduled modules, and do a set subtraction.
+    //
+    // First, denote all scheduled modules (i.e. in Paths and
+    // EndPaths) as "consumers".
+    std::vector<ModuleDescription const*> consumerModules;
+    for (unsigned int pathIndex = 0; pathIndex != pathNames.size(); ++pathIndex) {
+      std::vector<ModuleDescription const*> const* moduleDescriptions;
+      if (pathIndex < kFirstEndPathIndex) {
+        moduleDescriptions = &(iPnC.modulesOnPath(pathIndex));
+      } else {
+        moduleDescriptions = &(iPnC.modulesOnEndPath(pathIndex - kFirstEndPathIndex));
+      }
+      std::copy(moduleDescriptions->begin(), moduleDescriptions->end(), std::back_inserter(consumerModules));
+    }
+
+    // Then add TriggerResults, and all Paths and EndPaths themselves
+    // to the set of "consumers" (even if they don't depend on any
+    // data products, they must not be deleted). Also add anything
+    // consumed by child SubProcesses to the set of "consumers".
+    auto const& allModules = iPnC.allModules();
+    for (auto const& description : allModules) {
+      if (description->moduleLabel() == kTriggerResults or
+          std::find(pathNames.begin(), pathNames.end(), description->moduleLabel()) != pathNames.end()) {
+        consumerModules.push_back(description);
+      } else if (std::binary_search(consumedByChildren.begin(),
+                                    consumedByChildren.end(),
+                                    ModuleProcessName{description->moduleLabel(), description->processName()}) or
+                 std::binary_search(consumedByChildren.begin(),
+                                    consumedByChildren.end(),
+                                    ModuleProcessName{description->moduleLabel(), ""})) {
+        consumerModules.push_back(description);
+      }
+    }
+
+    // Find modules that have any data dependence path to any module
+    // in consumerModules.
+    std::unordered_set<unsigned int> consumedModules;
+    for (auto& description : consumerModules) {
+      findAllConsumedModules(iPnC, description, consumedModules);
+    }
+
+    // All other modules will then be classified as non-consumed, even
+    // if they would have dependencies within them.
+    std::vector<ModuleDescription const*> unusedModules;
+    std::copy_if(allModules.begin(),
+                 allModules.end(),
+                 std::back_inserter(unusedModules),
+                 [&consumedModules](ModuleDescription const* description) {
+                   return consumedModules.find(description->id()) == consumedModules.end();
+                 });
+    return unusedModules;
   }
 
   //====================================

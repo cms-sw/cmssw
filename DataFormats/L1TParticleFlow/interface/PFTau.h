@@ -59,5 +59,9 @@ namespace l1t {
   };
 
   typedef std::vector<l1t::PFTau> PFTauCollection;
+
+  typedef edm::Ref<l1t::PFTauCollection> PFTauRef;
+  typedef edm::RefVector<l1t::PFTauCollection> PFTauRefVector;
+  typedef std::vector<l1t::PFTauRef> PFTauVectorRef;
 }  // namespace l1t
 #endif

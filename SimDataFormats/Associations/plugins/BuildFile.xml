@@ -1,0 +1,8 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="SimTracker/Records"/>
+<use name="SimTracker/TrackAssociation"/>
+<use name="DataFormats/TrackReco"/>
+<library name="CPLCAssociation_plugins" file="*.cc">
+  <flags EDM_PLUGIN="1"/>
+</library>

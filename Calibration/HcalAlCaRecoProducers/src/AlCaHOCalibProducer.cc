@@ -81,7 +81,6 @@ Ring 0 L0 : Width Tray 6:266.6, 5&4:325.6, 3:330.6, 2:341.6, 1:272.6
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -232,8 +231,7 @@ private:
 
   //hcal severity ES
   const HcalChannelQuality* theHcalChStatus;
-  //  edm::ESHandle<HcalChannelQuality> theHcalChStatus;
-  edm::ESHandle<HcalSeverityLevelComputer> hcalSevLvlComputerHndl;
+  const HcalSeverityLevelComputer* theHcalSevLvlComputer;
   int Nevents;
 };
 
@@ -348,7 +346,7 @@ void AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     int Noccu_old = Noccu;
     edm::View<reco::Muon>::const_iterator muon1;
 
-    hcalSevLvlComputerHndl = iSetup.getHandle(tok_hcalSevLvlComputer_);
+    theHcalSevLvlComputer = &iSetup.getData(tok_hcalSevLvlComputer_);
 
     MagneticField const& magField = iSetup.getData(tok_magField_);
 
@@ -407,7 +405,6 @@ void AlCaHOCalibProducer::fillHOStore(const reco::TrackRef& ncosm,
                                       const CaloSubdetectorGeometry* gHO,
                                       const MagneticField& magField) {
   // Get Hcal Severity Level Computer, so that the severity of each rechit flag/status may be determined
-  //  edm::ESHandle<HcalSeverityLevelComputer> hcalSevLvlComputerHndl;
 
   int charge = ncosm->charge();
 
@@ -886,7 +883,7 @@ void AlCaHOCalibProducer::fillHOStore(const reco::TrackRef& ncosm,
               // Get Channel Quality information for the given detID
               unsigned theStatusValue = theHcalChStatus->getValues(id)->getValue();
               // Now get severity of problems for the given detID, based on the rechit flag word and the channel quality status value
-              int hitSeverity = hcalSevLvlComputerHndl->getSeverityLevel(id, (*jk).flags(), theStatusValue);
+              int hitSeverity = theHcalSevLvlComputer->getSeverityLevel(id, (*jk).flags(), theStatusValue);
               tmpHOCalib.hoflag = hitSeverity;
               int crphi = tmpphi + 6;
               if (crphi > 72)

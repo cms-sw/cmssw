@@ -65,7 +65,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('L1Trigger/L1TGlobal/debug_messages_cfi')
 process.MessageLogger.l1t_debug.l1t.limit = cms.untracked.int32(100000)
 
-#process.MessageLogger.categories.append('l1t|Global')
+#
 #process.MessageLogger.debugModules = cms.untracked.vstring('*')
 #process.MessageLogger.cerr.threshold = cms.untracked.string('DEBUG')
 
@@ -292,7 +292,7 @@ process.l1GtTrigReport.L1GtRecordInputTag = "simGtStage2Digis"
 process.l1GtTrigReport.PrintVerbosity = 2
 process.report = cms.Path(process.l1GtTrigReport)
 
-process.MessageLogger.categories.append("MuConditon")
+process.MessageLogger.MuConditon=cms.untracked.PSet()
 
 if useMCtoGT:
     process.gtInput = process.mcL1GTinput.clone()

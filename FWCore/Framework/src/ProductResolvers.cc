@@ -381,7 +381,6 @@ namespace edm {
   void UnscheduledProductResolver::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
     aux_ = iConfigure.auxiliary();
     worker_ = iConfigure.findWorker(branchDescription().moduleLabel());
-    assert(worker_ != nullptr);
   }
 
   ProductResolverBase::Resolution UnscheduledProductResolver::resolveProduct_(Principal const&,
@@ -412,8 +411,8 @@ namespace edm {
 
         } catch (cms::Exception& ex) {
           std::ostringstream ost;
-          ost << "Calling produce method for unscheduled module " << worker_->description().moduleName() << "/'"
-              << worker_->description().moduleLabel() << "'";
+          ost << "Calling produce method for unscheduled module " << worker_->description()->moduleName() << "/'"
+              << worker_->description()->moduleLabel() << "'";
           ex.addContext(ost.str());
           throw;
         }
@@ -430,6 +429,10 @@ namespace edm {
                                                   ModuleCallingContext const* mcc) const {
     if (skipCurrentProcess) {
       return;
+    }
+    if (worker_ == nullptr) {
+      throw cms::Exception("LogicError") << "UnscheduledProductResolver::prefetchAsync_()  called with null worker_. "
+                                            "This should not happen, please contact framework developers.";
     }
     //need to try changing prefetchRequested_ before adding to waitingTasks_
     bool expected = false;

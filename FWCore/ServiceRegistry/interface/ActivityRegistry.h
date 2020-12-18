@@ -678,6 +678,24 @@ namespace edm {
     // WARNING - ModuleDescription is not in fixed place.  See note M above.
     AR_WATCH_USING_METHOD_1(watchPostModuleConstruction)
 
+    /// signal is emitted before the module is destructed, only for modules deleted before beginJob
+    typedef signalslot::Signal<void(ModuleDescription const&)> PreModuleDestruction;
+    PreModuleDestruction preModuleDestructionSignal_;
+    void watchPreModuleDestruction(PreModuleDestruction::slot_type const& iSlot) {
+      preModuleDestructionSignal_.connect(iSlot);
+    }
+    // note: ModuleDescription IS in the fixed place. See note M above.
+    AR_WATCH_USING_METHOD_1(watchPreModuleDestruction)
+
+    /// signal is emitted after the module is destructed, only for modules deleted before beginJob
+    typedef signalslot::Signal<void(ModuleDescription const&)> PostModuleDestruction;
+    PostModuleDestruction postModuleDestructionSignal_;
+    void watchPostModuleDestruction(PostModuleDestruction::slot_type const& iSlot) {
+      postModuleDestructionSignal_.connect_front(iSlot);
+    }
+    // WARNING - ModuleDescription is not in fixed place.  See note M above.
+    AR_WATCH_USING_METHOD_1(watchPostModuleDestruction)
+
     /// signal is emitted before the module does beginJob
     typedef signalslot::Signal<void(ModuleDescription const&)> PreModuleBeginJob;
     PreModuleBeginJob preModuleBeginJobSignal_;

@@ -41,6 +41,9 @@ namespace edm {
     WorkerManager(std::shared_ptr<ModuleRegistry> modReg,
                   std::shared_ptr<ActivityRegistry> actReg,
                   ExceptionToActionTable const& actions);
+
+    void deleteModuleIfExists(std::string const& moduleLabel);
+
     void addToUnscheduledWorkers(ParameterSet& pset,
                                  ProductRegistry& preg,
                                  PreallocationConfiguration const* prealloc,

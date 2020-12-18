@@ -6,7 +6,7 @@ process = cms.Process("EnergyOverMomentumTree")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'ERROR'
 process.MessageLogger.cerr.FwkReport.reportEvery = 10000
-process.MessageLogger.categories.append('TrackRefitter')
+process.MessageLogger.TrackRefitter=dict()
 
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) )
 

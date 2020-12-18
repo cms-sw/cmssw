@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<DDDefinition>
+
+<PosPartSection label="hgcalpos.xml">
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalcell:HGCalEECellFull0Fine"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalcell:HGCalEECellTrunc01Fine"/>
+    <Translation x="-1.5*cm" y="-1.5*cm" z="0*fm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalcell:HGCalEECellTrunc02Fine"/>
+    <Translation x="0*fm" y="-1.5*cm" z="0*fm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalcell:HGCalEECellTrunc03Fine"/>
+    <Translation x="1.5*cm" y="-1.5*cm" z="0*fm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalcell:HGCalEECellExten01Fine"/>
+    <Translation x="-1.5*cm" y="-3.0*cm" z="0*fm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalcell:HGCalEECellExten02Fine"/>
+    <Translation x="0*fm" y="-3.0*cm" z="0*fm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalcell:HGCalEECellExten03Fine"/>
+    <Translation x="1.5*cm" y="-3.0*cm" z="0*fm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalcell:HGCalEECellCorner01Fine"/>
+    <Translation x="-1.5*cm" y="3.0*cm" z="0*fm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalcell:HGCalEECellCorner02Fine"/>
+    <Translation x="0*fm" y="3.0*cm" z="0*fm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalcell:HGCalEECellCorner03Fine"/>
+    <Translation x="1.5*cm" y="3.0*cm" z="0*fm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalcell:HGCalEECellCorner04Fine"/>
+    <Translation x="-1.5*cm" y="1.5*cm" z="0*fm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalcell:HGCalEECellCorner05Fine"/>
+    <Translation x="0*fm" y="1.5*cm" z="0*fm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalcell:HGCalEECellCorner06Fine"/>
+    <Translation x="1.5*cm" y="1.5*cm" z="0*fm"/>
+  </PosPart>
+</PosPartSection>
+
+</DDDefinition>

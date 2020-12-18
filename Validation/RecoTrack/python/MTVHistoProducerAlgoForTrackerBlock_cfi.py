@@ -83,7 +83,7 @@ MTVHistoProducerAlgoForTrackerBlock = cms.PSet(
     # dR_jet
     mindrj = cms.double(0.001),
     maxdrj = cms.double(0.5),
-    nintdrj = cms.int32(250),
+    nintdrj = cms.int32(100),
     #
     # chi2/ndof
     minChi2 = cms.double(0),

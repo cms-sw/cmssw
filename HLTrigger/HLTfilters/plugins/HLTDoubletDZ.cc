@@ -13,6 +13,11 @@
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+#include "DataFormats/L1TCorrelator/interface/TkMuon.h"
+#include "DataFormats/L1TCorrelator/interface/TkMuonFwd.h"
+#include "DataFormats/L1TParticleFlow/interface/PFTau.h"
+#include "DataFormats/L1TParticleFlow/interface/HPSPFTau.h"
+#include "DataFormats/L1TParticleFlow/interface/HPSPFTauFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -115,6 +120,25 @@ HLTDoubletDZ<reco::RecoChargedCandidate, reco::RecoChargedCandidate>::HLTDoublet
       inputToken1_(consumes<trigger::TriggerFilterObjectWithRefs>(inputTag1_)),
       inputToken2_(consumes<trigger::TriggerFilterObjectWithRefs>(inputTag2_)),
       //electronToken_ (consumes<reco::ElectronCollection>(iConfig.template getParameter<edm::InputTag>("electronTag"))),
+      triggerType1_(iConfig.template getParameter<int>("triggerType1")),
+      triggerType2_(iConfig.template getParameter<int>("triggerType2")),
+      minDR_(iConfig.template getParameter<double>("MinDR")),
+      maxDZ_(iConfig.template getParameter<double>("MaxDZ")),
+      minPixHitsForDZ_(iConfig.template getParameter<int>("MinPixHitsForDZ")),
+      min_N_(iConfig.template getParameter<int>("MinN")),
+      checkSC_(iConfig.template getParameter<bool>("checkSC")),
+      same_(inputTag1_.encode() == inputTag2_.encode())  // same collections to be compared?
+{}
+
+template <>
+HLTDoubletDZ<l1t::TkMuon, l1t::TkMuon>::HLTDoubletDZ(const edm::ParameterSet& iConfig)
+    : HLTFilter(iConfig),
+      originTag1_(iConfig.template getParameter<std::vector<edm::InputTag>>("originTag1")),
+      originTag2_(iConfig.template getParameter<std::vector<edm::InputTag>>("originTag2")),
+      inputTag1_(iConfig.template getParameter<edm::InputTag>("inputTag1")),
+      inputTag2_(iConfig.template getParameter<edm::InputTag>("inputTag2")),
+      inputToken1_(consumes<trigger::TriggerFilterObjectWithRefs>(inputTag1_)),
+      inputToken2_(consumes<trigger::TriggerFilterObjectWithRefs>(inputTag2_)),
       triggerType1_(iConfig.template getParameter<int>("triggerType1")),
       triggerType2_(iConfig.template getParameter<int>("triggerType2")),
       minDR_(iConfig.template getParameter<double>("MinDR")),
@@ -404,6 +428,41 @@ bool HLTDoubletDZ<reco::RecoChargedCandidate, reco::RecoChargedCandidate>::compu
   return true;
 }
 
+template <>
+bool HLTDoubletDZ<l1t::TkMuon, l1t::TkMuon>::computeDZ(edm::Event& iEvent,
+                                                       l1t::TkMuonRef& r1,
+                                                       l1t::TkMuonRef& r2) const {
+  const l1t::TkMuon& candidate1(*r1);
+  const l1t::TkMuon& candidate2(*r2);
+  if (reco::deltaR(candidate1, candidate2) < minDR_)
+    return false;
+
+  // We don't care about minPixHitsForDZ_ with the L1TkMuons,
+  // especially because the pixel does not participate in the L1T
+  if (std::abs(candidate1.trkzVtx() - candidate2.trkzVtx()) > maxDZ_)
+    return false;
+
+  return true;
+}
+
+template <>
+bool HLTDoubletDZ<l1t::HPSPFTau, l1t::HPSPFTau>::computeDZ(edm::Event& iEvent,
+                                                           l1t::HPSPFTauRef& r1,
+                                                           l1t::HPSPFTauRef& r2) const {
+  const l1t::HPSPFTau& candidate1(*r1);
+  const l1t::HPSPFTau& candidate2(*r2);
+  if (reco::deltaR(candidate1, candidate2) < minDR_)
+    return false;
+
+  // We don't care about minPixHitsForDZ_ with the L1HPSPFTaus,
+  // especially because the pixel does not participate in the L1T
+  if (std::abs(candidate1.leadChargedPFCand()->pfTrack()->vertex().z() -
+               candidate2.leadChargedPFCand()->pfTrack()->vertex().z()) > maxDZ_)
+    return false;
+
+  return true;
+}
+
 // ------------ method called to produce the data  ------------
 template <typename T1, typename T2>
 bool HLTDoubletDZ<T1, T2>::hltFilter(edm::Event& iEvent,
@@ -453,12 +512,147 @@ bool HLTDoubletDZ<T1, T2>::hltFilter(edm::Event& iEvent,
   return accept;
 }
 
+/// Special instantiation for L1TkMuon
+/// L1TkMuon are *not* RecoCandidates, therefore they don't implement superCluster()
+/// They are LeafCandidates instead
+template <>
+bool HLTDoubletDZ<l1t::TkMuon, l1t::TkMuon>::hltFilter(edm::Event& iEvent,
+                                                       const edm::EventSetup& iSetup,
+                                                       trigger::TriggerFilterObjectWithRefs& filterproduct) const {
+  // All HLT filters must create and fill an HLT filter object,
+  // recording any reconstructed physics objects satisfying (or not)
+  // this HLT filter, and place it in the Event.
+  bool accept(false);
+
+  std::vector<l1t::TkMuonRef> coll1;
+  std::vector<l1t::TkMuonRef> coll2;
+
+  if (getCollections(iEvent, coll1, coll2, filterproduct)) {
+    int n(0);
+    l1t::TkMuonRef r1;
+    l1t::TkMuonRef r2;
+
+    for (unsigned int i1 = 0; i1 != coll1.size(); i1++) {
+      r1 = coll1[i1];
+      unsigned int I(0);
+      if (same_) {
+        I = i1 + 1;
+      }
+      for (unsigned int i2 = I; i2 != coll2.size(); i2++) {
+        r2 = coll2[i2];
+
+        if (!computeDZ(iEvent, r1, r2))
+          continue;
+
+        n++;
+        filterproduct.addObject(triggerType1_, r1);
+        filterproduct.addObject(triggerType2_, r2);
+      }
+    }
+
+    accept = accept || (n >= min_N_);
+  }
+
+  return accept;
+}
+
+/// Special instantiation for L1PFTau
+/// L1PFTau are *not* RecoCandidates, therefore they don't implement superCluster()
+/// They are LeafCandidates instead
+template <>
+bool HLTDoubletDZ<l1t::PFTau, l1t::PFTau>::hltFilter(edm::Event& iEvent,
+                                                     const edm::EventSetup& iSetup,
+                                                     trigger::TriggerFilterObjectWithRefs& filterproduct) const {
+  // All HLT filters must create and fill an HLT filter object,
+  // recording any reconstructed physics objects satisfying (or not)
+  // this HLT filter, and place it in the Event.
+  bool accept(false);
+
+  std::vector<l1t::PFTauRef> coll1;
+  std::vector<l1t::PFTauRef> coll2;
+
+  if (getCollections(iEvent, coll1, coll2, filterproduct)) {
+    int n(0);
+    l1t::PFTauRef r1;
+    l1t::PFTauRef r2;
+
+    for (unsigned int i1 = 0; i1 != coll1.size(); i1++) {
+      r1 = coll1[i1];
+      unsigned int I(0);
+      if (same_) {
+        I = i1 + 1;
+      }
+      for (unsigned int i2 = I; i2 != coll2.size(); i2++) {
+        r2 = coll2[i2];
+
+        if (!computeDZ(iEvent, r1, r2))
+          continue;
+
+        n++;
+        filterproduct.addObject(triggerType1_, r1);
+        filterproduct.addObject(triggerType2_, r2);
+      }
+    }
+
+    accept = accept || (n >= min_N_);
+  }
+
+  return accept;
+}
+
+/// Special instantiation for L1HPSPFTau
+/// L1HPSPFTau are *not* RecoCandidates, therefore they don't implement superCluster()
+/// They are LeafCandidates instead
+template <>
+bool HLTDoubletDZ<l1t::HPSPFTau, l1t::HPSPFTau>::hltFilter(edm::Event& iEvent,
+                                                           const edm::EventSetup& iSetup,
+                                                           trigger::TriggerFilterObjectWithRefs& filterproduct) const {
+  // All HLT filters must create and fill an HLT filter object,
+  // recording any reconstructed physics objects satisfying (or not)
+  // this HLT filter, and place it in the Event.
+  bool accept(false);
+
+  std::vector<l1t::HPSPFTauRef> coll1;
+  std::vector<l1t::HPSPFTauRef> coll2;
+
+  if (getCollections(iEvent, coll1, coll2, filterproduct)) {
+    int n(0);
+    l1t::HPSPFTauRef r1;
+    l1t::HPSPFTauRef r2;
+
+    for (unsigned int i1 = 0; i1 != coll1.size(); i1++) {
+      r1 = coll1[i1];
+      unsigned int I(0);
+      if (same_) {
+        I = i1 + 1;
+      }
+      for (unsigned int i2 = I; i2 != coll2.size(); i2++) {
+        r2 = coll2[i2];
+
+        if (!computeDZ(iEvent, r1, r2))
+          continue;
+
+        n++;
+        filterproduct.addObject(triggerType1_, r1);
+        filterproduct.addObject(triggerType2_, r2);
+      }
+    }
+
+    accept = accept || (n >= min_N_);
+  }
+
+  return accept;
+}
+
 typedef HLTDoubletDZ<reco::Electron, reco::Electron> HLT2ElectronElectronDZ;
 typedef HLTDoubletDZ<reco::RecoChargedCandidate, reco::RecoChargedCandidate> HLT2MuonMuonDZ;
 typedef HLTDoubletDZ<reco::Electron, reco::RecoChargedCandidate> HLT2ElectronMuonDZ;
 typedef HLTDoubletDZ<reco::RecoEcalCandidate, reco::RecoEcalCandidate> HLT2PhotonPhotonDZ;
 typedef HLTDoubletDZ<reco::RecoChargedCandidate, reco::RecoEcalCandidate> HLT2MuonPhotonDZ;
 typedef HLTDoubletDZ<reco::RecoEcalCandidate, reco::RecoChargedCandidate> HLT2PhotonMuonDZ;
+typedef HLTDoubletDZ<l1t::TkMuon, l1t::TkMuon> HLT2L1TkMuonL1TkMuonDZ;
+typedef HLTDoubletDZ<l1t::PFTau, l1t::PFTau> HLT2L1PFTauL1PFTauDZ;
+typedef HLTDoubletDZ<l1t::HPSPFTau, l1t::HPSPFTau> HLT2L1HPSPFTauL1HPSPFTauDZ;
 
 DEFINE_FWK_MODULE(HLT2ElectronElectronDZ);
 DEFINE_FWK_MODULE(HLT2MuonMuonDZ);
@@ -466,3 +660,6 @@ DEFINE_FWK_MODULE(HLT2ElectronMuonDZ);
 DEFINE_FWK_MODULE(HLT2PhotonPhotonDZ);
 DEFINE_FWK_MODULE(HLT2PhotonMuonDZ);
 DEFINE_FWK_MODULE(HLT2MuonPhotonDZ);
+DEFINE_FWK_MODULE(HLT2L1TkMuonL1TkMuonDZ);
+DEFINE_FWK_MODULE(HLT2L1PFTauL1PFTauDZ);
+DEFINE_FWK_MODULE(HLT2L1HPSPFTauL1HPSPFTauDZ);

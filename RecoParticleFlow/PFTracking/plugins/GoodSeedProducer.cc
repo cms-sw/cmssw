@@ -345,6 +345,10 @@ void GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup) {
       auto tketa = tkmom.eta();
       auto tkpt = std::sqrt(tkmom.perp2());
       auto const& Seed = (*trackRef->seedRef());
+      if (Seed.nHits() == 0) {  //if DeepCore is used in jetCore iteration the seed are hitless, in case skip
+        continue;
+      }
+
       if (!disablePreId_) {
         int ipteta = getBin(Tk[i].eta(), Tk[i].pt());
         int ibin = ipteta * 9;
