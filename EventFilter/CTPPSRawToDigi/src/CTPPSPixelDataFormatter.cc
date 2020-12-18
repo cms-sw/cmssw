@@ -113,11 +113,10 @@ void CTPPSPixelDataFormatter::interpretRawData(
     LogTrace("") << "DATA: " << print(*word);
 
     auto ww = *word;
-    if
-      UNLIKELY(ww == 0) {
-        m_WordCounter--;
-        continue;
-      }
+    if UNLIKELY (ww == 0) {
+      m_WordCounter--;
+      continue;
+    }
     int nlink = (ww >> m_LINK_shift) & m_LINK_mask;
     int nroc = (ww >> m_ROC_shift) & m_ROC_mask;
 
