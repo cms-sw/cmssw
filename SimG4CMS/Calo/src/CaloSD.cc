@@ -439,7 +439,7 @@ bool CaloSD::checkHit() {
 
 int CaloSD::getNumberOfHits() { return theHC->entries(); }
 
-const std::string CaloSD::printableDecayChain(std::vector<unsigned int> decayChain) {
+std::string CaloSD::printableDecayChain(const std::vector<unsigned int>& decayChain) {
   /*
   Takes a vector of ints (representing trackIDs), and returns a formatted string
   for debugging purposes
