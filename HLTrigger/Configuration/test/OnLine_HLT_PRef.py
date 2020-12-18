@@ -1,13 +1,13 @@
 # hltGetConfiguration --full --data /dev/CMSSW_11_2_0/PRef --type PRef --unprescale --process HLTPRef --globaltag auto:run3_hlt_PRef --input file:RelVal_Raw_PRef_DATA.root
 
-# /dev/CMSSW_11_2_0/PRef/V13 (CMSSW_11_2_0_pre11)
+# /dev/CMSSW_11_2_0/PRef/V17 (CMSSW_11_2_0)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPRef" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_11_2_0/PRef/V13')
+  tableName = cms.string('/dev/CMSSW_11_2_0/PRef/V17')
 )
 
 process.transferSystem = cms.PSet( 
