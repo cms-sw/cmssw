@@ -254,7 +254,7 @@ namespace {
       for (size_t i = 0; i != proxies.size(); ++i) {
         auto waitTask = edm::make_empty_waiting_task();
         waitTask->set_ref_count(2);
-        iRec.prefetchAsync(waitTask.get(), proxies[i], nullptr, edm::ServiceToken{});
+        iRec.prefetchAsync(WaitingTaskHolder(waitTask.get()), proxies[i], nullptr, edm::ServiceToken{});
         waitTask->decrement_ref_count();
         waitTask->wait_for_all();
         if (waitTask->exceptionPtr()) {
@@ -275,7 +275,7 @@ namespace {
       for (size_t i = 0; i != proxies.size(); ++i) {
         auto waitTask = edm::make_empty_waiting_task();
         waitTask->set_ref_count(2);
-        iRec.prefetchAsync(waitTask.get(), proxies[i], nullptr, edm::ServiceToken{});
+        iRec.prefetchAsync(WaitingTaskHolder(waitTask.get()), proxies[i], nullptr, edm::ServiceToken{});
         waitTask->decrement_ref_count();
         waitTask->wait_for_all();
         if (waitTask->exceptionPtr()) {

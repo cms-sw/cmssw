@@ -20,7 +20,7 @@
 // member functions
 //
 
-void edm::eventsetup::ESSourceDataProxyBase::prefetchAsyncImpl(edm::WaitingTask* iTask,
+void edm::eventsetup::ESSourceDataProxyBase::prefetchAsyncImpl(edm::WaitingTaskHolder iTask,
                                                                edm::eventsetup::EventSetupRecordImpl const& iRecord,
                                                                edm::eventsetup::DataKey const& iKey,
                                                                edm::EventSetupImpl const*,
