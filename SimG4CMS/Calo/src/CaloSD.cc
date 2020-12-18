@@ -888,7 +888,6 @@ void CaloSD::storeHit(CaloG4Hit* hit) {
 
 bool CaloSD::saveHit(CaloG4Hit* aHit) {
   int tkID;
-  int fineTrackID;
   bool ok = true;
 
   double time = aHit->getTimeSlice();
@@ -897,23 +896,16 @@ bool CaloSD::saveHit(CaloG4Hit* aHit) {
 
   // Do track bookkeeping a little differently for fine tracking
   if (doFineCalo_ && aHit->getID().hasFineTrackID()) {
-    tkID = aHit->getTrackID();
-    fineTrackID = aHit->getID().fineTrackID();
+    tkID = aHit->getID().fineTrackID();
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("DoFineCalo") << "Saving hit " << aHit->getUnitID() << " with trackID=" << tkID
-                                   << " fineTrackID=" << fineTrackID;
+    edm::LogVerbatim("DoFineCalo") << "Saving hit " << aHit->getUnitID() << " with trackID=" << tkID;
 #endif
     // Check if the track is actually in the trackManager
     if (m_trackManager) {
       if (!m_trackManager->trackExists(tkID)) {
         ok = false;
         throw cms::Exception("Unknown", "CaloSD")
-            << "aHit " << aHit->getUnitID() << " has primary trackID " << tkID << ", which is NOT IN THE TRACK MANAGER";
-      }
-      if (!m_trackManager->trackExists(fineTrackID)) {
-        ok = false;
-        throw cms::Exception("Unknown", "CaloSD") << "aHit " << aHit->getUnitID() << " has fineTrackID " << fineTrackID
-                                                  << ", which is NOT IN THE TRACK MANAGER";
+            << "aHit " << aHit->getUnitID() << " has fine trackID " << tkID << ", which is NOT IN THE TRACK MANAGER";
       }
     } else {
       ok = false;
@@ -925,7 +917,6 @@ bool CaloSD::saveHit(CaloG4Hit* aHit) {
                              aHit->getHadr() / CLHEP::GeV,
                              time,
                              tkID,
-                             fineTrackID,
                              aHit->getDepth());
   }
   // Regular, not-fine way:
