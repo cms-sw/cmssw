@@ -112,7 +112,16 @@ void RPixClusterToHit::make_hit(CTPPSPixelCluster aCluster, std::vector<CTPPSPix
   if (verbosity_)
     edm::LogInfo("RPixClusterToHit") << lp << " with error " << le;
 
-  hits.emplace_back(lp, le, anEdgePixel, aBadPixel, twoRocs, thisClusterMinRow, thisClusterMinCol, thisClusterSize, thisClusterRowSize, thisClusterColSize);
+  hits.emplace_back(lp,
+                    le,
+                    anEdgePixel,
+                    aBadPixel,
+                    twoRocs,
+                    thisClusterMinRow,
+                    thisClusterMinCol,
+                    thisClusterSize,
+                    thisClusterRowSize,
+                    thisClusterColSize);
 
   return;
 }
