@@ -67,9 +67,11 @@ void ProjectionRouter::addInput(MemoryBase* memory, string input) {
 }
 
 void ProjectionRouter::execute() {
+ 
   if (globals_->projectionRouterBendTable() == nullptr) {
     auto* bendTablePtr = new ProjectionRouterBendTable();
-    bendTablePtr->init(settings_, globals_, nrbits_, nphiderbits_);
+ 
+  bendTablePtr->init(settings_, globals_, nrbits_, nphiderbits_);
     globals_->projectionRouterBendTable() = bendTablePtr;
   }
 
@@ -109,7 +111,7 @@ void ProjectionRouter::execute() {
 
         int bendindex = (signindex << (nphiderbits_ + nrbits_)) + (rindex << (nphiderbits_)) + phiderindex;
 
-        int ibendproj = globals_->projectionRouterBendTable()->bendLoookup(disk - 1, bendindex);
+        int ibendproj = globals_->projectionRouterBendTable()->bendLoookup(disk, bendindex);
 
         tracklet->setBendIndex(ibendproj, disk);
       }

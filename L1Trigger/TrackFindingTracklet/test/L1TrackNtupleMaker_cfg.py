@@ -12,10 +12,7 @@ process = cms.Process("L1TrackNtuple")
 ############################################################
 
 GEOMETRY = "D49"
-# Set L1 tracking algorithm: 
-# 'HYBRID' (baseline, 4par fit) or 'HYBRID_DISPLACED' (extended, 5par fit). 
-# (Or legacy algos 'TMTT' or 'TRACKLET').
-L1TRKALGO = 'HYBRID'  
+L1TRKALGO = 'HYBRID'  # L1 tracking algorithm: 'HYBRID' (baseline, 4par fit) or 'HYBRID_DISPLACED' (extended, 5par fit)
 
 WRITE_DATA = False
 
@@ -50,22 +47,37 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 # input and output
 ############################################################
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(20))
 
 # Get list of MC datasets from repo, or specify yourself.
 
 def getTxtFile(txtFileName): 
-  return FileUtils.loadListFromFile(os.environ['CMSSW_BASE']+'/src/'+txtFileName)
+    return FileUtils.loadListFromFile(os.environ['CMSSW_BASE']+'/src/'+txtFileName)
 
 if GEOMETRY == "D49":
-    inputMC = ["/store/relval/CMSSW_11_2_0_pre5/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/20000/FDFA00CE-FA93-0142-B187-99CBD4A43944.root"]
-    
+    inputMC = ["/store/relval/CMSSW_11_1_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v2_2026D49PU200-v1/20000/F7BF4AED-51F1-9D47-B86D-6C3DDA134AB9.root",
+"/store/relval/CMSSW_11_1_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v2_2026D49PU200-v1/20000/F70AFCD2-89B3-2343-8ADA-D2101F96943B.root",
+"/store/relval/CMSSW_11_1_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v2_2026D49PU200-v1/20000/F33F8D29-C834-B34C-AC6A-4C96BCC9A626.root",
+"/store/relval/CMSSW_11_1_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v2_2026D49PU200-v1/20000/EFC9D9D3-09DC-304D-80E1-3A14B9E8CDDD.root", 
+"/store/relval/CMSSW_11_1_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v2_2026D49PU200-v1/20000/EEF2AE4F-EAF2-5645-B18F-99261DE20003.root"] 
 else:
     print "this is not a valid geometry!!!"
+
+"""i
+     inputMC = ["/store/relval/CMSSW_11_1_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v2_2026D49PU200-v1/20000/F7BF4AED-51F1-9D47-B86D-6C3DDA134AB9.root",
+"/store/relval/CMSSW_11_1_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v2_2026D49PU200-v1/20000/F70AFCD2-89B3-2343-8ADA-D2101F96943B.root",
+"/store/relval/CMSSW_11_1_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v2_2026D49PU200-v1/20000/F33F8D29-C834-B34C-AC6A-4C96BCC9A626.root",
+"/store/relval/CMSSW_11_1_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v2_2026D49PU200-v1/20000/EFC9D9D3-09DC-304D-80E1-3A14B9E8CDDD.root", 
+"/store/relval/CMSSW_11_1_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v2_2026D49PU200-v1/20000/EEF2AE4F-EAF2-5645-B18F-99261DE20003.root"] 
+    inputMC = ["file:step2_DIGI_L1TrackTrigger_L1_DIGI2RAW_HLT.root"]
+"""
+    
+
+
     
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(*inputMC))
 
-process.TFileService = cms.Service("TFileService", fileName = cms.string('TTbar_PU200_'+GEOMETRY+'.root'), closeFileFast = cms.untracked.bool(True))
+process.TFileService = cms.Service("TFileService", fileName = cms.string('test'+'.root'), closeFileFast = cms.untracked.bool(True))
 process.Timing = cms.Service("Timing", summaryOnly = cms.untracked.bool(True))
 
 
@@ -109,8 +121,8 @@ elif (L1TRKALGO == 'HYBRID_DISPLACED'):
     
 # LEGACY ALGORITHM (EXPERTS ONLY): TRACKLET  
 elif (L1TRKALGO == 'TRACKLET'):
-    print "\n WARNING: This is not the baseline algorithm! Prefer HYBRID or HYBRID_DISPLACED!"
-    print "\n To run the Tracklet-only algorithm, ensure you have commented out 'CXXFLAGS=-DUSEHYBRID' in BuildFile.xml & recompiled! \n"
+    print "\n WARNING - this is not a recommended algorithm! Please use HYBRID (HYBRID_DISPLACED)!"
+    print "\n To run the tracklet-only algorithm, please ensure you have commented out #define USEHYBRID in interface/Settings.h + recompiled! \n"
     process.TTTracksEmulation = cms.Path(process.L1HybridTracks)
     process.TTTracksEmulationWithTruth = cms.Path(process.L1HybridTracksWithAssociators)
     NHELIXPAR = 4
@@ -120,7 +132,7 @@ elif (L1TRKALGO == 'TRACKLET'):
 
 # LEGACY ALGORITHM (EXPERTS ONLY): TMTT  
 elif (L1TRKALGO == 'TMTT'):
-    print "\n WARNING: This is not the baseline algorithm! Prefer HYBRID or HYBRID_DISPLACED! \n"
+    print "\n WARNING - this is not a recommended algorithm! Please use HYBRID (HYBRID_DISPLACED)! \n"
     process.load("L1Trigger.TrackFindingTMTT.TMTrackProducer_Ultimate_cff")
     L1TRK_PROC  =  process.TMTrackProducer
     L1TRK_NAME  = "TMTrackProducer"
@@ -171,7 +183,7 @@ process.L1TrackNtuple = cms.EDAnalyzer('L1TrackNtupleMaker',
                                        TrackingVertexInputTag = cms.InputTag("mix", "MergedTrackTruth"),
                                        # tracking in jets (--> requires AK4 genjet collection present!)
                                        TrackingInJets = cms.bool(False),
-                                       GenJetInputTag = cms.InputTag("ak4GenJets", "")
+                                       GenJetInputTag = cms.InputTag("ak4GenJets", ""),
                                        )
 
 process.ana = cms.Path(process.L1TrackNtuple)
@@ -195,7 +207,7 @@ if (WRITE_DATA):
       splitLevel = cms.untracked.int32(0),
       eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
       outputCommands = process.RAWSIMEventContent.outputCommands,
-      fileName = cms.untracked.string('output_dataset.root'), ## ADAPT IT ##
+      fileName = cms.untracked.string('output_TTBar_seed6_500.root'), ## ADAPT IT ##
       dataset = cms.untracked.PSet(
           filterName = cms.untracked.string(''),
           dataTier = cms.untracked.string('GEN-SIM')

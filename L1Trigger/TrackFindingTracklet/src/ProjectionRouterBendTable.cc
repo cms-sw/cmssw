@@ -2,7 +2,7 @@
 #include "L1Trigger/TrackFindingTracklet/interface/Globals.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Util.h"
 #include "L1Trigger/TrackFindingTracklet/interface/IMATH_TrackletCalculator.h"
-
+#include <iostream>
 using namespace trklet;
 
 void ProjectionRouterBendTable::init(Settings const& settings,
@@ -36,7 +36,8 @@ void ProjectionRouterBendTable::init(Settings const& settings,
           double rinv = -phider * (2.0 * t);
 
           double stripPitch = (rproj < settings.rcrit()) ? settings.stripPitch(true) : settings.stripPitch(false);
-          double bendproj = 0.5 * bend(rproj, rinv, stripPitch);
+          int disk_val=idisk + 1;
+          double bendproj = bendDisk_PR(rproj,disk_val,rinv,stripPitch);
 
           int ibendproj = 2.0 * bendproj + 15.5;
           if (ibendproj < 0)
@@ -51,4 +52,8 @@ void ProjectionRouterBendTable::init(Settings const& settings,
   }
 }
 
-int ProjectionRouterBendTable::bendLoookup(int diskindex, int bendindex) { return bendtable_[diskindex][bendindex]; }
+int ProjectionRouterBendTable::bendLoookup(int disk, int bendindex) {
+
+ int diskindex = abs(disk)-1;
+ return bendtable_[diskindex][bendindex];
+ }
