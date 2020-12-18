@@ -43,8 +43,7 @@ void TTStubAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const
 
     /// Prepare the necessary maps
     std::map<TTStubRef, TrackingParticlePtr> stubToTrackingParticleMap;
-    std::map<TrackingParticlePtr, std::vector<TTStubRef>>
-        trackingParticleToStubVectorMap;
+    std::map<TrackingParticlePtr, std::vector<TTStubRef>> trackingParticleToStubVectorMap;
     stubToTrackingParticleMap.clear();
     trackingParticleToStubVectorMap.clear();
 
@@ -72,12 +71,11 @@ void TTStubAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const
           TTStubRef tempStubRef = edmNew::makeRefTo(ttStubHandle, contentIter);
 
           /// Fill the inclusive map which is careless of the stub classification
-	  for (unsigned int ic = 0; ic < 2; ic++) {
+          for (unsigned int ic = 0; ic < 2; ic++) {
             std::vector<TrackingParticlePtr> tempTPs =
                 ttClusterAssociationMapHandle->findTrackingParticlePtrs(tempStubRef->clusterRef(ic));
 
             for (const TrackingParticlePtr& testTP : tempTPs) {
-
               if (testTP.isNull())
                 continue;
 
@@ -195,8 +193,7 @@ void TTStubAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const
 
     /// Clean the only map that needs cleaning
     /// Prepare the output map wrt TrackingParticle
-    typename std::map<TrackingParticlePtr,
-                      std::vector<TTStubRef>>::iterator iterMapToClean;
+    typename std::map<TrackingParticlePtr, std::vector<TTStubRef>>::iterator iterMapToClean;
     for (auto& p : trackingParticleToStubVectorMap) {
       /// Get the vector of references to TTStub
       std::vector<TTStubRef> tempVector = p.second;

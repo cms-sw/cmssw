@@ -20,13 +20,18 @@
 #include "DataFormats/L1TrackTrigger/interface/TTTrack_TrackWord.h"
 
 /// Templated aliases
-template<typename T> using TTClusterDetSetVecT = edmNew::DetSetVector<TTCluster<T> >;
-template<typename T> using TTStubDetSetVecT = edmNew::DetSetVector<TTStub<T> >;
+template <typename T>
+using TTClusterDetSetVecT = edmNew::DetSetVector<TTCluster<T> >;
+template <typename T>
+using TTStubDetSetVecT = edmNew::DetSetVector<TTStub<T> >;
 
-template<typename T> using TTClusterRefT = edm::Ref<TTClusterDetSetVecT<T>, TTCluster<T> >;
-template<typename T> using TTStubRefT = edm::Ref<TTStubDetSetVecT<T>, TTStub<T> >;
+template <typename T>
+using TTClusterRefT = edm::Ref<TTClusterDetSetVecT<T>, TTCluster<T> >;
+template <typename T>
+using TTStubRefT = edm::Ref<TTStubDetSetVecT<T>, TTStub<T> >;
 
-template<typename T> using TTTrackPtrT = edm::Ptr<TTTrack<T> >;
+template <typename T>
+using TTTrackPtrT = edm::Ptr<TTTrack<T> >;
 
 /// Specialized aliases
 typedef edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi> Ref_Phase2TrackerDigi_;

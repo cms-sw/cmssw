@@ -37,8 +37,10 @@
 #include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
 
 // Templated aliases
-template<typename T> using MapL1TrackToTP = std::map<TTTrackPtrT<T>, TrackingParticlePtr >;
-template<typename T> using MapTPToVecL1Track = std::map<TrackingParticlePtr, std::vector<TTTrackPtrT<T>> >;
+template <typename T>
+using MapL1TrackToTP = std::map<TTTrackPtrT<T>, TrackingParticlePtr>;
+template <typename T>
+using MapTPToVecL1Track = std::map<TrackingParticlePtr, std::vector<TTTrackPtrT<T>>>;
 
 template <typename T>
 class TTTrackAssociationMap {
@@ -51,22 +53,14 @@ public:
 
   /// Get/set stub <-> truth association maps
 
-  const MapL1TrackToTP<T>& getTTTrackToTrackingParticleMap() const {
-    return trackToTrackingParticleMap;
-  }
-  const MapTPToVecL1Track<T>& getTrackingParticleToTTTracksMap() const {
-    return trackingParticleToTrackVectorMap;
-  }
+  const MapL1TrackToTP<T>& getTTTrackToTrackingParticleMap() const { return trackToTrackingParticleMap; }
+  const MapTPToVecL1Track<T>& getTrackingParticleToTTTracksMap() const { return trackingParticleToTrackVectorMap; }
 
-  void setTTTrackToTrackingParticleMap(const MapL1TrackToTP<T>& aMap) {
-    trackToTrackingParticleMap = aMap;
-  }
-  void setTrackingParticleToTTTracksMap(const MapTPToVecL1Track<T>& aMap) {
-    trackingParticleToTrackVectorMap = aMap;
-  }
+  void setTTTrackToTrackingParticleMap(const MapL1TrackToTP<T>& aMap) { trackToTrackingParticleMap = aMap; }
+  void setTrackingParticleToTTTracksMap(const MapTPToVecL1Track<T>& aMap) { trackingParticleToTrackVectorMap = aMap; }
 
   /// Set stub <-> truth association object.
-  void setTTStubAssociationMap(edm::RefProd<TTStubAssociationMap<T> > aStubAssoMap) {
+  void setTTStubAssociationMap(edm::RefProd<TTStubAssociationMap<T>> aStubAssoMap) {
     theStubAssociationMap = aStubAssoMap;
   }
 
@@ -75,9 +69,9 @@ public:
   TrackingParticlePtr findTrackingParticlePtr(TTTrackPtrT<T> aTrack) const;
 
   /// Get all L1 tracks associated to a TP.
-  /// (Even if the TP just contributes to one cluster in one stub, 
+  /// (Even if the TP just contributes to one cluster in one stub,
   /// and even if their are other such TP, it is still listed here).
-  std::vector<TTTrackPtrT<T> > findTTTrackPtrs(TrackingParticlePtr aTrackingParticle) const;
+  std::vector<TTTrackPtrT<T>> findTTTrackPtrs(TrackingParticlePtr aTrackingParticle) const;
 
   ///--- Get quality of L1 track based on truth info.
   /// (N.B. "genuine" tracks are used for official L1 track efficiency measurements).
@@ -85,7 +79,7 @@ public:
   /// Exactly one (i.e. not 0 or >= 2) unique TP contributes to every stub on the track.
   /// (even if it is not the principle TP in a stub, or contributes to only one cluster
   /// in the stub, it still counts).
-  /// N.B. If cfg param getAllowOneFalse2SStub() is true, then one incorrect stub in 
+  /// N.B. If cfg param getAllowOneFalse2SStub() is true, then one incorrect stub in
   /// a 2S module is alowed
   /// ISSUE: a track with 4 stubs can be accepted if only 3 of its stubs are correct!
   /// ISSUE: isLooselyGenuine() must also be true. So if 2 TPs match track, one with
@@ -107,7 +101,7 @@ private:
   /// Data members
   MapL1TrackToTP<T> trackToTrackingParticleMap;
   MapTPToVecL1Track<T> trackingParticleToTrackVectorMap;
-  edm::RefProd<TTStubAssociationMap<T> > theStubAssociationMap;
+  edm::RefProd<TTStubAssociationMap<T>> theStubAssociationMap;
 
   bool AllowOneFalse2SStub;
 
@@ -135,8 +129,7 @@ TTTrackAssociationMap<T>::~TTTrackAssociationMap() {}
 
 /// Operations
 template <>
-TrackingParticlePtr TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::findTrackingParticlePtr(
-    TTTrackPtr aTrack) const;
+TrackingParticlePtr TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::findTrackingParticlePtr(TTTrackPtr aTrack) const;
 
 template <>
 std::vector<TTTrackPtr> TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::findTTTrackPtrs(

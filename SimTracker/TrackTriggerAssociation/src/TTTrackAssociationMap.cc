@@ -9,8 +9,7 @@
 
 /// Operations
 template <>
-TrackingParticlePtr TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::findTrackingParticlePtr(
-    TTTrackPtr aTrack) const {
+TrackingParticlePtr TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::findTrackingParticlePtr(TTTrackPtr aTrack) const {
   if (trackToTrackingParticleMap.find(aTrack) != trackToTrackingParticleMap.end()) {
     return trackToTrackingParticleMap.find(aTrack)->second;
   }
@@ -28,7 +27,7 @@ std::vector<TTTrackPtr> TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::findTTTra
   }
 
   /// Default: return empty vector
-  std::vector<TTTrackPtr > tempVec;
+  std::vector<TTTrackPtr> tempVec;
   tempVec.clear();
   return tempVec;
 }
