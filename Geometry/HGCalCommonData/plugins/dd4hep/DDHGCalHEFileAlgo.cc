@@ -150,7 +150,10 @@ struct HGCalHEFileAlgo {
       edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << waferIndex_[k] << " ("
                                     << HGCalWaferIndex::waferLayer(waferIndex_[k]) << ", "
                                     << HGCalWaferIndex::waferU(waferIndex_[k]) << ", "
-                                    << HGCalWaferIndex::waferV(waferIndex_[k]) << ") : (" << HGCalProperty::waferThick(waferProperty_[k]) << ":" << HGCalProperty::waferPartial(waferProperty_[k]) << ":" << HGCalProperty::waferOrient(waferProperty_[k]) << ")";
+                                    << HGCalWaferIndex::waferV(waferIndex_[k]) << ") : ("
+                                    << HGCalProperty::waferThick(waferProperty_[k]) << ":"
+                                    << HGCalProperty::waferPartial(waferProperty_[k]) << ":"
+                                    << HGCalProperty::waferOrient(waferProperty_[k]) << ")";
 #endif
     slopeB_ = args.value<std::vector<double>>("SlopeBottom");
     zFrontB_ = args.value<std::vector<double>>("ZFrontBottom");
@@ -582,7 +585,7 @@ struct HGCalHEFileAlgo {
   double waferSepar_;               // Sensor separation
   int sectors_;                     // Sectors
   std::vector<int> waferIndex_;     // Wafer index for the types
-  std::vector<int> waferProperty_;   // Wafer property
+  std::vector<int> waferProperty_;  // Wafer property
   std::vector<double> slopeB_;      // Slope at the lower R
   std::vector<double> zFrontB_;     // Starting Z values for the slopes
   std::vector<double> rMinFront_;   // Corresponding rMin's

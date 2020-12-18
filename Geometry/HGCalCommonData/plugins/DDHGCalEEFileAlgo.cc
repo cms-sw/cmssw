@@ -161,7 +161,9 @@ void DDHGCalEEFileAlgo::initialize(const DDNumericArguments& nArgs,
   alpha_ = (1._pi) / sectors_;
   cosAlpha_ = cos(alpha_);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "zStart " << zMinBlock_ << " wafer width " << waferSize_ << " separations " << waferSepar_ << " sectors " << sectors_ << ":" << convertRadToDeg(alpha_) << ":" << cosAlpha_;
+  edm::LogVerbatim("HGCalGeom") << "zStart " << zMinBlock_ << " wafer width " << waferSize_ << " separations "
+                                << waferSepar_ << " sectors " << sectors_ << ":" << convertRadToDeg(alpha_) << ":"
+                                << cosAlpha_;
 #endif
   waferIndex_ = dbl_to_int(vArgs["WaferIndex"]);
   waferProperty_ = dbl_to_int(vArgs["WaferProperties"]);
@@ -171,7 +173,10 @@ void DDHGCalEEFileAlgo::initialize(const DDNumericArguments& nArgs,
     edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << waferIndex_[k] << " ("
                                   << HGCalWaferIndex::waferLayer(waferIndex_[k]) << ", "
                                   << HGCalWaferIndex::waferU(waferIndex_[k]) << ", "
-                                  << HGCalWaferIndex::waferV(waferIndex_[k]) << ") : (" << HGCalProperty::waferThick(waferProperty_[k]) << ":" << HGCalProperty::waferPartial(waferProperty_[k]) << ":" << HGCalProperty::waferOrient(waferProperty_[k]) << ")";
+                                  << HGCalWaferIndex::waferV(waferIndex_[k]) << ") : ("
+                                  << HGCalProperty::waferThick(waferProperty_[k]) << ":"
+                                  << HGCalProperty::waferPartial(waferProperty_[k]) << ":"
+                                  << HGCalProperty::waferOrient(waferProperty_[k]) << ")";
 #endif
   slopeB_ = vArgs["SlopeBottom"];
   zFrontB_ = vArgs["ZFrontBottom"];
