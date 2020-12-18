@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "FWCore/Framework/interface/ComponentDescription.h"
 
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -257,7 +258,7 @@ namespace edm {
       return proxies_[std::distance(keysForProxies_.begin(), lb)].get();
     }
 
-    void EventSetupRecordImpl::prefetchAsync(WaitingTask* iTask,
+    void EventSetupRecordImpl::prefetchAsync(WaitingTaskHolder iTask,
                                              ESProxyIndex iProxyIndex,
                                              EventSetupImpl const* iEventSetupImpl,
                                              ServiceToken const& iToken) const {
