@@ -51,6 +51,13 @@ namespace edm {
       }
     }
 
+    void removeWorker(Worker const* worker) {
+      unscheduledWorkers_.erase(std::remove(unscheduledWorkers_.begin(), unscheduledWorkers_.end(), worker),
+                                unscheduledWorkers_.end());
+      accumulatorWorkers_.erase(std::remove(accumulatorWorkers_.begin(), accumulatorWorkers_.end(), worker),
+                                accumulatorWorkers_.end());
+    }
+
     void setEventTransitionInfo(EventTransitionInfo const& info) { aux_.setEventTransitionInfo(info); }
 
     UnscheduledAuxiliary const& auxiliary() const { return aux_; }

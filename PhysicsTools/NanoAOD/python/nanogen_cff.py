@@ -116,9 +116,8 @@ def customizeNanoGEN(process):
 
 # Prune gen particles with tight conditions applied in usual NanoAOD
 def pruneGenParticlesNano(process):
-    process.finalGenParticles = finalGenParticles.clone()
-    process.genParticleTable.src = "prunedGenParticles"
-    process.patJetPartons.particles = "prunedGenParticles"
+    process.finalGenParticles.src = process.genParticleTable.src.getModuleLabel()
+    process.genParticleTable.src = "finalGenParticles"
     process.nanogenSequence.insert(0, process.finalGenParticles)
     return process
 
@@ -129,8 +128,9 @@ def pruneGenParticlesMini(process):
             "Use a different customization.")
     from PhysicsTools.PatAlgos.slimming.prunedGenParticles_cfi import prunedGenParticles
     process.prunedGenParticles = prunedGenParticles.clone()
+    process.prunedGenParticles.src = "genParticles"
     process.genParticleTable.src = "prunedGenParticles"
-    process.patJetPartons.particles = "prunedGenParticles"
+
     process.nanogenSequence.insert(0, process.prunedGenParticles)
     return process
 

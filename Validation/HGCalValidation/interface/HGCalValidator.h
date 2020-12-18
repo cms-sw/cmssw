@@ -54,11 +54,14 @@ public:
   void cpParametersAndSelection(const Histograms& histograms,
                                 std::vector<CaloParticle> const& cPeff,
                                 std::vector<SimVertex> const& simVertices,
-                                std::vector<size_t>& selected_cPeff) const;
+                                std::vector<size_t>& selected_cPeff,
+                                unsigned int layers,
+                                std::unordered_map<DetId, const HGCRecHit*> const&) const;
 
 protected:
   edm::InputTag label_lcl;
   std::vector<edm::InputTag> label_mcl;
+  edm::InputTag associator_;
   const bool SaveGeneralInfo_;
   const bool doCaloParticlePlots_;
   const bool doCaloParticleSelection_;
@@ -74,7 +77,8 @@ protected:
   edm::EDGetTokenT<std::vector<SimVertex>> simVertices_;
   edm::EDGetTokenT<std::unordered_map<DetId, const HGCRecHit*>> hitMap_;
   edm::EDGetTokenT<Density> density_;
-  edm::EDGetTokenT<hgcal::LayerClusterToCaloParticleAssociator> LCAssocByEnergyScoreProducer_;
+  edm::EDGetTokenT<hgcal::RecoToSimCollection> associatorMapRtS;
+  edm::EDGetTokenT<hgcal::SimToRecoCollection> associatorMapStR;
   std::unique_ptr<HGVHistoProducerAlgo> histoProducerAlgo_;
 
 private:

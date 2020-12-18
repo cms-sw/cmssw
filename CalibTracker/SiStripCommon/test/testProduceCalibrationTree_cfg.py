@@ -88,7 +88,6 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, options.conditionGT, options.conditionOverwrite)
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.MessageLogger.destinations = ['cout', 'cerr']
 if(options.unitTest):
     process.MessageLogger.cerr.FwkReport.reportEvery = 1
 else:

@@ -49,4 +49,35 @@ namespace edm {
     modItr->second = modPtr;
     return modItr->second.get();
   }
+
+  void ModuleRegistry::deleteModule(std::string const& iModuleLabel,
+                                    signalslot::Signal<void(ModuleDescription const&)>& iPre,
+                                    signalslot::Signal<void(ModuleDescription const&)>& iPost) {
+    auto modItr = labelToModule_.find(iModuleLabel);
+    if (modItr == labelToModule_.end()) {
+      throw cms::Exception("LogicError")
+          << "Trying to delete module " << iModuleLabel
+          << " but it does not exist in the ModuleRegistry. Please contact framework developers.";
+    }
+    // If iPost throws and exception, let it propagate
+    // If deletion throws an exception, capture it and call iPost before throwing an exception
+    // If iPost throws an exception, let it propagate
+    auto md = modItr->second->moduleDescription();
+    iPre(modItr->second->moduleDescription());
+    bool postCalled = false;
+    // exception is rethrown
+    CMS_SA_ALLOW try {
+      labelToModule_.erase(modItr);
+      // if exception then post will be called in the catch block
+      postCalled = true;
+      iPost(md);
+    } catch (...) {
+      if (not postCalled) {
+        // we're already handling exception, nothing we can do if iPost throws
+        CMS_SA_ALLOW try { iPost(md); } catch (...) {
+        }
+      }
+      throw;
+    }
+  }
 }  // namespace edm

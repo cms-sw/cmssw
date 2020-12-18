@@ -12,7 +12,6 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
@@ -56,6 +55,13 @@ namespace {
     edm::EDGetTokenT<MeasurementTrackerEvent> tracker_;  //new
     bool applyVertexCut_;
 
+    edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoToken_;
+    edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
+    edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorToken_;
+    edm::ESGetToken<Chi2MeasurementEstimatorBase, TrackingComponentsRecord> chi2MeasurementEstimatorBaseToken_;
+    edm::ESGetToken<MeasurementTracker, CkfComponentsRecord> measurementTrackerToken_;
+    edm::ESGetToken<PixelClusterParameterEstimator, TkPixelCPERecord> pixelClusterParameterEstimatorToken_;
+
     const TrackerTopology* trackerTopology_;
     const Propagator* trackerPropagator_;
     const MeasurementEstimator* chi2MeasurementEstimator_;
@@ -71,6 +77,15 @@ namespace {
     trajTrackCollectionToken_ =
         consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("trajectoryInput"));
     clustersToken_ = consumes<edmNew::DetSetVector<SiPixelCluster>>(iConfig.getParameter<edm::InputTag>("clusters"));
+
+    trackerTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
+    trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
+    propagatorToken_ = esConsumes<Propagator, TrackingComponentsRecord>(edm::ESInputTag("", "PropagatorWithMaterial"));
+    chi2MeasurementEstimatorBaseToken_ =
+        esConsumes<Chi2MeasurementEstimatorBase, TrackingComponentsRecord>(edm::ESInputTag("", "Chi2"));
+    measurementTrackerToken_ = esConsumes<MeasurementTracker, CkfComponentsRecord>();
+    pixelClusterParameterEstimatorToken_ =
+        esConsumes<PixelClusterParameterEstimator, TkPixelCPERecord>(edm::ESInputTag("", "PixelCPEGeneric"));
   }
 
   void SiPixelPhase1TrackEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -78,8 +93,7 @@ namespace {
       return;
 
     // get geometry
-    edm::ESHandle<TrackerGeometry> tracker;
-    iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
+    edm::ESHandle<TrackerGeometry> tracker = iSetup.getHandle(trackerGeomToken_);
     assert(tracker.isValid());
 
     // get primary vertex
@@ -87,28 +101,25 @@ namespace {
     iEvent.getByToken(vtxToken_, vertices);
 
     // TrackerTopology for module informations
-    edm::ESHandle<TrackerTopology> trackerTopologyHandle;
-    iSetup.get<TrackerTopologyRcd>().get(trackerTopologyHandle);
+    edm::ESHandle<TrackerTopology> trackerTopologyHandle = iSetup.getHandle(trackerTopoToken_);
     trackerTopology_ = trackerTopologyHandle.product();
 
     // Tracker propagator for propagating tracks to other layers
-    edm::ESHandle<Propagator> propagatorHandle;
-    iSetup.get<TrackingComponentsRecord>().get("PropagatorWithMaterial", propagatorHandle);
+    edm::ESHandle<Propagator> propagatorHandle = iSetup.getHandle(propagatorToken_);
     std::unique_ptr<Propagator> propagatorUniquePtr(propagatorHandle.product()->clone());
     trackerPropagator_ = propagatorUniquePtr.get();
     const_cast<Propagator*>(trackerPropagator_)->setPropagationDirection(oppositeToMomentum);
 
     // Measurement estimator
-    edm::ESHandle<Chi2MeasurementEstimatorBase> chi2MeasurementEstimatorHandle;
-    iSetup.get<TrackingComponentsRecord>().get("Chi2", chi2MeasurementEstimatorHandle);
+    edm::ESHandle<Chi2MeasurementEstimatorBase> chi2MeasurementEstimatorHandle =
+        iSetup.getHandle(chi2MeasurementEstimatorBaseToken_);
     chi2MeasurementEstimator_ = chi2MeasurementEstimatorHandle.product();
 
     //Tracker
     edm::Handle<MeasurementTrackerEvent> trackerMeas;
     iEvent.getByToken(tracker_, trackerMeas);
 
-    edm::ESHandle<MeasurementTracker> measurementTrackerHandle;
-    iSetup.get<CkfComponentsRecord>().get(measurementTrackerHandle);
+    edm::ESHandle<MeasurementTracker> measurementTrackerHandle = iSetup.getHandle(measurementTrackerToken_);
 
     //vertices
     if (!vertices.isValid())
@@ -139,8 +150,7 @@ namespace {
       return;
     //
 
-    edm::ESHandle<PixelClusterParameterEstimator> cpEstimator;
-    iSetup.get<TkPixelCPERecord>().get("PixelCPEGeneric", cpEstimator);
+    edm::ESHandle<PixelClusterParameterEstimator> cpEstimator = iSetup.getHandle(pixelClusterParameterEstimatorToken_);
     if (!cpEstimator.isValid())
       return;
 

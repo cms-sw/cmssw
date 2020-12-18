@@ -165,19 +165,18 @@ void TrackerGeomBuilderFromGeometricDet::buildPixel(
 
   tracker->setOffsetDU(GeomDetEnumerators::subDetGeom[det]);
 
-  for (auto i : gdv) {
+  for (auto const& i : gdv) {
     std::string const& detName = i->name();
     if (thePixelDetTypeMap.find(detName) == thePixelDetTypeMap.end()) {
       std::unique_ptr<const Bounds> bounds(i->bounds());
-
-      PixelTopology* t = PixelTopologyBuilder().build(&*bounds,
+      PixelTopology* t = PixelTopologyBuilder().build(bounds.get(),
                                                       upgradeGeometry,
-                                                      i->pixROCRows(),
-                                                      i->pixROCCols(),
+                                                      (int)i->pixROCRows(),
+                                                      (int)i->pixROCCols(),
                                                       BIG_PIX_PER_ROC_X,
                                                       BIG_PIX_PER_ROC_Y,
-                                                      i->pixROCx(),
-                                                      i->pixROCy());
+                                                      (int)i->pixROCx(),
+                                                      (int)i->pixROCy());
 
       thePixelDetTypeMap[detName] = new PixelGeomDetType(t, detName, det);
       tracker->addType(thePixelDetTypeMap[detName]);
@@ -203,11 +202,11 @@ void TrackerGeomBuilderFromGeometricDet::buildSilicon(std::vector<const Geometri
 
   tracker->setOffsetDU(GeomDetEnumerators::subDetGeom[det]);
 
-  for (auto i : gdv) {
+  for (auto const& i : gdv) {
     std::string const& detName = i->name();
     if (theStripDetTypeMap.find(detName) == theStripDetTypeMap.end()) {
       std::unique_ptr<const Bounds> bounds(i->bounds());
-      StripTopology* t = StripTopologyBuilder().build(&*bounds, i->siliconAPVNum(), part);
+      StripTopology* t = StripTopologyBuilder().build(bounds.get(), i->siliconAPVNum(), part);
       theStripDetTypeMap[detName] = new StripGeomDetType(t, detName, det, i->stereo());
       tracker->addType(theStripDetTypeMap[detName]);
     }

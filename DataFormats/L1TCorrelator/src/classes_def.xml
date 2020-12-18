@@ -6,7 +6,9 @@
  </class>
  <class name="std::vector<l1t::TkPrimaryVertex>"/>
  <class name="edm::Wrapper<std::vector<l1t::TkPrimaryVertex> >"/>
-  <class name="edm::Ref<std::vector<l1t::TkPrimaryVertex>,l1t::TkPrimaryVertex,edm::refhelper::FindUsingAdvance<std::vector<l1t::TkPrimaryVertex>,l1t::TkPrimaryVertex> >"/>
+ <class name="edm::Ref<std::vector<l1t::TkPrimaryVertex>,l1t::TkPrimaryVertex,edm::refhelper::FindUsingAdvance<std::vector<l1t::TkPrimaryVertex>,l1t::TkPrimaryVertex> >"/>
+ <class name="std::vector<edm::Ref<std::vector<l1t::TkPrimaryVertex>,l1t::TkPrimaryVertex,edm::refhelper::FindUsingAdvance<std::vector<l1t::TkPrimaryVertex>,l1t::TkPrimaryVertex> > >"/>
+
 
   <class name="l1t::TkEtMiss" ClassVersion="3">
    <version ClassVersion="3" checksum="77762919"/>
@@ -21,6 +23,8 @@
   <class name="std::vector<l1t::TkEm>"/>
   <class name="edm::Wrapper<std::vector<l1t::TkEm> >"/>
   <class name="edm::Ref<std::vector<l1t::TkEm>,l1t::TkEm,edm::refhelper::FindUsingAdvance<std::vector<l1t::TkEm>,l1t::TkEm> >"/>
+  <class name="std::vector<edm::Ref<std::vector<l1t::TkEm>,l1t::TkEm,edm::refhelper::FindUsingAdvance<std::vector<l1t::TkEm>,l1t::TkEm> > >"/>
+
 
   <class name="l1t::TkEGTau" ClassVersion="3">
    <version ClassVersion="3" checksum="3759113668"/>
@@ -49,6 +53,7 @@
   <class name="std::vector<l1t::TkElectron>"/>
   <class name="edm::Wrapper<std::vector<l1t::TkElectron> >"/>
   <class name="edm::Ref<std::vector<l1t::TkElectron>,l1t::TkElectron,edm::refhelper::FindUsingAdvance<std::vector<l1t::TkElectron>,l1t::TkElectron> >"/>
+  <class name="std::vector<edm::Ref<std::vector<l1t::TkElectron>,l1t::TkElectron,edm::refhelper::FindUsingAdvance<std::vector<l1t::TkElectron>,l1t::TkElectron> > >"/>
 
   <class name="l1t::TkJet" ClassVersion="3">
    <version ClassVersion="3" checksum="3336007399"/>
@@ -72,6 +77,7 @@
   <class name="std::vector<l1t::TkMuon>"/>
   <class name="edm::Wrapper<std::vector<l1t::TkMuon> >"/>
   <class name="edm::Ref<std::vector<l1t::TkMuon>,l1t::TkMuon,edm::refhelper::FindUsingAdvance<std::vector<l1t::TkMuon>,l1t::TkMuon> >"/>
+  <class name="std::vector<edm::Ref<std::vector<l1t::TkMuon>,l1t::TkMuon,edm::refhelper::FindUsingAdvance<std::vector<l1t::TkMuon>,l1t::TkMuon> > >"/>
 
   <class name="l1t::TkGlbMuon" ClassVersion="3">
    <version ClassVersion="3"  checksum="2811548892"/>

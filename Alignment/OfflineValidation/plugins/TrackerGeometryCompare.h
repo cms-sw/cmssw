@@ -16,7 +16,6 @@
  */
 
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "CondFormats/Alignment/interface/SurveyErrors.h"

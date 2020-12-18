@@ -16,7 +16,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
 
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('HFShower')
+    process.MessageLogger.HFShower = dict()
 
 process.Timing = cms.Service("Timing")
 

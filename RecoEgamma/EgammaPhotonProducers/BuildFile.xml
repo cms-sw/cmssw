@@ -1,9 +1,7 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
-<use name="FWCore/PluginManager"/>
 <use name="DataFormats/ParticleFlowCandidate"/>
 <use name="DataFormats/EgammaCandidates"/>
-<use name="DataFormats/TrajectorySeed"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/TrackCandidate"/>
 <use name="DataFormats/TrackReco"/>
@@ -20,8 +18,6 @@
 <use name="RecoTracker/MeasurementDet"/>
 <use name="RecoTracker/CkfPattern"/>
 <use name="RecoTracker/TrackProducer"/>
-<use name="RecoVertex/KinematicFitPrimitives"/>
-<use name="RecoVertex/KinematicFit"/>
 <use name="DataFormats/HcalRecHit"/>
 <use name="RecoCaloTools/Selectors"/>
 <use name="clhep"/>

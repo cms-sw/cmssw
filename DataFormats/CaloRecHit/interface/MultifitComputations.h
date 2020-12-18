@@ -7,6 +7,8 @@
 
 #include <Eigen/Dense>
 
+#include "FWCore/Utilities/interface/CMSUnrollLoop.h"
+
 namespace calo {
   namespace multifit {
 
@@ -73,7 +75,7 @@ namespace calo {
       L(0, 0) = sqrtm_0_0;
       using T = typename MatrixType1::base_type;
 
-#pragma unroll
+      CMS_UNROLL_LOOP
       for (int i = 1; i < MatrixType1::stride; i++) {
         T sumsq{0};
         for (int j = 0; j < i; j++) {
@@ -199,13 +201,13 @@ namespace calo {
       constexpr auto NPULSES = MatrixType2::ColsAtCompileTime;
       constexpr auto NSAMPLES = MatrixType2::RowsAtCompileTime;
 
-#pragma unroll
+      CMS_UNROLL_LOOP
       for (int icol = 0; icol < NPULSES; icol++) {
         float reg_b[NSAMPLES];
         float reg_L[NSAMPLES];
 
-// preload a column and load column 0 of cholesky
-#pragma unroll
+        // preload a column and load column 0 of cholesky
+        CMS_UNROLL_LOOP
         for (int i = 0; i < NSAMPLES; i++) {
 #ifdef __CUDA_ARCH__
           // load through the read-only cache
@@ -220,16 +222,16 @@ namespace calo {
         auto x_prev = reg_b[0] / reg_L[0];
         A(0, icol) = x_prev;
 
-// iterate
-#pragma unroll
+        // iterate
+        CMS_UNROLL_LOOP
         for (int iL = 1; iL < NSAMPLES; iL++) {
-// update accum
-#pragma unroll
+          // update accum
+          CMS_UNROLL_LOOP
           for (int counter = iL; counter < NSAMPLES; counter++)
             reg_b[counter] -= x_prev * reg_L[counter];
 
-// load the next column of cholesky
-#pragma unroll
+          // load the next column of cholesky
+          CMS_UNROLL_LOOP
           for (int counter = iL; counter < NSAMPLES; counter++)
             reg_L[counter] = matrixL(counter, iL);
 
@@ -251,8 +253,8 @@ namespace calo {
       float reg_b_tmp[NSAMPLES];
       float reg_L[NSAMPLES];
 
-// preload a column and load column 0 of cholesky
-#pragma unroll
+      // preload a column and load column 0 of cholesky
+      CMS_UNROLL_LOOP
       for (int i = 0; i < NSAMPLES; i++) {
         reg_b_tmp[i] = inputAmplitudesView(i);
         reg_L[i] = matrixL(i, 0);
@@ -262,16 +264,16 @@ namespace calo {
       auto x_prev = reg_b_tmp[0] / reg_L[0];
       reg_b[0] = x_prev;
 
-// iterate
-#pragma unroll
+      // iterate
+      CMS_UNROLL_LOOP
       for (int iL = 1; iL < NSAMPLES; iL++) {
-// update accum
-#pragma unroll
+        // update accum
+        CMS_UNROLL_LOOP
         for (int counter = iL; counter < NSAMPLES; counter++)
           reg_b_tmp[counter] -= x_prev * reg_L[counter];
 
-// load the next column of cholesky
-#pragma unroll
+        // load the next column of cholesky
+        CMS_UNROLL_LOOP
         for (int counter = iL; counter < NSAMPLES; counter++)
           reg_L[counter] = matrixL(counter, iL);
 
@@ -300,13 +302,13 @@ namespace calo {
         float results[NPULSES];
 
         // preload results and permute according to the pulse offsets /////////////// ??? this is not done in ECAL
-#pragma unroll
+        CMS_UNROLL_LOOP
         for (int counter = 0; counter < NPULSES; counter++) {
           results[counter] = resultAmplitudesVector[counter];
         }
 
         // load accum
-#pragma unroll
+        CMS_UNROLL_LOOP
         for (int counter = 0; counter < NSAMPLES; counter++)
           accum[counter] = -inputAmplitudesView(counter);
 
@@ -315,7 +317,7 @@ namespace calo {
           float pm_col[NSAMPLES];
 
           // preload a column of pulse matrix
-#pragma unroll
+          CMS_UNROLL_LOOP
           for (int counter = 0; counter < NSAMPLES; counter++)
 #ifdef __CUDA_ARCH__
             pm_col[counter] = __ldg(&pulseMatrixView.coeffRef(counter, icol));
@@ -323,8 +325,8 @@ namespace calo {
             pm_col[counter] = pulseMatrixView.coeffRef(counter, icol);
 #endif
 
-            // accum
-#pragma unroll
+          // accum
+          CMS_UNROLL_LOOP
           for (int counter = 0; counter < NSAMPLES; counter++)
             accum[counter] += results[icol] * pm_col[counter];
         }
@@ -342,7 +344,7 @@ namespace calo {
         float accumSum = 0;
 
         // preload a column and load column 0 of cholesky
-#pragma unroll
+        CMS_UNROLL_LOOP
         for (int i = 0; i < NSAMPLES; i++) {
           reg_L[i] = matrixL(i, 0);
         }
@@ -352,15 +354,15 @@ namespace calo {
         accumSum += x_prev * x_prev;
 
         // iterate
-#pragma unroll
+        CMS_UNROLL_LOOP
         for (int iL = 1; iL < NSAMPLES; iL++) {
           // update accum
-#pragma unroll
+          CMS_UNROLL_LOOP
           for (int counter = iL; counter < NSAMPLES; counter++)
             accum[counter] -= x_prev * reg_L[counter];
 
-            // load the next column of cholesky
-#pragma unroll
+          // load the next column of cholesky
+          CMS_UNROLL_LOOP
           for (int counter = iL; counter < NSAMPLES; counter++)
             reg_L[counter] = matrixL(counter, iL);
 
@@ -417,7 +419,7 @@ namespace calo {
             auto const icol_real = pulseOffsets(icol);
             auto const atb = Atb(icol_real);
             float sum = 0;
-#pragma unroll
+            CMS_UNROLL_LOOP
             for (int counter = 0; counter < NPULSES; counter++)
               sum += counter > icol_real ? AtA(counter, icol_real) * solution(counter)
                                          : AtA(icol_real, counter) * solution(counter);

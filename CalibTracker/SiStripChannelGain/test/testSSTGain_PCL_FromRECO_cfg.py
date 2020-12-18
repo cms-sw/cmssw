@@ -61,17 +61,18 @@ process.load('Configuration.StandardSequences.Services_cff')
 # Messages
 ###################################################################
 process.load('FWCore.MessageService.MessageLogger_cfi')   
-process.MessageLogger.categories.append("SiStripGainsPCLWorker")  
-process.MessageLogger.destinations = cms.untracked.vstring("cout")
+process.MessageLogger.cerr.enable = False
+process.MessageLogger.SiStripGainsPCLWorker=dict()  
 process.MessageLogger.cout = cms.untracked.PSet(
+    enable    = cms.untracked.bool(True),
     threshold = cms.untracked.string("DEBUG"),
+    enableStatistics = cms.untracked.bool(True),
     default   = cms.untracked.PSet(limit = cms.untracked.int32(0)),                       
     FwkReport = cms.untracked.PSet(limit = cms.untracked.int32(-1),
                                    reportEvery = cms.untracked.int32(1000)
                                    ),                                                      
     SiStripGainsPCLWorker = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
     )
-process.MessageLogger.statistics.append('cout') 
 
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')

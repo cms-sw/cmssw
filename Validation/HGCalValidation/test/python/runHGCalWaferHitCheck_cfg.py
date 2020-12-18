@@ -15,8 +15,8 @@ from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['phase2_realistic']
 
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('HGCalValidation')
-#   process.MessageLogger.categories.append('HGCalGeom')
+    process.MessageLogger.HGCalValidation=dict()
+#   process.MessageLogger.HGCalGeom=dict()
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring('file:step1.root')

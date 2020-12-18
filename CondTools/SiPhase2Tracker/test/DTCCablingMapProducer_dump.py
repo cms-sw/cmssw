@@ -4,16 +4,13 @@ process = cms.Process("DTCCablingMapPayloadDumpTest")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger = cms.Service("MessageLogger",
-	destinations = cms.untracked.vstring(
-		'cerr',
-		'cout'
-	),
-	cerr = cms.untracked.PSet(
-		threshold  = cms.untracked.string('INFO')
-	),
-	cout = cms.untracked.PSet(
-		threshold  = cms.untracked.string('INFO')
-	),
+    cerr = cms.untracked.PSet(
+        threshold = cms.untracked.string('INFO')
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('INFO')
+    )
 )
 
 # Load CondDB service

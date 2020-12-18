@@ -4,6 +4,7 @@
 //#include "CondCore/CondDB/interface/Logger.h"
 
 #include <mutex>
+#include <set>
 #include "CoralBase/MessageStream.h"
 
 namespace cond {
@@ -12,16 +13,28 @@ namespace cond {
 
     class Logger;
 
+    class MsgDispatcher {
+    public:
+      MsgDispatcher() = delete;
+      explicit MsgDispatcher(Logger& logger);
+      virtual ~MsgDispatcher() {}
+
+      void unsubscribe();
+
+      bool hasRecipient();
+      Logger& recipient();
+
+    private:
+      Logger* m_recipient = nullptr;
+    };
+
     class CoralMsgReporter : public coral::IMsgReporter {
     public:
-      // Empty ctr is suppressed
-      CoralMsgReporter() = delete;
-
       /// Default constructor
-      explicit CoralMsgReporter(Logger& logger);
+      CoralMsgReporter();
 
       /// Destructor
-      ~CoralMsgReporter() override {}
+      ~CoralMsgReporter() override{};
 
       /// Release reference to reporter
       void release() override { delete this; }
@@ -35,9 +48,11 @@ namespace cond {
       /// Report a message
       void report(int lvl, const std::string& src, const std::string& msg) override;
 
+      void subscribe(Logger& logger);
+
     private:
       // the destination of the streams...
-      Logger& m_logger;
+      std::shared_ptr<MsgDispatcher> m_dispatcher;
 
       /// The current message level threshold
       coral::MsgLevel m_level;

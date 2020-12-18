@@ -51,6 +51,7 @@
 
 namespace edm {
   class ModuleDescription;
+  class ModuleProcessName;
   class ProductResolverIndexHelper;
   class ProductRegistry;
   class ConsumesCollector;
@@ -105,7 +106,8 @@ namespace edm {
     typedef ProductLabels Labels;
     void labelsForToken(EDGetToken iToken, Labels& oLabels) const;
 
-    void modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modules,
+    void modulesWhoseProductsAreConsumed(std::array<std::vector<ModuleDescription const*>*, NumBranchTypes>& modulesAll,
+                                         std::vector<ModuleProcessName>& modulesInPreviousProcesses,
                                          ProductRegistry const& preg,
                                          std::map<std::string, ModuleDescription const*> const& labelsToDesc,
                                          std::string const& processName) const;

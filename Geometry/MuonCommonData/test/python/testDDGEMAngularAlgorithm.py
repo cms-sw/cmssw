@@ -10,7 +10,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 5
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('MuonGeom')
+    process.MessageLogger.MuonGeom=dict()
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             confGeomXMLFiles = cms.FileInPath('Geometry/MuonCommonData/data/cms-test-ddgemangular-algorithm.xml'),

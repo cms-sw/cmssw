@@ -124,6 +124,7 @@ namespace {
   public:
     ESChannelStatusDiff() : cond::payloadInspector::PlotImage<ESChannelStatus>("ES channel status difference") {
       setSingleIov(false);
+      setTwoTags(true);
     }
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
       TH2F*** esmap = new TH2F**[2];

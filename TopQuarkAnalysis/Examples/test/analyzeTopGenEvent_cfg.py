@@ -6,7 +6,7 @@ process = cms.Process("TEST")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = cms.untracked.string('INFO')
 ## dump content of TopGenEvent
-process.MessageLogger.categories.append('TopGenEvent')
+process.MessageLogger.TopGenEvent=dict()
 
 ## define input
 from TopQuarkAnalysis.TopEventProducers.tqafInputFiles_cff import relValTTbar

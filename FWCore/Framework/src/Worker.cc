@@ -180,7 +180,7 @@ namespace edm {
         return true;
       }
 
-      ModuleCallingContext tempContext(&description(), ModuleCallingContext::State::kInvalid, parentContext, nullptr);
+      ModuleCallingContext tempContext(description(), ModuleCallingContext::State::kInvalid, parentContext, nullptr);
 
       // If we are processing an endpath and the module was scheduled, treat SkipEvent or FailPath
       // as IgnoreCompletely, so any subsequent OutputModules are still run.
@@ -349,13 +349,14 @@ namespace edm {
   void Worker::beginJob() {
     try {
       convertException::wrap([&]() {
-        ModuleBeginJobSignalSentry cpp(actReg_.get(), description());
+        ModuleBeginJobSignalSentry cpp(actReg_.get(), *description());
         implBeginJob();
       });
     } catch (cms::Exception& ex) {
       state_ = Exception;
       std::ostringstream ost;
-      ost << "Calling beginJob for module " << description().moduleName() << "/'" << description().moduleLabel() << "'";
+      ost << "Calling beginJob for module " << description()->moduleName() << "/'" << description()->moduleLabel()
+          << "'";
       ex.addContext(ost.str());
       throw;
     }
@@ -364,13 +365,15 @@ namespace edm {
   void Worker::endJob() {
     try {
       convertException::wrap([&]() {
-        ModuleEndJobSignalSentry cpp(actReg_.get(), description());
+        ModuleDescription const* desc = description();
+        assert(desc != nullptr);
+        ModuleEndJobSignalSentry cpp(actReg_.get(), *desc);
         implEndJob();
       });
     } catch (cms::Exception& ex) {
       state_ = Exception;
       std::ostringstream ost;
-      ost << "Calling endJob for module " << description().moduleName() << "/'" << description().moduleLabel() << "'";
+      ost << "Calling endJob for module " << description()->moduleName() << "/'" << description()->moduleLabel() << "'";
       ex.addContext(ost.str());
       throw;
     }
@@ -393,7 +396,7 @@ namespace edm {
     } catch (cms::Exception& ex) {
       state_ = Exception;
       std::ostringstream ost;
-      ost << "Calling beginStream for module " << description().moduleName() << "/'" << description().moduleLabel()
+      ost << "Calling beginStream for module " << description()->moduleName() << "/'" << description()->moduleLabel()
           << "'";
       ex.addContext(ost.str());
       throw;
@@ -417,7 +420,7 @@ namespace edm {
     } catch (cms::Exception& ex) {
       state_ = Exception;
       std::ostringstream ost;
-      ost << "Calling endStream for module " << description().moduleName() << "/'" << description().moduleLabel()
+      ost << "Calling endStream for module " << description()->moduleName() << "/'" << description()->moduleLabel()
           << "'";
       ex.addContext(ost.str());
       throw;
@@ -428,7 +431,7 @@ namespace edm {
     try {
       implRegisterThinnedAssociations(registry, helper);
     } catch (cms::Exception& ex) {
-      ex.addContext("Calling registerThinnedAssociations() for module " + description().moduleLabel());
+      ex.addContext("Calling registerThinnedAssociations() for module " + description()->moduleLabel());
       throw ex;
     }
   }

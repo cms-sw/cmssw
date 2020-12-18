@@ -27,3 +27,7 @@
 <library file="isolation_cones/*.cc" name="RecoEgammaEgammaIsolationAlgosPlugins_isolation_cones">
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<library file="iso_deposit_extractors/*.cc" name="RecoEgammaEgammaIsolationAlgosPlugins_iso_deposit_extractors">
+  <flags EDM_PLUGIN="1"/>
+</library>

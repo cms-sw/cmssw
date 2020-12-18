@@ -202,14 +202,6 @@ def customiseFor2018Input(process):
     process = customisePixelGainForRun2Input(process)
     process = synchronizeHCALHLTofflineRun3on2018data(process)
 
-def customiseFor32066(process):
-    """Add the ESSource and ESProducer for the mustache SC and the dynamic dphi parameters records"""
-
-    # create the EcalMustacheSCParameters record
-    process.load('RecoEcal.EgammaCoreTools.EcalMustacheSCParametersESProducer_cff')
-    # create the EcalSCDynamicDPhiParameters record
-    process.load('RecoEcal.EgammaCoreTools.EcalSCDynamicDPhiParametersESProducer_cff')
-
     return process
 
 
@@ -218,7 +210,5 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
-
-    process = customiseFor32066(process)
 
     return process

@@ -166,7 +166,7 @@ namespace cms {
     T get(const std::string&);
 
     //! extract attribute value for current Node
-    //  keep the maespace for comparison
+    //  keep the namespace for comparison
     //  assume there are no regular expressions
     template <typename T>
     std::vector<T> getValuesNS(const std::string& key) {

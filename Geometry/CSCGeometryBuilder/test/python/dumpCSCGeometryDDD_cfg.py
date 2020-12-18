@@ -17,9 +17,9 @@ process.load("Geometry.CSCGeometryBuilder.cscGeometryDump_cfi")
 
 process.CSCGeometryESModule.applyAlignment = False
 if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.categories.append('Geometry')
-    process.MessageLogger.categories.append('CSCNumberingScheme')
-    process.MessageLogger.categories.append('CSCGeometry')
+    process.MessageLogger.Geometry=dict()
+    process.MessageLogger.CSCNumberingScheme=dict()
+    process.MessageLogger.CSCGeometry=dict()
 
 process.source = cms.Source('EmptySource')
 

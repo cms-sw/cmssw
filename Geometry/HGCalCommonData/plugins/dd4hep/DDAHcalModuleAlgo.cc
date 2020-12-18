@@ -4,7 +4,6 @@
  *  Created on: 27-August-2019
  *      Author: Sunanda Banerjee
  */
-
 #include "DataFormats/Math/interface/CMSUnits.h"
 #include "DD4hep/DetFactoryHelper.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
@@ -19,6 +18,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   cms::DDNamespace ns(ctxt, e, true);
   cms::DDAlgoArguments args(ctxt, e);
   static constexpr double tol = 0.00001;
+  static constexpr double f2mm = (1.0 / dd4hep::mm);
 
   const auto& tile = args.value<std::string>("TileName");                          // Scintillator tile
   const auto& materials = args.value<std::vector<std::string> >("MaterialNames");  // Materials
@@ -30,7 +30,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   edm::LogVerbatim("HGCalGeom") << "DDAHcalModuleAlgo: Tile " << tile;
   edm::LogVerbatim("HGCalGeom") << "DDAHcalModuleAlgo: " << materials.size() << " types of volumes";
   for (unsigned int i = 0; i < names.size(); ++i)
-    edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << names[i] << " of thickness " << thick[i]
+    edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << names[i] << " of thickness " << (f2mm * thick[i])
                                   << " filled with " << materials[i] << " first copy number " << copyNumber[i];
 #endif
   const auto& layers = args.value<std::vector<int> >("Layers");             // Number of layers in a section
@@ -40,8 +40,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDAHcalModuleAlgo: " << layers.size() << " blocks";
   for (unsigned int i = 0; i < layers.size(); ++i)
-    edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] of thickness " << layerThick[i] << " with " << layers[i]
-                                  << " layers";
+    edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] of thickness " << (f2mm * layerThick[i]) << " with "
+                                  << layers[i] << " layers";
   edm::LogVerbatim("HGCalGeom") << "DDAHcalModuleAlgo: " << layerType.size() << " layers";
   for (unsigned int i = 0; i < layerType.size(); ++i)
     edm::LogVerbatim("HGCalGeom") << "Layer [" << i << "] with material type " << layerType[i] << " sensitive class "
@@ -55,14 +55,14 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   edm::LogVerbatim("HGCalGeom") << "DDAHcalModuleAlgo: " << widths.size() << " sizes for width "
                                 << "and height:";
   for (unsigned int i = 0; i < widths.size(); ++i)
-    edm::LogVerbatim("HGCalGeom") << " [" << i << "] " << widths[i] << ":" << heights[i];
+    edm::LogVerbatim("HGCalGeom") << " [" << i << "] " << (f2mm * widths[i]) << ":" << (f2mm * heights[i]);
   edm::LogVerbatim("HGCalGeom") << "DDAHcalModuleAlgo: " << tileN.size() << " tile positioning parameters";
   for (unsigned int i = 0; i < tileN.size(); ++i)
-    edm::LogVerbatim("HGCalGeom") << " [" << i << "] " << tileN[i] << ":" << tileStep[i];
+    edm::LogVerbatim("HGCalGeom") << " [" << i << "] " << tileN[i] << ":" << (f2mm * tileStep[i]);
 #endif
   const auto& zMinBlock = args.value<double>("zMinBlock");  // Starting z-value of the block
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalModule: zStart " << zMinBlock << "  NameSpace " << ns.name();
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalModule: zStart " << (f2mm * zMinBlock) << "  NameSpace " << ns.name();
 #endif
 
   // Mother module
@@ -83,8 +83,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
       std::string name = "HGCal" + names[ii] + std::to_string(copy);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "DDAHcalModuleAlgo test: Layer " << ly << ":" << ii << " Front " << zi
-                                    << " Back " << zo << " superlayer thickness " << layerThick[i];
+      edm::LogVerbatim("HGCalGeom") << "DDAHcalModuleAlgo test: Layer " << ly << ":" << ii << " Front " << (f2mm * zi)
+                                    << " Back " << (f2mm * zo) << " superlayer thickness " << (f2mm * layerThick[i]);
 #endif
       dd4hep::Material matter = ns.material(materials[ii]);
       dd4hep::Volume glog;
@@ -94,8 +94,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         glog = dd4hep::Volume(solid.name(), solid, matter);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDAHcalModuleAlgo: " << solid.name() << " Box made of " << materials[ii]
-                                      << " of dimensions " << 0.5 * widths[0] << ", " << 0.5 * heights[0] << ", "
-                                      << 0.5 * thick[ii];
+                                      << " of dimensions " << (f2mm * 0.5 * widths[0]) << ", "
+                                      << (f2mm * 0.5 * heights[0]) << ", " << (f2mm * 0.5 * thick[ii]);
 #endif
       } else {
         dd4hep::Solid solid = dd4hep::Box(0.5 * widths[1], 0.5 * heights[1], 0.5 * thick[ii]);
@@ -103,8 +103,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         glog = dd4hep::Volume(solid.name(), solid, matter);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDAHcalModuleAlgo: " << solid.name() << " Box made of " << materials[ii]
-                                      << " of dimensions " << 0.5 * widths[1] << ", " << 0.5 * heights[1] << ", "
-                                      << 0.5 * thick[ii];
+                                      << " of dimensions " << (f2mm * 0.5 * widths[1]) << ", "
+                                      << (f2mm * 0.5 * heights[1]) << ", " << (f2mm * 0.5 * thick[ii]);
 #endif
         int ncol = tileN[0] / 2;
         int nrow = tileN[1] / 2;
@@ -130,8 +130,9 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
               glog.placeVolume(glog1, copy, dd4hep::Transform3D(rotation, tran));
 #ifdef EDM_ML_DEBUG
               kount++;
-              edm::LogVerbatim("HGCalGeom") << "DDAHcalModuleAlgo: " << tile << " number " << copy << " positioned in "
-                                            << glog.name() << " at " << tran << " with " << rotation;
+              edm::LogVerbatim("HGCalGeom")
+                  << "DDAHcalModuleAlgo: " << tile << " number " << copy << " positioned in " << glog.name() << " at ("
+                  << (f2mm * xpos) << ", " << (f2mm * ypos) << ", 0) with no rotation";
 #endif
             }
           }
@@ -145,7 +146,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       ++copyNumber[ii];
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "DDAHcalModuleAlgo: " << glog.name() << " number " << copy << " positioned in "
-                                    << module.name() << " at " << r1 << " with no rotation";
+                                    << module.name() << " at (0, 0, " << (f2mm * zz) << ") with no rotation";
 #endif
       zz += (0.5 * thick[ii]);
     }  // End of loop over layers in a block
@@ -153,11 +154,12 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     laymin = laymax;
     if (fabs(thickTot - layerThick[i]) > tol) {
       if (thickTot > layerThick[i]) {
-        edm::LogError("HGCalGeom") << "Thickness of the partition " << layerThick[i] << " is smaller than thickness "
-                                   << thickTot << " of all its components **** ERROR ****\n";
+        edm::LogError("HGCalGeom") << "Thickness of the partition " << (f2mm * layerThick[i])
+                                   << " is smaller than thickness " << (f2mm * thickTot)
+                                   << " of all its components **** ERROR ****\n";
       } else {
-        edm::LogWarning("HGCalGeom") << "Thickness of the partition " << layerThick[i] << " does not match with "
-                                     << thickTot << " of the components\n";
+        edm::LogWarning("HGCalGeom") << "Thickness of the partition " << (f2mm * layerThick[i])
+                                     << " does not match with " << (f2mm * thickTot) << " of the components\n";
       }
     }
   }  // End of loop over blocks

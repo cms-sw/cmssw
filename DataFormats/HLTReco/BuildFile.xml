@@ -8,6 +8,7 @@
 <use name="DataFormats/METReco"/>
 <use name="DataFormats/HcalIsolatedTrack"/>
 <use name="DataFormats/TauReco"/>
+<use name="DataFormats/L1TParticleFlow"/>
 <export>
   <lib name="1"/>
 </export>

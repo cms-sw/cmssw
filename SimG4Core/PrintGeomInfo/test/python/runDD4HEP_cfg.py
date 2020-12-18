@@ -17,8 +17,8 @@ from SimG4Core.PrintGeomInfo.g4PrintGeomInfo_cfi import *
 process = printGeomInfo(process)
 
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('G4cerr')
-    process.MessageLogger.categories.append('G4cout')
+    process.MessageLogger.G4cerr=dict()
+    process.MessageLogger.G4cout=dict()
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             confGeomXMLFiles = cms.FileInPath('Geometry/CMSCommonData/data/dd4hep/cmsExtendedGeometry2021.xml'),

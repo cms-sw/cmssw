@@ -39,8 +39,8 @@ workflows[1304.182] = ['', ['ProdZEE_13UP18','DIGIUP18PROD1','RECOPRODUP18bParki
 #workflows.addOverride(1303.17,overridesEv5)
 
 #####Prod2018 with concurrentlumi
-workflows[1302.181] = ['', ['ProdTTbar_13UP18ml','DIGIUP18PROD1ml','RECOPRODUP18ml','MINIAODMCUP18ml','NANOPRODUP18ml']]
-workflows[1304.181] = ['', ['ProdZEE_13UP18ml','DIGIUP18PROD1ml','RECOPRODUP18ml','MINIAODMCUP18ml','NANOPRODUP18ml']]
+workflows[1302.181] = ['', ['ProdTTbar_13UP18ml','DIGIUP18PROD1','RECOPRODUP18','MINIAODMCUP18','NANOPRODUP18']]
+workflows[1304.181] = ['', ['ProdZEE_13UP18ml','DIGIUP18PROD1','RECOPRODUP18','MINIAODMCUP18','NANOPRODUP18']]
 
 ### data ###
 workflows[4.5]  = ['', ['RunCosmicsA','RECOCOSD','ALCACOSD','HARVESTDC']]
@@ -439,8 +439,8 @@ workflows[138.1] = ['',['RunCosmics2020GEM','RECOCOSDRUN3','ALCACOSDRUN3','HARVE
 workflows[138.2] = ['',['RunCosmics2020','RECOCOSDEXPRUN3','ALCACOSDEXPRUN3','HARVESTDCEXPRUN3']]
 
 #### Test of lumi section boundary crossing with run2 2018D ####
-workflows[136.8861] = ['',['RunEGamma2018Dml1','HLTDR2_2018ml','RECODR2_2018reHLT_skimEGamma_Prompt_L1TEgDQMml','HARVEST2018_L1TEgDQM_Prompt']]
-workflows[136.8862] = ['',['RunEGamma2018Dml2','HLTDR2_2018ml','RECODR2_2018reHLT_skimEGamma_Prompt_L1TEgDQMml','HARVEST2018_L1TEgDQM_Prompt']]
+workflows[136.8861] = ['',['RunEGamma2018Dml1','HLTDR2_2018ml','RECODR2_2018reHLT_skimEGamma_Prompt_L1TEgDQM','HARVEST2018_L1TEgDQM_Prompt']]
+workflows[136.8862] = ['',['RunEGamma2018Dml2','HLTDR2_2018ml','RECODR2_2018reHLT_skimEGamma_Prompt_L1TEgDQM','HARVEST2018_L1TEgDQM_Prompt']]
 
 ### fastsim ###
 workflows[5.1] = ['TTbar', ['TTbarFS','HARVESTFS']]
@@ -679,7 +679,7 @@ workflows[1362.18] = ['', ['VBFHToZZTo4Nu_M125_Pow_py8_Evt_13UP18','DIGIUP18','R
 workflows[1363.18] = ['', ['VBFHToBB_M125_Pow_py8_Evt_13UP18','DIGIUP18','RECOUP18','HARVESTUP18','NANOUP18']]
 
 #2018 workflows starting from gridpacks LHE generation with multiple concurrent lumi sections
-workflows[1361.181] = ['', ['GluGluHToZZTo4L_M125_Pow_py8_Evt_13UP18ml','DIGIUP18ml','RECOUP18ml','HARVESTUP18','NANOUP18ml']]
+workflows[1361.181] = ['', ['GluGluHToZZTo4L_M125_Pow_py8_Evt_13UP18ml','DIGIUP18','RECOUP18','HARVESTUP18','NANOUP18']]
 
 # fullSim 13TeV normal workflows starting from pLHE
 workflows[1370] = ['', ['GluGluHToGG_M125_Pow_MINLO_NNLOPS_py8_13','Hadronizer_TuneCUETP8M1_13TeV_powhegEmissionVeto_2p_HToGG_M125_13','DIGIUP15','RECOUP15','HARVESTUP15','NANOUP15Had']]
@@ -705,8 +705,6 @@ workflows[158.01] = ['',['HydjetQ_reminiaodPbPb2018_INPUT','REMINIAODHI2018PPREC
 workflows[158.1] = ['',['QCD_Pt_80_120_13_HI','DIGIHI2018PPRECO','RECOHI2018PPRECO','HARVESTHI2018PPRECO']]
 workflows[158.2] = ['',['PhotonJets_Pt_10_13_HI','DIGIHI2018PPRECO','RECOHI2018PPRECO','HARVESTHI2018PPRECO']]
 workflows[158.3] = ['',['ZEEMM_13_HI','DIGIHI2018PPRECO','RECOHI2018PPRECO','HARVESTHI2018PPRECO']]
-# 158.0 with multiple concurrent lumi sections
-workflows[158.181] = ['',['HydjetQ_B12_5020GeV_2018_ppReco_ml','DIGIHI2018PPRECOml','RECOHI2018PPRECOml','ALCARECOHI2018PPRECOml','HARVESTHI2018PPRECO']]
 workflows[159] = ['',['HydjetQ_B12_5020GeV_2021_ppReco','DIGIHI2021PPRECO','RECOHI2021PPRECOMB','ALCARECOHI2021PPRECO','HARVESTHI2021PPRECO']]
 workflows[159.1] = ['',['QCD_Pt_80_120_14_HI_2021','DIGIHI2021PPRECO','RECOHI2021PPRECO','HARVESTHI2021PPRECO']]
 workflows[159.2] = ['',['PhotonJets_Pt_10_14_HI_2021','DIGIHI2021PPRECO','RECOHI2021PPRECO','HARVESTHI2021PPRECO']]

@@ -84,28 +84,28 @@ void HGCalGeomLocaterTester::doTestSilicon(const HGCalGeometry* geom, DetId::Det
 void HGCalGeomLocaterTester::doTestScintillator(const HGCalGeometry* geom, DetId::Detector det) {
   const std::vector<DetId>& ids = geom->getValidDetIds();
   std::cout << "doTest:: " << ids.size() << " valid ids for " << geom->cellElement() << std::endl;
-  const double tol = 0.5;
+  const double tol = 0.01;
   const unsigned int step = 10;
   int all(0), good(0), bad(0);
   for (unsigned int k = 0; k < ids.size(); k += step) {
     ++all;
     HGCScintillatorDetId id(ids[k]);
-    if ((id.iradiusAbs() != 7) && (id.iradiusAbs() != 41)) {
-      std::cout << "ID[" << k << "] " << id;
-      GlobalPoint global = geom->getPosition(id);
-      auto tilexy = geom->topology().dddConstants().locateCell(id, false);
-      double dx = global.x() - tilexy.first;
-      double dy = global.y() - tilexy.second;
-      std::cout << " position (" << global.x() << ", " << global.y() << ", " << global.z() << ") tileXY ("
-                << tilexy.first << ", " << tilexy.second << ") Delta (" << dx << ", " << dy << ")";
-      if ((std::abs(dx) > tol) || (std::abs(dy) > tol)) {
-        std::cout << "***** ERROR *****" << std::endl;
-        ++bad;
-        geom->topology().dddConstants().locateCell(id, true);
-      } else {
-        std::cout << std::endl;
-        ++good;
-      }
+    std::cout << "ID[" << k << "] " << id;
+    GlobalPoint global = geom->getPosition(id);
+    auto tilexy = geom->topology().dddConstants().locateCell(id, false);
+    double dx = global.x() - tilexy.first;
+    double dy = global.y() - tilexy.second;
+    std::cout << " position (" << global.x() << ", " << global.y() << ", " << global.z() << ") tileXY (" << tilexy.first
+              << ", " << tilexy.second << ") Delta (" << dx << ", " << dy << ")";
+    if ((std::abs(dx) > tol) || (std::abs(dy) > tol)) {
+      double r1 = sqrt(global.x() * global.x() + global.y() * global.y());
+      double r2 = sqrt(tilexy.first * tilexy.first + tilexy.second * tilexy.second);
+      std::cout << " R " << r1 << ":" << r2 << " ***** ERROR *****" << std::endl;
+      ++bad;
+      geom->topology().dddConstants().locateCell(id, true);
+    } else {
+      std::cout << std::endl;
+      ++good;
     }
   }
   std::cout << "\n\nStudied " << all << " (" << ids.size() << ") IDs of which " << good << " are good and " << bad
