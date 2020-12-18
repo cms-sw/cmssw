@@ -37,8 +37,7 @@ void TTTrackAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, cons
 
     /// Prepare the necessary maps
     std::map<TTTrackPtr, TrackingParticlePtr> trackToTrackingParticleMap;
-    std::map<TrackingParticlePtr, std::vector<TTTrackPtr>>
-        trackingParticleToTrackVectorMap;
+    std::map<TrackingParticlePtr, std::vector<TTTrackPtr>> trackingParticleToTrackVectorMap;
     trackToTrackingParticleMap.clear();
     trackingParticleToTrackVectorMap.clear();
 
@@ -57,7 +56,7 @@ void TTTrackAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, cons
       auxMap.clear();
       int mayCombinUnknown = 0;
 
-      /// Fill the map associating each TP to a vector of L1 tracks. 
+      /// Fill the map associating each TP to a vector of L1 tracks.
       /// Do this using the association map of the clusters inside each stub,
       /// as stub associator misses stub --> all TP map (FIX).
       for (const TTStubRef& stub : theseStubs) {
@@ -105,12 +104,11 @@ void TTTrackAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, cons
 
       for (const auto& auxPair : auxMap) {
         /// Get all associated stubs of this TrackingParticle
-        std::vector<TTStubRef> tempStubs =
-	  ttStubAssociationMapHandle->findTTStubRefs(auxPair.second);
+        std::vector<TTStubRef> tempStubs = ttStubAssociationMapHandle->findTTStubRefs(auxPair.second);
 
-	// Count stubs on track that are not related to this TP
+        // Count stubs on track that are not related to this TP
         int nnotfound = 0;
-	for (const TTStubRef& stub : theseStubs) {
+        for (const TTStubRef& stub : theseStubs) {
           /// We want that all the stubs of the track are included in the container of
           /// all the stubs produced by this particular TrackingParticle which we
           /// already know is one of the TrackingParticles that released hits
@@ -141,7 +139,7 @@ void TTTrackAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, cons
       /// If 0 or >= 2 TP: COMBINATORIC
       /// WARNING: This means if one TP matches all stubs, and another matches all STUBS except
       /// one, then the trackToTrackingParticleMap will not be filled.
-      /// WARNING: This also means that trackToTrackingParticleMap will be filled if 
+      /// WARNING: This also means that trackToTrackingParticleMap will be filled if
       /// one TP matches all stubs, except for an incorrect one in either PS or 2S modules.
       if (nTPs != 1)
         continue;
@@ -160,7 +158,7 @@ void TTTrackAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, cons
       /// (CHECK: Couldn't this be done by reference, to save CPU?)
       std::vector<TTTrackPtr> tempVector = p.second;
 
-      /// Sort and remove duplicates 
+      /// Sort and remove duplicates
       std::sort(tempVector.begin(), tempVector.end());
       tempVector.erase(std::unique(tempVector.begin(), tempVector.end()), tempVector.end());
 

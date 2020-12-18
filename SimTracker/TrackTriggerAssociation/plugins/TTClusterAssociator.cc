@@ -64,10 +64,8 @@ void TTClusterAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, co
     iEvent.getByToken(iTag, TTClusterHandle);
 
     /// Prepare the necessary maps
-    std::map<TTClusterRef, std::vector<TrackingParticlePtr>>
-        clusterToTrackingParticleVectorMap;
-    std::map<TrackingParticlePtr, std::vector<TTClusterRef> >
-        trackingParticleToClusterVectorMap;
+    std::map<TTClusterRef, std::vector<TrackingParticlePtr>> clusterToTrackingParticleVectorMap;
+    std::map<TrackingParticlePtr, std::vector<TTClusterRef>> trackingParticleToClusterVectorMap;
     clusterToTrackingParticleVectorMap.clear();
     trackingParticleToClusterVectorMap.clear();
 
@@ -85,8 +83,7 @@ void TTClusterAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, co
 
       for (auto contentIter = clusters.begin(); contentIter != clusters.end(); ++contentIter) {
         /// Make the reference to be put in the map
-        TTClusterRef tempCluRef =
-            edmNew::makeRefTo(TTClusterHandle, contentIter);
+        TTClusterRef tempCluRef = edmNew::makeRefTo(TTClusterHandle, contentIter);
 
         /// Prepare the maps wrt TTCluster
         if (clusterToTrackingParticleVectorMap.find(tempCluRef) == clusterToTrackingParticleVectorMap.end()) {
@@ -176,8 +173,7 @@ void TTClusterAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, co
 
     /// Clean the maps that need cleaning
     /// Prepare the output map wrt TrackingParticle
-    std::map<TrackingParticlePtr,
-             std::vector<TTClusterRef>>::iterator iterMapToClean;
+    std::map<TrackingParticlePtr, std::vector<TTClusterRef>>::iterator iterMapToClean;
     for (iterMapToClean = trackingParticleToClusterVectorMap.begin();
          iterMapToClean != trackingParticleToClusterVectorMap.end();
          ++iterMapToClean) {

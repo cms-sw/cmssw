@@ -40,8 +40,10 @@
 #include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
 
 // Templated aliases
-template<typename T> using MapStubToTP = std::map<TTStubRefT<T>, TrackingParticlePtr >;
-template<typename T> using MapTPToVecStub = std::map<TrackingParticlePtr, std::vector<TTStubRefT<T> > >;
+template <typename T>
+using MapStubToTP = std::map<TTStubRefT<T>, TrackingParticlePtr>;
+template <typename T>
+using MapTPToVecStub = std::map<TrackingParticlePtr, std::vector<TTStubRefT<T>>>;
 
 template <typename T>
 class TTStubAssociationMap {
@@ -54,22 +56,14 @@ public:
 
   /// Get/set stub <-> truth association maps
 
-  const MapStubToTP<T>& getTTStubToTrackingParticleMap() const {
-    return stubToTrackingParticleMap;
-  }
-  const MapTPToVecStub<T>& getTrackingParticleToTTStubsMap() const {
-    return trackingParticleToStubVectorMap;
-  }
+  const MapStubToTP<T>& getTTStubToTrackingParticleMap() const { return stubToTrackingParticleMap; }
+  const MapTPToVecStub<T>& getTrackingParticleToTTStubsMap() const { return trackingParticleToStubVectorMap; }
 
-  void setTTStubToTrackingParticleMap(const MapStubToTP<T>& aMap) {
-    stubToTrackingParticleMap = aMap;
-  }
-  void setTrackingParticleToTTStubsMap(const MapTPToVecStub<T>& aMap) {
-    trackingParticleToStubVectorMap = aMap;
-  }
+  void setTTStubToTrackingParticleMap(const MapStubToTP<T>& aMap) { stubToTrackingParticleMap = aMap; }
+  void setTrackingParticleToTTStubsMap(const MapTPToVecStub<T>& aMap) { trackingParticleToStubVectorMap = aMap; }
 
   /// Set cluster <-> truth association object.
-  void setTTClusterAssociationMap(edm::RefProd<TTClusterAssociationMap<T> > aCluAssoMap) {
+  void setTTClusterAssociationMap(edm::RefProd<TTClusterAssociationMap<T>> aCluAssoMap) {
     theClusterAssociationMap = aCluAssoMap;
   }
 
@@ -80,7 +74,7 @@ public:
   TrackingParticlePtr findTrackingParticlePtr(TTStubRefT<T> aStub) const;
 
   /// Get all stubs associated to a TP.
-  /// (Even if the TP just contributes to one cluster in stub, 
+  /// (Even if the TP just contributes to one cluster in stub,
   /// and even if their are other such TP, it is still listed here).
   std::vector<TTStubRefT<T>> findTTStubRefs(TrackingParticlePtr aTrackingParticle) const;
 
@@ -91,13 +85,13 @@ public:
 
   /// If both clusters are unknown, the stub is "unknown".
   /// If only one cluster is unknown, the stub is combinatoric.
-  /// If both clusters are genuine, and are associated to the same (main) TrackingParticle, 
+  /// If both clusters are genuine, and are associated to the same (main) TrackingParticle,
   /// the stub is "genuine".
-  /// If both clusters are genuine, but are associated to different (main) TrackingParticles, 
+  /// If both clusters are genuine, but are associated to different (main) TrackingParticles,
   /// the stub is "combinatoric".
-  /// If one cluster is combinatoric and the other is genuine/combinatoric, and they both share exactly 
-  /// one TrackingParticle in common, then the stub is "genuine". (The clusters can have other 
-  /// TrackingParticles besides the shared one, as long as these are not shared). If instead the clusters 
+  /// If one cluster is combinatoric and the other is genuine/combinatoric, and they both share exactly
+  /// one TrackingParticle in common, then the stub is "genuine". (The clusters can have other
+  /// TrackingParticles besides the shared one, as long as these are not shared). If instead the clusters
   /// share 0 or ≥2 TrackingParticles in common, then the stub is "combinatoric".
 
   bool isGenuine(TTStubRefT<T> aStub) const;
@@ -108,7 +102,7 @@ private:
   /// Data members
   MapStubToTP<T> stubToTrackingParticleMap;
   MapTPToVecStub<T> trackingParticleToStubVectorMap;
-  edm::RefProd<TTClusterAssociationMap<T> > theClusterAssociationMap;
+  edm::RefProd<TTClusterAssociationMap<T>> theClusterAssociationMap;
 
 };  /// Close class
 
@@ -126,7 +120,7 @@ TTStubAssociationMap<T>::TTStubAssociationMap() {
   /// Set default data members
   stubToTrackingParticleMap.clear();
   trackingParticleToStubVectorMap.clear();
-  edm::RefProd<TTClusterAssociationMap<T> >* aRefProd = new edm::RefProd<TTClusterAssociationMap<T> >();
+  edm::RefProd<TTClusterAssociationMap<T>>* aRefProd = new edm::RefProd<TTClusterAssociationMap<T>>();
   theClusterAssociationMap = *aRefProd;
 }
 
@@ -146,13 +140,12 @@ TrackingParticlePtr TTStubAssociationMap<T>::findTrackingParticlePtr(TTStubRefT<
 }
 
 template <typename T>
-std::vector< TTStubRefT<T> > TTStubAssociationMap<T>::findTTStubRefs(
-    TrackingParticlePtr aTrackingParticle) const {
+std::vector<TTStubRefT<T>> TTStubAssociationMap<T>::findTTStubRefs(TrackingParticlePtr aTrackingParticle) const {
   if (trackingParticleToStubVectorMap.find(aTrackingParticle) != trackingParticleToStubVectorMap.end()) {
     return trackingParticleToStubVectorMap.find(aTrackingParticle)->second;
   }
 
-  std::vector< TTStubRefT<T> > tempVector;
+  std::vector<TTStubRefT<T>> tempVector;
   tempVector.clear();
   return tempVector;
 }
