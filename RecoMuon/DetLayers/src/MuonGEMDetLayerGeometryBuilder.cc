@@ -78,10 +78,6 @@ pair<vector<DetLayer*>, vector<DetLayer*> > MuonGEMDetLayerGeometryBuilder::buil
                           << " R1: " << fowardLayer->specificSurface().innerRadius()
                           << " R2: " << fowardLayer->specificSurface().outerRadius();
 
-        cout << "New MuRingForwardLayer with " << frontRings.size() << " and " << backRings.size() << " rings, at Z "
-             << fowardLayer->position().z() << " R1: " << fowardLayer->specificSurface().innerRadius()
-             << " R2: " << fowardLayer->specificSurface().outerRadius() << endl;
-
         int iendcap = (st->region() == 1) ? 0 : 1;
         endcapLayers[iendcap].push_back(fowardLayer);
       }
