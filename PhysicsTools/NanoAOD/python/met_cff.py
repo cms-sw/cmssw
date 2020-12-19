@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 from  PhysicsTools.NanoAOD.common_cff import *
 
-from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
-from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv2_cff import run2_nanoAOD_94XMiniAODv2
+from PhysicsTools.NanoAOD.nano_eras_cff import *
+
 
 ##################### Tables for final output and docs ##########################
 metTable = cms.EDProducer("SimpleCandidateFlatTableProducer",

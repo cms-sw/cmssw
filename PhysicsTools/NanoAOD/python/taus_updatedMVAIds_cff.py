@@ -4,6 +4,8 @@ import FWCore.ParameterSet.Config as cms
 # Used only in some eras
 from RecoTauTag.Configuration.loadRecoTauTagMVAsFromPrepDB_cfi import *
 from RecoTauTag.RecoTau.PATTauDiscriminationByMVAIsolationRun2_cff import *
+
+from PhysicsTools.NanoAOD.nano_eras_cff import *
 from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
 
 ### MVAIso 2017v2
@@ -446,7 +448,6 @@ patTauMVAIDsSeq += patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT2015Seq
 
 _patTauMVAIDsSeqWith2017v1 = _patTauMVAIDsSeq2017v2.copy()
 _patTauMVAIDsSeqWith2017v1 += patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT2017v1Seq
-from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
 for era in [run2_nanoAOD_94XMiniAODv1,]:
     era.toReplaceWith(patTauMVAIDsSeq,_patTauMVAIDsSeqWith2017v1)
 
