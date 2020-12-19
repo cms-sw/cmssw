@@ -8,7 +8,6 @@
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/ME0NumberingScheme.h"
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 void ME0GeometryParsFromDD::build(const DDCompactView* cview,
                                   const MuonGeometryConstants& muonConstants,
