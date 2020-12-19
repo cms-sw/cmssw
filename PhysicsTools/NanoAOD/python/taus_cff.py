@@ -169,7 +169,7 @@ run2_miniAOD_80XLegacy.toModify(tauTable.variables,
                                 idAntiEleDeadECal = None
 )
 
-run2_miniAOD_devel.toModify(tauTable.variables,
+(run2_nanoAOD_106Xv2 | run2_miniAOD_devel).toModify(tauTable.variables,
                             idAntiEleDeadECal = Var("tauID('againstElectronDeadECAL')", bool, doc = "Anti-electron dead-ECal discriminator"),
                             rawAntiEle2018 = Var("tauID('againstElectronMVA6Raw')", float, doc= "Anti-electron MVA discriminator V6 raw output discriminator (2018)", precision=10),
                             rawAntiEleCat2018 = Var("tauID('againstElectronMVA6category')", int, doc="Anti-electron MVA discriminator V6 category (2018)"),
