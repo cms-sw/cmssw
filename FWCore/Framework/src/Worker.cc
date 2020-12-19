@@ -303,14 +303,15 @@ namespace edm {
           }));
     } else {
       //We need iTask to run in the default arena since it is not an ES task
-      auto task = make_waiting_task(tbb::task::allocate_root(),
-                                    [holder = std::move(iTask)](std::exception_ptr const* iExcept) mutable {
-                                      if (iExcept) {
-                                        holder.doneWaiting(*iExcept);
-                                      } else {
-                                        holder.doneWaiting(std::exception_ptr{});
-                                      }
-                                    });
+      auto task = make_waiting_task(
+          tbb::task::allocate_root(),
+          [holder = WaitingTaskWithArenaHolder(std::move(iTask))](std::exception_ptr const* iExcept) mutable {
+            if (iExcept) {
+              holder.doneWaiting(*iExcept);
+            } else {
+              holder.doneWaiting(std::exception_ptr{});
+            }
+          });
 
       WaitingTaskHolder tempH(task);
       esTaskArena().execute([&]() {
