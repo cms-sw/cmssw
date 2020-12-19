@@ -23,6 +23,9 @@ namespace edm {
     m_task->increment_ref_count();
   }
 
+  WaitingTaskWithArenaHolder::WaitingTaskWithArenaHolder(WaitingTaskHolder&& iTask)
+      : m_task(iTask.release_no_decrement()), m_arena(std::make_shared<tbb::task_arena>(tbb::task_arena::attach())) {}
+
   WaitingTaskWithArenaHolder::~WaitingTaskWithArenaHolder() {
     if (m_task) {
       doneWaiting(std::exception_ptr{});
