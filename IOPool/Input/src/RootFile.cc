@@ -1883,7 +1883,7 @@ namespace edm {
     std::set<ProductProvenance> readProvenance(unsigned int) const override;
 
   private:
-    void readProvenanceAsync(WaitingTaskHolder task,
+    void readProvenanceAsync(WaitingTask* task,
                              ModuleCallingContext const* moduleCallingContext,
                              unsigned int transitionIndex,
                              std::atomic<const std::set<ProductProvenance>*>& writeTo) const override;
@@ -1917,7 +1917,7 @@ namespace edm {
     template <typename R>
     void readProvenanceAsyncImpl(R const* iThis,
                                  SerialTaskQueueChain& chain,
-                                 WaitingTaskHolder task,
+                                 WaitingTask* task,
                                  unsigned int transitionIndex,
                                  std::atomic<const std::set<ProductProvenance>*>& writeTo,
                                  ModuleCallingContext const* iContext,
@@ -1970,7 +1970,7 @@ namespace edm {
     }
   }  // namespace
 
-  void ReducedProvenanceReader::readProvenanceAsync(WaitingTaskHolder task,
+  void ReducedProvenanceReader::readProvenanceAsync(WaitingTask* task,
                                                     ModuleCallingContext const* moduleCallingContext,
                                                     unsigned int transitionIndex,
                                                     std::atomic<const std::set<ProductProvenance>*>& writeTo) const {
@@ -2021,7 +2021,7 @@ namespace edm {
     std::set<ProductProvenance> readProvenance(unsigned int transitionIndex) const override;
 
   private:
-    void readProvenanceAsync(WaitingTaskHolder task,
+    void readProvenanceAsync(WaitingTask* task,
                              ModuleCallingContext const* moduleCallingContext,
                              unsigned int transitionIndex,
                              std::atomic<const std::set<ProductProvenance>*>& writeTo) const override;
@@ -2044,7 +2044,7 @@ namespace edm {
         mutex_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().second),
         acquirer_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().first) {}
 
-  void FullProvenanceReader::readProvenanceAsync(WaitingTaskHolder task,
+  void FullProvenanceReader::readProvenanceAsync(WaitingTask* task,
                                                  ModuleCallingContext const* moduleCallingContext,
                                                  unsigned int transitionIndex,
                                                  std::atomic<const std::set<ProductProvenance>*>& writeTo) const {
@@ -2087,7 +2087,7 @@ namespace edm {
     std::set<ProductProvenance> readProvenance(unsigned int transitionIndex) const override;
 
   private:
-    void readProvenanceAsync(WaitingTaskHolder task,
+    void readProvenanceAsync(WaitingTask* task,
                              ModuleCallingContext const* moduleCallingContext,
                              unsigned int transitionIndex,
                              std::atomic<const std::set<ProductProvenance>*>& writeTo) const override;
@@ -2114,7 +2114,7 @@ namespace edm {
         mutex_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().second),
         acquirer_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().first) {}
 
-  void OldProvenanceReader::readProvenanceAsync(WaitingTaskHolder task,
+  void OldProvenanceReader::readProvenanceAsync(WaitingTask* task,
                                                 ModuleCallingContext const* moduleCallingContext,
                                                 unsigned int transitionIndex,
                                                 std::atomic<const std::set<ProductProvenance>*>& writeTo) const {
@@ -2156,7 +2156,7 @@ namespace edm {
 
   private:
     std::set<ProductProvenance> readProvenance(unsigned int) const override;
-    void readProvenanceAsync(WaitingTaskHolder task,
+    void readProvenanceAsync(WaitingTask* task,
                              ModuleCallingContext const* moduleCallingContext,
                              unsigned int transitionIndex,
                              std::atomic<const std::set<ProductProvenance>*>& writeTo) const override;
@@ -2168,7 +2168,7 @@ namespace edm {
     // Not providing parentage!!!
     return std::set<ProductProvenance>{};
   }
-  void DummyProvenanceReader::readProvenanceAsync(WaitingTaskHolder task,
+  void DummyProvenanceReader::readProvenanceAsync(WaitingTask* task,
                                                   ModuleCallingContext const* moduleCallingContext,
                                                   unsigned int transitionIndex,
                                                   std::atomic<const std::set<ProductProvenance>*>& writeTo) const {

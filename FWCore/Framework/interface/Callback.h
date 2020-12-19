@@ -66,7 +66,7 @@ namespace edm {
       Callback(const Callback&) = delete;
       const Callback& operator=(const Callback&) = delete;
 
-      void prefetchAsync(WaitingTaskHolder iTask,
+      void prefetchAsync(WaitingTask* iTask,
                          EventSetupRecordImpl const* iRecord,
                          EventSetupImpl const* iEventSetupImpl,
                          ServiceToken const& token) {
@@ -88,21 +88,20 @@ namespace edm {
                         [this, iRecord, iEventSetupImpl, token](std::exception_ptr const* iExcept) {
                           runProducerAsync(iExcept, iRecord, iEventSetupImpl, token);
                         });
-                    prefetchNeededDataAsync(
-                        WaitingTaskHolder(runTask), iEventSetupImpl, &((*postMayGetProxies_).front()), token);
+                    prefetchNeededDataAsync(runTask, iEventSetupImpl, &((*postMayGetProxies_).front()), token);
                   } else {
                     runProducerAsync(iExcept, iRecord, iEventSetupImpl, token);
                   }
                 });
 
             //Get everything we can before knowing about the mayGets
-            prefetchNeededDataAsync(WaitingTaskHolder(mayGetTask), iEventSetupImpl, getTokenIndices(), token);
+            prefetchNeededDataAsync(mayGetTask, iEventSetupImpl, getTokenIndices(), token);
           } else {
             auto task = edm::make_waiting_task(
                 tbb::task::allocate_root(), [this, iRecord, iEventSetupImpl, token](std::exception_ptr const* iExcept) {
                   runProducerAsync(iExcept, iRecord, iEventSetupImpl, token);
                 });
-            prefetchNeededDataAsync(WaitingTaskHolder(task), iEventSetupImpl, getTokenIndices(), token);
+            prefetchNeededDataAsync(task, iEventSetupImpl, getTokenIndices(), token);
           }
         }
       }
@@ -136,7 +135,7 @@ namespace edm {
       ESProxyIndex const* getTokenIndices() const { return producer_->getTokenIndices(id_); }
 
     private:
-      void prefetchNeededDataAsync(WaitingTaskHolder task,
+      void prefetchNeededDataAsync(WaitingTask* task,
                                    EventSetupImpl const* iImpl,
                                    ESProxyIndex const* proxies,
                                    edm::ServiceToken const& token) const {

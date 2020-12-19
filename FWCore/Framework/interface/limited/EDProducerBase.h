@@ -28,7 +28,6 @@
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/Concurrency/interface/LimitedTaskQueue.h"
-#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 
 // forward declarations
 
@@ -39,6 +38,7 @@ namespace edm {
   class GlobalSchedule;
   class ActivityRegistry;
   class ThinnedAssociationsHelper;
+  class WaitingTask;
 
   namespace maker {
     template <typename T>
@@ -111,7 +111,7 @@ namespace edm {
 
       virtual void produce(StreamID, Event&, EventSetup const&) const = 0;
       //For now this is a placeholder
-      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTaskHolder iTask,
+      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask* iTask,
                                                     ModuleCallingContext const& iModuleCallingContext,
                                                     Principal const& iPrincipal) const {}
 

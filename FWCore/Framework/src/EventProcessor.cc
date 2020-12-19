@@ -1062,7 +1062,7 @@ namespace edm {
       using Traits = OccurrenceTraits<RunPrincipal, BranchActionStreamBegin>;
 
       RunTransitionInfo transitionInfo(runPrincipal, es);
-      beginStreamsTransitionAsync<Traits>(WaitingTaskHolder(streamLoopWaitTask.get()),
+      beginStreamsTransitionAsync<Traits>(streamLoopWaitTask.get(),
                                           *schedule_,
                                           preallocations_.numberOfStreams(),
                                           transitionInfo,

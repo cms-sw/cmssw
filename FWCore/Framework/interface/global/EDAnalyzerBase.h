@@ -23,7 +23,6 @@
 // user include files
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
@@ -35,6 +34,7 @@ namespace edm {
   class StreamID;
   class ActivityRegistry;
   class ThinnedAssociationsHelper;
+  class WaitingTask;
 
   namespace maker {
     template <typename T>
@@ -75,9 +75,8 @@ namespace edm {
     private:
       bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
       //For now this is a placeholder
-      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTaskHolder,
-                                                    ModuleCallingContext const&,
-                                                    Principal const&) const {}
+      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask*, ModuleCallingContext const&, Principal const&) const {
+      }
 
       void doPreallocate(PreallocationConfiguration const&);
       void doBeginJob();

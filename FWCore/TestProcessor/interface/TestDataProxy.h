@@ -23,7 +23,6 @@
 
 // user include files
 #include "FWCore/Framework/interface/DataProxy.h"
-#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 
 // forward declarations
 
@@ -37,7 +36,7 @@ namespace edm {
 
       void setData(std::unique_ptr<T> iData) { data_ = std::move(iData); }
 
-      void prefetchAsyncImpl(WaitingTaskHolder,
+      void prefetchAsyncImpl(WaitingTask*,
                              eventsetup::EventSetupRecordImpl const&,
                              eventsetup::DataKey const&,
                              EventSetupImpl const*,

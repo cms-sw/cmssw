@@ -17,7 +17,6 @@ a set of related EDProducts. This is the storage unit of such information.
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
-#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 
 #include <memory>
 #include <atomic>
@@ -116,7 +115,7 @@ namespace edm {
                                bool skipCurrentProcess,
                                SharedResourcesAcquirer* sra,
                                ModuleCallingContext const* mcc) const override;
-    void prefetchAsync_(WaitingTaskHolder waitTask,
+    void prefetchAsync_(WaitingTask* waitTask,
                         Principal const& principal,
                         bool skipCurrentProcess,
                         ServiceToken const& token,
@@ -164,7 +163,7 @@ namespace edm {
                                bool skipCurrentProcess,
                                SharedResourcesAcquirer* sra,
                                ModuleCallingContext const* mcc) const override;
-    void prefetchAsync_(WaitingTaskHolder waitTask,
+    void prefetchAsync_(WaitingTask* waitTask,
                         Principal const& principal,
                         bool skipCurrentProcess,
                         ServiceToken const& token,
@@ -192,7 +191,7 @@ namespace edm {
                                bool skipCurrentProcess,
                                SharedResourcesAcquirer* sra,
                                ModuleCallingContext const* mcc) const override;
-    void prefetchAsync_(WaitingTaskHolder waitTask,
+    void prefetchAsync_(WaitingTask* waitTask,
                         Principal const& principal,
                         bool skipCurrentProcess,
                         ServiceToken const& token,
@@ -226,7 +225,7 @@ namespace edm {
                                ModuleCallingContext const* mcc) const override {
       return realProduct_.resolveProduct(principal, skipCurrentProcess, sra, mcc);
     }
-    void prefetchAsync_(WaitingTaskHolder waitTask,
+    void prefetchAsync_(WaitingTask* waitTask,
                         Principal const& principal,
                         bool skipCurrentProcess,
                         ServiceToken const& token,
@@ -325,7 +324,7 @@ namespace edm {
                                bool skipCurrentProcess,
                                SharedResourcesAcquirer* sra,
                                ModuleCallingContext const* mcc) const final;
-    void prefetchAsync_(WaitingTaskHolder waitTask,
+    void prefetchAsync_(WaitingTask* waitTask,
                         Principal const& principal,
                         bool skipCurrentProcess,
                         ServiceToken const& token,
@@ -356,7 +355,7 @@ namespace edm {
                                bool skipCurrentProcess,
                                SharedResourcesAcquirer* sra,
                                ModuleCallingContext const* mcc) const final;
-    void prefetchAsync_(WaitingTaskHolder waitTask,
+    void prefetchAsync_(WaitingTask* waitTask,
                         Principal const& principal,
                         bool skipCurrentProcess,
                         ServiceToken const& token,
@@ -386,7 +385,7 @@ namespace edm {
       skipCurrentProcess = false;
       return realProduct_->resolveProduct(*parentPrincipal_, skipCurrentProcess, sra, mcc);
     }
-    void prefetchAsync_(WaitingTaskHolder waitTask,
+    void prefetchAsync_(WaitingTask* waitTask,
                         Principal const& principal,
                         bool skipCurrentProcess,
                         ServiceToken const& token,
@@ -460,7 +459,7 @@ namespace edm {
                                bool skipCurrentProcess,
                                SharedResourcesAcquirer* sra,
                                ModuleCallingContext const* mcc) const override;
-    void prefetchAsync_(WaitingTaskHolder waitTask,
+    void prefetchAsync_(WaitingTask* waitTask,
                         Principal const& principal,
                         bool skipCurrentProcess,
                         ServiceToken const& token,
@@ -518,7 +517,7 @@ namespace edm {
                                bool skipCurrentProcess,
                                SharedResourcesAcquirer* sra,
                                ModuleCallingContext const* mcc) const override;
-    void prefetchAsync_(WaitingTaskHolder waitTask,
+    void prefetchAsync_(WaitingTask* waitTask,
                         Principal const& principal,
                         bool skipCurrentProcess,
                         ServiceToken const& token,

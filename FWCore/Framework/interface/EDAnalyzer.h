@@ -7,7 +7,6 @@
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"
-#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 
 #include <string>
 
@@ -19,6 +18,7 @@ namespace edm {
   class PreallocationConfiguration;
   class ActivityRegistry;
   class ThinnedAssociationsHelper;
+  class WaitingTask;
 
   namespace maker {
     template <typename T>
@@ -60,7 +60,7 @@ namespace edm {
   private:
     bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
     //Needed by Worker but not something supported
-    void preActionBeforeRunEventAsync(WaitingTaskHolder, ModuleCallingContext const&, Principal const&) const {}
+    void preActionBeforeRunEventAsync(WaitingTask*, ModuleCallingContext const&, Principal const&) const {}
 
     void doPreallocate(PreallocationConfiguration const&) {}
     void doBeginJob();

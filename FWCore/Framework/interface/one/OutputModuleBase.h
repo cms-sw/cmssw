@@ -41,7 +41,6 @@
 #include "FWCore/Framework/interface/getAllTriggerNames.h"
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
-#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 
 // forward declarations
@@ -53,6 +52,7 @@ namespace edm {
   class ActivityRegistry;
   class ThinnedAssociationsHelper;
   class SubProcessParentageHelper;
+  class WaitingTask;
 
   template <typename T>
   class OutputModuleCommunicatorT;
@@ -235,7 +235,7 @@ namespace edm {
       virtual bool shouldWeCloseFile() const { return false; }
 
       virtual void write(EventForOutput const&) = 0;
-      virtual void preActionBeforeRunEventAsync(WaitingTaskHolder iTask,
+      virtual void preActionBeforeRunEventAsync(WaitingTask* iTask,
                                                 ModuleCallingContext const& iModuleCallingContext,
                                                 Principal const& iPrincipal) const {}
 

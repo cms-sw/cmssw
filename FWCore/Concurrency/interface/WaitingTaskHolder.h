@@ -29,8 +29,6 @@
 namespace edm {
   class WaitingTaskHolder {
   public:
-    friend class WaitingTaskList;
-
     WaitingTaskHolder() : m_task(nullptr) {}
 
     explicit WaitingTaskHolder(edm::WaitingTask* iTask) : m_task(iTask) { m_task->increment_ref_count(); }
@@ -90,11 +88,6 @@ namespace edm {
     }
 
   private:
-    WaitingTask* release_no_decrement() noexcept {
-      auto t = m_task;
-      m_task = nullptr;
-      return t;
-    }
     // ---------- member data --------------------------------
     WaitingTask* m_task;
   };

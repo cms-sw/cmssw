@@ -11,7 +11,6 @@
 #include "FWCore/Framework/interface/Callback.h"
 #include "FWCore/Framework/interface/ESProducts.h"
 #include "FWCore/Concurrency/interface/ThreadsController.h"
-#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 
 #include <memory>
 #include <cassert>
@@ -103,7 +102,7 @@ namespace {
   void call(CALLBACK& iCallback) {
     auto waitTask = edm::make_empty_waiting_task();
     waitTask->set_ref_count(1);
-    iCallback.prefetchAsync(edm::WaitingTaskHolder(waitTask.get()), nullptr, nullptr, edm::ServiceToken{});
+    iCallback.prefetchAsync(waitTask.get(), nullptr, nullptr, edm::ServiceToken{});
     waitTask->wait_for_all();
   }
 }  // namespace

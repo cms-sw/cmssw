@@ -470,7 +470,7 @@ namespace edm {
         streamLoopWaitTask->increment_ref_count();
 
         using Traits = OccurrenceTraits<RunPrincipal, BranchActionStreamBegin>;
-        beginStreamsTransitionAsync<Traits>(WaitingTaskHolder(streamLoopWaitTask.get()),
+        beginStreamsTransitionAsync<Traits>(streamLoopWaitTask.get(),
                                             *schedule_,
                                             preallocations_.numberOfStreams(),
                                             transitionInfo,
@@ -520,7 +520,7 @@ namespace edm {
 
         using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin>;
 
-        beginStreamsTransitionAsync<Traits>(WaitingTaskHolder(streamLoopWaitTask.get()),
+        beginStreamsTransitionAsync<Traits>(streamLoopWaitTask.get(),
                                             *schedule_,
                                             preallocations_.numberOfStreams(),
                                             transitionInfo,

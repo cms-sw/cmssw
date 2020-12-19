@@ -215,7 +215,7 @@ namespace edm {
     pathStatusInserterWorker_ = pathStatusInserterWorker;
   }
 
-  void Path::processOneOccurrenceAsync(WaitingTaskHolder iTask,
+  void Path::processOneOccurrenceAsync(WaitingTask* iTask,
                                        EventTransitionInfo const& iInfo,
                                        ServiceToken const& iToken,
                                        StreamID const& iStreamID,
@@ -362,7 +362,7 @@ namespace edm {
             this->workerFinished(iException, lastModuleIndex, info, token, iID, iContext);
           });
       workers_[lastModuleIndex].runWorkerAsync<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>>(
-          WaitingTaskHolder(nextTask), iInfo, iToken, iID, iContext);
+          nextTask, iInfo, iToken, iID, iContext);
     }
   }
 

@@ -647,18 +647,17 @@ namespace edm {
       WaitingTaskHolder taskHolder(pathsDone);
 
       //start end paths first so on single threaded the paths will run first
-      WaitingTaskHolder hAllPathsDone(allPathsDone);
       for (auto it = end_paths_.rbegin(), itEnd = end_paths_.rend(); it != itEnd; ++it) {
-        it->processOneOccurrenceAsync(hAllPathsDone, info, serviceToken, streamID_, &streamContext_);
+        it->processOneOccurrenceAsync(allPathsDone, info, serviceToken, streamID_, &streamContext_);
       }
 
       for (auto it = trig_paths_.rbegin(), itEnd = trig_paths_.rend(); it != itEnd; ++it) {
-        it->processOneOccurrenceAsync(taskHolder, info, serviceToken, streamID_, &streamContext_);
+        it->processOneOccurrenceAsync(pathsDone, info, serviceToken, streamID_, &streamContext_);
       }
 
       ParentContext parentContext(&streamContext_);
       workerManager_.processAccumulatorsAsync<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>>(
-          hAllPathsDone, info, serviceToken, streamID_, parentContext, &streamContext_);
+          allPathsDone, info, serviceToken, streamID_, parentContext, &streamContext_);
     } catch (...) {
       iTask.doneWaiting(std::current_exception());
     }

@@ -20,7 +20,6 @@
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/UnscheduledAuxiliary.h"
-#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
@@ -67,7 +66,7 @@ namespace edm {
     const_iterator end() const { return unscheduledWorkers_.end(); }
 
     template <typename T, typename U>
-    void runNowAsync(WaitingTaskHolder task,
+    void runNowAsync(WaitingTask* task,
                      typename T::TransitionInfoType const& info,
                      ServiceToken const& token,
                      StreamID streamID,
@@ -89,7 +88,7 @@ namespace edm {
     }
 
     template <typename T>
-    void runAccumulatorsAsync(WaitingTaskHolder task,
+    void runAccumulatorsAsync(WaitingTask* task,
                               typename T::TransitionInfoType const& info,
                               ServiceToken const& token,
                               StreamID streamID,

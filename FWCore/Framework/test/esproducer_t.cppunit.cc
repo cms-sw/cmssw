@@ -453,7 +453,7 @@ namespace {
 
     class TestProxy : public DataProxy {
     public:
-      void prefetchAsyncImpl(edm::WaitingTaskHolder,
+      void prefetchAsyncImpl(edm::WaitingTask*,
                              EventSetupRecordImpl const&,
                              DataKey const&,
                              edm::EventSetupImpl const*,

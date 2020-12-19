@@ -145,7 +145,7 @@ namespace edm {
 
     std::vector<ProductResolverIndex> const& itemsShouldPutInEvent() const override;
 
-    void preActionBeforeRunEventAsync(WaitingTaskHolder iTask,
+    void preActionBeforeRunEventAsync(WaitingTask* iTask,
                                       ModuleCallingContext const& iModuleCallingContext,
                                       Principal const& iPrincipal) const override {
       module_->preActionBeforeRunEventAsync(iTask, iModuleCallingContext, iPrincipal);

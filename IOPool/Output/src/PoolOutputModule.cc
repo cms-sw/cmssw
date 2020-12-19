@@ -392,7 +392,7 @@ namespace edm {
     }
   }
 
-  void PoolOutputModule::preActionBeforeRunEventAsync(WaitingTaskHolder iTask,
+  void PoolOutputModule::preActionBeforeRunEventAsync(WaitingTask* iTask,
                                                       ModuleCallingContext const& iModuleCallingContext,
                                                       Principal const& iPrincipal) const {
     if (DropAll != dropMetaData_) {

@@ -93,14 +93,15 @@ namespace edm {
   }
 
   template <typename Traits>
-  void beginStreamsTransitionAsync(WaitingTaskHolder iWait,
+  void beginStreamsTransitionAsync(WaitingTask* iWait,
                                    Schedule& iSchedule,
                                    unsigned int iNStreams,
                                    typename Traits::TransitionInfoType& transitionInfo,
                                    ServiceToken const& token,
                                    std::vector<SubProcess>& iSubProcesses) {
+    WaitingTaskHolder holdUntilAllStreamsCalled(iWait);
     for (unsigned int i = 0; i < iNStreams; ++i) {
-      beginStreamTransitionAsync<Traits>(iWait, iSchedule, i, transitionInfo, token, iSubProcesses);
+      beginStreamTransitionAsync<Traits>(WaitingTaskHolder(iWait), iSchedule, i, transitionInfo, token, iSubProcesses);
     }
   }
 

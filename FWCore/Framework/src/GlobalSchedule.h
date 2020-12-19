@@ -225,7 +225,7 @@ namespace edm {
       auto& aw = workerManager.allWorkers();
       for (Worker* worker : boost::adaptors::reverse(aw)) {
         worker->doWorkAsync<T>(
-            holdForLoop, transitionInfo, token, StreamID::invalidStreamID(), parentContext, globalContext.get());
+            doneTask, transitionInfo, token, StreamID::invalidStreamID(), parentContext, globalContext.get());
       }
     } catch (...) {
       iHolder.doneWaiting(std::current_exception());
