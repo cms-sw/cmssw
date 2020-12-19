@@ -33,13 +33,12 @@ void FWTracksterProxyBuilder::build(const ticl::Trackster &iData,
   const double phi = barycenter.Phi();
 
   auto eveEllipsoid = new TEveGeoShape("Ellipsoid");
-  auto sphere = new TGeoSphere(0., 5.);
+  auto sphere = new TGeoSphere(0., 1.);
   eveEllipsoid->SetShape(sphere);
-  eveEllipsoid->SetMainColor(kCyan);
   eveEllipsoid->InitMainTrans();
   eveEllipsoid->RefMainTrans().Move3PF(barycenter.x(), barycenter.y(), barycenter.z());
   eveEllipsoid->RefMainTrans().SetRotByAnyAngles(theta, phi, 0., "xzy");
-  eveEllipsoid->RefMainTrans().SetScale(eigenvalues[2], eigenvalues[1], eigenvalues[0]);
+  eveEllipsoid->RefMainTrans().SetScale(sqrt(eigenvalues[2]), sqrt(eigenvalues[1]), sqrt(eigenvalues[0]));
   setupAddElement(eveEllipsoid, &oItemHolder);
 }
 
