@@ -257,10 +257,6 @@ void FWTracksterHitsProxyBuilder::build(const ticl::Trackster &iData,
       marker->AddLine(doublet.first.x(), doublet.first.y(), doublet.first.z(),
                       doublet.second.x(), doublet.second.y(), doublet.second.z());
 
-      std::cout << doublet.first.x() << ", " << doublet.first.y() << ", " << doublet.first.z()
-                << ", " << doublet.second.x() << ", " << doublet.second.y() << ", " << doublet.second.z()
-                << std::endl;
-
       oItemHolder.AddElement(marker);
     }
   }
