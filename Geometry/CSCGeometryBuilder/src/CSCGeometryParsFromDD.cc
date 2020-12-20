@@ -453,7 +453,7 @@ bool CSCGeometryParsFromDD::build(const cms::DDCompactView* cview,
       }
 
       auto wirespacing = fv.get<double>("WireSpacing");
-      wg.wireSpacing = static_cast<double>(wirespacing / dd4hep::cm);
+      wg.wireSpacing = static_cast<double>(wirespacing / dd4hep::mm);
       edm::LogVerbatim("CSCGeometryParsFromDD") << "(2) wireSpacing: " << wg.wireSpacing / dd4hep::cm;
 
       auto alignmentpintofirstwire = fv.get<double>("AlignmentPinToFirstWire");
@@ -477,7 +477,7 @@ bool CSCGeometryParsFromDD::build(const cms::DDCompactView* cview,
       wg.lengthOfWirePlane = static_cast<double>(radialextentofwireplane / dd4hep::cm);
       edm::LogVerbatim("CSCGeometryParsFromDD") << "(6) lengthOfWirePlane: " << wg.lengthOfWirePlane / dd4hep::cm;
 
-      uparvals.emplace_back(wg.wireSpacing / dd4hep::mm);
+      uparvals.emplace_back(wg.wireSpacing);
       uparvals.emplace_back(wg.alignmentPinToFirstWire);
       uparvals.emplace_back(wg.numberOfGroups);
       uparvals.emplace_back(wg.narrowWidthOfWirePlane);
