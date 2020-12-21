@@ -94,9 +94,9 @@ G4bool FiberSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
     std::cout << "ShowerPhoton position " << thePE[0].x() << " " << thePE[0].y() << " " << thePE[0].z() << std::endl;
 
     edm::LogVerbatim("FiberSim") << "FiberSD: Hit created at " << lv->GetName() << " DetID: " << aHit->towerId()
-                         << " Depth: " << aHit->depth() << " Track ID: " << aHit->trackId()
-                         << " Nb. of Cerenkov Photons: " << aHit->npe() << " Time: " << aHit->time() << " at "
-                         << aHit->hitPos();
+                                 << " Depth: " << aHit->depth() << " Track ID: " << aHit->trackId()
+                                 << " Nb. of Cerenkov Photons: " << aHit->npe() << " Time: " << aHit->time() << " at "
+                                 << aHit->hitPos();
     for (unsigned int i = 0; i < thePE.size(); i++)
       edm::LogVerbatim("FiberSim") << "FiberSD: PE[" << i << "] " << thePE[i];
 

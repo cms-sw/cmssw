@@ -62,9 +62,11 @@ G4bool HFChamberSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
   aHit->setGlobalPos(globalPos);
   aHit->setPrimMomDir(momDir);
 
-  edm::LogVerbatim("FiberSim") << "HFChamberSD: Hit created in (" << touch->GetVolume(0)->GetLogicalVolume()->GetName() << ") "
-                       << " ID " << detID << " Track " << trackID << " Edep: " << edep / MeV << " MeV; Time: " << time
-                       << " ns; Position (local) " << localPos << " (global ) " << globalPos << " direction " << momDir;
+  edm::LogVerbatim("FiberSim") << "HFChamberSD: Hit created in (" << touch->GetVolume(0)->GetLogicalVolume()->GetName()
+                               << ") "
+                               << " ID " << detID << " Track " << trackID << " Edep: " << edep / MeV
+                               << " MeV; Time: " << time << " ns; Position (local) " << localPos << " (global ) "
+                               << globalPos << " direction " << momDir;
 
   theHC->insert(aHit);
   return true;

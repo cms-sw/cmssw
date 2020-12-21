@@ -21,11 +21,7 @@ HFWedgeSD::HFWedgeSD(const std::string& iname,
                      const SensitiveDetectorCatalog& clg,
                      edm::ParameterSet const& p,
                      const SimTrackManager* manager)
-    : SensitiveCaloDetector(iname, es, clg, p),
-      m_trackManager(manager),
-      hcID(-1),
-      theHC(nullptr),
-      currentHit(nullptr) {
+    : SensitiveCaloDetector(iname, es, clg, p), m_trackManager(manager), hcID(-1), theHC(nullptr), currentHit(nullptr) {
   edm::LogVerbatim("FiberSim") << "HFWedgeSD : Instantiated for " << iname;
 }
 
@@ -89,8 +85,8 @@ G4bool HFWedgeSD::hitExists() {
 
 HFShowerG4Hit* HFWedgeSD::createNewHit() {
   edm::LogVerbatim("FiberSim") << "HFWedgeSD::CreateNewHit for ID " << currentID << " Track " << trackID
-                       << " Edep: " << edep / MeV << " MeV; Time: " << time << " ns; Position (local) " << localPos
-                       << " (global ) " << globalPos << " direction " << momDir;
+                               << " Edep: " << edep / MeV << " MeV; Time: " << time << " ns; Position (local) "
+                               << localPos << " (global ) " << globalPos << " direction " << momDir;
   HFShowerG4Hit* aHit = new HFShowerG4Hit;
   aHit->setHitId(currentID);
   aHit->setTrackId(trackID);
@@ -109,7 +105,8 @@ HFShowerG4Hit* HFWedgeSD::createNewHit() {
 void HFWedgeSD::updateHit(HFShowerG4Hit* aHit) {
   if (edep != 0) {
     aHit->updateEnergy(edep);
-    edm::LogVerbatim("FiberSim") << "HFWedgeSD: Add energy deposit in " << currentID << " edep " << edep / MeV << " MeV";
+    edm::LogVerbatim("FiberSim") << "HFWedgeSD: Add energy deposit in " << currentID << " edep " << edep / MeV
+                                 << " MeV";
   }
   previousID = currentID;
 }
