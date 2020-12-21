@@ -17,7 +17,7 @@ public:
   REGISTER_PROXYBUILDER_METHODS();
 
 private:
-  edm::Handle<edm::ValueMap<std::pair<float,float>>> TimeValueMapHandle;
+  edm::Handle<edm::ValueMap<std::pair<float, float>>> TimeValueMapHandle;
   edm::Handle<std::vector<reco::CaloCluster>> layerClustersHandle;
   double timeLowerBound, timeUpperBound;
   long layer;
@@ -85,9 +85,9 @@ void FWTracksterHitsProxyBuilder::build(const FWEventItem *iItem, TEveElementLis
 }
 
 void FWTracksterHitsProxyBuilder::build(const ticl::Trackster &iData,
-                                      unsigned int iIndex,
-                                      TEveElement &oItemHolder,
-                                      const FWViewContext *) {
+                                        unsigned int iIndex,
+                                        TEveElement &oItemHolder,
+                                        const FWViewContext *) {
   if (enableTimeFilter && TimeValueMapHandle.isValid()) {
     const float time = TimeValueMapHandle->get(iIndex).first;
     if (time < timeLowerBound || time > timeUpperBound)
@@ -96,7 +96,7 @@ void FWTracksterHitsProxyBuilder::build(const ticl::Trackster &iData,
 
   const ticl::Trackster &trackster = iData;
   const size_t N = trackster.vertices().size();
-  const std::vector<reco::CaloCluster>& layerClusters = *layerClustersHandle;
+  const std::vector<reco::CaloCluster> &layerClusters = *layerClustersHandle;
 
   bool h_hex(false);
   TEveBoxSet *hex_boxset = new TEveBoxSet();
@@ -248,19 +248,22 @@ void FWTracksterHitsProxyBuilder::build(const ticl::Trackster &iData,
     auto &edges = trackster.edges();
 
     for (auto edge : edges) {
-      auto doublet = std::make_pair(layerClusters[edge[0]],layerClusters[edge[1]]);
+      auto doublet = std::make_pair(layerClusters[edge[0]], layerClusters[edge[1]]);
       TEveStraightLineSet *marker = new TEveStraightLineSet;
       marker->SetLineWidth(2);
       marker->SetLineColor(kRed);
 
       // draw 3D cross
-      marker->AddLine(doublet.first.x(), doublet.first.y(), doublet.first.z(),
-                      doublet.second.x(), doublet.second.y(), doublet.second.z());
+      marker->AddLine(doublet.first.x(),
+                      doublet.first.y(),
+                      doublet.first.z(),
+                      doublet.second.x(),
+                      doublet.second.y(),
+                      doublet.second.z());
 
       oItemHolder.AddElement(marker);
     }
   }
-
 
   if (h_hex) {
     hex_boxset->RefitPlex();
