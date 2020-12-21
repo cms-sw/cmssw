@@ -74,7 +74,9 @@ _ecalRecHit_gpu = _ecalRecHitConvertGPU2CPUFormat.clone(
     recHitsLabelGPUEB = cms.InputTag('ecalRecHitSoA', 'EcalRecHitsEB'),
     recHitsLabelGPUEE = cms.InputTag('ecalRecHitSoA', 'EcalRecHitsEE')
 )
-gpu.toReplaceWith(ecalRecHit, _ecalRecHit_gpu)
+# TODO: the ECAL calibrated rechits produced on the GPU are not correct, yet.
+# When they are working and validated, remove this comment and uncomment the next line:
+#gpu.toReplaceWith(ecalRecHit, _ecalRecHit_gpu)
 
 # ECAL reconstruction on GPU
 gpu.toReplaceWith(ecalRecHitNoTPTask, cms.Task(
