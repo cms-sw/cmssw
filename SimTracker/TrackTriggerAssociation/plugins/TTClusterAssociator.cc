@@ -33,7 +33,6 @@ void TTClusterAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, co
 
   if (not trackingParticleHandle->empty()) {
     /// Loop over TrackingParticles
-    std::vector<TrackingParticle>::const_iterator iterTPart;
     for (unsigned int tpCnt = 0; tpCnt < trackingParticleHandle->size(); tpCnt++) {
       /// Make the pointer to the TrackingParticle
       TrackingParticlePtr tempTPPtr(trackingParticleHandle, tpCnt);

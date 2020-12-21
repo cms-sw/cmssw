@@ -7,8 +7,6 @@
  *  
  */
 
-// FIX: N.B Code below could surely be more efficiently written?
-
 #include "SimTracker/TrackTriggerAssociation/plugins/TTTrackAssociator.h"
 
 /// Implement the producer
@@ -43,7 +41,6 @@ void TTTrackAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, cons
 
     // Start the loop on tracks
 
-    typename std::vector<TTTrack<Ref_Phase2TrackerDigi_>>::const_iterator inputIter;
     for (unsigned int jTrk = 0; jTrk < TTTrackHandle->size(); jTrk++) {
       /// Make the pointer to be put in the map
       TTTrackPtr tempTrackPtr(TTTrackHandle, jTrk);
