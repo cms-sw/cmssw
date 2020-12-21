@@ -1,7 +1,9 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/Utilities"/>
+<use name="Geometry/Records"/>
+<use name="SimCalorimetry/HGCalSimProducers"/>
+<use name="SimDataFormats/CaloTest"/>
 <use name="SimGeneral/MixingModule"/>
 <use name="SimGeneral/PreMixingModule"/>
-<use name="SimCalorimetry/HGCalSimProducers"/>
 <use name="root"/>
 <flags EDM_PLUGIN="1"/>
