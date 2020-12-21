@@ -44,15 +44,16 @@ namespace {
   /************************************************
     TrackerMap of Module VOff
   *************************************************/
-  class SiStripDetVOff_IsModuleVOff_TrackerMap : public cond::payloadInspector::PlotImage<SiStripDetVOff> {
+  class SiStripDetVOff_IsModuleVOff_TrackerMap
+      : public cond::payloadInspector::PlotImage<SiStripDetVOff, cond::payloadInspector::SINGLE_IOV> {
   public:
     SiStripDetVOff_IsModuleVOff_TrackerMap()
-        : cond::payloadInspector::PlotImage<SiStripDetVOff>("Tracker Map IsModuleVOff") {
-      setSingleIov(true);
-    }
+        : cond::payloadInspector::PlotImage<SiStripDetVOff, cond::payloadInspector::SINGLE_IOV>(
+              "Tracker Map IsModuleVOff") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<SiStripDetVOff> payload = fetchPayload(std::get<1>(iov));
 
       std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripIsModuleVOff");
@@ -79,15 +80,16 @@ namespace {
   /************************************************
     TrackerMap of Module HVOff
   *************************************************/
-  class SiStripDetVOff_IsModuleHVOff_TrackerMap : public cond::payloadInspector::PlotImage<SiStripDetVOff> {
+  class SiStripDetVOff_IsModuleHVOff_TrackerMap
+      : public cond::payloadInspector::PlotImage<SiStripDetVOff, cond::payloadInspector::SINGLE_IOV> {
   public:
     SiStripDetVOff_IsModuleHVOff_TrackerMap()
-        : cond::payloadInspector::PlotImage<SiStripDetVOff>("Tracker Map IsModuleHVOff") {
-      setSingleIov(true);
-    }
+        : cond::payloadInspector::PlotImage<SiStripDetVOff, cond::payloadInspector::SINGLE_IOV>(
+              "Tracker Map IsModuleHVOff") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<SiStripDetVOff> payload = fetchPayload(std::get<1>(iov));
 
       std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripIsModuleHVOff");
@@ -114,15 +116,16 @@ namespace {
   /************************************************
     TrackerMap of Module LVOff
   *************************************************/
-  class SiStripDetVOff_IsModuleLVOff_TrackerMap : public cond::payloadInspector::PlotImage<SiStripDetVOff> {
+  class SiStripDetVOff_IsModuleLVOff_TrackerMap
+      : public cond::payloadInspector::PlotImage<SiStripDetVOff, cond::payloadInspector::SINGLE_IOV> {
   public:
     SiStripDetVOff_IsModuleLVOff_TrackerMap()
-        : cond::payloadInspector::PlotImage<SiStripDetVOff>("Tracker Map IsModuleLVOff") {
-      setSingleIov(true);
-    }
+        : cond::payloadInspector::PlotImage<SiStripDetVOff, cond::payloadInspector::SINGLE_IOV>(
+              "Tracker Map IsModuleLVOff") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<SiStripDetVOff> payload = fetchPayload(std::get<1>(iov));
 
       std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripIsModuleLVOff");
@@ -155,13 +158,12 @@ namespace {
   }
 
   template <SiStripDetVOffPI::type my_type>
-  class SiStripDetVOffListOfModules : public cond::payloadInspector::Histogram1DD<SiStripDetVOff> {
+  class SiStripDetVOffListOfModules
+      : public cond::payloadInspector::Histogram1DD<SiStripDetVOff, cond::payloadInspector::SINGLE_IOV> {
   public:
     SiStripDetVOffListOfModules()
-        : cond::payloadInspector::Histogram1DD<SiStripDetVOff>(
-              "SiStrip Off modules", "SiStrip Off modules", 15148, 0., 15148., "DetId of VOff module") {
-      Base::setSingleIov(true);
-    }
+        : cond::payloadInspector::Histogram1DD<SiStripDetVOff, cond::payloadInspector::SINGLE_IOV>(
+              "SiStrip Off modules", "SiStrip Off modules", 15148, 0., 15148., "DetId of VOff module") {}
 
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
@@ -217,15 +219,14 @@ namespace {
     test class
   *************************************************/
 
-  class SiStripDetVOffTest : public cond::payloadInspector::Histogram1D<SiStripDetVOff> {
+  class SiStripDetVOffTest
+      : public cond::payloadInspector::Histogram1D<SiStripDetVOff, cond::payloadInspector::SINGLE_IOV> {
   public:
     SiStripDetVOffTest()
-        : cond::payloadInspector::Histogram1D<SiStripDetVOff>(
+        : cond::payloadInspector::Histogram1D<SiStripDetVOff, cond::payloadInspector::SINGLE_IOV>(
               "SiStrip DetVOff test", "SiStrip DetVOff test", 10, 0.0, 10.0),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
-              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {
-      Base::setSingleIov(true);
-    }
+              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {}
 
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
@@ -271,17 +272,18 @@ namespace {
     Plot DetVOff by region 
   *************************************************/
 
-  class SiStripDetVOffByRegion : public cond::payloadInspector::PlotImage<SiStripDetVOff> {
+  class SiStripDetVOffByRegion
+      : public cond::payloadInspector::PlotImage<SiStripDetVOff, cond::payloadInspector::SINGLE_IOV> {
   public:
     SiStripDetVOffByRegion()
-        : cond::payloadInspector::PlotImage<SiStripDetVOff>("SiStrip DetVOff By Region"),
+        : cond::payloadInspector::PlotImage<SiStripDetVOff, cond::payloadInspector::SINGLE_IOV>(
+              "SiStrip DetVOff By Region"),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
-              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {
-      setSingleIov(true);
-    }
+              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<SiStripDetVOff> payload = fetchPayload(std::get<1>(iov));
 
       std::vector<uint32_t> detid;

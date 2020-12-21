@@ -463,25 +463,34 @@ namespace {
 
   // inherit from one of the predefined plot class: PlotImage
 
-  template <SiStripPI::OpMode op_mode_>
-  class SiStripPedestalDistributionComparisonBase : public cond::payloadInspector::PlotImage<SiStripPedestals> {
+  template <SiStripPI::OpMode op_mode_, int ntags, cond::payloadInspector::IOVMultiplicity nIOVs>
+  class SiStripPedestalDistributionComparisonBase
+      : public cond::payloadInspector::PlotImage<SiStripPedestals, nIOVs, ntags> {
   public:
     SiStripPedestalDistributionComparisonBase()
-        : cond::payloadInspector::PlotImage<SiStripPedestals>("SiStrip Pedestal values comparison") {}
+        : cond::payloadInspector::PlotImage<SiStripPedestals, nIOVs, ntags>("SiStrip Pedestal values comparison") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      std::vector<std::tuple<cond::Time_t, cond::Hash>> sorted_iovs = iovs;
+    bool fill() override {
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
+      auto tagname1 = cond::payloadInspector::PlotBase::getTag<0>().name;
+      std::string tagname2 = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
 
-      // make absolute sure the IOVs are sortd by since
-      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
-        return std::get<0>(t1) < std::get<0>(t2);
-      });
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
 
-      auto firstiov = sorted_iovs.front();
-      auto lastiov = sorted_iovs.back();
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
+        tagname2 = cond::payloadInspector::PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
 
-      std::shared_ptr<SiStripPedestals> f_payload = fetchPayload(std::get<1>(firstiov));
-      std::shared_ptr<SiStripPedestals> l_payload = fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiStripPedestals> f_payload = this->fetchPayload(std::get<1>(firstiov));
+      std::shared_ptr<SiStripPedestals> l_payload = this->fetchPayload(std::get<1>(lastiov));
 
       auto f_mon = std::unique_ptr<SiStripPI::Monitor1D>(new SiStripPI::Monitor1D(
           op_mode_,
@@ -630,7 +639,7 @@ namespace {
       legend.SetTextSize(0.025);
       legend.Draw("same");
 
-      std::string fileName(m_imageFileName);
+      std::string fileName(this->m_imageFileName);
       canvas.SaveAs(fileName.c_str());
 
       return true;
@@ -643,20 +652,12 @@ namespace {
   };
 
   template <SiStripPI::OpMode op_mode_>
-  class SiStripPedestalDistributionComparisonSingleTag : public SiStripPedestalDistributionComparisonBase<op_mode_> {
-  public:
-    SiStripPedestalDistributionComparisonSingleTag() : SiStripPedestalDistributionComparisonBase<op_mode_>() {
-      this->setSingleIov(false);
-    }
-  };
+  using SiStripPedestalDistributionComparisonSingleTag =
+      SiStripPedestalDistributionComparisonBase<op_mode_, 1, cond::payloadInspector::MULTI_IOV>;
 
   template <SiStripPI::OpMode op_mode_>
-  class SiStripPedestalDistributionComparisonTwoTags : public SiStripPedestalDistributionComparisonBase<op_mode_> {
-  public:
-    SiStripPedestalDistributionComparisonTwoTags() : SiStripPedestalDistributionComparisonBase<op_mode_>() {
-      this->setTwoTags(true);
-    }
-  };
+  using SiStripPedestalDistributionComparisonTwoTags =
+      SiStripPedestalDistributionComparisonBase<op_mode_, 2, cond::payloadInspector::SINGLE_IOV>;
 
   typedef SiStripPedestalDistributionComparisonSingleTag<SiStripPI::STRIP_BASED>
       SiStripPedestalValueComparisonPerStripSingleTag;

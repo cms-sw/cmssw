@@ -40,13 +40,12 @@ namespace {
   *************************************************/
 
   // inherit from one of the predefined plot class: Histogram1D
-  class SiStripLorentzAngleValue : public cond::payloadInspector::Histogram1D<SiStripLorentzAngle> {
+  class SiStripLorentzAngleValue
+      : public cond::payloadInspector::Histogram1D<SiStripLorentzAngle, cond::payloadInspector::SINGLE_IOV> {
   public:
     SiStripLorentzAngleValue()
-        : cond::payloadInspector::Histogram1D<SiStripLorentzAngle>(
-              "SiStrip LorentzAngle values", "SiStrip LorentzAngle values", 100, 0.0, 0.05) {
-      Base::setSingleIov(true);
-    }
+        : cond::payloadInspector::Histogram1D<SiStripLorentzAngle, cond::payloadInspector::SINGLE_IOV>(
+              "SiStrip LorentzAngle values", "SiStrip LorentzAngle values", 100, 0.0, 0.05) {}
 
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
@@ -67,15 +66,16 @@ namespace {
   /************************************************
     TrackerMap of SiStrip Lorentz Angle
   *************************************************/
-  class SiStripLorentzAngle_TrackerMap : public cond::payloadInspector::PlotImage<SiStripLorentzAngle> {
+  class SiStripLorentzAngle_TrackerMap
+      : public cond::payloadInspector::PlotImage<SiStripLorentzAngle, cond::payloadInspector::SINGLE_IOV> {
   public:
     SiStripLorentzAngle_TrackerMap()
-        : cond::payloadInspector::PlotImage<SiStripLorentzAngle>("Tracker Map SiStrip Lorentz Angle") {
-      setSingleIov(true);
-    }
+        : cond::payloadInspector::PlotImage<SiStripLorentzAngle, cond::payloadInspector::SINGLE_IOV>(
+              "Tracker Map SiStrip Lorentz Angle") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<SiStripLorentzAngle> payload = fetchPayload(std::get<1>(iov));
 
       std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripLorentzAngle");
@@ -152,17 +152,18 @@ namespace {
     Plot Lorentz Angle averages by partition 
   *************************************************/
 
-  class SiStripLorentzAngleByRegion : public cond::payloadInspector::PlotImage<SiStripLorentzAngle> {
+  class SiStripLorentzAngleByRegion
+      : public cond::payloadInspector::PlotImage<SiStripLorentzAngle, cond::payloadInspector::SINGLE_IOV> {
   public:
     SiStripLorentzAngleByRegion()
-        : cond::payloadInspector::PlotImage<SiStripLorentzAngle>("SiStripLorentzAngle By Region"),
+        : cond::payloadInspector::PlotImage<SiStripLorentzAngle, cond::payloadInspector::SINGLE_IOV>(
+              "SiStripLorentzAngle By Region"),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
-              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {
-      setSingleIov(true);
-    }
+              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<SiStripLorentzAngle> payload = fetchPayload(std::get<1>(iov));
 
       SiStripDetSummary summaryLA{&m_trackerTopo};

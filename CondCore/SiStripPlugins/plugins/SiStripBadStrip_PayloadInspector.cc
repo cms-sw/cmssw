@@ -51,13 +51,12 @@ namespace {
     test class
   *************************************************/
 
-  class SiStripBadStripTest : public cond::payloadInspector::Histogram1D<SiStripBadStrip> {
+  class SiStripBadStripTest
+      : public cond::payloadInspector::Histogram1D<SiStripBadStrip, cond::payloadInspector::SINGLE_IOV> {
   public:
     SiStripBadStripTest()
-        : cond::payloadInspector::Histogram1D<SiStripBadStrip>(
-              "SiStrip Bad Strip test", "SiStrip Bad Strip test", 10, 0.0, 10.0) {
-      Base::setSingleIov(true);
-    }
+        : cond::payloadInspector::Histogram1D<SiStripBadStrip, cond::payloadInspector::SINGLE_IOV>(
+              "SiStrip Bad Strip test", "SiStrip Bad Strip test", 10, 0.0, 10.0) {}
 
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
@@ -486,17 +485,18 @@ namespace {
     Plot BadStrip by region 
   *************************************************/
 
-  class SiStripBadStripByRegion : public cond::payloadInspector::PlotImage<SiStripBadStrip> {
+  class SiStripBadStripByRegion
+      : public cond::payloadInspector::PlotImage<SiStripBadStrip, cond::payloadInspector::SINGLE_IOV> {
   public:
     SiStripBadStripByRegion()
-        : cond::payloadInspector::PlotImage<SiStripBadStrip>("SiStrip BadStrip By Region"),
+        : cond::payloadInspector::PlotImage<SiStripBadStrip, cond::payloadInspector::SINGLE_IOV>(
+              "SiStrip BadStrip By Region"),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
-              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {
-      setSingleIov(true);
-    }
+              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<SiStripBadStrip> payload = fetchPayload(std::get<1>(iov));
 
       std::vector<uint32_t> detid;
@@ -620,26 +620,36 @@ namespace {
     Plot BadStrip by region comparison
   *************************************************/
 
-  class SiStripBadStripByRegionComparisonBase : public cond::payloadInspector::PlotImage<SiStripBadStrip> {
+  template <int ntags, cond::payloadInspector::IOVMultiplicity nIOVs>
+  class SiStripBadStripByRegionComparisonBase
+      : public cond::payloadInspector::PlotImage<SiStripBadStrip, nIOVs, ntags> {
   public:
     SiStripBadStripByRegionComparisonBase()
-        : cond::payloadInspector::PlotImage<SiStripBadStrip>("SiStrip BadStrip By Region Comparison"),
+        : cond::payloadInspector::PlotImage<SiStripBadStrip, nIOVs, ntags>("SiStrip BadStrip By Region Comparison"),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
               edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      std::vector<std::tuple<cond::Time_t, cond::Hash> > sorted_iovs = iovs;
+    bool fill() override {
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
+      auto tagname1 = cond::payloadInspector::PlotBase::getTag<0>().name;
+      std::string tagname2 = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
 
-      // make absolute sure the IOVs are sortd by since
-      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
-        return std::get<0>(t1) < std::get<0>(t2);
-      });
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
 
-      auto firstiov = sorted_iovs.front();
-      auto lastiov = sorted_iovs.back();
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
+        tagname2 = cond::payloadInspector::PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
 
-      std::shared_ptr<SiStripBadStrip> last_payload = fetchPayload(std::get<1>(lastiov));
-      std::shared_ptr<SiStripBadStrip> first_payload = fetchPayload(std::get<1>(firstiov));
+      std::shared_ptr<SiStripBadStrip> last_payload = this->fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiStripBadStrip> first_payload = this->fetchPayload(std::get<1>(firstiov));
 
       std::string lastIOVsince = std::to_string(std::get<0>(lastiov));
       std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
@@ -818,7 +828,7 @@ namespace {
       legend.SetTextSize(0.025);
       legend.Draw("same");
 
-      std::string fileName(m_imageFileName);
+      std::string fileName(this->m_imageFileName);
       canvas.SaveAs(fileName.c_str());
 
       return true;
@@ -828,37 +838,44 @@ namespace {
     TrackerTopology m_trackerTopo;
   };
 
-  class SiStripBadStripByRegionComparisonSingleTag : public SiStripBadStripByRegionComparisonBase {
-  public:
-    SiStripBadStripByRegionComparisonSingleTag() : SiStripBadStripByRegionComparisonBase() { setSingleIov(false); }
-  };
-
-  class SiStripBadStripByRegionComparisonTwoTags : public SiStripBadStripByRegionComparisonBase {
-  public:
-    SiStripBadStripByRegionComparisonTwoTags() : SiStripBadStripByRegionComparisonBase() { setTwoTags(true); }
-  };
+  using SiStripBadStripByRegionComparisonSingleTag =
+      SiStripBadStripByRegionComparisonBase<1, cond::payloadInspector::MULTI_IOV>;
+  using SiStripBadStripByRegionComparisonTwoTags =
+      SiStripBadStripByRegionComparisonBase<2, cond::payloadInspector::SINGLE_IOV>;
 
   /************************************************
     TrackerMap of SiStripBadStrip (bad strips fraction difference)
   *************************************************/
-  class SiStripBadStripFractionComparisonTrackerMapBase : public cond::payloadInspector::PlotImage<SiStripBadStrip> {
+
+  template <int ntags, cond::payloadInspector::IOVMultiplicity nIOVs>
+  class SiStripBadStripFractionComparisonTrackerMapBase
+      : public cond::payloadInspector::PlotImage<SiStripBadStrip, nIOVs, ntags> {
   public:
     SiStripBadStripFractionComparisonTrackerMapBase()
-        : cond::payloadInspector::PlotImage<SiStripBadStrip>("Tracker Map of SiStrip bad strip fraction difference") {}
+        : cond::payloadInspector::PlotImage<SiStripBadStrip, nIOVs, ntags>(
+              "Tracker Map of SiStrip bad strip fraction difference") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      std::vector<std::tuple<cond::Time_t, cond::Hash> > sorted_iovs = iovs;
+    bool fill() override {
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
+      auto tagname1 = cond::payloadInspector::PlotBase::getTag<0>().name;
+      std::string tagname2 = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
 
-      // make absolute sure the IOVs are sortd by since
-      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
-        return std::get<0>(t1) < std::get<0>(t2);
-      });
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
 
-      auto firstiov = sorted_iovs.front();
-      auto lastiov = sorted_iovs.back();
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
+        tagname2 = cond::payloadInspector::PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
 
-      std::shared_ptr<SiStripBadStrip> last_payload = fetchPayload(std::get<1>(lastiov));
-      std::shared_ptr<SiStripBadStrip> first_payload = fetchPayload(std::get<1>(firstiov));
+      std::shared_ptr<SiStripBadStrip> last_payload = this->fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiStripBadStrip> first_payload = this->fetchPayload(std::get<1>(firstiov));
 
       std::string lastIOVsince = std::to_string(std::get<0>(lastiov));
       std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
@@ -935,7 +952,7 @@ namespace {
 
       //=========================
 
-      std::string fileName(m_imageFileName);
+      std::string fileName(this->m_imageFileName);
       tmap->save(true, 0, 0, fileName);
 
       delete reader;
@@ -943,35 +960,27 @@ namespace {
     }
   };
 
-  class SiStripBadStripFractionComparisonTrackerMapSingleTag : public SiStripBadStripFractionComparisonTrackerMapBase {
-  public:
-    SiStripBadStripFractionComparisonTrackerMapSingleTag() : SiStripBadStripFractionComparisonTrackerMapBase() {
-      setSingleIov(false);
-    }
-  };
-
-  class SiStripBadStripFractionComparisonTrackerMapTwoTags : public SiStripBadStripFractionComparisonTrackerMapBase {
-  public:
-    SiStripBadStripFractionComparisonTrackerMapTwoTags() : SiStripBadStripFractionComparisonTrackerMapBase() {
-      setTwoTags(true);
-    }
-  };
+  using SiStripBadStripFractionComparisonTrackerMapSingleTag =
+      SiStripBadStripFractionComparisonTrackerMapBase<1, cond::payloadInspector::MULTI_IOV>;
+  using SiStripBadStripFractionComparisonTrackerMapTwoTags =
+      SiStripBadStripFractionComparisonTrackerMapBase<2, cond::payloadInspector::SINGLE_IOV>;
 
   /************************************************
     Plot BadStrip Quality analysis 
   *************************************************/
 
-  class SiStripBadStripQualityAnalysis : public cond::payloadInspector::PlotImage<SiStripBadStrip> {
+  class SiStripBadStripQualityAnalysis
+      : public cond::payloadInspector::PlotImage<SiStripBadStrip, cond::payloadInspector::SINGLE_IOV> {
   public:
     SiStripBadStripQualityAnalysis()
-        : cond::payloadInspector::PlotImage<SiStripBadStrip>("SiStrip BadStrip Quality Analysis"),
+        : cond::payloadInspector::PlotImage<SiStripBadStrip, cond::payloadInspector::SINGLE_IOV>(
+              "SiStrip BadStrip Quality Analysis"),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
-              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {
-      setSingleIov(true);
-    }
+              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<SiStripBadStrip> payload = fetchPayload(std::get<1>(iov));
 
       SiStripQuality* siStripQuality_ = new SiStripQuality();
@@ -1141,29 +1150,39 @@ namespace {
     Plot BadStrip Quality Comparison
   *************************************************/
 
-  class SiStripBadStripQualityComparisonBase : public cond::payloadInspector::PlotImage<SiStripBadStrip> {
+  template <int ntags, cond::payloadInspector::IOVMultiplicity nIOVs>
+  class SiStripBadStripQualityComparisonBase : public cond::payloadInspector::PlotImage<SiStripBadStrip, nIOVs, ntags> {
   public:
     SiStripBadStripQualityComparisonBase()
-        : cond::payloadInspector::PlotImage<SiStripBadStrip>("SiStrip BadStrip Quality Comparison Analysis"),
+        : cond::payloadInspector::PlotImage<SiStripBadStrip, nIOVs, ntags>(
+              "SiStrip BadStrip Quality Comparison Analysis"),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
               edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+    bool fill() override {
       //SiStripPI::setPaletteStyle(SiStripPI::BLUERED);
       gStyle->SetPalette(kTemperatureMap);
 
-      std::vector<std::tuple<cond::Time_t, cond::Hash> > sorted_iovs = iovs;
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
+      auto tagname1 = cond::payloadInspector::PlotBase::getTag<0>().name;
+      std::string tagname2 = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
 
-      // make absolute sure the IOVs are sortd by since
-      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
-        return std::get<0>(t1) < std::get<0>(t2);
-      });
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
 
-      auto firstiov = sorted_iovs.front();
-      auto lastiov = sorted_iovs.back();
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
+        tagname2 = cond::payloadInspector::PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
 
-      std::shared_ptr<SiStripBadStrip> last_payload = fetchPayload(std::get<1>(lastiov));
-      std::shared_ptr<SiStripBadStrip> first_payload = fetchPayload(std::get<1>(firstiov));
+      std::shared_ptr<SiStripBadStrip> last_payload = this->fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiStripBadStrip> first_payload = this->fetchPayload(std::get<1>(firstiov));
 
       std::string lastIOVsince = std::to_string(std::get<0>(lastiov));
       std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
@@ -1337,7 +1356,7 @@ namespace {
           0.96,
           ("#DeltaIOV: " + std::to_string(std::get<0>(lastiov)) + " - " + std::to_string(std::get<0>(firstiov)))
               .c_str());
-      std::string fileName(m_imageFileName);
+      std::string fileName(this->m_imageFileName);
       canv.SaveAs(fileName.c_str());
 
       delete f_siStripQuality_;
@@ -1350,15 +1369,10 @@ namespace {
     TrackerTopology m_trackerTopo;
   };
 
-  class SiStripBadStripQualityComparisonSingleTag : public SiStripBadStripQualityComparisonBase {
-  public:
-    SiStripBadStripQualityComparisonSingleTag() : SiStripBadStripQualityComparisonBase() { setSingleIov(false); }
-  };
-
-  class SiStripBadStripQualityComparisonTwoTags : public SiStripBadStripQualityComparisonBase {
-  public:
-    SiStripBadStripQualityComparisonTwoTags() : SiStripBadStripQualityComparisonBase() { setTwoTags(true); }
-  };
+  using SiStripBadStripQualityComparisonSingleTag =
+      SiStripBadStripQualityComparisonBase<1, cond::payloadInspector::MULTI_IOV>;
+  using SiStripBadStripQualityComparisonTwoTags =
+      SiStripBadStripQualityComparisonBase<2, cond::payloadInspector::SINGLE_IOV>;
 
 }  // namespace
 
