@@ -421,31 +421,29 @@ namespace edm {
           iHolder.doneWaiting(excpt);
         });
 
-    auto task =
-        make_functor_task(tbb::task::allocate_root(),
-                          [this, doneTask, h = WaitingTaskHolder(doneTask), info = transitionInfo, token]() mutable {
-                            ServiceRegistry::Operate op(token);
-                            // Caught exception is propagated via WaitingTaskHolder
-                            CMS_SA_ALLOW try {
-                              T::preScheduleSignal(actReg_.get(), &streamContext_);
+    auto task = make_functor_task(
+        tbb::task::allocate_root(), [this, h = WaitingTaskHolder(doneTask), info = transitionInfo, token]() mutable {
+          ServiceRegistry::Operate op(token);
+          // Caught exception is propagated via WaitingTaskHolder
+          CMS_SA_ALLOW try {
+            T::preScheduleSignal(actReg_.get(), &streamContext_);
 
-                              workerManager_.resetAll();
-                            } catch (...) {
-                              h.doneWaiting(std::current_exception());
-                              return;
-                            }
+            workerManager_.resetAll();
+          } catch (...) {
+            h.doneWaiting(std::current_exception());
+            return;
+          }
 
-                            for (auto& p : end_paths_) {
-                              p.runAllModulesAsync<T>(doneTask, info, token, streamID_, &streamContext_);
-                            }
+          for (auto& p : end_paths_) {
+            p.runAllModulesAsync<T>(h, info, token, streamID_, &streamContext_);
+          }
 
-                            for (auto& p : trig_paths_) {
-                              p.runAllModulesAsync<T>(doneTask, info, token, streamID_, &streamContext_);
-                            }
+          for (auto& p : trig_paths_) {
+            p.runAllModulesAsync<T>(h, info, token, streamID_, &streamContext_);
+          }
 
-                            workerManager_.processOneOccurrenceAsync<T>(
-                                doneTask, info, token, streamID_, &streamContext_, &streamContext_);
-                          });
+          workerManager_.processOneOccurrenceAsync<T>(h, info, token, streamID_, &streamContext_, &streamContext_);
+        });
 
     if (streamID_.value() == 0) {
       //Enqueueing will start another thread if there is only

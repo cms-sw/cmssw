@@ -37,6 +37,10 @@ namespace edm {
     // eventually intend for the task to be spawned.
     explicit WaitingTaskWithArenaHolder(WaitingTask* iTask);
 
+    // Takes ownership of the underlying task and uses the current
+    // arena.
+    explicit WaitingTaskWithArenaHolder(WaitingTaskHolder&& iTask);
+
     ~WaitingTaskWithArenaHolder();
 
     WaitingTaskWithArenaHolder(WaitingTaskWithArenaHolder const& iHolder);

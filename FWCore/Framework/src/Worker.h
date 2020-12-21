@@ -30,6 +30,7 @@ the worker is reset().
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/interface/ProductResolverIndexAndSkipBit.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Concurrency/interface/WaitingTaskWithArenaHolder.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -149,7 +150,7 @@ namespace edm {
     }
 
     template <typename T>
-    void doWorkAsync(WaitingTask*,
+    void doWorkAsync(WaitingTaskHolder,
                      typename T::TransitionInfoType const&,
                      ServiceToken const&,
                      StreamID,
@@ -157,7 +158,7 @@ namespace edm {
                      typename T::Context const*);
 
     template <typename T>
-    void doWorkNoPrefetchingAsync(WaitingTask*,
+    void doWorkNoPrefetchingAsync(WaitingTaskHolder,
                                   typename T::TransitionInfoType const&,
                                   ServiceToken const&,
                                   StreamID,
@@ -170,7 +171,7 @@ namespace edm {
                                          ParentContext const&,
                                          typename T::Context const*);
 
-    void callWhenDoneAsync(WaitingTask* task) { waitingTasks_.add(task); }
+    void callWhenDoneAsync(WaitingTaskHolder task) { waitingTasks_.add(std::move(task)); }
     void skipOnPath(EventPrincipal const& iEvent);
     void beginJob();
     void endJob();
@@ -294,7 +295,7 @@ namespace edm {
     virtual std::vector<ESRecordIndex> const& esRecordsToGetFrom(Transition) const = 0;
     virtual std::vector<ProductResolverIndex> const& itemsShouldPutInEvent() const = 0;
 
-    virtual void preActionBeforeRunEventAsync(WaitingTask* iTask,
+    virtual void preActionBeforeRunEventAsync(WaitingTaskHolder iTask,
                                               ModuleCallingContext const& moduleCallingContext,
                                               Principal const& iPrincipal) const = 0;
 
@@ -338,11 +339,14 @@ namespace edm {
     }
 
     template <typename T>
-    void prefetchAsync(
-        WaitingTask*, ServiceToken const&, ParentContext const&, typename T::TransitionInfoType const&, Transition);
+    void prefetchAsync(WaitingTaskHolder,
+                       ServiceToken const&,
+                       ParentContext const&,
+                       typename T::TransitionInfoType const&,
+                       Transition);
 
-    void esPrefetchAsync(WaitingTask*, EventSetupImpl const&, Transition, ServiceToken const&);
-    void edPrefetchAsync(WaitingTask*, ServiceToken const&, Principal const&) const;
+    void esPrefetchAsync(WaitingTaskHolder, EventSetupImpl const&, Transition, ServiceToken const&);
+    void edPrefetchAsync(WaitingTaskHolder, ServiceToken const&, Principal const&) const;
 
     bool needsESPrefetching(Transition iTrans) const noexcept {
       return iTrans < edm::Transition::NumberOfEventSetupTransitions ? not esItemsToGetFrom(iTrans).empty() : false;
@@ -624,7 +628,7 @@ namespace edm {
         return iWorker->implDo(info, mcc);
       }
       static void esPrefetchAsync(Worker* worker,
-                                  WaitingTask* waitingTask,
+                                  WaitingTaskHolder waitingTask,
                                   ServiceToken const& token,
                                   EventTransitionInfo const& info,
                                   Transition transition) {
@@ -651,7 +655,7 @@ namespace edm {
         return iWorker->implDoBegin(info, mcc);
       }
       static void esPrefetchAsync(Worker* worker,
-                                  WaitingTask* waitingTask,
+                                  WaitingTaskHolder waitingTask,
                                   ServiceToken const& token,
                                   RunTransitionInfo const& info,
                                   Transition transition) {
@@ -676,7 +680,7 @@ namespace edm {
         return iWorker->implDoStreamBegin(id, info, mcc);
       }
       static void esPrefetchAsync(Worker* worker,
-                                  WaitingTask* waitingTask,
+                                  WaitingTaskHolder waitingTask,
                                   ServiceToken const& token,
                                   RunTransitionInfo const& info,
                                   Transition transition) {
@@ -701,7 +705,7 @@ namespace edm {
         return iWorker->implDoEnd(info, mcc);
       }
       static void esPrefetchAsync(Worker* worker,
-                                  WaitingTask* waitingTask,
+                                  WaitingTaskHolder waitingTask,
                                   ServiceToken const& token,
                                   RunTransitionInfo const& info,
                                   Transition transition) {
@@ -726,7 +730,7 @@ namespace edm {
         return iWorker->implDoStreamEnd(id, info, mcc);
       }
       static void esPrefetchAsync(Worker* worker,
-                                  WaitingTask* waitingTask,
+                                  WaitingTaskHolder waitingTask,
                                   ServiceToken const& token,
                                   RunTransitionInfo const& info,
                                   Transition transition) {
@@ -752,7 +756,7 @@ namespace edm {
         return iWorker->implDoBegin(info, mcc);
       }
       static void esPrefetchAsync(Worker* worker,
-                                  WaitingTask* waitingTask,
+                                  WaitingTaskHolder waitingTask,
                                   ServiceToken const& token,
                                   LumiTransitionInfo const& info,
                                   Transition transition) {
@@ -777,7 +781,7 @@ namespace edm {
         return iWorker->implDoStreamBegin(id, info, mcc);
       }
       static void esPrefetchAsync(Worker* worker,
-                                  WaitingTask* waitingTask,
+                                  WaitingTaskHolder waitingTask,
                                   ServiceToken const& token,
                                   LumiTransitionInfo const& info,
                                   Transition transition) {
@@ -803,7 +807,7 @@ namespace edm {
         return iWorker->implDoEnd(info, mcc);
       }
       static void esPrefetchAsync(Worker* worker,
-                                  WaitingTask* waitingTask,
+                                  WaitingTaskHolder waitingTask,
                                   ServiceToken const& token,
                                   LumiTransitionInfo const& info,
                                   Transition transition) {
@@ -828,7 +832,7 @@ namespace edm {
         return iWorker->implDoStreamEnd(id, info, mcc);
       }
       static void esPrefetchAsync(Worker* worker,
-                                  WaitingTask* waitingTask,
+                                  WaitingTaskHolder waitingTask,
                                   ServiceToken const& token,
                                   LumiTransitionInfo const& info,
                                   Transition transition) {
@@ -852,8 +856,8 @@ namespace edm {
         ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
         return iWorker->implDoBeginProcessBlock(info.principal(), mcc);
       }
-      static constexpr void esPrefetchAsync(
-          Worker*, WaitingTask*, ServiceToken const&, ProcessBlockTransitionInfo const&, Transition) {}
+      static void esPrefetchAsync(
+          Worker*, WaitingTaskHolder, ServiceToken const&, ProcessBlockTransitionInfo const&, Transition) {}
       static bool wantsTransition(Worker const* iWorker) { return iWorker->wantsProcessBlocks(); }
       static bool needToRunSelection(Worker const* iWorker) { return false; }
       static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) { return nullptr; }
@@ -872,8 +876,8 @@ namespace edm {
         ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
         return iWorker->implDoAccessInputProcessBlock(info.principal(), mcc);
       }
-      static constexpr void esPrefetchAsync(
-          Worker*, WaitingTask*, ServiceToken const&, ProcessBlockTransitionInfo const&, Transition) {}
+      static void esPrefetchAsync(
+          Worker*, WaitingTaskHolder, ServiceToken const&, ProcessBlockTransitionInfo const&, Transition) {}
       static bool wantsTransition(Worker const* iWorker) { return iWorker->wantsInputProcessBlocks(); }
       static bool needToRunSelection(Worker const* iWorker) { return false; }
       static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) { return nullptr; }
@@ -892,8 +896,8 @@ namespace edm {
         ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
         return iWorker->implDoEndProcessBlock(info.principal(), mcc);
       }
-      static constexpr void esPrefetchAsync(
-          Worker*, WaitingTask*, ServiceToken const&, ProcessBlockTransitionInfo const&, Transition) {}
+      static void esPrefetchAsync(
+          Worker*, WaitingTaskHolder, ServiceToken const&, ProcessBlockTransitionInfo const&, Transition) {}
       static bool wantsTransition(Worker const* iWorker) { return iWorker->wantsProcessBlocks(); }
       static bool needToRunSelection(Worker const* iWorker) { return false; }
       static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) { return nullptr; }
@@ -902,7 +906,7 @@ namespace edm {
   }  // namespace workerhelper
 
   template <typename T>
-  void Worker::prefetchAsync(WaitingTask* iTask,
+  void Worker::prefetchAsync(WaitingTaskHolder iTask,
                              ServiceToken const& token,
                              ParentContext const& parentContext,
                              typename T::TransitionInfoType const& transitionInfo,
@@ -915,24 +919,16 @@ namespace edm {
       actReg_->preModuleEventPrefetchingSignal_.emit(*moduleCallingContext_.getStreamContext(), moduleCallingContext_);
     }
 
-    //Need to be sure the ref count isn't set to 0 immediately
-    iTask->increment_ref_count();
-
     workerhelper::CallImpl<T>::esPrefetchAsync(this, iTask, token, transitionInfo, iTransition);
     edPrefetchAsync(iTask, token, principal);
 
     if (principal.branchType() == InEvent) {
       preActionBeforeRunEventAsync(iTask, moduleCallingContext_, principal);
     }
-
-    if (0 == iTask->decrement_ref_count()) {
-      //if everything finishes before we leave this routine, we need to launch the task
-      tbb::task::spawn(*iTask);
-    }
   }
 
   template <typename T>
-  void Worker::doWorkAsync(WaitingTask* task,
+  void Worker::doWorkAsync(WaitingTaskHolder task,
                            typename T::TransitionInfoType const& transitionInfo,
                            ServiceToken const& token,
                            StreamID streamID,
@@ -986,7 +982,7 @@ namespace edm {
             tbb::task::allocate_root(),
             [ownRunTask, parentContext, info = transitionInfo, token, this](std::exception_ptr const*) mutable {
               ServiceRegistry::Operate guard(token);
-              prefetchAsync<T>(ownRunTask->release(), token, parentContext, info, T::transition_);
+              prefetchAsync<T>(WaitingTaskHolder(ownRunTask->release()), token, parentContext, info, T::transition_);
             });
         prePrefetchSelectionAsync(selectionTask, token, streamID, &transitionInfo.principal());
       } else {
@@ -1000,7 +996,7 @@ namespace edm {
                 AcquireTask<T>(this, transitionInfo, token, parentContext, std::move(runTaskHolder));
           }
         }
-        prefetchAsync<T>(moduleTask, token, parentContext, transitionInfo, T::transition_);
+        prefetchAsync<T>(WaitingTaskHolder(moduleTask), token, parentContext, transitionInfo, T::transition_);
       }
     }
   }
@@ -1032,7 +1028,7 @@ namespace edm {
   }
 
   template <typename T>
-  void Worker::doWorkNoPrefetchingAsync(WaitingTask* task,
+  void Worker::doWorkNoPrefetchingAsync(WaitingTaskHolder task,
                                         typename T::TransitionInfoType const& transitionInfo,
                                         ServiceToken const& serviceToken,
                                         StreamID streamID,
@@ -1076,7 +1072,8 @@ namespace edm {
                 }
               }
             });
-        esPrefetchAsync(afterPrefetch, transitionInfo.eventSetupImpl(), T::transition_, serviceToken);
+        esPrefetchAsync(
+            WaitingTaskHolder(afterPrefetch), transitionInfo.eventSetupImpl(), T::transition_, serviceToken);
       } else {
         if (auto queue = this->serializeRunModule()) {
           queue.push(toDo);
@@ -1167,8 +1164,11 @@ namespace edm {
         //set count to 2 since wait_for_all requires value to not go to 0
         waitTask->set_ref_count(2);
 
-        prefetchAsync<T>(
-            waitTask.get(), ServiceRegistry::instance().presentToken(), parentContext, transitionInfo, T::transition_);
+        prefetchAsync<T>(WaitingTaskHolder(waitTask.get()),
+                         ServiceRegistry::instance().presentToken(),
+                         parentContext,
+                         transitionInfo,
+                         T::transition_);
         waitTask->decrement_ref_count();
         waitTask->wait_for_all();
       }
