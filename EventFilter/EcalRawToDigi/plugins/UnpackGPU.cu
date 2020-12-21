@@ -130,9 +130,6 @@ namespace ecal {
       // indices
       auto const ifed = blockIdx.x;
 
-      // FIXME: use only the very first fed
-      //if (ifed!=10) return;
-
       // offset in bytes
       auto const offset = offsets[ifed];
       // fed id
@@ -143,9 +140,6 @@ namespace ecal {
       auto* samples = isBarrel ? samplesEB : samplesEE;
       auto* ids = isBarrel ? idsEB : idsEE;
       auto* pChannelsCounter = isBarrel ? &pChannelsCounterEBEE[0] : &pChannelsCounterEBEE[1];
-
-      // FIXME: debugging
-      //printf("ifed = %u fed = %d offset = %u size = %u\n", ifed, fed, offset, size);
 
       // offset to the right raw buffer
       uint64_t const* buffer = reinterpret_cast<uint64_t const*>(data + offset);
@@ -225,7 +219,6 @@ namespace ecal {
           sampleValues[7] = wdata2 & 0x3fff;
           sampleValues[8] = (wdata2 >> 16) & 0x3fff;
           sampleValues[9] = (wdata2 >> 32) & 0x3fff;
-          //printf("stripid = %u xtalid = %u\n", stripid, xtalid);
 
           // check gain
           bool isSaturation = true;

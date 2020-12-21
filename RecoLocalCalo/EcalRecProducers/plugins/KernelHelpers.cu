@@ -83,15 +83,7 @@ namespace ecal {
             iz = -1;
           }
           ieta *= iz;
-          //   int iphi_ = iphi;
-          //   if (iphi_ > 360) {
-          //     iphi_ -= 360;
-          //   }
           int ix = ieta - 1;
-          //   int iy = (iphi_ - 1) % 20;
-          //   if (iz == -1) {
-          //     iy = 19 - iy;
-          //   }
 
           return ix;
         }
@@ -101,12 +93,10 @@ namespace ecal {
           if (ieta < 0) {
             iz = -1;
           }
-          //   ieta *= iz;
           int iphi_ = iphi;
           if (iphi_ > 360) {
             iphi_ -= 360;
           }
-          //   int ix = ieta - 1;
           int iy = (iphi_ - 1) % 20;
           if (iz == -1) {
             iy = 19 - iy;
@@ -154,13 +144,8 @@ namespace ecal {
       int ism = idcc - 9;
 
       int iside = side(ieta, (int)(iphi(id)));
-      //   int iside = positiveZ(id) ? 1 : 0;
 
       return (1 + 2 * (ism - 1) + iside);
-      //   return ieta;
-      //   return (int) (iphi(id));
-      //   return idcc;
-      //   return iside;
     }
 
     namespace internal {

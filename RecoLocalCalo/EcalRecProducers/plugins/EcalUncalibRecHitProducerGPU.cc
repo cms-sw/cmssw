@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include "CUDADataFormats/EcalRecHitSoA/interface/EcalUncalibratedRecHit.h"
 #include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
 #include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
@@ -104,8 +102,7 @@ void EcalUncalibRecHitProducerGPU::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<std::vector<uint32_t>>("kernelMinimizeThreads", {32, 1, 1});
   // ---- default false or true? It was set to true, but at HLT it is false
   desc.add<bool>("shouldRunTimingComputation", false);
-  std::string label = "ecalUncalibRecHitProducerGPU";
-  confDesc.add(label, desc);
+  confDesc.add("ecalUncalibRecHitProducerGPU", desc);
 }
 
 EcalUncalibRecHitProducerGPU::EcalUncalibRecHitProducerGPU(const edm::ParameterSet& ps)

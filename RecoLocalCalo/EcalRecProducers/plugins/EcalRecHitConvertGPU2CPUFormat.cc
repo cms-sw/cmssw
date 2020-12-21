@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include "CUDADataFormats/EcalRecHitSoA/interface/EcalRecHit.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
@@ -61,10 +59,6 @@ void EcalRecHitConvertGPU2CPUFormat::produce(edm::Event& event, edm::EventSetup 
   recHitsCPUEB->reserve(hRecHitsGPUEB.energy.size());
   recHitsCPUEE->reserve(hRecHitsGPUEE.energy.size());
 
-  //
-  //     explicit EcalRecHit(const DetId& id, float energy, float time, uint32_t extra = 0, uint32_t flagBits = 0):
-  //
-
   for (uint32_t i = 0; i < hRecHitsGPUEB.energy.size(); ++i) {
     //
     // Save only if energy is >= 0 !
@@ -79,14 +73,6 @@ void EcalRecHitConvertGPU2CPUFormat::produce(edm::Event& event, edm::EventSetup 
                                  hRecHitsGPUEB.extra[i],
                                  hRecHitsGPUEB.flagBits[i]);
     }
-
-    //       std::cout << " EB :: extra [" << i << "::" << hRecHitsGPUEB.energy.size() << "] = " << hRecHitsGPUEB.extra[i] << std::endl;
-
-    //         (*recHitsCPUEB)[i].setJitterError(hRecHitsGPUEB.timeError[i]);
-    //         auto const offset = i * EcalDataFrame::MAXSAMPLES;
-    //         for (uint32_t sample=0; sample<EcalDataFrame::MAXSAMPLES; ++sample)
-    //             (*recHitsCPUEB)[i].setOutOfTimeAmplitude(
-    //                 sample, hRecHitsGPUEB.energysAll[offset + sample]);
   }
 
   for (uint32_t i = 0; i < hRecHitsGPUEE.energy.size(); ++i) {
@@ -103,14 +89,6 @@ void EcalRecHitConvertGPU2CPUFormat::produce(edm::Event& event, edm::EventSetup 
                                  hRecHitsGPUEE.extra[i],
                                  hRecHitsGPUEE.flagBits[i]);
     }
-
-    //       std::cout << " EE :: extra [" << i << "::" << hRecHitsGPUEE.energy.size() << "] = " << hRecHitsGPUEE.extra[i] << std::endl;
-
-    //         (*recHitsCPUEE)[i].setJitterError(hRecHitsGPUEE.timeError[i]);
-    //         auto const offset = i * EcalDataFrame::MAXSAMPLES;
-    //         for (uint32_t sample=0; sample<EcalDataFrame::MAXSAMPLES; ++sample)
-    //             (*recHitsCPUEE)[i].setOutOfTimeAmplitude(
-    //                 sample, hRecHitsGPUEE.energysAll[offset + sample]);
   }
 
   event.put(std::move(recHitsCPUEB), recHitsLabelCPUEB_);

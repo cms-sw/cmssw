@@ -1,9 +1,11 @@
+//#define ECAL_RECO_CUDA_DEBUG
+
+#ifdef ECAL_RECO_CUDA_DEBUG
 #include <iostream>
+#endif
 
 // framework
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-//#include "HeterogeneousCore/Producer/interface/HeterogeneousEDProducer.h"
-//#include "HeterogeneousCore/Producer/interface/HeterogeneousEvent.h"
 
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -18,6 +20,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 #include "CUDADataFormats/EcalRecHitSoA/interface/EcalRecHit.h"
+
 
 class EcalCPURecHitProducer : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
@@ -72,8 +75,10 @@ void EcalCPURecHitProducer::acquire(edm::Event const& event,
   recHitsEB_.resize(ebRecHits.size);
   recHitsEE_.resize(eeRecHits.size);
 
-  //     std::cout << " [EcalCPURecHitProducer::acquire] ebRecHits.size = " << ebRecHits.size << std::endl;
-  //     std::cout << " [EcalCPURecHitProducer::acquire] eeRecHits.size = " << eeRecHits.size << std::endl;
+#ifdef ECAL_RECO_CUDA_DEBUG
+  std::cout << " [EcalCPURecHitProducer::acquire] ebRecHits.size = " << ebRecHits.size << std::endl;
+  std::cout << " [EcalCPURecHitProducer::acquire] eeRecHits.size = " << eeRecHits.size << std::endl;
+#endif
 
   // enqeue transfers
   cudaCheck(cudaMemcpyAsync(recHitsEB_.did.data(),
@@ -134,19 +139,19 @@ void EcalCPURecHitProducer::acquire(edm::Event const& event,
                             cudaMemcpyDeviceToHost,
                             ctx.stream()));
 
-  //     for (unsigned int ieb = 0; ieb <  ebRecHits.size ; ieb++) {
-  //       if (recHitsEB_.extra[ieb] != 0 ) std::cout << " [ " << ieb << " :: " << ebRecHits.size << " ] [ " << recHitsEB_.did[ieb] << " ] eb extra = " << recHitsEB_.extra[ieb] << std::endl;
-  //     }
+#ifdef ECAL_RECO_CUDA_DEBUG
+  for (unsigned int ieb = 0; ieb <  ebRecHits.size ; ieb++) {
+    if (recHitsEB_.extra[ieb] != 0 ) std::cout << " [ " << ieb << " :: " << ebRecHits.size << " ] [ " << recHitsEB_.did[ieb] << " ] eb extra = " << recHitsEB_.extra[ieb] << std::endl;
+  }
 
-  //
-  //     for (unsigned int ieb = 0; ieb <  ebRecHits.size ; ieb++) {
-  //       if (recHitsEB_.energy[ieb] != 0 ) std::cout << " [ " << ieb << " :: " << ebRecHits.size << " ] [ " << recHitsEB_.did[ieb] << " ] eb energy = " << recHitsEB_.energy[ieb] << std::endl;
-  //     }
-  //
-  //     for (unsigned int iee = 0; iee <  eeRecHits.size ; iee++) {
-  //       if (recHitsEE_.energy[iee] != 0 ) std::cout << " [ " << iee << " :: " << eeRecHits.size << " ] [ " << recHitsEE_.did[iee] << " ] ee energy = " << recHitsEE_.energy[iee] << std::endl;
-  //     }
-  //
+  for (unsigned int ieb = 0; ieb <  ebRecHits.size ; ieb++) {
+    if (recHitsEB_.energy[ieb] != 0 ) std::cout << " [ " << ieb << " :: " << ebRecHits.size << " ] [ " << recHitsEB_.did[ieb] << " ] eb energy = " << recHitsEB_.energy[ieb] << std::endl;
+  }
+
+  for (unsigned int iee = 0; iee <  eeRecHits.size ; iee++) {
+    if (recHitsEE_.energy[iee] != 0 ) std::cout << " [ " << iee << " :: " << eeRecHits.size << " ] [ " << recHitsEE_.did[iee] << " ] ee energy = " << recHitsEE_.energy[iee] << std::endl;
+  }
+#endif
 }
 
 void EcalCPURecHitProducer::produce(edm::Event& event, edm::EventSetup const& setup) {

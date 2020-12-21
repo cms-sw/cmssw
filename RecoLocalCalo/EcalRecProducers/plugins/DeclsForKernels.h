@@ -227,8 +227,6 @@ namespace ecal {
       EcalMultifitParametersGPU::Product const& multifitParameters;
     };
 
-    //*/
-
     struct xyz {
       int x, y, z;
     };
@@ -269,7 +267,6 @@ namespace ecal {
       float EBLaserMAX;
       float EELaserMAX;
 
-      //       std::vector<std::vector<uint32_t> > v_DB_reco_flags;
       int* expanded_v_DB_reco_flags;
       uint32_t* expanded_Sizes_v_DB_reco_flags;
       uint32_t* expanded_flagbit_v_DB_reco_flags;
@@ -278,16 +275,12 @@ namespace ecal {
       uint32_t flagmask;
       uint32_t maxNumberHitsEB;
       uint32_t maxNumberHitsEE;
-
-      //
-      //       bool shouldRunTimingComputation;
     };
 
     struct EventOutputDataGPU {
       RecHit<::calo::common::DevStoragePolicy> recHitsEB, recHitsEE;
 
       void allocate(ConfigurationParameters const& configParameters, cudaStream_t cudaStream) {
-        //      void allocate(uint32_t size) {
         //---- configParameters -> needed only to decide if to save the timing information or not
         auto const sizeEB = configParameters.maxNumberHitsEB;
         recHitsEB.energy = cms::cuda::make_device_unique<::ecal::reco::StorageScalarType[]>(sizeEB, cudaStream);
@@ -317,13 +310,12 @@ namespace ecal {
       EcalRechitADCToGeVConstantGPU::Product const& ADCToGeV;
       EcalIntercalibConstantsGPU::Product const& Intercalib;
       EcalRechitChannelStatusGPU::Product const& ChannelStatus;
-      //
+
       EcalLaserAPDPNRatiosGPU::Product const& LaserAPDPNRatios;
       EcalLaserAPDPNRatiosRefGPU::Product const& LaserAPDPNRatiosRef;
       EcalLaserAlphasGPU::Product const& LaserAlphas;
       EcalLinearCorrectionsGPU::Product const& LinearCorrections;
-      //
-      //
+
       uint32_t offsetForHashes;
     };
 

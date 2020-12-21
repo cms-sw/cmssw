@@ -176,9 +176,6 @@ namespace ecal {
             offsetForInputs);
         cudaCheck(cudaGetLastError());
 
-        //
-        //
-        //
         int sharedBytes = EcalDataFrame::MAXSAMPLES * nchannels_per_block * 4 * sizeof(SampleVector::Scalar);
         auto const threads_nullhypot = threads_1d;
         auto const blocks_nullhypot = blocks_1d;
@@ -226,9 +223,6 @@ namespace ecal {
             offsetForInputs);
         cudaCheck(cudaGetLastError());
 
-        //
-        //
-        //
         auto const threads_findamplchi2 = threads_1d;
         auto const blocks_findamplchi2 = blocks_1d;
         int const sharedBytesFindAmplChi2 = 2 * threads_findamplchi2 * sizeof(SampleVector::Scalar);
@@ -258,9 +252,6 @@ namespace ecal {
                                                                     offsetForInputs);
         cudaCheck(cudaGetLastError());
 
-        //
-        //
-        //
         auto const threads_timecorr = 32;
         auto const blocks_timecorr =
             threads_timecorr > totalChannels ? 1 : (totalChannels + threads_timecorr - 1) / threads_timecorr;
@@ -308,14 +299,6 @@ namespace ecal {
             totalChannels);
         cudaCheck(cudaGetLastError());
       }
-
-      /*
-    cudaEventRecord(end_event, 0);
-    cudaEventSynchronize(end_event);
-    float ms;
-    cudaEventElapsedTime(&ms, start_event, end_event);
-    std::cout << "elapsed time = " << ms << std::endl;
-    */
     }
 
   }  // namespace multifit

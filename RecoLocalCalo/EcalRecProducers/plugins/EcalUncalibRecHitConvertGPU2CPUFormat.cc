@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include "CUDADataFormats/EcalRecHitSoA/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
@@ -38,8 +36,7 @@ void EcalUncalibRecHitConvertGPU2CPUFormat::fillDescriptions(edm::ConfigurationD
   desc.add<std::string>("recHitsLabelCPUEB", "EcalUncalibRecHitsEB");
   desc.add<std::string>("recHitsLabelCPUEE", "EcalUncalibRecHitsEE");
 
-  std::string label = "ecalUncalibRecHitConvertGPU2CPUFormat";
-  confDesc.add(label, desc);
+  confDesc.add("ecalUncalibRecHitConvertGPU2CPUFormat", desc);
 }
 
 EcalUncalibRecHitConvertGPU2CPUFormat::EcalUncalibRecHitConvertGPU2CPUFormat(const edm::ParameterSet& ps)
