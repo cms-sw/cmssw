@@ -7,6 +7,7 @@
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/Math/interface/approx_exp.h"
 #include "DataFormats/Math/interface/approx_log.h"
+#include "FWCore/Utilities/interface/CMSUnrollLoop.h"
 
 #include "Common.h"
 #include "TimeComputationKernels.h"
@@ -263,7 +264,7 @@ namespace ecal {
           if (ratio_step == 1 && ratio_value >= l_timeFitLimits_first && ratio_value <= l_timeFitLimits_second) {
             const auto time_max_i = static_cast<ScalarType>(ratio_index);
             auto u = timeFitParameters[timeFitParameters_size - 1];
-#pragma unroll
+            CMS_UNROLL_LOOP
             for (int k = timeFitParameters_size - 2; k >= 0; k--)
               u = u * ratio_value + timeFitParameters[k];
 
@@ -365,7 +366,7 @@ namespace ecal {
       // TODO validate/check
       char iter = nthreads_per_channel / 2 + nthreads_per_channel % 2;
       bool oddElements = nthreads_per_channel % 2;
-#pragma unroll
+      CMS_UNROLL_LOOP
       while (iter >= 1) {
         if (ltx < iter)
           // for odd ns, the last guy will just store itself
@@ -410,7 +411,7 @@ namespace ecal {
       // reduce to compute time_max and time_wgt
       iter = nthreads_per_channel / 2 + nthreads_per_channel % 2;
       oddElements = nthreads_per_channel % 2;
-#pragma unroll
+      CMS_UNROLL_LOOP
       while (iter >= 1) {
         if (ltx < iter) {
           shr_time_wgt[threadIdx.x] = oddElements && (ltx == iter - 1 && ltx > 0)
@@ -893,8 +894,8 @@ namespace ecal {
         sample_value = (static_cast<SampleVector::Scalar>(adc) - mean_x6[hashedId]) * gain12Over6[hashedId];
         sample_value_error = rms_x6[hashedId] * gain12Over6[hashedId];
       } else if (gainId == 3) {
-        sample_value = (static_cast<SampleVector::Scalar>(adc) - mean_x1[hashedId]) * gain6Over1[hashedId] *
-                       gain12Over6[hashedId];
+        sample_value =
+            (static_cast<SampleVector::Scalar>(adc) - mean_x1[hashedId]) * gain6Over1[hashedId] * gain12Over6[hashedId];
         sample_value_error = rms_x1[hashedId] * gain6Over1[hashedId] * gain12Over6[hashedId];
       } else {
         sample_value = 0;

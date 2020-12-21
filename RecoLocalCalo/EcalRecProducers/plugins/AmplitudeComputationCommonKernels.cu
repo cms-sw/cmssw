@@ -10,6 +10,7 @@
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/Math/interface/approx_exp.h"
 #include "DataFormats/Math/interface/approx_log.h"
+#include "FWCore/Utilities/interface/CMSUnrollLoop.h"
 
 #include "AmplitudeComputationCommonKernels.h"
 #include "KernelHelpers.h"
@@ -128,7 +129,7 @@ namespace ecal {
 
         // non-divergent branch (except for the last 4 threads)
         if (threadIdx.x <= blockDim.x - 5) {
-#pragma unroll
+          CMS_UNROLL_LOOP
           for (int i = 0; i < 5; i++)
             shr_counts[threadIdx.x] += shr_hasSwitchToGain0[threadIdx.x + i];
         }
@@ -263,7 +264,7 @@ namespace ecal {
 
             // check if samples before sample_max have true
             bool saturated_before_max = false;
-#pragma unroll
+            CMS_UNROLL_LOOP
             for (char ii = 0; ii < 5; ii++)
               saturated_before_max = saturated_before_max || shr_hasSwitchToGain0[chStart + ii];
 
@@ -397,7 +398,7 @@ namespace ecal {
           noise_value += rms_x12[hashedId] * rms_x12[hashedId] * pedestal * G12SamplesCorrelation[vidx];
           // non-divergent branch
           if (!dynamicPedestal && addPedestalUncertainty > 0.f) {
-            noise_value += addPedestalUncertainty * addPedestalUncertainty * pedestal; // gainratio is 1
+            noise_value += addPedestalUncertainty * addPedestalUncertainty * pedestal;  // gainratio is 1
           }
 
           //
