@@ -1,0 +1,311 @@
+<?xml version="1.0"?>
+<DDDefinition>
+<ConstantsSection label="hcalforwardshower.xml" eval="true">
+  <Constant name="worldDx" value="5.0*m"/>
+  <Constant name="worldDz" value="5.0*m"/>
+  <Constant name="chamberDx" value="2.501*m"/>
+  <Constant name="chamberDz" value="0.1*cm"/>
+  <Constant name="chamberZ" value="99.89*cm"/>
+  <Constant name="wirePlaneDz" value="0.10*mm"/>
+  <Constant name="wirePlaneZ" value="0.89*mm"/>
+  <Constant name="shiftSF" value="0.0*cm"/>
+  <Constant name="dzHF" value="82.5*cm"/>
+  <Constant name="cellDx" value="0.50*cm"/>
+  <Constant name="cellDy" value="0.50*cm"/>
+  <Constant name="cellX" value="25"/>
+  <Constant name="cellY" value="25"/>
+  <Constant name="wedgeDx" value="[cellDx]*[cellX]"/>
+  <Constant name="wedgeDy" value="[cellDy]*[cellY]"/>
+  <Constant name="wedgeX" value="20"/>
+  <Constant name="wedgeY" value="20"/>
+  <Constant name="wedgeZ" value="182.5*cm"/>
+  <Constant name="holeX" value="0.25*cm"/>
+  <Constant name="claddingR" value="0.45*mm"/>
+  <Constant name="fibreR" value="0.30*mm"/>
+  <Constant name="fibreLongL" value="164.98*cm"/>
+  <Constant name="fibreShortL" value="([fibreLongL]-2*[shiftSF])"/>
+</ConstantsSection>
+
+<SolidSection label="hcalforwardshower.xml">
+  <Box name="HFWorld" dx="[worldDx]" dy="[worldDx]" dz="[worldDz]"/>
+  <Box name="Chamber" dx="[chamberDx]" dy="[chamberDx]" dz="[chamberDz]"/>
+  <Box name="WirePlane" dx="[chamberDx]" dy="[chamberDx]" dz="[wirePlaneDz]"/>
+  <Box name="HFWedge" dx="[wedgeDx]" dy="[wedgeDy]" dz="[dzHF]"/>
+  <Box name="HFBox" dx="[cellDx]" dy="[cellDy]" dz="[dzHF]"/>
+  <Tubs name="HFCladS" rMin="0*fm" rMax="[claddingR]" dz="[fibreShortL]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="HFCladL" rMin="0*fm" rMax="[claddingR]" dz="[fibreLongL]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="HFFibreS" rMin="0*fm" rMax="[fibreR]" dz="[fibreShortL]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="HFFibreL" rMin="0*fm" rMax="[fibreR]" dz="[fibreLongL]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+</SolidSection>
+
+<LogicalPartSection label="hcalforwardshower.xml">
+  <LogicalPart name="World" category="unspecified">
+    <rSolid name="HFWorld"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HFWorld" category="unspecified">
+    <rSolid name="HFWorld"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="Chamber" category="unspecified">
+    <rSolid name="Chamber"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="WirePlane" category="unspecified">
+    <rSolid name="WirePlane"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HFWedge" category="unspecified">
+    <rSolid name="HFWedge"/>
+    <rMaterial name="materials:Iron"/>
+  </LogicalPart>
+  <LogicalPart name="HFBox" category="unspecified">
+    <rSolid name="HFBox"/>
+    <rMaterial name="materials:Iron"/>
+  </LogicalPart>
+  <LogicalPart name="HFCladS" category="unspecified">
+    <rSolid name="HFCladS"/>
+    <rMaterial name="hcalforwardmaterial:Plastic"/>
+  </LogicalPart>
+  <LogicalPart name="HFCladL" category="unspecified">
+    <rSolid name="HFCladL"/>
+    <rMaterial name="hcalforwardmaterial:Plastic"/>
+  </LogicalPart>
+  <LogicalPart name="HFFibreS" category="unspecified">
+    <rSolid name="HFFibreS"/>
+    <rMaterial name="hcalforwardmaterial:QuartzF"/>
+  </LogicalPart>
+  <LogicalPart name="HFFibreL" category="unspecified">
+    <rSolid name="HFFibreL"/>
+    <rMaterial name="hcalforwardmaterial:QuartzF"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="hcalforwardshower.xml">
+  <PosPart copyNumber="1">
+    <rParent name="hcalforwardshower:World"/>
+    <rChild name="hcalforwardshower:HFWorld"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hcalforwardshower:HFWorld"/>
+    <rChild name="hcalforwardshower:Chamber"/>
+    <Translation x="0*fm" y="0*fm" z="[chamberZ]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hcalforwardshower:Chamber"/>
+    <rChild name="hcalforwardshower:WirePlane"/>
+    <Translation x="0*fm" y="0*fm" z="[wirePlaneZ]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hcalforwardshower:HFCladL"/>
+    <rChild name="hcalforwardshower:HFFibreL"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="hcalforwardshower:HFCladS"/>
+    <rChild name="hcalforwardshower:HFFibreS"/>
+  </PosPart>
+  <PosPart copyNumber="5001">
+    <rParent name="hcalforwardshower:HFBox"/>
+    <rChild name="hcalforwardshower:HFCladS"/>
+    <Translation x="-[holeX]" y="-[holeX]" z="[shiftSF]"/>
+  </PosPart>
+  <PosPart copyNumber="5002">
+    <rParent name="hcalforwardshower:HFBox"/>
+    <rChild name="hcalforwardshower:HFCladL"/>
+    <Translation x="-[holeX]" y="[holeX]" z="0*fm"/>
+  </PosPart>
+  <PosPart copyNumber="5003">
+    <rParent name="hcalforwardshower:HFBox"/>
+    <rChild name="hcalforwardshower:HFCladL"/>
+    <Translation x="[holeX]" y="-[holeX]" z="0*fm"/>
+  </PosPart>
+  <PosPart copyNumber="5004">
+    <rParent name="hcalforwardshower:HFBox"/>
+    <rChild name="hcalforwardshower:HFCladS"/>
+    <Translation x="[holeX]" y="[holeX]" z="[shiftSF]"/>
+  </PosPart>
+</PosPartSection>
+
+<Algorithm name="hcal:DDHCalLinearXY">
+  <rParent name="hcalforwardshower:HFWorld"/>
+  <Vector name="Child" type="string" nEntries="1">
+    hcalforwardshower:HFWedge</Vector>
+  <Numeric name="DeltaX" value="2*[wedgeDx]"/>
+  <Numeric name="DeltaY" value="2*[wedgeDy]"/>
+  <Numeric name="NumberX" value="[wedgeX]"/>
+  <Numeric name="NumberY" value="[wedgeY]"/>
+  <Vector name="Center" type="numeric" nEntries="3">
+    0., 0., 182.5*cm
+  </Vector>
+</Algorithm>
+<Algorithm name="hcal:DDHCalLinearXY">
+  <rParent name="hcalforwardshower:HFWedge"/>
+  <Vector name="Child" type="string" nEntries="1">
+    hcalforwardshower:HFBox</Vector>
+  <Numeric name="DeltaX" value="2*[cellDx]"/>
+  <Numeric name="DeltaY" value="2*[cellDy]"/>
+  <Numeric name="NumberX" value="[cellX]"/>
+  <Numeric name="NumberY" value="[cellY]"/>
+  <Vector name="Center" type="numeric" nEntries="3">
+    0., 0., 0.
+  </Vector>
+</Algorithm>
+
+<SpecParSection label="hcalforwardshower.xml" eval="true">
+  <SpecPar name="fibre">
+    <PartSelector path="//HFFibre.*"/>
+    <Parameter name="SensitiveDetector" value="FiberSensitiveDetector" eval="false"/>
+    <Parameter name="ReadOutName" value="FibreHits" eval="false"/>
+    <Parameter name="rTable" value="12.50*cm"/>
+    <Parameter name="rTable" value="16.90*cm"/>
+    <Parameter name="rTable" value="20.10*cm"/>
+    <Parameter name="rTable" value="24.00*cm"/>
+    <Parameter name="rTable" value="28.60*cm"/>
+    <Parameter name="rTable" value="34.00*cm"/>
+    <Parameter name="rTable" value="40.60*cm"/>
+    <Parameter name="rTable" value="48.30*cm"/>
+    <Parameter name="rTable" value="57.60*cm"/>
+    <Parameter name="rTable" value="68.60*cm"/>
+    <Parameter name="rTable" value="81.80*cm"/>
+    <Parameter name="rTable" value="97.50*cm"/>
+    <Parameter name="rTable" value="116.20*cm"/>
+    <Parameter name="rTable" value="130.00*cm"/>
+    <Parameter name="gparHF" value="0.0*cm"/>
+    <Parameter name="gparHF" value="165.0*cm"/>
+    <Parameter name="gparHF" value="30.0*cm"/>
+    <Parameter name="gparHF" value="0.0*cm"/>
+    <Parameter name="gparHF" value="1115.0*cm"/>
+    <Parameter name="gparHF" value="0.375*cm"/>
+    <Parameter name="gparHF" value="1137.0*cm"/>
+  </SpecPar>
+  <SpecPar name="wedge">
+    <PartSelector path="//HFWedge"/>
+    <Parameter name="SensitiveDetector" value="HFWedgeSensitiveDetector" eval="false"/>
+    <Parameter name="ReadOutName" value="WedgeHits" eval="false"/>
+    <Parameter name="Volume" value="HF" eval="false"/>
+    <Parameter name="Levels" value="4"/>
+    <Parameter name="Levels" value="5"/>
+    <Parameter name="attl" value="0.8096535E-03/cm"/>
+    <Parameter name="attl" value="0.7130018E-03/cm"/>
+    <Parameter name="attl" value="0.6549183E-03/cm"/>
+    <Parameter name="attl" value="0.6027666E-03/cm"/>
+    <Parameter name="attl" value="0.5662951E-03/cm"/>
+    <Parameter name="attl" value="0.5416475E-03/cm"/>
+    <Parameter name="attl" value="0.5161745E-03/cm"/>
+    <Parameter name="attl" value="0.5025120E-03/cm"/>
+    <Parameter name="attl" value="0.5042249E-03/cm"/>
+    <Parameter name="attl" value="0.5062117E-03/cm"/>
+    <Parameter name="attl" value="0.5062750E-03/cm"/>
+    <Parameter name="attl" value="0.4876212E-03/cm"/>
+    <Parameter name="attl" value="0.4730343E-03/cm"/>
+    <Parameter name="attl" value="0.4540021E-03/cm"/>
+    <Parameter name="attl" value="0.4423832E-03/cm"/>
+    <Parameter name="attl" value="0.4410428E-03/cm"/>
+    <Parameter name="attl" value="0.4436095E-03/cm"/>
+    <Parameter name="attl" value="0.4331241E-03/cm"/>
+    <Parameter name="attl" value="0.4401879E-03/cm"/>
+    <Parameter name="attl" value="0.4352570E-03/cm"/>
+    <Parameter name="attl" value="0.4392237E-03/cm"/>
+    <Parameter name="attl" value="0.4313847E-03/cm"/>
+    <Parameter name="attl" value="0.4170704E-03/cm"/>
+    <Parameter name="attl" value="0.4156771E-03/cm"/>
+    <Parameter name="attl" value="0.4083890E-03/cm"/>
+    <Parameter name="attl" value="0.4002930E-03/cm"/>
+    <Parameter name="attl" value="0.4009888E-03/cm"/>
+    <Parameter name="attl" value="0.3954170E-03/cm"/>
+    <Parameter name="attl" value="0.3893599E-03/cm"/>
+    <Parameter name="attl" value="0.3839422E-03/cm"/>
+    <Parameter name="lambLim" value="300.0"/>
+    <Parameter name="lambLim" value="600.0"/>
+    <Parameter name="LongFL" value="227.9925651*cm"/>
+    <Parameter name="LongFL" value="237.1215213*cm"/>
+    <Parameter name="LongFL" value="241.7005445*cm"/>
+    <Parameter name="LongFL" value="256.47981*cm"/>
+    <Parameter name="LongFL" value="266.7540042*cm"/>
+    <Parameter name="LongFL" value="275.987715*cm"/>
+    <Parameter name="LongFL" value="276.9823529*cm"/>
+    <Parameter name="LongFL" value="284.9889299*cm"/>
+    <Parameter name="LongFL" value="286.3065327*cm"/>
+    <Parameter name="LongFL" value="290.4779412*cm"/>
+    <Parameter name="LongFL" value="290.5*cm"/>
+    <Parameter name="LongFL" value="292.0*cm"/>
+    <Parameter name="LongFL" value="295.5*cm"/>
+    <Parameter name="ShortFL" value="206.0*cm"/>
+    <Parameter name="ShortFL" value="211.8810861*cm"/>
+    <Parameter name="ShortFL" value="220.3822464*cm"/>
+    <Parameter name="ShortFL" value="235.5520581*cm"/>
+    <Parameter name="ShortFL" value="245.6204691*cm"/>
+    <Parameter name="ShortFL" value="253.9086538*cm"/>
+    <Parameter name="ShortFL" value="255.0117647*cm"/>
+    <Parameter name="ShortFL" value="263.0073529*cm"/>
+    <Parameter name="ShortFL" value="264.3480392*cm"/>
+    <Parameter name="ShortFL" value="268.5*cm"/>
+    <Parameter name="ShortFL" value="268.5*cm"/>
+    <Parameter name="ShortFL" value="270.0*cm"/>
+    <Parameter name="ShortFL" value="273.5*cm"/>
+  </SpecPar>
+  <SpecPar name="chamber">
+    <PartSelector path="//Chamber"/>
+    <Parameter name="SensitiveDetector" value="HFChamberSensitiveDetector" eval="false"/>
+    <Parameter name="ReadOutName" value="ChamberHits" eval="false"/>
+    <Parameter name="Volume" value="HFPMT" eval="false"/>
+    <Parameter name="indexPMTR" value="-1"/>
+    <Parameter name="indexPMTR" value="022"/>
+    <Parameter name="indexPMTR" value="042"/>
+    <Parameter name="indexPMTR" value="062"/>
+    <Parameter name="indexPMTR" value="082"/>
+    <Parameter name="indexPMTR" value="102"/>
+    <Parameter name="indexPMTR" value="122"/>
+    <Parameter name="indexPMTR" value="-1"/>
+    <Parameter name="indexPMTR" value="021"/>
+    <Parameter name="indexPMTR" value="041"/>
+    <Parameter name="indexPMTR" value="061"/>
+    <Parameter name="indexPMTR" value="081"/>
+    <Parameter name="indexPMTR" value="101"/>
+    <Parameter name="indexPMTR" value="121"/>
+    <Parameter name="indexPMTR" value="-1"/>
+    <Parameter name="indexPMTR" value="012"/>
+    <Parameter name="indexPMTR" value="032"/>
+    <Parameter name="indexPMTR" value="052"/>
+    <Parameter name="indexPMTR" value="072"/>
+    <Parameter name="indexPMTR" value="092"/>
+    <Parameter name="indexPMTR" value="112"/>
+    <Parameter name="indexPMTR" value="-1"/>
+    <Parameter name="indexPMTR" value="011"/>
+    <Parameter name="indexPMTR" value="031"/>
+    <Parameter name="indexPMTR" value="051"/>
+    <Parameter name="indexPMTR" value="071"/>
+    <Parameter name="indexPMTR" value="091"/>
+    <Parameter name="indexPMTR" value="111"/>
+    <Parameter name="indexPMTL" value="-1"/>
+    <Parameter name="indexPMTL" value="021"/>
+    <Parameter name="indexPMTL" value="031"/>
+    <Parameter name="indexPMTL" value="051"/>
+    <Parameter name="indexPMTL" value="071"/>
+    <Parameter name="indexPMTL" value="091"/>
+    <Parameter name="indexPMTL" value="111"/>
+    <Parameter name="indexPMTL" value="-1"/>
+    <Parameter name="indexPMTL" value="022"/>
+    <Parameter name="indexPMTL" value="032"/>
+    <Parameter name="indexPMTL" value="052"/>
+    <Parameter name="indexPMTL" value="072"/>
+    <Parameter name="indexPMTL" value="092"/>
+    <Parameter name="indexPMTL" value="112"/>
+    <Parameter name="indexPMTL" value="-1"/>
+    <Parameter name="indexPMTL" value="001"/>
+    <Parameter name="indexPMTL" value="041"/>
+    <Parameter name="indexPMTL" value="061"/>
+    <Parameter name="indexPMTL" value="081"/>
+    <Parameter name="indexPMTL" value="101"/>
+    <Parameter name="indexPMTL" value="121"/>
+    <Parameter name="indexPMTL" value="-1"/>
+    <Parameter name="indexPMTL" value="002"/>
+    <Parameter name="indexPMTL" value="042"/>
+    <Parameter name="indexPMTL" value="062"/>
+    <Parameter name="indexPMTL" value="082"/>
+    <Parameter name="indexPMTL" value="102"/>
+    <Parameter name="indexPMTL" value="122"/>
+  </SpecPar>
+</SpecParSection>
+
+</DDDefinition>

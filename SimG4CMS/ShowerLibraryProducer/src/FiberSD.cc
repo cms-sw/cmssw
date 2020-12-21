@@ -29,12 +29,12 @@ FiberSD::FiberSD(const std::string& iname,
       theShower(nullptr),
       theHCID(-1),
       theHC(nullptr) {
-  // Get pointer to HcalDDDConstant and HcalSimulationConstants
+  // Get pointer to HcalDDDConstants and HcalSimulationConstants
   edm::ESHandle<HcalSimulationConstants> hdsc;
   es.get<HcalSimNumberingRecord>().get(hdsc);
   if (!hdsc.isValid()) {
-    edm::LogError("FiberSim") << "FiberSD : Cannot find HcalDDDSimulationConstant";
-    throw cms::Exception("Unknown", "FiberSD") << "Cannot find HcalDDDSimulationConstant\n";
+    edm::LogError("FiberSim") << "FiberSD : Cannot find HcalSimulationConstants";
+    throw cms::Exception("Unknown", "FiberSD") << "Cannot find HcalSimulationConstants\n";
   }
   const HcalSimulationConstants* hsps = hdsc.product();
   edm::ESHandle<HcalDDDSimConstants> hdc;
@@ -54,7 +54,7 @@ FiberSD::~FiberSD() {
 }
 
 void FiberSD::Initialize(G4HCofThisEvent* HCE) {
-  LogDebug("FiberSim") << "FiberSD : Initialize called for " << GetName();
+  edm::LogVerbatim("FiberSim") << "FiberSD : Initialize called for " << GetName();
   theHC = new FiberG4HitsCollection(GetName(), collectionName[0]);
   if (theHCID < 0)
     theHCID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
@@ -93,12 +93,12 @@ G4bool FiberSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
     aHit->setPhoton(thePE);
     std::cout << "ShowerPhoton position " << thePE[0].x() << " " << thePE[0].y() << " " << thePE[0].z() << std::endl;
 
-    LogDebug("FiberSim") << "FiberSD: Hit created at " << lv->GetName() << " DetID: " << aHit->towerId()
+    edm::LogVerbatim("FiberSim") << "FiberSD: Hit created at " << lv->GetName() << " DetID: " << aHit->towerId()
                          << " Depth: " << aHit->depth() << " Track ID: " << aHit->trackId()
                          << " Nb. of Cerenkov Photons: " << aHit->npe() << " Time: " << aHit->time() << " at "
                          << aHit->hitPos();
     for (unsigned int i = 0; i < thePE.size(); i++)
-      LogDebug("FiberSim") << "FiberSD: PE[" << i << "] " << thePE[i];
+      edm::LogVerbatim("FiberSim") << "FiberSD: PE[" << i << "] " << thePE[i];
 
     theHC->insert(aHit);
   }
@@ -106,9 +106,9 @@ G4bool FiberSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
 }
 
 void FiberSD::EndOfEvent(G4HCofThisEvent* HCE) {
-  LogDebug("FiberSim") << "FiberSD: Sees" << theHC->entries() << " hits";
+  edm::LogVerbatim("FiberSim") << "FiberSD: Sees" << theHC->entries() << " hits";
   clear();
-  std::cout << "theHC entries = " << theHC->entries() << std::endl;
+  edm::LogVerbatim("FiberSim") << "theHC entries = " << theHC->entries();
 }
 
 void FiberSD::clear() {}
