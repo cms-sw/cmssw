@@ -45,9 +45,7 @@ void LowPtGsfElectronFinalizer::produce(edm::Event& event, const edm::EventSetup
   for (auto const& electron : event.get(previousGsfElectrons_)) {
     outputElectrons.emplace_back(electron);
     auto& newElectron = outputElectrons.back();
-    if (regression_) {
-      regression_->modifyObject(newElectron);
-    }
+    regression_->modifyObject(newElectron);
   }
 
   // Emplace modified electrons to event
@@ -60,7 +58,7 @@ void LowPtGsfElectronFinalizer::fillDescriptions(edm::ConfigurationDescriptions&
   edm::ParameterSetDescription psd;
   psd.setUnknown();
   desc.add<edm::ParameterSetDescription>("regressionConfig", psd);
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

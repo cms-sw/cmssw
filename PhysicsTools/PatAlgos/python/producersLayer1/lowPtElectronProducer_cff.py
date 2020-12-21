@@ -80,16 +80,8 @@ from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronID_cfi import lowPtGsfEl
 _makePatLowPtElectronsTask.add(lowPtGsfElectronID)
 
 # (3) apply energy regression
-from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronFinalizer_cfi import lowPtGsfElectrons
-lowPtGsfElectronsPostRegression = lowPtGsfElectrons.clone(previousGsfElectronsTag = "lowPtGsfElectrons")
-_makePatLowPtElectronsTask.add(lowPtGsfElectronsPostRegression)
-
-# Switch to energy-regressed electrons as input
-sourceElectronsPostRegression = "lowPtGsfElectronsPostRegression"
-run2_miniAOD_UL.toModify(lowPtElectronMatch, src = sourceElectronsPostRegression)
-run2_miniAOD_UL.toModify(patLowPtElectrons, electronSource = sourceElectronsPostRegression)
-run2_miniAOD_UL.toModify(rekeyLowPtGsfElectronSeedValueMaps, gsfElectrons = sourceElectronsPostRegression)
-run2_miniAOD_UL.toModify(lowPtGsfElectronID, electrons = sourceElectronsPostRegression)
+from RecoEgamma.EgammaElectronProducers.lowPtGsfElectrons_cfi import lowPtGsfElectrons
+_makePatLowPtElectronsTask.add(lowPtGsfElectrons)
 
 # Append to Task
 run2_miniAOD_UL.toReplaceWith(makePatLowPtElectronsTask,_makePatLowPtElectronsTask)
