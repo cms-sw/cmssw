@@ -25,12 +25,14 @@ HFWedgeSD::HFWedgeSD(const std::string& iname,
       m_trackManager(manager),
       hcID(-1),
       theHC(nullptr),
-      currentHit(nullptr) {}
+      currentHit(nullptr) {
+  edm::LogVerbatim("FiberSim") << "HFWedgeSD : Instantiated for " << iname;
+}
 
 HFWedgeSD::~HFWedgeSD() { delete theHC; }
 
 void HFWedgeSD::Initialize(G4HCofThisEvent* HCE) {
-  LogDebug("FiberSim") << "HFWedgeSD : Initialize called for " << GetName();
+  edm::LogVerbatim("FiberSim") << "HFWedgeSD : Initialize called for " << GetName();
   theHC = new HFShowerG4HitsCollection(GetName(), collectionName[0]);
   if (hcID < 0)
     hcID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
@@ -59,7 +61,7 @@ G4bool HFWedgeSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
 }
 
 void HFWedgeSD::EndOfEvent(G4HCofThisEvent* HCE) {
-  LogDebug("FiberSim") << "HFWedgeSD: Sees" << theHC->entries() << " hits";
+  edm::LogVerbatim("FiberSim") << "HFWedgeSD: Sees" << theHC->entries() << " hits";
   clear();
 }
 
@@ -86,7 +88,7 @@ G4bool HFWedgeSD::hitExists() {
 }
 
 HFShowerG4Hit* HFWedgeSD::createNewHit() {
-  LogDebug("FiberSim") << "HFWedgeSD::CreateNewHit for ID " << currentID << " Track " << trackID
+  edm::LogVerbatim("FiberSim") << "HFWedgeSD::CreateNewHit for ID " << currentID << " Track " << trackID
                        << " Edep: " << edep / MeV << " MeV; Time: " << time << " ns; Position (local) " << localPos
                        << " (global ) " << globalPos << " direction " << momDir;
   HFShowerG4Hit* aHit = new HFShowerG4Hit;
@@ -107,7 +109,7 @@ HFShowerG4Hit* HFWedgeSD::createNewHit() {
 void HFWedgeSD::updateHit(HFShowerG4Hit* aHit) {
   if (edep != 0) {
     aHit->updateEnergy(edep);
-    LogDebug("FiberSim") << "HFWedgeSD: Add energy deposit in " << currentID << " edep " << edep / MeV << " MeV";
+    edm::LogVerbatim("FiberSim") << "HFWedgeSD: Add energy deposit in " << currentID << " edep " << edep / MeV << " MeV";
   }
   previousID = currentID;
 }
