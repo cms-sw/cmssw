@@ -92,7 +92,8 @@ G4bool FiberSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
     aHit->setPos(theHitPos);
     aHit->setTime(preStepPoint->GetGlobalTime());
     aHit->setPhoton(thePE);
-    edm::LogVerbatim("FiberSim") << "FiberSD :ShowerPhoton position " << thePE[0].x() << " " << thePE[0].y() << " " << thePE[0].z();
+    edm::LogVerbatim("FiberSim") << "FiberSD :ShowerPhoton position " << thePE[0].x() << " " << thePE[0].y() << " "
+                                 << thePE[0].z();
 
     edm::LogVerbatim("FiberSim") << "FiberSD: Hit created at " << lv->GetName() << " DetID: " << aHit->towerId()
                                  << " Depth: " << aHit->depth() << " Track ID: " << aHit->trackId()
