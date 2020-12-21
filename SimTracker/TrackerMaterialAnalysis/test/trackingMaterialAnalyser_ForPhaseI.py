@@ -11,17 +11,17 @@ readGeometryFromDB = False
 # material-budget grouping into the DDD of the detector. So we need to read the
 # geometry using the XMLIdealGeometryRecord.
 if not readGeometryFromDB:
-  process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
+  process.load('Configuration.Geometry.GeometryExtended2021Reco_cff')
 else:
 # GlobalTag and geometry via it
   process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
   from Configuration.AlCa.GlobalTag import GlobalTag
-  process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_design', '')
+  process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 # Add our custom detector grouping to DDD
-process.XMLIdealGeometryESSource.geomXMLFiles.extend(['SimTracker/TrackerMaterialAnalysis/data/trackingMaterialGroups_ForPhaseI.xml'])
+process.XMLIdealGeometryESSource.geomXMLFiles.extend(['SimTracker/TrackerMaterialAnalysis/data/v1/trackingMaterialGroups_ForPhaseI.xml'])
 
 # Analyze and plot the tracking material
 process.load("SimTracker.TrackerMaterialAnalysis.trackingMaterialAnalyser_ForPhaseI_cff")

@@ -54,7 +54,7 @@ namespace edm::eventsetup {
     virtual void prefetch(edm::eventsetup::DataKey const& iKey, EventSetupRecordDetails) = 0;
 
   private:
-    void prefetchAsyncImpl(edm::WaitingTask* iTask,
+    void prefetchAsyncImpl(edm::WaitingTaskHolder iTask,
                            edm::eventsetup::EventSetupRecordImpl const&,
                            edm::eventsetup::DataKey const& iKey,
                            edm::EventSetupImpl const*,

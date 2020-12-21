@@ -35,6 +35,7 @@
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include <cassert>
 #include <limits>
 #include <atomic>
@@ -55,7 +56,7 @@ namespace edm {
 
       DataProxyTemplate() {}
 
-      void prefetchAsyncImpl(WaitingTask* iTask,
+      void prefetchAsyncImpl(WaitingTaskHolder iTask,
                              const EventSetupRecordImpl& iRecord,
                              const DataKey& iKey,
                              EventSetupImpl const* iEventSetupImpl,
