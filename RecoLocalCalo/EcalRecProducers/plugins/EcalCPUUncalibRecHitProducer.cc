@@ -2,8 +2,6 @@
 
 // framework
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-//#include "HeterogeneousCore/Producer/interface/HeterogeneousEDProducer.h"
-//#include "HeterogeneousCore/Producer/interface/HeterogeneousEvent.h"
 
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
@@ -47,8 +45,7 @@ void EcalCPUUncalibRecHitProducer::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<std::string>("recHitsOutLabelEE", "EcalUncalibRecHitsEE");
   desc.add<bool>("containsTimingInformation", false);
 
-  std::string label = "ecalCPUUncalibRecHitProducer";
-  confDesc.add(label, desc);
+  confDesc.add("ecalCPUUncalibRecHitProducer", desc);
 }
 
 EcalCPUUncalibRecHitProducer::EcalCPUUncalibRecHitProducer(const edm::ParameterSet& ps)

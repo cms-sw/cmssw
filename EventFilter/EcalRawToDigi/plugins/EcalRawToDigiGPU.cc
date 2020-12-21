@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include "CUDADataFormats/EcalDigi/interface/DigisCollection.h"
 #include "CondFormats/DataRecord/interface/EcalMappingElectronicsRcd.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
@@ -10,6 +8,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
@@ -30,6 +29,7 @@ private:
   edm::EDGetTokenT<FEDRawDataCollection> rawDataToken_;
   using OutputProduct = cms::cuda::Product<ecal::DigisCollection<calo::common::DevStoragePolicy>>;
   edm::EDPutTokenT<OutputProduct> digisEBToken_, digisEEToken_;
+  edm::ESGetToken<ecal::raw::ElectronicsMappingGPU, EcalMappingElectronicsRcd> eMappingToken_;
 
   cms::cuda::ContextState cudaState_;
 
@@ -61,6 +61,7 @@ EcalRawToDigiGPU::EcalRawToDigiGPU(const edm::ParameterSet& ps)
     : rawDataToken_{consumes<FEDRawDataCollection>(ps.getParameter<edm::InputTag>("InputLabel"))},
       digisEBToken_{produces<OutputProduct>(ps.getParameter<std::string>("digisLabelEB"))},
       digisEEToken_{produces<OutputProduct>(ps.getParameter<std::string>("digisLabelEE"))},
+      eMappingToken_{esConsumes<ecal::raw::ElectronicsMappingGPU, EcalMappingElectronicsRcd>()},
       fedsToUnpack_{ps.getParameter<std::vector<int>>("FEDs")} {
   config_.maxChannelsEB = ps.getParameter<uint32_t>("maxChannelsEB");
   config_.maxChannelsEE = ps.getParameter<uint32_t>("maxChannelsEE");
@@ -75,8 +76,7 @@ void EcalRawToDigiGPU::acquire(edm::Event const& event,
   cms::cuda::ScopedContextAcquire ctx{event.streamID(), std::move(holder), cudaState_};
 
   // conditions
-  edm::ESHandle<ecal::raw::ElectronicsMappingGPU> eMappingHandle;
-  setup.get<EcalMappingElectronicsRcd>().get(eMappingHandle);
+  edm::ESHandle<ecal::raw::ElectronicsMappingGPU> eMappingHandle = setup.getHandle(eMappingToken_);
   auto const& eMappingProduct = eMappingHandle->getProduct(ctx.stream());
 
   // bundle up conditions
@@ -116,7 +116,6 @@ void EcalRawToDigiGPU::acquire(edm::Event const& event,
   uint32_t currentCummOffset = 0;
   uint32_t counter = 0;
   for (auto const& fed : fedsToUnpack_) {
-    //std::cout << "fed: " << fed << std::endl;
     auto const& data = rawDataHandle->FEDData(fed);
     auto const nbytes = data.size();
 
@@ -145,9 +144,6 @@ void EcalRawToDigiGPU::produce(edm::Event& event, edm::EventSetup const& setup) 
   // get the number of channels
   outputGPU_.digisEB.size = outputCPU_.nchannels[0];
   outputGPU_.digisEE.size = outputCPU_.nchannels[1];
-
-  //ecal::DigisCollection digisEB{outputGPU_.idsEB, outputGPU_.samplesEB, nchannelsEB};
-  //ecal::DigisCollection digisEE{outputGPU_.idsEE, outputGPU_.samplesEE, nchannelsEE};
 
   ctx.emplace(event, digisEBToken_, std::move(outputGPU_.digisEB));
   ctx.emplace(event, digisEEToken_, std::move(outputGPU_.digisEE));

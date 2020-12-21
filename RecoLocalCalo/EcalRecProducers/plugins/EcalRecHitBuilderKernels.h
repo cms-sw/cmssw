@@ -80,7 +80,6 @@ namespace ecal {
 
     void create_ecal_rehit(EventInputDataGPU const& eventInputGPU,
                            EventOutputDataGPU& eventOutputGPU,
-                           //     eventDataForScratchGPU_,
                            ConditionsProducts const& conditions,
                            ConfigurationParameters const& configParameters,
                            uint32_t const nChannelsBarrel,
