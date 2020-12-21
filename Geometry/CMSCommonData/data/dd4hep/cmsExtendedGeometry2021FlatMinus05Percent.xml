@@ -355,7 +355,7 @@
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Pixel_Sens.xml'/>
     <Include ref='Geometry/VeryForwardData/data/CTPPS_2018/RP_Dist_Beam_Cent.xml'/>
     <Include ref='Geometry/EcalSimData/data/ecalsens.xml'/>
-    <Include ref='Geometry/HcalCommonData/data/hcalsens/2021/hcalsenspmf.xml'/>
+    <Include ref='Geometry/HcalCommonData/data/hcalsens/2021/v1/hcalsenspmf.xml'/>
     <Include ref='Geometry/HcalSimData/data/hf.xml'/>
     <Include ref='Geometry/HcalSimData/data/hfpmt.xml'/>
     <Include ref='Geometry/HcalSimData/data/hffibrebundle.xml'/>
