@@ -9,6 +9,7 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/Math/interface/approx_exp.h"
 #include "DataFormats/Math/interface/approx_log.h"
+#include "FWCore/Utilities/interface/CMSUnrollLoop.h"
 
 #include "AmplitudeComputationCommonKernels.h"
 #include "AmplitudeComputationKernels.h"
@@ -24,7 +25,7 @@ namespace ecal {
       constexpr int nsamples = SampleVector::RowsAtCompileTime;
       constexpr int npulses = BXVectorType::RowsAtCompileTime;
 
-#pragma unroll
+      CMS_UNROLL_LOOP
       for (unsigned int ipulse = 0; ipulse < npulses; ipulse++) {
         auto const amplitude = amplitudes.coeff(ipulse);
         if (amplitude == 0)
@@ -116,12 +117,12 @@ namespace ecal {
         int npassive = 0;
 
         calo::multifit::ColumnVector<NPULSES, int> pulseOffsets;
-#pragma unroll
+        CMS_UNROLL_LOOP
         for (int i = 0; i < NPULSES; ++i)
           pulseOffsets(i) = i;
 
         calo::multifit::ColumnVector<NPULSES, DataType> resultAmplitudes;
-#pragma unroll
+        CMS_UNROLL_LOOP
         for (int counter = 0; counter < NPULSES; counter++)
           resultAmplitudes(counter) = 0;
 
@@ -141,12 +142,12 @@ namespace ecal {
           DataType* covMatrixStorage = shrMatrixLForFnnlsStorage;
           calo::multifit::MapSymM<DataType, NSAMPLES> covMatrix{covMatrixStorage};
           int counter = 0;
-#pragma unroll
-          for (int col = 0; col < NSAMPLES; col++)
-#pragma unroll
+          CMS_UNROLL_LOOP
+          for (int col = 0; col < NSAMPLES; col++) {
+            CMS_UNROLL_LOOP
             for (int row = col; row < NSAMPLES; row++)
               covMatrixStorage[counter++] = __ldg(&noisecov[idx].coeffRef(row, col));
-
+          }
           update_covariance(pulse_covariance[hashedId], covMatrix, resultAmplitudes);
 
           // compute actual covariance decomposition
@@ -169,36 +170,36 @@ namespace ecal {
           calo::multifit::MapSymM<DataType, NPULSES> AtA{shrAtAStorage};
           //SampleMatrix AtA;
           SampleVector Atb;
-#pragma unroll
+          CMS_UNROLL_LOOP
           for (int icol = 0; icol < NPULSES; icol++) {
             float reg_ai[NSAMPLES];
 
-// load column icol
-#pragma unroll
+            // load column icol
+            CMS_UNROLL_LOOP
             for (int counter = 0; counter < NSAMPLES; counter++)
               reg_ai[counter] = A(counter, icol);
 
             // compute diagoanl
             float sum = 0.f;
-#pragma unroll
+            CMS_UNROLL_LOOP
             for (int counter = 0; counter < NSAMPLES; counter++)
               sum += reg_ai[counter] * reg_ai[counter];
 
             // store
             AtA(icol, icol) = sum;
 
-// go thru the other columns
-#pragma unroll
+            // go thru the other columns
+            CMS_UNROLL_LOOP
             for (int j = icol + 1; j < NPULSES; j++) {
               // load column j
               float reg_aj[NSAMPLES];
-#pragma unroll
+              CMS_UNROLL_LOOP
               for (int counter = 0; counter < NSAMPLES; counter++)
                 reg_aj[counter] = A(counter, j);
 
               // accum
               float sum = 0.f;
-#pragma unroll
+              CMS_UNROLL_LOOP
               for (int counter = 0; counter < NSAMPLES; counter++)
                 sum += reg_aj[counter] * reg_ai[counter];
 
@@ -209,7 +210,7 @@ namespace ecal {
 
             // Atb accum
             float sum_atb = 0.f;
-#pragma unroll
+            CMS_UNROLL_LOOP
             for (int counter = 0; counter < NSAMPLES; counter++)
               sum_atb += reg_ai[counter] * reg_b[counter];
 
@@ -251,7 +252,7 @@ namespace ecal {
         chi2s[inputCh] = chi2;
         energies[inputCh] = resultAmplitudes(5);
 
-#pragma unroll
+        CMS_UNROLL_LOOP
         for (int counter = 0; counter < NPULSES; counter++)
           amplitudes[inputCh](counter) = resultAmplitudes(counter);
       }
