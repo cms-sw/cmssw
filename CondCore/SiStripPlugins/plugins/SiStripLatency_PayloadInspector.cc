@@ -44,13 +44,12 @@ namespace {
    ***************  test class ******************
   *************************************************/
 
-  class SiStripLatencyTest : public cond::payloadInspector::Histogram1D<SiStripLatency> {
+  class SiStripLatencyTest
+      : public cond::payloadInspector::Histogram1D<SiStripLatency, cond::payloadInspector::SINGLE_IOV> {
   public:
     SiStripLatencyTest()
-        : cond::payloadInspector::Histogram1D<SiStripLatency>(
-              "SiStripLatency values", "SiStripLatency values", 5, 0.0, 5.0) {
-      Base::setSingleIov(true);
-    }
+        : cond::payloadInspector::Histogram1D<SiStripLatency, cond::payloadInspector::SINGLE_IOV>(
+              "SiStripLatency values", "SiStripLatency values", 5, 0.0, 5.0) {}
 
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
@@ -68,13 +67,12 @@ namespace {
   /***********************************************
   // 1d histogram of mode  of 1 IOV 
   ************************************************/
-  class SiStripLatencyMode : public cond::payloadInspector::Histogram1D<SiStripLatency> {
+  class SiStripLatencyMode
+      : public cond::payloadInspector::Histogram1D<SiStripLatency, cond::payloadInspector::SINGLE_IOV> {
   public:
     SiStripLatencyMode()
         : cond::payloadInspector::Histogram1D<SiStripLatency>(
-              "SiStripLatency mode", "SiStripLatency mode", 70, -10, 60) {
-      Base::setSingleIov(true);
-    }
+              "SiStripLatency mode", "SiStripLatency mode", 70, -10, 60) {}
 
     bool fill() override {
       auto tag = PlotBase::getTag<0>();

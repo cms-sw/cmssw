@@ -251,11 +251,11 @@ private:
     text_Y.SetTextSize(0.04);
     text_Y.SetTextAlign(11);
     text_Y.SetTextColor(kBlue);
-    text_Y.DrawLatexNDC(x_X2+0.005, y_Y2 - 0.01, y_label);
+    text_Y.DrawLatexNDC(x_X2 + 0.005, y_Y2 - 0.01, y_label);
   }
 
   //============================================================================
-  void adjustCanvasMargins(TVirtualPad* pad, float top, float bottom, float left, float right) {
+  void adjustCanvasMargins(TVirtualPad* pad, const float top, const float bottom, const float left, const float right) {
     if (top > 0) {
       pad->SetTopMargin(top);
     }
