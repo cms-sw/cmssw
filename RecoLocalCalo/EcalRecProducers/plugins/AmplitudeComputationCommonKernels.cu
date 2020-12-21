@@ -1,4 +1,4 @@
-#include <iostream>
+#include <cstdlib>
 #include <limits>
 
 #include <cuda.h>
@@ -105,11 +105,6 @@ namespace ecal {
 
         //
         // pulse shape template
-        /*
-        for (int isample=sample; isample<EcalPulseShape::TEMPLATESAMPLES; 
-            isample+=nsamples)
-            shapes_out[ch](isample + 7) = shapes_in[hashedId].pdfval[isample];
-            */
 
         // will be used in the future for setting state
         auto const rmsForChecking = rms_x12[hashedId];
@@ -141,7 +136,6 @@ namespace ecal {
 
         //
         // unrolled reductions
-        // TODO
         //
         if (sample < 5) {
           shr_hasSwitchToGain6[threadIdx.x] =
@@ -275,7 +269,8 @@ namespace ecal {
 
             // if saturation is in the max sample and not in the first 5
             if (!saturated_before_max && shr_hasSwitchToGain0[threadMax])
-              energies[inputCh] = 49140;  // 4095 * 12
+              energies[inputCh] = 49140;  // 4095 * 12 (maximum ADC range * MultiGainPreAmplifier (MGPA) gain)
+                                          // This is the actual maximum range that is set when we saturate.
                                           //---- AM FIXME : no pedestal subtraction???
                                           //It should be "(4095. - pedestal) * gainratio"
 
@@ -368,7 +363,7 @@ namespace ecal {
       auto const* G1SamplesCorrelation = isBarrel ? G1SamplesCorrelationEB : G1SamplesCorrelationEE;
       bool tmp2 = isSaturated[ch];
       bool hasGainSwitch = tmp0 || tmp1 || tmp2;
-      auto const vidx = ecal::abs(ty - tx);
+      auto const vidx = std::abs(ty - tx);
 
       // non-divergent branch for all threads per block
       if (hasGainSwitch) {
@@ -385,17 +380,11 @@ namespace ecal {
 
           // non-divergent branches
           if (gainidx == 0)
-            //noise_value = rms_x12[ch]*rms_x12[ch]*noisecorrs[0](ty, tx);
             noise_value = rms_x12[hashedId] * rms_x12[hashedId] * G12SamplesCorrelation[vidx];
           if (gainidx == 1)
-            //                noise_value = gain12Over6[ch]*gain12Over6[ch] * rms_x6[ch]*rms_x6[ch]
-            //                    *noisecorrs[1](ty, tx);
             noise_value = gain12Over6[hashedId] * gain12Over6[hashedId] * rms_x6[hashedId] * rms_x6[hashedId] *
                           G6SamplesCorrelation[vidx];
           if (gainidx == 2)
-            //                noise_value = gain12Over6[ch]*gain12Over6[ch]
-            //                    * gain6Over1[ch]*gain6Over1[ch] * rms_x1[ch]*rms_x1[ch]
-            //                    * noisecorrs[2](ty, tx);
             noise_value = gain12Over6[hashedId] * gain12Over6[hashedId] * gain6Over1[hashedId] * gain6Over1[hashedId] *
                           rms_x1[hashedId] * rms_x1[hashedId] * G1SamplesCorrelation[vidx];
           if (!dynamicPedestal && addPedestalUncertainty > 0.f)
@@ -404,22 +393,17 @@ namespace ecal {
           int gainidx = 0;
           char mask = gainidx;
           int pedestal = gainNoise[ch][ty] == mask ? 1 : 0;
-          //            noise_value += /* gainratio is 1*/ rms_x12[ch]*rms_x12[ch]
-          //                *pedestal*noisecorrs[0](ty, tx);
-          noise_value +=
-              /* gainratio is 1*/ rms_x12[hashedId] * rms_x12[hashedId] * pedestal * G12SamplesCorrelation[vidx];
+          //            NB: gainratio is 1, that is why it does not appear in the formula
+          noise_value += rms_x12[hashedId] * rms_x12[hashedId] * pedestal * G12SamplesCorrelation[vidx];
           // non-divergent branch
           if (!dynamicPedestal && addPedestalUncertainty > 0.f) {
-            noise_value += /* gainratio is 1 */
-                addPedestalUncertainty * addPedestalUncertainty * pedestal;
+            noise_value += addPedestalUncertainty * addPedestalUncertainty * pedestal; // gainratio is 1
           }
 
           //
           gainidx = 1;
           mask = gainidx;
           pedestal = gainNoise[ch][ty] == mask ? 1 : 0;
-          //            noise_value += gain12Over6[ch]*gain12Over6[ch]
-          //                *rms_x6[ch]*rms_x6[ch]*pedestal*noisecorrs[1](ty, tx);
           noise_value += gain12Over6[hashedId] * gain12Over6[hashedId] * rms_x6[hashedId] * rms_x6[hashedId] *
                          pedestal * G6SamplesCorrelation[vidx];
           // non-divergent branch
@@ -433,8 +417,6 @@ namespace ecal {
           mask = gainidx;
           pedestal = gainNoise[ch][ty] == mask ? 1 : 0;
           float tmp = gain6Over1[hashedId] * gain12Over6[hashedId];
-          //            noise_value += tmp*tmp * rms_x1[ch]*rms_x1[ch]
-          //                *pedestal*noisecorrs[2](ty, tx);
           noise_value += tmp * tmp * rms_x1[hashedId] * rms_x1[hashedId] * pedestal * G1SamplesCorrelation[vidx];
           // non-divergent branch
           if (!dynamicPedestal && addPedestalUncertainty > 0.f) {
@@ -454,9 +436,6 @@ namespace ecal {
       }
 
       // pulse matrix
-      //    int const bx = tx - 5; // -5 -4 -3 ... 3 4
-      //    int bx = (*bxs)(tx);
-      //    int const offset = 7 - 3 - bx;
       int const posToAccess = 9 - tx + ty;  // see cpu for reference
       float const value = posToAccess >= 7 ? pulse_shape[hashedId].pdfval[posToAccess - 7] : 0;
       pulse_matrix[ch](ty, tx) = value;
@@ -473,7 +452,7 @@ namespace ecal {
       // indices
       int const tx = threadIdx.x + blockIdx.x * blockDim.x;
       int const ch = tx / nsamples;
-      int const iii = tx % nsamples;  // this is to address activeBXs
+      int const sampleidx = tx % nsamples;  // this is to address activeBXs
 
       if (ch >= nchannels)
         return;
@@ -486,11 +465,11 @@ namespace ecal {
       // configure shared memory and cp into it
       extern __shared__ char smem[];
       SampleVector::Scalar* values = reinterpret_cast<SampleVector::Scalar*>(smem);
-      values[threadIdx.x] = amplitudes[ch](iii);
+      values[threadIdx.x] = amplitudes[ch](sampleidx);
       __syncthreads();
 
       // get the sample for this bx
-      auto const sample = static_cast<int>(activeBXs[ch](iii)) + 5;
+      auto const sample = static_cast<int>(activeBXs[ch](sampleidx)) + 5;
 
       // store back to global
       amplitudes[ch](sample) = values[threadIdx.x];

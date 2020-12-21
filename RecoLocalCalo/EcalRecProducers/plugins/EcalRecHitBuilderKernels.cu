@@ -139,10 +139,6 @@ namespace ecal {
       //
 
       for (int ch = threadIdx.x + blockDim.x * blockIdx.x; ch < nchannels; ch += blockDim.x * gridDim.x) {
-        //       int ch = threadIdx.x + blockDim.x*blockIdx.x;
-
-        //       if (ch < nchannels) {
-
         bool isEndcap = (ch >= nChannelsBarrel);
 
         int const inputCh = isEndcap ? ch - nChannelsBarrel : ch;
@@ -166,8 +162,6 @@ namespace ecal {
         // first EB and then EE
 
         ::ecal::reco::StorageScalarType const* amplitude = isEndcap ? amplitude_ee : amplitude_eb;
-
-        //::ecal::reco::StorageScalarType const* time_in = isEndcap ? time_ee : time_eb;
 
         ::ecal::reco::StorageScalarType const* chi2_in = isEndcap ? chi2_ee : chi2_eb;
 
@@ -401,9 +395,6 @@ namespace ecal {
         value &= ~mask;
         value |= (rawChi2 & ((1U << width) - 1)) << offset;
 
-        //         extra[ch] = value;
-        //
-
         // rawEnergy is actually "error" !!!
         uint32_t rawEnergy = 0;
 
@@ -417,8 +408,6 @@ namespace ecal {
         float amplitudeError_ch = 0.;  // amplitudeError[ch];
 
         if (amplitudeError_ch > 0.001) {
-          //           uint16_t exponent = getPower10(amplitudeError_ch);
-
           static constexpr float p10[] = {1.e-2f, 1.e-1f, 1.f, 1.e1f, 1.e2f, 1.e3f, 1.e4f, 1.e5f, 1.e6f};
           int b = amplitudeError_ch < p10[4] ? 0 : 5;
           for (; b < 9; ++b)
@@ -514,10 +503,7 @@ namespace ecal {
           flagBits[inputCh] |= (0x1 << (RecHitFlags::RecHitFlags_kGood));
         }
 
-        if (isBarrel && (lasercalib < EBLaserMIN || lasercalib > EBLaserMAX)) {
-          flagBits[inputCh] |= (0x1 << (RecHitFlags::RecHitFlags_kPoorCalib));
-        }
-        if (!isBarrel && (lasercalib < EELaserMIN || lasercalib > EELaserMAX)) {
+        if ((isBarrel && (lasercalib < EBLaserMIN || lasercalib > EBLaserMAX)) || (!isBarrel && (lasercalib < EELaserMIN || lasercalib > EELaserMAX))) {
           flagBits[inputCh] |= (0x1 << (RecHitFlags::RecHitFlags_kPoorCalib));
         }
 
@@ -603,7 +589,6 @@ namespace ecal {
                            cudaStream_t cudaStream) {
       int nchannels = eventInputGPU.ebUncalibRecHits.size + eventInputGPU.eeUncalibRecHits.size;
 
-      //       unsigned int nchannels_per_block = 32;
       unsigned int nchannels_per_block = 16;
       unsigned int threads_min = nchannels_per_block;
       unsigned int blocks_min = (nchannels + threads_min - 1) / threads_min;  // TEST : to be optimized (AM)
@@ -612,11 +597,7 @@ namespace ecal {
       // kernel create rechit
       //
 
-      //       auto const nbytesShared = 2 * threads_min * MapSymM<DataType, SampleVector::RowsAtCompileTime>::total * sizeof(DataType);
-
       kernel_create_ecal_rehit<<<blocks_min, threads_min, 0, cudaStream>>>(
-          //       kernel_create_ecal_rehit <<< blocks_min, threads_min, nbytesShared, cudaStream >>> (
-          //       kernel_create_ecal_rehit <<< blocks_min, threads_min >>> (
           // configuration
           configParameters.ChannelStatusToBeExcluded,
           configParameters.ChannelStatusToBeExcludedSize,

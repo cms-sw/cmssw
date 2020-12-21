@@ -163,7 +163,6 @@ void EcalRecHitProducerGPU::acquire(edm::Event const& event,
 
   neb_ = ebUncalibRecHits.size;
   nee_ = eeUncalibRecHits.size;
-  // std::cout << " [EcalRecHitProducerGPU::acquire]  neb_:nee_ = " << neb_ << " : " << nee_ << std::endl;
 
   if ((neb_ > configParameters_.maxNumberHitsEB) || (nee_ > configParameters_.maxNumberHitsEE)) {
     edm::LogError("EcalRecHitProducerGPU")
@@ -210,12 +209,10 @@ void EcalRecHitProducerGPU::acquire(edm::Event const& event,
   ecal::rechit::ConditionsProducts conditions{ADCToGeVConstantProduct,
                                               IntercalibConstantsProduct,
                                               ChannelStatusProduct,
-                                              //
                                               LaserAPDPNRatiosProduct,
                                               LaserAPDPNRatiosRefProduct,
                                               LaserAlphasProduct,
                                               LinearCorrectionsProduct,
-                                              //
                                               IntercalibConstantsHandle_->getOffset()};
 
   // dev mem
