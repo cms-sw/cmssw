@@ -1,10 +1,7 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
-<use name="SimGeneral/MixingModule"/>
 <use name="DataFormats/ForwardDetId"/>
-<use name="SimDataFormats/CaloTest"/>
-<use name="Geometry/Records"/>
 <use name="Geometry/HGCalGeometry"/>
 <use name="Geometry/HcalTowerAlgo"/>
 <use name="SimCalorimetry/HGCalSimAlgos"/>
