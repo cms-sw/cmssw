@@ -208,8 +208,8 @@
     <Include ref='Geometry/TrackerCommonData/data/trackerother.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/PhaseI/trackerStructureTopology.xml'/>
     <Include ref='Geometry/TrackerSimData/data/PhaseI/trackersens.xml'/>
-    <Include ref='Geometry/TrackerRecoData/data/PhaseI/trackerRecoMaterial.xml'/>
-    <Include ref='SimTracker/TrackerMaterialAnalysis/data/trackingMaterialGroups_ForPhaseI.xml'/>
+    <Include ref='Geometry/TrackerRecoData/data/PhaseI/v1/trackerRecoMaterial.xml'/>
+    <Include ref='SimTracker/TrackerMaterialAnalysis/data/v1/trackingMaterialGroups_ForPhaseI.xml'/>
     <Include ref='Geometry/TrackerSimData/data/PhaseI/trackerProdCuts.xml'/>
     <Include ref='Geometry/TrackerSimData/data/trackerProdCutsBEAM.xml'/>
     <Include ref='Geometry/EcalCommonData/data/eregalgo/2017/v1/eregalgo.xml'/>
