@@ -29,6 +29,7 @@ FiberSD::FiberSD(const std::string& iname,
       theShower(nullptr),
       theHCID(-1),
       theHC(nullptr) {
+  edm::LogVerbatim("FiberSim") << "FiberSD : Instantiating for " << iname;
   // Get pointer to HcalDDDConstants and HcalSimulationConstants
   edm::ESHandle<HcalSimulationConstants> hdsc;
   es.get<HcalSimNumberingRecord>().get(hdsc);
@@ -69,7 +70,7 @@ G4bool FiberSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
   if (!hits.empty()) {
     std::vector<HFShowerPhoton> thePE;
     for (unsigned int i = 0; i < hits.size(); i++) {
-      //std::cout<<"hit position z "<<hits[i].position.z()<<std::endl;
+      //edm::LogVerbatim("FiberSim") << "FiberSD :hit position z " << hits[i].position.z();
       HFShowerPhoton pe = HFShowerPhoton(
           hits[i].position.x(), hits[i].position.y(), hits[i].position.z(), hits[i].wavelength, hits[i].time);
       thePE.push_back(pe);
@@ -82,16 +83,16 @@ G4bool FiberSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
     int detID = setDetUnitId(aStep);
     math::XYZPoint theHitPos(
         preStepPoint->GetPosition().x(), preStepPoint->GetPosition().y(), preStepPoint->GetPosition().z());
-    //std::cout<<"presteppoint position z "<<preStepPoint->GetPosition().z()<<std::endl;
+    //edm::LogVerbatim("FiberSim") << "FiberSD :presteppoint position z " << preStepPoint->GetPosition().z();
 
     FiberG4Hit* aHit = new FiberG4Hit(lv, detID, depth, trackID);
-    std::cout << "hit size " << hits.size() << "  npe" << aHit->npe() << std::endl;
-    std::cout << "pre hit position " << aHit->hitPos() << std::endl;
+    edm::LogVerbatim("FiberSim") << "FiberSD :hit size " << hits.size() << "  npe" << aHit->npe();
+    edm::LogVerbatim("FiberSim") << "FiberSD :pre hit position " << aHit->hitPos();
     aHit->setNpe(hits.size());
     aHit->setPos(theHitPos);
     aHit->setTime(preStepPoint->GetGlobalTime());
     aHit->setPhoton(thePE);
-    std::cout << "ShowerPhoton position " << thePE[0].x() << " " << thePE[0].y() << " " << thePE[0].z() << std::endl;
+    edm::LogVerbatim("FiberSim") << "FiberSD :ShowerPhoton position " << thePE[0].x() << " " << thePE[0].y() << " " << thePE[0].z();
 
     edm::LogVerbatim("FiberSim") << "FiberSD: Hit created at " << lv->GetName() << " DetID: " << aHit->towerId()
                                  << " Depth: " << aHit->depth() << " Track ID: " << aHit->trackId()
