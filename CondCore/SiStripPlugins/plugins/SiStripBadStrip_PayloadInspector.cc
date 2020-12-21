@@ -248,7 +248,6 @@ namespace {
       TCanvas canvas("Bad Components fraction", "bad components fraction");
       myMap.drawMap(canvas, "");
       ghost.drawMap(canvas, "same");
-      ghost.dressMap(canvas);
       canvas.SaveAs(fileName.c_str());
 
       delete reader;

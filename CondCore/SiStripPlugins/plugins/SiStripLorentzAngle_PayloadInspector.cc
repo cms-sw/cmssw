@@ -139,7 +139,6 @@ namespace {
       std::string fileName(m_imageFileName);
       TCanvas canvas("LA map", "LA map");
       myMap.drawMap(canvas, "");
-      myMap.dressMap(canvas);
       canvas.SaveAs(fileName.c_str());
 
 #ifdef MMDEBUG
