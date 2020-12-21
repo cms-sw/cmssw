@@ -1810,7 +1810,7 @@ caloDict = {
         ],
         3 : [
             'Geometry/EcalSimData/data/ecalsens.xml',
-            'Geometry/HcalCommonData/data/hcalsens/2021/hcalsenspmf.xml',
+            'Geometry/HcalCommonData/data/hcalsens/2021/v1/hcalsenspmf.xml',
             'Geometry/HcalSimData/data/hf.xml',
             'Geometry/HcalSimData/data/hfpmt.xml',
             'Geometry/HcalSimData/data/hffibrebundle.xml',
