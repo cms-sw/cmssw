@@ -5,7 +5,7 @@
 
 //=== Generic 2D array class.
 
-// (Replaced boost::numeric::ublas::matrix when boost library 
+// (Replaced boost::numeric::ublas::matrix when boost library
 //  became too big).
 
 // Author: Lucas Camolezi

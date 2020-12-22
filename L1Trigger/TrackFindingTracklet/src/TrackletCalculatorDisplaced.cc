@@ -454,33 +454,32 @@ bool TrackletCalculatorDisplaced::LLLSeeding(const Stub* innerFPGAStub,
   double phiderdiskapprox[N_DISK], rderdiskapprox[N_DISK];
 
   //TODO: implement the actual integer calculation
-  if(settings_.useapprox()){
+  if (settings_.useapprox()) {
     approxtracklet(r1,
-                 z1,
-                 phi1,
-                 r2,
-                 z2,
-                 phi2,
-                 r3,
-                 z3,
-                 phi3,
-                 take3,
-                 ndisks,
-                 rinvapprox,
-                 phi0approx,
-                 d0approx,
-                 tapprox,
-                 z0approx,
-                 phiprojapprox,
-                 zprojapprox,
-                 phiderapprox,
-                 zderapprox,
-                 phiprojdiskapprox,
-                 rprojdiskapprox,
-                 phiderdiskapprox,
-                 rderdiskapprox);
-  }
-  else{
+                   z1,
+                   phi1,
+                   r2,
+                   z2,
+                   phi2,
+                   r3,
+                   z3,
+                   phi3,
+                   take3,
+                   ndisks,
+                   rinvapprox,
+                   phi0approx,
+                   d0approx,
+                   tapprox,
+                   z0approx,
+                   phiprojapprox,
+                   zprojapprox,
+                   phiderapprox,
+                   zderapprox,
+                   phiprojdiskapprox,
+                   rprojdiskapprox,
+                   phiderdiskapprox,
+                   rderdiskapprox);
+  } else {
     rinvapprox = rinv;
     phi0approx = phi0;
     d0approx = d0;
@@ -871,33 +870,32 @@ bool TrackletCalculatorDisplaced::DDLSeeding(const Stub* innerFPGAStub,
   double phiderdiskapprox[N_DISK], rderdiskapprox[N_DISK];
 
   //TODO: implement the actual integer calculation
-  if(settings_.useapprox()){
+  if (settings_.useapprox()) {
     approxtracklet(r1,
-                 z1,
-                 phi1,
-                 r2,
-                 z2,
-                 phi2,
-                 r3,
-                 z3,
-                 phi3,
-                 take3,
-                 ndisks,
-                 rinvapprox,
-                 phi0approx,
-                 d0approx,
-                 tapprox,
-                 z0approx,
-                 phiprojapprox,
-                 zprojapprox,
-                 phiderapprox,
-                 zderapprox,
-                 phiprojdiskapprox,
-                 rprojdiskapprox,
-                 phiderdiskapprox,
-                 rderdiskapprox);
-  }
-  else{
+                   z1,
+                   phi1,
+                   r2,
+                   z2,
+                   phi2,
+                   r3,
+                   z3,
+                   phi3,
+                   take3,
+                   ndisks,
+                   rinvapprox,
+                   phi0approx,
+                   d0approx,
+                   tapprox,
+                   z0approx,
+                   phiprojapprox,
+                   zprojapprox,
+                   phiderapprox,
+                   zderapprox,
+                   phiprojdiskapprox,
+                   rprojdiskapprox,
+                   phiderdiskapprox,
+                   rderdiskapprox);
+  } else {
     rinvapprox = rinv;
     phi0approx = phi0;
     d0approx = d0;
@@ -1272,33 +1270,32 @@ bool TrackletCalculatorDisplaced::LLDSeeding(const Stub* innerFPGAStub,
   double phiderdiskapprox[N_DISK], rderdiskapprox[N_DISK];
 
   //TODO: implement the actual integer calculation
-  if(settings_.useapprox()){
+  if (settings_.useapprox()) {
     approxtracklet(r1,
-                 z1,
-                 phi1,
-                 r2,
-                 z2,
-                 phi2,
-                 r3,
-                 z3,
-                 phi3,
-                 take3,
-                 ndisks,
-                 rinvapprox,
-                 phi0approx,
-                 d0approx,
-                 tapprox,
-                 z0approx,
-                 phiprojapprox,
-                 zprojapprox,
-                 phiderapprox,
-                 zderapprox,
-                 phiprojdiskapprox,
-                 rprojdiskapprox,
-                 phiderdiskapprox,
-                 rderdiskapprox);
-  }
-  else{
+                   z1,
+                   phi1,
+                   r2,
+                   z2,
+                   phi2,
+                   r3,
+                   z3,
+                   phi3,
+                   take3,
+                   ndisks,
+                   rinvapprox,
+                   phi0approx,
+                   d0approx,
+                   tapprox,
+                   z0approx,
+                   phiprojapprox,
+                   zprojapprox,
+                   phiderapprox,
+                   zderapprox,
+                   phiprojdiskapprox,
+                   rprojdiskapprox,
+                   phiderdiskapprox,
+                   rderdiskapprox);
+  } else {
     rinvapprox = rinv;
     phi0approx = phi0;
     d0approx = d0;
