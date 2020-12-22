@@ -78,20 +78,24 @@ GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type)
       rot_(fv->rotation()),
       shape_(cms::dd::name_from_value(cms::LegacySolidShapeMap, fv->shape())),
       params_(fv->parameters()),
-      radLength_(getDouble("TrackerRadLength", *fv)),
-      xi_(getDouble("TrackerXi", *fv)),
-      pixROCRows_(getDouble("PixelROCRows", *fv)),
-      pixROCCols_(getDouble("PixelROCCols", *fv)),
-      pixROCx_(getDouble("PixelROC_X", *fv)),
-      pixROCy_(getDouble("PixelROC_Y", *fv)),
-      stereo_(getString("TrackerStereoDetectors", *fv) == strue),
-      isLowerSensor_(getString("TrackerLowerDetectors", *fv) == strue),
-      isUpperSensor_(getString("TrackerUpperDetectors", *fv) == strue),
-      siliconAPVNum_(getDouble("SiliconAPVNumber", *fv)),
       isFromDD4hep_(false) {
   //  workaround instead of this at initialization
   const DDFilteredView::nav_type& nt = fv->navPos();
   ddd_ = nav_type(nt.begin(), nt.end());
+
+  // Only look for sensor-related info on sensor volumes!
+  if (type_ == DetUnit) {
+    radLength_ = getDouble("TrackerRadLength", *fv);
+    xi_ = getDouble("TrackerXi", *fv);
+    pixROCRows_ = getDouble("PixelROCRows", *fv);
+    pixROCCols_ = getDouble("PixelROCCols", *fv);
+    pixROCx_ = getDouble("PixelROC_X", *fv);
+    pixROCy_ = getDouble("PixelROC_Y", *fv);
+    stereo_ = (getString("TrackerStereoDetectors", *fv) == strue);
+    isLowerSensor_ = (getString("TrackerLowerDetectors", *fv) == strue);
+    isUpperSensor_ = (getString("TrackerUpperDetectors", *fv) == strue);
+    siliconAPVNum_ = getDouble("SiliconAPVNumber", *fv);
+  }
 }
 
 /*
@@ -107,18 +111,28 @@ GeometricDet::GeometricDet(cms::DDFilteredView* fv, GeometricEnumType type)
       rot_(fv->rotation()),
       shape_(fv->shape()),
       params_(computeLegacyShapeParameters(shape_, fv->solid())),
-      pixROCRows_(fv->get<double>("PixelROCRows")),
-      pixROCCols_(fv->get<double>("PixelROCCols")),
-      pixROCx_(fv->get<double>("PixelROC_X")),
-      pixROCy_(fv->get<double>("PixelROC_Y")),
-      stereo_(fv->get<std::string_view>("TrackerStereoDetectors") == strue),
-      isLowerSensor_(fv->get<std::string_view>("TrackerLowerDetectors") == strue),
-      isUpperSensor_(fv->get<std::string_view>("TrackerUpperDetectors") == strue),
-      siliconAPVNum_(fv->get<double>("SiliconAPVNumber")),
       isFromDD4hep_(true) {
-  fv->findSpecPar("TrackerRadLength", "TrackerXi");
-  radLength_ = fv->getNextValue("TrackerRadLength");
-  xi_ = fv->getNextValue("TrackerXi");
+  // Only look for sensor-related info on sensor volumes!
+  if (type_ == DetUnit) {
+    // IT sensors only (NB: hence could add a branch here, but not a critical part on perf)
+    pixROCRows_ = fv->get<double>("PixelROCRows");
+    pixROCCols_ = fv->get<double>("PixelROCCols");
+    pixROCx_ = fv->get<double>("PixelROC_X");
+    pixROCy_ = fv->get<double>("PixelROC_Y");
+
+    // Phase 1 OT sensors only (NB: hence could add a branch here, but not a critical part on perf)
+    stereo_ = (fv->get<std::string_view>("TrackerStereoDetectors") == strue);
+    siliconAPVNum_ = fv->get<double>("SiliconAPVNumber");
+
+    // Phase 2 OT sensors only (NB: hence could add a branch here, but not a critical part on perf)
+    isLowerSensor_ = (fv->get<std::string_view>("TrackerLowerDetectors") == strue);
+    isUpperSensor_ = (fv->get<std::string_view>("TrackerUpperDetectors") == strue);
+
+    // All sensors: IT or OT, Phase 1 or Phase 2 (NB: critical part on perf)
+    fv->findSpecPar("TrackerRadLength", "TrackerXi");
+    radLength_ = fv->getNextValue("TrackerRadLength");
+    xi_ = fv->getNextValue("TrackerXi");
+  }
 }
 
 /*

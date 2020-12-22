@@ -770,8 +770,9 @@ const int DDFilteredView::nodeCopyNoAt(int level) const {
 // Compare if name matches a selection pattern that
 // may or may not be defined as a regular expression
 bool DDFilteredView::compareEqualName(const std::string_view selection, const std::string_view name) const {
-  return (!(dd4hep::dd::isRegex(selection)) ? dd4hep::dd::compareEqual(name, selection)
-                                            : regex_match(name.begin(), name.end(), regex(std::string(selection))));
+  return (!(dd4hep::dd::isRegex(selection))
+              ? dd4hep::dd::compareEqual(name, selection)
+              : regex_match(name.begin(), name.end(), regex(selection.begin(), selection.end())));
 }
 
 // Check if both name and it's selection pattern
