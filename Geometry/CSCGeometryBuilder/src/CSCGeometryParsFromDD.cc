@@ -454,28 +454,26 @@ bool CSCGeometryParsFromDD::build(const cms::DDCompactView* cview,
 
       auto wirespacing = fv.get<double>("WireSpacing");
       wg.wireSpacing = static_cast<double>(wirespacing / dd4hep::mm);
-      edm::LogVerbatim("CSCGeometryParsFromDD") << "(2) wireSpacing: " << wg.wireSpacing / dd4hep::mm;
+      edm::LogVerbatim("CSCGeometryParsFromDD") << "(2) wireSpacing: " << wg.wireSpacing;
 
       auto alignmentpintofirstwire = fv.get<double>("AlignmentPinToFirstWire");
       wg.alignmentPinToFirstWire = static_cast<double>(alignmentpintofirstwire / dd4hep::mm);
-      edm::LogVerbatim("CSCGeometryParsFromDD")
-          << "(3) alignmentPinToFirstWire: " << wg.alignmentPinToFirstWire / dd4hep::mm;
+      edm::LogVerbatim("CSCGeometryParsFromDD") << "(3) alignmentPinToFirstWire: " << wg.alignmentPinToFirstWire;
 
       auto totnumwiregroups = fv.get<double>("TotNumWireGroups");
       wg.numberOfGroups = static_cast<int>(totnumwiregroups);
 
       auto lengthoffirstwire = fv.get<double>("LengthOfFirstWire");
       wg.narrowWidthOfWirePlane = static_cast<double>(lengthoffirstwire / dd4hep::mm);
-      edm::LogVerbatim("CSCGeometryParsFromDD")
-          << "(4) narrowWidthOfWirePlane: " << wg.narrowWidthOfWirePlane / dd4hep::mm;
+      edm::LogVerbatim("CSCGeometryParsFromDD") << "(4) narrowWidthOfWirePlane: " << wg.narrowWidthOfWirePlane;
 
       auto lengthoflastwire = fv.get<double>("LengthOfLastWire");
       wg.wideWidthOfWirePlane = static_cast<double>(lengthoflastwire / dd4hep::mm);
-      edm::LogVerbatim("CSCGeometryParsFromDD") << "(5) wideWidthOfWirePlane: " << wg.wideWidthOfWirePlane / dd4hep::mm;
+      edm::LogVerbatim("CSCGeometryParsFromDD") << "(5) wideWidthOfWirePlane: " << wg.wideWidthOfWirePlane;
 
       auto radialextentofwireplane = fv.get<double>("RadialExtentOfWirePlane");
       wg.lengthOfWirePlane = static_cast<double>(radialextentofwireplane / dd4hep::mm);
-      edm::LogVerbatim("CSCGeometryParsFromDD") << "(6) lengthOfWirePlane: " << wg.lengthOfWirePlane / dd4hep::mm;
+      edm::LogVerbatim("CSCGeometryParsFromDD") << "(6) lengthOfWirePlane: " << wg.lengthOfWirePlane;
 
       uparvals.emplace_back(wg.wireSpacing);
       uparvals.emplace_back(wg.alignmentPinToFirstWire);
