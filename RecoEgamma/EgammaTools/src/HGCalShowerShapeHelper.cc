@@ -3,11 +3,11 @@
 const double HGCalShowerShapeHelper::kLDWaferCellSize_ = 0.698;
 const double HGCalShowerShapeHelper::kHDWaferCellSize_ = 0.465;
 
-void HGCalShowerShapeHelper::initPerEvent(const edm::EventSetup &iSetup, const std::vector<reco::PFRecHit> &pfRecHits) {
-  edm::ESHandle<CaloGeometry> geom;
-  iSetup.get<CaloGeometryRecord>().get(geom);
-  recHitTools_.setGeometry(*(geom.product()));
+HGCalShowerShapeHelper::HGCalShowerShapeHelper(edm::ConsumesCollector &sumes)
+    : caloGeometryToken_{sumes.esConsumes()} {}
 
+void HGCalShowerShapeHelper::initPerEvent(const edm::EventSetup &iSetup, const std::vector<reco::PFRecHit> &pfRecHits) {
+  recHitTools_.setGeometry(iSetup.getData(caloGeometryToken_));
   setPFRecHitPtrMap(pfRecHits);
 }
 
@@ -32,7 +32,7 @@ void HGCalShowerShapeHelper::initPerObject(const std::vector<std::pair<DetId, fl
 
   setFilteredHitsAndFractions(hitsAndFracs);
 
-  setLayerWiseStuff();
+  setLayerWiseInfo();
 }
 
 void HGCalShowerShapeHelper::setPFRecHitPtrMap(const std::vector<reco::PFRecHit> &recHits) {
@@ -66,7 +66,7 @@ void HGCalShowerShapeHelper::setFilteredHitsAndFractions(const std::vector<std::
       continue;
     }
 
-    reco::PFRecHit recHit = *pfRecHitPtrMap_[hitId.rawId()];
+    const reco::PFRecHit &recHit = *pfRecHitPtrMap_[hitId.rawId()];
 
     if (recHit.energy() < minHitE_) {
       continue;
@@ -83,7 +83,7 @@ void HGCalShowerShapeHelper::setFilteredHitsAndFractions(const std::vector<std::
   }
 }
 
-void HGCalShowerShapeHelper::setLayerWiseStuff() {
+void HGCalShowerShapeHelper::setLayerWiseInfo() {
   layerEnergies_.clear();
   layerEnergies_.resize(nLayer_);
 
@@ -136,17 +136,17 @@ const double HGCalShowerShapeHelper::getCellSize(DetId detId) {
 
 const double HGCalShowerShapeHelper::getRvar(double cylinderR, double energyNorm, bool useFractions, bool useCellSize) {
   if (hitsAndFracs_.empty()) {
-    return 0;
+    return 0.0;
   }
 
-  if (energyNorm <= 0) {
+  if (energyNorm <= 0.0) {
     edm::LogWarning("HGCalShowerShapeHelper")
-        << "Encountered negative or zero energy for HGCal R-variable denomintor: " << energyNorm << std::endl;
+        << "Encountered negative or zero energy for HGCal R-variable denominator: " << energyNorm << std::endl;
   }
 
   double cylinderR2 = cylinderR * cylinderR;
 
-  double Rvar = 0;
+  double Rvar = 0.0;
 
   auto hitEnergyIter = useFractions ? hitEnergiesWithFracs_.begin() : hitEnergies_.begin();
 
@@ -202,7 +202,7 @@ const HGCalShowerShapeHelper::ShowerWidths HGCalShowerShapeHelper::getPCAWidths(
   double dydz = 0.0;
   double dzdx = 0.0;
 
-  double totalW = 0;
+  double totalW = 0.0;
 
   auto hitEnergyIter = useFractions ? hitEnergiesWithFracs_.begin() : hitEnergies_.begin();
 

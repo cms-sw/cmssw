@@ -8,7 +8,6 @@
 #include <map>
 #include <memory>
 #include <string>
-#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -33,6 +32,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -62,6 +62,7 @@ private:
   int nLayer_;
   DetId::Detector subDet_;
 
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
   hgcal::RecHitTools recHitTools_;
 
   std::unordered_map<uint32_t, const reco::PFRecHit *> pfRecHitPtrMap_;
@@ -81,7 +82,7 @@ public:
   static const double kLDWaferCellSize_;
   static const double kHDWaferCellSize_;
 
-  void setLayerWiseStuff();
+  void setLayerWiseInfo();
 
   struct ShowerWidths {
     double sigma2xx;
@@ -107,6 +108,8 @@ public:
           sigma2vv(0.0),
           sigma2ww(0.0) {}
   };
+
+  HGCalShowerShapeHelper(edm::ConsumesCollector &sumes);
 
   void initPerEvent(const edm::EventSetup &iSetup, const std::vector<reco::PFRecHit> &recHits);
 
