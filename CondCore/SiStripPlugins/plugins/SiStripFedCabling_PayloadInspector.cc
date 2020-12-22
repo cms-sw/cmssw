@@ -27,15 +27,14 @@
 
 namespace {
 
+  using namespace cond::payloadInspector;
+
   /************************************************
     TrackerMap of SiStrip FED Cabling
   *************************************************/
-  class SiStripFedCabling_TrackerMap
-      : public cond::payloadInspector::PlotImage<SiStripFedCabling, cond::payloadInspector::SINGLE_IOV> {
+  class SiStripFedCabling_TrackerMap : public PlotImage<SiStripFedCabling, SINGLE_IOV> {
   public:
-    SiStripFedCabling_TrackerMap()
-        : cond::payloadInspector::PlotImage<SiStripFedCabling, cond::payloadInspector::SINGLE_IOV>(
-              "Tracker Map SiStrip Fed Cabling") {}
+    SiStripFedCabling_TrackerMap() : PlotImage<SiStripFedCabling, SINGLE_IOV>("Tracker Map SiStrip Fed Cabling") {}
 
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
@@ -76,12 +75,9 @@ namespace {
   /************************************************
     Summary Plot of SiStrip FED Cabling
   *************************************************/
-  class SiStripFedCabling_Summary
-      : public cond::payloadInspector::PlotImage<SiStripFedCabling, cond::payloadInspector::SINGLE_IOV> {
+  class SiStripFedCabling_Summary : public PlotImage<SiStripFedCabling, SINGLE_IOV> {
   public:
-    SiStripFedCabling_Summary()
-        : cond::payloadInspector::PlotImage<SiStripFedCabling, cond::payloadInspector::SINGLE_IOV>(
-              "SiStrip Fed Cabling Summary") {}
+    SiStripFedCabling_Summary() : PlotImage<SiStripFedCabling, SINGLE_IOV>("SiStrip Fed Cabling Summary") {}
 
     bool fill() override {
       auto tag = PlotBase::getTag<0>();

@@ -33,16 +33,17 @@
 
 namespace {
 
+  using namespace cond::payloadInspector;
+
   /************************************************
     1d histogram of SiStripBackPlaneCorrection of 1 IOV 
   *************************************************/
 
   // inherit from one of the predefined plot class: Histogram1D
-  class SiStripBackPlaneCorrectionValue
-      : public cond::payloadInspector::Histogram1D<SiStripBackPlaneCorrection, cond::payloadInspector::SINGLE_IOV> {
+  class SiStripBackPlaneCorrectionValue : public Histogram1D<SiStripBackPlaneCorrection, SINGLE_IOV> {
   public:
     SiStripBackPlaneCorrectionValue()
-        : cond::payloadInspector::Histogram1D<SiStripBackPlaneCorrection, cond::payloadInspector::SINGLE_IOV>(
+        : Histogram1D<SiStripBackPlaneCorrection, SINGLE_IOV>(
               "SiStrip BackPlaneCorrection values", "SiStrip BackPlaneCorrection values", 100, 0.0, 0.1) {}
 
     bool fill() override {
@@ -64,12 +65,10 @@ namespace {
   /************************************************
     TrackerMap of SiStrip BackPlane Correction
   *************************************************/
-  class SiStripBackPlaneCorrection_TrackerMap
-      : public cond::payloadInspector::PlotImage<SiStripBackPlaneCorrection, cond::payloadInspector::SINGLE_IOV> {
+  class SiStripBackPlaneCorrection_TrackerMap : public PlotImage<SiStripBackPlaneCorrection, SINGLE_IOV> {
   public:
     SiStripBackPlaneCorrection_TrackerMap()
-        : cond::payloadInspector::PlotImage<SiStripBackPlaneCorrection, cond::payloadInspector::SINGLE_IOV>(
-              "Tracker Map SiStrip Backplane correction") {}
+        : PlotImage<SiStripBackPlaneCorrection, SINGLE_IOV>("Tracker Map SiStrip Backplane correction") {}
 
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
@@ -106,12 +105,10 @@ namespace {
     Plot SiStrip BackPlane Correction averages by partition 
   *************************************************/
 
-  class SiStripBackPlaneCorrectionByRegion
-      : public cond::payloadInspector::PlotImage<SiStripBackPlaneCorrection, cond::payloadInspector::SINGLE_IOV> {
+  class SiStripBackPlaneCorrectionByRegion : public PlotImage<SiStripBackPlaneCorrection, SINGLE_IOV> {
   public:
     SiStripBackPlaneCorrectionByRegion()
-        : cond::payloadInspector::PlotImage<SiStripBackPlaneCorrection, cond::payloadInspector::SINGLE_IOV>(
-              "SiStripBackPlaneCorrection By Region"),
+        : PlotImage<SiStripBackPlaneCorrection, SINGLE_IOV>("SiStripBackPlaneCorrection By Region"),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
               edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {}
 

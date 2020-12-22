@@ -25,18 +25,18 @@
 
 namespace {
 
-  class SiStripDetVOff_LV : public cond::payloadInspector::TimeHistoryPlot<SiStripDetVOff, int> {
+  using namespace cond::payloadInspector;
+
+  class SiStripDetVOff_LV : public TimeHistoryPlot<SiStripDetVOff, int> {
   public:
-    SiStripDetVOff_LV()
-        : cond::payloadInspector::TimeHistoryPlot<SiStripDetVOff, int>("Nr of mod with LV OFF vs time", "nLVOff") {}
+    SiStripDetVOff_LV() : TimeHistoryPlot<SiStripDetVOff, int>("Nr of mod with LV OFF vs time", "nLVOff") {}
 
     int getFromPayload(SiStripDetVOff& payload) override { return payload.getLVoffCounts(); }
   };
 
-  class SiStripDetVOff_HV : public cond::payloadInspector::TimeHistoryPlot<SiStripDetVOff, int> {
+  class SiStripDetVOff_HV : public TimeHistoryPlot<SiStripDetVOff, int> {
   public:
-    SiStripDetVOff_HV()
-        : cond::payloadInspector::TimeHistoryPlot<SiStripDetVOff, int>("Nr of mod with HV OFF vs time", "nHVOff") {}
+    SiStripDetVOff_HV() : TimeHistoryPlot<SiStripDetVOff, int>("Nr of mod with HV OFF vs time", "nHVOff") {}
 
     int getFromPayload(SiStripDetVOff& payload) override { return payload.getHVoffCounts(); }
   };
@@ -44,12 +44,9 @@ namespace {
   /************************************************
     TrackerMap of Module VOff
   *************************************************/
-  class SiStripDetVOff_IsModuleVOff_TrackerMap
-      : public cond::payloadInspector::PlotImage<SiStripDetVOff, cond::payloadInspector::SINGLE_IOV> {
+  class SiStripDetVOff_IsModuleVOff_TrackerMap : public PlotImage<SiStripDetVOff, SINGLE_IOV> {
   public:
-    SiStripDetVOff_IsModuleVOff_TrackerMap()
-        : cond::payloadInspector::PlotImage<SiStripDetVOff, cond::payloadInspector::SINGLE_IOV>(
-              "Tracker Map IsModuleVOff") {}
+    SiStripDetVOff_IsModuleVOff_TrackerMap() : PlotImage<SiStripDetVOff, SINGLE_IOV>("Tracker Map IsModuleVOff") {}
 
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
@@ -80,12 +77,9 @@ namespace {
   /************************************************
     TrackerMap of Module HVOff
   *************************************************/
-  class SiStripDetVOff_IsModuleHVOff_TrackerMap
-      : public cond::payloadInspector::PlotImage<SiStripDetVOff, cond::payloadInspector::SINGLE_IOV> {
+  class SiStripDetVOff_IsModuleHVOff_TrackerMap : public PlotImage<SiStripDetVOff, SINGLE_IOV> {
   public:
-    SiStripDetVOff_IsModuleHVOff_TrackerMap()
-        : cond::payloadInspector::PlotImage<SiStripDetVOff, cond::payloadInspector::SINGLE_IOV>(
-              "Tracker Map IsModuleHVOff") {}
+    SiStripDetVOff_IsModuleHVOff_TrackerMap() : PlotImage<SiStripDetVOff, SINGLE_IOV>("Tracker Map IsModuleHVOff") {}
 
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
@@ -116,12 +110,9 @@ namespace {
   /************************************************
     TrackerMap of Module LVOff
   *************************************************/
-  class SiStripDetVOff_IsModuleLVOff_TrackerMap
-      : public cond::payloadInspector::PlotImage<SiStripDetVOff, cond::payloadInspector::SINGLE_IOV> {
+  class SiStripDetVOff_IsModuleLVOff_TrackerMap : public PlotImage<SiStripDetVOff, SINGLE_IOV> {
   public:
-    SiStripDetVOff_IsModuleLVOff_TrackerMap()
-        : cond::payloadInspector::PlotImage<SiStripDetVOff, cond::payloadInspector::SINGLE_IOV>(
-              "Tracker Map IsModuleLVOff") {}
+    SiStripDetVOff_IsModuleLVOff_TrackerMap() : PlotImage<SiStripDetVOff, SINGLE_IOV>("Tracker Map IsModuleLVOff") {}
 
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
@@ -158,11 +149,10 @@ namespace {
   }
 
   template <SiStripDetVOffPI::type my_type>
-  class SiStripDetVOffListOfModules
-      : public cond::payloadInspector::Histogram1DD<SiStripDetVOff, cond::payloadInspector::SINGLE_IOV> {
+  class SiStripDetVOffListOfModules : public Histogram1DD<SiStripDetVOff, SINGLE_IOV> {
   public:
     SiStripDetVOffListOfModules()
-        : cond::payloadInspector::Histogram1DD<SiStripDetVOff, cond::payloadInspector::SINGLE_IOV>(
+        : Histogram1DD<SiStripDetVOff, SINGLE_IOV>(
               "SiStrip Off modules", "SiStrip Off modules", 15148, 0., 15148., "DetId of VOff module") {}
 
     bool fill() override {
@@ -219,12 +209,10 @@ namespace {
     test class
   *************************************************/
 
-  class SiStripDetVOffTest
-      : public cond::payloadInspector::Histogram1D<SiStripDetVOff, cond::payloadInspector::SINGLE_IOV> {
+  class SiStripDetVOffTest : public Histogram1D<SiStripDetVOff, SINGLE_IOV> {
   public:
     SiStripDetVOffTest()
-        : cond::payloadInspector::Histogram1D<SiStripDetVOff, cond::payloadInspector::SINGLE_IOV>(
-              "SiStrip DetVOff test", "SiStrip DetVOff test", 10, 0.0, 10.0),
+        : Histogram1D<SiStripDetVOff, SINGLE_IOV>("SiStrip DetVOff test", "SiStrip DetVOff test", 10, 0.0, 10.0),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
               edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {}
 
@@ -272,12 +260,10 @@ namespace {
     Plot DetVOff by region 
   *************************************************/
 
-  class SiStripDetVOffByRegion
-      : public cond::payloadInspector::PlotImage<SiStripDetVOff, cond::payloadInspector::SINGLE_IOV> {
+  class SiStripDetVOffByRegion : public PlotImage<SiStripDetVOff, SINGLE_IOV> {
   public:
     SiStripDetVOffByRegion()
-        : cond::payloadInspector::PlotImage<SiStripDetVOff, cond::payloadInspector::SINGLE_IOV>(
-              "SiStrip DetVOff By Region"),
+        : PlotImage<SiStripDetVOff, SINGLE_IOV>("SiStrip DetVOff By Region"),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
               edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {}
 

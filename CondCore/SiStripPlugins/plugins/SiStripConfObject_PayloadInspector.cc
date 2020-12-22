@@ -36,12 +36,13 @@
 
 namespace {
 
+  using namespace cond::payloadInspector;
+
   // test class
-  class SiStripConfObjectTest
-      : public cond::payloadInspector::Histogram1D<SiStripConfObject, cond::payloadInspector::SINGLE_IOV> {
+  class SiStripConfObjectTest : public Histogram1D<SiStripConfObject, SINGLE_IOV> {
   public:
     SiStripConfObjectTest()
-        : cond::payloadInspector::Histogram1D<SiStripConfObject, cond::payloadInspector::SINGLE_IOV>(
+        : Histogram1D<SiStripConfObject, SINGLE_IOV>(
               "SiStrip Configuration Object test", "SiStrip Configuration Object test", 1, 0.0, 1.0) {}
 
     bool fill() override {
@@ -68,12 +69,9 @@ namespace {
   };
 
   // display class
-  class SiStripConfObjectDisplay
-      : public cond::payloadInspector::PlotImage<SiStripConfObject, cond::payloadInspector::SINGLE_IOV> {
+  class SiStripConfObjectDisplay : public PlotImage<SiStripConfObject, SINGLE_IOV> {
   public:
-    SiStripConfObjectDisplay()
-        : cond::payloadInspector::PlotImage<SiStripConfObject, cond::payloadInspector::SINGLE_IOV>(
-              "Display Configuration Values") {}
+    SiStripConfObjectDisplay() : PlotImage<SiStripConfObject, SINGLE_IOV>("Display Configuration Values") {}
 
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
