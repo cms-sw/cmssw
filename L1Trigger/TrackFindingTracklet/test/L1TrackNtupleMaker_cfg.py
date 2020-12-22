@@ -51,16 +51,30 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
 
-# Get list of MC datasets from repo, or specify yourself.
+#--- To use MCsamples scripts, defining functions get*data*(), 
+#--- follow instructions https://cernbox.cern.ch/index.php/s/enCnnfUZ4cpK7mT
 
-def getTxtFile(txtFileName): 
-  return FileUtils.loadListFromFile(os.environ['CMSSW_BASE']+'/src/'+txtFileName)
+#from MCsamples.Scripts.getCMSdata_cfi import *
+#from MCsamples.Scripts.getCMSlocaldata_cfi import *
 
 if GEOMETRY == "D49":
-    inputMC = ["/store/relval/CMSSW_11_2_0_pre5/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/20000/FDFA00CE-FA93-0142-B187-99CBD4A43944.root"]
-    
+  # Read data from card files (defines getCMSdataFromCards()):
+  #from MCsamples.RelVal_1120.PU200_TTbar_14TeV_cfi import *
+  #inputMC = getCMSdataFromCards()
+
+  # Or read .root files from directory on local computer:
+  #dirName = "$myDir/whatever/"
+  #inputMC=getCMSlocaldata(dirName)
+
+  # Or read specified dataset (accesses CMS DB, so use this method only occasionally):
+  #dataName="/RelValTTbar_14TeV/CMSSW_11_2_0_pre5-PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/GEN-SIM-DIGI-RAW"
+  #inputMC=getCMSdata(dataName)
+
+  # Or read specified .root file:
+  inputMC = ["/store/relval/CMSSW_11_2_0_pre5/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/20000/FDFA00CE-FA93-0142-B187-99CBD4A43944.root"] 
+
 else:
-    print "this is not a valid geometry!!!"
+  print "this is not a valid geometry!!!"    
     
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(*inputMC))
 
