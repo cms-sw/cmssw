@@ -46,16 +46,16 @@
 
 namespace {
 
+  using namespace cond::payloadInspector;
+
   /************************************************
     test class
   *************************************************/
 
-  class SiStripPedestalsTest
-      : public cond::payloadInspector::Histogram1D<SiStripPedestals, cond::payloadInspector::SINGLE_IOV> {
+  class SiStripPedestalsTest : public Histogram1D<SiStripPedestals, SINGLE_IOV> {
   public:
     SiStripPedestalsTest()
-        : cond::payloadInspector::Histogram1D<SiStripPedestals, cond::payloadInspector::SINGLE_IOV>(
-              "SiStrip Pedestals test", "SiStrip Pedestals test", 10, 0.0, 10.0),
+        : Histogram1D<SiStripPedestals, SINGLE_IOV>("SiStrip Pedestals test", "SiStrip Pedestals test", 10, 0.0, 10.0),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
               edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {}
 
@@ -99,13 +99,10 @@ namespace {
     SiStrip Pedestals Profile of 1 IOV for one selected DetId
   *************************************************/
 
-  class SiStripPedestalPerDetId
-      : public cond::payloadInspector::PlotImage<SiStripPedestals, cond::payloadInspector::SINGLE_IOV> {
+  class SiStripPedestalPerDetId : public PlotImage<SiStripPedestals, SINGLE_IOV> {
   public:
-    SiStripPedestalPerDetId()
-        : cond::payloadInspector::PlotImage<SiStripPedestals, cond::payloadInspector::SINGLE_IOV>(
-              "SiStrip Pedestal values per DetId") {
-      cond::payloadInspector::PlotBase::addInputParam("DetIds");
+    SiStripPedestalPerDetId() : PlotImage<SiStripPedestals, SINGLE_IOV>("SiStrip Pedestal values per DetId") {
+      PlotBase::addInputParam("DetIds");
     }
 
     bool fill() override {
@@ -116,7 +113,7 @@ namespace {
 
       std::vector<uint32_t> the_detids = {};
 
-      auto paramValues = cond::payloadInspector::PlotBase::inputParamValues();
+      auto paramValues = PlotBase::inputParamValues();
       auto ip = paramValues.find("DetIds");
       if (ip != paramValues.end()) {
         auto input = boost::lexical_cast<std::string>(ip->second);
@@ -270,11 +267,10 @@ namespace {
   *************************************************/
 
   // inherit from one of the predefined plot class: Histogram1D
-  class SiStripPedestalsValue
-      : public cond::payloadInspector::Histogram1D<SiStripPedestals, cond::payloadInspector::SINGLE_IOV> {
+  class SiStripPedestalsValue : public Histogram1D<SiStripPedestals, SINGLE_IOV> {
   public:
     SiStripPedestalsValue()
-        : cond::payloadInspector::Histogram1D<SiStripPedestals, cond::payloadInspector::SINGLE_IOV>(
+        : Histogram1D<SiStripPedestals, SINGLE_IOV>(
               "SiStrip Pedestals values", "SiStrip Pedestals values", 300, 0.0, 300.0) {}
 
     bool fill() override {
@@ -304,13 +300,12 @@ namespace {
   *************************************************/
 
   // inherit from one of the predefined plot class: Histogram1D
-  class SiStripPedestalsValuePerDetId
-      : public cond::payloadInspector::Histogram1D<SiStripPedestals, cond::payloadInspector::SINGLE_IOV> {
+  class SiStripPedestalsValuePerDetId : public Histogram1D<SiStripPedestals, SINGLE_IOV> {
   public:
     SiStripPedestalsValuePerDetId()
-        : cond::payloadInspector::Histogram1D<SiStripPedestals, cond::payloadInspector::SINGLE_IOV>(
+        : Histogram1D<SiStripPedestals, SINGLE_IOV>(
               "SiStrip Pedestal values per DetId", "SiStrip Pedestal values per DetId", 100, 0.0, 10.0) {
-      cond::payloadInspector::PlotBase::addInputParam("DetId");
+      PlotBase::addInputParam("DetId");
     }
 
     bool fill() override {
@@ -318,7 +313,7 @@ namespace {
       for (auto const& iov : tag.iovs) {
         std::shared_ptr<SiStripPedestals> payload = Base::fetchPayload(std::get<1>(iov));
         unsigned int the_detid(0xFFFFFFFF);
-        auto paramValues = cond::payloadInspector::PlotBase::inputParamValues();
+        auto paramValues = PlotBase::inputParamValues();
         auto ip = paramValues.find("DetId");
         if (ip != paramValues.end()) {
           the_detid = boost::lexical_cast<unsigned int>(ip->second);
@@ -343,12 +338,9 @@ namespace {
 
   // inherit from one of the predefined plot class: PlotImage
   template <SiStripPI::OpMode op_mode_>
-  class SiStripPedestalDistribution
-      : public cond::payloadInspector::PlotImage<SiStripPedestals, cond::payloadInspector::SINGLE_IOV> {
+  class SiStripPedestalDistribution : public PlotImage<SiStripPedestals, SINGLE_IOV> {
   public:
-    SiStripPedestalDistribution()
-        : cond::payloadInspector::PlotImage<SiStripPedestals, cond::payloadInspector::SINGLE_IOV>(
-              "SiStrip Pedestal values") {}
+    SiStripPedestalDistribution() : PlotImage<SiStripPedestals, SINGLE_IOV>("SiStrip Pedestal values") {}
 
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
@@ -463,17 +455,16 @@ namespace {
 
   // inherit from one of the predefined plot class: PlotImage
 
-  template <SiStripPI::OpMode op_mode_, int ntags, cond::payloadInspector::IOVMultiplicity nIOVs>
-  class SiStripPedestalDistributionComparisonBase
-      : public cond::payloadInspector::PlotImage<SiStripPedestals, nIOVs, ntags> {
+  template <SiStripPI::OpMode op_mode_, int ntags, IOVMultiplicity nIOVs>
+  class SiStripPedestalDistributionComparisonBase : public PlotImage<SiStripPedestals, nIOVs, ntags> {
   public:
     SiStripPedestalDistributionComparisonBase()
-        : cond::payloadInspector::PlotImage<SiStripPedestals, nIOVs, ntags>("SiStrip Pedestal values comparison") {}
+        : PlotImage<SiStripPedestals, nIOVs, ntags>("SiStrip Pedestal values comparison") {}
 
     bool fill() override {
       // trick to deal with the multi-ioved tag and two tag case at the same time
-      auto theIOVs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
-      auto tagname1 = cond::payloadInspector::PlotBase::getTag<0>().name;
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto tagname1 = PlotBase::getTag<0>().name;
       std::string tagname2 = "";
       auto firstiov = theIOVs.front();
       std::tuple<cond::Time_t, cond::Hash> lastiov;
@@ -482,8 +473,8 @@ namespace {
       assert(this->m_plotAnnotations.ntags < 3);
 
       if (this->m_plotAnnotations.ntags == 2) {
-        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
-        tagname2 = cond::payloadInspector::PlotBase::getTag<1>().name;
+        auto tag2iovs = PlotBase::getTag<1>().iovs;
+        tagname2 = PlotBase::getTag<1>().name;
         lastiov = tag2iovs.front();
       } else {
         lastiov = theIOVs.back();
@@ -653,11 +644,11 @@ namespace {
 
   template <SiStripPI::OpMode op_mode_>
   using SiStripPedestalDistributionComparisonSingleTag =
-      SiStripPedestalDistributionComparisonBase<op_mode_, 1, cond::payloadInspector::MULTI_IOV>;
+      SiStripPedestalDistributionComparisonBase<op_mode_, 1, MULTI_IOV>;
 
   template <SiStripPI::OpMode op_mode_>
   using SiStripPedestalDistributionComparisonTwoTags =
-      SiStripPedestalDistributionComparisonBase<op_mode_, 2, cond::payloadInspector::SINGLE_IOV>;
+      SiStripPedestalDistributionComparisonBase<op_mode_, 2, SINGLE_IOV>;
 
   typedef SiStripPedestalDistributionComparisonSingleTag<SiStripPI::STRIP_BASED>
       SiStripPedestalValueComparisonPerStripSingleTag;
@@ -677,12 +668,10 @@ namespace {
   *************************************************/
 
   // inherit from one of the predefined plot class PlotImage
-  class SiStripZeroPedestalsFraction_TrackerMap
-      : public cond::payloadInspector::PlotImage<SiStripPedestals, cond::payloadInspector::SINGLE_IOV> {
+  class SiStripZeroPedestalsFraction_TrackerMap : public PlotImage<SiStripPedestals, SINGLE_IOV> {
   public:
     SiStripZeroPedestalsFraction_TrackerMap()
-        : cond::payloadInspector::PlotImage<SiStripPedestals, cond::payloadInspector::SINGLE_IOV>(
-              "Tracker Map of Zero SiStripPedestals fraction per module") {}
+        : PlotImage<SiStripPedestals, SINGLE_IOV>("Tracker Map of Zero SiStripPedestals fraction per module") {}
 
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
@@ -736,12 +725,11 @@ namespace {
   *************************************************/
 
   template <SiStripPI::estimator est>
-  class SiStripPedestalsTrackerMap
-      : public cond::payloadInspector::PlotImage<SiStripPedestals, cond::payloadInspector::SINGLE_IOV> {
+  class SiStripPedestalsTrackerMap : public PlotImage<SiStripPedestals, SINGLE_IOV> {
   public:
     SiStripPedestalsTrackerMap()
-        : cond::payloadInspector::PlotImage<SiStripPedestals, cond::payloadInspector::SINGLE_IOV>(
-              "Tracker Map of SiStripPedestals " + estimatorType(est) + " per module") {}
+        : PlotImage<SiStripPedestals, SINGLE_IOV>("Tracker Map of SiStripPedestals " + estimatorType(est) +
+                                                  " per module") {}
 
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
@@ -822,12 +810,10 @@ namespace {
   *************************************************/
 
   template <SiStripPI::estimator est>
-  class SiStripPedestalsByRegion
-      : public cond::payloadInspector::PlotImage<SiStripPedestals, cond::payloadInspector::SINGLE_IOV> {
+  class SiStripPedestalsByRegion : public PlotImage<SiStripPedestals, SINGLE_IOV> {
   public:
     SiStripPedestalsByRegion()
-        : cond::payloadInspector::PlotImage<SiStripPedestals, cond::payloadInspector::SINGLE_IOV>(
-              "SiStrip Pedestals " + estimatorType(est) + " by Region"),
+        : PlotImage<SiStripPedestals, SINGLE_IOV>("SiStrip Pedestals " + estimatorType(est) + " by Region"),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
               edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {}
 

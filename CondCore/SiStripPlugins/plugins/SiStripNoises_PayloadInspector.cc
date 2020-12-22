@@ -47,16 +47,16 @@
 
 namespace {
 
+  using namespace cond::payloadInspector;
+
   /************************************************
     test class
   *************************************************/
 
-  class SiStripNoisesTest
-      : public cond::payloadInspector::Histogram1D<SiStripNoises, cond::payloadInspector::SINGLE_IOV> {
+  class SiStripNoisesTest : public Histogram1D<SiStripNoises, SINGLE_IOV> {
   public:
     SiStripNoisesTest()
-        : cond::payloadInspector::Histogram1D<SiStripNoises, cond::payloadInspector::SINGLE_IOV>(
-              "SiStrip Noise test", "SiStrip Noise test", 10, 0.0, 10.0),
+        : Histogram1D<SiStripNoises, SINGLE_IOV>("SiStrip Noise test", "SiStrip Noise test", 10, 0.0, 10.0),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
               edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {}
 
@@ -100,13 +100,10 @@ namespace {
     SiStrip Noise Profile of 1 IOV for one selected DetId
   *************************************************/
 
-  class SiStripNoisePerDetId
-      : public cond::payloadInspector::PlotImage<SiStripNoises, cond::payloadInspector::SINGLE_IOV> {
+  class SiStripNoisePerDetId : public PlotImage<SiStripNoises, SINGLE_IOV> {
   public:
-    SiStripNoisePerDetId()
-        : cond::payloadInspector::PlotImage<SiStripNoises, cond::payloadInspector::SINGLE_IOV>(
-              "SiStrip Noise values Per DetId") {
-      cond::payloadInspector::PlotBase::addInputParam("DetIds");
+    SiStripNoisePerDetId() : PlotImage<SiStripNoises, SINGLE_IOV>("SiStrip Noise values Per DetId") {
+      PlotBase::addInputParam("DetIds");
     }
 
     bool fill() override {
@@ -117,7 +114,7 @@ namespace {
 
       std::vector<uint32_t> the_detids = {};
 
-      auto paramValues = cond::payloadInspector::PlotBase::inputParamValues();
+      auto paramValues = PlotBase::inputParamValues();
       auto ip = paramValues.find("DetIds");
       if (ip != paramValues.end()) {
         auto input = boost::lexical_cast<std::string>(ip->second);
@@ -272,12 +269,10 @@ namespace {
   *************************************************/
 
   // inherit from one of the predefined plot class: Histogram1D
-  class SiStripNoiseValue
-      : public cond::payloadInspector::Histogram1D<SiStripNoises, cond::payloadInspector::SINGLE_IOV> {
+  class SiStripNoiseValue : public Histogram1D<SiStripNoises, SINGLE_IOV> {
   public:
     SiStripNoiseValue()
-        : cond::payloadInspector::Histogram1D<SiStripNoises, cond::payloadInspector::SINGLE_IOV>(
-              "SiStrip Noise values", "SiStrip Noise values", 100, 0.0, 10.0) {}
+        : Histogram1D<SiStripNoises, SINGLE_IOV>("SiStrip Noise values", "SiStrip Noise values", 100, 0.0, 10.0) {}
 
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
@@ -306,13 +301,12 @@ namespace {
   *************************************************/
 
   // inherit from one of the predefined plot class: Histogram1D
-  class SiStripNoiseValuePerDetId
-      : public cond::payloadInspector::Histogram1D<SiStripNoises, cond::payloadInspector::SINGLE_IOV> {
+  class SiStripNoiseValuePerDetId : public Histogram1D<SiStripNoises, SINGLE_IOV> {
   public:
     SiStripNoiseValuePerDetId()
-        : cond::payloadInspector::Histogram1D<SiStripNoises, cond::payloadInspector::SINGLE_IOV>(
+        : Histogram1D<SiStripNoises, SINGLE_IOV>(
               "SiStrip Noise values per DetId", "SiStrip Noise values per DetId", 100, 0.0, 10.0) {
-      cond::payloadInspector::PlotBase::addInputParam("DetId");
+      PlotBase::addInputParam("DetId");
     }
 
     bool fill() override {
@@ -320,7 +314,7 @@ namespace {
       for (auto const& iov : tag.iovs) {
         std::shared_ptr<SiStripNoises> payload = Base::fetchPayload(std::get<1>(iov));
         unsigned int the_detid(0xFFFFFFFF);
-        auto paramValues = cond::payloadInspector::PlotBase::inputParamValues();
+        auto paramValues = PlotBase::inputParamValues();
         auto ip = paramValues.find("DetId");
         if (ip != paramValues.end()) {
           the_detid = boost::lexical_cast<unsigned int>(ip->second);
@@ -345,12 +339,9 @@ namespace {
 
   // inherit from one of the predefined plot class: PlotImage
   template <SiStripPI::OpMode op_mode_>
-  class SiStripNoiseDistribution
-      : public cond::payloadInspector::PlotImage<SiStripNoises, cond::payloadInspector::SINGLE_IOV> {
+  class SiStripNoiseDistribution : public PlotImage<SiStripNoises, SINGLE_IOV> {
   public:
-    SiStripNoiseDistribution()
-        : cond::payloadInspector::PlotImage<SiStripNoises, cond::payloadInspector::SINGLE_IOV>("SiStrip Noise values") {
-    }
+    SiStripNoiseDistribution() : PlotImage<SiStripNoises, SINGLE_IOV>("SiStrip Noise values") {}
 
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
@@ -466,16 +457,16 @@ namespace {
   *************************************************/
 
   // inherit from one of the predefined plot class: PlotImage
-  template <SiStripPI::OpMode op_mode_, int ntags, cond::payloadInspector::IOVMultiplicity nIOVs>
-  class SiStripNoiseDistributionComparisonBase : public cond::payloadInspector::PlotImage<SiStripNoises, nIOVs, ntags> {
+  template <SiStripPI::OpMode op_mode_, int ntags, IOVMultiplicity nIOVs>
+  class SiStripNoiseDistributionComparisonBase : public PlotImage<SiStripNoises, nIOVs, ntags> {
   public:
     SiStripNoiseDistributionComparisonBase()
-        : cond::payloadInspector::PlotImage<SiStripNoises, nIOVs, ntags>("SiStrip Noise values comparison") {}
+        : PlotImage<SiStripNoises, nIOVs, ntags>("SiStrip Noise values comparison") {}
 
     bool fill() override {
       // trick to deal with the multi-ioved tag and two tag case at the same time
-      auto theIOVs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
-      auto tagname1 = cond::payloadInspector::PlotBase::getTag<0>().name;
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto tagname1 = PlotBase::getTag<0>().name;
       std::string tagname2 = "";
       auto firstiov = theIOVs.front();
       std::tuple<cond::Time_t, cond::Hash> lastiov;
@@ -484,8 +475,8 @@ namespace {
       assert(this->m_plotAnnotations.ntags < 3);
 
       if (this->m_plotAnnotations.ntags == 2) {
-        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
-        tagname2 = cond::payloadInspector::PlotBase::getTag<1>().name;
+        auto tag2iovs = PlotBase::getTag<1>().iovs;
+        tagname2 = PlotBase::getTag<1>().name;
         lastiov = tag2iovs.front();
       } else {
         lastiov = theIOVs.back();
@@ -655,12 +646,10 @@ namespace {
   };
 
   template <SiStripPI::OpMode op_mode_>
-  using SiStripNoiseDistributionComparisonSingleTag =
-      SiStripNoiseDistributionComparisonBase<op_mode_, 1, cond::payloadInspector::MULTI_IOV>;
+  using SiStripNoiseDistributionComparisonSingleTag = SiStripNoiseDistributionComparisonBase<op_mode_, 1, MULTI_IOV>;
 
   template <SiStripPI::OpMode op_mode_>
-  using SiStripNoiseDistributionComparisonTwoTags =
-      SiStripNoiseDistributionComparisonBase<op_mode_, 2, cond::payloadInspector::SINGLE_IOV>;
+  using SiStripNoiseDistributionComparisonTwoTags = SiStripNoiseDistributionComparisonBase<op_mode_, 2, SINGLE_IOV>;
 
   typedef SiStripNoiseDistributionComparisonSingleTag<SiStripPI::STRIP_BASED>
       SiStripNoiseValueComparisonPerStripSingleTag;
@@ -678,16 +667,15 @@ namespace {
 
   // inherit from one of the predefined plot class: PlotImage
 
-  template <int ntags, cond::payloadInspector::IOVMultiplicity nIOVs>
-  class SiStripNoiseValueComparisonBase : public cond::payloadInspector::PlotImage<SiStripNoises, nIOVs, ntags> {
+  template <int ntags, IOVMultiplicity nIOVs>
+  class SiStripNoiseValueComparisonBase : public PlotImage<SiStripNoises, nIOVs, ntags> {
   public:
-    SiStripNoiseValueComparisonBase()
-        : cond::payloadInspector::PlotImage<SiStripNoises, nIOVs, ntags>("SiStrip Noise values comparison") {}
+    SiStripNoiseValueComparisonBase() : PlotImage<SiStripNoises, nIOVs, ntags>("SiStrip Noise values comparison") {}
 
     bool fill() override {
       // trick to deal with the multi-ioved tag and two tag case at the same time
-      auto theIOVs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
-      auto tagname1 = cond::payloadInspector::PlotBase::getTag<0>().name;
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto tagname1 = PlotBase::getTag<0>().name;
       std::string tagname2 = "";
       auto firstiov = theIOVs.front();
       std::tuple<cond::Time_t, cond::Hash> lastiov;
@@ -696,8 +684,8 @@ namespace {
       assert(this->m_plotAnnotations.ntags < 3);
 
       if (this->m_plotAnnotations.ntags == 2) {
-        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
-        tagname2 = cond::payloadInspector::PlotBase::getTag<1>().name;
+        auto tag2iovs = PlotBase::getTag<1>().iovs;
+        tagname2 = PlotBase::getTag<1>().name;
         lastiov = tag2iovs.front();
       } else {
         lastiov = theIOVs.back();
@@ -794,20 +782,18 @@ namespace {
     }
   };
 
-  using SiStripNoiseValueComparisonSingleTag = SiStripNoiseValueComparisonBase<1, cond::payloadInspector::MULTI_IOV>;
-  using SiStripNoiseValueComparisonTwoTags = SiStripNoiseValueComparisonBase<2, cond::payloadInspector::SINGLE_IOV>;
+  using SiStripNoiseValueComparisonSingleTag = SiStripNoiseValueComparisonBase<1, MULTI_IOV>;
+  using SiStripNoiseValueComparisonTwoTags = SiStripNoiseValueComparisonBase<2, SINGLE_IOV>;
 
   /************************************************
     SiStrip Noise Tracker Map 
   *************************************************/
 
   template <SiStripPI::estimator est>
-  class SiStripNoiseTrackerMap
-      : public cond::payloadInspector::PlotImage<SiStripNoises, cond::payloadInspector::SINGLE_IOV> {
+  class SiStripNoiseTrackerMap : public PlotImage<SiStripNoises, SINGLE_IOV> {
   public:
     SiStripNoiseTrackerMap()
-        : cond::payloadInspector::PlotImage<SiStripNoises, cond::payloadInspector::SINGLE_IOV>(
-              "Tracker Map of SiStripNoise " + estimatorType(est) + " per module") {}
+        : PlotImage<SiStripNoises, SINGLE_IOV>("Tracker Map of SiStripNoise " + estimatorType(est) + " per module") {}
 
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
@@ -906,14 +892,13 @@ namespace {
     SiStrip Noise Tracker Map  (ratio with previous gain per detid)
   *************************************************/
 
-  template <SiStripPI::estimator est, int ntags, cond::payloadInspector::IOVMultiplicity nIOVs>
-  class SiStripNoiseRatioWithPreviousIOVTrackerMapBase
-      : public cond::payloadInspector::PlotImage<SiStripNoises, nIOVs, ntags> {
+  template <SiStripPI::estimator est, int ntags, IOVMultiplicity nIOVs>
+  class SiStripNoiseRatioWithPreviousIOVTrackerMapBase : public PlotImage<SiStripNoises, nIOVs, ntags> {
   public:
     SiStripNoiseRatioWithPreviousIOVTrackerMapBase()
-        : cond::payloadInspector::PlotImage<SiStripNoises, nIOVs, ntags>("Tracker Map of ratio of SiStripNoises " +
-                                                                         estimatorType(est) + "with previous IOV") {
-      cond::payloadInspector::PlotBase::addInputParam("nsigma");
+        : PlotImage<SiStripNoises, nIOVs, ntags>("Tracker Map of ratio of SiStripNoises " + estimatorType(est) +
+                                                 "with previous IOV") {
+      PlotBase::addInputParam("nsigma");
     }
 
     std::map<unsigned int, float> computeEstimator(std::shared_ptr<SiStripNoises> payload) {
@@ -975,15 +960,15 @@ namespace {
     bool fill() override {
       unsigned int nsigma(1);
 
-      auto paramValues = cond::payloadInspector::PlotBase::inputParamValues();
+      auto paramValues = PlotBase::inputParamValues();
       auto ip = paramValues.find("nsigma");
       if (ip != paramValues.end()) {
         nsigma = boost::lexical_cast<unsigned int>(ip->second);
       }
 
       // trick to deal with the multi-ioved tag and two tag case at the same time
-      auto theIOVs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
-      auto tagname1 = cond::payloadInspector::PlotBase::getTag<0>().name;
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto tagname1 = PlotBase::getTag<0>().name;
       std::string tagname2 = "";
       auto firstiov = theIOVs.front();
       std::tuple<cond::Time_t, cond::Hash> lastiov;
@@ -992,8 +977,8 @@ namespace {
       assert(this->m_plotAnnotations.ntags < 3);
 
       if (this->m_plotAnnotations.ntags == 2) {
-        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
-        tagname2 = cond::payloadInspector::PlotBase::getTag<1>().name;
+        auto tag2iovs = PlotBase::getTag<1>().iovs;
+        tagname2 = PlotBase::getTag<1>().name;
         lastiov = tag2iovs.front();
       } else {
         lastiov = theIOVs.back();
@@ -1042,11 +1027,11 @@ namespace {
 
   template <SiStripPI::estimator est>
   using SiStripNoiseRatioWithPreviousIOVTrackerMapSingleTag =
-      SiStripNoiseRatioWithPreviousIOVTrackerMapBase<est, 1, cond::payloadInspector::MULTI_IOV>;
+      SiStripNoiseRatioWithPreviousIOVTrackerMapBase<est, 1, MULTI_IOV>;
 
   template <SiStripPI::estimator est>
   using SiStripNoiseRatioWithPreviousIOVTrackerMapTwoTags =
-      SiStripNoiseRatioWithPreviousIOVTrackerMapBase<est, 2, cond::payloadInspector::SINGLE_IOV>;
+      SiStripNoiseRatioWithPreviousIOVTrackerMapBase<est, 2, SINGLE_IOV>;
 
   typedef SiStripNoiseRatioWithPreviousIOVTrackerMapSingleTag<SiStripPI::min>
       SiStripNoiseMin_RatioWithPreviousIOVTrackerMapSingleTag;
@@ -1071,12 +1056,10 @@ namespace {
   *************************************************/
 
   template <SiStripPI::estimator est>
-  class SiStripNoiseByRegion
-      : public cond::payloadInspector::PlotImage<SiStripNoises, cond::payloadInspector::SINGLE_IOV> {
+  class SiStripNoiseByRegion : public PlotImage<SiStripNoises, SINGLE_IOV> {
   public:
     SiStripNoiseByRegion()
-        : cond::payloadInspector::PlotImage<SiStripNoises, cond::payloadInspector::SINGLE_IOV>(
-              "SiStrip Noise " + estimatorType(est) + " by Region"),
+        : PlotImage<SiStripNoises, SINGLE_IOV>("SiStrip Noise " + estimatorType(est) + " by Region"),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
               edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {}
 
@@ -1198,19 +1181,18 @@ namespace {
   SiStrip Noise Comparator
   *************************************************/
 
-  template <SiStripPI::estimator est, int ntags, cond::payloadInspector::IOVMultiplicity nIOVs>
-  class SiStripNoiseComparatorByRegionBase : public cond::payloadInspector::PlotImage<SiStripNoises, nIOVs, ntags> {
+  template <SiStripPI::estimator est, int ntags, IOVMultiplicity nIOVs>
+  class SiStripNoiseComparatorByRegionBase : public PlotImage<SiStripNoises, nIOVs, ntags> {
   public:
     SiStripNoiseComparatorByRegionBase()
-        : cond::payloadInspector::PlotImage<SiStripNoises, nIOVs, ntags>("SiStrip Noise " + estimatorType(est) +
-                                                                         " comparator by Region"),
+        : PlotImage<SiStripNoises, nIOVs, ntags>("SiStrip Noise " + estimatorType(est) + " comparator by Region"),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
               edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {}
 
     bool fill() override {
       // trick to deal with the multi-ioved tag and two tag case at the same time
-      auto theIOVs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
-      auto tagname1 = cond::payloadInspector::PlotBase::getTag<0>().name;
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto tagname1 = PlotBase::getTag<0>().name;
       std::string tagname2 = "";
       auto firstiov = theIOVs.front();
       std::tuple<cond::Time_t, cond::Hash> lastiov;
@@ -1219,8 +1201,8 @@ namespace {
       assert(this->m_plotAnnotations.ntags < 3);
 
       if (this->m_plotAnnotations.ntags == 2) {
-        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
-        tagname2 = cond::payloadInspector::PlotBase::getTag<1>().name;
+        auto tag2iovs = PlotBase::getTag<1>().iovs;
+        tagname2 = PlotBase::getTag<1>().name;
         lastiov = tag2iovs.front();
       } else {
         lastiov = theIOVs.back();
@@ -1386,12 +1368,10 @@ namespace {
   };
 
   template <SiStripPI::estimator est>
-  using SiStripNoiseComparatorByRegionSingleTag =
-      SiStripNoiseComparatorByRegionBase<est, 1, cond::payloadInspector::MULTI_IOV>;
+  using SiStripNoiseComparatorByRegionSingleTag = SiStripNoiseComparatorByRegionBase<est, 1, MULTI_IOV>;
 
   template <SiStripPI::estimator est>
-  using SiStripNoiseComparatorByRegionTwoTags =
-      SiStripNoiseComparatorByRegionBase<est, 2, cond::payloadInspector::SINGLE_IOV>;
+  using SiStripNoiseComparatorByRegionTwoTags = SiStripNoiseComparatorByRegionBase<est, 2, SINGLE_IOV>;
 
   typedef SiStripNoiseComparatorByRegionSingleTag<SiStripPI::mean> SiStripNoiseComparatorMeanByRegionSingleTag;
   typedef SiStripNoiseComparatorByRegionSingleTag<SiStripPI::min> SiStripNoiseComparatorMinByRegionSingleTag;
@@ -1406,12 +1386,10 @@ namespace {
   /************************************************
     Noise linearity
   *************************************************/
-  class SiStripNoiseLinearity
-      : public cond::payloadInspector::PlotImage<SiStripNoises, cond::payloadInspector::SINGLE_IOV> {
+  class SiStripNoiseLinearity : public PlotImage<SiStripNoises, SINGLE_IOV> {
   public:
     SiStripNoiseLinearity()
-        : cond::payloadInspector::PlotImage<SiStripNoises, cond::payloadInspector::SINGLE_IOV>(
-              "Linearity of Strip Noise as a fuction of strip length") {}
+        : PlotImage<SiStripNoises, SINGLE_IOV>("Linearity of Strip Noise as a fuction of strip length") {}
 
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
@@ -1532,10 +1510,10 @@ namespace {
   *************************************************/
 
   template <StripSubdetector::SubDetector sub>
-  class NoiseHistory : public cond::payloadInspector::HistoryPlot<SiStripNoises, std::pair<double, double>> {
+  class NoiseHistory : public HistoryPlot<SiStripNoises, std::pair<double, double>> {
   public:
     NoiseHistory()
-        : cond::payloadInspector::HistoryPlot<SiStripNoises, std::pair<double, double>>(
+        : HistoryPlot<SiStripNoises, std::pair<double, double>>(
               "Average " + SiStripPI::getStringFromSubdet(sub) + " noise vs run number",
               "average " + SiStripPI::getStringFromSubdet(sub) + " Noise") {}
 
@@ -1577,10 +1555,10 @@ namespace {
   *************************************************/
 
   template <StripSubdetector::SubDetector sub>
-  class NoiseRunHistory : public cond::payloadInspector::RunHistoryPlot<SiStripNoises, std::pair<double, double>> {
+  class NoiseRunHistory : public RunHistoryPlot<SiStripNoises, std::pair<double, double>> {
   public:
     NoiseRunHistory()
-        : cond::payloadInspector::RunHistoryPlot<SiStripNoises, std::pair<double, double>>(
+        : RunHistoryPlot<SiStripNoises, std::pair<double, double>>(
               "Average " + SiStripPI::getStringFromSubdet(sub) + " noise vs run number",
               "average " + SiStripPI::getStringFromSubdet(sub) + " Noise") {}
 
@@ -1622,10 +1600,10 @@ namespace {
   *************************************************/
 
   template <StripSubdetector::SubDetector sub>
-  class NoiseTimeHistory : public cond::payloadInspector::TimeHistoryPlot<SiStripNoises, std::pair<double, double>> {
+  class NoiseTimeHistory : public TimeHistoryPlot<SiStripNoises, std::pair<double, double>> {
   public:
     NoiseTimeHistory()
-        : cond::payloadInspector::TimeHistoryPlot<SiStripNoises, std::pair<double, double>>(
+        : TimeHistoryPlot<SiStripNoises, std::pair<double, double>>(
               "Average " + SiStripPI::getStringFromSubdet(sub) + " noise vs run number",
               "average " + SiStripPI::getStringFromSubdet(sub) + " Noise") {}
 
@@ -1666,12 +1644,10 @@ namespace {
    template Noise run history  per layer
   *************************************************/
   template <StripSubdetector::SubDetector sub>
-  class NoiseLayerRunHistory
-      : public cond::payloadInspector::PlotImage<SiStripNoises, cond::payloadInspector::MULTI_IOV> {
+  class NoiseLayerRunHistory : public PlotImage<SiStripNoises, MULTI_IOV> {
   public:
     NoiseLayerRunHistory()
-        : cond::payloadInspector::PlotImage<SiStripNoises, cond::payloadInspector::MULTI_IOV>(
-              "SiStrip Noise values comparison"),
+        : PlotImage<SiStripNoises, MULTI_IOV>("SiStrip Noise values comparison"),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
               edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {}
 

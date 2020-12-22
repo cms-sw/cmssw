@@ -44,16 +44,16 @@ using namespace std;
 
 namespace {
 
+  using namespace cond::payloadInspector;
+
   /************************************************
     test class
   *************************************************/
 
-  class SiStripThresholdTest
-      : public cond::payloadInspector::Histogram1D<SiStripThreshold, cond::payloadInspector::SINGLE_IOV> {
+  class SiStripThresholdTest : public Histogram1D<SiStripThreshold, SINGLE_IOV> {
   public:
     SiStripThresholdTest()
-        : cond::payloadInspector::Histogram1D<SiStripThreshold, cond::payloadInspector::SINGLE_IOV>(
-              "SiStrip Threshold test", "SiStrip Threshold test", 10, 0.0, 10.0),
+        : Histogram1D<SiStripThreshold, SINGLE_IOV>("SiStrip Threshold test", "SiStrip Threshold test", 10, 0.0, 10.0),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
               edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {}
 
@@ -85,16 +85,14 @@ namespace {
     1d histogram of SiStripThresholds of 1 IOV - High Threshold 
   *************************************************************/
 
-  class SiStripThresholdValueHigh
-      : public cond::payloadInspector::Histogram1D<SiStripThreshold, cond::payloadInspector::SINGLE_IOV> {
+  class SiStripThresholdValueHigh : public Histogram1D<SiStripThreshold, SINGLE_IOV> {
   public:
     SiStripThresholdValueHigh()
-        : cond::payloadInspector::Histogram1D<SiStripThreshold, cond::payloadInspector::SINGLE_IOV>(
-              "SiStrip High threshold values (checked per APV)",
-              "SiStrip High threshold values (cheched per APV)",
-              10,
-              0.0,
-              10) {}
+        : Histogram1D<SiStripThreshold, SINGLE_IOV>("SiStrip High threshold values (checked per APV)",
+                                                    "SiStrip High threshold values (cheched per APV)",
+                                                    10,
+                                                    0.0,
+                                                    10) {}
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
       edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
@@ -130,16 +128,14 @@ namespace {
     1d histogram of SiStripThresholds of 1 IOV - Low Threshold 
   *************************************************************/
 
-  class SiStripThresholdValueLow
-      : public cond::payloadInspector::Histogram1D<SiStripThreshold, cond::payloadInspector::SINGLE_IOV> {
+  class SiStripThresholdValueLow : public Histogram1D<SiStripThreshold, SINGLE_IOV> {
   public:
     SiStripThresholdValueLow()
-        : cond::payloadInspector::Histogram1D<SiStripThreshold, cond::payloadInspector::SINGLE_IOV>(
-              "SiStrip Low threshold values (checked per APV)",
-              "SiStrip Low threshold values (cheched per APV)",
-              10,
-              0.0,
-              10) {}
+        : Histogram1D<SiStripThreshold, SINGLE_IOV>("SiStrip Low threshold values (checked per APV)",
+                                                    "SiStrip Low threshold values (cheched per APV)",
+                                                    10,
+                                                    0.0,
+                                                    10) {}
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
       edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
