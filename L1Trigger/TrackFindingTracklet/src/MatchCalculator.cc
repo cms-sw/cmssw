@@ -296,7 +296,7 @@ void MatchCalculator::execute() {
       }
 
       bool imatch = false;
-      if(std::abs(dphi) < 0.2 && std::abs(dphiapprox) < 0.2){ //Changed the Asserts into if statements
+      if (std::abs(dphi) < 0.2 && std::abs(dphiapprox) < 0.2) {  //Changed the Asserts into if statements
         if (settings_.writeMonitorData("Residuals")) {
           double pt = 0.01 * settings_.c() * settings_.bfield() / std::abs(tracklet->rinv());
 
@@ -308,8 +308,8 @@ void MatchCalculator::execute() {
               << ideltaz * fact_ * settings_.kz() << " " << dz << " " << zmatchcut_[seedindex] * settings_.kz() << endl;
         }
 
-       imatch = (std::abs(ideltaphi) <= (int)phimatchcut_[seedindex]) &&
-                      (std::abs(ideltaz * fact_) <= (int)zmatchcut_[seedindex]);
+        imatch = (std::abs(ideltaphi) <= (int)phimatchcut_[seedindex]) &&
+                 (std::abs(ideltaz * fact_) <= (int)zmatchcut_[seedindex]);
       }
       if (settings_.debugTracklet()) {
         edm::LogVerbatim("Tracklet") << getName() << " imatch = " << imatch << " ideltaphi cut " << ideltaphi << " "
@@ -455,7 +455,7 @@ void MatchCalculator::execute() {
       double drcut = idrcut * settings_.krprojshiftdisk();
 
       bool match, imatch;
-      if(std::abs(dphi) < 0.25 && std::abs(dphiapprox) < 0.25){ //Changed the Asserts into if statements
+      if (std::abs(dphi) < 0.25 && std::abs(dphiapprox) < 0.25) {  //Changed the Asserts into if statements
         if (settings_.writeMonitorData("Residuals")) {
           double pt = 0.01 * settings_.c() * settings_.bfield() / std::abs(tracklet->rinv());
 
@@ -468,10 +468,9 @@ void MatchCalculator::execute() {
         match = (std::abs(drphi) < drphicut) && (std::abs(deltar) < drcut);
 
         imatch = (std::abs(ideltaphi * irstub) < idrphicut) && (std::abs(ideltar) < idrcut);
-      }
-      else{
+      } else {
         edm::LogProblem("Tracklet") << "WARNING dphi and/or dphiapprox too large : " << dphi << " " << dphiapprox
-                                    << "dphi " << dphi << " Seed / ISeed " << tracklet->getISeed()<< endl;
+                                    << "dphi " << dphi << " Seed / ISeed " << tracklet->getISeed() << endl;
         match = false;
         imatch = false;
       }
