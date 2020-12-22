@@ -129,8 +129,8 @@ void HcalForwardAnalysis::setPhotons(const EndOfEvent* evt) {
   std::vector<HFShowerPhoton> LongFiberPhotons;
   LongFiberPhotons.clear();
   ShortFiberPhotons.clear();
-  int thehc_entries = theHC->entries();
   if (idHC >= 0 && theHC != nullptr) {
+    int thehc_entries = theHC->entries();
     edm::LogVerbatim("HcalForwardLib") << "FiberhitSize " << thehc_entries;
     for (j = 0; j < thehc_entries; j++) {
       FiberG4Hit* aHit = (*theHC)[j];
