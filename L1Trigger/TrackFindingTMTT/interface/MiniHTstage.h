@@ -3,6 +3,7 @@
 
 #include "L1Trigger/TrackFindingTMTT/interface/HTrphi.h"
 #include "L1Trigger/TrackFindingTMTT/interface/MuxHToutputs.h"
+#include "L1Trigger/TrackFindingTMTT/interface/Array2D.h"
 
 #include <memory>
 
@@ -14,7 +15,7 @@ namespace tmtt {
   public:
     MiniHTstage(const Settings* settings);
 
-    void exec(matrix<std::unique_ptr<HTrphi>>& mHtRphis);
+    void exec(Array2D<std::unique_ptr<HTrphi>>& mHtRphis);
 
   private:
     // Do load balancing
