@@ -12,7 +12,7 @@
 class TritonGraphHelper {
 public:
   TritonGraphHelper(edm::ParameterSet const& cfg)
-     :  nodeMin_(cfg.getParameter<unsigned>("nodeMin")),
+      : nodeMin_(cfg.getParameter<unsigned>("nodeMin")),
         nodeMax_(cfg.getParameter<unsigned>("nodeMax")),
         edgeMin_(cfg.getParameter<unsigned>("edgeMin")),
         edgeMax_(cfg.getParameter<unsigned>("edgeMax")) {}
@@ -55,7 +55,7 @@ public:
 
     // convert to server format
     input1.toServer(data1);
-    input2.toServer(data2);    
+    input2.toServer(data2);
   }
   void makeOutput(const TritonOutputMap& iOutput, const std::string& debugName) const {
     //check the results
@@ -88,8 +88,7 @@ private:
 class TritonGraphProducer : public TritonEDProducer<> {
 public:
   explicit TritonGraphProducer(edm::ParameterSet const& cfg)
-      : TritonEDProducer<>(cfg, "TritonGraphProducer"),
-        helper_(cfg) {}
+      : TritonEDProducer<>(cfg, "TritonGraphProducer"), helper_(cfg) {}
   void acquire(edm::Event const& iEvent, edm::EventSetup const& iSetup, Input& iInput) override {
     helper_.makeInput(iEvent, iInput);
   }
@@ -117,9 +116,7 @@ DEFINE_FWK_MODULE(TritonGraphProducer);
 
 class TritonGraphFilter : public TritonEDFilter<> {
 public:
-  explicit TritonGraphFilter(edm::ParameterSet const& cfg)
-      : TritonEDFilter<>(cfg, "TritonGraphFilter"),
-        helper_(cfg) {}
+  explicit TritonGraphFilter(edm::ParameterSet const& cfg) : TritonEDFilter<>(cfg, "TritonGraphFilter"), helper_(cfg) {}
   void acquire(edm::Event const& iEvent, edm::EventSetup const& iSetup, Input& iInput) override {
     helper_.makeInput(iEvent, iInput);
   }
@@ -149,8 +146,7 @@ DEFINE_FWK_MODULE(TritonGraphFilter);
 class TritonGraphAnalyzer : public TritonOneEDAnalyzer<> {
 public:
   explicit TritonGraphAnalyzer(edm::ParameterSet const& cfg)
-      : TritonOneEDAnalyzer<>(cfg, "TritonGraphAnalyzer"),
-        helper_(cfg) {}
+      : TritonOneEDAnalyzer<>(cfg, "TritonGraphAnalyzer"), helper_(cfg) {}
   void acquire(edm::Event const& iEvent, edm::EventSetup const& iSetup, Input& iInput) override {
     helper_.makeInput(iEvent, iInput);
   }
