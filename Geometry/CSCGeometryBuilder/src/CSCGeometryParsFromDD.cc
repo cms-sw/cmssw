@@ -454,28 +454,28 @@ bool CSCGeometryParsFromDD::build(const cms::DDCompactView* cview,
 
       auto wirespacing = fv.get<double>("WireSpacing");
       wg.wireSpacing = static_cast<double>(wirespacing / dd4hep::mm);
-      edm::LogVerbatim("CSCGeometryParsFromDD") << "(2) wireSpacing: " << wg.wireSpacing / dd4hep::cm;
+      edm::LogVerbatim("CSCGeometryParsFromDD") << "(2) wireSpacing: " << wg.wireSpacing / dd4hep::mm;
 
       auto alignmentpintofirstwire = fv.get<double>("AlignmentPinToFirstWire");
-      wg.alignmentPinToFirstWire = static_cast<double>(alignmentpintofirstwire / dd4hep::cm);
+      wg.alignmentPinToFirstWire = static_cast<double>(alignmentpintofirstwire / dd4hep::mm);
       edm::LogVerbatim("CSCGeometryParsFromDD")
-          << "(3) alignmentPinToFirstWire: " << wg.alignmentPinToFirstWire / dd4hep::cm;
+          << "(3) alignmentPinToFirstWire: " << wg.alignmentPinToFirstWire / dd4hep::mm;
 
       auto totnumwiregroups = fv.get<double>("TotNumWireGroups");
       wg.numberOfGroups = static_cast<int>(totnumwiregroups);
 
       auto lengthoffirstwire = fv.get<double>("LengthOfFirstWire");
-      wg.narrowWidthOfWirePlane = static_cast<double>(lengthoffirstwire / dd4hep::cm);
+      wg.narrowWidthOfWirePlane = static_cast<double>(lengthoffirstwire / dd4hep::mm);
       edm::LogVerbatim("CSCGeometryParsFromDD")
-          << "(4) narrowWidthOfWirePlane: " << wg.narrowWidthOfWirePlane / dd4hep::cm;
+          << "(4) narrowWidthOfWirePlane: " << wg.narrowWidthOfWirePlane / dd4hep::mm;
 
       auto lengthoflastwire = fv.get<double>("LengthOfLastWire");
-      wg.wideWidthOfWirePlane = static_cast<double>(lengthoflastwire / dd4hep::cm);
-      edm::LogVerbatim("CSCGeometryParsFromDD") << "(5) wideWidthOfWirePlane: " << wg.wideWidthOfWirePlane / dd4hep::cm;
+      wg.wideWidthOfWirePlane = static_cast<double>(lengthoflastwire / dd4hep::mm);
+      edm::LogVerbatim("CSCGeometryParsFromDD") << "(5) wideWidthOfWirePlane: " << wg.wideWidthOfWirePlane / dd4hep::mm;
 
       auto radialextentofwireplane = fv.get<double>("RadialExtentOfWirePlane");
-      wg.lengthOfWirePlane = static_cast<double>(radialextentofwireplane / dd4hep::cm);
-      edm::LogVerbatim("CSCGeometryParsFromDD") << "(6) lengthOfWirePlane: " << wg.lengthOfWirePlane / dd4hep::cm;
+      wg.lengthOfWirePlane = static_cast<double>(radialextentofwireplane / dd4hep::mm);
+      edm::LogVerbatim("CSCGeometryParsFromDD") << "(6) lengthOfWirePlane: " << wg.lengthOfWirePlane / dd4hep::mm;
 
       uparvals.emplace_back(wg.wireSpacing);
       uparvals.emplace_back(wg.alignmentPinToFirstWire);
