@@ -5,11 +5,11 @@
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-SiStripRegFEDSelector::SiStripRegFEDSelector(const edm::ParameterSet& iConfig) :
-  tok_seed_(consumes<trigger::TriggerFilterObjectWithRefs>(iConfig.getParameter<edm::InputTag>("regSeedLabel"))),
-  tok_raw_(consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("rawInputLabel"))),
-  tok_strip_(esConsumes<SiStripRegionCabling, SiStripRegionCablingRcd>()),
-  delta_(iConfig.getParameter<double>("delta")) {
+SiStripRegFEDSelector::SiStripRegFEDSelector(const edm::ParameterSet& iConfig)
+    : tok_seed_(consumes<trigger::TriggerFilterObjectWithRefs>(iConfig.getParameter<edm::InputTag>("regSeedLabel"))),
+      tok_raw_(consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("rawInputLabel"))),
+      tok_strip_(esConsumes<SiStripRegionCabling, SiStripRegionCablingRcd>()),
+      delta_(iConfig.getParameter<double>("delta")) {
   produces<FEDRawDataCollection>();
 }
 
@@ -31,7 +31,7 @@ void SiStripRegFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& i
   std::vector<int> stripFEDVec;
 
   //get vector of regions
-  const SiStripRegionCabling::Cabling ccab = strip_cabling->getRegionCabling();
+  const SiStripRegionCabling::Cabling& ccab = strip_cabling->getRegionCabling();
 
   //size of region (eta,phi)
   const std::pair<double, double> regDim = strip_cabling->regionDimensions();
@@ -104,7 +104,8 @@ void SiStripRegFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& i
       // this fed has data -- lets copy it
       FEDRawData& fedDataProd = producedData->FEDData(j);
       if (fedDataProd.size() != 0) {
-	edm::LogVerbatim("HcalIsoTrack") << " More than one FEDRawDataCollection with data in FED " << j << " Skipping the 2nd *****";
+        edm::LogVerbatim("HcalIsoTrack") << " More than one FEDRawDataCollection with data in FED " << j
+                                         << " Skipping the 2nd *****";
         continue;
       }
       fedDataProd.resize(size);

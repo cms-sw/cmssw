@@ -146,7 +146,8 @@ void IsolatedPixelTrackCandidateL1TProducer::produce(edm::Event& theEvent, const
     }
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("IsoTrack") << "Sizes " << l1tauobjref.size() << ":" << l1jetobjref.size() << " Trig " << ptTriggered << ":" << etaTriggered << ":" << phiTriggered;
+  edm::LogVerbatim("IsoTrack") << "Sizes " << l1tauobjref.size() << ":" << l1jetobjref.size() << " Trig " << ptTriggered
+                               << ":" << etaTriggered << ":" << phiTriggered;
 #endif
   double drMaxL1Track_ = tauAssocCone_;
   int ntr = 0;
@@ -178,7 +179,8 @@ void IsolatedPixelTrackCandidateL1TProducer::produce(edm::Event& theEvent, const
     //select tracks not matched to triggered L1 jet
     double R = reco::deltaR(etaTriggered, phiTriggered, pixelTrackRefs[iS]->eta(), pixelTrackRefs[iS]->phi());
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("IsoTrack") << "Distance to L1 " << R << ":" << tauUnbiasCone_ << " Result " << (R < tauUnbiasCone_);
+    edm::LogVerbatim("IsoTrack") << "Distance to L1 " << R << ":" << tauUnbiasCone_ << " Result "
+                                 << (R < tauUnbiasCone_);
 #endif
     if (R < tauUnbiasCone_)
       continue;

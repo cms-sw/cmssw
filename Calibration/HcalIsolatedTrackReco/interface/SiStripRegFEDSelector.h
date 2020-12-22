@@ -26,7 +26,6 @@ public:
   SiStripRegFEDSelector(const edm::ParameterSet&);
   ~SiStripRegFEDSelector() override;
 
-
 private:
   void beginJob() override;
   void produce(edm::Event&, const edm::EventSetup&) override;

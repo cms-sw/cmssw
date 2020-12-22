@@ -99,7 +99,8 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
   //create vector of refs from input collections
   std::vector<reco::TrackRef> pixelTrackRefs;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalIsoTrack") << "IsolatedPixelTrakCandidate: with" << toks_pix_.size() << " candidates to start with\n";
+  edm::LogVerbatim("HcalIsoTrack") << "IsolatedPixelTrakCandidate: with" << toks_pix_.size()
+                                   << " candidates to start with\n";
 #endif
   for (unsigned int iPix = 0; iPix < toks_pix_.size(); iPix++) {
     edm::Handle<reco::TrackCollection> iPixCol;
@@ -174,7 +175,8 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
     VecSeedsatEC.push_back(seed);
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalIsoTrack") << "IsolatedPixelTrakCandidate: " << VecSeedsatEC.size() << " seeds after propagation\n";
+  edm::LogVerbatim("HcalIsoTrack") << "IsolatedPixelTrakCandidate: " << VecSeedsatEC.size()
+                                   << " seeds after propagation\n";
 #endif
 
   for (unsigned int i = 0; i < VecSeedsatEC.size(); i++) {

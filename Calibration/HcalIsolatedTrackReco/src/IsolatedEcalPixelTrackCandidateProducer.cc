@@ -98,9 +98,9 @@ void IsolatedEcalPixelTrackCandidateProducer::produce(edm::StreamID,
   auto iptcCollection = std::make_unique<reco::IsolatedPixelTrackCandidateCollection>();
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalIsoTrack") << "coneSize_ " << coneSizeEta0_ << "/" << coneSizeEta1_ << " hitCountEthrEB_ "
-                               << hitCountEthrEB_ << " hitEthrEB_ " << hitEthrEB_ << " fachitCountEE_ "
-                               << fachitCountEE_ << " hitEthrEE " << hitEthrEE0_ << ":" << hitEthrEE1_ << ":"
-                               << hitEthrEE2_ << ":" << hitEthrEE3_;
+                                   << hitCountEthrEB_ << " hitEthrEB_ " << hitEthrEB_ << " fachitCountEE_ "
+                                   << fachitCountEE_ << " hitEthrEE " << hitEthrEE0_ << ":" << hitEthrEE1_ << ":"
+                                   << hitEthrEE2_ << ":" << hitEthrEE3_;
 #endif
   for (int p = 0; p < nCand; p++) {
     int nhitIn(0), nhitOut(0);
@@ -112,9 +112,9 @@ void IsolatedEcalPixelTrackCandidateProducer::produce(edm::StreamID,
     double coneSize_ = (etaAbs > 1.5) ? coneSizeEta1_ : (coneSizeEta0_ * (1.5 - etaAbs) + coneSizeEta1_ * etaAbs) / 1.5;
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HcalIsoTrack") << "Track: eta/phi " << etaPhi.first << "/" << etaPhi.second
-                                 << " pt:" << isoPixTrackRefs[p]->track()->pt() << " cone " << coneSize_ << "\n"
-                                 << "rechit size EB/EE : " << ecalEB->size() << "/" << ecalEE->size()
-                                 << " coneSize_: " << coneSize_;
+                                     << " pt:" << isoPixTrackRefs[p]->track()->pt() << " cone " << coneSize_ << "\n"
+                                     << "rechit size EB/EE : " << ecalEB->size() << "/" << ecalEE->size()
+                                     << " coneSize_: " << coneSize_;
 #endif
     if (etaAbs < 1.7) {
       int nin(0), nout(0);
@@ -133,7 +133,7 @@ void IsolatedEcalPixelTrackCandidateProducer::produce(edm::StreamID,
           }
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("HcalIsoTrack") << "EBRechit close to the track has E " << eItr.energy()
-                                       << " eta/phi: " << pos.eta() << "/" << pos.phi() << " deltaR: " << R;
+                                           << " eta/phi: " << pos.eta() << "/" << pos.phi() << " deltaR: " << R;
 #endif
         }
       }
@@ -159,14 +159,14 @@ void IsolatedEcalPixelTrackCandidateProducer::produce(edm::StreamID,
           }
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("HcalIsoTrack") << "EERechit close to the track has E " << eItr.energy()
-                                       << " eta/phi: " << pos.eta() << "/" << pos.phi() << " deltaR: " << R;
+                                           << " eta/phi: " << pos.eta() << "/" << pos.phi() << " deltaR: " << R;
 #endif
         }
       }
     }
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HcalIsoTrack") << "nhitIn:" << nhitIn << " inEnergy:" << inEnergy << " nhitOut:" << nhitOut
-                                 << " outEnergy:" << outEnergy;
+                                     << " outEnergy:" << outEnergy;
 #endif
     reco::IsolatedPixelTrackCandidate newca(*isoPixTrackRefs[p]);
     newca.setEnergyIn(inEnergy);
