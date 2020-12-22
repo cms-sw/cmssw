@@ -95,7 +95,7 @@ The script has two operations (`start` and `stop`) and the following options:
 * `-r [num]`: number of retries when starting container (default: 3)
 * `-t [dir]`: non-default hidden temporary dir
 * `-v`: (verbose) start: activate server debugging info; stop: keep server logs
-* `-w [time]`: maximum time to wait for server to start (default: 60 seconds)
+* `-w [time]`: maximum time to wait for server to start (default: 120 seconds)
 * `-h`: print help message and exit
 
 Additional details and caveats:
