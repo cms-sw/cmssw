@@ -95,16 +95,30 @@ volumeHandle::volumeHandle(const cms::DDFilteredView &fv, bool expand2Pi, bool d
     } break;
     case DDSolidShape::ddpseudotrap: {
       vector<double> d = solid.parameters();
+
+      // The pseudo-trapezoid parameters are:
+      // d[0] -- x1
+      // d[1] -- x2
+      // d[2] -- y1
+      // d[3] -- y2
+      // d[4] -- halfZ
+      // d[5] -- radius
+      // d[6] -- atMinusZ (0 or 1)
+      // Note all are lengths except for the last one. The lengths come from
+      // DD4hep in DD4hep units and must be converted to cm for use.
+
       if (d.size() >= 7)
         LogTrace("MagGeoBuilder") << " Pseudo trap params raw =  " << d[0] << ", " << d[1] << ", " << d[2] << ", "
                                   << d[3] << ", " << d[4] << ", " << d[5] << ", " << d[6];
 
+      // Convert all but last parameter to cm (last one is a boolean).
       transform(d.begin(), --(d.end()), d.begin(), [](double val) { return val / dd4hep::cm; });
 
       if (d.size() >= 7)
         LogTrace("MagGeoBuilder") << " Pseudo trap params converted =  " << d[0] << ", " << d[1] << ", " << d[2] << ", "
                                   << d[3] << ", " << d[4] << ", " << d[5] << ", " << d[6];
-      buildPseudoTrap(d[0], d[1], d[2], d[3], d[4], d[5], d[6]);
+
+      buildPseudoTrap(d[0], d[1], d[2], d[3], d[4], d[5], static_cast<bool>(d[6]));
     } break;
     case DDSolidShape::ddtrunctubs: {
       DDTruncTubs tubs(solid.solid());
