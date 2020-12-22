@@ -2,21 +2,23 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
-#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
+#include "DataFormats/HGCalReco/interface/Trackster.h"
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
 #include "TEveBoxSet.h"
 #include "TEveStraightLineSet.h"
 
-class FWCaloClusterProxyBuilder : public FWHeatmapProxyBuilderTemplate<reco::CaloCluster> {
+class FWTracksterHitsProxyBuilder : public FWHeatmapProxyBuilderTemplate<ticl::Trackster> {
 public:
-  FWCaloClusterProxyBuilder(void) {}
-  ~FWCaloClusterProxyBuilder(void) override {}
+  FWTracksterHitsProxyBuilder(void) {}
+  ~FWTracksterHitsProxyBuilder(void) override {}
 
   REGISTER_PROXYBUILDER_METHODS();
 
 private:
   edm::Handle<edm::ValueMap<std::pair<float, float>>> TimeValueMapHandle;
+  edm::Handle<std::vector<reco::CaloCluster>> layerClustersHandle;
   double timeLowerBound, timeUpperBound;
   long layer;
   double saturation_energy;
@@ -24,31 +26,38 @@ private:
   bool z_plus;
   bool z_minus;
   bool enableTimeFilter;
+  bool enableSeedLines;
+  bool enablePositionLines;
+  bool enableEdges;
 
-  FWCaloClusterProxyBuilder(const FWCaloClusterProxyBuilder &) = delete;                   // stop default
-  const FWCaloClusterProxyBuilder &operator=(const FWCaloClusterProxyBuilder &) = delete;  // stop default
+  FWTracksterHitsProxyBuilder(const FWTracksterHitsProxyBuilder &) = delete;                   // stop default
+  const FWTracksterHitsProxyBuilder &operator=(const FWTracksterHitsProxyBuilder &) = delete;  // stop default
 
   void setItem(const FWEventItem *iItem) override;
 
   void build(const FWEventItem *iItem, TEveElementList *product, const FWViewContext *vc) override;
-  void build(const reco::CaloCluster &iData,
+  void build(const ticl::Trackster &iData,
              unsigned int iIndex,
              TEveElement &oItemHolder,
              const FWViewContext *) override;
 };
 
-void FWCaloClusterProxyBuilder::setItem(const FWEventItem *iItem) {
+void FWTracksterHitsProxyBuilder::setItem(const FWEventItem *iItem) {
   FWHeatmapProxyBuilderTemplate::setItem(iItem);
   if (iItem) {
     iItem->getConfig()->assertParam("Cluster(0)/RecHit(1)", false);
+    iItem->getConfig()->assertParam("EnableSeedLines", false);
+    iItem->getConfig()->assertParam("EnablePositionLines", false);
+    iItem->getConfig()->assertParam("EnableEdges", false);
     iItem->getConfig()->assertParam("EnableTimeFilter", false);
     iItem->getConfig()->assertParam("TimeLowerBound(ns)", 0.01, 0.0, 75.0);
     iItem->getConfig()->assertParam("TimeUpperBound(ns)", 0.01, 0.0, 75.0);
   }
 }
 
-void FWCaloClusterProxyBuilder::build(const FWEventItem *iItem, TEveElementList *product, const FWViewContext *vc) {
+void FWTracksterHitsProxyBuilder::build(const FWEventItem *iItem, TEveElementList *product, const FWViewContext *vc) {
   iItem->getEvent()->getByLabel(edm::InputTag("hgcalLayerClusters", "timeLayerCluster"), TimeValueMapHandle);
+  iItem->getEvent()->getByLabel(edm::InputTag("hgcalLayerClusters"), layerClustersHandle);
   if (TimeValueMapHandle.isValid()) {
     timeLowerBound = std::min(item()->getConfig()->value<double>("TimeLowerBound(ns)"),
                               item()->getConfig()->value<double>("TimeUpperBound(ns)"));
@@ -58,27 +67,36 @@ void FWCaloClusterProxyBuilder::build(const FWEventItem *iItem, TEveElementList 
     std::cerr << "Warning: couldn't locate 'timeLayerCluster' ValueMap in root file." << std::endl;
   }
 
+  if (!layerClustersHandle.isValid()) {
+    std::cerr << "Warning: couldn't locate 'hgcalLayerClusters' collection in root file." << std::endl;
+  }
+
   layer = item()->getConfig()->value<long>("Layer");
   saturation_energy = item()->getConfig()->value<double>("EnergyCutOff");
   heatmap = item()->getConfig()->value<bool>("Heatmap");
   z_plus = item()->getConfig()->value<bool>("Z+");
   z_minus = item()->getConfig()->value<bool>("Z-");
   enableTimeFilter = item()->getConfig()->value<bool>("EnableTimeFilter");
+  enableSeedLines = item()->getConfig()->value<bool>("EnableSeedLines");
+  enablePositionLines = item()->getConfig()->value<bool>("EnablePositionLines");
+  enableEdges = item()->getConfig()->value<bool>("EnableEdges");
 
   FWHeatmapProxyBuilderTemplate::build(iItem, product, vc);
 }
 
-void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData,
-                                      unsigned int iIndex,
-                                      TEveElement &oItemHolder,
-                                      const FWViewContext *) {
+void FWTracksterHitsProxyBuilder::build(const ticl::Trackster &iData,
+                                        unsigned int iIndex,
+                                        TEveElement &oItemHolder,
+                                        const FWViewContext *) {
   if (enableTimeFilter && TimeValueMapHandle.isValid()) {
     const float time = TimeValueMapHandle->get(iIndex).first;
     if (time < timeLowerBound || time > timeUpperBound)
       return;
   }
 
-  std::vector<std::pair<DetId, float>> clusterDetIds = iData.hitsAndFractions();
+  const ticl::Trackster &trackster = iData;
+  const size_t N = trackster.vertices().size();
+  const std::vector<reco::CaloCluster> &layerClusters = *layerClustersHandle;
 
   bool h_hex(false);
   TEveBoxSet *hex_boxset = new TEveBoxSet();
@@ -96,17 +114,19 @@ void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData,
   boxset->Reset(TEveBoxSet::kBT_FreeBox, true, 64);
   boxset->SetAntiFlick(true);
 
-  for (std::vector<std::pair<DetId, float>>::iterator it = clusterDetIds.begin(), itEnd = clusterDetIds.end();
-       it != itEnd;
-       ++it) {
-    const uint8_t type = ((it->first >> 28) & 0xF);
+  for (size_t i = 0; i < N; ++i) {
+    const reco::CaloCluster layerCluster = layerClusters[trackster.vertices(i)];
+    std::vector<std::pair<DetId, float>> clusterDetIds = layerCluster.hitsAndFractions();
 
-    const float *corners = item()->getGeom()->getCorners(it->first);
-    if (corners == nullptr)
-      continue;
+    for (std::vector<std::pair<DetId, float>>::iterator it = clusterDetIds.begin(), itEnd = clusterDetIds.end();
+         it != itEnd;
+         ++it) {
+      const uint8_t type = ((it->first >> 28) & 0xF);
 
-    // HGCal
-    if (iData.algo() == 8 || (type >= 8 && type <= 10)) {
+      const float *corners = item()->getGeom()->getCorners(it->first);
+      if (corners == nullptr)
+        continue;
+
       if (heatmap && hitmap->find(it->first) == hitmap->end())
         continue;
 
@@ -143,39 +163,43 @@ void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData,
       }
 
       // seed and cluster position
-      if (iData.seed().rawId() == it->first.rawId()) {
-        TEveStraightLineSet *marker = new TEveStraightLineSet;
-        marker->SetLineWidth(1);
+      if (layerCluster.seed().rawId() == it->first.rawId()) {
+        const float crossScale = 1.0f + fmin(layerCluster.energy(), 5.0f);
+        if (enableSeedLines) {
+          TEveStraightLineSet *marker = new TEveStraightLineSet;
+          marker->SetLineWidth(1);
 
-        // center of RecHit
-        const float center[3] = {corners[total_points * 3 + 0],
-                                 corners[total_points * 3 + 1],
-                                 corners[total_points * 3 + 2] + shapes[3] * 0.5f};
+          // center of RecHit
+          const float center[3] = {corners[total_points * 3 + 0],
+                                   corners[total_points * 3 + 1],
+                                   corners[total_points * 3 + 2] + shapes[3] * 0.5f};
 
-        // draw 3D cross
-        const float crossScale = 1.0f + fmin(iData.energy(), 5.0f);
-        marker->AddLine(center[0] - crossScale, center[1], center[2], center[0] + crossScale, center[1], center[2]);
-        marker->AddLine(center[0], center[1] - crossScale, center[2], center[0], center[1] + crossScale, center[2]);
-        marker->AddLine(center[0], center[1], center[2] - crossScale, center[0], center[1], center[2] + crossScale);
+          // draw 3D cross
+          marker->AddLine(center[0] - crossScale, center[1], center[2], center[0] + crossScale, center[1], center[2]);
+          marker->AddLine(center[0], center[1] - crossScale, center[2], center[0], center[1] + crossScale, center[2]);
+          marker->AddLine(center[0], center[1], center[2] - crossScale, center[0], center[1], center[2] + crossScale);
 
-        oItemHolder.AddElement(marker);
+          oItemHolder.AddElement(marker);
+        }
 
-        TEveStraightLineSet *position_marker = new TEveStraightLineSet;
-        position_marker->SetLineWidth(2);
-        position_marker->SetLineColor(kOrange);
-        auto const &pos = iData.position();
-        const float position_crossScale = crossScale * 0.5;
-        position_marker->AddLine(
-            pos.x() - position_crossScale, pos.y(), pos.z(), pos.x() + position_crossScale, pos.y(), pos.z());
-        position_marker->AddLine(
-            pos.x(), pos.y() - position_crossScale, pos.z(), pos.x(), pos.y() + position_crossScale, pos.z());
+        if (enablePositionLines) {
+          TEveStraightLineSet *position_marker = new TEveStraightLineSet;
+          position_marker->SetLineWidth(2);
+          position_marker->SetLineColor(kOrange);
+          auto const &pos = layerCluster.position();
+          const float position_crossScale = crossScale * 0.5;
+          position_marker->AddLine(
+              pos.x() - position_crossScale, pos.y(), pos.z(), pos.x() + position_crossScale, pos.y(), pos.z());
+          position_marker->AddLine(
+              pos.x(), pos.y() - position_crossScale, pos.z(), pos.x(), pos.y() + position_crossScale, pos.z());
 
-        oItemHolder.AddElement(position_marker);
+          oItemHolder.AddElement(position_marker);
+        }
       }
 
       const float energy =
           fmin((item()->getConfig()->value<bool>("Cluster(0)/RecHit(1)") ? hitmap->at(it->first)->energy()
-                                                                         : iData.energy()) /
+                                                                         : layerCluster.energy()) /
                    saturation_energy,
                1.0f);
       const uint8_t colorFactor = gradient_steps * energy;
@@ -218,13 +242,26 @@ void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData,
         h_hex = true;
       }
     }
-    // Not HGCal
-    else {
-      h_box = true;
+  }
 
-      std::vector<float> pnts(24);
-      fireworks::energyTower3DCorners(corners, (*it).second, pnts);
-      boxset->AddBox(&pnts[0]);
+  if (enableEdges) {
+    auto &edges = trackster.edges();
+
+    for (auto edge : edges) {
+      auto doublet = std::make_pair(layerClusters[edge[0]], layerClusters[edge[1]]);
+      TEveStraightLineSet *marker = new TEveStraightLineSet;
+      marker->SetLineWidth(2);
+      marker->SetLineColor(kRed);
+
+      // draw 3D cross
+      marker->AddLine(doublet.first.x(),
+                      doublet.first.y(),
+                      doublet.first.z(),
+                      doublet.second.x(),
+                      doublet.second.y(),
+                      doublet.second.z());
+
+      oItemHolder.AddElement(marker);
     }
   }
 
@@ -255,4 +292,4 @@ void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData,
   }
 }
 
-REGISTER_FWPROXYBUILDER(FWCaloClusterProxyBuilder, reco::CaloCluster, "Calo Cluster", FWViewType::kISpyBit);
+REGISTER_FWPROXYBUILDER(FWTracksterHitsProxyBuilder, ticl::Trackster, "Trackster hits", FWViewType::kISpyBit);
