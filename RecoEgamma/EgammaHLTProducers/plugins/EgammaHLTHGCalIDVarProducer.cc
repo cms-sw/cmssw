@@ -1,5 +1,3 @@
-
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -96,11 +94,12 @@ void EgammaHLTHGCalIDVarProducer::fillDescriptions(edm::ConfigurationDescription
 
 void EgammaHLTHGCalIDVarProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   auto recoEcalCandHandle = iEvent.getHandle(recoEcalCandidateToken_);
-  auto hgcalRecHitHandle = iEvent.getHandle(hgcalRecHitToken_);
-  auto layerClustersHandle = iEvent.getHandle(layerClusterToken_);
+  const auto& hgcalRecHits = iEvent.get(hgcalRecHitToken_);
+  const auto& layerClusters = iEvent.get(layerClusterToken_);
 
-  HGCalShowerShapeHelper ssCalc;
-  ssCalc.initPerEvent(iSetup, *hgcalRecHitHandle);
+  auto theconsumes = consumesCollector();
+  HGCalShowerShapeHelper ssCalc(theconsumes);
+  ssCalc.initPerEvent(iSetup, hgcalRecHits);
 
   auto rVarMap = std::make_unique<reco::RecoEcalCandidateIsolationMap>(recoEcalCandHandle);
   auto hForHoverEMap = std::make_unique<reco::RecoEcalCandidateIsolationMap>(recoEcalCandHandle);
@@ -114,7 +113,7 @@ void EgammaHLTHGCalIDVarProducer::produce(edm::Event& iEvent, const edm::EventSe
     rVarMap->insert(candRef, ssCalc.getRvar(rCylinder_, candRef->superCluster()->energy()));
 
     float hForHoverE = HGCalClusterTools::hadEnergyInCone(
-        candRef->superCluster()->eta(), candRef->superCluster()->phi(), *layerClustersHandle, 0., hOverECone_, 0., 0.);
+        candRef->superCluster()->eta(), candRef->superCluster()->phi(), layerClusters, 0., hOverECone_, 0., 0.);
     hForHoverEMap->insert(candRef, hForHoverE);
     auto pcaWidths = ssCalc.getPCAWidths(rCylinder_);
     for (auto& pcaMap : pcaAssocMaps_) {
