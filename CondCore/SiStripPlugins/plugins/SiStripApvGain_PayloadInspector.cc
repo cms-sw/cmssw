@@ -552,9 +552,9 @@ namespace {
   *************************************************/
 
   template <int ntags, IOVMultiplicity nIOVs>
-  class SiStripApvGainsRatioWithPreviousIOVTrackerMapBase : public PlotImage<SiStripApvGain, nIOVs, ntags> {
+  class SiStripApvGainsRatioTrackerMapBase : public PlotImage<SiStripApvGain, nIOVs, ntags> {
   public:
-    SiStripApvGainsRatioWithPreviousIOVTrackerMapBase()
+    SiStripApvGainsRatioTrackerMapBase()
         : PlotImage<SiStripApvGain, nIOVs, ntags>("Tracker Map of ratio of SiStripGains with previous IOV") {
       PlotBase::addInputParam("nsigma");
     }
@@ -653,19 +653,17 @@ namespace {
     }
   };
 
-  using SiStripApvGainsAvgDeviationRatioWithPreviousIOVTrackerMap =
-      SiStripApvGainsRatioWithPreviousIOVTrackerMapBase<1, MULTI_IOV>;
-  using SiStripApvGainsAvgDeviationRatioTrackerMapTwoTags =
-      SiStripApvGainsRatioWithPreviousIOVTrackerMapBase<2, SINGLE_IOV>;
+  using SiStripApvGainsAvgDeviationRatioWithPreviousIOVTrackerMap = SiStripApvGainsRatioTrackerMapBase<1, MULTI_IOV>;
+  using SiStripApvGainsAvgDeviationRatioTrackerMapTwoTags = SiStripApvGainsRatioTrackerMapBase<2, SINGLE_IOV>;
 
   /************************************************
    TrackerMap of SiStripApvGains (ratio for largest deviation with previous gain per detid)
   *************************************************/
 
   template <int ntags, IOVMultiplicity nIOVs>
-  class SiStripApvGainsRatioMaxDeviationWithPreviousIOVTrackerMapBase : public PlotImage<SiStripApvGain, nIOVs, ntags> {
+  class SiStripApvGainsRatioMaxDeviationTrackerMapBase : public PlotImage<SiStripApvGain, nIOVs, ntags> {
   public:
-    SiStripApvGainsRatioMaxDeviationWithPreviousIOVTrackerMapBase()
+    SiStripApvGainsRatioMaxDeviationTrackerMapBase()
         : PlotImage<SiStripApvGain, nIOVs, ntags>(
               "Tracker Map of ratio (for largest deviation) of SiStripGains with previous IOV") {
       PlotBase::addInputParam("nsigma");
@@ -677,9 +675,11 @@ namespace {
       auto ip = paramValues.find("nsigma");
       if (ip != paramValues.end()) {
         nsigma = boost::lexical_cast<unsigned int>(ip->second);
-        std::cout << "using custom z-axis saturation: " << nsigma << " sigmas" << std::endl;
+        edm::LogPrint("SiStripApvGain_PayloadInspector")
+            << "using custom z-axis saturation: " << nsigma << " sigmas" << std::endl;
       } else {
-        std::cout << "using default saturation: " << nsigma << " sigmas" << std::endl;
+        edm::LogPrint("SiStripApvGain_PayloadInspector")
+            << "using default saturation: " << nsigma << " sigmas" << std::endl;
       }
 
       // trick to deal with the multi-ioved tag and two tag case at the same time
@@ -786,10 +786,10 @@ namespace {
   };
 
   using SiStripApvGainsMaxDeviationRatioWithPreviousIOVTrackerMap =
-      SiStripApvGainsRatioMaxDeviationWithPreviousIOVTrackerMapBase<1, MULTI_IOV>;
+      SiStripApvGainsRatioMaxDeviationTrackerMapBase<1, MULTI_IOV>;
 
   using SiStripApvGainsMaxDeviationRatioTrackerMapTwoTags =
-      SiStripApvGainsRatioMaxDeviationWithPreviousIOVTrackerMapBase<2, SINGLE_IOV>;
+      SiStripApvGainsRatioMaxDeviationTrackerMapBase<2, SINGLE_IOV>;
 
   /************************************************
     TrackerMap of SiStripApvGains (maximum gain per detid)

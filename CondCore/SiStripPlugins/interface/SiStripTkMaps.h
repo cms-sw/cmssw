@@ -16,13 +16,8 @@
 #include "TCanvas.h"
 #include "TColor.h"
 #include "TGraph.h"
-#include "TH1.h"
-#include "TH2.h"
 #include "TLatex.h"
 #include "TH2Poly.h"
-#include "TObjArray.h"
-#include "TObjString.h"
-#include "TProfile2D.h"
 #include "TStyle.h"
 
 // STL includes
@@ -31,6 +26,8 @@
 #include <map>
 #include <string>
 #include <vector>
+
+// boost includes
 #include <boost/tokenizer.hpp>
 #include <boost/range/adaptor/indexed.hpp>
 
@@ -148,7 +145,7 @@ private:
   std::string m_mapTitle = "";
   std::string m_zAxisTitle = "";
   double m_axmin, m_axmax;
-  std::map<long, std::shared_ptr<TGraph> > m_bins;
+  std::map<long, std::shared_ptr<TGraph>> m_bins;
   std::vector<unsigned int> m_detIdVector;
   std::vector<double> m_values;
   TrackerTopology m_trackerTopo;
@@ -274,10 +271,11 @@ private:
   void readVertices(double& minx, double& maxx, double& miny, double& maxy) {
     std::ifstream in;
 
+    // TPolyline vertices stored at https://github.com/cms-data/DQM-SiStripMonitorClient
     in.open(edm::FileInPath("DQM/SiStripMonitorClient/data/Geometry/tracker_map_bare").fullPath().c_str());
 
     if (!in.good()) {
-      throw cms::Exception("FileError") << "Problem opening corner file!!" << std::endl;
+      throw cms::Exception("FileError") << "SiStripTkMaps: problem opening vertices file!!" << std::endl;
       return;
     }
 
@@ -287,14 +285,16 @@ private:
 
       std::string line;
       std::getline(in, line);
+      typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
+      boost::char_separator<char> sep{" "};
+      tokenizer tok{line, sep};
 
-      TString string(line);
-      TObjArray* array = string.Tokenize(" ");
       int ix{0}, iy{0};
       bool isPixel{false};
-      for (int i = 0; i < array->GetEntries(); ++i) {
+      for (const auto& t : tok | boost::adaptors::indexed(0)) {
+        int i = t.index();
         if (i == 0) {
-          detid = static_cast<TObjString*>(array->At(i))->String().Atoll();
+          detid = atoll((t.value()).c_str());
 
           // Drop Pixel Data
           DetId detId(detid);
@@ -304,7 +304,7 @@ private:
           }
         } else {
           if (i % 2 == 0) {
-            x[ix] = static_cast<TObjString*>(array->At(i))->String().Atof();
+            x[ix] = atof((t.value()).c_str());
             if (x[ix] < minx) {
               minx = x[ix];
             }
@@ -313,7 +313,7 @@ private:
             }
             ++ix;
           } else {
-            y[iy] = static_cast<TObjString*>(array->At(i))->String().Atof();
+            y[iy] = atof((t.value()).c_str());
             if (y[iy] < miny) {
               miny = y[iy];
             }

@@ -929,11 +929,11 @@ namespace {
         }
       }
 
-      /*
-	std::cout<<"In 2 but not in 1:"<<  countLastButNotFirst << std::endl;
-	std::cout<<"In 1 but not in 2:"<<  countFirstButNotLast << std::endl;
-	std::cout<<"In both:"<<  countBoth << std::endl;
-      */
+#ifdef MMDEBUG
+      std::cout << "In 2 but not in 1:" << countLastButNotFirst << std::endl;
+      std::cout << "In 1 but not in 2:" << countFirstButNotLast << std::endl;
+      std::cout << "In both:" << countBoth << std::endl;
+#endif
 
       //=========================
 
