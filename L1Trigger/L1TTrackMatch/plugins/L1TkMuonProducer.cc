@@ -107,7 +107,7 @@ private:
   float etaBO_;  //eta value for barrel-overlap fontier
   float etaOE_;  //eta value for overlap-endcap fontier
   bool useRegionEtaMatching_;
-  float zMax_;   // |z_track| < zMax_ in cm
+  float zMax_;  // |z_track| < zMax_ in cm
   float chi2Max_;
   float pTMinTra_;
   float dRMax_;
@@ -141,7 +141,8 @@ L1TkMuonProducer::L1TkMuonProducer(const edm::ParameterSet& iConfig)
       etaMax_((float)iConfig.getParameter<double>("ETAMAX")),
       etaBO_(iConfig.exists("ETABARRELOVERLAP") ? (float)iConfig.getParameter<double>("ETABARRELOVERLAP") : 0.83),
       etaOE_(iConfig.exists("ETAOVERLAPENDCAP") ? (float)iConfig.getParameter<double>("ETAOVERLAPENDCAP") : 1.24),
-      useRegionEtaMatching_(iConfig.exists("useRegionEtaMatching") ? iConfig.getParameter<bool>("useRegionEtaMatching") : true),
+      useRegionEtaMatching_(iConfig.exists("useRegionEtaMatching") ? iConfig.getParameter<bool>("useRegionEtaMatching")
+                                                                   : true),
       zMax_((float)iConfig.getParameter<double>("ZMAX")),
       chi2Max_((float)iConfig.getParameter<double>("CHI2MAX")),
       pTMinTra_((float)iConfig.getParameter<double>("PTMINTRA")),
@@ -483,26 +484,26 @@ void L1TkMuonProducer::runOnMTFCollection_v1(const edm::Handle<RegionalMuonCandB
 
         TkMuon l1tkmu(l1tkp4, l1muRef, l1tkPtr, trkisol);
 
-	if (useRegionEtaMatching_) {
-	  if (detector == barrel_MTF_region) {
-	    if (std::abs(l1tkmu.eta()) > etaBO_)
-	      continue;
-	  } else if (detector == overlap_MTF_region) {
-	    if (std::abs(l1tkmu.eta()) < etaBO_)
-	      continue;
-	    if (std::abs(l1tkmu.eta()) > etaOE_)
-	      continue;
-	  } else if (detector == endcap_MTF_region) {
-	    if (std::abs(l1tkmu.eta()) < etaOE_)
-	      continue;
-	  }
-	}
+        if (useRegionEtaMatching_) {
+          if (detector == barrel_MTF_region) {
+            if (std::abs(l1tkmu.eta()) > etaBO_)
+              continue;
+          } else if (detector == overlap_MTF_region) {
+            if (std::abs(l1tkmu.eta()) < etaBO_)
+              continue;
+            if (std::abs(l1tkmu.eta()) > etaOE_)
+              continue;
+          } else if (detector == endcap_MTF_region) {
+            if (std::abs(l1tkmu.eta()) < etaOE_)
+              continue;
+          }
+        }
         l1tkmu.setTrackCurvature(matchTk.rInv());
         l1tkmu.setTrkzVtx((float)tkv3.z());
         l1tkmu.setdR(drmin);
         l1tkmu.setNTracksMatched(nTracksMatch);
         l1tkmu.setMuonDetector(detector);
-	l1tkmu.setQuality(l1muRef->hwQual());
+        l1tkmu.setQuality(l1muRef->hwQual());
         tkMuons.push_back(l1tkmu);
       }
     }
@@ -717,16 +718,16 @@ void L1TkMuonProducer::build_tkMuons_from_idxs(TkMuonCollection& tkMuons,
     // be a patch and temporary, it is OK)
     if (useRegionEtaMatching_) {
       if (detector == barrel_MTF_region) {
-	if (std::abs(l1tkmu.eta()) > etaBO_)
-	  continue;
+        if (std::abs(l1tkmu.eta()) > etaBO_)
+          continue;
       } else if (detector == overlap_MTF_region) {
-	if (std::abs(l1tkmu.eta()) < etaBO_)
-	  continue;
-	if (std::abs(l1tkmu.eta()) > etaOE_)
-	  continue;
+        if (std::abs(l1tkmu.eta()) < etaBO_)
+          continue;
+        if (std::abs(l1tkmu.eta()) > etaOE_)
+          continue;
       } else if (detector == endcap_MTF_region) {
-	if (std::abs(l1tkmu.eta()) < etaOE_)
-	  continue;
+        if (std::abs(l1tkmu.eta()) < etaOE_)
+          continue;
       }
     }
     tkMuons.push_back(l1tkmu);
