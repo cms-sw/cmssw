@@ -1,6 +1,6 @@
 # SONIC TritonClient tests
 
-Test producers `TritonImageProducer` and `TritonGraphProducer` are available.
+Test modules `TritonImageProducer` and `TritonGraphProducer` (`TritonGraphFilter`, `TritonGraphAnalyzer`) are available.
 They generate arbitrary inputs for inference (with ResNet50 or Graph Attention Network, respectively) and print the resulting output.
 
 First, the relevant data should be downloaded from Nvidia:
@@ -16,12 +16,12 @@ The local server will use Singularity with CPU by default; if a local Nvidia GPU
 
 Run the image test:
 ```
-cmsRun tritonTest_cfg.py maxEvents=1 producer=TritonImageProducer
+cmsRun tritonTest_cfg.py maxEvents=1 modules=TritonImageProducer
 ```
 
 Run the graph test:
 ```
-cmsRun tritonTest_cfg.py maxEvents=1 producer=TritonGraphProducer
+cmsRun tritonTest_cfg.py maxEvents=1 modules=TritonGraphProducer
 ```
 
 ## Caveats

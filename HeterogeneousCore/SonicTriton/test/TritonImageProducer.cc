@@ -1,5 +1,6 @@
 #include "HeterogeneousCore/SonicTriton/interface/TritonEDProducer.h"
 
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -17,7 +18,7 @@ public:
         batchSize_(cfg.getParameter<unsigned>("batchSize")),
         topN_(cfg.getParameter<unsigned>("topN")) {
     //load score list
-    std::string imageListFile(cfg.getParameter<std::string>("imageList"));
+    std::string imageListFile(cfg.getParameter<edm::FileInPath>("imageList").fullPath());
     std::ifstream ifile(imageListFile);
     if (ifile.is_open()) {
       std::string line;
@@ -52,7 +53,7 @@ public:
     TritonClient::fillPSetDescription(desc);
     desc.add<unsigned>("batchSize", 1);
     desc.add<unsigned>("topN", 5);
-    desc.add<std::string>("imageList");
+    desc.add<edm::FileInPath>("imageList");
     //to ensure distinct cfi names
     descriptions.addWithDefaultLabel(desc);
   }
