@@ -289,7 +289,7 @@ void CTPPSProtonReconstructionEfficiencyEstimatorData::analyze(const edm::Event 
   std::ostringstream os;
 
   // get conditions
-  const auto& opticalFunctions = iSetup.getData(opticsESToken_);
+  const auto &opticalFunctions = iSetup.getData(opticsESToken_);
 
   // check optics change
   if (opticsWatcher_.check(iSetup)) {

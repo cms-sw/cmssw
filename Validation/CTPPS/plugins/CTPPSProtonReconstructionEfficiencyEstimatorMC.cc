@@ -132,7 +132,7 @@ void CTPPSProtonReconstructionEfficiencyEstimatorMC::analyze(const edm::Event &i
   std::ostringstream os;
 
   // get conditions
-  const auto& lhcInfo = iSetup.getData(lhcInfoESToken_);
+  const auto &lhcInfo = iSetup.getData(lhcInfoESToken_);
 
   // get input
   edm::Handle<edm::HepMCProduct> hHepMCAfterSmearing;
