@@ -837,19 +837,21 @@ namespace SiStripPI {
       } break;
 
       case FIRE: {
-        double stops[NRGBs] = {0.00, 0.20, 0.80, 1.00};
-        double red[NRGBs] = {1.00, 1.00, 1.00, 0.50};
-        double green[NRGBs] = {1.00, 1.00, 0.00, 0.00};
-        double blue[NRGBs] = {0.20, 0.00, 0.00, 0.00};
-        TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
+        const int NCOLs = 4;
+        double stops[NCOLs] = {0.00, 0.20, 0.80, 1.00};
+        double red[NCOLs] = {1.00, 1.00, 1.00, 0.50};
+        double green[NCOLs] = {1.00, 1.00, 0.00, 0.00};
+        double blue[NCOLs] = {0.20, 0.00, 0.00, 0.00};
+        TColor::CreateGradientColorTable(NCOLs, stops, red, green, blue, NCont);
       } break;
 
       case ANTIFIRE: {
-        double stops[NRGBs] = {0.00, 0.20, 0.80, 1.00};
-        double red[NRGBs] = {0.50, 1.00, 1.00, 1.00};
-        double green[NRGBs] = {0.00, 0.00, 1.00, 1.00};
-        double blue[NRGBs] = {0.00, 0.00, 0.00, 0.20};
-        TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
+        const int NCOLs = 4;
+        double stops[NCOLs] = {0.00, 0.20, 0.80, 1.00};
+        double red[NCOLs] = {0.50, 1.00, 1.00, 1.00};
+        double green[NCOLs] = {0.00, 0.00, 1.00, 1.00};
+        double blue[NCOLs] = {0.00, 0.00, 0.00, 0.20};
+        TColor::CreateGradientColorTable(NCOLs, stops, red, green, blue, NCont);
       } break;
 
       case LOGREDBLUE: {
