@@ -21,8 +21,6 @@
 #include "SimPPS/PPSPixelDigiProducer/interface/RPixPileUpSignals.h"
 
 #include "CondFormats/PPSObjects/interface/CTPPSPixelGainCalibrations.h"
-#include "RecoPPS/Local/interface/CTPPSPixelGainCalibrationDBService.h"
-
 #include "CondFormats/PPSObjects/interface/CTPPSPixelAnalysisMask.h"
 
 namespace CLHEP {
