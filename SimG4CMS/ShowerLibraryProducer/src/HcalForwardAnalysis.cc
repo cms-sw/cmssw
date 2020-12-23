@@ -52,7 +52,7 @@ HcalForwardAnalysis::~HcalForwardAnalysis() {}
 
 void HcalForwardAnalysis::produce(edm::Event& iEvent, const edm::EventSetup&) {
   //std::auto_ptr<HFShowerPhotonCollection> product(new HFShowerPhotonCollection);
-  //edm::LogInfo("HcalForwardLib") << "HcalForwardAnalysis: =====> Filling  event";
+  //edm::LogVerbatim("HcalForwardLib") << "HcalForwardAnalysis: =====> Filling  event";
   //fillEvent(*product);
   //iEvent.put(product);
   //std::auto_ptr<PHcalForwardLibInfo> product(new PHcalForwardLibInfo);
@@ -86,13 +86,13 @@ void HcalForwardAnalysis::init() {
 
 void HcalForwardAnalysis::update(const BeginOfRun* run) {
   int irun = (*run)()->GetRunID();
-  edm::LogInfo("HcalForwardLib") << " =====> Begin of Run = " << irun;
+  edm::LogVerbatim("HcalForwardLib") << " =====> Begin of Run = " << irun;
 }
 
 void HcalForwardAnalysis::update(const BeginOfEvent* evt) {
   evNum = (*evt)()->GetEventID();
   clear();
-  edm::LogInfo("HcalForwardLib") << "HcalForwardAnalysis: =====> Begin of event = " << evNum;
+  edm::LogVerbatim("HcalForwardLib") << "HcalForwardAnalysis: =====> Begin of event = " << evNum;
 }
 
 void HcalForwardAnalysis::update(const G4Step* aStep) {}
@@ -101,18 +101,18 @@ void HcalForwardAnalysis::update(const EndOfEvent* evt) {
   count++;
 
   //fill the buffer
-  LogDebug("HcalForwardLib") << "HcalForwardAnalysis::Fill event " << (*evt)()->GetEventID();
+  edm::LogVerbatim("HcalForwardLib") << "HcalForwardAnalysis::Fill event " << (*evt)()->GetEventID();
   setPhotons(evt);
 
   int iEvt = (*evt)()->GetEventID();
   if (iEvt < 10)
-    edm::LogInfo("HcalForwardLib") << "HcalForwardAnalysis:: Event " << iEvt;
+    edm::LogVerbatim("HcalForwardLib") << "HcalForwardAnalysis:: Event " << iEvt;
   else if ((iEvt < 100) && (iEvt % 10 == 0))
-    edm::LogInfo("HcalForwardLib") << "HcalForwardAnalysis:: Event " << iEvt;
+    edm::LogVerbatim("HcalForwardLib") << "HcalForwardAnalysis:: Event " << iEvt;
   else if ((iEvt < 1000) && (iEvt % 100 == 0))
-    edm::LogInfo("HcalForwardLib") << "HcalForwardAnalysis:: Event " << iEvt;
+    edm::LogVerbatim("HcalForwardLib") << "HcalForwardAnalysis:: Event " << iEvt;
   else if ((iEvt < 10000) && (iEvt % 1000 == 0))
-    edm::LogInfo("HcalForwardLib") << "HcalForwardAnalysis:: Event " << iEvt;
+    edm::LogVerbatim("HcalForwardLib") << "HcalForwardAnalysis:: Event " << iEvt;
 }
 
 void HcalForwardAnalysis::setPhotons(const EndOfEvent* evt) {
@@ -123,19 +123,19 @@ void HcalForwardAnalysis::setPhotons(const EndOfEvent* evt) {
   std::string sdName = theNames[0];  //name for fiber hits
   idHC = G4SDManager::GetSDMpointer()->GetCollectionID(sdName);
   theHC = (FiberG4HitsCollection*)allHC->GetHC(idHC);
-  LogDebug("HcalForwardLib") << "HcalForwardAnalysis::setPhotons() Hit Collection for " << sdName << " of ID " << idHC
-                             << " is obtained at " << theHC;
+  edm::LogVerbatim("HcalForwardLib") << "HcalForwardAnalysis::setPhotons() Hit Collection for " << sdName << " of ID "
+                                     << idHC << " is obtained at " << theHC;
   std::vector<HFShowerPhoton> ShortFiberPhotons;
   std::vector<HFShowerPhoton> LongFiberPhotons;
   LongFiberPhotons.clear();
   ShortFiberPhotons.clear();
-  int thehc_entries = theHC->entries();
   if (idHC >= 0 && theHC != nullptr) {
-    std::cout << "FiberhitSize " << thehc_entries << std::endl;
+    int thehc_entries = theHC->entries();
+    edm::LogVerbatim("HcalForwardLib") << "FiberhitSize " << thehc_entries;
     for (j = 0; j < thehc_entries; j++) {
       FiberG4Hit* aHit = (*theHC)[j];
       std::vector<HFShowerPhoton> thePhotonsFromHit = aHit->photon();
-      std::cout << "Fiberhit " << j << " has " << thePhotonsFromHit.size() << " photons." << std::endl;
+      edm::LogVerbatim("HcalForwardLib") << "Fiberhit " << j << " has " << thePhotonsFromHit.size() << " photons.";
       int fTowerId = -1;
       int fCellId = -1;
       int fFiberId = -1;
@@ -146,18 +146,18 @@ void HcalForwardAnalysis::setPhotons(const EndOfEvent* evt) {
         if (aHit->depth() == 2)
           ShortFiberPhotons.push_back(thePhotonsFromHit[iph]);
       }
-      LogDebug("HcalForwardLib") << "HcalForwardAnalysis::setPhotons() NbPhotons " << thePhotonsFromHit.size()
-                                 << " towerId " << fTowerId << " cellId " << fCellId << " fiberId " << fFiberId
-                                 << " depth " << aHit->depth();
+      edm::LogVerbatim("HcalForwardLib") << "HcalForwardAnalysis::setPhotons() NbPhotons " << thePhotonsFromHit.size()
+                                         << " towerId " << fTowerId << " cellId " << fCellId << " fiberId " << fFiberId
+                                         << " depth " << aHit->depth();
     }
   } else {
-    LogDebug("HcalForwardLib") << "HcalForwardAnalysis::setPhotons(): No Photons!";
+    edm::LogVerbatim("HcalForwardLib") << "HcalForwardAnalysis::setPhotons(): No Photons!";
     return;
   }
-  LogDebug("HcalForwardLib") << "HcalForwardAnalysis::setPhotons() LongFibPhotons: " << LongFiberPhotons.size()
-                             << " ShortFibPhotons: " << ShortFiberPhotons.size();
-  std::cout << "HcalForwardAnalysis::setPhotons() LongFibPhotons: " << LongFiberPhotons.size()
-            << " ShortFibPhotons: " << ShortFiberPhotons.size() << std::endl;
+  edm::LogVerbatim("HcalForwardLib") << "HcalForwardAnalysis::setPhotons() LongFibPhotons: " << LongFiberPhotons.size()
+                                     << " ShortFibPhotons: " << ShortFiberPhotons.size();
+  edm::LogVerbatim("HcalForwardLib") << "HcalForwardAnalysis::setPhotons() LongFibPhotons: " << LongFiberPhotons.size()
+                                     << " ShortFibPhotons: " << ShortFiberPhotons.size();
 
   //Chamber hits to find information about primary particle on surface
   HFShowerG4HitsCollection* theChamberHC;
@@ -172,19 +172,20 @@ void HcalForwardAnalysis::setPhotons(const EndOfEvent* evt) {
   //	(in newer Geant4 versions) and as a result primary particle may have
   //	multiple hits. We want to take last one which is close the HF absorber
   if (idHC >= 0 && theChamberHC != nullptr) {
-    LogDebug("HcalForwardLib") << "HcalForwardAnalysis::setPhotons() Chamber Hits size: " << theChamberHC->entries();
+    edm::LogVerbatim("HcalForwardLib") << "HcalForwardAnalysis::setPhotons() Chamber Hits size: "
+                                       << theChamberHC->entries();
     int thec_hc_entries = theChamberHC->entries();
     for (j = 0; j < thec_hc_entries; ++j) {
       HFShowerG4Hit* aHit = (*theChamberHC)[j];
-      LogDebug("HcalForwardLib") << "HcalForwardAnalysis::setPhotons() Chamber Hit id " << aHit->hitId() << " track id "
-                                 << aHit->trackId() << " prim. pos. " << aHit->globalPosition() << " prom mom. dir. "
-                                 << aHit->primaryMomDir() << " time " << aHit->time();
+      edm::LogVerbatim("HcalForwardLib") << "HcalForwardAnalysis::setPhotons() Chamber Hit id " << aHit->hitId()
+                                         << " track id " << aHit->trackId() << " prim. pos. " << aHit->globalPosition()
+                                         << " prom mom. dir. " << aHit->primaryMomDir() << " time " << aHit->time();
       primPosOnSurf.SetXYZ(aHit->globalPosition().x(), aHit->globalPosition().y(), aHit->globalPosition().z());
       primMomDirOnSurf.SetXYZ(aHit->primaryMomDir().x(), aHit->primaryMomDir().y(), aHit->primaryMomDir().z());
       primTimeOnSurf = aHit->time();
     }
   } else {
-    LogDebug("HcalForwardLib") << "HcalForwardAnalysis::setPhotons(): No Chamber hits. Something is wrong!";
+    edm::LogVerbatim("HcalForwardLib") << "HcalForwardAnalysis::setPhotons(): No Chamber hits. Something is wrong!";
     return;
   }
   primX = primPosOnSurf.x();
@@ -226,7 +227,7 @@ void HcalForwardAnalysis::setPhotons(const EndOfEvent* evt) {
 }
 void HcalForwardAnalysis::fillEvent() {
   /*
-	 edm::LogInfo("HcalForwardLib") << "HcalForwardAnalysis: =====> filledEvent";
+	 edm::LogVerbatim("HcalForwardLib") << "HcalForwardAnalysis: =====> filledEvent";
 	 */
   nphot = int(thePhotons.size());
   for (int i = 0; i < nphot; ++i) {
