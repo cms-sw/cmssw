@@ -43,18 +43,17 @@ def printGeomInfo(process):
         DumpLVTree     = cms.untracked.bool(True),
         DumpMaterial   = cms.untracked.bool(False),
         DumpLVList     = cms.untracked.bool(True),
-        DumpLV         = cms.untracked.bool(False),
+        DumpLV         = cms.untracked.bool(True),
         DumpSolid      = cms.untracked.bool(True),
         DumpAttributes = cms.untracked.bool(False),
-        DumpPV         = cms.untracked.bool(False),
+        DumpPV         = cms.untracked.bool(True),
         DumpRotation   = cms.untracked.bool(False),
         DumpReplica    = cms.untracked.bool(False),
-        DumpTouch      = cms.untracked.bool(True),
-        DumpSense      = cms.untracked.bool(True),
+        DumpTouch      = cms.untracked.bool(False),
+        DumpSense      = cms.untracked.bool(False),
         DD4Hep         = cms.untracked.bool(False),
-        # For Name with DD4hep, include namespace in Name, but omit it for DDD
-        Name           = cms.untracked.string('csc:ME11*'),
-        Names          = cms.untracked.vstring('EcalHitsEB'),
+        Name           = cms.untracked.string('TotemT*'),
+        Names          = cms.untracked.vstring(' '),
         type           = cms.string('PrintGeomInfoAction')
     ))
 
