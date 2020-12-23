@@ -50,8 +50,8 @@ void EcalRawToDigiGPU::fillDescriptions(edm::ConfigurationDescriptions& confDesc
   desc.add<std::vector<int>>("FEDs", feds);
   desc.add<uint32_t>("maxChannelsEB", 61200);
   desc.add<uint32_t>("maxChannelsEE", 14648);
-  desc.add<std::string>("digisLabelEB", "ebDigisGPU");
-  desc.add<std::string>("digisLabelEE", "eeDigisGPU");
+  desc.add<std::string>("digisLabelEB", "ebDigis");
+  desc.add<std::string>("digisLabelEE", "eeDigis");
 
   std::string label = "ecalRawToDigiGPU";
   confDesc.add(label, desc);
