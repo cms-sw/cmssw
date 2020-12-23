@@ -106,19 +106,19 @@ void CTPPSProtonReconstructionValidator::analyze(const edm::Event& iEvent, const
         continue;
 
       // try to get optics for the RP
-      auto it = opticalFunctions.find(rpId);
-      if (it == opticalFunctions.end())
+      if (opticalFunctions.count(rpId) == 0)
         continue;
+      const auto& func = opticalFunctions.at(rpId);
 
       // do propagation
       LHCInterpolatedOpticalFunctionsSet::Kinematics k_in_beam = {0., 0., 0., 0., 0.};
       LHCInterpolatedOpticalFunctionsSet::Kinematics k_out_beam;
-      it->second.transport(k_in_beam, k_out_beam);
+      func.transport(k_in_beam, k_out_beam);
 
       LHCInterpolatedOpticalFunctionsSet::Kinematics k_in = {
           -pr.vx(), -pr.thetaX(), pr.vy(), pr.thetaY(), pr.xi()};  // conversions: CMS --> LHC convention
       LHCInterpolatedOpticalFunctionsSet::Kinematics k_out;
-      it->second.transport(k_in, k_out);
+      func.transport(k_in, k_out);
 
       // fill plots
       const double de_x = (k_out.x - k_out_beam.x) * 10. - tr->x();  // conversions: cm --> mm

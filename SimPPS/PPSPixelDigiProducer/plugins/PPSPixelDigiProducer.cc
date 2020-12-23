@@ -235,8 +235,8 @@ void CTPPSPixelDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
     std::vector<int> input_links;
     std::vector<std::vector<std::pair<int, double>>> output_digi_links;  // links to simhits
 
-    (theAlgoMap.find(it->first)->second)
-        ->run(SimHitMap[it->first], input_links, digi_collector.data, output_digi_links, &gainCalibration);
+    theAlgoMap.at(it->first)->run(
+        SimHitMap[it->first], input_links, digi_collector.data, output_digi_links, &gainCalibration);
 
     if (!digi_collector.data.empty()) {
       theDigiVector.push_back(digi_collector);
