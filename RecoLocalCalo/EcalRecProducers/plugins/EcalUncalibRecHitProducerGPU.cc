@@ -29,7 +29,7 @@
 
 #include "Common.h"
 #include "DeclsForKernels.h"
-#include "EcalUncalibRecHitMultiFitAlgo_gpu_new.h"
+#include "EcalUncalibRecHitMultiFitAlgoGPU.h"
 
 class EcalUncalibRecHitProducerGPU : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
@@ -73,8 +73,8 @@ private:
 void EcalUncalibRecHitProducerGPU::fillDescriptions(edm::ConfigurationDescriptions& confDesc) {
   edm::ParameterSetDescription desc;
 
-  desc.add<edm::InputTag>("digisLabelEB", edm::InputTag("ecalRawToDigiGPU", "ebDigisGPU"));
-  desc.add<edm::InputTag>("digisLabelEE", edm::InputTag("ecalRawToDigiGPU", "eeDigisGPU"));
+  desc.add<edm::InputTag>("digisLabelEB", edm::InputTag("ecalRawToDigiGPU", "ebDigis"));
+  desc.add<edm::InputTag>("digisLabelEE", edm::InputTag("ecalRawToDigiGPU", "eeDigis"));
 
   desc.add<std::string>("recHitsLabelEB", "EcalUncalibRecHitsEB");
   desc.add<std::string>("recHitsLabelEE", "EcalUncalibRecHitsEE");
@@ -99,10 +99,9 @@ void EcalUncalibRecHitProducerGPU::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<double>("amplitudeThresholdEE", 10);
   desc.add<uint32_t>("maxNumberHitsEB", 61200);
   desc.add<uint32_t>("maxNumberHitsEE", 14648);
-  desc.add<std::vector<uint32_t>>("kernelMinimizeThreads", {32, 1, 1});
-  // ---- default false or true? It was set to true, but at HLT it is false
-  desc.add<bool>("shouldRunTimingComputation", false);
-  confDesc.add("ecalUncalibRecHitProducerGPU", desc);
+  desc.addUntracked<std::vector<uint32_t>>("kernelMinimizeThreads", {32, 1, 1});
+  desc.add<bool>("shouldRunTimingComputation", true);
+  confDesc.addWithDefaultLabel(desc);
 }
 
 EcalUncalibRecHitProducerGPU::EcalUncalibRecHitProducerGPU(const edm::ParameterSet& ps)
@@ -150,7 +149,7 @@ EcalUncalibRecHitProducerGPU::EcalUncalibRecHitProducerGPU(const edm::ParameterS
   configParameters_.shouldRunTimingComputation = ps.getParameter<bool>("shouldRunTimingComputation");
 
   // minimize kernel launch conf
-  auto threadsMinimize = ps.getParameter<std::vector<uint32_t>>("kernelMinimizeThreads");
+  auto threadsMinimize = ps.getUntrackedParameter<std::vector<uint32_t>>("kernelMinimizeThreads");
   configParameters_.kernelMinimizeThreads[0] = threadsMinimize[0];
   configParameters_.kernelMinimizeThreads[1] = threadsMinimize[1];
   configParameters_.kernelMinimizeThreads[2] = threadsMinimize[2];
