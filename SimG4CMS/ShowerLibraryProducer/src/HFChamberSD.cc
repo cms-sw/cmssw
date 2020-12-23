@@ -21,12 +21,14 @@ HFChamberSD::HFChamberSD(const std::string& name,
                          const SensitiveDetectorCatalog& clg,
                          edm::ParameterSet const& p,
                          const SimTrackManager* manager)
-    : SensitiveCaloDetector(name, es, clg, p), m_trackManager(manager), theHCID(-1), theHC(nullptr), theNSteps(0) {}
+    : SensitiveCaloDetector(name, es, clg, p), m_trackManager(manager), theHCID(-1), theHC(nullptr), theNSteps(0) {
+  edm::LogVerbatim("FiberSim") << "HFChamberSD : Instantiated for " << name;
+}
 
 HFChamberSD::~HFChamberSD() { delete theHC; }
 
 void HFChamberSD::Initialize(G4HCofThisEvent* HCE) {
-  LogDebug("FiberSim") << "HFChamberSD : Initialize called for " << GetName();
+  edm::LogVerbatim("FiberSim") << "HFChamberSD : Initialize called for " << GetName();
   theHC = new HFShowerG4HitsCollection(GetName(), collectionName[0]);
   if (theHCID < 0)
     theHCID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
@@ -60,16 +62,18 @@ G4bool HFChamberSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
   aHit->setGlobalPos(globalPos);
   aHit->setPrimMomDir(momDir);
 
-  LogDebug("FiberSim") << "HFChamberSD: Hit created in (" << touch->GetVolume(0)->GetLogicalVolume()->GetName() << ") "
-                       << " ID " << detID << " Track " << trackID << " Edep: " << edep / MeV << " MeV; Time: " << time
-                       << " ns; Position (local) " << localPos << " (global ) " << globalPos << " direction " << momDir;
+  edm::LogVerbatim("FiberSim") << "HFChamberSD: Hit created in (" << touch->GetVolume(0)->GetLogicalVolume()->GetName()
+                               << ") "
+                               << " ID " << detID << " Track " << trackID << " Edep: " << edep / MeV
+                               << " MeV; Time: " << time << " ns; Position (local) " << localPos << " (global ) "
+                               << globalPos << " direction " << momDir;
 
   theHC->insert(aHit);
   return true;
 }
 
 void HFChamberSD::EndOfEvent(G4HCofThisEvent* HCE) {
-  LogDebug("FiberSim") << "HFChamberSD: Sees" << theHC->entries() << " hits";
+  edm::LogVerbatim("FiberSim") << "HFChamberSD: Sees" << theHC->entries() << " hits";
   clear();
 }
 

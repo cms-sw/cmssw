@@ -2,13 +2,14 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("HFShowerLib")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 #process.load("Geometry.HcalCommonData.hcalforwardshowerLong_cfi")
 process.load("SimG4CMS.ShowerLibraryProducer.hcalforwardshower_cfi")
 process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")
-process.load("SimG4Core.Application.g4SimHits_cfi")
-process.load("Configuration.StandardSequences.Services_cff")
+process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
+process.load('Configuration.StandardSequences.Generator_cff')
+process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("Configuration.StandardSequences.Services_cff")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 if 'MessageLogger' in process.__dict__:
@@ -17,11 +18,11 @@ if 'MessageLogger' in process.__dict__:
     process.MessageLogger.HFShower=dict()
     process.MessageLogger.HcalForwardLib=dict()
 
+process.RandomNumberGeneratorService.generator.initialSeed = 12345
 
-process.load("IOMC.RandomEngine.IOMC_cff")
-process.RandomNumberGeneratorService.generator.initialSeed = 456789
-process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
-process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
+from IOMC.RandomEngine.RandomServiceHelper import RandomNumberServiceHelper
+randSvc = RandomNumberServiceHelper(process.RandomNumberGeneratorService)
+randSvc.populate()
 
 process.Timing = cms.Service("Timing")
 
@@ -56,7 +57,17 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string('hfShowerLibSimu_extended2_50GeVElec_deneme.root')
 )
 
-process.p1 = cms.Path(cms.SequencePlaceholder("randomEngineStateProducer")+process.generator*process.VtxSmeared*process.g4SimHits)
+# for GEN produced since 760pre6, for older GEN - just "":
+process.VtxSmeared.src = cms.InputTag("generator", "unsmeared")
+process.generatorSmeared = cms.EDProducer("GeneratorSmearedProducer")
+process.g4SimHits.Generator.HepMCProductLabel = cms.InputTag('VtxSmeared')
+
+process.p1 = cms.Path(
+ process.generator *
+ process.VtxSmeared *
+ process.generatorSmeared *
+ process.g4SimHits
+)
 process.outpath = cms.EndPath(process.o1)
 
 process.g4SimHits.HCalSD.UseShowerLibrary = True
