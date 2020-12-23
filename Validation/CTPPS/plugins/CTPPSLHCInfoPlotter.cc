@@ -83,7 +83,7 @@ void CTPPSLHCInfoPlotter::fillDescriptions(edm::ConfigurationDescriptions &descr
 //----------------------------------------------------------------------------------------------------
 
 void CTPPSLHCInfoPlotter::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
-  const auto& lhcInfo = iSetup.getData(lhcInfoESToken_);
+  const auto &lhcInfo = iSetup.getData(lhcInfoESToken_);
 
   h_beamEnergy_->Fill(lhcInfo.energy());
   h_xangle_->Fill(lhcInfo.crossingAngle());

@@ -560,7 +560,7 @@ void CTPPSProtonReconstructionPlotter::analyze(const edm::Event &event, const ed
     throw cms::Exception("CTPPSProtonReconstructionPlotter") << "Number of non empty events reached maximum.";
 
   // get conditions
-  const auto& geometry = iSetup.getData(geometryESToken_);
+  const auto &geometry = iSetup.getData(geometryESToken_);
 
   // track plots
   const CTPPSLocalTrackLite *tr_L_N = nullptr;
