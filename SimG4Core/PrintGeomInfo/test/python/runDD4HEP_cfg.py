@@ -3,14 +3,16 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("G4PrintGeometry")
 
 process.load('Configuration.ProcessModifiers.dd4hep_cff')
+process.load('Geometry.CMSCommonData.cmsExtendedGeometry2021XML_cfi')
 process.load('Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi')
-process.load('SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkT14_cff')
 process.load('Geometry.EcalCommonData.ecalSimulationParameters_cff')
 process.load('Geometry.HcalCommonData.hcalDDDSimConstants_cff')
 process.load('Geometry.HGCalCommonData.hgcalParametersInitialization_cfi')
 process.load('Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi')
 process.load('Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi')
+process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')
+
 
 from SimG4Core.PrintGeomInfo.g4PrintGeomInfo_cfi import *
 
