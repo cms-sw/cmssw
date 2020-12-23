@@ -21,5 +21,21 @@ if hasattr(process,'MessageLogger'):
 
 
 process.g4SimHits.g4GeometryDD4hepSource = cms.bool(False)
-process.g4SimHits.Watchers.Names = cms.untracked.vstring('EcalSB')
-process.g4SimHits.Watchers.DD4Hep = cms.untracked.bool(False)
+process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
+    DumpSummary    = cms.untracked.bool(True),
+    DumpLVTree     = cms.untracked.bool(True),
+    DumpMaterial   = cms.untracked.bool(False),
+    DumpLVList     = cms.untracked.bool(True),
+    DumpLV         = cms.untracked.bool(False),
+    DumpSolid      = cms.untracked.bool(True),
+    DumpAttributes = cms.untracked.bool(False),
+    DumpPV         = cms.untracked.bool(False),
+    DumpRotation   = cms.untracked.bool(False),
+    DumpReplica    = cms.untracked.bool(False),
+    DumpTouch      = cms.untracked.bool(True),
+    DumpSense      = cms.untracked.bool(True),
+    DD4Hep         = cms.untracked.bool(False),
+    Name           = cms.untracked.string('ME11*'),
+    Names          = cms.untracked.vstring('EcalHitsEB'),
+    type           = cms.string('PrintGeomInfoAction')
+))
