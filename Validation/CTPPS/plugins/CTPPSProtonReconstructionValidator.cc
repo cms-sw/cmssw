@@ -38,6 +38,7 @@ private:
   void endJob() override;
 
   edm::EDGetTokenT<reco::ForwardProtonCollection> tokenRecoProtons_;
+  edm::ESGetToken<LHCInterpolatedOpticalFunctionsSetCollection, CTPPSInterpolatedOpticsRcd> opticsESToken_;
   double chiSqCut_;
   std::string outputFile_;
 
@@ -70,6 +71,7 @@ using namespace edm;
 
 CTPPSProtonReconstructionValidator::CTPPSProtonReconstructionValidator(const edm::ParameterSet& iConfig)
     : tokenRecoProtons_(consumes<reco::ForwardProtonCollection>(iConfig.getParameter<edm::InputTag>("tagRecoProtons"))),
+      opticsESToken_(esConsumes()),
       chiSqCut_(iConfig.getParameter<double>("chiSqCut")),
       outputFile_(iConfig.getParameter<string>("outputFile")) {}
 
@@ -77,11 +79,10 @@ CTPPSProtonReconstructionValidator::CTPPSProtonReconstructionValidator(const edm
 
 void CTPPSProtonReconstructionValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // get conditions
-  edm::ESHandle<LHCInterpolatedOpticalFunctionsSetCollection> hOpticalFunctions;
-  iSetup.get<CTPPSInterpolatedOpticsRcd>().get(hOpticalFunctions);
+  const auto& opticalFunctions = iSetup.getData(opticsESToken_);
 
   // stop if conditions invalid
-  if (hOpticalFunctions->empty())
+  if (opticalFunctions.empty())
     return;
 
   // get input
@@ -105,8 +106,8 @@ void CTPPSProtonReconstructionValidator::analyze(const edm::Event& iEvent, const
         continue;
 
       // try to get optics for the RP
-      auto it = hOpticalFunctions->find(rpId);
-      if (it == hOpticalFunctions->end())
+      auto it = opticalFunctions.find(rpId);
+      if (it == opticalFunctions.end())
         continue;
 
       // do propagation
