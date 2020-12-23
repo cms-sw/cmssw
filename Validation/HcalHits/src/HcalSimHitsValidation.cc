@@ -285,7 +285,6 @@ void HcalSimHitsValidation::endJob() {
 }
 
 void HcalSimHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const &c) {
-
   //===========================================================================
   // Getting SimHits
   //===========================================================================

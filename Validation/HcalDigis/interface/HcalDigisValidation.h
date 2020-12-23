@@ -140,9 +140,9 @@ private:
   edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_Topo_;
   edm::ESGetToken<HcalDbService, HcalDbRecord> tok_Cond_;
 
-  const HcalDbService* conditions_;
+  const HcalDbService *conditions_;
   const HcalDDDRecConstants *hcons_;
-  const HcalTopology* htopo_;
+  const HcalTopology *htopo_;
 
   int nevent1;
   int nevent2;

@@ -269,7 +269,9 @@ void HcalSimHitStudy::analyzeHits(std::vector<PCaloHit> &hits) {
     eta = hid.ieta();
     phi = hid.iphi();
 
-    edm::LogVerbatim("HcalSim") << "Hit[" << i << "] ID " << std::hex << id << std::dec << " Det " << det << " Sub " << subdet << " depth " << depth << " Eta " << eta << " Phi " << phi << " E " << energy << " time " << time;
+    edm::LogVerbatim("HcalSim") << "Hit[" << i << "] ID " << std::hex << id << std::dec << " Det " << det << " Sub "
+                                << subdet << " depth " << depth << " Eta " << eta << " Phi " << phi << " E " << energy
+                                << " time " << time;
     if (det == 4) {  // Check DetId.h
       if (subdet == static_cast<int>(HcalBarrel))
         nHB++;
@@ -452,5 +454,6 @@ void HcalSimHitStudy::analyzeHits(std::vector<PCaloHit> &hits) {
     }
   }
 
-  edm::LogVerbatim("HcalSim") << "HcalSimHitStudy::analyzeHits: HB " << nHB << " HE " << nHE << " HO " << nHO << " HF " << nHF << " Bad " << nBad << " All " << nHit;
+  edm::LogVerbatim("HcalSim") << "HcalSimHitStudy::analyzeHits: HB " << nHB << " HE " << nHE << " HO " << nHO << " HF "
+                              << nHF << " Bad " << nBad << " All " << nHit;
 }
