@@ -57,8 +57,8 @@ private:
 
   void run(const edm::DetSetVector<CTPPSPixelDigi> &input,
            edm::DetSetVector<CTPPSPixelCluster> &output,
-           const CTPPSPixelAnalysisMask& mask,
-           const CTPPSPixelGainCalibrations& gainCalibration);
+           const CTPPSPixelAnalysisMask &mask,
+           const CTPPSPixelGainCalibrations &gainCalibration);
 };
 
 #endif
