@@ -39,6 +39,6 @@ namespace HGCalProperty {
   const int32_t kHGCalOffsetOrient = 100;
   const int32_t kHGCalOffsetType = 1;
   const int32_t kHGCalOffsetSiPM = 10;
-};
+};  // namespace HGCalProperty
 
 #endif

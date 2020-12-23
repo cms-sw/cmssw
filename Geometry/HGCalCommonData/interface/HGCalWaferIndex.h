@@ -11,6 +11,6 @@ namespace HGCalWaferIndex {
   int32_t waferV(const int32_t index);
   int32_t waferCopy(const int32_t index);
   bool waferFormat(const int32_t index);
-};
+};  // namespace HGCalWaferIndex
 
 #endif

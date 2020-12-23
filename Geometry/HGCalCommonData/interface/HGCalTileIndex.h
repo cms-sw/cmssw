@@ -9,6 +9,6 @@ namespace HGCalTileIndex {
   int32_t tileLayer(int32_t index);
   int32_t tileRing(int32_t index);
   int32_t tilePhi(int32_t index);
-};
+};  // namespace HGCalTileIndex
 
 #endif
