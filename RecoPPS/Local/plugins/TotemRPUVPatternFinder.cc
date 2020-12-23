@@ -167,7 +167,7 @@ void TotemRPUVPatternFinder::produce(edm::Event &event, const edm::EventSetup &e
         << ">> TotemRPUVPatternFinder::produce " << event.id().run() << ":" << event.id().event();
 
   // geometry
-  const auto& geometry = es.getData(ctppsGeometryToken);
+  const auto &geometry = es.getData(ctppsGeometryToken);
   if (geometryWatcher.check(es))
     lrcgn->resetGeometry(&geometry);
 
