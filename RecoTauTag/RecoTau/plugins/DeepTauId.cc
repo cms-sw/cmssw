@@ -1025,12 +1025,13 @@ namespace {
     using Map = std::map<CellIndex, Cell>;
     using const_iterator = Map::const_iterator;
 
-    CellGrid(unsigned n_cells_eta, unsigned n_cells_phi, double cell_size_eta, double cell_size_phi)
+    CellGrid(unsigned n_cells_eta, unsigned n_cells_phi, double cell_size_eta, double cell_size_phi, bool disable_CellIndex_workaround)
         : nCellsEta(n_cells_eta),
           nCellsPhi(n_cells_phi),
           nTotal(nCellsEta * nCellsPhi),
           cellSizeEta(cell_size_eta),
-          cellSizePhi(cell_size_phi) {
+          cellSizePhi(cell_size_phi),
+          disable_CellIndex_workaround_(disable_CellIndex_workaround) {
       if (nCellsEta % 2 != 1 || nCellsEta < 1)
         throw cms::Exception("DeepTauId") << "Invalid number of eta cells.";
       if (nCellsPhi % 2 != 1 || nCellsPhi < 1)
@@ -1047,18 +1048,22 @@ namespace {
     int getPhiTensorIndex(const CellIndex& cellIndex) const { return cellIndex.phi + maxPhiIndex(); }
 
     bool tryGetCellIndex(double deltaEta, double deltaPhi, CellIndex& cellIndex) const {
-      static auto getCellIndex = [](double x, double maxX, double size, int& index) {
+      static auto getCellIndex = [](double x, double maxX, double size, bool disable_CellIndex_workaround, int& index) {
         const double absX = std::abs(x);
         if (absX > maxX)
           return false;
-        //const double absIndex = std::floor(std::abs(absX / size - 0.5));
-        const double absIndex = std::floor(absX / size + 0.5);
+        double absIndex;
+        if ( disable_CellIndex_workaround ) {
+          absIndex = std::floor(std::abs(absX / size - 0.5));
+        } else {
+          absIndex = std::floor(absX / size + 0.5);
+        }
         index = static_cast<int>(std::copysign(absIndex, x));
         return true;
       };
 
-      return getCellIndex(deltaEta, maxDeltaEta(), cellSizeEta, cellIndex.eta) &&
-             getCellIndex(deltaPhi, maxDeltaPhi(), cellSizePhi, cellIndex.phi);
+      return getCellIndex(deltaEta, maxDeltaEta(), cellSizeEta, disable_CellIndex_workaround_, cellIndex.eta) &&
+             getCellIndex(deltaPhi, maxDeltaPhi(), cellSizePhi, disable_CellIndex_workaround_, cellIndex.phi);
     }
 
     size_t num_valid_cells() const { return cells.size(); }
@@ -1072,6 +1077,7 @@ namespace {
   public:
     const unsigned nCellsEta, nCellsPhi, nTotal;
     const double cellSizeEta, cellSizePhi;
+    const bool disable_CellIndex_workaround_;
 
   private:
     std::map<CellIndex, Cell> cells;
@@ -1158,6 +1164,7 @@ public:
     desc.add<int>("debug_level", 0);
     desc.add<bool>("disable_dxy_pca", false);
     desc.add<bool>("disable_hcalFraction_workaround", false);
+    desc.add<bool>("disable_CellIndex_workaround", false);
     desc.add<bool>("save_inputs", false);
     desc.add<bool>("is_online", false);
 
@@ -1202,6 +1209,7 @@ public:
         debug_level(cfg.getParameter<int>("debug_level")),
         disable_dxy_pca_(cfg.getParameter<bool>("disable_dxy_pca")),
         disable_hcalFraction_workaround_(cfg.getParameter<bool>("disable_hcalFraction_workaround")),
+        disable_CellIndex_workaround_(cfg.getParameter<bool>("disable_CellIndex_workaround")),
         inner_grid(nullptr),
         outer_grid(nullptr),
         save_inputs(cfg.getParameter<bool>("save_inputs")),
@@ -1557,9 +1565,9 @@ private:
       std::cout << " tau: pT = " << tau.pt() << ", eta = " << tau.eta() << ", phi = " << tau.phi() << std::endl;
     }
     delete inner_grid;
-    inner_grid = new CellGrid(dnn_inputs_2017_v2::number_of_inner_cell, dnn_inputs_2017_v2::number_of_inner_cell, 0.02, 0.02);
+    inner_grid = new CellGrid(dnn_inputs_2017_v2::number_of_inner_cell, dnn_inputs_2017_v2::number_of_inner_cell, 0.02, 0.02, disable_CellIndex_workaround_);
     delete outer_grid;
-    outer_grid = new CellGrid(dnn_inputs_2017_v2::number_of_outer_cell, dnn_inputs_2017_v2::number_of_outer_cell, 0.05, 0.05);
+    outer_grid = new CellGrid(dnn_inputs_2017_v2::number_of_outer_cell, dnn_inputs_2017_v2::number_of_outer_cell, 0.05, 0.05, disable_CellIndex_workaround_);
     fillGrids(dynamic_cast<const TauCastType&>(tau), *electrons, *inner_grid, *outer_grid);
     fillGrids(dynamic_cast<const TauCastType&>(tau), *muons, *inner_grid, *outer_grid);
     fillGrids(dynamic_cast<const TauCastType&>(tau), pfCands, *inner_grid, *outer_grid);
@@ -2779,6 +2787,7 @@ private:
   const int debug_level;
   const bool disable_dxy_pca_;
   const bool disable_hcalFraction_workaround_;
+  const bool disable_CellIndex_workaround_;
   std::unique_ptr<tensorflow::Tensor> tauBlockTensor_;
   std::array<std::unique_ptr<tensorflow::Tensor>, 2> eGammaTensor_, muonTensor_, hadronsTensor_, convTensor_,
       zeroOutputTensor_;
