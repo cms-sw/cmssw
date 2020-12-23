@@ -28,6 +28,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
+#include "Geometry/HGCalCommonData/interface/HGCalProperty.h"
 #include <algorithm>
 #include <cstdlib>
 #include <fstream>
@@ -36,27 +37,6 @@
 #include <map>
 #include <string>
 #include <vector>
-
-const int kHGCalWaferUOffset = 0;
-const int kHGCalWaferUMask = 0x1F;
-const int kHGCalWaferUSignOffset = 5;
-const int kHGCalWaferUSignMask = 0x1;
-const int kHGCalWaferVOffset = 6;
-const int kHGCalWaferVMask = 0x1F;
-const int kHGCalWaferVSignOffset = 11;
-const int kHGCalWaferVSignMask = 0x1;
-const int kHGCalLayerOffset = 18;
-const int kHGCalLayerMask = 0x1F;
-const int kHGCalPhiOffset = 0;
-const int kHGCalPhiMask = 0x1FF;
-const int kHGCalRingOffset = 9;
-const int kHGCalRingMask = 0x1FF;
-const int kHGCalFactor = 10;
-const int kHGCalOffsetThick = 1;
-const int kHGCalOffsetPartial = 10;
-const int kHGCalOffsetOrient = 100;
-const int kHGCalOffsetType = 1;
-const int kHGCalOffsetSiPM = 10;
 
 struct wafer {
   int thick, partial, orient;
@@ -298,36 +278,36 @@ int ConvertSilicon::waferIndex(const int& layer, const int& waferU, const int& w
   int waferUabs(std::abs(waferU)), waferVabs(std::abs(waferV));
   int waferUsign = (waferU >= 0) ? 0 : 1;
   int waferVsign = (waferV >= 0) ? 0 : 1;
-  id |= (((waferUabs & kHGCalWaferUMask) << kHGCalWaferUOffset) |
-         ((waferUsign & kHGCalWaferUSignMask) << kHGCalWaferUSignOffset) |
-         ((waferVabs & kHGCalWaferVMask) << kHGCalWaferVOffset) |
-         ((waferVsign & kHGCalWaferVSignMask) << kHGCalWaferVSignOffset) |
-         ((layer & kHGCalLayerMask) << kHGCalLayerOffset));
+  id |= (((waferUabs & HGCalProperty::kHGCalWaferUMask) << HGCalProperty::kHGCalWaferUOffset) |
+         ((waferUsign & HGCalProperty::kHGCalWaferUSignMask) << HGCalProperty::kHGCalWaferUSignOffset) |
+         ((waferVabs & HGCalProperty::kHGCalWaferVMask) << HGCalProperty::kHGCalWaferVOffset) |
+         ((waferVsign & HGCalProperty::kHGCalWaferVSignMask) << HGCalProperty::kHGCalWaferVSignOffset) |
+         ((layer & HGCalProperty::kHGCalLayerMask) << HGCalProperty::kHGCalLayerOffset));
   return id;
 }
 
 int ConvertSilicon::waferProperty(const int& thick, const int& part, const int& orient) {
-  return (((thick % kHGCalFactor) * kHGCalOffsetThick) + ((part % kHGCalFactor) * kHGCalOffsetPartial) +
-          ((orient % kHGCalFactor) * kHGCalOffsetOrient));
+  return (((thick % HGCalProperty::kHGCalFactor) * HGCalProperty::kHGCalOffsetThick) + ((part % HGCalProperty::kHGCalFactor) * HGCalProperty::kHGCalOffsetPartial) +
+          ((orient % HGCalProperty::kHGCalFactor) * HGCalProperty::kHGCalOffsetOrient));
 }
 
-int ConvertSilicon::waferLayer(const int& id) { return (id >> kHGCalLayerOffset) & kHGCalLayerMask; }
+int ConvertSilicon::waferLayer(const int& id) { return (id >> HGCalProperty::kHGCalLayerOffset) & HGCalProperty::kHGCalLayerMask; }
 
 int ConvertSilicon::waferU(const int& id) {
-  int32_t iu = (id >> kHGCalWaferUOffset) & kHGCalWaferUMask;
-  return (((id >> kHGCalWaferUSignOffset) & kHGCalWaferUSignMask) ? -iu : iu);
+  int32_t iu = (id >> HGCalProperty::kHGCalWaferUOffset) & HGCalProperty::kHGCalWaferUMask;
+  return (((id >> HGCalProperty::kHGCalWaferUSignOffset) & HGCalProperty::kHGCalWaferUSignMask) ? -iu : iu);
 }
 
 int ConvertSilicon::waferV(const int& id) {
-  int32_t iv = (id >> kHGCalWaferVOffset) & kHGCalWaferVMask;
-  return (((id >> kHGCalWaferVSignOffset) & kHGCalWaferVSignMask) ? -iv : iv);
+  int32_t iv = (id >> HGCalProperty::kHGCalWaferVOffset) & HGCalProperty::kHGCalWaferVMask;
+  return (((id >> HGCalProperty::kHGCalWaferVSignOffset) & HGCalProperty::kHGCalWaferVSignMask) ? -iv : iv);
 }
 
-int ConvertSilicon::waferThick(const int& property) { return ((property / kHGCalOffsetThick) % kHGCalFactor); }
+int ConvertSilicon::waferThick(const int& property) { return ((property / HGCalProperty::kHGCalOffsetThick) % HGCalProperty::kHGCalFactor); }
 
-int ConvertSilicon::waferPartial(const int& property) { return ((property / kHGCalOffsetPartial) % kHGCalFactor); }
+int ConvertSilicon::waferPartial(const int& property) { return ((property / HGCalProperty::kHGCalOffsetPartial) % HGCalProperty::kHGCalFactor); }
 
-int ConvertSilicon::waferOrient(const int& property) { return ((property / kHGCalOffsetOrient) % kHGCalFactor); }
+int ConvertSilicon::waferOrient(const int& property) { return ((property / HGCalProperty::kHGCalOffsetOrient) % HGCalProperty::kHGCalFactor); }
 
 ConvertScintillator::ConvertScintillator(int layMin) : layMin_(layMin) {}
 
@@ -513,21 +493,21 @@ void ConvertScintillator::convert(const char* infile, const char* outfile, int d
 
 int ConvertScintillator::tileIndex(const int& layer, const int& ring, const int& iphi) {
   int id(0);
-  id |= (((iphi & kHGCalPhiMask) << kHGCalPhiOffset) | ((ring & kHGCalRingMask) << kHGCalRingOffset) |
-         ((layer & kHGCalLayerMask) << kHGCalLayerOffset));
+  id |= (((iphi & HGCalProperty::kHGCalPhiMask) << HGCalProperty::kHGCalPhiOffset) | ((ring & HGCalProperty::kHGCalRingMask) << HGCalProperty::kHGCalRingOffset) |
+         ((layer & HGCalProperty::kHGCalLayerMask) << HGCalProperty::kHGCalLayerOffset));
   return id;
 }
 
-int ConvertScintillator::tileLayer(const int& id) { return (id >> kHGCalLayerOffset) & kHGCalLayerMask; }
+int ConvertScintillator::tileLayer(const int& id) { return (id >> HGCalProperty::kHGCalLayerOffset) & HGCalProperty::kHGCalLayerMask; }
 
-int ConvertScintillator::tileRing(const int& id) { return (id >> kHGCalRingOffset) & kHGCalRingMask; }
+int ConvertScintillator::tileRing(const int& id) { return (id >> HGCalProperty::kHGCalRingOffset) & HGCalProperty::kHGCalRingMask; }
 
-int ConvertScintillator::tilePhi(const int& id) { return (id >> kHGCalPhiOffset) & kHGCalPhiMask; }
+int ConvertScintillator::tilePhi(const int& id) { return (id >> HGCalProperty::kHGCalPhiOffset) & HGCalProperty::kHGCalPhiMask; }
 
 int ConvertScintillator::tileProperty(const int& type, const int& sipm) {
-  return (((type % kHGCalFactor) * kHGCalOffsetType) + ((sipm % kHGCalFactor) * kHGCalOffsetSiPM));
+  return (((type % HGCalProperty::kHGCalFactor) * HGCalProperty::kHGCalOffsetType) + ((sipm % HGCalProperty::kHGCalFactor) * HGCalProperty::kHGCalOffsetSiPM));
 }
 
-int ConvertScintillator::tileType(const int& property) { return ((property / kHGCalOffsetType) % kHGCalFactor); }
+int ConvertScintillator::tileType(const int& property) { return ((property / HGCalProperty::kHGCalOffsetType) % HGCalProperty::kHGCalFactor); }
 
-int ConvertScintillator::tileSiPM(const int& property) { return ((property / kHGCalOffsetSiPM) % kHGCalFactor); }
+int ConvertScintillator::tileSiPM(const int& property) { return ((property / HGCalProperty::kHGCalOffsetSiPM) % HGCalProperty::kHGCalFactor); }
