@@ -19,18 +19,18 @@ int32_t HGCalWaferIndex::waferIndex(int32_t layer, int32_t waferU, int32_t wafer
   return id;
 }
 
-int HGCalWaferIndex::waferLayer(const int32_t id) { return (id >> HGCalProperty::kHGCalLayerOffset) & HGCalProperty::kHGCalLayerMask; }
+int32_t HGCalWaferIndex::waferLayer(const int32_t id) { return (id >> HGCalProperty::kHGCalLayerOffset) & HGCalProperty::kHGCalLayerMask; }
 
-int HGCalWaferIndex::waferU(const int32_t id) {
+int32_t HGCalWaferIndex::waferU(const int32_t id) {
   int32_t iu = (id >> HGCalProperty::kHGCalWaferUOffset) & HGCalProperty::kHGCalWaferUMask;
   return (((id >> HGCalProperty::kHGCalWaferUSignOffset) & HGCalProperty::kHGCalWaferUSignMask) ? -iu : iu);
 }
 
-int HGCalWaferIndex::waferV(const int32_t id) {
+int32_t HGCalWaferIndex::waferV(const int32_t id) {
   int32_t iv = (id >> HGCalProperty::kHGCalWaferVOffset) & HGCalProperty::kHGCalWaferVMask;
   return (((id >> HGCalProperty::kHGCalWaferVSignOffset) & HGCalProperty::kHGCalWaferVSignMask) ? -iv : iv);
 }
 
-int HGCalWaferIndex::waferCopy(const int32_t id) { return (id >> HGCalProperty::kHGCalWaferCopyOffset) & HGCalProperty::kHGCalWaferCopyMask; }
+int32_t HGCalWaferIndex::waferCopy(const int32_t id) { return (id >> HGCalProperty::kHGCalWaferCopyOffset) & HGCalProperty::kHGCalWaferCopyMask; }
 
 bool HGCalWaferIndex::waferFormat(const int32_t id) { return ((id & HGCalProperty::kHGCalLayerOldMask) == 0); }
