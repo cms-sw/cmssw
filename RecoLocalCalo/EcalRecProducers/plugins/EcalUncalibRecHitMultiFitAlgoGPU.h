@@ -1,5 +1,5 @@
-#ifndef RecoLocalCalo_EcalRecProducers_plugins_EcalUncalibRecHitMultiFitAlgo_gpu_new_h
-#define RecoLocalCalo_EcalRecProducers_plugins_EcalUncalibRecHitMultiFitAlgo_gpu_new_h
+#ifndef RecoLocalCalo_EcalRecProducers_plugins_EcalUncalibRecHitMultiFitAlgoGPU_h
+#define RecoLocalCalo_EcalRecProducers_plugins_EcalUncalibRecHitMultiFitAlgoGPU_h
 
 #include <vector>
 
@@ -20,4 +20,4 @@ namespace ecal {
   }  // namespace multifit
 }  // namespace ecal
 
-#endif  // RecoLocalCalo_EcalRecProducers_plugins_EcalUncalibRecHitMultiFitAlgo_gpu_new_h
+#endif  // RecoLocalCalo_EcalRecProducers_plugins_EcalUncalibRecHitMultiFitAlgoGPU_h

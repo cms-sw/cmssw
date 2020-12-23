@@ -19,8 +19,8 @@ from RecoLocalCalo.EcalRecProducers.ecalMultifitParametersGPUESProducer_cfi impo
 # ECAL multifit running on GPU
 from RecoLocalCalo.EcalRecProducers.ecalUncalibRecHitProducerGPU_cfi import ecalUncalibRecHitProducerGPU as _ecalUncalibRecHitProducerGPU
 ecalMultiFitUncalibRecHitGPU = _ecalUncalibRecHitProducerGPU.clone(
-  digisLabelEB = cms.InputTag('ecalDigisGPU', 'ebDigisGPU'),
-  digisLabelEE = cms.InputTag('ecalDigisGPU', 'eeDigisGPU'),
+  digisLabelEB = cms.InputTag('ecalDigisGPU', 'ebDigis'),
+  digisLabelEE = cms.InputTag('ecalDigisGPU', 'eeDigis'),
 )
 
 # copy the uncalibrated rechits from GPU to CPU

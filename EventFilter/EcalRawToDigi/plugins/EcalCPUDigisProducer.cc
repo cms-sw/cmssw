@@ -69,8 +69,8 @@ private:
 void EcalCPUDigisProducer::fillDescriptions(edm::ConfigurationDescriptions& confDesc) {
   edm::ParameterSetDescription desc;
 
-  desc.add<edm::InputTag>("digisInLabelEB", edm::InputTag{"ecalRawToDigiGPU", "ebDigisGPU"});
-  desc.add<edm::InputTag>("digisInLabelEE", edm::InputTag{"ecalRawToDigiGPU", "eeDigisGPU"});
+  desc.add<edm::InputTag>("digisInLabelEB", edm::InputTag{"ecalRawToDigiGPU", "ebDigis"});
+  desc.add<edm::InputTag>("digisInLabelEE", edm::InputTag{"ecalRawToDigiGPU", "eeDigis"});
   desc.add<std::string>("digisOutLabelEB", "ebDigis");
   desc.add<std::string>("digisOutLabelEE", "eeDigis");
 

@@ -429,8 +429,9 @@ def customiseEcalLocalReconstruction(process):
     # ECAL multifit running on gpu
     from RecoLocalCalo.EcalRecProducers.ecalUncalibRecHitProducerGPU_cfi import ecalUncalibRecHitProducerGPU as _ecalUncalibRecHitProducerGPU
     process.hltEcalUncalibRecHitGPU = _ecalUncalibRecHitProducerGPU.clone(
-        digisLabelEB = cms.InputTag("hltEcalDigisGPU", "ebDigis"),
-        digisLabelEE = cms.InputTag("hltEcalDigisGPU", "eeDigis")
+        digisLabelEB = ("hltEcalDigisGPU", "ebDigis"),
+        digisLabelEE = ("hltEcalDigisGPU", "eeDigis"),
+        shouldRunTimingComputation = False
     )
 
     # copy the ECAL uncalibrated rechits from gpu to cpu in SoA format
