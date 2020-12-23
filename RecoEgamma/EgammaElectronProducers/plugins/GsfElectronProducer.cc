@@ -212,7 +212,6 @@ void GsfElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
   }
 
   // Corrections
-  desc.add<std::string>("superClusterErrorFunction", "EcalClusterEnergyUncertaintyObjectSpecific");
   desc.add<std::string>("crackCorrectionFunction", "EcalClusterCrackCorrection");
 
   desc.add<bool>("ecalWeightsFromDB", true);
@@ -375,7 +374,6 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const Gsf
       hcalCfg_,
       isoCfg,
       recHitsCfg,
-      EcalClusterFunctionFactory::get()->create(cfg.getParameter<std::string>("superClusterErrorFunction"), cfg),
       EcalClusterFunctionFactory::get()->create(cfg.getParameter<std::string>("crackCorrectionFunction"), cfg),
       regressionCfg,
       cfg.getParameter<edm::ParameterSet>("trkIsol03Cfg"),
