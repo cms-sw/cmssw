@@ -137,7 +137,8 @@ TTTrackAssociationMap<T>::~TTTrackAssociationMap() {}
 
 /// Operations
 template <>
-const TrackingParticlePtr& TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::findTrackingParticlePtr(TTTrackPtr aTrack) const;
+const TrackingParticlePtr& TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::findTrackingParticlePtr(
+    TTTrackPtr aTrack) const;
 
 template <>
 const std::vector<TTTrackPtr>& TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::findTTTrackPtrs(

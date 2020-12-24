@@ -110,14 +110,12 @@ private:
 
 };  /// Close class
 
-
 /*! \brief   Implementation of methods
  *  \details Here, in the header file, the methods which do not depend
  *           on the specific type <T> that can fit the template.
  *           Other methods, with type-specific features, are implemented
  *           in the source file.
  */
-
 
 // Static constant data members.
 template <typename T>
