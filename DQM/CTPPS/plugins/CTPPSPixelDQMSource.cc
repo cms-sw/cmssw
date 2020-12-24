@@ -732,8 +732,8 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event, edm::EventSetup const
             hRPotActivBX[index]->Fill(event.bunchCrossing());
           hRPotActivBXall[index]->Fill(event.bunchCrossing(), float(RPdigiSize[index]));
         }
-	 
-        int planesFiredAtROC[NROCsMAX]; // how many planes registered hits on ROC r
+
+        int planesFiredAtROC[NROCsMAX];  // how many planes registered hits on ROC r
         for (int r = 0; r < NROCsMAX; r++)
           planesFiredAtROC[r] = 0;
         for (int p = 0; p < NplaneMAX; p++) {
@@ -751,7 +751,7 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event, edm::EventSetup const
         for (int r = 0; r < NROCsMAX; r++)
           if (max < planesFiredAtROC[r])
             max = planesFiredAtROC[r];
-        if (max >= 4 && onlinePlots) // fill only if there are at least 4 aligned ROCs firing
+        if (max >= 4 && onlinePlots)  // fill only if there are at least 4 aligned ROCs firing
           hRPotActivBXroc[index]->Fill(event.bunchCrossing());
       }  // end for(int rp=0; rp<NRPotsMAX; rp++) {
     }
