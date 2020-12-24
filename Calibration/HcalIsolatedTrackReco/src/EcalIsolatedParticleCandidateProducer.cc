@@ -26,11 +26,12 @@
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "Calibration/HcalIsolatedTrackReco/interface/EcalIsolatedParticleCandidateProducer.h"
+
+//#define EDM_ML_DEBUG
 
 EcalIsolatedParticleCandidateProducer::EcalIsolatedParticleCandidateProducer(const edm::ParameterSet& conf) {
   InConeSize_ = conf.getParameter<double>("EcalInnerConeSize");
@@ -41,6 +42,8 @@ EcalIsolatedParticleCandidateProducer::EcalIsolatedParticleCandidateProducer(con
   tok_hlt_ = consumes<trigger::TriggerFilterObjectWithRefs>(conf.getParameter<edm::InputTag>("L1GTSeedLabel"));
   tok_EB_ = consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("EBrecHitCollectionLabel"));
   tok_EE_ = consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("EErecHitCollectionLabel"));
+
+  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
 
   //register your products
   produces<reco::IsolatedPixelTrackCandidateCollection>();
@@ -59,26 +62,29 @@ EcalIsolatedParticleCandidateProducer::~EcalIsolatedParticleCandidateProducer() 
 void EcalIsolatedParticleCandidateProducer::produce(edm::StreamID,
                                                     edm::Event& iEvent,
                                                     const edm::EventSetup& iSetup) const {
-  //  std::cout<<"get tau"<<std::endl;
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalIsoTrack") << "get tau";
+#endif
   edm::Handle<l1extra::L1JetParticleCollection> l1Taus;
   iEvent.getByToken(tok_l1tau_, l1Taus);
 
-  //  std::cout<<"get geom"<<std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalIsoTrack") << "get geom";
+#endif
+  const CaloGeometry* geo = &iSetup.getData(tok_geom_);
 
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
-  const CaloGeometry* geo = pG.product();
-
-  //  std::cout<<" get ec rechit"<<std::endl;
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalIsoTrack") << "get ec rechit";
+#endif
   edm::Handle<EcalRecHitCollection> ecalEB;
   iEvent.getByToken(tok_EB_, ecalEB);
 
   edm::Handle<EcalRecHitCollection> ecalEE;
   iEvent.getByToken(tok_EE_, ecalEE);
 
-  //  std::cout<<"get l1 trig obj"<<std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalIsoTrack") << "get l1 trig obj";
+#endif
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> l1trigobj;
   iEvent.getByToken(tok_hlt_, l1trigobj);
@@ -93,8 +99,9 @@ void EcalIsolatedParticleCandidateProducer::produce(edm::StreamID,
   double etaTriggered = -100;
   double phiTriggered = -100;
 
-  //  std::cout<<"find highest pT triggered obj"<<std::endl;
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalIsoTrack") << "find highest pT triggered obj";
+#endif
   for (unsigned int p = 0; p < l1tauobjref.size(); p++) {
     if (l1tauobjref[p]->pt() > ptTriggered) {
       ptTriggered = l1tauobjref[p]->pt();
@@ -112,8 +119,9 @@ void EcalIsolatedParticleCandidateProducer::produce(edm::StreamID,
 
   auto iptcCollection = std::make_unique<reco::IsolatedPixelTrackCandidateCollection>();
 
-  //  std::cout<<"loop over l1taus"<<std::endl;
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalIsoTrack") << "loop over l1taus";
+#endif
   for (l1extra::L1JetParticleCollection::const_iterator tit = l1Taus->begin(); tit != l1Taus->end(); tit++) {
     double dphi = fabs(tit->phi() - phiTriggered);
     if (dphi > M_PI)
@@ -125,7 +133,9 @@ void EcalIsolatedParticleCandidateProducer::produce(edm::StreamID,
     int nhitIn = 0;
     double OutEnergy = 0;
     double InEnergy = 0;
-    //	std::cout<<" loops over rechits"<<std::endl;
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HcalIsoTrack") << "loops over rechits";
+#endif
     for (EcalRecHitCollection::const_iterator eItr = ecalEB->begin(); eItr != ecalEB->end(); eItr++) {
       double phiD, R;
       const GlobalPoint& pos = geo->getPosition(eItr->detid());
@@ -173,7 +183,9 @@ void EcalIsolatedParticleCandidateProducer::produce(edm::StreamID,
         InEnergy += eItr->energy();
       }
     }
-    //	std::cout<<"create and push_back candidate"<<std::endl;
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HcalIsoTrack") << "create and push_back candidate";
+#endif
     reco::IsolatedPixelTrackCandidate newca(
         l1extra::L1JetParticleRef(l1Taus, tit - l1Taus->begin()), InEnergy, OutEnergy, nhitIn, nhitOut);
     iptcCollection->push_back(newca);
@@ -182,7 +194,9 @@ void EcalIsolatedParticleCandidateProducer::produce(edm::StreamID,
   //Use the ExampleData to create an ExampleData2 which
   // is put into the Event
 
-  //  std::cout<<"put cand into event"<<std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalIsoTrack") << "put cand into event";
+#endif
   iEvent.put(std::move(iptcCollection));
 }
 // ------------ method called once each job just before starting event loop  ------------
