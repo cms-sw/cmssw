@@ -51,19 +51,20 @@ public:
 
   /// Get/set cluster <-> truth association maps
 
-  const MapClusToVecTP<T>& getTTClusterToTrackingParticlesMap() const { return clusterToTrackingParticleVectorMap; }
-  const MapTPToVecClus<T>& getTrackingParticleToTTClustersMap() const { return trackingParticleToClusterVectorMap; }
+  const MapClusToVecTP<T>& getTTClusterToTrackingParticlesMap() const { return clusterToTrackingParticleVectorMap_; }
+  const MapTPToVecClus<T>& getTrackingParticleToTTClustersMap() const { return trackingParticleToClusterVectorMap_; }
 
-  void setTTClusterToTrackingParticlesMap(const MapClusToVecTP<T>& aMap) { clusterToTrackingParticleVectorMap = aMap; }
-  void setTrackingParticleToTTClustersMap(const MapTPToVecClus<T>& aMap) { trackingParticleToClusterVectorMap = aMap; }
+  void setTTClusterToTrackingParticlesMap(const MapClusToVecTP<T>& aMap) { clusterToTrackingParticleVectorMap_ = aMap; }
+  void setTrackingParticleToTTClustersMap(const MapTPToVecClus<T>& aMap) { trackingParticleToClusterVectorMap_ = aMap; }
 
   /// Get all TPs associated to a cluster
-  std::vector<TrackingParticlePtr> findTrackingParticlePtrs(TTClusterRefT<T> aCluster) const;
+  const std::vector<TrackingParticlePtr>& findTrackingParticlePtrs(TTClusterRefT<T> aCluster) const;
+
   /// Get main TP associated to a cluster. (Non-NULL if isGenuine() below is true).
-  TrackingParticlePtr findTrackingParticlePtr(TTClusterRefT<T> aCluster) const;
+  const TrackingParticlePtr& findTrackingParticlePtr(TTClusterRefT<T> aCluster) const;
 
   // Get all clusters associated to TP.
-  std::vector<TTClusterRefT<T>> findTTClusterRefs(TrackingParticlePtr aTrackingParticle) const;
+  const std::vector<TTClusterRefT<T>>& findTTClusterRefs(TrackingParticlePtr aTrackingParticle) const;
 
   ///--- Get quality of L1 cluster based on truth info.
   /// (exactly 1 of following 3 functions is always true)
@@ -79,12 +80,18 @@ public:
 
 private:
   /// Data members
-  MapClusToVecTP<T> clusterToTrackingParticleVectorMap;
-  MapTPToVecClus<T> trackingParticleToClusterVectorMap;
+  MapClusToVecTP<T> clusterToTrackingParticleVectorMap_;
+  MapTPToVecClus<T> trackingParticleToClusterVectorMap_;
 
   int nclus;
 
+  // Allow functions to return reference to null.
+  static const TrackingParticlePtr nullTrackingParticlePtr_;
+  static const std::vector<TrackingParticlePtr> nullVecTrackingParticlePtr_;
+  static const std::vector<TTClusterRefT<T>> nullVecClusterRef_;
+
 };  /// Close class
+
 
 /*! \brief   Implementation of methods
  *  \details Here, in the header file, the methods which do not depend
@@ -93,13 +100,20 @@ private:
  *           in the source file.
  */
 
+
+// Static constant data members.
+template <typename T>
+const TrackingParticlePtr TTClusterAssociationMap<T>::nullTrackingParticlePtr_;
+template <typename T>
+const std::vector<TrackingParticlePtr> TTClusterAssociationMap<T>::nullVecTrackingParticlePtr_;
+template <typename T>
+const std::vector<TTClusterRefT<T>> TTClusterAssociationMap<T>::nullVecClusterRef_;
+
 /// Default Constructor
 /// NOTE: to be used with setSomething(...) methods
 template <typename T>
 TTClusterAssociationMap<T>::TTClusterAssociationMap() {
   /// Set default data members
-  clusterToTrackingParticleVectorMap.clear();
-  trackingParticleToClusterVectorMap.clear();
   nclus = 0;
 }
 
@@ -109,26 +123,31 @@ TTClusterAssociationMap<T>::~TTClusterAssociationMap() {}
 
 /// Operations
 template <typename T>
-std::vector<TTClusterRefT<T>> TTClusterAssociationMap<T>::findTTClusterRefs(
+const std::vector<TTClusterRefT<T>>& TTClusterAssociationMap<T>::findTTClusterRefs(
     TrackingParticlePtr aTrackingParticle) const {
-  if (trackingParticleToClusterVectorMap.find(aTrackingParticle) != trackingParticleToClusterVectorMap.end()) {
-    return trackingParticleToClusterVectorMap.find(aTrackingParticle)->second;
+  if (trackingParticleToClusterVectorMap_.find(aTrackingParticle) != trackingParticleToClusterVectorMap_.end()) {
+    return trackingParticleToClusterVectorMap_.find(aTrackingParticle)->second;
+  } else {
+    return nullVecClusterRef_;
   }
-
-  std::vector<TTClusterRefT<T>> tempVector;
-  tempVector.clear();
-  return tempVector;
 }
 
 template <typename T>
-std::vector<TrackingParticlePtr> TTClusterAssociationMap<T>::findTrackingParticlePtrs(TTClusterRefT<T> aCluster) const {
-  if (clusterToTrackingParticleVectorMap.find(aCluster) != clusterToTrackingParticleVectorMap.end()) {
-    return clusterToTrackingParticleVectorMap.find(aCluster)->second;
+const std::vector<TrackingParticlePtr>& TTClusterAssociationMap<T>::findTrackingParticlePtrs(TTClusterRefT<T> aCluster) const {
+  if (clusterToTrackingParticleVectorMap_.find(aCluster) != clusterToTrackingParticleVectorMap_.end()) {
+    return clusterToTrackingParticleVectorMap_.find(aCluster)->second;
+  } else {
+    return nullVecTrackingParticlePtr_;
   }
+}
 
-  std::vector<TrackingParticlePtr> tempVector;
-  tempVector.clear();
-  return tempVector;
+template <typename T>
+const TrackingParticlePtr& TTClusterAssociationMap<T>::findTrackingParticlePtr(TTClusterRefT<T> aCluster) const {
+  if (this->isGenuine(aCluster)) {
+    return this->findTrackingParticlePtrs(aCluster).at(0);
+  } else {
+    return nullTrackingParticlePtr_;
+  }
 }
 
 /// MC truth
@@ -158,7 +177,7 @@ std::vector<TrackingParticlePtr> TTClusterAssociationMap<T>::findTrackingParticl
 template <typename T>
 bool TTClusterAssociationMap<T>::isGenuine(TTClusterRefT<T> aCluster) const {
   /// Get the TrackingParticles
-  std::vector<TrackingParticlePtr> theseTrackingParticles = this->findTrackingParticlePtrs(aCluster);
+  const std::vector<TrackingParticlePtr>& theseTrackingParticles = this->findTrackingParticlePtrs(aCluster);
 
   /// If the vector is empty, then the cluster is UNKNOWN
   if (theseTrackingParticles.empty())
@@ -216,7 +235,7 @@ bool TTClusterAssociationMap<T>::isGenuine(TTClusterRefT<T> aCluster) const {
 template <typename T>
 bool TTClusterAssociationMap<T>::isUnknown(TTClusterRefT<T> aCluster) const {
   /// Get the TrackingParticles
-  std::vector<TrackingParticlePtr> theseTrackingParticles = this->findTrackingParticlePtrs(aCluster);
+  const std::vector<TrackingParticlePtr>& theseTrackingParticles = this->findTrackingParticlePtrs(aCluster);
 
   /// If the vector is empty, then the cluster is UNKNOWN
   if (theseTrackingParticles.empty())
@@ -251,7 +270,7 @@ bool TTClusterAssociationMap<T>::isUnknown(TTClusterRefT<T> aCluster) const {
 template <typename T>
 bool TTClusterAssociationMap<T>::isCombinatoric(TTClusterRefT<T> aCluster) const {
   /// Get the TrackingParticles
-  std::vector<TrackingParticlePtr> theseTrackingParticles = this->findTrackingParticlePtrs(aCluster);
+  const std::vector<TrackingParticlePtr>& theseTrackingParticles = this->findTrackingParticlePtrs(aCluster);
 
   /// If the vector is empty, then the cluster is UNKNOWN
   if (theseTrackingParticles.empty())
@@ -294,16 +313,6 @@ bool TTClusterAssociationMap<T>::isCombinatoric(TTClusterRefT<T> aCluster) const
   /// OR, in alternative, only one good TP but non-zero NULLS
   //return ( ( nullTPs == 0 && goodDifferentTPs > 1 ) || ( nullTPs > 0 && goodDifferentTPs > 0 ) );
   return (goodDifferentTPs > 1);
-}
-
-template <typename T>
-TrackingParticlePtr TTClusterAssociationMap<T>::findTrackingParticlePtr(TTClusterRefT<T> aCluster) const {
-  if (this->isGenuine(aCluster)) {
-    return this->findTrackingParticlePtrs(aCluster).at(0);
-  }
-
-  TrackingParticlePtr* temp = new TrackingParticlePtr();
-  return *temp;
 }
 
 #endif

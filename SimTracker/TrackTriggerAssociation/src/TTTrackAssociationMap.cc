@@ -9,27 +9,22 @@
 
 /// Operations
 template <>
-TrackingParticlePtr TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::findTrackingParticlePtr(TTTrackPtr aTrack) const {
-  if (trackToTrackingParticleMap.find(aTrack) != trackToTrackingParticleMap.end()) {
-    return trackToTrackingParticleMap.find(aTrack)->second;
+const TrackingParticlePtr& TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::findTrackingParticlePtr(TTTrackPtr aTrack) const {
+  if (trackToTrackingParticleMap_.find(aTrack) != trackToTrackingParticleMap_.end()) {
+    return trackToTrackingParticleMap_.find(aTrack)->second;
+  } else {
+    return nullTrackingParticlePtr_;
   }
-
-  /// Default: return NULL
-  TrackingParticlePtr* temp = new TrackingParticlePtr();
-  return *temp;
 }
 
 template <>
-std::vector<TTTrackPtr> TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::findTTTrackPtrs(
+const std::vector<TTTrackPtr>& TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::findTTTrackPtrs(
     TrackingParticlePtr aTrackingParticle) const {
-  if (trackingParticleToTrackVectorMap.find(aTrackingParticle) != trackingParticleToTrackVectorMap.end()) {
-    return trackingParticleToTrackVectorMap.find(aTrackingParticle)->second;
+  if (trackingParticleToTrackVectorMap_.find(aTrackingParticle) != trackingParticleToTrackVectorMap_.end()) {
+    return trackingParticleToTrackVectorMap_.find(aTrackingParticle)->second;
+  } else {
+    return nullVecTTTrackPtr_;
   }
-
-  /// Default: return empty vector
-  std::vector<TTTrackPtr> tempVec;
-  tempVec.clear();
-  return tempVec;
 }
 
 /// MC truth
@@ -50,8 +45,8 @@ bool TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::isGenuine(TTTrackPtr aTrack)
     return false;
 
   /// Get all the stubs from this track & associated TrackingParticle
-  std::vector<TTStubRef> TRK_Stubs = aTrack->getStubRefs();
-  std::vector<TTStubRef> TP_Stubs = theStubAssociationMap->findTTStubRefs(this->findTrackingParticlePtr(aTrack));
+  const std::vector<TTStubRef>& TRK_Stubs = aTrack->getStubRefs();
+  const std::vector<TTStubRef>& TP_Stubs = theStubAssociationMap_->findTTStubRefs(this->findTrackingParticlePtr(aTrack));
 
   bool one2SStub = false;
   for (unsigned int js = 0; js < TRK_Stubs.size(); js++) {
@@ -90,9 +85,9 @@ bool TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::isUnknown(TTTrackPtr aTrack)
   /// UNKNOWN means that >= 2 stubs are unknown
   int unknownstubs = 0;
 
-  std::vector<TTStubRef> theseStubs = aTrack->getStubRefs();
+  const std::vector<TTStubRef>& theseStubs = aTrack->getStubRefs();
   for (unsigned int i = 0; i < theseStubs.size(); i++) {
-    if (theStubAssociationMap->isUnknown(theseStubs.at(i)) == false) {
+    if (theStubAssociationMap_->isUnknown(theseStubs.at(i)) == false) {
       ++unknownstubs;
       if (unknownstubs >= 2)
         return false;

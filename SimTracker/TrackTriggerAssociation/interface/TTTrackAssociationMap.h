@@ -53,25 +53,25 @@ public:
 
   /// Get/set stub <-> truth association maps
 
-  const MapL1TrackToTP<T>& getTTTrackToTrackingParticleMap() const { return trackToTrackingParticleMap; }
-  const MapTPToVecL1Track<T>& getTrackingParticleToTTTracksMap() const { return trackingParticleToTrackVectorMap; }
+  const MapL1TrackToTP<T>& getTTTrackToTrackingParticleMap() const { return trackToTrackingParticleMap_; }
+  const MapTPToVecL1Track<T>& getTrackingParticleToTTTracksMap() const { return trackingParticleToTrackVectorMap_; }
 
-  void setTTTrackToTrackingParticleMap(const MapL1TrackToTP<T>& aMap) { trackToTrackingParticleMap = aMap; }
-  void setTrackingParticleToTTTracksMap(const MapTPToVecL1Track<T>& aMap) { trackingParticleToTrackVectorMap = aMap; }
+  void setTTTrackToTrackingParticleMap(const MapL1TrackToTP<T>& aMap) { trackToTrackingParticleMap_ = aMap; }
+  void setTrackingParticleToTTTracksMap(const MapTPToVecL1Track<T>& aMap) { trackingParticleToTrackVectorMap_ = aMap; }
 
   /// Set stub <-> truth association object.
   void setTTStubAssociationMap(edm::RefProd<TTStubAssociationMap<T>> aStubAssoMap) {
-    theStubAssociationMap = aStubAssoMap;
+    theStubAssociationMap_ = aStubAssoMap;
   }
 
   /// Get principle TP associated to a L1 track. (Non-NULL if isLooselyGenuine() below is true).
   /// (N.B. There is no function returning all TP associated to a L1 track).
-  TrackingParticlePtr findTrackingParticlePtr(TTTrackPtrT<T> aTrack) const;
+  const TrackingParticlePtr& findTrackingParticlePtr(TTTrackPtrT<T> aTrack) const;
 
   /// Get all L1 tracks associated to a TP.
   /// (Even if the TP just contributes to one cluster in one stub,
   /// and even if their are other such TP, it is still listed here).
-  std::vector<TTTrackPtrT<T>> findTTTrackPtrs(TrackingParticlePtr aTrackingParticle) const;
+  const std::vector<TTTrackPtrT<T>>& findTTTrackPtrs(TrackingParticlePtr aTrackingParticle) const;
 
   ///--- Get quality of L1 track based on truth info.
   /// (N.B. "genuine" tracks are used for official L1 track efficiency measurements).
@@ -99,11 +99,15 @@ public:
 
 private:
   /// Data members
-  MapL1TrackToTP<T> trackToTrackingParticleMap;
-  MapTPToVecL1Track<T> trackingParticleToTrackVectorMap;
-  edm::RefProd<TTStubAssociationMap<T>> theStubAssociationMap;
+  MapL1TrackToTP<T> trackToTrackingParticleMap_;
+  MapTPToVecL1Track<T> trackingParticleToTrackVectorMap_;
+  edm::RefProd<TTStubAssociationMap<T>> theStubAssociationMap_;
 
   bool AllowOneFalse2SStub;
+
+  // Allow functions to return reference to null.
+  static const TrackingParticlePtr nullTrackingParticlePtr_;
+  static const std::vector<TTTrackPtr> nullVecTTTrackPtr_;
 
 };  /// Close class
 
@@ -114,13 +118,17 @@ private:
  *           in the source file.
  */
 
+// Static constant data members.
+template <typename T>
+const TrackingParticlePtr TTTrackAssociationMap<T>::nullTrackingParticlePtr_;
+template <typename T>
+const std::vector<TTTrackPtr> TTTrackAssociationMap<T>::nullVecTTTrackPtr_;
+
 /// Default Constructor
 /// NOTE: to be used with setSomething(...) methods
 template <typename T>
 TTTrackAssociationMap<T>::TTTrackAssociationMap() {
   /// Set default data members
-  trackToTrackingParticleMap.clear();
-  trackingParticleToTrackVectorMap.clear();
 }
 
 /// Destructor
@@ -129,10 +137,10 @@ TTTrackAssociationMap<T>::~TTTrackAssociationMap() {}
 
 /// Operations
 template <>
-TrackingParticlePtr TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::findTrackingParticlePtr(TTTrackPtr aTrack) const;
+const TrackingParticlePtr& TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::findTrackingParticlePtr(TTTrackPtr aTrack) const;
 
 template <>
-std::vector<TTTrackPtr> TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::findTTTrackPtrs(
+const std::vector<TTTrackPtr>& TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::findTTTrackPtrs(
     TrackingParticlePtr aTrackingParticle) const;
 
 /// MC truth

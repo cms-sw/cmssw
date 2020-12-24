@@ -17,19 +17,19 @@ void TTStubAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const
     return;
 
   /// Exit if the vectors are uncorrectly dimensioned
-  if (ttClusterTruthInputTags.size() != ttStubsInputTags.size()) {
+  if (ttClusterTruthInputTags_.size() != ttStubsInputTags_.size()) {
     edm::LogError("TTStubAsso ") << "E R R O R! the InputTag vectors have different size!";
     return;
   }
 
   int ncont1 = 0;
 
-  const TrackerGeometry* const theTrackerGeom = theTrackerGeometry.product();
-  const TrackerTopology* const tTopo = theTrackerTopology.product();
+  const TrackerGeometry* const theTrackerGeom = theTrackerGeometry_.product();
+  const TrackerTopology* const tTopo = theTrackerTopology_.product();
 
   /// Loop over the InputTags to handle multiple collections
 
-  for (const auto& iTag : ttStubsTokens) {
+  for (const auto& iTag : ttStubsTokens_) {
     /// Prepare output
     auto associationMapForOutput = std::make_unique<TTStubAssociationMap<Ref_Phase2TrackerDigi_>>();
 
@@ -39,13 +39,11 @@ void TTStubAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const
 
     /// Get the Cluster MC truth
     edm::Handle<TTClusterAssociationMap<Ref_Phase2TrackerDigi_>> ttClusterAssociationMapHandle;
-    iEvent.getByToken(ttClusterTruthTokens.at(ncont1), ttClusterAssociationMapHandle);
+    iEvent.getByToken(ttClusterTruthTokens_.at(ncont1), ttClusterAssociationMapHandle);
 
     /// Prepare the necessary maps
     std::map<TTStubRef, TrackingParticlePtr> stubToTrackingParticleMap;
     std::map<TrackingParticlePtr, std::vector<TTStubRef>> trackingParticleToStubVectorMap;
-    stubToTrackingParticleMap.clear();
-    trackingParticleToStubVectorMap.clear();
 
     /// Loop over the input Stubs
 
@@ -72,7 +70,7 @@ void TTStubAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const
 
           /// Fill the inclusive map which is careless of the stub classification
           for (unsigned int ic = 0; ic < 2; ic++) {
-            std::vector<TrackingParticlePtr> tempTPs =
+            const std::vector<TrackingParticlePtr>& tempTPs =
                 ttClusterAssociationMapHandle->findTrackingParticlePtrs(tempStubRef->clusterRef(ic));
 
             for (const TrackingParticlePtr& testTP : tempTPs) {
@@ -82,8 +80,7 @@ void TTStubAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const
               /// Prepare the maps wrt TrackingParticle
               if (trackingParticleToStubVectorMap.find(testTP) == trackingParticleToStubVectorMap.end()) {
                 std::vector<TTStubRef> stubVector;
-                stubVector.clear();
-                trackingParticleToStubVectorMap.insert(std::make_pair(testTP, stubVector));
+                trackingParticleToStubVectorMap.emplace(testTP, stubVector);
               }
               trackingParticleToStubVectorMap.find(testTP)->second.push_back(tempStubRef);  /// Fill the auxiliary map
             }
@@ -110,12 +107,12 @@ void TTStubAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const
               if (ttClusterAssociationMapHandle->findTrackingParticlePtr(tempStubRef->clusterRef(0)).get() ==
                   ttClusterAssociationMapHandle->findTrackingParticlePtr(tempStubRef->clusterRef(1)).get()) {
                 /// Two genuine clusters with same SimTrack content mean genuine
-                TrackingParticlePtr testTP =
+                const TrackingParticlePtr& testTP =
                     ttClusterAssociationMapHandle->findTrackingParticlePtr(tempStubRef->clusterRef(0));
 
                 /// Fill the map: by construction, this will always be the first time the
                 /// stub is inserted into the map: no need for "find"
-                stubToTrackingParticleMap.insert(std::make_pair(tempStubRef, testTP));
+                stubToTrackingParticleMap.emplace(tempStubRef, testTP);
 
                 /// At this point, go to the next Stub
                 continue;
@@ -129,9 +126,9 @@ void TTStubAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const
               TrackingParticle* prevTPAddress = nullptr;
               unsigned int whichTP = 0;
 
-              std::vector<TrackingParticlePtr> trackingParticles0 =
+              const std::vector<TrackingParticlePtr>& trackingParticles0 =
                   ttClusterAssociationMapHandle->findTrackingParticlePtrs(tempStubRef->clusterRef(0));
-              std::vector<TrackingParticlePtr> trackingParticles1 =
+              const std::vector<TrackingParticlePtr>& trackingParticles1 =
                   ttClusterAssociationMapHandle->findTrackingParticlePtrs(tempStubRef->clusterRef(1));
 
               bool escape = false;
@@ -180,7 +177,7 @@ void TTStubAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const
 
                 /// Fill the map: by construction, this will always be the first time the
                 /// stub is inserted into the map: no need for "find"
-                stubToTrackingParticleMap.insert(std::make_pair(tempStubRef, testTP));
+                stubToTrackingParticleMap.emplace(tempStubRef, testTP);
 
                 /// At this point, go to the next Stub
                 continue;
@@ -193,17 +190,13 @@ void TTStubAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const
 
     /// Clean the only map that needs cleaning
     /// Prepare the output map wrt TrackingParticle
-    typename std::map<TrackingParticlePtr, std::vector<TTStubRef>>::iterator iterMapToClean;
     for (auto& p : trackingParticleToStubVectorMap) {
       /// Get the vector of references to TTStub
-      std::vector<TTStubRef> tempVector = p.second;
+      std::vector<TTStubRef>& tempVector = p.second;
 
       /// Sort and remove duplicates
       std::sort(tempVector.begin(), tempVector.end());
       tempVector.erase(std::unique(tempVector.begin(), tempVector.end()), tempVector.end());
-
-      /// Put the vector in the output map
-      p.second = tempVector;
     }
 
     /// Also, create the pointer to the TTClusterAssociationMap
@@ -215,7 +208,7 @@ void TTStubAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const
     associationMapForOutput->setTTClusterAssociationMap(theCluAssoMap);
 
     /// Put output in the event
-    iEvent.put(std::move(associationMapForOutput), ttStubsInputTags.at(ncont1).instance());
+    iEvent.put(std::move(associationMapForOutput), ttStubsInputTags_.at(ncont1).instance());
 
     ++ncont1;
   }  /// End of loop over InputTags
