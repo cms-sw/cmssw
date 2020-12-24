@@ -38,8 +38,8 @@ private:
 };
 
 EcalPreshowerCellParameterDump::EcalPreshowerCellParameterDump(const edm::ParameterSet& ps)
-  : debug_(ps.getUntrackedParameter<bool>("debug", false)),
-    tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()) {
+    : debug_(ps.getUntrackedParameter<bool>("debug", false)),
+      tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()) {
   usesResource(TFileService::kSharedResource);
 
   if (debug_) {

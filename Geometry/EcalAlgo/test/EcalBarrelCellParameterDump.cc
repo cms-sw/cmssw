@@ -21,11 +21,13 @@ public:
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
   void endJob() override {}
+
 private:
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
 };
 
-EcalBarrelCellParameterDump::EcalBarrelCellParameterDump(const edm::ParameterSet&) : tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()) {}
+EcalBarrelCellParameterDump::EcalBarrelCellParameterDump(const edm::ParameterSet&)
+    : tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()) {}
 
 void EcalBarrelCellParameterDump::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup) {
   const CaloGeometry* geo = &iSetup.getData(tok_geom_);
