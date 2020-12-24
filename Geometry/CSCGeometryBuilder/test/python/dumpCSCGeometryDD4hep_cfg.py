@@ -27,6 +27,17 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
+process.MessageLogger = cms.Service(
+        "MessageLogger",
+  destinations = cms.untracked.vstring(
+                'cout'
+        ),
+        cout = cms.untracked.PSet(
+                threshold = cms.untracked.string('DEBUG')
+        ),
+        debugModules = cms.untracked.vstring('*')
+)
+
 process.cscGeometryDump.verbose = True
 
 process.p = cms.Path(process.cscGeometryDump)
