@@ -9,7 +9,8 @@
 
 /// Operations
 template <>
-const TrackingParticlePtr& TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::findTrackingParticlePtr(TTTrackPtr aTrack) const {
+const TrackingParticlePtr& TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::findTrackingParticlePtr(
+    TTTrackPtr aTrack) const {
   if (trackToTrackingParticleMap_.find(aTrack) != trackToTrackingParticleMap_.end()) {
     return trackToTrackingParticleMap_.find(aTrack)->second;
   } else {
@@ -46,7 +47,8 @@ bool TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::isGenuine(TTTrackPtr aTrack)
 
   /// Get all the stubs from this track & associated TrackingParticle
   const std::vector<TTStubRef>& TRK_Stubs = aTrack->getStubRefs();
-  const std::vector<TTStubRef>& TP_Stubs = theStubAssociationMap_->findTTStubRefs(this->findTrackingParticlePtr(aTrack));
+  const std::vector<TTStubRef>& TP_Stubs =
+      theStubAssociationMap_->findTTStubRefs(this->findTrackingParticlePtr(aTrack));
 
   bool one2SStub = false;
   for (unsigned int js = 0; js < TRK_Stubs.size(); js++) {

@@ -98,7 +98,7 @@ void TTClusterAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, co
             /// No SimLink is found by definition
             /// Then store NULL MC truth for all the digis
             TrackingParticlePtr tempTPPtr;
-	    clusterToTrackingParticleVectorMap.find(tempCluRef)->second.push_back(tempTPPtr);
+            clusterToTrackingParticleVectorMap.find(tempCluRef)->second.push_back(tempTPPtr);
           }
 
           /// Go to the next sensor
