@@ -7,7 +7,7 @@
 // \author Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4HEP migration)
 //         Created:  Thu, 05 March 2020 
 //         Modified: Thu, 04 June 2020, following what made in PR #30047               
-//   
+//         Modified: Wed, 23 December 2020 
 //         Original author: Tim Cox
 */
 #include "CSCGeometryParsFromDD.h"
