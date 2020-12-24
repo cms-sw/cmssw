@@ -24,16 +24,17 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 #        (HE collapse: TTbar, TTbar PU, TTbar design)
 #        (ParkingBPH: TTbar)
 #        (TTbar PU with JME NanoAOD)
-#        (Patatrack pixel-only: ZMM - on CPU, on GPU, both, auto)
-#        (Patatrack pixel-only: TTbar - on CPU, on GPU, both, auto)
-#        (Patatrack ECAL-only: TTbar - on CPU, on GPU, both, auto)
-#        (Patatrack HCAL-only: TTbar - on CPU, on GPU, both, auto)
-#   2021 (ZMM, TTbar, ZEE, MinBias, TTbar PU, TTbar PU premix, ZEE PU, TTbar design)
+#        (Patatrack pixel-only: ZMM - on CPU)
+#        (Patatrack pixel-only: TTbar - on CPU)
+#        (Patatrack ECAL-only: TTbar - on CPU)
+#        (Patatrack HCAL-only: TTbar - on CPU)
+#   2021 (DD4HEP: TTbar, ZMM)
+#        (ZMM, TTbar, ZEE, MinBias, TTbar PU, TTbar PU premix, ZEE PU, TTbar design)
 #        (TTbar trackingOnly, pixelTrackingOnly, trackingMkFit)
-#        (Patatrack pixel-only: ZMM - on CPU, on GPU, both, auto)
-#        (Patatrack pixel-only: TTbar - on CPU, on GPU, both, auto)
-#        (Patatrack ECAL-only: TTbar - on CPU, on GPU, both, auto)
-#        (Patatrack HCAL-only: TTbar - on CPU, on GPU, both, auto)
+#        (Patatrack pixel-only: ZMM - on CPU)
+#        (Patatrack pixel-only: TTbar - on CPU)
+#        (Patatrack ECAL-only: TTbar - on CPU)
+#        (Patatrack HCAL-only: TTbar - on CPU)
 #        (TTbar 0T, TTbar PU 0T)
 #        (QCD 1.8TeV DeepCore)
 #   2023 (TTbar, TTbar PU, TTbar PU premix)
@@ -48,17 +49,17 @@ numWFIB = [10001.0,10002.0,10003.0,10004.0,10005.0,10006.0,10007.0,10008.0,10009
            10824.6,11024.6,11224.6,
            10824.8,
            11024.15,
-           10842.501,10842.502, # 10842.503,10842.504,
-           10824.501,10824.502, # 10824.503,10824.504,
-           10824.511,10824.512, # 10824.513,10824.514,
-           10824.521,10824.522, # 10824.523,10824.524,
+           10842.501,
+           10824.501,
+           10824.511,
+           10824.521,
            11624.911, 11642.911,
            11650.0,11634.0,11646.0,11640.0,11834.0,11834.99,11846.0,12024.0,
            11634.1,11634.5,11634.7,
-           11650.501,11650.502, # 11650.503,11650.504,
-           11634.501,11634.502, # 11634.503,11634.504,
-           11634.511,11634.512, # 11634.513,11634.514,
-           11634.521,11634.522, # 11634.523,11634.524
+           11650.501,
+           11634.501,
+           11634.511,
+           11634.521,
            11634.24,11834.24,
            11634.17, #FIXME to 11723.17,
            12434.0,12634.0,12634.99,
