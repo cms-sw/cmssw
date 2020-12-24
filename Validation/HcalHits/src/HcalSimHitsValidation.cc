@@ -1,5 +1,4 @@
 #include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Validation/HcalHits/interface/HcalSimHitsValidation.h"
 
 HcalSimHitsValidation::HcalSimHitsValidation(edm::ParameterSet const &conf) {
@@ -23,11 +22,12 @@ HcalSimHitsValidation::HcalSimHitsValidation(edm::ParameterSet const &conf) {
   tok_ecalEB_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, ebHits_));
   tok_ecalEE_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, eeHits_));
   tok_HRNDC_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>();
+  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
 
   if (!outputFile_.empty()) {
-    edm::LogInfo("OutputInfo") << " Hcal SimHit Task histograms will be saved to '" << outputFile_.c_str() << "'";
+    edm::LogVerbatim("OutputInfo") << " Hcal SimHit Task histograms will be saved to '" << outputFile_.c_str() << "'";
   } else {
-    edm::LogInfo("OutputInfo") << " Hcal SimHit Task histograms will NOT be saved";
+    edm::LogVerbatim("OutputInfo") << " Hcal SimHit Task histograms will NOT be saved";
   }
 
   nevtot = 0;
@@ -36,31 +36,30 @@ HcalSimHitsValidation::HcalSimHitsValidation(edm::ParameterSet const &conf) {
 HcalSimHitsValidation::~HcalSimHitsValidation() {}
 
 void HcalSimHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run, edm::EventSetup const &es) {
-  const auto &pHRNDC = es.getData(tok_HRNDC_);
-  hcons = &pHRNDC;
-  maxDepthHB_ = hcons->getMaxDepth(0);
-  maxDepthHE_ = hcons->getMaxDepth(1);
-  maxDepthHF_ = hcons->getMaxDepth(2);
-  maxDepthHO_ = hcons->getMaxDepth(3);
+  hcons_ = &es.getData(tok_HRNDC_);
+  maxDepthHB_ = hcons_->getMaxDepth(0);
+  maxDepthHE_ = hcons_->getMaxDepth(1);
+  maxDepthHF_ = hcons_->getMaxDepth(2);
+  maxDepthHO_ = hcons_->getMaxDepth(3);
 
   // Get Phi segmentation from geometry, use the max phi number so that all iphi
   // values are included.
 
-  int NphiMax = hcons->getNPhi(0);
+  int NphiMax = hcons_->getNPhi(0);
 
-  NphiMax = (hcons->getNPhi(1) > NphiMax ? hcons->getNPhi(1) : NphiMax);
-  NphiMax = (hcons->getNPhi(2) > NphiMax ? hcons->getNPhi(2) : NphiMax);
-  NphiMax = (hcons->getNPhi(3) > NphiMax ? hcons->getNPhi(3) : NphiMax);
+  NphiMax = (hcons_->getNPhi(1) > NphiMax ? hcons_->getNPhi(1) : NphiMax);
+  NphiMax = (hcons_->getNPhi(2) > NphiMax ? hcons_->getNPhi(2) : NphiMax);
+  NphiMax = (hcons_->getNPhi(3) > NphiMax ? hcons_->getNPhi(3) : NphiMax);
 
   // Center the iphi bins on the integers
   // float iphi_min = 0.5;
   // float iphi_max = NphiMax + 0.5;
   // int iphi_bins = (int) (iphi_max - iphi_min);
 
-  int iEtaHBMax = hcons->getEtaRange(0).second;
-  int iEtaHEMax = std::max(hcons->getEtaRange(1).second, 1);
-  int iEtaHFMax = hcons->getEtaRange(2).second;
-  int iEtaHOMax = hcons->getEtaRange(3).second;
+  int iEtaHBMax = hcons_->getEtaRange(0).second;
+  int iEtaHEMax = std::max(hcons_->getEtaRange(1).second, 1);
+  int iEtaHFMax = hcons_->getEtaRange(2).second;
+  int iEtaHOMax = hcons_->getEtaRange(3).second;
 
   // Retain classic behavior, all plots have same ieta range.
   // Comment out	code to	allow each subdetector to have its on range
@@ -286,9 +285,6 @@ void HcalSimHitsValidation::endJob() {
 }
 
 void HcalSimHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const &c) {
-  using namespace edm;
-  using namespace std;
-
   //===========================================================================
   // Getting SimHits
   //===========================================================================
@@ -299,7 +295,7 @@ void HcalSimHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
   edm::Handle<edm::HepMCProduct> evtMC;
   ev.getByToken(tok_evt_, evtMC);  // generator in late 310_preX
   if (!evtMC.isValid()) {
-    std::cout << "no HepMCProduct found" << std::endl;
+    edm::LogVerbatim("OutputInfo") << "no HepMCProduct found";
   }
 
   // MC particle with highest pt is taken as a direction reference
@@ -330,9 +326,9 @@ void HcalSimHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
   const float calib_HF1 = hf1_;  // 1.0/0.383;
   const float calib_HF2 = hf2_;  // 1.0/0.368;
 
-  edm::Handle<PCaloHitContainer> hcalHits;
+  edm::Handle<edm::PCaloHitContainer> hcalHits;
   ev.getByToken(tok_hcal_, hcalHits);
-  const PCaloHitContainer *SimHitResult = hcalHits.product();
+  const auto SimHitResult = hcalHits.product();
 
   float eta_diff;
   float etaMax = 9999;
@@ -340,17 +336,17 @@ void HcalSimHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
 
   double HcalCone = 0;
 
-  c.get<CaloGeometryRecord>().get(geometry);
+  geometry_ = &c.getData(tok_geom_);
 
   for (std::vector<PCaloHit>::const_iterator SimHits = SimHitResult->begin(); SimHits != SimHitResult->end();
        ++SimHits) {
     HcalDetId cell;
     if (testNumber_)
-      cell = HcalHitRelabeller::relabel(SimHits->id(), hcons);
+      cell = HcalHitRelabeller::relabel(SimHits->id(), hcons_);
     else
       cell = HcalDetId(SimHits->id());
 
-    auto cellGeometry = geometry->getSubdetectorGeometry(cell)->getGeometry(cell);
+    auto cellGeometry = geometry_->getSubdetectorGeometry(cell)->getGeometry(cell);
     double etaS = cellGeometry->getPosition().eta();
     double phiS = cellGeometry->getPosition().phi();
     double en = SimHits->energy();
@@ -430,15 +426,15 @@ void HcalSimHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
   double EcalCone = 0;
 
   if (!ebHits_.empty()) {
-    edm::Handle<PCaloHitContainer> ecalEBHits;
+    edm::Handle<edm::PCaloHitContainer> ecalEBHits;
     ev.getByToken(tok_ecalEB_, ecalEBHits);
-    const PCaloHitContainer *SimHitResultEB = ecalEBHits.product();
+    const auto SimHitResultEB = ecalEBHits.product();
 
     for (std::vector<PCaloHit>::const_iterator SimHits = SimHitResultEB->begin(); SimHits != SimHitResultEB->end();
          ++SimHits) {
       EBDetId EBid = EBDetId(SimHits->id());
 
-      auto cellGeometry = geometry->getSubdetectorGeometry(EBid)->getGeometry(EBid);
+      auto cellGeometry = geometry_->getSubdetectorGeometry(EBid)->getGeometry(EBid);
       double etaS = cellGeometry->getPosition().eta();
       double phiS = cellGeometry->getPosition().phi();
       double en = SimHits->energy();
@@ -452,15 +448,15 @@ void HcalSimHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
 
   // Ecal EE SimHits
   if (!eeHits_.empty()) {
-    edm::Handle<PCaloHitContainer> ecalEEHits;
+    edm::Handle<edm::PCaloHitContainer> ecalEEHits;
     ev.getByToken(tok_ecalEE_, ecalEEHits);
-    const PCaloHitContainer *SimHitResultEE = ecalEEHits.product();
+    const auto SimHitResultEE = ecalEEHits.product();
 
     for (std::vector<PCaloHit>::const_iterator SimHits = SimHitResultEE->begin(); SimHits != SimHitResultEE->end();
          ++SimHits) {
       EEDetId EEid = EEDetId(SimHits->id());
 
-      auto cellGeometry = geometry->getSubdetectorGeometry(EEid)->getGeometry(EEid);
+      auto cellGeometry = geometry_->getSubdetectorGeometry(EEid)->getGeometry(EEid);
       double etaS = cellGeometry->getPosition().eta();
       double phiS = cellGeometry->getPosition().phi();
       double en = SimHits->energy();
