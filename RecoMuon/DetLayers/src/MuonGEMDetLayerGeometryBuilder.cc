@@ -9,7 +9,6 @@
 
 #include <Utilities/General/interface/precomputed_value_sort.h>
 #include <Geometry/CommonDetUnit/interface/DetSorting.h>
-#include "Utilities/BinningTools/interface/ClusterizingHistogram.h"
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
@@ -25,11 +24,9 @@ pair<vector<DetLayer*>, vector<DetLayer*> > MuonGEMDetLayerGeometryBuilder::buil
   vector<DetLayer*> endcapLayers[2];
 
   for (auto st : geo.stations()) {
-    for (int layer = GEMDetId::minLayerId + 1; layer <= GEMDetId::maxLayerId0; ++layer) {
-      if (st->station() != GEMDetId::minStationId0 && layer > GEMDetId::maxLayerId)
-        break;
-
-      ForwardDetLayer* fowardLayer = nullptr;
+    const int maxLayerId = (st->station() == GEMDetId::minStationId0) ? GEMDetId::maxLayerId0 : GEMDetId::maxLayerId;
+    for (int layer = GEMDetId::minLayerId + 1; layer <= maxLayerId; ++layer) {
+      ForwardDetLayer* forwardLayer = nullptr;
       vector<const ForwardDetRing*> frontRings, backRings;
 
       for (int roll = GEMDetId::minRollId + 1; roll <= GEMDetId::maxRollId; ++roll) {
@@ -66,20 +63,21 @@ pair<vector<DetLayer*>, vector<DetLayer*> > MuonGEMDetLayerGeometryBuilder::buil
         }
       }
 
-      if (!backRings.empty() && !frontRings.empty() && st->station() != GEMDetId::minStationId0) {
-        fowardLayer = new MuRingForwardDoubleLayer(frontRings, backRings);
-      } else if (!frontRings.empty() && st->station() == GEMDetId::minStationId0) {
-        fowardLayer = new MuRingForwardLayer(frontRings);
+      if (!frontRings.empty()) {
+        if (st->station() == GEMDetId::minStationId0)
+          forwardLayer = new MuRingForwardLayer(frontRings);
+        else if (!backRings.empty())
+          forwardLayer = new MuRingForwardDoubleLayer(frontRings, backRings);
       }
 
-      if (fowardLayer != nullptr) {
+      if (forwardLayer != nullptr) {
         LogTrace(metname) << "New MuRingForwardLayer with " << frontRings.size() << " and " << backRings.size()
-                          << " rings, at Z " << fowardLayer->position().z()
-                          << " R1: " << fowardLayer->specificSurface().innerRadius()
-                          << " R2: " << fowardLayer->specificSurface().outerRadius();
+                          << " rings, at Z " << forwardLayer->position().z()
+                          << " R1: " << forwardLayer->specificSurface().innerRadius()
+                          << " R2: " << forwardLayer->specificSurface().outerRadius();
 
         int iendcap = (st->region() == 1) ? 0 : 1;
-        endcapLayers[iendcap].push_back(fowardLayer);
+        endcapLayers[iendcap].push_back(forwardLayer);
       }
     }
   }
