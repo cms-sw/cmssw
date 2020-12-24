@@ -8,8 +8,6 @@
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
 // Framework
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -21,18 +19,14 @@
 #include "DataFormats/Math/interface/deltaR.h"
 
 //magF
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/VolumeBasedEngine/interface/VolumeBasedMagneticField.h"
 
 //for ECAL geometry
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
 #include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 IsolatedPixelTrackCandidateProducer::IsolatedPixelTrackCandidateProducer(const edm::ParameterSet& config)
     : tok_hlt_(consumes<trigger::TriggerFilterObjectWithRefs>(config.getParameter<edm::InputTag>("L1GTSeedLabel"))),
@@ -41,6 +35,8 @@ IsolatedPixelTrackCandidateProducer::IsolatedPixelTrackCandidateProducer(const e
       toks_pix_(
           edm::vector_transform(config.getParameter<std::vector<edm::InputTag> >("PixelTracksSources"),
                                 [this](edm::InputTag const& tag) { return consumes<reco::TrackCollection>(tag); })),
+      tok_bFieldH_(esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>()),
+      tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>()),
       bfield_(config.getParameter<std::string>("MagFieldRecordName")),
       prelimCone_(config.getParameter<double>("ExtrapolationConeSize")),
       pixelIsolationConeSizeAtEC_(config.getParameter<double>("PixelIsolationConeSizeAtEC")),
@@ -81,8 +77,7 @@ void IsolatedPixelTrackCandidateProducer::fillDescriptions(edm::ConfigurationDes
 }
 
 void IsolatedPixelTrackCandidateProducer::beginRun(const edm::Run& run, const edm::EventSetup& theEventSetup) {
-  edm::ESHandle<CaloGeometry> pG;
-  theEventSetup.get<CaloGeometryRecord>().get(pG);
+  const CaloGeometry* pG = &theEventSetup.getData(tok_geom_);
 
   const double rad(dynamic_cast<const EcalBarrelGeometry*>(pG->getSubdetectorGeometry(DetId::Ecal, EcalBarrel))
                        ->avgRadiusXYFrontFaceCenter());
@@ -92,8 +87,7 @@ void IsolatedPixelTrackCandidateProducer::beginRun(const edm::Run& run, const ed
   rEB_ = rad;
   zEE_ = zz;
 
-  edm::ESHandle<MagneticField> vbfField;
-  theEventSetup.get<IdealMagneticFieldRecord>().get(vbfField);
+  const MagneticField* vbfField = &theEventSetup.getData(tok_bFieldH_);
   const VolumeBasedMagneticField* vbfCPtr = dynamic_cast<const VolumeBasedMagneticField*>(&(*vbfField));
   GlobalVector BField = vbfCPtr->inTesla(GlobalPoint(0, 0, 0));
   bfVal_ = BField.mag();
@@ -104,9 +98,9 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
 
   //create vector of refs from input collections
   std::vector<reco::TrackRef> pixelTrackRefs;
-#ifdef DebugLog
-  edm::LogInfo("HcalIsoTrack") << "IsolatedPixelTrakCandidate: with" << toks_pix_.size()
-                               << " candidates to start with\n";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalIsoTrack") << "IsolatedPixelTrakCandidate: with" << toks_pix_.size()
+                                   << " candidates to start with\n";
 #endif
   for (unsigned int iPix = 0; iPix < toks_pix_.size(); iPix++) {
     edm::Handle<reco::TrackCollection> iPixCol;
@@ -180,8 +174,9 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
     seedAtEC seed(iS, (tmatch || vtxMatch), seedCooAtEC.first, seedCooAtEC.second);
     VecSeedsatEC.push_back(seed);
   }
-#ifdef DebugLog
-  edm::LogInfo("HcalIsoTrack") << "IsolatedPixelTrakCandidate: " << VecSeedsatEC.size() << " seeds after propagation\n";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalIsoTrack") << "IsolatedPixelTrakCandidate: " << VecSeedsatEC.size()
+                                   << " seeds after propagation\n";
 #endif
 
   for (unsigned int i = 0; i < VecSeedsatEC.size(); i++) {
@@ -242,8 +237,8 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
   }
   // put the product in the event
   theEvent.put(std::move(trackCollection));
-#ifdef DebugLog
-  edm::LogInfo("HcalIsoTrack") << "IsolatedPixelTrackCandidate: Final # of candiates " << ntr << "\n";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalIsoTrack") << "IsolatedPixelTrackCandidate: Final # of candiates " << ntr << "\n";
 #endif
 }
 
