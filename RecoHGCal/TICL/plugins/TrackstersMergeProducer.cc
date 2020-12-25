@@ -499,7 +499,7 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
       tmpCandidate.setCharge(track.charge());
       tmpCandidate.setTrackPtr(edm::Ptr<reco::Track>(track_h, s.index));
       tmpCandidate.setPdgId(211 * track.charge());
-      float energy = std::sqrt(track.pt() * track.pt() + mpion2);
+      float energy = std::sqrt(track.p() * track.p() + mpion2);
       tmpCandidate.setRawEnergy(energy);
       math::PtEtaPhiMLorentzVector p4Polar(track.pt(), track.eta(), track.phi(), mpion);
       tmpCandidate.setP4(p4Polar);
@@ -520,7 +520,7 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
       tmpCandidate.setCharge(track.charge());
       tmpCandidate.setTrackPtr(edm::Ptr<reco::Track>(track_h, i));
       tmpCandidate.setPdgId(211 * track.charge());
-      float energy = std::sqrt(track.pt() * track.pt() + mpion2);
+      float energy = std::sqrt(track.p() * track.p() + mpion2);
       tmpCandidate.setRawEnergy(energy);
       math::PtEtaPhiMLorentzVector p4Polar(track.pt(), track.eta(), track.phi(), mpion);
       tmpCandidate.setP4(p4Polar);
