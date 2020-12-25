@@ -38,12 +38,11 @@ public:
 
   // only the local coord and detector index
   cms::cuda::host::unique_ptr<float[]> localCoordToHostAsync(cudaStream_t stream) const;
-  cms::cuda::host::unique_ptr<uint16_t[]> detIndexToHostAsync(cudaStream_t stream) const;
   cms::cuda::host::unique_ptr<uint32_t[]> hitsModuleStartToHostAsync(cudaStream_t stream) const;
 
 private:
-  static constexpr uint32_t n16 = 4;
-  static constexpr uint32_t n32 = 9;
+  static constexpr uint32_t n16 = 4;                 // number of elements in m_store16
+  static constexpr uint32_t n32 = 9;                 // number of elements in m_store32
   static_assert(sizeof(uint32_t) == sizeof(float));  // just stating the obvious
 
   unique_ptr<uint16_t[]> m_store16;  //!

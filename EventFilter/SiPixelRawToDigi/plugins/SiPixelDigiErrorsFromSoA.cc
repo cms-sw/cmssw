@@ -140,8 +140,7 @@ void SiPixelDigiErrorsFromSoA::produce(edm::Event& iEvent, const edm::EventSetup
                 if (roc->idInDetUnit() > ch.roc_last)
                   ch.roc_last = roc->idInDetUnit();
               }
-              if (ch.roc_first < ch.roc_last)
-                disabledChannelsDetSet.push_back(ch);
+              disabledChannelsDetSet.push_back(ch);
             }
           }
         } else {

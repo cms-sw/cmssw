@@ -80,10 +80,10 @@ private:
   std::vector<SiPixelGenErrorStore> thePixelGenError_;
 
   // allocate this with posix malloc to be compatible with the cpu workflow
-  std::vector<pixelCPEforGPU::DetParams> m_detParamsGPU;
-  pixelCPEforGPU::CommonParams m_commonParamsGPU;
-  pixelCPEforGPU::LayerGeometry m_layerGeometry;
-  pixelCPEforGPU::AverageGeometry m_averageGeometry;
+  std::vector<pixelCPEforGPU::DetParams> detParamsGPU_;
+  pixelCPEforGPU::CommonParams commonParamsGPU_;
+  pixelCPEforGPU::LayerGeometry layerGeometry_;
+  pixelCPEforGPU::AverageGeometry averageGeometry_;
   pixelCPEforGPU::ParamsOnGPU cpuData_;
 
   struct GPUData {
