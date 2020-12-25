@@ -9,8 +9,9 @@
 #include <unordered_set>
 #include <vector>
 
-#include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
+#include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
+#include "Geometry/HGCalCommonData/interface/HGCalProperty.h"
 #include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferIndex.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
@@ -106,14 +107,17 @@ struct HGCalEEFileAlgo {
                                   << convertRadToDeg(alpha_) << ":" << cosAlpha_;
 #endif
     waferIndex_ = args.value<std::vector<int>>("WaferIndex");
-    waferTypes_ = args.value<std::vector<int>>("WaferTypes");
+    waferProperty_ = args.value<std::vector<int>>("WaferProperties");
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "waferTypes with " << waferTypes_.size() << " entries";
-    for (unsigned int k = 0; k < waferTypes_.size(); ++k)
+    edm::LogVerbatim("HGCalGeom") << "waferProperties with " << waferIndex_.size() << " entries";
+    for (unsigned int k = 0; k < waferIndex_.size(); ++k)
       edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << waferIndex_[k] << " ("
                                     << HGCalWaferIndex::waferLayer(waferIndex_[k]) << ", "
                                     << HGCalWaferIndex::waferU(waferIndex_[k]) << ", "
-                                    << HGCalWaferIndex::waferV(waferIndex_[k]) << ") : " << waferTypes_[k];
+                                    << HGCalWaferIndex::waferV(waferIndex_[k]) << ") : ("
+                                    << HGCalProperty::waferThick(waferProperty_[k]) << ":"
+                                    << HGCalProperty::waferPartial(waferProperty_[k]) << ":"
+                                    << HGCalProperty::waferOrient(waferProperty_[k]) << ")";
 #endif
     slopeB_ = args.value<std::vector<double>>("SlopeBottom");
     zFrontB_ = args.value<std::vector<double>>("ZFrontBottom");
@@ -309,7 +313,7 @@ struct HGCalEEFileAlgo {
         }
 #endif
         int indx = HGCalWaferIndex::waferIndex((layer + firstLayer_), u, v, false);
-        int type = HGCalWaferType::getType(indx, waferIndex_, waferTypes_);
+        int type = HGCalWaferType::getType(indx, waferIndex_, waferProperty_);
         if (corner.first > 0 && type >= 0) {
           int copy = HGCalTypes::packTypeUV(type, u, v);
 #ifdef EDM_ML_DEBUG
@@ -374,7 +378,7 @@ struct HGCalEEFileAlgo {
   int sensitiveMode_;                   // Sensitive mode
   double zMinBlock_;                    // Starting z-value of the block
   std::vector<int> waferIndex_;         // Wafer index for the types
-  std::vector<int> waferTypes_;         // Wafer types
+  std::vector<int> waferProperty_;      // Wafer property
   double waferSize_;                    // Width of the wafer
   double waferSepar_;                   // Sensor separation
   int sectors_;                         // Sectors
