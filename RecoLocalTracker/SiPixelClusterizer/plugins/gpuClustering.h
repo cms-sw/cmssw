@@ -35,16 +35,14 @@ namespace gpuClustering {
     }
   }
 
-  __global__
-      void
-      findClus(uint16_t const* __restrict__ id,           // module id of each pixel
-               uint16_t const* __restrict__ x,            // local coordinates of each pixel
-               uint16_t const* __restrict__ y,            //
-               uint32_t const* __restrict__ moduleStart,  // index of the first pixel of each module
-               uint32_t* __restrict__ nClustersInModule,  // output: number of clusters found in each module
-               uint32_t* __restrict__ moduleId,           // output: module id of each module
-               int32_t* __restrict__ clusterId,           // output: cluster id of each pixel
-               int numElements) {
+  __global__ void findClus(uint16_t const* __restrict__ id,           // module id of each pixel
+                           uint16_t const* __restrict__ x,            // local coordinates of each pixel
+                           uint16_t const* __restrict__ y,            //
+                           uint32_t const* __restrict__ moduleStart,  // index of the first pixel of each module
+                           uint32_t* __restrict__ nClustersInModule,  // output: number of clusters found in each module
+                           uint32_t* __restrict__ moduleId,           // output: module id of each module
+                           int32_t* __restrict__ clusterId,           // output: cluster id of each pixel
+                           int numElements) {
     __shared__ int msize;
 
     auto firstModule = blockIdx.x;

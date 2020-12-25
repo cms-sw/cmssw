@@ -172,8 +172,8 @@ void SiPixelRecHitSoAFromLegacy::produce(edm::StreamID streamID, edm::Event& iEv
     auto const fc = hitsModuleStart[gind];
     auto const lc = hitsModuleStart[gind + 1];
     assert(lc > fc);
-    LogDebug("SiPixelRecHitSoAFromLegacy") << "in det " << gind << ": conv " << nclus << " hits from "
-                                           << dsv.size() << " legacy clusters" << ' ' << fc << ',' << lc;
+    LogDebug("SiPixelRecHitSoAFromLegacy") << "in det " << gind << ": conv " << nclus << " hits from " << dsv.size()
+                                           << " legacy clusters" << ' ' << fc << ',' << lc;
     assert((lc - fc) == nclus);
     if (nclus > maxHitsInModule)
       printf(
