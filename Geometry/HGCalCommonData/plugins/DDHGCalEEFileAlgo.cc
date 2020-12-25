@@ -18,6 +18,7 @@
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
+#include "Geometry/HGCalCommonData/interface/HGCalProperty.h"
 #include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferIndex.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
@@ -67,14 +68,8 @@ private:
   int absorbMode_;                      // Absorber mode
   int sensitiveMode_;                   // Sensitive mode
   double zMinBlock_;                    // Starting z-value of the block
-  std::vector<double> rad100to200_;     // Parameters for 120-200mum trans.
-  std::vector<double> rad200to300_;     // Parameters for 200-300mum trans.
-  double zMinRadPar_;                   // Minimum z for radius parametriz.
   std::vector<int> waferIndex_;         // Wafer index for the types
-  std::vector<int> waferTypes_;         // Wafer types
-  int choiceType_;                      // Type of parametrization to be used
-  int nCutRadPar_;                      // Cut off threshold for corners
-  double fracAreaMin_;                  // Minimum fractional conatined area
+  std::vector<int> waferProperty_;      // Wafer property
   double waferSize_;                    // Width of the wafer
   double waferSepar_;                   // Sensor separation
   int sectors_;                         // Sectors
@@ -160,35 +155,28 @@ void DDHGCalEEFileAlgo::initialize(const DDNumericArguments& nArgs,
                                   << layerSense_[i];
 #endif
   zMinBlock_ = nArgs["zMinBlock"];
-  rad100to200_ = vArgs["rad100to200"];
-  rad200to300_ = vArgs["rad200to300"];
-  zMinRadPar_ = nArgs["zMinForRadPar"];
-  choiceType_ = (int)(nArgs["choiceType"]);
-  nCutRadPar_ = (int)(nArgs["nCornerCut"]);
-  fracAreaMin_ = nArgs["fracAreaMin"];
   waferSize_ = nArgs["waferSize"];
   waferSepar_ = nArgs["SensorSeparation"];
   sectors_ = (int)(nArgs["Sectors"]);
   alpha_ = (1._pi) / sectors_;
   cosAlpha_ = cos(alpha_);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "zStart " << zMinBlock_ << " radius for wafer type separation uses "
-                                << rad100to200_.size() << " parameters; zmin " << zMinRadPar_ << " cutoff "
-                                << choiceType_ << ":" << nCutRadPar_ << ":" << fracAreaMin_ << " wafer width "
-                                << waferSize_ << " separations " << waferSepar_ << " sectors " << sectors_ << ":"
-                                << convertRadToDeg(alpha_) << ":" << cosAlpha_;
-  for (unsigned int k = 0; k < rad100to200_.size(); ++k)
-    edm::LogVerbatim("HGCalGeom") << "[" << k << "] 100-200 " << rad100to200_[k] << " 200-300 " << rad200to300_[k];
+  edm::LogVerbatim("HGCalGeom") << "zStart " << zMinBlock_ << " wafer width " << waferSize_ << " separations "
+                                << waferSepar_ << " sectors " << sectors_ << ":" << convertRadToDeg(alpha_) << ":"
+                                << cosAlpha_;
 #endif
   waferIndex_ = dbl_to_int(vArgs["WaferIndex"]);
-  waferTypes_ = dbl_to_int(vArgs["WaferTypes"]);
+  waferProperty_ = dbl_to_int(vArgs["WaferProperties"]);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "waferTypes with " << waferTypes_.size() << " entries";
-  for (unsigned int k = 0; k < waferTypes_.size(); ++k)
+  edm::LogVerbatim("HGCalGeom") << "waferProperties with " << waferIndex_.size() << " entries";
+  for (unsigned int k = 0; k < waferIndex_.size(); ++k)
     edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << waferIndex_[k] << " ("
                                   << HGCalWaferIndex::waferLayer(waferIndex_[k]) << ", "
                                   << HGCalWaferIndex::waferU(waferIndex_[k]) << ", "
-                                  << HGCalWaferIndex::waferV(waferIndex_[k]) << ") : " << waferTypes_[k];
+                                  << HGCalWaferIndex::waferV(waferIndex_[k]) << ") : ("
+                                  << HGCalProperty::waferThick(waferProperty_[k]) << ":"
+                                  << HGCalProperty::waferPartial(waferProperty_[k]) << ":"
+                                  << HGCalProperty::waferOrient(waferProperty_[k]) << ")";
 #endif
   slopeB_ = vArgs["SlopeBottom"];
   zFrontB_ = vArgs["ZFrontBottom"];
@@ -383,7 +371,7 @@ void DDHGCalEEFileAlgo::positionSensitive(
       }
 #endif
       int indx = HGCalWaferIndex::waferIndex((layer + firstLayer_), u, v, false);
-      int type = HGCalWaferType::getType(indx, waferIndex_, waferTypes_);
+      int type = HGCalWaferType::getType(indx, waferIndex_, waferProperty_);
       if (corner.first > 0 && type >= 0) {
         int copy = HGCalTypes::packTypeUV(type, u, v);
 #ifdef EDM_ML_DEBUG
