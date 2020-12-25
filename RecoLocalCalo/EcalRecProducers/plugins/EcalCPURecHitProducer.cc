@@ -21,7 +21,6 @@
 
 #include "CUDADataFormats/EcalRecHitSoA/interface/EcalRecHit.h"
 
-
 class EcalCPURecHitProducer : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
   explicit EcalCPURecHitProducer(edm::ParameterSet const& ps);
@@ -140,16 +139,22 @@ void EcalCPURecHitProducer::acquire(edm::Event const& event,
                             ctx.stream()));
 
 #ifdef ECAL_RECO_CUDA_DEBUG
-  for (unsigned int ieb = 0; ieb <  ebRecHits.size ; ieb++) {
-    if (recHitsEB_.extra[ieb] != 0 ) std::cout << " [ " << ieb << " :: " << ebRecHits.size << " ] [ " << recHitsEB_.did[ieb] << " ] eb extra = " << recHitsEB_.extra[ieb] << std::endl;
+  for (unsigned int ieb = 0; ieb < ebRecHits.size; ieb++) {
+    if (recHitsEB_.extra[ieb] != 0)
+      std::cout << " [ " << ieb << " :: " << ebRecHits.size << " ] [ " << recHitsEB_.did[ieb]
+                << " ] eb extra = " << recHitsEB_.extra[ieb] << std::endl;
   }
 
-  for (unsigned int ieb = 0; ieb <  ebRecHits.size ; ieb++) {
-    if (recHitsEB_.energy[ieb] != 0 ) std::cout << " [ " << ieb << " :: " << ebRecHits.size << " ] [ " << recHitsEB_.did[ieb] << " ] eb energy = " << recHitsEB_.energy[ieb] << std::endl;
+  for (unsigned int ieb = 0; ieb < ebRecHits.size; ieb++) {
+    if (recHitsEB_.energy[ieb] != 0)
+      std::cout << " [ " << ieb << " :: " << ebRecHits.size << " ] [ " << recHitsEB_.did[ieb]
+                << " ] eb energy = " << recHitsEB_.energy[ieb] << std::endl;
   }
 
-  for (unsigned int iee = 0; iee <  eeRecHits.size ; iee++) {
-    if (recHitsEE_.energy[iee] != 0 ) std::cout << " [ " << iee << " :: " << eeRecHits.size << " ] [ " << recHitsEE_.did[iee] << " ] ee energy = " << recHitsEE_.energy[iee] << std::endl;
+  for (unsigned int iee = 0; iee < eeRecHits.size; iee++) {
+    if (recHitsEE_.energy[iee] != 0)
+      std::cout << " [ " << iee << " :: " << eeRecHits.size << " ] [ " << recHitsEE_.did[iee]
+                << " ] ee energy = " << recHitsEE_.energy[iee] << std::endl;
   }
 #endif
 }
