@@ -58,10 +58,10 @@ PixelCPEFast::PixelCPEFast(edm::ParameterSet const& conf,
   fillParamsForGpu();
 
   cpuData_ = {
-      &m_commonParamsGPU,
-      m_detParamsGPU.data(),
-      &m_layerGeometry,
-      &m_averageGeometry,
+      &commonParamsGPU_,
+      detParamsGPU_.data(),
+      &layerGeometry_,
+      &averageGeometry_,
   };
 }
 
@@ -70,7 +70,7 @@ const pixelCPEforGPU::ParamsOnGPU* PixelCPEFast::getGPUProductAsync(cudaStream_t
     // and now copy to device...
     cudaCheck(cudaMalloc((void**)&data.paramsOnGPU_h.m_commonParams, sizeof(pixelCPEforGPU::CommonParams)));
     cudaCheck(cudaMalloc((void**)&data.paramsOnGPU_h.m_detParams,
-                         this->m_detParamsGPU.size() * sizeof(pixelCPEforGPU::DetParams)));
+                         this->detParamsGPU_.size() * sizeof(pixelCPEforGPU::DetParams)));
     cudaCheck(cudaMalloc((void**)&data.paramsOnGPU_h.m_averageGeometry, sizeof(pixelCPEforGPU::AverageGeometry)));
     cudaCheck(cudaMalloc((void**)&data.paramsOnGPU_h.m_layerGeometry, sizeof(pixelCPEforGPU::LayerGeometry)));
     cudaCheck(cudaMalloc((void**)&data.paramsOnGPU_d, sizeof(pixelCPEforGPU::ParamsOnGPU)));
@@ -78,23 +78,23 @@ const pixelCPEforGPU::ParamsOnGPU* PixelCPEFast::getGPUProductAsync(cudaStream_t
     cudaCheck(cudaMemcpyAsync(
         data.paramsOnGPU_d, &data.paramsOnGPU_h, sizeof(pixelCPEforGPU::ParamsOnGPU), cudaMemcpyDefault, stream));
     cudaCheck(cudaMemcpyAsync((void*)data.paramsOnGPU_h.m_commonParams,
-                              &this->m_commonParamsGPU,
+                              &this->commonParamsGPU_,
                               sizeof(pixelCPEforGPU::CommonParams),
                               cudaMemcpyDefault,
                               stream));
     cudaCheck(cudaMemcpyAsync((void*)data.paramsOnGPU_h.m_averageGeometry,
-                              &this->m_averageGeometry,
+                              &this->averageGeometry_,
                               sizeof(pixelCPEforGPU::AverageGeometry),
                               cudaMemcpyDefault,
                               stream));
     cudaCheck(cudaMemcpyAsync((void*)data.paramsOnGPU_h.m_layerGeometry,
-                              &this->m_layerGeometry,
+                              &this->layerGeometry_,
                               sizeof(pixelCPEforGPU::LayerGeometry),
                               cudaMemcpyDefault,
                               stream));
     cudaCheck(cudaMemcpyAsync((void*)data.paramsOnGPU_h.m_detParams,
-                              this->m_detParamsGPU.data(),
-                              this->m_detParamsGPU.size() * sizeof(pixelCPEforGPU::DetParams),
+                              this->detParamsGPU_.data(),
+                              this->detParamsGPU_.size() * sizeof(pixelCPEforGPU::DetParams),
                               cudaMemcpyDefault,
                               stream));
   });
@@ -102,16 +102,16 @@ const pixelCPEforGPU::ParamsOnGPU* PixelCPEFast::getGPUProductAsync(cudaStream_t
 }
 
 void PixelCPEFast::fillParamsForGpu() {
-  m_commonParamsGPU.theThicknessB = m_DetParams.front().theThickness;
-  m_commonParamsGPU.theThicknessE = m_DetParams.back().theThickness;
-  m_commonParamsGPU.thePitchX = m_DetParams[0].thePitchX;
-  m_commonParamsGPU.thePitchY = m_DetParams[0].thePitchY;
+  commonParamsGPU_.theThicknessB = m_DetParams.front().theThickness;
+  commonParamsGPU_.theThicknessE = m_DetParams.back().theThickness;
+  commonParamsGPU_.thePitchX = m_DetParams[0].thePitchX;
+  commonParamsGPU_.thePitchY = m_DetParams[0].thePitchY;
 
-  LogDebug("PixelCPEFast") << "pitch & thickness " << m_commonParamsGPU.thePitchX << ' ' << m_commonParamsGPU.thePitchY
-                           << "  " << m_commonParamsGPU.theThicknessB << ' ' << m_commonParamsGPU.theThicknessE;
+  LogDebug("PixelCPEFast") << "pitch & thickness " << commonParamsGPU_.thePitchX << ' ' << commonParamsGPU_.thePitchY
+                           << "  " << commonParamsGPU_.theThicknessB << ' ' << commonParamsGPU_.theThicknessE;
 
   // zero average geometry
-  memset(&m_averageGeometry, 0, sizeof(pixelCPEforGPU::AverageGeometry));
+  memset(&averageGeometry_, 0, sizeof(pixelCPEforGPU::AverageGeometry));
 
   uint32_t oldLayer = 0;
   uint32_t oldLadder = 0;
@@ -120,21 +120,21 @@ void PixelCPEFast::fillParamsForGpu() {
   float miz = 90, mxz = 0;
   float pl = 0;
   int nl = 0;
-  m_detParamsGPU.resize(m_DetParams.size());
+  detParamsGPU_.resize(m_DetParams.size());
   for (auto i = 0U; i < m_DetParams.size(); ++i) {
     auto& p = m_DetParams[i];
-    auto& g = m_detParamsGPU[i];
+    auto& g = detParamsGPU_[i];
 
     assert(p.theDet->index() == int(i));
-    assert(m_commonParamsGPU.thePitchY == p.thePitchY);
-    assert(m_commonParamsGPU.thePitchX == p.thePitchX);
+    assert(commonParamsGPU_.thePitchY == p.thePitchY);
+    assert(commonParamsGPU_.thePitchX == p.thePitchX);
 
     g.isBarrel = GeomDetEnumerators::isBarrel(p.thePart);
     g.isPosZ = p.theDet->surface().position().z() > 0;
     g.layer = ttopo_.layer(p.theDet->geographicalId());
     g.index = i;  // better be!
     g.rawId = p.theDet->geographicalId();
-    assert((g.isBarrel ? m_commonParamsGPU.theThicknessB : m_commonParamsGPU.theThicknessE) == p.theThickness);
+    assert((g.isBarrel ? commonParamsGPU_.theThicknessB : commonParamsGPU_.theThicknessE) == p.theThickness);
 
     auto ladder = ttopo_.pxbLadder(p.theDet->geographicalId());
     if (oldLayer != g.layer) {
@@ -179,7 +179,7 @@ void PixelCPEFast::fillParamsForGpu() {
 
     // errors .....
     ClusterParamGeneric cp;
-    auto gvx = p.theOrigin.x() + 40.f * m_commonParamsGPU.thePitchX;
+    auto gvx = p.theOrigin.x() + 40.f * commonParamsGPU_.thePitchX;
     auto gvy = p.theOrigin.y();
     auto gvz = 1.f / p.theOrigin.z();
     //--- Note that the normalization is not required as only the ratio used
@@ -221,10 +221,10 @@ void PixelCPEFast::fillParamsForGpu() {
   }
 
   // compute ladder baricenter (only in global z) for the barrel
-  auto& aveGeom = m_averageGeometry;
+  auto& aveGeom = averageGeometry_;
   int il = 0;
   for (int im = 0, nm = phase1PixelTopology::numberOfModulesInBarrel; im < nm; ++im) {
-    auto const& g = m_detParamsGPU[im];
+    auto const& g = detParamsGPU_[im];
     il = im / 8;
     assert(il < int(phase1PixelTopology::numberOfLaddersInBarrel));
     auto z = g.frame.z();
@@ -246,11 +246,11 @@ void PixelCPEFast::fillParamsForGpu() {
 
   // compute "max z" for first layer in endcap (should we restrict to the outermost ring?)
   for (auto im = phase1PixelTopology::layerStart[4]; im < phase1PixelTopology::layerStart[5]; ++im) {
-    auto const& g = m_detParamsGPU[im];
+    auto const& g = detParamsGPU_[im];
     aveGeom.endCapZ[0] = std::max(aveGeom.endCapZ[0], g.frame.z());
   }
   for (auto im = phase1PixelTopology::layerStart[7]; im < phase1PixelTopology::layerStart[8]; ++im) {
-    auto const& g = m_detParamsGPU[im];
+    auto const& g = detParamsGPU_[im];
     aveGeom.endCapZ[1] = std::min(aveGeom.endCapZ[1], g.frame.z());
   }
   // correct for outer ring being closer
@@ -269,8 +269,8 @@ void PixelCPEFast::fillParamsForGpu() {
 #endif  // EDM_ML_DEBUG
 
   // fill Layer and ladders geometry
-  memcpy(m_layerGeometry.layerStart, phase1PixelTopology::layerStart, sizeof(phase1PixelTopology::layerStart));
-  memcpy(m_layerGeometry.layer, phase1PixelTopology::layer.data(), phase1PixelTopology::layer.size());
+  memcpy(layerGeometry_.layerStart, phase1PixelTopology::layerStart, sizeof(phase1PixelTopology::layerStart));
+  memcpy(layerGeometry_.layer, phase1PixelTopology::layer.data(), phase1PixelTopology::layer.size());
 }
 
 PixelCPEFast::GPUData::~GPUData() {
@@ -374,7 +374,7 @@ LocalPoint PixelCPEFast::localPosition(DetParam const& theDetParam, ClusterParam
   cp.Q_l_Y[0] = Q_l_Y;
 
   auto ind = theDetParam.theDet->index();
-  pixelCPEforGPU::position(m_commonParamsGPU, m_detParamsGPU[ind], cp, 0);
+  pixelCPEforGPU::position(commonParamsGPU_, detParamsGPU_[ind], cp, 0);
   auto xPos = cp.xpos[0];
   auto yPos = cp.ypos[0];
 
