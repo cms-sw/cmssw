@@ -13,7 +13,7 @@ if hasattr(process,'MessageLogger'):
     process.MessageLogger.HGCalGeom=dict()
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.FileInPath('Geometry/HGCalCommonData/data/dd4hep/testHGCalV10.xml'),
+                                            confGeomXMLFiles = cms.FileInPath('Geometry/HGCalCommonData/data/dd4hep/testHGCalV14.xml'),
                                             appendToDataLabel = cms.string('DDHGCal')
                                             )
 
