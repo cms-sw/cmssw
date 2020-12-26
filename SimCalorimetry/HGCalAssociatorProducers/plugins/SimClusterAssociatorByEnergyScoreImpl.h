@@ -49,7 +49,7 @@ public:
   explicit SimClusterAssociatorByEnergyScoreImpl(edm::EDProductGetter const &,
                                                  bool,
                                                  std::shared_ptr<hgcal::RecHitTools>,
-                                                 const std::unordered_map<DetId, const HGCRecHit *> *&);
+                                                 const std::unordered_map<DetId, const HGCRecHit *> *);
 
   hgcal::RecoToSimCollectionWithSimClusters associateRecoToSim(
       const edm::Handle<reco::CaloClusterCollection> &cCH,
