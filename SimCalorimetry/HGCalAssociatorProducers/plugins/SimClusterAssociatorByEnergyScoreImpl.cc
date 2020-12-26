@@ -7,7 +7,7 @@ SimClusterAssociatorByEnergyScoreImpl::SimClusterAssociatorByEnergyScoreImpl(
     edm::EDProductGetter const& productGetter,
     bool hardScatterOnly,
     std::shared_ptr<hgcal::RecHitTools> recHitTools,
-    const std::unordered_map<DetId, const HGCRecHit*>*& hitMap)
+    const std::unordered_map<DetId, const HGCRecHit*>* hitMap)
     : hardScatterOnly_(hardScatterOnly),
       recHitTools_(recHitTools),
       hitMap_(hitMap),
