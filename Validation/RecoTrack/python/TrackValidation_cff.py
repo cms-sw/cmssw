@@ -528,11 +528,6 @@ for _eraName, _postfix, _era in _relevantEras:
 # Built tracks, in the standard sequence mainly for monitoring the track selection MVA
 tpClusterProducerPreSplitting = tpClusterProducer.clone(pixelClusterSrc = "siPixelClustersPreSplitting")
 quickTrackAssociatorByHitsPreSplitting = quickTrackAssociatorByHits.clone(cluster2TPSrc = "tpClusterProducerPreSplitting")
-
-tpClusterProducerCUDAPreSplitting = tpClusterProducerCUDA.clone(
-   pixelClusterSrc = "siPixelClustersPreSplitting"
-)
-
 _trackValidatorSeedingBuilding = trackValidator.clone( # common for built tracks and seeds (in trackingOnly)
     associators = ["quickTrackAssociatorByHits"],
     UseAssociators = True,
@@ -671,16 +666,6 @@ tracksValidationTruth = cms.Task(
     VertexAssociatorByPositionAndTracks,
     trackingParticleNumberOfLayersProducer
 )
-
-#gpu tp ???
-from Configuration.ProcessModifiers.gpu_cff import gpu
-tpClusterProducerPreSplittingCUDA = cms.Task(
-  tpClusterProducerCUDAPreSplitting
-)
-_tracksValidationTruth_gpu = tracksValidationTruth.copy()
-_tracksValidationTruth_gpu.add(tpClusterProducerPreSplittingCUDA)
-gpu.toReplaceWith(tracksValidationTruth,_tracksValidationTruth_gpu)
-
 fastSim.toModify(tracksValidationTruth, lambda x: x.remove(tpClusterProducer))
 
 tracksPreValidation = cms.Task(
@@ -969,7 +954,6 @@ trackValidatorBHadronPixelTrackingOnly = trackValidatorPixelTrackingOnly.clone(
     dodEdxPlots = False,
 )
 
-
 tracksValidationTruthPixelTrackingOnly = tracksValidationTruth.copy()
 tracksValidationTruthPixelTrackingOnly.replace(trackingParticleRecoTrackAsssociation, trackingParticlePixelTrackAsssociation)
 tracksValidationTruthPixelTrackingOnly.replace(VertexAssociatorByPositionAndTracks, PixelVertexAssociatorByPositionAndTracks)
@@ -979,7 +963,7 @@ tracksPreValidationPixelTrackingOnly = cms.Task(
     tracksValidationTruthPixelTrackingOnly,
     trackingParticlesSignal,
     pixelTracksPt09,
-    pixelTracksFromPV, 
+    pixelTracksFromPV,
     pixelTracksFromPVPt09,
 )
 tracksValidationPixelTrackingOnly = cms.Sequence(
@@ -989,7 +973,6 @@ tracksValidationPixelTrackingOnly = cms.Sequence(
     trackValidatorBHadronPixelTrackingOnly,
     tracksPreValidationPixelTrackingOnly
 )
-
 
 
 ### Lite mode (only generalTracks and HP)
