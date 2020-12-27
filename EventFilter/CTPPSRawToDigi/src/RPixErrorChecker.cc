@@ -21,8 +21,7 @@ bool RPixErrorChecker::checkCRC(bool& errorsInEvent, int fedId, const Word64* tr
   LogDebug("CRCCheck") << "CRC check failed,  errorType = 39";
   if (includeErrors_) {
     int errorType = 39;
-    CTPPSPixelDataError error(*trailer, errorType, fedId);
-    errors[dummyDetId].push_back(error);
+    errors[dummyDetId].emplace_back(*trailer, errorType, fedId);
   }
   return false;
 }
@@ -37,8 +36,7 @@ bool RPixErrorChecker::checkHeader(bool& errorsInEvent, int fedId, const Word64*
     errorsInEvent = true;
     if (includeErrors_) {
       int errorType = 32;
-      CTPPSPixelDataError error(*header, errorType, fedId);
-      errors[dummyDetId].push_back(error);
+      errors[dummyDetId].emplace_back(*header, errorType, fedId);
     }
   }
   return fedHeader.moreHeaders();
@@ -50,8 +48,7 @@ bool RPixErrorChecker::checkTrailer(
   if (!fedTrailer.check()) {
     if (includeErrors_) {
       int errorType = 33;
-      CTPPSPixelDataError error(*trailer, errorType, fedId);
-      errors[dummyDetId].push_back(error);
+      errors[dummyDetId].emplace_back(*trailer, errorType, fedId);
     }
     errorsInEvent = true;
     LogDebug("FedTrailerCheck") << "fedTrailer.check failed, Fed: " << fedId << ", errorType = 33";
@@ -62,8 +59,7 @@ bool RPixErrorChecker::checkTrailer(
     errorsInEvent = true;
     if (includeErrors_) {
       int errorType = 34;
-      CTPPSPixelDataError error(*trailer, errorType, fedId);
-      errors[dummyDetId].push_back(error);
+      errors[dummyDetId].emplace_back(*trailer, errorType, fedId);
     }
   }
   return fedTrailer.moreTrailers();
@@ -72,8 +68,8 @@ bool RPixErrorChecker::checkTrailer(
 bool RPixErrorChecker::checkROC(
     bool& errorsInEvent, int fedId, uint32_t iD, const Word32& errorWord, Errors& errors) const {
   int errorType = (errorWord >> ROC_shift) & ERROR_mask;
-  if
-    LIKELY(errorType < 25) return true;
+  if LIKELY (errorType < 25)
+    return true;
 
   switch (errorType) {
     case (25): {
@@ -129,9 +125,7 @@ bool RPixErrorChecker::checkROC(
     }
 
     /// store error
-    CTPPSPixelDataError error(errorWord, errorType, fedId);
-
-    errors[iD].push_back(error);
+    errors[iD].emplace_back(errorWord, errorType, fedId);
   }
 
   return false;
@@ -162,8 +156,6 @@ void RPixErrorChecker::conversionError(
       LogDebug("ErrorChecker::conversionError") << "  cabling check returned unexpected result, status = " << state;
   };
 
-  if (includeErrors_ && errorType > 0) {
-    CTPPSPixelDataError error(errorWord, errorType, fedId);
-    errors[iD].push_back(error);
-  }
+  if (includeErrors_ && errorType > 0)
+    errors[iD].emplace_back(errorWord, errorType, fedId);
 }

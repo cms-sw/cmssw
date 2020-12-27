@@ -69,7 +69,7 @@ void RPixPlaneCombinatoryTracking::getPlaneCombinations(const std::vector<uint32
 
   // store the combination and permute bitmask
   do {
-    planeCombinations.push_back(std::vector<uint32_t>());
+    planeCombinations.emplace_back();
     for (uint32_t i = 0; i < numberOfPlanes; ++i) {  // [0..numberOfPlanes-1] integers
       if (bitmask[i])
         planeCombinations.back().push_back(inputPlaneList.at(i));
