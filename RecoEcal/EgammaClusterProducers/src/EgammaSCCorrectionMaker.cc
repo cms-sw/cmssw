@@ -71,7 +71,7 @@ EgammaSCCorrectionMaker::EgammaSCCorrectionMaker(const edm::ParameterSet& ps) {
   produces<reco::SuperClusterCollection>(outputCollection_);
 
   // instanciate the correction algo object
-  energyCorrector_ = std::make_unique<EgammaSCEnergyCorrectionAlgo>(sigmaElectronicNoise_, sCAlgo_, fCorrPset);
+  energyCorrector_ = std::make_unique<EgammaSCEnergyCorrectionAlgo>(sigmaElectronicNoise_);
 
   // energy correction class
   if (applyEnergyCorrection_)
@@ -82,10 +82,8 @@ EgammaSCCorrectionMaker::EgammaSCCorrectionMaker(const edm::ParameterSet& ps) {
     crackCorrectionFunction_ = EcalClusterFunctionFactory::get()->create(crackCorrectorName_, ps);
 
   if (applyLocalContCorrection_)
-    localContCorrectionFunction_ = std::make_unique<EcalBasicClusterLocalContCorrection>();
+    localContCorrectionFunction_ = std::make_unique<EcalBasicClusterLocalContCorrection>(consumesCollector());
 }
-
-EgammaSCCorrectionMaker::~EgammaSCCorrectionMaker() = default;
 
 void EgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es) {
   using namespace edm;
@@ -157,12 +155,13 @@ void EgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es
       enecorrClus = *aClus;
 
     if (applyCrackCorrection_)
-      crackcorrClus = energyCorrector_->applyCrackCorrection(enecorrClus, crackCorrectionFunction_.get());
+      crackcorrClus = EgammaSCEnergyCorrectionAlgo::applyCrackCorrection(enecorrClus, crackCorrectionFunction_.get());
     else
       crackcorrClus = enecorrClus;
 
     if (applyLocalContCorrection_)
-      localContCorrClus = energyCorrector_->applyLocalContCorrection(crackcorrClus, *localContCorrectionFunction_);
+      localContCorrClus =
+          EgammaSCEnergyCorrectionAlgo::applyLocalContCorrection(crackcorrClus, *localContCorrectionFunction_);
     else
       localContCorrClus = crackcorrClus;
 
