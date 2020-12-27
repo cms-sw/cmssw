@@ -1,47 +1,4 @@
-/** \class EcalBasicClusterLocalContCorrection
-  *  Function to correct em object energy for energy not contained in a 5x5 crystal area in the calorimeter
-  *
-  *  $Id: EcalBasicClusterLocalContCorrection.h
-  *  $Date:
-  *  $Revision:
-  *  \author Federico Ferri, CEA Saclay, November 2008
-  */
-
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "CondFormats/DataRecord/interface/EcalClusterLocalContCorrParametersRcd.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
-#include "CondFormats/EcalObjects/interface/EcalClusterLocalContCorrParameters.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-
-#include "TVector2.h"
-
-class EcalBasicClusterLocalContCorrection : public EcalClusterFunctionBaseClass {
-public:
-  EcalBasicClusterLocalContCorrection(const edm::ParameterSet &){};
-
-  // get/set explicit methods for parameters
-  const EcalClusterLocalContCorrParameters *getParameters() const { return params_; }
-  // check initialization
-  void checkInit() const;
-
-  // compute the correction
-  float getValue(const reco::BasicCluster &, const EcalRecHitCollection &) const override;
-  float getValue(const reco::SuperCluster &, const int mode) const override;
-
-  // set parameters
-  void init(const edm::EventSetup &es) override;
-
-private:
-  int getEcalModule(DetId id) const;
-
-  edm::ESHandle<EcalClusterLocalContCorrParameters> esParams_;
-  const EcalClusterLocalContCorrParameters *params_;
-  const edm::EventSetup *es_;  //needed to access the ECAL geometry
-};
+#include "RecoEcal/EgammaClusterProducers/interface/EcalBasicClusterLocalContCorrection.h"
 
 void EcalBasicClusterLocalContCorrection::init(const edm::EventSetup &es) {
   es.get<EcalClusterLocalContCorrParametersRcd>().get(esParams_);
@@ -61,13 +18,8 @@ void EcalBasicClusterLocalContCorrection::checkInit() const {
 using namespace std;
 using namespace edm;
 
-float EcalBasicClusterLocalContCorrection::getValue(const reco::SuperCluster &superCluster, const int mode) const {
-  //checkInit();
-  return 1;
-}
-
-float EcalBasicClusterLocalContCorrection::getValue(const reco::BasicCluster &basicCluster,
-                                                    const EcalRecHitCollection &recHit) const {
+float EcalBasicClusterLocalContCorrection::operator()(const reco::BasicCluster &basicCluster,
+                                                      const EcalRecHitCollection &recHit) const {
   checkInit();
 
   // number of parameters needed by this parametrization
@@ -211,9 +163,3 @@ int EcalBasicClusterLocalContCorrection::getEcalModule(DetId id) const {
 
   return (mod);
 }
-//------------------------------------------------------------------------------------------------------
-
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
-DEFINE_EDM_PLUGIN(EcalClusterFunctionFactory,
-                  EcalBasicClusterLocalContCorrection,
-                  "EcalBasicClusterLocalContCorrection");

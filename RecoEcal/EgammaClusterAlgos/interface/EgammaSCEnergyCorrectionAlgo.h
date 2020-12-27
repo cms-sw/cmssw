@@ -14,6 +14,7 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
 
+#include <functional>
 #include <map>
 #include <string>
 
@@ -39,8 +40,9 @@ public:
 
   // take a SuperCluster and return a local containment corrected SuperCluster
 
-  reco::SuperCluster applyLocalContCorrection(const reco::SuperCluster& cl,
-                                              EcalClusterFunctionBaseClass* localContCorrectionFunction);
+  reco::SuperCluster applyLocalContCorrection(
+      const reco::SuperCluster& cl,
+      std::function<float(reco::BasicCluster const&, EcalRecHitCollection const&)> localContCorrectionFunction);
 
 private:
   // correction factor as a function of number of crystals,
