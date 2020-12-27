@@ -8,10 +8,7 @@ SimClusterAssociatorByEnergyScoreImpl::SimClusterAssociatorByEnergyScoreImpl(
     bool hardScatterOnly,
     std::shared_ptr<hgcal::RecHitTools> recHitTools,
     const std::unordered_map<DetId, const HGCRecHit*>* hitMap)
-    : hardScatterOnly_(hardScatterOnly),
-      recHitTools_(recHitTools),
-      hitMap_(hitMap),
-      productGetter_(&productGetter) {
+    : hardScatterOnly_(hardScatterOnly), recHitTools_(recHitTools), hitMap_(hitMap), productGetter_(&productGetter) {
   layers_ = recHitTools_->lastLayerBH();
 }
 
