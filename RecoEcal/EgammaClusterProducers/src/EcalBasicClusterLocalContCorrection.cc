@@ -1,9 +1,16 @@
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "RecoEcal/EgammaClusterProducers/interface/EcalBasicClusterLocalContCorrection.h"
 
+#include "TVector2.h"
+
+EcalBasicClusterLocalContCorrection::EcalBasicClusterLocalContCorrection(edm::ConsumesCollector &&cc)
+    : paramsToken_{cc.esConsumes()}, caloGeometryToken_{cc.esConsumes()} {}
+
 void EcalBasicClusterLocalContCorrection::init(const edm::EventSetup &es) {
-  es.get<EcalClusterLocalContCorrParametersRcd>().get(esParams_);
-  params_ = esParams_.product();
-  es_ = &es;  //needed to access the ECAL geometry
+  params_ = &es.getData(paramsToken_);
+  caloGeometry_ = &es.getData(caloGeometryToken_);
 }
 
 void EcalBasicClusterLocalContCorrection::checkInit() const {
@@ -23,7 +30,7 @@ float EcalBasicClusterLocalContCorrection::operator()(const reco::BasicCluster &
   checkInit();
 
   // number of parameters needed by this parametrization
-  size_t nparams = 24;
+  constexpr size_t nparams = 24;
 
   //correction factor to be returned, and to be calculated in this present function:
   double correction_factor = 1.;
@@ -31,9 +38,8 @@ float EcalBasicClusterLocalContCorrection::operator()(const reco::BasicCluster &
   double fphicor = 1.;  //phi dependent part of the correction factor
 
   //--------------if barrel calculate local position wrt xtal center -------------------
-  edm::ESHandle<CaloGeometry> caloGeometry;
-  es_->get<CaloGeometryRecord>().get(caloGeometry);
-  const CaloSubdetectorGeometry *geom = caloGeometry->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);  //EcalBarrel = 1
+  const CaloSubdetectorGeometry *geom =
+      caloGeometry_->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);  //EcalBarrel = 1
 
   const math::XYZPoint &position_ = basicCluster.position();
   double Theta = -position_.theta() + 0.5 * M_PI;
@@ -42,8 +48,8 @@ float EcalBasicClusterLocalContCorrection::operator()(const reco::BasicCluster &
 
   //Calculate expected depth of the maximum shower from energy (like in PositionCalc::Calculate_Location()):
   // The parameters X0 and T0 are hardcoded here because these values were used to calculate the corrections:
-  const float X0 = 0.89;
-  const float T0 = 7.4;
+  constexpr float X0 = 0.89;
+  constexpr float T0 = 7.4;
   double depth = X0 * (T0 + log(basicCluster.energy()));
 
   //search which crystal is closest to the cluster position and call it crystalseed:
