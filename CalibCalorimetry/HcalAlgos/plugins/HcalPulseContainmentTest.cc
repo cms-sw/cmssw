@@ -34,7 +34,9 @@ private:
   const HcalTimeSlew* hcalTimeSlew_delay_;
 };
 
-HcalPulseContainmentTest::HcalPulseContainmentTest(const edm::ParameterSet& iConfig) : tok_slew_(esConsumes<HcalTimeSlew, HcalTimeSlewRecord>(edm::ESInputTag{"", "HBHE"})), hcalTimeSlew_delay_(nullptr) {}
+HcalPulseContainmentTest::HcalPulseContainmentTest(const edm::ParameterSet& iConfig)
+    : tok_slew_(esConsumes<HcalTimeSlew, HcalTimeSlewRecord>(edm::ESInputTag{"", "HBHE"})),
+      hcalTimeSlew_delay_(nullptr) {}
 
 HcalPulseContainmentTest::~HcalPulseContainmentTest() {}
 
