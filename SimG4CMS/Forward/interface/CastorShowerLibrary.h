@@ -22,7 +22,7 @@
 
 class G4Step;
 class TFile;
-class TBranchObject;
+class TBranch;
 
 class CastorShowerLibrary {
 public:
@@ -38,19 +38,14 @@ public:
 
 protected:
   void initFile(edm::ParameterSet const &);
-  void getRecord(int, int);
-  void loadEventInfo(TBranchObject *);
+  CastorShowerEvent getRecord(int, int);
+  void loadEventInfo(TBranch *);
   // if eta or phi is not given, take into account only the binning in energy
-  void select(int, double, double = 0, double = 9);
+  CastorShowerEvent select(int, double, double = 0, double = 9);
 
 private:
   TFile *hf;
-  TBranchObject *evtInfo;               // pointer to CastorShowerLibraryInfo-type branch
-  TBranchObject *emBranch, *hadBranch;  // pointer to CastorShowerEvent-type branch
-
-  // User defined classes in Root Dictionary
-  CastorShowerLibraryInfo *eventInfo;
-  CastorShowerEvent *showerEvent;
+  TBranch *emBranch, *hadBranch;  // pointer to CastorShowerEvent-type branch
 
   bool verbose;
   unsigned int nMomBin, totEvents, evtPerBin;
