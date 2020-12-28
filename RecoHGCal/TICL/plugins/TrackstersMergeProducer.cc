@@ -285,7 +285,7 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
   }
 
   // Neutral Hadrons
-  constexpr float mpion = 0.13957f;
+  constexpr double mpion = 0.13957;
   constexpr float mpion2 = mpion * mpion;
   for (unsigned i = 0; i < trackstersHAD.size(); ++i) {
     auto mergedIdx = indexInMergedCollHAD[i];
