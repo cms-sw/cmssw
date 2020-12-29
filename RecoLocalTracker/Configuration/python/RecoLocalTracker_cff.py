@@ -13,19 +13,37 @@ from RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizerPreSplitting_cfi impo
 from RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi import *
 from RecoLocalTracker.SubCollectionProducers.clustersummaryproducer_cfi import *
 
-pixeltrackerlocalrecoTask = cms.Task(siPixelClustersPreSplitting,siPixelRecHitsPreSplitting)
-striptrackerlocalrecoTask = cms.Task(siStripZeroSuppression,siStripClusters,siStripMatchedRecHits)
-trackerlocalrecoTask = cms.Task(pixeltrackerlocalrecoTask,striptrackerlocalrecoTask,clusterSummaryProducer)
+pixeltrackerlocalreco = cms.Sequence(siPixelClustersPreSplitting*siPixelRecHitsPreSplitting)
+striptrackerlocalreco = cms.Sequence(siStripZeroSuppression*siStripClusters*siStripMatchedRecHits)
+trackerlocalreco = cms.Sequence(pixeltrackerlocalreco*striptrackerlocalreco*clusterSummaryProducer)
 
-pixeltrackerlocalreco = cms.Sequence(pixeltrackerlocalrecoTask)
-striptrackerlocalreco = cms.Sequence(striptrackerlocalrecoTask)
-trackerlocalreco = cms.Sequence(trackerlocalrecoTask)
+from RecoLocalTracker.SiPixelClusterizer.siPixelClustersHeterogeneous_cfi import *
+from RecoLocalTracker.SiPixelClusterizer.siPixelFedCablingMapGPUWrapper_cfi import *
+from CalibTracker.SiPixelESProducers.siPixelGainCalibrationForHLTGPU_cfi import *
+
+from Configuration.ProcessModifiers.gpu_cff import gpu
+_pixeltrackerlocalreco_gpu = pixeltrackerlocalreco.copy()
+_pixeltrackerlocalreco_gpu.replace(siPixelClustersPreSplitting, siPixelClustersHeterogeneous+siPixelClustersPreSplitting)
+gpu.toReplaceWith(pixeltrackerlocalreco, _pixeltrackerlocalreco_gpu)
+
 
 from RecoLocalTracker.SiPhase2Clusterizer.phase2TrackerClusterizer_cfi import *
 from RecoLocalTracker.Phase2TrackerRecHits.Phase2StripCPEGeometricESProducer_cfi import *
-from RecoLocalTracker.SiPhase2VectorHitBuilder.siPhase2RecHitMatcher_cfi import *
 
-_pixeltrackerlocalrecoTask_phase2 = pixeltrackerlocalrecoTask.copy()
-_pixeltrackerlocalrecoTask_phase2.add(siPhase2Clusters)
-phase2_tracker.toReplaceWith(pixeltrackerlocalrecoTask, _pixeltrackerlocalrecoTask_phase2)
-phase2_tracker.toReplaceWith(trackerlocalrecoTask, trackerlocalrecoTask.copyAndExclude([striptrackerlocalrecoTask]))
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase2_tracker.toReplaceWith(pixeltrackerlocalreco,
+  cms.Sequence(
+          siPhase2Clusters +
+          siPixelClustersPreSplitting +
+          siPixelRecHitsPreSplitting
+  )
+)
+phase2_tracker.toModify(clusterSummaryProducer,
+  doStrips = False,
+  stripClusters = ''
+)
+phase2_tracker.toReplaceWith(trackerlocalreco,
+  cms.Sequence(
+          pixeltrackerlocalreco*clusterSummaryProducer
+  )
+)
