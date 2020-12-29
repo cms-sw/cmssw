@@ -5,7 +5,6 @@ from Configuration.ProcessModifiers.gpu_cff import gpu
 # scenarios. In this case it makes changes for Run 2.
 
 from EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi import *
-from EventFilter.SiPixelRawToDigi.siPixelDigisHeterogeneous_cfi import *
 
 from EventFilter.SiStripRawToDigi.SiStripDigis_cfi import *
 
@@ -62,14 +61,10 @@ RawToDigiTask = cms.Task(L1TRawToDigiTask,
                          )
 RawToDigi = cms.Sequence(RawToDigiTask)
 
-_RawToDigi_gpu = RawToDigi.copy()
-_RawToDigi_gpu.replace(siPixelDigis, siPixelDigisHeterogeneous + siPixelDigis)
-gpu.toReplaceWith(RawToDigi, _RawToDigi_gpu)
-
 RawToDigiTask_noTk = RawToDigiTask.copyAndExclude([siPixelDigis, siStripDigis])
 RawToDigi_noTk = cms.Sequence(RawToDigiTask_noTk)
 
-RawToDigiTask_pixelOnly = cms.Task(siPixelDigisHeterogeneous + siPixelDigis)
+RawToDigiTask_pixelOnly = cms.Task(siPixelDigis)
 RawToDigi_pixelOnly = cms.Sequence(RawToDigiTask_pixelOnly)
 
 RawToDigiTask_ecalOnly = cms.Task(ecalDigisTask, ecalPreshowerDigis, scalersRawToDigi)
@@ -79,7 +74,6 @@ RawToDigiTask_hcalOnly = cms.Task(hcalDigis)
 RawToDigi_hcalOnly = cms.Sequence(RawToDigiTask_hcalOnly)
 
 scalersRawToDigi.scalersInputTag = 'rawDataCollector'
-siPixelDigisHeterogeneous.InputLabel = 'rawDataCollector'
 (~gpu).toModify(siPixelDigis, InputLabel = 'rawDataCollector')
 ecalDigis.InputLabel = 'rawDataCollector'
 ecalPreshowerDigis.sourceTag = 'rawDataCollector'
