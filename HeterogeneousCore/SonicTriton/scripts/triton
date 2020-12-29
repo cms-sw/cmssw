@@ -4,7 +4,7 @@
 USEDOCKER=""
 GPU=""
 VERBOSE=""
-WTIME=60
+WTIME=120
 SERVER=triton_server_instance
 RETRIES=3
 REPOS=()
