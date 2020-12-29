@@ -146,7 +146,7 @@ const double HGCalShowerShapeHelper::getRvar(double cylinderR, double energyNorm
 
   double cylinderR2 = cylinderR * cylinderR;
 
-  double Rvar = 0.0;
+  double rVar = 0.0;
 
   auto hitEnergyIter = useFractions ? hitEnergiesWithFracs_.begin() : hitEnergies_.begin();
 
@@ -177,12 +177,12 @@ const double HGCalShowerShapeHelper::getRvar(double cylinderR, double energyNorm
       continue;
     }
 
-    Rvar += *hitEnergyIter;
+    rVar += *hitEnergyIter;
   }
 
-  Rvar /= energyNorm;
+  rVar /= energyNorm;
 
-  return Rvar;
+  return rVar;
 }
 
 const HGCalShowerShapeHelper::ShowerWidths HGCalShowerShapeHelper::getPCAWidths(double cylinderR, bool useFractions) {
