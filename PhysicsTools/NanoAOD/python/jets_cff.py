@@ -1,18 +1,8 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.Eras.Modifier_run2_jme_2016_cff import run2_jme_2016
-from Configuration.Eras.Modifier_run2_jme_2017_cff import run2_jme_2017
-from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
-from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94X2016
-from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
-from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv2_cff import run2_nanoAOD_94XMiniAODv2
-from Configuration.Eras.Modifier_run2_nanoAOD_102Xv1_cff import run2_nanoAOD_102Xv1
-from Configuration.Eras.Modifier_run2_nanoAOD_106Xv1_cff import run2_nanoAOD_106Xv1
-from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
-from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
+from PhysicsTools.NanoAOD.nano_eras_cff import *
 
 from  PhysicsTools.NanoAOD.common_cff import *
 from RecoJets.JetProducers.ak4PFJetsBetaStar_cfi import *
-
 
 ##################### User floats producers, selectors ##########################
 from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
@@ -83,7 +73,7 @@ run2_jme_2016.toModify( tightJetId.filterParams, version = "WINTER16" )
 run2_jme_2016.toModify( tightJetIdLepVeto.filterParams, version = "WINTER16" )
 run2_jme_2017.toModify( tightJetId.filterParams, version = "WINTER17" )
 run2_jme_2017.toModify( tightJetIdLepVeto.filterParams, version = "WINTER17" )
-for modifier in run2_nanoAOD_106Xv1, run2_miniAOD_devel:
+for modifier in run2_nanoAOD_106Xv1, run2_nanoAOD_106Xv2, run2_miniAOD_devel:
   modifier.toModify( tightJetId.filterParams, version = "RUN2ULCHS" )
   modifier.toModify( tightJetIdLepVeto.filterParams, version = "RUN2ULCHS" )
 
@@ -113,7 +103,7 @@ run2_jme_2016.toModify( tightJetIdAK8.filterParams, version = "WINTER16" )
 run2_jme_2016.toModify( tightJetIdLepVetoAK8.filterParams, version = "WINTER16" )
 run2_jme_2017.toModify( tightJetIdAK8.filterParams, version = "WINTER17PUPPI" )
 run2_jme_2017.toModify( tightJetIdLepVetoAK8.filterParams, version = "WINTER17PUPPI" )
-for modifier in run2_nanoAOD_106Xv1, run2_miniAOD_devel:
+for modifier in run2_nanoAOD_106Xv1, run2_nanoAOD_106Xv2, run2_miniAOD_devel:
   modifier.toModify( tightJetIdAK8.filterParams, version = "RUN2ULPUPPI" )
   modifier.toModify( tightJetIdLepVetoAK8.filterParams, version = "RUN2ULPUPPI" )
 
@@ -717,7 +707,7 @@ run2_jme_2016.toReplaceWith(jetSequence, _jetSequence_2016)
 #HF shower shape variables:
 #In 106X the variables are not computed/stored by default, but can be accessed/recomputed via modifiers
 #For the two following modifiers, the producer is run on MINIAOD and one can directly access the variables
-for modifier in run2_miniAOD_UL, run2_miniAOD_devel:
+for modifier in run2_nanoAOD_106Xv2, run2_miniAOD_devel:
   modifier.toModify( jetTable.variables, hfsigmaEtaEta = Var("userFloat('hfJetShowerShape:sigmaEtaEta')",float,doc="sigmaEtaEta for HF jets (noise discriminating variable)",precision=10))
   modifier.toModify( jetTable.variables, hfsigmaPhiPhi = Var("userFloat('hfJetShowerShape:sigmaPhiPhi')",float,doc="sigmaPhiPhi for HF jets (noise discriminating variable)",precision=10))
   modifier.toModify( jetTable.variables, hfcentralEtaStripSize = Var("userInt('hfJetShowerShape:centralEtaStripSize')", int, doc="eta size of the central tower strip in HF (noise discriminating variable) "))

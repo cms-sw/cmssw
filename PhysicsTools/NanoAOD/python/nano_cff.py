@@ -1,6 +1,7 @@
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
+from PhysicsTools.NanoAOD.nano_eras_cff import *
 from PhysicsTools.NanoAOD.jets_cff import *
 from PhysicsTools.NanoAOD.muons_cff import *
 from PhysicsTools.NanoAOD.taus_cff import *
@@ -18,19 +19,6 @@ from PhysicsTools.NanoAOD.met_cff import *
 from PhysicsTools.NanoAOD.triggerObjects_cff import *
 from PhysicsTools.NanoAOD.isotracks_cff import *
 from PhysicsTools.NanoAOD.NanoAODEDMEventContent_cff import *
-
-from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
-from Configuration.Eras.Modifier_run2_nanoAOD_92X_cff import run2_nanoAOD_92X
-from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94X2016
-from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
-from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv2_cff import run2_nanoAOD_94XMiniAODv2
-from Configuration.Eras.Modifier_run2_nanoAOD_102Xv1_cff import run2_nanoAOD_102Xv1
-from Configuration.Eras.Modifier_run2_nanoAOD_106Xv1_cff import run2_nanoAOD_106Xv1
-from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
-from Configuration.Eras.Modifier_run2_tau_ul_2016_cff import run2_tau_ul_2016
-from Configuration.Eras.Modifier_run2_tau_ul_2018_cff import run2_tau_ul_2018
-from Configuration.Eras.Modifier_run2_egamma_2017_cff import run2_egamma_2017
-from Configuration.Eras.Modifier_run2_egamma_2018_cff import run2_egamma_2018
 
 nanoMetadata = cms.EDProducer("UniqueStringProducer",
     strings = cms.PSet(
@@ -192,7 +180,7 @@ def nanoAOD_recalibrateMETs(process,isData):
         ResponseTune_Graph = cms.untracked.string('RecoMET/METPUSubtraction/data/deepmet/deepmet_resp_v1_2018.pb')
     )
     # compute DeepMETs for the eras before UL-ReminiAOD
-    (~run2_miniAOD_devel).toModify(nanoAOD_DeepMET_switch, nanoAOD_produceDeepMET_switch =  cms.untracked.bool(True))
+    (~(run2_nanoAOD_106Xv2 | run2_miniAOD_devel)).toModify(nanoAOD_DeepMET_switch, nanoAOD_produceDeepMET_switch =  cms.untracked.bool(True))
     for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
         modifier.toModify(nanoAOD_DeepMET_switch, ResponseTune_Graph=cms.untracked.string("RecoMET/METPUSubtraction/data/deepmet/deepmet_resp_v1_2016.pb"))
     if nanoAOD_DeepMET_switch.nanoAOD_addDeepMET_switch:
@@ -356,7 +344,7 @@ def nanoAOD_customizeCommon(process):
                                     nanoAOD_addParticleNet_switch = False,
                                     jecPayload = 'AK8PFchs')
     # Don't rerun where already present
-    run2_miniAOD_devel.toModify(
+    (run2_nanoAOD_106Xv2 | run2_miniAOD_devel).toModify(
         nanoAOD_addDeepInfoAK8_switch,
         nanoAOD_addDeepBoostedJet_switch = False,
         nanoAOD_addDeepDoubleX_switch = False,
@@ -379,7 +367,7 @@ def nanoAOD_customizeCommon(process):
         nanoAOD_addTauIds_switch = cms.untracked.bool(True)
     )
     run2_miniAOD_80XLegacy.toModify(addTauIds_switch, nanoAOD_addTauIds_switch = cms.untracked.bool(False))
-    ((run2_miniAOD_devel | run2_tau_ul_2016 | run2_tau_ul_2018) & \
+    ((run2_nanoAOD_106Xv2 | run2_miniAOD_devel | run2_tau_ul_2016 | run2_tau_ul_2018) & \
     (~(run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1))).toModify(addTauIds_switch,
                                                                                                                                            nanoAOD_addTauIds_switch = cms.untracked.bool(False))
     if addTauIds_switch.nanoAOD_addTauIds_switch:
