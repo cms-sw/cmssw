@@ -120,10 +120,8 @@ start_singularity(){
 	# triton server image may need to modify contents of opt/tritonserver/lib/
 	# but cvmfs is read-only
 	# -> make a writable local directory with the same contents
-	if [ -z "$DRYRUN" ]; then
-		mkdir ${LIB}
-		ln -s /cvmfs/unpacked.cern.ch/registry.hub.docker.com/${IMAGE}/opt/tritonserver/lib/* ${LIB}/
-	fi
+	$DRYRUN mkdir ${LIB}
+	$DRYRUN ln -s /cvmfs/unpacked.cern.ch/registry.hub.docker.com/${IMAGE}/opt/tritonserver/lib/* ${LIB}/
 
 	# mount all model repositories
 	MOUNTARGS=""
@@ -207,9 +205,9 @@ wait_server(){
 }
 
 cleanup(){
-	if [ -z "$DRYRUN" ] && [ -n "$CLEANUP" ]; then
-		cd "$TOPDIR"
-		rm -rf "$TMPDIR"
+	if [ -n "$CLEANUP" ]; then
+		$DRYRUN cd "$TOPDIR"
+		$DRYRUN rm -rf "$TMPDIR"
 	fi
 }
 
@@ -261,15 +259,13 @@ if [ "$OP" == start ]; then
 	list_models
 
 	# make sure everything happens in tmp dir
-	if [ -z "$DRYRUN" ]; then
-		mkdir "$TMPDIR"
-		MKDIR_EXIT=$?
-		if [ "$MKDIR_EXIT" -ne 0 ]; then
-			echo "Could not create temp dir: $TMPDIR"
-			exit "$MKDIR_EXIT"
-		fi
-		cd "$TMPDIR"
+	$DRYRUN mkdir "$TMPDIR"
+	MKDIR_EXIT=$?
+	if [ "$MKDIR_EXIT" -ne 0 ]; then
+		echo "Could not create temp dir: $TMPDIR"
+		exit "$MKDIR_EXIT"
 	fi
+	$DRYRUN cd "$TMPDIR"
 
 	START_EXIT=""
 	for ((counter=0; counter < ${RETRIES}; counter++)); do
@@ -289,13 +285,11 @@ if [ "$OP" == start ]; then
 	wait_server
 else
 	# check for tmp dir
-	if [ -z "$DRYRUN" ]; then
-		if [ -d "$TMPDIR" ]; then
-			cd "$TMPDIR"
-		elif [ -z "$FORCE" ]; then
-			echo "Error: attempt to stop unknown container $SERVER"
-			exit 1
-		fi
+	if [ -d "$TMPDIR" ]; then
+		$DRYRUN cd "$TMPDIR"
+	elif [ -z "$FORCE" ]; then
+		echo "Error: attempt to stop unknown container $SERVER"
+		exit 1
 	fi
 
 	$STOP_FN
