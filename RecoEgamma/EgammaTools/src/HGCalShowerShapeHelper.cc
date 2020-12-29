@@ -263,6 +263,10 @@ const HGCalShowerShapeHelper::ShowerWidths HGCalShowerShapeHelper::getPCAWidths(
   covMat(0, 2) = covMat(2, 0) = dzdx;
   covMat(1, 2) = covMat(2, 1) = dydz;
 
+  if (!covMat.Sum()) {
+    return ShowerWidths();
+  }
+
   // Get eigen values and vectors
   TVectorD eigVals(3);
   TMatrixD eigVecMat(3, 3);
