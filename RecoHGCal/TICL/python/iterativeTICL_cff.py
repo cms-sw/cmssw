@@ -37,8 +37,8 @@ ticlLayerTileHFNose = ticlLayerTileProducer.clone(
 
 ticlLayerTileHFNoseTask = cms.Task(ticlLayerTileHFNose)
 
-iterHFNoseTICLTask = cms.Task(
-    ticlLayerTileHFNoseTask,
-    ticlHFNoseMIPStepTask,
-    ticlHFNoseEMStepTask
+iterHFNoseTICLTask = cms.Task(ticlLayerTileHFNoseTask
+    ,ticlHFNoseTrkEMStepTask
+    ,ticlHFNoseEMStepTask
+    ,ticlHFNoseMIPStepTask
 )

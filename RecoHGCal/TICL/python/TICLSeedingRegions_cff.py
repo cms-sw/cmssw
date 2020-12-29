@@ -15,3 +15,9 @@ ticlSeedingTrk = _ticlSeedingRegionProducer.clone(
 ticlSeedingGlobalHFNose = _ticlSeedingRegionProducer.clone(
   seedingPSet = _ticlSeedingRegionProducer.seedingPSet.clone(type="SeedingRegionGlobal")
 )
+
+ticlSeedingTrkHFNose = _ticlSeedingRegionProducer.clone(
+    algoId = 1,
+    detector = "HFNose",
+    cutTk = cms.string('3. < abs(eta) < 4. && pt > 1. && quality("highPurity") && hitPattern().numberOfLostHits("MISSING_OUTER_HITS") < 5'),
+)

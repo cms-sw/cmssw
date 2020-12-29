@@ -51,21 +51,25 @@ ticlEMStepTask = cms.Task(ticlSeedingGlobal
 
 filteredLayerClustersHFNoseEM = filteredLayerClustersEM.clone(
     LayerClusters = 'hgcalLayerClustersHFNose',
-    LayerClustersInputMask = "hgcalLayerClustersHFNose:InitialLayerClustersMask",
+    LayerClustersInputMask = 'ticlTrackstersHFNoseTrkEM',
     iteration_label = "EMn",
     algo_number = 9
-#no tracking mask for EM for now
 )
 
 ticlTrackstersHFNoseEM = ticlTrackstersEM.clone(
     detector = "HFNose",
     layer_clusters = "hgcalLayerClustersHFNose",
     layer_clusters_hfnose_tiles = "ticlLayerTileHFNose",
-    original_mask = "hgcalLayerClustersHFNose:InitialLayerClustersMask",
+    original_mask = "ticlTrackstersHFNoseTrkEM",
     filtered_mask = "filteredLayerClustersHFNoseEM:EMn",
     seeding_regions = "ticlSeedingGlobalHFNose",
     time_layerclusters = "hgcalLayerClustersHFNose:timeLayerCluster",
-    min_layers_per_trackster = 6
+    itername = "EMn",
+    filter_on_categories = [0, 1],
+    min_layers_per_trackster = 6,
+    pid_threshold = 0.,
+#    energy_em_over_total_threshold = -1.,
+    shower_start_max_layer = 5 ### inclusive
 )
 
 ticlHFNoseEMStepTask = cms.Task(ticlSeedingGlobalHFNose
