@@ -99,10 +99,10 @@ namespace gpuPixelRecHits {
         clusParams.minCol[ic] = std::numeric_limits<uint32_t>::max();
         clusParams.maxCol[ic] = 0;
         clusParams.charge[ic] = 0;
-        clusParams.Q_f_X[ic] = 0;
-        clusParams.Q_l_X[ic] = 0;
-        clusParams.Q_f_Y[ic] = 0;
-        clusParams.Q_l_Y[ic] = 0;
+        clusParams.q_f_X[ic] = 0;
+        clusParams.q_l_X[ic] = 0;
+        clusParams.q_f_Y[ic] = 0;
+        clusParams.q_l_Y[ic] = 0;
       }
 
       __syncthreads();
@@ -149,13 +149,13 @@ namespace gpuPixelRecHits {
         auto ch = std::min(digis.adc(i), pixmx);
         atomicAdd(&clusParams.charge[cl], ch);
         if (clusParams.minRow[cl] == x)
-          atomicAdd(&clusParams.Q_f_X[cl], ch);
+          atomicAdd(&clusParams.q_f_X[cl], ch);
         if (clusParams.maxRow[cl] == x)
-          atomicAdd(&clusParams.Q_l_X[cl], ch);
+          atomicAdd(&clusParams.q_l_X[cl], ch);
         if (clusParams.minCol[cl] == y)
-          atomicAdd(&clusParams.Q_f_Y[cl], ch);
+          atomicAdd(&clusParams.q_f_Y[cl], ch);
         if (clusParams.maxCol[cl] == y)
-          atomicAdd(&clusParams.Q_l_Y[cl], ch);
+          atomicAdd(&clusParams.q_l_Y[cl], ch);
       }
 
       __syncthreads();

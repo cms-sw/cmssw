@@ -81,10 +81,10 @@ namespace pixelCPEforGPU {
     uint32_t minCol[N];
     uint32_t maxCol[N];
 
-    int32_t Q_f_X[N];
-    int32_t Q_l_X[N];
-    int32_t Q_f_Y[N];
-    int32_t Q_l_Y[N];
+    int32_t q_f_X[N];
+    int32_t q_l_X[N];
+    int32_t q_f_Y[N];
+    int32_t q_l_Y[N];
 
     int32_t charge[N];
 
@@ -114,8 +114,8 @@ namespace pixelCPEforGPU {
   }
 
   constexpr inline float correction(int sizeM1,
-                                    int Q_f,                        //!< Charge in the first pixel.
-                                    int Q_l,                        //!< Charge in the last pixel.
+                                    int q_f,                        //!< Charge in the first pixel.
+                                    int q_l,                        //!< Charge in the last pixel.
                                     uint16_t upper_edge_first_pix,  //!< As the name says.
                                     uint16_t lower_edge_last_pix,   //!< As the name says.
                                     float lorentz_shift,            //!< L-shift at half thickness
@@ -134,16 +134,16 @@ namespace pixelCPEforGPU {
       //--- Width of the clusters minus the edge (first and last) pixels.
       //--- In the note, they are denoted x_F and x_L (and y_F and y_L)
       // assert(lower_edge_last_pix >= upper_edge_first_pix);
-      auto W_inner = pitch * float(lower_edge_last_pix - upper_edge_first_pix);  // in cm
+      auto w_inner = pitch * float(lower_edge_last_pix - upper_edge_first_pix);  // in cm
 
       //--- Predicted charge width from geometry
-      auto W_pred = theThickness * cot_angle  // geometric correction (in cm)
+      auto w_pred = theThickness * cot_angle  // geometric correction (in cm)
                     - lorentz_shift;          // (in cm) &&& check fpix!
 
-      w_eff = std::abs(W_pred) - W_inner;
+      w_eff = std::abs(w_pred) - w_inner;
 
       //--- If the observed charge width is inconsistent with the expectations
-      //--- based on the track, do *not* use W_pred-W_inner.  Instead, replace
+      //--- based on the track, do *not* use w_pred-w_inner.  Instead, replace
       //--- it with an *average* effective charge width, which is the average
       //--- length of the edge pixels.
 
@@ -162,14 +162,14 @@ namespace pixelCPEforGPU {
     }
 
     //--- Finally, compute the position in this projection
-    float Qdiff = Q_l - Q_f;
-    float Qsum = Q_l + Q_f;
+    float qdiff = q_l - q_f;
+    float qsum = q_l + q_f;
 
     //--- Temporary fix for clusters with both first and last pixel with charge = 0
-    if (Qsum == 0)
-      Qsum = 1.0f;
+    if (qsum == 0)
+      qsum = 1.0f;
 
-    return 0.5f * (Qdiff / Qsum) * w_eff;
+    return 0.5f * (qdiff / qsum) * w_eff;
   }
 
   constexpr inline void position(CommonParams const& __restrict__ comParams,
@@ -206,8 +206,8 @@ namespace pixelCPEforGPU {
     if (phase1PixelTopology::isBigPixY(cp.maxCol[ic]))
       ++ysize;
 
-    int unbalanceX = 8. * std::abs(float(cp.Q_f_X[ic] - cp.Q_l_X[ic])) / float(cp.Q_f_X[ic] + cp.Q_l_X[ic]);
-    int unbalanceY = 8. * std::abs(float(cp.Q_f_Y[ic] - cp.Q_l_Y[ic])) / float(cp.Q_f_Y[ic] + cp.Q_l_Y[ic]);
+    int unbalanceX = 8. * std::abs(float(cp.q_f_X[ic] - cp.q_l_X[ic])) / float(cp.q_f_X[ic] + cp.q_l_X[ic]);
+    int unbalanceY = 8. * std::abs(float(cp.q_f_Y[ic] - cp.q_l_Y[ic])) / float(cp.q_f_Y[ic] + cp.q_l_Y[ic]);
     xsize = 8 * xsize - unbalanceX;
     ysize = 8 * ysize - unbalanceY;
 
@@ -230,8 +230,8 @@ namespace pixelCPEforGPU {
     auto thickness = detParams.isBarrel ? comParams.theThicknessB : comParams.theThicknessE;
 
     auto xcorr = correction(cp.maxRow[ic] - cp.minRow[ic],
-                            cp.Q_f_X[ic],
-                            cp.Q_l_X[ic],
+                            cp.q_f_X[ic],
+                            cp.q_l_X[ic],
                             llxl,
                             urxl,
                             detParams.chargeWidthX,  // lorentz shift in cm
@@ -242,8 +242,8 @@ namespace pixelCPEforGPU {
                             phase1PixelTopology::isBigPixX(cp.maxRow[ic]));
 
     auto ycorr = correction(cp.maxCol[ic] - cp.minCol[ic],
-                            cp.Q_f_Y[ic],
-                            cp.Q_l_Y[ic],
+                            cp.q_f_Y[ic],
+                            cp.q_l_Y[ic],
                             llyl,
                             uryl,
                             detParams.chargeWidthY,  // lorentz shift in cm

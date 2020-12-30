@@ -354,11 +354,11 @@ LocalPoint PixelCPEFast::localPosition(DetParam const& theDetParam, ClusterParam
     theClusterParam.qBin_ = 0;
   }
 
-  int Q_f_X;  //!< Q of the first  pixel  in X
-  int Q_l_X;  //!< Q of the last   pixel  in X
-  int Q_f_Y;  //!< Q of the first  pixel  in Y
-  int Q_l_Y;  //!< Q of the last   pixel  in Y
-  collect_edge_charges(theClusterParam, Q_f_X, Q_l_X, Q_f_Y, Q_l_Y, useErrorsFromTemplates_ && truncatePixelCharge_);
+  int q_f_X;  //!< Q of the first  pixel  in X
+  int q_l_X;  //!< Q of the last   pixel  in X
+  int q_f_Y;  //!< Q of the first  pixel  in Y
+  int q_l_Y;  //!< Q of the last   pixel  in Y
+  collect_edge_charges(theClusterParam, q_f_X, q_l_X, q_f_Y, q_l_Y, useErrorsFromTemplates_ && truncatePixelCharge_);
 
   // do GPU like ...
   pixelCPEforGPU::ClusParams cp;
@@ -368,10 +368,10 @@ LocalPoint PixelCPEFast::localPosition(DetParam const& theDetParam, ClusterParam
   cp.minCol[0] = theClusterParam.theCluster->minPixelCol();
   cp.maxCol[0] = theClusterParam.theCluster->maxPixelCol();
 
-  cp.Q_f_X[0] = Q_f_X;
-  cp.Q_l_X[0] = Q_l_X;
-  cp.Q_f_Y[0] = Q_f_Y;
-  cp.Q_l_Y[0] = Q_l_Y;
+  cp.q_f_X[0] = q_f_X;
+  cp.q_l_X[0] = q_l_X;
+  cp.q_f_Y[0] = q_f_Y;
+  cp.q_l_Y[0] = q_l_Y;
 
   auto ind = theDetParam.theDet->index();
   pixelCPEforGPU::position(commonParamsGPU_, detParamsGPU_[ind], cp, 0);
@@ -392,16 +392,16 @@ LocalPoint PixelCPEFast::localPosition(DetParam const& theDetParam, ClusterParam
 //!  and the inner cluster charge, projected in x and y.
 //-----------------------------------------------------------------------------
 void PixelCPEFast::collect_edge_charges(ClusterParam& theClusterParamBase,  //!< input, the cluster
-                                        int& Q_f_X,                         //!< output, Q first  in X
-                                        int& Q_l_X,                         //!< output, Q last   in X
-                                        int& Q_f_Y,                         //!< output, Q first  in Y
-                                        int& Q_l_Y,                         //!< output, Q last   in Y
+                                        int& q_f_X,                         //!< output, Q first  in X
+                                        int& q_l_X,                         //!< output, Q last   in X
+                                        int& q_f_Y,                         //!< output, Q first  in Y
+                                        int& q_l_Y,                         //!< output, Q last   in Y
                                         bool truncate) {
   ClusterParamGeneric& theClusterParam = static_cast<ClusterParamGeneric&>(theClusterParamBase);
 
   // Initialize return variables.
-  Q_f_X = Q_l_X = 0;
-  Q_f_Y = Q_l_Y = 0;
+  q_f_X = q_l_X = 0;
+  q_f_Y = q_l_Y = 0;
 
   // Obtain boundaries in index units
   int xmin = theClusterParam.theCluster->minPixelRow();
@@ -421,15 +421,15 @@ void PixelCPEFast::collect_edge_charges(ClusterParam& theClusterParamBase,  //!<
     //
     // X projection
     if (pixel.x == xmin)
-      Q_f_X += pix_adc;
+      q_f_X += pix_adc;
     if (pixel.x == xmax)
-      Q_l_X += pix_adc;
+      q_l_X += pix_adc;
     //
     // Y projection
     if (pixel.y == ymin)
-      Q_f_Y += pix_adc;
+      q_f_Y += pix_adc;
     if (pixel.y == ymax)
-      Q_l_Y += pix_adc;
+      q_l_Y += pix_adc;
   }
 }
 
