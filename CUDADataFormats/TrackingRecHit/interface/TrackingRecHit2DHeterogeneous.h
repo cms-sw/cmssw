@@ -10,7 +10,7 @@ public:
   template <typename T>
   using unique_ptr = typename Traits::template unique_ptr<T>;
 
-  using Hist = TrackingRecHit2DSOAView::Hist;
+  using PhiBinner = TrackingRecHit2DSOAView::PhiBinner;
 
   TrackingRecHit2DHeterogeneous() = default;
 
@@ -33,7 +33,7 @@ public:
 
   auto hitsModuleStart() const { return m_hitsModuleStart; }
   auto hitsLayerStart() { return m_hitsLayerStart; }
-  auto phiBinner() { return m_hist; }
+  auto phiBinner() { return m_phiBinner; }
   auto iphi() { return m_iphi; }
 
   // only the local coord and detector index
@@ -48,7 +48,7 @@ private:
   unique_ptr<uint16_t[]> m_store16;  //!
   unique_ptr<float[]> m_store32;     //!
 
-  unique_ptr<TrackingRecHit2DSOAView::Hist> m_HistStore;                        //!
+  unique_ptr<TrackingRecHit2DSOAView::PhiBinner> m_PhiBinnerStore;              //!
   unique_ptr<TrackingRecHit2DSOAView::AverageGeometry> m_AverageGeometryStore;  //!
 
   unique_ptr<TrackingRecHit2DSOAView> m_view;  //!
@@ -58,7 +58,7 @@ private:
   uint32_t const* m_hitsModuleStart;  // needed for legacy, this is on GPU!
 
   // needed as kernel params...
-  Hist* m_hist;
+  PhiBinner* m_phiBinner;
   uint32_t* m_hitsLayerStart;
   int16_t* m_iphi;
 };
@@ -98,13 +98,13 @@ TrackingRecHit2DHeterogeneous<Traits>::TrackingRecHit2DHeterogeneous(uint32_t nH
   // so unless proven VERY inefficient we keep it ordered as generated
   m_store16 = Traits::template make_device_unique<uint16_t[]>(nHits * n16, stream);
   m_store32 = Traits::template make_device_unique<float[]>(nHits * n32 + 11, stream);
-  m_HistStore = Traits::template make_device_unique<TrackingRecHit2DSOAView::Hist>(stream);
+  m_PhiBinnerStore = Traits::template make_device_unique<TrackingRecHit2DSOAView::PhiBinner>(stream);
 
   auto get16 = [&](int i) { return m_store16.get() + i * nHits; };
   auto get32 = [&](int i) { return m_store32.get() + i * nHits; };
 
   // copy all the pointers
-  m_hist = view->m_hist = m_HistStore.get();
+  m_phiBinner = view->m_phiBinner = m_PhiBinnerStore.get();
 
   view->m_xl = get32(0);
   view->m_yl = get32(1);

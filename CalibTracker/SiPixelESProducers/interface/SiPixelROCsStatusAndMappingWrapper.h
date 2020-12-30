@@ -14,7 +14,6 @@ class SiPixelFedCablingMap;
 class TrackerGeometry;
 class SiPixelQuality;
 
-// TODO: since this has more information than just cabling map, maybe we should invent a better name?
 class SiPixelROCsStatusAndMappingWrapper {
 public:
   SiPixelROCsStatusAndMappingWrapper(SiPixelFedCablingMap const &cablingMap,
