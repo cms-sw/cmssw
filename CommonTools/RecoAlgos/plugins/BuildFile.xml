@@ -16,5 +16,4 @@
   <use name="TrackingTools/Records"/>
   <use name="CommonTools/Utils"/>
   <use name="CommonTools/RecoAlgos"/>
-  <use name="JetMETCorrections/JetCorrector"/>
 </library>
