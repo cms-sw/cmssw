@@ -18,8 +18,6 @@
 
 <library file="HcalRawToDigiGPU.cc,DecodeGPU.cu,HcalESProducerGPUDefs.cc,ElectronicsMappingGPU.cc,HcalCPUDigisProducer.cc,HcalDigisProducerGPU.cc" name="EventFilterHcalRawToDigiGPUPlugins">
   <use name="cuda" />
-  <use name="CUDADataFormats/Common" />
-  <use name="CUDADataFormats/CaloCommon"/>
   <use name="CUDADataFormats/HcalDigi" />
   <use name="HeterogeneousCore/CUDACore"/>
   <use name="HeterogeneousCore/CUDAServices"/>

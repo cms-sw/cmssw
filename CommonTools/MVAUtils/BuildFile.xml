@@ -1,4 +1,3 @@
-<use name="CommonTools/Utils"/>
 <use name="CondFormats/EgammaObjects"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
