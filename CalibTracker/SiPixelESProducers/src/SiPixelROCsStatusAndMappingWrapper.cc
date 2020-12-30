@@ -8,6 +8,7 @@
 #include <cuda_runtime.h>
 
 // CMSSW includes
+#include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelROCsStatusAndMappingWrapper.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
@@ -51,8 +52,8 @@ SiPixelROCsStatusAndMappingWrapper::SiPixelROCsStatusAndMappingWrapper(SiPixelFe
           else
             cablingMapHost->badRocs[index] = false;
         } else {  // store some dummy number
-          cablingMapHost->rawId[index] = 9999;
-          cablingMapHost->rocInDet[index] = 9999;
+          cablingMapHost->rawId[index] = gpuClustering::invalidModuleId;
+          cablingMapHost->rocInDet[index] = gpuClustering::invalidModuleId;
           cablingMapHost->badRocs[index] = true;
           modToUnpDefault[index] = true;
         }
@@ -70,8 +71,8 @@ SiPixelROCsStatusAndMappingWrapper::SiPixelROCsStatusAndMappingWrapper(SiPixelFe
   // idinLnk varies between 1 to 8
 
   for (int i = 1; i < index; i++) {
-    if (cablingMapHost->rawId[i] == 9999) {
-      cablingMapHost->moduleId[i] = 9999;
+    if (cablingMapHost->rawId[i] == gpuClustering::invalidModuleId) {
+      cablingMapHost->moduleId[i] = gpuClustering::invalidModuleId;
     } else {
       /*
       std::cout << cablingMapHost->rawId[i] << std::endl;

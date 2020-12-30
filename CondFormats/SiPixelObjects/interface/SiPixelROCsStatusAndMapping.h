@@ -11,7 +11,6 @@ namespace pixelgpudetails {
   constexpr unsigned int MAX_SIZE_BYTE_BOOL = MAX_SIZE * sizeof(unsigned char);
 }  // namespace pixelgpudetails
 
-// TODO: since this has more information than just cabling map, maybe we should invent a better name?
 struct SiPixelROCsStatusAndMapping {
   alignas(128) unsigned int fed[pixelgpudetails::MAX_SIZE];
   alignas(128) unsigned int link[pixelgpudetails::MAX_SIZE];

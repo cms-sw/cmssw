@@ -20,8 +20,6 @@ public:
   using PhiBinner =
       cms::cuda::HistoContainer<int16_t, 128, gpuClustering::maxNumClusters, 8 * sizeof(int16_t), hindex_type, 10>;
 
-  using Hist = PhiBinner;  // FIXME
-
   using AverageGeometry = phase1PixelTopology::AverageGeometry;
 
   template <typename>
@@ -67,8 +65,8 @@ public:
   __device__ __forceinline__ uint32_t* hitsLayerStart() { return m_hitsLayerStart; }
   __device__ __forceinline__ uint32_t const* hitsLayerStart() const { return m_hitsLayerStart; }
 
-  __device__ __forceinline__ Hist& phiBinner() { return *m_hist; }
-  __device__ __forceinline__ Hist const& phiBinner() const { return *m_hist; }
+  __device__ __forceinline__ PhiBinner& phiBinner() { return *m_phiBinner; }
+  __device__ __forceinline__ PhiBinner const& phiBinner() const { return *m_phiBinner; }
 
   __device__ __forceinline__ AverageGeometry& averageGeometry() { return *m_averageGeometry; }
   __device__ __forceinline__ AverageGeometry const& averageGeometry() const { return *m_averageGeometry; }
@@ -96,7 +94,7 @@ private:
 
   uint32_t* m_hitsLayerStart;
 
-  PhiBinner* m_hist;  // FIXME use a more descriptive name consistently
+  PhiBinner* m_phiBinner;
 
   uint32_t m_nHits;
 };
