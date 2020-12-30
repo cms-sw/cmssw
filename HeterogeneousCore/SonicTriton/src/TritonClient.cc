@@ -31,6 +31,8 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
   edm::Service<TritonService> ts;
   const auto& [url, isFallbackCPU] =
       ts->serverAddress(options_.model_name_, params.getUntrackedParameter<std::string>("preferredServer"));
+  if (verbose_)
+    edm::LogInfo(fullDebugName_) << "Using server: " << url;
   //enforce sync mode for fallback CPU server to avoid contention
   //todo: could enforce async mode otherwise (unless mode was specified by user?)
   if (isFallbackCPU)

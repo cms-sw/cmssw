@@ -3,10 +3,11 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "tbb/concurrent_unordered_set.h"
+#include "tbb/concurrent_unordered_map.h"
 
 #include <vector>
 #include <unordered_set>
+#include <unordered_map>
 #include <string>
 #include <functional>
 #include <utility>
@@ -44,46 +45,24 @@ public:
   };
   struct Server {
     Server(const edm::ParameterSet& pset)
-        : name(pset.getUntrackedParameter<std::string>("name")),
-          url(pset.getUntrackedParameter<std::string>("address") + ":" +
+        : url(pset.getUntrackedParameter<std::string>("address") + ":" +
               std::to_string(pset.getUntrackedParameter<unsigned>("port"))),
-          isFallback(name == fallbackName) {}
-    Server(const std::string& name_, const std::string& url_ = "")
-        : name(name_), url(url_), isFallback(name == fallbackName) {}
-
-    struct Hash {
-      size_t operator()(const Server& obj) const { return hashObj(obj.name); }
-      std::hash<std::string> hashObj;
-    };
-
-    struct Equal {
-      bool operator()(const Server& lhs, const Server& rhs) const { return lhs.name == rhs.name; }
-    };
+          isFallback(pset.getUntrackedParameter<std::string>("name") == fallbackName) {}
+    Server(const std::string& name_, const std::string& url_) : url(url_), isFallback(name_ == fallbackName) {}
 
     //members
-    std::string name;
     std::string url;
     bool isFallback;
-    mutable std::unordered_set<std::string> models;
+    std::unordered_set<std::string> models;
     static const std::string fallbackName;
     static const std::string fallbackUrl;
   };
   struct Model {
-    Model(const std::string& name_, const std::string& path_ = "") : name(name_), path(path_) {}
-
-    struct Hash {
-      size_t operator()(const Model& obj) const { return hashObj(obj.name); }
-      std::hash<std::string> hashObj;
-    };
-
-    struct Equal {
-      bool operator()(const Model& lhs, const Model& rhs) const { return lhs.name == rhs.name; }
-    };
+    Model(const std::string& path_ = "") : path(path_) {}
 
     //members
-    std::string name;
     std::string path;
-    mutable std::unordered_set<std::string> servers;
+    std::unordered_set<std::string> servers;
   };
 
   TritonService(const edm::ParameterSet& pset, edm::ActivityRegistry& areg);
@@ -98,18 +77,14 @@ public:
 private:
   void preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::ProcessContext const&);
 
-  //to search without full object
-  auto findServer(const std::string& name) const { return servers_.find(Server(name)); }
-  auto findModel(const std::string& name) const { return models_.find(Model(name)); }
-
   bool verbose_;
   FallbackOpts fallbackOpts_;
   bool startedFallback_;
   //concurrent data type is used because addModel() might be called by multiple threads
-  tbb::concurrent_unordered_set<Model, Model::Hash, Model::Equal> unservedModels_;
+  tbb::concurrent_unordered_map<std::string, Model> unservedModels_;
   //this is a lazy and inefficient many:many map
-  std::unordered_set<Server, Server::Hash, Server::Equal> servers_;
-  std::unordered_set<Model, Model::Hash, Model::Equal> models_;
+  std::unordered_map<std::string, Server> servers_;
+  std::unordered_map<std::string, Model> models_;
 };
 
 #endif
