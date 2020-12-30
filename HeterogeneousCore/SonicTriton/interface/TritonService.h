@@ -3,8 +3,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "tbb/concurrent_unordered_map.h"
-
 #include <vector>
 #include <unordered_set>
 #include <unordered_map>
@@ -18,6 +16,7 @@ namespace edm {
   class ConfigurationDescriptions;
   class PathsAndConsumesOfModulesBase;
   class ProcessContext;
+  class ModuleDescription;
 }  // namespace edm
 
 class TritonService {
@@ -63,6 +62,14 @@ public:
     //members
     std::string path;
     std::unordered_set<std::string> servers;
+    std::unordered_set<unsigned> modules;
+  };
+  struct Module {
+    //currently assumes that a module can only have one associated model
+    Module(const std::string& model_) : model(model_) {}
+
+    //members
+    std::string model;
   };
 
   TritonService(const edm::ParameterSet& pset, edm::ActivityRegistry& areg);
@@ -75,16 +82,21 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
+  void preModuleConstruction(edm::ModuleDescription const&);
+  void postModuleConstruction(edm::ModuleDescription const&);
+  void preModuleDestruction(edm::ModuleDescription const&);
   void preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::ProcessContext const&);
 
   bool verbose_;
   FallbackOpts fallbackOpts_;
+  unsigned currentModuleId_;
+  bool allowAddModel_;
   bool startedFallback_;
-  //concurrent data type is used because addModel() might be called by multiple threads
-  tbb::concurrent_unordered_map<std::string, Model> unservedModels_;
-  //this is a lazy and inefficient many:many map
+  std::unordered_map<std::string, Model> unservedModels_;
+  //this represents a many:many:many map
   std::unordered_map<std::string, Server> servers_;
   std::unordered_map<std::string, Model> models_;
+  std::unordered_map<unsigned, Module> modules_;
 };
 
 #endif
