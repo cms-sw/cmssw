@@ -1,6 +1,7 @@
 #include "HeterogeneousCore/SonicTriton/interface/TritonService.h"
 #include "HeterogeneousCore/SonicTriton/interface/triton_utils.h"
 
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -26,7 +27,13 @@ const std::string TritonService::Server::fallbackUrl{"0.0.0.0:8001"};
 TritonService::TritonService(const edm::ParameterSet& pset, edm::ActivityRegistry& areg)
     : verbose_(pset.getUntrackedParameter<bool>("verbose")),
       fallbackOpts_(pset.getParameterSet("fallback")),
+      currentModuleId_(0),
+      allowAddModel_(false),
       startedFallback_(false) {
+  //module construction is assumed to be serial (correct at the time this code was written)
+  areg.watchPreModuleConstruction(this, &TritonService::preModuleConstruction);
+  areg.watchPostModuleConstruction(this, &TritonService::postModuleConstruction);
+  areg.watchPreModuleDestruction(this, &TritonService::preModuleDestruction);
   //fallback server will be launched (if needed) before beginJob
   areg.watchPreBeginJob(this, &TritonService::preBeginJob);
 
@@ -80,11 +87,45 @@ TritonService::TritonService(const edm::ParameterSet& pset, edm::ActivityRegistr
     edm::LogInfo("TritonService") << msg;
 }
 
+void TritonService::preModuleConstruction(edm::ModuleDescription const& desc) {
+  currentModuleId_ = desc.id();
+  allowAddModel_ = true;
+}
+
 void TritonService::addModel(const std::string& modelName, const std::string& path) {
+  //should only be called in module constructors
+  if (!allowAddModel_)
+    throw cms::Exception("DisallowedAddModel") << "Attempt to call addModel() outside of module constructors";
   //if model is not in the list, then no specified server provides it
   auto mit = models_.find(modelName);
-  if (mit == models_.end())
-    unservedModels_.emplace(modelName, path);
+  if (mit == models_.end()) {
+    auto& modelInfo(unservedModels_.emplace(modelName, path).first->second);
+    modelInfo.modules.insert(currentModuleId_);
+    //only keep track of modules that need unserved models
+    modules_.emplace(currentModuleId_, modelName);
+  }
+}
+
+void TritonService::postModuleConstruction(edm::ModuleDescription const& desc) { allowAddModel_ = false; }
+
+void TritonService::preModuleDestruction(edm::ModuleDescription const& desc) {
+  //remove destructed modules from unserved list
+  if (unservedModels_.empty())
+    return;
+  auto id = desc.id();
+  auto oit = modules_.find(id);
+  if (oit != modules_.end()) {
+    const auto& moduleInfo(oit->second);
+    auto mit = unservedModels_.find(moduleInfo.model);
+    if (mit != unservedModels_.end()) {
+      auto& modelInfo(mit->second);
+      modelInfo.modules.erase(id);
+      //remove a model if it is no longer needed by any modules
+      if (modelInfo.modules.empty())
+        unservedModels_.erase(mit);
+    }
+    modules_.erase(oit);
+  }
 }
 
 //second return value is only true if fallback CPU server is being used

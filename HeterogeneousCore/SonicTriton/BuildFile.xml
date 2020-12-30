@@ -4,7 +4,6 @@
 <use name="HeterogeneousCore/SonicCore"/>
 <use name="triton-inference-server"/>
 <use name="protobuf"/>
-<use name="tbb"/>
 <export>
   <lib   name="1"/>
 </export>
