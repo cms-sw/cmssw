@@ -494,42 +494,40 @@ LocalError PixelCPEGeneric::localError(DetParam const& theDetParam, ClusterParam
   bool useTempErrors =
       UseErrorsFromTemplates_ && (!NoTemplateErrorsWhenNoTrkAngles_ || theClusterParam.with_track_angle);
 
-  if
-    LIKELY(useTempErrors) {
-      //
-      // Use template errors
+  if LIKELY (useTempErrors) {
+    //
+    // Use template errors
 
-      if (!edgex) {  // Only use this for non-edge clusters
-        if (sizex == 1) {
-          if (!bigInX) {
-            xerr = theClusterParam.sx1;
-          } else {
-            xerr = theClusterParam.sx2;
-          }
+    if (!edgex) {  // Only use this for non-edge clusters
+      if (sizex == 1) {
+        if (!bigInX) {
+          xerr = theClusterParam.sx1;
         } else {
-          xerr = theClusterParam.sigmax;
+          xerr = theClusterParam.sx2;
         }
-      }
-
-      if (!edgey) {  // Only use for non-edge clusters
-        if (sizey == 1) {
-          if (!bigInY) {
-            yerr = theClusterParam.sy1;
-          } else {
-            yerr = theClusterParam.sy2;
-          }
-        } else {
-          yerr = theClusterParam.sigmay;
-        }
-      }
-
-      if (localPrint) {
-        cout << " in if " << edgex << " " << edgey << " " << sizex << " " << sizey << endl;
-        cout << " errors  " << xerr << " " << yerr << " " << theClusterParam.sx1 << " " << theClusterParam.sx2 << " "
-             << theClusterParam.sigmax << endl;  //dk
+      } else {
+        xerr = theClusterParam.sigmax;
       }
     }
-  else {  // simple errors
+
+    if (!edgey) {  // Only use for non-edge clusters
+      if (sizey == 1) {
+        if (!bigInY) {
+          yerr = theClusterParam.sy1;
+        } else {
+          yerr = theClusterParam.sy2;
+        }
+      } else {
+        yerr = theClusterParam.sigmay;
+      }
+    }
+
+    if (localPrint) {
+      cout << " in if " << edgex << " " << edgey << " " << sizex << " " << sizey << endl;
+      cout << " errors  " << xerr << " " << yerr << " " << theClusterParam.sx1 << " " << theClusterParam.sx2 << " "
+           << theClusterParam.sigmax << endl;  //dk
+    }
+  } else {  // simple errors
 
     // This are the simple errors, hardcoded in the code
     //cout << "Track angles are not known " << endl;
