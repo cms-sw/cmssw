@@ -82,7 +82,7 @@ In a SONIC Triton producer, the basic flow should follow this pattern:
 
 ## Services
 
-A script [`triton`](./scripts/triton) is provided to launch and manage local servers.
+A script [`cmsTriton`](./scripts/cmsTriton) is provided to launch and manage local servers.
 The script has two operations (`start` and `stop`) and the following options:
 * `-c`: don't cleanup temporary dir (for debugging)
 * `-D`: dry run: print container commands rather than executing them
@@ -111,7 +111,7 @@ The `-r` (retry) flag exists to work around this issue.
 
 A central `TritonService` is provided to keep track of all available servers and which models they can serve.
 The servers will automatically be assigned to clients at startup.
-If some models are not served by any server, the `TritonService` can launch a fallback server using the `triton` script described above.
+If some models are not served by any server, the `TritonService` can launch a fallback server using the `cmsTriton` script described above.
 If the process modifiers `enableSonicTriton` or `allSonicTriton` are activated,
 the fallback server will launch automatically if needed and will use a local GPU if one is available.
 If the fallback server uses CPU, clients that use the fallback server will automatically be set to `Sync` mode.

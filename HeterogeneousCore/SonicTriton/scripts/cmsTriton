@@ -16,7 +16,7 @@ DRYRUN=""
 
 usage() {
 	ECHO="echo -e"
-	$ECHO "triton [options] [start|stop]"
+	$ECHO "cmsTriton [options] [start|stop]"
 	$ECHO
 	$ECHO "Options:"
 	$ECHO "-c          \t don't cleanup temporary dir (for debugging)"

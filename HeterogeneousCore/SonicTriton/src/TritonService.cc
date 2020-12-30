@@ -195,7 +195,7 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
     edm::LogInfo("TritonService") << msg;
 
   //assemble server start command
-  std::string command("triton");
+  std::string command("cmsTriton");
   if (fallbackOpts_.verbose)
     command += " -v";
   if (fallbackOpts_.useDocker)
@@ -244,7 +244,7 @@ TritonService::~TritonService() {
     return;
 
   //assemble server stop command
-  std::string command("triton");
+  std::string command("cmsTriton");
 
   if (fallbackOpts_.verbose)
     command += " -v";
