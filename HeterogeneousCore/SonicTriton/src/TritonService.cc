@@ -24,6 +24,27 @@ namespace nic = ni::client;
 const std::string TritonService::Server::fallbackName{"fallback"};
 const std::string TritonService::Server::fallbackUrl{"0.0.0.0:8001"};
 
+namespace {
+  std::pair<std::string, int> execSys(const std::string& cmd) {
+    //redirect stderr to stdout
+    auto pipe = popen((cmd + " 2>&1").c_str(), "r");
+    if (!pipe)
+      throw cms::Exception("SystemError") << "popen() failed for command: " << cmd;
+
+    //extract output
+    constexpr static unsigned buffSize = 128;
+    std::array<char, buffSize> buffer;
+    std::string result;
+    while (!feof(pipe)) {
+      if (fgets(buffer.data(), buffSize, pipe))
+        result += buffer.data();
+    }
+
+    int rv = pclose(pipe);
+    return std::make_pair(result, rv);
+  }
+}  // namespace
+
 TritonService::TritonService(const edm::ParameterSet& pset, edm::ActivityRegistry& areg)
     : verbose_(pset.getUntrackedParameter<bool>("verbose")),
       fallbackOpts_(pset.getParameterSet("fallback")),
@@ -195,7 +216,9 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
 
   //get a random temporary directory if none specified
   if (fallbackOpts_.tempDir.empty()) {
-    auto tmp_dir_path{std::filesystem::temp_directory_path() /= std::tmpnam(nullptr)};
+    auto [uuid, rv] = execSys("uuidgen | sed 's/-//g'");
+    uuid.pop_back();
+    auto tmp_dir_path{std::filesystem::temp_directory_path() /= uuid};
     fallbackOpts_.tempDir = tmp_dir_path.string();
   }
   //special case ".": use script default (temp dir = .$instanceName)
@@ -206,12 +229,12 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
 
   if (verbose_)
     edm::LogInfo("TritonService") << command;
-  else
-    command += " >>/dev/null 2>>/dev/null";
 
   //mark as started before executing in case of ctrl+c while command is running
   startedFallback_ = true;
-  int rv = std::system(command.c_str());
+  const auto& [output, rv] = execSys(command);
+  if (verbose_ or rv != 0)
+    edm::LogInfo("TritonService") << output;
   if (rv != 0)
     throw cms::Exception("FallbackFailed") << "Starting the fallback server failed with exit code " << rv;
 }
@@ -236,10 +259,10 @@ TritonService::~TritonService() {
 
   if (verbose_)
     edm::LogInfo("TritonService") << command;
-  else
-    command += " >>/dev/null 2>>/dev/null";
 
-  int rv = std::system(command.c_str());
+  const auto& [output, rv] = execSys(command);
+  if (verbose_ or rv != 0)
+    edm::LogInfo("TritonService") << output;
   if (rv != 0)
     edm::LogError("FallbackFailed") << "Stopping the fallback server failed with exit code " << rv;
 }
