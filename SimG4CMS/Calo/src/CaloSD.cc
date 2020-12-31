@@ -809,9 +809,9 @@ void CaloSD::cleanHitCollection() {
                                 << "element = " << cleanIndex;
     for (unsigned int i = 0; i < hitvec.size(); ++i) {
       if (hitvec[i] == nullptr)
-	edm::LogVerbatim("CaloSim") << i << " has a null pointer";
+        edm::LogVerbatim("CaloSim") << i << " has a null pointer";
       else
-	edm::LogVerbatim("CaloSim") << i << " " << *hitvec[i];
+        edm::LogVerbatim("CaloSim") << i << " " << *hitvec[i];
     }
 #endif
     CaloG4HitEqual equal;
@@ -832,9 +832,9 @@ void CaloSD::cleanHitCollection() {
     edm::LogVerbatim("CaloSim") << "CaloSD: cleanHitCollection merge the hits in buffer ";
     for (unsigned int i = 0; i < hitvec.size(); ++i) {
       if (hitvec[i] == nullptr)
-	edm::LogVerbatim("CaloSim") << i << " has a null pointer";
+        edm::LogVerbatim("CaloSim") << i << " has a null pointer";
       else
-	edm::LogVerbatim("CaloSim") << i << " " << *hitvec[i];
+        edm::LogVerbatim("CaloSim") << i << " " << *hitvec[i];
     }
 #endif
     //move all nullptr to end of list and then remove them

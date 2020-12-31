@@ -33,7 +33,8 @@ void HFWedgeSD::Initialize(G4HCofThisEvent* HCE) {
   if (hcID < 0)
     hcID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
   HCE->AddHitsCollection(hcID, theHC);
-  edm::LogVerbatim("FiberSim") << "HFWedgeSD : Add hit collectrion for " << collectionName[0] << ":" << hcID << ":" << theHC;
+  edm::LogVerbatim("FiberSim") << "HFWedgeSD : Add hit collectrion for " << collectionName[0] << ":" << hcID << ":"
+                               << theHC;
 
   clearHits();
 }
