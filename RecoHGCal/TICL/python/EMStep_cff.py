@@ -53,6 +53,7 @@ filteredLayerClustersHFNoseEM = filteredLayerClustersEM.clone(
     LayerClusters = 'hgcalLayerClustersHFNose',
     LayerClustersInputMask = 'ticlTrackstersHFNoseTrkEM',
     iteration_label = "EMn",
+    min_cluster_size = 2, # inclusive
     algo_number = 9
 )
 
