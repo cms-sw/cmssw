@@ -43,8 +43,6 @@ std::pair<int, double> EgammaL1TkIsolation::calIsol(const double objEta,
   double ptSum = 0.;
   int nrTrks = 0;
 
-  std::cout << "obj eta " << objEta << " obj phi " << objPhi << " objZ " << objZ << std::endl;
-
   const TrkCuts& cuts = std::abs(objEta) < 1.5 ? barrelCuts_ : endcapCuts_;
 
   for (auto& trk : tracks) {
