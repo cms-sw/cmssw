@@ -32,21 +32,18 @@ edm::ParameterSetDescription EgammaL1TkIsolation::pSetDescript() {
   return desc;
 }
 
-
-
-std::pair<int, double> EgammaL1TkIsolation::calIsol(const reco::TrackBase& trk,
-                                                   const L1TrackCollection& tracks) const {
+std::pair<int, double> EgammaL1TkIsolation::calIsol(const reco::TrackBase& trk, const L1TrackCollection& tracks) const {
   return calIsol(trk.eta(), trk.phi(), trk.vz(), tracks);
 }
 
 std::pair<int, double> EgammaL1TkIsolation::calIsol(const double objEta,
-                                                   const double objPhi,
-                                                   const double objZ,
-                                                   const L1TrackCollection& tracks) const {
+                                                    const double objPhi,
+                                                    const double objZ,
+                                                    const L1TrackCollection& tracks) const {
   double ptSum = 0.;
   int nrTrks = 0;
 
-  std::cout <<"obj eta "<<objEta<<" obj phi "<<objPhi<<" objZ "<<objZ<<std::endl;
+  std::cout << "obj eta " << objEta << " obj phi " << objPhi << " objZ " << objZ << std::endl;
 
   const TrkCuts& cuts = std::abs(objEta) < 1.5 ? barrelCuts_ : endcapCuts_;
 
@@ -61,20 +58,17 @@ std::pair<int, double> EgammaL1TkIsolation::calIsol(const double objEta,
 }
 
 bool EgammaL1TkIsolation::passTrkSel(const L1Track& trk,
-				     const double trkPt,
-				     const TrkCuts& cuts,
-				     const double objEta,
-				     const double objPhi,
-				     const double objZ) {
-
-  if(trkPt > cuts.minPt && 
-     std::abs(objZ-trk.z0()) < cuts.maxDZ){
+                                     const double trkPt,
+                                     const TrkCuts& cuts,
+                                     const double objEta,
+                                     const double objPhi,
+                                     const double objZ) {
+  if (trkPt > cuts.minPt && std::abs(objZ - trk.z0()) < cuts.maxDZ) {
     const float trkEta = trk.eta();
-    const float dEta =  trkEta - objEta;
+    const float dEta = trkEta - objEta;
     const float dR2 = reco::deltaR2(objEta, objPhi, trkEta, trk.phi());
     return dR2 >= cuts.minDR2 && dR2 <= cuts.maxDR2 && std::abs(dEta) >= cuts.minDEta;
   }
 
   return false;
 }
-

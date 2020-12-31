@@ -7,12 +7,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-//author S. Harper (RAL/CERN) 
+//author S. Harper (RAL/CERN)
 //based on the work of Swagata Mukherjee and Giulia Sorrentino
 
 class EgammaL1TkIsolation {
 public:
-
 private:
   struct TrkCuts {
     float minPt;
@@ -34,20 +33,18 @@ public:
 
   static edm::ParameterSetDescription pSetDescript();
 
-  std::pair<int, double> calIsol(const reco::TrackBase& trk,
-				 const L1TrackCollection& l1Tks)const;
+  std::pair<int, double> calIsol(const reco::TrackBase& trk, const L1TrackCollection& l1Tks) const;
 
   std::pair<int, double> calIsol(const double objEta,
                                  const double objPhi,
                                  const double objZ,
-                                 const L1TrackCollection& l1Tks)const;
+                                 const L1TrackCollection& l1Tks) const;
 
   //little helper function for the two calIsol functions for it to directly return the pt
   template <typename... Args>
   double calIsolPt(Args&&... args) const {
     return calIsol(std::forward<Args>(args)...).second;
   }
-
 
 private:
   static bool passTrkSel(const L1Track& trk,

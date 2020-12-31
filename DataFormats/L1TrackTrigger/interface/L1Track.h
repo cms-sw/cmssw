@@ -4,4 +4,3 @@
 
 using L1Track = TTTrack<Ref_Phase2TrackerDigi_>;
 using L1TrackCollection = std::vector<L1Track>;
-

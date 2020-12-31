@@ -9,7 +9,7 @@
 // The electron producer solves for this and assigns the electron the best GsfTrack
 // which we will use for the vz of the electron
 // One thing which Swagata Mukherjee pointed out is that we have to be careful of
-// is getting a bad GsfTrack with a bad vertex which  will give us a fake vz which then 
+// is getting a bad GsfTrack with a bad vertex which  will give us a fake vz which then
 // leads to a perfectly isolated electron as that random vz is not a vertex
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -47,12 +47,11 @@ private:
 };
 
 EgammaHLTEleL1TrackIsolProducer::EgammaHLTEleL1TrackIsolProducer(const edm::ParameterSet& config)
-  : ecalCandsToken_(consumes<reco::RecoEcalCandidateCollection>(config.getParameter<edm::InputTag>("ecalCands"))),
-    elesToken_(consumes<reco::ElectronCollection>(config.getParameter<edm::InputTag>("eles"))),
-    l1TrksToken_(consumes<L1TrackCollection>(config.getParameter<edm::InputTag>("l1Tracks"))),
-    isolAlgo_(config.getParameter<edm::ParameterSet>("isolCfg"))
-{
-    produces<reco::RecoEcalCandidateIsolationMap>();
+    : ecalCandsToken_(consumes<reco::RecoEcalCandidateCollection>(config.getParameter<edm::InputTag>("ecalCands"))),
+      elesToken_(consumes<reco::ElectronCollection>(config.getParameter<edm::InputTag>("eles"))),
+      l1TrksToken_(consumes<L1TrackCollection>(config.getParameter<edm::InputTag>("l1Tracks"))),
+      isolAlgo_(config.getParameter<edm::ParameterSet>("isolCfg")) {
+  produces<reco::RecoEcalCandidateIsolationMap>();
 }
 
 EgammaHLTEleL1TrackIsolProducer::~EgammaHLTEleL1TrackIsolProducer() {}
@@ -61,36 +60,35 @@ void EgammaHLTEleL1TrackIsolProducer::fillDescriptions(edm::ConfigurationDescrip
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("ecalCands", edm::InputTag("hltEgammaCandidates"));
   desc.add<edm::InputTag>("eles", edm::InputTag("hltEgammaGsfElectrons"));
-  desc.add<edm::InputTag>("l1Tracks", edm::InputTag("TTTracksFromTrackletEmulation","Level1TTTracks"));
+  desc.add<edm::InputTag>("l1Tracks", edm::InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"));
   desc.add("isolCfg", EgammaL1TkIsolation::pSetDescript());
   descriptions.add("hltEgammaHLTEleL1TrackIsolProducer", desc);
 }
 void EgammaHLTEleL1TrackIsolProducer::produce(edm::StreamID sid,
-                                                       edm::Event& iEvent,
-                                                       const edm::EventSetup& iSetup) const {
-
+                                              edm::Event& iEvent,
+                                              const edm::EventSetup& iSetup) const {
   auto ecalCands = iEvent.getHandle(ecalCandsToken_);
   auto eles = iEvent.getHandle(elesToken_);
   auto l1Trks = iEvent.getHandle(l1TrksToken_);
 
-  auto recoEcalCandMap  = std::make_unique<reco::RecoEcalCandidateIsolationMap>(ecalCands);
-  
-  for (size_t candNr = 0; candNr<ecalCands->size();candNr++){
-    reco::RecoEcalCandidateRef recoEcalCandRef(ecalCands, candNr);  
+  auto recoEcalCandMap = std::make_unique<reco::RecoEcalCandidateIsolationMap>(ecalCands);
+
+  for (size_t candNr = 0; candNr < ecalCands->size(); candNr++) {
+    reco::RecoEcalCandidateRef recoEcalCandRef(ecalCands, candNr);
     reco::ElectronRef eleRef;
-    for (size_t eleNr = 0; eleNr<eles->size(); eleNr++){
+    for (size_t eleNr = 0; eleNr < eles->size(); eleNr++) {
       if ((*eles)[eleNr].superCluster() == recoEcalCandRef->superCluster()) {
-	eleRef = reco::ElectronRef(eles, eleNr);
-	break;
+        eleRef = reco::ElectronRef(eles, eleNr);
+        break;
       }
     }
-    
-    float isol = eleRef.isNonnull() ? isolAlgo_.calIsol(*eleRef->gsfTrack(),*l1Trks).second : std::numeric_limits<float>::max();
-    
+
+    float isol =
+        eleRef.isNonnull() ? isolAlgo_.calIsol(*eleRef->gsfTrack(), *l1Trks).second : std::numeric_limits<float>::max();
+
     recoEcalCandMap->insert(recoEcalCandRef, isol);
   }
   iEvent.put(std::move(recoEcalCandMap));
-    
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
