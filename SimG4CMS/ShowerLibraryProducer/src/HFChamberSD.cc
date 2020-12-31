@@ -33,7 +33,8 @@ void HFChamberSD::Initialize(G4HCofThisEvent* HCE) {
   if (theHCID < 0)
     theHCID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
   HCE->AddHitsCollection(theHCID, theHC);
-  edm::LogVerbatim("FiberSim") << "HFChamberSD : Add hit collectrion for " << collectionName[0] << ":" << theHCID << ":" << theHC;
+  edm::LogVerbatim("FiberSim") << "HFChamberSD : Add hit collectrion for " << collectionName[0] << ":" << theHCID << ":"
+                               << theHC;
 }
 
 G4bool HFChamberSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {

@@ -60,7 +60,8 @@ void FiberSD::Initialize(G4HCofThisEvent* HCE) {
   if (theHCID < 0)
     theHCID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
   HCE->AddHitsCollection(theHCID, theHC);
-  edm::LogVerbatim("FiberSim") << "FiberSD : Add hit collectrion for " << collectionName[0] << ":" << theHCID << ":" << theHC;
+  edm::LogVerbatim("FiberSim") << "FiberSD : Add hit collectrion for " << collectionName[0] << ":" << theHCID << ":"
+                               << theHC;
 }
 
 G4bool FiberSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
