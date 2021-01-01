@@ -163,10 +163,10 @@ void DreamSD::initMap(const std::string &sd, const edm::EventSetup &es) {
       double width = 2.0 * k_ScaleFromDDDToG4 * paras.front();
       G4LogicalVolume *lv = nullptr;
       for (auto lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++)
-	if ((*lvcite)->GetName() == name) {
-	  lv = (*lvcite);
-	  break;
-	}
+        if ((*lvcite)->GetName() == name) {
+          lv = (*lvcite);
+          break;
+        }
       xtalLMap_.insert(std::pair<G4LogicalVolume *, Doubles>(lv, Doubles(length, width)));
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("EcalSim") << "DreamSD " << name << ":" << lv << ":" << length << ":" << width;
