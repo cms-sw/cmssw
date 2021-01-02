@@ -5,10 +5,8 @@
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
-#include <iostream>
-#include <iomanip>
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 template <typename T>
 void myPrint(std::string value, const std::vector<T>& vec) {
