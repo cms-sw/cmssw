@@ -24,7 +24,6 @@ Implementation:
 #include <iostream>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -50,6 +49,9 @@ private:
   void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
+
+  // ----------member data ---------------------------
+  const edm::ESGetToken<TrackerDetToDTCELinkCablingMap, TrackerDetToDTCELinkCablingMapRcd> cablingMapToken_;
 };
 
 void DTCCablingMapTestReader::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -60,7 +62,7 @@ void DTCCablingMapTestReader::fillDescriptions(edm::ConfigurationDescriptions& d
   descriptions.add("DTCCablingMapTestReader", desc);
 }
 
-DTCCablingMapTestReader::DTCCablingMapTestReader(const edm::ParameterSet& iConfig) {}
+DTCCablingMapTestReader::DTCCablingMapTestReader(const edm::ParameterSet& iConfig) : cablingMapToken_(esConsumes()) {}
 
 DTCCablingMapTestReader::~DTCCablingMapTestReader() {}
 
@@ -68,9 +70,7 @@ void DTCCablingMapTestReader::analyze(const edm::Event& iEvent, const edm::Event
   using namespace edm;
   using namespace std;
 
-  edm::ESHandle<TrackerDetToDTCELinkCablingMap> cablingMapHandle;
-  iSetup.get<TrackerDetToDTCELinkCablingMapRcd>().get(cablingMapHandle);
-  TrackerDetToDTCELinkCablingMap const* p_cablingMap = cablingMapHandle.product();
+  const auto p_cablingMap = &iSetup.getData(cablingMapToken_);
 
   {
     ostringstream dump_DetToElink;
