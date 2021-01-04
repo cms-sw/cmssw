@@ -38,7 +38,6 @@ int32_t HGCalTileIndex::tilePack(int32_t k1, int32_t k2) {
   return ((k1 % HGCalProperty::kHGCalTilePack) * HGCalProperty::kHGCalTilePack + (k2 % HGCalProperty::kHGCalTilePack));
 }
 
-
 std::pair<int32_t, int32_t> HGCalTileIndex::tileUnpack(int32_t index) {
   int32_t k1 = (index / HGCalProperty::kHGCalTilePack) % HGCalProperty::kHGCalTilePack;
   int32_t k2 = (index % HGCalProperty::kHGCalTilePack);
@@ -46,10 +45,10 @@ std::pair<int32_t, int32_t> HGCalTileIndex::tileUnpack(int32_t index) {
 }
 
 bool HGCalTileIndex::tileExist(const int32_t* hex, int32_t zside, int32_t iphi) {
-  int32_t phi(iphi-1);
+  int32_t phi(iphi - 1);
   if (zside > 0) {
     phi += HGCalProperty::kHGCalTilePhisBy2;
-    if (phi >= HGCalProperty::kHGCalTilePhis) 
+    if (phi >= HGCalProperty::kHGCalTilePhis)
       phi -= HGCalProperty::kHGCalTilePhis;
   }
   int32_t jj = phi % HGCalProperty::kHGCalTilePhisBy3;
@@ -58,4 +57,3 @@ bool HGCalTileIndex::tileExist(const int32_t* hex, int32_t zside, int32_t iphi) 
   bool ok = (hex[iw] & (1 << ibit));
   return ok;
 }
-
