@@ -35,7 +35,7 @@
 class EgammaHLTEleL1TrackIsolProducer : public edm::global::EDProducer<> {
 public:
   explicit EgammaHLTEleL1TrackIsolProducer(const edm::ParameterSet&);
-  ~EgammaHLTEleL1TrackIsolProducer() override;
+  ~EgammaHLTEleL1TrackIsolProducer() override = default;
   void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -54,14 +54,12 @@ EgammaHLTEleL1TrackIsolProducer::EgammaHLTEleL1TrackIsolProducer(const edm::Para
   produces<reco::RecoEcalCandidateIsolationMap>();
 }
 
-EgammaHLTEleL1TrackIsolProducer::~EgammaHLTEleL1TrackIsolProducer() {}
-
 void EgammaHLTEleL1TrackIsolProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("ecalCands", edm::InputTag("hltEgammaCandidates"));
   desc.add<edm::InputTag>("eles", edm::InputTag("hltEgammaGsfElectrons"));
   desc.add<edm::InputTag>("l1Tracks", edm::InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"));
-  desc.add("isolCfg", EgammaL1TkIsolation::pSetDescript());
+  desc.add("isolCfg", EgammaL1TkIsolation::makePSetDescription());
   descriptions.add("hltEgammaHLTEleL1TrackIsolProducer", desc);
 }
 void EgammaHLTEleL1TrackIsolProducer::produce(edm::StreamID sid,
