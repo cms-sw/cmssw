@@ -79,5 +79,8 @@
   <use name="RecoParticleFlow/PFProducer"/>
   <use name="RecoParticleFlow/PFTracking"/>
   <use name="RecoEcal/EgammaCoreTools"/>
+  <use name="PhysicsTools/TensorFlow"/>
+  <use name="HeterogeneousCore/SonicCore"/>
+  <use name="HeterogeneousCore/SonicTriton"/>
   <flags EDM_PLUGIN="1"/>
 </library>
