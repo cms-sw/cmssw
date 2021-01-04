@@ -12,26 +12,17 @@
 
 class EgammaL1TkIsolation {
 public:
-private:
-  struct TrkCuts {
-    float minPt;
-    float minDR2;
-    float maxDR2;
-    float minDEta;
-    float maxDZ;
-    explicit TrkCuts(const edm::ParameterSet& para);
-    static edm::ParameterSetDescription pSetDescript();
-  };
-
-  TrkCuts barrelCuts_, endcapCuts_;
-
-public:
   explicit EgammaL1TkIsolation(const edm::ParameterSet& para);
   EgammaL1TkIsolation(const EgammaL1TkIsolation&) = default;
   ~EgammaL1TkIsolation() = default;
   EgammaL1TkIsolation& operator=(const EgammaL1TkIsolation&) = default;
 
-  static edm::ParameterSetDescription pSetDescript();
+  static void fillPSetDescription(edm::ParameterSetDescription& desc);
+  static edm::ParameterSetDescription makePSetDescription() {
+    edm::ParameterSetDescription desc;
+    fillPSetDescription(desc);
+    return desc;
+  }
 
   std::pair<int, double> calIsol(const reco::TrackBase& trk, const L1TrackCollection& l1Tks) const;
 
@@ -47,6 +38,21 @@ public:
   }
 
 private:
+  struct TrkCuts {
+    float minPt;
+    float minDR2;
+    float maxDR2;
+    float minDEta;
+    float maxDZ;
+    explicit TrkCuts(const edm::ParameterSet& para);
+    static edm::ParameterSetDescription makePSetDescription();
+  };
+
+  bool useAbsEta_;
+  std::vector<double> etaBoundaries_;
+  std::vector<TrkCuts> trkCuts_;
+
+  size_t etaBinNr(double eta) const;
   static bool passTrkSel(const L1Track& trk,
                          const double trkPt,
                          const TrkCuts& cuts,
