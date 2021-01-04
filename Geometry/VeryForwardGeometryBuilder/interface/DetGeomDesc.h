@@ -77,9 +77,10 @@ public:
   const RotationMatrix& rotation() const { return m_rot; }
 
   // shape info
-  // params() is left for general access to solid shape parameters, but should be used
-  // only with great care, for two reasons: 1. order of parameters may possibly change from
-  // a version to another of DD4hep; 2. length parameters unit is cm while PPS uses mm.
+  // params() is left for general access to solid shape parameters (any shape, not only box!).
+  // Though, it should be used only with great care, for two reasons: 
+  // 1. Order of shape parameters may possibly change from a version of DD4hep to another. 
+  // 2. Among all parameters, those representing a length are expressed in mm (for old DD) or the DD4hep-configured unit (for DD4hep), while PPS uses mm.
   const std::vector<double>& params() const { return m_params; }  // default unit: mm for oldDD, DD4hep unit for DD4hep
   bool isABox() const { return m_isABox; }
   const DiamondDimensions& getDiamondDimensions() const {
