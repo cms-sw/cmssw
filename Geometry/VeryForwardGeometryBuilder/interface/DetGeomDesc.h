@@ -78,8 +78,8 @@ public:
 
   // shape info
   // params() is left for general access to solid shape parameters (any shape, not only box!).
-  // Though, it should be used only with great care, for two reasons: 
-  // 1. Order of shape parameters may possibly change from a version of DD4hep to another. 
+  // Though, it should be used only with great care, for two reasons:
+  // 1. Order of shape parameters may possibly change from a version of DD4hep to another.
   // 2. Among all parameters, those representing a length are expressed in mm (for old DD) or the DD4hep-configured unit (for DD4hep), while PPS uses mm.
   const std::vector<double>& params() const { return m_params; }  // default unit: mm for oldDD, DD4hep unit for DD4hep
   bool isABox() const { return m_isABox; }
