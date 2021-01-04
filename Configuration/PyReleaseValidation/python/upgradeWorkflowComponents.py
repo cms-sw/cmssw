@@ -352,6 +352,30 @@ upgradeWFs['vectorHits'] = UpgradeWorkflow_vectorHits(
     offset = 0.9,
 )
 
+# MLPF workflows
+class UpgradeWorkflow_mlpf(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step:
+            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return fragment=="TTbar_14TeV" and '2021' in key
+
+upgradeWFs['mlpf'] = UpgradeWorkflow_mlpf(
+    steps = [
+        'Reco',
+    ],
+    PU = [
+        'Reco',
+    ],
+    suffix = '_mlpf',
+    offset = 0.13,
+)
+upgradeWFs['mlpf'].step3 = {
+    '--datatier': 'GEN-SIM-RECO,RECOSIM,MINIAODSIM,DQMIO',
+    '--eventcontent': 'FEVTDEBUGHLT,RECOSIM,MINIAODSIM,DQM',
+    '--procModifiers': 'mlpf'
+}
+
 # Patatrack workflows
 class UpgradeWorkflowPatatrack(UpgradeWorkflow):
     def condition(self, fragment, stepList, key, hasHarvest):

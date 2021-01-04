@@ -32,4 +32,11 @@ def customize_step3(process):
     process.FEVTDEBUGHLToutput.outputCommands.append('keep recoPFRecHits_*_*_*')
     process.FEVTDEBUGHLToutput.outputCommands.append('keep recoGsfPFRecTracks_*_*_*')
     process.FEVTDEBUGHLToutput.outputCommands.append('keep *_particleFlowBlock_*_*')
+    process.FEVTDEBUGHLToutput.outputCommands.append('keep recoTracks_standAloneMuons_*_*')
+    process.FEVTDEBUGHLToutput.outputCommands.append('keep recoTrackExtras_standAloneMuons_*_*')
+    process.FEVTDEBUGHLToutput.outputCommands.append('keep recoMuons_*_*_*')
+    process.FEVTDEBUGHLToutput.outputCommands.append('keep recoTracks_*_*_*')
+    process.FEVTDEBUGHLToutput.outputCommands.append('keep recoGsfTracks_*_*_*')
+    process.FEVTDEBUGHLToutput.outputCommands.append('keep recoPFBlocks_*_*_*')
+
     return process
