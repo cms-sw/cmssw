@@ -140,7 +140,7 @@ std::vector<double> DetGeomDesc::computeParameters(const cms::DDFilteredView& fv
  * Compute diamond dimensions.
  * The diamond sensors are represented by the Box shape parameters.
  * oldDD: params are already in mm.
- * DD4hep: convert params from DD4hep unit to mm (legacy expected by PPS reco software).
+ * DD4hep: convert params from DD4hep unit to mm (mm is legacy expected by PPS reco software).
  */
 DiamondDimensions DetGeomDesc::computeDiamondDimensions(const bool isABox,
                                                         const bool isDD4hep,
@@ -148,10 +148,10 @@ DiamondDimensions DetGeomDesc::computeDiamondDimensions(const bool isABox,
   DiamondDimensions boxShapeParameters{};
   if (isABox) {
     if (!isDD4hep) {
-      // mm (legacy)
+      // mm (old DD)
       boxShapeParameters = {params.at(0), params.at(1), params.at(2)};
     } else {
-      // convert from DD4hep unit to mm (legacy expected by PPS reco software)
+      // convert from DD4hep unit to mm (mm is legacy expected by PPS reco software)
       boxShapeParameters = {params.at(0) / dd4hep::mm, params.at(1) / dd4hep::mm, params.at(2) / dd4hep::mm};
     }
   }
