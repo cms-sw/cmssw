@@ -31,7 +31,7 @@
 #include "G4PhysicalConstants.hh"
 #include "G4SystemOfUnits.hh"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 //________________________________________________________________________________________
 DreamSD::DreamSD(const std::string &name,
@@ -43,12 +43,12 @@ DreamSD::DreamSD(const std::string &name,
   edm::ParameterSet m_EC = p.getParameter<edm::ParameterSet>("ECalSD");
   useBirk_ = m_EC.getParameter<bool>("UseBirkLaw");
   doCherenkov_ = m_EC.getParameter<bool>("doCherenkov");
-  birk1_ = m_EC.getParameter<double>("BirkC1") * (g / (MeV * cm2));
+  birk1_ = m_EC.getParameter<double>("BirkC1") * (CLHEP::g / (CLHEP::MeV * CLHEP::cm2));
   birk2_ = m_EC.getParameter<double>("BirkC2");
   birk3_ = m_EC.getParameter<double>("BirkC3");
   slopeLY_ = m_EC.getParameter<double>("SlopeLightYield");
   readBothSide_ = m_EC.getUntrackedParameter<bool>("ReadBothSide", false);
-  dd4hep_ = m_EC.getUntrackedParameter<bool>("DD4Hep", false);
+  dd4hep_ = p.getParameter<bool>("g4GeometryDD4hepSource");
 
   chAngleIntegrals_.reset(nullptr);
 
@@ -58,7 +58,13 @@ DreamSD::DreamSD(const std::string &name,
                               << "\n          Slope for Light yield is set to " << slopeLY_
                               << "\n          Parameterization of Cherenkov is set to " << doCherenkov_
                               << ", readout both sides is " << readBothSide_ << " and dd4hep flag " << dd4hep_;
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("EcalSim") << GetName() << " initialized";
+  const G4LogicalVolumeStore *lvs = G4LogicalVolumeStore::GetInstance();
+  unsigned int k(0);
+  for (auto lvcite = lvs->begin(); lvcite != lvs->end(); ++lvcite, ++k)
+    edm::LogVerbatim("EcalSim") << "Volume[" << k << "] " << (*lvcite)->GetName();
+#endif
   initMap(name, es);
 }
 
@@ -88,8 +94,10 @@ void DreamSD::initRun() {
   DimensionMap::const_iterator ite = xtalLMap_.begin();
   const G4LogicalVolume *lv = (ite->first);
   G4Material *material = lv->GetMaterial();
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("EcalSim") << "DreamSD::initRun: Initializes for material " << material->GetName() << " in "
                               << lv->GetName();
+#endif
   materialPropertiesTable_ = material->GetMaterialPropertiesTable();
   if (!materialPropertiesTable_) {
     if (!setPbWO2MaterialProperties_(material)) {
@@ -138,12 +146,13 @@ void DreamSD::initMap(const std::string &sd, const edm::EventSetup &es) {
     es.get<IdealGeometryRecord>().get(cpv);
     DDSpecificsMatchesValueFilter filter{DDValue("ReadOutName", sd, 0)};
     DDFilteredView fv((*cpv), filter);
-
-    bool dodet = fv.firstChild();
+    fv.firstChild();
+    bool dodet = true;
+    const G4LogicalVolumeStore *lvs = G4LogicalVolumeStore::GetInstance();
     while (dodet) {
       const DDSolid &sol = fv.logicalPart().solid();
       std::vector<double> paras(sol.parameters());
-      std::string name = sol.name().name();
+      G4String name = sol.name().name();
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("EcalSim") << "DreamSD::initMap (for " << sd << "): Solid " << name << " Shape " << sol.shape()
                                   << " Parameter 0 = " << paras[0];
@@ -152,7 +161,16 @@ void DreamSD::initMap(const std::string &sd, const edm::EventSetup &es) {
       std::sort(paras.begin(), paras.end());
       double length = 2.0 * k_ScaleFromDDDToG4 * paras.back();
       double width = 2.0 * k_ScaleFromDDDToG4 * paras.front();
-      fillMap(name, length, width);
+      G4LogicalVolume *lv = nullptr;
+      for (auto lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++)
+        if ((*lvcite)->GetName() == name) {
+          lv = (*lvcite);
+          break;
+        }
+      xtalLMap_.insert(std::pair<G4LogicalVolume *, Doubles>(lv, Doubles(length, width)));
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("EcalSim") << "DreamSD " << name << ":" << lv << ":" << length << ":" << width;
+#endif
       dodet = fv.next();
     }
   }
@@ -175,9 +193,10 @@ void DreamSD::initMap(const std::string &sd, const edm::EventSetup &es) {
 //________________________________________________________________________________________
 void DreamSD::fillMap(const std::string &name, double length, double width) {
   const G4LogicalVolumeStore *lvs = G4LogicalVolumeStore::GetInstance();
-  std::vector<G4LogicalVolume *>::const_iterator lvcite;
+  edm::LogVerbatim("EcalSim") << "LV Store with " << lvs->size() << " elements";
   G4LogicalVolume *lv = nullptr;
-  for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
+  for (auto lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
+    edm::LogVerbatim("EcalSim") << name << " vs " << (*lvcite)->GetName();
     if ((*lvcite)->GetName() == static_cast<G4String>(name)) {
       lv = (*lvcite);
       break;
@@ -409,10 +428,8 @@ double DreamSD::getAverageNumberOfPhotons_(const double charge,
   // Calculate number of photons
   double numPhotons = rFact * charge / eplus * charge / eplus * (dp - ge * BetaInverse * BetaInverse);
 
-#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("EcalSim") << "@SUB=getAverageNumberOfPhotons\nCAImin = " << CAImin << "\nCAImax = " << CAImax
                               << "\ndp = " << dp << ", ge = " << ge << "\nnumPhotons = " << numPhotons;
-#endif
   return numPhotons;
 }
 

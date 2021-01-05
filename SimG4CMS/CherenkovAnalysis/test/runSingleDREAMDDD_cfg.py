@@ -1,13 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("CaloTest")
+process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load('GeneratorInterface.Core.generatorSmeared_cfi')
 process.load("SimG4CMS.CherenkovAnalysis.gun_cff")
-process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 process.load("SimG4CMS.CherenkovAnalysis.SingleDREAMXML_cfi")
-process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")
+process.load("Geometry.HcalCommonData.caloSimulationParameters_cff")
+process.load('GeneratorInterface.Core.generatorSmeared_cfi')
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
 process.maxEvents = cms.untracked.PSet(
@@ -15,14 +15,16 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('Cherenkov-e10-a0.root')
+    fileName = cms.string('Cherenkov-e10-a0-ddd.root')
 )
 
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 5
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.EcalSim=dict()
+    process.MessageLogger.HCalGeom=dict()
     process.MessageLogger.CherenkovAnalysis=dict()
+    process.MessageLogger.SimG4CoreGeometry=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
@@ -36,6 +38,7 @@ process.analyzer = cms.EDAnalyzer("CherenkovAnalysis",
 )
 
 process.p1 = cms.Path(process.generator*process.VtxSmeared*process.generatorSmeared*process.g4SimHits*process.analyzer)
+
 process.generator.PGunParameters.MinE = 10.0
 process.generator.PGunParameters.MaxE = 10.0
 process.g4SimHits.UseMagneticField = False
