@@ -77,38 +77,38 @@ namespace edm {
         bool expected = false;
         auto doPrefetch = wasCalledForThisRecord_.compare_exchange_strong(expected, true);
         taskList_.add(iTask);
+        auto group = iTask.group();
         if (doPrefetch) {
           callingContext_.setContext(ESModuleCallingContext::State::kPrefetching, iParent);
           iRecord->activityRegistry()->preESModulePrefetchingSignal_.emit(iRecord->key(), callingContext_);
           if UNLIKELY (producer_->hasMayConsumes()) {
             //after prefetching need to do the mayGet
             auto mayGetTask = edm::make_waiting_task(
-                tbb::task::allocate_root(), [this, iRecord, iEventSetupImpl, token](std::exception_ptr const* iExcept) {
+                [this, iRecord, iEventSetupImpl, token, group](std::exception_ptr const* iExcept) {
                   if (iExcept) {
-                    runProducerAsync(iExcept, iRecord, iEventSetupImpl, token);
+                    runProducerAsync(group, iExcept, iRecord, iEventSetupImpl, token);
                     return;
                   }
                   if (handleMayGet(iRecord, iEventSetupImpl)) {
                     auto runTask = edm::make_waiting_task(
-                        tbb::task::allocate_root(),
-                        [this, iRecord, iEventSetupImpl, token](std::exception_ptr const* iExcept) {
-                          runProducerAsync(iExcept, iRecord, iEventSetupImpl, token);
+                        [this, group, iRecord, iEventSetupImpl, token](std::exception_ptr const* iExcept) {
+                          runProducerAsync(group, iExcept, iRecord, iEventSetupImpl, token);
                         });
                     prefetchNeededDataAsync(
-                        WaitingTaskHolder(runTask), iEventSetupImpl, &((*postMayGetProxies_).front()), token);
+                        WaitingTaskHolder(*group, runTask), iEventSetupImpl, &((*postMayGetProxies_).front()), token);
                   } else {
-                    runProducerAsync(iExcept, iRecord, iEventSetupImpl, token);
+                    runProducerAsync(group, iExcept, iRecord, iEventSetupImpl, token);
                   }
                 });
 
             //Get everything we can before knowing about the mayGets
-            prefetchNeededDataAsync(WaitingTaskHolder(mayGetTask), iEventSetupImpl, getTokenIndices(), token);
+            prefetchNeededDataAsync(WaitingTaskHolder(*group, mayGetTask), iEventSetupImpl, getTokenIndices(), token);
           } else {
             auto task = edm::make_waiting_task(
-                tbb::task::allocate_root(), [this, iRecord, iEventSetupImpl, token](std::exception_ptr const* iExcept) {
-                  runProducerAsync(iExcept, iRecord, iEventSetupImpl, token);
+                [this, group, iRecord, iEventSetupImpl, token](std::exception_ptr const* iExcept) {
+                  runProducerAsync(group, iExcept, iRecord, iEventSetupImpl, token);
                 });
-            prefetchNeededDataAsync(WaitingTaskHolder(task), iEventSetupImpl, getTokenIndices(), token);
+            prefetchNeededDataAsync(WaitingTaskHolder(*group, task), iEventSetupImpl, getTokenIndices(), token);
           }
         }
       }
@@ -166,7 +166,8 @@ namespace edm {
         return static_cast<bool>(postMayGetProxies_);
       }
 
-      void runProducerAsync(std::exception_ptr const* iExcept,
+      void runProducerAsync(tbb::task_group* iGroup,
+                            std::exception_ptr const* iExcept,
                             EventSetupRecordImpl const* iRecord,
                             EventSetupImpl const* iEventSetupImpl,
                             ServiceToken const& token) {
@@ -176,7 +177,7 @@ namespace edm {
           return;
         }
         iRecord->activityRegistry()->postESModulePrefetchingSignal_.emit(iRecord->key(), callingContext_);
-        producer_->queue().push([this, iRecord, iEventSetupImpl, token]() {
+        producer_->queue().push(*iGroup, [this, iRecord, iEventSetupImpl, token]() {
           callingContext_.setState(ESModuleCallingContext::State::kRunning);
           std::exception_ptr exceptPtr;
           try {

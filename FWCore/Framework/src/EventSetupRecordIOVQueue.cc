@@ -30,9 +30,6 @@ namespace edm {
       for (auto& i : isAvailable_) {
         i.store(true);
       }
-      waitForIOVsInFlight_ = edm::make_empty_waiting_task();
-      waitForIOVsInFlight_->increment_ref_count();
-      waitForIOVsInFlight_->increment_ref_count();
     }
 
     EventSetupRecordIOVQueue::~EventSetupRecordIOVQueue() {
@@ -42,18 +39,26 @@ namespace edm {
         // calling endIOV. This is necessary because in cmsRun
         // we want the task ending the IOV to run inside the
         // functor passed to arena::execute.
-        { WaitingTaskHolder tmp{std::move(endIOVTaskHolder_)}; }
-        waitForIOVsInFlight_->decrement_ref_count();
-        waitForIOVsInFlight_->wait_for_all();
+        auto group = endIOVTaskHolder_.group();
+        if (group) {
+          {
+            WaitingTaskHolder tmp{std::move(endIOVTaskHolder_)};
+          }
+          do {
+            group->wait();
+          } while (not waitForIOVsInFlight_.done());
+        }
       }
     }
 
     void EventSetupRecordIOVQueue::endIOV() {
       // The most recently opened IOV is held opened.
       // This forces it to end.
+      tbb::task_group group;
       { WaitingTaskHolder tmp{std::move(endIOVTaskHolder_)}; }
-      waitForIOVsInFlight_->decrement_ref_count();
-      waitForIOVsInFlight_->wait_for_all();
+      do {
+        group.wait();
+      } while (not waitForIOVsInFlight_.done());
       endIOVCalled_ = true;
     }
 
@@ -82,7 +87,7 @@ namespace edm {
 
       for (auto& recordProvider : recordProviders_) {
         if (recordProvider->intervalStatus() != EventSetupRecordProvider::IntervalStatus::Invalid) {
-          endIOVWaitingTasks.add(endIOVWaitingTask_);
+          endIOVWaitingTasks.add(endIOVTaskHolder_);
           break;
         }
       }
@@ -126,28 +131,27 @@ namespace edm {
 
               // Needed so the EventSetupRecordIOVQueue destructor knows when
               // it can run.
-              waitForIOVsInFlight_->increment_ref_count();
+              waitForIOVsInFlight_.increment_ref_count();
 
-              endIOVWaitingTask_ = make_waiting_task(tbb::task::allocate_root(),
-                                                     [this, iResumer, iovIndex](std::exception_ptr const*) mutable {
-                                                       for (auto recordProvider : recordProviders_) {
-                                                         recordProvider->endIOV(iovIndex);
-                                                       }
-                                                       isAvailable_[iovIndex].store(true);
-                                                       iResumer.resume();
-                                                       waitForIOVsInFlight_->decrement_ref_count();
-                                                       // There is nothing in this task to catch an exception
-                                                       // because it is extremely unlikely to throw.
-                                                     });
-              endIOVTaskHolder_ = WaitingTaskHolder{endIOVWaitingTask_};
-              endIOVWaitingTasks.add(endIOVWaitingTask_);
+              auto endIOVWaitingTask = make_waiting_task([this, iResumer, iovIndex](std::exception_ptr const*) mutable {
+                for (auto recordProvider : recordProviders_) {
+                  recordProvider->endIOV(iovIndex);
+                }
+                isAvailable_[iovIndex].store(true);
+                iResumer.resume();
+                waitForIOVsInFlight_.decrement_ref_count();
+                // There is nothing in this task to catch an exception
+                // because it is extremely unlikely to throw.
+              });
+              endIOVTaskHolder_ = WaitingTaskHolder{*taskHolder->group(), endIOVWaitingTask};
+              endIOVWaitingTasks.add(endIOVTaskHolder_);
             } catch (...) {
               taskHolder->doneWaiting(std::current_exception());
               return;
             }
             taskHolder->doneWaiting(std::exception_ptr{});
           };
-      iovQueue_.pushAndPause(std::move(startIOVForRecord));
+      iovQueue_.pushAndPause(*taskToStartAfterIOVInit.group(), std::move(startIOVForRecord));
     }
 
     void EventSetupRecordIOVQueue::addRecProvider(EventSetupRecordProvider* recProvider) {

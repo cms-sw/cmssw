@@ -17,12 +17,13 @@ namespace {
   /* Holds the data the WaitingServer needs to remember for each stream
    */
   struct StreamData {
-    StreamData() : in_(nullptr), out_(nullptr), task_(nullptr) {}
+    StreamData() : in_(nullptr), out_(nullptr), task_(), taskGuard_(false) {}
     //The members are atomic so that a framework thread can
     // be putting new values in them as the server thread is running
     std::atomic<std::vector<int> const*> in_;
     std::atomic<std::vector<int>*>* out_;
-    std::atomic<edm::WaitingTask*> task_;
+    edm::WaitingTaskHolder task_;
+    std::atomic<bool> taskGuard_;
   };
 
   /*
@@ -49,7 +50,7 @@ namespace {
     void requestValuesAsync(edm::StreamID,
                             std::vector<int> const* iIn,
                             std::atomic<std::vector<int>*>* iOut,
-                            edm::WaitingTask* iWaitingTask);
+                            edm::WaitingTaskHolder iWaitingTask);
 
     //These are not used in this example at the moment since there is no
     // way at present to determine that no more events will be processed.
@@ -78,15 +79,14 @@ namespace {
   void WaitingServer::requestValuesAsync(edm::StreamID iID,
                                          std::vector<int> const* iIn,
                                          std::atomic<std::vector<int>*>* iOut,
-                                         edm::WaitingTask* iWaitingTask) {
+                                         edm::WaitingTaskHolder iWaitingTask) {
     auto& streamData = m_perStream[iID.value()];
     assert(streamData.in_.load() == nullptr);
 
     streamData.in_.store(iIn);
 
-    //increment to keep it from running immediately
-    iWaitingTask->increment_ref_count();
-    streamData.task_.store(iWaitingTask);
+    streamData.task_ = std::move(iWaitingTask);
+    streamData.taskGuard_.store(true);
 
     std::lock_guard<std::mutex> guard(m_mutex);
     m_waitingStreams.push_back(iID.value());
@@ -147,10 +147,11 @@ namespace {
       // it will just add 1 to each value it has been given
       for (auto index : streamsToUse) {
         auto& streamData = m_perStream[index];
-        auto task = streamData.task_.exchange(nullptr);
+        while (not streamData.taskGuard_.load())
+          ;
+        auto task = std::move(streamData.task_);
         //release the waiting task for this stream when we are done
-        m_taskList.add(task);
-        task->decrement_ref_count();
+        m_taskList.add(std::move(task));
 
         auto out = streamData.out_->load();
         out->clear();
@@ -234,14 +235,16 @@ namespace edmtest {
 
     std::vector<int> values;
 
-    auto taskToWait = edm::make_empty_waiting_task();
-    taskToWait->set_ref_count(2);
+    edm::FinalWaitingTask taskToWait;
+    taskToWait.increment_ref_count();
     std::atomic<std::vector<int>*> sync{&values};
 
-    m_server->requestValuesAsync(iID, &retrieved, &sync, taskToWait.get());
-    taskToWait->decrement_ref_count();
+    tbb::task_group group;
+    m_server->requestValuesAsync(iID, &retrieved, &sync, edm::WaitingTaskHolder(group, &taskToWait));
 
-    taskToWait->wait_for_all();
+    do {
+      group.wait();
+    } while (not taskToWait.done());
 
     //make sure the memory is actually synced
     auto& tValues = *sync.load();

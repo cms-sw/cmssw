@@ -141,15 +141,15 @@ namespace edm {
       // add in a task to wait for the asynchronous initialization
       // of IOVs to complete.
 
-      auto waitUntilIOVInitializationCompletes = make_empty_waiting_task();
-      waitUntilIOVInitializationCompletes->increment_ref_count();
+      FinalWaitingTask waitUntilIOVInitializationCompletes;
 
       // These do nothing ...
       WaitingTaskList dummyWaitingTaskList;
       std::vector<std::shared_ptr<const EventSetupImpl>> dummyEventSetupImpls;
 
+      tbb::task_group group;
       {
-        WaitingTaskHolder waitingTaskHolder(waitUntilIOVInitializationCompletes.get());
+        WaitingTaskHolder waitingTaskHolder(group, &waitUntilIOVInitializationCompletes);
         // Caught exception is propagated via WaitingTaskHolder
         CMS_SA_ALLOW try {
           // All the real work is done here.
@@ -160,10 +160,12 @@ namespace edm {
           waitingTaskHolder.doneWaiting(std::current_exception());
         }
       }
-      waitUntilIOVInitializationCompletes->wait_for_all();
+      do {
+        group.wait();
+      } while (not waitUntilIOVInitializationCompletes.done());
 
-      if (waitUntilIOVInitializationCompletes->exceptionPtr() != nullptr) {
-        std::rethrow_exception(*(waitUntilIOVInitializationCompletes->exceptionPtr()));
+      if (waitUntilIOVInitializationCompletes.exceptionPtr() != nullptr) {
+        std::rethrow_exception(*(waitUntilIOVInitializationCompletes.exceptionPtr()));
       }
     }
 

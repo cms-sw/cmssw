@@ -431,30 +431,30 @@ namespace edm {
     ep.setLuminosityBlockPrincipal(inUseLumiPrincipals_[principal.luminosityBlockPrincipal().index()].get());
     propagateProducts(InEvent, principal, ep);
 
-    WaitingTaskHolder finalizeEventTask(
-        make_waiting_task(tbb::task::allocate_root(), [&ep, iHolder](std::exception_ptr const* iPtr) mutable {
-          ep.clearEventPrincipal();
-          if (iPtr) {
-            iHolder.doneWaiting(*iPtr);
-          } else {
-            iHolder.doneWaiting(std::exception_ptr());
-          }
-        }));
+    WaitingTaskHolder finalizeEventTask(*iHolder.group(),
+                                        make_waiting_task([&ep, iHolder](std::exception_ptr const* iPtr) mutable {
+                                          ep.clearEventPrincipal();
+                                          if (iPtr) {
+                                            iHolder.doneWaiting(*iPtr);
+                                          } else {
+                                            iHolder.doneWaiting(std::exception_ptr());
+                                          }
+                                        }));
     WaitingTaskHolder afterProcessTask;
     if (subProcesses_.empty()) {
       afterProcessTask = std::move(finalizeEventTask);
     } else {
       afterProcessTask = WaitingTaskHolder(
-          make_waiting_task(tbb::task::allocate_root(),
-                            [this, &ep, finalizeEventTask, iEventSetupImpls](std::exception_ptr const* iPtr) mutable {
-                              if (not iPtr) {
-                                for (auto& subProcess : boost::adaptors::reverse(subProcesses_)) {
-                                  subProcess.doEventAsync(finalizeEventTask, ep, iEventSetupImpls);
-                                }
-                              } else {
-                                finalizeEventTask.doneWaiting(*iPtr);
-                              }
-                            }));
+          *iHolder.group(),
+          make_waiting_task([this, &ep, finalizeEventTask, iEventSetupImpls](std::exception_ptr const* iPtr) mutable {
+            if (not iPtr) {
+              for (auto& subProcess : boost::adaptors::reverse(subProcesses_)) {
+                subProcess.doEventAsync(finalizeEventTask, ep, iEventSetupImpls);
+              }
+            } else {
+              finalizeEventTask.doneWaiting(*iPtr);
+            }
+          }));
     }
     EventTransitionInfo info(ep, *((*iEventSetupImpls)[esp_->subProcessIndex()]));
     schedule_->processOneEventAsync(std::move(afterProcessTask), ep.streamID().value(), info, serviceToken_);
@@ -549,18 +549,17 @@ namespace edm {
   void SubProcess::writeProcessBlockAsync(edm::WaitingTaskHolder task, ProcessBlockType processBlockType) {
     ServiceRegistry::Operate operate(serviceToken_);
 
-    auto subTasks = edm::make_waiting_task(tbb::task::allocate_root(),
-                                           [this, task, processBlockType](std::exception_ptr const* iExcept) mutable {
-                                             if (iExcept) {
-                                               task.doneWaiting(*iExcept);
-                                             } else {
-                                               ServiceRegistry::Operate operate(serviceToken_);
-                                               for (auto& s : subProcesses_) {
-                                                 s.writeProcessBlockAsync(task, processBlockType);
-                                               }
-                                             }
-                                           });
-    schedule_->writeProcessBlockAsync(WaitingTaskHolder(subTasks),
+    auto subTasks = edm::make_waiting_task([this, task, processBlockType](std::exception_ptr const* iExcept) mutable {
+      if (iExcept) {
+        task.doneWaiting(*iExcept);
+      } else {
+        ServiceRegistry::Operate operate(serviceToken_);
+        for (auto& s : subProcesses_) {
+          s.writeProcessBlockAsync(task, processBlockType);
+        }
+      }
+    });
+    schedule_->writeProcessBlockAsync(WaitingTaskHolder(*task.group(), subTasks),
                                       principalCache_.processBlockPrincipal(processBlockType),
                                       &processContext_,
                                       actReg_.get());
@@ -576,7 +575,6 @@ namespace edm {
     auto const& childPhID = it->second;
 
     auto subTasks = edm::make_waiting_task(
-        tbb::task::allocate_root(),
         [this, childPhID, runNumber, task, mergeableRunProductMetadata](std::exception_ptr const* iExcept) mutable {
           if (iExcept) {
             task.doneWaiting(*iExcept);
@@ -587,7 +585,7 @@ namespace edm {
             }
           }
         });
-    schedule_->writeRunAsync(WaitingTaskHolder(subTasks),
+    schedule_->writeRunAsync(WaitingTaskHolder(*task.group(), subTasks),
                              principalCache_.runPrincipal(childPhID, runNumber),
                              &processContext_,
                              actReg_.get(),
@@ -651,18 +649,17 @@ namespace edm {
     ServiceRegistry::Operate operate(serviceToken_);
 
     auto l = inUseLumiPrincipals_[principal.index()];
-    auto subTasks =
-        edm::make_waiting_task(tbb::task::allocate_root(), [this, l, task](std::exception_ptr const* iExcept) mutable {
-          if (iExcept) {
-            task.doneWaiting(*iExcept);
-          } else {
-            ServiceRegistry::Operate operateWriteLumi(serviceToken_);
-            for (auto& s : subProcesses_) {
-              s.writeLumiAsync(task, *l);
-            }
-          }
-        });
-    schedule_->writeLumiAsync(WaitingTaskHolder(subTasks), *l, &processContext_, actReg_.get());
+    auto subTasks = edm::make_waiting_task([this, l, task](std::exception_ptr const* iExcept) mutable {
+      if (iExcept) {
+        task.doneWaiting(*iExcept);
+      } else {
+        ServiceRegistry::Operate operateWriteLumi(serviceToken_);
+        for (auto& s : subProcesses_) {
+          s.writeLumiAsync(task, *l);
+        }
+      }
+    });
+    schedule_->writeLumiAsync(WaitingTaskHolder(*task.group(), subTasks), *l, &processContext_, actReg_.get());
   }
 
   void SubProcess::deleteLumiFromCache(LuminosityBlockPrincipal& principal) {

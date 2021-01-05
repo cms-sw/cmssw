@@ -28,15 +28,40 @@ SerialTaskQueue::~SerialTaskQueue() {
   bool isEmpty = m_tasks.empty();
   bool isTaskChosen = m_taskChosen;
   if ((not isEmpty and not isPaused()) or isTaskChosen) {
-    pushAndWait([]() { return; });
+    tbb::task_group g;
+    std::atomic<bool> done = false;
+    push(g, [&done]() {
+      done = true;
+      return;
+    });
+    do {
+      g.wait();
+    } while (not done.load());
   }
+}
+
+void SerialTaskQueue::spawn(TaskBase& iTask) {
+  auto pTask = &iTask;
+  iTask.group()->run([pTask, this]() {
+    TaskBase* t = pTask;
+    auto g = pTask->group();
+    do {
+      t->execute();
+      delete t;
+      t = finishedTask();
+      if (t and t->group() != g) {
+        spawn(*t);
+        t = nullptr;
+      }
+    } while (t != nullptr);
+  });
 }
 
 bool SerialTaskQueue::resume() {
   if (0 == --m_pauseCount) {
     auto t = pickNextTask();
     if (nullptr != t) {
-      tbb::task::spawn(*t);
+      spawn(*t);
     }
     return true;
   }
@@ -46,7 +71,7 @@ bool SerialTaskQueue::resume() {
 void SerialTaskQueue::pushTask(TaskBase* iTask) {
   auto t = pushAndGetNextTask(iTask);
   if (nullptr != t) {
-    tbb::task::spawn(*t);
+    spawn(*t);
   }
 }
 
@@ -86,23 +111,6 @@ SerialTaskQueue::TaskBase* SerialTaskQueue::pickNextTask() {
     }
   }
   return nullptr;
-}
-
-void SerialTaskQueue::pushAndWait(tbb::empty_task* iWait, TaskBase* iTask) {
-  auto nextTask = pushAndGetNextTask(iTask);
-  if LIKELY (nullptr != nextTask) {
-    if LIKELY (nextTask == iTask) {
-      //spawn and wait for all requires the task to have its parent set
-      iWait->spawn_and_wait_for_all(*nextTask);
-    } else {
-      tbb::task::spawn(*nextTask);
-      iWait->wait_for_all();
-    }
-  } else {
-    //a task must already be running in this queue
-    iWait->wait_for_all();
-  }
-  tbb::task::destroy(*iWait);
 }
 
 //

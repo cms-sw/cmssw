@@ -176,7 +176,6 @@ namespace edm {
       }
 
       auto doneTask = make_waiting_task(
-          tbb::task::allocate_root(),
           [this, iHolder, cleaningUpAfterException, globalContext, token](std::exception_ptr const* iPtr) mutable {
             std::exception_ptr excpt;
             if (iPtr) {
@@ -221,7 +220,7 @@ namespace edm {
       workerManager.setupResolvers(transitionInfo.principal());
 
       //make sure the task doesn't get run until all workers have beens started
-      WaitingTaskHolder holdForLoop(doneTask);
+      WaitingTaskHolder holdForLoop(*iHolder.group(), doneTask);
       auto& aw = workerManager.allWorkers();
       for (Worker* worker : boost::adaptors::reverse(aw)) {
         worker->doWorkAsync<T>(

@@ -101,19 +101,20 @@ namespace edm {
                                EventSetupImpl const* iEventSetupImpl,
                                ESParentContext const& iParent) const {
       if (!cacheIsValid()) {
-        auto waitTask = edm::make_empty_waiting_task();
-        waitTask->set_ref_count(2);
-        auto waitTaskPtr = waitTask.get();
+        FinalWaitingTask waitTask;
+        auto waitTaskPtr = &waitTask;
         auto token = ServiceRegistry::instance().presentToken();
         edm::esTaskArena().execute([this, waitTaskPtr, &iRecord, &iKey, iEventSetupImpl, token, iParent]() {
-          prefetchAsync(WaitingTaskHolder(waitTaskPtr), iRecord, iKey, iEventSetupImpl, token, iParent);
-          waitTaskPtr->decrement_ref_count();
-          waitTaskPtr->wait_for_all();
+          tbb::task_group group;
+          prefetchAsync(WaitingTaskHolder(group, waitTaskPtr), iRecord, iKey, iEventSetupImpl, token, iParent);
+          do {
+            group.wait();
+          } while (not waitTaskPtr->done());
         });
         cache_ = getAfterPrefetchImpl();
         cacheIsValid_.store(true, std::memory_order_release);
-        if (waitTask->exceptionPtr()) {
-          std::rethrow_exception(*waitTask->exceptionPtr());
+        if (waitTask.exceptionPtr()) {
+          std::rethrow_exception(*waitTask.exceptionPtr());
         }
       }
       return getAfterPrefetch(iRecord, iKey, iTransiently);
