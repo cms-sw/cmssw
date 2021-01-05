@@ -43,7 +43,7 @@ class HLTHGCalLayerClusterIsolationProducer : public edm::stream::EDProducer<> {
 
 public:
   explicit HLTHGCalLayerClusterIsolationProducer(const edm::ParameterSet&);
-  ~HLTHGCalLayerClusterIsolationProducer() override;
+  ~HLTHGCalLayerClusterIsolationProducer() override = default;
 
   void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
@@ -95,10 +95,9 @@ HLTHGCalLayerClusterIsolationProducer<T1>::HLTHGCalLayerClusterIsolationProducer
 
   recoCandidateProducer_ = consumes<T1Collection>(config.getParameter<edm::InputTag>(recoCandidateProducerName));
   produces<T1IsolationMap>();
+  produces<T1IsolationMap>("em");
+  produces<T1IsolationMap>("had");
 }
-
-template <typename T1>
-HLTHGCalLayerClusterIsolationProducer<T1>::~HLTHGCalLayerClusterIsolationProducer() {}
 
 template <typename T1>
 void HLTHGCalLayerClusterIsolationProducer<T1>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -135,9 +134,7 @@ void HLTHGCalLayerClusterIsolationProducer<T1>::produce(edm::Event& iEvent, cons
     rho = *(rhoHandle.product());
   }
 
-  if (rho > rhoMax_)
-    rho = rhoMax_;
-
+  rho = std::min(rho,rhoMax_);
   rho = rho * rhoScale_;
 
   edm::Handle<T1Collection> recoCandHandle;
@@ -149,35 +146,41 @@ void HLTHGCalLayerClusterIsolationProducer<T1>::produce(edm::Event& iEvent, cons
   const std::vector<reco::CaloCluster> layerClusters = *(clusterHandle.product());
 
   T1IsolationMap recoCandMap(recoCandHandle);
+  T1IsolationMap recoCandMapEm(recoCandHandle);
+  T1IsolationMap recoCandMapHad(recoCandHandle);
 
   for (unsigned int iReco = 0; iReco < recoCandHandle->size(); iReco++) {
     T1Ref candRef(recoCandHandle, iReco);
 
-    float sum_em = HGCalClusterTools::emEnergyInCone(candRef->eta(), candRef->phi(),
-                                                     layerClusters,
-                                                     drVetoEM_, drMax_,
-                                                     minEtEM_, minEnergyEM_,
-                                                     useEt_ ? HGCalClusterTools::EType::ET :
-                                                              HGCalClusterTools::EType::ENERGY );
+    float sumEm = HGCalClusterTools::emEnergyInCone(candRef->eta(), candRef->phi(),
+						    layerClusters,
+						    drVetoEM_, drMax_,
+						    minEtEM_, minEnergyEM_,
+						    useEt_ ? HGCalClusterTools::EType::ET :
+						    HGCalClusterTools::EType::ENERGY );
 
-    float sum_had = HGCalClusterTools::hadEnergyInCone(candRef->eta(), candRef->phi(),
-                                                       layerClusters,
-                                                       drVetoHad_, drMax_,
-                                                       minEtHad_, minEnergyHad_,
-                                                       useEt_ ? HGCalClusterTools::EType::ET :
-                                                                HGCalClusterTools::EType::ENERGY );
+    float sumHad = HGCalClusterTools::hadEnergyInCone(candRef->eta(), candRef->phi(),
+						      layerClusters,
+						      drVetoHad_, drMax_,
+						      minEtHad_, minEnergyHad_,
+						      useEt_ ? HGCalClusterTools::EType::ET :
+						      HGCalClusterTools::EType::ENERGY );
 
     if (doRhoCorrection_) {
-      sum_em = sum_em - rho * effectiveAreas_.at(0);
-      sum_had = sum_had - rho * effectiveAreas_.at(1);
+      sumEm = sumEm - rho * effectiveAreas_.at(0);
+      sumHad = sumHad - rho * effectiveAreas_.at(1);
     }
 
-    float sum = sum_em + sum_had;
+    float sum = sumEm + sumHad;
 
     recoCandMap.insert(candRef, sum);
+    recoCandMapEm.insert(candRef, sumEm);
+    recoCandMapHad.insert(candRef, sumHad);
   }
 
   iEvent.put(std::make_unique<T1IsolationMap>(recoCandMap));
+  iEvent.put(std::make_unique<T1IsolationMap>(recoCandMapEm),"em");
+  iEvent.put(std::make_unique<T1IsolationMap>(recoCandMapHad),"had");
 }
 
 typedef HLTHGCalLayerClusterIsolationProducer<reco::RecoEcalCandidate> EgammaHLTHGCalLayerClusterIsolationProducer;
