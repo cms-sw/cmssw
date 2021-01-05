@@ -254,14 +254,16 @@ namespace {
     void prefetch(eventsetup::EventSetupRecordImpl const& iRec) const {
       auto const& proxies = this->esGetTokenIndicesVector(edm::Transition::Event);
       for (size_t i = 0; i != proxies.size(); ++i) {
-        auto waitTask = edm::make_empty_waiting_task();
-        waitTask->set_ref_count(2);
-        iRec.prefetchAsync(
-            WaitingTaskHolder(waitTask.get()), proxies[i], nullptr, edm::ServiceToken{}, edm::ESParentContext{});
-        waitTask->decrement_ref_count();
-        waitTask->wait_for_all();
-        if (waitTask->exceptionPtr()) {
-          std::rethrow_exception(*waitTask->exceptionPtr());
+        edm::FinalWaitingTask waitTask;
+        tbb::task_group group;
+        waitTask.increment_ref_count();
+        iRec.prefetchAsync(WaitingTaskHolder(group, &waitTask), proxies[i], nullptr, edm::ServiceToken{}, edm::ESParentContext{});
+        waitTask.decrement_ref_count();
+        do {
+          group.wait();
+        } while (not waitTask.done());
+        if (waitTask.exceptionPtr()) {
+          std::rethrow_exception(*waitTask.exceptionPtr());
         }
       }
     }
@@ -276,14 +278,16 @@ namespace {
     void prefetch(eventsetup::EventSetupRecordImpl const& iRec) const {
       auto const& proxies = this->esGetTokenIndicesVector(edm::Transition::Event);
       for (size_t i = 0; i != proxies.size(); ++i) {
-        auto waitTask = edm::make_empty_waiting_task();
-        waitTask->set_ref_count(2);
-        iRec.prefetchAsync(
-            WaitingTaskHolder(waitTask.get()), proxies[i], nullptr, edm::ServiceToken{}, edm::ESParentContext{});
-        waitTask->decrement_ref_count();
-        waitTask->wait_for_all();
-        if (waitTask->exceptionPtr()) {
-          std::rethrow_exception(*waitTask->exceptionPtr());
+        edm::FinalWaitingTask waitTask;
+        tbb::task_group group;
+        waitTask.increment_ref_count();
+        iRec.prefetchAsync(WaitingTaskHolder(group, &waitTask), proxies[i], nullptr, edm::ServiceToken{}, edm::ESParentContext{});
+        waitTask.decrement_ref_count();
+        do {
+          group.wait();
+        } while (not waitTask.done());
+        if (waitTask.exceptionPtr()) {
+          std::rethrow_exception(*waitTask.exceptionPtr());
         }
       }
     }

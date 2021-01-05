@@ -82,25 +82,23 @@ namespace edm {
     // When we are done processing the global for this process,
     // we need to run the global for all SubProcesses
     auto subs =
-        make_waiting_task(tbb::task::allocate_root(),
-                          [&iSubProcesses, iWait, info = transitionInfo](std::exception_ptr const* iPtr) mutable {
-                            if (iPtr) {
-                              auto excpt = *iPtr;
-                              auto delayError = make_waiting_task(
-                                  tbb::task::allocate_root(),
-                                  [iWait, excpt](std::exception_ptr const*) mutable { iWait.doneWaiting(excpt); });
-                              WaitingTaskHolder h(delayError);
-                              for (auto& subProcess : iSubProcesses) {
-                                subProcessDoGlobalBeginTransitionAsync<Traits>(h, subProcess, info);
-                              }
-                            } else {
-                              for (auto& subProcess : iSubProcesses) {
-                                subProcessDoGlobalBeginTransitionAsync<Traits>(iWait, subProcess, info);
-                              }
-                            }
-                          });
+        make_waiting_task([&iSubProcesses, iWait, info = transitionInfo](std::exception_ptr const* iPtr) mutable {
+          if (iPtr) {
+            auto excpt = *iPtr;
+            auto delayError =
+                make_waiting_task([iWait, excpt](std::exception_ptr const*) mutable { iWait.doneWaiting(excpt); });
+            WaitingTaskHolder h(*iWait.group(), delayError);
+            for (auto& subProcess : iSubProcesses) {
+              subProcessDoGlobalBeginTransitionAsync<Traits>(h, subProcess, info);
+            }
+          } else {
+            for (auto& subProcess : iSubProcesses) {
+              subProcessDoGlobalBeginTransitionAsync<Traits>(iWait, subProcess, info);
+            }
+          }
+        });
 
-    WaitingTaskHolder h(subs);
+    WaitingTaskHolder h(*iWait.group(), subs);
     iSchedule.processOneGlobalAsync<Traits>(std::move(h), transitionInfo, token);
   }
 
@@ -113,27 +111,24 @@ namespace edm {
                                 bool cleaningUpAfterException) {
     // When we are done processing the global for this process,
     // we need to run the global for all SubProcesses
-    auto subs =
-        make_waiting_task(tbb::task::allocate_root(),
-                          [&iSubProcesses, iWait, info = transitionInfo, cleaningUpAfterException](
-                              std::exception_ptr const* iPtr) mutable {
-                            if (iPtr) {
-                              auto excpt = *iPtr;
-                              auto delayError = make_waiting_task(
-                                  tbb::task::allocate_root(),
-                                  [iWait, excpt](std::exception_ptr const*) mutable { iWait.doneWaiting(excpt); });
-                              WaitingTaskHolder h(delayError);
-                              for (auto& subProcess : iSubProcesses) {
-                                subProcessDoGlobalEndTransitionAsync(h, subProcess, info, cleaningUpAfterException);
-                              }
-                            } else {
-                              for (auto& subProcess : iSubProcesses) {
-                                subProcessDoGlobalEndTransitionAsync(iWait, subProcess, info, cleaningUpAfterException);
-                              }
-                            }
-                          });
+    auto subs = make_waiting_task([&iSubProcesses, iWait, info = transitionInfo, cleaningUpAfterException](
+                                      std::exception_ptr const* iPtr) mutable {
+      if (iPtr) {
+        auto excpt = *iPtr;
+        auto delayError =
+            make_waiting_task([iWait, excpt](std::exception_ptr const*) mutable { iWait.doneWaiting(excpt); });
+        WaitingTaskHolder h(*iWait.group(), delayError);
+        for (auto& subProcess : iSubProcesses) {
+          subProcessDoGlobalEndTransitionAsync(h, subProcess, info, cleaningUpAfterException);
+        }
+      } else {
+        for (auto& subProcess : iSubProcesses) {
+          subProcessDoGlobalEndTransitionAsync(iWait, subProcess, info, cleaningUpAfterException);
+        }
+      }
+    });
 
-    WaitingTaskHolder h(subs);
+    WaitingTaskHolder h(*iWait.group(), subs);
     iSchedule.processOneGlobalAsync<Traits>(std::move(h), transitionInfo, token, cleaningUpAfterException);
   }
 

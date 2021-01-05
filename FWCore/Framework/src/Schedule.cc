@@ -1233,26 +1233,25 @@ namespace edm {
                                 rp.endTime(),
                                 processContext);
     auto t =
-        make_waiting_task(tbb::task::allocate_root(),
-                          [task, activityRegistry, globalContext, token](std::exception_ptr const* iExcept) mutable {
-                            // Propagating the exception would be nontrivial, and signal actions are not supposed to throw exceptions
-                            CMS_SA_ALLOW try {
-                              //services can depend on other services
-                              ServiceRegistry::Operate op(token);
+        make_waiting_task([task, activityRegistry, globalContext, token](std::exception_ptr const* iExcept) mutable {
+          // Propagating the exception would be nontrivial, and signal actions are not supposed to throw exceptions
+          CMS_SA_ALLOW try {
+            //services can depend on other services
+            ServiceRegistry::Operate op(token);
 
-                              activityRegistry->postGlobalWriteRunSignal_(globalContext);
-                            } catch (...) {
-                            }
-                            std::exception_ptr ptr;
-                            if (iExcept) {
-                              ptr = *iExcept;
-                            }
-                            task.doneWaiting(ptr);
-                          });
+            activityRegistry->postGlobalWriteRunSignal_(globalContext);
+          } catch (...) {
+          }
+          std::exception_ptr ptr;
+          if (iExcept) {
+            ptr = *iExcept;
+          }
+          task.doneWaiting(ptr);
+        });
     // Propagating the exception would be nontrivial, and signal actions are not supposed to throw exceptions
     CMS_SA_ALLOW try { activityRegistry->preGlobalWriteRunSignal_(globalContext); } catch (...) {
     }
-    WaitingTaskHolder tHolder(t);
+    WaitingTaskHolder tHolder(*task.group(), t);
 
     for (auto& c : all_output_communicators_) {
       c->writeRunAsync(tHolder, rp, processContext, activityRegistry, mergeableRunProductMetadata);
@@ -1272,26 +1271,25 @@ namespace edm {
                                 processContext);
 
     auto t =
-        make_waiting_task(tbb::task::allocate_root(),
-                          [task, activityRegistry, globalContext, token](std::exception_ptr const* iExcept) mutable {
-                            // Propagating the exception would be nontrivial, and signal actions are not supposed to throw exceptions
-                            CMS_SA_ALLOW try {
-                              //services can depend on other services
-                              ServiceRegistry::Operate op(token);
+        make_waiting_task([task, activityRegistry, globalContext, token](std::exception_ptr const* iExcept) mutable {
+          // Propagating the exception would be nontrivial, and signal actions are not supposed to throw exceptions
+          CMS_SA_ALLOW try {
+            //services can depend on other services
+            ServiceRegistry::Operate op(token);
 
-                              activityRegistry->postWriteProcessBlockSignal_(globalContext);
-                            } catch (...) {
-                            }
-                            std::exception_ptr ptr;
-                            if (iExcept) {
-                              ptr = *iExcept;
-                            }
-                            task.doneWaiting(ptr);
-                          });
+            activityRegistry->postWriteProcessBlockSignal_(globalContext);
+          } catch (...) {
+          }
+          std::exception_ptr ptr;
+          if (iExcept) {
+            ptr = *iExcept;
+          }
+          task.doneWaiting(ptr);
+        });
     // Propagating the exception would be nontrivial, and signal actions are not supposed to throw exceptions
     CMS_SA_ALLOW try { activityRegistry->preWriteProcessBlockSignal_(globalContext); } catch (...) {
     }
-    WaitingTaskHolder tHolder(t);
+    WaitingTaskHolder tHolder(*task.group(), t);
 
     for (auto& c : all_output_communicators_) {
       c->writeProcessBlockAsync(tHolder, pbp, processContext, activityRegistry);
@@ -1311,26 +1309,25 @@ namespace edm {
                                 processContext);
 
     auto t =
-        make_waiting_task(tbb::task::allocate_root(),
-                          [task, activityRegistry, globalContext, token](std::exception_ptr const* iExcept) mutable {
-                            // Propagating the exception would be nontrivial, and signal actions are not supposed to throw exceptions
-                            CMS_SA_ALLOW try {
-                              //services can depend on other services
-                              ServiceRegistry::Operate op(token);
+        make_waiting_task([task, activityRegistry, globalContext, token](std::exception_ptr const* iExcept) mutable {
+          // Propagating the exception would be nontrivial, and signal actions are not supposed to throw exceptions
+          CMS_SA_ALLOW try {
+            //services can depend on other services
+            ServiceRegistry::Operate op(token);
 
-                              activityRegistry->postGlobalWriteLumiSignal_(globalContext);
-                            } catch (...) {
-                            }
-                            std::exception_ptr ptr;
-                            if (iExcept) {
-                              ptr = *iExcept;
-                            }
-                            task.doneWaiting(ptr);
-                          });
+            activityRegistry->postGlobalWriteLumiSignal_(globalContext);
+          } catch (...) {
+          }
+          std::exception_ptr ptr;
+          if (iExcept) {
+            ptr = *iExcept;
+          }
+          task.doneWaiting(ptr);
+        });
     // Propagating the exception would be nontrivial, and signal actions are not supposed to throw exceptions
     CMS_SA_ALLOW try { activityRegistry->preGlobalWriteLumiSignal_(globalContext); } catch (...) {
     }
-    WaitingTaskHolder tHolder(t);
+    WaitingTaskHolder tHolder(*task.group(), t);
     for (auto& c : all_output_communicators_) {
       c->writeLumiAsync(tHolder, lbp, processContext, activityRegistry);
     }
