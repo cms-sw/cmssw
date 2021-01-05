@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+<DDDefinition>
 
 <SolidSection label="singleDREAM">
  <Box name="DREAM"   dx="2.0*m"  dy="0.3*m"  dz="2.0*m"/>
@@ -39,14 +39,16 @@
    <Parameter name="ReadOutName" value="EcalHitsEB" eval="false"/>
  </SpecPar>
  <SpecPar name="calo">
-   <PartSelector path="//Crystal" />
+   <PartSelector path="//DREAM" />
    <Parameter name="SensitiveDetector" value="CaloTrkProcessing" eval="false"/>
-   <Parameter name="ReadOutName" value="CaloHitsTk" eval="false"/>
-   <Parameter name="Calorimeter" value="Crystal"    eval="false"/>
-   <Parameter name="Levels"      value="2"          eval="true"/>
-   <Parameter name="Neighbours"  value="1"          eval="true"/>
-   <Parameter name="Inside"      value="NotFound"   eval="false"/>
-   <Parameter name="InsideLevel" value="2"          eval="true"/>
+   <Parameter name="ReadOutName" value="CaloHitsTk"  eval="false"/>
+   <Parameter name="Calorimeter" value="Crystal"     eval="false"/>
+   <Parameter name="Levels"      value="2"           eval="true"/>
+   <Parameter name="Neighbours"  value="1"           eval="true"/>
+   <Parameter name="Inside"      value="NotFound"    eval="false"/>
+   <Parameter name="InsideLevel" value="2"           eval="true"/>
+   <Parameter name="FineCalorimeter" value="Crystal" eval="false"/>
+   <Parameter name="FineLevels"  value="2"           eval="true"/>
  </SpecPar>
 </SpecParSection>
 
