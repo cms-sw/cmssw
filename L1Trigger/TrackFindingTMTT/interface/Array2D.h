@@ -15,14 +15,13 @@ namespace tmtt {
 
   template <typename T>
   class Array2D {
-
   public:
     //for a mxn matrix - row major
-    Array2D(unsigned int m, unsigned int n) : array2D_(m*n), m_{m}, n_{n} {} 
+    Array2D(unsigned int m, unsigned int n) : array2D_(m * n), m_{m}, n_{n} {}
 
-    const T& operator()(unsigned int i, unsigned int j) const { 
+    const T& operator()(unsigned int i, unsigned int j) const {
       checkBounds(i, j);
-      return array2D_.at(i * n_ + j); 
+      return array2D_.at(i * n_ + j);
     }
 
     T& operator()(unsigned int i, unsigned int j) {
