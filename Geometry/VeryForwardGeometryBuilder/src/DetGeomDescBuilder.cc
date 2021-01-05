@@ -38,7 +38,7 @@ void detgeomdescbuilder::buildDetGeomDescDescendants(DDFilteredView& fv, DetGeom
     DetGeomDesc* child = new DetGeomDesc(fv, isRun2);
 
     // legacy Run2 z sign fix for diamond detectors
-    const auto &detId = child->geographicalID();
+    const auto& detId = child->geographicalID();
     if (isRun2 && detId.subdetId() == CTPPSDetId::sdTimingDiamond)
       child->invertZSign();
 
@@ -74,7 +74,7 @@ std::unique_ptr<DetGeomDesc> detgeomdescbuilder::buildDetGeomDescFromCompactView
     DetGeomDesc* child = new DetGeomDesc(fv, isRun2);
 
     // legacy Run2 z sign fix for diamond detectors
-    const auto &detId = child->geographicalID();
+    const auto& detId = child->geographicalID();
     if (isRun2 && detId.subdetId() == CTPPSDetId::sdTimingDiamond)
       child->invertZSign();
 
