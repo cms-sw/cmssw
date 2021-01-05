@@ -44,7 +44,7 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/InitialClusteringStepBase.h"
 
 class HGCalShowerShapeHelper {
-private:
+
   // Good to filter/compute/store this stuff beforehand as they are common to the shower shape variables.
   // No point in filtering, computing layer-wise centroids, etc. for each variable again and again.
   // Once intitialized, one can the calculate different variables one after another for a given object.
@@ -53,30 +53,6 @@ private:
   // In principle should consider the HGCalHSi and HGCalHSc hits (leakage) also.
   // Can have subdetector dependent thresholds and layer selection.
   // To be implemented.
-
-  double minHitE_;
-  double minHitET_;
-  double minHitET2_;
-  int minLayer_;
-  int maxLayer_;
-  int nLayer_;
-  DetId::Detector subDet_;
-
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
-  hgcal::RecHitTools recHitTools_;
-
-  std::unordered_map<uint32_t, const reco::PFRecHit *> pfRecHitPtrMap_;
-  std::vector<std::pair<DetId, float> > hitsAndFracs_;
-  std::vector<double> hitEnergies_;
-  std::vector<double> hitEnergiesWithFracs_;
-
-  ROOT::Math::XYZVector centroid_;
-  std::vector<double> layerEnergies_;
-  std::vector<ROOT::Math::XYZVector> layerCentroids_;
-
-  void setPFRecHitPtrMap(const std::vector<reco::PFRecHit> &recHits);
-
-  void setFilteredHitsAndFractions(const std::vector<std::pair<DetId, float> > &hitsAndFracs);
 
 public:
   static const double kLDWaferCellSize_;
@@ -109,7 +85,7 @@ public:
           sigma2ww(0.0) {}
   };
 
-  HGCalShowerShapeHelper(edm::ConsumesCollector &sumes);
+  HGCalShowerShapeHelper(edm::ConsumesCollector &&sumes);
 
   void initPerEvent(const edm::EventSetup &iSetup, const std::vector<reco::PFRecHit> &recHits);
 
@@ -127,6 +103,31 @@ public:
 
   // Compute PCA widths around the layer centroids
   const ShowerWidths getPCAWidths(double cylinderR, bool useFractions = false);
+
+private:
+  void setPFRecHitPtrMap(const std::vector<reco::PFRecHit> &recHits);
+  void setFilteredHitsAndFractions(const std::vector<std::pair<DetId, float> > &hitsAndFracs);
+
+  double minHitE_;
+  double minHitET_;
+  double minHitET2_;
+  int minLayer_;
+  int maxLayer_;
+  int nLayer_;
+  DetId::Detector subDet_;
+
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
+  hgcal::RecHitTools recHitTools_;
+
+  std::unordered_map<uint32_t, const reco::PFRecHit *> pfRecHitPtrMap_;
+  std::vector<std::pair<DetId, float> > hitsAndFracs_;
+  std::vector<double> hitEnergies_;
+  std::vector<double> hitEnergiesWithFracs_;
+
+  ROOT::Math::XYZVector centroid_;
+  std::vector<double> layerEnergies_;
+  std::vector<ROOT::Math::XYZVector> layerCentroids_;
+
 };
 
 #endif

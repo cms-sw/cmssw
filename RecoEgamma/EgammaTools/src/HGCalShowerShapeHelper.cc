@@ -6,6 +6,7 @@ const double HGCalShowerShapeHelper::kHDWaferCellSize_ = 0.465;
 HGCalShowerShapeHelper::HGCalShowerShapeHelper(edm::ConsumesCollector &sumes)
     : caloGeometryToken_{sumes.esConsumes<CaloGeometry, CaloGeometryRecord>()} {}
 
+
 void HGCalShowerShapeHelper::initPerEvent(const edm::EventSetup &iSetup, const std::vector<reco::PFRecHit> &pfRecHits) {
   recHitTools_.setGeometry(iSetup.getData(caloGeometryToken_));
   setPFRecHitPtrMap(pfRecHits);
