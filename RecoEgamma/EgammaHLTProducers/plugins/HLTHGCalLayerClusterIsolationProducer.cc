@@ -34,7 +34,6 @@
 
 #include "RecoEgamma/EgammaTools/interface/HGCalClusterTools.h"
 
-
 template <typename T1>
 class HLTHGCalLayerClusterIsolationProducer : public edm::stream::EDProducer<> {
   typedef std::vector<T1> T1Collection;
@@ -69,7 +68,8 @@ private:
 
 template <typename T1>
 HLTHGCalLayerClusterIsolationProducer<T1>::HLTHGCalLayerClusterIsolationProducer(const edm::ParameterSet& config)
-    : layerClusterProducer_(consumes<reco::CaloClusterCollection>(config.getParameter<edm::InputTag>("layerClusterProducer"))),
+    : layerClusterProducer_(
+          consumes<reco::CaloClusterCollection>(config.getParameter<edm::InputTag>("layerClusterProducer"))),
       rhoProducer_(consumes<double>(config.getParameter<edm::InputTag>("rhoProducer"))),
       drMax_(config.getParameter<double>("drMax")),
       drVetoEM_(config.getParameter<double>("drVetoEM")),
@@ -85,7 +85,8 @@ HLTHGCalLayerClusterIsolationProducer<T1>::HLTHGCalLayerClusterIsolationProducer
       effectiveAreas_(config.getParameter<std::vector<double>>("effectiveAreas")) {
   if (doRhoCorrection_) {
     if (effectiveAreas_.size() != 2)
-      throw cms::Exception("IncompatibleVects") << "effectiveAreas should have two elements for em and had components. \n";
+      throw cms::Exception("IncompatibleVects")
+          << "effectiveAreas should have two elements for em and had components. \n";
   }
 
   std::string recoCandidateProducerName = "recoCandidateProducer";
@@ -134,7 +135,7 @@ void HLTHGCalLayerClusterIsolationProducer<T1>::produce(edm::Event& iEvent, cons
     rho = *(rhoHandle.product());
   }
 
-  rho = std::min(rho,rhoMax_);
+  rho = std::min(rho, rhoMax_);
   rho = rho * rhoScale_;
 
   edm::Handle<T1Collection> recoCandHandle;
@@ -152,19 +153,25 @@ void HLTHGCalLayerClusterIsolationProducer<T1>::produce(edm::Event& iEvent, cons
   for (unsigned int iReco = 0; iReco < recoCandHandle->size(); iReco++) {
     T1Ref candRef(recoCandHandle, iReco);
 
-    float sumEm = HGCalClusterTools::emEnergyInCone(candRef->eta(), candRef->phi(),
-						    layerClusters,
-						    drVetoEM_, drMax_,
-						    minEtEM_, minEnergyEM_,
-						    useEt_ ? HGCalClusterTools::EType::ET :
-						    HGCalClusterTools::EType::ENERGY );
+    float sumEm =
+        HGCalClusterTools::emEnergyInCone(candRef->eta(),
+                                          candRef->phi(),
+                                          layerClusters,
+                                          drVetoEM_,
+                                          drMax_,
+                                          minEtEM_,
+                                          minEnergyEM_,
+                                          useEt_ ? HGCalClusterTools::EType::ET : HGCalClusterTools::EType::ENERGY);
 
-    float sumHad = HGCalClusterTools::hadEnergyInCone(candRef->eta(), candRef->phi(),
-						      layerClusters,
-						      drVetoHad_, drMax_,
-						      minEtHad_, minEnergyHad_,
-						      useEt_ ? HGCalClusterTools::EType::ET :
-						      HGCalClusterTools::EType::ENERGY );
+    float sumHad =
+        HGCalClusterTools::hadEnergyInCone(candRef->eta(),
+                                           candRef->phi(),
+                                           layerClusters,
+                                           drVetoHad_,
+                                           drMax_,
+                                           minEtHad_,
+                                           minEnergyHad_,
+                                           useEt_ ? HGCalClusterTools::EType::ET : HGCalClusterTools::EType::ENERGY);
 
     if (doRhoCorrection_) {
       sumEm = sumEm - rho * effectiveAreas_.at(0);
@@ -179,8 +186,8 @@ void HLTHGCalLayerClusterIsolationProducer<T1>::produce(edm::Event& iEvent, cons
   }
 
   iEvent.put(std::make_unique<T1IsolationMap>(recoCandMap));
-  iEvent.put(std::make_unique<T1IsolationMap>(recoCandMapEm),"em");
-  iEvent.put(std::make_unique<T1IsolationMap>(recoCandMapHad),"had");
+  iEvent.put(std::make_unique<T1IsolationMap>(recoCandMapEm), "em");
+  iEvent.put(std::make_unique<T1IsolationMap>(recoCandMapHad), "had");
 }
 
 typedef HLTHGCalLayerClusterIsolationProducer<reco::RecoEcalCandidate> EgammaHLTHGCalLayerClusterIsolationProducer;

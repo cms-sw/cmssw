@@ -64,8 +64,7 @@ EgammaHLTHGCalIDVarProducer::EgammaHLTHGCalIDVarProducer(const edm::ParameterSet
           consumes<reco::RecoEcalCandidateCollection>(config.getParameter<edm::InputTag>("recoEcalCandidateProducer"))),
       hgcalRecHitToken_(consumes<reco::PFRecHitCollection>(config.getParameter<edm::InputTag>("hgcalRecHits"))),
       layerClusterToken_(consumes<reco::CaloClusterCollection>(config.getParameter<edm::InputTag>("layerClusters"))),
-      ssCalc_(consumesCollector())
-{
+      ssCalc_(consumesCollector()) {
   pcaAssocMaps_.emplace_back(PCAAssocMap(&HGCalShowerShapeHelper::ShowerWidths::sigma2xx, "sigma2xx"));
   pcaAssocMaps_.emplace_back(PCAAssocMap(&HGCalShowerShapeHelper::ShowerWidths::sigma2yy, "sigma2yy"));
   pcaAssocMaps_.emplace_back(PCAAssocMap(&HGCalShowerShapeHelper::ShowerWidths::sigma2zz, "sigma2zz"));
