@@ -253,7 +253,6 @@ CastorPedestalsAnalysis::~CastorPedestalsAnalysis() {
 
 // ------------ method called to for each event  ------------
 void CastorPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
-
   edm::Handle<CastorDigiCollection> castor;
   e.getByLabel(castorDigiCollectionTag, castor);
 
@@ -298,7 +297,7 @@ void CastorPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup
         HcalCastorDetId chanid(mygenid.rawId());
         a.detid = chanid;
         a.usedflag = false;
-	std::string type = "CASTOR";
+        std::string type = "CASTOR";
         for (int i = 0; i != 4; i++) {
           a.cap[i] = 0;
           a.capfc[i] = 0;

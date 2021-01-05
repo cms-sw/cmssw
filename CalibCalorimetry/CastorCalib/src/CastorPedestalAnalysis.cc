@@ -50,7 +50,8 @@ CastorPedestalAnalysis::CastorPedestalAnalysis(const edm::ParameterSet& ps)
   if (m_pedValflag < 0)
     m_pedValflag = 0;
   if (m_nevtsample > 0 && m_pedValflag > 0) {
-    edm::LogWarning("Castor") << "WARNING - incompatible cfg options: nevtsample = " << m_nevtsample << ", pedValflag = " << m_pedValflag;
+    edm::LogWarning("Castor") << "WARNING - incompatible cfg options: nevtsample = " << m_nevtsample
+                              << ", pedValflag = " << m_pedValflag;
     edm::LogWarning("Castor") << "Setting pedValflag = 0";
     m_pedValflag = 0;
   }
@@ -314,7 +315,9 @@ void CastorPedestalAnalysis::SampleAnalysis() {
 }
 
 //-----------------------------------------------------------------------------
-void CastorPedestalAnalysis::GetPedConst(std::map<HcalDetId, std::map<int, PEDBUNCH> >& toolT, TH1F* PedMeans, TH1F* PedWidths) {
+void CastorPedestalAnalysis::GetPedConst(std::map<HcalDetId, std::map<int, PEDBUNCH> >& toolT,
+                                         TH1F* PedMeans,
+                                         TH1F* PedWidths) {
   // Completely rewritten version oct 2006
   // Compute pedestal constants and fill into CastorPedestals and CastorPedestalWidths objects
   float cap[4];
