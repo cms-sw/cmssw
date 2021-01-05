@@ -9,7 +9,7 @@ EgammaL1TkIsolation::EgammaL1TkIsolation(const edm::ParameterSet& para)
       etaBoundaries_(para.getParameter<std::vector<double>>("etaBoundaries")) {
   const auto& trkCutParams = para.getParameter<std::vector<edm::ParameterSet>>("trkCuts");
   for (const auto& params : trkCutParams) {
-    trkCuts_.push_back(TrkCuts(params));
+    trkCuts_.emplace_back(TrkCuts(params));
   }
   if (etaBoundaries_.size() + 1 != trkCuts_.size()) {
     throw cms::Exception("ConfigError") << "EgammaL1TkIsolation: etaBoundaries parameters size ("
@@ -52,6 +52,25 @@ std::pair<int, double> EgammaL1TkIsolation::calIsol(const double objEta,
   return {nrTrks, ptSum};
 }
 
+EgammaL1TkIsolation::TrkCuts::TrkCuts(const edm::ParameterSet& para) {
+  minPt = para.getParameter<double>("minPt");
+  auto sq = [](double val) { return val * val; };
+  minDR2 = sq(para.getParameter<double>("minDR"));
+  maxDR2 = sq(para.getParameter<double>("maxDR"));
+  minDEta = para.getParameter<double>("minDEta");
+  maxDZ = para.getParameter<double>("maxDZ");
+}
+
+edm::ParameterSetDescription EgammaL1TkIsolation::TrkCuts::makePSetDescription() {
+  edm::ParameterSetDescription desc;
+  desc.add<double>("minPt", 2.0);
+  desc.add<double>("maxDR", 0.3);
+  desc.add<double>("minDR", 0.01);
+  desc.add<double>("minDEta", 0.003);
+  desc.add<double>("maxDZ", 0.7);
+  return desc;
+}
+
 //as we have verfied that trkCuts_ size is etaBoundaries_ size +1
 //then this is always a valid binnr for trkCuts_
 size_t EgammaL1TkIsolation::etaBinNr(double eta) const {
@@ -77,23 +96,4 @@ bool EgammaL1TkIsolation::passTrkSel(const L1Track& trk,
   }
 
   return false;
-}
-
-EgammaL1TkIsolation::TrkCuts::TrkCuts(const edm::ParameterSet& para) {
-  minPt = para.getParameter<double>("minPt");
-  auto sq = [](double val) { return val * val; };
-  minDR2 = sq(para.getParameter<double>("minDR"));
-  maxDR2 = sq(para.getParameter<double>("maxDR"));
-  minDEta = para.getParameter<double>("minDEta");
-  maxDZ = para.getParameter<double>("maxDZ");
-}
-
-edm::ParameterSetDescription EgammaL1TkIsolation::TrkCuts::makePSetDescription() {
-  edm::ParameterSetDescription desc;
-  desc.add<double>("minPt", 2.0);
-  desc.add<double>("maxDR", 0.3);
-  desc.add<double>("minDR", 0.01);
-  desc.add<double>("minDEta", 0.003);
-  desc.add<double>("maxDZ", 0.7);
-  return desc;
 }
