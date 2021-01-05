@@ -14,29 +14,28 @@ profile_base_2021 = profile_base.clone(
       cms.PSet( xangle = cms.double(184.017), fileName = cms.FileInPath("CalibPPS/ESProducers/data/optical_functions/2021/version_pre3/184.017urad.root") )
     ),
 
-    # TODO: add the new timing RPs (A units)
     scoringPlanes = cms.VPSet(
       # z in cm
       cms.PSet( rpId = cms.uint32(2014838784), dirName = cms.string("XRPH_D6L5_B2"), z = cms.double(-21255.1) ),  # RP 003, pixel
+      cms.PSet( rpId = cms.uint32(2056257536), dirName = cms.string("XRPH_A6L5_B2"), z = cms.double(-21507.8) ),  # RP 022, diamond
       cms.PSet( rpId = cms.uint32(2054160384), dirName = cms.string("XRPH_E6L5_B2"), z = cms.double(-21570.0) ),  # RP 016, diamond
       cms.PSet( rpId = cms.uint32(2023227392), dirName = cms.string("XRPH_B6L5_B2"), z = cms.double(-21955.0) ),  # RP 023, pixel
 
       cms.PSet( rpId = cms.uint32(2031616000), dirName = cms.string("XRPH_D6R5_B1"), z = cms.double(+21255.1) ),  # RP 103, pixel
+      cms.PSet( rpId = cms.uint32(2073034752), dirName = cms.string("XRPH_A6R5_B1"), z = cms.double(+21507.8) ),  # RP 122, diamond
       cms.PSet( rpId = cms.uint32(2070937600), dirName = cms.string("XRPH_E6R5_B1"), z = cms.double(+21570.0) ),  # RP 116, diamond
       cms.PSet( rpId = cms.uint32(2040004608), dirName = cms.string("XRPH_B6R5_B1"), z = cms.double(+21955.0) ),  # RP 123, pixel
     )
   ),
  
-  # FIXME: use something realistic
   ctppsDirectSimuData = dict(
-    empiricalAperture45 = cms.string("-(8.44219E-07*[xangle]-0.000100957)+(([xi]<(0.000247185*[xangle]+0.101599))*-(1.40289E-05*[xangle]-0.00727237)+([xi]> = (0.000247185*[xangle]+0.101599))*-(0.000107811*[xangle]-0.0261867))*([xi]-(0.000247185*[xangle]+0.101599))"),
-    empiricalAperture56 = cms.string("-(-4.74758E-07*[xangle]+3.0881E-05)+(([xi]<(0.000727859*[xangle]+0.0722653))*-(2.43968E-05*[xangle]-0.0085461)+([xi]> = (0.000727859*[xangle]+0.0722653))*-(7.19216E-05*[xangle]-0.0148267))*([xi]-(0.000727859*[xangle]+0.0722653))")
+    empiricalAperture45 = cms.string("1E3*([xi] - 0.20)"),
+    empiricalAperture56 = cms.string("1E3*([xi] - 0.20)")
   )
 )
 
 # geometry
-# FIXME: use 2021 geometry
-from Geometry.VeryForwardGeometry.geometryRPFromDD_2018_cfi import *
+from Geometry.VeryForwardGeometry.geometryRPFromDD_2021_cfi import *
 ctppsCompositeESSource.compactViewTag = ctppsGeometryESModule.compactViewTag
 del ctppsGeometryESModule # this functionality is replaced by the composite ES source
 
