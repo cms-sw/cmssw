@@ -93,6 +93,11 @@ private:
   template <typename T>
   void testTransitions(std::shared_ptr<T> iMod, Expectations const& iExpect);
 
+  template <typename Traits, typename Info>
+  void doWork(edm::Worker* iBase, Info const& info, edm::StreamID id, edm::ParentContext const& iContext) {
+    iBase->doWork<Traits>(info, id, iContext, nullptr);
+  }
+
   class BasicOutputModule : public edm::limited::OutputModule<> {
   public:
     using edm::limited::OutputModuleBase::doPreallocate;
@@ -180,14 +185,14 @@ testLimitedOutputModule::testLimitedOutputModule()
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalBegin> Traits;
     edm::ParentContext parentContext;
     edm::RunTransitionInfo info(*m_rp, *m_es);
-    iBase->doWork<Traits>(info, edm::StreamID::invalidStreamID(), parentContext, nullptr);
+    doWork<Traits>(iBase, info, edm::StreamID::invalidStreamID(), parentContext);
   };
 
   m_transToFunc[Trans::kGlobalBeginLuminosityBlock] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator*) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionGlobalBegin> Traits;
     edm::ParentContext parentContext;
     edm::LumiTransitionInfo info(*m_lbp, *m_es);
-    iBase->doWork<Traits>(info, edm::StreamID::invalidStreamID(), parentContext, nullptr);
+    doWork<Traits>(iBase, info, edm::StreamID::invalidStreamID(), parentContext);
   };
 
   m_transToFunc[Trans::kEvent] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator*) {
@@ -196,14 +201,14 @@ testLimitedOutputModule::testLimitedOutputModule()
     edm::ParentContext parentContext(&streamContext);
     iBase->setActivityRegistry(m_actReg);
     edm::EventTransitionInfo info(*m_ep, *m_es);
-    iBase->doWork<Traits>(info, s_streamID0, parentContext, nullptr);
+    doWork<Traits>(iBase, info, s_streamID0, parentContext);
   };
 
   m_transToFunc[Trans::kGlobalEndLuminosityBlock] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator* iComm) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionGlobalEnd> Traits;
     edm::ParentContext parentContext;
     edm::LumiTransitionInfo info(*m_lbp, *m_es);
-    iBase->doWork<Traits>(info, edm::StreamID::invalidStreamID(), parentContext, nullptr);
+    doWork<Traits>(iBase, info, edm::StreamID::invalidStreamID(), parentContext);
     auto t = edm::make_empty_waiting_task();
     t->increment_ref_count();
     iComm->writeLumiAsync(edm::WaitingTaskHolder(t.get()), *m_lbp, nullptr, &activityRegistry);
@@ -217,7 +222,7 @@ testLimitedOutputModule::testLimitedOutputModule()
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalEnd> Traits;
     edm::ParentContext parentContext;
     edm::RunTransitionInfo info(*m_rp, *m_es);
-    iBase->doWork<Traits>(info, edm::StreamID::invalidStreamID(), parentContext, nullptr);
+    doWork<Traits>(iBase, info, edm::StreamID::invalidStreamID(), parentContext);
     auto t = edm::make_empty_waiting_task();
     t->increment_ref_count();
     iComm->writeRunAsync(edm::WaitingTaskHolder(t.get()), *m_rp, nullptr, &activityRegistry, nullptr);

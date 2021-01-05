@@ -29,6 +29,25 @@
 
 #include "cppunit/extensions/HelperMacros.h"
 
+namespace {
+  struct ShadowStreamID {
+    constexpr ShadowStreamID() : value(0) {}
+    unsigned int value;
+  };
+
+  union IDUnion {
+    IDUnion() : m_shadow() {}
+    ShadowStreamID m_shadow;
+    edm::StreamID m_id;
+  };
+}  // namespace
+static edm::StreamID makeID() {
+  IDUnion u;
+  assert(u.m_id.value() == 0);
+  return u.m_id;
+}
+static const edm::StreamID s_streamID0 = makeID();
+
 class testStreamProducer : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testStreamProducer);
 
@@ -102,6 +121,11 @@ private:
 
   template <typename T, typename U>
   void testTransitions(std::shared_ptr<U> iMod, Expectations const& iExpect);
+
+  template <typename Traits, typename Info>
+  void doWork(edm::Worker* iBase, Info const& info, edm::ParentContext const& iContext) {
+    iBase->doWork<Traits>(info, s_streamID0, iContext, nullptr);
+  }
 
   template <typename T>
   void runTest(Expectations const& iExpect);
@@ -364,25 +388,6 @@ bool testStreamProducer::EndLumiSummaryProd::m_globalEndLuminosityBlockSummaryCa
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testStreamProducer);
 
-namespace {
-  struct ShadowStreamID {
-    constexpr ShadowStreamID() : value(0) {}
-    unsigned int value;
-  };
-
-  union IDUnion {
-    IDUnion() : m_shadow() {}
-    ShadowStreamID m_shadow;
-    edm::StreamID m_id;
-  };
-}  // namespace
-static edm::StreamID makeID() {
-  IDUnion u;
-  assert(u.m_id.value() == 0);
-  return u.m_id;
-}
-static const edm::StreamID s_streamID0 = makeID();
-
 testStreamProducer::testStreamProducer()
     : m_prodReg(new edm::ProductRegistry{}),
       m_idHelper(new edm::BranchIDListHelper{}),
@@ -425,26 +430,26 @@ testStreamProducer::testStreamProducer()
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalBegin> Traits;
     edm::ParentContext parentContext;
     edm::RunTransitionInfo info(*m_rp, *m_es);
-    iBase->doWork<Traits>(info, s_streamID0, parentContext, nullptr);
+    doWork<Traits>(iBase, info, parentContext);
   };
   m_transToFunc[Trans::kStreamBeginRun] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionStreamBegin> Traits;
     edm::ParentContext parentContext;
     edm::RunTransitionInfo info(*m_rp, *m_es);
-    iBase->doWork<Traits>(info, s_streamID0, parentContext, nullptr);
+    doWork<Traits>(iBase, info, parentContext);
   };
 
   m_transToFunc[Trans::kGlobalBeginLuminosityBlock] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionGlobalBegin> Traits;
     edm::ParentContext parentContext;
     edm::LumiTransitionInfo info(*m_lbp, *m_es);
-    iBase->doWork<Traits>(info, s_streamID0, parentContext, nullptr);
+    doWork<Traits>(iBase, info, parentContext);
   };
   m_transToFunc[Trans::kStreamBeginLuminosityBlock] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionStreamBegin> Traits;
     edm::ParentContext parentContext;
     edm::LumiTransitionInfo info(*m_lbp, *m_es);
-    iBase->doWork<Traits>(info, s_streamID0, parentContext, nullptr);
+    doWork<Traits>(iBase, info, parentContext);
   };
 
   m_transToFunc[Trans::kEvent] = [this](edm::Worker* iBase) {
@@ -453,33 +458,33 @@ testStreamProducer::testStreamProducer()
     edm::ParentContext parentContext(&streamContext);
     iBase->setActivityRegistry(m_actReg);
     edm::EventTransitionInfo info(*m_ep, *m_es);
-    iBase->doWork<Traits>(info, s_streamID0, parentContext, nullptr);
+    doWork<Traits>(iBase, info, parentContext);
   };
 
   m_transToFunc[Trans::kStreamEndLuminosityBlock] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionStreamEnd> Traits;
     edm::ParentContext parentContext;
     edm::LumiTransitionInfo info(*m_lbp, *m_es);
-    iBase->doWork<Traits>(info, s_streamID0, parentContext, nullptr);
+    doWork<Traits>(iBase, info, parentContext);
   };
   m_transToFunc[Trans::kGlobalEndLuminosityBlock] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionGlobalEnd> Traits;
     edm::ParentContext parentContext;
     edm::LumiTransitionInfo info(*m_lbp, *m_es);
-    iBase->doWork<Traits>(info, s_streamID0, parentContext, nullptr);
+    doWork<Traits>(iBase, info, parentContext);
   };
 
   m_transToFunc[Trans::kStreamEndRun] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionStreamEnd> Traits;
     edm::ParentContext parentContext;
     edm::RunTransitionInfo info(*m_rp, *m_es);
-    iBase->doWork<Traits>(info, s_streamID0, parentContext, nullptr);
+    doWork<Traits>(iBase, info, parentContext);
   };
   m_transToFunc[Trans::kGlobalEndRun] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalEnd> Traits;
     edm::ParentContext parentContext;
     edm::RunTransitionInfo info(*m_rp, *m_es);
-    iBase->doWork<Traits>(info, s_streamID0, parentContext, nullptr);
+    doWork<Traits>(iBase, info, parentContext);
   };
 
   m_transToFunc[Trans::kEndStream] = [](edm::Worker* iBase) {
