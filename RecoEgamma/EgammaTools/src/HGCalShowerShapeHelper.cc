@@ -3,7 +3,7 @@
 const double HGCalShowerShapeHelper::kLDWaferCellSize_ = 0.698;
 const double HGCalShowerShapeHelper::kHDWaferCellSize_ = 0.465;
 
-HGCalShowerShapeHelper::HGCalShowerShapeHelper(edm::ConsumesCollector &sumes)
+HGCalShowerShapeHelper::HGCalShowerShapeHelper(edm::ConsumesCollector &&sumes)
     : caloGeometryToken_{sumes.esConsumes()} {}
 
 void HGCalShowerShapeHelper::initPerEvent(const edm::EventSetup &iSetup, const std::vector<reco::PFRecHit> &pfRecHits) {
