@@ -44,11 +44,12 @@
 
 namespace {
 
-  class TrackerSurfaceDeformationsTest
-      : public cond::payloadInspector::Histogram1D<AlignmentSurfaceDeformations, cond::payloadInspector::SINGLE_IOV> {
+  using namespace cond::payloadInspector;
+
+  class TrackerSurfaceDeformationsTest : public Histogram1D<AlignmentSurfaceDeformations, SINGLE_IOV> {
   public:
     TrackerSurfaceDeformationsTest()
-        : cond::payloadInspector::Histogram1D<AlignmentSurfaceDeformations, cond::payloadInspector::SINGLE_IOV>(
+        : Histogram1D<AlignmentSurfaceDeformations, SINGLE_IOV>(
               "TrackerSurfaceDeformationsTest", "TrackerSurfaceDeformationsTest", 2, 0.0, 2.0) {}
 
     bool fill() override {
@@ -83,12 +84,10 @@ namespace {
   //*******************************************************
 
   template <AlignmentPI::partitions q>
-  class TrackerAlignmentSurfaceDeformationsSummary
-      : public cond::payloadInspector::PlotImage<AlignmentSurfaceDeformations, cond::payloadInspector::SINGLE_IOV> {
+  class TrackerAlignmentSurfaceDeformationsSummary : public PlotImage<AlignmentSurfaceDeformations, SINGLE_IOV> {
   public:
     TrackerAlignmentSurfaceDeformationsSummary()
-        : cond::payloadInspector::PlotImage<AlignmentSurfaceDeformations, cond::payloadInspector::SINGLE_IOV>(
-              "Details for " + AlignmentPI::getStringFromPart(q)) {}
+        : PlotImage<AlignmentSurfaceDeformations, SINGLE_IOV>("Details for " + AlignmentPI::getStringFromPart(q)) {}
 
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
@@ -178,12 +177,10 @@ namespace {
   //*******************************************************
 
   template <AlignmentPI::partitions q>
-  class TrackerAlignmentSurfaceDeformationsComparison
-      : public cond::payloadInspector::PlotImage<AlignmentSurfaceDeformations, cond::payloadInspector::MULTI_IOV> {
+  class TrackerAlignmentSurfaceDeformationsComparison : public PlotImage<AlignmentSurfaceDeformations, MULTI_IOV> {
   public:
     TrackerAlignmentSurfaceDeformationsComparison()
-        : cond::payloadInspector::PlotImage<AlignmentSurfaceDeformations, cond::payloadInspector::MULTI_IOV>(
-              "Details for " + AlignmentPI::getStringFromPart(q)) {}
+        : PlotImage<AlignmentSurfaceDeformations, MULTI_IOV>("Details for " + AlignmentPI::getStringFromPart(q)) {}
 
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
@@ -301,11 +298,10 @@ namespace {
   //   TrackerMap of single parameter
   // *************************************************/
   template <unsigned int par>
-  class SurfaceDeformationTrackerMap
-      : public cond::payloadInspector::PlotImage<AlignmentSurfaceDeformations, cond::payloadInspector::SINGLE_IOV> {
+  class SurfaceDeformationTrackerMap : public PlotImage<AlignmentSurfaceDeformations, SINGLE_IOV> {
   public:
     SurfaceDeformationTrackerMap()
-        : cond::payloadInspector::PlotImage<AlignmentSurfaceDeformations, cond::payloadInspector::SINGLE_IOV>(
+        : PlotImage<AlignmentSurfaceDeformations, SINGLE_IOV>(
               "Tracker Map of Tracker Surface deformations - parameter: " + std::to_string(par)) {}
 
     bool fill() override {
@@ -398,11 +394,10 @@ namespace {
   //   TrackerMap of single parameter
   // *************************************************/
   template <unsigned int m_par>
-  class SurfaceDeformationsTkMapDelta
-      : public cond::payloadInspector::PlotImage<AlignmentSurfaceDeformations, cond::payloadInspector::MULTI_IOV> {
+  class SurfaceDeformationsTkMapDelta : public PlotImage<AlignmentSurfaceDeformations, MULTI_IOV> {
   public:
     SurfaceDeformationsTkMapDelta()
-        : cond::payloadInspector::PlotImage<AlignmentSurfaceDeformations, cond::payloadInspector::MULTI_IOV>(
+        : PlotImage<AlignmentSurfaceDeformations, MULTI_IOV>(
               "Tracker Map of Tracker Surface deformations differences - parameter: " + std::to_string(m_par)) {}
 
     bool fill() override {
@@ -568,12 +563,11 @@ namespace {
   // *************************************************/
 
   template <unsigned int m_par>
-  class TrackerSurfaceDeformationsComparator
-      : public cond::payloadInspector::PlotImage<AlignmentSurfaceDeformations, cond::payloadInspector::MULTI_IOV> {
+  class TrackerSurfaceDeformationsComparator : public PlotImage<AlignmentSurfaceDeformations, MULTI_IOV> {
   public:
     TrackerSurfaceDeformationsComparator()
-        : cond::payloadInspector::PlotImage<AlignmentSurfaceDeformations, cond::payloadInspector::MULTI_IOV>(
-              "Summary per Tracker region of parameter " + std::to_string(m_par) + " of Surface Deformations") {}
+        : PlotImage<AlignmentSurfaceDeformations, MULTI_IOV>("Summary per Tracker region of parameter " +
+                                                             std::to_string(m_par) + " of Surface Deformations") {}
 
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
