@@ -44,7 +44,6 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/InitialClusteringStepBase.h"
 
 class HGCalShowerShapeHelper {
-
   // Good to filter/compute/store this stuff beforehand as they are common to the shower shape variables.
   // No point in filtering, computing layer-wise centroids, etc. for each variable again and again.
   // Once intitialized, one can the calculate different variables one after another for a given object.
@@ -127,7 +126,6 @@ private:
   ROOT::Math::XYZVector centroid_;
   std::vector<double> layerEnergies_;
   std::vector<ROOT::Math::XYZVector> layerCentroids_;
-
 };
 
 #endif
