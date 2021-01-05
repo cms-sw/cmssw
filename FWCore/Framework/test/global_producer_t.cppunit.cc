@@ -10,6 +10,7 @@
 #include <vector>
 #include <map>
 #include <functional>
+#include "tbb/global_control.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/src/WorkerT.h"
 #include "FWCore/Framework/src/ModuleHolder.h"
@@ -125,7 +126,14 @@ private:
 
   template <typename Traits, typename Info>
   void doWork(edm::Worker* iBase, Info const& info, edm::ParentContext const& iContext) {
-    iBase->doWork<Traits>(info, s_streamID0, iContext, nullptr);
+    auto task = edm::make_empty_waiting_task();
+    task->increment_ref_count();
+    iBase->doWorkAsync<Traits>(
+        edm::WaitingTaskHolder(task.get()), info, edm::ServiceToken(), s_streamID0, iContext, nullptr);
+    task->wait_for_all();
+    if (auto e = task->exceptionPtr()) {
+      std::rethrow_exception(*e);
+    }
   }
 
   class BasicProd : public edm::global::EDProducer<> {
@@ -440,6 +448,8 @@ namespace {
 
 template <typename T>
 void testGlobalProducer::testTransitions(std::shared_ptr<T> iMod, Expectations const& iExpect) {
+  tbb::global_control control(tbb::global_control::max_allowed_parallelism, 1);
+
   edm::maker::ModuleHolderT<edm::global::EDProducerBase> h(iMod, nullptr);
   h.preallocate(edm::PreallocationConfiguration{});
 

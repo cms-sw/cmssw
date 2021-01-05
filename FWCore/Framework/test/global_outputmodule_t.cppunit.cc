@@ -8,6 +8,7 @@
 #include <vector>
 #include <map>
 #include <functional>
+#include "tbb/global_control.h"
 #include "FWCore/Framework/interface/global/OutputModule.h"
 #include "FWCore/Framework/src/OutputModuleCommunicatorT.h"
 #include "FWCore/Framework/src/TransitionInfoTypes.h"
@@ -95,7 +96,13 @@ private:
 
   template <typename Traits, typename Info>
   void doWork(edm::Worker* iBase, Info const& info, edm::StreamID id, edm::ParentContext const& iContext) {
-    iBase->doWork<Traits>(info, id, iContext, nullptr);
+    auto task = edm::make_empty_waiting_task();
+    task->increment_ref_count();
+    iBase->doWorkAsync<Traits>(edm::WaitingTaskHolder(task.get()), info, edm::ServiceToken(), id, iContext, nullptr);
+    task->wait_for_all();
+    if (auto e = task->exceptionPtr()) {
+      std::rethrow_exception(*e);
+    }
   }
 
   class BasicOutputModule : public edm::global::OutputModule<> {
@@ -284,6 +291,8 @@ namespace {
 
 template <typename T>
 void testGlobalOutputModule::testTransitions(std::shared_ptr<T> iMod, Expectations const& iExpect) {
+  tbb::global_control control(tbb::global_control::max_allowed_parallelism, 1);
+
   iMod->doPreallocate(m_preallocConfig);
   edm::WorkerT<edm::global::OutputModuleBase> w{iMod, m_desc, m_params.actions_};
   edm::OutputModuleCommunicatorT<edm::global::OutputModuleBase> comm(iMod.get());
