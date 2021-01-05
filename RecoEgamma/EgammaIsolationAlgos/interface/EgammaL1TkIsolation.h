@@ -1,5 +1,5 @@
-#ifndef RECOEGAMMA_EGAMMAISOLATIONALGOS_EGAMMAL1TKISOLATION_H
-#define RECOEGAMMA_EGAMMAISOLATIONALGOS_EGAMMAL1TKISOLATION_H
+#ifndef RecoEgamma_EgammaIsolationAlgos_EgammaL1TkIsolation_h
+#define RecoEgamma_EgammaIsolationAlgos_EgammaL1TkIsolation_h
 
 #include "DataFormats/L1TrackTrigger/interface/L1Track.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
@@ -13,9 +13,6 @@
 class EgammaL1TkIsolation {
 public:
   explicit EgammaL1TkIsolation(const edm::ParameterSet& para);
-  EgammaL1TkIsolation(const EgammaL1TkIsolation&) = default;
-  ~EgammaL1TkIsolation() = default;
-  EgammaL1TkIsolation& operator=(const EgammaL1TkIsolation&) = default;
 
   static void fillPSetDescription(edm::ParameterSetDescription& desc);
   static edm::ParameterSetDescription makePSetDescription() {
@@ -48,10 +45,6 @@ private:
     static edm::ParameterSetDescription makePSetDescription();
   };
 
-  bool useAbsEta_;
-  std::vector<double> etaBoundaries_;
-  std::vector<TrkCuts> trkCuts_;
-
   size_t etaBinNr(double eta) const;
   static bool passTrkSel(const L1Track& trk,
                          const double trkPt,
@@ -59,6 +52,10 @@ private:
                          const double objEta,
                          const double objPhi,
                          const double objZ);
+
+  bool useAbsEta_;
+  std::vector<double> etaBoundaries_;
+  std::vector<TrkCuts> trkCuts_;
 };
 
 #endif
