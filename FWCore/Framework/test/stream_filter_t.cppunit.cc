@@ -9,6 +9,7 @@
 #include <vector>
 #include <map>
 #include <functional>
+#include "tbb/global_control.h"
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/WorkerT.h"
 #include "FWCore/Framework/src/ModuleHolder.h"
@@ -124,7 +125,14 @@ private:
 
   template <typename Traits, typename Info>
   void doWork(edm::Worker* iBase, Info const& info, edm::ParentContext const& iContext) {
-    iBase->doWork<Traits>(info, s_streamID0, iContext, nullptr);
+    auto task = edm::make_empty_waiting_task();
+    task->increment_ref_count();
+    iBase->doWorkAsync<Traits>(
+        edm::WaitingTaskHolder(task.get()), info, edm::ServiceToken(), s_streamID0, iContext, nullptr);
+    task->wait_for_all();
+    if (auto e = task->exceptionPtr()) {
+      std::rethrow_exception(*e);
+    }
   }
 
   template <typename T>
@@ -563,6 +571,8 @@ namespace {
 
 template <typename T, typename U>
 void testStreamFilter::testTransitions(std::shared_ptr<U> iMod, Expectations const& iExpect) {
+  tbb::global_control control(tbb::global_control::max_allowed_parallelism, 1);
+
   edm::WorkerT<edm::stream::EDFilterAdaptorBase> w{iMod, m_desc, nullptr};
   for (auto& keyVal : m_transToFunc) {
     testTransition<T>(&w, keyVal.first, iExpect, keyVal.second);
