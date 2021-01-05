@@ -458,9 +458,7 @@ void CTPPSDirectProtonSimulation::processProton(
       const auto &gl_a1 = geometry.localToGlobal(detId, CTPPSGeometry::Vector(1, 0, 0)) - gl_o;
       const auto &gl_a2 = geometry.localToGlobal(detId, CTPPSGeometry::Vector(0, 1, 0)) - gl_o;
 
-      double gl_o_z = gl_o.z();
-      if (detId.subdetId() == CTPPSDetId::sdTimingDiamond)
-        gl_o_z = -gl_o_z;  // fix bug in diamond geometry
+      const double gl_o_z = gl_o.z();
 
       TMatrixD A(3, 3);
       TVectorD B(3);
