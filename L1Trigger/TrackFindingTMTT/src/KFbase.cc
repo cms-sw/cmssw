@@ -719,7 +719,7 @@ namespace tmtt {
     unsigned int kalmanLay = layerMap[kfEtaReg][layerIDreduced];
 
     // Fixes to layermap when "maybe layer" used
-    if (settings_->KFUseMaybeLayers()) {
+    if (settings_->kfUseMaybeLayers()) {
       switch (kfEtaReg) {
         case 5:  //case 5: B1 B2 (B3+B4)* D1 D2 D3+D4 D5+D6  -- B3 is combined with B4 and is flagged as "maybe layer"
           if (layerIDreduced == 6) {
@@ -825,7 +825,7 @@ namespace tmtt {
     }
 
     bool ambiguous = false;
-    if (settings_->KFUseMaybeLayers())
+    if (settings_->kfUseMaybeLayers())
       ambiguous = ambiguityMap[kfEtaReg][kfLayer];
 
     return ambiguous;
