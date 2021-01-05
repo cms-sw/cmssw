@@ -54,6 +54,7 @@ private:
   const edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateToken_;
   const edm::EDGetTokenT<reco::PFRecHitCollection> hgcalRecHitToken_;
   const edm::EDGetTokenT<reco::CaloClusterCollection> layerClusterToken_;
+  HGCalShowerShapeHelper ssCalc_;
 };
 
 EgammaHLTHGCalIDVarProducer::EgammaHLTHGCalIDVarProducer(const edm::ParameterSet& config)
@@ -62,7 +63,9 @@ EgammaHLTHGCalIDVarProducer::EgammaHLTHGCalIDVarProducer(const edm::ParameterSet
       recoEcalCandidateToken_(
           consumes<reco::RecoEcalCandidateCollection>(config.getParameter<edm::InputTag>("recoEcalCandidateProducer"))),
       hgcalRecHitToken_(consumes<reco::PFRecHitCollection>(config.getParameter<edm::InputTag>("hgcalRecHits"))),
-      layerClusterToken_(consumes<reco::CaloClusterCollection>(config.getParameter<edm::InputTag>("layerClusters"))) {
+      layerClusterToken_(consumes<reco::CaloClusterCollection>(config.getParameter<edm::InputTag>("layerClusters"))),
+      ssCalc_(consumesCollector())
+{
   pcaAssocMaps_.emplace_back(PCAAssocMap(&HGCalShowerShapeHelper::ShowerWidths::sigma2xx, "sigma2xx"));
   pcaAssocMaps_.emplace_back(PCAAssocMap(&HGCalShowerShapeHelper::ShowerWidths::sigma2yy, "sigma2yy"));
   pcaAssocMaps_.emplace_back(PCAAssocMap(&HGCalShowerShapeHelper::ShowerWidths::sigma2zz, "sigma2zz"));
@@ -97,9 +100,7 @@ void EgammaHLTHGCalIDVarProducer::produce(edm::Event& iEvent, const edm::EventSe
   const auto& hgcalRecHits = iEvent.get(hgcalRecHitToken_);
   const auto& layerClusters = iEvent.get(layerClusterToken_);
 
-  auto theconsumes = consumesCollector();
-  HGCalShowerShapeHelper ssCalc(theconsumes);
-  ssCalc.initPerEvent(iSetup, hgcalRecHits);
+  ssCalc_.initPerEvent(iSetup, hgcalRecHits);
 
   auto rVarMap = std::make_unique<reco::RecoEcalCandidateIsolationMap>(recoEcalCandHandle);
   auto hForHoverEMap = std::make_unique<reco::RecoEcalCandidateIsolationMap>(recoEcalCandHandle);
@@ -109,13 +110,13 @@ void EgammaHLTHGCalIDVarProducer::produce(edm::Event& iEvent, const edm::EventSe
 
   for (size_t candNr = 0; candNr < recoEcalCandHandle->size(); candNr++) {
     reco::RecoEcalCandidateRef candRef(recoEcalCandHandle, candNr);
-    ssCalc.initPerObject(candRef->superCluster()->hitsAndFractions());
-    rVarMap->insert(candRef, ssCalc.getRvar(rCylinder_, candRef->superCluster()->energy()));
+    ssCalc_.initPerObject(candRef->superCluster()->hitsAndFractions());
+    rVarMap->insert(candRef, ssCalc_.getRvar(rCylinder_, candRef->superCluster()->energy()));
 
     float hForHoverE = HGCalClusterTools::hadEnergyInCone(
         candRef->superCluster()->eta(), candRef->superCluster()->phi(), layerClusters, 0., hOverECone_, 0., 0.);
     hForHoverEMap->insert(candRef, hForHoverE);
-    auto pcaWidths = ssCalc.getPCAWidths(rCylinder_);
+    auto pcaWidths = ssCalc_.getPCAWidths(rCylinder_);
     for (auto& pcaMap : pcaAssocMaps_) {
       pcaMap.insert(candRef, pcaWidths);
     }
