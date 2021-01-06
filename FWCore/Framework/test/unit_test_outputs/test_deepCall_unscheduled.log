@@ -244,8 +244,6 @@ ModuleCallingContext state = Running
 ++++++++ starting: processing event for module: stream = 0 label = 'p' id = 2
 ++++++++ finished: processing event for module: stream = 0 label = 'p' id = 2
 ++++++ finished: processing path 'p' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 1 lumi = 1 event = 1 time = 1000010
@@ -360,8 +358,6 @@ ModuleCallingContext state = Running
 ++++++++ starting: processing event for module: stream = 0 label = 'p' id = 2
 ++++++++ finished: processing event for module: stream = 0 label = 'p' id = 2
 ++++++ finished: processing path 'p' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 1 lumi = 1 event = 2 time = 1000020
@@ -476,8 +472,6 @@ ModuleCallingContext state = Running
 ++++++++ starting: processing event for module: stream = 0 label = 'p' id = 2
 ++++++++ finished: processing event for module: stream = 0 label = 'p' id = 2
 ++++++ finished: processing path 'p' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 1 lumi = 1 event = 3 time = 1000030
