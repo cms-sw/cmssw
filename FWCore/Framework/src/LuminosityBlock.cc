@@ -65,6 +65,10 @@ namespace edm {
     return luminosityBlockPrincipal().getProvenance(bid, moduleCallingContext_);
   }
 
+  StableProvenance LuminosityBlock::getStableProvenance(BranchID const& bid) const {
+    return luminosityBlockPrincipal().getStableProvenance(bid);
+  }
+
   void LuminosityBlock::getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const {
     luminosityBlockPrincipal().getAllStableProvenance(provenances);
   }

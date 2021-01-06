@@ -356,6 +356,11 @@ namespace edm {
     return getProvenance(bid, mcc);
   }
 
+  StableProvenance const& EventPrincipal::getStableProvenance(ProductID const& pid) const {
+    BranchID bid = pidToBid(pid);
+    return getStableProvenance(bid);
+  }
+
   EventSelectionIDVector const& EventPrincipal::eventSelectionIDs() const { return eventSelectionIDs_; }
 
   BranchListIndexes const& EventPrincipal::branchListIndexes() const { return branchListIndexes_; }

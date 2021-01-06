@@ -122,6 +122,14 @@ namespace edm {
     return eventPrincipal().getProvenance(pid, moduleCallingContext_);
   }
 
+  StableProvenance const& Event::getStableProvenance(BranchID const& bid) const {
+    return provRecorder_.principal().getStableProvenance(bid);
+  }
+
+  StableProvenance const& Event::getStableProvenance(ProductID const& pid) const {
+    return eventPrincipal().getStableProvenance(pid);
+  }
+
   void Event::getAllProvenance(std::vector<Provenance const*>& provenances) const {
     provRecorder_.principal().getAllProvenance(provenances);
   }

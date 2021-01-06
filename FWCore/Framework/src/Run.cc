@@ -30,6 +30,10 @@ namespace edm {
     return runPrincipal().getProvenance(bid, moduleCallingContext_);
   }
 
+  StableProvenance Run::getStableProvenance(BranchID const& bid) const {
+    return runPrincipal().getStableProvenance(bid);
+  }
+
   void Run::getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const {
     runPrincipal().getAllStableProvenance(provenances);
   }
