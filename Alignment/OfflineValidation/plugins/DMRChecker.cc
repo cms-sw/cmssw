@@ -53,7 +53,7 @@
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "CommonTools/Utils/interface/TFileDirectory.h"
-#include "CondCore/SiPixelPlugins/interface/Phase1PixelMaps.h"
+#include "DQM/TrackerRemapper/interface/Phase1PixelMaps.h"
 #include "CondCore/SiPixelPlugins/interface/PixelRegionContainers.h"
 #include "CondCore/SiPixelPlugins/interface/SiPixelPayloadInspectorHelper.h"
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
