@@ -1,8 +1,10 @@
 #ifndef L1Trigger_TrackFindingTMTT_Array2D_h
 #define L1Trigger_TrackFindingTMTT_Array2D_h
 
+#include "FWCore/Utilities/interface/Exception.h"
+
 #include <vector>
-#include <stdexcept>
+#include <utility>
 
 //=== Generic 2D array class.
 
@@ -20,19 +22,16 @@ namespace tmtt {
     Array2D(unsigned int m, unsigned int n) : array2D_(m * n), m_{m}, n_{n} {}
 
     const T& operator()(unsigned int i, unsigned int j) const {
-      checkBounds(i, j);
-      return array2D_.at(i * n_ + j);
-    }
-
-    T& operator()(unsigned int i, unsigned int j) {
-      checkBounds(i, j);
+      if (i >= m_ || j >= n_)
+        throw cms::Exception("LogicError")
+            << "Array2D: indices out of range " << i << " " << j << " " << m_ << " " << n_;
       return array2D_[i * n_ + j];
     }
 
-  private:
-    void checkBounds(unsigned int i, unsigned int j) const {
-      if (i >= m_ || j >= n_)
-        throw std::out_of_range("matrix access out of bounds");
+    T& operator()(unsigned int i, unsigned int j) {
+      // Non-const version of operator, without needing to duplicate code.
+      // (Scott Meyers trick).
+      return const_cast<T&>(std::as_const(*this)(i, j));
     }
 
   private:
