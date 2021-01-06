@@ -423,8 +423,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 1 lumi = 1 event = 1 time = 5000001
@@ -484,8 +482,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -526,8 +522,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -585,8 +579,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 1 lumi = 1 event = 2 time = 10000001
@@ -646,8 +638,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -688,8 +678,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -747,8 +735,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 1 lumi = 1 event = 3 time = 15000001
@@ -808,8 +794,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -850,8 +834,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -909,8 +891,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 1 lumi = 1 event = 4 time = 20000001
@@ -970,8 +950,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -1012,8 +990,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -1213,8 +1189,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 1 lumi = 2 event = 5 time = 25000001
@@ -1274,8 +1248,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -1316,8 +1288,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -1375,8 +1345,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 1 lumi = 2 event = 6 time = 30000001
@@ -1436,8 +1404,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -1478,8 +1444,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -1537,8 +1501,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 1 lumi = 2 event = 7 time = 35000001
@@ -1598,8 +1560,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -1640,8 +1600,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -1699,8 +1657,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 1 lumi = 2 event = 8 time = 40000001
@@ -1760,8 +1716,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -1802,8 +1756,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -2003,8 +1955,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 1 lumi = 3 event = 9 time = 45000001
@@ -2064,8 +2014,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -2106,8 +2054,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -2165,8 +2111,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 1 lumi = 3 event = 10 time = 50000001
@@ -2226,8 +2170,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -2268,8 +2210,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -2611,8 +2551,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 2 lumi = 1 event = 1 time = 55000001
@@ -2672,8 +2610,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -2714,8 +2650,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -2773,8 +2707,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 2 lumi = 1 event = 2 time = 60000001
@@ -2834,8 +2766,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -2876,8 +2806,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -2935,8 +2863,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 2 lumi = 1 event = 3 time = 65000001
@@ -2996,8 +2922,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -3038,8 +2962,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -3097,8 +3019,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 2 lumi = 1 event = 4 time = 70000001
@@ -3158,8 +3078,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -3200,8 +3118,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -3401,8 +3317,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 2 lumi = 2 event = 5 time = 75000001
@@ -3462,8 +3376,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -3504,8 +3416,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -3563,8 +3473,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 2 lumi = 2 event = 6 time = 80000001
@@ -3624,8 +3532,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -3666,8 +3572,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -3725,8 +3629,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 2 lumi = 2 event = 7 time = 85000001
@@ -3786,8 +3688,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -3828,8 +3728,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -3887,8 +3785,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 2 lumi = 2 event = 8 time = 90000001
@@ -3948,8 +3844,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -3990,8 +3884,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -4191,8 +4083,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 2 lumi = 3 event = 9 time = 95000001
@@ -4252,8 +4142,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -4294,8 +4182,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -4353,8 +4239,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 2 lumi = 3 event = 10 time = 100000001
@@ -4414,8 +4298,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -4456,8 +4338,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -4799,8 +4679,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 3 lumi = 1 event = 1 time = 105000001
@@ -4860,8 +4738,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -4902,8 +4778,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -4961,8 +4835,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 3 lumi = 1 event = 2 time = 110000001
@@ -5022,8 +4894,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -5064,8 +4934,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -5123,8 +4991,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 3 lumi = 1 event = 3 time = 115000001
@@ -5184,8 +5050,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -5226,8 +5090,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -5285,8 +5147,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 3 lumi = 1 event = 4 time = 120000001
@@ -5346,8 +5206,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -5388,8 +5246,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -5589,8 +5445,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 3 lumi = 2 event = 5 time = 125000001
@@ -5650,8 +5504,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -5692,8 +5544,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -5751,8 +5601,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 3 lumi = 2 event = 6 time = 130000001
@@ -5812,8 +5660,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -5854,8 +5700,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -5913,8 +5757,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 3 lumi = 2 event = 7 time = 135000001
@@ -5974,8 +5816,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -6016,8 +5856,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -6075,8 +5913,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 3 lumi = 2 event = 8 time = 140000001
@@ -6136,8 +5972,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -6178,8 +6012,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -6379,8 +6211,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 3 lumi = 3 event = 9 time = 145000001
@@ -6440,8 +6270,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -6482,8 +6310,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -6541,8 +6367,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 3 lumi = 3 event = 10 time = 150000001
@@ -6602,8 +6426,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -6644,8 +6466,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
