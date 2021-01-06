@@ -173,6 +173,7 @@ namespace edm {
     }
 
     Provenance getProvenance(BranchID const& bid, ModuleCallingContext const* mcc) const;
+    StableProvenance const& getStableProvenance(BranchID const& bid) const;
 
     void getAllProvenance(std::vector<Provenance const*>& provenances) const;
 

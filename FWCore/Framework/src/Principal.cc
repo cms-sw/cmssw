@@ -835,6 +835,15 @@ namespace edm {
     return *phb->provenance();
   }
 
+  StableProvenance const& Principal::getStableProvenance(BranchID const& bid) const {
+    ConstProductResolverPtr const phb = getProductResolver(bid);
+    if (phb == nullptr) {
+      throwProductNotFoundException("getStableProvenance", errors::ProductNotFound, bid);
+    }
+    //NOTE: in all implementations, this never returns a nullptr
+    return *phb->stableProvenance();
+  }
+
   // This one is mostly for test printout purposes
   // No attempt to trigger on demand execution
   // Skips provenance when the EDProduct is not there
