@@ -1,5 +1,5 @@
-#ifndef CONDCORE_SISTRIPPLUGINS_SISTRIPTKMAPS_H
-#define CONDCORE_SISTRIPPLUGINS_SISTRIPTKMAPS_H
+#ifndef DQM_TRACKERREMAPPER_SISTRIPTKMAPS_H
+#define DQM_TRACKERREMAPPER_SISTRIPTKMAPS_H
 
 // CMSSW includes
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"

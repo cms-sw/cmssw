@@ -22,7 +22,7 @@
 
 // needed for the tracker map
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
-#include "CondCore/SiStripPlugins/interface/SiStripTkMaps.h"
+#include "DQM/TrackerRemapper/interface/SiStripTkMaps.h"
 
 // auxilliary functions
 #include "CondCore/SiStripPlugins/interface/SiStripPayloadInspectorHelper.h"
