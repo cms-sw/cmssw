@@ -143,7 +143,7 @@ void L3TkMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
     //check whether there is a "shared" seed in addition
     if (!gotL3seeds) {
       //need to fetch the handle from the ref
-      const edm::Provenance& seedsProv = event.getProvenance(l3seedRef.id());
+      const edm::StableProvenance& seedsProv = event.getStableProvenance(l3seedRef.id());
       edm::InputTag l3seedsTag(seedsProv.moduleLabel(), seedsProv.productInstanceName(), seedsProv.processName());
       event.getByLabel(l3seedsTag, l3seeds);
       gotL3seeds = true;
