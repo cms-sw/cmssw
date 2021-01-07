@@ -172,7 +172,7 @@ namespace edm {
       return boost::make_filter_iterator<FilledProductPtr>(productResolvers_.end(), productResolvers_.end());
     }
 
-    Provenance getProvenance(BranchID const& bid) const;
+    Provenance const& getProvenance(BranchID const& bid) const;
     StableProvenance const& getStableProvenance(BranchID const& bid) const;
 
     void getAllProvenance(std::vector<Provenance const*>& provenances) const;

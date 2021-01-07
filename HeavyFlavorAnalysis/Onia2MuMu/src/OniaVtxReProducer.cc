@@ -40,7 +40,7 @@ OniaVtxReProducer::OniaVtxReProducer(const edm::Handle<reco::VertexCollection> &
   bool foundTracks = false;
   bool foundBeamSpot = false;
   for (std::vector<edm::BranchID>::const_iterator it = parents.begin(), ed = parents.end(); it != ed; ++it) {
-    edm::Provenance parprov = iEvent.getProvenance(*it);
+    const edm::Provenance &parprov = iEvent.getProvenance(*it);
     if (parprov.friendlyClassName() == "recoTracks") {
       tracksTag_ = edm::InputTag(parprov.moduleLabel(), parprov.productInstanceName(), parprov.processName());
       foundTracks = true;

@@ -821,7 +821,7 @@ namespace edm {
     return productData;
   }
 
-  Provenance Principal::getProvenance(BranchID const& bid) const {
+  Provenance const& Principal::getProvenance(BranchID const& bid) const {
     ConstProductResolverPtr const phb = getProductResolver(bid);
     if (phb == nullptr) {
       throwProductNotFoundException("getProvenance", errors::ProductNotFound, bid);

@@ -26,9 +26,9 @@ namespace edm {
 
   RunPrincipal const& Run::runPrincipal() const { return dynamic_cast<RunPrincipal const&>(provRecorder_.principal()); }
 
-  Provenance Run::getProvenance(BranchID const& bid) const { return runPrincipal().getProvenance(bid); }
+  Provenance const& Run::getProvenance(BranchID const& bid) const { return runPrincipal().getProvenance(bid); }
 
-  StableProvenance Run::getStableProvenance(BranchID const& bid) const {
+  StableProvenance const& Run::getStableProvenance(BranchID const& bid) const {
     return runPrincipal().getStableProvenance(bid);
   }
 
