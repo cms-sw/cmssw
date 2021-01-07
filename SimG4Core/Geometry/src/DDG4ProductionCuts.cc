@@ -115,11 +115,11 @@ void DDG4ProductionCuts::dd4hepInitialize() {
   for (auto const& it : *dd4hepMap_) {
     for (auto const& fit : specs) {
       for (auto const& pit : fit.second->paths) {
-        const std::string_view selection = dd4hep::dd::realTopName(pit);
+        const std::string_view selection = dd4hep::dd::noNamespace(dd4hep::dd::realTopName(pit));
         const std::string_view name = dd4hep::dd::noNamespace(it.first.name());
         if (!(dd4hep::dd::isRegex(selection))
                 ? dd4hep::dd::compareEqual(name, selection)
-                : std::regex_match(name.begin(), name.end(), std::regex(std::string(selection)))) {
+                : std::regex_match(name.begin(), name.end(), std::regex(selection.begin(), selection.end()))) {
           dd4hepVec_.emplace_back(std::make_pair<G4LogicalVolume*, const dd4hep::SpecPar*>(&*it.second, &*fit.second));
         }
       }
