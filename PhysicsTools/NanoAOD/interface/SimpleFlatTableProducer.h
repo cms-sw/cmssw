@@ -19,7 +19,8 @@ class SimpleFlatTableProducerBase : public edm::stream::EDProducer<> {
             name_( params.getParameter<std::string>("name") ),
             doc_(params.existsAs<std::string>("doc") ? params.getParameter<std::string>("doc") : ""),
             extension_(params.existsAs<bool>("extension") ? params.getParameter<bool>("extension") : false),
-            src_(consumes<TProd>( params.getParameter<edm::InputTag>("src") )) 
+            skipNonExistingSrc_(params.existsAs<bool>("skipNonExistingSrc") ? params.getParameter<bool>("skipNonExistingSrc") : false),
+            src_(skipNonExistingSrc_ ? mayConsume<TProd>(params.getParameter<edm::InputTag>("src")) : consumes<TProd>(params.getParameter<edm::InputTag>("src"))) {
         {
             edm::ParameterSet const & varsPSet = params.getParameter<edm::ParameterSet>("variables");
             for (const std::string & vname : varsPSet.getParameterNamesForType<edm::ParameterSet>()) {
@@ -55,6 +56,7 @@ class SimpleFlatTableProducerBase : public edm::stream::EDProducer<> {
         const std::string name_; 
         const std::string doc_;
         const bool extension_;
+        const bool skipNonExistingSrc_;
         const edm::EDGetTokenT<TProd> src_;
 
         class VariableBase {
@@ -122,11 +124,11 @@ class SimpleFlatTableProducer : public SimpleFlatTableProducerBase<T, edm::View<
                 for (const std::string & vname : extvarsPSet.getParameterNamesForType<edm::ParameterSet>()) {
                     const auto & varPSet = extvarsPSet.getParameter<edm::ParameterSet>(vname);
                     const std::string & type = varPSet.getParameter<std::string>("type");
-                    if (type == "int") extvars_.push_back(new IntExtVar(vname, nanoaod::FlatTable::IntColumn, varPSet, this->consumesCollector()));
-                    else if (type == "float") extvars_.push_back(new FloatExtVar(vname, nanoaod::FlatTable::FloatColumn, varPSet, this->consumesCollector()));
-                    else if (type == "double") extvars_.push_back(new DoubleExtVar(vname, nanoaod::FlatTable::FloatColumn, varPSet, this->consumesCollector()));
-                    else if (type == "uint8") extvars_.push_back(new UInt8ExtVar(vname, nanoaod::FlatTable::UInt8Column, varPSet, this->consumesCollector()));
-                    else if (type == "bool") extvars_.push_back(new BoolExtVar(vname, nanoaod::FlatTable::BoolColumn, varPSet, this->consumesCollector()));
+                    if (type == "int") extvars_.push_back(new IntExtVar(vname, nanoaod::FlatTable::IntColumn, varPSet, this->consumesCollector(), this->skipNonExistingSrc_));
+                    else if (type == "float") extvars_.push_back(new FloatExtVar(vname, nanoaod::FlatTable::FloatColumn, varPSet, this->consumesCollector(), this->skipNonExistingSrc_));
+                    else if (type == "double") extvars_.push_back(new DoubleExtVar(vname, nanoaod::FlatTable::FloatColumn, varPSet, this->consumesCollector(), this->skipNonExistingSrc_));
+                    else if (type == "uint8") extvars_.push_back(new UInt8ExtVar(vname, nanoaod::FlatTable::UInt8Column, varPSet, this->consumesCollector(), this->skipNonExistingSrc_));
+                    else if (type == "bool") extvars_.push_back(new BoolExtVar(vname, nanoaod::FlatTable::BoolColumn, varPSet, this->consumesCollector(), this->skipNonExistingSrc_));
                     else throw cms::Exception("Configuration", "unsupported type "+type+" for variable "+vname);
                 }
             }
@@ -137,18 +139,20 @@ class SimpleFlatTableProducer : public SimpleFlatTableProducerBase<T, edm::View<
         std::unique_ptr<nanoaod::FlatTable> fillTable(const edm::Event &iEvent, const edm::Handle<edm::View<T>> & prod) const override {
             std::vector<const T *> selobjs;
             std::vector<edm::Ptr<T>> selptrs; // for external variables
-            if (singleton_) { 
-                assert(prod->size() == 1);
-                selobjs.push_back(& (*prod)[0] );
-                if (!extvars_.empty()) selptrs.emplace_back(prod->ptrAt(0));
-            } else {
-                for (unsigned int i = 0, n = prod->size(); i < n; ++i) {
-                    const auto & obj = (*prod)[i];
-                    if (cut_(obj)) { 
-                        selobjs.push_back(&obj); 
-                        if (!extvars_.empty()) selptrs.emplace_back(prod->ptrAt(i));
+            if (prod.isValid() || !(this->skipNonExistingSrc_)) {
+                if (singleton_) { 
+                    assert(prod->size() == 1);
+                    selobjs.push_back(& (*prod)[0] );
+                    if (!extvars_.empty()) selptrs.emplace_back(prod->ptrAt(0));
+                } else {
+                    for (unsigned int i = 0, n = prod->size(); i < n; ++i) {
+                        const auto & obj = (*prod)[i];
+                        if (cut_(obj)) { 
+                            selobjs.push_back(&obj); 
+                            if (!extvars_.empty()) selptrs.emplace_back(prod->ptrAt(i));
+                        }
+                      if(selobjs.size()>=maxLen_) break;
                     }
-		    if(selobjs.size()>=maxLen_) break;
                 }
             }
             auto out = std::make_unique<nanoaod::FlatTable>(selobjs.size(), this->name_, singleton_, this->extension_);
@@ -171,18 +175,24 @@ class SimpleFlatTableProducer : public SimpleFlatTableProducerBase<T, edm::View<
         template<typename TIn, typename ValType=TIn>
         class ValueMapVariable : public ExtVariable {
             public:
-                ValueMapVariable(const std::string & aname, nanoaod::FlatTable::ColumnType atype, const edm::ParameterSet & cfg, edm::ConsumesCollector && cc) : 
-                    ExtVariable(aname, atype, cfg), token_(cc.consumes<edm::ValueMap<TIn>>(cfg.getParameter<edm::InputTag>("src"))) {}
+                ValueMapVariable(const std::string & aname, nanoaod::FlatTable::ColumnType atype, const edm::ParameterSet & cfg, edm::ConsumesCollector && cc, bool skipNonExistingSrc = false) : 
+                    ExtVariable(aname, cfg),
+                    skipNonExistingSrc_(skipNonExistingSrc),
+                    token_(skipNonExistingSrc_ ? cc.mayConsume<edm::ValueMap<TIn>>(cfg.getParameter<edm::InputTag>("src")) : cc.consumes<edm::ValueMap<TIn>>(cfg.getParameter<edm::InputTag>("src"))) {}
                 void fill(const edm::Event & iEvent, std::vector<edm::Ptr<T>> selptrs, nanoaod::FlatTable & out) const override {
                     edm::Handle<edm::ValueMap<TIn>> vmap;
                     iEvent.getByToken(token_, vmap);
-                    std::vector<ValType> vals(selptrs.size());   
-                    for (unsigned int i = 0, n = vals.size(); i < n; ++i) {
-                        vals[i] = (*vmap)[selptrs[i]];
+                    std::vector<ValType> vals;
+                    if (vmap.isValid() || !skipNonExistingSrc_) {
+                        vals.resize(selptrs.size());   
+                        for (unsigned int i = 0, n = vals.size(); i < n; ++i) {
+                            vals[i] = (*vmap)[selptrs[i]];
+                        }
                     }
                     out.template addColumn<ValType>(this->name_, vals, this->doc_, this->type_, this->precision_);
                 }
             protected:
+                const bool skipNonExistingSrc_;
                 edm::EDGetTokenT<edm::ValueMap<TIn>> token_;
         };
         typedef ValueMapVariable<int> IntExtVar;

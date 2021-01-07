@@ -15,6 +15,7 @@ from PhysicsTools.NanoAOD.vertices_cff import *
 from PhysicsTools.NanoAOD.met_cff import *
 from PhysicsTools.NanoAOD.triggerObjects_cff import *
 from PhysicsTools.NanoAOD.isotracks_cff import *
+from PhysicsTools.NanoAOD.protons_cff import *
 from PhysicsTools.NanoAOD.NanoAODEDMEventContent_cff import *
 
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
@@ -114,6 +115,12 @@ genWeightsTable = cms.EDProducer("GenWeightsTableProducer",
     maxPdfWeights = cms.uint32(150), 
     debug = cms.untracked.bool(False),
 )
+
+lhcInfoTable = cms.EDProducer("LHCInfoProducer",
+    precision = cms.int32(10),
+)
+
+
 lheInfoTable = cms.EDProducer("LHETablesProducer",
     lheInfo = cms.VInputTag(cms.InputTag("externalLHEProducer"), cms.InputTag("source")),
     precision = cms.int32(14),
@@ -132,7 +139,9 @@ nanoSequenceCommon = cms.Sequence(
         )
 nanoSequenceOnlyFullSim = cms.Sequence(triggerObjectTables + l1bits)
 
-nanoSequence = cms.Sequence(nanoSequenceCommon + nanoSequenceOnlyFullSim)
+nanoSequenceOnlyData = cms.Sequence(protonTables + lhcInfoTable)
+
+nanoSequence = cms.Sequence(nanoSequenceCommon + nanoSequenceOnlyData + nanoSequenceOnlyFullSim)
 
 nanoSequenceFS = cms.Sequence(genParticleSequence + particleLevelSequence + nanoSequenceCommon + jetMC + muonMC + electronMC + photonMC + tauMC + metMC + ttbarCatMCProducers +  globalTablesMC + btagWeightTable + genWeightsTable + genParticleTables + particleLevelTables + lheInfoTable  + ttbarCategoryTable )
 
