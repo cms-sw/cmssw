@@ -45,8 +45,8 @@ private:
   edm::EDGetTokenT<HBHEDigiCollection> tok_hbhe_;
   edm::EDGetTokenT<HFDigiCollection> tok_hf_;
 
-  bool useDBweightsHE_;
-  bool useDBweightsHB_;
+  bool useDBweightsAndFilterHE_;
+  bool useDBweightsAndFilterHB_;
 
   /// input tag for FEDRawDataCollection
   edm::InputTag inputTagFEDRaw_;

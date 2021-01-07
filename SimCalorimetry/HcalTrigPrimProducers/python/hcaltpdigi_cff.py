@@ -21,6 +21,8 @@ HcalTPGCoderULUT = cms.ESProducer("HcalTPGCoderULUT",
     contain1TSHE = cms.bool(False),
     containPhaseNSHE = cms.double(-999.0),
     containPhaseNSHB = cms.double(-999.0),
+    useDBweightsAndFilterHB = cms.bool(False),
+    useDBweightsAndFilterHE = cms.bool(False),
     tpScales = tpScales,
     MaskBit = cms.int32(0x8000),
     FG_HF_thresholds = cms.vuint32(17, 255),
@@ -35,5 +37,5 @@ run2_HCAL_2018.toModify(CaloTPGTranscoder, linearLUTs=cms.bool(True))
 run2_HCAL_2018.toModify(HcalTPGCoderULUT, linearLUTs=cms.bool(True))
 pp_on_AA_2018.toModify(CaloTPGTranscoder, FG_HF_thresholds = cms.vuint32(15, 19))
 pp_on_AA_2018.toModify(HcalTPGCoderULUT, FG_HF_thresholds = cms.vuint32(15, 19))
-run3_HB.toModify(HcalTPGCoderULUT, contain1TSHB=cms.bool(True), containPhaseNSHB=cms.double(3.0))
-run3_HE.toModify(HcalTPGCoderULUT, contain1TSHE=cms.bool(True), containPhaseNSHE=cms.double(3.0))
+run3_HB.toModify(HcalTPGCoderULUT, useDBweightsAndFilterHB=cms.bool(True))
+run3_HE.toModify(HcalTPGCoderULUT, useDBweightsAndFilterHE=cms.bool(True))
