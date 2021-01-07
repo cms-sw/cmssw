@@ -5,11 +5,30 @@
 // $Id: HFEMClusterProducer.cc,v 1.2 2007/09/19 Kevin Klapoetke
 //
 
-#include <iostream>
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "RecoEgamma/EgammaHFProducers/plugins/HFEMClusterProducer.h"
+
+#include "HFClusterAlgo.h"
+
+class HFEMClusterProducer : public edm::stream::EDProducer<> {
+public:
+  explicit HFEMClusterProducer(edm::ParameterSet const& conf);
+  void produce(edm::Event& e, edm::EventSetup const& iSetup) override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) final { algo_.resetForRun(); }
+
+private:
+  edm::EDGetToken hfreco_;
+  HFClusterAlgo algo_;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(HFEMClusterProducer);
+
 using namespace reco;
 HFEMClusterProducer::HFEMClusterProducer(edm::ParameterSet const& conf)
     : hfreco_(consumes<HFRecHitCollection>(conf.getParameter<edm::InputTag>("hits"))) {
