@@ -47,10 +47,10 @@
 // DB
 #include "CondFormats/DataRecord/interface/CTPPSPixelDAQMappingRcd.h"
 #include "CondFormats/DataRecord/interface/CTPPSPixelAnalysisMaskRcd.h"
+#include "CondFormats/DataRecord/interface/CTPPSPixelGainCalibrationsRcd.h"
 #include "CondFormats/PPSObjects/interface/CTPPSPixelDAQMapping.h"
 #include "CondFormats/PPSObjects/interface/CTPPSPixelAnalysisMask.h"
 #include "CondFormats/PPSObjects/interface/CTPPSPixelGainCalibrations.h"
-#include "RecoPPS/Local/interface/CTPPSPixelGainCalibrationDBService.h"
 
 // user include files
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
@@ -95,12 +95,12 @@ private:
   CLHEP::HepRandomEngine* rndEngine_ = nullptr;
   int verbosity_;
 
-  CTPPSPixelGainCalibrationDBService theGainCalibrationDB;
-
   edm::EDGetTokenT<CrossingFrame<PSimHit>> tokenCrossingFramePPSPixel;
+  edm::ESGetToken<CTPPSPixelGainCalibrations, CTPPSPixelGainCalibrationsRcd> gainCalibESToken_;
 };
 
-CTPPSPixelDigiProducer::CTPPSPixelDigiProducer(const edm::ParameterSet& conf) : conf_(conf) {
+CTPPSPixelDigiProducer::CTPPSPixelDigiProducer(const edm::ParameterSet& conf)
+    : conf_(conf), gainCalibESToken_(esConsumes()) {
   produces<edm::DetSetVector<CTPPSPixelDigi>>();
 
   // register data to consume
@@ -179,7 +179,7 @@ void CTPPSPixelDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   }
 
   // get calibration DB
-  theGainCalibrationDB.getDB(iEvent, iSetup);
+  const auto& gainCalibration = iSetup.getData(gainCalibESToken_);
 
   // Step A: Get Inputs
   edm::Handle<CrossingFrame<PSimHit>> cf;
@@ -235,9 +235,8 @@ void CTPPSPixelDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
     std::vector<int> input_links;
     std::vector<std::vector<std::pair<int, double>>> output_digi_links;  // links to simhits
 
-    (theAlgoMap.find(it->first)->second)
-        ->run(
-            SimHitMap[it->first], input_links, digi_collector.data, output_digi_links, theGainCalibrationDB.getCalibs());
+    theAlgoMap.at(it->first)->run(
+        SimHitMap[it->first], input_links, digi_collector.data, output_digi_links, &gainCalibration);
 
     if (!digi_collector.data.empty()) {
       theDigiVector.push_back(digi_collector);

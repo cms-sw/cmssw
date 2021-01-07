@@ -53,7 +53,7 @@ private:
 
   edm::EDGetTokenT<reco::ForwardProtonCollection> tokenRecoProtonsMultiRP_;
 
-  std::string lhcInfoLabel_;
+  edm::ESGetToken<LHCInfo, LHCInfoRcd> lhcInfoESToken_;
 
   unsigned int rpId_45_N_, rpId_45_F_;
   unsigned int rpId_56_N_, rpId_56_F_;
@@ -103,7 +103,7 @@ CTPPSProtonReconstructionEfficiencyEstimatorMC::CTPPSProtonReconstructionEfficie
       tracksToken_(consumes<CTPPSLocalTrackLiteCollection>(iConfig.getParameter<edm::InputTag>("tagTracks"))),
       tokenRecoProtonsMultiRP_(
           consumes<reco::ForwardProtonCollection>(iConfig.getParameter<InputTag>("tagRecoProtonsMultiRP"))),
-      lhcInfoLabel_(iConfig.getParameter<std::string>("lhcInfoLabel")),
+      lhcInfoESToken_(esConsumes(ESInputTag("", iConfig.getParameter<std::string>("lhcInfoLabel")))),
 
       rpId_45_N_(iConfig.getParameter<unsigned int>("rpId_45_N")),
       rpId_45_F_(iConfig.getParameter<unsigned int>("rpId_45_F")),
@@ -132,8 +132,7 @@ void CTPPSProtonReconstructionEfficiencyEstimatorMC::analyze(const edm::Event &i
   std::ostringstream os;
 
   // get conditions
-  edm::ESHandle<LHCInfo> hLHCInfo;
-  iSetup.get<LHCInfoRcd>().get(lhcInfoLabel_, hLHCInfo);
+  const auto &lhcInfo = iSetup.getData(lhcInfoESToken_);
 
   // get input
   edm::Handle<edm::HepMCProduct> hHepMCAfterSmearing;
@@ -185,7 +184,7 @@ void CTPPSProtonReconstructionEfficiencyEstimatorMC::analyze(const edm::Event &i
 
     info.arm = (mom.z() > 0.) ? 0 : 1;
 
-    const double p_nom = hLHCInfo->energy();
+    const double p_nom = lhcInfo.energy();
     info.xi = (p_nom - mom.rho()) / p_nom;
 
     particleInfo[part->barcode()] = std::move(info);

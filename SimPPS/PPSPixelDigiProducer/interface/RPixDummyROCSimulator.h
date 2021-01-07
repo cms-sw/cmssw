@@ -9,7 +9,6 @@
 #include "DataFormats/CTPPSDigi/interface/CTPPSPixelDigiCollection.h"
 #include "CondFormats/PPSObjects/interface/CTPPSPixelGainCalibrations.h"
 #include "CondFormats/PPSObjects/interface/CTPPSPixelAnalysisMask.h"
-#include "RecoPPS/Local/interface/CTPPSPixelGainCalibrationDBService.h"
 
 class RPixDummyROCSimulator {
 public:
