@@ -17,18 +17,24 @@
 //                           of the outputs
 //
 //  HGCalConvert 2 infile outfile debug
-//  infile   (std::string)   Input file from Katya (modified by Chris)
+//  infile   (const char*)   Input file from Katya (modified by Chris)
 //                           containing layer #. ring #, start and end
 //                           of ring radius, SiPM size, 4 hexadecimal
 //                           words specifying if the phi location in
 //                           120-degree sector is filled, scintillator
 //                           type (c: cast, m: mould)
-//  outfile  (std::string)   Output file
-//  debug    (int)           Flag to switch on (1) or off (0) debug
+//  outfile1 (const char*)   Output file for the part to be inserted in
+//                           the global section
+//  outfile2 (const char*)   Output file for the part to be inserted in
+//                           the ddAlgorithm part
+//  debug    (int)           Two digit integer to set debug for each
+//                           of the outputs
 //
 //////////////////////////////////////////////////////////////////////////////
 
 #include "Geometry/HGCalCommonData/interface/HGCalProperty.h"
+#include "Geometry/HGCalCommonData/interface/HGCalTileIndex.h"
+#include "Geometry/HGCalCommonData/interface/HGCalWaferIndex.h"
 #include <algorithm>
 #include <cstdlib>
 #include <fstream>
@@ -45,9 +51,19 @@ struct wafer {
 
 struct tile {
   double sipm;
-  int hex1, hex2, hex3, hex4, type;
-  tile(double s = 0, int h1 = 0, int h2 = 0, int h3 = 0, int h4 = 0, int t = 0)
-      : sipm(s), hex1(h1), hex2(h2), hex3(h3), hex4(h4), type(t){};
+  int type, hex[4];
+  tile(double s = 0, int h1 = 0, int h2 = 0, int h3 = 0, int h4 = 0, int t = 0) : sipm(s), type(t) {
+    hex[0] = h1;
+    hex[1] = h2;
+    hex[2] = h3;
+    hex[3] = h4;
+  };
+};
+
+struct tileZone {
+  tileZone(int l0 = 0, int r0 = 0, int r1 = 0, int f0 = 0, int f1 = 0)
+      : layer(l0), rmin(r0), rmax(r1), phimin(f0), phimax(f1){};
+  int layer, rmin, rmax, phimin, phimax;
 };
 
 std::vector<std::string> splitString(const std::string& fLine);
@@ -64,14 +80,6 @@ public:
 
 private:
   void writeSilicon(const char*, const std::map<int, wafer>&, const std::string&, const bool&, const bool&);
-  int waferIndex(const int&, const int&, const int&);
-  int waferLayer(const int&);
-  int waferU(const int&);
-  int waferV(const int&);
-  int waferProperty(const int&, const int&, const int&);
-  int waferThick(const int&);
-  int waferPartial(const int&);
-  int waferOrient(const int&);
 
   const int layMax1_, layMax2_;
 };
@@ -79,23 +87,17 @@ private:
 class ConvertScintillator {
 public:
   ConvertScintillator(int layMin = 28);
-  void convert(const char*, const char*, int debug = 0);
+  void convert(const char*, const char*, const char*, int debug = 0);
 
 private:
-  int tileIndex(const int&, const int&, const int&);
-  int tileLayer(const int&);
-  int tileRing(const int&);
-  int tilePhi(const int&);
-  int tileProperty(const int&, const int&);
-  int tileType(const int&);
-  int tileSiPM(const int&);
+  void makeTitle(const char* outfile, const std::map<int, tile>& module, int lmin, int lmax, bool debug);
 
   const int layMin_;
 };
 
 int main(int argc, char* argv[]) {
-  if (argc < 4) {
-    std::cout << "Please give a minimum of 7/4 arguments \n"
+  if (argc < 5) {
+    std::cout << "Please give a minimum of 7/5 arguments \n"
               << "mode (1:silicon; 2:scintillator)\n"
               << "input file name\n"
               << "output file name\n"
@@ -104,7 +106,8 @@ int main(int argc, char* argv[]) {
               << "  third output file name\n"
               << "  output mode (0: gobal; 1: local)\n"
               << "  debug (three digis to set debug for each output)\n"
-              << "for scintillator 1 additional parameter after the first 3\n"
+              << "for scintillator 2 additional parameters after the first 3\n"
+              << "  second output file name\n"
               << "  debug flag\n"
               << std::endl;
     return 0;
@@ -132,12 +135,17 @@ int main(int argc, char* argv[]) {
     const char* outfile3 = argv[5];
     int modeGlobal = atoi(argv[6]);
     int debug = atoi(argv[7]);
+    std::cout << "Calls ConvertSilicon for i/p file " << infile << " o/p files " << outfile1 << ":" << outfile2 << ":"
+              << outfile3 << " Mode " << modeGlobal << " Debug " << debug << std::endl;
     c1.convert(infile, outfile1, outfile2, outfile3, modeGlobal, debug);
   } else {
     ConvertScintillator c1;
-    const char* outfile = argv[3];
+    const char* outfile1 = argv[3];
+    const char* outfile2 = argv[4];
     int debug = atoi(argv[4]);
-    c1.convert(infile, outfile, debug);
+    std::cout << "Calls ConvertScintillator for i/p file " << infile << " o/p files " << outfile1 << ":" << outfile2
+              << " Debug " << debug << std::endl;
+    c1.convert(infile, outfile1, outfile2, debug);
   }
   return 0;
 }
@@ -179,6 +187,8 @@ void ConvertSilicon::convert(
     bool global = (modeGlobal < 1);
     while (fInput.getline(buffer, 1024)) {
       ++all;
+      if (debug % 10 > 1)
+        std::cout << "[" << all << "] " << buffer << std::endl;
       if (buffer[0] == '#') {
         ++comments;
       } else {
@@ -196,13 +206,13 @@ void ConvertSilicon::convert(
           int orient = std::atoi(items[5].c_str());
           wafer waf(thck, part, orient);
           if (layer <= layMax1_) {
-            int index = waferIndex(layer, waferU, waferV);
+            int index = HGCalWaferIndex::waferIndex(layer, waferU, waferV, false);
             module1[index] = waf;
           } else if ((layer <= layMax2_) || global) {
-            int index = waferIndex(layer - layMax1_, waferU, waferV);
+            int index = HGCalWaferIndex::waferIndex(layer - layMax1_, waferU, waferV, false);
             module2[index] = waf;
           } else {
-            int index = waferIndex(layer - layMax1_, waferU, waferV);
+            int index = HGCalWaferIndex::waferIndex(layer - layMax1_, waferU, waferV, false);
             module3[index] = waf;
           }
         }
@@ -214,12 +224,12 @@ void ConvertSilicon::convert(
               << module3.size() << " are good and " << bad << " are bad\n"
               << std::endl;
     //Now write separately for EE, HEsil and HEmix
-    writeSilicon(outfile1, module1, "EE", global, (debug % 10 == 1));
+    writeSilicon(outfile1, module1, "EE", global, (debug % 10 > 0));
     // Next HEsil part
-    writeSilicon(outfile2, module2, "HE", global, ((debug / 10) % 10 == 1));
+    writeSilicon(outfile2, module2, "HE", global, ((debug / 10) % 10 > 0));
     // Finally HEmix part
     if (!global)
-      writeSilicon(outfile3, module3, "HE", global, ((debug / 100) % 10 == 1));
+      writeSilicon(outfile3, module3, "HE", global, ((debug / 100) % 10 > 0));
   }
 }
 
@@ -250,8 +260,9 @@ void ConvertSilicon::writeSilicon(const char* outfile,
       fOut << std::setw(8) << itr->first << last;
     ++k1;
     if (debug)
-      std::cout << "Wafer " << waferLayer(itr->first) << ":" << waferU(itr->first) << ":" << waferV(itr->first) << " T "
-                << (itr->second).thick << " P " << (itr->second).partial << " O " << (itr->second).orient << std::endl;
+      std::cout << "Wafer " << HGCalWaferIndex::waferLayer(itr->first) << ":" << HGCalWaferIndex::waferU(itr->first)
+                << ":" << HGCalWaferIndex::waferV(itr->first) << " T " << (itr->second).thick << " P "
+                << (itr->second).partial << " O " << (itr->second).orient << std::endl;
   }
   fOut << "\n" << blank << "</Vector>\n";
   if (mode)
@@ -261,7 +272,7 @@ void ConvertSilicon::writeSilicon(const char* outfile,
     fOut << blank << "<Vector name=" << apost << "WaferProperties" << apost << " type=" << apost << "numeric" << apost
          << " nEntries=" << apost << module.size() << apost << ">";
   for (itr = module.begin(); itr != module.end(); ++itr) {
-    int property = waferProperty((itr->second).thick, (itr->second).partial, (itr->second).orient);
+    int property = HGCalProperty::waferProperty((itr->second).thick, (itr->second).partial, (itr->second).orient);
     std::string last = ((k2 + 1) == module.size()) ? " " : ",";
     if (k2 % 12 == 0)
       fOut << "\n  " << blank << std::setw(4) << property << last;
@@ -273,54 +284,9 @@ void ConvertSilicon::writeSilicon(const char* outfile,
   fOut.close();
 }
 
-int ConvertSilicon::waferIndex(const int& layer, const int& waferU, const int& waferV) {
-  int id(0);
-  int waferUabs(std::abs(waferU)), waferVabs(std::abs(waferV));
-  int waferUsign = (waferU >= 0) ? 0 : 1;
-  int waferVsign = (waferV >= 0) ? 0 : 1;
-  id |= (((waferUabs & HGCalProperty::kHGCalWaferUMask) << HGCalProperty::kHGCalWaferUOffset) |
-         ((waferUsign & HGCalProperty::kHGCalWaferUSignMask) << HGCalProperty::kHGCalWaferUSignOffset) |
-         ((waferVabs & HGCalProperty::kHGCalWaferVMask) << HGCalProperty::kHGCalWaferVOffset) |
-         ((waferVsign & HGCalProperty::kHGCalWaferVSignMask) << HGCalProperty::kHGCalWaferVSignOffset) |
-         ((layer & HGCalProperty::kHGCalLayerMask) << HGCalProperty::kHGCalLayerOffset));
-  return id;
-}
-
-int ConvertSilicon::waferProperty(const int& thick, const int& part, const int& orient) {
-  return (((thick % HGCalProperty::kHGCalFactor) * HGCalProperty::kHGCalOffsetThick) +
-          ((part % HGCalProperty::kHGCalFactor) * HGCalProperty::kHGCalOffsetPartial) +
-          ((orient % HGCalProperty::kHGCalFactor) * HGCalProperty::kHGCalOffsetOrient));
-}
-
-int ConvertSilicon::waferLayer(const int& id) {
-  return (id >> HGCalProperty::kHGCalLayerOffset) & HGCalProperty::kHGCalLayerMask;
-}
-
-int ConvertSilicon::waferU(const int& id) {
-  int32_t iu = (id >> HGCalProperty::kHGCalWaferUOffset) & HGCalProperty::kHGCalWaferUMask;
-  return (((id >> HGCalProperty::kHGCalWaferUSignOffset) & HGCalProperty::kHGCalWaferUSignMask) ? -iu : iu);
-}
-
-int ConvertSilicon::waferV(const int& id) {
-  int32_t iv = (id >> HGCalProperty::kHGCalWaferVOffset) & HGCalProperty::kHGCalWaferVMask;
-  return (((id >> HGCalProperty::kHGCalWaferVSignOffset) & HGCalProperty::kHGCalWaferVSignMask) ? -iv : iv);
-}
-
-int ConvertSilicon::waferThick(const int& property) {
-  return ((property / HGCalProperty::kHGCalOffsetThick) % HGCalProperty::kHGCalFactor);
-}
-
-int ConvertSilicon::waferPartial(const int& property) {
-  return ((property / HGCalProperty::kHGCalOffsetPartial) % HGCalProperty::kHGCalFactor);
-}
-
-int ConvertSilicon::waferOrient(const int& property) {
-  return ((property / HGCalProperty::kHGCalOffsetOrient) % HGCalProperty::kHGCalFactor);
-}
-
 ConvertScintillator::ConvertScintillator(int layMin) : layMin_(layMin) {}
 
-void ConvertScintillator::convert(const char* infile, const char* outfile, int debug) {
+void ConvertScintillator::convert(const char* infile, const char* outfile1, const char* outfile2, int debug) {
   std::ifstream fInput(infile);
   if (!fInput.good()) {
     std::cout << "Cannot open file " << infile << std::endl;
@@ -332,6 +298,7 @@ void ConvertScintillator::convert(const char* infile, const char* outfile, int d
     std::map<int, std::pair<double, double> > ringR;
     std::map<int, std::pair<int, int> > layerRing;
     unsigned int all(0), comments(0), others(0), bad(0), good(0);
+    int lmin(99), lmax(0);
     while (fInput.getline(buffer, 1024)) {
       ++all;
       if (buffer[0] == '#') {
@@ -350,8 +317,10 @@ void ConvertScintillator::convert(const char* infile, const char* outfile, int d
           int type = static_cast<int>(std::find(types, types + 1, items[9]) - types);
           if (layer > layMin_) {
             tile tl(sipm, hex1, hex2, hex3, hex4, type);
-            int index = tileIndex(layer - layMin_, ring + 1, 0);
+            int index = HGCalTileIndex::tileIndex(layer - layMin_, ring + 1, 0);
             module[index] = tl;
+            lmin = std::min((layer - layMin_), lmin);
+            lmax = std::max((layer - layMin_), lmax);
             ringR[ring] = std::pair<double, double>(rstart, rend);
             if (layerRing.find(layer) == layerRing.end()) {
               layerRing[layer] = std::pair<int, int>(ring, ring);
@@ -370,8 +339,8 @@ void ConvertScintillator::convert(const char* infile, const char* outfile, int d
               << layerRing.size() << " are good and " << bad << " are bad\n"
               << std::endl;
 
-    //Now write the content
-    std::ofstream fOut(outfile);
+    //Now write the content in the first file
+    std::ofstream fOut(outfile1);
     char apost('"');
     unsigned int l1(0), l2(0);
     std::map<int, std::pair<double, double> >::const_iterator it1;
@@ -434,17 +403,18 @@ void ConvertScintillator::convert(const char* infile, const char* outfile, int d
       else
         fOut << std::setw(8) << itr->first << last;
       ++k1;
-      if (debug > 0)
-        std::cout << "Tile " << tileLayer(itr->first) << ":" << tileRing(itr->first) << " Type " << (itr->second).type
-                  << " Area " << (itr->second).sipm << std::hex << " HEX " << (itr->second).hex1 << " "
-                  << (itr->second).hex2 << " " << (itr->second).hex3 << " " << (itr->second).hex4 << std::dec << "\n";
+      if ((debug % 10) > 0)
+        std::cout << "Tile " << HGCalTileIndex::tileLayer(itr->first) << ":" << HGCalTileIndex::tileRing(itr->first)
+                  << " Type " << (itr->second).type << " Area " << (itr->second).sipm << std::hex << " HEX "
+                  << (itr->second).hex[0] << " " << (itr->second).hex[1] << " " << (itr->second).hex[2] << " "
+                  << (itr->second).hex[3] << std::dec << "\n";
     }
     fOut << "\n  </Vector>\n";
     fOut << "  <Vector name=" << apost << "TileProperty" << apost << " type=" << apost << "numeric" << apost
          << " nEntries=" << apost << module.size() << apost << ">";
     for (itr = module.begin(); itr != module.end(); ++itr) {
       std::string last = ((k2 + 1) == module.size()) ? " " : ",";
-      int property = tileProperty((itr->second).type, (itr->second).sipm);
+      int property = HGCalTileIndex::tileProperty((itr->second).type, (itr->second).sipm);
       if (k2 % 15 == 0)
         fOut << "\n    " << std::setw(3) << property << last;
       else
@@ -457,9 +427,9 @@ void ConvertScintillator::convert(const char* infile, const char* outfile, int d
     for (itr = module.begin(); itr != module.end(); ++itr) {
       std::string last = ((k3 + 1) == module.size()) ? " " : ",";
       if (k3 % 6 == 0)
-        fOut << "\n     0x" << (itr->second).hex1 << last;
+        fOut << "\n     0x" << (itr->second).hex[0] << last;
       else
-        fOut << " 0x" << (itr->second).hex1 << last;
+        fOut << " 0x" << (itr->second).hex[0] << last;
       ++k3;
     }
     fOut << "\n  </Vector>\n" << std::dec;
@@ -468,9 +438,9 @@ void ConvertScintillator::convert(const char* infile, const char* outfile, int d
     for (itr = module.begin(); itr != module.end(); ++itr) {
       std::string last = ((k4 + 1) == module.size()) ? " " : ",";
       if (k4 % 6 == 0)
-        fOut << "\n     0x" << (itr->second).hex2 << last;
+        fOut << "\n     0x" << (itr->second).hex[1] << last;
       else
-        fOut << " 0x" << (itr->second).hex2 << last;
+        fOut << " 0x" << (itr->second).hex[1] << last;
       ++k4;
     }
     fOut << "\n  </Vector>\n" << std::dec;
@@ -479,56 +449,142 @@ void ConvertScintillator::convert(const char* infile, const char* outfile, int d
     for (itr = module.begin(); itr != module.end(); ++itr) {
       std::string last = ((k5 + 1) == module.size()) ? " " : ",";
       if (k5 % 6 == 0)
-        fOut << "\n     0x" << (itr->second).hex3 << last;
+        fOut << "\n     0x" << (itr->second).hex[2] << last;
       else
-        fOut << " 0x" << (itr->second).hex3 << last;
+        fOut << " 0x" << (itr->second).hex[2] << last;
       ++k5;
     }
     fOut << "\n  </Vector>\n" << std::dec;
     fOut << "  <Vector name=" << apost << "TileHEX4" << apost << " type=" << apost << "numeric" << apost
          << " nEntries=" << apost << module.size() << apost << ">" << std::hex;
     for (itr = module.begin(); itr != module.end(); ++itr) {
-      std::string last = ((k5 + 1) == module.size()) ? " " : ",";
-      if (k5 % 6 == 0)
-        fOut << std::setw(6) << "\n     0x" << (itr->second).hex4 << last;
+      std::string last = ((k6 + 1) == module.size()) ? " " : ",";
+      if (k6 % 6 == 0)
+        fOut << "\n     0x" << (itr->second).hex[3] << last;
       else
-        fOut << " 0x" << (itr->second).hex4 << last;
+        fOut << " 0x" << (itr->second).hex[3] << last;
       ++k6;
     }
     fOut << "\n  </Vector>\n" << std::dec;
     fOut.close();
+
+    //Now write for the second file
+    makeTitle(outfile2, module, lmin, lmax, (((debug / 10) % 10) > 0));
   }
 }
 
-int ConvertScintillator::tileIndex(const int& layer, const int& ring, const int& iphi) {
-  int id(0);
-  id |= (((iphi & HGCalProperty::kHGCalPhiMask) << HGCalProperty::kHGCalPhiOffset) |
-         ((ring & HGCalProperty::kHGCalRingMask) << HGCalProperty::kHGCalRingOffset) |
-         ((layer & HGCalProperty::kHGCalLayerMask) << HGCalProperty::kHGCalLayerOffset));
-  return id;
-}
+void ConvertScintillator::makeTitle(
+    const char* outfile, const std::map<int, tile>& module, int lmin, int lmax, bool debug) {
+  const int zside = 1;
+  std::vector<tileZone> zones;
+  for (int layer = lmin; layer <= lmax; ++layer) {
+    tileZone tile0;
+    int kk, irmin, irmax;
+    for (int phi = 1; phi <= HGCalProperty::kHGCalTilePhis; ++phi) {
+      kk = irmin = irmax = 0;
+      for (std::map<int, tile>::const_iterator itr = module.begin(); itr != module.end(); ++itr) {
+        if ((HGCalTileIndex::tileLayer(itr->first) == layer) &&
+            HGCalTileIndex::tileExist((itr->second).hex, zside, phi)) {
+          int ir = HGCalTileIndex::tileRing(itr->first);
+          if (kk == 0) {
+            irmin = irmax = ir;
+          } else {
+            irmax = ir;
+          }
+          ++kk;
+        }
+      }
+      if (debug)
+        std::cout << "L|F|R " << layer << ":" << phi << ":" << irmin << ":" << irmax << std::endl;
+      if (phi == 1) {
+        tile0.layer = layer;
+        tile0.rmin = irmin;
+        tile0.rmax = irmax;
+        tile0.phimin = phi;
+        tile0.phimax = phi;
+      } else if ((tile0.rmin != irmin) || (tile0.rmax != irmax)) {
+        zones.push_back(tile0);
+        tile0.layer = layer;
+        tile0.rmin = irmin;
+        tile0.rmax = irmax;
+        tile0.phimin = phi;
+        tile0.phimax = phi;
+        if (phi == HGCalProperty::kHGCalTilePhis)
+          zones.push_back(tile0);
+      } else {
+        tile0.phimax = phi;
+        if (phi == HGCalProperty::kHGCalTilePhis)
+          zones.push_back(tile0);
+      }
+    }
+  }
 
-int ConvertScintillator::tileLayer(const int& id) {
-  return (id >> HGCalProperty::kHGCalLayerOffset) & HGCalProperty::kHGCalLayerMask;
-}
-
-int ConvertScintillator::tileRing(const int& id) {
-  return (id >> HGCalProperty::kHGCalRingOffset) & HGCalProperty::kHGCalRingMask;
-}
-
-int ConvertScintillator::tilePhi(const int& id) {
-  return (id >> HGCalProperty::kHGCalPhiOffset) & HGCalProperty::kHGCalPhiMask;
-}
-
-int ConvertScintillator::tileProperty(const int& type, const int& sipm) {
-  return (((type % HGCalProperty::kHGCalFactor) * HGCalProperty::kHGCalOffsetType) +
-          ((sipm % HGCalProperty::kHGCalFactor) * HGCalProperty::kHGCalOffsetSiPM));
-}
-
-int ConvertScintillator::tileType(const int& property) {
-  return ((property / HGCalProperty::kHGCalOffsetType) % HGCalProperty::kHGCalFactor);
-}
-
-int ConvertScintillator::tileSiPM(const int& property) {
-  return ((property / HGCalProperty::kHGCalOffsetSiPM) % HGCalProperty::kHGCalFactor);
+  int nmax = zones.size();
+  if (nmax > 0) {
+    std::ofstream fout(outfile);
+    char apost('"');
+    fout << "  <Vector name=" << apost << "TileLayer" << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << nmax << apost << ">";
+    if (debug)
+      std::cout << "  <Vector name=" << apost << "TileLayer" << apost << " type=" << apost << "numeric" << apost
+                << " nEntries=" << apost << nmax << apost << ">";
+    for (int k = 0; k < nmax; ++k) {
+      std::string last = ((k + 1) == nmax) ? " " : ",";
+      if (k % 14 == 0) {
+        fout << "\n    " << std::setw(4) << zones[k].layer << last;
+        if (debug)
+          std::cout << "\n    " << std::setw(4) << zones[k].layer << last;
+      } else {
+        fout << std::setw(4) << zones[k].layer << last;
+        if (debug)
+          std::cout << std::setw(4) << zones[k].layer << last;
+      }
+    }
+    fout << "\n  </Vector>\n";
+    if (debug)
+      std::cout << "\n  </Vector>\n";
+    fout << "  <Vector name=" << apost << "TileRings" << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << nmax << apost << ">";
+    if (debug)
+      std::cout << "  <Vector name=" << apost << "TileRings" << apost << " type=" << apost << "numeric" << apost
+                << " nEntries=" << apost << nmax << apost << ">";
+    for (int k = 0; k < nmax; ++k) {
+      std::string last = ((k + 1) == nmax) ? " " : ",";
+      int r1r2 = HGCalTileIndex::tilePack(zones[k].rmin, zones[k].rmax);
+      if (k % 9 == 0) {
+        fout << "\n    " << std::setw(7) << r1r2 << last;
+        if (debug)
+          std::cout << "\n    " << std::setw(7) << r1r2 << last;
+      } else {
+        fout << std::setw(7) << r1r2 << last;
+        if (debug)
+          std::cout << std::setw(7) << r1r2 << last;
+      }
+    }
+    fout << "\n  </Vector>\n";
+    if (debug)
+      std::cout << "\n  </Vector>\n";
+    fout << "  <Vector name=" << apost << "TilePhiRange" << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << nmax << apost << ">";
+    if (debug)
+      std::cout << "  <Vector name=" << apost << "TilePhiRange" << apost << " type=" << apost << "numeric" << apost
+                << " nEntries=" << apost << nmax << apost << ">";
+    for (int k = 0; k < nmax; ++k) {
+      std::string last = ((k + 1) == nmax) ? " " : ",";
+      int f1f2 = HGCalTileIndex::tilePack(zones[k].phimin, zones[k].phimax);
+      if (k % 9 == 0) {
+        fout << "\n    " << std::setw(7) << f1f2 << last;
+        if (debug)
+          std::cout << "\n    " << std::setw(7) << f1f2 << last;
+      } else {
+        fout << std::setw(7) << f1f2 << last;
+        if (debug)
+          std::cout << std::setw(7) << f1f2 << last;
+      }
+    }
+    fout << "\n  </Vector>\n";
+    if (debug)
+      std::cout << "\n  </Vector>\n";
+    fout.close();
+  }
 }
