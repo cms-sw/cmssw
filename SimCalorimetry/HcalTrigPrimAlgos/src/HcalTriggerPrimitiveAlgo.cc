@@ -866,6 +866,14 @@ void HcalTriggerPrimitiveAlgo::setWeightsQIE11(const edm::ParameterSet& weightsQ
   }
 }
 
+void HcalTriggerPrimitiveAlgo::setWeightsQIE11(const std::map<int, double>& weightsQIE11) {
+  // Simple map of |ieta| in HBHE to weight
+  for (auto& pair : weightsQIE11) {
+    // Only one weight for SOI-1 TS
+    weightsQIE11_[pair.first] = {{pair.second, 1.0}};
+  }
+}
+
 void HcalTriggerPrimitiveAlgo::setPeakFinderAlgorithm(int algo) {
   if (algo <= 0 || algo > 2)
     throw cms::Exception("ERROR: Only algo 1 & 2 are supported.") << std::endl;

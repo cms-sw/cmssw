@@ -78,6 +78,7 @@ public:
                         HcalTrigPrimDigiCollection& result);
   void setPeakFinderAlgorithm(int algo);
   void setWeightsQIE11(const edm::ParameterSet& weightsQIE11);
+  void setWeightsQIE11(const std::map<int, double>& weightsQIE11);
   void setNCTScaleShift(int);
   void setRCTScaleShift(int);
 

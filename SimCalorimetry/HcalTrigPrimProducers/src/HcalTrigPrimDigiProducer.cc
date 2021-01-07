@@ -11,6 +11,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibFormats/CaloTPG/interface/HcalTPGCompressor.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
+#include "CondFormats/HcalObjects/interface/HcalTPChannelParameters.h"
 
 #include <algorithm>
 
@@ -40,12 +41,18 @@ HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
   upgrade_ = std::any_of(std::begin(upgrades), std::end(upgrades), [](bool a) { return a; });
   legacy_ = std::any_of(std::begin(upgrades), std::end(upgrades), [](bool a) { return !a; });
 
+  useDBweightsHE_ = ps.getParameter<bool>("useDBweightsHE");
+  useDBweightsHB_ = ps.getParameter<bool>("useDBweightsHB");
+
+  // Only if we are using DB weights for all HBHE do we skip this
+  if (!useDBweightsHE_ or !useDBweightsHB_)
+    theAlgo_.setWeightsQIE11(ps.getParameter<edm::ParameterSet>("weightsQIE11"));
+
   if (ps.exists("parameters")) {
     auto pset = ps.getUntrackedParameter<edm::ParameterSet>("parameters");
     theAlgo_.overrideParameters(pset);
   }
   theAlgo_.setUpgradeFlags(upgrades[0], upgrades[1], upgrades[2]);
-  theAlgo_.setWeightsQIE11(ps.getParameter<edm::ParameterSet>("weightsQIE11"));
 
   HFEMB_ = false;
   if (ps.exists("LSConfig")) {
@@ -61,6 +68,7 @@ HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
   tok_tpgTranscoder_ = esConsumes<CaloTPGTranscoder, CaloTPGRecord>();
   tok_lutMetadata_ = esConsumes<HcalLutMetadata, HcalLutMetadataRcd>();
   tok_trigTowerGeom_ = esConsumes<HcalTrigTowerGeometry, CaloGeometryRecord>();
+  tok_caloGeom_ = esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>();
   // register for data access
   if (runFrontEndFormatError_) {
     tok_raw_ = consumes<FEDRawDataCollection>(inputTagFEDRaw_);
@@ -76,6 +84,7 @@ HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
     tok_hf_up_ = consumes<QIE10DigiCollection>(inputUpgradeLabel_[1]);
   }
   tok_dbService_ = esConsumes<HcalDbService, HcalDbRecord>();
+  tok_dbService_beginRun_ = esConsumes<HcalDbService, HcalDbRecord, edm::Transition::BeginRun>();
   produces<HcalTrigPrimDigiCollection>();
   theAlgo_.setPeakFinderAlgorithm(ps.getParameter<int>("PeakFinderAlgorithm"));
 
@@ -83,6 +92,51 @@ HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
 
   theAlgo_.setNCTScaleShift(hfSS.getParameter<int>("NCTShift"));
   theAlgo_.setRCTScaleShift(hfSS.getParameter<int>("RCTShift"));
+}
+
+void HcalTrigPrimDigiProducer::beginRun(const edm::Run& run, const edm::EventSetup& eventSetup) {
+  bool useDBweights = useDBweightsHB_ or useDBweightsHE_;
+
+  if (useDBweights) {
+    const CaloGeometry& geom = eventSetup.getData(tok_caloGeom_);
+
+    std::map<int, double> weightsMap;
+    edm::ESHandle<HcalDbService> db = eventSetup.getHandle(tok_dbService_beginRun_);
+    edm::ESHandle<HcalTopology> topo;
+    eventSetup.get<HcalRecNumberingRecord>().get(topo);
+    int lastHERing = (*topo).lastHERing();
+    const HcalSubdetector subdetectors[2] = {HcalBarrel, HcalEndcap};
+
+    for (HcalSubdetector subd : subdetectors) {
+      // Skip HB or HE if we don't want to use DB weights
+      if ((subd == HcalBarrel and !useDBweightsHB_) or (subd == HcalEndcap and !useDBweightsHE_))
+        continue;
+
+      const HcalGeometry* hcalGeom = static_cast<const HcalGeometry*>(geom.getSubdetectorGeometry(DetId::Hcal, subd));
+      const std::vector<DetId>& ids = hcalGeom->getValidDetIds(DetId::Hcal, subd);
+
+      for (const auto cell : ids) {
+        const auto hcalDetId = HcalDetId(cell);
+        int aieta = hcalDetId.ietaAbs();
+
+        // Do not let ieta 29 in the map
+        // If the aieta already has a weight in the map, then move on
+        if (weightsMap.find(aieta) != weightsMap.end() or aieta >= lastHERing)
+          continue;
+
+        // Filter weight represented in fixed point 8 bit
+        int fixedPointWeight = db->getHcalTPChannelParameter(hcalDetId)->getauxi1();
+        std::cout << "|ieta|: " << aieta << " weight: " << fixedPointWeight << std::endl;
+
+        // Weight represented as 8-bit integer
+        double weight = -fixedPointWeight / pow(2, 8);
+
+        weightsMap[aieta] = weight;
+      }
+    }
+
+    theAlgo_.setWeightsQIE11(weightsMap);
+  }
 }
 
 void HcalTrigPrimDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& eventSetup) {
