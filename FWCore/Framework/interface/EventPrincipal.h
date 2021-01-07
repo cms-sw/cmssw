@@ -117,7 +117,7 @@ namespace edm {
 
     BranchListIndexes const& branchListIndexes() const;
 
-    Provenance getProvenance(ProductID const& pid, ModuleCallingContext const* mcc) const;
+    Provenance getProvenance(ProductID const& pid) const;
     StableProvenance const& getStableProvenance(ProductID const& pid) const;
 
     BasicHandle getByProductID(ProductID const& oid) const;

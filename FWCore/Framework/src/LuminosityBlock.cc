@@ -62,7 +62,7 @@ namespace edm {
   }
 
   Provenance LuminosityBlock::getProvenance(BranchID const& bid) const {
-    return luminosityBlockPrincipal().getProvenance(bid, moduleCallingContext_);
+    return luminosityBlockPrincipal().getProvenance(bid);
   }
 
   StableProvenance LuminosityBlock::getStableProvenance(BranchID const& bid) const {
