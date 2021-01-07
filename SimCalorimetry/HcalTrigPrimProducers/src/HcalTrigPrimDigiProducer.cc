@@ -41,12 +41,22 @@ HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
   upgrade_ = std::any_of(std::begin(upgrades), std::end(upgrades), [](bool a) { return a; });
   legacy_ = std::any_of(std::begin(upgrades), std::end(upgrades), [](bool a) { return !a; });
 
-  useDBweightsHE_ = ps.getParameter<bool>("useDBweightsHE");
-  useDBweightsHB_ = ps.getParameter<bool>("useDBweightsHB");
+  useDBweightsAndFilterHE_ = ps.getParameter<bool>("useDBweightsAndFilterHE");
+  useDBweightsAndFilterHB_ = ps.getParameter<bool>("useDBweightsAndFilterHB");
+
+  bool noDBweights = !useDBweightsAndFilterHE_ or !useDBweightsAndFilterHB_;
 
   // Only if we are using DB weights for all HBHE do we skip this
-  if (!useDBweightsHE_ or !useDBweightsHB_)
+  if (noDBweights)
     theAlgo_.setWeightsQIE11(ps.getParameter<edm::ParameterSet>("weightsQIE11"));
+
+  // Fix number of filter presamples to one if we are using DB weights
+  // Size of filter is already known when using DB weights
+  if (useDBweightsAndFilterHE_)
+    theAlgo_.setNumFilterPresamplesHEQIE11(1);
+
+  if (useDBweightsAndFilterHB_)
+    theAlgo_.setNumFilterPresamplesHBQIE11(1);
 
   if (ps.exists("parameters")) {
     auto pset = ps.getUntrackedParameter<edm::ParameterSet>("parameters");
@@ -95,7 +105,7 @@ HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
 }
 
 void HcalTrigPrimDigiProducer::beginRun(const edm::Run& run, const edm::EventSetup& eventSetup) {
-  bool useDBweights = useDBweightsHB_ or useDBweightsHE_;
+  bool useDBweights = useDBweightsAndFilterHB_ or useDBweightsAndFilterHE_;
 
   if (useDBweights) {
     const CaloGeometry& geom = eventSetup.getData(tok_caloGeom_);
@@ -109,7 +119,7 @@ void HcalTrigPrimDigiProducer::beginRun(const edm::Run& run, const edm::EventSet
 
     for (HcalSubdetector subd : subdetectors) {
       // Skip HB or HE if we don't want to use DB weights
-      if ((subd == HcalBarrel and !useDBweightsHB_) or (subd == HcalEndcap and !useDBweightsHE_))
+      if ((subd == HcalBarrel and !useDBweightsAndFilterHB_) or (subd == HcalEndcap and !useDBweightsAndFilterHE_))
         continue;
 
       const HcalGeometry* hcalGeom = static_cast<const HcalGeometry*>(geom.getSubdetectorGeometry(DetId::Hcal, subd));
