@@ -108,6 +108,8 @@ public:
 
   void print() const;
 
+  void invertZSign() { m_trans.SetZ(-m_trans.z()); }
+
 private:
   void deleteComponents();      // deletes just the first daughters
   void deepDeleteComponents();  // traverses the tree and deletes all nodes.
