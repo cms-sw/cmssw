@@ -374,8 +374,8 @@ void DDHGCalEEFileAlgo::positionSensitive(
       int type = HGCalWaferType::getType(indx, waferIndex_, waferProperty_);
       if (corner.first > 0 && type >= 0) {
         int copy = HGCalTypes::packTypeUV(type, u, v);
-	if (layertype > 1)
-	  type += 3;
+        if (layertype > 1)
+          type += 3;
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << " DDHGCalHEFileAlgo: " << wafers_[type] << " number " << copy << " type "
                                       << type << " layer:u:v:indx " << (layer + firstLayer_) << ":" << u << ":" << v

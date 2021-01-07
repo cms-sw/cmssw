@@ -384,8 +384,8 @@ void DDHGCalEEAlgo::positionSensitive(const DDLogicalPart& glog,
       if (corner.first > 0) {
         int type = waferType_->getType(xpos, ypos, zpos);
         int copy = HGCalTypes::packTypeUV(type, u, v);
-	if (layertype > 1)
-	  type += 3;
+        if (layertype > 1)
+          type += 3;
 #ifdef EDM_ML_DEBUG
         if (iu > ium)
           ium = iu;
