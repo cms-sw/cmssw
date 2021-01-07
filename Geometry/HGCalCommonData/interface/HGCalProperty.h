@@ -13,32 +13,39 @@ namespace HGCalProperty {
   int32_t tileType(const int32_t property);
   int32_t tileSiPM(const int32_t property);
 
-  const int32_t kHGCalWaferUOffset = 0;
-  const int32_t kHGCalWaferUMask = 0x1F;
-  const int32_t kHGCalWaferUSignOffset = 5;
-  const int32_t kHGCalWaferUSignMask = 0x1;
-  const int32_t kHGCalWaferVOffset = 6;
-  const int32_t kHGCalWaferVMask = 0x1F;
-  const int32_t kHGCalWaferVSignOffset = 11;
-  const int32_t kHGCalWaferVSignMask = 0x1;
-  const int32_t kHGCalWaferCopyOffset = 0;
-  const int32_t kHGCalWaferCopyMask = 0x7FFFF;
-  const int32_t kHGCalLayerOldMask = 0x1000000;
+  constexpr int32_t kHGCalWaferUOffset = 0;
+  constexpr int32_t kHGCalWaferUMask = 0x1F;
+  constexpr int32_t kHGCalWaferUSignOffset = 5;
+  constexpr int32_t kHGCalWaferUSignMask = 0x1;
+  constexpr int32_t kHGCalWaferVOffset = 6;
+  constexpr int32_t kHGCalWaferVMask = 0x1F;
+  constexpr int32_t kHGCalWaferVSignOffset = 11;
+  constexpr int32_t kHGCalWaferVSignMask = 0x1;
+  constexpr int32_t kHGCalWaferCopyOffset = 0;
+  constexpr int32_t kHGCalWaferCopyMask = 0x7FFFF;
+  constexpr int32_t kHGCalLayerOldMask = 0x1000000;
 
-  const int32_t kHGCalLayerOffset = 18;
-  const int32_t kHGCalLayerMask = 0x1F;
+  constexpr int32_t kHGCalLayerOffset = 18;
+  constexpr int32_t kHGCalLayerMask = 0x1F;
 
-  const int32_t kHGCalPhiOffset = 0;
-  const int32_t kHGCalPhiMask = 0x1FF;
-  const int32_t kHGCalRingOffset = 9;
-  const int32_t kHGCalRingMask = 0x1FF;
+  constexpr int32_t kHGCalPhiOffset = 0;
+  constexpr int32_t kHGCalPhiMask = 0x1FF;
+  constexpr int32_t kHGCalRingOffset = 9;
+  constexpr int32_t kHGCalRingMask = 0x1FF;
 
-  const int32_t kHGCalFactor = 10;
-  const int32_t kHGCalOffsetThick = 1;
-  const int32_t kHGCalOffsetPartial = 10;
-  const int32_t kHGCalOffsetOrient = 100;
-  const int32_t kHGCalOffsetType = 1;
-  const int32_t kHGCalOffsetSiPM = 10;
+  constexpr int32_t kHGCalFactor = 10;
+  constexpr int32_t kHGCalOffsetThick = 1;
+  constexpr int32_t kHGCalOffsetPartial = 10;
+  constexpr int32_t kHGCalOffsetOrient = 100;
+  constexpr int32_t kHGCalOffsetType = 1;
+  constexpr int32_t kHGCalOffsetSiPM = 10;
+  constexpr int32_t kHGCalTilePack = 1000;
+
+  constexpr int32_t kHGCalTilePhis = 288;
+  constexpr int32_t kHGCalTilePhisBy2 = kHGCalTilePhis / 2;
+  constexpr int32_t kHGCalTilePhisBy3 = kHGCalTilePhis / 3;
+  constexpr int32_t kHGCalTilePhisBy12 = kHGCalTilePhis / 12;
+
 };  // namespace HGCalProperty
 
 #endif
