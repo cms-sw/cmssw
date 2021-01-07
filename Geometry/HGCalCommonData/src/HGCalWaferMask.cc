@@ -784,3 +784,82 @@ bool HGCalWaferMask::goodTypeMode(
                                   << rout << ":" << part << ":" << rotn << " Results " << ok << ":" << ncf;
   return ok;
 }
+
+std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(
+    int part, int ori, int zside, double delX, double delY, double xpos, double ypos) {
+  std::vector<std::pair<double, double> > xy;
+  int orient = getRotation(zside, part, ori);
+
+  double dx[24] = {HGCalTypes::c00 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c00 * delX,
+                   -HGCalTypes::c10 * delX, -HGCalTypes::c10 * delX, HGCalTypes::c50 * delX,  HGCalTypes::c10 * delX,
+                   HGCalTypes::c50 * delX,  -HGCalTypes::c50 * delX, -HGCalTypes::c10 * delX, -HGCalTypes::c50 * delX,
+                   HGCalTypes::c22 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c77 * delX,  -HGCalTypes::c22 * delX,
+                   -HGCalTypes::c10 * delX, -HGCalTypes::c77 * delX, HGCalTypes::c22 * delX,  -HGCalTypes::c77 * delX,
+                   -HGCalTypes::c10 * delX, -HGCalTypes::c22 * delX, HGCalTypes::c77 * delX,  HGCalTypes::c10 * delX};
+  double dy[24] = {-HGCalTypes::c10 * delY, -HGCalTypes::c50 * delY, HGCalTypes::c50 * delY,  HGCalTypes::c10 * delY,
+                   HGCalTypes::c50 * delY,  -HGCalTypes::c50 * delY, -HGCalTypes::c75 * delY, HGCalTypes::c00 * delY,
+                   HGCalTypes::c75 * delY,  HGCalTypes::c75 * delY,  HGCalTypes::c00 * delY,  -HGCalTypes::c75 * delY,
+                   -HGCalTypes::c88 * delY, -HGCalTypes::c27 * delY, HGCalTypes::c61 * delY,  HGCalTypes::c88 * delY,
+                   HGCalTypes::c27 * delY,  -HGCalTypes::c61 * delY, HGCalTypes::c88 * delY,  HGCalTypes::c61 * delY,
+                   -HGCalTypes::c27 * delY, -HGCalTypes::c88 * delY, -HGCalTypes::c61 * delY, HGCalTypes::c27 * delY};
+  if (part == HGCalTypes::WaferFull) {
+    int np[7] = {0, 1, 2, 3, 4, 5, 0};
+    for (int k = 0; k < 7; ++k)
+      xy.push_back(std::make_pair((xpos + dx[np[k]]), (ypos + dy[np[k]])));
+  } else if (part == HGCalTypes::WaferFive) {
+    int np[6][6] = {{0, 2, 3, 4, 5, 0},
+                    {1, 3, 4, 5, 0, 1},
+                    {2, 4, 5, 0, 1, 2},
+                    {3, 5, 0, 1, 2, 3},
+                    {4, 0, 1, 2, 3, 4},
+                    {5, 1, 2, 3, 4, 5}};
+    for (int k = 0; k < 6; ++k)
+      xy.push_back(std::make_pair((xpos + dx[np[orient][k]]), (ypos + dy[np[orient][k]])));
+  } else if (part == HGCalTypes::WaferHalf) {
+    int np[6][5] = {
+        {0, 3, 4, 5, 0}, {1, 4, 5, 0, 1}, {2, 5, 0, 1, 2}, {3, 0, 1, 2, 3}, {4, 1, 2, 3, 4}, {5, 2, 3, 4, 5}};
+    for (int k = 0; k < 5; ++k)
+      xy.push_back(std::make_pair((xpos + dx[np[orient][k]]), (ypos + dy[np[orient][k]])));
+  } else if (part == HGCalTypes::WaferThree) {
+    int np[6][4] = {{0, 4, 5, 0}, {1, 5, 0, 1}, {2, 0, 1, 2}, {3, 1, 2, 3}, {4, 2, 3, 4}, {5, 3, 4, 5}};
+    for (int k = 0; k < 4; ++k)
+      xy.push_back(std::make_pair((xpos + dx[np[orient][k]]), (ypos + dy[np[orient][k]])));
+  } else if (part == HGCalTypes::WaferChopTwo) {
+    int np[6][7] = {{6, 8, 3, 4, 5, 0, 6},
+                    {7, 9, 4, 5, 0, 1, 7},
+                    {8, 10, 5, 0, 1, 2, 8},
+                    {9, 11, 0, 1, 2, 3, 9},
+                    {10, 6, 1, 2, 3, 4, 10},
+                    {11, 7, 2, 3, 4, 5, 11}};
+    for (int k = 0; k < 7; ++k)
+      xy.push_back(std::make_pair((xpos + dx[np[orient][k]]), (ypos + dy[np[orient][k]])));
+  } else if (part == HGCalTypes::WaferSemi) {
+    int np[6][6] = {{6, 9, 4, 5, 0, 6},
+                    {7, 10, 5, 0, 1, 7},
+                    {8, 11, 0, 1, 2, 8},
+                    {9, 6, 1, 2, 3, 9},
+                    {10, 7, 2, 3, 4, 10},
+                    {11, 8, 3, 4, 5, 11}};
+    for (int k = 0; k < 6; ++k)
+      xy.push_back(std::make_pair((xpos + dx[np[orient][k]]), (ypos + dy[np[orient][k]])));
+  } else if (part == HGCalTypes::WaferChopTwoM) {
+    int np[6][7] = {{12, 18, 3, 4, 5, 0, 12},
+                    {13, 19, 4, 5, 0, 1, 13},
+                    {14, 20, 5, 0, 1, 2, 14},
+                    {15, 21, 0, 1, 2, 3, 15},
+                    {16, 22, 1, 2, 3, 4, 16},
+                    {17, 23, 2, 3, 4, 5, 17}};
+    for (int k = 0; k < 7; ++k)
+      xy.push_back(std::make_pair((xpos + dx[np[orient][k]]), (ypos + dy[np[orient][k]])));
+  } else if (part == HGCalTypes::WaferSemi2) {
+    int np[6][6] = {{12, 19, 4, 5, 0, 12},
+                    {13, 20, 5, 0, 1, 13},
+                    {14, 21, 0, 1, 2, 14},
+                    {15, 22, 1, 2, 3, 15},
+                    {16, 23, 2, 3, 4, 16},
+                    {17, 18, 3, 4, 5, 17}};
+    for (int k = 0; k < 6; ++k)
+      xy.push_back(std::make_pair((xpos + dx[np[orient][k]]), (ypos + dy[np[orient][k]])));
+  }
+  return xy;
+}
