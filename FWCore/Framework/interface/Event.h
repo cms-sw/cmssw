@@ -219,9 +219,9 @@ namespace edm {
     template <typename ELEMENT>
     Handle<View<ELEMENT>> fillView_(BasicHandle& bh) const;
 
-    Provenance getProvenance(BranchID const& theID) const;
+    Provenance const& getProvenance(BranchID const& theID) const;
 
-    Provenance getProvenance(ProductID const& theID) const;
+    Provenance const& getProvenance(ProductID const& theID) const;
 
     StableProvenance const& getStableProvenance(BranchID const& theID) const;
 

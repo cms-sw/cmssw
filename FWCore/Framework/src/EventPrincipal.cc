@@ -351,7 +351,7 @@ namespace edm {
     }
   }
 
-  Provenance EventPrincipal::getProvenance(ProductID const& pid) const {
+  Provenance const& EventPrincipal::getProvenance(ProductID const& pid) const {
     BranchID bid = pidToBid(pid);
     return getProvenance(bid);
   }
