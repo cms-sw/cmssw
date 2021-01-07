@@ -46,8 +46,13 @@ _iterations_trackingPhase1 = [
     "MixedTripletStep",
     "PixelLessStep",
     "TobTecStep",
-    "JetCoreRegionalStep",
 ]
+
+from Configuration.ProcessModifiers.displacedTracking_cff import displacedTracking
+displacedTracking.toModify(_iterations_trackingPhase1, func=lambda x: x.append('DisplacedGeneralStep'))
+
+_iterations_trackingPhase1.append('JetCoreRegionalStep')
+
 _iterations_trackingPhase2PU140 = [
     "InitialStep",
     "HighPtTripletStep",
