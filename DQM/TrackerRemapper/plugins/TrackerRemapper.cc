@@ -1,27 +1,183 @@
-#include "DQM/TrackerRemapper/interface/TrackerRemapper.h"
+//
+// Original Author:  Pawel Jurgielewicz
+//         Created:  Tue, 21 Nov 2017 13:38:45 GMT
+//
+//
 
+// system include files
+#include <memory>
 #include <fstream>
 #include <utility>
+#include <iostream>
+#include <vector>
+#include <map>
+#include <string>
+
+// user include files
+#include "CalibTracker/SiStripCommon/interface/TkDetMap.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
+#include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+
+// root include files
+#include "TGraph.h"
+#include "TObjString.h"
+#include "TObjArray.h"
+#include "TH2Poly.h"
+#include "TProfile2D.h"
+#include "TColor.h"
+
+using namespace edm;
+
+class TrackerRemapper : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+public:
+  explicit TrackerRemapper(const edm::ParameterSet&);
+  ~TrackerRemapper() override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+  enum PixelLayerEnum {
+    INVALID = 0,
+
+    PXB_L1,
+    PXB_L2,
+    PXB_L3,
+    PXB_L4,
+
+    PXF_R1,
+    PXF_R2
+  };
+
+  enum AnalyzeData {
+    RECHITS = 1,
+    DIGIS,
+    CLUSTERS,
+  };
+
+  enum OpMode { MODE_ANALYZE = 0, MODE_REMAP = 1 };
+
+private:
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
+
+  void readVertices(double& minx, double& maxx, double& miny, double& maxy);
+
+  void prepareStripNames();
+  void preparePixelNames();
+
+  void bookBins();
+
+  template <class T>
+  void analyzeGeneric(const edm::Event& iEvent, const edm::EDGetTokenT<T>& src);
+  void analyzeRechits(const edm::Event& iEvent, const edm::EDGetTokenT<reco::TrackCollection>& src);
+  // void analyzeDigis(const edm::Event& iEvent);
+  // void analyzeClusters(const edm::Event& iEvent);
+
+  void fillStripRemap();
+  void fillPixelRemap(const TrackerGeometry* theTrackerGeometry, const TrackerTopology* tt);
+  void fillBarrelRemap(TFile* rootFileHandle, const TrackerGeometry* theTrackerGeometry, const TrackerTopology* tt);
+  void fillEndcapRemap(TFile* rootFileHandle, const TrackerGeometry* theTrackerGeometry, const TrackerTopology* tt);
+
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
+  const edm::ESGetToken<TkDetMap, TrackerTopologyRcd> tkDetMapToken_;
+
+  edm::Service<TFileService> fs;
+  const edm::ParameterSet& iConfig;
+
+  unsigned opMode;
+  unsigned analyzeMode;
+
+  std::map<long, TGraph*> bins;
+  std::vector<unsigned> detIdVector;
+
+  const TkDetMap* tkdetmap;
+
+  std::map<unsigned, std::string> stripHistnameMap;
+  std::map<unsigned, std::string> pixelHistnameMap;
+  std::map<unsigned, std::string> analyzeModeNameMap;
+
+  std::string stripRemapFile;
+  std::string pixelRemapFile;
+
+  std::string stripBaseDir, stripDesiredHistogram;
+  std::string pixelBaseDir, pixelDesiredHistogramBarrel, pixelDesiredHistogramDisk;
+
+  std::string runString;
+
+  TH2Poly* trackerMap{nullptr};
+
+  edm::EDGetTokenT<reco::TrackCollection> rechitSrcToken;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiStripDigi>> digiSrcToken;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster>> clusterSrcToken;
+};
+
+template <class T>
+//***************************************************************//
+void TrackerRemapper::analyzeGeneric(const edm::Event& iEvent, const edm::EDGetTokenT<T>& src)
+//***************************************************************//
+{
+  edm::Handle<T> input;
+  iEvent.getByToken(src, input);
+
+  if (!input.isValid()) {
+    edm::LogError("TrackerRemapper") << "<GENERIC> not found... Aborting...\n";
+    return;
+  }
+
+  typename T::const_iterator it;
+  for (it = input->begin(); it != input->end(); ++it) {
+    auto id = DetId(it->detId());
+    trackerMap->Fill(TString::Format("%ld", (long)id.rawId()), it->size());
+  }
+}
+
+template <>
+//***************************************************************//
+void TrackerRemapper::analyzeGeneric(const edm::Event& iEvent, const edm::EDGetTokenT<reco::TrackCollection>& t)
+//***************************************************************//
+{
+  analyzeRechits(iEvent, t);
+}
 
 TrackerRemapper::TrackerRemapper(const edm::ParameterSet& iConfig)
     : iConfig(iConfig),
       opMode(iConfig.getUntrackedParameter<unsigned>("opMode")),
       analyzeMode(iConfig.getUntrackedParameter<unsigned>("analyzeMode")),
-      stripRemapFile(iConfig.getUntrackedParameter<string>("stripRemapFile")),
-      stripDesiredHistogram(iConfig.getUntrackedParameter<string>("stripHistogram")),
-      runString(iConfig.getUntrackedParameter<string>("runString")) {
+      stripRemapFile(iConfig.getUntrackedParameter<std::string>("stripRemapFile")),
+      stripDesiredHistogram(iConfig.getUntrackedParameter<std::string>("stripHistogram")),
+      runString(iConfig.getUntrackedParameter<std::string>("runString")) {
   usesResource("TFileService");
 
-  pixelRemapFile = string("DQM_V0001_PixelPhase1_R000305516.root");
+  pixelRemapFile = std::string("DQM_V0001_PixelPhase1_R000305516.root");
 
-  stripBaseDir = string("DQMData/Run " + runString + "/SiStrip/Run summary/MechanicalView/");
-  pixelBaseDir = string("DQMData/Run " + runString + "/PixelPhase1/Run summary/Phase1_MechanicalView/");
+  stripBaseDir = std::string("DQMData/Run " + runString + "/SiStrip/Run summary/MechanicalView/");
+  pixelBaseDir = std::string("DQMData/Run " + runString + "/PixelPhase1/Run summary/Phase1_MechanicalView/");
 
-  pixelDesiredHistogramBarrel = string("adc_per_SignedModule_per_SignedLadder");
-  pixelDesiredHistogramDisk = string("adc_per_PXDisk_per_SignedBladePanel");
+  pixelDesiredHistogramBarrel = std::string("adc_per_SignedModule_per_SignedLadder");
+  pixelDesiredHistogramDisk = std::string("adc_per_PXDisk_per_SignedBladePanel");
 
-  PrepareStripNames();
-  PreparePixelNames();
+  prepareStripNames();
+  preparePixelNames();
 
   analyzeModeNameMap[RECHITS] = "# Rechits";
   analyzeModeNameMap[DIGIS] = "# Digis";
@@ -39,14 +195,17 @@ TrackerRemapper::TrackerRemapper(const edm::ParameterSet& iConfig)
         clusterSrcToken = consumes<edmNew::DetSetVector<SiStripCluster>>(iConfig.getParameter<edm::InputTag>("src"));
         break;
       default:
-        cout << "Unrecognized analyze mode!" << endl;
+        edm::LogError("LogicError") << "Unrecognized analyze mode!" << std::endl;
     }
   }
 
   // TColor::SetPalette(1);
 }
 
-void TrackerRemapper::PrepareStripNames() {
+//***************************************************************//
+void TrackerRemapper::prepareStripNames()
+//***************************************************************//
+{
   stripHistnameMap[TkLayerMap::TkLayerEnum::TIB_L1] =
       stripBaseDir + "TIB/layer_1/" + stripDesiredHistogram + "_TIB_L1;1";
   stripHistnameMap[TkLayerMap::TkLayerEnum::TIB_L2] =
@@ -121,7 +280,10 @@ void TrackerRemapper::PrepareStripNames() {
       stripBaseDir + "TEC/PLUS/wheel_9/" + stripDesiredHistogram + "_TECP_W9;1";
 }
 
-void TrackerRemapper::PreparePixelNames() {
+//***************************************************************//
+void TrackerRemapper::preparePixelNames()
+//***************************************************************//
+{
   pixelHistnameMap[PixelLayerEnum::PXB_L1] = pixelBaseDir + "PXBarrel/" + pixelDesiredHistogramBarrel + "_PXLayer_1;1";
   pixelHistnameMap[PixelLayerEnum::PXB_L2] = pixelBaseDir + "PXBarrel/" + pixelDesiredHistogramBarrel + "_PXLayer_2;1";
   pixelHistnameMap[PixelLayerEnum::PXB_L3] = pixelBaseDir + "PXBarrel/" + pixelDesiredHistogramBarrel + "_PXLayer_3;1";
@@ -133,45 +295,45 @@ void TrackerRemapper::PreparePixelNames() {
 
 TrackerRemapper::~TrackerRemapper() {}
 
-void TrackerRemapper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  ESHandle<TrackerGeometry> theTrackerGeometry;
-  iSetup.get<TrackerDigiGeometryRecord>().get(theTrackerGeometry);
+//***************************************************************//
+void TrackerRemapper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+//***************************************************************//
+{
+  // get the ES products
 
-  edm::ESHandle<TrackerTopology> trackerTopologyHandle;
-  iSetup.get<TrackerTopologyRcd>().get(trackerTopologyHandle);
-
-  const TrackerTopology* tt = trackerTopologyHandle.operator->();
-
-  edm::ESHandle<TkDetMap> tkDetMapHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
-  tkdetmap = tkDetMapHandle.product();
+  const TrackerGeometry* theTrackerGeometry = &iSetup.getData(geomToken_);
+  const TrackerTopology* tt = &iSetup.getData(topoToken_);
+  tkdetmap = &iSetup.getData(tkDetMapToken_);
 
   if (!trackerMap)
-    BookBins(theTrackerGeometry, tt);
+    bookBins();
 
   if (opMode == MODE_ANALYZE) {
     switch (analyzeMode) {
       case AnalyzeData::RECHITS:
-        AnalyzeGeneric(iEvent, rechitSrcToken);
+        analyzeGeneric(iEvent, rechitSrcToken);
         break;
       case AnalyzeData::DIGIS:
-        AnalyzeGeneric(iEvent, digiSrcToken);
+        analyzeGeneric(iEvent, digiSrcToken);
         break;
       case AnalyzeData::CLUSTERS:
-        AnalyzeGeneric(iEvent, clusterSrcToken);
-        // AnalyzeClusters(iEvent);
+        analyzeGeneric(iEvent, clusterSrcToken);
+        // analyzeClusters(iEvent);
         break;
       default:
-        cout << "Unrecognized Analyze mode!" << endl;
+        edm::LogError("LogicError") << "Unrecognized Analyze mode!" << std::endl;
         return;
     }
   } else if (opMode == MODE_REMAP) {
-    FillStripRemap();
-    //FillPixelRemap(theTrackerGeometry, tt);
+    fillStripRemap();
+    fillPixelRemap(theTrackerGeometry, tt);
   }
 }
 
-void TrackerRemapper::AnalyzeRechits(const edm::Event& iEvent, const edm::EDGetTokenT<reco::TrackCollection>& src) {
+//***************************************************************//
+void TrackerRemapper::analyzeRechits(const edm::Event& iEvent, const edm::EDGetTokenT<reco::TrackCollection>& src)
+//***************************************************************//
+{
   edm::Handle<reco::TrackCollection> tracks;
   iEvent.getByToken(src, tracks);
   if (!tracks.isValid()) {
@@ -199,10 +361,13 @@ void TrackerRemapper::AnalyzeRechits(const edm::Event& iEvent, const edm::EDGetT
   }
 }
 
-void TrackerRemapper::BookBins(ESHandle<TrackerGeometry>& theTrackerGeometry, const TrackerTopology* tt) {
+//***************************************************************//
+void TrackerRemapper::bookBins()
+//***************************************************************//
+{
   // Read vertices from file
   double minx = 0xFFFFFF, maxx = -0xFFFFFF, miny = 0xFFFFFF, maxy = -0xFFFFFFF;
-  ReadVertices(minx, maxx, miny, maxy);
+  readVertices(minx, maxx, miny, maxy);
 
   TObject* ghostObj = fs->make<TH2Poly>("ghost", "ghost", -1, 1, -1, 1);
 
@@ -210,13 +375,13 @@ void TrackerRemapper::BookBins(ESHandle<TrackerGeometry>& theTrackerGeometry, co
   topDir->cd();
 
   int margin = 50;
-  string mapTitle;
+  std::string mapTitle;
   switch (opMode) {
     case MODE_ANALYZE:
-      mapTitle = string(analyzeModeNameMap[analyzeMode] + " - " + runString);
+      mapTitle = std::string(analyzeModeNameMap[analyzeMode] + " - " + runString);
       break;
     case MODE_REMAP:
-      mapTitle = string(stripDesiredHistogram + " - " + runString);
+      mapTitle = std::string(stripDesiredHistogram + " - " + runString);
       break;
   }
 
@@ -234,7 +399,10 @@ void TrackerRemapper::BookBins(ESHandle<TrackerGeometry>& theTrackerGeometry, co
   ghostObj->Delete();  //not needed any more
 }
 
-void TrackerRemapper::ReadVertices(double& minx, double& maxx, double& miny, double& maxy) {
+//***************************************************************//
+void TrackerRemapper::readVertices(double& minx, double& maxx, double& miny, double& maxy)
+//***************************************************************//
+{
   std::ifstream in;
 
   // TPolyline vertices stored at https://github.com/cms-data/DQM-SiStripMonitorClient
@@ -243,8 +411,7 @@ void TrackerRemapper::ReadVertices(double& minx, double& maxx, double& miny, dou
   unsigned count = 0;
 
   if (!in.good()) {
-    std::cout << "Error Reading File" << std::endl;
-    return;
+    throw cms::Exception("TrackerRemapper") << "Error Reading File" << std::endl;
   }
   while (in.good()) {
     long detid = 0;
@@ -301,7 +468,10 @@ void TrackerRemapper::ReadVertices(double& minx, double& maxx, double& miny, dou
   }
 }
 
-void TrackerRemapper::FillStripRemap() {
+//***************************************************************//
+void TrackerRemapper::fillStripRemap()
+//***************************************************************//
+{
   int nchX;
   int nchY;
   double lowX, highX;
@@ -315,7 +485,7 @@ void TrackerRemapper::FillStripRemap() {
     const TProfile2D* histHandle = (TProfile2D*)rootFileHandle->Get(stripHistnameMap[layer].c_str());
 
     if (!histHandle) {
-      cout << "Could not find histogram:\n\t" << stripHistnameMap[layer] << endl;
+      edm::LogError("TrackerRemapper") << "Could not find histogram:\n\t" << stripHistnameMap[layer] << std::endl;
       return;
     }
 
@@ -327,7 +497,7 @@ void TrackerRemapper::FillStripRemap() {
         {
           double val = histHandle->GetBinContent(binx, biny);
 
-          // cout << rawid << " " << val << "\n";
+          // edm::LogInfo("TrackerRemapper") << rawid << " " << val << "\n";
 
           trackerMap->Fill(TString::Format("%ld", rawid), val);
         }
@@ -338,22 +508,28 @@ void TrackerRemapper::FillStripRemap() {
   rootFileHandle->Close();
 }
 
-void TrackerRemapper::FillPixelRemap(ESHandle<TrackerGeometry>& theTrackerGeometry, const TrackerTopology* tt) {
+//***************************************************************//
+void TrackerRemapper::fillPixelRemap(const TrackerGeometry* theTrackerGeometry, const TrackerTopology* tt)
+//***************************************************************//
+{
   TFile* rootFileHandle = new TFile(pixelRemapFile.c_str());
 
   if (!rootFileHandle) {
-    cout << "Could not find file:\n\t" << pixelRemapFile << endl;
+    edm::LogError("TrackerRemapper") << "Could not find file:\n\t" << pixelRemapFile << std::endl;
     return;
   }
-  FillBarrelRemap(rootFileHandle, theTrackerGeometry, tt);
-  FillEndcapRemap(rootFileHandle, theTrackerGeometry, tt);
+  fillBarrelRemap(rootFileHandle, theTrackerGeometry, tt);
+  fillEndcapRemap(rootFileHandle, theTrackerGeometry, tt);
 
   rootFileHandle->Close();
 }
 
-void TrackerRemapper::FillBarrelRemap(TFile* rootFileHandle,
-                                      ESHandle<TrackerGeometry>& theTrackerGeometry,
-                                      const TrackerTopology* tt) {
+//***************************************************************//
+void TrackerRemapper::fillBarrelRemap(TFile* rootFileHandle,
+                                      const TrackerGeometry* theTrackerGeometry,
+                                      const TrackerTopology* tt)
+//***************************************************************//
+{
   TrackingGeometry::DetContainer pxb = theTrackerGeometry->detsPXB();
 
   for (auto& i : pxb) {
@@ -388,9 +564,12 @@ void TrackerRemapper::FillBarrelRemap(TFile* rootFileHandle,
   }
 }
 
-void TrackerRemapper::FillEndcapRemap(TFile* rootFileHandle,
-                                      ESHandle<TrackerGeometry>& theTrackerGeometry,
-                                      const TrackerTopology* tt) {
+//***************************************************************//
+void TrackerRemapper::fillEndcapRemap(TFile* rootFileHandle,
+                                      const TrackerGeometry* theTrackerGeometry,
+                                      const TrackerTopology* tt)
+//***************************************************************//
+{
   TrackingGeometry::DetContainer pxf = theTrackerGeometry->detsPXF();
 
   for (auto& i : pxf) {
@@ -444,7 +623,7 @@ void TrackerRemapper::fillDescriptions(edm::ConfigurationDescriptions& descripti
   ----------------------------- REDUNDANT STAFF -----------------------------
 */
 
-// void TrackerRemapper::AnalyzeDigis(const edm::Event& iEvent)
+// void TrackerRemapper::analyzeDigis(const edm::Event& iEvent)
 // {
 //   // static ?
 //   auto srcToken = consumes<edm::DetSetVector<SiStripDigi>>(iConfig.getParameter<edm::InputTag>("src"));
@@ -466,7 +645,7 @@ void TrackerRemapper::fillDescriptions(edm::ConfigurationDescriptions& descripti
 //   }
 // }
 
-// void TrackerRemapper::AnalyzeClusters(const edm::Event& iEvent)
+// void TrackerRemapper::analyzeClusters(const edm::Event& iEvent)
 // {
 //   // static ?
 //   // auto srcToken = consumes<edm::DetSetVector<SiStripCluster>>(iConfig.getParameter<edm::InputTag>("src"));
@@ -476,7 +655,7 @@ void TrackerRemapper::fillDescriptions(edm::ConfigurationDescriptions& descripti
 
 //   if (!input.isValid())
 //   {
-//     cout << "edm::DetSetVector<SiStripCluster> not found... Aborting...\n";
+//     edm::LogError("TrackerRemapper") << "edm::DetSetVector<SiStripCluster> not found... Aborting...\n";
 //     return;
 //   }
 
@@ -488,3 +667,6 @@ void TrackerRemapper::fillDescriptions(edm::ConfigurationDescriptions& descripti
 //     trackerMap->Fill(TString::Format("%ld", (long)id.rawId()), it->size());
 //   }
 // }
+
+//define this as a plug-in
+DEFINE_FWK_MODULE(TrackerRemapper);
