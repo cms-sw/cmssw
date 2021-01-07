@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+    <ConstantsSection label="RP_Dist_Beam_Cent.xml" eval="true">
+        <!-- sector 45, 210m station -->
+        <Constant name="RP_147_Left_Det_Dist_0" value="7*mm"/>
+        <Constant name="RP_147_Left_Det_Dist_1" value="7*mm"/>
+        <Constant name="RP_147_Left_Det_Dist_2" value="2*mm"/>
+        <Constant name="RP_147_Left_Det_Dist_3" value="2*mm"/>
+        <Constant name="RP_147_Left_Det_Dist_4" value="7*mm"/>
+        <Constant name="RP_147_Left_Det_Dist_5" value="7*mm"/>
+
+        <!-- sector 45, 220m station -->
+        <Constant name="RP_220_Left_Det_Dist_0" value="7*mm"/>
+        <Constant name="RP_220_Left_Det_Dist_1" value="7*mm"/>
+        <Constant name="RP_220_Left_Det_Dist_2" value="2*mm"/>
+        <Constant name="RP_220_Left_Det_Dist_3" value="2*mm"/>
+        <Constant name="RP_220_Left_Det_Dist_4" value="7*mm"/>
+        <Constant name="RP_220_Left_Det_Dist_5" value="7*mm"/>
+
+        <!-- sector 56, 210m station -->
+        <Constant name="RP_147_Right_Det_Dist_0" value="7*mm"/>
+        <Constant name="RP_147_Right_Det_Dist_1" value="7*mm"/>
+        <Constant name="RP_147_Right_Det_Dist_2" value="2*mm"/>
+        <Constant name="RP_147_Right_Det_Dist_3" value="2*mm"/>
+        <Constant name="RP_147_Right_Det_Dist_4" value="7*mm"/>
+        <Constant name="RP_147_Right_Det_Dist_5" value="7*mm"/>
+
+        <!-- sector 56, 220m station -->
+        <Constant name="RP_220_Right_Det_Dist_0" value="7*mm"/>
+        <Constant name="RP_220_Right_Det_Dist_1" value="7*mm"/>
+        <Constant name="RP_220_Right_Det_Dist_2" value="2*mm"/>
+        <Constant name="RP_220_Right_Det_Dist_3" value="2*mm"/>
+        <Constant name="RP_220_Right_Det_Dist_4" value="7*mm"/>
+        <Constant name="RP_220_Right_Det_Dist_5" value="7*mm"/>
+
+        <!-- sector 45, diamond station -->
+        <Constant name="CTPPS_45_Det_Dist" value="2*mm"/>
+
+        <!-- sector 56, diamond station -->
+        <Constant name="CTPPS_56_Det_Dist" value="2*mm"/>
+    </ConstantsSection>
+</DDDefinition>

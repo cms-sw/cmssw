@@ -696,7 +696,10 @@ namespace edm {
         ParentContext parentContext(&streamContext_);
         using Traits = OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>;
 
-        results_inserter_->doWork<Traits>(info, streamID_, parentContext, &streamContext_);
+        auto expt = results_inserter_->runModuleDirectly<Traits>(info, streamID_, parentContext, &streamContext_);
+        if (expt) {
+          std::rethrow_exception(expt);
+        }
       } catch (cms::Exception& ex) {
         if (not iExcept) {
           if (ex.context().empty()) {
