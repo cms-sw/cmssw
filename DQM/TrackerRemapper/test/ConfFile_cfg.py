@@ -45,8 +45,7 @@ options.register ("stripHistogram",
                   VarParsing.VarParsing.varType.string,         
                   "Strip Detector Histogram to Remap")   
 
-options.register (
-                  "src",   
+options.register ("src",   
                   dataSourceDic[defaultAnylyzeMode],                                              
                   VarParsing.VarParsing.multiplicity.singleton, 
                   VarParsing.VarParsing.varType.string,         
@@ -80,13 +79,13 @@ elif options.opMode == MODE_REMAP:
     runNumber = str(int(options.inputRootFile.split("_")[-1].split(".")[0][1:]))
 
 process.demo = cms.EDAnalyzer('TrackerRemapper',
-                                opMode = cms.untracked.uint32(options.opMode),
-                                analyzeMode = cms.untracked.uint32(options.analyzeMode),
-                                stripRemapFile = cms.untracked.string(options.inputRootFile),
-                                stripHistogram = cms.untracked.string(options.stripHistogram),
-                                runString = cms.untracked.string(runNumber),
-                                src = cms.InputTag(options.src),
-                                )
+                              opMode = cms.int32(options.opMode),
+                              analyzeMode = cms.int32(options.analyzeMode),
+                              #stripRemapFile = cms.string(options.inputRootFile),
+                              #stripHistogram = cms.string(options.stripHistogram),
+                              #runString = cms.string(runNumber),
+                              src = cms.InputTag(options.src),
+                              )
 
 process.p = cms.Path(process.demo)
 

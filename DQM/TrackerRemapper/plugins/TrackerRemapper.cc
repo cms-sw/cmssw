@@ -33,6 +33,8 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/EmptyGroupDescription.h"
+#include "FWCore/ParameterSet/interface/allowedValues.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -89,8 +91,6 @@ private:
   template <class T>
   void analyzeGeneric(const edm::Event& iEvent, const edm::EDGetTokenT<T>& src);
   void analyzeRechits(const edm::Event& iEvent, const edm::EDGetTokenT<reco::TrackCollection>& src);
-  // void analyzeDigis(const edm::Event& iEvent);
-  // void analyzeClusters(const edm::Event& iEvent);
 
   void fillStripRemap();
   void fillPixelRemap(const TrackerGeometry* theTrackerGeometry, const TrackerTopology* tt);
@@ -104,8 +104,8 @@ private:
   edm::Service<TFileService> fs;
   const edm::ParameterSet& iConfig;
 
-  unsigned opMode;
-  unsigned analyzeMode;
+  int opMode;
+  int analyzeMode;
 
   std::map<long, TGraph*> bins;
   std::vector<unsigned> detIdVector;
@@ -159,31 +159,36 @@ void TrackerRemapper::analyzeGeneric(const edm::Event& iEvent, const edm::EDGetT
   analyzeRechits(iEvent, t);
 }
 
+//***************************************************************//
 TrackerRemapper::TrackerRemapper(const edm::ParameterSet& iConfig)
-    : iConfig(iConfig),
-      opMode(iConfig.getUntrackedParameter<unsigned>("opMode")),
-      analyzeMode(iConfig.getUntrackedParameter<unsigned>("analyzeMode")),
-      stripRemapFile(iConfig.getUntrackedParameter<std::string>("stripRemapFile")),
-      stripDesiredHistogram(iConfig.getUntrackedParameter<std::string>("stripHistogram")),
-      runString(iConfig.getUntrackedParameter<std::string>("runString")) {
+    : geomToken_(esConsumes()),
+      topoToken_(esConsumes()),
+      tkDetMapToken_(esConsumes()),
+      iConfig(iConfig),
+      opMode(iConfig.getParameter<int>("opMode")),
+      analyzeMode(iConfig.getParameter<int>("analyzeMode")) {
   usesResource("TFileService");
 
-  pixelRemapFile = std::string("DQM_V0001_PixelPhase1_R000305516.root");
+  if (opMode == MODE_REMAP) {
+    stripRemapFile = iConfig.getParameter<std::string>("stripRemapFile");
+    stripDesiredHistogram = iConfig.getParameter<std::string>("stripHistogram");
+    runString = iConfig.getParameter<std::string>("runString");
 
-  stripBaseDir = std::string("DQMData/Run " + runString + "/SiStrip/Run summary/MechanicalView/");
-  pixelBaseDir = std::string("DQMData/Run " + runString + "/PixelPhase1/Run summary/Phase1_MechanicalView/");
+    pixelRemapFile = std::string("DQM_V0001_PixelPhase1_R000305516.root");
 
-  pixelDesiredHistogramBarrel = std::string("adc_per_SignedModule_per_SignedLadder");
-  pixelDesiredHistogramDisk = std::string("adc_per_PXDisk_per_SignedBladePanel");
+    stripBaseDir = std::string("DQMData/Run " + runString + "/SiStrip/Run summary/MechanicalView/");
+    pixelBaseDir = std::string("DQMData/Run " + runString + "/PixelPhase1/Run summary/Phase1_MechanicalView/");
 
-  prepareStripNames();
-  preparePixelNames();
+    pixelDesiredHistogramBarrel = std::string("adc_per_SignedModule_per_SignedLadder");
+    pixelDesiredHistogramDisk = std::string("adc_per_PXDisk_per_SignedBladePanel");
 
-  analyzeModeNameMap[RECHITS] = "# Rechits";
-  analyzeModeNameMap[DIGIS] = "# Digis";
-  analyzeModeNameMap[CLUSTERS] = "# Clusters";
+    prepareStripNames();
+    preparePixelNames();
+  } else if (opMode == MODE_ANALYZE) {
+    analyzeModeNameMap[RECHITS] = "# Rechits";
+    analyzeModeNameMap[DIGIS] = "# Digis";
+    analyzeModeNameMap[CLUSTERS] = "# Clusters";
 
-  if (opMode == MODE_ANALYZE) {
     switch (analyzeMode) {
       case RECHITS:
         rechitSrcToken = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("src"));
@@ -197,6 +202,8 @@ TrackerRemapper::TrackerRemapper(const edm::ParameterSet& iConfig)
       default:
         edm::LogError("LogicError") << "Unrecognized analyze mode!" << std::endl;
     }
+  } else {
+    throw cms::Exception("TrackerRemapper") << "Unrecognized operations mode!" << std::endl;
   }
 
   // TColor::SetPalette(1);
@@ -318,7 +325,6 @@ void TrackerRemapper::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         break;
       case AnalyzeData::CLUSTERS:
         analyzeGeneric(iEvent, clusterSrcToken);
-        // analyzeClusters(iEvent);
         break;
       default:
         edm::LogError("LogicError") << "Unrecognized Analyze mode!" << std::endl;
@@ -611,62 +617,31 @@ void TrackerRemapper::beginJob() {}
 
 void TrackerRemapper::endJob() {}
 
-void TrackerRemapper::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
+//***************************************************************//
+void TrackerRemapper::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
+//***************************************************************//
+{
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.setComment(
+      "Creates TH2Poly Strip Tracker maps by either analyzing the event or remapping exising DQM historams");
+  desc.add<edm::InputTag>("src", edm::InputTag("generalTracks"));
+  desc.ifValue(edm::ParameterDescription<int>("opMode", 0, true),
+               0 >> edm::EmptyGroupDescription() or
+                   1 >> (edm::ParameterDescription<std::string>("stripRemapFile", "", true) and
+                         edm::ParameterDescription<std::string>("stripHistogram", "", true) and
+                         edm::ParameterDescription<std::string>("runString", "", true)))
+      ->setComment("0 for Analyze, 1 for Remap");
+
+  desc.ifValue(edm::ParameterDescription<int>("analyzeMode", 1, true), edm::allowedValues<int>(1, 2, 3))
+      ->setComment("1=Rechits, 2=Digis, 3=Clusters");
+
+  //desc.add<unsigned int>("analyzeMode", 1)->setComment("1=Rechits, 2=Digis, 3=Clusters");
+  //desc.add<unsigned int>("opMode", 0)->setComment("0 for Analyze, 1 for Remap");
+  //desc.addOptional<std::string>("stripRemapFile","" )->setComment("file name to analyze, will come from the config file");
+  //desc.addOptional<std::string>("stripHistogram","TkHMap_NumberValidHits" )->setComment("histogram to use to remap");
+  //desc.addOptional<std::string>("runString", "")->setComment("run number, will come form config file");
+  descriptions.addWithDefaultLabel(desc);
 }
-
-/*
-  ----------------------------- REDUNDANT STAFF -----------------------------
-*/
-
-// void TrackerRemapper::analyzeDigis(const edm::Event& iEvent)
-// {
-//   // static ?
-//   auto srcToken = consumes<edm::DetSetVector<SiStripDigi>>(iConfig.getParameter<edm::InputTag>("src"));
-
-//   edm::Handle<edm::DetSetVector<SiStripDigi>> input;
-//   iEvent.getByToken(srcToken, input);
-//   if (!input.isValid())
-//   {
-//     LogInfo("Analyzer") << "edm::DetSetVector<SiStripDigi> not found... Aborting...\n";
-//     return;
-//   }
-
-//   edm::DetSetVector<SiStripDigi>::const_iterator it;
-//   for (it = input->begin(); it != input->end(); ++it)
-//   {
-//     auto id = DetId(it->detId());
-//     // NDIGIS
-//     trackerMap->Fill(TString::Format("%ld", (long)id.rawId()), it->size());
-//   }
-// }
-
-// void TrackerRemapper::analyzeClusters(const edm::Event& iEvent)
-// {
-//   // static ?
-//   // auto srcToken = consumes<edm::DetSetVector<SiStripCluster>>(iConfig.getParameter<edm::InputTag>("src"));
-
-//   edm::Handle<edmNew::DetSetVector<SiStripCluster>> input;
-//   iEvent.getByToken(clusterSrcToken, input);
-
-//   if (!input.isValid())
-//   {
-//     edm::LogError("TrackerRemapper") << "edm::DetSetVector<SiStripCluster> not found... Aborting...\n";
-//     return;
-//   }
-
-//   edmNew::DetSetVector<SiStripCluster>::const_iterator it;
-//   for (it = input->begin(); it != input->end(); ++it)
-//   {
-//     auto id = DetId(it->detId());
-//     // NCLUSTERS
-//     trackerMap->Fill(TString::Format("%ld", (long)id.rawId()), it->size());
-//   }
-// }
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(TrackerRemapper);
