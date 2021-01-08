@@ -1,6 +1,6 @@
 # Tracker Remapper Tool
 
-The tool to either remap existing DQM histograms onto Strip Detector layout or to analyze event files and put eveents into the right detector parts.
+The tool to either remap existing DQM histograms onto Strip Detector layout or to analyze event files and put events into the right detector parts.
 
 ## Running basics
 
@@ -23,10 +23,8 @@ Options can be either adjusted in the configuration file (`ConfFile_cfg.py`) or 
     2. `MODE_REMAP` - root file with events to process
   4. `stripHistogram` - histogram name to look for when `opMode=MODE_REMAP` is set, default is `TkHMap_NumberValidHits`
   5. `src` - automaticly set based on your settings, change at your own risk
-  6. `globalTag` - global tag (GT) to use, default is `92X_upgrade2017_realistic_v11`
+  6. `globalTag` - global tag (GT) to use, default is `auto:run2_data`
   
 ## The output
 
 Your output will be saved by default as `outputStrip.root` in your current working directory. This can be tuned in the `ConfFile_cfg.py` file.
-
-
