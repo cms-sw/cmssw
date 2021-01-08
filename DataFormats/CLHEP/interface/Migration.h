@@ -8,6 +8,7 @@
 #include "CLHEP/Matrix/SymMatrix.h"
 
 #include <cstring>
+#include <cassert>
 
 /*
 template <unsigned int N1, unsigned int N2> 
