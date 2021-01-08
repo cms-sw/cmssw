@@ -120,6 +120,14 @@ void HcalForwardAnalysis::setPhotons(const EndOfEvent* evt) {
   FiberG4HitsCollection* theHC;
   // Look for the Hit Collection of HCal
   G4HCofThisEvent* allHC = (*evt)()->GetHCofThisEvent();
+  edm::LogVerbatim("HcalForwardLib") << "HcalForwardAnalysis:: Has " << allHC->GetNumberOfCollections()
+                                     << " collections";
+  for (int k = 0; k < allHC->GetNumberOfCollections(); ++k) {
+    G4String name = (allHC->GetHC(k) == nullptr) ? "Unknown" : allHC->GetHC(k)->GetName();
+    G4String nameSD = (allHC->GetHC(k) == nullptr) ? "Unknown" : allHC->GetHC(k)->GetSDname();
+    edm::LogVerbatim("HcalForwardLib") << "Collecttion[" << k << "] " << allHC->GetHC(k) << "  " << name << ":"
+                                       << nameSD;
+  }
   std::string sdName = theNames[0];  //name for fiber hits
   idHC = G4SDManager::GetSDMpointer()->GetCollectionID(sdName);
   theHC = (FiberG4HitsCollection*)allHC->GetHC(idHC);
