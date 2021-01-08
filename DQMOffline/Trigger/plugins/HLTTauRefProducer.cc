@@ -149,7 +149,7 @@ void HLTTauRefProducer::doPFTaus(edm::StreamID iID, edm::Event& iEvent) const {
         auto const aProv = aHandle.provenance();
         if (aProv == nullptr)
           aHandle.whyFailed()->raise();
-        const auto& psetsFromProvenance = edm::parameterSet(*aProv, iEvent.processHistory());
+        const auto& psetsFromProvenance = edm::parameterSet(aProv->stable(), iEvent.processHistory());
         if (psetsFromProvenance.exists("workingPoints")) {
           auto const idlist = psetsFromProvenance.getParameter<std::vector<std::string>>("workingPoints");
           bool found = false;
