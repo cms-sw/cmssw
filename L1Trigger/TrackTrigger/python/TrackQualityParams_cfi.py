@@ -1,10 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 TrackQualityParams = cms.PSet(qualityAlgorithm = cms.string("GBDT"), #None, Cut, NN, GBDT
-                              ONNXmodel = cms.string("L1Trigger/TrackTrigger/data/TrackQualityModels/GBDT_default.onnx"),
-                              # !! TO BE UPDATED !! 
+                              ONNXmodel = cms.FileInPath("L1Trigger/TrackTrigger/data/GBDT_default.onnx"),
                               # The ONNX model should be found at this path, if you want a local version of the model:
-                              # git clone https://github.com/Chriisbrown/L1Trigger-TrackTrigger.git L1Trigger/TrackTrigger/data
+                              # git clone https://github.com/cms-data/L1Trigger-TrackTrigger.git L1Trigger/TrackTrigger/data
                               ONNXInputName = cms.string("feature_input"),
                               #Vector of strings of training features, in the order that the model was trained with
                               featureNames = cms.vstring(["phi", "eta", "z0", "bendchi2_bin", "nstub", 
@@ -16,4 +15,7 @@ TrackQualityParams = cms.PSet(qualityAlgorithm = cms.string("GBDT"), #None, Cut,
                               chi2dofMax = cms.double( 40. ),
                               bendchi2Max = cms.double( 2.4 ),
                               minPt = cms.double( 2. ),       # in GeV
-                              nStubsmin = cms.int32( 4 ))
+                              nStubsmin = cms.int32( 4 ),
+                              
+                              ONNXInvRScale = cms.double(500)  # Scaling InvR to same order of magnitude as other variables for ML models
+                              )

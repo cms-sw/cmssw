@@ -5,16 +5,17 @@ C.Brown & C.Savard 07/2020
 */
 
 #include "L1Trigger/TrackTrigger/interface/TrackQuality.h"
+#include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 
 //Constructors
 
 TrackQuality::TrackQuality() {}
 
-TrackQuality::TrackQuality(edm::ParameterSet& qualityParams) {
-  std::string qualityAlgorithm = qualityParams.getParameter<std::string>("qualityAlgorithm");
+TrackQuality::TrackQuality(const edm::ParameterSet& qualityParams) {
+  std::string AlgorithmString = qualityParams.getParameter<std::string>("qualityAlgorithm");
   // Unpacks EDM parameter set itself to save unecessary processing within TrackProducers
-  if (qualityAlgorithm == "Cut") {
-    setCutParameters(qualityAlgorithm,
+  if (AlgorithmString == "Cut") {
+    setCutParameters(AlgorithmString,
                      (float)qualityParams.getParameter<double>("maxZ0"),
                      (float)qualityParams.getParameter<double>("maxEta"),
                      (float)qualityParams.getParameter<double>("chi2dofMax"),
@@ -24,10 +25,11 @@ TrackQuality::TrackQuality(edm::ParameterSet& qualityParams) {
   }
 
   else {
-    setONNXModel(qualityAlgorithm,
-                 edm::FileInPath(qualityParams.getParameter<std::string>("ONNXmodel")),
+    setONNXModel(AlgorithmString,
+                 qualityParams.getParameter<edm::FileInPath>("ONNXmodel"),
                  qualityParams.getParameter<std::string>("ONNXInputName"),
                  qualityParams.getParameter<std::vector<std::string>>("featureNames"));
+    ONNXInvRScaling_ = qualityParams.getParameter<double>("ONNXInvRScale");
   }
 }
 
@@ -40,6 +42,9 @@ std::vector<float> TrackQuality::featureTransform(TTTrack<Ref_Phase2TrackerDigi_
   // "bendchi2","pt","eta","nlaymiss_interior","phi","bendchi2_bin","chi2rz_bin","chi2rphi_bin"}
 
   std::vector<float> transformedFeatures;
+
+  // Define feature map, filled as features are generated
+  std::map<std::string, float> feature_map;
 
   // The following converts the 7 bit hitmask in the TTTrackword to an expected
   // 11 bit hitmask based on the eta of the track
@@ -109,7 +114,7 @@ std::vector<float> TrackQuality::featureTransform(TTTrack<Ref_Phase2TrackerDigi_
 
   // bin bendchi2 variable (bins from https://twiki.cern.ch/twiki/bin/viewauth/CMS/HybridDataFormat#Fitted_Tracks_written_by_KalmanF)
   float tmp_trk_bendchi2 = aTrack.stubPtConsistency();
-  std::vector<float> bendchi2_bins = {0, 0.5, 1.25, 2, 3, 5, 10, 50};
+  std::array<float, 8> bendchi2_bins{{0, 0.5, 1.25, 2, 3, 5, 10, 50}};
   int n_bendchi2 = static_cast<int>(bendchi2_bins.size());
   float tmp_trk_bendchi2_bin = -1;
   for (int i = 0; i < n_bendchi2; i++) {
@@ -123,7 +128,7 @@ std::vector<float> TrackQuality::featureTransform(TTTrack<Ref_Phase2TrackerDigi_
 
   // bin chi2rphi variable (bins from https://twiki.cern.ch/twiki/bin/viewauth/CMS/HybridDataFormat#Fitted_Tracks_written_by_KalmanF)
   float tmp_trk_chi2rphi = aTrack.chi2XY();
-  std::vector<float> chi2rphi_bins = {0, 0.25, 0.5, 1, 2, 3, 5, 7, 10, 20, 40, 100, 200, 500, 1000, 3000};
+  std::array<float, 16> chi2rphi_bins{{0, 0.25, 0.5, 1, 2, 3, 5, 7, 10, 20, 40, 100, 200, 500, 1000, 3000}};
   int n_chi2rphi = static_cast<int>(chi2rphi_bins.size());
   float tmp_trk_chi2rphi_bin = -1;
   for (int i = 0; i < n_chi2rphi; i++) {
@@ -137,7 +142,7 @@ std::vector<float> TrackQuality::featureTransform(TTTrack<Ref_Phase2TrackerDigi_
 
   // bin chi2rz variable (bins from https://twiki.cern.ch/twiki/bin/viewauth/CMS/HybridDataFormat#Fitted_Tracks_written_by_KalmanF)
   float tmp_trk_chi2rz = aTrack.chi2Z();
-  std::vector<float> chi2rz_bins = {0, 0.25, 0.5, 1, 2, 3, 5, 7, 10, 20, 40, 100, 200, 500, 1000, 3000};
+  std::array<float, 16> chi2rz_bins{{0, 0.25, 0.5, 1, 2, 3, 5, 7, 10, 20, 40, 100, 200, 500, 1000, 3000}};
   int n_chi2rz = static_cast<int>(chi2rz_bins.size());
   float tmp_trk_chi2rz_bin = -1;
   for (int i = 0; i < n_chi2rz; i++) {
@@ -152,33 +157,32 @@ std::vector<float> TrackQuality::featureTransform(TTTrack<Ref_Phase2TrackerDigi_
   // get the nstub
   std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>, TTStub<Ref_Phase2TrackerDigi_>>> stubRefs =
       aTrack.getStubRefs();
-  float tmp_trk_nstub = stubRefs.size();
 
-  // While not strictly necessary to define these parameters,
-  // it is included so each variable is named to avoid confusion
-  float tmp_trk_big_invr = 500 * abs(aTrack.rInv());
-  float tmp_trk_tanl = abs(aTrack.tanL());
-  float tmp_trk_z0 = aTrack.z0();
-  float tmp_trk_phi = aTrack.phi();
-  float tmp_trk_pt = aTrack.momentum().perp();
-  float tmp_trk_eta = aTrack.eta();
+  // fill the feature map
+  feature_map["nstub"] = stubRefs.size();
+  feature_map["rinv"] = ONNXInvRScaling_ * abs(aTrack.rInv());
+  feature_map["tanl"] = abs(aTrack.tanL());
+  feature_map["z0"] = aTrack.z0();
+  feature_map["phi"] = aTrack.phi();
+  feature_map["pt"] = aTrack.momentum().perp();
+  feature_map["eta"] = aTrack.eta();
+
   float tmp_trk_chi2 = aTrack.chi2();
-  float tmp_trk_log_chi2 = log(tmp_trk_chi2);
-  float tmp_trk_log_chi2rphi = log(tmp_trk_chi2rphi);
-  float tmp_trk_log_chi2rz = log(tmp_trk_chi2rz);
-  float tmp_trk_log_bendchi2 = log(tmp_trk_bendchi2);
-
-  // fill feature map
-  std::map<std::string, float> feature_map;
-  feature_map["log_chi2"] = tmp_trk_log_chi2;
-  feature_map["log_chi2rphi"] = tmp_trk_log_chi2rphi;
-  feature_map["log_chi2rz"] = tmp_trk_log_chi2rz;
-  feature_map["log_bendchi2"] = tmp_trk_log_bendchi2;
   feature_map["chi2"] = tmp_trk_chi2;
+  feature_map["log_chi2"] = log(tmp_trk_chi2);
+
   feature_map["chi2rphi"] = tmp_trk_chi2rphi;
+  feature_map["log_chi2rphi"] = log(tmp_trk_chi2rphi);
+
   feature_map["chi2rz"] = tmp_trk_chi2rz;
+  feature_map["log_chi2rz"] = log(tmp_trk_chi2rz);
+
+  feature_map["chi2rz"] = tmp_trk_chi2rz;
+  feature_map["log_chi2rz"] = log(tmp_trk_chi2rz);
+
   feature_map["bendchi2"] = tmp_trk_bendchi2;
-  feature_map["nstub"] = tmp_trk_nstub;
+  feature_map["log_bendchi2"] = log(tmp_trk_bendchi2);
+
   feature_map["lay1_hits"] = float(hitpattern_expanded_binary[0]);
   feature_map["lay2_hits"] = float(hitpattern_expanded_binary[1]);
   feature_map["lay3_hits"] = float(hitpattern_expanded_binary[2]);
@@ -190,14 +194,10 @@ std::vector<float> TrackQuality::featureTransform(TTTrack<Ref_Phase2TrackerDigi_
   feature_map["disk3_hits"] = float(hitpattern_expanded_binary[8]);
   feature_map["disk4_hits"] = float(hitpattern_expanded_binary[9]);
   feature_map["disk5_hits"] = float(hitpattern_expanded_binary[10]);
-  feature_map["rinv"] = tmp_trk_big_invr;
-  feature_map["tanl"] = tmp_trk_tanl;
-  feature_map["z0"] = tmp_trk_z0;
-  feature_map["phi"] = tmp_trk_phi;
+
   feature_map["dtot"] = float(tmp_trk_dtot);
   feature_map["ltot"] = float(tmp_trk_ltot);
-  feature_map["pt"] = tmp_trk_pt;
-  feature_map["eta"] = tmp_trk_eta;
+
   feature_map["nlaymiss_interior"] = float(tmp_trk_nlaymiss_interior);
   feature_map["bendchi2_bin"] = tmp_trk_bendchi2_bin;
   feature_map["chi2rphi_bin"] = tmp_trk_chi2rphi_bin;
@@ -212,7 +212,7 @@ std::vector<float> TrackQuality::featureTransform(TTTrack<Ref_Phase2TrackerDigi_
 }
 
 void TrackQuality::setTrackQuality(TTTrack<Ref_Phase2TrackerDigi_>& aTrack) {
-  if (this->qualityAlgorithm_ == "Cut") {
+  if (this->qualityAlgorithm_ == QualityAlgorithm::Cut) {
     // Get Track parameters
     float trk_pt = aTrack.momentum().perp();
     float trk_bend_chi2 = aTrack.stubPtConsistency();
@@ -232,7 +232,7 @@ void TrackQuality::setTrackQuality(TTTrack<Ref_Phase2TrackerDigi_>& aTrack) {
     aTrack.settrkMVA1(classification);
   }
 
-  if ((this->qualityAlgorithm_ == "NN") || (this->qualityAlgorithm_ == "GBDT")) {
+  if ((this->qualityAlgorithm_ == QualityAlgorithm::NN) || (this->qualityAlgorithm_ == QualityAlgorithm::GBDT)) {
     // Setup ONNX input and output names and arrays
     std::vector<std::string> ortinput_names;
     std::vector<std::string> ortoutput_names;
@@ -255,11 +255,11 @@ void TrackQuality::setTrackQuality(TTTrack<Ref_Phase2TrackerDigi_>& aTrack) {
     // Run classification
     ortoutputs = Runtime.run(ortinput_names, ortinput, {}, ortoutput_names, batch_size);
 
-    if (this->qualityAlgorithm_ == "NN") {
+    if (this->qualityAlgorithm_ == QualityAlgorithm::NN) {
       aTrack.settrkMVA1(ortoutputs[0][0]);
     }
 
-    if (this->qualityAlgorithm_ == "GBDT") {
+    else if (this->qualityAlgorithm_ == QualityAlgorithm::GBDT) {
       aTrack.settrkMVA1(ortoutputs[1][1]);
     }
     // Slight differences in the ONNX models of the GBDTs and NNs mean different
@@ -271,14 +271,14 @@ void TrackQuality::setTrackQuality(TTTrack<Ref_Phase2TrackerDigi_>& aTrack) {
   }
 }
 
-void TrackQuality::setCutParameters(std::string const& qualityAlgorithm,
+void TrackQuality::setCutParameters(std::string const& AlgorithmString,
                                     float maxZ0,
                                     float maxEta,
                                     float chi2dofMax,
                                     float bendchi2Max,
                                     float minPt,
                                     int nStubmin) {
-  qualityAlgorithm_ = qualityAlgorithm;
+  qualityAlgorithm_ = QualityAlgorithm::Cut;
   maxZ0_ = maxZ0;
   maxEta_ = maxEta;
   chi2dofMax_ = chi2dofMax;
@@ -287,11 +287,18 @@ void TrackQuality::setCutParameters(std::string const& qualityAlgorithm,
   nStubsmin_ = nStubmin;
 }
 
-void TrackQuality::setONNXModel(std::string const& qualityAlgorithm,
+void TrackQuality::setONNXModel(std::string const& AlgorithmString,
                                 edm::FileInPath const& ONNXmodel,
                                 std::string const& ONNXInputName,
                                 std::vector<std::string> const& featureNames) {
-  qualityAlgorithm_ = qualityAlgorithm;
+  //Convert algorithm string to Enum class for track by track comparison
+  if (AlgorithmString == "NN") {
+    qualityAlgorithm_ = QualityAlgorithm::NN;
+  } else if (AlgorithmString == "GBDT") {
+    qualityAlgorithm_ = QualityAlgorithm::GBDT;
+  } else {
+    qualityAlgorithm_ = QualityAlgorithm::None;
+  }
   ONNXmodel_ = ONNXmodel;
   ONNXInputName_ = ONNXInputName;
   featureNames_ = featureNames;
