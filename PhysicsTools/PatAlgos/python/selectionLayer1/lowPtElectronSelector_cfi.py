@@ -6,8 +6,12 @@ import FWCore.ParameterSet.Config as cms
 #
 selectedPatLowPtElectrons = cms.EDFilter("PATElectronSelector",
     src = cms.InputTag("patLowPtElectrons"),
-    cut = cms.string("")
+    cut = cms.string("pt>1. && electronID('ID')>1.5"),
 )
+
+# Modifier for bParking (fully open selection)
+from Configuration.Eras.Modifier_bParking_cff import bParking
+bParking.toModify(selectedPatLowPtElectrons,cut = "")
 
 # Modifiers for legacy AOD
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy

@@ -23,6 +23,8 @@
 <use   name="CondFormats/RunInfo"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="RecoCTPPS/ProtonReconstruction"/>
+<use   name="fastjet"/>
+<use   name="fastjet-contrib"/>
 <library   file="*.cc" name="PhysicsToolsNanoAODPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>

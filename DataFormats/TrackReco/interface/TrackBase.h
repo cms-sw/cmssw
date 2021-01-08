@@ -327,7 +327,13 @@ public:
     
     /// error on beta
     double betaError() const;
-    
+   
+    /// error on dxy with respect to a user-given reference point + uncertainty (i.e. reco::Vertex position)
+    double dxyError(Point const &vtx, math::Error<3>::type const &vertexCov) const;
+
+    /// error on dxy with respect to a user-given beamspot
+    double dxyError(const BeamSpot &theBeamSpot) const;
+
     /// fill SMatrix
     CovarianceMatrix &fill(CovarianceMatrix &v) const;
 
@@ -883,6 +889,12 @@ inline double TrackBase::t0Error() const
 inline double TrackBase::betaError() const
 {
     return std::sqrt(covbetabeta_);
+}
+
+// error on dxy with respect to a given beamspot
+inline double TrackBase::dxyError(const BeamSpot &theBeamSpot) const
+{
+    return dxyError(theBeamSpot.position(vz()), theBeamSpot.rotatedCovariance3D());
 }
 
 // number of valid hits found

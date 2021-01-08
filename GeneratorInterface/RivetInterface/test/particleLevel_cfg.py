@@ -6,7 +6,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 from TopQuarkAnalysis.TopEventProducers.tqafInputFiles_cff import relValTTbar
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(relValTTbar)
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_10_2_0/RelValTTbar_14TeV/GEN-SIM/102X_upgrade2023_realistic_v7_2023D29noPU-v1/10000/3C679F61-298E-E811-AF92-0025905B85A2.root')
 )
 
 ## define maximal number of events to loop over

@@ -23,6 +23,7 @@ public:
 
 private:
   edm::ParameterSet pset_;
+  double plimit_;
 };
 
 #endif

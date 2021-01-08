@@ -161,15 +161,19 @@ class MatrixInjector(object):
 
         self.chainDicts={}
 
-
-    def prepare(self,mReader, directories, mode='init'):
+    @staticmethod
+    def get_wmsplit():
+        """
+        Return a "wmsplit" dictionary that contain non-default LumisPerJob values
+        """
+        wmsplit = {}
         try:
             #from Configuration.PyReleaseValidation.relval_steps import wmsplit
             wmsplit = {}
             wmsplit['DIGIHI']=5
             wmsplit['RECOHI']=5
             wmsplit['HLTD']=5
-            wmsplit['RECODreHLT']=2  
+            wmsplit['RECODreHLT']=2
             wmsplit['DIGIPU']=4
             wmsplit['DIGIPU1']=4
             wmsplit['RECOPU1']=1
@@ -249,8 +253,8 @@ class MatrixInjector(object):
             wmsplit['HLTDR2_2018']=1
             wmsplit['HLTDR2_2018_BadHcalMitig']=1
             wmsplit['Hadronizer']=1
-            wmsplit['DIGIUP15']=1 
-            wmsplit['RECOUP15']=1 
+            wmsplit['DIGIUP15']=1
+            wmsplit['RECOUP15']=1
             wmsplit['RECOAODUP15']=5
             wmsplit['DBLMINIAODMCUP15NODQM']=5
             wmsplit['DigiFull']=5
@@ -258,7 +262,7 @@ class MatrixInjector(object):
             wmsplit['DigiFullPU']=1
             wmsplit['RecoFullPU']=1
             wmsplit['RECOHID11']=1
-            wmsplit['DigiFullTriggerPU_2023D17PU'] = 1 
+            wmsplit['DigiFullTriggerPU_2023D17PU'] = 1
             wmsplit['RecoFullGlobalPU_2023D17PU']=1
             wmsplit['DIGIUP17']=1
             wmsplit['RECOUP17']=1
@@ -274,13 +278,14 @@ class MatrixInjector(object):
             wmsplit['HYBRIDZSHI2015']=1
             wmsplit['RECOHID15']=1
             wmsplit['RECOHID18']=1
-                                    
-            #import pprint
-            #pprint.pprint(wmsplit)            
-        except:
-            print("Not set up for step splitting")
-            wmsplit={}
+        except Exception as ex:
+            print('Exception while building a wmsplit dictionary: %s' % (str(ex)))
+            return {}
 
+        return wmsplit
+
+    def prepare(self,mReader, directories, mode='init'):
+        wmsplit = MatrixInjector.get_wmsplit()
         acqEra=False
         for (n,dir) in directories.items():
             chainDict=copy.deepcopy(self.defaultChain)

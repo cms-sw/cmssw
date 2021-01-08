@@ -3,6 +3,8 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include "TFile.h"
+
 #include <cstdio>
 #include <cstdlib>
 #include <RVersion.h>
@@ -117,6 +119,16 @@ namespace {
   }
 
   std::unique_ptr<GBRForest> init(const std::string& weightsFileFullPath, std::vector<std::string>& varNames) {
+    //
+    // Load weights file, for ROOT file
+    //
+    if (reco::details::hasEnding(weightsFileFullPath, ".root")) {
+      TFile gbrForestFile(weightsFileFullPath.c_str());
+      std::unique_ptr<GBRForest> up(reinterpret_cast<GBRForest*>(gbrForestFile.Get("gbrForest")));
+      gbrForestFile.Close("nodelete");
+      return up;
+    }
+
     //
     // Load weights file, for gzipped or raw xml file
     //

@@ -92,6 +92,10 @@ class TauDiscriminationProducerBase : public edm::stream::EDProducer<> {
 
     static void fillProducerDescriptions(edm::ParameterSetDescription& desc);
 
+    /// helper method to retrieve tau type name, e.g. to build correct cfi getter
+    //string (i.e. PFTau/PATTauProducer)
+    static std::string getTauTypeString();
+
   protected:
     //value given to taus that fail prediscriminants
     double prediscriminantFailValue_;
@@ -118,14 +122,4 @@ typedef TauDiscriminationProducerBase<pat::Tau, pat::PATTauDiscriminator>
 typedef TauDiscriminationProducerBase<reco::CaloTau, reco::CaloTauDiscriminator>
   CaloTauDiscriminationProducerBase;
 
-
-/// helper function retrieve the correct cfi getter string (ie PFTauProducer)
-//for this tau type
-template<class TauType> std::string getProducerString()
-{
-  // this generic one shoudl never be called.
-  // these are specialized in TauDiscriminationProducerBase.cc
-  throw cms::Exception("TauDiscriminationProducerBase")
-      << "Unsupported TauType used. You must use either PFTau, PATTau or CaloTaus.";
-}
 #endif

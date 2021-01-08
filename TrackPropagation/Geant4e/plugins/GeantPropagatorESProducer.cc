@@ -16,6 +16,7 @@ using namespace edm;
 GeantPropagatorESProducer::GeantPropagatorESProducer(const edm::ParameterSet &p) {
   std::string myname = p.getParameter<std::string>("ComponentName");
   pset_ = p;
+  plimit_ = pset_.getParameter<double>("PropagationPtotLimit");
   setWhatProduced(this, myname);
 }
 
@@ -32,10 +33,10 @@ std::unique_ptr<Propagator> GeantPropagatorESProducer::produce(const TrackingCom
 
   if (pdir == "oppositeToMomentum")
     dir = oppositeToMomentum;
-  if (pdir == "alongMomentum")
+  else if (pdir == "alongMomentum")
     dir = alongMomentum;
-  if (pdir == "anyDirection")
+  else if (pdir == "anyDirection")
     dir = anyDirection;
 
-  return std::make_unique<Geant4ePropagator>(&(*magfield), particleName, dir);
+  return std::make_unique<Geant4ePropagator>(&(*magfield), particleName, dir, plimit_);
 }

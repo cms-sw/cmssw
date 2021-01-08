@@ -42,6 +42,8 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 
 #include "FWCore/TestProcessor/interface/Event.h"
+#include "FWCore/TestProcessor/interface/LuminosityBlock.h"
+#include "FWCore/TestProcessor/interface/Run.h"
 #include "FWCore/TestProcessor/interface/TestDataProxy.h"
 #include "FWCore/TestProcessor/interface/ESPutTokenT.h"
 #include "FWCore/TestProcessor/interface/ESProduceEntry.h"
@@ -153,7 +155,7 @@ namespace edm {
     public:
       using Config = TestProcessorConfig;
 
-      TestProcessor(Config const& iConfig);
+      TestProcessor(Config const& iConfig, ServiceToken iToken = ServiceToken());
       ~TestProcessor() noexcept(false);
 
       /** Run the test. The function arguments are the data products to be added to the
@@ -162,6 +164,24 @@ namespace edm {
       template <typename... T>
       edm::test::Event test(T&&... iArgs) {
         return testImpl(std::forward<T>(iArgs)...);
+      }
+
+      template <typename... T>
+      edm::test::LuminosityBlock testBeginLuminosityBlock(edm::LuminosityBlockNumber_t iNum, T&&... iArgs) {
+        return testBeginLuminosityBlockImpl(iNum, std::forward<T>(iArgs)...);
+      }
+      template <typename... T>
+      edm::test::LuminosityBlock testEndLuminosityBlock(T&&... iArgs) {
+        return testEndLuminosityBlockImpl(std::forward<T>(iArgs)...);
+      }
+
+      template <typename... T>
+      edm::test::Run testBeginRun(edm::RunNumber_t iNum, T&&... iArgs) {
+        return testBeginRunImpl(iNum, std::forward<T>(iArgs)...);
+      }
+      template <typename... T>
+      edm::test::Run testEndRun(T&&... iArgs) {
+        return testEndRunImpl(std::forward<T>(iArgs)...);
       }
 
       /** Run only beginJob and endJob. Once this is used, you should not attempt to run any further tests.
@@ -224,6 +244,40 @@ This simulates a problem happening early in the job which causes processing not 
 
       edm::test::Event testImpl();
 
+      template <typename T, typename... U>
+      edm::test::LuminosityBlock testBeginLuminosityBlockImpl(
+          edm::LuminosityBlockNumber_t iNum,
+          std::pair<edm::test::ESPutTokenT<T>, std::unique_ptr<T>>&& iPut,
+          U&&... iArgs) {
+        put(std::move(iPut));
+        return testBeginLuminosityBlockImpl(iNum, std::forward<U>(iArgs)...);
+      }
+      edm::test::LuminosityBlock testBeginLuminosityBlockImpl(edm::LuminosityBlockNumber_t);
+
+      template <typename T, typename... U>
+      edm::test::LuminosityBlock testEndLuminosityBlockImpl(
+          std::pair<edm::test::ESPutTokenT<T>, std::unique_ptr<T>>&& iPut, U&&... iArgs) {
+        put(std::move(iPut));
+        return testEndLuminosityBlockImpl(std::forward<U>(iArgs)...);
+      }
+      edm::test::LuminosityBlock testEndLuminosityBlockImpl();
+
+      template <typename T, typename... U>
+      edm::test::Run testBeginRunImpl(edm::RunNumber_t iNum,
+                                      std::pair<edm::test::ESPutTokenT<T>, std::unique_ptr<T>>&& iPut,
+                                      U&&... iArgs) {
+        put(std::move(iPut));
+        return testBeginRunImpl(iNum, std::forward<U>(iArgs)...);
+      }
+      edm::test::Run testBeginRunImpl(edm::RunNumber_t);
+      template <typename T, typename... U>
+      edm::test::LuminosityBlock testEndRunImpl(std::pair<edm::test::ESPutTokenT<T>, std::unique_ptr<T>>&& iPut,
+                                                U&&... iArgs) {
+        put(std::move(iPut));
+        return testEndRunImpl(std::forward<U>(iArgs)...);
+      }
+      edm::test::Run testEndRunImpl();
+
       void setupProcessing();
       void teardownProcessing();
 
@@ -231,8 +285,8 @@ This simulates a problem happening early in the job which causes processing not 
       void beginRun();
       void beginLuminosityBlock();
       void event();
-      void endLuminosityBlock();
-      void endRun();
+      std::shared_ptr<LuminosityBlockPrincipal> endLuminosityBlock();
+      std::shared_ptr<RunPrincipal> endRun();
       void endJob();
 
       // ---------- member data --------------------------------
@@ -268,8 +322,6 @@ This simulates a problem happening early in the job which causes processing not 
       bool beginJobCalled_ = false;
       bool beginRunCalled_ = false;
       bool beginLumiCalled_ = false;
-      bool newRun_ = true;
-      bool newLumi_ = true;
     };
   }  // namespace test
 }  // namespace edm

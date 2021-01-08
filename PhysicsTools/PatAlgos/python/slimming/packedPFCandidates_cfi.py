@@ -22,7 +22,8 @@ packedPFCandidates = cms.EDProducer("PATPackedCandidateProducer",
     covariancePackingSchemas = cms.vint32(8,264,520,776,0),   # more accurate schema +0.6kb/ev
     pfCandidateTypesForHcalDepth = cms.vint32(),
     storeHcalDepthEndcapOnly = cms.bool(False), # switch to store info only for endcap 
-    storeTiming = cms.bool(False)
+    storeTiming = cms.bool(False),
+    storePfGammaEnFractions = cms.bool(False)
 )
 
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
@@ -45,5 +46,7 @@ run3_common.toModify(packedPFCandidates,
 )
 
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
-phase2_timing.toModify(packedPFCandidates, storeTiming = cms.bool(True))
+phase2_timing.toModify(packedPFCandidates, storeTiming = True)
 
+from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
+run2_miniAOD_UL.toModify(packedPFCandidates, storePfGammaEnFractions = True)

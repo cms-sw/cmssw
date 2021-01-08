@@ -91,6 +91,7 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
   embedHighLevelSelection_(iConfig.getParameter<bool>("embedHighLevelSelection")),
   beamLineToken_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamLineSrc"))),
   pvToken_(mayConsume<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("pvSrc"))),  
+  getdBFromTrack_(iConfig.getParameter<bool>("getdBFromTrack")),
   addElecID_(iConfig.getParameter<bool>( "addElectronID" )),
   pTComparator_(),
   isolator_(iConfig.exists("userIsolation") ? iConfig.getParameter<edm::ParameterSet>("userIsolation") : edm::ParameterSet(), consumesCollector(), false) ,
@@ -973,12 +974,12 @@ void PATElectronProducer::setElectronMiniIso(Electron& anElectron, const PackedC
 {
   pat::PFIsolation miniiso;
   if(anElectron.isEE())
-      miniiso = pat::getMiniPFIsolation(pc, anElectron.p4(),
+      miniiso = pat::getMiniPFIsolation(pc, anElectron.polarP4(),
                                         miniIsoParamsE_[0], miniIsoParamsE_[1], miniIsoParamsE_[2],
                                         miniIsoParamsE_[3], miniIsoParamsE_[4], miniIsoParamsE_[5],
                                         miniIsoParamsE_[6], miniIsoParamsE_[7], miniIsoParamsE_[8]);
   else
-      miniiso = pat::getMiniPFIsolation(pc, anElectron.p4(),
+      miniiso = pat::getMiniPFIsolation(pc, anElectron.polarP4(),
                                         miniIsoParamsB_[0], miniIsoParamsB_[1], miniIsoParamsB_[2],
                                         miniIsoParamsB_[3], miniIsoParamsB_[4], miniIsoParamsB_[5],
                                         miniIsoParamsB_[6], miniIsoParamsB_[7], miniIsoParamsB_[8]);
@@ -1131,6 +1132,7 @@ void PATElectronProducer::fillDescriptions(edm::ConfigurationDescriptions & desc
                  )->setComment("input with high level selection");
   iDesc.addNode( edm::ParameterDescription<edm::InputTag>("pvSrc", edm::InputTag(), true)
                  )->setComment("input with high level selection");
+  iDesc.add<bool>("getdBFromTrack", false)->setComment("switch IP2D computation to use the GSF track instead of IPTools");
 
   descriptions.add("PATElectronProducer", iDesc);
 
@@ -1149,59 +1151,49 @@ void PATElectronProducer::embedHighLevel( pat::Electron & anElectron,
 					  )
 {
   // Correct to PV
+  std::pair<bool,Measurement1D> result;
+  double d0_corr, d0_err;
 
   // PV2D
-  std::pair<bool,Measurement1D> result =
-    IPTools::signedTransverseImpactParameter(tt,
-					     GlobalVector(track->px(),
-							  track->py(),
-							  track->pz()),
-					     primaryVertex);
-  double d0_corr = result.second.value();
-  double d0_err = primaryVertexIsValid ? result.second.error() : -1.0;
-  anElectron.setDB( d0_corr, d0_err, pat::Electron::PV2D);
-
+  if (getdBFromTrack_)
+    anElectron.setDB(track->dxy(primaryVertex.position()),
+                     track->dxyError(primaryVertex.position(), primaryVertex.covariance()),
+                     pat::Electron::PV2D);
+  else {
+    result = IPTools::signedTransverseImpactParameter(tt, GlobalVector(track->px(), track->py(), track->pz()), primaryVertex);
+    d0_corr = result.second.value();
+    d0_err = primaryVertexIsValid ? result.second.error() : -1.0;
+    anElectron.setDB(d0_corr, d0_err, pat::Electron::PV2D);
+  }
 
   // PV3D
-  result =
-    IPTools::signedImpactParameter3D(tt,
-				     GlobalVector(track->px(),
-						  track->py(),
-						  track->pz()),
-				     primaryVertex);
+  result = IPTools::signedImpactParameter3D(tt, GlobalVector(track->px(), track->py(), track->pz()), primaryVertex);
   d0_corr = result.second.value();
   d0_err = primaryVertexIsValid ? result.second.error() : -1.0;
-  anElectron.setDB( d0_corr, d0_err, pat::Electron::PV3D);
-
+  anElectron.setDB(d0_corr, d0_err, pat::Electron::PV3D);
 
   // Correct to beam spot
   // make a fake vertex out of beam spot
   reco::Vertex vBeamspot(beamspot.position(), beamspot.covariance3D());
 
   // BS2D
-  result =
-    IPTools::signedTransverseImpactParameter(tt,
-					     GlobalVector(track->px(),
-							  track->py(),
-							  track->pz()),
-					     vBeamspot);
-  d0_corr = result.second.value();
-  d0_err = beamspotIsValid ? result.second.error() : -1.0;
-  anElectron.setDB( d0_corr, d0_err, pat::Electron::BS2D);
+  if (getdBFromTrack_)
+    anElectron.setDB(track->dxy(beamspot), track->dxyError(beamspot), pat::Electron::BS2D);
+  else {
+    result = IPTools::signedTransverseImpactParameter(tt, GlobalVector(track->px(), track->py(), track->pz()), vBeamspot);
+    d0_corr = result.second.value();
+    d0_err = beamspotIsValid ? result.second.error() : -1.0;
+    anElectron.setDB(d0_corr, d0_err, pat::Electron::BS2D);
+  }
 
   // BS3D
-  result =
-    IPTools::signedImpactParameter3D(tt,
-				     GlobalVector(track->px(),
-						  track->py(),
-						  track->pz()),
-				     vBeamspot);
+  result = IPTools::signedImpactParameter3D(tt, GlobalVector(track->px(), track->py(), track->pz()), vBeamspot);
   d0_corr = result.second.value();
   d0_err = beamspotIsValid ? result.second.error() : -1.0;
-  anElectron.setDB( d0_corr, d0_err, pat::Electron::BS3D);
+  anElectron.setDB(d0_corr, d0_err, pat::Electron::BS3D);
 
-    // PVDZ
-  anElectron.setDB( track->dz(primaryVertex.position()), std::hypot(track->dzError(), primaryVertex.zError()), pat::Electron::PVDZ );
+  // PVDZ
+  anElectron.setDB(track->dz(primaryVertex.position()), std::hypot(track->dzError(), primaryVertex.zError()), pat::Electron::PVDZ);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

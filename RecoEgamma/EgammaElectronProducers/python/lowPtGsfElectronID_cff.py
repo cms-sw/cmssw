@@ -9,3 +9,12 @@ lowPtGsfElectronID = defaultLowPtGsfElectronID.clone(
             ]),
     ModelThresholds = cms.vdouble([-10.])
     )
+
+from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
+run2_miniAOD_UL.toModify(
+    lowPtGsfElectronID,
+    rho = "fixedGridRhoFastjetAll",
+    ModelWeights = ["RecoEgamma/ElectronIdentification/data/LowPtElectrons/LowPtElectrons_ID_2020Sept15.root"],
+    ModelThresholds = [-99.],
+    Version = "V1",
+)

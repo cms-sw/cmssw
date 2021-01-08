@@ -13,8 +13,8 @@ from PhysicsTools.PatAlgos.slimming.slimmedJets_cfi      import *
 from PhysicsTools.PatAlgos.slimming.slimmedCaloJets_cfi  import *
 from PhysicsTools.PatAlgos.slimming.slimmedGenJets_cfi   import *
 from PhysicsTools.PatAlgos.slimming.slimmedElectrons_cfi import *
-from PhysicsTools.PatAlgos.slimming.slimmedLowPtElectrons_cfi import *
-from PhysicsTools.PatAlgos.slimming.lowPtGsfLinks_cfi import *
+from PhysicsTools.PatAlgos.slimming.slimmedLowPtElectrons_cff import *
+from PhysicsTools.PatAlgos.slimming.slimmedTrackExtras_cff import *
 from PhysicsTools.PatAlgos.slimming.slimmedMuons_cfi     import *
 from PhysicsTools.PatAlgos.slimming.slimmedPhotons_cfi   import *
 from PhysicsTools.PatAlgos.slimming.slimmedOOTPhotons_cff import *
@@ -27,6 +27,7 @@ from PhysicsTools.PatAlgos.slimming.MicroEventContent_cff import *
 from RecoEgamma.EgammaPhotonProducers.reducedEgamma_cfi  import *
 from RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi import bunchSpacingProducer
 from HeavyFlavorAnalysis.Onia2MuMu.OniaPhotonConversionProducer_cfi import PhotonCandidates as oniaPhotonCandidates
+from RecoLocalCalo.HcalRecProducers.HcalHitSelection_cfi import *
 
 slimmingTask = cms.Task(
     packedPFCandidatesTask,
@@ -43,8 +44,8 @@ slimmingTask = cms.Task(
     slimmedGenJets,
     slimmedGenJetsAK8,
     slimmedElectrons,
-    slimmedLowPtElectrons,
-    lowPtGsfLinks,
+    slimmedLowPtElectronsTask,
+    slimmedMuonTrackExtras,
     slimmedMuons,
     slimmedPhotons,
     slimmedOOTPhotons,
@@ -55,12 +56,19 @@ slimmingTask = cms.Task(
     slimmedMETs,
     metFilterPathsTask,
     reducedEgamma,
+    slimmedHcalRecHits,
     bunchSpacingProducer,
     oniaPhotonCandidates
 )
 
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 pp_on_AA_2018.toReplaceWith(slimmingTask, slimmingTask.copyAndExclude([slimmedOOTPhotons]))
+
+from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
+from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+_mAOD = (run2_miniAOD_94XFall17 | run2_miniAOD_80XLegacy)
+(pp_on_AA_2018 | _mAOD).toReplaceWith(slimmingTask,
+                                      slimmingTask.copyAndExclude([slimmedLowPtElectronsTask]))
 
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 _phase2_timing_slimmingTask = cms.Task(slimmingTask.copy(),

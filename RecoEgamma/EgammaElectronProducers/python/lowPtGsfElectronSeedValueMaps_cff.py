@@ -1,7 +1,11 @@
 import FWCore.ParameterSet.Config as cms
+# Low pT Electron value maps
+from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronSeedValueMaps_cfi import lowPtGsfElectronSeedValueMaps
 
-from RecoEgamma.EgammaElectronProducers.defaultLowPtGsfElectronSeedValueMaps_cfi import defaultLowPtGsfElectronSeedValueMaps
-
-lowPtGsfElectronSeedValueMaps = defaultLowPtGsfElectronSeedValueMaps.clone(
-    ModelNames = cms.vstring(['unbiased','ptbiased'])
-    )
+# Low pT Electron value maps, rekeyed by reco::GsfElectron
+rekeyLowPtGsfElectronSeedValueMaps = lowPtGsfElectronSeedValueMaps.clone(
+    rekey=True,
+    gsfElectrons="lowPtGsfElectrons",
+    floatValueMaps=["lowPtGsfElectronSeedValueMaps:unbiased",
+                    "lowPtGsfElectronSeedValueMaps:ptbiased"],
+)

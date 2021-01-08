@@ -7,6 +7,10 @@ MicroEventContent = cms.PSet(
         'keep *_slimmedOOTPhotons_*_*',
         'keep *_slimmedElectrons_*_*',
         'keep *_slimmedMuons_*_*',
+        'keep recoTrackExtras_slimmedMuonTrackExtras_*_*',
+        'keep TrackingRecHitsOwned_slimmedMuonTrackExtras_*_*',
+        'keep SiPixelClusteredmNewDetSetVector_slimmedMuonTrackExtras_*_*',
+        'keep SiStripClusteredmNewDetSetVector_slimmedMuonTrackExtras_*_*',
         'keep *_slimmedTaus_*_*',
         'keep *_slimmedTausBoosted_*_*',
         'keep *_slimmedCaloJets_*_*',
@@ -33,6 +37,7 @@ MicroEventContent = cms.PSet(
         'keep EcalRecHitsSorted_reducedEgamma_*_*',
         'keep recoGsfTracks_reducedEgamma_*_*',
         'keep HBHERecHitsSorted_reducedEgamma_*_*',
+        'keep *_slimmedHcalRecHits_*_*',
         'drop *_*_caloTowers_*',
         'drop *_*_pfCandidates_*',
         'drop *_*_genJets_*',
@@ -62,6 +67,7 @@ MicroEventContent = cms.PSet(
         'keep *_l1extraParticles_*_*',
         'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*',
         # stage 2 L1 trigger
+        'keep GlobalExtBlkBXVector_simGtExtUnprefireable_*_*', 
         'keep *_gtStage2Digis__*', 
         'keep *_gmtStage2Digis_Muon_*',
         'keep *_caloStage2Digis_Jet_*',
@@ -110,19 +116,13 @@ MicroEventContentGEN = cms.PSet(
     )
 )
 
-# Only add low pT electrons for bParking era
+# Only add low pT electrons for run2_miniAOD_UL or bParking era
+from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
 from Configuration.Eras.Modifier_bParking_cff import bParking
-_bParking_extraCommands = ['keep *_slimmedLowPtElectrons_*_*',
-                           'keep recoGsfElectronCores_lowPtGsfElectronCores_*_*',
-                           'keep recoSuperClusters_lowPtGsfElectronSuperClusters_*_*',
-                           'keep recoCaloClusters_lowPtGsfElectronSuperClusters_*_*',
-                           'keep recoGsfTracks_lowPtGsfEleGsfTracks_*_*',
-                           'keep floatedmValueMap_lowPtGsfElectronSeedValueMaps_*_*',
-                           'keep floatedmValueMap_lowPtGsfElectronID_*_*',
-                           'keep *_lowPtGsfLinks_*_*',
-                           'keep *_gsfTracksOpenConversions_*_*',
-                           ]
-bParking.toModify(MicroEventContent, outputCommands = MicroEventContent.outputCommands + _bParking_extraCommands)
+_lowPt_extraCommands = ['keep *_slimmedLowPtElectrons_*_*',
+                        'keep *_gsfTracksOpenConversions_*_*',]
+(bParking | run2_miniAOD_UL).toModify(MicroEventContent,
+                                      outputCommands = MicroEventContent.outputCommands + _lowPt_extraCommands)
 
 # --- Only for 2018 data & MC
 _run2_HCAL_2018_extraCommands = ["keep *_packedPFCandidates_hcalDepthEnergyFractions_*"]

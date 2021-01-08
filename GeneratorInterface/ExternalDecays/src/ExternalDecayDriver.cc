@@ -20,8 +20,6 @@
 using namespace gen;
 using namespace edm;
 
-CLHEP::HepRandomEngine* decayRandomEngine = nullptr;
-
 
 ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
   : fIsInitialized(false)
@@ -148,7 +146,6 @@ void ExternalDecayDriver::statistics() const
 
 void ExternalDecayDriver::setRandomEngine(CLHEP::HepRandomEngine* v)
 {
-  decayRandomEngine = v;
   if ( fTauolaInterface ) fTauolaInterface->setRandomEngine(v);
   if ( fEvtGenInterface ) fEvtGenInterface->setRandomEngine(v);
   if ( fPhotosInterface ) fPhotosInterface->setRandomEngine(v);

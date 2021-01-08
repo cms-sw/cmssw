@@ -8,6 +8,7 @@ class SecondaryVertexFeatures {
   public:
 
     float pt;
+    float ptrel;
     float mass;
 
     float deltaR;

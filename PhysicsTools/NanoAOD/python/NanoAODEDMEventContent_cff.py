@@ -19,3 +19,12 @@ NANOAODSIMEventContent = NanoAODEDMEventContent.clone(
     compressionLevel = cms.untracked.int32(9),
     compressionAlgorithm = cms.untracked.string("LZMA"),
 )
+
+NanoGenOutput = NanoAODEDMEventContent.outputCommands[:]
+NanoGenOutput.remove("keep edmTriggerResults_*_*_*")
+
+NANOAODGENEventContent = cms.PSet(
+    compressionLevel = cms.untracked.int32(9),
+    compressionAlgorithm = cms.untracked.string("LZMA"),
+    outputCommands = cms.untracked.vstring(NanoGenOutput)
+)

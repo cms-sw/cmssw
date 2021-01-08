@@ -51,8 +51,11 @@ private:
         bool fUseFromPVLooseTight;
 	bool            fUseDZ;
 	float           fDZCut;
+	double fEtaMinUseDZ;
         double fPtMaxCharged;
 	double fEtaMaxCharged;
+	uint fNumOfPUVtxsForCharged;
+	double fDZCutForChargedFromPUVtxs;
 	bool fUseExistingWeights;
 	bool fUseWeightsNoLep;
 	bool fClonePackedCands;

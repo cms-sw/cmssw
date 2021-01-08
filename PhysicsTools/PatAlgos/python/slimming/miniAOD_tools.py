@@ -30,6 +30,7 @@ def miniAOD_customizeCommon(process):
     process.patMuons.computeSoftMuonMVA = True
 
     process.patMuons.addTriggerMatching = True
+    from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
     from Configuration.Eras.Modifier_run2_muon_2016_cff import run2_muon_2016
     from Configuration.Eras.Modifier_run2_muon_2017_cff import run2_muon_2017
     from Configuration.Eras.Modifier_run2_muon_2018_cff import run2_muon_2018
@@ -37,7 +38,7 @@ def miniAOD_customizeCommon(process):
     run2_muon_2017.toModify( process.patMuons, effectiveAreaVec = [0.0566, 0.0562, 0.0363, 0.0119, 0.0064])
     run2_muon_2018.toModify( process.patMuons, effectiveAreaVec = [0.0566, 0.0562, 0.0363, 0.0119, 0.0064])
     run2_muon_2016.toModify( process.patMuons, mvaTrainingFile = "RecoMuon/MuonIdentification/data/mu_2016_BDTG.weights.xml")
-
+    run2_miniAOD_UL.toModify( process.patMuons, getdBFromTrack = True)
     process.patMuons.computePuppiCombinedIso = True
     #
     # disable embedding of electron and photon associated objects already stored by the ReducedEGProducer
@@ -54,6 +55,7 @@ def miniAOD_customizeCommon(process):
     process.patElectrons.usePfCandidateMultiMap = True
     process.patElectrons.pfCandidateMultiMap    = cms.InputTag("reducedEgamma","reducedGsfElectronPfCandMap")
     process.patElectrons.electronIDSources = cms.PSet()
+    run2_miniAOD_UL.toModify( process.patElectrons, getdBFromTrack = True)
     from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
     run2_miniAOD_80XLegacy.toModify(process.patElectrons,
                                     addPFClusterIso = cms.bool(True),
@@ -177,6 +179,7 @@ def miniAOD_customizeCommon(process):
 
     process.load('PhysicsTools.PatAlgos.slimming.slimmedMETs_cfi')
     task.add(process.slimmedMETs)
+
     addToProcessAndTask('slimmedMETsNoHF', process.slimmedMETs.clone(), process, task)
     process.slimmedMETsNoHF.src = cms.InputTag("patMETsNoHF")
     process.slimmedMETsNoHF.rawVariation =  cms.InputTag("patPFMetNoHF")
@@ -252,7 +255,16 @@ def miniAOD_customizeCommon(process):
     process.load('RecoJets.JetProducers.QGTagger_cfi')
     task.add(process.QGTaggerTask)
 
-    process.patJets.userData.userFloats.src += [ cms.InputTag('QGTagger:qgLikelihood'), ]
+    process.patJets.userData.userFloats.src += [ 'QGTagger:qgLikelihood', ]
+
+    #HF jet shower shape
+    process.load('RecoJets.JetProducers.hfJetShowerShape_cfi')
+    task.add(process.hfJetShowerShape)
+
+    run2_miniAOD_UL.toModify(process.patJets.userData.userFloats,
+                             src = process.patJets.userData.userFloats.src + ['hfJetShowerShape:sigmaEtaEta', 'hfJetShowerShape:sigmaPhiPhi'])
+    run2_miniAOD_UL.toModify(process.patJets.userData.userInts,
+                             src = process.patJets.userData.userInts.src + ['hfJetShowerShape:centralEtaStripSize', 'hfJetShowerShape:adjacentEtaStripsSize'])
 
     ## DeepCSV meta discriminators (simple arithmethic on output probabilities)
     process.load('RecoBTag.Combined.deepFlavour_cff')
@@ -272,8 +284,8 @@ def miniAOD_customizeCommon(process):
 	 valueLabels = cms.vstring('pt','emEnergyFraction'),
 	 lazyParser = cms.bool(True) )
     task.add(process.caloJetMap)
-    process.patJets.userData.userFloats.src += [ cms.InputTag("caloJetMap:pt"), cms.InputTag("caloJetMap:emEnergyFraction") ]
-
+    process.patJets.userData.userFloats.src += [ 'caloJetMap:pt', 'caloJetMap:emEnergyFraction' ]
+    
     #Muon object modifications 
     from PhysicsTools.PatAlgos.slimming.muonIsolationsPUPPI_cfi import makeInputForPUPPIIsolationMuon
     makeInputForPUPPIIsolationMuon(process)
@@ -300,10 +312,22 @@ def miniAOD_customizeCommon(process):
                     'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_HZZ_V1_cff',
                     ]
     switchOnVIDElectronIdProducer(process,DataFormat.MiniAOD, task)
-    process.egmGsfElectronIDs.physicsObjectSrc = \
-        cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
-    process.electronMVAValueMapProducer.src = \
-        cms.InputTag('reducedEgamma','reducedGedGsfElectrons')
+    process.egmGsfElectronIDs.physicsObjectSrc = cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
+    process.electronMVAValueMapProducer.src = cms.InputTag('reducedEgamma','reducedGedGsfElectrons')
+
+    # To use older DataFormats, the electronMVAValueMapProducer MUST take a updated electron collection
+    # such that the conversion variables are filled correctly.
+    process.load("RecoEgamma.EgammaTools.gedGsfElectronsTo106X_cff")
+    run2_miniAOD_80XLegacy.toModify(task, func=lambda t: t.add(process.gedGsfElectronsFrom80XTo106XTask))
+    run2_miniAOD_80XLegacy.toModify(process.electronMVAValueMapProducer,
+                                     keysForValueMaps = cms.InputTag('reducedEgamma','reducedGedGsfElectrons'),
+                                     src = cms.InputTag("gedGsfElectronsFrom80XTo106X"))
+
+    run2_miniAOD_94XFall17.toModify(task, func=lambda t: t.add(process.gedGsfElectronsFrom94XTo106XTask))
+    run2_miniAOD_94XFall17.toModify(process.electronMVAValueMapProducer,
+                                     keysForValueMaps = cms.InputTag('reducedEgamma','reducedGedGsfElectrons'),
+                                     src = cms.InputTag("gedGsfElectronsFrom94XTo106X"))
+
     for idmod in electron_ids:
         setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection,None,False,task)
 
@@ -316,10 +340,8 @@ def miniAOD_customizeCommon(process):
                   'RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Spring16_V2p2_cff',
                   'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring16_nonTrig_V1_cff']
     switchOnVIDPhotonIdProducer(process,DataFormat.AOD, task) 
-    process.egmPhotonIDs.physicsObjectSrc = \
-        cms.InputTag("reducedEgamma","reducedGedPhotons")
-    process.photonMVAValueMapProducer.src = \
-        cms.InputTag('reducedEgamma','reducedGedPhotons')
+    process.egmPhotonIDs.physicsObjectSrc = cms.InputTag("reducedEgamma","reducedGedPhotons")
+    process.photonMVAValueMapProducer.src = cms.InputTag('reducedEgamma','reducedGedPhotons')
     for idmod in photon_ids:
         setupAllVIDIdsInModule(process,idmod,setupVIDPhotonSelection,None,False,task)
  
@@ -332,7 +354,7 @@ def miniAOD_customizeCommon(process):
     addBoostedTaus(process)
     process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
     process.load("RecoTauTag.Configuration.HPSPFTaus_cff")
-    #-- Adding customization for 94X 2017 legacy reMniAOD
+    #-- Adding customization for 94X 2017 legacy reMiniAOD
     from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
     _makePatTausTaskWithRetrainedMVATauID = process.makePatTausTask.copy()
     _makePatTausTaskWithRetrainedMVATauID.add(process.hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTTask,
@@ -342,6 +364,16 @@ def miniAOD_customizeCommon(process):
     run2_miniAOD_94XFall17.toReplaceWith(
         process.makePatTausTask, _makePatTausTaskWithRetrainedMVATauID
         )
+    #-- Adding customization for UL reMiniAOD:
+    # running retrained anti-e MVA6 discriminants as setup in the HPS PFTau
+    # master configuration for this era.
+    _makePatTausTaskWithMVA6ElectronRejection = process.makePatTausTask.copy()
+    _makePatTausTaskWithMVA6ElectronRejection.add(
+        process.hpsPFTauDiscriminationByMVA6ElectronRejectionTask
+    )
+    run2_miniAOD_UL.toReplaceWith(
+        process.makePatTausTask, _makePatTausTaskWithMVA6ElectronRejection
+    )
     #-- Adding DeepTauID
     # deepTau v2
     _updatedTauName = 'slimmedTausDeepIDsv2'
@@ -373,14 +405,38 @@ def miniAOD_customizeCommon(process):
     process.deepTau2017v2p1.taus = _noUpdatedTauName
     deepTauIDTaskNew_ = cms.Task(process.deepTau2017v2p1,process.slimmedTaus)
 
-    from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
     from Configuration.Eras.Modifier_run2_tau_ul_2016_cff import run2_tau_ul_2016
     from Configuration.Eras.Modifier_run2_tau_ul_2018_cff import run2_tau_ul_2018
-    for era in [run2_miniAOD_devel,run2_tau_ul_2016,run2_tau_ul_2018]:
+    for era in [run2_miniAOD_UL,run2_tau_ul_2016,run2_tau_ul_2018]:
         era.toReplaceWith(process.slimmedTaus,
                           getattr(process, _updatedTauNameNew).clone(src = _noUpdatedTauName))
         era.toReplaceWith(process.deepTauIDTask,
                           deepTauIDTaskNew_)
+
+    #-- Adding tauID against dead ECal towers to taus
+    # note: default (AOD) behoviour of the tauID modified (leading track
+    #       extrapolation to ECAL enabled) in the HPS PFTau master
+    #       configuration for this era.
+    _makePatTausTaskWithDeadECalVeto = process.makePatTausTask.copy()
+    _makePatTausTaskWithDeadECalVeto.add(
+        process.hpsPFTauDiscriminationByDeadECALElectronRejection
+    )
+    run2_miniAOD_UL.toReplaceWith(
+        process.makePatTausTask, _makePatTausTaskWithDeadECalVeto
+    )
+    _withDeadEcalTauIDPs = cms.PSet(
+        process.patTaus.tauIDSources,
+        againstElectronDeadECAL = cms.InputTag("hpsPFTauDiscriminationByDeadECALElectronRejection")
+    )
+    run2_miniAOD_UL.toModify(process.patTaus,
+                             tauIDSources = _withDeadEcalTauIDPs)
+    #... and to boosted taus
+    _withDeadEcalTauIDBoostedPs = cms.PSet(
+        process.patTausBoosted.tauIDSources,
+        againstElectronDeadECAL = cms.InputTag("hpsPFTauDiscriminationByDeadECALElectronRejectionBoosted")
+    )
+    run2_miniAOD_UL.toModify(process.patTausBoosted,
+                             tauIDSources = _withDeadEcalTauIDBoostedPs)
 
     #-- Adding customization for 80X 2016 legacy reMiniAOD and 2018 heavy ions
     from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
@@ -474,6 +530,21 @@ def miniAOD_customizeCommon(process):
     process.slimmedMETsPuppi.tXYUncForT01Smear = cms.InputTag("patPFMetT0pcT1SmearTxyPuppi")
     del process.slimmedMETsPuppi.caloMET
 
+    process.load('RecoMET.METPUSubtraction.deepMETProducer_cfi')
+
+    process.deepMETsResolutionTune = process.deepMETProducer.clone()
+    process.deepMETsResponseTune = process.deepMETProducer.clone()
+    process.deepMETsResponseTune.graph_path = 'RecoMET/METPUSubtraction/data/deepmet/deepmet_resp_v1_2018.pb'
+
+    from Configuration.Eras.Modifier_run2_jme_2016_cff import run2_jme_2016
+    run2_jme_2016.toModify(
+        process.deepMETsResponseTune,
+        graph_path="RecoMET/METPUSubtraction/data/deepmet/deepmet_resp_v1_2016.pb"
+    )
+
+    run2_miniAOD_UL.toModify(task, func=lambda t: t.add(process.deepMETsResolutionTune, process.deepMETsResponseTune))
+    run2_miniAOD_UL.toModify(process.slimmedMETs, addDeepMETs = True)
+
     # add DetIdAssociatorRecords to EventSetup (for isolatedTracks)
     process.load("TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff")
 
@@ -548,13 +619,14 @@ def miniAOD_customizeOutput(out):
 def miniAOD_customizeData(process):
     from PhysicsTools.PatAlgos.tools.coreTools import runOnData
     runOnData( process, outputModules = [] )
-    process.load("RecoCTPPS.TotemRPLocal.ctppsLocalTrackLiteProducer_cff")
-    process.load("RecoCTPPS.ProtonReconstruction.ctppsProtons_cff")
-    process.load("Geometry.VeryForwardGeometry.geometryRPFromDB_cfi")
+    process.load("RecoCTPPS.Configuration.recoCTPPS_cff")
+    process.load('L1Trigger.L1TGlobal.simGtExtFakeProd_cfi')
     task = getPatAlgosToolsTask(process)
     from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
-    ctpps_2016.toModify(task, func=lambda t: t.add(process.ctppsLocalTrackLiteProducer))
-    ctpps_2016.toModify(task, func=lambda t: t.add(process.ctppsProtons))
+    from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
+    (ctpps_2016 & ~run2_miniAOD_UL).toModify(task, func=lambda t: t.add(process.ctppsLocalTrackLiteProducer, process.ctppsProtons))
+    (ctpps_2016 & run2_miniAOD_UL).toModify(task, func=lambda t: t.add(process.recoCTPPSTask))
+    run2_miniAOD_UL.toModify(task, func=lambda t: t.add(process.simGtExtUnprefireable))
 
 def miniAOD_customizeAllData(process):
     miniAOD_customizeCommon(process)

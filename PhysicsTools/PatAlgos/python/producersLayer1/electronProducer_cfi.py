@@ -83,6 +83,7 @@ patElectrons = cms.EDProducer("PATElectronProducer",
     embedHighLevelSelection = cms.bool(True),
     beamLineSrc             = cms.InputTag("offlineBeamSpot"),
     pvSrc                   = cms.InputTag("offlinePrimaryVertices"),
+    getdBFromTrack          = cms.bool(False),
 
     # PFClusterIso
     addPFClusterIso = cms.bool(False),

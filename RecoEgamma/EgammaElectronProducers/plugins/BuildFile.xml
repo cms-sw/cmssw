@@ -11,6 +11,7 @@
 <use   name="DataFormats/Math"/>
 <use   name="DataFormats/ParticleFlowCandidate"/>
 <use   name="DataFormats/ParticleFlowReco"/>
+<use   name="DataFormats/PatCandidates"/>
 <use   name="DataFormats/SiPixelCluster"/>
 <use   name="DataFormats/TrackerRecHit2D"/>
 <use   name="DataFormats/TrackingRecHit"/>

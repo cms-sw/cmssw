@@ -12,7 +12,12 @@
 #include "RecoEgamma/EgammaTools/interface/Utils.h"
 #include "RecoEgamma/EgammaTools/interface/MultiToken.h"
 #include "RecoEgamma/EgammaTools/interface/MVAVariableHelper.h"
+#include "RecoEgamma/EgammaTools/interface/validateEgammaCandidate.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
+#include <atomic>
+#include <cmath>
 #include <memory>
 #include <vector>
 #include <cmath>
@@ -33,6 +38,7 @@ class MVAValueMapProducer : public edm::global::EDProducer<> {
 
   // for AOD and MiniAOD case
   const MultiTokenT<edm::View<ParticleType>> src_;
+  const edm::EDGetTokenT<edm::View<ParticleType>> keysForValueMapsToken_;
 
   // MVA estimators
   const std::vector<std::unique_ptr<AnyMVAEstimatorRun2Base>> mvaEstimators_;
@@ -45,6 +51,7 @@ class MVAValueMapProducer : public edm::global::EDProducer<> {
   // To get the auxiliary MVA variables
   const MVAVariableHelper<ParticleType> variableHelper_;
 
+  CMS_THREAD_SAFE mutable std::atomic<bool> validated_ = false;
 };
 
 namespace {
@@ -83,11 +90,20 @@ namespace {
 
       return names;
     }
+
+  template <class ParticleType>
+  auto getKeysForValueMapsToken(edm::InputTag const& keysForValueMapsTag, edm::ConsumesCollector&& cc) {
+    const bool tagGiven = !keysForValueMapsTag.label().empty();
+    return tagGiven ? cc.consumes<edm::View<ParticleType>>(keysForValueMapsTag)
+                    : edm::EDGetTokenT<edm::View<ParticleType>>{};
+  }
 }
 
 template <class ParticleType>
 MVAValueMapProducer<ParticleType>::MVAValueMapProducer(const edm::ParameterSet& iConfig)
   : src_(consumesCollector(), iConfig, "src", "srcMiniAOD")
+  , keysForValueMapsToken_(getKeysForValueMapsToken<ParticleType>(
+          iConfig.getParameter<edm::InputTag>("keysForValueMaps"), consumesCollector()))
   , mvaEstimators_(getMVAEstimators(iConfig.getParameterSetVector("mvaConfigurations")))
   , mvaValueMapNames_     (getValueMapNames(iConfig.getParameterSetVector("mvaConfigurations"), "Values"    ))
   , mvaRawValueMapNames_  (getValueMapNames(iConfig.getParameterSetVector("mvaConfigurations"), "RawValues" ))
@@ -103,7 +119,15 @@ template <class ParticleType>
 void MVAValueMapProducer<ParticleType>::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
 
-  edm::Handle<edm::View<ParticleType> > src = src_.getValidHandle(iEvent);
+  edm::Handle<edm::View<ParticleType> > srcHandle = src_.getValidHandle(iEvent);
+  auto keysForValueMapsHandle =
+      keysForValueMapsToken_.isUninitialized() ? srcHandle : iEvent.getHandle(keysForValueMapsToken_);
+
+  // check if nothing is wrong with the data format of the candidates
+  if (!validated_ && !srcHandle->empty()) {
+    egammaTools::validateEgammaCandidate((*srcHandle)[0]);
+    validated_ = true;
+  }
 
   // Loop over MVA estimators
   for( unsigned iEstimator = 0; iEstimator < mvaEstimators_.size(); iEstimator++ ){
@@ -113,7 +137,7 @@ void MVAValueMapProducer<ParticleType>::produce(edm::StreamID, edm::Event& iEven
     std::vector<int>   mvaCategories;
 
     // Loop over particles
-    for (auto const& cand : src->ptrs())
+    for (auto const& cand : srcHandle->ptrs())
     {
       std::vector<float> auxVariables = variableHelper_.getAuxVariables(cand, iEvent);
 
@@ -124,20 +148,27 @@ void MVAValueMapProducer<ParticleType>::produce(edm::StreamID, edm::Event& iEven
       mvaCategories.push_back( cat );
     } // end loop over particles
 
-    writeValueMap(iEvent, src, mvaValues    , mvaValueMapNames_     [iEstimator] );
-    writeValueMap(iEvent, src, mvaRawValues , mvaRawValueMapNames_  [iEstimator] );
-    writeValueMap(iEvent, src, mvaCategories, mvaCategoriesMapNames_[iEstimator] );
+    writeValueMap(iEvent, keysForValueMapsHandle, mvaValues, mvaValueMapNames_[iEstimator]);
+    writeValueMap(iEvent, keysForValueMapsHandle, mvaRawValues, mvaRawValueMapNames_[iEstimator]);
+    writeValueMap(iEvent, keysForValueMapsHandle, mvaCategories, mvaCategoriesMapNames_[iEstimator]);
 
   } // end loop over estimators
 
 }
 
 template <class ParticleType>
-  void MVAValueMapProducer<ParticleType>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
+void MVAValueMapProducer<ParticleType>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
+  desc.add<edm::InputTag>("src", {});
+  desc.add<edm::InputTag>("srcMiniAOD", {});
+  desc.add<edm::InputTag>("keysForValueMaps", {});
+  {
+    //The following says we do not know what parameters are allowed so do no validation
+    // Please change this to state exactly what you do use, even if it is no parameters
+    edm::ParameterSetDescription mvaConfigurations;
+    mvaConfigurations.setUnknown();
+    desc.addVPSet("mvaConfigurations", mvaConfigurations);
+  }
   descriptions.addDefault(desc);
 }
 

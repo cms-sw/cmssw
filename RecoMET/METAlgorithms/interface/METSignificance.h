@@ -44,7 +44,8 @@ namespace metsig {
 					  JME::JetResolution & resPtObj,
 					  JME::JetResolution & resPhiObj,
 					  JME::JetResolutionScaleFactor & resSFObj,
-					  bool isRealData);
+					  bool isRealData,
+					  double &sumPtUnclustered);
 
      static double getSignificance(const reco::METCovMatrix& cov, const reco::MET& met );
 
@@ -57,6 +58,7 @@ namespace metsig {
          std::vector<double> jetEtas_;
          std::vector<double> jetParams_;
          std::vector<double> pjetParams_;
+         bool useDeltaRforFootprint_;
 
    };
 

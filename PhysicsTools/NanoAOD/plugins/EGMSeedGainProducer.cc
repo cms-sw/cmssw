@@ -80,7 +80,7 @@ EGMSeedGainProducer<T>::produce(edm::StreamID streamID, edm::Event& iEvent, cons
   edm::Handle<EcalRecHitCollection> recHitsEB;
   iEvent.getByToken(recHitsEB_, recHitsEB);
   edm::Handle<EcalRecHitCollection> recHitsEE;
-  iEvent.getByToken(recHitsEB_, recHitsEE);
+  iEvent.getByToken(recHitsEE_, recHitsEE);
 
   unsigned nSrc = src->size();
   std::vector<int> gainSeed(nSrc,12);

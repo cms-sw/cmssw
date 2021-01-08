@@ -29,7 +29,10 @@ puppi = cms.EDProducer("PuppiProducer",#cms.PSet(#"PuppiProducer",
                        puppiForLeptons = cms.bool(False),
                        UseFromPVLooseTight = cms.bool(False),
                        UseDeltaZCut   = cms.bool(True),
+                       EtaMinUseDeltaZ = cms.double(0.),
                        DeltaZCut      = cms.double(0.3),
+                       NumOfPUVtxsForCharged = cms.uint32(0),
+                       DeltaZCutForChargedFromPUVtxs = cms.double(0.2),
 		       PtMaxCharged   = cms.double(0.),
 		       EtaMaxCharged   = cms.double(99999.),
 		       PtMaxNeutrals  = cms.double(200.),
@@ -113,4 +116,15 @@ phase2_common.toModify(
              puppiAlgos = puppiForward
        )
     )
+)
+
+from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
+from Configuration.Eras.Modifier_run2_nanoAOD_106Xv1_cff import run2_nanoAOD_106Xv1
+(run2_miniAOD_UL|run2_nanoAOD_106Xv1).toModify(
+    puppi,
+    EtaMinUseDeltaZ = 2.4,
+    PtMaxCharged = 20.,
+    PtMaxNeutralsStartSlope = 20.,
+    NumOfPUVtxsForCharged = 2,
+    algos = { 0 : dict(etaMin = {-0.01}) } # include particles with eta==0 (proper fix is in #31174)
 )

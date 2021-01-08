@@ -45,6 +45,13 @@ supportedBtagInfos = [
   , 'pfDeepDoubleXTagInfos'
     # DeepBoostedJet tag infos
   , 'pfDeepBoostedJetTagInfos'
+    # ParticleNet (AK8) tag infos
+  , 'pfParticleNetTagInfos'
+    # ParticleNet (AK4) tag infos
+  , 'pfParticleNetAK4TagInfos'
+  , 'pfNegativeParticleNetAK4TagInfos'
+    # HiggsInteractionNet tag infos
+  , 'pfHiggsInteractionNetTagInfos'
   ]
 # extend for "internal use" in PAT/MINIAOD (renaming)
 supportedBtagInfos.append( 'caTopTagInfosPAT' )
@@ -201,6 +208,12 @@ supportedBtagDiscr = {
   , 'pfMassIndependentDeepDoubleCvLJetTags:probHcc'                     : [["pfDeepDoubleXTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
   , 'pfMassIndependentDeepDoubleCvBJetTags:probHbb'                     : [["pfDeepDoubleXTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
   , 'pfMassIndependentDeepDoubleCvBJetTags:probHcc'                     : [["pfDeepDoubleXTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
+  , 'pfMassIndependentDeepDoubleBvLV2JetTags:probQCD'                     : [["pfDeepDoubleXTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
+  , 'pfMassIndependentDeepDoubleBvLV2JetTags:probHbb'                     : [["pfDeepDoubleXTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
+  , 'pfMassIndependentDeepDoubleCvLV2JetTags:probQCD'                     : [["pfDeepDoubleXTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
+  , 'pfMassIndependentDeepDoubleCvLV2JetTags:probHcc'                     : [["pfDeepDoubleXTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
+  , 'pfMassIndependentDeepDoubleCvBV2JetTags:probHbb'                     : [["pfDeepDoubleXTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
+  , 'pfMassIndependentDeepDoubleCvBV2JetTags:probHcc'                     : [["pfDeepDoubleXTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
 }
 
 # meta-taggers are simple arithmetic on top of other taggers, they are stored here
@@ -217,7 +230,7 @@ supportedMetaDiscr = {
 
 # -----------------------------------
 # setup DeepBoostedJet
-from RecoBTag.MXNet.pfDeepBoostedJet_cff import _pfDeepBoostedJetTagsProbs, _pfDeepBoostedJetTagsMetaDiscrs, \
+from RecoBTag.ONNXRuntime.pfDeepBoostedJet_cff import _pfDeepBoostedJetTagsProbs, _pfDeepBoostedJetTagsMetaDiscrs, \
     _pfMassDecorrelatedDeepBoostedJetTagsProbs, _pfMassDecorrelatedDeepBoostedJetTagsMetaDiscrs
 # update supportedBtagDiscr
 for disc in _pfDeepBoostedJetTagsProbs + _pfMassDecorrelatedDeepBoostedJetTagsProbs:
@@ -227,4 +240,42 @@ for disc in _pfDeepBoostedJetTagsMetaDiscrs:
     supportedMetaDiscr[disc] = _pfDeepBoostedJetTagsProbs
 for disc in _pfMassDecorrelatedDeepBoostedJetTagsMetaDiscrs:
     supportedMetaDiscr[disc] = _pfMassDecorrelatedDeepBoostedJetTagsProbs
+# -----------------------------------
+
+# -----------------------------------
+# setup ParticleNet AK8
+from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetJetTagsProbs, _pfParticleNetJetTagsMetaDiscrs, \
+    _pfMassDecorrelatedParticleNetJetTagsProbs, _pfMassDecorrelatedParticleNetJetTagsMetaDiscrs
+# update supportedBtagDiscr
+for disc in _pfParticleNetJetTagsProbs + _pfMassDecorrelatedParticleNetJetTagsProbs:
+    supportedBtagDiscr[disc] = [["pfParticleNetTagInfos"]]
+# update supportedMetaDiscr
+for disc in _pfParticleNetJetTagsMetaDiscrs:
+    supportedMetaDiscr[disc] = _pfParticleNetJetTagsProbs
+for disc in _pfMassDecorrelatedParticleNetJetTagsMetaDiscrs:
+    supportedMetaDiscr[disc] = _pfMassDecorrelatedParticleNetJetTagsProbs
+# -----------------------------------
+
+# -----------------------------------
+# setup ParticleNet AK4
+from RecoBTag.ONNXRuntime.pfParticleNetAK4_cff import _pfParticleNetAK4JetTagsProbs, _pfParticleNetAK4JetTagsMetaDiscrs
+# update supportedBtagDiscr
+for disc in _pfParticleNetAK4JetTagsProbs + _pfParticleNetAK4JetTagsMetaDiscrs:
+    supportedBtagDiscr[disc] = [["pfParticleNetAK4TagInfos"]]
+# update supportedMetaDiscr
+for disc in _pfParticleNetAK4JetTagsMetaDiscrs:
+    supportedMetaDiscr[disc] = _pfParticleNetAK4JetTagsProbs
+# -----------------------------------
+# setup Negative ParticleNet AK4
+from RecoBTag.ONNXRuntime.pfParticleNetAK4_cff import _pfNegativeParticleNetAK4JetTagsProbs
+for disc in _pfNegativeParticleNetAK4JetTagsProbs:
+    supportedBtagDiscr[disc] = [["pfNegativeParticleNetAK4TagInfos"]]
+# -----------------------------------
+
+# -----------------------------------
+# setup HiggsInteractionNet
+from RecoBTag.ONNXRuntime.pfHiggsInteractionNet_cff import _pfHiggsInteractionNetTagsProbs
+# update supportedBtagDiscr 
+for disc in _pfHiggsInteractionNetTagsProbs:
+    supportedBtagDiscr[disc] = [["pfHiggsInteractionNetTagInfos"]]
 # -----------------------------------

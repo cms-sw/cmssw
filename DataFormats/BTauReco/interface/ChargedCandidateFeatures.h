@@ -8,6 +8,9 @@ class ChargedCandidateFeatures {
   public:
 
     float ptrel;
+    float ptrel_noclip;
+    float erel;
+    float etarel;
     float puppiw;
     float vtx_ass;
 
@@ -24,6 +27,14 @@ class ChargedCandidateFeatures {
 
 
     float btagPf_trackJetDistVal;
+
+    float drsubjet1;
+    float drsubjet2;
+    float dxy;
+    float dxysig;
+    float dz;
+    float dzsig;
+    float deltaR;
 
     float chi2;
     float quality;

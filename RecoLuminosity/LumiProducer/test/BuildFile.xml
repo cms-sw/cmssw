@@ -105,3 +105,6 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
+<library file="TestLumiProducerFromBrilcalc.cc" name="TestLumiProducerFromBrilcalc">
+  <flags EDM_PLUGIN="1"/>
+</library>

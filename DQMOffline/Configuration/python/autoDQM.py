@@ -100,6 +100,10 @@ autoDQM = { 'common': ['DQMOfflineCommon+@L1TMon',
                            'PostDQMOffline',
                            'DQMHarvestNanoAOD'],
 
+            'nanogenDQM': ['DQMOfflineNanoGen',
+                           'PostDQMOffline',
+                           'DQMHarvestNanoAOD'],
+
             'standardDQM': ['DQMOffline',
                             'PostDQMOffline',
                             'dqmHarvesting'],
