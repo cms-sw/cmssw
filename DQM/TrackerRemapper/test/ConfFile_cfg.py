@@ -35,7 +35,6 @@ options.register ("eventLimit",
 
 options.register ("inputRootFile",                                  
                   "/store/express/Run2018D/StreamExpressAlignment/ALCARECO/TkAlMinBias-Express-v1/000/324/980/00000/00E8FB8F-D3AB-C442-BCC2-FEEAE63EA711.root",
-#/store/express/Run2018E/ExpressPhysics/FEVT/Express-v1/000/325/465/00000/171E431B-4973-B743-8F72-8645AE49D27C.root",
                   VarParsing.VarParsing.multiplicity.singleton, 
                   VarParsing.VarParsing.varType.string,         
                   "Source Data File - either for analyze or remap")   
@@ -95,15 +94,13 @@ process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag, "")
 
+process.load("CalibTracker.SiStripCommon.TkDetMapESProducer_cfi")
 #process.load("DQM.SiStripCommon.TkHistoMap_cff")
 #process.TkDetMap = cms.Service("TkDetMap")
-process.load("CalibTracker.SiStripCommon.TkDetMapESProducer_cfi")
 #process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
-#process.TkDetMap = cms.Service("TkDetMap")
 
 #### Add these lines to produce a tracker map
 process.load("DQMServices.Core.DQMStore_cfg")
-#process.TkDetMap = cms.Service("TkDetMap")
 
 # Output root file name:
 process.TFileService = cms.Service("TFileService", fileName = cms.string('outputStrip.root') )
