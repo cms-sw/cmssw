@@ -39,9 +39,10 @@ _lowPtRegressionModifier = regressionModifier106XUL.clone(
     ),
 )
 
-lowPtGsfElectrons = cms.EDProducer("LowPtGsfElectronFinalizer",
-                                   previousGsfElectronsTag = cms.InputTag("lowPtGsfElectronsPreRegression"),
-                                   regressionConfig = _lowPtRegressionModifier,
+from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronFinalizer_cfi import lowPtGsfElectronFinalizer
+lowPtGsfElectrons = lowPtGsfElectronFinalizer.clone(
+    previousGsfElectronsTag = "lowPtGsfElectronsPreRegression",
+    regressionConfig = _lowPtRegressionModifier,
 )
 
 from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
