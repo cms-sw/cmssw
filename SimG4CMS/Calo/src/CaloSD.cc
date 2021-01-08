@@ -344,7 +344,10 @@ void CaloSD::EndOfEvent(G4HCofThisEvent*) {
   cleanHitCollection();
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("CaloSim") << "CaloSD: EndofEvent entered with " << theHC->entries() << " entries";
+  if (theHC == nullptr)
+    edm::LogVerbatim("CaloSim") << "CaloSD: EndofEvent entered with no entries";
+  else
+    edm::LogVerbatim("CaloSim") << "CaloSD: EndofEvent entered with " << theHC->entries() << " entries";
 #endif
 }
 
@@ -804,8 +807,12 @@ void CaloSD::cleanHitCollection() {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("CaloSim") << "CaloSD::cleanHitCollection: sort hits in buffer starting from "
                                 << "element = " << cleanIndex;
-    for (unsigned int i = 0; i < hitvec.size(); ++i)
-      edm::LogVerbatim("CaloSim") << i << " " << *hitvec[i];
+    for (unsigned int i = 0; i < hitvec.size(); ++i) {
+      if (hitvec[i] == nullptr)
+        edm::LogVerbatim("CaloSim") << i << " has a null pointer";
+      else
+        edm::LogVerbatim("CaloSim") << i << " " << *hitvec[i];
+    }
 #endif
     CaloG4HitEqual equal;
     for (unsigned int i = cleanIndex; i < hitvec.size(); ++i) {
@@ -823,8 +830,12 @@ void CaloSD::cleanHitCollection() {
     }
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("CaloSim") << "CaloSD: cleanHitCollection merge the hits in buffer ";
-    for (unsigned int i = 0; i < hitvec.size(); ++i)
-      edm::LogVerbatim("CaloSim") << i << " " << *hitvec[i];
+    for (unsigned int i = 0; i < hitvec.size(); ++i) {
+      if (hitvec[i] == nullptr)
+        edm::LogVerbatim("CaloSim") << i << " has a null pointer";
+      else
+        edm::LogVerbatim("CaloSim") << i << " " << *hitvec[i];
+    }
 #endif
     //move all nullptr to end of list and then remove them
     hitvec.erase(
