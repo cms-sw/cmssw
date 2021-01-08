@@ -21,7 +21,7 @@ TTTracksFromTrackletEmulation = cms.EDProducer("L1FPGATrackProducer",
                                                DTCLinkLayerDiskFile = cms.FileInPath('L1Trigger/TrackFindingTracklet/data/dtclinklayerdisk.dat'),
                                                moduleCablingFile  = cms.FileInPath('L1Trigger/TrackFindingTracklet/data/modules_T5v3_27SP_nonant_tracklet.dat'),
                                                # Quality Flag and Quality params
-                                               TrackQuality =cms.bool(False),
+                                               TrackQuality =cms.bool(True),
                                                TrackQualityPSet = cms.PSet(TrackQualityParams)
     )
 

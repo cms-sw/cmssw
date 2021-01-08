@@ -23,17 +23,18 @@ C.Brown 28/07/20
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
-
 #include "DataFormats/L1TrackTrigger/interface/TTTrack.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 
 class TrackQuality {
 public:
+  // Enum class used for determining prediction behaviour in setTrackQuality
+  enum class QualityAlgorithm { Cut, GBDT, NN, None };
+
   //Default Constructor
   TrackQuality();
 
-  TrackQuality(edm::ParameterSet& qualityParams);
+  TrackQuality(const edm::ParameterSet& qualityParams);
 
   //Default Destructor
   ~TrackQuality() = default;
@@ -46,7 +47,7 @@ public:
   void setTrackQuality(TTTrack<Ref_Phase2TrackerDigi_>& aTrack);
 
   // To set private member data
-  void setCutParameters(std::string const& qualityAlgorithm,
+  void setCutParameters(std::string const& AlgorithmString,
                         float maxZ0,
                         float maxEta,
                         float chi2dofMax,
@@ -54,14 +55,14 @@ public:
                         float minPt,
                         int nStubmin);
 
-  void setONNXModel(std::string const& qualityAlgorithm,
+  void setONNXModel(std::string const& AlgorithmString,
                     edm::FileInPath const& ONNXmodel,
                     std::string const& ONNXInputName,
                     std::vector<std::string> const& featureNames);
 
 private:
   // Private Member Data
-  std::string qualityAlgorithm_ = "None";
+  QualityAlgorithm qualityAlgorithm_ = QualityAlgorithm::None;
   edm::FileInPath ONNXmodel_;
   std::string ONNXInputName_;
   std::vector<std::string> featureNames_;
@@ -71,5 +72,6 @@ private:
   float bendchi2Max_;
   float minPt_;
   int nStubsmin_;
+  float ONNXInvRScaling_;
 };
 #endif

@@ -172,8 +172,7 @@ private:
   bool extended_;
 
   bool trackQuality_;
-  edm::ParameterSet trackQualityParams;
-  std::unique_ptr<TrackQuality> trackQualityModel;
+  std::unique_ptr<TrackQuality> trackQualityModel_;
 
   std::map<string, vector<int>> dtclayerdisk;
 
@@ -294,8 +293,7 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig)
 
   trackQuality_ = iConfig.getParameter<bool>("TrackQuality");
   if (trackQuality_) {
-    trackQualityParams = iConfig.getParameter<edm::ParameterSet>("TrackQualityPSet");
-    trackQualityModel = std::make_unique<TrackQuality>(trackQualityParams);
+    trackQualityModel_ = std::make_unique<TrackQuality>(iConfig.getParameter<edm::ParameterSet>("TrackQualityPSet"));
   }
 }
 
@@ -701,7 +699,7 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     aTrack.setTrackWordBits();
 
     if (trackQuality_) {
-      trackQualityModel->setTrackQuality(aTrack);
+      trackQualityModel_->setTrackQuality(aTrack);
     }
 
     // test track word
