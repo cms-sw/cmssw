@@ -28,11 +28,13 @@ HFChamberSD::HFChamberSD(const std::string& name,
 HFChamberSD::~HFChamberSD() { delete theHC; }
 
 void HFChamberSD::Initialize(G4HCofThisEvent* HCE) {
-  edm::LogVerbatim("FiberSim") << "HFChamberSD : Initialize called for " << GetName();
+  edm::LogVerbatim("FiberSim") << "HFChamberSD : Initialize called for " << GetName() << " in collection " << HCE;
   theHC = new HFShowerG4HitsCollection(GetName(), collectionName[0]);
   if (theHCID < 0)
     theHCID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
   HCE->AddHitsCollection(theHCID, theHC);
+  edm::LogVerbatim("FiberSim") << "HFChamberSD : Add hit collectrion for " << collectionName[0] << ":" << theHCID << ":"
+                               << theHC;
 }
 
 G4bool HFChamberSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
@@ -63,8 +65,7 @@ G4bool HFChamberSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
   aHit->setPrimMomDir(momDir);
 
   edm::LogVerbatim("FiberSim") << "HFChamberSD: Hit created in (" << touch->GetVolume(0)->GetLogicalVolume()->GetName()
-                               << ") "
-                               << " ID " << detID << " Track " << trackID << " Edep: " << edep / MeV
+                               << ")  ID " << detID << " Track " << trackID << " Edep: " << edep / CLHEP::MeV
                                << " MeV; Time: " << time << " ns; Position (local) " << localPos << " (global ) "
                                << globalPos << " direction " << momDir;
 
@@ -73,7 +74,7 @@ G4bool HFChamberSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
 }
 
 void HFChamberSD::EndOfEvent(G4HCofThisEvent* HCE) {
-  edm::LogVerbatim("FiberSim") << "HFChamberSD: Sees" << theHC->entries() << " hits";
+  edm::LogVerbatim("FiberSim") << "HFChamberSD: Finds " << theHC->entries() << " hits";
   clear();
 }
 

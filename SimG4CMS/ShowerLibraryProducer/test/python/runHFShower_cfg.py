@@ -30,9 +30,11 @@ randSvc.populate()
 process.load('FWCore.MessageService.MessageLogger_cfi')
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.FiberSim=dict()
+    process.MessageLogger.CaloSim=dict()
     process.MessageLogger.HcalSim=dict()
     process.MessageLogger.HFShower=dict()
     process.MessageLogger.HcalForwardLib=dict()
+    process.MessageLogger.SensitiveDetector=dict()
 
 process.Timing = cms.Service("Timing")
 
