@@ -1086,7 +1086,7 @@ public:
     auto const aProv = aHandle.provenance();
     if (aProv == nullptr)
       aHandle.whyFailed()->raise();
-    const auto& psetsFromProvenance = edm::parameterSet(*aProv, event.processHistory());
+    const auto& psetsFromProvenance = edm::parameterSet(aProv->stable(), event.processHistory());
     auto const idlist = psetsFromProvenance.getParameter<std::vector<edm::ParameterSet>>("IDdefinitions");
     for (size_t j = 0; j < idlist.size(); ++j) {
       std::string idname = idlist[j].getParameter<std::string>("IDname");
