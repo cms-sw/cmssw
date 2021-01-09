@@ -52,6 +52,16 @@ public:
   void produce(edm::Event& evt, const edm::EventSetup& es) final;
 
 private:
+  template <class T>
+  std::vector<edm::EDPutTokenT<T>> vproduces(std::vector<std::string> const& labels) {
+    std::vector<edm::EDPutTokenT<T>> putTokens{};
+    putTokens.reserve(labels.size());
+    for (const auto& label : labels) {
+      putTokens.push_back(produces<T>(label));
+    }
+    return putTokens;
+  }
+
   template <typename T, typename U>
   void linkCore(const T& core, U& cores, std::map<T, unsigned int>& coreMap);
 
@@ -166,7 +176,7 @@ private:
   std::vector<edm::EDGetTokenT<edm::ValueMap<float>>> gsfElectronFloatValueMapTs_;
 
   const edm::EDGetTokenT<reco::HIPhotonIsolationMap> recoHIPhotonIsolationMapInputToken_;
-  const std::string recoHIPhotonIsolationMapOutputName_;
+  edm::EDPutTokenT<reco::HIPhotonIsolationMap> recoHIPhotonIsolationMapOutputName_;
 
   const bool applyPhotonCalibOnData_;
   const bool applyPhotonCalibOnMC_;
@@ -202,11 +212,11 @@ private:
   const edm::EDPutTokenT<HBHERecHitCollection> outHBHERecHits_;
   const edm::EDPutTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef>>> outPhotonPfCandMap_;
   const edm::EDPutTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef>>> outGsfElectronPfCandMap_;
-  const std::vector<std::string> outPhotonIds_;
-  const std::vector<std::string> outGsfElectronIds_;
-  const std::vector<std::string> outPhotonFloatValueMaps_;
-  const std::vector<std::string> outOOTPhotonFloatValueMaps_;
-  const std::vector<std::string> outGsfElectronFloatValueMaps_;
+  const std::vector<edm::EDPutTokenT<edm::ValueMap<bool>>> outPhotonIds_;
+  const std::vector<edm::EDPutTokenT<edm::ValueMap<float>>> outGsfElectronIds_;
+  const std::vector<edm::EDPutTokenT<edm::ValueMap<float>>> outPhotonFloatValueMaps_;
+  std::vector<edm::EDPutTokenT<edm::ValueMap<float>>> outOOTPhotonFloatValueMaps_;
+  const std::vector<edm::EDPutTokenT<edm::ValueMap<float>>> outGsfElectronFloatValueMaps_;
 
   const StringCutObjectSelector<reco::Photon> keepPhotonSel_;
   const StringCutObjectSelector<reco::Photon> slimRelinkPhotonSel_;
@@ -223,6 +233,24 @@ private:
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(ReducedEGProducer);
+
+namespace {
+
+  template <class Handle, class T>
+  auto emplaceValueMap(Handle const& handle,
+                       std::vector<T> const& values,
+                       edm::Event& ev,
+                       edm::EDPutTokenT<edm::ValueMap<T>> const& putToken) {
+    using MapType = edm::ValueMap<T>;
+    MapType oMap{};
+    {
+      typename MapType::Filler filler(oMap);
+      filler.insert(handle, values.begin(), values.end());
+      filler.fill();
+    }
+    ev.emplace(putToken, std::move(oMap));
+  };
+}  // namespace
 
 ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config)
     : photonT_(consumes(config.getParameter<edm::InputTag>("photons"))),
@@ -242,9 +270,6 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config)
           !config.getParameter<edm::InputTag>("hiPhotonIsolationMapInput").label().empty()
               ? consumes<reco::HIPhotonIsolationMap>(config.getParameter<edm::InputTag>("hiPhotonIsolationMapInput"))
               : edm::EDGetTokenT<reco::HIPhotonIsolationMap>{}},
-      recoHIPhotonIsolationMapOutputName_{!recoHIPhotonIsolationMapInputToken_.isUninitialized()
-                                              ? config.getParameter<std::string>("hiPhotonIsolationMapOutput")
-                                              : std::string{}},
       //calibration flags
       applyPhotonCalibOnData_(config.getParameter<bool>("applyPhotonCalibOnData")),
       applyPhotonCalibOnMC_(config.getParameter<bool>("applyPhotonCalibOnMC")),
@@ -267,11 +292,13 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config)
       outPhotonPfCandMap_{produces<edm::ValueMap<std::vector<reco::PFCandidateRef>>>("reducedPhotonPfCandMap")},
       outGsfElectronPfCandMap_{
           produces<edm::ValueMap<std::vector<reco::PFCandidateRef>>>("reducedGsfElectronPfCandMap")},
-      outPhotonIds_(config.getParameter<std::vector<std::string>>("photonIDOutput")),
-      outGsfElectronIds_(config.getParameter<std::vector<std::string>>("gsfElectronIDOutput")),
-      outPhotonFloatValueMaps_(config.getParameter<std::vector<std::string>>("photonFloatValueMapOutput")),
-      outOOTPhotonFloatValueMaps_(config.getParameter<std::vector<std::string>>("ootPhotonFloatValueMapOutput")),
-      outGsfElectronFloatValueMaps_(config.getParameter<std::vector<std::string>>("gsfElectronFloatValueMapOutput")),
+      outPhotonIds_{vproduces<edm::ValueMap<bool>>(config.getParameter<std::vector<std::string>>("photonIDOutput"))},
+      outGsfElectronIds_{
+          vproduces<edm::ValueMap<float>>(config.getParameter<std::vector<std::string>>("gsfElectronIDOutput"))},
+      outPhotonFloatValueMaps_{
+          vproduces<edm::ValueMap<float>>(config.getParameter<std::vector<std::string>>("photonFloatValueMapOutput"))},
+      outGsfElectronFloatValueMaps_{vproduces<edm::ValueMap<float>>(
+          config.getParameter<std::vector<std::string>>("gsfElectronFloatValueMapOutput"))},
       keepPhotonSel_(config.getParameter<std::string>("keepPhotons")),
       slimRelinkPhotonSel_(config.getParameter<std::string>("slimRelinkPhotons")),
       relinkPhotonSel_(config.getParameter<std::string>("relinkPhotons")),
@@ -330,83 +357,71 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config)
   if (doPreshowerEcalHits_) {
     outESRecHits_ = produces<EcalRecHitCollection>("reducedESRecHits");
   }
-  for (const std::string& outid : outPhotonIds_) {
-    produces<edm::ValueMap<bool>>(outid);
-  }
-  for (const std::string& outid : outGsfElectronIds_) {
-    produces<edm::ValueMap<float>>(outid);
-  }
-  for (const std::string& outid : outPhotonFloatValueMaps_) {
-    produces<edm::ValueMap<float>>(outid);
-  }
   if (!ootPhotonT_.isUninitialized()) {
-    for (const std::string& outid : outOOTPhotonFloatValueMaps_) {
-      produces<edm::ValueMap<float>>(outid);
-    }
-  }
-  for (const std::string& outid : outGsfElectronFloatValueMaps_) {
-    produces<edm::ValueMap<float>>(outid);
+    outOOTPhotonFloatValueMaps_ =
+        vproduces<edm::ValueMap<float>>(config.getParameter<std::vector<std::string>>("ootPhotonFloatValueMapOutput"));
   }
   if (!recoHIPhotonIsolationMapInputToken_.isUninitialized()) {
-    produces<reco::HIPhotonIsolationMap>(recoHIPhotonIsolationMapOutputName_);
+    recoHIPhotonIsolationMapOutputName_ =
+        produces<reco::HIPhotonIsolationMap>(config.getParameter<std::string>("hiPhotonIsolationMapOutput"));
   }
 }
 
 void ReducedEGProducer::beginRun(edm::Run const& run, const edm::EventSetup& iSetup) { hcalHitSel_.setup(iSetup); }
 
-void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
+void ReducedEGProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup) {
   //get input collections
 
-  auto photonHandle = theEvent.getHandle(photonT_);
+  auto photonHandle = event.getHandle(photonT_);
 
   edm::Handle<reco::PhotonCollection> ootPhotonHandle;
   if (!ootPhotonT_.isUninitialized())
-    theEvent.getByToken(ootPhotonT_, ootPhotonHandle);
+    event.getByToken(ootPhotonT_, ootPhotonHandle);
 
-  auto gsfElectronHandle = theEvent.getHandle(gsfElectronT_);
-  auto conversionHandle = theEvent.getHandle(conversionT_);
-  auto singleConversionHandle = theEvent.getHandle(singleConversionT_);
-  auto barrelHitHandle = theEvent.getHandle(barrelEcalHits_);
-  auto endcapHitHandle = theEvent.getHandle(endcapEcalHits_);
+  auto gsfElectronHandle = event.getHandle(gsfElectronT_);
+  auto conversionHandle = event.getHandle(conversionT_);
+  auto singleConversionHandle = event.getHandle(singleConversionT_);
+  auto barrelHitHandle = event.getHandle(barrelEcalHits_);
+  auto endcapHitHandle = event.getHandle(endcapEcalHits_);
 
   edm::Handle<EcalRecHitCollection> preshowerHitHandle;
   if (doPreshowerEcalHits_)
-    theEvent.getByToken(preshowerEcalHits_, preshowerHitHandle);
+    event.getByToken(preshowerEcalHits_, preshowerHitHandle);
 
-  auto hbheHitHandle = theEvent.getHandle(hbheHits_);
-  auto photonPfCandMapHandle = theEvent.getHandle(photonPfCandMapT_);
-  auto gsfElectronPfCandMapHandle = theEvent.getHandle(gsfElectronPfCandMapT_);
+  auto hbheHitHandle = event.getHandle(hbheHits_);
+  auto photonPfCandMapHandle = event.getHandle(photonPfCandMapT_);
+  auto gsfElectronPfCandMapHandle = event.getHandle(gsfElectronPfCandMapT_);
 
   std::vector<edm::Handle<edm::ValueMap<bool>>> photonIdHandles(photonIdTs_.size());
   int index = 0;  // universal index for range based loops
   for (const auto& photonIdT : photonIdTs_) {
-    theEvent.getByToken(photonIdT, photonIdHandles[index++]);
+    event.getByToken(photonIdT, photonIdHandles[index++]);
   }
 
   std::vector<edm::Handle<edm::ValueMap<float>>> gsfElectronIdHandles(gsfElectronIdTs_.size());
   index = 0;
   for (const auto& gsfElectronIdT : gsfElectronIdTs_) {
-    theEvent.getByToken(gsfElectronIdT, gsfElectronIdHandles[index++]);
+    event.getByToken(gsfElectronIdT, gsfElectronIdHandles[index++]);
   }
 
   std::vector<edm::Handle<edm::ValueMap<float>>> photonFloatValueMapHandles(photonFloatValueMapTs_.size());
   index = 0;
   for (const auto& photonFloatValueMapT : photonFloatValueMapTs_) {
-    theEvent.getByToken(photonFloatValueMapT, photonFloatValueMapHandles[index++]);
+    event.getByToken(photonFloatValueMapT, photonFloatValueMapHandles[index++]);
   }
 
   std::vector<edm::Handle<edm::ValueMap<float>>> ootPhotonFloatValueMapHandles(ootPhotonFloatValueMapTs_.size());
   if (!ootPhotonT_.isUninitialized()) {
     index = 0;
     for (const auto& ootPhotonFloatValueMapT : ootPhotonFloatValueMapTs_) {
-      theEvent.getByToken(ootPhotonFloatValueMapT, ootPhotonFloatValueMapHandles[index++]);
+      event.getByToken(ootPhotonFloatValueMapT, ootPhotonFloatValueMapHandles[index++]);
     }
   }
 
   std::vector<edm::Handle<edm::ValueMap<float>>> gsfElectronFloatValueMapHandles(gsfElectronFloatValueMapTs_.size());
   index = 0;
   for (const auto& gsfElectronFloatValueMapT : gsfElectronFloatValueMapTs_) {
-    theEvent.getByToken(gsfElectronFloatValueMapT, gsfElectronFloatValueMapHandles[index++]);
+    event.getByToken(gsfElectronFloatValueMapT, gsfElectronFloatValueMapHandles[index++]);
   }
 
   edm::Handle<edm::ValueMap<float>> gsfElectronCalibEnergyHandle;
@@ -414,19 +429,19 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   edm::Handle<edm::ValueMap<float>> gsfElectronCalibEcalEnergyHandle;
   edm::Handle<edm::ValueMap<float>> gsfElectronCalibEcalEnergyErrHandle;
   if (applyGsfElectronCalibOnData_ || applyGsfElectronCalibOnMC_) {
-    theEvent.getByToken(gsfElectronCalibEnergyT_, gsfElectronCalibEnergyHandle);
-    theEvent.getByToken(gsfElectronCalibEnergyErrT_, gsfElectronCalibEnergyErrHandle);
-    theEvent.getByToken(gsfElectronCalibEcalEnergyT_, gsfElectronCalibEcalEnergyHandle);
-    theEvent.getByToken(gsfElectronCalibEcalEnergyErrT_, gsfElectronCalibEcalEnergyErrHandle);
+    event.getByToken(gsfElectronCalibEnergyT_, gsfElectronCalibEnergyHandle);
+    event.getByToken(gsfElectronCalibEnergyErrT_, gsfElectronCalibEnergyErrHandle);
+    event.getByToken(gsfElectronCalibEcalEnergyT_, gsfElectronCalibEcalEnergyHandle);
+    event.getByToken(gsfElectronCalibEcalEnergyErrT_, gsfElectronCalibEcalEnergyErrHandle);
   }
   edm::Handle<edm::ValueMap<float>> photonCalibEnergyHandle;
   edm::Handle<edm::ValueMap<float>> photonCalibEnergyErrHandle;
   if (applyPhotonCalibOnData_ || applyPhotonCalibOnMC_) {
-    theEvent.getByToken(photonCalibEnergyT_, photonCalibEnergyHandle);
-    theEvent.getByToken(photonCalibEnergyErrT_, photonCalibEnergyErrHandle);
+    event.getByToken(photonCalibEnergyT_, photonCalibEnergyHandle);
+    event.getByToken(photonCalibEnergyErrT_, photonCalibEnergyErrHandle);
   }
 
-  auto const& caloTopology = theEventSetup.getData(caloTopology_);
+  auto const& caloTopology = eventSetup.getData(caloTopology_);
 
   //initialize output collections
   reco::PhotonCollection photons{};
@@ -483,7 +498,7 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
 
   // HI photon iso value maps
   reco::HIPhotonIsolationMap const* recoHIPhotonIsolationMapInputValueMap =
-      !recoHIPhotonIsolationMapInputToken_.isUninitialized() ? &theEvent.get(recoHIPhotonIsolationMapInputToken_)
+      !recoHIPhotonIsolationMapInputToken_.isUninitialized() ? &event.get(recoHIPhotonIsolationMapInputToken_)
                                                              : nullptr;
   std::vector<reco::HIPhotonIsolation> recoHIPhotonIsolationMapInputVals;
 
@@ -496,7 +511,7 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     photons.push_back(photon);
     auto& newPhoton = photons.back();
 
-    if ((applyPhotonCalibOnData_ && theEvent.isRealData()) || (applyPhotonCalibOnMC_ && !theEvent.isRealData())) {
+    if ((applyPhotonCalibOnData_ && event.isRealData()) || (applyPhotonCalibOnMC_ && !event.isRealData())) {
       calibratePhoton(newPhoton, photonref, *photonCalibEnergyHandle, *photonCalibEnergyErrHandle);
     }
 
@@ -605,8 +620,7 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     reco::GsfElectronRef gsfElectronref(gsfElectronHandle, index);
     gsfElectrons.push_back(gsfElectron);
     auto& newGsfElectron = gsfElectrons.back();
-    if ((applyGsfElectronCalibOnData_ && theEvent.isRealData()) ||
-        (applyGsfElectronCalibOnMC_ && !theEvent.isRealData())) {
+    if ((applyGsfElectronCalibOnData_ && event.isRealData()) || (applyGsfElectronCalibOnMC_ && !event.isRealData())) {
       calibrateElectron(newGsfElectron,
                         gsfElectronref,
                         *gsfElectronCalibEnergyHandle,
@@ -761,8 +775,8 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     }
   }
 
-  theEvent.emplace(outEBRecHits_, std::move(ebRecHits));
-  theEvent.emplace(outEERecHits_, std::move(eeRecHits));
+  event.emplace(outEBRecHits_, std::move(ebRecHits));
+  event.emplace(outEERecHits_, std::move(eeRecHits));
 
   if (doPreshowerEcalHits_) {
     for (const EcalRecHit& rechit : *preshowerHitHandle) {
@@ -770,7 +784,7 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
         esRecHits.push_back(rechit);
       }
     }
-    theEvent.emplace(outESRecHits_, std::move(esRecHits));
+    event.emplace(outESRecHits_, std::move(esRecHits));
   }
 
   for (const HBHERecHit& rechit : *hbheHitHandle) {
@@ -778,12 +792,12 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
       hbheRecHits.push_back(rechit);
     }
   }
-  theEvent.emplace(outHBHERecHits_, std::move(hbheRecHits));
+  event.emplace(outHBHERecHits_, std::move(hbheRecHits));
 
   //CaloClusters
   //put calocluster output collections in event and get orphan handles to create ptrs
-  const auto& outEBEEClusterHandle = theEvent.emplace(outEBEEClusters_, std::move(ebeeClusters));
-  const auto& outESClusterHandle = theEvent.emplace(outESClusters_, std::move(esClusters));
+  const auto& outEBEEClusterHandle = event.emplace(outEBEEClusters_, std::move(ebeeClusters));
+  const auto& outESClusterHandle = event.emplace(outESClusters_, std::move(esClusters));
   ;
 
   //Loop over SuperClusters and relink GEDPhoton + GSFElectron CaloClusters
@@ -797,18 +811,18 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   edm::OrphanHandle<reco::CaloClusterCollection> outOOTESClusterHandle;
   //Loop over OOTSuperClusters and relink OOTPhoton CaloClusters
   if (!ootPhotonT_.isUninitialized()) {
-    outOOTEBEEClusterHandle = theEvent.emplace(outOOTEBEEClusters_, std::move(ootEbeeClusters));
-    outOOTESClusterHandle = theEvent.emplace(outOOTESClusters_, std::move(ootEsClusters));
+    outOOTEBEEClusterHandle = event.emplace(outOOTEBEEClusters_, std::move(ootEbeeClusters));
+    outOOTESClusterHandle = event.emplace(outOOTESClusters_, std::move(ootEsClusters));
     for (reco::SuperCluster& ootSuperCluster : ootSuperClusters) {
       relinkCaloClusters(
           ootSuperCluster, ootEbeeClusterMap, ootEsClusterMap, outOOTEBEEClusterHandle, outOOTESClusterHandle);
     }
   }
   //put superclusters and conversions in the event
-  const auto& outSuperClusterHandle = theEvent.emplace(outSuperClusters_, std::move(superClusters));
-  const auto& outConversionHandle = theEvent.emplace(outConversions_, std::move(conversions));
-  const auto& outSingleConversionHandle = theEvent.emplace(outSingleConversions_, std::move(singleConversions));
-  const auto& outGsfTrackHandle = theEvent.emplace(outGsfTracks_, std::move(gsfTracks));
+  const auto& outSuperClusterHandle = event.emplace(outSuperClusters_, std::move(superClusters));
+  const auto& outConversionHandle = event.emplace(outConversions_, std::move(conversions));
+  const auto& outSingleConversionHandle = event.emplace(outSingleConversions_, std::move(singleConversions));
+  const auto& outGsfTrackHandle = event.emplace(outGsfTracks_, std::move(gsfTracks));
 
   //Loop over PhotonCores and relink GEDPhoton SuperClusters (and conversions)
   for (reco::PhotonCore& photonCore : photonCores) {
@@ -833,7 +847,7 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   //put ootsuperclusters in the event
   edm::OrphanHandle<reco::SuperClusterCollection> outOOTSuperClusterHandle;
   if (!ootPhotonT_.isUninitialized())
-    outOOTSuperClusterHandle = theEvent.emplace(outOOTSuperClusters_, std::move(ootSuperClusters));
+    outOOTSuperClusterHandle = event.emplace(outOOTSuperClusters_, std::move(ootSuperClusters));
 
   //Relink OOTPhoton SuperClusters
   for (reco::PhotonCore& ootPhotonCore : ootPhotonCores) {
@@ -841,11 +855,11 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   }
 
   //put photoncores and gsfelectroncores into the event
-  const auto& outPhotonCoreHandle = theEvent.emplace(outPhotonCores_, std::move(photonCores));
+  const auto& outPhotonCoreHandle = event.emplace(outPhotonCores_, std::move(photonCores));
   edm::OrphanHandle<reco::PhotonCoreCollection> outOOTPhotonCoreHandle;
   if (!ootPhotonT_.isUninitialized())
-    outOOTPhotonCoreHandle = theEvent.emplace(outOOTPhotonCores_, std::move(ootPhotonCores));
-  const auto& outgsfElectronCoreHandle = theEvent.emplace(outGsfElectronCores_, std::move(gsfElectronCores));
+    outOOTPhotonCoreHandle = event.emplace(outOOTPhotonCores_, std::move(ootPhotonCores));
+  const auto& outgsfElectronCoreHandle = event.emplace(outGsfElectronCores_, std::move(gsfElectronCores));
 
   //loop over photons, oot photons, and electrons and relink the cores
   for (reco::Photon& photon : photons) {
@@ -890,11 +904,11 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   }
 
   //(finally) store the output photon and electron collections
-  const auto& outPhotonHandle = theEvent.emplace(outPhotons_, std::move(photons));
+  const auto& outPhotonHandle = event.emplace(outPhotons_, std::move(photons));
   edm::OrphanHandle<reco::PhotonCollection> outOOTPhotonHandle;
   if (!ootPhotonT_.isUninitialized())
-    outOOTPhotonHandle = theEvent.emplace(outOOTPhotons_, std::move(ootPhotons));
-  const auto& outGsfElectronHandle = theEvent.emplace(outGsfElectrons_, std::move(gsfElectrons));
+    outOOTPhotonHandle = event.emplace(outOOTPhotons_, std::move(ootPhotons));
+  const auto& outGsfElectronHandle = event.emplace(outGsfElectrons_, std::move(gsfElectrons));
 
   //still need to output relinked valuemaps
 
@@ -908,55 +922,44 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   fillerGsfElectrons.insert(outGsfElectronHandle, pfCandIsoPairVecEle.begin(), pfCandIsoPairVecEle.end());
   fillerGsfElectrons.fill();
 
-  theEvent.emplace(outPhotonPfCandMap_, std::move(photonPfCandMap));
-  theEvent.emplace(outGsfElectronPfCandMap_, std::move(gsfElectronPfCandMap));
-
-  auto fillMap = [](auto refH, auto& vec, edm::Event& ev, const std::string& cAl = "") {
-    typedef edm::ValueMap<typename std::decay<decltype(vec)>::type::value_type> MapType;
-    auto oMap = std::make_unique<MapType>();
-    {
-      typename MapType::Filler filler(*oMap);
-      filler.insert(refH, vec.begin(), vec.end());
-      filler.fill();
-    }
-    ev.put(std::move(oMap), cAl);
-  };
+  event.emplace(outPhotonPfCandMap_, std::move(photonPfCandMap));
+  event.emplace(outGsfElectronPfCandMap_, std::move(gsfElectronPfCandMap));
 
   //photon id value maps
   index = 0;
   for (auto const& vals : photonIdVals) {
-    fillMap(outPhotonHandle, vals, theEvent, outPhotonIds_[index++]);
+    emplaceValueMap(outPhotonHandle, vals, event, outPhotonIds_[index++]);
   }
 
   //electron id value maps
   index = 0;
   for (auto const& vals : gsfElectronIdVals) {
-    fillMap(outGsfElectronHandle, vals, theEvent, outGsfElectronIds_[index++]);
+    emplaceValueMap(outGsfElectronHandle, vals, event, outGsfElectronIds_[index++]);
   }
 
   // photon iso value maps
   index = 0;
   for (auto const& vals : photonFloatValueMapVals) {
-    fillMap(outPhotonHandle, vals, theEvent, outPhotonFloatValueMaps_[index++]);
+    emplaceValueMap(outPhotonHandle, vals, event, outPhotonFloatValueMaps_[index++]);
   }
 
   if (!ootPhotonT_.isUninitialized()) {
     //oot photon iso value maps
     index = 0;
     for (auto const& vals : ootPhotonFloatValueMapVals) {
-      fillMap(outOOTPhotonHandle, vals, theEvent, outOOTPhotonFloatValueMaps_[index++]);
+      emplaceValueMap(outOOTPhotonHandle, vals, event, outOOTPhotonFloatValueMaps_[index++]);
     }
   }
 
   // HI photon iso value maps
   if (!recoHIPhotonIsolationMapInputToken_.isUninitialized()) {
-    fillMap(outPhotonHandle, recoHIPhotonIsolationMapInputVals, theEvent, recoHIPhotonIsolationMapOutputName_);
+    emplaceValueMap(outPhotonHandle, recoHIPhotonIsolationMapInputVals, event, recoHIPhotonIsolationMapOutputName_);
   }
 
   //electron iso value maps
   index = 0;
   for (auto const& vals : gsfElectronFloatValueMapVals) {
-    fillMap(outGsfElectronHandle, vals, theEvent, outGsfElectronFloatValueMaps_[index++]);
+    emplaceValueMap(outGsfElectronHandle, vals, event, outGsfElectronFloatValueMaps_[index++]);
   }
 }
 
