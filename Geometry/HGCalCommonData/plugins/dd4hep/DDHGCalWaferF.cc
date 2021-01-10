@@ -28,19 +28,23 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   const auto& waferSize = args.value<double>("WaferSize");
   const auto& waferSepar = args.value<double>("SensorSeparation");
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: Module " << motherName << " made of " << material << " T " << (f2mm * thick) << " Wafer 2r " << (f2mm * waferSize) << " Half Separation " << (f2mm * waferSepar);
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: Module " << motherName << " made of " << material << " T "
+                                << (f2mm * thick) << " Wafer 2r " << (f2mm * waferSize) << " Half Separation "
+                                << (f2mm * waferSepar);
 #endif
-  const auto& layerNames = args.value<std::vector<std::string> >("LayerNames");
-  const auto& materials = args.value<std::vector<std::string> >("LayerMaterials");
-  const auto& layerThick = args.value<std::vector<double> >("LayerThickness");
-  const auto& layerType = args.value<std::vector<int> >("LayerTypes");
+  const auto& layerNames = args.value<std::vector<std::string>>("LayerNames");
+  const auto& materials = args.value<std::vector<std::string>>("LayerMaterials");
+  const auto& layerThick = args.value<std::vector<double>>("LayerThickness");
+  const auto& layerType = args.value<std::vector<int>>("LayerTypes");
   std::vector<int> copyNumber(materials.size(), 1);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: " << layerNames.size() << " types of volumes";
   for (unsigned int i = 0; i < layerNames.size(); ++i)
-    edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << layerNames[i] << " of thickness " << (f2mm * layerThick[i]) << " filled with " << materials[i] << " type " << layerType[i];
+    edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << layerNames[i] << " of thickness "
+                                  << (f2mm * layerThick[i]) << " filled with " << materials[i] << " type "
+                                  << layerType[i];
 #endif
-  const auto& layers = args.value<std::vector<int> >("Layers");
+  const auto& layers = args.value<std::vector<int>>("Layers");
 #ifdef EDM_ML_DEBUG
   std::ostringstream st1;
   for (unsigned int i = 0; i < layers.size(); ++i)
@@ -51,10 +55,11 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   const auto& cellType = args.value<int>("CellType");
   const auto& cellNames = args.value<std::vector<std::string>>("CellNames");
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: Cells/Wafer " << nCells << " Cell Type " << cellType << " NameSpace " << ns.name() << " # of cells " << cellNames.size();
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: Cells/Wafer " << nCells << " Cell Type " << cellType << " NameSpace "
+                                << ns.name() << " # of cells " << cellNames.size();
   for (unsigned int k = 0; k < cellNames.size(); ++k)
     edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: Cell[" << k << "] " << cellNames[k];
-      int counter(0);
+  int counter(0);
 #endif
 
   static constexpr double tol = 0.00001;
@@ -104,16 +109,21 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       glogs[i] = dd4hep::Volume(solid.name(), solid, matter);
       ns.addVolumeNS(glogs[i]);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: " << solid.name() << " extruded polygon made of " << materials[i] << " z|x|y|s (0) " << (f2mm * zw[0]) << ":" << (f2mm * zx[0]) << ":" << (f2mm * zy[0]) << ":" << scale[0] << " z|x|y|s (1) " << (f2mm * zw[1]) << ":" << (f2mm * zx[1]) << ":" << (f2mm * zy[1]) << ":" << scale[1] << " and " << xM.size() << " edges";
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: " << solid.name() << " extruded polygon made of " << materials[i]
+                                    << " z|x|y|s (0) " << (f2mm * zw[0]) << ":" << (f2mm * zx[0]) << ":"
+                                    << (f2mm * zy[0]) << ":" << scale[0] << " z|x|y|s (1) " << (f2mm * zw[1]) << ":"
+                                    << (f2mm * zx[1]) << ":" << (f2mm * zy[1]) << ":" << scale[1] << " and "
+                                    << xM.size() << " edges";
       for (unsigned int k = 0; k < xL.size(); ++k)
-	edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << (f2mm * xL[k]) << ":" << (f2mm * yL[k]);
+        edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << (f2mm * xL[k]) << ":" << (f2mm * yL[k]);
 #endif
     }
     glog = glogs[i];
     dd4hep::Position tran0(0, 0, (zi + 0.5 * layerThick[i]));
     glogM.placeVolume(glog, copyNumber[i], tran0);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: " << glog.name() << " number " << copyNumber[i] << " position in " << glogM.name() << " at " << tran0 << " with no rotation";
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: " << glog.name() << " number " << copyNumber[i] << " position in "
+                                  << glogM.name() << " at " << tran0 << " with no rotation";
 #endif
     ++copyNumber[i];
     zi += layerThick[i];
@@ -121,47 +131,49 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
     if (layerType[i] > 0) {
       for (int u = 0; u < 2 * nCells; ++u) {
-	for (int v = 0; v < 2 * nCells; ++v) {
-	  if (((v - u) < nCells) && (u - v) <= nCells) {
+        for (int v = 0; v < 2 * nCells; ++v) {
+          if (((v - u) < nCells) && (u - v) <= nCells) {
 #ifdef EDM_ML_DEBUG
-	    counter++;
+            counter++;
 #endif
-	    int n2 = nCells / 2;
-	    double yp = (u - 0.5 * v - n2) * 2 * r;
-	    double xp = (1.5 * (v - nCells) + 1.0) * R;
-	    int cell(0);
-	    if ((u == 0) && (v == 0))
-	      cell = 7;
-	    else if ((u == 0) && (v == nCells - 1))
-	      cell = 8;
-	    else if ((u == nCells) && (v == 2 * nCells - 1))
-	      cell = 9;
-	    else if ((u == 2 * nCells - 1) && (v == 2 * nCells - 1))
-	      cell = 10;
-	    else if ((u == 2 * nCells - 1) && (v == nCells - 1))
-	      cell = 11;
-	    else if ((u == nCells) && (v == 0))
-	      cell = 12;
-	    else if (u == 0)
-	      cell = 1;
-	    else if ((v - u) == (nCells - 1))
-	      cell = 4;
-	    else if (v == (2 * nCells - 1))
-	      cell = 2;
-	    else if (u == (2 * nCells - 1))
-	      cell = 5;
-	    else if ((u - v) == nCells)
-	      cell = 3;
-	    else if (v == 0)
-	      cell = 6;
-	    dd4hep::Position tran(xp, yp, 0);
-	    int copy = HGCalTypes::packCellTypeUV(cellType, u, v);
-	    glog.placeVolume(ns.volume(cellNames[cell]), copy, dd4hep::Transform3D(rotation, tran));
+            int n2 = nCells / 2;
+            double yp = (u - 0.5 * v - n2) * 2 * r;
+            double xp = (1.5 * (v - nCells) + 1.0) * R;
+            int cell(0);
+            if ((u == 0) && (v == 0))
+              cell = 7;
+            else if ((u == 0) && (v == nCells - 1))
+              cell = 8;
+            else if ((u == nCells) && (v == 2 * nCells - 1))
+              cell = 9;
+            else if ((u == 2 * nCells - 1) && (v == 2 * nCells - 1))
+              cell = 10;
+            else if ((u == 2 * nCells - 1) && (v == nCells - 1))
+              cell = 11;
+            else if ((u == nCells) && (v == 0))
+              cell = 12;
+            else if (u == 0)
+              cell = 1;
+            else if ((v - u) == (nCells - 1))
+              cell = 4;
+            else if (v == (2 * nCells - 1))
+              cell = 2;
+            else if (u == (2 * nCells - 1))
+              cell = 5;
+            else if ((u - v) == nCells)
+              cell = 3;
+            else if (v == 0)
+              cell = 6;
+            dd4hep::Position tran(xp, yp, 0);
+            int copy = HGCalTypes::packCellTypeUV(cellType, u, v);
+            glog.placeVolume(ns.volume(cellNames[cell]), copy, dd4hep::Transform3D(rotation, tran));
 #ifdef EDM_ML_DEBUG
-	    edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: " << cellNames[cell] << " number " << copy << " position in " << glog.name() << " at (" << (f2mm * xp) << ", " << (f2mm * yp) << ",0)  with " << rotation;
+            edm::LogVerbatim("HGCalGeom")
+                << "DDHGCalWaferF: " << cellNames[cell] << " number " << copy << " position in " << glog.name()
+                << " at (" << (f2mm * xp) << ", " << (f2mm * yp) << ",0)  with " << rotation;
 #endif
-	  }
-	}
+          }
+        }
       }
     }
   }
@@ -170,9 +182,11 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 #endif
   if (std::abs(thickTot - thick) >= tol) {
     if (thickTot > thick) {
-      edm::LogError("HGCalGeom") << "Thickness of the partition " << thick << " is smaller than " << thickTot << ": thickness of all its components **** ERROR ****";
+      edm::LogError("HGCalGeom") << "Thickness of the partition " << thick << " is smaller than " << thickTot
+                                 << ": thickness of all its components **** ERROR ****";
     } else {
-      edm::LogWarning("HGCalGeom") << "Thickness of the partition " << thick << " does not match with " << thickTot << " of the components";
+      edm::LogWarning("HGCalGeom") << "Thickness of the partition " << thick << " does not match with " << thickTot
+                                   << " of the components";
     }
   }
 
