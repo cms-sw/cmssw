@@ -27,8 +27,6 @@ patLowPtElectrons = patElectrons.clone(
     ),
 
     # Embedding of RECO/AOD items
-
-    # Embedding of RECO/AOD items
     embedTrack                  = True,
     embedGsfElectronCore        = True,
     embedGsfTrack               = True,
@@ -69,11 +67,22 @@ from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_
                                                            genParticleMatch = "electronMatch"
                                                            )
 
-# Schedule rekeying of seed BDT ValueMaps by reco::GsfElectron for run2_miniAOD_UL
+# For run2_miniAOD_UL ...
 from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
-from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronSeedValueMaps_cff import rekeyLowPtGsfElectronSeedValueMaps
-from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronID_cfi import lowPtGsfElectronID
 _makePatLowPtElectronsTask = makePatLowPtElectronsTask.copy()
+
+# (1) rekey seed BDT ValueMaps by reco::GsfElectron
+from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronSeedValueMaps_cff import rekeyLowPtGsfElectronSeedValueMaps
 _makePatLowPtElectronsTask.add(rekeyLowPtGsfElectronSeedValueMaps)
+
+# (2) rerun ID
+from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronID_cfi import lowPtGsfElectronID
 _makePatLowPtElectronsTask.add(lowPtGsfElectronID)
+
+# (3) apply energy regression
+from RecoEgamma.EgammaElectronProducers.lowPtGsfElectrons_cfi import lowPtGsfElectrons
+_makePatLowPtElectronsTask.add(lowPtGsfElectrons)
+
+# Append to Task
 run2_miniAOD_UL.toReplaceWith(makePatLowPtElectronsTask,_makePatLowPtElectronsTask)
+
