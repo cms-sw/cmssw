@@ -17,6 +17,7 @@
 #include <filesystem>
 #include <utility>
 #include <tuple>
+#include <unistd.h>
 
 namespace ni = nvidia::inferenceserver;
 namespace nic = ni::client;
@@ -28,8 +29,9 @@ namespace {
   std::pair<std::string, int> execSys(const std::string& cmd) {
     //redirect stderr to stdout
     auto pipe = popen((cmd + " 2>&1").c_str(), "r");
+    int thisErrno = errno;
     if (!pipe)
-      throw cms::Exception("SystemError") << "popen() failed for command: " << cmd;
+      throw cms::Exception("SystemError") << "popen() failed with errno " << thisErrno << " for command: " << cmd;
 
     //extract output
     constexpr static unsigned buffSize = 128;
@@ -38,6 +40,11 @@ namespace {
     while (!feof(pipe)) {
       if (fgets(buffer.data(), buffSize, pipe))
         result += buffer.data();
+      else {
+        thisErrno = ferror(pipe);
+        if (thisErrno)
+          throw cms::Exception("SystemError") << "failed reading command output with errno " << thisErrno;
+      }
     }
 
     int rv = pclose(pipe);
@@ -196,6 +203,9 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
 
   //assemble server start command
   std::string command("cmsTriton");
+  command += " -p " + std::to_string(::getpid());
+  if (fallbackOpts_.debug)
+    command += " -c";
   if (fallbackOpts_.verbose)
     command += " -v";
   if (fallbackOpts_.useDocker)
@@ -227,6 +237,8 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
 
   command += " start";
 
+  if (fallbackOpts_.debug)
+    edm::LogInfo("TritonService") << "Fallback server temporary directory: " << fallbackOpts_.tempDir;
   if (verbose_)
     edm::LogInfo("TritonService") << command;
 
@@ -237,34 +249,6 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
     edm::LogInfo("TritonService") << output;
   if (rv != 0)
     throw cms::Exception("FallbackFailed") << "Starting the fallback server failed with exit code " << rv;
-}
-
-TritonService::~TritonService() {
-  if (!startedFallback_)
-    return;
-
-  //assemble server stop command
-  std::string command("cmsTriton");
-
-  if (fallbackOpts_.verbose)
-    command += " -v";
-  if (fallbackOpts_.useDocker)
-    command += " -d";
-  if (!fallbackOpts_.instanceName.empty())
-    command += " -n " + fallbackOpts_.instanceName;
-  if (fallbackOpts_.tempDir != ".")
-    command += " -t " + fallbackOpts_.tempDir;
-
-  command += " stop";
-
-  if (verbose_)
-    edm::LogInfo("TritonService") << command;
-
-  const auto& [output, rv] = execSys(command);
-  if (verbose_ or rv != 0)
-    edm::LogInfo("TritonService") << output;
-  if (rv != 0)
-    edm::LogError("FallbackFailed") << "Stopping the fallback server failed with exit code " << rv;
 }
 
 void TritonService::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -280,6 +264,7 @@ void TritonService::fillDescriptions(edm::ConfigurationDescriptions& description
 
   edm::ParameterSetDescription fallbackDesc;
   fallbackDesc.addUntracked<bool>("enable", false);
+  fallbackDesc.addUntracked<bool>("debug", false);
   fallbackDesc.addUntracked<bool>("verbose", false);
   fallbackDesc.addUntracked<bool>("useDocker", false);
   fallbackDesc.addUntracked<bool>("useGPU", false);

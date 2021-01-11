@@ -25,6 +25,7 @@ public:
   struct FallbackOpts {
     FallbackOpts(const edm::ParameterSet& pset)
         : enable(pset.getUntrackedParameter<bool>("enable")),
+          debug(pset.getUntrackedParameter<bool>("debug")),
           verbose(pset.getUntrackedParameter<bool>("verbose")),
           useDocker(pset.getUntrackedParameter<bool>("useDocker")),
           useGPU(pset.getUntrackedParameter<bool>("useGPU")),
@@ -34,6 +35,7 @@ public:
           tempDir(pset.getUntrackedParameter<std::string>("tempDir")) {}
 
     bool enable;
+    bool debug;
     bool verbose;
     bool useDocker;
     bool useGPU;
@@ -73,7 +75,7 @@ public:
   };
 
   TritonService(const edm::ParameterSet& pset, edm::ActivityRegistry& areg);
-  ~TritonService();
+  ~TritonService() = default;
 
   //accessors
   void addModel(const std::string& modelName, const std::string& path);
