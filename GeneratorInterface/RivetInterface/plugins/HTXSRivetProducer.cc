@@ -163,7 +163,10 @@ void HTXSRivetProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
   }
 }
 
-void HTXSRivetProducer::endRun(edm::Run const& iRun, edm::EventSetup const& es) { _HTXS->printClassificationSummary(); }
+void HTXSRivetProducer::endRun(edm::Run const& iRun, edm::EventSetup const& es) {
+  if (_HTXS)
+    _HTXS->printClassificationSummary();
+}
 
 void HTXSRivetProducer::beginRun(edm::Run const& iRun, edm::EventSetup const& es) {
   if (_prodMode == "AUTO") {
