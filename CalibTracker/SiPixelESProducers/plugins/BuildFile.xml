@@ -1,12 +1,14 @@
-<use name="FWCore/Framework"/>
-<use name="FWCore/ParameterSet"/>
+<use name="cuda"/>
+<use name="CalibTracker/Records"/>
+<use name="CalibTracker/SiPixelESProducers"/>
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/SiPixelObjects"/>
 <use name="CondFormats/SiStripObjects"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
 <use name="Geometry/Records"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
-<use name="CalibTracker/Records"/>
-<use name="CalibTracker/SiPixelESProducers"/>
+<use name="HeterogeneousCore/CUDACore"/>
 <use name="MagneticField/Engine"/>
 <library file="*.cc" name="CalibTrackerSiPixelESProducersPlugins">
   <flags EDM_PLUGIN="1"/>

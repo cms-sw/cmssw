@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # This object is used to selectively make changes for different running
 # scenarios. In this case it makes changes for Run 2.
 
-from EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi import *
+from EventFilter.SiPixelRawToDigi.siPixelDigis_cff import *
 
 from EventFilter.SiStripRawToDigi.SiStripDigis_cfi import *
 
@@ -45,7 +45,7 @@ from L1Trigger.Configuration.L1TRawToDigi_cff import *
 from EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff import *
 
 RawToDigiTask = cms.Task(L1TRawToDigiTask,
-                         siPixelDigis,
+                         siPixelDigisTask,
                          siStripDigis,
                          ecalDigisTask,
                          ecalPreshowerDigis,
@@ -60,10 +60,10 @@ RawToDigiTask = cms.Task(L1TRawToDigiTask,
                          )
 RawToDigi = cms.Sequence(RawToDigiTask)
 
-RawToDigiTask_noTk = RawToDigiTask.copyAndExclude([siPixelDigis, siStripDigis])
+RawToDigiTask_noTk = RawToDigiTask.copyAndExclude([siPixelDigisTask, siStripDigis])
 RawToDigi_noTk = cms.Sequence(RawToDigiTask_noTk)
 
-RawToDigiTask_pixelOnly = cms.Task(siPixelDigis)
+RawToDigiTask_pixelOnly = cms.Task(siPixelDigisTask, scalersRawToDigi)
 RawToDigi_pixelOnly = cms.Sequence(RawToDigiTask_pixelOnly)
 
 RawToDigiTask_ecalOnly = cms.Task(ecalDigisTask, ecalPreshowerDigis, scalersRawToDigi)
@@ -73,7 +73,7 @@ RawToDigiTask_hcalOnly = cms.Task(hcalDigis)
 RawToDigi_hcalOnly = cms.Sequence(RawToDigiTask_hcalOnly)
 
 scalersRawToDigi.scalersInputTag = 'rawDataCollector'
-siPixelDigis.InputLabel = 'rawDataCollector'
+siPixelDigis.cpu.InputLabel = 'rawDataCollector'
 ecalDigis.InputLabel = 'rawDataCollector'
 ecalPreshowerDigis.sourceTag = 'rawDataCollector'
 hcalDigis.InputLabel = 'rawDataCollector'
