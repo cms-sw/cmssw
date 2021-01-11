@@ -1759,8 +1759,8 @@ void TrackletCalculatorDisplaced::approxproj(double halfRinv,
                                              double& phiprojder,
                                              double& zproj,
                                              double& zprojder) {
-  if (fabs(2.0 * halfRinv) > settings_.rinvcut() || fabs(z0) > 1.8 * settings_.z0cut() ||
-      fabs(d0) > settings_.maxd0()) {
+  if (std::abs(2.0 * halfRinv) > settings_.rinvcut() || std::abs(z0) > 1.8 * settings_.z0cut() ||
+      std::abs(d0) > settings_.maxd0()) {
     phiproj = 0.0;
     return;
   }
@@ -1792,8 +1792,8 @@ void TrackletCalculatorDisplaced::approxprojdisk(double halfRinv,
                                                  double& phiprojder,
                                                  double& rproj,
                                                  double& rprojder) {
-  if (fabs(2.0 * halfRinv) > settings_.rinvcut() || fabs(z0) > 1.8 * settings_.z0cut() ||
-      fabs(d0) > settings_.maxd0()) {
+  if (std::abs(2.0 * halfRinv) > settings_.rinvcut() || std::abs(z0) > 1.8 * settings_.z0cut() ||
+      std::abs(d0) > settings_.maxd0()) {
     phiproj = 0.0;
     return;
   }
@@ -1854,9 +1854,6 @@ void TrackletCalculatorDisplaced::approxtracklet(double r1,
 
   // first iteration in r-phi plane
   double halfRinv_0 = -phi1 * r1 * a + phi2 * r2 * b - phi3 * r3 * c;
-  // double phi0_0 = -phi1 * r1 * (r2 + r3) * a
-  //                 + phi2 * r2 * (r1 + r3) * b
-  //                 - phi3 * r3 * (r1 + r2) * c;
   double d0_0 = r1 * r2 * r3 * (-phi1 * a + phi2 * b - phi3 * c);
 
   // corrections to phi1, phi2, and phi3
@@ -1864,9 +1861,9 @@ void TrackletCalculatorDisplaced::approxtracklet(double r1,
   if (take3)
     r = r3, z = z3;
 
-  double d0OverR1 = d0_0 * rzmeanInv_[0] * (ndisks > 2 ? fabs((z - z1) / (r - r1)) : 1.0);
-  double d0OverR2 = d0_0 * rzmeanInv_[1] * (ndisks > 1 ? fabs((z - z1) / (r - r1)) : 1.0);
-  double d0OverR3 = d0_0 * rzmeanInv_[2] * (ndisks > 0 ? fabs((z - z1) / (r - r1)) : 1.0);
+  double d0OverR1 = d0_0 * rzmeanInv_[0] * (ndisks > 2 ? std::abs((z - z1) / (r - r1)) : 1.0);
+  double d0OverR2 = d0_0 * rzmeanInv_[1] * (ndisks > 1 ? std::abs((z - z1) / (r - r1)) : 1.0);
+  double d0OverR3 = d0_0 * rzmeanInv_[2] * (ndisks > 0 ? std::abs((z - z1) / (r - r1)) : 1.0);
 
   double d0OverR = d0OverR2;
   if (take3)
@@ -1928,7 +1925,8 @@ void TrackletCalculatorDisplaced::approxtracklet(double r1,
                    rderdisk[i]);
   }
 
-  if (fabs(rinv) > settings_.rinvcut() || fabs(z0) > 1.8 * settings_.z0cut() || fabs(d0) > settings_.maxd0()) {
+  if (std::abs(rinv) > settings_.rinvcut() || std::abs(z0) > 1.8 * settings_.z0cut() ||
+      std::abs(d0) > settings_.maxd0()) {
     phi0 = 0.0;
     return;
   }

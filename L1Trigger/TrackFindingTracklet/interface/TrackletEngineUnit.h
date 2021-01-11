@@ -32,8 +32,8 @@ namespace trklet {
                        unsigned int iSeed,
                        unsigned int nbitsfinephiediff,
                        unsigned int iAllStub,
-                       std::vector<bool> pttableinner,
-                       std::vector<bool> pttableouter,
+                       std::vector<bool> const& pttableinner,
+                       std::vector<bool> const& pttableouter,
                        VMStubsTEMemory* outervmstubs);
 
     ~TrackletEngineUnit() = default;

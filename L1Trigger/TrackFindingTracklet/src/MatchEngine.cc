@@ -35,7 +35,7 @@ MatchEngine::MatchEngine(string name, Settings const& settings, Globals* global,
 
   if (nvm_ == 32)
     nvmbits_ = 5;
-  if (nvm_ == 16)
+  else if (nvm_ == 16)
     nvmbits_ = 4;
 
   if (layer_ > 0) {

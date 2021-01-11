@@ -190,7 +190,7 @@ void TrackletProcessor::execute() {
 
   unsigned int ninnerstubs = 0;
 
-  //Actual implemenation statrs here
+  //Actual implemenation starts here
 
   //Reset the tebuffers
   for (auto& tebuffer : tedatabuffers_) {
@@ -402,6 +402,7 @@ void TrackletProcessor::writeTETable() {
   ofstream outstubptinnercut;
   outstubptinnercut.open(getName() + "_stubptinnercut.tab");
   outstubptinnercut << "{" << endl;
+  // the below is outcommented as the writing of these tables are currently not implemented, to be adressed
   //for(unsigned int i=0;i<pttableinner_.size();i++){
   //  if (i!=0) outstubptinnercut<<","<<endl;
   //  outstubptinnercut << pttableinner_[i];
@@ -412,6 +413,7 @@ void TrackletProcessor::writeTETable() {
   ofstream outstubptoutercut;
   outstubptoutercut.open(getName() + "_stubptoutercut.tab");
   outstubptoutercut << "{" << endl;
+  // the below is outcommented as the writing of these tables are currently not implemented, to be adressed
   //for(unsigned int i=0;i<pttableouter_.size();i++){
   //  if (i!=0) outstubptoutercut<<","<<endl;
   //  outstubptoutercut << pttableouter_[i];
@@ -436,8 +438,7 @@ void TrackletProcessor::buildLUT() {
     if (iSeed_ > 5) {
       if (iSeed_ == 6) {
         rmax = settings_.rmaxdiskl1overlapvm();
-      }
-      if (iSeed_ == 7) {
+      } else if (iSeed_ == 7) {
         rmax = settings_.rmaxdiskvm();
       }
       rmin = settings_.rmean(layerdisk1_);
@@ -469,8 +470,7 @@ void TrackletProcessor::buildLUT() {
   unsigned int nbendbitsouter = 3;
   if (iSeed_ == 2) {
     nbendbitsouter = 4;
-  }
-  if (iSeed_ == 3) {
+  } else if (iSeed_ == 3) {
     nbendbitsinner = 4;
     nbendbitsouter = 4;
   }

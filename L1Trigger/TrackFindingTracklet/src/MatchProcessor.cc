@@ -342,14 +342,6 @@ void MatchProcessor::execute() {
               ProjectionTemp tmpProj(proj, slot + 1, projrinv, projfinerz - 8, projfinephi, iphi, false, isPSseed);
               inputProjBuffer_.store(tmpProj);
             }
-            //if (usefirst) {
-            //  ProjectionTemp tmpProj(proj, slot, projrinv, projfinerz, projfinephi, iphi, false, isPSseed);
-            //  inputProjBuffer_.store(tmpProj);
-            //}
-            //if (usesecond) {
-            //  ProjectionTemp tmpProj(proj, slot + 1, projrinv, projfinerz - 8, projfinephi, iphi, false, isPSseed);
-            //  inputProjBuffer_.store(tmpProj);
-            //}
             iproj++;
             if (iproj == projMem->nTracklets()) {
               iproj = 0;
