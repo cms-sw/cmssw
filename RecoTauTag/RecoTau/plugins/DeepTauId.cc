@@ -1045,12 +1045,12 @@ namespace {
     int getPhiTensorIndex(const CellIndex& cellIndex) const { return cellIndex.phi + maxPhiIndex(); }
 
     bool tryGetCellIndex(double deltaEta, double deltaPhi, CellIndex& cellIndex) const {
-      static auto getCellIndex = [](double x, double maxX, double size, bool disable_CellIndex_workaround, int& index) {
+      static auto getCellIndex = [this](double x, double maxX, double size, int& index) {
         const double absX = std::abs(x);
         if (absX > maxX)
           return false;
         double absIndex;
-        if ( disable_CellIndex_workaround ) {
+        if ( disable_CellIndex_workaround_ ) {
           absIndex = std::floor(std::abs(absX / size - 0.5));
         } else {
           absIndex = std::floor(absX / size + 0.5);
@@ -1059,8 +1059,8 @@ namespace {
         return true;
       };
 
-      return getCellIndex(deltaEta, maxDeltaEta(), cellSizeEta, disable_CellIndex_workaround_, cellIndex.eta) &&
-             getCellIndex(deltaPhi, maxDeltaPhi(), cellSizePhi, disable_CellIndex_workaround_, cellIndex.phi);
+      return getCellIndex(deltaEta, maxDeltaEta(), cellSizeEta, cellIndex.eta) &&
+             getCellIndex(deltaPhi, maxDeltaPhi(), cellSizePhi, cellIndex.phi);
     }
 
     size_t num_valid_cells() const { return cells.size(); }
