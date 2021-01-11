@@ -156,8 +156,6 @@ void PixelCPEClusterRepair::fill2DTemplIDs() {
 //  Clean up.
 //-----------------------------------------------------------------------------
 PixelCPEClusterRepair::~PixelCPEClusterRepair() {
-  for (auto x : thePixelTemp_)
-    x.destroy();
   for (auto x : thePixelTemp2D_)
     x.destroy();
 }

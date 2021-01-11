@@ -94,11 +94,7 @@ TrackingRecHitProducer::TrackingRecHitProducer(const edm::ParameterSet& config) 
   produces<FastTrackerRecHitRefCollection>("simHit2RecHitMap");
 }
 
-TrackingRecHitProducer::~TrackingRecHitProducer() {
-  //--- Delete the templates. This is safe even if thePixelTemp_ vector is empty.
-  for (auto x : _pixelTempStore)
-    x.destroy();
-}
+TrackingRecHitProducer::~TrackingRecHitProducer() {}
 
 void TrackingRecHitProducer::beginStream(edm::StreamID id) {
   for (auto& algo : _recHitAlgorithms) {
