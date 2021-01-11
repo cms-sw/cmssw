@@ -65,6 +65,7 @@ namespace {
   //***********************************************/
   using SiPixelGenErrorIDsBPixMap = SiPixelIDs<SiPixelGenErrorDBObject, SiPixelPI::t_barrel>;
   using SiPixelGenErrorIDsFPixMap = SiPixelIDs<SiPixelGenErrorDBObject, SiPixelPI::t_forward>;
+  using SiPixelGenErrorIDsMap = SiPixelIDs<SiPixelGenErrorDBObject, SiPixelPI::t_all>;
 
 }  // namespace
 
@@ -74,4 +75,5 @@ PAYLOAD_INSPECTOR_MODULE(SiPixelGenErrorDBObject) {
   PAYLOAD_INSPECTOR_CLASS(SiPixelGenErrorHeaderTable);
   PAYLOAD_INSPECTOR_CLASS(SiPixelGenErrorIDsBPixMap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelGenErrorIDsFPixMap);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelGenErrorIDsMap);
 }

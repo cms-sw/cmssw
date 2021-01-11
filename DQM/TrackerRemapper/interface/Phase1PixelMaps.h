@@ -47,6 +47,16 @@ public:
   // set of no rescale
   void setNoRescale() { m_autorescale = false; }
 
+  // set option, but only if not already set
+  void resetOption(const char* option) {
+    if (m_option != nullptr && !m_option[0]) {
+      m_option = option;
+    } else {
+      edm::LogError("Phase1PixelMaps") << "Option has already been set to " << m_option
+                                       << ". It's not possible to reset it.";
+    }
+  }
+
   /*--------------------------------------------------------------------*/
   const indexedCorners retrieveCorners(const std::vector<edm::FileInPath>& cornerFiles, const unsigned int reads)
   /*--------------------------------------------------------------------*/
@@ -175,11 +185,13 @@ public:
       pxbTh2PolyBarrel[currentHistoName].push_back(th2p);
     }
 
-    th2p = std::make_shared<TH2Poly>("barrel_summary", "PXBMap", -5.0, 5.0, 0.0, 5.0);
+    th2p = std::make_shared<TH2Poly>("barrel_summary", Form("Barrel Pixel Map of %s", what), -5.0, 5.0, 0.0, 15.0);
     th2p->SetFloat();
 
     th2p->GetXaxis()->SetTitle("");
-    th2p->GetYaxis()->SetTitle("~ladder");
+    th2p->GetYaxis()->SetTitle("");
+    th2p->GetZaxis()->SetTitle(zaxis);
+    th2p->GetZaxis()->CenterTitle();
     th2p->SetStats(false);
     th2p->SetOption(m_option);
     pxbTh2PolyBarrelSummary[currentHistoName] = th2p;
@@ -211,11 +223,14 @@ public:
       }
     }
 
-    th2p = std::make_shared<TH2Poly>("forward_summary", "PXFMap", -40.0, 50.0, -20.0, 90.0);
+    th2p =
+        std::make_shared<TH2Poly>("forward_summary", Form("Forward Pixel Map of %s", what), -40.0, 40.0, -20.0, 90.0);
     th2p->SetFloat();
 
     th2p->GetXaxis()->SetTitle("");
     th2p->GetYaxis()->SetTitle("");
+    th2p->GetZaxis()->SetTitle(zaxis);
+    th2p->GetZaxis()->CenterTitle();
     th2p->SetStats(false);
     th2p->SetOption(m_option);
     pxfTh2PolyForwardSummary[currentHistoName] = th2p;
@@ -324,6 +339,7 @@ public:
     }
     int layer = m_trackerTopo.pxbLayer(id);
     pxbTh2PolyBarrel[currentHistoName][layer - 1]->Fill(TString::Format("%u", id), value);
+    pxbTh2PolyBarrelSummary[currentHistoName]->Fill(TString::Format("%u", id), value);
   }
 
   //============================================================================
@@ -339,6 +355,7 @@ public:
     int side = m_trackerTopo.pxfSide(id);
     unsigned mapIdx = disk + (side - 1) * 3 - 1;
     pxfTh2PolyForward[currentHistoName][mapIdx]->Fill(TString::Format("%u", id), value);
+    pxfTh2PolyForwardSummary[currentHistoName]->Fill(TString::Format("%u", id), value);
   }
 
   //============================================================================
@@ -452,6 +469,29 @@ public:
       }
       pxfTh2PolyForward[currentHistoName].at(i - 1)->Draw();
     }
+  }
+
+  //============================================================================
+  void drawSummaryMaps(const std::string& currentHistoName, TCanvas& canvas) {
+    canvas.Divide(2, 1);
+    canvas.cd(1);
+    adjustCanvasMargins(canvas.cd(1), 0.07, 0.02, 0.01, 0.05);
+    std::string temp(m_option);  // create a std string
+    if (temp.find("text") != 0) {
+      pxbTh2PolyBarrelSummary[currentHistoName]->SetMarkerColor(kRed);
+      pxbTh2PolyBarrelSummary[currentHistoName]->SetMarkerSize(0.5);
+    }
+    pxbTh2PolyBarrelSummary[currentHistoName]->GetZaxis()->SetTitleOffset(1.4);
+    pxbTh2PolyBarrelSummary[currentHistoName]->Draw();
+
+    canvas.cd(2);
+    adjustCanvasMargins(canvas.cd(2), 0.07, 0.02, 0.01, 0.05);
+    if (temp.find("text") != 0) {
+      pxfTh2PolyForwardSummary[currentHistoName]->SetMarkerColor(kRed);
+      pxfTh2PolyForwardSummary[currentHistoName]->SetMarkerSize(0.5);
+    }
+    pxfTh2PolyForwardSummary[currentHistoName]->GetZaxis()->SetTitleOffset(1.4);
+    pxfTh2PolyForwardSummary[currentHistoName]->Draw();
   }
 
 private:
