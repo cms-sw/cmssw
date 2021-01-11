@@ -207,29 +207,20 @@ struct SiPixelTemplateHeader {  //!< template header structure
 struct SiPixelTemplateStore {  //!< template storage structure
   SiPixelTemplateHeader head;
 #ifndef SI_PIXEL_TEMPLATE_USE_BOOST
-  float cotbetaY[TEMP_ENTRY_SIZEY];
-  float cotbetaX[TEMP_ENTRY_SIZEX_B];
-  float cotalphaX[TEMP_ENTRY_SIZEX_A];
+  std::array<float, TEMP_ENTRY_SIZEY> cotbetaY;
+  std::array<float, TEMP_ENTRY_SIZEX_B> cotbetaX;
+  std::array<float, TEMP_ENTRY_SIZEX_A> cotalphaX;
   //!< 60 y templates spanning cluster lengths from 0px to +18px
   SiPixelTemplateEntry enty[TEMP_ENTRY_SIZEY];
   //!< 60 Barrel x templates spanning cluster lengths from -6px (-1.125Rad) to +6px (+1.125Rad) in each of 60 slices
   SiPixelTemplateEntry entx[TEMP_ENTRY_SIZEX_B][TEMP_ENTRY_SIZEX_A];
-  void destroy(){};
 #else
-  float* cotbetaY = nullptr;
-  float* cotbetaX = nullptr;
-  float* cotalphaX = nullptr;
+  std::vector<float> cotbetaY;
+  std::vector<float> cotbetaX;
+  std::vector<float> cotalphaX;
   boost::multi_array<SiPixelTemplateEntry, 1> enty;  //!< use 1d entry to store [60] entries
   //!< use 2d entry to store [60][60] entries
   boost::multi_array<SiPixelTemplateEntry, 2> entx;
-  void destroy() {  // deletes arrays created by pushfile method of SiPixelTemplate
-    if (cotbetaY != nullptr)
-      delete[] cotbetaY;
-    if (cotbetaX != nullptr)
-      delete[] cotbetaX;
-    if (cotalphaX != nullptr)
-      delete[] cotalphaX;
-  }
 #endif
 };
 
