@@ -1051,9 +1051,12 @@ namespace {
           return false;
         double absIndex;
         if ( disable_CellIndex_workaround_ ) {
-          absIndex = std::floor(std::abs(absX / size - 0.5));
-        } else {
+          // CV: use consistent definition for CellIndex
+          //     in DeepTauId.cc code and new DeepTau trainings
           absIndex = std::floor(absX / size + 0.5);
+        } else {
+          // CV: backwards compatibility with DeepTau training v2p1 used during Run 2
+          absIndex = std::floor(std::abs(absX / size - 0.5));
         }
         index = static_cast<int>(std::copysign(absIndex, x));
         return true;
@@ -1161,7 +1164,7 @@ public:
     desc.add<int>("debug_level", 0);
     desc.add<bool>("disable_dxy_pca", false);
     desc.add<bool>("disable_hcalFraction_workaround", false);
-    desc.add<bool>("disable_CellIndex_workaround", true);
+    desc.add<bool>("disable_CellIndex_workaround", false);
     desc.add<bool>("save_inputs", false);
     desc.add<bool>("is_online", false);
 
