@@ -138,7 +138,6 @@ void DDHGCalWaferF::execute(DDCompactView& cpv) {
   double zi(-0.5 * thick_), thickTot(0.0);
   for (unsigned int l = 0; l < layers_.size(); l++) {
     unsigned int i = layers_[l];
-    DDLogicalPart glog;
     if (copyNumber_[i] == 1) {
       zw[0] = -0.5 * layerThick_[i];
       zw[1] = 0.5 * layerThick_[i];
@@ -155,12 +154,11 @@ void DDHGCalWaferF::execute(DDCompactView& cpv) {
         edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << xL[k] << ":" << yL[k];
 #endif
     }
-    glog = glogs[i];
     DDTranslation tran0(0, 0, (zi + 0.5 * layerThick_[i]));
     DDRotation rot;
-    cpv.position(glog, glogM, copyNumber_[i], tran0, rot);
+    cpv.position(glogs[i], glogM, copyNumber_[i], tran0, rot);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: " << glog.name() << " number " << copyNumber_[i] << " position in "
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: " << glogs[i].name() << " number " << copyNumber_[i] << " positioned in "
                                   << glogM.name() << " at " << tran0 << " with " << rot;
 #endif
     ++copyNumber_[i];
@@ -200,10 +198,10 @@ void DDHGCalWaferF::execute(DDCompactView& cpv) {
               cell = 6;
             DDTranslation tran(xp, yp, 0);
             int copy = HGCalTypes::packCellTypeUV(cellType_, u, v);
-            cpv.position(DDName(cellNames_[cell]), glog, copy, tran, rot);
+            cpv.position(DDName(cellNames_[cell]), glogs[i], copy, tran, rot);
 #ifdef EDM_ML_DEBUG
             edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: " << cellNames_[cell] << " number " << copy
-                                          << " position in " << glog.name() << " at " << tran << " with " << rot;
+                                          << " positioned in " << glogs[i].name() << " at " << tran << " with " << rot;
 #endif
           }
         }

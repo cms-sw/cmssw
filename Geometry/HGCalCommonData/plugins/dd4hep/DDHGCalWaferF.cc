@@ -99,7 +99,6 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   double zi(-0.5 * thick), thickTot(0.0);
   for (unsigned int l = 0; l < layers.size(); l++) {
     unsigned int i = layers[l];
-    dd4hep::Volume glog;
     if (copyNumber[i] == 1) {
       zw[0] = -0.5 * layerThick[i];
       zw[1] = 0.5 * layerThick[i];
@@ -118,11 +117,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << (f2mm * xL[k]) << ":" << (f2mm * yL[k]);
 #endif
     }
-    glog = glogs[i];
     dd4hep::Position tran0(0, 0, (zi + 0.5 * layerThick[i]));
-    glogM.placeVolume(glog, copyNumber[i], tran0);
+    glogM.placeVolume(glogs[i], copyNumber[i], tran0);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: " << glog.name() << " number " << copyNumber[i] << " position in "
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: " << glogs[i].name() << " number " << copyNumber[i] << " positioned in "
                                   << glogM.name() << " at " << tran0 << " with no rotation";
 #endif
     ++copyNumber[i];
@@ -166,10 +164,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
               cell = 6;
             dd4hep::Position tran(xp, yp, 0);
             int copy = HGCalTypes::packCellTypeUV(cellType, u, v);
-            glog.placeVolume(ns.volume(cellNames[cell]), copy, dd4hep::Transform3D(rotation, tran));
+            glogs[i].placeVolume(ns.volume(cellNames[cell]), copy, dd4hep::Transform3D(rotation, tran));
 #ifdef EDM_ML_DEBUG
             edm::LogVerbatim("HGCalGeom")
-                << "DDHGCalWaferF: " << cellNames[cell] << " number " << copy << " position in " << glog.name()
+                << "DDHGCalWaferF: " << cellNames[cell] << " number " << copy << " positioned in " << glogs[i].name()
                 << " at (" << (f2mm * xp) << ", " << (f2mm * yp) << ",0)  with " << rotation;
 #endif
           }
