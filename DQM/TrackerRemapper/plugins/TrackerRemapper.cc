@@ -2,6 +2,7 @@
 // Original Author:  Pawel Jurgielewicz
 //         Created:  Tue, 21 Nov 2017 13:38:45 GMT
 //
+// Modified by:      Marco Musich
 //
 
 // system include files
@@ -104,23 +105,23 @@ private:
   edm::Service<TFileService> fs;
   const edm::ParameterSet& iConfig;
 
-  int opMode;
-  int analyzeMode;
+  int m_opMode;
+  int m_analyzeMode;
 
-  std::map<long, TGraph*> bins;
-  std::vector<unsigned> detIdVector;
+  std::map<long, TGraph*> m_bins;
+  std::vector<unsigned> m_detIdVector;
 
-  const TkDetMap* tkdetmap;
+  const TkDetMap* m_tkdetmap;
 
-  std::map<unsigned, std::string> stripHistnameMap;
-  std::map<unsigned, std::string> pixelHistnameMap;
-  std::map<unsigned, std::string> analyzeModeNameMap;
+  std::map<unsigned, std::string> m_stripHistnameMap;
+  std::map<unsigned, std::string> m_pixelHistnameMap;
+  std::map<unsigned, std::string> m_analyzeModeNameMap;
 
-  std::string stripRemapFile;
-  std::string pixelRemapFile;
+  std::string m_stripRemapFile;
+  std::string m_pixelRemapFile;
 
-  std::string stripBaseDir, stripDesiredHistogram;
-  std::string pixelBaseDir, pixelDesiredHistogramBarrel, pixelDesiredHistogramDisk;
+  std::string m_stripBaseDir, m_stripDesiredHistogram;
+  std::string m_pixelBaseDir, m_pixelDesiredHistogramBarrel, m_pixelDesiredHistogramDisk;
 
   std::string runString;
 
@@ -165,31 +166,31 @@ TrackerRemapper::TrackerRemapper(const edm::ParameterSet& iConfig)
       topoToken_(esConsumes()),
       tkDetMapToken_(esConsumes()),
       iConfig(iConfig),
-      opMode(iConfig.getParameter<int>("opMode")),
-      analyzeMode(iConfig.getParameter<int>("analyzeMode")) {
+      m_opMode(iConfig.getParameter<int>("opMode")),
+      m_analyzeMode(iConfig.getParameter<int>("analyzeMode")) {
   usesResource("TFileService");
 
-  if (opMode == MODE_REMAP) {
-    stripRemapFile = iConfig.getParameter<std::string>("stripRemapFile");
-    stripDesiredHistogram = iConfig.getParameter<std::string>("stripHistogram");
+  if (m_opMode == MODE_REMAP) {
+    m_stripRemapFile = iConfig.getParameter<std::string>("stripRemapFile");
+    m_stripDesiredHistogram = iConfig.getParameter<std::string>("stripHistogram");
     runString = iConfig.getParameter<std::string>("runString");
 
-    pixelRemapFile = std::string("DQM_V0001_PixelPhase1_R000305516.root");
+    m_pixelRemapFile = std::string("DQM_V0001_PixelPhase1_R000305516.root");
 
-    stripBaseDir = std::string("DQMData/Run " + runString + "/SiStrip/Run summary/MechanicalView/");
-    pixelBaseDir = std::string("DQMData/Run " + runString + "/PixelPhase1/Run summary/Phase1_MechanicalView/");
+    m_stripBaseDir = std::string("DQMData/Run " + runString + "/SiStrip/Run summary/MechanicalView/");
+    m_pixelBaseDir = std::string("DQMData/Run " + runString + "/PixelPhase1/Run summary/Phase1_MechanicalView/");
 
-    pixelDesiredHistogramBarrel = std::string("adc_per_SignedModule_per_SignedLadder");
-    pixelDesiredHistogramDisk = std::string("adc_per_PXDisk_per_SignedBladePanel");
+    m_pixelDesiredHistogramBarrel = std::string("adc_per_SignedModule_per_SignedLadder");
+    m_pixelDesiredHistogramDisk = std::string("adc_per_PXDisk_per_SignedBladePanel");
 
     prepareStripNames();
     preparePixelNames();
-  } else if (opMode == MODE_ANALYZE) {
-    analyzeModeNameMap[RECHITS] = "# Rechits";
-    analyzeModeNameMap[DIGIS] = "# Digis";
-    analyzeModeNameMap[CLUSTERS] = "# Clusters";
+  } else if (m_opMode == MODE_ANALYZE) {
+    m_analyzeModeNameMap[RECHITS] = "# Rechits";
+    m_analyzeModeNameMap[DIGIS] = "# Digis";
+    m_analyzeModeNameMap[CLUSTERS] = "# Clusters";
 
-    switch (analyzeMode) {
+    switch (m_analyzeMode) {
       case RECHITS:
         rechitSrcToken = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("src"));
         break;
@@ -213,91 +214,97 @@ TrackerRemapper::TrackerRemapper(const edm::ParameterSet& iConfig)
 void TrackerRemapper::prepareStripNames()
 //***************************************************************//
 {
-  stripHistnameMap[TkLayerMap::TkLayerEnum::TIB_L1] =
-      stripBaseDir + "TIB/layer_1/" + stripDesiredHistogram + "_TIB_L1;1";
-  stripHistnameMap[TkLayerMap::TkLayerEnum::TIB_L2] =
-      stripBaseDir + "TIB/layer_2/" + stripDesiredHistogram + "_TIB_L2;1";
-  stripHistnameMap[TkLayerMap::TkLayerEnum::TIB_L3] =
-      stripBaseDir + "TIB/layer_3/" + stripDesiredHistogram + "_TIB_L3;1";
-  stripHistnameMap[TkLayerMap::TkLayerEnum::TIB_L4] =
-      stripBaseDir + "TIB/layer_4/" + stripDesiredHistogram + "_TIB_L4;1";
+  m_stripHistnameMap[TkLayerMap::TkLayerEnum::TIB_L1] =
+      m_stripBaseDir + "TIB/layer_1/" + m_stripDesiredHistogram + "_TIB_L1;1";
+  m_stripHistnameMap[TkLayerMap::TkLayerEnum::TIB_L2] =
+      m_stripBaseDir + "TIB/layer_2/" + m_stripDesiredHistogram + "_TIB_L2;1";
+  m_stripHistnameMap[TkLayerMap::TkLayerEnum::TIB_L3] =
+      m_stripBaseDir + "TIB/layer_3/" + m_stripDesiredHistogram + "_TIB_L3;1";
+  m_stripHistnameMap[TkLayerMap::TkLayerEnum::TIB_L4] =
+      m_stripBaseDir + "TIB/layer_4/" + m_stripDesiredHistogram + "_TIB_L4;1";
 
-  stripHistnameMap[TkLayerMap::TkLayerEnum::TIDM_D1] =
-      stripBaseDir + "TID/MINUS/wheel_1/" + stripDesiredHistogram + "_TIDM_D1;1";
-  stripHistnameMap[TkLayerMap::TkLayerEnum::TIDM_D2] =
-      stripBaseDir + "TID/MINUS/wheel_2/" + stripDesiredHistogram + "_TIDM_D2;1";
-  stripHistnameMap[TkLayerMap::TkLayerEnum::TIDM_D3] =
-      stripBaseDir + "TID/MINUS/wheel_3/" + stripDesiredHistogram + "_TIDM_D3;1";
-  stripHistnameMap[TkLayerMap::TkLayerEnum::TIDP_D1] =
-      stripBaseDir + "TID/PLUS/wheel_1/" + stripDesiredHistogram + "_TIDP_D1;1";
-  stripHistnameMap[TkLayerMap::TkLayerEnum::TIDP_D2] =
-      stripBaseDir + "TID/PLUS/wheel_2/" + stripDesiredHistogram + "_TIDP_D2;1";
-  stripHistnameMap[TkLayerMap::TkLayerEnum::TIDP_D3] =
-      stripBaseDir + "TID/PLUS/wheel_3/" + stripDesiredHistogram + "_TIDP_D3;1";
+  m_stripHistnameMap[TkLayerMap::TkLayerEnum::TIDM_D1] =
+      m_stripBaseDir + "TID/MINUS/wheel_1/" + m_stripDesiredHistogram + "_TIDM_D1;1";
+  m_stripHistnameMap[TkLayerMap::TkLayerEnum::TIDM_D2] =
+      m_stripBaseDir + "TID/MINUS/wheel_2/" + m_stripDesiredHistogram + "_TIDM_D2;1";
+  m_stripHistnameMap[TkLayerMap::TkLayerEnum::TIDM_D3] =
+      m_stripBaseDir + "TID/MINUS/wheel_3/" + m_stripDesiredHistogram + "_TIDM_D3;1";
+  m_stripHistnameMap[TkLayerMap::TkLayerEnum::TIDP_D1] =
+      m_stripBaseDir + "TID/PLUS/wheel_1/" + m_stripDesiredHistogram + "_TIDP_D1;1";
+  m_stripHistnameMap[TkLayerMap::TkLayerEnum::TIDP_D2] =
+      m_stripBaseDir + "TID/PLUS/wheel_2/" + m_stripDesiredHistogram + "_TIDP_D2;1";
+  m_stripHistnameMap[TkLayerMap::TkLayerEnum::TIDP_D3] =
+      m_stripBaseDir + "TID/PLUS/wheel_3/" + m_stripDesiredHistogram + "_TIDP_D3;1";
 
-  stripHistnameMap[TkLayerMap::TkLayerEnum::TOB_L1] =
-      stripBaseDir + "TOB/layer_1/" + stripDesiredHistogram + "_TOB_L1;1";
-  stripHistnameMap[TkLayerMap::TkLayerEnum::TOB_L2] =
-      stripBaseDir + "TOB/layer_2/" + stripDesiredHistogram + "_TOB_L2;1";
-  stripHistnameMap[TkLayerMap::TkLayerEnum::TOB_L3] =
-      stripBaseDir + "TOB/layer_3/" + stripDesiredHistogram + "_TOB_L3;1";
-  stripHistnameMap[TkLayerMap::TkLayerEnum::TOB_L4] =
-      stripBaseDir + "TOB/layer_4/" + stripDesiredHistogram + "_TOB_L4;1";
-  stripHistnameMap[TkLayerMap::TkLayerEnum::TOB_L5] =
-      stripBaseDir + "TOB/layer_5/" + stripDesiredHistogram + "_TOB_L5;1";
-  stripHistnameMap[TkLayerMap::TkLayerEnum::TOB_L6] =
-      stripBaseDir + "TOB/layer_6/" + stripDesiredHistogram + "_TOB_L6;1";
+  m_stripHistnameMap[TkLayerMap::TkLayerEnum::TOB_L1] =
+      m_stripBaseDir + "TOB/layer_1/" + m_stripDesiredHistogram + "_TOB_L1;1";
+  m_stripHistnameMap[TkLayerMap::TkLayerEnum::TOB_L2] =
+      m_stripBaseDir + "TOB/layer_2/" + m_stripDesiredHistogram + "_TOB_L2;1";
+  m_stripHistnameMap[TkLayerMap::TkLayerEnum::TOB_L3] =
+      m_stripBaseDir + "TOB/layer_3/" + m_stripDesiredHistogram + "_TOB_L3;1";
+  m_stripHistnameMap[TkLayerMap::TkLayerEnum::TOB_L4] =
+      m_stripBaseDir + "TOB/layer_4/" + m_stripDesiredHistogram + "_TOB_L4;1";
+  m_stripHistnameMap[TkLayerMap::TkLayerEnum::TOB_L5] =
+      m_stripBaseDir + "TOB/layer_5/" + m_stripDesiredHistogram + "_TOB_L5;1";
+  m_stripHistnameMap[TkLayerMap::TkLayerEnum::TOB_L6] =
+      m_stripBaseDir + "TOB/layer_6/" + m_stripDesiredHistogram + "_TOB_L6;1";
 
-  stripHistnameMap[TkLayerMap::TkLayerEnum::TECM_W1] =
-      stripBaseDir + "TEC/MINUS/wheel_1/" + stripDesiredHistogram + "_TECM_W1;1";
-  stripHistnameMap[TkLayerMap::TkLayerEnum::TECM_W2] =
-      stripBaseDir + "TEC/MINUS/wheel_2/" + stripDesiredHistogram + "_TECM_W2;1";
-  stripHistnameMap[TkLayerMap::TkLayerEnum::TECM_W3] =
-      stripBaseDir + "TEC/MINUS/wheel_3/" + stripDesiredHistogram + "_TECM_W3;1";
-  stripHistnameMap[TkLayerMap::TkLayerEnum::TECM_W4] =
-      stripBaseDir + "TEC/MINUS/wheel_4/" + stripDesiredHistogram + "_TECM_W4;1";
-  stripHistnameMap[TkLayerMap::TkLayerEnum::TECM_W5] =
-      stripBaseDir + "TEC/MINUS/wheel_5/" + stripDesiredHistogram + "_TECM_W5;1";
-  stripHistnameMap[TkLayerMap::TkLayerEnum::TECM_W6] =
-      stripBaseDir + "TEC/MINUS/wheel_6/" + stripDesiredHistogram + "_TECM_W6;1";
-  stripHistnameMap[TkLayerMap::TkLayerEnum::TECM_W7] =
-      stripBaseDir + "TEC/MINUS/wheel_7/" + stripDesiredHistogram + "_TECM_W7;1";
-  stripHistnameMap[TkLayerMap::TkLayerEnum::TECM_W8] =
-      stripBaseDir + "TEC/MINUS/wheel_8/" + stripDesiredHistogram + "_TECM_W8;1";
-  stripHistnameMap[TkLayerMap::TkLayerEnum::TECM_W9] =
-      stripBaseDir + "TEC/MINUS/wheel_9/" + stripDesiredHistogram + "_TECM_W9;1";
+  m_stripHistnameMap[TkLayerMap::TkLayerEnum::TECM_W1] =
+      m_stripBaseDir + "TEC/MINUS/wheel_1/" + m_stripDesiredHistogram + "_TECM_W1;1";
+  m_stripHistnameMap[TkLayerMap::TkLayerEnum::TECM_W2] =
+      m_stripBaseDir + "TEC/MINUS/wheel_2/" + m_stripDesiredHistogram + "_TECM_W2;1";
+  m_stripHistnameMap[TkLayerMap::TkLayerEnum::TECM_W3] =
+      m_stripBaseDir + "TEC/MINUS/wheel_3/" + m_stripDesiredHistogram + "_TECM_W3;1";
+  m_stripHistnameMap[TkLayerMap::TkLayerEnum::TECM_W4] =
+      m_stripBaseDir + "TEC/MINUS/wheel_4/" + m_stripDesiredHistogram + "_TECM_W4;1";
+  m_stripHistnameMap[TkLayerMap::TkLayerEnum::TECM_W5] =
+      m_stripBaseDir + "TEC/MINUS/wheel_5/" + m_stripDesiredHistogram + "_TECM_W5;1";
+  m_stripHistnameMap[TkLayerMap::TkLayerEnum::TECM_W6] =
+      m_stripBaseDir + "TEC/MINUS/wheel_6/" + m_stripDesiredHistogram + "_TECM_W6;1";
+  m_stripHistnameMap[TkLayerMap::TkLayerEnum::TECM_W7] =
+      m_stripBaseDir + "TEC/MINUS/wheel_7/" + m_stripDesiredHistogram + "_TECM_W7;1";
+  m_stripHistnameMap[TkLayerMap::TkLayerEnum::TECM_W8] =
+      m_stripBaseDir + "TEC/MINUS/wheel_8/" + m_stripDesiredHistogram + "_TECM_W8;1";
+  m_stripHistnameMap[TkLayerMap::TkLayerEnum::TECM_W9] =
+      m_stripBaseDir + "TEC/MINUS/wheel_9/" + m_stripDesiredHistogram + "_TECM_W9;1";
 
-  stripHistnameMap[TkLayerMap::TkLayerEnum::TECP_W1] =
-      stripBaseDir + "TEC/PLUS/wheel_1/" + stripDesiredHistogram + "_TECP_W1;1";
-  stripHistnameMap[TkLayerMap::TkLayerEnum::TECP_W2] =
-      stripBaseDir + "TEC/PLUS/wheel_2/" + stripDesiredHistogram + "_TECP_W2;1";
-  stripHistnameMap[TkLayerMap::TkLayerEnum::TECP_W3] =
-      stripBaseDir + "TEC/PLUS/wheel_3/" + stripDesiredHistogram + "_TECP_W3;1";
-  stripHistnameMap[TkLayerMap::TkLayerEnum::TECP_W4] =
-      stripBaseDir + "TEC/PLUS/wheel_4/" + stripDesiredHistogram + "_TECP_W4;1";
-  stripHistnameMap[TkLayerMap::TkLayerEnum::TECP_W5] =
-      stripBaseDir + "TEC/PLUS/wheel_5/" + stripDesiredHistogram + "_TECP_W5;1";
-  stripHistnameMap[TkLayerMap::TkLayerEnum::TECP_W6] =
-      stripBaseDir + "TEC/PLUS/wheel_6/" + stripDesiredHistogram + "_TECP_W6;1";
-  stripHistnameMap[TkLayerMap::TkLayerEnum::TECP_W7] =
-      stripBaseDir + "TEC/PLUS/wheel_7/" + stripDesiredHistogram + "_TECP_W7;1";
-  stripHistnameMap[TkLayerMap::TkLayerEnum::TECP_W8] =
-      stripBaseDir + "TEC/PLUS/wheel_8/" + stripDesiredHistogram + "_TECP_W8;1";
-  stripHistnameMap[TkLayerMap::TkLayerEnum::TECP_W9] =
-      stripBaseDir + "TEC/PLUS/wheel_9/" + stripDesiredHistogram + "_TECP_W9;1";
+  m_stripHistnameMap[TkLayerMap::TkLayerEnum::TECP_W1] =
+      m_stripBaseDir + "TEC/PLUS/wheel_1/" + m_stripDesiredHistogram + "_TECP_W1;1";
+  m_stripHistnameMap[TkLayerMap::TkLayerEnum::TECP_W2] =
+      m_stripBaseDir + "TEC/PLUS/wheel_2/" + m_stripDesiredHistogram + "_TECP_W2;1";
+  m_stripHistnameMap[TkLayerMap::TkLayerEnum::TECP_W3] =
+      m_stripBaseDir + "TEC/PLUS/wheel_3/" + m_stripDesiredHistogram + "_TECP_W3;1";
+  m_stripHistnameMap[TkLayerMap::TkLayerEnum::TECP_W4] =
+      m_stripBaseDir + "TEC/PLUS/wheel_4/" + m_stripDesiredHistogram + "_TECP_W4;1";
+  m_stripHistnameMap[TkLayerMap::TkLayerEnum::TECP_W5] =
+      m_stripBaseDir + "TEC/PLUS/wheel_5/" + m_stripDesiredHistogram + "_TECP_W5;1";
+  m_stripHistnameMap[TkLayerMap::TkLayerEnum::TECP_W6] =
+      m_stripBaseDir + "TEC/PLUS/wheel_6/" + m_stripDesiredHistogram + "_TECP_W6;1";
+  m_stripHistnameMap[TkLayerMap::TkLayerEnum::TECP_W7] =
+      m_stripBaseDir + "TEC/PLUS/wheel_7/" + m_stripDesiredHistogram + "_TECP_W7;1";
+  m_stripHistnameMap[TkLayerMap::TkLayerEnum::TECP_W8] =
+      m_stripBaseDir + "TEC/PLUS/wheel_8/" + m_stripDesiredHistogram + "_TECP_W8;1";
+  m_stripHistnameMap[TkLayerMap::TkLayerEnum::TECP_W9] =
+      m_stripBaseDir + "TEC/PLUS/wheel_9/" + m_stripDesiredHistogram + "_TECP_W9;1";
 }
 
 //***************************************************************//
 void TrackerRemapper::preparePixelNames()
 //***************************************************************//
 {
-  pixelHistnameMap[PixelLayerEnum::PXB_L1] = pixelBaseDir + "PXBarrel/" + pixelDesiredHistogramBarrel + "_PXLayer_1;1";
-  pixelHistnameMap[PixelLayerEnum::PXB_L2] = pixelBaseDir + "PXBarrel/" + pixelDesiredHistogramBarrel + "_PXLayer_2;1";
-  pixelHistnameMap[PixelLayerEnum::PXB_L3] = pixelBaseDir + "PXBarrel/" + pixelDesiredHistogramBarrel + "_PXLayer_3;1";
-  pixelHistnameMap[PixelLayerEnum::PXB_L4] = pixelBaseDir + "PXBarrel/" + pixelDesiredHistogramBarrel + "_PXLayer_4;1";
+  m_pixelHistnameMap[PixelLayerEnum::PXB_L1] =
+      m_pixelBaseDir + "PXBarrel/" + m_pixelDesiredHistogramBarrel + "_PXLayer_1;1";
+  m_pixelHistnameMap[PixelLayerEnum::PXB_L2] =
+      m_pixelBaseDir + "PXBarrel/" + m_pixelDesiredHistogramBarrel + "_PXLayer_2;1";
+  m_pixelHistnameMap[PixelLayerEnum::PXB_L3] =
+      m_pixelBaseDir + "PXBarrel/" + m_pixelDesiredHistogramBarrel + "_PXLayer_3;1";
+  m_pixelHistnameMap[PixelLayerEnum::PXB_L4] =
+      m_pixelBaseDir + "PXBarrel/" + m_pixelDesiredHistogramBarrel + "_PXLayer_4;1";
 
-  pixelHistnameMap[PixelLayerEnum::PXF_R1] = pixelBaseDir + "PXForward/" + pixelDesiredHistogramDisk + "_PXRing_1;1";
-  pixelHistnameMap[PixelLayerEnum::PXF_R2] = pixelBaseDir + "PXForward/" + pixelDesiredHistogramDisk + "_PXRing_2;1";
+  m_pixelHistnameMap[PixelLayerEnum::PXF_R1] =
+      m_pixelBaseDir + "PXForward/" + m_pixelDesiredHistogramDisk + "_PXRing_1;1";
+  m_pixelHistnameMap[PixelLayerEnum::PXF_R2] =
+      m_pixelBaseDir + "PXForward/" + m_pixelDesiredHistogramDisk + "_PXRing_2;1";
 }
 
 TrackerRemapper::~TrackerRemapper() {}
@@ -310,13 +317,13 @@ void TrackerRemapper::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   const TrackerGeometry* theTrackerGeometry = &iSetup.getData(geomToken_);
   const TrackerTopology* tt = &iSetup.getData(topoToken_);
-  tkdetmap = &iSetup.getData(tkDetMapToken_);
+  m_tkdetmap = &iSetup.getData(tkDetMapToken_);
 
   if (!trackerMap)
     bookBins();
 
-  if (opMode == MODE_ANALYZE) {
-    switch (analyzeMode) {
+  if (m_opMode == MODE_ANALYZE) {
+    switch (m_analyzeMode) {
       case AnalyzeData::RECHITS:
         analyzeGeneric(iEvent, rechitSrcToken);
         break;
@@ -330,7 +337,7 @@ void TrackerRemapper::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         edm::LogError("LogicError") << "Unrecognized Analyze mode!" << std::endl;
         return;
     }
-  } else if (opMode == MODE_REMAP) {
+  } else if (m_opMode == MODE_REMAP) {
     fillStripRemap();
     fillPixelRemap(theTrackerGeometry, tt);
   }
@@ -382,12 +389,12 @@ void TrackerRemapper::bookBins()
 
   int margin = 50;
   std::string mapTitle;
-  switch (opMode) {
+  switch (m_opMode) {
     case MODE_ANALYZE:
-      mapTitle = std::string(analyzeModeNameMap[analyzeMode] + " - " + runString);
+      mapTitle = std::string(m_analyzeModeNameMap[m_analyzeMode] + " - " + runString);
       break;
     case MODE_REMAP:
-      mapTitle = std::string(stripDesiredHistogram + " - " + runString);
+      mapTitle = std::string(m_stripDesiredHistogram + " - " + runString);
       break;
   }
 
@@ -396,7 +403,7 @@ void TrackerRemapper::bookBins()
   trackerMap->SetOption("COLZ");
   trackerMap->SetStats(false);
 
-  for (auto pair : bins) {
+  for (auto pair : m_bins) {
     trackerMap->AddBin(pair.second->Clone());
   }
 
@@ -467,10 +474,10 @@ void TrackerRemapper::readVertices(double& minx, double& maxx, double& miny, dou
     if (isPixel)
       continue;
 
-    detIdVector.push_back(detid);
-    bins[detid] = new TGraph(ix, x, y);
-    bins[detid]->SetName(TString::Format("%ld", detid));
-    bins[detid]->SetTitle(TString::Format("Module ID=%ld", detid));
+    m_detIdVector.push_back(detid);
+    m_bins[detid] = new TGraph(ix, x, y);
+    m_bins[detid]->SetName(TString::Format("%ld", detid));
+    m_bins[detid]->SetTitle(TString::Format("Module ID=%ld", detid));
   }
 }
 
@@ -483,21 +490,21 @@ void TrackerRemapper::fillStripRemap()
   double lowX, highX;
   double lowY, highY;
 
-  TFile* rootFileHandle = new TFile(stripRemapFile.c_str());
+  TFile* rootFileHandle = new TFile(m_stripRemapFile.c_str());
 
   for (int layer = TkLayerMap::TkLayerEnum::TIB_L1; layer <= TkLayerMap::TkLayerEnum::TECP_W9; ++layer) {
-    tkdetmap->getComponents(layer, nchX, lowX, highX, nchY, lowY, highY);
+    m_tkdetmap->getComponents(layer, nchX, lowX, highX, nchY, lowY, highY);
 
-    const TProfile2D* histHandle = (TProfile2D*)rootFileHandle->Get(stripHistnameMap[layer].c_str());
+    const TProfile2D* histHandle = (TProfile2D*)rootFileHandle->Get(m_stripHistnameMap[layer].c_str());
 
     if (!histHandle) {
-      edm::LogError("TrackerRemapper") << "Could not find histogram:\n\t" << stripHistnameMap[layer] << std::endl;
+      edm::LogError("TrackerRemapper") << "Could not find histogram:\n\t" << m_stripHistnameMap[layer] << std::endl;
       return;
     }
 
     for (unsigned binx = 1; binx <= (unsigned)nchX; ++binx) {
       for (unsigned biny = 1; biny <= (unsigned)nchY; ++biny) {
-        long rawid = tkdetmap->getDetFromBin(layer, binx, biny);
+        long rawid = m_tkdetmap->getDetFromBin(layer, binx, biny);
 
         if (rawid)  //bin represents real module -> go to file
         {
@@ -518,10 +525,10 @@ void TrackerRemapper::fillStripRemap()
 void TrackerRemapper::fillPixelRemap(const TrackerGeometry* theTrackerGeometry, const TrackerTopology* tt)
 //***************************************************************//
 {
-  TFile* rootFileHandle = new TFile(pixelRemapFile.c_str());
+  TFile* rootFileHandle = new TFile(m_pixelRemapFile.c_str());
 
   if (!rootFileHandle) {
-    edm::LogError("TrackerRemapper") << "Could not find file:\n\t" << pixelRemapFile << std::endl;
+    edm::LogError("TrackerRemapper") << "Could not find file:\n\t" << m_pixelRemapFile << std::endl;
     return;
   }
   fillBarrelRemap(rootFileHandle, theTrackerGeometry, tt);
@@ -556,7 +563,7 @@ void TrackerRemapper::fillBarrelRemap(TFile* rootFileHandle,
 
     int signedOnlineLadder = ((onlineShell & 1) ? -pixelBarrelName.ladderName() : pixelBarrelName.ladderName());
 
-    const TProfile2D* histHandle = (TProfile2D*)rootFileHandle->Get(pixelHistnameMap[layer].c_str());
+    const TProfile2D* histHandle = (TProfile2D*)rootFileHandle->Get(m_pixelHistnameMap[layer].c_str());
 
     unsigned nx = histHandle->GetNbinsX();
     unsigned ny = histHandle->GetNbinsY();
@@ -591,7 +598,7 @@ void TrackerRemapper::fillEndcapRemap(TFile* rootFileHandle,
     PixelEndcapName pixelEndcapName = PixelEndcapName(PXFDetId(rawid), tt, true);
 
     unsigned layer = pixelEndcapName.ringName() - 1 + PixelLayerEnum::PXF_R1;
-    const TProfile2D* histHandle = (TProfile2D*)rootFileHandle->Get(pixelHistnameMap[layer].c_str());
+    const TProfile2D* histHandle = (TProfile2D*)rootFileHandle->Get(m_pixelHistnameMap[layer].c_str());
 
     // ---- REMAP (Online -> Offline)
     unsigned nx = histHandle->GetNbinsX();
