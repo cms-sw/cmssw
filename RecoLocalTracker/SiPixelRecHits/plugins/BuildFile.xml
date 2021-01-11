@@ -1,7 +1,12 @@
+<use name="cuda"/>
+<use name="fmt"/>
+<use name="CUDADataFormats/BeamSpot"/>
+<use name="CUDADataFormats/TrackingRecHit"/>
+<use name="HeterogeneousCore/CUDACore"/>
 <use name="RecoLocalTracker/ClusterParameterEstimator"/>
 <use name="RecoLocalTracker/Records"/>
 <use name="RecoLocalTracker/SiPixelRecHits"/>
 <use name="DataFormats/TrackerCommon"/>
-<library file="*.cc" name="RecoLocalTrackerSiPixelRecHitsPlugins">
+<library file="*.cc *.cu" name="RecoLocalTrackerSiPixelRecHitsPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
