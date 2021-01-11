@@ -12,6 +12,9 @@
   <class name="hgcal::LayerClusterToCaloParticleAssociator" persistent="false"/>
   <class name="edm::Wrapper<hgcal::LayerClusterToCaloParticleAssociator>" persistent="false"/>
 
+  <class name="hgcal::LayerClusterToSimClusterAssociator" persistent="false"/>
+  <class name="edm::Wrapper<hgcal::LayerClusterToSimClusterAssociator>" persistent="false"/>
+
   <class name="reco::VertexSimToRecoCollection" >
     <field name="transientMap_" transient="true"/>
   </class>
@@ -22,11 +25,11 @@
   <class name="edm::Wrapper<reco::VertexRecoToSimCollection>" />
 
   <class name="hgcal::SimToRecoCollection" >
-   <field name="transientMap_" transient="true"/>
+    <field name="transientMap_" transient="true"/>
   </class>
   <class name="edm::Wrapper<hgcal::SimToRecoCollection>" />
   <class name="hgcal::RecoToSimCollection" >
-   <field name="transientMap_" transient="true"/>
+    <field name="transientMap_" transient="true"/>
   </class>
   <class name="edm::Wrapper<hgcal::RecoToSimCollection>" />
 
@@ -34,4 +37,16 @@
   <class name="edm::helpers::KeyVal<edm::RefProd<vector<reco::CaloCluster> >,edm::RefProd<vector<CaloParticle> > >" />
   <class name="map<unsigned int,vector<pair<unsigned int,pair<float,float> > > >" />
   <class name="vector<pair<unsigned int,pair<float,float> > >" />
+
+  <class name="hgcal::SimToRecoCollectionWithSimClusters" >
+   <field name="transientMap_" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<hgcal::SimToRecoCollectionWithSimClusters>" />
+  <class name="hgcal::RecoToSimCollectionWithSimClusters" >
+   <field name="transientMap_" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<hgcal::RecoToSimCollectionWithSimClusters>" />
+
+  <class name="edm::helpers::KeyVal<edm::RefProd<vector<SimCluster> >,edm::RefProd<vector<reco::CaloCluster> > >" />
+  <class name="edm::helpers::KeyVal<edm::RefProd<vector<reco::CaloCluster> >,edm::RefProd<vector<SimCluster> > >" />
 </lcgdict>
