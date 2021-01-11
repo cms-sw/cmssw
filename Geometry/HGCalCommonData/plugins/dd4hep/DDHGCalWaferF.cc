@@ -120,8 +120,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     dd4hep::Position tran0(0, 0, (zi + 0.5 * layerThick[i]));
     glogM.placeVolume(glogs[i], copyNumber[i], tran0);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: " << glogs[i].name() << " number " << copyNumber[i] << " positioned in "
-                                  << glogM.name() << " at " << tran0 << " with no rotation";
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: " << glogs[i].name() << " number " << copyNumber[i]
+                                  << " positioned in " << glogM.name() << " at " << tran0 << " with no rotation";
 #endif
     ++copyNumber[i];
     zi += layerThick[i];

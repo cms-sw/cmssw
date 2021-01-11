@@ -158,8 +158,8 @@ void DDHGCalWaferF::execute(DDCompactView& cpv) {
     DDRotation rot;
     cpv.position(glogs[i], glogM, copyNumber_[i], tran0, rot);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: " << glogs[i].name() << " number " << copyNumber_[i] << " positioned in "
-                                  << glogM.name() << " at " << tran0 << " with " << rot;
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: " << glogs[i].name() << " number " << copyNumber_[i]
+                                  << " positioned in " << glogM.name() << " at " << tran0 << " with " << rot;
 #endif
     ++copyNumber_[i];
     zi += layerThick_[i];
