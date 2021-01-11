@@ -1160,7 +1160,7 @@ public:
     desc.add<unsigned>("version", 2);
     desc.add<int>("debug_level", 0);
     desc.add<bool>("disable_dxy_pca", false);
-    desc.add<bool>("disable_hcalFraction_workaround", true);
+    desc.add<bool>("disable_hcalFraction_workaround", false);
     desc.add<bool>("disable_CellIndex_workaround", true);
     desc.add<bool>("save_inputs", false);
     desc.add<bool>("is_online", false);
