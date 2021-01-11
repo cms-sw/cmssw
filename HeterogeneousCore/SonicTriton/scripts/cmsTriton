@@ -13,6 +13,7 @@ FORCE=""
 CLEANUP=true
 TMPDIR=""
 DRYRUN=""
+PARENTPID=""
 
 usage() {
 	ECHO="echo -e"
@@ -27,6 +28,7 @@ usage() {
 	$ECHO "-M [dir]    \t model repository (can be given more than once)"
 	$ECHO "-m [dir]    \t specific model directory (can be given more than one)"
 	$ECHO "-n [name]   \t name of container instance, also used for default hidden temporary dir (default: ${SERVER})"
+	$ECHO "-p [pid]    \t PID of parent process to ensure shutdown"
 	$ECHO "-r [num]    \t number of retries when starting container (default: ${RETRIES})"
 	$ECHO "-t [dir]    \t non-default hidden temporary dir"
 	$ECHO "-v          \t (verbose) start: activate server debugging info; stop: keep server logs"
@@ -45,7 +47,7 @@ if [ -e /run/shm ]; then
 	SHM=/run/shm
 fi
 
-while getopts "cDdfgM:m:n:r:t:vw:h" opt; do
+while getopts "cDdfgM:m:n:p:r:t:vw:h" opt; do
 	case "$opt" in
 		c) CLEANUP=""
 		;;
@@ -62,6 +64,8 @@ while getopts "cDdfgM:m:n:r:t:vw:h" opt; do
 		m) MODELS+=("$OPTARG")
 		;;
 		n) SERVER="$OPTARG"
+		;;
+		p) PARENTPID="$OPTARG"
 		;;
 		r) RETRIES="$OPTARG"
 		;;
@@ -97,6 +101,7 @@ fi
 DOCKER="sudo docker"
 IMAGE=fastml/triton-torchgeo:20.09-py3-geometric
 LOG="log_${SERVER}.log"
+STOPLOG="log_stop_${SERVER}.log"
 LIB=lib
 STARTED_INDICATOR="Started GRPCInferenceService"
 EXTRA=""
@@ -155,9 +160,9 @@ start_singularity(){
 }
 
 stop_docker(){
-	# keep log (outside of tmp dir)
+	# keep log
 	if [ -z "$DRYRUN" ]; then
-		if [ -n "$VERBOSE" ]; then $DOCKER logs ${SERVER} >& "${TOPDIR}/${LOG}"; fi
+		if [ -n "$VERBOSE" ]; then $DOCKER logs ${SERVER} >& "$LOG"; fi
 	fi
 
 	$DRYRUN $DOCKER stop ${SERVER}
@@ -166,11 +171,6 @@ stop_docker(){
 
 stop_singularity(){
 	$DRYRUN singularity instance stop ${SERVER}
-
-	# move log out of tmp dir
-	if [ -z "$DRYRUN" ]; then
-		if [ -n "$VERBOSE" ]; then mv "$LOG" "$TOPDIR"; fi
-	fi
 }
 
 test_docker(){
@@ -191,8 +191,7 @@ wait_server(){
 	while ! $WAIT_COND >& /dev/null; do
 		if [ "$COUNT" -gt "$WTIME" ]; then
 			echo "timed out waiting for server to start"
-			VERBOSE=true $STOP_FN
-			cleanup
+			auto_stop true
 			exit 1
 		else
 			COUNT=$(($COUNT + 1))
@@ -201,14 +200,6 @@ wait_server(){
 	done
 
 	echo "server is ready!"
-	exit 0
-}
-
-cleanup(){
-	if [ -n "$CLEANUP" ]; then
-		$DRYRUN cd "$TOPDIR"
-		$DRYRUN rm -rf "$TMPDIR"
-	fi
 }
 
 list_models(){
@@ -226,6 +217,35 @@ list_models(){
 	done
 	# make unique list
 	read -a REPOS <<< "$(printf "%s\n" "${REPOS[@]}" | sort -u | tr '\n' ' ')"
+}
+
+auto_stop(){
+	# allow enabling verbosity here even if disabled at top level
+	# but otherwise use top-level setting
+	if [ -n "$1" ]; then VERBOSE="$1"; fi
+	PARENTPID="$2"
+
+	if [ -n "$PARENTPID" ]; then
+		while kill -0 $PARENTPID >& /dev/null; do
+			sleep 1
+		done
+	fi
+	$STOP_FN
+
+	# move logs out of tmp dir
+	if [ -z "$DRYRUN" ]; then
+		if [ -n "$VERBOSE" ]; then
+			mv "$LOG" "$TOPDIR"
+			if [ -f "$STOPLOG" ]; then
+				mv "$STOPLOG" "$TOPDIR"
+			fi
+		fi
+	fi
+
+	if [ -n "$CLEANUP" ]; then
+		$DRYRUN cd "$TOPDIR"
+		$DRYRUN rm -rf "$TMPDIR"
+	fi
 }
 
 if [ -n "$USEDOCKER" ]; then
@@ -249,8 +269,7 @@ fi
 if [ "$OP" == start ]; then
 	# handle cleaning up
 	if [ -n "$FORCE" ]; then
-		$STOP_FN
-		cleanup
+		auto_stop
 	elif [ -d "$TMPDIR" ]; then
 		echo "Error: this container may already exist (override with -f)"
 		exit 1
@@ -283,6 +302,11 @@ if [ "$OP" == start ]; then
 		exit "$START_EXIT"
 	fi
 	wait_server
+
+	# if parent PID is provided, automatically stop server when finished
+	if [ -n "$PARENTPID" ]; then
+		auto_stop "" "$PARENTPID" >& "$STOPLOG" &
+	fi
 else
 	# check for tmp dir
 	if [ -d "$TMPDIR" ]; then
@@ -292,6 +316,5 @@ else
 		exit 1
 	fi
 
-	$STOP_FN
-	cleanup
+	auto_stop
 fi
