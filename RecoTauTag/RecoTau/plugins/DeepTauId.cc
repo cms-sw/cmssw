@@ -13,8 +13,6 @@
 
 #include <TString.h> // Form
 
-#include <iostream>
-#include <iomanip>
 #include <fstream>
 
 namespace deep_tau {
@@ -425,10 +423,9 @@ namespace {
   float getTauID(const pat::Tau& tau, const std::string& tauID, float default_value = -999.)
   {
     static std::set<std::string> isFirstWarning;
-    float retVal = default_value;
     if ( tau.isTauIDAvailable(tauID) )
     {
-      retVal = tau.tauID(tauID);
+      return tau.tauID(tauID);
     }
     else
     {
@@ -438,8 +435,8 @@ namespace {
                   << " Using default_value = " << default_value << " instead." << std::endl;
         isFirstWarning.insert(tauID);
       }
+      return default_value;
     }
-    return retVal;
   }
 
   struct TauFunc {
@@ -1077,10 +1074,10 @@ namespace {
   public:
     const unsigned nCellsEta, nCellsPhi, nTotal;
     const double cellSizeEta, cellSizePhi;
-    const bool disable_CellIndex_workaround_;
 
   private:
     std::map<CellIndex, Cell> cells;
+    const bool disable_CellIndex_workaround_;
   };
 }  // anonymous namespace
 
@@ -1210,11 +1207,11 @@ public:
         disable_dxy_pca_(cfg.getParameter<bool>("disable_dxy_pca")),
         disable_hcalFraction_workaround_(cfg.getParameter<bool>("disable_hcalFraction_workaround")),
         disable_CellIndex_workaround_(cfg.getParameter<bool>("disable_CellIndex_workaround")),
-        inner_grid(nullptr),
-        outer_grid(nullptr),
-        save_inputs(cfg.getParameter<bool>("save_inputs")),
-        json_file(nullptr),
-        file_counter(0) {
+        inner_grid_(nullptr),
+        outer_grid_(nullptr),
+        save_inputs_(cfg.getParameter<bool>("save_inputs")),
+        json_file_(nullptr),
+        file_counter_(0) {
     if (version_ == 1) {
       input_layer_ = cache_->getGraph().node(0).name();
       output_layer_ = cache_->getGraph().node(cache_->getGraph().node_size() - 1).name();
@@ -1256,8 +1253,8 @@ public:
   }
 
   ~DeepTauId() {
-    delete inner_grid;
-    delete outer_grid;  
+    delete inner_grid_;
+    delete outer_grid_;  
   }
 
   static std::unique_ptr<deep_tau::DeepTauCache> initializeGlobalCache(const edm::ParameterSet& cfg) {
@@ -1371,13 +1368,13 @@ private:
     if (debug_level >= 1) {
       std::cout << "<saveInputs>: block_name = " << block_name << std::endl;
     }
-    if ( !is_first_block ) (*json_file) << ", ";
-    (*json_file) << "\"" << block_name << "\": [";
+    if ( !is_first_block_ ) (*json_file_) << ", ";
+    (*json_file_) << "\"" << block_name << "\": [";
     if ( block_name == "input_tau" ) {
       for (int input_index = 0; input_index < n_inputs; ++input_index) {
         float input = inputs.matrix<float>()(0, input_index);
-        if ( input_index != 0 ) (*json_file) << ", ";
-        (*json_file) << input;
+        if ( input_index != 0 ) (*json_file_) << ", ";
+        (*json_file_) << input;
       }
     } else {
       assert(grid);
@@ -1391,11 +1388,11 @@ private:
       } else assert(0);
       int eta_phi_index = 0;
       for (int eta = -n_eta; eta <= n_eta; ++eta) {
-        if ( eta != -n_eta ) (*json_file) << ", ";
-        (*json_file) << "[";
+        if ( eta != -n_eta ) (*json_file_) << ", ";
+        (*json_file_) << "[";
         for (int phi = -n_phi; phi <= n_phi; ++phi) {
-          if ( phi != -n_phi ) (*json_file) << ", ";
-          (*json_file) << "[";
+          if ( phi != -n_phi ) (*json_file_) << ", ";
+          (*json_file_) << "[";
           const CellIndex cell_index{eta, phi};
           const auto cell_iter = grid->find(cell_index);
           for (int input_index = 0; input_index < n_inputs; ++input_index) {
@@ -1403,19 +1400,19 @@ private:
             if (cell_iter != grid->end()) {
               input = inputs.tensor<float, 4>()(eta_phi_index, 0, 0, input_index);
             }
-            if ( input_index != 0 ) (*json_file) << ", ";
-            (*json_file) << input;
+            if ( input_index != 0 ) (*json_file_) << ", ";
+            (*json_file_) << input;
           }
           if (cell_iter != grid->end()) {
             eta_phi_index += 1;
           } 
-          (*json_file) << "]";
+          (*json_file_) << "]";
         }
-        (*json_file) << "]";
+        (*json_file_) << "]";
       }
     }
-    (*json_file) << "]";
-    is_first_block = false;
+    (*json_file_) << "]";
+    is_first_block_ = false;
   }
 
 private:
@@ -1564,19 +1561,13 @@ private:
       std::cout << "<DeepTauId::getPredictionsV2 (moduleLabel = " << moduleLabel_ << ")>:" << std::endl;
       std::cout << " tau: pT = " << tau.pt() << ", eta = " << tau.eta() << ", phi = " << tau.phi() << std::endl;
     }
-    delete inner_grid;
-    inner_grid = new CellGrid(dnn_inputs_2017_v2::number_of_inner_cell, dnn_inputs_2017_v2::number_of_inner_cell, 0.02, 0.02, disable_CellIndex_workaround_);
-    delete outer_grid;
-    outer_grid = new CellGrid(dnn_inputs_2017_v2::number_of_outer_cell, dnn_inputs_2017_v2::number_of_outer_cell, 0.05, 0.05, disable_CellIndex_workaround_);
-    fillGrids(dynamic_cast<const TauCastType&>(tau), *electrons, *inner_grid, *outer_grid);
-    fillGrids(dynamic_cast<const TauCastType&>(tau), *muons, *inner_grid, *outer_grid);
-    fillGrids(dynamic_cast<const TauCastType&>(tau), pfCands, *inner_grid, *outer_grid);
-
-    if ( save_inputs ) {
-      std::string json_file_name = Form("DeepTauId_%i.json", file_counter);
-      json_file = new std::ofstream(json_file_name.data());
-      is_first_block = true;
-    }
+    delete inner_grid_;
+    inner_grid_ = new CellGrid(dnn_inputs_2017_v2::number_of_inner_cell, dnn_inputs_2017_v2::number_of_inner_cell, 0.02, 0.02, disable_CellIndex_workaround_);
+    delete outer_grid_;
+    outer_grid_ = new CellGrid(dnn_inputs_2017_v2::number_of_outer_cell, dnn_inputs_2017_v2::number_of_outer_cell, 0.05, 0.05, disable_CellIndex_workaround_);
+    fillGrids(dynamic_cast<const TauCastType&>(tau), *electrons, *inner_grid_, *outer_grid_);
+    fillGrids(dynamic_cast<const TauCastType&>(tau), *muons, *inner_grid_, *outer_grid_);
+    fillGrids(dynamic_cast<const TauCastType&>(tau), pfCands, *inner_grid_, *outer_grid_);
 
     createTauBlockInputs<CandidateCastType>(
       dynamic_cast<const TauCastType&>(tau), 
@@ -1596,13 +1587,13 @@ private:
       electrons,
       muons,
       pfCands,
-      *inner_grid,
+      *inner_grid_,
       tau_funcs,
       true
     );
-    checkInputs(*eGammaTensor_[true], "input_inner_egamma", dnn_inputs_2017_v2::EgammaBlockInputs::NumberOfInputs, inner_grid);
-    checkInputs(*muonTensor_[true], "input_inner_muon", dnn_inputs_2017_v2::MuonBlockInputs::NumberOfInputs, inner_grid);
-    checkInputs(*hadronsTensor_[true], "input_inner_hadrons", dnn_inputs_2017_v2::HadronBlockInputs::NumberOfInputs, inner_grid);
+    checkInputs(*eGammaTensor_[true], "input_inner_egamma", dnn_inputs_2017_v2::EgammaBlockInputs::NumberOfInputs, inner_grid_);
+    checkInputs(*muonTensor_[true], "input_inner_muon", dnn_inputs_2017_v2::MuonBlockInputs::NumberOfInputs, inner_grid_);
+    checkInputs(*hadronsTensor_[true], "input_inner_hadrons", dnn_inputs_2017_v2::HadronBlockInputs::NumberOfInputs, inner_grid_);
     createConvFeatures<CandidateCastType>(
       dynamic_cast<const TauCastType&>(tau),
       tau_index,
@@ -1612,29 +1603,29 @@ private:
       electrons,
       muons,
       pfCands,
-      *outer_grid,
+      *outer_grid_,
       tau_funcs,
       false
     );
-    checkInputs(*eGammaTensor_[false], "input_outer_egamma", dnn_inputs_2017_v2::EgammaBlockInputs::NumberOfInputs, outer_grid);
-    checkInputs(*muonTensor_[false], "input_outer_muon", dnn_inputs_2017_v2::MuonBlockInputs::NumberOfInputs, outer_grid);
-    checkInputs(*hadronsTensor_[false], "input_outer_hadrons", dnn_inputs_2017_v2::HadronBlockInputs::NumberOfInputs, outer_grid);
+    checkInputs(*eGammaTensor_[false], "input_outer_egamma", dnn_inputs_2017_v2::EgammaBlockInputs::NumberOfInputs, outer_grid_);
+    checkInputs(*muonTensor_[false], "input_outer_muon", dnn_inputs_2017_v2::MuonBlockInputs::NumberOfInputs, outer_grid_);
+    checkInputs(*hadronsTensor_[false], "input_outer_hadrons", dnn_inputs_2017_v2::HadronBlockInputs::NumberOfInputs, outer_grid_);
 
-    if ( save_inputs ) {
-      std::string json_file_name = Form("DeepTauId_%i.json", file_counter);
-      json_file = new std::ofstream(json_file_name.data());
-      is_first_block = true;
-      (*json_file) << "{";
+    if ( save_inputs_ ) {
+      std::string json_file_name = Form("DeepTauId_%i.json", file_counter_);
+      json_file_ = new std::ofstream(json_file_name.data());
+      is_first_block_ = true;
+      (*json_file_) << "{";
       saveInputs(*tauBlockTensor_, "input_tau", dnn_inputs_2017_v2::TauBlockInputs::NumberOfInputs);
-      saveInputs(*eGammaTensor_[true], "input_inner_egamma", dnn_inputs_2017_v2::EgammaBlockInputs::NumberOfInputs, inner_grid);
-      saveInputs(*muonTensor_[true], "input_inner_muon", dnn_inputs_2017_v2::MuonBlockInputs::NumberOfInputs, inner_grid);
-      saveInputs(*hadronsTensor_[true], "input_inner_hadrons", dnn_inputs_2017_v2::HadronBlockInputs::NumberOfInputs, inner_grid);
-      saveInputs(*eGammaTensor_[false], "input_outer_egamma", dnn_inputs_2017_v2::EgammaBlockInputs::NumberOfInputs, outer_grid);
-      saveInputs(*muonTensor_[false], "input_outer_muon", dnn_inputs_2017_v2::MuonBlockInputs::NumberOfInputs, outer_grid);
-      saveInputs(*hadronsTensor_[false], "input_outer_hadrons", dnn_inputs_2017_v2::HadronBlockInputs::NumberOfInputs, outer_grid);
-      (*json_file) << "}";
-      delete json_file;
-      ++file_counter;
+      saveInputs(*eGammaTensor_[true], "input_inner_egamma", dnn_inputs_2017_v2::EgammaBlockInputs::NumberOfInputs, inner_grid_);
+      saveInputs(*muonTensor_[true], "input_inner_muon", dnn_inputs_2017_v2::MuonBlockInputs::NumberOfInputs, inner_grid_);
+      saveInputs(*hadronsTensor_[true], "input_inner_hadrons", dnn_inputs_2017_v2::HadronBlockInputs::NumberOfInputs, inner_grid_);
+      saveInputs(*eGammaTensor_[false], "input_outer_egamma", dnn_inputs_2017_v2::EgammaBlockInputs::NumberOfInputs, outer_grid_);
+      saveInputs(*muonTensor_[false], "input_outer_muon", dnn_inputs_2017_v2::MuonBlockInputs::NumberOfInputs, outer_grid_);
+      saveInputs(*hadronsTensor_[false], "input_outer_hadrons", dnn_inputs_2017_v2::HadronBlockInputs::NumberOfInputs, outer_grid_);
+      (*json_file_) << "}";
+      delete json_file_;
+      ++file_counter_;
     }
 
     tensorflow::run(&(cache_->getSession("core")),
@@ -2791,12 +2782,12 @@ private:
   std::unique_ptr<tensorflow::Tensor> tauBlockTensor_;
   std::array<std::unique_ptr<tensorflow::Tensor>, 2> eGammaTensor_, muonTensor_, hadronsTensor_, convTensor_,
       zeroOutputTensor_;
-  CellGrid* inner_grid;
-  CellGrid* outer_grid;
-  const bool save_inputs;
-  std::ofstream* json_file;
-  mutable bool is_first_block;
-  int file_counter;
+  CellGrid* inner_grid_;
+  CellGrid* outer_grid_;
+  const bool save_inputs_;
+  std::ofstream* json_file_;
+  mutable bool is_first_block_;
+  int file_counter_;
 
   //boolean to check if discriminator indices are already mapped
   bool discrIndicesMapped_ = false;
