@@ -117,7 +117,6 @@ void HcalTPGCoderULUT::buildCoder(const HcalTopology* topo, const HcalTimeSlew* 
 
   if (useDBweightsAndFilterHB_) {
     theCoder->set1TSContainHB(true);
-    theCoder->setContainPhaseHB(3.0);
   } else {
     theCoder->set1TSContainHB(contain1TSHB_);
     theCoder->setContainPhaseHB(containPhaseNSHB_);
@@ -125,7 +124,6 @@ void HcalTPGCoderULUT::buildCoder(const HcalTopology* topo, const HcalTimeSlew* 
 
   if (useDBweightsAndFilterHE_) {
     theCoder->set1TSContainHE(true);
-    theCoder->setContainPhaseHE(3.0);
   } else {
     theCoder->set1TSContainHE(contain1TSHE_);
     theCoder->setContainPhaseHE(containPhaseNSHE_);
