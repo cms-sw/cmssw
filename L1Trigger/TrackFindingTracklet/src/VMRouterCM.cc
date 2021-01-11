@@ -85,7 +85,8 @@ void VMRouterCM::addOutput(MemoryBase* memory, string output) {
       assert(vmstubsMEPHI_[0] == nullptr);
       vmstubsMEPHI_[0] = tmp;
     } else {
-      throw cms::Exception("LogicError") << __FILE__ << " " << __LINE__ << " should never get here!";
+      throw cms::Exception("LogicError") << __FILE__ << " " << __LINE__ << " memory: " << memory->getName()
+                                         << " => should never get here!";
     }
 
     return;
@@ -144,23 +145,10 @@ void VMRouterCM::execute() {
       //Fill allstubs memories - in HLS this is the same write to multiple memories
       for (auto& allstub : allstubs_) {
         char memtype = allstub.first;
-        if (memtype == 'R' && iphipos < 5)
+        if ((memtype == 'R' && iphipos < 5) || (memtype == 'L' && iphipos >= 3) || (memtype == 'A' && iphipos < 4) ||
+            (memtype == 'B' && iphipos >= 4) || (memtype == 'E' && iphipos >= 4) || (memtype == 'F' && iphipos < 4) ||
+            (memtype == 'C' && iphipos >= 4) || (memtype == 'D' && iphipos < 4))
           continue;
-        if (memtype == 'L' && iphipos >= 3)
-          continue;
-        if (memtype == 'A' && iphipos < 4)
-          continue;
-        if (memtype == 'B' && iphipos >= 4)
-          continue;
-        if (memtype == 'E' && iphipos >= 4)
-          continue;
-        if (memtype == 'F' && iphipos < 4)
-          continue;
-        if (memtype == 'C' && iphipos >= 4)
-          continue;
-        if (memtype == 'D' && iphipos < 4)
-          continue;
-        //cout << allstub.second->getName()<<endl;
         allstub.second->addStub(stub);
       }
 

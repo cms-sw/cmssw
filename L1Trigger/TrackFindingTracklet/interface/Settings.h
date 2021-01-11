@@ -161,8 +161,8 @@ namespace trklet {
 
     bool writeMem() const { return writeMem_; }
     bool writeTable() const { return writeTable_; }
-    std::string memPath() const { return memPath_; }
-    std::string tablePath() const { return tablePath_; }
+    std::string const& memPath() const { return memPath_; }
+    std::string const& tablePath() const { return tablePath_; }
 
     bool writeVerilog() const { return writeVerilog_; }
     bool writeHLS() const { return writeHLS_; }

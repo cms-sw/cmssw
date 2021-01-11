@@ -11,8 +11,8 @@ TrackletEngineUnit::TrackletEngineUnit(const Settings* const settings,
                                        unsigned int iSeed,
                                        unsigned int nbitsfinephidiff,
                                        unsigned int iAllStub,
-                                       std::vector<bool> pttableinner,
-                                       std::vector<bool> pttableouter,
+                                       std::vector<bool> const& pttableinner,
+                                       std::vector<bool> const& pttableouter,
                                        VMStubsTEMemory* outervmstubs)
     : settings_(settings), candpairs_(5) {
   idle_ = true;
@@ -53,9 +53,6 @@ void TrackletEngineUnit::step() {
   const VMStubTE& outervmstub = outervmstubs_->getVMStubTEBinned(ireg_ * nbins + ibin, istub_);
   int rzbin = (outervmstub.vmbits().value() & 7);
 
-  //assert(innerphibits_ != -1);
-  //assert(outerphibits_ != -1);
-
   FPGAWord iphiouterbin = outervmstub.finephi();
 
   assert(iphiouterbin == outervmstub.finephi());
@@ -65,7 +62,6 @@ void TrackletEngineUnit::step() {
                      ireg_ * (1 << settings_->nfinephi(1, iSeed_)) + iphiouterbin.value();
   int idphi = outerfinephi - tedata_.innerfinephi_;
   bool inrange = (idphi < (1 << (nbitsfinephidiff_ - 1))) && (idphi >= -(1 << (nbitsfinephidiff_ - 1)));
-  //int idphiraw=idphi;
   if (idphi < 0)
     idphi = idphi + (1 << nbitsfinephidiff_);
 

@@ -373,7 +373,6 @@ void TrackDerTable::fillTable() {
       int tmp1 = LayerMem_[i];
       if (tmp1 < 0)
         tmp1 = (1 << 6) - 1;
-      //edm::LogVerbatim("Tracklet") << "i LayerMem_ : " << i << " " << tmp1;
       tmp.set(tmp1, 6, true, __LINE__, __FILE__);
       outL << tmp.str() << endl;
     }
@@ -406,9 +405,6 @@ void TrackDerTable::fillTable() {
       outLD << tmp.str() << endl;
     }
     outLD.close();
-
-    //unsigned int nderivatives = derivatives_.size();
-    //edm::LogVerbatim("Tracklet") << "nderivatives = " << nderivatives;
 
     const std::array<string, N_TRKLSEED> seedings = {{"L1L2", "L3L4", "L5L6", "D1D2", "D3D4", "D1L1", "D1L2"}};
     const string prefix = settings_.tablePath() + "FitDerTableNew_";
