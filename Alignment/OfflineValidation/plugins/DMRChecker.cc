@@ -1676,19 +1676,19 @@ private:
       pixelmap->beautifyAllHistograms();
 
       TCanvas cBX("CanvXBarrel", "CanvXBarrel", 1200, 1000);
-      pixelmap->DrawBarrelMaps("DMRsX", cBX);
+      pixelmap->drawBarrelMaps("DMRsX", cBX);
       cBX.SaveAs("pixelBarrelDMR_x.png");
 
       TCanvas cFX("CanvXForward", "CanvXForward", 1600, 1000);
-      pixelmap->DrawForwardMaps("DMRsX", cFX);
+      pixelmap->drawForwardMaps("DMRsX", cFX);
       cFX.SaveAs("pixelForwardDMR_x.png");
 
       TCanvas cBY("CanvYBarrel", "CanvYBarrel", 1200, 1000);
-      pixelmap->DrawBarrelMaps("DMRsY", cBY);
+      pixelmap->drawBarrelMaps("DMRsY", cBY);
       cBY.SaveAs("pixelBarrelDMR_y.png");
 
       TCanvas cFY("CanvXForward", "CanvXForward", 1600, 1000);
-      pixelmap->DrawForwardMaps("DMRsY", cFY);
+      pixelmap->drawForwardMaps("DMRsY", cFY);
       cFY.SaveAs("pixelForwardDMR_y.png");
     }
 
