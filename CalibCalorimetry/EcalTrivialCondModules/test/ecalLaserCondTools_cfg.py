@@ -4,7 +4,7 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 # Export or inport Ecal laser correction to/from the condition database or
 # an sqlite file.
 # 
-# Usage: cmsRun ecalLaseCondTools_cfg.py [mode=MODE] [connect=CONNECT_STRING] [authenticationPath=AUTHENTICATION_PATH] [inputFiles=INPUT_FILE_1] [inputFiles=INPUT_FILE2 ...]
+# Usage: cmsRun ecalLaserCondTools_cfg.py [mode=MODE] [connect=CONNECT_STRING] [authenticationPath=AUTHENTICATION_PATH] [inputFiles=INPUT_FILE_1] [inputFiles=INPUT_FILE2 ...]
 #
 
 # Default options:

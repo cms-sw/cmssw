@@ -16,7 +16,7 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
-#include "H5Cpp.h"
+#include "hdf5.h"
 
 #include <string>
 #include <fstream>
@@ -83,24 +83,38 @@ void EcalLaserCondTools::analyze(const edm::Event& event, const edm::EventSetup&
 void EcalLaserCondTools::from_hdf_to_db() {
   cond::Time_t iovStart = 0;
 
+  hid_t file, space, memspace;
+  hid_t dset_rawid, dset_t2, dset;
+
+  hsize_t dims[2] = {};
+
   for (unsigned int ifile = 0; ifile < fnames_.size(); ++ifile) {
-    if (verb_)
+    if (verb_){
       std::cout << " - converting file: " << fnames_[ifile] << "\n";
+    }
 
-    const H5std_string FILE_NAME(fnames_[ifile]);
-    H5::H5File file(FILE_NAME, H5F_ACC_RDWR);
+    file = H5Fopen(fnames_[ifile].c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
 
-    H5::DataSet dset_rawid = file.openDataSet("cmssw_id");
-    hsize_t dims_out[2]{0, 0};
-    dset_rawid.getSpace().getSimpleExtentDims(dims_out, nullptr);
+    dset_rawid = H5Dopen(file, "cmssw_id", H5P_DEFAULT);
+    space = H5Dget_space(dset_rawid);
+    H5Sget_simple_extent_dims(space, dims, NULL);
 
-    unsigned int nCrystals = dims_out[0];
+    unsigned int nCrystals = dims[0];
+    int rawid[nCrystals];
+    herr_t status;
 
-    H5::DataSet dset_t2 = file.openDataSet("t2");
-    dset_t2.getSpace().getSimpleExtentDims(dims_out, nullptr);
+    status = H5Dread(dset_rawid, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, rawid);
+    if(status < 0) throw cms::Exception("EcalLaserCondTool:HDF") << "Error while reading HD file.";
 
-    unsigned int nIovs = dims_out[0];
-    unsigned int nLME = dims_out[1];
+    H5Dclose(dset_rawid);
+    H5Sclose(space);
+
+    dset_t2 = H5Dopen(file, "t2", H5P_DEFAULT);
+    space = H5Dget_space(dset_t2);
+    H5Sget_simple_extent_dims(space, dims, NULL);
+
+    unsigned int nIovs = dims[0];
+    unsigned int nLME = dims[1];
 
     if (verb_) {
       std::cout << "Number of crystals: " << nCrystals << "\n";
@@ -108,38 +122,44 @@ void EcalLaserCondTools::from_hdf_to_db() {
       std::cout << "Number of Monitoring regions: " << nLME << "\n";
     }
 
-    unsigned int rawid[nCrystals];
-    unsigned int t1[nIovs], t3[nIovs], t2[nIovs][nLME];
+    int t1[nIovs], t3[nIovs], t2[nIovs][nLME];
 
     // -- reading data (cmsswid, t2, t1, t3, p2, p1, p3
     if (verb_ > 1)
       std::cout << " * reading t2 table "
                 << "\n";
-    dset_rawid.read(rawid, H5::PredType::NATIVE_INT);
-    dset_t2.read(t2, H5::PredType::NATIVE_INT);
+    status = H5Dread(dset_t2, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, t2[0]);
+    if(status < 0) throw cms::Exception("EcalLaserCondTool:HDF") << "Error while reading HD file.";
 
-    H5::DataSet dataset;
+    H5Dclose(dset_t2);
+    //H5Sclose(space);
+
     if (verb_ > 1)
       std::cout << " * reading t1 table "
                 << "\n";
-    dataset = file.openDataSet("t1");
-    dataset.read(t1, H5::PredType::NATIVE_INT);
+    dset = H5Dopen(file, "t1", H5P_DEFAULT);
+    status = H5Dread(dset, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, t1);
+    if(status < 0) throw cms::Exception("EcalLaserCondTool:HDF") << "Error while reading HD file.";
+
+    H5Dclose(dset);
 
     if (verb_ > 1)
       std::cout << " * reading t3 table "
                 << "\n";
-    dataset = file.openDataSet("t3");
-    dataset.read(t3, H5::PredType::NATIVE_INT);
+    dset = H5Dopen(file, "t3", H5P_DEFAULT);
+    status = H5Dread(dset, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, t3);
+    if(status < 0) throw cms::Exception("EcalLaserCondTool:HDF") << "Error while reading HD file.";
+
+    H5Dclose(dset);
 
     assert(EcalLaserCondTools::nLmes == nLME);
 
     // read crystal info IOV by IOV (otherwise too large)
     float p1[nCrystals], p2[nCrystals], p3[nCrystals];
     hsize_t iov_dim[1] = {nCrystals};
-    H5::DataSpace p_space(1, iov_dim);
+    memspace = H5Screate_simple(1, iov_dim, NULL);
 
     auto corrSet = std::make_unique<EcalLaserAPDPNRatios>();
-    H5::DataSpace filespace;
     for (unsigned int iIov = skipIov_; iIov < nIovs && iIov < unsigned(nIovs_); ++iIov) {
       EcalLaserAPDPNRatios::EcalLaserTimeStamp t;
       iovStart = uint64_t(t1[iIov]) << 32;
@@ -153,20 +173,37 @@ void EcalLaserCondTools::from_hdf_to_db() {
       hsize_t offset[2] = {iIov, 0};      // shift rows: iIov, columns: 0
       hsize_t count[2] = {1, nCrystals};  // 1 row, nXtal columns
 
-      dataset = file.openDataSet("p1");
-      filespace = dataset.getSpace();
-      filespace.selectHyperslab(H5S_SELECT_SET, count, offset);
-      dataset.read(p1, H5::PredType::NATIVE_FLOAT, p_space, filespace);
+      dset = H5Dopen(file, "p1", H5P_DEFAULT);
+      space = H5Dget_space(dset);
+      status = H5Sselect_hyperslab(space, H5S_SELECT_SET, offset, NULL, count, NULL);
+      if(status < 0) throw cms::Exception("EcalLaserCondTool:HDF") << "Error while reading HD file.";
 
-      dataset = file.openDataSet("p2");
-      filespace = dataset.getSpace();
-      filespace.selectHyperslab(H5S_SELECT_SET, count, offset);
-      dataset.read(p2, H5::PredType::NATIVE_FLOAT, p_space, filespace);
+      status = H5Dread(dset, H5T_NATIVE_FLOAT, memspace, space, H5P_DEFAULT, p1);
+      if(status < 0) throw cms::Exception("EcalLaserCondTool:HDF") << "Error while reading HD file.";
 
-      dataset = file.openDataSet("p3");
-      filespace = dataset.getSpace();
-      filespace.selectHyperslab(H5S_SELECT_SET, count, offset);
-      dataset.read(p3, H5::PredType::NATIVE_FLOAT, p_space, filespace);
+      H5Dclose(dset);
+      //H5Sclose(space);
+
+      dset = H5Dopen(file, "p2", H5P_DEFAULT);
+      space = H5Dget_space(dset);
+      status = H5Sselect_hyperslab(space, H5S_SELECT_SET, offset, NULL, count, NULL);
+      if(status < 0) throw cms::Exception("EcalLaserCondTool:HDF") << "Error while reading HD file.";
+
+      status = H5Dread(dset, H5T_NATIVE_FLOAT, memspace, space, H5P_DEFAULT, p2);
+      if(status < 0) throw cms::Exception("EcalLaserCondTool:HDF") << "Error while reading HD file.";
+
+      H5Dclose(dset);
+      //      H5Sclose(space);
+
+      dset = H5Dopen(file, "p3", H5P_DEFAULT);
+      space = H5Dget_space(dset);
+      status = H5Sselect_hyperslab(space, H5S_SELECT_SET, offset, NULL, count, NULL);
+      if(status < 0) throw cms::Exception("EcalLaserCondTool:HDF") << "Error while reading HD file.";
+
+      status = H5Dread(dset, H5T_NATIVE_FLOAT, memspace, space, H5P_DEFAULT, p3);
+      if(status < 0) throw cms::Exception("EcalLaserCondTool:HDF") << "Error while reading HD file.";
+      H5Dclose(dset);
+      H5Sclose(space);
 
       for (size_t iXtal = 0; iXtal < nCrystals; ++iXtal) {
         DetId detid = rawid[iXtal];
@@ -175,7 +212,6 @@ void EcalLaserCondTools::from_hdf_to_db() {
         corr.p1 = p1[iXtal];
         corr.p2 = p2[iXtal];
         corr.p3 = p3[iXtal];
-        //          throw cms::Exception("LasCor") << "Failed to read " << toNth(i + 1) << " crystal correction.\n";
 
         if (!isfinite(corr.p1) || !isfinite(corr.p2) || !isfinite(corr.p3) || corr.p1 < minP_ || corr.p1 > maxP_ ||
             corr.p2 < minP_ || corr.p2 > maxP_ || corr.p3 < minP_ || corr.p3 > maxP_) {
@@ -205,7 +241,11 @@ void EcalLaserCondTools::from_hdf_to_db() {
       }
       if (verb_ > 1)
         std::cout << "Suceeded.\n";
+
     }  // loop over IOVs
+
+    H5Sclose (memspace); 
+    H5Fclose (file);
   }    // loop over input files
 }
 
@@ -352,7 +392,7 @@ void EcalLaserCondTools::processIov(CorrReader& r, int t1, int t2[EcalLaserCondT
 
     if (!isfinite(corr.p1) || !isfinite(corr.p2) || !isfinite(corr.p3) || corr.p1 < minP_ || corr.p1 > maxP_ ||
         corr.p2 < minP_ || corr.p2 > maxP_ || corr.p3 < minP_ || corr.p3 > maxP_) {
-      fprintf(ferr_, "%d %d %f %f %f\n", t1, (int)detid, corr.p1, corr.p2, corr.p3);
+      fprintf(ferr_, "%d %d %f %f %f\n", t1,(int)detid, corr.p1, corr.p2, corr.p3);
       corr.p1 = corr.p2 = corr.p3 = 1;
     }
 
