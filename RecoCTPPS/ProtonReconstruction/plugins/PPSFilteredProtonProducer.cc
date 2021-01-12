@@ -62,7 +62,7 @@ private:
 //----------------------------------------------------------------------------------------------------
 
 PPSFilteredProtonProducer::PPSFilteredProtonProducer(const edm::ParameterSet &iConfig)
-    : verbosity_(iConfig.getUntrackedParameter<bool>("verbosity", 0)),
+    : verbosity_(iConfig.getUntrackedParameter<bool>("verbosity")),
       n_protons_single_rp_all(0),
       n_protons_single_rp_kept(0),
       n_protons_multi_rp_all(0),
@@ -104,7 +104,7 @@ PPSFilteredProtonProducer::PPSFilteredProtonProducer(const edm::ParameterSet &iC
 void PPSFilteredProtonProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
 
-  desc.addUntracked<bool>("verbosity", 0)->setComment("verbosity level");
+  desc.addUntracked<bool>("verbosity", false)->setComment("verbosity");
 
   edm::ParameterSetDescription tracks_all;
   tracks_all.add<double>("local_angle_x_max", 0.020)
@@ -177,14 +177,10 @@ void PPSFilteredProtonProducer::produce(edm::Event &iEvent, const edm::EventSetu
 
   // process single-RP protons
   if (protons_single_rp_include_) {
-    edm::Handle<reco::ForwardProtonCollection> hInputProtons;
-    iEvent.getByToken(protons_single_rp_input_token_, hInputProtons);
-
+    reco::ForwardProtonCollection const &hInputProtons = iEvent.get(protons_single_rp_input_token_);
     std::unique_ptr<reco::ForwardProtonCollection> pOutputProtons(new reco::ForwardProtonCollection);
 
-    for (unsigned int pr_idx = 0; pr_idx < hInputProtons->size(); ++pr_idx) {
-      const auto &proton = hInputProtons->at(pr_idx);
-
+    for (const auto &proton : hInputProtons) {
       bool keep = true;
 
       // no specific checks for single-RP protons
@@ -204,7 +200,7 @@ void PPSFilteredProtonProducer::produce(edm::Event &iEvent, const edm::EventSetu
         pOutputProtons->push_back(proton);
       } else {
         if (verbosity_)
-          ssLog << "single-RP proton idx=" << pr_idx << " excluded." << std::endl;
+          ssLog << "single-RP proton idx=" << n_protons_single_rp_all - 1 << " excluded." << std::endl;
       }
     }
 
@@ -213,14 +209,10 @@ void PPSFilteredProtonProducer::produce(edm::Event &iEvent, const edm::EventSetu
 
   // process multi-RP protons
   if (protons_multi_rp_include_) {
-    edm::Handle<reco::ForwardProtonCollection> hInputProtons;
-    iEvent.getByToken(protons_multi_rp_input_token_, hInputProtons);
-
+    reco::ForwardProtonCollection const &hInputProtons = iEvent.get(protons_multi_rp_input_token_);
     std::unique_ptr<reco::ForwardProtonCollection> pOutputProtons(new reco::ForwardProtonCollection);
 
-    for (unsigned int pr_idx = 0; pr_idx < hInputProtons->size(); ++pr_idx) {
-      const auto &proton = hInputProtons->at(pr_idx);
-
+    for (const auto &proton : hInputProtons) {
       bool keep = true;
 
       // multi-RP proton checks
@@ -247,7 +239,7 @@ void PPSFilteredProtonProducer::produce(edm::Event &iEvent, const edm::EventSetu
         pOutputProtons->push_back(proton);
       } else {
         if (verbosity_)
-          ssLog << "multi-RP proton idx=" << pr_idx << " excluded." << std::endl;
+          ssLog << "multi-RP proton idx=" << n_protons_multi_rp_all - 1 << " excluded." << std::endl;
       }
     }
 
