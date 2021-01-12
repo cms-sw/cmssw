@@ -1135,11 +1135,11 @@ private:
     pixelmap->beautifyAllHistograms();
 
     TCanvas cB("CanvBarrel", "CanvBarrel", 1200, 1000);
-    pixelmap->DrawBarrelMaps("entriesBarrel", cB);
+    pixelmap->drawBarrelMaps("entriesBarrel", cB);
     cB.SaveAs("pixelBarrelEntries.png");
 
     TCanvas cF("CanvForward", "CanvForward", 1600, 1000);
-    pixelmap->DrawForwardMaps("entriesForward", cF);
+    pixelmap->drawForwardMaps("entriesForward", cF);
     cF.SaveAs("pixelForwardEntries.png");
   }
 

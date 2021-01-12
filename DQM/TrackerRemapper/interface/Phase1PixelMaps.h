@@ -438,7 +438,7 @@ public:
   }
 
   //============================================================================
-  void DrawBarrelMaps(const std::string& currentHistoName, TCanvas& canvas) {
+  void drawBarrelMaps(const std::string& currentHistoName, TCanvas& canvas) {
     canvas.Divide(2, 2);
     for (int i = 1; i <= 4; i++) {
       canvas.cd(i);
@@ -455,7 +455,7 @@ public:
   }
 
   //============================================================================
-  void DrawForwardMaps(const std::string& currentHistoName, TCanvas& canvas) {
+  void drawForwardMaps(const std::string& currentHistoName, TCanvas& canvas) {
     canvas.Divide(3, 2);
     for (int i = 1; i <= 6; i++) {
       canvas.cd(i);
