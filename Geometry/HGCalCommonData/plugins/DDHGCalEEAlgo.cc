@@ -384,6 +384,8 @@ void DDHGCalEEAlgo::positionSensitive(const DDLogicalPart& glog,
       if (corner.first > 0) {
         int type = waferType_->getType(xpos, ypos, zpos);
         int copy = HGCalTypes::packTypeUV(type, u, v);
+        if (layertype > 1)
+          type += 3;
 #ifdef EDM_ML_DEBUG
         if (iu > ium)
           ium = iu;
@@ -403,8 +405,6 @@ void DDHGCalEEAlgo::positionSensitive(const DDLogicalPart& glog,
 #endif
           DDTranslation tran(xpos, ypos, 0.0);
           DDRotation rotation;
-          if (layertype > 1)
-            type += 3;
           DDName name = DDName(DDSplit(wafers_[type]).first, DDSplit(wafers_[type]).second);
           cpv.position(name, glog.ddname(), copy, tran, rotation);
 #ifdef EDM_ML_DEBUG
