@@ -21,7 +21,7 @@ else:
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 # Add our custom detector grouping to DDD
-process.XMLIdealGeometryESSource.geomXMLFiles.extend(['SimTracker/TrackerMaterialAnalysis/data/v1/trackingMaterialGroups_ForPhaseI.xml'])
+process.XMLIdealGeometryESSource.geomXMLFiles.extend(['SimTracker/TrackerMaterialAnalysis/data/trackingMaterialGroups_ForPhaseI/v1/trackingMaterialGroups_ForPhaseI.xml'])
 
 # Analyze and plot the tracking material
 process.load("SimTracker.TrackerMaterialAnalysis.trackingMaterialAnalyser_ForPhaseI_cff")
