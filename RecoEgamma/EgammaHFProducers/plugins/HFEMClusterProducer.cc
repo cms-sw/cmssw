@@ -22,7 +22,8 @@ public:
   void beginRun(edm::Run const&, edm::EventSetup const&) final { algo_.resetForRun(); }
 
 private:
-  edm::EDGetToken hfreco_;
+  const edm::EDGetTokenT<HFRecHitCollection> hfreco_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
   HFClusterAlgo algo_;
 };
 
@@ -31,7 +32,7 @@ DEFINE_FWK_MODULE(HFEMClusterProducer);
 
 using namespace reco;
 HFEMClusterProducer::HFEMClusterProducer(edm::ParameterSet const& conf)
-    : hfreco_(consumes<HFRecHitCollection>(conf.getParameter<edm::InputTag>("hits"))) {
+    : hfreco_(consumes(conf.getParameter<edm::InputTag>("hits"))), geometryToken_{esConsumes()} {
   produces<reco::HFEMClusterShapeCollection>();
   produces<reco::BasicClusterCollection>();
   produces<reco::SuperClusterCollection>();
@@ -47,12 +48,8 @@ HFEMClusterProducer::HFEMClusterProducer(edm::ParameterSet const& conf)
 }
 
 void HFEMClusterProducer::produce(edm::Event& e, edm::EventSetup const& iSetup) {
-  edm::Handle<HFRecHitCollection> hf_hits;
-
-  e.getByToken(hfreco_, hf_hits);
-
-  edm::ESHandle<CaloGeometry> geometry;
-  iSetup.get<CaloGeometryRecord>().get(geometry);
+  auto const& hf_hits = e.get(hfreco_);
+  auto const& geometry = iSetup.getData(geometryToken_);
 
   // create return data
   auto retdata1 = std::make_unique<HFEMClusterShapeCollection>();
@@ -60,7 +57,7 @@ void HFEMClusterProducer::produce(edm::Event& e, edm::EventSetup const& iSetup) 
 
   algo_.isMC(!e.isRealData());
 
-  algo_.clusterize(*hf_hits, *geometry, *retdata1, *retdata2);
+  algo_.clusterize(hf_hits, geometry, *retdata1, *retdata2);
   edm::OrphanHandle<reco::SuperClusterCollection> SupHandle;
   edm::OrphanHandle<reco::HFEMClusterShapeCollection> ShapeHandle;
 
