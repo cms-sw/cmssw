@@ -26,7 +26,9 @@ void AllProjectionsMemory::writeAP(bool first) {
     event_ = 1;
 
     if (not std::filesystem::exists(dirTP)) {
-      system((string("mkdir -p ") + dirTP).c_str());
+      int fail = system((string("mkdir -p ") + dirTP).c_str());
+      if (fail)
+        throw cms::Exception("BadDir") << __FILE__ << " " << __LINE__ << " could not create directory " << dirTP;
     }
     out_.open(fname);
     if (out_.fail())

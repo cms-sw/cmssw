@@ -60,7 +60,10 @@ MatchCalculator::MatchCalculator(string name, Settings const& settings, Globals*
 
   if (iSector_ == 0 && layerdisk_ < N_LAYER && settings_.writeTable()) {
     if (not std::filesystem::exists(settings_.tablePath())) {
-      system((string("mkdir -p ") + settings_.tablePath()).c_str());
+      int fail = system((string("mkdir -p ") + settings_.tablePath()).c_str());
+      if (fail)
+        throw cms::Exception("BadDir") << __FILE__ << " " << __LINE__ << " could not create directory "
+                                       << settings_.tablePath();
     }
 
     const string filephicut = settings_.tablePath() + getName() + "_phicut.tab";
@@ -94,7 +97,10 @@ MatchCalculator::MatchCalculator(string name, Settings const& settings, Globals*
 
   if (iSector_ == 0 && layerdisk_ >= N_LAYER && settings_.writeTable()) {
     if (not std::filesystem::exists(settings_.tablePath())) {
-      system((string("mkdir -p ") + settings_.tablePath()).c_str());
+      int fail = system((string("mkdir -p ") + settings_.tablePath()).c_str());
+      if (fail)
+        throw cms::Exception("BadDir") << __FILE__ << " " << __LINE__ << " could not create directory "
+                                       << settings_.tablePath();
     }
 
     const string filePSphicut = settings_.tablePath() + getName() + "_PSphicut.tab";

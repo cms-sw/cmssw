@@ -41,7 +41,9 @@ void CandidateMatchMemory::writeCM(bool first) {
     event_ = 1;
 
     if (not std::filesystem::exists(dirM)) {
-      system((string("mkdir -p ") + dirM).c_str());
+      int fail = system((string("mkdir -p ") + dirM).c_str());
+      if (fail)
+        throw cms::Exception("BadDir") << __FILE__ << " " << __LINE__ << " could not create directory " << dirM;
     }
     out_.open(fname);
     if (out_.fail())

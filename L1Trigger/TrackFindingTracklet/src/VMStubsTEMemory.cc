@@ -279,7 +279,10 @@ void VMStubsTEMemory::setbendtable(std::vector<bool> vmbendtable) {
 
 void VMStubsTEMemory::writeVMBendTable() {
   if (not std::filesystem::exists(settings_.tablePath())) {
-    system((string("mkdir -p ") + settings_.tablePath()).c_str());
+    int fail = system((string("mkdir -p ") + settings_.tablePath()).c_str());
+    if (fail)
+      throw cms::Exception("BadDir") << __FILE__ << " " << __LINE__ << " could not create directory "
+                                     << settings_.tablePath();
   }
 
   const string fname = settings_.tablePath() + getName() + "_vmbendcut.tab";
