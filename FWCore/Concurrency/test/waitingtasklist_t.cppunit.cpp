@@ -15,10 +15,6 @@
 #include "tbb/task.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
 
-#if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7)
-#define CXX_THREAD_AVAILABLE
-#endif
-
 class WaitingTaskList_test : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(WaitingTaskList_test);
   CPPUNIT_TEST(addThenDone);
@@ -85,12 +81,10 @@ void WaitingTaskList_test::addThenDone() {
     waitList.add(t);
 
     usleep(10);
-    __sync_synchronize();
     CPPUNIT_ASSERT(false == called);
 
     waitList.doneWaiting(std::exception_ptr{});
     waitTask->wait_for_all();
-    __sync_synchronize();
     CPPUNIT_ASSERT(true == called);
     CPPUNIT_ASSERT(bool(excPtr) == false);
   }
@@ -183,17 +177,14 @@ void WaitingTaskList_test::doneThenAddFailed() {
 }
 
 namespace {
-#if defined(CXX_THREAD_AVAILABLE)
   void join_thread(std::thread* iThread) {
     if (iThread->joinable()) {
       iThread->join();
     }
   }
-#endif
 }  // namespace
 
 void WaitingTaskList_test::stressTest() {
-#if defined(CXX_THREAD_AVAILABLE)
   std::atomic<bool> called{false};
   std::exception_ptr excPtr;
   edm::WaitingTaskList waitList;
@@ -226,7 +217,6 @@ void WaitingTaskList_test::stressTest() {
     }
     waitTask->wait_for_all();
   }
-#endif
 }
 
 CPPUNIT_TEST_SUITE_REGISTRATION(WaitingTaskList_test);
