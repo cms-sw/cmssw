@@ -17,7 +17,7 @@ int PtAssignmentEngineAux::getGMTPt(float pt) const {
 }
 
 int PtAssignmentEngineAux::getGMTPtDxy(float pt) const {
-// compressed pt = pt*1 (scale) + 1 (pt = 0 is empty candidate)
+  // compressed pt = pt*1 (scale) + 1 (pt = 0 is empty candidate)
   int gmt_pt_dxy = (pt * 1) + 1;
   gmt_pt_dxy = (gmt_pt_dxy > 255) ? 255 : gmt_pt_dxy;
   return gmt_pt_dxy;
@@ -37,14 +37,13 @@ int PtAssignmentEngineAux::getGMTDxy(float dxy) const {
   return gmt_dxy;
 }
 
-
 float PtAssignmentEngineAux::getPtFromGMTPt(int gmt_pt) const {
   float pt = (gmt_pt <= 0) ? 0 : 0.5 * (gmt_pt - 1);
   return pt;
 }
 
 float PtAssignmentEngineAux::getPtFromGMTPtDxy(int gmt_pt_dxy) const {
-  float pt = (gmt_pt_dxy <= 0) ?  0 : 1.0 * (gmt_pt_dxy-1);
+  float pt = (gmt_pt_dxy <= 0) ? 0 : 1.0 * (gmt_pt_dxy - 1);
   return pt;
 }
 

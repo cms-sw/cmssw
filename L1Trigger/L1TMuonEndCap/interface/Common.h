@@ -71,7 +71,6 @@ namespace emtf {
   using Feature = std::array<float, NUM_FEATURES>;
   using Prediction = std::array<float, NUM_PREDICTIONS>;
 
-
 }  // namespace emtf
 
 #endif
