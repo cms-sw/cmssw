@@ -151,8 +151,8 @@ namespace l1t {
     void set_phi_loc(float val) { phi_loc = val; }
     void set_phi_glob(float val) { phi_glob = val; }
     void set_gmt_pt(int bits) { gmt_pt = bits; }
-    void set_gmt_pt_dxy(int  bits) { gmt_pt_dxy = bits; }
-    void set_gmt_dxy(int  bits) { gmt_dxy = bits; }
+    void set_gmt_pt_dxy(int bits) { gmt_pt_dxy = bits; }
+    void set_gmt_dxy(int bits) { gmt_dxy = bits; }
     void set_gmt_phi(int bits) { gmt_phi = bits; }
     void set_gmt_eta(int bits) { gmt_eta = bits; }
     void set_gmt_quality(int bits) { gmt_quality = bits; }
