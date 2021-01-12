@@ -644,8 +644,7 @@ void ReducedEGProducer::produce(edm::Event& event, const edm::EventSetup& eventS
     }
 
     // Save additional ambiguous gsf tracks in a map:
-    for (auto igsf = gsfElectron.ambiguousGsfTracksBegin(); igsf != gsfElectron.ambiguousGsfTracksEnd(); ++igsf) {
-      const reco::GsfTrackRef& ambigGsfTrack = *igsf;
+    for (auto const& ambigGsfTrack : gsfElectron.ambiguousGsfTracks()) {
       if (!gsfTrackMap.count(ambigGsfTrack)) {
         gsfTracks.push_back(*ambigGsfTrack);
         gsfTrackMap[ambigGsfTrack] = gsfTracks.size() - 1;
@@ -863,8 +862,8 @@ void ReducedEGProducer::produce(edm::Event& event, const edm::EventSetup& eventS
     // Also in this loop let's relink ambiguous tracks
     std::vector<reco::GsfTrackRef> ambigTracksInThisElectron;
     // Here we loop over the ambiguous tracks and save them in a vector
-    for (auto igsf = gsfElectron.ambiguousGsfTracksBegin(); igsf != gsfElectron.ambiguousGsfTracksEnd(); ++igsf) {
-      ambigTracksInThisElectron.push_back(*igsf);
+    for (auto const& igsf : gsfElectron.ambiguousGsfTracks()) {
+      ambigTracksInThisElectron.push_back(igsf);
     }
 
     // Now we need to clear them (they are the refs to original collection):
