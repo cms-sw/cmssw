@@ -92,7 +92,7 @@ The script has two operations (`start` and `stop`) and the following options:
 * `-M [dir]`: model repository (can be given more than once)
 * `-m [dir]`: specific model directory (can be given more than one)
 * `-n [name]`: name of container instance, also used for hidden temporary dir (default: triton_server_instance)
-* `-p [pid]`: PID of parent process to ensure shutdown (used internally by `cmsRun`)
+* `-p`: automatically shut down server when parent process ends
 * `-r [num]`: number of retries when starting container (default: 3)
 * `-t [dir]`: non-default hidden temporary dir
 * `-v`: (verbose) start: activate server debugging info; stop: keep server logs
