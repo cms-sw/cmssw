@@ -506,16 +506,16 @@ double PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) c
       //-------------------------------------------------------------------------
       // CV: fix for Phase-2 HLT tau trigger studies
       //    (pT of PFCandidates within HGCal acceptance is significantly higher than track pT !!)
-      if ( enableHGCalWorkaround_ ) {
-        double trackPt  = ( isoObject->bestTrack() ) ? isoObject->bestTrack()->pt() : 0.;
+      if (enableHGCalWorkaround_) {
+        double trackPt = (isoObject->bestTrack()) ? isoObject->bestTrack()->pt() : 0.;
         double pfCandPt = isoObject->pt();
-        if ( pfCandPt > trackPt ) {
+        if (pfCandPt > trackPt) {
           chargedPt += trackPt;
           neutralPt += std::max(0., pfCandPt - trackPt);
         } else {
           chargedPt += isoObject->pt();
         }
-      } else { 
+      } else {
         chargedPt += isoObject->pt();
       }
       //-------------------------------------------------------------------------
