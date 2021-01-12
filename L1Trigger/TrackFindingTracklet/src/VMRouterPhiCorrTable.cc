@@ -34,7 +34,10 @@ void VMRouterPhiCorrTable::init(int layer, int bendbits, int rbits) {
 
   if (settings_.writeTable()) {
     if (not std::filesystem::exists(settings_.tablePath())) {
-      system((string("mkdir -p ") + settings_.tablePath()).c_str());
+      int fail = system((string("mkdir -p ") + settings_.tablePath()).c_str());
+      if (fail)
+        throw cms::Exception("BadDir") << __FILE__ << " " << __LINE__ << " could not create directory "
+                                       << settings_.tablePath();
     }
 
     writeVMTable(settings_.tablePath() + "VMPhiCorrL" + std::to_string(layer_) + ".tab", false);

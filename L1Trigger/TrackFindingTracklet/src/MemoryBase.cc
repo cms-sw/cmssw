@@ -72,7 +72,9 @@ void MemoryBase::findAndReplaceAll(std::string& data, std::string toSearch, std:
 
 void MemoryBase::openFile(bool first, std::string dirName, std::string filebase) {
   if (not std::filesystem::exists(dirName)) {
-    system((string("mkdir -p ") + dirName).c_str());
+    int fail = system((string("mkdir -p ") + dirName).c_str());
+    if (fail)
+      throw cms::Exception("BadDir") << __FILE__ << " " << __LINE__ << " could not create directory " << dirName;
   }
 
   std::string fname = dirName + filebase;

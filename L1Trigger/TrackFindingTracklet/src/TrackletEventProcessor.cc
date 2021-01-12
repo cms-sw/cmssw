@@ -243,7 +243,9 @@ void TrackletEventProcessor::event(SLHCEvent& ev) {
           fname += "_A.dat";
 
           if (not std::filesystem::exists(dirIS)) {
-            system((string("mkdir -p ") + dirIS).c_str());
+            int fail = system((string("mkdir -p ") + dirIS).c_str());
+            if (fail)
+              throw cms::Exception("BadDir") << __FILE__ << " " << __LINE__ << " could not create directory " << dirIS;
           }
 
           ofstream* out = new ofstream;

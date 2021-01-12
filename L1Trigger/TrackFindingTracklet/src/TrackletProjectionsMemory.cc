@@ -37,7 +37,9 @@ void TrackletProjectionsMemory::clean() { tracklets_.clear(); }
 void TrackletProjectionsMemory::writeTPROJ(bool first) {
   const string dirTP = settings_.memPath() + "TrackletProjections/";
   if (not std::filesystem::exists(dirTP)) {
-    system((string("mkdir -p ") + dirTP).c_str());
+    int fail = system((string("mkdir -p ") + dirTP).c_str());
+    if (fail)
+      throw cms::Exception("BadDir") << __FILE__ << " " << __LINE__ << " could not create directory " << dirTP;
   }
 
   std::ostringstream oss;

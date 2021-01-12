@@ -58,7 +58,10 @@ MatchEngine::MatchEngine(string name, Settings const& settings, Globals* global,
 
     if (settings_.writeTable()) {
       if (not std::filesystem::exists(settings_.tablePath())) {
-        system((string("mkdir -p ") + settings_.tablePath()).c_str());
+        int fail = system((string("mkdir -p ") + settings_.tablePath()).c_str());
+        if (fail)
+          throw cms::Exception("BadDir") << __FILE__ << " " << __LINE__ << " could not create directory "
+                                         << settings_.tablePath();
       }
 
       char layer = '0' + layer_;
