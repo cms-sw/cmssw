@@ -29,7 +29,6 @@ public:
   std::pair<int, int> getGMTCharge(int mode, const std::vector<int>& phidiffs) const;
 
   int getGMTDxy(float dxy) const;
-
 };
 
 #endif

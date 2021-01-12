@@ -13,18 +13,12 @@
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
-
-
-
 class PtAssignmentEngineDxy {
 public:
   explicit PtAssignmentEngineDxy();
   virtual ~PtAssignmentEngineDxy();
 
-  void configure(
-          int verbose,
-          const std::string pbFileNameDxy
-  );
+  void configure(int verbose, const std::string pbFileNameDxy);
 
   const PtAssignmentEngineAux2017& aux() const;
 
@@ -34,9 +28,7 @@ public:
 
   virtual void call_tensorflow_dxy(const emtf::Feature& feature, emtf::Prediction& prediction) const;
 
-
 protected:
-
   int verbose_;
 
   tensorflow::GraphDef* graphDefDxy_;
@@ -45,7 +37,6 @@ protected:
   std::string pbFilePathDxy_;
   std::string inputNameDxy_;
   std::vector<std::string> outputNamesDxy_;
-
 };
 
 #endif
