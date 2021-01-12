@@ -28,7 +28,7 @@ usage() {
 	$ECHO "-M [dir]    \t model repository (can be given more than once)"
 	$ECHO "-m [dir]    \t specific model directory (can be given more than one)"
 	$ECHO "-n [name]   \t name of container instance, also used for default hidden temporary dir (default: ${SERVER})"
-	$ECHO "-p [pid]    \t PID of parent process to ensure shutdown"
+	$ECHO "-p          \t automatically shut down server when parent process ends"
 	$ECHO "-r [num]    \t number of retries when starting container (default: ${RETRIES})"
 	$ECHO "-t [dir]    \t non-default hidden temporary dir"
 	$ECHO "-v          \t (verbose) start: activate server debugging info; stop: keep server logs"
@@ -47,7 +47,7 @@ if [ -e /run/shm ]; then
 	SHM=/run/shm
 fi
 
-while getopts "cDdfgM:m:n:p:r:t:vw:h" opt; do
+while getopts "cDdfgM:m:n:pr:t:vw:h" opt; do
 	case "$opt" in
 		c) CLEANUP=""
 		;;
@@ -65,7 +65,7 @@ while getopts "cDdfgM:m:n:p:r:t:vw:h" opt; do
 		;;
 		n) SERVER="$OPTARG"
 		;;
-		p) PARENTPID="$OPTARG"
+		p) PARENTPID="$PPID"
 		;;
 		r) RETRIES="$OPTARG"
 		;;
