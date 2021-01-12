@@ -1927,7 +1927,7 @@ forwardDict = {
             'Geometry/ForwardSimData/data/zdcsens.xml',
         ],
         4 : [
-            'Geometry/ForwardSimData/data/zdcProdCuts.xml',
+            'Geometry/ForwardSimData/data/zdcProdCuts/2021/v2/zdcProdCuts.xml',
             'Geometry/ForwardSimData/data/ForwardShieldProdCuts.xml',
         ],
         "reco" :[
