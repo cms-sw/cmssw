@@ -17,7 +17,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.add_(cms.ESProducer("TGeoMgrFromDdd",
-        verbose = cms.untracked.bool(False),
+        verbose = cms.untracked.bool(True),
         level   = cms.untracked.int32(14)
 ))
 
