@@ -1827,8 +1827,6 @@ void HGVHistoProducerAlgo::layerClusters_to_SimClusters(
         sCEnergyOnLayer[scLayerId] += it_haf.second * hit->energy();
       }
     }
-    //===>>>>> CHECK IF THE LINE BELOW GIVES THE SAME RESULT TO AVOID THE LOOP
-    // sCEnergyOnLayer[scLayerId] = lcsInSimClusterMap[scId][scLayerId].energy;
 
     for (unsigned int layerId = 0; layerId < layers * 2; ++layerId) {
       if (!sCEnergyOnLayer[layerId])
