@@ -282,9 +282,10 @@ HLTDoubletDZ<T1, T2>::getCollections(edm::Event& iEvent,
       tagOld = edm::InputTag();
       for (trigger::size_type i1 = 0; i1 != n1; ++i1) {
         const edm::ProductID pid(coll1[i1].id());
-        const std::string& label(iEvent.getProvenance(pid).moduleLabel());
-        const std::string& instance(iEvent.getProvenance(pid).productInstanceName());
-        const std::string& process(iEvent.getProvenance(pid).processName());
+        const auto& prov = iEvent.getStableProvenance(pid);
+        const std::string& label(prov.moduleLabel());
+        const std::string& instance(prov.productInstanceName());
+        const std::string& process(prov.processName());
         edm::InputTag tagNew(edm::InputTag(label, instance, process));
         if (tagOld.encode() != tagNew.encode()) {
           filterproduct.addCollectionTag(tagNew);
@@ -297,9 +298,10 @@ HLTDoubletDZ<T1, T2>::getCollections(edm::Event& iEvent,
       tagOld = edm::InputTag();
       for (trigger::size_type i2 = 0; i2 != n2; ++i2) {
         const edm::ProductID pid(coll2[i2].id());
-        const std::string& label(iEvent.getProvenance(pid).moduleLabel());
-        const std::string& instance(iEvent.getProvenance(pid).productInstanceName());
-        const std::string& process(iEvent.getProvenance(pid).processName());
+        const auto& prov = iEvent.getStableProvenance(pid);
+        const std::string& label(prov.moduleLabel());
+        const std::string& instance(prov.productInstanceName());
+        const std::string& process(prov.processName());
         edm::InputTag tagNew(edm::InputTag(label, instance, process));
         if (tagOld.encode() != tagNew.encode()) {
           filterproduct.addCollectionTag(tagNew);

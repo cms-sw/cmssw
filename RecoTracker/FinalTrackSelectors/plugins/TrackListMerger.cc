@@ -761,7 +761,7 @@ void TrackListMerger::produce(edm::Event& e, const edm::EventSetup& es) {
             // the cluster collection either produced a removalInfo or mot
             //get the clusterremoval info from the provenance: will rekey if this is found
             edm::Handle<reco::ClusterRemovalInfo> CRIh;
-            edm::Provenance prov = e.getProvenance(pID);
+            edm::StableProvenance const& prov = e.getStableProvenance(pID);
             clusterRemovalInfos = edm::InputTag(prov.moduleLabel(), prov.productInstanceName(), prov.processName());
             doRekeyOnThisSeed = e.getByLabel(clusterRemovalInfos, CRIh);
           }  //valid hit
