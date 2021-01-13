@@ -455,8 +455,7 @@ steps['RunNoBPTX2018C']={'INPUT':InputInfo(dataSet='/NoBPTX/Run2018C-v1/RAW',lab
 steps['RunDisplacedJet2018C']={'INPUT':InputInfo(dataSet='/DisplacedJet/Run2018C-v1/RAW',label='2018C',events=100000,location='STD', ls=Run2018C)}
 steps['RunCharmonium2018C']={'INPUT':InputInfo(dataSet='/Charmonium/Run2018C-v1/RAW',label='2018C',events=100000,location='STD', ls=Run2018C)}
 
-Run2018Cpilot={319348: [[1, 100]]}
-steps['RunJetHT2018C_nanoULremini']={'INPUT':InputInfo(dataSet='/JetHT/Run2018C-UL2018_MiniAODv2_pilot1-v1/MINIAOD',label='2018C',events=100000,location='STD', ls=Run2018Cpilot)}
+steps['RunJetHT2018C_nanoULremini']={'INPUT':InputInfo(dataSet='/JetHT/Run2018C-UL2018_MiniAODv2-v1/MINIAOD',label='2018C',events=100000,location='STD', ls=Run2018C)}
 
 #### run2 2018D ####
 Run2018D={320822: [[1, 100]]}
