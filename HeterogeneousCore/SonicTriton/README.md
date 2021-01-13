@@ -92,6 +92,7 @@ The script has two operations (`start` and `stop`) and the following options:
 * `-M [dir]`: model repository (can be given more than once)
 * `-m [dir]`: specific model directory (can be given more than one)
 * `-n [name]`: name of container instance, also used for hidden temporary dir (default: triton_server_instance)
+* `-P [port]`: base port number for services (-1: automatically find an unused port range) (default: 8000)
 * `-p`: automatically shut down server when parent process ends
 * `-r [num]`: number of retries when starting container (default: 3)
 * `-t [dir]`: non-default hidden temporary dir

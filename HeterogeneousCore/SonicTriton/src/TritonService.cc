@@ -22,7 +22,7 @@ namespace ni = nvidia::inferenceserver;
 namespace nic = ni::client;
 
 const std::string TritonService::Server::fallbackName{"fallback"};
-const std::string TritonService::Server::fallbackUrl{"0.0.0.0:8001"};
+const std::string TritonService::Server::fallbackAddress{"0.0.0.0"};
 
 namespace {
   std::pair<std::string, int> execSys(const std::string& cmd) {
@@ -49,6 +49,12 @@ namespace {
     int rv = pclose(pipe);
     return std::make_pair(result, rv);
   }
+
+  std::string getUuid() {
+    auto [uuid, rv] = execSys("uuidgen | sed 's/-//g'");
+    uuid.pop_back();
+    return uuid;
+  }
 }  // namespace
 
 TritonService::TritonService(const edm::ParameterSet& pset, edm::ActivityRegistry& areg)
@@ -68,7 +74,7 @@ TritonService::TritonService(const edm::ParameterSet& pset, edm::ActivityRegistr
   if (fallbackOpts_.enable)
     servers_.emplace(std::piecewise_construct,
                      std::forward_as_tuple(Server::fallbackName),
-                     std::forward_as_tuple(Server::fallbackName, Server::fallbackUrl));
+                     std::forward_as_tuple(Server::fallbackName, Server::fallbackAddress));
 
   //loop over input servers: check which models they have
   std::string msg;
@@ -200,8 +206,13 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
   if (verbose_)
     edm::LogInfo("TritonService") << msg;
 
+  //randomize instance name
+  if (fallbackOpts_.instanceName.empty()) {
+    fallbackOpts_.instanceName = "triton_server_instance_" + getUuid();
+  }
+
   //assemble server start command
-  std::string command("cmsTriton -p");
+  std::string command("cmsTriton -p -P -1");
   if (fallbackOpts_.debug)
     command += " -c";
   if (fallbackOpts_.verbose)
@@ -224,9 +235,7 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
 
   //get a random temporary directory if none specified
   if (fallbackOpts_.tempDir.empty()) {
-    auto [uuid, rv] = execSys("uuidgen | sed 's/-//g'");
-    uuid.pop_back();
-    auto tmp_dir_path{std::filesystem::temp_directory_path() /= uuid};
+    auto tmp_dir_path{std::filesystem::temp_directory_path() /= getUuid()};
     fallbackOpts_.tempDir = tmp_dir_path.string();
   }
   //special case ".": use script default (temp dir = .$instanceName)
@@ -247,6 +256,17 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
     edm::LogInfo("TritonService") << output;
   if (rv != 0)
     throw cms::Exception("FallbackFailed") << "Starting the fallback server failed with exit code " << rv;
+
+  //get the port
+  const std::string& portIndicator("CMS_TRITON_GRPC_PORT: ");
+  auto pos = output.find(portIndicator);
+  if (pos != std::string::npos) {
+    auto pos2 = pos + portIndicator.size();
+    auto pos3 = output.find('\n', pos2);
+    const auto& portNum = output.substr(pos2, pos3 - pos2);
+    serverInfo.url += ":" + portNum;
+  } else
+    throw cms::Exception("FallbackFailed") << "Unknown port for fallback server, log follows:\n" << output;
 }
 
 void TritonService::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
