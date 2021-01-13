@@ -14,6 +14,7 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 #just define all of them
 
 #WFs to run in IB:
+#   2017 (TTbar)
 #   2018 (ele guns 10, 35, 1000; pho guns 10, 35; mu guns 1, 10, 100, 1000, QCD 3TeV, QCD Flat)
 #   2018 (ZMM, TTbar, ZEE, MinBias, TTbar PU, ZEE PU, TTbar design)
 #        (TTbar trackingOnly, pixelTrackingOnly)
@@ -37,7 +38,8 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 #        (QCD 1.8TeV DeepCore)
 #   2023 (TTbar, TTbar PU, TTbar PU premix)
 #   2024 (TTbar, TTbar PU, TTbar PU premix)
-numWFIB = [10801.0,10802.0,10803.0,10804.0,10805.0,10806.0,10807.0,10808.0,10809.0,10859.0,10871.0,
+numWFIB = [10024.0,
+           10801.0,10802.0,10803.0,10804.0,10805.0,10806.0,10807.0,10808.0,10809.0,10859.0,10871.0,
            10842.0,10824.0,10825.0,10826.0,10823.0,11024.0,11025.0,11224.0,
            10824.1,10824.5,
            10824.6,11024.6,11224.6,
