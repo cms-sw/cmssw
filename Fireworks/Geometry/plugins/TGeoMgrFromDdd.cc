@@ -172,8 +172,7 @@ TGeoMgrFromDdd::ReturnType TGeoMgrFromDdd::produce(const DisplayGeomRecord& iRec
     if (m_verbose) {
       std::cout << "parentStack of size " << parentStack.size() << std::endl;
       auto num = (info.second != nullptr) ? info.second->copyno() : 0;
-      std::cout << info.first.name() << " " << info.second->copyno() << " "
-                << num << std::endl;
+      std::cout << info.first.name() << " " << info.second->copyno() << " " << num << std::endl;
     }
 
     std::string name = m_fullname ? info.first.name().fullname() : info.first.name().name();
