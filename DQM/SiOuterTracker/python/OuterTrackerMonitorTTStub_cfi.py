@@ -49,9 +49,9 @@ OuterTrackerMonitorTTStub = DQMEDAnalyzer('OuterTrackerMonitorTTStub',
 
 #TTStub bend distribution
     TH1TTStub_bend = cms.PSet(
-        Nbinsx = cms.int32(60),
-        xmin = cms.double(-8.5),
-        xmax = cms.double(8.5)
+        Nbinsx = cms.int32(69),
+        xmin = cms.double(-8.625),
+        xmax = cms.double(8.625)
         ),
 
 #TTStub, isPS?
