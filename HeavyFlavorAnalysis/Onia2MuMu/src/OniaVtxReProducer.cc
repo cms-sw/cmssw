@@ -11,17 +11,17 @@ OniaVtxReProducer::OniaVtxReProducer(const edm::Handle<reco::VertexCollection> &
   const edm::Provenance *prov = handle.provenance();
   if (prov == nullptr)
     throw cms::Exception("CorruptData") << "Vertex handle doesn't have provenance.";
-  edm::ParameterSet psetFromProvenance = edm::parameterSet(*prov, iEvent.processHistory());
+  edm::ParameterSet psetFromProvenance = edm::parameterSet(prov->stable(), iEvent.processHistory());
 
   bool is_primary_available = false;
   const edm::Provenance *parent_prov = prov;
-  if (edm::moduleName(*prov, iEvent.processHistory()) != "PrimaryVertexProducer") {
+  if (edm::moduleName(prov->stable(), iEvent.processHistory()) != "PrimaryVertexProducer") {
     std::vector<edm::BranchID> parents = prov->productProvenance()->parentage().parents();
     for (std::vector<edm::BranchID>::const_iterator it = parents.begin(), ed = parents.end(); it != ed; ++it) {
       edm::Provenance parprov = iEvent.getProvenance(*it);
       if (parprov.friendlyClassName() == "recoVertexs") {  // for AOD actually this the parent we should look for
         parent_prov = &parprov;
-        psetFromProvenance = edm::parameterSet(parprov, iEvent.processHistory());
+        psetFromProvenance = edm::parameterSet(parprov.stable(), iEvent.processHistory());
         is_primary_available = true;
         break;
       }
@@ -40,7 +40,7 @@ OniaVtxReProducer::OniaVtxReProducer(const edm::Handle<reco::VertexCollection> &
   bool foundTracks = false;
   bool foundBeamSpot = false;
   for (std::vector<edm::BranchID>::const_iterator it = parents.begin(), ed = parents.end(); it != ed; ++it) {
-    edm::Provenance parprov = iEvent.getProvenance(*it);
+    const edm::Provenance &parprov = iEvent.getProvenance(*it);
     if (parprov.friendlyClassName() == "recoTracks") {
       tracksTag_ = edm::InputTag(parprov.moduleLabel(), parprov.productInstanceName(), parprov.processName());
       foundTracks = true;
