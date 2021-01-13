@@ -14,10 +14,6 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 #just define all of them
 
 #WFs to run in IB:
-#   2017 (ele guns 10, 35, 1000; pho guns 10, 35; mu guns 1, 10, 100, 1000, QCD 3TeV, QCD Flat)
-#        (ZMM, TTbar, ZEE, MinBias, TTbar PU, ZEE PU, TTbar design)
-#        (TTbar trackingOnly, trackingRun2, trackingOnlyRun2, trackingLowPU, pixelTrackingOnly)
-#        (TTbar PU with JME NanoAOD)
 #   2018 (ele guns 10, 35, 1000; pho guns 10, 35; mu guns 1, 10, 100, 1000, QCD 3TeV, QCD Flat)
 #   2018 (ZMM, TTbar, ZEE, MinBias, TTbar PU, ZEE PU, TTbar design)
 #        (TTbar trackingOnly, pixelTrackingOnly)
@@ -41,11 +37,7 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 #        (QCD 1.8TeV DeepCore)
 #   2023 (TTbar, TTbar PU, TTbar PU premix)
 #   2024 (TTbar, TTbar PU, TTbar PU premix)
-numWFIB = [10001.0,10002.0,10003.0,10004.0,10005.0,10006.0,10007.0,10008.0,10009.0,10059.0,10071.0,
-           10042.0,10024.0,10025.0,10026.0,10023.0,10224.0,10225.0,10424.0,
-           10024.1,10024.2,10024.3,10024.4,10024.5,
-           10224.15,
-           10801.0,10802.0,10803.0,10804.0,10805.0,10806.0,10807.0,10808.0,10809.0,10859.0,10871.0,
+numWFIB = [10801.0,10802.0,10803.0,10804.0,10805.0,10806.0,10807.0,10808.0,10809.0,10859.0,10871.0,
            10842.0,10824.0,10825.0,10826.0,10823.0,11024.0,11025.0,11224.0,
            10824.1,10824.5,
            10824.6,11024.6,11224.6,
