@@ -27,4 +27,3 @@ cmsRun tritonTest_cfg.py maxEvents=1 modules=TritonGraphProducer
 ## Caveats
 
 * Local CPU server requires support for AVX instructions.
-* Multiple users cannot run servers on the same GPU (e.g. on a shared node).

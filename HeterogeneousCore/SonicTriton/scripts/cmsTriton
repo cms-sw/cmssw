@@ -14,6 +14,9 @@ CLEANUP=true
 TMPDIR=""
 DRYRUN=""
 PARENTPID=""
+BASEPORT=8000
+AUTOPORT=""
+NPORTS=3
 
 usage() {
 	ECHO="echo -e"
@@ -28,6 +31,7 @@ usage() {
 	$ECHO "-M [dir]    \t model repository (can be given more than once)"
 	$ECHO "-m [dir]    \t specific model directory (can be given more than one)"
 	$ECHO "-n [name]   \t name of container instance, also used for default hidden temporary dir (default: ${SERVER})"
+	$ECHO "-P [port]   \t base port number for services (-1: automatically find an unused port range) (default: ${BASEPORT})"
 	$ECHO "-p          \t automatically shut down server when parent process ends"
 	$ECHO "-r [num]    \t number of retries when starting container (default: ${RETRIES})"
 	$ECHO "-t [dir]    \t non-default hidden temporary dir"
@@ -47,7 +51,7 @@ if [ -e /run/shm ]; then
 	SHM=/run/shm
 fi
 
-while getopts "cDdfgM:m:n:pr:t:vw:h" opt; do
+while getopts "cDdfgM:m:n:P:pr:t:vw:h" opt; do
 	case "$opt" in
 		c) CLEANUP=""
 		;;
@@ -64,6 +68,8 @@ while getopts "cDdfgM:m:n:pr:t:vw:h" opt; do
 		m) MODELS+=("$OPTARG")
 		;;
 		n) SERVER="$OPTARG"
+		;;
+		P) if [ "$OPTARG" -eq -1 ]; then AUTOPORT=true; else BASEPORT="$OPTARG"; fi
 		;;
 		p) PARENTPID="$PPID"
 		;;
@@ -91,6 +97,7 @@ if [ "$RETRIES" -le 0 ]; then
 	RETRIES=1
 fi
 
+
 TOPDIR=$PWD
 if [ -z "$TMPDIR" ]; then
 	TMPDIR="${TOPDIR}/.${SERVER}"
@@ -106,6 +113,38 @@ LIB=lib
 STARTED_INDICATOR="Started GRPCInferenceService"
 EXTRA=""
 
+compute_ports(){
+	# compute derived port numbers
+	export HTTPPORT=$BASEPORT
+	export GRPCPORT=$((BASEPORT+1))
+	export METRPORT=$((BASEPORT+2))
+}
+
+check_port(){
+	# success on this command means the port is in use
+	if 2>/dev/null >"/dev/tcp/0.0.0.0/$1"; then
+		return 1
+	else
+		return 0
+	fi
+}
+
+check_ports(){
+	if check_port $HTTPPORT && check_port $GRPCPORT && check_port $METRPORT; then
+		return 0
+	else
+		return 1
+	fi
+}
+
+find_ports(){
+	while ! check_ports; do
+		BASEPORT=$((BASEPORT+NPORTS))
+		compute_ports
+	done
+	echo "CMS_TRITON_GRPC_PORT: $GRPCPORT"
+}
+
 start_docker(){
 	# mount all model repositories
 	MOUNTARGS=""
@@ -117,8 +156,8 @@ start_docker(){
 
 	$DRYRUN $DOCKER run -d --name ${SERVER} \
 		--shm-size=1g --ulimit memlock=-1 --ulimit stack=67108864 \
-		-p8000:8000 -p8001:8001 -p8002:8002 $EXTRA $MOUNTARGS \
-		${IMAGE} tritonserver $REPOARGS $VERBOSE
+		-p${HTTPPORT}:${HTTPPORT} -p${GRPCPORT}:${GRPCPORT} -p${METRPORT}:${METRPORT} $EXTRA $MOUNTARGS \
+		${IMAGE} tritonserver $PORTARGS $REPOARGS $VERBOSE
 }
 
 start_singularity(){
@@ -155,7 +194,7 @@ start_singularity(){
 		REDIR=/dev/stdout
 	fi
 	$DRYRUN singularity run instance://${SERVER} \
-		tritonserver $REPOARGS $VERBOSE >& ${REDIR} &
+		tritonserver $PORTARGS $REPOARGS $VERBOSE >& ${REDIR} &
 	[ -z "$DRYRUN" ] || wait
 }
 
@@ -275,6 +314,16 @@ if [ "$OP" == start ]; then
 		exit 1
 	fi
 
+	# handle ports
+	compute_ports
+	if [ -n "$AUTOPORT" ]; then
+		find_ports
+	elif ! check_ports; then
+		echo "Error: requested port in use"
+		exit 1
+	fi
+	PORTARGS="--http-port=${HTTPPORT} --grpc-port=${GRPCPORT} --metrics-port=${METRPORT}"
+
 	list_models
 
 	# make sure everything happens in tmp dir
@@ -285,6 +334,12 @@ if [ "$OP" == start ]; then
 		exit "$MKDIR_EXIT"
 	fi
 	$DRYRUN cd "$TMPDIR"
+
+	# if parent PID is provided, automatically stop server when finished
+	# do this before actually trying to start the server in case of ctrl+c
+	if [ -n "$PARENTPID" ]; then
+		auto_stop "" "$PARENTPID" >& "$STOPLOG" &
+	fi
 
 	START_EXIT=""
 	for ((counter=0; counter < ${RETRIES}; counter++)); do
@@ -302,11 +357,6 @@ if [ "$OP" == start ]; then
 		exit "$START_EXIT"
 	fi
 	wait_server
-
-	# if parent PID is provided, automatically stop server when finished
-	if [ -n "$PARENTPID" ]; then
-		auto_stop "" "$PARENTPID" >& "$STOPLOG" &
-	fi
 else
 	# check for tmp dir
 	if [ -d "$TMPDIR" ]; then

@@ -56,7 +56,7 @@ public:
     bool isFallback;
     std::unordered_set<std::string> models;
     static const std::string fallbackName;
-    static const std::string fallbackUrl;
+    static const std::string fallbackAddress;
   };
   struct Model {
     Model(const std::string& path_ = "") : path(path_) {}
