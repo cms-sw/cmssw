@@ -385,10 +385,10 @@ namespace edm {
 
   ProductResolverBase::Resolution UnscheduledProductResolver::resolveProduct_(Principal const&,
                                                                               bool skipCurrentProcess,
-                                                                              SharedResourcesAcquirer* sra,
-                                                                              ModuleCallingContext const* mcc) const {
+                                                                              SharedResourcesAcquirer*,
+                                                                              ModuleCallingContext const*) const {
     if (!skipCurrentProcess and worker_) {
-      return resolveProductImpl<true>([this, sra, mcc]() {
+      return resolveProductImpl<true>([this]() {
         edm::Exception ex(errors::UnimplementedFeature);
         ex << "Attempting to run unscheduled module without doing prefetching";
         std::ostringstream ost;
