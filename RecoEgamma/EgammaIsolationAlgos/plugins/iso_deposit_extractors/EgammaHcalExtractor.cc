@@ -87,8 +87,7 @@ reco::IsoDeposit EgammaHcalExtractor::deposit(const edm::Event& iEvent,
                                               const edm::EventSetup& iSetup,
                                               const reco::Candidate& emObject) const {
   //Get MetaRecHit collection
-  edm::Handle<HBHERecHitCollection> hcalRecHitHandle;
-  iEvent.getByToken(hcalRecHitProducerToken_, hcalRecHitHandle);
+  auto const& hcalRecHits = iEvent.get(hcalRecHitProducerToken_);
 
   //Get Calo Geometry
   edm::ESHandle<CaloGeometry> pG;
@@ -109,7 +108,7 @@ reco::IsoDeposit EgammaHcalExtractor::deposit(const edm::Event& iEvent,
   deposit.addCandEnergy(sc->energy() * sinTheta);
 
   //Compute the HCAL energy behind ECAL
-  coneSel.selectCallback(point, *hcalRecHitHandle, [&](const HBHERecHit& i) {
+  coneSel.selectCallback(point, hcalRecHits, [&](const HBHERecHit& i) {
     const GlobalPoint& hcalHit_position = caloGeom->getPosition(i.detid());
     double hcalHit_eta = hcalHit_position.eta();
     double hcalHit_Et = i.energy() * sin(2 * atan(exp(-hcalHit_eta)));

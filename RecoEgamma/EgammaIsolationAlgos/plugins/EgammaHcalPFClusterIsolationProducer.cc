@@ -11,7 +11,6 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -31,7 +30,6 @@ public:
   typedef std::vector<T1> T1Collection;
   typedef edm::Ref<T1Collection> T1Ref;
   explicit EgammaHcalPFClusterIsolationProducer(const edm::ParameterSet&);
-  ~EgammaHcalPFClusterIsolationProducer() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void produce(edm::Event&, const edm::EventSetup&) override;
@@ -57,13 +55,10 @@ template <typename T1>
 EgammaHcalPFClusterIsolationProducer<T1>::EgammaHcalPFClusterIsolationProducer(const edm::ParameterSet& config)
     :
 
-      emObjectProducer_(consumes<T1Collection>(config.getParameter<edm::InputTag>("candidateProducer"))),
-      pfClusterProducerHCAL_(
-          consumes<reco::PFClusterCollection>(config.getParameter<edm::InputTag>("pfClusterProducerHCAL"))),
-      pfClusterProducerHFEM_(
-          consumes<reco::PFClusterCollection>(config.getParameter<edm::InputTag>("pfClusterProducerHFEM"))),
-      pfClusterProducerHFHAD_(
-          consumes<reco::PFClusterCollection>(config.getParameter<edm::InputTag>("pfClusterProducerHFHAD"))),
+      emObjectProducer_(consumes(config.getParameter<edm::InputTag>("candidateProducer"))),
+      pfClusterProducerHCAL_(consumes(config.getParameter<edm::InputTag>("pfClusterProducerHCAL"))),
+      pfClusterProducerHFEM_(consumes(config.getParameter<edm::InputTag>("pfClusterProducerHFEM"))),
+      pfClusterProducerHFHAD_(consumes(config.getParameter<edm::InputTag>("pfClusterProducerHFHAD"))),
       useHF_(config.getParameter<bool>("useHF")),
       drMax_(config.getParameter<double>("drMax")),
       drVetoBarrel_(config.getParameter<double>("drVetoBarrel")),
@@ -75,9 +70,6 @@ EgammaHcalPFClusterIsolationProducer<T1>::EgammaHcalPFClusterIsolationProducer(c
       useEt_(config.getParameter<bool>("useEt")) {
   produces<edm::ValueMap<float>>();
 }
-
-template <typename T1>
-EgammaHcalPFClusterIsolationProducer<T1>::~EgammaHcalPFClusterIsolationProducer() {}
 
 template <typename T1>
 void EgammaHcalPFClusterIsolationProducer<T1>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -104,26 +96,18 @@ void EgammaHcalPFClusterIsolationProducer<T1>::fillDescriptions(edm::Configurati
 }
 
 template <typename T1>
-void EgammaHcalPFClusterIsolationProducer<T1>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::Handle<T1Collection> emObjectHandle;
-  iEvent.getByToken(emObjectProducer_, emObjectHandle);
+void EgammaHcalPFClusterIsolationProducer<T1>::produce(edm::Event& iEvent, const edm::EventSetup&) {
+  auto emObjectHandle = iEvent.getHandle(emObjectProducer_);
 
   auto isoMap = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler filler(*isoMap);
   std::vector<float> retV(emObjectHandle->size(), 0);
 
-  std::vector<edm::Handle<reco::PFClusterCollection>> clusterHandles;
-  edm::Handle<reco::PFClusterCollection> clusterHandle;
-  iEvent.getByToken(pfClusterProducerHCAL_, clusterHandle);
-  clusterHandles.push_back(clusterHandle);
+  std::vector<edm::Handle<reco::PFClusterCollection>> clusterHandles{iEvent.getHandle(pfClusterProducerHCAL_)};
 
   if (useHF_) {
-    edm::Handle<reco::PFClusterCollection> clusterHandle;
-    iEvent.getByToken(pfClusterProducerHFEM_, clusterHandle);
-    clusterHandles.push_back(clusterHandle);
-
-    iEvent.getByToken(pfClusterProducerHFHAD_, clusterHandle);
-    clusterHandles.push_back(clusterHandle);
+    clusterHandles.push_back(iEvent.getHandle(pfClusterProducerHFEM_));
+    clusterHandles.push_back(iEvent.getHandle(pfClusterProducerHFHAD_));
   }
 
   HcalPFClusterIsolation<T1> isoAlgo(
