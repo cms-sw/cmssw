@@ -196,7 +196,7 @@ namespace reco {
         phID_ = evt.processHistoryID();
         const edm::Provenance* prov = basicTauDiscriminators_.provenance();
         const std::vector<edm::ParameterSet> psetsFromProvenance =
-            edm::parameterSet(*prov, evt.processHistory())
+            edm::parameterSet(prov->stable(), evt.processHistory())
                 .getParameter<std::vector<edm::ParameterSet>>("IDdefinitions");
         for (uint i = 0; i < psetsFromProvenance.size(); i++) {
           if (psetsFromProvenance[i].getParameter<std::string>("IDname") == "ChargedIsoPtSum" + input_id_name_suffix_)

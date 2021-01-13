@@ -114,12 +114,18 @@ namespace edm {
 
   ProcessHistoryID const& Event::processHistoryID() const { return eventPrincipal().processHistoryID(); }
 
-  Provenance Event::getProvenance(BranchID const& bid) const {
-    return provRecorder_.principal().getProvenance(bid, moduleCallingContext_);
+  Provenance const& Event::getProvenance(BranchID const& bid) const {
+    return provRecorder_.principal().getProvenance(bid);
   }
 
-  Provenance Event::getProvenance(ProductID const& pid) const {
-    return eventPrincipal().getProvenance(pid, moduleCallingContext_);
+  Provenance const& Event::getProvenance(ProductID const& pid) const { return eventPrincipal().getProvenance(pid); }
+
+  StableProvenance const& Event::getStableProvenance(BranchID const& bid) const {
+    return provRecorder_.principal().getStableProvenance(bid);
+  }
+
+  StableProvenance const& Event::getStableProvenance(ProductID const& pid) const {
+    return eventPrincipal().getStableProvenance(pid);
   }
 
   void Event::getAllProvenance(std::vector<Provenance const*>& provenances) const {
