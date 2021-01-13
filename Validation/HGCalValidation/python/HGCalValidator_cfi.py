@@ -54,7 +54,8 @@ hgcalValidator = DQMEDAnalyzer(
         cms.InputTag("ticlTrackstersTrkEM"),
         cms.InputTag("ticlTrackstersEM"),
         cms.InputTag("ticlTrackstersTrk"),
-        cms.InputTag("ticlTrackstersHAD")
+        cms.InputTag("ticlTrackstersHAD"),
+        cms.InputTag("ticlTrackstersMerge")
     ),
 
     #Total number of layers of HGCal that we want to monitor

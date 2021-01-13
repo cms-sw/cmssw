@@ -38,7 +38,8 @@ postProcessorHGCALsimclusters= DQMEDHarvester('DQMGenericClient',
         'HGCAL/HGCalValidator/simClusters/ticlTrackstersTrkEM',
         'HGCAL/HGCalValidator/simClusters/ticlTrackstersEM',
         'HGCAL/HGCalValidator/simClusters/ticlTrackstersTrk',
-        'HGCAL/HGCalValidator/simClusters/ticlTrackstersHAD'
+        'HGCAL/HGCalValidator/simClusters/ticlTrackstersHAD',
+        'HGCAL/HGCalValidator/simClusters/ticlTrackstersMerge'
     ),
     efficiency = cms.vstring(eff_simclusters),
     resolution = cms.vstring(),
