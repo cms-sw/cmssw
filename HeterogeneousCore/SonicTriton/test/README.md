@@ -3,7 +3,7 @@
 Test modules `TritonImageProducer` and `TritonGraphProducer` (`TritonGraphFilter`, `TritonGraphAnalyzer`) are available.
 They generate arbitrary inputs for inference (with ResNet50 or Graph Attention Network, respectively) and print the resulting output.
 
-First, the relevant data should be downloaded from Nvidia:
+First, the relevant data for ResNet50 should be downloaded from Nvidia:
 ```
 ./fetch_model.sh
 ```
