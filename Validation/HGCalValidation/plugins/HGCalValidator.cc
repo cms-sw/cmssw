@@ -28,7 +28,7 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
 
   simVertices_ = consumes<std::vector<SimVertex>>(pset.getParameter<edm::InputTag>("simVertices"));
 
-  for (auto& itag :label_clustersmask) {
+  for (auto& itag : label_clustersmask) {
     clustersMaskTokens_.push_back(consumes<std::vector<float>>(itag));
   }
 
