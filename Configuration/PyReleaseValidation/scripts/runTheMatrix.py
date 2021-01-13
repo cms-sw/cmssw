@@ -80,9 +80,7 @@ if __name__ == '__main__':
                      136.8523, #test NanoAOD from existing reMINI UL 106Xv2
                      1330, #Run2 MC Zmm
                      135.4, #Run 2 Zee ttbar
-                     10042.0, #2017 ZMM
                      10024.0, #2017 ttbar
-                     10224.0, #2017 ttbar PU
                      10824.0, #2018 ttbar
                      11624.911, #2021 DD4hep ttbar
                      11634.0, #2021 ttbar
