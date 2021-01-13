@@ -339,7 +339,7 @@ bool EcalSelectiveReadoutProducer::getBinOfMax(const edm::Event& evt,
                                                const edm::ProductID& noZsDigiId,
                                                int& binOfMax) const {
   bool rc;
-  const edm::Provenance p = evt.getProvenance(noZsDigiId);
+  const edm::StableProvenance& p = evt.getStableProvenance(noZsDigiId);
   const edm::ParameterSet& result = parameterSet(p, evt.processHistory());
   vector<string> ebDigiParamList = result.getParameterNames();
   string bofm("binOfMaximum");

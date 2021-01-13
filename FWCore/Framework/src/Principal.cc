@@ -821,18 +821,26 @@ namespace edm {
     return productData;
   }
 
-  Provenance Principal::getProvenance(BranchID const& bid, ModuleCallingContext const* mcc) const {
+  Provenance const& Principal::getProvenance(BranchID const& bid) const {
     ConstProductResolverPtr const phb = getProductResolver(bid);
     if (phb == nullptr) {
       throwProductNotFoundException("getProvenance", errors::ProductNotFound, bid);
     }
 
     if (phb->unscheduledWasNotRun()) {
-      if (not phb->resolveProduct(*this, false, nullptr, mcc).data()) {
-        throwProductNotFoundException("getProvenance(onDemand)", errors::ProductNotFound, bid);
-      }
+      throw edm::Exception(errors::UnimplementedFeature)
+          << "Requesting provenance from unrun EDProducer. The requested branch ID was: " << bid;
     }
     return *phb->provenance();
+  }
+
+  StableProvenance const& Principal::getStableProvenance(BranchID const& bid) const {
+    ConstProductResolverPtr const phb = getProductResolver(bid);
+    if (phb == nullptr) {
+      throwProductNotFoundException("getStableProvenance", errors::ProductNotFound, bid);
+    }
+    //NOTE: in all implementations, this never returns a nullptr
+    return *phb->stableProvenance();
   }
 
   // This one is mostly for test printout purposes

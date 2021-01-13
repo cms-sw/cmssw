@@ -135,9 +135,10 @@ bool HLTDoublet<T1, T2>::hltFilter(edm::Event& iEvent,
       tagOld = InputTag();
       for (size_type i1 = 0; i1 != n1; ++i1) {
         const ProductID pid(coll1[i1].id());
-        const string& label(iEvent.getProvenance(pid).moduleLabel());
-        const string& instance(iEvent.getProvenance(pid).productInstanceName());
-        const string& process(iEvent.getProvenance(pid).processName());
+        const auto& prov = iEvent.getStableProvenance(pid);
+        const string& label(prov.moduleLabel());
+        const string& instance(prov.productInstanceName());
+        const string& process(prov.processName());
         InputTag tagNew(InputTag(label, instance, process));
         if (tagOld.encode() != tagNew.encode()) {
           filterproduct.addCollectionTag(tagNew);
@@ -153,9 +154,10 @@ bool HLTDoublet<T1, T2>::hltFilter(edm::Event& iEvent,
       tagOld = InputTag();
       for (size_type i2 = 0; i2 != n2; ++i2) {
         const ProductID pid(coll2[i2].id());
-        const string& label(iEvent.getProvenance(pid).moduleLabel());
-        const string& instance(iEvent.getProvenance(pid).productInstanceName());
-        const string& process(iEvent.getProvenance(pid).processName());
+        const auto& prov = iEvent.getStableProvenance(pid);
+        const string& label(prov.moduleLabel());
+        const string& instance(prov.productInstanceName());
+        const string& process(prov.processName());
         InputTag tagNew(InputTag(label, instance, process));
         if (tagOld.encode() != tagNew.encode()) {
           filterproduct.addCollectionTag(tagNew);
