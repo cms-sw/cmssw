@@ -254,7 +254,8 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
 
   //get the port
   const std::string& portIndicator("CMS_TRITON_GRPC_PORT: ");
-  auto pos = output.find(portIndicator);
+  //find last instance in log in case multiple ports were tried
+  auto pos = output.rfind(portIndicator);
   if (pos != std::string::npos) {
     auto pos2 = pos + portIndicator.size();
     auto pos3 = output.find('\n', pos2);

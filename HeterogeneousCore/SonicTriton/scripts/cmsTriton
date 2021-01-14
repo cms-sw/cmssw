@@ -4,6 +4,7 @@
 USEDOCKER=""
 GPU=""
 VERBOSE=""
+VERBOSE_ARGS="--log-verbose=1 --log-error=1 --log-info=1"
 WTIME=120
 SERVER=triton_server_instance
 RETRIES=3
@@ -77,7 +78,7 @@ while getopts "cDdfgM:m:n:P:pr:t:vw:h" opt; do
 		;;
 		t) TMPDIR="$OPTARG"
 		;;
-		v) VERBOSE="--log-verbose=1 --log-error=1 --log-info=1"
+		v) VERBOSE="$VERBOSE_ARGS"
 		;;
 		w) WTIME="$OPTARG"
 		;;
@@ -111,6 +112,7 @@ LOG="log_${SERVER}.log"
 STOPLOG="log_stop_${SERVER}.log"
 LIB=lib
 STARTED_INDICATOR="Started GRPCInferenceService"
+SEGFAULT_INDICATOR="Address already in use"
 EXTRA=""
 
 compute_ports(){
@@ -143,6 +145,18 @@ find_ports(){
 		compute_ports
 	done
 	echo "CMS_TRITON_GRPC_PORT: $GRPCPORT"
+}
+
+handle_ports(){
+	# handle ports
+	compute_ports
+	if [ -n "$AUTOPORT" ]; then
+		find_ports
+	elif ! check_ports; then
+		echo "Error: requested port in use"
+		return 1
+	fi
+	export PORTARGS="--http-port=${HTTPPORT} --grpc-port=${GRPCPORT} --metrics-port=${METRPORT}"
 }
 
 start_docker(){
@@ -214,11 +228,11 @@ stop_singularity(){
 
 test_docker(){
 	# docker logs print to stderr
-	${DOCKER} logs ${SERVER} |& grep "$STARTED_INDICATOR"
+	${DOCKER} logs ${SERVER} |& grep "$1"
 }
 
 test_singularity(){
-	grep "$STARTED_INDICATOR" $LOG
+	grep "$1" $LOG
 }
 
 wait_server(){
@@ -227,8 +241,18 @@ wait_server(){
 	fi
 
 	COUNT=0
-	while ! $WAIT_COND >& /dev/null; do
-		if [ "$COUNT" -gt "$WTIME" ]; then
+	while ! $TEST_FN "$STARTED_INDICATOR" >& /dev/null; do
+		if $TEST_FN "$SEGFAULT_INDICATOR" >& /dev/null; then
+			handle_ports
+			PORT_EXIT=$?
+			# port exit is zero if it found a new, good port; so retry
+			if [ "$PORT_EXIT" -ne 0 ]; then
+				auto_stop true
+				exit $PORT_EXIT
+			else
+				return 1
+			fi
+		elif [ "$COUNT" -gt "$WTIME" ]; then
 			echo "timed out waiting for server to start"
 			auto_stop true
 			exit 1
@@ -261,7 +285,7 @@ list_models(){
 auto_stop(){
 	# allow enabling verbosity here even if disabled at top level
 	# but otherwise use top-level setting
-	if [ -n "$1" ]; then VERBOSE="$1"; fi
+	if [ -n "$1" ]; then VERBOSE="$VERBOSE_ARGS"; fi
 	PARENTPID="$2"
 
 	if [ -n "$PARENTPID" ]; then
@@ -275,7 +299,8 @@ auto_stop(){
 	if [ -z "$DRYRUN" ]; then
 		if [ -n "$VERBOSE" ]; then
 			mv "$LOG" "$TOPDIR"
-			if [ -f "$STOPLOG" ]; then
+			# only keep non-empty log
+			if [ -s "$STOPLOG" ]; then
 				mv "$STOPLOG" "$TOPDIR"
 			fi
 		fi
@@ -287,12 +312,23 @@ auto_stop(){
 	fi
 }
 
+make_tmp(){
+	# make sure everything happens in tmp dir
+	$DRYRUN mkdir "$TMPDIR"
+	MKDIR_EXIT=$?
+	if [ "$MKDIR_EXIT" -ne 0 ]; then
+		echo "Could not create temp dir: $TMPDIR"
+		exit "$MKDIR_EXIT"
+	fi
+	$DRYRUN cd "$TMPDIR"
+}
+
 if [ -n "$USEDOCKER" ]; then
 	if [ -n "$GPU" ]; then
 		EXTRA="--gpus all"
 	fi
 	START_FN=start_docker
-	WAIT_COND=test_docker
+	TEST_FN=test_docker
 	STOP_FN=stop_docker
 	PROG_NAME=Docker
 else
@@ -300,7 +336,7 @@ else
 		EXTRA="--nv"
 	fi
 	START_FN=start_singularity
-	WAIT_COND=test_singularity
+	TEST_FN=test_singularity
 	STOP_FN=stop_singularity
 	PROG_NAME=Singularity
 fi
@@ -314,26 +350,13 @@ if [ "$OP" == start ]; then
 		exit 1
 	fi
 
-	# handle ports
-	compute_ports
-	if [ -n "$AUTOPORT" ]; then
-		find_ports
-	elif ! check_ports; then
-		echo "Error: requested port in use"
-		exit 1
-	fi
-	PORTARGS="--http-port=${HTTPPORT} --grpc-port=${GRPCPORT} --metrics-port=${METRPORT}"
+	handle_ports
+	PORT_EXIT=$?
+	if [ "$PORT_EXIT" -ne 0 ]; then exit $PORT_EXIT; fi
 
 	list_models
 
-	# make sure everything happens in tmp dir
-	$DRYRUN mkdir "$TMPDIR"
-	MKDIR_EXIT=$?
-	if [ "$MKDIR_EXIT" -ne 0 ]; then
-		echo "Could not create temp dir: $TMPDIR"
-		exit "$MKDIR_EXIT"
-	fi
-	$DRYRUN cd "$TMPDIR"
+	make_tmp
 
 	# if parent PID is provided, automatically stop server when finished
 	# do this before actually trying to start the server in case of ctrl+c
@@ -341,22 +364,33 @@ if [ "$OP" == start ]; then
 		auto_stop "" "$PARENTPID" >& "$STOPLOG" &
 	fi
 
-	START_EXIT=""
+	START_EXIT=0
 	for ((counter=0; counter < ${RETRIES}; counter++)); do
+		if [ "$START_EXIT" -ne 0 ]; then make_tmp; fi
+
 		$START_FN
 		START_EXIT=$?
 		if [ "$START_EXIT" -eq 0 ]; then
-			break
-		else
+			wait_server
+			WAIT_EXIT=$?
+			if [ "$WAIT_EXIT" -eq 0 ]; then
+				break
+			else
+				# allow to keep retrying if there was a port issue
+				counter=$((counter-1))
+				START_EXIT="$WAIT_EXIT"
+			fi
+		fi
+
+		if [ "$START_EXIT" -ne 0 ]; then
+			auto_stop
 			echo "Retrying after container issue..."
-			$STOP_FN
 		fi
 	done
 	if [ "$START_EXIT" -ne 0 ]; then
 		echo "Error from $PROG_NAME"
 		exit "$START_EXIT"
 	fi
-	wait_server
 else
 	# check for tmp dir
 	if [ -d "$TMPDIR" ]; then
