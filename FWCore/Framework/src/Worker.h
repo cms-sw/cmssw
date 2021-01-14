@@ -109,14 +109,6 @@ namespace edm {
           limited_->push(iF);
         }
       }
-      template <class F>
-      void pushAndWait(F&& iF) {
-        if (serial_) {
-          serial_->pushAndWait(iF);
-        } else {
-          limited_->pushAndWait(iF);
-        }
-      }
     };
 
     Worker(ModuleDescription const& iMD, ExceptionToActionTable const* iActions);
@@ -139,9 +131,6 @@ namespace edm {
 
     virtual SerialTaskQueue* globalRunsQueue() = 0;
     virtual SerialTaskQueue* globalLuminosityBlocksQueue() = 0;
-
-    template <typename T>
-    bool doWork(typename T::TransitionInfoType const&, StreamID, ParentContext const&, typename T::Context const*);
 
     void prePrefetchSelectionAsync(WaitingTask* task, ServiceToken const&, StreamID stream, EventPrincipal const*);
 
@@ -1083,131 +1072,6 @@ namespace edm {
         }
       }
     }
-  }
-
-  template <typename T>
-  bool Worker::doWork(typename T::TransitionInfoType const& transitionInfo,
-                      StreamID streamID,
-                      ParentContext const& parentContext,
-                      typename T::Context const* context) {
-    if constexpr (T::isEvent_) {
-      timesVisited_.fetch_add(1, std::memory_order_relaxed);
-    }
-    bool rc = false;
-
-    switch (state_) {
-      case Ready:
-        break;
-      case Pass:
-        return true;
-      case Fail:
-        return false;
-      case Exception: {
-        std::rethrow_exception(cached_exception_);
-      }
-    }
-
-    bool expected = false;
-    if (not workStarted_.compare_exchange_strong(expected, true)) {
-      //another thread beat us here
-      auto waitTask = edm::make_empty_waiting_task();
-      waitTask->increment_ref_count();
-
-      waitingTasks_.add(waitTask.get());
-
-      waitTask->wait_for_all();
-
-      switch (state_) {
-        case Ready:
-          assert(false);
-        case Pass:
-          return true;
-        case Fail:
-          return false;
-        case Exception: {
-          std::rethrow_exception(cached_exception_);
-        }
-      }
-    }
-
-    //Need the context to be set until after any exception is resolved
-    moduleCallingContext_.setContext(ModuleCallingContext::State::kPrefetching, parentContext, nullptr);
-
-    auto resetContext = [](ModuleCallingContext* iContext) {
-      iContext->setContext(ModuleCallingContext::State::kInvalid, ParentContext(), nullptr);
-    };
-    std::unique_ptr<ModuleCallingContext, decltype(resetContext)> prefetchSentry(&moduleCallingContext_, resetContext);
-
-    if constexpr (T::isEvent_) {
-      //if have TriggerResults based selection we want to reject the event before doing prefetching
-      if (workerhelper::CallImpl<T>::needToRunSelection(this)) {
-        auto waitTask = edm::make_empty_waiting_task();
-        waitTask->set_ref_count(2);
-        prePrefetchSelectionAsync(
-            waitTask.get(), ServiceRegistry::instance().presentToken(), streamID, &transitionInfo.principal());
-        waitTask->decrement_ref_count();
-        waitTask->wait_for_all();
-
-        if (state() != Ready) {
-          //The selection must have rejected this event
-          return true;
-        }
-      }
-      auto waitTask = edm::make_empty_waiting_task();
-      {
-        //Make sure signal is sent once the prefetching is done
-        // [the 'pre' signal was sent in prefetchAsync]
-        //The purpose of this block is to send the signal after wait_for_all
-        auto sentryFunc = [this](void*) { emitPostModuleEventPrefetchingSignal(); };
-        std::unique_ptr<ActivityRegistry, decltype(sentryFunc)> signalSentry(actReg_.get(), sentryFunc);
-
-        //set count to 2 since wait_for_all requires value to not go to 0
-        waitTask->set_ref_count(2);
-
-        prefetchAsync<T>(WaitingTaskHolder(waitTask.get()),
-                         ServiceRegistry::instance().presentToken(),
-                         parentContext,
-                         transitionInfo,
-                         T::transition_);
-        waitTask->decrement_ref_count();
-        waitTask->wait_for_all();
-      }
-      if (waitTask->exceptionPtr() != nullptr) {
-        if (shouldRethrowException(*waitTask->exceptionPtr(), parentContext, T::isEvent_)) {
-          setException<T::isEvent_>(*waitTask->exceptionPtr());
-          waitingTasks_.doneWaiting(cached_exception_);
-          std::rethrow_exception(cached_exception_);
-        } else {
-          setPassed<T::isEvent_>();
-          waitingTasks_.doneWaiting(nullptr);
-          return true;
-        }
-      }
-    }
-
-    //successful prefetch so no reset necessary
-    prefetchSentry.release();
-    if (auto queue = serializeRunModule()) {
-      auto serviceToken = ServiceRegistry::instance().presentToken();
-      queue.pushAndWait([&]() {
-        //Need to make the services available
-        ServiceRegistry::Operate guard(serviceToken);
-        // This try-catch is primarily for paranoia: runModule() deals internally with exceptions, except for those coming from Service signal actions, which are not supposed to throw exceptions
-        CMS_SA_ALLOW try { rc = runModule<T>(transitionInfo, streamID, parentContext, context); } catch (...) {
-        }
-      });
-    } else {
-      // This try-catch is primarily for paranoia: runModule() deals internally with exceptions, except for those coming from Service signal actions, which are not supposed to throw exceptions
-      CMS_SA_ALLOW try { rc = runModule<T>(transitionInfo, streamID, parentContext, context); } catch (...) {
-      }
-    }
-    if (state_ == Exception) {
-      waitingTasks_.doneWaiting(cached_exception_);
-      std::rethrow_exception(cached_exception_);
-    }
-
-    waitingTasks_.doneWaiting(nullptr);
-    return rc;
   }
 
   template <typename T>
