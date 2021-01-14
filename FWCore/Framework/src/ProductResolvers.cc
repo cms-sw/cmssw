@@ -385,37 +385,17 @@ namespace edm {
 
   ProductResolverBase::Resolution UnscheduledProductResolver::resolveProduct_(Principal const&,
                                                                               bool skipCurrentProcess,
-                                                                              SharedResourcesAcquirer* sra,
-                                                                              ModuleCallingContext const* mcc) const {
+                                                                              SharedResourcesAcquirer*,
+                                                                              ModuleCallingContext const*) const {
     if (!skipCurrentProcess and worker_) {
-      return resolveProductImpl<true>([this, sra, mcc]() {
-        try {
-          ParentContext parentContext(mcc);
-          aux_->preModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()), *mcc);
-
-          auto workCall = [this, &parentContext, mcc]() {
-            auto sentry(make_sentry(mcc, [this](ModuleCallingContext const* iContext) {
-              aux_->postModuleDelayedGetSignal_.emit(*(iContext->getStreamContext()), *iContext);
-            }));
-
-            EventTransitionInfo const& info = aux_->eventTransitionInfo();
-            worker_->doWork<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> >(
-                info, info.principal().streamID(), parentContext, mcc->getStreamContext());
-          };
-
-          if (sra) {
-            assert(false);
-          } else {
-            workCall();
-          }
-
-        } catch (cms::Exception& ex) {
-          std::ostringstream ost;
-          ost << "Calling produce method for unscheduled module " << worker_->description()->moduleName() << "/'"
-              << worker_->description()->moduleLabel() << "'";
-          ex.addContext(ost.str());
-          throw;
-        }
+      return resolveProductImpl<true>([this]() {
+        edm::Exception ex(errors::UnimplementedFeature);
+        ex << "Attempting to run unscheduled module without doing prefetching";
+        std::ostringstream ost;
+        ost << "Calling produce method for unscheduled module " << worker_->description()->moduleName() << "/'"
+            << worker_->description()->moduleLabel() << "'";
+        ex.addContext(ost.str());
+        throw ex;
       });
     }
     return Resolution(nullptr);
