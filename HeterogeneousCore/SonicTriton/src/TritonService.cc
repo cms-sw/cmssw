@@ -8,6 +8,7 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/GlobalIdentifier.h"
 
 #include "grpc_client.h"
 #include "grpc_service.pb.h"
@@ -48,12 +49,6 @@ namespace {
 
     int rv = pclose(pipe);
     return std::make_pair(result, rv);
-  }
-
-  std::string getUuid() {
-    auto [uuid, rv] = execSys("uuidgen | sed 's/-//g'");
-    uuid.pop_back();
-    return uuid;
   }
 }  // namespace
 
@@ -208,7 +203,7 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
 
   //randomize instance name
   if (fallbackOpts_.instanceName.empty()) {
-    fallbackOpts_.instanceName = "triton_server_instance_" + getUuid();
+    fallbackOpts_.instanceName = "triton_server_instance_" + edm::createGlobalIdentifier();
   }
 
   //assemble server start command
@@ -235,7 +230,7 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
 
   //get a random temporary directory if none specified
   if (fallbackOpts_.tempDir.empty()) {
-    auto tmp_dir_path{std::filesystem::temp_directory_path() /= getUuid()};
+    auto tmp_dir_path{std::filesystem::temp_directory_path() /= edm::createGlobalIdentifier()};
     fallbackOpts_.tempDir = tmp_dir_path.string();
   }
   //special case ".": use script default (temp dir = .$instanceName)
