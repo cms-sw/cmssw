@@ -7,7 +7,10 @@
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 
 SiStripCorrelateBadStripAndNoise::SiStripCorrelateBadStripAndNoise(const edm::ParameterSet &iConfig)
-    : cacheID_quality(0xFFFFFFFF), cacheID_noise(0xFFFFFFFF) {
+    : qualityToken_{esConsumes<edm::Transition::BeginRun>()},
+      noiseToken_{esConsumes<edm::Transition::BeginRun>()},
+      tTopoToken_{esConsumes<edm::Transition::BeginRun>()},
+      tkGeomToken_{esConsumes<edm::Transition::BeginRun>()} {
   // now do what ever initialization is needed
   file = new TFile("correlTest.root", "RECREATE");
   tkmap = new TrackerMap();
@@ -18,27 +21,17 @@ SiStripCorrelateBadStripAndNoise::~SiStripCorrelateBadStripAndNoise() {}
 //
 
 void SiStripCorrelateBadStripAndNoise::beginRun(const edm::Run &run, const edm::EventSetup &es) {
-  if (getNoiseCache(es) == cacheID_noise && getQualityCache(es) == cacheID_quality)
-    return;
-  cacheID_noise = getNoiseCache(es);
-  cacheID_quality = getQualityCache(es);
+  if (noiseWatcher_.check(es) || qualityWatcher_.check(es)) {
+    edm::LogInfo("") << "[SiStripCorrelateBadStripAndNoise::beginRun]" << std::endl;
 
-  edm::LogInfo("") << "[SiStripCorrelateBadStripAndNoise::beginRun] cacheID_quality " << cacheID_quality
-                   << " cacheID_noise " << cacheID_noise << std::endl;
+    quality_ = &es.getData(qualityToken_);
+    noises_ = &es.getData(noiseToken_);
 
-  es.get<SiStripQualityRcd>().get(qualityHandle_);
-  es.get<SiStripNoisesRcd>().get(noiseHandle_);
-
-  DoAnalysis(es);
+    DoAnalysis(es);
+  }
 }
 
 void SiStripCorrelateBadStripAndNoise::DoAnalysis(const edm::EventSetup &es) {
-  // Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<TrackerTopologyRcd>().get(tTopoHandle);
-  edm::ESHandle<TrackerGeometry> tGeomHandle;
-  es.get<TrackerDigiGeometryRecord>().get(tGeomHandle);
-
   // Loop on quality bad stirps
   // for each strip, look at the noise
   // evalaute the mean apv noise and the ratio among strip noise and
@@ -47,30 +40,29 @@ void SiStripCorrelateBadStripAndNoise::DoAnalysis(const edm::EventSetup &es) {
 
   // Fill an histo per subdet and layer (and plus && minus for TEC/TID)
   edm::LogInfo("") << "[Doanalysis]";
-  iterateOnDets(tTopoHandle.product(), tGeomHandle.product());
+  iterateOnDets(es.getData(tTopoToken_), es.getData(tkGeomToken_));
 }
 
-void SiStripCorrelateBadStripAndNoise::iterateOnDets(const TrackerTopology *tTopo, const TrackerGeometry *tGeom) {
-  SiStripQuality::RegistryIterator rbegin = qualityHandle_->getRegistryVectorBegin();
-  SiStripQuality::RegistryIterator rend = qualityHandle_->getRegistryVectorEnd();
-
-  for (SiStripBadStrip::RegistryIterator rp = rbegin; rp != rend; ++rp) {
+void SiStripCorrelateBadStripAndNoise::iterateOnDets(const TrackerTopology &tTopo, const TrackerGeometry &tGeom) {
+  const auto rbegin = quality_->getRegistryVectorBegin();
+  const auto rend = quality_->getRegistryVectorEnd();
+  for (auto rp = rbegin; rp != rend; ++rp) {
     const uint32_t detid = rp->detid;
 
-    SiStripQuality::Range sqrange = SiStripQuality::Range(qualityHandle_->getDataVectorBegin() + rp->ibegin,
-                                                          qualityHandle_->getDataVectorBegin() + rp->iend);
+    auto sqrange =
+        SiStripQuality::Range(quality_->getDataVectorBegin() + rp->ibegin, quality_->getDataVectorBegin() + rp->iend);
     iterateOnBadStrips(detid, tTopo, tGeom, sqrange);
   }
 }
 
 void SiStripCorrelateBadStripAndNoise::iterateOnBadStrips(const uint32_t &detid,
-                                                          const TrackerTopology *tTopo,
-                                                          const TrackerGeometry *tGeom,
+                                                          const TrackerTopology &tTopo,
+                                                          const TrackerGeometry &tGeom,
                                                           SiStripQuality::Range &sqrange) {
   float percentage = 0;
   for (int it = 0; it < sqrange.second - sqrange.first; it++) {
-    unsigned int firstStrip = qualityHandle_->decode(*(sqrange.first + it)).firstStrip;
-    unsigned int range = qualityHandle_->decode(*(sqrange.first + it)).range;
+    unsigned int firstStrip = quality_->decode(*(sqrange.first + it)).firstStrip;
+    unsigned int range = quality_->decode(*(sqrange.first + it)).range;
 
     correlateWithNoise(detid, tTopo, firstStrip, range);
 
@@ -78,7 +70,7 @@ void SiStripCorrelateBadStripAndNoise::iterateOnBadStrips(const uint32_t &detid,
     percentage += range;
   }
   if (percentage != 0)
-    percentage /= dynamic_cast<const StripGeomDetUnit *>(tGeom->idToDet(detid))->specificTopology().nstrips();
+    percentage /= dynamic_cast<const StripGeomDetUnit *>(tGeom.idToDet(detid))->specificTopology().nstrips();
   if (percentage > 1)
     edm::LogError("SiStripQualityStatistics") << "PROBLEM detid " << detid << " value " << percentage << std::endl;
 
@@ -89,12 +81,12 @@ void SiStripCorrelateBadStripAndNoise::iterateOnBadStrips(const uint32_t &detid,
 }
 
 void SiStripCorrelateBadStripAndNoise::correlateWithNoise(const uint32_t &detid,
-                                                          const TrackerTopology *tTopo,
+                                                          const TrackerTopology &tTopo,
                                                           const uint32_t &firstStrip,
                                                           const uint32_t &range) {
   std::vector<TH2F *> histos;
 
-  SiStripNoises::Range noiseRange = noiseHandle_->getRange(detid);
+  SiStripNoises::Range noiseRange = noises_->getRange(detid);
   edm::LogInfo("Domenico") << "detid " << detid << " first " << firstStrip << " range " << range;
   float meanAPVNoise = getMeanNoise(noiseRange, firstStrip / 128, 128);
 
@@ -121,13 +113,13 @@ float SiStripCorrelateBadStripAndNoise::getMeanNoise(const SiStripNoises::Range 
                                                      const uint32_t &range) {
   float mean = 0;
   for (size_t istrip = firstStrip; istrip < firstStrip + range; istrip++) {
-    mean += noiseHandle_->getNoise(istrip, noiseRange);
+    mean += noises_->getNoise(istrip, noiseRange);
   }
   return mean / (1. * range);
 }
 
 void SiStripCorrelateBadStripAndNoise::getHistos(const uint32_t &detid,
-                                                 const TrackerTopology *tTopo,
+                                                 const TrackerTopology &tTopo,
                                                  std::vector<TH2F *> &histos) {
   histos.clear();
 
@@ -136,16 +128,16 @@ void SiStripCorrelateBadStripAndNoise::getHistos(const uint32_t &detid,
   SiStripDetId a(detid);
   if (a.subdetId() == 3) {
     subdet = 0;
-    component = tTopo->tibLayer(detid);
+    component = tTopo.tibLayer(detid);
   } else if (a.subdetId() == 4) {
     subdet = 1;
-    component = tTopo->tidSide(detid) == 2 ? tTopo->tidWheel(detid) : tTopo->tidWheel(detid) + 3;
+    component = tTopo.tidSide(detid) == 2 ? tTopo.tidWheel(detid) : tTopo.tidWheel(detid) + 3;
   } else if (a.subdetId() == 5) {
     subdet = 2;
-    component = tTopo->tobLayer(detid);
+    component = tTopo.tobLayer(detid);
   } else if (a.subdetId() == 6) {
     subdet = 3;
-    component = tTopo->tecSide(detid) == 2 ? tTopo->tecWheel(detid) : tTopo->tecWheel(detid) + 9;
+    component = tTopo.tecSide(detid) == 2 ? tTopo.tecWheel(detid) : tTopo.tecWheel(detid) + 9;
   }
 
   int index = 100 + subdet * 100 + component;
