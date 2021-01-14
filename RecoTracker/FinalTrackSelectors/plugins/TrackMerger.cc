@@ -21,6 +21,7 @@
 
 TrackMerger::TrackMerger(const edm::ParameterSet &iConfig, edm::ConsumesCollector cc)
     : useInnermostState_(iConfig.getParameter<bool>("useInnermostState")),
+      debug_(false),
       theBuilderName(iConfig.getParameter<std::string>("ttrhBuilderName")),
       geometryToken_(cc.esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
       magFieldToken_(cc.esConsumes<MagneticField, IdealMagneticFieldRecord>()),
