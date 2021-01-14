@@ -44,13 +44,13 @@
 
 namespace {
 
-  class TrackerSurfaceDeformationsTest : public cond::payloadInspector::Histogram1D<AlignmentSurfaceDeformations> {
+  using namespace cond::payloadInspector;
+
+  class TrackerSurfaceDeformationsTest : public Histogram1D<AlignmentSurfaceDeformations, SINGLE_IOV> {
   public:
     TrackerSurfaceDeformationsTest()
-        : cond::payloadInspector::Histogram1D<AlignmentSurfaceDeformations>(
-              "TrackerSurfaceDeformationsTest", "TrackerSurfaceDeformationsTest", 2, 0.0, 2.0) {
-      Base::setSingleIov(true);
-    }
+        : Histogram1D<AlignmentSurfaceDeformations, SINGLE_IOV>(
+              "TrackerSurfaceDeformationsTest", "TrackerSurfaceDeformationsTest", 2, 0.0, 2.0) {}
 
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
@@ -84,17 +84,14 @@ namespace {
   //*******************************************************
 
   template <AlignmentPI::partitions q>
-  class TrackerAlignmentSurfaceDeformationsSummary
-      : public cond::payloadInspector::PlotImage<AlignmentSurfaceDeformations> {
+  class TrackerAlignmentSurfaceDeformationsSummary : public PlotImage<AlignmentSurfaceDeformations, SINGLE_IOV> {
   public:
     TrackerAlignmentSurfaceDeformationsSummary()
-        : cond::payloadInspector::PlotImage<AlignmentSurfaceDeformations>("Details for " +
-                                                                          AlignmentPI::getStringFromPart(q)) {
-      setSingleIov(true);
-    }
+        : PlotImage<AlignmentSurfaceDeformations, SINGLE_IOV>("Details for " + AlignmentPI::getStringFromPart(q)) {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<AlignmentSurfaceDeformations> payload = fetchPayload(std::get<1>(iov));
       auto listOfItems = payload->items();
 
@@ -180,17 +177,14 @@ namespace {
   //*******************************************************
 
   template <AlignmentPI::partitions q>
-  class TrackerAlignmentSurfaceDeformationsComparison
-      : public cond::payloadInspector::PlotImage<AlignmentSurfaceDeformations> {
+  class TrackerAlignmentSurfaceDeformationsComparison : public PlotImage<AlignmentSurfaceDeformations, MULTI_IOV> {
   public:
     TrackerAlignmentSurfaceDeformationsComparison()
-        : cond::payloadInspector::PlotImage<AlignmentSurfaceDeformations>("Details for " +
-                                                                          AlignmentPI::getStringFromPart(q)) {
-      setSingleIov(false);
-    }
+        : PlotImage<AlignmentSurfaceDeformations, MULTI_IOV>("Details for " + AlignmentPI::getStringFromPart(q)) {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
-      std::vector<std::tuple<cond::Time_t, cond::Hash> > sorted_iovs = iovs;
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto sorted_iovs = tag.iovs;
 
       // make absolute sure the IOVs are sortd by since
       std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
@@ -304,16 +298,16 @@ namespace {
   //   TrackerMap of single parameter
   // *************************************************/
   template <unsigned int par>
-  class SurfaceDeformationTrackerMap : public cond::payloadInspector::PlotImage<AlignmentSurfaceDeformations> {
+  class SurfaceDeformationTrackerMap : public PlotImage<AlignmentSurfaceDeformations, SINGLE_IOV> {
   public:
     SurfaceDeformationTrackerMap()
-        : cond::payloadInspector::PlotImage<AlignmentSurfaceDeformations>(
-              "Tracker Map of Tracker Surface deformations - parameter: " + std::to_string(par)) {
-      setSingleIov(true);
-    }
+        : PlotImage<AlignmentSurfaceDeformations, SINGLE_IOV>(
+              "Tracker Map of Tracker Surface deformations - parameter: " + std::to_string(par)) {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
+
       std::shared_ptr<AlignmentSurfaceDeformations> payload = fetchPayload(std::get<1>(iov));
       auto listOfItems = payload->items();
 
@@ -400,16 +394,15 @@ namespace {
   //   TrackerMap of single parameter
   // *************************************************/
   template <unsigned int m_par>
-  class SurfaceDeformationsTkMapDelta : public cond::payloadInspector::PlotImage<AlignmentSurfaceDeformations> {
+  class SurfaceDeformationsTkMapDelta : public PlotImage<AlignmentSurfaceDeformations, MULTI_IOV> {
   public:
     SurfaceDeformationsTkMapDelta()
-        : cond::payloadInspector::PlotImage<AlignmentSurfaceDeformations>(
-              "Tracker Map of Tracker Surface deformations differences - parameter: " + std::to_string(m_par)) {
-      setSingleIov(false);
-    }
+        : PlotImage<AlignmentSurfaceDeformations, MULTI_IOV>(
+              "Tracker Map of Tracker Surface deformations differences - parameter: " + std::to_string(m_par)) {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
-      std::vector<std::tuple<cond::Time_t, cond::Hash> > sorted_iovs = iovs;
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto sorted_iovs = tag.iovs;
 
       // make absolute sure the IOVs are sortd by since
       std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
@@ -570,19 +563,18 @@ namespace {
   // *************************************************/
 
   template <unsigned int m_par>
-  class TrackerSurfaceDeformationsComparator : public cond::payloadInspector::PlotImage<AlignmentSurfaceDeformations> {
+  class TrackerSurfaceDeformationsComparator : public PlotImage<AlignmentSurfaceDeformations, MULTI_IOV> {
   public:
     TrackerSurfaceDeformationsComparator()
-        : cond::payloadInspector::PlotImage<AlignmentSurfaceDeformations>(
-              "Summary per Tracker region of parameter " + std::to_string(m_par) + " of Surface Deformations") {
-      setSingleIov(false);
-    }
+        : PlotImage<AlignmentSurfaceDeformations, MULTI_IOV>("Summary per Tracker region of parameter " +
+                                                             std::to_string(m_par) + " of Surface Deformations") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto sorted_iovs = tag.iovs;
+
       TGaxis::SetMaxDigits(3);
       gStyle->SetPaintTextFormat(".1f");
-
-      std::vector<std::tuple<cond::Time_t, cond::Hash> > sorted_iovs = iovs;
 
       // make absolute sure the IOVs are sortd by since
       std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {

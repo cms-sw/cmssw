@@ -2,7 +2,6 @@
 #include <iostream>
 #include <map>
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -21,12 +20,14 @@ namespace edmtest {
     void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
     // ----------member data ---------------------------
+    const edm::ESGetToken<AlignPCLThresholds, AlignPCLThresholdsRcd> thresholdToken_;
     const bool printdebug_;
     const std::string formatedOutput_;
   };
 
   AlignPCLThresholdsReader::AlignPCLThresholdsReader(edm::ParameterSet const& p)
-      : printdebug_(p.getUntrackedParameter<bool>("printDebug", true)),
+      : thresholdToken_(esConsumes()),
+        printdebug_(p.getUntrackedParameter<bool>("printDebug", true)),
         formatedOutput_(p.getUntrackedParameter<std::string>("outputFile", "")) {
     edm::LogInfo("AlignPCLThresholdsReader") << "AlignPCLThresholdsReader" << std::endl;
   }
@@ -50,11 +51,13 @@ namespace edmtest {
     }
 
     //this part gets the handle of the event source and the record (i.e. the Database)
-    edm::ESHandle<AlignPCLThresholds> thresholdHandle;
+    edm::ESHandle<AlignPCLThresholds> thresholdHandle = context.getHandle(thresholdToken_);
     edm::LogInfo("AlignPCLThresholdsReader") << "got eshandle" << std::endl;
 
-    context.get<AlignPCLThresholdsRcd>().get(thresholdHandle);
-    edm::LogInfo("AlignPCLThresholdsReader") << "got context" << std::endl;
+    if (!thresholdHandle.isValid()) {
+      edm::LogError("AlignPCLThresholdsReader") << " Could not get Handle" << std::endl;
+      return;
+    }
 
     const AlignPCLThresholds* thresholds = thresholdHandle.product();
     edm::LogInfo("AlignPCLThresholdsReader") << "got AlignPCLThresholds* " << std::endl;
