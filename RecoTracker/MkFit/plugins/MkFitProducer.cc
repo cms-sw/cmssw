@@ -53,19 +53,15 @@ MkFitProducer::MkFitProducer(edm::ParameterSet const& iConfig)
       backwardFitInCMSSW_{iConfig.getParameter<bool>("backwardFitInCMSSW")},
       mkFitSilent_{iConfig.getUntrackedParameter<bool>("mkFitSilent")} {
   const auto build = iConfig.getParameter<std::string>("buildingRoutine");
-  bool isFV = false;
   if (build == "bestHit") {
     buildFunction_ = mkfit::runBuildingTestPlexBestHit;
   } else if (build == "standard") {
     buildFunction_ = mkfit::runBuildingTestPlexStandard;
   } else if (build == "cloneEngine") {
     buildFunction_ = mkfit::runBuildingTestPlexCloneEngine;
-  } else if (build == "fullVector") {
-    isFV = true;
-    buildFunction_ = mkfit::runBuildingTestPlexFV;
   } else {
     throw cms::Exception("Configuration") << "Invalid value for parameter 'buildingRoutine' " << build
-                                          << ", allowed are bestHit, standard, cloneEngine, fullVector";
+                                          << ", allowed are bestHit, standard, cloneEngine";
   }
 
   const auto seedClean = iConfig.getParameter<std::string>("seedCleaning");
@@ -83,7 +79,7 @@ MkFitProducer::MkFitProducer(edm::ParameterSet const& iConfig)
       backwardFitInCMSSW_ ? mkfit::ConfigWrapper::BackwardFit::noFit : mkfit::ConfigWrapper::BackwardFit::toFirstLayer;
 
   // TODO: what to do when we have multiple instances of MkFitProducer in a job?
-  mkfit::MkBuilderWrapper::populate(isFV);
+  mkfit::MkBuilderWrapper::populate();
   mkfit::ConfigWrapper::initializeForCMSSW(seedCleanOpt, backwardFitOpt, mkFitSilent_);
   mkfit::ConfigWrapper::setRemoveDuplicates(iConfig.getParameter<bool>("removeDuplicates"));
 }
@@ -94,7 +90,7 @@ void MkFitProducer::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add("hits", edm::InputTag("mkFitHitConverter"));
   desc.add("seeds", edm::InputTag("mkFitSeedConverter"));
   desc.add<std::string>("buildingRoutine", "cloneEngine")
-      ->setComment("Valid values are: 'bestHit', 'standard', 'cloneEngine', 'fullVector'");
+      ->setComment("Valid values are: 'bestHit', 'standard', 'cloneEngine'");
   desc.add<std::string>("seedCleaning", "N2")->setComment("Valid values are: 'none', 'N2'");
   desc.add("removeDuplicates", true)->setComment("Run duplicate removal within mkFit");
   desc.add("backwardFitInCMSSW", false)
