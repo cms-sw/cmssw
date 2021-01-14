@@ -288,8 +288,8 @@ void ConvertSilicon::writeSilicon(const char* outfile,
   }
   fOut << "\n" << blank << "</Vector>\n";
   if (mode) {
-    fOut << blank << "<Vector name=" << apost << "WaferLayerStart" << tag << apost << " type=" << apost << "numeric" << apost
-         << " nEntries=" << apost << layerStart.size() << apost << ">";
+    fOut << blank << "<Vector name=" << apost << "WaferLayerStart" << tag << apost << " type=" << apost << "numeric"
+         << apost << " nEntries=" << apost << layerStart.size() << apost << ">";
   } else {
     fOut << blank << "<Vector name=" << apost << "WaferLayerStart" << apost << " type=" << apost << "numeric" << apost
          << " nEntries=" << apost << layerStart.size() << apost << ">";
@@ -605,8 +605,8 @@ void ConvertScintillator::makeTitle(
           std::cout << std::setw(7) << f1f2 << last;
       }
       if (zones[k].layer != layer) {
-	layerStart.emplace_back(k);
-	layer = zones[k].layer;
+        layerStart.emplace_back(k);
+        layer = zones[k].layer;
       }
     }
     fout << "\n  </Vector>\n";
@@ -620,11 +620,11 @@ void ConvertScintillator::makeTitle(
     for (unsigned int k = 0; k < layerStart.size(); ++k) {
       std::string last = ((k + 1) == layerStart.size()) ? " " : ",";
       if (k % 10 == 0) {
-	fout << "\n    " << std::setw(5) << layerStart[k] << last;
+        fout << "\n    " << std::setw(5) << layerStart[k] << last;
         if (debug)
-          std::cout << "\n    "  << std::setw(5) << layerStart[k] << last;
+          std::cout << "\n    " << std::setw(5) << layerStart[k] << last;
       } else {
-	fout << std::setw(5) << layerStart[k] << last;
+        fout << std::setw(5) << layerStart[k] << last;
         if (debug)
           std::cout << std::setw(5) << layerStart[k] << last;
       }
