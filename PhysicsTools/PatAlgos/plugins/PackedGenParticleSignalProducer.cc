@@ -1,6 +1,4 @@
-
 #include <memory>
-
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/PatCandidates/interface/PackedGenParticle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -14,9 +12,7 @@ namespace pat {
   class PackedGenParticleSignalProducer : public edm::stream::EDProducer<> {
   public:
     explicit PackedGenParticleSignalProducer(const edm::ParameterSet& iConfig)
-        : packedGenParticleToken_(
-              consumes<pat::PackedGenParticleCollection>(iConfig.getParameter<edm::InputTag>("packedGenParticles"))),
-          genParticleToken_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticles"))),
+        : genParticleToken_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticles"))),
           assoToken_(consumes<edm::Association<std::vector<pat::PackedGenParticle>>>(
               iConfig.getParameter<edm::InputTag>("packedGenParticles"))) {
       produces<pat::PackedGenParticleRefVector>();
@@ -28,7 +24,6 @@ namespace pat {
     static void fillDescriptions(edm::ConfigurationDescriptions&);
 
   private:
-    const edm::EDGetTokenT<pat::PackedGenParticleCollection> packedGenParticleToken_;
     const edm::EDGetTokenT<reco::GenParticleCollection> genParticleToken_;
     const edm::EDGetTokenT<edm::Association<std::vector<pat::PackedGenParticle>>> assoToken_;
   };
@@ -36,26 +31,22 @@ namespace pat {
 }  // namespace pat
 
 void pat::PackedGenParticleSignalProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  const auto& packedGenParticles = iEvent.getHandle(packedGenParticleToken_);
   const auto& genParticles = iEvent.getHandle(genParticleToken_);
-  const auto& packed2Orig = iEvent.get(assoToken_);
+  const auto& orig2packed = iEvent.get(assoToken_);
 
-  pat::PackedGenParticleRefVector* signalGenParticleRefs = new pat::PackedGenParticleRefVector();
+  auto signalGenParticleRefs = std::make_unique<pat::PackedGenParticleRefVector>();
 
-  for (size_t i = 0; i < genParticles->size(); ++i) {
-    const auto& orig = reco::GenParticleRef(genParticles, i);
-
-    if (orig.isNonnull()) {
-      if (orig->collisionId() == 0) {
-        const auto& packed = packed2Orig[orig];
-        if (packed.isNonnull())
-          signalGenParticleRefs->push_back(packed);
-      }
+  for (auto it = genParticles->begin(); it != genParticles->end(); ++it) {
+    const auto& orig = reco::GenParticleRef(genParticles, it - genParticles->begin());
+    const auto& packed = orig2packed[orig];
+    if (orig->collisionId() != 0)
+      continue;
+    if (packed.isNonnull()) {
+      signalGenParticleRefs->push_back(packed);
     }
   }
 
-  std::unique_ptr<pat::PackedGenParticleRefVector> ptr(signalGenParticleRefs);
-  iEvent.put(std::move(ptr));
+  iEvent.put(std::move(signalGenParticleRefs));
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
