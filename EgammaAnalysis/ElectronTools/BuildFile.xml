@@ -3,7 +3,7 @@
 <use name="FWCore/Utilities"/>
 <use name="FWCore/ParameterSet"/>
 <use name="Geometry/CaloTopology"/>
-<use name="CondFormats/EgammaObjects"/>
+<use name="CondFormats/GBRForest"/>
 <use name="RecoEcal/EgammaCoreTools"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/EgammaCandidates"/>
