@@ -4,7 +4,7 @@
 <use name="DataFormats/EgammaReco"/>
 <use name="DataFormats/Math"/>
 <use name="CondFormats/ESObjects"/>
-<use name="CondFormats/EgammaObjects"/>
+<use name="CondFormats/GBRForest"/>
 <use name="CondFormats/DataRecord"/>
 <use name="RecoEcal/EgammaCoreTools"/>
 <use name="Geometry/CaloGeometry"/>
