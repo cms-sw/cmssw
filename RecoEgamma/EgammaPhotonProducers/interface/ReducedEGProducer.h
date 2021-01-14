@@ -36,14 +36,13 @@
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/Common/interface/ValueMap.h"
-
+#include "DataFormats/EgammaCandidates/interface/HIPhotonIsolation.h"
 #include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
 
 // ReducedEGProducer inherits from EDProducer, so it can be a module:
 class ReducedEGProducer : public edm::stream::EDProducer<> {
 public:
   ReducedEGProducer(const edm::ParameterSet& ps);
-  ~ReducedEGProducer() override;
 
   void beginRun(edm::Run const&, const edm::EventSetup&) final;
   void produce(edm::Event& evt, const edm::EventSetup& es) final;
@@ -162,6 +161,9 @@ private:
   std::vector<edm::EDGetTokenT<edm::ValueMap<float> > > photonFloatValueMapTs_;
   std::vector<edm::EDGetTokenT<edm::ValueMap<float> > > ootPhotonFloatValueMapTs_;
   std::vector<edm::EDGetTokenT<edm::ValueMap<float> > > gsfElectronFloatValueMapTs_;
+
+  const edm::EDGetTokenT<reco::HIPhotonIsolationMap> recoHIPhotonIsolationMapInputToken_;
+  const std::string recoHIPhotonIsolationMapOutputName_;
 
   const bool applyPhotonCalibOnData_;
   const bool applyPhotonCalibOnMC_;

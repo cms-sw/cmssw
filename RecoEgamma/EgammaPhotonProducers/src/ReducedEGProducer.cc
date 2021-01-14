@@ -56,6 +56,13 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config)
           config.getParameter<edm::InputTag>("photonsPFValMap"))),
       gsfElectronPfCandMapT_(consumes<edm::ValueMap<std::vector<reco::PFCandidateRef>>>(
           config.getParameter<edm::InputTag>("gsfElectronsPFValMap"))),
+      recoHIPhotonIsolationMapInputToken_{
+          !config.getParameter<edm::InputTag>("hiPhotonIsolationMapInput").label().empty()
+              ? consumes<reco::HIPhotonIsolationMap>(config.getParameter<edm::InputTag>("hiPhotonIsolationMapInput"))
+              : edm::EDGetTokenT<reco::HIPhotonIsolationMap>{}},
+      recoHIPhotonIsolationMapOutputName_{!recoHIPhotonIsolationMapInputToken_.isUninitialized()
+                                              ? config.getParameter<std::string>("hiPhotonIsolationMapOutput")
+                                              : std::string{}},
       //calibration flags
       applyPhotonCalibOnData_(config.getParameter<bool>("applyPhotonCalibOnData")),
       applyPhotonCalibOnMC_(config.getParameter<bool>("applyPhotonCalibOnMC")),
@@ -103,32 +110,23 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config)
   if (not aTag.label().empty())
     ootPhotonT_ = consumes<reco::PhotonCollection>(aTag);
 
-  const std::vector<edm::InputTag>& photonidinputs = config.getParameter<std::vector<edm::InputTag>>("photonIDSources");
-  for (const edm::InputTag& tag : photonidinputs) {
+  for (const edm::InputTag& tag : config.getParameter<std::vector<edm::InputTag>>("photonIDSources")) {
     photonIdTs_.emplace_back(consumes<edm::ValueMap<bool>>(tag));
   }
 
-  const std::vector<edm::InputTag>& gsfelectronidinputs =
-      config.getParameter<std::vector<edm::InputTag>>("gsfElectronIDSources");
-  for (const edm::InputTag& tag : gsfelectronidinputs) {
+  for (const edm::InputTag& tag : config.getParameter<std::vector<edm::InputTag>>("gsfElectronIDSources")) {
     gsfElectronIdTs_.emplace_back(consumes<edm::ValueMap<float>>(tag));
   }
 
-  const std::vector<edm::InputTag>& photonpfclusterisoinputs =
-      config.getParameter<std::vector<edm::InputTag>>("photonFloatValueMapSources");
-  for (const edm::InputTag& tag : photonpfclusterisoinputs) {
+  for (const edm::InputTag& tag : config.getParameter<std::vector<edm::InputTag>>("photonFloatValueMapSources")) {
     photonFloatValueMapTs_.emplace_back(consumes<edm::ValueMap<float>>(tag));
   }
 
-  const std::vector<edm::InputTag>& ootphotonpfclusterisoinputs =
-      config.getParameter<std::vector<edm::InputTag>>("ootPhotonFloatValueMapSources");
-  for (const edm::InputTag& tag : ootphotonpfclusterisoinputs) {
+  for (const edm::InputTag& tag : config.getParameter<std::vector<edm::InputTag>>("ootPhotonFloatValueMapSources")) {
     ootPhotonFloatValueMapTs_.emplace_back(consumes<edm::ValueMap<float>>(tag));
   }
 
-  const std::vector<edm::InputTag>& gsfelectronpfclusterisoinputs =
-      config.getParameter<std::vector<edm::InputTag>>("gsfElectronFloatValueMapSources");
-  for (const edm::InputTag& tag : gsfelectronpfclusterisoinputs) {
+  for (const edm::InputTag& tag : config.getParameter<std::vector<edm::InputTag>>("gsfElectronFloatValueMapSources")) {
     gsfElectronFloatValueMapTs_.emplace_back(consumes<edm::ValueMap<float>>(tag));
   }
 
@@ -186,9 +184,10 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config)
   for (const std::string& outid : outGsfElectronFloatValueMaps_) {
     produces<edm::ValueMap<float>>(outid);
   }
+  if (!recoHIPhotonIsolationMapInputToken_.isUninitialized()) {
+    produces<reco::HIPhotonIsolationMap>(recoHIPhotonIsolationMapOutputName_);
+  }
 }
-
-ReducedEGProducer::~ReducedEGProducer() {}
 
 void ReducedEGProducer::beginRun(edm::Run const& run, const edm::EventSetup& iSetup) { hcalHitSel_.setup(iSetup); }
 
@@ -338,6 +337,12 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   std::vector<std::vector<float>> ootPhotonFloatValueMapVals(ootPhotonFloatValueMapHandles.size());
   std::vector<std::vector<float>> gsfElectronFloatValueMapVals(gsfElectronFloatValueMapHandles.size());
 
+  // HI photon iso value maps
+  reco::HIPhotonIsolationMap const* recoHIPhotonIsolationMapInputValueMap =
+      !recoHIPhotonIsolationMapInputToken_.isUninitialized() ? &theEvent.get(recoHIPhotonIsolationMapInputToken_)
+                                                             : nullptr;
+  std::vector<reco::HIPhotonIsolation> recoHIPhotonIsolationMapInputVals;
+
   //loop over photons and fill maps
   index = -1;
   for (const auto& photon : *photonHandle) {
@@ -370,6 +375,11 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     subindex = 0;
     for (const auto& photonFloatValueMapHandle : photonFloatValueMapHandles) {
       photonFloatValueMapVals[subindex++].push_back((*photonFloatValueMapHandle)[photonref]);
+    }
+
+    // HI photon isolation
+    if (!recoHIPhotonIsolationMapInputToken_.isUninitialized()) {
+      recoHIPhotonIsolationMapInputVals.push_back((*recoHIPhotonIsolationMapInputValueMap)[photonref]);
     }
 
     //link photon core
@@ -492,9 +502,7 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     }
 
     // Save additional ambiguous gsf tracks in a map:
-    for (reco::GsfTrackRefVector::const_iterator igsf = gsfElectron.ambiguousGsfTracksBegin();
-         igsf != gsfElectron.ambiguousGsfTracksEnd();
-         ++igsf) {
+    for (auto igsf = gsfElectron.ambiguousGsfTracksBegin(); igsf != gsfElectron.ambiguousGsfTracksEnd(); ++igsf) {
       const reco::GsfTrackRef& ambigGsfTrack = *igsf;
       if (!gsfTrackMap.count(ambigGsfTrack)) {
         gsfTracks->push_back(*ambigGsfTrack);
@@ -630,10 +638,8 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
 
   //CaloClusters
   //put calocluster output collections in event and get orphan handles to create ptrs
-  const edm::OrphanHandle<reco::CaloClusterCollection>& outEBEEClusterHandle =
-      theEvent.put(std::move(ebeeClusters), outEBEEClusters_);
-  const edm::OrphanHandle<reco::CaloClusterCollection>& outESClusterHandle =
-      theEvent.put(std::move(esClusters), outESClusters_);
+  const auto& outEBEEClusterHandle = theEvent.put(std::move(ebeeClusters), outEBEEClusters_);
+  const auto& outESClusterHandle = theEvent.put(std::move(esClusters), outESClusters_);
   ;
 
   //Loop over SuperClusters and relink GEDPhoton + GSFElectron CaloClusters
@@ -655,14 +661,10 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     }
   }
   //put superclusters and conversions in the event
-  const edm::OrphanHandle<reco::SuperClusterCollection>& outSuperClusterHandle =
-      theEvent.put(std::move(superClusters), outSuperClusters_);
-  const edm::OrphanHandle<reco::ConversionCollection>& outConversionHandle =
-      theEvent.put(std::move(conversions), outConversions_);
-  const edm::OrphanHandle<reco::ConversionCollection>& outSingleConversionHandle =
-      theEvent.put(std::move(singleConversions), outSingleConversions_);
-  const edm::OrphanHandle<reco::GsfTrackCollection>& outGsfTrackHandle =
-      theEvent.put(std::move(gsfTracks), outGsfTracks_);
+  const auto& outSuperClusterHandle = theEvent.put(std::move(superClusters), outSuperClusters_);
+  const auto& outConversionHandle = theEvent.put(std::move(conversions), outConversions_);
+  const auto& outSingleConversionHandle = theEvent.put(std::move(singleConversions), outSingleConversions_);
+  const auto& outGsfTrackHandle = theEvent.put(std::move(gsfTracks), outGsfTracks_);
 
   //Loop over PhotonCores and relink GEDPhoton SuperClusters (and conversions)
   for (reco::PhotonCore& photonCore : *photonCores) {
@@ -695,13 +697,11 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   }
 
   //put photoncores and gsfelectroncores into the event
-  const edm::OrphanHandle<reco::PhotonCoreCollection>& outPhotonCoreHandle =
-      theEvent.put(std::move(photonCores), outPhotonCores_);
+  const auto& outPhotonCoreHandle = theEvent.put(std::move(photonCores), outPhotonCores_);
   edm::OrphanHandle<reco::PhotonCoreCollection> outOOTPhotonCoreHandle;
   if (!ootPhotonT_.isUninitialized())
     outOOTPhotonCoreHandle = theEvent.put(std::move(ootPhotonCores), outOOTPhotonCores_);
-  const edm::OrphanHandle<reco::GsfElectronCoreCollection>& outgsfElectronCoreHandle =
-      theEvent.put(std::move(gsfElectronCores), outGsfElectronCores_);
+  const auto& outgsfElectronCoreHandle = theEvent.put(std::move(gsfElectronCores), outGsfElectronCores_);
 
   //loop over photons, oot photons, and electrons and relink the cores
   for (reco::Photon& photon : *photons) {
@@ -721,9 +721,7 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     // Also in this loop let's relink ambiguous tracks
     std::vector<reco::GsfTrackRef> ambigTracksInThisElectron;
     // Here we loop over the ambiguous tracks and save them in a vector
-    for (reco::GsfTrackRefVector::const_iterator igsf = gsfElectron.ambiguousGsfTracksBegin();
-         igsf != gsfElectron.ambiguousGsfTracksEnd();
-         ++igsf) {
+    for (auto igsf = gsfElectron.ambiguousGsfTracksBegin(); igsf != gsfElectron.ambiguousGsfTracksEnd(); ++igsf) {
       ambigTracksInThisElectron.push_back(*igsf);
     }
 
@@ -748,12 +746,11 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   }
 
   //(finally) store the output photon and electron collections
-  const edm::OrphanHandle<reco::PhotonCollection>& outPhotonHandle = theEvent.put(std::move(photons), outPhotons_);
+  const auto& outPhotonHandle = theEvent.put(std::move(photons), outPhotons_);
   edm::OrphanHandle<reco::PhotonCollection> outOOTPhotonHandle;
   if (!ootPhotonT_.isUninitialized())
     outOOTPhotonHandle = theEvent.put(std::move(ootPhotons), outOOTPhotons_);
-  const edm::OrphanHandle<reco::GsfElectronCollection>& outGsfElectronHandle =
-      theEvent.put(std::move(gsfElectrons), outGsfElectrons_);
+  const auto& outGsfElectronHandle = theEvent.put(std::move(gsfElectrons), outGsfElectrons_);
 
   //still need to output relinked valuemaps
 
@@ -805,6 +802,11 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     for (auto const& vals : ootPhotonFloatValueMapVals) {
       fillMap(outOOTPhotonHandle, vals, theEvent, outOOTPhotonFloatValueMaps_[index++]);
     }
+  }
+
+  // HI photon iso value maps
+  if (!recoHIPhotonIsolationMapInputToken_.isUninitialized()) {
+    fillMap(outPhotonHandle, recoHIPhotonIsolationMapInputVals, theEvent, recoHIPhotonIsolationMapOutputName_);
   }
 
   //electron iso value maps
@@ -1087,7 +1089,6 @@ void ReducedEGProducer::calibrateElectron(reco::GsfElectron& electron,
   electron.setCorrectedEcalEnergy(newEcalEnergy);
   electron.setCorrectedEcalEnergyError(newEcalEnergyErr);
 
-  math::XYZTLorentzVector newP4 =
-      math::XYZTLorentzVector(oldP4.x() * corr, oldP4.y() * corr, oldP4.z() * corr, newEnergy);
+  math::XYZTLorentzVector newP4{oldP4.x() * corr, oldP4.y() * corr, oldP4.z() * corr, newEnergy};
   electron.correctMomentum(newP4, electron.trackMomentumError(), newEnergyErr);
 }
