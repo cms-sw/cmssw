@@ -14,7 +14,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "CondFormats/EgammaObjects/interface/GBRForestD.h"
+#include "CondFormats/GBRForest/interface/GBRForestD.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"

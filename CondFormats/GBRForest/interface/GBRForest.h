@@ -17,7 +17,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "CondFormats/Serialization/interface/Serializable.h"
-#include "CondFormats/EgammaObjects/interface/GBRTree.h"
+#include "CondFormats/GBRForest/interface/GBRTree.h"
 
 #include <vector>
 #include <cmath>
