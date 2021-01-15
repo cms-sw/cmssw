@@ -18,8 +18,12 @@
 #include "FWCore/Framework/interface/RunForOutput.h"
 #include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
 #include "FWCore/Framework/interface/EventForOutput.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/JobReport.h"
+#include "FWCore/Utilities/interface/Digest.h"
+#include "FWCore/Utilities/interface/GlobalIdentifier.h"
 
 class NanoAODRNTupleOutputModule : public edm::one::OutputModule<> {
 public:
@@ -38,6 +42,7 @@ private:
 
   std::string m_fileName;
   std::string m_logicalFileName;
+  edm::JobReport::Token m_jrToken;
 };
 
 NanoAODRNTupleOutputModule::NanoAODRNTupleOutputModule(edm::ParameterSet const& pset)
@@ -52,8 +57,28 @@ void NanoAODRNTupleOutputModule::write(edm::EventForOutput const& iEvent) {}
 void NanoAODRNTupleOutputModule::writeLuminosityBlock(edm::LuminosityBlockForOutput const& iLumi) {}
 void NanoAODRNTupleOutputModule::writeRun(edm::RunForOutput const& iRun) {}
 bool NanoAODRNTupleOutputModule::isFileOpen() const { return false; }
-void NanoAODRNTupleOutputModule::openFile(edm::FileBlock const&) {}
-void NanoAODRNTupleOutputModule::reallyCloseFile() {}
+
+void NanoAODRNTupleOutputModule::openFile(edm::FileBlock const&) {
+  // TODO open RNTuple
+  edm::Service<edm::JobReport> jr;
+  cms::Digest branchHash;
+  m_jrToken = jr->outputFileOpened(m_fileName,
+                                   m_logicalFileName,
+                                   std::string(),
+                                   // TODO check if needed
+                                   //m_fakeName ? "PoolOutputModule" : "NanoAODOutputModule",
+                                   "NanoAODRNTupleOutputModule",
+                                   description().moduleLabel(),
+                                   edm::createGlobalIdentifier(),
+                                   std::string(),
+                                   branchHash.digest().toString(),
+                                   std::vector<std::string>());
+}
+
+void NanoAODRNTupleOutputModule::reallyCloseFile() {
+  edm::Service<edm::JobReport> jr;
+  jr->outputFileClosed(m_jrToken);
+}
 
 void NanoAODRNTupleOutputModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
