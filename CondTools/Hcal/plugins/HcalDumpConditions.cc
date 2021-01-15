@@ -78,7 +78,8 @@ namespace edmtest {
                                   const HcalTopology* topo,
                                   const std::string label) {
     if (std::find(mDumpRequest.begin(), mDumpRequest.end(), name) != mDumpRequest.end()) {
-      edm::ESGetToken<S, SRcd> tok = ((!label.empty()) ? esConsumes<S, SRcd>(edm::ESInputTag("", label)) : esConsumes<S, SRcd>());
+      edm::ESGetToken<S, SRcd> tok =
+          ((!label.empty()) ? esConsumes<S, SRcd>(edm::ESInputTag("", label)) : esConsumes<S, SRcd>());
       S myobject = context.getData(tok);
       if (topo)
         myobject.setTopo(topo);

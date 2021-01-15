@@ -12,7 +12,7 @@ public:
       : popcon::PopConAnalyzer<HcalChannelQualityHandler>(pset),
         m_populator(pset),
         m_source(pset.getParameter<edm::ParameterSet>("Source")),
-	m_tok(esConsumes<HcalChannelQuality, HcalChannelQualityRcd>()) {}
+        m_tok(esConsumes<HcalChannelQuality, HcalChannelQualityRcd>()) {}
 
 private:
   void endJob() override {

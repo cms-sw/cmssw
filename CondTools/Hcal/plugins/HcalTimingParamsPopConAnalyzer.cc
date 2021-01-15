@@ -12,7 +12,7 @@ public:
       : popcon::PopConAnalyzer<HcalTimingParamsHandler>(pset),
         m_populator(pset),
         m_source(pset.getParameter<edm::ParameterSet>("Source")),
-	m_tok(esConsumes<HcalTimingParams, HcalTimingParamsRcd>()) {}
+        m_tok(esConsumes<HcalTimingParams, HcalTimingParamsRcd>()) {}
 
 private:
   void endJob() override {

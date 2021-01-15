@@ -12,7 +12,7 @@ public:
       : popcon::PopConAnalyzer<HcalGainsHandler>(pset),
         m_populator(pset),
         m_source(pset.getParameter<edm::ParameterSet>("Source")),
-	m_tok(esConsumes<HcalGains, HcalGainsRcd>()) {}
+        m_tok(esConsumes<HcalGains, HcalGainsRcd>()) {}
 
 private:
   void endJob() override {

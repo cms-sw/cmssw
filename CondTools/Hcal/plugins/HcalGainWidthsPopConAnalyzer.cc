@@ -12,7 +12,7 @@ public:
       : popcon::PopConAnalyzer<HcalGainWidthsHandler>(pset),
         m_populator(pset),
         m_source(pset.getParameter<edm::ParameterSet>("Source")),
-	m_tok(esConsumes<HcalGainWidths, HcalGainWidthsRcd>()) {}
+        m_tok(esConsumes<HcalGainWidths, HcalGainWidthsRcd>()) {}
 
 private:
   void endJob() override {

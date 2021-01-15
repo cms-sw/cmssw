@@ -12,9 +12,9 @@ public:
       : popcon::PopConAnalyzer<HcalTimeCorrsHandler>(pset),
         m_populator(pset),
         m_source(pset.getParameter<edm::ParameterSet>("Source")),
-	m_tok(esConsumes<HcalTimeCorrs, HcalTimeCorrsRcd>()) {}
+        m_tok(esConsumes<HcalTimeCorrs, HcalTimeCorrsRcd>()) {}
 
-private: 
+private:
   void endJob() override {
     m_source.initObject(myDBObject);
     write();

@@ -12,7 +12,7 @@ public:
       : popcon::PopConAnalyzer<CastorQIEDataHandler>(pset),
         m_populator(pset),
         m_source(pset.getParameter<edm::ParameterSet>("Source")),
-	m_tok(esConsumes<CastorQIEData, CastorQIEDataRcd>()) {}
+        m_tok(esConsumes<CastorQIEData, CastorQIEDataRcd>()) {}
 
 private:
   void endJob() override {

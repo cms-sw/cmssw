@@ -12,7 +12,7 @@ public:
       : popcon::PopConAnalyzer<CastorRecoParamsHandler>(pset),
         m_populator(pset),
         m_source(pset.getParameter<edm::ParameterSet>("Source")),
-	m_tok(esConsumes<CastorRecoParams, CastorRecoParamsRcd>()) {}
+        m_tok(esConsumes<CastorRecoParams, CastorRecoParamsRcd>()) {}
 
 private:
   void endJob() override {

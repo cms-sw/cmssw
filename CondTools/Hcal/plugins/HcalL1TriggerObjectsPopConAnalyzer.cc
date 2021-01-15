@@ -12,7 +12,7 @@ public:
       : popcon::PopConAnalyzer<HcalL1TriggerObjectsHandler>(pset),
         m_populator(pset),
         m_source(pset.getParameter<edm::ParameterSet>("Source")),
-	m_tok(esConsumes<HcalL1TriggerObjects, HcalL1TriggerObjectsRcd>()) {}
+        m_tok(esConsumes<HcalL1TriggerObjects, HcalL1TriggerObjectsRcd>()) {}
 
 private:
   void endJob() override {
