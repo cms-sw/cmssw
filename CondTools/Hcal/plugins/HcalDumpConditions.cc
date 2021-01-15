@@ -98,7 +98,7 @@ namespace edmtest {
                                   const std::string name) {
     if (std::find(mDumpRequest.begin(), mDumpRequest.end(), name) != mDumpRequest.end()) {
       edm::ESGetToken<S, SRcd> tok = esConsumes<S, SRcd>();
-      S myobject = context.getData(tok);
+      const S& myobject = context.getData(tok);
 
       writeToFile(myobject, e, name);
 
