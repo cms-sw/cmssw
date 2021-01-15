@@ -12,7 +12,7 @@ public:
       : popcon::PopConAnalyzer<HcalElectronicsMapHandler>(pset),
         m_populator(pset),
         m_source(pset.getParameter<edm::ParameterSet>("Source")),
-	m_tok(esConsumes<HcalElectronicsMap, HcalElectronicsMapRcd>()) {}
+        m_tok(esConsumes<HcalElectronicsMap, HcalElectronicsMapRcd>()) {}
 
 private:
   void endJob() override {

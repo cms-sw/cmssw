@@ -12,7 +12,7 @@ public:
       : popcon::PopConAnalyzer<HcalLutMetadataHandler>(pset),
         m_populator(pset),
         m_source(pset.getParameter<edm::ParameterSet>("Source")),
-	m_tok(esConsumes<HcalLutMetadata, HcalLutMetadataRcd>()) {}
+        m_tok(esConsumes<HcalLutMetadata, HcalLutMetadataRcd>()) {}
 
 private:
   void endJob() override {

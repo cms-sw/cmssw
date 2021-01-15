@@ -12,7 +12,7 @@ public:
       : popcon::PopConAnalyzer<HcalLongRecoParamsHandler>(pset),
         m_populator(pset),
         m_source(pset.getParameter<edm::ParameterSet>("Source")),
-	m_tok(esConsumes<HcalLongRecoParams, HcalLongRecoParamsRcd>()) {}
+        m_tok(esConsumes<HcalLongRecoParams, HcalLongRecoParamsRcd>()) {}
 
 private:
   void endJob() override {

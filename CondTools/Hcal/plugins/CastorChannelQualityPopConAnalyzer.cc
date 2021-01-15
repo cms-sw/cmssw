@@ -12,7 +12,7 @@ public:
       : popcon::PopConAnalyzer<CastorChannelQualityHandler>(pset),
         m_populator(pset),
         m_source(pset.getParameter<edm::ParameterSet>("Source")),
-	m_tok(esConsumes<CastorChannelQuality, CastorChannelQualityRcd>()) {}
+        m_tok(esConsumes<CastorChannelQuality, CastorChannelQualityRcd>()) {}
 
 private:
   void endJob() override {

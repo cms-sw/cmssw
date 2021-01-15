@@ -12,7 +12,7 @@ public:
       : popcon::PopConAnalyzer<CastorElectronicsMapHandler>(pset),
         m_populator(pset),
         m_source(pset.getParameter<edm::ParameterSet>("Source")),
-	m_tok(esConsumes<CastorElectronicsMap, CastorElectronicsMapRcd>()) {}
+        m_tok(esConsumes<CastorElectronicsMap, CastorElectronicsMapRcd>()) {}
 
 private:
   void endJob() override {

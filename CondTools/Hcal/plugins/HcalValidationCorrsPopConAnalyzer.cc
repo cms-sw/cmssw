@@ -12,7 +12,7 @@ public:
       : popcon::PopConAnalyzer<HcalValidationCorrsHandler>(pset),
         m_populator(pset),
         m_source(pset.getParameter<edm::ParameterSet>("Source")),
-	m_tok(esConsumes<HcalValidationCorrs, HcalValidationCorrsRcd>()) {}
+        m_tok(esConsumes<HcalValidationCorrs, HcalValidationCorrsRcd>()) {}
 
 private:
   void endJob() override {

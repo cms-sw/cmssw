@@ -12,7 +12,7 @@ public:
       : popcon::PopConAnalyzer<HcalZSThresholdsHandler>(pset),
         m_populator(pset),
         m_source(pset.getParameter<edm::ParameterSet>("Source")),
-	m_tok(esConsumes<HcalZSThresholds, HcalZSThresholdsRcd>()) {}
+        m_tok(esConsumes<HcalZSThresholds, HcalZSThresholdsRcd>()) {}
 
 private:
   void endJob() override {

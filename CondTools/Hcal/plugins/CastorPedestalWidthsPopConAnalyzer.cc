@@ -12,7 +12,7 @@ public:
       : popcon::PopConAnalyzer<CastorPedestalWidthsHandler>(pset),
         m_populator(pset),
         m_source(pset.getParameter<edm::ParameterSet>("Source")),
-	m_tok(esConsumes<CastorPedestalWidths, CastorPedestalWidthsRcd>()) {}
+        m_tok(esConsumes<CastorPedestalWidths, CastorPedestalWidthsRcd>()) {}
 
 private:
   void endJob() override {

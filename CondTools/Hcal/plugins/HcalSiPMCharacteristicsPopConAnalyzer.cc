@@ -10,7 +10,7 @@ public:
       : popcon::PopConAnalyzer<HcalSiPMCharacteristicsHandler>(pset),
         m_populator(pset),
         m_source(pset.getParameter<edm::ParameterSet>("Source")),
-	m_tok(esConsumes<HcalSiPMCharacteristics, HcalSiPMCharacteristicsRcd>()) {}
+        m_tok(esConsumes<HcalSiPMCharacteristics, HcalSiPMCharacteristicsRcd>()) {}
 
 private:
   void endJob() override {
