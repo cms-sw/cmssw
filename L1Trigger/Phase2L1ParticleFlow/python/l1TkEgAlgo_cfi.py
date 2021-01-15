@@ -26,14 +26,14 @@ tkEgConfig = cms.PSet(
         tkQualityPtMin=cms.double(2.),
         dZ=cms.double(0.6),
         dRMin=cms.double(0.03),
-        dRMax=cms.double(0.30),
+        dRMax=cms.double(0.20),
         tkQualityChi2Max=cms.double(1e10),
     ),
     pfIsoParametersTkEm=cms.PSet(
         tkQualityPtMin=cms.double(1.),
         dZ=cms.double(0.6),
-        dRMin=cms.double(0.03),
-        dRMax=cms.double(0.20),
+        dRMin=cms.double(0.07),
+        dRMax=cms.double(0.30),
         tkQualityChi2Max=cms.double(100),
     ),
     pfIsoParametersTkEle=cms.PSet(

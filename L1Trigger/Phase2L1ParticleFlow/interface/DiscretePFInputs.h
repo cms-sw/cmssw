@@ -280,8 +280,8 @@ namespace l1tpf_impl {
 
 #ifdef L1Trigger_Phase2L1ParticleFlow_DiscretePFInputs_MORE
 
-    float floatVtxEta() const { return float(hwVtxEta) / CaloCluster::ETAPHI_SCALE; }
-    float floatVtxPhi() const { return float(hwVtxPhi) / CaloCluster::ETAPHI_SCALE; }
+    float floatVtxEta() const { return float(hwVtxEta) / InputTrack::VTX_ETA_SCALE; }
+    float floatVtxPhi() const { return float(hwVtxPhi) / InputTrack::VTX_PHI_SCALE; }
     float floatDZ() const { return float(track.hwZ0) / InputTrack::Z0_SCALE; }
     int intCharge() const { return hwCharge ? +1 : -1; }
 
