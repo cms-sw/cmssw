@@ -6,26 +6,22 @@
 // Class  :     SiStripClassToMonitorCondData
 //
 // Original Author:  Evelyne Delmeire
+// SiStripClassToMonitorCondData+SiStripCondDataMonitor -> SiStripMonitorCondData: Pieter David
 //
 
 // system include files
 #include <memory>
-
-// user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DQMServices/Core/interface/DQMStore.h"
 #include <iostream>
 #include <string>
 #include <vector>
 #include <cstdint>
+
+// user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 class SiStripPedestalsDQM;
 class SiStripNoisesDQM;
@@ -41,15 +37,13 @@ public:
   typedef dqm::legacy::MonitorElement MonitorElement;
   typedef dqm::legacy::DQMStore DQMStore;
 
-  explicit SiStripClassToMonitorCondData(edm::ParameterSet const &iConfig);
-
+  SiStripClassToMonitorCondData(edm::ParameterSet const &iConfig, edm::ConsumesCollector iC);
   ~SiStripClassToMonitorCondData();
 
-  void beginJob();
   void beginRun(edm::RunNumber_t iRun, edm::EventSetup const &eSetup);
   void analyseCondData(const edm::EventSetup &);
-  void endRun(edm::EventSetup const &eSetup);
-  void endJob();
+  void end();
+  void save();
 
   void getModMEsOnDemand(edm::EventSetup const &eSetup, uint32_t requestedDetId);
   void getLayerMEsOnDemand(edm::EventSetup const &eSetup,
@@ -69,10 +63,6 @@ private:
   bool monitorLowThreshold_;
   bool monitorHighThreshold_;
   bool monitorCabling_;
-
-  bool gainRenormalisation_;
-
-  std::string outPutFileName;
 
   std::unique_ptr<SiStripPedestalsDQM> pedestalsDQM_;
   std::unique_ptr<SiStripNoisesDQM> noisesDQM_;

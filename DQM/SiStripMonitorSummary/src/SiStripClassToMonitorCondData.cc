@@ -44,21 +44,13 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 
-#include "TH1F.h"
-#include "TH2F.h"
-#include "TProfile.h"
-
 // std
 #include <cstdlib>
-#include <string>
-//#include <cmath>
-//#include <numeric>
 #include <algorithm>
 
-//
-// ----- Constructor
-//
-SiStripClassToMonitorCondData::SiStripClassToMonitorCondData(edm::ParameterSet const &iConfig) : conf_(iConfig) {
+SiStripClassToMonitorCondData::SiStripClassToMonitorCondData(edm::ParameterSet const &iConfig,
+                                                             edm::ConsumesCollector iC)
+    : conf_(iConfig) {
   monitorPedestals_ = iConfig.getParameter<bool>("MonitorSiStripPedestal");
   monitorNoises_ = iConfig.getParameter<bool>("MonitorSiStripNoise");
   monitorQuality_ = iConfig.getParameter<bool>("MonitorSiStripQuality");
@@ -69,17 +61,9 @@ SiStripClassToMonitorCondData::SiStripClassToMonitorCondData(edm::ParameterSet c
   monitorHighThreshold_ = iConfig.getParameter<bool>("MonitorSiStripHighThreshold");
   monitorCabling_ = iConfig.getParameter<bool>("MonitorSiStripCabling");
 }
-// -----
 
-//
-// ----- Destructor
-//
 SiStripClassToMonitorCondData::~SiStripClassToMonitorCondData() {}
-// -----
 
-//
-// ----- beginRun
-//
 void SiStripClassToMonitorCondData::beginRun(edm::RunNumber_t iRun, edm::EventSetup const &eSetup) {
   if (monitorPedestals_) {
     pedestalsDQM_ =
@@ -149,17 +133,8 @@ void SiStripClassToMonitorCondData::beginRun(edm::RunNumber_t iRun, edm::EventSe
                                                       conf_.getParameter<edm::ParameterSet>("SiStripCablingDQM_PSet"),
                                                       conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
   }
-}  // beginRun
-// -----
+}
 
-//
-// ----- beginJob
-//
-void SiStripClassToMonitorCondData::beginJob(void) {}  // beginJob
-
-//
-// ----- getModuleMEsOnDemand
-//
 void SiStripClassToMonitorCondData::getModMEsOnDemand(edm::EventSetup const &eSetup, uint32_t requestedDetId) {
   if (monitorPedestals_) {
     pedestalsDQM_->analysisOnDemand(eSetup, requestedDetId);
@@ -265,10 +240,37 @@ void SiStripClassToMonitorCondData::analyseCondData(edm::EventSetup const &eSetu
 }  // analyze
 // -----
 
-//
-// ----- endRun
-//
-void SiStripClassToMonitorCondData::endRun(edm::EventSetup const &eSetup) {
+void SiStripClassToMonitorCondData::end() {
+  if (monitorPedestals_) {
+    pedestalsDQM_->end();
+  }
+  if (monitorNoises_) {
+    noisesDQM_->end();
+  }
+  if (monitorLowThreshold_) {
+    lowthresholdDQM_->end();
+  }
+  if (monitorHighThreshold_) {
+    highthresholdDQM_->end();
+  }
+  if (monitorApvGains_) {
+    apvgainsDQM_->end();
+  }
+  if (monitorLorentzAngle_) {
+    lorentzangleDQM_->end();
+  }
+  if (monitorBackPlaneCorrection_) {
+    bpcorrectionDQM_->end();
+  }
+  if (monitorQuality_) {
+    qualityDQM_->end();
+  }
+  if (monitorCabling_) {
+    cablingDQM_->end();
+  }
+}
+
+void SiStripClassToMonitorCondData::save() {
   bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
   std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
 
@@ -277,11 +279,4 @@ void SiStripClassToMonitorCondData::endRun(edm::EventSetup const &eSetup) {
   if (outputMEsInRootFile) {
     dqmStore_->save(outputFileName);
   }
-
-}  // endRun
-// -----
-
-//
-// ----- endJob
-//
-void SiStripClassToMonitorCondData::endJob(void) {}  // endJob
+}
