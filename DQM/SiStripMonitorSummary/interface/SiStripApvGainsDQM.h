@@ -1,43 +1,31 @@
 #ifndef SiStripMonitorSummary_SiStripApvGainsDQM_h
 #define SiStripMonitorSummary_SiStripApvGainsDQM_h
 
-#include "FWCore/Framework/interface/ESHandle.h"
-
 #include "DQM/SiStripMonitorSummary/interface/SiStripBaseCondObjDQM.h"
 
 #include "CondFormats/DataRecord/interface/SiStripApvGainRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
 
-class SiStripApvGainsDQM : public SiStripBaseCondObjDQM {
+class SiStripApvGainsDQM : public SiStripBaseCondObjDQMGet<SiStripApvGain, SiStripApvGainRcd> {
 public:
-  SiStripApvGainsDQM(const edm::EventSetup &eSetup,
+  SiStripApvGainsDQM(edm::ESGetToken<SiStripApvGain, SiStripApvGainRcd> token,
                      edm::RunNumber_t iRun,
                      edm::ParameterSet const &hPSet,
-                     edm::ParameterSet const &fPSet);
+                     edm::ParameterSet const &fPSet,
+                     const TrackerTopology *tTopo,
+                     const TkDetMap *tkDetMap);
 
   ~SiStripApvGainsDQM() override;
 
   void getActiveDetIds(const edm::EventSetup &eSetup) override;
 
-  void fillModMEs(const std::vector<uint32_t> &selectedDetIds, const edm::EventSetup &es) override;
-  void fillSummaryMEs(const std::vector<uint32_t> &selectedDetIds, const edm::EventSetup &es) override;
+  void fillModMEs(const std::vector<uint32_t> &selectedDetIds) override;
+  void fillSummaryMEs(const std::vector<uint32_t> &selectedDetIds) override;
 
-  void fillMEsForDet(const ModMEs &selModME_, uint32_t selDetId_, const TrackerTopology *tTopo) override;
+  void fillMEsForDet(const ModMEs &selModME_, uint32_t selDetId_) override;
 
   void fillMEsForLayer(
-      /*std::map<uint32_t, ModMEs> selModMEsMap_, */ uint32_t selDetId_, const TrackerTopology *tTopo) override;
-
-  unsigned long long getCache(const edm::EventSetup &eSetup) override {
-    return eSetup.get<SiStripApvGainRcd>().cacheIdentifier();
-  }
-
-  void getConditionObject(const edm::EventSetup &eSetup) override {
-    eSetup.get<SiStripApvGainRcd>().get(gainHandle_);
-    cacheID_memory = cacheID_current;
-  }
-
-private:
-  edm::ESHandle<SiStripApvGain> gainHandle_;
+      /*std::map<uint32_t, ModMEs> selModMEsMap_, */ uint32_t selDetId_) override;
 };
 
 #endif
