@@ -14,6 +14,9 @@
 #include <TString.h>  // Form
 
 #include <fstream>
+#include <mutex>
+
+std::mutex g_mutex;
 
 namespace deep_tau {
   constexpr int NumberOfOutputs = 4;
@@ -421,6 +424,7 @@ namespace {
   }  // namespace dnn_inputs_2017_v2
 
   float getTauID(const pat::Tau& tau, const std::string& tauID, float default_value = -999.) {
+    std::lock_guard<std::mutex> guard(g_mutex);
     static std::set<std::string> isFirstWarning;
     if (tau.isTauIDAvailable(tauID)) {
       return tau.tauID(tauID);
