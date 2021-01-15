@@ -132,7 +132,7 @@ void CastorDumpConditions::dumpIt(const std::vector<std::string>& mDumpRequest,
   if (std::find(mDumpRequest.begin(), mDumpRequest.end(), name) != mDumpRequest.end()) {
     int myrun = e.id().run();
     edm::ESGetToken<S, SRcd> tok = esConsumes<S, SRcd>();
-    S myobject = context.getData(tok);
+    const S& myobject = context.getData(tok);
 
     std::ostringstream file;
     file << file_prefix << name.c_str() << "_Run" << myrun << ".txt";
