@@ -10,7 +10,6 @@
 #include "CondFormats/HcalObjects/interface/HcalGains.h"
 #include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -32,6 +31,7 @@ private:
   std::string fileIn, fileOut, fileCorr;
   double val;
   bool vectorop;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
 };
 
 modGains::modGains(const edm::ParameterSet& iConfig) : vectorop(false) {
@@ -40,6 +40,7 @@ modGains::modGains(const edm::ParameterSet& iConfig) : vectorop(false) {
   fileOut = iConfig.getUntrackedParameter<std::string>("FileOut");
   fileCorr = iConfig.getUntrackedParameter<std::string>("FileCorr");
   val = iConfig.getUntrackedParameter<double>("ScalarFactor");
+  tok_htopo_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
 
   if ((std::strcmp(s_operation.c_str(), "add") == 0) || (std::strcmp(s_operation.c_str(), "sub") == 0) ||
       (std::strcmp(s_operation.c_str(), "mult") == 0) ||
@@ -57,9 +58,7 @@ modGains::modGains(const edm::ParameterSet& iConfig) : vectorop(false) {
 modGains::~modGains() {}
 
 void modGains::analyze(edm::Event const&, edm::EventSetup const& iSetup) {
-  edm::ESHandle<HcalTopology> htopo;
-  iSetup.get<HcalRecNumberingRecord>().get(htopo);
-  HcalTopology topo = (*htopo);
+  HcalTopology topo = iSetup.getData(tok_htopo_);
 
   // get base conditions
   std::cerr << fileIn << std::endl;
