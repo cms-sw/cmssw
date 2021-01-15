@@ -146,17 +146,16 @@ EGIsoEleParticle &PFTkEGAlgo::addEGIsoEleToPF(std::vector<EGIsoEleParticle> &ego
   egiso.hwQual = hwQual;
   egiso.hwIso = 0;
   egiso.hwPFIso = 0;
-
   egobjs.push_back(egiso);
   return egobjs.back();
 }
 
 void PFTkEGAlgo::addEgObjsToPF(
     Region &r, const int calo_idx, const int hwQual, const float ptCorr, const int tk_idx) const {
-  EGIsoParticle &egobj = addEGIsoToPF(r.egphotons, r.emcalo[calo_idx], r.emcalo[calo_idx].hwFlags + 1, ptCorr);
+  EGIsoParticle &egobj = addEGIsoToPF(r.egphotons, r.emcalo[calo_idx], hwQual, ptCorr);
   if (tk_idx != -1) {
     egobj.ele_idx = r.egeles.size();
-    addEGIsoEleToPF(r.egeles, r.emcalo[calo_idx], r.track[tk_idx], r.emcalo[calo_idx].hwFlags + 1, ptCorr);
+    addEGIsoEleToPF(r.egeles, r.emcalo[calo_idx], r.track[tk_idx], hwQual, ptCorr);
   }
 }
 
