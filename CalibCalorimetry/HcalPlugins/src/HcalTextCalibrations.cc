@@ -9,7 +9,6 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/Framework/interface/ValidityInterval.h"
 
