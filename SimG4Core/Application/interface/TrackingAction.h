@@ -36,6 +36,7 @@ private:
   const G4Track* g4Track_;
   bool checkTrack_;
   bool doFineCalo_;
+  double eMinFine_;
 };
 
 #endif

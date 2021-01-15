@@ -69,6 +69,7 @@ CaloSD::CaloSD(const std::string& name,
   double beamZ = m_CaloSD.getParameter<double>("BeamPosition") * CLHEP::cm;
   correctT = beamZ / CLHEP::c_light / CLHEP::nanosecond;
   doFineCalo_ = m_CaloSD.getParameter<bool>("DoFineCalo");
+  eMinFine_ = m_CaloSD.getParameter<double>("EminFineTrack") * CLHEP::MeV;
 
   SetVerboseLevel(verbn);
   meanResponse.reset(nullptr);

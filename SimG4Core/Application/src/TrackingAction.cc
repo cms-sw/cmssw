@@ -22,7 +22,8 @@ TrackingAction::TrackingAction(EventAction* e, const edm::ParameterSet& p, CMSSt
       steppingVerbose_(sv),
       g4Track_(nullptr),
       checkTrack_(p.getUntrackedParameter<bool>("CheckTrack", false)),
-      doFineCalo_(p.getUntrackedParameter<bool>("DoFineCalo", false)) {}
+      doFineCalo_(p.getParameter<bool>("DoFineCalo")),
+      eMinFine_(p.getParameter<double>("EminFineTrack") * CLHEP::MeV) {}
 
 TrackingAction::~TrackingAction() {}
 

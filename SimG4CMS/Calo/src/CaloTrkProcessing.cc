@@ -34,8 +34,9 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
   eMin_ = m_p.getParameter<double>("EminTrack") * CLHEP::MeV;
   putHistory_ = m_p.getParameter<bool>("PutHistory");
   doFineCalo_ = m_p.getParameter<bool>("DoFineCalo");
+  eMinFine_ = m_p.getParameter<double>("EminFineTrack") * CLHEP::MeV;
 
-  edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: Initailised with TestBeam = " << testBeam_ << " Emin = " << eMin_
+  edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: Initialised with TestBeam = " << testBeam_ << " Emin = " << eMin_
                               << " Flags " << putHistory_ << " (History), " << doFineCalo_ << " (Special Calorimeter)";
 
   // Get pointer to CaloSimulationParameters
