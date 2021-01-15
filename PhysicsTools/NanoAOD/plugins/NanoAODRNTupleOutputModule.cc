@@ -35,11 +35,16 @@ private:
   bool isFileOpen() const override;
   void openFile(edm::FileBlock const&) override;
   void reallyCloseFile() override;
+
+  std::string m_fileName;
+  std::string m_logicalFileName;
 };
 
 NanoAODRNTupleOutputModule::NanoAODRNTupleOutputModule(edm::ParameterSet const& pset)
     : edm::one::OutputModuleBase::OutputModuleBase(pset),
-      edm::one::OutputModule<>(pset) {}
+      edm::one::OutputModule<>(pset),
+      m_fileName(pset.getUntrackedParameter<std::string>("fileName")),
+      m_logicalFileName(pset.getUntrackedParameter<std::string>("logicalFileName")) {}
 
 NanoAODRNTupleOutputModule::~NanoAODRNTupleOutputModule() {}
 
@@ -52,7 +57,10 @@ void NanoAODRNTupleOutputModule::reallyCloseFile() {}
 
 void NanoAODRNTupleOutputModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+
   desc.addUntracked<std::string>("fileName");
+  desc.addUntracked<std::string>("logicalFileName", "");
+
   descriptions.addDefault(desc);
 }
 
