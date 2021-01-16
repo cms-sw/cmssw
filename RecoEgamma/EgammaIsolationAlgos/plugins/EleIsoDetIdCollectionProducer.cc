@@ -38,15 +38,13 @@ class EleIsoDetIdCollectionProducer : public edm::stream::EDProducer<> {
 public:
   //! ctor
   explicit EleIsoDetIdCollectionProducer(const edm::ParameterSet&);
-  ~EleIsoDetIdCollectionProducer() override;
-  void beginJob();
   //! producer
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
   // ----------member data ---------------------------
-  edm::EDGetToken recHitsToken_;
-  edm::EDGetToken emObjectToken_;
+  edm::EDGetTokenT<EcalRecHitCollection> recHitsToken_;
+  edm::EDGetTokenT<reco::GsfElectronCollection> emObjectToken_;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
   edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> sevLvToken_;
   edm::InputTag recHitsLabel_;
@@ -68,8 +66,8 @@ private:
 DEFINE_FWK_MODULE(EleIsoDetIdCollectionProducer);
 
 EleIsoDetIdCollectionProducer::EleIsoDetIdCollectionProducer(const edm::ParameterSet& iConfig)
-    : recHitsToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitsLabel"))),
-      emObjectToken_(consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("emObjectLabel"))),
+    : recHitsToken_{consumes(iConfig.getParameter<edm::InputTag>("recHitsLabel"))},
+      emObjectToken_{consumes(iConfig.getParameter<edm::InputTag>("emObjectLabel"))},
       caloGeometryToken_(esConsumes()),
       sevLvToken_(esConsumes()),
       recHitsLabel_(iConfig.getParameter<edm::InputTag>("recHitsLabel")),
@@ -80,23 +78,17 @@ EleIsoDetIdCollectionProducer::EleIsoDetIdCollectionProducer(const edm::Paramete
       outerRadius_(iConfig.getParameter<double>("outerRadius")),
       innerRadius_(iConfig.getParameter<double>("innerRadius")),
       interestingDetIdCollection_(iConfig.getParameter<std::string>("interestingDetIdCollection")) {
-  const std::vector<std::string> flagnamesEB =
-      iConfig.getParameter<std::vector<std::string> >("RecHitFlagToBeExcludedEB");
-
-  const std::vector<std::string> flagnamesEE =
-      iConfig.getParameter<std::vector<std::string> >("RecHitFlagToBeExcludedEE");
+  auto const& flagnamesEB = iConfig.getParameter<std::vector<std::string>>("RecHitFlagToBeExcludedEB");
+  auto const& flagnamesEE = iConfig.getParameter<std::vector<std::string>>("RecHitFlagToBeExcludedEE");
 
   flagsexclEB_ = StringToEnumValue<EcalRecHit::Flags>(flagnamesEB);
-
   flagsexclEE_ = StringToEnumValue<EcalRecHit::Flags>(flagnamesEE);
 
-  const std::vector<std::string> severitynamesEB =
-      iConfig.getParameter<std::vector<std::string> >("RecHitSeverityToBeExcludedEB");
+  auto const& severitynamesEB = iConfig.getParameter<std::vector<std::string>>("RecHitSeverityToBeExcludedEB");
 
   severitiesexclEB_ = StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severitynamesEB);
 
-  const std::vector<std::string> severitynamesEE =
-      iConfig.getParameter<std::vector<std::string> >("RecHitSeverityToBeExcludedEE");
+  auto const& severitynamesEE = iConfig.getParameter<std::vector<std::string>>("RecHitSeverityToBeExcludedEE");
 
   severitiesexclEE_ = StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severitynamesEE);
 
@@ -104,22 +96,13 @@ EleIsoDetIdCollectionProducer::EleIsoDetIdCollectionProducer(const edm::Paramete
   produces<DetIdCollection>(interestingDetIdCollection_);
 }
 
-EleIsoDetIdCollectionProducer::~EleIsoDetIdCollectionProducer() {}
-
-void EleIsoDetIdCollectionProducer::beginJob() {}
-
 // ------------ method called to produce the data  ------------
 void EleIsoDetIdCollectionProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
   using namespace std;
 
-  //Get EM Object
-  Handle<reco::GsfElectronCollection> emObjectH;
-  iEvent.getByToken(emObjectToken_, emObjectH);
-
-  // take EcalRecHits
-  Handle<EcalRecHitCollection> recHitsH;
-  iEvent.getByToken(recHitsToken_, recHitsH);
+  auto const& emObjects = iEvent.get(emObjectToken_);
+  auto const& ecalRecHits = iEvent.get(recHitsToken_);
 
   edm::ESHandle<CaloGeometry> pG = iSetup.getHandle(caloGeometryToken_);
   const CaloGeometry* caloGeom = pG.product();
@@ -127,24 +110,26 @@ void EleIsoDetIdCollectionProducer::produce(edm::Event& iEvent, const edm::Event
   edm::ESHandle<EcalSeverityLevelAlgo> sevlv = iSetup.getHandle(sevLvToken_);
   const EcalSeverityLevelAlgo* sevLevel = sevlv.product();
 
-  CaloDualConeSelector<EcalRecHit>* doubleConeSel_ = nullptr;
-  if (recHitsLabel_.instance() == "EcalRecHitsEB")
-    doubleConeSel_ = new CaloDualConeSelector<EcalRecHit>(innerRadius_, outerRadius_, &*pG, DetId::Ecal, EcalBarrel);
-  else if (recHitsLabel_.instance() == "EcalRecHitsEE")
-    doubleConeSel_ = new CaloDualConeSelector<EcalRecHit>(innerRadius_, outerRadius_, &*pG, DetId::Ecal, EcalEndcap);
+  std::unique_ptr<CaloDualConeSelector<EcalRecHit>> doubleConeSel_ = nullptr;
+  if (recHitsLabel_.instance() == "EcalRecHitsEB") {
+    doubleConeSel_ =
+        std::make_unique<CaloDualConeSelector<EcalRecHit>>(innerRadius_, outerRadius_, &*pG, DetId::Ecal, EcalBarrel);
+  } else if (recHitsLabel_.instance() == "EcalRecHitsEE") {
+    doubleConeSel_ =
+        std::make_unique<CaloDualConeSelector<EcalRecHit>>(innerRadius_, outerRadius_, &*pG, DetId::Ecal, EcalEndcap);
+  }
 
   //Create empty output collections
   auto detIdCollection = std::make_unique<DetIdCollection>();
 
-  reco::GsfElectronCollection::const_iterator emObj;
-  if (doubleConeSel_) {                                                     //if cone selector was created
-    for (emObj = emObjectH->begin(); emObj != emObjectH->end(); emObj++) {  //Loop over candidates
+  if (doubleConeSel_) {                    //if cone selector was created
+    for (auto const& emObj : emObjects) {  //Loop over candidates
 
-      if (emObj->et() < etCandCut_)
+      if (emObj.et() < etCandCut_)
         continue;  //don't calculate if object hasn't enough energy
 
-      GlobalPoint pclu(emObj->caloPosition().x(), emObj->caloPosition().y(), emObj->caloPosition().z());
-      doubleConeSel_->selectCallback(pclu, *recHitsH, [&](const EcalRecHit& recIt) {
+      GlobalPoint pclu(emObj.caloPosition().x(), emObj.caloPosition().y(), emObj.caloPosition().z());
+      doubleConeSel_->selectCallback(pclu, ecalRecHits, [&](const EcalRecHit& recIt) {
         if (recIt.energy() < energyCut_)
           return;  //dont fill if below E noise value
 
@@ -159,7 +144,7 @@ void EleIsoDetIdCollectionProducer::produce(edm::Event& iEvent, const edm::Event
           return;  //dont fill if below ET noise value
 
         std::vector<int>::const_iterator sit;
-        int severityFlag = sevLevel->severityLevel(recIt.detid(), *recHitsH);
+        int severityFlag = sevLevel->severityLevel(recIt.detid(), ecalRecHits);
         if (isBarrel) {
           sit = std::find(severitiesexclEB_.begin(), severitiesexclEB_.end(), severityFlag);
           if (sit != severitiesexclEB_.end())
@@ -192,7 +177,6 @@ void EleIsoDetIdCollectionProducer::produce(edm::Event& iEvent, const edm::Event
 
     }  //end candidates
 
-    delete doubleConeSel_;
   }  //end if cone selector was created
 
   iEvent.put(std::move(detIdCollection), interestingDetIdCollection_);

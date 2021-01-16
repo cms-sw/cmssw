@@ -187,14 +187,6 @@ reco::IsoDeposit EgammaRecHitExtractor::deposit(const edm::Event& iEvent,
 
   static const std::string metname = "EgammaIsolationAlgos|EgammaRecHitExtractor";
 
-  //Get barrel ECAL RecHits
-  edm::Handle<EcalRecHitCollection> barrelEcalRecHitsH;
-  iEvent.getByToken(barrelEcalHitsToken_, barrelEcalRecHitsH);
-
-  //Get endcap ECAL RecHits
-  edm::Handle<EcalRecHitCollection> endcapEcalRecHitsH;
-  iEvent.getByToken(endcapEcalHitsToken_, endcapEcalRecHitsH);
-
   //define isodeposit starting from candidate
   reco::SuperClusterRef sc = emObject.get<reco::SuperClusterRef>();
   math::XYZPoint caloPosition = sc->position();
@@ -214,11 +206,11 @@ reco::IsoDeposit EgammaRecHitExtractor::deposit(const edm::Event& iEvent,
   // fill rechits
   bool inBarrel = sameTag_ || (abs(sc->eta()) < 1.479);  //check for barrel. If only one collection is used, use barrel
   if (inBarrel || tryBoth_) {
-    collect(deposit, sc, barrelgeom, caloGeom, *barrelEcalRecHitsH, sevLevel, true);
+    collect(deposit, sc, barrelgeom, caloGeom, iEvent.get(barrelEcalHitsToken_), sevLevel, true);
   }
 
   if ((!inBarrel) || tryBoth_) {
-    collect(deposit, sc, endcapgeom, caloGeom, *endcapEcalRecHitsH, sevLevel, false);
+    collect(deposit, sc, endcapgeom, caloGeom, iEvent.get(endcapEcalHitsToken_), sevLevel, false);
   }
 
   return deposit;
