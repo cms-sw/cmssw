@@ -149,6 +149,7 @@ void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> &detIds_) {
     std::vector<DetIdSelector> excluded_subdetsels;
     std::vector<std::string> excluded_subdets =
         fPSet_.getParameter<std::vector<std::string>>("ModulesToBeExcluded_DetIdSelector");
+    excluded_subdetsels.reserve(excluded_subdets.size());
     for (const auto &wsdps : excluded_subdets) {
       excluded_subdetsels.push_back(DetIdSelector(wsdps));
     }
