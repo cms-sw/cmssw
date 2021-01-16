@@ -82,22 +82,22 @@ GamIsoDetIdCollectionProducer::GamIsoDetIdCollectionProducer(const edm::Paramete
       innerRadius_(iConfig.getParameter<double>("innerRadius")),
       interestingDetIdCollection_(iConfig.getParameter<std::string>("interestingDetIdCollection")) {
   const std::vector<std::string> flagnamesEB =
-      iConfig.getParameter<std::vector<std::string> >("RecHitFlagToBeExcludedEB");
+      iConfig.getParameter<std::vector<std::string>>("RecHitFlagToBeExcludedEB");
 
   const std::vector<std::string> flagnamesEE =
-      iConfig.getParameter<std::vector<std::string> >("RecHitFlagToBeExcludedEE");
+      iConfig.getParameter<std::vector<std::string>>("RecHitFlagToBeExcludedEE");
 
   flagsexclEB_ = StringToEnumValue<EcalRecHit::Flags>(flagnamesEB);
 
   flagsexclEE_ = StringToEnumValue<EcalRecHit::Flags>(flagnamesEE);
 
   const std::vector<std::string> severitynamesEB =
-      iConfig.getParameter<std::vector<std::string> >("RecHitSeverityToBeExcludedEB");
+      iConfig.getParameter<std::vector<std::string>>("RecHitSeverityToBeExcludedEB");
 
   severitiesexclEB_ = StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severitynamesEB);
 
   const std::vector<std::string> severitynamesEE =
-      iConfig.getParameter<std::vector<std::string> >("RecHitSeverityToBeExcludedEE");
+      iConfig.getParameter<std::vector<std::string>>("RecHitSeverityToBeExcludedEE");
 
   severitiesexclEE_ = StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severitynamesEE);
 
@@ -114,13 +114,8 @@ void GamIsoDetIdCollectionProducer::produce(edm::Event& iEvent, const edm::Event
   using namespace edm;
   using namespace std;
 
-  //Get EM Object
-  Handle<reco::PhotonCollection> emObjectH;
-  iEvent.getByToken(emObjectToken_, emObjectH);
-
-  // take EcalRecHits
-  Handle<EcalRecHitCollection> recHitsH;
-  iEvent.getByToken(recHitsToken_, recHitsH);
+  auto emObjectH = iEvent.getHandle(emObjectToken_);
+  auto const& ecalRecHits = iEvent.get(recHitsToken_);
 
   edm::ESHandle<CaloGeometry> pG = iSetup.getHandle(caloGeometryToken_);
   const CaloGeometry* caloGeom = pG.product();
@@ -128,11 +123,14 @@ void GamIsoDetIdCollectionProducer::produce(edm::Event& iEvent, const edm::Event
   edm::ESHandle<EcalSeverityLevelAlgo> sevlv = iSetup.getHandle(sevLvToken_);
   const EcalSeverityLevelAlgo* sevLevel = sevlv.product();
 
-  CaloDualConeSelector<EcalRecHit>* doubleConeSel_ = nullptr;
-  if (recHitsLabel_.instance() == "EcalRecHitsEB")
-    doubleConeSel_ = new CaloDualConeSelector<EcalRecHit>(innerRadius_, outerRadius_, &*pG, DetId::Ecal, EcalBarrel);
-  else if (recHitsLabel_.instance() == "EcalRecHitsEE")
-    doubleConeSel_ = new CaloDualConeSelector<EcalRecHit>(innerRadius_, outerRadius_, &*pG, DetId::Ecal, EcalEndcap);
+  std::unique_ptr<CaloDualConeSelector<EcalRecHit>> doubleConeSel_ = nullptr;
+  if (recHitsLabel_.instance() == "EcalRecHitsEB") {
+    doubleConeSel_ =
+        std::make_unique<CaloDualConeSelector<EcalRecHit>>(innerRadius_, outerRadius_, &*pG, DetId::Ecal, EcalBarrel);
+  } else if (recHitsLabel_.instance() == "EcalRecHitsEE") {
+    doubleConeSel_ =
+        std::make_unique<CaloDualConeSelector<EcalRecHit>>(innerRadius_, outerRadius_, &*pG, DetId::Ecal, EcalEndcap);
+  }
 
   //Create empty output collections
   auto detIdCollection = std::make_unique<DetIdCollection>();
@@ -145,7 +143,7 @@ void GamIsoDetIdCollectionProducer::produce(edm::Event& iEvent, const edm::Event
         continue;
 
       GlobalPoint pclu(emObj->caloPosition().x(), emObj->caloPosition().y(), emObj->caloPosition().z());
-      doubleConeSel_->selectCallback(pclu, *recHitsH, [&](const EcalRecHit& recHitRef) {
+      doubleConeSel_->selectCallback(pclu, ecalRecHits, [&](const EcalRecHit& recHitRef) {
         const EcalRecHit* recIt = &recHitRef;
 
         if ((recIt->energy()) < energyCut_)
@@ -161,7 +159,7 @@ void GamIsoDetIdCollectionProducer::produce(edm::Event& iEvent, const edm::Event
         if (fabs(caloGeom->getPosition(recIt->detid()).eta() < 1.479))
           isBarrel = true;
 
-        int severityFlag = sevLevel->severityLevel(recIt->detid(), *recHitsH);
+        int severityFlag = sevLevel->severityLevel(recIt->detid(), ecalRecHits);
         std::vector<int>::const_iterator sit;
         if (isBarrel) {
           sit = std::find(severitiesexclEB_.begin(), severitiesexclEB_.end(), severityFlag);
@@ -195,7 +193,6 @@ void GamIsoDetIdCollectionProducer::produce(edm::Event& iEvent, const edm::Event
 
     }  //end candidates
 
-    delete doubleConeSel_;
   }  //end if cone selector was created
 
   iEvent.put(std::move(detIdCollection), interestingDetIdCollection_);
