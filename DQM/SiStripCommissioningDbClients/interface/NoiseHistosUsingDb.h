@@ -7,7 +7,10 @@
 
 class NoiseHistosUsingDb : public CommissioningHistosUsingDb, public NoiseHistograms {
 public:
-  NoiseHistosUsingDb(const edm::ParameterSet& pset, DQMStore*, SiStripConfigDb* const);
+  NoiseHistosUsingDb(const edm::ParameterSet& pset,
+                     DQMStore*,
+                     SiStripConfigDb* const,
+                     edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken);
 
   ~NoiseHistosUsingDb() override;
 
