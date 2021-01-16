@@ -154,10 +154,10 @@ public:
                            edm::ParameterSet const &fPSet,
                            const TrackerTopology *tTopo)
       : SiStripBaseCondObjDQM{iRun, hPSet, fPSet, tTopo}, token_{token} {}
-  virtual ~SiStripBaseCondObjDQMGet() {}
+  ~SiStripBaseCondObjDQMGet() override {}
 
-  virtual void getConditionObject(const edm::EventSetup &eSetup) override { condObj_ = &eSetup.getData(token_); }
-  virtual bool checkChanged(const edm::EventSetup &eSetup) override { return watcher_.check(eSetup); }
+  void getConditionObject(const edm::EventSetup &eSetup) override { condObj_ = &eSetup.getData(token_); }
+  bool checkChanged(const edm::EventSetup &eSetup) override { return watcher_.check(eSetup); }
 
 protected:
   const CondObj *condObj_;
