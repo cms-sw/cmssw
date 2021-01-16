@@ -32,7 +32,6 @@ class EgammaIsoESDetIdCollectionProducer : public edm::stream::EDProducer<> {
 public:
   //! ctor
   explicit EgammaIsoESDetIdCollectionProducer(const edm::ParameterSet&);
-  void beginRun(edm::Run const&, const edm::EventSetup&) final;
   //! producer
   void produce(edm::Event&, const edm::EventSetup&) override;
 
@@ -61,19 +60,12 @@ private:
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(EgammaIsoESDetIdCollectionProducer);
 
-EgammaIsoESDetIdCollectionProducer::EgammaIsoESDetIdCollectionProducer(const edm::ParameterSet& iConfig) {
-  eeClusToESMapToken_ =
-      consumes<reco::PFCluster::EEtoPSAssociation>(iConfig.getParameter<edm::InputTag>("eeClusToESMapLabel"));
-
-  ecalPFClustersToken_ =
-      consumes<reco::PFClusterCollection>(iConfig.getParameter<edm::InputTag>("ecalPFClustersLabel"));
-  elesToken_ = consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("elesLabel"));
-
-  phosToken_ = consumes<reco::PhotonCollection>(iConfig.getParameter<edm::InputTag>("phosLabel"));
-
-  superClustersToken_ =
-      consumes<reco::SuperClusterCollection>(iConfig.getParameter<edm::InputTag>("superClustersLabel"));
-
+EgammaIsoESDetIdCollectionProducer::EgammaIsoESDetIdCollectionProducer(const edm::ParameterSet& iConfig)
+    : eeClusToESMapToken_{consumes(iConfig.getParameter<edm::InputTag>("eeClusToESMapLabel"))},
+      ecalPFClustersToken_{consumes(iConfig.getParameter<edm::InputTag>("ecalPFClustersLabel"))},
+      superClustersToken_{consumes(iConfig.getParameter<edm::InputTag>("superClustersLabel"))},
+      elesToken_{consumes(iConfig.getParameter<edm::InputTag>("elesLabel"))},
+      phosToken_{consumes(iConfig.getParameter<edm::InputTag>("phosLabel"))} {
   minSCEt_ = iConfig.getParameter<double>("minSCEt");
   minEleEt_ = iConfig.getParameter<double>("minEleEt");
   minPhoEt_ = iConfig.getParameter<double>("minPhoEt");
@@ -86,25 +78,13 @@ EgammaIsoESDetIdCollectionProducer::EgammaIsoESDetIdCollectionProducer(const edm
   produces<DetIdCollection>(interestingDetIdCollection_);
 }
 
-void EgammaIsoESDetIdCollectionProducer::beginRun(edm::Run const& run, const edm::EventSetup& iSetup) {}
-
 // ------------ method called to produce the data  ------------
-void EgammaIsoESDetIdCollectionProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  // take BasicClusters
-  edm::Handle<reco::SuperClusterCollection> superClusters;
-  iEvent.getByToken(superClustersToken_, superClusters);
-
-  edm::Handle<reco::GsfElectronCollection> eles;
-  iEvent.getByToken(elesToken_, eles);
-
-  edm::Handle<reco::PhotonCollection> phos;
-  iEvent.getByToken(phosToken_, phos);
-
-  edm::Handle<reco::PFCluster::EEtoPSAssociation> eeClusToESMap;
-  iEvent.getByToken(eeClusToESMapToken_, eeClusToESMap);
-
-  edm::Handle<reco::PFClusterCollection> ecalPFClusters;
-  iEvent.getByToken(ecalPFClustersToken_, ecalPFClusters);
+void EgammaIsoESDetIdCollectionProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
+  auto superClusters = iEvent.getHandle(superClustersToken_);
+  auto eles = iEvent.getHandle(elesToken_);
+  auto phos = iEvent.getHandle(phosToken_);
+  auto eeClusToESMap = iEvent.getHandle(eeClusToESMapToken_);
+  auto ecalPFClusters = iEvent.getHandle(ecalPFClustersToken_);
 
   //Create empty output collections
   std::vector<DetId> indexToStore;
