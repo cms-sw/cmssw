@@ -33,7 +33,7 @@
 #include <string>
 
 SiStripAnalyser::SiStripAnalyser(edm::ParameterSet const& ps)
-    : condDataMon_{ps},
+    : condDataMon_{ps, consumesCollector()},
       actionExecutor_{ps},
       tkMapPSet_{ps.getParameter<edm::ParameterSet>("TkmapParameters")},
       summaryFrequency_{ps.getUntrackedParameter<int>("SummaryCreationFrequency", 1)},
