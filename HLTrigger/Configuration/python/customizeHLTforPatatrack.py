@@ -692,6 +692,21 @@ def customizeHLTforPatatrack(process):
     return process
 
 
+# customisation to enable pixel triplets instead of quadruplets
+def enablePatatrackPixelTriplets(process):
+
+  # configure GPU pixel tracks for triplets
+  process.hltPixelTracksCUDA.minHitsPerNtuplet = 3
+  process.hltPixelTracksCUDA.includeJumpingForwardDoublets = True
+
+  # configure CPU pixel tracks for triplets
+  process.hltPixelTracksSoA.cpu.minHitsPerNtuplet = 3
+  process.hltPixelTracksSoA.cpu.includeJumpingForwardDoublets = True
+
+  # done
+  return process
+
+
 def _addConsumerPath(process):
     # add to a path all consumers and the tasks that define the producers
     process.Consumer = cms.Path(
