@@ -12,7 +12,11 @@ class TrackerGeometry;
 
 class FineDelayHistosUsingDb : public CommissioningHistosUsingDb, public SamplingHistograms {
 public:
-  FineDelayHistosUsingDb(const edm::ParameterSet& pset, DQMStore*, SiStripConfigDb* const);
+  FineDelayHistosUsingDb(const edm::ParameterSet& pset,
+                         DQMStore*,
+                         SiStripConfigDb* const,
+                         edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken,
+                         edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken);
 
   ~FineDelayHistosUsingDb() override;
 
@@ -31,6 +35,7 @@ private:
 
   std::map<unsigned int, float> delays_;
 
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
   const TrackerGeometry* tracker_;
 
   bool cosmic_;
