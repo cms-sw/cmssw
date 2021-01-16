@@ -243,6 +243,8 @@ void ConvertSilicon::writeSilicon(const char* outfile,
   std::map<int, wafer>::const_iterator itr;
   std::string blank("  ");
   std::ofstream fOut(outfile);
+  std::vector<int> layerStart;
+  int layer(-1);
   if (mode) {
     blank = "  ";
     fOut << blank << "<Vector name=" << apost << "WaferIndex" << tag << apost << " type=" << apost << "numeric" << apost
@@ -258,6 +260,10 @@ void ConvertSilicon::writeSilicon(const char* outfile,
       fOut << "\n  " << blank << std::setw(8) << itr->first << last;
     else
       fOut << std::setw(8) << itr->first << last;
+    if (HGCalWaferIndex::waferLayer(itr->first) != layer) {
+      layerStart.emplace_back(k1);
+      layer = HGCalWaferIndex::waferLayer(itr->first);
+    }
     ++k1;
     if (debug)
       std::cout << "Wafer " << HGCalWaferIndex::waferLayer(itr->first) << ":" << HGCalWaferIndex::waferU(itr->first)
@@ -279,6 +285,21 @@ void ConvertSilicon::writeSilicon(const char* outfile,
     else
       fOut << std::setw(4) << property << last;
     ++k2;
+  }
+  fOut << "\n" << blank << "</Vector>\n";
+  if (mode) {
+    fOut << blank << "<Vector name=" << apost << "WaferLayerStart" << tag << apost << " type=" << apost << "numeric"
+         << apost << " nEntries=" << apost << layerStart.size() << apost << ">";
+  } else {
+    fOut << blank << "<Vector name=" << apost << "WaferLayerStart" << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << layerStart.size() << apost << ">";
+  }
+  for (unsigned k3 = 0; k3 < layerStart.size(); ++k3) {
+    std::string last = ((k3 + 1) == layerStart.size()) ? " " : ",";
+    if (k3 % 10 == 0)
+      fOut << "\n  " << blank << std::setw(5) << layerStart[k3] << last;
+    else
+      fOut << std::setw(5) << layerStart[k3] << last;
   }
   fOut << "\n" << blank << "</Vector>\n";
   fOut.close();
@@ -564,6 +585,8 @@ void ConvertScintillator::makeTitle(
     fout << "\n  </Vector>\n";
     if (debug)
       std::cout << "\n  </Vector>\n";
+    int layer = -1;
+    std::vector<int> layerStart;
     fout << "  <Vector name=" << apost << "TilePhiRange" << apost << " type=" << apost << "numeric" << apost
          << " nEntries=" << apost << nmax << apost << ">";
     if (debug)
@@ -580,6 +603,30 @@ void ConvertScintillator::makeTitle(
         fout << std::setw(7) << f1f2 << last;
         if (debug)
           std::cout << std::setw(7) << f1f2 << last;
+      }
+      if (zones[k].layer != layer) {
+        layerStart.emplace_back(k);
+        layer = zones[k].layer;
+      }
+    }
+    fout << "\n  </Vector>\n";
+    if (debug)
+      std::cout << "\n  </Vector>\n";
+    fout << "  <Vector name=" << apost << "TileLayerStart" << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << layerStart.size() << apost << ">";
+    if (debug)
+      std::cout << "  <Vector name=" << apost << "TileLayerStart" << apost << " type=" << apost << "numeric" << apost
+                << " nEntries=" << apost << layerStart.size() << apost << ">";
+    for (unsigned int k = 0; k < layerStart.size(); ++k) {
+      std::string last = ((k + 1) == layerStart.size()) ? " " : ",";
+      if (k % 10 == 0) {
+        fout << "\n    " << std::setw(5) << layerStart[k] << last;
+        if (debug)
+          std::cout << "\n    " << std::setw(5) << layerStart[k] << last;
+      } else {
+        fout << std::setw(5) << layerStart[k] << last;
+        if (debug)
+          std::cout << std::setw(5) << layerStart[k] << last;
       }
     }
     fout << "\n  </Vector>\n";
