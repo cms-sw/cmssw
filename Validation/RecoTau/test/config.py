@@ -44,15 +44,23 @@ process.options = cms.untracked.PSet(
 	SkipEvent = cms.untracked.vstring('ProductNotFound')
 )
 
+process_name='ZTT'
+
+process_dict = {
+'ZMM':'/store/relval/CMSSW_11_0_0_pre10/RelValZMM_13/MINIAODSIM/110X_mcRun2_asymptotic_v2-v1/10000/2085AB00-3B9C-664F-A31A-32852CE6F284.root',
+'ZEE':'/store/relval/CMSSW_11_0_0_pre10/RelValZEE_13/MINIAODSIM/110X_mcRun2_asymptotic_v2-v1/10000/639D8BE1-8DCC-9145-A38B-7B3CCEE0333A.root',
+'ZTT':'/store/relval/CMSSW_11_0_0_pre10/RelValZTT_13/MINIAODSIM/110X_mcRun2_asymptotic_v2-v1/10000/E9D6A32A-6736-A448-90BC-E5455B3A9217.root',
+'QCD':'/store/relval/CMSSW_11_0_0_pre10/RelValQCD_FlatPt_15_3000HS_13/MINIAODSIM/110X_mcRun2_asymptotic_v2-v1/10000/91461CFA-8CEF-8C4E-864D-FFC1760FAC67.root'
+}
+
 # Input source
 process.source = cms.Source("PoolSource",
-    #fileNames = cms.untracked.vstring('/store/relval/CMSSW_10_6_1/RelValZTT_13UP17/MINIAODSIM/PUpmx25ns_106X_mc2017_realistic_v6_ul17hlt_premix_rsb-v1/20000/07F0AD9A-A1F3-8847-B95A-F4208E2EEE9F.root'),
-    fileNames = cms.untracked.vstring('/store/relval/CMSSW_11_0_0_pre10/RelValZMM_13/MINIAODSIM/110X_mcRun2_asymptotic_v2-v1/10000/2085AB00-3B9C-664F-A31A-32852CE6F284.root'),
+    fileNames = cms.untracked.vstring(process_dict[process_name]),
     secondaryFileNames = cms.untracked.vstring()
 )
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    annotation = cms.untracked.string('PAT nevts:8500'),
+    annotation = cms.untracked.string('PAT nevts:9000'),
     name = cms.untracked.string('Applications'),
     version = cms.untracked.string('$Revision: 1.19 $')
 )
@@ -64,7 +72,7 @@ process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
         dataTier = cms.untracked.string('DQMIO'),
         filterName = cms.untracked.string('')
     ),
-    fileName = cms.untracked.string('PAT_VALIDATION_DQM.root'),
+    fileName = cms.untracked.string('PAT_VALIDATION_DQM_'+process_name+'.root'),
     outputCommands = process.DQMEventContent.outputCommands,
     splitLevel = cms.untracked.int32(0)
 )
@@ -75,9 +83,9 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_realistic', '
 # Path and EndPath definitions
 #process.prevalidation_step = cms.Path(process.prevalidationMiniAOD)
 #process.validation_step = cms.EndPath(process.validationMiniAOD)
-#process.validation_step = cms.EndPath(process.tauValidationSequenceMiniAOD)
+process.validation_step = cms.EndPath(process.tauValidationSequenceMiniAOD)
 #process.validation_step = cms.EndPath(process.tauValidationMiniAODRealData)
-process.validation_step = cms.EndPath(process.tauValidationMiniAODZMM)
+#process.validation_step = cms.EndPath(process.tauValidationMiniAODZMM)
 #process.dqmoffline_step = cms.EndPath(process.DQMOfflineMiniAOD)
 #process.dqmofflineOnPAT_step = cms.EndPath(process.PostDQMOfflineMiniAOD)
 process.DQMoutput_step = cms.EndPath(process.DQMoutput)

@@ -16,10 +16,6 @@ tauValidationMiniAODZEE = tauValidationMiniAODZTT.clone(
   RefCollection = "kinematicSelectedTauValDenominatorZEE",
   ExtensionName = 'ZEE'
 )
-print(8*"*")
-print("tauValidationMiniAODZMM")
-print("It gets as ref collection : kinematicSelectedTauValDenominatorZMM")
-print(8*"*")
 tauValidationMiniAODZMM = tauValidationMiniAODZTT.clone(
   RefCollection = "kinematicSelectedTauValDenominatorZMM",
   ExtensionName = 'ZMM'
@@ -29,16 +25,16 @@ tauValidationMiniAODQCD = tauValidationMiniAODZTT.clone(
   ExtensionName = 'QCD'
 )
 tauValidationMiniAODRealData = tauValidationMiniAODZTT.clone(
-  RefCollection = "CleanedPFJets",
-  ExtensionName = 'RealData'
+  RefCollection = cms.InputTag("CleanedPFJets"),
+  ExtensionName = cms.string('JETHT')
 )
 tauValidationMiniAODRealElectronsData = tauValidationMiniAODZTT.clone(
-  RefCollection = "ElZLegs:theProbeLeg",
-  ExtensionName = "RealElectronsData"
+  RefCollection = cms.InputTag("ElZLegs","theProbeLeg"),
+  ExtensionName = cms.string("DoubleElectron")
 )
 tauValidationMiniAODRealMuonsData = tauValidationMiniAODZTT.clone(
-  RefCollection = "MuZLegs:theProbeLeg",
-  ExtensionName = 'RealMuonsData'
+  RefCollection = cms.InputTag("MuZLegs","theProbeLeg"),
+  ExtensionName = cms.string('DoubleMuon')
 )
 
 
@@ -90,9 +86,9 @@ efficienciesTauValidationMiniAODQCD = cms.EDProducer("TauDQMHistEffProducer",
 efficienciesTauValidationMiniAODRealData = cms.EDProducer("TauDQMHistEffProducer",
     plots = cms.PSet(
         Summary = cms.PSet(
-            denominator = cms.string('RecoTauV/miniAODValidation/RealData/#PAR#PlotDen'),
-            efficiency = cms.string('RecoTauV/miniAODValidation/RealData/#PAR#Plot'),
-            numerator = cms.string('RecoTauV/miniAODValidation/RealData/#PAR#PlotNum'),
+            denominator = cms.string('RecoTauV/miniAODValidation/JETHT/#PAR#PlotDen'),
+            efficiency = cms.string('RecoTauV/miniAODValidation/JETHT/#PAR#Plot'),
+            numerator = cms.string('RecoTauV/miniAODValidation/JETHT/#PAR#PlotNum'),
             parameter = cms.vstring('summary'),
             stepByStep = cms.bool(True)
         ),
@@ -101,9 +97,9 @@ efficienciesTauValidationMiniAODRealData = cms.EDProducer("TauDQMHistEffProducer
 efficienciesTauValidationMiniAODRealElectronsData = cms.EDProducer("TauDQMHistEffProducer",
     plots = cms.PSet(
         Summary = cms.PSet(
-            denominator = cms.string('RecoTauV/miniAODValidation/RealElectronsData/#PAR#PlotDen'),
-            efficiency = cms.string('RecoTauV/miniAODValidation/RealElectronsData/#PAR#Plot'),
-            numerator = cms.string('RecoTauV/miniAODValidation/RealElectronsData/#PAR#PlotNum'),
+            denominator = cms.string('RecoTauV/miniAODValidation/DoubleElectron/#PAR#PlotDen'),
+            efficiency = cms.string('RecoTauV/miniAODValidation/DoubleElectron/#PAR#Plot'),
+            numerator = cms.string('RecoTauV/miniAODValidation/DoubleElectron/#PAR#PlotNum'),
             parameter = cms.vstring('summary'),
             stepByStep = cms.bool(True)
         ),
@@ -112,9 +108,9 @@ efficienciesTauValidationMiniAODRealElectronsData = cms.EDProducer("TauDQMHistEf
 efficienciesTauValidationMiniAODRealMuonsData = cms.EDProducer("TauDQMHistEffProducer",
     plots = cms.PSet(
         Summary = cms.PSet(
-            denominator = cms.string('RecoTauV/miniAODValidation/RealMuonsData/#PAR#PlotDen'),
-            efficiency = cms.string('RecoTauV/miniAODValidation/RealMuonsData/#PAR#Plot'),
-            numerator = cms.string('RecoTauV/miniAODValidation/RealMuonsData/#PAR#PlotNum'),
+            denominator = cms.string('RecoTauV/miniAODValidation/DoubleMuon/#PAR#PlotDen'),
+            efficiency = cms.string('RecoTauV/miniAODValidation/DoubleMuon/#PAR#Plot'),
+            numerator = cms.string('RecoTauV/miniAODValidation/DoubleMuon/#PAR#PlotNum'),
             parameter = cms.vstring('summary'),
             stepByStep = cms.bool(True)
         ),
@@ -125,3 +121,6 @@ tauValidationSequenceMiniAOD = cms.Sequence(tauValidationMiniAODZTT*tauValidatio
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toReplaceWith(tauValidationSequenceMiniAOD,tauValidationSequenceMiniAOD.copyAndExclude([tauValidationMiniAODRealData,tauValidationMiniAODRealElectronsData,tauValidationMiniAODRealMuonsData]))
+
+#tauValidationSequenceMiniAOD = cms.Sequence(produceDenominatorZTT*tauValidationMiniAODZTT*produceDenominatorZEE*tauValidationMiniAODZEE*produceDenominatorZMM*tauValidationMiniAODZMM*produceDenominatorQCD*tauValidationMiniAODQCD*tauValidationMiniAODRealData*tauValidationMiniAODRealElectronsData*tauValidationMiniAODRealMuonsData)
+
