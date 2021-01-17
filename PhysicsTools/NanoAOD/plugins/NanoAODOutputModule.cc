@@ -121,6 +121,7 @@ private:
   std::vector<EventStringOutputBranches> m_evstrings;
 
   std::vector<SummaryTableOutputBranches> m_runTables;
+  std::vector<SummaryTableOutputBranches> m_lumiTables;
 
   std::vector<std::pair<std::string,edm::EDGetToken>> m_nanoMetadata;
 
@@ -225,6 +226,8 @@ NanoAODOutputModule::writeLuminosityBlock(edm::LuminosityBlockForOutput const& i
   jr->reportLumiSection(m_jrToken, iLumi.id().run(), iLumi.id().value());
 
   m_commonLumiBranches.fill(iLumi.id());
+  for (auto & t : m_lumiTables) t.fill(iLumi,*m_lumiTree);
+
   m_lumiTree->Fill();
 
   m_processHistoryRegistry.registerProcessHistory(iLumi.processHistory());
@@ -283,7 +286,7 @@ NanoAODOutputModule::openFile(edm::FileBlock const&) {
       m_file->SetCompressionAlgorithm(ROOT::kLZMA);
     } else {
       throw cms::Exception("Configuration") << "NanoAODOutputModule configured with unknown compression algorithm '" << m_compressionAlgorithm << "'\n"
-					     << "Allowed compression algorithms are ZLIB and LZMA\n";
+                                           << "Allowed compression algorithms are ZLIB and LZMA\n";
     }
   /* Setup file structure here */
   m_tables.clear();
@@ -291,28 +294,36 @@ NanoAODOutputModule::openFile(edm::FileBlock const&) {
   m_triggers_areSorted = false;
   m_evstrings.clear();
   m_runTables.clear();
+  m_lumiTables.clear();
   const auto & keeps = keptProducts();
   for (const auto & keep : keeps[edm::InEvent]) {
       if(keep.first->className() == "nanoaod::FlatTable" )
-	      m_tables.emplace_back(keep.first, keep.second);
+            m_tables.emplace_back(keep.first, keep.second);
       else if(keep.first->className() == "edm::TriggerResults" )
-	  {
-	      m_triggers.emplace_back(keep.first, keep.second);
-	  }
+        {
+            m_triggers.emplace_back(keep.first, keep.second);
+        }
       else if(keep.first->className() == "std::basic_string<char,std::char_traits<char> >" && keep.first->productInstanceName()=="genModel") { // friendlyClassName == "String"
-	m_evstrings.emplace_back(keep.first, keep.second, true); // update only at lumiBlock transitions
+      m_evstrings.emplace_back(keep.first, keep.second, true); // update only at lumiBlock transitions
       }
       else throw cms::Exception("Configuration", "NanoAODOutputModule cannot handle class " + keep.first->className());     
   }
 
   for (const auto & keep : keeps[edm::InRun]) {
       if(keep.first->className() == "nanoaod::MergeableCounterTable" )
-	      m_runTables.push_back(SummaryTableOutputBranches(keep.first, keep.second));
+            m_runTables.push_back(SummaryTableOutputBranches(keep.first, keep.second));
       else if(keep.first->className() == "nanoaod::UniqueString" && keep.first->moduleLabel() == "nanoMetadata")
-	      m_nanoMetadata.emplace_back(keep.first->productInstanceName(), keep.second);
+            m_nanoMetadata.emplace_back(keep.first->productInstanceName(), keep.second);
       else throw cms::Exception("Configuration", "NanoAODOutputModule cannot handle class " + keep.first->className() + " in Run branch");     
   }
 
+  for (const auto& keep : keeps[edm::InLumi]) {
+      if (keep.first->className() == "nanoaod::MergeableCounterTable")
+             m_lumiTables.push_back(SummaryTableOutputBranches(keep.first, keep.second));
+      else if (keep.first->className() == "nanoaod::UniqueString" && keep.first->moduleLabel() == "nanoMetadata")
+            m_nanoMetadata.emplace_back(keep.first->productInstanceName(), keep.second);
+      else throw cms::Exception("Configuration", "NanoAODOutputModule cannot handle class " + keep.first->className() + " in LuminosityBlock branch");
+  }
 
   // create the trees
   m_tree.reset(new TTree("Events","Events"));
