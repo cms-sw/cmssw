@@ -11,7 +11,7 @@ import PhysicsTools.PatAlgos.tools.helpers as helpers
 
 selectElectrons = cms.EDProducer(
     "GenParticlePruner",
-    src = cms.InputTag("genParticles"),
+    src = cms.InputTag("prunedGenParticles"),
     select = cms.vstring(
     "drop  *  ", # this is the default
     "keep++ pdgId = 11",

@@ -9,6 +9,8 @@ from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 
 process = cms.Process('HARVESTING',Run2_2018)
 
+process_name = 'ZTT'
+
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
@@ -28,7 +30,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("DQMRootSource",
-    fileNames = cms.untracked.vstring('file:RECO_RAW2DIGI_L1Reco_RECO_EI_PAT_VALIDATION_DQM_inDQM.root')
+    fileNames = cms.untracked.vstring('file:PAT_VALIDATION_DQM_'+process_name+'.root')
 )
 
 process.options = cms.untracked.PSet(
