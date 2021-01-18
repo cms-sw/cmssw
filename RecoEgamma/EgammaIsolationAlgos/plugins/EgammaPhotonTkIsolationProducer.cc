@@ -22,14 +22,13 @@
 class EgammaPhotonTkIsolationProducer : public edm::global::EDProducer<> {
 public:
   explicit EgammaPhotonTkIsolationProducer(const edm::ParameterSet&);
-  ~EgammaPhotonTkIsolationProducer() override;
 
   void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
 
 private:
-  const edm::InputTag photonProducer_;
-  const edm::InputTag trackProducer_;
-  const edm::InputTag beamspotProducer_;
+  const edm::EDGetTokenT<edm::View<reco::Candidate>> photonProducer_;
+  const edm::EDGetTokenT<reco::TrackCollection> trackProducer_;
+  const edm::EDGetTokenT<reco::BeamSpot> beamspotProducer_;
 
   const double ptMin_;
   const double intRadiusBarrel_;
@@ -39,8 +38,6 @@ private:
   const double extRadius_;
   const double maxVtxDist_;
   const double drb_;
-
-  const edm::ParameterSet conf_;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -49,11 +46,10 @@ DEFINE_FWK_MODULE(EgammaPhotonTkIsolationProducer);
 EgammaPhotonTkIsolationProducer::EgammaPhotonTkIsolationProducer(const edm::ParameterSet& config)
     :
 
-      // use configuration file to setup input/output collection names
-      photonProducer_(config.getParameter<edm::InputTag>("photonProducer")),
+      photonProducer_{consumes(config.getParameter<edm::InputTag>("photonProducer"))},
 
-      trackProducer_(config.getParameter<edm::InputTag>("trackProducer")),
-      beamspotProducer_(config.getParameter<edm::InputTag>("BeamspotProducer")),
+      trackProducer_{consumes(config.getParameter<edm::InputTag>("trackProducer"))},
+      beamspotProducer_{consumes(config.getParameter<edm::InputTag>("BeamspotProducer"))},
 
       ptMin_(config.getParameter<double>("ptMin")),
       intRadiusBarrel_(config.getParameter<double>("intRadiusBarrel")),
@@ -67,28 +63,12 @@ EgammaPhotonTkIsolationProducer::EgammaPhotonTkIsolationProducer(const edm::Para
   produces<edm::ValueMap<double>>();
 }
 
-EgammaPhotonTkIsolationProducer::~EgammaPhotonTkIsolationProducer() {}
-
-//
-// member functions
-//
-
 // ------------ method called to produce the data  ------------
 void EgammaPhotonTkIsolationProducer::produce(edm::StreamID sid,
                                               edm::Event& iEvent,
                                               const edm::EventSetup& iSetup) const {
   // Get the  filtered objects
-  edm::Handle<edm::View<reco::Candidate>> photonHandle;
-  iEvent.getByLabel(photonProducer_, photonHandle);
-
-  //get the tracks
-  edm::Handle<reco::TrackCollection> tracks;
-  iEvent.getByLabel(trackProducer_, tracks);
-  const reco::TrackCollection* trackCollection = tracks.product();
-
-  edm::Handle<reco::BeamSpot> beamSpotH;
-  iEvent.getByLabel(beamspotProducer_, beamSpotH);
-  reco::TrackBase::Point beamspot = beamSpotH->position();
+  auto photonHandle = iEvent.getHandle(photonProducer_);
 
   //prepare product
   auto isoMap = std::make_unique<edm::ValueMap<double>>();
@@ -103,8 +83,8 @@ void EgammaPhotonTkIsolationProducer::produce(edm::StreamID sid,
                                   ptMin_,
                                   maxVtxDist_,
                                   drb_,
-                                  trackCollection,
-                                  beamspot);
+                                  &iEvent.get(trackProducer_),
+                                  iEvent.get(beamspotProducer_).position());
 
   for (unsigned int i = 0; i < photonHandle->size(); ++i) {
     double isoValue = myTkIsolation.getIso(&(photonHandle->at(i))).second;
