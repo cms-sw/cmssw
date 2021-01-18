@@ -54,8 +54,7 @@ private:
 
   bool hasTracks_;
   edm::EDGetTokenT<l1t::PFTrackCollection> tkCands_;
-  float trkPt_, trkMaxChi2_, trkPtNoChi2_;
-  unsigned trkMinStubs_;
+  float trkPt_;
   l1tpf_impl::PUAlgoBase::VertexAlgo vtxAlgo_;
   edm::EDGetTokenT<std::vector<l1t::TkPrimaryVertex>> extTkVtx_;
 
@@ -100,9 +99,6 @@ L1TPFProducer::L1TPFProducer(const edm::ParameterSet& iConfig)
       tkCands_(hasTracks_ ? consumes<l1t::PFTrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"))
                           : edm::EDGetTokenT<l1t::PFTrackCollection>()),
       trkPt_(iConfig.getParameter<double>("trkPtCut")),
-      trkMaxChi2_(iConfig.getParameter<double>("trkMaxChi2")),
-      trkPtNoChi2_(iConfig.getParameter<double>("trkPtNoChi2")),
-      trkMinStubs_(iConfig.getParameter<unsigned>("trkMinStubs")),
       muCands_(consumes<l1t::MuonBxCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
       tkMuCands_(consumes<l1t::TkMuonCollection>(iConfig.getParameter<edm::InputTag>("tkMuons"))),
       emPtCut_(iConfig.getParameter<double>("emPtCut")),
@@ -244,8 +240,7 @@ void L1TPFProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       // adding objects to PF
       if (debugR_ > 0 && deltaR(tk.eta(), tk.phi(), debugEta_, debugPhi_) > debugR_)
         continue;
-      if ((tk.pt() > trkPt_ && tk.nStubs() >= trkMinStubs_ && tk.normalizedChi2() < trkMaxChi2_) ||
-          (tk.pt() > trkPtNoChi2_)) {
+      if (tk.pt() > trkPt_ && tk.quality() > 0) {
         l1regions_.addTrack(tk, l1t::PFTrackRef(htracks, itk));
       }
     }

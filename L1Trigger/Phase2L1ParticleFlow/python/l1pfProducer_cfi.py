@@ -14,9 +14,6 @@ l1pfProducer = cms.EDProducer("L1TPFProducer",
      emPtCut  = cms.double(0.5),
      hadPtCut = cms.double(1.0),
      trkPtCut    = cms.double(2.0),
-     trkMinStubs = cms.uint32(4),
-     trkMaxChi2  = cms.double(15),
-     trkPtNoChi2 = cms.double(5),
      etaCharged  = cms.double(2.5),
      puppiDr     = cms.double(0.3),
      puppiDrMin  = cms.double(0.1),
@@ -55,8 +52,6 @@ l1pfProducer = cms.EDProducer("L1TPFProducer",
         useCaloTrkWeightedAverage = cms.bool(False), # do the weighted average of track & calo pTs if it's a 1-1 link
         # how to deal with unlinked tracks
         maxInvisiblePt = cms.double(10.0), # max allowed pt of a track with no calo energy
-        tightTrackMinStubs = cms.uint32(6),
-        tightTrackMaxChi2  = cms.double(50),
         tightTrackMaxInvisiblePt = cms.double(20),
         # how to deal with neutrals
         ecalPriority  = cms.bool(True), # take first ecal energy when making neutrals

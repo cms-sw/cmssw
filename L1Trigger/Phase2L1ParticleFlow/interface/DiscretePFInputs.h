@@ -89,6 +89,9 @@ namespace l1tpf_impl {
     uint16_t hwFlags;
     const l1t::PFTrack *src;
 
+    enum QualityFlags { PFLOOSE = 1, PFTIGHT = 2, TKEG = 4 };
+    bool quality(QualityFlags q) const { return hwFlags & q; }
+
 #ifdef L1Trigger_Phase2L1ParticleFlow_DiscretePFInputs_MORE
     static constexpr float INVPT_SCALE = 2E4;           // 1%/pt @ 100 GeV is 2 bits
     static constexpr float VTX_PHI_SCALE = 1 / 1.6E-3;  // 5 micro rad is 2 bits
