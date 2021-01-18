@@ -79,7 +79,8 @@ void PuppiAlgo::computePuppiAlphas(const Region &r, std::vector<float> &alphaC, 
       for (const PropagatedTrack &p2 : r.track) {
         if (!p2.fromPV)
           continue;
-        if (!p2.quality(l1tpf_impl::InputTrack::PFLOOSE)) continue;
+        if (!p2.quality(l1tpf_impl::InputTrack::PFLOOSE))
+          continue;
         float dr2 = ::deltaR2(p.floatEta(), p.floatPhi(), p2.floatEta(), p2.floatPhi());
         if (dr2 > 0 && dr2 < puppiDr2) {
           alphaC[ip] += std::pow(std::min(p2.floatPt(), puppiPtMax_), 2) / std::max<float>(puppiDr2min, dr2);
