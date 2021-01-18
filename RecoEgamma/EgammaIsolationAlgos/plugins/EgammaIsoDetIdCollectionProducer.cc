@@ -23,7 +23,7 @@ Implementation:
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -31,18 +31,19 @@ Implementation:
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
-template <class EgammaCollection>
-class EgammaIsoDetIdCollectionProducer : public edm::stream::EDProducer<> {
+template <class T1>
+class EgammaIsoDetIdCollectionProducer : public edm::global::EDProducer<> {
 public:
+  typedef std::vector<T1> T1Collection;
   //! ctor
   explicit EgammaIsoDetIdCollectionProducer(const edm::ParameterSet&);
   //! producer
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
 private:
   // ----------member data ---------------------------
   edm::EDGetTokenT<EcalRecHitCollection> recHitsToken_;
-  edm::EDGetTokenT<EgammaCollection> emObjectToken_;
+  edm::EDGetTokenT<T1Collection> emObjectToken_;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
   edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> sevLvToken_;
   edm::InputTag recHitsLabel_;
@@ -60,8 +61,8 @@ private:
   std::vector<int> flagsexclEE_;
 };
 
-template <class EgammaCollection>
-EgammaIsoDetIdCollectionProducer<EgammaCollection>::EgammaIsoDetIdCollectionProducer(const edm::ParameterSet& iConfig)
+template <class T1>
+EgammaIsoDetIdCollectionProducer<T1>::EgammaIsoDetIdCollectionProducer(const edm::ParameterSet& iConfig)
     : recHitsToken_{consumes(iConfig.getParameter<edm::InputTag>("recHitsLabel"))},
       emObjectToken_{consumes(iConfig.getParameter<edm::InputTag>("emObjectLabel"))},
       caloGeometryToken_(esConsumes()),
@@ -93,8 +94,10 @@ EgammaIsoDetIdCollectionProducer<EgammaCollection>::EgammaIsoDetIdCollectionProd
 }
 
 // ------------ method called to produce the data  ------------
-template <class EgammaCollection>
-void EgammaIsoDetIdCollectionProducer<EgammaCollection>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+template <class T1>
+void EgammaIsoDetIdCollectionProducer<T1>::produce(edm::StreamID,
+                                                   edm::Event& iEvent,
+                                                   const edm::EventSetup& iSetup) const {
   using namespace edm;
   using namespace std;
 
@@ -179,13 +182,11 @@ void EgammaIsoDetIdCollectionProducer<EgammaCollection>::produce(edm::Event& iEv
 }
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-using EleIsoDetIdCollectionProducer = EgammaIsoDetIdCollectionProducer<reco::GsfElectronCollection>;
-using GamIsoDetIdCollectionProducer = EgammaIsoDetIdCollectionProducer<reco::PhotonCollection>;
+using EleIsoDetIdCollectionProducer = EgammaIsoDetIdCollectionProducer<reco::GsfElectron>;
+using GamIsoDetIdCollectionProducer = EgammaIsoDetIdCollectionProducer<reco::Photon>;
 
 DEFINE_FWK_MODULE(GamIsoDetIdCollectionProducer);
 DEFINE_FWK_MODULE(EleIsoDetIdCollectionProducer);
