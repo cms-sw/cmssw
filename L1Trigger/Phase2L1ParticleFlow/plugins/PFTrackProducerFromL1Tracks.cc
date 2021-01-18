@@ -42,8 +42,8 @@ l1tpf::PFTrackProducerFromL1Tracks::PFTrackProducerFromL1Tracks(const edm::Param
       nParam_(iConfig.getParameter<unsigned int>("nParam")),
       resolCalo_(iConfig.getParameter<edm::ParameterSet>("resolCalo")),
       resolTrk_(iConfig.getParameter<edm::ParameterSet>("resolTrack")) {
-  for (const auto & cut : iConfig.getParameter<std::vector<std::string>>("qualityBits")) {
-      qualityBitSetters_.emplace_back(cut);
+  for (const auto &cut : iConfig.getParameter<std::vector<std::string>>("qualityBits")) {
+    qualityBitSetters_.emplace_back(cut);
   }
   produces<l1t::PFTrackCollection>();
 }
@@ -79,7 +79,8 @@ void l1tpf::PFTrackProducerFromL1Tracks::produce(edm::Event &iEvent, const edm::
     float caloErr = resolCalo_(pt, std::abs(eta));
     int quality = 0;
     for (int i = 0, n = qualityBitSetters_.size(), bit = 1; i < n; ++i, bit <<= 1) {
-        if (qualityBitSetters_[i](tk)) quality += bit;
+      if (qualityBitSetters_[i](tk))
+        quality += bit;
     }
     out->emplace_back(charge,
                       p4,

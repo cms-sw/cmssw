@@ -238,7 +238,8 @@ void PFAlgo3::link_tk2mu(Region &r, std::vector<int> &tk2mu, std::vector<int> &m
     int imatch = -1;
     for (int itk = 0, ntk = r.track.size(); itk < ntk; ++itk) {
       const auto &tk = r.track[itk];
-      if (!tk.quality(l1tpf_impl::InputTrack::PFLOOSE)) continue;
+      if (!tk.quality(l1tpf_impl::InputTrack::PFLOOSE))
+        continue;
       int deta = std::abs(mu.hwEta - tk.hwEta);
       int dphi = std::abs((mu.hwPhi - tk.hwPhi) % CaloCluster::PHI_WRAP);
       float dr = floatDR(mu, tk);
@@ -304,7 +305,8 @@ void PFAlgo3::link_tk2em(Region &r, std::vector<int> &tk2em) const {
   // match all tracks to the closest EM cluster
   for (int itk = 0, ntk = r.track.size(); itk < ntk; ++itk) {
     const auto &tk = r.track[itk];
-    if (!tk.quality(l1tpf_impl::InputTrack::PFLOOSE)) continue;
+    if (!tk.quality(l1tpf_impl::InputTrack::PFLOOSE))
+      continue;
     //if (tk.muonLink) continue; // not necessary I think
     float drbest = drMatchEm_;
     for (int iem = 0, nem = r.emcalo.size(); iem < nem; ++iem) {
@@ -540,7 +542,8 @@ void PFAlgo3::link_tk2calo(Region &r, std::vector<int> &tk2calo) const {
   // track to calo matching (first iteration, with a lower bound on the calo pt; there may be another one later)
   for (int itk = 0, ntk = r.track.size(); itk < ntk; ++itk) {
     const auto &tk = r.track[itk];
-    if (!tk.quality(l1tpf_impl::InputTrack::PFLOOSE)) continue;
+    if (!tk.quality(l1tpf_impl::InputTrack::PFLOOSE))
+      continue;
     if (tk.muonLink || tk.used)
       continue;  // not necessary but just a waste of CPU otherwise
     float drbest = drMatch_, dptscale = 0;

@@ -192,7 +192,8 @@ void PFAlgo2HGC::link_tk2mu(Region &r, std::vector<int> &tk2mu, std::vector<int>
     int imatch = -1;
     for (int itk = 0, ntk = r.track.size(); itk < ntk; ++itk) {
       const auto &tk = r.track[itk];
-      if (!tk.quality(l1tpf_impl::InputTrack::PFLOOSE)) continue;
+      if (!tk.quality(l1tpf_impl::InputTrack::PFLOOSE))
+        continue;
       int deta = std::abs(mu.hwEta - tk.hwEta);
       int dphi = std::abs((mu.hwPhi - tk.hwPhi) % CaloCluster::PHI_WRAP);
       float dr = floatDR(mu, tk);
@@ -258,7 +259,8 @@ void PFAlgo2HGC::link_tk2calo(Region &r, std::vector<int> &tk2calo) const {
   // track to calo matching (first iteration, with a lower bound on the calo pt; there may be another one later)
   for (int itk = 0, ntk = r.track.size(); itk < ntk; ++itk) {
     const auto &tk = r.track[itk];
-    if (!tk.quality(l1tpf_impl::InputTrack::PFLOOSE)) continue;
+    if (!tk.quality(l1tpf_impl::InputTrack::PFLOOSE))
+      continue;
     if (tk.muonLink || tk.used)
       continue;  // not necessary but just a waste of CPU otherwise
     float drbest = drMatch_, dptscale = 0;
