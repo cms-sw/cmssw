@@ -2,14 +2,14 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/PatCandidates/interface/PackedGenParticle.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 namespace pat {
 
-  class PackedGenParticleSignalProducer : public edm::stream::EDProducer<> {
+  class PackedGenParticleSignalProducer : public edm::global::EDProducer<> {
   public:
     explicit PackedGenParticleSignalProducer(const edm::ParameterSet& iConfig)
         : genParticleToken_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticles"))),
@@ -19,7 +19,7 @@ namespace pat {
     }
     ~PackedGenParticleSignalProducer() override = default;
 
-    void produce(edm::Event&, const edm::EventSetup&) override;
+    void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions&);
 
@@ -30,7 +30,7 @@ namespace pat {
 
 }  // namespace pat
 
-void pat::PackedGenParticleSignalProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void pat::PackedGenParticleSignalProducer::produce(edm::StreamID iID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   const auto& genParticles = iEvent.getHandle(genParticleToken_);
   const auto& orig2packed = iEvent.get(assoToken_);
 
@@ -38,9 +38,9 @@ void pat::PackedGenParticleSignalProducer::produce(edm::Event& iEvent, const edm
 
   for (auto it = genParticles->begin(); it != genParticles->end(); ++it) {
     const auto& orig = reco::GenParticleRef(genParticles, it - genParticles->begin());
-    const auto& packed = orig2packed[orig];
     if (orig->collisionId() != 0)
       continue;
+    const auto& packed = orig2packed[orig];
     if (packed.isNonnull()) {
       signalGenParticleRefs->push_back(packed);
     }
