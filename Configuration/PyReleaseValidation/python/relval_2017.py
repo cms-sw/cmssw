@@ -29,6 +29,7 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 #        (Patatrack ECAL-only: TTbar - on CPU)
 #        (Patatrack HCAL-only: TTbar - on CPU)
 #   2021 (DD4HEP: TTbar, ZMM)
+#        (ele guns 10, 35, 1000; pho guns 10, 35; mu guns 1, 10, 100, 1000, QCD 3TeV, QCD Flat)
 #        (ZMM, TTbar, ZEE, MinBias, TTbar PU, TTbar PU premix, ZEE PU, TTbar design)
 #        (TTbar trackingOnly, pixelTrackingOnly, trackingMkFit)
 #        (Patatrack pixel-only: ZMM - on CPU)
@@ -55,6 +56,7 @@ numWFIB = [10001.0,10002.0,10003.0,10004.0,10005.0,10006.0,10007.0,10008.0,10009
            10824.511,
            10824.521,
            11624.911, 11642.911,
+           11601.0,11602.0,11603.0,11604.0,11605.0,11606.0,11607.0,11608.0,11609.0,11630.0,11643.0,
            11650.0,11634.0,11646.0,11640.0,11834.0,11834.99,11846.0,12024.0,
            11634.1,11634.5,11634.7,
            11650.501,
