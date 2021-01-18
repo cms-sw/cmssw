@@ -99,6 +99,7 @@ SiStripShotFilter::~SiStripShotFilter() {}
 
 // ------------ method called to for each event  ------------
 bool SiStripShotFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  fedCablingWatcher_.check(iSetup);
   //get digi data
   edm::Handle<edm::DetSetVector<SiStripDigi> > digis;
   iEvent.getByToken(digiToken_, digis);

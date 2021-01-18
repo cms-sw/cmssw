@@ -93,6 +93,7 @@ namespace sistrip {
   void SpyEventMatcherModule::beginJob() { spyEventMatcher_->initialize(); }
 
   bool SpyEventMatcherModule::filter(edm::Event& event, const edm::EventSetup& eventSetup) {
+    cablingWatcher_.check(eventSetup);
     uint8_t apvAddress = 0;
     uint32_t eventId = 0;
     try {

@@ -185,6 +185,8 @@ void SiStripCMMonitorPlugin::bookHistograms(DQMStore::IBooker& ibooker,
 void SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const auto tTopo = &iSetup.getData(tTopoToken_);
 
+  fedCablingWatcher_.check(iSetup);
+
   //static bool firstEvent = true;
   //static bool isBeingFilled = false;
 

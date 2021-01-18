@@ -147,6 +147,10 @@ namespace sistrip {
 
   // ------------ method called to for each event  ------------
   void FEDEmulatorModule::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+    cablingWatcher_.check(iSetup);
+    pedestalsWatcher_.check(iSetup);
+    noisesWatcher_.check(iSetup);
+
     //initialise the algorithms object for the zero suppression
     algorithms_->initialize(iSetup);
 
