@@ -356,19 +356,8 @@ upgradeWFs['vectorHits'] = UpgradeWorkflow_vectorHits(
     offset = 0.9,
 )
 
-<<<<<<< HEAD
-# MLPF workflows
-class UpgradeWorkflow_mlpf(UpgradeWorkflow):
-    def setup_(self, step, stepName, stepDict, k, properties):
-        if 'Reco' in step:
-            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
-    def condition(self, fragment, stepList, key, hasHarvest):
-        return fragment=="TTbar_14TeV" and '2021' in key
 
-upgradeWFs['mlpf'] = UpgradeWorkflow_mlpf(
-=======
 # Track DNN workflows
-
 class UpgradeWorkflow_trackdnn(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         stepDict[stepName][k] = merge([{'--procModifiers': 'trackdnn'}, stepDict[step][k]])
@@ -380,29 +369,17 @@ class UpgradeWorkflow_trackdnn(UpgradeWorkflow):
 
     def condition(self, fragment, stepList, key, hasHarvest):
         return fragment=="TTbar_14TeV" and '2021' in key
-
 upgradeWFs['trackdnn'] = UpgradeWorkflow_trackdnn(
->>>>>>> update for the PR 32128 (runTheMatrix, TfDnnCache)
     steps = [
         'Reco',
     ],
     PU = [
         'Reco',
     ],
-<<<<<<< HEAD
-    suffix = '_mlpf',
-    offset = 0.13,
-)
-upgradeWFs['mlpf'].step3 = {
-    '--datatier': 'GEN-SIM-RECO,RECOSIM,MINIAODSIM,DQMIO',
-    '--eventcontent': 'FEVTDEBUGHLT,RECOSIM,MINIAODSIM,DQM',
-    '--procModifiers': 'mlpf'
-}
-=======
     suffix = '_trackdnn',
     offset = 0.91,
 )
->>>>>>> update for the PR 32128 (runTheMatrix, TfDnnCache)
+
 
 # Patatrack workflows
 class UpgradeWorkflowPatatrack(UpgradeWorkflow):
