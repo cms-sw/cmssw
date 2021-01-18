@@ -30,7 +30,9 @@ namespace pat {
 
 }  // namespace pat
 
-void pat::PackedGenParticleSignalProducer::produce(edm::StreamID iID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
+void pat::PackedGenParticleSignalProducer::produce(edm::StreamID iID,
+                                                   edm::Event& iEvent,
+                                                   const edm::EventSetup& iSetup) const {
   const auto& genParticles = iEvent.getHandle(genParticleToken_);
   const auto& orig2packed = iEvent.get(assoToken_);
 
