@@ -219,6 +219,7 @@ void SiStripSpyMonitorModule::bookHistograms(DQMStore::IBooker& ibooker,
 // ------------ method called to for each event  ------------
 void SiStripSpyMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //update cabling and pedestals
+  cablingWatcher_.check(iSetup);
   if (evt_ == 0 && writeCabling_) {
     std::ofstream lOutCabling;
     lOutCabling.open("trackerDetId_FEDIdChNum_list.txt", std::ios::out);

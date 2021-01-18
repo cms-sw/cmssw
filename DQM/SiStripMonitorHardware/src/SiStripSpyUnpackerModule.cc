@@ -147,6 +147,7 @@ namespace sistrip {
    *  attaches the container to the Event.
    */
   void SpyUnpackerModule::produce(edm::Event& event, const edm::EventSetup& setup) {
+    cablingWatcher_.check(setup);
     //retrieve FED raw data (by label, which is "source" by default)
     edm::Handle<FEDRawDataCollection> buffers;
     event.getByToken(productToken_, buffers);

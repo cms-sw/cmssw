@@ -256,6 +256,8 @@ void SiStripSpyDisplayModule::analyze(const edm::Event& iEvent, const edm::Event
   using namespace edm;
   using namespace std;
 
+  cablingWatcher_.check(iSetup);
+
   // Set up the event-level histogram folder
   //-----------------------------------------
   // register to the TFileService

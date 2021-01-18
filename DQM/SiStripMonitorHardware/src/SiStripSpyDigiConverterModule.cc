@@ -115,6 +115,8 @@ namespace sistrip {
   void SpyDigiConverterModule::produce(edm::Event& event, const edm::EventSetup& setup) {
     static bool lFirstEvent = true;
 
+    cablingWatcher_.check(setup);
+
     if (!(storePayloadDigis_ || storeReorderedDigis_ || storeModuleDigis_ || storeAPVAddress_))
       return;
 

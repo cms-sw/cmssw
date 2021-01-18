@@ -198,6 +198,7 @@ SiStripFEDMonitorPlugin::~SiStripFEDMonitorPlugin() {}
 // ------------ method called to for each event  ------------
 void SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const auto tTopo = &iSetup.getData(tTopoToken_);
+  fedCablingWatcher_.check(iSetup);
 
   //get raw data
   edm::Handle<FEDRawDataCollection> rawDataCollectionHandle;
