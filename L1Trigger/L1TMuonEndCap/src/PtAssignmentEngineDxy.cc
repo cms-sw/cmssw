@@ -19,7 +19,7 @@ void PtAssignmentEngineDxy::configure(int verbose, const std::string pbFileNameD
   verbose_ = verbose;
 
   pbFileNameDxy_ = pbFileNameDxy;
-  std::string pbFilePathDxy_ = "L1Trigger/L1TMuon/data/emtf_protobufs/" + pbFileNameDxy_;
+  std::string pbFilePathDxy_ = "L1Trigger/L1TMuon/data/emtf_luts/" + pbFileNameDxy_;
 
   inputNameDxy_ = "batch_normalization_1_input";
   outputNamesDxy_ = {"dense_4/BiasAdd"};
