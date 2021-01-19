@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "RecoEcal/EgammaClusterAlgos/interface/PFECALSuperClusterAlgo.h"
+#include "RecoEcal/EgammaClusterAlgos/interface/SCEnergyCorrectorSemiParm.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 
@@ -304,20 +305,7 @@ void PFECALSuperClusterProducer::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<double>("phiwidth_SuperClusterEndcap", 0.6);
   desc.add<bool>("useDynamicDPhiWindow", true);
   desc.add<std::string>("PFSuperClusterCollectionBarrel", "particleFlowSuperClusterECALBarrel");
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<bool>("isHLT", false);
-    psd0.add<bool>("applySigmaIetaIphiBug", false);
-    psd0.add<edm::InputTag>("ecalRecHitsEE", edm::InputTag("ecalRecHit", "EcalRecHitsEE"));
-    psd0.add<edm::InputTag>("ecalRecHitsEB", edm::InputTag("ecalRecHit", "EcalRecHitsEB"));
-    psd0.add<std::string>("regressionKeyEB", "pfscecal_EBCorrection_offline_v2");
-    psd0.add<std::string>("regressionKeyEE", "pfscecal_EECorrection_offline_v2");
-    psd0.add<std::string>("uncertaintyKeyEB", "pfscecal_EBUncertainty_offline_v2");
-    psd0.add<std::string>("uncertaintyKeyEE", "pfscecal_EEUncertainty_offline_v2");
-    psd0.add<edm::InputTag>("vertexCollection", edm::InputTag("offlinePrimaryVertices"));
-    psd0.add<double>("eRecHitThreshold", 1.);
-    desc.add<edm::ParameterSetDescription>("regressionConfig", psd0);
-  }
+  desc.add<edm::ParameterSetDescription>("regressionConfig", SCEnergyCorrectorSemiParm::makePSetDescription());
   desc.add<bool>("applyCrackCorrections", false);
   desc.add<double>("satelliteClusterSeedThreshold", 50.0);
   desc.add<double>("etawidth_SuperClusterBarrel", 0.04);

@@ -3,12 +3,15 @@
 <use name="DataFormats/EcalRecHit"/>
 <use name="DataFormats/EgammaReco"/>
 <use name="DataFormats/Math"/>
+<use name="DataFormats/ParticleFlowReco"/>
+<use name="DataFormats/VertexReco"/>
 <use name="CondFormats/ESObjects"/>
 <use name="CondFormats/EgammaObjects"/>
 <use name="CondFormats/DataRecord"/>
 <use name="RecoEcal/EgammaCoreTools"/>
 <use name="Geometry/CaloGeometry"/>
 <use name="Geometry/CaloTopology"/>
+<use name="RecoEgamma/EgammaTools"/>
 <use name="RecoParticleFlow/PFClusterTools"/>
 <use name="clhep"/>
 <export>
