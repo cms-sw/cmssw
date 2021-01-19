@@ -8,7 +8,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/MessageLogger/interface/ErrorSummaryEntry.h"
+#include "DataFormats/Common/interface/ErrorSummaryEntry.h"
 #include "DataFormats/FWLite/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -19,7 +19,6 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "TPad.h"
 #include <cmath>
