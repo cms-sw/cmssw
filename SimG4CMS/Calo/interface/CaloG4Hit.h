@@ -62,6 +62,7 @@ public:
   void setIncidentEnergy(double e) { theIncidentEnergy = e; }
 
   int getTrackID() const { return hitID.trackID(); }
+
   uint32_t getUnitID() const { return hitID.unitID(); }
   double getTimeSlice() const { return hitID.timeSlice(); }
   int getTimeSliceID() const { return hitID.timeSliceID(); }
@@ -97,6 +98,8 @@ public:
       return (a->getUnitID() < b->getUnitID());
     } else if (a->getDepth() != b->getDepth()) {
       return (a->getDepth() < b->getDepth());
+    } else if (a->getID().fineTrackID() != b->getID().fineTrackID()) {
+      return (a->getID().fineTrackID() < b->getID().fineTrackID());
     } else {
       return (a->getTimeSliceID() < b->getTimeSliceID());
     }
@@ -107,7 +110,7 @@ class CaloG4HitEqual {
 public:
   bool operator()(const CaloG4Hit* a, const CaloG4Hit* b) {
     return (a->getTrackID() == b->getTrackID() && a->getUnitID() == b->getUnitID() && a->getDepth() == b->getDepth() &&
-            a->getTimeSliceID() == b->getTimeSliceID());
+            a->getTimeSliceID() == b->getTimeSliceID() && a->getID().fineTrackID() == b->getID().fineTrackID());
   }
 };
 
