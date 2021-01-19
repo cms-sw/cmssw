@@ -85,6 +85,8 @@ unsigned HGCalGeomRotation::uvMappingToSector0(WaferCentring waferCentring, int&
   } else if (sector == 2) {
     moduleURotated = -moduleV + offset;
     moduleVRotated = moduleU - moduleV + offset;
+  } else {
+    throw cms::Exception("RotationException") << "HGCalGeomRotation: desired sector must be eother 0, 1 or 2";
   }
 
   moduleU = moduleURotated;
