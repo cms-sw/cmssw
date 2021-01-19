@@ -69,8 +69,10 @@
   <class name="edm::Wrapper<l1t::TkHTMiss>"/>
   <class name="edm::Wrapper<std::vector<l1t::TkHTMiss> >"/>
 
-  <class name="l1t::TkMuon" ClassVersion="3">
+  <class name="l1t::TkMuon" ClassVersion="4">
+   <version ClassVersion="4" checksum="2325700664"/>
    <version ClassVersion="3" checksum="4118337663"/>
+
   </class>
   <class name="std::vector<l1t::TkMuon>"/>
   <class name="edm::Wrapper<std::vector<l1t::TkMuon> >"/>
