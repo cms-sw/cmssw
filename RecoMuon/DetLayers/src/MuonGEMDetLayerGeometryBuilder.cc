@@ -23,6 +23,7 @@ MuonGEMDetLayerGeometryBuilder::~MuonGEMDetLayerGeometryBuilder() {}
 pair<vector<DetLayer*>, vector<DetLayer*> > MuonGEMDetLayerGeometryBuilder::buildEndcapLayers(const GEMGeometry& geo) {
   vector<DetLayer*> endcapLayers[2];
 
+  const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuonGEMDetLayerGeometryBuilder";
   for (auto st : geo.stations()) {
     const int maxLayerId = (st->station() == GEMDetId::minStationId0) ? GEMDetId::maxLayerId0 : GEMDetId::maxLayerId;
     for (int layer = GEMDetId::minLayerId + 1; layer <= maxLayerId; ++layer) {
@@ -91,10 +92,7 @@ bool MuonGEMDetLayerGeometryBuilder::isFront(const GEMDetId& gemId) {
   if (gemId.station() == GEMDetId::minStationId0)
     return true;
 
-  if (gemId.chamber() % 2 == 0)
-    return true;
-
-  return false;
+  return (gemId.chamber() % 2 == 0);
 }
 
 MuDetRing* MuonGEMDetLayerGeometryBuilder::makeDetRing(vector<const GeomDet*>& geomDets) {
