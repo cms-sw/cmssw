@@ -569,7 +569,7 @@ bool TrackletCalculatorDisplaced::LLLSeeding(const Stub* innerFPGAStub,
                                    << ")";
     success = false;
   }
-  if (std::abs(z0approx) > 1.8 * settings_.z0cut()) {
+  if (std::abs(z0approx) > settings_.disp_z0cut()) {
     if (settings_.debugTracklet())
       edm::LogVerbatim("Tracklet") << "Failed tracklet z0 cut " << z0approx << " in layer " << layer_;
     success = false;
@@ -984,7 +984,7 @@ bool TrackletCalculatorDisplaced::DDLSeeding(const Stub* innerFPGAStub,
                                    << ")";
     success = false;
   }
-  if (std::abs(z0approx) > 1.8 * settings_.z0cut()) {
+  if (std::abs(z0approx) > settings_.disp_z0cut()) {
     if (settings_.debugTracklet())
       edm::LogVerbatim("Tracklet") << "Failed tracklet z0 cut " << z0approx;
     success = false;
@@ -1384,7 +1384,7 @@ bool TrackletCalculatorDisplaced::LLDSeeding(const Stub* innerFPGAStub,
                                    << ")";
     success = false;
   }
-  if (std::abs(z0approx) > 1.8 * settings_.z0cut()) {
+  if (std::abs(z0approx) > settings_.disp_z0cut()) {
     if (settings_.debugTracklet())
       edm::LogVerbatim("Tracklet") << "Failed tracklet z0 cut " << z0approx;
     success = false;
@@ -1759,7 +1759,7 @@ void TrackletCalculatorDisplaced::approxproj(double halfRinv,
                                              double& phiprojder,
                                              double& zproj,
                                              double& zprojder) {
-  if (std::abs(2.0 * halfRinv) > settings_.rinvcut() || std::abs(z0) > 1.8 * settings_.z0cut() ||
+  if (std::abs(2.0 * halfRinv) > settings_.rinvcut() || std::abs(z0) > settings_.disp_z0cut() ||
       std::abs(d0) > settings_.maxd0()) {
     phiproj = 0.0;
     return;
@@ -1792,7 +1792,7 @@ void TrackletCalculatorDisplaced::approxprojdisk(double halfRinv,
                                                  double& phiprojder,
                                                  double& rproj,
                                                  double& rprojder) {
-  if (std::abs(2.0 * halfRinv) > settings_.rinvcut() || std::abs(z0) > 1.8 * settings_.z0cut() ||
+  if (std::abs(2.0 * halfRinv) > settings_.rinvcut() || std::abs(z0) > settings_.disp_z0cut() ||
       std::abs(d0) > settings_.maxd0()) {
     phiproj = 0.0;
     return;
@@ -1925,7 +1925,7 @@ void TrackletCalculatorDisplaced::approxtracklet(double r1,
                    rderdisk[i]);
   }
 
-  if (std::abs(rinv) > settings_.rinvcut() || std::abs(z0) > 1.8 * settings_.z0cut() ||
+  if (std::abs(rinv) > settings_.rinvcut() || std::abs(z0) > settings_.disp_z0cut() ||
       std::abs(d0) > settings_.maxd0()) {
     phi0 = 0.0;
     return;
