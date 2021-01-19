@@ -44,7 +44,6 @@
 class ConvertedPhotonProducer : public edm::stream::EDProducer<> {
 public:
   ConvertedPhotonProducer(const edm::ParameterSet& ps);
-  ~ConvertedPhotonProducer() override;
 
   void beginRun(edm::Run const&, const edm::EventSetup& es) final;
   void produce(edm::Event& evt, const edm::EventSetup& es) override;
@@ -83,21 +82,19 @@ private:
   edm::EDGetTokenT<edm::View<reco::CaloCluster> > bcEndcapCollection_;
   edm::EDGetTokenT<edm::View<reco::CaloCluster> > scHybridBarrelProducer_;
   edm::EDGetTokenT<edm::View<reco::CaloCluster> > scIslandEndcapProducer_;
-  edm::ParameterSet conf_;
   edm::EDGetTokenT<CaloTowerCollection> hcalTowers_;
 
   edm::ESHandle<CaloGeometry> theCaloGeom_;
   edm::ESHandle<MagneticField> theMF_;
-  edm::ESHandle<TransientTrackBuilder> theTransientTrackBuilder_;
+  edm::ESHandle<TransientTrackBuilder> transientTrackBuilder_;
 
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> mFToken_;
   edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transientTrackToken_;
 
-  ConversionTrackPairFinder* theTrackPairFinder_;
-  ConversionVertexFinder* theVertexFinder_;
-  ConversionTrackEcalImpactPoint* theEcalImpactPositionFinder_;
-  int nEvt_;
+  ConversionTrackPairFinder trackPairFinder_;
+  ConversionVertexFinder vertexFinder_;
+  //int nEvt_;
   std::string algoName_;
 
   double hOverEConeSize_;
@@ -110,7 +107,7 @@ private:
   int maxNumOfCandidates_;
   bool risolveAmbiguity_;
 
-  ConversionLikelihoodCalculator* theLikelihoodCalc_;
+  ConversionLikelihoodCalculator likelihoodCalc_;
   std::string likelihoodWeights_;
 
   math::XYZPointF toFConverterP(const math::XYZPoint& val) { return math::XYZPointF(val.x(), val.y(), val.z()); }
@@ -122,25 +119,18 @@ private:
 DEFINE_FWK_MODULE(ConvertedPhotonProducer);
 
 ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config)
-    : conf_(config), theTrackPairFinder_(nullptr), theVertexFinder_(nullptr), theLikelihoodCalc_(nullptr) {
-  //cout<< " ConvertedPhotonProducer CTOR " << "\n";
+    : bcBarrelCollection_{consumes(config.getParameter<edm::InputTag>("bcBarrelCollection"))},
+      bcEndcapCollection_{consumes(config.getParameter<edm::InputTag>("bcEndcapCollection"))}
 
-  // use onfiguration file to setup input collection names
-  bcBarrelCollection_ =
-      consumes<edm::View<reco::CaloCluster> >(conf_.getParameter<edm::InputTag>("bcBarrelCollection"));
-  bcEndcapCollection_ =
-      consumes<edm::View<reco::CaloCluster> >(conf_.getParameter<edm::InputTag>("bcEndcapCollection"));
+      ,
+      scHybridBarrelProducer_{consumes(config.getParameter<edm::InputTag>("scHybridBarrelProducer"))},
+      scIslandEndcapProducer_{consumes(config.getParameter<edm::InputTag>("scIslandEndcapProducer"))},
+      vertexFinder_{config} {
+  std::string oitrackprod = config.getParameter<std::string>("conversionOITrackProducer");
+  std::string iotrackprod = config.getParameter<std::string>("conversionIOTrackProducer");
 
-  scHybridBarrelProducer_ =
-      consumes<edm::View<reco::CaloCluster> >(conf_.getParameter<edm::InputTag>("scHybridBarrelProducer"));
-  scIslandEndcapProducer_ =
-      consumes<edm::View<reco::CaloCluster> >(conf_.getParameter<edm::InputTag>("scIslandEndcapProducer"));
-
-  std::string oitrackprod = conf_.getParameter<std::string>("conversionOITrackProducer");
-  std::string iotrackprod = conf_.getParameter<std::string>("conversionIOTrackProducer");
-
-  std::string oitrackassoc = conf_.getParameter<std::string>("outInTrackSCAssociation");
-  std::string iotrackassoc = conf_.getParameter<std::string>("inOutTrackSCAssociation");
+  std::string oitrackassoc = config.getParameter<std::string>("outInTrackSCAssociation");
+  std::string iotrackassoc = config.getParameter<std::string>("inOutTrackSCAssociation");
 
   edm::InputTag oitracks(oitrackprod), oitracksassoc(oitrackprod, oitrackassoc), iotracks(iotrackprod),
       iotracksassoc(iotrackprod, iotrackassoc);
@@ -150,22 +140,22 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
   conversionIOTrackProducer_ = consumes<reco::TrackCollection>(iotracks);
   inOutTrackSCAssociationCollection_ = consumes<reco::TrackCaloClusterPtrAssociation>(iotracksassoc);
 
-  generalTrackProducer_ = consumes<reco::TrackCollection>(conf_.getParameter<edm::InputTag>("generalTracksSrc"));
+  generalTrackProducer_ = consumes<reco::TrackCollection>(config.getParameter<edm::InputTag>("generalTracksSrc"));
 
-  algoName_ = conf_.getParameter<std::string>("AlgorithmName");
+  algoName_ = config.getParameter<std::string>("AlgorithmName");
 
-  hcalTowers_ = consumes<CaloTowerCollection>(conf_.getParameter<edm::InputTag>("hcalTowers"));
-  hOverEConeSize_ = conf_.getParameter<double>("hOverEConeSize");
-  maxHOverE_ = conf_.getParameter<double>("maxHOverE");
-  minSCEt_ = conf_.getParameter<double>("minSCEt");
-  recoverOneTrackCase_ = conf_.getParameter<bool>("recoverOneTrackCase");
-  dRForConversionRecovery_ = conf_.getParameter<double>("dRForConversionRecovery");
-  deltaCotCut_ = conf_.getParameter<double>("deltaCotCut");
-  minApproachDisCut_ = conf_.getParameter<double>("minApproachDisCut");
+  hcalTowers_ = consumes<CaloTowerCollection>(config.getParameter<edm::InputTag>("hcalTowers"));
+  hOverEConeSize_ = config.getParameter<double>("hOverEConeSize");
+  maxHOverE_ = config.getParameter<double>("maxHOverE");
+  minSCEt_ = config.getParameter<double>("minSCEt");
+  recoverOneTrackCase_ = config.getParameter<bool>("recoverOneTrackCase");
+  dRForConversionRecovery_ = config.getParameter<double>("dRForConversionRecovery");
+  deltaCotCut_ = config.getParameter<double>("deltaCotCut");
+  minApproachDisCut_ = config.getParameter<double>("minApproachDisCut");
 
-  maxNumOfCandidates_ = conf_.getParameter<int>("maxNumOfCandidates");
-  risolveAmbiguity_ = conf_.getParameter<bool>("risolveConversionAmbiguity");
-  likelihoodWeights_ = conf_.getParameter<std::string>("MVA_weights_location");
+  maxNumOfCandidates_ = config.getParameter<int>("maxNumOfCandidates");
+  risolveAmbiguity_ = config.getParameter<bool>("risolveConversionAmbiguity");
+  likelihoodWeights_ = config.getParameter<std::string>("MVA_weights_location");
 
   caloGeomToken_ = esConsumes();
   mFToken_ = esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>();
@@ -173,29 +163,19 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
       edm::ESInputTag("", "TransientTrackBuilder"));
 
   // use configuration file to setup output collection names
-  ConvertedPhotonCollection_ = conf_.getParameter<std::string>("convertedPhotonCollection");
-  CleanedConvertedPhotonCollection_ = conf_.getParameter<std::string>("cleanedConvertedPhotonCollection");
+  ConvertedPhotonCollection_ = config.getParameter<std::string>("convertedPhotonCollection");
+  CleanedConvertedPhotonCollection_ = config.getParameter<std::string>("cleanedConvertedPhotonCollection");
 
   // Register the product
   produces<reco::ConversionCollection>(ConvertedPhotonCollection_);
   produces<reco::ConversionCollection>(CleanedConvertedPhotonCollection_);
 
   // instantiate the Track Pair Finder algorithm
-  theTrackPairFinder_ = new ConversionTrackPairFinder();
   edm::FileInPath path_mvaWeightFile(likelihoodWeights_.c_str());
-  theLikelihoodCalc_ = new ConversionLikelihoodCalculator();
-  theLikelihoodCalc_->setWeightsFile(path_mvaWeightFile.fullPath().c_str());
-  // instantiate the Vertex Finder algorithm
-  theVertexFinder_ = new ConversionVertexFinder(conf_);
+  likelihoodCalc_.setWeightsFile(path_mvaWeightFile.fullPath().c_str());
 
   // Inizilize my global event counter
-  nEvt_ = 0;
-}
-
-ConvertedPhotonProducer::~ConvertedPhotonProducer() {
-  delete theTrackPairFinder_;
-  delete theLikelihoodCalc_;
-  delete theVertexFinder_;
+  //nEvt_ = 0;
 }
 
 void ConvertedPhotonProducer::beginRun(edm::Run const& r, edm::EventSetup const& theEventSetup) {
@@ -204,12 +184,12 @@ void ConvertedPhotonProducer::beginRun(edm::Run const& r, edm::EventSetup const&
   theMF_ = theEventSetup.getHandle(mFToken_);
 
   // Transform Track into TransientTrack (needed by the Vertex fitter)
-  theTransientTrackBuilder_ = theEventSetup.getHandle(transientTrackToken_);
+  transientTrackBuilder_ = theEventSetup.getHandle(transientTrackToken_);
 }
 
 void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
   using namespace edm;
-  nEvt_++;
+  //nEvt_++;
 
   //  LogDebug("ConvertedPhotonProducer")   << "ConvertedPhotonProduce::produce event number " <<   theEvent.id() << " Global counter " << nEvt_ << "\n";
   //  std::cout    << "ConvertedPhotonProduce::produce event number " <<   theEvent.id() << " Global counter " << nEvt_ << "\n";
@@ -318,12 +298,12 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 
   if (validTrackInputs) {
     //do the conversion:
-    std::vector<reco::TransientTrack> t_outInTrk = (*theTransientTrackBuilder_).build(outInTrkHandle);
-    std::vector<reco::TransientTrack> t_inOutTrk = (*theTransientTrackBuilder_).build(inOutTrkHandle);
+    std::vector<reco::TransientTrack> t_outInTrk = (*transientTrackBuilder_).build(outInTrkHandle);
+    std::vector<reco::TransientTrack> t_inOutTrk = (*transientTrackBuilder_).build(inOutTrkHandle);
 
     ///// Find the +/- pairs
     std::map<std::vector<reco::TransientTrack>, reco::CaloClusterPtr, CompareTwoTracksVectors> allPairs;
-    allPairs = theTrackPairFinder_->run(
+    allPairs = trackPairFinder_.run(
         t_outInTrk, outInTrkHandle, outInTrkSCAssocHandle, t_inOutTrk, inOutTrkHandle, inOutTrkSCAssocHandle);
     //LogDebug("ConvertedPhotonProducer")  << "ConvertedPhotonProducer  allPairs.size " << allPairs.size() << "\n";
 
@@ -376,8 +356,7 @@ void ConvertedPhotonProducer::buildCollections(
 
   std::vector<reco::TransientTrack> t_generalTrk;
   if (recoverOneTrackCase_)
-    t_generalTrk = (*theTransientTrackBuilder_).build(generalTrkHandle);
-  //const CaloGeometry* geometry = theCaloGeom_.product();
+    t_generalTrk = transientTrackBuilder_->build(generalTrkHandle);
 
   //  Loop over SC in the barrel and reconstruct converted photons
   int myCands = 0;
@@ -434,7 +413,7 @@ void ConvertedPhotonProducer::buildCollections(
         const std::string metname = "ConvertedPhotons|ConvertedPhotonProducer";
         if ((iPair->first).size() > 1) {
           try {
-            theVertexFinder_->run(iPair->first, theConversionVertex);
+            vertexFinder_.run(iPair->first, theConversionVertex);
 
           } catch (cms::Exception& e) {
             //std::cout << " cms::Exception caught in ConvertedPhotonProducer::produce" << "\n" ;
@@ -465,8 +444,7 @@ void ConvertedPhotonProducer::buildCollections(
                ++iTk) {
             //LogDebug("ConvertedPhotonProducer")  << "  ConvertedPhotonProducer Transient Tracks in the pair  charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->track().innerMomentum() << "\n";
 
-            const reco::TrackTransientTrack* ttt =
-                dynamic_cast<const reco::TrackTransientTrack*>(iTk->basicTransientTrack());
+            auto const* ttt = dynamic_cast<const reco::TrackTransientTrack*>(iTk->basicTransientTrack());
             reco::TrackRef myTkRef = ttt->persistentTrackRef();
 
             //LogDebug("ConvertedPhotonProducer")  << " ConvertedPhotonProducer Ref to Rec Tracks in the pair  charge " << myTkRef->charge() << " Num of RecHits " << myTkRef->recHitsSize() << " inner momentum " << myTkRef->innerMomentum() << "\n";
@@ -501,8 +479,7 @@ void ConvertedPhotonProducer::buildCollections(
                                         trackPout,
                                         like,
                                         algo);
-          //    like = theLikelihoodCalc_->calculateLikelihood(newCandidate, es );
-          like = theLikelihoodCalc_->calculateLikelihood(newCandidate);
+          like = likelihoodCalc_.calculateLikelihood(newCandidate);
           //    std::cout << "like = " << like << std::endl;
           newCandidate.setMVAout(like);
           outputConvPhotonCollection.push_back(newCandidate);
@@ -520,8 +497,7 @@ void ConvertedPhotonProducer::buildCollections(
           trackPout.clear();
           std::vector<reco::TransientTrack>::const_iterator iTk = (iPair->first).begin();
           //std::cout  << "  ConvertedPhotonProducer Transient Tracks in the pair  charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->track().innerMomentum() << " pt " << sqrt(iTk->track().innerMomentum().perp2()) << "\n";
-          const reco::TrackTransientTrack* ttt =
-              dynamic_cast<const reco::TrackTransientTrack*>(iTk->basicTransientTrack());
+          auto const* ttt = dynamic_cast<const reco::TrackTransientTrack*>(iTk->basicTransientTrack());
           reco::TrackRef myTk = ttt->persistentTrackRef();
           if (myTk->extra().isNonnull()) {
             trackInnPos.push_back(toFConverterP(myTk->innerPosition()));
@@ -537,11 +513,8 @@ void ConvertedPhotonProducer::buildCollections(
             float dCotTheta = -999.;
             reco::TrackRef goodRef;
             std::vector<reco::TransientTrack>::const_iterator iGoodGenTran;
-            for (std::vector<reco::TransientTrack>::const_iterator iTran = t_generalTrk.begin();
-                 iTran != t_generalTrk.end();
-                 ++iTran) {
-              const reco::TrackTransientTrack* ttt =
-                  dynamic_cast<const reco::TrackTransientTrack*>(iTran->basicTransientTrack());
+            for (auto iTran = t_generalTrk.begin(); iTran != t_generalTrk.end(); ++iTran) {
+              auto const* ttt = dynamic_cast<const reco::TrackTransientTrack*>(iTran->basicTransientTrack());
               reco::TrackRef trRef = ttt->persistentTrackRef();
               if (trRef->charge() * myTk->charge() > 0)
                 continue;
@@ -575,7 +548,7 @@ void ConvertedPhotonProducer::buildCollections(
                 mypair.push_back(*iGoodGenTran);
 
                 try {
-                  theVertexFinder_->run(iPair->first, theConversionVertex);
+                  vertexFinder_.run(iPair->first, theConversionVertex);
 
                 } catch (cms::Exception& e) {
                   //std::cout << " cms::Exception caught in ConvertedPhotonProducer::produce" << "\n" ;
@@ -586,21 +559,20 @@ void ConvertedPhotonProducer::buildCollections(
             }
 
           }  // bool On/Off one track case recovery using generalTracks
-          double like = -999.;
-          reco::Conversion newCandidate(scPtrVec,
-                                        trackPairRef,
-                                        trkPositionAtEcal,
-                                        theConversionVertex,
-                                        matchingBC,
-                                        minAppDist,
-                                        trackInnPos,
-                                        trackPin,
-                                        trackPout,
-                                        like,
-                                        algo);
-          like = theLikelihoodCalc_->calculateLikelihood(newCandidate);
-          newCandidate.setMVAout(like);
-          outputConvPhotonCollection.push_back(newCandidate);
+          const double like = -999.;
+          outputConvPhotonCollection.emplace_back(scPtrVec,
+                                                  trackPairRef,
+                                                  trkPositionAtEcal,
+                                                  theConversionVertex,
+                                                  matchingBC,
+                                                  minAppDist,
+                                                  trackInnPos,
+                                                  trackPin,
+                                                  trackPout,
+                                                  like,
+                                                  algo);
+          auto& newCandidate = outputConvPhotonCollection.back();
+          newCandidate.setMVAout(likelihoodCalc_.calculateLikelihood(newCandidate));
 
         }  // case with only on track: looking in general tracks
       }
@@ -683,8 +655,6 @@ std::vector<reco::ConversionRef> ConvertedPhotonProducer::solveAmbiguity(
 
 float ConvertedPhotonProducer::calculateMinApproachDistance(const reco::TrackRef& track1,
                                                             const reco::TrackRef& track2) {
-  float dist = 9999.;
-
   double x1, x2, y1, y2;
   double xx_1 = track1->innerPosition().x(), yy_1 = track1->innerPosition().y(), zz_1 = track1->innerPosition().z();
   double xx_2 = track2->innerPosition().x(), yy_2 = track2->innerPosition().y(), zz_2 = track2->innerPosition().z();
@@ -692,9 +662,8 @@ float ConvertedPhotonProducer::calculateMinApproachDistance(const reco::TrackRef
   double radius2 = track2->innerMomentum().Rho() / (.3 * (theMF_->inTesla(GlobalPoint(xx_2, yy_2, zz_2)).z())) * 100;
   getCircleCenter(track1, radius1, x1, y1);
   getCircleCenter(track2, radius2, x2, y2);
-  dist = sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)) - radius1 - radius2;
 
-  return dist;
+  return sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)) - radius1 - radius2;
 }
 
 void ConvertedPhotonProducer::getCircleCenter(const reco::TrackRef& tk, double r, double& x0, double& y0) {
