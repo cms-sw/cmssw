@@ -14,7 +14,7 @@
 #include <TString.h>  // Form
 
 #include <fstream>
-#include <mutex>
+#include "tbb/concurrent_unordered_set.h"
 
 namespace deep_tau {
   constexpr int NumberOfOutputs = 4;
@@ -422,17 +422,14 @@ namespace {
   }  // namespace dnn_inputs_2017_v2
 
   float getTauID(const pat::Tau& tau, const std::string& tauID, float default_value = -999.) {
-    static std::mutex g_mutex;
-    static std::set<std::string> isFirstWarning;
+    static tbb::concurrent_unordered_set<std::string> isFirstWarning;
     if (tau.isTauIDAvailable(tauID)) {
       return tau.tauID(tauID);
     } else {
-      std::lock_guard<std::mutex> guard(g_mutex);
-      if (isFirstWarning.find(tauID) == isFirstWarning.end()) {
-        std::cout << "Warning in <getTauID>: No tauID '" << tauID
-                  << "' available in pat::Tau given as function argument."
-                  << " Using default_value = " << default_value << " instead." << std::endl;
-        isFirstWarning.insert(tauID);
+      if (isFirstWarning.insert(tauID).second) {
+        edm::LogWarning("DeepTauID") << "Warning in <getTauID>: No tauID '" << tauID
+                                     << "' available in pat::Tau given as function argument."
+                                     << " Using default_value = " << default_value << " instead." << std::endl;
       }
       return default_value;
     }
