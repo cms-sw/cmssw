@@ -52,29 +52,29 @@ def main(opts):
     htmlReport = val.createHtmlReport(validationName=opts.html_validation_name[0])   
 
     #layerClusters
-    if opts.collection==layerClustersGeneralLabel:
+    if (opts.collection == layerClustersGeneralLabel):
 	hgclayclus = [hgcalPlots.hgcalLayerClustersPlotter]
 	hgcalPlots.append_hgcalLayerClustersPlots("hgcalLayerClusters", "Layer Clusters", extendedFlag)
         val.doPlots(hgclayclus, plotterDrawArgs=drawArgs)
     #simClusters
-    elif (opts.collection == simClustersGeneralLabel) :
+    elif (opts.collection == simClustersGeneralLabel):
         hgcsimclus = [hgcalPlots.hgcalSimClustersPlotter]
         for i_iter in simClustersIters:
             hgcalPlots.append_hgcalSimClustersPlots(i_iter, i_iter)
         val.doPlots(hgcsimclus, plotterDrawArgs=drawArgs)
     #multiClusters
-    elif opts.collection == multiclustersGeneralLabel:
+    elif (opts.collection == multiclustersGeneralLabel):
         hgcmulticlus = [hgcalPlots.hgcalMultiClustersPlotter]
         hgcalPlots.append_hgcalMultiClustersPlots(multiclustersGeneralLabel, "MultiClusters")
         val.doPlots(hgcmulticlus, plotterDrawArgs=drawArgs)
     #ticlTracksters
-    elif (opts.collection == trackstersGeneralLabel) :
+    elif (opts.collection == trackstersGeneralLabel):
         hgcmulticlus = [hgcalPlots.hgcalMultiClustersPlotter]
         for i_iter in trackstersIters :
             tracksterCollection = i_iter.replace("ticlMultiClustersFromTracksters","ticlTracksters")
             hgcalPlots.append_hgcalMultiClustersPlots(i_iter, tracksterCollection)
         val.doPlots(hgcmulticlus, plotterDrawArgs=drawArgs)
-    elif opts.collection==caloParticlesLabel:
+    elif (opts.collection == caloParticlesLabel):
         particletypes = {"pion-":"-211", "pion+":"211", "pion0": "111",
                          "muon-": "-13", "muon+":"13", 
                          "electron-": "-11", "electron+": "11", "photon": "22", 
@@ -84,14 +84,14 @@ def main(opts):
             hgcalPlots.append_hgcalCaloParticlesPlots(sample.files(), i_partID, i_part)
         val.doPlots(hgcaloPart, plotterDrawArgs=drawArgs)
     #hitValidation
-    elif opts.collection==hitValidationLabel:
+    elif (opts.collection == hitValidationLabel):
     	hgchit = [hgcalPlots.hgcalHitPlotter]
         hgcalPlots.append_hgcalHitsPlots('HGCalSimHitsV', "Simulated Hits")
         hgcalPlots.append_hgcalHitsPlots('HGCalRecHitsV', "Reconstruced Hits")
         hgcalPlots.append_hgcalDigisPlots('HGCalDigisV', "Digis")
         val.doPlots(hgchit, plotterDrawArgs=drawArgs)
     #hitCalibration
-    elif opts.collection==hitCalibrationLabel:
+    elif (opts.collection == hitCalibrationLabel):
         hgchitcalib = [hgcalPlots.hgcalHitCalibPlotter]
         val.doPlots(hgchitcalib, plotterDrawArgs=drawArgs)
     else :
