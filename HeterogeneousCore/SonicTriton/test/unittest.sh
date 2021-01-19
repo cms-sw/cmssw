@@ -24,7 +24,7 @@ fi
 cmsRun ${LOCALTOP}/src/HeterogeneousCore/SonicTriton/test/tritonTest_cfg.py modules=TritonGraphProducer,TritonGraphFilter,TritonGraphAnalyzer maxEvents=1 unittest=1 verbose=1
 CMSEXIT=$?
 
-LOGFILE="$(ls -rt log_triton_server_instance*.log | tail -n 1)"
+LOGFILE="$(ls -rt ${LOCALTOP}/log_triton_server_instance*.log | tail -n 1)"
 echo -e '\n=====\nContents of '$LOGFILE':\n=====\n'
 cat "$LOGFILE"
 
