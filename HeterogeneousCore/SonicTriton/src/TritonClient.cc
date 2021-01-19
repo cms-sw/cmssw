@@ -335,9 +335,11 @@ TritonClient::ServerSideStats TritonClient::summarizeServerStats(const inference
 inference::ModelStatistics TritonClient::getServerSideStatus() const {
   if (verbose_) {
     inference::ModelStatisticsResponse resp;
-    triton_utils::warnIfError(client_->ModelInferenceStatistics(&resp, options_.model_name_, options_.model_version_),
-                              "getServerSideStatus(): unable to get model statistics");
-    return *(resp.model_stats().begin());
+    bool success = triton_utils::warnIfError(
+        client_->ModelInferenceStatistics(&resp, options_.model_name_, options_.model_version_),
+        "getServerSideStatus(): unable to get model statistics");
+    if (success)
+      return *(resp.model_stats().begin());
   }
   return inference::ModelStatistics{};
 }
