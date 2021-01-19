@@ -145,6 +145,7 @@ MessageSender::~MessageSender() {}
 // statics can be file scoped rather than class scoped and therefore
 // better encapsulated.
 namespace edm {
+  using namespace messagelogger;
 
   bool EnableLoggedErrorsSummary() {
     bool ret = errorSummaryIsBeingKept.exchange(true, std::memory_order_acq_rel);
