@@ -1176,28 +1176,45 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
 }
 
 bool L1EGCrystalClusterEmulatorProducer::passes_iso(float pt, float iso) {
+  bool is_iso = true;
   if (pt < slideIsoPtThreshold) {
     if (!((a0_80 - a1_80 * pt) > iso))
-      return false;
+      is_iso = false;
   } else {
     if (iso > a0)
-      return false;
+      is_iso = false;
   }
-  return true;
+  if (pt > 130)
+    is_iso = true;
+  return is_iso;
 }
 
 bool L1EGCrystalClusterEmulatorProducer::passes_looseTkiso(float pt, float iso) {
-  return (b0 + b1 * std::exp(-b2 * pt) > iso);
+  bool is_iso = (b0 + b1 * std::exp(-b2 * pt) > iso);
+  if (pt > 130)
+    is_iso = true;
+  return is_iso;
 }
 
 bool L1EGCrystalClusterEmulatorProducer::passes_ss(float pt, float ss) {
-  return ((c0_ss + c1_ss * std::exp(-c2_ss * pt)) <= ss);
+  bool is_ss = ((c0_ss + c1_ss * std::exp(-c2_ss * pt)) <= ss);
+  if (pt > 130)
+    is_ss = true;
+  return is_ss;
 }
 
-bool L1EGCrystalClusterEmulatorProducer::passes_photon(float pt, float pss) { return (pss > d0 - d1 * pt); }
+bool L1EGCrystalClusterEmulatorProducer::passes_photon(float pt, float pss) {
+  bool is_ss = (pss > d0 - d1 * pt);
+  if (pt > 130)
+    is_ss = true;
+  return is_ss;
+}
 
 bool L1EGCrystalClusterEmulatorProducer::passes_looseTkss(float pt, float ss) {
-  return ((e0_looseTkss - e1_looseTkss * std::exp(-e2_looseTkss * pt)) <= ss);
+  bool is_ss = ((e0_looseTkss - e1_looseTkss * std::exp(-e2_looseTkss * pt)) <= ss);
+  if (pt > 130)
+    is_ss = true;
+  return is_ss;
 }
 
 //define this as a plug-in
