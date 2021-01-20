@@ -26,7 +26,7 @@ public:
     //ExternalWork is not compatible with one modules, so Sync mode is enforced
     if (clientPset_.getParameter<std::string>("mode") != "Sync") {
       edm::LogWarning("ResetClientMode") << "Resetting client mode to Sync for SonicOneEDAnalyzer";
-      clientPset_.addParameter<std::string>("Mode", "Sync");
+      clientPset_.addParameter<std::string>("mode", "Sync");
     }
   }
   //destructor
