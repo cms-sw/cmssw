@@ -16,6 +16,9 @@ L1TkMuons = cms.EDProducer("L1TkMuonProducer",
     ############################################### TP algo
     ETAMIN = cms.double(0),
     ETAMAX = cms.double(5.),        # no cut
+    ETABARRELOVERLAP = cms.double(0.83),                           
+    ETAOVERLAPENDCAP = cms.double(1.24),                           
+    useRegionEtaMatching = cms.bool(True),
     ZMAX = cms.double( 25. ),       # in cm
     CHI2MAX = cms.double( 100. ),
     PTMINTRA = cms.double( 2. ),    # in GeV
