@@ -338,7 +338,7 @@ std::vector<DigitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::drift(
                                                      << "****************";
         // Drift this charges on the other pixel
         auto mig_colpoints = drift(hit, pixdet, bfield, migrated_charges, false);
-        collection_points.insert(std::end(collection_points),mig_colpoints.begin(),mig_colpoints.end());
+        collection_points.insert(std::end(collection_points), mig_colpoints.begin(), mig_colpoints.end());
         LogDebug("Pixel3DDigitizerAlgorithm::drift") << "*****************"
                                                      << "DOME MIGRATION"
                                                      << "****************";
