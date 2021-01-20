@@ -10,6 +10,10 @@ GEMStripDigiValidation::GEMStripDigiValidation(const edm::ParameterSet& pset)
   const auto& simhit_pset = pset.getParameterSet("gemSimHit");
   const auto& simhit_tag = simhit_pset.getParameter<edm::InputTag>("inputTag");
   simhit_token_ = consumes<edm::PSimHitContainer>(simhit_tag);
+
+  const auto& digisimlink_tag = pset.getParameter<edm::InputTag>("gemDigiSimLink");
+  digisimlink_token_ = consumes<edm::DetSetVector<GEMDigiSimLink>>(digisimlink_tag);
+
   geomToken_ = esConsumes<GEMGeometry, MuonGeometryRecord>();
   geomTokenBeginRun_ = esConsumes<GEMGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
 }
@@ -169,6 +173,14 @@ void GEMStripDigiValidation::analyze(const edm::Event& event, const edm::EventSe
     edm::LogError(kLogCategory_) << "Failed to initialize GEM geometry.";
     return;
   }
+
+  edm::Handle<edm::DetSetVector<GEMDigiSimLink>> digiSimLink;
+  event.getByToken(digisimlink_token_, digiSimLink);
+  if (not digiSimLink.isValid()) {
+    edm::LogError(kLogCategory_) << "Failed to get GEMDigiSimLink." << std::endl;
+    return;
+  }
+
   edm::Handle<edm::PSimHitContainer> simhit_container;
   event.getByToken(simhit_token_, simhit_container);
   if (not simhit_container.isValid()) {
@@ -260,16 +272,19 @@ void GEMStripDigiValidation::analyze(const edm::Event& event, const edm::EventSe
     Float_t simhit_g_eta = std::abs(simhit_global_pos.eta());
     Float_t simhit_g_phi = simhit_global_pos.phi();
 
-    Int_t simhit_strip = roll->strip(simhit_local_pos);
+    auto simhit_trackId = simhit.trackId();
 
     Int_t bin_x = getDetOccBinX(chamber_id, layer_id);
     me_simhit_occ_eta_[region_id]->Fill(simhit_g_eta);
     me_simhit_occ_phi_[key2]->Fill(simhit_g_phi);
     me_simhit_occ_det_[key2]->Fill(bin_x, roll_id);
 
-    auto range = digi_collection->get(simhit_gemid);
-    for (auto digi = range.first; digi != range.second; ++digi) {
-      if (simhit_strip == digi->strip()) {
+    auto links = digiSimLink->find(simhit_gemid);
+    if (links == digiSimLink->end())
+      continue;
+
+    for (const auto& link : *links) {
+      if (simhit_trackId == link.getTrackId()) {
         me_strip_occ_eta_[region_id]->Fill(simhit_g_eta);
         me_strip_occ_phi_[key2]->Fill(simhit_g_phi);
         me_strip_occ_det_[key2]->Fill(bin_x, roll_id);

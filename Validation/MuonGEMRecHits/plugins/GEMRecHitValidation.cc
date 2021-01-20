@@ -12,6 +12,10 @@ GEMRecHitValidation::GEMRecHitValidation(const edm::ParameterSet& pset)
   const auto& simhit_pset = pset.getParameterSet("gemSimHit");
   const auto& simhit_tag = simhit_pset.getParameter<edm::InputTag>("inputTag");
   simhit_token_ = consumes<edm::PSimHitContainer>(simhit_tag);
+
+  const auto& digisimlink_tag = pset.getParameter<edm::InputTag>("gemDigiSimLink");
+  digisimlink_token_ = consumes<edm::DetSetVector<GEMDigiSimLink>>(digisimlink_tag);
+
   geomToken_ = esConsumes<GEMGeometry, MuonGeometryRecord>();
   geomTokenBeginRun_ = esConsumes<GEMGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
 }
@@ -193,6 +197,13 @@ Bool_t GEMRecHitValidation::matchRecHitAgainstSimHit(GEMRecHitCollection::const_
 void GEMRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   const GEMGeometry* gem = &setup.getData(geomToken_);
 
+  edm::Handle<edm::DetSetVector<GEMDigiSimLink>> digiSimLink;
+  event.getByToken(digisimlink_token_, digiSimLink);
+  if (not digiSimLink.isValid()) {
+    edm::LogError(kLogCategory_) << "Failed to get GEMDigiSimLink." << std::endl;
+    return;
+  }
+
   edm::Handle<edm::PSimHitContainer> simhit_container;
   event.getByToken(simhit_token_, simhit_container);
   if (not simhit_container.isValid()) {
@@ -265,12 +276,25 @@ void GEMRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup
     Float_t simhit_g_abs_eta = std::fabs(simhit_global_pos.eta());
     Float_t simhit_g_phi = simhit_global_pos.phi();
 
-    Int_t simhit_strip = gem->etaPartition(simhit_gemid)->strip(simhit_local_pos);
     Int_t det_occ_bin_x = getDetOccBinX(chamber_id, layer_id);
 
     me_simhit_occ_eta_[region_id]->Fill(simhit_g_abs_eta);
     me_simhit_occ_phi_[key2]->Fill(simhit_g_phi);
     me_simhit_occ_det_[key2]->Fill(det_occ_bin_x, roll_id);
+
+    auto simhit_trackId = simhit.trackId();
+
+    auto links = digiSimLink->find(simhit_gemid);
+    if (links == digiSimLink->end())
+      continue;
+
+    Int_t simhit_strip = -1;
+    for (const auto& link : *links) {
+      if (simhit_trackId == link.getTrackId()) {
+        simhit_strip = link.getStrip();
+        break;
+      }
+    }
 
     GEMRecHitCollection::range range = rechit_collection->get(simhit_gemid);
     for (auto rechit = range.first; rechit != range.second; ++rechit) {
