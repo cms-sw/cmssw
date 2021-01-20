@@ -189,6 +189,20 @@ void TICLTrackstersValidation::bookHistograms(DQMStore::IBooker& ibook,
                                               edm::Run const& run,
                                               edm::EventSetup const& iSetup,
                                               Histograms_TICLTrackstersValidation& histos) const {
+  float eMin=0., eThresh=70., eMax=500;
+  float eWidth[] = {0.5, 2.};
+  std::vector<float> eBins;
+  float eVal = eMin;
+  while (eVal <= eThresh) {
+    eBins.push_back(eVal);
+    eVal += eWidth[0];
+  }
+  while (eVal < eMax) {
+    eVal += eWidth[1];
+    eBins.push_back(eVal);
+  }
+  int eNBins = eBins.size() -1;
+
   TString onePlusLC[] = {"1plus LC", "for tracksters with at least one LC"};
   TString trkers = "Tracksters";
   int labelIndex = 0;
@@ -196,12 +210,12 @@ void TICLTrackstersValidation::bookHistograms(DQMStore::IBooker& ibook,
     auto& histo = histos[trackster_token.index()];
     ibook.setCurrentFolder(folder_ + "TICLTracksters/" + trackstersCollectionsNames_[labelIndex]);
     histo.number_ = ibook.book1D("Number of Tracksters per Event", "Number of Tracksters per Event;# Tracksters;Events", 250, 0., 250.);
-    histo.raw_energy_ = ibook.book1D("Raw Energy", "Raw Energy;Raw Energy [GeV];"+trkers, 250, 0., 500.);
-    histo.regr_energy_ = ibook.book1D("Regressed Energy", "Regressed Energy;Regressed Energy [GeV];"+trkers, 250, 0., 500.);
-    histo.raw_energy_vs_regr_energy_ = ibook.book2D("Raw Energy vs Regressed Energy", "Raw vs Regressed Energy;Regressed Energy [GeV];Raw Energy [GeV]", 250, 0., 500., 250, 0., 500);
-    histo.raw_energy_1plusLC_ = ibook.book1D("Raw Energy "+onePlusLC[0], "Raw Energy "+onePlusLC[1]+";Raw Energy [GeV];"+trkers, 250, 0., 500.);
-    histo.regr_energy_1plusLC_ = ibook.book1D("Regressed Energy "+onePlusLC[0], "Regressed Energy "+onePlusLC[1]+";Regressed Energy [GeV];"+trkers, 250, 0., 500.);
-    histo.raw_energy_vs_regr_energy_1plusLC_ = ibook.book2D("Raw Energy vs Regressed Energy "+onePlusLC[0], "Raw vs Regressed Energy "+onePlusLC[1]+";Regressed Energy [GeV];Raw Energy [GeV]", 250, 0., 500., 250, 0., 500);
+    histo.raw_energy_ = ibook.book1D("Raw Energy", "Raw Energy;Raw Energy [GeV];"+trkers, eNBins, &eBins[0]);
+    histo.regr_energy_ = ibook.book1D("Regressed Energy", "Regressed Energy;Regressed Energy [GeV];"+trkers, eNBins, &eBins[0]);
+    histo.raw_energy_vs_regr_energy_ = ibook.book2D("Raw Energy vs Regressed Energy", "Raw vs Regressed Energy;Regressed Energy [GeV];Raw Energy [GeV]", eNBins, &eBins[0], eNBins, &eBins[0]);
+    histo.raw_energy_1plusLC_ = ibook.book1D("Raw Energy "+onePlusLC[0], "Raw Energy "+onePlusLC[1]+";Raw Energy [GeV];"+trkers, eNBins, &eBins[0]);
+    histo.regr_energy_1plusLC_ = ibook.book1D("Regressed Energy "+onePlusLC[0], "Regressed Energy "+onePlusLC[1]+";Regressed Energy [GeV];"+trkers, eNBins, &eBins[0]);
+    histo.raw_energy_vs_regr_energy_1plusLC_ = ibook.book2D("Raw Energy vs Regressed Energy "+onePlusLC[0], "Raw vs Regressed Energy "+onePlusLC[1]+";Regressed Energy [GeV];Raw Energy [GeV]", eNBins, &eBins[0], eNBins, &eBins[0]);
     histo.delta_energy_ = ibook.book1D("Delta energy", "Delta Energy (O-I)", 800, -20., 20.);
     histo.delta_energy_relative_ = ibook.book1D("Relative Delta energy", "Relative Delta Energy (O-I)/I", 200, -10., 10.);
     histo.delta_energy_vs_energy_ = ibook.book2D("Energy vs Delta Energy", "Energy (I) vs Delta Energy (O-I)", 800, -20., 20., 200, 0., 20.);
