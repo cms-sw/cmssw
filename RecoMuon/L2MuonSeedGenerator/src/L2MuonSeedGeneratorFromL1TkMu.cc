@@ -50,8 +50,7 @@ L2MuonSeedGeneratorFromL1TkMu::L2MuonSeedGeneratorFromL1TkMu(const edm::Paramete
       useOfflineSeed(iConfig.getUntrackedParameter<bool>("UseOfflineSeed", false)),
       useUnassociatedL1(iConfig.getParameter<bool>("UseUnassociatedL1")),
       matchingDR(iConfig.getParameter<std::vector<double>>("MatchDR")),
-      etaBins(iConfig.getParameter<std::vector<double>>("EtaMatchingBins"))
-{
+      etaBins(iConfig.getParameter<std::vector<double>>("EtaMatchingBins")) {
   muCollToken_ = consumes<l1t::TkMuonCollection>(theSource);
 
   if (useOfflineSeed) {
@@ -127,7 +126,6 @@ void L2MuonSeedGeneratorFromL1TkMu::produce(edm::Event &iEvent, const edm::Event
   }
 
   for (auto ittkmu = muColl->begin(); ittkmu != muColl->end(); ittkmu++) {
-
     // L1 tracker track
     auto it = ittkmu->trkPtr();
 
@@ -258,8 +256,7 @@ void L2MuonSeedGeneratorFromL1TkMu::produce(edm::Event &iEvent, const edm::Event
     LogDebug(metname) << debug.dumpFTS(state);
 
     // Propagate the state on the MB2/ME2 surface
-    TrajectoryStateOnSurface tsos =
-        theService->propagator(thePropagatorName)->propagate(state, detLayer->surface());
+    TrajectoryStateOnSurface tsos = theService->propagator(thePropagatorName)->propagate(state, detLayer->surface());
 
     LogDebug(metname) << "State after the propagation on the layer";
     LogDebug(metname) << debug.dumpLayer(detLayer);
@@ -286,8 +283,7 @@ void L2MuonSeedGeneratorFromL1TkMu::produce(edm::Event &iEvent, const edm::Event
           const DetLayer *ME2DetLayer = theService->detLayerGeometry()->idToLayer(fallback_id);
 
           tsos = theService->propagator(thePropagatorName)->propagate(state, ME2DetLayer->surface());
-          detsWithStates =
-              ME2DetLayer->compatibleDets(tsos, *theService->propagator(thePropagatorName), *theEstimator);
+          detsWithStates = ME2DetLayer->compatibleDets(tsos, *theService->propagator(thePropagatorName), *theEstimator);
         }
 
         if (!detsWithStates.empty()) {
@@ -314,22 +310,14 @@ void L2MuonSeedGeneratorFromL1TkMu::produce(edm::Event &iEvent, const edm::Event
                 container.push_back(recHit);
               }
               auto dummyRef = edm::Ref<MuonBxCollection>();
-              output->push_back(
-                  L2MuonTrajectorySeed(seedTSOS,
-                                       container,
-                                       alongMomentum,
-                                       dummyRef));
+              output->push_back(L2MuonTrajectorySeed(seedTSOS, container, alongMomentum, dummyRef));
             } else {
               if (useUnassociatedL1) {
                 // convert the TSOS into a PTSOD
                 PTrajectoryStateOnDet const &seedTSOS =
                     trajectoryStateTransform::persistentState(newTSOS, newTSOSDet->geographicalId().rawId());
                 auto dummyRef = edm::Ref<MuonBxCollection>();
-                output->push_back(
-                    L2MuonTrajectorySeed(seedTSOS,
-                                         container,
-                                         alongMomentum,
-                                         dummyRef));
+                output->push_back(L2MuonTrajectorySeed(seedTSOS, container, alongMomentum, dummyRef));
               }
             }
           }
@@ -338,11 +326,7 @@ void L2MuonSeedGeneratorFromL1TkMu::produce(edm::Event &iEvent, const edm::Event
         // convert the TSOS into a PTSOD
         PTrajectoryStateOnDet const &seedTSOS = trajectoryStateTransform::persistentState(tsos, theid.rawId());
         auto dummyRef = edm::Ref<MuonBxCollection>();
-        output->push_back(
-            L2MuonTrajectorySeed(seedTSOS,
-                                 container,
-                                 alongMomentum,
-                                 dummyRef));
+        output->push_back(L2MuonTrajectorySeed(seedTSOS, container, alongMomentum, dummyRef));
       }
     }
   }
@@ -427,4 +411,3 @@ const TrajectorySeed *L2MuonSeedGeneratorFromL1TkMu::associateOfflineSeedToL1(
 
   return selOffseed;
 }
-

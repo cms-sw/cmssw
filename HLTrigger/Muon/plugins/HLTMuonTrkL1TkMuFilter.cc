@@ -59,8 +59,8 @@ void HLTMuonTrkL1TkMuFilter::fillDescriptions(edm::ConfigurationDescriptions& de
 }
 
 bool HLTMuonTrkL1TkMuFilter::hltFilter(edm::Event& iEvent,
-                                    const edm::EventSetup& iSetup,
-                                    trigger::TriggerFilterObjectWithRefs& filterproduct) const {
+                                       const edm::EventSetup& iSetup,
+                                       trigger::TriggerFilterObjectWithRefs& filterproduct) const {
   edm::Handle<reco::MuonCollection> muons;
   iEvent.getByToken(m_muonsToken, muons);
   edm::Handle<reco::RecoChargedCandidateCollection> cands;
