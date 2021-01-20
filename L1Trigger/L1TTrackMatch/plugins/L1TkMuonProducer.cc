@@ -66,7 +66,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   PropState propagateToGMT(const L1TTTrackType& l1tk) const;
   double sigmaEtaTP(const RegionalMuonCand& mu) const;
   double sigmaPhiTP(const RegionalMuonCand& mu) const;
@@ -307,7 +307,7 @@ L1TkMuonProducer::L1TkMuonProducer(const edm::ParameterSet& iConfig)
 L1TkMuonProducer::~L1TkMuonProducer() {}
 
 // ------------ method called to produce the data  ------------
-void L1TkMuonProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
+void L1TkMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // the L1Mu objects
   edm::Handle<RegionalMuonCandBxCollection> l1bmtfH;
   edm::Handle<RegionalMuonCandBxCollection> l1omtfH;
@@ -341,9 +341,11 @@ void L1TkMuonProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Eve
     const auto& muons = product_to_muvec(*l1bmtfH.product());
     const auto& match_idx = mantracorr_barr_->find_match(mantradf_tracks, muons);
     build_tkMuons_from_idxs(oc_bmtf_tkmuon, match_idx, l1tksH, l1bmtfH, barrel_MTF_region);
-  } else
+  } else {
     throw cms::Exception("TkMuAlgoConfig") << " barrel : trying to run an invalid algorithm version "
                                            << bmtfMatchAlgoVersion_ << " (this should never happen)\n";
+    return;
+  }
 
   // ----------------------------------------------------- overlap
   if (omtfMatchAlgoVersion_ == kTP)
@@ -352,9 +354,11 @@ void L1TkMuonProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Eve
     const auto& muons = product_to_muvec(*l1omtfH.product());
     const auto& match_idx = mantracorr_ovrl_->find_match(mantradf_tracks, muons);
     build_tkMuons_from_idxs(oc_omtf_tkmuon, match_idx, l1tksH, l1omtfH, overlap_MTF_region);
-  } else
+  } else {
     throw cms::Exception("TkMuAlgoConfig") << " overlap : trying to run an invalid algorithm version "
                                            << omtfMatchAlgoVersion_ << " (this should never happen)\n";
+    return;
+  }
 
   // ----------------------------------------------------- endcap
   if (emtfMatchAlgoVersion_ == kTP)
@@ -366,9 +370,11 @@ void L1TkMuonProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Eve
     const auto& match_idx = mantracorr_endc_->find_match(mantradf_tracks, muons);
     //for the TkMu that were built from a EMTFCollection - pass the emtf track as ref
     build_tkMuons_from_idxs(oc_emtf_tkmuon, match_idx, l1tksH, l1emtfTCH, endcap_MTF_region);
-  } else
+  } else {
     throw cms::Exception("TkMuAlgoConfig") << "endcap : trying to run an invalid algorithm version "
                                            << emtfMatchAlgoVersion_ << " (this should never happen)\n";
+    return;
+  }
 
   // now combine all trk muons into a single output collection!
   auto oc_tkmuon = std::make_unique<TkMuonCollection>();
