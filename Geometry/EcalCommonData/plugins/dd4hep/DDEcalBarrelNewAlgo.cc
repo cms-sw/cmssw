@@ -2134,7 +2134,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         thickVFE += backCool.vecBackVFELyrThick[iLyr];
       }
       Solid backVFESolid = Box(backCool.barHeight / 2., backCool.barWidth / 2., thickVFE / 2.);
-      Volume backVFELog = ns.addVolume(Volume(myns + backCool.vFEName, backVFESolid, ns.material(backCool.vFEMat)));
+      Volume backVFELog =
+          ns.addVolume(Volume(myns + backCool.backVFEName, backVFESolid, ns.material(backCool.backVFEMat)));
       Position offTra(0, 0, -thickVFE / 2);
       for (unsigned int iLyr(0); iLyr != backCool.vecBackVFELyrThick.size(); ++iLyr) {
         Solid backVFELyrSolid =
@@ -2164,7 +2165,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
       const double halfZCoolVFE(thickVFE + backCool.barThick / 2.);
       Solid backCoolVFESolid = Box(backCool.barHeight / 2., backCool.barWidth / 2., halfZCoolVFE);
-      Volume backCoolVFELog = Volume(backCool.backVFEName, backCoolVFESolid, ns.material(backCool.backVFEMat));
+      Volume backCoolVFELog = Volume(backCool.vFEName, backCoolVFESolid, ns.material(backCool.vFEMat));
       if (0 != backCool.barHere) {
         backCoolVFELog.placeVolume(backCoolBarLog, copyOne, Transform3D());
 #ifdef EDM_ML_DEBUG
@@ -2182,7 +2183,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       }
       backCoolVFELog.placeVolume(backVFELog,
                                  copyTwo,
-                                 Transform3D(myrot(ns, backCool.backVFEName + "Flip", CLHEP::HepRotationX(180_deg)),
+                                 Transform3D(myrot(ns, backCool.vFEName + "Flip", CLHEP::HepRotationX(180_deg)),
                                              Position(0, 0, -backCool.barThick / 2. - thickVFE / 2.)));
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("EcalGeom") << DDSplit(backVFELog.name()).first << ":" << copyTwo << " positioned in "
