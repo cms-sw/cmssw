@@ -117,23 +117,24 @@ reco::METCovMatrix metsig::METSignificance::getCovariance(const edm::View<reco::
       continue;
 
     double jpt = jet.pt();
-    double jeta = jet.eta();
-    double feta = std::abs(jeta);
-    double c = jet.px() / jet.pt();
-    double s = jet.py() / jet.pt();
-
-    JME::JetParameters parameters;
-    parameters.setJetPt(jpt).setJetEta(jeta).setRho(rho);
-
-    // jet energy resolutions
-    double sigmapt = resPtObj.getResolution(parameters);
-    double sigmaphi = resPhiObj.getResolution(parameters);
-    // SF not needed since is already embedded in the sigma in the dataGlobalTag
-    //      double sigmaSF = isRealData ? resSFObj.getScaleFactor(parameters) : 1.0;
 
     // split into high-pt and low-pt sector
     if (jpt > jetThreshold_) {
       // high-pt jets enter into the covariance matrix via JER
+
+      double jeta = jet.eta();
+      double feta = std::abs(jeta);
+      double c = jet.px() / jpt;
+      double s = jet.py() / jpt;
+
+      JME::JetParameters parameters;
+      parameters.setJetPt(jpt).setJetEta(jeta).setRho(rho);
+
+      // jet energy resolutions
+      double sigmapt = resPtObj.getResolution(parameters);
+      double sigmaphi = resPhiObj.getResolution(parameters);
+      // SF not needed since is already embedded in the sigma in the dataGlobalTag
+      //      double sigmaSF = isRealData ? resSFObj.getScaleFactor(parameters) : 1.0;
 
       double scale = 0;
       if (feta < jetEtas_[0])
@@ -166,8 +167,9 @@ reco::METCovMatrix metsig::METSignificance::getCovariance(const edm::View<reco::
     sumPtUnclustered = 0;
 
   // add pseudo-jet to metsig covariance matrix
-  cov_xx += pjetParams_[0] * pjetParams_[0] + pjetParams_[1] * pjetParams_[1] * sumPtUnclustered;
-  cov_yy += pjetParams_[0] * pjetParams_[0] + pjetParams_[1] * pjetParams_[1] * sumPtUnclustered;
+  double pseudoJetCov = pjetParams_[0] * pjetParams_[0] + pjetParams_[1] * pjetParams_[1] * sumPtUnclustered;
+  cov_xx += pseudoJetCov;
+  cov_yy += pseudoJetCov;
 
   reco::METCovMatrix cov;
   cov(0, 0) = cov_xx;
