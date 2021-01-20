@@ -144,6 +144,7 @@ _pp_on_AA_extraCommands = [
     'keep *_hiEvtPlaneFlat_*_*',
     'keep QIE10DataFrameHcalDataFrameContainer_hcalDigis_ZDC_*',
 ]
+
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 pp_on_AA.toModify(MicroEventContent, outputCommands = MicroEventContent.outputCommands + _pp_on_AA_extraCommands)
 
@@ -156,6 +157,8 @@ MicroEventContentMC.outputCommands += [
                                         # RUN
                                         'keep L1GtTriggerMenuLite_l1GtTriggerMenuLite__*'
                                       ]
+_pp_on_AA_MC_extraCommands = ['keep *_packedGenParticlesSignal_*_*']
+pp_on_AA.toModify(MicroEventContentMC, outputCommands = MicroEventContentMC.outputCommands + _pp_on_AA_MC_extraCommands)
 
 from Configuration.Eras.Modifier_strips_vfp30_2016_cff import strips_vfp30_2016
 strips_vfp30_2016.toModify(MicroEventContentMC, outputCommands = MicroEventContentMC.outputCommands + [
