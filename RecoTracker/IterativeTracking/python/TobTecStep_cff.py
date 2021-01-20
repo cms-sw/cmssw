@@ -111,7 +111,7 @@ _fastSim_tobTecStepSeedsTripl = FastSimulation.Tracking.TrajectorySeedProducer_c
     hitMasks        = cms.InputTag('tobTecStepMasks'),
     seedFinderSelector = dict(MultiHitGeneratorFactory = _hitSetProducerToFactoryPSet(tobTecStepHitTripletsTripl).clone(
                               SeedComparitorPSet = cms.PSet(ComponentName = cms.string('none')), 
-                              refitHits = False),
+                              refitHits          = False),
                               layerList = tobTecStepSeedLayersTripl.layerList.value()
                               )
 )
