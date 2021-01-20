@@ -42,9 +42,9 @@ private:
   const edm::InputTag inputTag2_;                // input tag identifying filtered 2nd product
   const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> inputToken1_;
   const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> inputToken2_;
-  const double minDR_;         // minimum dR between two muon regional candidates linked to L1TkMuon
-  const int min_N_;            // number of pairs passing cuts required
-  const bool same_;            // 1st and 2nd product are one and the same
+  const double minDR_;  // minimum dR between two muon regional candidates linked to L1TkMuon
+  const int min_N_;     // number of pairs passing cuts required
+  const bool same_;     // 1st and 2nd product are one and the same
 };
 
 #endif  //HLT2L1TkMuonL1TkMuonMuRefDR_h

@@ -83,7 +83,6 @@ private:
                                                  std::vector<int> &,
                                                  TrajectoryStateOnSurface &,
                                                  double);
-
 };
 
 #endif

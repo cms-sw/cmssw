@@ -103,25 +103,19 @@ bool HLT2L1TkMuonL1TkMuonMuRefDR::getCollections(edm::Event& iEvent,
     return false;
 }
 
-bool HLT2L1TkMuonL1TkMuonMuRefDR::computeDR(edm::Event& iEvent,
-                                            l1t::TkMuonRef& r1,
-                                            l1t::TkMuonRef& r2) const {
-
+bool HLT2L1TkMuonL1TkMuonMuRefDR::computeDR(edm::Event& iEvent, l1t::TkMuonRef& r1, l1t::TkMuonRef& r2) const {
   float muRef1_eta = 0.;
   float muRef1_phi = 0.;
   if (r1->muonDetector() != 3) {
-    if(r1->muRef().isNull())
+    if (r1->muRef().isNull())
       return false;
 
     muRef1_eta = r1->muRef()->hwEta() * 0.010875;
-    muRef1_phi = static_cast<float>(
-                  l1t::MicroGMTConfiguration::calcGlobalPhi(r1->muRef()->hwPhi(),
-                                                            r1->muRef()->trackFinderType(),
-                                                            r1->muRef()->processor()));
+    muRef1_phi = static_cast<float>(l1t::MicroGMTConfiguration::calcGlobalPhi(
+        r1->muRef()->hwPhi(), r1->muRef()->trackFinderType(), r1->muRef()->processor()));
     muRef1_phi = muRef1_phi * 2. * M_PI / 576.;
-  }
-  else {
-    if(r1->emtfTrk().isNull())
+  } else {
+    if (r1->emtfTrk().isNull())
       return false;
 
     muRef1_eta = r1->emtfTrk()->Eta();
@@ -132,18 +126,15 @@ bool HLT2L1TkMuonL1TkMuonMuRefDR::computeDR(edm::Event& iEvent,
   float muRef2_eta = 0.;
   float muRef2_phi = 0.;
   if (r2->muonDetector() != 3) {
-    if(r2->muRef().isNull())
+    if (r2->muRef().isNull())
       return false;
 
     muRef2_eta = r2->muRef()->hwEta() * 0.010875;
-    muRef2_phi = static_cast<float>(
-                  l1t::MicroGMTConfiguration::calcGlobalPhi(r2->muRef()->hwPhi(),
-                                                            r2->muRef()->trackFinderType(),
-                                                            r2->muRef()->processor()));
+    muRef2_phi = static_cast<float>(l1t::MicroGMTConfiguration::calcGlobalPhi(
+        r2->muRef()->hwPhi(), r2->muRef()->trackFinderType(), r2->muRef()->processor()));
     muRef2_phi = muRef2_phi * 2. * M_PI / 576.;
-  }
-  else {
-    if(r2->emtfTrk().isNull())
+  } else {
+    if (r2->emtfTrk().isNull())
       return false;
 
     muRef2_eta = r2->emtfTrk()->Eta();
@@ -156,7 +147,6 @@ bool HLT2L1TkMuonL1TkMuonMuRefDR::computeDR(edm::Event& iEvent,
 
   return false;
 }
-
 
 // ------------ method called to produce the data  ------------
 bool HLT2L1TkMuonL1TkMuonMuRefDR::hltFilter(edm::Event& iEvent,
