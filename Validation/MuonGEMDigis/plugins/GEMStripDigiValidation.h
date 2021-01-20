@@ -4,6 +4,9 @@
 #include "Validation/MuonGEMHits/interface/GEMBaseValidation.h"
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "SimDataFormats/GEMDigiSimLink/interface/GEMDigiSimLink.h"
+
 class GEMStripDigiValidation : public GEMBaseValidation {
 public:
   explicit GEMStripDigiValidation(const edm::ParameterSet&);
@@ -15,6 +18,7 @@ private:
   // ParameterSet
   edm::EDGetTokenT<GEMDigiCollection> strip_token_;
   edm::EDGetTokenT<edm::PSimHitContainer> simhit_token_;
+  edm::EDGetTokenT<edm::DetSetVector<GEMDigiSimLink>> digisimlink_token_;
   edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geomToken_;
   edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geomTokenBeginRun_;
 

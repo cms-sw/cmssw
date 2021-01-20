@@ -8,6 +8,7 @@ gemStripValidation = DQMEDAnalyzer('GEMStripDigiValidation',
   GEMValidationCommonParameters,
   gemStripDigi = muonGEMDigiPSet.gemUnpackedStripDigi,
   gemSimHit = muonSimHitMatcherPSet.gemSimHit,
+  gemDigiSimLink = cms.InputTag("simMuonGEMDigis","GEM"),
 )
 
 gemPadValidation = DQMEDAnalyzer('GEMPadDigiValidation',

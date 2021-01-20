@@ -4,6 +4,9 @@
 #include "Validation/MuonGEMHits/interface/GEMBaseValidation.h"
 #include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
 
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "SimDataFormats/GEMDigiSimLink/interface/GEMDigiSimLink.h"
+
 class GEMRecHitValidation : public GEMBaseValidation {
 public:
   explicit GEMRecHitValidation(const edm::ParameterSet&);
@@ -17,6 +20,7 @@ private:
   // Parameter
   edm::EDGetTokenT<GEMRecHitCollection> rechit_token_;
   edm::EDGetTokenT<edm::PSimHitContainer> simhit_token_;
+  edm::EDGetTokenT<edm::DetSetVector<GEMDigiSimLink>> digisimlink_token_;
   edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geomToken_;
   edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geomTokenBeginRun_;
 
