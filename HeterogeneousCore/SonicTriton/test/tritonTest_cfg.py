@@ -12,7 +12,7 @@ options.register("threads", 1, VarParsing.multiplicity.singleton, VarParsing.var
 options.register("streams", 0, VarParsing.multiplicity.singleton, VarParsing.varType.int)
 options.register("modules", "TritonImageProducer", VarParsing.multiplicity.list, VarParsing.varType.string)
 options.register("modelName","resnet50_netdef", VarParsing.multiplicity.singleton, VarParsing.varType.string)
-options.register("mode","PseudoAsync", VarParsing.multiplicity.singleton, VarParsing.varType.string)
+options.register("mode","Async", VarParsing.multiplicity.singleton, VarParsing.varType.string)
 options.register("verbose", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register("unittest", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register("device","auto", VarParsing.multiplicity.singleton, VarParsing.varType.string)
