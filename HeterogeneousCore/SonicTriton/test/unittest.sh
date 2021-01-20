@@ -5,6 +5,7 @@ LOCALTOP=$1
 # the test is not possible if:
 # 1. avx instructions not supported (needed for singularity on CPU)
 # 2. singularity not found or not usable
+# 3. inside singularity container w/o unprivileged user namespace enabled (needed for singularity-in-singularity)
 # so just return true in those cases
 
 if grep -q avx /proc/cpuinfo; then
@@ -19,6 +20,15 @@ if type singularity >& /dev/null; then
 else
 	echo "missing singularity"
 	exit 0
+fi
+
+if [ -n "$SINGULARITY_CONTAINER" ]; then
+	if unshare -U echo >/dev/null 2>&1; then
+		echo "has unprivileged user namespace support"
+	else
+		echo "missing unprivileged user namespace support"
+		exit 0
+	fi
 fi
 
 cmsRun ${LOCALTOP}/src/HeterogeneousCore/SonicTriton/test/tritonTest_cfg.py modules=TritonGraphProducer,TritonGraphFilter,TritonGraphAnalyzer maxEvents=1 unittest=1 verbose=1
