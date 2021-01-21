@@ -9,6 +9,7 @@ using namespace dqm::impl;
 
 GEMBaseValidation::GEMBaseValidation(const edm::ParameterSet& ps, std::string log_category)
     : kLogCategory_(log_category) {
+  pid_list_ = ps.getUntrackedParameter<std::vector<Int_t> >("pidList");
   zr_occ_num_bins_ = ps.getUntrackedParameter<std::vector<Int_t> >("ZROccNumBins");
   zr_occ_range_ = ps.getUntrackedParameter<std::vector<Double_t> >("ZROccRange");
   xy_occ_num_bins_ = ps.getUntrackedParameter<Int_t>("XYOccNumBins", 360);
@@ -25,6 +26,18 @@ Int_t GEMBaseValidation::getDetOccBinX(Int_t num_layers, Int_t chamber_id, Int_t
 }
 
 Bool_t GEMBaseValidation::isMuonSimHit(const PSimHit& simhit) { return std::abs(simhit.particleType()) == kMuonPDGId_; }
+
+Float_t GEMBaseValidation::toDegree(Float_t radian) {
+  Float_t degree = radian / M_PI * 180;
+  if (degree < -5)
+    return degree + 360;
+  else
+    return degree;
+}
+
+Int_t GEMBaseValidation::getPidIdx(Int_t pid) {
+  return std::find(pid_list_.begin(), pid_list_.end(), pid) - pid_list_.begin();
+}
 
 MonitorElement* GEMBaseValidation::bookZROccupancy(DQMStore::IBooker& booker,
                                                    Int_t region_id,

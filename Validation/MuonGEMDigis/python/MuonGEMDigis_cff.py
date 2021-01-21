@@ -14,11 +14,15 @@ gemStripValidation = DQMEDAnalyzer('GEMStripDigiValidation',
 gemPadValidation = DQMEDAnalyzer('GEMPadDigiValidation',
   GEMValidationCommonParameters,
   gemPadDigi = muonGEMDigiPSet.gemPadDigi,
+  gemSimHit = muonSimHitMatcherPSet.gemSimHit,
+  gemDigiSimLink = cms.InputTag("simMuonGEMDigis","GEM"),
 )
 
 gemClusterValidation = DQMEDAnalyzer('GEMPadDigiClusterValidation',
   GEMValidationCommonParameters,
   gemPadCluster = muonGEMDigiPSet.gemPadCluster,
+  gemSimHit = muonSimHitMatcherPSet.gemSimHit,
+  gemDigiSimLink = cms.InputTag("simMuonGEMDigis","GEM"),
 )
 
 gemCoPadValidation = DQMEDAnalyzer('GEMCoPadDigiValidation',
