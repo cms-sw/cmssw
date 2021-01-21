@@ -64,10 +64,15 @@ process.out_step = cms.EndPath(process.output)
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/FTFP_BERT_EMM'
 process.g4SimHits.Physics.DefaultCutValue          = 0.1
 process.g4SimHits.HGCSD.CornerMinMask              = 3
-process.g4SimHits.CaloSD.UseFineCaloID             = True
+process.g4SimHits.CaloSD.UseFineCalo               = [2]
+process.g4SimHits.CaloTrkProcessing.UseFineCalo    = [2]
+process.g4SimHits.TrackingAction.UseFineCalo       = [2]
+process.g4SimHits.CaloSD.DoFineCalo                = True
 process.g4SimHits.CaloTrkProcessing.DoFineCalo     = True
+process.g4SimHits.TrackingAction.DoFineCalo        = True
+process.g4SimHits.CaloSD.EminFineTrack             = 1000.0
 process.g4SimHits.CaloTrkProcessing.EminFineTrack  = 1000.0
-process.g4SimHits.CaloTrkProcessing.EminFinePhoton = 500.0
+process.g4SimHits.TrackingAction.EminFineTrack     = 1000.0
 
 # Schedule definition
 process.schedule = cms.Schedule(process.generation_step,
