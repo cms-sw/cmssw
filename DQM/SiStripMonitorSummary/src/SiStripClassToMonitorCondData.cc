@@ -63,36 +63,36 @@ SiStripClassToMonitorCondData::SiStripClassToMonitorCondData(edm::ParameterSet c
   tkDetMapToken_ = iC.esConsumes<edm::Transition::BeginRun>();
   tTopoToken_ = iC.esConsumes<edm::Transition::BeginRun>();
   if (monitorPedestals_) {
-    pedestalsToken_ = iC.esConsumes<edm::Transition::BeginRun>();
+    pedestalsToken_ = iC.esConsumes();
   }
   if (monitorNoises_) {
-    noiseToken_ = iC.esConsumes<edm::Transition::BeginRun>();
+    noiseToken_ = iC.esConsumes();
     const auto& hPSet = iConfig.getParameter<edm::ParameterSet>("SiStripNoisesDQM_PSet");
     if (hPSet.getParameter<bool>("SimGainRenormalisation")) {
       simGainToken_ = iC.esConsumes<edm::Transition::BeginRun>();
     } else if (hPSet.getParameter<bool>("GainRenormalisation")) {
-      gainToken_ = iC.esConsumes<edm::Transition::BeginRun>();
+      gainTokenForNoise_ = iC.esConsumes<edm::Transition::BeginRun>();
     }
   }
   if (monitorQuality_) {
     const auto& fPSet = conf_.getParameter<edm::ParameterSet>("FillConditions_PSet");
     const auto& qualityLabel = fPSet.getParameter<std::string>("StripQualityLabel");
-    qualityToken_ = iC.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag{"", qualityLabel});
+    qualityToken_ = iC.esConsumes(edm::ESInputTag{"", qualityLabel});
   }
   if (monitorApvGains_) {
-    gainToken_ = iC.esConsumes<edm::Transition::BeginRun>();
+    gainToken_ = iC.esConsumes();
   }
   if (monitorLorentzAngle_) {
-    lorentzAngleToken_ = iC.esConsumes<edm::Transition::BeginRun>();
+    lorentzAngleToken_ = iC.esConsumes();
   }
   if (monitorBackPlaneCorrection_) {
-    backplaneCorrectionToken_ = iC.esConsumes<edm::Transition::BeginRun>();
+    backplaneCorrectionToken_ = iC.esConsumes();
   }
   if (monitorLowThreshold_ || monitorHighThreshold_) {
-    thresholdToken_ = iC.esConsumes<edm::Transition::BeginRun>();
+    thresholdToken_ = iC.esConsumes();
   }
   if (monitorCabling_) {
-    detCablingToken_ = iC.esConsumes<edm::Transition::BeginRun>();
+    detCablingToken_ = iC.esConsumes();
   }
 }
 
@@ -100,8 +100,11 @@ SiStripClassToMonitorCondData::~SiStripClassToMonitorCondData() {}
 
 void SiStripClassToMonitorCondData::beginRun(edm::RunNumber_t iRun, edm::EventSetup const& eSetup) {
   const auto tTopo = &eSetup.getData(tTopoToken_);
-  const auto tkDetMap = &eSetup.getData(tkDetMapToken_);
   const auto& fPSet = conf_.getParameter<edm::ParameterSet>("FillConditions_PSet");
+  const TkDetMap* tkDetMap{nullptr};
+  if (fPSet.getParameter<bool>("HistoMaps_On")) {
+    tkDetMap = &eSetup.getData(tkDetMapToken_);
+  }
   if (monitorPedestals_) {
     const auto& hPSet = conf_.getParameter<edm::ParameterSet>("SiStripPedestalsDQM_PSet");
     pedestalsDQM_ = std::make_unique<SiStripPedestalsDQM>(pedestalsToken_, iRun, hPSet, fPSet, tTopo, tkDetMap);
@@ -113,7 +116,7 @@ void SiStripClassToMonitorCondData::beginRun(edm::RunNumber_t iRun, edm::EventSe
     if (hPSet.getParameter<bool>("SimGainRenormalisation")) {
       gain = &eSetup.getData(simGainToken_);
     } else if (hPSet.getParameter<bool>("GainRenormalisation")) {
-      gain = &eSetup.getData(gainToken_);
+      gain = &eSetup.getData(gainTokenForNoise_);
     }
     noisesDQM_ = std::make_unique<SiStripNoisesDQM>(noiseToken_, iRun, hPSet, fPSet, tTopo, tkDetMap, gain);
   }

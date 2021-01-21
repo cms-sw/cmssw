@@ -99,6 +99,7 @@ private:
   edm::ESGetToken<SiStripPedestals, SiStripPedestalsRcd> pedestalsToken_;
   edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> noiseToken_;
   edm::ESGetToken<SiStripApvGain, SiStripApvGainSimRcd> simGainToken_;
+  edm::ESGetToken<SiStripApvGain, SiStripApvGainRcd> gainTokenForNoise_;
   edm::ESGetToken<SiStripApvGain, SiStripApvGainRcd> gainToken_;
   edm::ESGetToken<SiStripQuality, SiStripQualityRcd> qualityToken_;
   edm::ESGetToken<SiStripLorentzAngle, SiStripLorentzAngleRcd> lorentzAngleToken_;
