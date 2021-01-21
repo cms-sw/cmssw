@@ -209,10 +209,11 @@ void GEMStripDigiValidation::analyze(const edm::Event& event, const edm::EventSe
     Int_t station_id = id.station();
     Int_t chamber_id = id.chamber();
     Int_t roll_id = id.roll();
+    Int_t num_layers = id.nlayers();
 
     ME2IdsKey key2{region_id, station_id};
     ME3IdsKey key3{region_id, station_id, layer_id};
-    Int_t bin_x = getDetOccBinX(chamber_id, layer_id);
+    Int_t bin_x = getDetOccBinX(num_layers, chamber_id, layer_id);
 
     const BoundPlane& surface = gem->idToDet(id)->surface();
     const GEMEtaPartition* roll = gem->etaPartition(id);
@@ -260,6 +261,7 @@ void GEMStripDigiValidation::analyze(const edm::Event& event, const edm::EventSe
     Int_t layer_id = simhit_gemid.layer();
     Int_t chamber_id = simhit_gemid.chamber();
     Int_t roll_id = simhit_gemid.roll();
+    Int_t num_layers = simhit_gemid.nlayers();
 
     ME2IdsKey key2{region_id, station_id};
     ME3IdsKey key3{region_id, station_id, layer_id};
@@ -274,7 +276,7 @@ void GEMStripDigiValidation::analyze(const edm::Event& event, const edm::EventSe
 
     auto simhit_trackId = simhit.trackId();
 
-    Int_t bin_x = getDetOccBinX(chamber_id, layer_id);
+    Int_t bin_x = getDetOccBinX(num_layers, chamber_id, layer_id);
     me_simhit_occ_eta_[region_id]->Fill(simhit_g_eta);
     me_simhit_occ_phi_[key2]->Fill(simhit_g_phi);
     me_simhit_occ_det_[key2]->Fill(bin_x, roll_id);

@@ -22,7 +22,7 @@ public:
   void analyze(const edm::Event& e, const edm::EventSetup&) override = 0;
 
 protected:
-  Int_t getDetOccBinX(Int_t chamber_id, Int_t layer_id);
+  Int_t getDetOccBinX(Int_t num_layers, Int_t chamber_id, Int_t layer_id);
   Bool_t isMuonSimHit(const PSimHit&);
 
   dqm::impl::MonitorElement* bookZROccupancy(DQMStore::IBooker& booker,
@@ -192,7 +192,7 @@ dqm::impl::MonitorElement* GEMBaseValidation::bookDetectorOccupancy(DQMStore::IB
   TAxis* x_axis = hist->GetXaxis();
   for (Int_t chamber_id = 1; chamber_id <= num_superchambers; chamber_id++) {
     for (Int_t layer_id = 1; layer_id <= num_chambers; layer_id++) {
-      Int_t bin = getDetOccBinX(chamber_id, layer_id);
+      Int_t bin = getDetOccBinX(num_chambers, chamber_id, layer_id);
       TString label = TString::Format("C%dL%d", chamber_id, layer_id);
       x_axis->SetBinLabel(bin, label);
     }

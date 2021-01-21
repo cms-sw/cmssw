@@ -266,6 +266,7 @@ void GEMRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup
     Int_t layer_id = simhit_gemid.layer();
     Int_t chamber_id = simhit_gemid.chamber();
     Int_t roll_id = simhit_gemid.roll();
+    Int_t num_layers = simhit_gemid.nlayers();
 
     ME2IdsKey key2{region_id, station_id};
     ME3IdsKey key3{region_id, station_id, layer_id};
@@ -276,7 +277,7 @@ void GEMRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup
     Float_t simhit_g_abs_eta = std::fabs(simhit_global_pos.eta());
     Float_t simhit_g_phi = simhit_global_pos.phi();
 
-    Int_t det_occ_bin_x = getDetOccBinX(chamber_id, layer_id);
+    Int_t det_occ_bin_x = getDetOccBinX(num_layers, chamber_id, layer_id);
 
     me_simhit_occ_eta_[region_id]->Fill(simhit_g_abs_eta);
     me_simhit_occ_phi_[key2]->Fill(simhit_g_phi);
