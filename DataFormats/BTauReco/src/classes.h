@@ -50,6 +50,8 @@
 #include "DataFormats/BTauReco/interface/ShallowTagInfoFeatures.h"
 #include "DataFormats/BTauReco/interface/NeutralCandidateFeatures.h"
 #include "DataFormats/BTauReco/interface/ChargedCandidateFeatures.h"
+#include "DataFormats/BTauReco/interface/TrackPairFeatures.h"
+#include "DataFormats/BTauReco/interface/SeedingTrackFeatures.h"
 #include "DataFormats/BTauReco/interface/DeepFlavourFeatures.h"
 #include "DataFormats/BTauReco/interface/DeepFlavourTagInfo.h"
 #include "DataFormats/BTauReco/interface/DeepDoubleXFeatures.h"
