@@ -33,6 +33,7 @@
 #include <csignal>
 
 using std::cerr;
+using namespace edm::messagelogger;
 
 namespace edm {
   namespace service {

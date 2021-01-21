@@ -189,11 +189,11 @@ bool MessageLoggerQ::handshaked(MessageLoggerQ::OpCode const &op)  // changeLog 
 }  // MessageLoggerQ::handshaked(op)
 
 // change Log 13:
-edm::ELseverityLevel MessageLoggerQ::threshold(edm::ELseverityLevel::ELsev_warning);
+edm::messagelogger::ELseverityLevel MessageLoggerQ::threshold(edm::messagelogger::ELseverityLevel::ELsev_warning);
 std::set<std::string> MessageLoggerQ::squelchSet;
-void MessageLoggerQ::standAloneThreshold(edm::ELseverityLevel const &severity) { threshold = severity; }
+void MessageLoggerQ::standAloneThreshold(edm::messagelogger::ELseverityLevel const &severity) { threshold = severity; }
 void MessageLoggerQ::squelch(std::string const &category) { squelchSet.insert(category); }
-bool MessageLoggerQ::ignore(edm::ELseverityLevel const &severity, std::string const &category) {
+bool MessageLoggerQ::ignore(edm::messagelogger::ELseverityLevel const &severity, std::string const &category) {
   if (severity < threshold)
     return true;
   if (squelchSet.count(category) > 0)

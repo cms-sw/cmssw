@@ -1,7 +1,7 @@
 #ifndef DataFormats_Common_ErrorSummaryEntry_h
 #define DataFormats_Common_ErrorSummaryEntry_h
 
-#include "FWCore/MessageLogger/interface/ELseverityLevel.h"
+#include "DataFormats/Common/interface/ELseverityLevel.h"
 
 #include <string>
 

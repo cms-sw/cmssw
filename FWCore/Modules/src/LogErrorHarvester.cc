@@ -90,7 +90,7 @@ namespace edm {
         edm::ErrorSummaryEntry e;
         e.category = std::move(entry.category);
         e.module = std::move(entry.module);
-        e.severity = entry.severity;
+        e.severity = edm::ELseverityLevel(entry.severity.getLevel());
         e.count = entry.count;
         summary.emplace_back(std::move(e));
       }

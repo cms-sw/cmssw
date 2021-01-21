@@ -177,7 +177,7 @@ bool HLTLogMonitorFilter::filter(edm::Event& event, const edm::EventSetup& setup
       edm::ErrorSummaryEntry entry;
       entry.category = std::move(iEntry.category);
       entry.module = std::move(iEntry.module);
-      entry.severity = iEntry.severity;
+      entry.severity = edm::ELseverityLevel(iEntry.severity.getLevel());
       entry.count = iEntry.count;
       return entry;
     });

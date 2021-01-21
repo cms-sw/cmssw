@@ -28,6 +28,7 @@
 //
 
 using namespace edm;
+using namespace edm::messagelogger;
 
 namespace {
   //Helper class used as 'key' to the thread safe map storing the

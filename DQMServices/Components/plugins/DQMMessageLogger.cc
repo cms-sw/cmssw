@@ -127,7 +127,7 @@ void DQMMessageLogger::analyze(const Event& iEvent, const EventSetup& iSetup) {
     return;
   }
   // Compare severity level of error with ELseveritylevel instance el : "-e" should be the lowest error
-  ELseverityLevel el("-e");
+  ELseverityLevel el(ELseverityLevel::ELsev_error);
 
   // Find the total number of errors in iEvent
   if (errors->empty()) {
