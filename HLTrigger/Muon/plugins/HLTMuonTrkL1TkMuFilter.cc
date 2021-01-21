@@ -23,7 +23,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
-
 HLTMuonTrkL1TkMuFilter::HLTMuonTrkL1TkMuFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) {
   m_muonsTag = iConfig.getParameter<edm::InputTag>("inputMuonCollection");
   m_muonsToken = consumes<reco::MuonCollection>(m_muonsTag);
@@ -87,8 +86,8 @@ bool HLTMuonTrkL1TkMuFilter::hltFilter(edm::Event& iEvent,
     // check for dR match to L1 muons
     if (check_l1match) {
       bool matchl1 = false;
-      for (auto const& l1cand: vl1cands) {
-        if (deltaR2(muon, *l1cand) < 0.3*0.3) {
+      for (auto const& l1cand : vl1cands) {
+        if (deltaR2(muon, *l1cand) < 0.3 * 0.3) {
           matchl1 = true;
           break;
         }

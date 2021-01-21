@@ -30,8 +30,7 @@ HLT2L1TkMuonL1TkMuonMuRefDR::HLT2L1TkMuonL1TkMuonMuRefDR(const edm::ParameterSet
       same_(inputTag1_.encode() == inputTag2_.encode()),  // same collections to be compared?
       emtfRegion_(3),
       etaScale_(0.010875),
-      phiScale_(2. * M_PI / 576.)
-{}
+      phiScale_(2. * M_PI / 576.) {}
 
 HLT2L1TkMuonL1TkMuonMuRefDR::~HLT2L1TkMuonL1TkMuonMuRefDR() {}
 
@@ -129,7 +128,7 @@ bool HLT2L1TkMuonL1TkMuonMuRefDR::computeDR(edm::Event& iEvent, l1t::TkMuonRef& 
   std::pair<float, float> muRef1 = convertEtaPhi(r1);
   std::pair<float, float> muRef2 = convertEtaPhi(r2);
 
-  if (reco::deltaR2(muRef1.first, muRef1.second, muRef2.first, muRef2.second) > minDR_*minDR_)
+  if (reco::deltaR2(muRef1.first, muRef1.second, muRef2.first, muRef2.second) > minDR_ * minDR_)
     return true;
 
   return false;
