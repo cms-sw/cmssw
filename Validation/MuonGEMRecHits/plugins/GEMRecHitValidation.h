@@ -39,17 +39,17 @@ private:
   MEMap3Ids me_detail_pull_y_;
 
   // Occupancy
-  MEMap1Ids me_occ_zr_;
+  MEMap1Ids me_detail_occ_zr_;
   MEMap3Ids me_detail_occ_xy_;
   MEMap3Ids me_detail_occ_polar_;
   // occupancy of PSimHit and GEMRecHIts for efficiency
   MEMap1Ids me_simhit_occ_eta_;
   MEMap2Ids me_simhit_occ_phi_;
-  MEMap2Ids me_simhit_occ_det_;
+  MEMap2Ids me_detail_simhit_occ_det_;
   // GEMRecHit that matches PSimHit
   MEMap1Ids me_rechit_occ_eta_;
   MEMap2Ids me_rechit_occ_phi_;
-  MEMap2Ids me_rechit_occ_det_;
+  MEMap2Ids me_detail_rechit_occ_det_;
 };
 
 #endif  // Validation_MuonGEMRecHits_GEMRecHitValidation_h
