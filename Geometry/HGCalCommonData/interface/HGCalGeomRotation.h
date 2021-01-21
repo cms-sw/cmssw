@@ -3,8 +3,8 @@
 
 class HGCalGeomRotation {
 public:
-  enum SectorType { Sector120Degrees, Sector60Degrees };
-  enum WaferCentring { WaferCentred, CornerCentredY, CornerCentredMercedes };
+  enum class SectorType { Sector120Degrees, Sector60Degrees };
+  enum class WaferCentring { WaferCentred, CornerCentredY, CornerCentredMercedes };
 
   HGCalGeomRotation(SectorType sectorType) { _sectorType = sectorType; };
   ~HGCalGeomRotation() {}
