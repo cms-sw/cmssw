@@ -78,6 +78,7 @@ static constexpr int n_GCTcards = 3;
 static constexpr float ECAL_eta_range = 1.4841;
 static constexpr float half_crystal_size = 0.00873;
 static constexpr float slideIsoPtThreshold = 80;
+static constexpr float plateau_ss = 130.0;
 static constexpr float a0_80 = 0.85, a1_80 = 0.0080, a0 = 0.21;                        // passes_iso
 static constexpr float b0 = 0.38, b1 = 1.9, b2 = 0.05;                                 //passes_looseTkiso
 static constexpr float c0_ss = 0.94, c1_ss = 0.052, c2_ss = 0.044;                     //passes_ss
@@ -1184,35 +1185,35 @@ bool L1EGCrystalClusterEmulatorProducer::passes_iso(float pt, float iso) {
     if (iso > a0)
       is_iso = false;
   }
-  if (pt > 130)
+  if (pt > plateau_ss)
     is_iso = true;
   return is_iso;
 }
 
 bool L1EGCrystalClusterEmulatorProducer::passes_looseTkiso(float pt, float iso) {
   bool is_iso = (b0 + b1 * std::exp(-b2 * pt) > iso);
-  if (pt > 130)
+  if (pt > plateau_ss)
     is_iso = true;
   return is_iso;
 }
 
 bool L1EGCrystalClusterEmulatorProducer::passes_ss(float pt, float ss) {
   bool is_ss = ((c0_ss + c1_ss * std::exp(-c2_ss * pt)) <= ss);
-  if (pt > 130)
+  if (pt > plateau_ss)
     is_ss = true;
   return is_ss;
 }
 
 bool L1EGCrystalClusterEmulatorProducer::passes_photon(float pt, float pss) {
   bool is_ss = (pss > d0 - d1 * pt);
-  if (pt > 130)
+  if (pt > plateau_ss)
     is_ss = true;
   return is_ss;
 }
 
 bool L1EGCrystalClusterEmulatorProducer::passes_looseTkss(float pt, float ss) {
   bool is_ss = ((e0_looseTkss - e1_looseTkss * std::exp(-e2_looseTkss * pt)) <= ss);
-  if (pt > 130)
+  if (pt > plateau_ss)
     is_ss = true;
   return is_ss;
 }
