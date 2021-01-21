@@ -29,27 +29,17 @@ namespace edm {
       // ---  for each of the following levels:
       //
       enum ELsev_ {
-        ELsev_noValueAssigned = 0  // default returned by map when not found
-        ,
-        ELsev_zeroSeverity  // threshold use only
-        ,
-        ELsev_success  // report reaching a milestone
-        ,
-        ELsev_info  // information
-        ,
-        ELsev_fwkInfo  // framework
-        ,
-        ELsev_warning  // warning
-        ,
-        ELsev_error  // error detected
-        ,
-        ELsev_unspecified  // severity was not specified
-        ,
-        ELsev_severe  // future results are suspect
-        ,
-        ELsev_highestSeverity  // threshold use only
+        ELsev_noValueAssigned = 0,  // default returned by map when not found
+        ELsev_zeroSeverity,         // threshold use only
+        ELsev_success,              // report reaching a milestone
+        ELsev_info,                 // information
+        ELsev_fwkInfo,              // framework
+        ELsev_warning,              // warning
+        ELsev_error,                // error detected
+        ELsev_unspecified,          // severity was not specified
+        ELsev_severe,               // future results are suspect
+        ELsev_highestSeverity,      // threshold use only
         // -----
-        ,
         nLevels  // how many levels?
       };         // ELsev_
 
