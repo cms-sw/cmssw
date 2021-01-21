@@ -70,9 +70,9 @@ CaloSD::CaloSD(const std::string& name,
   correctT = beamZ / CLHEP::c_light / CLHEP::nanosecond;
   doFineCalo_ = m_CaloSD.getParameter<bool>("DoFineCalo");
   eMinFine_ = m_CaloSD.getParameter<double>("EminFineTrack") * CLHEP::MeV;
-  std::vector<std::string> fineNames = m_CaloSD.getParameter<std::vector<std::string> >("FineCaloNames");
-  std::vector<int> fineLevels = m_CaloSD.getParameter<std::vector<int> >("FineCaloLevels");
-  std::vector<int> useFines = m_CaloSD.getParameter<std::vector<int> >("UseFineCalo");
+  std::vector<std::string> fineNames = m_CaloSD.getParameter<std::vector<std::string>>("FineCaloNames");
+  std::vector<int> fineLevels = m_CaloSD.getParameter<std::vector<int>>("FineCaloLevels");
+  std::vector<int> useFines = m_CaloSD.getParameter<std::vector<int>>("UseFineCalo");
 
   SetVerboseLevel(verbn);
   meanResponse.reset(nullptr);
@@ -114,7 +114,8 @@ CaloSD::CaloSD(const std::string& name,
                               << doFineCalo_;
 
   // Treat fine calorimeters
-  edm::LogVerbatim("CaloSim") << "CaloSD: Have a possibility of " << fineNames.size() << " fine calorimeters of which " << useFines.size() << " are selected";
+  edm::LogVerbatim("CaloSim") << "CaloSD: Have a possibility of " << fineNames.size() << " fine calorimeters of which "
+                              << useFines.size() << " are selected";
   for (unsigned int k = 0; k < fineNames.size(); ++k)
     edm::LogVerbatim("CaloSim") << "[" << k << "] " << fineNames[k] << " at " << fineLevels[k];
   std::ostringstream st1;
@@ -128,8 +129,8 @@ CaloSD::CaloSD(const std::string& name,
     G4String name = static_cast<G4String>(fineNames[useFines[i]]);
     for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
       if ((*lvcite)->GetName() == name) {
-	lv = (*lvcite);
-	break;
+        lv = (*lvcite);
+        break;
       }
     }
     if (lv != nullptr) {
@@ -145,7 +146,7 @@ CaloSD::CaloSD(const std::string& name,
   unsigned int k(0);
   for (const auto& detector : fineDetectors_) {
     edm::LogVerbatim("CaloSim") << "Detector[" << k << "] " << detector.name << " at level " << detector.level
-				<< " pointer to LV: " << detector.lv;
+                                << " pointer to LV: " << detector.lv;
   }
 #endif
 }

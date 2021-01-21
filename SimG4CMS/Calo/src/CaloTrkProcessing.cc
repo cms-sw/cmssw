@@ -40,7 +40,8 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
 
   edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: Initialised with TestBeam = " << testBeam_ << " Emin = " << eMin_
                               << " Flags " << putHistory_ << " (History), " << doFineCalo_ << " (Special Calorimeter)";
-  edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: Have a possibility of " << fineNames.size() << " fine calorimeters of which " << useFines.size() << " are selected";
+  edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: Have a possibility of " << fineNames.size()
+                              << " fine calorimeters of which " << useFines.size() << " are selected";
   for (unsigned int k = 0; k < fineNames.size(); ++k)
     edm::LogVerbatim("CaloSim") << "[" << k << "] " << fineNames[k] << " at " << fineLevels[k];
   std::ostringstream st1;
