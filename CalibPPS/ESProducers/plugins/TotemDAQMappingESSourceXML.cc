@@ -28,6 +28,7 @@
 #include "CondFormats/PPSObjects/interface/TotemDAQMapping.h"
 #include "CondFormats/PPSObjects/interface/TotemAnalysisMask.h"
 #include "CondFormats/PPSObjects/interface/TotemFramePosition.h"
+#include "Utilities/Xerces/interface/Xerces.h"
 #include "Utilities/Xerces/interface/XercesStrUtils.h"
 
 #include <xercesc/parsers/XercesDOMParser.hpp>
@@ -322,12 +323,7 @@ TotemDAQMappingESSourceXML::produce(const TotemReadoutRcd &) {
   auto mask = std::make_unique<TotemAnalysisMask>();
 
   // initialize Xerces
-  try {
-    XMLPlatformUtils::Initialize();
-  } catch (const XMLException &toCatch) {
-    throw cms::Exception("TotemDAQMappingESSourceXML")
-        << "An XMLException caught with message: " << cms::xerces::toString(toCatch.getMessage()) << ".\n";
-  }
+  cms::concurrency::xercesInitialize();
 
   // load mapping files
   for (const auto &fn : configuration[currentBlock].mappingFileNames)
@@ -338,7 +334,7 @@ TotemDAQMappingESSourceXML::produce(const TotemReadoutRcd &) {
     ParseXML(pMask, CompleteFileName(fn), mapping, mask);
 
   // release Xerces
-  XMLPlatformUtils::Terminate();
+  cms::concurrency::xercesTerminate();
 
   // commit the products
   return edm::es::products(std::move(mapping), std::move(mask));
