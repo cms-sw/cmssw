@@ -139,6 +139,7 @@ void GEMPadDigiValidation::analyze(const edm::Event& event, const edm::EventSetu
     Int_t layer_id = gemid.layer();
     Int_t chamber_id = gemid.chamber();
     Int_t roll_id = gemid.roll();
+    Int_t num_layers = gemid.nlayers();
 
     ME2IdsKey key2(region_id, station_id);
     ME3IdsKey key3(region_id, station_id, layer_id);
@@ -162,7 +163,7 @@ void GEMPadDigiValidation::analyze(const edm::Event& event, const edm::EventSetu
 
       me_occ_zr_[region_id]->Fill(g_abs_z, g_r);
 
-      Int_t bin_x = getDetOccBinX(chamber_id, layer_id);
+      Int_t bin_x = getDetOccBinX(num_layers, chamber_id, layer_id);
       me_occ_det_[key2]->Fill(bin_x, roll_id);
 
       if (detail_plot_) {
