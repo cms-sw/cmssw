@@ -2,7 +2,7 @@
 
 #include "TString.h"
 
-TString GEMUtils::getSuffixName(Int_t region_id) { return TString::Format("_RE%+d", region_id); }
+TString GEMUtils::getSuffixName(Int_t region_id) { return TString::Format("_Re%+d", region_id); }
 
 TString GEMUtils::getSuffixName(Int_t region_id, Int_t station_id) {
   return TString::Format("_GE%+.2d", region_id * (station_id * 10 + 1));
