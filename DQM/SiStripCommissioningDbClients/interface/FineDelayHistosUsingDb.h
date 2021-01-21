@@ -2,6 +2,7 @@
 #ifndef DQM_SiStripCommissioningClients_FineDelayHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_FineDelayHistosUsingDb_H
 
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "DQM/SiStripCommissioningClients/interface/SamplingHistograms.h"
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
