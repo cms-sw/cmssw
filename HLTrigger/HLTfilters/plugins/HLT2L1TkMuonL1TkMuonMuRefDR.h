@@ -33,6 +33,7 @@ public:
                       std::vector<l1t::TkMuonRef>& coll2,
                       trigger::TriggerFilterObjectWithRefs& filterproduct) const;
   bool computeDR(edm::Event& iEvent, l1t::TkMuonRef& c1, l1t::TkMuonRef& c2) const;
+  std::pair<float, float> convertEtaPhi(l1t::TkMuonRef& tkmu) const;
 
 private:
   // configuration
@@ -45,6 +46,11 @@ private:
   const double minDR_;  // minimum dR between two muon regional candidates linked to L1TkMuon
   const int min_N_;     // number of pairs passing cuts required
   const bool same_;     // 1st and 2nd product are one and the same
+
+  // eta and phi scaling for RegionalMuonCand
+  const unsigned int emtfRegion_;
+  const float etaScale_;
+  const float phiScale_;
 };
 
 #endif  //HLT2L1TkMuonL1TkMuonMuRefDR_h
