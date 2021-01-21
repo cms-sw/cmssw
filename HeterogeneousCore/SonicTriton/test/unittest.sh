@@ -23,7 +23,7 @@ else
 fi
 
 if [ -n "$SINGULARITY_CONTAINER" ]; then
-	if unshare -U echo >/dev/null 2>&1; then
+	if grep -q "^allow setuid = no" /etc/singularity/singularity.conf && unshare -U echo >/dev/null 2>&1; then
 		echo "has unprivileged user namespace support"
 	else
 		echo "missing unprivileged user namespace support"
