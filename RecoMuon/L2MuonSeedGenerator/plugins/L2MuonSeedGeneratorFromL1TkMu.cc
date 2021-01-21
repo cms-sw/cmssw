@@ -72,7 +72,7 @@ private:
   edm::EDGetTokenT<l1t::TkMuonCollection> muCollToken_;
 
   edm::InputTag offlineSeedLabel_;
-  edm::EDGetTokenT<edm::View<TrajectorySeed> > offlineSeedToken_;
+  edm::EDGetTokenT<edm::View<TrajectorySeed>> offlineSeedToken_;
 
   std::string propagatorName_;
 
@@ -100,7 +100,7 @@ private:
   std::unique_ptr<MuonServiceProxy> service_;
   std::unique_ptr<MeasurementEstimator> estimator_;
 
-  const TrajectorySeed *associateOfflineSeedToL1(edm::Handle<edm::View<TrajectorySeed> > &,
+  const TrajectorySeed *associateOfflineSeedToL1(edm::Handle<edm::View<TrajectorySeed>> &,
                                                  std::vector<int> &,
                                                  TrajectoryStateOnSurface &,
                                                  double);
@@ -128,7 +128,6 @@ L2MuonSeedGeneratorFromL1TkMu::L2MuonSeedGeneratorFromL1TkMu(const edm::Paramete
       phiCorr0_(1.464),
       phiCorr1_(1.7),
       phiCorr2_(144.) {
-
   if (useOfflineSeed_) {
     offlineSeedLabel_ = iConfig.getUntrackedParameter<InputTag>("OfflineSeedLabel");
     offlineSeedToken_ = consumes<edm::View<TrajectorySeed>>(offlineSeedLabel_);
@@ -196,9 +195,9 @@ void L2MuonSeedGeneratorFromL1TkMu::produce(edm::Event &iEvent, const edm::Event
     offlineSeedMap = vector<int>(offlineSeedHandle->size(), 0);
   }
 
-  for (auto const& tkmu: *muColl) {
+  for (auto const &tkmu : *muColl) {
     // L1 tracker track
-    auto it = tkmu.trkPtr();
+    auto const &it = tkmu.trkPtr();
 
     // propagat L1 tracker track to GMT
     auto p3 = it->momentum();
@@ -467,7 +466,7 @@ const TrajectorySeed *L2MuonSeedGeneratorFromL1TkMu::associateOfflineSeedToL1(
                               offseedTsos.globalPosition().eta(),
                               offseedTsos.globalPosition().phi());
       LogDebug(metlabel) << "   -- DR = " << newDr2 << std::endl;
-      if (newDr2 < dRcone*dRcone && newDr2 < bestDr2) {
+      if (newDr2 < dRcone * dRcone && newDr2 < bestDr2) {
         LogDebug(metlabel) << "          --> OK! " << newDr2 << std::endl << std::endl;
         selOffseed = &*offseed;
         bestDr2 = newDr2;
