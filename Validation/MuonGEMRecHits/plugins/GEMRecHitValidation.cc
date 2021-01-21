@@ -126,7 +126,7 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
   for (const auto& region : gem->regions()) {
     Int_t region_id = region->region();
 
-    me_occ_zr_[region_id] = bookZROccupancy(booker, region_id, "rechit", "RecHit");
+    if (detail_plot_) me_detail_occ_zr_[region_id] = bookZROccupancy(booker, region_id, "rechit", "RecHit");
 
     me_simhit_occ_eta_[region_id] = bookHist1D(booker,
                                                region_id,
@@ -156,9 +156,11 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
       me_rechit_occ_phi_[key2] =
           bookHist1D(booker, key2, "matched_rechit_occ_phi", "Matched RecHit Phi Occupancy", 51, -M_PI, M_PI, "#phi");
 
-      me_simhit_occ_det_[key2] = bookDetectorOccupancy(booker, key2, station, "muon_simhit", "Muon SimHit");
+      if (detail_plot_) {
+        me_detail_simhit_occ_det_[key2] = bookDetectorOccupancy(booker, key2, station, "muon_simhit", "Muon SimHit");
 
-      me_rechit_occ_det_[key2] = bookDetectorOccupancy(booker, key2, station, "matched_rechit", "Matched RecHit");
+        me_detail_rechit_occ_det_[key2] = bookDetectorOccupancy(booker, key2, station, "matched_rechit", "Matched RecHit");
+      }
 
       if (detail_plot_) {
         const auto& superChamberVec = station->superChambers();
@@ -218,8 +220,8 @@ void GEMRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup
     return;
   }
 
-  for (auto rechit = rechit_collection->begin(); rechit != rechit_collection->end(); rechit++) {
-    GEMDetId gem_id{rechit->gemId()};
+  for (const auto& rechit : *rechit_collection) {
+    GEMDetId gem_id{rechit.gemId()};
     Int_t region_id = gem_id.region();
     Int_t station_id = gem_id.station();
     Int_t layer_id = gem_id.layer();
@@ -228,7 +230,7 @@ void GEMRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup
     ME3IdsKey key3{region_id, station_id, layer_id};
 
     const BoundPlane& surface = gem->idToDet(gem_id)->surface();
-    GlobalPoint&& rechit_global_pos = surface.toGlobal(rechit->localPosition());
+    GlobalPoint&& rechit_global_pos = surface.toGlobal(rechit.localPosition());
 
     Float_t rechit_g_x = rechit_global_pos.x();
     Float_t rechit_g_y = rechit_global_pos.y();
@@ -236,13 +238,13 @@ void GEMRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup
     Float_t rechit_g_r = rechit_global_pos.perp();
     Float_t rechit_g_phi = rechit_global_pos.phi();
 
-    Int_t cls = rechit->clusterSize();
+    Int_t cls = rechit.clusterSize();
 
     me_cls_->Fill(cls);
-    me_occ_zr_[region_id]->Fill(rechit_g_abs_z, rechit_g_r);
 
     if (detail_plot_) {
       me_detail_cls_[key3]->Fill(cls);
+      me_detail_occ_zr_[region_id]->Fill(rechit_g_abs_z, rechit_g_r);
       me_detail_occ_xy_[key3]->Fill(rechit_g_x, rechit_g_y);
       me_detail_occ_polar_[key3]->Fill(rechit_g_phi, rechit_g_r);
     }  // detail plot
@@ -281,7 +283,7 @@ void GEMRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup
 
     me_simhit_occ_eta_[region_id]->Fill(simhit_g_abs_eta);
     me_simhit_occ_phi_[key2]->Fill(simhit_g_phi);
-    me_simhit_occ_det_[key2]->Fill(det_occ_bin_x, roll_id);
+    if (detail_plot_) me_detail_simhit_occ_det_[key2]->Fill(det_occ_bin_x, roll_id);
 
     auto simhit_trackId = simhit.trackId();
 
@@ -323,7 +325,6 @@ void GEMRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup
 
         me_rechit_occ_eta_[region_id]->Fill(simhit_g_abs_eta);
         me_rechit_occ_phi_[key2]->Fill(simhit_g_phi);
-        me_rechit_occ_det_[key2]->Fill(det_occ_bin_x, roll_id);
 
         if (detail_plot_) {
           me_detail_residual_x_[key3]->Fill(residual_x);
@@ -331,6 +332,8 @@ void GEMRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup
 
           me_detail_pull_x_[key3]->Fill(pull_x);
           me_detail_pull_y_[key3]->Fill(pull_y);
+
+          me_detail_rechit_occ_det_[key2]->Fill(det_occ_bin_x, roll_id);
         }  // detail_plot
 
         // If we find GEMRecHit that matches PSimHit, then exit

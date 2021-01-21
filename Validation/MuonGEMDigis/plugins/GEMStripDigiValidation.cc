@@ -75,7 +75,7 @@ void GEMStripDigiValidation::bookHistograms(DQMStore::IBooker& booker,
   for (const auto& region : gem->regions()) {
     Int_t region_id = region->region();
 
-    me_occ_zr_[region_id] = bookZROccupancy(booker, region_id, "strip", "Strip Digi");
+    if (detail_plot_) me_detail_occ_zr_[region_id] = bookZROccupancy(booker, region_id, "strip", "Strip Digi");
 
     // occupancy plots for eta efficiency
     me_simhit_occ_eta_[region_id] = bookHist1D(booker,
@@ -99,17 +99,19 @@ void GEMStripDigiValidation::bookHistograms(DQMStore::IBooker& booker,
       Int_t station_id = station->station();
       ME2IdsKey key2{region_id, station_id};
 
-      me_occ_det_[key2] = bookDetectorOccupancy(booker, key2, station, "strip", "Strip Digi");
-
       me_simhit_occ_phi_[key2] =
           bookHist1D(booker, key2, "muon_simhit_occ_phi", "Muon SimHit Phi Occupancy", 51, -M_PI, M_PI, "#phi");
 
       me_strip_occ_phi_[key2] = bookHist1D(
           booker, key2, "matched_strip_occ_phi", "Matched Strip Digi Phi Occupancy", 51, -M_PI, M_PI, "#phi");
 
-      me_simhit_occ_det_[key2] = bookDetectorOccupancy(booker, key2, station, "muon_simhit", "Muon SimHit");
+      if (detail_plot_) {
+        me_detail_occ_det_[key2] = bookDetectorOccupancy(booker, key2, station, "strip", "Strip Digi");
 
-      me_strip_occ_det_[key2] = bookDetectorOccupancy(booker, key2, station, "matched_strip", "Matched Strip Digi");
+        me_detail_simhit_occ_det_[key2] = bookDetectorOccupancy(booker, key2, station, "muon_simhit", "Muon SimHit");
+
+        me_detail_strip_occ_det_[key2] = bookDetectorOccupancy(booker, key2, station, "matched_strip", "Matched Strip Digi");
+      }
 
       const auto& superChamberVec = station->superChambers();
       if (superChamberVec.empty() || superChamberVec[0] == nullptr) {
@@ -196,8 +198,8 @@ void GEMStripDigiValidation::analyze(const edm::Event& event, const edm::EventSe
   }
 
   // NOTE
-  for (auto range_iter = digi_collection->begin(); range_iter != digi_collection->end(); range_iter++) {
-    GEMDetId id = (*range_iter).first;
+  for (const auto digi_pair : *digi_collection) {
+    GEMDetId id = digi_pair.first;
     if (gem->idToDet(id) == nullptr) {
       edm::LogError(kLogCategory_) << "Getting DetId failed. Discard this gem strip hit. Maybe it comes "
                                    << "from unmatched geometry." << std::endl;
@@ -218,7 +220,7 @@ void GEMStripDigiValidation::analyze(const edm::Event& event, const edm::EventSe
     const BoundPlane& surface = gem->idToDet(id)->surface();
     const GEMEtaPartition* roll = gem->etaPartition(id);
 
-    const GEMDigiCollection::Range& range = (*range_iter).second;
+    const GEMDigiCollection::Range& range = digi_pair.second;
     for (auto digi = range.first; digi != range.second; ++digi) {
       Int_t strip = digi->strip();
       Int_t bx = digi->bx();
@@ -229,7 +231,6 @@ void GEMStripDigiValidation::analyze(const edm::Event& event, const edm::EventSe
       Float_t digi_g_abs_z = std::abs(strip_global_pos.z());
 
       me_bx_->Fill(bx);
-      me_occ_zr_[region_id]->Fill(digi_g_abs_z, digi_g_r), me_occ_det_[key2]->Fill(bin_x, roll_id);
 
       if (detail_plot_) {
         Float_t digi_g_x = strip_global_pos.x();
@@ -240,6 +241,9 @@ void GEMStripDigiValidation::analyze(const edm::Event& event, const edm::EventSe
         me_detail_occ_xy_[key3]->Fill(digi_g_x, digi_g_y);
         me_detail_occ_strip_[key3]->Fill(strip);
         me_detail_occ_phi_strip_[key3]->Fill(digi_g_phi, strip);
+
+        me_detail_occ_zr_[region_id]->Fill(digi_g_abs_z, digi_g_r); 
+        me_detail_occ_det_[key2]->Fill(bin_x, roll_id);
       }
     }
   }  // range loop
@@ -279,7 +283,7 @@ void GEMStripDigiValidation::analyze(const edm::Event& event, const edm::EventSe
     Int_t bin_x = getDetOccBinX(num_layers, chamber_id, layer_id);
     me_simhit_occ_eta_[region_id]->Fill(simhit_g_eta);
     me_simhit_occ_phi_[key2]->Fill(simhit_g_phi);
-    me_simhit_occ_det_[key2]->Fill(bin_x, roll_id);
+    if (detail_plot_) me_detail_simhit_occ_det_[key2]->Fill(bin_x, roll_id);
 
     auto links = digiSimLink->find(simhit_gemid);
     if (links == digiSimLink->end())
@@ -289,7 +293,7 @@ void GEMStripDigiValidation::analyze(const edm::Event& event, const edm::EventSe
       if (simhit_trackId == link.getTrackId()) {
         me_strip_occ_eta_[region_id]->Fill(simhit_g_eta);
         me_strip_occ_phi_[key2]->Fill(simhit_g_phi);
-        me_strip_occ_det_[key2]->Fill(bin_x, roll_id);
+        if (detail_plot_) me_detail_strip_occ_det_[key2]->Fill(bin_x, roll_id);
         break;
       }
     }

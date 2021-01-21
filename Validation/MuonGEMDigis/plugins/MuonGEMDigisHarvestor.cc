@@ -7,6 +7,8 @@ MuonGEMDigisHarvestor::MuonGEMDigisHarvestor(const edm::ParameterSet& pset)
   region_ids_ = pset.getUntrackedParameter<std::vector<Int_t> >("regionIds");
   station_ids_ = pset.getUntrackedParameter<std::vector<Int_t> >("stationIds");
   layer_ids_ = pset.getUntrackedParameter<std::vector<Int_t> >("layerIds");
+
+  detail_plot_ = pset.getParameter<Bool_t>("detailPlot");
 }
 
 MuonGEMDigisHarvestor::~MuonGEMDigisHarvestor() {}
@@ -44,15 +46,16 @@ void MuonGEMDigisHarvestor::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGett
       bookEff1D(booker, getter, strip_phi_path, simhit_phi_path, eff_folder, eff_phi_name, eff_phi_title);
 
       // NOTE Detector Component efficiency
-      TString strip_det_name = "matched_strip_occ_det" + name_suffix_re_st;
-      TString simhit_det_name = "muon_simhit_occ_det" + name_suffix_re_st;
-      TString strip_det_path = occ_folder + strip_det_name;
-      TString simhit_det_path = occ_folder + simhit_det_name;
-      TString eff_det_name = "eff_det" + name_suffix_re_st;
-      TString eff_det_title = "Detector Component Efficiency (Muon Only) :" + title_suffix_re_st;
+      if (detail_plot_) {
+        TString strip_det_name = "matched_strip_occ_det" + name_suffix_re_st;
+        TString simhit_det_name = "muon_simhit_occ_det" + name_suffix_re_st;
+        TString strip_det_path = occ_folder + strip_det_name;
+        TString simhit_det_path = occ_folder + simhit_det_name;
+        TString eff_det_name = "eff_det" + name_suffix_re_st;
+        TString eff_det_title = "Detector Component Efficiency (Muon Only) :" + title_suffix_re_st;
 
-      bookEff2D(booker, getter, strip_det_path, simhit_det_path, eff_folder, eff_det_name, eff_det_title);
-
+        bookEff2D(booker, getter, strip_det_path, simhit_det_path, eff_folder, eff_det_name, eff_det_title);
+      }
     }  // statino loop
   }    // region loop
 }

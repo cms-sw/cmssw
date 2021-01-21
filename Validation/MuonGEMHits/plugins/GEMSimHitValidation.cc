@@ -124,13 +124,13 @@ void GEMSimHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
   for (const auto& region : gem->regions()) {
     Int_t region_id = region->region();
 
-    me_occ_zr_[region_id] = bookZROccupancy(booker, region_id, "simhit", "SimHit");
+    if (detail_plot_) me_detail_occ_zr_[region_id] = bookZROccupancy(booker, region_id, "simhit", "SimHit");
 
     for (const auto& station : region->stations()) {
       Int_t station_id = station->station();
       ME2IdsKey key2{region_id, station_id};
 
-      me_occ_det_[key2] = bookDetectorOccupancy(booker, key2, station, "simhit", "SimHit");
+      if (detail_plot_) me_detail_occ_det_[key2] = bookDetectorOccupancy(booker, key2, station, "simhit", "SimHit");
 
       const auto& superChamberVec = station->superChambers();
       if (superChamberVec.empty() || superChamberVec.front() == nullptr) {
@@ -142,7 +142,7 @@ void GEMSimHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
           Int_t layer_id = chamber->id().layer();
           ME3IdsKey key3{region_id, station_id, layer_id};
 
-          me_occ_xy_[key3] = bookXYOccupancy(booker, key3, "simhit", "SimHit");
+          if (detail_plot_) me_detail_occ_xy_[key3] = bookXYOccupancy(booker, key3, "simhit", "SimHit");
         }  // layer loop
       }    // end else
     }      // station loop
@@ -197,9 +197,11 @@ void GEMSimHitValidation::analyze(const edm::Event& event, const edm::EventSetup
     // NOTE Fill MonitorElement
     Int_t bin_x = getDetOccBinX(num_layers, chamber_id, layer_id);
 
-    me_occ_zr_[region_id]->Fill(simhit_g_abs_z, simhit_g_r);
-    me_occ_det_[key2]->Fill(bin_x, roll_id);
-    me_occ_xy_[key3]->Fill(simhit_g_x, simhit_g_y);
+    if (detail_plot_) {
+      me_detail_occ_zr_[region_id]->Fill(simhit_g_abs_z, simhit_g_r);
+      me_detail_occ_det_[key2]->Fill(bin_x, roll_id);
+      me_detail_occ_xy_[key3]->Fill(simhit_g_x, simhit_g_y);
+    }
 
     bool is_muon_simhit = isMuonSimHit(simhit);
     if (is_muon_simhit) {

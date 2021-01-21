@@ -20,13 +20,13 @@ void GEMPadDigiClusterValidation::bookHistograms(DQMStore::IBooker& booker,
   for (const auto& region : gem->regions()) {
     Int_t region_id = region->region();
 
-    me_occ_zr_.emplace(region_id, bookZROccupancy(booker, region_id, "pad", "Pad Cluster"));
+    if (detail_plot_) me_detail_occ_zr_.emplace(region_id, bookZROccupancy(booker, region_id, "pad", "Pad Cluster"));
 
     for (const auto& station : region->stations()) {
       Int_t station_id = station->station();
       ME2IdsKey key2{region_id, station_id};
 
-      me_occ_det_[key2] = bookDetectorOccupancy(booker, key2, station, "pad", "Pad Cluster");
+      if (detail_plot_) me_detail_occ_det_[key2] = bookDetectorOccupancy(booker, key2, station, "pad", "Pad Cluster");
 
       const auto& superChamberVec = station->superChambers();
       if (superChamberVec.empty()) {
@@ -120,9 +120,9 @@ void GEMPadDigiClusterValidation::analyze(const edm::Event& event, const edm::Ev
     return;
   }
 
-  for (auto range_iter = collection->begin(); range_iter != collection->end(); range_iter++) {
-    GEMDetId gemid = (*range_iter).first;
-    const auto& range = (*range_iter).second;
+  for (const auto& cluster_pair : *collection) {
+    GEMDetId gemid = cluster_pair.first;
+    const auto& range = cluster_pair.second;
 
     if (gem->idToDet(gemid) == nullptr) {
       edm::LogError(kLogCategory_) << "Getting DetId failed. Discard this gem pad hit. "
@@ -167,16 +167,15 @@ void GEMPadDigiClusterValidation::analyze(const edm::Event& event, const edm::Ev
       Float_t g_y = global_pos.y();
       Float_t g_abs_z = std::fabs(global_pos.z());
 
-      me_occ_zr_[region_id]->Fill(g_abs_z, g_r);
-
       Int_t bin_x = getDetOccBinX(num_layers, chamber_id, layer_id);
-      me_occ_det_[key2]->Fill(bin_x, roll_id);
-
+      
       if (detail_plot_) {
         me_detail_occ_xy_[key3]->Fill(g_x, g_y);
         me_detail_occ_phi_pad_[key3]->Fill(g_phi, pad);
         me_detail_occ_pad_[key3]->Fill(pad);
         me_detail_bx_[key3]->Fill(bx);
+        me_detail_occ_zr_[region_id]->Fill(g_abs_z, g_r);
+        me_detail_occ_det_[key2]->Fill(bin_x, roll_id);
       }  // detail_plot_
     }
   }  // end loop over range iters
