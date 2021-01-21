@@ -18,9 +18,9 @@ HGVHistoProducerAlgoBlock = cms.PSet(
     nintPt = cms.int32(100),
 
     #parameters for phi
-    minPhi  = cms.double(-4.),
-    maxPhi  = cms.double(4.),
-    nintPhi = cms.int32(100),
+    minPhi  = cms.double(-3.2),
+    maxPhi  = cms.double(3.2),
+    nintPhi = cms.int32(80),
 
     #parameters for counting mixed hits clusters
     minMixedHitsSimCluster = cms.double(0.),
