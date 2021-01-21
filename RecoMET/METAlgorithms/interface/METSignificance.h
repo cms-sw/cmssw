@@ -16,8 +16,6 @@ Implementation:
 #ifndef METAlgorithms_METSignificance_h
 #define METAlgorithms_METSignificance_h
 //____________________________________________________________________________||
-#include "CondFormats/JetMETObjects/interface/JetResolution.h"
-
 #include "JetMETCorrections/Modules/interface/JetResolution.h"
 
 #include "DataFormats/JetReco/interface/Jet.h"
