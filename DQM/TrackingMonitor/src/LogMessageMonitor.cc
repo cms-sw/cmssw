@@ -120,7 +120,7 @@ void LogMessageMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup&
   if (!errors.isValid())
     return;
   // Compare severity level of error with ELseveritylevel instance el : "-e" should be the lowest error
-  edm::ELseverityLevel el("-e");
+  edm::ELseverityLevel el(edm::ELseverityLevel::ELsev_error);
 
   // Find the total number of errors in iEvent
   if (errors->empty()) {
