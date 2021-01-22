@@ -398,7 +398,6 @@ const TrajectorySeed *L2MuonSeedGeneratorFromL1TkMu::associateOfflineSeedToL1(
     std::vector<int> &offseedMap,
     TrajectoryStateOnSurface &newTsos,
     double dRcone) {
-
   if (dRcone < 0.)
     return nullptr;
 
