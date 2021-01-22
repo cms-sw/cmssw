@@ -204,7 +204,7 @@ ElectronDqmHarvesterBase::MonitorElement *ElectronDqmHarvesterBase::bookH1(DQMSt
     me->setOption(option);
   }
   if (bookStatOverflowFlag_) {
-    me->getTH1F()->StatOverflows(kTRUE);
+    me->setStatOverflows(kTRUE);
   }
   return me;
 }
