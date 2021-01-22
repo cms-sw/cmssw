@@ -115,6 +115,7 @@ void HcalTPGCoderULUT::buildCoder(const HcalTopology* topo, const HcalTimeSlew* 
   using namespace edm::es;
   theCoder->init(topo, delay);
 
+  // By using the DB, we are making a choice about specifically using a 1TS filter, so set the booleans accordingly
   if (useDBweightsAndFilterHB_) {
     theCoder->set1TSContainHB(true);
   } else {
