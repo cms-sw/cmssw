@@ -194,19 +194,19 @@ void ParticleBasedIsoProducer::fillDescriptions(edm::ConfigurationDescriptions& 
   edm::ParameterSetDescription desc;
   desc.add<std::string>("valueMapEleToEG", "");
   desc.add<std::string>("valueMapPhoToEG", "valMapPFEgammaCandToPhoton");
-  desc.add<edm::InputTag>("electronTmpProducer", edm::InputTag("gedGsfElectronsTmp"));
-  desc.add<edm::InputTag>("pfCandidates", edm::InputTag("particleFlow"));
+  desc.add<edm::InputTag>("electronTmpProducer", {"gedGsfElectronsTmp"});
+  desc.add<edm::InputTag>("pfCandidates", {"particleFlow"});
   desc.add<std::string>("valueMapElePFblockIso", "gedGsfElectrons");
-  desc.add<edm::InputTag>("electronProducer", edm::InputTag("gedGsfElectrons"));
-  desc.add<edm::InputTag>("photonTmpProducer", edm::InputTag("gedPhotonsTmp"));
-  desc.add<edm::InputTag>("pfEgammaCandidates", edm::InputTag("particleFlowEGamma"));
+  desc.add<edm::InputTag>("electronProducer", {"gedGsfElectrons"});
+  desc.add<edm::InputTag>("photonTmpProducer", {"gedPhotonsTmp"});
+  desc.add<edm::InputTag>("pfEgammaCandidates", {"particleFlowEGamma"});
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("ComponentName", "pfBlockBasedIsolation");
-    psd0.add<double>("coneSize", 9999999999);
+    psd0.add<double>("coneSize", 9999999999.);
     desc.add<edm::ParameterSetDescription>("pfBlockBasedIsolationSetUp", psd0);
   }
-  desc.add<edm::InputTag>("photonProducer", edm::InputTag("gedPhotons"));
+  desc.add<edm::InputTag>("photonProducer", {"gedPhotons"});
   desc.add<std::string>("valueMapPhoPFblockIso", "gedPhotons");
   descriptions.add("particleBasedIsolation", desc);
   // or use the following to generate the label from the module's C++ type
