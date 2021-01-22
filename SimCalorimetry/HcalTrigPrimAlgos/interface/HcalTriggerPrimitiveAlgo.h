@@ -82,13 +82,9 @@ public:
   void setNCTScaleShift(int);
   void setRCTScaleShift(int);
 
-  void setNumFilterPresamplesHBQIE11(int presamples) {
-    numberOfFilterPresamplesHBQIE11_ = presamples;
-  }
+  void setNumFilterPresamplesHBQIE11(int presamples) { numberOfFilterPresamplesHBQIE11_ = presamples; }
 
-  void setNumFilterPresamplesHEQIE11(int presamples) {
-    numberOfFilterPresamplesHEQIE11_ = presamples;
-  }
+  void setNumFilterPresamplesHEQIE11(int presamples) { numberOfFilterPresamplesHEQIE11_ = presamples; }
 
   void setUpgradeFlags(bool hb, bool he, bool hf);
   void overrideParameters(const edm::ParameterSet& ps);
