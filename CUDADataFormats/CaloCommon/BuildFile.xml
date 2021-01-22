@@ -1,4 +1,3 @@
-<use name="CUDADataFormats/Common" />
 <use name="HeterogeneousCore/CUDAUtilities"/>
 
 <export>
