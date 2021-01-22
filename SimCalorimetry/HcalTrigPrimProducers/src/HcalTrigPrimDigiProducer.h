@@ -29,7 +29,7 @@ public:
   ~HcalTrigPrimDigiProducer() override {}
 
   /**Produces the EDM products,*/
-  virtual void beginRun(const edm::Run& r, const edm::EventSetup& c);
+  void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
   void produce(edm::Event& e, const edm::EventSetup& c) override;
 
 private:
