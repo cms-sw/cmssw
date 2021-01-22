@@ -41,8 +41,7 @@ void HGCalGeomRotation::uvMappingFrom60DegreeSector0(WaferCentring waferCentring
   }
 
   if (sector > 5) {
-    throw cms::Exception("RotationException")
-        << "HGCalGeomRotation: desired sector must be either 0, 1, 2, 3, 4, 5 or 6";
+    throw cms::Exception("RotationException") << "HGCalGeomRotation: desired sector must be either 0, 1, 2, 3, 4, or 5";
   }
   for (unsigned rot = 0; rot < sector; rot++) {
     RotateModule60DegreesAnticlockwise(moduleU, moduleV);
@@ -67,7 +66,8 @@ void HGCalGeomRotation::uvMappingFrom120DegreeSector0(WaferCentring waferCentrin
   }
 
   if (sector > 2) {
-    throw cms::Exception("RotationException") << "HGCalGeomRotation: desired sector must be either 0, 1 or 2";
+    edm::LogError("RotationException") << "HGCalGeomRotation: desired sector must be either 0, 1 or 2";
+    return;
   }
   for (unsigned rot = 0; rot < sector; rot++) {
     RotateModule120DegreesAnticlockwise(moduleU, moduleV, offset);
