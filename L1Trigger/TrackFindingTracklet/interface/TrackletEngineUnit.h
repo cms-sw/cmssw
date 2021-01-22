@@ -42,9 +42,9 @@ namespace trklet {
 
     bool empty() const { return candpairs_.empty(); }
 
-    std::pair<const Stub*, const Stub*> read() { return candpairs_.read(); }
+    const std::pair<const Stub*, const Stub*>& read() { return candpairs_.read(); }
 
-    std::pair<const Stub*, const Stub*> peek() const { return candpairs_.peek(); }
+    const std::pair<const Stub*, const Stub*>& peek() const { return candpairs_.peek(); }
 
     bool idle() const { return idle_; }
 

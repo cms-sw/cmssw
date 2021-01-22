@@ -371,12 +371,13 @@ void TrackDerTable::fillTable() {
     if (outL.fail())
       throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << fnameL;
 
+    int nbits=6;
     for (unsigned int i = 0; i < LayerMem_.size(); i++) {
       FPGAWord tmp;
       int tmp1 = LayerMem_[i];
       if (tmp1 < 0)
-        tmp1 = (1 << 6) - 1;
-      tmp.set(tmp1, 6, true, __LINE__, __FILE__);
+        tmp1 = (1 << nbits) - 1;
+      tmp.set(tmp1, nbits, true, __LINE__, __FILE__);
       outL << tmp.str() << endl;
     }
     outL.close();
@@ -386,11 +387,12 @@ void TrackDerTable::fillTable() {
     if (outD.fail())
       throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << fnameD;
 
+    nbits=7;
     for (int tmp1 : DiskMem_) {
       if (tmp1 < 0)
-        tmp1 = (1 << 7) - 1;
+        tmp1 = (1 << nbits) - 1;
       FPGAWord tmp;
-      tmp.set(tmp1, 7, true, __LINE__, __FILE__);
+      tmp.set(tmp1, nbits, true, __LINE__, __FILE__);
       outD << tmp.str() << endl;
     }
     outD.close();
@@ -400,11 +402,12 @@ void TrackDerTable::fillTable() {
     if (outLD.fail())
       throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << fnameLD;
 
+    nbits=15;
     for (int tmp1 : LayerDiskMem_) {
       if (tmp1 < 0)
-        tmp1 = (1 << 15) - 1;
+        tmp1 = (1 << nbits) - 1;
       FPGAWord tmp;
-      tmp.set(tmp1, 15, true, __LINE__, __FILE__);
+      tmp.set(tmp1, nbits, true, __LINE__, __FILE__);
       outLD << tmp.str() << endl;
     }
     outLD.close();
@@ -628,71 +631,79 @@ void TrackDerTable::fillTable() {
         }    // if (goodseed)
 
         FPGAWord tmprinvdphi[N_PROJ];
+	int nbits=16;
         for (unsigned int j = 0; j < N_PROJ; ++j) {
-          if (itmprinvdphi[j] > (1 << 16))
-            itmprinvdphi[j] = (1 << 16) - 1;
-          tmprinvdphi[j].set(itmprinvdphi[j], 17, false, __LINE__, __FILE__);
+          if (itmprinvdphi[j] > (1 << nbits))
+            itmprinvdphi[j] = (1 << nbits) - 1;
+          tmprinvdphi[j].set(itmprinvdphi[j], nbits+1, false, __LINE__, __FILE__);
         }
         outrinvdphi[i] << tmprinvdphi[0].str() << tmprinvdphi[1].str() << tmprinvdphi[2].str() << tmprinvdphi[3].str()
                        << endl;
 
         FPGAWord tmprinvdzordr[N_PROJ];
+	nbits=15;
         for (unsigned int j = 0; j < N_PROJ; ++j) {
-          if (itmprinvdzordr[j] > (1 << 15))
-            itmprinvdzordr[j] = (1 << 15) - 1;
-          tmprinvdzordr[j].set(itmprinvdzordr[j], 16, false, __LINE__, __FILE__);
+          if (itmprinvdzordr[j] > (1 << nbits))
+            itmprinvdzordr[j] = (1 << nbits) - 1;
+          tmprinvdzordr[j].set(itmprinvdzordr[j], nbits+1, false, __LINE__, __FILE__);
         }
         outrinvdzordr[i] << tmprinvdzordr[0].str() << tmprinvdzordr[1].str() << tmprinvdzordr[2].str()
                          << tmprinvdzordr[3].str() << endl;
 
         FPGAWord tmpphi0dphi[N_PROJ];
+	nbits=13;
         for (unsigned int j = 0; j < N_PROJ; ++j) {
-          if (itmpphi0dphi[j] > (1 << 13))
-            itmpphi0dphi[j] = (1 << 13) - 1;
-          tmpphi0dphi[j].set(itmpphi0dphi[j], 14, false, __LINE__, __FILE__);
+          if (itmpphi0dphi[j] > (1 << nbits))
+            itmpphi0dphi[j] = (1 << nbits) - 1;
+          tmpphi0dphi[j].set(itmpphi0dphi[j], nbits+1, false, __LINE__, __FILE__);
         }
         outphi0dphi[i] << tmpphi0dphi[0].str() << tmpphi0dphi[1].str() << tmpphi0dphi[2].str() << tmpphi0dphi[3].str()
                        << endl;
 
         FPGAWord tmpphi0dzordr[N_PROJ];
+	nbits=15;
         for (unsigned int j = 0; j < N_PROJ; ++j) {
-          if (itmpphi0dzordr[j] > (1 << 15))
-            itmpphi0dzordr[j] = (1 << 15) - 1;
-          tmpphi0dzordr[j].set(itmpphi0dzordr[j], 16, false, __LINE__, __FILE__);
+          if (itmpphi0dzordr[j] > (1 << nbits))
+            itmpphi0dzordr[j] = (1 << nbits) - 1;
+          tmpphi0dzordr[j].set(itmpphi0dzordr[j], nbits+1, false, __LINE__, __FILE__);
         }
         outphi0dzordr[i] << tmpphi0dzordr[0].str() << tmpphi0dzordr[1].str() << tmpphi0dzordr[2].str()
                          << tmpphi0dzordr[3].str() << endl;
 
         FPGAWord tmptdphi[N_PROJ];
+	nbits=14;
         for (unsigned int j = 0; j < N_PROJ; ++j) {
-          if (itmptdphi[j] > (1 << 14))
-            itmptdphi[j] = (1 << 14) - 1;
-          tmptdphi[j].set(itmptdphi[j], 15, false, __LINE__, __FILE__);
+          if (itmptdphi[j] > (1 << nbits))
+            itmptdphi[j] = (1 << nbits) - 1;
+          tmptdphi[j].set(itmptdphi[j], nbits+1, false, __LINE__, __FILE__);
         }
         outtdphi[i] << tmptdphi[0].str() << tmptdphi[1].str() << tmptdphi[2].str() << tmptdphi[3].str() << endl;
 
         FPGAWord tmptdzordr[N_PROJ];
+	nbits=15;
         for (unsigned int j = 0; j < N_PROJ; ++j) {
-          if (itmptdzordr[j] > (1 << 15))
-            itmptdzordr[j] = (1 << 15) - 1;
-          tmptdzordr[j].set(itmptdzordr[j], 16, false, __LINE__, __FILE__);
+          if (itmptdzordr[j] > (1 << nbits))
+            itmptdzordr[j] = (1 << nbits) - 1;
+          tmptdzordr[j].set(itmptdzordr[j], nbits+1, false, __LINE__, __FILE__);
         }
         outtdzordr[i] << tmptdzordr[0].str() << tmptdzordr[1].str() << tmptdzordr[2].str() << tmptdzordr[3].str()
                       << endl;
 
         FPGAWord tmpz0dphi[N_PROJ];
+	nbits=13;
         for (unsigned int j = 0; j < N_PROJ; ++j) {
-          if (itmpz0dphi[j] > (1 << 13))
-            itmpz0dphi[j] = (1 << 13) - 1;
-          tmpz0dphi[j].set(itmpz0dphi[j], 14, false, __LINE__, __FILE__);
+          if (itmpz0dphi[j] > (1 << nbits))
+            itmpz0dphi[j] = (1 << nbits) - 1;
+          tmpz0dphi[j].set(itmpz0dphi[j], nbits+1, false, __LINE__, __FILE__);
         }
         outz0dphi[i] << tmpz0dphi[0].str() << tmpz0dphi[1].str() << tmpz0dphi[2].str() << tmpz0dphi[3].str() << endl;
 
         FPGAWord tmpz0dzordr[N_PROJ];
+	nbits=15;
         for (unsigned int j = 0; j < N_PROJ; ++j) {
-          if (itmpz0dzordr[j] > (1 << 15))
-            itmpz0dzordr[j] = (1 << 15) - 1;
-          tmpz0dzordr[j].set(itmpz0dzordr[j], 16, false, __LINE__, __FILE__);
+          if (itmpz0dzordr[j] > (1 << nbits))
+            itmpz0dzordr[j] = (1 << nbits) - 1;
+          tmpz0dzordr[j].set(itmpz0dzordr[j], nbits+1, false, __LINE__, __FILE__);
         }
         outz0dzordr[i] << tmpz0dzordr[0].str() << tmpz0dzordr[1].str() << tmpz0dzordr[2].str() << tmpz0dzordr[3].str()
                        << endl;
