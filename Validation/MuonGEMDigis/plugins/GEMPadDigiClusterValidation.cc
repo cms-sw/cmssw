@@ -35,7 +35,8 @@ void GEMPadDigiClusterValidation::bookHistograms(DQMStore::IBooker& booker,
   for (const auto& region : gem->regions()) {
     Int_t region_id = region->region();
 
-    if (detail_plot_) me_detail_occ_zr_.emplace(region_id, bookZROccupancy(booker, region_id, "pad", "Pad Cluster"));
+    if (detail_plot_)
+      me_detail_occ_zr_.emplace(region_id, bookZROccupancy(booker, region_id, "pad", "Pad Cluster"));
 
     for (const auto& station : region->stations()) {
       Int_t station_id = station->station();

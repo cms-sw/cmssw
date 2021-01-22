@@ -28,7 +28,8 @@ void GEMPadDigiValidation::bookHistograms(DQMStore::IBooker& booker,
   for (const auto& region : gem->regions()) {
     Int_t region_id = region->region();
 
-    if (detail_plot_) me_detail_occ_zr_[region_id] = bookZROccupancy(booker, region_id, "pad", "Pad");
+    if (detail_plot_)
+      me_detail_occ_zr_[region_id] = bookZROccupancy(booker, region_id, "pad", "Pad");
 
     for (const auto& station : region->stations()) {
       Int_t station_id = station->station();
@@ -215,7 +216,6 @@ void GEMPadDigiValidation::analyze(const edm::Event& event, const edm::EventSetu
       }  // if detail_plot
     }    // digi loop
   }      // range loop
-
 
   for (const auto& region : gem->regions()) {
     Int_t region_id = region->region();

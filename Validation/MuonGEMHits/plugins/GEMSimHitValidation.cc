@@ -133,7 +133,8 @@ void GEMSimHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
   for (const auto& region : gem->regions()) {
     Int_t region_id = region->region();
 
-    if (detail_plot_) me_detail_occ_zr_[region_id] = bookZROccupancy(booker, region_id, "simhit", "SimHit");
+    if (detail_plot_)
+      me_detail_occ_zr_[region_id] = bookZROccupancy(booker, region_id, "simhit", "SimHit");
 
     for (const auto& station : region->stations()) {
       Int_t station_id = station->station();
@@ -168,7 +169,8 @@ void GEMSimHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
 
           me_occ_pid_[key3] = bookPIDHist(booker, key3, "simhit_occ_pid", "Number of entries for each paritcle");
 
-          if (detail_plot_) me_detail_occ_xy_[key3] = bookXYOccupancy(booker, key3, "simhit", "SimHit");
+          if (detail_plot_)
+            me_detail_occ_xy_[key3] = bookXYOccupancy(booker, key3, "simhit", "SimHit");
         }  // layer loop
       }    // end else
     }      // station loop
