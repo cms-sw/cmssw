@@ -9,9 +9,6 @@
  <class name="FileBlobCollection" class_version="0"/>
  <class name="edm::Wrapper<FileBlobCollection>" class_version="0"/>
 
- <class name="std::pair <const std::string, unsigned long long>" />
- <class name="std::map <std::string, unsigned long long>" />
-
  <class name="MultiFileBlob" class_version="0">
    <field name="blob" mapping="blob"/>
    <field name="positions" mapping="blob"/>
@@ -28,9 +25,6 @@
 
 
  <class name="cond::BaseKeyed"/>
-
-  <class name="std::map<unsigned long long,unsigned long long>"/>
-  <class name="std::map<unsigned long long,unsigned long long>::value_type" />
 
  <class name="ConfObject"/>
 

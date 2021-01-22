@@ -32,7 +32,8 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet& iConfig)
                                                 : edm::ParameterSet(),
                 consumesCollector(),
                 false),
-      useUserData_(iConfig.exists("userData")) {
+      useUserData_(iConfig.exists("userData")),
+      posAtECalEntranceComputer_(consumesCollector()) {
   firstOccurence_ = true;
   // initialize the configurables
   baseTauToken_ = consumes<edm::View<reco::BaseTau>>(iConfig.getParameter<edm::InputTag>("tauSource"));
@@ -385,7 +386,7 @@ void PATTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
             bool found = false;
             if (prov_cfg_label == "rawValues" || prov_cfg_label == "workingPoints") {
               const std::vector<std::string> psetsFromProvenance =
-                  edm::parameterSet(*prov, iEvent.processHistory())
+                  edm::parameterSet(prov->stable(), iEvent.processHistory())
                       .getParameter<std::vector<std::string>>(prov_cfg_label);
               for (size_t i = 0; i < psetsFromProvenance.size(); ++i) {
                 if (psetsFromProvenance[i] == prov_ID_label) {
@@ -399,7 +400,7 @@ void PATTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
               }
             } else if (prov_cfg_label == "IDdefinitions" || prov_cfg_label == "IDWPdefinitions") {
               const std::vector<edm::ParameterSet> psetsFromProvenance =
-                  edm::parameterSet(*prov, iEvent.processHistory())
+                  edm::parameterSet(prov->stable(), iEvent.processHistory())
                       .getParameter<std::vector<edm::ParameterSet>>(prov_cfg_label);
               for (size_t i = 0; i < psetsFromProvenance.size(); ++i) {
                 if (psetsFromProvenance[i].getParameter<std::string>("IDname") == prov_ID_label) {

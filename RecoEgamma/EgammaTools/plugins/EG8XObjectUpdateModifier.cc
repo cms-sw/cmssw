@@ -34,44 +34,46 @@ public:
 private:
   std::pair<int, bool> getSaturationInfo(const reco::SuperCluster& superClus) const;
 
-  edm::ESHandle<CaloTopology> caloTopoHandle_;
-  edm::Handle<EcalRecHitCollection> ecalRecHitsEBHandle_;
-  edm::Handle<EcalRecHitCollection> ecalRecHitsEEHandle_;
+  CaloTopology const* caloTopo_ = nullptr;
+  EcalRecHitCollection const* ecalRecHitsEB_ = nullptr;
+  EcalRecHitCollection const* ecalRecHitsEE_ = nullptr;
+
+  edm::ESGetToken<CaloTopology, CaloTopologyRecord> caloTopoToken_;
   edm::EDGetTokenT<EcalRecHitCollection> ecalRecHitsEBToken_;
   edm::EDGetTokenT<EcalRecHitCollection> ecalRecHitsEEToken_;
 };
 
 EG8XObjectUpdateModifier::EG8XObjectUpdateModifier(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
     : ModifyObjectValueBase(conf),
-      ecalRecHitsEBToken_(cc.consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("ecalRecHitsEB"))),
-      ecalRecHitsEEToken_(cc.consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("ecalRecHitsEE"))) {}
+      caloTopoToken_{cc.esConsumes()},
+      ecalRecHitsEBToken_(cc.consumes(conf.getParameter<edm::InputTag>("ecalRecHitsEB"))),
+      ecalRecHitsEEToken_(cc.consumes(conf.getParameter<edm::InputTag>("ecalRecHitsEE"))) {}
 
 void EG8XObjectUpdateModifier::setEvent(const edm::Event& iEvent) {
-  iEvent.getByToken(ecalRecHitsEBToken_, ecalRecHitsEBHandle_);
-  iEvent.getByToken(ecalRecHitsEEToken_, ecalRecHitsEEHandle_);
+  ecalRecHitsEB_ = &iEvent.get(ecalRecHitsEBToken_);
+  ecalRecHitsEE_ = &iEvent.get(ecalRecHitsEEToken_);
 }
 
 void EG8XObjectUpdateModifier::setEventContent(const edm::EventSetup& iSetup) {
-  iSetup.get<CaloTopologyRecord>().get(caloTopoHandle_);
+  caloTopo_ = &iSetup.getData(caloTopoToken_);
 }
 
 void EG8XObjectUpdateModifier::modifyObject(reco::GsfElectron& ele) const {
   const reco::CaloCluster& seedClus = *(ele.superCluster()->seed());
-  const EcalRecHitCollection* ecalRecHits = ele.isEB() ? &*ecalRecHitsEBHandle_ : &*ecalRecHitsEEHandle_;
-  const auto* caloTopo = caloTopoHandle_.product();
+  const EcalRecHitCollection* ecalRecHits = ele.isEB() ? ecalRecHitsEB_ : ecalRecHitsEE_;
 
   auto full5x5ShowerShapes = ele.full5x5_showerShape();
-  full5x5ShowerShapes.e2x5Left = noZS::EcalClusterTools::e2x5Left(seedClus, ecalRecHits, caloTopo);
-  full5x5ShowerShapes.e2x5Right = noZS::EcalClusterTools::e2x5Right(seedClus, ecalRecHits, caloTopo);
-  full5x5ShowerShapes.e2x5Top = noZS::EcalClusterTools::e2x5Top(seedClus, ecalRecHits, caloTopo);
-  full5x5ShowerShapes.e2x5Bottom = noZS::EcalClusterTools::e2x5Bottom(seedClus, ecalRecHits, caloTopo);
+  full5x5ShowerShapes.e2x5Left = noZS::EcalClusterTools::e2x5Left(seedClus, ecalRecHits, caloTopo_);
+  full5x5ShowerShapes.e2x5Right = noZS::EcalClusterTools::e2x5Right(seedClus, ecalRecHits, caloTopo_);
+  full5x5ShowerShapes.e2x5Top = noZS::EcalClusterTools::e2x5Top(seedClus, ecalRecHits, caloTopo_);
+  full5x5ShowerShapes.e2x5Bottom = noZS::EcalClusterTools::e2x5Bottom(seedClus, ecalRecHits, caloTopo_);
   ele.full5x5_setShowerShape(full5x5ShowerShapes);
 
   auto showerShapes = ele.showerShape();
-  showerShapes.e2x5Left = EcalClusterTools::e2x5Left(seedClus, ecalRecHits, caloTopo);
-  showerShapes.e2x5Right = EcalClusterTools::e2x5Right(seedClus, ecalRecHits, caloTopo);
-  showerShapes.e2x5Top = EcalClusterTools::e2x5Top(seedClus, ecalRecHits, caloTopo);
-  showerShapes.e2x5Bottom = EcalClusterTools::e2x5Bottom(seedClus, ecalRecHits, caloTopo);
+  showerShapes.e2x5Left = EcalClusterTools::e2x5Left(seedClus, ecalRecHits, caloTopo_);
+  showerShapes.e2x5Right = EcalClusterTools::e2x5Right(seedClus, ecalRecHits, caloTopo_);
+  showerShapes.e2x5Top = EcalClusterTools::e2x5Top(seedClus, ecalRecHits, caloTopo_);
+  showerShapes.e2x5Bottom = EcalClusterTools::e2x5Bottom(seedClus, ecalRecHits, caloTopo_);
   ele.setShowerShape(showerShapes);
 
   reco::GsfElectron::SaturationInfo eleSatInfo;
@@ -91,7 +93,7 @@ void EG8XObjectUpdateModifier::modifyObject(reco::Photon& pho) const {
 
 std::pair<int, bool> EG8XObjectUpdateModifier::getSaturationInfo(const reco::SuperCluster& superClus) const {
   bool isEB = superClus.seed()->seed().subdetId() == EcalBarrel;
-  const auto& ecalRecHits = isEB ? *ecalRecHitsEBHandle_ : *ecalRecHitsEEHandle_;
+  const auto& ecalRecHits = isEB ? *ecalRecHitsEB_ : *ecalRecHitsEE_;
 
   int nrSatCrys = 0;
   bool seedSaturated = false;

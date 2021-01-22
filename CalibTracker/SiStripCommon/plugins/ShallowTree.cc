@@ -8,6 +8,8 @@
 #include <TBranch.h>
 
 ShallowTree::ShallowTree(const edm::ParameterSet& iConfig) {
+  usesResource(TFileService::kSharedResource);
+
   //int compSettings= iConfig.getParameter<int>("CompressionSettings",-1);
   int compSettings = iConfig.getUntrackedParameter<int>("CompressionSettings", -1);
   if (compSettings > 0)
@@ -194,5 +196,3 @@ ShallowTree::TypedBranchConnector<T>::TypedBranchConnector(edm::BranchDescriptio
     tree->Branch(pin.c_str(), &object_ptr_);
   }  //vector<type>
 }
-
-void ShallowTree::beginJob() {}

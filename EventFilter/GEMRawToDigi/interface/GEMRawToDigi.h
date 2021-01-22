@@ -9,7 +9,11 @@
 class GEMRawToDigi {
 public:
   std::unique_ptr<gem::AMC13Event> convertWordToAMC13Event(const uint64_t* word);
+  bool vfatError() const { return vfatError_; }
+  bool amcError() const { return amcError_; }
 
 private:
+  bool vfatError_;
+  bool amcError_;
 };
 #endif

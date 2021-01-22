@@ -37,6 +37,12 @@ private:
   //align::GlobalVector findSystematicMis( align::PositionType );
   align::GlobalVector findSystematicMis(const align::PositionType&, const bool blindToZ, const bool blindToR);
 
+  const edm::ESGetToken<GeometricDet, IdealGeometryRecord> geomDetToken_;
+  const edm::ESGetToken<PTrackerParameters, PTrackerParametersRcd> ptpToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
+  const edm::ESGetToken<Alignments, TrackerAlignmentRcd> aliToken_;
+  const edm::ESGetToken<AlignmentErrorsExtended, TrackerAlignmentErrorExtendedRcd> aliErrorToken_;
+  const edm::ESGetToken<Alignments, GlobalPositionRcd> gprToken_;
   AlignableTracker* theAlignableTracker;
 
   // configurables needed for the systematic misalignment

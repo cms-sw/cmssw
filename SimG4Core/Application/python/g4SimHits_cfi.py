@@ -41,6 +41,18 @@ common_UseLuminosity = cms.PSet(
     DelivLuminosity = cms.double(5000.)
 )
 
+common_MCtruth = cms.PSet(
+    DoFineCalo = cms.bool(False),
+    # currently unused; left in place for future studies
+    EminFineTrack = cms.double(10000.0),
+)
+
+## enable fine calorimeter functionality: must occur *before* common PSet is used below
+from Configuration.ProcessModifiers.fineCalo_cff import fineCalo
+fineCalo.toModify(common_MCtruth,
+    DoFineCalo = True
+)
+
 g4SimHits = cms.EDProducer("OscarMTProducer",
     g4GeometryDD4hepSource = cms.bool(False),
     NonBeamEvent = cms.bool(False),
@@ -100,16 +112,22 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
                 StepperParam = cms.PSet(
                     VacRegions = cms.vstring(),
 #                   VacRegions = cms.vstring('DefaultRegionForTheWorld','BeamPipeVacuum','BeamPipeOutside'),
-                    MaximumEpsilonStep = cms.untracked.double(0.01),   ## in mm
+                    EnergyThTracker = cms.double(0.2),     ## in GeV
+                    RmaxTracker = cms.double(8000),        ## in mm
+                    ZmaxTracker = cms.double(11000),       ## in mm
+                    MaximumEpsilonStep = cms.untracked.double(0.01),
                     DeltaOneStep = cms.double(0.001),      ## in mm
+                    DeltaOneStepTracker = cms.double(1e-4),## in mm
                     MaximumLoopCounts = cms.untracked.double(1000.0),
-                    DeltaChord = cms.double(0.001), ## in mm
-                    MinStep = cms.double(0.1),      ## in mm
+                    DeltaChord = cms.double(0.002),        ## in mm
+                    DeltaChordTracker = cms.double(0.001), ## in mm
+                    MinStep = cms.double(0.1),             ## in mm
                     DeltaIntersectionAndOneStep = cms.untracked.double(-1.0),
-                    DeltaIntersection = cms.double(0.0001),## in mm
+                    DeltaIntersection = cms.double(0.0001),     ## in mm
+                    DeltaIntersectionTracker = cms.double(1e-6),## in mm
                     MaxStep = cms.double(150.),            ## in cm
-                    MinimumEpsilonStep = cms.untracked.double(1e-05), ## in mm
-                    EnergyThSimple = cms.double(0.015),               ## in GeV
+                    MinimumEpsilonStep = cms.untracked.double(1e-05),
+                    EnergyThSimple = cms.double(0.015),    ## in GeV
                     DeltaChordSimple = cms.double(0.1),    ## in mm
                     DeltaOneStepSimple = cms.double(0.1),  ## in mm
                     DeltaIntersectionSimple = cms.double(0.01),       ## in mm
@@ -258,8 +276,9 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         RusRoWorldProton        = cms.double(1.0)
     ),
     TrackingAction = cms.PSet(
+        common_MCtruth,
         DetailedTiming = cms.untracked.bool(False),
-        CheckTrack = cms.untracked.bool(False)
+        CheckTrack = cms.untracked.bool(False),
     ),
     SteppingAction = cms.PSet(
         common_maximum_time,
@@ -282,6 +301,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     ),
     CaloSD = cms.PSet(
         common_heavy_suppression,
+        common_MCtruth,
         SuppressHeavy = cms.bool(False),
         EminTrack = cms.double(1.0),
         TmaxHit   = cms.double(1000.0),
@@ -292,7 +312,6 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         UseResponseTables = cms.vint32(0,0,0,0,0),
         BeamPosition      = cms.double(0.0),
         CorrectTOFBeam    = cms.bool(False),
-        UseFineCaloID     = cms.bool(False),
         DetailedTiming    = cms.untracked.bool(False),
         UseMap            = cms.untracked.bool(False),
         Verbosity         = cms.untracked.int32(0),
@@ -322,7 +341,8 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         StoreRadLength  = cms.untracked.bool(False),
         ScaleRadLength  = cms.untracked.double(1.0),
         StoreLayerTimeSim = cms.untracked.bool(False),
-        AgeingWithSlopeLY = cms.untracked.bool(False)
+        AgeingWithSlopeLY = cms.untracked.bool(False),
+        DumpGeometry      = cms.untracked.int32(0)
         ),
     HCalSD = cms.PSet(
         common_UseLuminosity,
@@ -352,15 +372,14 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         UseLayerWt                = cms.untracked.bool(False),
         WtFile                    = cms.untracked.string('None'),
         TestNS                    = cms.untracked.bool(False),
+        DumpGeometry              = cms.untracked.bool(False),
         HFDarkeningParameterBlock = HFDarkeningParameterBlock
     ),
     CaloTrkProcessing = cms.PSet(
+        common_MCtruth,
         TestBeam   = cms.bool(False),
         EminTrack  = cms.double(0.01),
         PutHistory = cms.bool(False),
-        DoFineCalo = cms.bool(False),
-        EminFineTrack = cms.double(10000.0),
-        EminFinePhoton = cms.double(5000.0)
     ),
     HFShower = cms.PSet(
         common_UsePMT,

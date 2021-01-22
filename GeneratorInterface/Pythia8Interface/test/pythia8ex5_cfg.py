@@ -25,12 +25,15 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(2)
-        )
-    ),
-    destinations = cms.untracked.vstring('cout')
+        ),
+        enable = cms.untracked.bool(True)
+    )
 )
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",

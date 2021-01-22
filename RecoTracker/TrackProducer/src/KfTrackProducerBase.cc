@@ -13,7 +13,7 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-#include "DataFormats/TrackerRecHit2D/interface/ClusterRemovalRefSetter.h"
+#include "TrackingTools/PatternTools/interface/ClusterRemovalRefSetter.h"
 #include "TrajectoryToResiduals.h"
 
 #include "RecoTracker/TransientTrackingRecHit/interface/Traj2TrackHits.h"

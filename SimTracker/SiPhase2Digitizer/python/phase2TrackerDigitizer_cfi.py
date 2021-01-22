@@ -84,7 +84,13 @@ phase2TrackerDigitizer = cms.PSet(
 #Pixel Digitizer Algorithm
     PixelDigitizerAlgorithm   = PixelDigitizerAlgorithmCommon.clone(),
 #Pixel-3D Digitizer Algorithm
-    Pixel3DDigitizerAlgorithm = PixelDigitizerAlgorithmCommon.clone(SigmaCoeff = cms.double(1.80)),
+    Pixel3DDigitizerAlgorithm = PixelDigitizerAlgorithmCommon.clone(
+        SigmaCoeff = cms.double(1.80),
+        NPColumnRadius = cms.double(4.0),
+        OhmicColumnRadius = cms.double(4.0),
+        NPColumnGap = cms.double(46.0)
+    ),
+
 #Pixel in PS Module
     PSPDigitizerAlgorithm = cms.PSet(
       ElectronPerAdc = cms.double(135.0),

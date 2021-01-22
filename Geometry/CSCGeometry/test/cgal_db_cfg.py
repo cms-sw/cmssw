@@ -22,47 +22,42 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 process.MessageLogger = cms.Service("MessageLogger",
-    errors = cms.untracked.PSet(
-        threshold = cms.untracked.string('ERROR'),
-        extension = cms.untracked.string('.out')
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
     ),
-    # No constraint on log content...equivalent to threshold INFO
-    # 0 means none, -1 means all (?)
-    log = cms.untracked.PSet(
-        extension = cms.untracked.string('.out')
-    ),
-    debug = cms.untracked.PSet(
-        INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        extension = cms.untracked.string('.out'),
-        CSC = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        noLineBreaks = cms.untracked.bool(True),
-        DEBUG = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        CSCNumbering = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        threshold = cms.untracked.string('DEBUG'),
-        CSCGeometryBuilderFromDDD = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        RadialStripTopology = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        )
-    ),
-    # For LogDebug/LogTrace output...
     debugModules = cms.untracked.vstring('*'),
-    categories = cms.untracked.vstring('CSC', 
-        'CSCNumbering', 
-        'CSCGeometryBuilderFromDDD', 
-        'RadialStripTopology'),
-    destinations = cms.untracked.vstring('log', 
-        'errors', 
-        'debug')
+    files = cms.untracked.PSet(
+        debug = cms.untracked.PSet(
+            CSC = cms.untracked.PSet(
+                limit = cms.untracked.int32(-1)
+            ),
+            CSCGeometryBuilderFromDDD = cms.untracked.PSet(
+                limit = cms.untracked.int32(-1)
+            ),
+            CSCNumbering = cms.untracked.PSet(
+                limit = cms.untracked.int32(-1)
+            ),
+            DEBUG = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            INFO = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            RadialStripTopology = cms.untracked.PSet(
+                limit = cms.untracked.int32(-1)
+            ),
+            extension = cms.untracked.string('.out'),
+            noLineBreaks = cms.untracked.bool(True),
+            threshold = cms.untracked.string('DEBUG')
+        ),
+        errors = cms.untracked.PSet(
+            extension = cms.untracked.string('.out'),
+            threshold = cms.untracked.string('ERROR')
+        ),
+        log = cms.untracked.PSet(
+            extension = cms.untracked.string('.out')
+        )
+    )
 )
 
 process.producer = cms.EDAnalyzer("CSCGeometryAsLayers")

@@ -20,27 +20,28 @@ process.GlobalTag.globaltag = autoCond['run1_mc']
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('G4cout','G4cerr','SimG4CoreWatcher'),
-    debugModules = cms.untracked.vstring('*'),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
-#        threshold = cms.untracked.string('DEBUG'),
-        INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
         DEBUG = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
-        ),
-        SimG4CoreWatcher = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
         ),
         G4cerr = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
         ),
         G4cout = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
-        )
-    )
+        ),
+        INFO = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
+        SimG4CoreWatcher = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
+        enable = cms.untracked.bool(True)
+    ),
+    debugModules = cms.untracked.vstring('*')
 )
 
 process.load("IOMC.RandomEngine.IOMC_cff")

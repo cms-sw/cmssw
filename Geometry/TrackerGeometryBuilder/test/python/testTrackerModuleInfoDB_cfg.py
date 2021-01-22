@@ -11,10 +11,12 @@ process.GlobalTag.globaltag = autoCond['mc']
 
 process.source = cms.Source("EmptySource")
 
-#this is always needed if users want access to the vector<GeometricDetExtra>
-process.TrackerGeometricDetExtraESModule = cms.ESProducer( "TrackerGeometricDetExtraESModule",
-                                                           fromDDD = cms.bool( False )
-                                                           )
+
+process.TrackerGeometricDetESModule = cms.ESProducer( "TrackerGeometricDetESModule",
+                                                      fromDDD = cms.bool( False )
+                                                     )
+
+process.es_prefer_geomdet = cms.ESPrefer("TrackerGeometricDetESModule","")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)

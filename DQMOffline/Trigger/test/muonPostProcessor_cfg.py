@@ -13,14 +13,17 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('HLTMuonVal'),
-    debugModules = cms.untracked.vstring('*'),
-    threshold = cms.untracked.string('INFO'),
     HLTMuonVal = cms.untracked.PSet(
-        #threshold = cms.untracked.string('DEBUG'),
-        limit = cms.untracked.int32(100000),
+        limit = cms.untracked.int32(100000)
     ),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True)
+    ),
+    debugModules = cms.untracked.vstring('*'),
+    threshold = cms.untracked.string('INFO')
 )
 
 process.source = cms.Source("PoolSource",

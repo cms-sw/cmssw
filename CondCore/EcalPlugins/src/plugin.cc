@@ -161,6 +161,11 @@
 #include "CondFormats/EcalObjects/interface/EcalSimPulseShape.h"
 #include "CondFormats/DataRecord/interface/EcalSimPulseShapeRcd.h"
 
+#include "CondFormats/EcalObjects/interface/EcalMustacheSCParameters.h"
+#include "CondFormats/DataRecord/interface/EcalMustacheSCParametersRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalSCDynamicDPhiParameters.h"
+#include "CondFormats/DataRecord/interface/EcalSCDynamicDPhiParametersRcd.h"
+
 REGISTER_PLUGIN(EcalPedestalsRcd, EcalCondObjectContainer<EcalPedestal>);
 REGISTER_PLUGIN(EcalWeightXtalGroupsRcd, EcalCondObjectContainer<EcalXtalGroupId>);
 REGISTER_PLUGIN(EcalTBWeightsRcd, EcalTBWeights);
@@ -222,3 +227,6 @@ REGISTER_PLUGIN(EcalSamplesCorrelationRcd, EcalSamplesCorrelation);
 REGISTER_PLUGIN(EcalPulseShapesRcd, EcalCondObjectContainer<EcalPulseShape>);
 REGISTER_PLUGIN(EcalPulseCovariancesRcd, EcalCondObjectContainer<EcalPulseCovariance>);
 REGISTER_PLUGIN(EcalPulseSymmCovariancesRcd, EcalCondObjectContainer<EcalPulseSymmCovariance>);
+
+REGISTER_PLUGIN(EcalMustacheSCParametersRcd, EcalMustacheSCParameters);
+REGISTER_PLUGIN(EcalSCDynamicDPhiParametersRcd, EcalSCDynamicDPhiParameters);

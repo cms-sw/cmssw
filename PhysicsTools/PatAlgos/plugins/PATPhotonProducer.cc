@@ -8,7 +8,6 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -30,7 +29,10 @@
 using namespace pat;
 
 PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet &iConfig)
-    : isolator_(iConfig.exists("userIsolation") ? iConfig.getParameter<edm::ParameterSet>("userIsolation")
+    :
+
+      ecalClusterToolsESGetTokens_{consumesCollector()},
+      isolator_(iConfig.exists("userIsolation") ? iConfig.getParameter<edm::ParameterSet>("userIsolation")
                                                 : edm::ParameterSet(),
                 consumesCollector(),
                 false),
@@ -172,8 +174,10 @@ void PATPhotonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
   edm::Handle<reco::BeamSpot> beamSpotHandle;
   iEvent.getByToken(beamLineToken_, beamSpotHandle);
 
-  EcalClusterLazyTools lazyTools(
-      iEvent, iSetup, reducedBarrelRecHitCollectionToken_, reducedEndcapRecHitCollectionToken_);
+  EcalClusterLazyTools lazyTools(iEvent,
+                                 ecalClusterToolsESGetTokens_.get(iSetup),
+                                 reducedBarrelRecHitCollectionToken_,
+                                 reducedEndcapRecHitCollectionToken_);
 
   // prepare the MC matching
   std::vector<edm::Handle<edm::Association<reco::GenParticleCollection>>> genMatches(genMatchTokens_.size());

@@ -161,7 +161,7 @@ namespace edm {
         : m_consumer(std::move(iBase)), m_tag(std::move(iTag)) {}
 
     ConsumesCollector m_consumer;
-    ESInputTag const& m_tag;
+    ESInputTag const m_tag;
   };
 
   template <BranchType B>

@@ -93,7 +93,7 @@ private:
   double activeLength(const DetId&);
   bool isGoodVertex(const reco::Vertex&);
   double respCorr(const DetId&);
-  double gainFactor(const edm::ESHandle<HcalDbService>&, const HcalDetId&);
+  double gainFactor(const HcalDbService*, const HcalDetId&);
   int depth16HE(int, int);
   bool goodCell(const HcalDetId&, const reco::Track*, const CaloGeometry*, const MagneticField*);
   void fillTrackParameters(const reco::Track*, math::XYZPoint);
@@ -112,7 +112,13 @@ private:
 
   const HcalDDDRecConstants* hdc_;
   const HcalTopology* theHBHETopology_;
+  const CaloGeometry* geo_;
   HcalRespCorrs* respCorrs_;
+  const MagneticField* bField_;
+  const EcalChannelStatus* theEcalChStatus_;
+  const EcalSeverityLevelAlgo* sevlv_;
+  const CaloTopology* caloTopology_;
+  const HcalDbService* conditions_;
 
   edm::EDGetTokenT<reco::VertexCollection> tok_Vtx_;
   edm::EDGetTokenT<EcalRecHitCollection> tok_EB_;
@@ -121,12 +127,15 @@ private:
   edm::EDGetTokenT<reco::MuonCollection> tok_Muon_;
   edm::EDGetTokenT<reco::TrackCollection> tok_genTrack_;
 
-  edm::ESHandle<CaloGeometry> pG_;
-  edm::ESHandle<MagneticField> bFieldH_;
-  edm::ESHandle<EcalChannelStatus> ecalChStatus_;
-  edm::ESHandle<EcalSeverityLevelAlgo> sevlv_;
-  edm::ESHandle<CaloTopology> theCaloTopology_;
-  edm::ESHandle<HcalDbService> conditions_;
+  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_ddrec_;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
+  edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_respcorr_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_magField_;
+  edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> tok_chan_;
+  edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> tok_sevlv_;
+  edm::ESGetToken<CaloTopology, CaloTopologyRecord> tok_topo_;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> tok_dbservice_;
 
   edm::Handle<EcalRecHitCollection> barrelRecHitsHandle_;
   edm::Handle<EcalRecHitCollection> endcapRecHitsHandle_;
@@ -218,6 +227,16 @@ HcalHBHEMuonHighEtaAnalyzer::HcalHBHEMuonHighEtaAnalyzer(const edm::ParameterSet
   edm::LogVerbatim("HBHEMuon") << "Labels used: Track " << labelGenTrack_ << " Vtx " << labelVtx_ << " EB "
                                << labelEBRecHit_ << " EE " << labelEERecHit_ << " HBHE " << labelHBHERecHit_ << " MU "
                                << labelMuon_;
+
+  tok_ddrec_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>();
+  tok_htopo_ = esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>();
+  tok_respcorr_ = esConsumes<HcalRespCorrs, HcalRespCorrsRcd, edm::Transition::BeginRun>();
+  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>();
+  tok_magField_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
+  tok_chan_ = esConsumes<EcalChannelStatus, EcalChannelStatusRcd>();
+  tok_sevlv_ = esConsumes<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd>();
+  tok_topo_ = esConsumes<CaloTopology, CaloTopologyRecord>();
+  tok_dbservice_ = esConsumes<HcalDbService, HcalDbRecord>();
 
   if (!fileInCorr_.empty()) {
     std::ifstream infile(fileInCorr_.c_str());
@@ -349,13 +368,11 @@ void HcalHBHEMuonHighEtaAnalyzer::analyze(const edm::Event& iEvent, const edm::E
 #endif
 
   // get handles to calogeometry and calotopology
-  iSetup.get<CaloGeometryRecord>().get(pG_);
-
-  iSetup.get<IdealMagneticFieldRecord>().get(bFieldH_);
-  iSetup.get<EcalChannelStatusRcd>().get(ecalChStatus_);
-  iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv_);
-  iSetup.get<CaloTopologyRecord>().get(theCaloTopology_);
-  iSetup.get<HcalDbRecord>().get(conditions_);
+  bField_ = &iSetup.getData(tok_magField_);
+  theEcalChStatus_ = &iSetup.getData(tok_chan_);
+  sevlv_ = &iSetup.getData(tok_sevlv_);
+  caloTopology_ = &iSetup.getData(tok_topo_);
+  conditions_ = &iSetup.getData(tok_dbservice_);
 
   // Relevant blocks from iEvent
   edm::Handle<reco::VertexCollection> vtx;
@@ -430,9 +447,7 @@ void HcalHBHEMuonHighEtaAnalyzer::analyze(const edm::Event& iEvent, const edm::E
 
 // ------------ method called when starting to processes a run  ------------
 void HcalHBHEMuonHighEtaAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
-  edm::ESHandle<HcalDDDRecConstants> pHRNDC;
-  iSetup.get<HcalRecNumberingRecord>().get(pHRNDC);
-  hdc_ = pHRNDC.product();
+  hdc_ = &iSetup.getData(tok_ddrec_);
   actHB.clear();
   actHE.clear();
   actHB = hdc_->getThickActive(0);
@@ -463,21 +478,15 @@ void HcalHBHEMuonHighEtaAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup
   }
 #endif
 
-  edm::ESHandle<HcalTopology> htopo;
-  iSetup.get<HcalRecNumberingRecord>().get(htopo);
-  theHBHETopology_ = htopo.product();
-
-  edm::ESHandle<HcalRespCorrs> resp;
-  iSetup.get<HcalRespCorrsRcd>().get(resp);
-  respCorrs_ = new HcalRespCorrs(*resp.product());
+  theHBHETopology_ = &iSetup.getData(tok_htopo_);
+  const HcalRespCorrs* resp = &iSetup.getData(tok_respcorr_);
+  respCorrs_ = new HcalRespCorrs(*resp);
   respCorrs_->setTopo(theHBHETopology_);
+  geo_ = &iSetup.getData(tok_geom_);
 
   // Write correction factors for all HB/HE events
   if (writeRespCorr_) {
-    edm::ESHandle<CaloGeometry> pG;
-    iSetup.get<CaloGeometryRecord>().get(pG);
-    const CaloGeometry* geo = pG.product();
-    const HcalGeometry* gHcal = (const HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal, HcalBarrel));
+    const HcalGeometry* gHcal = (const HcalGeometry*)(geo_->getSubdetectorGeometry(DetId::Hcal, HcalBarrel));
     const std::vector<DetId>& ids = gHcal->getValidDetIds(DetId::Hcal, 0);
     edm::LogVerbatim("HBHEMuon") << "\nTable of Correction Factors for Run " << iRun.run() << "\n";
     for (auto const& id : ids) {
@@ -561,10 +570,8 @@ bool HcalHBHEMuonHighEtaAnalyzer::analyzeHadron(const edm::Event& iEvent, math::
   bool accept = false;
 
   if (!trkCollection.isValid()) {
-    const CaloGeometry* geo = pG_.product();
-    const MagneticField* bField = bFieldH_.product();
     std::vector<spr::propagatedTrackID> trkCaloDets;
-    spr::propagateCALO(trkCollection, geo, bField, theTrackQuality_, trkCaloDets, false);
+    spr::propagateCALO(trkCollection, geo_, bField_, theTrackQuality_, trkCaloDets, false);
     int nTrack(0);
     std::vector<spr::propagatedTrackID>::const_iterator trkDetItr;
     for (trkDetItr = trkCaloDets.begin(), nTrack = 0; trkDetItr != trkCaloDets.end(); trkDetItr++, nTrack++) {
@@ -582,17 +589,13 @@ bool HcalHBHEMuonHighEtaAnalyzer::analyzeTracks(const reco::Track* pTrack,
                                                 int nTrack,
                                                 std::vector<spr::propagatedTrackID>& trkCaloDets,
                                                 bool ifHadron) {
-  const CaloGeometry* geo = pG_.product();
-  const MagneticField* bField = bFieldH_.product();
-  const EcalChannelStatus* theEcalChStatus = ecalChStatus_.product();
-  const CaloTopology* caloTopology = theCaloTopology_.product();
   bool accept(false);
 
   if (spr::goodTrack(pTrack, leadPV, selectionParameter_, false)) {
-    spr::propagatedTrackID trackID = spr::propagateCALO(pTrack, geo, bField, false);
+    spr::propagatedTrackID trackID = spr::propagateCALO(pTrack, geo_, bField_, false);
 
     if (trackID.okECAL && trackID.okHCAL) {
-      double emaxNearP = (ifHadron) ? spr::chargeIsolationEcal(nTrack, trkCaloDets, geo, caloTopology, 15, 15) : 0;
+      double emaxNearP = (ifHadron) ? spr::chargeIsolationEcal(nTrack, trkCaloDets, geo_, caloTopology_, 15, 15) : 0;
       if (emaxNearP < emaxNearPThr_) {
         double eEcal(0), eHcal(0), activeLengthTot(0), activeLengthHotTot(0);
         double eHcalDepth[depthMax_], eHcalDepthHot[depthMax_];
@@ -613,7 +616,7 @@ bool HcalHBHEMuonHighEtaAnalyzer::analyzeTracks(const reco::Track* pTrack,
         }
 
         HcalDetId check;
-        std::pair<bool, HcalDetId> info = spr::propagateHCALBack(pTrack, geo, bField, false);
+        std::pair<bool, HcalDetId> info = spr::propagateHCALBack(pTrack, geo_, bField_, false);
         if (info.first)
           check = info.second;
 
@@ -621,10 +624,10 @@ bool HcalHBHEMuonHighEtaAnalyzer::analyzeTracks(const reco::Track* pTrack,
         std::pair<double, bool> e3x3 = spr::eECALmatrix(isoCell,
                                                         barrelRecHitsHandle_,
                                                         endcapRecHitsHandle_,
-                                                        *theEcalChStatus,
-                                                        geo,
-                                                        caloTopology,
-                                                        sevlv_.product(),
+                                                        *theEcalChStatus_,
+                                                        geo_,
+                                                        caloTopology_,
+                                                        sevlv_,
                                                         1,
                                                         1,
                                                         -100.0,
@@ -698,7 +701,7 @@ bool HcalHBHEMuonHighEtaAnalyzer::analyzeTracks(const reco::Track* pTrack,
               for (const auto& ehd : ehdepth)
                 edm::LogWarning("HBHEMuon") << " " << ehd.second << ":" << ehd.first;
             } else {
-              tmpC = goodCell(hcid0, pTrack, geo, bField);
+              tmpC = goodCell(hcid0, pTrack, geo_, bField_);
               double enec(ene);
               if (unCorrect_) {
                 double corr = (ignoreHECorr_ && (subdet0 == HcalEndcap)) ? 1.0 : respCorr(DetId(hcid0));
@@ -737,7 +740,7 @@ bool HcalHBHEMuonHighEtaAnalyzer::analyzeTracks(const reco::Track* pTrack,
         }
 #endif
         HcalDetId hotCell;
-        spr::eHCALmatrix(geo, theHBHETopology_, closestCell, hbhe_, 1, 1, hotCell, false, useRaw_, false);
+        spr::eHCALmatrix(geo_, theHBHETopology_, closestCell, hbhe_, 1, 1, hotCell, false, useRaw_, false);
         isHot = matchId(closestCell, hotCell);
         if (hotCell != HcalDetId()) {
           subdet = HcalDetId(hotCell).subdet();
@@ -774,7 +777,7 @@ bool HcalHBHEMuonHighEtaAnalyzer::analyzeTracks(const reco::Track* pTrack,
                 for (const auto& ehd : ehdepth)
                   edm::LogWarning("HBHEMuon") << " " << ehd.second << ":" << ehd.first;
               } else {
-                tmpC = goodCell(hcid0, pTrack, geo, bField);
+                tmpC = goodCell(hcid0, pTrack, geo_, bField_);
                 double chg(ene), enec(ene);
                 if (unCorrect_) {
                   double corr = (ignoreHECorr_ && (subdet0 == HcalEndcap)) ? 1.0 : respCorr(DetId(hcid0));
@@ -989,7 +992,7 @@ double HcalHBHEMuonHighEtaAnalyzer::respCorr(const DetId& id) {
   return cfac;
 }
 
-double HcalHBHEMuonHighEtaAnalyzer::gainFactor(const edm::ESHandle<HcalDbService>& conditions, const HcalDetId& id) {
+double HcalHBHEMuonHighEtaAnalyzer::gainFactor(const HcalDbService* conditions, const HcalDetId& id) {
   double gain(0.0);
   const HcalCalibrations& calibs = conditions->getHcalCalibrations(id);
   for (int capid = 0; capid < 4; ++capid)

@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 _correctionFile2016Legacy = "EgammaAnalysis/ElectronTools/data/ScalesSmearings/Legacy2016_07Aug2017_FineEtaR9_v3_ele_unc"
 _correctionFile2017Nov17 = "EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2017_17Nov2017_v1_ele_unc"
 _correctionFile2017UL    = "EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2017_24Feb2020_runEtaR9Gain_v2"
+_correctionFile2018UL    = "EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2018_29Sep2020_RunFineEtaR9Gain"
 
 calibratedEgammaSettings = cms.PSet(minEtToCalibrate = cms.double(5.0),
                                     semiDeterministic = cms.bool(True),
@@ -11,6 +12,13 @@ calibratedEgammaSettings = cms.PSet(minEtToCalibrate = cms.double(5.0),
                                     recHitCollectionEE = cms.InputTag('reducedEcalRecHitsEE'),
                                     produceCalibratedObjs = cms.bool(True)
                                    )
+
+from Configuration.Eras.Modifier_run2_egamma_2017_cff import run2_egamma_2017
+run2_egamma_2017.toModify(calibratedEgammaSettings,correctionFile = _correctionFile2017UL)
+
+from Configuration.Eras.Modifier_run2_egamma_2018_cff import run2_egamma_2018
+run2_egamma_2018.toModify(calibratedEgammaSettings,correctionFile = _correctionFile2018UL)
+
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 run2_miniAOD_80XLegacy.toModify(calibratedEgammaSettings,correctionFile = _correctionFile2016Legacy)
 
@@ -30,10 +38,10 @@ ecalTrkCombinationRegression = cms.PSet(
         rangeMaxHighEt = cms.double(3.0),
         lowEtHighEtBoundary = cms.double(50.),
         forceHighEnergyTrainingIfSaturated = cms.bool(False),
-        ebLowEtForestName = cms.string('electron_eb_ECALTRK_lowpt'),
-        ebHighEtForestName = cms.string('electron_eb_ECALTRK'),
-        eeLowEtForestName = cms.string('electron_ee_ECALTRK_lowpt'),
-        eeHighEtForestName = cms.string('electron_ee_ECALTRK')
+        ebLowEtForestName = cms.ESInputTag('', 'electron_eb_ECALTRK_lowpt'),
+        ebHighEtForestName = cms.ESInputTag('', 'electron_eb_ECALTRK'),
+        eeLowEtForestName = cms.ESInputTag('', 'electron_ee_ECALTRK_lowpt'),
+        eeHighEtForestName = cms.ESInputTag('', 'electron_ee_ECALTRK')
         ),
     ecalTrkRegressionUncertConfig = cms.PSet(
         rangeMinLowEt = cms.double(0.0002),
@@ -42,10 +50,10 @@ ecalTrkCombinationRegression = cms.PSet(
         rangeMaxHighEt = cms.double(0.5),
         lowEtHighEtBoundary = cms.double(50.),  
         forceHighEnergyTrainingIfSaturated = cms.bool(False),
-        ebLowEtForestName = cms.string('electron_eb_ECALTRK_lowpt_var'),
-        ebHighEtForestName = cms.string('electron_eb_ECALTRK_var'),
-        eeLowEtForestName = cms.string('electron_ee_ECALTRK_lowpt_var'),
-        eeHighEtForestName = cms.string('electron_ee_ECALTRK_var')
+        ebLowEtForestName = cms.ESInputTag('', 'electron_eb_ECALTRK_lowpt_var'),
+        ebHighEtForestName = cms.ESInputTag('', 'electron_eb_ECALTRK_var'),
+        eeLowEtForestName = cms.ESInputTag('', 'electron_ee_ECALTRK_lowpt_var'),
+        eeHighEtForestName = cms.ESInputTag('', 'electron_ee_ECALTRK_var')
         ),
     maxEcalEnergyForComb=cms.double(200.),
     minEOverPForComb=cms.double(0.025),

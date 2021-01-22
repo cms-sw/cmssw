@@ -4,22 +4,25 @@ process = cms.Process("GeometryTest")
 process.load("Geometry.TrackerCommonData.testGeometryXML_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('debug'),
-    categories   = cms.untracked.vstring('TrackerGeom', 'TECGeom'),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     debugModules = cms.untracked.vstring('*'),
-    debug        = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG'),
-        INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        DEBUG = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        TrackerGeom = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        TECGeom = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
+    files = cms.untracked.PSet(
+        debug = cms.untracked.PSet(
+            DEBUG = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            INFO = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            TECGeom = cms.untracked.PSet(
+                limit = cms.untracked.int32(-1)
+            ),
+            TrackerGeom = cms.untracked.PSet(
+                limit = cms.untracked.int32(-1)
+            ),
+            threshold = cms.untracked.string('DEBUG')
         )
     )
 )

@@ -19,6 +19,8 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+
 namespace reco {
   class Jet;
 }
@@ -62,6 +64,7 @@ private:
   edm::InputTag theEndcapRecHitTag_;
   edm::EDGetTokenT<EcalRecHitCollection> theBarrelRecHitToken_;
   edm::EDGetTokenT<EcalRecHitCollection> theEndcapRecHitToken_;
+  EcalClusterLazyTools::ESGetTokens ecalClusterToolsESGetTokens_;
 
   // Histograms
   MonitorElement* h_triggers_passed;

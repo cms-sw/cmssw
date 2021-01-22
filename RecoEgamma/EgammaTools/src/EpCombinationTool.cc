@@ -6,14 +6,15 @@
 
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include <cmath>
 #include <vector>
 #include <vdt/vdtMath.h>
 
-EpCombinationTool::EpCombinationTool(const edm::ParameterSet& iConfig)
-    : ecalTrkEnergyRegress_(iConfig.getParameter<edm::ParameterSet>("ecalTrkRegressionConfig")),
-      ecalTrkEnergyRegressUncert_(iConfig.getParameter<edm::ParameterSet>("ecalTrkRegressionUncertConfig")),
+EpCombinationTool::EpCombinationTool(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& cc)
+    : ecalTrkEnergyRegress_(iConfig.getParameter<edm::ParameterSet>("ecalTrkRegressionConfig"), cc),
+      ecalTrkEnergyRegressUncert_(iConfig.getParameter<edm::ParameterSet>("ecalTrkRegressionUncertConfig"), cc),
       maxEcalEnergyForComb_(iConfig.getParameter<double>("maxEcalEnergyForComb")),
       minEOverPForComb_(iConfig.getParameter<double>("minEOverPForComb")),
       maxEPDiffInSigmaForComb_(iConfig.getParameter<double>("maxEPDiffInSigmaForComb")),

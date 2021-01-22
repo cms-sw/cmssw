@@ -20,7 +20,7 @@
   <use name="DataFormats/ParticleFlowReco"/>
   <use name="RecoBTag/SecondaryVertex"/>
   <use name="DataFormats/VertexReco"/>
-  <use name="CondFormats/EgammaObjects"/>
+  <use name="CondFormats/GBRForest"/>
   <use name="CondFormats/DataRecord"/>
   <use name="Geometry/CaloGeometry"/>
   <use name="Geometry/HcalTowerAlgo"/>

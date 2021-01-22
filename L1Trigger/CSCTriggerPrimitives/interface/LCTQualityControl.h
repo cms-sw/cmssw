@@ -65,17 +65,17 @@ public:
   unsigned get_csc_max_eightstrip(int station, int ring) const;
 
   // slope values
-  std::pair<int, int> get_csc_clct_min_max_slope(bool isRun3, bool runCCLUT = false) const;
+  std::pair<int, int> get_csc_clct_min_max_slope() const;
 
   // CLCT min, max CFEB numbers
   std::pair<unsigned, unsigned> get_csc_min_max_cfeb(int station, int ring) const;
 
   // CSC min, max pattern
   std::pair<unsigned, unsigned> get_csc_min_max_pattern(bool isRun3) const;
-  std::pair<unsigned, unsigned> get_csc_lct_min_max_pattern(bool isRun3) const;
+  std::pair<unsigned, unsigned> get_csc_lct_min_max_pattern() const;
 
   // CSC max quality
-  unsigned get_csc_alct_max_quality(int station, int ring, bool isRun3) const;
+  unsigned get_csc_alct_max_quality(int station, int ring, bool runGEMCSC) const;
   unsigned get_csc_clct_max_quality() const;
   unsigned get_csc_lct_max_quality() const;
 

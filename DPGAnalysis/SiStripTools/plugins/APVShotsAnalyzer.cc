@@ -27,6 +27,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -77,13 +78,18 @@ private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
 
-  void updateDetCabling(const edm::EventSetup& setup);
+  void updateDetCabling(const SiStripDetCablingRcd& iRcd);
 
   // ----------member data ---------------------------
 
   edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > _digicollectionToken;
   edm::EDGetTokenT<EventWithHistory> _historyProductToken;
   edm::EDGetTokenT<APVCyclePhaseCollection> _apvphasecollToken;
+  edm::ESGetToken<TkDetMap, TrackerTopologyRcd> _tkDetMapToken;
+  bool _useCabling;
+  edm::ESWatcher<SiStripDetCablingRcd> _detCablingWatcher;
+  edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> _detCablingToken;
+  const SiStripDetCabling* _detCabling = nullptr;  //!< The cabling object.
   const std::string _phasepart;
   bool _zs;
   std::string _suffix;
@@ -118,11 +124,6 @@ private:
   TH1F** _fedrun;
 
   std::unique_ptr<TkHistoMap> tkhisto, tkhisto2;
-
-  // DetCabling
-  bool _useCabling;
-  uint32_t _cacheIdDet;                  //!< DB cache ID used to establish if the cabling has changed during the run.
-  const SiStripDetCabling* _detCabling;  //!< The cabling object.
 };
 
 //
@@ -141,14 +142,16 @@ APVShotsAnalyzer::APVShotsAnalyzer(const edm::ParameterSet& iConfig)
           consumes<edm::DetSetVector<SiStripDigi> >(iConfig.getParameter<edm::InputTag>("digiCollection"))),
       _historyProductToken(consumes<EventWithHistory>(iConfig.getParameter<edm::InputTag>("historyProduct"))),
       _apvphasecollToken(consumes<APVCyclePhaseCollection>(iConfig.getParameter<edm::InputTag>("apvPhaseCollection"))),
+      _tkDetMapToken(esConsumes()),
+      _useCabling(iConfig.getUntrackedParameter<bool>("useCabling", true)),
+      _detCablingWatcher(_useCabling ? decltype(_detCablingWatcher){this, &APVShotsAnalyzer::updateDetCabling}
+                                     : decltype(_detCablingWatcher){}),
+      _detCablingToken(_useCabling ? decltype(_detCablingToken){esConsumes()} : decltype(_detCablingToken){}),
       _phasepart(iConfig.getUntrackedParameter<std::string>("phasePartition", "None")),
       _zs(iConfig.getUntrackedParameter<bool>("zeroSuppressed", true)),
       _suffix(iConfig.getParameter<std::string>("mapSuffix")),
       _nevents(0),
-      _rhm(consumesCollector()),
-      _useCabling(iConfig.getUntrackedParameter<bool>("useCabling", true)),
-      _cacheIdDet(0),
-      _detCabling(nullptr) {
+      _rhm(consumesCollector()) {
   //now do what ever initialization is needed
 
   if (!_zs)
@@ -256,14 +259,11 @@ void APVShotsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   if (_useCabling) {
     //retrieve cabling
-    updateDetCabling(iSetup);
+    _detCablingWatcher.check(iSetup);
   }
 
   if (!(tkhisto && tkhisto2)) {
-    edm::ESHandle<TkDetMap> tkDetMapHandle;
-    iSetup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
-    const TkDetMap* tkDetMap = tkDetMapHandle.product();
-
+    const TkDetMap* tkDetMap = &iSetup.getData(_tkDetMapToken);
     tkhisto = std::make_unique<TkHistoMap>(tkDetMap, "ShotMultiplicity", "ShotMultiplicity", -1);
     tkhisto2 = std::make_unique<TkHistoMap>(tkDetMap, "StripMultiplicity", "StripMultiplicity", -1);
   }
@@ -477,19 +477,7 @@ void APVShotsAnalyzer::endJob() {
   tkhisto2->save(rootmapname);
 }
 
-void APVShotsAnalyzer::updateDetCabling(const edm::EventSetup& setup) {
-  if (_useCabling) {
-    uint32_t cache_id = setup.get<SiStripDetCablingRcd>().cacheIdentifier();  //.get( cabling_ );
-
-    if (_cacheIdDet != cache_id) {  // If the cache ID has changed since the last update...
-      // Update the cabling object
-      edm::ESHandle<SiStripDetCabling> c;
-      setup.get<SiStripDetCablingRcd>().get(c);
-      _detCabling = c.product();
-      _cacheIdDet = cache_id;
-    }  // end of new cache ID check
-  }
-}
+void APVShotsAnalyzer::updateDetCabling(const SiStripDetCablingRcd& iRcd) { _detCabling = &iRcd.get(_detCablingToken); }
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(APVShotsAnalyzer);

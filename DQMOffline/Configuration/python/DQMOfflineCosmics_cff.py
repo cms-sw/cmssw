@@ -11,6 +11,7 @@ from DQM.SiPixelCommon.SiPixelOfflineDQM_source_cff import *
 from DQM.DTMonitorModule.dtDQMOfflineSources_Cosmics_cff import *
 from DQM.RPCMonitorClient.RPCTier0Source_cff import *
 from DQM.CSCMonitorModule.csc_dqm_sourceclient_offline_cff import *
+from DQMOffline.Muon.gem_dqm_offline_source_cff import *
 from DQM.EcalPreshowerMonitorModule.es_dqm_source_offline_cosmic_cff import *
 from DQM.CastorMonitor.castor_dqm_sourceclient_offline_cff import *
 
@@ -32,6 +33,12 @@ DQMOfflineCosmicsTrackerPixel = cms.Sequence( siPixelOfflineDQM_cosmics_source )
 DQMOfflineCosmicsMuonDPG = cms.Sequence( dtSourcesCosmics *
                                   rpcTier0Source *
                                   cscSources )
+
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+_run3_GEM_DQMOfflineCosmicsMuonDPG = DQMOfflineCosmicsMuonDPG.copy()
+_run3_GEM_DQMOfflineCosmicsMuonDPG += gemSources
+run3_GEM.toReplaceWith(DQMOfflineCosmicsMuonDPG, _run3_GEM_DQMOfflineCosmicsMuonDPG)
+
 
 DQMOfflineCosmicsCASTOR = cms.Sequence( castorSources )
 

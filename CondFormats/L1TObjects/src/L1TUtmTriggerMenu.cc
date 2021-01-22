@@ -49,8 +49,10 @@ unsigned long L1TUtmTriggerMenu::murmurHashNeutral2(const void* key, int len, un
   switch (len) {
     case 3:
       h ^= data[2] << 16;
+      [[fallthrough]];
     case 2:
       h ^= data[1] << 8;
+      [[fallthrough]];
     case 1:
       h ^= data[0];
       h *= m;

@@ -1,15 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-#from Configuration.Eras.Era_Phase2C4_cff import Phase2C4
-#process = cms.Process('HGCGeomAnalysis',Phase2C4)
-#process.load('Configuration.Geometry.GeometryExtended2026D35_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D35Reco_cff')
-
-#from Configuration.Eras.Era_Phase2C8_cff import Phase2C8
-#process = cms.Process('HGCGeomAnalysis',Phase2C8)
-#process.load('Configuration.Geometry.GeometryExtended2026D41_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D41Reco_cff')
-
 #from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
 #process = cms.Process('HGCGeomAnalysis',Phase2C9)
 #process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
@@ -17,18 +7,18 @@ import FWCore.ParameterSet.Config as cms
 
 #from Configuration.Eras.Era_Phase2C12_cff import Phase2C12
 #process = cms.Process('HGCGeomAnalysis',Phase2C12)
-#process.load('Configuration.Geometry.GeometryExtended2026D58_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D58Reco_cff')
+#process.load('Configuration.Geometry.GeometryExtended2026D68_cff')
+#process.load('Configuration.Geometry.GeometryExtended2026D68Reco_cff')
 
 #from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
 #process = cms.Process('HGCGeomAnalysis',Phase2C11)
-#process.load('Configuration.Geometry.GeometryExtended2026D59_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D59Reco_cff')
+#process.load('Configuration.Geometry.GeometryExtended2026D70_cff')
+#process.load('Configuration.Geometry.GeometryExtended2026D70Reco_cff')
 
 from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
 process = cms.Process('HGCGeomAnalysis',Phase2C11)
-process.load('Configuration.Geometry.GeometryExtended2026D62_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D62Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D71_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D71Reco_cff')
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")
@@ -40,7 +30,7 @@ from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['phase2_realistic']
 
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('HGCalValidation')
+    process.MessageLogger.HGCalValidation=dict()
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
@@ -53,7 +43,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string('hgcWaferD62.root'),
+                                   fileName = cms.string('hgcWaferD71.root'),
                                    closeFileFast = cms.untracked.bool(True)
                                    )
 

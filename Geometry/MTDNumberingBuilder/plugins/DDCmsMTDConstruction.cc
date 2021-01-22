@@ -112,7 +112,7 @@ std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const DDComp
     if (fullNode == GeometricTimingDet::BTLLayer || fullNode == GeometricTimingDet::ETLDisc) {
       layer.emplace_back(theCmsMTDConstruction.buildLayer(fv));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("DD4hep_MTDNumbering") << "Number of layers: " << layer.size();
+      edm::LogVerbatim("MTDNumbering") << "Number of layers: " << layer.size();
 #endif
     }
     //
@@ -185,7 +185,7 @@ std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const DDComp
     subdet[2]->addComponent(layer[3]);
     subdet[2]->addComponent(layer[4]);
   } else {
-    throw cms::Exception("DD4hep_MTDNumbering") << "Wrong number of layers: " << layer.size();
+    throw cms::Exception("MTDNumbering") << "Wrong number of layers: " << layer.size();
   }
 
   // Add subdetectors to MTD
@@ -209,7 +209,7 @@ std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const cms::D
   cms::DDFilteredView fv(cpv.detector(), cpv.detector()->worldVolume());
 
   fv.next(0);
-  edm::LogVerbatim("MTDNumbering") << fv.path();
+  edm::LogVerbatim("DD4hep_MTDNumbering") << fv.path();
   auto mtd = std::make_unique<GeometricTimingDet>(&fv, GeometricTimingDet::MTD);
 
   cms::DDSpecParRefs ref;
@@ -220,16 +220,16 @@ std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const cms::D
   fv.mergedSpecifics(ref);
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("MTDNumbering") << "Active filters using " << attribute << ":";
+  edm::LogVerbatim("DD4hep_MTDNumbering") << "Active filters using " << attribute << ":";
   fv.printFilter();
   edm::LogVerbatim("Geometry").log([&ref](auto& log) {
     log << "Filtered DD SpecPar Registry size: " << ref.size() << "\n";
     for (const auto& t : ref) {
-      log << "\nRegExps { ";
-      for (const auto& ki : t->paths)
+      log << "\nSpecPar " << t.first << ":\nRegExps { ";
+      for (const auto& ki : t.second->paths)
         log << ki << " ";
       log << "};\n ";
-      for (const auto& kl : t->spars) {
+      for (const auto& kl : t.second->spars) {
         log << kl.first << " = ";
         for (const auto& kil : kl.second) {
           log << kil << " ";
@@ -241,7 +241,7 @@ std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const cms::D
 #endif
 
   bool doSubdet = fv.firstChild();
-  edm::LogVerbatim("MTDNumbering") << fv.path();
+  edm::LogVerbatim("DD4hep_MTDNumbering") << fv.path();
 
   CmsMTDStringToEnum theCmsMTDStringToEnum;
 
@@ -257,9 +257,9 @@ std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const cms::D
         theCmsMTDStringToEnum.type(nodeName.substr(0, CmsMTDStringToEnum::kModStrLen));
 
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("MTDNumbering") << fv.path();
-    edm::LogVerbatim("MTDNumbering") << "Module = " << fv.name() << " fullNode = " << fullNode
-                                     << " thisNode = " << thisNode;
+    edm::LogVerbatim("DD4hep_MTDNumbering") << fv.path();
+    edm::LogVerbatim("DD4hep_MTDNumbering")
+        << "Module = " << fv.name() << " fullNode = " << fullNode << " thisNode = " << thisNode;
 #endif
 
     if (fullNode == GeometricTimingDet::BTL || fullNode == GeometricTimingDet::ETL) {

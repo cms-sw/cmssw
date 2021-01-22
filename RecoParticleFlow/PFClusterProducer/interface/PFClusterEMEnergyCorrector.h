@@ -21,7 +21,7 @@
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 
 #include "CondFormats/DataRecord/interface/GBRDWrapperRcd.h"
-#include "CondFormats/EgammaObjects/interface/GBRForestD.h"
+#include "CondFormats/GBRForest/interface/GBRForestD.h"
 
 class PFClusterEMEnergyCorrector {
 public:
@@ -44,6 +44,8 @@ private:
   edm::EDGetTokenT<EcalRecHitCollection> recHitsEB_;
   edm::EDGetTokenT<EcalRecHitCollection> recHitsEE_;
   edm::EDGetTokenT<unsigned int> bunchSpacing_;
+
+  const EcalClusterLazyTools::ESGetTokens ecalClusterToolsESGetTokens_;
 
   std::vector<std::string> condnames_mean_;
   std::vector<std::string> condnames_sigma_;

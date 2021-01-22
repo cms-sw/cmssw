@@ -100,22 +100,27 @@ void testWafer(int layer, double rin, double rout) {
 }
 
 void testScint(int layer) {
-  int type = (layer <= 12) ? 0 : 1;
-  int phimax = (type == 0) ? 360 : 240;
-  for (int ieta = 1; ieta < 128; ++ieta) {
+  int type = ((layer <= 8) ? 0 : ((layer <= 17) ? 1 : 2));
+  int phimax = (type == 0) ? 360 : 288;
+  int irmin = ((layer <= 12) ? 10 : ((layer <= 14) ? 14 : ((layer <= 18) ? 7 : 1)));
+  int irmax = ((layer <= 12) ? 33 : ((layer <= 14) ? 37 : 42));
+  int sipm = (layer <= 17) ? 0 : 1;
+  for (int ring = irmin; ring <= irmax; ++ring) {
     for (int phi = 1; phi <= phimax; ++phi) {
       for (int zp = 0; zp < 2; ++zp) {
-        int eta = (2 * zp - 1) * ieta;
-        HGCScintillatorDetId id(type, layer, eta, phi, false);
-        std::cout << "Input " << type << ":" << layer << ":" << eta << ":" << phi << " ID " << id;
-        if ((id.ieta() != eta) || (id.iphi() != phi) || (id.layer() != layer) || (id.type() != type))
+        int radius = (2 * zp - 1) * ring;
+        HGCScintillatorDetId id(type, layer, radius, phi, false, sipm);
+        std::cout << "Input " << type << ":" << layer << ":" << radius << ":" << phi << ":" << sipm << " ID "
+                  << std::hex << id << std::dec;
+        if ((id.iradius() != radius) || (id.iphi() != phi) || (id.layer() != layer) || (id.type() != type) ||
+            (id.sipm() != sipm))
           std::cout << " ***** ERROR *****" << std::endl;
         else
           std::cout << std::endl;
       }
-      phi += 4;
+      phi += 9;
     }
-    ieta += 3;
+    ring += 3;
   }
 }
 

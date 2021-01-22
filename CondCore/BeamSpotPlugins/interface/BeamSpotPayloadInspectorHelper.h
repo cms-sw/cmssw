@@ -14,6 +14,7 @@
 #include <memory>
 #include <sstream>
 #include "TCanvas.h"
+#include "TStyle.h"
 #include "TH2F.h"
 #include "TLatex.h"
 
@@ -219,6 +220,8 @@ namespace BeamSpotPI {
       auto tagname = tag.name;
       auto iov = tag.iovs.front();
 
+      gStyle->SetHistMinimumZero(kTRUE);
+
       m_payload = this->fetchPayload(std::get<1>(iov));
 
       TCanvas canvas("Beam Spot Parameters Summary", "BeamSpot Parameters summary", isOnline_ ? 1500 : 1000, 1000);
@@ -310,9 +313,9 @@ namespace BeamSpotPI {
       auto ltx = TLatex();
       ltx.SetTextFont(62);
       if (isOnline_) {
-        ltx.SetTextSize(0.040);
+        ltx.SetTextSize(0.030);
       } else {
-        ltx.SetTextSize(0.032);
+        ltx.SetTextSize(0.025);
       }
       ltx.SetTextAlign(11);
 

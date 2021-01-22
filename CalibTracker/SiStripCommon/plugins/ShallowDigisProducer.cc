@@ -7,11 +7,9 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
-#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
-#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 
 ShallowDigisProducer::ShallowDigisProducer(const edm::ParameterSet& conf)
-    : inputTags(conf.getParameter<std::vector<edm::InputTag> >("DigiProducersList")) {
+    : inputTags(conf.getParameter<std::vector<edm::InputTag> >("DigiProducersList")), noisesToken_(esConsumes()) {
   produces<std::vector<unsigned> >("id");
   produces<std::vector<unsigned> >("subdet");
   produces<std::vector<unsigned> >("strip");
@@ -28,15 +26,15 @@ void ShallowDigisProducer::insert(products& p, edm::Event& e) {
 }
 
 template <class T>
-inline void ShallowDigisProducer::recordDigis(const T& digiCollection, products& p) {
+inline void ShallowDigisProducer::recordDigis(const T& digiCollection, products& p, const SiStripNoises& noises) {
   for (auto const& set : digiCollection) {
-    SiStripNoises::Range detNoiseRange = noiseHandle->getRange(set.detId());
+    SiStripNoises::Range detNoiseRange = noises.getRange(set.detId());
     for (auto const& digi : set) {
       p.id->push_back(set.detId());
       p.subdet->push_back((set.detId() >> 25) & 0x7);
       p.strip->push_back(digi.strip());
       p.adc->push_back(digi.adc());
-      p.noise->push_back(noiseHandle->getNoise(digi.strip(), detNoiseRange));
+      p.noise->push_back(noises.getNoise(digi.strip(), detNoiseRange));
     }
   }
 }
@@ -45,11 +43,11 @@ void ShallowDigisProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   products p;
   edm::Handle<edm::DetSetVector<SiStripDigi> > inputOld;
   edm::Handle<edmNew::DetSetVector<SiStripDigi> > inputNew;
-  es.get<SiStripNoisesRcd>().get(noiseHandle);
+  const auto& noises = es.getData(noisesToken_);
   if (findInput(inputOld, e))
-    recordDigis(*inputOld, p);
+    recordDigis(*inputOld, p, noises);
   else if (findInput(inputNew, e))
-    recordDigis(*inputNew, p);
+    recordDigis(*inputNew, p, noises);
   else
     edm::LogWarning("Input Not Found");
   insert(p, e);

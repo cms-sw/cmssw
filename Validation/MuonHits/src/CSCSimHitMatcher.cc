@@ -1,4 +1,6 @@
 #include "Validation/MuonHits/interface/CSCSimHitMatcher.h"
+#include "TGraphErrors.h"
+#include "TF1.h"
 
 using namespace std;
 
@@ -202,6 +204,43 @@ float CSCSimHitMatcher::LocalBendingInChamber(unsigned int detid) const {
     phi_layer6 = gp6.phi();
   }
   return deltaPhi(phi_layer6, phi_layer1);
+}
+
+// difference in strip per layer
+void CSCSimHitMatcher::fitHitsInChamber(unsigned int detid, float& intercept, float& slope) const {
+  const CSCDetId cscid(detid);
+
+  const auto& sim_hits = hitsInChamber(detid);
+
+  if (sim_hits.empty())
+    return;
+
+  vector<float> x;
+  vector<float> y;
+  vector<float> xe;
+  vector<float> ye;
+
+  const float HALF_STRIP_ERROR = 0.288675;
+
+  for (const auto& h : sim_hits) {
+    const LocalPoint& lp = h.entryPoint();
+    const auto& d = h.detUnitId();
+    float s = dynamic_cast<const CSCGeometry*>(geometry_)->layer(d)->geometry()->strip(lp);
+    // shift to key half strip layer (layer 3)
+    x.push_back(CSCDetId(d).layer() - 3);
+    y.push_back(s);
+    xe.push_back(float(0));
+    ye.push_back(2 * HALF_STRIP_ERROR);
+  }
+  if (x.size() < 2)
+    return;
+
+  std::unique_ptr<TGraphErrors> gr(new TGraphErrors(x.size(), &x[0], &y[0], &xe[0], &ye[0]));
+  std::unique_ptr<TF1> fit(new TF1("fit", "pol1", -3, 4));
+  gr->Fit("fit", "EMQ");
+
+  intercept = fit->GetParameter(0);
+  slope = fit->GetParameter(1);
 }
 
 float CSCSimHitMatcher::simHitsMeanStrip(const edm::PSimHitContainer& sim_hits) const {

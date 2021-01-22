@@ -19,14 +19,18 @@ void HGCGraphT<TILES>::makeAndConnectDoublets(const TILES &histo,
                                               int deltaIPhi,
                                               float minCosTheta,
                                               float minCosPointing,
+                                              float root_doublet_max_distance_from_seed_squared,
                                               float etaLimitIncreaseWindow,
-                                              int missing_layers,
+                                              int skip_layers,
                                               int maxNumberOfLayers,
                                               float maxDeltaTime) {
   isOuterClusterOfDoublets_.clear();
   isOuterClusterOfDoublets_.resize(layerClusters.size());
   allDoublets_.clear();
   theRootDoublets_.clear();
+  bool checkDistanceRootDoubletVsSeed = root_doublet_max_distance_from_seed_squared < 9999;
+  float origin_eta;
+  float origin_phi;
   for (const auto &r : regions) {
     bool isGlobal = (r.index == -1);
     auto zSide = r.zSide;
@@ -37,19 +41,22 @@ void HGCGraphT<TILES>::makeAndConnectDoublets(const TILES &histo,
       startPhiBin = 0;
       endEtaBin = nEtaBins;
       endPhiBin = nPhiBins;
+      origin_eta = 0;
+      origin_phi = 0;
     } else {
       auto firstLayerOnZSide = maxNumberOfLayers * zSide;
       const auto &firstLayerHisto = histo[firstLayerOnZSide];
-
-      int entryEtaBin = firstLayerHisto.etaBin(r.origin.eta());
-      int entryPhiBin = firstLayerHisto.phiBin(r.origin.phi());
+      origin_eta = r.origin.eta();
+      origin_phi = r.origin.phi();
+      int entryEtaBin = firstLayerHisto.etaBin(origin_eta);
+      int entryPhiBin = firstLayerHisto.phiBin(origin_phi);
       // For track-seeded iterations, if the impact point is below a certain
       // eta-threshold, i.e., it has higher eta, make the initial search
       // window bigger in both eta and phi by one bin, to contain better low
       // energy showers.
       auto etaWindow = deltaIEta;
       auto phiWindow = deltaIPhi;
-      if (std::abs(r.origin.eta()) > etaLimitIncreaseWindow) {
+      if (std::abs(origin_eta) > etaLimitIncreaseWindow) {
         etaWindow++;
         phiWindow++;
         LogDebug("HGCGraph") << "Limit of Eta for increase: " << etaLimitIncreaseWindow
@@ -60,9 +67,9 @@ void HGCGraphT<TILES>::makeAndConnectDoublets(const TILES &histo,
       startPhiBin = entryPhiBin - phiWindow;
       endPhiBin = entryPhiBin + phiWindow + 1;
       if (verbosity_ > Guru) {
-        LogDebug("HGCGraph") << " Entrance eta, phi: " << r.origin.eta() << ", " << r.origin.phi()
+        LogDebug("HGCGraph") << " Entrance eta, phi: " << origin_eta << ", " << origin_phi
                              << " entryEtaBin: " << entryEtaBin << " entryPhiBin: " << entryPhiBin
-                             << " globalBin: " << firstLayerHisto.globalBin(r.origin.eta(), r.origin.phi())
+                             << " globalBin: " << firstLayerHisto.globalBin(origin_eta, origin_phi)
                              << " on layer: " << firstLayerOnZSide << " startEtaBin: " << startEtaBin
                              << " endEtaBin: " << endEtaBin << " startPhiBin: " << startPhiBin
                              << " endPhiBin: " << endPhiBin << " phiBin(0): " << firstLayerHisto.phiBin(0.)
@@ -75,7 +82,7 @@ void HGCGraphT<TILES>::makeAndConnectDoublets(const TILES &histo,
     }
 
     for (int il = 0; il < maxNumberOfLayers - 1; ++il) {
-      for (int outer_layer = 0; outer_layer < std::min(1 + missing_layers, maxNumberOfLayers - 1 - il); ++outer_layer) {
+      for (int outer_layer = 0; outer_layer < std::min(1 + skip_layers, maxNumberOfLayers - 1 - il); ++outer_layer) {
         int currentInnerLayerId = il + maxNumberOfLayers * zSide;
         int currentOuterLayerId = currentInnerLayerId + 1 + outer_layer;
         auto const &outerLayerHisto = histo[currentOuterLayerId];
@@ -171,8 +178,17 @@ void HGCGraphT<TILES>::makeAndConnectDoublets(const TILES &histo,
                                                                               minCosTheta,
                                                                               minCosPointing,
                                                                               verbosity_ > Advanced);
-                    if (isRootDoublet)
+                    if (isRootDoublet and checkDistanceRootDoubletVsSeed) {
+                      auto dEtaSquared = (layerClusters[innerClusterId].eta() - origin_eta);
+                      dEtaSquared *= dEtaSquared;
+                      auto dPhiSquared = (layerClusters[innerClusterId].phi() - origin_phi);
+                      dPhiSquared *= dPhiSquared;
+                      if (dEtaSquared + dPhiSquared > root_doublet_max_distance_from_seed_squared)
+                        isRootDoublet = false;
+                    }
+                    if (isRootDoublet) {
                       theRootDoublets_.push_back(doubletId);
+                    }
                   }
                 }
               }

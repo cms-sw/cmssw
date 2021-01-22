@@ -106,17 +106,19 @@ private:
                                                const edm::ParameterSet&,
                                                edm::ConsumesCollector&&);  //calling function owns this
   static std::unique_ptr<CaloObjCollType> makeFilteredColl(const edm::Handle<CaloObjCollType>& inputColl,
-                                                           const edm::ESHandle<CaloGeometry>& caloGeomHandle,
+                                                           CaloGeometry const& caloGeomHandle,
                                                            const std::vector<EtaPhiRegion>& regions);
   static bool validIDForGeom(const DetId& id);
   std::vector<std::string> outputProductNames_;
   std::vector<edm::InputTag> inputCollTags_;
   std::vector<edm::EDGetTokenT<CaloObjCollType>> inputTokens_;
   std::vector<std::unique_ptr<EtaPhiRegionDataBase>> etaPhiRegionData_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
 };
 
 template <typename CaloObjType, typename CaloObjCollType>
-HLTCaloObjInRegionsProducer<CaloObjType, CaloObjCollType>::HLTCaloObjInRegionsProducer(const edm::ParameterSet& para) {
+HLTCaloObjInRegionsProducer<CaloObjType, CaloObjCollType>::HLTCaloObjInRegionsProducer(const edm::ParameterSet& para)
+    : caloGeometryToken_{esConsumes()} {
   const std::vector<edm::ParameterSet> etaPhiRegions =
       para.getParameter<std::vector<edm::ParameterSet>>("etaPhiRegions");
   for (auto& pset : etaPhiRegions) {
@@ -179,8 +181,7 @@ template <typename CaloObjType, typename CaloObjCollType>
 void HLTCaloObjInRegionsProducer<CaloObjType, CaloObjCollType>::produce(edm::Event& event,
                                                                         const edm::EventSetup& setup) {
   // get the collection geometry:
-  edm::ESHandle<CaloGeometry> caloGeomHandle;
-  setup.get<CaloGeometryRecord>().get(caloGeomHandle);
+  auto const& caloGeom = setup.getData(caloGeometryToken_);
 
   std::vector<EtaPhiRegion> regions;
   std::for_each(etaPhiRegionData_.begin(),
@@ -198,7 +199,7 @@ void HLTCaloObjInRegionsProducer<CaloObjType, CaloObjCollType>::produce(edm::Eve
                                        << " named " << inputCollTags_[inputCollNr].encode() << std::endl;
       continue;
     }
-    auto outputColl = makeFilteredColl(inputColl, caloGeomHandle, regions);
+    auto outputColl = makeFilteredColl(inputColl, caloGeom, regions);
     event.put(std::move(outputColl), outputProductNames_[inputCollNr]);
   }
 }
@@ -206,11 +207,11 @@ void HLTCaloObjInRegionsProducer<CaloObjType, CaloObjCollType>::produce(edm::Eve
 template <typename CaloObjType, typename CaloObjCollType>
 std::unique_ptr<CaloObjCollType> HLTCaloObjInRegionsProducer<CaloObjType, CaloObjCollType>::makeFilteredColl(
     const edm::Handle<CaloObjCollType>& inputColl,
-    const edm::ESHandle<CaloGeometry>& caloGeomHandle,
+    CaloGeometry const& caloGeomHandle,
     const std::vector<EtaPhiRegion>& regions) {
   auto outputColl = std::make_unique<CaloObjCollType>();
   if (!inputColl->empty()) {
-    const CaloSubdetectorGeometry* subDetGeom = caloGeomHandle->getSubdetectorGeometry(inputColl->begin()->id());
+    const CaloSubdetectorGeometry* subDetGeom = caloGeomHandle.getSubdetectorGeometry(inputColl->begin()->id());
     if (!regions.empty()) {
       for (const CaloObjType& obj : *inputColl) {
         auto objGeom = subDetGeom->getGeometry(obj.id());

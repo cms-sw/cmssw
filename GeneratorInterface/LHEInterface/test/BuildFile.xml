@@ -14,3 +14,5 @@
   <use name="SimDataFormats/GeneratorProducts"/>
   <use name="catch2"/>
 </bin>
+
+<test name="test_cmsLHEtoEOSManager" command="test_cmsLHEtoEOSManager.sh"/>

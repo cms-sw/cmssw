@@ -21,6 +21,7 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 
 #include "FWCore/Framework/src/esTaskArenas.h"
 namespace edm {
@@ -61,7 +62,7 @@ namespace edm {
 
     }  // namespace
 
-    void DataProxy::prefetchAsync(WaitingTask* iTask,
+    void DataProxy::prefetchAsync(WaitingTaskHolder iTask,
                                   EventSetupRecordImpl const& iRecord,
                                   DataKey const& iKey,
                                   EventSetupImpl const* iEventSetupImpl,
@@ -102,7 +103,7 @@ namespace edm {
         auto waitTaskPtr = waitTask.get();
         auto token = ServiceRegistry::instance().presentToken();
         edm::esTaskArena().execute([this, waitTaskPtr, &iRecord, &iKey, iEventSetupImpl, token]() {
-          prefetchAsync(waitTaskPtr, iRecord, iKey, iEventSetupImpl, token);
+          prefetchAsync(WaitingTaskHolder(waitTaskPtr), iRecord, iKey, iEventSetupImpl, token);
           waitTaskPtr->decrement_ref_count();
           waitTaskPtr->wait_for_all();
         });
@@ -113,14 +114,6 @@ namespace edm {
         }
       }
       return getAfterPrefetch(iRecord, iKey, iTransiently);
-    }
-
-    void DataProxy::doGet(const EventSetupRecordImpl& iRecord,
-                          const DataKey& iKey,
-                          bool iTransiently,
-                          ActivityRegistry const* activityRegistry,
-                          EventSetupImpl const* iEventSetupImpl) const {
-      get(iRecord, iKey, iTransiently, activityRegistry, iEventSetupImpl);
     }
 
   }  // namespace eventsetup

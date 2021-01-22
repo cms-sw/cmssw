@@ -47,6 +47,9 @@ namespace edm {
     virtual struct addrinfo const* statisticsDestination() const = 0;
     virtual std::set<std::string> const* statisticsInfo() const = 0;
     virtual std::string const& siteName(void) const = 0;
+    virtual bool useLocalConnectString() const = 0;
+    virtual std::string const& localConnectPrefix() const = 0;
+    virtual std::string const& localConnectSuffix() const = 0;
 
     // implicit copy constructor
     // implicit assignment operator

@@ -12,6 +12,10 @@ namespace edmtest {
     edm::LogInfo("cat_B") << "LogInfo     was used to send cat_B";
     edm::LogVerbatim("cat_A") << "LogVerbatim was used to send cat_A";
     edm::LogVerbatim("cat_B") << "LogVerbatim was used to send cat_B";
+    edm::LogFwkInfo("cat_A") << "LogFwkInfo  was used to send cat_A";
+    edm::LogFwkInfo("cat_B") << "LogFwkInfo  was used to send cat_B";
+    edm::LogFwkVerbatim("cat_A") << "LogFwkVerbatim was used to send cat_A";
+    edm::LogFwkVerbatim("cat_B") << "LogFwkVerbatim was used to send cat_B";
     edm::LogWarning("cat_A") << "LogWarning  was used to send cat_A";
     edm::LogWarning("cat_B") << "LogWarning  was used to send cat_B";
     edm::LogPrint("cat_A") << "LogPrint    was used to send cat_A";
@@ -34,6 +38,10 @@ int main() {
 
   edm::LogImportant("note") << "threshold INFO";
   edm::setStandAloneMessageThreshold(edm::ELinfo);
+  edmtest::sampleStandAlone();
+
+  edm::LogImportant("note") << "threshold FWKINFO";
+  edm::setStandAloneMessageThreshold(edm::ELfwkInfo);
   edmtest::sampleStandAlone();
 
   edm::LogImportant("note") << "threshold WARNING";

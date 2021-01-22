@@ -13,7 +13,6 @@
 
 #include "CondFormats/Common/interface/FileBlob.h"
 #include "CondFormats/GeometryObjects/interface/PGeometricDet.h"
-#include "CondFormats/GeometryObjects/interface/PGeometricDetExtra.h"
 #include "CondFormats/GeometryObjects/interface/PCaloGeometry.h"
 #include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"
 #include "CondFormats/GeometryObjects/interface/CSCRecoDigiParameters.h"
@@ -21,7 +20,6 @@
 
 #include "Geometry/Records/interface/GeometryFileRcd.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/Records/interface/PGeometricDetExtraRcd.h"
 #include "Geometry/Records/interface/DTRecoGeometryRcd.h"
 #include "Geometry/Records/interface/RPCRecoGeometryRcd.h"
 #include "Geometry/Records/interface/CSCRecoGeometryRcd.h"
@@ -123,27 +121,15 @@ void GeometryTester::analyze(const edm::Event &, const edm::EventSetup &iSetup) 
   FmtOstream outStream;
   if (m_tktest) {
     edm::ESHandle<PGeometricDet> tkGeo;
-    edm::ESHandle<PGeometricDetExtra> tkExtra;
     iSetup.get<IdealGeometryRecord>().get(tkGeo);
-    iSetup.get<PGeometricDetExtraRcd>().get(tkExtra);
     std::cout << "TRACKER\n";
 
-    //helper map
-    std::map<uint32_t, uint32_t> diTogde;
-    for (uint32_t g = 0; g < tkExtra->pgdes_.size(); ++g) {
-      diTogde[tkExtra->pgdes_[g]._geographicalId] = g;
-    }
-    uint32_t tkeInd;
     for (auto it : tkGeo->pgeomdets_) {
       std::cout << "trk ";
       outStream << it._params0 << it._params1 << it._params2 << it._params3 << it._params4 << it._params5 << it._params6
                 << it._params7 << it._params8 << it._params9 << it._params10 << it._x << it._y << it._z << it._phi
                 << it._rho << it._a11 << it._a12 << it._a13 << it._a21 << it._a22 << it._a23 << it._a31 << it._a32
                 << it._a33 << it._shape << it._name << it._ns;
-      tkeInd = diTogde[it._geographicalID];
-      outStream << tkExtra->pgdes_[tkeInd]._volume << tkExtra->pgdes_[tkeInd]._density
-                << tkExtra->pgdes_[tkeInd]._weight << tkExtra->pgdes_[tkeInd]._copy
-                << tkExtra->pgdes_[tkeInd]._material;
       outStream << it._radLength << it._xi << it._pixROCRows << it._pixROCCols << it._pixROCx << it._pixROCy
                 << it._stereo << it._siliconAPVNum << it._geographicalID << it._nt0 << it._nt1 << it._nt2 << it._nt3
                 << it._nt4 << it._nt5 << it._nt6 << it._nt7 << it._nt8 << it._nt9 << it._nt10 << "\n";

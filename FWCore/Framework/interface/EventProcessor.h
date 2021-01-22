@@ -107,6 +107,8 @@ namespace edm {
     EventProcessor(EventProcessor const&) = delete;             // Disallow copying and moving
     EventProcessor& operator=(EventProcessor const&) = delete;  // Disallow copying and moving
 
+    void taskCleanup();
+
     /**This should be called before the first call to 'run'
        If this is not called in time, it will automatically be called
        the first time 'run' is called
@@ -197,6 +199,7 @@ namespace edm {
     edm::LuminosityBlockNumber_t nextLuminosityBlockID();
 
     void readFile();
+    bool fileBlockValid() { return fb_.get() != nullptr; }
     void closeInputFile(bool cleaningUpAfterException);
     void openOutputFiles();
     void closeOutputFiles();
@@ -362,6 +365,7 @@ namespace edm {
     ExcludedDataMap eventSetupDataToExcludeFromPrefetching_;
 
     bool printDependencies_ = false;
+    bool deleteNonConsumedUnscheduledModules_ = true;
   };  // class EventProcessor
 
   //--------------------------------------------------------------------

@@ -98,10 +98,10 @@ void PixelHitMatcher::set2ndLayer(float dummyphi2minB, float dummyphi2maxB, floa
   meas2ndFLayer.thePhiMax = dummyphi2maxF;
 }
 
-void PixelHitMatcher::setES(const MagneticField *magField, const TrackerGeometry *trackerGeometry) {
-  theMagField = magField;
-  theTrackerGeometry = trackerGeometry;
-  float mass = .000511;  // electron propagation
+void PixelHitMatcher::setES(MagneticField const &magField, TrackerGeometry const &trackerGeometry) {
+  theMagField = &magField;
+  theTrackerGeometry = &trackerGeometry;
+  constexpr float mass = .000511;  // electron propagation
   prop1stLayer = std::make_unique<PropagatorWithMaterial>(oppositeToMomentum, mass, theMagField);
   prop2ndLayer = std::make_unique<PropagatorWithMaterial>(alongMomentum, mass, theMagField);
 }

@@ -9,11 +9,13 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
@@ -35,15 +37,15 @@
 #include "TTree.h"
 
 // class declaration
-class SimAnalyzerMinbias : public edm::EDAnalyzer {
+class SimAnalyzerMinbias : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   explicit SimAnalyzerMinbias(const edm::ParameterSet&);
-  ~SimAnalyzerMinbias() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void beginJob() override;
   void endJob() override;
-  void beginRun(const edm::Run& r, const edm::EventSetup& iSetup) override;
-  void endRun(const edm::Run& r, const edm::EventSetup& iSetup) override;
+  void beginRun(const edm::Run& r, const edm::EventSetup& iSetup) override{};
+  void endRun(const edm::Run& r, const edm::EventSetup& iSetup) override{};
 
 private:
   // ----------member data ---------------------------
@@ -66,23 +68,21 @@ private:
 // constructors and destructor
 
 SimAnalyzerMinbias::SimAnalyzerMinbias(const edm::ParameterSet& iConfig) {
+  usesResource(TFileService::kSharedResource);
   timeCut_ = iConfig.getUntrackedParameter<double>("TimeCut", 500);
 
   // get token names of modules, producing object collections
   tok_evt_ = consumes<edm::HepMCProduct>(edm::InputTag("generator"));
   tok_hcal_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "HcalHits"));
 
-  edm::LogInfo("AnalyzerMB") << "Use Time cut of " << timeCut_ << " ns";
+  edm::LogVerbatim("AnalyzerMB") << "Use Time cut of " << timeCut_ << " ns";
 }
 
-SimAnalyzerMinbias::~SimAnalyzerMinbias() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
+void SimAnalyzerMinbias::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<double>("TimeCut", 500);
+  descriptions.add("simAnalyzerMinbias", desc);
 }
-
-void SimAnalyzerMinbias::beginRun(const edm::Run& r, const edm::EventSetup& iSetup) {}
-
-void SimAnalyzerMinbias::endRun(const edm::Run& r, const edm::EventSetup& iSetup) {}
 
 void SimAnalyzerMinbias::beginJob() {
   myTree_ = fs_->make<TTree>("SimJet", "SimJet Tree");
@@ -119,13 +119,13 @@ void SimAnalyzerMinbias::endJob() {
       mom4_MB = info.theMB4;
       cells++;
 
-      edm::LogInfo("AnalyzerMB") << " Result=  " << mysubd << " " << ieta << " " << iphi << " mom0  " << mom0_MB
-                                 << " mom1 " << mom1_MB << " mom2 " << mom2_MB << " mom3 " << mom3_MB << " mom4 "
-                                 << mom4_MB;
+      edm::LogVerbatim("AnalyzerMB") << " Result=  " << mysubd << " " << ieta << " " << iphi << " mom0  " << mom0_MB
+                                     << " mom1 " << mom1_MB << " mom2 " << mom2_MB << " mom3 " << mom3_MB << " mom4 "
+                                     << mom4_MB;
       myTree_->Fill();
     }
   }
-  edm::LogInfo("AnalyzerMB") << "cells " << cells;
+  edm::LogVerbatim("AnalyzerMB") << "cells " << cells;
 }
 
 //
@@ -135,8 +135,8 @@ void SimAnalyzerMinbias::endJob() {
 // ------------ method called to produce the data  ------------
 
 void SimAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
-  edm::LogInfo("AnalyzerMB") << " Start SimAnalyzerMinbias::analyze " << iEvent.id().run() << ":"
-                             << iEvent.id().event();
+  edm::LogVerbatim("AnalyzerMB") << " Start SimAnalyzerMinbias::analyze " << iEvent.id().run() << ":"
+                                 << iEvent.id().event();
 
   edm::Handle<edm::HepMCProduct> evtMC;
   iEvent.getByToken(tok_evt_, evtMC);
@@ -144,8 +144,8 @@ void SimAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
     edm::LogWarning("AnalyzerMB") << "no HepMCProduct found";
   } else {
     const HepMC::GenEvent* myGenEvent = evtMC->GetEvent();
-    edm::LogInfo("AnalyzerMB") << "Event with " << myGenEvent->particles_size() << " particles + "
-                               << myGenEvent->vertices_size() << " vertices";
+    edm::LogVerbatim("AnalyzerMB") << "Event with " << myGenEvent->particles_size() << " particles + "
+                                   << myGenEvent->vertices_size() << " vertices";
   }
 
   edm::Handle<edm::PCaloHitContainer> hcalHits;
@@ -170,8 +170,8 @@ void SimAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
       itr1->second += energyhit;
     }
   }
-  edm::LogInfo("AnalyzerMB") << "extract information of " << hitMap.size() << " towers from " << HitHcal->size()
-                             << " hits";
+  edm::LogVerbatim("AnalyzerMB") << "extract information of " << hitMap.size() << " towers from " << HitHcal->size()
+                                 << " hits";
 
   for (std::map<HcalDetId, double>::const_iterator hcalItr = hitMap.begin(); hcalItr != hitMap.end(); ++hcalItr) {
     HcalDetId hid = hcalItr->first;
@@ -187,7 +187,7 @@ void SimAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
     itr1->second.theMB2 += (energyhit * energyhit);
     itr1->second.theMB3 += (energyhit * energyhit * energyhit);
     itr1->second.theMB4 += (energyhit * energyhit * energyhit * energyhit);
-    edm::LogInfo("AnalyzerMB") << "ID " << hid << " with energy " << energyhit;
+    edm::LogVerbatim("AnalyzerMB") << "ID " << hid << " with energy " << energyhit;
   }
 }
 

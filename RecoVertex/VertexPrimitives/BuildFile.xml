@@ -3,6 +3,7 @@
 <use name="DataFormats/GeometryVector"/>
 <use name="DataFormats/VertexReco"/>
 <use name="DataFormats/Candidate"/>
+<use name="FWCore/Utilities"/>
 <use name="TrackingTools/TransientTrack"/>
 <export>
   <lib name="1"/>

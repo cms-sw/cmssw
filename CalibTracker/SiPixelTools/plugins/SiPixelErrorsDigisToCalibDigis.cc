@@ -22,13 +22,7 @@
 #include "SiPixelErrorsDigisToCalibDigis.h"
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 //
 // constants, enums and typedefs
@@ -52,6 +46,8 @@ SiPixelErrorsDigisToCalibDigis::SiPixelErrorsDigisToCalibDigis(const edm::Parame
 
   tPixelCalibDigiError = consumes<edm::DetSetVector<SiPixelCalibDigiError> >(siPixelProducerLabel_);
 
+  trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
+
   //  std::cout<<"siPixelProducerLabel_ = "<<siPixelProducerLabel_<<std::endl;
   //  std::cout<<"createOutputFile_= "<< createOutputFile_<<std::endl;
   //  std::cout<<"outpuFilename_= "<< outputFilename_<< std::endl;
@@ -73,7 +69,7 @@ void SiPixelErrorsDigisToCalibDigis::analyze(const edm::Event& iEvent, const edm
   static int first(1);
   if (1 == first) {
     first = 0;
-    iSetup.get<TrackerDigiGeometryRecord>().get(geom_);
+    geom_ = iSetup.getHandle(trackerGeomToken_);
     theHistogramIdWorker_ = new SiPixelHistogramId(siPixelProducerLabel_.label());
   }
 

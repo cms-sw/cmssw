@@ -39,9 +39,14 @@ process.dqmEnv.subSystemFolder = 'RPC'
 process.dqmSaver.convention = 'Online'
 
 process.MessageLogger = cms.Service("MessageLogger",
-     debugModules = cms.untracked.vstring('rpcbxtest'),
-     destinations = cms.untracked.vstring('cout'),
-     cout = cms.untracked.PSet( threshold = cms.untracked.string('ERROR'))
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('ERROR')
+    ),
+    debugModules = cms.untracked.vstring('rpcbxtest')
 )
 
 process.p = cms.Path(process.readMeFromFile*process.rpcdqmclient*process.dqmEnv*process.dqmSaver)

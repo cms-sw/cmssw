@@ -43,7 +43,7 @@ GEDGsfElectronCoreProducer::GEDGsfElectronCoreProducer(const edm::ParameterSet &
       gedEMUnbiasedToken_(consumes<reco::PFCandidateCollection>(config.getParameter<edm::InputTag>("GEDEMUnbiased"))),
       putToken_(produces<reco::GsfElectronCoreCollection>()) {}
 
-void GEDGsfElectronCoreProducer::produce(edm::StreamID iStream, edm::Event &event, const edm::EventSetup &setup) const {
+void GEDGsfElectronCoreProducer::produce(edm::StreamID iStream, edm::Event &event, const edm::EventSetup &) const {
   auto ctfTracksHandle = event.getHandle(ctfTracksToken_);
   auto ctfTrackVariables = makeLazy<edm::soa::EtaPhiTable>(*ctfTracksHandle);
 

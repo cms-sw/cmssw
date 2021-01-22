@@ -25,15 +25,14 @@ process.maxEvents = cms.untracked.PSet(
 
 process.MessageLogger = cms.Service("MessageLogger",
     cout = cms.untracked.PSet(
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
         HGCSim = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
         ),
-    ),
-    categories = cms.untracked.vstring('HGCSim'),
-    destinations = cms.untracked.vstring('cout','cerr')
+        default = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        enable = cms.untracked.bool(True)
+    )
 )
 
 # Input source

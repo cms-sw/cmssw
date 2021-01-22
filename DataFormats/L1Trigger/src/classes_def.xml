@@ -80,7 +80,8 @@
   <class name="l1t::TauVectorRef"/>
   <class name="edm::Wrapper<l1t::TauVectorRef>"/>
 
-  <class name="l1t::Muon" ClassVersion="17">
+  <class name="l1t::Muon" ClassVersion="18">
+   <version ClassVersion="18" checksum="2723313197"/>
    <version ClassVersion="17" checksum="3946815604"/>
    <version ClassVersion="16" checksum="1302394108"/>
    <version ClassVersion="15" checksum="957467775"/>

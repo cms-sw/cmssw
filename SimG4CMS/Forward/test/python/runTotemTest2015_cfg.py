@@ -16,14 +16,15 @@ process.VtxSmeared.MinZ = -10.5
 process.VtxSmeared.MaxZ = -9.5
 
 process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('G4cout', 'G4cerr', 'ForwardSim'),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
-        INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
         DEBUG = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
+        ),
+        ForwardSim = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
         ),
         G4cerr = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
@@ -31,9 +32,10 @@ process.MessageLogger = cms.Service("MessageLogger",
         G4cout = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        ForwardSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
+        INFO = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
         ),
+        enable = cms.untracked.bool(True)
     )
 )
 

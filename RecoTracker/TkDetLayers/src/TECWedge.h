@@ -2,7 +2,7 @@
 #define TkDetLayers_TECWedge_h
 
 #include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
-#include "BoundDiskSector.h"
+#include "DataFormats/GeometrySurface/interface/BoundDiskSector.h"
 
 /** A concrete implementation for TEC layer 
  *  built out of TECPetals

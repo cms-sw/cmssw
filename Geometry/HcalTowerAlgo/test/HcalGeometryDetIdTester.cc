@@ -1,6 +1,5 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -22,6 +21,8 @@ public:
 private:
   static constexpr int ndetMax_ = 4;
   int detMin_, detMax_;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
 };
 
 HcalGeometryDetIdTester::HcalGeometryDetIdTester(const edm::ParameterSet& iConfig) {
@@ -29,6 +30,8 @@ HcalGeometryDetIdTester::HcalGeometryDetIdTester(const edm::ParameterSet& iConfi
   detMax_ = std::min(ndetMax_, std::max(iConfig.getParameter<int>("DetectorMax"), 1));
   if (detMin_ > detMax_)
     detMin_ = detMax_;
+  tok_htopo_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
+  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
   std::cout << "Study DetIds for SubDetId in the range " << detMin_ << ":" << detMax_ << std::endl;
 }
 
@@ -40,12 +43,8 @@ void HcalGeometryDetIdTester::fillDescriptions(edm::ConfigurationDescriptions& d
 }
 
 void HcalGeometryDetIdTester::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup) {
-  edm::ESHandle<HcalTopology> topologyHandle;
-  iSetup.get<HcalRecNumberingRecord>().get(topologyHandle);
-  const HcalTopology topology = (*topologyHandle);
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
-  const CaloGeometry* geo = pG.product();
+  const HcalTopology topology = iSetup.getData(tok_htopo_);
+  const CaloGeometry* geo = &iSetup.getData(tok_geom_);
   const HcalGeometry* hcalGeom = static_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal, HcalBarrel));
 
   std::string subdets[ndetMax_] = {"HB", "HE", "HO", "HF"};

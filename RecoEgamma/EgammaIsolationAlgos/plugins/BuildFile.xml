@@ -7,14 +7,11 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
-<use name="FWCore/PluginManager"/>
 <use name="Geometry/CaloGeometry"/>
 <use name="Geometry/Records"/>
 <use name="RecoCaloTools/Selectors"/>
 <use name="CommonTools/Statistics"/>
 <use name="RecoEgamma/EgammaIsolationAlgos"/>
-<use name="CondFormats/EcalObjects"/>
-<use name="CondFormats/DataRecord"/>
 <use name="RecoLocalCalo/EcalRecAlgos"/>
 <use name="DataFormats/ParticleFlowCandidate"/>
 <use name="DataFormats/PatCandidates"/>
@@ -25,5 +22,9 @@
 </library>
 
 <library file="isolation_cones/*.cc" name="RecoEgammaEgammaIsolationAlgosPlugins_isolation_cones">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="iso_deposit_extractors/*.cc" name="RecoEgammaEgammaIsolationAlgosPlugins_iso_deposit_extractors">
   <flags EDM_PLUGIN="1"/>
 </library>

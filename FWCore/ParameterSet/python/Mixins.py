@@ -364,6 +364,10 @@ class _Parameterizable(object):
         # usings need to go first
         resultList = usings
         resultList.extend(others)
+        if self.__validator is not None:
+            options.indent()
+            resultList.append(options.indentation()+"allowAnyLabel_="+self.__validator.dumpPython(options))
+            options.unindent()
         return ',\n'.join(resultList)+'\n'
     def __repr__(self):
         return self.dumpPython()
@@ -418,6 +422,8 @@ class _TypedParameterizable(_Parameterizable):
             args.append(None)
         
         _modifyParametersFromDict(myparams, params, self._Parameterizable__raiseBadSetAttr)
+        if self._Parameterizable__validator is not None:
+            myparams["allowAnyLabel_"] = self._Parameterizable__validator
 
         returnValue.__init__(self.__type,*args,
                              **myparams)

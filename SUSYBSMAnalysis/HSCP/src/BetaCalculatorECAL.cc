@@ -1,7 +1,6 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
@@ -20,7 +19,11 @@ BetaCalculatorECAL::BetaCalculatorECAL(const edm::ParameterSet& iConfig, edm::Co
     : EBRecHitCollectionToken_(
           iC.consumes<EBRecHitCollection>(iConfig.getParameter<edm::InputTag>("EBRecHitCollection"))),
       EERecHitCollectionToken_(
-          iC.consumes<EERecHitCollection>(iConfig.getParameter<edm::InputTag>("EERecHitCollection"))) {
+          iC.consumes<EERecHitCollection>(iConfig.getParameter<edm::InputTag>("EERecHitCollection"))),
+      ecalDetIdAssociatorToken_(iC.esConsumes(edm::ESInputTag("", "EcalDetIdAssociator"))),
+      bFieldToken_(iC.esConsumes()),
+      theCaloGeometryToken_(iC.esConsumes()),
+      caloTopologyToken_(iC.esConsumes()) {
   edm::ParameterSet trkParameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
   parameters_.loadParameters(trkParameters, iC);
   trackAssociator_.useDefaultPropagator();
@@ -35,16 +38,13 @@ void BetaCalculatorECAL::addInfoToCandidate(HSCParticle& candidate,
   HSCPCaloInfo result;
 
   // EcalDetIdAssociator
-  iSetup.get<DetIdAssociatorRecord>().get("EcalDetIdAssociator", ecalDetIdAssociator_);
+  const auto& ecalDetIdAssociator_ = iSetup.getData(ecalDetIdAssociatorToken_);
   // Get the Bfield
-  iSetup.get<IdealMagneticFieldRecord>().get(bField_);
+  bField_ = &iSetup.getData(bFieldToken_);
   // Geometry
-  iSetup.get<CaloGeometryRecord>().get(theCaloGeometry_);
-  const CaloGeometry* theGeometry = theCaloGeometry_.product();
+  const CaloGeometry* theGeometry = &iSetup.getData(theCaloGeometryToken_);
   // Topology
-  edm::ESHandle<CaloTopology> pCaloTopology;
-  iSetup.get<CaloTopologyRecord>().get(pCaloTopology);
-  const CaloTopology* theCaloTopology = pCaloTopology.product();
+  const CaloTopology* theCaloTopology = &iSetup.getData(caloTopologyToken_);
   // EcalRecHits
   edm::Handle<EBRecHitCollection> ebRecHits;
   iEvent.getByToken(EBRecHitCollectionToken_, ebRecHits);
@@ -69,16 +69,16 @@ void BetaCalculatorECAL::addInfoToCandidate(HSCParticle& candidate,
 
   // use the track associator to propagate to the calo
   TrackDetMatchInfo info =
-      trackAssociator_.associate(iEvent, iSetup, trackAssociator_.getFreeTrajectoryState(iSetup, track), parameters_);
+      trackAssociator_.associate(iEvent, iSetup, trackAssociator_.getFreeTrajectoryState(bField_, track), parameters_);
 
   // do a custom propagation through Ecal
   std::map<int, GlobalPoint> trackExitPositionMap;  // rawId to exit position (subtracting cry center)
   std::map<int, float> trackCrossedXtalCurvedMap;   // rawId to trackLength
 
-  FreeTrajectoryState tkInnerState = trajectoryStateTransform::innerFreeState(track, &*bField_);
+  FreeTrajectoryState tkInnerState = trajectoryStateTransform::innerFreeState(track, bField_);
   // Build set of points in Ecal (necklace) using the propagator
   std::vector<SteppingHelixStateInfo> neckLace;
-  neckLace = calcEcalDeposit(&tkInnerState, *ecalDetIdAssociator_);
+  neckLace = calcEcalDeposit(&tkInnerState, ecalDetIdAssociator_);
   // Initialize variables to be filled by the track-length function
   double totalLengthCurved = 0.;
   GlobalPoint internalPointCurved(0., 0., 0.);
@@ -211,11 +211,11 @@ std::vector<SteppingHelixStateInfo> BetaCalculatorECAL::calcEcalDeposit(const Fr
   SteppingHelixStateInfo trackOrigin(*tkInnerState);
 
   // Define Propagator
-  SteppingHelixPropagator* prop = new SteppingHelixPropagator(&*bField_, alongMomentum);
+  auto prop = std::make_unique<SteppingHelixPropagator>(bField_, alongMomentum);
   prop->setMaterialMode(false);
   prop->applyRadX0Correction(true);
 
-  return propagateThoughFromIP(trackOrigin, prop, associator.volume(), 500, 0.1, minR, minZ, maxR, maxZ);
+  return propagateThoughFromIP(trackOrigin, prop.get(), associator.volume(), 500, 0.1, minR, minZ, maxR, maxZ);
 }
 
 int BetaCalculatorECAL::getDetailedTrackLengthInXtals(std::map<int, GlobalPoint>& trackExitPositionMap,

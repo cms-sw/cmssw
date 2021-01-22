@@ -20,6 +20,7 @@ namespace edm {
 
   class ProcessBlockIndex {
   public:
+    ProcessBlockIndex() = delete;
     ~ProcessBlockIndex() = default;
     ProcessBlockIndex(const ProcessBlockIndex&) = default;
     ProcessBlockIndex& operator=(const ProcessBlockIndex&) = default;
@@ -35,8 +36,6 @@ namespace edm {
     ///Only the ProcessBlockPrincipal is allowed to make one of these
     friend class ProcessBlockPrincipal;
     explicit ProcessBlockIndex(unsigned int iIndex) : value_(iIndex) {}
-
-    ProcessBlockIndex() = delete;
 
     unsigned int value_;
 

@@ -6,7 +6,6 @@
 <use name="Utilities/StorageFactory"/>
 <use name="hepmc"/>
 <use name="boost"/>
-<use name="sigcpp"/>
 <use name="xerces-c"/>
 <use name="rootmath"/>
 <use name="fastjet"/>

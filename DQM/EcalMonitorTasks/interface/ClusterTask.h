@@ -26,7 +26,7 @@ namespace ecaldqm {
 
     void addDependencies(DependencySet&) override;
 
-    void beginEvent(edm::Event const&, edm::EventSetup const&) override;
+    void beginEvent(edm::Event const&, edm::EventSetup const&, bool const&, bool&) override;
     void endEvent(edm::Event const&, edm::EventSetup const&) override;
 
     bool analyze(void const*, Collections) override;

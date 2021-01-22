@@ -17,6 +17,11 @@ namespace edm {
 }  // namespace edm
 
 namespace ecaldqm {
+  struct EcalLSCache {
+    std::map<std::string, bool> ByLumiPlotsResetSwitches;
+    bool lhcStatusSet_;
+  };
+
   class EcalDQMonitor {
   public:
     EcalDQMonitor(edm::ParameterSet const &);
@@ -28,25 +33,25 @@ namespace ecaldqm {
     void ecaldqmGetSetupObjects(edm::EventSetup const &);
     void ecaldqmBeginRun(edm::Run const &, edm::EventSetup const &);
     void ecaldqmEndRun(edm::Run const &, edm::EventSetup const &);
-    void ecaldqmBeginLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &);
+    void ecaldqmBeginLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) const;
     void ecaldqmEndLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &);
 
     template <typename FuncOnWorker>
     void executeOnWorkers_(FuncOnWorker,
                            std::string const &,
                            std::string const & = "",
-                           int = 1);  // loop over workers and capture exceptions
+                           int = 1) const;  // loop over workers and capture exceptions
 
     std::vector<DQWorker *> workers_;
     std::string const moduleName_;
-    int const verbosity_;
+    const int verbosity_;
   };
 
   template <typename FuncOnWorker>
   void EcalDQMonitor::executeOnWorkers_(FuncOnWorker _func,
                                         std::string const &_context,
                                         std::string const &_message /* = ""*/,
-                                        int _verbThreshold /* = 1*/) {
+                                        int _verbThreshold /* = 1*/) const {
     std::for_each(workers_.begin(), workers_.end(), [&](DQWorker *worker) {
       if (verbosity_ > _verbThreshold && !_message.empty())
         edm::LogInfo("EcalDQM") << moduleName_ << ": " << _message << " @ " << worker->getName();

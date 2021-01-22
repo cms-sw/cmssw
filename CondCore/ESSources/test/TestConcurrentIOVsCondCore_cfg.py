@@ -66,11 +66,14 @@ process.GlobalTag = cms.ESSource("PoolDBESSource",
     RefreshEachRun = cms.untracked.bool(False),
     RefreshOpenIOVs = cms.untracked.bool(False),
     connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
-    globaltag = cms.string('110X_dataRun2_v5'),
+    globaltag = cms.string(''),
     pfnPostfix = cms.untracked.string(''),
     pfnPrefix = cms.untracked.string(''),
-    snapshotTime = cms.string(''),
-    toGet = cms.VPSet()
+    snapshotTime = cms.string('2020-10-10 00:00:00.000'),
+    toGet = cms.VPSet(cms.VPSet(cms.PSet(record = cms.string("BeamSpotObjectsRcd"),
+                                         tag = cms.string("BeamSpotObjects_2017UL_LumiBased_v2")
+                                         ))
+    )
 )
 
 process.test = cms.EDAnalyzer("TestConcurrentIOVsCondCore")

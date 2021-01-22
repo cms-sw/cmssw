@@ -18,6 +18,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include <iostream>
 #include <cstring>
+#include <memory>
 
 int main(int argc, char* argv[]) {
   if ((argc != 2) || (strncmp(argv[1], "frontier://", 11) != 0)) {

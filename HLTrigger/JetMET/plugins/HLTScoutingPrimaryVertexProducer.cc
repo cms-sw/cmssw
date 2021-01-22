@@ -14,7 +14,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/Scouting/interface/ScoutingVertex.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingVertex.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
 class HLTScoutingPrimaryVertexProducer : public edm::global::EDProducer<> {
@@ -35,7 +35,7 @@ private:
 HLTScoutingPrimaryVertexProducer::HLTScoutingPrimaryVertexProducer(const edm::ParameterSet& iConfig)
     : vertexCollection_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexCollection"))) {
   //register products
-  produces<ScoutingVertexCollection>("primaryVtx");
+  produces<Run3ScoutingVertexCollection>("primaryVtx");
 }
 
 HLTScoutingPrimaryVertexProducer::~HLTScoutingPrimaryVertexProducer() = default;
@@ -49,7 +49,7 @@ void HLTScoutingPrimaryVertexProducer::produce(edm::StreamID sid,
   //get vertices
   Handle<reco::VertexCollection> vertexCollection;
 
-  std::unique_ptr<ScoutingVertexCollection> outVertices(new ScoutingVertexCollection());
+  std::unique_ptr<Run3ScoutingVertexCollection> outVertices(new Run3ScoutingVertexCollection());
 
   if (iEvent.getByToken(vertexCollection_, vertexCollection)) {
     for (auto& vtx : *vertexCollection) {

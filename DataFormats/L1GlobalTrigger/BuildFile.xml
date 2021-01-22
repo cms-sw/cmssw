@@ -1,6 +1,5 @@
 <use name="DataFormats/Common"/>
 <use name="DataFormats/Provenance"/>
-<use name="DataFormats/StdDictionaries"/>
 <use name="DataFormats/L1GlobalMuonTrigger"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/Utilities"/>

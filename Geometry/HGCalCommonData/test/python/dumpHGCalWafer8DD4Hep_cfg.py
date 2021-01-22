@@ -10,7 +10,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 5
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('HGCalGeom')
+    process.MessageLogger.HGCalGeom=dict()
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             confGeomXMLFiles = cms.FileInPath('Geometry/HGCalCommonData/data/dd4hep/cms-test-ddhgcalwafer8-algorithm.xml'),

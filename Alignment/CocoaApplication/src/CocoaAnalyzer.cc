@@ -10,9 +10,9 @@
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-#include "Alignment/CocoaApplication/interface/CocoaAnalyzer.h"
 #include "Alignment/CocoaUtilities/interface/ALIUtils.h"
 #include "Alignment/CocoaModel/interface/Model.h"
 #include "Alignment/CocoaFit/interface/Fit.h"
@@ -22,6 +22,34 @@
 #include "Alignment/CocoaModel/interface/OpticalObject.h"
 #include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 #include "Alignment/CocoaFit/interface/CocoaDBMgr.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
+#include "CondFormats/OptAlignObjects/interface/OpticalAlignments.h"
+#include "CondFormats/OptAlignObjects/interface/OpticalAlignMeasurements.h"
+
+class CocoaAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+public:
+  explicit CocoaAnalyzer(edm::ParameterSet const& p);
+  explicit CocoaAnalyzer(int i) {}
+  ~CocoaAnalyzer() override {}
+
+  void beginJob() override;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+
+private:
+  void readXMLFile(const edm::EventSetup& evts);
+
+  std::vector<OpticalAlignInfo> readCalibrationDB(const edm::EventSetup& evts);
+  void correctAllOpticalAlignments(std::vector<OpticalAlignInfo>& allDBOpticalAlignments);
+  void correctOpticalAlignmentParameter(OpticalAlignParam& myXMLParam, const OpticalAlignParam& myDBParam);
+
+  void runCocoa();
+
+private:
+  OpticalAlignments oaList_;
+  OpticalAlignMeasurements measList_;
+  std::string theCocoaDaqRootFileName_;
+};
 
 using namespace cms_units::operators;
 
@@ -160,35 +188,35 @@ void CocoaAnalyzer::readXMLFile(const edm::EventSetup& evts) {
       oaInfo.x_.name_ = "X";
       oaInfo.x_.dim_type_ = "centre";
       oaInfo.x_.value_ = transl.x() / (1._m);  // COCOA units are m
-      oaInfo.x_.error_ = getParameterValueFromSpecParSections<double>(allSpecParSections,
-                                                                      nodePath,
-                                                                      "centre_X_sigma",
-                                                                      0) /
+      oaInfo.x_.error_ = cms::getParameterValueFromSpecParSections<double>(allSpecParSections,
+                                                                           nodePath,
+                                                                           "centre_X_sigma",
+                                                                           0) /
                          (1._m);  // COCOA units are m
       oaInfo.x_.quality_ = static_cast<int>(
-          getParameterValueFromSpecParSections<double>(allSpecParSections, nodePath, "centre_X_quality", 0));
+          cms::getParameterValueFromSpecParSections<double>(allSpecParSections, nodePath, "centre_X_quality", 0));
       // Y
       oaInfo.y_.name_ = "Y";
       oaInfo.y_.dim_type_ = "centre";
       oaInfo.y_.value_ = transl.y() / (1._m);  // COCOA units are m
-      oaInfo.y_.error_ = getParameterValueFromSpecParSections<double>(allSpecParSections,
-                                                                      nodePath,
-                                                                      "centre_Y_sigma",
-                                                                      0) /
+      oaInfo.y_.error_ = cms::getParameterValueFromSpecParSections<double>(allSpecParSections,
+                                                                           nodePath,
+                                                                           "centre_Y_sigma",
+                                                                           0) /
                          (1._m);  // COCOA units are m
       oaInfo.y_.quality_ = static_cast<int>(
-          getParameterValueFromSpecParSections<double>(allSpecParSections, nodePath, "centre_Y_quality", 0));
+          cms::getParameterValueFromSpecParSections<double>(allSpecParSections, nodePath, "centre_Y_quality", 0));
       // Z
       oaInfo.z_.name_ = "Z";
       oaInfo.z_.dim_type_ = "centre";
       oaInfo.z_.value_ = transl.z() / (1._m);  // COCOA units are m
-      oaInfo.z_.error_ = getParameterValueFromSpecParSections<double>(allSpecParSections,
-                                                                      nodePath,
-                                                                      "centre_Z_sigma",
-                                                                      0) /
+      oaInfo.z_.error_ = cms::getParameterValueFromSpecParSections<double>(allSpecParSections,
+                                                                           nodePath,
+                                                                           "centre_Z_sigma",
+                                                                           0) /
                          (1._m);  // COCOA units are m
       oaInfo.z_.quality_ = static_cast<int>(
-          getParameterValueFromSpecParSections<double>(allSpecParSections, nodePath, "centre_Z_quality", 0));
+          cms::getParameterValueFromSpecParSections<double>(allSpecParSections, nodePath, "centre_Z_quality", 0));
 
       // ROTATIONS
 
@@ -234,34 +262,35 @@ void CocoaAnalyzer::readXMLFile(const edm::EventSetup& evts) {
       oaInfo.angx_.name_ = "X";
       oaInfo.angx_.dim_type_ = "angles";
       oaInfo.angx_.value_ =
-          getParameterValueFromSpecParSections<double>(allSpecParSections, nodePath, "angles_X_value", 0);
+          cms::getParameterValueFromSpecParSections<double>(allSpecParSections, nodePath, "angles_X_value", 0);
       oaInfo.angx_.error_ =
-          getParameterValueFromSpecParSections<double>(allSpecParSections, nodePath, "angles_X_sigma", 0);
+          cms::getParameterValueFromSpecParSections<double>(allSpecParSections, nodePath, "angles_X_sigma", 0);
       oaInfo.angx_.quality_ = static_cast<int>(
-          getParameterValueFromSpecParSections<double>(allSpecParSections, nodePath, "angles_X_quality", 0));
+          cms::getParameterValueFromSpecParSections<double>(allSpecParSections, nodePath, "angles_X_quality", 0));
       // Y
       oaInfo.angy_.name_ = "Y";
       oaInfo.angy_.dim_type_ = "angles";
       oaInfo.angy_.value_ =
-          getParameterValueFromSpecParSections<double>(allSpecParSections, nodePath, "angles_Y_value", 0);
+          cms::getParameterValueFromSpecParSections<double>(allSpecParSections, nodePath, "angles_Y_value", 0);
       oaInfo.angy_.error_ =
-          getParameterValueFromSpecParSections<double>(allSpecParSections, nodePath, "angles_Y_sigma", 0);
+          cms::getParameterValueFromSpecParSections<double>(allSpecParSections, nodePath, "angles_Y_sigma", 0);
       oaInfo.angy_.quality_ = static_cast<int>(
-          getParameterValueFromSpecParSections<double>(allSpecParSections, nodePath, "angles_Y_quality", 0));
+          cms::getParameterValueFromSpecParSections<double>(allSpecParSections, nodePath, "angles_Y_quality", 0));
       // Z
       oaInfo.angz_.name_ = "Z";
       oaInfo.angz_.dim_type_ = "angles";
       oaInfo.angz_.value_ =
-          getParameterValueFromSpecParSections<double>(allSpecParSections, nodePath, "angles_Z_value", 0);
+          cms::getParameterValueFromSpecParSections<double>(allSpecParSections, nodePath, "angles_Z_value", 0);
       oaInfo.angz_.error_ =
-          getParameterValueFromSpecParSections<double>(allSpecParSections, nodePath, "angles_Z_sigma", 0);
+          cms::getParameterValueFromSpecParSections<double>(allSpecParSections, nodePath, "angles_Z_sigma", 0);
       oaInfo.angz_.quality_ = static_cast<int>(
-          getParameterValueFromSpecParSections<double>(allSpecParSections, nodePath, "angles_Z_quality", 0));
+          cms::getParameterValueFromSpecParSections<double>(allSpecParSections, nodePath, "angles_Z_quality", 0));
 
-      oaInfo.type_ = getParameterValueFromSpecParSections<std::string>(allSpecParSections, nodePath, "cocoa_type", 0);
+      oaInfo.type_ =
+          cms::getParameterValueFromSpecParSections<std::string>(allSpecParSections, nodePath, "cocoa_type", 0);
 
-      oaInfo.ID_ =
-          static_cast<int>(getParameterValueFromSpecParSections<double>(allSpecParSections, nodePath, "cmssw_ID", 0));
+      oaInfo.ID_ = static_cast<int>(
+          cms::getParameterValueFromSpecParSections<double>(allSpecParSections, nodePath, "cmssw_ID", 0));
 
       if (ALIUtils::debug >= 4) {
         edm::LogInfo("Alignment") << "CocoaAnalyzer::ReadXML OBJECT " << oaInfo.name_ << " pos/angles read ";
@@ -279,15 +308,15 @@ void CocoaAnalyzer::readXMLFile(const edm::EventSetup& evts) {
       // EXTRA PARAM ENTRIES (FROM XMLS)
       // Here initial code to define the containers was fully removed, this is much more compact.
       const std::vector<std::string>& names =
-          getAllParameterValuesFromSpecParSections<std::string>(allSpecParSections, nodePath, "extra_entry");
+          cms::getAllParameterValuesFromSpecParSections<std::string>(allSpecParSections, nodePath, "extra_entry");
       const std::vector<std::string>& dims =
-          getAllParameterValuesFromSpecParSections<std::string>(allSpecParSections, nodePath, "dimType");
+          cms::getAllParameterValuesFromSpecParSections<std::string>(allSpecParSections, nodePath, "dimType");
       const std::vector<double>& values =
-          getAllParameterValuesFromSpecParSections<double>(allSpecParSections, nodePath, "value");
+          cms::getAllParameterValuesFromSpecParSections<double>(allSpecParSections, nodePath, "value");
       const std::vector<double>& errors =
-          getAllParameterValuesFromSpecParSections<double>(allSpecParSections, nodePath, "sigma");
+          cms::getAllParameterValuesFromSpecParSections<double>(allSpecParSections, nodePath, "sigma");
       const std::vector<double>& quality =
-          getAllParameterValuesFromSpecParSections<double>(allSpecParSections, nodePath, "quality");
+          cms::getAllParameterValuesFromSpecParSections<double>(allSpecParSections, nodePath, "quality");
 
       if (ALIUtils::debug >= 4) {
         edm::LogInfo("Alignment") << " CocoaAnalyzer::ReadXML:  Fill extra entries with read parameters ";
@@ -320,9 +349,9 @@ void CocoaAnalyzer::readXMLFile(const edm::EventSetup& evts) {
 
       // MEASUREMENTS (FROM XMLS)
       const std::vector<std::string>& measNames =
-          getAllParameterValuesFromSpecParSections<std::string>(allSpecParSections, nodePath, "meas_name");
+          cms::getAllParameterValuesFromSpecParSections<std::string>(allSpecParSections, nodePath, "meas_name");
       const std::vector<std::string>& measTypes =
-          getAllParameterValuesFromSpecParSections<std::string>(allSpecParSections, nodePath, "meas_type");
+          cms::getAllParameterValuesFromSpecParSections<std::string>(allSpecParSections, nodePath, "meas_type");
 
       std::map<std::string, std::vector<std::string>> measObjectNames;
       std::map<std::string, std::vector<std::string>> measParamNames;
@@ -330,15 +359,15 @@ void CocoaAnalyzer::readXMLFile(const edm::EventSetup& evts) {
       std::map<std::string, std::vector<double>> measParamSigmas;
       std::map<std::string, std::vector<double>> measIsSimulatedValue;
       for (const auto& name : measNames) {
-        measObjectNames[name] = getAllParameterValuesFromSpecParSections<std::string>(
+        measObjectNames[name] = cms::getAllParameterValuesFromSpecParSections<std::string>(
             allSpecParSections, nodePath, "meas_object_name_" + name);
-        measParamNames[name] = getAllParameterValuesFromSpecParSections<std::string>(
+        measParamNames[name] = cms::getAllParameterValuesFromSpecParSections<std::string>(
             allSpecParSections, nodePath, "meas_value_name_" + name);
         measParamValues[name] =
-            getAllParameterValuesFromSpecParSections<double>(allSpecParSections, nodePath, "meas_value_" + name);
+            cms::getAllParameterValuesFromSpecParSections<double>(allSpecParSections, nodePath, "meas_value_" + name);
         measParamSigmas[name] =
-            getAllParameterValuesFromSpecParSections<double>(allSpecParSections, nodePath, "meas_sigma_" + name);
-        measIsSimulatedValue[name] = getAllParameterValuesFromSpecParSections<double>(
+            cms::getAllParameterValuesFromSpecParSections<double>(allSpecParSections, nodePath, "meas_sigma_" + name);
+        measIsSimulatedValue[name] = cms::getAllParameterValuesFromSpecParSections<double>(
             allSpecParSections, nodePath, "meas_is_simulated_value_" + name);
       }
 
@@ -568,39 +597,4 @@ void CocoaAnalyzer::runCocoa() {
   }
 }
 
-/* Helper: For a given node, get the values associated to a given parameter, from the XMLs SpecPar sections.
- * NB: The same parameter can appear several times WITHIN the same SpecPar section (hence, we have a std::vector).
- * WARNING: This stops at the first relevant SpecPar section encountered.
- * Hence, if A GIVEN NODE HAS SEVERAL SPECPAR XML SECTIONS RE-DEFINING THE SAME PARAMETER,
- * only the first XML SpecPar block will be considered.
- */
-template <typename T>
-std::vector<T> CocoaAnalyzer::getAllParameterValuesFromSpecParSections(const cms::DDSpecParRegistry& allSpecParSections,
-                                                                       const std::string& nodePath,
-                                                                       const std::string& parameterName) {
-  cms::DDSpecParRefs filteredSpecParSections;
-  allSpecParSections.filter(filteredSpecParSections, parameterName);
-  for (const auto& mySpecParSection : filteredSpecParSections) {
-    if (mySpecParSection->hasPath(nodePath)) {
-      return mySpecParSection->value<std::vector<T>>(parameterName);
-    }
-  }
-
-  return std::vector<T>();
-}
-
-/* Helper: For a given node, get the value associated to a given parameter, from the XMLs SpecPar sections.
- * This is the parameterValueIndex-th value (within a XML SpecPar block.) of the desired parameter. 
- */
-template <typename T>
-T CocoaAnalyzer::getParameterValueFromSpecParSections(const cms::DDSpecParRegistry& allSpecParSections,
-                                                      const std::string& nodePath,
-                                                      const std::string& parameterName,
-                                                      const unsigned int parameterValueIndex) {
-  const std::vector<T>& allParameterValues =
-      getAllParameterValuesFromSpecParSections<T>(allSpecParSections, nodePath, parameterName);
-  if (parameterValueIndex < allParameterValues.size()) {
-    return allParameterValues.at(parameterValueIndex);
-  }
-  return T();
-}
+DEFINE_FWK_MODULE(CocoaAnalyzer);

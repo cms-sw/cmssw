@@ -1,6 +1,8 @@
 #include <memory>
+#include <string>
 
 #include "GeneratorInterface/Pythia8Interface/interface/Py8InterfaceBase.h"
+#include "GeneratorInterface/Pythia8Interface/interface/SLHAReaderBase.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -166,18 +168,28 @@ namespace gen {
     } else if (currentParameters.exists("SLHATableForPythia8")) {
       std::string slhatable = currentParameters.getParameter<std::string>("SLHATableForPythia8");
 
-      char tempslhaname[] = "pythia8SLHAtableXXXXXX";
-      int fd = mkstemp(tempslhaname);
-      write(fd, slhatable.c_str(), slhatable.size());
-      close(fd);
+      makeTmpSLHA(slhatable);
+    } else if (currentParameters.exists("SLHATreeForPythia8")) {
+      auto slhaReaderParams = currentParameters.getParameter<edm::ParameterSet>("SLHATreeForPythia8");
+      std::unique_ptr<SLHAReaderBase> reader =
+          SLHAReaderFactory::get()->create(slhaReaderParams.getParameter<std::string>("name"), slhaReaderParams);
 
-      slhafile_ = tempslhaname;
-
-      fMasterGen->settings.mode("SLHA:readFrom", 2);
-      fMasterGen->settings.word("SLHA:file", slhafile_);
+      makeTmpSLHA(reader->getSLHA(currentParameters.getParameter<std::string>("ConfigDescription")));
     }
 
     return true;
+  }
+
+  void Py8InterfaceBase::makeTmpSLHA(const std::string& slhatable) {
+    char tempslhaname[] = "pythia8SLHAtableXXXXXX";
+    int fd = mkstemp(tempslhaname);
+    write(fd, slhatable.c_str(), slhatable.size());
+    close(fd);
+
+    slhafile_ = tempslhaname;
+
+    fMasterGen->settings.mode("SLHA:readFrom", 2);
+    fMasterGen->settings.word("SLHA:file", slhafile_);
   }
 
   bool Py8InterfaceBase::declareStableParticles(const std::vector<int>& pdgIds) {

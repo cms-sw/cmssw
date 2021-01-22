@@ -63,6 +63,10 @@ namespace edm {
     constexpr ESGetToken<ESProduct, ESRecord>& operator=(ESGetToken<ESProduct, ESRecord>& iOther) noexcept {
       return (*this = const_cast<ESGetToken<ESProduct, ESRecord> const&>(iOther));
     }
+    constexpr ESGetToken(ESGetToken<ESProduct, ESRecord> const&& iOther) : ESGetToken(iOther) {}
+    constexpr ESGetToken<ESProduct, ESRecord>& operator=(ESGetToken<ESProduct, ESRecord> const&& iOther) noexcept {
+      return (*this = iOther);
+    }
 
     constexpr unsigned int transitionID() const noexcept { return m_transitionID; }
     constexpr bool isInitialized() const noexcept { return transitionID() != std::numeric_limits<unsigned int>::max(); }

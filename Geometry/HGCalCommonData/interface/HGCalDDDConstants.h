@@ -14,10 +14,12 @@
 #include <string>
 #include <vector>
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
+#include "Geometry/HGCalCommonData/interface/HGCalTileIndex.h"
 #include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 
 #include <unordered_map>
@@ -80,6 +82,7 @@ public:
   std::pair<float, float> locateCell(
       int lay, int waferU, int waferV, int cellU, int cellV, bool reco, bool all, bool debug = false) const;
   std::pair<float, float> locateCell(const HGCSiliconDetId&, bool debug = false) const;
+  std::pair<float, float> locateCell(const HGCScintillatorDetId&, bool debug = false) const;
   std::pair<float, float> locateCellHex(int cell, int wafer, bool reco) const;
   std::pair<float, float> locateCellTrap(int lay, int ieta, int iphi, bool reco) const;
   int levelTop(int ind = 0) const { return hgpar_->levelT_[ind]; }
@@ -105,8 +108,19 @@ public:
   std::pair<int, int> rowColumnWafer(const int wafer) const;
   int sectors() const { return hgpar_->nSectors_; }
   std::pair<int, int> simToReco(int cell, int layer, int mod, bool half) const;
+  int tileSiPM(int sipm) const { return ((sipm > 0) ? HGCalTypes::SiPMSmall : HGCalTypes::SiPMLarge); }
   bool tileTrapezoid() const {
     return ((mode_ == HGCalGeometryMode::Trapezoid) || (mode_ == HGCalGeometryMode::TrapezoidFile));
+  }
+  std::pair<int, int> tileType(int layer, int ring, int phi) const {
+    int indx = HGCalTileIndex::tileIndex(layer, ring, phi);
+    int type(-1), sipm(-1);
+    auto itr = hgpar_->tileInfoMap_.find(indx);
+    if (itr != hgpar_->tileInfoMap_.end()) {
+      type = 1 + (itr->second).type;
+      sipm = ((itr->second).sipm == HGCalTypes::SiPMLarge) ? 0 : 1;
+    }
+    return std::make_pair(type, sipm);
   }
   unsigned int volumes() const { return hgpar_->moduleLayR_.size(); }
   int waferFromCopy(int copy) const;

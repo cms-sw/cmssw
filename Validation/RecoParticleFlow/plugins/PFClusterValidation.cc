@@ -14,8 +14,7 @@ PFClusterValidation::PFClusterValidation(const edm::ParameterSet& conf) {
   pfClusterHCALTok_ =
       consumes<reco::PFClusterCollection>(conf.getUntrackedParameter<edm::InputTag>("pflowClusterHCAL"));
   pfClusterHOTok_ = consumes<reco::PFClusterCollection>(conf.getUntrackedParameter<edm::InputTag>("pflowClusterHO"));
-  pfClusterHFTok_ = consumes<reco::PFClusterCollection>(
-      conf.getUntrackedParameter<edm::InputTag>("pflowClusterHF"));  // cms.InputTag("particleFlowClusterECAL");
+  pfClusterHFTok_ = consumes<reco::PFClusterCollection>(conf.getUntrackedParameter<edm::InputTag>("pflowClusterHF"));
 }
 
 PFClusterValidation::~PFClusterValidation() {}

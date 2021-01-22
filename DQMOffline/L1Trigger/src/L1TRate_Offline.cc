@@ -1,6 +1,5 @@
 // L1TMonitor includes
 #include "DQMOffline/L1Trigger/interface/L1TRate_Offline.h"
-#include "DQM/L1TMonitor/interface/L1TMenuHelper.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
@@ -16,7 +15,11 @@ using namespace edm;
 using namespace std;
 
 //_____________________________________________________________________
-L1TRate_Offline::L1TRate_Offline(const ParameterSet& ps) : m_l1GtUtils(ps, consumesCollector(), false, *this) {
+L1TRate_Offline::L1TRate_Offline(const ParameterSet& ps)
+    : m_menuToken(esConsumes<edm::Transition::BeginRun>()),
+      m_l1GtPfAlgoToken(esConsumes<edm::Transition::BeginRun>()),
+      m_helperTokens(L1TMenuHelper::consumes<edm::Transition::BeginRun>(consumesCollector())),
+      m_l1GtUtils(ps, consumesCollector(), false, *this) {
   m_maxNbins = 2500;  // Maximum LS for each run (for binning purposes)
   m_parameters = ps;
 
@@ -63,14 +66,8 @@ void L1TRate_Offline::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&
     cout << "[L1TRate_Offline:] Called beginRun." << endl;
   }
 
-  ESHandle<L1GtTriggerMenu> menuRcd;
-  ESHandle<L1GtPrescaleFactors> l1GtPfAlgo;
-
-  iSetup.get<L1GtTriggerMenuRcd>().get(menuRcd);
-  iSetup.get<L1GtPrescaleFactorsAlgoTrigRcd>().get(l1GtPfAlgo);
-
-  const L1GtTriggerMenu* menu = menuRcd.product();
-  const L1GtPrescaleFactors* m_l1GtPfAlgo = l1GtPfAlgo.product();
+  const L1GtTriggerMenu& menu = iSetup.getData(m_menuToken);
+  const L1GtPrescaleFactors& l1GtPfAlgo = iSetup.getData(m_l1GtPfAlgoToken);
 
   // Initializing DQM Monitor Elements
   ibooker.setCurrentFolder("L1T/L1TRate");
@@ -83,18 +80,18 @@ void L1TRate_Offline::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&
   }
 
   // Retriving the list of prescale sets
-  m_listsPrescaleFactors = &(m_l1GtPfAlgo->gtPrescaleFactors());
+  m_listsPrescaleFactors = &(l1GtPfAlgo.gtPrescaleFactors());
 
   // Getting Lowest Prescale Single Object Triggers from the menu
-  L1TMenuHelper myMenuHelper = L1TMenuHelper(iSetup);
+  L1TMenuHelper myMenuHelper = L1TMenuHelper(iSetup, m_helperTokens);
   m_l1GtUtils.retrieveL1EventSetup(iSetup);
   m_selectedTriggers = myMenuHelper.getLUSOTrigger(m_inputCategories, m_refPrescaleSet, m_l1GtUtils);
 
   //-> Getting template fits for the algLo cross sections
   getXSexFitsPython(m_parameters);
 
-  for (CItAlgo algo = menu->gtAlgorithmMap().begin(); algo != menu->gtAlgorithmMap().end(); ++algo) {
-    m_algoBit[(algo->second).algoAlias()] = (algo->second).algoBitNumber();
+  for (const auto& algo : menu.gtAlgorithmMap()) {
+    m_algoBit[(algo.second).algoAlias()] = (algo.second).algoBitNumber();
   }
 
   double minInstantLuminosity = m_parameters.getParameter<double>("minInstantLuminosity");

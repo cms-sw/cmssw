@@ -50,12 +50,12 @@ public:
   /** Gets amplitude in ADC count of time sample i. i between 0 and size()-1.
    * Note: Amplitude is pedestal subtracted at acquisition time.
    */
-  const float adcCount(const int& i) const { return data_[i]; }
+  float adcCount(const int& i) const { return data_[i]; }
 
   /** Gets amplitude in Volt of time sample i. i between 0 and size()-1.
    * Note: Amplitude is pedestal subtracted at acquisition time.
    */
-  const float amplitudeV(const int& i) const { return data_[i] * lsb_; }
+  float amplitudeV(const int& i) const { return data_[i] * lsb_; }
 
   /** Gets Matacq electronics channel id
    */

@@ -8,7 +8,7 @@
 #include "L1Trigger/L1TMuon/interface/MicroGMTLUTFactories.h"
 
 namespace l1t {
-  enum cancelmode { tracks, coordinate };
+  enum cancelmode { tracks, kftracks, coordinate };
 
   class MicroGMTCancelOutUnit {
   public:
@@ -29,8 +29,17 @@ namespace l1t {
     void getCoordinateCancelBits(std::vector<std::shared_ptr<GMTInternalMuon>>&,
                                  std::vector<std::shared_ptr<GMTInternalMuon>>&);
     /// Compares all muons from coll1 with all muons from coll2 and sets the cancel-bits based on track addresses
-    void getTrackAddrCancelBits(std::vector<std::shared_ptr<GMTInternalMuon>>&,
+    void getTrackAddrCancelBits(cancelmode,
+                                std::vector<std::shared_ptr<GMTInternalMuon>>&,
                                 std::vector<std::shared_ptr<GMTInternalMuon>>&);
+
+    /// Do the track address-based cancel-out for the original BMTF algorithm
+    void getTrackAddrCancelBitsOrigBMTF(std::vector<std::shared_ptr<GMTInternalMuon>>&,
+                                        std::vector<std::shared_ptr<GMTInternalMuon>>&);
+
+    /// Do the track address-based cancel-out for the BMTF algorithm using the Kalman Filter
+    void getTrackAddrCancelBitsKfBMTF(std::vector<std::shared_ptr<GMTInternalMuon>>&,
+                                      std::vector<std::shared_ptr<GMTInternalMuon>>&);
 
     std::shared_ptr<MicroGMTMatchQualLUT> m_boPosMatchQualLUT;
     std::shared_ptr<MicroGMTMatchQualLUT> m_boNegMatchQualLUT;

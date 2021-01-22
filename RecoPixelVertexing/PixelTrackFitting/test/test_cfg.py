@@ -18,12 +18,14 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.GlobalTag.globaltag = 'DESIGN_36_V3::All'
 
 process.MessageLogger = cms.Service("MessageLogger",
-    #debugModules = cms.untracked.vstring('pixelVertices'),
-    #debugModules = cms.untracked.vstring('pixelTracks'),
-    #debugModules = cms.untracked.vstring('*'),
-    debugModules = cms.untracked.vstring(''),
-    destinations = cms.untracked.vstring('cout'),
-    cout = cms.untracked.PSet( threshold = cms.untracked.string('INFO'))
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('INFO')
+    ),
+    debugModules = cms.untracked.vstring('')
 )
 
 process.load("RecoTracker.Configuration.RecoTracker_cff")

@@ -39,7 +39,8 @@ MeasurementTrackerEventProducer::MeasurementTrackerEventProducer(const edm::Para
   edm::InputTag skip = iConfig.getParameter<edm::InputTag>("skipClusters");
   selfUpdateSkipClusters_ = !(skip == edm::InputTag(""));
   LogDebug("MeasurementTracker") << "skipping clusters: " << selfUpdateSkipClusters_;
-  isPhase2 = false;
+  isPhase2_ = false;
+  useVectorHits_ = false;
 
   if (!iConfig.getParameter<std::string>("stripClusterProducer").empty()) {
     theStripClusterLabel = consumes<edmNew::DetSetVector<SiStripCluster>>(
@@ -58,7 +59,14 @@ MeasurementTrackerEventProducer::MeasurementTrackerEventProducer(const edm::Para
   if (!iConfig.getParameter<std::string>("Phase2TrackerCluster1DProducer").empty()) {
     thePh2OTClusterLabel = consumes<edmNew::DetSetVector<Phase2TrackerCluster1D>>(
         edm::InputTag(iConfig.getParameter<std::string>("Phase2TrackerCluster1DProducer")));
-    isPhase2 = true;
+    isPhase2_ = true;
+  }
+  if (!(iConfig.getParameter<edm::InputTag>("vectorHits") == edm::InputTag("") ||
+        iConfig.getParameter<edm::InputTag>("vectorHitsRej") == edm::InputTag(""))) {
+    thePh2OTVectorHitsLabel = consumes<VectorHitCollection>(iConfig.getParameter<edm::InputTag>("vectorHits"));
+    thePh2OTVectorHitsRejLabel = consumes<VectorHitCollection>(iConfig.getParameter<edm::InputTag>("vectorHitsRej"));
+    isPhase2_ = true;
+    useVectorHits_ = true;
   }
 
   produces<MeasurementTrackerEvent>();
@@ -72,6 +80,8 @@ void MeasurementTrackerEventProducer::fillDescriptions(edm::ConfigurationDescrip
   desc.add<std::string>("pixelClusterProducer", "siPixelClusters");
   desc.add<std::string>("stripClusterProducer", "siStripClusters");
   desc.add<std::string>("Phase2TrackerCluster1DProducer", "");
+  desc.add<edm::InputTag>("vectorHits", edm::InputTag(""));
+  desc.add<edm::InputTag>("vectorHitsRej", edm::InputTag(""));
 
   desc.add<std::vector<edm::InputTag>>("inactivePixelDetectorLabels",
                                        std::vector<edm::InputTag>{{edm::InputTag("siPixelDigis")}})
@@ -97,6 +107,7 @@ void MeasurementTrackerEventProducer::produce(edm::Event& iEvent, const edm::Eve
   auto stripData = std::make_unique<StMeasurementDetSet>(measurementTracker->stripDetConditions());
   auto pixelData = std::make_unique<PxMeasurementDetSet>(measurementTracker->pixelDetConditions());
   auto phase2OTData = std::make_unique<Phase2OTMeasurementDetSet>(measurementTracker->phase2DetConditions());
+
   std::vector<bool> stripClustersToSkip;
   std::vector<bool> pixelClustersToSkip;
   std::vector<bool> phase2ClustersToSkip;
@@ -112,10 +123,16 @@ void MeasurementTrackerEventProducer::produce(edm::Event& iEvent, const edm::Eve
 
   // put into MTE
   // put into event
+  //
+
+  const VectorHitCollection* phase2OTVectorHits = useVectorHits_ ? &iEvent.get(thePh2OTVectorHitsLabel) : nullptr;
+  const VectorHitCollection* phase2OTVectorHitsRej = useVectorHits_ ? &iEvent.get(thePh2OTVectorHitsRejLabel) : nullptr;
   iEvent.put(std::make_unique<MeasurementTrackerEvent>(*measurementTracker,
                                                        stripData.release(),
                                                        pixelData.release(),
                                                        phase2OTData.release(),
+                                                       phase2OTVectorHits,
+                                                       phase2OTVectorHitsRej,
                                                        stripClustersToSkip,
                                                        pixelClustersToSkip,
                                                        phase2ClustersToSkip));
@@ -350,8 +367,10 @@ void MeasurementTrackerEventProducer::updateStrips(const edm::Event& event,
 //FIXME: just a temporary solution for phase2!
 void MeasurementTrackerEventProducer::updatePhase2OT(const edm::Event& event,
                                                      Phase2OTMeasurementDetSet& thePh2OTDets) const {
+  thePh2OTDets.setEmpty();
+
   // Phase2OT Clusters
-  if (isPhase2) {
+  if (isPhase2_) {
     if (thePh2OTClusterLabel.isUninitialized()) {  //clusters have not been produced
       thePh2OTDets.setActiveThisEvent(false);
     } else {

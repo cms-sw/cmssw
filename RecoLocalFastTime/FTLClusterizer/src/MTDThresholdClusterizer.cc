@@ -211,7 +211,7 @@ void MTDThresholdClusterizer::copy_to_buffer(RecHitIterator itr, const MTDGeomet
   if (mtdId.mtdSubDetector() == MTDDetId::BTL) {
     subDet = GeomDetEnumerators::barrel;
     BTLDetId id = itr->id();
-    DetId geoId = id.geographicalId((BTLDetId::CrysLayout)topo->getMTDTopologyMode());
+    DetId geoId = id.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topo->getMTDTopologyMode()));
     const auto& det = geom->idToDet(geoId);
     const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(det->topology());
     const RectangularMTDTopology& topol = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());

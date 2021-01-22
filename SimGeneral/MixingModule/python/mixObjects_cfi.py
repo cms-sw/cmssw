@@ -262,6 +262,21 @@ phase2_muon.toModify( theMixObjects,
         pcrossingFrames = theMixObjects.mixSH.pcrossingFrames + [ 'MuonME0Hits' ]
     )
 )
+
+from Configuration.Eras.Modifier_phase2_GE0_cff import phase2_GE0
+phase2_GE0.toModify( theMixObjects,
+    mixSH = dict(
+        input = list(filter(lambda x: type(x) == type(cms.InputTag("","")) and x != cms.InputTag("g4SimHits","MuonME0Hits"), theMixObjects.mixSH.input)),
+        subdets = list(filter(lambda x: x != 'MuonME0Hits', theMixObjects.mixSH.subdets)),
+        crossingFrames = list(filter(lambda x: x != 'MuonME0Hits', theMixObjects.mixSH.crossingFrames))
+    )
+)
+(premix_stage1 & phase2_GE0).toModify(theMixObjects,
+    mixSH = dict(
+        pcrossingFrames = list(filter(lambda x: x != 'MuonME0Hits', theMixObjects.mixSH.pcrossingFrames))
+    )
+)
+
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify( theMixObjects,
     mixCH = dict(

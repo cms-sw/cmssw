@@ -3,8 +3,8 @@ import FWCore.Utilities.FileUtils as FileUtils
 
 from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
 process = cms.Process('HGCGeomAnalysis',Phase2C11)
-process.load('Configuration.Geometry.GeometryExtended2026D62_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D62Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D71_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D71Reco_cff')
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load('Configuration.StandardSequences.MagneticField_cff')
@@ -17,8 +17,8 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 2
-#if 'MessageLogger' in process.__dict__:
-#    process.MessageLogger.categories.append('HGCalValidation')
+#
+#    
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring('file:step3.root')
@@ -31,7 +31,7 @@ process.maxEvents = cms.untracked.PSet(
 process.load('Validation.HGCalValidation.hgcalRecHitStudy_cff')
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string('hgcRecHitD62tt.root'),
+                                   fileName = cms.string('hgcRecHitD71tt.root'),
                                    closeFileFast = cms.untracked.bool(True)
                                    )
 

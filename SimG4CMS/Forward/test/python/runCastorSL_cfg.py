@@ -19,24 +19,26 @@ process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('CaloSim','ForwardSim'),
-    debugModules = cms.untracked.vstring('*'),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO'),
-        INFO = cms.untracked.PSet(
+        CaloSim = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         DEBUG = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        CaloSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
         ForwardSim = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
-        )
-    )
+        ),
+        INFO = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('INFO')
+    ),
+    debugModules = cms.untracked.vstring('*')
 )
 
 process.maxEvents = cms.untracked.PSet(

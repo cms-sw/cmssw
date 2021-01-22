@@ -12,11 +12,6 @@
 // general plotting helpers
 #include "DQM/SiPixelPhase1Common/interface/SiPixelCoordinates.h"
 
-// edm stuff
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/ESInputTag.h"
-
 // Tracker Geometry/Topology  stuff
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"

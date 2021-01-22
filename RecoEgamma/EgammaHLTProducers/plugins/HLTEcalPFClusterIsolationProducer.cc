@@ -142,7 +142,7 @@ void HLTEcalPFClusterIsolationProducer<T1>::fillDescriptions(edm::ConfigurationD
 }
 
 template <typename T1>
-void HLTEcalPFClusterIsolationProducer<T1>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void HLTEcalPFClusterIsolationProducer<T1>::produce(edm::Event& iEvent, const edm::EventSetup&) {
   edm::Handle<double> rhoHandle;
   double rho = 0.0;
   if (doRhoCorrection_) {

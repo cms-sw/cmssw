@@ -9,8 +9,8 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2026D62Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D62_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D71Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D71_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedRealistic50ns13TeVCollision_cfi')
@@ -35,8 +35,8 @@ process.maxEvents = cms.untracked.PSet(
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 5
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('ValidHGCal')
-    process.MessageLogger.categories.append('HGCalGeom')
+    process.MessageLogger.ValidHGCal=dict()
+    process.MessageLogger.HGCalGeom=dict()
 
 # Input source
 process.source = cms.Source("EmptySource")

@@ -158,9 +158,7 @@ void SerialTaskQueue_test::stressTest() {
     std::atomic<bool> waitToStart{true};
     {
       auto j = edm::make_functor_task(tbb::task::allocate_root(), [&queue, &waitToStart, pWaitTask, &count] {
-        //gcc 4.7 doesn't preserve the 'atomic' nature of waitToStart in the loop
         while (waitToStart.load()) {
-          __sync_synchronize();
         };
         for (unsigned int i = 0; i < nTasks; ++i) {
           pWaitTask->increment_ref_count();

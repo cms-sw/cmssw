@@ -51,6 +51,8 @@ puppi = cms.EDProducer("PuppiProducer",#cms.PSet(#"PuppiProducer",
                        clonePackedCands   = cms.bool(False), # should only be set to True for MiniAOD
                        vtxNdofCut     = cms.int32(4),
                        vtxZCut        = cms.double(24),
+                       usePUProxyValue = cms.bool(False),
+                       PUProxyValue = cms.InputTag(''),
                        algos          = cms.VPSet( 
                         cms.PSet( 
                          etaMin = cms.vdouble(0.),
@@ -93,11 +95,8 @@ puppi = cms.EDProducer("PuppiProducer",#cms.PSet(#"PuppiProducer",
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toModify(
     puppi,
-    EtaMinUseDeltaZ = -1.,
-    PtMaxCharged = -1.,
-    PtMaxNeutralsStartSlope = 0.,
+    EtaMinUseDeltaZ = 4.0,
     DeltaZCut = cms.double(0.1),
-    NumOfPUVtxsForCharged = 0,
     algos = cms.VPSet( 
         cms.PSet( 
              etaMin = cms.vdouble(0.,  2.5),
@@ -127,3 +126,6 @@ puppiNoLep = puppi.clone(
     puppiNoLep = True,
     PtMaxPhotons = 20.
     )
+
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toModify(puppi, algos = [])

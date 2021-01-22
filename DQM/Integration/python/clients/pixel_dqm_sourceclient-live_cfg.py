@@ -68,7 +68,7 @@ process.dqmSaverPB.runNumber = options.runNumber
 # Magnetic Field
 #-----------------------------
 
-process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 
 #-------------------------------------------------
 # GEOMETRY
@@ -104,19 +104,18 @@ process.load("DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1tsDB_cfi")
 
 # PixelPhase1 Real data raw to digi
 process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
-process.siPixelDigis.IncludeErrors = True
+process.siPixelDigis.cpu.IncludeErrors = True
 
 if (process.runType.getRunType() == process.runType.hi_run):    
     #--------------------------------
     # Heavy Ion Configuration Changes
     #--------------------------------
-    process.siPixelDigis.InputLabel   = cms.InputTag("rawDataRepacker")
+    process.siPixelDigis.cpu.InputLabel = cms.InputTag("rawDataRepacker")
     process.siStripDigis.ProductLabel   = cms.InputTag("rawDataRepacker")
     process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
 else :
-    process.siPixelDigis.InputLabel   = cms.InputTag("rawDataCollector")
-    process.siStripDigis.InputLabel   = cms.InputTag("rawDataCollector")
-
+    process.siPixelDigis.cpu.InputLabel = cms.InputTag("rawDataCollector")
+    process.siStripDigis.InputLabel     = cms.InputTag("rawDataCollector")
 
 ## Collision Reconstruction
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
@@ -186,6 +185,7 @@ if (process.runType.getRunType() == process.runType.cosmic_run or process.runTyp
                          ##### TRIGGER SELECTION #####
                          process.hltHighLevel*
                          process.scalersRawToDigi*
+                         process.tcdsDigis*
                          process.APVPhases*
                          process.consecutiveHEs*
                          process.hltTriggerTypeFilter*
@@ -231,6 +231,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     process.p = cms.Path(
       process.hltHighLevel #trigger selection
      *process.scalersRawToDigi
+     *process.tcdsDigis
      *process.APVPhases
      *process.consecutiveHEs
      *process.Reco

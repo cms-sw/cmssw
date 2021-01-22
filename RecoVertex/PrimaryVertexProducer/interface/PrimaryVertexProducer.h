@@ -82,6 +82,9 @@ private:
   edm::ParameterSet theConfig;
   bool fVerbose;
 
+  bool fRecoveryIteration;
+  edm::EDGetTokenT<reco::VertexCollection> recoveryVtxToken;
+
   edm::EDGetTokenT<reco::BeamSpot> bsToken;
   edm::EDGetTokenT<reco::TrackCollection> trkToken;
   edm::EDGetTokenT<edm::ValueMap<float> > trkTimesToken;

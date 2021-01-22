@@ -14,11 +14,19 @@ from CommonTools.RecoAlgos.sortedPrimaryVertices_cfi import *
 from RecoJets.JetProducers.caloJetsForTrk_cff import *
 
 unsortedOfflinePrimaryVertices=offlinePrimaryVertices.clone()
-offlinePrimaryVertices=sortedPrimaryVertices.clone(vertices="unsortedOfflinePrimaryVertices", particles="trackRefsForJetsBeforeSorting")
-offlinePrimaryVerticesWithBS=sortedPrimaryVertices.clone(vertices=cms.InputTag("unsortedOfflinePrimaryVertices","WithBS"), particles="trackRefsForJetsBeforeSorting")
-trackWithVertexRefSelectorBeforeSorting = trackWithVertexRefSelector.clone(vertexTag="unsortedOfflinePrimaryVertices")
-trackWithVertexRefSelectorBeforeSorting.ptMax=9e99
-trackWithVertexRefSelectorBeforeSorting.ptErrorCut=9e99
+offlinePrimaryVertices=sortedPrimaryVertices.clone(
+    vertices="unsortedOfflinePrimaryVertices", 
+    particles="trackRefsForJetsBeforeSorting"
+)
+offlinePrimaryVerticesWithBS=sortedPrimaryVertices.clone(
+    vertices="unsortedOfflinePrimaryVertices:WithBS", 
+    particles="trackRefsForJetsBeforeSorting"
+)
+trackWithVertexRefSelectorBeforeSorting = trackWithVertexRefSelector.clone(
+    vertexTag="unsortedOfflinePrimaryVertices",
+    ptMax=9e99,
+    ptErrorCut=9e99
+)
 trackRefsForJetsBeforeSorting = trackRefsForJets.clone(src="trackWithVertexRefSelectorBeforeSorting")
 
 

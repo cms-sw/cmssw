@@ -147,6 +147,9 @@ namespace edm {
       void preModuleConstruction(ModuleDescription const& md);
       void postModuleConstruction(ModuleDescription const& md);
 
+      void preModuleDestruction(ModuleDescription const& md);
+      void postModuleDestruction(ModuleDescription const& md);
+
       void preModuleBeginJob(ModuleDescription const& md);
       void postModuleBeginJob(ModuleDescription const& md);
 
@@ -321,6 +324,9 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry& iRegistry)
 
   iRegistry.watchPreModuleConstruction(this, &Tracer::preModuleConstruction);
   iRegistry.watchPostModuleConstruction(this, &Tracer::postModuleConstruction);
+
+  iRegistry.watchPreModuleDestruction(this, &Tracer::preModuleDestruction);
+  iRegistry.watchPostModuleDestruction(this, &Tracer::postModuleDestruction);
 
   iRegistry.watchPreModuleBeginJob(this, &Tracer::preModuleBeginJob);
   iRegistry.watchPostModuleBeginJob(this, &Tracer::postModuleBeginJob);
@@ -974,6 +980,26 @@ void Tracer::postModuleConstruction(ModuleDescription const& desc) {
   LogAbsolute out("Tracer");
   out << TimeStamper(printTimestamps_);
   out << indention_ << indention_ << " finished: constructing module with label '" << desc.moduleLabel()
+      << "' id = " << desc.id();
+  if (dumpContextForLabels_.find(desc.moduleLabel()) != dumpContextForLabels_.end()) {
+    out << "\n" << desc;
+  }
+}
+
+void Tracer::preModuleDestruction(ModuleDescription const& desc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  out << indention_ << indention_ << " starting: destructing module with label '" << desc.moduleLabel()
+      << "' id = " << desc.id();
+  if (dumpContextForLabels_.find(desc.moduleLabel()) != dumpContextForLabels_.end()) {
+    out << "\n" << desc;
+  }
+}
+
+void Tracer::postModuleDestruction(ModuleDescription const& desc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  out << indention_ << indention_ << " finished: destructing module with label '" << desc.moduleLabel()
       << "' id = " << desc.id();
   if (dumpContextForLabels_.find(desc.moduleLabel()) != dumpContextForLabels_.end()) {
     out << "\n" << desc;

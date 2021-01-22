@@ -221,8 +221,8 @@ else :
 # Message Logger
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.debugModules = [ 'l1GtPack', 'l1GtUnpack', 'l1GtPackUnpackAnalyzer']
-process.MessageLogger.destinations = ['L1GtPackUnpackAnalyzer']
-process.MessageLogger.L1GtPackUnpackAnalyzer = cms.untracked.PSet(
+process.MessageLogger.cerr.enable = False
+process.MessageLogger.files.L1GtPackUnpackAnalyzer = cms.untracked.PSet(
     threshold=cms.untracked.string('DEBUG'),
     #threshold = cms.untracked.string('INFO'),
     #threshold = cms.untracked.string('ERROR'),

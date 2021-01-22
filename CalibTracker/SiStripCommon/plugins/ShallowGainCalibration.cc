@@ -1,4 +1,3 @@
-#include <memory>
 #include "ShallowGainCalibration.h"
 
 using namespace edm;
@@ -8,8 +7,9 @@ using namespace std;
 ShallowGainCalibration::ShallowGainCalibration(const edm::ParameterSet& iConfig)
     : tracks_token_(consumes<edm::View<reco::Track>>(iConfig.getParameter<edm::InputTag>("Tracks"))),
       association_token_(consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("Tracks"))),
-      geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
-      gainToken_(esConsumes<SiStripGain, SiStripGainRcd>()),
+      trackerGeometry_token_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
+      gain_token_(esConsumes<SiStripGain, SiStripGainRcd>()),
+      tkGeom_token_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
       Suffix(iConfig.getParameter<std::string>("Suffix")),
       Prefix(iConfig.getParameter<std::string>("Prefix")) {
   produces<std::vector<int>>(Prefix + "trackindex" + Suffix);
@@ -32,7 +32,7 @@ ShallowGainCalibration::ShallowGainCalibration(const edm::ParameterSet& iConfig)
   produces<std::vector<double>>(Prefix + "gainusedTick" + Suffix);
 }
 
-void ShallowGainCalibration::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
+void ShallowGainCalibration::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   auto trackindex = std::make_unique<std::vector<int>>();
   auto rawid = std::make_unique<std::vector<unsigned int>>();
   auto localdirx = std::make_unique<std::vector<double>>();
@@ -52,13 +52,12 @@ void ShallowGainCalibration::produce(edm::StreamID, edm::Event& iEvent, const ed
   auto gainused = std::make_unique<std::vector<double>>();
   auto gainusedTick = std::make_unique<std::vector<double>>();
 
-  edm::ESHandle<SiStripGain> gainHandle = iSetup.getHandle(gainToken_);
+  m_tracker = &iSetup.getData(trackerGeometry_token_);
+  edm::ESHandle<SiStripGain> gainHandle = iSetup.getHandle(gain_token_);
   edm::Handle<edm::View<reco::Track>> tracks;
   iEvent.getByToken(tracks_token_, tracks);
   edm::Handle<TrajTrackAssociationCollection> associations;
   iEvent.getByToken(association_token_, associations);
-
-  auto bundle = *runCache(iEvent.getRun().index());
 
   for (TrajTrackAssociationCollection::const_iterator association = associations->begin();
        association != associations->end();
@@ -112,8 +111,7 @@ void ShallowGainCalibration::produce(edm::StreamID, edm::Event& iEvent, const ed
         bool Saturation = false;
         bool Overlapping = false;
         unsigned int Charge = 0;
-        auto thicknessMap = bundle.getThicknessMap();
-        double Path = (10.0 * thicknessMap[DetId]) / fabs(cosine);
+        double Path = (10.0 * thickness(DetId)) / fabs(cosine);
         double PrevGain = -1;
         double PrevGainTick = -1;
         int FirstStrip = 0;
@@ -201,7 +199,7 @@ void ShallowGainCalibration::produce(edm::StreamID, edm::Event& iEvent, const ed
         nstrips->push_back(NStrips);
         saturation->push_back(Saturation);
         overlapping->push_back(Overlapping);
-        farfromedge->push_back(StripCluster ? isFarFromBorder(&trajState, DetId, bundle.getTrackerGeometry()) : true);
+        farfromedge->push_back(StripCluster ? isFarFromBorder(&trajState, DetId, &iSetup) : true);
         charge->push_back(Charge);
         path->push_back(Path);
 #ifdef ExtendedCALIBTree
@@ -235,7 +233,9 @@ void ShallowGainCalibration::produce(edm::StreamID, edm::Event& iEvent, const ed
 
 bool ShallowGainCalibration::isFarFromBorder(TrajectoryStateOnSurface* trajState,
                                              const uint32_t detid,
-                                             const TrackerGeometry* tkGeom) const {
+                                             const edm::EventSetup* iSetup) {
+  edm::ESHandle<TrackerGeometry> tkGeom = iSetup->getHandle(tkGeom_token_);
+
   LocalPoint HitLocalPos = trajState->localPosition();
   LocalError HitLocalError = trajState->localError().positionError();
 
@@ -266,26 +266,23 @@ bool ShallowGainCalibration::isFarFromBorder(TrajectoryStateOnSurface* trajState
   return true;
 }
 
-std::shared_ptr<shallowGainCalibration::bundle> ShallowGainCalibration::globalBeginRun(
-    edm::Run const& iRun, edm::EventSetup const& iSetup) const {
-  edm::ESHandle<TrackerGeometry> theTrackerGeometry = iSetup.getHandle(geomToken_);
-  auto bundle = std::make_shared<shallowGainCalibration::bundle>(theTrackerGeometry.product());
-
-  for (const auto& it : theTrackerGeometry->detUnits()) {
+double ShallowGainCalibration::thickness(DetId id) {
+  map<DetId, double>::iterator th = m_thicknessMap.find(id);
+  if (th != m_thicknessMap.end())
+    return (*th).second;
+  else {
     double detThickness = 1.;
-    auto id = (it->geographicalId()).rawId();
-
+    //compute thickness normalization
+    const GeomDetUnit* it = m_tracker->idToDetUnit(DetId(id));
     bool isPixel = dynamic_cast<const PixelGeomDetUnit*>(it) != nullptr;
     bool isStrip = dynamic_cast<const StripGeomDetUnit*>(it) != nullptr;
-
     if (!isPixel && !isStrip) {
       throw cms::Exception("Logic Error") << "\t\t this detID doesn't seem to belong to the Tracker";
     } else {
       detThickness = it->surface().bounds().thickness();
     }
-    bundle.get()->updateMap(id, detThickness);
-  }
-  return bundle;
-}
 
-void ShallowGainCalibration::globalEndRun(edm::Run const&, edm::EventSetup const&) const {}
+    m_thicknessMap[id] = detThickness;  //computed value
+    return detThickness;
+  }
+}

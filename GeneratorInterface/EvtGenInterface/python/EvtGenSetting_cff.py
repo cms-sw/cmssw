@@ -2,8 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 EvtGenExtraParticles = cms.vstring(#'absPDGCode:new = aliasName  antiName spin charge colour m0 mWidth mMin mMax tau0'
     '300553:new = 300553 -300553 1 0 0 1.0579400e+01 2.0500001e-02 10.5584 10.6819 0.0000000e+00', # forcing upsilon(4s) to be above b0b0bar and bpbm threshold - prevents runtime errors
-    '100313:new = 100313 -100313 1 0 0 1.4140000e+00 2.3199996e-01 0.254 2.574 0.0000000e+00',
-    '100323:new = 100323 -100323 1 1 0 1.4140000e+00 2.3199996e-01 0.254 2.574 0.0000000e+00',
     '30343:new = 30343 -30343 1 0 0 1.6000000e+00 0.0000000e+00 1.6 1.6 0.0000000e+00',
     '30353:new = 30353 -30353 1 1 0 1.6000000e+00 0.0000000e+00 1.6 1.6 0.0000000e+00',
     '30363:new = 30363 -30363 1 0 0 1.8000000e+00 0.0000000e+00 1.8 1.8 0.0000000e+00',
@@ -35,5 +33,4 @@ EvtGenExtraParticles = cms.vstring(#'absPDGCode:new = aliasName  antiName spin c
     '3126:new = 3126 -3126 2.5 0 0 1.8200000e+00 7.9999995e-02 1.42 2.22 0.0000000e+00',
     '3216:new = 3216 -3216 2.5 0 0 1.7750000e+00 1.1999999e-01 1.175 2.375 0.0000000e+00',
     '14124:new = 14124 -14124 2.5 1 0 2.626600 0 2.626600 2.626600 0.0000000e+00')
-    
-    
+

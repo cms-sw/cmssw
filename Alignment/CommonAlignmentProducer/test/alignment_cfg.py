@@ -4,35 +4,37 @@ process = cms.Process("Alignment")
 
 # initialize  MessageLogger
 process.MessageLogger = cms.Service("MessageLogger",
-    statistics = cms.untracked.vstring('cout', 
-        'alignment'),
-    categories = cms.untracked.vstring('Alignment'),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG'),
-        noLineBreaks = cms.untracked.bool(True)
-    ),
-    alignment = cms.untracked.PSet(
-        INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
+        enable = cms.untracked.bool(True),
+        enableStatistics = cms.untracked.bool(True),
         noLineBreaks = cms.untracked.bool(True),
-        DEBUG = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        WARNING = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        ERROR = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        threshold = cms.untracked.string('INFO'),
-        Alignment = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        )
+        threshold = cms.untracked.string('DEBUG')
     ),
-    destinations = cms.untracked.vstring('cout',  ## .log automatically
-
-        'alignment')
+    files = cms.untracked.PSet(
+        alignment = cms.untracked.PSet(
+            Alignment = cms.untracked.PSet(
+                limit = cms.untracked.int32(-1)
+            ),
+            DEBUG = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            ERROR = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            INFO = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            WARNING = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            enableStatistics = cms.untracked.bool(True),
+            noLineBreaks = cms.untracked.bool(True),
+            threshold = cms.untracked.string('INFO')
+        )
+    )
 )
 
 # we need conditions

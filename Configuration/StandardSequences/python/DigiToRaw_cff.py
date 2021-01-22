@@ -19,8 +19,7 @@ from EventFilter.RawDataCollector.rawDataCollector_cfi import *
 from L1Trigger.Configuration.L1TDigiToRaw_cff import *
 from EventFilter.CTPPSRawToDigi.ctppsDigiToRaw_cff import *
 
-#DigiToRawTask = cms.Task(L1TDigiToRawTask, siPixelRawData, SiStripDigiToRaw, ecalPacker, esDigiToRaw, hcalRawDataTask, cscpacker, dtpacker, rpcpacker, ctppsRawData, castorRawData, rawDataCollector)
-DigiToRawTask = cms.Task(L1TDigiToRawTask, siPixelRawData, SiStripDigiToRaw, ecalPacker, esDigiToRaw, hcalRawDataTask, cscpacker, dtpacker, rpcpacker, castorRawData, rawDataCollector)
+DigiToRawTask = cms.Task(L1TDigiToRawTask, siPixelRawData, SiStripDigiToRaw, ecalPacker, esDigiToRaw, hcalRawDataTask, cscpacker, dtpacker, rpcpacker, ctppsRawData, castorRawData, rawDataCollector)
 DigiToRaw = cms.Sequence(DigiToRawTask)
 
 ecalPacker.Label = 'simEcalDigis'
@@ -55,3 +54,6 @@ phase2_muon.toReplaceWith(DigiToRawTask, DigiToRawTask.copyAndExclude([rpcpacker
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toReplaceWith(DigiToRawTask, DigiToRawTask.copyAndExclude([siPixelRawData,SiStripDigiToRaw,castorRawData,ctppsRawData]))
+
+from Configuration.Eras.Modifier_phase2_ecal_devel_cff import phase2_ecal_devel
+phase2_ecal_devel.toReplaceWith(DigiToRawTask, DigiToRawTask.copyAndExclude([esDigiToRaw]))

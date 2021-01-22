@@ -20,19 +20,17 @@ namespace ecaldqm {
 
   void RawDataTask::beginRun(edm::Run const& _run, edm::EventSetup const&) { runNumber_ = _run.run(); }
 
-  void RawDataTask::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
-    // Reset by LS plots at beginning of every LS
-    MEs_.at("DesyncByLumi").reset();
-    MEs_.at("FEByLumi").reset();
-    MEs_.at("FEStatusErrMapByLumi").reset();
-  }
-
-  void RawDataTask::beginEvent(edm::Event const& _evt, edm::EventSetup const&) {
+  void RawDataTask::beginEvent(edm::Event const& _evt, edm::EventSetup const&, bool const& ByLumiResetSwitch, bool&) {
     orbit_ = _evt.orbitNumber() & 0xffffffff;
     bx_ = _evt.bunchCrossing() & 0xfff;
     triggerType_ = _evt.experimentType() & 0xf;
     l1A_ = 0;
     feL1Offset_ = _evt.isRealData() ? 1 : 0;
+    if (ByLumiResetSwitch) {
+      MEs_.at("DesyncByLumi").reset();
+      MEs_.at("FEByLumi").reset();
+      MEs_.at("FEStatusErrMapByLumi").reset();
+    }
   }
 
   void RawDataTask::runOnSource(FEDRawDataCollection const& _fedRaw) {
@@ -72,6 +70,7 @@ namespace ecaldqm {
     MESet& meL1AFE(MEs_.at("L1AFE"));
     MESet& meFEStatus(MEs_.at("FEStatus"));
     MESet& meFEStatusErrMapByLumi(MEs_.at("FEStatusErrMapByLumi"));
+    MESet& meFEStatusMEM(MEs_.at("FEStatusMEM"));
     MESet& meDesyncByLumi(MEs_.at("DesyncByLumi"));
     MESet& meDesyncTotal(MEs_.at("DesyncTotal"));
     MESet& meFEByLumi(MEs_.at("FEByLumi"));
@@ -155,8 +154,17 @@ namespace ecaldqm {
           }
         }
 
-        if (iFE >= 68)
+        if (iFE >= 68) {
+          // FE Status for MEM boxes (towerIds 69 and 70)
+          // Plot contains two bins per dccId. Integer number
+          // bins correspond to towerId 69 and half integer
+          // number bins correspond to towerId 70.
+          if (iFE + 1 == 69)
+            meFEStatusMEM.fill(dccId + 0.0, status);
+          else if (iFE + 1 == 70)
+            meFEStatusMEM.fill(dccId + 0.5, status);
           continue;
+        }
 
         DetId id(getElectronicsMap()->dccTowerConstituents(dccId, iFE + 1).at(0));
         meFEStatus.fill(id, status);

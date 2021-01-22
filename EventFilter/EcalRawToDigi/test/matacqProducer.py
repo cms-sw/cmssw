@@ -9,11 +9,14 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
-    suppressInfo = cms.untracked.vstring('ecalMatacq'),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
         threshold = cms.untracked.string('WARNING')
     ),
-    destinations = cms.untracked.vstring('cout')
+    suppressInfo = cms.untracked.vstring('ecalMatacq')
 )
 
 #process.source = cms.Source("NewEventStreamFileReader",

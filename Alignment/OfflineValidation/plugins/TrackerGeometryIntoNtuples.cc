@@ -23,7 +23,7 @@
 //
 
 // system include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -33,9 +33,9 @@
 #include "TTree.h"
 #include "TFile.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
 #include "CondFormats/Alignment/interface/Alignments.h"
@@ -71,7 +71,7 @@
 // class decleration
 //
 
-class TrackerGeometryIntoNtuples : public edm::EDAnalyzer {
+class TrackerGeometryIntoNtuples : public edm::one::EDAnalyzer<> {
 public:
   explicit TrackerGeometryIntoNtuples(const edm::ParameterSet&);
   ~TrackerGeometryIntoNtuples() override;
@@ -82,6 +82,14 @@ private:
   void addBranches();
 
   // ----------member data ---------------------------
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
+  const edm::ESGetToken<GeometricDet, IdealGeometryRecord> geomDetToken_;
+  const edm::ESGetToken<PTrackerParameters, PTrackerParametersRcd> ptpToken_;
+  const edm::ESGetToken<Alignments, TrackerAlignmentRcd> aliToken_;
+  const edm::ESGetToken<AlignmentErrorsExtended, TrackerAlignmentErrorExtendedRcd> aliErrorToken_;
+  const edm::ESGetToken<AlignmentSurfaceDeformations, TrackerSurfaceDeformationRcd> surfDefToken_;
+  const edm::ESGetToken<Alignments, GlobalPositionRcd> gprToken_;
+
   //std::vector<AlignTransform> m_align;
   AlignableTracker* theCurrentTracker;
 
@@ -121,7 +129,14 @@ private:
 // constructors and destructor
 //
 TrackerGeometryIntoNtuples::TrackerGeometryIntoNtuples(const edm::ParameterSet& iConfig)
-    : theCurrentTracker(nullptr),
+    : topoToken_(esConsumes()),
+      geomDetToken_(esConsumes()),
+      ptpToken_(esConsumes()),
+      aliToken_(esConsumes()),
+      aliErrorToken_(esConsumes()),
+      surfDefToken_(esConsumes()),
+      gprToken_(esConsumes()),
+      theCurrentTracker(nullptr),
       m_rawid(0),
       m_x(0.),
       m_y(0.),
@@ -162,37 +177,29 @@ TrackerGeometryIntoNtuples::~TrackerGeometryIntoNtuples() { delete theCurrentTra
 // ------------ method called to for each event  ------------
 void TrackerGeometryIntoNtuples::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const TrackerTopology* const tTopo = &iSetup.getData(topoToken_);
 
   edm::LogInfo("beginJob") << "Begin Job";
 
   //accessing the initial geometry
-  edm::ESHandle<GeometricDet> theGeometricDet;
-  iSetup.get<IdealGeometryRecord>().get(theGeometricDet);
-  edm::ESHandle<PTrackerParameters> ptp;
-  iSetup.get<PTrackerParametersRcd>().get(ptp);
+  const GeometricDet* theGeometricDet = &iSetup.getData(geomDetToken_);
+  const PTrackerParameters* ptp = &iSetup.getData(ptpToken_);
+
   TrackerGeomBuilderFromGeometricDet trackerBuilder;
   //currernt tracker
-  TrackerGeometry* theCurTracker = trackerBuilder.build(&*theGeometricDet, *ptp, tTopo);
+  TrackerGeometry* theCurTracker = trackerBuilder.build(theGeometricDet, *ptp, tTopo);
 
   //build the tracker
-  edm::ESHandle<Alignments> alignments;
-  edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
-  edm::ESHandle<AlignmentSurfaceDeformations> surfaceDeformations;
-
-  iSetup.get<TrackerAlignmentRcd>().get(alignments);
-  iSetup.get<TrackerAlignmentErrorExtendedRcd>().get(alignmentErrors);
-  iSetup.get<TrackerSurfaceDeformationRcd>().get(surfaceDeformations);
+  const Alignments* alignments = &iSetup.getData(aliToken_);
+  const AlignmentErrorsExtended* alignmentErrors = &iSetup.getData(aliErrorToken_);
+  const AlignmentSurfaceDeformations* surfaceDeformations = &iSetup.getData(surfDefToken_);
 
   //apply the latest alignments
-  edm::ESHandle<Alignments> globalPositionRcd;
-  iSetup.get<TrackerDigiGeometryRecord>().getRecord<GlobalPositionRcd>().get(globalPositionRcd);
+  const Alignments* globalPositionRcd = &iSetup.getData(gprToken_);
   GeometryAligner aligner;
   aligner.applyAlignments<TrackerGeometry>(&(*theCurTracker),
-                                           &(*alignments),
-                                           &(*alignmentErrors),
+                                           alignments,
+                                           alignmentErrors,
                                            align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Tracker)));
   aligner.attachSurfaceDeformations<TrackerGeometry>(&(*theCurTracker), &(*surfaceDeformations));
 

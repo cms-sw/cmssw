@@ -34,6 +34,7 @@ private:
   std::string monitorDir;
   bool emul;
   bool verbose;
+  bool displacedQuantities_;
 
   const float etaScale_;
   const float phiScale_;
@@ -41,6 +42,8 @@ private:
   MonitorElement* ugmtBMTFBX;
   MonitorElement* ugmtBMTFnMuons;
   MonitorElement* ugmtBMTFhwPt;
+  MonitorElement* ugmtBMTFhwPtUnconstrained;
+  MonitorElement* ugmtBMTFhwDXY;
   MonitorElement* ugmtBMTFhwEta;
   MonitorElement* ugmtBMTFhwPhi;
   MonitorElement* ugmtBMTFglbPhi;
@@ -112,6 +115,8 @@ private:
   MonitorElement* ugmtnMuons;
   MonitorElement* ugmtMuonIndex;
   MonitorElement* ugmtMuonhwPt;
+  MonitorElement* ugmtMuonhwPtUnconstrained;
+  MonitorElement* ugmtMuonhwDXY;
   MonitorElement* ugmtMuonhwEta;
   MonitorElement* ugmtMuonhwPhi;
   MonitorElement* ugmtMuonhwEtaAtVtx;
@@ -122,6 +127,7 @@ private:
   MonitorElement* ugmtMuonhwIso;
 
   MonitorElement* ugmtMuonPt;
+  MonitorElement* ugmtMuonPtUnconstrained;
   MonitorElement* ugmtMuonEta;
   MonitorElement* ugmtMuonPhi;
   MonitorElement* ugmtMuonEtaAtVtx;

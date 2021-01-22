@@ -122,7 +122,6 @@
   <use name="DetectorDescription/RegressionTest"/>
   <use name="DetectorDescription/Parser"/>
   <use name="xerces-c"/>
-  <use name="FWCore/Framework"/>
   <use name="FWCore/Utilities"/>
   <use name="FWCore/PluginManager"/>
   <use name="FWCore/ServiceRegistry"/>

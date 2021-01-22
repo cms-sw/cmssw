@@ -1,10 +1,9 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseShapes.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CLHEP/Random/RandFlat.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 
 // #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include <cmath>
@@ -138,13 +137,13 @@ Reco  MC
   //theShapes[401] = new CaloCachedShapeIntegrator(&theZDCShape);
 }
 
+HcalPulseShapes::HcalPulseShapes(edm::ConsumesCollector iC) : HcalPulseShapes() {
+  theDbServiceToken = iC.esConsumes<edm::Transition::BeginRun>();
+}
+
 HcalPulseShapes::~HcalPulseShapes() {}
 
-void HcalPulseShapes::beginRun(edm::EventSetup const& es) {
-  edm::ESHandle<HcalDbService> conditions;
-  es.get<HcalDbRecord>().get(conditions);
-  theDbService = conditions.product();
-}
+void HcalPulseShapes::beginRun(edm::EventSetup const& es) { theDbService = &es.getData(theDbServiceToken); }
 
 void HcalPulseShapes::beginRun(const HcalDbService* conditions) { theDbService = conditions; }
 

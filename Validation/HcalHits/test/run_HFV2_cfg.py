@@ -21,15 +21,23 @@ process.load("SimG4Core.Application.g4SimHits_cfi")
 process.load("Validation.HcalHits.HcalHitValidation_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('HFShower', 
-        'HcalSim', 
-        'CaloSim', 
-        'G4cout', 
-        'G4cerr', 
-        'ValidHcal'),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
+        CaloSim = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
         G4cerr = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        G4cout = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        HFShower = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        HcalSim = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         ValidHcal = cms.untracked.PSet(
@@ -38,18 +46,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        CaloSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        HFShower = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        G4cout = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        HcalSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        )
+        enable = cms.untracked.bool(True)
     )
 )
 

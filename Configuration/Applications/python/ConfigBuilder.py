@@ -86,7 +86,8 @@ defaultOptions.runUnscheduled = False
 defaultOptions.timeoutOutput = False
 defaultOptions.nThreads = '1'
 defaultOptions.nStreams = '0'
-defaultOptions.nConcurrentLumis = '1'
+defaultOptions.nConcurrentLumis = '0'
+defaultOptions.nConcurrentIOVs = '1'
 
 # some helper routines
 def dumpPython(process,name):
@@ -336,9 +337,8 @@ class ConfigBuilder(object):
 
     def addCommon(self):
         if 'HARVESTING' in self.stepMap.keys() or 'ALCAHARVEST' in self.stepMap.keys():
-            self.process.options = cms.untracked.PSet( Rethrow = cms.untracked.vstring('ProductNotFound'),fileMode = cms.untracked.string('FULLMERGE'))
-        else:
-            self.process.options = cms.untracked.PSet( )
+            self.process.options.Rethrow = ['ProductNotFound']
+            self.process.options.fileMode = 'FULLMERGE'
 
         self.addedObjects.append(("","options"))
 
@@ -365,9 +365,9 @@ class ConfigBuilder(object):
 
     def addMaxEvents(self):
         """Here we decide how many evts will be processed"""
-        self.process.maxEvents=cms.untracked.PSet(input=cms.untracked.int32(int(self._options.number)))
+        self.process.maxEvents.input = int(self._options.number)
         if self._options.number_out:
-            self.process.maxEvents.output = cms.untracked.int32(int(self._options.number_out))
+            self.process.maxEvents.output = int(self._options.number_out)
         self.addedObjects.append(("","maxEvents"))
 
     def addSource(self):
@@ -1050,10 +1050,6 @@ class ConfigBuilder(object):
         self.USERDefaultCFF=None
 
         # the magnetic field
-        if self._options.isData:
-            if self._options.magField==defaultOptions.magField:
-                print("magnetic field option forced to: AutoFromDBCurrent")
-            self._options.magField='AutoFromDBCurrent'
         self.magFieldCFF = 'Configuration/StandardSequences/MagneticField_'+self._options.magField.replace('.','')+'_cff'
         self.magFieldCFF = self.magFieldCFF.replace("__",'_')
 
@@ -2242,14 +2238,16 @@ class ConfigBuilder(object):
         if self._options.nThreads is not "1":
             self.pythonCfgCode +="\n"
             self.pythonCfgCode +="#Setup FWK for multithreaded\n"
-            self.pythonCfgCode +="process.options.numberOfThreads=cms.untracked.uint32("+self._options.nThreads+")\n"
-            self.pythonCfgCode +="process.options.numberOfStreams=cms.untracked.uint32("+self._options.nStreams+")\n"
-            self.pythonCfgCode +="process.options.numberOfConcurrentLuminosityBlocks=cms.untracked.uint32("+self._options.nConcurrentLumis+")\n"
+            self.pythonCfgCode +="process.options.numberOfThreads = "+self._options.nThreads+"\n"
+            self.pythonCfgCode +="process.options.numberOfStreams = "+self._options.nStreams+"\n"
+            self.pythonCfgCode +="process.options.numberOfConcurrentLuminosityBlocks = "+self._options.nConcurrentLumis+"\n"
+            self.pythonCfgCode +="process.options.eventSetup.numberOfConcurrentIOVs = "+self._options.nConcurrentIOVs+"\n"
             if int(self._options.nConcurrentLumis) > 1:
               self.pythonCfgCode +="if hasattr(process, 'DQMStore'): process.DQMStore.assertLegacySafe=cms.untracked.bool(False)\n"
-            self.process.options.numberOfThreads=cms.untracked.uint32(int(self._options.nThreads))
-            self.process.options.numberOfStreams=cms.untracked.uint32(int(self._options.nStreams))
-            self.process.options.numberOfConcurrentLuminosityBlocks=cms.untracked.uint32(int(self._options.nConcurrentLumis))
+            self.process.options.numberOfThreads = int(self._options.nThreads)
+            self.process.options.numberOfStreams = int(self._options.nStreams)
+            self.process.options.numberOfConcurrentLuminosityBlocks = int(self._options.nConcurrentLumis)
+            self.process.options.eventSetup.numberOfConcurrentIOVs = int(self._options.nConcurrentIOVs)
         #repacked version
         if self._options.isRepacked:
             self.pythonCfgCode +="\n"

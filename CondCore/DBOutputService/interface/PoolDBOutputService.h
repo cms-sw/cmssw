@@ -4,6 +4,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondCore/CondDB/interface/ConnectionPool.h"
 #include "CondCore/CondDB/interface/Session.h"
+#include "CondCore/CondDB/interface/Logger.h"
 #include <string>
 #include <map>
 #include <mutex>
@@ -63,6 +64,7 @@ namespace cond {
         try {
           this->initDB();
           Record& myrecord = this->lookUpRecord(recordName);
+          m_logger.logInfo() << "Tag mapped to record " << recordName << ": " << myrecord.m_tag;
           bool newTag = isNewTagRequest(recordName);
           if (myrecord.m_onlyAppendUpdatePolicy && !newTag) {
             cond::TagInfo_t tInfo;
@@ -71,8 +73,8 @@ namespace cond {
             if (lastSince == cond::time::MAX_VAL)
               lastSince = 0;
             if (time <= lastSince) {
-              edm::LogInfo(MSGSOURCE) << "Won't append iov with since " << std::to_string(time)
-                                      << ", because is less or equal to last available since = " << lastSince;
+              m_logger.logInfo() << "Won't append iov with since " << std::to_string(time)
+                                 << ", because is less or equal to last available since = " << lastSince;
               if (m_autoCommit)
                 doCommitTransaction();
               scope.close();
@@ -88,7 +90,7 @@ namespace cond {
           }
           if (m_autoCommit) {
             if (m_writeTransactionDelay) {
-              edm::LogWarning(MSGSOURCE) << "Waiting " << m_writeTransactionDelay << "s before commit the changes...";
+              m_logger.logWarning() << "Waiting " << m_writeTransactionDelay << "s before commit the changes...";
               ::sleep(m_writeTransactionDelay);
             }
             doCommitTransaction();
@@ -184,6 +186,8 @@ namespace cond {
 
       void forceInit();
 
+      cond::persistency::Logger& logger() { return m_logger; }
+
     private:
       struct Record {
         Record()
@@ -231,7 +235,7 @@ namespace cond {
       cond::UserLogInfo& lookUpUserLogInfo(const std::string& recordName);
 
     private:
-      static constexpr const char* const MSGSOURCE = "PoolDBOuputService";
+      cond::persistency::Logger m_logger;
       std::recursive_mutex m_mutex;
       cond::TimeType m_timetype;
       std::vector<cond::Time_t> m_currentTimes;

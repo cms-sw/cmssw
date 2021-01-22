@@ -24,14 +24,16 @@ class TrackerTopology;
 class PixelDigi;
 class Phase2TrackerDigi;
 class TrackerGeometry;
-
+class TrackerDigiGeometryRecord;
+class TrackerTopologyRcd;
 class Phase2TrackerValidateDigi : public DQMEDAnalyzer {
 public:
   explicit Phase2TrackerValidateDigi(const edm::ParameterSet&);
   ~Phase2TrackerValidateDigi() override;
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
-  std::string getHistoId(uint32_t det_id, const TrackerTopology* tTopo, bool flag);
+  void dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) override;
+  std::string getHistoId(uint32_t det_id, bool flag);
 
   struct DigiMEs {
     MonitorElement* SimTrackPt;
@@ -97,7 +99,7 @@ private:
   float tofUpperCut_;
   float tofLowerCut_;
 
-  void bookLayerHistos(DQMStore::IBooker& ibooker, unsigned int det_id, const TrackerTopology* tTopo, bool flag);
+  void bookLayerHistos(DQMStore::IBooker& ibooker, unsigned int det_id, bool flag);
   unsigned int getSimTrackId(const edm::DetSetVector<PixelDigiSimLink>* simLinks,
                              const DetId& detId,
                              unsigned int& channel);
@@ -105,7 +107,7 @@ private:
   bool isPrimary(const SimTrack& simTrk, const PSimHit& simHit);
 
   void fillHistogram(MonitorElement* th1, MonitorElement* th2, MonitorElement* th3, float val, int primary);
-  int fillSimHitInfo(const edm::Event& iEvent, const SimTrack simTrk, const edm::ESHandle<TrackerGeometry> gHandle);
+  int fillSimHitInfo(const edm::Event& iEvent, const SimTrack simTrk);
   bool findOTDigi(unsigned int detid, unsigned int id);
   bool findITPixelDigi(unsigned int detid, unsigned int id);
   void fillOTBXInfo();
@@ -141,7 +143,10 @@ private:
   edm::Handle<edm::PSimHitContainer> simHits;
   edm::Handle<edm::SimTrackContainer> simTracks;
   edm::Handle<edm::SimVertexContainer> simVertices;
-  edm::ESHandle<TrackerTopology> tTopoHandle_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
+  const TrackerGeometry* tkGeom_ = nullptr;
+  const TrackerTopology* tTopo_ = nullptr;
 
   const float GeVperElectron;  // 3.7E-09
   const float cval;            // cm/ns

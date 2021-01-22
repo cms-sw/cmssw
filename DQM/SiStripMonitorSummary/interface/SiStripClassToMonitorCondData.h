@@ -74,15 +74,15 @@ private:
 
   std::string outPutFileName;
 
-  SiStripPedestalsDQM *pedestalsDQM_;
-  SiStripNoisesDQM *noisesDQM_;
-  SiStripQualityDQM *qualityDQM_;
-  SiStripApvGainsDQM *apvgainsDQM_;
-  SiStripLorentzAngleDQM *lorentzangleDQM_;
-  SiStripBackPlaneCorrectionDQM *bpcorrectionDQM_;
-  SiStripCablingDQM *cablingDQM_;
-  SiStripThresholdDQM *lowthresholdDQM_;
-  SiStripThresholdDQM *highthresholdDQM_;
+  std::unique_ptr<SiStripPedestalsDQM> pedestalsDQM_;
+  std::unique_ptr<SiStripNoisesDQM> noisesDQM_;
+  std::unique_ptr<SiStripQualityDQM> qualityDQM_;
+  std::unique_ptr<SiStripApvGainsDQM> apvgainsDQM_;
+  std::unique_ptr<SiStripLorentzAngleDQM> lorentzangleDQM_;
+  std::unique_ptr<SiStripBackPlaneCorrectionDQM> bpcorrectionDQM_;
+  std::unique_ptr<SiStripCablingDQM> cablingDQM_;
+  std::unique_ptr<SiStripThresholdDQM> lowthresholdDQM_;
+  std::unique_ptr<SiStripThresholdDQM> highthresholdDQM_;
 };
 
 #endif

@@ -52,7 +52,7 @@ private:
   edm::EDGetTokenT<TrajTrackAssociationCollection> staAssoMapToken;
   edm::EDGetTokenT<reco::TrackToTrackMap> updatedStaAssoMapToken;
 
-  MuonTrackFinder* theTrackFinder;
+  std::unique_ptr<MuonTrackFinder> theTrackFinder;
 
   /// the event setup proxy, it takes care the services update
   MuonServiceProxy* theService;

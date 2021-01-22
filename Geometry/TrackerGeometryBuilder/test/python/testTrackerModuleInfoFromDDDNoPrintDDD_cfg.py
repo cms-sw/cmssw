@@ -7,9 +7,11 @@ process.load("Configuration.Geometry.GeometryExtended2021Reco_cff")
 
 process.source = cms.Source("EmptySource")
 
-process.TrackerGeometricDetExtraESModule = cms.ESProducer( "TrackerGeometricDetExtraESModule",
-                                                           fromDDD = cms.bool( True )
-                                                           )
+process.TrackerGeometricDetESModule = cms.ESProducer( "TrackerGeometricDetESModule",
+                                                      fromDDD = cms.bool( True )
+                                                     )
+
+process.es_prefer_geomdet = cms.ESPrefer("TrackerGeometricDetESModule","")
 
 process.load("Alignment.CommonAlignmentProducer.FakeAlignmentSource_cfi")
 process.preferFakeAlign = cms.ESPrefer("FakeAlignmentSource") 

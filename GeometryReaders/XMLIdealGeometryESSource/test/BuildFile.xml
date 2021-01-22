@@ -5,7 +5,6 @@
 <use name="DetectorDescription/Parser"/>
 <use name="DetectorDescription/OfflineDBLoader"/>
 <use name="CondFormats/Common"/>
-<use name="CondFormats/GeometryObjects"/>
 <flags EDM_PLUGIN="1"/>
 <library file="PerfectGeometryAnalyzer.cc">
 </library>

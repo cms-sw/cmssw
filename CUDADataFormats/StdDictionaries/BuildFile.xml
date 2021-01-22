@@ -1,0 +1,5 @@
+<use name="rootcore"/>
+<use name="HeterogeneousCore/CUDAUtilities"/>
+<export>
+  <lib name="1"/>
+</export>

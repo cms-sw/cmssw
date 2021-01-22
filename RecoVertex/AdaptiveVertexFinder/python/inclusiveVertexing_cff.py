@@ -62,9 +62,9 @@ from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
 pp_on_XeXe_2017.toModify(inclusiveVertexFinder, minHits = 10, minPt = 1.0)
 pp_on_XeXe_2017.toModify(inclusiveCandidateVertexFinder, minHits = 10, minPt = 1.0)
 pp_on_XeXe_2017.toModify(inclusiveCandidateVertexFinderCvsL, minHits = 10, minPt = 1.0)
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-pp_on_AA_2018.toModify(inclusiveVertexFinder, minHits = 999, minPt = 999.0)
-pp_on_AA_2018.toModify(inclusiveCandidateVertexFinder, minHits = 999, minPt = 999.0)
-pp_on_AA_2018.toModify(inclusiveCandidateVertexFinderCvsL, minHits = 999, minPt = 999.0)
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toModify(inclusiveVertexFinder, minHits = 999, minPt = 999.0)
+pp_on_AA.toModify(inclusiveCandidateVertexFinder, minHits = 999, minPt = 999.0)
+pp_on_AA.toModify(inclusiveCandidateVertexFinderCvsL, minHits = 999, minPt = 999.0)
 
 

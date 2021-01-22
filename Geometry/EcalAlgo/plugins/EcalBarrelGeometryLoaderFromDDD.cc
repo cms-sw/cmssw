@@ -29,12 +29,14 @@ void EcalBGL::fillGeom(EcalBarrelGeometry* geom,
                        const HepGeom::Transform3D& tr,
                        const DetId& id,
                        const double& scale) {
+  static constexpr uint32_t maxSize = 11;
   std::vector<CCGFloat> pv;
-  pv.reserve(vv.size());
-  for (unsigned int i(0); i != vv.size(); ++i) {
-    const CCGFloat factor(1 == i || 2 == i || 6 == i || 10 == i ? 1 : (CCGFloat)scale);
-
-    pv.emplace_back(factor * vv[i]);
+  unsigned int size = (vv.size() > maxSize) ? maxSize : vv.size();
+  unsigned int ioff = (vv.size() > maxSize) ? (vv.size() - maxSize) : 0;
+  pv.reserve(size);
+  for (unsigned int i(0); i != size; ++i) {
+    const CCGFloat factor(1 == i || 2 == i || 6 == i || 10 == i ? 1 : static_cast<CCGFloat>(scale));
+    pv.emplace_back(factor * vv[i + ioff]);
   }
 
   std::vector<GlobalPoint> corners(8);
@@ -69,7 +71,7 @@ void EcalBGL::fillNamedParams(const DDFilteredView& _fv, EcalBarrelGeometry* geo
 
       // this parameter can only appear once
       assert(fvec.size() == 1);
-      geom->setNumXtalsPhiDirection((int)fvec[0]);
+      geom->setNumXtalsPhiDirection(static_cast<int>(fvec[0]));
     } else
       continue;
 
@@ -80,7 +82,7 @@ void EcalBGL::fillNamedParams(const DDFilteredView& _fv, EcalBarrelGeometry* geo
       // there can only be one such value
       assert(fmvec.size() == 1);
 
-      geom->setNumXtalsEtaDirection((int)fmvec[0]);
+      geom->setNumXtalsEtaDirection(static_cast<int>(fmvec[0]));
     } else
       // once we find nxtalPhi, the rest must also be defined
       assert(1 == 0);
@@ -91,9 +93,9 @@ void EcalBGL::fillNamedParams(const DDFilteredView& _fv, EcalBarrelGeometry* geo
       const std::vector<double>& ebvec = valEtaB.doubles();
       assert(!ebvec.empty());
       std::vector<int> EtaBaskets;
-      EtaBaskets.resize(ebvec.size());
-      for (unsigned i = 0; i < ebvec.size(); ++i)
-        EtaBaskets[i] = (int)ebvec[i];
+      EtaBaskets.reserve(ebvec.size());
+      for (const auto& ebv : ebvec)
+        EtaBaskets.emplace_back(static_cast<int>(ebv));
       geom->setEtaBaskets(EtaBaskets);
     } else
       // once we find nxtalPhi, the rest must also be defined
@@ -104,7 +106,7 @@ void EcalBGL::fillNamedParams(const DDFilteredView& _fv, EcalBarrelGeometry* geo
     if (DDfetch(&sv, valPhi)) {
       const std::vector<double>& pvec = valPhi.doubles();
       assert(!pvec.empty());
-      geom->setBasketSizeInPhi((int)pvec[0]);
+      geom->setBasketSizeInPhi(static_cast<int>(pvec[0]));
     } else
       // once we find nxtalPhi, the rest must also be defined
       assert(1 == 0);
@@ -122,12 +124,12 @@ void EcalBGL::fillNamedParams(const cms::DDFilteredView& fv, EcalBarrelGeometry*
   //nxtalEta
   std::vector<double> tempD = fv.get<std::vector<double> >(specName, "nxtalEta");
   assert(tempD.size() == 1);
-  geom->setNumXtalsEtaDirection((int)tempD[0]);
+  geom->setNumXtalsEtaDirection(static_cast<int>(tempD[0]));
 
   //nxtalPhi
   tempD = fv.get<std::vector<double> >(specName, "nxtalPhi");
   assert(tempD.size() == 1);
-  geom->setNumXtalsPhiDirection((int)tempD[0]);
+  geom->setNumXtalsPhiDirection(static_cast<int>(tempD[0]));
 
   //EtaBaskets
   tempD = fv.get<std::vector<double> >(specName, "EtaBaskets");
@@ -137,5 +139,5 @@ void EcalBGL::fillNamedParams(const cms::DDFilteredView& fv, EcalBarrelGeometry*
   //PhiBaskets
   tempD = fv.get<std::vector<double> >(specName, "PhiBaskets");
   assert(!tempD.empty());
-  geom->setBasketSizeInPhi((int)tempD[0]);
+  geom->setBasketSizeInPhi(static_cast<int>(tempD[0]));
 }

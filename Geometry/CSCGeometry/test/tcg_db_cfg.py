@@ -22,35 +22,31 @@ process.maxEvents = cms.untracked.PSet(
         input = cms.untracked.int32(1)
         )
 
-process.MessageLogger = cms.Service(
-   'MessageLogger',
-   destinations = cms.untracked.vstring('cout'),
-   categories = cms.untracked.vstring(
-     'CSC',
-     'CSCNumbering',
-     'CSCGeometryBuilderFromDDD',
-     'RadialStripTopology'
-   ),
-   debugModules = cms.untracked.vstring('*'),
-   cout = cms.untracked.PSet(
-      noLineBreaks = cms.untracked.bool(True),
-      threshold = cms.untracked.string('DEBUG'),
-      default = cms.untracked.PSet(
-         limit = cms.untracked.int32(0) # none
-      ),
-      CSC = cms.untracked.PSet(
-         limit = cms.untracked.int32(-1) # all
-      ),
-      CSCNumbering = cms.untracked.PSet(
-         limit = cms.untracked.int32(0) # none - attempt to match tcg_db.py output
-      ),
-      CSCGeometryBuilderFromDDD = cms.untracked.PSet(
-         limit = cms.untracked.int32(-1) # all
-      ),
-      RadialStripTopology = cms.untracked.PSet(
-         limit = cms.untracked.int32(-1) # all
-      )
-   )
+process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        CSC = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
+        CSCGeometryBuilderFromDDD = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
+        CSCNumbering = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        RadialStripTopology = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
+        default = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        enable = cms.untracked.bool(True),
+        noLineBreaks = cms.untracked.bool(True),
+        threshold = cms.untracked.string('DEBUG')
+    ),
+    debugModules = cms.untracked.vstring('*')
 )
 
 process.producer = cms.EDAnalyzer("CSCGeometryAnalyzer")

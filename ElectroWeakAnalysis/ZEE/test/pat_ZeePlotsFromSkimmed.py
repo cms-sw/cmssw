@@ -3,10 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("ZEEPLOTS")
 
 
-process.MessageLogger = cms.Service(
-        "MessageLogger",
-            categories = cms.untracked.vstring('info', 'debug','cout')
-            )
+process.MessageLogger = cms.Service("MessageLogger")
 
 process.options = cms.untracked.PSet(
     Rethrow = cms.untracked.vstring('ProductNotFound')

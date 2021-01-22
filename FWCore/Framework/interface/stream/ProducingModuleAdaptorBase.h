@@ -45,6 +45,7 @@
 namespace edm {
   class Event;
   class ModuleCallingContext;
+  class ModuleProcessName;
   class ProductResolverIndexHelper;
   class EDConsumerBase;
   class PreallocationConfiguration;
@@ -70,6 +71,8 @@ namespace edm {
       friend class edm::maker::ModuleHolderT;
 
       ProducingModuleAdaptorBase();
+      ProducingModuleAdaptorBase(const ProducingModuleAdaptorBase&) = delete;                   // stop default
+      const ProducingModuleAdaptorBase& operator=(const ProducingModuleAdaptorBase&) = delete;  // stop default
       virtual ~ProducingModuleAdaptorBase();
 
       // ---------- const member functions ---------------------
@@ -100,7 +103,8 @@ namespace edm {
       void updateLookup(BranchType iBranchType, ProductResolverIndexHelper const&, bool iPrefetchMayGet);
       void updateLookup(eventsetup::ESRecordsToProxyIndices const&);
 
-      void modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modules,
+      void modulesWhoseProductsAreConsumed(std::array<std::vector<ModuleDescription const*>*, NumBranchTypes>& modules,
+                                           std::vector<ModuleProcessName>& modulesInPreviousProcesses,
                                            ProductRegistry const& preg,
                                            std::map<std::string, ModuleDescription const*> const& labelsToDesc,
                                            std::string const& processName) const;
@@ -142,10 +146,6 @@ namespace edm {
       const ProducerBase* producer() { return m_streamModules[0]; }
 
     private:
-      ProducingModuleAdaptorBase(const ProducingModuleAdaptorBase&) = delete;  // stop default
-
-      const ProducingModuleAdaptorBase& operator=(const ProducingModuleAdaptorBase&) = delete;  // stop default
-
       void doPreallocate(PreallocationConfiguration const&);
       virtual void preallocLumis(unsigned int) {}
       virtual void setupStreamModules() = 0;

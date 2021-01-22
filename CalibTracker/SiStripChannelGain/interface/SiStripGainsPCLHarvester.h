@@ -19,7 +19,6 @@
 
 // CMSSW includes
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -29,6 +28,12 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
+#include "CalibTracker/Records/interface/SiStripGainRcd.h"
+#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 
 // user includes
 #include "CalibTracker/SiStripChannelGain/interface/APVGainStruct.h"
@@ -88,10 +93,14 @@ private:
 
   int CalibrationLevel;
 
-  edm::ESHandle<TrackerGeometry> tkGeom_;
-  const TrackerGeometry* bareTkGeomPtr_;  // ugly hack to fill APV colls only once, but checks
-  const TrackerTopology* tTopo_;
+  const TrackerGeometry* bareTkGeomPtr_ = nullptr;  // ugly hack to fill APV colls only once, but checks
+  const TrackerTopology* tTopo_ = nullptr;
 
   std::vector<std::shared_ptr<stAPVGain> > APVsCollOrdered;
   std::unordered_map<unsigned int, std::shared_ptr<stAPVGain> > APVsColl;
+
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
+  edm::ESGetToken<SiStripGain, SiStripGainRcd> gainToken_;
+  edm::ESGetToken<SiStripQuality, SiStripQualityRcd> qualityToken_;
 };

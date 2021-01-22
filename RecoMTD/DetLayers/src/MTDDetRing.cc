@@ -53,10 +53,7 @@ pair<bool, TrajectoryStateOnSurface> MTDDetRing::compatible(const TrajectoryStat
   }
 #endif
 
-  if (ms.isValid())
-    return make_pair(est.estimate(ms, specificSurface()) != 0, ms);
-  else
-    return make_pair(false, ms);
+  return make_pair(ms.isValid() and est.estimate(ms, specificSurface()) != 0, ms);
 }
 
 vector<GeometricSearchDet::DetWithState> MTDDetRing::compatibleDets(const TrajectoryStateOnSurface& startingState,

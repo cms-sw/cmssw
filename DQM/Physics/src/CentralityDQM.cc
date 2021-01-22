@@ -94,17 +94,11 @@ void CentralityDQM::bookHistograms(DQMStore::IBooker& bei, edm::Run const&, edm:
 
   Double_t psirange = 4;
   bei.setCurrentFolder("Physics/Centrality/EventPlane/");
-  h_ep_HFm1 = bei.book1D("h_ep_HFm1", "h_ep_HFm1", 800, -psirange, psirange);
-  h_ep_HFp1 = bei.book1D("h_ep_HFp1", "h_ep_HFp1", 800, -psirange, psirange);
-  h_ep_trackm1 = bei.book1D("h_ep_trackm1", "h_ep_trackm1", 800, -psirange, psirange);
-  h_ep_trackp1 = bei.book1D("h_ep_trackp1", "h_ep_trackp1", 800, -psirange, psirange);
-  h_ep_castor1 = bei.book1D("h_ep_castor1", "h_ep_castor1", 800, -psirange, psirange);
   h_ep_HFm2 = bei.book1D("h_ep_HFm2", "h_ep_HFm2", 800, -psirange, psirange);
   h_ep_HFp2 = bei.book1D("h_ep_HFp2", "h_ep_HFp2", 800, -psirange, psirange);
   h_ep_trackmid2 = bei.book1D("h_ep_trackmid2", "h_ep_trackmid2", 800, -psirange, psirange);
   h_ep_trackm2 = bei.book1D("h_ep_trackm2", "h_ep_trackm2", 800, -psirange, psirange);
   h_ep_trackp2 = bei.book1D("h_ep_trackp2", "h_ep_trackp2", 800, -psirange, psirange);
-  h_ep_castor2 = bei.book1D("h_ep_castor2", "h_ep_castor2", 800, -psirange, psirange);
   h_ep_HFm3 = bei.book1D("h_ep_HFm3", "h_ep_HFm3", 800, -psirange, psirange);
   h_ep_HFp3 = bei.book1D("h_ep_HFp3", "h_ep_HFp3", 800, -psirange, psirange);
   h_ep_trackmid3 = bei.book1D("h_ep_trackmid3", "h_ep_trackmid3", 800, -psirange, psirange);
@@ -172,18 +166,11 @@ void CentralityDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   if (ep.isValid()) {
     EvtPlaneCollection::const_iterator rp = ep->begin();
 
-    h_ep_HFm1->Fill(rp[HFm1].angle(0));
-    h_ep_HFp1->Fill(rp[HFp1].angle(0));
-    h_ep_trackm1->Fill(rp[trackm1].angle(0));
-    h_ep_trackp1->Fill(rp[trackp1].angle(0));
-    h_ep_castor1->Fill(rp[Castor1].angle(0));
-
     h_ep_HFm2->Fill(rp[HFm2].angle(0));
     h_ep_HFp2->Fill(rp[HFp2].angle(0));
     h_ep_trackmid2->Fill(rp[trackmid2].angle(0));
     h_ep_trackm2->Fill(rp[trackm2].angle(0));
     h_ep_trackp2->Fill(rp[trackp2].angle(0));
-    h_ep_castor2->Fill(rp[Castor2].angle(0));
 
     h_ep_HFm3->Fill(rp[HFm3].angle(0));
     h_ep_HFp3->Fill(rp[HFp3].angle(0));

@@ -8,7 +8,6 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/DataRecord/interface/HcalTimeSlewRecord.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 

@@ -42,10 +42,10 @@ HGCalTopology::HGCalTopology(const HGCalDDDConstants& hdcons, int det) : hdcons_
   }
   kSizeForDenseIndexing = (unsigned int)(2 * kHGhalf_);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "HGCalTopology initialized for detector " << det_ << ":" << subdet_ << " having "
-                                << sectors_ << " Sectors, " << layers_ << " Layers from " << firstLay_ << ", " << cells_
-                                << " cells and total channels " << kSizeForDenseIndexing << ":" << (2 * kHGeomHalf_)
-                                << std::endl;
+  edm::LogVerbatim("HGCalGeom") << "HGCalTopology initialized for detector " << det << ":" << det_ << ":" << subdet_
+                                << " having " << sectors_ << " Sectors, " << layers_ << " Layers from " << firstLay_
+                                << ", " << cells_ << " cells and total channels " << kSizeForDenseIndexing << ":"
+                                << (2 * kHGeomHalf_);
 #endif
 }
 
@@ -633,6 +633,10 @@ HGCalTopology::DecodedDetId HGCalTopology::decode(const DetId& startId) const {
 
 DetId HGCalTopology::encode(const HGCalTopology::DecodedDetId& idx) const {
   DetId id;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "Encode " << idx.det << ":" << idx.zSide << ":" << idx.iType << ":" << idx.iLay
+                                << ":" << idx.iSec1 << ":" << idx.iSec2 << ":" << idx.iCell1 << ":" << idx.iCell2;
+#endif
   if (waferHexagon6()) {
     id =
         HGCalDetId((ForwardSubdetector)(idx.det), idx.zSide, idx.iLay, ((idx.iType > 0) ? 1 : 0), idx.iSec1, idx.iCell1)

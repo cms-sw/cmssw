@@ -21,7 +21,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
-#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "CondFormats/GBRForest/interface/GBRForest.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
@@ -164,6 +164,8 @@ void PFECALSuperClusterProducer::beginLuminosityBlock(LuminosityBlock const& iL,
 }
 
 void PFECALSuperClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  // update SC parameters
+  superClusterAlgo_.updateSCParams(iSetup);
   // do clustering
   superClusterAlgo_.loadAndSortPFClusters(iEvent);
   superClusterAlgo_.run();

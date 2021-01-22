@@ -18,7 +18,7 @@ RecoLocalCaloAOD.outputCommands.extend(ecalLocalRecoAOD.outputCommands)
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
 from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 # don't modify AOD for HGCal yet, need "reduced" rechits collection first (i.e. requires reconstruction)
 phase2_hgcal.toModify( RecoLocalCaloAOD, 
     outputCommands = RecoLocalCaloAOD.outputCommands + ['keep *_HGCalRecHit_*_*',
@@ -29,7 +29,7 @@ phase2_hfnose.toModify( RecoLocalCaloAOD,
     outputCommands = RecoLocalCaloAOD.outputCommands + ['keep recoCaloClusters_hgcalLayerClustersHFNose_*_*',
                                                         'keep *_hgcalLayerClustersHFNose_timeLayerCluster_*',
                                                         'keep *_hgcalLayerClustersHFNose_InitialLayerClustersMask_*'])
-(pA_2016|pp_on_AA_2018).toModify( RecoLocalCaloAOD.outputCommands,
+(pA_2016|pp_on_AA).toModify( RecoLocalCaloAOD.outputCommands,
         func=lambda outputCommands: outputCommands.extend(['keep *_zdcreco_*_*',
                                                            'keep ZDCDataFramesSorted_hcalDigis_*_*',
                                                            'keep ZDCDataFramesSorted_castorDigis_*_*',

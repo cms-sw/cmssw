@@ -26,6 +26,7 @@
     <Parameter name="FirstMixedLayer"     value="-1"/>
     <Parameter name="DetectorType"        value="1"/>
     <Parameter name="WaferMaskMode"       value="0"/>
+    <Parameter name="WaferZside"          value="1"/>
     <Parameter name="Radius100to200"      value="[hfnose:HFNoseRMax3]"/>
     <Parameter name="Radius100to200"      value="0"/>
     <Parameter name="Radius100to200"      value="0"/>

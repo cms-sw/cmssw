@@ -12,7 +12,6 @@
 //
 //
 
-// user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -40,14 +39,15 @@ private:
   const edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
   const edm::EDGetTokenT<EcalRecHitCollection> ecalRechitEBToken_;
   const edm::EDGetTokenT<EcalRecHitCollection> ecalRechitEEToken_;
+  const EcalClusterLazyTools::ESGetTokens ecalClusterLazyToolsESGetTokens_;
   const bool EtaOrIeta_;
 };
 
 EgammaHLTClusterShapeProducer::EgammaHLTClusterShapeProducer(const edm::ParameterSet& config)
-    : recoEcalCandidateProducer_(
-          consumes<reco::RecoEcalCandidateCollection>(config.getParameter<edm::InputTag>("recoEcalCandidateProducer"))),
-      ecalRechitEBToken_(consumes<EcalRecHitCollection>(config.getParameter<edm::InputTag>("ecalRechitEB"))),
-      ecalRechitEEToken_(consumes<EcalRecHitCollection>(config.getParameter<edm::InputTag>("ecalRechitEE"))),
+    : recoEcalCandidateProducer_(consumes(config.getParameter<edm::InputTag>("recoEcalCandidateProducer"))),
+      ecalRechitEBToken_(consumes(config.getParameter<edm::InputTag>("ecalRechitEB"))),
+      ecalRechitEEToken_(consumes(config.getParameter<edm::InputTag>("ecalRechitEE"))),
+      ecalClusterLazyToolsESGetTokens_{consumesCollector()},
       EtaOrIeta_(config.getParameter<bool>("isIeta")) {
   //register your products
   produces<reco::RecoEcalCandidateIsolationMap>();
@@ -72,14 +72,21 @@ void EgammaHLTClusterShapeProducer::produce(edm::StreamID sid,
   edm::Handle<reco::RecoEcalCandidateCollection> recoecalcandHandle;
   iEvent.getByToken(recoEcalCandidateProducer_, recoecalcandHandle);
 
-  EcalClusterLazyTools lazyTools(iEvent, iSetup, ecalRechitEBToken_, ecalRechitEEToken_);
-  noZS::EcalClusterLazyTools lazyTools5x5(iEvent, iSetup, ecalRechitEBToken_, ecalRechitEEToken_);
+  auto const& ecalClusterLazyToolsESData = ecalClusterLazyToolsESGetTokens_.get(iSetup);
+
+  EcalClusterLazyTools lazyTools(iEvent, ecalClusterLazyToolsESData, ecalRechitEBToken_, ecalRechitEEToken_);
+  noZS::EcalClusterLazyTools lazyTools5x5(iEvent, ecalClusterLazyToolsESData, ecalRechitEBToken_, ecalRechitEEToken_);
 
   reco::RecoEcalCandidateIsolationMap clshMap(recoecalcandHandle);
   reco::RecoEcalCandidateIsolationMap clsh5x5Map(recoecalcandHandle);
 
   for (unsigned int iRecoEcalCand = 0; iRecoEcalCand < recoecalcandHandle->size(); iRecoEcalCand++) {
     reco::RecoEcalCandidateRef recoecalcandref(recoecalcandHandle, iRecoEcalCand);
+    if (recoecalcandref->superCluster()->seed()->seed().det() != DetId::Ecal) {  //HGCAL, skip for now
+      clshMap.insert(recoecalcandref, 0);
+      clsh5x5Map.insert(recoecalcandref, 0);
+      continue;
+    }
 
     std::vector<float> vCov;
     double sigmaee;

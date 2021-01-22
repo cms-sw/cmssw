@@ -10,7 +10,7 @@ CSCMuonPortCard::CSCMuonPortCard(unsigned endcap, unsigned station, unsigned sec
   minBX_ = conf.getParameter<int>("MinBX");
   maxBX_ = conf.getParameter<int>("MaxBX");
 
-  edm::ParameterSet mpcParams = conf.getParameter<edm::ParameterSet>("mpcParams");
+  const auto& mpcParams = conf.getParameter<edm::ParameterSet>("mpcParam");
   sort_stubs_ = mpcParams.getParameter<bool>("sortStubs");
   drop_invalid_stubs_ = mpcParams.getParameter<bool>("dropInvalidStubs");
   drop_low_quality_stubs_ = mpcParams.getParameter<bool>("dropLowQualityStubs");

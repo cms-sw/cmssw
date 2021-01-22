@@ -67,24 +67,29 @@ void ESIntegrityTask::dqmEndRun(const Run& r, const EventSetup& c) {
   // TODO: no longer possible, clone histo beforehand if full statisticcs at end of run are required.
 }
 
-void ESIntegrityTask::dqmBeginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& c) {
+std::shared_ptr<ESLSCache> ESIntegrityTask::globalBeginLuminosityBlock(const edm::LuminosityBlock& lumi,
+                                                                       const edm::EventSetup& c) const {
   LogInfo("ESIntegrityTask") << "analyzed " << ievt_ << " events";
   // In case of Lumi based analysis SoftReset the Integrity histogram
+  auto lumiCache = std::make_shared<ESLSCache>();
+  lumiCache->ievtLS_ = 0;
   if (doLumiAnalysis_) {
-    for (int i = 0; i < 2; ++i) {
-      for (int j = 0; j < 2; ++j) {
-        if (meDIErrors_[i][j]) {
-          meDIErrors_[i][j]->Reset();
+    for (int iz = 0; iz < 2; ++iz) {
+      for (int ip = 0; ip < 2; ++ip) {
+        for (int ix = 0; ix < 40; ++ix) {
+          for (int iy = 0; iy < 40; ++iy) {
+            (lumiCache->DIErrorsLS_)[iz][ip][ix][iy] = 0;
+          }
         }
       }
     }
-    ievt_ = 0;
   }
+  return lumiCache;
 }
 
-void ESIntegrityTask::dqmEndLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& c) {
+void ESIntegrityTask::globalEndLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& c) {
   if (doLumiAnalysis_)
-    calculateDIFraction();
+    calculateDIFraction(lumi, c);
 }
 
 void ESIntegrityTask::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&, edm::EventSetup const&) {
@@ -178,7 +183,6 @@ void ESIntegrityTask::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&
 
   if (doLumiAnalysis_) {
     sprintf(histo, "ES Good Channel Fraction");
-    auto scope = DQMStore::IBooker::UseLumiScope(iBooker);
     meDIFraction_ = iBooker.book2D(histo, histo, 3, 1.0, 3.0, 3, 1.0, 3.0);
   }
 }
@@ -187,6 +191,8 @@ void ESIntegrityTask::endJob(void) { LogInfo("ESIntegrityTask") << "analyzed " <
 
 void ESIntegrityTask::analyze(const Event& e, const EventSetup& c) {
   ievt_++;
+  auto lumiCache = luminosityBlockCache(e.getLuminosityBlock().index());
+  ++(lumiCache->ievtLS_);
 
   Handle<ESRawDataCollection> dccs;
   Handle<ESLocalRawDataCollection> kchips;
@@ -308,34 +314,36 @@ void ESIntegrityTask::analyze(const Event& e, const EventSetup& c) {
           if (fed_[iz][ip][ix][iy] == -1)
             continue;
 
-          if (nDIErr[fed_[iz][ip][ix][iy] - 520][fiber_[iz][ip][ix][iy]] > 0)
+          if (nDIErr[fed_[iz][ip][ix][iy] - 520][fiber_[iz][ip][ix][iy]] > 0) {
             meDIErrors_[iz][ip]->Fill(ix + 1, iy + 1, 1);
+            if (doLumiAnalysis_)
+              (lumiCache->DIErrorsLS_)[iz][ip][ix][iy] += 1;
+          }
         }
 }
 //
 // -- Calculate Data Integrity Fraction
 //
-void ESIntegrityTask::calculateDIFraction(void) {
+void ESIntegrityTask::calculateDIFraction(const edm::LuminosityBlock& lumi, const edm::EventSetup& c) {
   float nValidChannels = 0;
   float nGlobalErrors = 0;
+  auto lumiCache = luminosityBlockCache(lumi.index());
 
   for (int i = 0; i < 2; ++i) {
     for (int j = 0; j < 2; ++j) {
       float nValidChannelsES = 0;
       float nGlobalErrorsES = 0;
       float reportSummaryES = -1;
-      if (!meDIErrors_[i][j])
-        continue;
       for (int x = 0; x < 40; ++x) {
         for (int y = 0; y < 40; ++y) {
-          float val = meDIErrors_[i][j]->getBinContent(x + 1, y + 1);
+          float val = 1.0 * ((lumiCache->DIErrorsLS_)[i][j][x][y]);
           if (fed_[i][j][x][y] == -1)
             continue;
-          if (ievt_ != 0)
-            nGlobalErrors += val / ievt_;
+          if ((lumiCache->ievtLS_) != 0)
+            nGlobalErrors += val / (lumiCache->ievtLS_);
           nValidChannels++;
-          if (ievt_ != 0)
-            nGlobalErrorsES += val / ievt_;
+          if ((lumiCache->ievtLS_) != 0)
+            nGlobalErrorsES += val / (lumiCache->ievtLS_);
           nValidChannelsES++;
         }
       }

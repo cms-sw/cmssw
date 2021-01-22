@@ -78,6 +78,10 @@ private:
   // ----------member data ---------------------------
   const std::string nameDetector_;
   edm::EDGetToken recHitSource_;
+  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_hcaldd_;
+  edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> tok_hgcaldd_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_caloGeom_;
+  edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> tok_hgcGeom_;
   const bool ifNose_, ifHCAL_, ifLayer_;
   const int verbosity_, nbinR_, nbinZ_, nbinEta_, nLayers_;
   const double rmin_, rmax_, zmin_, zmax_, etamin_, etamax_;
@@ -127,6 +131,13 @@ HGCalRecHitStudy::HGCalRecHitStudy(const edm::ParameterSet& iConfig)
   }
   edm::LogVerbatim("HGCalValidation") << "Initialize HGCalRecHitStudy for " << nameDetector_ << " with i/p tag " << temp
                                       << " Flag " << ifHCAL_ << ":" << ifNose_ << ":" << verbosity_;
+  tok_hcaldd_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>();
+  tok_caloGeom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
+  if (nameDetector_ != "HCal") {
+    tok_hgcaldd_ = esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+        edm::ESInputTag{"", nameDetector_});
+    tok_hgcGeom_ = esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", nameDetector_});
+  }
 }
 
 void HGCalRecHitStudy::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -157,8 +168,7 @@ void HGCalRecHitStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   bool ok(true);
   unsigned int ntot(0), nused(0);
   if (nameDetector_ == "HCal") {
-    edm::ESHandle<CaloGeometry> geom;
-    iSetup.get<CaloGeometryRecord>().get(geom);
+    edm::ESHandle<CaloGeometry> geom = iSetup.getHandle(tok_caloGeom_);
     if (!geom.isValid())
       edm::LogWarning("HGCalValidation") << "Cannot get valid HGCalGeometry Object for " << nameDetector_;
     const CaloGeometry* geom0 = geom.product();
@@ -201,8 +211,7 @@ void HGCalRecHitStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       }
     }
   } else {
-    edm::ESHandle<HGCalGeometry> geom;
-    iSetup.get<IdealGeometryRecord>().get(nameDetector_, geom);
+    edm::ESHandle<HGCalGeometry> geom = iSetup.getHandle(tok_hgcGeom_);
     if (!geom.isValid())
       edm::LogWarning("HGCalValidation") << "Cannot get valid HGCalGeometry Object for " << nameDetector_;
     const HGCalGeometry* geom0 = geom.product();
@@ -303,13 +312,11 @@ void HGCalRecHitStudy::fillHitsInfo(HitsInfo& hits) {
 
 void HGCalRecHitStudy::beginRun(edm::Run const&, edm::EventSetup const& iSetup) {
   if (nameDetector_ == "HCal") {
-    edm::ESHandle<HcalDDDRecConstants> pHRNDC;
-    iSetup.get<HcalRecNumberingRecord>().get(pHRNDC);
+    edm::ESHandle<HcalDDDRecConstants> pHRNDC = iSetup.getHandle(tok_hcaldd_);
     const HcalDDDRecConstants* hcons = &(*pHRNDC);
     layers_ = hcons->getMaxDepth(1);
   } else {
-    edm::ESHandle<HGCalDDDConstants> pHGDC;
-    iSetup.get<IdealGeometryRecord>().get(nameDetector_, pHGDC);
+    edm::ESHandle<HGCalDDDConstants> pHGDC = iSetup.getHandle(tok_hgcaldd_);
     const HGCalDDDConstants& hgcons_ = (*pHGDC);
     layers_ = hgcons_.layers(true);
     firstLayer_ = hgcons_.firstLayer();

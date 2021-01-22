@@ -8,6 +8,7 @@ from SimCalorimetry.EcalSimProducers.esElectronicsSim_cff import *
 from SimCalorimetry.EcalSimProducers.ecalNotContainmentSim_cff import *
 from SimCalorimetry.EcalSimProducers.ecalCosmicsSim_cff import *
 
+
 ecalDigitizer = cms.PSet(
     ecal_digi_parameters,
     apd_sim_parameters,
@@ -28,7 +29,15 @@ ecalDigitizer.doEB = cms.bool(True)
 ecalDigitizer.doEE = cms.bool(True)
 ecalDigitizer.doES = cms.bool(True)
 
-from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
-phase2_common.toModify( ecalDigitizer, doES = cms.bool(False) )
+
+
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify( ecalDigitizer, doEE = cms.bool(False) )
+
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify( ecalDigitizer, doES = cms.bool(False) )
+
+#phase 2 digitization
+from Configuration.Eras.Modifier_phase2_ecal_devel_cff import phase2_ecal_devel
+from SimGeneral.MixingModule.ecalDigitizer_Ph2_cfi import ecalDigitizer_Ph2 as _ecalDigitizer_Ph2
+phase2_ecal_devel.toReplaceWith(ecalDigitizer,_ecalDigitizer_Ph2)

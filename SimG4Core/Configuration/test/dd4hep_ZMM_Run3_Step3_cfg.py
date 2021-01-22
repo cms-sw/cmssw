@@ -24,7 +24,7 @@ process.load('DQMServices.Core.DQMStoreNonLegacy_cff')
 process.load('DQMOffline.Configuration.DQMOfflineMC_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-process.MessageLogger.categories.append("TrackerGeometryBuilder");
+process.MessageLogger.TrackerGeometryBuilder=dict();
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10),
@@ -93,7 +93,7 @@ process.MINIAODSIMoutput = cms.OutputModule("PoolOutputModule",
     dropMetaData = cms.untracked.string('ALL'),
     eventAutoFlushCompressedSize = cms.untracked.int32(-900),
     fastCloning = cms.untracked.bool(False),
-    fileName = cms.untracked.string('file:step3_ZMM_New2021_inMINIAODSIM.root'),
+    fileName = cms.untracked.string('file:step3_ZMM_dd4hep_inMINIAODSIM.root'),
     outputCommands = process.MINIAODSIMEventContent.outputCommands,
     overrideBranchesSplitLevel = cms.untracked.VPSet(
         cms.untracked.PSet(
@@ -154,7 +154,7 @@ process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
         dataTier = cms.untracked.string('DQMIO'),
         filterName = cms.untracked.string('')
     ),
-    fileName = cms.untracked.string('file:step3_ZMM_New2021_inDQM.root'),
+    fileName = cms.untracked.string('file:step3_ZMM_dd4hep_inDQM.root'),
     outputCommands = process.DQMEventContent.outputCommands,
     splitLevel = cms.untracked.int32(0)
 )

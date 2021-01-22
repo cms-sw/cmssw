@@ -116,15 +116,15 @@ void MtdGlobalRecoHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGett
                                 meETLTrackEffPtTotZpos->getNbinsX(),
                                 meETLTrackEffPtTotZpos->getTH1()->GetXaxis()->GetXmin(),
                                 meETLTrackEffPtTotZpos->getTH1()->GetXaxis()->GetXmax());
+
   meBtlEtaEff_->getTH1()->SetMinimum(0.);
   meBtlPhiEff_->getTH1()->SetMinimum(0.);
   meBtlPtEff_->getTH1()->SetMinimum(0.);
-  meEtlEtaEff_[0]->getTH1()->SetMinimum(0.);
-  meEtlPhiEff_[0]->getTH1()->SetMinimum(0.);
-  meEtlPtEff_[0]->getTH1()->SetMinimum(0.);
-  meEtlEtaEff_[1]->getTH1()->SetMinimum(0.);
-  meEtlPhiEff_[1]->getTH1()->SetMinimum(0.);
-  meEtlPtEff_[1]->getTH1()->SetMinimum(0.);
+  for (int i = 0; i < 2; i++) {
+    meEtlEtaEff_[i]->getTH1()->SetMinimum(0.);
+    meEtlPhiEff_[i]->getTH1()->SetMinimum(0.);
+    meEtlPtEff_[i]->getTH1()->SetMinimum(0.);
+  }
 
   // --- Calculate efficiency BTL
   for (int ibin = 1; ibin <= meBTLTrackEffEtaTot->getNbinsX(); ibin++) {

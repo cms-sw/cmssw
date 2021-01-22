@@ -40,7 +40,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -138,6 +137,11 @@ private:
   edm::EDGetTokenT<std::vector<unsigned char> > amplitude_token_;
   edm::EDGetTokenT<std::vector<double> > gainused_token_;
   edm::EDGetTokenT<std::vector<double> > gainusedTick_token_;
+
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
+  edm::ESGetToken<SiStripGain, SiStripGainRcd> gainToken_;
+  edm::ESGetToken<SiStripQuality, SiStripQualityRcd> qualityToken_;
 
   std::string EventPrefix_;  //("");
   std::string EventSuffix_;  //("");

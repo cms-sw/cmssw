@@ -6,7 +6,8 @@
 
 SiStripClusterizer::SiStripClusterizer(const edm::ParameterSet& conf)
     : inputTags(conf.getParameter<std::vector<edm::InputTag>>("DigiProducersList")),
-      algorithm(StripClusterizerAlgorithmFactory::create(conf.getParameter<edm::ParameterSet>("Clusterizer"))) {
+      algorithm(StripClusterizerAlgorithmFactory::create(consumesCollector(),
+                                                         conf.getParameter<edm::ParameterSet>("Clusterizer"))) {
   produces<edmNew::DetSetVector<SiStripCluster>>();
   inputTokens = edm::vector_transform(
       inputTags, [this](edm::InputTag const& tag) { return consumes<edm::DetSetVector<SiStripDigi>>(tag); });

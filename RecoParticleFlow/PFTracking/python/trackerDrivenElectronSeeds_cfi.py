@@ -50,8 +50,8 @@ trackerDrivenElectronSeeds = cms.EDProducer("GoodSeedProducer",
 )
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+for e in [pp_on_XeXe_2017, pp_on_AA]:
     e.toModify(trackerDrivenElectronSeeds, MinPt = 5.0) 
 
 # tracker driven electron seeds depend on the generalTracks trajectory collection
@@ -68,3 +68,4 @@ fastSim.toReplaceWith(trackerDrivenElectronSeeds,_fastSim_trackerDrivenElectronS
 
 from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
 egamma_lowPt_exclusive.toModify(trackerDrivenElectronSeeds,MinPt = 1.0)
+

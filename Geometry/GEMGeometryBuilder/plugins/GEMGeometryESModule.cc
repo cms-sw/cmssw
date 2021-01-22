@@ -84,6 +84,7 @@ GEMGeometryESModule::GEMGeometryESModule(const edm::ParameterSet& p)
     alignmentsToken_ = cc.consumes(edm::ESInputTag{"", alignmentsLabel_});
     alignmentErrorsToken_ = cc.consumes(edm::ESInputTag{"", alignmentsLabel_});
   }
+  edm::LogVerbatim("GEMGeometry") << "GEMGeometryESModule::initailized with flags " << fromDDD_ << ":" << fromDD4hep_;
 }
 
 void GEMGeometryESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -99,16 +100,19 @@ std::unique_ptr<GEMGeometry> GEMGeometryESModule::produce(const MuonGeometryReco
   auto gemGeometry = std::make_unique<GEMGeometry>();
 
   if (fromDDD_) {
+    edm::LogVerbatim("GEMGeometry") << "GEMGeometryESModule::produce :: GEMGeometryBuilder builder ddd";
     auto cpv = record.getTransientHandle(cpvToken_);
     const auto& mdc = record.get(mdcToken_);
     GEMGeometryBuilder builder;
     builder.build(*gemGeometry, cpv.product(), mdc);
   } else if (fromDD4hep_) {
+    edm::LogVerbatim("GEMGeometry") << "GEMGeometryESModule::produce :: GEMGeometryBuilder builder dd4hep";
     edm::ESTransientHandle<cms::DDCompactView> cpv = record.getTransientHandle(dd4hepcpvToken_);
     const auto& mdc = record.get(mdcToken_);
     GEMGeometryBuilder builder;
     builder.build(*gemGeometry, cpv.product(), mdc);
   } else {
+    edm::LogVerbatim("GEMGeometry") << "GEMGeometryESModule::produce :: GEMGeometryBuilder builder db";
     const auto& riggem = record.get(riggemToken_);
     GEMGeometryBuilderFromCondDB builder;
     builder.build(*gemGeometry, riggem);

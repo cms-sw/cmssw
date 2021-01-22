@@ -1,8 +1,10 @@
+<use name="CalibTracker/Records"/>
 <use name="CommonTools/ConditionDBWriter"/>
 <use name="DataFormats/SiStripDetId"/>
-<use name="root"/>
 <use name="DataFormats/TrackerCommon"/>
 <use name="DQMServices/Core"/>
+<use name="MagneticField/Records"/>
+<use name="root"/>
 <export>
   <lib name="1"/>
 </export>

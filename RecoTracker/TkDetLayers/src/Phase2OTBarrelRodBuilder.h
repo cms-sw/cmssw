@@ -14,8 +14,9 @@
 class Phase2OTBarrelRodBuilder {
 public:
   Phase2OTBarrelRodBuilder(){};
-  Phase2OTBarrelRod* build(const GeometricDet* thePhase2OTBarrelRod, const TrackerGeometry* theGeomDetGeometry)
-      __attribute__((cold));
+  Phase2OTBarrelRod* build(const GeometricDet* thePhase2OTBarrelRod,
+                           const TrackerGeometry* theGeomDetGeometry,
+                           const bool useBrothers = true) __attribute__((cold));
 };
 
 #pragma GCC visibility pop

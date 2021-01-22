@@ -76,7 +76,9 @@ public:
     // An MPC receives up to 18 LCTs from 9 CSCs in the trigger sector
     MAX_LCTS_PER_MPC = 18,
     // Reference BX for LCTs in simulation and firmware
-    LCT_CENTRAL_BX = 8
+    LCT_CENTRAL_BX = 8,
+    // Offset between the ALCT and CLCT central BX in simulation
+    ALCT_CLCT_OFFSET = 1
   };
 };
 

@@ -6,18 +6,41 @@
 //=============================================================================
 //*****************************************************************************
 
-#include "RecoEgamma/EgammaIsolationAlgos/plugins/EgammaTowerIsolationProducer.h"
-
-// Framework
-#include "DataFormats/Common/interface/Handle.h"
-
-#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/Candidate/interface/CandAssociation.h"
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+class EgammaTowerIsolationProducer : public edm::stream::EDProducer<> {
+public:
+  explicit EgammaTowerIsolationProducer(const edm::ParameterSet&);
+  ~EgammaTowerIsolationProducer() override;
+
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+private:
+  // ----------member data ---------------------------
+
+  edm::InputTag emObjectProducer_;
+  edm::InputTag towerProducer_;
+
+  double egHcalIsoPtMin_;
+  double egHcalIsoConeSizeOut_;
+  double egHcalIsoConeSizeIn_;
+  signed int egHcalDepth_;
+
+  edm::ParameterSet conf_;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(EgammaTowerIsolationProducer);
 
 EgammaTowerIsolationProducer::EgammaTowerIsolationProducer(const edm::ParameterSet& config) : conf_(config) {
   // use configuration file to setup input/output collection names
@@ -67,6 +90,3 @@ void EgammaTowerIsolationProducer::produce(edm::Event& iEvent, const edm::EventS
   filler.fill();
   iEvent.put(std::move(isoMap));
 }
-
-//define this as a plug-in
-//DEFINE_FWK_MODULE(EgammaTowerIsolationProducer);

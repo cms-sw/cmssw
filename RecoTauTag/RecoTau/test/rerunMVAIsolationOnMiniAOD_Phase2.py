@@ -24,9 +24,11 @@ process.TFileService = cms.Service("TFileService",
 )
 
 from RecoTauTag.RecoTau.TauDiscriminatorTools import noPrediscriminants
-### Load PoolDBESSource with mapping to payloads
-# Note: replace it by an appropriate GlobalTag when MVAIso phase-2 payloads are available via it
-process.load('RecoTauTag.Configuration.loadRecoTauTagMVAsFromPrepDB_cfi')
+### Load payloads via GlobalTag
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
+
 
 from RecoTauTag.RecoTau.PATTauDiscriminationByMVAIsolationRun2_cff import *
 process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2raw = patDiscriminationByIsolationMVArun2v1raw.clone(
@@ -56,13 +58,13 @@ process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2 = patDiscriminationByI
         )
     ),
     workingPoints = cms.vstring(
-        "_WPEff95",
-        "_WPEff90",
-        "_WPEff80",
-        "_WPEff70",
-        "_WPEff60",
-        "_WPEff50",
-        "_WPEff40"
+        "_VVLoose",
+        "_VLoose",
+        "_Loose",
+        "_Medium",
+        "_Tight",
+        "_VTight",
+        "_VVTight"
     )
 )
 
@@ -78,13 +80,13 @@ embedID = cms.EDProducer("PATTauIDEmbedder",
     src = cms.InputTag('slimmedTaus'),
     tauIDSources = cms.PSet(
         byIsolationMVADBnewDMwLTPhase2raw = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "raw"),
-        byVVLooseIsolationMVADBnewDMwLTPhase2 = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "_WPEff95"),
-        byVLooseIsolationMVADBnewDMwLTPhase2 = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "_WPEff90"),
-        byLooseIsolationMVADBnewDMwLTPhase2 = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "_WPEff80"),
-        byMediumIsolationMVADBnewDMwLTPhase2 = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "_WPEff70"),
-        byTightIsolationMVADBnewDMwLTPhase2 = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "_WPEff60"),
-        byVTightIsolationMVADBnewDMwLTPhase2 = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "_WPEff50"),
-        byVVTightIsolationMVADBnewDMwLTPhase2 = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "_WPEff40")
+        byVVLooseIsolationMVADBnewDMwLTPhase2 = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "_VVLoose"),
+        byVLooseIsolationMVADBnewDMwLTPhase2 = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "_VLoose"),
+        byLooseIsolationMVADBnewDMwLTPhase2 = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "_Loose"),
+        byMediumIsolationMVADBnewDMwLTPhase2 = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "_Medium"),
+        byTightIsolationMVADBnewDMwLTPhase2 = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "_Tight"),
+        byVTightIsolationMVADBnewDMwLTPhase2 = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "_VTight"),
+        byVVTightIsolationMVADBnewDMwLTPhase2 = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "_VVTight")
     ),
 )
 setattr(process, "newTauIDsEmbedded", embedID)

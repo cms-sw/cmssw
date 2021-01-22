@@ -76,6 +76,10 @@ namespace edm {
 
     SelectedProductsForBranchType const& keptProducts() const { return keptProducts_; }
 
+    // Returns the set of modules whose products may be consumed by
+    // modules in this SubProcess or its child SubProcesses
+    std::vector<ModuleProcessName> keepOnlyConsumedUnscheduledModules(bool deleteModules);
+
     void doBeginJob();
     void doEndJob();
 

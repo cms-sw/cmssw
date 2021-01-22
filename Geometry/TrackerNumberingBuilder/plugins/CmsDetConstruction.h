@@ -17,8 +17,6 @@ private:
   void buildDets(const FilteredView&, GeometricDet*, const std::string&);
   void buildSmallDetsforGlued(FilteredView&, GeometricDet*, const std::string&);
   void buildSmallDetsforStack(FilteredView&, GeometricDet*, const std::string&);
-  bool setNext(cms::DDFilteredView& fv) { return fv.firstChild(); }
-  bool setNext(DDFilteredView& fv) { return fv.nextSibling(); }
 };
 
 #endif  // Geometry_TrackerNumberingBuilder_CmsDetConstruction_H

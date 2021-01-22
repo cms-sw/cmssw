@@ -12,7 +12,7 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 
-HcalHaloDataProducer::HcalHaloDataProducer(const edm::ParameterSet& iConfig) {
+HcalHaloDataProducer::HcalHaloDataProducer(const edm::ParameterSet& iConfig) : HcalAlgo(consumesCollector()) {
   //RecHit Level
   IT_EBRecHit = iConfig.getParameter<edm::InputTag>("EBRecHitLabel");
   IT_EERecHit = iConfig.getParameter<edm::InputTag>("EERecHitLabel");
@@ -63,7 +63,6 @@ void HcalHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   iEvent.getByToken(hfrechit_token_, TheHFRecHits);
 
   // Run the HcalHaloAlgo to reconstruct the HcalHaloData object
-  HcalHaloAlgo HcalAlgo;
   HcalAlgo.SetRecHitEnergyThresholds(HBRecHitEnergyThreshold, HERecHitEnergyThreshold);
   HcalAlgo.SetPhiWedgeThresholds(SumHcalEnergyThreshold, NHitsHcalThreshold);
 

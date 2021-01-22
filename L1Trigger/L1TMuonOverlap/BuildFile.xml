@@ -3,6 +3,7 @@
 </export>
 <use name="xerces-c"/>
 <use name="root"/>
+<use name="DataFormats/L1DTTrackFinder"/>
 <use name="L1Trigger/RPCTrigger"/>
 <use name="DataFormats/L1TMuon"/>
 <use name="Geometry/Records"/>

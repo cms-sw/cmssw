@@ -587,7 +587,7 @@ def main():
         if (to_bool(isMC[iConf]) or (not to_bool(doRunBased))):
             if(to_bool(isMC[iConf])):
                 print("this is MC")
-                cmd = 'das_client.py --limit=0 --query \'file dataset='+opts.data+'\''
+                cmd = 'dasgoclient -query \'file dataset='+opts.data+'\''
                 s = Popen(cmd , shell=True, stdout=PIPE, stderr=PIPE)
                 out,err = s.communicate()
                 mylist = out.split('\n')
@@ -600,7 +600,7 @@ def main():
                     myRuns.append(str(1))
             else:
                 print("this is DATA (not doing full run-based selection)")
-                cmd = 'das_client.py --limit=0 --query \'file dataset='+opts.data+' run='+runboundary[iConf]+'\''
+                cmd = 'dasgoclient -query \'file dataset='+opts.data+' run='+runboundary[iConf]+'\''
                 #print cmd
                 s = Popen(cmd , shell=True, stdout=PIPE, stderr=PIPE)
                 out,err = s.communicate()
@@ -614,7 +614,7 @@ def main():
         else:
             print("this is Data")
             print("doing run based selection")
-            cmd = 'das_client.py --limit=0 --query \'run dataset='+opts.data+'\''
+            cmd = 'dasgoclient -query \'run dataset='+opts.data+'\''
             p = Popen(cmd , shell=True, stdout=PIPE, stderr=PIPE)
             out, err = p.communicate()
             listOfRuns=out.split('\n')
@@ -628,7 +628,7 @@ def main():
 
             for run in listOfRuns:
                 #print "preparing run",run
-                cmd2 = ' das_client.py --limit=0 --query \'file run='+run+' dataset='+opts.data+'\''
+                cmd2 = ' dasgoclient -query \'file run='+run+' dataset='+opts.data+'\''
                 q = Popen(cmd2 , shell=True, stdout=PIPE, stderr=PIPE)
                 procs.append(q)
                 #out2, err2 = q.communicate()

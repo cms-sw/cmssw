@@ -57,9 +57,6 @@ process.MessageLogger = cms.Service("MessageLogger",
         ),
         noLineBreaks = cms.untracked.bool(True),
         threshold = cms.untracked.string('DEBUG'),
-        FwkJob = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
         DEBUG = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         )

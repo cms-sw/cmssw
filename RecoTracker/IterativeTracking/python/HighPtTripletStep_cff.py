@@ -67,9 +67,9 @@ highPtTripletStepTrackingRegions = _globalTrackingRegionFromBeamSpot.clone(Regio
 trackingPhase2PU140.toModify(highPtTripletStepTrackingRegions, RegionPSet = dict(ptMin = 0.7, originRadius = 0.02))
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
-(pp_on_XeXe_2017 | pp_on_AA_2018).toReplaceWith(highPtTripletStepTrackingRegions, 
+(pp_on_XeXe_2017 | pp_on_AA).toReplaceWith(highPtTripletStepTrackingRegions, 
                 _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
                     fixedError   = 0.2,
                     ptMin        = 0.7,
@@ -148,8 +148,7 @@ highPtTripletStepTrajectoryFilterBase = _highPtTripletStepTrajectoryFilterBase.c
 )
 trackingPhase2PU140.toReplaceWith(highPtTripletStepTrajectoryFilterBase, _highPtTripletStepTrajectoryFilterBase)
 
-for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
-    e.toModify(highPtTripletStepTrajectoryFilterBase, minPt=0.7)
+(pp_on_XeXe_2017 | pp_on_AA).toModify(highPtTripletStepTrajectoryFilterBase, minPt=0.7)
 highBetaStar_2018.toModify(highPtTripletStepTrajectoryFilterBase, minPt=0.05)
 
 highPtTripletStepTrajectoryFilter = _TrajectoryFilter_cff.CompositeTrajectoryFilter_block.clone(
@@ -262,7 +261,7 @@ trackdnn.toReplaceWith(highPtTripletStep, TrackLwtnnClassifier.clone(
 ))
 
 highBetaStar_2018.toModify(highPtTripletStep,qualityCuts = [-0.2,0.3,0.4])
-pp_on_AA_2018.toModify(highPtTripletStep, 
+pp_on_AA.toModify(highPtTripletStep, 
         mva = dict(GBRForestLabel = 'HIMVASelectorHighPtTripletStep_Phase1'),
         qualityCuts = [-0.9, -0.3, 0.85],
 )
@@ -318,6 +317,9 @@ highPtTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_c
     ] #end of vpset
 ) #end of clone
 
+from Configuration.ProcessModifiers.vectorHits_cff import vectorHits
+vectorHits.toModify(highPtTripletStepSelector.trackSelectors[2], minNumberLayers = 3, minNumber3DLayers = 3, d0_par1 = ( 0.5, 4.0 ), dz_par1 = ( 0.6, 4.0 ))
+
 # Final sequence
 HighPtTripletStepTask = cms.Task(highPtTripletStepClusters,
                                  highPtTripletStepSeedLayers,
@@ -327,7 +329,6 @@ HighPtTripletStepTask = cms.Task(highPtTripletStepClusters,
                                  highPtTripletStepSeeds,
                                  highPtTripletStepTrackCandidates,
                                  highPtTripletStepTracks,
-#                                 highPtTripletStepClassifier1,highPtTripletStepClassifier2,highPtTripletStepClassifier3*
                                  highPtTripletStep)
 HighPtTripletStep = cms.Sequence(HighPtTripletStepTask)
 _HighPtTripletStepTask_Phase2PU140 = HighPtTripletStepTask.copy()

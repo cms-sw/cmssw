@@ -19,7 +19,7 @@ cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=alltypes.root numberEventsIn
 # the scalar MEs should have the last lumi number (5) (5 float + 5 int)
 # testonefilllumi also should have 5 entries in the histograms (9 more)
 # the "fillrun" module should have one entry in the histograms (9 total) and 0 in the scalars (2 total)
-[ "0: 1, 0.0: 1, 1: 9, 100: 36, 5: 14, 5.0: 5" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py alltypes.root -r 1 --summary)" ]
+[ "0: 1, 0.0: 1, 1: 9, 100: 27, 200: 9, 5: 14, 5.0: 5" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py alltypes.root -r 1 --summary)" ]
 # per lumi we see 20 in most histograms (4*9), and the current lumi number in the scalars (6 modules * 2).
 # the two fillumi modules should have one entry in each of the lumi histograms, (2*9 total)
 [ "1: 24, 1.0: 6, 20: 36" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py alltypes.root -r 1 -l 1 --summary)" ]
@@ -42,7 +42,7 @@ cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=nolegacy-cl.root numberEvent
 # same math as above, just a few less modules, and more events.
 for f in nolegacy.root nolegacy-mt.root nolegacy-cl.root
 do
-  [ "0: 1, 0.0: 1, 1: 9, 1000: 27, 5: 3, 5.0: 3" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py $f -r 1 --summary)" ]
+  [ "0: 1, 0.0: 1, 1: 9, 1000: 18, 2000: 9, 5: 3, 5.0: 3" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py $f -r 1 --summary)" ]
   [ "1: 2, 1.0: 2, 200: 18" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py $f -r 1 -l 1 --summary)" ]
   [ "2: 2, 2.0: 2, 200: 18" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py $f -r 1 -l 2 --summary)" ]
   [ "200: 18, 3: 2, 3.0: 2" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py $f -r 1 -l 3 --summary)" ]
@@ -135,7 +135,7 @@ cmsRun $LOCAL_TEST_DIR/run_harvesters_cfg.py outfile=edmtome.root inputFiles=met
 [ 66 = $(dqmiolistmes.py edmtome.root -r 1 | wc -l) ]
 [ 66 = $(dqmiolistmes.py edmtome.root -r 1 -l 1 | wc -l) ]
 # again, no legacy module (run) output here due to JOB scope for legacy modules
-[ "0: 1, 0.0: 1, 1: 9, 100: 36, 5: 14, 5.0: 5" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py edmtome.root -r 1 --summary)" ]
+[ "0: 1, 0.0: 1, 1: 9, 100: 27, 200: 9, 5: 14, 5.0: 5" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py edmtome.root -r 1 --summary)" ]
 [ "1: 24, 1.0: 6, 20: 36" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py edmtome.root -r 1 -l 1 --summary)" ]
 [ "1: 18, 2: 6, 2.0: 6, 20: 36" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py edmtome.root -r 1 -l 2 --summary)" ]
 [ "1: 18, 20: 36, 3: 6, 3.0: 6" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py edmtome.root -r 1 -l 3 --summary)" ]

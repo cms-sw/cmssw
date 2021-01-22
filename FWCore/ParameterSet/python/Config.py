@@ -227,6 +227,7 @@ class Process(object):
                               forceEventSetupCacheClearOnNewRun = untracked.bool(False),
                               throwIfIllegalParameter = untracked.bool(True),
                               printDependencies = untracked.bool(False),
+                              deleteNonConsumedUnscheduledModules = untracked.bool(True),
                               sizeOfStackForThreadsInKB = optional.untracked.uint32,
                               Rethrow = untracked.vstring(),
                               SkipEvent = untracked.vstring(),
@@ -1990,7 +1991,9 @@ if __name__=="__main__":
 
         def testProcessDumpPython(self):
             self.assertEqual(Process("test").dumpPython(),
-"""import FWCore.ParameterSet.Config as cms\n\nprocess = cms.Process("test")
+"""import FWCore.ParameterSet.Config as cms
+
+process = cms.Process("test")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.optional.untracked.int32,
@@ -2008,10 +2011,11 @@ process.options = cms.untracked.PSet(
     SkipEvent = cms.untracked.vstring(),
     allowUnscheduled = cms.obsolete.untracked.bool,
     canDeleteEarly = cms.untracked.vstring(),
+    deleteNonConsumedUnscheduledModules = cms.untracked.bool(True),
     emptyRunLumiMode = cms.obsolete.untracked.string,
     eventSetup = cms.untracked.PSet(
         forceNumberOfConcurrentIOVs = cms.untracked.PSet(
-
+            allowAnyLabel_=cms.required.untracked.uint32
         ),
         numberOfConcurrentIOVs = cms.untracked.uint32(1)
     ),

@@ -55,6 +55,7 @@ public:
 
   // local bending in a CSC chamber
   float LocalBendingInChamber(unsigned int detid) const;
+  void fitHitsInChamber(unsigned int detid, float& mean, float& slope) const;
 
   // calculate average strip number for a provided collection of simhits
   float simHitsMeanStrip(const edm::PSimHitContainer& sim_hits) const;

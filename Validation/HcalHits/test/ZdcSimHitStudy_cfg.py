@@ -15,19 +15,21 @@ process.load("Validation.HcalHits.ZdcSimHitStudy_cfi")
 process.load("Validation.HcalDigis.ZDCDigiStudy_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
-                                    debugModules = cms.untracked.vstring('*'),
-                                    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO'),
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-            ),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
         ZdcSim = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
-            )
         ),
-                                    categories = cms.untracked.vstring('ZdcSim'),
-                                    destinations = cms.untracked.vstring('cout')
-                                    )
+        default = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('INFO')
+    ),
+    debugModules = cms.untracked.vstring('*')
+)
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)

@@ -11,7 +11,12 @@ l1tStage2uGMTIntermediateBMTF = DQMEDAnalyzer(
     monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/intermediate_muons/BMTF"),
     titlePrefix = cms.untracked.string("uGMT intermediate muon from BMTF "),
     verbose = cms.untracked.bool(False),
+    displacedQuantities = cms.untracked.bool(False)
 )
+
+## Era: Run3_2021; Displaced muons from BMTF used in uGMT from Run-3
+from Configuration.Eras.Modifier_stage2L1Trigger_2021_cff import stage2L1Trigger_2021
+stage2L1Trigger_2021.toModify(l1tStage2uGMTIntermediateBMTF, displacedQuantities = cms.untracked.bool(True))
 
 l1tStage2uGMTIntermediateOMTFNeg = DQMEDAnalyzer(
     "L1TStage2uGMTMuon",
@@ -19,6 +24,7 @@ l1tStage2uGMTIntermediateOMTFNeg = DQMEDAnalyzer(
     monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/intermediate_muons/OMTF_neg"),
     titlePrefix = cms.untracked.string("uGMT intermediate muon from OMTF neg. "),
     verbose = cms.untracked.bool(False),
+    displacedQuantities = cms.untracked.bool(False)
 )
 
 l1tStage2uGMTIntermediateOMTFPos = DQMEDAnalyzer(
@@ -27,6 +33,7 @@ l1tStage2uGMTIntermediateOMTFPos = DQMEDAnalyzer(
     monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/intermediate_muons/OMTF_pos"),
     titlePrefix = cms.untracked.string("uGMT intermediate muon from OMTF pos. "),
     verbose = cms.untracked.bool(False),
+    displacedQuantities = cms.untracked.bool(False)
 )
 
 l1tStage2uGMTIntermediateEMTFNeg = DQMEDAnalyzer(
@@ -35,6 +42,7 @@ l1tStage2uGMTIntermediateEMTFNeg = DQMEDAnalyzer(
     monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/intermediate_muons/EMTF_neg"),
     titlePrefix = cms.untracked.string("uGMT intermediate muon from EMTF neg. "),
     verbose = cms.untracked.bool(False),
+    displacedQuantities = cms.untracked.bool(False)
 )
 
 l1tStage2uGMTIntermediateEMTFPos = DQMEDAnalyzer(
@@ -43,6 +51,7 @@ l1tStage2uGMTIntermediateEMTFPos = DQMEDAnalyzer(
     monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/intermediate_muons/EMTF_pos"),
     titlePrefix = cms.untracked.string("uGMT intermediate muon from EMTF pos. "),
     verbose = cms.untracked.bool(False),
+    displacedQuantities = cms.untracked.bool(False)
 )
 
 # zero suppression DQM
@@ -77,6 +86,22 @@ l1tStage2uGMTZeroSupp = DQMEDAnalyzer(
     verbose = cms.untracked.bool(False),
 )
 
+## Era: Run3_2021; Changed data format for Run-3
+from Configuration.Eras.Modifier_stage2L1Trigger_2021_cff import stage2L1Trigger_2021
+stage2L1Trigger_2021.toModify(l1tStage2uGMTZeroSupp, maskCapId2 = cms.untracked.vint32(0x00000000,
+                                                                                       0x00000000,
+                                                                                       0x0007FC00,
+                                                                                       0x00000000,
+                                                                                       0x0007FC00,
+                                                                                       0x00000000),
+                                                     # mask for validation event outputs (pt==0 defines empty muon)
+                                                     maskCapId3 = cms.untracked.vint32(0x00000000,
+                                                                                       0x00000000,
+                                                                                       0x0007FC00,
+                                                                                       0x00000000,
+                                                                                       0x0007FC00,
+                                                                                       0x00000000))
+
 # ZS of validation events (to be used after fat event filter)
 l1tStage2uGMTZeroSuppFatEvts = l1tStage2uGMTZeroSupp.clone()
 l1tStage2uGMTZeroSuppFatEvts.monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/zeroSuppression/FatEvts")
@@ -101,6 +126,10 @@ l1tStage2BmtfOutVsuGMTIn = DQMEDAnalyzer(
     ignoreBin = cms.untracked.vint32(ignoreBins['Bmtf']),
     verbose = cms.untracked.bool(False),
 )
+
+## Era: Run3_2021; Displaced muons from BMTF used in uGMT from Run-3
+from Configuration.Eras.Modifier_stage2L1Trigger_2021_cff import stage2L1Trigger_2021
+stage2L1Trigger_2021.toModify(l1tStage2BmtfOutVsuGMTIn, isBmtf = cms.untracked.bool(True))
 
 # compares the unpacked OMTF output regional muon collection with the unpacked uGMT input regional muon collection from OMTF
 # only muons that do not match are filled in the histograms
@@ -142,7 +171,12 @@ l1tStage2uGMTMuonVsuGMTMuonCopy1 = DQMEDAnalyzer(
     muonCollection2Title = cms.untracked.string("uGMT muons copy 1"),
     summaryTitle = cms.untracked.string("Summary of comparison between uGMT muons and uGMT muon copy 1"),
     verbose = cms.untracked.bool(False),
+    displacedQuantities = cms.untracked.bool(False)
 )
+
+## Era: Run3_2021; Displaced muons from BMTF used in uGMT from Run-3
+from Configuration.Eras.Modifier_stage2L1Trigger_2021_cff import stage2L1Trigger_2021
+stage2L1Trigger_2021.toModify(l1tStage2uGMTMuonVsuGMTMuonCopy1, displacedQuantities = cms.untracked.bool(True))
 
 l1tStage2uGMTMuonVsuGMTMuonCopy2 = l1tStage2uGMTMuonVsuGMTMuonCopy1.clone()
 l1tStage2uGMTMuonVsuGMTMuonCopy2.muonCollection2 = cms.InputTag("gmtStage2Digis", "MuonCopy2")

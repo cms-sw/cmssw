@@ -2,19 +2,24 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ProdTPGParam")
 
-process.MessageLogger = cms.Service(
-  "MessageLogger",
-  destinations  =  cms.untracked.vstring('cout'),
-  categories    = cms.untracked.vstring('TopInfo'),
-  debugModules  = cms.untracked.vstring('*'),
-
-  cout = cms.untracked.PSet(
-#    threshold =  cms.untracked.string('INFO'),   # keep all messages
-    threshold =  cms.untracked.string('ERROR'),   # keep only warning and error messages
-    INFO =  cms.untracked.PSet(limit = cms.untracked.int32(0)),
-    DEBUG = cms.untracked.PSet(limit = cms.untracked.int32(0)),
-    TopInfo = cms.untracked.PSet(limit = cms.untracked.int32(10000000))
-  )
+process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        DEBUG = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        INFO = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        TopInfo = cms.untracked.PSet(
+            limit = cms.untracked.int32(10000000)
+        ),
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('ERROR')
+    ),
+    debugModules = cms.untracked.vstring('*')
 )
 
 # Calo geometry service model

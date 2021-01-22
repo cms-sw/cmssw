@@ -8,8 +8,12 @@ process.maxEvents = cms.untracked.PSet(
 
 # Message Logger
 process.MessageLogger = cms.Service("MessageLogger",
-#   default = cms.untracked.PSet( limit = cms.untracked.int32(0)),
-   destinations = cms.untracked.vstring('cout')
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True)
+    )
 )
 
 process.load("L1TriggerConfig.L1GeometryProducers.l1CaloGeometry_cfi")

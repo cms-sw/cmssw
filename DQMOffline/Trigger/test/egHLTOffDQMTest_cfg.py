@@ -42,28 +42,33 @@ process.source.fileNames = [
     ]
 
 process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('WARNING'),
         WARNING = cms.untracked.PSet(
             limit = cms.untracked.int32(10)
         ),
-        noLineBreaks = cms.untracked.bool(True)
+        enable = cms.untracked.bool(True),
+        noLineBreaks = cms.untracked.bool(True),
+        threshold = cms.untracked.string('WARNING')
     ),
-    debugInfo = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG')
+    debugModules = cms.untracked.vstring(
+        'EgammaHLTOffline', 
+        'EgHLTOfflineClient'
     ),
-    detailedInfo = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO')
-    ),
-    critical = cms.untracked.PSet(
-        threshold = cms.untracked.string('ERROR')
-    ),
-    debugModules = cms.untracked.vstring('EgammaHLTOffline','EgHLTOfflineClient'),
-    destinations = cms.untracked.vstring('debugInfo', 
-        'detailedInfo', 
-        'critical', 
-        'cout')
- )
+    files = cms.untracked.PSet(
+        critical = cms.untracked.PSet(
+            threshold = cms.untracked.string('ERROR')
+        ),
+        debugInfo = cms.untracked.PSet(
+            threshold = cms.untracked.string('DEBUG')
+        ),
+        detailedInfo = cms.untracked.PSet(
+            threshold = cms.untracked.string('INFO')
+        )
+    )
+)
 
 process.DQMStore.verbose = 1
 #process.DQM.collectorHost = ''

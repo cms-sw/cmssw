@@ -45,6 +45,8 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+
 namespace pat {
 
   class PATPhotonProducer : public edm::stream::EDProducer<> {
@@ -73,6 +75,8 @@ namespace pat {
     edm::EDGetTokenT<EcalRecHitCollection> reducedBarrelRecHitCollectionToken_;
     edm::InputTag reducedEndcapRecHitCollection_;
     edm::EDGetTokenT<EcalRecHitCollection> reducedEndcapRecHitCollectionToken_;
+
+    const EcalClusterLazyTools::ESGetTokens ecalClusterToolsESGetTokens_;
 
     bool addPFClusterIso_;
     bool addPuppiIsolation_;
