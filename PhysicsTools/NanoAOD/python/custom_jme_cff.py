@@ -115,12 +115,12 @@ nanoInfo_recojets = {
   "ak4pf" : {
     "name"  : "JetPF",
     "doc"   : "AK4 PF jets",
-    "ptcut" : "pt > 2",
+    "ptcut" : "",
   },
   "ak4pfpuppi" : {
     "name"  : "JetPuppi",
     "doc"   : "AK4 PF Puppi",
-    "ptcut" : "pt > 2",
+    "ptcut" : "",
     "doQGL" : True,
     "doPUIDVar": True,
     "doBTag": True,
@@ -128,7 +128,7 @@ nanoInfo_recojets = {
   "ak8pf" : {
     "name"  : "FatJetPF",
     "doc"   : "AK8 PF jets",
-    "ptcut" : "pt > 2",
+    "ptcut" : "",
   },
 }
 
