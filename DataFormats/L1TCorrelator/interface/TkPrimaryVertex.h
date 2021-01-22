@@ -6,6 +6,8 @@
 
 // First version of a class for L1-zvertex
 #include <vector>
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/RefVector.h"
 
 namespace l1t {
 
@@ -26,6 +28,9 @@ namespace l1t {
   };
 
   typedef std::vector<TkPrimaryVertex> TkPrimaryVertexCollection;
+  typedef edm::Ref<TkPrimaryVertexCollection> TkPrimaryVertexRef;
+  typedef edm::RefVector<TkPrimaryVertexCollection> TkPrimaryVertexRefVector;
+  typedef std::vector<TkPrimaryVertexRef> TkPrimaryVertexVectorRef;
 
 }  // namespace l1t
 #endif

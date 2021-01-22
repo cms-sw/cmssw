@@ -257,7 +257,13 @@ _phase2_muonValidation = recoMuonValidation_reduced_seq.copy()
 _phase2_muonValidation += gemMuonValidation
 _phase2_muonValidation += me0MuonValidation
 
+#_phase2_ge0_muonValidation = recoMuonValidation.copy()          #For full validation
+_phase2_ge0_muonValidation = recoMuonValidation_reduced_seq.copy()
+_phase2_ge0_muonValidation += gemMuonValidation
+
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toReplaceWith( recoMuonValidation, _run3_muonValidation )
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_muon.toReplaceWith( recoMuonValidation, _phase2_muonValidation )
+from Configuration.Eras.Modifier_phase2_GE0_cff import phase2_GE0
+phase2_GE0.toReplaceWith( recoMuonValidation, _phase2_ge0_muonValidation )

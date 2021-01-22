@@ -2,13 +2,13 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoPPS/Local/interface/CTPPSPixelClusterProducer.h"
 
-CTPPSPixelClusterProducer::CTPPSPixelClusterProducer(const edm::ParameterSet &conf) : param_(conf), clusterizer_(conf) {
-  src_ = conf.getParameter<std::string>("label");
-  verbosity_ = conf.getUntrackedParameter<int>("RPixVerbosity");
-
-  tokenCTPPSPixelDigi_ = consumes<edm::DetSetVector<CTPPSPixelDigi> >(edm::InputTag(src_));
-  tokenCTPPSPixelAnalysisMask_ = esConsumes<CTPPSPixelAnalysisMask, CTPPSPixelAnalysisMaskRcd>();
-
+CTPPSPixelClusterProducer::CTPPSPixelClusterProducer(const edm::ParameterSet &conf)
+    : tokenCTPPSPixelDigi_(
+          consumes<edm::DetSetVector<CTPPSPixelDigi> >(edm::InputTag(conf.getParameter<std::string>("label")))),
+      tokenCTPPSPixelAnalysisMask_(esConsumes()),
+      tokenGainCalib_(esConsumes()),
+      verbosity_(conf.getUntrackedParameter<int>("RPixVerbosity")),
+      clusterizer_(conf) {
   produces<edm::DetSetVector<CTPPSPixelCluster> >();
 }
 
@@ -32,19 +32,15 @@ void CTPPSPixelClusterProducer::produce(edm::Event &iEvent, const edm::EventSetu
   edm::Handle<edm::DetSetVector<CTPPSPixelDigi> > rpd;
   iEvent.getByToken(tokenCTPPSPixelDigi_, rpd);
 
-  // get analysis mask to mask channels
-  edm::ESHandle<CTPPSPixelAnalysisMask> aMask;
-
-  if (!rpd->empty())
-    aMask = iSetup.getHandle(tokenCTPPSPixelAnalysisMask_);
-
   edm::DetSetVector<CTPPSPixelCluster> output;
 
-  // run clusterisation
   if (!rpd->empty()) {
+    // get analysis mask to mask channels
+    const auto &mask = iSetup.getData(tokenCTPPSPixelAnalysisMask_);
     // get calibration DB
-    theGainCalibrationDB.getDB(iEvent, iSetup);
-    run(*rpd, output, aMask.product());
+    const auto &gainCalibrations = iSetup.getData(tokenGainCalib_);
+    // run clusterisation
+    run(*rpd, output, mask, gainCalibrations);
   }
   // write output
   iEvent.put(std::make_unique<edm::DetSetVector<CTPPSPixelCluster> >(output));
@@ -52,10 +48,11 @@ void CTPPSPixelClusterProducer::produce(edm::Event &iEvent, const edm::EventSetu
 
 void CTPPSPixelClusterProducer::run(const edm::DetSetVector<CTPPSPixelDigi> &input,
                                     edm::DetSetVector<CTPPSPixelCluster> &output,
-                                    const CTPPSPixelAnalysisMask *mask) {
+                                    const CTPPSPixelAnalysisMask &mask,
+                                    const CTPPSPixelGainCalibrations &gainCalibration) {
   for (const auto &ds_digi : input) {
     edm::DetSet<CTPPSPixelCluster> &ds_cluster = output.find_or_insert(ds_digi.id);
-    clusterizer_.buildClusters(ds_digi.id, ds_digi.data, ds_cluster.data, theGainCalibrationDB.getCalibs(), mask);
+    clusterizer_.buildClusters(ds_digi.id, ds_digi.data, ds_cluster.data, &gainCalibration, &mask);
 
     if (verbosity_) {
       unsigned int cluN = 0;

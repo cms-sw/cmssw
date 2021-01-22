@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as opts
 import csv
+from io import open
 
 options = opts.VarParsing ('standard')
 
@@ -62,37 +63,37 @@ options.register('geometry',
 options.parseArguments()
 
 MagFieldValue = 10.*options.MagField #code needs it in deciTesla
-print '\nMagField = %f deciTesla \n'%(MagFieldValue)
+print('\nMagField = %f deciTesla \n'%(MagFieldValue))
 version = options.Version
-print'\nVersion = %s \n'%(version)
+print('\nVersion = %s \n'%(version))
 magfieldstrsplit = str(options.MagField).split('.')
 MagFieldString = magfieldstrsplit[0]
 if len(magfieldstrsplit)>1 :
 	MagFieldString+=magfieldstrsplit[1]
 
 #open the map file
-mapfile = open(options.Map,'rUb')
+mapfile = open(options.Map,'rU', newline='')
 #read the csv file into a reader
 mapfilereader = csv.reader(mapfile,delimiter=options.Delimiter,quotechar=options.Quotechar)
 #separate into the different sections
 barrel_rule_lines = []; endcap_rule_lines = []
 barrel_exception_lines = []; endcap_exception_lines = []
 sections = [barrel_rule_lines, endcap_rule_lines, barrel_exception_lines, endcap_exception_lines]
-i=0; line = mapfilereader.next()
+i=0; line = next(mapfilereader)
 for i in range(len(sections)) :
 	while line[0].find('TEMPLATE ID')==-1 : #skip to just before the section of info
-		line=mapfilereader.next()
+		line=next(mapfilereader)
 	try :
-		line=mapfilereader.next()
+		line=next(mapfilereader)
 	except StopIteration :
-		print 'Done reading input file'
+		print('Done reading input file')
 		break
 	while line[1]!='' : #add the lines that are the barrel rules
 		sections[i].append(line) 
 		try :
-			line=mapfilereader.next()
+			line=next(mapfilereader)
 		except StopIteration :
-			print 'Done reading input file'
+			print('Done reading input file')
 			break
 #print 'barrel rules = %s\nendcap rules = %s\nbarrel exceptions = %s\nendcap exceptions = %s'%(barrel_rule_lines,endcap_rule_lines,barrel_exception_lines,endcap_exception_lines) #DEBUG
 #Make the lists of location strings and template IDs
@@ -193,8 +194,8 @@ elif tGeometry == 'T16':
     geometry_cff = 'GeometryExtended2026D48_cff'
     recoGeometry_cff = 'GeometryExtended2026D48Reco_cff'
 else:
-    print "Unknown tracker geometry"
-    print "What are you doing ?!?!?!?!"
+    print("Unknown tracker geometry")
+    print("What are you doing ?!?!?!?!")
     exit(1)
 geometry_cff = 'Configuration.Geometry.' + geometry_cff
 recoGeometry_cff = 'Configuration.Geometry.' + recoGeometry_cff
@@ -214,7 +215,7 @@ if options.Append!=None :
 #output SQLite filename
 sqlitefilename = 'sqlite_file:'+generror_base+'.db'
 
-print '\nUploading %s with record SiPixelGenErrorDBObjectRcd in file %s\n' % (generror_base,sqlitefilename)
+print('\nUploading %s with record SiPixelGenErrorDBObjectRcd in file %s\n' % (generror_base,sqlitefilename))
 
 process.source = cms.Source("EmptyIOVSource",
 							timetype = cms.string('runnumber'),

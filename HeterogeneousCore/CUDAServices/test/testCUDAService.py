@@ -4,7 +4,7 @@ process = cms.Process( "TEST" )
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('HeterogeneousCore.CUDAServices.CUDAService_cfi')
-process.MessageLogger.categories.append("CUDAService")
+process.MessageLogger.CUDAService=dict()
 
 process.source = cms.Source("EmptySource")
 

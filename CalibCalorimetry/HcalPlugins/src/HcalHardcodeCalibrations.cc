@@ -9,7 +9,6 @@
 #include <vector>
 
 #include "FWCore/Framework/interface/ValidityInterval.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"

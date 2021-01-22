@@ -42,8 +42,6 @@ public:
 
   void theBaseNumber(const DDGeoHistory& gh);
 
-  std::string noNSgeoHistory(const DDGeoHistory& gh);
-
 private:
   std::string label_;
   int nNodes_;
@@ -130,8 +128,20 @@ void TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::EventSet
 
     // Actions for MTD volumes: searchg for sensitive detectors
 
+    std::stringstream ss;
+    auto print_path = [&]() {
+      ss << " - OCMS[0]/";
+      for (uint i = 1; i < fv.geoHistory().size(); i++) {
+        ss << fv.geoHistory()[i].logicalPart().name().fullname();
+        ss << "[";
+        ss << std::to_string(fv.geoHistory()[i].copyno());
+        ss << "]/";
+      }
+    };
+
     if (write && fv.geoHistory()[limit - 1].logicalPart().name().name() == ddTopNodeName_) {
-      edm::LogInfo("TestMTDPath") << " - " << noNSgeoHistory(fv.geoHistory());
+      print_path();
+      edm::LogInfo("TestMTDPath") << ss.str();
 
       bool isSens = false;
 
@@ -271,22 +281,6 @@ void TestMTDIdealGeometry::theBaseNumber(const DDGeoHistory& gh) {
     edm::LogInfo("TestMTDIdealGeometry") << name << " " << copyN;
 #endif
   }
-}
-
-std::string TestMTDIdealGeometry::noNSgeoHistory(const DDGeoHistory& gh) {
-  std::string output;
-  for (uint i = 0; i < gh.size(); i++) {
-    output += gh[i].logicalPart().name().name();
-    output += "[";
-    output += std::to_string(gh[i].copyno());
-    output += "]/";
-  }
-
-#ifdef EDM_ML_DEBUG
-  edm::LogInfo("TestMTDIdealGeometry") << output;
-#endif
-
-  return output;
 }
 
 DEFINE_FWK_MODULE(TestMTDIdealGeometry);

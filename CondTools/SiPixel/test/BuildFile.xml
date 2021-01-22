@@ -14,8 +14,7 @@
 </library>
 <environment>
   <bin   file="testPixelDBs.cpp">
-    <flags TEST_RUNNER_ARGS=" /bin/bash CondTools/SiPixel/test run_0T_BoR3.sh"/>
+    <flags TEST_RUNNER_ARGS=" /bin/bash CondTools/SiPixel/test createTestDBObjects.sh"/>
     <use   name="FWCore/Utilities"/>
   </bin>
 </environment>
-

@@ -81,7 +81,7 @@ private:
 
   PSFitter::HybridMinimizer *hybridfitter;
   int cntsetPulseShape;
-  std::array<double, HcalConst::maxSamples> iniTimesArr;
+  std::array<double, hcal::constants::maxSamples> iniTimesArr;
   double chargeThreshold_;
   int fitTimes_;
 

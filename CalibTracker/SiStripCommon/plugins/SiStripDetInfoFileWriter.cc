@@ -6,11 +6,8 @@
 
 #include "CalibTracker/SiStripCommon/plugins/SiStripDetInfoFileWriter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
@@ -22,6 +19,7 @@ SiStripDetInfoFileWriter::SiStripDetInfoFileWriter(const edm::ParameterSet& iCon
   edm::LogInfo("SiStripDetInfoFileWriter::SiStripDetInfoFileWriter");
 
   filePath_ = iConfig.getUntrackedParameter<std::string>("FilePath", std::string("SiStripDetInfo.dat"));
+  tkGeomToken_ = esConsumes<edm::Transition::BeginRun>();
 }
 
 SiStripDetInfoFileWriter::~SiStripDetInfoFileWriter() {
@@ -32,15 +30,13 @@ void SiStripDetInfoFileWriter::beginRun(const edm::Run&, const edm::EventSetup& 
   outputFile_.open(filePath_.c_str());
 
   if (outputFile_.is_open()) {
-    edm::ESHandle<TrackerGeometry> pDD;
-
-    iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
+    const auto& dd = iSetup.getData(tkGeomToken_);
 
     edm::LogInfo("SiStripDetInfoFileWriter::beginRun - got geometry  ") << std::endl;
 
-    edm::LogInfo("SiStripDetInfoFileWriter") << " There are " << pDD->detUnits().size() << " detectors" << std::endl;
+    edm::LogInfo("SiStripDetInfoFileWriter") << " There are " << dd.detUnits().size() << " detectors" << std::endl;
 
-    for (const auto& it : pDD->detUnits()) {
+    for (const auto& it : dd.detUnits()) {
       const StripGeomDetUnit* mit = dynamic_cast<StripGeomDetUnit const*>(it);
 
       if (mit != nullptr) {

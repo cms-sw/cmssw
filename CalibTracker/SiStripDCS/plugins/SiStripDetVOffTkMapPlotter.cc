@@ -41,6 +41,9 @@ private:
   std::string m_plotFormat;
   // Specify output root file name. Leave empty if do not want to save plots in a root file.
   std::string m_outputFile;
+
+  edm::ESGetToken<TkDetMap, TrackerTopologyRcd> tkDetMapToken_;
+  edm::ESGetToken<GeometricDet, IdealGeometryRecord> geomDetToken_;
 };
 
 SiStripDetVOffTkMapPlotter::SiStripDetVOffTkMapPlotter(const edm::ParameterSet& iConfig)
@@ -50,7 +53,9 @@ SiStripDetVOffTkMapPlotter::SiStripDetVOffTkMapPlotter(const edm::ParameterSet& 
       m_IOV(iConfig.getUntrackedParameter<cond::Time_t>("IOV", 0)),
       m_Time(iConfig.getUntrackedParameter<std::string>("Time", "")),
       m_plotFormat(iConfig.getUntrackedParameter<std::string>("plotFormat", "png")),
-      m_outputFile(iConfig.getUntrackedParameter<std::string>("outputFile", "")) {
+      m_outputFile(iConfig.getUntrackedParameter<std::string>("outputFile", "")),
+      tkDetMapToken_(esConsumes()),
+      geomDetToken_(esConsumes()) {
   m_connectionPool.setParameters(iConfig.getParameter<edm::ParameterSet>("DBParameters"));
   m_connectionPool.configure();
 }
@@ -85,17 +90,12 @@ void SiStripDetVOffTkMapPlotter::analyze(const edm::Event& evt, const edm::Event
                                            << boost::posix_time::to_simple_string(cond::time::to_boost(theIov)) << ")";
   auto payload = condDbSession.fetchPayload<SiStripDetVOff>((*iiov).payloadId);
 
-  edm::ESHandle<TkDetMap> tkDetMapHandle;
-  evtSetup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
-  const TkDetMap* tkDetMap = tkDetMapHandle.product();
+  const TkDetMap* tkDetMap = &evtSetup.getData(tkDetMapToken_);
   TrackerMap lvmap, hvmap;
   TkHistoMap lvhisto(tkDetMap, "LV_Status", "LV_Status", -1);
   TkHistoMap hvhisto(tkDetMap, "HV_Status", "HV_Status", -1);
 
-  edm::ESHandle<GeometricDet> geomDetHandle;
-  evtSetup.get<IdealGeometryRecord>().get(geomDetHandle);
-
-  const auto detids = TrackerGeometryUtils::getSiStripDetIds(*geomDetHandle);
+  const auto detids = TrackerGeometryUtils::getSiStripDetIds(evtSetup.getData(geomDetToken_));
   for (auto id : detids) {
     if (payload->IsModuleLVOff(id))
       lvhisto.fill(id, 1);  // RED

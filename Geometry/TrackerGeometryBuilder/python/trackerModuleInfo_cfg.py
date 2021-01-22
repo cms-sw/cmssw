@@ -10,10 +10,9 @@ process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 process.load("Alignment.CommonAlignmentProducer.FakeAlignmentSource_cfi")
 
-#this is always needed if users want access to the vector<GeometricDetExtra>
-process.TrackerGeometricDetExtraESModule = cms.ESProducer( "TrackerGeometricDetExtraESModule",
-                                                           fromDDD = cms.bool( True )
-                                                           )
+process.TrackerGeometricDetESModule = cms.ESProducer( "TrackerGeometricDetESModule",
+                                                      fromDDD = cms.bool( True )
+                                                     )
 
 process.source = cms.Source("EmptySource")
 

@@ -1,13 +1,10 @@
 //
 //
-
-#include "DQM/TrackerCommon/interface/TriggerHelper.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "CondFormats/HLTObjects/interface/AlCaRecoTriggerBits.h"
+#include "CondFormats/DataRecord/interface/AlCaRecoTriggerBitsRcd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "DQM/TrackerCommon/interface/TriggerHelper.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <string>
 #include <vector>
 
@@ -45,7 +42,6 @@ TriggerHelper::TriggerHelper(const edm::ParameterSet &config)
     }
     if (config.exists("andOrGt")) {
       andOrGt_ = config.getParameter<bool>("andOrGt");
-      gtInputTag_ = config.getParameter<edm::InputTag>("gtInputTag");
       gtLogicalExpressions_ = config.getParameter<std::vector<std::string>>("gtStatusBits");
       errorReplyGt_ = config.getParameter<bool>("errorReplyGt");
       if (config.exists("gtDBKey"))
@@ -216,10 +212,10 @@ bool TriggerHelper::acceptGt(const edm::Event &event) {
 
   // Accessing the L1GlobalTriggerReadoutRecord
   edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecord;
-  event.getByLabel(gtInputTag_, gtReadoutRecord);
+  event.getByToken(gtInputToken_, gtReadoutRecord);
   if (!gtReadoutRecord.isValid()) {
-    edm::LogError("TriggerHelper") << "L1GlobalTriggerReadoutRecord product with InputTag \"" << gtInputTag_.encode()
-                                   << "\" not in event ==> decision: " << errorReplyGt_;
+    //edm::LogError("TriggerHelper") << "L1GlobalTriggerReadoutRecord product with InputTag \"" << gtInputTag_.encode()
+    //                               << "\" not in event ==> decision: " << errorReplyGt_;
     return errorReplyGt_;
   }
 
@@ -440,8 +436,7 @@ bool TriggerHelper::acceptHltLogicalExpression(const edm::Handle<edm::TriggerRes
 
 /// Reads and returns logical expressions from DB
 std::vector<std::string> TriggerHelper::expressionsFromDB(const std::string &key, const edm::EventSetup &setup) {
-  edm::ESHandle<AlCaRecoTriggerBits> logicalExpressions;
-  setup.get<AlCaRecoTriggerBitsRcd>().get(logicalExpressions);
+  const AlCaRecoTriggerBits *logicalExpressions = &(setup.getData(alcaRecotriggerBitsToken_));
   const std::map<std::string, std::string> &expressionMap = logicalExpressions->m_alcarecoToTrig;
   std::map<std::string, std::string>::const_iterator listIter = expressionMap.find(key);
   if (listIter == expressionMap.end()) {

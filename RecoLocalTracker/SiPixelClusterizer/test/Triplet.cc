@@ -110,6 +110,14 @@ private:
                 double &dz);
 
   // ----------member data:
+  edm::EDGetTokenT<reco::BeamSpot> bsToken_;
+  edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
+  edm::EDGetTokenT<reco::TrackCollection> trackToken_;
+
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
+  edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transientTrackBuilderToken_;
+  edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> transientTrackingRecHitBuilderToken_;
 
   TH1D *h000, *h001, *h002, *h003, *h004, *h005, *h006, *h007, *h008, *h009;
   TH1D *h010, *h011, *h012, *h013, *h014, *h015, *h016, *h017, *h018, *h019;
@@ -167,7 +175,20 @@ private:
 //
 // constructor:
 //
-Triplet::Triplet(const edm::ParameterSet &iConfig) { std::cout << "Triplet constructed\n"; }
+Triplet::Triplet(const edm::ParameterSet &iConfig) {
+  bsToken_ = consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"));
+  vtxToken_ = consumes<reco::VertexCollection>(edm::InputTag("offlinePrimaryVertices"));
+  trackToken_ = consumes<reco::TrackCollection>(edm::InputTag("generalTracks"));
+
+  trackerTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
+  trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
+  transientTrackBuilderToken_ =
+      esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"));
+  transientTrackingRecHitBuilderToken_ =
+      esConsumes<TransientTrackingRecHitBuilder, TransientRecHitRecord>(edm::ESInputTag("", "WithTrackAngle"));
+
+  std::cout << "Triplet constructed\n";
+}
 //
 // destructor:
 //
@@ -360,8 +381,7 @@ void Triplet::beginJob() {
 //
 void Triplet::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopo;
-  iSetup.get<IdealGeometryRecord>().get(tTopo);
+  edm::ESHandle<TrackerTopology> tTopo = iSetup.getHandle(trackerTopoToken_);
 
   using namespace std;
   using namespace edm;
@@ -395,7 +415,7 @@ void Triplet::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // beam spot:
   //
   edm::Handle<reco::BeamSpot> rbs;
-  iEvent.getByLabel("offlineBeamSpot", rbs);
+  iEvent.getByToken(bsToken_, rbs);
 
   XYZPoint bsP = XYZPoint(0, 0, 0);
   //int ibs = 0;
@@ -427,7 +447,7 @@ void Triplet::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // primary vertices:
   //
   Handle<VertexCollection> vertices;
-  iEvent.getByLabel("offlinePrimaryVertices", vertices);
+  iEvent.getByToken(vtxToken_, vertices);
 
   if (vertices.failedToGet())
     return;
@@ -543,7 +563,7 @@ void Triplet::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   //
   Handle<TrackCollection> tracks;
 
-  iEvent.getByLabel("generalTracks", tracks);
+  iEvent.getByToken(trackToken_, tracks);
 
   if (tracks.failedToGet())
     return;
@@ -554,8 +574,7 @@ void Triplet::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   //
   // get tracker geometry:
   //
-  edm::ESHandle<TrackerGeometry> pDD;
-  iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
+  edm::ESHandle<TrackerGeometry> pDD = iSetup.getHandle(trackerGeomToken_);
 
   if (!pDD.isValid()) {
     cout << "Unable to find TrackerDigiGeometry. Return\n";
@@ -649,14 +668,11 @@ void Triplet::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   //
   // transient track builder, needs B-field from data base (global tag in .py)
   //
-  edm::ESHandle<TransientTrackBuilder> theB;
-
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", theB);
+  edm::ESHandle<TransientTrackBuilder> theB = iSetup.getHandle(transientTrackBuilderToken_);
   //
   // transient rec hits:
   //
-  ESHandle<TransientTrackingRecHitBuilder> hitBuilder;
-  iSetup.get<TransientRecHitRecord>().get("WithTrackAngle", hitBuilder);
+  edm::ESHandle<TransientTrackingRecHitBuilder> hitBuilder = iSetup.getHandle(transientTrackingRecHitBuilderToken_);
   //
   //
   //

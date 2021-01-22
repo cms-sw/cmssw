@@ -2,6 +2,9 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiLeptonicEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiLepEvtPartons.h"
 
+#include "printParticle.h"
+using ttevent::printParticle;
+
 // print info via MessageLogger
 void TtSemiLeptonicEvent::print(const int verbosity) const {
   if (verbosity % 10 <= 0)

@@ -2,7 +2,7 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
   <SpecParSection label="spec-pars2.xml">
 
-    <SpecPar name="TrackerRecMaterialPhase2PixelBarrelLayer1">
+    <SpecPar name="TrackingMaterialGroupPhase2PixelBarrelLayer1">
       <PartSelector path="//pixbar:Phase2PixelBarrel/pixel:Layer1/pixel:RodUnflipped1/pixel:BModule1Layer1/pixel:BModule1Layer1InnerPixelwafer/pixel:BModule1Layer1InnerPixelActive"/>
       <PartSelector path="//pixbar:Phase2PixelBarrel/pixel:Layer1/pixel:RodUnflipped1/pixel:BModule2Layer1/pixel:BModule2Layer1InnerPixelwafer/pixel:BModule2Layer1InnerPixelActive"/>
       <PartSelector path="//pixbar:Phase2PixelBarrel/pixel:Layer1/pixel:RodUnflipped1/pixel:BModule3Layer1/pixel:BModule3Layer1InnerPixelwafer/pixel:BModule3Layer1InnerPixelActive"/>
@@ -16,7 +16,7 @@
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPhase2PixelBarrelLayer1" />
     </SpecPar>
 
-    <SpecPar name="TrackerRecMaterialPhase2PixelBarrelLayer2">
+    <SpecPar name="TrackingMaterialGroupPhase2PixelBarrelLayer2">
       <PartSelector path="//pixbar:Phase2PixelBarrel/pixel:Layer2/pixel:RodUnflipped2/pixel:BModule1Layer2/pixel:BModule1Layer2InnerPixelwafer/pixel:BModule1Layer2InnerPixelActive"/>
       <PartSelector path="//pixbar:Phase2PixelBarrel/pixel:Layer2/pixel:RodUnflipped2/pixel:BModule2Layer2/pixel:BModule2Layer2InnerPixelwafer/pixel:BModule2Layer2InnerPixelActive"/>
       <PartSelector path="//pixbar:Phase2PixelBarrel/pixel:Layer2/pixel:RodUnflipped2/pixel:BModule3Layer2/pixel:BModule3Layer2InnerPixelwafer/pixel:BModule3Layer2InnerPixelActive"/>
@@ -30,7 +30,7 @@
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPhase2PixelBarrelLayer2" />
     </SpecPar>
 
-    <SpecPar name="TrackerRecMaterialPhase2PixelBarrelLayer3">
+    <SpecPar name="TrackingMaterialGroupPhase2PixelBarrelLayer3">
       <PartSelector path="//pixbar:Phase2PixelBarrel/pixel:Layer3/pixel:RodUnflipped3/pixel:BModule1Layer3/pixel:BModule1Layer3InnerPixelwafer/pixel:BModule1Layer3InnerPixelActive"/>
       <PartSelector path="//pixbar:Phase2PixelBarrel/pixel:Layer3/pixel:RodUnflipped3/pixel:BModule2Layer3/pixel:BModule2Layer3InnerPixelwafer/pixel:BModule2Layer3InnerPixelActive"/>
       <PartSelector path="//pixbar:Phase2PixelBarrel/pixel:Layer3/pixel:RodUnflipped3/pixel:BModule3Layer3/pixel:BModule3Layer3InnerPixelwafer/pixel:BModule3Layer3InnerPixelActive"/>
@@ -44,7 +44,7 @@
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPhase2PixelBarrelLayer3" />
     </SpecPar>
 
-    <SpecPar name="TrackerRecMaterialPhase2PixelBarrelLayer4">
+    <SpecPar name="TrackingMaterialGroupPhase2PixelBarrelLayer4">
       <PartSelector path="//pixbar:Phase2PixelBarrel/pixel:Layer4/pixel:RodUnflipped4/pixel:BModule1Layer4/pixel:BModule1Layer4InnerPixelwafer/pixel:BModule1Layer4InnerPixelActive"/>
       <PartSelector path="//pixbar:Phase2PixelBarrel/pixel:Layer4/pixel:RodUnflipped4/pixel:BModule2Layer4/pixel:BModule2Layer4InnerPixelwafer/pixel:BModule2Layer4InnerPixelActive"/>
       <PartSelector path="//pixbar:Phase2PixelBarrel/pixel:Layer4/pixel:RodUnflipped4/pixel:BModule3Layer4/pixel:BModule3Layer4InnerPixelwafer/pixel:BModule3Layer4InnerPixelActive"/>
@@ -58,7 +58,7 @@
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPhase2PixelBarrelLayer4" />
     </SpecPar>
 
-    <SpecPar name="TrackerRecMaterialPhase2PixelForwardDisk1">
+    <SpecPar name="TrackingMaterialGroupPhase2PixelForwardDisk1">
       <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc1/pixel:Ring1Disc1/pixel:EModule1Disc1/pixel:EModule1Disc1InnerPixelwafer/pixel:EModule1Disc1InnerPixelActive"/>
       <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc1/pixel:Ring2Disc1/pixel:EModule2Disc1/pixel:EModule2Disc1InnerPixelwafer/pixel:EModule2Disc1InnerPixelActive"/>
       <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc1/pixel:Ring3Disc1/pixel:EModule3Disc1/pixel:EModule3Disc1InnerPixelwafer/pixel:EModule3Disc1InnerPixelActive"/>
@@ -66,7 +66,7 @@
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPhase2PixelForwardDisk1" />
     </SpecPar>
 
-    <SpecPar name="TrackerRecMaterialPhase2PixelForwardDisk2">
+    <SpecPar name="TrackingMaterialGroupPhase2PixelForwardDisk2">
       <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc2/pixel:Ring1Disc2/pixel:EModule1Disc2/pixel:EModule1Disc2InnerPixelwafer/pixel:EModule1Disc2InnerPixelActive"/>
       <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc2/pixel:Ring2Disc2/pixel:EModule2Disc2/pixel:EModule2Disc2InnerPixelwafer/pixel:EModule2Disc2InnerPixelActive"/>
       <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc2/pixel:Ring3Disc2/pixel:EModule3Disc2/pixel:EModule3Disc2InnerPixelwafer/pixel:EModule3Disc2InnerPixelActive"/>
@@ -74,7 +74,7 @@
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPhase2PixelForwardDisk2" />
     </SpecPar>
 
-    <SpecPar name="TrackerRecMaterialPhase2PixelForwardDisk3">
+    <SpecPar name="TrackingMaterialGroupPhase2PixelForwardDisk3">
       <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc3/pixel:Ring1Disc3/pixel:EModule1Disc3/pixel:EModule1Disc3InnerPixelwafer/pixel:EModule1Disc3InnerPixelActive"/>
       <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc3/pixel:Ring2Disc3/pixel:EModule2Disc3/pixel:EModule2Disc3InnerPixelwafer/pixel:EModule2Disc3InnerPixelActive"/>
       <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc3/pixel:Ring3Disc3/pixel:EModule3Disc3/pixel:EModule3Disc3InnerPixelwafer/pixel:EModule3Disc3InnerPixelActive"/>
@@ -82,7 +82,7 @@
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPhase2PixelForwardDisk3" />
     </SpecPar>
 
-    <SpecPar name="TrackerRecMaterialPhase2PixelForwardDisk4">
+    <SpecPar name="TrackingMaterialGroupPhase2PixelForwardDisk4">
       <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc4/pixel:Ring1Disc4/pixel:EModule1Disc4/pixel:EModule1Disc4InnerPixelwafer/pixel:EModule1Disc4InnerPixelActive"/>
       <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc4/pixel:Ring2Disc4/pixel:EModule2Disc4/pixel:EModule2Disc4InnerPixelwafer/pixel:EModule2Disc4InnerPixelActive"/>
       <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc4/pixel:Ring3Disc4/pixel:EModule3Disc4/pixel:EModule3Disc4InnerPixelwafer/pixel:EModule3Disc4InnerPixelActive"/>
@@ -90,7 +90,7 @@
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPhase2PixelForwardDisk4" />
     </SpecPar>
 
-    <SpecPar name="TrackerRecMaterialPhase2PixelForwardDisk5">
+    <SpecPar name="TrackingMaterialGroupPhase2PixelForwardDisk5">
       <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc5/pixel:Ring1Disc5/pixel:EModule1Disc5/pixel:EModule1Disc5InnerPixelwafer/pixel:EModule1Disc5InnerPixelActive"/>
       <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc5/pixel:Ring2Disc5/pixel:EModule2Disc5/pixel:EModule2Disc5InnerPixelwafer/pixel:EModule2Disc5InnerPixelActive"/>
       <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc5/pixel:Ring3Disc5/pixel:EModule3Disc5/pixel:EModule3Disc5InnerPixelwafer/pixel:EModule3Disc5InnerPixelActive"/>
@@ -98,7 +98,7 @@
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPhase2PixelForwardDisk5" />
     </SpecPar>
 
-    <SpecPar name="TrackerRecMaterialPhase2PixelForwardDisk6">
+    <SpecPar name="TrackingMaterialGroupPhase2PixelForwardDisk6">
       <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc6/pixel:Ring1Disc6/pixel:EModule1Disc6/pixel:EModule1Disc6InnerPixelwafer/pixel:EModule1Disc6InnerPixelActive"/>
       <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc6/pixel:Ring2Disc6/pixel:EModule2Disc6/pixel:EModule2Disc6InnerPixelwafer/pixel:EModule2Disc6InnerPixelActive"/>
       <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc6/pixel:Ring3Disc6/pixel:EModule3Disc6/pixel:EModule3Disc6InnerPixelwafer/pixel:EModule3Disc6InnerPixelActive"/>
@@ -106,7 +106,7 @@
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPhase2PixelForwardDisk6" />
     </SpecPar>
 
-    <SpecPar name="TrackerRecMaterialPhase2PixelForwardDisk7">
+    <SpecPar name="TrackingMaterialGroupPhase2PixelForwardDisk7">
       <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc7/pixel:Ring1Disc7/pixel:EModule1Disc7/pixel:EModule1Disc7InnerPixelwafer/pixel:EModule1Disc7InnerPixelActive"/>
       <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc7/pixel:Ring2Disc7/pixel:EModule2Disc7/pixel:EModule2Disc7InnerPixelwafer/pixel:EModule2Disc7InnerPixelActive"/>
       <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc7/pixel:Ring3Disc7/pixel:EModule3Disc7/pixel:EModule3Disc7InnerPixelwafer/pixel:EModule3Disc7InnerPixelActive"/>
@@ -114,7 +114,7 @@
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPhase2PixelForwardDisk7" />
     </SpecPar>
 
-    <SpecPar name="TrackerRecMaterialPhase2PixelForwardDisk8">
+    <SpecPar name="TrackingMaterialGroupPhase2PixelForwardDisk8">
       <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc8/pixel:Ring1Disc8/pixel:EModule1Disc8/pixel:EModule1Disc8InnerPixelwafer/pixel:EModule1Disc8InnerPixelActive"/>
       <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc8/pixel:Ring2Disc8/pixel:EModule2Disc8/pixel:EModule2Disc8InnerPixelwafer/pixel:EModule2Disc8InnerPixelActive"/>
       <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc8/pixel:Ring3Disc8/pixel:EModule3Disc8/pixel:EModule3Disc8InnerPixelwafer/pixel:EModule3Disc8InnerPixelActive"/>
@@ -122,7 +122,7 @@
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPhase2PixelForwardDisk8" />
     </SpecPar>
 
-    <SpecPar name="TrackerRecMaterialPhase2PixelForwardDisk9">
+    <SpecPar name="TrackingMaterialGroupPhase2PixelForwardDisk9">
       <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc9/pixel:Ring1Disc9/pixel:EModule1Disc9/pixel:EModule1Disc9InnerPixelwafer/pixel:EModule1Disc9InnerPixelActive"/>
       <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc9/pixel:Ring2Disc9/pixel:EModule2Disc9/pixel:EModule2Disc9InnerPixelwafer/pixel:EModule2Disc9InnerPixelActive"/>
       <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc9/pixel:Ring3Disc9/pixel:EModule3Disc9/pixel:EModule3Disc9InnerPixelwafer/pixel:EModule3Disc9InnerPixelActive"/>
@@ -131,7 +131,7 @@
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPhase2PixelForwardDisk9" />
     </SpecPar>
 
-    <SpecPar name="TrackerRecMaterialPhase2PixelForwardDisk10">
+    <SpecPar name="TrackingMaterialGroupPhase2PixelForwardDisk10">
       <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc10/pixel:Ring1Disc10/pixel:EModule1Disc10/pixel:EModule1Disc10InnerPixelwafer/pixel:EModule1Disc10InnerPixelActive"/>
       <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc10/pixel:Ring2Disc10/pixel:EModule2Disc10/pixel:EModule2Disc10InnerPixelwafer/pixel:EModule2Disc10InnerPixelActive"/>
       <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc10/pixel:Ring3Disc10/pixel:EModule3Disc10/pixel:EModule3Disc10InnerPixelwafer/pixel:EModule3Disc10InnerPixelActive"/>
@@ -140,7 +140,7 @@
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPhase2PixelForwardDisk10" />
     </SpecPar>
 
-    <SpecPar name="TrackerRecMaterialPhase2PixelForwardDisk11">
+    <SpecPar name="TrackingMaterialGroupPhase2PixelForwardDisk11">
       <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc11/pixel:Ring1Disc11/pixel:EModule1Disc11/pixel:EModule1Disc11InnerPixelwafer/pixel:EModule1Disc11InnerPixelActive"/>
       <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc11/pixel:Ring2Disc11/pixel:EModule2Disc11/pixel:EModule2Disc11InnerPixelwafer/pixel:EModule2Disc11InnerPixelActive"/>
       <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc11/pixel:Ring3Disc11/pixel:EModule3Disc11/pixel:EModule3Disc11InnerPixelwafer/pixel:EModule3Disc11InnerPixelActive"/>
@@ -149,7 +149,7 @@
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPhase2PixelForwardDisk11" />
     </SpecPar>
 
-    <SpecPar name="TrackerRecMaterialPhase2PixelForwardDisk12">
+    <SpecPar name="TrackingMaterialGroupPhase2PixelForwardDisk12">
       <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc12/pixel:Ring1Disc12/pixel:EModule1Disc12/pixel:EModule1Disc12InnerPixelwafer/pixel:EModule1Disc12InnerPixelActive"/>
       <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc12/pixel:Ring2Disc12/pixel:EModule2Disc12/pixel:EModule2Disc12InnerPixelwafer/pixel:EModule2Disc12InnerPixelActive"/>
       <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc12/pixel:Ring3Disc12/pixel:EModule3Disc12/pixel:EModule3Disc12InnerPixelwafer/pixel:EModule3Disc12InnerPixelActive"/>
@@ -159,7 +159,7 @@
     </SpecPar>
 
 
-    <SpecPar name="TrackerRecMaterialPhase2OTBarrelLayer1">
+    <SpecPar name="TrackingMaterialGroupPhase2OTBarrelLayer1">
       <PartSelector path="//Phase2OTBarrel/tracker:Layer1/tracker:Rod1/tracker:BModule1Layer1/BModule1Layer1Lowerwafer/BModule1Layer1LowerPSMacroPixelactive"/>
       <PartSelector path="//Phase2OTBarrel/tracker:Layer1/tracker:Rod1/tracker:BModule1Layer1/BModule1Layer1Upperwafer/BModule1Layer1UpperPSStripactive"/>
       <PartSelector path="//Phase2OTBarrel/tracker:Layer1/tracker:Rod1/tracker:BModule2Layer1/BModule2Layer1Lowerwafer/BModule2Layer1LowerPSMacroPixelactive"/>
@@ -219,7 +219,7 @@
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPhase2OTBarrelLayer1" />      
     </SpecPar>
 
-    <SpecPar name="TrackerRecMaterialPhase2OTBarrelLayer2">
+    <SpecPar name="TrackingMaterialGroupPhase2OTBarrelLayer2">
       <PartSelector path="//Phase2OTBarrel/tracker:Layer2/tracker:Rod2/tracker:BModule1Layer2/BModule1Layer2Lowerwafer/BModule1Layer2LowerPSMacroPixelactive"/>
       <PartSelector path="//Phase2OTBarrel/tracker:Layer2/tracker:Rod2/tracker:BModule1Layer2/BModule1Layer2Upperwafer/BModule1Layer2UpperPSStripactive"/>
       <PartSelector path="//Phase2OTBarrel/tracker:Layer2/tracker:Rod2/tracker:BModule2Layer2/BModule2Layer2Lowerwafer/BModule2Layer2LowerPSMacroPixelactive"/>
@@ -283,7 +283,7 @@
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPhase2OTBarrelLayer2" />            
     </SpecPar>
 
-    <SpecPar name="TrackerRecMaterialPhase2OTBarrelLayer3">
+    <SpecPar name="TrackingMaterialGroupPhase2OTBarrelLayer3">
       <PartSelector path="//Phase2OTBarrel/tracker:Layer3/tracker:Rod3/tracker:BModule1Layer3/BModule1Layer3Lowerwafer/BModule1Layer3LowerPSMacroPixelactive"/>
       <PartSelector path="//Phase2OTBarrel/tracker:Layer3/tracker:Rod3/tracker:BModule1Layer3/BModule1Layer3Upperwafer/BModule1Layer3UpperPSStripactive"/>
       <PartSelector path="//Phase2OTBarrel/tracker:Layer3/tracker:Rod3/tracker:BModule2Layer3/BModule2Layer3Lowerwafer/BModule2Layer3LowerPSMacroPixelactive"/>
@@ -351,7 +351,7 @@
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPhase2OTBarrelLayer3" />            
     </SpecPar>
 
-    <SpecPar name="TrackerRecMaterialPhase2OTBarrelLayer4">
+    <SpecPar name="TrackingMaterialGroupPhase2OTBarrelLayer4">
       <PartSelector path="//Phase2OTBarrel/tracker:Layer4/tracker:Rod4/tracker:BModule1Layer4/BModule1Layer4Lowerwafer/BModule1Layer4Lower2Sactive"/>
       <PartSelector path="//Phase2OTBarrel/tracker:Layer4/tracker:Rod4/tracker:BModule1Layer4/BModule1Layer4Upperwafer/BModule1Layer4Upper2Sactive"/>
       <PartSelector path="//Phase2OTBarrel/tracker:Layer4/tracker:Rod4/tracker:BModule2Layer4/BModule2Layer4Lowerwafer/BModule2Layer4Lower2Sactive"/>
@@ -379,7 +379,7 @@
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPhase2OTBarrelLayer4" />                  
     </SpecPar>
 
-    <SpecPar name="TrackerRecMaterialPhase2OTBarrelLayer5">
+    <SpecPar name="TrackingMaterialGroupPhase2OTBarrelLayer5">
       <PartSelector path="//Phase2OTBarrel/tracker:Layer5/tracker:Rod5/tracker:BModule1Layer5/BModule1Layer5Lowerwafer/BModule1Layer5Lower2Sactive"/>
       <PartSelector path="//Phase2OTBarrel/tracker:Layer5/tracker:Rod5/tracker:BModule1Layer5/BModule1Layer5Upperwafer/BModule1Layer5Upper2Sactive"/>
       <PartSelector path="//Phase2OTBarrel/tracker:Layer5/tracker:Rod5/tracker:BModule2Layer5/BModule2Layer5Lowerwafer/BModule2Layer5Lower2Sactive"/>
@@ -407,7 +407,7 @@
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPhase2OTBarrelLayer5" />                  
     </SpecPar>
 
-    <SpecPar name="TrackerRecMaterialPhase2OTBarrelLayer6">
+    <SpecPar name="TrackingMaterialGroupPhase2OTBarrelLayer6">
       <PartSelector path="//Phase2OTBarrel/tracker:Layer6/tracker:Rod6/tracker:BModule1Layer6/BModule1Layer6Lowerwafer/BModule1Layer6Lower2Sactive"/>
       <PartSelector path="//Phase2OTBarrel/tracker:Layer6/tracker:Rod6/tracker:BModule1Layer6/BModule1Layer6Upperwafer/BModule1Layer6Upper2Sactive"/>
       <PartSelector path="//Phase2OTBarrel/tracker:Layer6/tracker:Rod6/tracker:BModule2Layer6/BModule2Layer6Lowerwafer/BModule2Layer6Lower2Sactive"/>
@@ -435,7 +435,7 @@
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPhase2OTBarrelLayer6" />                  
     </SpecPar>
 
-    <SpecPar name="TrackerRecMaterialPhase2OTForwardDisk1">
+    <SpecPar name="TrackingMaterialGroupPhase2OTForwardDisk1">
       <PartSelector path="//Phase2OTForward/tracker:Disc1/tracker:Ring1Disc1/tracker:EModule1Disc1/EModule1Disc1Lowerwafer/EModule1Disc1LowerPSMacroPixelactive"/>
       <PartSelector path="//Phase2OTForward/tracker:Disc1/tracker:Ring1Disc1/tracker:EModule1Disc1/EModule1Disc1Upperwafer/EModule1Disc1UpperPSStripactive"/>
       <PartSelector path="//Phase2OTForward/tracker:Disc1/tracker:Ring2Disc1/tracker:EModule2Disc1/EModule2Disc1Lowerwafer/EModule2Disc1LowerPSMacroPixelactive"/>
@@ -469,7 +469,7 @@
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPhase2OTForwardDisk1" />                        
     </SpecPar>
 
-    <SpecPar name="TrackerRecMaterialPhase2OTForwardDisk2">
+    <SpecPar name="TrackingMaterialGroupPhase2OTForwardDisk2">
       <PartSelector path="//Phase2OTForward/tracker:Disc2/tracker:Ring1Disc2/tracker:EModule1Disc2/EModule1Disc2Lowerwafer/EModule1Disc2LowerPSMacroPixelactive"/>
       <PartSelector path="//Phase2OTForward/tracker:Disc2/tracker:Ring1Disc2/tracker:EModule1Disc2/EModule1Disc2Upperwafer/EModule1Disc2UpperPSStripactive"/>
       <PartSelector path="//Phase2OTForward/tracker:Disc2/tracker:Ring2Disc2/tracker:EModule2Disc2/EModule2Disc2Lowerwafer/EModule2Disc2LowerPSMacroPixelactive"/>
@@ -503,7 +503,7 @@
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPhase2OTForwardDisk2" />                        
     </SpecPar>
 
-    <SpecPar name="TrackerRecMaterialPhase2OTForwardDisk3">
+    <SpecPar name="TrackingMaterialGroupPhase2OTForwardDisk3">
       <PartSelector path="//Phase2OTForward/tracker:Disc3/tracker:Ring4Disc3/tracker:EModule4Disc3/EModule4Disc3Lowerwafer/EModule4Disc3LowerPSMacroPixelactive"/>
       <PartSelector path="//Phase2OTForward/tracker:Disc3/tracker:Ring4Disc3/tracker:EModule4Disc3/EModule4Disc3Upperwafer/EModule4Disc3UpperPSStripactive"/>
       <PartSelector path="//Phase2OTForward/tracker:Disc3/tracker:Ring5Disc3/tracker:EModule5Disc3/EModule5Disc3Lowerwafer/EModule5Disc3LowerPSMacroPixelactive"/>
@@ -531,7 +531,7 @@
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPhase2OTForwardDisk3" />                        
     </SpecPar>
 
-    <SpecPar name="TrackerRecMaterialPhase2OTForwardDisk4">
+    <SpecPar name="TrackingMaterialGroupPhase2OTForwardDisk4">
       <PartSelector path="//Phase2OTForward/tracker:Disc4/tracker:Ring4Disc4/tracker:EModule4Disc4/EModule4Disc4Lowerwafer/EModule4Disc4LowerPSMacroPixelactive"/>
       <PartSelector path="//Phase2OTForward/tracker:Disc4/tracker:Ring4Disc4/tracker:EModule4Disc4/EModule4Disc4Upperwafer/EModule4Disc4UpperPSStripactive"/>
       <PartSelector path="//Phase2OTForward/tracker:Disc4/tracker:Ring5Disc4/tracker:EModule5Disc4/EModule5Disc4Lowerwafer/EModule5Disc4LowerPSMacroPixelactive"/>
@@ -559,7 +559,7 @@
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPhase2OTForwardDisk4" />                        
     </SpecPar>
 
-    <SpecPar name="TrackerRecMaterialPhase2OTForwardDisk5">
+    <SpecPar name="TrackingMaterialGroupPhase2OTForwardDisk5">
       <PartSelector path="//Phase2OTForward/tracker:Disc5/tracker:Ring4Disc5/tracker:EModule4Disc5/EModule4Disc5Lowerwafer/EModule4Disc5LowerPSMacroPixelactive"/>
       <PartSelector path="//Phase2OTForward/tracker:Disc5/tracker:Ring4Disc5/tracker:EModule4Disc5/EModule4Disc5Upperwafer/EModule4Disc5UpperPSStripactive"/>
       <PartSelector path="//Phase2OTForward/tracker:Disc5/tracker:Ring5Disc5/tracker:EModule5Disc5/EModule5Disc5Lowerwafer/EModule5Disc5LowerPSMacroPixelactive"/>

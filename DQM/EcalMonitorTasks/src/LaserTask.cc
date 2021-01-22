@@ -60,7 +60,7 @@ namespace ecaldqm {
       emptyLS_ = -1;
   }
 
-  void LaserTask::beginEvent(edm::Event const& _evt, edm::EventSetup const&) { pnAmp_.clear(); }
+  void LaserTask::beginEvent(edm::Event const& _evt, edm::EventSetup const&, bool const&, bool&) { pnAmp_.clear(); }
 
   void LaserTask::runOnRawData(EcalRawDataCollection const& _rawData) {
     MESet& meCalibStatus(MEs_.at("CalibStatus"));

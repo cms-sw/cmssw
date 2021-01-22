@@ -23,7 +23,7 @@
   <Constant name="HFNoseDz1"             value="50.0*mm"/>
   <Constant name="HFNoseDz2"             value="23.0*mm"/>
   <Constant name="HFNoseDz3"             value="70.0*mm"/>
-  <Constant name="HFNoseDz0"             value="18.35*mm"/>
+  <Constant name="HFNoseDz0"             value="18.55*mm"/>
   <Constant name="NumberAbs1"            value="1"/>
   <Constant name="NumberAbs2"            value="6"/>
   <Constant name="NumberAbs3"            value="2"/>
@@ -53,8 +53,8 @@
   <Polycone name="HFNoseVol" startPhi="0*deg" deltaPhi="360*deg">
     <ZSection z="[HFNoseZ1]" rMin="[HFNoseRMin1]" rMax="[HFNoseRMax1]"/>
     <ZSection z="[HFNoseZ2]" rMin="[HFNoseRMin2]" rMax="[HFNoseRMax2]"/>
-    <ZSection z="[HFNoseZ2]" rMin="[HFNoseRMin2]" rMax="[cms:CMSR3]"/>
-    <ZSection z="[HFNoseZ4]" rMin="[HFNoseRMin4]" rMax="[cms:CMSR3]"/>
+    <ZSection z="[HFNoseZ2]" rMin="[cms:ForwdBeamR1]" rMax="[cms:CMSR3]"/>
+    <ZSection z="[HFNoseZ4]" rMin="[cms:ForwdBeamR1]" rMax="[cms:CMSR3]"/>
   </Polycone>
   <Polycone name="HFNose" startPhi="0*deg" deltaPhi="360*deg">
     <ZSection z="[HFNoseZ1]" rMin="[HFNoseRMin1]" rMax="[HFNoseRMax1]"/>

@@ -85,6 +85,9 @@ private:
   const int verbosity_, SampleIndx_, nbinR_, nbinZ_, nbinEta_, nLayers_;
   const double rmin_, rmax_, zmin_, zmax_, etamin_, etamax_;
   edm::EDGetToken digiSource_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_caloGeom_;
+  edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> tok_hgcGeom_;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> tok_cond_;
   const HGCalGeometry* hgcGeom_;
   const HcalGeometry* hcGeom_;
   int layers_, layerFront_, geomType_;
@@ -131,6 +134,10 @@ HGCalDigiStudy::HGCalDigiStudy(const edm::ParameterSet& iConfig)
   }
   edm::LogVerbatim("HGCalValidation") << "HGCalDigiStudy: request for Digi "
                                       << "collection " << source_ << " for " << nameDetector_;
+  tok_caloGeom_ = esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>();
+  tok_hgcGeom_ =
+      esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", nameDetector_});
+  tok_cond_ = esConsumes<HcalDbService, HcalDbRecord>();
 }
 
 void HGCalDigiStudy::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -241,8 +248,7 @@ void HGCalDigiStudy::beginJob() {
 
 void HGCalDigiStudy::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
   if (nameDetector_ == "HCal") {
-    edm::ESHandle<CaloGeometry> geom;
-    iSetup.get<CaloGeometryRecord>().get(geom);
+    edm::ESHandle<CaloGeometry> geom = iSetup.getHandle(tok_caloGeom_);
     if (!geom.isValid())
       edm::LogVerbatim("HGCalValidation") << "HGCalDigiStudy: Cannot get "
                                           << "valid Geometry Object for " << nameDetector_;
@@ -252,8 +258,7 @@ void HGCalDigiStudy::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
     layerFront_ = 40;
     geomType_ = 0;
   } else {
-    edm::ESHandle<HGCalGeometry> geom;
-    iSetup.get<IdealGeometryRecord>().get(nameDetector_, geom);
+    edm::ESHandle<HGCalGeometry> geom = iSetup.getHandle(tok_hgcGeom_);
     if (!geom.isValid())
       edm::LogVerbatim("HGCalValidation") << "HGCalDigiStudy: Cannot get "
                                           << "valid Geometry Object for " << nameDetector_;
@@ -399,8 +404,7 @@ void HGCalDigiStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     if (theHEDigiContainer.isValid()) {
       if (verbosity_ > 0)
         edm::LogVerbatim("HGCalValidation") << nameDetector_ << " with " << theHEDigiContainer->size() << " element(s)";
-      edm::ESHandle<HcalDbService> conditions;
-      iSetup.get<HcalDbRecord>().get(conditions);
+      edm::ESHandle<HcalDbService> conditions = iSetup.getHandle(tok_cond_);
 
       for (const auto& it : *(theHEDigiContainer.product())) {
         QIE11DataFrame df(it);

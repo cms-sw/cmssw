@@ -203,15 +203,14 @@ int ZdcShowerLibrary::getEnergyFromLibrary(const G4ThreeVector& hitPoint,
     edis = 3.0;
   }
 
-  if (eav < 0. || edis < 0.) {
-    LogDebug("ZdcShower") << " Negative everage energy from parametrization \n"
+  if (eav < 0. || esig < 0.) {
+    LogDebug("ZdcShower") << " Negative everage energy or esigma from parametrization \n"
                           << " xin: " << xin << "(cm)"
                           << " yin: " << yin << "(cm)"
                           << " track en: " << energy << "(GeV)"
-                          << " eaverage: " << eav / GeV << " (GeV)"
-                          << " esigma: " << esig / GeV << "  (GeV)"
-                          << " edist: " << edis << " (GeV)"
-                          << " dE hit: " << nphotons / GeV << " (GeV)";
+                          << " eaverage: " << eav << " (GeV)"
+                          << " esigma: " << esig << "  (GeV)"
+                          << " edist: " << edis << " (GeV)";
     return 0;
   }
 

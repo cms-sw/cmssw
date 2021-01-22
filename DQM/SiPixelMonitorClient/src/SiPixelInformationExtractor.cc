@@ -348,7 +348,7 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore::IBooker &iBooker,
                                                   bool init,
                                                   float noiseRate_,
                                                   int noiseRateDenominator_,
-                                                  edm::ESHandle<SiPixelFedCablingMap> theCablingMap) {
+                                                  const SiPixelFedCablingMap *theCablingMap) {
   if (init) {
     endOfModules_ = false;
     nevents_ = noiseRateDenominator_;
@@ -447,7 +447,7 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore::IBooker &iBooker,
         std::vector<std::pair<std::pair<int, int>, float>> noisyPixels = (*it).second;
         // now convert into online conventions:
         for (int fedid = 0; fedid <= 40; ++fedid) {
-          SiPixelFrameConverter converter(theCablingMap.product(), fedid);
+          SiPixelFrameConverter converter(theCablingMap, fedid);
           uint32_t newDetId = detid;
           if (converter.hasDetUnit(newDetId)) {
             realfedID = fedid;
@@ -486,7 +486,7 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore::IBooker &iBooker,
             counter++;
 
             sipixelobjects::ElectronicIndex cabling;
-            SiPixelFrameConverter formatter(theCablingMap.product(), realfedID);
+            SiPixelFrameConverter formatter(theCablingMap, realfedID);
             sipixelobjects::DetectorIndex detector = {detid, offlineRow, offlineColumn};
             formatter.toCabling(cabling, detector);
             // cabling should now contain cabling.roc and cabling.dcol  and

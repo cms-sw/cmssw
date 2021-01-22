@@ -8,6 +8,7 @@
 <use name="FWCore/ServiceRegistry"/>
 <use name="Geometry/HcalCommonData"/>
 <use name="Geometry/HcalTowerAlgo"/>
+<use name="Geometry/CaloTopology"/>
 <use name="SimDataFormats/CaloHit"/>
 <use name="SimDataFormats/Track"/>
 <use name="SimDataFormats/Vertex"/>

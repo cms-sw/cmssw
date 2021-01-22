@@ -45,10 +45,8 @@
   <use name="CondCore/SiPixelPlugins"/>
   <use name="CondCore/Utilities"/>
   <use name="CondCore/CondDB"/>
-  <use name="CondFormats/Common"/>
   <use name="CondFormats/SiPixelTransient"/>
   <use name="CalibTracker/StandaloneTrackerTopology"/>
-  <use name="CalibTracker/SiPixelESProducers"/>
 </library>
 
 <library file="plugin.cc" name="CondCoreSiPixelPluginsPlugin">

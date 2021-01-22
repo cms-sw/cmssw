@@ -20,10 +20,6 @@
    provides access and administration.
 */
 
-namespace edm {
-  class LogInfo;
-}
-
 class TtEvent {
 public:
   /// supported classes of event hypotheses
@@ -153,9 +149,6 @@ public:
   };
   /// get combined 4-vector of top and topBar from the TtGenEvent
   const math::XYZTLorentzVector* topPair() const { return (!genEvt_ ? nullptr : this->genEvent()->topPair()); };
-
-  /// print pt, eta, phi, mass of a given candidate into an existing LogInfo
-  void printParticle(edm::LogInfo& log, const char* name, const reco::Candidate* cand) const;
 
   /// set leptonic decay channels
   void setLepDecays(const WDecay::LeptonType& lepDecTop1, const WDecay::LeptonType& lepDecTop2) {

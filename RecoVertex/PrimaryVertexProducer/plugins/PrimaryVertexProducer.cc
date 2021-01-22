@@ -115,6 +115,19 @@ PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& conf) : th
     algorithms.push_back(algorithm);
     produces<reco::VertexCollection>(algorithm.label);
   }
+
+  //check if this is a recovery iteration
+  fRecoveryIteration = conf.getParameter<bool>("isRecoveryIteration");
+  if (fRecoveryIteration) {
+    if (algorithms.empty()) {
+      throw VertexException("PrimaryVertexProducerAlgorithm: No algorithm specified. ");
+    } else if (algorithms.size() > 1) {
+      throw VertexException(
+          "PrimaryVertexProducerAlgorithm: Running in Recovery mode and more than one algorithm specified.  Please "
+          "only one algorithm.");
+    }
+    recoveryVtxToken = consumes<reco::VertexCollection>(conf.getParameter<edm::InputTag>("recoveryVtxCollection"));
+  }
 }
 
 PrimaryVertexProducer::~PrimaryVertexProducer() {
@@ -147,6 +160,22 @@ void PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
       (beamVertexState.error().czz() <= 0.)) {
     validBS = false;
     edm::LogError("UnusableBeamSpot") << "Beamspot with invalid errors " << beamVertexState.error().matrix();
+  }
+
+  //if this is a recovery iteration, check if we already have a valid PV
+  if (fRecoveryIteration) {
+    auto const& oldVertices = iEvent.get(recoveryVtxToken);
+    //look for the first valid (not-BeamSpot) vertex
+    for (auto const& old : oldVertices) {
+      if (!(old.isFake())) {
+        //found a valid vertex, write the first one to the collection and return
+        //otherwise continue with regular vertexing procedure
+        auto result = std::make_unique<reco::VertexCollection>();
+        result->push_back(old);
+        iEvent.put(std::move(result), algorithms.begin()->label);
+        return;
+      }
+    }
   }
 
   // get RECO tracks from the event
@@ -414,6 +443,8 @@ void PrimaryVertexProducer::fillDescriptions(edm::ConfigurationDescriptions& des
     psd0.add<std::string>("algorithm", "DA_vect");
     desc.add<edm::ParameterSetDescription>("TkClusParameters", psd0);
   }
+  desc.add<bool>("isRecoveryIteration", false);
+  desc.add<edm::InputTag>("recoveryVtxCollection", {""});
 
   descriptions.add("primaryVertexProducer", desc);
 }

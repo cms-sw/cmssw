@@ -9,8 +9,9 @@ from Configuration.Geometry.GeometryDD4hepExtended2021_cff import *
 process = cms.Process("MaterialAnalyser")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
+
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('ListIds')
+    process.MessageLogger.ListIds=dict()
 
 process.source = cms.Source("EmptySource")
 

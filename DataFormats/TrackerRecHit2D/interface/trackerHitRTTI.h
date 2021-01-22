@@ -17,7 +17,8 @@ namespace trackerHitRTTI {
     fastProjMono = 8,
     fastMatch = 9,
     notFromCluster = 10,
-    mipTiming = 11
+    mipTiming = 11,
+    vector = 12
   };
   inline RTTI rtti(TrackingRecHit const& hit) { return RTTI(hit.getRTTI()); }
   inline bool isUndef(TrackingRecHit const& hit) { return rtti(hit) == undef; }
@@ -32,10 +33,13 @@ namespace trackerHitRTTI {
   inline bool isMatched(TrackingRecHit const& hit) { return rtti(hit) == match || rtti(hit) == fastMatch; }
   inline bool isMulti(TrackingRecHit const& hit) { return rtti(hit) == multi; }
   inline bool isSingleType(TrackingRecHit const& hit) { return (rtti(hit) > 0) & (rtti(hit) < 4); }
-  inline bool isFromDet(TrackingRecHit const& hit) { return (rtti(hit) > 0) & (rtti(hit) < 6); }
+  inline bool isFromDet(TrackingRecHit const& hit) { return (((rtti(hit) > 0) & (rtti(hit) < 6)) | (rtti(hit) == 12)); }
   inline bool isFast(TrackingRecHit const& hit) { return (rtti(hit) > 5) & (rtti(hit) <= 9); }
-  inline bool isFromDetOrFast(TrackingRecHit const& hit) { return (rtti(hit) > 0) & (rtti(hit) < 10); }
+  inline bool isFromDetOrFast(TrackingRecHit const& hit) {
+    return (((rtti(hit) > 0) & (rtti(hit) < 10)) | (rtti(hit) == 12));
+  }
   inline bool isTiming(TrackingRecHit const& hit) { return rtti(hit) == mipTiming; }
+  inline bool isVector(TrackingRecHit const& hit) { return rtti(hit) == vector; }
   inline unsigned int projId(TrackingRecHit const& hit) { return hit.rawId() + int(rtti(hit)) - 1; }
 }  // namespace trackerHitRTTI
 

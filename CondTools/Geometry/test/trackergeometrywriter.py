@@ -11,12 +11,11 @@ process.source = cms.Source("EmptyIOVSource",
                             interval = cms.uint64(1)
                             )
 
-process.TrackerGeometricDetExtraESModule = cms.ESProducer( "TrackerGeometricDetExtraESModule",
-                                                           fromDDD = cms.bool( True )
-                                                           )
+process.TrackerGeometricDetESModule = cms.ESProducer( "TrackerGeometricDetESModule",
+                                                      fromDDD = cms.bool( True )
+                                                     )
 
 process.TrackerGeometryWriter = cms.EDAnalyzer("PGeometricDetBuilder", fromDD4hep=cms.bool(False))
-process.TrackerGeometryExtraWriter = cms.EDAnalyzer("PGeometricDetExtraBuilder", fromDD4hep=cms.bool(False))
 process.TrackerParametersWriter = cms.EDAnalyzer("PTrackerParametersDBBuilder", fromDD4hep=cms.bool(False))
 
 process.CondDB.timetype = cms.untracked.string('runnumber')
@@ -24,7 +23,6 @@ process.CondDB.connect = cms.string('sqlite_file:myfile.db')
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           process.CondDB,
                                           toPut = cms.VPSet(cms.PSet(record = cms.string('IdealGeometryRecord'),tag = cms.string('TKRECO_Geometry_Test01')),
-                                                            cms.PSet(record = cms.string('PGeometricDetExtraRcd'),tag = cms.string('TKExtra_Geometry_Test01')),
                                                             cms.PSet(record = cms.string('PTrackerParametersRcd'),tag = cms.string('TKParameters_Geometry_Test01'))
                                                             )
                                           )
@@ -33,4 +31,4 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
     )
 
-process.p1 = cms.Path(process.TrackerGeometryWriter*process.TrackerGeometryExtraWriter*process.TrackerParametersWriter)
+process.p1 = cms.Path(process.TrackerGeometryWriter*process.TrackerParametersWriter)

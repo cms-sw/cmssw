@@ -51,7 +51,6 @@ private:
   std::vector<std::pair<uint32_t, std::vector<uint32_t>>> selectAPVs() const;
 };
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 

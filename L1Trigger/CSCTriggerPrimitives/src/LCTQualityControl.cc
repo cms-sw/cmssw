@@ -66,7 +66,7 @@ void LCTQualityControl::checkValid(const CSCCLCTDigi& clct, unsigned max_stubs) 
   const unsigned max_strip = get_csc_max_halfstrip(theStation, theRing);
   const auto& [min_pattern_run2, max_pattern_run2] = get_csc_min_max_pattern(false);
   const auto& [min_pattern_run3, max_pattern_run3] = get_csc_min_max_pattern(true);
-  const auto& [min_slope, max_slope] = get_csc_clct_min_max_slope(use_run3_patterns_, use_comparator_codes_);
+  const auto& [min_slope, max_slope] = get_csc_clct_min_max_slope();
   const auto& [min_cfeb, max_cfeb] = get_csc_min_max_cfeb(theStation, theRing);
   const unsigned max_quality = get_csc_clct_max_quality();
   unsigned errors = 0;
@@ -110,7 +110,7 @@ void LCTQualityControl::checkValid(const CSCCLCTDigi& clct, unsigned max_stubs) 
   // CLCT with an invalid CFEB ID
   checkRange(clct.getCFEB(), min_cfeb, max_cfeb, "CSCCLCTDigi with invalid CFEB ID: ", errors);
 
-  if (use_comparator_codes_) {
+  if (runCCLUT_) {
     // CLCT comparator code is invalid
     checkRange(clct.getCompCode(), 0, std::pow(2, 12) - 1, "CSCCLCTDigi with invalid comparator code: ", errors);
 
@@ -134,7 +134,7 @@ void LCTQualityControl::checkValid(const CSCCorrelatedLCTDigi& lct, const unsign
   const unsigned max_quartstrip = get_csc_max_quartstrip(station, ring);
   const unsigned max_eightstrip = get_csc_max_eightstrip(station, ring);
   const unsigned max_wire = get_csc_max_wire(station, ring);
-  const auto& [min_pattern, max_pattern] = get_csc_lct_min_max_pattern(use_run3_patterns_);
+  const auto& [min_pattern, max_pattern] = get_csc_lct_min_max_pattern();
   const unsigned max_quality = get_csc_lct_max_quality();
 
   unsigned errors = 0;
@@ -228,11 +228,11 @@ int LCTQualityControl::getSlopePhase1(int pattern) const {
   return slopeList[pattern];
 }
 
-std::pair<int, int> LCTQualityControl::get_csc_clct_min_max_slope(bool isRun3, bool runCCLUT) const {
+std::pair<int, int> LCTQualityControl::get_csc_clct_min_max_slope() const {
   int min_slope, max_slope;
   // Run-3 case with CCLUT
   // 5-bit number (includes the L/R bending)
-  if (runCCLUT) {
+  if (runCCLUT_) {
     min_slope = 0;
     max_slope = 31;
   }
@@ -321,10 +321,10 @@ std::pair<unsigned, unsigned> LCTQualityControl::get_csc_min_max_cfeb(int statio
   return std::make_pair(min_cfeb, max_cfeb);
 }
 
-std::pair<unsigned, unsigned> LCTQualityControl::get_csc_min_max_pattern(bool isRun3) const {
+std::pair<unsigned, unsigned> LCTQualityControl::get_csc_min_max_pattern(bool runCCLUT) const {
   int min_pattern, max_pattern;
   // Run-1 or Run-2 case
-  if (!isRun3) {
+  if (!runCCLUT) {
     min_pattern = 2;
     max_pattern = 10;
   }
@@ -336,10 +336,10 @@ std::pair<unsigned, unsigned> LCTQualityControl::get_csc_min_max_pattern(bool is
   return std::make_pair(min_pattern, max_pattern);
 }
 
-std::pair<unsigned, unsigned> LCTQualityControl::get_csc_lct_min_max_pattern(bool isRun3) const {
+std::pair<unsigned, unsigned> LCTQualityControl::get_csc_lct_min_max_pattern() const {
   int min_pattern, max_pattern;
   // Run-1 or Run-2 case
-  if (!isRun3) {
+  if (!runCCLUT_) {
     min_pattern = 2;
     max_pattern = 10;
   }

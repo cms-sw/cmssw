@@ -32,9 +32,6 @@ DEFINE_FWK_MODULE(SiStripBadChannelBuilder);
 #include "CondTools/SiStrip/plugins/SiStripBadFiberBuilder.h"
 DEFINE_FWK_MODULE(SiStripBadFiberBuilder);
 
-#include "CondTools/SiStrip/plugins/SiStripBadStripReader.h"
-DEFINE_FWK_MODULE(SiStripBadStripReader);
-
 #include "CondTools/SiStrip/plugins/SiStripDetVOffFakeBuilder.h"
 DEFINE_FWK_MODULE(SiStripDetVOffFakeBuilder);
 

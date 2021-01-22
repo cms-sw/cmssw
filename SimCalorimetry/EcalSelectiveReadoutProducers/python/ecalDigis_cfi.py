@@ -38,6 +38,7 @@ simEcalDigis = cms.EDProducer("EcalSelectiveReadoutProducer",
     trigPrimCollection = cms.string(''),
 
     #switch to run w/o trigger primitive. For debug use only
+
     trigPrimBypass = cms.bool(False),
 
     # Mode selection for "Trig bypass" mode
@@ -75,3 +76,7 @@ simEcalDigis = cms.EDProducer("EcalSelectiveReadoutProducer",
 # Turn off SR in Ecal for premixing stage1
 from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
 premix_stage1.toModify(simEcalDigis, UseFullReadout = True)
+
+_simEcalDigisPh2 = simEcalDigis.clone(
+    trigPrimBypass = True,
+)

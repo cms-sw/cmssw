@@ -18,10 +18,10 @@ filteredLayerClustersMIP = _filteredLayerClustersProducer.clone(
 # CA - PATTERN RECOGNITION
 
 ticlTrackstersMIP = _trackstersProducer.clone(
-    filtered_mask = cms.InputTag("filteredLayerClustersMIP", "MIP"),
+    filtered_mask = "filteredLayerClustersMIP:MIP",
     seeding_regions = "ticlSeedingGlobal",
-    missing_layers = 3,
-    min_clusters_per_ntuplet = 10,
+    skip_layers = 3,
+    min_layers_per_trackster = 10,
     min_cos_theta = 0.99, # ~10 degrees
     min_cos_pointing = 0.5,
     out_in_dfs = False,
@@ -42,7 +42,7 @@ ticlMIPStepTask = cms.Task(ticlSeedingGlobal
 
 filteredLayerClustersHFNoseMIP = filteredLayerClustersMIP.clone(
     LayerClusters = 'hgcalLayerClustersHFNose',
-    LayerClustersInputMask = cms.InputTag("hgcalLayerClustersHFNose","InitialLayerClustersMask"),
+    LayerClustersInputMask = "hgcalLayerClustersHFNose:InitialLayerClustersMask",
     iteration_label = "MIPn",
     algo_number = 9
 )
@@ -51,11 +51,11 @@ ticlTrackstersHFNoseMIP = ticlTrackstersMIP.clone(
     detector = "HFNose",
     layer_clusters = "hgcalLayerClustersHFNose",
     layer_clusters_hfnose_tiles = "ticlLayerTileHFNose",
-    original_mask = cms.InputTag("hgcalLayerClustersHFNose","InitialLayerClustersMask"),
-    filtered_mask = cms.InputTag("filteredLayerClustersHFNoseMIP","MIPn"),
+    original_mask = "hgcalLayerClustersHFNose:InitialLayerClustersMask",
+    filtered_mask = "filteredLayerClustersHFNoseMIP:MIPn",
     seeding_regions = "ticlSeedingGlobalHFNose",
-    time_layerclusters = cms.InputTag("hgcalLayerClustersHFNose","timeLayerCluster"),
-    min_clusters_per_ntuplet = 6
+    time_layerclusters = "hgcalLayerClustersHFNose:timeLayerCluster",
+    min_layers_per_trackster = 6
 )
 
 ticlHFNoseMIPStepTask = cms.Task(ticlSeedingGlobalHFNose

@@ -260,18 +260,18 @@ void HcalGeomParameters::loadGeometry(const cms::DDCompactView& cpv, HcalParamet
 #endif
     double dx = 0, dy = 0, dz = 0, dx1 = 0, dx2 = 0;
     double alp(0);
-    if (fv.isABox()) {
+    if (dd4hep::isA<dd4hep::Box>(fv.solid())) {
       dx = HcalGeomParameters::k_ScaleFromDD4HepToG4 * paras[0];
       dy = HcalGeomParameters::k_ScaleFromDD4HepToG4 * paras[1];
       dz = HcalGeomParameters::k_ScaleFromDD4HepToG4 * paras[2];
-    } else if (fv.isATrapezoid()) {
+    } else if (dd4hep::isA<dd4hep::Trap>(fv.solid())) {
       dx1 = HcalGeomParameters::k_ScaleFromDD4HepToG4 * paras[4];
       dx2 = HcalGeomParameters::k_ScaleFromDD4HepToG4 * paras[5];
       dx = 0.25 * HcalGeomParameters::k_ScaleFromDD4HepToG4 * (paras[4] + paras[5] + paras[8] + paras[9]);
       dy = 0.5 * HcalGeomParameters::k_ScaleFromDD4HepToG4 * (paras[3] + paras[7]);
       dz = HcalGeomParameters::k_ScaleFromDD4HepToG4 * paras[0];
       alp = 0.5 * (paras[6] + paras[10]);
-    } else if (fv.isATubeSeg()) {
+    } else if (dd4hep::isA<dd4hep::Tube>(fv.solid())) {
       dx = HcalGeomParameters::k_ScaleFromDD4HepToG4 * paras[0];
       dy = HcalGeomParameters::k_ScaleFromDD4HepToG4 * paras[1];
       dz = HcalGeomParameters::k_ScaleFromDD4HepToG4 * paras[2];
@@ -416,11 +416,11 @@ void HcalGeomParameters::loadGeometry(const cms::DDCompactView& cpv, HcalParamet
         for (unsigned j = 0; j < paras.size(); j++)
           edm::LogVerbatim("HCalGeom") << "HF Parameter[" << j << "] = " << paras[j];
 #endif
-        if (fv.isA<dd4hep::Polycone>()) {
+        if (dd4hep::isA<dd4hep::Polycone>(fv.solid())) {
           int nz = (int)(paras.size()) - 3;
           dzVcal_ = 0.5 * HcalGeomParameters::k_ScaleFromDD4HepToG4 * (paras[nz] - paras[3]);
           hf = true;
-        } else if (fv.isATubeSeg() || fv.isAConeSeg()) {
+        } else if (dd4hep::isA<dd4hep::Tube>(fv.solid()) || dd4hep::isA<dd4hep::ConeSegment>(fv.solid())) {
           dzVcal_ = HcalGeomParameters::k_ScaleFromDD4HepToG4 * paras[2];
           hf = true;
         }

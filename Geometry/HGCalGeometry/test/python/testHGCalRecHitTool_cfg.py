@@ -4,12 +4,12 @@ process = cms.Process("PROD")
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
 process.load("Configuration.Geometry.GeometryExtended2026D49Reco_cff")
-#process.load("Configuration.Geometry.GeometryExtended2026D35Reco_cff")
-#process.load("Configuration.Geometry.GeometryExtended2026D41Reco_cff")
+#process.load("Configuration.Geometry.GeometryExtended2026D67Reco_cff")
+#process.load("Configuration.Geometry.GeometryExtended2026D71Reco_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('HGCalGeom')
+    process.MessageLogger.HGCalGeom=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789

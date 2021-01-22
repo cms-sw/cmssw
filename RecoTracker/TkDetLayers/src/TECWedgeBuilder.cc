@@ -10,7 +10,7 @@ TECWedge* TECWedgeBuilder::build(const GeometricDet* aTECWedge, const TrackerGeo
   //edm::LogInfo(TkDetLayers) << "theGeometricDets.size(): " << theGeometricDets.size() ;
 
   if (theGeometricDets.size() == 1) {
-    const GeomDet* theGeomDet = theGeomDetGeometry->idToDet(theGeometricDets.front()->geographicalID());
+    const GeomDet* theGeomDet = theGeomDetGeometry->idToDet(theGeometricDets.front()->geographicalId());
     return new SimpleTECWedge(theGeomDet);
   }
 
@@ -29,7 +29,7 @@ TECWedge* TECWedgeBuilder::build(const GeometricDet* aTECWedge, const TrackerGeo
 
   for (vector<const GeometricDet*>::const_iterator it = theGeometricDets.begin(); it != theGeometricDets.end(); it++) {
     //double theGeometricDetRposition = (*it)->positionBounds().perp();
-    const GeomDet* theGeomDet = theGeomDetGeometry->idToDet((*it)->geographicalID());
+    const GeomDet* theGeomDet = theGeomDetGeometry->idToDet((*it)->geographicalId());
     //double theGeomDetRposition = theGeomDet->surface().position().perp();
 
     if (std::abs((*it)->positionBounds().z()) < std::abs(meanZ))

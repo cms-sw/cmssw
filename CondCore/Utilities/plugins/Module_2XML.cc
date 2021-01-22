@@ -205,7 +205,6 @@ PAYLOAD_2XML_MODULE(pluginUtilities_payload2xml) {
   PAYLOAD_2XML_CLASS(OOTPileupCorrectionBuffer);
   PAYLOAD_2XML_CLASS(PCaloGeometry);
   PAYLOAD_2XML_CLASS(PGeometricDet);
-  PAYLOAD_2XML_CLASS(PGeometricDetExtra);
   PAYLOAD_2XML_CLASS(PHGCalParameters);
   PAYLOAD_2XML_CLASS(PTrackerParameters);
   PAYLOAD_2XML_CLASS(PerformancePayloadFromBinnedTFormula);

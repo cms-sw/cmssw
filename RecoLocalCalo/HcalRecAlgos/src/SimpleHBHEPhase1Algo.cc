@@ -5,17 +5,19 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/SimpleHBHEPhase1Algo.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalCorrectionFunctions.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Run.h"
 
 #include "DataFormats/HcalRecHit/interface/HBHERecHitAuxSetter.h"
 #include "DataFormats/METReco/interface/HcalPhase1FlagLabels.h"
 #include "CondFormats/DataRecord/interface/HcalTimeSlewRecord.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
-// Maximum fractional error for calculating Method 0
-// pulse containment correction
-constexpr float PulseContainmentFractionalError = 0.002f;
+namespace {
+  // Maximum fractional error for calculating Method 0
+  // pulse containment correction
+  constexpr float PulseContainmentFractionalError = 0.002f;
+}  // namespace
 
 SimpleHBHEPhase1Algo::SimpleHBHEPhase1Algo(const int firstSampleShift,
                                            const int samplesToAdd,
@@ -25,8 +27,10 @@ SimpleHBHEPhase1Algo::SimpleHBHEPhase1Algo(const int firstSampleShift,
                                            const bool applyLegacyHBMCorrection,
                                            std::unique_ptr<PulseShapeFitOOTPileupCorrection> m2,
                                            std::unique_ptr<HcalDeterministicFit> detFit,
-                                           std::unique_ptr<MahiFit> mahi)
-    : pulseCorr_(PulseContainmentFractionalError),
+                                           std::unique_ptr<MahiFit> mahi,
+                                           edm::ConsumesCollector iC)
+    : delayToken_(iC.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "HBHE"))),
+      pulseCorr_(PulseContainmentFractionalError, iC),
       firstSampleShift_(firstSampleShift),
       samplesToAdd_(samplesToAdd),
       phaseNS_(phaseNS),
@@ -41,9 +45,7 @@ SimpleHBHEPhase1Algo::SimpleHBHEPhase1Algo(const int firstSampleShift,
 }
 
 void SimpleHBHEPhase1Algo::beginRun(const edm::Run& r, const edm::EventSetup& es) {
-  edm::ESHandle<HcalTimeSlew> delay;
-  es.get<HcalTimeSlewRecord>().get("HBHE", delay);
-  hcalTimeSlew_delay_ = &*delay;
+  hcalTimeSlew_delay_ = &es.getData(delayToken_);
 
   runnum_ = r.run();
   pulseCorr_.beginRun(es);

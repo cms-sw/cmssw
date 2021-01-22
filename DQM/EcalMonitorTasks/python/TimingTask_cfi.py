@@ -19,7 +19,7 @@ for bxBinCounter in range(0, -1+len(bxBins)):
 nBXBins = len(bxBins)
 
 bxBinsFine = [i for i in range(1, 3601)]
-bxBinLabelsFine = [str(i) if (i%100 == 0) else "" for i in range(1, 3601)]
+bxBinLabelsFine = [str(i) for i in range(1, 3601)]
 nBXBinsFine = len(bxBinsFine)
 
 EaxisEdges = []

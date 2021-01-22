@@ -23,29 +23,18 @@ bool TrackerParametersFromDD::build(const DDCompactView* cvp, PTrackerParameters
   return true;
 }
 
-bool TrackerParametersFromDD::build(const cms::DDCompactView* cvp, PTrackerParameters& ptp) {
-  dd4hep::VectorsMap vmap = cvp->detector()->vectors();
+bool TrackerParametersFromDD::build(const cms::DDCompactView* cpv, PTrackerParameters& ptp) {
+  const auto& vmap = cpv->detector()->vectors();
   for (int subdet = 1; subdet <= 6; ++subdet) {
-    std::stringstream sstm;
-    sstm << "Subdetector" << subdet;
-    std::string name = sstm.str();
-    for (auto const& it : vmap) {
-      if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), name)) {
-        std::vector<int> subdetPars;
-        for (const auto& i : it.second)
-          subdetPars.emplace_back(std::round(i));
-        putOne(subdet, subdetPars, ptp);
-      }
-    }
+    const auto& v = vmap.at("trackerParameters:Subdetector" + std::to_string(subdet));
+    std::vector<int> subdetPars;
+    std::transform(v.begin(), v.end(), std::back_inserter(subdetPars), [](int i) -> int { return std::round(i); });
+    putOne(subdet, subdetPars, ptp);
   }
 
-  auto it = vmap.find("vPars");
-  if (it != end(vmap)) {
-    std::vector<int> tmpVec;
-    for (const auto& i : it->second)
-      tmpVec.emplace_back(std::round(i));
-    ptp.vpars = tmpVec;
-  }
+  // get "vPars" parameter block from XMLs.
+  const auto& vPars = vmap.at("trackerParameters:vPars");
+  std::transform(vPars.begin(), vPars.end(), std::back_inserter(ptp.vpars), [](int i) -> int { return std::round(i); });
 
   return true;
 }

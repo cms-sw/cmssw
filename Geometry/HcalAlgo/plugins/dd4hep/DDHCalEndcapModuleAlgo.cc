@@ -582,10 +582,7 @@ struct HCalEndcapModuleAlgo {
   }
 };
 
-static long algorithm(dd4hep::Detector& /* description */,
-                      cms::DDParsingContext& ctxt,
-                      xml_h e,
-                      dd4hep::SensitiveDetector& /* sens */) {
+static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e) {
   HCalEndcapModuleAlgo hcalendcapalgo(ctxt, e);
   return 1;
 }

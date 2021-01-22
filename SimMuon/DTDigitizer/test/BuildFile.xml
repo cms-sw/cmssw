@@ -1,7 +1,6 @@
 <use name="CLHEP"/>
 <use name="root"/>
 <use name="boost"/>
-<use name="sigcpp"/>
 <bin name="testDriftTimeParam" file="testDriftTimeParam.cpp">
 </bin>
 

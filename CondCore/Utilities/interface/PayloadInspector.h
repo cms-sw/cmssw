@@ -12,6 +12,7 @@
 #include <type_traits>
 
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <boost/python/list.hpp>
 #include <boost/python/dict.hpp>
@@ -74,6 +75,9 @@ namespace cond {
         if (value.first) {
           ss << "\"" << entryLabel << "\":" << value.second;
         }
+      } else if constexpr (std::is_same_v<V, double>) {
+        ss.precision(0);
+        ss << "\"" << entryLabel << "\":" << std::fixed << value;
       } else {
         ss << "\"" << entryLabel << "\":" << value;
       }
@@ -701,21 +705,31 @@ namespace cond {
     };
 
     //
-    template <typename PayloadType, IOVMultiplicity IOV_M = UNSPECIFIED_IOV>
-    class Histogram1D : public Plot2D<PayloadType, float, float, IOV_M, 1> {
+    template <typename AxisType, typename PayloadType, IOVMultiplicity IOV_M = UNSPECIFIED_IOV>
+    class Histogram1 : public Plot2D<PayloadType, AxisType, AxisType, IOV_M, 1> {
     public:
-      typedef Plot2D<PayloadType, float, float, IOV_M, 1> Base;
+      typedef Plot2D<PayloadType, AxisType, AxisType, IOV_M, 1> Base;
       // naive implementation, essentially provided as an example...
-      Histogram1D(const std::string& title,
-                  const std::string& xLabel,
-                  size_t nbins,
-                  float min,
-                  float max,
-                  const std::string& yLabel = "entries")
+      Histogram1(const std::string& title,
+                 const std::string& xLabel,
+                 size_t nbins,
+                 float min,
+                 float max,
+                 const std::string& yLabel = "entries")
           : Base("Histo1D", title, xLabel, yLabel), m_nbins(nbins), m_min(min), m_max(max) {}
 
       //
       void init() override {
+        if (m_nbins < 1) {
+          edm::LogError("payloadInspector::Histogram1D()")
+              << " trying to book an histogram with less then 1 bin!" << std::endl;
+        }
+
+        if (m_min > m_max) {
+          edm::LogError("payloadInspector::Histogram1D()")
+              << " trying to book an histogram with minimum " << m_min << "> maximum" << m_max << " !" << std::endl;
+        }
+
         Base::m_plotData.clear();
         float binSize = (m_max - m_min) / m_nbins;
         if (binSize > 0) {
@@ -728,7 +742,7 @@ namespace cond {
       }
 
       // to be used to fill the histogram!
-      void fillWithValue(float value, float weight = 1) {
+      void fillWithValue(AxisType value, AxisType weight = 1) {
         // ignoring underflow/overflows ( they can be easily added - the total entries as well  )
         if (!Base::m_plotData.empty() && (value < m_max) && (value >= m_min)) {
           size_t ibin = (value - m_min) / m_binSize;
@@ -737,7 +751,7 @@ namespace cond {
       }
 
       // to be used to fill the histogram!
-      void fillWithBinAndValue(size_t bin, float weight = 1) {
+      void fillWithBinAndValue(size_t bin, AxisType weight = 1) {
         if (bin < Base::m_plotData.size()) {
           std::get<1>(Base::m_plotData[bin]) = weight;
         }
@@ -749,7 +763,7 @@ namespace cond {
         for (auto iov : tag.iovs) {
           std::shared_ptr<PayloadType> payload = Base::fetchPayload(std::get<1>(iov));
           if (payload.get()) {
-            float value = getFromPayload(*payload);
+            AxisType value = getFromPayload(*payload);
             fillWithValue(value);
           }
         }
@@ -757,7 +771,7 @@ namespace cond {
       }
 
       // implement this one if you use the default fill implementation, otherwise ignore it...
-      virtual float getFromPayload(PayloadType& payload) { return 0; }
+      virtual AxisType getFromPayload(PayloadType& payload) { return 0; }
 
     private:
       float m_binSize = 0;
@@ -765,6 +779,16 @@ namespace cond {
       float m_min;
       float m_max;
     };
+
+    // clever way to reduce the number of templated arguments
+    // see https://stackoverflow.com/questions/3881633/reducing-number-of-template-arguments-for-class
+    // for reference
+
+    template <typename PayloadType, IOVMultiplicity IOV_M = UNSPECIFIED_IOV>
+    using Histogram1D = Histogram1<float, PayloadType, UNSPECIFIED_IOV>;
+
+    template <typename PayloadType, IOVMultiplicity IOV_M = UNSPECIFIED_IOV>
+    using Histogram1DD = Histogram1<double, PayloadType, UNSPECIFIED_IOV>;
 
     //
     template <typename PayloadType, IOVMultiplicity IOV_M = UNSPECIFIED_IOV>
@@ -791,6 +815,22 @@ namespace cond {
 
       //
       void init() override {
+        // some protections
+        if ((m_nxbins < 1) || (m_nybins < 1)) {
+          edm::LogError("payloadInspector::Histogram2D()")
+              << " trying to book an histogram with less then 1 bin!" << std::endl;
+        }
+
+        if (m_xmin > m_xmax) {
+          edm::LogError("payloadInspector::Histogram2D()") << " trying to book an histogram with x-minimum " << m_xmin
+                                                           << "> x-maximum" << m_xmax << " !" << std::endl;
+        }
+
+        if (m_ymin > m_ymax) {
+          edm::LogError("payloadInspector::Histogram2D()") << " trying to book an histogram with y-minimum " << m_ymin
+                                                           << "> y-maximum" << m_ymax << " !" << std::endl;
+        }
+
         Base::m_plotData.clear();
         float xbinSize = (m_xmax - m_xmin) / m_nxbins;
         float ybinSize = (m_ymax - m_ymin) / m_nybins;

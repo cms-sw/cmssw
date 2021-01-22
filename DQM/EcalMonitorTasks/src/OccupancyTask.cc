@@ -25,11 +25,15 @@ namespace ecaldqm {
     return false;
   }
 
-  void OccupancyTask::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
-    // Reset by LS plots at beginning of every LS
-    MEs_.at("DigiAllByLumi").reset();
-    MEs_.at("TPDigiThrAllByLumi").reset();
-    MEs_.at("RecHitThrAllByLumi").reset();
+  void OccupancyTask::beginEvent(edm::Event const& _evt,
+                                 edm::EventSetup const& _es,
+                                 bool const& ByLumiResetSwitch,
+                                 bool&) {
+    if (ByLumiResetSwitch) {
+      MEs_.at("DigiAllByLumi").reset();
+      MEs_.at("TPDigiThrAllByLumi").reset();
+      MEs_.at("RecHitThrAllByLumi").reset();
+    }
   }
 
   void OccupancyTask::runOnRawData(EcalRawDataCollection const& _dcchs) {

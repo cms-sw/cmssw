@@ -3,7 +3,7 @@
 
 #include <string>
 namespace edm {
-  std::string createGlobalIdentifier();
+  std::string createGlobalIdentifier(bool binary = false);
 }
 
 #endif

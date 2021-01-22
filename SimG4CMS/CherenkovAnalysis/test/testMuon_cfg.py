@@ -52,8 +52,8 @@ process.VtxSmeared = cms.EDProducer("GaussEvtVtxGenerator",
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 5
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('EcalSim')
-    process.MessageLogger.categories.append('CherenkovAnalysis')
+    process.MessageLogger.EcalSim=dict()
+    process.MessageLogger.CherenkovAnalysis=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789

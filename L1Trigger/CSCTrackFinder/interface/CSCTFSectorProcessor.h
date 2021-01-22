@@ -11,20 +11,29 @@
 #include <vector>
 #include <map>
 #include <string>
-#include <DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h>
-#include <DataFormats/L1CSCTrackFinder/interface/TrackStub.h>
-#include <DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include "CondFormats/L1TObjects/interface/L1MuCSCTFConfiguration.h"
+#include "CondFormats/DataRecord/interface/L1MuCSCTFConfigurationRcd.h"
+#include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h"
+#include "DataFormats/L1CSCTrackFinder/interface/TrackStub.h"
+#include "DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include <L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverLUT.h>
-#include <L1Trigger/CSCTrackFinder/interface/CSCTFSPCoreLogic.h>
-#include <L1Trigger/CSCTrackFinder/interface/CSCTFPtLUT.h>
+#include "L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverLUT.h"
+#include "L1Trigger/CSCTrackFinder/interface/CSCTFSPCoreLogic.h"
+#include "L1Trigger/CSCTrackFinder/interface/CSCTFPtLUT.h"
 ///KK
-#include <FWCore/Framework/interface/EventSetup.h>
+#include "FWCore/Framework/interface/EventSetup.h"
 ///
 
 class CSCTFSectorProcessor {
 public:
+  struct Tokens {
+    CSCTFPtLUT::Tokens ptLUT;
+    edm::ESGetToken<L1MuCSCTFConfiguration, L1MuCSCTFConfigurationRcd> config;
+  };
+
+  static Tokens consumes(const edm::ParameterSet& pset, edm::ConsumesCollector iC);
+
   CSCTFSectorProcessor(const unsigned& endcap,
                        const unsigned& sector,
                        const edm::ParameterSet& pset,
@@ -33,7 +42,7 @@ public:
                        const L1MuTriggerPtScale* ptScale);
 
   ///KK
-  void initialize(const edm::EventSetup& c);
+  void initialize(const edm::EventSetup& c, const Tokens& tokens);
   ///
 
   ~CSCTFSectorProcessor();

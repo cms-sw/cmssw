@@ -26,21 +26,12 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
 // For removing ECAL Spikes
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/EcalObjects/interface/EcalCondObjectContainer.h"
-
-// geometry
-//#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-//#include "Geometry/Records/interface/CaloGeometryRecord.h"
-//#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
-//#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-//#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-//#include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
 
 // Math stuff
 #include "DataFormats/Math/interface/deltaR.h"
@@ -54,7 +45,7 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 
-QcdPhotonsDQM::QcdPhotonsDQM(const ParameterSet& parameters) {
+QcdPhotonsDQM::QcdPhotonsDQM(const ParameterSet& parameters) : ecalClusterToolsESGetTokens_{consumesCollector()} {
   // Get parameters from configuration file
   theTriggerPathToPass_ = parameters.getParameter<string>("triggerPathToPass");
   thePlotTheseTriggersToo_ = parameters.getParameter<vector<string> >("plotTheseTriggersToo");
@@ -341,7 +332,8 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   iEvent.getByToken(theBarrelRecHitToken_, EBReducedRecHits);
   Handle<EcalRecHitCollection> EEReducedRecHits;
   iEvent.getByToken(theEndcapRecHitToken_, EEReducedRecHits);
-  EcalClusterLazyTools lazyTool(iEvent, iSetup, theBarrelRecHitToken_, theEndcapRecHitToken_);
+  EcalClusterLazyTools lazyTool(
+      iEvent, ecalClusterToolsESGetTokens_.get(iSetup), theBarrelRecHitToken_, theEndcapRecHitToken_);
 
   // Find the highest et "decent" photon
   float photon_et = -9.0;

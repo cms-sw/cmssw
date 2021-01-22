@@ -146,7 +146,7 @@ void EgammaHLTFilteredObjProducer<OutCollType>::fillDescriptions(edm::Configurat
 }
 
 template <typename OutCollType>
-void EgammaHLTFilteredObjProducer<OutCollType>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void EgammaHLTFilteredObjProducer<OutCollType>::produce(edm::Event& iEvent, const edm::EventSetup&) {
   for (auto& cut : cuts_)
     cut.getHandles(iEvent);
   auto candsHandle = getHandle(iEvent, candsToken_);

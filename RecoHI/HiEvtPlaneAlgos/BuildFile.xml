@@ -2,6 +2,7 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
+<use name="DataFormats/PatCandidates"/>
 <use name="DataFormats/Candidate"/>
 <use name="DataFormats/HcalRecHit"/>
 <use name="DataFormats/TrackReco"/>

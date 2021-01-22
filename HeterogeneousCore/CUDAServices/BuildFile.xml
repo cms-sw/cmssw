@@ -1,5 +1,4 @@
 <iftool name="cuda">
-  <use name="FWCore/Framework"/>
   <use name="FWCore/ServiceRegistry"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/MessageLogger"/>

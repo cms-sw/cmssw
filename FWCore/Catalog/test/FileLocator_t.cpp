@@ -4,6 +4,8 @@
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include <boost/filesystem.hpp>
 
+#include <string>
+
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 
@@ -29,13 +31,14 @@ namespace {
       return nullptr;
     }
     std::set<std::string> const* statisticsInfo() const final { return nullptr; }
-    std::string const& siteName(void) const final {
-      static const std::string s_value = "TEST";
-      return s_value;
-    }
+    std::string const& siteName(void) const final { return m_emptyString; }
+    bool useLocalConnectString() const final { return false; }
+    std::string const& localConnectPrefix() const final { return m_emptyString; }
+    std::string const& localConnectSuffix() const final { return m_emptyString; }
 
   private:
     std::vector<std::string> m_catalogs;
+    std::string m_emptyString;
   };
 }  // namespace
 

@@ -1,6 +1,7 @@
 #ifndef DetectorDescription_DDCMS_DDDetector_h
 #define DetectorDescription_DDCMS_DDDetector_h
 
+#include "DetectorDescription/DDCMS/interface/DDVectorRegistry.h"
 #include <DD4hep/Detector.h>
 #include <DD4hep/SpecParRegistry.h>
 #include <string>
@@ -13,7 +14,7 @@ namespace cms {
     explicit DDDetector(const std::string&, const std::string&, bool bigXML = false);
     DDDetector() = delete;
 
-    dd4hep::VectorsMap const& vectors() const { return m_vectors; }
+    cms::DDVectorsMap const& vectors() const { return m_vectors; }
 
     dd4hep::PartSelectionMap const& partsels() const { return m_partsels; }
 
@@ -38,7 +39,7 @@ namespace cms {
     void processXML(const std::string&);
 
     dd4hep::Detector* m_description = nullptr;
-    dd4hep::VectorsMap m_vectors;
+    cms::DDVectorsMap m_vectors;
     dd4hep::PartSelectionMap m_partsels;
     dd4hep::SpecParRegistry m_specpars;
     const std::string m_tag;

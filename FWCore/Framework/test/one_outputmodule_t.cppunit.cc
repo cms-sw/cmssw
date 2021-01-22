@@ -10,6 +10,7 @@
 #include <vector>
 #include <map>
 #include <functional>
+#include "tbb/global_control.h"
 #include "FWCore/Framework/interface/one/OutputModule.h"
 #include "FWCore/Framework/src/OutputModuleCommunicatorT.h"
 #include "FWCore/Framework/src/TransitionInfoTypes.h"
@@ -104,6 +105,17 @@ private:
 
   template <typename T>
   void testTransitions(std::shared_ptr<T> iMod, Expectations const& iExpect);
+
+  template <typename Traits, typename Info>
+  void doWork(edm::Worker* iBase, Info const& info, edm::StreamID id, edm::ParentContext const& iContext) {
+    auto task = edm::make_empty_waiting_task();
+    task->increment_ref_count();
+    iBase->doWorkAsync<Traits>(edm::WaitingTaskHolder(task.get()), info, edm::ServiceToken(), id, iContext, nullptr);
+    task->wait_for_all();
+    if (auto e = task->exceptionPtr()) {
+      std::rethrow_exception(*e);
+    }
+  }
 
   class BasicOutputModule : public edm::one::OutputModule<> {
   public:
@@ -275,14 +287,14 @@ testOneOutputModule::testOneOutputModule()
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalBegin> Traits;
     edm::ParentContext parentContext;
     edm::RunTransitionInfo info(*m_rp, *m_es);
-    iBase->doWork<Traits>(info, edm::StreamID::invalidStreamID(), parentContext, nullptr);
+    doWork<Traits>(iBase, info, edm::StreamID::invalidStreamID(), parentContext);
   };
 
   m_transToFunc[Trans::kGlobalBeginLuminosityBlock] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator*) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionGlobalBegin> Traits;
     edm::ParentContext parentContext;
     edm::LumiTransitionInfo info(*m_lbp, *m_es);
-    iBase->doWork<Traits>(info, edm::StreamID::invalidStreamID(), parentContext, nullptr);
+    doWork<Traits>(iBase, info, edm::StreamID::invalidStreamID(), parentContext);
   };
 
   m_transToFunc[Trans::kEvent] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator*) {
@@ -291,14 +303,14 @@ testOneOutputModule::testOneOutputModule()
     edm::ParentContext parentContext(&streamContext);
     iBase->setActivityRegistry(m_actReg);
     edm::EventTransitionInfo info(*m_ep, *m_es);
-    iBase->doWork<Traits>(info, s_streamID0, parentContext, nullptr);
+    doWork<Traits>(iBase, info, s_streamID0, parentContext);
   };
 
   m_transToFunc[Trans::kGlobalEndLuminosityBlock] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator* iComm) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionGlobalEnd> Traits;
     edm::ParentContext parentContext;
     edm::LumiTransitionInfo info(*m_lbp, *m_es);
-    iBase->doWork<Traits>(info, edm::StreamID::invalidStreamID(), parentContext, nullptr);
+    doWork<Traits>(iBase, info, edm::StreamID::invalidStreamID(), parentContext);
     auto t = edm::make_empty_waiting_task();
     t->increment_ref_count();
     iComm->writeLumiAsync(edm::WaitingTaskHolder(t.get()), *m_lbp, nullptr, &activityRegistry);
@@ -312,7 +324,7 @@ testOneOutputModule::testOneOutputModule()
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalEnd> Traits;
     edm::ParentContext parentContext;
     edm::RunTransitionInfo info(*m_rp, *m_es);
-    iBase->doWork<Traits>(info, edm::StreamID::invalidStreamID(), parentContext, nullptr);
+    doWork<Traits>(iBase, info, edm::StreamID::invalidStreamID(), parentContext);
     auto t = edm::make_empty_waiting_task();
     t->increment_ref_count();
     iComm->writeRunAsync(edm::WaitingTaskHolder(t.get()), *m_rp, nullptr, &activityRegistry, nullptr);
@@ -373,6 +385,8 @@ namespace {
 
 template <typename T>
 void testOneOutputModule::testTransitions(std::shared_ptr<T> iMod, Expectations const& iExpect) {
+  tbb::global_control control(tbb::global_control::max_allowed_parallelism, 1);
+
   iMod->doPreallocate(m_preallocConfig);
   edm::WorkerT<edm::one::OutputModuleBase> w{iMod, m_desc, m_params.actions_};
   w.beginJob();

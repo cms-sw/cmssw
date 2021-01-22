@@ -2,10 +2,13 @@
  *  \author J. Lee, Yechan Kang - UoS
  */
 #include "EventFilter/GEMRawToDigi/interface/GEMRawToDigi.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 using namespace gem;
 
 std::unique_ptr<AMC13Event> GEMRawToDigi::convertWordToAMC13Event(const uint64_t* word) {
+  vfatError_ = false;
+  amcError_ = false;
+
   auto amc13Event = std::make_unique<AMC13Event>();
 
   amc13Event->setCDFHeader(*word);
@@ -38,16 +41,18 @@ std::unique_ptr<AMC13Event> GEMRawToDigi::convertWordToAMC13Event(const uint64_t
       }  // end of vfat loop
 
       gebData.setChamberTrailer(*(++word));
-      if (gebData.vfatWordCnt() != gebData.vfatWordCntT())
-        return nullptr;
+      if (gebData.vfatWordCnt() != gebData.vfatWordCntT()) {
+        vfatError_ = true;
+      }
       amcData.addGEB(gebData);
 
     }  // end of geb loop
 
     amcData.setGEMeventTrailer(*(++word));
     amcData.setAMCTrailer(*(++word));
-    if (amc13Event->getAMCsize(i) != amcData.dataLength())
-      return nullptr;
+    if (amc13Event->getAMCsize(i) != amcData.dataLength()) {
+      amcError_ = true;
+    }
     amc13Event->addAMCpayload(amcData);
 
   }  // end of amc loop

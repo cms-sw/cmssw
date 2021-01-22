@@ -23,6 +23,7 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronMomentumCorrector.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronAlgo.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/ecalClusterEnergyUncertaintyElectronSpecific.h"
 #include "CommonTools/Egamma/interface/ConversionTools.h"
 
 #include <Math/Point3D.h>
@@ -370,7 +371,6 @@ GsfElectronAlgo::GsfElectronAlgo(const Tokens& input,
                                  const ElectronHcalHelper::Configuration& hcal,
                                  const IsolationConfiguration& iso,
                                  const EcalRecHitsConfiguration& recHits,
-                                 std::unique_ptr<EcalClusterFunctionBaseClass>&& superClusterErrorFunction,
                                  std::unique_ptr<EcalClusterFunctionBaseClass>&& crackCorrectionFunction,
                                  const RegressionHelper::Configuration& reg,
                                  const edm::ParameterSet& tkIsol03,
@@ -383,27 +383,21 @@ GsfElectronAlgo::GsfElectronAlgo(const Tokens& input,
       tkIsol04CalcCfg_(tkIsol04),
       tkIsolHEEP03CalcCfg_(tkIsolHEEP03),
       tkIsolHEEP04CalcCfg_(tkIsolHEEP04),
-      magneticFieldToken_{cc.esConsumes<MagneticField, IdealMagneticFieldRecord>()},
-      caloGeometryToken_{cc.esConsumes<CaloGeometry, CaloGeometryRecord>()},
-      caloTopologyToken_{cc.esConsumes<CaloTopology, CaloTopologyRecord>()},
-      trackerGeometryToken_{cc.esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()},
-      ecalSeveretyLevelAlgoToken_{cc.esConsumes<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd>()},
-      hcalHelper_{hcal},
-      superClusterErrorFunction_{
-          std::forward<std::unique_ptr<EcalClusterFunctionBaseClass>>(superClusterErrorFunction)},
+      magneticFieldToken_{cc.esConsumes()},
+      caloGeometryToken_{cc.esConsumes()},
+      caloTopologyToken_{cc.esConsumes()},
+      trackerGeometryToken_{cc.esConsumes()},
+      ecalSeveretyLevelAlgoToken_{cc.esConsumes()},
+      hcalHelper_{hcal, std::move(cc)},
       crackCorrectionFunction_{std::forward<std::unique_ptr<EcalClusterFunctionBaseClass>>(crackCorrectionFunction)},
-      regHelper_{reg}
+      regHelper_{reg, cfg_.strategy.useEcalRegression, cfg_.strategy.useCombinationRegression, cc}
 
 {}
 
 void GsfElectronAlgo::checkSetup(const edm::EventSetup& es) {
-  hcalHelper_.checkSetup(es);
   if (cfg_.strategy.useEcalRegression || cfg_.strategy.useCombinationRegression)
     regHelper_.checkSetup(es);
 
-  if (superClusterErrorFunction_) {
-    superClusterErrorFunction_->init(es);
-  }
   if (crackCorrectionFunction_) {
     crackCorrectionFunction_->init(es);
   }
@@ -412,9 +406,6 @@ void GsfElectronAlgo::checkSetup(const edm::EventSetup& es) {
 GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent(edm::Event const& event,
                                                        CaloGeometry const& caloGeometry,
                                                        EcalSeverityLevelAlgo const& ecalSeveretyLevelAlgo) {
-  // prepare access to hcal data
-  hcalHelper_.readEvent(event);
-
   auto const& towers = event.get(cfg_.tokens.hcalTowersTag);
 
   // Isolation algos
@@ -537,6 +528,9 @@ reco::GsfElectronCollection GsfElectronAlgo::completeElectrons(edm::Event const&
   auto const& caloTopology = eventSetup.getData(caloTopologyToken_);
   auto const& trackerGeometry = eventSetup.getData(trackerGeometryToken_);
   auto const& ecalSeveretyLevelAlgo = eventSetup.getData(ecalSeveretyLevelAlgoToken_);
+
+  // prepare access to hcal data
+  hcalHelper_.beginEvent(event, eventSetup);
 
   checkSetup(eventSetup);
   auto eventData = beginEvent(event, caloGeometry, ecalSeveretyLevelAlgo);
@@ -924,7 +918,7 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
                          saturationInfo);
   auto& ele = electrons.back();
   // Will be overwritten later in the case of the regression
-  ele.setCorrectedEcalEnergyError(superClusterErrorFunction_->getValue(*(ele.superCluster()), 0));
+  ele.setCorrectedEcalEnergyError(egamma::ecalClusterEnergyUncertaintyElectronSpecific(*(ele.superCluster())));
   ele.setP4(GsfElectron::P4_FROM_SUPER_CLUSTER, momentum, 0, true);
 
   //====================================================
@@ -963,7 +957,7 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
   // ecal energy
   if (cfg_.strategy.useEcalRegression)  // new
   {
-    regHelper_.applyEcalRegression(ele, eventData.vertices, eventData.barrelRecHits, eventData.endcapRecHits);
+    regHelper_.applyEcalRegression(ele, *eventData.vertices, *eventData.barrelRecHits, *eventData.endcapRecHits);
   } else  // original implementation
   {
     if (!EcalTools::isHGCalDet((DetId::Detector)region)) {

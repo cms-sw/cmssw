@@ -4,10 +4,7 @@
 // Original Author:  G. Bruno, D. Kcira
 //         Created:  Mon May 20 10:04:31 CET 2007
 #include "CalibTracker/SiStripChannelGain/plugins/SiStripGainCosmicCalculator.h"
-#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
@@ -17,8 +14,6 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetType.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -28,8 +23,6 @@
 #include "DataFormats/TrackerCommon/interface/SiStripSubStructure.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 //#include "DQM/SiStripCommon/interface/SiStripGenerateKey.h"
 
@@ -62,7 +55,10 @@ SiStripGainCosmicCalculator::SiStripGainCosmicCalculator(const edm::ParameterSet
   }
 
   printdebug_ = iConfig.getUntrackedParameter<bool>("printDebug", false);
-  tTopo = nullptr;
+
+  tTopoToken_ = esConsumes<edm::Transition::BeginRun>();
+  detCablingToken_ = esConsumes<edm::Transition::BeginRun>();
+  tkGeomToken_ = esConsumes<edm::Transition::BeginRun>();
 }
 
 SiStripGainCosmicCalculator::~SiStripGainCosmicCalculator() {
@@ -72,18 +68,9 @@ SiStripGainCosmicCalculator::~SiStripGainCosmicCalculator() {
 void SiStripGainCosmicCalculator::algoEndJob() {}
 
 void SiStripGainCosmicCalculator::algoBeginJob(const edm::EventSetup& iSetup) {
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  tTopo = tTopoHandle.product();
-
-  edm::ESHandle<SiStripDetCabling> siStripDetCablingH;
-  iSetup.get<SiStripDetCablingRcd>().get(siStripDetCablingH);
-  siStripDetCabling = siStripDetCablingH.product();
-
-  edm::ESHandle<TrackerGeometry> tkGeomH;
-  iSetup.get<TrackerDigiGeometryRecord>().get(tkGeomH);
-  tkGeom = tkGeomH.product();
+  tTopo_ = &iSetup.getData(tTopoToken_);
+  siStripDetCabling_ = &iSetup.getData(detCablingToken_);
+  tkGeom_ = &iSetup.getData(tkGeomToken_);
 
   std::cout << "SiStripGainCosmicCalculator::algoBeginJob called" << std::endl;
   total_nr_of_events = 0;
@@ -107,54 +94,37 @@ void SiStripGainCosmicCalculator::algoBeginJob(const edm::EventSetup& iSetup) {
   local_histo->GetXaxis()->SetBinLabel(2, "matched");
 
   // get cabling and find out list of active detectors
-  edm::ESHandle<SiStripDetCabling> siStripDetCabling;
-  iSetup.get<SiStripDetCablingRcd>().get(siStripDetCabling);
   std::vector<uint32_t> activeDets;
   activeDets.clear();
   SelectedDetIds.clear();
-  siStripDetCabling->addActiveDetectorsRawIds(activeDets);
+  siStripDetCabling_->addActiveDetectorsRawIds(activeDets);
   //    SelectedDetIds = activeDets; // all active detector modules
   // use SiStripSubStructure for selecting certain regions
   SiStripSubStructure::getTIBDetectors(
-      activeDets, SelectedDetIds, tTopo, 0, 0, 0, 0);  // this adds rawDetIds to SelectedDetIds
+      activeDets, SelectedDetIds, tTopo_, 0, 0, 0, 0);  // this adds rawDetIds to SelectedDetIds
   SiStripSubStructure::getTOBDetectors(
-      activeDets, SelectedDetIds, tTopo, 0, 0, 0);  // this adds rawDetIds to SelectedDetIds
+      activeDets, SelectedDetIds, tTopo_, 0, 0, 0);  // this adds rawDetIds to SelectedDetIds
   // get tracker geometry and find nr. of apv pairs for each active detector
-  edm::ESHandle<TrackerGeometry> tkGeom;
-  iSetup.get<TrackerDigiGeometryRecord>().get(tkGeom);
-  for (TrackerGeometry::DetContainer::const_iterator it = tkGeom->dets().begin(); it != tkGeom->dets().end();
-       it++) {  // loop over detector modules
-    if (dynamic_cast<const StripGeomDetUnit*>((*it)) != nullptr) {
-      uint32_t detid = ((*it)->geographicalId()).rawId();
+  for (auto det : tkGeom_->dets()) {  // loop over detector modules
+    if (dynamic_cast<const StripGeomDetUnit*>(det) != nullptr) {
+      uint32_t detid = det->geographicalId().rawId();
       // get thickness for all detector modules, not just for active, this is strange
       double module_thickness =
-          (*it)
-              ->surface()
+          det->surface()
               .bounds()
               .thickness();  // get thickness of detector from GeomDet (DetContainer == vector<GeomDet*>)
       thickness_map.insert(std::make_pair(detid, module_thickness));
       //
-      bool is_active_detector = false;
-      for (std::vector<uint32_t>::iterator iactive = SelectedDetIds.begin(); iactive != SelectedDetIds.end();
-           iactive++) {
-        if (*iactive == detid) {
-          is_active_detector = true;
-          break;  // leave for loop if found matching detid
-        }
-      }
+      const bool is_active_detector =
+          std::end(SelectedDetIds) != std::find(std::begin(SelectedDetIds), std::end(SelectedDetIds), detid);
       //
-      bool exclude_this_detid = false;
-      for (std::vector<uint32_t>::const_iterator imod = detModulesToBeExcluded.begin();
-           imod != detModulesToBeExcluded.end();
-           imod++) {
-        if (*imod == detid)
-          exclude_this_detid = true;  // found in exclusion list
-        break;
-      }
+      const bool exclude_this_detid =
+          std::end(detModulesToBeExcluded) !=
+          std::find(std::begin(detModulesToBeExcluded), std::end(detModulesToBeExcluded), detid);
       //
       if (is_active_detector &&
           (!exclude_this_detid)) {  // check whether is active detector and that should not be excluded
-        const StripTopology& p = dynamic_cast<const StripGeomDetUnit*>((*it))->specificTopology();
+        const StripTopology& p = dynamic_cast<const StripGeomDetUnit*>(det)->specificTopology();
         unsigned short NAPVPairs = p.nstrips() / 256;
         if (NAPVPairs < 2 || NAPVPairs > 3) {
           edm::LogError("SiStripGainCosmicCalculator")
@@ -291,7 +261,7 @@ std::pair<double, double> SiStripGainCosmicCalculator::getPeakOfLandau(
 double SiStripGainCosmicCalculator::moduleWidth(const uint32_t detid)  // get width of the module detid
 {  //dk: copied from A. Giammanco and hacked,  module_width values : 10.49 12.03 6.144 7.14 9.3696
   double module_width = 0.;
-  const GeomDetUnit* it = tkGeom->idToDetUnit(DetId(detid));
+  const GeomDetUnit* it = tkGeom_->idToDetUnit(DetId(detid));
   if (dynamic_cast<const StripGeomDetUnit*>(it) == nullptr && dynamic_cast<const PixelGeomDetUnit*>(it) == nullptr) {
     std::cout << "this detID doesn't seem to belong to the Tracker" << std::endl;
   } else {
@@ -304,7 +274,7 @@ double SiStripGainCosmicCalculator::moduleWidth(const uint32_t detid)  // get wi
 double SiStripGainCosmicCalculator::moduleThickness(const uint32_t detid)  // get thickness of the module detid
 {                                                                          //dk: copied from A. Giammanco and hacked
   double module_thickness = 0.;
-  const GeomDetUnit* it = tkGeom->idToDetUnit(DetId(detid));
+  const GeomDetUnit* it = tkGeom_->idToDetUnit(DetId(detid));
   if (dynamic_cast<const StripGeomDetUnit*>(it) == nullptr && dynamic_cast<const PixelGeomDetUnit*>(it) == nullptr) {
     std::cout << "this detID doesn't seem to belong to the Tracker" << std::endl;
   } else {
@@ -410,16 +380,16 @@ std::unique_ptr<SiStripApvGain> SiStripGainCosmicCalculator::getNewObject() {
       // calculate generalized_layer:  31,32 = TIB1, 33 = TIB2, 33 = TIB3, 51 = TOB1, 52 = TOB2, 60 = TEC
       if (thedetId.subdetId() == StripSubdetector::TIB) {
         generalized_layer =
-            10 * thedetId.subdetId() + tTopo->tibLayer(thedetId.rawId()) + tTopo->tibStereo(thedetId.rawId());
-        if (tTopo->tibLayer(thedetId.rawId()) == 2) {
+            10 * thedetId.subdetId() + tTopo_->tibLayer(thedetId.rawId()) + tTopo_->tibStereo(thedetId.rawId());
+        if (tTopo_->tibLayer(thedetId.rawId()) == 2) {
           generalized_layer++;
-          if (tTopo->tibGlued(thedetId.rawId()))
+          if (tTopo_->tibGlued(thedetId.rawId()))
             edm::LogError("ClusterMTCCFilter") << "WRONGGGG" << std::endl;
         }
       } else {
         generalized_layer = 10 * thedetId.subdetId();
         if (thedetId.subdetId() == StripSubdetector::TOB) {
-          generalized_layer += tTopo->tobLayer(thedetId.rawId());
+          generalized_layer += tTopo_->tobLayer(thedetId.rawId());
         }
       }
       if (generalized_layer == 31) {
@@ -439,7 +409,7 @@ std::unique_ptr<SiStripApvGain> SiStripGainCosmicCalculator::getNewObject() {
       }
       // control view
       const FedChannelConnection& fedchannelconnection =
-          siStripDetCabling->getConnection(extracted_detid, extracted_apvpairid);
+          siStripDetCabling_->getConnection(extracted_detid, extracted_apvpairid);
       std::ostringstream local_key;
       // in S. Mersi's analysis the APVPair id seems to be used instead of the lldChannel, hence use the same here
       local_key << "fecCrate" << fedchannelconnection.fecCrate() << "_fecSlot" << fedchannelconnection.fecSlot()

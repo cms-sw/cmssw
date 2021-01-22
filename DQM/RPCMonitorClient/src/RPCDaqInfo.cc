@@ -67,7 +67,7 @@ void RPCDaqInfo::myBooker(DQMStore::IBooker& ibooker) {
     limit = 2;
 
   for (int i = -1 * limit; i <= limit; i++) {  //loop on wheels and disks
-    if (i > -3 && i < 3) {                     //wheels
+    if (i > -3 && i < kNWheels - 2) {          //wheels
       std::stringstream streams;
       streams << "RPC_Wheel" << i;
       daqWheelFractions[i + 2] = ibooker.bookFloat(streams.str());
@@ -81,10 +81,12 @@ void RPCDaqInfo::myBooker(DQMStore::IBooker& ibooker) {
     if (i > 0)
       offset--;  //used to skip case equale to zero
 
-    std::stringstream streams;
-    streams << "RPC_Disk" << i;
-    daqDiskFractions[i + 2] = ibooker.bookFloat(streams.str());
-    daqDiskFractions[i + 2]->Fill(-1);
+    if (i > -3 && i < kNDisks - 2) {
+      std::stringstream streams;
+      streams << "RPC_Disk" << i;
+      daqDiskFractions[i + 2] = ibooker.bookFloat(streams.str());
+      daqDiskFractions[i + 2]->Fill(-1);
+    }
   }
 
   //daq summary for RPCs

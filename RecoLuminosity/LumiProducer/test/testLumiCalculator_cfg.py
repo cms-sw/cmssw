@@ -13,16 +13,23 @@ process.maxLuminosityBlocks=cms.untracked.PSet(
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
-   suppressInfo = cms.untracked.vstring(),
-   destinations = cms.untracked.vstring('lumioutput'),
-   categories = cms.untracked.vstring('LumiReport'),
-   lumioutput = cms.untracked.PSet(
-     threshold = cms.untracked.string('INFO'),
-     noLineBreaks = cms.untracked.bool(True),
-     noTimeStamps = cms.untracked.bool(True),
-     INFO = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
-     LumiReport = cms.untracked.PSet( limit = cms.untracked.int32(10000000) )
-   )
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    files = cms.untracked.PSet(
+        lumioutput = cms.untracked.PSet(
+            INFO = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            LumiReport = cms.untracked.PSet(
+                limit = cms.untracked.int32(10000000)
+            ),
+            noLineBreaks = cms.untracked.bool(True),
+            noTimeStamps = cms.untracked.bool(True),
+            threshold = cms.untracked.string('INFO')
+        )
+    ),
+    suppressInfo = cms.untracked.vstring()
 )
 process.source= cms.Source("PoolSource",
               processingMode=cms.untracked.string('RunsAndLumis'),          

@@ -14,6 +14,7 @@
  */
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 #include "RecoMuon/GlobalTrackingTools/interface/GlobalMuonRefitter.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
 
@@ -31,14 +32,9 @@
 
 typedef edm::ValueMap<reco::DYTInfo> DYTestimators;
 
-namespace edm {
-  class ParameterSet;
-  class Event;
-  class EventSetup;
-}  // namespace edm
-
 class MuonTrackFinder;
 class MuonServiceProxy;
+class TrackerTopologyRcd;
 
 class TevMuonProducer : public edm::stream::EDProducer<> {
 public:
@@ -56,6 +52,7 @@ private:
   edm::InputTag theGLBCollectionLabel;
   edm::EDGetTokenT<reco::TrackCollection> glbMuonsToken;
   edm::EDGetTokenT<std::vector<Trajectory> > glbMuonsTrajToken;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken;
 
   /// the event setup proxy, it takes care the services update
   std::unique_ptr<MuonServiceProxy> theService;

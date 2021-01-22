@@ -155,7 +155,7 @@ namespace {
     bool operator()(std::pair<DTLayerId, DTDigi> a, std::pair<DTLayerId, DTDigi> b) const {
       return (a.second.time() < b.second.time());
     }
-  } DigiTimeOrdering;
+  } const DigiTimeOrdering;
 }  // namespace
 
 DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset)

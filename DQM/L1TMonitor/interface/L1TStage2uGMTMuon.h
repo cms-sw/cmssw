@@ -28,10 +28,13 @@ private:
   std::string titlePrefix;
   bool verbose;
   bool makeMuonAtVtxPlots;
+  bool displacedQuantities_;
 
   MonitorElement* ugmtMuonBX;
   MonitorElement* ugmtnMuons;
   MonitorElement* ugmtMuonhwPt;
+  MonitorElement* ugmtMuonhwPtUnconstrained;
+  MonitorElement* ugmtMuonhwDXY;
   MonitorElement* ugmtMuonhwEta;
   MonitorElement* ugmtMuonhwPhi;
   MonitorElement* ugmtMuonhwEtaAtVtx;
@@ -41,6 +44,7 @@ private:
   MonitorElement* ugmtMuonhwQual;
 
   MonitorElement* ugmtMuonPt;
+  MonitorElement* ugmtMuonPtUnconstrained;
   MonitorElement* ugmtMuonEta;
   MonitorElement* ugmtMuonPhi;
   MonitorElement* ugmtMuonEtaAtVtx;

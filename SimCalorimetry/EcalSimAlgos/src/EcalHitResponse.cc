@@ -145,7 +145,7 @@ void EcalHitResponse::putAnalogSignal(const PCaloHit& hit, CLHEP::HepRandomEngin
   const double jitter(time - timeOfFlight(detId));
 
   const double tzero = (shape()->timeToRise() + parameters->timePhase() - jitter -
-                        BUNCHSPACE * (parameters->binOfMaximum() - m_phaseShift));
+                        kSamplePeriod * (parameters->binOfMaximum() - m_phaseShift));
   double binTime(tzero);
 
   EcalSamples& result(*findSignal(detId));
@@ -154,7 +154,7 @@ void EcalHitResponse::putAnalogSignal(const PCaloHit& hit, CLHEP::HepRandomEngin
 
   for (unsigned int bin(0); bin != rsize; ++bin) {
     result[bin] += (*shape())(binTime)*signal;
-    binTime += BUNCHSPACE;
+    binTime += kSamplePeriod;
   }
 }
 

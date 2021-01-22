@@ -36,10 +36,8 @@ int distwheel(int wheel1, int wheel2) {
   return distance;
 }
 
-DTSegtoRPC::DTSegtoRPC(const DTRecSegment4DCollection* all4DSegments,
-                       const edm::EventSetup& iSetup,
-                       bool debug,
-                       double eyr) {
+DTSegtoRPC::DTSegtoRPC(edm::ConsumesCollector iC)
+    : rpcGeoToken_(iC.esConsumes()), dtGeoToken_(iC.esConsumes()), dtMapToken_(iC.esConsumes()) {
   /*
   MinCosAng=iConfig.getUntrackedParameter<double>("MinCosAng",0.95);
   MaxD=iConfig.getUntrackedParameter<double>("MaxD",80.);
@@ -58,8 +56,14 @@ DTSegtoRPC::DTSegtoRPC(const DTRecSegment4DCollection* all4DSegments,
   //These should be always true expect for debuggin porpouses
   incldt=true;
   incldtMB4=true;
+  */
+}
 
-  
+std::unique_ptr<RPCRecHitCollection> DTSegtoRPC::thePoints(const DTRecSegment4DCollection* all4DSegments,
+                                                           const edm::EventSetup& iSetup,
+                                                           bool debug,
+                                                           double eyr) {
+  /*
     struct timespec start_time, stop_time;
     time_t fs;
     time_t fn;
@@ -68,19 +72,17 @@ DTSegtoRPC::DTSegtoRPC(const DTRecSegment4DCollection* all4DSegments,
     clock_gettime(CLOCK_REALTIME, &start_time);
   */
 
-  _ThePoints = std::make_unique<RPCRecHitCollection>();
+  auto _ThePoints = std::make_unique<RPCRecHitCollection>();
+  edm::OwnVector<RPCRecHit> RPCPointVector;
+  std::vector<uint32_t> extrapolatedRolls;
 
   if (all4DSegments->size() > 8) {
     if (debug)
       std::cout << "Too many segments in this event we are not doing the extrapolation" << std::endl;
   } else {
-    edm::ESHandle<RPCGeometry> rpcGeo;
-    edm::ESHandle<DTGeometry> dtGeo;
-    edm::ESHandle<DTObjectMap> dtMap;
-
-    iSetup.get<MuonGeometryRecord>().get(rpcGeo);
-    iSetup.get<MuonGeometryRecord>().get(dtGeo);
-    iSetup.get<MuonGeometryRecord>().get(dtMap);
+    edm::ESHandle<RPCGeometry> rpcGeo = iSetup.getHandle(rpcGeoToken_);
+    edm::ESHandle<DTGeometry> dtGeo = iSetup.getHandle(dtGeoToken_);
+    edm::ESHandle<DTObjectMap> dtMap = iSetup.getHandle(dtMapToken_);
 
     /*
       clock_gettime(CLOCK_REALTIME, &stop_time);
@@ -608,6 +610,6 @@ DTSegtoRPC::DTSegtoRPC(const DTRecSegment4DCollection* all4DSegments,
   ln=stop_time.tv_nsec;
   std::cout <<" =================|||| "<<ls-fs<<" sec "<<ln-fn<<" us"<<std::endl;
   */
-}
 
-DTSegtoRPC::~DTSegtoRPC() {}
+  return _ThePoints;
+}

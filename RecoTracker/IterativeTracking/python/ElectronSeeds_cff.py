@@ -94,9 +94,9 @@ tripletElectronTrackingRegions = _globalTrackingRegionFromBeamSpot.clone(RegionP
     nSigmaZ      = 4.0
 ))
 
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
-pp_on_AA_2018.toReplaceWith(tripletElectronTrackingRegions,
+pp_on_AA.toReplaceWith(tripletElectronTrackingRegions,
     _globalTrackingRegionWithVertices.clone(
         RegionPSet = dict(
             fixedError   = 0.5,
@@ -174,7 +174,7 @@ pixelPairElectronTrackingRegions = _globalTrackingRegionWithVertices.clone(Regio
     originRadius = 0.015,
     fixedError   = 0.03,
 ))
-pp_on_AA_2018.toModify(pixelPairElectronTrackingRegions, RegionPSet = dict(ptMin = 8.0))
+pp_on_AA.toModify(pixelPairElectronTrackingRegions, RegionPSet = dict(ptMin = 8.0))
 from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
 pixelPairElectronHitDoublets = _hitPairEDProducer.clone(
     seedingLayers         = 'pixelPairElectronSeedLayers',
@@ -221,7 +221,7 @@ stripPairElectronTrackingRegions = _globalTrackingRegionFromBeamSpotFixedZ.clone
     originHalfLength = 12.0,
     originRadius     = 0.4,
 ))
-pp_on_AA_2018.toReplaceWith(stripPairElectronTrackingRegions,
+pp_on_AA.toReplaceWith(stripPairElectronTrackingRegions,
     _globalTrackingRegionWithVertices.clone(
         RegionPSet = dict(
             fixedError   = 0.5,

@@ -22,15 +22,17 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('HitStudy'),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
         HitStudy = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
         ),
+        default = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        enable = cms.untracked.bool(True)
     )
 )
 

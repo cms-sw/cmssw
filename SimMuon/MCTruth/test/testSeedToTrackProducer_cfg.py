@@ -6,7 +6,7 @@ process = cms.Process("test")
  # MessageLogger
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-'''process.MessageLogger.categories = cms.untracked.vstring('SeedToTrackProducer')
+'''process.MessageLogger.SeedToTrackProducer = dict()
 process.MessageLogger.cout = cms.untracked.PSet(
                                                 noTimeStamps = cms.untracked.bool(True),
                                                 threshold = cms.untracked.string('INFO'),

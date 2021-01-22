@@ -15,11 +15,12 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-AntiElectronDeadECAL::AntiElectronDeadECAL(const edm::ParameterSet& cfg)
+AntiElectronDeadECAL::AntiElectronDeadECAL(const edm::ParameterSet& cfg, edm::ConsumesCollector&& cc)
     : minStatus_(cfg.getParameter<uint32_t>("minStatus")),
       dR2_(std::pow(cfg.getParameter<double>("dR"), 2)),
       extrapolateToECalEntrance_(cfg.getParameter<bool>("extrapolateToECalEntrance")),
       verbosity_(cfg.getParameter<int>("verbosity")),
+      positionAtECalEntrance_(PositionAtECalEntranceComputer(cc)),
       isFirstEvent_(true) {}
 
 AntiElectronDeadECAL::~AntiElectronDeadECAL() {}

@@ -14,44 +14,32 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.load('FWCore/MessageService/MessageLogger_cfi')
-process.MessageLogger = cms.Service(
-    "MessageLogger",
-    info = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO'),
-        #limit = cms.untracked.int32(100000),
-        noLineBreaks = cms.untracked.bool(False)
-        ),
-    suppressInfo = cms.untracked.vstring(),
-    # allows to suppress output from specific modules 
-    suppressDebug = cms.untracked.vstring(),
-    debug = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG'),
-        #limit = cms.untracked.int32(100000),
-        noLineBreaks = cms.untracked.bool(False)
-        ),
-    warning = cms.untracked.PSet(
-        threshold = cms.untracked.string('WARNING'),
-        #limit = cms.untracked.int32(100000),
-        noLineBreaks = cms.untracked.bool(False)
-        ),
+process.MessageLogger = cms.Service("MessageLogger",
     cerr = cms.untracked.PSet(
-        threshold = cms.untracked.string('ERROR'),
-        #limit = cms.untracked.int32(100000),
-        noLineBreaks = cms.untracked.bool(False)
+        noLineBreaks = cms.untracked.bool(False),
+        threshold = cms.untracked.string('ERROR')
+    ),
+    files = cms.untracked.PSet(
+        debug = cms.untracked.PSet(
+            noLineBreaks = cms.untracked.bool(False),
+            threshold = cms.untracked.string('DEBUG')
         ),
-    error = cms.untracked.PSet(
-        threshold = cms.untracked.string('ERROR'),
-        #limit = cms.untracked.int32(100000),
-        noLineBreaks = cms.untracked.bool(False)
+        error = cms.untracked.PSet(
+            noLineBreaks = cms.untracked.bool(False),
+            threshold = cms.untracked.string('ERROR')
         ),
-    suppressWarning = cms.untracked.vstring(),
-    #debugModules = cms.untracked.vstring('*'),#'siStripFEDMonitor'),
-    destinations = cms.untracked.vstring('cerr', 
-                                         'debug', 
-                                         'info', 
-                                         'warning', 
-                                         'error')
-
+        info = cms.untracked.PSet(
+            noLineBreaks = cms.untracked.bool(False),
+            threshold = cms.untracked.string('INFO')
+        ),
+        warning = cms.untracked.PSet(
+            noLineBreaks = cms.untracked.bool(False),
+            threshold = cms.untracked.string('WARNING')
+        )
+    ),
+    suppressDebug = cms.untracked.vstring(),
+    suppressInfo = cms.untracked.vstring(),
+    suppressWarning = cms.untracked.vstring()
 )
 
 process.load('DQM.SiStripMonitorHardware.siStripFEDDump_cfi')

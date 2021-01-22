@@ -2,10 +2,17 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ICALIB")
 process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('INFO')
     ),
-    destinations = cms.untracked.vstring('SiStripSummaryBuilder.log')
+    files = cms.untracked.PSet(
+        SiStripSummaryBuilder = cms.untracked.PSet(
+
+        )
+    )
 )
 
 # different !!

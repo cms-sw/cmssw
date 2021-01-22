@@ -57,7 +57,9 @@ public:
   CaloSubdetectorGeometry::DetIdSet getCells(const GlobalPoint& r, double dR) const override;
 
   GlobalPoint getPosition(const DetId& id) const;
+  GlobalPoint getPosition(uint32_t id, bool type) const;
   GlobalPoint getBackPosition(const DetId& id) const;
+  GlobalPoint getBackPosition(uint32_t id, bool type) const;
   CaloCellGeometry::CornersVec getCorners(const DetId& id) const;
 
   static std::string producerTag() { return "HCAL"; }

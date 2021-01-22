@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "CalibTracker/SiStripLorentzAngle/interface/LA_Filler_Fitter.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 namespace sistrip {
   class EnsembleCalibrationLA : public edm::EDAnalyzer {
@@ -34,6 +35,7 @@ namespace sistrip {
     };
     std::map<std::string, MethodCalibrations> calibrations;
 
+    edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
     const TrackerTopology* tTopo_;
   };
 }  // namespace sistrip

@@ -1,0 +1,7 @@
+<use name="CUDADataFormats/Common"/>
+<use name="CUDADataFormats/CaloCommon"/>
+<use name="DataFormats/Common"/>
+
+<export>
+  <lib   name="1"/>
+</export>

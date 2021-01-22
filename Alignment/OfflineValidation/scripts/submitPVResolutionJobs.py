@@ -3,13 +3,21 @@
 Submits per run Primary Vertex Resoltion Alignment validation using the split vertex method,
 usage:
 
-python submitPVResolutionJobs.py -i PVResolutionExample.ini -D /JetHT/Run2018C-TkAlMinBias-12Nov2019_UL2018-v2/ALCARECO
+submitPVResolutionJobs.py -i PVResolutionExample.ini -D /JetHT/Run2018C-TkAlMinBias-12Nov2019_UL2018-v2/ALCARECO
 '''
 
 from __future__ import print_function
+
+__author__ = 'Marco Musich'
+__copyright__ = 'Copyright 2020, CERN CMS'
+__credits__ = ['Ernesto Migliore', 'Salvatore Di Guida']
+__license__ = 'Unknown'
+__maintainer__ = 'Marco Musich'
+__email__ = 'marco.musich@cern.ch'
+__version__ = 1
+
 import os,sys
 import getopt
-import commands
 import time
 import json
 import ROOT
@@ -17,11 +25,25 @@ import urllib
 import string
 import subprocess
 import pprint
+import warnings
 from subprocess import Popen, PIPE
 import multiprocessing
 from optparse import OptionParser
 import os, shlex, shutil, getpass
-import ConfigParser
+import configparser as ConfigParser
+
+CopyRights  = '##################################\n'
+CopyRights += '#    submitPVVResolutioJobs.py   #\n'
+CopyRights += '#      marco.musich@cern.ch      #\n'
+CopyRights += '#         October 2020           #\n'
+CopyRights += '##################################\n'
+
+##############################################
+def get_status_output(*args, **kwargs):
+##############################################
+    p = subprocess.Popen(*args, **kwargs)
+    stdout, stderr = p.communicate()
+    return p.returncode, stdout, stderr
 
 ##############################################
 def check_proxy():
@@ -116,17 +138,21 @@ def getLuminosity(homedir,minRun,maxRun,isRunBased,verbose):
     if(not isRunBased):
         return myCachedLumi
     
-    ## using normtag
-    #output = subprocess.check_output([homedir+"/.local/bin/brilcalc", "lumi", "-b", "STABLE BEAMS", "--normtag","/cvmfs/cms-bril.cern.ch/cms-lumi-pog/Normtags/normtag_PHYSICS.json", "-u", "/pb", "--begin", str(minRun),"--end",str(maxRun),"--output-style","csv"])
+    try:
+        ## using normtag
+        #output = subprocess.check_output([homedir+"/.local/bin/brilcalc", "lumi", "-b", "STABLE BEAMS", "--normtag","/cvmfs/cms-bril.cern.ch/cms-lumi-pog/Normtags/normtag_PHYSICS.json", "-u", "/pb", "--begin", str(minRun),"--end",str(maxRun),"--output-style","csv"])
 
-    ## no normtag
-    output = subprocess.check_output([homedir+"/.local/bin/brilcalc", "lumi", "-b", "STABLE BEAMS","-u", "/pb", "--begin", str(minRun),"--end",str(maxRun),"--output-style","csv"])
+        ## no normtag
+        output = subprocess.check_output([homedir+"/.local/bin/brilcalc", "lumi", "-b", "STABLE BEAMS","-u", "/pb", "--begin", str(minRun),"--end",str(maxRun),"--output-style","csv"])
+    except:
+        warnings.warn('ATTENTION! Impossible to query the BRIL DB!')
+        return myCachedLumi
 
     if(verbose):
         print("INSIDE GET LUMINOSITY")
         print(output)
 
-    for line in output.split("\n"):
+    for line in output.decode().split("\n"):
         if ("#" not in line):
             runToCache  = line.split(",")[0].split(":")[0] 
             lumiToCache = line.split(",")[-1].replace("\r", "")
@@ -134,15 +160,20 @@ def getLuminosity(homedir,minRun,maxRun,isRunBased,verbose):
             #print("lumi",lumiToCache)
             myCachedLumi[runToCache] = lumiToCache
 
-    #print(myCachedLumi)
+    if(verbose):
+        print(myCachedLumi)
     return myCachedLumi
 
 ##############################################
 def isInJSON(run,jsonfile):
 ##############################################
-    with open(jsonfile, 'rb') as myJSON:
-        jsonDATA = json.load(myJSON)
-        return (run in jsonDATA)
+    try:
+        with open(jsonfile, 'r') as myJSON:
+            jsonDATA = json.load(myJSON)
+            return (run in jsonDATA)
+    except:
+        warnings.warn('ATTENTION! Impossible to find lumi mask! All runs will be used.')
+        return True
 
 #######################################################
 def as_dict(config):
@@ -226,8 +257,11 @@ def main():
     parser.add_option('-e','--end',     help='ending point',        dest='end',         action='store',      default='999999')
     parser.add_option('-D','--Dataset', help='dataset to run upon', dest='DATASET',     action='store',      default='/StreamExpressAlignment/Run2017F-TkAlMinBias-Express-v1/ALCARECO')
     parser.add_option('-v','--verbose', help='verbose output',      dest='verbose',     action='store_true', default=False)
-    
+    parser.add_option('-u','--unitTest',help='unit tests?',         dest='isUnitTest',  action='store_true', default=False)
     (opts, args) = parser.parse_args()
+
+    global CopyRights
+    print('\n'+CopyRights)
 
     input_CMSSW_BASE = os.environ.get('CMSSW_BASE')
 
@@ -246,31 +280,51 @@ def main():
     try:
         config = ConfigParser.ConfigParser()
         config.read(opts.iniPathName)
-    except ConfigParser.MissingSectionHeaderError, e:
-        raise WrongIniFormatError(`e`)
+    except ConfigParser.MissingSectionHeaderError as e:
+        raise WrongIniFormatError(e)
 
     print("Parsed the following configuration \n\n")
     inputDict = as_dict(config)
     pprint.pprint(inputDict)
 
+    if(not bool(inputDict)):
+        raise SystemExit("\n\n ERROR! Could not parse any input file, perhaps you are submitting this from the wrong folder? \n\n")
+
     ## check first there is a valid grid proxy
     forward_proxy(".")
 
-    runs = commands.getstatusoutput("dasgoclient -query='run dataset="+opts.DATASET+"'")[1].split("\n")
+    #runs = commands.getstatusoutput("dasgoclient -query='run dataset="+opts.DATASET+"'")[1].split("\n")
+    runs  = get_status_output("dasgoclient -query='run dataset="+opts.DATASET+"'",shell=True, stdout=PIPE, stderr=PIPE)[1].decode().split("\n")
+    runs.pop()
+    runs.sort()
     print("\n\n Will run on the following runs: \n",runs)
 
     if(not os.path.exists("cfg")):
         os.system("mkdir cfg")
-        os.system("mkdir bash")
+        os.system("mkdir BASH")
         os.system("mkdir harvest")
         os.system("mkdir out")
 
     cwd = os.getcwd()
-    bashdir = os.path.join(cwd,"bash")
+    bashdir = os.path.join(cwd,"BASH")
 
     runs.sort()
-    # get from the DB the int luminosities
-    myLumiDB = getLuminosity(HOME,runs[0],runs[-1],True,opts.verbose)
+
+    ## check that the list of runs is not empty
+    if(len(runs)==0):
+        if(opts.isUnitTest):
+            print('\n')
+            print('=' * 70)
+            print("|| WARNING: won't run on any run, probably DAS returned an empty query,\n|| but that's fine because this is a unit test!")
+            print('=' * 70)
+            print('\n')
+            sys.exit(0)
+        else:
+            raise Exception('Will not run on any run.... please check again the configuration')
+    else:
+        # get from the DB the int luminosities
+        myLumiDB = getLuminosity(HOME,runs[0],runs[-1],True,opts.verbose)
+
     if(opts.verbose):
         pprint.pprint(myLumiDB)
 
@@ -344,7 +398,7 @@ def main():
                 key = key.split(":", 1)[1]
                 print("dealing with",key)
 
-            os.system("cp PrimaryVertexResolution_templ_cfg.py ./cfg/PrimaryVertexResolution_"+key+"_"+run+"_cfg.py")
+            os.system("cp "+input_CMSSW_BASE+"/src/Alignment/OfflineValidation/test/PrimaryVertexResolution_templ_cfg.py ./cfg/PrimaryVertexResolution_"+key+"_"+run+"_cfg.py")
             os.system("sed -i 's|XXX_FILES_XXX|"+listOfFiles+"|g' "+cwd+"/cfg/PrimaryVertexResolution_"+key+"_"+run+"_cfg.py")
             os.system("sed -i 's|XXX_RUN_XXX|"+run+"|g' "+cwd+"/cfg/PrimaryVertexResolution_"+key+"_"+run+"_cfg.py")
             os.system("sed -i 's|YYY_KEY_YYY|"+key+"|g' "+cwd+"/cfg/PrimaryVertexResolution_"+key+"_"+run+"_cfg.py")
@@ -370,5 +424,6 @@ def main():
             print(submissionCommand)
             os.system(submissionCommand)
 
+###################################################
 if __name__ == "__main__":        
     main()

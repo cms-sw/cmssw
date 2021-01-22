@@ -101,6 +101,8 @@ process.WatchRunAn = cms.EDAnalyzer("edmtest::one::WatchRunsAnalyzer",
 
 process.WatchLumiBlockAn = cms.EDAnalyzer("edmtest::one::WatchLumiBlocksAnalyzer",
     transitions = cms.int32(nEvt+2*int(nEvt/nEvtLumi))
+    # needed to avoid deleting TestAccumulator1
+    ,moduleLabel = cms.InputTag("TestAccumulator1")
 )
 
 process.RunCacheAn = cms.EDAnalyzer("edmtest::one::RunCacheAnalyzer",

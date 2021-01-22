@@ -10346,9 +10346,12 @@ C...(Phys. Rev. D33, 665, plus errata from the authors).
     
 C...Define initial two objects, initialize loop.    
       ISUB=MINT(1)  
-      SH=VINT(44)   
-      IREF(1,5)=0   
-      IREF(1,6)=0   
+      SH=VINT(44)
+C...Initialize variable with default value
+      DO I=1,6
+         IREF(1,I)=0.0
+      ENDDO
+
       IF(ISET(ISUB).EQ.1.OR.ISET(ISUB).EQ.3) THEN   
         IREF(1,1)=MINT(84)+2+ISET(ISUB) 
         IREF(1,2)=0 
@@ -10373,7 +10376,7 @@ cms.. pre-intialize
       DO 140 JT=1,JTMAX 
       KDCY(JT)=0    
       KFL1(JT)=0    
-      KFL2(JT)=0    
+      KFL2(JT)=0
       NSD(JT)=IREF(IP,JT)   
       ID=IREF(IP,JT)    
       IF(ID.EQ.0) GOTO 140  

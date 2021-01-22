@@ -15,57 +15,50 @@ from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['run1_mc']
 
 process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring('*'),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
-        INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        EcalGeom = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        MagneticField = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
         CaloSim = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         DEBUG = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
+        EcalGeom = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        EcalSim = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
         G4cerr = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
+        G4cout = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
         ),
         HCalGeom = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        threshold = cms.untracked.string('DEBUG'),
         HFShower = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
-        ),
-        G4cout = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        SimG4CoreApplication = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
         ),
         HcalSim = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
         ),
-        EcalSim = cms.untracked.PSet(
+        INFO = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
+        MagneticField = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
-        )
+        ),
+        SimG4CoreApplication = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('DEBUG')
     ),
-    categories = cms.untracked.vstring('CaloSim', 
-        'EcalGeom', 
-        'EcalSim', 
-        'HCalGeom', 
-        'HcalSim', 
-        'HFShower', 
-        'SimG4CoreApplication', 
-        'G4cout', 
-        'G4cerr', 
-        'MagneticField'),
-    destinations = cms.untracked.vstring('cout')
+    debugModules = cms.untracked.vstring('*')
 )
 
 process.load("IOMC.RandomEngine.IOMC_cff")

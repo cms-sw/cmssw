@@ -24,7 +24,7 @@ GEDGsfElectronValueMapProducer::GEDGsfElectronValueMapProducer(const edm::Parame
       pfCandsToken_(consumes<reco::PFCandidateCollection>(cfg.getParameter<edm::InputTag>("egmPFCandidatesTag"))),
       putToken_{produces<edm::ValueMap<reco::GsfElectronRef>>()} {}
 
-void GEDGsfElectronValueMapProducer::produce(edm::StreamID, edm::Event& event, const edm::EventSetup& setup) const {
+void GEDGsfElectronValueMapProducer::produce(edm::StreamID, edm::Event& event, const edm::EventSetup&) const {
   auto electrons = event.getHandle(electronsToken_);
   auto pfCandidatesHandle = event.getHandle(pfCandsToken_);
 

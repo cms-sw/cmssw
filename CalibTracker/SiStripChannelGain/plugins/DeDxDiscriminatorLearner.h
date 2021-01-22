@@ -42,6 +42,8 @@ private:
   edm::EDGetTokenT<TrajTrackAssociationCollection> m_trajTrackAssociationTag;
   edm::EDGetTokenT<reco::TrackCollection> m_tracksTag;
 
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> m_tkGeomToken;
+
   float MinTrackMomentum;
   float MaxTrackMomentum;
   float MinTrackEta;

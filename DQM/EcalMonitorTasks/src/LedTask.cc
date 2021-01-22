@@ -61,7 +61,7 @@ namespace ecaldqm {
       emptyLS_ = -1;
   }
 
-  void LedTask::beginEvent(edm::Event const&, edm::EventSetup const&) { pnAmp_.clear(); }
+  void LedTask::beginEvent(edm::Event const&, edm::EventSetup const&, bool const&, bool&) { pnAmp_.clear(); }
 
   void LedTask::runOnRawData(EcalRawDataCollection const& _rawData) {
     MESet& meCalibStatus(MEs_.at("CalibStatus"));

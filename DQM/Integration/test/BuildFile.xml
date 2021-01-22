@@ -22,6 +22,7 @@
 <test name="TestDQMOnlineClient-rpc_dqm_sourceclient" command="runtest.sh rpc_dqm_sourceclient-live_cfg.py"/>
 <test name="TestDQMOnlineClient-scal_dqm_sourceclient" command="runtest.sh scal_dqm_sourceclient-live_cfg.py"/>
 <test name="TestDQMOnlineClient-sistrip_dqm_sourceclient" command="runtest.sh sistrip_dqm_sourceclient-live_cfg.py"/>
+<test name="TestDQMOnlineClient-onlinebeammonitor_dqm_sourceclient" command="runtest.sh onlinebeammonitor_dqm_sourceclient-live_cfg.py"/>
 <!-- Need an HLT stream -->
 <!-- <test name="TestDQMOnlineClient-beamhlt_dqm_sourceclient" command="runtest.sh beamhlt_dqm_sourceclient-live_cfg.py" /> -->
 <!-- streamDQMCalibration is required -->

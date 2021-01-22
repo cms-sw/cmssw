@@ -19,16 +19,16 @@ hiEcalClusteringSequence = cms.Sequence(hiEcalClusteringTask)
 from RecoEgamma.EgammaPhotonProducers.photonSequence_cff import *
 
 # use island for the moment
-photonCore.scHybridBarrelProducer = cms.InputTag("correctedIslandBarrelSuperClusters")
-photonCore.scIslandEndcapProducer = cms.InputTag("correctedIslandEndcapSuperClusters")
-photonCore.minSCEt = cms.double(8.0)
-photons.minSCEtBarrel = cms.double(5.0)
-photons.minSCEtEndcap = cms.double(15.0)
-photons.minR9Barrel = cms.double(10.)  #0.94
-photons.minR9Endcap = cms.double(10.)   #0.95
-photons.maxHoverEEndcap = cms.double(0.5)  #0.5
-photons.maxHoverEBarrel = cms.double(0.99)  #0.5
-photons.primaryVertexProducer = cms.InputTag('hiSelectedVertex') # replace the primary vertex
+photonCore.scHybridBarrelProducer = "correctedIslandBarrelSuperClusters"
+photonCore.scIslandEndcapProducer = "correctedIslandEndcapSuperClusters"
+photonCore.minSCEt    = 8.0
+photons.minSCEtBarrel = 5.0
+photons.minSCEtEndcap = 15.0
+photons.minR9Barrel   = 10.  #0.94
+photons.minR9Endcap   = 10.  #0.95
+photons.maxHoverEEndcap = 0.5   #0.5
+photons.maxHoverEBarrel = 0.99  #0.5
+photons.primaryVertexProducer = 'hiSelectedVertex' # replace the primary vertex
 photons.isolationSumsCalculatorSet.trackProducer = isolationInputParameters.track    # cms.InputTag("highPurityTracks")
 
 from RecoHI.HiEgammaAlgos.photonIsolationHIProducer_cfi import photonIsolationHIProducer
@@ -45,7 +45,7 @@ hiEgammaSequence = cms.Sequence(hiEgammaTask)
 import RecoHI.HiEgammaAlgos.hiSpikeCleaner_cfi
 hiSpikeCleanedSC = RecoHI.HiEgammaAlgos.hiSpikeCleaner_cfi.hiSpikeCleaner.clone()
 cleanPhotonCore = photonCore.clone(
-    scHybridBarrelProducer = cms.InputTag("hiSpikeCleanedSC")
+    scHybridBarrelProducer = "hiSpikeCleanedSC"
 )
 cleanPhotons = photons.clone(
     photonCoreProducer = cms.InputTag("cleanPhotonCore")

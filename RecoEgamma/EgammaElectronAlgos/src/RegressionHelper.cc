@@ -1,6 +1,3 @@
-#include "Geometry/Records/interface/CaloTopologyRecord.h"
-#include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
-
 #include "RecoEgamma/EgammaElectronAlgos/interface/RegressionHelper.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "RecoEgamma/EgammaTools/interface/EcalRegressionData.h"
@@ -8,22 +5,35 @@
 #include "TVector2.h"
 #include "TFile.h"
 
-RegressionHelper::RegressionHelper(const Configuration& config)
-    : cfg_(config),
-      ecalRegressionInitialized_(false),
-      combinationRegressionInitialized_(false),
-      caloTopologyCacheId_(0),
-      caloGeometryCacheId_(0),
-      regressionCacheId_(0) {
-  ;
+RegressionHelper::ESGetTokens::ESGetTokens(Configuration const& cfg,
+                                           bool useEcalReg,
+                                           bool useCombinationReg,
+                                           edm::ConsumesCollector& cc)
+    : caloTopology{cc.esConsumes()}, caloGeometry{cc.esConsumes()} {
+  if (useEcalReg && cfg.ecalWeightsFromDB) {
+    ecalRegBarrel = cc.esConsumes<GBRForest, GBRWrapperRcd>(edm::ESInputTag("", cfg.ecalRegressionWeightLabels[0]));
+    ecalRegEndcap = cc.esConsumes<GBRForest, GBRWrapperRcd>(edm::ESInputTag("", cfg.ecalRegressionWeightLabels[1]));
+    ecalRegErrorBarrel =
+        cc.esConsumes<GBRForest, GBRWrapperRcd>(edm::ESInputTag("", cfg.ecalRegressionWeightLabels[2]));
+    ecalRegErrorEndcap =
+        cc.esConsumes<GBRForest, GBRWrapperRcd>(edm::ESInputTag("", cfg.ecalRegressionWeightLabels[3]));
+  }
+  if (useCombinationReg && cfg.combinationWeightsFromDB) {
+    combinationReg =
+        cc.esConsumes<GBRForest, GBRWrapperRcd>(edm::ESInputTag("", cfg.combinationRegressionWeightLabels[0]));
+  }
 }
 
-RegressionHelper::~RegressionHelper() { ; }
+RegressionHelper::RegressionHelper(const Configuration& config,
+                                   bool useEcalReg,
+                                   bool useCombinationReg,
+                                   edm::ConsumesCollector& cc)
+    : cfg_(config), esGetTokens_{cfg_, useEcalReg, useCombinationReg, cc} {}
 
 void RegressionHelper::applyEcalRegression(reco::GsfElectron& ele,
-                                           const edm::Handle<reco::VertexCollection>& vertices,
-                                           const edm::Handle<EcalRecHitCollection>& rechitsEB,
-                                           const edm::Handle<EcalRecHitCollection>& rechitsEE) const {
+                                           const reco::VertexCollection& vertices,
+                                           const EcalRecHitCollection& rechitsEB,
+                                           const EcalRecHitCollection& rechitsEE) const {
   double cor, err;
   getEcalRegression(*ele.superCluster(), vertices, rechitsEB, rechitsEE, cor, err);
   ele.setCorrectedEcalEnergy(cor * ele.superCluster()->correctedEnergy());
@@ -31,69 +41,23 @@ void RegressionHelper::applyEcalRegression(reco::GsfElectron& ele,
 }
 
 void RegressionHelper::checkSetup(const edm::EventSetup& es) {
-  // Topology
-  unsigned long long newCaloTopologyCacheId = es.get<CaloTopologyRecord>().cacheIdentifier();
-  if (!caloTopologyCacheId_ || (caloTopologyCacheId_ != newCaloTopologyCacheId)) {
-    caloTopologyCacheId_ = newCaloTopologyCacheId;
-    edm::ESHandle<CaloTopology> caloTopo;
-    es.get<CaloTopologyRecord>().get(caloTopo);
-    caloTopology_ = &(*caloTopo);
-  }
-
-  // Geometry
-  unsigned long long newCaloGeometryCacheId = es.get<CaloGeometryRecord>().cacheIdentifier();
-  if (!caloGeometryCacheId_ || (caloGeometryCacheId_ != newCaloGeometryCacheId)) {
-    caloGeometryCacheId_ = newCaloGeometryCacheId;
-    edm::ESHandle<CaloGeometry> caloGeom;
-    es.get<CaloGeometryRecord>().get(caloGeom);
-    caloGeometry_ = &(*caloGeom);
-  }
+  caloTopology_ = &es.getData(esGetTokens_.caloTopology);
+  caloGeometry_ = &es.getData(esGetTokens_.caloGeometry);
 
   // Ecal regression
 
   // if at least one of the set of weights come from the DB
   if (cfg_.ecalWeightsFromDB) {
-    unsigned long long newRegressionCacheId = es.get<GBRWrapperRcd>().cacheIdentifier();
-    if (!regressionCacheId_ || (newRegressionCacheId != regressionCacheId_)) {
-      const GBRWrapperRcd& gbrRcd = es.get<GBRWrapperRcd>();
-
-      // ECAL barrel
-      edm::ESHandle<GBRForest> ecalRegBarrelH;
-      gbrRcd.get(cfg_.ecalRegressionWeightLabels[0].c_str(), ecalRegBarrelH);
-      ecalRegBarrel_ = &(*ecalRegBarrelH);
-
-      // ECAL endcaps
-      edm::ESHandle<GBRForest> ecalRegEndcapH;
-      gbrRcd.get(cfg_.ecalRegressionWeightLabels[1].c_str(), ecalRegEndcapH);
-      ecalRegEndcap_ = &(*ecalRegEndcapH);
-
-      // ECAL barrel error
-      edm::ESHandle<GBRForest> ecalRegErrorBarrelH;
-      gbrRcd.get(cfg_.ecalRegressionWeightLabels[2].c_str(), ecalRegErrorBarrelH);
-      ecalRegErrorBarrel_ = &(*ecalRegErrorBarrelH);
-
-      // ECAL endcap error
-      edm::ESHandle<GBRForest> ecalRegErrorEndcapH;
-      gbrRcd.get(cfg_.ecalRegressionWeightLabels[3].c_str(), ecalRegErrorEndcapH);
-      ecalRegErrorEndcap_ = &(*ecalRegErrorEndcapH);
-
-      ecalRegressionInitialized_ = true;
-    }
+    ecalRegBarrel_ = &es.getData(esGetTokens_.ecalRegBarrel);            // ECAL barrel
+    ecalRegEndcap_ = &es.getData(esGetTokens_.ecalRegEndcap);            // ECAL endcaps
+    ecalRegErrorBarrel_ = &es.getData(esGetTokens_.ecalRegErrorBarrel);  // ECAL barrel error
+    ecalRegErrorEndcap_ = &es.getData(esGetTokens_.ecalRegErrorEndcap);  // ECAL endcap error
+    ecalRegressionInitialized_ = true;
   }
   if (cfg_.combinationWeightsFromDB) {
     // Combination
-    if (cfg_.combinationWeightsFromDB) {
-      unsigned long long newRegressionCacheId = es.get<GBRWrapperRcd>().cacheIdentifier();
-      if (!regressionCacheId_ || (newRegressionCacheId != regressionCacheId_)) {
-        const GBRWrapperRcd& gbrRcd = es.get<GBRWrapperRcd>();
-
-        edm::ESHandle<GBRForest> combinationRegH;
-        gbrRcd.get(cfg_.combinationRegressionWeightLabels[0].c_str(), combinationRegH);
-        combinationReg_ = &(*combinationRegH);
-
-        combinationRegressionInitialized_ = true;
-      }
-    }
+    combinationReg_ = &es.getData(esGetTokens_.combinationReg);
+    combinationRegressionInitialized_ = true;
   }
 
   // read weights from file - for debugging. Even if it is one single files, 4 files should b set in the vector
@@ -122,12 +86,10 @@ void RegressionHelper::checkSetup(const edm::EventSetup& es) {
   }
 }
 
-void RegressionHelper::readEvent(const edm::Event&) { ; }
-
 void RegressionHelper::getEcalRegression(const reco::SuperCluster& sc,
-                                         const edm::Handle<reco::VertexCollection>& vertices,
-                                         const edm::Handle<EcalRecHitCollection>& rechitsEB,
-                                         const edm::Handle<EcalRecHitCollection>& rechitsEE,
+                                         const reco::VertexCollection& vertices,
+                                         const EcalRecHitCollection& rechitsEB,
+                                         const EcalRecHitCollection& rechitsEE,
                                          double& energyFactor,
                                          double& errorFactor) const {
   energyFactor = -999.;
@@ -135,7 +97,7 @@ void RegressionHelper::getEcalRegression(const reco::SuperCluster& sc,
 
   std::vector<float> rInputs;
   EcalRegressionData regData;
-  regData.fill(sc, rechitsEB.product(), rechitsEE.product(), caloGeometry_, caloTopology_, vertices.product());
+  regData.fill(sc, &rechitsEB, &rechitsEE, caloGeometry_, caloTopology_, &vertices);
   regData.fillVec(rInputs);
   if (sc.seed()->hitsAndFractions()[0].first.subdetId() == EcalBarrel) {
     energyFactor = ecalRegBarrel_->GetResponse(&rInputs[0]);

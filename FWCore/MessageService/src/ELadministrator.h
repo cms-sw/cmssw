@@ -60,26 +60,12 @@ namespace edm {
   namespace service {
 
     // ----------------------------------------------------------------------
-    // Prerequisite classes:
-    // ----------------------------------------------------------------------
-
-    class ELdestination;
-    class ELcout;
-    class MessageLoggerScribe;
-
-    // ----------------------------------------------------------------------
     // ELadministrator:
     // ----------------------------------------------------------------------
 
-    class ELadministrator {  // *** Destructable Singleton Pattern ***
-
-      friend class MessageLoggerScribe;               // proper ELadministrator cleanup
-      friend class ThreadSafeLogMessageLoggerScribe;  // proper ELadministrator cleanup
-      friend class ELcout;                            // ELcout behavior
-
-      // *** Error Logger Functionality ***
-
+    class ELadministrator {
     public:
+      ELadministrator();
       ~ELadministrator();
 
       //Replaces ErrorLog which is no longer needed
@@ -117,11 +103,6 @@ namespace edm {
       const ELseverityLevel& exitThreshold() const;
       const ELseverityLevel& highSeverity() const;
       int severityCounts(int lev) const;
-
-    protected:
-      // ---  traditional birth/death, but disallowed to users:
-      //
-      ELadministrator();
 
     private:
       // ---  traditional member data:

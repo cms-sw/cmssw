@@ -23,6 +23,9 @@
 #include <iostream>
 #include <fstream>
 
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+
 class SiStripDetInfoFileWriter : public edm::EDAnalyzer {
 public:
   explicit SiStripDetInfoFileWriter(const edm::ParameterSet&);
@@ -36,5 +39,6 @@ private:
 private:
   std::ofstream outputFile_;
   std::string filePath_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
 };
 #endif

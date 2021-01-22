@@ -21,7 +21,7 @@ public:
   enum LCTKeyStripMasks { kEightStripMask = 0x1, kQuartStripMask = 0x1, kHalfStripMask = 0xff };
   enum LCTKeyStripShifts { kEightStripShift = 9, kQuartStripShift = 8, kHalfStripShift = 0 };
   // temporary to facilitate CCLUT-EMTF/OMTF integration studies
-  enum LCTPatternMasks { kRun3SlopeMask = 0x1f, kRun3PatternMask = 0x7, kLegacyPatternMask = 0xf };
+  enum LCTPatternMasks { kRun3SlopeMask = 0xf, kRun3PatternMask = 0x7, kLegacyPatternMask = 0xf };
   enum LCTPatternShifts { kRun3SlopeShift = 7, kRun3PatternShift = 4, kLegacyPatternShift = 0 };
   enum class Version { Legacy = 0, Run3 };
 

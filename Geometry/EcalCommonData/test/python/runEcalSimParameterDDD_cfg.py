@@ -12,8 +12,8 @@ process.maxEvents = cms.untracked.PSet(
     )
 
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('EcalGeom')
-    process.MessageLogger.categories.append('EcalSim')
+    process.MessageLogger.EcalGeom=dict()
+    process.MessageLogger.EcalSim=dict()
 
 process.load('Geometry.EcalCommonData.ecalSimulationParametersAnalyzer_cff')
 

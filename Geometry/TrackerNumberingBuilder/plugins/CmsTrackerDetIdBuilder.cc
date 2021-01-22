@@ -26,7 +26,7 @@ void CmsTrackerDetIdBuilder::buildId(GeometricDet& tracker) {
 
   DetId t(DetId::Tracker, 0);
   tracker.setGeographicalID(t);
-  iterate(tracker, 0, tracker.geographicalID().rawId());
+  iterate(tracker, 0, tracker.geographicalId().rawId());
 }
 
 void CmsTrackerDetIdBuilder::iterate(GeometricDet& in, int level, unsigned int ID) {
@@ -45,7 +45,7 @@ void CmsTrackerDetIdBuilder::iterate(GeometricDet& in, int level, unsigned int I
     case 0: {
       for (uint32_t i = 0; i < in.components().size(); i++) {
         GeometricDet* component = in.component(i);
-        uint32_t iSubDet = component->geographicalID().rawId();
+        uint32_t iSubDet = component->geographicalId().rawId();
         uint32_t temp = ID;
         temp |= (iSubDet << 25);
         component->setGeographicalID(temp);
@@ -69,7 +69,7 @@ void CmsTrackerDetIdBuilder::iterate(GeometricDet& in, int level, unsigned int I
         component->setGeographicalID(DetId(temp));
 
         // next level
-        iterate(*component, level + 1, (in.components())[i]->geographicalID().rawId());
+        iterate(*component, level + 1, (in.components())[i]->geographicalId().rawId());
       }
       break;
     }
@@ -81,11 +81,11 @@ void CmsTrackerDetIdBuilder::iterate(GeometricDet& in, int level, unsigned int I
 
         if (level < maxLevels) {
           if (iSubDet > 0 && iSubDet <= nSubDet && m_detidshifts[level * nSubDet + iSubDet - 1] >= 0) {
-            temp |= (component->geographicalID().rawId() << m_detidshifts[level * nSubDet + iSubDet - 1]);
+            temp |= (component->geographicalId().rawId() << m_detidshifts[level * nSubDet + iSubDet - 1]);
           }
           component->setGeographicalID(temp);
           // next level
-          iterate(*component, level + 1, (in.components())[i]->geographicalID().rawId());
+          iterate(*component, level + 1, (in.components())[i]->geographicalId().rawId());
         }
       }
 

@@ -63,13 +63,14 @@ void MultiClustersFromTrackstersProducer::produce(edm::Event& evt, const edm::Ev
   }
 
   std::for_each(std::begin(tracksters), std::end(tracksters), [&](auto const& trackster) {
-    // Do not create a multicluster if the trackster has no layer clusters.
+    // Create an empty multicluster if the trackster has no layer clusters.
     // This could happen when a seed leads to no trackster and a dummy one is produced.
+
+    std::array<double, 3> baricenter{{0., 0., 0.}};
+    double total_weight = 0.;
+    reco::HGCalMultiCluster temp;
+    int counter = 0;
     if (!trackster.vertices().empty()) {
-      std::array<double, 3> baricenter{{0., 0., 0.}};
-      double total_weight = 0.;
-      reco::HGCalMultiCluster temp;
-      int counter = 0;
       std::for_each(std::begin(trackster.vertices()), std::end(trackster.vertices()), [&](unsigned int idx) {
         temp.push_back(clusterPtrs[idx]);
         auto fraction = 1.f / trackster.vertex_multiplicity(counter++);
@@ -86,13 +87,13 @@ void MultiClustersFromTrackstersProducer::produce(edm::Event& evt, const edm::Ev
           std::begin(baricenter), std::end(baricenter), std::begin(baricenter), [&total_weight](double val) -> double {
             return val / total_weight;
           });
-      temp.setEnergy(total_weight);
-      temp.setCorrectedEnergy(total_weight);
-      temp.setPosition(math::XYZPoint(baricenter[0], baricenter[1], baricenter[2]));
-      temp.setAlgoId(reco::CaloCluster::hgcal_em);
-      temp.setTime(trackster.time(), trackster.timeError());
-      multiclusters->push_back(temp);
     }
+    temp.setEnergy(total_weight);
+    temp.setCorrectedEnergy(total_weight);
+    temp.setPosition(math::XYZPoint(baricenter[0], baricenter[1], baricenter[2]));
+    temp.setAlgoId(reco::CaloCluster::hgcal_em);
+    temp.setTime(trackster.time(), trackster.timeError());
+    multiclusters->push_back(temp);
   });
 
   evt.put(std::move(multiclusters));

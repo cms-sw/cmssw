@@ -3,12 +3,8 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PROD")
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
-process.load("Configuration.Geometry.GeometryExtended2026D41Reco_cff")
-#process.load("Geometry.HGCalCommonData.testHGCV8XML_cfi")
-#process.load("Geometry.HGCalCommonData.hgcalV6NumberingInitialization_cfi")
-#process.load("Geometry.HGCalCommonData.hgcalV6ParametersInitialization_cfi")
-#process.load("Geometry.CaloEventSetup.HGCalV6Topology_cfi")
-#process.load("Geometry.HGCalCommonData.testHGCV10XML_cfi")
+process.load("Configuration.Geometry.GeometryExtended2026D71Reco_cff")
+#process.load("Geometry.HGCalCommonData.testHGCalV14XML_cfi")
 #process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
 #process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
 #process.load("Geometry.CaloEventSetup.HGCalV9Topology_cfi")
@@ -16,7 +12,7 @@ process.load("Configuration.Geometry.GeometryExtended2026D41Reco_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('HGCalGeom')
+    process.MessageLogger.HGCalGeom=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789

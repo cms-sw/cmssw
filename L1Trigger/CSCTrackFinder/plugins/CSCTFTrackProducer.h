@@ -42,6 +42,7 @@ private:
   const edm::ESGetToken<L1MuTriggerPtScale, L1MuTriggerPtScaleRcd> m_ptScaleToken;
   const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> m_pDDToken;
   const edm::ParameterSet sp_pset;
+  const CSCTFTrackBuilder::Tokens m_builderTokens;
   unsigned long long m_scalesCacheID;
   unsigned long long m_ptScaleCacheID;
   std::unique_ptr<CSCTFTrackBuilder> my_builder;

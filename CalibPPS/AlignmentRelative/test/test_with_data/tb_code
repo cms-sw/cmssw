@@ -1,0 +1,393 @@
+#!/bin/bash
+
+# directory to search for RECO files
+reco_dir=""
+
+# directory with alignment code and results
+top_dir=`pwd -P`
+
+# template for CMSSW config file
+template="tb_template.py"
+
+# file names
+cfg_file="cfg.py"
+log_file="log"
+job_file="job"
+finished_file="finished"
+time_file="timestamp"
+
+# settings for usin LXBATCH
+bsub_options="-o /dev/null -e /dev/null"
+
+# name settings for subdirectory structure
+subdir="tb"
+label=""
+
+# name of geometry file
+geometry=""
+
+# rarely changing settings for alignment module
+iterationsWithOneRotZPerPot="0"
+runsWithoutHorizontalRPs=""
+
+# alignment result that is to be used as input for the next iteration
+iterationFile='results_cumulative_factored_Jan.xml'
+
+#----------------------------------------------------------------------------------------------------
+
+job_dir=""
+
+function InitJobDir()
+{
+	job_id="$1"
+    job_dir="$top_dir/$job_id"
+    job_dir_rel="$job_id"
+
+	rm -rf "$job_dir"
+	mkdir -p "$job_dir"
+}
+
+#----------------------------------------------------------------------------------------------------
+
+function CleanJobDir()
+{
+	echo ""
+	#echo "rm -rf \"$job_dir\""
+}
+
+#----------------------------------------------------------------------------------------------------
+
+function BeginJobScript()
+{
+	cwd=`pwd -P`
+
+	echo "#!/bin/sh"
+	echo "job_home=\"$cwd\""
+	#echo "export HOME=\"$cwd\""
+	echo "source \"/cvmfs/cms.cern.ch/cmsset_default.sh\""
+	echo "cd \"$CMSSW_BASE\""
+	echo "eval \`scram runtime -sh\`"
+	echo ""
+	echo "export CMSSW_SEARCH_PATH=\"\$CMSSW_SEARCH_PATH:$top_dir\""
+	echo "export CMSSW_DATA_PATH=\"/afs\""
+	echo ""
+	echo "job_dir=\"$job_dir\""
+	echo ""
+	echo "cd \"\$job_home\""
+}
+
+#----------------------------------------------------------------------------------------------------
+
+function EndJobScript()
+{
+	CleanJobDir
+
+	echo "touch \"\$job_dir/$finished_file\""
+}
+
+#----------------------------------------------------------------------------------------------------
+
+function MakeJobScript()
+{
+	(
+		BeginJobScript
+
+		for i in `seq $iterations`
+		do
+			echo ""
+			echo "### iteration $i ###"
+			echo "echo \"* iteration $i\""
+			echo "date > \"\$job_dir/iteration$i/$time_file\""
+			echo "cmsRun \"\$job_dir/iteration$i/$cfg_file\" &> \"\$job_dir/iteration$i/$log_file\""
+		done
+		
+		echo ""
+		echo "echo \"iterations finished\""
+
+		EndJobScript
+	) > "$job_dir/$job_file"
+
+	chmod a+x "$job_dir/$job_file"
+}
+
+#----------------------------------------------------------------------------------------------------
+
+function AddInputFiles()
+{
+    run="$1"
+
+    # query the relevant storage
+	if [[ "$reco_dir" == "/eos/"* ]]
+	then
+		prefix="root://eostotem.cern.ch/"
+		file_list_raw=`eos ls "$reco_dir" | grep "run_${run}.*.root"`
+	fi
+
+	if [[ "$reco_dir" == "/castor/"* ]]
+	then
+		prefix="rfio://"
+		file_list_raw=`nsls "$reco_dir" | grep "run_${run}.*.root"`
+	fi
+
+	if [ "$prefix" == "" ]
+	then
+		prefix="file://"
+		file_list_raw=`ls -1 "$reco_dir" | grep "reco_${run}.*_reco.root"`
+	fi
+
+    # append the result to the file list
+	for file in $file_list_raw
+    do
+        if [ -n "$file_list" ]
+        then
+            file_list="$file_list,\n"
+        fi
+
+        file_list="$file_list        '$prefix$reco_dir/$file'"
+    done
+}
+
+#----------------------------------------------------------------------------------------------------
+
+function MakeCfgFiles()
+{
+    # build input file list
+	prefix=""
+    file_list=""
+	ls_list=""
+
+	runs=($task)
+	for runLsSpec in "${runs[@]}"
+    do
+		local run="${runLsSpec%.*}"
+		local lsSpec="${runLsSpec#*.}"
+
+        if [ -n "$ls_list" ]
+        then
+            ls_list="$ls_list, "
+        fi
+
+		if [ "$lsSpec" == "$runLsSpec" ]
+		then
+			ls_list="${ls_list}\"$run:1-$run:999999\""
+		else
+			local ls_min="${lsSpec%-*}"
+			local ls_max="${lsSpec#*-}"
+			ls_list="${ls_list}\"$run:${ls_min}-$run:${ls_max}\""
+		fi
+
+        AddInputFiles "$run" 
+    done
+
+    # make iteration directories
+	for i in `seq $iterations`
+	do
+		dir="iteration$i"
+		mkdir -p "$dir"
+
+		# resolve initial alignments
+		alignmentFiles=""
+	    if [ $i -eq 1 ]
+        then
+			for af in ${initial_alignment[*]}
+			do
+				#if [ ${af:0:1} != "/" ]; then af="${job_dir}/$af"; fi
+
+				if [ -n "$alignmentFiles" ]; then alignmentFiles="$alignmentFiles, "; fi
+				alignmentFiles="${alignmentFiles}'${af}'"
+			done
+        else
+		    let p=i-1
+			alignmentFiles="'$job_dir_rel/iteration$p/${iterationFile}'"
+		fi
+
+		# what is to be optimized in this iteration
+        let li=${#optimize[@]}-1
+        if [ $i -le $li ]; then let li=$i-1; fi
+        optimize_value=${optimize[$li]}
+
+		resolveShR=False
+		resolveRotZ=False
+		if [ -n "`echo $optimize_value|grep s`" ]; then resolveShR=True; fi
+		if [ -n "`echo $optimize_value|grep r`" ]; then resolveRotZ=True; fi
+
+		# what constraints to be applied
+        #let li=${#useExtendedConstraints[@]}-1
+        #if [ $i -le $li ]; then let li=$i-1; fi
+        #useExtendedConstraints_value=${useExtendedConstraints[$li]}
+
+		# use 1 rotz per RP?
+		oneRotZPerPot="False"
+		if [ $i -le "$iterationsWithOneRotZPerPot" ]; then oneRotZPerPot="True"; fi
+
+		# chi^2/ndf cut for this iteration
+        let li=${#chiSqPerNdfCut[@]}-1
+        if [ $i -le $li ]; then let li=$i-1; fi
+        chiSqPerNdfCut_value=${chiSqPerNdfCut[$li]}
+        
+		# R/sigma cut for this iteration 
+		let li=${#maxResidualToSigma[@]}-1
+        if [ $i -le $li ]; then let li=$i-1; fi
+        maxResidualToSigma_value=${maxResidualToSigma[$li]}
+
+		# max a_x cut for this iteration
+        let li=${#maxTrackAx[@]}-1
+        if [ $i -le $li ]; then let li=$i-1; fi
+        maxTrackAx_value=${maxTrackAx[$li]}
+
+		# max a_y cut for this iteration
+        let li=${#maxTrackAy[@]}-1
+        if [ $i -le $li ]; then let li=$i-1; fi
+        maxTrackAy_value=${maxTrackAy[$li]}
+
+		# build diagnotic plots?
+        buildDiagnosticPlots="False"
+        if [ "$i" -le "$iterationsWithDiagnostics" ]; then buildDiagnosticPlots="True"; fi
+
+		# fill in template
+		cat "$top_dir/$template" | sed "\
+				s|\$inputFiles|$file_list|;\
+				s|\$lsList|$ls_list|;\
+				s|\$optimize|$optimize_value|;\
+				s|\$rps|$rps|;\
+				s|\$excludePlanes|$excludePlanes|;\
+				s|\$z0|$z0|;\
+				s|\$resolveShR|$resolveShR|;\
+				s|\$resolveRotZ|$resolveRotZ|;\
+				s|\$constraintsType|$constraintsType|;\
+				s|\$fixed_planes_shr|$fixed_planes_shr|;\
+				s|\$fixed_planes_values_shr|$fixed_planes_values_shr|;\
+				s|\$fixed_planes_rotz|$fixed_planes_rotz|;\
+				s|\$fixed_planes_values_rotz|$fixed_planes_values_rotz|;\
+				s|\$geometry|$geometry|;\
+				s|\$reco_dir|$reco_dir|;\
+				s|\$results_dir|$job_dir/$dir|;\
+				s|\$chiSqPerNdfCut|$chiSqPerNdfCut_value|;\
+				s|\$alignmentFiles|$alignmentFiles|;\
+				s|\$useExtendedConstraints|$useExtendedConstraints_value|;\
+				s|\$useZeroThetaRotZConstraint|$useZeroThetaRotZConstraint|;\
+				s|\$minimumHitsPerProjectionPerRP|$minimumHitsPerProjectionPerRP|;\
+				s|\$maxResidualToSigma|$maxResidualToSigma_value|;\
+				s|\$oneRotZPerPot|$oneRotZPerPot|;\
+				s|\$requireNumberOfUnits|$requireNumberOfUnits|;\
+				s|\$requireOverlap|$requireOverlap|;\
+				s|\$requireAtLeast3PotsInOverlap|$requireAtLeast3PotsInOverlap|;\
+				s|\$buildDiagnosticPlots|$buildDiagnosticPlots|;\
+				s|\$maxTrackAx|$maxTrackAx_value|;\
+				s|\$maxTrackAy|$maxTrackAy_value|;\
+				s|\$useEqualMeanUMeanVRotZConstraints|$useEqualMeanUMeanVRotZConstraints|;\
+				s|\$final_constraints_units|$final_constraints_units|;\
+				s|\$maxEvents|$maxEvents|;\
+				s|\$additionalAcceptedRPSets|$additionalAcceptedRPSets|;\
+			" > "$dir/$cfg_file"
+	done
+}
+
+#----------------------------------------------------------------------------------------------------
+
+function SubmitOrExecute()
+{
+	if [ "$test_only" == "y" ]
+	then
+		echo "    execution inhibited (test_only=t)"
+		return 1
+	fi
+
+	if [ "$use_lxbatch" == "y" ]
+	then
+		#echo "bsub $job_dir/$job_file"
+		res=`bsub -q $queue $bsub_options "$job_dir/$job_file"`
+		echo "    $res"
+		echo "$res" > "$job_dir/submitted"
+	else
+		#echo "$job_dir/$job_file"
+		$job_dir/$job_file &
+		echo "    job executed in background"
+	fi
+}
+
+#----------------------------------------------------------------------------------------------------
+
+function AddToCaption()
+{
+	val="f"
+	if [ "$2" == "True" ]; then val="t"; fi
+	caption="${caption},$1=$val"
+}
+
+#----------------------------------------------------------------------------------------------------
+
+function CompileCaption()
+{
+	opt_lab=""
+	opt_prev=""
+	for opt in "${optimize[@]}"
+	do
+		if [ "$opt_prev" != "$opt" ]
+		then
+			if [ -n "$opt_lab" ]; then opt_lab="$opt_lab+"; fi
+			opt_lab="$opt_lab$opt"
+		fi
+		opt_prev="$opt"
+	done
+
+	caption="ev=${maxEvents},pl=${minimumHitsPerProjectionPerRP},units=${requireNumberOfUnits}"
+	AddToCaption "ovlp" "$requireOverlap"
+	AddToCaption "3rpsInO" "$requireAtLeast3PotsInOverlap"
+	
+	caption="$caption/${opt_lab},${constraintsLabel},1rotzIt=${iterationsWithOneRotZPerPot}"
+	AddToCaption "eMuMvRot" "$useEqualMeanUMeanVRotZConstraints"
+
+	caption="${caption}${label}"
+}
+
+#----------------------------------------------------------------------------------------------------
+
+function SubmitTrackBasedAlignment()
+{
+	CompileCaption
+
+	for task in "${tasks[@]}"
+	do
+	    runs=($task)
+        task_id=""
+	    for run in "${runs[@]}"
+	    do
+	        if [ -n "$task_id" ]
+	        then
+	            task_id="$task_id,"
+	        fi
+
+	        task_id="${task_id}${run}"
+	    done
+
+		task_id=${task_id//</}
+		task_id=${task_id//>/}
+
+		input_tag="$rps"
+		if [ -n "$excludePlanes" ]
+		then
+			input_tag="${input_tag}-excl${excludePlanes}"
+		fi
+
+		id="${subdir}/${task_id}/${input_tag}/${caption}"
+		
+		echo "> $id"
+
+		InitJobDir "$id"
+		cd "$job_dir"
+		
+		MakeJobScript
+		MakeCfgFiles
+	
+		SubmitOrExecute
+	done
+}
+
+#----------------------------------------------------------------------------------------------------
+
+function NewDataSet()
+{
+	# reset standard settings
+    tasks=""
+}

@@ -69,7 +69,7 @@ DeepMETProducer::DeepMETProducer(const edm::ParameterSet& cfg, const DeepMETCach
 void DeepMETProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
   auto const& pfs = event.get(pf_token_);
 
-  static const tensorflow::NamedTensorList input_list = {
+  const tensorflow::NamedTensorList input_list = {
       {"input", input_}, {"input_cat0", input_cat0_}, {"input_cat1", input_cat1_}, {"input_cat2", input_cat2_}};
 
   // Set all inputs to zero

@@ -317,8 +317,13 @@ namespace reco {
                 allTracksSumP += chargedHadronTrack->p();
                 allTracksSumPerr2 += getTrackPerr2(*chargedHadronTrack);
               } else {
-                edm::LogInfo("PFRecoTauEnergyAlgorithmPlugin::operator()")
-                    << "PFRecoTauChargedHadron has no associated reco::Track !!";
+                // don't print warning as it is caused by missing detailed track inforamtion in lostTrack in miniAOD
+                if (!(chargedHadron->algoIs(PFRecoTauChargedHadron::kTrack) &&
+                      chargedHadron->getLostTrackCandidate().isNonnull() &&
+                      chargedHadron->getLostTrackCandidate()->bestTrack() == nullptr)) {
+                  edm::LogInfo("PFRecoTauEnergyAlgorithmPlugin::operator()")
+                      << "PFRecoTauChargedHadron has no associated reco::Track !!";
+                }
                 if (verbosity_) {
                   chargedHadron->print();
                 }
@@ -344,13 +349,29 @@ namespace reco {
                           << " HCAL = " << (pfCand)->hcalEnergy() << ","
                           << " HO = " << (pfCand)->hoEnergy() << std::endl;
               }
-              // TauReco@MiniAOD: This info is not yet available in miniAOD.
               if (edm::isFinite(pfCand->ecalEnergy()))
                 allNeutralsSumEn += pfCand->ecalEnergy();
               if (edm::isFinite(pfCand->hcalEnergy()))
                 allNeutralsSumEn += pfCand->hcalEnergy();
               if (edm::isFinite(pfCand->hoEnergy()))
                 allNeutralsSumEn += pfCand->hoEnergy();
+            } else {
+              // TauReco@MiniAOD: individual ECAL and HCAL energies recovered from fractions. Info on HO energy is not (yet?) available in miniAOD.
+              const pat::PackedCandidate* packedCand = dynamic_cast<const pat::PackedCandidate*>(&*signalCand);
+              assert(packedCand);  // Taus are built either from reco::PFCandidates or pat::PackedCandidates
+              double caloEn = packedCand->caloFraction() * packedCand->energy();
+              double hcalEn = caloEn * packedCand->hcalFraction();
+              double ecalEn = caloEn - hcalEn;
+              if (verbosity_) {
+                std::cout << "calorimeter energy:"
+                          << " ECAL = " << ecalEn << ","
+                          << " HCAL = " << hcalEn << ","
+                          << " HO unknown for PackedCand" << std::endl;
+              }
+              if (edm::isFinite(ecalEn))
+                allNeutralsSumEn += ecalEn;
+              if (edm::isFinite(hcalEn))
+                allNeutralsSumEn += hcalEn;
             }
           }
           allNeutralsSumEn += addNeutralsSumP4.energy();
@@ -385,8 +406,13 @@ namespace reco {
                   chargedHadronP4_modified = compChargedHadronP4fromPxPyPz(
                       chargedHadronPx_modified, chargedHadronPy_modified, chargedHadronPz_modified);
                 } else {
-                  edm::LogWarning("PFRecoTauEnergyAlgorithmPlugin::operator()")
-                      << "PFRecoTauChargedHadron has no associated reco::Track !!" << std::endl;
+                  // don't print warning as it is caused by missing detailed track inforamtion in lostTrack in miniAOD
+                  if (!(chargedHadron.algoIs(PFRecoTauChargedHadron::kTrack) &&
+                        chargedHadron.getLostTrackCandidate().isNonnull() &&
+                        chargedHadron.getLostTrackCandidate()->bestTrack() == nullptr)) {
+                    edm::LogWarning("PFRecoTauEnergyAlgorithmPlugin::operator()")
+                        << "PFRecoTauChargedHadron has no associated reco::Track !!" << std::endl;
+                  }
                   if (verbosity_) {
                     chargedHadron.print();
                   }
@@ -450,8 +476,13 @@ namespace reco {
                     chargedHadronP4_modified = compChargedHadronP4fromPxPyPz(
                         chargedHadronPx_modified, chargedHadronPy_modified, chargedHadronPz_modified);
                   } else {
-                    edm::LogInfo("PFRecoTauEnergyAlgorithmPlugin::operator()")
-                        << "PFRecoTauChargedHadron has no associated reco::Track !!";
+                    // don't print warning as it is caused by missing detailed track inforamtion in lostTrack in miniAOD
+                    if (!(chargedHadron.algoIs(PFRecoTauChargedHadron::kTrack) &&
+                          chargedHadron.getLostTrackCandidate().isNonnull() &&
+                          chargedHadron.getLostTrackCandidate()->bestTrack() == nullptr)) {
+                      edm::LogInfo("PFRecoTauEnergyAlgorithmPlugin::operator()")
+                          << "PFRecoTauChargedHadron has no associated reco::Track !!";
+                    }
                     if (verbosity_) {
                       chargedHadron.print();
                     }

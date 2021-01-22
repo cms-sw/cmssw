@@ -71,8 +71,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         'HCalGeom', 
         'HcalSim', 
         'TrackerMapDDDtoID', 
-        'TrackerSimInfoNumbering'),
-    fwkJobReports = cms.untracked.vstring('FrameworkJobReport.xml')
+        'TrackerSimInfoNumbering')
 )
 
 

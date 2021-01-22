@@ -226,7 +226,7 @@ namespace l1t {
     // Not sure how to map to generic BlockHeader variables, so just packing
     // it all in flags variable
     unsigned blockFlags = ((bx_per_l1a_ & 0xf) << 16) | (calo_bxid_ & 0xfff);
-    unsigned blockSize = 192;
+    unsigned blockSize = 192 * (int)bx_per_l1a_;
     return BlockHeader(blockId, blockSize, capId_, blockFlags, CTP7);
   }
 

@@ -1,5 +1,5 @@
-#ifndef DetLayers_MTDRingForwardDoubleLayer_H
-#define DetLayers_MTDRingForwardDoubleLayer_H
+#ifndef RecoMTD_DetLayers_MTDRingForwardDoubleLayer_H
+#define RecoMTD_DetLayers_MTDRingForwardDoubleLayer_H
 
 /** \class MTDRingForwardDoubleLayer
  *  A plane composed two layers of disks. The Endcap Timing Layer.

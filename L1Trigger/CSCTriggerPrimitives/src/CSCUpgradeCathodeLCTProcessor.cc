@@ -10,9 +10,9 @@ CSCUpgradeCathodeLCTProcessor::CSCUpgradeCathodeLCTProcessor(unsigned endcap,
                                                              unsigned chamber,
                                                              const edm::ParameterSet& conf)
     : CSCCathodeLCTProcessor(endcap, station, sector, subsector, chamber, conf) {
-  if (!isSLHC_)
+  if (!runPhase2_)
     edm::LogError("CSCUpgradeCathodeLCTProcessor|ConfigError")
-        << "+++ Upgrade CSCUpgradeCathodeLCTProcessor constructed while isSLHC_ is not set! +++\n";
+        << "+++ Upgrade CSCUpgradeCathodeLCTProcessor constructed while runPhase2_ is not set! +++\n";
 
   // use of localized dead-time zones
   use_dead_time_zoning = clctParams_.getParameter<bool>("useDeadTimeZoning");
@@ -26,24 +26,24 @@ CSCUpgradeCathodeLCTProcessor::CSCUpgradeCathodeLCTProcessor(unsigned endcap,
 }
 
 CSCUpgradeCathodeLCTProcessor::CSCUpgradeCathodeLCTProcessor() : CSCCathodeLCTProcessor() {
-  if (!isSLHC_)
+  if (!runPhase2_)
     edm::LogError("CSCUpgradeCathodeLCTProcessor|ConfigError")
-        << "+++ Upgrade CSCUpgradeCathodeLCTProcessor constructed while isSLHC_ is not set! +++\n";
+        << "+++ Upgrade CSCUpgradeCathodeLCTProcessor constructed while runPhase2_ is not set! +++\n";
 }
 
 // --------------------------------------------------------------------------
-// The code below is for SLHC studies of the CLCT algorithm (half-strips only).
+// The code below is for Phase2 studies of the CLCT algorithm (half-strips only).
 // --------------------------------------------------------------------------
 
-// SLHC version, add the feature of localized dead time zone for pretrigger
+// Phase2 version, add the feature of localized dead time zone for pretrigger
 bool CSCUpgradeCathodeLCTProcessor::preTrigger(const PulseArray pulse, const int start_bx, int& first_bx) {
-  if (isSLHC_ and !use_dead_time_zoning) {
+  if (runPhase2_ and !use_dead_time_zoning) {
     return CSCCathodeLCTProcessor::preTrigger(pulse, start_bx, first_bx);
   }
 
   if (infoV > 1)
     LogTrace("CSCUpgradeCathodeLCTProcessor")
-        << "....................PreTrigger, SLHC version with localized dead time zone...........................";
+        << "....................PreTrigger, Phase2 version with localized dead time zone...........................";
 
   // Max. number of half-strips for this chamber.
   const int nStrips = 2 * numStrips + 1;
@@ -134,13 +134,13 @@ bool CSCUpgradeCathodeLCTProcessor::preTrigger(const PulseArray pulse, const int
     LogTrace("CSCUpgradeCathodeLCTProcessor") << "no pretrigger, returning \n";
   first_bx = fifo_tbins;
   return false;
-}  // preTrigger -- SLHC version.
+}  // preTrigger -- Phase2 version.
 
-// SLHC version.
+// Phase2 version.
 std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
     const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]) {
   // run the original algorithm in case we do not use dead time zoning
-  if (isSLHC_ and !use_dead_time_zoning) {
+  if (runPhase2_ and !use_dead_time_zoning) {
     return CSCCathodeLCTProcessor::findLCTs(halfstrip);
   }
 
@@ -333,7 +333,7 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
             thisLCT.setHits(compHits);
 
             // do the CCLUT procedures
-            if (use_comparator_codes_) {
+            if (runCCLUT_) {
               runCCLUT(thisLCT);
             }
 
@@ -354,4 +354,4 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
   }
 
   return lctList;
-}  // findLCTs -- SLHC version.
+}  // findLCTs -- Phase2 version.

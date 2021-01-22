@@ -6,6 +6,7 @@
 <use   name="DataFormats/HcalDetId"/>
 <use   name="DataFormats/EcalDigi"/>
 <use   name="DataFormats/HcalDigi"/>
+<use   name="DataFormats/JetReco"/>
 <use   name="CalibFormats/CaloTPG"/>
 <use   name="L1Trigger/L1CaloTrigger"/>
 <use   name="DataFormats/L1THGCal"/>

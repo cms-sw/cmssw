@@ -19,6 +19,7 @@
   <use name="CondFormats/SiStripObjects"/>
   <use name="CommonTools/TrackerMap"/>
   <use name="CalibTracker/StandaloneTrackerTopology"/>
+  <use name="roothistpainter"/>
 </library>
 
 <library file="SiStripLorentzAngle_PayloadInspector.cc" name="SiStripLorentzAngle_PayloadInspector">
@@ -27,6 +28,7 @@
   <use name="CondFormats/SiStripObjects"/>
   <use name="CommonTools/TrackerMap"/>
   <use name="CalibTracker/StandaloneTrackerTopology"/>
+  <use name="roothistpainter"/>
 </library>
 
 <library file="SiStripBackPlaneCorrection_PayloadInspector.cc" name="SiStripBackPlaneCorrection_PayloadInspector">

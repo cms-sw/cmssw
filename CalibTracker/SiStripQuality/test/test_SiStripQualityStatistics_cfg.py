@@ -24,9 +24,11 @@ options.parseArguments()
 # Messages
 ###################################################################
 process.load('FWCore.MessageService.MessageLogger_cfi')   
-process.MessageLogger.categories.append("SiStripQualityStatistics")  
-process.MessageLogger.destinations = cms.untracked.vstring("cout")
+process.MessageLogger.cerr.enable = False
+process.MessageLogger.SiStripQualityStatistics=dict()  
 process.MessageLogger.cout = cms.untracked.PSet(
+    enable    = cms.untracked.bool(True),
+    enableStatistics = cms.untracked.bool(True),
     threshold = cms.untracked.string("WARNING"),
     default   = cms.untracked.PSet(limit = cms.untracked.int32(0)),                       
     FwkReport = cms.untracked.PSet(limit = cms.untracked.int32(-1),
@@ -34,7 +36,6 @@ process.MessageLogger.cout = cms.untracked.PSet(
                                    ),                                                      
     SiStripQualityStatistics = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
     )
-process.MessageLogger.statistics.append('cout') 
 
 # process.MessageLogger = cms.Service("MessageLogger",
 #                                     cout = cms.untracked.PSet(threshold = cms.untracked.string('WARNING')),

@@ -64,13 +64,11 @@ private:
   // input tags for input collections
   edm::InputTag compDigiProducer_;
   edm::InputTag wireDigiProducer_;
-  edm::InputTag gemPadDigiProducer_;
   edm::InputTag gemPadDigiClusterProducer_;
 
   // tokens
   edm::EDGetTokenT<CSCComparatorDigiCollection> comp_token_;
   edm::EDGetTokenT<CSCWireDigiCollection> wire_token_;
-  edm::EDGetTokenT<GEMPadDigiCollection> gem_pad_token_;
   edm::EDGetTokenT<GEMPadDigiClusterCollection> gem_pad_cluster_token_;
   edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscToken_;
   edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemToken_;

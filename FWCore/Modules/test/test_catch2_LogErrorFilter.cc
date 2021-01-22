@@ -43,6 +43,11 @@ process.moduleToTest(process.errorFilter)
       REQUIRE(tester.test(std::make_pair(putToken, std::make_unique<ESVec>(errors))).modulePassed());
     }
     {
+      ESVec errors = {{"Cat", "mod", edm::ELseverityLevel::ELsev_fwkInfo}};
+      REQUIRE_FALSE(tester.test(std::make_pair(putToken, std::make_unique<ESVec>(errors))).modulePassed());
+      REQUIRE_FALSE(tester.test(std::make_pair(putToken, std::make_unique<ESVec>(errors))).modulePassed());
+    }
+    {
       ESVec errors = {{"Cat", "mod", edm::ELseverityLevel::ELsev_info}};
       REQUIRE_FALSE(tester.test(std::make_pair(putToken, std::make_unique<ESVec>(errors))).modulePassed());
       REQUIRE_FALSE(tester.test(std::make_pair(putToken, std::make_unique<ESVec>(errors))).modulePassed());
@@ -68,6 +73,11 @@ process.errorFilter.atLeastOneWarning = False
     }
     {
       ESVec errors = {{"Cat", "mod", edm::ELseverityLevel::ELsev_warning}};
+      REQUIRE_FALSE(tester.test(std::make_pair(putToken, std::make_unique<ESVec>(errors))).modulePassed());
+      REQUIRE_FALSE(tester.test(std::make_pair(putToken, std::make_unique<ESVec>(errors))).modulePassed());
+    }
+    {
+      ESVec errors = {{"Cat", "mod", edm::ELseverityLevel::ELsev_fwkInfo}};
       REQUIRE_FALSE(tester.test(std::make_pair(putToken, std::make_unique<ESVec>(errors))).modulePassed());
       REQUIRE_FALSE(tester.test(std::make_pair(putToken, std::make_unique<ESVec>(errors))).modulePassed());
     }
@@ -99,6 +109,11 @@ process.errorFilter.atLeastOneError = False
       ESVec errors = {{"Cat", "mod", edm::ELseverityLevel::ELsev_warning}};
       REQUIRE(tester.test(std::make_pair(putToken, std::make_unique<ESVec>(errors))).modulePassed());
       REQUIRE(tester.test(std::make_pair(putToken, std::make_unique<ESVec>(errors))).modulePassed());
+    }
+    {
+      ESVec errors = {{"Cat", "mod", edm::ELseverityLevel::ELsev_fwkInfo}};
+      REQUIRE_FALSE(tester.test(std::make_pair(putToken, std::make_unique<ESVec>(errors))).modulePassed());
+      REQUIRE_FALSE(tester.test(std::make_pair(putToken, std::make_unique<ESVec>(errors))).modulePassed());
     }
     {
       ESVec errors = {{"Cat", "mod", edm::ELseverityLevel::ELsev_info}};
@@ -143,6 +158,15 @@ process.errorFilter.avoidCategories = ["IgnoreCat"]
       REQUIRE_FALSE(tester.test(std::make_pair(putToken, std::make_unique<ESVec>(errors))).modulePassed());
     }
     {
+      ESVec errors = {{"Cat", "mod", edm::ELseverityLevel::ELsev_fwkInfo}};
+      REQUIRE_FALSE(tester.test(std::make_pair(putToken, std::make_unique<ESVec>(errors))).modulePassed());
+      REQUIRE_FALSE(tester.test(std::make_pair(putToken, std::make_unique<ESVec>(errors))).modulePassed());
+    }
+    {
+      ESVec errors = {{"IgnoreCat", "mod", edm::ELseverityLevel::ELsev_fwkInfo}};
+      REQUIRE_FALSE(tester.test(std::make_pair(putToken, std::make_unique<ESVec>(errors))).modulePassed());
+    }
+    {
       ESVec errors = {{"Cat", "mod", edm::ELseverityLevel::ELsev_info}};
       REQUIRE_FALSE(tester.test(std::make_pair(putToken, std::make_unique<ESVec>(errors))).modulePassed());
       REQUIRE_FALSE(tester.test(std::make_pair(putToken, std::make_unique<ESVec>(errors))).modulePassed());
@@ -179,6 +203,11 @@ process.errorFilter.useThresholdsPerKind = True
     {
       ESVec errors = {{"Cat2", "mod", edm::ELseverityLevel::ELsev_error}};
       REQUIRE(tester.test(std::make_pair(putToken, std::make_unique<ESVec>(errors))).modulePassed());
+      REQUIRE_FALSE(tester.test(std::make_pair(putToken, std::make_unique<ESVec>(errors))).modulePassed());
+    }
+    {
+      ESVec errors = {{"Cat", "mod", edm::ELseverityLevel::ELsev_fwkInfo}};
+      REQUIRE_FALSE(tester.test(std::make_pair(putToken, std::make_unique<ESVec>(errors))).modulePassed());
       REQUIRE_FALSE(tester.test(std::make_pair(putToken, std::make_unique<ESVec>(errors))).modulePassed());
     }
     {
@@ -240,6 +269,15 @@ process.errorFilter.avoidCategories = ["IgnoreCat"]
     {
       ESVec errors = {{"Cat2", "mod", edm::ELseverityLevel::ELsev_error}};
       REQUIRE(tester.test(std::make_pair(putToken, std::make_unique<ESVec>(errors))).modulePassed());
+      REQUIRE_FALSE(tester.test(std::make_pair(putToken, std::make_unique<ESVec>(errors))).modulePassed());
+    }
+    {
+      ESVec errors = {{"IgnoreCat", "mod", edm::ELseverityLevel::ELsev_fwkInfo}};
+      REQUIRE_FALSE(tester.test(std::make_pair(putToken, std::make_unique<ESVec>(errors))).modulePassed());
+    }
+    {
+      ESVec errors = {{"Cat", "mod", edm::ELseverityLevel::ELsev_fwkInfo}};
+      REQUIRE_FALSE(tester.test(std::make_pair(putToken, std::make_unique<ESVec>(errors))).modulePassed());
       REQUIRE_FALSE(tester.test(std::make_pair(putToken, std::make_unique<ESVec>(errors))).modulePassed());
     }
     {

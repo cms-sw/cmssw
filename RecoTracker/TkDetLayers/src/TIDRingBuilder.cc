@@ -19,7 +19,7 @@ TIDRing* TIDRingBuilder::build(const GeometricDet* aTIDRing, const TrackerGeomet
   //----
 
   for (vector<const GeometricDet*>::const_iterator it = theGeometricDets.begin(); it != theGeometricDets.end(); it++) {
-    const GeomDet* theGeomDet = theGeomDetGeometry->idToDet((*it)->geographicalID());
+    const GeomDet* theGeomDet = theGeomDetGeometry->idToDet((*it)->geographicalId());
 
     if (std::abs((*it)->positionBounds().z()) < std::abs(meanZ))
       innerGeomDets.push_back(theGeomDet);

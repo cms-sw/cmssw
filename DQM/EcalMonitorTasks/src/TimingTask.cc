@@ -47,19 +47,15 @@ namespace ecaldqm {
     return false;
   }
 
-  void TimingTask::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
-    // Fill separate MEs with only 10 LSs worth of stats
-    // Used to correctly fill Presample Trend plots:
-    // 1 pt:10 LS in Trend plots
-    meTimeMapByLS = &MEs_.at("TimeMapByLS");
-    if (timestamp_.iLumi % 10 == 0)
-      meTimeMapByLS->reset();
-  }
-
-  void TimingTask::beginEvent(edm::Event const& _evt, edm::EventSetup const& _es) {
+  void TimingTask::beginEvent(edm::Event const& _evt, edm::EventSetup const& _es, bool const& ByLumiResetSwitch, bool&) {
     using namespace std;
     std::vector<int>::iterator pBin = std::upper_bound(bxBinEdges_.begin(), bxBinEdges_.end(), _evt.bunchCrossing());
     bxBin_ = static_cast<int>(pBin - bxBinEdges_.begin()) - 0.5;
+    if (ByLumiResetSwitch) {
+      meTimeMapByLS = &MEs_.at("TimeMapByLS");
+      if (timestamp_.iLumi % 10 == 0)
+        meTimeMapByLS->reset();
+    }
   }
 
   void TimingTask::runOnRecHits(EcalRecHitCollection const& _hits, Collections _collection) {

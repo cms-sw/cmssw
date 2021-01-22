@@ -16,16 +16,15 @@ process.load("SimCalorimetry.Configuration.ecalDigiSequence_cff")
 process.Timing = cms.Service("Timing")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    #    untracked vstring categories = { "EcalShape","EcalCoder","EcalDigi" }
-    #    untracked vstring debugModules = {"ecaldigi"}
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
-        #      untracked string threshold = "DEBUG" 
-        #      untracked PSet DEBUG = { untracked int32 limit = 0 }
         INFO = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
-        )
-    ),
-    destinations = cms.untracked.vstring('cout')
+        ),
+        enable = cms.untracked.bool(True)
+    )
 )
 
 process.maxEvents = cms.untracked.PSet(

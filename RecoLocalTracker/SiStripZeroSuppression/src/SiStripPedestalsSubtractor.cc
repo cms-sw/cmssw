@@ -1,13 +1,10 @@
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripPedestalsSubtractor.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 void SiStripPedestalsSubtractor::init(const edm::EventSetup& es) {
-  uint32_t p_cache_id = es.get<SiStripPedestalsRcd>().cacheIdentifier();
-  if (p_cache_id != peds_cache_id) {
-    es.get<SiStripPedestalsRcd>().get(pedestalsHandle);
-    peds_cache_id = p_cache_id;
+  if (pedestalsWatcher_.check(es)) {
+    pedestalsHandle = &es.getData(pedestalsToken_);
   }
 }
 

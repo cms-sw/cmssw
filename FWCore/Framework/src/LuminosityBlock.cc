@@ -61,8 +61,12 @@ namespace edm {
     return dynamic_cast<LuminosityBlockPrincipal const&>(provRecorder_.principal());
   }
 
-  Provenance LuminosityBlock::getProvenance(BranchID const& bid) const {
-    return luminosityBlockPrincipal().getProvenance(bid, moduleCallingContext_);
+  Provenance const& LuminosityBlock::getProvenance(BranchID const& bid) const {
+    return luminosityBlockPrincipal().getProvenance(bid);
+  }
+
+  StableProvenance const& LuminosityBlock::getStableProvenance(BranchID const& bid) const {
+    return luminosityBlockPrincipal().getStableProvenance(bid);
   }
 
   void LuminosityBlock::getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const {

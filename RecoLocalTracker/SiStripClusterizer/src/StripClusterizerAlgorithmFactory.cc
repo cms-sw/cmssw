@@ -5,12 +5,14 @@
 #include "RecoLocalTracker/SiStripClusterizer/interface/ThreeThresholdAlgorithm.h"
 #include "RecoLocalTracker/SiStripClusterizer/interface/ClusterChargeCut.h"
 
-std::unique_ptr<StripClusterizerAlgorithm> StripClusterizerAlgorithmFactory::create(const edm::ParameterSet& conf) {
+std::unique_ptr<StripClusterizerAlgorithm> StripClusterizerAlgorithmFactory::create(edm::ConsumesCollector&& iC,
+                                                                                    const edm::ParameterSet& conf) {
   std::string algorithm = conf.getParameter<std::string>("Algorithm");
 
   if (algorithm == "ThreeThresholdAlgorithm") {
     return std::unique_ptr<StripClusterizerAlgorithm>(
-        new ThreeThresholdAlgorithm(conf.getParameter<std::string>("ConditionsLabel"),
+        new ThreeThresholdAlgorithm(iC.esConsumes<SiStripClusterizerConditions, SiStripClusterizerConditionsRcd>(
+                                        edm::ESInputTag{"", conf.getParameter<std::string>("ConditionsLabel")}),
                                     conf.getParameter<double>("ChannelThreshold"),
                                     conf.getParameter<double>("SeedThreshold"),
                                     conf.getParameter<double>("ClusterThreshold"),

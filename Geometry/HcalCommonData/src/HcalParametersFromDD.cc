@@ -152,22 +152,22 @@ bool HcalParametersFromDD::build(const cms::DDCompactView& cpv, HcalParameters& 
   php.dzVcal = geom->getConstDzHF();
   geom->getConstRHO(php.rHO);
 
-  php.phioff = cpv.getVector<double>("phioff");
-  php.etaTable = cpv.getVector<double>("etaTable");
-  php.rTable = cpv.getVector<double>("rTable");
-  php.phibin = cpv.getVector<double>("phibin");
-  php.phitable = cpv.getVector<double>("phitable");
+  php.phioff = cpv.get<std::vector<double>>("phioff");
+  php.etaTable = cpv.get<std::vector<double>>("etaTable");
+  php.rTable = cpv.get<std::vector<double>>("rTable");
+  php.phibin = cpv.get<std::vector<double>>("phibin");
+  php.phitable = cpv.get<std::vector<double>>("phitable");
   php.etaMin = cpv.getVector<int>("etaMin");
   php.etaMax = cpv.getVector<int>("etaMax");
-  php.etaRange = cpv.getVector<double>("etaRange");
-  php.gparHF = cpv.getVector<double>("gparHF");
+  php.etaRange = cpv.get<std::vector<double>>("etaRange");
+  php.gparHF = cpv.get<std::vector<double>>("gparHF");
   php.noff = cpv.getVector<int>("noff");
-  php.Layer0Wt = cpv.getVector<double>("Layer0Wt");
-  php.HBGains = cpv.getVector<double>("HBGains");
+  php.Layer0Wt = cpv.get<std::vector<double>>("Layer0Wt");
+  php.HBGains = cpv.get<std::vector<double>>("HBGains");
   php.HBShift = cpv.getVector<int>("HBShift");
-  php.HEGains = cpv.getVector<double>("HEGains");
+  php.HEGains = cpv.get<std::vector<double>>("HEGains");
   php.HEShift = cpv.getVector<int>("HEShift");
-  php.HFGains = cpv.getVector<double>("HFGains");
+  php.HFGains = cpv.get<std::vector<double>>("HFGains");
   php.HFShift = cpv.getVector<int>("HFShift");
   php.maxDepth = cpv.getVector<int>("MaxDepth");
 
@@ -186,10 +186,10 @@ bool HcalParametersFromDD::build(const cms::DDCompactView& cpv, HcalParameters& 
   const cms::DDFilter filter("OnlyForHcalRecNumbering", "HCAL");
   cms::DDFilteredView fv(cpv, filter);
 
-  std::vector<std::string> tempS = fv.get<std::vector<std::string> >("hcal", "TopologyMode");
+  std::vector<std::string> tempS = fv.get<std::vector<std::string>>("hcal", "TopologyMode");
   std::string sv = (!tempS.empty()) ? tempS[0] : "HcalTopologyMode::SLHC";
   int topoMode = getTopologyMode(sv, true);
-  tempS = fv.get<std::vector<std::string> >("hcal", "TriggerMode");
+  tempS = fv.get<std::vector<std::string>>("hcal", "TriggerMode");
   sv = (!tempS.empty()) ? tempS[0] : "HcalTopologyMode::TriggerMode_2021";
   int trigMode = getTopologyMode(sv, false);
   php.topologyMode = ((trigMode & 0xFF) << 8) | (topoMode & 0xFF);

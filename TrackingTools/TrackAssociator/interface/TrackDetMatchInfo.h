@@ -8,7 +8,6 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "TrackingTools/TrackAssociator/interface/TAMuonChamberMatch.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 class TrackDetMatchInfo {
@@ -109,7 +108,7 @@ public:
   int numberOfSegmentsInStation(int station, int detector) const;
   int numberOfSegmentsInDetector(int detector) const;
 
-  void setCaloGeometry(edm::ESHandle<CaloGeometry> geometry) { caloGeometry = geometry.product(); }
+  void setCaloGeometry(const CaloGeometry* geometry) { caloGeometry = geometry; }
   GlobalPoint getPosition(const DetId&);
   std::string dumpGeometry(const DetId&);
 

@@ -99,8 +99,8 @@ _pageNameMap = {
     "hitCalibration": "Reconstructed hits calibration",
     "hitValidation" : "Simulated hits, digis, reconstructed hits validation" , 
     "hgcalLayerClusters": "Layer clusters",
-    "multiClustersFromTrackstersEM": "Electromagnetic multiclusters",
-    "multiClustersFromTrackstersHAD": "Hadronic multiclusters",
+    "ticlMultiClustersFromTrackstersEM": "Electromagnetic multiclusters",
+    "ticlMultiClustersFromTrackstersHAD": "Hadronic multiclusters",
     "hgcalMultiClusters" : "Old multiclusters",
     "standalone" : "Standalone study on simulated hits, digis, reconstructed hits"   
 }
@@ -110,10 +110,10 @@ _sectionNameMapOrder = collections.OrderedDict([
     # Will add later
     # hgcalLayerClusters
     ("hgcalLayerClusters", "Layer clusters"),
-    # multiClustersFromTrackstersEM
-    ("multiClustersFromTrackstersEM","Electromagnetic multiclusters"),
-    # multiClustersFromTrackstersHAD
-    ("multiClustersFromTrackstersHAD","Hadronic multiclusters"),
+    # ticlMultiClustersFromTrackstersEM
+    ("ticlMultiClustersFromTrackstersEM","Electromagnetic multiclusters"),
+    # ticlMultiClustersFromTrackstersHAD
+    ("ticlMultiClustersFromTrackstersHAD","Hadronic multiclusters"),
     # hgcalMultiClusters
     ("hgcalMultiClusters","Old multiclusters"),
 ])
@@ -122,7 +122,7 @@ _sectionNameMapOrder = collections.OrderedDict([
 _summary = {}
 
 #Objects to keep in summary
-_summobj = ['hitCalibration','hitValidation', 'hgcalLayerClusters','multiClustersFromTrackstersEM','multiClustersFromTrackstersHAD']
+_summobj = ['hitCalibration','hitValidation', 'hgcalLayerClusters','ticlMultiClustersFromTrackstersEM','ticlMultiClustersFromTrackstersHAD']
 #_summobj = ['hitCalibration','hitValidation', 'hgcalLayerClusters']
 
 #Plots to keep in summary from hitCalibration
@@ -158,7 +158,7 @@ summlc = [
     ]
                           
 
-#Plots to keep in summary from multiClustersFromTrackstersEM
+#Plots to keep in summary from ticlMultiClustersFromTrackstersEM
 summmcEM = [
     'Efficiencies/Efficiencies_globalEfficiencies.png' ,
     'Duplicates/Duplicates_globalEfficiencies.png' ,
@@ -166,7 +166,7 @@ summmcEM = [
     'MergeRate/MergeRate_globalEfficiencies.png'
 ]
 
-#Plots to keep in summary from multiClustersFromTrackstersHAD
+#Plots to keep in summary from ticlMultiClustersFromTrackstersHAD
 summmcHAD = summmcEM
 
 #Plots to keep in summary from standalone analysis
@@ -180,8 +180,8 @@ for obj in _summobj:
 _summary['hitCalibration'] = summhitcalib
 _summary['hitValidation'] = summhitvalid
 _summary['hgcalLayerClusters'] = summlc
-_summary['multiClustersFromTrackstersEM'] = summmcEM
-_summary['multiClustersFromTrackstersHAD'] = summmcHAD                          
+_summary['ticlMultiClustersFromTrackstersEM'] = summmcEM
+_summary['ticlMultiClustersFromTrackstersHAD'] = summmcHAD                          
 
 
 

@@ -37,8 +37,17 @@ namespace ticl {
     const unsigned int max_out_in_hops_;
     const float min_cos_theta_;
     const float min_cos_pointing_;
+    const float root_doublet_max_distance_from_seed_squared_;
     const float etaLimitIncreaseWindow_;
-    const int missing_layers_;
+    const int skip_layers_;
+    const int max_missing_layers_in_trackster_;
+    bool check_missing_layers_ = false;
+    const unsigned int shower_start_max_layer_;
+    const unsigned int min_layers_per_trackster_;
+    const std::vector<int> filter_on_categories_;
+    const double pid_threshold_;
+    const double energy_em_over_total_threshold_;
+    const double max_longitudinal_sigmaPCA_;
     const int min_clusters_per_ntuplet_;
     const float max_delta_time_;
     const std::string eidInputName_;

@@ -20,15 +20,7 @@ bool CSCTFPtLUT::lut_read_in = false;
 // CSCTFPtMethods CSCTFPtLUT::ptMethods;
 
 ///KK
-#include "CondFormats/L1TObjects/interface/L1MuCSCPtLut.h"
-#include "CondFormats/DataRecord/interface/L1MuCSCPtLutRcd.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include <L1Trigger/CSCTrackFinder/interface/CSCTFPtLUT.h>
-
-#include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
-#include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
-#include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
-#include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
 
 // info for getPtScale() pt scale in GeV
 // low edges of pt bins
@@ -92,7 +84,17 @@ const int CSCTFPtLUT::dEtaCut_Open[24] = {7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
 
 const int CSCTFPtLUT::getPtbyMLH = 0xFFFF;  // all modes on
 
-CSCTFPtLUT::CSCTFPtLUT(const edm::EventSetup& es) : read_pt_lut(true), isBinary(false) {
+CSCTFPtLUT::Tokens CSCTFPtLUT::consumes(edm::ConsumesCollector iC) {
+  Tokens tok;
+  if (not lut_read_in) {
+    tok.ptLUT = iC.esConsumes();
+  }
+  tok.scales = iC.esConsumes();
+  tok.ptScale = iC.esConsumes();
+  return tok;
+}
+
+CSCTFPtLUT::CSCTFPtLUT(const edm::EventSetup& es, const Tokens& tokens) : read_pt_lut(true), isBinary(false) {
   pt_method = 34;
   //std::cout << "pt_method from 4 " << std::endl;
   lowQualityFlag = 4;
@@ -100,23 +102,16 @@ CSCTFPtLUT::CSCTFPtLUT(const edm::EventSetup& es) : read_pt_lut(true), isBinary(
   if (!lut_read_in) {
     pt_lut = new ptdat[1 << 21];
 
-    edm::ESHandle<L1MuCSCPtLut> ptLUT;
-    es.get<L1MuCSCPtLutRcd>().get(ptLUT);
-    const L1MuCSCPtLut* myConfigPt_ = ptLUT.product();
+    const L1MuCSCPtLut& myConfigPt_ = es.getData(tokens.ptLUT);
 
-    memcpy((void*)pt_lut, (void*)myConfigPt_->lut(), (1 << 21) * sizeof(ptdat));
+    memcpy((void*)pt_lut, (void*)myConfigPt_.lut(), (1 << 21) * sizeof(ptdat));
 
     lut_read_in = true;
   }
-  edm::ESHandle<L1MuTriggerScales> scales;
-  es.get<L1MuTriggerScalesRcd>().get(scales);
-  trigger_scale = scales.product();
+  trigger_scale = &es.getData(tokens.scales);
+  trigger_ptscale = &es.getData(tokens.ptScale);
 
-  edm::ESHandle<L1MuTriggerPtScale> ptScale;
-  es.get<L1MuTriggerPtScaleRcd>().get(ptScale);
-  trigger_ptscale = ptScale.product();
-
-  ptMethods = CSCTFPtMethods(ptScale.product());
+  ptMethods = CSCTFPtMethods(trigger_ptscale);
 }
 ///
 

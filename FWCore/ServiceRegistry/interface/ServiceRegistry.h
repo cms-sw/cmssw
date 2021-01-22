@@ -40,12 +40,12 @@ namespace edm {
     class Operate {
     public:
       Operate(ServiceToken const& iToken) : oldToken_(ServiceRegistry::instance().setContext(iToken)) {}
+      Operate(Operate const&) = delete;                   //stop default
+      Operate const& operator=(Operate const&) = delete;  //stop default
       ~Operate() { ServiceRegistry::instance().unsetContext(oldToken_); }
 
       //override operator new to stop use on heap?
     private:
-      Operate(Operate const&) = delete;                   //stop default
-      Operate const& operator=(Operate const&) = delete;  //stop default
       ServiceToken oldToken_;
     };
 
@@ -53,6 +53,8 @@ namespace edm {
     friend int main(int argc, char* argv[]);
     friend class Operate;
 
+    ServiceRegistry(ServiceRegistry const&) = delete;                   // stop default
+    ServiceRegistry const& operator=(ServiceRegistry const&) = delete;  // stop default
     virtual ~ServiceRegistry();
 
     // ---------- const member functions ---------------------
@@ -135,9 +137,6 @@ namespace edm {
     void unsetContext(ServiceToken const& iOldToken);
 
     ServiceRegistry();
-    ServiceRegistry(ServiceRegistry const&) = delete;  // stop default
-
-    ServiceRegistry const& operator=(ServiceRegistry const&) = delete;  // stop default
 
     // ---------- member data --------------------------------
     std::shared_ptr<serviceregistry::ServicesManager> manager_;

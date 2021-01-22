@@ -1,7 +1,5 @@
 #include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
-
 #include "L1Trigger/L1TMuon/interface/RegionalMuonRawDigiTranslator.h"
-
 #include "BMTFUnpackerOutput.h"
 
 namespace l1t {
@@ -21,6 +19,10 @@ namespace l1t {
       else
         bxBlocks =
             block.getBxBlocks((unsigned int)6, false);  //it returnes 6-32bit bxBlocks originated from the amc13 Block
+
+      edm::LogInfo("L1T") << "Will use the setup:"
+                          << " ZS_enabled->" << ZS_enabled << " isTriggeringAlgo->" << isTriggeringAlgo << " isKalman->"
+                          << isKalman;
 
       RegionalMuonCandBxCollection *res;
       if (isTriggeringAlgo)
@@ -45,8 +47,7 @@ namespace l1t {
 
       int processor = block.amc().getBoardID() - 1;
       if (processor < 0 || processor > 11) {
-        edm::LogInfo("l1t:stage2::BMTFUnpackerOutput::unpack")
-            << "Processor found out of range so it will be calculated by the old way";
+        edm::LogInfo("L1T") << "Processor found out of range, it will be calculated by the old way";
         if (block.amc().getAMCNumber() % 2 != 0)
           processor = block.amc().getAMCNumber() / 2;
         else
@@ -65,19 +66,19 @@ namespace l1t {
           }
 
           RegionalMuonCand muCand;
-          RegionalMuonRawDigiTranslator::fillRegionalMuonCand(muCand, raw_first, raw_secnd, processor, tftype::bmtf);
+          RegionalMuonRawDigiTranslator::fillRegionalMuonCand(
+              muCand, raw_first, raw_secnd, processor, tftype::bmtf, isKalman);
 
-          if (muCand.hwQual() == 0)
+          if (muCand.hwPt() == 0) {
             continue;
+          }
 
-          muCand.setLink(48 + processor);  //the link corresponds to the uGMT input
           if (isKalman) {
-            muCand.setHwPt2((raw_secnd >> 23) & 0xFF);
-            muCand.setHwDXY((raw_secnd >> 2) & 0x3);
             LogDebug("L1T") << "Pt = " << muCand.hwPt() << " eta: " << muCand.hwEta() << " phi: " << muCand.hwPhi()
-                            << " diplacedPt = " << muCand.hwPt2();
-          } else
+                            << " diplacedPt = " << muCand.hwPtUnconstrained();
+          } else {
             LogDebug("L1T") << "Pt = " << muCand.hwPt() << " eta: " << muCand.hwEta() << " phi: " << muCand.hwPhi();
+          }
 
           res->push_back(ibx, muCand);
 

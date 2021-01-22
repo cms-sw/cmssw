@@ -54,7 +54,7 @@ namespace l1t {
           uint32_t msw = 0;
           uint32_t lsw = 0;
 
-          RegionalMuonRawDigiTranslator::generatePackedDataWords(*mu, lsw, msw);
+          RegionalMuonRawDigiTranslator::generatePackedDataWords(*mu, lsw, msw, isKalman_);
 
           payloadMap[linkTimes2].push_back(lsw);
           payloadMap[linkTimes2].push_back(msw);

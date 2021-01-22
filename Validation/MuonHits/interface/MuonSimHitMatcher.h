@@ -66,6 +66,8 @@ public:
   // calculate the average position at the second station
   GlobalPoint simHitsMeanPositionStation(int n) const;
 
+  const TrackingGeometry* geometry() { return geometry_; }
+
 protected:
   std::vector<unsigned int> getIdsOfSimTrackShower(unsigned trk_id,
                                                    const edm::SimTrackContainer& simTracks,

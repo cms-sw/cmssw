@@ -1,21 +1,22 @@
 #ifndef EVFRAWEVENTFILEWRITERFORBU
 #define EVFRAWEVENTFILEWRITERFORBU
 
-// $Id: RawEventFileWriterForBU.h,v 1.1.2.5 2013/03/28 14:56:53 aspataru Exp $
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "IOPool/Streamer/interface/FRDEventMessage.h"
-
-#include "EventFilter/Utilities/interface/FastMonitor.h"
-
-#include <fstream>
+// C++ headers
 #include <cstdio>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-
+#include <fstream>
 #include <memory>
 #include <vector>
+
+// system headers
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+// CMSSW headers
+#include "EventFilter/Utilities/interface/FastMonitor.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "IOPool/Streamer/interface/FRDEventMessage.h"
 
 class RawEventFileWriterForBU {
 public:
@@ -33,6 +34,8 @@ public:
   void endOfLS(int ls);
   bool sharedMode() const { return false; }
   void makeRunPrefix(std::string const& destinationDir);
+
+  static void extendDescription(edm::ParameterSetDescription& desc);
 
 private:
   bool closefd() {

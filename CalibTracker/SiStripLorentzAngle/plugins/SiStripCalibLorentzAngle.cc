@@ -3,41 +3,31 @@
 #include <iostream>
 #include <fstream>
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "CalibTracker/SiStripLorentzAngle/interface/SiStripCalibLorentzAngle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CLHEP/Random/RandGauss.h"
-#include "CondFormats/DataRecord/interface/SiStripLorentzAngleRcd.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
+
+#include "CalibTracker/SiStripLorentzAngle/interface/SiStripCalibLorentzAngle.h"
 
 SiStripCalibLorentzAngle::SiStripCalibLorentzAngle(edm::ParameterSet const& conf)
-    : ConditionDBWriter<SiStripLorentzAngle>(conf), tTopo(nullptr), conf_(conf) {}
+    : ConditionDBWriter<SiStripLorentzAngle>(conf),
+      tTopoToken_(esConsumes<edm::Transition::BeginRun>()),
+      tkGeomToken_(esConsumes<edm::Transition::BeginRun>()),
+      magFieldToken_(esConsumes<edm::Transition::BeginRun>()),
+      lorentzAngleToken_(esConsumes<edm::Transition::BeginRun>()),
+      conf_(conf) {}
 
 void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c) {
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  c.get<TrackerTopologyRcd>().get(tTopoHandle);
-  tTopo = tTopoHandle.product();
-
-  c.get<TrackerDigiGeometryRecord>().get(estracker);
-  tracker = &(*estracker);
-
-  //get magnetic field and geometry from ES
-  edm::ESHandle<MagneticField> magfield_;
-  c.get<IdealMagneticFieldRecord>().get(magfield_);
-
-  edm::ESHandle<SiStripLorentzAngle> SiStripLorentzAngle_;
-  c.get<SiStripLorentzAngleRcd>().get(SiStripLorentzAngle_);
-  detid_la = SiStripLorentzAngle_->getLorentzAngles();
+  tTopo_ = &c.getData(tTopoToken_);
+  tkGeom_ = &c.getData(tkGeomToken_);
+  const auto& magField = c.getData(magFieldToken_);
+  detid_la = c.getData(lorentzAngleToken_).getLorentzAngles();
 
   DQMStore* dbe_ = edm::Service<DQMStore>().operator->();
 
@@ -365,7 +355,7 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c) {
     const GeomDetUnit* stripdet;
     MonoStereo = subid.stereo();
 
-    if (!(stripdet = tracker->idToDetUnit(subid))) {
+    if (!(stripdet = tkGeom_->idToDetUnit(subid))) {
       no_mod_histo++;
       ModuleHisto = false;
       edm::LogInfo("SiStripCalibLorentzAngle") << "### NO MODULE HISTOGRAM";
@@ -373,11 +363,11 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c) {
 
     if (stripdet != nullptr && ModuleHisto == true) {
       if (subid.subdetId() == int(StripSubdetector::TIB)) {
-        Layer = tTopo->tibLayer(detid);
+        Layer = tTopo_->tibLayer(detid);
         TIB = 1;
       }
       if (subid.subdetId() == int(StripSubdetector::TOB)) {
-        Layer = tTopo->tobLayer(detid);
+        Layer = tTopo_->tobLayer(detid);
         TOB = 1;
       }
 
@@ -393,13 +383,13 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c) {
       gz = gposition.z();
 
       //get magnetic field
-      const StripGeomDetUnit* det = dynamic_cast<const StripGeomDetUnit*>(estracker->idToDetUnit(detid));
+      const StripGeomDetUnit* det = dynamic_cast<const StripGeomDetUnit*>(tkGeom_->idToDetUnit(detid));
       if (det == nullptr) {
         edm::LogError("SiStripCalibLorentzAngle") << "[SiStripCalibLorentzAngle::getNewObject] the detID " << id
                                                   << " doesn't seem to belong to Tracker" << std::endl;
         continue;
       }
-      LocalVector lbfield = (det->surface()).toLocal(magfield_->inTesla(det->surface().position()));
+      LocalVector lbfield = (det->surface()).toLocal(magField.inTesla(det->surface().position()));
       theBfield = lbfield.mag();
       theBfield = (theBfield > 0) ? theBfield : 0.00001;
       TH1Ds["MagneticField"]->Fill(theBfield);
@@ -830,7 +820,7 @@ std::unique_ptr<SiStripLorentzAngle> SiStripCalibLorentzAngle::getNewObject() {
   }
 
   else {
-    const TrackerGeometry::DetIdContainer& Id = estracker->detIds();
+    const TrackerGeometry::DetIdContainer& Id = tkGeom_->detIds();
     TrackerGeometry::DetIdContainer::const_iterator Iditer;
 
     for (Iditer = Id.begin(); Iditer != Id.end(); Iditer++) {
@@ -839,7 +829,7 @@ std::unique_ptr<SiStripLorentzAngle> SiStripCalibLorentzAngle::getNewObject() {
       hallMobility = 0.;
 
       if (subid.subdetId() == int(StripSubdetector::TIB)) {
-        uint32_t tibLayer = tTopo->tibLayer(*Iditer);
+        uint32_t tibLayer = tTopo_->tibLayer(*Iditer);
         if (tibLayer == 1) {
           hallMobility = mean_TIB1;
         }
@@ -857,7 +847,7 @@ std::unique_ptr<SiStripLorentzAngle> SiStripCalibLorentzAngle::getNewObject() {
       }
 
       if (subid.subdetId() == int(StripSubdetector::TOB)) {
-        uint32_t tobLayer = tTopo->tobLayer(*Iditer);
+        uint32_t tobLayer = tTopo_->tobLayer(*Iditer);
         if (tobLayer == 1) {
           hallMobility = mean_TOB1;
         }
@@ -887,7 +877,7 @@ std::unique_ptr<SiStripLorentzAngle> SiStripCalibLorentzAngle::getNewObject() {
       }
 
       if (subid.subdetId() == int(StripSubdetector::TEC)) {
-        if (tTopo->tecRing(subid) < 5) {
+        if (tTopo_->tecRing(subid) < 5) {
           hallMobility = meanMobility_TIB;
         } else {
           hallMobility = meanMobility_TOB;

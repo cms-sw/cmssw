@@ -114,7 +114,7 @@ L1TMuonBarrelKalmanSectorProcessor::bmtf_out L1TMuonBarrelKalmanSectorProcessor:
     out.addr4_1 = mu.trackSubAddress(l1t::RegionalMuonCand::kStat4);
     out.wheel_1 = mu.trackSubAddress(l1t::RegionalMuonCand::kWheelSide) * (1 << 2) +
                   mu.trackSubAddress(l1t::RegionalMuonCand::kWheelNum);
-    out.ptSTA_1 = mu.hwPt2();
+    out.ptSTA_1 = mu.hwPtUnconstrained();
   }
 
   if (tracks.size() > 1) {
@@ -135,7 +135,7 @@ L1TMuonBarrelKalmanSectorProcessor::bmtf_out L1TMuonBarrelKalmanSectorProcessor:
     out.wheel_2 = mu.trackSubAddress(l1t::RegionalMuonCand::kWheelSide) * (1 << 2) +
                   mu.trackSubAddress(l1t::RegionalMuonCand::kWheelNum);
 
-    out.ptSTA_2 = mu.hwPt2();
+    out.ptSTA_2 = mu.hwPtUnconstrained();
   }
 
   if (tracks.size() > 2) {
@@ -155,7 +155,7 @@ L1TMuonBarrelKalmanSectorProcessor::bmtf_out L1TMuonBarrelKalmanSectorProcessor:
     out.addr4_3 = mu.trackSubAddress(l1t::RegionalMuonCand::kStat4);
     out.wheel_3 = mu.trackSubAddress(l1t::RegionalMuonCand::kWheelSide) * (1 << 2) +
                   mu.trackSubAddress(l1t::RegionalMuonCand::kWheelNum);
-    out.ptSTA_3 = mu.hwPt2();
+    out.ptSTA_3 = mu.hwPtUnconstrained();
   }
   return out;
 }

@@ -24,19 +24,20 @@ Description: Producer for ScoutingMuon
 HLTScoutingMuonProducer::HLTScoutingMuonProducer(const edm::ParameterSet& iConfig)
     : ChargedCandidateCollection_(
           consumes<reco::RecoChargedCandidateCollection>(iConfig.getParameter<edm::InputTag>("ChargedCandidates"))),
+      displacedvertexCollection_(
+          consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("displacedvertexCollection"))),
+      MuonCollection_(consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("InputMuons"))),
+      linkToken_(consumes<reco::MuonTrackLinksCollection>(iConfig.getParameter<edm::InputTag>("InputLinks"))),
       TrackCollection_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("Tracks"))),
       EcalPFClusterIsoMap_(consumes<RecoChargedCandMap>(iConfig.getParameter<edm::InputTag>("EcalPFClusterIsoMap"))),
       HcalPFClusterIsoMap_(consumes<RecoChargedCandMap>(iConfig.getParameter<edm::InputTag>("HcalPFClusterIsoMap"))),
       TrackIsoMap_(consumes<edm::ValueMap<double>>(iConfig.getParameter<edm::InputTag>("TrackIsoMap"))),
-      displacedvertexCollection_(
-          consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("displacedvertexCollection"))),
       muonPtCut(iConfig.getParameter<double>("muonPtCut")),
       muonEtaCut(iConfig.getParameter<double>("muonEtaCut")),
-      minVtxProbCut(iConfig.getParameter<double>("minVtxProbCut")),
-      linkToken_(consumes<reco::MuonTrackLinksCollection>(iConfig.getParameter<edm::InputTag>("InputLinks"))) {
+      minVtxProbCut(iConfig.getParameter<double>("minVtxProbCut")) {
   //register products
-  produces<ScoutingMuonCollection>();
-  produces<ScoutingVertexCollection>("displacedVtx");
+  produces<Run3ScoutingMuonCollection>();
+  produces<Run3ScoutingVertexCollection>("displacedVtx");
 }
 
 HLTScoutingMuonProducer::~HLTScoutingMuonProducer() = default;
@@ -45,35 +46,14 @@ HLTScoutingMuonProducer::~HLTScoutingMuonProducer() = default;
 void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event& iEvent, edm::EventSetup const& setup) const {
   using namespace edm;
 
-  std::unique_ptr<ScoutingMuonCollection> outMuons(new ScoutingMuonCollection());
-  std::unique_ptr<ScoutingVertexCollection> dispVertices(new ScoutingVertexCollection());
+  std::unique_ptr<Run3ScoutingMuonCollection> outMuons(new Run3ScoutingMuonCollection());
+  std::unique_ptr<Run3ScoutingVertexCollection> dispVertices(new Run3ScoutingVertexCollection());
 
   // Get RecoChargedCandidate
   Handle<reco::RecoChargedCandidateCollection> ChargedCandidateCollection;
   if (!iEvent.getByToken(ChargedCandidateCollection_, ChargedCandidateCollection)) {
     iEvent.put(std::move(outMuons));
-    return;
-  }
-
-  // Get Track
-  Handle<reco::TrackCollection> TrackCollection;
-  if (!iEvent.getByToken(TrackCollection_, TrackCollection)) {
-    iEvent.put(std::move(outMuons));
-    return;
-  }
-
-  // Get EcalPFClusterIsoMap
-  Handle<RecoChargedCandMap> EcalPFClusterIsoMap;
-  iEvent.getByToken(EcalPFClusterIsoMap_, EcalPFClusterIsoMap);
-
-  // Get HcalPFClusterIsoMap
-  Handle<RecoChargedCandMap> HcalPFClusterIsoMap;
-  iEvent.getByToken(HcalPFClusterIsoMap_, HcalPFClusterIsoMap);
-
-  // Get TrackIsoMap
-  Handle<ValueMap<double>> TrackIsoMap;
-  if (!iEvent.getByToken(TrackIsoMap_, TrackIsoMap)) {
-    iEvent.put(std::move(outMuons));
+    iEvent.put(std::move(dispVertices), "displacedVtx");
     return;
   }
 
@@ -128,14 +108,38 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event& iEvent, edm
     }
   }
 
+  // Get Muon collection
+  Handle<reco::MuonCollection> MuonCollection;
+  if (!iEvent.getByToken(MuonCollection_, MuonCollection)) {
+    iEvent.put(std::move(outMuons));
+    iEvent.put(std::move(dispVertices), "displacedVtx");
+    return;
+  }
+
+  // Get Links collection
+  edm::Handle<reco::MuonTrackLinksCollection> links;
+  if (!iEvent.getByToken(linkToken_, links)) {
+    iEvent.put(std::move(outMuons));
+    iEvent.put(std::move(dispVertices), "displacedVtx");
+    return;
+  }
+
+  // Get EcalPFClusterIsoMap
+  Handle<RecoChargedCandMap> EcalPFClusterIsoMap;
+  iEvent.getByToken(EcalPFClusterIsoMap_, EcalPFClusterIsoMap);
+
+  // Get HcalPFClusterIsoMap
+  Handle<RecoChargedCandMap> HcalPFClusterIsoMap;
+  iEvent.getByToken(HcalPFClusterIsoMap_, HcalPFClusterIsoMap);
+
+  // Get TrackIsoMap
+  Handle<ValueMap<double>> TrackIsoMap;
+  iEvent.getByToken(TrackIsoMap_, TrackIsoMap);
+
   // Produce muons
   std::vector<int> vtxInd;
   float minDR2 = 1e-06;
   int index = 0;
-
-  // Read Links collection:
-  edm::Handle<reco::MuonTrackLinksCollection> links;
-  iEvent.getByToken(linkToken_, links);
 
   for (auto& muon : *ChargedCandidateCollection) {
     reco::RecoChargedCandidateRef muonRef = getRef(ChargedCandidateCollection, index);
@@ -147,8 +151,8 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event& iEvent, edm
     if (track.isNull() || !track.isAvailable())
       continue;
 
-    int validmuhit = 0;
-    int matchedsta = 0;
+    int validStandAloneMuonHits = 0;
+    int matchedStandAloneMuonStations = 0;
     for (auto const& link : *links) {
       const reco::Track& trackerTrack = *link.trackerTrack();
       float dR2 = deltaR2(track->eta(), track->phi(), trackerTrack.eta(), trackerTrack.phi());
@@ -157,9 +161,44 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event& iEvent, edm
         dPt = dPt / track->pt();
 
       if (dR2 < 0.02 * 0.02 and dPt < 0.001) {
-        const reco::TrackRef staTrack = link.standAloneTrack();
-        validmuhit = staTrack->hitPattern().numberOfValidMuonHits();
-        matchedsta = staTrack->hitPattern().muonStationsWithValidHits();
+        if (link.standAloneTrack().isNonnull()) {
+          validStandAloneMuonHits = link.standAloneTrack()->hitPattern().numberOfValidMuonHits();
+          matchedStandAloneMuonStations = link.standAloneTrack()->hitPattern().muonStationsWithValidHits();
+        }
+      }
+    }
+
+    unsigned int recoMuonType = 2;  // Global muon
+    float normalizedChi2 = 999.0;
+    int nRecoMuonValidMuonHits = 0;
+    int nRecoMuonChambers = 0;
+    int nRecoMuonChambersCSCorDT = 0;
+    int nRecoMuonMatches = 0;
+    int nRecoMuonMatchedStations = 0;
+    unsigned int nRecoMuonExpectedMatchedStations = 0;
+    unsigned int recoMuonStationMask = 0;
+    int nRecoMuonMatchedRPCLayers = 0;
+    unsigned int recoMuonRPClayerMask = 0;
+    for (auto const& recoMu : *MuonCollection) {
+      float dR2 = deltaR2(muon.eta(), muon.phi(), recoMu.eta(), recoMu.phi());
+      float dPt = std::abs(muon.pt() - recoMu.pt());
+      if (muon.pt() != 0)
+        dPt = dPt / muon.pt();
+
+      if (dR2 < 0.02 * 0.02 and dPt < 0.001) {
+        if (recoMu.globalTrack().isNonnull()) {
+          normalizedChi2 = recoMu.globalTrack()->normalizedChi2();
+          nRecoMuonValidMuonHits = recoMu.globalTrack()->hitPattern().numberOfValidMuonHits();
+        }
+        recoMuonType = recoMu.type();
+        nRecoMuonChambers = recoMu.numberOfChambers();
+        nRecoMuonChambersCSCorDT = recoMu.numberOfChambersCSCorDT();
+        nRecoMuonMatches = recoMu.numberOfMatches();
+        nRecoMuonMatchedStations = recoMu.numberOfMatchedStations();
+        nRecoMuonExpectedMatchedStations = recoMu.expectedNnumberOfMatchedStations();
+        recoMuonStationMask = recoMu.stationMask();
+        nRecoMuonMatchedRPCLayers = recoMu.numberOfMatchedRPCLayers();
+        recoMuonRPClayerMask = recoMu.RPClayerMask();
       }
     }
 
@@ -178,6 +217,11 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event& iEvent, edm
       hcalisopf = (*HcalPFClusterIsoMap)[muonRef];
     }
 
+    double trackiso = -1.0;
+    if (TrackIsoMap.isValid()) {
+      trackiso = (*TrackIsoMap)[muonRef];
+    }
+
     vtxInd.reserve(vtxMuPair.size());
     for (unsigned int i = 0; i < vtxMuPair.size(); i++) {
       float dr2_1 = reco::deltaR2(((vtxMuPair[i]).first), muon);
@@ -190,20 +234,31 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event& iEvent, edm
                            muon.eta(),
                            muon.phi(),
                            muon.mass(),
+                           recoMuonType,
+                           track->charge(),
+                           normalizedChi2,
                            ecalisopf,
                            hcalisopf,
-                           (*TrackIsoMap)[muonRef],
+                           trackiso,
+                           validStandAloneMuonHits,
+                           matchedStandAloneMuonStations,
+                           nRecoMuonValidMuonHits,
+                           nRecoMuonChambers,
+                           nRecoMuonChambersCSCorDT,
+                           nRecoMuonMatches,
+                           nRecoMuonMatchedStations,
+                           nRecoMuonExpectedMatchedStations,
+                           recoMuonStationMask,
+                           nRecoMuonMatchedRPCLayers,
+                           recoMuonRPClayerMask,
+                           track->hitPattern().numberOfValidPixelHits(),
+                           track->hitPattern().numberOfValidStripHits(),
+                           track->hitPattern().pixelLayersWithMeasurement(),
+                           track->hitPattern().trackerLayersWithMeasurement(),
                            track->chi2(),
                            track->ndof(),
-                           track->charge(),
                            track->dxy(),
                            track->dz(),
-                           validmuhit,
-                           track->hitPattern().numberOfValidPixelHits(),
-                           matchedsta,
-                           track->hitPattern().trackerLayersWithMeasurement(),
-                           2,  // Global muon
-                           track->hitPattern().numberOfValidStripHits(),
                            track->qoverp(),
                            track->lambda(),
                            track->pt(),
@@ -216,6 +271,20 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event& iEvent, edm
                            track->phiError(),
                            track->dsz(),
                            track->dszError(),
+                           track->covariance(0, 1),
+                           track->covariance(0, 2),
+                           track->covariance(0, 3),
+                           track->covariance(0, 4),
+                           track->covariance(1, 2),
+                           track->covariance(1, 3),
+                           track->covariance(1, 4),
+                           track->covariance(2, 3),
+                           track->covariance(2, 4),
+                           track->covariance(3, 4),
+                           track->vx(),
+                           track->vy(),
+                           track->vz(),
+                           track->hitPattern(),
                            vtxInd);
     vtxInd.clear();
   }
@@ -228,16 +297,18 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event& iEvent, edm
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void HLTScoutingMuonProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("ChargedCandidates", edm::InputTag("hltIterL3MuonCandidates"));
+  desc.add<edm::InputTag>("ChargedCandidates", edm::InputTag("hltIterL3MuonCandidatesNoVtx"));
+  desc.add<edm::InputTag>("displacedvertexCollection", edm::InputTag("hltDisplacedmumuVtxProducer"));
+  desc.add<edm::InputTag>("InputMuons", edm::InputTag("hltIterL3MuonsNoVtx"));
+  desc.add<edm::InputTag>("InputLinks", edm::InputTag("hltL3MuonsIterL3LinksNoVtx"));
   desc.add<edm::InputTag>("Tracks", edm::InputTag("hltPixelTracks"));
-  desc.add<edm::InputTag>("EcalPFClusterIsoMap", edm::InputTag("hltMuonEcalMFPFClusterIsoForMuons"));
-  desc.add<edm::InputTag>("HcalPFClusterIsoMap", edm::InputTag("hltMuonHcalRegPFClusterIsoForMuons"));
-  desc.add<edm::InputTag>("TrackIsoMap", edm::InputTag("hltMuonTkRelIsolationCut0p07Map:combinedRelativeIsoDeposits"));
-  desc.add<edm::InputTag>("displacedvertexCollection", edm::InputTag("hltPixelVertices"));
+  desc.add<edm::InputTag>("EcalPFClusterIsoMap", edm::InputTag("hltMuonEcalMFPFClusterIsoForMuonsNoVtx"));
+  desc.add<edm::InputTag>("HcalPFClusterIsoMap", edm::InputTag("hltMuonHcalPFClusterIsoForMuonsNoVtx"));
+  desc.add<edm::InputTag>("TrackIsoMap",
+                          edm::InputTag("hltMuonTkRelIsolationCut0p09MapNoVtx:combinedRelativeIsoDeposits"));
   desc.add<double>("muonPtCut", 3.0);
   desc.add<double>("muonEtaCut", 2.4);
   desc.add<double>("minVtxProbCut", 0.001);
-  desc.add<edm::InputTag>("InputLinks", edm::InputTag("hltL3MuonsIterL3Links"));
 
   descriptions.add("hltScoutingMuonProducer", desc);
 }

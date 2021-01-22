@@ -45,12 +45,20 @@ tnp::BaseTreeFiller::BaseTreeFiller(const char *name, const edm::ParameterSet &i
   } else if (iConfig.existsAs<edm::InputTag>("eventWeight")) {
     weightMode_ = External;
     weightSrcToken_ = iC.consumes<GenEventInfoProduct>(iConfig.getParameter<edm::InputTag>("eventWeight"));
+    tree_->Branch("psWeight", &psWeight_, "psWeight[5]/F");
   } else {
     weightMode_ = None;
   }
   if (weightMode_ != None) {
     tree_->Branch("weight", &weight_, "weight/F");
     tree_->Branch("totWeight", &totWeight_, "totWeight/F");
+  }
+
+  LHEinfo_ = iConfig.existsAs<edm::InputTag>("LHEWeightSrc");
+  if (LHEinfo_) {
+    _LHECollection = iC.consumes<LHEEventProduct>(iConfig.getParameter<edm::InputTag>("LHEWeightSrc"));
+    tree_->Branch("lheWeight", &lheWeight_, "lheWeight[9]/F");
+    tree_->Branch("lhe_ht", &lhe_ht_, "lhe_ht/F");
   }
 
   storePUweight_ = iConfig.existsAs<edm::InputTag>("PUWeightSrc") ? true : false;
@@ -194,6 +202,9 @@ void tnp::BaseTreeFiller::init(const edm::Event &iEvent) const {
   for (std::vector<tnp::ProbeFlag>::const_iterator it = flags_.begin(), ed = flags_.end(); it != ed; ++it) {
     it->init(iEvent);
   }
+  for (int i = 0; i < 5; i++) {
+    psWeight_[i] = 1.;  // init
+  }
   if (weightMode_ == External) {
     // edm::Handle<double> weight;
     //        iEvent.getByToken(weightSrcToken_, weight);
@@ -202,6 +213,35 @@ void tnp::BaseTreeFiller::init(const edm::Event &iEvent) const {
     iEvent.getByToken(weightSrcToken_, weight);
     weight_ = weight->weight();
     totWeight_ *= weight_;
+    if (weight->weights().size() >= 10) {
+      int k = 1;
+      for (int i = 6; i < 10; i++) {
+        // hardcoded Pythia 8 isrDefHi,fsrDefHi,isrDefLo,fsrDefLo
+        psWeight_[k] = weight->weights().at(i) / weight->weight();
+        k++;
+      }
+    }
+  }
+
+  for (unsigned int i = 0; i < 9; i++) {
+    lheWeight_[i] = 1.;  // init
+  }
+  lhe_ht_ = 0.;
+  if (LHEinfo_ and !_LHECollection.isUninitialized()) {
+    edm::Handle<LHEEventProduct> lheEventHandle;
+    iEvent.getByToken(_LHECollection, lheEventHandle);
+    for (unsigned int i = 0; i < 9; i++) {
+      lheWeight_[i] = lheEventHandle->weights().at(i).wgt / lheEventHandle->originalXWGTUP();
+    }
+    for (int i = 0; i < lheEventHandle->hepeup().NUP; i++) {
+      int id = lheEventHandle->hepeup().IDUP[i];
+      int st = lheEventHandle->hepeup().ISTUP[i];
+
+      // calculate HT at LHE level
+      if ((abs(id) < 6 || id == 21) && st > 0) {
+        lhe_ht_ += sqrt(pow(lheEventHandle->hepeup().PUP[i][0], 2) + pow(lheEventHandle->hepeup().PUP[i][1], 2));
+      }
+    }
   }
 
   ///// ********** Pileup weight: needed for MC re-weighting for PU *************

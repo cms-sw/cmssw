@@ -5,7 +5,14 @@ process = cms.Process("Noise")
 process.load("FWCore.MessageService.test.Services_cff")
 
 process.MessageLogger = cms.Service("MessageLogger",
-  destinations = cms.untracked.vstring('messages.txt'),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    files = cms.untracked.PSet(
+        messages = cms.untracked.PSet(
+            extension = cms.untracked.string('txt')
+        )
+    )
 )
 
 #######################################################################################

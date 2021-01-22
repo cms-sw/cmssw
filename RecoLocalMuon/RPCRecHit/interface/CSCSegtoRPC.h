@@ -1,26 +1,31 @@
 #ifndef CSCSEGTORPC_H
 #define CSCSEGTORPC_H
 
-#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHit.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 
 #include <memory>
 
+class RPCGeometry;
+class CSCGeometry;
+class CSCObjectMap;
+class MuonGeometryRecord;
+
 class CSCSegtoRPC {
 public:
-  CSCSegtoRPC(CSCSegmentCollection const* allCSCSegments, edm::EventSetup const& iSetup, bool debug, double eyr);
-  ~CSCSegtoRPC();
-  std::unique_ptr<RPCRecHitCollection>&& thePoints() { return std::move(_ThePoints); }
+  explicit CSCSegtoRPC(edm::ConsumesCollector iC);
+  std::unique_ptr<RPCRecHitCollection> thePoints(CSCSegmentCollection const* allCSCSegments,
+                                                 edm::EventSetup const& iSetup,
+                                                 bool debug,
+                                                 double eyr);
 
 private:
-  std::unique_ptr<RPCRecHitCollection> _ThePoints;
-  edm::OwnVector<RPCRecHit> RPCPointVector;
-  bool inclcsc;
-  double MaxD;
+  edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeoToken_;
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeoToken_;
+  edm::ESGetToken<CSCObjectMap, MuonGeometryRecord> cscMapToken_;
 };
 
 #endif

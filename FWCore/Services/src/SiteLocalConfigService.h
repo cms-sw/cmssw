@@ -47,6 +47,9 @@ namespace edm {
       struct addrinfo const* statisticsDestination() const override;
       std::set<std::string> const* statisticsInfo() const override;
       std::string const& siteName() const override;
+      bool useLocalConnectString() const override;
+      std::string const& localConnectPrefix() const override;
+      std::string const& localConnectSuffix() const override;
 
       // implicit copy constructor
       // implicit assignment operator
@@ -88,6 +91,9 @@ namespace edm {
       std::set<std::string> m_statisticsInfo;
       bool m_statisticsInfoAvail;
       std::string m_siteName;
+      bool m_useLocalConnectString = false;
+      std::string m_localConnectPrefix;
+      std::string m_localConnectSuffix;
     };
 
     inline bool isProcessWideService(SiteLocalConfigService const*) { return true; }

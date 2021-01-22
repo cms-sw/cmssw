@@ -65,7 +65,7 @@ public:
   Double_t mvaValue(const reco::GsfElectron& ele,
                     const reco::Vertex& vertex,
                     const TransientTrackBuilder& transientTrackBuilder,
-                    EcalClusterLazyTools myEcalCluster,
+                    EcalClusterLazyTools const& myEcalCluster,
                     bool printDebug = kFALSE);
 
   // for kTrigNoIP algorithm
@@ -73,7 +73,7 @@ public:
                     const reco::Vertex& vertex,
                     double rho,
                     //const TransientTrackBuilder& transientTrackBuilder,
-                    EcalClusterLazyTools myEcalCluster,
+                    EcalClusterLazyTools const& myEcalCluster,
                     bool printDebug = kFALSE);
 
   Double_t mvaValue(const pat::Electron& ele, double rho, bool printDebug = kFALSE);
@@ -97,7 +97,7 @@ public:
   Double_t IDIsoCombinedMvaValue(const reco::GsfElectron& ele,
                                  const reco::Vertex& vertex,
                                  const TransientTrackBuilder& transientTrackBuilder,
-                                 EcalClusterLazyTools myEcalCluster,
+                                 EcalClusterLazyTools const& myEcalCluster,
                                  const reco::PFCandidateCollection& PFCandidates,
                                  double Rho,
                                  ElectronEffectiveArea::ElectronEffectiveAreaTarget EATarget,

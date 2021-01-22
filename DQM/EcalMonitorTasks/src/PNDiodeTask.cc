@@ -28,37 +28,50 @@ namespace ecaldqm {
     if (_ids.empty())
       return;
 
-    MESet* set(nullptr);
+    MESet* meMEMErrors = &MEs_.at("MEMErrors");
 
+    // MEM Box Integrity Errors (TowerIds 69 and 70)
+    // errorType matches to the following labels in DQM plot
+    // 0 = TOWERID
+    // 1 = BLOCKSIZE
+    // 2 = CHID
+    // 3 = GAIN
+    int errorType(-1);
     switch (_collection) {
       case kMEMTowerIdErrors:
-        set = &MEs_.at("MEMTowerId");
+        errorType = 0;
         break;
       case kMEMBlockSizeErrors:
-        set = &MEs_.at("MEMBlockSize");
+        errorType = 1;
         break;
       case kMEMChIdErrors:
-        set = &MEs_.at("MEMChId");
+        errorType = 2;
         break;
       case kMEMGainErrors:
-        set = &MEs_.at("MEMGain");
+        errorType = 3;
         break;
       default:
         return;
     }
 
-    std::for_each(_ids.begin(), _ids.end(), [&](EcalElectronicsIdCollection::value_type const& id) {
-      if (id.towerId() == 69) {
-        edm::LogWarning("EcalDQM")
-            << "PNDiodeTask::runOnErrors : one of the ids in the electronics ID collection is unphysical in lumi "
-               "number "
-            << timestamp_.iLumi << ", event number "
-            << timestamp_
-                   .iEvt;  // Added March 2018 because some events have this unphysical tower ID and cause the ECAL calibration application to crash.
-      } else {
-        set->fill(EcalElectronicsId(id.dccId(), id.towerId(), 1, id.xtalId()));
-      }
-    });
+    // Integrity errors for MEM boxes (towerIds 69/70)
+    // Plot contains two bins per dccId. Integer number
+    // bins correspond to towerId 69 and half integer
+    // number bins correspond to towerId 70.
+    std::for_each(_ids.begin(),
+                  _ids.end(),
+                  [&](EcalElectronicsIdCollection::value_type const& id) {
+                    if (id.towerId() == 69)
+                      meMEMErrors->fill(id.dccId() + 0.0, errorType);
+                    else if (id.towerId() == 70)
+                      meMEMErrors->fill(id.dccId() + 0.5, errorType);
+                    else {
+                      edm::LogWarning("EcalDQM")
+                          << "PNDiodeTask::runOnErrors : one of the ids in the electronics ID collection does not "
+                          << "correspond to one of the MEM box towerIds (69/70) in lumi number " << timestamp_.iLumi
+                          << ", event number " << timestamp_.iEvt;
+                    }
+                  });
   }
 
   void PNDiodeTask::runOnPnDigis(EcalPnDiodeDigiCollection const& _digis) {

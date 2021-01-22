@@ -180,7 +180,7 @@ namespace edm {
         return true;
       }
 
-      ModuleCallingContext tempContext(&description(), ModuleCallingContext::State::kInvalid, parentContext, nullptr);
+      ModuleCallingContext tempContext(description(), ModuleCallingContext::State::kInvalid, parentContext, nullptr);
 
       // If we are processing an endpath and the module was scheduled, treat SkipEvent or FailPath
       // as IgnoreCompletely, so any subsequent OutputModules are still run.
@@ -238,13 +238,14 @@ namespace edm {
       ProductResolverIndex productResolverIndex = item.productResolverIndex();
       bool skipCurrentProcess = item.skipCurrentProcess();
       if (productResolverIndex != ProductResolverIndexAmbiguous) {
-        iPrincipal->prefetchAsync(choiceTask, productResolverIndex, skipCurrentProcess, token, &moduleCallingContext_);
+        iPrincipal->prefetchAsync(
+            choiceHolder, productResolverIndex, skipCurrentProcess, token, &moduleCallingContext_);
       }
     }
     choiceHolder.doneWaiting(std::exception_ptr{});
   }
 
-  void Worker::esPrefetchAsync(WaitingTask* iTask,
+  void Worker::esPrefetchAsync(WaitingTaskHolder iTask,
                                EventSetupImpl const& iImpl,
                                Transition iTrans,
                                ServiceToken const& iToken) {
@@ -267,47 +268,50 @@ namespace edm {
     if UNLIKELY (tbb::global_control::active_value(tbb::global_control::max_allowed_parallelism) == 1) {
       //We spawn this first so that the other ES tasks are before it in the TBB queue
       tbb::task_arena edArena(tbb::task_arena::attach{});
-      tbb::task::spawn(
-          *make_functor_task(tbb::task::allocate_root(),
-                             [this, task = edm::WaitingTaskHolder(iTask), iTrans, &iImpl, iToken, edArena]() mutable {
-                               esTaskArena().execute([this, iTrans, &iImpl, iToken, task = std::move(task), edArena]() {
-                                 auto waitTask = edm::make_empty_waiting_task();
-                                 auto const& recs = esRecordsToGetFrom(iTrans);
-                                 auto const& items = esItemsToGetFrom(iTrans);
-                                 waitTask->set_ref_count(2);
-                                 for (size_t i = 0; i != items.size(); ++i) {
-                                   if (recs[i] != ESRecordIndex{}) {
-                                     auto rec = iImpl.findImpl(recs[i]);
-                                     if (rec) {
-                                       rec->prefetchAsync(waitTask.get(), items[i], &iImpl, iToken);
-                                     }
-                                   }
-                                 }
-                                 waitTask->decrement_ref_count();
-                                 waitTask->wait_for_all();
+      tbb::task::spawn(*make_functor_task(
+          tbb::task::allocate_root(), [this, task = std::move(iTask), iTrans, &iImpl, iToken, edArena]() mutable {
+            esTaskArena().execute([this, iTrans, &iImpl, iToken, task = std::move(task), edArena]() {
+              auto waitTask = edm::make_empty_waiting_task();
+              auto const& recs = esRecordsToGetFrom(iTrans);
+              auto const& items = esItemsToGetFrom(iTrans);
+              waitTask->set_ref_count(2);
+              {
+                //Need hWaitTask to go out of scope before calling wait_for_all
+                WaitingTaskHolder hWaitTask(waitTask.get());
+                for (size_t i = 0; i != items.size(); ++i) {
+                  if (recs[i] != ESRecordIndex{}) {
+                    auto rec = iImpl.findImpl(recs[i]);
+                    if (rec) {
+                      rec->prefetchAsync(hWaitTask, items[i], &iImpl, iToken);
+                    }
+                  }
+                }
+              }
+              waitTask->decrement_ref_count();
+              waitTask->wait_for_all();
 
-                                 auto exPtr = waitTask->exceptionPtr();
-                                 tbb::task_arena(edArena).execute([task, exPtr]() {
-                                   auto t = task;
-                                   if (exPtr) {
-                                     t.doneWaiting(*exPtr);
-                                   } else {
-                                     t.doneWaiting(std::exception_ptr{});
-                                   }
-                                 });
-                               });
-                             }));
+              auto exPtr = waitTask->exceptionPtr();
+              tbb::task_arena(edArena).execute([task, exPtr]() {
+                auto t = task;
+                if (exPtr) {
+                  t.doneWaiting(*exPtr);
+                } else {
+                  t.doneWaiting(std::exception_ptr{});
+                }
+              });
+            });
+          }));
     } else {
       //We need iTask to run in the default arena since it is not an ES task
-      auto task =
-          make_waiting_task(tbb::task::allocate_root(),
-                            [holder = WaitingTaskWithArenaHolder{iTask}](std::exception_ptr const* iExcept) mutable {
-                              if (iExcept) {
-                                holder.doneWaiting(*iExcept);
-                              } else {
-                                holder.doneWaiting(std::exception_ptr{});
-                              }
-                            });
+      auto task = make_waiting_task(
+          tbb::task::allocate_root(),
+          [holder = WaitingTaskWithArenaHolder(std::move(iTask))](std::exception_ptr const* iExcept) mutable {
+            if (iExcept) {
+              holder.doneWaiting(*iExcept);
+            } else {
+              holder.doneWaiting(std::exception_ptr{});
+            }
+          });
 
       WaitingTaskHolder tempH(task);
       esTaskArena().execute([&]() {
@@ -315,7 +319,7 @@ namespace edm {
           if (recs[i] != ESRecordIndex{}) {
             auto rec = iImpl.findImpl(recs[i]);
             if (rec) {
-              rec->prefetchAsync(task, items[i], &iImpl, iToken);
+              rec->prefetchAsync(tempH, items[i], &iImpl, iToken);
             }
           }
         }
@@ -323,7 +327,7 @@ namespace edm {
     }
   }
 
-  void Worker::edPrefetchAsync(WaitingTask* iTask, ServiceToken const& token, Principal const& iPrincipal) const {
+  void Worker::edPrefetchAsync(WaitingTaskHolder iTask, ServiceToken const& token, Principal const& iPrincipal) const {
     // Prefetch products the module declares it consumes
     std::vector<ProductResolverIndexAndSkipBit> const& items = itemsToGetFrom(iPrincipal.branchType());
 
@@ -349,13 +353,14 @@ namespace edm {
   void Worker::beginJob() {
     try {
       convertException::wrap([&]() {
-        ModuleBeginJobSignalSentry cpp(actReg_.get(), description());
+        ModuleBeginJobSignalSentry cpp(actReg_.get(), *description());
         implBeginJob();
       });
     } catch (cms::Exception& ex) {
       state_ = Exception;
       std::ostringstream ost;
-      ost << "Calling beginJob for module " << description().moduleName() << "/'" << description().moduleLabel() << "'";
+      ost << "Calling beginJob for module " << description()->moduleName() << "/'" << description()->moduleLabel()
+          << "'";
       ex.addContext(ost.str());
       throw;
     }
@@ -364,13 +369,15 @@ namespace edm {
   void Worker::endJob() {
     try {
       convertException::wrap([&]() {
-        ModuleEndJobSignalSentry cpp(actReg_.get(), description());
+        ModuleDescription const* desc = description();
+        assert(desc != nullptr);
+        ModuleEndJobSignalSentry cpp(actReg_.get(), *desc);
         implEndJob();
       });
     } catch (cms::Exception& ex) {
       state_ = Exception;
       std::ostringstream ost;
-      ost << "Calling endJob for module " << description().moduleName() << "/'" << description().moduleLabel() << "'";
+      ost << "Calling endJob for module " << description()->moduleName() << "/'" << description()->moduleLabel() << "'";
       ex.addContext(ost.str());
       throw;
     }
@@ -393,7 +400,7 @@ namespace edm {
     } catch (cms::Exception& ex) {
       state_ = Exception;
       std::ostringstream ost;
-      ost << "Calling beginStream for module " << description().moduleName() << "/'" << description().moduleLabel()
+      ost << "Calling beginStream for module " << description()->moduleName() << "/'" << description()->moduleLabel()
           << "'";
       ex.addContext(ost.str());
       throw;
@@ -417,7 +424,7 @@ namespace edm {
     } catch (cms::Exception& ex) {
       state_ = Exception;
       std::ostringstream ost;
-      ost << "Calling endStream for module " << description().moduleName() << "/'" << description().moduleLabel()
+      ost << "Calling endStream for module " << description()->moduleName() << "/'" << description()->moduleLabel()
           << "'";
       ex.addContext(ost.str());
       throw;
@@ -428,7 +435,7 @@ namespace edm {
     try {
       implRegisterThinnedAssociations(registry, helper);
     } catch (cms::Exception& ex) {
-      ex.addContext("Calling registerThinnedAssociations() for module " + description().moduleLabel());
+      ex.addContext("Calling registerThinnedAssociations() for module " + description()->moduleLabel());
       throw ex;
     }
   }

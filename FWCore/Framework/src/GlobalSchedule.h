@@ -121,6 +121,9 @@ namespace edm {
     /// clone the type of module with label iLabel but configure with iPSet.
     void replaceModule(maker::ModuleHolder* iMod, std::string const& iLabel);
 
+    /// Delete the module with label iLabel
+    void deleteModule(std::string const& iLabel);
+
     /// returns the collection of pointers to workers
     AllWorkers const& allWorkers() const { return workerManagers_[0].allWorkers(); }
 
@@ -222,7 +225,7 @@ namespace edm {
       auto& aw = workerManager.allWorkers();
       for (Worker* worker : boost::adaptors::reverse(aw)) {
         worker->doWorkAsync<T>(
-            doneTask, transitionInfo, token, StreamID::invalidStreamID(), parentContext, globalContext.get());
+            holdForLoop, transitionInfo, token, StreamID::invalidStreamID(), parentContext, globalContext.get());
       }
     } catch (...) {
       iHolder.doneWaiting(std::current_exception());

@@ -9,8 +9,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-//#include "FWCore/Utilities/interface/StreamID.h"
-#include "FWCore/Utilities/interface/GlobalIdentifier.h"
 
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 

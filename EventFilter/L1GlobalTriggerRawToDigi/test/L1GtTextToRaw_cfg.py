@@ -46,18 +46,21 @@ process.p = cms.Path(process.l1GtTextToRaw)
 # Message Logger
 # uncomment / comment messages with DEBUG mode to run in DEBUG mode
 process.MessageLogger = cms.Service("MessageLogger",
-    testGt_TextToRaw = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG'),         ## DEBUG mode 
-
-        DEBUG = cms.untracked.PSet( 
-            limit = cms.untracked.int32(-1)                ## DEBUG mode, all messages  
-        ),
-        INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        )
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
     ),
-    debugModules = cms.untracked.vstring('l1GtTextToRaw'), ## DEBUG mode 
-    destinations = cms.untracked.vstring('testGt_TextToRaw')
+    debugModules = cms.untracked.vstring('l1GtTextToRaw'),
+    files = cms.untracked.PSet(
+        testGt_TextToRaw = cms.untracked.PSet(
+            DEBUG = cms.untracked.PSet(
+                limit = cms.untracked.int32(-1)
+            ),
+            INFO = cms.untracked.PSet(
+                limit = cms.untracked.int32(-1)
+            ),
+            threshold = cms.untracked.string('DEBUG')
+        )
+    )
 )
 
 # output 

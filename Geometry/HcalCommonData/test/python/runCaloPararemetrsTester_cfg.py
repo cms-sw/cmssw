@@ -8,8 +8,8 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 5
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('HCalGeom')
-    process.MessageLogger.categories.append('Geometry')
+    process.MessageLogger.HCalGeom=dict()
+    process.MessageLogger.Geometry=dict()
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             confGeomXMLFiles = cms.FileInPath('Geometry/HcalAlgo/data/cms-test-ddhcalHF-algorithm.xml'),

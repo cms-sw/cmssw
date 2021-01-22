@@ -1,7 +1,6 @@
 #ifndef DPGAnalysis_SiStripTools_Multiplicities_H
 #define DPGAnalysis_SiStripTools_Multiplicities_H
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -58,27 +57,32 @@ public:
 private:
   int m_modthr;
   bool m_useQuality;
-  std::string m_qualityLabel;
+  edm::ESGetToken<SiStripQuality, SiStripQualityRcd> m_qualityToken;
   int m_mult;
   edm::EDGetTokenT<T> m_collection;
 };
 
 template <class T>
-SingleMultiplicity<T>::SingleMultiplicity()
-    : m_modthr(-1), m_useQuality(false), m_qualityLabel(), m_mult(0), m_collection() {}
+SingleMultiplicity<T>::SingleMultiplicity() : m_modthr(-1), m_useQuality(false), m_mult(0), m_collection() {}
 
 template <class T>
 SingleMultiplicity<T>::SingleMultiplicity(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC)
     : m_modthr(iConfig.getUntrackedParameter<int>("moduleThreshold")),
       m_useQuality(iConfig.getUntrackedParameter<bool>("useQuality", false)),
-      m_qualityLabel(iConfig.getUntrackedParameter<std::string>("qualityLabel", "")),
+      m_qualityToken(m_useQuality
+                         ? decltype(m_qualityToken){iC.esConsumes<SiStripQuality, SiStripQualityRcd>(
+                               edm::ESInputTag{"", iConfig.getUntrackedParameter<std::string>("qualityLabel", "")})}
+                         : decltype(m_qualityToken){}),
       m_mult(0),
       m_collection(iC.consumes<T>(iConfig.getParameter<edm::InputTag>("collectionName"))) {}
 template <class T>
 SingleMultiplicity<T>::SingleMultiplicity(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC)
     : m_modthr(iConfig.getUntrackedParameter<int>("moduleThreshold")),
       m_useQuality(iConfig.getUntrackedParameter<bool>("useQuality", false)),
-      m_qualityLabel(iConfig.getUntrackedParameter<std::string>("qualityLabel", "")),
+      m_qualityToken(m_useQuality
+                         ? decltype(m_qualityToken){iC.esConsumes<SiStripQuality, SiStripQualityRcd>(
+                               edm::ESInputTag(iConfig.getUntrackedParameter<std::string>("qualityLabel", "")))}
+                         : decltype(m_qualityToken){}),
       m_mult(0),
       m_collection(iC.consumes<T>(iConfig.getParameter<edm::InputTag>("collectionName"))) {}
 
@@ -86,16 +90,16 @@ template <class T>
 void SingleMultiplicity<T>::getEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   m_mult = 0;
 
-  edm::ESHandle<SiStripQuality> qualityHandle;
+  const SiStripQuality* quality = nullptr;
   if (m_useQuality) {
-    iSetup.get<SiStripQualityRcd>().get(m_qualityLabel, qualityHandle);
+    quality = &iSetup.getData(m_qualityToken);
   }
 
   edm::Handle<T> digis;
   iEvent.getByToken(m_collection, digis);
 
   for (typename T::const_iterator it = digis->begin(); it != digis->end(); it++) {
-    if (!m_useQuality || !qualityHandle->IsModuleBad(it->detId())) {
+    if (!m_useQuality || !quality->IsModuleBad(it->detId())) {
       if (m_modthr < 0 || int(it->size()) < m_modthr) {
         m_mult += it->size();
         //      mult += it->size();

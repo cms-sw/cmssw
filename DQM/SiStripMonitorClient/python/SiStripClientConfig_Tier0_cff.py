@@ -38,10 +38,10 @@ siStripQTester = DQMQualityTester(
     getQualityTestsFromFile = cms.untracked.bool(True)
 )
 
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-pp_on_AA_2018.toModify(siStripQTester,
-                       qtList = cms.untracked.FileInPath('DQM/SiStripMonitorClient/data/sistrip_qualitytest_config_tier0_heavyions.xml')
-                       )
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toModify(siStripQTester,
+                  qtList = cms.untracked.FileInPath('DQM/SiStripMonitorClient/data/sistrip_qualitytest_config_tier0_heavyions.xml')
+)
 
 from CalibTracker.SiStripESProducers.SiStripQualityESProducer_cfi import siStripQualityESProducer 
 mergedSiStripQualityProducer = siStripQualityESProducer.clone(

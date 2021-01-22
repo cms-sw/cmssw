@@ -6,10 +6,14 @@
 namespace ecaldqm {
   IntegrityTask::IntegrityTask() : DQWorkerTask() {}
 
-  void IntegrityTask::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
-    // Reset by LS plots at beginning of every LS
-    MEs_.at("MapByLumi").reset();
-    MEs_.at("ByLumi").reset();
+  void IntegrityTask::beginEvent(edm::Event const& _evt,
+                                 edm::EventSetup const& _es,
+                                 bool const& ByLumiResetSwitch,
+                                 bool&) {
+    if (ByLumiResetSwitch) {
+      MEs_.at("MapByLumi").reset();
+      MEs_.at("ByLumi").reset();
+    }
   }
 
   template <typename IDCollection>

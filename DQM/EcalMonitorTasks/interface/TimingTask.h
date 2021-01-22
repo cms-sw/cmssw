@@ -20,8 +20,7 @@ namespace ecaldqm {
     void runOnUncalibRecHits(EcalUncalibratedRecHitCollection const&);
 
   private:
-    void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-    void beginEvent(edm::Event const&, edm::EventSetup const&) override;
+    void beginEvent(edm::Event const&, edm::EventSetup const&, bool const&, bool&) override;
     void setParams(edm::ParameterSet const&) override;
 
     std::vector<int> bxBinEdges_;

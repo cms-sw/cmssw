@@ -2,6 +2,7 @@
 <use name="DataFormats/Math"/>
 <use name="DataFormats/DetId"/>
 <use name="rootmath"/>
+<use name="eigen"/>
 <export>
   <lib name="1"/>
 </export>

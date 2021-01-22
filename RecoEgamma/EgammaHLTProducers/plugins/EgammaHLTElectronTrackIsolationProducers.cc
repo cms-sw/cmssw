@@ -109,7 +109,7 @@ void EgammaHLTElectronTrackIsolationProducers::fillDescriptions(edm::Configurati
 }
 void EgammaHLTElectronTrackIsolationProducers::produce(edm::StreamID sid,
                                                        edm::Event& iEvent,
-                                                       const edm::EventSetup& iSetup) const {
+                                                       const edm::EventSetup&) const {
   edm::Handle<reco::ElectronCollection> electronHandle;
   iEvent.getByToken(electronProducer_, electronHandle);
 

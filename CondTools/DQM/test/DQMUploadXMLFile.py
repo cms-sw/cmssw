@@ -2,10 +2,15 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
 
-process.MessageLogger=cms.Service("MessageLogger",
-                                  cout=cms.untracked.PSet(threshold=cms.untracked.string('INFO')),
-                                  destinations=cms.untracked.vstring("cout")
-                                  )
+process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('INFO')
+    )
+)
 
 process.load("CondCore.CondDB.CondDB_cfi")
 process.CondDB.connect = cms.string('sqlite_file:testXML.db')

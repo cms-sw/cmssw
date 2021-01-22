@@ -75,6 +75,7 @@
 
 // user include files
 #include "FWCore/Concurrency/interface/WaitingTask.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // forward declarations
@@ -106,6 +107,8 @@ namespace edm {
        * The value is only useful for optimization as the object can resize itself.
        */
     explicit WaitingTaskList(unsigned int iInitialSize = 2);
+    WaitingTaskList(const WaitingTaskList&) = delete;                   // stop default
+    const WaitingTaskList& operator=(const WaitingTaskList&) = delete;  // stop default
     ~WaitingTaskList() = default;
 
     // ---------- member functions ---------------------------
@@ -125,6 +128,11 @@ namespace edm {
        */
     void add(WaitingTask*);
 
+    ///Adds task to the waiting list
+    /**Calls to add() and doneWaiting() can safely be done concurrently.
+      */
+    void add(WaitingTaskHolder);
+
     ///Signals that the resource is now available and tasks should be spawned
     /**The owner of the resource calls this function to allow the waiting tasks to
        * start accessing it.
@@ -143,9 +151,6 @@ namespace edm {
     void reset();
 
   private:
-    WaitingTaskList(const WaitingTaskList&) = delete;                   // stop default
-    const WaitingTaskList& operator=(const WaitingTaskList&) = delete;  // stop default
-
     /**Handles spawning the tasks,
        * safe to call from multiple threads
        */

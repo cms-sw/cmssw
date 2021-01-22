@@ -19,6 +19,8 @@
 
 #include "CondFormats/DTObjects/interface/DTMtime.h"
 #include "CondFormats/DataRecord/interface/DTMtimeRcd.h"
+#include "CondFormats/DTObjects/interface/DTRecoConditions.h"
+#include "CondFormats/DataRecord/interface/DTRecoConditionsVdriftRcd.h"
 
 #include "CalibMuon/DTCalibration/interface/DTCalibDBUtils.h"
 #include "CalibMuon/DTCalibration/interface/DTVDriftPluginFactory.h"
@@ -32,6 +34,8 @@ using namespace edm;
 
 DTVDriftWriter::DTVDriftWriter(const ParameterSet& pset)
     : granularity_(pset.getUntrackedParameter<string>("calibGranularity", "bySL")),
+      mTimeMap_(nullptr),
+      vDriftMap_(nullptr),
       vDriftAlgo_{DTVDriftPluginFactory::get()->create(pset.getParameter<string>("vDriftAlgo"),
                                                        pset.getParameter<ParameterSet>("vDriftAlgoConfig"))} {
   LogVerbatim("Calibration") << "[DTVDriftWriter]Constructor called!";
@@ -39,15 +43,29 @@ DTVDriftWriter::DTVDriftWriter(const ParameterSet& pset)
   if (granularity_ != "bySL")
     throw cms::Exception("Configuration")
         << "[DTVDriftWriter] Check parameter calibGranularity: " << granularity_ << " option not available.";
+
+  readLegacyVDriftDB = pset.getParameter<bool>("readLegacyVDriftDB");
+  writeLegacyVDriftDB = pset.getParameter<bool>("writeLegacyVDriftDB");
 }
 
 DTVDriftWriter::~DTVDriftWriter() { LogVerbatim("Calibration") << "[DTVDriftWriter]Destructor called!"; }
 
 void DTVDriftWriter::beginRun(const edm::Run& run, const edm::EventSetup& setup) {
-  // Get the map of ttrig from the Setup
-  ESHandle<DTMtime> mTime;
-  setup.get<DTMtimeRcd>().get(mTime);
-  mTimeMap_ = &*mTime;
+  // Get the map of vdrift from the Setup
+  if (readLegacyVDriftDB) {
+    ESHandle<DTMtime> mTime;
+    setup.get<DTMtimeRcd>().get(mTime);
+    mTimeMap_ = &*mTime;
+  } else {
+    ESHandle<DTRecoConditions> hVdrift;
+    setup.get<DTRecoConditionsVdriftRcd>().get(hVdrift);
+    vDriftMap_ = &*hVdrift;
+    // Consistency check: no parametrization is implemented for the time being
+    int version = vDriftMap_->version();
+    if (version != 1) {
+      throw cms::Exception("Configuration") << "only version 1 is presently supported for VDriftDB";
+    }
+  }
 
   // Get geometry from Event Setup
   setup.get<MuonGeometryRecord>().get(dtGeom_);
@@ -57,7 +75,16 @@ void DTVDriftWriter::beginRun(const edm::Run& run, const edm::EventSetup& setup)
 
 void DTVDriftWriter::endJob() {
   // Create the object to be written to DB
-  DTMtime* mTimeNewMap = new DTMtime();
+  DTMtime* mTimeNewMap = nullptr;
+  DTRecoConditions* vDriftNewMap = nullptr;
+  if (writeLegacyVDriftDB) {
+    mTimeNewMap = new DTMtime();
+  } else {
+    vDriftNewMap = new DTRecoConditions();
+    vDriftNewMap->setFormulaExpr("[0]");
+    //vDriftNewMap->setFormulaExpr("[0]*(1-[1]*x)"); // add parametrization for dependency along Y
+    vDriftNewMap->setVersion(1);
+  }
 
   if (granularity_ == "bySL") {
     // Get all the sls from the geometry
@@ -66,34 +93,51 @@ void DTVDriftWriter::endJob() {
     auto sl_end = superLayers.end();
     for (; sl != sl_end; ++sl) {
       DTSuperLayerId slId = (*sl)->id();
-      // Get original value from DB
-      float vDrift = 0., resolution = 0.;
-      // vdrift is cm/ns , resolution is cm
-      int status = mTimeMap_->get(slId, vDrift, resolution, DTVelocityUnits::cm_per_ns);
 
       // Compute vDrift
+      float vDriftNew = -1.;
+      float resolutionNew = -1;
       try {
         dtCalibration::DTVDriftData vDriftData = vDriftAlgo_->compute(slId);
-        float vDriftNew = vDriftData.vdrift;
-        float resolutionNew = vDriftData.resolution;
-        // vdrift is cm/ns , resolution is cm
-        mTimeNewMap->set(slId, vDriftNew, resolutionNew, DTVelocityUnits::cm_per_ns);
+        vDriftNew = vDriftData.vdrift;
+        resolutionNew = vDriftData.resolution;
         LogVerbatim("Calibration") << "vDrift for: " << slId << " Mean " << vDriftNew << " Resolution "
                                    << resolutionNew;
-      } catch (cms::Exception& e) {
+      } catch (cms::Exception& e) {  // Failure to compute new value, fall back to old table
         LogError("Calibration") << e.explainSelf();
-        // Go back to original value in case of error
-        if (!status) {
-          mTimeNewMap->set(slId, vDrift, resolution, DTVelocityUnits::cm_per_ns);
-          LogVerbatim("Calibration") << "Keep original vDrift for: " << slId << " Mean " << vDrift << " Resolution "
-                                     << resolution;
+        if (readLegacyVDriftDB) {  //...reading old db format...
+          int status = mTimeMap_->get(slId, vDriftNew, resolutionNew, DTVelocityUnits::cm_per_ns);
+          if (status == 0) {  // not found; silently skip this SL
+            continue;
+          }
+        } else {  //...reading new db format
+          try {
+            vDriftNew = vDriftMap_->get(DTWireId(slId.rawId()));
+          } catch (cms::Exception& e2) {
+            // not found; silently skip this SL
+            continue;
+          }
         }
+        LogVerbatim("Calibration") << "Keep original vDrift for: " << slId << " Mean " << vDriftNew << " Resolution "
+                                   << resolutionNew;
+      }
+
+      // Add value to the vdrift table
+      if (writeLegacyVDriftDB) {
+        mTimeNewMap->set(slId, vDriftNew, resolutionNew, DTVelocityUnits::cm_per_ns);
+      } else {
+        vector<double> params = {vDriftNew};
+        vDriftNewMap->set(DTWireId(slId.rawId()), params);
       }
     }  // End of loop on superlayers
   }
 
   // Write the vDrift object to DB
   LogVerbatim("Calibration") << "[DTVDriftWriter]Writing vdrift object to DB!";
-  string record = "DTMtimeRcd";
-  DTCalibDBUtils::writeToDB<DTMtime>(record, mTimeNewMap);
+  if (writeLegacyVDriftDB) {
+    string record = "DTMtimeRcd";
+    DTCalibDBUtils::writeToDB<DTMtime>(record, mTimeNewMap);
+  } else {
+    DTCalibDBUtils::writeToDB<DTRecoConditions>("DTRecoConditionsVdriftRcd", vDriftNewMap);
+  }
 }

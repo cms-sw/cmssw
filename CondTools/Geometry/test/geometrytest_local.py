@@ -57,11 +57,6 @@ process.GlobalTag.toGet = cms.VPSet(
              connect = cms.string("sqlite_file:myfile.db"),
 #             label = cms.string("Extended")
              ),
-    cms.PSet(record = cms.string("PGeometricDetExtraRcd"),
-             tag = cms.string("TKExtra_Geometry_TagXX"),
-             connect = cms.string("sqlite_file:myfile.db"),
-#             label = cms.string("Extra")
-             ),
     cms.PSet(record = cms.string("IdealGeometryRecord"),
              tag = cms.string("TKRECO_Geometry_TagXX"),
              connect = cms.string("sqlite_file:myfile.db")

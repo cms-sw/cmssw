@@ -2,6 +2,7 @@
 <use name="FWCore/ParameterSet"/>
 <flags EDM_PLUGIN="1"/>
 <library file="ExhumeAnalyzer.cc" name="ExhumeAnalyzer">
+  <use name="DataFormats/Candidate"/>
   <use name="CommonTools/UtilAlgos"/>
   <use name="roothistmatrix"/>
 </library>

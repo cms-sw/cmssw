@@ -63,6 +63,9 @@ void PFTauMiniAODPrimaryVertexProducer::nonTauTracksInPVFromPackedCands(
     std::vector<const reco::Track *> &nonTauTracks) {
   //Find candidates/tracks associated to thePV
   for (const auto &cand : cands) {
+    //MB: Skip candidates with ill-defined momentum as they return ill-defined tracks (why it happens?)
+    if (!std::isfinite(cand.pt()))  //MB: it is enough to check just pt (?)
+      continue;
     if (cand.vertexRef().isNull())
       continue;
     int quality = cand.pvAssociationQuality();

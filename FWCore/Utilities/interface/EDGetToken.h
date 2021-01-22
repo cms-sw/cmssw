@@ -88,7 +88,8 @@ namespace edm {
 
     //Needed to avoid EDGetTokenT(ADAPTER&&) from being called instead
     // when we can use C++20 concepts we can avoid the problem using a constraint
-    constexpr EDGetTokenT(EDGetTokenT& iOther) noexcept : m_value{iOther.m_value} {}
+    constexpr EDGetTokenT(EDGetTokenT<T>& iOther) noexcept : m_value{iOther.m_value} {}
+    constexpr EDGetTokenT(const EDGetTokenT<T>&& iOther) noexcept : m_value{iOther.m_value} {}
 
     constexpr EDGetTokenT& operator=(EDGetTokenT<T>& iOther) {
       return (*this = const_cast<const EDGetTokenT<T>&>(iOther));

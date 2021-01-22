@@ -32,12 +32,14 @@ process.src1 = cms.ESSource("EcalTrivialConditionRetriever",
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
-    suppressInfo = cms.untracked.vstring('ecalEBunpacker'),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
         threshold = cms.untracked.string('INFO')
     ),
-    categories = cms.untracked.vstring('EcalURecHitHists'),
-    destinations = cms.untracked.vstring('cout')
+    suppressInfo = cms.untracked.vstring('ecalEBunpacker')
 )
 
 process.p = cms.Path(process.ecalEBunpacker*process.ecalUncalibHit*process.ecalURecHitHists)

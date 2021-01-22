@@ -29,7 +29,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('SimG4CoreGeometry')
+    process.MessageLogger.SimG4CoreGeometry=dict()
 
 # Input source
 process.source = cms.Source("EmptySource")

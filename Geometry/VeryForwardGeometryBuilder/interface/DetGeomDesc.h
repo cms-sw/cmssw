@@ -1,7 +1,7 @@
 /****************************************************************************
 *
 * Authors:
-*	Jan Kašpar (jan.kaspar@gmail.com) 
+*	Jan Kašpar (jan.kaspar@gmail.com)
 *	CMSSW developpers (based on class GeometricDet)
 *
 *  Rewritten + Moved out common functionalities to DetGeomDesc(Builder) by Gabrielle Hugo.
@@ -28,7 +28,7 @@ class CTPPSRPAlignmentCorrectionData;
  *
  * Class resembling GeometricDet class. Slight changes were made to suit needs of the TOTEM RP description.
  * Each instance is a tree node, with geometrical information from DDD (shift, rotation, material, ...), ID and list of children nodes.
- * 
+ *
  * The <b>translation</b> and <b>rotation</b> parameters are defined by <b>local-to-global</b>
  * coordinate transform. That is, if r_l is a point in local coordinate system and x_g in global,
  * then the transform reads:
@@ -37,7 +37,7 @@ class CTPPSRPAlignmentCorrectionData;
  \endverbatim
  *
  * July 2020: Migrated to DD4hep
- * To avoid any regression with values from XMLs / Geant4, all lengths are converted from cm (DD4hep) to mm. 
+ * To avoid any regression with values from XMLs / Geant4, all lengths are converted from DD4hep unit to mm.
  *
  **/
 
@@ -54,9 +54,11 @@ public:
   using Translation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
 
   // Constructor from old DD DDFilteredView
-  DetGeomDesc(const DDFilteredView& fv);
+  /// \param[in] isRun2 Switch between legacy run 2-like geometry and 2021+ scenarii
+  DetGeomDesc(const DDFilteredView& fv, const bool isRun2);
   // Constructor from DD4Hep DDFilteredView
-  DetGeomDesc(const cms::DDFilteredView& fv);
+  /// \param[in] isRun2 Switch between legacy run 2-like geometry and 2021+ scenarii
+  DetGeomDesc(const cms::DDFilteredView& fv, const bool isRun2);
 
   virtual ~DetGeomDesc();
 
@@ -75,10 +77,11 @@ public:
   const RotationMatrix& rotation() const { return m_rot; }
 
   // shape info
-  // params() is left for general access to solid shape parameters, but should be used
-  // only with great care, for two reasons: 1. order of parameters may possibly change from
-  // a version to another of DD4hep; 2. length parameters unit is cm while PPS uses mm.
-  const std::vector<double>& params() const { return m_params; }  // default unit: mm from oldDD, cm from DD4hep
+  // params() is left for general access to solid shape parameters (any shape, not only box!).
+  // Though, it should be used only with great care, for two reasons:
+  // 1. Order of shape parameters may possibly change from a version of DD4hep to another.
+  // 2. Among all parameters, those representing a length are expressed in mm (for old DD) or the DD4hep-configured unit (for DD4hep), while PPS uses mm.
+  const std::vector<double>& params() const { return m_params; }  // default unit: mm for oldDD, DD4hep unit for DD4hep
   bool isABox() const { return m_isABox; }
   const DiamondDimensions& getDiamondDimensions() const {
     if (!isABox()) {
@@ -105,6 +108,8 @@ public:
 
   void print() const;
 
+  void invertZSign() { m_trans.SetZ(-m_trans.z()); }
+
 private:
   void deleteComponents();      // deletes just the first daughters
   void deepDeleteComponents();  // traverses the tree and deletes all nodes.
@@ -115,8 +120,14 @@ private:
   DiamondDimensions computeDiamondDimensions(const bool isABox,
                                              const bool isDD4hep,
                                              const std::vector<double>& params) const;
-  DetId computeDetID(const std::string& name, const std::vector<int>& copyNos, unsigned int copyNum) const;
-  DetId computeDetIDFromDD4hep(const std::string& name, const std::vector<int>& copyNos, unsigned int copyNum) const;
+  DetId computeDetID(const std::string& name,
+                     const std::vector<int>& copyNos,
+                     const unsigned int copyNum,
+                     const bool isRun2) const;
+  DetId computeDetIDFromDD4hep(const std::string& name,
+                               const std::vector<int>& copyNos,
+                               const unsigned int copyNum,
+                               const bool isRun2) const;
   std::string computeSensorType(std::string_view name);
 
   std::string m_name;  // with no namespace
@@ -124,7 +135,7 @@ private:
   bool m_isDD4hep;
   Translation m_trans;  // in mm
   RotationMatrix m_rot;
-  std::vector<double> m_params;  // default unit: mm from oldDD, cm from DD4hep
+  std::vector<double> m_params;  // default unit: mm from oldDD, DD4hep unit for DD4hep
   bool m_isABox;
   DiamondDimensions m_diamondBoxParams;  // in mm
   std::string m_sensorType;

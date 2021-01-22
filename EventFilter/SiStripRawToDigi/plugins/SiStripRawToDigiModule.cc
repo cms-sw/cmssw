@@ -3,7 +3,6 @@
 #include "SiStripRawToDigiUnpacker.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
-#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/DetId/interface/DetIdCollection.h"
@@ -11,7 +10,6 @@
 #include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <cstdlib>
 
@@ -20,10 +18,11 @@ namespace sistrip {
   RawToDigiModule::RawToDigiModule(const edm::ParameterSet& pset)
       : rawToDigi_(nullptr),
         cabling_(nullptr),
-        cacheId_(0),
         extractCm_(false),
         doFullCorruptBufferChecks_(false),
-        doAPVEmulatorCheck_(true) {
+        doAPVEmulatorCheck_(true),
+        tTopoToken_(esConsumes()),
+        fedCablingToken_(esConsumes()) {
     if (edm::isDebugEnabled()) {
       LogTrace("SiStripRawToDigi") << "[sistrip::RawToDigiModule::" << __func__ << "]"
                                    << " Constructing object...";
@@ -85,8 +84,6 @@ namespace sistrip {
     }
   }
 
-  void RawToDigiModule::beginRun(const edm::Run& run, const edm::EventSetup& setup) { updateCabling(setup); }
-
   /** 
       Retrieves cabling map from EventSetup and FEDRawDataCollection
       from Event, creates a DetSetVector of SiStrip(Raw)Digis, uses the
@@ -137,15 +134,12 @@ namespace sistrip {
   }
 
   void RawToDigiModule::updateCabling(const edm::EventSetup& setup) {
-    uint32_t cache_id = setup.get<SiStripFedCablingRcd>().cacheIdentifier();
-
-    if (cacheId_ != cache_id) {
-      edm::ESHandle<SiStripFedCabling> c;
-      setup.get<SiStripFedCablingRcd>().get(c);
-      cabling_ = c.product();
+    if (fedCablingWatcher_.check(setup)) {
+      const bool isFirst = cabling_ != nullptr;
+      cabling_ = &setup.getData(fedCablingToken_);
 
       if (edm::isDebugEnabled()) {
-        if (!cacheId_) {
+        if (isFirst) {
           std::stringstream ss;
           ss << "[sistrip::RawToDigiModule::" << __func__ << "]"
              << " Updating cabling for first time..." << std::endl
@@ -159,12 +153,9 @@ namespace sistrip {
         std::stringstream sss;
         sss << "[sistrip::RawToDigiModule::" << __func__ << "]"
             << " Summary of FED cabling:" << std::endl;
-        edm::ESHandle<TrackerTopology> tTopo;
-        setup.get<TrackerTopologyRcd>().get(tTopo);
-        cabling_->summary(sss, tTopo.product());
+        cabling_->summary(sss, &setup.getData(tTopoToken_));
         LogTrace("SiStripRawToDigi") << sss.str();
       }
-      cacheId_ = cache_id;
     }
   }
 

@@ -78,58 +78,42 @@ const EnergyScaleCorrection::ScaleCorrection* EnergyScaleCorrection::getScaleCor
     unsigned int runnr, double et, double eta, double r9, unsigned int gainSeed) const {
   // buld the category based on the values of the object
   CorrectionCategory category(runnr, et, eta, r9, gainSeed);
-  auto result =
-      std::equal_range(scales_.begin(), scales_.end(), category, Sorter<CorrectionCategory, ScaleCorrection>());
-  auto nrFound = std::distance(result.first, result.second);
-  if (nrFound == 0) {
+  auto result = scales_.find(category);
+
+  if (result == scales_.end()) {
     edm::LogInfo("EnergyScaleCorrection")
         << "Scale category not found: " << category << " Returning uncorrected value.";
     return nullptr;
-  } else if (nrFound > 1) {
-    std::ostringstream foundCats;
-    for (auto it = result.first; it != result.second; ++it) {
-      foundCats << "    " << it->first << std::endl;
-    }
-    throw cms::Exception("ConfigError") << " scale error category " << category << " has " << nrFound << " entries "
-                                        << std::endl
-                                        << foundCats.str();
   }
+
   //validate the result, just to be sure
-  if (!result.first->first.inCategory(runnr, et, eta, r9, gainSeed)) {
-    throw cms::Exception("LogicError") << " error found scale category " << result.first->first
+  if (!result->first.inCategory(runnr, et, eta, r9, gainSeed)) {
+    throw cms::Exception("LogicError") << " error found scale category " << result->first
                                        << " that does not contain run " << runnr << " et " << et << " eta " << eta
                                        << " r9 " << r9 << " gain seed " << gainSeed;
   }
-  return &result.first->second;
+  return &result->second;
 }
 
 const EnergyScaleCorrection::SmearCorrection* EnergyScaleCorrection::getSmearCorr(
     unsigned int runnr, double et, double eta, double r9, unsigned int gainSeed) const {
   // buld the category based on the values of the object
   CorrectionCategory category(runnr, et, eta, r9, gainSeed);
-  auto result =
-      std::equal_range(smearings_.begin(), smearings_.end(), category, Sorter<CorrectionCategory, SmearCorrection>());
-  auto nrFound = std::distance(result.first, result.second);
-  if (nrFound == 0) {
+  auto result = smearings_.find(category);
+
+  if (result == smearings_.end()) {
     edm::LogInfo("EnergyScaleCorrection")
         << "Smear category not found: " << category << " Returning uncorrected value.";
     return nullptr;
-  } else if (nrFound > 1) {
-    std::ostringstream foundCats;
-    for (auto it = result.first; it != result.second; ++it) {
-      foundCats << "    " << it->first << std::endl;
-    }
-    throw cms::Exception("ConfigError") << " error smear category " << category << " has " << nrFound << " entries "
-                                        << std::endl
-                                        << foundCats.str();
   }
+
   //validate the result, just to be sure
-  if (!result.first->first.inCategory(runnr, et, eta, r9, gainSeed)) {
-    throw cms::Exception("LogicError") << " error found smear category " << result.first->first
+  if (!result->first.inCategory(runnr, et, eta, r9, gainSeed)) {
+    throw cms::Exception("LogicError") << " error found smear category " << result->first
                                        << " that does not contain run " << runnr << " et " << et << " eta " << eta
                                        << " r9 " << r9 << " gain seed " << gainSeed;
   }
-  return &result.first->second;
+  return &result->second;
 }
 
 void EnergyScaleCorrection::addScale(const std::string& category,
@@ -140,14 +124,13 @@ void EnergyScaleCorrection::addScale(const std::string& category,
                                      double energyScaleErrSyst,
                                      double energyScaleErrGain) {
   CorrectionCategory cat(category, runMin, runMax);  // build the category from the string
-  auto result = std::equal_range(scales_.begin(), scales_.end(), cat, Sorter<CorrectionCategory, ScaleCorrection>());
+  auto result = scales_.equal_range(cat);
   if (result.first != result.second) {
     throw cms::Exception("ConfigError") << "Category already defined! " << cat;
   }
 
   ScaleCorrection corr(energyScale, energyScaleErrStat, energyScaleErrSyst, energyScaleErrGain);
-  scales_.push_back({cat, corr});
-  std::sort(scales_.begin(), scales_.end(), Sorter<CorrectionCategory, ScaleCorrection>());
+  scales_.insert(result.first, {cat, corr});  //use a hint where to insert
 }
 
 void EnergyScaleCorrection::addScale(int runMin,
@@ -165,14 +148,13 @@ void EnergyScaleCorrection::addScale(int runMin,
                                      double energyScaleErrGain) {
   CorrectionCategory cat(runMin, runMax, etaMin, etaMax, r9Min, r9Max, etMin, etMax, gain);
 
-  auto result = std::equal_range(scales_.begin(), scales_.end(), cat, Sorter<CorrectionCategory, ScaleCorrection>());
+  auto result = scales_.equal_range(cat);
   if (result.first != result.second) {
     throw cms::Exception("ConfigError") << "Category already defined! " << cat;
   }
 
   ScaleCorrection corr(energyScale, energyScaleErrStat, energyScaleErrSyst, energyScaleErrGain);
-  scales_.push_back({cat, corr});
-  std::sort(scales_.begin(), scales_.end(), Sorter<CorrectionCategory, ScaleCorrection>());
+  scales_.insert(result.first, {cat, corr});
 }
 
 void EnergyScaleCorrection::addSmearing(const std::string& category,
@@ -185,16 +167,14 @@ void EnergyScaleCorrection::addSmearing(const std::string& category,
                                         double eMean,
                                         double errEMean) {
   CorrectionCategory cat(category);
-
-  auto res = std::equal_range(smearings_.begin(), smearings_.end(), cat, Sorter<CorrectionCategory, SmearCorrection>());
+  auto res = smearings_.equal_range(cat);
 
   if (res.first != res.second) {
     throw cms::Exception("EnergyScaleCorrection") << "Smearing category already defined " << cat;
   }
 
   SmearCorrection corr(rho, errRho, phi, errPhi, eMean, errEMean);
-  smearings_.push_back({cat, corr});
-  std::sort(smearings_.begin(), smearings_.end(), Sorter<CorrectionCategory, SmearCorrection>());
+  smearings_.insert(res.first, {cat, corr});  //use a hint from res
 }
 
 void EnergyScaleCorrection::setSmearingType(FileFormat value) {

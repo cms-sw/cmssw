@@ -60,17 +60,18 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
 
 # enable debug message logging for our modules
-process.MessageLogger = cms.Service(
-    "MessageLogger",
-    destinations   = cms.untracked.vstring(
-	'detailedInfo',
-	'critical'
+process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
     ),
-    detailedInfo   = cms.untracked.PSet(
-	threshold  = cms.untracked.string('DEBUG') 
-    ),
-    debugModules = cms.untracked.vstring(
-	'l1tCaloStage1Digis'
+    debugModules = cms.untracked.vstring('l1tCaloStage1Digis'),
+    files = cms.untracked.PSet(
+        critical = cms.untracked.PSet(
+
+        ),
+        detailedInfo = cms.untracked.PSet(
+            threshold = cms.untracked.string('DEBUG')
+        )
     )
 )
 

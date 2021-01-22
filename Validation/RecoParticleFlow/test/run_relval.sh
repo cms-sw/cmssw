@@ -20,20 +20,20 @@ fi
 
 #
 #set default conditions - run3 2021
-CONDITIONS=auto:phase1_2021_realistic ERA=Run3 GEOM=DB.Extended
+CONDITIONS=auto:phase1_2021_realistic ERA=Run3 GEOM=DB.Extended CUSTOM=
 #
 #conditions - 2018
-#CONDITIONS=auto:phase1_2018_realistic ERA=Run2_2018 GEOM=DB.Extended
+#CONDITIONS=auto:phase1_2018_realistic ERA=Run2_2018 GEOM=DB.Extended CUSTOM=
 #
 #conditions - phase2
-#CONDITIONS=auto:phase2_realistic ERA=Phase2C9 GEOM=Extended2026D49
+#CONDITIONS=auto:phase2_realistic_T15 ERA=Phase2C9 GEOM=Extended2026D49 CUSTOM="--customise SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000"
 
 #Running with 2 threads allows to use more memory on grid
-NTHREADS=2
+NTHREADS=8
 
 #Argument parsing
 if [ "$#" -ne 3 ]; then
-    echo "Must pass exactly 3 arguments: run_relval.sh [QCD|QCDPU|ZMMPU|NuGunPU] [reco|dqm] [njob]"
+    echo "Must pass exactly 3 arguments: run_relval.sh [QCD|QCDPU|ZEEPU|ZMMPU|TenTauPU|NuGunPU] [reco|dqm] [njob]"
     exit 0
 fi
 
@@ -62,9 +62,15 @@ if [ "$1" == "QCD" ]; then
 elif [ "$1" == "QCDPU" ]; then
     INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/tmp/das_cache/QCD_PU.txt
     NAME=QCDPU
+elif [ "$1" == "ZEEPU" ]; then
+    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/tmp/das_cache/ZEE_PU.txt
+    NAME=ZEE
 elif [ "$1" == "ZMMPU" ]; then
     INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/tmp/das_cache/ZMM_PU.txt
     NAME=ZMM
+elif [ "$1" == "TenTauPU" ]; then
+    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/tmp/das_cache/TenTau_PU.txt
+    NAME=TenTau
 elif [ "$1" == "NuGunPU" ]; then
     INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/tmp/das_cache/NuGun_PU.txt
     NAME=NuGunPU
@@ -72,7 +78,7 @@ elif [ "$1" == "conf" ]; then  # special switch for creating conf file,
     INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/tmp/das_cache/NuGun_PU.txt # dummy
     NAME=conf
 else
-    echo "Argument 1 must be [QCD|QCDPU|ZMMPU|NuGunPU|conf] but was $1"
+    echo "Argument 1 must be [QCD|QCDPU|ZEEPU|ZMMPU|TenTauPU|NuGunPU|conf] but was $1"
     exit 1
 fi
 
@@ -102,7 +108,7 @@ if [ $STEP == "RECO" ]; then
 	FILENAME=`sed -n "${NJOB}p" $INPUT_FILELIST`
 	echo "FILENAME="$FILENAME
 
-	cmsDriver.py step3 --conditions $CONDITIONS -s RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT --datatier MINIAODSIM --nThreads $NTHREADS -n -1 --era $ERA --eventcontent MINIAODSIM --geometry=$GEOM --filein step2.root --fileout file:step3_inMINIAODSIM.root --no_exec --python_filename=step3.py
+	cmsDriver.py step3 --conditions $CONDITIONS -s RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT --datatier MINIAODSIM --nThreads $NTHREADS -n -1 --era $ERA --eventcontent MINIAODSIM --geometry=$GEOM --filein step2.root --fileout file:step3_inMINIAODSIM.root --no_exec --python_filename=step3.py $CUSTOM
 	
     else
 	
@@ -121,7 +127,7 @@ if [ $STEP == "RECO" ]; then
 	echo "FILENAME="$FILENAME
 	#Run the actual CMS reco with particle flow.
 	echo "Running step RECO" 
-	cmsDriver.py step3 --conditions $CONDITIONS -s RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT --datatier MINIAODSIM --nThreads $NTHREADS -n -1 --era $ERA --eventcontent MINIAODSIM --geometry=$GEOM --filein $FILENAME --fileout file:step3_inMINIAODSIM.root | tee step3.log  2>&1
+	cmsDriver.py step3 --conditions $CONDITIONS -s RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT --datatier MINIAODSIM --nThreads $NTHREADS -n -1 --era $ERA --eventcontent MINIAODSIM --geometry=$GEOM --filein $FILENAME --fileout file:step3_inMINIAODSIM.root $CUSTOM | tee step3.log  2>&1
    
 	#NanoAOD
 	#On lxplus, this step takes about 1 minute / 1000 events

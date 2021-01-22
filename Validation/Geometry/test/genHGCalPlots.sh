@@ -1,6 +1,6 @@
 #!/bin/bash -ex
 
-geom=Extended2026D62
+geom=Extended2026D71
 VGEO_DIR=$CMSSW_BASE/src/Validation/Geometry
 TEST_DIR=${VGEO_DIR}/test/materialBudgetHGCalPlots
 

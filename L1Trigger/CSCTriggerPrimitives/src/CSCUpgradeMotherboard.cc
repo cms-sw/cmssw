@@ -11,8 +11,8 @@ CSCUpgradeMotherboard::CSCUpgradeMotherboard(unsigned endcap,
     :  // special configuration parameters for ME11 treatment
       CSCMotherboard(endcap, station, sector, subsector, chamber, conf),
       allLCTs(match_trig_window_size) {
-  if (!isSLHC_)
-    edm::LogError("CSCUpgradeMotherboard|SetupError") << "+++ TMB constructed while isSLHC_ is not set! +++\n";
+  if (!runPhase2_)
+    edm::LogError("CSCUpgradeMotherboard|SetupError") << "+++ TMB constructed while runPhase2_ is not set! +++\n";
 
   if (theRing == 1) {
     if (theStation == 1 and !runME11Up_)
@@ -27,13 +27,10 @@ CSCUpgradeMotherboard::CSCUpgradeMotherboard(unsigned endcap,
 
   theParity = theChamber % 2 == 0 ? Parity::Even : Parity::Odd;
 
-  // generate the LUTs
-  generator_ = std::make_unique<CSCUpgradeMotherboardLUTGenerator>();
-
   // enable the upgrade processors
-  if (isSLHC_ and theRing == 1) {
+  if (runPhase2_ and theRing == 1) {
     clctProc = std::make_unique<CSCUpgradeCathodeLCTProcessor>(endcap, station, sector, subsector, chamber, conf);
-    if (enableAlctSLHC_) {
+    if (enableAlctPhase2_) {
       alctProc = std::make_unique<CSCUpgradeAnodeLCTProcessor>(endcap, station, sector, subsector, chamber, conf);
     }
   }
@@ -51,8 +48,8 @@ CSCUpgradeMotherboard::CSCUpgradeMotherboard(unsigned endcap,
 }
 
 CSCUpgradeMotherboard::CSCUpgradeMotherboard() : CSCMotherboard(), allLCTs(match_trig_window_size) {
-  if (!isSLHC_)
-    edm::LogError("CSCUpgradeMotherboard|SetupError") << "+++ TMB constructed while isSLHC_ is not set! +++\n";
+  if (!runPhase2_)
+    edm::LogError("CSCUpgradeMotherboard|SetupError") << "+++ TMB constructed while runPhase2_ is not set! +++\n";
 
   if (theRing == 1) {
     if (theStation == 1 and !runME11Up_)
@@ -98,8 +95,8 @@ void CSCUpgradeMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCCo
   // ALCT centric matching
   for (int bx_alct = 0; bx_alct < CSCConstants::MAX_ALCT_TBINS; bx_alct++) {
     if (alctProc->getBestALCT(bx_alct).isValid()) {
-      const int bx_clct_start(bx_alct - match_trig_window_size / 2 - alctClctOffset_);
-      const int bx_clct_stop(bx_alct + match_trig_window_size / 2 - alctClctOffset_);
+      const int bx_clct_start(bx_alct - match_trig_window_size / 2 - CSCConstants::ALCT_CLCT_OFFSET);
+      const int bx_clct_stop(bx_alct + match_trig_window_size / 2 - CSCConstants::ALCT_CLCT_OFFSET);
 
       if (debug_matching) {
         LogTrace("CSCUpgradeMotherboard")
@@ -299,11 +296,6 @@ enum CSCPart CSCUpgradeMotherboard::getCSCPart(int keystrip) const {
   }
 }
 
-void CSCUpgradeMotherboard::debugLUTs() {
-  if (debug_luts)
-    generator_->generateLUTs(theEndcap, theStation, theSector, theSubsector, theTrigChamber);
-}
-
 bool CSCUpgradeMotherboard::sortLCTsByQuality(const CSCCorrelatedLCTDigi& lct1, const CSCCorrelatedLCTDigi& lct2) {
   return lct1.getQuality() > lct2.getQuality();
 }
@@ -318,8 +310,6 @@ void CSCUpgradeMotherboard::sortLCTs(std::vector<CSCCorrelatedLCTDigi>& lcts,
   if (lcts.size() > max_lcts)
     lcts.erase(lcts.begin() + max_lcts, lcts.end());
 }
-
-void CSCUpgradeMotherboard::setupGeometry() { generator_->setCSCGeometry(cscGeometry_); }
 
 void CSCUpgradeMotherboard::setPrefIndex() {
   pref[0] = match_trig_window_size / 2;

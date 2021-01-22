@@ -18,11 +18,6 @@ Description: Create monitorElements for the Errors in created in the reduction o
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -72,6 +67,8 @@ public:
   bool setDQMDirectory(uint32_t detID);  //automatically create directory hierachy based on DetID
 protected:
   edm::ESHandle<TrackerGeometry> geom_;
+
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
 
 private:
   void beginJob() override;

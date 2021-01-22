@@ -20,8 +20,6 @@ process.maxEvents = cms.untracked.PSet(
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.debugModules.append('CSCGeometryESModule')
-process.MessageLogger.categories.append('CSCGeometry')
-process.MessageLogger.categories.append('CSCGeometryBuilder')
 process.MessageLogger.cout = cms.untracked.PSet(
        threshold = cms.untracked.string('DEBUG'),
        default = cms.untracked.PSet( limit = cms.untracked.int32(0) ),

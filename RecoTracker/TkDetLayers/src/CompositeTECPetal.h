@@ -5,7 +5,7 @@
 
 #include "TECWedge.h"
 
-#include "BoundDiskSector.h"
+#include "DataFormats/GeometrySurface/interface/BoundDiskSector.h"
 
 #include "SubLayerCrossings.h"
 

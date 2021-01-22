@@ -6,38 +6,38 @@ from RecoParticleFlow.PFClusterProducer.particleFlowCluster_cff import *
 # run a trimmed down PF sequence with heavy-ion vertex, no conversions, nucl int, etc.
 
 from RecoParticleFlow.PFProducer.particleFlowEGamma_cff import *
-particleFlowEGamma.vertexCollection = cms.InputTag("hiSelectedVertex")
-gedGsfElectronCores.ctfTracks = cms.InputTag("hiGeneralTracks")
-gedGsfElectronsTmp.ctfTracksTag = cms.InputTag("hiGeneralTracks")
-gedGsfElectronsTmp.vtxTag = cms.InputTag("hiSelectedVertex")
-gedGsfElectronsTmp.preselection.minSCEtBarrel = cms.double(15.0)
-gedGsfElectronsTmp.preselection.minSCEtEndcaps = cms.double(15.0)
-gedGsfElectronsTmp.fillConvVtxFitProb = cms.bool(False)
+particleFlowEGamma.vertexCollection = "hiSelectedVertex"
+gedGsfElectronCores.ctfTracks = "hiGeneralTracks"
+gedGsfElectronsTmp.ctfTracksTag = "hiGeneralTracks"
+gedGsfElectronsTmp.vtxTag = "hiSelectedVertex"
+gedGsfElectronsTmp.preselection.minSCEtBarrel = 15.0
+gedGsfElectronsTmp.preselection.minSCEtEndcaps = 15.0
+gedGsfElectronsTmp.fillConvVtxFitProb = False
 
-gedPhotonsTmp.primaryVertexProducer = cms.InputTag("hiSelectedVertex")
-gedPhotonsTmp.isolationSumsCalculatorSet.trackProducer = cms.InputTag("hiGeneralTracks")
-gedPhotons.primaryVertexProducer = cms.InputTag("hiSelectedVertex")
-gedPhotons.isolationSumsCalculatorSet.trackProducer = cms.InputTag("hiGeneralTracks")
-photonIDValueMaps.vertices = cms.InputTag("hiSelectedVertex")
+gedPhotonsTmp.primaryVertexProducer = "hiSelectedVertex"
+gedPhotonsTmp.isolationSumsCalculatorSet.trackProducer = "hiGeneralTracks"
+gedPhotons.primaryVertexProducer = "hiSelectedVertex"
+gedPhotons.isolationSumsCalculatorSet.trackProducer = "hiGeneralTracks"
+photonIDValueMaps.vertices = "hiSelectedVertex"
 from RecoHI.HiEgammaAlgos.photonIsolationHIProducer_cfi import photonIsolationHIProducer
-photonIsolationHIProducerGED = photonIsolationHIProducer.clone(photonProducer=cms.InputTag("gedPhotonsTmp"))
+photonIsolationHIProducerGED = photonIsolationHIProducer.clone(photonProducer="gedPhotonsTmp")
 
 #These are set for consistency w/ HiElectronSequence, but these cuts need to be studied
-gedGsfElectronsTmp.preselection.maxHOverEBarrelCone = cms.double(0.25)
-gedGsfElectronsTmp.preselection.maxHOverEEndcapsCone = cms.double(0.25)
-gedGsfElectronsTmp.preselection.maxHOverEBarrelTower = cms.double(0.0)
-gedGsfElectronsTmp.preselection.maxHOverEEndcapsTower = cms.double(0.0)
-gedGsfElectronsTmp.preselection.maxEOverPBarrel = cms.double(2.)
-gedGsfElectronsTmp.preselection.maxEOverPEndcaps = cms.double(2.)
+gedGsfElectronsTmp.preselection.maxHOverEBarrelCone = 0.25
+gedGsfElectronsTmp.preselection.maxHOverEEndcapsCone = 0.25
+gedGsfElectronsTmp.preselection.maxHOverEBarrelTower = 0.0
+gedGsfElectronsTmp.preselection.maxHOverEEndcapsTower = 0.0
+gedGsfElectronsTmp.preselection.maxEOverPBarrel = 2.
+gedGsfElectronsTmp.preselection.maxEOverPEndcaps = 2.
 
-ootPhotonsTmp.primaryVertexProducer = cms.InputTag("hiSelectedVertex")
-ootPhotonsTmp.isolationSumsCalculatorSet.trackProducer = cms.InputTag("hiGeneralTracks")
-ootPhotons.primaryVertexProducer = cms.InputTag("hiSelectedVertex")
-ootPhotons.isolationSumsCalculatorSet.trackProducer = cms.InputTag("hiGeneralTracks")
+ootPhotonsTmp.primaryVertexProducer = "hiSelectedVertex"
+ootPhotonsTmp.isolationSumsCalculatorSet.trackProducer = "hiGeneralTracks"
+ootPhotons.primaryVertexProducer = "hiSelectedVertex"
+ootPhotons.isolationSumsCalculatorSet.trackProducer = "hiGeneralTracks"
 
 from RecoParticleFlow.Configuration.RecoParticleFlow_cff import *
 
-mvaElectrons.vertexTag = cms.InputTag("hiSelectedVertex")
+mvaElectrons.vertexTag = "hiSelectedVertex"
 
 particleFlowBlock.elementImporters = cms.VPSet(
     cms.PSet( importerName = cms.string("GSFTrackImporter"),
@@ -79,16 +79,16 @@ particleFlowBlock.elementImporters = cms.VPSet(
               source = cms.InputTag("particleFlowClusterPS") )
     )
 
-particleFlowTmp.postMuonCleaning = cms.bool(False)
-particleFlowTmp.vertexCollection = cms.InputTag("hiSelectedVertex")
-particleFlowTmp.muons = cms.InputTag("hiMuons1stStep")
-particleFlowTmp.usePFConversions = cms.bool(False)
+particleFlowTmp.postMuonCleaning = False
+particleFlowTmp.vertexCollection = "hiSelectedVertex"
+particleFlowTmp.muons = "hiMuons1stStep"
+particleFlowTmp.usePFConversions = False
 
 pfNoPileUpIso.enable = False
 pfPileUpIso.Enable = False
 pfNoPileUp.enable = False
 pfPileUp.Enable = False
-particleFlow.Muons = cms.InputTag("muons","hiMuons1stStep2muonsMap")
+particleFlow.Muons = "muons:hiMuons1stStep2muonsMap"
 
 
 # local reco must run before electrons (RecoHI/HiEgammaAlgos), due to PF integration

@@ -15,9 +15,14 @@ process.source = cms.Source ("NewEventStreamFileReader",fileNames = cms.untracke
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring('rpcunpacker'),
-    destinations = cms.untracked.vstring('cout'),
-    cout = cms.untracked.PSet( threshold = cms.untracked.string('DEBUG'))
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('DEBUG')
+    ),
+    debugModules = cms.untracked.vstring('rpcunpacker')
 )
 
 process.out = cms.OutputModule("PoolOutputModule",

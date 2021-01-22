@@ -83,6 +83,8 @@ namespace edm {
       EventSetupsController(EventSetupsController const&) = delete;
       EventSetupsController const& operator=(EventSetupsController const&) = delete;
 
+      void endIOVs();
+
       std::shared_ptr<EventSetupProvider> makeProvider(ParameterSet&,
                                                        ActivityRegistry*,
                                                        ParameterSet const* eventSetupPset = nullptr);

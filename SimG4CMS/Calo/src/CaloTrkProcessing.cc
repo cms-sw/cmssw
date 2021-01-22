@@ -20,7 +20,7 @@
 
 #include "G4SystemOfUnits.hh"
 
-//#define EDM_ML_DEBUG
+// #define EDM_ML_DEBUG
 
 CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
                                      const edm::EventSetup& es,
@@ -35,13 +35,11 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
   putHistory_ = m_p.getParameter<bool>("PutHistory");
   doFineCalo_ = m_p.getParameter<bool>("DoFineCalo");
   eMinFine_ = m_p.getParameter<double>("EminFineTrack") * CLHEP::MeV;
-  eMinFinePhoton_ = m_p.getParameter<double>("EminFinePhoton") * CLHEP::MeV;
 
-  edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: Initailised with TestBeam = " << testBeam_ << " Emin = " << eMin_
-                              << ":" << eMinFine_ << ":" << eMinFinePhoton_ << " MeV and Flags " << putHistory_
-                              << " (History), " << doFineCalo_ << " (Special Calorimeter)";
+  edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: Initialised with TestBeam = " << testBeam_ << " Emin = " << eMin_
+                              << " Flags " << putHistory_ << " (History), " << doFineCalo_ << " (Special Calorimeter)";
 
-  // Get pointers to HcalDDDConstant and HcalSimulationParameters
+  // Get pointer to CaloSimulationParameters
   edm::ESHandle<CaloSimulationParameters> csps;
   es.get<HcalParametersRcd>().get(csps);
   if (csps.isValid()) {
@@ -148,8 +146,8 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
       }
     }
   } else {
-    edm::LogError("HcalSim") << "CaloTrkProcessing: Cannot find CaloSimulationParameters";
-    throw cms::Exception("Unknown", "CaloSD") << "Cannot find CaloSimulationParameters\n";
+    edm::LogError("CaloSim") << "CaloTrkProcessing: Cannot find CaloSimulationParameters";
+    throw cms::Exception("Unknown", "CaloTrkProcessing") << "Cannot find CaloSimulationParameters\n";
   }
 
   edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: with " << detectors_.size() << " calorimetric volumes";
@@ -184,6 +182,55 @@ void CaloTrkProcessing::update(const G4Step* aStep) {
   if (trkInfo == nullptr) {
     edm::LogError("CaloSim") << "CaloTrkProcessing: No trk info !!!! abort ";
     throw cms::Exception("Unknown", "CaloTrkProcessing") << "cannot get trkInfo for Track " << id << "\n";
+  }
+
+  if (doFineCalo_) {
+    // Boundary-crossing logic
+    int prestepLV = isItCalo(aStep->GetPreStepPoint()->GetTouchable(), fineDetectors_);
+    int poststepLV = isItCalo(aStep->GetPostStepPoint()->GetTouchable(), fineDetectors_);
+    if (prestepLV < 0 && poststepLV >= 0
+        // Allow back-scattering and filter it out later; ensure consistency during the SIM step
+        // && std::abs(theTrack->GetStep()->GetPreStepPoint()->GetPosition().z()) < std::abs(theTrack->GetPosition().z())
+    ) {
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("DoFineCalo") << "Entered fine volume " << poststepLV << ":"
+                                     << " Track " << id << " pdgid=" << theTrack->GetDefinition()->GetPDGEncoding()
+                                     << " prestepLV=" << prestepLV << " poststepLV=" << poststepLV
+                                     << " GetKineticEnergy[GeV]=" << theTrack->GetKineticEnergy() / CLHEP::GeV
+                                     << " GetVertexKineticEnergy[GeV]="
+                                     << theTrack->GetVertexKineticEnergy() / CLHEP::GeV << " prestepPosition[cm]=("
+                                     << theTrack->GetStep()->GetPreStepPoint()->GetPosition().x() / CLHEP::cm << ","
+                                     << theTrack->GetStep()->GetPreStepPoint()->GetPosition().y() / CLHEP::cm << ","
+                                     << theTrack->GetStep()->GetPreStepPoint()->GetPosition().z() / CLHEP::cm << ")"
+                                     << " poststepPosition[cm]=("
+                                     << theTrack->GetStep()->GetPostStepPoint()->GetPosition().x() / CLHEP::cm << ","
+                                     << theTrack->GetStep()->GetPostStepPoint()->GetPosition().y() / CLHEP::cm << ","
+                                     << theTrack->GetStep()->GetPostStepPoint()->GetPosition().z() / CLHEP::cm << ")"
+                                     << " position[cm]=(" << theTrack->GetPosition().x() / CLHEP::cm << ","
+                                     << theTrack->GetPosition().y() / CLHEP::cm << ","
+                                     << theTrack->GetPosition().z() / CLHEP::cm << ")"
+                                     << " vertex_position[cm]=(" << theTrack->GetVertexPosition().x() / CLHEP::cm << ","
+                                     << theTrack->GetVertexPosition().y() / CLHEP::cm << ","
+                                     << theTrack->GetVertexPosition().z() / CLHEP::cm << ")";
+#endif
+      trkInfo->setCrossedBoundary(theTrack);
+    }
+#ifdef EDM_ML_DEBUG
+    else if (prestepLV >= 0 && poststepLV < 0) {
+      edm::LogVerbatim("DoFineCalo") << "Exited fine volume " << prestepLV << ":"
+                                     << " Track " << id
+                                     << " GetKineticEnergy[GeV]=" << theTrack->GetKineticEnergy() / CLHEP::GeV
+                                     << " GetVertexKineticEnergy[GeV]="
+                                     << theTrack->GetVertexKineticEnergy() / CLHEP::GeV << " prestepPosition[cm]=("
+                                     << theTrack->GetStep()->GetPreStepPoint()->GetPosition().x() / CLHEP::cm << ","
+                                     << theTrack->GetStep()->GetPreStepPoint()->GetPosition().y() / CLHEP::cm << ","
+                                     << theTrack->GetStep()->GetPreStepPoint()->GetPosition().z() / CLHEP::cm << ")"
+                                     << " poststepPosition[cm]=("
+                                     << theTrack->GetStep()->GetPostStepPoint()->GetPosition().x() / CLHEP::cm << ","
+                                     << theTrack->GetStep()->GetPostStepPoint()->GetPosition().y() / CLHEP::cm << ","
+                                     << theTrack->GetStep()->GetPostStepPoint()->GetPosition().z() / CLHEP::cm << ")";
+    }
+#endif
   }
 
   if (testBeam_) {
@@ -240,23 +287,6 @@ void CaloTrkProcessing::update(const G4Step* aStep) {
 #endif
         }
       }
-    }
-  }
-  if (doFineCalo_ && (!trkInfo->isInHistory())) {
-    const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
-    if (isItCalo(touch, fineDetectors_) >= 0) {
-      int pdg = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
-      double cut = (pdg == 22) ? eMinFinePhoton_ : eMinFine_;
-      if (aStep->GetTrack()->GetKineticEnergy() / CLHEP::MeV > cut) {
-        trkInfo->putInHistory();
-        trkInfo->setIDfineCalo(id);
-      }
-#ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: the track " << aStep->GetTrack()->GetTrackID()
-                                  << " with PDGID " << pdg << " and kinetic energy "
-                                  << aStep->GetTrack()->GetKineticEnergy() / CLHEP::MeV << " is tested against " << cut
-                                  << " to be put in history";
-#endif
     }
   }
 }

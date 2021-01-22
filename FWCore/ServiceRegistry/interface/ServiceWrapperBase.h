@@ -29,6 +29,8 @@ namespace edm {
     class ServiceWrapperBase {
     public:
       ServiceWrapperBase();
+      ServiceWrapperBase(const ServiceWrapperBase&) = delete;                   // stop default
+      const ServiceWrapperBase& operator=(const ServiceWrapperBase&) = delete;  // stop default
       virtual ~ServiceWrapperBase();
 
       // ---------- const member functions ---------------------
@@ -38,10 +40,6 @@ namespace edm {
       // ---------- member functions ---------------------------
 
     private:
-      ServiceWrapperBase(const ServiceWrapperBase&) = delete;  // stop default
-
-      const ServiceWrapperBase& operator=(const ServiceWrapperBase&) = delete;  // stop default
-
       // ---------- member data --------------------------------
     };
   }  // namespace serviceregistry

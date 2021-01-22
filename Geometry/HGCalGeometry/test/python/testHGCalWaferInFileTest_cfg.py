@@ -11,7 +11,7 @@ process.load("Geometry.HGCalGeometry.hgcalEEWaferInFileTest_cfi")
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('HGCalGeom')
+    process.MessageLogger.HGCalGeom=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
@@ -36,6 +36,8 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
+
+#process.hgcalEEWaferInFileTest.Verbosity = 1
 
 process.hgcalHEWaferInFileTest = process.hgcalEEWaferInFileTest.clone(
     NameSense  = "HGCalHESiliconSensitive",

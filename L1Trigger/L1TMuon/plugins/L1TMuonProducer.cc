@@ -119,6 +119,7 @@ private:
   MicroGMTIsolationUnit m_isolationUnit;
   MicroGMTCancelOutUnit m_cancelOutUnit;
   std::ofstream m_debugOut;
+  l1t::cancelmode m_bmtfCancelMode;
   l1t::cancelmode m_emtfCancelMode;
 
   edm::EDGetTokenT<MicroGMTConfiguration::InputCollection> m_barrelTfInputToken;
@@ -141,7 +142,9 @@ private:
 // constructors and destructor
 //
 L1TMuonProducer::L1TMuonProducer(const edm::ParameterSet& iConfig)
-    : m_debugOut("test/debug/iso_debug.dat"), m_emtfCancelMode(cancelmode::coordinate) {
+    : m_debugOut("test/debug/iso_debug.dat"),
+      m_bmtfCancelMode(cancelmode::tracks),
+      m_emtfCancelMode(cancelmode::coordinate) {
   // edm::InputTag barrelTfInputTag = iConfig.getParameter<edm::InputTag>("barrelTFInput");
   // edm::InputTag overlapTfInputTag = iConfig.getParameter<edm::InputTag>("overlapTFInput");
   // edm::InputTag forwardTfInputTag = iConfig.getParameter<edm::InputTag>("forwardTFInput");
@@ -156,8 +159,13 @@ L1TMuonProducer::L1TMuonProducer(const edm::ParameterSet& iConfig)
   m_bxMax = iConfig.getParameter<int>("bxMax");
 
   m_autoCancelMode = iConfig.getParameter<bool>("autoCancelMode");
-  if (!m_autoCancelMode && iConfig.getParameter<std::string>("emtfCancelMode").find("tracks") == 0) {
-    m_emtfCancelMode = cancelmode::tracks;
+  if (!m_autoCancelMode) {
+    if (iConfig.getParameter<std::string>("bmtfCancelMode").find("kftracks") == 0) {
+      m_bmtfCancelMode = cancelmode::kftracks;
+    }
+    if (iConfig.getParameter<std::string>("emtfCancelMode").find("tracks") == 0) {
+      m_emtfCancelMode = cancelmode::tracks;
+    }
   }
 
   m_barrelTfInputToken = consumes<MicroGMTConfiguration::InputCollection>(m_barrelTfInputTag);
@@ -271,7 +279,7 @@ void L1TMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     splitAndConvertMuons(omtfMuons, internMuonsOmtfPos, internMuonsOmtfNeg, omtfPosWedges, omtfNegWedges, bx);
 
     // cancel out within the track finders:
-    m_cancelOutUnit.setCancelOutBits(bmtfWedges, tftype::bmtf, cancelmode::tracks);
+    m_cancelOutUnit.setCancelOutBits(bmtfWedges, tftype::bmtf, m_bmtfCancelMode);
     m_cancelOutUnit.setCancelOutBits(omtfPosWedges, tftype::omtf_pos, cancelmode::coordinate);
     m_cancelOutUnit.setCancelOutBits(omtfNegWedges, tftype::omtf_neg, cancelmode::coordinate);
     m_cancelOutUnit.setCancelOutBits(emtfPosWedges, tftype::emtf_pos, m_emtfCancelMode);
@@ -338,16 +346,25 @@ void L1TMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                    mu->hwDPhi(),
                    mu->hwDEta(),
                    mu->hwRank()};
+
+        // Set coordinates at the vertex
+        outMu.setHwEtaAtVtx(MicroGMTConfiguration::calcMuonHwEtaExtra(outMu));
+        outMu.setHwPhiAtVtx(MicroGMTConfiguration::calcMuonHwPhiExtra(outMu));
+        outMu.setEtaAtVtx(MicroGMTConfiguration::calcMuonEtaExtra(outMu));
+        outMu.setPhiAtVtx(MicroGMTConfiguration::calcMuonPhiExtra(outMu));
+
+        // Set displacement information
+        int hwPtUnconstrained{mu->hwPtUnconstrained()};
+        outMu.setPtUnconstrained(hwPtUnconstrained == 0 ? 0
+                                                        : (hwPtUnconstrained - 1) * 0.5);  // Don't want negative pT.
+        outMu.setHwPtUnconstrained(hwPtUnconstrained);
+        outMu.setHwDXY(mu->hwDXY());
+
         if (mu->hwSignValid()) {
           outMu.setCharge(1 - 2 * mu->hwSign());
         } else {
           outMu.setCharge(0);
         }
-        // set the coordinates at the vertex
-        outMu.setHwEtaAtVtx(MicroGMTConfiguration::calcMuonHwEtaExtra(outMu));
-        outMu.setHwPhiAtVtx(MicroGMTConfiguration::calcMuonHwPhiExtra(outMu));
-        outMu.setEtaAtVtx(MicroGMTConfiguration::calcMuonEtaExtra(outMu));
-        outMu.setPhiAtVtx(MicroGMTConfiguration::calcMuonPhiExtra(outMu));
         m_debugOut << mu->hwCaloPhi() << " " << mu->hwCaloEta() << std::endl;
         outMuons->push_back(bx, outMu);
       }
@@ -435,6 +452,12 @@ void L1TMuonProducer::addMuonsToCollections(MicroGMTConfiguration::InterMuonList
                mu->hwDPhi(),
                mu->hwDEta(),
                mu->hwRank()};
+
+    int hwPtUnconstrained{mu->hwPtUnconstrained()};
+    outMu.setPtUnconstrained(hwPtUnconstrained == 0 ? 0 : (hwPtUnconstrained - 1) * 0.5);  // Don't want negative pT.
+    outMu.setHwPtUnconstrained(hwPtUnconstrained);
+    outMu.setHwDXY(mu->hwDXY());
+
     if (mu->hwSignValid()) {
       outMu.setCharge(1 - 2 * mu->hwSign());
     } else {
@@ -463,23 +486,26 @@ void L1TMuonProducer::splitAndConvertMuons(const edm::Handle<MicroGMTConfigurati
   int muIdx = 0;
   int currentLink = 0;
   for (size_t i = 0; i < in->size(bx); ++i, ++muIdx) {
-    int link = in->at(bx, i).link();
-    if (m_inputsToDisable.test(link) || m_maskedInputs.test(link))
-      continue;  // only process if input link is enabled and not masked
-    if (currentLink != link) {
-      muIdx = 0;
-      currentLink = link;
-    }
-    int gPhi = MicroGMTConfiguration::calcGlobalPhi(
-        in->at(bx, i).hwPhi(), in->at(bx, i).trackFinderType(), in->at(bx, i).processor());
-    int tfMuonIdx = 3 * (currentLink - 36) + muIdx;
-    std::shared_ptr<GMTInternalMuon> out = std::make_shared<GMTInternalMuon>(in->at(bx, i), gPhi, tfMuonIdx);
-    if (in->at(bx, i).hwEta() > 0) {
-      out_pos.push_back(out);
-      wedges_pos[in->at(bx, i).processor()].push_back(out);
-    } else {
-      out_neg.emplace_back(out);
-      wedges_neg[in->at(bx, i).processor()].push_back(out);
+    if (in->at(bx, i).hwPt() > 0) {
+      int link = in->at(bx, i).link();
+      if (m_inputsToDisable.test(link) || m_maskedInputs.test(link)) {
+        continue;  // only process if input link is enabled and not masked
+      }
+      if (currentLink != link) {
+        muIdx = 0;
+        currentLink = link;
+      }
+      int gPhi = MicroGMTConfiguration::calcGlobalPhi(
+          in->at(bx, i).hwPhi(), in->at(bx, i).trackFinderType(), in->at(bx, i).processor());
+      int tfMuonIdx = 3 * (currentLink - 36) + muIdx;
+      std::shared_ptr<GMTInternalMuon> out = std::make_shared<GMTInternalMuon>(in->at(bx, i), gPhi, tfMuonIdx);
+      if (in->at(bx, i).hwEta() > 0) {
+        out_pos.push_back(out);
+        wedges_pos[in->at(bx, i).processor()].push_back(out);
+      } else {
+        out_neg.emplace_back(out);
+        wedges_neg[in->at(bx, i).processor()].push_back(out);
+      }
     }
   }
   for (int i = 0; i < 6; ++i) {
@@ -506,19 +532,22 @@ void L1TMuonProducer::convertMuons(const edm::Handle<MicroGMTConfiguration::Inpu
   int muIdx = 0;
   int currentLink = 0;
   for (size_t i = 0; i < in->size(bx); ++i, ++muIdx) {
-    int link = in->at(bx, i).link();
-    if (m_inputsToDisable.test(link) || m_maskedInputs.test(link))
-      continue;  // only process if input link is enabled and not masked
-    if (currentLink != link) {
-      muIdx = 0;
-      currentLink = link;
+    if (in->at(bx, i).hwPt() > 0) {
+      int link = in->at(bx, i).link();
+      if (m_inputsToDisable.test(link) || m_maskedInputs.test(link)) {
+        continue;  // only process if input link is enabled and not masked
+      }
+      if (currentLink != link) {
+        muIdx = 0;
+        currentLink = link;
+      }
+      int gPhi = MicroGMTConfiguration::calcGlobalPhi(
+          in->at(bx, i).hwPhi(), in->at(bx, i).trackFinderType(), in->at(bx, i).processor());
+      int tfMuonIdx = 3 * (currentLink - 36) + muIdx;
+      std::shared_ptr<GMTInternalMuon> outMu = std::make_shared<GMTInternalMuon>(in->at(bx, i), gPhi, tfMuonIdx);
+      out.emplace_back(outMu);
+      wedges[in->at(bx, i).processor()].push_back(outMu);
     }
-    int gPhi = MicroGMTConfiguration::calcGlobalPhi(
-        in->at(bx, i).hwPhi(), in->at(bx, i).trackFinderType(), in->at(bx, i).processor());
-    int tfMuonIdx = 3 * (currentLink - 36) + muIdx;
-    std::shared_ptr<GMTInternalMuon> outMu = std::make_shared<GMTInternalMuon>(in->at(bx, i), gPhi, tfMuonIdx);
-    out.emplace_back(outMu);
-    wedges[in->at(bx, i).processor()].push_back(outMu);
   }
   for (int i = 0; i < 12; ++i) {
     if (wedges[i].size() > 3)
@@ -562,8 +591,14 @@ void L1TMuonProducer::beginRun(edm::Run const& run, edm::EventSetup const& iSetu
   m_isolationUnit.initialise(microGMTParamsHelper.get());
   m_cancelOutUnit.initialise(microGMTParamsHelper.get());
 
-  if (m_autoCancelMode && microGMTParamsHelper->fwVersion() > 0x5000000) {
-    m_emtfCancelMode = cancelmode::tracks;
+  if (m_autoCancelMode) {
+    if (microGMTParamsHelper->fwVersion() >= 0x6000000) {
+      m_bmtfCancelMode = cancelmode::kftracks;
+    }
+    // TODO: No decision yet on when to use EMTF track addresses for cancel-out.
+    // if (microGMTParamsHelper->fwVersion() > 0x5000000) {
+    //   m_emtfCancelMode = cancelmode::tracks;
+    // }
   }
 }
 
