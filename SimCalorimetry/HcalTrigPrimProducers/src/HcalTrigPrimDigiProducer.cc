@@ -138,7 +138,7 @@ void HcalTrigPrimDigiProducer::beginRun(const edm::Run& run, const edm::EventSet
         int fixedPointWeight = db->getHcalTPChannelParameter(hcalDetId)->getauxi1();
 
         // Weight from DB represented as 8-bit integer
-        double weight = -fixedPointWeight / pow(2, 8);
+        double weight = -static_cast<double>(fixedPointWeight) / 256.0;
 
         weightsMap[aieta] = weight;
       }
