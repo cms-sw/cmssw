@@ -27,10 +27,7 @@ HLT2L1TkMuonL1TkMuonMuRefDR::HLT2L1TkMuonL1TkMuonMuRefDR(const edm::ParameterSet
       inputToken2_(consumes<trigger::TriggerFilterObjectWithRefs>(inputTag2_)),
       minDR_(iConfig.getParameter<double>("MinDR")),
       min_N_(iConfig.getParameter<int>("MinN")),
-      same_(inputTag1_.encode() == inputTag2_.encode()),  // same collections to be compared?
-      emtfRegion_(3),
-      etaScale_(0.010875),
-      phiScale_(2. * M_PI / 576.) {}
+      same_(inputTag1_.encode() == inputTag2_.encode()) {}  // same collections to be compared?
 
 HLT2L1TkMuonL1TkMuonMuRefDR::~HLT2L1TkMuonL1TkMuonMuRefDR() {}
 
