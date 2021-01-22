@@ -704,6 +704,12 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
   proc.updatedJetsWithUserData.userFloats.qgl_ptD   = cms.InputTag("qgtagger:ptD")
   proc.updatedJetsWithUserData.userInts.qgl_mult    = cms.InputTag("qgtagger:mult")
   #
+  # Save quark gluon likelihood input variables variables
+  #
+  proc.jetTable.variables.qgl_axis2 =  QGLVARS.qgl_axis2
+  proc.jetTable.variables.qgl_ptD   =  QGLVARS.qgl_ptD
+  proc.jetTable.variables.qgl_mult  =  QGLVARS.qgl_mult
+  #
   # Save standard b-tagging and c-tagging variables
   #
   proc.jetTable.variables.btagDeepB = BTAGVARS.btagDeepB
