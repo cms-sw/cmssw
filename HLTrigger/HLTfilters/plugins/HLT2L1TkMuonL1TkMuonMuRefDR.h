@@ -48,9 +48,9 @@ private:
   const bool same_;     // 1st and 2nd product are one and the same
 
   // eta and phi scaling for RegionalMuonCand
-  const unsigned int emtfRegion_;
-  const float etaScale_;
-  const float phiScale_;
+  static constexpr unsigned int emtfRegion_{3};
+  static constexpr float etaScale_{0.010875};
+  static constexpr float phiScale_{2. * M_PI / 576.};
 };
 
 #endif  //HLT2L1TkMuonL1TkMuonMuRefDR_h
