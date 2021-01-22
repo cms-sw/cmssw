@@ -51,12 +51,6 @@ using namespace std;
 using namespace edm;
 using namespace l1t;
 
-// HERE
-// class MuonServiceProxy;
-// class MeasurementEstimator;
-// class TrajectorySeed;
-// class TrajectoryStateOnSurface;
-
 class L2MuonSeedGeneratorFromL1TkMu : public edm::stream::EDProducer<> {
 public:
   /// Constructor
@@ -145,10 +139,6 @@ L2MuonSeedGeneratorFromL1TkMu::L2MuonSeedGeneratorFromL1TkMu(const edm::Paramete
 
   produces<L2MuonTrajectorySeedCollection>();
 }
-
-// destructor
-// HERE
-// L2MuonSeedGeneratorFromL1TkMu::~L2MuonSeedGeneratorFromL1TkMu() {}
 
 void L2MuonSeedGeneratorFromL1TkMu::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
@@ -409,6 +399,7 @@ const TrajectorySeed *L2MuonSeedGeneratorFromL1TkMu::associateOfflineSeedToL1(
     std::vector<int> &offseedMap,
     TrajectoryStateOnSurface &newTsos,
     double dRcone) {
+
   if (dRcone < 0.)
     return nullptr;
 
