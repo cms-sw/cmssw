@@ -88,13 +88,14 @@ private:
   std::vector<double> etaBins_;
 
   // parameters used in propagating L1 tracker track
-  // to the second muon station
-  const float etaBoundary_;
-  const float distMB2_;
-  const float distME2_;
-  const float phiCorr0_;
-  const float phiCorr1_;
-  const float phiCorr2_;
+  // to the second muon station, numbers are
+  // taken from L1TkMuonProducer::propagateToGMT
+  static constexpr float etaBoundary_{1.1};
+  static constexpr float distMB2_{550.};
+  static constexpr float distME2_{850.};
+  static constexpr float phiCorr0_{1.464};
+  static constexpr float phiCorr1_{1.7};
+  static constexpr float phiCorr2_{144.};
 
   /// the event setup proxy, it takes care the services update
   std::unique_ptr<MuonServiceProxy> service_;
@@ -120,14 +121,7 @@ L2MuonSeedGeneratorFromL1TkMu::L2MuonSeedGeneratorFromL1TkMu(const edm::Paramete
       useOfflineSeed_(iConfig.getUntrackedParameter<bool>("UseOfflineSeed", false)),
       useUnassociatedL1_(iConfig.getParameter<bool>("UseUnassociatedL1")),
       matchingDR_(iConfig.getParameter<std::vector<double>>("MatchDR")),
-      etaBins_(iConfig.getParameter<std::vector<double>>("EtaMatchingBins")),
-      // parameters are taken from L1TkMuonProducer::propagateToGMT
-      etaBoundary_(1.1),
-      distMB2_(550.),
-      distME2_(850.),
-      phiCorr0_(1.464),
-      phiCorr1_(1.7),
-      phiCorr2_(144.) {
+      etaBins_(iConfig.getParameter<std::vector<double>>("EtaMatchingBins")) {
   if (useOfflineSeed_) {
     offlineSeedLabel_ = iConfig.getUntrackedParameter<InputTag>("OfflineSeedLabel");
     offlineSeedToken_ = consumes<edm::View<TrajectorySeed>>(offlineSeedLabel_);
