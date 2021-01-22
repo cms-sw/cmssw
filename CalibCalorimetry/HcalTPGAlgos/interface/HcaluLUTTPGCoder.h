@@ -114,7 +114,8 @@ private:
   double cosh_ieta_28_HE_low_depths_, cosh_ieta_28_HE_high_depths_, cosh_ieta_29_HE_;
   bool allLinear_;
   bool contain1TSHB_, contain1TSHE_;
-  double containPhaseNSHB_, containPhaseNSHE_;
+  double containPhaseNSHB_ = -999.0;
+  double containPhaseNSHE_ = -999.0;
   double linearLSB_QIE8_, linearLSB_QIE11_, linearLSB_QIE11Overlap_;
   std::unique_ptr<HcalPulseContainmentManager> pulseCorr_;
 };
