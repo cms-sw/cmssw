@@ -81,7 +81,7 @@ void MatchEngineUnit::step() {
       usesecond_ = false;
       istub_ = 0;
       slot_++;
-      projfinerz_ -= 8;
+      projfinerz_ -= (1<<NFINERZBITS);
     } else {
       idle_ = true;
     }

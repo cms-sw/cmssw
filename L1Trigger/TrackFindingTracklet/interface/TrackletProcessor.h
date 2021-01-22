@@ -44,6 +44,9 @@ namespace trklet {
 
     VMStubsTEMemory* outervmstubs_;
 
+    // The use of a std::tuple here is awkward and should be fixed. This code is slotted for a significant
+    // overhaul to allign with the HLS implementation. At that point the use fo the tuple should be 
+    // eliminated
     //                                               istub          imem        start imem    end imem
     std::vector<std::tuple<CircularBuffer<TEData>, unsigned int, unsigned int, unsigned int, unsigned int> >
         tedatabuffers_;

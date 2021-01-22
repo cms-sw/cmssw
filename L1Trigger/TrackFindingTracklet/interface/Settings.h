@@ -23,6 +23,11 @@ namespace trklet {
 
   constexpr unsigned int N_DSS_MOD = 5;  // # of rings with 2S modules per disk
 
+  constexpr unsigned int NRINVBITS = 5;  //number of bit for rinv in bend match table 
+  constexpr unsigned int NFINERZBITS = 3; //number of bit for r or z within a r/z bin 
+
+  constexpr double sixth = 1.0/6.0;     //Commonly used factor
+
   class Settings {
   public:
     Settings() {

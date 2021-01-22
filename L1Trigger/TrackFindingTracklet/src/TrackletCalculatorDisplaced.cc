@@ -1767,11 +1767,11 @@ void TrackletCalculatorDisplaced::approxproj(double halfRinv,
   double rmeanInv = 1.0 / rmean;
 
   phiproj = phi0 + rmean * (-halfRinv + 2.0 * d0_0 * halfRinv_0 * halfRinv_0) +
-            rmeanInv * (-d0 + halfRinv_0 * d0_0 * d0_0) + (1.0 / 6.0) * pow(-rmean * halfRinv_0 - rmeanInv * d0_0, 3);
+            rmeanInv * (-d0 + halfRinv_0 * d0_0 * d0_0) + sixth * pow(-rmean * halfRinv_0 - rmeanInv * d0_0, 3);
   phiprojder = -halfRinv + d0 * rmeanInv * rmeanInv;  //removed all high terms
 
   zproj = z0 + t * rmean - 0.5 * rmeanInv * t * d0_0 * d0_0 - t * rmean * halfRinv * d0 +
-          (1.0 / 6.0) * pow(rmean, 3) * t * halfRinv_0 * halfRinv_0;
+          sixth * pow(rmean, 3) * t * halfRinv_0 * halfRinv_0;
   zprojder = t;  // removed all high terms
 
   phiproj = angle0to2pi::make0To2pi(phiproj);
@@ -1803,7 +1803,7 @@ void TrackletCalculatorDisplaced::approxprojdisk(double halfRinv,
 
   double zmeanInv = 1.0 / zmean, rstar = (zmean - z0) / t,
          epsilon = 0.5 * zmeanInv * zmeanInv * d0_0 * d0_0 * t * t + halfRinv * d0 -
-                   (1.0 / 6.0) * rstar * rstar * halfRinv_0 * halfRinv_0;
+                   sixth * rstar * rstar * halfRinv_0 * halfRinv_0;
 
   rproj = rstar * (1 + epsilon);
   rprojder = 1 / t;
@@ -1815,7 +1815,7 @@ void TrackletCalculatorDisplaced::approxprojdisk(double halfRinv,
   double B_0 = -d0_0 * t * zmeanInv * (1 + z0 * zmeanInv) * (1 - epsilon);
   // double C_0 = -d0_0 * halfRinv_0;
 
-  phiproj = phi0 - A + B * (1 + C - 2 * A_0 * A_0) + (1. / 6.) * pow(-A_0 + B_0, 3);
+  phiproj = phi0 - A + B * (1 + C - 2 * A_0 * A_0) + sixth * pow(-A_0 + B_0, 3);
   phiprojder = -halfRinv / t - d0 * t * t * zmeanInv * zmeanInv;
 
   phiproj = angle0to2pi::make0To2pi(phiproj);
@@ -1870,11 +1870,11 @@ void TrackletCalculatorDisplaced::approxtracklet(double r1,
     d0OverR = d0OverR3;
 
   double c1 = d0_0 * halfRinv_0 * d0OverR1 + 2.0 * d0_0 * halfRinv_0 * r1 * halfRinv_0 +
-              (1.0 / 6.0) * pow(-r1 * halfRinv_0 - d0OverR1, 3);
+              sixth * pow(-r1 * halfRinv_0 - d0OverR1, 3);
   double c2 = d0_0 * halfRinv_0 * d0OverR2 + 2.0 * d0_0 * halfRinv_0 * r2 * halfRinv_0 +
-              (1.0 / 6.0) * pow(-r2 * halfRinv_0 - d0OverR2, 3);
+              sixth * pow(-r2 * halfRinv_0 - d0OverR2, 3);
   double c3 = d0_0 * halfRinv_0 * d0OverR3 + 2.0 * d0_0 * halfRinv_0 * r3 * halfRinv_0 +
-              (1.0 / 6.0) * pow(-r3 * halfRinv_0 - d0OverR3, 3);
+              sixth * pow(-r3 * halfRinv_0 - d0OverR3, 3);
 
   double phi1c = phi1 - c1;
   double phi2c = phi2 - c2;
@@ -1886,9 +1886,9 @@ void TrackletCalculatorDisplaced::approxtracklet(double r1,
   d0 = r1 * r2 * r3 * (-phi1c * a + phi2c * b - phi3c * c);
 
   t = ((z - z1) / (r - r1)) * (1. + d0 * halfRinv - 0.5 * d0OverR1 * d0OverR -
-                               (1. / 6.) * (r1 * r1 + r2 * r2 + r1 * r2) * halfRinv_0 * halfRinv_0);
+                               sixth * (r1 * r1 + r2 * r2 + r1 * r2) * halfRinv_0 * halfRinv_0);
   z0 = z1 -
-       t * r1 * (1.0 - d0_0 * halfRinv_0 - 0.5 * d0OverR1 * d0OverR1 + (1.0 / 6.0) * r1 * r1 * halfRinv_0 * halfRinv_0);
+       t * r1 * (1.0 - d0_0 * halfRinv_0 - 0.5 * d0OverR1 * d0OverR1 + sixth * r1 * r1 * halfRinv_0 * halfRinv_0);
 
   rinv = 2.0 * halfRinv;
   phi0 += -phimin_;

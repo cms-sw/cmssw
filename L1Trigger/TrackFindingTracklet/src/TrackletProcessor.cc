@@ -39,7 +39,7 @@ TrackletProcessor::TrackletProcessor(string name, Settings const& settings, Glob
 
   vmrtable_.init(layerdisk1_, getName());
 
-  nbitsrzbin_ = 3;
+  nbitsrzbin_ = NFINERZBITS;
   if (iSeed_ == 4 || iSeed_ == 5)
     nbitsrzbin_ = 2;
 
@@ -149,15 +149,13 @@ void TrackletProcessor::addInput(MemoryBase* memory, string input) {
       innerallstubs_.push_back(tmp);
     }
 
-    //FIXEM should be done once after all inputs are added
+    //FIXME should be done once after all inputs are added
     tedatabuffers_.clear();
     CircularBuffer<TEData> tedatabuffertmp(5);
     tedatabuffertmp.reset();
 
-    tedatabuffers_.emplace_back(tuple<CircularBuffer<TEData>, unsigned int, unsigned int, unsigned int, unsigned int>(
-        tedatabuffertmp, 0, 0, 0, (innerallstubs_.size() + 1) / 2));
-    tedatabuffers_.emplace_back(tuple<CircularBuffer<TEData>, unsigned int, unsigned int, unsigned int, unsigned int>(
-        tedatabuffertmp, 0, (innerallstubs_.size() + 1) / 2, (innerallstubs_.size() + 1) / 2, innerallstubs_.size()));
+    tedatabuffers_.emplace_back(tedatabuffertmp, 0, 0, 0, (innerallstubs_.size() + 1) / 2);
+    tedatabuffers_.emplace_back(tedatabuffertmp, 0, (innerallstubs_.size() + 1) / 2, (innerallstubs_.size() + 1) / 2, innerallstubs_.size());
 
     return;
   }

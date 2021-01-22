@@ -46,12 +46,12 @@ void TrackletEngineUnit::step() {
 
   int ibin = tedata_.start_ + next_;
 
-  int nbins = 8;  //FIXME
+  int nbins = (1<<NFINERZBITS);
 
   assert(istub_ < outervmstubs_->nVMStubsBinned(ireg_ * nbins + ibin));
 
   const VMStubTE& outervmstub = outervmstubs_->getVMStubTEBinned(ireg_ * nbins + ibin, istub_);
-  int rzbin = (outervmstub.vmbits().value() & 7);
+  int rzbin = (outervmstub.vmbits().value() & (nbins-1));
 
   FPGAWord iphiouterbin = outervmstub.finephi();
 
@@ -65,13 +65,17 @@ void TrackletEngineUnit::step() {
   if (idphi < 0)
     idphi = idphi + (1 << nbitsfinephidiff_);
 
-  if (iSeed_ >= 4) {  //Also use r-position
-    int ir = ((ibin & 3) << 1) + (rzbin >> 2);
-    idphi = (idphi << 3) + ir;
+
+  unsigned int firstDiskSeed=4;
+  if (iSeed_ >= firstDiskSeed) {  //Also use r-position
+    int ibinMask=3; //Get two least sign. bits
+    int ir = ((ibin & ibinMask) << 1) + (rzbin >> (NFINERZBITS-1));
+    int nrbits=3;
+    idphi = (idphi << nrbits) + ir;
   }
 
   if (next_ != 0)
-    rzbin += 8;
+    rzbin += (1<<NFINERZBITS);
   if ((rzbin < tedata_.rzbinfirst_) || (rzbin - tedata_.rzbinfirst_ > tedata_.rzdiffmax_)) {
     if (settings_->debugTracklet()) {
       edm::LogVerbatim("Tracklet") << " layer-disk stub pair rejected because rbin cut : " << rzbin << " "
