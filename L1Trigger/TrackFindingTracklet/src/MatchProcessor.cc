@@ -302,7 +302,7 @@ void MatchProcessor::execute() {
 
             int projrinv = -1;
             if (barrel_) {
-              projrinv = (1<<(NRINVBITS-1)) + (proj->fpgarinv().value() >> (proj->fpgarinv().nbits() - NRINVBITS));
+              projrinv = (1 << (NRINVBITS - 1)) + (proj->fpgarinv().value() >> (proj->fpgarinv().nbits() - NRINVBITS));
             } else {
               //The next lines looks up the predicted bend based on:
               // 1 - r projections
@@ -327,9 +327,10 @@ void MatchProcessor::execute() {
 
             unsigned int slot = barrel_ ? proj->zbin1projvm(layer_) : proj->rbin1projvm(disk_);
             bool second = (barrel_ ? proj->zbin2projvm(layer_) : proj->rbin2projvm(disk_));
-	    
-	    int nfinephi=3;
-            unsigned int projfinephi = (fpgaphi.value() >> (fpgaphi.nbits() - (nvmbits_ + nfinephi))) & ((1<<nfinephi)-1);
+
+            int nfinephi = 3;
+            unsigned int projfinephi =
+                (fpgaphi.value() >> (fpgaphi.nbits() - (nvmbits_ + nfinephi))) & ((1 << nfinephi) - 1);
             int projfinerz = barrel_ ? proj->finezvm(layer_) : proj->finervm(disk_);
 
             bool isPSseed = proj->PSseed() == 1;

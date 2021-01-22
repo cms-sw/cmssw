@@ -23,10 +23,10 @@ namespace trklet {
 
   constexpr unsigned int N_DSS_MOD = 5;  // # of rings with 2S modules per disk
 
-  constexpr unsigned int NRINVBITS = 5;  //number of bit for rinv in bend match table 
-  constexpr unsigned int NFINERZBITS = 3; //number of bit for r or z within a r/z bin 
+  constexpr unsigned int NRINVBITS = 5;    //number of bit for rinv in bend match table
+  constexpr unsigned int NFINERZBITS = 3;  //number of bit for r or z within a r/z bin
 
-  constexpr double sixth = 1.0/6.0;     //Commonly used factor
+  constexpr double sixth = 1.0 / 6.0;  //Commonly used factor
 
   class Settings {
   public:
@@ -288,7 +288,7 @@ namespace trklet {
     double rPS2S() const { return rPS2S_; }
 
     double z0cut() const { return z0cut_; }
-    
+
     double disp_z0cut() const { return disp_z0cut_; }
 
     unsigned int NLONGVMBITS() const { return NLONGVMBITS_; }
@@ -428,7 +428,7 @@ namespace trklet {
     double rPS2S_{60.0};
 
     double z0cut_{15.0};
-    
+
     double disp_z0cut_{27.0};
 
     unsigned int NLONGVMBITS_{3};

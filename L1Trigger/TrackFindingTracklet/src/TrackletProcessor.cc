@@ -155,7 +155,8 @@ void TrackletProcessor::addInput(MemoryBase* memory, string input) {
     tedatabuffertmp.reset();
 
     tedatabuffers_.emplace_back(tedatabuffertmp, 0, 0, 0, (innerallstubs_.size() + 1) / 2);
-    tedatabuffers_.emplace_back(tedatabuffertmp, 0, (innerallstubs_.size() + 1) / 2, (innerallstubs_.size() + 1) / 2, innerallstubs_.size());
+    tedatabuffers_.emplace_back(
+        tedatabuffertmp, 0, (innerallstubs_.size() + 1) / 2, (innerallstubs_.size() + 1) / 2, innerallstubs_.size());
 
     return;
   }
