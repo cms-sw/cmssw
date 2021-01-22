@@ -51,10 +51,11 @@ using namespace std;
 using namespace edm;
 using namespace l1t;
 
-class MuonServiceProxy;
-class MeasurementEstimator;
-class TrajectorySeed;
-class TrajectoryStateOnSurface;
+// HERE
+// class MuonServiceProxy;
+// class MeasurementEstimator;
+// class TrajectorySeed;
+// class TrajectoryStateOnSurface;
 
 class L2MuonSeedGeneratorFromL1TkMu : public edm::stream::EDProducer<> {
 public:
@@ -62,7 +63,7 @@ public:
   explicit L2MuonSeedGeneratorFromL1TkMu(const edm::ParameterSet &);
 
   /// Destructor
-  ~L2MuonSeedGeneratorFromL1TkMu() override;
+  ~L2MuonSeedGeneratorFromL1TkMu() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
   void produce(edm::Event &, const edm::EventSetup &) override;
@@ -146,7 +147,8 @@ L2MuonSeedGeneratorFromL1TkMu::L2MuonSeedGeneratorFromL1TkMu(const edm::Paramete
 }
 
 // destructor
-L2MuonSeedGeneratorFromL1TkMu::~L2MuonSeedGeneratorFromL1TkMu() {}
+// HERE
+// L2MuonSeedGeneratorFromL1TkMu::~L2MuonSeedGeneratorFromL1TkMu() {}
 
 void L2MuonSeedGeneratorFromL1TkMu::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
@@ -407,6 +409,9 @@ const TrajectorySeed *L2MuonSeedGeneratorFromL1TkMu::associateOfflineSeedToL1(
     std::vector<int> &offseedMap,
     TrajectoryStateOnSurface &newTsos,
     double dRcone) {
+  if (dRcone < 0.)
+    return nullptr;
+
   const std::string metlabel = "Muon|RecoMuon|L2MuonSeedGeneratorFromL1TkMu";
   MuonPatternRecoDumper debugtmp;
 
@@ -460,7 +465,7 @@ const TrajectorySeed *L2MuonSeedGeneratorFromL1TkMu::associateOfflineSeedToL1(
                               offseedTsos.globalPosition().eta(),
                               offseedTsos.globalPosition().phi());
       LogDebug(metlabel) << "   -- DR = " << newDr2 << std::endl;
-      if (newDr2 < dRcone * dRcone && newDr2 < bestDr2) {
+      if (newDr2 < bestDr2 && newDr2 < dRcone * dRcone) {
         LogDebug(metlabel) << "          --> OK! " << newDr2 << std::endl << std::endl;
         selOffseed = &*offseed;
         bestDr2 = newDr2;
