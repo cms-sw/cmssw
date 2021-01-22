@@ -1459,7 +1459,7 @@ void HGCalDDDConstants::cellHex(double xloc, double yloc, int cellType, int& cel
                                   << ":" << Rc << " u0 " << u0 << ":" << cu0 << " v0 " << v0 << ":" << cv0;
 #endif
   bool found(false);
-  static const int shift[3] = {0, 1, -1};
+  static constexpr int shift[3] = {0, 1, -1};
   for (int i1 = 0; i1 < 3; ++i1) {
     cellU = cu0 + shift[i1];
     for (int i2 = 0; i2 < 3; ++i2) {
