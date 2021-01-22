@@ -122,13 +122,13 @@ std::pair<float, float> HLT2L1TkMuonL1TkMuonMuRefDR::convertEtaPhi(l1t::TkMuonRe
 }
 
 bool HLT2L1TkMuonL1TkMuonMuRefDR::computeDR(edm::Event& iEvent, l1t::TkMuonRef& r1, l1t::TkMuonRef& r2) const {
+  if (minDR_ < 0.)
+    return true;
+
   std::pair<float, float> muRef1 = convertEtaPhi(r1);
   std::pair<float, float> muRef2 = convertEtaPhi(r2);
 
-  if (reco::deltaR2(muRef1.first, muRef1.second, muRef2.first, muRef2.second) > minDR_ * minDR_)
-    return true;
-
-  return false;
+  return (reco::deltaR2(muRef1.first, muRef1.second, muRef2.first, muRef2.second) > minDR_ * minDR_);
 }
 
 // ------------ method called to produce the data  ------------
