@@ -31,7 +31,6 @@ void GEMSimHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
       Int_t station_id = station->station();
 
       const auto [tof_min, tof_max] = getTOFRange(station_id);
-      const auto& superChamberVec = station->superChambers();
       ME2IdsKey key2{region_id, station_id};
 
       me_tof_mu_[key2] =
