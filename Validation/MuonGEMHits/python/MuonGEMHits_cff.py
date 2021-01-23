@@ -6,7 +6,6 @@ from Validation.MuonGEMHits.MuonGEMCommonParameters_cfi import GEMValidationComm
 gemSimHitValidation = DQMEDAnalyzer('GEMSimHitValidation',
     GEMValidationCommonParameters,
     gemSimHit = muonSimHitMatcherPSet.gemSimHit,
-    detailPlot = cms.bool(True),
     TOFRange = cms.untracked.vdouble(18, 22, # GEM11
                                      26, 30), # GE21
 )
