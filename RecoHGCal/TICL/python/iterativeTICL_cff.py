@@ -56,6 +56,9 @@ def injectTICLintoPF(process):
     if getattr(process,'particleFlowTmp', None):
       process.particleFlowTmp.src = ['particleFlowTmpBarrel', 'pfTICL']
 
+    if getattr(process,'particleFlowTmpBarrel', None):
+      process.particleFlowTmpBarrel.vetoEndcap = True
+
     _insertTrackImportersWithVeto = {}
     _trackImporters = ['GeneralTracksImporter','ConvBremTrackImporter',
                    'ConversionTrackImporter','NuclearInteractionTrackImporter']
