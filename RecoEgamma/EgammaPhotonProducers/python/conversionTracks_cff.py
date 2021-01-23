@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 #
 #
 # Conversion Track candidate producer 
-from RecoEgamma.EgammaPhotonProducers.conversionTrackCandidates_cfi import *
+from RecoEgamma.EgammaPhotonProducers.conversionTrackCandidates_cff import *
 # Conversion Track producer  ( final fit )
 from RecoEgamma.EgammaPhotonProducers.ckfOutInTracksFromConversions_cfi import *
 from RecoEgamma.EgammaPhotonProducers.ckfInOutTracksFromConversions_cfi import *
