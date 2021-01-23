@@ -186,14 +186,14 @@ public:
   COND_SERIALIZABLE;
 
 private:
-  const int kMaskZside = 0x1;
-  const int kMaskLayer = 0x7F;
-  const int kMaskSector = 0x3FF;
-  const int kMaskSubSec = 0x1;
-  const int kShiftZside = 19;
-  const int kShiftLayer = 12;
-  const int kShiftSector = 1;
-  const int kShiftSubSec = 0;
+  static constexpr int kMaskZside = 0x1;
+  static constexpr int kMaskLayer = 0x7F;
+  static constexpr int kMaskSector = 0x3FF;
+  static constexpr int kMaskSubSec = 0x1;
+  static constexpr int kShiftZside = 19;
+  static constexpr int kShiftLayer = 12;
+  static constexpr int kShiftSector = 1;
+  static constexpr int kShiftSubSec = 0;
 };
 
 #endif
