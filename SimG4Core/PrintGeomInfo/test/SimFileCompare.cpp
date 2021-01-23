@@ -25,13 +25,15 @@ std::string reducedName(const std::string& name, int debug) {
   uint32_t last(name.size() + 1);
   uint32_t loc(first);
   while (1) {
-    if (name.find("_", loc) == std::string::npos) break;
+    if (name.find("_", loc) == std::string::npos)
+      break;
     if (((loc + 5) < name.size()) && (name.substr(loc, 5) == "shape")) {
       last = loc;
       break;
     }
     loc = name.find("_", loc) + 1;
-    if (loc > name.size()) break;
+    if (loc > name.size())
+      break;
   }
   nam = name.substr(first, last - first - 1);
   if ((last < name.size()) && (name.substr(name.size() - 5, 5) == "_refl"))
@@ -42,22 +44,20 @@ std::string reducedName(const std::string& name, int debug) {
 }
 
 void CompareFiles(const char* fileDDD, const char* fileDD4Hep, int debug) {
-
   std::map<std::string, int> nameDDD, nameDD4Hep;
+  char buffer[100];
   std::string name;
   std::ifstream fInput1(fileDDD);
   if (!fInput1.good()) {
     std::cout << "Cannot open file " << fileDDD << std::endl;
   } else {
-    while (1) {
-      fInput1 >> name;
-      if (!fInput1.good())
-        break;
+    while (fInput1.getline(buffer, 100)) {
+      name = std::string(buffer);
       auto it = nameDDD.find(name);
       if (it == nameDDD.end())
-	nameDDD[name] = 1;
+        nameDDD[name] = 1;
       else
-	++(it->second);
+        ++(it->second);
     }
     fInput1.close();
   }
@@ -65,20 +65,19 @@ void CompareFiles(const char* fileDDD, const char* fileDD4Hep, int debug) {
   if (!fInput2.good()) {
     std::cout << "Cannot open file " << fileDD4Hep << std::endl;
   } else {
-    while (1) {
-      fInput2 >> name;
-      if (!fInput2.good())
-        break;
+    while (fInput2.getline(buffer, 100)) {
+      name = std::string(buffer);
       std::string name0 = reducedName(name, debug);
       auto it = nameDD4Hep.find(name0);
       if (it == nameDD4Hep.end())
-	nameDD4Hep[name0] = 1;
+        nameDD4Hep[name0] = 1;
       else
-	++(it->second);
+        ++(it->second);
     }
     fInput1.close();
   }
-  std::cout << "Reads " << nameDDD.size() << " names from " << fileDDD << " and " << nameDD4Hep.size() << " names from " << fileDD4Hep << std::endl;
+  std::cout << "Reads " << nameDDD.size() << " names from " << fileDDD << " and " << nameDD4Hep.size() << " names from "
+            << fileDD4Hep << std::endl;
 
   std::cout << "\nMore than one entry for a given name in " << fileDDD << std::endl;
   for (auto it : nameDDD) {
@@ -107,8 +106,8 @@ int main(int argc, char* argv[]) {
     std::cout << "Please give 3 arguments \n"
               << "input file name from the DDD run\n"
               << "input file name from the DD4Hep run\n"
-	      << "debug flag (0 for minimum printout)\n"
-	      << std::endl;
+              << "debug flag (0 for minimum printout)\n"
+              << std::endl;
     return 0;
   }
 

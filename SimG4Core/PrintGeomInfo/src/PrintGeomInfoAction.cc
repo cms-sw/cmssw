@@ -56,8 +56,8 @@ PrintGeomInfoAction::PrintGeomInfoAction(const edm::ParameterSet &p) {
   names_ = p.getUntrackedParameter<std::vector<std::string> >("Names");
   fileMat_ = p.getUntrackedParameter<std::string>("MaterialFileName", "");
   fileSolid_ = p.getUntrackedParameter<std::string>("SolidFileName", "");
-  fileLV_ =  p.getUntrackedParameter<std::string>("LVFileName", "");
-  filePV_  = p.getUntrackedParameter<std::string>("PVFileName", "");
+  fileLV_ = p.getUntrackedParameter<std::string>("LVFileName", "");
+  filePV_ = p.getUntrackedParameter<std::string>("PVFileName", "");
   G4cout << "PrintGeomInfoAction:: initialised for dd4hep " << dd4hep_ << " with verbosity levels:"
          << " Summary   " << dumpSummary_ << " LVTree   " << dumpLVTree_ << " LVList    " << dumpLVList_ << " Material "
          << dumpMaterial_ << "\n                                                        "
@@ -69,7 +69,8 @@ PrintGeomInfoAction::PrintGeomInfoAction(const edm::ParameterSet &p) {
          << "\n                                                        "
          << " Sensitive " << dumpSense_ << " for " << names_.size() << " names:"
          << "\n                                                        "
-	 << " Files " << fileMat_ << ":" << fileSolid_ << ":" << ":" << fileLV_ << ":" << filePV_;
+         << " Files " << fileMat_ << ":" << fileSolid_ << ":"
+         << ":" << fileLV_ << ":" << filePV_;
   for (unsigned int i = 0; i < names_.size(); i++)
     G4cout << " " << names_[i];
   G4cout << G4endl;
@@ -238,30 +239,30 @@ void PrintGeomInfoAction::dumpInFile() {
       const G4MaterialTable *matTab = G4Material::GetMaterialTable();
       std::ofstream fout(fileMat_.c_str());
       for (std::vector<G4Material *>::const_iterator matite = matTab->begin(); matite != matTab->end(); matite++)
-	fout << (*matite)->GetName() << "\n";
+        fout << (*matite)->GetName() << "\n";
       fout.close();
     }
     const G4LogicalVolumeStore *lvs = G4LogicalVolumeStore::GetInstance();
     if (!fileSolid_.empty()) {
       std::ofstream fout(fileSolid_.c_str());
       for (std::vector<G4LogicalVolume *>::const_iterator lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++)
-	fout << (*lvcite)->GetSolid()->GetName() << "\n";
+        fout << (*lvcite)->GetSolid()->GetName() << "\n";
       fout.close();
     }
     if (!fileLV_.empty()) {
       std::ofstream fout(fileLV_.c_str());
       for (std::vector<G4LogicalVolume *>::const_iterator lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++)
-	fout << (*lvcite)->GetName() << "\n";
+        fout << (*lvcite)->GetName() << "\n";
       fout.close();
     }
     if (!filePV_.empty()) {
       const G4PhysicalVolumeStore *pvs = G4PhysicalVolumeStore::GetInstance();
       std::ofstream fout(filePV_.c_str());
       for (std::vector<G4VPhysicalVolume *>::const_iterator pvcite = pvs->begin(); pvcite != pvs->end(); pvcite++) {
-	if (dd4hep_)
-	  fout << (*pvcite)->GetName() << "\n";
-	else
-	  fout << (*pvcite)->GetName() << "_" << (*pvcite)->GetCopyNo() << "\n";
+        if (dd4hep_)
+          fout << (*pvcite)->GetName() << "\n";
+        else
+          fout << (*pvcite)->GetName() << "_" << (*pvcite)->GetCopyNo() << "\n";
       }
       fout.close();
     }
