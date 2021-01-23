@@ -1022,7 +1022,7 @@ def PrepJMECustomNanoAOD(process,runOnMC):
   genJA = GenJetAdder()
   if runOnMC:
     ############################################################################
-    # Save additional variables for AK8Puppi jets
+    # Save additional variables for AK8 GEN jets
     ############################################################################
     process = AddVariablesForAK8GenJets(process)
     ############################################################################
@@ -1053,11 +1053,11 @@ def PrepJMECustomNanoAOD(process,runOnMC):
   ###########################################################################
   process = AddVariablesForAK8PuppiJets(process)
   ###########################################################################
-  # Build a separate collection for AK8Puppi jets for JEC studies
+  # Build a separate AK8Puppi jet collection for JEC studies
   ###########################################################################
   process = AddNewAK8PuppiJetsForJEC(process, recoJA, runOnMC)
   ###########################################################################
-  # Build a separate collection for AK8CHS jets for JEC studies
+  # Build a AK8CHS jet collection for JEC studies
   ###########################################################################
   process = AddNewAK8CHSJets(process, recoJA, runOnMC)
   ###########################################################################
