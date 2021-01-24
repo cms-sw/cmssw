@@ -221,11 +221,20 @@ run2_HLTconditions_2016.toModify(
 from PhysicsTools.PatUtils.L1ECALPrefiringWeightProducer_cff import prefiringweight
 from PhysicsTools.NanoAOD.nano_eras_cff import *
 from PhysicsTools.NanoAOD.common_cff import *
+#Next line will be updated once we get UL2016 maps
 run2_jme_2016.toModify( prefiringweight, DataEra = cms.string("2016BtoH"))
+#Next line is for UL2017 maps 
 run2_jme_2017.toModify( prefiringweight, DataEra = cms.string("UL2017BtoF"))
+#For pre-UL 2017 reprocessing, one should use the original maps and no muon jet protection  
 for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
     modifier.toModify( prefiringweight, DataEra = cms.string("2017BtoF"))
-
+    modifier.toModify( prefiringweight, JetMaxMuonFraction = cms.double(-1.) )
+#For pre-UL 2016 reprocessing, same thing
+run2_nanoAOD_94X2016.toModify( prefiringweight, DataEra = cms.string("2016BtoH") )
+run2_nanoAOD_94X2016.toModify( prefiringweight, JetMaxMuonFraction = cms.double(-1.) )
+#For first UL reNANOAOD (run2_nanoAOD_106Xv1), same thing
+run2_nanoAOD_106Xv1.toModify( prefiringweight, JetMaxMuonFraction = cms.double(-1.) )
+#One still needs to correct the maps for run2_nanoAOD_106Xv1: it should be "2016BtoH" for 2016 and "2017BtoF" for 2017, not sure how to do that...
 
 l1PreFiringEventWeightTable = cms.EDProducer("GlobalVariablesTableProducer",
     variables = cms.PSet(
