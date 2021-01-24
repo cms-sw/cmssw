@@ -12,15 +12,14 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "G4EventManager.hh"
-
 #include "G4LogicalVolumeStore.hh"
 #include "G4LogicalVolume.hh"
 #include "G4Step.hh"
 #include "G4Track.hh"
-
 #include "G4SystemOfUnits.hh"
 
-// #define EDM_ML_DEBUG
+#include <sstream>
+//#define EDM_ML_DEBUG
 
 CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
                                      const edm::EventSetup& es,
@@ -35,9 +34,20 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
   putHistory_ = m_p.getParameter<bool>("PutHistory");
   doFineCalo_ = m_p.getParameter<bool>("DoFineCalo");
   eMinFine_ = m_p.getParameter<double>("EminFineTrack") * CLHEP::MeV;
+  std::vector<std::string> fineNames = m_p.getParameter<std::vector<std::string> >("FineCaloNames");
+  std::vector<int> fineLevels = m_p.getParameter<std::vector<int> >("FineCaloLevels");
+  std::vector<int> useFines = m_p.getParameter<std::vector<int> >("UseFineCalo");
 
   edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: Initialised with TestBeam = " << testBeam_ << " Emin = " << eMin_
                               << " Flags " << putHistory_ << " (History), " << doFineCalo_ << " (Special Calorimeter)";
+  edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: Have a possibility of " << fineNames.size()
+                              << " fine calorimeters of which " << useFines.size() << " are selected";
+  for (unsigned int k = 0; k < fineNames.size(); ++k)
+    edm::LogVerbatim("CaloSim") << "[" << k << "] " << fineNames[k] << " at " << fineLevels[k];
+  std::ostringstream st1;
+  for (unsigned int k = 0; k < useFines.size(); ++k)
+    st1 << " [" << k << "] " << useFines[k] << ":" << fineNames[useFines[k]];
+  edm::LogVerbatim("CaloSim") << "CaloTrkProcessing used calorimeters" << st1.str();
 
   // Get pointer to CaloSimulationParameters
   edm::ESHandle<CaloSimulationParameters> csps;
@@ -60,14 +70,6 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
     edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: " << csp->insideLevel_.size() << " entries for insideLevel:";
     for (unsigned int i = 0; i < csp->insideLevel_.size(); i++)
       edm::LogVerbatim("CaloSim") << " (" << i << ") " << csp->insideLevel_[i];
-    edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: " << csp->fCaloNames_.size()
-                                << " entries for fineCalorimeterNames:";
-    for (unsigned int i = 0; i < csp->fCaloNames_.size(); i++)
-      edm::LogVerbatim("CaloSim") << " (" << i << ") " << csp->fCaloNames_[i];
-    edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: " << csp->fLevels_.size()
-                                << " entries for fineCalorimeterLevels:";
-    for (unsigned int i = 0; i < csp->fLevels_.size(); i++)
-      edm::LogVerbatim("CaloSim") << " (" << i << ") " << csp->fLevels_[i];
 #endif
 
     if (csp->caloNames_.size() < csp->neighbours_.size()) {
@@ -125,9 +127,9 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
       istart += csp->neighbours_[i];
     }
 
-    for (unsigned int i = 0; i < csp->fCaloNames_.size(); i++) {
+    for (unsigned int i = 0; i < useFines.size(); i++) {
       G4LogicalVolume* lv = nullptr;
-      G4String name = static_cast<G4String>(csp->fCaloNames_[i]);
+      G4String name = static_cast<G4String>(fineNames[useFines[i]]);
       for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
         if ((*lvcite)->GetName() == name) {
           lv = (*lvcite);
@@ -138,7 +140,7 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
         CaloTrkProcessing::Detector detector;
         detector.name = name;
         detector.lv = lv;
-        detector.level = csp->fLevels_[i];
+        detector.level = fineLevels[useFines[i]];
         detector.fromDets.clear();
         detector.fromDetL.clear();
         detector.fromLevels.clear();
