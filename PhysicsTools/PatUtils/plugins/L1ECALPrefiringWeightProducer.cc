@@ -222,7 +222,7 @@ void L1ECALPrefiringWeightProducer::fillDescriptions(edm::ConfigurationDescripti
   desc.add<std::string>("DataEra", "2017BtoF");
   desc.add<bool>("UseJetEMPt", false);
   desc.add<double>("PrefiringRateSystematicUncty", 0.2);
-  desc.add<double>("JetMaxMuonFraction", -1);
+  desc.add<double>("JetMaxMuonFraction", 0.5);
   desc.add<bool>("SkipWarnings", true);
   descriptions.add("l1ECALPrefiringWeightProducer", desc);
 }
