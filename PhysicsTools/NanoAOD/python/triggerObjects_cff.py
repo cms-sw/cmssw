@@ -219,7 +219,13 @@ run2_HLTconditions_2016.toModify(
 )
 
 from PhysicsTools.PatUtils.L1ECALPrefiringWeightProducer_cff import prefiringweight
-run2_HLTconditions_2016.toModify(prefiringweight, DataEra = cms.string("2016BtoH"))
+from PhysicsTools.NanoAOD.nano_eras_cff import *
+from PhysicsTools.NanoAOD.common_cff import *
+run2_jme_2016.toModify( prefiringweight, DataEra = cms.string("2016BtoH"))
+run2_jme_2017.toModify( prefiringweight, DataEra = cms.string("UL2017BtoF"))
+for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
+    modifier.toModify( prefiringweight, DataEra = cms.string("2017BtoF"))
+
 
 l1PreFiringEventWeightTable = cms.EDProducer("GlobalVariablesTableProducer",
     variables = cms.PSet(
