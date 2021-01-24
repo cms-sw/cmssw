@@ -19,6 +19,22 @@
 #include <string>
 #include <vector>
 
+std::string removeExtraName(const std::string& name, int debug) {
+  std::string nam(name);
+  std::string nam1 = name.substr(0, 2);
+  if ((nam1 == "GE") || (nam1 == "GH") || (nam1 == "MB") || (nam1 == "ME") ||
+      (nam1 == "RE") || (nam1 == "RR") || (nam1 == "RT")) {
+    uint32_t loc = name.size() - 5;
+    if ((name.substr(0, 15) != "MBCables_Wheels") && (name.substr(loc,1) == "_")) {
+      std::string nam2 = (name.substr(loc + 3, 1) == "0") ? name.substr(loc+4, 1) : name.substr(loc + 3, 2);
+      nam = name.substr(0, loc + 1) + nam2;
+    }
+  }
+  if (debug)
+    std::cout << name << " d2 " << nam1 << " " << nam << std::endl;
+  return nam;
+}
+
 std::string reducedName(const std::string& name, int debug) {
   std::string nam(name);
   uint32_t first = ((name.find(":") == std::string::npos) ? 0 : (name.find(":") + 1));
@@ -52,7 +68,7 @@ void CompareFiles(const char* fileDDD, const char* fileDD4Hep, int debug) {
     std::cout << "Cannot open file " << fileDDD << std::endl;
   } else {
     while (fInput1.getline(buffer, 100)) {
-      name = std::string(buffer);
+      name = removeExtraName(std::string(buffer), debug);
       auto it = nameDDD.find(name);
       if (it == nameDDD.end())
         nameDDD[name] = 1;
@@ -66,11 +82,10 @@ void CompareFiles(const char* fileDDD, const char* fileDD4Hep, int debug) {
     std::cout << "Cannot open file " << fileDD4Hep << std::endl;
   } else {
     while (fInput2.getline(buffer, 100)) {
-      name = std::string(buffer);
-      std::string name0 = reducedName(name, debug);
-      auto it = nameDD4Hep.find(name0);
+      name = reducedName(std::string(buffer), debug);
+      auto it = nameDD4Hep.find(name);
       if (it == nameDD4Hep.end())
-        nameDD4Hep[name0] = 1;
+        nameDD4Hep[name] = 1;
       else
         ++(it->second);
     }
