@@ -37,6 +37,7 @@ private:
     virtual void book(DQMStore::IBooker& booker) {
       booker.setCurrentFolder(dir);
       plot = booker.book1D(name, title, nxbins, xlow, xhigh);
+      plot->setStatOverflows(kTRUE);
     }
 
     virtual void fill(float value) {
