@@ -30,7 +30,7 @@
 #include <memory>
 #include <sstream>
 
-// #define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 CaloSD::CaloSD(const std::string& name,
                const edm::EventSetup& es,
@@ -70,6 +70,9 @@ CaloSD::CaloSD(const std::string& name,
   correctT = beamZ / CLHEP::c_light / CLHEP::nanosecond;
   doFineCalo_ = m_CaloSD.getParameter<bool>("DoFineCalo");
   eMinFine_ = m_CaloSD.getParameter<double>("EminFineTrack") * CLHEP::MeV;
+  std::vector<std::string> fineNames = m_CaloSD.getParameter<std::vector<std::string>>("FineCaloNames");
+  std::vector<int> fineLevels = m_CaloSD.getParameter<std::vector<int>>("FineCaloLevels");
+  std::vector<int> useFines = m_CaloSD.getParameter<std::vector<int>>("UseFineCalo");
 
   SetVerboseLevel(verbn);
   meanResponse.reset(nullptr);
@@ -110,46 +113,42 @@ CaloSD::CaloSD(const std::string& name,
                               << timeSlice << "\nIgnore TrackID Flag " << ignoreTrackID << " doFineCalo flag "
                               << doFineCalo_;
 
-  // Get pointer to CaloSimulationParameters
-  edm::ESHandle<CaloSimulationParameters> csps;
-  es.get<HcalParametersRcd>().get(csps);
-  if (csps.isValid()) {
-    const CaloSimulationParameters* csp = csps.product();
-    edm::LogVerbatim("CaloSim") << "CaloSD: " << csp->fCaloNames_.size() << " entries for fineCalorimeters:";
-    for (unsigned int i = 0; i < csp->fCaloNames_.size(); i++)
-      edm::LogVerbatim("CaloSim") << " [" << i << "] " << csp->fCaloNames_[i] << ":" << csp->fLevels_[i];
-
-    const G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
-    std::vector<G4LogicalVolume*>::const_iterator lvcite;
-    for (unsigned int i = 0; i < csp->fCaloNames_.size(); i++) {
-      G4LogicalVolume* lv = nullptr;
-      G4String name = static_cast<G4String>(csp->fCaloNames_[i]);
-      for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
-        if ((*lvcite)->GetName() == name) {
-          lv = (*lvcite);
-          break;
-        }
-      }
-      if (lv != nullptr) {
-        CaloSD::Detector detector;
-        detector.name = name;
-        detector.lv = lv;
-        detector.level = csp->fLevels_[i];
-        fineDetectors_.emplace_back(detector);
+  // Treat fine calorimeters
+  edm::LogVerbatim("CaloSim") << "CaloSD: Have a possibility of " << fineNames.size() << " fine calorimeters of which "
+                              << useFines.size() << " are selected";
+  for (unsigned int k = 0; k < fineNames.size(); ++k)
+    edm::LogVerbatim("CaloSim") << "[" << k << "] " << fineNames[k] << " at " << fineLevels[k];
+  std::ostringstream st1;
+  for (unsigned int k = 0; k < useFines.size(); ++k)
+    st1 << " [" << k << "] " << useFines[k] << ":" << fineNames[useFines[k]];
+  edm::LogVerbatim("CaloSim") << "CaloSD used calorimeters" << st1.str();
+  const G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
+  std::vector<G4LogicalVolume*>::const_iterator lvcite;
+  for (unsigned int i = 0; i < useFines.size(); i++) {
+    G4LogicalVolume* lv = nullptr;
+    G4String name = static_cast<G4String>(fineNames[useFines[i]]);
+    for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
+      if ((*lvcite)->GetName() == name) {
+        lv = (*lvcite);
+        break;
       }
     }
-#ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("CaloSim") << "CaloSD::Loads information for " << fineDetectors_.size() << " fine detectors";
-    unsigned int k(0);
-    for (const auto& detector : fineDetectors_) {
-      edm::LogVerbatim("CaloSim") << "Detector[" << k << "] " << detector.name << " at level " << detector.level
-                                  << " pointer to LV: " << detector.lv;
+    if (lv != nullptr) {
+      CaloSD::Detector detector;
+      detector.name = name;
+      detector.lv = lv;
+      detector.level = fineLevels[useFines[i]];
+      fineDetectors_.emplace_back(detector);
     }
-#endif
-  } else {
-    edm::LogError("CaloSim") << "CaloSD: Cannot find CaloSimulationParameters";
-    throw cms::Exception("Unknown", "CaloSD") << "Cannot find CaloSimulationParameters\n";
   }
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("CaloSim") << "CaloSD::Loads information for " << fineDetectors_.size() << " fine detectors";
+  unsigned int k(0);
+  for (const auto& detector : fineDetectors_) {
+    edm::LogVerbatim("CaloSim") << "Detector[" << k << "] " << detector.name << " at level " << detector.level
+                                << " pointer to LV: " << detector.lv;
+  }
+#endif
 }
 
 CaloSD::~CaloSD() {}
