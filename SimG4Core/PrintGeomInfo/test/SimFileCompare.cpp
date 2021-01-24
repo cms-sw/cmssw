@@ -22,11 +22,11 @@
 std::string removeExtraName(const std::string& name, int debug) {
   std::string nam(name);
   std::string nam1 = name.substr(0, 2);
-  if ((nam1 == "GE") || (nam1 == "GH") || (nam1 == "MB") || (nam1 == "ME") ||
-      (nam1 == "RE") || (nam1 == "RR") || (nam1 == "RT")) {
+  if ((nam1 == "GE") || (nam1 == "GH") || (nam1 == "MB") || (nam1 == "ME") || (nam1 == "RE") || (nam1 == "RR") ||
+      (nam1 == "RT")) {
     uint32_t loc = name.size() - 5;
-    if ((name.substr(0, 15) != "MBCables_Wheels") && (name.substr(loc,1) == "_")) {
-      std::string nam2 = (name.substr(loc + 3, 1) == "0") ? name.substr(loc+4, 1) : name.substr(loc + 3, 2);
+    if ((name.substr(0, 15) != "MBCables_Wheels") && (name.substr(loc, 1) == "_")) {
+      std::string nam2 = (name.substr(loc + 3, 1) == "0") ? name.substr(loc + 4, 1) : name.substr(loc + 3, 2);
       nam = name.substr(0, loc + 1) + nam2;
     }
   }
