@@ -12,6 +12,6 @@ namespace cond {
       virtual ~IDbAuthentication() {}
       virtual std::string principalName() = 0;
     };
-  }
-}
+  }  // namespace persistency
+}  // namespace cond
 #endif
