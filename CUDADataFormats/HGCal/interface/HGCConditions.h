@@ -32,49 +32,49 @@ public:
 private:
   uint32_t id_;
   enum waferType { HGCalFine = 0, HGCalCoarseThin = 1, HGCalCoarseThick = 2 };
-  static const int32_t HGCalFineN = 12;
-  static const int32_t HGCalCoarseN = 8;
-  static const int32_t kHGCalCellUOffset = 0;
-  static const int32_t kHGCalCellUMask = 0x1F;
-  static const int32_t kHGCalCellVOffset = 5;
-  static const int32_t kHGCalCellVMask = 0x1F;
-  static const int32_t kHGCalWaferUOffset = 10;
-  static const int32_t kHGCalWaferUMask = 0xF;
-  static const int32_t kHGCalWaferUSignOffset = 14;
-  static const int32_t kHGCalWaferUSignMask = 0x1;
-  static const int32_t kHGCalWaferVOffset = 15;
-  static const int32_t kHGCalWaferVMask = 0xF;
-  static const int32_t kHGCalWaferVSignOffset = 19;
-  static const int32_t kHGCalWaferVSignMask = 0x1;
-  static const int32_t kHGCalLayerOffset = 20;
-  static const int32_t kHGCalLayerMask = 0x1F;
-  static const int32_t kHGCalZsideOffset = 25;
-  static const int32_t kHGCalZsideMask = 0x1;
-  static const int32_t kHGCalTypeOffset = 26;
-  static const int32_t kHGCalTypeMask = 0x3;
+  static constexpr int32_t HGCalFineN = 12;
+  static constexpr int32_t HGCalCoarseN = 8;
+  static constexpr int32_t kHGCalCellUOffset = 0;
+  static constexpr int32_t kHGCalCellUMask = 0x1F;
+  static constexpr int32_t kHGCalCellVOffset = 5;
+  static constexpr int32_t kHGCalCellVMask = 0x1F;
+  static constexpr int32_t kHGCalWaferUOffset = 10;
+  static constexpr int32_t kHGCalWaferUMask = 0xF;
+  static constexpr int32_t kHGCalWaferUSignOffset = 14;
+  static constexpr int32_t kHGCalWaferUSignMask = 0x1;
+  static constexpr int32_t kHGCalWaferVOffset = 15;
+  static constexpr int32_t kHGCalWaferVMask = 0xF;
+  static constexpr int32_t kHGCalWaferVSignOffset = 19;
+  static constexpr int32_t kHGCalWaferVSignMask = 0x1;
+  static constexpr int32_t kHGCalLayerOffset = 20;
+  static constexpr int32_t kHGCalLayerMask = 0x1F;
+  static constexpr int32_t kHGCalZsideOffset = 25;
+  static constexpr int32_t kHGCalZsideMask = 0x1;
+  static constexpr int32_t kHGCalTypeOffset = 26;
+  static constexpr int32_t kHGCalTypeMask = 0x3;
 };
 
 class HeterogeneousHGCScintillatorDetId {
 public:
   constexpr HeterogeneousHGCScintillatorDetId(uint32_t id) : id_(id) {}
-  constexpr int type() { return (id_ >> kHGCalTypeOffset) & kHGCalTypeMask; }
-  constexpr int zside() const { return (((id_ >> kHGCalZsideOffset) & kHGCalZsideMask) ? -1 : 1); }
-  constexpr int layer() const { return (id_ >> kHGCalLayerOffset) & kHGCalLayerMask; }
+  constexpr int32_t type() { return (id_ >> kHGCalTypeOffset) & kHGCalTypeMask; }
+  constexpr int32_t zside() const { return (((id_ >> kHGCalZsideOffset) & kHGCalZsideMask) ? -1 : 1); }
+  constexpr int32_t layer() const { return (id_ >> kHGCalLayerOffset) & kHGCalLayerMask; }
 
 private:
   uint32_t id_;
-  uint32_t kHGCalPhiOffset = 0;
-  uint32_t kHGCalPhiMask = 0x1FF;
-  uint32_t kHGCalRadiusOffset = 9;
-  uint32_t kHGCalRadiusMask = 0xFF;
-  uint32_t kHGCalLayerOffset = 17;
-  uint32_t kHGCalLayerMask = 0x1F;
-  uint32_t kHGCalTriggerOffset = 22;
-  uint32_t kHGCalTriggerMask = 0x1;
-  uint32_t kHGCalZsideOffset = 25;
-  uint32_t kHGCalZsideMask = 0x1;
-  uint32_t kHGCalTypeOffset = 26;
-  uint32_t kHGCalTypeMask = 0x3;
+  static constexpr uint32_t kHGCalPhiOffset = 0;
+  static constexpr uint32_t kHGCalPhiMask = 0x1FF;
+  static constexpr uint32_t kHGCalRadiusOffset = 9;
+  static constexpr uint32_t kHGCalRadiusMask = 0xFF;
+  static constexpr uint32_t kHGCalLayerOffset = 17;
+  static constexpr uint32_t kHGCalLayerMask = 0x1F;
+  static constexpr uint32_t kHGCalTriggerOffset = 22;
+  static constexpr uint32_t kHGCalTriggerMask = 0x1;
+  static constexpr uint32_t kHGCalZsideOffset = 25;
+  static constexpr uint32_t kHGCalZsideMask = 0x1;
+  static constexpr uint32_t kHGCalTypeOffset = 26;
+  static constexpr uint32_t kHGCalTypeMask = 0x3;
 };
 
 namespace hgcal_conditions {
@@ -83,21 +83,21 @@ namespace hgcal_conditions {
     enum class HeterogeneousHGCalHEFParametersType { Double, Int32_t };
     enum class HeterogeneousHGCalHEBParametersType { Double, Int32_t };
 
-    const std::vector<HeterogeneousHGCalEEParametersType> typesEE = {HeterogeneousHGCalEEParametersType::Double,
-                                                                     HeterogeneousHGCalEEParametersType::Double,
-                                                                     HeterogeneousHGCalEEParametersType::Double,
-                                                                     HeterogeneousHGCalEEParametersType::Double,
-                                                                     HeterogeneousHGCalEEParametersType::Int32_t};
+    const std::array<HeterogeneousHGCalEEParametersType, 5> typesEE = {{ HeterogeneousHGCalEEParametersType::Double,
+									 HeterogeneousHGCalEEParametersType::Double,
+									 HeterogeneousHGCalEEParametersType::Double,
+									 HeterogeneousHGCalEEParametersType::Double,
+									 HeterogeneousHGCalEEParametersType::Int32_t }};
 
-    const std::vector<HeterogeneousHGCalHEFParametersType> typesHEF = {HeterogeneousHGCalHEFParametersType::Double,
-                                                                       HeterogeneousHGCalHEFParametersType::Double,
-                                                                       HeterogeneousHGCalHEFParametersType::Double,
-                                                                       HeterogeneousHGCalHEFParametersType::Double,
-                                                                       HeterogeneousHGCalHEFParametersType::Int32_t};
+    const std::array<HeterogeneousHGCalHEFParametersType, 5> typesHEF = {{ HeterogeneousHGCalHEFParametersType::Double,
+									   HeterogeneousHGCalHEFParametersType::Double,
+									   HeterogeneousHGCalHEFParametersType::Double,
+									   HeterogeneousHGCalHEFParametersType::Double,
+									   HeterogeneousHGCalHEFParametersType::Int32_t }};
 
-    const std::vector<HeterogeneousHGCalHEBParametersType> typesHEB = {HeterogeneousHGCalHEBParametersType::Double,
-                                                                       HeterogeneousHGCalHEBParametersType::Int32_t};
-
+    const std::array<HeterogeneousHGCalHEBParametersType, 5> typesHEB = {{ HeterogeneousHGCalHEBParametersType::Double,
+									   HeterogeneousHGCalHEBParametersType::Int32_t }};
+									 
     class HeterogeneousHGCalEEParameters {
     public:
       //indexed by cell number
