@@ -21,16 +21,15 @@ void HcalTDC::timing(const CaloSamples& lf, QIE11DataFrame& digi) const {
   for (int ibin = 0; ibin < lf.size(); ++ibin) {
     /*
     If in a given 25ns bunch/time sample, the pulse is above
-    TDC_Thresh already, then TDC_RisingEdge=0 if it was low in the
-    last precision bin on the previous bunch crossing, otherwise,
-    TDC_RisingEdge=63 if the pulse never crosses the threshold
-    having started off, then the special code is 62 and then
-    one can still have a TDC_FallingEdge that is valid.  If the pulse
-    never falls below threshold having started above threshold (or
-    goes above threshold in the bunch crossing and doesn't come down),
-    then TDC_FallingEdge=.  If the pulse never went above
-    threshold, then TDC_RisingEdge=63 and
-    TDC_FallingEdge=62.
+    TDC_Thresh, then TDC_RisingEdge set to time when threshold
+    was crossed.
+    TDC_RisingEdge=0 if it was low in the last precision bin 
+    on the previous bunch crossing, but above by first precision
+    bin in current bunch crossing.
+    TDC_RisingEdge=62 if pulse starts above threshold by end of
+    previous bunch crossing and stays above threshold in current 
+    bunch crossing. 
+    TDC_RisingEdge=63 if the pulse never crosses the threshold.
     */
     // special codes
     int TDC_RisingEdge = (risingReady) ? theTDCParameters.noTransitionCode() : theTDCParameters.alreadyTransitionCode();
@@ -38,32 +37,30 @@ void HcalTDC::timing(const CaloSamples& lf, QIE11DataFrame& digi) const {
     int preciseEnd = preciseBegin + tdcBins;
 
     if (hasTDCValues) {
-      for (int i = preciseBegin; i < preciseEnd; ++i) {  //find the TDC time value in each TS
-
+      for (int i = preciseBegin; i < preciseEnd; ++i) {
         if ((!risingReady) && (i == preciseBegin) && (i != 0)) {
-          if (((lf.preciseAt(i + 1) - lf.preciseAt(i - 1)) > TDC_Threshold)) {
+          if (lf.preciseAt(i) / theTDCParameters.deltaT() > TDC_Threshold) {
             TDC_RisingEdge = theTDCParameters.alreadyTransitionCode();
-            break;
-          } else
-            risingReady = true;
-        }
-
-        if (risingReady) {
-          if (i != (lf.size() * tdcBins - 1) && i != 0 && (lf.preciseAt(i + 1) - lf.preciseAt(i - 1)) > TDC_Threshold) {
-            risingReady = false;
-            TDC_RisingEdge = i - preciseBegin;
-          } else if (i == 0 && (lf.preciseAt(i + 1) - lf.preciseAt(i)) / 0.5 > TDC_Threshold) {
-            risingReady = false;
-            TDC_RisingEdge = i - preciseBegin;
-          } else if (i == (preciseEnd - 1))
-            TDC_RisingEdge = theTDCParameters.noTransitionCode();
-        }
-
-        if ((!risingReady) && (i == (preciseEnd - 1)) && (i != (lf.size() * tdcBins - 1))) {
-          if (((lf.preciseAt(i + 1) - lf.preciseAt(i - 1)) < TDC_Threshold)) {
+          } else {
             risingReady = true;
           }
         }
+
+        if (risingReady) {
+          if (lf.preciseAt(i) / theTDCParameters.deltaT() > TDC_Threshold) {
+            TDC_RisingEdge = i - preciseBegin;
+            risingReady = false;
+          } else if (i == (preciseEnd - 1)) {
+            TDC_RisingEdge = theTDCParameters.noTransitionCode();
+          }
+        }
+
+        if ((!risingReady) && (i == (preciseEnd - 1))) {
+          if (lf.preciseAt(i) / theTDCParameters.deltaT() < TDC_Threshold) {
+            risingReady = true;
+          }
+        }
+
       }  //end of looping precise bins
     }
 
