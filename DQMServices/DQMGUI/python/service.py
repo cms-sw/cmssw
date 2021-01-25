@@ -91,7 +91,7 @@ class GUIService:
                     continue # This is a secondary item, not a main ME name
 
                 segment = segment.decode('utf-8')
-
+                
                 if is_file:
                     qteststatuses = tuple(me_infos[x].qteststatus for x in binary_search_qtests(me_names, me_name))
                     objs.add(RootObj(name=segment, path=path + segment, layout=None, qteststatuses=qteststatuses))
@@ -102,7 +102,7 @@ class GUIService:
         # Layouts will be filtered against the search regex on their destination name.
         # Non existant sources will still be attempted to be displayed resulting in 
         # 'ME not found' string to be rendered.
-        for layout in cls.layouts_manager.get_layouts():
+        for layout in cls.layouts_manager.get_layouts(dataset):
             # Check if ME name starts with requested path
             if layout.destination[:len(path)] == path:
                 names = layout.destination[len(path):].split('/')

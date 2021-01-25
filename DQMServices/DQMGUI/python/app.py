@@ -61,7 +61,6 @@ from .layouts.layout_manager import LayoutManager
 service = GUIService()
 layout_manager = LayoutManager()
 
-
 # ###################################################################################################### #
 # =========================== API endpoint handling methods for all versions =========================== #
 # ###################################################################################################### #
@@ -156,7 +155,6 @@ async def archive_v1(request, notOlderThan):
     data = await service.get_archive(run, dataset, path, search, lumi, notOlderThan=notOlderThan)
     if not data:
         return web.HTTPNotFound()
-
     result = {'data': []}
     result['data'].extend({'subdir': name, 'me_count': me_count} for name, me_count in data.dirs)
     result['data'].extend({
@@ -172,9 +170,7 @@ async def archive_v1(request, notOlderThan):
 # This endpoint doesn't exist in legacy API
 async def layouts_v1(request):
     """Returns all monitor elements present in the layout of a given name"""
-
     name = request.rel_url.query.get('name')
-
     layouts = layout_manager.get_layouts_by_name(name)
 
     result = {'data':

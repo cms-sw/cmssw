@@ -1,0 +1,217 @@
+2021-01-25 11:02:47,942 - INFO - rendering - Initializing 2 DQM rendering sub processes...
+2021-01-25 11:02:53,812 - INFO - rendering - dqmRender: b'INFO: DQM image server started in path /tmp/epetrait/tmp66rvtohb/\n'
+2021-01-25 11:02:55,523 - INFO - rendering - dqmRender: b'INFO: DQM image server started in path /tmp/epetrait/tmpmbatg967/\n'
+2021-01-25 11:11:06,455 - INFO - rendering - Initializing 2 DQM rendering sub processes...
+2021-01-25 11:11:09,126 - INFO - rendering - dqmRender: b'INFO: DQM image server started in path /tmp/epetrait/tmphk02u87y/\n'
+2021-01-25 11:11:10,658 - INFO - rendering - dqmRender: b'INFO: DQM image server started in path /tmp/epetrait/tmp_437yvaj/\n'
+2021-01-25 11:11:18,125 - INFO - aiohttp.access - 127.0.0.1 [25/Jan/2021:10:11:17 +0000] "GET /_next/static/css/c61401486655080786d3.css HTTP/1.1" 200 564082 "http://localhost:8081/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+2021-01-25 11:11:18,127 - INFO - aiohttp.access - 127.0.0.1 [25/Jan/2021:10:11:17 +0000] "GET /_next/static/chunks/main-e11e3e445f976f694549.js HTTP/1.1" 200 20301 "http://localhost:8081/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+2021-01-25 11:11:18,302 - INFO - aiohttp.access - 127.0.0.1 [25/Jan/2021:10:11:18 +0000] "GET /_next/static/chunks/commons.080eb96c735808f7f8f7.js HTTP/1.1" 200 32675 "http://localhost:8081/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+2021-01-25 11:11:18,303 - INFO - aiohttp.access - 127.0.0.1 [25/Jan/2021:10:11:18 +0000] "GET /_next/static/chunks/framework.9ec1f7868b3e9d138cdd.js HTTP/1.1" 200 128629 "http://localhost:8081/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+2021-01-25 11:11:18,303 - INFO - aiohttp.access - 127.0.0.1 [25/Jan/2021:10:11:18 +0000] "GET /_next/static/chunks/29107295.7c46d280e1befca20ca9.js HTTP/1.1" 200 73873 "http://localhost:8081/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+2021-01-25 11:11:18,303 - INFO - aiohttp.access - 127.0.0.1 [25/Jan/2021:10:11:18 +0000] "GET /_next/static/chunks/71247caf95475e3ea7f9a0f8a30beb258b23d005.b4124e91b730b8f5c4c2.js HTTP/1.1" 200 46013 "http://localhost:8081/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+2021-01-25 11:11:19,531 - INFO - aiohttp.access - 127.0.0.1 [25/Jan/2021:10:11:19 +0000] "GET /_next/static/chunks/pages/index-3e15ffbcd3ab80a0a8bf.js HTTP/1.1" 200 880786 "http://localhost:8081/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+2021-01-25 11:11:19,686 - INFO - aiohttp.access - 127.0.0.1 [25/Jan/2021:10:11:19 +0000] "GET /jsroot-5.8.0/scripts/JSRootCore.js?2d&hist&more2d HTTP/1.1" 200 98571 "http://localhost:8081/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+2021-01-25 11:11:20,621 - INFO - aiohttp.access - 127.0.0.1 [25/Jan/2021:10:11:20 +0000] "GET /images/CMSlogo_white_red_nolabel_1024_May2014.png HTTP/1.1" 200 148096 "http://localhost:8081/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+2021-01-25 11:11:21,414 - INFO - aiohttp.access - 127.0.0.1 [25/Jan/2021:10:11:21 +0000] "GET /favicon.ico HTTP/1.1" 404 172 "http://localhost:8081/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+2021-01-25 11:11:21,414 - INFO - aiohttp.access - 127.0.0.1 [25/Jan/2021:10:11:21 +0000] "GET /jsroot-5.8.0/scripts/JSRootMath.js HTTP/1.1" 200 22288 "http://localhost:8081/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+2021-01-25 11:11:21,723 - INFO - aiohttp.access - 127.0.0.1 [25/Jan/2021:10:11:21 +0000] "GET /jsroot-5.8.0/scripts/d3.min.js HTTP/1.1" 200 451967 "http://localhost:8081/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+2021-01-25 11:11:22,522 - INFO - aiohttp.access - 127.0.0.1 [25/Jan/2021:10:11:22 +0000] "GET /jsroot-5.8.0/scripts/JSRootPainter.js HTTP/1.1" 200 279521 "http://localhost:8081/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+2021-01-25 11:11:23,284 - INFO - aiohttp.access - 127.0.0.1 [25/Jan/2021:10:11:23 +0000] "GET /jsroot-5.8.0/scripts/JSRootPainter.v6.js HTTP/1.1" 200 195693 "http://localhost:8081/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+2021-01-25 11:11:23,777 - INFO - aiohttp.access - 127.0.0.1 [25/Jan/2021:10:11:23 +0000] "GET /jsroot-5.8.0/scripts/JSRootPainter.hist.js HTTP/1.1" 200 272031 "http://localhost:8081/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+2021-01-25 11:11:24,559 - INFO - aiohttp.access - 127.0.0.1 [25/Jan/2021:10:11:24 +0000] "GET /jsroot-5.8.0/scripts/JSRootPainter.more.js HTTP/1.1" 200 133681 "http://localhost:8081/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+2021-01-25 11:11:25,009 - INFO - aiohttp.access - 127.0.0.1 [25/Jan/2021:10:11:24 +0000] "GET /jsroot-5.8.0/style/JSRootPainter.css HTTP/1.1" 200 38025 "http://localhost:8081/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+2021-01-25 11:11:25,354 - INFO - helpers.logged - 1 GUIService.get_latest_runs('', 1611569480) [OK 4049.9ms]
+2021-01-25 11:11:25,355 - INFO - aiohttp.access - 127.0.0.1 [25/Jan/2021:10:11:21 +0000] "GET /api/v1/latest_runs?notOlderThan=1611569480 HTTP/1.1" 200 968 "http://localhost:8081/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+2021-01-25 11:11:25,459 - INFO - aiohttp.access - 127.0.0.1 [25/Jan/2021:10:11:25 +0000] "GET /api/v1/latest_runs?notOlderThan=1611569480 HTTP/1.1" 200 968 "http://localhost:8081/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+2021-01-25 11:11:25,630 - INFO - helpers.logged - 2 GUIService.get_latest_runs('', 1611569481275) [OK 27.6ms]
+2021-01-25 11:11:25,631 - INFO - aiohttp.access - 127.0.0.1 [25/Jan/2021:10:11:25 +0000] "GET /api/v1/latest_runs?notOlderThan=1611569481275 HTTP/1.1" 200 968 "http://localhost:8081/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+2021-01-25 11:11:29,057 - INFO - helpers.logged - 3 GUIService.get_samples('334201', '', '', 1611569481275) [OK 32.8ms]
+2021-01-25 11:11:29,058 - INFO - aiohttp.access - 127.0.0.1 [25/Jan/2021:10:11:29 +0000] "GET /api/v1/samples?run=334201&lumi=&dataset=&notOlderThan=1611569481275 HTTP/1.1" 200 256 "http://localhost:8081/dqm/online-playback-new/?search_run_number=334201" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+2021-01-25 11:11:32,240 - INFO - helpers.logged - 5 GUIService.get_samples('334201', '/Cosmics/Commissioning2019-PromptReco-v1/DQMIO', '', 1611569481275) [OK 93.7ms]
+2021-01-25 11:11:32,241 - INFO - aiohttp.access - 127.0.0.1 [25/Jan/2021:10:11:32 +0000] "GET /api/v1/samples?run=334201&lumi=&dataset=/Cosmics/Commissioning2019-PromptReco-v1/DQMIO&notOlderThan=1611569481275 HTTP/1.1" 200 256 "http://localhost:8081/dqm/online-playback-new/?lumi=0&run_number=334201&dataset_name=%2FCosmics%2FCommissioning2019-PromptReco-v1%2FDQMIO" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+2021-01-25 11:11:32,241 - INFO - helpers.logged - 6 GUIService.get_samples('', '/Cosmics/Commissioning2019-PromptReco-v1/DQMIO', '', 1611569481275) [OK 88.6ms]
+2021-01-25 11:11:32,243 - INFO - aiohttp.access - 127.0.0.1 [25/Jan/2021:10:11:32 +0000] "GET /api/v1/samples?run=&lumi=&dataset=/Cosmics/Commissioning2019-PromptReco-v1/DQMIO&notOlderThan=1611569481275 HTTP/1.1" 200 6043 "http://localhost:8081/dqm/online-playback-new/?lumi=0&run_number=334201&dataset_name=%2FCosmics%2FCommissioning2019-PromptReco-v1%2FDQMIO" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+2021-01-25 11:11:32,275 - INFO - helpers.logged - 7  GUIService.__get_me_names_list('/Cosmics/Commissioning2019-PromptReco-v1/DQMIO', 334201, 0, 1611569481275) [OK 110.1ms]
+2021-01-25 11:11:32,278 - INFO - helpers.logged - 4   GUIService.__get_filename_fileformat_names_infos('/Cosmics/Commissioning2019-PromptReco-v1/DQMIO', 334201, 0, 1611569481275) [OK 138.0ms]
+2021-01-25 11:11:32,282 - INFO - helpers.logged - 7  GUIService.__get_me_infos_list('/Cosmics/Commissioning2019-PromptReco-v1/DQMIO', 334201, 0, 1611569481275) [OK 6.9ms]
+2021-01-25 11:11:32,372 - INFO - helpers.logged - 7 GUIService.get_archive(334201, '/Cosmics/Commissioning2019-PromptReco-v1/DQMIO', '', 0, 1611569481275) [FAIL 207.9ms]
+2021-01-25 11:11:32,373 - ERROR - aiohttp.server - Error handling request
+Traceback (most recent call last):
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/src/DQMServices/DQMGUI/python/.python_packages/aiohttp/web_protocol.py", line 418, in start
+    resp = await task
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/src/DQMServices/DQMGUI/python/.python_packages/aiohttp/web_app.py", line 458, in _handle
+    resp = await handler(request)
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/src/DQMServices/DQMGUI/python/.python_packages/aiohttp/web_middlewares.py", line 119, in impl
+    return await handler(request)
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/src/DQMServices/DQMGUI/python/.python_packages/aiohttp/web_middlewares.py", line 109, in impl
+    return await handler(request)
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/src/DQMServices/DQMGUI/python/.python_packages/aiohttp/web_urldispatcher.py", line 158, in handler_wrapper
+    return await result
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/python/DQMServices/DQMGUI/app.py", line 155, in archive_v1
+    data = await service.get_archive(run, dataset, path, search, lumi, notOlderThan=notOlderThan)
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/python/DQMServices/DQMGUI/async_lru_timed.py", line 124, in wrapped
+    res = await fn(*fn_args, **fn_kwargs)
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/python/DQMServices/DQMGUI/helpers.py", line 55, in wrapped
+    ret = await fn(*posargs, **kwargs)
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/python/DQMServices/DQMGUI/service.py", line 117, in get_archive
+    objs.add(RootObj(name=segment, path=layout.source, layout=layout.name, qteststatuses=qteststatuses))
+TypeError: unhashable type: 'list'
+2021-01-25 11:11:32,479 - INFO - aiohttp.access - 127.0.0.1 [25/Jan/2021:10:11:32 +0000] "GET /api/v1/archive/334201/Cosmics/Commissioning2019-PromptReco-v1/DQMIO/?notOlderThan=1611569481275 HTTP/1.1" 500 244 "http://localhost:8081/dqm/online-playback-new/?lumi=0&run_number=334201&dataset_name=%2FCosmics%2FCommissioning2019-PromptReco-v1%2FDQMIO" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+2021-01-25 11:11:32,480 - INFO - helpers.logged - 4  GUIService.get_rendered_image(1611569481275) [OK 340.5ms]
+2021-01-25 11:11:32,480 - INFO - helpers.logged - 4 GUIService.get_rendered_json(1611569481275) [OK 340.7ms]
+2021-01-25 11:11:32,481 - INFO - rendering - dqmRender: b"INFO: rendered '' version 0 as 'h=200;w=266;json=True', 1 objects in 3.182ms (OK)\n"
+2021-01-25 11:11:32,481 - INFO - aiohttp.access - 127.0.0.1 [25/Jan/2021:10:11:32 +0000] "GET /jsrootfairy/archive/334201/Cosmics/Commissioning2019-PromptReco-v1/DQMIO/HLT/EventInfo/iRun?jsroot=true;notOlderThan=1611569481275 HTTP/1.1" 200 281 "http://localhost:8081/dqm/online-playback-new/?lumi=0&run_number=334201&dataset_name=%2FCosmics%2FCommissioning2019-PromptReco-v1%2FDQMIO" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+2021-01-25 11:11:32,622 - INFO - helpers.logged - 8  GUIService.__get_me_names_list('/Cosmics/Commissioning2019-PromptReco-v1/DQMIO', 334201, 0, 1611569481275) [OK 29.9ms]
+2021-01-25 11:11:32,626 - INFO - helpers.logged - 8  GUIService.__get_me_infos_list('/Cosmics/Commissioning2019-PromptReco-v1/DQMIO', 334201, 0, 1611569481275) [OK 3.5ms]
+2021-01-25 11:11:32,713 - INFO - helpers.logged - 8 GUIService.get_archive(334201, '/Cosmics/Commissioning2019-PromptReco-v1/DQMIO', '', 0, 1611569481275) [FAIL 120.0ms]
+2021-01-25 11:11:32,713 - ERROR - aiohttp.server - Error handling request
+Traceback (most recent call last):
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/src/DQMServices/DQMGUI/python/.python_packages/aiohttp/web_protocol.py", line 418, in start
+    resp = await task
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/src/DQMServices/DQMGUI/python/.python_packages/aiohttp/web_app.py", line 458, in _handle
+    resp = await handler(request)
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/src/DQMServices/DQMGUI/python/.python_packages/aiohttp/web_middlewares.py", line 119, in impl
+    return await handler(request)
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/src/DQMServices/DQMGUI/python/.python_packages/aiohttp/web_middlewares.py", line 109, in impl
+    return await handler(request)
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/src/DQMServices/DQMGUI/python/.python_packages/aiohttp/web_urldispatcher.py", line 158, in handler_wrapper
+    return await result
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/python/DQMServices/DQMGUI/app.py", line 155, in archive_v1
+    data = await service.get_archive(run, dataset, path, search, lumi, notOlderThan=notOlderThan)
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/python/DQMServices/DQMGUI/async_lru_timed.py", line 124, in wrapped
+    res = await fn(*fn_args, **fn_kwargs)
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/python/DQMServices/DQMGUI/helpers.py", line 55, in wrapped
+    ret = await fn(*posargs, **kwargs)
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/python/DQMServices/DQMGUI/service.py", line 117, in get_archive
+    objs.add(RootObj(name=segment, path=layout.source, layout=layout.name, qteststatuses=qteststatuses))
+TypeError: unhashable type: 'list'
+2021-01-25 11:11:32,714 - INFO - aiohttp.access - 127.0.0.1 [25/Jan/2021:10:11:32 +0000] "GET /api/v1/archive/334201/Cosmics/Commissioning2019-PromptReco-v1/DQMIO/?notOlderThan=1611569481275 HTTP/1.1" 500 244 "http://localhost:8081/dqm/online-playback-new/?lumi=0&run_number=334201&dataset_name=%2FCosmics%2FCommissioning2019-PromptReco-v1%2FDQMIO" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+2021-01-25 11:11:38,412 - INFO - helpers.logged - 9 GUIService.get_samples('334201', '', '', 1611569481275) [OK 23.6ms]
+2021-01-25 11:11:38,413 - INFO - aiohttp.access - 127.0.0.1 [25/Jan/2021:10:11:38 +0000] "GET /api/v1/samples?run=334201&lumi=&dataset=&notOlderThan=1611569481275 HTTP/1.1" 200 256 "http://localhost:8081/dqm/online-playback-new/?search_run_number=334201" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+2021-01-25 11:11:43,344 - INFO - helpers.logged - 11 GUIService.get_samples('334201', '/Cosmics/Commissioning2019-PromptReco-v1/DQMIO', '', 1611569481275) [OK 50.9ms]
+2021-01-25 11:11:43,346 - INFO - aiohttp.access - 127.0.0.1 [25/Jan/2021:10:11:43 +0000] "GET /api/v1/samples?run=334201&lumi=&dataset=/Cosmics/Commissioning2019-PromptReco-v1/DQMIO&notOlderThan=1611569481275 HTTP/1.1" 200 256 "http://localhost:8081/dqm/online-playback-new/?lumi=0&run_number=334201&dataset_name=%2FCosmics%2FCommissioning2019-PromptReco-v1%2FDQMIO" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+2021-01-25 11:11:43,347 - INFO - helpers.logged - 13 GUIService.get_samples('', '/Cosmics/Commissioning2019-PromptReco-v1/DQMIO', '', 1611569481275) [OK 33.0ms]
+2021-01-25 11:11:43,347 - INFO - aiohttp.access - 127.0.0.1 [25/Jan/2021:10:11:43 +0000] "GET /api/v1/samples?run=&lumi=&dataset=/Cosmics/Commissioning2019-PromptReco-v1/DQMIO&notOlderThan=1611569481275 HTTP/1.1" 200 6043 "http://localhost:8081/dqm/online-playback-new/?lumi=0&run_number=334201&dataset_name=%2FCosmics%2FCommissioning2019-PromptReco-v1%2FDQMIO" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+2021-01-25 11:11:43,371 - INFO - helpers.logged - 10   GUIService.__get_filename_fileformat_names_infos('/Cosmics/Commissioning2019-PromptReco-v1/DQMIO', 334201, 0, 1611569481275) [OK 78.4ms]
+2021-01-25 11:11:43,394 - INFO - helpers.logged - 10  GUIService.get_rendered_image(1611569481275) [OK 106.5ms]
+2021-01-25 11:11:43,395 - INFO - helpers.logged - 10 GUIService.get_rendered_json(1611569481275) [OK 106.9ms]
+2021-01-25 11:11:43,395 - INFO - rendering - dqmRender: b"INFO: rendered '' version 0 as 'h=200;w=266;json=True', 1 objects in 0.259ms (OK)\n"
+2021-01-25 11:11:43,395 - INFO - aiohttp.access - 127.0.0.1 [25/Jan/2021:10:11:43 +0000] "GET /jsrootfairy/archive/334201/Cosmics/Commissioning2019-PromptReco-v1/DQMIO/HLT/EventInfo/iRun?jsroot=true;notOlderThan=1611569481275 HTTP/1.1" 200 281 "http://localhost:8081/dqm/online-playback-new/?lumi=0&run_number=334201&dataset_name=%2FCosmics%2FCommissioning2019-PromptReco-v1%2FDQMIO" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+2021-01-25 11:11:43,396 - INFO - helpers.logged - 12  GUIService.__get_me_names_list('/Cosmics/Commissioning2019-PromptReco-v1/DQMIO', 334201, 0, 1611569481275) [OK 82.8ms]
+2021-01-25 11:11:43,401 - INFO - helpers.logged - 12  GUIService.__get_me_infos_list('/Cosmics/Commissioning2019-PromptReco-v1/DQMIO', 334201, 0, 1611569481275) [OK 4.7ms]
+2021-01-25 11:11:43,487 - INFO - helpers.logged - 12 GUIService.get_archive(334201, '/Cosmics/Commissioning2019-PromptReco-v1/DQMIO', '', 0, 1611569481275) [FAIL 175.5ms]
+2021-01-25 11:11:43,487 - ERROR - aiohttp.server - Error handling request
+Traceback (most recent call last):
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/src/DQMServices/DQMGUI/python/.python_packages/aiohttp/web_protocol.py", line 418, in start
+    resp = await task
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/src/DQMServices/DQMGUI/python/.python_packages/aiohttp/web_app.py", line 458, in _handle
+    resp = await handler(request)
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/src/DQMServices/DQMGUI/python/.python_packages/aiohttp/web_middlewares.py", line 119, in impl
+    return await handler(request)
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/src/DQMServices/DQMGUI/python/.python_packages/aiohttp/web_middlewares.py", line 109, in impl
+    return await handler(request)
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/src/DQMServices/DQMGUI/python/.python_packages/aiohttp/web_urldispatcher.py", line 158, in handler_wrapper
+    return await result
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/python/DQMServices/DQMGUI/app.py", line 155, in archive_v1
+    data = await service.get_archive(run, dataset, path, search, lumi, notOlderThan=notOlderThan)
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/python/DQMServices/DQMGUI/async_lru_timed.py", line 124, in wrapped
+    res = await fn(*fn_args, **fn_kwargs)
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/python/DQMServices/DQMGUI/helpers.py", line 55, in wrapped
+    ret = await fn(*posargs, **kwargs)
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/python/DQMServices/DQMGUI/service.py", line 117, in get_archive
+    objs.add(RootObj(name=segment, path=layout.source, layout=layout.name, qteststatuses=qteststatuses))
+TypeError: unhashable type: 'list'
+2021-01-25 11:11:43,488 - INFO - aiohttp.access - 127.0.0.1 [25/Jan/2021:10:11:43 +0000] "GET /api/v1/archive/334201/Cosmics/Commissioning2019-PromptReco-v1/DQMIO/?notOlderThan=1611569481275 HTTP/1.1" 500 244 "http://localhost:8081/dqm/online-playback-new/?lumi=0&run_number=334201&dataset_name=%2FCosmics%2FCommissioning2019-PromptReco-v1%2FDQMIO" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+2021-01-25 11:11:43,636 - INFO - helpers.logged - 14  GUIService.__get_me_names_list('/Cosmics/Commissioning2019-PromptReco-v1/DQMIO', 334201, 0, 1611569481275) [OK 47.9ms]
+2021-01-25 11:11:43,639 - INFO - helpers.logged - 14  GUIService.__get_me_infos_list('/Cosmics/Commissioning2019-PromptReco-v1/DQMIO', 334201, 0, 1611569481275) [OK 3.6ms]
+2021-01-25 11:11:43,726 - INFO - helpers.logged - 14 GUIService.get_archive(334201, '/Cosmics/Commissioning2019-PromptReco-v1/DQMIO', '', 0, 1611569481275) [FAIL 138.7ms]
+2021-01-25 11:11:43,727 - ERROR - aiohttp.server - Error handling request
+Traceback (most recent call last):
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/src/DQMServices/DQMGUI/python/.python_packages/aiohttp/web_protocol.py", line 418, in start
+    resp = await task
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/src/DQMServices/DQMGUI/python/.python_packages/aiohttp/web_app.py", line 458, in _handle
+    resp = await handler(request)
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/src/DQMServices/DQMGUI/python/.python_packages/aiohttp/web_middlewares.py", line 119, in impl
+    return await handler(request)
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/src/DQMServices/DQMGUI/python/.python_packages/aiohttp/web_middlewares.py", line 109, in impl
+    return await handler(request)
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/src/DQMServices/DQMGUI/python/.python_packages/aiohttp/web_urldispatcher.py", line 158, in handler_wrapper
+    return await result
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/python/DQMServices/DQMGUI/app.py", line 155, in archive_v1
+    data = await service.get_archive(run, dataset, path, search, lumi, notOlderThan=notOlderThan)
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/python/DQMServices/DQMGUI/async_lru_timed.py", line 124, in wrapped
+    res = await fn(*fn_args, **fn_kwargs)
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/python/DQMServices/DQMGUI/helpers.py", line 55, in wrapped
+    ret = await fn(*posargs, **kwargs)
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/python/DQMServices/DQMGUI/service.py", line 117, in get_archive
+    objs.add(RootObj(name=segment, path=layout.source, layout=layout.name, qteststatuses=qteststatuses))
+TypeError: unhashable type: 'list'
+2021-01-25 11:11:43,728 - INFO - aiohttp.access - 127.0.0.1 [25/Jan/2021:10:11:43 +0000] "GET /api/v1/archive/334201/Cosmics/Commissioning2019-PromptReco-v1/DQMIO/?notOlderThan=1611569481275 HTTP/1.1" 500 244 "http://localhost:8081/dqm/online-playback-new/?lumi=0&run_number=334201&dataset_name=%2FCosmics%2FCommissioning2019-PromptReco-v1%2FDQMIO" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+2021-01-25 11:11:52,570 - INFO - aiohttp.access - 127.0.0.1 [25/Jan/2021:10:11:52 +0000] "GET /dqm/online-playback-new/?lumi=0&run_number=334201&dataset_name=/Cosmics/Commissioning2019-PromptReco-v1/DQMIO HTTP/1.1" 404 172 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+2021-01-25 11:12:01,271 - INFO - helpers.logged - 15 GUIService.get_latest_runs('', 1611569520) [OK 30.1ms]
+2021-01-25 11:12:01,272 - INFO - aiohttp.access - 127.0.0.1 [25/Jan/2021:10:12:01 +0000] "GET /api/v1/latest_runs?notOlderThan=1611569520 HTTP/1.1" 200 968 "http://localhost:8081/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+2021-01-25 11:12:01,375 - INFO - aiohttp.access - 127.0.0.1 [25/Jan/2021:10:12:01 +0000] "GET /api/v1/latest_runs?notOlderThan=1611569520 HTTP/1.1" 200 968 "http://localhost:8081/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+2021-01-25 11:12:01,802 - INFO - helpers.logged - 16 GUIService.get_latest_runs('', 1611569521157) [OK 29.8ms]
+2021-01-25 11:12:01,803 - INFO - aiohttp.access - 127.0.0.1 [25/Jan/2021:10:12:01 +0000] "GET /api/v1/latest_runs?notOlderThan=1611569521157 HTTP/1.1" 200 968 "http://localhost:8081/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+2021-01-25 11:12:02,521 - INFO - helpers.logged - 17 GUIService.get_samples('334201', '', '', 1611569521157) [OK 33.8ms]
+2021-01-25 11:12:02,521 - INFO - aiohttp.access - 127.0.0.1 [25/Jan/2021:10:12:02 +0000] "GET /api/v1/samples?run=334201&lumi=&dataset=&notOlderThan=1611569521157 HTTP/1.1" 200 256 "http://localhost:8081/dqm/online-playback-new/?search_run_number=334201" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+2021-01-25 11:12:05,017 - INFO - helpers.logged - 19 GUIService.get_samples('334201', '/Cosmics/Commissioning2019-PromptReco-v1/DQMIO', '', 1611569521157) [OK 21.4ms]
+2021-01-25 11:12:05,019 - INFO - aiohttp.access - 127.0.0.1 [25/Jan/2021:10:12:04 +0000] "GET /api/v1/samples?run=334201&lumi=&dataset=/Cosmics/Commissioning2019-PromptReco-v1/DQMIO&notOlderThan=1611569521157 HTTP/1.1" 200 256 "http://localhost:8081/dqm/online-playback-new/?lumi=0&run_number=334201&dataset_name=%2FCosmics%2FCommissioning2019-PromptReco-v1%2FDQMIO" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+2021-01-25 11:12:05,057 - INFO - helpers.logged - 18   GUIService.__get_filename_fileformat_names_infos('/Cosmics/Commissioning2019-PromptReco-v1/DQMIO', 334201, 0, 1611569521157) [OK 63.5ms]
+2021-01-25 11:12:05,098 - INFO - helpers.logged - 18  GUIService.get_rendered_image(1611569521157) [OK 105.5ms]
+2021-01-25 11:12:05,099 - INFO - helpers.logged - 18 GUIService.get_rendered_json(1611569521157) [OK 105.9ms]
+2021-01-25 11:12:05,099 - INFO - rendering - dqmRender: b"INFO: rendered '' version 0 as 'h=200;w=266;json=True', 1 objects in 36.428ms (OK)\n"
+2021-01-25 11:12:05,099 - INFO - aiohttp.access - 127.0.0.1 [25/Jan/2021:10:12:04 +0000] "GET /jsrootfairy/archive/334201/Cosmics/Commissioning2019-PromptReco-v1/DQMIO/HLT/EventInfo/iRun?jsroot=true;notOlderThan=1611569521157 HTTP/1.1" 200 281 "http://localhost:8081/dqm/online-playback-new/?lumi=0&run_number=334201&dataset_name=%2FCosmics%2FCommissioning2019-PromptReco-v1%2FDQMIO" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+2021-01-25 11:12:05,116 - INFO - helpers.logged - 20 GUIService.get_samples('', '/Cosmics/Commissioning2019-PromptReco-v1/DQMIO', '', 1611569521157) [OK 15.8ms]
+2021-01-25 11:12:05,117 - INFO - aiohttp.access - 127.0.0.1 [25/Jan/2021:10:12:05 +0000] "GET /api/v1/samples?run=&lumi=&dataset=/Cosmics/Commissioning2019-PromptReco-v1/DQMIO&notOlderThan=1611569521157 HTTP/1.1" 200 6043 "http://localhost:8081/dqm/online-playback-new/?lumi=0&run_number=334201&dataset_name=%2FCosmics%2FCommissioning2019-PromptReco-v1%2FDQMIO" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+2021-01-25 11:12:05,151 - INFO - helpers.logged - 21  GUIService.__get_me_names_list('/Cosmics/Commissioning2019-PromptReco-v1/DQMIO', 334201, 0, 1611569521157) [OK 50.2ms]
+2021-01-25 11:12:05,155 - INFO - helpers.logged - 21  GUIService.__get_me_infos_list('/Cosmics/Commissioning2019-PromptReco-v1/DQMIO', 334201, 0, 1611569521157) [OK 3.4ms]
+2021-01-25 11:12:05,238 - INFO - helpers.logged - 21 GUIService.get_archive(334201, '/Cosmics/Commissioning2019-PromptReco-v1/DQMIO', '', 0, 1611569521157) [FAIL 137.7ms]
+2021-01-25 11:12:05,239 - ERROR - aiohttp.server - Error handling request
+Traceback (most recent call last):
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/src/DQMServices/DQMGUI/python/.python_packages/aiohttp/web_protocol.py", line 418, in start
+    resp = await task
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/src/DQMServices/DQMGUI/python/.python_packages/aiohttp/web_app.py", line 458, in _handle
+    resp = await handler(request)
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/src/DQMServices/DQMGUI/python/.python_packages/aiohttp/web_middlewares.py", line 119, in impl
+    return await handler(request)
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/src/DQMServices/DQMGUI/python/.python_packages/aiohttp/web_middlewares.py", line 109, in impl
+    return await handler(request)
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/src/DQMServices/DQMGUI/python/.python_packages/aiohttp/web_urldispatcher.py", line 158, in handler_wrapper
+    return await result
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/python/DQMServices/DQMGUI/app.py", line 155, in archive_v1
+    data = await service.get_archive(run, dataset, path, search, lumi, notOlderThan=notOlderThan)
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/python/DQMServices/DQMGUI/async_lru_timed.py", line 124, in wrapped
+    res = await fn(*fn_args, **fn_kwargs)
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/python/DQMServices/DQMGUI/helpers.py", line 55, in wrapped
+    ret = await fn(*posargs, **kwargs)
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/python/DQMServices/DQMGUI/service.py", line 117, in get_archive
+    objs.add(RootObj(name=segment, path=layout.source, layout=layout.name, qteststatuses=qteststatuses))
+TypeError: unhashable type: 'list'
+2021-01-25 11:12:05,241 - INFO - aiohttp.access - 127.0.0.1 [25/Jan/2021:10:12:05 +0000] "GET /api/v1/archive/334201/Cosmics/Commissioning2019-PromptReco-v1/DQMIO/?notOlderThan=1611569521157 HTTP/1.1" 500 244 "http://localhost:8081/dqm/online-playback-new/?lumi=0&run_number=334201&dataset_name=%2FCosmics%2FCommissioning2019-PromptReco-v1%2FDQMIO" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+2021-01-25 11:12:05,393 - INFO - helpers.logged - 22  GUIService.__get_me_names_list('/Cosmics/Commissioning2019-PromptReco-v1/DQMIO', 334201, 0, 1611569521157) [OK 32.8ms]
+2021-01-25 11:12:05,401 - INFO - helpers.logged - 22  GUIService.__get_me_infos_list('/Cosmics/Commissioning2019-PromptReco-v1/DQMIO', 334201, 0, 1611569521157) [OK 7.8ms]
+2021-01-25 11:12:05,490 - INFO - helpers.logged - 22 GUIService.get_archive(334201, '/Cosmics/Commissioning2019-PromptReco-v1/DQMIO', '', 0, 1611569521157) [FAIL 129.9ms]
+2021-01-25 11:12:05,490 - ERROR - aiohttp.server - Error handling request
+Traceback (most recent call last):
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/src/DQMServices/DQMGUI/python/.python_packages/aiohttp/web_protocol.py", line 418, in start
+    resp = await task
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/src/DQMServices/DQMGUI/python/.python_packages/aiohttp/web_app.py", line 458, in _handle
+    resp = await handler(request)
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/src/DQMServices/DQMGUI/python/.python_packages/aiohttp/web_middlewares.py", line 119, in impl
+    return await handler(request)
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/src/DQMServices/DQMGUI/python/.python_packages/aiohttp/web_middlewares.py", line 109, in impl
+    return await handler(request)
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/src/DQMServices/DQMGUI/python/.python_packages/aiohttp/web_urldispatcher.py", line 158, in handler_wrapper
+    return await result
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/python/DQMServices/DQMGUI/app.py", line 155, in archive_v1
+    data = await service.get_archive(run, dataset, path, search, lumi, notOlderThan=notOlderThan)
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/python/DQMServices/DQMGUI/async_lru_timed.py", line 124, in wrapped
+    res = await fn(*fn_args, **fn_kwargs)
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/python/DQMServices/DQMGUI/helpers.py", line 55, in wrapped
+    ret = await fn(*posargs, **kwargs)
+  File "/afs/cern.ch/user/e/epetrait/CMSSW_11_1_0_pre6/python/DQMServices/DQMGUI/service.py", line 117, in get_archive
+    objs.add(RootObj(name=segment, path=layout.source, layout=layout.name, qteststatuses=qteststatuses))
+TypeError: unhashable type: 'list'
+2021-01-25 11:12:05,491 - INFO - aiohttp.access - 127.0.0.1 [25/Jan/2021:10:12:05 +0000] "GET /api/v1/archive/334201/Cosmics/Commissioning2019-PromptReco-v1/DQMIO/?notOlderThan=1611569521157 HTTP/1.1" 500 244 "http://localhost:8081/dqm/online-playback-new/?lumi=0&run_number=334201&dataset_name=%2FCosmics%2FCommissioning2019-PromptReco-v1%2FDQMIO" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
