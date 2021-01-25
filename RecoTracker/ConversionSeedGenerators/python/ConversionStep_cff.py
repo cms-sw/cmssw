@@ -246,8 +246,8 @@ trackingPhase2PU140.toReplaceWith(convLayerPairs, cms.EDProducer('SeedingLayersE
 
 photonConvTrajSeedFromSingleLeg.TrackRefitter      = 'generalTracks'
 photonConvTrajSeedFromSingleLeg.primaryVerticesTag = 'firstStepPrimaryVertices'
-#photonConvTrajSeedFromQuadruplets.TrackRefitter = cms.InputTag('generalTracks')
-#photonConvTrajSeedFromQuadruplets.primaryVerticesTag = cms.InputTag('pixelVertices')
+#photonConvTrajSeedFromQuadruplets.TrackRefitter      = 'generalTracks'
+#photonConvTrajSeedFromQuadruplets.primaryVerticesTag = 'pixelVertices'
 from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
 trackingLowPU.toModify(photonConvTrajSeedFromSingleLeg, primaryVerticesTag   = 'pixelVertices')
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
