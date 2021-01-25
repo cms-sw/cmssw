@@ -47,57 +47,70 @@ DisplacedGeneralLayerTriplet = seedingLayersEDProducer.clone(
 
 
         TOB = cms.PSet(
-         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-         TTRHBuilder = cms.string('WithTrackAngle'),
-         clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone')),
-         skipClusters   = cms.InputTag('displacedGeneralStepClusters')
+	 TTRHBuilder = cms.string('WithTrackAngle'),
+	 clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
+	 matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+	 skipClusters   = cms.InputTag('displacedGeneralStepClusters')
         ),
+
         MTOB = cms.PSet(
          TTRHBuilder = cms.string('WithTrackAngle'),
+	 clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
          rphiRecHits    = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
-         clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone')),
          skipClusters   = cms.InputTag('displacedGeneralStepClusters')
         ),
+
         TIB = cms.PSet(
-         TTRHBuilder    = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
+         TTRHBuilder    = cms.string('WithTrackAngle'),
+	 clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
          matchedRecHits = cms.InputTag('siStripMatchedRecHits','matchedRecHit'),
-         skipClusters   = cms.InputTag('pixelLessStepClusters')
+         skipClusters   = cms.InputTag('displacedGeneralStepClusters')
         ),
+
         MTIB = cms.PSet(
-         TTRHBuilder    = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
-         skipClusters   = cms.InputTag('pixelLessStepClusters'),
-         rphiRecHits    = cms.InputTag('siStripMatchedRecHits','rphiRecHit')
+         TTRHBuilder    = cms.string('WithTrackAngle'), 
+	 clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
+	 rphiRecHits    = cms.InputTag('siStripMatchedRecHits','rphiRecHit'),
+         skipClusters   = cms.InputTag('displacedGeneralStepClusters')
         ),
+
         TID = cms.PSet(
-        matchedRecHits = cms.InputTag('siStripMatchedRecHits','matchedRecHit'),
-        skipClusters = cms.InputTag('pixelLessStepClusters'),
-        useRingSlector = cms.bool(True),
-        TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
-        minRing = cms.int32(1),
-        maxRing = cms.int32(2)
+	 TTRHBuilder = cms.string('WithTrackAngle'),
+	 clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
+	 matchedRecHits = cms.InputTag('siStripMatchedRecHits','matchedRecHit'),
+	 skipClusters   = cms.InputTag('displacedGeneralStepClusters'),
+         useRingSlector = cms.bool(True),
+	 minRing = cms.int32(1),
+         maxRing = cms.int32(2)
+	),
+        
+	MTID = cms.PSet(
+         TTRHBuilder = cms.string('WithTrackAngle'),
+ 	 clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
+	 rphiRecHits    = cms.InputTag('siStripMatchedRecHits','rphiRecHit'),
+	 skipClusters = cms.InputTag('displacedGeneralStepClusters'),
+	 useRingSlector = cms.bool(True),
+	 minRing = cms.int32(3),
+         maxRing = cms.int32(3)
         ),
-        MTID = cms.PSet(
-        rphiRecHits    = cms.InputTag('siStripMatchedRecHits','rphiRecHit'),
-        skipClusters = cms.InputTag('pixelLessStepClusters'),
-        useRingSlector = cms.bool(True),
-        TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
-        minRing = cms.int32(3),
-        maxRing = cms.int32(3)
-        ),
+
         TEC = cms.PSet(
-        matchedRecHits = cms.InputTag('siStripMatchedRecHits','matchedRecHit'),
-        skipClusters = cms.InputTag('pixelLessStepClusters'),
-        useRingSlector = cms.bool(True),
-        TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
-        minRing = cms.int32(5),
-        maxRing = cms.int32(5)
-        ),
+	 TTRHBuilder = cms.string('WithTrackAngle'),
+	 clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
+	 matchedRecHits = cms.InputTag('siStripMatchedRecHits','matchedRecHit'),
+	 skipClusters = cms.InputTag('displacedGeneralStepClusters'),
+         useRingSlector = cms.bool(True),
+	 minRing = cms.int32(5),
+         maxRing = cms.int32(5)
+	),
+
         MTEC = cms.PSet(
-        rphiRecHits = cms.InputTag('siStripMatchedRecHits','rphiRecHit'),
-        skipClusters = cms.InputTag('pixelLessStepClusters'),
-        useRingSlector = cms.bool(True),
-        TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
-        minRing = cms.int32(6),
-        maxRing = cms.int32(7)
-        ),
+	 TTRHBuilder = cms.string('WithTrackAngle'),
+	 clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
+	 rphiRecHits = cms.InputTag('siStripMatchedRecHits','rphiRecHit'),
+	 skipClusters = cms.InputTag('displacedGeneralStepClusters'),
+	 useRingSlector = cms.bool(True),
+	 minRing = cms.int32(6),
+         maxRing = cms.int32(7)
+	) 
 ) 

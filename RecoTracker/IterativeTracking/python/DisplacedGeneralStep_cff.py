@@ -39,7 +39,7 @@ from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _h
 displacedGeneralStepHitDoublets = _hitPairEDProducer.clone(
     seedingLayers = "displacedGeneralStepSeedLayers",
     trackingRegions = "displacedGeneralStepTrackingRegions",
-    maxElement = 500000000,
+    maxElement = 50000000,
     produceIntermediateHitDoublets = True,
 )
 
@@ -119,7 +119,7 @@ displacedGeneralStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_
     TrajectoryCleaner = 'displacedGeneralStepTrajectoryCleanerBySharedHits',
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
     numHitsForSeedCleaner = cms.int32(50),
-    onlyPixelHitsForSeedCleaner = cms.bool(True),
+    onlyPixelHitsForSeedCleaner = cms.bool(False),
 
     TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('displacedGeneralStepTrajectoryBuilder')),
     clustersToSkip = cms.InputTag('displacedGeneralStepClusters'),
