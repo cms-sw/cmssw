@@ -1,6 +1,10 @@
-/** Implementation of the GEM Geometry Builder from DDD
+/* Implementation of the  GEMGeometryParsFromDD Class
+ *  Build the GEMGeometry from the DDD and DD4Hep description
+ *  
+ *  DD4hep part added to the original old file (DD version) made by M. Maggi (INFN Bari)
+ *  Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) 
+ *  Created:  Mon, 25 Jan 2021 
  *
- *  \author M. Maggi - INFN Bari
  */
 #include "Geometry/GEMGeometryBuilder/src/GEMGeometryParsFromDD.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
