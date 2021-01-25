@@ -140,8 +140,30 @@ void LocalMaximumSeedFinder::findSeeds(const edm::Handle<reco::PFRecHitCollectio
     }
     if (seedable[idx]) {
       for (auto neighbour : myNeighbours) {
+        //
+        // For HCAL,
+        // even if channel a is a neighbor of channel b, channel b may not be a neighbor of channel a.
+        // So, perform additional checks to ensure making a hit unusable for seeding is safe.
+        int seedlayer = (int)maybeseed.layer();
+        switch (seedlayer) {
+          case PFLayer::HCAL_BARREL1:
+          case PFLayer::HCAL_ENDCAP:
+          case PFLayer::HF_EM:   // with the current HF setting, we won't see this case
+                                 // but this can come in if we change _nNeighbours for HF.
+          case PFLayer::HF_HAD:  // same as above
+            // HO has only one depth and eta-phi segmentation is regular, so no need to make this check
+            auto const& nei = (*input)[neighbour];
+            if (maybeseed.depth() != nei.depth())
+              continue;  // masking is done only if the neighbor is on the same depth layer as the seed
+            if ((abs(deltaPhi(maybeseed.positionREP().phi(), nei.positionREP().phi())) > dphicut) &&
+                (abs(maybeseed.positionREP().eta() - nei.positionREP().eta()) > detacut))
+              continue;  // masking is done only if the neighbor is on the swiss-cross w.r.t. the seed
+            break;
+        }
+
         usable[neighbour] = false;
-      }
+
+      }  // for-loop
     }
   }
 
