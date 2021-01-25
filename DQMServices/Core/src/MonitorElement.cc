@@ -904,7 +904,7 @@ namespace dqm::impl {
     access.value.object_->SetCanExtend(value);
   }
 
-  void MonitorElement::setStatOverflows(unsigned int value) {
+  void MonitorElement::setStatOverflows(bool value) {
     auto access = this->accessMut();
     if (value == kTRUE)
       access.value.object_->SetStatOverflows(TH1::kConsider);
