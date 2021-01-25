@@ -9,6 +9,8 @@
 <use name="DataFormats/HcalIsolatedTrack"/>
 <use name="DataFormats/TauReco"/>
 <use name="DataFormats/L1TParticleFlow"/>
+<use name="DataFormats/L1TCorrelator"/>
+<use name="FWCore/MessageLogger"/>
 <export>
   <lib name="1"/>
 </export>
