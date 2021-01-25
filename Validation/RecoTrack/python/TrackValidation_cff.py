@@ -741,7 +741,6 @@ from Configuration.ProcessModifiers.displacedTrackValidation_cff import displace
 displacedTrackValidation.toReplaceWith(tracksValidation, cms.Sequence(tracksValidation.copy()+trackValidatorDisplaced))
 
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-#tracksValidationPhase2 = cms.Sequence(tracksValidation+trackValidatorTPEtaGreater2p7) # it does not work
 tracksPreValidationPhase2 = tracksPreValidation.copy()
 tracksPreValidationPhase2.add(trackingParticlesEtaGreater2p7)
 phase2_tracker.toReplaceWith(tracksPreValidation, tracksPreValidationPhase2)
