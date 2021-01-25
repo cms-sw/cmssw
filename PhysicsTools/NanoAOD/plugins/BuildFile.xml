@@ -18,6 +18,7 @@
 <use name="CondTools/BTau"/>
 <use name="fastjet"/>
 <use name="fastjet-contrib"/>
+<lib name="ROOTNTuple"/>
 <library file="*.cc" name="PhysicsToolsNanoAODPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
