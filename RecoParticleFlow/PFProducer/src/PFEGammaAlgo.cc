@@ -88,11 +88,11 @@ namespace {
                                const size_t test,
                                const float EoPin_cut = 1.0e6) {
     constexpr reco::PFBlockElement::TrackType ConvType = reco::PFBlockElement::T_FROM_GAMMACONV;
+    auto elemkey = &(block->elements()[key]);
     // this is inside out but I just want something that works right now
-    switch (keytype) {
+    switch (elemkey->type()) {
       case reco::PFBlockElement::GSF: {
-        const reco::PFBlockElementGsfTrack* elemasgsf =
-            docast(const reco::PFBlockElementGsfTrack*, &(block->elements()[key]));
+        const reco::PFBlockElementGsfTrack* elemasgsf = docast(const reco::PFBlockElementGsfTrack*, elemkey);
         if (elemasgsf && valtype == PFBlockElement::ECAL) {
           const ClusterElement* elemasclus = reinterpret_cast<const ClusterElement*>(&(block->elements()[test]));
           float cluster_e = elemasclus->clusterRef()->correctedEnergy();
@@ -104,7 +104,7 @@ namespace {
         }
       } break;
       case reco::PFBlockElement::TRACK: {
-        const reco::PFBlockElementTrack* elemaskf = docast(const reco::PFBlockElementTrack*, &(block->elements()[key]));
+        const reco::PFBlockElementTrack* elemaskf = docast(const reco::PFBlockElementTrack*, elemkey);
         if (elemaskf && valtype == PFBlockElement::ECAL) {
           const ClusterElement* elemasclus = reinterpret_cast<const ClusterElement*>(&(block->elements()[test]));
           float cluster_e = elemasclus->clusterRef()->correctedEnergy();
