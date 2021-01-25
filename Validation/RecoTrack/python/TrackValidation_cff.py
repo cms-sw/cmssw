@@ -659,7 +659,6 @@ trackValidatorDisplaced = trackValidator.clone(
     tipTP = 1e5,
 )
 
-
 # the track selectors
 tracksValidationSelectors = cms.Task(
     tracksValidationSelectorsByAlgo,
@@ -738,6 +737,9 @@ tracksValidation = cms.Sequence(
 from Configuration.ProcessModifiers.seedingDeepCore_cff import seedingDeepCore
 seedingDeepCore.toReplaceWith(tracksValidation, cms.Sequence(tracksValidation.copy()+trackValidatorJetCore))
 
+from Configuration.ProcessModifiers.displacedTrackValidation_cff import displacedTrackValidation
+displacedTrackValidation.toReplaceWith(tracksValidation, cms.Sequence(tracksValidation.copy()+trackValidatorDisplaced))
+
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 #tracksValidationPhase2 = cms.Sequence(tracksValidation+trackValidatorTPEtaGreater2p7) # it does not work
 tracksPreValidationPhase2 = tracksPreValidation.copy()
@@ -748,13 +750,7 @@ tracksValidationPhase2 = tracksValidation.copyAndExclude([
     trackValidatorJetCore
 ])
 tracksValidationPhase2+=trackValidatorTPEtaGreater2p7
-tracksValidationPhase2+=trackValidatorDisplaced
 phase2_tracker.toReplaceWith(tracksValidation, tracksValidationPhase2)
-
-from Configuration.Eras.Modifier_run3_common_cff import run3_common
-tracksValidationRun3 = tracksValidation.copy()
-tracksValidationRun3+=trackValidatorDisplaced
-run3_common.toReplaceWith(tracksValidation, tracksValidationRun3)
 
 fastSim.toReplaceWith(tracksValidation, tracksValidation.copyAndExclude([
     trackValidatorBuildingPreSplitting,
@@ -829,10 +825,6 @@ trackValidatorGsfTracksStandalone = trackValidatorGsfTracks.clone(
     cores = "highPtJets"
 )
 
-trackValidatorDisplacedStandalone = trackValidatorDisplaced.clone(
-    cores = "highPtJets"
-)
-
 # sequences
 tracksPreValidationStandalone = tracksPreValidation.copy()
 tracksPreValidationStandalone.add(trackingParticlesBHadron)
@@ -861,12 +853,7 @@ _trackValidatorsBase = cms.Sequence(
 
 _trackValidatorsBasePhase2 = _trackValidatorsBase.copy()
 _trackValidatorsBasePhase2+=trackValidatorTPEtaGreater2p7
-_trackValidatorsBasePhase2+=trackValidatorDisplacedStandalone
 phase2_tracker.toReplaceWith(_trackValidatorsBase, _trackValidatorsBasePhase2)
-
-_trackValidatorsBaseRun3 = _trackValidatorsBase.copy()
-_trackValidatorsBaseRun3+=trackValidatorDisplacedStandalone
-run3_common.toReplaceWith(_trackValidatorsBase, _trackValidatorsBaseRun3)
 
 trackValidatorsStandalone = _trackValidatorsBase.copy()
 fastSim.toModify(trackValidatorsStandalone, lambda x: x.remove(trackValidatorConversionStandalone) )
@@ -889,10 +876,6 @@ tracksValidationSeedSelectorsTrackingOnly.add(tracksValidationSeedSelectorsPreSp
 # MTV instances
 trackValidatorTrackingOnly = trackValidatorStandalone.clone(
     label = [ x for x in trackValidatorStandalone.label if x != "cutsRecoTracksAK4PFJets"],
-    cores = "highPtJetsForTrk"
- )
-
-trackValidatorDisplacedTrackingOnly = trackValidatorDisplacedStandalone.clone(
     cores = "highPtJetsForTrk"
  )
 
@@ -944,7 +927,6 @@ tracksPreValidationTrackingOnly.replace(highPtJets,highPtJetsForTrk)
 
 trackValidatorsTrackingOnly = _trackValidatorsBase.copy()
 trackValidatorsTrackingOnly.replace(trackValidatorStandalone, trackValidatorTrackingOnly)
-trackValidatorsTrackingOnly.replace(trackValidatorDisplacedStandalone, trackValidatorDisplacedTrackingOnly)
 trackValidatorsTrackingOnly.replace(trackValidatorTPPtLess09Standalone,trackValidatorTPPtLess09TrackingOnly)
 trackValidatorsTrackingOnly.replace(trackValidatorFromPVStandalone,trackValidatorFromPVTrackingOnly)
 trackValidatorsTrackingOnly.replace(trackValidatorFromPVAllTPStandalone,trackValidatorFromPVAllTPTrackingOnly)
@@ -967,6 +949,9 @@ phase2_tracker.toReplaceWith(trackValidatorsTrackingOnly, trackValidatorsTrackin
     trackValidatorJetCore,
     trackValidatorJetCoreSeedingTrackingOnly
 ])) 
+
+displacedTrackValidation.toReplaceWith(trackValidatorsTrackingOnly, cms.Sequence(trackValidatorsTrackingOnly.copy()+trackValidatorDisplaced))
+
 fastSim.toReplaceWith(trackValidatorsTrackingOnly, trackValidatorsTrackingOnly.copyAndExclude([
     trackValidatorBuildingPreSplitting,
     trackValidatorSeedingPreSplittingTrackingOnly,
