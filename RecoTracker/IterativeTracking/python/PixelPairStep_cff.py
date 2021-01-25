@@ -53,14 +53,14 @@ trackingPhase2PU140.toModify(pixelPairStepSeedLayers,
     BPix = dict(
         useErrorsFromParam = cms.bool(True),
         hitErrorRPhi = cms.double(0.0016),
-        hitErrorRZ = cms.double(0.0035),
-        TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
+        hitErrorRZ   = cms.double(0.0035),
+        TTRHBuilder  = 'TTRHBuilderWithoutAngle4PixelPairs',
     ),
     FPix = dict(
         useErrorsFromParam = cms.bool(True),
         hitErrorRPhi = cms.double(0.0030),
-        hitErrorRZ = cms.double(0.0020),
-        TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
+        hitErrorRZ   = cms.double(0.0020),
+        TTRHBuilder  = 'TTRHBuilderWithoutAngle4PixelPairs',
     )
 )
 
