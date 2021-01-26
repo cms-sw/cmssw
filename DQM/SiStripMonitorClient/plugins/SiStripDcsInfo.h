@@ -34,6 +34,7 @@
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 
 #include <iostream>
 #include <fstream>
@@ -44,6 +45,7 @@
 
 class SiStripDetVOff;
 class SiStripDetCabling;
+class RunInfo;
 
 class SiStripDcsInfo : public edm::EDAnalyzer {
 public:
@@ -95,5 +97,6 @@ private:
   edm::ESGetToken<SiStripDetVOff, SiStripDetVOffRcd> detVOffToken0_, detVOffToken1_, detVOffToken2_;
   edm::ESWatcher<SiStripFedCablingRcd> fedCablingWatcher_;
   edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> detCablingToken_;  // beginRun
+  edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
 };
 #endif

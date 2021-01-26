@@ -27,7 +27,8 @@ SiStripDcsInfo::SiStripDcsInfo(edm::ParameterSet const& pSet)
       detVOffToken0_(esConsumes<edm::Transition::BeginLuminosityBlock>()),
       detVOffToken1_(esConsumes<edm::Transition::EndLuminosityBlock>()),
       detVOffToken2_(esConsumes<edm::Transition::EndRun>()),
-      detCablingToken_(esConsumes<edm::Transition::BeginRun>()) {
+      detCablingToken_(esConsumes<edm::Transition::BeginRun>()),
+      runInfoToken_(esConsumes<edm::Transition::BeginRun>()) {
   LogDebug("SiStripDcsInfo") << "SiStripDcsInfo::Deleting SiStripDcsInfo ";
 }
 
@@ -52,11 +53,8 @@ void SiStripDcsInfo::beginRun(edm::Run const& run, edm::EventSetup const& eSetup
 
   // Count Tracker FEDs from RunInfo
   //
-  if (auto runInfoRec = eSetup.tryToGet<RunInfoRcd>()) {
-    edm::ESHandle<RunInfo> sumFED;
-    runInfoRec->get(sumFED);
-
-    if (sumFED.isValid()) {
+  if (eSetup.tryToGet<RunInfoRcd>()) {
+    if (auto sumFED = eSetup.getHandle(runInfoToken_)) {
       std::vector<int> FedsInIds = sumFED->m_fed_in;
       for (unsigned int it = 0; it < FedsInIds.size(); ++it) {
         int fedID = FedsInIds[it];

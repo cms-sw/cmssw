@@ -36,8 +36,6 @@
 #include "SiStripOfflineDQM.h"
 
 //Run Info
-#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
-#include "CondFormats/RunInfo/interface/RunSummary.h"
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 
 #include <iostream>
@@ -67,7 +65,8 @@ SiStripOfflineDQM::SiStripOfflineDQM(edm::ParameterSet const& pSet)
                          ? decltype(tkDetMapToken_){esConsumes<edm::Transition::EndRun>()}
                          : decltype(tkDetMapToken_){}},
       geomDetToken_{createTkMap_ && createTkInfoFile_ ? decltype(geomDetToken_){esConsumes<edm::Transition::EndRun>()}
-                                                      : decltype(geomDetToken_){}} {
+                                                      : decltype(geomDetToken_){}},
+      runInfoToken_{esConsumes<edm::Transition::BeginRun>()} {
   if (createTkMap_) {
     using QualityToken = edm::ESGetToken<SiStripQuality, SiStripQualityRcd>;
     for (const auto& ps : pSet.getUntrackedParameter<std::vector<edm::ParameterSet>>("TkMapOptions")) {
@@ -113,10 +112,8 @@ void SiStripOfflineDQM::beginRun(edm::Run const& run, edm::EventSetup const& eSe
   edm::LogInfo("BeginRun") << "SiStripOfflineDQM:: Begining of Run";
 
   int nFEDs = 0;
-  if (auto runInfoRec = eSetup.tryToGet<RunInfoRcd>()) {
-    edm::ESHandle<RunInfo> sumFED;
-    runInfoRec->get(sumFED);
-    if (sumFED.isValid()) {
+  if (eSetup.tryToGet<RunInfoRcd>()) {
+    if (auto sumFED = eSetup.getHandle(runInfoToken_)) {
       constexpr int siStripFedIdMin{FEDNumbering::MINSiStripFEDID};
       constexpr int siStripFedIdMax{FEDNumbering::MAXSiStripFEDID};
 

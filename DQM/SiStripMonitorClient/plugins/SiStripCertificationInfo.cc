@@ -10,8 +10,6 @@
 #include "DataFormats/Histograms/interface/DQMToken.h"
 
 //Run Info
-#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
-#include "CondFormats/RunInfo/interface/RunSummary.h"
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 
 #include <iostream>
@@ -26,6 +24,7 @@ SiStripCertificationInfo::SiStripCertificationInfo(edm::ParameterSet const&) {
   consumes<DQMToken, edm::InLumi>(edm::InputTag("siStripOfflineAnalyser", "DQMGenerationSiStripAnalyserLumi"));
   detCablingToken_ = esConsumes<edm::Transition::BeginRun>();
   tTopoToken_ = esConsumes<edm::Transition::EndRun>();
+  runInfoToken_ = esConsumes<edm::Transition::BeginRun>();
 }
 
 void SiStripCertificationInfo::beginRun(edm::Run const& run, edm::EventSetup const& eSetup) {
@@ -35,11 +34,8 @@ void SiStripCertificationInfo::beginRun(edm::Run const& run, edm::EventSetup con
   constexpr int siStripFedIdMin{FEDNumbering::MINSiStripFEDID};
   constexpr int siStripFedIdMax{FEDNumbering::MAXSiStripFEDID};
 
-  if (auto runInfoRec = eSetup.tryToGet<RunInfoRcd>()) {
-    edm::ESHandle<RunInfo> sumFED;
-    runInfoRec->get(sumFED);
-
-    if (sumFED.isValid()) {
+  if (eSetup.tryToGet<RunInfoRcd>()) {
+    if (auto sumFED = eSetup.getHandle(runInfoToken_)) {
       for (auto const fedID : sumFED->m_fed_in) {
         if (fedID >= siStripFedIdMin && fedID <= siStripFedIdMax)
           ++nFEDConnected_;
