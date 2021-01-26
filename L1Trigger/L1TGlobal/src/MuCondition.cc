@@ -382,11 +382,13 @@ const bool l1t::MuCondition::checkObjectParameter(const int iCondition,
                         << "\n\t hwQual     = 0x " << cand.hwQual() << "\n\t hwIso      = 0x " << cand.hwIso()
                         << std::dec << std::endl;
 
-  if (!checkThreshold(objPar.unconstrainedPtLow, objPar.unconstrainedPtHigh, cand.hwPtUnconstrained(), m_gtMuonTemplate->condGEq())) 
-    {
-      LogDebug("L1TGlobal") << "\t\t Muon Failed unconstrainedPt checkThreshold " << std::endl;
-      return false;
-    }
+  if (!checkThreshold(objPar.unconstrainedPtLow,
+                      objPar.unconstrainedPtHigh,
+                      cand.hwPtUnconstrained(),
+                      m_gtMuonTemplate->condGEq())) {
+    LogDebug("L1TGlobal") << "\t\t Muon Failed unconstrainedPt checkThreshold " << std::endl;
+    return false;
+  }
 
   if (!checkThreshold(objPar.ptLowThreshold, objPar.ptHighThreshold, cand.hwPt(), m_gtMuonTemplate->condGEq())) {
     LogDebug("L1TGlobal") << "\t\t Muon Failed checkThreshold " << std::endl;
