@@ -70,7 +70,7 @@ cmsRun geometryExtended2018_xmlwriter.py
 # Input file                Output tag
 # gezSingleBigFile.xml      XMLFILE_Geometry_${mytag}_Extended2018ZeroMaterial_mc
 #
-sed -i '{s/Extended2018/Extended2018ZeroMaterial/g}' xmlgeometrywriter.py
+sed -i '{s/Extended/Extended2018ZeroMaterial/g}' xmlgeometrywriter.py
 sed -i '{s/\/ge/\/gez/g}' xmlgeometrywriter.py
 cmsRun xmlgeometrywriter.py
 
