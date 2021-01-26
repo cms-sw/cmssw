@@ -33,6 +33,7 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 
 #include <iostream>
 #include <fstream>
@@ -41,6 +42,7 @@
 #include <map>
 
 class SiStripDetCabling;
+class RunInfo;
 
 class SiStripCertificationInfo : public edm::EDAnalyzer {
 public:
@@ -82,5 +84,6 @@ private:
 
   edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> detCablingToken_;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
 };
 #endif

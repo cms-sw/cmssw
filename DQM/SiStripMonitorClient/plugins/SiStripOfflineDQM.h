@@ -34,6 +34,7 @@
 // Cabling
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 
 #include <iostream>
 #include <fstream>
@@ -43,6 +44,7 @@
 #include <TTree.h>
 
 class SiStripDetCabling;
+class RunInfo;
 
 class SiStripOfflineDQM : public edm::one::EDProducer<edm::one::WatchLuminosityBlocks,
                                                       edm::one::WatchRuns,
@@ -84,6 +86,7 @@ private:
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
   edm::ESGetToken<TkDetMap, TrackerTopologyRcd> tkDetMapToken_;
   edm::ESGetToken<GeometricDet, IdealGeometryRecord> geomDetToken_;
+  edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
 
   struct MapOptions {
     std::string type;

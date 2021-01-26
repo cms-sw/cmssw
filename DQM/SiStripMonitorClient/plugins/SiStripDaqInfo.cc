@@ -9,8 +9,6 @@
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 
 //Run Info
-#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
-#include "CondFormats/RunInfo/interface/RunSummary.h"
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 
 // FED cabling and numbering
@@ -26,7 +24,9 @@
 #include <vector>
 
 SiStripDaqInfo::SiStripDaqInfo(edm::ParameterSet const&)
-    : fedCablingToken_(esConsumes<edm::Transition::BeginRun>()), tTopoToken_(esConsumes<edm::Transition::BeginRun>()) {
+    : fedCablingToken_{esConsumes<edm::Transition::BeginRun>()},
+      tTopoToken_{esConsumes<edm::Transition::BeginRun>()},
+      runInfoToken_{esConsumes<edm::Transition::BeginRun>()} {
   edm::LogInfo("SiStripDaqInfo") << "SiStripDaqInfo::Deleting SiStripDaqInfo ";
 }
 
@@ -109,14 +109,10 @@ void SiStripDaqInfo::beginRun(edm::Run const& run, edm::EventSetup const& eSetup
   constexpr int siStripFedIdMin{FEDNumbering::MINSiStripFEDID};
   constexpr int siStripFedIdMax{FEDNumbering::MAXSiStripFEDID};
 
-  auto runInfoRec = eSetup.tryToGet<RunInfoRcd>();
-  if (!runInfoRec)
+  if (!eSetup.tryToGet<RunInfoRcd>())
     return;
-
-  edm::ESHandle<RunInfo> sumFED;
-  runInfoRec->get(sumFED);
-
-  if (!sumFED.isValid())
+  auto sumFED = eSetup.getHandle(runInfoToken_);
+  if (!sumFED)
     return;
 
   auto const& fedsInIds = sumFED->m_fed_in;

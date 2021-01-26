@@ -32,6 +32,7 @@
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
+#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 
 #include <iostream>
 #include <fstream>
@@ -41,6 +42,7 @@
 
 class SiStripFedCabling;
 class TrackerTopology;
+class RunInfo;
 
 class SiStripDaqInfo : public edm::EDAnalyzer {
 public:
@@ -77,5 +79,6 @@ private:
   edm::ESWatcher<SiStripFedCablingRcd> fedCablingWatcher_;
   edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> fedCablingToken_;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
 };
 #endif
