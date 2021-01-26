@@ -70,7 +70,7 @@ cmsRun geometryExtended2018_xmlwriter.py
 # Input file                Output tag
 # gezSingleBigFile.xml      XMLFILE_Geometry_${mytag}_Extended2018ZeroMaterial_mc
 #
-sed -i '{s/Extended/Extended2018ZeroMaterial/g}' xmlgeometrywriter.py
+sed -i '{s/Extended2018/Extended2018ZeroMaterial/g}' xmlgeometrywriter.py
 sed -i '{s/\/ge/\/gez/g}' xmlgeometrywriter.py
 cmsRun xmlgeometrywriter.py
 
@@ -78,19 +78,19 @@ sed -i '{s/Extended2018ZeroMaterial/Extended2018DetailedCavern/g}' xmlgeometrywr
 sed -i '{s/\/gez/\/geDC/g}' xmlgeometrywriter.py
 cmsRun xmlgeometrywriter.py
 
-sed -i '{s/ExtendedDetailedCavern/Extended2018FlatMinus05Percent/g}' xmlgeometrywriter.py
+sed -i '{s/Extended2018DetailedCavern/Extended2018FlatMinus05Percent/g}' xmlgeometrywriter.py
 sed -i '{s/\/geDC/\/geFM05/g}' xmlgeometrywriter.py
 cmsRun xmlgeometrywriter.py
 
-sed -i '{s/ExtendedFlatMinus05Percent/Extended2018FlatMinus10Percent/g}' xmlgeometrywriter.py
+sed -i '{s/Extended2018FlatMinus05Percent/Extended2018FlatMinus10Percent/g}' xmlgeometrywriter.py
 sed -i '{s/\/geFM05/\/geFM10/g}' xmlgeometrywriter.py
 cmsRun xmlgeometrywriter.py
 
-sed -i '{s/ExtendedFlatMinus10Percent/Extended2018FlatPlus05Percent/g}' xmlgeometrywriter.py
+sed -i '{s/Extended2018FlatMinus10Percent/Extended2018FlatPlus05Percent/g}' xmlgeometrywriter.py
 sed -i '{s/\/geFM10/\/geFP05/g}' xmlgeometrywriter.py
 cmsRun xmlgeometrywriter.py
 
-sed -i '{s/ExtendedFlatPlus05Percent/Extended2018FlatPlus10Percent/g}' xmlgeometrywriter.py
+sed -i '{s/Extended2018FlatPlus05Percent/Extended2018FlatPlus10Percent/g}' xmlgeometrywriter.py
 sed -i '{s/\/geFP05/\/geFP10/g}' xmlgeometrywriter.py
 cmsRun xmlgeometrywriter.py
 
