@@ -2,6 +2,7 @@
 <use name="rootcore"/>
 <use name="root"/>
 <use name="boost"/>
+<use name="hdf5"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="CondTools/Ecal"/>
