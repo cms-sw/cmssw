@@ -3,9 +3,10 @@
 //    Compares output files from PrintGeomInfo created using DDD and DD4Hep
 //    inputs. Usage:
 //
-//    SimFileCompare infile1 infile2
+//    SimFileCompare infile1 infile2 mode debug
 //    infile1  (const char*)   File created using DDD
 //    infile2  (const char*)   File created using DD4Hep
+//    mode     (int)           Treat (0) or not treat (1) names from DDD
 //    deug     (int)           Single digit number (0 minimum printout)
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -22,8 +23,8 @@
 std::string removeExtraName(const std::string& name, int debug) {
   std::string nam(name);
   std::string nam1 = name.substr(0, 2);
-  if ((nam1 == "GE") || (nam1 == "GH") || (nam1 == "MB") || (nam1 == "ME") || (nam1 == "RE") || (nam1 == "RR") ||
-      (nam1 == "RT")) {
+  if (((nam1 == "GE") || (nam1 == "GH") || (nam1 == "MB") || (nam1 == "ME") || (nam1 == "RE") || (nam1 == "RR") ||
+       (nam1 == "RT")) && (name.size() > 5 )){
     uint32_t loc = name.size() - 5;
     if ((name.substr(0, 15) != "MBCables_Wheels") && (name.substr(loc, 1) == "_")) {
       std::string nam2 = (name.substr(loc + 3, 1) == "0") ? name.substr(loc + 4, 1) : name.substr(loc + 3, 2);
@@ -31,7 +32,7 @@ std::string removeExtraName(const std::string& name, int debug) {
     }
   }
   if (debug)
-    std::cout << name << " d2 " << nam1 << " " << nam << std::endl;
+    std::cout << name << " : " << nam1 << " " << nam << std::endl;
   return nam;
 }
 
@@ -59,7 +60,7 @@ std::string reducedName(const std::string& name, int debug) {
   return nam;
 }
 
-void CompareFiles(const char* fileDDD, const char* fileDD4Hep, int debug) {
+void CompareFiles(const char* fileDDD, const char* fileDD4Hep, int mode, int debug) {
   std::map<std::string, int> nameDDD, nameDD4Hep;
   char buffer[100];
   std::string name;
@@ -68,7 +69,7 @@ void CompareFiles(const char* fileDDD, const char* fileDD4Hep, int debug) {
     std::cout << "Cannot open file " << fileDDD << std::endl;
   } else {
     while (fInput1.getline(buffer, 100)) {
-      name = removeExtraName(std::string(buffer), debug);
+      name = ((mode == 1) ? removeExtraName(std::string(buffer), debug) : std::string(buffer));
       auto it = nameDDD.find(name);
       if (it == nameDDD.end())
         nameDDD[name] = 1;
@@ -117,10 +118,11 @@ void CompareFiles(const char* fileDDD, const char* fileDD4Hep, int debug) {
 }
 
 int main(int argc, char* argv[]) {
-  if (argc < 3) {
-    std::cout << "Please give 3 arguments \n"
+  if (argc <= 3) {
+    std::cout << "Please give a minimum of 2 arguments \n"
               << "input file name from the DDD run\n"
               << "input file name from the DD4Hep run\n"
+	      << "mode (treat the name for DDD or not == needed for PV)\n"
               << "debug flag (0 for minimum printout)\n"
               << std::endl;
     return 0;
@@ -128,7 +130,8 @@ int main(int argc, char* argv[]) {
 
   const char* infile1 = argv[1];
   const char* infile2 = argv[2];
-  int debug = atoi(argv[3]);
-  CompareFiles(infile1, infile2, debug);
+  int mode = ((argc > 3) ? atoi(argv[3]) : 0);
+  int debug = ((argc > 4) ? atoi(argv[4]) : 0);
+  CompareFiles(infile1, infile2, mode, debug);
   return 0;
 }
