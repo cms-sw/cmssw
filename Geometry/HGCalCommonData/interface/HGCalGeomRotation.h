@@ -6,7 +6,7 @@ public:
   enum class SectorType { Sector120Degrees, Sector60Degrees };
   enum class WaferCentring { WaferCentred, CornerCentredY, CornerCentredMercedes };
 
-  HGCalGeomRotation(SectorType sectorType) { _sectorType = sectorType; };
+  HGCalGeomRotation(SectorType sectorType) { sectorType_ = sectorType; };
   ~HGCalGeomRotation() {}
 
   void uvMappingFromSector0(WaferCentring waferCentring, int& moduleU, int& moduleV, unsigned sector) const;
@@ -24,7 +24,7 @@ private:
   void RotateModule120DegreesAnticlockwise(int& moduleU, int& moduleV, int offset) const;
   void RotateModule120DegreesClockwise(int& moduleU, int& moduleV, int offset) const;
 
-  SectorType _sectorType;
+  SectorType sectorType_;
 };
 
 #endif

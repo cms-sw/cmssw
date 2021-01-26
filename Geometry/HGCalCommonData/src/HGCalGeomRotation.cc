@@ -10,9 +10,9 @@ void HGCalGeomRotation::uvMappingFromSector0(WaferCentring waferCentring,
     return;
   }
 
-  if (_sectorType == SectorType::Sector60Degrees) {
+  if (sectorType_ == SectorType::Sector60Degrees) {
     uvMappingFrom60DegreeSector0(waferCentring, moduleU, moduleV, sector);
-  } else if (_sectorType == SectorType::Sector120Degrees) {
+  } else if (sectorType_ == SectorType::Sector120Degrees) {
     uvMappingFrom120DegreeSector0(waferCentring, moduleU, moduleV, sector);
   }
 }
@@ -20,9 +20,9 @@ void HGCalGeomRotation::uvMappingFromSector0(WaferCentring waferCentring,
 unsigned HGCalGeomRotation::uvMappingToSector0(WaferCentring waferCentring, int& moduleU, int& moduleV) const {
   unsigned sector = 0;
 
-  if (_sectorType == SectorType::Sector60Degrees) {
+  if (sectorType_ == SectorType::Sector60Degrees) {
     sector = uvMappingTo60DegreeSector0(waferCentring, moduleU, moduleV);
-  } else if (_sectorType == SectorType::Sector120Degrees) {
+  } else if (sectorType_ == SectorType::Sector120Degrees) {
     sector = uvMappingTo120DegreeSector0(waferCentring, moduleU, moduleV);
   }
 
