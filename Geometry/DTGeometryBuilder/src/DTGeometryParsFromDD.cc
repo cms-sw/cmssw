@@ -1,13 +1,16 @@
-/** \file
+/** \class DTGeometryParsFromDD
  *
- *  \author Stefano Lacaprara  <lacaprara@pd.infn.it>  INFN LNL
+ *  Build the RPCGeometry from the DDD and DD4Hep description
+ *  
+ *  DD4hep part added to the original old file (DD version) made by Stefano Lacaprara (INFN LNL)
+ *  \author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) 
+ *  Created:  Tue, 26 Jan 2021 
+ *
  */
-
 #include <Geometry/DTGeometryBuilder/src/DTGeometryParsFromDD.h>
 #include <Geometry/DTGeometry/interface/DTGeometry.h>
 #include <Geometry/DTGeometry/interface/DTChamber.h>
 #include <Geometry/DTGeometry/interface/DTLayer.h>
-
 #include <CondFormats/GeometryObjects/interface/RecoIdealGeometry.h>
 #include <DetectorDescription/Core/interface/DDFilter.h>
 #include <DetectorDescription/Core/interface/DDFilteredView.h>
@@ -18,11 +21,17 @@
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
-
+#include "DataFormats/GeometryVector/interface/Basic3DVector.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <DetectorDescription/DDCMS/interface/DDFilteredView.h>
+#include <DetectorDescription/DDCMS/interface/DDCompactView.h>
+#include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <iostream>
+#include <algorithm>
 #include <string>
 
 using namespace std;
-
 using namespace geant_units;
 using namespace geant_units::operators;
 
@@ -30,6 +39,7 @@ DTGeometryParsFromDD::DTGeometryParsFromDD() {}
 
 DTGeometryParsFromDD::~DTGeometryParsFromDD() {}
 
+// DD
 void DTGeometryParsFromDD::build(const DDCompactView* cview,
                                  const MuonGeometryConstants& muonConstants,
                                  RecoIdealGeometry& rig) {
@@ -47,6 +57,19 @@ void DTGeometryParsFromDD::build(const DDCompactView* cview,
   //cout << "RecoIdealGeometry " << rig.size() << endl;
 }
 
+// DD4Hep
+
+void DTGeometryParsFromDD::build(const cms::DDCompactView* cview,
+                                  const MuonGeometryConstants& muonConstants,
+                                  RecoIdealGeometry& rgeo) {
+  const std::string attribute = "MuStructure";
+  const std::string value = "MuonBarrelDT";
+  const cms::DDFilter filter(attribute, value);
+  cms::DDFilteredView fview(*cview, filter);
+  //  buildGeometry(fview, muonConstants, rgeo); // TO BE DONE
+}
+
+// DD
 void DTGeometryParsFromDD::buildGeometry(DDFilteredView& fv,
                                          const MuonGeometryConstants& muonConstants,
                                          RecoIdealGeometry& rig) const {
@@ -242,3 +265,5 @@ DTGeometryParsFromDD::PosRotPair DTGeometryParsFromDD::plane(const DDFilteredVie
 
   return pair<std::vector<double>, std::vector<double> >(gtran, grmat);
 }
+
+// DD4Hep
