@@ -24,7 +24,8 @@ std::string removeExtraName(const std::string& name, int debug) {
   std::string nam(name);
   std::string nam1 = name.substr(0, 2);
   if (((nam1 == "GE") || (nam1 == "GH") || (nam1 == "MB") || (nam1 == "ME") || (nam1 == "RE") || (nam1 == "RR") ||
-       (nam1 == "RT")) && (name.size() > 5 )){
+       (nam1 == "RT")) &&
+      (name.size() > 5)) {
     uint32_t loc = name.size() - 5;
     if ((name.substr(0, 15) != "MBCables_Wheels") && (name.substr(loc, 1) == "_")) {
       std::string nam2 = (name.substr(loc + 3, 1) == "0") ? name.substr(loc + 4, 1) : name.substr(loc + 3, 2);
@@ -122,7 +123,7 @@ int main(int argc, char* argv[]) {
     std::cout << "Please give a minimum of 2 arguments \n"
               << "input file name from the DDD run\n"
               << "input file name from the DD4Hep run\n"
-	      << "mode (treat the name for DDD or not == needed for PV)\n"
+              << "mode (treat the name for DDD or not == needed for PV)\n"
               << "debug flag (0 for minimum printout)\n"
               << std::endl;
     return 0;
