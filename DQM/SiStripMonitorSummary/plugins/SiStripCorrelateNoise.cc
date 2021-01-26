@@ -94,10 +94,7 @@ void SiStripCorrelateNoise::DoAnalysis(const edm::EventSetup &es,
 
   edm::LogInfo("") << "[Doanalysis]";
 
-  // Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology *const tTopo = tTopoHandle.product();
+  const auto tTopo = &es.getData(tTopoToken_);
 
   std::vector<TH1F *> histos;
 
