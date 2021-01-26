@@ -26,3 +26,7 @@
 <bin file="write_HBHENegativeEFilter.cc">
   <lib name="PMTParams"/>
 </bin>
+
+<library file="HcalConditionsTest.cc" name="testCondToolsConTHcal">
+ <flags EDM_PLUGIN="1"/>
+</library>
