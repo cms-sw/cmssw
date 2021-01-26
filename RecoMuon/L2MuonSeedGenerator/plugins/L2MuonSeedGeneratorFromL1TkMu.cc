@@ -185,7 +185,7 @@ void L2MuonSeedGeneratorFromL1TkMu::produce(edm::Event &iEvent, const edm::Event
     // L1 tracker track
     auto const &it = tkmu.trkPtr();
 
-    // propagat L1 tracker track to GMT
+    // propagate the L1 tracker track to GMT
     auto p3 = it->momentum();
 
     float tk_p = p3.mag();

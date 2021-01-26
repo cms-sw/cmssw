@@ -125,10 +125,9 @@ bool HLT2L1TkMuonL1TkMuonMuRefDR::computeDR(edm::Event& iEvent, l1t::TkMuonRef& 
   if (minDR_ < 0.)
     return true;
 
-  std::pair<float, float> muRef1 = convertEtaPhi(r1);
-  std::pair<float, float> muRef2 = convertEtaPhi(r2);
-
-  return (reco::deltaR2(muRef1.first, muRef1.second, muRef2.first, muRef2.second) > minDR_ * minDR_);
+  auto [eta1, phi1] = convertEtaPhi(r1);
+  auto [eta2, phi2] = convertEtaPhi(r2);
+  return (reco::deltaR2(eta1, phi1, eta2, phi2) > minDR_ * minDR_);
 }
 
 // ------------ method called to produce the data  ------------
