@@ -43,8 +43,34 @@ iterHFNoseTICLTask = cms.Task(
     ticlHFNoseEMStepTask
 )
 
+def _findIndicesByModule(process,name):
+    ret = []
+    if getattr(process,'particleFlowBlock', None):
+        for i, pset in enumerate(process.particleFlowBlock.elementImporters):
+            if pset.importerName.value() == name:
+                ret.append(i)
+    return ret
+
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 def injectTICLintoPF(process):
     if getattr(process,'particleFlowTmp', None):
       process.particleFlowTmp.src = ['particleFlowTmpBarrel', 'pfTICL']
+
+    if getattr(process,'particleFlowTmpBarrel', None):
+      process.particleFlowTmpBarrel.vetoEndcap = True
+
+    _insertTrackImportersWithVeto = {}
+    _trackImporters = ['GeneralTracksImporter','ConvBremTrackImporter',
+                   'ConversionTrackImporter','NuclearInteractionTrackImporter']
+    for importer in _trackImporters:
+        for idx in _findIndicesByModule(process,importer):
+            _insertTrackImportersWithVeto[idx] = dict(
+                vetoMode = cms.uint32(2), # pfTICL candidate list
+                vetoSrc = cms.InputTag("pfTICL")
+            )
+    phase2_hgcal.toModify(
+      process.particleFlowBlock,
+      elementImporters = _insertTrackImportersWithVeto
+    )
 
     return process
