@@ -13,6 +13,7 @@ trackerHitsPixelEndcapLowTofTable = cms.EDProducer("SimplePSimHitFlatTableProduc
     extension = cms.bool(False), # this is the main table for the muons
     variables = cms.PSet(
         detId = Var('detUnitId', 'int', precision=-1, doc='detId'),
+        energy = Var('energyLoss', 'float', precision=14, doc='energy'),
         pMag = Var('pabs', 'float', precision=14, doc='magnitude of momentum'),
         trackId = Var('trackId', 'int', precision=-1, doc='Geant4 track ID'),
         pdgId = Var('particleType', 'int', doc='PDG ID of associated track'),
