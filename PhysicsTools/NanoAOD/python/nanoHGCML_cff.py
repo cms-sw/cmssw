@@ -34,13 +34,15 @@ def customizeReco(process):
     process.nanoHGCMLSequence.insert(4, trackTables)
     return process
 
-def customizeNoSimClusters(process):
+def customizeNoMergedCaloTruth(process):
     process.nanoHGCMLSequence.remove(simClusterTable)
     process.nanoHGCMLSequence.remove(simClusterToCaloPartTable)
     process.nanoHGCMLSequence.remove(hgcEEHitsToSimClusterTable)
     process.nanoHGCMLSequence.remove(hgcHEfrontHitsToSimClusterTable)
     process.nanoHGCMLSequence.remove(hgcHEbackHitsToSimClusterTable)
     process.nanoHGCMLSequence.remove(simTrackToSimClusterTable)
+
+    process.nanoHGCMLSequence.remove(caloParticleTable)
     return process
 
 def customizeMergedSimClusters(process):
