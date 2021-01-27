@@ -45,7 +45,7 @@ public:
 
     std::vector<int> keys;
     for (unsigned int i = 0; i < objs->size(); ++i) {
-        edm::Ref<T> tk(objs, i);
+      edm::Ref<T> tk(objs, i);
       if (cut_(*tk)) {
         edm::Ref<M> match = (*assoc)[tk];
         int key = match.isNonnull() ? match.key() : -1;

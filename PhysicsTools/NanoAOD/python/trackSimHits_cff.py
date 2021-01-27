@@ -1,8 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import CandVars,Var
-#TrackerHitsTECLowTof
-#TrackerHitsPixelEndcapHighTof
-#TrackerHitsPixelEndcapLowTof
 
 trackerHitsPixelEndcapLowTofTable = cms.EDProducer("SimplePSimHitFlatTableProducer",
     src = cms.InputTag("g4SimHits:TrackerHitsPixelEndcapLowTof"),

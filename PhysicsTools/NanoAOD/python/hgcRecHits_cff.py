@@ -15,7 +15,7 @@ hgcEERecHitsTable = cms.EDProducer("SimpleCaloRecHitFlatTableProducer",
     )
 )
 
-hgcRecHitsToSimClusters = cms.EDProducer("SimHitRecHitAssociationProducer",
+hgcRecHitsToSimClusters = cms.EDProducer("SimClusterRecHitAssociationProducer",
     caloRecHits = cms.VInputTag("HGCalRecHit:HGCEERecHits",
         "HGCalRecHit:HGCHEFRecHits", "HGCalRecHit:HGCHEBRecHits",
     ),
@@ -29,6 +29,16 @@ hgcEERecHitsToSimClusterTable = cms.EDProducer("CaloRecHitToSimClusterIndexTable
     branchName = cms.string("SimCluster"),
     objMap = cms.InputTag("hgcRecHitsToSimClusters:HGCEERecHitsToSimClus"),
     docString = cms.string("SimCluster responsible for most sim energy in RecHit DetId")
+)
+
+# TODO: Pair with simclusters
+simClusterRecEnergyTable = cms.EDProducer("SimClusterRecEnergyTableProducer",
+    src = cms.InputTag("mix:MergedCaloTruth"),
+    cut = cms.string(""),
+    objName = cms.string("SimCluster"),
+    branchName = cms.string("recEnergy"),
+    valueMap = cms.InputTag("hgcRecHitsToSimClusters"),
+    docString = cms.string("SimCluster deposited reconstructed energy associated to SimCluster")
 )
 
 hgcRecHitsToPFCands = cms.EDProducer("RecHitToPFCandAssociationProducer",
@@ -92,6 +102,7 @@ hgcHEbackRecHitsPositionTable.src = hgcHEbackRecHitsTable.src
 
 hgcRecHitsSequence = cms.Sequence(hgcEERecHitsTable+hgcHEbackRecHitsTable+hgcHEfrontRecHitsTable
                 +hgcRecHitsToSimClusters
+                +simClusterRecEnergyTable 
                 +hgcRecHitsToPFCands
                 +hgcEERecHitsToPFCandTable+hgcHEfrontRecHitsToPFCandTable+hgcHEbackRecHitsToPFCandTable
                 +hgcEERecHitsPositionTable

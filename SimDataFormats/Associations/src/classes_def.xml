@@ -38,6 +38,9 @@
   <class name="map<unsigned int,vector<pair<unsigned int,pair<float,float> > > >" />
   <class name="vector<pair<unsigned int,pair<float,float> > >" />
 
+  <class name="edm::Wrapper<std::unordered_map<int,float>>"/>
+  <class name="std::unordered_map<int,float>"/>
+
   <class name="hgcal::SimToRecoCollectionWithSimClusters" >
    <field name="transientMap_" transient="true"/>
   </class>

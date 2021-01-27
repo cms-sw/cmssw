@@ -15,8 +15,6 @@ typedef SimpleFlatTableProducer<CaloRecHit> SimpleCaloRecHitFlatTableProducer;
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 typedef SimpleFlatTableProducer<TrackingParticle> SimpleTrackingParticleFlatTableProducer;
-#include "SimDataFormats/PFAnalysis/interface/PFParticle.h"
-typedef SimpleFlatTableProducer<PFParticle> SimplePFParticleFlatTableProducer;
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 typedef SimpleFlatTableProducer<CaloParticle> SimpleCaloParticleFlatTableProducer;
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -50,7 +48,6 @@ DEFINE_FWK_MODULE(SimpleSimTrackFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleSimClusterFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleTrackingParticleFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleTrackFlatTableProducer);
-DEFINE_FWK_MODULE(SimplePFParticleFlatTableProducer);
 DEFINE_FWK_MODULE(SimplePFCandidateFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleCaloParticleFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleCandidateFlatTableProducer);
