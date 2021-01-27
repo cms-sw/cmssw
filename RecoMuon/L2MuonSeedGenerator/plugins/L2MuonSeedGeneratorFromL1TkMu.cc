@@ -9,17 +9,33 @@
  *    Modified by M. Oh
  */
 
-// Class Header
-#include "RecoMuon/L2MuonSeedGenerator/src/L2MuonSeedGeneratorFromL1TkMu.h"
-
 // Framework
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
+// Data Formats
+#include "DataFormats/MuonSeed/interface/L2MuonTrajectorySeed.h"
+#include "DataFormats/MuonSeed/interface/L2MuonTrajectorySeedCollection.h"
+#include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
+#include "DataFormats/MuonDetId/interface/DTChamberId.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/L1Trigger/interface/Muon.h"
+#include "DataFormats/L1TCorrelator/interface/TkMuon.h"
+#include "DataFormats/L1TCorrelator/interface/TkMuonFwd.h"
+
+#include "CLHEP/Vector/ThreeVector.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
@@ -31,34 +47,82 @@
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 
-#include "DataFormats/Math/interface/LorentzVector.h"
-
 using namespace std;
 using namespace edm;
 using namespace l1t;
 
+class L2MuonSeedGeneratorFromL1TkMu : public edm::stream::EDProducer<> {
+public:
+  /// Constructor
+  explicit L2MuonSeedGeneratorFromL1TkMu(const edm::ParameterSet &);
+
+  /// Destructor
+  ~L2MuonSeedGeneratorFromL1TkMu() override = default;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+  void produce(edm::Event &, const edm::EventSetup &) override;
+
+private:
+  edm::InputTag source_;
+  edm::EDGetTokenT<l1t::TkMuonCollection> muCollToken_;
+
+  edm::InputTag offlineSeedLabel_;
+  edm::EDGetTokenT<edm::View<TrajectorySeed>> offlineSeedToken_;
+
+  std::string propagatorName_;
+
+  const double l1MinPt_;
+  const double l1MaxEta_;
+  const double minPtBarrel_;
+  const double minPtEndcap_;
+  const double minPL1Tk_;
+  const double minPtL1TkBarrel_;
+  const bool useOfflineSeed_;
+  const bool useUnassociatedL1_;
+  std::vector<double> matchingDR_;
+  std::vector<double> etaBins_;
+
+  // parameters used in propagating L1 tracker track
+  // to the second muon station, numbers are
+  // taken from L1TkMuonProducer::propagateToGMT
+  static constexpr float etaBoundary_{1.1};
+  static constexpr float distMB2_{550.};
+  static constexpr float distME2_{850.};
+  static constexpr float phiCorr0_{1.464};
+  static constexpr float phiCorr1_{1.7};
+  static constexpr float phiCorr2_{144.};
+
+  /// the event setup proxy, it takes care the services update
+  std::unique_ptr<MuonServiceProxy> service_;
+  std::unique_ptr<MeasurementEstimator> estimator_;
+
+  const TrajectorySeed *associateOfflineSeedToL1(edm::Handle<edm::View<TrajectorySeed>> &,
+                                                 std::vector<int> &,
+                                                 TrajectoryStateOnSurface &,
+                                                 double);
+};
+
 // constructors
 L2MuonSeedGeneratorFromL1TkMu::L2MuonSeedGeneratorFromL1TkMu(const edm::ParameterSet &iConfig)
-    : theSource(iConfig.getParameter<InputTag>("InputObjects")),
-      thePropagatorName(iConfig.getParameter<string>("Propagator")),
-      theL1MinPt(iConfig.getParameter<double>("L1MinPt")),
-      theL1MaxEta(iConfig.getParameter<double>("L1MaxEta")),
-      theMinPtBarrel(iConfig.getParameter<double>("SetMinPtBarrelTo")),
-      theMinPtEndcap(iConfig.getParameter<double>("SetMinPtEndcapTo")),
-      theMinPL1Tk(iConfig.getParameter<double>("MinPL1Tk")),
-      theMinPtL1TkBarrel(iConfig.getParameter<double>("MinPtL1TkBarrel")),
-      useOfflineSeed(iConfig.getUntrackedParameter<bool>("UseOfflineSeed", false)),
-      useUnassociatedL1(iConfig.getParameter<bool>("UseUnassociatedL1")),
-      matchingDR(iConfig.getParameter<std::vector<double>>("MatchDR")),
-      etaBins(iConfig.getParameter<std::vector<double>>("EtaMatchingBins")) {
-  muCollToken_ = consumes<l1t::TkMuonCollection>(theSource);
-
-  if (useOfflineSeed) {
-    theOfflineSeedLabel = iConfig.getUntrackedParameter<InputTag>("OfflineSeedLabel");
-    offlineSeedToken_ = consumes<edm::View<TrajectorySeed>>(theOfflineSeedLabel);
+    : source_(iConfig.getParameter<InputTag>("InputObjects")),
+      muCollToken_(consumes<l1t::TkMuonCollection>(source_)),
+      propagatorName_(iConfig.getParameter<string>("Propagator")),
+      l1MinPt_(iConfig.getParameter<double>("L1MinPt")),
+      l1MaxEta_(iConfig.getParameter<double>("L1MaxEta")),
+      minPtBarrel_(iConfig.getParameter<double>("SetMinPtBarrelTo")),
+      minPtEndcap_(iConfig.getParameter<double>("SetMinPtEndcapTo")),
+      minPL1Tk_(iConfig.getParameter<double>("MinPL1Tk")),
+      minPtL1TkBarrel_(iConfig.getParameter<double>("MinPtL1TkBarrel")),
+      useOfflineSeed_(iConfig.getUntrackedParameter<bool>("UseOfflineSeed", false)),
+      useUnassociatedL1_(iConfig.getParameter<bool>("UseUnassociatedL1")),
+      matchingDR_(iConfig.getParameter<std::vector<double>>("MatchDR")),
+      etaBins_(iConfig.getParameter<std::vector<double>>("EtaMatchingBins")) {
+  if (useOfflineSeed_) {
+    offlineSeedLabel_ = iConfig.getUntrackedParameter<InputTag>("OfflineSeedLabel");
+    offlineSeedToken_ = consumes<edm::View<TrajectorySeed>>(offlineSeedLabel_);
 
     // check that number of eta bins -1 matches number of dR cones
-    if (matchingDR.size() != etaBins.size() - 1) {
+    if (matchingDR_.size() != etaBins_.size() - 1) {
       throw cms::Exception("Configuration") << "Size of MatchDR "
                                             << "does not match number of eta bins." << endl;
     }
@@ -68,20 +132,12 @@ L2MuonSeedGeneratorFromL1TkMu::L2MuonSeedGeneratorFromL1TkMu(const edm::Paramete
   ParameterSet serviceParameters = iConfig.getParameter<ParameterSet>("ServiceParameters");
 
   // the services
-  theService = new MuonServiceProxy(serviceParameters, consumesCollector());
+  service_ = std::make_unique<MuonServiceProxy>(serviceParameters, consumesCollector());
 
   // the estimator
-  theEstimator = new Chi2MeasurementEstimator(10000.);
+  estimator_ = std::make_unique<Chi2MeasurementEstimator>(10000.);
 
   produces<L2MuonTrajectorySeedCollection>();
-}
-
-// destructor
-L2MuonSeedGeneratorFromL1TkMu::~L2MuonSeedGeneratorFromL1TkMu() {
-  if (theService)
-    delete theService;
-  if (theEstimator)
-    delete theEstimator;
 }
 
 void L2MuonSeedGeneratorFromL1TkMu::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
@@ -120,51 +176,55 @@ void L2MuonSeedGeneratorFromL1TkMu::produce(edm::Event &iEvent, const edm::Event
 
   edm::Handle<edm::View<TrajectorySeed>> offlineSeedHandle;
   vector<int> offlineSeedMap;
-  if (useOfflineSeed) {
+  if (useOfflineSeed_) {
     iEvent.getByToken(offlineSeedToken_, offlineSeedHandle);
     offlineSeedMap = vector<int>(offlineSeedHandle->size(), 0);
   }
 
-  for (auto ittkmu = muColl->begin(); ittkmu != muColl->end(); ittkmu++) {
+  for (auto const &tkmu : *muColl) {
     // L1 tracker track
-    auto it = ittkmu->trkPtr();
+    auto const &it = tkmu.trkPtr();
 
-    // propagate to GMT
+    // propagate the L1 tracker track to GMT
     auto p3 = it->momentum();
-    float tk_pt = p3.perp();
+
     float tk_p = p3.mag();
+    if (tk_p < minPL1Tk_)
+      continue;
+
+    float tk_pt = p3.perp();
     float tk_eta = p3.eta();
     float tk_aeta = std::abs(tk_eta);
+
+    bool barrel = tk_aeta < etaBoundary_;
+    if (barrel && tk_pt < minPtL1TkBarrel_)
+      continue;
+
     float tk_phi = p3.phi();
     float tk_q = it->rInv() > 0 ? 1. : -1.;
     float tk_z = it->POCA().z();
-
-    if (tk_p < theMinPL1Tk)
-      continue;
-    if (tk_aeta < 1.1 && tk_pt < theMinPtL1TkBarrel)
-      continue;
 
     float dzCorrPhi = 1.;
     float deta = 0;
     float etaProp = tk_aeta;
 
-    if (tk_aeta < 1.1) {
-      etaProp = 1.1;
-      deta = tk_z / 550. / cosh(tk_aeta);
+    if (barrel) {
+      etaProp = etaBoundary_;
+      deta = tk_z / distMB2_ / cosh(tk_aeta);
     } else {
-      float delta = tk_z / 850.;  //roughly scales as distance to 2nd station
+      float delta = tk_z / distME2_;  //roughly scales as distance to 2nd station
       if (tk_eta > 0)
         delta *= -1;
       dzCorrPhi = 1. + delta;
 
-      float zOzs = tk_z / 850.;
+      float zOzs = tk_z / distME2_;
       if (tk_eta > 0)
         deta = zOzs / (1. - zOzs);
       else
         deta = zOzs / (1. + zOzs);
       deta = deta * tanh(tk_eta);
     }
-    float resPhi = tk_phi - 1.464 * tk_q * cosh(1.7) / cosh(etaProp) / tk_pt * dzCorrPhi - M_PI / 144.;
+    float resPhi = tk_phi - phiCorr0_ * tk_q * cosh(phiCorr1_) / cosh(etaProp) / tk_pt * dzCorrPhi - M_PI / phiCorr2_;
     resPhi = reco::reduceRange(resPhi);
 
     float pt = tk_pt;  //not corrected for eloss
@@ -173,9 +233,7 @@ void L2MuonSeedGeneratorFromL1TkMu::produce(edm::Event &iEvent, const edm::Event
     float phi = resPhi;
     int charge = it->rInv() > 0 ? 1 : -1;
 
-    bool barrel = tk_aeta < 1.1 ? true : false;
-
-    if (pt < theL1MinPt || fabs(eta) > theL1MaxEta)
+    if (pt < l1MinPt_ || std::abs(eta) > l1MaxEta_)
       continue;
 
     LogDebug(metname) << "New L2 Muon Seed";
@@ -187,7 +245,7 @@ void L2MuonSeedGeneratorFromL1TkMu::produce(edm::Event &iEvent, const edm::Event
     LogDebug(metname) << "In Barrel? = " << barrel;
 
     // Update the services
-    theService->update(iSetup);
+    service_->update(iSetup);
 
     const DetLayer *detLayer = nullptr;
     float radius = 0.;
@@ -203,31 +261,31 @@ void L2MuonSeedGeneratorFromL1TkMu::produce(edm::Event &iEvent, const edm::Event
 
       // MB2
       theid = DTChamberId(0, 2, 0);
-      detLayer = theService->detLayerGeometry()->idToLayer(theid);
+      detLayer = service_->detLayerGeometry()->idToLayer(theid);
       LogDebug(metname) << "L2 Layer: " << debug.dumpLayer(detLayer);
 
       const BoundSurface *sur = &(detLayer->surface());
       const BoundCylinder *bc = dynamic_cast<const BoundCylinder *>(sur);
 
-      radius = fabs(bc->radius() / sin(theta));
+      radius = std::abs(bc->radius() / sin(theta));
 
       LogDebug(metname) << "radius " << radius;
 
-      if (pt < theMinPtBarrel)
-        pt = theMinPtBarrel;
+      if (pt < minPtBarrel_)
+        pt = minPtBarrel_;
     } else {
       LogDebug(metname) << "The seed is in the endcap";
 
       // ME2
       theid = theta < Geom::pi() / 2. ? CSCDetId(1, 2, 0, 0, 0) : CSCDetId(2, 2, 0, 0, 0);
 
-      detLayer = theService->detLayerGeometry()->idToLayer(theid);
+      detLayer = service_->detLayerGeometry()->idToLayer(theid);
       LogDebug(metname) << "L2 Layer: " << debug.dumpLayer(detLayer);
 
-      radius = fabs(detLayer->position().z() / cos(theta));
+      radius = std::abs(detLayer->position().z() / cos(theta));
 
-      if (pt < theMinPtEndcap)
-        pt = theMinPtEndcap;
+      if (pt < minPtEndcap_)
+        pt = minPtEndcap_;
     }
 
     vec.setMag(radius);
@@ -236,7 +294,7 @@ void L2MuonSeedGeneratorFromL1TkMu::produce(edm::Event &iEvent, const edm::Event
 
     GlobalVector mom(pt * cos(phi), pt * sin(phi), pt * cos(theta) / sin(theta));
 
-    GlobalTrajectoryParameters param(pos, mom, charge, &*theService->magneticField());
+    GlobalTrajectoryParameters param(pos, mom, charge, &*service_->magneticField());
     AlgebraicSymMatrix55 mat;
 
     mat[0][0] = (0.25 / pt) * (0.25 / pt);  // sigma^2(charge/abs_momentum)
@@ -256,34 +314,34 @@ void L2MuonSeedGeneratorFromL1TkMu::produce(edm::Event &iEvent, const edm::Event
     LogDebug(metname) << debug.dumpFTS(state);
 
     // Propagate the state on the MB2/ME2 surface
-    TrajectoryStateOnSurface tsos = theService->propagator(thePropagatorName)->propagate(state, detLayer->surface());
+    TrajectoryStateOnSurface tsos = service_->propagator(propagatorName_)->propagate(state, detLayer->surface());
 
     LogDebug(metname) << "State after the propagation on the layer";
     LogDebug(metname) << debug.dumpLayer(detLayer);
     LogDebug(metname) << debug.dumpTSOS(tsos);
 
-    double dRcone = matchingDR[0];
-    if (fabs(eta) < etaBins.back()) {
-      std::vector<double>::iterator lowEdge = std::upper_bound(etaBins.begin(), etaBins.end(), fabs(eta));
-      dRcone = matchingDR.at(lowEdge - etaBins.begin() - 1);
+    double dRcone = matchingDR_[0];
+    if (std::abs(eta) < etaBins_.back()) {
+      std::vector<double>::iterator lowEdge = std::upper_bound(etaBins_.begin(), etaBins_.end(), std::abs(eta));
+      dRcone = matchingDR_.at(lowEdge - etaBins_.begin() - 1);
     }
 
     if (tsos.isValid()) {
       edm::OwnVector<TrackingRecHit> container;
 
-      if (useOfflineSeed) {
+      if (useOfflineSeed_) {
         // Get the compatible dets on the layer
         std::vector<pair<const GeomDet *, TrajectoryStateOnSurface>> detsWithStates =
-            detLayer->compatibleDets(tsos, *theService->propagator(thePropagatorName), *theEstimator);
+            detLayer->compatibleDets(tsos, *service_->propagator(propagatorName_), *estimator_);
 
         if (detsWithStates.empty() && barrel) {
           // Fallback solution using ME2, try again to propagate but using ME2 as reference
           DetId fallback_id;
           theta < Geom::pi() / 2. ? fallback_id = CSCDetId(1, 2, 0, 0, 0) : fallback_id = CSCDetId(2, 2, 0, 0, 0);
-          const DetLayer *ME2DetLayer = theService->detLayerGeometry()->idToLayer(fallback_id);
+          const DetLayer *ME2DetLayer = service_->detLayerGeometry()->idToLayer(fallback_id);
 
-          tsos = theService->propagator(thePropagatorName)->propagate(state, ME2DetLayer->surface());
-          detsWithStates = ME2DetLayer->compatibleDets(tsos, *theService->propagator(thePropagatorName), *theEstimator);
+          tsos = service_->propagator(propagatorName_)->propagate(state, ME2DetLayer->surface());
+          detsWithStates = ME2DetLayer->compatibleDets(tsos, *service_->propagator(propagatorName_), *estimator_);
         }
 
         if (!detsWithStates.empty()) {
@@ -311,14 +369,14 @@ void L2MuonSeedGeneratorFromL1TkMu::produce(edm::Event &iEvent, const edm::Event
                 container.push_back(*tsci);
               }
               auto dummyRef = edm::Ref<MuonBxCollection>();
-              output->push_back(L2MuonTrajectorySeed(seedTSOS, container, alongMomentum, dummyRef));
+              output->emplace_back(L2MuonTrajectorySeed(seedTSOS, container, alongMomentum, dummyRef));
             } else {
-              if (useUnassociatedL1) {
+              if (useUnassociatedL1_) {
                 // convert the TSOS into a PTSOD
                 PTrajectoryStateOnDet const &seedTSOS =
                     trajectoryStateTransform::persistentState(newTSOS, newTSOSDet->geographicalId().rawId());
                 auto dummyRef = edm::Ref<MuonBxCollection>();
-                output->push_back(L2MuonTrajectorySeed(seedTSOS, container, alongMomentum, dummyRef));
+                output->emplace_back(L2MuonTrajectorySeed(seedTSOS, container, alongMomentum, dummyRef));
               }
             }
           }
@@ -327,7 +385,7 @@ void L2MuonSeedGeneratorFromL1TkMu::produce(edm::Event &iEvent, const edm::Event
         // convert the TSOS into a PTSOD
         PTrajectoryStateOnDet const &seedTSOS = trajectoryStateTransform::persistentState(tsos, theid.rawId());
         auto dummyRef = edm::Ref<MuonBxCollection>();
-        output->push_back(L2MuonTrajectorySeed(seedTSOS, container, alongMomentum, dummyRef));
+        output->emplace_back(L2MuonTrajectorySeed(seedTSOS, container, alongMomentum, dummyRef));
       }
     }
   }
@@ -341,36 +399,39 @@ const TrajectorySeed *L2MuonSeedGeneratorFromL1TkMu::associateOfflineSeedToL1(
     std::vector<int> &offseedMap,
     TrajectoryStateOnSurface &newTsos,
     double dRcone) {
+  if (dRcone < 0.)
+    return nullptr;
+
   const std::string metlabel = "Muon|RecoMuon|L2MuonSeedGeneratorFromL1TkMu";
   MuonPatternRecoDumper debugtmp;
 
   edm::View<TrajectorySeed>::const_iterator offseed, endOffseed = offseeds->end();
   const TrajectorySeed *selOffseed = nullptr;
-  double bestDr = 99999.;
+  double bestDr2 = 99999.;
   unsigned int nOffseed(0);
   int lastOffseed(-1);
 
   for (offseed = offseeds->begin(); offseed != endOffseed; ++offseed, ++nOffseed) {
     if (offseedMap[nOffseed] != 0)
       continue;
-    GlobalPoint glbPos = theService->trackingGeometry()
+    GlobalPoint glbPos = service_->trackingGeometry()
                              ->idToDet(offseed->startingState().detId())
                              ->surface()
                              .toGlobal(offseed->startingState().parameters().position());
-    GlobalVector glbMom = theService->trackingGeometry()
+    GlobalVector glbMom = service_->trackingGeometry()
                               ->idToDet(offseed->startingState().detId())
                               ->surface()
                               .toGlobal(offseed->startingState().parameters().momentum());
 
     // Preliminary check
-    double preDr = deltaR(newTsos.globalPosition().eta(), newTsos.globalPosition().phi(), glbPos.eta(), glbPos.phi());
-    if (preDr > 1.0)
+    double preDr2 = deltaR2(newTsos.globalPosition().eta(), newTsos.globalPosition().phi(), glbPos.eta(), glbPos.phi());
+    if (preDr2 > 1.0)
       continue;
 
     const FreeTrajectoryState offseedFTS(
-        glbPos, glbMom, offseed->startingState().parameters().charge(), &*theService->magneticField());
+        glbPos, glbMom, offseed->startingState().parameters().charge(), &*service_->magneticField());
     TrajectoryStateOnSurface offseedTsos =
-        theService->propagator(thePropagatorName)->propagate(offseedFTS, newTsos.surface());
+        service_->propagator(propagatorName_)->propagate(offseedFTS, newTsos.surface());
     LogDebug(metlabel) << "Offline seed info: Det and State" << std::endl;
     LogDebug(metlabel) << debugtmp.dumpMuonId(offseed->startingState().detId()) << std::endl;
     LogDebug(metlabel) << "pos: (r=" << offseedFTS.position().mag() << ", phi=" << offseedFTS.position().phi()
@@ -389,21 +450,21 @@ const TrajectorySeed *L2MuonSeedGeneratorFromL1TkMu::associateOfflineSeedToL1(
                          << ", phi=" << offseedTsos.globalMomentum().phi()
                          << ", eta=" << offseedTsos.globalMomentum().eta() << ")" << std::endl
                          << std::endl;
-      double newDr = deltaR(newTsos.globalPosition().eta(),
-                            newTsos.globalPosition().phi(),
-                            offseedTsos.globalPosition().eta(),
-                            offseedTsos.globalPosition().phi());
-      LogDebug(metlabel) << "   -- DR = " << newDr << std::endl;
-      if (newDr < dRcone && newDr < bestDr) {
-        LogDebug(metlabel) << "          --> OK! " << newDr << std::endl << std::endl;
+      double newDr2 = deltaR2(newTsos.globalPosition().eta(),
+                              newTsos.globalPosition().phi(),
+                              offseedTsos.globalPosition().eta(),
+                              offseedTsos.globalPosition().phi());
+      LogDebug(metlabel) << "   -- DR = " << newDr2 << std::endl;
+      if (newDr2 < bestDr2 && newDr2 < dRcone * dRcone) {
+        LogDebug(metlabel) << "          --> OK! " << newDr2 << std::endl << std::endl;
         selOffseed = &*offseed;
-        bestDr = newDr;
+        bestDr2 = newDr2;
         offseedMap[nOffseed] = 1;
         if (lastOffseed > -1)
           offseedMap[lastOffseed] = 0;
         lastOffseed = nOffseed;
       } else {
-        LogDebug(metlabel) << "          --> Rejected. " << newDr << std::endl << std::endl;
+        LogDebug(metlabel) << "          --> Rejected. " << newDr2 << std::endl << std::endl;
       }
     } else {
       LogDebug(metlabel) << "Invalid offline seed TSOS after propagation!" << std::endl << std::endl;
@@ -412,3 +473,6 @@ const TrajectorySeed *L2MuonSeedGeneratorFromL1TkMu::associateOfflineSeedToL1(
 
   return selOffseed;
 }
+
+//define this as a plug-in
+DEFINE_FWK_MODULE(L2MuonSeedGeneratorFromL1TkMu);
