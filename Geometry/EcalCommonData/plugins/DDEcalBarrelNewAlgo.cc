@@ -1625,8 +1625,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
       {
         cpv.position(spmCutLog, spmName(), icopy, ddtra, ddrot);
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << spmCutLog.name() << ":" << icopy << " positioned in "
-                                     << spmName();
+        edm::LogVerbatim("EcalGeom") << spmCutLog.name() << ":" << icopy << " positioned in " << spmName();
 #endif
       } else  // do this if we are subtracting the boxes
       {
@@ -1671,8 +1670,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
         DDTranslation myTran(both.getTranslation().x(), both.getTranslation().y(), both.getTranslation().z());
         cpv.position(spmLog, barName(), iphi + 1, myTran, rota);
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << spmLog.name() << ":" << (iphi + 1) << " positioned in "
-                                     << barName();
+        edm::LogVerbatim("EcalGeom") << spmLog.name() << ":" << (iphi + 1) << " positioned in " << barName();
 #endif
       }
     }
@@ -1740,8 +1738,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                  DDTranslation(0, 0, -ilyFanOutLength() / 2 + ilyDiffLength() / 2 + ilyDiffOff()),
                  DDRotation());
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EcalGeom") << ilyDiffName() << ":" << copyOne << " positioned in "
-                                 << ilyFanOutName();
+    edm::LogVerbatim("EcalGeom") << ilyDiffName() << ":" << copyOne << " positioned in " << ilyFanOutName();
 #endif
     cpv.position(ilyBndlLog,
                  ilyFanOutName(),
@@ -1749,8 +1746,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                  DDTranslation(0, 0, -ilyFanOutLength() / 2 + ilyBndlLength() / 2 + ilyBndlOff()),
                  DDRotation());
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EcalGeom") << ilyBndlName() << ":" << copyOne << " positioned in "
-                                 << ilyFanOutName();
+    edm::LogVerbatim("EcalGeom") << ilyBndlName() << ":" << copyOne << " positioned in " << ilyFanOutName();
 #endif
     for (unsigned int ily(0); ily != vecIlyThick().size(); ++ily) {
       const double ilyRMax(ilyRMin + vecIlyThick()[ily]);
@@ -1782,8 +1778,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                            DDTranslation(xx, yy, vecIlyPTMZ()[ilyPTM] - ilyLength / 2),
                            myrot(ilyPTMLog.name().name() + "_rot" + std::to_string(ptmCopy), CLHEP::HepRotationZ(phi)));
 #ifdef EDM_ML_DEBUG
-              edm::LogVerbatim("EcalGeom")
-                  << ilyPTMLog.name() << ":" << ptmCopy << " positioned in " << xilyLog.name();
+              edm::LogVerbatim("EcalGeom") << ilyPTMLog.name() << ":" << ptmCopy << " positioned in " << xilyLog.name();
 #endif
             }
           }
@@ -1819,8 +1814,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                            DDTranslation(xx, yy, vecIlyFEMZ()[ilyFEM] - ilyLength / 2),
                            myrot(ilyFEMLog.name().name() + "_rot" + std::to_string(femCopy), CLHEP::HepRotationZ(phi)));
 #ifdef EDM_ML_DEBUG
-              edm::LogVerbatim("EcalGeom")
-                  << ilyFEMLog.name() << ":" << femCopy << " positioned in " << xilyLog.name();
+              edm::LogVerbatim("EcalGeom") << ilyFEMLog.name() << ":" << femCopy << " positioned in " << xilyLog.name();
 #endif
             }
           }
@@ -1844,8 +1838,8 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                                 : myrot(ilyPipeLog[type].name().name() + "_rot" + std::to_string(copyNum[type]),
                                         Rota(Vec3(xx, yy, 0), 90 * deg))));
 #ifdef EDM_ML_DEBUG
-              edm::LogVerbatim("EcalGeom") << ilyPipeLog[type].name() << ":" << copyNum[type]
-                                           << " positioned in " << xilyLog.name();
+              edm::LogVerbatim("EcalGeom")
+                  << ilyPipeLog[type].name() << ":" << copyNum[type] << " positioned in " << xilyLog.name();
 #endif
             }
           }
@@ -1869,8 +1863,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
     const DDLogicalPart clyrLog(clyrName, ddmat(vecIlyMat()[4]), clyrSolid);
     cpv.position(clyrLog, spmLog, copyOne, DDTranslation(0, 0, 0), DDRotation());
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EcalGeom") << clyrLog.name() << ":" << copyOne << " positioned in "
-                                 << spmLog.name();
+    edm::LogVerbatim("EcalGeom") << clyrLog.name() << ":" << copyOne << " positioned in " << spmLog.name();
 #endif
     // Begin Alveolar Wedge parent ------------------------------------------------------
     //----------------
@@ -2012,8 +2005,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
         DDTranslation(hawRform.getTranslation().x(), hawRform.getTranslation().y(), hawRform.getTranslation().z()),
         myrot(hawRName().name() + "R", hawRform.getRotation()));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EcalGeom") << hawRLog.name() << ":" << copyOne << " positioned in "
-                                 << fawLog.name();
+    edm::LogVerbatim("EcalGeom") << hawRLog.name() << ":" << copyOne << " positioned in " << fawLog.name();
 #endif
     cpv.position(
         hawRLog,
@@ -2024,8 +2016,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
               CLHEP::HepRotationY(180 * deg) *  // rotate about Y after refl thru Z
                   CLHEP::HepRep3x3(1, 0, 0, 0, 1, 0, 0, 0, -1)));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EcalGeom") << hawRLog.name() << ":" << copyTwo << " positioned in "
-                                 << fawLog.name();
+    edm::LogVerbatim("EcalGeom") << hawRLog.name() << ":" << copyTwo << " positioned in " << fawLog.name();
 #endif
     /* this for display of haw cut box instead of subtraction
       cpv.position( hawCutLog,
@@ -2090,8 +2081,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
           DDTranslation(gridForm.getTranslation().x(), gridForm.getTranslation().y(), gridForm.getTranslation().z()),
           myrot(gridName().name() + "R", gridForm.getRotation()));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EcalGeom") << gridLog.name() << ":" << copyOne << " positioned in "
-                                 << hawRLog.name();
+    edm::LogVerbatim("EcalGeom") << gridLog.name() << ":" << copyOne << " positioned in " << hawRLog.name();
 #endif
     // End Grid + Tablet insertion
 
@@ -2341,21 +2331,18 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                    DDTranslation(0, 0, (rClr - fClr) / 2),  //SAME as cryToClr above.
                    DDRotation());
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("EcalGeom") << cryLog.name() << ":" << copyOne << " positioned in "
-                                   << clrLog.name();
+      edm::LogVerbatim("EcalGeom") << cryLog.name() << ":" << copyOne << " positioned in " << clrLog.name();
 #endif
       if (0 != capHere()) {
         cpv.position(aglLog, bsiLog, copyAGL, DDTranslation(0, 0, -aglThick() / 2. + bsiThick() / 2.), DDRotation());
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << aglLog.name() << ":" << copyAGL << " positioned in "
-                                     << bsiLog.name();
+        edm::LogVerbatim("EcalGeom") << aglLog.name() << ":" << copyAGL << " positioned in " << bsiLog.name();
 #endif
 
         cpv.position(
             andLog, bsiLog, copyAND, DDTranslation(0, 0, -andThick() / 2. - aglThick() + bsiThick() / 2.), DDRotation());
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << andLog.name() << ":" << copyAND << " positioned in "
-                                     << bsiLog.name();
+        edm::LogVerbatim("EcalGeom") << andLog.name() << ":" << copyAND << " positioned in " << bsiLog.name();
 #endif
         cpv.position(apdLog,
                      bsiLog,
@@ -2363,8 +2350,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                      DDTranslation(0, 0, -apdThick() / 2. - andThick() - aglThick() + bsiThick() / 2.),
                      DDRotation());
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << apdLog.name() << ":" << copyAPD << " positioned in "
-                                     << bsiLog.name();
+        edm::LogVerbatim("EcalGeom") << apdLog.name() << ":" << copyAPD << " positioned in " << bsiLog.name();
 #endif
         cpv.position(atjLog,
                      bsiLog,
@@ -2372,18 +2358,15 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                      DDTranslation(0, 0, -atjThick() / 2. - apdThick() - andThick() - aglThick() + bsiThick() / 2.),
                      DDRotation());
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << atjLog.name() << ":" << copyATJ << " positioned in "
-                                     << bsiLog.name();
+        edm::LogVerbatim("EcalGeom") << atjLog.name() << ":" << copyATJ << " positioned in " << bsiLog.name();
 #endif
         cpv.position(bsiLog, cerLog, copyBSi, DDTranslation(0, 0, -bsiThick() / 2. + cerThick() / 2.), DDRotation());
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << bsiLog.name() << ":" << copyBSi << " positioned in "
-                                     << cerLog.name();
+        edm::LogVerbatim("EcalGeom") << bsiLog.name() << ":" << copyBSi << " positioned in " << cerLog.name();
 #endif
         cpv.position(sglLog, capLog, copySGL, DDTranslation(0, 0, -sglThick() / 2. + capThick() / 2.), DDRotation());
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << sglLog.name() << ":" << copySGL << " positioned in "
-                                     << capLog.name();
+        edm::LogVerbatim("EcalGeom") << sglLog.name() << ":" << copySGL << " positioned in " << capLog.name();
 #endif
         for (unsigned int ijkl(0); ijkl != 2; ++ijkl) {
           cpv.position(cerLog,
@@ -2394,8 +2377,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                                      -sglThick() - cerThick() / 2. + capThick() / 2.),
                        DDRotation());
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << cerLog.name() << ":" << copyCER << " positioned in "
-                                       << capLog.name();
+          edm::LogVerbatim("EcalGeom") << cerLog.name() << ":" << copyCER << " positioned in " << capLog.name();
 #endif
         }
         cpv.position(capLog,
@@ -2404,8 +2386,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                      DDTranslation(0, 0, -trapCry.dz() - capThick() / 2. + (rClr - fClr) / 2.),
                      DDRotation());
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << capLog.name() << ":" << copyCap << " positioned in "
-                                     << clrLog.name();
+        edm::LogVerbatim("EcalGeom") << capLog.name() << ":" << copyCap << " positioned in " << clrLog.name();
 #endif
       }
 
@@ -2417,8 +2398,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                    DDTranslation(0, 0, (rWrap - fWrap) / 2),  //SAME as cryToWrap
                    DDRotation());
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("EcalGeom") << clrLog.name() << ":" << copyOne << " positioned in "
-                                   << wrapLog.name();
+      edm::LogVerbatim("EcalGeom") << clrLog.name() << ":" << copyOne << " positioned in " << wrapLog.name();
 #endif
 
       // Now for placement of clr within wall
@@ -2431,8 +2411,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                    DDTranslation(Vec3((cryType > 9 ? 0 : 0.005 * mm), 0, 0) + wrapToWall1),  //SAME as wrapToWall
                    DDRotation());
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("EcalGeom") << wrapLog.name() << ":" << copyOne << " positioned in "
-                                   << wallLog.name();
+      edm::LogVerbatim("EcalGeom") << wrapLog.name() << ":" << copyOne << " positioned in " << wallLog.name();
 #endif
       const Trap::VertexList vWall(trapWall.vertexList());
       const Trap::VertexList vCry(trapCry.vertexList());
@@ -2462,8 +2441,8 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
       for (unsigned int etaAlv(1); etaAlv <= nCryPerAlvEta(); ++etaAlv) {
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("EcalGeomX") << "theta=" << theta / deg << ", sidePrime=" << sidePrime
-                                     << ", frontPrime=" << frontPrime << ",  zeta=" << zeta << ", delta=" << delta
-                                     << ",  zee=" << zee;
+                                      << ", frontPrime=" << frontPrime << ",  zeta=" << zeta << ", delta=" << delta
+                                      << ",  zee=" << zee;
 #endif
         zee += 0.075 * mm + (side * cos(zeta) + trapWall.h() - sidePrime) / sin(theta);
 
@@ -2493,8 +2472,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                      DDTranslation(tForm.getTranslation().x(), tForm.getTranslation().y(), tForm.getTranslation().z()),
                      myrot(wallLog.name().name() + "_" + std::to_string(etaAlv), tForm.getRotation()));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << wallLog.name() << ":" << etaAlv << " positioned in "
-                                     << hawRLog.name();
+        edm::LogVerbatim("EcalGeom") << wallLog.name() << ":" << etaAlv << " positioned in " << hawRLog.name();
 #endif
         theta -= delta;
         side = sidePrime;
@@ -2562,8 +2540,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
       if (0 != backPlateHere()) {
         cpv.position(backPlate2Log, backPlateName(), copyOne, backPlate2Tra, DDRotation());
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << backPlate2Log.name() << ":" << copyOne << " positioned in "
-                                     << backPlateName();
+        edm::LogVerbatim("EcalGeom") << backPlate2Log.name() << ":" << copyOne << " positioned in " << backPlateName();
 #endif
         cpv.position(backPlateLog,
                      spmName(),
@@ -2571,8 +2548,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                      outtra + backPlateTra,
                      myrot(backPlateName().name() + "Rot5", CLHEP::HepRotationZ(270 * deg)));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << backPlateLog.name() << ":" << copyOne << " positioned in "
-                                     << spmName();
+        edm::LogVerbatim("EcalGeom") << backPlateLog.name() << ":" << copyOne << " positioned in " << spmName();
 #endif
       }
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -2610,8 +2586,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
             outtra + backSideTra1,
             myrot(backSideName().name() + "Rot8", CLHEP::HepRotationX(180 * deg) * CLHEP::HepRotationZ(90 * deg)));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << backSideLog.name() << ":" << copyOne << " positioned in "
-                                     << spmName();
+        edm::LogVerbatim("EcalGeom") << backSideLog.name() << ":" << copyOne << " positioned in " << spmName();
 #endif
         const DDTranslation backSideTra2(0 * mm, -backPlateWidth() / 2 + backSideYOff2(), 1 * mm);
         cpv.position(backSideLog,
@@ -2620,8 +2595,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                      outtra + backSideTra2,
                      myrot(backSideName().name() + "Rot9", CLHEP::HepRotationZ(90 * deg)));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << backSideLog.name() << ":" << copyTwo << " positioned in "
-                                     << spmName();
+        edm::LogVerbatim("EcalGeom") << backSideLog.name() << ":" << copyTwo << " positioned in " << spmName();
 #endif
       }
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -2651,8 +2625,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
       const DDLogicalPart mBManifWaLog(mBManifWaName, backPipeWaterMat(), mBManifWaSolid);
       cpv.position(mBManifWaLog, mBManifName(), copyOne, DDTranslation(0, 0, 0), DDRotation());
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("EcalGeom") << mBManifWaLog.name() << ":" << copyOne << " positioned in "
-                                   << mBManifName();
+      edm::LogVerbatim("EcalGeom") << mBManifWaLog.name() << ":" << copyOne << " positioned in " << mBManifName();
 #endif
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -2702,8 +2675,8 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                            vecGrilleHeight()[iGr] / 2. - vecGrMidSlotHeight()[(iGr - 1) / 2] / 2., +grMidSlotXOff(), 0),
                        DDRotation());
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << grMidSlotLog[(iGr - 1) / 2].name() << ":" << midSlotCopy
-                                       << " positioned in " << gName;
+          edm::LogVerbatim("EcalGeom") << grMidSlotLog[(iGr - 1) / 2].name() << ":" << midSlotCopy << " positioned in "
+                                       << gName;
 #endif
 
           cpv.position(grMidSlotLog[(iGr - 1) / 2],
@@ -2713,8 +2686,8 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                            vecGrilleHeight()[iGr] / 2. - vecGrMidSlotHeight()[(iGr - 1) / 2] / 2., -grMidSlotXOff(), 0),
                        DDRotation());
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << grMidSlotLog[(iGr - 1) / 2].name() << ":" << midSlotCopy
-                                       << " positioned in " << gName;
+          edm::LogVerbatim("EcalGeom") << grMidSlotLog[(iGr - 1) / 2].name() << ":" << midSlotCopy << " positioned in "
+                                       << gName;
 #endif
         }
 
@@ -2727,8 +2700,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                   vecGrilleHeight()[iGr] / 2. - grEdgeSlotHeight() / 2., backCoolWidth / 2 - grEdgeSlotWidth() / 2., 0),
               DDRotation());
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << grEdgeSlotLog.name() << ":" << edgeSlotCopy << " positioned in "
-                                       << gName;
+          edm::LogVerbatim("EcalGeom") << grEdgeSlotLog.name() << ":" << edgeSlotCopy << " positioned in " << gName;
 #endif
           cpv.position(grEdgeSlotLog,
                        gName,
@@ -2738,15 +2710,13 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                                      0),
                        DDRotation());
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << grEdgeSlotLog.name() << ":" << edgeSlotCopy << " positioned in "
-                                       << gName;
+          edm::LogVerbatim("EcalGeom") << grEdgeSlotLog.name() << ":" << edgeSlotCopy << " positioned in " << gName;
 #endif
         }
         if (0 != grilleHere()) {
           cpv.position(grilleLog, spmName(), iGr, gTra, DDRotation());
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << grilleLog.name() << ":" << iGr << " positioned in "
-                                       << spmName();
+          edm::LogVerbatim("EcalGeom") << grilleLog.name() << ":" << iGr << " positioned in " << spmName();
 #endif
         }
         if ((0 != iGr % 2) && (0 != mBManifHere())) {
@@ -2758,8 +2728,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                                             grilleThick() / 2. + 3 * mBManifOutDiam() / 2.),
                        myrot(mBManifName().name() + "R1", CLHEP::HepRotationX(90 * deg)));
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << mBManifLog.name() << ":" << iGr << " positioned in "
-                                       << spmName();
+          edm::LogVerbatim("EcalGeom") << mBManifLog.name() << ":" << iGr << " positioned in " << spmName();
 #endif
           cpv.position(mBManifLog,
                        spmName(),
@@ -2769,8 +2738,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                                             grilleThick() / 2 + 3 * mBManifOutDiam() / 2.),
                        myrot(mBManifName().name() + "R2", CLHEP::HepRotationX(90 * deg)));
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << mBManifLog.name() << ":" << (iGr - 1) << " positioned in "
-                                       << spmName();
+          edm::LogVerbatim("EcalGeom") << mBManifLog.name() << ":" << (iGr - 1) << " positioned in " << spmName();
 #endif
         }
       }
@@ -2841,8 +2809,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
         const DDTranslation backVFELyrTra(0, 0, vecBackVFELyrThick()[iLyr] / 2);
         cpv.position(backVFELyrLog, backVFEName(), copyOne, backVFELyrTra + offTra, DDRotation());
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << backVFELyrLog.name() << ":" << copyOne << " positioned in "
-                                     << backVFEName();
+        edm::LogVerbatim("EcalGeom") << backVFELyrLog.name() << ":" << copyOne << " positioned in " << backVFEName();
 #endif
         offTra += 2 * backVFELyrTra;
       }
@@ -2877,8 +2844,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                      DDTranslation(0, 0, backCoolBarThick() / 2. + thickVFE / 2.),
                      DDRotation());
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << backVFELog.name() << ":" << copyOne << " positioned in "
-                                     << backCoolVFEName();
+        edm::LogVerbatim("EcalGeom") << backVFELog.name() << ":" << copyOne << " positioned in " << backCoolVFEName();
 #endif
       }
       cpv.position(backVFELog,
@@ -2887,8 +2853,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                    DDTranslation(0, 0, -backCoolBarThick() / 2. - thickVFE / 2.),
                    myrot(backVFEName().name() + "Flip", CLHEP::HepRotationX(180 * deg)));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("EcalGeom") << backVFELog.name() << ":" << copyTwo << " positioned in "
-                                   << backCoolVFEName();
+      edm::LogVerbatim("EcalGeom") << backVFELog.name() << ":" << copyTwo << " positioned in " << backCoolVFEName();
 #endif
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -2934,8 +2899,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
         if (0 != backCoolHere()) {
           cpv.position(backCoolLog, spmName(), iMod + 1, outtra + backPlateTra + bCoolTra, DDRotation());
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << backCoolLog.name() << ":" << (iMod + 1) << " positioned in "
-                                       << spmName();
+          edm::LogVerbatim("EcalGeom") << backCoolLog.name() << ":" << (iMod + 1) << " positioned in " << spmName();
 #endif
         }
         //===
@@ -2956,8 +2920,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                                      0),
                        DDRotation());
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << backCoolTankLog.name() << ":" << copyOne << " positioned in "
-                                       << backCName;
+          edm::LogVerbatim("EcalGeom") << backCoolTankLog.name() << ":" << copyOne << " positioned in " << backCName;
 #endif
         }
 
@@ -2969,8 +2932,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
         const DDLogicalPart backCoolTankWaLog(bTankWaName, backCoolTankWaMat(), backCoolTankWaSolid);
         cpv.position(backCoolTankWaLog, bTankName, copyOne, DDTranslation(0, 0, 0), DDRotation());
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << backCoolTankWaLog.name() << ":" << copyOne << " positioned in "
-                                     << bTankName;
+        edm::LogVerbatim("EcalGeom") << backCoolTankWaLog.name() << ":" << copyOne << " positioned in " << bTankName;
 #endif
 
         DDName bBracketName(ddname(backBracketName() + std::to_string(iMod + 1)));
@@ -2986,8 +2948,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                                      0),
                        DDRotation());
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << backBracketLog.name() << ":" << copyOne << " positioned in "
-                                       << backCName;
+          edm::LogVerbatim("EcalGeom") << backBracketLog.name() << ":" << copyOne << " positioned in " << backCName;
 #endif
         }
 
@@ -3017,8 +2978,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
           if (0 != backMiscHere()) {
             cpv.position(bLog, backCName, copyOne, bSumTra + bTra, DDRotation());
 #ifdef EDM_ML_DEBUG
-            edm::LogVerbatim("EcalGeom") << bLog.name() << ":" << copyOne << " positioned in "
-                                         << backCName;
+            edm::LogVerbatim("EcalGeom") << bLog.name() << ":" << copyOne << " positioned in " << backCName;
 #endif
           }
           bSumTra += 2 * bTra;
@@ -3039,8 +2999,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
             mTra += DDTranslation(vecMBLyrThick()[j] / 2.0, 0 * mm, 0 * mm);
             cpv.position(mLog, backCName, copyOne, mTra, DDRotation());
 #ifdef EDM_ML_DEBUG
-            edm::LogVerbatim("EcalGeom") << mLog.name() << ":" << copyOne << " positioned in "
-                                         << backCName;
+            edm::LogVerbatim("EcalGeom") << mLog.name() << ":" << copyOne << " positioned in " << backCName;
 #endif
             mTra += DDTranslation(vecMBLyrThick()[j] / 2.0, 0 * mm, 0 * mm);
           }
@@ -3071,8 +3030,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                     -backCoolHeight / 2.0 + mBCoolTubeOutDiam() / 2., -bHalfWidth + (j + 1) * bHalfWidth / 5, 0),
                 DDRotation());
 #ifdef EDM_ML_DEBUG
-            edm::LogVerbatim("EcalGeom") << mBLog.name() << ":" << (2 * j + 1) << " positioned in "
-                                         << backCName;
+            edm::LogVerbatim("EcalGeom") << mBLog.name() << ":" << (2 * j + 1) << " positioned in " << backCName;
 #endif
           }
         }
@@ -3107,8 +3065,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
 
           cpv.position(backPipeLog, spmName(), copyOne, bPipeTra1, DDRotation());
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << backPipeLog.name() << ":" << copyOne << " positioned in "
-                                       << spmName();
+          edm::LogVerbatim("EcalGeom") << backPipeLog.name() << ":" << copyOne << " positioned in " << spmName();
 #endif
 
           const DDTranslation bPipeTra2(bPipeTra1.x(),
@@ -3117,13 +3074,11 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
 
           cpv.position(backPipeLog, spmName(), copyTwo, bPipeTra2, DDRotation());
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << backPipeLog.name() << ":" << copyTwo << " positioned in "
-                                       << spmName();
+          edm::LogVerbatim("EcalGeom") << backPipeLog.name() << ":" << copyTwo << " positioned in " << spmName();
 #endif
           cpv.position(backInnerLog, bPipeName, copyOne, DDTranslation(), DDRotation());
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << backInnerLog.name() << ":" << copyOne << " positioned in "
-                                       << bPipeName;
+          edm::LogVerbatim("EcalGeom") << backInnerLog.name() << ":" << copyOne << " positioned in " << bPipeName;
 #endif
         }
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -3149,8 +3104,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
 
           cpv.position(dryAirTubeLog, spmName(), copyOne, dryAirTubeTra1, DDRotation());
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << dryAirTubeLog.name() << ":" << copyOne << " positioned in "
-                                       << spmName();
+          edm::LogVerbatim("EcalGeom") << dryAirTubeLog.name() << ":" << copyOne << " positioned in " << spmName();
 #endif
 
           const DDTranslation dryAirTubeTra2(
@@ -3160,8 +3114,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
 
           cpv.position(dryAirTubeLog, spmName(), copyTwo, dryAirTubeTra2, DDRotation());
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << dryAirTubeLog.name() << ":" << copyTwo << " positioned in "
-                                       << spmName();
+          edm::LogVerbatim("EcalGeom") << dryAirTubeLog.name() << ":" << copyTwo << " positioned in " << spmName();
 #endif
         }
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -3179,8 +3132,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
           for (unsigned int iBar(0); iBar != nMax; ++iBar) {
             cpv.position(backCoolVFELog, backCName, iCVFECopy++, cTra, DDRotation());
 #ifdef EDM_ML_DEBUG
-            edm::LogVerbatim("EcalGeom") << backCoolVFELog.name() << ":" << iCVFECopy << " positioned in "
-                                         << backCName;
+            edm::LogVerbatim("EcalGeom") << backCoolVFELog.name() << ":" << iCVFECopy << " positioned in " << backCName;
 #endif
             cTra += DDTranslation(0, 0, backCBStdSep());
           }
@@ -3225,8 +3177,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
       if (0 != patchPanelHere()) {
         cpv.position(patchLog, spmName(), copyOne, patchTra, DDRotation());
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << patchLog.name() << ":" << copyOne << " positioned in "
-                                     << spmName();
+        edm::LogVerbatim("EcalGeom") << patchLog.name() << ":" << copyOne << " positioned in " << spmName();
 #endif
       }
       DDTranslation pTra(-patchParms[0], 0, 0);
@@ -3242,8 +3193,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
 
         cpv.position(pLog, patchPanelName(), copyOne, pTra, DDRotation());
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << pLog.name() << ":" << copyOne << " positioned in "
-                                     << patchPanelName();
+        edm::LogVerbatim("EcalGeom") << pLog.name() << ":" << copyOne << " positioned in " << patchPanelName();
 #endif
         pTra += DDTranslation(vecPatchPanelThick()[j] / 2, 0 * mm, 0 * mm);
       }
@@ -3281,8 +3231,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                      DDTranslation(0, 0, pincerEnvLength() / 2 - pincerBlkLength() / 2),
                      DDRotation());
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << blkLog.name() << ":" << copyOne << " positioned in "
-                                     << pincerEnvName();
+        edm::LogVerbatim("EcalGeom") << blkLog.name() << ":" << copyOne << " positioned in " << pincerEnvName();
 #endif
 
         DDSolid cutSolid(
@@ -3297,8 +3246,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                 +blkParms[0] - cutParms[0] - pincerShim1Width() + pincerShim2Width(), -blkParms[1] + cutParms[1], 0),
             DDRotation());
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << cutLog.name() << ":" << copyOne << " positioned in "
-                                     << pincerBlkName();
+        edm::LogVerbatim("EcalGeom") << cutLog.name() << ":" << copyOne << " positioned in " << pincerBlkName();
 #endif
 
         DDSolid shim2Solid(DDSolidFactory::box(
@@ -3311,8 +3259,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                      DDTranslation(+cutParms[0] - shim2Parms[0], -cutParms[1] + shim2Parms[1], 0),
                      DDRotation());
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << shim2Log.name() << ":" << copyOne << " positioned in "
-                                     << pincerCutName();
+        edm::LogVerbatim("EcalGeom") << shim2Log.name() << ":" << copyOne << " positioned in " << pincerCutName();
 #endif
 
         DDSolid shim1Solid(DDSolidFactory::box(pincerShim1Name(),
@@ -3329,8 +3276,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
             DDTranslation(+envParms[0] - shim1Parms[0], -envParms[1] + shim1Parms[1], -envParms[2] + shim1Parms[2]),
             DDRotation());
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << shim1Log.name() << ":" << copyOne << " positioned in "
-                                     << pincerEnvName();
+        edm::LogVerbatim("EcalGeom") << shim1Log.name() << ":" << copyOne << " positioned in " << pincerEnvName();
 #endif
         for (unsigned int iEnv(0); iEnv != vecPincerEnvZOff().size(); ++iEnv) {
           cpv.position(envLog,
@@ -3339,8 +3285,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                        DDTranslation(0, 0, -ilyLength / 2. + vecPincerEnvZOff()[iEnv] - pincerEnvLength() / 2.),
                        DDRotation());
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << envLog.name() << ":" << (1 + iEnv) << " positioned in "
-                                       << pincerRodName();
+          edm::LogVerbatim("EcalGeom") << envLog.name() << ":" << (1 + iEnv) << " positioned in " << pincerRodName();
 #endif
         }
 
@@ -3361,8 +3306,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                        myrot(pincerRodName().name() + std::to_string(iRod),
                              CLHEP::HepRotationZ(90 * deg + vecPincerRodAzimuth()[iRod])));
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << rodLog.name() << ":" << (1 + iRod) << " positioned in "
-                                       << xilyName;
+          edm::LogVerbatim("EcalGeom") << rodLog.name() << ":" << (1 + iRod) << " positioned in " << xilyName;
 #endif
         }
       }
@@ -3484,8 +3428,7 @@ void DDEcalBarrelNewAlgo::web(unsigned int iWeb,
                  DDTranslation(tForm.getTranslation().x(), tForm.getTranslation().y(), tForm.getTranslation().z()),
                  myrot(webClrLog.name().name() + std::to_string(iWeb), tForm.getRotation()));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EcalGeom") << webClrLog.name() << ":" << copyOne << " positioned in "
-                                 << logPar.name();
+    edm::LogVerbatim("EcalGeom") << webClrLog.name() << ":" << copyOne << " positioned in " << logPar.name();
 #endif
   }
 }

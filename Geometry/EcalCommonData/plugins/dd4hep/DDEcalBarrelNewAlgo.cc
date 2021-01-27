@@ -484,51 +484,51 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   // Barrel volume
   // barrel parent volume
   Barrel bar;
-  bar.name = myns + args.str("BarName");       // Barrel volume name
-  bar.mat = args.str("BarMat");                // Barrel material name
-  bar.vecZPts = args.vecDble("BarZPts");       // Barrel list of z pts
-  bar.vecRMin = args.vecDble("BarRMin");       // Barrel list of rMin pts
-  bar.vecRMax = args.vecDble("BarRMax");       // Barrel list of rMax pts
-  bar.vecTran = args.vecDble("BarTran");       // Barrel translation
-  bar.vecRota = args.vecDble("BarRota");       // Barrel rotation
-  bar.vecRota2 = args.vecDble("BarRota2");     // 2nd Barrel rotation
-  bar.vecRota3 = args.vecDble("BarRota3");     // 3rd Barrel rotation
-  bar.phiLo = args.dble("BarPhiLo");           // Barrel phi lo
-  bar.phiHi = args.dble("BarPhiHi");           // Barrel phi hi
-  bar.here = args.dble("BarHere");             // Barrel presence flag
+  bar.name = myns + args.str("BarName");    // Barrel volume name
+  bar.mat = args.str("BarMat");             // Barrel material name
+  bar.vecZPts = args.vecDble("BarZPts");    // Barrel list of z pts
+  bar.vecRMin = args.vecDble("BarRMin");    // Barrel list of rMin pts
+  bar.vecRMax = args.vecDble("BarRMax");    // Barrel list of rMax pts
+  bar.vecTran = args.vecDble("BarTran");    // Barrel translation
+  bar.vecRota = args.vecDble("BarRota");    // Barrel rotation
+  bar.vecRota2 = args.vecDble("BarRota2");  // 2nd Barrel rotation
+  bar.vecRota3 = args.vecDble("BarRota3");  // 3rd Barrel rotation
+  bar.phiLo = args.dble("BarPhiLo");        // Barrel phi lo
+  bar.phiHi = args.dble("BarPhiHi");        // Barrel phi hi
+  bar.here = args.dble("BarHere");          // Barrel presence flag
 
   // Supermodule volume
   Supermodule spm;
-  spm.name = ns.prepend(args.str("SpmName"));          // Supermodule volume name
-  spm.mat = args.str("SpmMat");                        // Supermodule material name
-  spm.vecZPts = args.vecDble("SpmZPts");               // Supermodule list of z pts
-  spm.vecRMin = args.vecDble("SpmRMin");               // Supermodule list of rMin pts
-  spm.vecRMax = args.vecDble("SpmRMax");               // Supermodule list of rMax pts
-  spm.vecTran = args.vecDble("SpmTran");               // Supermodule translation
-  spm.vecRota = args.vecDble("SpmRota");               // Supermodule rotation
-  spm.vecBTran = args.vecDble("SpmBTran");             // Base Supermodule translation
-  spm.vecBRota = args.vecDble("SpmBRota");             // Base Supermodule rotation
-  spm.nPerHalf = args.integer("SpmNPerHalf");          // # Supermodules per half detector
-  spm.lowPhi = args.dble("SpmLowPhi");                 // Low   phi value of base supermodule
-  spm.delPhi = args.dble("SpmDelPhi");                 // Delta phi value of base supermodule
-  spm.phiOff = args.dble("SpmPhiOff");                 // Phi offset value supermodule
-  spm.vecHere = args.vecDble("SpmHere");               // Bit saying if a supermodule is present or not
-  spm.cutName = ns.prepend(args.str("SpmCutName"));    // Name of cut box
-  spm.cutThick = args.dble("SpmCutThick");             // Box thickness
-  spm.cutShow = args.value<int>("SpmCutShow");         // Non-zero means show the box on display (testing only)
-  spm.vecCutTM = args.vecDble("SpmCutTM");             // Translation for minus phi cut box
-  spm.vecCutTP = args.vecDble("SpmCutTP");             // Translation for plus  phi cut box
-  spm.cutRM = args.dble("SpmCutRM");                   // Rotation for minus phi cut box
-  spm.cutRP = args.dble("SpmCutRP");                   // Rotation for plus  phi cut box
-  spm.expThick = args.dble("SpmExpThick");             // Thickness (x) of supermodule expansion box
-  spm.expWide = args.dble("SpmExpWide");               // Width     (y) of supermodule expansion box
-  spm.expYOff = args.dble("SpmExpYOff");               // Offset    (y) of supermodule expansion box
-  spm.sideName = myns + args.str("SpmSideName");       // Supermodule Side Plate volume name
-  spm.sideMat = args.str("SpmSideMat");                // Supermodule Side Plate material name
-  spm.sideHigh = args.dble("SpmSideHigh");             // Side plate height
-  spm.sideThick = args.dble("SpmSideThick");           // Side plate thickness
-  spm.sideYOffM = args.dble("SpmSideYOffM");           // Side plate Y offset on minus phi side
-  spm.sideYOffP = args.dble("SpmSideYOffP");           // Side plate Y offset on plus  phi side
+  spm.name = ns.prepend(args.str("SpmName"));        // Supermodule volume name
+  spm.mat = args.str("SpmMat");                      // Supermodule material name
+  spm.vecZPts = args.vecDble("SpmZPts");             // Supermodule list of z pts
+  spm.vecRMin = args.vecDble("SpmRMin");             // Supermodule list of rMin pts
+  spm.vecRMax = args.vecDble("SpmRMax");             // Supermodule list of rMax pts
+  spm.vecTran = args.vecDble("SpmTran");             // Supermodule translation
+  spm.vecRota = args.vecDble("SpmRota");             // Supermodule rotation
+  spm.vecBTran = args.vecDble("SpmBTran");           // Base Supermodule translation
+  spm.vecBRota = args.vecDble("SpmBRota");           // Base Supermodule rotation
+  spm.nPerHalf = args.integer("SpmNPerHalf");        // # Supermodules per half detector
+  spm.lowPhi = args.dble("SpmLowPhi");               // Low   phi value of base supermodule
+  spm.delPhi = args.dble("SpmDelPhi");               // Delta phi value of base supermodule
+  spm.phiOff = args.dble("SpmPhiOff");               // Phi offset value supermodule
+  spm.vecHere = args.vecDble("SpmHere");             // Bit saying if a supermodule is present or not
+  spm.cutName = ns.prepend(args.str("SpmCutName"));  // Name of cut box
+  spm.cutThick = args.dble("SpmCutThick");           // Box thickness
+  spm.cutShow = args.value<int>("SpmCutShow");       // Non-zero means show the box on display (testing only)
+  spm.vecCutTM = args.vecDble("SpmCutTM");           // Translation for minus phi cut box
+  spm.vecCutTP = args.vecDble("SpmCutTP");           // Translation for plus  phi cut box
+  spm.cutRM = args.dble("SpmCutRM");                 // Rotation for minus phi cut box
+  spm.cutRP = args.dble("SpmCutRP");                 // Rotation for plus  phi cut box
+  spm.expThick = args.dble("SpmExpThick");           // Thickness (x) of supermodule expansion box
+  spm.expWide = args.dble("SpmExpWide");             // Width     (y) of supermodule expansion box
+  spm.expYOff = args.dble("SpmExpYOff");             // Offset    (y) of supermodule expansion box
+  spm.sideName = myns + args.str("SpmSideName");     // Supermodule Side Plate volume name
+  spm.sideMat = args.str("SpmSideMat");              // Supermodule Side Plate material name
+  spm.sideHigh = args.dble("SpmSideHigh");           // Side plate height
+  spm.sideThick = args.dble("SpmSideThick");         // Side plate thickness
+  spm.sideYOffM = args.dble("SpmSideYOffM");         // Side plate Y offset on minus phi side
+  spm.sideYOffP = args.dble("SpmSideYOffP");         // Side plate Y offset on plus  phi side
 
   Crystal cry;
   cry.nomCryDimAF = args.dble("NomCryDimAF");
@@ -1017,8 +1017,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         Position myTran(both.getTranslation().x(), both.getTranslation().y(), both.getTranslation().z());
         barVolume.placeVolume(spmLog, iphi + 1, Transform3D(rota, myTran));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << spmLog.name() << ":" << (iphi + 1) << " positioned in "
-                                     << barVolume.name();
+        edm::LogVerbatim("EcalGeom") << spmLog.name() << ":" << (iphi + 1) << " positioned in " << barVolume.name();
 #endif
       }
     }
@@ -1040,8 +1039,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     Volume ilyLog = Volume(ily.name, ilySolid, ns.material(spm.mat));
     spmLog.placeVolume(ilyLog, copyOne, Position(0, 0, ilyLengthHalf));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EcalGeom") << ilyLog.name() << ":" << copyOne << " positioned in "
-                                 << spmLog.name();
+    edm::LogVerbatim("EcalGeom") << ilyLog.name() << ":" << copyOne << " positioned in " << spmLog.name();
 #endif
     Volume ilyPipeLog[200];
     if (0 != ily.pipeHere) {
@@ -1211,8 +1209,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     Volume clyrLog = Volume(clyrName, clyrSolid, ns.material(ily.vecIlyMat[4]));
     spmLog.placeVolume(clyrLog, copyOne);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EcalGeom") << clyrLog.name() << ":" << copyOne << " positioned in "
-                                 << spmLog.name();
+    edm::LogVerbatim("EcalGeom") << clyrLog.name() << ":" << copyOne << " positioned in " << spmLog.name();
 #endif
     // Begin Alveolar Wedge parent ------------------------------------------------------
     //----------------
@@ -1370,8 +1367,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                 myrot(ns, alvWedge.fawName + "_Rot" + std::to_string(iPhi), fawform.getRotation()),
                 Position(fawform.getTranslation().x(), fawform.getTranslation().y(), fawform.getTranslation().z())));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << fawLog.name() << ":" << iPhi << " positioned in "
-                                     << spmLog.name();
+        edm::LogVerbatim("EcalGeom") << fawLog.name() << ":" << iPhi << " positioned in " << spmLog.name();
 #endif
       }
     }
@@ -1737,8 +1733,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       for (unsigned int etaAlv(1); etaAlv <= alv.nCryPerAlvEta; ++etaAlv) {
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("EcalGeomX") << "theta=" << convertRadToDeg(theta) << ", sidePrime=" << sidePrime
-                                     << ", frontPrime=" << frontPrime << ",  zeta=" << zeta << ", delta=" << delta
-                                     << ",  zee=" << zee;
+                                      << ", frontPrime=" << frontPrime << ",  zeta=" << zeta << ", delta=" << delta
+                                      << ",  zee=" << zee;
 #endif
 
         zee += 0.075_mm + (side * cos(zeta) + trapWall.h() - sidePrime) / sin(theta);
@@ -1893,8 +1889,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
             copyOne,
             Transform3D(myrot(ns, back.plateName + "Rot5", CLHEP::HepRotationZ(270_deg)), outtra + backPlateTra));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << backPlateLog.name() << ":" << copyOne << " positioned in "
-                                     << spmLog.name();
+        edm::LogVerbatim("EcalGeom") << backPlateLog.name() << ":" << copyOne << " positioned in " << spmLog.name();
 #endif
       }
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1931,8 +1926,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
             Transform3D(myrot(ns, back.sideName + "Rot8", CLHEP::HepRotationX(180_deg) * CLHEP::HepRotationZ(90_deg)),
                         outtra + backSideTra1));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << backSideLog.name() << ":" << copyOne << " positioned in "
-                                     << spmLog.name();
+        edm::LogVerbatim("EcalGeom") << backSideLog.name() << ":" << copyOne << " positioned in " << spmLog.name();
 #endif
         const Position backSideTra2(0_mm, -back.plateWidth / 2 + back.sideYOff2, 1_mm);
         spmLog.placeVolume(
@@ -1940,8 +1934,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
             copyTwo,
             Transform3D(myrot(ns, back.sideName + "Rot9", CLHEP::HepRotationZ(90_deg)), outtra + backSideTra2));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << backSideLog.name() << ":" << copyTwo << " positioned in "
-                                     << spmLog.name();
+        edm::LogVerbatim("EcalGeom") << backSideLog.name() << ":" << copyTwo << " positioned in " << spmLog.name();
 #endif
       }
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -2054,8 +2047,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         if (0 != grille.here) {
           spmLog.placeVolume(grilleLog, iGr, Transform3D(gTra));
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << grilleLog.name() << ":" << iGr << " positioned in "
-                                       << spmLog.name();
+          edm::LogVerbatim("EcalGeom") << grilleLog.name() << ":" << iGr << " positioned in " << spmLog.name();
 #endif
         }
 
@@ -2067,8 +2059,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                                          manifCut,
                                                          grille.thick / 2. + 3 * mbManif.outDiam / 2.)));
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << mBManifLog.name() << ":" << iGr << " positioned in "
-                                       << spmLog.name();
+          edm::LogVerbatim("EcalGeom") << mBManifLog.name() << ":" << iGr << " positioned in " << spmLog.name();
 #endif
           spmLog.placeVolume(mBManifLog,
                              iGr - 1,
@@ -2077,8 +2068,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                                          manifCut,
                                                          grille.thick / 2 + 3 * mbManif.outDiam / 2.)));
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << mBManifLog.name() << ":" << (iGr - 1) << " positioned in "
-                                       << spmLog.name();
+          edm::LogVerbatim("EcalGeom") << mBManifLog.name() << ":" << (iGr - 1) << " positioned in " << spmLog.name();
 #endif
         }
       }
@@ -2185,8 +2175,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                  Transform3D(myrot(ns, backCool.vFEName + "Flip", CLHEP::HepRotationX(180_deg)),
                                              Position(0, 0, -backCool.barThick / 2. - thickVFE / 2.)));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("EcalGeom") << backVFELog.name() << ":" << copyTwo << " positioned in "
-                                   << backCoolVFELog.name();
+      edm::LogVerbatim("EcalGeom") << backVFELog.name() << ":" << copyTwo << " positioned in " << backCoolVFELog.name();
 #endif
 
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -2230,8 +2219,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         if (0 != backCool.here) {
           spmLog.placeVolume(backCoolLog, iMod + 1, outtra + backPlateTra + bCoolTra);
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << backCoolLog.name() << ":" << (iMod + 1) << " positioned in "
-                                       << spmLog.name();
+          edm::LogVerbatim("EcalGeom") << backCoolLog.name() << ":" << (iMod + 1) << " positioned in " << spmLog.name();
 #endif
         }
 
@@ -2374,16 +2362,14 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
           spmLog.placeVolume(backPipeLog, copyOne, Transform3D(Rotation3D(), bPipeTra1));
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << backPipeLog.name() << ":" << copyOne << " positioned in "
-                                       << spmLog.name();
+          edm::LogVerbatim("EcalGeom") << backPipeLog.name() << ":" << copyOne << " positioned in " << spmLog.name();
 #endif
           const Position bPipeTra2(
               bPipeTra1.x(), back.yOff - back.plateWidth / 2 + back.sideWidth + backPipe.vecDiam[iMod], bPipeTra1.z());
 
           spmLog.placeVolume(backPipeLog, copyTwo, Transform3D(Rotation3D(), bPipeTra2));
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << backPipeLog.name() << ":" << copyTwo << " positioned in "
-                                       << spmLog.name();
+          edm::LogVerbatim("EcalGeom") << backPipeLog.name() << ":" << copyTwo << " positioned in " << spmLog.name();
 #endif
 
           backPipeLog.placeVolume(backInnerLog, copyOne, Transform3D(Rotation3D(), Position()));
@@ -2413,8 +2399,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
           spmLog.placeVolume(dryAirTubeLog, copyOne, Transform3D(Rotation3D(), dryAirTubeTra1));
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << dryAirTubeLog.name() << ":" << copyOne << " positioned in "
-                                       << spmLog.name();
+          edm::LogVerbatim("EcalGeom") << dryAirTubeLog.name() << ":" << copyOne << " positioned in " << spmLog.name();
 #endif
 
           const Position dryAirTubeTra2(dryAirTubeTra1.x(),
@@ -2423,8 +2408,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
           spmLog.placeVolume(dryAirTubeLog, copyTwo, Transform3D(Rotation3D(), dryAirTubeTra2));
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << dryAirTubeLog.name() << ":" << copyTwo << " positioned in "
-                                       << spmLog.name();
+          edm::LogVerbatim("EcalGeom") << dryAirTubeLog.name() << ":" << copyTwo << " positioned in " << spmLog.name();
 #endif
         }
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -2484,8 +2468,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       if (0 != patchPanel.here) {
         spmLog.placeVolume(patchLog, copyOne, patchTra);
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << patchLog.name() << ":" << copyOne << " positioned in "
-                                     << spmLog.name();
+        edm::LogVerbatim("EcalGeom") << patchLog.name() << ":" << copyOne << " positioned in " << spmLog.name();
 #endif
       }
 
