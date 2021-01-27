@@ -1784,15 +1784,15 @@ caloDict = {
     "default" : 1,
     "C1" : {
         1 : [
-            'Geometry/EcalCommonData/data/ebcon.xml',
-            'Geometry/EcalCommonData/data/eecon.xml',
-            'Geometry/EcalCommonData/data/escon.xml',
             'Geometry/EcalCommonData/data/eregalgo/2017/v1/eregalgo.xml',
             'Geometry/EcalCommonData/data/ebalgo.xml',
+            'Geometry/EcalCommonData/data/ebcon.xml',
             'Geometry/EcalCommonData/data/ebrot.xml',
+            'Geometry/EcalCommonData/data/eecon.xml',
             'Geometry/EcalCommonData/data/eefixed/2021/v1/eefixed.xml',
             'Geometry/EcalCommonData/data/eehier.xml',
             'Geometry/EcalCommonData/data/eealgo.xml',
+            'Geometry/EcalCommonData/data/escon.xml',
             'Geometry/EcalCommonData/data/esalgo.xml',
             'Geometry/EcalCommonData/data/eeF.xml',
             'Geometry/EcalCommonData/data/eeB.xml',
