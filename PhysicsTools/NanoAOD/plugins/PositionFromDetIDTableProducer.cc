@@ -20,6 +20,8 @@
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+#include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
+#include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 
 #include <vector>
 #include <iostream>
@@ -45,6 +47,14 @@ public:
 
   GlobalPoint positionFromHit(const PCaloHit& hit) {
     DetId id = hit.id();
+    return positionFromDetId(id);
+  }
+
+  GlobalPoint positionFromHit(const CaloRecHit& hit) {
+    return positionFromDetId(hit.detid());
+  }
+
+  GlobalPoint positionFromDetId(DetId id) {
     DetId::Detector det = id.det();
     int subid = (det == DetId::HGCalEE || det == DetId::HGCalHSi || det == DetId::HGCalHSc)
                    ? ForwardSubdetector::ForwardEmpty
@@ -108,5 +118,7 @@ protected:
 #include "FWCore/Framework/interface/MakerMacros.h"
 typedef PositionFromDetIDTableProducer<std::vector<PCaloHit>> PCaloHitPositionFromDetIDTableProducer;
 typedef PositionFromDetIDTableProducer<std::vector<PSimHit>> PSimHitPositionFromDetIDTableProducer;
+typedef PositionFromDetIDTableProducer<HGCRecHitCollection> HGCRecHitPositionFromDetIDTableProducer;
+DEFINE_FWK_MODULE(HGCRecHitPositionFromDetIDTableProducer);
 DEFINE_FWK_MODULE(PCaloHitPositionFromDetIDTableProducer);
 DEFINE_FWK_MODULE(PSimHitPositionFromDetIDTableProducer);
