@@ -5,7 +5,9 @@ from array import array
 import optparse
 from collections import OrderedDict
 import json
+
 import ROOT
+ROOT.gSystem.Load("libFWCoreFWLite.so")
 
 import CondCore.Utilities.conddblib as conddb
 
@@ -57,15 +59,6 @@ def parseOptions():
 
     return parser
 
-def setPlotStyle():
-    #plot style
-    ROOT.gStyle.SetOptTitle(0)
-    ROOT.gStyle.SetPadLeftMargin(0.08)
-    ROOT.gStyle.SetPadRightMargin(0.05)
-    ROOT.gPad.SetTickx()
-    ROOT.gPad.SetTicky()
-    ROOT.gStyle.SetLegendTextSize(0.025)
-    #ROOT.gStyle.SetLineStyleString(11,"4 4")
 
 def findRunIndex(run, runs) :
     #runs has to be sorted
@@ -139,7 +132,7 @@ def readBaryCentreAnalyzerTree(t, branch_names, accumulatedLumiPerRun, showLumi,
         if(iov.run>runs[len(runs)-1] or iov.run<runs[0]):
           continue
         # exclude 2018D for EOY rereco
-        if(isEOY and iov.run>=320413):
+        if(isEOY and iov.run>=320413 and iov.run<=325175):
           continue
 
         # if x-axis is luminosity
@@ -174,9 +167,9 @@ def readBaryCentreAnalyzerTree(t, branch_names, accumulatedLumiPerRun, showLumi,
 
         #10000 is to translate cm to micro-metre
         for branch_name in branch_names :
-            pos_ = {"x":10000*getattr(iov, branch_name).X(),
-                    "y":10000*getattr(iov, branch_name).Y(),
-                    "z":10000*getattr(iov, branch_name).Z()}
+            pos_ = {"x":10000*getattr(iov, branch_name).x(),
+                    "y":10000*getattr(iov, branch_name).y(),
+                    "z":10000*getattr(iov, branch_name).z()}
 
             for coord in ["x","y","z"] :
                 pos[coord+"_"+branch_name].append(pos_[coord])
@@ -192,9 +185,8 @@ def readBaryCentreAnalyzerTree(t, branch_names, accumulatedLumiPerRun, showLumi,
         runlumiplot.append(0.5*(runlumi[iov]+runlumi[iov+1]))
         runlumiplot_error.append(0.5*(runlumi[iov+1]-runlumi[iov]))
 
-    # stop sharply at last IOV
-    runlumiplot.append(runlumiplot[len(runlumiplot_error)-1])#+2*runlumiplot_error[len(runlumiplot_error)-1])
-    runlumiplot_error.append(0)runlumiplot_error[len(runlumiplot_error)-1])
+    runlumiplot.append(runlumiplot[len(runlumiplot_error)-1]+2*runlumiplot_error[len(runlumiplot_error)-1])
+    runlumiplot_error.append(runlumiplot_error[len(runlumiplot_error)-1])
 
     v_runlumiplot = ROOT.TVectorD(len(runlumiplot),runlumiplot)
     v_runlumiplot_error = ROOT.TVectorD(len(runlumiplot_error),runlumiplot_error)
@@ -227,7 +219,9 @@ def blackBox(x1, y1, x2, y2):
     y = array('d',[y1, y1, y2, y2, y1])
     v_x = ROOT.TVectorD(len(x),x)
     v_y = ROOT.TVectorD(len(y),y)
+
     gr = ROOT.TGraph(v_x,v_y)
+    gr.SetLineColor(ROOT.kBlack)
 
     return gr
 
@@ -241,8 +235,6 @@ def plotbarycenter(bc,coord,plotConfigJson, substructure,runsPerYear,pixelLocalR
 
     can = ROOT.TCanvas("barycentre_"+substructure+"_"+coord, "", 2000, 900)
     can.cd()
-
-    setPlotStyle()
 
     range_ = 0
     width_ = 0
@@ -406,13 +398,15 @@ def plotbarycenter(bc,coord,plotConfigJson, substructure,runsPerYear,pixelLocalR
 
 # main call
 def Run():
+
+    #ROOT.gSystem.Load("libFWCoreFWLite.so")
     parser=parseOptions()
     (options,args) = parser.parse_args()
     sys.argv = grootargs
 
     inputFileName = options.inputFileName
     if os.path.isfile(inputFileName) == False :
-       print ("PixelBaryCentre Ntuple file "+inputFileName+" not exist!")
+       print ("File "+inputFileName+" not exist!")
        return -1
 
     plotConfigFile = open(options.plotConfigFile)
@@ -438,11 +432,12 @@ def Run():
     run_index = 0
     lastRun = 1
 
+    # get lumi per IOV
     CMSSW_Dir = os.getenv("CMSSW_BASE")
     for year in years :
         inputLumiFile = CMSSW_Dir + "/src/Alignment/OfflineValidation/data/lumiperrun"+str(year)+".txt"
         if os.path.isfile(inputLumiFile) == False :
-           print ("Lumi file "+inputLumiFile+" not exist!")
+           print ("File "+inputLumiFile+" not exist!")
            return -1
         lumiFile = open(inputLumiFile,'r')
         lines = lumiFile.readlines()
@@ -480,6 +475,7 @@ def Run():
     db = db.replace("sqlite_file:", "").replace("sqlite:", "")
     db = db.replace("frontier://FrontierProd/CMS_CONDITIONS", "pro")
     db = db.replace("frontier://FrontierPrep/CMS_CONDITIONS", "dev")
+
     con = conddb.connect(url = conddb.make_url(db))
     session = con.session()
     # get IOV table
@@ -487,9 +483,12 @@ def Run():
     iovs = set(session.query(IOV.since).filter(IOV.tag_name == pixel_template).all())
     session.close()
     pixelLocalRecos = sorted([int(item[0]) for item in iovs])
+    #pixelLocalRecos = [1, 186500, 195360, 197749, 200961, 203368, 204601, 206446, 238341, 246866, 253914, 255655, 271866, 276315, 278271, 280928, 290543, 297281, 298653, 299443, 300389, 301046, 302131, 303790, 303998, 304911, 313041, 314881, 316758, 317475, 317485, 317527, 317661, 317664, 318227, 320377, 321831, 322510, 322603, 323232, 324245]
 
-    # substructures to read
+    # substructures to plot
     substructures = list(plotConfigJson["substructures"].keys())
+
+    # start barycentre plotter
     bc = {}
     try:
        f = ROOT.TFile(inputFileName,"READ")
