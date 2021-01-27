@@ -155,3 +155,11 @@ for train in full_106x_UL17_chs.trainings:
 full_106x_UL18_chs = full_106x_UL17_chs.clone(JetIdParams = full_106x_UL18_chs_wp)
 for train in full_106x_UL18_chs.trainings:
     train.tmvaWeights = train.tmvaWeights.value().replace("UL17", "UL18")
+
+####################################################################################################################
+cutbased = cms.PSet(
+    impactParTkThreshold = cms.double(1.),
+    cutBased = cms.bool(True),
+    JetIdParams = EmptyCutBased_wp,
+    label = cms.string("cutbased")
+)

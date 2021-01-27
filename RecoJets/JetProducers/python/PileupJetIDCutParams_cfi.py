@@ -71,3 +71,46 @@ full_106x_UL17_chs_wp = cms.PSet(
 ## Working points for the 106X UL18 training
 ###########################################################
 full_106x_UL18_chs_wp = full_106x_UL17_chs_wp.clone()
+
+##########################################################
+## Empty cutbased WP for compatibility
+###########################################################
+EmptyCutBased_wp = cms.PSet(
+    #4 Eta Categories  0-2.5 2.5-2.75 2.75-3.0 3.0-5.0
+
+    Pt010_BetaStarTight    = cms.vdouble(-999.,-999.,-999.,-999.),
+    Pt1020_BetaStarTight   = cms.vdouble(-999.,-999.,-999.,-999.),
+    Pt2030_BetaStarTight   = cms.vdouble(-999.,-999.,-999.,-999.),
+    Pt3040_BetaStarTight   = cms.vdouble(-999.,-999.,-999.,-999.),
+    Pt4050_BetaStarTight   = cms.vdouble(-999.,-999.,-999.,-999.),
+
+    Pt010_BetaStarMedium   = cms.vdouble(-999.,-999.,-999.,-999.),
+    Pt1020_BetaStarMedium  = cms.vdouble(-999.,-999.,-999.,-999.),
+    Pt2030_BetaStarMedium  = cms.vdouble(-999.,-999.,-999.,-999.),
+    Pt3040_BetaStarMedium  = cms.vdouble(-999.,-999.,-999.,-999.),
+    Pt4050_BetaStarMedium  = cms.vdouble(-999.,-999.,-999.,-999.),
+
+    Pt010_BetaStarLoose    = cms.vdouble(-999.,-999.,-999.,-999.),
+    Pt1020_BetaStarLoose   = cms.vdouble(-999.,-999.,-999.,-999.),
+    Pt2030_BetaStarLoose   = cms.vdouble(-999.,-999.,-999.,-999.),
+    Pt3040_BetaStarLoose   = cms.vdouble(-999.,-999.,-999.,-999.),
+    Pt4050_BetaStarLoose   = cms.vdouble(-999.,-999.,-999.,-999.),
+
+    Pt010_RMSTight         = cms.vdouble(-999.,-999.,-999.,-999.),
+    Pt1020_RMSTight        = cms.vdouble(-999.,-999.,-999.,-999.),
+    Pt2030_RMSTight        = cms.vdouble(-999.,-999.,-999.,-999.),
+    Pt3040_RMSTight        = cms.vdouble(-999.,-999.,-999.,-999.),
+    Pt4050_RMSTight        = cms.vdouble(-999.,-999.,-999.,-999.),
+
+    Pt010_RMSMedium        = cms.vdouble(-999.,-999.,-999.,-999.),
+    Pt1020_RMSMedium       = cms.vdouble(-999.,-999.,-999.,-999.),
+    Pt2030_RMSMedium       = cms.vdouble(-999.,-999.,-999.,-999.),
+    Pt3040_RMSMedium       = cms.vdouble(-999.,-999.,-999.,-999.),
+    Pt4050_RMSMedium       = cms.vdouble(-999.,-999.,-999.,-999.),
+
+    Pt010_RMSLoose         = cms.vdouble(-999.,-999.,-999.,-999.),
+    Pt1020_RMSLoose        = cms.vdouble(-999.,-999.,-999.,-999.),
+    Pt2030_RMSLoose        = cms.vdouble(-999.,-999.,-999.,-999.),
+    Pt3040_RMSLoose        = cms.vdouble(-999.,-999.,-999.,-999.),
+    Pt4050_RMSLoose        = cms.vdouble(-999.,-999.,-999.,-999.),
+)
