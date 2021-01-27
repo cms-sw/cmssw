@@ -7,6 +7,7 @@
 <use name="DataFormats/SiPixelCluster"/>
 <use name="EventFilter/SiPixelRawToDigi"/>
 <use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
 <use name="HeterogeneousCore/CUDACore"/>
 <use name="RecoLocalTracker/SiPixelClusterizer"/>
 <use name="RecoTracker/Record"/>
