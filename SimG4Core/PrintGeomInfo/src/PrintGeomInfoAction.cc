@@ -30,6 +30,7 @@
 #include "G4UserLimits.hh"
 #include "G4TransportationManager.hh"
 
+#include <fstream>
 #include <set>
 #include <map>
 
@@ -53,6 +54,10 @@ PrintGeomInfoAction::PrintGeomInfoAction(const edm::ParameterSet &p) {
   nchar_ = name_.find('*');
   name_.assign(name_, 0, nchar_);
   names_ = p.getUntrackedParameter<std::vector<std::string> >("Names");
+  fileMat_ = p.getUntrackedParameter<std::string>("MaterialFileName", "");
+  fileSolid_ = p.getUntrackedParameter<std::string>("SolidFileName", "");
+  fileLV_ = p.getUntrackedParameter<std::string>("LVFileName", "");
+  filePV_ = p.getUntrackedParameter<std::string>("PVFileName", "");
   G4cout << "PrintGeomInfoAction:: initialised for dd4hep " << dd4hep_ << " with verbosity levels:"
          << " Summary   " << dumpSummary_ << " LVTree   " << dumpLVTree_ << " LVList    " << dumpLVList_ << " Material "
          << dumpMaterial_ << "\n                                                        "
@@ -62,7 +67,10 @@ PrintGeomInfoAction::PrintGeomInfoAction(const edm::ParameterSet &p) {
          << "\n                                                        "
          << " Touchable " << dumpTouch_ << " for names (0-" << nchar_ << ") = " << name_
          << "\n                                                        "
-         << " Sensitive " << dumpSense_ << " for " << names_.size() << " names:";
+         << " Sensitive " << dumpSense_ << " for " << names_.size() << " names:"
+         << "\n                                                        "
+         << " Files " << fileMat_ << ":" << fileSolid_ << ":"
+         << ":" << fileLV_ << ":" << filePV_;
   for (unsigned int i = 0; i < names_.size(); i++)
     G4cout << " " << names_[i];
   G4cout << G4endl;
@@ -152,6 +160,8 @@ void PrintGeomInfoAction::update(const BeginOfRun *run) {
   //---------- Dump LV and PV information
   if (dumpLV_ || dumpPV_ || dumpTouch_)
     dumpHierarchyTreePVLV(G4cout);
+
+  dumpInFile();
 }
 
 void PrintGeomInfoAction::dumpSummary(std::ostream &out) {
@@ -220,6 +230,43 @@ void PrintGeomInfoAction::dumpG4LVLeaf(G4LogicalVolume *lv,
   }
   for (cite = lvCount.begin(); cite != lvCount.end(); cite++)
     dumpG4LVLeaf((cite->first), leafDepth + 1, (cite->second), out);
+}
+
+void PrintGeomInfoAction::dumpInFile() {
+  //---------- Dump number objects of each class in a file
+  if (theTopPV_ != nullptr) {
+    if (!fileMat_.empty()) {
+      const G4MaterialTable *matTab = G4Material::GetMaterialTable();
+      std::ofstream fout(fileMat_.c_str());
+      for (std::vector<G4Material *>::const_iterator matite = matTab->begin(); matite != matTab->end(); matite++)
+        fout << (*matite)->GetName() << "\n";
+      fout.close();
+    }
+    const G4LogicalVolumeStore *lvs = G4LogicalVolumeStore::GetInstance();
+    if (!fileSolid_.empty()) {
+      std::ofstream fout(fileSolid_.c_str());
+      for (std::vector<G4LogicalVolume *>::const_iterator lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++)
+        fout << (*lvcite)->GetSolid()->GetName() << "\n";
+      fout.close();
+    }
+    if (!fileLV_.empty()) {
+      std::ofstream fout(fileLV_.c_str());
+      for (std::vector<G4LogicalVolume *>::const_iterator lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++)
+        fout << (*lvcite)->GetName() << "\n";
+      fout.close();
+    }
+    if (!filePV_.empty()) {
+      const G4PhysicalVolumeStore *pvs = G4PhysicalVolumeStore::GetInstance();
+      std::ofstream fout(filePV_.c_str());
+      for (std::vector<G4VPhysicalVolume *>::const_iterator pvcite = pvs->begin(); pvcite != pvs->end(); pvcite++) {
+        if (dd4hep_)
+          fout << (*pvcite)->GetName() << "\n";
+        else
+          fout << (*pvcite)->GetName() << "_" << (*pvcite)->GetCopyNo() << "\n";
+      }
+      fout.close();
+    }
+  }
 }
 
 int PrintGeomInfoAction::countNoTouchables() {
