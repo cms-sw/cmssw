@@ -42,6 +42,10 @@
 #include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 
+// Point and Vector
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+
 // TFileService
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
@@ -49,7 +53,7 @@
 // ROOT
 #include <TTree.h>
 #include <TString.h>
-#include <TVector3.h>
+//#include <TVector3.h>
 
 //
 // class declaration
@@ -94,21 +98,19 @@ private:
   int run_;
   int ls_;
 
-  double BSx0_, BSy0_, BSz0_;
-  TVector3 BS_;
+  GlobalPoint BS_;
 
-  double PIXx0_, PIXy0_, PIXz0_;
-  TVector3 PIX_, BPIX_, FPIX_;
-  TVector3 BPIX_Flipped_, BPIX_NonFlipped_, BPIX_DiffFlippedNonFlipped_;
+  GlobalPoint PIX_, BPIX_, FPIX_;
+  GlobalPoint BPIX_Flipped_, BPIX_NonFlipped_, BPIX_DiffFlippedNonFlipped_;
 
-  TVector3 BPIXLayer_[4];
-  TVector3 BPIXLayer_Flipped_[4];
-  TVector3 BPIXLayer_NonFlipped_[4];
-  TVector3 BPIXLayer_DiffFlippedNonFlipped_[4];
+  GlobalPoint BPIXLayer_[4];
+  GlobalPoint BPIXLayer_Flipped_[4];
+  GlobalPoint BPIXLayer_NonFlipped_[4];
+  GlobalPoint BPIXLayer_DiffFlippedNonFlipped_[4];
 
-  TVector3 FPIX_plus_, FPIX_minus_;
-  TVector3 FPIXDisks_plus_[3];
-  TVector3 FPIXDisks_minus_[3];
+  GlobalPoint FPIX_plus_, FPIX_minus_;
+  GlobalPoint FPIXDisks_plus_[3];
+  GlobalPoint FPIXDisks_minus_[3];
 
   edm::Service<TFileService> tFileService;
   std::map<std::string, TTree*> bcTrees_;
@@ -151,42 +153,34 @@ PixelBaryCentreAnalyzer::~PixelBaryCentreAnalyzer() {
 void PixelBaryCentreAnalyzer::initBS() {
   double dummy_float = 999999.0;
 
-  BSx0_ = dummy_float;
-  BSy0_ = dummy_float;
-  BSz0_ = dummy_float;
-
-  BS_ = TVector3(dummy_float, dummy_float, dummy_float);
+  BS_ = GlobalPoint(dummy_float, dummy_float, dummy_float);
 }
 
 void PixelBaryCentreAnalyzer::initBC() {
   // init to large number (unreasonable number) not zero
   double dummy_float = 999999.0;
 
-  PIXx0_ = dummy_float;
-  PIXy0_ = dummy_float;
-  PIXz0_ = dummy_float;
+  PIX_ = GlobalPoint(dummy_float, dummy_float, dummy_float);
+  BPIX_ = GlobalPoint(dummy_float, dummy_float, dummy_float);
+  FPIX_ = GlobalPoint(dummy_float, dummy_float, dummy_float);
 
-  PIX_ = TVector3(dummy_float, dummy_float, dummy_float);
-  BPIX_ = TVector3(dummy_float, dummy_float, dummy_float);
-  FPIX_ = TVector3(dummy_float, dummy_float, dummy_float);
+  BPIX_Flipped_ = GlobalPoint(dummy_float, dummy_float, dummy_float);
+  BPIX_NonFlipped_ = GlobalPoint(dummy_float, dummy_float, dummy_float);
+  BPIX_DiffFlippedNonFlipped_ = GlobalPoint(dummy_float, dummy_float, dummy_float);
 
-  BPIX_Flipped_ = TVector3(dummy_float, dummy_float, dummy_float);
-  BPIX_NonFlipped_ = TVector3(dummy_float, dummy_float, dummy_float);
-  BPIX_DiffFlippedNonFlipped_ = TVector3(dummy_float, dummy_float, dummy_float);
-
-  FPIX_plus_ = TVector3(dummy_float, dummy_float, dummy_float);
-  FPIX_minus_ = TVector3(dummy_float, dummy_float, dummy_float);
+  FPIX_plus_ = GlobalPoint(dummy_float, dummy_float, dummy_float);
+  FPIX_minus_ = GlobalPoint(dummy_float, dummy_float, dummy_float);
 
   for (unsigned int i = 0; i < 4; i++) {
-    BPIXLayer_[i] = TVector3(dummy_float, dummy_float, dummy_float);
-    BPIXLayer_Flipped_[i] = TVector3(dummy_float, dummy_float, dummy_float);
-    BPIXLayer_NonFlipped_[i] = TVector3(dummy_float, dummy_float, dummy_float);
-    BPIXLayer_DiffFlippedNonFlipped_[i] = TVector3(dummy_float, dummy_float, dummy_float);
+    BPIXLayer_[i] = GlobalPoint(dummy_float, dummy_float, dummy_float);
+    BPIXLayer_Flipped_[i] = GlobalPoint(dummy_float, dummy_float, dummy_float);
+    BPIXLayer_NonFlipped_[i] = GlobalPoint(dummy_float, dummy_float, dummy_float);
+    BPIXLayer_DiffFlippedNonFlipped_[i] = GlobalPoint(dummy_float, dummy_float, dummy_float);
   }
 
   for (unsigned int i = 0; i < 3; i++) {
-    FPIXDisks_plus_[i] = TVector3(dummy_float, dummy_float, dummy_float);
-    FPIXDisks_minus_[i] = TVector3(dummy_float, dummy_float, dummy_float);
+    FPIXDisks_plus_[i] = GlobalPoint(dummy_float, dummy_float, dummy_float);
+    FPIXDisks_minus_[i] = GlobalPoint(dummy_float, dummy_float, dummy_float);
   }
 }
 
@@ -223,11 +217,11 @@ void PixelBaryCentreAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
     // pixel quality
     const SiPixelQuality* badPixelInfo = &iSetup.getData(siPixelQualityToken_);
 
-    // global position
+    // Tracker global position
     const Alignments* globalAlignments = &iSetup.getData(gprToken_);
     std::unique_ptr<const Alignments> globalPositions = std::make_unique<Alignments>(*globalAlignments);
     const AlignTransform& globalCoordinates = align::DetectorGlobalPosition(*globalPositions, DetId(DetId::Tracker));
-    TVector3 globalTkPosition(
+    GlobalVector globalTkPosition(
         globalCoordinates.translation().x(), globalCoordinates.translation().y(), globalCoordinates.translation().z());
 
     // loop over bclabels
@@ -239,21 +233,24 @@ void PixelBaryCentreAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
       const Alignments* alignments = &iSetup.getData(tkAlignTokens_[label]);
       std::vector<AlignTransform> tkAlignments = alignments->m_align;
 
-      TVector3 barycentre_BPIX;
+      // PIX
+      GlobalVector barycentre_PIX(0.0, 0.0, 0.0);
+      // BPIX
+      GlobalVector barycentre_BPIX(0.0, 0.0, 0.0);
       float nmodules_BPIX(0.);
-
-      TVector3 barycentre_FPIX;
+      // FPIX
+      GlobalVector barycentre_FPIX(0.0, 0.0, 0.0);
       float nmodules_FPIX(0.);
 
-      // per-ladder barycentre
-      std::map<int, std::map<int, float>> nmodules_bpix;       // layer-ladder
-      std::map<int, std::map<int, TVector3>> barycentre_bpix;  // layer-ladder
+      // Per-layer/ladder barycentre for BPIX
+      std::map<int, std::map<int, float>> nmodules_bpix;           // layer-ladder
+      std::map<int, std::map<int, GlobalVector>> barycentre_bpix;  // layer-ladder
 
-      // per-ladder barycentre
-      std::map<int, std::map<int, float>> nmodules_fpix;       // disk-ring
-      std::map<int, std::map<int, TVector3>> barycentre_fpix;  // disk-ring
+      // Per-disk/ring barycentre for FPIX
+      std::map<int, std::map<int, float>> nmodules_fpix;           // disk-ring
+      std::map<int, std::map<int, GlobalVector>> barycentre_fpix;  // disk-ring
 
-      // loop over tracker module
+      // Loop over tracker module
       for (const auto& ali : tkAlignments) {
         //DetId
         const DetId& detId = DetId(ali.rawId());
@@ -261,13 +258,15 @@ void PixelBaryCentreAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
         if (usePixelQuality_ && badPixelInfo->IsModuleBad(detId))
           continue;
 
-        TVector3 ali_translation(ali.translation().x(), ali.translation().y(), ali.translation().z());
+        // alignment for a given module
+        GlobalVector ali_translation(ali.translation().x(), ali.translation().y(), ali.translation().z());
 
         int subid = DetId(detId).subdetId();
         // BPIX
         if (subid == PixelSubdetector::PixelBarrel) {
           nmodules_BPIX += 1;
           barycentre_BPIX += ali_translation;
+          barycentre_PIX += ali_translation;
 
           int layer = tkTopo->pxbLayer(detId);
           int ladder = tkTopo->pxbLadder(detId);
@@ -280,6 +279,7 @@ void PixelBaryCentreAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
         if (subid == PixelSubdetector::PixelEndcap) {
           nmodules_FPIX += 1;
           barycentre_FPIX += ali_translation;
+          barycentre_PIX += ali_translation;
 
           int disk = tkTopo->pxfDisk(detId);
           int quadrant = PixelEndcapName(detId, tkTopo, phase_).halfCylinder();
@@ -301,22 +301,24 @@ void PixelBaryCentreAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
       }  // loop over tracker module
 
       //PIX
-      TVector3 barycentre_PIX = barycentre_BPIX + barycentre_FPIX;
       float nmodules_PIX = nmodules_BPIX + nmodules_FPIX;
-      PIX_ = (1.0 / nmodules_PIX) * barycentre_PIX + globalTkPosition;
-      PIXx0_ = PIX_.X();
-      PIXy0_ = PIX_.Y();
-      PIXz0_ = PIX_.Z();
+      barycentre_PIX *= (1.0 / nmodules_PIX);
+      barycentre_PIX += globalTkPosition;
+      PIX_ = GlobalPoint(barycentre_PIX.x(), barycentre_PIX.y(), barycentre_PIX.z());
 
       //BPIX
-      BPIX_ = (1.0 / nmodules_BPIX) * barycentre_BPIX + globalTkPosition;
+      barycentre_BPIX *= (1.0 / nmodules_BPIX);
+      barycentre_BPIX += globalTkPosition;
+      BPIX_ = GlobalPoint(barycentre_BPIX.x(), barycentre_BPIX.y(), barycentre_BPIX.z());
       //FPIX
-      FPIX_ = (1.0 / nmodules_FPIX) * barycentre_FPIX + globalTkPosition;
+      barycentre_FPIX *= (1.0 / nmodules_FPIX);
+      barycentre_FPIX += globalTkPosition;
+      FPIX_ = GlobalPoint(barycentre_FPIX.x(), barycentre_FPIX.y(), barycentre_FPIX.z());
 
-      // BPIX substructures
+      // Pixel substructures
 
-      // BPix barycentre per-ladder per-layer
-      // !!! Based on assumption : each ladder has the same number of modules in the same layer
+      // BPix barycentre per-layer/per-ladder
+      // assuming each ladder has the same number of modules in the same layer
       // inner =  flipped; outer = non-flipped
       //
       // Phase 0: Outer ladders are odd for layer 1,3 and even for layer 2
@@ -325,24 +327,25 @@ void PixelBaryCentreAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
 
       int nmodules_BPIX_Flipped = 0;
       int nmodules_BPIX_NonFlipped = 0;
-      TVector3 BPIX_Flipped(0.0, 0.0, 0.0);
-      TVector3 BPIX_NonFlipped(0.0, 0.0, 0.0);
+      GlobalVector BPIX_Flipped(0.0, 0.0, 0.0);
+      GlobalVector BPIX_NonFlipped(0.0, 0.0, 0.0);
 
       // loop over layers
-      for (std::map<int, std::map<int, TVector3>>::iterator il = barycentre_bpix.begin(); il != barycentre_bpix.end();
+      for (std::map<int, std::map<int, GlobalVector>>::iterator il = barycentre_bpix.begin();
+           il != barycentre_bpix.end();
            ++il) {
         int layer = il->first;
 
         int nmodulesLayer = 0;
         int nmodulesLayer_Flipped = 0;
         int nmodulesLayer_NonFlipped = 0;
-        TVector3 BPIXLayer(0.0, 0.0, 0.0);
-        TVector3 BPIXLayer_Flipped(0.0, 0.0, 0.0);
-        TVector3 BPIXLayer_NonFlipped(0.0, 0.0, 0.0);
+        GlobalVector BPIXLayer(0.0, 0.0, 0.0);
+        GlobalVector BPIXLayer_Flipped(0.0, 0.0, 0.0);
+        GlobalVector BPIXLayer_NonFlipped(0.0, 0.0, 0.0);
 
         // loop over ladder
-        std::map<int, TVector3> barycentreLayer = barycentre_bpix[layer];
-        for (std::map<int, TVector3>::iterator it = barycentreLayer.begin(); it != barycentreLayer.end(); ++it) {
+        std::map<int, GlobalVector> barycentreLayer = barycentre_bpix[layer];
+        for (std::map<int, GlobalVector>::iterator it = barycentreLayer.begin(); it != barycentreLayer.end(); ++it) {
           int ladder = it->first;
           //BPIXLayerLadder_[layer][ladder] = (1.0/nmodules[layer][ladder])*barycentreLayer[ladder] + globalTkPosition;
 
@@ -417,38 +420,44 @@ void PixelBaryCentreAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
         BPIXLayer_NonFlipped *= (1.0 / nmodulesLayer_NonFlipped);
         BPIXLayer_NonFlipped += globalTkPosition;
 
-        BPIXLayer_[layer - 1] = BPIXLayer;
-        BPIXLayer_Flipped_[layer - 1] = BPIXLayer_Flipped;
-        BPIXLayer_NonFlipped_[layer - 1] = BPIXLayer_NonFlipped;
+        BPIXLayer_[layer - 1] = GlobalPoint(BPIXLayer.x(), BPIXLayer.y(), BPIXLayer.z());
+        BPIXLayer_Flipped_[layer - 1] =
+            GlobalPoint(BPIXLayer_Flipped.x(), BPIXLayer_Flipped.y(), BPIXLayer_Flipped.z());
+        BPIXLayer_NonFlipped_[layer - 1] =
+            GlobalPoint(BPIXLayer_NonFlipped.x(), BPIXLayer_NonFlipped.y(), BPIXLayer_NonFlipped.z());
 
-        BPIXLayer_DiffFlippedNonFlipped_[layer - 1] = BPIXLayer_Flipped - BPIXLayer_NonFlipped;
+        BPIXLayer_DiffFlippedNonFlipped_[layer - 1] = GlobalPoint(BPIXLayer_Flipped.x() - BPIXLayer_NonFlipped.x(),
+                                                                  BPIXLayer_Flipped.y() - BPIXLayer_NonFlipped.y(),
+                                                                  BPIXLayer_Flipped.z() - BPIXLayer_NonFlipped.z());
 
       }  // loop over layers
 
       BPIX_Flipped *= (1.0 / nmodules_BPIX_Flipped);
       BPIX_Flipped += globalTkPosition;
+      BPIX_Flipped_ = GlobalPoint(BPIX_Flipped.x(), BPIX_Flipped.y(), BPIX_Flipped.z());
       BPIX_NonFlipped *= (1.0 / nmodules_BPIX_NonFlipped);
       BPIX_NonFlipped += globalTkPosition;
+      BPIX_NonFlipped_ = GlobalPoint(BPIX_NonFlipped.x(), BPIX_NonFlipped.y(), BPIX_NonFlipped.z());
+      BPIX_DiffFlippedNonFlipped_ = GlobalPoint(BPIX_Flipped.x() - BPIX_NonFlipped.x(),
+                                                BPIX_Flipped.y() - BPIX_NonFlipped.y(),
+                                                BPIX_Flipped.z() - BPIX_NonFlipped.z());
 
-      BPIX_Flipped_ = BPIX_Flipped;
-      BPIX_NonFlipped_ = BPIX_NonFlipped;
-      BPIX_DiffFlippedNonFlipped_ = BPIX_Flipped - BPIX_NonFlipped;
-
-      // FPIX substructures
+      // FPIX substructures per-(signed)disk/per-ring
       int nmodules_FPIX_plus = 0;
       int nmodules_FPIX_minus = 0;
-      TVector3 FPIX_plus(0.0, 0.0, 0.0);
-      TVector3 FPIX_minus(0.0, 0.0, 0.0);
+      GlobalVector FPIX_plus(0.0, 0.0, 0.0);
+      GlobalVector FPIX_minus(0.0, 0.0, 0.0);
       // loop over disks
-      for (std::map<int, std::map<int, TVector3>>::iterator id = barycentre_fpix.begin(); id != barycentre_fpix.end();
+      for (std::map<int, std::map<int, GlobalVector>>::iterator id = barycentre_fpix.begin();
+           id != barycentre_fpix.end();
            ++id) {
         int disk = id->first;
 
         int nmodulesDisk = 0;
-        TVector3 FPIXDisk(0.0, 0.0, 0.0);
+        GlobalVector FPIXDisk(0.0, 0.0, 0.0);
 
-        std::map<int, TVector3> baryCentreDisk = id->second;
-        for (std::map<int, TVector3>::iterator ir = baryCentreDisk.begin(); ir != baryCentreDisk.end();
+        std::map<int, GlobalVector> baryCentreDisk = id->second;
+        for (std::map<int, GlobalVector>::iterator ir = baryCentreDisk.begin(); ir != baryCentreDisk.end();
              ++ir) {  // loop over rings
           int ring = ir->first;
           nmodulesDisk += nmodules_fpix[disk][ring];
@@ -468,18 +477,17 @@ void PixelBaryCentreAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
         FPIXDisk += globalTkPosition;
 
         if (disk > 0)
-          FPIXDisks_plus_[disk - 1] = FPIXDisk;
+          FPIXDisks_plus_[disk - 1] = GlobalPoint(FPIXDisk.x(), FPIXDisk.y(), FPIXDisk.z());
         if (disk < 0)
-          FPIXDisks_minus_[-disk - 1] = FPIXDisk;
+          FPIXDisks_minus_[-disk - 1] = GlobalPoint(FPIXDisk.x(), FPIXDisk.y(), FPIXDisk.z());
       }  // loop over disks
 
       FPIX_plus *= (1.0 / nmodules_FPIX_plus);
       FPIX_plus += globalTkPosition;
+      FPIX_plus_ = GlobalPoint(FPIX_plus.x(), FPIX_plus.y(), FPIX_plus.z());
       FPIX_minus *= (1.0 / nmodules_FPIX_minus);
       FPIX_minus += globalTkPosition;
-
-      FPIX_plus_ = FPIX_plus;
-      FPIX_minus_ = FPIX_minus;
+      FPIX_minus_ = GlobalPoint(FPIX_minus.x(), FPIX_minus.y(), FPIX_minus.z());
 
       bcTrees_[label]->Fill();
 
@@ -497,11 +505,7 @@ void PixelBaryCentreAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
       // Get BeamSpot from EventSetup
       const BeamSpotObjects* mybeamspot = &iSetup.getData(bsTokens_[label]);
 
-      BSx0_ = mybeamspot->GetX();
-      BSy0_ = mybeamspot->GetY();
-      BSz0_ = mybeamspot->GetZ();
-
-      BS_ = TVector3(BSx0_, BSy0_, BSz0_);
+      BS_ = GlobalPoint(mybeamspot->GetX(), mybeamspot->GetY(), mybeamspot->GetZ());
 
       bsTrees_[label]->Fill();
     }  // bsLabels_
@@ -522,9 +526,6 @@ void PixelBaryCentreAnalyzer::beginJob() {
 
     bsTrees_[label]->Branch("run", &run_, "run/I");
     bsTrees_[label]->Branch("ls", &ls_, "ls/I");
-    bsTrees_[label]->Branch("BSx0", &BSx0_, "BSx0/D");
-    bsTrees_[label]->Branch("BSy0", &BSy0_, "BSy0/D");
-    bsTrees_[label]->Branch("BSz0", &BSz0_, "BSz0/D");
 
     bsTrees_[label]->Branch("BS", &BS_);
 
@@ -539,9 +540,6 @@ void PixelBaryCentreAnalyzer::beginJob() {
 
     bcTrees_[label]->Branch("run", &run_, "run/I");
     bcTrees_[label]->Branch("ls", &ls_, "ls/I");
-    bcTrees_[label]->Branch("PIXx0", &PIXx0_);
-    bcTrees_[label]->Branch("PIXy0", &PIXy0_);
-    bcTrees_[label]->Branch("PIXz0", &PIXz0_);
 
     bcTrees_[label]->Branch("PIX", &PIX_);
 
