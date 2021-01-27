@@ -476,6 +476,13 @@ void PFMuonAlgo::printMuonProperties(const reco::MuonRef& muonRef) {
   return;
 }
 
+int PFMuonAlgo::muAssocToTrack(const reco::TrackRef& trackref, const reco::MuonCollection& muons) {
+  auto muon = std::find_if(muons.cbegin(), muons.cend(), [&](const reco::Muon& m) {
+    return (m.track().isNonnull() && m.track() == trackref);
+  });
+  return (muon != muons.cend() ? std::distance(muons.cbegin(), muon) : -1);
+}
+
 std::vector<reco::Muon::MuonTrackTypePair> PFMuonAlgo::muonTracks(const reco::MuonRef& muon,
                                                                   double maxDPtOPt,
                                                                   bool includeSA) {
@@ -723,6 +730,18 @@ void PFMuonAlgo::addMissingMuons(edm::Handle<reco::MuonCollection> muons, reco::
   else
     pfAddedMuonCandidates_ = std::make_unique<reco::PFCandidateCollection>();
 
+  // do not recover muons if they are in the veto list
+  typedef std::pair<edm::ProductID, unsigned> TrackProdIDKey;
+  std::vector<TrackProdIDKey> vetoed;
+  if (vetoes_) {
+    for (const auto& veto : *vetoes_) {
+      if (veto.trackRef().isNull())
+        continue;
+      vetoed.emplace_back(veto.trackRef().id(), veto.trackRef().key());
+    }
+    std::sort(vetoed.begin(), vetoed.end());
+  }
+
   for (unsigned imu = 0; imu < muons->size(); ++imu) {
     reco::MuonRef muonRef(muons, imu);
     bool used = false;
@@ -753,6 +772,14 @@ void PFMuonAlgo::addMissingMuons(edm::Handle<reco::MuonCollection> muons, reco::
 
       if (used)
         break;
+    }
+
+    if (!vetoed.empty()) {
+      TrackProdIDKey trk = std::make_pair(muonRef->track().id(), muonRef->track().key());
+      auto lower = std::lower_bound(vetoed.begin(), vetoed.end(), trk);
+      bool inVetoList = (lower != vetoed.end() && *lower == trk);
+      if (inVetoList)
+        used = true;
     }
 
     if (used || hadron || (!muonRef.isNonnull()))
