@@ -78,21 +78,22 @@ private:
 
   /// create the chamber
   void insertChamber(cms::DDFilteredView& fv,
-                     const std::string& type,
-                     const MuonGeometryConstants& muonConstants,
+		     const MuonGeometryConstants& muonConstants,
                      RecoIdealGeometry& rig) const;
 
   /// create the SL
   void insertSuperLayer(cms::DDFilteredView& fv,
-                        const std::string& type,
-                        const MuonGeometryConstants& muonConstants,
+			const MuonGeometryConstants& muonConstants,
                         RecoIdealGeometry& rig) const;
 
   /// create the layer
   void insertLayer(cms::DDFilteredView& fv,
-                   const std::string& type,
-                   const MuonGeometryConstants& muonConstants,
+		   const MuonGeometryConstants& muonConstants,
                    RecoIdealGeometry& rig) const;
+
+  std::vector<double> extractParameters(cms::DDFilteredView& fv) const;
+
+  PosRotPair plane(const cms::DDFilteredView& fv) const;
 
 };
 #endif
