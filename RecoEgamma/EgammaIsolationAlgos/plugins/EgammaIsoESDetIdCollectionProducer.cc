@@ -25,21 +25,21 @@ The aim is to save enough preshower info in the AOD to remake the PF clusters ne
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class EgammaIsoESDetIdCollectionProducer : public edm::stream::EDProducer<> {
+class EgammaIsoESDetIdCollectionProducer : public edm::global::EDProducer<> {
 public:
   //! ctor
   explicit EgammaIsoESDetIdCollectionProducer(const edm::ParameterSet&);
   //! producer
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
 private:
   void addDetIds(const reco::SuperCluster& superClus,
                  reco::PFClusterCollection clusters,
                  const reco::PFCluster::EEtoPSAssociation& eeClusToESMap,
-                 std::vector<DetId>& detIdsToStore);
+                 std::vector<DetId>& detIdsToStore) const;
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<reco::PFCluster::EEtoPSAssociation> eeClusToESMapToken_;
@@ -79,7 +79,7 @@ EgammaIsoESDetIdCollectionProducer::EgammaIsoESDetIdCollectionProducer(const edm
 }
 
 // ------------ method called to produce the data  ------------
-void EgammaIsoESDetIdCollectionProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
+void EgammaIsoESDetIdCollectionProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) const {
   auto superClusters = iEvent.getHandle(superClustersToken_);
   auto eles = iEvent.getHandle(elesToken_);
   auto phos = iEvent.getHandle(phosToken_);
@@ -125,7 +125,7 @@ void EgammaIsoESDetIdCollectionProducer::produce(edm::Event& iEvent, const edm::
 void EgammaIsoESDetIdCollectionProducer::addDetIds(const reco::SuperCluster& superClus,
                                                    reco::PFClusterCollection clusters,
                                                    const reco::PFCluster::EEtoPSAssociation& eeClusToESMap,
-                                                   std::vector<DetId>& detIdsToStore) {
+                                                   std::vector<DetId>& detIdsToStore) const {
   const float scEta = superClus.eta();
   //  if(std::abs(scEta)+maxDR_<1.5) return; //not possible to have a endcap cluster, let alone one with preshower (eta>1.65) so exit without checking further
   const float scPhi = superClus.phi();
