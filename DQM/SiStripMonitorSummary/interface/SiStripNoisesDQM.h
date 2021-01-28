@@ -3,40 +3,30 @@
 
 #include "DQM/SiStripMonitorSummary/interface/SiStripBaseCondObjDQM.h"
 
-#include "CondFormats/DataRecord/interface/SiStripApvGainRcd.h"
 #include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 
-class SiStripNoisesDQM : public SiStripBaseCondObjDQM {
+class SiStripNoisesDQM : public SiStripBaseCondObjDQMGet<SiStripNoises, SiStripNoisesRcd> {
 public:
-  SiStripNoisesDQM(const edm::EventSetup &eSetup,
+  SiStripNoisesDQM(edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> noiseToken,
                    edm::RunNumber_t iRun,
-                   edm::ParameterSet const &hPSet,
-                   edm::ParameterSet const &fPSet);
+                   edm::ParameterSet const& hPSet,
+                   edm::ParameterSet const& fPSet,
+                   const TrackerTopology* tTopo,
+                   const TkDetMap* tkDetMap,
+                   const SiStripApvGain* gainHandle);
 
   ~SiStripNoisesDQM() override;
 
-  void getActiveDetIds(const edm::EventSetup &eSetup) override;
+  void getActiveDetIds(const edm::EventSetup& eSetup) override;
 
-  void fillMEsForDet(const ModMEs &selModME_, uint32_t selDetId_, const TrackerTopology *tTopo) override;
+  void fillMEsForDet(const ModMEs& selModME_, uint32_t selDetId_) override;
   void fillMEsForLayer(
-      /*std::map<uint32_t, ModMEs> selModMEsMap_, */ uint32_t selDetId_, const TrackerTopology *tTopo) override;
-
-  unsigned long long getCache(const edm::EventSetup &eSetup) override {
-    return eSetup.get<SiStripNoisesRcd>().cacheIdentifier();
-  }
-
-  void getConditionObject(const edm::EventSetup &eSetup) override {
-    eSetup.get<SiStripNoisesRcd>().get(noiseHandle_);
-    cacheID_memory = cacheID_current;
-  }
+      /*std::map<uint32_t, ModMEs> selModMEsMap_, */ uint32_t selDetId_) override;
 
 private:
-  bool gainRenormalisation_;
-  bool simGainRenormalisation_;
-  edm::ESHandle<SiStripNoises> noiseHandle_;
-  edm::ESHandle<SiStripApvGain> gainHandle_;
+  const SiStripApvGain* gainHandle_ = nullptr;
 };
 
 #endif
