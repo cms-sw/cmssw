@@ -589,18 +589,14 @@ void HistogramManager::executeGroupBy(SummationStep const& step,
     if (!new_histo.me) {
       auto name = makePathName(s, significantvalues, &step);
       iBooker.setCurrentFolder(name.first);
-      if (dynamic_cast<TH1F*>(th1)){
+      if (dynamic_cast<TH1F*>(th1))
         new_histo.me = iBooker.book1D(name.second, (TH1F*)th1);
-      }
-      else if (dynamic_cast<TH2F*>(th1)){
+      else if (dynamic_cast<TH2F*>(th1))
         new_histo.me = iBooker.book2D(name.second, (TH2F*)th1);
-      }
-      else if (dynamic_cast<TProfile*>(th1)){
+      else if (dynamic_cast<TProfile*>(th1))
         new_histo.me = iBooker.bookProfile(name.second, (TProfile*)th1);
-      }
-      else if (dynamic_cast<TProfile2D*>(th1)){
+      else if (dynamic_cast<TProfile2D*>(th1))
         new_histo.me = iBooker.bookProfile2D(name.second, (TProfile2D*)th1);
-      }
       else
         assert(!"No idea how to book this.");
       new_histo.th1 = new_histo.me->getTH1();
