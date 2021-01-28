@@ -25,7 +25,7 @@ namespace l1tVertexFinder {
     ~RecoVertex() {}
 
     /// Operators
-    RecoVertex& operator+=(const RecoVertex& rhs){
+    RecoVertex& operator+=(const RecoVertex& rhs) {
       this->tracks_.insert(std::end(this->tracks_), std::begin(rhs.tracks()), std::end(rhs.tracks()));
       return *this;
     }

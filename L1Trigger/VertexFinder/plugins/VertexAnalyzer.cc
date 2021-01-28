@@ -146,7 +146,8 @@ namespace l1tVertexFinder {
 
   VertexAnalyzer::VertexAnalyzer(const edm::ParameterSet& iConfig)
       : hepMCInputTag(consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("hepMCInputTag"))),
-        genParticleInputTag(consumes<edm::View<reco::GenParticle>>(iConfig.getParameter<edm::InputTag>("genParticleInputTag"))),
+        genParticleInputTag(
+            consumes<edm::View<reco::GenParticle>>(iConfig.getParameter<edm::InputTag>("genParticleInputTag"))),
         tpInputTag(consumes<TrackingParticleCollection>(iConfig.getParameter<edm::InputTag>("tpInputTag"))),
         stubInputTag(consumes<DetSetVec>(iConfig.getParameter<edm::InputTag>("stubInputTag"))),
         stubTruthInputTag(consumes<TTStubAssMap>(iConfig.getParameter<edm::InputTag>("stubTruthInputTag"))),
@@ -390,7 +391,15 @@ namespace l1tVertexFinder {
     iEvent.getByToken(clusterTruthInputTag, mcTruthTTClusterHandle);
 
     // Note useful info about MC truth particles and about reconstructed stubs .
-    InputData inputData(iEvent, iSetup, settings_, hepMCInputTag, genParticleInputTag, tpInputTag, stubInputTag, stubTruthInputTag, clusterTruthInputTag);
+    InputData inputData(iEvent,
+                        iSetup,
+                        settings_,
+                        hepMCInputTag,
+                        genParticleInputTag,
+                        tpInputTag,
+                        stubInputTag,
+                        stubTruthInputTag,
+                        clusterTruthInputTag);
 
     edm::Handle<TTTrackCollectionView> l1TracksHandle;
     iEvent.getByToken(l1TracksToken_, l1TracksHandle);
@@ -495,7 +504,8 @@ namespace l1tVertexFinder {
 
     if (settings_.debug() > 2 and numVertices > 0) {
       edm::LogInfo("VertexAnalyzer") << "analyzer::Num Found Vertices " << numVertices
-        << "\nReconstructed Primary Vertex z0 " << RecoPrimaryVertex->z0() << " pT " << RecoPrimaryVertex->pT();
+                                     << "\nReconstructed Primary Vertex z0 " << RecoPrimaryVertex->z0() << " pT "
+                                     << RecoPrimaryVertex->pT();
     }
 
     hisGenVertexPt_->Fill(inputData.genPt());
@@ -521,12 +531,14 @@ namespace l1tVertexFinder {
     if (settings_.debug() > 2) {
       edm::LogInfo("VertexAnalyzer") << "analyzer::** RECO VERTICES **";
       for (RecoVertexWithTP* vertex : recoVertices) {
-        edm::LogInfo("VertexAnalyzer") << "analyzer::recovertex z0 " << vertex->z0() << " pt " << vertex->pT() << " highpt " << vertex->hasHighPt()
-            << " numtracks " << vertex->numTracks() << " numTrueTracks " << vertex->numTrueTracks();
+        edm::LogInfo("VertexAnalyzer") << "analyzer::recovertex z0 " << vertex->z0() << " pt " << vertex->pT()
+                                       << " highpt " << vertex->hasHighPt() << " numtracks " << vertex->numTracks()
+                                       << " numTrueTracks " << vertex->numTrueTracks();
       }
-      edm::LogInfo("VertexAnalyzer") << "analyzer::True PrimaryVertex z0 " << TruePrimaryVertex.z0() << " pT " << TruePrimaryVertex.pT();
-      edm::LogInfo("VertexAnalyzer") << "analyzer::Reco PrimaryVertex z0 " << RecoPrimaryVertex->z0() << " pT " << RecoPrimaryVertex->pT()
-            << " nTracks " << RecoPrimaryVertex->numTracks();
+      edm::LogInfo("VertexAnalyzer") << "analyzer::True PrimaryVertex z0 " << TruePrimaryVertex.z0() << " pT "
+                                     << TruePrimaryVertex.pT();
+      edm::LogInfo("VertexAnalyzer") << "analyzer::Reco PrimaryVertex z0 " << RecoPrimaryVertex->z0() << " pT "
+                                     << RecoPrimaryVertex->pT() << " nTracks " << RecoPrimaryVertex->numTracks();
     }
 
     unsigned int TrackRank = 0;
@@ -565,13 +577,15 @@ namespace l1tVertexFinder {
         for (const L1TrackTruthMatched* track : RecoPrimaryVertex->tracks()) {
           if (track->getMatchedTP() != nullptr)
             edm::LogInfo("VertexAnalyzer") << "analyzer::matched TP " << track->getMatchedTP()->index();
-          edm::LogInfo("VertexAnalyzer") << "analyzer::pT " << track->pt() << " phi0 " << track->phi0() << " z0 " << track->z0();
+          edm::LogInfo("VertexAnalyzer") << "analyzer::pT " << track->pt() << " phi0 " << track->phi0() << " z0 "
+                                         << track->z0();
         }
 
         edm::LogInfo("VertexAnalyzer") << "analyzer::** TRUE TRACKS in PV **";
         for (TP track : TruePrimaryVertex.tracks()) {
-          edm::LogInfo("VertexAnalyzer") << "analyzer::index " << track.index() << " pT " << track.pt() << " phi0 " << track.phi0() << " z0 " << track.z0()
-               << " status " << track.physicsCollision();
+          edm::LogInfo("VertexAnalyzer") << "analyzer::index " << track.index() << " pT " << track.pt() << " phi0 "
+                                         << track.phi0() << " z0 " << track.z0() << " status "
+                                         << track.physicsCollision();
         }
       }
 
@@ -607,24 +621,33 @@ namespace l1tVertexFinder {
       hisRecoVertexOffPT_->Fill(RecoPrimaryVertex->pT());
       hisUnmatchedVertexZ0distance_->Fill(std::abs(z0res));
       if (settings_.debug() > 2) {
-        edm::LogInfo("VertexAnalyzer") << "analyzer::Vertex Reconstruction Algorithm doesn't find the correct primary vertex (Delta Z = " << std::abs(z0res) << ")";
+        edm::LogInfo("VertexAnalyzer")
+            << "analyzer::Vertex Reconstruction Algorithm doesn't find the correct primary vertex (Delta Z = "
+            << std::abs(z0res) << ")";
       }
     }
 
     if (settings_.debug() > 2) {
       for (const L1TrackTruthMatched* l1track : RecoPrimaryVertex->tracks()) {
         if (l1track->getMatchedTP() == nullptr) {
-          edm::LogInfo("VertexAnalyzer") << "analyzer::FAKE track assigned to PV. Track z0: " << l1track->z0() << " track pT " << l1track->pt()
-               << " chi2/ndof " << l1track->chi2dof() << " numstubs " << l1track->getNumStubs();
+          edm::LogInfo("VertexAnalyzer") << "analyzer::FAKE track assigned to PV. Track z0: " << l1track->z0()
+                                         << " track pT " << l1track->pt() << " chi2/ndof " << l1track->chi2dof()
+                                         << " numstubs " << l1track->getNumStubs();
         } else if (l1track->getMatchedTP()->physicsCollision() == 0) {
-          edm::LogInfo("VertexAnalyzer") << "analyzer::Pile-Up track assigned to PV. Track z0: " << l1track->z0() << " track pT " << l1track->pt();
+          edm::LogInfo("VertexAnalyzer") << "analyzer::Pile-Up track assigned to PV. Track z0: " << l1track->z0()
+                                         << " track pT " << l1track->pt();
         } else {
-          edm::LogInfo("VertexAnalyzer") << "analyzer::Physics Collision track assigned to PV. Track z0: " << l1track->z0() << " track pT "
-                << l1track->pt() << " numstubs " << l1track->getNumStubs() << "\n (real values) id: " << l1track->getMatchedTP()->index() << " pT " << l1track->getMatchedTP()->pt()
-                << " eta " << l1track->getMatchedTP()->eta() << " d0 " << l1track->getMatchedTP()->d0() << " z0 "
-                << l1track->getMatchedTP()->z0() << " physicsCollision " << l1track->getMatchedTP()->physicsCollision()
-                << " useForEff() " << l1track->getMatchedTP()->useForEff() << " pdg " << l1track->getMatchedTP()->pdgId()
-                << " tip " << l1track->getMatchedTP()->tip();
+          edm::LogInfo("VertexAnalyzer") << "analyzer::Physics Collision track assigned to PV. Track z0: "
+                                         << l1track->z0() << " track pT " << l1track->pt() << " numstubs "
+                                         << l1track->getNumStubs()
+                                         << "\n (real values) id: " << l1track->getMatchedTP()->index() << " pT "
+                                         << l1track->getMatchedTP()->pt() << " eta " << l1track->getMatchedTP()->eta()
+                                         << " d0 " << l1track->getMatchedTP()->d0() << " z0 "
+                                         << l1track->getMatchedTP()->z0() << " physicsCollision "
+                                         << l1track->getMatchedTP()->physicsCollision() << " useForEff() "
+                                         << l1track->getMatchedTP()->useForEff() << " pdg "
+                                         << l1track->getMatchedTP()->pdgId() << " tip "
+                                         << l1track->getMatchedTP()->tip();
         }
       }
     }
@@ -679,7 +702,8 @@ namespace l1tVertexFinder {
               hisUnmatchZ0MinDistance_->Fill(mindistance);
 
               if (settings_.debug() > 1) {
-                edm::LogInfo("VertexAnalyzer") << "analyzer::PV Track assigned to wrong vertex. Track z0: " << l1track->z0()
+                edm::LogInfo("VertexAnalyzer")
+                    << "analyzer::PV Track assigned to wrong vertex. Track z0: " << l1track->z0()
                     << " PV z0: " << RecoPrimaryVertex->z0() << " tp z0 " << tp.z0() << " track pT " << l1track->pt()
                     << " tp pT " << tp.pt() << " tp d0 " << tp.d0() << " track eta " << l1track->eta();
               }
@@ -740,10 +764,11 @@ namespace l1tVertexFinder {
     if (printResults_) {
       edm::LogInfo("VertexAnalyzer") << "analyzer::" << numVertices << " vertices were found ... ";
       for (const auto& vtx : recoVertices) {
-        edm::LogInfo("VertexAnalyzer") << "analyzer::  * z0 = " << vtx->z0() << "; contains " << vtx->numTracks() << " tracks ...";
+        edm::LogInfo("VertexAnalyzer") << "analyzer::  * z0 = " << vtx->z0() << "; contains " << vtx->numTracks()
+                                       << " tracks ...";
         for (const auto& trackPtr : vtx->tracks())
-          edm::LogInfo("VertexAnalyzer") << "analyzer::     - z0 = " << trackPtr->z0() << "; pt = " << trackPtr->pt() << ", eta = " << trackPtr->eta()
-                    << ", phi = " << trackPtr->phi0();
+          edm::LogInfo("VertexAnalyzer") << "analyzer::     - z0 = " << trackPtr->z0() << "; pt = " << trackPtr->pt()
+                                         << ", eta = " << trackPtr->eta() << ", phi = " << trackPtr->phi0();
       }
     }
   }
@@ -757,12 +782,15 @@ namespace l1tVertexFinder {
                                         "Primary Vertex Finding Efficiency; true z_{0}; Efficiency");
 
     edm::LogInfo("VertexAnalyzer") << "analyzer::==================== VERTEX RECONSTRUCTION ======================\n"
-        << "Average no. Reconstructed Vertices: " << hisNoRecoVertices_->GetMean() << "("
-        << hisNoRecoVertices_->GetMean() * 100. / (hisNoPileUpVertices_->GetMean() + 1.) << "%)\n"
-        << "Average ratio of matched tracks in primary vertex " << hisRatioMatchedTracksInPV_->GetMean() * 100 << " %\n"
-        << "Averate ratio of fake tracks in primary vertex " << hisFakeTracksRateInPV_->GetMean() * 100 << " %\n"
-        << "Average PV z0 separation " << hisRecoVertexZ0Separation_->GetMean() << " cm\n"
-        << "PV z0 resolution " << hisRecoVertexZ0Resolution_->GetStdDev() << " cm ";
+                                   << "Average no. Reconstructed Vertices: " << hisNoRecoVertices_->GetMean() << "("
+                                   << hisNoRecoVertices_->GetMean() * 100. / (hisNoPileUpVertices_->GetMean() + 1.)
+                                   << "%)\n"
+                                   << "Average ratio of matched tracks in primary vertex "
+                                   << hisRatioMatchedTracksInPV_->GetMean() * 100 << " %\n"
+                                   << "Averate ratio of fake tracks in primary vertex "
+                                   << hisFakeTracksRateInPV_->GetMean() * 100 << " %\n"
+                                   << "Average PV z0 separation " << hisRecoVertexZ0Separation_->GetMean() << " cm\n"
+                                   << "PV z0 resolution " << hisRecoVertexZ0Resolution_->GetStdDev() << " cm ";
 
     float recoPVeff =
         double(hisRecoPrimaryVertexVsTrueZ0_->GetEntries()) / double(hisPrimaryVertexTrueZ0_->GetEntries());
@@ -772,7 +800,8 @@ namespace l1tVertexFinder {
     float recoPVeff_err = sqrt((numRecoPV + 1) * (numRecoPV + 2) / ((numPVs + 2) * (numPVs + 3)) -
                                (numRecoPV + 1) * (numRecoPV + 1) / ((numPVs + 2) * (numPVs + 2)));
 
-    edm::LogInfo("VertexAnalyzer") << "analyzer::PrimaryVertex Finding Efficiency = " << recoPVeff << " +/- " << recoPVeff_err;
+    edm::LogInfo("VertexAnalyzer") << "analyzer::PrimaryVertex Finding Efficiency = " << recoPVeff << " +/- "
+                                   << recoPVeff_err;
   };
 
   VertexAnalyzer::~VertexAnalyzer(){};

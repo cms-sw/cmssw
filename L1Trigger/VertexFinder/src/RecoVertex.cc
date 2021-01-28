@@ -19,8 +19,10 @@ namespace l1tVertexFinder {
         highPt_ = true;
         numHighPtTracks_++;
         highestPt_ = (trackPt > highestPt_) ? trackPt : highestPt_;
-        if (highPtBehavior == 0) continue; // ignore this track
-        else if (highPtBehavior == 1) trackPt = highPtThreshold;  // saturate
+        if (highPtBehavior == 0)
+          continue;  // ignore this track
+        else if (highPtBehavior == 1)
+          trackPt = highPtThreshold;  // saturate
       }
 
       pT_ += trackPt;
