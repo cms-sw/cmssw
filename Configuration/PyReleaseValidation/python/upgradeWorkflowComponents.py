@@ -1288,4 +1288,5 @@ upgradeFragments = OrderedDict([
     ('TenTau_E_15_500_Eta3p1_pythia8_cfi', UpgradeFragment(Kby(9,100),'TenTau_15_500_Eta3p1')),
     ('QCD_Pt_1800_2400_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(9,50), 'QCD_Pt_1800_2400_14')),
     ('DisplacedSUSY_stopToBottom_M_800_500mm_TuneCP5_14TeV_pythia8_cff', UpgradeFragment(Kby(9,50),'DisplacedSUSY_stopToB_M_800_500mm_14')),
+    ('GluGluTo2Jets_M_300_2000_14TeV_Exhume_cff',UpgradeFragment(Kby(9,100),'GluGluTo2Jets_M_300_2000_14TeV')),
 ])
