@@ -16,15 +16,6 @@
 #include <atomic>
 #include <mutex>
 
-class MakerResponseHandler : public XrdCl::ResponseHandler {
-public:
-  void HandleResponse(XrdCl::XRootDStatus *status, XrdCl::AnyObject *response) override {
-    // Note: Prepare call has a response object.
-    delete response;
-    delete status;
-  }
-};
-
 class XrdStorageMaker final : public StorageMaker {
 public:
   static const unsigned int XRD_DEFAULT_TIMEOUT = 3 * 60;
@@ -77,11 +68,14 @@ public:
     XrdCl::FileSystem fs(url);
     std::vector<std::string> fileList;
     fileList.push_back(url.GetPath());
-    auto status = fs.Prepare(fileList, XrdCl::PrepareFlags::Stage, 0, &m_null_handler);
+    XrdCl::Buffer *buffer = nullptr;
+    auto status = fs.Prepare(fileList, XrdCl::PrepareFlags::Stage, 0, buffer);
     if (!status.IsOK()) {
       edm::LogWarning("StageInError") << "XrdCl::FileSystem::Prepare failed with error '" << status.ToStr()
                                       << "' (errNo = " << status.errNo << ")";
     }
+
+    delete buffer;
   }
 
   bool check(const std::string &proto,
@@ -173,7 +167,6 @@ public:
   }
 
 private:
-  CMS_THREAD_SAFE mutable MakerResponseHandler m_null_handler;
   mutable std::mutex m_envMutex;
   mutable std::atomic<unsigned int> m_lastDebugLevel;
   mutable std::atomic<unsigned int> m_lastTimeout;
