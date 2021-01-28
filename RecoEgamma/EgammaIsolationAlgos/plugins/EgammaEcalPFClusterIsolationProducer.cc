@@ -13,7 +13,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -21,14 +21,14 @@
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EcalPFClusterIsolation.h"
 
 template <typename T1>
-class EgammaEcalPFClusterIsolationProducer : public edm::stream::EDProducer<> {
+class EgammaEcalPFClusterIsolationProducer : public edm::global::EDProducer<> {
 public:
   typedef std::vector<T1> T1Collection;
   typedef edm::Ref<T1Collection> T1Ref;
   explicit EgammaEcalPFClusterIsolationProducer(const edm::ParameterSet&);
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
 private:
   const edm::EDGetTokenT<T1Collection> emObjectProducer_;
@@ -75,7 +75,9 @@ void EgammaEcalPFClusterIsolationProducer<T1>::fillDescriptions(edm::Configurati
 }
 
 template <typename T1>
-void EgammaEcalPFClusterIsolationProducer<T1>::produce(edm::Event& iEvent, const edm::EventSetup&) {
+void EgammaEcalPFClusterIsolationProducer<T1>::produce(edm::StreamID,
+                                                       edm::Event& iEvent,
+                                                       const edm::EventSetup&) const {
   auto emObjectHandle = iEvent.getHandle(emObjectProducer_);
 
   auto isoMap = std::make_unique<edm::ValueMap<float>>();

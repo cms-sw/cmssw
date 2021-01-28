@@ -912,6 +912,15 @@ namespace dqm::impl {
       access.value.object_->SetStatOverflows(TH1::kIgnore);
   }
 
+  bool MonitorElement::getStatOverflows() {
+    auto access = this->accessMut();
+    auto value = access.value.object_->GetStatOverflows();
+    if (value == TH1::kConsider)
+      return true;
+    else
+      return false;
+  }
+
   int64_t MonitorElement::getIntValue() const {
     assert(kind() == Kind::INT);
     auto access = this->access();
