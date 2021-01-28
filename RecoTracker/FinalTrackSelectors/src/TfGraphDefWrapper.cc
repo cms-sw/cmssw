@@ -1,5 +1,4 @@
 #include "RecoTracker/FinalTrackSelectors/interface/TfGraphDefWrapper.h"
 
-TfGraphDefWrapper::TfGraphDefWrapper(tensorflow::GraphDef* graph) : graphDef_(graph) {}
-
-const tensorflow::GraphDef* TfGraphDefWrapper::getGraphDef() const { return graphDef_.get(); }
+TfGraphDefWrapper::TfGraphDefWrapper(tensorflow::Session* session) : session_(session) {}
+const tensorflow::Session* TfGraphDefWrapper::getSession() const { return const_cast<const tensorflow::Session*>(session_); }
