@@ -511,7 +511,7 @@ double PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) c
         double pfCandPt = isoObject->pt();
         if (pfCandPt > trackPt) {
           chargedPt += trackPt;
-          neutralPt += std::max(0., pfCandPt - trackPt);
+          neutralPt += pfCandPt - trackPt;
         } else {
           chargedPt += isoObject->pt();
         }
