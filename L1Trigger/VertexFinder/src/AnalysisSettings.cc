@@ -1,7 +1,4 @@
-
 #include "L1Trigger/VertexFinder/interface/AnalysisSettings.h"
-
-#include "FWCore/Utilities/interface/Exception.h"
 
 namespace l1tVertexFinder {
 
