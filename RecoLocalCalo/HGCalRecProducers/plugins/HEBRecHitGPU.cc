@@ -3,7 +3,7 @@
 HEBRecHitGPU::HEBRecHitGPU(const edm::ParameterSet& ps)
     : uncalibRecHitCPUToken_{consumes<HGCUncalibratedRecHitCollection>(
           ps.getParameter<edm::InputTag>("HGCHEBUncalibRecHitsTok"))},
-      recHitGPUToken_{produces<cms::cuda::Product<RecHitGPUProduct>>()} {
+      recHitGPUToken_{produces<cms::cuda::Product<HGCRecHitGPUProduct>>()} {
   cdata_.keV2DIGI_ = ps.getParameter<double>("HGCHEB_keV2DIGI");
   cdata_.noise_MIP_ = ps.getParameter<edm::ParameterSet>("HGCHEB_noise_MIP").getParameter<double>("noise_MIP");
   vdata_.weights_ = ps.getParameter<std::vector<double>>("weights");
@@ -52,7 +52,7 @@ void HEBRecHitGPU::acquire(edm::Event const& event, edm::EventSetup const& setup
   if (nhits == 0)
     cms::cuda::LogError("HEBRecHitGPU") << "WARNING: no input hits!";
 
-  prod_ = RecHitGPUProduct(nhits, ctx.stream());
+  prod_ = HGCRecHitGPUProduct(nhits, ctx.stream());
   allocate_memory_(ctx.stream());
   convert_constant_data_(kcdata_);
   convert_collection_data_to_soa_(nhits, hits, h_uncalibSoA_);

@@ -95,7 +95,7 @@ namespace hgcal_conditions {
 									   HeterogeneousHGCalHEFParametersType::Double,
 									   HeterogeneousHGCalHEFParametersType::Int32_t }};
 
-    const std::array<HeterogeneousHGCalHEBParametersType, 5> typesHEB = {{ HeterogeneousHGCalHEBParametersType::Double,
+    const std::array<HeterogeneousHGCalHEBParametersType, 2> typesHEB = {{ HeterogeneousHGCalHEBParametersType::Double,
 									   HeterogeneousHGCalHEBParametersType::Int32_t }};
 									 
     class HeterogeneousHGCalEEParameters {

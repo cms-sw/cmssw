@@ -3,7 +3,7 @@
 EERecHitGPU::EERecHitGPU(const edm::ParameterSet& ps)
     : uncalibRecHitCPUToken_{consumes<HGCUncalibratedRecHitCollection>(
           ps.getParameter<edm::InputTag>("HGCEEUncalibRecHitsTok"))},
-      recHitGPUToken_{produces<cms::cuda::Product<RecHitGPUProduct>>()} {
+      recHitGPUToken_{produces<cms::cuda::Product<HGCRecHitGPUProduct>>()} {
   cdata_.keV2DIGI_ = ps.getParameter<double>("HGCEE_keV2DIGI");
   cdata_.xmin_ = ps.getParameter<double>("minValSiPar");  //float
   cdata_.xmax_ = ps.getParameter<double>("maxValSiPar");  //float
@@ -71,7 +71,7 @@ void EERecHitGPU::acquire(edm::Event const& event, edm::EventSetup const& setup,
   if (nhits == 0)
     cms::cuda::LogError("EERecHitGPU") << "WARNING: no input hits!";
 
-  prod_ = RecHitGPUProduct(nhits, ctx.stream());
+  prod_ = HGCRecHitGPUProduct(nhits, ctx.stream());
   allocate_memory_(ctx.stream());
   convert_constant_data_(kcdata_);
   convert_collection_data_to_soa_(nhits, hits, h_uncalibSoA_);
