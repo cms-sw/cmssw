@@ -296,7 +296,8 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
     GeometryInterface::Value binwidth_y = 0;
     std::string title, xlabel, ylabel, zlabel;
     bool do_profile = false;
-    bool statsOverflows = true;;
+    bool statsOverflows = true;
+    ;
   };
   std::map<GeometryInterface::Values, MEInfo> toBeBooked;
 
@@ -344,7 +345,7 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
         // create new histo
         MEInfo& mei = toBeBooked[significantvalues];
         mei.title = this->title;
-	mei.statsOverflows = this->statsOverflows;
+        mei.statsOverflows = this->statsOverflows;
         if (bookCounters)
           mei.title =
               "Number of " + mei.title + " per Event and " + geometryInterface.pretty(*(s.steps[0].columns.end() - 1));
@@ -605,7 +606,6 @@ void HistogramManager::executeGroupBy(SummationStep const& step,
       new_histo.th1->Add(th1);
     }
     new_histo.me->setStatOverflows(e.second.me->getStatOverflows());
-
   }
   t.swap(out);
 }
@@ -687,7 +687,7 @@ void HistogramManager::executeExtend(SummationStep const& step,
       } else {
         assert(!"Reduction type not supported");
       }
-      new_histo.me->setStatOverflows(e.second.me->getStatOverflows());	  
+      new_histo.me->setStatOverflows(e.second.me->getStatOverflows());
     } else {
       assert(!"2D extend not implemented in harvesting.");
     }

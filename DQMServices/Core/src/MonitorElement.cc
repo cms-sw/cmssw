@@ -912,9 +912,9 @@ namespace dqm::impl {
       access.value.object_->SetStatOverflows(TH1::kIgnore);
   }
 
-  bool MonitorElement::getStatOverflows(){
+  bool MonitorElement::getStatOverflows() {
     auto access = this->accessMut();
-    auto value=access.value.object_->GetStatOverflows();
+    auto value = access.value.object_->GetStatOverflows();
     if (value == TH1::kConsider)
       return true;
     else
