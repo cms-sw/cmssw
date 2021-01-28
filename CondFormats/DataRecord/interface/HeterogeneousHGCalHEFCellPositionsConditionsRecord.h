@@ -2,7 +2,6 @@
 #define CondFormats_DataRecord_HeterogeneousHGCalHEFCellPositionsConditionsRecord_h
 
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
-//#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "FWCore/Utilities/interface/mplVector.h"
 
