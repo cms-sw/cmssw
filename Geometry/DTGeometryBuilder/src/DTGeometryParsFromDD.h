@@ -91,7 +91,7 @@ private:
 		   const MuonGeometryConstants& muonConstants,
                    RecoIdealGeometry& rig) const;
 
-  std::vector<double> extractParameters(cms::DDFilteredView& fv) const;
+  //  std::vector<double> extractParameters(cms::DDFilteredView& fv) const;
 
   PosRotPair plane(const cms::DDFilteredView& fv) const;
 
