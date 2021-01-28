@@ -86,5 +86,9 @@ cond::RelationalAuthenticationService::RelationalAuthenticationService::credenti
   return *creds;
 }
 
+std::string cond::RelationalAuthenticationService::RelationalAuthenticationService::principalName() {
+  return m_db.keyPrincipalName();
+}
+
 DEFINE_CORALSERVICE(cond::RelationalAuthenticationService::RelationalAuthenticationService,
                     "COND/Services/RelationalAuthenticationService");
