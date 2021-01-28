@@ -50,10 +50,12 @@ upgradeKeys[2026] = [
     '2026D71PU',
     '2026D72',
     '2026D72PU',
-    '2026D73',
-    '2026D73PU',
     '2026D74',
     '2026D74PU',
+    '2026D75',
+    '2026D75PU',
+    '2026D76',
+    '2026D76PU',
 ]
 
 # pre-generation of WF numbers
@@ -63,7 +65,7 @@ numWFStart={
 }
 numWFSkip=200
 # temporary measure to keep other WF numbers the same
-numWFConflict = [[20000,23200],[23600,28200],[28600,29800],[50000,51000]]
+numWFConflict = [[20000,23200],[23600,28200],[28600,29800],[33400,33800],[50000,51000]]
 numWFAll={
     2017: [],
     2026: []
@@ -351,6 +353,26 @@ upgradeWFs['vectorHits'] = UpgradeWorkflow_vectorHits(
     suffix = '_vectorHits',
     offset = 0.9,
 )
+
+
+# Track DNN workflows
+class UpgradeWorkflow_trackdnn(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        stepDict[stepName][k] = merge([{'--procModifiers': 'trackdnn'}, stepDict[step][k]])
+
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return fragment=="TTbar_14TeV" and '2021' in key
+upgradeWFs['trackdnn'] = UpgradeWorkflow_trackdnn(
+    steps = [
+        'Reco',
+    ],
+    PU = [
+        'Reco',
+    ],
+    suffix = '_trackdnn',
+    offset = 0.91,
+)
+
 
 # MLPF workflows
 class UpgradeWorkflow_mlpf(UpgradeWorkflow):
@@ -946,7 +968,7 @@ class UpgradeWorkflow_DD4hep(UpgradeWorkflow):
             dd4hepGeom+=stepDict[step][k]['--geometry']
             stepDict[stepName][k] = merge([{'--geometry' : dd4hepGeom, '--procModifiers': 'dd4hep'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return ((fragment=='TTbar_13' or fragment=='ZMM_13' or fragment=='SingleMuPt10') and '2021' in key) \
+        return ((fragment=='TTbar_14TeV' or fragment=='ZMM_14' or fragment=='SingleMuPt10') and '2021' in key) \
             or ((fragment=='TTbar_14TeV' or fragment=='ZMM_14' or fragment=='SingleMuPt10') and '2026' in key)
 upgradeWFs['DD4hep'] = UpgradeWorkflow_DD4hep(
     steps = [
@@ -966,6 +988,41 @@ upgradeWFs['DD4hep'] = UpgradeWorkflow_DD4hep(
     offset = 0.911,
 )
 upgradeWFs['DD4hep'].allowReuse = False
+
+class UpgradeWorkflow_SonicTriton(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        stepDict[stepName][k] = merge([{'--procModifiers': 'allSonicTriton'}, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return (fragment=='TTbar_13' and '2021' in key) \
+            or (fragment=='TTbar_14TeV' and '2026' in key)
+upgradeWFs['SonicTriton'] = UpgradeWorkflow_SonicTriton(
+    steps = [
+        'GenSim',
+        'GenSimHLBeamSpot',
+        'GenSimHLBeamSpot14',
+        'Digi',
+        'DigiTrigger',
+        'Reco',
+        'RecoGlobal',
+        'HARVEST',
+        'HARVESTGlobal',
+        'ALCA',
+    ],
+    PU = [
+        'GenSim',
+        'GenSimHLBeamSpot',
+        'GenSimHLBeamSpot14',
+        'Digi',
+        'DigiTrigger',
+        'Reco',
+        'RecoGlobal',
+        'HARVEST',
+        'HARVESTGlobal',
+        'ALCA',
+    ],
+    suffix = '_SonicTriton',
+    offset = 0.9001,
+)
 
 # check for duplicate offsets
 offsets = [specialWF.offset for specialType,specialWF in six.iteritems(upgradeWFs)]
@@ -1065,18 +1122,19 @@ upgradeProperties[2026] = {
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
     '2026D64' : {
-        'Geom' : 'Extended2026D64',                   # N.B.: Geometry with square 50x50 um2 pixels in the Inner Tracker.
+        'Geom' : 'Extended2026D64',             # N.B.: Geometry with square 50x50 um2 pixels in the Inner Tracker.
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T22',
-        'Era' : 'Phase2C11',
+        'ProcessModifier': 'PixelCPEGeneric',   # This swaps template reco CPE for generic reco CPE
+        'Era' : 'Phase2C11T22',       # customized for square pixels
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
     '2026D65' : {
-        'Geom' : 'Extended2026D65',                   # N.B.: Geometry with 3D pixels in the Inner Tracker.
+        'Geom' : 'Extended2026D65',             # N.B.: Geometry with 3D pixels in the Inner Tracker.
         'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T23',           # This symbolic GT has no pixel template / GenError informations.
-        'ProcessModifier': 'phase2_PixelCPEGeneric',  # This modifier removes all need for IT template information. DO NOT USE for standard planar sensors.
-        'Era' : 'Phase2C11',
+        'GT' : 'auto:phase2_realistic_T23',     # This symbolic GT has no pixel template / GenError informations.
+        'ProcessModifier': 'PixelCPEGeneric',   # This swaps template reco CPE for generic reco CPE
+        'Era' : 'Phase2C11T23',           # customizes for 3D Pixels
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
     '2026D66' : {
@@ -1128,15 +1186,22 @@ upgradeProperties[2026] = {
         'Era' : 'Phase2C11_etlV4',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
-    '2026D73' : {
-        'Geom' : 'Extended2026D73',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T21',
-        'Era' : 'Phase2C11_etlV4',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
-    },
     '2026D74' : {
         'Geom' : 'Extended2026D74',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T21',
+        'Era' : 'Phase2C11M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D75' : {
+        'Geom' : 'Extended2026D75',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T21',
+        'Era' : 'Phase2C11',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D76' : {
+        'Geom' : 'Extended2026D76',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T21',
         'Era' : 'Phase2C11M9',
