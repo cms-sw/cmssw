@@ -7,7 +7,10 @@
 
 class FastFedCablingHistosUsingDb : public CommissioningHistosUsingDb, public FastFedCablingHistograms {
 public:
-  FastFedCablingHistosUsingDb(const edm::ParameterSet& pset, DQMStore*, SiStripConfigDb* const);
+  FastFedCablingHistosUsingDb(const edm::ParameterSet& pset,
+                              DQMStore*,
+                              SiStripConfigDb* const,
+                              edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken);
 
   ~FastFedCablingHistosUsingDb() override;
 

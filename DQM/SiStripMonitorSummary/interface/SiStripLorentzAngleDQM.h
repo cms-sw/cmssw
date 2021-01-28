@@ -6,35 +6,25 @@
 #include "CondFormats/DataRecord/interface/SiStripLorentzAngleRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
 
-class SiStripLorentzAngleDQM : public SiStripBaseCondObjDQM {
+class SiStripLorentzAngleDQM : public SiStripBaseCondObjDQMGet<SiStripLorentzAngle, SiStripLorentzAngleRcd> {
 public:
-  SiStripLorentzAngleDQM(const edm::EventSetup &eSetup,
+  SiStripLorentzAngleDQM(edm::ESGetToken<SiStripLorentzAngle, SiStripLorentzAngleRcd> token,
                          edm::RunNumber_t iRun,
                          edm::ParameterSet const &hPSet,
-                         edm::ParameterSet const &fPSet);
+                         edm::ParameterSet const &fPSet,
+                         const TrackerTopology *tTopo,
+                         const TkDetMap *tkDetMap);
 
   ~SiStripLorentzAngleDQM() override;
 
   void getActiveDetIds(const edm::EventSetup &eSetup) override;
 
-  void fillModMEs(const std::vector<uint32_t> &selectedDetIds, const edm::EventSetup &es) override{};
-  void fillMEsForDet(const ModMEs &selModME_, uint32_t selDetId_, const TrackerTopology *tTopo) override{};
+  void fillModMEs(const std::vector<uint32_t> &selectedDetIds) override{};
+  void fillMEsForDet(const ModMEs &selModME_, uint32_t selDetId_) override{};
 
-  void fillSummaryMEs(const std::vector<uint32_t> &selectedDetIds, const edm::EventSetup &es) override;
+  void fillSummaryMEs(const std::vector<uint32_t> &selectedDetIds) override;
   void fillMEsForLayer(
-      /*std::map<uint32_t, ModMEs> selModMEsMap_, */ uint32_t selDetId_, const TrackerTopology *tTopo) override;
-
-  unsigned long long getCache(const edm::EventSetup &eSetup) override {
-    return eSetup.get<SiStripLorentzAngleRcd>().cacheIdentifier();
-  }
-
-  void getConditionObject(const edm::EventSetup &eSetup) override {
-    eSetup.get<SiStripLorentzAngleRcd>().get(lorentzangleHandle_);
-    cacheID_memory = cacheID_current;
-  }
-
-private:
-  edm::ESHandle<SiStripLorentzAngle> lorentzangleHandle_;
+      /*std::map<uint32_t, ModMEs> selModMEsMap_, */ uint32_t selDetId_) override;
 };
 
 #endif
