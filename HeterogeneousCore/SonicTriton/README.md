@@ -89,12 +89,14 @@ The script has two operations (`start` and `stop`) and the following options:
 * `-d`: use Docker instead of Singularity
 * `-f`: force reuse of (possibly) existing container instance
 * `-g`: use GPU instead of CPU
+* `-i` [name]`: server image name (default: fastml/triton-torchgeo:20.09-py3-geometric)
 * `-M [dir]`: model repository (can be given more than once)
 * `-m [dir]`: specific model directory (can be given more than one)
 * `-n [name]`: name of container instance, also used for hidden temporary dir (default: triton_server_instance)
 * `-P [port]`: base port number for services (-1: automatically find an unused port range) (default: 8000)
 * `-p`: automatically shut down server when parent process ends
 * `-r [num]`: number of retries when starting container (default: 3)
+* `-s [dir]`: Singularity sandbox directory (default: /cvmfs/unpacked.cern.ch/registry.hub.docker.com/fastml/triton-torchgeo:20.09-py3-geometric)
 * `-t [dir]`: non-default hidden temporary dir
 * `-v`: (verbose) start: activate server debugging info; stop: keep server logs
 * `-w [time]`: maximum time to wait for server to start (default: 120 seconds)

@@ -16,6 +16,8 @@ options.register("mode","Async", VarParsing.multiplicity.singleton, VarParsing.v
 options.register("verbose", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register("unittest", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register("device","auto", VarParsing.multiplicity.singleton, VarParsing.varType.string)
+options.register("docker", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
+options.register("tries", 0, VarParsing.multiplicity.singleton, VarParsing.varType.int)
 options.parseArguments()
 
 if len(options.params)>0:
@@ -42,6 +44,7 @@ process.source = cms.Source("EmptySource")
 
 process.TritonService.verbose = options.verbose
 process.TritonService.fallback.verbose = options.verbose
+process.TritonService.fallback.useDocker = options.docker
 if options.device != "auto":
     process.TritonService.fallback.useGPU = options.device=="gpu"
 if len(options.address)>0:
@@ -85,7 +88,7 @@ for module in options.modules:
                 modelVersion = cms.string(""),
                 modelConfigPath = cms.FileInPath("HeterogeneousCore/SonicTriton/data/models/{}/config.pbtxt".format(models[module])),
                 verbose = cms.untracked.bool(options.verbose),
-                allowedTries = cms.untracked.uint32(0),
+                allowedTries = cms.untracked.uint32(options.tries),
             )
         )
     )
