@@ -10,7 +10,7 @@ process.source = cms.Source("EmptyIOVSource",
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     DBParameters = cms.PSet(
-        messageLevel = cms.untracked.int32(0),
+        messageLevel = cms.untracked.int32(3),
         authenticationPath = cms.untracked.string('.')
     ),
     timetype = cms.untracked.string('runnumber'),
