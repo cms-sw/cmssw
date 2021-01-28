@@ -11,8 +11,6 @@
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterAssociation.h"
 
-#include <TString.h>  // Form
-
 #include <fstream>
 #include "tbb/concurrent_unordered_set.h"
 
@@ -421,11 +419,15 @@ namespace {
     }
   }  // namespace dnn_inputs_2017_v2
 
-  float getTauID(const pat::Tau& tau, const std::string& tauID, float default_value = -999.) {
+  float getTauID(const pat::Tau& tau, const std::string& tauID, float default_value = -999., bool assert_input = true) {
     static tbb::concurrent_unordered_set<std::string> isFirstWarning;
     if (tau.isTauIDAvailable(tauID)) {
       return tau.tauID(tauID);
     } else {
+      if (assert_input) {
+        throw cms::Exception("DeepTauId")
+            << "Exception in <getTauID>: No tauID '" << tauID << "' available in pat::Tau given as function argument.";
+      }
       if (isFirstWarning.insert(tauID).second) {
         edm::LogWarning("DeepTauID") << "Warning in <getTauID>: No tauID '" << tauID
                                      << "' available in pat::Tau given as function argument."
@@ -1186,7 +1188,6 @@ public:
 public:
   explicit DeepTauId(const edm::ParameterSet& cfg, const deep_tau::DeepTauCache* cache)
       : DeepTauBase(cfg, GetOutputs(), cache),
-        moduleLabel_(cfg.getParameter<std::string>("@module_label")),
         electrons_token_(consumes<std::vector<pat::Electron>>(cfg.getParameter<edm::InputTag>("electrons"))),
         muons_token_(consumes<std::vector<pat::Muon>>(cfg.getParameter<edm::InputTag>("muons"))),
         rho_token_(consumes<double>(cfg.getParameter<edm::InputTag>("rho"))),
@@ -1202,8 +1203,6 @@ public:
         disable_dxy_pca_(cfg.getParameter<bool>("disable_dxy_pca")),
         disable_hcalFraction_workaround_(cfg.getParameter<bool>("disable_hcalFraction_workaround")),
         disable_CellIndex_workaround_(cfg.getParameter<bool>("disable_CellIndex_workaround")),
-        inner_grid_(nullptr),
-        outer_grid_(nullptr),
         save_inputs_(cfg.getParameter<bool>("save_inputs")),
         json_file_(nullptr),
         file_counter_(0) {
@@ -1247,11 +1246,6 @@ public:
     }
   }
 
-  ~DeepTauId() override {
-    delete inner_grid_;
-    delete outer_grid_;
-  }
-
   static std::unique_ptr<deep_tau::DeepTauCache> initializeGlobalCache(const edm::ParameterSet& cfg) {
     return DeepTauBase::initializeGlobalCache(cfg);
   }
@@ -1260,8 +1254,6 @@ public:
 
 private:
   static constexpr float pi = M_PI;
-
-  std::string moduleLabel_;
 
   template <typename T>
   static float getValue(T value) {
@@ -1313,7 +1305,7 @@ private:
   inline void checkInputs(const tensorflow::Tensor& inputs,
                           const std::string& block_name,
                           int n_inputs,
-                          const CellGrid* grid = nullptr) const {
+                          const std::unique_ptr<CellGrid>& grid = nullptr) const {
     if (debug_level >= 1) {
       std::cout << "<checkInputs>: block_name = " << block_name << std::endl;
       if (block_name == "input_tau") {
@@ -1369,7 +1361,7 @@ private:
   inline void saveInputs(const tensorflow::Tensor& inputs,
                          const std::string& block_name,
                          int n_inputs,
-                         const CellGrid* grid = nullptr) const {
+                         const std::unique_ptr<CellGrid>& grid = nullptr) {
     if (debug_level >= 1) {
       std::cout << "<saveInputs>: block_name = " << block_name << std::endl;
     }
@@ -1569,28 +1561,28 @@ private:
                         std::vector<tensorflow::Tensor>& pred_vector,
                         TauFunc tau_funcs) {
     if (debug_level >= 2) {
-      std::cout << "<DeepTauId::getPredictionsV2 (moduleLabel = " << moduleLabel_ << ")>:" << std::endl;
+      std::cout << "<DeepTauId::getPredictionsV2 (moduleLabel = " << moduleDescription().moduleLabel()
+                << ")>:" << std::endl;
       std::cout << " tau: pT = " << tau.pt() << ", eta = " << tau.eta() << ", phi = " << tau.phi() << std::endl;
     }
-    delete inner_grid_;
-    inner_grid_ = new CellGrid(dnn_inputs_2017_v2::number_of_inner_cell,
-                               dnn_inputs_2017_v2::number_of_inner_cell,
-                               0.02,
-                               0.02,
-                               disable_CellIndex_workaround_);
-    delete outer_grid_;
-    outer_grid_ = new CellGrid(dnn_inputs_2017_v2::number_of_outer_cell,
-                               dnn_inputs_2017_v2::number_of_outer_cell,
-                               0.05,
-                               0.05,
-                               disable_CellIndex_workaround_);
-    fillGrids(dynamic_cast<const TauCastType&>(tau), *electrons, *inner_grid_, *outer_grid_);
-    fillGrids(dynamic_cast<const TauCastType&>(tau), *muons, *inner_grid_, *outer_grid_);
-    fillGrids(dynamic_cast<const TauCastType&>(tau), pfCands, *inner_grid_, *outer_grid_);
+    std::unique_ptr<CellGrid> inner_grid = std::make_unique<CellGrid>(CellGrid(dnn_inputs_2017_v2::number_of_inner_cell,
+                                                                               dnn_inputs_2017_v2::number_of_inner_cell,
+                                                                               0.02,
+                                                                               0.02,
+                                                                               disable_CellIndex_workaround_));
+    std::unique_ptr<CellGrid> outer_grid = std::make_unique<CellGrid>(CellGrid(dnn_inputs_2017_v2::number_of_outer_cell,
+                                                                               dnn_inputs_2017_v2::number_of_outer_cell,
+                                                                               0.05,
+                                                                               0.05,
+                                                                               disable_CellIndex_workaround_));
+    fillGrids(dynamic_cast<const TauCastType&>(tau), *electrons, *inner_grid, *outer_grid);
+    fillGrids(dynamic_cast<const TauCastType&>(tau), *muons, *inner_grid, *outer_grid);
+    fillGrids(dynamic_cast<const TauCastType&>(tau), pfCands, *inner_grid, *outer_grid);
 
     createTauBlockInputs<CandidateCastType>(
         dynamic_cast<const TauCastType&>(tau), tau_index, tau_ref, pv, rho, tau_funcs);
-    checkInputs(*tauBlockTensor_, "input_tau", dnn_inputs_2017_v2::TauBlockInputs::NumberOfInputs);
+    using namespace dnn_inputs_2017_v2;
+    checkInputs(*tauBlockTensor_, "input_tau", TauBlockInputs::NumberOfInputs);
     createConvFeatures<CandidateCastType>(dynamic_cast<const TauCastType&>(tau),
                                           tau_index,
                                           tau_ref,
@@ -1599,17 +1591,12 @@ private:
                                           electrons,
                                           muons,
                                           pfCands,
-                                          *inner_grid_,
+                                          *inner_grid,
                                           tau_funcs,
                                           true);
-    checkInputs(
-        *eGammaTensor_[true], "input_inner_egamma", dnn_inputs_2017_v2::EgammaBlockInputs::NumberOfInputs, inner_grid_);
-    checkInputs(
-        *muonTensor_[true], "input_inner_muon", dnn_inputs_2017_v2::MuonBlockInputs::NumberOfInputs, inner_grid_);
-    checkInputs(*hadronsTensor_[true],
-                "input_inner_hadrons",
-                dnn_inputs_2017_v2::HadronBlockInputs::NumberOfInputs,
-                inner_grid_);
+    checkInputs(*eGammaTensor_[true], "input_inner_egamma", EgammaBlockInputs::NumberOfInputs, inner_grid);
+    checkInputs(*muonTensor_[true], "input_inner_muon", MuonBlockInputs::NumberOfInputs, inner_grid);
+    checkInputs(*hadronsTensor_[true], "input_inner_hadrons", HadronBlockInputs::NumberOfInputs, inner_grid);
     createConvFeatures<CandidateCastType>(dynamic_cast<const TauCastType&>(tau),
                                           tau_index,
                                           tau_ref,
@@ -1618,22 +1605,15 @@ private:
                                           electrons,
                                           muons,
                                           pfCands,
-                                          *outer_grid_,
+                                          *outer_grid,
                                           tau_funcs,
                                           false);
-    checkInputs(*eGammaTensor_[false],
-                "input_outer_egamma",
-                dnn_inputs_2017_v2::EgammaBlockInputs::NumberOfInputs,
-                outer_grid_);
-    checkInputs(
-        *muonTensor_[false], "input_outer_muon", dnn_inputs_2017_v2::MuonBlockInputs::NumberOfInputs, outer_grid_);
-    checkInputs(*hadronsTensor_[false],
-                "input_outer_hadrons",
-                dnn_inputs_2017_v2::HadronBlockInputs::NumberOfInputs,
-                outer_grid_);
+    checkInputs(*eGammaTensor_[false], "input_outer_egamma", EgammaBlockInputs::NumberOfInputs, outer_grid);
+    checkInputs(*muonTensor_[false], "input_outer_muon", MuonBlockInputs::NumberOfInputs, outer_grid);
+    checkInputs(*hadronsTensor_[false], "input_outer_hadrons", HadronBlockInputs::NumberOfInputs, outer_grid);
 
     if (save_inputs_) {
-      std::string json_file_name = Form("DeepTauId_%i.json", file_counter_);
+      std::string json_file_name = "DeepTauId_" + std::to_string(file_counter_) + ".json";
       json_file_ = new std::ofstream(json_file_name.data());
       is_first_block_ = true;
       (*json_file_) << "{";
@@ -1641,23 +1621,23 @@ private:
       saveInputs(*eGammaTensor_[true],
                  "input_inner_egamma",
                  dnn_inputs_2017_v2::EgammaBlockInputs::NumberOfInputs,
-                 inner_grid_);
+                 inner_grid);
       saveInputs(
-          *muonTensor_[true], "input_inner_muon", dnn_inputs_2017_v2::MuonBlockInputs::NumberOfInputs, inner_grid_);
+          *muonTensor_[true], "input_inner_muon", dnn_inputs_2017_v2::MuonBlockInputs::NumberOfInputs, inner_grid);
       saveInputs(*hadronsTensor_[true],
                  "input_inner_hadrons",
                  dnn_inputs_2017_v2::HadronBlockInputs::NumberOfInputs,
-                 inner_grid_);
+                 inner_grid);
       saveInputs(*eGammaTensor_[false],
                  "input_outer_egamma",
                  dnn_inputs_2017_v2::EgammaBlockInputs::NumberOfInputs,
-                 outer_grid_);
+                 outer_grid);
       saveInputs(
-          *muonTensor_[false], "input_outer_muon", dnn_inputs_2017_v2::MuonBlockInputs::NumberOfInputs, outer_grid_);
+          *muonTensor_[false], "input_outer_muon", dnn_inputs_2017_v2::MuonBlockInputs::NumberOfInputs, outer_grid);
       saveInputs(*hadronsTensor_[false],
                  "input_outer_hadrons",
                  dnn_inputs_2017_v2::HadronBlockInputs::NumberOfInputs,
-                 outer_grid_);
+                 outer_grid);
       (*json_file_) << "}";
       delete json_file_;
       ++file_counter_;
@@ -1996,8 +1976,8 @@ private:
                                                  false);
       get(dnn::pfCand_ele_pvAssociationQuality) =
           getValueLinear<int>(candFunc::getPvAssocationQuality(ele_cand), 0, 7, true);
-      get(dnn::pfCand_ele_puppiWeight) = is_inner ? getValue(candFunc::getPuppiWeight(ele_cand, 0.9906834491656403))
-                                                  : getValue(candFunc::getPuppiWeight(ele_cand, 0.9669585585362016));
+      get(dnn::pfCand_ele_puppiWeight) = is_inner ? getValue(candFunc::getPuppiWeight(ele_cand, 0.9906834f))
+                                                  : getValue(candFunc::getPuppiWeight(ele_cand, 0.9669586f));
       get(dnn::pfCand_ele_charge) = getValue(ele_cand.charge());
       get(dnn::pfCand_ele_lostInnerHits) = getValue<int>(candFunc::getLostInnerHits(ele_cand, 0));
       get(dnn::pfCand_ele_numberOfPixelHits) = getValueLinear(candFunc::getNumberOfPixelHits(ele_cand, 0), 0, 10, true);
@@ -2053,9 +2033,8 @@ private:
       get(dnn::pfCand_gamma_pvAssociationQuality) =
           getValueLinear<int>(candFunc::getPvAssocationQuality(gamma_cand), 0, 7, true);
       get(dnn::pfCand_gamma_fromPV) = getValueLinear<int>(candFunc::getFromPV(gamma_cand), 0, 3, true);
-      get(dnn::pfCand_gamma_puppiWeight) = is_inner
-                                               ? getValue(candFunc::getPuppiWeight(gamma_cand, 0.9084110126071017))
-                                               : getValue(candFunc::getPuppiWeight(gamma_cand, 0.4211567202095022));
+      get(dnn::pfCand_gamma_puppiWeight) = is_inner ? getValue(candFunc::getPuppiWeight(gamma_cand, 0.9084110f))
+                                                    : getValue(candFunc::getPuppiWeight(gamma_cand, 0.4211567f));
       get(dnn::pfCand_gamma_puppiWeightNoLep) =
           is_inner ? getValue(candFunc::getPuppiWeightNoLep(gamma_cand, 0.8857715703446466))
                    : getValue(candFunc::getPuppiWeightNoLep(gamma_cand, 0.38226042182344516));
@@ -2233,8 +2212,8 @@ private:
       get(dnn::pfCand_muon_pvAssociationQuality) =
           getValueLinear<int>(candFunc::getPvAssocationQuality(muon_cand), 0, 7, true);
       get(dnn::pfCand_muon_fromPV) = getValueLinear<int>(candFunc::getFromPV(muon_cand), 0, 3, true);
-      get(dnn::pfCand_muon_puppiWeight) = is_inner ? getValue(candFunc::getPuppiWeight(muon_cand, 0.9786587992075114))
-                                                   : getValue(candFunc::getPuppiWeight(muon_cand, 0.8132477355066846));
+      get(dnn::pfCand_muon_puppiWeight) = is_inner ? getValue(candFunc::getPuppiWeight(muon_cand, 0.9786588f))
+                                                   : getValue(candFunc::getPuppiWeight(muon_cand, 0.8132477f));
       get(dnn::pfCand_muon_charge) = getValue(muon_cand.charge());
       get(dnn::pfCand_muon_lostInnerHits) = getValue<int>(candFunc::getLostInnerHits(muon_cand, 0));
       get(dnn::pfCand_muon_numberOfPixelHits) =
@@ -2385,11 +2364,14 @@ private:
       get(dnn::pfCand_chHad_pvAssociationQuality) =
           getValueLinear<int>(candFunc::getPvAssocationQuality(chH_cand), 0, 7, true);
       get(dnn::pfCand_chHad_fromPV) = getValueLinear<int>(candFunc::getFromPV(chH_cand), 0, 3, true);
-      get(dnn::pfCand_chHad_puppiWeight) = is_inner ? getValue(candFunc::getPuppiWeight(chH_cand, 0.7614090152166456))
-                                                    : getValue(candFunc::getPuppiWeight(chH_cand, 0.19749304616790136));
+      const float default_chH_pw_inner = 0.7614090f;
+      const float default_chH_pw_outer = 0.1974930f;
+      get(dnn::pfCand_chHad_puppiWeight) = is_inner
+                                               ? getValue(candFunc::getPuppiWeight(chH_cand, default_chH_pw_inner))
+                                               : getValue(candFunc::getPuppiWeight(chH_cand, default_chH_pw_outer));
       get(dnn::pfCand_chHad_puppiWeightNoLep) =
-          is_inner ? getValue(candFunc::getPuppiWeightNoLep(chH_cand, 0.7614090152166456))
-                   : getValue(candFunc::getPuppiWeightNoLep(chH_cand, 0.1974930285484762));
+          is_inner ? getValue(candFunc::getPuppiWeightNoLep(chH_cand, default_chH_pw_inner))
+                   : getValue(candFunc::getPuppiWeightNoLep(chH_cand, default_chH_pw_outer));
       get(dnn::pfCand_chHad_charge) = getValue(chH_cand.charge());
       get(dnn::pfCand_chHad_lostInnerHits) = getValue<int>(candFunc::getLostInnerHits(chH_cand, 0));
       get(dnn::pfCand_chHad_numberOfPixelHits) =
@@ -2451,11 +2433,10 @@ private:
                                                   false);
       get(dnn::pfCand_nHad_dphi) = getValueLinear(
           dPhi(tau.polarP4(), pfCands.at(index_nH).polarP4()), is_inner ? -0.1f : -0.5f, is_inner ? 0.1f : 0.5f, false);
-      get(dnn::pfCand_nHad_puppiWeight) = is_inner ? getValue(candFunc::getPuppiWeight(nH_cand, 0.9798355015070453))
-                                                   : getValue(candFunc::getPuppiWeight(nH_cand, 0.7813259907969798));
-      get(dnn::pfCand_nHad_puppiWeightNoLep) =
-          is_inner ? getValue(candFunc::getPuppiWeightNoLep(nH_cand, 0.904679624793647))
-                   : getValue(candFunc::getPuppiWeightNoLep(nH_cand, 0.6554859776412667));
+      get(dnn::pfCand_nHad_puppiWeight) = is_inner ? getValue(candFunc::getPuppiWeight(nH_cand, 0.9798355f))
+                                                   : getValue(candFunc::getPuppiWeight(nH_cand, 0.7813260f));
+      get(dnn::pfCand_nHad_puppiWeightNoLep) = is_inner ? getValue(candFunc::getPuppiWeightNoLep(nH_cand, 0.9046796f))
+                                                        : getValue(candFunc::getPuppiWeightNoLep(nH_cand, 0.6554860f));
       float hcal_fraction = candFunc::getHCalFraction(nH_cand, disable_hcalFraction_workaround_);
       get(dnn::pfCand_nHad_hcalFraction) = getValue(hcal_fraction);
     }
@@ -2827,8 +2808,6 @@ private:
   std::unique_ptr<tensorflow::Tensor> tauBlockTensor_;
   std::array<std::unique_ptr<tensorflow::Tensor>, 2> eGammaTensor_, muonTensor_, hadronsTensor_, convTensor_,
       zeroOutputTensor_;
-  CellGrid* inner_grid_;
-  CellGrid* outer_grid_;
   const bool save_inputs_;
   std::ofstream* json_file_;
   mutable bool is_first_block_;
