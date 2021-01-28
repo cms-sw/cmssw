@@ -1,10 +1,12 @@
 #include "RecoPPS/Local/interface/CTPPSPixelRecHitProducer.h"
 
-CTPPSPixelRecHitProducer::CTPPSPixelRecHitProducer(const edm::ParameterSet &conf) : param_(conf), cluster2hit_(conf) {
+CTPPSPixelRecHitProducer::CTPPSPixelRecHitProducer(const edm::ParameterSet &conf) : param_(conf), cluster2hit_(conf)  {
   src_ = conf.getParameter<edm::InputTag>("RPixClusterTag");
   verbosity_ = conf.getUntrackedParameter<int>("RPixVerbosity");
   tokenCTPPSPixelCluster_ = consumes<edm::DetSetVector<CTPPSPixelCluster> >(src_);
   produces<edm::DetSetVector<CTPPSPixelRecHit> >();
+  pixelTopologyToken_ = esConsumes<PPSPixelTopology, PPSPixelTopologyRcd>();
+
 }
 
 CTPPSPixelRecHitProducer::~CTPPSPixelRecHitProducer() {}
@@ -20,22 +22,28 @@ void CTPPSPixelRecHitProducer::produce(edm::Event &iEvent, const edm::EventSetup
   edm::Handle<edm::DetSetVector<CTPPSPixelCluster> > rpCl;
   iEvent.getByToken(tokenCTPPSPixelCluster_, rpCl);
 
+  edm::ESHandle<PPSPixelTopology> thePixelTopology = iSetup.getHandle(pixelTopologyToken_);
+
   edm::DetSetVector<CTPPSPixelRecHit> output;
 
   // run reconstruction
   if (!rpCl->empty())
-    run(*rpCl, output);
+    run(*rpCl, output, *thePixelTopology);
 
   iEvent.put(std::make_unique<edm::DetSetVector<CTPPSPixelRecHit> >(output));
+
+//  std::cout << (*thePixelTopology) << std::endl;
+
 }
 
 void CTPPSPixelRecHitProducer::run(const edm::DetSetVector<CTPPSPixelCluster> &input,
-                                   edm::DetSetVector<CTPPSPixelRecHit> &output) {
+                                   edm::DetSetVector<CTPPSPixelRecHit> &output,
+				   const PPSPixelTopology &ppt) {
   for (const auto &ds_cluster : input) {
     edm::DetSet<CTPPSPixelRecHit> &ds_rechit = output.find_or_insert(ds_cluster.id);
 
     //calculate the cluster parameters and convert it into a rechit
-    cluster2hit_.buildHits(ds_cluster.id, ds_cluster.data, ds_rechit.data);
+    cluster2hit_.buildHits(ds_cluster.id, ds_cluster.data, ds_rechit.data, ppt);
   }
 }
 
