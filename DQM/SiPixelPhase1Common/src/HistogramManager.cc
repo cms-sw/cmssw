@@ -32,7 +32,8 @@ HistogramManager::HistogramManager(const edm::ParameterSet& iconfig, GeometryInt
       range_x_max(iconfig.getParameter<double>("range_max")),
       range_y_nbins(iconfig.getParameter<int>("range_y_nbins")),
       range_y_min(iconfig.getParameter<double>("range_y_min")),
-      range_y_max(iconfig.getParameter<double>("range_y_max")) {
+      range_y_max(iconfig.getParameter<double>("range_y_max")),
+      statsOverflows(iconfig.getParameter<bool>("statsOverflows")) {
   auto spec_configs = iconfig.getParameter<edm::VParameterSet>("specs");
   for (const auto& spec : spec_configs) {
     // this would fit better in SummationSpecification(...), but it has to
@@ -295,6 +296,7 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
     GeometryInterface::Value binwidth_y = 0;
     std::string title, xlabel, ylabel, zlabel;
     bool do_profile = false;
+    bool statsOverflows = true;;
   };
   std::map<GeometryInterface::Values, MEInfo> toBeBooked;
 
@@ -342,6 +344,7 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
         // create new histo
         MEInfo& mei = toBeBooked[significantvalues];
         mei.title = this->title;
+	mei.statsOverflows = this->statsOverflows;
         if (bookCounters)
           mei.title =
               "Number of " + mei.title + " per Event and " + geometryInterface.pretty(*(s.steps[0].columns.end() - 1));
@@ -518,6 +521,7 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
         assert(!"Illegal Histogram kind.");
       }
       h.th1 = h.me->getTH1();
+      h.me->setStatOverflows(mei.statsOverflows);
     }
   }
 }
@@ -585,14 +589,18 @@ void HistogramManager::executeGroupBy(SummationStep const& step,
     if (!new_histo.me) {
       auto name = makePathName(s, significantvalues, &step);
       iBooker.setCurrentFolder(name.first);
-      if (dynamic_cast<TH1F*>(th1))
+      if (dynamic_cast<TH1F*>(th1)){
         new_histo.me = iBooker.book1D(name.second, (TH1F*)th1);
-      else if (dynamic_cast<TH2F*>(th1))
+      }
+      else if (dynamic_cast<TH2F*>(th1)){
         new_histo.me = iBooker.book2D(name.second, (TH2F*)th1);
-      else if (dynamic_cast<TProfile*>(th1))
+      }
+      else if (dynamic_cast<TProfile*>(th1)){
         new_histo.me = iBooker.bookProfile(name.second, (TProfile*)th1);
-      else if (dynamic_cast<TProfile2D*>(th1))
+      }
+      else if (dynamic_cast<TProfile2D*>(th1)){
         new_histo.me = iBooker.bookProfile2D(name.second, (TProfile2D*)th1);
+      }
       else
         assert(!"No idea how to book this.");
       new_histo.th1 = new_histo.me->getTH1();
@@ -600,6 +608,8 @@ void HistogramManager::executeGroupBy(SummationStep const& step,
     } else {
       new_histo.th1->Add(th1);
     }
+    new_histo.me->setStatOverflows(e.second.me->getStatOverflows());
+
   }
   t.swap(out);
 }
@@ -681,6 +691,7 @@ void HistogramManager::executeExtend(SummationStep const& step,
       } else {
         assert(!"Reduction type not supported");
       }
+      new_histo.me->setStatOverflows(e.second.me->getStatOverflows());	  
     } else {
       assert(!"2D extend not implemented in harvesting.");
     }
