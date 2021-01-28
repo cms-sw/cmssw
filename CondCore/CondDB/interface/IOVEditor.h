@@ -45,6 +45,9 @@ namespace cond {
       //
       IOVEditor& operator=(const IOVEditor& rhs);
 
+      //
+      ~IOVEditor();
+
       // loads to tag to edit
       void load(const std::string& tag);
 
@@ -66,9 +69,6 @@ namespace cond {
       cond::Time_t lastValidatedTime() const;
       void setLastValidatedTime(cond::Time_t time);
 
-      // flag (hack) for the validation
-      void setValidationMode();
-
       // register a new insertion.
       // if checkType==true, the payload corresponding to the specified id is verified to be the same type as the iov payloadObjectType
       void insert(cond::Time_t since, const cond::Hash& payloadHash, bool checkType = false);
@@ -85,6 +85,10 @@ namespace cond {
       bool flush(const boost::posix_time::ptime& operationTime);
       bool flush(const std::string& logText);
       bool flush(const std::string& logText, bool forceInsertion);
+
+      bool isLocked() const;
+      void lock();
+      void unlock();
 
     private:
       bool flush(const std::string& logText, const boost::posix_time::ptime& operationTime, bool forceInsertion);
