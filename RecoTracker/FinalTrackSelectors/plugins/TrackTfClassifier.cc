@@ -20,13 +20,7 @@ namespace {
 
     {}
 
-    ~TfDnn() {
-      if (session_ != nullptr) {
-        tensorflow::closeSession(session_);
-      }
-    }
-
-    static const char* name() { return "TrackTfClassifier"; }
+    static const char* name() { return "TrackTfClassifier"; }    
 
     static void fillDescriptions(edm::ParameterSetDescription& desc) {
       desc.add<std::string>("tfDnnLabel", "trackSelectionTf");
@@ -38,9 +32,7 @@ namespace {
       if (session_ == nullptr) {
         edm::ESHandle<TfGraphDefWrapper> tfDnnHandle;
         es.get<TfGraphRecord>().get(tfDnnLabel_, tfDnnHandle);
-        const tensorflow::GraphDef* graphDef_ = tfDnnHandle.product()->getGraphDef();
-        session_ = tensorflow::createSession(graphDef_,
-                                             1);  //The integer controls how many threads are used for running inference
+        session_ = tfDnnHandle.product()->getSession();
       }
     }
 
@@ -97,15 +89,14 @@ namespace {
       std::vector<tensorflow::Tensor> outputs;
 
       //evaluate the input
-      tensorflow::run(session_, inputs, {"Identity"}, &outputs);
-
+      tensorflow::run(const_cast<tensorflow::Session*>(session_), inputs, {"Identity"}, &outputs);
       //scale output to be [-1, 1] due to convention
       float output = 2.0 * outputs[0].matrix<float>()(0, 0) - 1.0;
       return output;
     }
 
     const std::string tfDnnLabel_;
-    tensorflow::Session* session_;
+    const tensorflow::Session* session_;
   };
 
   using TrackTfClassifier = TrackMVAClassifier<TfDnn>;

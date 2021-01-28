@@ -5,12 +5,12 @@
 
 class TfGraphDefWrapper {
 public:
-  TfGraphDefWrapper(tensorflow::GraphDef*);
-
-  const tensorflow::GraphDef* getGraphDef() const;
+  TfGraphDefWrapper(tensorflow::Session*);
+  ~TfGraphDefWrapper() { tensorflow::closeSession(session_); };
+  const tensorflow::Session* getSession() const;
 
 private:
-  std::unique_ptr<tensorflow::GraphDef> graphDef_;
+  tensorflow::Session* session_;
 };
 
 #endif
