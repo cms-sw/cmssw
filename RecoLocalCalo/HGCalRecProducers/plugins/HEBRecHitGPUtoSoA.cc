@@ -1,7 +1,7 @@
 #include "HEBRecHitGPUtoSoA.h"
 
 HEBRecHitGPUtoSoA::HEBRecHitGPUtoSoA(const edm::ParameterSet& ps)
-    : recHitGPUToken_{consumes<cms::cuda::Product<RecHitGPUProduct>>(
+    : recHitGPUToken_{consumes<cms::cuda::Product<HGCRecHitGPUProduct>>(
           ps.getParameter<edm::InputTag>("HEBRecHitGPUTok"))},
       recHitCPUSoAToken_(produces<HGCRecHitSoA>()) {
   d_calibSoA_ = new HGCRecHitSoA();

@@ -34,7 +34,7 @@ std::string HEBRecHitGPU::assert_error_message_(std::string var, const size_t& s
 }
 
 void HEBRecHitGPU::assert_sizes_constants_(const HGCConstantVectorData& vd) {
-  if (vdata_.weights_.size() > maxsizes_constants::heb_weights)
+  if (vdata_.weights_.size() > HGChebUncalibratedRecHitConstantData::heb_weights)
     cms::cuda::LogError("MaxSizeExceeded") << this->assert_error_message_("weights", vdata_.fCPerMIP_.size());
 }
 

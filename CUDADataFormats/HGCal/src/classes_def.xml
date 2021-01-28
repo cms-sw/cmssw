@@ -1,6 +1,6 @@
 <lcgdict>
-  <class name="cms::cuda::Product<RecHitGPUProduct>" persistent="false"/>
-  <class name="edm::Wrapper<cms::cuda::Product<RecHitGPUProduct>>" persistent="false"/>
+  <class name="cms::cuda::Product<HGCRecHitGPUProduct>" persistent="false"/>
+  <class name="edm::Wrapper<cms::cuda::Product<HGCRecHitGPUProduct>>" persistent="false"/>
 
   <class name="HGCRecHitSoA" persistent="false"/>
   <class name="edm::Wrapper<HGCRecHitSoA>" persistent="false"/>

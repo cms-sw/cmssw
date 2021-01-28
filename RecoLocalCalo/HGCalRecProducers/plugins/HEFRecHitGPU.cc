@@ -41,21 +41,21 @@ std::string HEFRecHitGPU::assert_error_message_(std::string var, const size_t& s
 }
 
 void HEFRecHitGPU::assert_sizes_constants_(const HGCConstantVectorData& vd) {
-  if (vdata_.fCPerMIP_.size() > maxsizes_constants::hef_fCPerMIP)
+  if (vdata_.fCPerMIP_.size() > HGChefUncalibratedRecHitConstantData::hef_fCPerMIP)
     cms::cuda::LogError("WrongSize") << this->assert_error_message_(
-        "fCPerMIP", maxsizes_constants::hef_fCPerMIP, vdata_.fCPerMIP_.size());
-  else if (vdata_.cce_.size() > maxsizes_constants::hef_cce)
+        "fCPerMIP", HGChefUncalibratedRecHitConstantData::hef_fCPerMIP, vdata_.fCPerMIP_.size());
+  else if (vdata_.cce_.size() > HGChefUncalibratedRecHitConstantData::hef_cce)
     cms::cuda::LogError("WrongSize") << this->assert_error_message_(
-        "cce", maxsizes_constants::hef_cce, vdata_.cce_.size());
-  else if (vdata_.noise_fC_.size() > maxsizes_constants::hef_noise_fC)
+        "cce", HGChefUncalibratedRecHitConstantData::hef_cce, vdata_.cce_.size());
+  else if (vdata_.noise_fC_.size() > HGChefUncalibratedRecHitConstantData::hef_noise_fC)
     cms::cuda::LogError("WrongSize") << this->assert_error_message_(
-        "noise_fC", maxsizes_constants::hef_noise_fC, vdata_.noise_fC_.size());
-  else if (vdata_.rcorr_.size() > maxsizes_constants::hef_rcorr)
+        "noise_fC", HGChefUncalibratedRecHitConstantData::hef_noise_fC, vdata_.noise_fC_.size());
+  else if (vdata_.rcorr_.size() > HGChefUncalibratedRecHitConstantData::hef_rcorr)
     cms::cuda::LogError("WrongSize") << this->assert_error_message_(
-        "rcorr", maxsizes_constants::hef_rcorr, vdata_.rcorr_.size());
-  else if (vdata_.weights_.size() > maxsizes_constants::hef_weights)
+        "rcorr", HGChefUncalibratedRecHitConstantData::hef_rcorr, vdata_.rcorr_.size());
+  else if (vdata_.weights_.size() > HGChefUncalibratedRecHitConstantData::hef_weights)
     cms::cuda::LogError("WrongSize") << this->assert_error_message_(
-        "weights", maxsizes_constants::hef_weights, vdata_.weights_.size());
+        "weights", HGChefUncalibratedRecHitConstantData::hef_weights, vdata_.weights_.size());
 }
 
 void HEFRecHitGPU::beginRun(edm::Run const&, edm::EventSetup const& setup) {}

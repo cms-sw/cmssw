@@ -5,7 +5,7 @@
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "HGCalRecHitKernelImpl.cuh"
 
-__device__ float get_weight_from_layer(const int32_t& layer, const double (&weights)[hef_weights]) {
+__device__ float get_weight_from_layer(const int32_t& layer, const double (&weights)[HGChefUncalibratedRecHitConstantData::hef_weights]) {
   return (float)weights[layer];
 }
 
@@ -67,19 +67,19 @@ __device__ void make_rechit_scintillator(unsigned tid,
   dst_soa.timeError_[tid] = -1;
 }
 
-__device__ float get_thickness_correction(const int& type, const double (&rcorr)[hef_rcorr]) {
+__device__ float get_thickness_correction(const int& type, const double (&rcorr)[HGChefUncalibratedRecHitConstantData::hef_rcorr]) {
   return __fdividef(1.f, (float)rcorr[type]);
 }
 
-__device__ float get_noise(const int& type, const double (&noise_fC)[hef_noise_fC]) {
+__device__ float get_noise(const int& type, const double (&noise_fC)[HGChefUncalibratedRecHitConstantData::hef_noise_fC]) {
   return (float)noise_fC[type];
 }
 
-__device__ float get_cce_correction(const int& type, const double (&cce)[hef_cce]) {
+__device__ float get_cce_correction(const int& type, const double (&cce)[HGChefUncalibratedRecHitConstantData::hef_cce]) {
   return (float)cce[type];
 }
 
-__device__ float get_fCPerMIP(const int& type, const double (&fCPerMIP)[hef_fCPerMIP]) {
+__device__ float get_fCPerMIP(const int& type, const double (&fCPerMIP)[HGChefUncalibratedRecHitConstantData::hef_fCPerMIP]) {
   return (float)fCPerMIP[type];
 }
 
