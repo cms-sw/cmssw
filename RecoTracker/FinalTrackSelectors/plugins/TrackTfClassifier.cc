@@ -20,7 +20,7 @@ namespace {
 
     {}
 
-    static const char* name() { return "TrackTfClassifier"; }    
+    static const char* name() { return "TrackTfClassifier"; }
 
     static void fillDescriptions(edm::ParameterSetDescription& desc) {
       desc.add<std::string>("tfDnnLabel", "trackSelectionTf");
