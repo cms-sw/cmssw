@@ -11,7 +11,7 @@ autoCond = {
     'run1_mc_pa'        :   '113X_mcRun1_pA_v1',
     # GlobalTag for MC production with pessimistic alignment and calibrations for Run2
     'run2_mc_50ns'      :   '113X_mcRun2_startup_v1',
-    # GlobalTag for MC production (L1 Trigger Stage1) with starup-like alignment and calibrations for Run2, L1 trigger in Stage1 mode
+    # GlobalTag for MC production (2015 L1 Trigger Stage1) with startup-like alignment and calibrations for Run2, L1 trigger in Stage1 mode
     'run2_mc_l1stage1'  :   '113X_mcRun2_asymptotic_l1stage1_v2',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run2
     'run2_design'       :   '113X_mcRun2_design_v2',
