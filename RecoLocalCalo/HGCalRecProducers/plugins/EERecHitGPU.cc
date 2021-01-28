@@ -40,21 +40,21 @@ std::string EERecHitGPU::assert_error_message_(std::string var, const size_t& s1
 }
 
 void EERecHitGPU::assert_sizes_constants_(const HGCConstantVectorData& vd) {
-  if (vdata_.fCPerMIP_.size() > maxsizes_constants::ee_fCPerMIP)
+  if (vdata_.fCPerMIP_.size() > HGCeeUncalibratedRecHitConstantData::ee_fCPerMIP)
     cms::cuda::LogError("WrongSize") << this->assert_error_message_(
-        "fCPerMIP", maxsizes_constants::hef_fCPerMIP, vdata_.fCPerMIP_.size());
-  else if (vdata_.cce_.size() > maxsizes_constants::ee_cce)
+        "fCPerMIP", HGCeeUncalibratedRecHitConstantData::ee_fCPerMIP, vdata_.fCPerMIP_.size());
+  else if (vdata_.cce_.size() > HGCeeUncalibratedRecHitConstantData::ee_cce)
     cms::cuda::LogError("WrongSize") << this->assert_error_message_(
-        "cce", maxsizes_constants::ee_cce, vdata_.cce_.size());
-  else if (vdata_.noise_fC_.size() > maxsizes_constants::ee_noise_fC)
+        "cce", HGCeeUncalibratedRecHitConstantData::ee_cce, vdata_.cce_.size());
+  else if (vdata_.noise_fC_.size() > HGCeeUncalibratedRecHitConstantData::ee_noise_fC)
     cms::cuda::LogError("WrongSize") << this->assert_error_message_(
-        "noise_fC", maxsizes_constants::ee_noise_fC, vdata_.noise_fC_.size());
-  else if (vdata_.rcorr_.size() > maxsizes_constants::ee_rcorr)
+        "noise_fC", HGCeeUncalibratedRecHitConstantData::ee_noise_fC, vdata_.noise_fC_.size());
+  else if (vdata_.rcorr_.size() > HGCeeUncalibratedRecHitConstantData::ee_rcorr)
     cms::cuda::LogError("WrongSize") << this->assert_error_message_(
-        "rcorr", maxsizes_constants::ee_rcorr, vdata_.rcorr_.size());
-  else if (vdata_.weights_.size() > maxsizes_constants::ee_weights)
+        "rcorr", HGCeeUncalibratedRecHitConstantData::ee_rcorr, vdata_.rcorr_.size());
+  else if (vdata_.weights_.size() > HGCeeUncalibratedRecHitConstantData::ee_weights)
     cms::cuda::LogError("WrongSize") << this->assert_error_message_(
-        "weights", maxsizes_constants::ee_weights, vdata_.weights_.size());
+        "weights", HGCeeUncalibratedRecHitConstantData::ee_weights, vdata_.weights_.size());
 }
 
 void EERecHitGPU::beginRun(edm::Run const&, edm::EventSetup const& setup) {}
