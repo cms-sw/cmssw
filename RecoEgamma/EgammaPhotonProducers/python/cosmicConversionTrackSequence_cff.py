@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # Conversion Track candidate producer 
-from RecoEgamma.EgammaPhotonProducers.conversionTrackCandidates_cfi import *
+from RecoEgamma.EgammaPhotonProducers.conversionTrackCandidates_cff import *
 conversionTrackCandidates.scHybridBarrelProducer = cms.InputTag("cosmicSuperClusters","CosmicBarrelSuperClusters")
 conversionTrackCandidates.scIslandEndcapProducer = cms.InputTag("cosmicSuperClusters","CosmicEndcapSuperClusters")
 conversionTrackCandidates.bcBarrelCollection = cms.InputTag("cosmicBasicClusters","CosmicBarrelBasicClusters")
