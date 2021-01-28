@@ -180,11 +180,13 @@ namespace l1tVertexFinder {
     }
 
     if (settings.debug() > 0)
-      edm::LogInfo("InputData") << "InputData::" << vertices_.size() << " pileup vertices in the event, " << recoVertices_.size() << " reconstructable";
+      edm::LogInfo("InputData") << "InputData::" << vertices_.size() << " pileup vertices in the event, "
+                                << recoVertices_.size() << " reconstructable";
 
     vertex_.computeParameters();
     if (settings.debug() > 2)
-      edm::LogInfo("InputData") << "InputData::Vertex " << vertex_.z0() << " containing " << vertex_.numTracks() << " total pT " << vertex_.pT();
+      edm::LogInfo("InputData") << "InputData::Vertex " << vertex_.z0() << " containing " << vertex_.numTracks()
+                                << " total pT " << vertex_.pT();
 
     for (unsigned int i = 0; i < vertices_.size(); ++i) {
       vertices_[i].computeParameters();
@@ -201,7 +203,7 @@ namespace l1tVertexFinder {
     edm::Handle<edm::HepMCProduct> HepMCEvt;
     iEvent.getByToken(hepMCToken, HepMCEvt);
 
-    edm::Handle<edm::View<reco::GenParticle> > GenParticleHandle;
+    edm::Handle<edm::View<reco::GenParticle>> GenParticleHandle;
     iEvent.getByToken(genParticlesToken, GenParticleHandle);
 
     if (HepMCEvt.isValid()) {
@@ -224,14 +226,14 @@ namespace l1tVertexFinder {
           continue;
         // Get the position of the vertex
         HepMC::FourVector pos = (*ivertex)->position();
-        const double mm = 0.1; // [mm] --> [cm]
+        const double mm = 0.1;  // [mm] --> [cm]
         hepMCVertex_ = Vertex(pos.z() * mm);
         break;  // there should be one single primary vertex
       }         // end loop over gen vertices
     }
     if (GenParticleHandle.isValid()) {
       for (const auto& genpart : *GenParticleHandle) {
-        if ( (genpart.status() != 3) || (genpart.numberOfMothers() == 0) ) // not stable or one of the incoming hadrons
+        if ((genpart.status() != 3) || (genpart.numberOfMothers() == 0))  // not stable or one of the incoming hadrons
           continue;
         genVertex_ = Vertex(genpart.vz());
         break;

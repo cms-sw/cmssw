@@ -209,7 +209,8 @@ namespace l1tVertexFinder {
   VertexNTupler::VertexNTupler(const edm::ParameterSet& iConfig)
       : pileupSummaryToken_(consumes<std::vector<PileupSummaryInfo>>(edm::InputTag("addPileupInfo"))),
         hepMCToken_(consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("hepMCInputTag"))),
-        genParticlesToken_(consumes<edm::View<reco::GenParticle>>(iConfig.getParameter<edm::InputTag>("genParticleInputTag"))),
+        genParticlesToken_(
+            consumes<edm::View<reco::GenParticle>>(iConfig.getParameter<edm::InputTag>("genParticleInputTag"))),
         tpToken_(consumes<TrackingParticleCollection>(iConfig.getParameter<edm::InputTag>("tpInputTag"))),
         stubToken_(consumes<DetSetVec>(iConfig.getParameter<edm::InputTag>("stubInputTag"))),
         stubTruthToken_(consumes<TTStubAssMap>(iConfig.getParameter<edm::InputTag>("stubTruthInputTag"))),
@@ -439,7 +440,15 @@ namespace l1tVertexFinder {
     }
 
     // Note useful info about MC truth particles and about reconstructed stubs
-    InputData inputData(iEvent, iSetup, settings_, hepMCToken_, genParticlesToken_, tpToken_, stubToken_, stubTruthToken_, clusterTruthToken_);
+    InputData inputData(iEvent,
+                        iSetup,
+                        settings_,
+                        hepMCToken_,
+                        genParticlesToken_,
+                        tpToken_,
+                        stubToken_,
+                        stubTruthToken_,
+                        clusterTruthToken_);
 
     // Get the tracker geometry info needed to unpack the stub info.
     edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
@@ -631,12 +640,16 @@ namespace l1tVertexFinder {
       }
 
       if (printResults_) {
-        edm::LogInfo("VertexNTupler") << "analyze::" << recoVertices.size() << " '" << tokenMapEntry.first << "' vertices were found ... ";
+        edm::LogInfo("VertexNTupler") << "analyze::" << recoVertices.size() << " '" << tokenMapEntry.first
+                                      << "' vertices were found ... ";
         for (const auto& vtx : recoVertices) {
-          edm::LogInfo("VertexNTupler") << "analyze::" << "  * z0 = " << vtx->z0() << "; contains " << vtx->numTracks() << " tracks ...";
+          edm::LogInfo("VertexNTupler") << "analyze::"
+                                        << "  * z0 = " << vtx->z0() << "; contains " << vtx->numTracks()
+                                        << " tracks ...";
           for (const auto& trackPtr : vtx->tracks())
-            edm::LogInfo("VertexNTupler") << "analyze::" << "     - z0 = " << trackPtr->z0() << "; pt = " << trackPtr->pt()
-                      << ", eta = " << trackPtr->eta() << ", phi = " << trackPtr->phi0();
+            edm::LogInfo("VertexNTupler") << "analyze::"
+                                          << "     - z0 = " << trackPtr->z0() << "; pt = " << trackPtr->pt()
+                                          << ", eta = " << trackPtr->eta() << ", phi = " << trackPtr->phi0();
         }
       }
     }

@@ -15,7 +15,8 @@ VertexProducer::VertexProducer(const edm::ParameterSet& iConfig)
       edm::LogInfo("VertexProducer") << "VertexProducer::Finding vertices using the FastHisto binning algorithm";
       break;
     case Algorithm::FastHistoLooseAssociation:
-      edm::LogInfo("VertexProducer") << "VertexProducer::Finding vertices using the FastHistoLooseAssociation binning algorithm";
+      edm::LogInfo("VertexProducer")
+          << "VertexProducer::Finding vertices using the FastHistoLooseAssociation binning algorithm";
       break;
     case Algorithm::GapClustering:
       edm::LogInfo("VertexProducer") << "VertexProducer::Finding vertices using a gap clustering algorithm";
@@ -30,7 +31,8 @@ VertexProducer::VertexProducer(const edm::ParameterSet& iConfig)
       edm::LogInfo("VertexProducer") << "VertexProducer::Finding vertices using a PVR algorithm";
       break;
     case Algorithm::AdaptiveVertexReconstruction:
-      edm::LogInfo("VertexProducer") << "VertexProducer::Finding vertices using an AdaptiveVertexReconstruction algorithm";
+      edm::LogInfo("VertexProducer")
+          << "VertexProducer::Finding vertices using an AdaptiveVertexReconstruction algorithm";
       break;
     case Algorithm::HPV:
       edm::LogInfo("VertexProducer") << "VertexProducer::Finding vertices using a Highest Pt Vertex algorithm";
@@ -74,12 +76,11 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   VertexFinder vf(l1TrackPtrs, settings_);
 
   switch (settings_.vx_algo()) {
-    case Algorithm::FastHisto:
-      {
-        edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopologyToken_);
-        vf.FastHisto(tTopoHandle.product());
-        break;
-      }
+    case Algorithm::FastHisto: {
+      edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopologyToken_);
+      vf.FastHisto(tTopoHandle.product());
+      break;
+    }
     case Algorithm::FastHistoLooseAssociation:
       vf.FastHistoLooseAssociation();
       break;

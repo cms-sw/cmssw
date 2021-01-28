@@ -10,14 +10,12 @@ namespace l1tVertexFinder {
   class Vertex {
   public:
     // Fill useful info about tracking particle.
-    Vertex() {
-        Vertex(-999.);
-    }
+    Vertex() { Vertex(-999.); }
 
     Vertex(double vz) : vz_(vz) {
-        z0_ = -999.;
-        z0width_ = -999.;
-        pT_ = -999.;
+      z0_ = -999.;
+      z0width_ = -999.;
+      pT_ = -999.;
     }
 
     ~Vertex() {}

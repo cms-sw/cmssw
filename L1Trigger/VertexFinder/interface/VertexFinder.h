@@ -52,7 +52,7 @@ namespace l1tVertexFinder {
       if (pv_index_ < vertices_.size())
         return vertices_[pv_index_];
       else {
-        edm::LogWarning("VertexFinder")<<"PrimaryVertex::No Primary Vertex has been found.";
+        edm::LogWarning("VertexFinder") << "PrimaryVertex::No Primary Vertex has been found.";
         return RecoVertex();
       }
     }
@@ -100,12 +100,12 @@ namespace l1tVertexFinder {
     /// Number of iterations
     unsigned int IterationsPerTrack() const { return double(iterations_) / double(fitTracks_.size()); }
 
-    template<typename ForwardIterator, typename T>
+    template <typename ForwardIterator, typename T>
     void strided_iota(ForwardIterator first, ForwardIterator last, T value, T stride) {
-        while(first != last) {
-            *first++ = value;
-            value += stride;
-        }
+      while (first != last) {
+        *first++ = value;
+        value += stride;
+      }
     }
 
   private:

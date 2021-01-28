@@ -41,7 +41,7 @@ namespace l1tVertexFinder {
     /// Get primary vertex information (vertex from HepMCProduct)
     const Vertex& getHepMCVertex() const { return hepMCVertex_; }
     /// Get primary vertex information (vertex from gen particles)
-    const Vertex& getGenVertex() const { return genVertex_; } 
+    const Vertex& getGenVertex() const { return genVertex_; }
     /// Get primary vertex information (vertex from tracking particles)
     const Vertex& getPrimaryVertex() const { return vertex_; }
     /// Get pile-up vertices information
@@ -55,11 +55,11 @@ namespace l1tVertexFinder {
     const float genPt_PU() const { return genPt_PU_; }
 
   private:
-    std::vector<TP> vTPs_;  // tracking particles
-    Vertex hepMCVertex_;  // primary vertex from the edm::HepMCProduct
-    Vertex genVertex_;  // primary vertex formed from the gen particles collection
-    Vertex vertex_;  // primary vertex formed from the tracking particles
-    std::vector<Vertex> vertices_;  // pile-up vertices
+    std::vector<TP> vTPs_;              // tracking particles
+    Vertex hepMCVertex_;                // primary vertex from the edm::HepMCProduct
+    Vertex genVertex_;                  // primary vertex formed from the gen particles collection
+    Vertex vertex_;                     // primary vertex formed from the tracking particles
+    std::vector<Vertex> vertices_;      // pile-up vertices
     std::vector<Vertex> recoVertices_;  // reconstructable pile-up vertices
     std::vector<Stub>
         vAllStubs_;  // all stubs, even those that would fail any tightened front-end readout electronic cuts specified in section StubCuts of Analyze_Defaults_cfi.py. (Only used to measure

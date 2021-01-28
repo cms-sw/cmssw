@@ -219,7 +219,8 @@ namespace l1tVertexFinder {
         for (FitTrackCollection::iterator it = acceptedTracks.begin(); it < acceptedTracks.end(); ++it) {
           const L1Track* track = *it;
           iterations_++;
-          if (std::abs(track->z0() - z0start) > settings_->vx_distance() and std::abs(track->z0() - z0start) > oldDistance) {
+          if (std::abs(track->z0() - z0start) > settings_->vx_distance() and
+              std::abs(track->z0() - z0start) > oldDistance) {
             badTrackIt = it;
             oldDistance = std::abs(track->z0() - z0start);
             removing = true;
@@ -411,7 +412,8 @@ namespace l1tVertexFinder {
     float vxPt = 0.;
     RecoVertex leading_vertex;
 
-    for (float z = settings_->vx_histogram_min(); z < settings_->vx_histogram_max(); z += settings_->vx_histogram_binwidth()) {
+    for (float z = settings_->vx_histogram_min(); z < settings_->vx_histogram_max();
+         z += settings_->vx_histogram_binwidth()) {
       RecoVertex vertex;
       for (const L1Track* track : fitTracks_) {
         if (std::abs(z - track->z0()) < settings_->vx_width()) {
@@ -428,19 +430,23 @@ namespace l1tVertexFinder {
 
     vertices_.emplace_back(leading_vertex);
     pv_index_ = 0;  // by default FastHistoLooseAssociation algorithm finds only hard PV
-  } // end of FastHistoLooseAssociation
+  }                 // end of FastHistoLooseAssociation
 
   void VertexFinder::FastHisto(const TrackerTopology* tTopo) {
     // Create the histogram
-    int nbins = std::ceil((settings_->vx_histogram_max() - settings_->vx_histogram_min()) / settings_->vx_histogram_binwidth());
+    int nbins =
+        std::ceil((settings_->vx_histogram_max() - settings_->vx_histogram_min()) / settings_->vx_histogram_binwidth());
     std::vector<RecoVertex> hist(nbins);
-    std::vector<RecoVertex> sums(nbins-settings_->vx_windowSize());
-    std::vector<float> bounds(nbins+1);
-    strided_iota(std::begin(bounds), std::next(std::begin(bounds), nbins+1), settings_->vx_histogram_min(), settings_->vx_histogram_binwidth());
+    std::vector<RecoVertex> sums(nbins - settings_->vx_windowSize());
+    std::vector<float> bounds(nbins + 1);
+    strided_iota(std::begin(bounds),
+                 std::next(std::begin(bounds), nbins + 1),
+                 settings_->vx_histogram_min(),
+                 settings_->vx_histogram_binwidth());
 
     // Loop over the tracks and fill the histogram
     for (const L1Track* track : fitTracks_) {
-      if ( (track->z0() < settings_->vx_histogram_min()) || (track->z0() > settings_->vx_histogram_max()) )
+      if ((track->z0() < settings_->vx_histogram_min()) || (track->z0() > settings_->vx_histogram_max()))
         continue;
       if (track->getTTTrackPtr()->chi2() > settings_->vx_TrackMaxChi2())
         continue;
@@ -498,17 +504,18 @@ namespace l1tVertexFinder {
 
       // Assign the track to the correct vertex
       auto upper_bound = std::lower_bound(bounds.begin(), bounds.end(), track->z0());
-      int index = std::distance(bounds.begin(),upper_bound)-1;
+      int index = std::distance(bounds.begin(), upper_bound) - 1;
       hist.at(index).insert(track);
-    } // end loop over tracks
+    }  // end loop over tracks
 
     // Compute the sums
     // sliding windows ... sum_i_i+(w-1) where i in (0,nbins-w) and w is the window size
     for (unsigned int i = 0; i < sums.size(); i++) {
       for (unsigned int j = 0; j < settings_->vx_windowSize(); j++) {
-        sums.at(i) += hist.at(i+j);
+        sums.at(i) += hist.at(i + j);
       }
-      sums.at(i).computeParameters(settings_->vx_weightedmean(),settings_->vx_TrackMaxPt(),settings_->vx_TrackMaxPtBehavior());
+      sums.at(i).computeParameters(
+          settings_->vx_weightedmean(), settings_->vx_TrackMaxPt(), settings_->vx_TrackMaxPtBehavior());
     }
 
     // Find the maxima of the sums
@@ -521,7 +528,8 @@ namespace l1tVertexFinder {
       imax = -999;
       for (unsigned int i = 0; i < sums.size(); i++) {
         // Skip this window if it will already be returned
-        if (find(found.begin(), found.end(), i) != found.end()) continue;        
+        if (find(found.begin(), found.end(), i) != found.end())
+          continue;
         if (sums.at(i).pT() > sigma_max) {
           sigma_max = sums.at(i).pT();
           imax = i;
@@ -530,7 +538,7 @@ namespace l1tVertexFinder {
       found.push_back(imax);
       vertices_.emplace_back(sums.at(imax));
     }
-    pv_index_ = 0; 
-  } // end of FastHisto
+    pv_index_ = 0;
+  }  // end of FastHisto
 
-} // namespace l1tVertexFinder
+}  // namespace l1tVertexFinder
