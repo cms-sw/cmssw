@@ -42,10 +42,12 @@ SiStripAnalyser::SiStripAnalyser(edm::ParameterSet const& ps)
       shiftReportFrequency_{ps.getUntrackedParameter<int>("ShiftReportFrequency", 1)},
       rawDataToken_{consumes<FEDRawDataCollection>(ps.getUntrackedParameter<edm::InputTag>("RawDataTag"))},
       detCablingToken_(esConsumes<edm::Transition::BeginRun>()),
+      tTopoToken_(esConsumes()),
       tTopoTokenELB_(esConsumes<edm::Transition::EndLuminosityBlock>()),
-      tTopoTokenER_(esConsumes<edm::Transition::EndRun>()),
+      tTopoTokenBR_(esConsumes<edm::Transition::BeginRun>()),
+      tkDetMapToken_(esConsumes()),
       tkDetMapTokenELB_(esConsumes<edm::Transition::EndLuminosityBlock>()),
-      tkDetMapTokenER_(esConsumes<edm::Transition::EndRun>()),
+      tkDetMapTokenBR_(esConsumes<edm::Transition::BeginRun>()),
       printFaultyModuleList_{ps.getUntrackedParameter<bool>("PrintFaultyModuleList", true)} {
   std::string const localPath{"DQM/SiStripMonitorClient/test/loader.html"};
   std::ifstream fin{edm::FileInPath(localPath).fullPath(), std::ios::in};
@@ -76,7 +78,7 @@ void SiStripAnalyser::beginRun(edm::Run const& run, edm::EventSetup const& eSetu
                                     << " Change in Cabling, recrated TrackerMap";
     detCabling_ = &eSetup.getData(detCablingToken_);
     if (!actionExecutor_.readTkMapConfiguration(
-            detCabling_, &eSetup.getData(tkDetMapTokenER_), &eSetup.getData(tTopoTokenER_))) {
+            detCabling_, &eSetup.getData(tkDetMapTokenBR_), &eSetup.getData(tTopoTokenBR_))) {
       edm::LogInfo("SiStripAnalyser") << "SiStripAnalyser:: Error to read configuration file!! TrackerMap "
                                          "will not be produced!!!";
     }
@@ -101,8 +103,7 @@ void SiStripAnalyser::analyze(edm::Event const& e, edm::EventSetup const& eSetup
       actionExecutor_.createDummyShiftReport();
     } else {
       auto& dqm_store = *edm::Service<DQMStore>{};
-      actionExecutor_.fillStatus(
-          dqm_store, detCabling_, &eSetup.getData(tkDetMapTokenELB_), &eSetup.getData(tTopoTokenELB_));
+      actionExecutor_.fillStatus(dqm_store, detCabling_, &eSetup.getData(tkDetMapToken_), &eSetup.getData(tTopoToken_));
       if (shiftReportFrequency_ != -1)
         actionExecutor_.createShiftReport(dqm_store);
     }
