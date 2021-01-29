@@ -68,8 +68,8 @@ private:
   const SiStripDetCabling* detCabling_;
   edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> detCablingToken_;
   edm::ESWatcher<SiStripFedCablingRcd> fedCablingWatcher_;
-  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoTokenELB_, tTopoTokenER_;
-  edm::ESGetToken<TkDetMap, TrackerTopologyRcd> tkDetMapTokenELB_, tkDetMapTokenER_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_, tTopoTokenELB_, tTopoTokenBR_;
+  edm::ESGetToken<TkDetMap, TrackerTopologyRcd> tkDetMapToken_, tkDetMapTokenELB_, tkDetMapTokenBR_;
   edm::ESGetToken<SiStripQuality, SiStripQualityRcd> stripQualityToken_;
 
   int nLumiSecs_{};
